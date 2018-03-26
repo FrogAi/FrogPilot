@@ -4,6 +4,7 @@
 //
 // Define below GUIDs
 //
+#include "stdafx.h"
 #include <initguid.h>
 #include <unordered_map>
 
