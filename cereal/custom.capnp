@@ -13,6 +13,8 @@ struct FrogPilotCarControl @0x81c2f05a394cf4af {
 }
 
 struct FrogPilotDeviceState @0xaedffd8f31e7b55d {
+  freeSpace @0 :Int16;
+  usedSpace @1 :Int16;
 }
 
 struct FrogPilotNavigation @0xf35cc4560bbf6ec2 {
