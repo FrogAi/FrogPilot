@@ -178,6 +178,58 @@ void OnroadWindow::primeChanged(bool prime) {
 void OnroadWindow::paintEvent(QPaintEvent *event) {
   QPainter p(this);
   p.fillRect(rect(), QColor(bg.red(), bg.green(), bg.blue(), 255));
+
+  // Draw FPS on screen
+  if (scene.fps_counter) {
+    updateFPSCounter();
+
+    // Format the FPS string
+    QString fpsDisplayString = QString("FPS: %1 (%2) | Min: %3 | Max: %4 | Avg: %5")
+      .arg(fps, 0, 'f', 2)
+      .arg(paramsMemory.getInt("CameraFPS"))
+      .arg(minFPS, 0, 'f', 2)
+      .arg(maxFPS, 0, 'f', 2)
+      .arg(avgFPS, 0, 'f', 2);
+
+    // Configure the text
+    p.setFont(InterFont(30, QFont::DemiBold));
+    p.setRenderHint(QPainter::TextAntialiasing);
+    p.setPen(Qt::white);
+
+    // Center the text
+    QRect currentRect = rect();
+    int textWidth = p.fontMetrics().horizontalAdvance(fpsDisplayString);
+    int xPos = (currentRect.width() - textWidth) / 2;
+    int yPos = currentRect.bottom() - 5;
+
+    // Draw the text
+    p.drawText(xPos, yPos, fpsDisplayString);
+
+    update();
+  }
+}
+
+void OnroadWindow::updateFPSCounter() {
+  qint64 currentMillis = QDateTime::currentMSecsSinceEpoch();
+  std::queue<std::pair<qint64, double>> fpsQueue = std::queue<std::pair<qint64, double>>();
+
+  minFPS = qMin(minFPS, fps);
+  maxFPS = qMax(maxFPS, fps);
+  fpsQueue.push({currentMillis, fps});
+
+  while (!fpsQueue.empty() && currentMillis - fpsQueue.front().first > 60000) {
+    fpsQueue.pop();
+  }
+
+  if (!fpsQueue.empty()) {
+    double totalFPS = 0;
+    std::queue<std::pair<qint64, double>> tempQueue = fpsQueue;
+    while (!tempQueue.empty()) {
+      totalFPS += tempQueue.front().second;
+      tempQueue.pop();
+    }
+    avgFPS = totalFPS / fpsQueue.size();
+  }
 }
 
 // ***** onroad widgets *****
@@ -894,7 +946,7 @@ void AnnotatedCameraWidget::paintGL() {
 
   double cur_draw_t = millis_since_boot();
   double dt = cur_draw_t - prev_draw_t;
-  double fps = fps_filter.update(1. / dt * 1000);
+  fps = fps_filter.update(1. / dt * 1000);
   if (fps < 15) {
     LOGW("slow frame rate: %.2f fps", fps);
   }

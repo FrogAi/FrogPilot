@@ -15,6 +15,7 @@ const int btn_size = 192;
 const int img_size = (btn_size / 4) * 3;
 
 // FrogPilot global variables
+static double fps;
 
 // ***** onroad widgets *****
 class OnroadAlerts : public QWidget {
@@ -197,9 +198,16 @@ private:
   QWidget *map = nullptr;
   QHBoxLayout* split;
 
+  // FrogPilot widgets
+  void updateFPSCounter();
+
   // FrogPilot variables
   UIScene &scene;
   Params paramsMemory{"/dev/shm/params"};
+
+  double avgFPS;
+  double maxFPS = 0.0;
+  double minFPS = 99.9;
 
   QPoint timeoutPoint = QPoint(420, 69);
   QTimer clickTimer;
