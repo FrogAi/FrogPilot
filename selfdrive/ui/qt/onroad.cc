@@ -621,6 +621,51 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
     }
   }
 
+  // Paint adjacent lane paths
+  if (scene.adjacent_path && (laneWidthLeft != 0 || laneWidthRight != 0)) {
+    // Set up the units
+    double distanceValue = is_metric ? 1.0 : METER_TO_FOOT;
+    QString unit_d = is_metric ? " meters" : " feet";
+
+    // Declare the lane width thresholds
+    constexpr float minLaneWidth = 2.0f;
+    constexpr float maxLaneWidth = 4.0f;
+
+    // Set gradient colors based on laneWidth and blindspot
+    auto setGradientColors = [](QLinearGradient &gradient, float laneWidth, bool blindspot) {
+      // Make the path red for smaller paths or if there's a car in the blindspot and green for larger paths
+      double hue = (laneWidth < minLaneWidth || laneWidth > maxLaneWidth || blindspot)
+                         ? 0.0 : 120.0 * (laneWidth - minLaneWidth) / (maxLaneWidth - minLaneWidth);
+      double hue_ratio = hue / 360.0;
+      gradient.setColorAt(0.0, QColor::fromHslF(hue_ratio, 0.75, 0.50, 0.6));
+      gradient.setColorAt(0.5, QColor::fromHslF(hue_ratio, 0.75, 0.50, 0.4));
+      gradient.setColorAt(1.0, QColor::fromHslF(hue_ratio, 0.75, 0.50, 0.2));
+    };
+
+    // Paint the lanes
+    auto paintLane = [&](QPainter &painter, const QPolygonF &lane, float laneWidth, bool blindspot) {
+      QLinearGradient gradient(0, height(), 0, 0);
+      setGradientColors(gradient, laneWidth, blindspot);
+
+      painter.setFont(InterFont(30, QFont::DemiBold));
+      painter.setBrush(gradient);
+      painter.setPen(Qt::transparent);
+      painter.drawPolygon(lane);
+      painter.setPen(Qt::white);
+
+      QRectF boundingRect = lane.boundingRect();
+      if (scene.adjacent_path_metrics) {
+        painter.drawText(boundingRect.center(),
+                         blindspot ? "Vehicle in blind spot" :
+                         QString("%1%2").arg(laneWidth * distanceValue, 0, 'f', 2).arg(unit_d));
+      }
+      painter.setPen(Qt::NoPen);
+    };
+
+    paintLane(painter, scene.track_adjacent_vertices[4], laneWidthLeft, blindSpotLeft);
+    paintLane(painter, scene.track_adjacent_vertices[5], laneWidthRight, blindSpotRight);
+  }
+
   painter.restore();
 }
 
@@ -881,6 +926,9 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets(QPainter &p) {
   customColors = scene.custom_colors;
 
   experimentalMode = scene.experimental_mode;
+
+  laneWidthLeft = scene.lane_width_left;
+  laneWidthRight = scene.lane_width_right;
 
   leadInfo = scene.lead_info;
   obstacleDistance = scene.obstacle_distance;
