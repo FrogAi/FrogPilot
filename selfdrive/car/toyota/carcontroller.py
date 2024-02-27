@@ -32,6 +32,12 @@ MAX_LTA_DRIVER_TORQUE_ALLOWANCE = 150  # slightly above steering pressed allows 
 COMPENSATORY_CALCULATION_THRESHOLD_V = [-0.3, -0.25, 0.]  # m/s^2
 COMPENSATORY_CALCULATION_THRESHOLD_BP = [0., 11., 23.]  # m/s
 
+# Lock / unlock door commands - Credit goes to AlexandreSato!
+LOCK_CMD = b'\x40\x05\x30\x11\x00\x80\x00\x00'
+UNLOCK_CMD = b'\x40\x05\x30\x11\x00\x40\x00\x00'
+PARK = car.CarState.GearShifter.park
+
+
 class CarController:
   def __init__(self, dbc_name, CP, VM):
     self.CP = CP
@@ -54,6 +60,9 @@ class CarController:
 
     self.cydia_tune = params.get_bool("CydiaTune")
     self.frogs_go_moo_tune = params.get_bool("FrogsGoMooTune")
+
+    self.doors_locked = False
+    self.doors_unlocked = True
 
   def update(self, CC, CS, now_nanos, frogpilot_variables):
     actuators = CC.actuators
@@ -233,6 +242,17 @@ class CarController:
     new_actuators.steeringAngleDeg = self.last_angle
     new_actuators.accel = self.accel
     new_actuators.gas = self.gas
+
+    # Lock doors when in drive / unlock doors when in park
+    if frogpilot_variables.lock_doors:
+      if self.doors_unlocked and CS.out.gearShifter != PARK:
+        can_sends.append(make_can_msg(0x750, LOCK_CMD, 0))
+        self.doors_locked = True
+        self.doors_unlocked = False
+      elif self.doors_locked and CS.out.gearShifter == PARK:
+        can_sends.append(make_can_msg(0x750, UNLOCK_CMD, 0))
+        self.doors_locked = False
+        self.doors_unlocked = True
 
     self.frame += 1
     return new_actuators, can_sends
