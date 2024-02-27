@@ -178,6 +178,8 @@ class Controls:
     self.frogpilot_variables = SimpleNamespace()
 
     self.driving_gear = False
+    self.previously_enabled = False
+    self.stopped_for_light_previously = False
 
     ignore = self.sensor_packets + ['testJoystick']
     if SIMULATION:
@@ -529,6 +531,22 @@ class Controls:
 
       if self.sm['modelV2'].frameDropPerc > 20:
         self.events.add(EventName.modeldLagging)
+
+    # Green light alert
+    if self.green_light_alert:
+      stopped_for_light = frogpilot_plan.redLight and CS.standstill
+      green_light = not stopped_for_light and self.stopped_for_light_previously
+      self.stopped_for_light_previously = stopped_for_light
+
+      self.previously_enabled |= (self.enabled or self.FPCC.alwaysOnLateral) and CS.vEgo > CRUISING_SPEED
+      self.previously_enabled &= self.driving_gear
+
+      green_light &= self.previously_enabled
+      green_light &= not CS.gasPressed
+      green_light &= not self.sm['longitudinalPlan'].hasLead
+
+      if green_light:
+        self.events.add(EventName.greenLight)
 
   def data_sample(self):
     """Receive data from sockets and update carState"""
@@ -1017,6 +1035,7 @@ class Controls:
     self.frogpilot_variables.conditional_experimental_mode = self.params.get_bool("ConditionalExperimental")
 
     custom_alerts = self.params.get_bool("CustomAlerts")
+    self.green_light_alert = custom_alerts and self.params.get_bool("GreenLightAlert")
 
     custom_theme = self.params.get_bool("CustomTheme")
     custom_sounds = self.params.get_int("CustomSounds") if custom_theme else 0

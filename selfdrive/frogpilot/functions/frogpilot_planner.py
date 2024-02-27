@@ -53,7 +53,7 @@ class FrogPilotPlanner:
     self.accel_limits = [min_accel, max_accel]
 
     # Update Conditional Experimental Mode
-    if self.conditional_experimental_mode and self.CP.openpilotLongitudinalControl:
+    if self.conditional_experimental_mode and self.CP.openpilotLongitudinalControl or self.green_light_alert and carState.standstill:
       self.cem.update(carState, enabled, sm['frogpilotNavigation'], modelData, sm['radarState'], self.road_curvature, self.stop_distance, mpc.t_follow, v_ego)
 
     # Update the current lane widths
@@ -102,6 +102,8 @@ class FrogPilotPlanner:
     frogpilotPlan.laneWidthLeft = self.lane_width_left
     frogpilotPlan.laneWidthRight = self.lane_width_right
 
+    frogpilotPlan.redLight = self.cem.red_light_detected
+
     pm.send('frogpilotPlan', frogpilot_plan_send)
 
   def update_frogpilot_params(self, params):
@@ -111,6 +113,11 @@ class FrogPilotPlanner:
     if self.conditional_experimental_mode:
       self.cem.update_frogpilot_params(self.is_metric, params)
       params.put_bool("ExperimentalMode", True)
+
+    custom_alerts = params.get_bool("CustomAlerts")
+    self.green_light_alert = custom_alerts and params.get_bool("GreenLightAlert")
+    if self.green_light_alert and not self.conditional_experimental_mode:
+      self.cem.update_frogpilot_params(self.is_metric, params)
 
     self.custom_personalities = params.get_bool("CustomPersonalities")
     self.aggressive_follow = params.get_float("AggressiveFollow")
