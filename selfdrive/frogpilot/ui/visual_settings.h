@@ -29,7 +29,7 @@ private:
   void updateToggles();
 
   std::set<QString> alertVolumeControlKeys = {"EngageVolume", "DisengageVolume", "RefuseVolume", "PromptVolume", "PromptDistractedVolume", "WarningSoftVolume", "WarningImmediateVolume"};
-  std::set<QString> customAlertsKeys = {"GreenLightAlert"};
+  std::set<QString> customAlertsKeys = {"GreenLightAlert", "LeadDepartingAlert"};
   std::set<QString> customOnroadUIKeys = {"AccelerationPath", "AdjacentPath", "BlindSpotPath", "FPSCounter", "LeadInfo"};
   std::set<QString> customThemeKeys = {"HolidayThemes", "CustomColors", "CustomIcons", "CustomSignals", "CustomSounds"};
   std::set<QString> modelUIKeys = {"DynamicPathWidth", "LaneLinesWidth", "PathEdgeWidth", "PathWidth", "RoadEdgesWidth", "UnlimitedLength"};
