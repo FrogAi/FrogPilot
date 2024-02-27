@@ -184,6 +184,7 @@ typedef struct UIScene {
   bool enabled;
   bool experimental_mode;
   bool experimental_mode_via_screen;
+  bool fahrenheit;
   bool fps_counter;
   bool full_map;
   bool hide_speed;
@@ -192,6 +193,7 @@ typedef struct UIScene {
   bool lead_info;
   bool map_open;
   bool model_ui;
+  bool numerical_temp;
   bool reverse_cruise;
   bool reverse_cruise_ui;
   bool show_driver_camera;
