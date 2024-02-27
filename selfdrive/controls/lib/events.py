@@ -1002,6 +1002,14 @@ EVENTS: Dict[int, Dict[str, Union[Alert, AlertCallbackType]]] = {
   EventName.holidayActive: {
     ET.PERMANENT: holiday_alert,
   },
+
+  EventName.leadDeparting: {
+    ET.PERMANENT: Alert(
+      "Lead departed",
+      "",
+      AlertStatus.frogpilot, AlertSize.small,
+      Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
 }
 
 
