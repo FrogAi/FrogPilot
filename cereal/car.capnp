@@ -121,6 +121,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     frogSteerSaturated @122;
     greenLight @123;
     holidayActive @124;
+    laneChangeBlockedLoud @125;
     leadDeparting @126;
 
     radarCanErrorDEPRECATED @15;
