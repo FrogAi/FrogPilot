@@ -40,6 +40,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
 
     {"QOLVisuals", "Quality of Life", "Miscellaneous quality of life changes to improve your overall openpilot experience.", "../frogpilot/assets/toggle_icons/quality_of_life.png"},
     {"DriveStats", "Drive Stats In Home Screen", "Display your device's drive stats in the home screen.", ""},
+    {"FullMap", "Full Sized Map", "Maximize the size of the map in the onroad UI.", ""},
   };
 
   for (const auto &[param, title, desc, icon] : visualToggles) {
