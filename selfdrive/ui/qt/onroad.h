@@ -77,6 +77,8 @@ private:
   // FrogPilot variables
   UIScene &scene;
 
+  bool rotatingWheel;
+  int steeringAngleDeg;
   int y_offset;
 };
 
