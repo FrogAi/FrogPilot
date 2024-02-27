@@ -1,5 +1,6 @@
 import math
 import numpy as np
+import os
 import time
 import wave
 
@@ -40,6 +41,13 @@ sound_list: Dict[int, Tuple[str, Optional[int], float]] = {
 
   AudibleAlert.warningSoft: ("warning_soft.wav", None, MAX_VOLUME),
   AudibleAlert.warningImmediate: ("warning_immediate.wav", None, MAX_VOLUME),
+
+  # Random Events
+  AudibleAlert.angry: ("angry.wav", 1, MAX_VOLUME),
+  AudibleAlert.fart: ("fart.wav", 1, MAX_VOLUME),
+  AudibleAlert.firefox: ("firefox.wav", 1, MAX_VOLUME),
+  AudibleAlert.noice: ("noice.wav", 1, MAX_VOLUME),
+  AudibleAlert.uwu: ("uwu.wav", 1, MAX_VOLUME),
 }
 
 def check_controls_timeout_alert(sm):
@@ -57,6 +65,8 @@ class Soundd:
     # FrogPilot variables
     self.params = Params()
     self.params_memory = Params("/dev/shm/params")
+
+    self.random_events_directory = BASEDIR + "/selfdrive/frogpilot/assets/random_events/sounds/"
 
     self.update_frogpilot_params()
 
@@ -77,7 +87,10 @@ class Soundd:
     for sound in sound_list:
       filename, play_count, volume = sound_list[sound]
 
-      wavefile = wave.open(self.sound_directory + filename, 'r')
+      if os.path.exists(os.path.join(self.random_events_directory, filename)):
+        wavefile = wave.open(self.random_events_directory + filename, 'r')
+      else:
+        wavefile = wave.open(self.sound_directory + filename, 'r')
 
       assert wavefile.getnchannels() == 1
       assert wavefile.getsampwidth() == 2
@@ -160,6 +173,10 @@ class Soundd:
         elif self.alert_volume_control and self.current_alert in self.volume_map:
           self.current_volume = self.volume_map[self.current_alert] / 100.0
 
+        # Increase the volume for Random Events
+        elif self.current_alert in self.random_events_map:
+          self.current_volume = self.random_events_map[self.current_alert]
+
         self.get_audible_alert(sm)
 
         rk.keep_time()
@@ -171,6 +188,13 @@ class Soundd:
           self.update_frogpilot_params()
 
   def update_frogpilot_params(self):
+    self.random_events_map = {
+      AudibleAlert.angry: MAX_VOLUME,
+      AudibleAlert.fart: MAX_VOLUME,
+      AudibleAlert.firefox: MAX_VOLUME,
+      AudibleAlert.noice: MAX_VOLUME,
+    }
+
     self.alert_volume_control = self.params.get_bool("AlertVolumeControl")
 
     self.volume_map = {
