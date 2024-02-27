@@ -50,6 +50,13 @@ public:
   }
 
   static void reboot() { std::system("sudo reboot"); }
+  static void soft_reboot() {
+    std::system("echo 894000.i2c | sudo tee /sys/bus/platform/drivers/i2c_geni/unbind");
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::system("echo 894000.i2c | sudo tee /sys/bus/platform/drivers/i2c_geni/bind");
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::system("sudo systemctl restart comma");
+  }
   static void poweroff() { std::system("sudo poweroff"); }
   static void set_brightness(int percent) {
     std::string max = util::read_file("/sys/class/backlight/panel0-backlight/max_brightness");

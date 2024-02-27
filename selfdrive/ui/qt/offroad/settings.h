@@ -59,6 +59,7 @@ signals:
 private slots:
   void poweroff();
   void reboot();
+  void softreboot();
   void updateCalibDescription();
 
 private:

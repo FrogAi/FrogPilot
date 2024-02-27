@@ -31,6 +31,10 @@ class HardwareBase(ABC):
     pass
 
   @abstractmethod
+  def soft_reboot(self):
+    pass
+
+  @abstractmethod
   def uninstall(self):
     pass
 
