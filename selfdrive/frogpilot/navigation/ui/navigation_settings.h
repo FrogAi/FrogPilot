@@ -1,5 +1,6 @@
 #pragma once
 
+#include "selfdrive/frogpilot/ui/frogpilot_ui_functions.h"
 #include "selfdrive/ui/qt/network/wifi_manager.h"
 #include "selfdrive/ui/qt/offroad/settings.h"
 #include "selfdrive/ui/qt/widgets/scrollview.h"
@@ -44,6 +45,33 @@ signals:
   void backPress();
 };
 
+class SelectMaps : public QWidget {
+  Q_OBJECT
+
+public:
+  explicit SelectMaps(QWidget *parent = nullptr);
+
+  QFrame *horizontalLine(QWidget *parent = nullptr) const;
+
+private:
+  void hideEvent(QHideEvent *event);
+
+  ScrollView *countriesScrollView;
+  ScrollView *statesScrollView;
+  QStackedLayout *mapsLayout;
+
+  QPushButton *backButton;
+  QPushButton *statesButton;
+  QPushButton *countriesButton;
+
+  static QString activeButtonStyle;
+  static QString normalButtonStyle;
+
+signals:
+  void backPress();
+  void setMaps();
+};
+
 class FrogPilotNavigationPanel : public QFrame {
   Q_OBJECT
 
@@ -51,8 +79,41 @@ public:
   explicit FrogPilotNavigationPanel(QWidget *parent = 0);
 
 private:
+  void cancelDownload(QWidget *parent);
+  void checkIfUpdateMissed();
+  void downloadMaps();
+  void downloadSchedule();
+  void hideEvent(QHideEvent *event);
+  void removeMaps(QWidget *parent);
+  void setMaps();
+  void updateDownloadedLabel();
+  void updateState();
+  void updateStatuses();
+  void updateVisibility(bool visibility);
+
   QStackedLayout *mainLayout;
   QWidget *navigationWidget;
+
+  ButtonControl *cancelDownloadButton;
+  ButtonControl *downloadOfflineMapsButton;
+  ButtonControl *redownloadOfflineMapsButton;
+  ButtonControl *removeOfflineMapsButton;
+
+  LabelControl *lastMapsDownload;
+  LabelControl *offlineMapsSize;
+  LabelControl *offlineMapsStatus;
+  LabelControl *offlineMapsETA;
+  LabelControl *offlineMapsElapsed;
+
+  bool downloadActive;
+  bool previousDownloadActive;
+  bool scheduleCompleted;
+  bool schedulePending;
+  int schedule;
+  QString elapsedTime;
+  QString offlineFolderPath = "/data/media/0/osm/offline";
+  std::string osmDownloadProgress;
+  std::string previousOSMDownloadProgress;
 
   Params params;
   Params paramsMemory{"/dev/shm/params"};
