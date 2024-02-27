@@ -125,6 +125,7 @@ private:
   bool blindSpotRight;
   bool conditionalExperimental;
   bool experimentalMode;
+  bool mapOpen;
   bool turnSignalLeft;
   bool turnSignalRight;
 
