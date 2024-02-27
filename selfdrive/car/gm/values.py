@@ -1,6 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from enum import Enum, StrEnum
+from enum import Enum, IntFlag, StrEnum
 from typing import Dict, List, Union
 
 from cereal import car
@@ -188,6 +188,7 @@ class CanBus:
 class GMFlags(IntFlag):
   PEDAL_LONG = 1
   CC_LONG = 2
+  NO_CAMERA = 4
   NO_ACCELERATOR_POS_MSG = 8
 
 
