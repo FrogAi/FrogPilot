@@ -132,6 +132,8 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     pedalInterceptorNoBrake @131;
     speedLimitChanged @132;
     torqueNNLoad @133;
+    turningLeft @134;
+    turningRight @135;
     vCruise69 @136;
     yourFrogTriedToKillMe @137;
 

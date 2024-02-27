@@ -417,6 +417,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"TetheringEnabled", PERSISTENT},
     {"TrafficMode", PERSISTENT},
     {"TrafficModeActive", PERSISTENT},
+    {"TurnDesires", PERSISTENT},
     {"UnlimitedLength", PERSISTENT},
     {"Updated", PERSISTENT},
     {"UpdateSchedule", PERSISTENT},
