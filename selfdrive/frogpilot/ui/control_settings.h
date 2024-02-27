@@ -29,6 +29,8 @@ private:
   void updateState(const UIState &s);
   void updateToggles();
 
+  ButtonControl *slcPriorityButton;
+
   FrogPilotButtonIconControl *modelSelectorButton;
 
   FrogPilotDualParamControl *aggressiveProfile;
@@ -46,10 +48,10 @@ private:
   std::set<QString> longitudinalTuneKeys = {"AccelerationProfile", "DecelerationProfile", "AggressiveAcceleration", "SmoothBraking", "StoppingDistance"};
   std::set<QString> mtscKeys = {"DisableMTSCSmoothing", "MTSCAggressiveness", "MTSCCurvatureCheck", "MTSCLimit"};
   std::set<QString> qolKeys = {"DisableOnroadUploads", "HigherBitrate", "NavChill", "PauseLateralOnSignal", "ReverseCruise", "SetSpeedOffset"};
-  std::set<QString> speedLimitControllerKeys = {};
-  std::set<QString> speedLimitControllerControlsKeys = {};
-  std::set<QString> speedLimitControllerQOLKeys = {};
-  std::set<QString> speedLimitControllerVisualsKeys = {};
+  std::set<QString> speedLimitControllerKeys = {"SLCControls", "SLCQOL", "SLCVisuals"};
+  std::set<QString> speedLimitControllerControlsKeys = {"Offset1", "Offset2", "Offset3", "Offset4", "SLCFallback", "SLCOverride", "SLCPriority"};
+  std::set<QString> speedLimitControllerQOLKeys = {"SLCConfirmation", "ForceMPHDashboard", "SetSpeedLimit"};
+  std::set<QString> speedLimitControllerVisualsKeys = {"ShowSLCOffset", "UseVienna"};
   std::set<QString> visionTurnControlKeys = {};
 
   std::map<std::string, ParamControl*> toggles;

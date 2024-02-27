@@ -3,6 +3,7 @@ from openpilot.common.numpy_fast import interp
 
 from openpilot.selfdrive.frogpilot.functions.frogpilot_functions import CITY_SPEED_LIMIT, CRUISING_SPEED, MovingAverageCalculator, PROBABILITY
 
+from openpilot.selfdrive.frogpilot.functions.speed_limit_controller import SpeedLimitController
 
 # Lookup table for stop sign / stop light detection
 SLOW_DOWN_BP = [0., 10., 20., 30., 40., 50., 55., 60.]
@@ -72,6 +73,11 @@ class ConditionalExperimentalMode:
     # Navigation check
     if self.navigation and modelData.navEnabled and (frogpilotNavigation.approachingIntersection or frogpilotNavigation.approachingTurn) and (self.navigation_lead or not self.lead_detected):
       self.status_value = 7 if frogpilotNavigation.approachingIntersection else 8
+      return True
+
+    # Speed Limit Controller check
+    if SpeedLimitController.experimental_mode:
+      self.status_value = 9
       return True
 
     # Speed check
