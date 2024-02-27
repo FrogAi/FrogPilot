@@ -120,6 +120,8 @@ private:
 
   bool alwaysOnLateral;
   bool alwaysOnLateralActive;
+  bool blindSpotLeft;
+  bool blindSpotRight;
   bool experimentalMode;
 
 protected:
