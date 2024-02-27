@@ -174,6 +174,13 @@ class CarState(CarStateBase):
     if self.CP.carFingerprint != CAR.PRIUS_V:
       self.lkas_hud = copy.copy(cp_cam.vl["LKAS_HUD"])
 
+    # if openpilot does not control longitudinal and we are running on a TSS-P car, it is assumed that
+    # 0x343 will be present on the ADAS Bus. PCM wants to resume when:
+    # 1) the car is no longer sending standstill
+    # 2) the car is still in standstill
+    if not self.CP.openpilotLongitudinalControl and self.CP.carFingerprint not in (TSS2_CAR, UNSUPPORTED_DSU_CAR):
+      self.stock_resume_ready = cp.vl["ACC_CONTROL"]["RELEASE_STANDSTILL"] == 1
+
     # Driving personalities function
     if frogpilot_variables.personalities_via_wheel and ret.cruiseState.available:
       # Need to subtract by 1 to comply with the personality profiles of "0", "1", and "2"
@@ -309,5 +316,8 @@ class CarState(CarStateBase):
         ("ACC_CONTROL", 33),
         ("PCS_HUD", 1),
       ]
+
+    if not CP.openpilotLongitudinalControl and CP.carFingerprint not in (TSS2_CAR, UNSUPPORTED_DSU_CAR):
+      messages.append(("ACC_CONTROL", 33))
 
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, 2)
