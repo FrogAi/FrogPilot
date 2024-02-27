@@ -255,6 +255,7 @@ typedef struct UIScene {
   int custom_icons;
   int custom_signals;
   int desired_follow;
+  int map_style;
   int obstacle_distance;
   int obstacle_distance_stock;
   int screen_brightness;

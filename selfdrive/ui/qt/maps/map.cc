@@ -54,18 +54,7 @@ MapWindow::~MapWindow() {
 
 void MapWindow::initLayers() {
   // This doesn't work from initializeGL
-  if (!m_map->layerExists("modelPathLayer")) {
-    qDebug() << "Initializing modelPathLayer";
-    QVariantMap modelPath;
-    //modelPath["id"] = "modelPathLayer";
-    modelPath["type"] = "line";
-    modelPath["source"] = "modelPathSource";
-    m_map->addLayer("modelPathLayer", modelPath);
-    m_map->setPaintProperty("modelPathLayer", "line-color", QColor("red"));
-    m_map->setPaintProperty("modelPathLayer", "line-width", 5.0);
-    m_map->setLayoutProperty("modelPathLayer", "line-cap", "round");
-  }
-  if (!m_map->layerExists("navLayer")) {
+    if (!m_map->layerExists("navLayer")) {
     qDebug() << "Initializing navLayer";
     QVariantMap nav;
     nav["type"] = "line";
@@ -78,6 +67,17 @@ void MapWindow::initLayers() {
     m_map->setPaintProperty("navLayer", "line-color-transition", transition);
     m_map->setPaintProperty("navLayer", "line-width", 7.5);
     m_map->setLayoutProperty("navLayer", "line-cap", "round");
+  }
+if (!m_map->layerExists("modelPathLayer")) {
+    qDebug() << "Initializing modelPathLayer";
+    QVariantMap modelPath;
+    //modelPath["id"] = "modelPathLayer";
+    modelPath["type"] = "line";
+    modelPath["source"] = "modelPathSource";
+    m_map->addLayer("modelPathLayer", modelPath);
+    m_map->setPaintProperty("modelPathLayer", "line-color", QColor("red"));
+    m_map->setPaintProperty("modelPathLayer", "line-width", 5.0);
+    m_map->setLayoutProperty("modelPathLayer", "line-cap", "round");
   }
   if (!m_map->layerExists("pinLayer")) {
     qDebug() << "Initializing pinLayer";
@@ -108,6 +108,50 @@ void MapWindow::initLayers() {
     m_map->setLayoutProperty("carPosLayer", "icon-allow-overlap", true);
     // TODO: remove, symbol-sort-key does not seem to matter outside of each layer
     m_map->setLayoutProperty("carPosLayer", "symbol-sort-key", 0);
+  }
+
+  if (!m_map->layerExists("buildingsLayer")) {
+    qDebug() << "Initializing buildingsLayer";
+    QVariantMap buildings;
+    buildings["id"] = "buildingsLayer";
+    buildings["source"] = "composite";
+    buildings["source-layer"] = "building";
+    buildings["type"] = "fill-extrusion";
+    buildings["minzoom"] = 15;
+    m_map->addLayer("buildingsLayer", buildings);
+    m_map->setFilter("buildingsLayer", QVariantList({"==", "extrude", "true"}));
+
+    QVariantList fillExtrusionHight = {
+      "interpolate",
+      QVariantList{"linear"},
+      QVariantList{"zoom"},
+      15, 0,
+      15.05, QVariantList{"get", "height"}
+    };
+
+    QVariantList fillExtrusionBase = {
+      "interpolate",
+      QVariantList{"linear"},
+      QVariantList{"zoom"},
+      15, 0,
+      15.05, QVariantList{"get", "min_height"}
+    };
+
+    QVariantList fillExtrusionOpacity = {
+      "interpolate",
+      QVariantList{"linear"},
+      QVariantList{"zoom"},
+      15, 0,
+      15.5, .6,
+      17, .6,
+      20, 0
+    };
+
+    m_map->setPaintProperty("buildingsLayer", "fill-extrusion-color", QColor("grey"));
+    m_map->setPaintProperty("buildingsLayer", "fill-extrusion-opacity", fillExtrusionOpacity);
+    m_map->setPaintProperty("buildingsLayer", "fill-extrusion-height", fillExtrusionHight);
+    m_map->setPaintProperty("buildingsLayer", "fill-extrusion-base", fillExtrusionBase);
+    m_map->setLayoutProperty("buildingsLayer", "visibility", "visible");
   }
 }
 
@@ -150,6 +194,17 @@ void MapWindow::updateState(const UIState &s) {
       last_bearing = RAD2DEG(locationd_orientation.getValue()[2]);
       velocity_filter.update(std::max(10.0, locationd_velocity.getValue()[0]));
     }
+}
+  // Credit to jakethesnake420
+  if (loaded_once && (sm.rcv_frame("uiPlan") != model_rcv_frame)) {
+    auto locationd_location = sm["liveLocationKalman"].getLiveLocationKalman();
+    auto model_path = model_to_collection(locationd_location.getCalibratedOrientationECEF(), locationd_location.getPositionECEF(), sm["uiPlan"].getUiPlan().getPosition());
+    QMapLibre::Feature model_path_feature(QMapLibre::Feature::LineStringType, model_path, {}, {});
+    QVariantMap modelV2Path;
+    modelV2Path["type"] =  "geojson";
+    modelV2Path["data"] = QVariant::fromValue<QMapLibre::Feature>(model_path_feature);
+    m_map->updateSource("modelPathSource", modelV2Path);
+    model_rcv_frame = sm.rcv_frame("uiPlan");
   }
 
   if (sm.updated("navRoute") && sm["navRoute"].getNavRoute().getCoordinates().size()) {
@@ -237,6 +292,30 @@ void MapWindow::updateState(const UIState &s) {
     route_rcv_frame = sm.rcv_frame("navRoute");
     updateDestinationMarker();
   }
+
+  // Map Styling - Credit goes to OPKR!
+  int map_style = uiState()->scene.map_style;
+
+  if (map_style != previous_map_style) {
+    std::unordered_map<int, std::string> styleUrls = {
+      {0, "mapbox://styles/commaai/clkqztk0f00ou01qyhsa5bzpj"},  // Stock openpilot
+      {1, "mapbox://styles/mapbox/streets-v11"},  // Mapbox Streets
+      {2, "mapbox://styles/mapbox/outdoors-v11"},  // Mapbox Outdoors
+      {3, "mapbox://styles/mapbox/light-v10"},  // Mapbox Light
+      {4, "mapbox://styles/mapbox/dark-v10"},  // Mapbox Dark
+      {5, "mapbox://styles/mapbox/satellite-v9"},  // Mapbox Satellite
+      {6, "mapbox://styles/mapbox/satellite-streets-v11"},  // Mapbox Satellite Streets
+      {7, "mapbox://styles/mapbox/navigation-day-v1"},  // Mapbox Navigation Day
+      {8, "mapbox://styles/mapbox/navigation-night-v1"},  // Mapbox Navigation Night
+      {9, "mapbox://styles/mapbox/traffic-night-v2"},  // Mapbox Traffic Night
+      {10, "mapbox://styles/mike854/clt0hm8mw01ok01p4blkr27jp"},  // mike854's (Satellite hybrid)
+    };
+
+    std::unordered_map<int, std::string>::iterator it = styleUrls.find(map_style);
+    m_map->setStyleUrl(QString::fromStdString(it->second));
+  }
+
+  previous_map_style = map_style;
 }
 
 void MapWindow::setError(const QString &err_str) {
