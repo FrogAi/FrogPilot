@@ -237,6 +237,9 @@ static void update_state(UIState *s) {
     if (scene.pedals_on_ui) {
       scene.standstill = carState.getStandstill();
     }
+    if (scene.rotating_wheel) {
+      scene.steering_angle_deg = carState.getSteeringAngleDeg();
+    }
   }
   if (sm.updated("controlsState")) {
     auto controlsState = sm["controlsState"].getControlsState();
@@ -346,6 +349,8 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.full_map = quality_of_life_visuals && params.getBool("FullMap");
   scene.hide_speed = quality_of_life_visuals && params.getBool("HideSpeed");
   scene.hide_speed_ui = scene.hide_speed && params.getBool("HideSpeedUI");
+
+  scene.rotating_wheel = params.getBool("RotatingWheel");
 }
 
 void UIState::updateStatus() {
