@@ -15,9 +15,16 @@ public:
   explicit FrogPilotVehiclesPanel(SettingsWindow *parent);
 
 private:
+  void setModels();
   void setToggles();
   void updateState(const UIState &s);
   void updateToggles();
+
+  ButtonControl *selectMakeButton;
+  ButtonControl *selectModelButton;
+
+  QString carMake;
+  QStringList models;
 
   std::map<std::string, ParamControl*> toggles;
 
