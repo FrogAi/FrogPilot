@@ -42,6 +42,7 @@ private:
   QPushButton* update_notif;
 
   // FrogPilot variables
+  std::map<QString, QString> MODEL_NAME;
 };
 
 class HomeWindow : public QWidget {
