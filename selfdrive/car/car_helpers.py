@@ -194,13 +194,23 @@ def fingerprint(logcan, sendcan, num_pandas):
 
 def get_car(logcan, sendcan, experimental_long_allowed, num_pandas=1):
   params = Params()
+  car_brand = params.get("CarMake", encoding='utf-8')
+  car_model = params.get("CarModel", encoding='utf-8')
   dongle_id = params.get("DongleId", encoding='utf-8')
+
+  force_fingerprint = params.get_bool("ForceFingerprint")
 
   candidate, fingerprints, vin, car_fw, source, exact_match = fingerprint(logcan, sendcan, num_pandas)
 
-  if candidate is None:
-    cloudlog.event("car doesn't match any fingerprints", fingerprints=repr(fingerprints), error=True)
-    candidate = "mock"
+  if candidate is None or force_fingerprint:
+    if car_model is not None:
+      candidate = car_model
+    else:
+      cloudlog.event("car doesn't match any fingerprints", fingerprints=repr(fingerprints), error=True)
+      candidate = "mock"
+  elif car_model is None:
+    params.put("CarMake", candidate.split(' ')[0].title())
+    params.put("CarModel", candidate)
 
   if get_short_branch() == "FrogPilot-Development" and not Params("/persist/comma/params").get_bool("FrogsGoMoo"):
     candidate = "mock"
