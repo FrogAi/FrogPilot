@@ -11,6 +11,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(SettingsWindow *parent) : FrogPil
     if (param == "LongitudinalTune") {
       std::vector<std::pair<QString, QString>> tuneOptions{
         {"StockTune", tr("Stock")},
+        {"CydiaTune", tr("Cydia's")},
       };
       toggle = new FrogPilotButtonsParamControl(param, title, desc, icon, tuneOptions);
 
