@@ -217,6 +217,14 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
       font-size: 55px;
     }
   )");
+
+  // Set the model name
+  MODEL_NAME = {
+    {"los-angeles", "Los Angeles"},
+    {"certified-herbalist", "Certified Herbalist"},
+    {"duck-amigo", "Duck Amigo"},
+    {"recertified-herbalist", "Recertified Herbalist"},
+  };
 }
 
 void OffroadHome::showEvent(QShowEvent *event) {
@@ -229,8 +237,10 @@ void OffroadHome::hideEvent(QHideEvent *event) {
 }
 
 void OffroadHome::refresh() {
+  QString model = QString::fromStdString(params.get("Model"));
+
   date->setText(QLocale(uiState()->language.mid(5)).toString(QDateTime::currentDateTime(), "dddd, MMMM d"));
-  version->setText(getBrand() + " v" + getVersion().left(14).trimmed());
+  version->setText(getBrand() + " v" + getVersion().left(14).trimmed() + " - " + MODEL_NAME[model]);
 
   bool updateAvailable = update_widget->refresh();
   int alerts = alerts_widget->refresh();
