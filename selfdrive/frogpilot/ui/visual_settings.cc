@@ -62,6 +62,8 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
     {"ScreenTimeout", "Screen Timeout", "Customize how long it takes for your screen to turn off.", ""},
     {"ScreenTimeoutOnroad", "Screen Timeout (Onroad)", "Customize how long it takes for your screen to turn off after going onroad.", ""},
     {"StandbyMode", "Standby Mode", "Turn the screen off after your screen times out when onroad but wake it back up when engagement state changes or important alerts are triggered.", ""},
+
+    {"WheelIcon", "Steering Wheel Icon", "Replace the default steering wheel icon with a custom design, adding a unique touch to your interface.", "../assets/offroad/icon_openpilot.png"},
   };
 
   for (const auto &[param, title, desc, icon] : visualToggles) {
@@ -198,6 +200,12 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
       toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 101, brightnessLabels, this, false);
     } else if (param == "ScreenTimeout" || param == "ScreenTimeoutOnroad") {
       toggle = new FrogPilotParamValueControl(param, title, desc, icon, 5, 60, std::map<int, QString>(), this, false, " seconds");
+
+    } else if (param == "WheelIcon") {
+      std::vector<QString> wheelToggles{"RotatingWheel"};
+      std::vector<QString> wheelToggleNames{tr("Rotating")};
+      std::map<int, QString> steeringWheelLabels = {{-1, "None"}, {0, "Stock"}, {1, "Lexus"}, {2, "Toyota"}, {3, "Frog"}, {4, "Rocket"}, {5, "Hyundai"}, {6, "Stalin"}};
+      toggle = new FrogPilotParamValueToggleControl(param, title, desc, icon, -1, 6, steeringWheelLabels, this, true, "", 1, wheelToggles, wheelToggleNames);
 
     } else {
       toggle = new ParamControl(param, title, desc, icon, this);
