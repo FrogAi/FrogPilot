@@ -163,7 +163,7 @@ void OnroadAlerts::updateAlert(const Alert &a) {
 }
 
 void OnroadAlerts::paintEvent(QPaintEvent *event) {
-  if (alert.size == cereal::ControlsState::AlertSize::NONE) {
+  if (alert.size == cereal::ControlsState::AlertSize::NONE || scene.show_driver_camera) {
     return;
   }
   static std::map<cereal::ControlsState::AlertSize, const int> alert_heights = {
@@ -256,7 +256,10 @@ void ExperimentalButton::updateState(const UIState &s, bool leadInfo) {
 void ExperimentalButton::paintEvent(QPaintEvent *event) {
   QPainter p(this);
   QPixmap img = experimental_mode ? experimental_img : engage_img;
-  drawIcon(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), img, QColor(0, 0, 0, 166), (isDown() || !(engageable || scene.always_on_lateral_active)) ? 0.6 : 1.0);
+
+  if (!scene.show_driver_camera) {
+    drawIcon(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), img, QColor(0, 0, 0, 166), (isDown() || !(engageable || scene.always_on_lateral_active)) ? 0.6 : 1.0);
+  }
 }
 
 
@@ -328,7 +331,7 @@ void AnnotatedCameraWidget::updateState(const UIState &s) {
   has_eu_speed_limit = (nav_alive && speed_limit_sign == cereal::NavInstruction::SpeedLimitSign::VIENNA);
   is_metric = s.scene.is_metric;
   speedUnit =  s.scene.is_metric ? tr("km/h") : tr("mph");
-  hideBottomIcons = (cs.getAlertSize() != cereal::ControlsState::AlertSize::NONE || customSignals && (turnSignalLeft || turnSignalRight));
+  hideBottomIcons = (cs.getAlertSize() != cereal::ControlsState::AlertSize::NONE || customSignals && (turnSignalLeft || turnSignalRight)) || showDriverCamera;
   status = s.status;
 
   // update engageability/experimental mode button
@@ -807,7 +810,7 @@ void AnnotatedCameraWidget::paintGL() {
       // for replay of old routes, never go to widecam
       wide_cam_requested = wide_cam_requested && s->scene.calibration_wide_valid;
     }
-    CameraWidget::setStreamType(cameraView == 3 ? VISION_STREAM_DRIVER :
+    CameraWidget::setStreamType(cameraView == 3 || showDriverCamera ? VISION_STREAM_DRIVER :
                                 cameraView == 2 || wide_cam_requested ? VISION_STREAM_WIDE_ROAD :
                                 VISION_STREAM_ROAD);
 
@@ -826,7 +829,7 @@ void AnnotatedCameraWidget::paintGL() {
   painter.setRenderHint(QPainter::Antialiasing);
   painter.setPen(Qt::NoPen);
 
-  if (s->scene.world_objects_visible) {
+  if (s->scene.world_objects_visible && !showDriverCamera) {
     update_model(s, model, sm["uiPlan"].getUiPlan());
     drawLaneLines(painter, s);
 
@@ -936,24 +939,28 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets(QPainter &p) {
 
   mapOpen = scene.map_open;
 
+  showDriverCamera = scene.show_driver_camera;
+
   turnSignalLeft = scene.turn_signal_left;
   turnSignalRight = scene.turn_signal_right;
 
-  if (leadInfo) {
-    drawLeadInfo(p);
-  }
-
-  if (alwaysOnLateral || conditionalExperimental) {
-    drawStatusBar(p);
-  }
-
-  if (customSignals && (turnSignalLeft || turnSignalRight)) {
-    if (!animationTimer->isActive()) {
-      animationTimer->start(totalFrames * 11);  // 440 milliseconds per loop; syncs up perfectly with my 2019 Lexus ES 350 turn signal clicks
+  if (!showDriverCamera) {
+    if (leadInfo) {
+      drawLeadInfo(p);
     }
-    drawTurnSignals(p);
-  } else if (animationTimer->isActive()) {
-    animationTimer->stop();
+
+    if (alwaysOnLateral || conditionalExperimental) {
+      drawStatusBar(p);
+    }
+
+    if (customSignals && (turnSignalLeft || turnSignalRight)) {
+      if (!animationTimer->isActive()) {
+        animationTimer->start(totalFrames * 11);  // 440 milliseconds per loop; syncs up perfectly with my 2019 Lexus ES 350 turn signal clicks
+      }
+      drawTurnSignals(p);
+    } else if (animationTimer->isActive()) {
+      animationTimer->stop();
+    }
   }
 
   map_settings_btn_bottom->setEnabled(map_settings_btn->isEnabled());
