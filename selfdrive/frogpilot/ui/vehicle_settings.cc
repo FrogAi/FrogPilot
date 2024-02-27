@@ -12,6 +12,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(SettingsWindow *parent) : FrogPil
       std::vector<std::pair<QString, QString>> tuneOptions{
         {"StockTune", tr("Stock")},
         {"CydiaTune", tr("Cydia's")},
+        {"DragonPilotTune", tr("DragonPilot's")},
       };
       toggle = new FrogPilotButtonsParamControl(param, title, desc, icon, tuneOptions);
 
