@@ -124,6 +124,8 @@ private:
   bool blindSpotRight;
   bool experimentalMode;
 
+  int cameraView;
+
 protected:
   void paintGL() override;
   void initializeGL() override;

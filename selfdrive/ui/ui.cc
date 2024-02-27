@@ -260,6 +260,7 @@ void ui_update_frogpilot_params(UIState *s) {
   UIScene &scene = s->scene;
 
   scene.always_on_lateral = params.getBool("AlwaysOnLateral");
+  scene.camera_view = params.getInt("CameraView");
 
   bool custom_onroad_ui = params.getBool("CustomUI");
   scene.acceleration_path = custom_onroad_ui && params.getBool("AccelerationPath");
