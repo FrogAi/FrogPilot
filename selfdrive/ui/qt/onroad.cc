@@ -29,6 +29,21 @@ static void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, cons
   p.setOpacity(1.0);
 }
 
+static void drawIconRotate(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity, const int angle) {
+  p.setRenderHint(QPainter::Antialiasing);
+  p.setOpacity(1.0);  // bg dictates opacity of ellipse
+  p.setPen(Qt::NoPen);
+  p.setBrush(bg);
+  p.drawEllipse(center, btn_size / 2, btn_size / 2);
+  p.save();
+  p.translate(center);
+  p.rotate(-angle);
+  p.setOpacity(opacity);
+  p.drawPixmap(-QPoint(img.width() / 2, img.height() / 2), img);
+  p.setOpacity(1.0);
+  p.restore();
+}
+
 OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent), scene(uiState()->scene) {
   QVBoxLayout *main_layout  = new QVBoxLayout(this);
   main_layout->setMargin(UI_BORDER_SIZE);
@@ -363,7 +378,15 @@ void ExperimentalButton::updateState(const UIState &s, bool leadInfo) {
   }
 
   // FrogPilot variables
+  rotatingWheel = scene.rotating_wheel;
+
   y_offset = leadInfo ? 10 : 0;
+
+  // Update the icon so the steering wheel rotates in real time
+  if (rotatingWheel && steeringAngleDeg != scene.steering_angle_deg) {
+    steeringAngleDeg = scene.steering_angle_deg;
+    update();
+  }
 }
 
 void ExperimentalButton::paintEvent(QPaintEvent *event) {
@@ -371,7 +394,11 @@ void ExperimentalButton::paintEvent(QPaintEvent *event) {
   QPixmap img = experimental_mode ? experimental_img : engage_img;
 
   if (!(scene.show_driver_camera || scene.map_open && scene.full_map)) {
-    drawIcon(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), img, QColor(0, 0, 0, 166), (isDown() || !(engageable || scene.always_on_lateral_active)) ? 0.6 : 1.0);
+    if (rotatingWheel) {
+      drawIconRotate(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), img, QColor(0, 0, 0, 166), (isDown() || !(engageable || scene.always_on_lateral_active)) ? 0.6 : 1.0, steeringAngleDeg);
+    } else {
+      drawIcon(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), img, QColor(0, 0, 0, 166), (isDown() || !(engageable || scene.always_on_lateral_active)) ? 0.6 : 1.0);
+    }
   }
 }
 
