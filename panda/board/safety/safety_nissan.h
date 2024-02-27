@@ -21,6 +21,8 @@ const CanMsg NISSAN_TX_MSGS[] = {
 
 // Signals duplicated below due to the fact that these messages can come in on either CAN bus, depending on car model.
 RxCheck nissan_rx_checks[] = {
+  {.msg = {{0x1b6, 0, 8, .frequency = 100U},
+         {0x1b6, 1, 8, .frequency = 100U}, { 0 }}},  // PRO_PILOT (100HZ)
   {.msg = {{0x2, 0, 5, .frequency = 100U},
            {0x2, 1, 5, .frequency = 100U}, { 0 }}},  // STEER_ANGLE_SENSOR
   {.msg = {{0x285, 0, 8, .frequency = 50U},
@@ -64,11 +66,16 @@ static void nissan_rx_hook(const CANPacket_t *to_push) {
       UPDATE_VEHICLE_SPEED((right_rear + left_rear) / 2.0 * 0.005 / 3.6);
     }
 
+    if (addr == 0x1b6) {
+      acc_main_on = GET_BIT(to_push, 36U);
+    }
+
     // X-Trail 0x15c, Leaf 0x239
     if ((addr == 0x15c) || (addr == 0x239)) {
       if (addr == 0x15c){
         gas_pressed = ((GET_BYTE(to_push, 5) << 2) | ((GET_BYTE(to_push, 6) >> 6) & 0x3U)) > 3U;
       } else {
+        acc_main_on = GET_BIT(to_push, 17U);
         gas_pressed = GET_BYTE(to_push, 0) > 3U;
       }
     }
