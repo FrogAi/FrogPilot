@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <QMovie>
+#include <QLabel>
 #include <QPushButton>
 #include <QStackedLayout>
 #include <QWidget>
@@ -78,11 +80,20 @@ private:
   // FrogPilot variables
   UIScene &scene;
 
-  std::map<int, QPixmap> wheelImages;
+  QMap<int, QPixmap> wheelImages;
+  QMap<int, QMovie*> wheelImagesGif;
 
+  QMovie engage_gif;
+  QLabel *gifLabel;
+
+  bool firefoxRandomEventTriggered;
   bool rotatingWheel;
+  bool treeFiddyRandomEventTriggered;
+  bool weebRandomEventTriggered;
+
   int steeringAngleDeg;
   int wheelIcon;
+  int wheelIconGif;
   int y_offset;
 };
 

@@ -371,6 +371,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.map_style = quality_of_life_visuals ? params.getInt("MapStyle") : 0;
 
   scene.personalities_via_screen = params.getBool("PersonalitiesViaScreen") && params.getBool("AdjustablePersonalities");
+  scene.random_events = params.getBool("RandomEvents");
   scene.rotating_wheel = params.getBool("RotatingWheel");
 
   bool screen_management = params.getBool("ScreenManagement");
@@ -473,6 +474,9 @@ void UIState::update() {
   }
   if (scene.holiday_themes) {
     scene.current_holiday_theme = paramsMemory.getInt("CurrentHolidayTheme");
+  }
+  if (scene.random_events) {
+    scene.current_random_event = paramsMemory.getInt("CurrentRandomEvent");
   }
 }
 

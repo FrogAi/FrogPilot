@@ -1014,7 +1014,7 @@ EVENTS: Dict[int, Dict[str, Union[Alert, AlertCallbackType]]] = {
       "Turn Exceeds Steering Limit",
       "JESUS TAKE THE WHEEL!!",
       AlertStatus.userPrompt, AlertSize.mid,
-      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.warningSoft, 2.),
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.goat, 2.),
   },
 
   EventName.greenLight: {
@@ -1075,6 +1075,55 @@ EVENTS: Dict[int, Dict[str, Union[Alert, AlertCallbackType]]] = {
 
   EventName.torqueNNLoad: {
     ET.PERMANENT: torque_nn_load_alert,
+  },
+
+  # Random Events
+  EventName.accel30: {
+    ET.WARNING: Alert(
+      "UwU u went a bit fast there!",
+      "(⁄ ⁄•⁄ω⁄•⁄ ⁄)",
+      AlertStatus.frogpilot, AlertSize.mid,
+      Priority.LOW, VisualAlert.none, AudibleAlert.uwu, 4.),
+  },
+
+  EventName.accel35: {
+    ET.WARNING: Alert(
+      "I ain't giving you no tree-fiddy",
+      "you damn Loch Ness monsta!",
+      AlertStatus.frogpilot, AlertSize.mid,
+      Priority.LOW, VisualAlert.none, AudibleAlert.nessie, 4.),
+  },
+
+  EventName.firefoxSteerSaturated: {
+    ET.WARNING: Alert(
+      "Turn Exceeds Steering Limit",
+      "IE Has Stopped Responding...",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.firefox, 4.),
+  },
+
+  EventName.openpilotCrashedRandomEvents: {
+    ET.PERMANENT: Alert(
+      "openpilot crashed 💩",
+      "Please post the error log in the FrogPilot Discord!",
+      AlertStatus.normal, AlertSize.mid,
+      Priority.HIGHEST, VisualAlert.none, AudibleAlert.fart, 4.),
+  },
+
+  EventName.vCruise69: {
+    ET.PERMANENT: Alert(
+      "Lol 69",
+      "",
+      AlertStatus.frogpilot, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.noice, 2.),
+  },
+
+  EventName.yourFrogTriedToKillMe: {
+    ET.PERMANENT: Alert(
+      "Your frog tried to kill me...",
+      "😡",
+      AlertStatus.frogpilot, AlertSize.mid,
+      Priority.MID, VisualAlert.none, AudibleAlert.angry, 5.),
   },
 }
 

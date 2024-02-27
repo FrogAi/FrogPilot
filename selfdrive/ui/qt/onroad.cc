@@ -18,18 +18,7 @@
 #include "selfdrive/ui/qt/maps/map_panel.h"
 #endif
 
-static void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity) {
-  p.setRenderHint(QPainter::Antialiasing);
-  p.setOpacity(1.0);  // bg dictates opacity of ellipse
-  p.setPen(Qt::NoPen);
-  p.setBrush(bg);
-  p.drawEllipse(center, btn_size / 2, btn_size / 2);
-  p.setOpacity(opacity);
-  p.drawPixmap(center - QPoint(img.width() / 2, img.height() / 2), img);
-  p.setOpacity(1.0);
-}
-
-static void drawIconRotate(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity, const int angle) {
+static void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity, const int angle = 0) {
   p.setRenderHint(QPainter::Antialiasing);
   p.setOpacity(1.0);  // bg dictates opacity of ellipse
   p.setPen(Qt::NoPen);
@@ -42,6 +31,18 @@ static void drawIconRotate(QPainter &p, const QPoint &center, const QPixmap &img
   p.drawPixmap(-QPoint(img.width() / 2, img.height() / 2), img);
   p.setOpacity(1.0);
   p.restore();
+}
+
+static void drawIconGif(QPainter &p, const QPoint &center, const QMovie &img, const QBrush &bg, float opacity) {
+  p.setRenderHint(QPainter::Antialiasing);
+  p.setOpacity(1.0);  // bg dictates opacity of ellipse
+  p.setPen(Qt::NoPen);
+  p.setBrush(bg);
+  p.drawEllipse(center.x() - btn_size / 2, center.y() - btn_size / 2, btn_size, btn_size);
+  p.setOpacity(opacity);
+  QPixmap currentFrame = img.currentPixmap();
+  p.drawPixmap(center - QPoint(currentFrame.width() / 2, currentFrame.height() / 2), currentFrame);
+  p.setOpacity(1.0);
 }
 
 OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent), scene(uiState()->scene) {
@@ -387,8 +388,12 @@ ExperimentalButton::ExperimentalButton(QWidget *parent) : experimental_mode(fals
     {3, loadPixmap("../frogpilot/assets/wheel_images/frog.png", {img_size, img_size})},
     {4, loadPixmap("../frogpilot/assets/wheel_images/rocket.png", {img_size, img_size})},
     {5, loadPixmap("../frogpilot/assets/wheel_images/hyundai.png", {img_size, img_size})},
-    {6, loadPixmap("../frogpilot/assets/wheel_images/stalin.png", {img_size, img_size})}
+    {6, loadPixmap("../frogpilot/assets/wheel_images/stalin.png", {img_size, img_size})},
+    {7, loadPixmap("../frogpilot/assets/random_events/images/firefox.png", {img_size, img_size})},
   };
+
+  wheelImagesGif[1] = new QMovie("../frogpilot/assets/random_events/images/weeb_wheel.gif", QByteArray(), this);
+  wheelImagesGif[2] = new QMovie("../frogpilot/assets/random_events/images/tree_fiddy.gif", QByteArray(), this);
 }
 
 void ExperimentalButton::changeMode() {
@@ -416,15 +421,59 @@ void ExperimentalButton::updateState(const UIState &s, bool leadInfo) {
   }
 
   // FrogPilot variables
+  firefoxRandomEventTriggered = scene.current_random_event == 1;
+  treeFiddyRandomEventTriggered = scene.current_random_event == 3;
+  weebRandomEventTriggered = scene.current_random_event == 2;
   rotatingWheel = scene.rotating_wheel;
   wheelIcon = scene.wheel_icon;
+  wheelIconGif = 0;
 
   y_offset = leadInfo ? 10 : 0;
 
-  // Update the icon so the steering wheel rotates in real time
-  if (rotatingWheel && steeringAngleDeg != scene.steering_angle_deg) {
-    steeringAngleDeg = scene.steering_angle_deg;
+  if (firefoxRandomEventTriggered) {
+    static int rotationDegree = 0;
+    rotationDegree = (rotationDegree + 36) % 360;
+    steeringAngleDeg = rotationDegree;
+    wheelIcon = 7;
     update();
+
+  } else if (treeFiddyRandomEventTriggered || weebRandomEventTriggered) {
+    if (!gifLabel) {
+      gifLabel = new QLabel(this);
+      QMovie *movie;
+
+      if (treeFiddyRandomEventTriggered) {
+        movie = wheelImagesGif[2];
+      } else if (weebRandomEventTriggered) {
+        movie = wheelImagesGif[1];
+      }
+
+      if (movie) {
+        gifLabel->setMovie(movie);
+        gifLabel->setFixedSize(img_size, img_size);
+        gifLabel->move((width() - gifLabel->width()) / 2, (height() - gifLabel->height()) / 2 + y_offset);
+      }
+    }
+    if (gifLabel->movie()) {
+      gifLabel->movie()->start();
+    }
+    gifLabel->show();
+    wheelIconGif = weebRandomEventTriggered ? 1 : 2;
+    update();
+
+  } else {
+    if (gifLabel) {
+      gifLabel->hide();
+    }
+    if (rotatingWheel) {
+      // Update the icon so the steering wheel rotates in real time
+      if (steeringAngleDeg != scene.steering_angle_deg) {
+        steeringAngleDeg = scene.steering_angle_deg;
+        update();
+      }
+    } else {
+      steeringAngleDeg = 0;
+    }
   }
 }
 
@@ -438,18 +487,21 @@ void ExperimentalButton::paintEvent(QPaintEvent *event) {
   engage_img = wheelImages[wheelIcon];
   QPixmap img = wheelIcon ? engage_img : (experimental_mode ? experimental_img : engage_img);
 
-  QColor background_color = wheelIcon && !isDown() && engageable ?
-      (scene.always_on_lateral_active ? QColor(10, 186, 181, 255) :
-      (scene.conditional_status == 1 ? QColor(255, 246, 0, 255) :
-      (experimental_mode ? QColor(218, 111, 37, 241) :
-      (scene.navigate_on_openpilot ? QColor(49, 161, 238, 255) : QColor(0, 0, 0, 166))))) :
-      QColor(0, 0, 0, 166);
+  QMovie *gif = wheelImagesGif[wheelIconGif];
+
+  QColor background_color = wheelIcon != 0 && !isDown() && engageable ?
+    (scene.always_on_lateral_active ? QColor(10, 186, 181, 255) :
+    (scene.conditional_status == 1 ? QColor(255, 246, 0, 255) :
+    (experimental_mode ? QColor(218, 111, 37, 241) :
+    (scene.navigate_on_openpilot ? QColor(49, 161, 238, 255) : QColor(0, 0, 0, 166)))))) :
+    QColor(0, 0, 0, 166);
 
   if (!(scene.show_driver_camera || scene.map_open && scene.full_map)) {
-    if (rotatingWheel) {
-      drawIconRotate(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), img, background_color, (isDown() || !(engageable || scene.always_on_lateral_active)) ? 0.6 : 1.0, steeringAngleDeg);
+    if (wheelIconGif != 0) {
+      QBrush backgroundBrush(background_color);
+      drawIconGif(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), *gif, backgroundBrush, 1.0);
     } else {
-      drawIcon(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), img, background_color, (isDown() || !(engageable || scene.always_on_lateral_active)) ? 0.6 : 1.0);
+      drawIcon(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), img, background_color, (isDown() || !(engageable || scene.always_on_lateral_active)) ? 0.6 : 1.0, steeringAngleDeg);
     }
   }
 }
