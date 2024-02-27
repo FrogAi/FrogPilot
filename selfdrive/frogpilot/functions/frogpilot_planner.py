@@ -1,6 +1,8 @@
 import cereal.messaging as messaging
+import numpy as np
 
 from openpilot.common.conversions import Conversions as CV
+from openpilot.common.numpy_fast import clip
 from openpilot.selfdrive.car.interfaces import ACCEL_MIN, ACCEL_MAX
 from openpilot.selfdrive.controls.lib.desire_helper import LANE_CHANGE_SPEED_MIN
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import STOP_DISTANCE
@@ -9,6 +11,8 @@ from openpilot.selfdrive.controls.lib.longitudinal_planner import A_CRUISE_MIN, 
 from openpilot.selfdrive.frogpilot.functions.frogpilot_functions import CRUISING_SPEED, FrogPilotFunctions
 
 from openpilot.selfdrive.frogpilot.functions.conditional_experimental_mode import ConditionalExperimentalMode
+from openpilot.selfdrive.frogpilot.functions.map_turn_speed_controller import MapTurnSpeedController
+
 
 class FrogPilotPlanner:
   def __init__(self, CP, params, params_memory):
@@ -18,7 +22,9 @@ class FrogPilotPlanner:
     self.fpf = FrogPilotFunctions()
 
     self.cem = ConditionalExperimentalMode(self.params_memory)
+    self.mtsc = MapTurnSpeedController()
 
+    self.mtsc_target = 0
     self.road_curvature = 0
     self.stop_distance = 0
     self.v_cruise = 0
@@ -30,8 +36,13 @@ class FrogPilotPlanner:
   def update(self, carState, controlsState, modelData, mpc, sm, v_cruise, v_ego):
     enabled = controlsState.enabled
 
+    # Use the stock deceleration profile to handle MTSC more precisely
+    v_cruise_changed = self.mtsc_target < v_cruise
+
     # Configure the deceleration profile
-    if self.deceleration_profile == 1:
+    if v_cruise_changed:
+      min_accel = A_CRUISE_MIN
+    elif self.deceleration_profile == 1:
       min_accel = self.fpf.get_min_accel_eco(v_ego)
     elif self.deceleration_profile == 2:
       min_accel = self.fpf.get_min_accel_sport(v_ego)
@@ -82,7 +93,20 @@ class FrogPilotPlanner:
     v_cruise_cluster = max(controlsState.vCruiseCluster, controlsState.vCruise) * CV.KPH_TO_MS
     v_cruise_diff = v_cruise_cluster - v_cruise
 
-    targets = []
+    # Pfeiferj's Map Turn Speed Controller
+    if self.map_turn_speed_controller and v_ego > CRUISING_SPEED and enabled:
+      mtsc_active = self.mtsc_target < v_cruise
+      self.mtsc_target = np.clip(self.mtsc.target_speed(v_ego, carState.aEgo), CRUISING_SPEED, v_cruise)
+
+      # MTSC failsafes
+      if self.mtsc_curvature_check and self.road_curvature < 1.0 and not mtsc_active:
+        self.mtsc_target = v_cruise
+      if v_ego - self.mtsc_limit >= self.mtsc_target:
+        self.mtsc_target = v_cruise
+    else:
+      self.mtsc_target = v_cruise
+
+    targets = [self.mtsc_target]
     filtered_targets = [target for target in targets if target > CRUISING_SPEED]
 
     return min(filtered_targets) if filtered_targets else v_cruise
@@ -92,6 +116,7 @@ class FrogPilotPlanner:
     frogpilot_plan_send.valid = sm.all_checks(service_list=['carState', 'controlsState'])
     frogpilotPlan = frogpilot_plan_send.frogpilotPlan
 
+    frogpilotPlan.adjustedCruise = float(self.mtsc_target * (CV.MS_TO_KPH if self.is_metric else CV.MS_TO_MPH))
     frogpilotPlan.conditionalExperimental = self.cem.experimental_mode
 
     frogpilotPlan.desiredFollowDistance = mpc.safe_obstacle_distance - mpc.stopped_equivalence_factor
@@ -136,3 +161,9 @@ class FrogPilotPlanner:
     self.deceleration_profile = params.get_int("DecelerationProfile") if longitudinal_tune else 0
     self.aggressive_acceleration = longitudinal_tune and params.get_bool("AggressiveAcceleration")
     self.increased_stopping_distance = params.get_int("StoppingDistance") * (1 if self.is_metric else CV.FOOT_TO_METER) if longitudinal_tune else 0
+
+    self.map_turn_speed_controller = params.get_bool("MTSCEnabled")
+    if self.map_turn_speed_controller:
+      self.mtsc_curvature_check = params.get_bool("MTSCCurvatureCheck")
+      self.mtsc_limit = params.get_float("MTSCLimit") * (CV.KPH_TO_MS if self.is_metric else CV.MPH_TO_MS)
+      self.params_memory.put_float("MapTargetLatA", 2 * (params.get_int("MTSCAggressiveness") / 100))

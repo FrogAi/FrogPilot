@@ -33,6 +33,12 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     {"AggressiveAcceleration", "Aggressive Acceleration With Lead", "Increase acceleration aggressiveness when following a lead vehicle from a stop.", ""},
     {"StoppingDistance", "Increase Stop Distance Behind Lead", "Increase the stopping distance for a more comfortable stop from lead vehicles.", ""},
 
+    {"MTSCEnabled", "Map Turn Speed Control", "Slow down for anticipated curves detected by your downloaded maps.", "../frogpilot/assets/toggle_icons/icon_speed_map.png"},
+    {"DisableMTSCSmoothing", "Disable MTSC UI Smoothing", "Disables the smoothing for the requested speed in the onroad UI.", ""},
+    {"MTSCCurvatureCheck", "Model Curvature Detection Failsafe", "Only trigger MTSC when the model detects a curve in the road. Purely used as a failsafe to prevent false positives. Leave this off if you never experience false positives.", ""},
+    {"MTSCLimit", "Speed Change Hard Cap", "Set a hard cap for MTSC. If MTSC requests a speed decrease greater than this value, it ignores the requested speed from MTSC. Purely used as a failsafe to prevent false positives. Leave this off if you never experience false positives.", ""},
+    {"MTSCAggressiveness", "Turn Speed Aggressiveness", "Set turn speed aggressiveness. Higher values result in faster turns, lower values yield gentler turns.\n\nA change of +- 1% results in the velocity being raised or lowered by about 1 mph.", ""},
+
     {"QOLControls", "Quality of Life", "Miscellaneous quality of life changes to improve your overall openpilot experience.", "../frogpilot/assets/toggle_icons/quality_of_life.png"},
     {"DisableOnroadUploads", "Disable Onroad Uploads", "Prevent large data uploads when onroad.", ""},
     {"HigherBitrate", "Higher Bitrate Recording", "Increases the quality of the footage uploaded to comma connect.", ""},
@@ -213,6 +219,20 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     } else if (param == "StoppingDistance") {
       toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 10, std::map<int, QString>(), this, false, " feet");
 
+    } else if (param == "MTSCEnabled") {
+      FrogPilotParamManageControl *mtscToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
+      QObject::connect(mtscToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
+        parentToggleClicked();
+        for (auto &[key, toggle] : toggles) {
+          toggle->setVisible(mtscKeys.find(key.c_str()) != mtscKeys.end());
+        }
+      });
+      toggle = mtscToggle;
+    } else if (param == "MTSCAggressiveness") {
+      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 200, std::map<int, QString>(), this, false, "%");
+    } else if (param == "MTSCLimit") {
+      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, std::map<int, QString>(), this, false, " mph");
+
     } else if (param == "QOLControls") {
       FrogPilotParamManageControl *qolToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
       QObject::connect(qolToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
@@ -309,17 +329,24 @@ void FrogPilotControlsPanel::updateMetric() {
     double speedConversion = isMetric ? MILE_TO_KM : KM_TO_MILE;
     params.putIntNonBlocking("CESpeed", std::nearbyint(params.getInt("CESpeed") * speedConversion));
     params.putIntNonBlocking("CESpeedLead", std::nearbyint(params.getInt("CESpeedLead") * speedConversion));
+    params.putIntNonBlocking("MTSCLimit", std::nearbyint(params.getInt("MTSCLimit") * speedConversion));
     params.putIntNonBlocking("StoppingDistance", std::nearbyint(params.getInt("StoppingDistance") * distanceConversion));
   }
 
+  FrogPilotParamValueControl *mtscLimitToggle = static_cast<FrogPilotParamValueControl*>(toggles["MTSCLimit"]);
   FrogPilotParamValueControl *stoppingDistanceToggle = static_cast<FrogPilotParamValueControl*>(toggles["StoppingDistance"]);
 
   if (isMetric) {
+    mtscLimitToggle->updateControl(0, 99, " kph");
+
     stoppingDistanceToggle->updateControl(0, 5, " meters");
   } else {
+    mtscLimitToggle->updateControl(0, 99, " mph");
+
     stoppingDistanceToggle->updateControl(0, 10, " feet");
   }
 
+  mtscLimitToggle->refresh();
   stoppingDistanceToggle->refresh();
 
   previousIsMetric = isMetric;

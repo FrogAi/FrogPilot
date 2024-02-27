@@ -178,6 +178,7 @@ typedef struct UIScene {
   bool blind_spot_path;
   bool blind_spot_right;
   bool conditional_experimental;
+  bool disable_smoothing_mtsc;
   bool driver_camera;
   bool dynamic_path_width;
   bool enabled;
@@ -199,6 +200,7 @@ typedef struct UIScene {
   bool unlimited_road_ui_length;
   bool use_si;
 
+  float adjusted_cruise;
   float lane_line_width;
   float lane_width_left;
   float lane_width_right;

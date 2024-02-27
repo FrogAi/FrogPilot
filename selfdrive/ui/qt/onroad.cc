@@ -475,7 +475,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
 
   QString speedLimitStr = (speedLimit > 1) ? QString::number(std::nearbyint(speedLimit)) : "–";
   QString speedStr = QString::number(std::nearbyint(speed));
-  QString setSpeedStr = is_cruise_set ? QString::number(std::nearbyint(setSpeed)) : "–";
+  QString setSpeedStr = is_cruise_set ? QString::number(std::nearbyint(setSpeed - cruiseAdjustment)) : "–";
 
   if (!showDriverCamera) {
     // Draw outer box + border to contain set speed and speed limit
@@ -495,7 +495,16 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
     int bottom_radius = has_eu_speed_limit ? 100 : 32;
 
     QRect set_speed_rect(QPoint(60 + (default_size.width() - set_speed_size.width()) / 2, 45), set_speed_size);
-    if (scene.reverse_cruise) {
+    if (is_cruise_set && cruiseAdjustment) {
+      float transition = qBound(0.0f, 4.0f * (cruiseAdjustment / setSpeed), 1.0f);
+      QColor min = whiteColor(75), max = greenColor(75);
+
+      p.setPen(QPen(QColor::fromRgbF(
+        min.redF()   + transition * (max.redF()   - min.redF()),
+        min.greenF() + transition * (max.greenF() - min.greenF()),
+        min.blueF()  + transition * (max.blueF()  - min.blueF())
+      ), 6));
+    } else if (scene.reverse_cruise) {
       p.setPen(QPen(QColor(0, 150, 255), 6));
     } else {
       p.setPen(QPen(whiteColor(75), 6));
@@ -1105,6 +1114,9 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets(QPainter &p) {
   conditionalSpeed = scene.conditional_speed;
   conditionalSpeedLead = scene.conditional_speed_lead;
   conditionalStatus = scene.conditional_status;
+
+  bool disableSmoothing = scene.vtsc_controlling_curve ? scene.disable_smoothing_vtsc : scene.disable_smoothing_mtsc;
+  cruiseAdjustment = disableSmoothing ? fmax(setSpeed - scene.adjusted_cruise, 0) : fmax(0.25 * (setSpeed - scene.adjusted_cruise) + 0.75 * cruiseAdjustment - 1, 0);
 
   customColors = scene.custom_colors;
 
