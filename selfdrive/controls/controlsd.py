@@ -856,7 +856,7 @@ class Controls:
     # Update VehicleModel
     lp = self.sm['liveParameters']
     x = max(lp.stiffnessFactor, 0.1)
-    sr = max(lp.steerRatio, 0.1)
+    sr = max(self.steer_ratio, 0.1) if self.use_custom_steer_ratio else max(lp.steerRatio, 0.1)
     self.VM.update_params(x, sr)
 
     # Update Torque Params
@@ -1234,6 +1234,9 @@ class Controls:
 
     lateral_tune = self.params.get_bool("LateralTune")
     self.force_auto_tune = lateral_tune and self.params.get_float("ForceAutoTune")
+    stock_steer_ratio = self.params.get_float("SteerRatioStock")
+    self.steer_ratio = self.params.get_float("SteerRatio") if lateral_tune else stock_steer_ratio
+    self.use_custom_steer_ratio = self.steer_ratio != stock_steer_ratio
 
     self.frogpilot_variables.lock_doors = self.params.get_bool("LockDoors")
     self.frogpilot_variables.long_pitch = self.params.get_bool("LongPitch")
