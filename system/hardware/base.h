@@ -26,6 +26,7 @@ public:
   }
 
   static void reboot() {}
+  static void soft_reboot() {}
   static void poweroff() {}
   static void set_brightness(int percent) {}
   static void set_display_power(bool on) {}
