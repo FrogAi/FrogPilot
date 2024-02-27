@@ -1073,6 +1073,7 @@ class Controls:
     lateral_tune = self.params.get_bool("LateralTune")
     self.force_auto_tune = lateral_tune and self.params.get_float("ForceAutoTune")
 
+    self.frogpilot_variables.lock_doors = self.params.get_bool("LockDoors")
     self.frogpilot_variables.long_pitch = self.params.get_bool("LongPitch")
 
     longitudinal_tune = self.params.get_bool("LongitudinalTune")
