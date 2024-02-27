@@ -414,12 +414,17 @@ class Controls:
     # Handle lane change
     if self.sm['modelV2'].meta.laneChangeState == LaneChangeState.preLaneChange:
       direction = self.sm['modelV2'].meta.laneChangeDirection
+      desired_lane = frogpilot_plan.laneWidthLeft if direction == LaneChangeDirection.left else frogpilot_plan.laneWidthRight
+      lane_available = desired_lane >= self.lane_detection_width
+
       if (CS.leftBlindspot and direction == LaneChangeDirection.left) or \
          (CS.rightBlindspot and direction == LaneChangeDirection.right):
         if self.loud_blindspot_alert:
           self.events.add(EventName.laneChangeBlockedLoud)
         else:
           self.events.add(EventName.laneChangeBlocked)
+      elif not lane_available:
+        self.events.add(EventName.noLaneAvailable)
       else:
         if direction == LaneChangeDirection.left:
           self.events.add(EventName.preLaneChangeLeft)
@@ -1087,6 +1092,9 @@ class Controls:
 
     longitudinal_tune = self.params.get_bool("LongitudinalTune")
     self.frogpilot_variables.sport_plus = longitudinal_tune and self.params.get_int("AccelerationProfile") == 3
+
+    self.lane_detection = self.params.get_bool("LaneDetection") and self.params.get_bool("NudgelessLaneChange")
+    self.lane_detection_width = self.params.get_int("LaneDetectionWidth") * (1 if self.is_metric else CV.FOOT_TO_METER) / 10 if self.lane_detection else 0
 
     quality_of_life = self.params.get_bool("QOLControls")
     self.frogpilot_variables.reverse_cruise_increase = quality_of_life and self.params.get_bool("ReverseCruise")
