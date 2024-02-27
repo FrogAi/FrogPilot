@@ -347,6 +347,10 @@ class Controls:
     if self.CP.passive:
       return
 
+    # show alert to indicate whether NNFF is loaded
+    if self.sm.frame == 550 and self.CP.lateralTuning.which() == 'torque' and self.CI.has_lateral_torque_nn:
+      self.events.add(EventName.torqueNNLoad)
+
     # Block resume if cruise never previously enabled
     resume_pressed = any(be.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for be in CS.buttonEvents)
     if not self.CP.pcmCruise and not self.v_cruise_helper.v_cruise_initialized and resume_pressed:
@@ -785,7 +789,8 @@ class Controls:
       actuators.curvature = self.desired_curvature
       actuators.steer, actuators.steeringAngleDeg, lac_log = self.LaC.update(CC.latActive, CS, self.VM, lp,
                                                                              self.steer_limited, self.desired_curvature,
-                                                                             self.sm['liveLocationKalman'])
+                                                                             self.sm['liveLocationKalman'],
+                                                                             model_data=self.sm['modelV2'])
     else:
       lac_log = log.ControlsState.LateralDebugState.new_message()
       if self.sm.recv_frame['testJoystick'] > 0:
