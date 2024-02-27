@@ -43,3 +43,17 @@ class FrogPilotFunctions:
   @staticmethod
   def get_max_accel_sport(v_ego):
     return interp(v_ego, A_CRUISE_MAX_BP_CUSTOM, A_CRUISE_MAX_VALS_SPORT)
+
+  @staticmethod
+  def calculate_lane_width(lane, current_lane, road_edge):
+    lane_x, lane_y = np.array(lane.x), np.array(lane.y)
+    edge_x, edge_y = np.array(road_edge.x), np.array(road_edge.y)
+    current_x, current_y = np.array(current_lane.x), np.array(current_lane.y)
+
+    lane_y_interp = np.interp(current_x, lane_x[lane_x.argsort()], lane_y[lane_x.argsort()])
+    road_edge_y_interp = np.interp(current_x, edge_x[edge_x.argsort()], edge_y[edge_x.argsort()])
+
+    distance_to_lane = np.mean(np.abs(current_y - lane_y_interp))
+    distance_to_road_edge = np.mean(np.abs(current_y - road_edge_y_interp))
+
+    return min(distance_to_lane, distance_to_road_edge)
