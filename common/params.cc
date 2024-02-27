@@ -243,6 +243,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"CEStopLightsLead", PERSISTENT},
     {"Compass", PERSISTENT},
     {"ConditionalExperimental", PERSISTENT},
+    {"CrosstrekTorque", PERSISTENT},
     {"CustomAlerts", PERSISTENT},
     {"CustomColors", PERSISTENT},
     {"CustomIcons", PERSISTENT},
