@@ -166,6 +166,15 @@ class CarState(CarStateBase):
     if self.CP.carFingerprint != CAR.PRIUS_V:
       self.lkas_hud = copy.copy(cp_cam.vl["LKAS_HUD"])
 
+    # Toggle Experimental Mode from steering wheel function
+    if frogpilot_variables.experimental_mode_via_lkas and ret.cruiseState.available and self.CP.carFingerprint != CAR.PRIUS_V:
+      message_keys = ["LDA_ON_MESSAGE", "SET_ME_X02"]
+      lkas_pressed = any(self.lkas_hud.get(key) == 1 for key in message_keys)
+
+      if lkas_pressed and not self.lkas_previously_pressed:
+        self.fpf.lkas_button_function(frogpilot_variables.conditional_experimental_mode)
+      self.lkas_previously_pressed = lkas_pressed
+
     return ret
 
   @staticmethod

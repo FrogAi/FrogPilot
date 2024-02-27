@@ -67,6 +67,7 @@ class HyundaiFlags(IntFlag):
   CANFD_HDA2_ALT_STEERING = 512
   HYBRID = 1024
   EV = 2048
+  CAN_LFA_BTN = 4096
 
 
 class CAR(StrEnum):

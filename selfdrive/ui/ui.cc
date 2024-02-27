@@ -306,6 +306,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.custom_signals = custom_theme ? params.getInt("CustomSignals") : 0;
 
   scene.driver_camera = params.getBool("DriverCamera");
+  scene.experimental_mode_via_screen = params.getBool("ExperimentalModeViaScreen") && params.getBool("ExperimentalModeActivation");
 
   scene.model_ui = params.getBool("ModelUI");
   scene.dynamic_path_width = scene.model_ui && params.getBool("DynamicPathWidth");

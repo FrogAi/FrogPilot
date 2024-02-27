@@ -263,6 +263,13 @@ class CarState(CarStateBase):
       ret.leftBlindspot = cp_body.vl["BSM_STATUS_LEFT"]["BSM_ALERT"] == 1
       ret.rightBlindspot = cp_body.vl["BSM_STATUS_RIGHT"]["BSM_ALERT"] == 1
 
+    # Toggle Experimental Mode from steering wheel function
+    if frogpilot_variables.experimental_mode_via_lkas and ret.cruiseState.available:
+      lkas_pressed = self.cruise_setting == 1
+      if lkas_pressed and not self.lkas_previously_pressed:
+        self.fpf.lkas_button_function(frogpilot_variables.conditional_experimental_mode)
+      self.lkas_previously_pressed = lkas_pressed
+
     return ret
 
   def get_can_parser(self, CP):

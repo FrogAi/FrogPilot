@@ -152,6 +152,17 @@ class CarState(CarStateBase):
         ret.leftBlindspot = cam_cp.vl["BCMBlindSpotMonitor"]["LeftBSM"] == 1
         ret.rightBlindspot = cam_cp.vl["BCMBlindSpotMonitor"]["RightBSM"] == 1
 
+    # Toggle Experimental Mode from steering wheel function
+    if frogpilot_variables.experimental_mode_via_lkas and ret.cruiseState.available:
+      if self.CP.carFingerprint in SDGM_CAR:
+        lkas_pressed = cam_cp.vl["ASCMSteeringButton"]["LKAButton"]
+      else:
+        lkas_pressed = pt_cp.vl["ASCMSteeringButton"]["LKAButton"]
+
+      if lkas_pressed and not self.lkas_previously_pressed:
+        self.fpf.lkas_button_function(frogpilot_variables.conditional_experimental_mode)
+      self.lkas_previously_pressed = lkas_pressed
+
     return ret
 
   @staticmethod
