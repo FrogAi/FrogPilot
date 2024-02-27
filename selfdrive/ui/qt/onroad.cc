@@ -175,7 +175,7 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
 
   int margin = 40;
   int radius = 30;
-  int offset = true ? 25 : 0;
+  int offset = scene.always_on_lateral ? 25 : 0;
   if (alert.size == cereal::ControlsState::AlertSize::FULL) {
     margin = 0;
     radius = 0;
@@ -242,7 +242,7 @@ void ExperimentalButton::changeMode() {
 
 void ExperimentalButton::updateState(const UIState &s) {
   const auto cs = (*s.sm)["controlsState"].getControlsState();
-  bool eng = cs.getEngageable() || cs.getEnabled();
+  bool eng = cs.getEngageable() || cs.getEnabled() || scene.always_on_lateral_active;
   if ((cs.getExperimentalMode() != experimental_mode) || (eng != engageable)) {
     engageable = eng;
     experimental_mode = cs.getExperimentalMode();
@@ -255,7 +255,7 @@ void ExperimentalButton::updateState(const UIState &s) {
 void ExperimentalButton::paintEvent(QPaintEvent *event) {
   QPainter p(this);
   QPixmap img = experimental_mode ? experimental_img : engage_img;
-  drawIcon(p, QPoint(btn_size / 2, btn_size / 2), img, QColor(0, 0, 0, 166), (isDown() || !engageable) ? 0.6 : 1.0);
+  drawIcon(p, QPoint(btn_size / 2, btn_size / 2), img, QColor(0, 0, 0, 166), (isDown() || !(engageable || scene.always_on_lateral_active)) ? 0.6 : 1.0);
 }
 
 
@@ -545,7 +545,7 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
 
   // base icon
   int offset = UI_BORDER_SIZE + btn_size / 2;
-  offset += true ? 25 : 0;
+  offset += alwaysOnLateral ? 25 : 0;
   int x = rightHandDM ? width() - offset : offset;
   int y = height() - offset;
   float opacity = dmActive ? 0.65 : 0.2;
@@ -734,9 +734,12 @@ void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
 }
 
 void AnnotatedCameraWidget::updateFrogPilotWidgets(QPainter &p) {
+  alwaysOnLateral = scene.always_on_lateral;
+  alwaysOnLateralActive = scene.always_on_lateral_active;
+
   experimentalMode = scene.experimental_mode;
 
-  if (true) {
+  if (alwaysOnLateral) {
     drawStatusBar(p);
   }
 
@@ -767,6 +770,11 @@ void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {
   p.setBrush(QColor(0, 0, 0, 150));
   p.setOpacity(1.0);
   p.drawRoundedRect(statusBarRect, 30, 30);
+
+  // Update status text
+  if (alwaysOnLateralActive) {
+    newStatus = QString("Always On Lateral active. Press the \"Cruise Control\" button to disable");
+  }
 
   // Check if status has changed
   if (newStatus != lastShownStatus) {
