@@ -13,6 +13,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import List, Union, Optional
 from markdown_it import MarkdownIt
+from zoneinfo import ZoneInfo
 
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.params import Params
@@ -208,6 +209,7 @@ def finalize_update() -> None:
 
   # FrogPilot update functions
   params = Params()
+  params.put("Updated", datetime.datetime.now().astimezone(ZoneInfo('America/Phoenix')).strftime("%B %d, %Y - %I:%M%p").encode('utf8'))
 
 def handle_agnos_update() -> None:
   from openpilot.system.hardware.tici.agnos import flash_agnos_update, get_target_slot_number
@@ -435,9 +437,9 @@ def main() -> None:
     if Path(os.path.join(STAGING_ROOT, "old_openpilot")).is_dir():
       cloudlog.event("update installed")
 
-    if not params.get("InstallDate"):
-      t = datetime.datetime.utcnow().isoformat()
-      params.put("InstallDate", t.encode('utf8'))
+    # Format InstallDate to Phoenix time zone with full date-time
+    if params.get("InstallDate") is None or params.get("Updated") is None:
+      params.put("InstallDate", datetime.datetime.now().astimezone(ZoneInfo('America/Phoenix')).strftime("%B %d, %Y - %I:%M%p").encode('utf8'))
 
     updater = Updater()
     update_failed_count = 0 # TODO: Load from param?
