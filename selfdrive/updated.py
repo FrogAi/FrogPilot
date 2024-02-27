@@ -466,21 +466,22 @@ def main() -> None:
         update_failed_count += 1
 
         # check for update
-        params.put("UpdaterState", "checking...")
-        updater.check_for_update()
+        if params.get_int("UpdateSchedule") != 0 or params.get_bool("ManualUpdateInitiated"):
+          params.put("UpdaterState", "checking...")
+          updater.check_for_update()
 
-        # download update
-        last_fetch = read_time_from_param(params, "UpdaterLastFetchTime")
-        timed_out = last_fetch is None or (datetime.datetime.utcnow() - last_fetch > datetime.timedelta(days=3))
-        user_requested_fetch = wait_helper.user_request == UserRequest.FETCH
-        if params.get_bool("NetworkMetered") and not timed_out and not user_requested_fetch:
-          cloudlog.info("skipping fetch, connection metered")
-        elif wait_helper.user_request == UserRequest.CHECK:
-          cloudlog.info("skipping fetch, only checking")
-        else:
-          updater.fetch_update()
-          write_time_to_param(params, "UpdaterLastFetchTime")
-        update_failed_count = 0
+          # download update
+          last_fetch = read_time_from_param(params, "UpdaterLastFetchTime")
+          timed_out = last_fetch is None or (datetime.datetime.utcnow() - last_fetch > datetime.timedelta(days=3))
+          user_requested_fetch = wait_helper.user_request == UserRequest.FETCH
+          if params.get_bool("NetworkMetered") and not timed_out and not user_requested_fetch:
+            cloudlog.info("skipping fetch, connection metered")
+          elif wait_helper.user_request == UserRequest.CHECK:
+            cloudlog.info("skipping fetch, only checking")
+          else:
+            updater.fetch_update()
+            write_time_to_param(params, "UpdaterLastFetchTime")
+          update_failed_count = 0
       except subprocess.CalledProcessError as e:
         cloudlog.event(
           "update process failed",
