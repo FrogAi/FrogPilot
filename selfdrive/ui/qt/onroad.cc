@@ -439,6 +439,10 @@ AnnotatedCameraWidget::AnnotatedCameraWidget(VisionStreamType type, QWidget* par
   QHBoxLayout *buttons_layout = new QHBoxLayout();
   buttons_layout->setSpacing(0);
 
+  // Neokii screen recorder
+  recorder_btn = new ScreenRecorder(this);
+  buttons_layout->addWidget(recorder_btn);
+
   experimental_btn = new ExperimentalButton(this);
   buttons_layout->addWidget(experimental_btn);
 
@@ -976,8 +980,12 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::RadarState
 }
 
 void AnnotatedCameraWidget::paintGL() {
+}
+
+void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
   UIState *s = uiState();
   SubMaster &sm = *(s->sm);
+  QPainter painter(this);
   const double start_draw_t = millis_since_boot();
   const cereal::ModelDataV2::Reader &model = sm["modelV2"].getModelV2();
 
@@ -1028,7 +1036,6 @@ void AnnotatedCameraWidget::paintGL() {
   CameraWidget::paintGL();
   painter.endNativePainting();
 
-  QPainter painter(this);
   painter.setRenderHint(QPainter::Antialiasing);
   painter.setPen(Qt::NoPen);
 
@@ -1153,6 +1160,15 @@ void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
   connect(animationTimer, &QTimer::timeout, this, [this] {
     animationFrameIndex = (animationFrameIndex + 1) % totalFrames;
   });
+
+  // Initialize the timer for the screen recorder
+  QTimer *record_timer = new QTimer(this);
+  connect(record_timer, &QTimer::timeout, this, [this]() {
+    if (recorder_btn) {
+      recorder_btn->update_screen();
+    }
+  });
+  record_timer->start(1000 / UI_FREQ);
 }
 
 void AnnotatedCameraWidget::updateFrogPilotWidgets(QPainter &p) {
@@ -1235,7 +1251,7 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets(QPainter &p) {
     bottom_layout->setAlignment(map_settings_btn_bottom, rightHandDM ? Qt::AlignLeft : Qt::AlignRight);
   }
 
-  recorder_btn->setVisible(scene.screen_recorder && !mapOpen);
+  recorder_btn->setVisible(scene.screen_recorder && !(mapOpen || showDriverCamera));
 
   // Update the turn signal animation images upon toggle change
   if (customSignals != scene.custom_signals || currentHolidayTheme != scene.current_holiday_theme) {
