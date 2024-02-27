@@ -56,26 +56,46 @@ T_DIFFS = np.diff(T_IDXS, prepend=[0.])
 COMFORT_BRAKE = 2.5
 STOP_DISTANCE = 6.0
 
-def get_jerk_factor(personality=log.LongitudinalPersonality.standard):
-  if personality==log.LongitudinalPersonality.relaxed:
-    return 1.0
-  elif personality==log.LongitudinalPersonality.standard:
-    return 1.0
-  elif personality==log.LongitudinalPersonality.aggressive:
-    return 0.5
+def get_jerk_factor(custom_personalities=False, aggressive_jerk=0.5, standard_jerk=1.0, relaxed_jerk=1.0, personality=log.LongitudinalPersonality.standard):
+  if custom_personalities:
+    if personality==log.LongitudinalPersonality.relaxed:
+      return relaxed_jerk
+    elif personality==log.LongitudinalPersonality.standard:
+      return standard_jerk
+    elif personality==log.LongitudinalPersonality.aggressive:
+      return aggressive_jerk
+    else:
+      raise NotImplementedError("Longitudinal personality not supported")
   else:
-    raise NotImplementedError("Longitudinal personality not supported")
+    if personality==log.LongitudinalPersonality.relaxed:
+      return 1.0
+    elif personality==log.LongitudinalPersonality.standard:
+      return 1.0
+    elif personality==log.LongitudinalPersonality.aggressive:
+      return 0.5
+    else:
+      raise NotImplementedError("Longitudinal personality not supported")
 
 
-def get_T_FOLLOW(personality=log.LongitudinalPersonality.standard):
-  if personality==log.LongitudinalPersonality.relaxed:
-    return 1.75
-  elif personality==log.LongitudinalPersonality.standard:
-    return 1.45
-  elif personality==log.LongitudinalPersonality.aggressive:
-    return 1.25
+def get_T_FOLLOW(custom_personalities=False, aggressive_follow=1.25, standard_follow=1.45, relaxed_follow=1.75, personality=log.LongitudinalPersonality.standard):
+  if custom_personalities:
+    if personality==log.LongitudinalPersonality.relaxed:
+      return relaxed_follow
+    elif personality==log.LongitudinalPersonality.standard:
+      return standard_follow
+    elif personality==log.LongitudinalPersonality.aggressive:
+      return aggressive_follow
+    else:
+      raise NotImplementedError("Longitudinal personality not supported")
   else:
-    raise NotImplementedError("Longitudinal personality not supported")
+    if personality==log.LongitudinalPersonality.relaxed:
+      return 1.75
+    elif personality==log.LongitudinalPersonality.standard:
+      return 1.45
+    elif personality==log.LongitudinalPersonality.aggressive:
+      return 1.25
+    else:
+      raise NotImplementedError("Longitudinal personality not supported")
 
 def get_stopped_equivalence_factor(v_lead):
   return (v_lead**2) / (2 * COMFORT_BRAKE)
@@ -274,8 +294,8 @@ class LongitudinalMpc:
     for i in range(N):
       self.solver.cost_set(i, 'Zl', Zl)
 
-  def set_weights(self, prev_accel_constraint=True, personality=log.LongitudinalPersonality.standard):
-    jerk_factor = get_jerk_factor(personality)
+  def set_weights(self, prev_accel_constraint=True, custom_personalities=False, aggressive_jerk=0.5, standard_jerk=1.0, relaxed_jerk=1.0, personality=log.LongitudinalPersonality.standard):
+    jerk_factor = get_jerk_factor(custom_personalities, aggressive_jerk, standard_jerk, relaxed_jerk, personality)
     jerk_factor /= np.mean(self.acceleration_offset)
 
     if self.mode == 'acc':
@@ -336,7 +356,7 @@ class LongitudinalMpc:
     self.max_a = max_a
 
   def update(self, radarstate, v_cruise, x, v, a, j, frogpilot_planner, personality=log.LongitudinalPersonality.standard):
-    t_follow = get_T_FOLLOW(personality)
+    t_follow = get_T_FOLLOW(frogpilot_planner.custom_personalities, frogpilot_planner.aggressive_follow, frogpilot_planner.standard_follow, frogpilot_planner.relaxed_follow, personality)
     self.t_follow = t_follow
     v_ego = self.x0[1]
     self.status = radarstate.leadOne.status or radarstate.leadTwo.status
