@@ -1030,6 +1030,8 @@ class Controls:
     lateral_tune = self.params.get_bool("LateralTune")
     self.force_auto_tune = lateral_tune and self.params.get_float("ForceAutoTune")
 
+    self.frogpilot_variables.long_pitch = self.params.get_bool("LongPitch")
+
     longitudinal_tune = self.params.get_bool("LongitudinalTune")
     self.frogpilot_variables.sport_plus = longitudinal_tune and self.params.get_int("AccelerationProfile") == 3
 
