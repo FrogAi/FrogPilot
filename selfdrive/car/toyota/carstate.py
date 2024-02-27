@@ -48,6 +48,7 @@ class CarState(CarStateBase):
     self.lkas_hud = {}
 
     # FrogPilot variables
+    self.profile_restored = False
 
     self.traffic_signals = {}
 
@@ -174,33 +175,74 @@ class CarState(CarStateBase):
     if self.CP.carFingerprint != CAR.PRIUS_V:
       self.lkas_hud = copy.copy(cp_cam.vl["LKAS_HUD"])
 
-    # Experimental Mode via double clicking the LKAS button function
+    # FrogPilot functions
+    if self.CP.carFingerprint in (TSS2_CAR - RADAR_ACC_CAR) or (self.CP.flags & ToyotaFlags.SMART_DSU and not self.CP.flags & ToyotaFlags.RADAR_CAN_FILTER):
+      # distance button is wired to the ACC module (camera or radar)
+      if self.CP.carFingerprint in (TSS2_CAR - RADAR_ACC_CAR):
+        distance_pressed = cp_acc.vl["ACC_CONTROL"]["DISTANCE"]
+      else:
+        distance_pressed = cp.vl["SDSU"]["FD_BUTTON"]
+
+    # Switch the current state of Experimental Mode if the LKAS button is double pressed
     if frogpilot_variables.experimental_mode_via_lkas and ret.cruiseState.available and self.CP.carFingerprint != CAR.PRIUS_V:
       message_keys = ["LDA_ON_MESSAGE", "SET_ME_X02"]
       lkas_pressed = any(self.lkas_hud.get(key) == 1 for key in message_keys)
 
       if lkas_pressed and not self.lkas_previously_pressed:
         if frogpilot_variables.conditional_experimental_mode:
-          self.fpf.update_cestatus_distance()
+          self.fpf.update_cestatus_lkas()
         else:
           self.fpf.update_experimental_mode()
 
       self.lkas_previously_pressed = lkas_pressed
 
-    # Experimental Mode via long pressing the distance button function
+    # Distance button functions
     if ret.cruiseState.available:
       if distance_pressed:
         self.distance_pressed_counter += 1
       elif self.distance_previously_pressed:
+        # Set the distance lines on the dash to match the new personality if the button was held down for less than 0.5 seconds
+        if self.distance_pressed_counter < CRUISE_LONG_PRESS:
+          self.previous_personality_profile = (self.personality_profile + 2) % 3
+          self.fpf.distance_button_function(self.previous_personality_profile)
+          self.profile_restored = False
         self.distance_pressed_counter = 0
 
+      # Switch the current state of Experimental Mode if the button is held down for 0.5 seconds
       if self.distance_pressed_counter == CRUISE_LONG_PRESS and frogpilot_variables.experimental_mode_via_distance:
         if frogpilot_variables.conditional_experimental_mode:
-          self.fpf.update_cestatus_lkas()
+          self.fpf.update_cestatus_distance()
+        else:
+          self.fpf.update_experimental_mode()
+
+      # Switch the current state of Traffic Mode if the button is held down for 2.5 seconds
+      if self.distance_pressed_counter == CRUISE_LONG_PRESS * 5 and frogpilot_variables.traffic_mode:
+        self.fpf.update_traffic_mode()
+
+        # Revert the previous changes to Experimental Mode
+        if frogpilot_variables.conditional_experimental_mode:
+          self.fpf.update_cestatus_distance()
         else:
           self.fpf.update_experimental_mode()
 
       self.distance_previously_pressed = distance_pressed
+
+    # Update the distance lines on the dash upon ignition/onroad UI button clicked
+    if frogpilot_variables.personalities_via_wheel and ret.cruiseState.available:
+      # Need to subtract by 1 to comply with the personality profiles of "0", "1", and "2"
+      self.personality_profile = cp.vl["PCM_CRUISE_SM"]["DISTANCE_LINES"] - 1
+
+      # Sync with the onroad UI button
+      if self.fpf.personality_changed_via_ui:
+        self.profile_restored = False
+        self.previous_personality_profile = self.fpf.current_personality
+        self.fpf.reset_personality_changed_param()
+
+      # Set personality to the previous drive's personality or when the user changes it via the UI
+      if self.personality_profile == self.previous_personality_profile:
+        self.profile_restored = True
+      if not self.profile_restored:
+        self.distance_button = not self.distance_button
 
     # Traffic signals for Speed Limit Controller - Credit goes to the DragonPilot team!
     self.update_traffic_signals(cp_cam)
@@ -273,6 +315,11 @@ class CarState(CarStateBase):
     if CP.carFingerprint not in (TSS2_CAR - RADAR_ACC_CAR) and not CP.enableDsu and not CP.flags & ToyotaFlags.DISABLE_RADAR.value:
       messages += [
         ("PRE_COLLISION", 33),
+      ]
+
+    if CP.flags & ToyotaFlags.SMART_DSU and not CP.flags & ToyotaFlags.RADAR_CAN_FILTER:
+      messages += [
+        ("SDSU", 100),
       ]
 
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, 0)

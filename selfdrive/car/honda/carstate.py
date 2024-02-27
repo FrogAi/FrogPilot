@@ -268,6 +268,25 @@ class CarState(CarStateBase):
       ret.leftBlindspot = cp_body.vl["BSM_STATUS_LEFT"]["BSM_ALERT"] == 1
       ret.rightBlindspot = cp_body.vl["BSM_STATUS_RIGHT"]["BSM_ALERT"] == 1
 
+    # Driving personalities function
+    if frogpilot_variables.personalities_via_wheel and ret.cruiseState.available:
+      # Sync with the onroad UI button
+      if self.fpf.personality_changed_via_ui:
+        self.personality_profile = self.fpf.current_personality
+        self.previous_personality_profile = self.personality_profile
+        self.fpf.reset_personality_changed_param()
+
+      # Change personality upon steering wheel button press
+      distance_button = self.cruise_setting == 3
+
+      if distance_button and not self.distance_previously_pressed:
+        self.personality_profile = (self.previous_personality_profile + 2) % 3
+      self.distance_previously_pressed = distance_button
+
+      if self.personality_profile != self.previous_personality_profile:
+        self.fpf.distance_button_function(self.personality_profile)
+        self.previous_personality_profile = self.personality_profile
+
     # Toggle Experimental Mode from steering wheel function
     if frogpilot_variables.experimental_mode_via_lkas and ret.cruiseState.available:
       lkas_pressed = self.cruise_setting == 1

@@ -94,7 +94,7 @@ class LongitudinalPlanner:
     return x, v, a, j
 
   def update(self, sm, frogpilot_planner, params_memory):
-    if self.param_read_counter % 50 == 0:
+    if self.param_read_counter % 50 == 0 or params_memory.get_bool("PersonalityChangedViaUI") or params_memory.get_bool("PersonalityChangedViaWheel"):
       self.read_param()
     self.param_read_counter += 1
     self.mpc.mode = 'blended' if sm['controlsState'].experimentalMode else 'acc'

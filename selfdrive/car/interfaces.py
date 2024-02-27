@@ -505,6 +505,8 @@ class CarStateBase(ABC):
     self.lkas_previously_pressed = False
 
     self.distance_pressed_counter = 0
+    self.personality_profile = self.fpf.current_personality
+    self.previous_personality_profile = self.personality_profile
 
   def update_speed_kf(self, v_ego_raw):
     if abs(v_ego_raw - self.v_ego_kf.x[0][0]) > 2.0:  # Prevent large accelerations when car starts at non zero speed
