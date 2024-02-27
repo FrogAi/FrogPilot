@@ -42,6 +42,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
     {"QOLVisuals", "Quality of Life", "Miscellaneous quality of life changes to improve your overall openpilot experience.", "../frogpilot/assets/toggle_icons/quality_of_life.png"},
     {"DriveStats", "Drive Stats In Home Screen", "Display your device's drive stats in the home screen.", ""},
     {"FullMap", "Full Sized Map", "Maximize the size of the map in the onroad UI.", ""},
+    {"HideSpeed", "Hide Speed", "Hide the speed indicator in the onroad UI. Additional toggle allows it to be hidden/shown via tapping the speed itself.", ""},
   };
 
   for (const auto &[param, title, desc, icon] : visualToggles) {
@@ -147,6 +148,10 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
         }
       });
       toggle = qolToggle;
+    } else if (param == "HideSpeed") {
+      std::vector<QString> hideSpeedToggles{"HideSpeedUI"};
+      std::vector<QString> hideSpeedToggleNames{tr("Control Via UI")};
+      toggle = new FrogPilotParamToggleControl(param, title, desc, icon, hideSpeedToggles, hideSpeedToggleNames);
 
     } else {
       toggle = new ParamControl(param, title, desc, icon, this);
