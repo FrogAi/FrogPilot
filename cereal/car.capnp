@@ -123,6 +123,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     laneChangeBlockedLoud @123;
     leadDeparting @124;
     noLaneAvailable @125;
+    openpilotCrashed @126;
     torqueNNLoad @130;
 
     radarCanErrorDEPRECATED @15;
