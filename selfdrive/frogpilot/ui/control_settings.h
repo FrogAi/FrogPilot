@@ -43,7 +43,7 @@ private:
   std::set<QString> fireTheBabysitterKeys = {"NoLogging", "MuteOverheated", "NoUploads", "OfflineMode"};
   std::set<QString> laneChangeKeys = {"LaneChangeTime", "LaneDetection", "LaneDetectionWidth", "OneLaneChange"};
   std::set<QString> lateralTuneKeys = {"ForceAutoTune", "NNFF"};
-  std::set<QString> longitudinalTuneKeys = {"AccelerationProfile", "DecelerationProfile", "AggressiveAcceleration", "StoppingDistance"};
+  std::set<QString> longitudinalTuneKeys = {"AccelerationProfile", "DecelerationProfile", "AggressiveAcceleration", "SmoothBraking", "StoppingDistance"};
   std::set<QString> mtscKeys = {"DisableMTSCSmoothing", "MTSCAggressiveness", "MTSCCurvatureCheck", "MTSCLimit"};
   std::set<QString> qolKeys = {"DisableOnroadUploads", "HigherBitrate", "NavChill", "PauseLateralOnSignal", "ReverseCruise", "SetSpeedOffset"};
   std::set<QString> speedLimitControllerKeys = {};
