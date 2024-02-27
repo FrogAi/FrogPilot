@@ -1,5 +1,9 @@
+import math
+
+from openpilot.common.conversions import Conversions as CV
+from openpilot.common.realtime import DT_CTRL
 from openpilot.selfdrive.car import make_can_msg
-from openpilot.selfdrive.car.gm.values import CAR
+from openpilot.selfdrive.car.gm.values import CAR, CruiseButtons, CanBus
 
 
 def create_buttons(packer, bus, idx, button):
@@ -171,3 +175,45 @@ def create_lka_icon_command(bus, active, critical, steer):
   else:
     dat = b"\x00\x00\x00"
   return make_can_msg(0x104c006c, dat, bus)
+
+
+def create_gm_cc_spam_command(packer, controller, CS, actuators):
+  # TODO: Cleanup the timing - normal is every 30ms...
+
+  cruiseBtn = CruiseButtons.INIT
+
+  # if controller.params_.get_bool("IsMetric"):
+  #   accel = actuators.accel * CV.MS_TO_KPH  # m/s/s to km/h/s
+  # else:
+  #   accel = actuators.accel * CV.MS_TO_MPH  # m/s/s to mph/s
+  accel = actuators.accel * CV.MS_TO_MPH  # m/s/s to mph/s
+  speedSetPoint = int(round(CS.out.cruiseState.speed * CV.MS_TO_MPH))
+
+  RATE_UP_MAX = 0.2  # may be lower on new/euro cars
+  RATE_DOWN_MAX = 0.2  # may be lower on new/euro cars
+
+  if speedSetPoint == CS.CP.minEnableSpeed and accel < -1:
+    cruiseBtn = CruiseButtons.CANCEL
+    controller.apply_speed = 0
+    rate = 0.04
+  elif accel < 0:
+    cruiseBtn = CruiseButtons.DECEL_SET
+    rate = max(-1 / accel, RATE_DOWN_MAX)
+    controller.apply_speed = speedSetPoint - 1
+  elif accel > 0:
+    cruiseBtn = CruiseButtons.RES_ACCEL
+    rate = max(1 / accel, RATE_UP_MAX)
+    controller.apply_speed = speedSetPoint + 1
+  else:
+    controller.apply_speed = speedSetPoint
+    rate = float('inf')
+
+  # Check rlogs closely - our message shouldn't show up on the pt bus for us
+  # Or bus 2, since we're forwarding... but I think it does
+  # TODO: Cleanup the timing - normal is every 30ms...
+  if (cruiseBtn != CruiseButtons.INIT) and ((controller.frame - controller.last_button_frame) * DT_CTRL > rate):
+    controller.last_button_frame = controller.frame
+    idx = (CS.buttons_counter + 1) % 4  # Need to predict the next idx for '22-23 EUV
+    return [create_buttons(packer, CanBus.POWERTRAIN, idx, cruiseBtn)]
+  else:
+    return []
