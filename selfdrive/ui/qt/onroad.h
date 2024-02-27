@@ -136,6 +136,7 @@ private:
   bool turnSignalLeft;
   bool turnSignalRight;
 
+  float cruiseAdjustment;
   float distanceConversion;
   float laneWidthLeft;
   float laneWidthRight;
@@ -165,6 +166,8 @@ private:
   std::vector<QPixmap> signalImgVector;
 
   QTimer *animationTimer;
+
+  inline QColor greenColor(int alpha = 242) { return QColor(23, 134, 68, alpha); }
 
 protected:
   void paintGL() override;
