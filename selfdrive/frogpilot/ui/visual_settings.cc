@@ -54,6 +54,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
     {"FullMap", "Full Sized Map", "Maximize the size of the map in the onroad UI.", ""},
     {"HideSpeed", "Hide Speed", "Hide the speed indicator in the onroad UI. Additional toggle allows it to be hidden/shown via tapping the speed itself.", ""},
     {"MapStyle", "Map Style", "Use a custom map style to be used for 'Navigate on openpilot'.", ""},
+    {"WheelSpeed", "Use Wheel Speed", "Use the wheel speed metric as opposed to the artificial speed.", ""},
 
     {"RandomEvents", "Random Events", "Enjoy a bit of unpredictability with random events that can occur during certain driving conditions.", "../frogpilot/assets/toggle_icons/icon_random.png"},
 
