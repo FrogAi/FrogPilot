@@ -30,7 +30,7 @@ private:
 
   std::set<QString> gmKeys = {"GasRegenCmd", "LongPitch"};
   std::set<QString> subaruKeys = {};
-  std::set<QString> toyotaKeys = {"LongitudinalTune"};
+  std::set<QString> toyotaKeys = {"LockDoors", "LongitudinalTune"};
 
   Params params;
   Params paramsMemory{"/dev/shm/params"};
