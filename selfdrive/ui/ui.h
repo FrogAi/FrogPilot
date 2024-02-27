@@ -179,11 +179,13 @@ typedef struct UIScene {
   bool dynamic_path_width;
   bool enabled;
   bool experimental_mode;
+  bool lead_info;
   bool map_open;
   bool model_ui;
   bool turn_signal_left;
   bool turn_signal_right;
   bool unlimited_road_ui_length;
+  bool use_si;
 
   float lane_line_width;
   float lane_width_left;
@@ -199,6 +201,10 @@ typedef struct UIScene {
   int custom_colors;
   int custom_icons;
   int custom_signals;
+  int desired_follow;
+  int obstacle_distance;
+  int obstacle_distance_stock;
+  int stopped_equivalence;
 
   QPolygonF track_adjacent_vertices[6];
   QPolygonF track_edge_vertices;

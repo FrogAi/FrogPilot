@@ -94,6 +94,11 @@ class FrogPilotPlanner:
 
     frogpilotPlan.conditionalExperimental = self.cem.experimental_mode
 
+    frogpilotPlan.desiredFollowDistance = mpc.safe_obstacle_distance - mpc.stopped_equivalence_factor
+    frogpilotPlan.safeObstacleDistance = mpc.safe_obstacle_distance
+    frogpilotPlan.safeObstacleDistanceStock = mpc.safe_obstacle_distance_stock
+    frogpilotPlan.stoppedEquivalenceFactor = mpc.stopped_equivalence_factor
+
     frogpilotPlan.laneWidthLeft = self.lane_width_left
     frogpilotPlan.laneWidthRight = self.lane_width_right
 

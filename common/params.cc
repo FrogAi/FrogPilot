@@ -255,6 +255,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"GoatScream", PERSISTENT},
     {"LaneLinesWidth", PERSISTENT},
     {"LateralTune", PERSISTENT},
+    {"LeadInfo", PERSISTENT},
     {"LongitudinalTune", PERSISTENT},
     {"ManualUpdateInitiated", CLEAR_ON_MANAGER_START},
     {"ModelUI", PERSISTENT},
@@ -280,6 +281,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"UnlimitedLength", PERSISTENT},
     {"UpdateSchedule", PERSISTENT},
     {"UpdateTime", PERSISTENT},
+    {"UseSI", PERSISTENT},
     {"WarningSoftVolume", PERSISTENT},
     {"WarningImmediateVolume", PERSISTENT},
 };
