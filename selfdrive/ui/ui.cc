@@ -320,6 +320,7 @@ void ui_update_frogpilot_params(UIState *s) {
   bool quality_of_life_controls = params.getBool("QOLControls");
 
   bool quality_of_life_visuals = params.getBool("QOLVisuals");
+  scene.full_map = quality_of_life_visuals && params.getBool("FullMap");
 }
 
 void UIState::updateStatus() {

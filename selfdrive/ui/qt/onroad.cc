@@ -84,7 +84,7 @@ void OnroadWindow::updateState(const UIState &s) {
   Alert alert = Alert::get(*(s.sm), s.scene.started_frame);
   alerts->updateAlert(alert);
 
-  if (s.scene.map_on_left) {
+  if (s.scene.map_on_left || scene.full_map) {
     split->setDirection(QBoxLayout::LeftToRight);
   } else {
     split->setDirection(QBoxLayout::RightToLeft);
@@ -131,6 +131,11 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
     bool show_map = uiState()->scene.navigate_on_openpilot ? sidebarVisible : !sidebarVisible;
     if (!clickTimer.isActive()) {
       map->setVisible(show_map && !map->isVisible());
+      if (scene.full_map) {
+        map->setFixedWidth(width());
+      } else {
+        map->setFixedWidth(topWidget(this)->width() / 2 - UI_BORDER_SIZE);
+      }
     }
   }
 #endif
@@ -342,7 +347,7 @@ void ExperimentalButton::paintEvent(QPaintEvent *event) {
   QPainter p(this);
   QPixmap img = experimental_mode ? experimental_img : engage_img;
 
-  if (!scene.show_driver_camera) {
+  if (!(scene.show_driver_camera || scene.map_open && scene.full_map)) {
     drawIcon(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), img, QColor(0, 0, 0, 166), (isDown() || !(engageable || scene.always_on_lateral_active)) ? 0.6 : 1.0);
   }
 }
@@ -416,7 +421,7 @@ void AnnotatedCameraWidget::updateState(const UIState &s) {
   has_eu_speed_limit = (nav_alive && speed_limit_sign == cereal::NavInstruction::SpeedLimitSign::VIENNA);
   is_metric = s.scene.is_metric;
   speedUnit =  s.scene.is_metric ? tr("km/h") : tr("mph");
-  hideBottomIcons = (cs.getAlertSize() != cereal::ControlsState::AlertSize::NONE || customSignals && (turnSignalLeft || turnSignalRight)) || showDriverCamera;
+  hideBottomIcons = (cs.getAlertSize() != cereal::ControlsState::AlertSize::NONE || customSignals && (turnSignalLeft || turnSignalRight)) || fullMapOpen || showDriverCamera;
   status = s.status;
 
   // update engageability/experimental mode button
@@ -528,7 +533,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
   }
 
   // current speed
-  if (!showDriverCamera) {
+  if (!(fullMapOpen || showDriverCamera)) {
     p.setFont(InterFont(176, QFont::Bold));
     drawText(p, rect().center().x(), 210, speedStr);
     p.setFont(InterFont(66));
@@ -1027,13 +1032,14 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets(QPainter &p) {
   obstacleDistanceStock = scene.obstacle_distance_stock;
 
   mapOpen = scene.map_open;
+  fullMapOpen = mapOpen && scene.full_map;
 
   showDriverCamera = scene.show_driver_camera;
 
   turnSignalLeft = scene.turn_signal_left;
   turnSignalRight = scene.turn_signal_right;
 
-  if (!showDriverCamera) {
+  if (!(showDriverCamera || fullMapOpen)) {
     if (leadInfo) {
       drawLeadInfo(p);
     }
