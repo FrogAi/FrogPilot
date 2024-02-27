@@ -99,6 +99,7 @@ class CAR(StrEnum):
   RIDGELINE = "HONDA RIDGELINE 2017"
   INSIGHT = "HONDA INSIGHT 2019"
   HONDA_E = "HONDA E 2020"
+  CLARITY = "HONDA CLARITY 2018"
 
 
 class Footnote(Enum):
@@ -155,6 +156,7 @@ CAR_INFO: Dict[str, Optional[Union[HondaCarInfo, List[HondaCarInfo]]]] = {
   CAR.RIDGELINE: HondaCarInfo("Honda Ridgeline 2017-24", min_steer_speed=12. * CV.MPH_TO_MS),
   CAR.INSIGHT: HondaCarInfo("Honda Insight 2019-22", "All", min_steer_speed=3. * CV.MPH_TO_MS),
   CAR.HONDA_E: HondaCarInfo("Honda e 2020", "All", min_steer_speed=3. * CV.MPH_TO_MS),
+  CAR.CLARITY: HondaCarInfo("Honda Clarity 2018-22"),
 }
 
 HONDA_VERSION_REQUEST = bytes([uds.SERVICE_TYPE.READ_DATA_BY_IDENTIFIER]) + \
@@ -242,6 +244,7 @@ DBC = {
   CAR.INSIGHT: dbc_dict('honda_insight_ex_2019_can_generated', None),
   CAR.HONDA_E: dbc_dict('acura_rdx_2020_can_generated', None),
   CAR.CIVIC_2022: dbc_dict('honda_civic_ex_2022_can_generated', None),
+  CAR.CLARITY: dbc_dict('honda_clarity_hybrid_2018_can_generated', 'acura_ilx_2016_nidec'),
 }
 
 STEER_THRESHOLD = {
