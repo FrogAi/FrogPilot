@@ -136,7 +136,9 @@ class LongitudinalPlanner:
     accel_limits_turns[0] = min(accel_limits_turns[0], self.a_desired + 0.05)
     accel_limits_turns[1] = max(accel_limits_turns[1], self.a_desired - 0.05)
 
-    self.mpc.set_weights(prev_accel_constraint, personality=self.personality)
+    self.mpc.set_weights(prev_accel_constraint,
+                         frogpilot_planner.custom_personalities, frogpilot_planner.aggressive_jerk, frogpilot_planner.standard_jerk, frogpilot_planner.relaxed_jerk,
+                         personality=self.personality)
     self.mpc.set_accel_limits(accel_limits_turns[0], accel_limits_turns[1])
     self.mpc.set_cur_state(self.v_desired_filter.x, self.a_desired)
     x, v, a, j = self.parse_model(sm['modelV2'], self.v_model_error)
