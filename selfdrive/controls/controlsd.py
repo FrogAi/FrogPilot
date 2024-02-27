@@ -1149,6 +1149,8 @@ class Controls:
     self.lane_detection = self.params.get_bool("LaneDetection") and self.params.get_bool("NudgelessLaneChange")
     self.lane_detection_width = self.params.get_int("LaneDetectionWidth") * (1 if self.is_metric else CV.FOOT_TO_METER) / 10 if self.lane_detection else 0
 
+    self.frogpilot_variables.personalities_via_wheel = self.params.get_bool("PersonalitiesViaWheel") and self.params.get_bool("AdjustablePersonalities")
+
     quality_of_life = self.params.get_bool("QOLControls")
     self.pause_lateral_on_signal = self.params.get_int("PauseLateralOnSignal") * (CV.KPH_TO_MS if self.is_metric else CV.MPH_TO_MS) if quality_of_life else 0
     self.frogpilot_variables.reverse_cruise_increase = quality_of_life and self.params.get_bool("ReverseCruise")

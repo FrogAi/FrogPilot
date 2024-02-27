@@ -47,6 +47,14 @@ class CarInterface(CarInterfaceBase):
 
     stop_and_go = candidate in TSS2_CAR
 
+    # Detect smartDSU, which intercepts ACC_CMD from the DSU (or radar) allowing openpilot to send it
+    # 0x2AA is sent by a similar device which intercepts the radar instead of DSU on NO_DSU_CARs
+    if 0x2FF in fingerprint[0] or (0x2AA in fingerprint[0] and candidate in NO_DSU_CAR):
+      ret.flags |= ToyotaFlags.SMART_DSU.value
+
+    if 0x2AA in fingerprint[0] and candidate in NO_DSU_CAR:
+      ret.flags |= ToyotaFlags.RADAR_CAN_FILTER.value
+
     if candidate == CAR.PRIUS:
       stop_and_go = True
       ret.wheelbase = 2.70

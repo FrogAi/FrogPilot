@@ -5,8 +5,6 @@ from openpilot.common.params import Params
 from openpilot.system.hardware import HARDWARE
 
 
-params_memory = Params("/dev/shm/params")
-
 DEFAULT_MODEL = "los-angeles"
 
 CITY_SPEED_LIMIT = 25
@@ -51,6 +49,7 @@ class MovingAverageCalculator:
 class FrogPilotFunctions:
   def __init__(self) -> None:
     self.params = Params()
+    self.params_memory = Params("/dev/shm/params")
 
   @staticmethod
   def get_min_accel_eco(v_ego):
@@ -82,19 +81,32 @@ class FrogPilotFunctions:
 
     return min(distance_to_lane, distance_to_road_edge)
 
-  @staticmethod
+  @property
+  def current_personality(self):
+    return self.params.get_int("LongitudinalPersonality")
+
+  def distance_button_function(self, new_personality):
+    self.params.put_int("LongitudinalPersonality", new_personality)
+    self.params_memory.put_bool("PersonalityChangedViaWheel", True)
+
+  @property
+  def personality_changed_via_ui(self):
+    return self.params_memory.get_bool("PersonalityChangedViaUI")
+
+  def reset_personality_changed_param(self):
+    self.params_memory.put_bool("PersonalityChangedViaUI", False)
+
   def update_cestatus_distance(self):
     # Set "CEStatus" to work with "Conditional Experimental Mode"
-    conditional_status = params_memory.get_int("CEStatus")
+    conditional_status = self.params_memory.get_int("CEStatus")
     override_value = 0 if conditional_status in (1, 2, 3, 4, 5, 6) else 3 if conditional_status >= 7 else 4
-    params_memory.put_int("CEStatus", override_value)
+    self.params_memory.put_int("CEStatus", override_value)
 
-  @staticmethod
   def update_cestatus_lkas(self):
     # Set "CEStatus" to work with "Conditional Experimental Mode"
-    conditional_status = params_memory.get_int("CEStatus")
+    conditional_status = self.params_memory.get_int("CEStatus")
     override_value = 0 if conditional_status in (1, 2, 3, 4, 5, 6) else 5 if conditional_status >= 7 else 6
-    params_memory.put_int("CEStatus", override_value)
+    self.params_memory.put_int("CEStatus", override_value)
 
   def update_experimental_mode(self):
     experimental_mode = self.params.get_bool("ExperimentalMode")

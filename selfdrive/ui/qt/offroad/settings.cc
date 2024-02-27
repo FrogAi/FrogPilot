@@ -111,7 +111,7 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
     toggles[param.toStdString()] = toggle;
 
     // insert longitudinal personality after NDOG toggle
-    if (param == "DisengageOnAccelerator") {
+    if (param == "DisengageOnAccelerator" && !params.getBool("AdjustablePersonalities")) {
       addItem(long_personality_setting);
     }
   }

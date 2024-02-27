@@ -126,12 +126,12 @@ def create_lfahda_mfc(packer, enabled, lat_active, hda_set_speed=0):
   }
   return packer.make_can_msg("LFAHDA_MFC", 0, values)
 
-def create_acc_commands(packer, enabled, accel, upper_jerk, idx, lead_visible, set_speed, stopping, long_override, use_fca, cruise_available):
+def create_acc_commands(packer, enabled, accel, upper_jerk, idx, lead_visible, set_speed, stopping, long_override, use_fca, cruise_available, personality_profile):
   commands = []
 
   scc11_values = {
     "MainMode_ACC": 1 if cruise_available else 0,
-    "TauGapSet": 4,
+    "TauGapSet": personality_profile + 1,
     "VSetDis": set_speed if enabled else 0,
     "AliveCounterACC": idx % 0x10,
     "ObjValid": 1, # close lead makes controls tighter
