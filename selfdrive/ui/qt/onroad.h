@@ -129,6 +129,7 @@ private:
   bool blindSpotRight;
   bool conditionalExperimental;
   bool experimentalMode;
+  bool fullMapOpen;
   bool leadInfo;
   bool mapOpen;
   bool showDriverCamera;
