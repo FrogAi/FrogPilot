@@ -78,6 +78,23 @@ class FrogPilotFunctions:
 
     return min(distance_to_lane, distance_to_road_edge)
 
+  @property
+  def current_personality(self):
+    return params.get_int("LongitudinalPersonality")
+
+  @staticmethod
+  def distance_button_function(new_personality):
+    params.put_int("LongitudinalPersonality", new_personality)
+    params_memory.put_bool("PersonalityChangedViaWheel", True)
+
+  @property
+  def personality_changed_via_ui(self):
+    return params_memory.get_bool("PersonalityChangedViaUI")
+
+  @staticmethod
+  def reset_personality_changed_param():
+    params_memory.put_bool("PersonalityChangedViaUI", False)
+
   @staticmethod
   def lkas_button_function(conditional_experimental_mode):
     if conditional_experimental_mode:

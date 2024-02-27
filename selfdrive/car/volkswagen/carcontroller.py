@@ -104,7 +104,7 @@ class CarController:
       # FIXME: follow the recent displayed-speed updates, also use mph_kmh toggle to fix display rounding problem?
       set_speed = hud_control.setSpeed * CV.MS_TO_KPH
       can_sends.append(self.CCS.create_acc_hud_control(self.packer_pt, CANBUS.pt, acc_hud_status, set_speed,
-                                                       lead_distance))
+                                                       lead_distance, CS.personality_profile))
 
     # **** Stock ACC Button Controls **************************************** #
 

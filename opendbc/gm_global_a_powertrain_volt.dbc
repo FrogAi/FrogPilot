@@ -263,6 +263,7 @@ BO_ 880 ASCMActiveCruiseControlStatus: 6 K124_ASCM
  SG_ ACCGapLevel : 21|2@0+ (1,0) [0|0] ""  NEO
  SG_ ACCResumeButton : 1|1@0+ (1,0) [0|0] ""  NEO
  SG_ ACCCmdActive : 23|1@0+ (1,0) [0|0] ""  NEO
+ SG_ DisplayDistance : 4|1@0+ (1,0) [0|1] "" XXX
  SG_ FCWAlert : 41|2@0+ (1,0) [0|3] "" XXX
 
 BO_ 967 EVDriveMode: 4 XXX

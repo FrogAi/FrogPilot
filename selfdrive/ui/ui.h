@@ -201,6 +201,7 @@ typedef struct UIScene {
   bool model_ui;
   bool numerical_temp;
   bool pedals_on_ui;
+  bool personalities_via_screen;
   bool reverse_cruise;
   bool reverse_cruise_ui;
   bool right_hand_drive;
