@@ -38,6 +38,7 @@ struct FrogPilotPlan @0xda96579883444c35 {
   slcSpeedLimitOffset @11 :Float32;
   stoppedEquivalenceFactor @12 :Int16;
   unconfirmedSlcSpeedLimit @13 :Float64;
+  vtscControllingCurve @14 :Bool;
 }
 
 struct CustomReserved4 @0x80ae746ee2596b11 {
