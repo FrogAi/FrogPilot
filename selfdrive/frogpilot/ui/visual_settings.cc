@@ -23,6 +23,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
 
     {"CustomUI", "Custom Onroad UI", "Customize the Onroad UI with some additional visual functions.", "../assets/offroad/icon_road.png"},
     {"AccelerationPath", "Acceleration Path", "Visualize the car's intended acceleration or deceleration with a color-coded path.", ""},
+    {"AdjacentPath", "Adjacent Paths", "Display paths to the left and right of your car, visualizing where the model detects lanes.", ""},
     {"BlindSpotPath", "Blind Spot Path", "Visualize your blind spots with a red path when another vehicle is detected nearby.", ""},
     {"LeadInfo", "Lead Info and Logics", "Get detailed information about the vehicle ahead, including speed and distance, and the logic behind your following distance.", ""},
 
@@ -111,6 +112,10 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
       std::vector<QString> leadInfoToggles{"UseSI"};
       std::vector<QString> leadInfoToggleNames{tr("Use SI Values")};
       toggle = new FrogPilotParamToggleControl(param, title, desc, icon, leadInfoToggles, leadInfoToggleNames);
+    } else if (param == "AdjacentPath") {
+      std::vector<QString> adjacentPathToggles{"AdjacentPathMetrics"};
+      std::vector<QString> adjacentPathToggleNames{tr("Display Metrics")};
+      toggle = new FrogPilotParamToggleControl(param, title, desc, icon, adjacentPathToggles, adjacentPathToggleNames);
 
     } else if (param == "ModelUI") {
       FrogPilotParamManageControl *modelUIToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
