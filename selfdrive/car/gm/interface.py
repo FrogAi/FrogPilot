@@ -22,6 +22,8 @@ BUTTONS_DICT = {CruiseButtons.RES_ACCEL: ButtonType.accelCruise, CruiseButtons.D
 
 
 ACCELERATOR_POS_MSG = 0xbe
+CAM_MSG = 0x320  # AEBCmd
+                 # TODO: Is this always linked to camera presence?
 PEDAL_MSG = 0x201
 
 NON_LINEAR_TORQUE_PARAMS = {
@@ -374,6 +376,11 @@ class CarInterface(CarInterfaceBase):
 
     if candidate in CC_ONLY_CAR:
       ret.safetyConfigs[0].safetyParam |= Panda.FLAG_GM_NO_ACC
+
+    # Exception for flashed cars, or cars whose camera was removed
+    if (ret.networkLocation == NetworkLocation.fwdCamera or candidate in CC_ONLY_CAR) and CAM_MSG not in fingerprint[CanBus.CAMERA] and not candidate in SDGM_CAR:
+      ret.flags |= GMFlags.NO_CAMERA.value
+      ret.safetyConfigs[0].safetyParam |= Panda.FLAG_GM_NO_CAMERA
 
     if ACCELERATOR_POS_MSG not in fingerprint[CanBus.POWERTRAIN]:
       ret.flags |= GMFlags.NO_ACCELERATOR_POS_MSG.value
