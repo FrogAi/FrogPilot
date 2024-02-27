@@ -156,6 +156,7 @@ private:
   bool fullMapOpen;
   bool leadInfo;
   bool mapOpen;
+  bool roadNameUI;
   bool showDriverCamera;
   bool turnSignalLeft;
   bool turnSignalRight;

@@ -51,6 +51,9 @@ def enable_logging(started, params, params_memory, CP: car.CarParams) -> bool:
 def enable_uploading(started, params, params_memory, CP: car.CarParams) -> bool:
   return not (params_memory.get_bool("FireTheBabysitter") and params_memory.get_bool("NoUploads"))
 
+def osm(started, params, params_memory, CP: car.CarParams) -> bool:
+  return params_memory.get_bool("RoadNameUI")
+
 procs = [
   DaemonProcess("manage_athenad", "selfdrive.athena.manage_athenad", "AthenadPid"),
 
@@ -99,6 +102,7 @@ procs = [
 
   # FrogPilot processes
   PythonProcess("fleet_manager", "selfdrive.frogpilot.fleetmanager.fleet_manager", always_run),
+  PythonProcess("mapd", "selfdrive.frogpilot.functions.mapd", osm),
 ]
 
 managed_processes = {p.name: p for p in procs}
