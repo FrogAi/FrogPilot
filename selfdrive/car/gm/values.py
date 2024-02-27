@@ -41,7 +41,7 @@ class CarControllerParams:
     self.ZERO_GAS = 2048  # Coasting
     self.MAX_BRAKE = 400  # ~ -4.0 m/s^2 with regen
 
-    if CP.carFingerprint in CAMERA_ACC_CAR:
+    if CP.carFingerprint in CAMERA_ACC_CAR and CP.carFingerprint not in CC_ONLY_CAR:
       self.MAX_GAS = 3400
       self.MAX_GAS_PLUS = 8848
       self.MAX_ACC_REGEN = 1514
@@ -83,6 +83,16 @@ class CAR(StrEnum):
   SILVERADO = "CHEVROLET SILVERADO 1500 2020"
   EQUINOX = "CHEVROLET EQUINOX 2019"
   TRAILBLAZER = "CHEVROLET TRAILBLAZER 2021"
+  # Separate car def is required when there is no ASCM
+  # (for now) unless there is a way to detect it when it has been unplugged...
+  VOLT_CC = "CHEVROLET VOLT NO ACC"
+  BOLT_CC = "CHEVROLET BOLT EV NO ACC"
+  EQUINOX_CC = "CHEVROLET EQUINOX NO ACC"
+  SUBURBAN = "CHEVROLET SUBURBAN PREMIER 2016"
+  SUBURBAN_CC = "CHEVROLET SUBURBAN NO ACC"
+  YUKON_CC = "GMC YUKON NO ACC"
+  CT6_CC = "CADILLAC CT6 NO ACC"
+  TRAILBLAZER_CC = "CHEVROLET TRAILBLAZER 2024 NO ACC"
 
 
 class Footnote(Enum):
@@ -125,6 +135,15 @@ CAR_INFO: Dict[str, Union[GMCarInfo, List[GMCarInfo]]] = {
   ],
   CAR.EQUINOX: GMCarInfo("Chevrolet Equinox 2019-22"),
   CAR.TRAILBLAZER: GMCarInfo("Chevrolet Trailblazer 2021-22"),
+
+  CAR.VOLT_CC: GMCarInfo("Chevrolet Volt No ACC"),
+  CAR.BOLT_CC: GMCarInfo("Chevrolet Bolt No ACC"),
+  CAR.EQUINOX_CC: GMCarInfo("Chevrolet Equinox No ACC"),
+  CAR.SUBURBAN: GMCarInfo("Chevrolet Suburban Premier 2016-2020"),
+  CAR.SUBURBAN_CC: GMCarInfo("Chevrolet Suburban No ACC"),
+  CAR.YUKON_CC: GMCarInfo("GMC Yukon No ACC"),
+  CAR.CT6_CC: GMCarInfo("Cadillac CT6 No ACC"),
+  CAR.TRAILBLAZER_CC: GMCarInfo("Chevrolet Trailblazer 2024 No ACC"),
 }
 
 
@@ -149,6 +168,9 @@ class CanBus:
   CHASSIS = 2
   LOOPBACK = 128
   DROPPED = 192
+
+class GMFlags(IntFlag):
+  NO_ACCELERATOR_POS_MSG = 8
 
 
 # In a Data Module, an identifier is a string used to recognize an object,
@@ -189,10 +211,13 @@ FW_QUERY_CONFIG = FwQueryConfig(
 
 DBC: Dict[str, Dict[str, str]] = defaultdict(lambda: dbc_dict('gm_global_a_powertrain_generated', 'gm_global_a_object', chassis_dbc='gm_global_a_chassis'))
 DBC[CAR.VOLT] = dbc_dict('gm_global_a_powertrain_volt', 'gm_global_a_object', chassis_dbc='gm_global_a_chassis')
+DBC[CAR.VOLT_CC] = DBC[CAR.VOLT]
 
-EV_CAR = {CAR.VOLT, CAR.BOLT_EUV}
+EV_CAR = {CAR.VOLT, CAR.BOLT_EUV, CAR.VOLT_CC, CAR.BOLT_CC}
+CC_ONLY_CAR = {CAR.VOLT_CC, CAR.BOLT_CC, CAR.EQUINOX_CC, CAR.SUBURBAN_CC, CAR.YUKON_CC, CAR.CT6_CC, CAR.TRAILBLAZER_CC}
 
 # We're integrated at the camera with VOACC on these cars (instead of ASCM w/ OBD-II harness)
 CAMERA_ACC_CAR = {CAR.BOLT_EUV, CAR.SILVERADO, CAR.EQUINOX, CAR.TRAILBLAZER}
+CAMERA_ACC_CAR.update({CAR.VOLT_CC, CAR.BOLT_CC, CAR.EQUINOX_CC, CAR.YUKON_CC, CAR.CT6_CC, CAR.TRAILBLAZER_CC})
 
 STEER_THRESHOLD = 1.0
