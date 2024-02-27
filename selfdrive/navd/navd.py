@@ -53,6 +53,10 @@ class RouteEngine:
     if "MAPBOX_TOKEN" in os.environ:
       self.mapbox_token = os.environ["MAPBOX_TOKEN"]
       self.mapbox_host = "https://api.mapbox.com"
+      self.params.put("MapboxPublicKey", self.mapbox_token)
+    elif self.params.get_int("PrimeType") == 0:
+      self.mapbox_token = self.params.get("MapboxPublicKey", encoding='utf8')
+      self.mapbox_host = "https://api.mapbox.com"
     else:
       try:
         self.mapbox_token = Api(self.params.get("DongleId", encoding='utf8')).get_token(expiry_hours=4 * 7 * 24)
