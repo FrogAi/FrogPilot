@@ -9,6 +9,7 @@ class MapPanel : public QFrame {
 
 public:
   explicit MapPanel(const QMapLibre::Settings &settings, QWidget *parent = nullptr);
+  void setVisible(bool visible);
 
 signals:
   void mapPanelRequested();
