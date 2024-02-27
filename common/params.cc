@@ -408,6 +408,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"UseVienna", PERSISTENT},
     {"WarningSoftVolume", PERSISTENT},
     {"WarningImmediateVolume", PERSISTENT},
+    {"WheelIcon", PERSISTENT},
 };
 
 } // namespace
