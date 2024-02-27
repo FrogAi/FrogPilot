@@ -247,10 +247,17 @@ static void update_state(UIState *s) {
     scene.enabled = controlsState.getEnabled();
     scene.experimental_mode = controlsState.getExperimentalMode();
   }
+  if (sm.updated("driverMonitoringState")) {
+    auto driverMonitoringState = sm["driverMonitoringState"].getDriverMonitoringState();
+    scene.right_hand_drive = driverMonitoringState.getIsRHD();
+  }
   if (sm.updated("frogpilotCarControl")) {
     auto frogpilotCarControl = sm["frogpilotCarControl"].getFrogpilotCarControl();
     if (scene.always_on_lateral) {
       scene.always_on_lateral_active = !scene.enabled && frogpilotCarControl.getAlwaysOnLateral();
+    }
+    if (scene.speed_limit_controller) {
+      scene.speed_limit_changed = frogpilotCarControl.getSpeedLimitChanged();
     }
   }
   if (sm.updated("frogpilotPlan")) {
@@ -264,6 +271,13 @@ static void update_state(UIState *s) {
       scene.obstacle_distance = frogpilotPlan.getSafeObstacleDistance();
       scene.obstacle_distance_stock = frogpilotPlan.getSafeObstacleDistanceStock();
       scene.stopped_equivalence = frogpilotPlan.getStoppedEquivalenceFactor();
+    }
+    if (scene.speed_limit_controller) {
+      scene.speed_limit = frogpilotPlan.getSlcSpeedLimit();
+      scene.speed_limit_offset = frogpilotPlan.getSlcSpeedLimitOffset();
+      scene.speed_limit_overridden = frogpilotPlan.getSlcOverridden();
+      scene.speed_limit_overridden_speed = frogpilotPlan.getSlcOverriddenSpeed();
+      scene.unconfirmed_speed_limit = frogpilotPlan.getUnconfirmedSlcSpeedLimit();
     }
     scene.adjusted_cruise = frogpilotPlan.getAdjustedCruise();
   }
@@ -368,6 +382,11 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.screen_timeout = screen_management ? params.getInt("ScreenTimeout") : 30;
   scene.screen_timeout_onroad = screen_management ? params.getInt("ScreenTimeoutOnroad") : 10;
   scene.standby_mode = screen_management && params.getBool("StandbyMode");
+
+  scene.speed_limit_controller = params.getBool("SpeedLimitController");
+  scene.show_slc_offset = scene.speed_limit_controller && params.getBool("ShowSLCOffset");
+  scene.show_slc_offset_ui = scene.speed_limit_controller && params.getBool("ShowSLCOffsetUI");
+  scene.use_vienna_slc_sign = scene.speed_limit_controller && params.getBool("UseVienna");
 }
 
 void UIState::updateStatus() {

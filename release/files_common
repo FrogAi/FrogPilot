@@ -562,3 +562,4 @@ selfdrive/frogpilot/functions/conditional_experimental_mode.py
 selfdrive/frogpilot/functions/frogpilot_functions.py
 selfdrive/frogpilot/functions/frogpilot_planner.py
 selfdrive/frogpilot/functions/map_turn_speed_controller.py
+selfdrive/frogpilot/functions/speed_limit_controller.py
