@@ -44,7 +44,7 @@ private:
   std::set<QString> experimentalModeActivationKeys = {"ExperimentalModeViaDistance", "ExperimentalModeViaLKAS", "ExperimentalModeViaScreen"};
   std::set<QString> fireTheBabysitterKeys = {"NoLogging", "MuteOverheated", "NoUploads", "OfflineMode"};
   std::set<QString> laneChangeKeys = {"LaneChangeTime", "LaneDetection", "LaneDetectionWidth", "OneLaneChange"};
-  std::set<QString> lateralTuneKeys = {"ForceAutoTune", "NNFF", "UseLateralJerk"};
+  std::set<QString> lateralTuneKeys = {"ForceAutoTune", "NNFF", "SteerRatio", "UseLateralJerk"};
   std::set<QString> longitudinalTuneKeys = {"AccelerationProfile", "DecelerationProfile", "AggressiveAcceleration", "LeadDetectionThreshold", "SmoothBraking", "StoppingDistance", "TrafficMode"};
   std::set<QString> mtscKeys = {"DisableMTSCSmoothing", "MTSCAggressiveness", "MTSCCurvatureCheck", "MTSCLimit"};
   std::set<QString> qolKeys = {"DisableOnroadUploads", "HigherBitrate", "NavChill", "PauseLateralOnSignal", "ReverseCruise", "SetSpeedOffset"};
@@ -61,4 +61,6 @@ private:
 
   bool isMetric = params.getBool("IsMetric");
   bool started = false;
+
+  float steerRatioStock = params.getFloat("SteerRatioStock");
 };
