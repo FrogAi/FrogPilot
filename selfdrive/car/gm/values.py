@@ -108,6 +108,7 @@ class CAR(StrEnum):
   CT6_CC = "CADILLAC CT6 NO ACC"
   TRAILBLAZER_CC = "CHEVROLET TRAILBLAZER 2024 NO ACC"
   XT4 = "CADILLAC XT4 2023"
+  TRAX = "CHEVROLET TRAX 2024"
 
 
 class Footnote(Enum):
@@ -160,6 +161,7 @@ CAR_INFO: Dict[str, Union[GMCarInfo, List[GMCarInfo]]] = {
   CAR.CT6_CC: GMCarInfo("Cadillac CT6 No ACC"),
   CAR.TRAILBLAZER_CC: GMCarInfo("Chevrolet Trailblazer 2024 No ACC"),
   CAR.XT4: GMCarInfo("Cadillac XT4 2023", "Driver Assist Package"),
+  CAR.TRAX: GMCarInfo("Chevrolet TRAX 2024"),
 }
 
 
@@ -242,7 +244,7 @@ SDGM_CAR = {CAR.XT4}
 SLOW_ACC = {CAR.SILVERADO}
 
 # We're integrated at the camera with VOACC on these cars (instead of ASCM w/ OBD-II harness)
-CAMERA_ACC_CAR = {CAR.BOLT_EUV, CAR.SILVERADO, CAR.EQUINOX, CAR.TRAILBLAZER}
+CAMERA_ACC_CAR = {CAR.BOLT_EUV, CAR.SILVERADO, CAR.EQUINOX, CAR.TRAILBLAZER, CAR.TRAX}
 CAMERA_ACC_CAR.update({CAR.VOLT_CC, CAR.BOLT_CC, CAR.EQUINOX_CC, CAR.YUKON_CC, CAR.CT6_CC, CAR.TRAILBLAZER_CC})
 
 STEER_THRESHOLD = 1.0
