@@ -41,3 +41,8 @@ void MapPanel::toggleMapSettings() {
   emit mapPanelRequested();
   show();
 }
+
+void MapPanel::setVisible(bool visible) {
+  QFrame::setVisible(visible);
+  uiState()->scene.map_open = visible;
+}

@@ -179,6 +179,7 @@ typedef struct UIScene {
   bool dynamic_path_width;
   bool enabled;
   bool experimental_mode;
+  bool map_open;
   bool model_ui;
   bool turn_signal_left;
   bool turn_signal_right;
