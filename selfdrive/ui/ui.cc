@@ -232,6 +232,7 @@ static void update_state(UIState *s) {
     scene.acceleration = carState.getAEgo();
     scene.blind_spot_left = carState.getLeftBlindspot();
     scene.blind_spot_right = carState.getRightBlindspot();
+    scene.parked = carState.getGearShifter() == cereal::CarState::GearShifter::PARK;
     scene.reverse = carState.getGearShifter() == cereal::CarState::GearShifter::REVERSE;
     scene.standstill = carState.getStandstill();
     scene.steering_angle_deg = carState.getSteeringAngleDeg();

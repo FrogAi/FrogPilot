@@ -208,6 +208,7 @@ typedef struct UIScene {
   bool numerical_temp;
   bool online;
   bool onroad_distance_button;
+  bool parked;
   bool pedals_on_ui;
   bool reverse;
   bool reverse_cruise;
