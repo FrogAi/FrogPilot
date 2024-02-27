@@ -38,6 +38,9 @@ class PowerMonitoring:
     self.car_battery_capacity_uWh = max((CAR_BATTERY_CAPACITY_uWh / 10), int(car_battery_capacity_uWh))
 
     # FrogPilot variables
+    device_shutdown_setting = self.params.get_int("DeviceShutdown")
+    # If the toggle is set for < 1 hour, configure by 15 minute increments
+    self.device_shutdown_time = (device_shutdown_setting - 3) * 3600 if device_shutdown_setting >= 4 else device_shutdown_setting * (60 * 15)
 
   # Calculation tick
   def calculate(self, voltage: Optional[int], ignition: bool):
@@ -119,13 +122,13 @@ class PowerMonitoring:
     offroad_time = (now - offroad_timestamp)
     low_voltage_shutdown = (self.car_voltage_mV < (VBATT_PAUSE_CHARGING * 1e3) and
                             offroad_time > VOLTAGE_SHUTDOWN_MIN_OFFROAD_TIME_S)
-    should_shutdown |= offroad_time > MAX_TIME_OFFROAD_S
+    should_shutdown |= offroad_time > self.device_shutdown_time
     should_shutdown |= low_voltage_shutdown
     should_shutdown |= (self.car_battery_capacity_uWh <= 0)
     should_shutdown &= not ignition
     should_shutdown &= (not self.params.get_bool("DisablePowerDown"))
     should_shutdown &= in_car
-    should_shutdown &= offroad_time > DELAY_SHUTDOWN_TIME_S
+    should_shutdown &= offroad_time > DELAY_SHUTDOWN_TIME_S if self.device_shutdown_time else True  # If "Instant" is selected for the timer, shutdown immediately
     should_shutdown |= self.params.get_bool("ForcePowerDown")
     should_shutdown &= started_seen or (now > MIN_ON_TIME_S)
     return should_shutdown
