@@ -14,7 +14,7 @@ class CarInterface(CarInterfaceBase):
   @staticmethod
   def _get_params(ret, params, candidate, fingerprint, car_fw, experimental_long, docs):
     ret.carName = "ford"
-    ret.dashcamOnly = candidate in CANFD_CAR
+    ret.dashcamOnly = False
 
     ret.radarUnavailable = True
     ret.steerControlType = car.CarParams.SteerControlType.angle
