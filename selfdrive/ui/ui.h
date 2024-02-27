@@ -247,6 +247,7 @@ typedef struct UIScene {
   int screen_brightness;
   int steering_angle_deg;
   int stopped_equivalence;
+  int wheel_icon;
 
   QPolygonF track_adjacent_vertices[6];
   QPolygonF track_edge_vertices;
