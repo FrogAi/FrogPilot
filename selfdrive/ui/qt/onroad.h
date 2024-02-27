@@ -93,6 +93,27 @@ private:
   QPixmap settings_img;
 };
 
+class PedalIcons : public QWidget {
+  Q_OBJECT
+
+public:
+  explicit PedalIcons(QWidget *parent = 0);
+  void updateState();
+
+private:
+  void paintEvent(QPaintEvent *event) override;
+
+  QPixmap brake_pedal_img;
+  QPixmap gas_pedal_img;
+
+  UIScene &scene;
+
+  bool accelerating;
+  bool decelerating;
+
+  float acceleration;
+};
+
 // container window for the NVG UI
 class AnnotatedCameraWidget : public CameraWidget {
   Q_OBJECT
@@ -143,6 +164,7 @@ private:
   UIScene &scene;
 
   Compass *compass_img;
+  PedalIcons *pedal_icons;
 
   QHBoxLayout *bottom_layout;
 
@@ -156,6 +178,7 @@ private:
   bool fullMapOpen;
   bool leadInfo;
   bool mapOpen;
+  bool pedalsOnUI;
   bool roadNameUI;
   bool showDriverCamera;
   bool turnSignalLeft;

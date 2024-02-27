@@ -231,6 +231,10 @@ static void update_state(UIState *s) {
     if (scene.driver_camera) {
       scene.show_driver_camera = carState.getGearShifter() == cereal::CarState::GearShifter::REVERSE;
     }
+    if (scene.pedals_on_ui) {
+      scene.acceleration = carState.getAEgo();
+      scene.standstill = carState.getStandstill();
+    }
   }
   if (sm.updated("controlsState")) {
     auto controlsState = sm["controlsState"].getControlsState();
@@ -308,6 +312,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.fps_counter = custom_onroad_ui && params.getBool("FPSCounter");
   scene.lead_info = custom_onroad_ui && params.getBool("LeadInfo");
   scene.use_si = scene.lead_info && params.getBool("UseSI");
+  scene.pedals_on_ui = custom_onroad_ui && params.getBool("PedalsOnUI");
   scene.road_name_ui = custom_onroad_ui && params.getBool("RoadNameUI");
 
   bool custom_theme = params.getBool("CustomTheme");
