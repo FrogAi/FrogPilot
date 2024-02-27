@@ -33,7 +33,7 @@ private:
   std::set<QString> customOnroadUIKeys = {"AccelerationPath"};
   std::set<QString> customThemeKeys = {};
   std::set<QString> modelUIKeys = {};
-  std::set<QString> qolKeys = {};
+  std::set<QString> qolKeys = {"DriveStats"};
 
   std::map<std::string, ParamControl*> toggles;
 
