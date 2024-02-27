@@ -255,6 +255,7 @@ static void update_state(UIState *s) {
       scene.obstacle_distance_stock = frogpilotPlan.getSafeObstacleDistanceStock();
       scene.stopped_equivalence = frogpilotPlan.getStoppedEquivalenceFactor();
     }
+    scene.adjusted_cruise = frogpilotPlan.getAdjustedCruise();
   }
   if (sm.updated("liveLocationKalman")) {
     auto liveLocationKalman = sm["liveLocationKalman"].getLiveLocationKalman();
@@ -306,6 +307,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.custom_icons = custom_theme ? params.getInt("CustomIcons") : 0;
   scene.custom_signals = custom_theme ? params.getInt("CustomSignals") : 0;
 
+  scene.disable_smoothing_mtsc = params.getBool("DisableMTSCSmoothing");
   scene.driver_camera = params.getBool("DriverCamera");
   scene.experimental_mode_via_screen = params.getBool("ExperimentalModeViaScreen") && params.getBool("ExperimentalModeActivation");
 

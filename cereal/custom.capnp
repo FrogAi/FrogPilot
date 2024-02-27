@@ -23,6 +23,7 @@ struct FrogPilotNavigation @0xf35cc4560bbf6ec2 {
 }
 
 struct FrogPilotPlan @0xda96579883444c35 {
+  adjustedCruise @0 :Float64;
   conditionalExperimental @1 :Bool;
   desiredFollowDistance @2 :Int16;
   laneWidthLeft @3 :Float32;
