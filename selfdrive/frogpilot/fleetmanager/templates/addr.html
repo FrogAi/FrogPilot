@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Navigation
+{% endblock %}
+
+{% block main %}
+{% with gmap_key=gmap_key, lon=lon, lat=lat, home=home, work=work, fav1=fav1, fav2=fav2, fav3=fav3 %}
+    {% include "addr_input.html" %}
+{% endwith %}
+{% endblock %}
