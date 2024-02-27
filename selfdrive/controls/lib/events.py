@@ -1049,6 +1049,14 @@ EVENTS: Dict[int, Dict[str, Union[Alert, AlertCallbackType]]] = {
     ET.PERMANENT: no_lane_available_alert,
   },
 
+  EventName.openpilotCrashed: {
+    ET.PERMANENT: Alert(
+      "openpilot crashed",
+      "Please post the error log in the FrogPilot Discord!",
+      AlertStatus.normal, AlertSize.mid,
+      Priority.HIGH, VisualAlert.none, AudibleAlert.none, .1),
+  },
+
   EventName.torqueNNLoad: {
     ET.PERMANENT: torque_nn_load_alert,
   },

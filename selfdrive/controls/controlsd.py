@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from typing import SupportsFloat
 
 import cereal.messaging as messaging
+import openpilot.selfdrive.sentry as sentry
 
 from cereal import car, log, custom
 from cereal.visionipc import VisionIpcClient, VisionStreamType
@@ -180,6 +181,7 @@ class Controls:
     self.driving_gear = False
     self.holiday_theme_alerted = False
     self.previously_enabled = False
+    self.openpilot_crashed = False
     self.stopped_for_light_previously = False
 
     self.previous_lead_distance = 0
@@ -322,6 +324,11 @@ class Controls:
     self.events.clear()
 
     frogpilot_plan = self.sm['frogpilotPlan']
+
+    # Show crash log event if openpilot crashed
+    if os.path.isfile(os.path.join(sentry.CRASHES_DIR, 'error.txt')):
+      self.events.add(EventName.openpilotCrashed)
+      return
 
     # Show holiday related event to indicate which holiday is active
     if self.sm.frame >= 1000 and self.holiday_themes and self.params_memory.get_int("CurrentHolidayTheme") != 0 and not self.holiday_theme_alerted:
@@ -762,8 +769,8 @@ class Controls:
     # Check which actuators can be enabled
     standstill = CS.vEgo <= max(self.CP.minSteerSpeed, MIN_LATERAL_CONTROL_SPEED) or CS.standstill
     CC.latActive = (self.active or self.FPCC.alwaysOnLateral) and not CS.steerFaultTemporary and not CS.steerFaultPermanent and \
-                   (not standstill or self.joystick_mode)
-    CC.longActive = self.enabled and not self.events.contains(ET.OVERRIDE_LONGITUDINAL) and self.CP.openpilotLongitudinalControl
+                   (not standstill or self.joystick_mode) and not self.openpilot_crashed
+    CC.longActive = self.enabled and not self.events.contains(ET.OVERRIDE_LONGITUDINAL) and self.CP.openpilotLongitudinalControl and not self.openpilot_crashed
 
     actuators = CC.actuators
     actuators.longControlState = self.LoC.long_control_state
