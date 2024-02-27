@@ -118,6 +118,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     paramsdPermanentError @119;
 
     # FrogPilot events
+    frogSteerSaturated @122;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;

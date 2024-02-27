@@ -207,9 +207,13 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("carState")) {
     auto carState = sm["carState"].getCarState();
-    if (scene.blind_spot_path) {
+    if (scene.blind_spot_path || scene.custom_signals) {
       scene.blind_spot_left = carState.getLeftBlindspot();
       scene.blind_spot_right = carState.getRightBlindspot();
+    }
+    if (scene.custom_signals) {
+      scene.turn_signal_left = carState.getLeftBlinker();
+      scene.turn_signal_right = carState.getRightBlinker();
     }
   }
   if (sm.updated("controlsState")) {
@@ -269,6 +273,11 @@ void ui_update_frogpilot_params(UIState *s) {
   bool custom_onroad_ui = params.getBool("CustomUI");
   scene.acceleration_path = custom_onroad_ui && params.getBool("AccelerationPath");
   scene.blind_spot_path = custom_onroad_ui && params.getBool("BlindSpotPath");
+
+  bool custom_theme = params.getBool("CustomTheme");
+  scene.custom_colors = custom_theme ? params.getInt("CustomColors") : 0;
+  scene.custom_icons = custom_theme ? params.getInt("CustomIcons") : 0;
+  scene.custom_signals = custom_theme ? params.getInt("CustomSignals") : 0;
 
   bool quality_of_life_controls = params.getBool("QOLControls");
 
