@@ -80,6 +80,7 @@ private:
 
   std::map<int, QPixmap> wheelImages;
 
+  bool firefoxRandomEventTriggered;
   bool rotatingWheel;
   int steeringAngleDeg;
   int wheelIcon;

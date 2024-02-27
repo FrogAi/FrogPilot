@@ -53,6 +53,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
     {"HideSpeed", "Hide Speed", "Hide the speed indicator in the onroad UI. Additional toggle allows it to be hidden/shown via tapping the speed itself.", ""},
     {"MapStyle", "Map Style", "Use a custom map style to be used for 'Navigate on openpilot'.", ""},
 
+    {"RandomEvents", "Random Events", "Enjoy a bit of unpredictability with random events that can occur during certain driving conditions.", "../frogpilot/assets/toggle_icons/icon_random.png"},
     {"ScreenBrightness", "Screen Brightness", "Customize your screen brightness.", "../frogpilot/assets/toggle_icons/icon_light.png"},
 
     {"WheelIcon", "Steering Wheel Icon", "Replace the default steering wheel icon with a custom design, adding a unique touch to your interface.", "../assets/offroad/icon_openpilot.png"},

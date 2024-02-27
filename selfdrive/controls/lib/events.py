@@ -1047,6 +1047,39 @@ EVENTS: Dict[int, Dict[str, Union[Alert, AlertCallbackType]]] = {
   EventName.torqueNNLoad: {
     ET.PERMANENT: torque_nn_load_alert,
   },
+
+  # Random Events
+  EventName.firefoxSteerSaturated: {
+    ET.WARNING: Alert(
+      "Turn Exceeds Steering Limit",
+      "IE Has Stopped Responding...",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.firefox, 4.),
+  },
+
+  EventName.openpilotCrashedRandomEvents: {
+    ET.PERMANENT: Alert(
+      "openpilot crashed 💩",
+      "Please post the error log in the FrogPilot Discord!",
+      AlertStatus.normal, AlertSize.mid,
+      Priority.HIGHEST, VisualAlert.none, AudibleAlert.fart, 4.),
+  },
+
+  EventName.vCruise69: {
+    ET.PERMANENT: Alert(
+      "Lol 69",
+      "",
+      AlertStatus.frogpilot, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.noice, 2.),
+  },
+
+  EventName.yourFrogTriedToKillMe: {
+    ET.PERMANENT: Alert(
+      "Your frog tried to kill me",
+      "😠",
+      AlertStatus.frogpilot, AlertSize.small,
+      Priority.MID, VisualAlert.none, AudibleAlert.angry, 3.),
+  },
 }
 
 

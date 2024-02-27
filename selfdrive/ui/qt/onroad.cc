@@ -382,7 +382,8 @@ ExperimentalButton::ExperimentalButton(QWidget *parent) : experimental_mode(fals
     {3, loadPixmap("../frogpilot/assets/wheel_images/frog.png", {img_size, img_size})},
     {4, loadPixmap("../frogpilot/assets/wheel_images/rocket.png", {img_size, img_size})},
     {5, loadPixmap("../frogpilot/assets/wheel_images/hyundai.png", {img_size, img_size})},
-    {6, loadPixmap("../frogpilot/assets/wheel_images/stalin.png", {img_size, img_size})}
+    {6, loadPixmap("../frogpilot/assets/wheel_images/stalin.png", {img_size, img_size})},
+    {7, loadPixmap("../frogpilot/assets/random_events/images/firefox.png", {img_size, img_size})}
   };
 }
 
@@ -411,13 +412,20 @@ void ExperimentalButton::updateState(const UIState &s, bool leadInfo) {
   }
 
   // FrogPilot variables
+  firefoxRandomEventTriggered = scene.current_random_event == 1;
   rotatingWheel = scene.rotating_wheel;
   wheelIcon = scene.wheel_icon;
 
   y_offset = leadInfo ? 10 : 0;
 
+  if (firefoxRandomEventTriggered) {
+    static int rotationDegree = 0;
+    rotationDegree = (rotationDegree + 36) % 360;
+    steeringAngleDeg = rotationDegree;
+    wheelIcon = 7;
+    update();
   // Update the icon so the steering wheel rotates in real time
-  if (rotatingWheel && steeringAngleDeg != scene.steering_angle_deg) {
+  } else if (rotatingWheel && steeringAngleDeg != scene.steering_angle_deg) {
     steeringAngleDeg = scene.steering_angle_deg;
     update();
   }
@@ -437,7 +445,7 @@ void ExperimentalButton::paintEvent(QPaintEvent *event) {
       QColor(0, 0, 0, 166);
 
   if (!(scene.show_driver_camera || scene.map_open && scene.full_map)) {
-    if (rotatingWheel) {
+    if (rotatingWheel || firefoxRandomEventTriggered) {
       drawIconRotate(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), img, background_color, (isDown() || !(engageable || scene.always_on_lateral_active)) ? 0.6 : 1.0, steeringAngleDeg);
     } else {
       drawIcon(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), img, background_color, (isDown() || !(engageable || scene.always_on_lateral_active)) ? 0.6 : 1.0);
