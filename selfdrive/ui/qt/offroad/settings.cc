@@ -26,6 +26,7 @@
 #include "selfdrive/ui/qt/util.h"
 #include "selfdrive/ui/qt/qt_window.h"
 
+#include "selfdrive/frogpilot/navigation/ui/navigation_settings.h"
 #include "selfdrive/frogpilot/ui/control_settings.h"
 #include "selfdrive/frogpilot/ui/vehicle_settings.h"
 #include "selfdrive/frogpilot/ui/visual_settings.h"
@@ -623,6 +624,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     {tr("Toggles"), toggles},
     {tr("Software"), new SoftwarePanel(this)},
     {tr("Controls"), frogpilotControls},
+    {tr("Navigation"), new FrogPilotNavigationPanel(this)},
     {tr("Vehicles"), new FrogPilotVehiclesPanel(this)},
     {tr("Visuals"), frogpilotVisuals},
   };
