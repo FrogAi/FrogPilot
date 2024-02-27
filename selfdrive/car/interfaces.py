@@ -105,6 +105,9 @@ class CarInterfaceBase(ABC):
     self.belowSteerSpeed_shown = False
     self.disable_belowSteerSpeed = False
 
+    self.resumeRequired_shown = False
+    self.disable_resumeRequired = False
+
   @staticmethod
   def get_pid_accel_limits(CP, current_speed, cruise_speed, frogpilot_variables):
     if frogpilot_variables.sport_plus:
