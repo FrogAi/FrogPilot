@@ -31,6 +31,10 @@ from openpilot.selfdrive.frogpilot.functions.frogpilot_functions import DEFAULT_
 def manager_init() -> None:
   save_bootlog()
 
+  # Clear the error log on boot to prevent old errors from hanging around
+  if os.path.isfile(os.path.join(sentry.CRASHES_DIR, 'error.txt')):
+    os.remove(os.path.join(sentry.CRASHES_DIR, 'error.txt'))
+
   params = Params()
   params_storage = Params("/persist/comma/params")
   params.clear_all(ParamKeyType.CLEAR_ON_MANAGER_START)
@@ -386,6 +390,10 @@ def manager_thread() -> None:
       params.clear_all(ParamKeyType.CLEAR_ON_ONROAD_TRANSITION)
     elif not started and started_prev:
       params.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
+
+      # Clear the error log on offroad transition to prevent old errors from hanging around
+      if os.path.isfile(os.path.join(sentry.CRASHES_DIR, 'error.txt')):
+        os.remove(os.path.join(sentry.CRASHES_DIR, 'error.txt'))
 
     # update onroad params, which drives boardd's safety setter thread
     if started != started_prev:

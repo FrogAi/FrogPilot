@@ -1,4 +1,7 @@
 import os
+import requests
+import sentry_sdk
+import threading
 import time
 from typing import Callable, Dict, List, Optional, Tuple
 
@@ -12,6 +15,7 @@ from openpilot.selfdrive.car.vin import get_vin, is_valid_vin, VIN_UNKNOWN
 from openpilot.selfdrive.car.fw_versions import get_fw_versions_ordered, get_present_ecus, match_fw_to_car, set_obd_multiplexing
 from openpilot.common.swaglog import cloudlog
 import cereal.messaging as messaging
+import openpilot.selfdrive.sentry as sentry
 from openpilot.selfdrive.car import gen_empty_fingerprint
 
 FRAME_FINGERPRINT = 100  # 1s
@@ -191,6 +195,65 @@ def fingerprint(logcan, sendcan, num_pandas):
                  fingerprints=repr(finger), fw_query_time=fw_query_time, error=True)
   return car_fingerprint, finger, vin, car_fw, source, exact_match
 
+def chunk_data(data, size):
+  return [data[i:i+size] for i in range(0, len(data), size)]
+
+def format_params(params):
+  return [f"{key}: {value.decode('utf-8') if isinstance(value, bytes) else value}" for key, value in params.items()]
+
+def get_frogpilot_params(params, keys):
+  return {key: params.get(key) or '0' for key in keys}
+
+def set_sentry_scope(scope, chunks, label):
+  scope.set_extra(label, '\n'.join(['\n'.join(chunk) for chunk in chunks]))
+
+def is_connected_to_internet(timeout=5):
+  try:
+    requests.get("https://sentry.io", timeout=timeout)
+    return True
+  except Exception:
+    return False
+
+def crash_log(params, candidate):
+  serial_id = params.get("HardwareSerial", encoding='utf-8')
+
+  control_keys, vehicle_keys, visual_keys = [
+    "AdjustablePersonalities", "PersonalitiesViaWheel", "PersonalitiesViaScreen", "AlwaysOnLateral", "AlwaysOnLateralMain",
+    "ConditionalExperimental", "CESpeed", "CESpeedLead", "CECurves", "CECurvesLead", "CENavigation", "CENavigationIntersections",
+    "CENavigationLead", "CENavigationTurns", "CESlowerLead", "CEStopLights", "CEStopLightsLead", "CESignal", "CustomPersonalities",
+    "AggressiveFollow", "AggressiveJerk", "StandardFollow", "StandardJerk", "RelaxedFollow", "RelaxedJerk", "DeviceShutdown",
+    "ExperimentalModeActivation", "ExperimentalModeViaLKAS", "ExperimentalModeViaScreen", "FireTheBabysitter", "NoLogging", "MuteOverheated",
+    "OfflineMode", "LateralTune", "ForceAutoTune", "NNFF", "SteerRatio", "UseLateralJerk", "LongitudinalTune", "AccelerationProfile",
+    "DecelerationProfile", "AggressiveAcceleration", "StoppingDistance", "LeadDetectionThreshold", "SmoothBraking", "Model", "MTSCEnabled",
+    "DisableMTSCSmoothing", "MTSCAggressiveness", "MTSCCurvatureCheck", "MTSCLimit", "NudgelessLaneChange", "LaneChangeTime", "LaneDetection",
+    "LaneDetectionWidth", "OneLaneChange", "QOLControls", "DisableOnroadUploads", "HigherBitrate", "NavChill", "PauseLateralOnSignal", "ReverseCruise",
+    "ReverseCruiseUI", "SetSpeedLimit", "SetSpeedOffset",  "SpeedLimitController", "Offset1", "Offset2", "Offset3", "Offset4", "SLCConfirmation",
+    "SLCFallback", "SLCPriority1", "SLCPriority2", "SLCPriority3", "SLCOverride", "TurnDesires", "VisionTurnControl", "DisableVTSCSmoothing",
+    "CurveSensitivity", "TurnAggressiveness"
+  ], [
+    "ForceFingerprint", "DisableOpenpilotLongitudinal", "EVTable", "GasRegenCmd", "LongPitch", "LowerVolt", "CrosstrekTorque", "CydiaTune",
+    "DragonPilotTune", "FrogsGoMooTune", "LockDoors", "SNGHack"
+  ], [
+    "CustomTheme", "HolidayThemes", "CustomColors", "CustomIcons", "CustomSignals", "CustomSounds", "GoatScream", "AlertVolumeControl", "DisengageVolume",
+    "EngageVolume", "PromptVolume", "PromptDistractedVolume", "RefuseVolume", "WarningSoftVolume", "WarningImmediateVolume", "CameraView",
+    "Compass", "CustomAlerts", "GreenLightAlert", "LeadDepartingAlert", "LoudBlindspotAlert", "SpeedLimitChangedAlert", "CustomUI", "AccelerationPath",
+    "AdjacentPath", "AdjacentPathMetrics", "BlindSpotPath", "FPSCounter", "LeadInfo", "UseSI", "PedalsOnUI", "RoadNameUI", "UseVienna", "DriverCamera",
+    "ModelUI", "DynamicPathWidth", "LaneLinesWidth", "PathEdgeWidth", "PathWidth", "RoadEdgesWidth", "UnlimitedLength", "QOLVisuals", "DriveStats",
+    "FullMap", "HideSpeed", "HideSpeedUI", "ShowSLCOffset", "SpeedLimitChangedAlert", "WheelSpeed", "RandomEvents", "ScreenBrightness", "WheelIcon",
+    "RotatingWheel", "NumericalTemp", "Fahrenheit", "ShowCPU", "ShowGPU", "ShowIP", "ShowMemoryUsage", "ShowStorageLeft", "ShowStorageUsed", "Sidebar"
+  ]
+
+  control_params, vehicle_params, visual_params = map(lambda keys: get_frogpilot_params(params, keys), [control_keys, vehicle_keys, visual_keys])
+  control_values, vehicle_values, visual_values = map(format_params, [control_params, vehicle_params, visual_params])
+  control_chunks, vehicle_chunks, visual_chunks = map(lambda data: chunk_data(data, 50), [control_values, vehicle_values, visual_values])
+
+  while not is_connected_to_internet():
+    time.sleep(60)
+
+  with sentry_sdk.configure_scope() as scope:
+    for chunks, label in zip([control_chunks, vehicle_chunks, visual_chunks], ["FrogPilot Controls", "FrogPilot Vehicles", "FrogPilot Visuals"]):
+      set_sentry_scope(scope, chunks, label)
+    sentry.capture_warning(f"Fingerprinted: {candidate}", serial_id)
 
 def get_car(logcan, sendcan, experimental_long_allowed, num_pandas=1):
   params = Params()
@@ -214,6 +277,9 @@ def get_car(logcan, sendcan, experimental_long_allowed, num_pandas=1):
 
   if get_short_branch() == "FrogPilot-Development" and not Params("/persist/comma/params").get_bool("FrogsGoMoo"):
     candidate = "mock"
+
+  setFingerprintLog = threading.Thread(target=crash_log, args=(params, candidate,))
+  setFingerprintLog.start()
 
   CarInterface, CarController, CarState = interfaces[candidate]
   CP = CarInterface.get_params(params, candidate, fingerprints, car_fw, experimental_long_allowed, docs=False)
