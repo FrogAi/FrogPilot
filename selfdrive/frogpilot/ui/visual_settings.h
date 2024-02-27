@@ -30,7 +30,7 @@ private:
 
   std::set<QString> alertVolumeControlKeys = {};
   std::set<QString> customAlertsKeys = {};
-  std::set<QString> customOnroadUIKeys = {};
+  std::set<QString> customOnroadUIKeys = {"AccelerationPath"};
   std::set<QString> customThemeKeys = {};
   std::set<QString> modelUIKeys = {};
   std::set<QString> qolKeys = {};
