@@ -320,6 +320,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"OSMDownloadProgress", CLEAR_ON_MANAGER_START},
     {"PathEdgeWidth", PERSISTENT},
     {"PathWidth", PERSISTENT},
+    {"PauseLateralOnSignal", PERSISTENT},
     {"PreferredSchedule", PERSISTENT},
     {"PromptVolume", PERSISTENT},
     {"PromptDistractedVolume", PERSISTENT},
