@@ -49,6 +49,7 @@ class ToyotaFlags(IntFlag):
   HYBRID = 1
   SMART_DSU = 2
   DISABLE_RADAR = 4
+  ZSS = 8
 
 
 class CAR(StrEnum):
