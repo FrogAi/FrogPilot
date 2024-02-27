@@ -225,6 +225,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"FrogPilotTogglesUpdated", PERSISTENT},
     {"LateralTune", PERSISTENT},
     {"LongitudinalTune", PERSISTENT},
+    {"ManualUpdateInitiated", CLEAR_ON_MANAGER_START},
     {"PromptVolume", PERSISTENT},
     {"PromptDistractedVolume", PERSISTENT},
     {"QOLControls", PERSISTENT},
@@ -232,6 +233,8 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"RefuseVolume", PERSISTENT},
     {"SilentMode", PERSISTENT},
     {"StockTune", PERSISTENT},
+    {"UpdateSchedule", PERSISTENT},
+    {"UpdateTime", PERSISTENT},
     {"WarningSoftVolume", PERSISTENT},
     {"WarningImmediateVolume", PERSISTENT},
 };
