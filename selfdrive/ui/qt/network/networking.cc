@@ -130,6 +130,10 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
   tetheringToggle = new ToggleControl(tr("Enable Tethering"), "", "", wifi->isTetheringEnabled());
   list->addItem(tetheringToggle);
   QObject::connect(tetheringToggle, &ToggleControl::toggleFlipped, this, &AdvancedNetworking::toggleTethering);
+  if (params.getBool("TetheringEnabled")) {
+    tetheringToggle->refresh();
+    uiState()->scene.tethering_enabled = true;
+  }
 
   // Change tethering password
   ButtonControl *editPasswordButton = new ButtonControl(tr("Tethering Password"), tr("EDIT"));
@@ -224,6 +228,8 @@ void AdvancedNetworking::refresh() {
 void AdvancedNetworking::toggleTethering(bool enabled) {
   wifi->setTetheringEnabled(enabled);
   tetheringToggle->setEnabled(false);
+  params.putBool("TetheringEnabled", enabled);
+  uiState()->scene.tethering_enabled = enabled;
 }
 
 // WifiUI functions
