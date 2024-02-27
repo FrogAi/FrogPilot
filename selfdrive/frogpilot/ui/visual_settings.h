@@ -31,7 +31,7 @@ private:
   std::set<QString> alertVolumeControlKeys = {"EngageVolume", "DisengageVolume", "RefuseVolume", "PromptVolume", "PromptDistractedVolume", "WarningSoftVolume", "WarningImmediateVolume"};
   std::set<QString> customAlertsKeys = {};
   std::set<QString> customOnroadUIKeys = {"AccelerationPath", "BlindSpotPath"};
-  std::set<QString> customThemeKeys = {};
+  std::set<QString> customThemeKeys = {"CustomColors", "CustomIcons", "CustomSignals", "CustomSounds"};
   std::set<QString> modelUIKeys = {};
   std::set<QString> qolKeys = {"DriveStats"};
 

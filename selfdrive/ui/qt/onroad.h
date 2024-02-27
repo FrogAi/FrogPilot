@@ -110,6 +110,7 @@ private:
   void updateFrogPilotWidgets(QPainter &p);
 
   void drawStatusBar(QPainter &p);
+  void drawTurnSignals(QPainter &p);
 
   // FrogPilot variables
   Params paramsMemory{"/dev/shm/params"};
@@ -124,11 +125,23 @@ private:
   bool blindSpotRight;
   bool conditionalExperimental;
   bool experimentalMode;
+  bool turnSignalLeft;
+  bool turnSignalRight;
 
   int cameraView;
   int conditionalSpeed;
   int conditionalSpeedLead;
   int conditionalStatus;
+  int customColors;
+  int customSignals;
+  int totalFrames = 8;
+
+  size_t animationFrameIndex;
+
+  std::unordered_map<int, std::tuple<QString, int, QColor, std::map<double, QBrush>>> themeConfiguration;
+  std::vector<QPixmap> signalImgVector;
+
+  QTimer *animationTimer;
 
 protected:
   void paintGL() override;

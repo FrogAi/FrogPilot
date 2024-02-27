@@ -40,6 +40,28 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
   pm = std::make_unique<PubMaster, const std::initializer_list<const char *>>({"userFlag"});
 
   // FrogPilot variables
+  themeConfiguration = {
+    {0, {"stock", {QColor(255, 255, 255)}}},
+    {1, {"frog_theme", {QColor(23, 134, 68)}}},
+    {2, {"tesla_theme", {QColor(0, 72, 255)}}},
+    {3, {"stalin_theme", {QColor(255, 0, 0)}}}
+  };
+
+  for (auto &[key, themeData] : themeConfiguration) {
+    QString &themeName = themeData.first;
+    QString base = themeName == "stock" ? "../assets/images" : QString("../frogpilot/assets/custom_themes/%1/images").arg(themeName);
+    std::vector<QString> paths = {base + "/button_home.png", base + "/button_flag.png", base + "/button_settings.png"};
+
+    home_imgs[key] = loadPixmap(paths[0], home_btn.size());
+    flag_imgs[key] = loadPixmap(paths[1], home_btn.size());
+    settings_imgs[key] = loadPixmap(paths[2], settings_btn.size(), Qt::IgnoreAspectRatio);
+  }
+
+  home_img = home_imgs[scene.custom_icons];
+  flag_img = flag_imgs[scene.custom_icons];
+  settings_img = settings_imgs[scene.custom_icons];
+
+  currentColors = themeConfiguration[scene.custom_colors].second;
 }
 
 void Sidebar::mousePressEvent(QMouseEvent *event) {
@@ -82,7 +104,15 @@ void Sidebar::updateState(const UIState &s) {
   setProperty("netStrength", strength > 0 ? strength + 1 : 0);
 
   // FrogPilot properties
+  home_img = home_imgs[scene.custom_icons];
+  flag_img = flag_imgs[scene.custom_icons];
+  settings_img = settings_imgs[scene.custom_icons];
+
+  currentColors = themeConfiguration[scene.custom_colors].second;
+
   auto frogpilotDeviceState = sm["frogpilotDeviceState"].getFrogpilotDeviceState();
+
+  QColor theme_color = currentColors[0];
 
   ItemStatus connectStatus;
   auto last_ping = deviceState.getLastAthenaPingTime();
@@ -90,7 +120,7 @@ void Sidebar::updateState(const UIState &s) {
     connectStatus = ItemStatus{{tr("CONNECT"), tr("OFFLINE")}, warning_color};
   } else {
     connectStatus = nanos_since_boot() - last_ping < 80e9
-                        ? ItemStatus{{tr("CONNECT"), tr("ONLINE")}, good_color}
+                        ? ItemStatus{{tr("CONNECT"), tr("ONLINE")}, theme_color}
                         : ItemStatus{{tr("CONNECT"), tr("ERROR")}, danger_color};
   }
   setProperty("connectStatus", QVariant::fromValue(connectStatus));
@@ -98,13 +128,13 @@ void Sidebar::updateState(const UIState &s) {
   ItemStatus tempStatus = {{tr("TEMP"), tr("HIGH")}, danger_color};
   auto ts = deviceState.getThermalStatus();
   if (ts == cereal::DeviceState::ThermalStatus::GREEN) {
-    tempStatus = {{tr("TEMP"), tr("GOOD")}, good_color};
+    tempStatus = {{tr("TEMP"), tr("GOOD")}, theme_color};
   } else if (ts == cereal::DeviceState::ThermalStatus::YELLOW) {
     tempStatus = {{tr("TEMP"), tr("OK")}, warning_color};
   }
   setProperty("tempStatus", QVariant::fromValue(tempStatus));
 
-  ItemStatus pandaStatus = {{tr("VEHICLE"), tr("ONLINE")}, good_color};
+  ItemStatus pandaStatus = {{tr("VEHICLE"), tr("ONLINE")}, theme_color};
   if (s.scene.pandaType == cereal::PandaState::PandaType::UNKNOWN) {
     pandaStatus = {{tr("NO"), tr("PANDA")}, danger_color};
   } else if (s.scene.started && !sm["liveLocationKalman"].getLiveLocationKalman().getGpsOK()) {
