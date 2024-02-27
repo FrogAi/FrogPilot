@@ -350,6 +350,15 @@ def joystick_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster,
 
 
 # FrogPilot alerts
+def no_lane_available_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int) -> Alert:
+  lane_width = sm['frogpilotPlan'].laneWidthLeft if CS.leftBlinker else sm['frogpilotPlan'].laneWidthRight
+  lane_width_msg = f"{lane_width:.1f} meters" if metric else f"{lane_width * CV.METER_TO_FOOT:.1f} feet"
+  return Alert(
+    "No lane available",
+    f"Detected lane width is only {lane_width_msg}",
+    AlertStatus.normal, AlertSize.mid,
+    Priority.LOWEST, VisualAlert.none, AudibleAlert.none, .2)
+
 
 EVENTS: Dict[int, Dict[str, Union[Alert, AlertCallbackType]]] = {
   # ********** events with no alerts **********
@@ -1005,6 +1014,10 @@ EVENTS: Dict[int, Dict[str, Union[Alert, AlertCallbackType]]] = {
       "",
       AlertStatus.frogpilot, AlertSize.small,
       Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
+  EventName.noLaneAvailable : {
+    ET.PERMANENT: no_lane_available_alert,
   },
 
   EventName.torqueNNLoad: {
