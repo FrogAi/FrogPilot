@@ -18,6 +18,8 @@ from openpilot.selfdrive.navd.helpers import (Coordinate, coordinate_from_param,
                                     parse_banner_instructions)
 from openpilot.common.swaglog import cloudlog
 
+from openpilot.selfdrive.frogpilot.functions.speed_limit_controller import SpeedLimitController
+
 REROUTE_DISTANCE = 25
 MANEUVER_TRANSITION_THRESHOLD = 10
 REROUTE_COUNTER_MIN = 3
@@ -263,6 +265,11 @@ class RouteEngine:
 
     if self.step_idx is None:
       msg.valid = False
+      SpeedLimitController.nav_speed_limit = 0
+      SpeedLimitController.write_nav_state()
+
+      if SpeedLimitController.desired_speed_limit != 0:
+        msg.navInstruction.speedLimit = SpeedLimitController.desired_speed_limit
       self.pm.send('navInstruction', msg)
       return
 
@@ -337,6 +344,14 @@ class RouteEngine:
 
     if ('maxspeed' in closest.annotations) and self.localizer_valid:
       msg.navInstruction.speedLimit = closest.annotations['maxspeed']
+      SpeedLimitController.nav_speed_limit = closest.annotations['maxspeed']
+      SpeedLimitController.write_nav_state()
+    if not self.localizer_valid or ('maxspeed' not in closest.annotations):
+      SpeedLimitController.nav_speed_limit = 0
+      SpeedLimitController.write_nav_state()
+
+    if SpeedLimitController.desired_speed_limit != 0:
+      msg.navInstruction.speedLimit = SpeedLimitController.desired_speed_limit
 
     # Speed limit sign type
     if 'speedLimitSign' in step:

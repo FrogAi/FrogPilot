@@ -3,6 +3,8 @@ from openpilot.common.numpy_fast import interp
 
 from openpilot.selfdrive.frogpilot.functions.frogpilot_functions import CRUISING_SPEED, MovingAverageCalculator
 
+from openpilot.selfdrive.frogpilot.functions.speed_limit_controller import SpeedLimitController
+
 CITY_SPEED_LIMIT = 25  # Speed limit for turn signal check
 PROBABILITY = 0.6  # 60% chance of condition being true
 
@@ -74,6 +76,11 @@ class ConditionalExperimentalMode:
     # Navigation check
     if self.navigation and (frogpilotNavigation.approachingIntersection or frogpilotNavigation.approachingTurn) and (self.navigation_lead or not self.lead_detected):
       self.status_value = 5 if frogpilotNavigation.approachingIntersection else 6
+      return True
+
+    # Speed Limit Controller check
+    if SpeedLimitController.experimental_mode:
+      self.status_value = 7
       return True
 
     # Speed check
