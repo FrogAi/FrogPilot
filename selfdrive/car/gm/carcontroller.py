@@ -6,7 +6,7 @@ from openpilot.common.realtime import DT_CTRL
 from opendbc.can.packer import CANPacker
 from openpilot.selfdrive.car import apply_driver_steer_torque_limits, create_gas_interceptor_command
 from openpilot.selfdrive.car.gm import gmcan
-from openpilot.selfdrive.car.gm.values import DBC, CanBus, CarControllerParams, CruiseButtons, GMFlags, CC_ONLY_CAR, SDGM_CAR
+from openpilot.selfdrive.car.gm.values import DBC, CanBus, CarControllerParams, CruiseButtons, GMFlags, CC_ONLY_CAR, EV_CAR, SDGM_CAR
 from openpilot.selfdrive.controls.lib.drive_helpers import apply_deadzone
 from openpilot.selfdrive.controls.lib.vehicle_model import ACCELERATION_DUE_TO_GRAVITY
 
@@ -138,11 +138,19 @@ class CarController:
         else:
           # Normal operation
           brake_accel = actuators.accel + self.accel_g * interp(CS.out.vEgo, BRAKE_PITCH_FACTOR_BP, BRAKE_PITCH_FACTOR_V)
-          if frogpilot_variables.sport_plus:
-            self.apply_gas = int(round(interp(accel if frogpilot_variables.long_pitch else actuators.accel, self.params.GAS_LOOKUP_BP_PLUS, self.params.GAS_LOOKUP_V_PLUS)))
+          if self.CP.carFingerprint in EV_CAR and frogpilot_variables.use_ev_tables:
+            self.params.update_ev_gas_brake_threshold(CS.out.vEgo)
+            if frogpilot_variables.sport_plus:
+              self.apply_gas = int(round(interp(accel if frogpilot_variables.long_pitch else actuators.accel, self.params.EV_GAS_LOOKUP_BP_PLUS, self.params.GAS_LOOKUP_V_PLUS)))
+            else:
+              self.apply_gas = int(round(interp(accel if frogpilot_variables.long_pitch else actuators.accel, self.params.EV_GAS_LOOKUP_BP, self.params.GAS_LOOKUP_V)))
+            self.apply_brake = int(round(interp(brake_accel if frogpilot_variables.long_pitch else actuators.accel, self.params.EV_BRAKE_LOOKUP_BP, self.params.BRAKE_LOOKUP_V)))
           else:
-            self.apply_gas = int(round(interp(accel if frogpilot_variables.long_pitch else actuators.accel, self.params.GAS_LOOKUP_BP, self.params.GAS_LOOKUP_V)))
-          self.apply_brake = int(round(interp(brake_accel if frogpilot_variables.long_pitch else actuators.accel, self.params.BRAKE_LOOKUP_BP, self.params.BRAKE_LOOKUP_V)))
+            if frogpilot_variables.sport_plus:
+              self.apply_gas = int(round(interp(accel if frogpilot_variables.long_pitch else actuators.accel, self.params.GAS_LOOKUP_BP_PLUS, self.params.GAS_LOOKUP_V_PLUS)))
+            else:
+              self.apply_gas = int(round(interp(accel if frogpilot_variables.long_pitch else actuators.accel, self.params.GAS_LOOKUP_BP, self.params.GAS_LOOKUP_V)))
+            self.apply_brake = int(round(interp(brake_accel if frogpilot_variables.long_pitch else actuators.accel, self.params.BRAKE_LOOKUP_BP, self.params.BRAKE_LOOKUP_V)))
           # Don't allow any gas above inactive regen while stopping
           # FIXME: brakes aren't applied immediately when enabling at a stop
           if stopping:
