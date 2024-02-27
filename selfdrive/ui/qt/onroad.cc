@@ -537,6 +537,24 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
   painter.setBrush(bg);
   painter.drawPolygon(scene.track_vertices);
 
+  // Paint blindspot path
+  if (scene.blind_spot_path) {
+    QLinearGradient bs(0, height(), 0, 0);
+    if (blindSpotLeft || blindSpotRight) {
+      bs.setColorAt(0.0, QColor::fromHslF(0 / 360., 0.75, 0.50, 0.6));
+      bs.setColorAt(0.5, QColor::fromHslF(0 / 360., 0.75, 0.50, 0.4));
+      bs.setColorAt(1.0, QColor::fromHslF(0 / 360., 0.75, 0.50, 0.2));
+    }
+
+    painter.setBrush(bs);
+    if (blindSpotLeft) {
+      painter.drawPolygon(scene.track_adjacent_vertices[4]);
+    }
+    if (blindSpotRight) {
+      painter.drawPolygon(scene.track_adjacent_vertices[5]);
+    }
+  }
+
   painter.restore();
 }
 
@@ -736,6 +754,9 @@ void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
 void AnnotatedCameraWidget::updateFrogPilotWidgets(QPainter &p) {
   alwaysOnLateral = scene.always_on_lateral;
   alwaysOnLateralActive = scene.always_on_lateral_active;
+
+  blindSpotLeft = scene.blind_spot_left;
+  blindSpotRight = scene.blind_spot_right;
 
   experimentalMode = scene.experimental_mode;
 

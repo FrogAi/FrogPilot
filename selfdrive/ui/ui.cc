@@ -114,6 +114,11 @@ void update_model(UIState *s,
   }
   max_idx = get_path_length_idx(plan_position, max_distance);
   update_line_data(s, plan_position, 0.9, 1.22, &scene.track_vertices, max_idx, false);
+
+  // Update adjacent paths
+  for (int i = 4; i <= 5; i++) {
+    update_line_data(s, lane_lines[i], scene.blind_spot_path ? (i == 4 ? scene.lane_width_left : scene.lane_width_right) / 2 : 0, 0, &scene.track_adjacent_vertices[i], max_idx);
+  }
 }
 
 void update_dmonitoring(UIState *s, const cereal::DriverStateV2::Reader &driverstate, float dm_fade_state, bool is_rhd) {
@@ -202,6 +207,10 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("carState")) {
     auto carState = sm["carState"].getCarState();
+    if (scene.blind_spot_path) {
+      scene.blind_spot_left = carState.getLeftBlindspot();
+      scene.blind_spot_right = carState.getRightBlindspot();
+    }
   }
   if (sm.updated("controlsState")) {
     auto controlsState = sm["controlsState"].getControlsState();
@@ -216,6 +225,10 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("frogpilotPlan")) {
     auto frogpilotPlan = sm["frogpilotPlan"].getFrogpilotPlan();
+    if (scene.blind_spot_path) {
+      scene.lane_width_left = frogpilotPlan.getLaneWidthLeft();
+      scene.lane_width_right = frogpilotPlan.getLaneWidthRight();
+    }
   }
   if (sm.updated("liveLocationKalman")) {
     auto liveLocationKalman = sm["liveLocationKalman"].getLiveLocationKalman();
@@ -250,6 +263,7 @@ void ui_update_frogpilot_params(UIState *s) {
 
   bool custom_onroad_ui = params.getBool("CustomUI");
   scene.acceleration_path = custom_onroad_ui && params.getBool("AccelerationPath");
+  scene.blind_spot_path = custom_onroad_ui && params.getBool("BlindSpotPath");
 
   bool quality_of_life_controls = params.getBool("QOLControls");
 
