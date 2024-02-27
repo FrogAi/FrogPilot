@@ -40,7 +40,7 @@ class ExperimentalButton : public QPushButton {
 
 public:
   explicit ExperimentalButton(QWidget *parent = 0);
-  void updateState(const UIState &s);
+  void updateState(const UIState &s, bool leadInfo);
 
 private:
   void paintEvent(QPaintEvent *event) override;
@@ -54,6 +54,8 @@ private:
 
   // FrogPilot variables
   UIScene &scene;
+
+  int y_offset;
 };
 
 
@@ -109,6 +111,7 @@ private:
   void initializeFrogPilotWidgets();
   void updateFrogPilotWidgets(QPainter &p);
 
+  void drawLeadInfo(QPainter &p);
   void drawStatusBar(QPainter &p);
   void drawTurnSignals(QPainter &p);
 
@@ -125,9 +128,13 @@ private:
   bool blindSpotRight;
   bool conditionalExperimental;
   bool experimentalMode;
+  bool leadInfo;
   bool mapOpen;
   bool turnSignalLeft;
   bool turnSignalRight;
+
+  float distanceConversion;
+  float speedConversion;
 
   int cameraView;
   int conditionalSpeed;
@@ -135,7 +142,12 @@ private:
   int conditionalStatus;
   int customColors;
   int customSignals;
+  int obstacleDistance;
+  int obstacleDistanceStock;
   int totalFrames = 8;
+
+  QString leadDistanceUnit;
+  QString leadSpeedUnit;
 
   size_t animationFrameIndex;
 
