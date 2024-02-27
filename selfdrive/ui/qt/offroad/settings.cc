@@ -507,6 +507,11 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   power_layout->addWidget(reboot_btn);
   QObject::connect(reboot_btn, &QPushButton::clicked, this, &DevicePanel::reboot);
 
+  QPushButton *softreboot_btn = new QPushButton(tr("Soft Reboot"));
+  softreboot_btn->setObjectName("softreboot_btn");
+  power_layout->addWidget(softreboot_btn);
+  QObject::connect(softreboot_btn, &QPushButton::clicked, this, &DevicePanel::softreboot);
+
   QPushButton *poweroff_btn = new QPushButton(tr("Power Off"));
   poweroff_btn->setObjectName("poweroff_btn");
   power_layout->addWidget(poweroff_btn);
@@ -517,8 +522,10 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   }
 
   setStyleSheet(R"(
-    #reboot_btn { height: 120px; border-radius: 15px; background-color: #393939; }
-    #reboot_btn:pressed { background-color: #4a4a4a; }
+    #softreboot_btn { height: 120px; border-radius: 15px; background-color: #e2e22c; }
+    #softreboot_btn:pressed { background-color: #ffe224; }
+    #reboot_btn { height: 120px; border-radius: 15px; background-color: #e2872c; }
+    #reboot_btn:pressed { background-color: #ff9724; }
     #poweroff_btn { height: 120px; border-radius: 15px; background-color: #E22C2C; }
     #poweroff_btn:pressed { background-color: #FF2424; }
   )");
@@ -559,6 +566,18 @@ void DevicePanel::reboot() {
     }
   } else {
     ConfirmationDialog::alert(tr("Disengage to Reboot"), this);
+  }
+}
+
+void DevicePanel::softreboot() {
+  if (!uiState()->engaged()) {
+    if (ConfirmationDialog::confirm(tr("Are you sure you want to soft reboot?"), tr("Soft Reboot"), this)) {
+      if (!uiState()->engaged()) {
+        params.putBool("DoSoftReboot", true);
+      }
+    }
+  } else {
+    ConfirmationDialog::alert(tr("Disengage to Soft Reboot"), this);
   }
 }
 
