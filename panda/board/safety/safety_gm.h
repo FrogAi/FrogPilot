@@ -46,26 +46,26 @@ const CanMsg GM_ASCM_TX_MSGS[] = {{0x180, 0, 4}, {0x409, 0, 7}, {0x40A, 0, 7}, {
                                   {0x315, 2, 5},  // ch bus
                                   {0x104c006c, 3, 3}, {0x10400060, 3, 5}};  // gmlan
 
-const CanMsg GM_CAM_TX_MSGS[] = {{0x180, 0, 4},  // pt bus
+const CanMsg GM_CAM_TX_MSGS[] = {{0x180, 0, 4}, {0x1E1, 0, 7},  // pt bus
                                  {0x1E1, 2, 7}, {0x184, 2, 8}};  // camera bus
+
+const CanMsg GM_CAM_LONG_TX_MSGS[] = {{0x180, 0, 4}, {0x315, 0, 5}, {0x2CB, 0, 8}, {0x370, 0, 6},  // pt bus
+                                      {0x1E1, 2, 7}, {0x184, 2, 8}};  // camera bus
 
 const CanMsg GM_SDGM_TX_MSGS[] = {{0x180, 0, 4}, {0x1E1, 0, 7},  // pt bus
                                   {0x184, 2, 8}};  // camera bus
 
-const CanMsg GM_CAM_LONG_TX_MSGS[] = {{0x180, 0, 4}, {0x315, 0, 5}, {0x2CB, 0, 8}, {0x370, 0, 6},  // pt bus
-                                      {0x184, 2, 8}};  // camera bus
+const CanMsg GM_CC_LONG_TX_MSGS[] = {{0x180, 0, 4}, {0x1E1, 0, 7},  // pt bus
+                                     {0x184, 2, 8}, {0x1E1, 2, 7}};  // camera bus
 
 // TODO: do checksum and counter checks. Add correct timestep, 0.1s for now.
 RxCheck gm_rx_checks[] = {
   {.msg = {{0x184, 0, 8, .frequency = 10U}, { 0 }, { 0 }}},
   {.msg = {{0x34A, 0, 5, .frequency = 10U}, { 0 }, { 0 }}},
   {.msg = {{0x1E1, 0, 7, .frequency = 10U},   // Non-SDGM Car
-           {0x1E1, 2, 7, .frequency = 10U}}}, // SDGM Car
+           {0x1E1, 2, 7, .frequency = 100000U}}}, // SDGM Car
   {.msg = {{0xF1, 0, 6, .frequency = 10U},   // Non-SDGM Car
-           {0xF1, 2, 6, .frequency = 10U}}}, // SDGM Car
-  {.msg = {{0xBE, 0, 6, .frequency = 10U},    // Volt, Silverado, Acadia Denali
-           {0xBE, 0, 7, .frequency = 10U},    // Bolt EUV
-           {0xBE, 0, 8, .frequency = 10U}}},  // Escalade
+           {0xF1, 2, 6, .frequency = 100000U}}}, // SDGM Car
   {.msg = {{0x1C4, 0, 8, .frequency = 10U}, { 0 }, { 0 }}},
   {.msg = {{0xC9, 0, 8, .frequency = 10U}, { 0 }, { 0 }}},
 };
@@ -73,6 +73,7 @@ RxCheck gm_rx_checks[] = {
 const uint16_t GM_PARAM_HW_CAM = 1;
 const uint16_t GM_PARAM_HW_CAM_LONG = 2;
 const uint16_t GM_PARAM_HW_SDGM = 4;
+const uint16_t GM_PARAM_CC_LONG = 8;
 
 enum {
   GM_BTN_UNPRESS = 1,
@@ -84,6 +85,7 @@ enum {
 enum {GM_ASCM, GM_CAM, GM_SDGM} gm_hw = GM_ASCM;
 bool gm_cam_long = false;
 bool gm_pcm_cruise = false;
+bool gm_cc_long = false;
 
 static void handle_gm_wheel_buttons(const CANPacket_t *to_push) {
   int button = (GET_BYTE(to_push, 5) & 0x70U) >> 4;
@@ -127,7 +129,7 @@ static void gm_rx_hook(const CANPacket_t *to_push) {
     }
 
     // ACC steering wheel buttons (GM_CAM and GM_SDGM are tied to the PCM)
-    if ((addr == 0x1E1) && (!gm_pcm_cruise || gas_interceptor_detected || gm_cc_long) && (gm_hw != GM_SDGM)) {
+    if ((addr == 0x1E1) && (!gm_pcm_cruise || gm_cc_long) && (gm_hw != GM_SDGM)) {
       handle_gm_wheel_buttons(to_push);
     }
 
@@ -207,11 +209,16 @@ static bool gm_tx_hook(const CANPacket_t *to_send) {
   }
 
   // BUTTONS: used for resume spamming and cruise cancellation with stock longitudinal
-  if ((addr == 0x1E1) && gm_pcm_cruise) {
+  if ((addr == 0x1E1) && (gm_pcm_cruise || gm_cc_long)) {
     int button = (GET_BYTE(to_send, 5) >> 4) & 0x7U;
 
-    bool allowed_cancel = (button == 6) && cruise_engaged_prev;
-    if (!allowed_cancel) {
+    bool allowed_btn = (button == GM_BTN_CANCEL) && cruise_engaged_prev;
+    // For standard CC, allow spamming of SET / RESUME
+    if (gm_cc_long) {
+      allowed_btn |= cruise_engaged_prev && (button == GM_BTN_SET || button == GM_BTN_RESUME || button == GM_BTN_UNPRESS);
+    }
+
+    if (!allowed_btn) {
       tx = false;
     }
   }
@@ -271,16 +278,22 @@ static safety_config gm_init(uint16_t param) {
   } else {
   }
 
-#ifdef ALLOW_DEBUG
-  gm_cam_long = GET_FLAG(param, GM_PARAM_HW_CAM_LONG);
-#endif
-  gm_pcm_cruise = (gm_hw == GM_CAM) && !gm_cam_long || (gm_hw == GM_SDGM);
+  gm_cc_long = GET_FLAG(param, GM_PARAM_CC_LONG);
+  gm_cam_long = GET_FLAG(param, GM_PARAM_HW_CAM_LONG) && !gm_cc_long;
+  gm_pcm_cruise = ((gm_hw == GM_CAM) && (!gm_cam_long || gm_cc_long) && !gm_force_ascm && !gm_pedal_long) || (gm_hw == GM_SDGM);
 
   safety_config ret = BUILD_SAFETY_CFG(gm_rx_checks, GM_ASCM_TX_MSGS);
   if (gm_hw == GM_CAM) {
-    ret = gm_cam_long ? BUILD_SAFETY_CFG(gm_rx_checks, GM_CAM_LONG_TX_MSGS) : BUILD_SAFETY_CFG(gm_rx_checks, GM_CAM_TX_MSGS);
+    if (gm_cc_long) {
+      ret = BUILD_SAFETY_CFG(gm_rx_checks, GM_CC_LONG_TX_MSGS);
+    } else if (gm_cam_long) {
+      ret = BUILD_SAFETY_CFG(gm_rx_checks, GM_CAM_LONG_TX_MSGS);
+    } else {
+      ret = BUILD_SAFETY_CFG(gm_rx_checks, GM_CAM_TX_MSGS);
+    }
   } else if (gm_hw == GM_SDGM) {
     ret = BUILD_SAFETY_CFG(gm_rx_checks, GM_SDGM_TX_MSGS);
+  }
   return ret;
 }
 
