@@ -10,6 +10,8 @@ from openpilot.selfdrive.car import AngleRateLimit, dbc_dict
 from openpilot.selfdrive.car.docs_definitions import CarFootnote, CarInfo, Column, CarParts, CarHarness
 from openpilot.selfdrive.car.fw_query_definitions import FwQueryConfig, Request, StdQueries
 
+from openpilot.selfdrive.frogpilot.functions.frogpilot_functions import CRUISING_SPEED
+
 Ecu = car.CarParams.Ecu
 MIN_ACC_SPEED = 19. * CV.MPH_TO_MS
 PEDAL_TRANSITION = 10. * CV.MPH_TO_MS
@@ -17,6 +19,8 @@ PEDAL_TRANSITION = 10. * CV.MPH_TO_MS
 
 class CarControllerParams:
   ACCEL_MAX = 1.5  # m/s2, lower than allowed 2.0 m/s2 for tuning reasons
+  ACCEL_MAX_PLUS = [ACCEL_MAX, 2.5, 3.0, 3.5, 4.0]  # Slowly ramp up the acceleration to prevent jerky behaviors
+  ACCEL_MAX_PLUS_BP = [0., CRUISING_SPEED / 4, CRUISING_SPEED / 3, CRUISING_SPEED / 2, CRUISING_SPEED]
   ACCEL_MIN = -3.5  # m/s2
 
   STEER_STEP = 1

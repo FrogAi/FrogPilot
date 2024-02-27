@@ -2,6 +2,7 @@ from cereal import car
 from openpilot.common.conversions import Conversions as CV
 from panda import Panda
 from panda.python import uds
+from openpilot.common.numpy_fast import interp
 from openpilot.selfdrive.car.toyota.values import Ecu, CAR, DBC, ToyotaFlags, CarControllerParams, TSS2_CAR, RADAR_ACC_CAR, NO_DSU_CAR, \
                                         MIN_ACC_SPEED, EPS_SCALE, UNSUPPORTED_DSU_CAR, NO_STOP_TIMER_CAR, ANGLE_CONTROL_CAR
 from openpilot.selfdrive.car import get_safety_config
@@ -14,8 +15,11 @@ SteerControlType = car.CarParams.SteerControlType
 
 class CarInterface(CarInterfaceBase):
   @staticmethod
-  def get_pid_accel_limits(CP, current_speed, cruise_speed):
-    return CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX
+  def get_pid_accel_limits(CP, current_speed, cruise_speed, frogpilot_variables):
+    if frogpilot_variables.sport_plus:
+      return CarControllerParams.ACCEL_MIN, interp(current_speed, CarControllerParams.ACCEL_MAX_PLUS_BP, CarControllerParams.ACCEL_MAX_PLUS)
+    else:
+      return CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX
 
   @staticmethod
   def _get_params(ret, params, candidate, fingerprint, car_fw, experimental_long, docs):
