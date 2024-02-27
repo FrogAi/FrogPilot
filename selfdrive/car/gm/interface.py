@@ -171,6 +171,7 @@ class CarInterface(CarInterfaceBase):
     ret.longitudinalActuatorDelayUpperBound = 0.5  # large delay to initially start braking
 
     if candidate in (CAR.VOLT, CAR.VOLT_CC):
+      ret.minEnableSpeed = -1 if params.get_bool("LowerVolt") else ret.minEnableSpeed
       ret.mass = 1607.
       ret.wheelbase = 2.69
       ret.steerRatio = 17.7  # Stock 15.7, LiveParameters

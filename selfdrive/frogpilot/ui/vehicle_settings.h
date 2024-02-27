@@ -28,7 +28,7 @@ private:
 
   std::map<std::string, ParamControl*> toggles;
 
-  std::set<QString> gmKeys = {"GasRegenCmd", "LongPitch"};
+  std::set<QString> gmKeys = {"GasRegenCmd", "LongPitch", "LowerVolt"};
   std::set<QString> subaruKeys = {};
   std::set<QString> toyotaKeys = {"LockDoors", "LongitudinalTune"};
 
