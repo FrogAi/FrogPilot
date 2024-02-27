@@ -110,9 +110,11 @@ private:
 
   // FrogPilot variables
   void automaticUpdate();
+  void updateState();
 
   ButtonControl *updateTime;
 
+  bool isParked;
   int schedule;
   int time;
 };
