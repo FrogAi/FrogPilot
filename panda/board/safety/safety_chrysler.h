@@ -185,6 +185,7 @@ static void chrysler_rx_hook(const CANPacket_t *to_push) {
   // enter controls on rising edge of ACC, exit controls on ACC off
   const int das_3_bus = (chrysler_platform == CHRYSLER_PACIFICA) ? 0 : 2;
   if ((bus == das_3_bus) && (addr == chrysler_addrs->DAS_3)) {
+    acc_main_on = GET_BIT(to_push, 20U);
     bool cruise_engaged = GET_BIT(to_push, 21U);
     pcm_cruise_check(cruise_engaged);
   }

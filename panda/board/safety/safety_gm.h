@@ -138,6 +138,7 @@ static void gm_rx_hook(const CANPacket_t *to_push) {
     }
 
     if ((addr == 0xC9) && ((gm_hw == GM_CAM) || (gm_hw == GM_SDGM))) {
+      acc_main_on = GET_BIT(to_push, 29U);
       brake_pressed = GET_BIT(to_push, 40U);
     }
 

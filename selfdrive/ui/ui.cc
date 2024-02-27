@@ -210,6 +210,9 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("frogpilotCarControl")) {
     auto frogpilotCarControl = sm["frogpilotCarControl"].getFrogpilotCarControl();
+    if (scene.always_on_lateral) {
+      scene.always_on_lateral_active = !scene.enabled && frogpilotCarControl.getAlwaysOnLateral();
+    }
   }
   if (sm.updated("frogpilotPlan")) {
     auto frogpilotPlan = sm["frogpilotPlan"].getFrogpilotPlan();
@@ -243,6 +246,8 @@ void ui_update_frogpilot_params(UIState *s) {
   Params params = Params();
   UIScene &scene = s->scene;
 
+  scene.always_on_lateral = params.getBool("AlwaysOnLateral");
+
   bool custom_onroad_ui = params.getBool("CustomUI");
   scene.acceleration_path = custom_onroad_ui && params.getBool("AccelerationPath");
 
@@ -257,6 +262,8 @@ void UIState::updateStatus() {
     auto state = controls_state.getState();
     if (state == cereal::ControlsState::OpenpilotState::PRE_ENABLED || state == cereal::ControlsState::OpenpilotState::OVERRIDING) {
       status = STATUS_OVERRIDE;
+    } else if (scene.always_on_lateral_active) {
+      status = STATUS_LATERAL_ACTIVE;
     } else {
       status = controls_state.getEnabled() ? STATUS_ENGAGED : STATUS_DISENGAGED;
     }
