@@ -410,6 +410,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"Updated", PERSISTENT},
     {"UpdateSchedule", PERSISTENT},
     {"UpdateTime", PERSISTENT},
+    {"UseLateralJerk", PERSISTENT},
     {"UseSI", PERSISTENT},
     {"UseVienna", PERSISTENT},
     {"WarningSoftVolume", PERSISTENT},
