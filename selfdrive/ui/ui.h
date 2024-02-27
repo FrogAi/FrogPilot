@@ -200,15 +200,18 @@ typedef struct UIScene {
   bool map_open;
   bool model_ui;
   bool numerical_temp;
+  bool pedals_on_ui;
   bool reverse_cruise;
   bool reverse_cruise_ui;
   bool road_name_ui;
   bool show_driver_camera;
+  bool standstill;
   bool turn_signal_left;
   bool turn_signal_right;
   bool unlimited_road_ui_length;
   bool use_si;
 
+  float acceleration;
   float adjusted_cruise;
   float lane_line_width;
   float lane_width_left;

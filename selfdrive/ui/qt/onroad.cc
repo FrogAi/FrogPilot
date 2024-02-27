@@ -400,8 +400,21 @@ AnnotatedCameraWidget::AnnotatedCameraWidget(VisionStreamType type, QWidget* par
   main_layout->setMargin(UI_BORDER_SIZE);
   main_layout->setSpacing(0);
 
+  QHBoxLayout *buttons_layout = new QHBoxLayout();
+  buttons_layout->setSpacing(0);
+
   experimental_btn = new ExperimentalButton(this);
-  main_layout->addWidget(experimental_btn, 0, Qt::AlignTop | Qt::AlignRight);
+  buttons_layout->addWidget(experimental_btn);
+
+  QVBoxLayout *top_right_layout = new QVBoxLayout();
+  top_right_layout->setSpacing(0);
+  top_right_layout->addLayout(buttons_layout);
+
+  pedal_icons = new PedalIcons(this);
+  top_right_layout->addWidget(pedal_icons, 0, Qt::AlignRight);
+
+  main_layout->addLayout(top_right_layout, 0);
+  main_layout->setAlignment(top_right_layout, Qt::AlignTop | Qt::AlignRight);
 
   map_settings_btn = new MapSettingsButton(this);
   main_layout->addWidget(map_settings_btn, 0, Qt::AlignBottom | Qt::AlignRight);
@@ -1137,6 +1150,8 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets(QPainter &p) {
   mapOpen = scene.map_open;
   fullMapOpen = mapOpen && scene.full_map;
 
+  pedalsOnUI = scene.pedals_on_ui;
+
   roadNameUI = scene.road_name_ui;
 
   showDriverCamera = scene.show_driver_camera;
@@ -1168,6 +1183,12 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets(QPainter &p) {
   if (enableCompass) {
     compass_img->updateState(scene.bearing_deg);
     bottom_layout->setAlignment(compass_img, (rightHandDM ? Qt::AlignLeft : Qt::AlignRight));
+  }
+
+  bool enablePedalIcons = pedalsOnUI && !(fullMapOpen || showDriverCamera);
+  pedal_icons->setVisible(enablePedalIcons);
+  if (enablePedalIcons) {
+    pedal_icons->updateState();
   }
 
   map_settings_btn_bottom->setEnabled(map_settings_btn->isEnabled());
@@ -1444,6 +1465,44 @@ void AnnotatedCameraWidget::drawLeadInfo(QPainter &p) {
   drawText(followText, Qt::white);
 
   p.restore();
+}
+
+PedalIcons::PedalIcons(QWidget *parent) : QWidget(parent), scene(uiState()->scene) {
+  setFixedSize(btn_size, btn_size);
+
+  brake_pedal_img = loadPixmap("../frogpilot/assets/other_images/brake_pedal.png", QSize(img_size, img_size));
+  gas_pedal_img = loadPixmap("../frogpilot/assets/other_images/gas_pedal.png", QSize(img_size, img_size));
+}
+
+void PedalIcons::updateState() {
+  acceleration = scene.acceleration;
+
+  accelerating = acceleration > 0.25;
+  decelerating = acceleration < -0.25;
+
+  if (accelerating || decelerating) {
+    update();
+  }
+}
+
+void PedalIcons::paintEvent(QPaintEvent *event) {
+  QPainter p(this);
+  p.setRenderHint(QPainter::Antialiasing);
+
+  int totalWidth = 2 * img_size;
+  int startX = (width() - totalWidth) / 2;
+
+  int brakeX = startX + img_size / 2;
+  int gasX = startX + img_size;
+
+  float brakeOpacity = scene.standstill ? 1.0f : decelerating ? std::max(0.25f, std::abs(acceleration)) : 0.25f;
+  float gasOpacity = accelerating ? std::max(0.25f, acceleration) : 0.25f;
+
+  p.setOpacity(brakeOpacity);
+  p.drawPixmap(brakeX, (height() - img_size) / 2, brake_pedal_img);
+
+  p.setOpacity(gasOpacity);
+  p.drawPixmap(gasX, (height() - img_size) / 2, gas_pedal_img);
 }
 
 void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {
