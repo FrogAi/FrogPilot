@@ -245,6 +245,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"CydiaTune", PERSISTENT},
     {"DecelerationProfile", PERSISTENT},
     {"DeviceShutdown", PERSISTENT},
+    {"DisableOnroadUploads", PERSISTENT},
     {"DisengageVolume", PERSISTENT},
     {"DriveStats", PERSISTENT},
     {"DynamicPathWidth", PERSISTENT},

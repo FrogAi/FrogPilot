@@ -42,6 +42,8 @@ def only_offroad(started, params, params_memory, CP: car.CarParams) -> bool:
   return not started
 
 # FrogPilot functions
+def allow_uploads(started, params, params_memory, CP: car.CarParams) -> bool:
+  return not started if params_memory.get_bool("DisableOnroadUploads") else True
 
 procs = [
   DaemonProcess("manage_athenad", "selfdrive.athena.manage_athenad", "AthenadPid"),
@@ -81,7 +83,7 @@ procs = [
   PythonProcess("thermald", "selfdrive.thermald.thermald", always_run),
   PythonProcess("tombstoned", "selfdrive.tombstoned", always_run, enabled=not PC),
   PythonProcess("updated", "selfdrive.updated", only_offroad, enabled=not PC),
-  PythonProcess("uploader", "system.loggerd.uploader", always_run),
+  PythonProcess("uploader", "system.loggerd.uploader", allow_uploads),
   PythonProcess("statsd", "selfdrive.statsd", always_run),
 
   # debug procs
