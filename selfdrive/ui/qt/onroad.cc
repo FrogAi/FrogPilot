@@ -105,15 +105,27 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   // FrogPilot clickable widgets
   bool widgetClicked = false;
 
+  // Change cruise control increments button
+  QRect maxSpeedRect(7, 25, 225, 225);
+  bool isMaxSpeedClicked = maxSpeedRect.contains(e->pos());
+
   // Hide speed button
   QRect hideSpeedRect(rect().center().x() - 175, 50, 350, 350);
   bool isSpeedClicked = hideSpeedRect.contains(e->pos());
 
-  if (isSpeedClicked && scene.hide_speed_ui) {
-    bool currentHideSpeed = scene.hide_speed;
+  if (isMaxSpeedClicked || isSpeedClicked) {
+    if (isMaxSpeedClicked && scene.reverse_cruise_ui) {
+      bool currentReverseCruise = scene.reverse_cruise;
 
-    uiState()->scene.hide_speed = !currentHideSpeed;
-    params.putBoolNonBlocking("HideSpeed", !currentHideSpeed);
+      uiState()->scene.reverse_cruise = !currentReverseCruise;
+      params.putBoolNonBlocking("ReverseCruise", !currentReverseCruise);
+
+    } else if (isSpeedClicked && scene.hide_speed_ui) {
+      bool currentHideSpeed = scene.hide_speed;
+
+      uiState()->scene.hide_speed = !currentHideSpeed;
+      params.putBoolNonBlocking("HideSpeed", !currentHideSpeed);
+    }
 
     widgetClicked = true;
   // If the click wasn't for anything specific, change the value of "ExperimentalMode"
@@ -483,7 +495,11 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
     int bottom_radius = has_eu_speed_limit ? 100 : 32;
 
     QRect set_speed_rect(QPoint(60 + (default_size.width() - set_speed_size.width()) / 2, 45), set_speed_size);
-    p.setPen(QPen(whiteColor(75), 6));
+    if (scene.reverse_cruise) {
+      p.setPen(QPen(QColor(0, 150, 255), 6));
+    } else {
+      p.setPen(QPen(whiteColor(75), 6));
+    }
     p.setBrush(blackColor(166));
     drawRoundedRect(p, set_speed_rect, top_radius, top_radius, bottom_radius, bottom_radius);
 
