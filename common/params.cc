@@ -360,6 +360,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"SilentMode", PERSISTENT},
     {"ShowCPU", PERSISTENT},
     {"ShowGPU", PERSISTENT},
+    {"ShowIP", PERSISTENT},
     {"ShowMemoryUsage", PERSISTENT},
     {"ShowStorageLeft", PERSISTENT},
     {"ShowStorageUsed", PERSISTENT},

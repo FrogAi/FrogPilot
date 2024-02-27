@@ -73,6 +73,7 @@ private:
 
   bool isCPU;
   bool isGPU;
+  bool isIP;
   bool isMemoryUsage;
   bool isStorageLeft;
   bool isStorageUsed;
