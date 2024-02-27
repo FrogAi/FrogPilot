@@ -243,6 +243,7 @@ class LongitudinalMpc:
   def __init__(self, mode='acc'):
     # FrogPilot variables
     self.acceleration_offset = 1
+    self.braking_offset = 1
 
     self.mode = mode
     self.solver = AcadosOcpSolverCython(MODEL_NAME, ACADOS_SOLVER_TYPE, N)
@@ -296,7 +297,7 @@ class LongitudinalMpc:
 
   def set_weights(self, prev_accel_constraint=True, custom_personalities=False, aggressive_jerk=0.5, standard_jerk=1.0, relaxed_jerk=1.0, personality=log.LongitudinalPersonality.standard):
     jerk_factor = get_jerk_factor(custom_personalities, aggressive_jerk, standard_jerk, relaxed_jerk, personality)
-    jerk_factor /= np.mean(self.acceleration_offset)
+    jerk_factor /= np.mean(self.acceleration_offset + self.braking_offset)
 
     if self.mode == 'acc':
       a_change_cost = A_CHANGE_COST if prev_accel_constraint else 0
@@ -372,6 +373,14 @@ class LongitudinalMpc:
       t_follow = t_follow / self.acceleration_offset
     else:
       self.acceleration_offset = 1
+
+    # Offset by FrogAi for FrogPilot for a more natural approach to a slower lead
+    if frogpilot_planner.smoother_braking:
+      distance_factor = np.maximum(1, lead_xv_0[:,0] - (lead_xv_0[:,1] * t_follow))
+      self.braking_offset = np.clip((v_ego - lead_xv_0[:,1]) - COMFORT_BRAKE, 1, distance_factor)
+      t_follow = t_follow / self.braking_offset
+    else:
+      self.braking_offset = 1
 
     # LongitudinalPlan variables for onroad driving insights
     if self.status:
