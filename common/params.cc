@@ -393,6 +393,8 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"SpeedLimitChangedAlert", PERSISTENT},
     {"StandardFollow", PERSISTENT},
     {"StandardJerk", PERSISTENT},
+    {"SteerRatio", PERSISTENT},
+    {"SteerRatioStock", PERSISTENT},
     {"StockTune", PERSISTENT},
     {"StoppingDistance", PERSISTENT},
     {"TetheringEnabled", PERSISTENT},
