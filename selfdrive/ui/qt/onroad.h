@@ -122,9 +122,13 @@ private:
   bool alwaysOnLateralActive;
   bool blindSpotLeft;
   bool blindSpotRight;
+  bool conditionalExperimental;
   bool experimentalMode;
 
   int cameraView;
+  int conditionalSpeed;
+  int conditionalSpeedLead;
+  int conditionalStatus;
 
 protected:
   void paintGL() override;

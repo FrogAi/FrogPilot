@@ -4,6 +4,13 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
   const std::vector<std::tuple<QString, QString, QString, QString>> controlToggles {
     {"AlwaysOnLateral", "Always on Lateral", "Maintain openpilot lateral control when the brake or gas pedals are used.\n\nDeactivation occurs only through the 'Cruise Control' button.", "../frogpilot/assets/toggle_icons/icon_always_on_lateral.png"},
 
+    {"ConditionalExperimental", "Conditional Experimental Mode", "Automatically switches to 'Experimental Mode' under predefined conditions.", "../frogpilot/assets/toggle_icons/icon_conditional.png"},
+    {"CECurves", "Curve Detected Ahead", "Switch to 'Experimental Mode' when a curve is detected.", ""},
+    {"CENavigation", "Navigation Based", "Switch to 'Experimental Mode' based on navigation data. (i.e. Intersections, stop signs, etc.)", ""},
+    {"CESlowerLead", "Slower Lead Detected Ahead", "Switch to 'Experimental Mode' when a slower lead vehicle is detected ahead.", ""},
+    {"CEStopLights", "Stop Lights and Stop Signs", "Switch to 'Experimental Mode' when a stop light or stop sign is detected.", ""},
+    {"CESignal", "Turn Signal When Below Highway Speeds", "Switch to 'Experimental Mode' when using turn signals below highway speeds to help assit with turns.", ""},
+
     {"LateralTune", "Lateral Tuning", "Modify openpilot's steering behavior.", "../frogpilot/assets/toggle_icons/icon_lateral_tune.png"},
 
     {"LongitudinalTune", "Longitudinal Tuning", "Modify openpilot's acceleration and braking behavior.", "../frogpilot/assets/toggle_icons/icon_longitudinal_tune.png"},
@@ -33,6 +40,44 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
           }
         }
       });
+
+    } else if (param == "ConditionalExperimental") {
+      FrogPilotParamManageControl *conditionalExperimentalToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
+      QObject::connect(conditionalExperimentalToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
+        parentToggleClicked();
+        conditionalSpeedsImperial->setVisible(!isMetric);
+        conditionalSpeedsMetric->setVisible(isMetric);
+        for (auto &[key, toggle] : toggles) {
+          toggle->setVisible(conditionalExperimentalKeys.find(key.c_str()) != conditionalExperimentalKeys.end());
+        }
+      });
+      toggle = conditionalExperimentalToggle;
+    } else if (param == "CECurves") {
+      FrogPilotParamValueControl *CESpeedImperial = new FrogPilotParamValueControl("CESpeed", "Below", "Switch to 'Experimental Mode' below this speed in absence of a lead vehicle.", "", 0, 99,
+                                                                                   std::map<int, QString>(), this, false, " mph");
+      FrogPilotParamValueControl *CESpeedLeadImperial = new FrogPilotParamValueControl("CESpeedLead", "  w/Lead", "Switch to 'Experimental Mode' below this speed when following a lead vehicle.", "", 0, 99,
+                                                                                       std::map<int, QString>(), this, false, " mph");
+      conditionalSpeedsImperial = new FrogPilotDualParamControl(CESpeedImperial, CESpeedLeadImperial, this);
+      addItem(conditionalSpeedsImperial);
+
+      FrogPilotParamValueControl *CESpeedMetric = new FrogPilotParamValueControl("CESpeed", "Below", "Switch to 'Experimental Mode' below this speed in absence of a lead vehicle.", "", 0, 150,
+                                                                                 std::map<int, QString>(), this, false, " kph");
+      FrogPilotParamValueControl *CESpeedLeadMetric = new FrogPilotParamValueControl("CESpeedLead", "  w/Lead", "Switch to 'Experimental Mode' below this speed when following a lead vehicle.", "", 0, 150,
+                                                                                     std::map<int, QString>(), this, false, " kph");
+      conditionalSpeedsMetric = new FrogPilotDualParamControl(CESpeedMetric, CESpeedLeadMetric, this);
+      addItem(conditionalSpeedsMetric);
+
+      std::vector<QString> curveToggles{"CECurvesLead"};
+      std::vector<QString> curveToggleNames{tr("With Lead")};
+      toggle = new FrogPilotParamToggleControl(param, title, desc, icon, curveToggles, curveToggleNames);
+    } else if (param == "CENavigation") {
+      std::vector<QString> navigationToggles{"CENavigationIntersections", "CENavigationTurns", "CENavigationLead"};
+      std::vector<QString> navigationToggleNames{tr("Intersections"), tr("Turns"), tr("With Lead")};
+      toggle = new FrogPilotParamToggleControl(param, title, desc, icon, navigationToggles, navigationToggleNames);
+    } else if (param == "CEStopLights") {
+      std::vector<QString> stopLightToggles{"CEStopLightsLead"};
+      std::vector<QString> stopLightToggleNames{tr("With Lead")};
+      toggle = new FrogPilotParamToggleControl(param, title, desc, icon, stopLightToggles, stopLightToggleNames);
 
     } else if (param == "LateralTune") {
       FrogPilotParamManageControl *lateralTuneToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
@@ -151,6 +196,8 @@ void FrogPilotControlsPanel::updateMetric() {
   if (isMetric != previousIsMetric) {
     double distanceConversion = isMetric ? FOOT_TO_METER : METER_TO_FOOT;
     double speedConversion = isMetric ? MILE_TO_KM : KM_TO_MILE;
+    params.putIntNonBlocking("CESpeed", std::nearbyint(params.getInt("CESpeed") * speedConversion));
+    params.putIntNonBlocking("CESpeedLead", std::nearbyint(params.getInt("CESpeedLead") * speedConversion));
   }
 
   if (isMetric) {
@@ -161,6 +208,9 @@ void FrogPilotControlsPanel::updateMetric() {
 }
 
 void FrogPilotControlsPanel::parentToggleClicked() {
+  conditionalSpeedsImperial->setVisible(false);
+  conditionalSpeedsMetric->setVisible(false);
+
   openParentToggle();
 }
 
@@ -169,6 +219,9 @@ void FrogPilotControlsPanel::subParentToggleClicked() {
 }
 
 void FrogPilotControlsPanel::hideSubToggles() {
+  conditionalSpeedsImperial->setVisible(false);
+  conditionalSpeedsMetric->setVisible(false);
+
   for (auto &[key, toggle] : toggles) {
     bool subToggles = conditionalExperimentalKeys.find(key.c_str()) != conditionalExperimentalKeys.end() ||
                       fireTheBabysitterKeys.find(key.c_str()) != fireTheBabysitterKeys.end() ||

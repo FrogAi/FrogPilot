@@ -24,6 +24,28 @@ A_CRUISE_MAX_VALS_ECO = [3.5, 3.2, 2.3, 2.0, 1.15, .80, .58, .36, .30, .091]
 A_CRUISE_MIN_VALS_SPORT = [-0.50, -0.52, -0.55, -0.57, -0.60]
 A_CRUISE_MAX_VALS_SPORT = [3.5, 3.5, 3.3, 2.8, 1.5, 1.0, .75, .6, .38, .2]
 
+
+class MovingAverageCalculator:
+  def __init__(self):
+    self.data = []
+    self.total = 0
+
+  def add_data(self, value):
+    if len(self.data) == THRESHOLD:
+      self.total -= self.data.pop(0)
+    self.data.append(value)
+    self.total += value
+
+  def get_moving_average(self):
+    if len(self.data) == 0:
+      return None
+    return self.total / len(self.data)
+
+  def reset_data(self):
+    self.data = []
+    self.total = 0
+
+
 class FrogPilotFunctions:
   def __init__(self) -> None:
     self.params = Params()
@@ -57,3 +79,9 @@ class FrogPilotFunctions:
     distance_to_road_edge = np.mean(np.abs(current_y - road_edge_y_interp))
 
     return min(distance_to_lane, distance_to_road_edge)
+
+  @staticmethod
+  def road_curvature(modelData, v_ego):
+    predicted_velocities = np.array(modelData.velocity.x)
+    curvature_ratios = np.abs(np.array(modelData.acceleration.y)) / (predicted_velocities**2)
+    return np.amax(curvature_ratios * (v_ego**2))

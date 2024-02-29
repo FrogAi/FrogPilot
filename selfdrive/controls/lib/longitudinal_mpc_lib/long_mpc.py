@@ -337,6 +337,7 @@ class LongitudinalMpc:
 
   def update(self, radarstate, v_cruise, x, v, a, j, frogpilot_planner, personality=log.LongitudinalPersonality.standard):
     t_follow = get_T_FOLLOW(personality)
+    self.t_follow = t_follow
     v_ego = self.x0[1]
     self.status = radarstate.leadOne.status or radarstate.leadTwo.status
 
