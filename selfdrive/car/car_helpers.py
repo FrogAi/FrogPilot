@@ -217,7 +217,7 @@ def is_connected_to_internet(timeout=5):
 def crash_log(params, candidate):
   serial_id = params.get("HardwareSerial", encoding='utf-8')
 
-  control_keys, vehicle_keys, visual_keys = [
+  control_keys, vehicle_keys, visual_keys, tracking_keys = [
     "AdjustablePersonalities", "PersonalitiesViaWheel", "PersonalitiesViaScreen", "AlwaysOnLateral", "AlwaysOnLateralMain",
     "ConditionalExperimental", "CESpeed", "CESpeedLead", "CECurves", "CECurvesLead", "CENavigation", "CENavigationIntersections",
     "CENavigationLead", "CENavigationTurns", "CESlowerLead", "CEStopLights", "CEStopLightsLead", "CESignal", "CustomPersonalities",
@@ -241,17 +241,19 @@ def crash_log(params, candidate):
     "ModelUI", "DynamicPathWidth", "LaneLinesWidth", "PathEdgeWidth", "PathWidth", "RoadEdgesWidth", "UnlimitedLength", "QOLVisuals", "DriveStats",
     "FullMap", "HideSpeed", "HideSpeedUI", "ShowSLCOffset", "SpeedLimitChangedAlert", "WheelSpeed", "RandomEvents", "ScreenBrightness", "WheelIcon",
     "RotatingWheel", "NumericalTemp", "Fahrenheit", "ShowCPU", "ShowGPU", "ShowIP", "ShowMemoryUsage", "ShowStorageLeft", "ShowStorageUsed", "Sidebar"
+  ], [
+    "FrogPilotDrives", "FrogPilotKilometers", "FrogPilotMinutes"
   ]
 
-  control_params, vehicle_params, visual_params = map(lambda keys: get_frogpilot_params(params, keys), [control_keys, vehicle_keys, visual_keys])
-  control_values, vehicle_values, visual_values = map(format_params, [control_params, vehicle_params, visual_params])
-  control_chunks, vehicle_chunks, visual_chunks = map(lambda data: chunk_data(data, 50), [control_values, vehicle_values, visual_values])
+  control_params, vehicle_params, visual_params, tracking_params = map(lambda keys: get_frogpilot_params(params, keys), [control_keys, vehicle_keys, visual_keys, tracking_keys])
+  control_values, vehicle_values, visual_values, tracking_values = map(format_params, [control_params, vehicle_params, visual_params, tracking_params])
+  control_chunks, vehicle_chunks, visual_chunks, tracking_chunks = map(lambda data: chunk_data(data, 50), [control_values, vehicle_values, visual_values, tracking_values])
 
   while not is_connected_to_internet():
     time.sleep(60)
 
   with sentry_sdk.configure_scope() as scope:
-    for chunks, label in zip([control_chunks, vehicle_chunks, visual_chunks], ["FrogPilot Controls", "FrogPilot Vehicles", "FrogPilot Visuals"]):
+    for chunks, label in zip([control_chunks, vehicle_chunks, visual_chunks, tracking_chunks], ["FrogPilot Controls", "FrogPilot Vehicles", "FrogPilot Visuals", "FrogPilot Tracking"]):
       set_sentry_scope(scope, chunks, label)
     sentry.capture_warning(f"Fingerprinted: {candidate}", serial_id)
 
