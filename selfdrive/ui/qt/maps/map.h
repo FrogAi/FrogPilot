@@ -78,6 +78,9 @@ private:
   void updateDestinationMarker();
   uint64_t route_rcv_frame = 0;
 
+  // FrogPilot variables
+  Params params;
+
 private slots:
   void updateState(const UIState &s);
 
