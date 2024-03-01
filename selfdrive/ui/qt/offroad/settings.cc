@@ -7,6 +7,7 @@
 #include <vector>
 
 #include <QDebug>
+#include <QScrollBar>
 
 #include "selfdrive/ui/qt/network/networking.h"
 
@@ -22,6 +23,10 @@
 #include "selfdrive/ui/ui.h"
 #include "selfdrive/ui/qt/util.h"
 #include "selfdrive/ui/qt/qt_window.h"
+
+#include "selfdrive/frogpilot/ui/control_settings.h"
+#include "selfdrive/frogpilot/ui/vehicle_settings.h"
+#include "selfdrive/frogpilot/ui/visual_settings.h"
 
 TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
   // param, title, desc, icon
@@ -116,6 +121,10 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
 
   connect(toggles["ExperimentalLongitudinalEnabled"], &ToggleControl::toggleFlipped, [=]() {
     updateToggles();
+  });
+
+  connect(toggles["IsMetric"], &ToggleControl::toggleFlipped, [=]() {
+    updateMetric();
   });
 }
 
@@ -245,6 +254,20 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   });
   addItem(translateBtn);
 
+  // Delete long term toggle storage button
+  auto deleteStorageParamsBtn = new ButtonControl(tr("Delete Toggle Storage Data"), tr("DELETE"), tr("This button provides a swift and secure way to permanently delete all "
+    "long term stored toggle settings. Ideal for maintaining privacy or freeing up space.")
+  );
+  connect(deleteStorageParamsBtn, &ButtonControl::clicked, [=]() {
+    if (!ConfirmationDialog::confirm(tr("Are you sure you want to permanently delete all of your long term toggle settings storage?"), tr("Delete"), this)) return;
+    std::thread([&] {
+      deleteStorageParamsBtn->setValue("Deleting params...");
+      std::system("rm -rf /persist/comma/params");
+      deleteStorageParamsBtn->setValue("");
+    }).detach();
+  });
+  addItem(deleteStorageParamsBtn);
+
   QObject::connect(uiState(), &UIState::offroadTransition, [=](bool offroad) {
     for (auto btn : findChildren<ButtonControl *>()) {
       btn->setEnabled(offroad);
@@ -364,7 +387,17 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   close_btn->setFixedSize(200, 200);
   sidebar_layout->addSpacing(45);
   sidebar_layout->addWidget(close_btn, 0, Qt::AlignCenter);
-  QObject::connect(close_btn, &QPushButton::clicked, this, &SettingsWindow::closeSettings);
+  QObject::connect(close_btn, &QPushButton::clicked, [this]() {
+    if (parentToggleOpen) {
+      if (subParentToggleOpen) {
+        closeSubParentToggle();
+      } else {
+        closeParentToggle();
+      }
+    } else {
+      closeSettings();
+    }
+  });
 
   // setup panels
   DevicePanel *device = new DevicePanel(this);
@@ -373,12 +406,28 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
 
   TogglesPanel *toggles = new TogglesPanel(this);
   QObject::connect(this, &SettingsWindow::expandToggleDescription, toggles, &TogglesPanel::expandToggleDescription);
+  QObject::connect(toggles, &TogglesPanel::updateMetric, this, &SettingsWindow::updateMetric);
+
+  FrogPilotControlsPanel *frogpilotControls = new FrogPilotControlsPanel(this);
+  QObject::connect(frogpilotControls, &FrogPilotControlsPanel::closeSubParentToggle, this, [this]() {subParentToggleOpen = false;});
+  QObject::connect(frogpilotControls, &FrogPilotControlsPanel::openSubParentToggle, this, [this]() {subParentToggleOpen = true;});
+  QObject::connect(frogpilotControls, &FrogPilotControlsPanel::closeParentToggle, this, [this]() {parentToggleOpen = false;});
+  QObject::connect(frogpilotControls, &FrogPilotControlsPanel::openParentToggle, this, [this]() {parentToggleOpen = true;});
+
+  FrogPilotVisualsPanel *frogpilotVisuals = new FrogPilotVisualsPanel(this);
+  QObject::connect(frogpilotVisuals, &FrogPilotVisualsPanel::closeSubParentToggle, this, [this]() {subParentToggleOpen = false;});
+  QObject::connect(frogpilotVisuals, &FrogPilotVisualsPanel::openSubParentToggle, this, [this]() {subParentToggleOpen = true;});
+  QObject::connect(frogpilotVisuals, &FrogPilotVisualsPanel::closeParentToggle, this, [this]() {parentToggleOpen = false;});
+  QObject::connect(frogpilotVisuals, &FrogPilotVisualsPanel::openParentToggle, this, [this]() {parentToggleOpen = true;});
 
   QList<QPair<QString, QWidget *>> panels = {
     {tr("Device"), device},
     {tr("Network"), new Networking(this)},
     {tr("Toggles"), toggles},
     {tr("Software"), new SoftwarePanel(this)},
+    {tr("Controls"), frogpilotControls},
+    {tr("Vehicles"), new FrogPilotVehiclesPanel(this)},
+    {tr("Visuals"), frogpilotVisuals},
   };
 
   nav_btns = new QButtonGroup(this);
@@ -411,7 +460,22 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     ScrollView *panel_frame = new ScrollView(panel, this);
     panel_widget->addWidget(panel_frame);
 
+    if (name == tr("Controls") || name == tr("Visuals")) {
+      QScrollBar *scrollbar = panel_frame->verticalScrollBar();
+
+      QObject::connect(scrollbar, &QScrollBar::valueChanged, this, [this](int value) {
+        if (!parentToggleOpen) {
+          previousScrollPosition = value;
+        }
+      });
+
+      QObject::connect(scrollbar, &QScrollBar::rangeChanged, this, [this, panel_frame]() {
+        panel_frame->restorePosition(previousScrollPosition);
+      });
+    }
+
     QObject::connect(btn, &QPushButton::clicked, [=, w = panel_frame]() {
+      previousScrollPosition = 0;
       btn->setChecked(true);
       panel_widget->setCurrentWidget(w);
     });

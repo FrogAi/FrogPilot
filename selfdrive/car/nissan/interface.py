@@ -8,7 +8,7 @@ from openpilot.selfdrive.car.nissan.values import CAR
 class CarInterface(CarInterfaceBase):
 
   @staticmethod
-  def _get_params(ret, candidate, fingerprint, car_fw, experimental_long, docs):
+  def _get_params(ret, params, candidate, fingerprint, car_fw, experimental_long, docs):
     ret.carName = "nissan"
     ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.nissan)]
     ret.autoResumeSng = False
@@ -39,15 +39,15 @@ class CarInterface(CarInterfaceBase):
     return ret
 
   # returns a car.CarState
-  def _update(self, c):
-    ret = self.CS.update(self.cp, self.cp_adas, self.cp_cam)
+  def _update(self, c, frogpilot_variables):
+    ret = self.CS.update(self.cp, self.cp_adas, self.cp_cam, frogpilot_variables)
 
     buttonEvents = []
     be = car.CarState.ButtonEvent.new_message()
     be.type = car.CarState.ButtonEvent.Type.accelCruise
     buttonEvents.append(be)
 
-    events = self.create_common_events(ret, extra_gears=[car.CarState.GearShifter.brake])
+    events = self.create_common_events(ret, frogpilot_variables, extra_gears=[car.CarState.GearShifter.brake])
 
     if self.CS.lkas_enabled:
       events.add(car.CarEvent.EventName.invalidLkasSetting)
@@ -56,5 +56,5 @@ class CarInterface(CarInterfaceBase):
 
     return ret
 
-  def apply(self, c, now_nanos):
-    return self.CC.update(c, self.CS, now_nanos)
+  def apply(self, c, now_nanos, frogpilot_variables):
+    return self.CC.update(c, self.CS, now_nanos, frogpilot_variables)

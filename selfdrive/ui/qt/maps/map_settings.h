@@ -64,6 +64,8 @@ private:
   DestinationWidget *work_widget;
   std::vector<DestinationWidget *> widgets;
 
+  // FrogPilot variables
+
 signals:
   void closeSettings();
 };

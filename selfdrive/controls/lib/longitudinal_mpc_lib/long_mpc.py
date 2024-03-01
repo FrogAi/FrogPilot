@@ -221,6 +221,8 @@ def gen_long_ocp():
 
 class LongitudinalMpc:
   def __init__(self, mode='acc'):
+    # FrogPilot variables
+
     self.mode = mode
     self.solver = AcadosOcpSolverCython(MODEL_NAME, ACADOS_SOLVER_TYPE, N)
     self.reset()
@@ -330,7 +332,7 @@ class LongitudinalMpc:
     self.cruise_min_a = min_a
     self.max_a = max_a
 
-  def update(self, radarstate, v_cruise, x, v, a, j, personality=log.LongitudinalPersonality.standard):
+  def update(self, radarstate, v_cruise, x, v, a, j, frogpilot_planner, personality=log.LongitudinalPersonality.standard):
     t_follow = get_T_FOLLOW(personality)
     v_ego = self.x0[1]
     self.status = radarstate.leadOne.status or radarstate.leadTwo.status

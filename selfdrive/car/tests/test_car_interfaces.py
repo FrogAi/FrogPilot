@@ -9,6 +9,7 @@ from parameterized import parameterized
 
 from cereal import car, messaging
 from openpilot.common.realtime import DT_CTRL
+from openpilot.common.params import Params
 from openpilot.selfdrive.car import gen_empty_fingerprint
 from openpilot.selfdrive.car.car_helpers import interfaces
 from openpilot.selfdrive.car.fingerprints import all_known_cars
@@ -18,6 +19,7 @@ from openpilot.selfdrive.controls.lib.latcontrol_angle import LatControlAngle
 from openpilot.selfdrive.controls.lib.latcontrol_pid import LatControlPID
 from openpilot.selfdrive.controls.lib.latcontrol_torque import LatControlTorque
 from openpilot.selfdrive.controls.lib.longcontrol import LongControl
+from openpilot.selfdrive.controls.controlsd import Controls
 from openpilot.selfdrive.test.fuzzy_generation import DrawType, FuzzyGenerator
 
 ALL_ECUS = list({ecu for ecus in FW_VERSIONS.values() for ecu in ecus.keys()})
@@ -44,7 +46,6 @@ def get_fuzzy_car_interface_args(draw: DrawType) -> dict:
   params['car_fw'] = [car.CarParams.CarFw(ecu=fw[0], address=fw[1], subAddress=fw[2] or 0) for fw in params['car_fw']]
   return params
 
-
 class TestCarInterfaces(unittest.TestCase):
   # FIXME: Due to the lists used in carParams, Phase.target is very slow and will cause
   #  many generated examples to overrun when max_examples > ~20, don't use it
@@ -56,9 +57,11 @@ class TestCarInterfaces(unittest.TestCase):
     CarInterface, CarController, CarState = interfaces[car_name]
 
     args = get_fuzzy_car_interface_args(data.draw)
+    params = Params()
 
-    car_params = CarInterface.get_params(car_name, args['fingerprints'], args['car_fw'],
+    car_params = CarInterface.get_params(params, car_name, args['fingerprints'], args['car_fw'],
                                          experimental_long=args['experimental_long'], docs=False)
+      
     car_interface = CarInterface(car_params, CarController, CarState)
     assert car_params
     assert car_interface
@@ -94,18 +97,19 @@ class TestCarInterfaces(unittest.TestCase):
     # Run car interface
     now_nanos = 0
     CC = car.CarControl.new_message(**cc_msg)
+    controls = Controls(CI=car_interface)
     for _ in range(10):
-      car_interface.update(CC, [])
-      car_interface.apply(CC, now_nanos)
-      car_interface.apply(CC, now_nanos)
+      car_interface.update(CC, [], controls.frogpilot_variables)
+      car_interface.apply(CC, now_nanos, controls.frogpilot_variables)
+      car_interface.apply(CC, now_nanos, controls.frogpilot_variables)
       now_nanos += DT_CTRL * 1e9  # 10 ms
 
     CC = car.CarControl.new_message(**cc_msg)
     CC.enabled = True
     for _ in range(10):
-      car_interface.update(CC, [])
-      car_interface.apply(CC, now_nanos)
-      car_interface.apply(CC, now_nanos)
+      car_interface.update(CC, [], controls.frogpilot_variables)
+      car_interface.apply(CC, now_nanos, controls.frogpilot_variables)
+      car_interface.apply(CC, now_nanos, controls.frogpilot_variables)
       now_nanos += DT_CTRL * 1e9  # 10ms
 
     # Test controller initialization

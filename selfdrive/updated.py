@@ -237,6 +237,8 @@ class Updater:
     self.branches = defaultdict(lambda: '')
     self._has_internet: bool = False
 
+    # FrogPilot variables
+
   @property
   def has_internet(self) -> bool:
     return self._has_internet

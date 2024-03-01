@@ -2,6 +2,7 @@
 import datetime
 import os
 import signal
+import subprocess
 import sys
 import traceback
 from typing import List, Tuple, Union
@@ -27,11 +28,37 @@ def manager_init() -> None:
   save_bootlog()
 
   params = Params()
+  params_storage = Params("/persist/comma/params")
   params.clear_all(ParamKeyType.CLEAR_ON_MANAGER_START)
   params.clear_all(ParamKeyType.CLEAR_ON_ONROAD_TRANSITION)
   params.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
   if is_release_branch():
     params.clear_all(ParamKeyType.DEVELOPMENT_ONLY)
+
+  ############### Remove this after the April 26th update ###############
+
+  previous_speed_limit = params.get_float("PreviousSpeedLimit")
+  if previous_speed_limit >= 50:
+    params.put_float("PreviousSpeedLimit", previous_speed_limit / 100)
+
+  for priority_key in ["SLCPriority", "SLCPriority1", "SLCPriority2", "SLCPriority3"]:
+    priority_value = params.get(priority_key)
+    if isinstance(priority_value, int):
+      params.remove(priority_key)
+
+  attributes = ["AggressiveFollow", "StandardFollow", "RelaxedFollow", "AggressiveJerk", "StandardJerk", "RelaxedJerk"]
+  values = {attr: params.get_float(attr) for attr in attributes}
+  if any(value > 5 for value in values.values()):
+    for attr, value in values.items():
+      params.put_float(attr, value / 10)
+
+  if params.get_bool("SilentMode"):
+    attributes = ["DisengageVolume", "EngageVolume", "PromptVolume", "PromptDistractedVolume", "RefuseVolume", "WarningSoftVolume", "WarningImmediateVolume"]
+    for attr in attributes:
+      params.put_float(attr, 0)
+    params.put_bool("SilentMode", False)
+
+  #######################################################################
 
   default_params: List[Tuple[str, Union[str, bytes]]] = [
     ("CompletedTrainingVersion", "0"),
@@ -40,7 +67,190 @@ def manager_init() -> None:
     ("HasAcceptedTerms", "0"),
     ("LanguageSetting", "main_en"),
     ("OpenpilotEnabledToggle", "1"),
+    ("UpdaterAvailableBranches", ""),
     ("LongitudinalPersonality", str(log.LongitudinalPersonality.standard)),
+
+    # Default FrogPilot parameters
+    ("AccelerationPath", "1"),
+    ("AccelerationProfile", "2"),
+    ("AdjacentPath", "0"),
+    ("AdjacentPathMetrics", "0"),
+    ("AdjustablePersonalities", "1"),
+    ("AggressiveAcceleration", "1"),
+    ("AggressiveFollow", "1.25"),
+    ("AggressiveJerk", "0.5"),
+    ("AlertVolumeControl", "0"),
+    ("AlwaysOnLateral", "1"),
+    ("AlwaysOnLateralMain", "0"),
+    ("BlindSpotPath", "1"),
+    ("CameraView", "1"),
+    ("CarMake", ""),
+    ("CarModel", ""),
+    ("CECurves", "1"),
+    ("CENavigation", "1"),
+    ("CENavigationIntersections", "1"),
+    ("CENavigationLead", "1"),
+    ("CENavigationTurns", "1"),
+    ("CESignal", "1"),
+    ("CESlowerLead", "0"),
+    ("CESpeed", "0"),
+    ("CESpeedLead", "0"),
+    ("CEStopLights", "1"),
+    ("CEStopLightsLead", "0"),
+    ("Compass", "0"),
+    ("ConditionalExperimental", "1"),
+    ("CrosstrekTorque", "1"),
+    ("CurveSensitivity", "100"),
+    ("CustomAlerts", "1"),
+    ("CustomColors", "1"),
+    ("CustomIcons", "1"),
+    ("CustomPersonalities", "1"),
+    ("CustomSignals", "1"),
+    ("CustomSounds", "1"),
+    ("CustomTheme", "1"),
+    ("CustomUI", "1"),
+    ("CydiaTune", "0"),
+    ("DecelerationProfile", "1"),
+    ("DeviceShutdown", "9"),
+    ("DisableMTSCSmoothing", "0"),
+    ("DisableOnroadUploads", "0"),
+    ("DisableVTSCSmoothing", "0"),
+    ("DisengageVolume", "100"),
+    ("DragonPilotTune", "0"),
+    ("DriverCamera", "0"),
+    ("DriveStats", "1"),
+    ("DynamicPathWidth", "0"),
+    ("EngageVolume", "100"),
+    ("EVTable", "1"),
+    ("ExperimentalModeActivation", "1"),
+    ("ExperimentalModeViaDistance", "0"),
+    ("ExperimentalModeViaLKAS", "0"),
+    ("ExperimentalModeViaScreen", "1"),
+    ("Fahrenheit", "0"),
+    ("FireTheBabysitter", "0"),
+    ("ForceAutoTune", "0"),
+    ("ForceFingerprint", "0"),
+    ("ForceMPHDashboard", "0"),
+    ("FPSCounter", "0"),
+    ("FrogPilotDrives", "0"),
+    ("FrogPilotKilometers", "0"),
+    ("FrogPilotMinutes", "0"),
+    ("FrogsGoMooTune", "1"),
+    ("FullMap", "0"),
+    ("GasRegenCmd", "0"),
+    ("GoatScream", "1"),
+    ("GreenLightAlert", "0"),
+    ("HideAlerts", "0"),
+    ("HideAOLStatusBar", "0"),
+    ("HideCEMStatusBar", "0"),
+    ("HideLeadMarker", "0"),
+    ("HideMapIcon", "0"),
+    ("HideMaxSpeed", "0"),
+    ("HideSpeed", "0"),
+    ("HideSpeedUI", "0"),
+    ("HideUIElements", "0"),
+    ("HigherBitrate", "0"),
+    ("LaneChangeTime", "0"),
+    ("LaneDetection", "1"),
+    ("LaneDetectionWidth", "60"),
+    ("LaneLinesWidth", "4"),
+    ("LateralTune", "1"),
+    ("LeadDepartingAlert", "0"),
+    ("LeadInfo", "0"),
+    ("LockDoors", "0"),
+    ("LongitudinalTune", "1"),
+    ("LongPitch", "1"),
+    ("LoudBlindspotAlert", "0"),
+    ("LowerVolt", "1"),
+    ("MapsSelected", ""),
+    ("MapStyle", "0"),
+    ("MTSCAggressiveness", "100"),
+    ("MTSCCurvatureCheck", "0"),
+    ("MTSCLimit", "0"),
+    ("Model", DEFAULT_MODEL),
+    ("ModelUI", "1"),
+    ("MTSCEnabled", "1"),
+    ("MuteOverheated", "0"),
+    ("NavChill", "0"),
+    ("NNFF", "1"),
+    ("NoLogging", "0"),
+    ("NoUploads", "0"),
+    ("NudgelessLaneChange", "1"),
+    ("NumericalTemp", "0"),
+    ("OfflineMode", "0"),
+    ("Offset1", "5"),
+    ("Offset2", "5"),
+    ("Offset3", "5"),
+    ("Offset4", "10"),
+    ("OneLaneChange", "1"),
+    ("PathEdgeWidth", "20"),
+    ("PathWidth", "61"),
+    ("PauseLateralOnSignal", "0"),
+    ("PedalsOnUI", "1"),
+    ("PersonalitiesViaScreen", "1"),
+    ("PersonalitiesViaWheel", "1"),
+    ("PreferredSchedule", "0"),
+    ("PromptVolume", "100"),
+    ("PromptDistractedVolume", "100"),
+    ("QOLControls", "1"),
+    ("QOLVisuals", "1"),
+    ("RandomEvents", "0"),
+    ("RefuseVolume", "100"),
+    ("RelaxedFollow", "1.75"),
+    ("RelaxedJerk", "1.0"),
+    ("ReverseCruise", "0"),
+    ("ReverseCruiseUI", "1"),
+    ("RoadEdgesWidth", "2"),
+    ("RoadNameUI", "1"),
+    ("RotatingWheel", "1"),
+    ("ScreenBrightness", "101"),
+    ("ScreenBrightnessOnroad", "101"),
+    ("ScreenManagement", "1"),
+    ("ScreenRecorder", "1"),
+    ("ScreenTimeout", "30"),
+    ("ScreenTimeoutOnroad", "30"),
+    ("SearchInput", "0"),
+    ("SetSpeedLimit", "0"),
+    ("SetSpeedOffset", "0"),
+    ("ShowCPU", "0"),
+    ("ShowGPU", "0"),
+    ("ShowIP", "0"),
+    ("ShowMemoryUsage", "0"),
+    ("ShowSLCOffset", "0"),
+    ("ShowSLCOffsetUI", "1"),
+    ("ShowStorageLeft", "0"),
+    ("ShowStorageUsed", "0"),
+    ("Sidebar", "0"),
+    ("SLCConfirmation", "1"),
+    ("SLCConfirmationLower", "1"),
+    ("SLCConfirmationHigher", "1"),
+    ("SLCFallback", "2"),
+    ("SLCOverride", "1"),
+    ("SLCPriority1", "Dashboard"),
+    ("SLCPriority2", "Offline Maps"),
+    ("SLCPriority3", "Navigation"),
+    ("SmoothBraking", "1"),
+    ("SNGHack", "1"),
+    ("SpeedLimitChangedAlert", "1"),
+    ("SpeedLimitController", "1"),
+    ("StandardFollow", "1.45"),
+    ("StandardJerk", "1.0"),
+    ("StandbyMode", "0"),
+    ("SteerRatio", "0"),
+    ("StockTune", "0"),
+    ("StoppingDistance", "0"),
+    ("TurnAggressiveness", "100"),
+    ("TurnDesires", "0"),
+    ("UnlimitedLength", "1"),
+    ("UpdateSchedule", "0"),
+    ("UseLateralJerk", "0"),
+    ("UseSI", "0"),
+    ("UseVienna", "0"),
+    ("VisionTurnControl", "1"),
+    ("WarningSoftVolume", "100"),
+    ("WarningImmediateVolume", "100"),
+    ("WheelIcon", "3"),
+    ("WheelSpeed", "0")
   ]
   if not PC:
     default_params.append(("LastUpdateTime", datetime.datetime.utcnow().isoformat().encode('utf8')))
@@ -51,7 +261,12 @@ def manager_init() -> None:
   # set unset params
   for k, v in default_params:
     if params.get(k) is None:
-      params.put(k, v)
+      if params_storage.get(k) is None:
+        params.put(k, v)
+      else:
+        params.put(k, params_storage.get(k))
+    else:
+      params_storage.put(k, params.get(k))
 
   # Create folders needed for msgq
   try:
@@ -114,12 +329,21 @@ def manager_cleanup() -> None:
   cloudlog.info("everything is dead")
 
 
+def update_frogpilot_params(params, params_memory):
+  keys = []
+  for key in keys:
+    params_memory.put_bool(key, params.get_bool(key))
+
 def manager_thread() -> None:
   cloudlog.bind(daemon="manager")
   cloudlog.info("manager start")
   cloudlog.info({"environ": os.environ})
 
   params = Params()
+  params_memory = Params("/dev/shm/params")
+  params_storage = Params("/persist/comma/params")
+
+  update_frogpilot_params(params, params_memory)
 
   ignore: List[str] = []
   if params.get("DongleId", encoding='utf8') in (None, UNREGISTERED_DONGLE_ID):
@@ -132,7 +356,7 @@ def manager_thread() -> None:
   pm = messaging.PubMaster(['managerState'])
 
   write_onroad_params(False, params)
-  ensure_running(managed_processes.values(), False, params=params, CP=sm['carParams'], not_run=ignore)
+  ensure_running(managed_processes.values(), False, params=params, params_memory=params_memory, CP=sm['carParams'], not_run=ignore)
 
   started_prev = False
 
@@ -152,7 +376,7 @@ def manager_thread() -> None:
 
     started_prev = started
 
-    ensure_running(managed_processes.values(), started, params=params, CP=sm['carParams'], not_run=ignore)
+    ensure_running(managed_processes.values(), started, params=params, params_memory=params_memory, CP=sm['carParams'], not_run=ignore)
 
     running = ' '.join("%s%s\u001b[0m" % ("\u001b[32m" if p.proc.is_alive() else "\u001b[31m", p.name)
                        for p in managed_processes.values() if p.proc)
@@ -175,8 +399,18 @@ def manager_thread() -> None:
     if shutdown:
       break
 
+    if params_memory.get_bool("FrogPilotTogglesUpdated"):
+      update_frogpilot_params(params, params_memory)
 
 def main() -> None:
+  # Create the long term param storage folder
+  try:
+    # Attempt to remount /persist as read-write
+    subprocess.run(['sudo', 'mount', '-o', 'remount,rw', '/persist'], check=True)
+    print("Successfully remounted /persist as read-write.")
+  except subprocess.CalledProcessError as e:
+    print(f"Failed to remount /persist. Error: {e}")
+
   manager_init()
   if os.getenv("PREPAREONLY") is not None:
     return

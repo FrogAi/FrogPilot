@@ -37,6 +37,8 @@ class PowerMonitoring:
     # Reset capacity if it's low
     self.car_battery_capacity_uWh = max((CAR_BATTERY_CAPACITY_uWh / 10), int(car_battery_capacity_uWh))
 
+    # FrogPilot variables
+
   # Calculation tick
   def calculate(self, voltage: Optional[int], ignition: bool):
     try:

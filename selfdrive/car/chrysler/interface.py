@@ -8,7 +8,7 @@ from openpilot.selfdrive.car.interfaces import CarInterfaceBase
 
 class CarInterface(CarInterfaceBase):
   @staticmethod
-  def _get_params(ret, candidate, fingerprint, car_fw, experimental_long, docs):
+  def _get_params(ret, params, candidate, fingerprint, car_fw, experimental_long, docs):
     ret.carName = "chrysler"
     ret.dashcamOnly = candidate in RAM_HD
 
@@ -88,11 +88,11 @@ class CarInterface(CarInterfaceBase):
 
     return ret
 
-  def _update(self, c):
-    ret = self.CS.update(self.cp, self.cp_cam)
+  def _update(self, c, frogpilot_variables):
+    ret = self.CS.update(self.cp, self.cp_cam, frogpilot_variables)
 
     # events
-    events = self.create_common_events(ret, extra_gears=[car.CarState.GearShifter.low])
+    events = self.create_common_events(ret, frogpilot_variables, extra_gears=[car.CarState.GearShifter.low])
 
     # Low speed steer alert hysteresis logic
     if self.CP.minSteerSpeed > 0. and ret.vEgo < (self.CP.minSteerSpeed + 0.5):
@@ -106,5 +106,5 @@ class CarInterface(CarInterfaceBase):
 
     return ret
 
-  def apply(self, c, now_nanos):
-    return self.CC.update(c, self.CS, now_nanos)
+  def apply(self, c, now_nanos, frogpilot_variables):
+    return self.CC.update(c, self.CS, now_nanos, frogpilot_variables)
