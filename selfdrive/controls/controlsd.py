@@ -177,9 +177,11 @@ class Controls:
     # FrogPilot variables
     self.params = Params()
     self.params_memory = Params("/dev/shm/params")
+    self.params_storage = Params("/persist/comma/params")
 
     self.frogpilot_variables = SimpleNamespace()
 
+    self.drive_added = False
     self.driving_gear = False
     self.fcw_random_event_triggered = False
     self.openpilot_crashed = False
@@ -187,6 +189,8 @@ class Controls:
     self.random_event_triggered = False
     self.stopped_for_light_previously = False
 
+    self.drive_distance = 0
+    self.drive_time = 0
     self.max_acceleration = 0
     self.previous_lead_distance = 0
     self.previous_speed_limit = SpeedLimitController.desired_speed_limit
@@ -571,6 +575,39 @@ class Controls:
 
       if self.sm['modelV2'].frameDropPerc > 20:
         self.events.add(EventName.modeldLagging)
+
+    # Store the total distance traveled
+    self.drive_distance += CS.vEgo * DT_CTRL
+    self.drive_time += DT_CTRL
+
+    # Store the current drive's data after a minute when at a standstill - Need to do this live for comma powerless users
+    if self.drive_time > 60 and CS.standstill:
+      current_total_distance = self.params.get_float("FrogPilotKilometers")
+      distance_to_add = self.drive_distance / 1000
+      new_total_distance = current_total_distance + distance_to_add
+
+      self.params.put_float("FrogPilotKilometers", new_total_distance)
+      self.params_storage.put_float("FrogPilotKilometers", new_total_distance)
+
+      self.drive_distance = 0
+
+      current_total_time = self.params.get_float("FrogPilotMinutes")
+      time_to_add = self.drive_time / 60
+      new_total_time = current_total_time + time_to_add
+
+      self.params.put_float("FrogPilotMinutes", new_total_time)
+      self.params_storage.put_float("FrogPilotMinutes", new_total_time)
+
+      self.drive_time = 0
+
+      # Only count the drive if it lasted longer than 5 minutes
+      if self.sm.frame * DT_CTRL > 60 * 5 and not self.drive_added:
+        new_total_drives = self.params.get_int("FrogPilotDrives") + 1
+
+        self.params.put_int("FrogPilotDrives", new_total_drives)
+        self.params_storage.put_int("FrogPilotDrives", new_total_drives)
+
+        self.drive_added = True
 
     # Acceleration Random Event alerts
     if self.random_events:
