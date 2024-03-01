@@ -360,6 +360,24 @@ def manager_thread() -> None:
       if os.path.isfile(os.path.join(sentry.CRASHES_DIR, 'error.txt')):
         os.remove(os.path.join(sentry.CRASHES_DIR, 'error.txt'))
 
+      # Store the previous drive's data
+      keys = ["FrogPilotKilometers", "FrogPilotMinutes"]
+      for key in keys:
+        current_value = params.get_float(key)
+        value_to_add = params_memory.get_float(key)
+        new_value = current_value + value_to_add
+
+        params.put_float(key, new_value)
+        params_storage.put_float(key, new_value)
+        params_memory.remove(key)
+
+        # Only count the drive if it lasted longer than 5 minutes
+        if key == "FrogPilotMinutes" and value_to_add >= 5:
+          new_frogpilot_drives = params.get_int("FrogPilotDrives") + 1
+
+          params.put_int("FrogPilotDrives", new_frogpilot_drives)
+          params_storage.put_int("FrogPilotDrives", new_frogpilot_drives)
+
     # update onroad params, which drives boardd's safety setter thread
     if started != started_prev:
       write_onroad_params(started, params)
