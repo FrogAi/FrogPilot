@@ -18,7 +18,7 @@ class CarInterface(CarInterfaceBase):
     return CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX
 
   @staticmethod
-  def _get_params(ret, candidate, fingerprint, car_fw, experimental_long, docs):
+  def _get_params(ret, params, candidate, fingerprint, car_fw, experimental_long, docs):
     ret.carName = "toyota"
     ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.toyota)]
     ret.safetyConfigs[0].safetyParam = EPS_SCALE[candidate]
@@ -289,11 +289,11 @@ class CarInterface(CarInterfaceBase):
       disable_ecu(logcan, sendcan, bus=0, addr=0x750, sub_addr=0xf, com_cont_req=communication_control)
 
   # returns a car.CarState
-  def _update(self, c):
-    ret = self.CS.update(self.cp, self.cp_cam)
+  def _update(self, c, frogpilot_variables):
+    ret = self.CS.update(self.cp, self.cp_cam, frogpilot_variables)
 
     # events
-    events = self.create_common_events(ret)
+    events = self.create_common_events(ret, frogpilot_variables)
 
     # Lane Tracing Assist control is unavailable (EPS_STATUS->LTA_STATE=0) until
     # the more accurate angle sensor signal is initialized
@@ -320,5 +320,5 @@ class CarInterface(CarInterfaceBase):
 
   # pass in a car.CarControl
   # to be called @ 100hz
-  def apply(self, c, now_nanos):
-    return self.CC.update(c, self.CS, now_nanos)
+  def apply(self, c, now_nanos, frogpilot_variables):
+    return self.CC.update(c, self.CS, now_nanos, frogpilot_variables)

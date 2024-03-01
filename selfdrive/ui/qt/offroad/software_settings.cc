@@ -15,6 +15,7 @@
 #include "selfdrive/ui/qt/widgets/input.h"
 #include "system/hardware/hw.h"
 
+#include "selfdrive/frogpilot/ui/frogpilot_ui_functions.h"
 
 void SoftwarePanel::checkForUpdates() {
   std::system("pkill -SIGUSR1 -f selfdrive.updated");

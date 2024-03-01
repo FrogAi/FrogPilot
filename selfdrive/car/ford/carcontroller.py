@@ -35,7 +35,7 @@ class CarController:
     self.lkas_enabled_last = False
     self.steer_alert_last = False
 
-  def update(self, CC, CS, now_nanos):
+  def update(self, CC, CS, now_nanos, frogpilot_variables):
     can_sends = []
 
     actuators = CC.actuators

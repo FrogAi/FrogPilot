@@ -88,7 +88,7 @@ class LongitudinalPlanner:
       j = np.zeros(len(T_IDXS_MPC))
     return x, v, a, j
 
-  def update(self, sm):
+  def update(self, sm, frogpilot_planner, params_memory):
     if self.param_read_counter % 50 == 0:
       self.read_param()
     self.param_read_counter += 1
@@ -134,7 +134,7 @@ class LongitudinalPlanner:
     self.mpc.set_accel_limits(accel_limits_turns[0], accel_limits_turns[1])
     self.mpc.set_cur_state(self.v_desired_filter.x, self.a_desired)
     x, v, a, j = self.parse_model(sm['modelV2'], self.v_model_error)
-    self.mpc.update(sm['radarState'], v_cruise, x, v, a, j, personality=self.personality)
+    self.mpc.update(sm['radarState'], frogpilot_planner.v_cruise, x, v, a, j, frogpilot_planner, personality=self.personality)
 
     self.v_desired_trajectory_full = np.interp(ModelConstants.T_IDXS, T_IDXS_MPC, self.mpc.v_solution)
     self.a_desired_trajectory_full = np.interp(ModelConstants.T_IDXS, T_IDXS_MPC, self.mpc.a_solution)
@@ -152,7 +152,9 @@ class LongitudinalPlanner:
     self.a_desired = float(interp(self.dt, ModelConstants.T_IDXS[:CONTROL_N], self.a_desired_trajectory))
     self.v_desired_filter.x = self.v_desired_filter.x + self.dt * (self.a_desired + a_prev) / 2.0
 
-  def publish(self, sm, pm):
+    frogpilot_planner.update(sm['carState'], sm['controlsState'], sm['modelV2'], self.mpc, sm, v_cruise, v_ego)
+
+  def publish(self, sm, pm, frogpilot_planner):
     plan_send = messaging.new_message('longitudinalPlan')
 
     plan_send.valid = sm.all_checks(service_list=['carState', 'controlsState'])
@@ -173,3 +175,5 @@ class LongitudinalPlanner:
     longitudinalPlan.personality = self.personality
 
     pm.send('longitudinalPlan', plan_send)
+
+    frogpilot_planner.publish(sm, pm, self.mpc)

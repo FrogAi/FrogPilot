@@ -25,7 +25,7 @@ class CarController:
     self.hca_frame_timer_running = 0
     self.hca_frame_same_torque = 0
 
-  def update(self, CC, CS, ext_bus, now_nanos):
+  def update(self, CC, CS, ext_bus, now_nanos, frogpilot_variables):
     actuators = CC.actuators
     hud_control = CC.hudControl
     can_sends = []

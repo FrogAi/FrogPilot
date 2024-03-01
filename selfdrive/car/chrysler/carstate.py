@@ -21,7 +21,7 @@ class CarState(CarStateBase):
     else:
       self.shifter_values = can_define.dv["GEAR"]["PRNDL"]
 
-  def update(self, cp, cp_cam):
+  def update(self, cp, cp_cam, frogpilot_variables):
 
     ret = car.CarState.new_message()
 

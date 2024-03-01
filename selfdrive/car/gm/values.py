@@ -4,6 +4,7 @@ from enum import Enum, StrEnum
 from typing import Dict, List, Union
 
 from cereal import car
+from openpilot.common.params import Params
 from openpilot.selfdrive.car import dbc_dict
 from openpilot.selfdrive.car.docs_definitions import CarFootnote, CarHarness, CarInfo, CarParts, Column
 from openpilot.selfdrive.car.fw_query_definitions import FwQueryConfig, Request, StdQueries

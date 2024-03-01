@@ -18,7 +18,7 @@ class CarState(CarStateBase):
     self.lkas_allowed_speed = False
     self.lkas_disabled = False
 
-  def update(self, cp, cp_cam):
+  def update(self, cp, cp_cam, frogpilot_variables):
 
     ret = car.CarState.new_message()
     ret.wheelSpeeds = self.get_wheel_speeds(
