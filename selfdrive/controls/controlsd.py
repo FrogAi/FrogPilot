@@ -320,6 +320,10 @@ class Controls:
 
     frogpilot_plan = self.sm['frogpilotPlan']
 
+    # Show holiday related event to indicate which holiday is active
+    if self.sm.frame == 1000 and self.holiday_themes and self.params_memory.get_int("CurrentHolidayTheme") != 0:
+      self.events.add(EventName.holidayActive)
+
     # Add joystick event, static on cars, dynamic on nonCars
     if self.joystick_mode:
       self.events.add(EventName.joystickDebug)
@@ -1041,6 +1045,7 @@ class Controls:
     custom_sounds = self.params.get_int("CustomSounds") if custom_theme else 0
     frog_sounds = custom_sounds == 1
     self.goat_scream = frog_sounds and self.params.get_bool("GoatScream")
+    self.holiday_themes = custom_theme and self.params.get_bool("HolidayThemes")
 
     experimental_mode_activation = self.params.get_bool("ExperimentalModeActivation")
     self.frogpilot_variables.experimental_mode_via_distance = experimental_mode_activation and self.params.get_bool("ExperimentalModeViaDistance")

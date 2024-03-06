@@ -77,9 +77,11 @@ private:
   bool isStorageLeft;
   bool isStorageUsed;
 
+  std::unordered_map<int, std::pair<QString, std::vector<QColor>>> holidayThemeConfiguration;
   std::unordered_map<int, std::pair<QString, std::vector<QColor>>> themeConfiguration;
   std::unordered_map<int, QPixmap> flag_imgs;
   std::unordered_map<int, QPixmap> home_imgs;
   std::unordered_map<int, QPixmap> settings_imgs;
   std::vector<QColor> currentColors;
+  std::vector<QColor> currentHolidayTheme;
 };
