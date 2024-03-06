@@ -187,6 +187,7 @@ typedef struct UIScene {
   bool full_map;
   bool hide_speed;
   bool hide_speed_ui;
+  bool holiday_themes;
   bool lead_info;
   bool map_open;
   bool model_ui;
@@ -207,6 +208,7 @@ typedef struct UIScene {
   int conditional_speed;
   int conditional_speed_lead;
   int conditional_status;
+  int current_holiday_theme;
   int custom_colors;
   int custom_icons;
   int custom_signals;

@@ -190,14 +190,34 @@ class Soundd:
     custom_sounds = self.params.get_int("CustomSounds") if custom_theme else 0
 
     theme_configuration = {
-      0: "stock",
       1: "frog_theme",
       2: "tesla_theme",
       3: "stalin_theme"
     }
 
-    theme_name = theme_configuration.get(custom_sounds, "stock")
-    self.sound_directory = BASEDIR + ("/selfdrive/frogpilot/assets/custom_themes/" + theme_name + "/sounds/" if custom_sounds else "/selfdrive/assets/sounds/")
+    holiday_themes = custom_theme and self.params.get_bool("HolidayThemes")
+    current_holiday_theme = self.params_memory.get_int("CurrentHolidayTheme") if holiday_themes else 0
+
+    holiday_theme_configuration = {
+      1: "april_fools",
+      2: "christmas",
+      3: "cinco_de_mayo",
+      4: "easter",
+      5: "fourth_of_july",
+      6: "halloween",
+      7: "new_years_day",
+      8: "st_patricks_day",
+      9: "thanksgiving",
+      10: "valentines_day",
+      11: "world_frog_day",
+    }
+
+    if current_holiday_theme != 0:
+      theme_name = holiday_theme_configuration.get(current_holiday_theme)
+      self.sound_directory = BASEDIR + ("/selfdrive/frogpilot/assets/holiday_themes/" + theme_name + "/sounds/")
+    else:
+      theme_name = theme_configuration.get(custom_sounds)
+      self.sound_directory = BASEDIR + ("/selfdrive/frogpilot/assets/custom_themes/" + theme_name + "/sounds/" if custom_sounds else "/selfdrive/assets/sounds/")
 
     self.load_sounds()
 

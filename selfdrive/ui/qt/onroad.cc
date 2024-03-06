@@ -598,7 +598,9 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
 
   // lanelines
   for (int i = 0; i < std::size(scene.lane_line_vertices); ++i) {
-    if (customColors != 0) {
+    if (currentHolidayTheme != 0) {
+      painter.setBrush(std::get<3>(holidayThemeConfiguration[currentHolidayTheme]).begin()->second);
+    } else if (customColors != 0) {
       painter.setBrush(std::get<3>(themeConfiguration[customColors]).begin()->second);
     } else {
       painter.setBrush(QColor::fromRgbF(1.0, 1.0, 1.0, std::clamp<float>(scene.lane_line_probs[i], 0.0, 0.7)));
@@ -608,7 +610,9 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
 
   // road edges
   for (int i = 0; i < std::size(scene.road_edge_vertices); ++i) {
-    if (customColors != 0) {
+    if (currentHolidayTheme != 0) {
+      painter.setBrush(std::get<3>(holidayThemeConfiguration[currentHolidayTheme]).begin()->second);
+    } else if (customColors != 0) {
       painter.setBrush(std::get<3>(themeConfiguration[customColors]).begin()->second);
     } else {
       painter.setBrush(QColor::fromRgbF(1.0, 0, 0, std::clamp<float>(1.0 - scene.road_edge_stds[i], 0.0, 1.0)));
@@ -638,7 +642,12 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
       float lin_grad_point = (height() - scene.track_vertices[i].y()) / height();
 
       // If acceleration is between -0.2 and 0.2, resort to the theme color
-      if (std::abs(acceleration[i]) < 0.2 && (customColors != 0)) {
+      if (std::abs(acceleration[i]) < 0.2 && (currentHolidayTheme != 0)) {
+        const auto &colorMap = std::get<3>(holidayThemeConfiguration[currentHolidayTheme]);
+        for (const auto &[position, brush] : colorMap) {
+          bg.setColorAt(position, brush.color());
+        }
+      } else if (std::abs(acceleration[i]) < 0.2 && (customColors != 0)) {
         const auto &colorMap = std::get<3>(themeConfiguration[customColors]);
         for (const auto &[position, brush] : colorMap) {
           bg.setColorAt(position, brush.color());
@@ -659,6 +668,11 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
       }
     }
 
+  } else if (currentHolidayTheme != 0) {
+    const auto &colorMap = std::get<3>(holidayThemeConfiguration[currentHolidayTheme]);
+    for (const auto &[position, brush] : colorMap) {
+      bg.setColorAt(position, brush.color());
+    }
   } else if (customColors != 0) {
     const auto &colorMap = std::get<3>(themeConfiguration[customColors]);
     for (const auto &[position, brush] : colorMap) {
@@ -696,6 +710,12 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
     pe.setColorAt(0.0, QColor::fromHslF(205 / 360., 0.85, 0.56, 1.0));
     pe.setColorAt(0.5, QColor::fromHslF(205 / 360., 0.85, 0.56, 0.5));
     pe.setColorAt(1.0, QColor::fromHslF(205 / 360., 0.85, 0.56, 0.1));
+  } else if (currentHolidayTheme != 0) {
+    const auto &colorMap = std::get<3>(holidayThemeConfiguration[currentHolidayTheme]);
+    for (const auto &[position, brush] : colorMap) {
+      QColor darkerColor = brush.color().darker(120);
+      pe.setColorAt(position, darkerColor);
+    }
   } else if (customColors != 0) {
     const auto &colorMap = std::get<3>(themeConfiguration[customColors]);
     for (const auto &[position, brush] : colorMap) {
@@ -847,7 +867,9 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::RadarState
 
   // chevron
   QPointF chevron[] = {{x + (sz * 1.25), y + sz}, {x, y}, {x - (sz * 1.25), y + sz}};
-  if (customColors != 0) {
+  if (currentHolidayTheme != 0) {
+    painter.setBrush(std::get<3>(holidayThemeConfiguration[currentHolidayTheme]).begin()->second);
+  } else if (customColors != 0) {
     painter.setBrush(std::get<3>(themeConfiguration[customColors]).begin()->second);
   } else {
     painter.setBrush(redColor(fillAlpha));
@@ -1000,14 +1022,51 @@ void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
   // Custom themes configuration
   themeConfiguration = {
     {1, {"frog_theme", 4, QColor(23, 134, 68, 242), {{0.0, QBrush(QColor::fromHslF(144 / 360., 0.71, 0.31, 0.9))},
-                                                      {0.5, QBrush(QColor::fromHslF(144 / 360., 0.71, 0.31, 0.5))},
-                                                      {1.0, QBrush(QColor::fromHslF(144 / 360., 0.71, 0.31, 0.1))}}}},
+                                                     {0.5, QBrush(QColor::fromHslF(144 / 360., 0.71, 0.31, 0.5))},
+                                                     {1.0, QBrush(QColor::fromHslF(144 / 360., 0.71, 0.31, 0.1))}}}},
     {2, {"tesla_theme", 4, QColor(0, 72, 255, 255), {{0.0, QBrush(QColor::fromHslF(223 / 360., 1.0, 0.5, 0.9))},
-                                                      {0.5, QBrush(QColor::fromHslF(223 / 360., 1.0, 0.5, 0.5))},
-                                                      {1.0, QBrush(QColor::fromHslF(223 / 360., 1.0, 0.5, 0.1))}}}},
+                                                     {0.5, QBrush(QColor::fromHslF(223 / 360., 1.0, 0.5, 0.5))},
+                                                     {1.0, QBrush(QColor::fromHslF(223 / 360., 1.0, 0.5, 0.1))}}}},
     {3, {"stalin_theme", 6, QColor(255, 0, 0, 255), {{0.0, QBrush(QColor::fromHslF(0 / 360., 1.0, 0.5, 0.9))},
+                                                     {0.5, QBrush(QColor::fromHslF(0 / 360., 1.0, 0.5, 0.5))},
+                                                     {1.0, QBrush(QColor::fromHslF(0 / 360., 1.0, 0.5, 0.1))}}}},
+  };
+
+  // Holiday themes configuration
+  holidayThemeConfiguration = {
+    {1, {"april_fools", 4, QColor(255, 165, 0, 255), {{0.0, QBrush(QColor::fromHslF(39 / 360., 1.0, 0.5, 0.9))},
+                                                      {0.5, QBrush(QColor::fromHslF(39 / 360., 1.0, 0.5, 0.5))},
+                                                      {1.0, QBrush(QColor::fromHslF(39 / 360., 1.0, 0.5, 0.1))}}}},
+    {2, {"christmas", 4, QColor(0, 72, 255, 255), {{0.0, QBrush(QColor::fromHslF(223 / 360., 1.0, 0.5, 0.9))},
+                                                   {0.5, QBrush(QColor::fromHslF(223 / 360., 1.0, 0.5, 0.5))},
+                                                   {1.0, QBrush(QColor::fromHslF(223 / 360., 1.0, 0.5, 0.1))}}}},
+    {3, {"cinco_de_mayo", 6, QColor(255, 0, 0, 255), {{0.0, QBrush(QColor::fromHslF(0 / 360., 1.0, 0.5, 0.9))},
                                                       {0.5, QBrush(QColor::fromHslF(0 / 360., 1.0, 0.5, 0.5))},
-                                                      {1.0, QBrush(QColor::fromHslF(0 / 360., 1.0, 0.5, 0.1))}}}}
+                                                      {1.0, QBrush(QColor::fromHslF(0 / 360., 1.0, 0.5, 0.1))}}}},
+    {4, {"easter", 4, QColor(200, 150, 200, 255), {{0.0, QBrush(QColor::fromHslF(300 / 360., 0.31, 0.69, 0.9))},
+                                                   {0.5, QBrush(QColor::fromHslF(300 / 360., 0.31, 0.69, 0.5))},
+                                                   {1.0, QBrush(QColor::fromHslF(300 / 360., 0.31, 0.69, 0.1))}}}},
+    {5, {"fourth_of_july", 4, QColor(0, 72, 255, 255), {{0.0, QBrush(QColor::fromHslF(223 / 360., 1.0, 0.5, 0.9))},
+                                                        {0.5, QBrush(QColor::fromHslF(223 / 360., 1.0, 0.5, 0.5))},
+                                                        {1.0, QBrush(QColor::fromHslF(223 / 360., 1.0, 0.5, 0.1))}}}},
+    {6, {"halloween", 6, QColor(255, 0, 0, 255), {{0.0, QBrush(QColor::fromHslF(0 / 360., 1.0, 0.5, 0.9))},
+                                                  {0.5, QBrush(QColor::fromHslF(0 / 360., 1.0, 0.5, 0.5))},
+                                                  {1.0, QBrush(QColor::fromHslF(0 / 360., 1.0, 0.5, 0.1))}}}},
+    {7, {"new_years_day", 4, QColor(23, 134, 68, 242), {{0.0, QBrush(QColor::fromHslF(144 / 360., 0.71, 0.31, 0.9))},
+                                                        {0.5, QBrush(QColor::fromHslF(144 / 360., 0.71, 0.31, 0.5))},
+                                                        {1.0, QBrush(QColor::fromHslF(144 / 360., 0.71, 0.31, 0.1))}}}},
+    {8, {"st_patricks_day", 4, QColor(0, 128, 0, 255), {{0.0, QBrush(QColor::fromHslF(120 / 360., 1.0, 0.25, 0.9))},
+                                                        {0.5, QBrush(QColor::fromHslF(120 / 360., 1.0, 0.25, 0.5))},
+                                                        {1.0, QBrush(QColor::fromHslF(120 / 360., 1.0, 0.25, 0.1))}}}},
+    {9, {"thanksgiving", 6, QColor(255, 0, 0, 255), {{0.0, QBrush(QColor::fromHslF(0 / 360., 1.0, 0.5, 0.9))},
+                                                     {0.5, QBrush(QColor::fromHslF(0 / 360., 1.0, 0.5, 0.5))},
+                                                     {1.0, QBrush(QColor::fromHslF(0 / 360., 1.0, 0.5, 0.1))}}}},
+    {10, {"valentines_day", 4, QColor(23, 134, 68, 242), {{0.0, QBrush(QColor::fromHslF(144 / 360., 0.71, 0.31, 0.9))},
+                                                          {0.5, QBrush(QColor::fromHslF(144 / 360., 0.71, 0.31, 0.5))},
+                                                          {1.0, QBrush(QColor::fromHslF(144 / 360., 0.71, 0.31, 0.1))}}}},
+    {11, {"world_frog_day", 4, QColor(23, 134, 68, 242), {{0.0, QBrush(QColor::fromHslF(144 / 360., 0.71, 0.31, 0.9))},
+                                                          {0.5, QBrush(QColor::fromHslF(144 / 360., 0.71, 0.31, 0.5))},
+                                                          {1.0, QBrush(QColor::fromHslF(144 / 360., 0.71, 0.31, 0.1))}}}},
   };
 
   // Initialize the timer for the turn signal animation
@@ -1076,18 +1135,25 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets(QPainter &p) {
   }
 
   // Update the turn signal animation images upon toggle change
-  if (customSignals != scene.custom_signals) {
+  if (customSignals != scene.custom_signals || currentHolidayTheme != scene.current_holiday_theme) {
+    currentHolidayTheme = scene.current_holiday_theme;
     customSignals = scene.custom_signals;
 
-    QString theme_path = QString("../frogpilot/assets/custom_themes/%1/images").arg(themeConfiguration.find(customSignals) != themeConfiguration.end() ?
-                                 std::get<0>(themeConfiguration[customSignals]) : "");
-
-    QStringList imagePaths;
-    int availableImages = std::get<1>(themeConfiguration[customSignals]);
+    if (currentHolidayTheme != 0) {
+      auto themeConfigIt = holidayThemeConfiguration.find(currentHolidayTheme);
+      QString themeConfigKey = themeConfigIt != holidayThemeConfiguration.end() ? std::get<0>(themeConfigIt->second) : "";
+      themePath = QString("../frogpilot/assets/holiday_themes/%1/images").arg(themeConfigKey);
+      availableImages = std::get<1>(themeConfigIt->second);
+    } else {
+      auto themeConfigIt = themeConfiguration.find(customSignals);
+      QString themeConfigKey = themeConfigIt != themeConfiguration.end() ? std::get<0>(themeConfigIt->second) : "";
+      themePath = QString("../frogpilot/assets/custom_themes/%1/images").arg(themeConfigKey);
+      availableImages = std::get<1>(themeConfigIt->second);
+    }
 
     for (int i = 1; i <= totalFrames; ++i) {
       int imageIndex = ((i - 1) % availableImages) + 1;
-      QString imagePath = theme_path + QString("/turn_signal_%1.png").arg(imageIndex);
+      QString imagePath = themePath + QString("/turn_signal_%1.png").arg(imageIndex);
       imagePaths.push_back(imagePath);
     }
 
@@ -1099,8 +1165,8 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets(QPainter &p) {
       signalImgVector.push_back(pixmap.transformed(QTransform().scale(-1, 1)));  // Flipped image
     }
 
-    signalImgVector.push_back(QPixmap(theme_path + "/turn_signal_1_red.png"));  // Regular blindspot image
-    signalImgVector.push_back(QPixmap(theme_path + "/turn_signal_1_red.png").transformed(QTransform().scale(-1, 1)));  // Flipped blindspot image
+    signalImgVector.push_back(QPixmap(themePath + "/turn_signal_1_red.png"));  // Regular blindspot image
+    signalImgVector.push_back(QPixmap(themePath + "/turn_signal_1_red.png").transformed(QTransform().scale(-1, 1)));  // Flipped blindspot image
   }
 }
 

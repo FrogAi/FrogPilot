@@ -153,6 +153,7 @@ def manager_init() -> None:
     ("HideSpeedUI", "0"),
     ("HideUIElements", "0"),
     ("HigherBitrate", "0"),
+    ("HolidayThemes", "1"),
     ("LaneChangeTime", "0"),
     ("LaneDetection", "1"),
     ("LaneDetectionWidth", "60"),

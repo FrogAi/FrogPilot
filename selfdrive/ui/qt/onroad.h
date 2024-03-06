@@ -141,10 +141,12 @@ private:
   float laneWidthRight;
   float speedConversion;
 
+  int availableImages;
   int cameraView;
   int conditionalSpeed;
   int conditionalSpeedLead;
   int conditionalStatus;
+  int currentHolidayTheme;
   int customColors;
   int customSignals;
   int obstacleDistance;
@@ -153,9 +155,12 @@ private:
 
   QString leadDistanceUnit;
   QString leadSpeedUnit;
+  QString themePath;
+  QStringList imagePaths;
 
   size_t animationFrameIndex;
 
+  std::unordered_map<int, std::tuple<QString, int, QColor, std::map<double, QBrush>>> holidayThemeConfiguration;
   std::unordered_map<int, std::tuple<QString, int, QColor, std::map<double, QBrush>>> themeConfiguration;
   std::vector<QPixmap> signalImgVector;
 

@@ -305,6 +305,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.custom_colors = custom_theme ? params.getInt("CustomColors") : 0;
   scene.custom_icons = custom_theme ? params.getInt("CustomIcons") : 0;
   scene.custom_signals = custom_theme ? params.getInt("CustomSignals") : 0;
+  scene.holiday_themes = custom_theme && params.getBool("HolidayThemes");
 
   scene.driver_camera = params.getBool("DriverCamera");
   scene.experimental_mode_via_screen = params.getBool("ExperimentalModeViaScreen") && params.getBool("ExperimentalModeActivation");
@@ -393,6 +394,9 @@ void UIState::update() {
   // FrogPilot live variables that need to be constantly checked
   if (scene.conditional_experimental) {
     scene.conditional_status = paramsMemory.getInt("CEStatus");
+  }
+  if (scene.holiday_themes) {
+    scene.current_holiday_theme = paramsMemory.getInt("CurrentHolidayTheme");
   }
 }
 
