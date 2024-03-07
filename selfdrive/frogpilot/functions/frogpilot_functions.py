@@ -81,6 +81,25 @@ class FrogPilotFunctions:
     return min(distance_to_lane, distance_to_road_edge)
 
   @staticmethod
+  def update_cestatus_distance(self):
+    # Set "CEStatus" to work with "Conditional Experimental Mode"
+    conditional_status = params_memory.get_int("CEStatus")
+    override_value = 0 if conditional_status in (1, 2, 3, 4, 5, 6) else 3 if conditional_status >= 7 else 4
+    params_memory.put_int("CEStatus", override_value)
+
+  @staticmethod
+  def update_cestatus_lkas(self):
+    # Set "CEStatus" to work with "Conditional Experimental Mode"
+    conditional_status = params_memory.get_int("CEStatus")
+    override_value = 0 if conditional_status in (1, 2, 3, 4, 5, 6) else 5 if conditional_status >= 7 else 6
+    params_memory.put_int("CEStatus", override_value)
+
+  def update_experimental_mode(self):
+    experimental_mode = self.params.get_bool("ExperimentalMode")
+    # Invert the value of "ExperimentalMode"
+    self.params.put_bool("ExperimentalMode", not experimental_mode)
+
+  @staticmethod
   def road_curvature(modelData, v_ego):
     predicted_velocities = np.array(modelData.velocity.x)
     curvature_ratios = np.abs(np.array(modelData.acceleration.y)) / (predicted_velocities**2)

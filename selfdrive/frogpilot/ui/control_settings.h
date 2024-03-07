@@ -36,6 +36,7 @@ private:
   FrogPilotDualParamControl *relaxedProfile;
 
   std::set<QString> conditionalExperimentalKeys = {"CECurves", "CECurvesLead", "CESlowerLead", "CENavigation", "CEStopLights", "CESignal"};
+  std::set<QString> experimentalModeActivationKeys = {"ExperimentalModeViaDistance", "ExperimentalModeViaLKAS", "ExperimentalModeViaScreen"};
   std::set<QString> fireTheBabysitterKeys = {};
   std::set<QString> laneChangeKeys = {};
   std::set<QString> lateralTuneKeys = {};
