@@ -289,6 +289,11 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
   if (alert.size == cereal::ControlsState::AlertSize::NONE || scene.show_driver_camera && alert.status != cereal::ControlsState::AlertStatus::CRITICAL) {
     return;
   }
+
+  if (scene.hide_alerts && alert.size == cereal::ControlsState::AlertSize::SMALL) {
+    return;
+  }
+
   static std::map<cereal::ControlsState::AlertSize, const int> alert_heights = {
     {cereal::ControlsState::AlertSize::SMALL, 271},
     {cereal::ControlsState::AlertSize::MID, 420},
@@ -390,6 +395,10 @@ void ExperimentalButton::updateState(const UIState &s, bool leadInfo) {
 }
 
 void ExperimentalButton::paintEvent(QPaintEvent *event) {
+  if (wheelIcon < 0) {
+    return;
+  }
+
   QPainter p(this);
   QPixmap img = experimental_mode ? experimental_img : engage_img;
 
@@ -499,7 +508,7 @@ void AnnotatedCameraWidget::updateState(const UIState &s) {
 
   // hide map settings button for alerts and flip for right hand DM
   if (map_settings_btn->isEnabled()) {
-    map_settings_btn->setVisible(!hideBottomIcons && compass);
+    map_settings_btn->setVisible(!hideBottomIcons && compass && !scene.hide_map_icon);
     main_layout->setAlignment(map_settings_btn, (rightHandDM ? Qt::AlignLeft : Qt::AlignRight) | (compass ? Qt::AlignTop : Qt::AlignBottom));
   }
 }
@@ -517,7 +526,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
   QString speedStr = QString::number(std::nearbyint(speed));
   QString setSpeedStr = is_cruise_set ? QString::number(std::nearbyint(setSpeed - cruiseAdjustment)) : "–";
 
-  if (!showDriverCamera) {
+  if (!(scene.hide_max_speed || showDriverCamera)) {
     // Draw outer box + border to contain set speed and speed limit
     const int sign_margin = 12;
     const int us_sign_height = 186;
@@ -1005,17 +1014,19 @@ void AnnotatedCameraWidget::paintGL() {
     CameraWidget::setStreamType(cameraView == 3 || showDriverCamera ? VISION_STREAM_DRIVER :
                                 cameraView == 2 || wide_cam_requested ? VISION_STREAM_WIDE_ROAD :
                                 VISION_STREAM_ROAD);
-
-    s->scene.wide_cam = CameraWidget::getStreamType() == VISION_STREAM_WIDE_ROAD;
-    if (s->scene.calibration_valid) {
-      auto calib = s->scene.wide_cam ? s->scene.view_from_wide_calib : s->scene.view_from_calib;
-      CameraWidget::updateCalibration(calib);
-    } else {
-      CameraWidget::updateCalibration(DEFAULT_CALIBRATION);
     }
-    CameraWidget::setFrameId(model.getFrameId());
-    CameraWidget::paintGL();
+
+  s->scene.wide_cam = CameraWidget::getStreamType() == VISION_STREAM_WIDE_ROAD;
+  if (s->scene.calibration_valid) {
+    auto calib = s->scene.wide_cam ? s->scene.view_from_wide_calib : s->scene.view_from_calib;
+    CameraWidget::updateCalibration(calib);
+  } else {
+    CameraWidget::updateCalibration(DEFAULT_CALIBRATION);
   }
+  painter.beginNativePainting();
+  CameraWidget::setFrameId(model.getFrameId());
+  CameraWidget::paintGL();
+  painter.endNativePainting();
 
   QPainter painter(this);
   painter.setRenderHint(QPainter::Antialiasing);
@@ -1025,7 +1036,7 @@ void AnnotatedCameraWidget::paintGL() {
     update_model(s, model, sm["uiPlan"].getUiPlan());
     drawLaneLines(painter, s);
 
-    if (s->scene.longitudinal_control && sm.rcv_frame("radarState") > s->scene.started_frame) {
+    if (s->scene.longitudinal_control && sm.rcv_frame("radarState") > s->scene.started_frame && !scene.hide_lead_marker) {
       auto radar_state = sm["radarState"].getRadarState();
       update_leads(s, radar_state, model.getPosition());
       auto lead_one = radar_state.getLeadOne();
@@ -1145,7 +1156,7 @@ void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
 }
 
 void AnnotatedCameraWidget::updateFrogPilotWidgets(QPainter &p) {
-  alwaysOnLateral = scene.always_on_lateral;
+  alwaysOnLateral = scene.always_on_lateral && !scene.hide_aol_status_bar;
   alwaysOnLateralActive = scene.always_on_lateral_active;
 
   blindSpotLeft = scene.blind_spot_left;
@@ -1155,7 +1166,7 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets(QPainter &p) {
 
   compass = scene.compass;
 
-  conditionalExperimental = scene.conditional_experimental;
+  conditionalExperimental = scene.conditional_experimental && !scene.hide_cem_status_bar;
   conditionalSpeed = scene.conditional_speed;
   conditionalSpeedLead = scene.conditional_speed_lead;
   conditionalStatus = scene.conditional_status;
@@ -1220,9 +1231,11 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets(QPainter &p) {
 
   map_settings_btn_bottom->setEnabled(map_settings_btn->isEnabled());
   if (map_settings_btn_bottom->isEnabled()) {
-    map_settings_btn_bottom->setVisible(!hideBottomIcons && !compass);
+    map_settings_btn_bottom->setVisible(!hideBottomIcons && !compass && !scene.hide_map_icon);
     bottom_layout->setAlignment(map_settings_btn_bottom, rightHandDM ? Qt::AlignLeft : Qt::AlignRight);
   }
+
+  recorder_btn->setVisible(scene.screen_recorder && !mapOpen);
 
   // Update the turn signal animation images upon toggle change
   if (customSignals != scene.custom_signals || currentHolidayTheme != scene.current_holiday_theme) {

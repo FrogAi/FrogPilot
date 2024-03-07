@@ -3,6 +3,8 @@
 FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPilotListWidget(parent) {
   const std::vector<std::tuple<QString, QString, QString, QString>> controlToggles {
     {"AlwaysOnLateral", "Always on Lateral", "Maintain openpilot lateral control when the brake or gas pedals are used.\n\nDeactivation occurs only through the 'Cruise Control' button.", "../frogpilot/assets/toggle_icons/icon_always_on_lateral.png"},
+    {"AlwaysOnLateralMain", "Enable On Cruise Main", "Enable 'Always On Lateral' by simply turning on 'Cruise Control'.", ""},
+    {"HideAOLStatusBar", "Hide the Status Bar", "Don't use the status bar for 'Always On Lateral'.", ""},
 
     {"ConditionalExperimental", "Conditional Experimental Mode", "Automatically switches to 'Experimental Mode' under predefined conditions.", "../frogpilot/assets/toggle_icons/icon_conditional.png"},
     {"CECurves", "Curve Detected Ahead", "Switch to 'Experimental Mode' when a curve is detected.", ""},
@@ -10,6 +12,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     {"CESlowerLead", "Slower Lead Detected Ahead", "Switch to 'Experimental Mode' when a slower lead vehicle is detected ahead.", ""},
     {"CEStopLights", "Stop Lights and Stop Signs", "Switch to 'Experimental Mode' when a stop light or stop sign is detected.", ""},
     {"CESignal", "Turn Signal When Below Highway Speeds", "Switch to 'Experimental Mode' when using turn signals below highway speeds to help assit with turns.", ""},
+    {"HideCEMStatusBar", "Hide the Status Bar", "Don't use the status bar for 'Conditional Experimental Mode'.", ""},
 
     {"CustomPersonalities", "Custom Driving Personalities", "Customize the driving personality profiles to your driving style.", "../frogpilot/assets/toggle_icons/icon_custom.png"},
     {"DeviceShutdown", "Device Shutdown Timer", "Configure the timer for automatic device shutdown when offroad conserving energy and preventing battery drain.", "../frogpilot/assets/toggle_icons/icon_time.png"},
@@ -61,21 +64,14 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     ParamControl *toggle;
 
     if (param == "AlwaysOnLateral") {
-      std::vector<QString> aolToggles{"AlwaysOnLateralMain"};
-      std::vector<QString> aolToggleNames{tr("Enable On Cruise Main")};
-      toggle = new FrogPilotParamToggleControl(param, title, desc, icon, aolToggles, aolToggleNames);
-
-      QObject::connect(static_cast<FrogPilotParamToggleControl*>(toggle), &FrogPilotParamToggleControl::buttonClicked, [this](const bool checked) {
-        if (checked) {
-          FrogPilotConfirmationDialog::toggleAlert("WARNING: This is very experimental and isn't guaranteed to work. If you run into any issues, please report it in the FrogPilot Discord!",
-          "I understand the risks.", this);
-        }
-        if (started) {
-          if (FrogPilotConfirmationDialog::toggle("Reboot required to take effect.", "Reboot Now", this)) {
-            Hardware::soft_reboot();
-          }
+      FrogPilotParamManageControl *aolToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
+      QObject::connect(aolToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
+        parentToggleClicked();
+        for (auto &[key, toggle] : toggles) {
+          toggle->setVisible(aolKeys.find(key.c_str()) != aolKeys.end());
         }
       });
+      toggle = aolToggle;
 
     } else if (param == "ConditionalExperimental") {
       FrogPilotParamManageControl *conditionalExperimentalToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
@@ -335,6 +331,14 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     });
   }
 
+  QObject::connect(toggles["AlwaysOnLateralMain"], &ToggleControl::toggleFlipped, [this]() {
+    if (params.getBool("AlwaysOnLateralMain")) {
+      FrogPilotConfirmationDialog::toggleAlert(
+      "WARNING: This isn't guaranteed to work, so if you run into any issues, please report it in the FrogPilot Discord!",
+      "I understand the risks.", this);
+    }
+  });
+
   QObject::connect(toggles["MuteOverheated"], &ToggleControl::toggleFlipped, [this]() {
     if (params.getBool("MuteOverheated")) {
       FrogPilotConfirmationDialog::toggleAlert(
@@ -448,7 +452,8 @@ void FrogPilotControlsPanel::hideSubToggles() {
   relaxedProfile->setVisible(false);
 
   for (auto &[key, toggle] : toggles) {
-    bool subToggles = conditionalExperimentalKeys.find(key.c_str()) != conditionalExperimentalKeys.end() ||
+    bool subToggles = aolKeys.find(key.c_str()) != aolKeys.end() ||
+                      conditionalExperimentalKeys.find(key.c_str()) != conditionalExperimentalKeys.end() ||
                       experimentalModeActivationKeys.find(key.c_str()) != experimentalModeActivationKeys.end() ||
                       fireTheBabysitterKeys.find(key.c_str()) != fireTheBabysitterKeys.end() ||
                       laneChangeKeys.find(key.c_str()) != laneChangeKeys.end() ||
