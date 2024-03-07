@@ -19,6 +19,14 @@ const LongitudinalLimits HONDA_BOSCH_LONG_LIMITS = {
   .inactive_gas = -30000,
 };
 
+const LongitudinalLimits HONDA_BOSCH_LONG_LIMITS_SPORT = {
+  .max_accel = 400,   // accel is used for brakes
+  .min_accel = -350,
+
+  .max_gas = 2000,
+  .inactive_gas = -30000,
+};
+
 const LongitudinalLimits HONDA_NIDEC_LONG_LIMITS = {
   .max_gas = 198,  // 0xc6
   .max_brake = 255,
@@ -270,6 +278,8 @@ static void honda_rx_hook(const CANPacket_t *to_push) {
 }
 
 static bool honda_tx_hook(const CANPacket_t *to_send) {
+  sport_mode = alternative_experience & ALT_EXP_RAISE_LONGITUDINAL_LIMITS_TO_ISO_MAX;
+
   bool tx = true;
   int addr = GET_ADDR(to_send);
   int bus = GET_BUS(to_send);
@@ -310,8 +320,13 @@ static bool honda_tx_hook(const CANPacket_t *to_send) {
     gas = to_signed(gas, 16);
 
     bool violation = false;
-    violation |= longitudinal_accel_checks(accel, HONDA_BOSCH_LONG_LIMITS);
-    violation |= longitudinal_gas_checks(gas, HONDA_BOSCH_LONG_LIMITS);
+    if (sport_mode) {
+      violation |= longitudinal_accel_checks(accel, HONDA_BOSCH_LONG_LIMITS_SPORT);
+      violation |= longitudinal_gas_checks(gas, HONDA_BOSCH_LONG_LIMITS_SPORT);
+    } else {
+      violation |= longitudinal_accel_checks(accel, HONDA_BOSCH_LONG_LIMITS);
+      violation |= longitudinal_gas_checks(gas, HONDA_BOSCH_LONG_LIMITS);
+    }
     if (violation) {
       tx = false;
     }
@@ -323,7 +338,11 @@ static bool honda_tx_hook(const CANPacket_t *to_send) {
     accel = to_signed(accel, 12);
 
     bool violation = false;
-    violation |= longitudinal_accel_checks(accel, HONDA_BOSCH_LONG_LIMITS);
+    if (sport_mode) {
+      violation |= longitudinal_accel_checks(accel, HONDA_BOSCH_LONG_LIMITS_SPORT);
+    } else {
+      violation |= longitudinal_accel_checks(accel, HONDA_BOSCH_LONG_LIMITS);
+    }
     if (violation) {
       tx = false;
     }
