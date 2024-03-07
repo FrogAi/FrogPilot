@@ -373,6 +373,12 @@ class CarStateBase(ABC):
     # FrogPilot variables
     self.fpf = FrogPilotFunctions()
 
+    self.distance_button = False
+    self.distance_previously_pressed = False
+    self.lkas_previously_pressed = False
+
+    self.distance_pressed_counter = 0
+
   def update_speed_kf(self, v_ego_raw):
     if abs(v_ego_raw - self.v_ego_kf.x[0][0]) > 2.0:  # Prevent large accelerations when car starts at non zero speed
       self.v_ego_kf.set_x([[v_ego_raw], [0.0]])

@@ -10,6 +10,7 @@ from opendbc.can.parser import CANParser
 from openpilot.selfdrive.car.interfaces import CarStateBase
 from openpilot.selfdrive.car.toyota.values import ToyotaFlags, CAR, DBC, STEER_THRESHOLD, NO_STOP_TIMER_CAR, \
                                                   TSS2_CAR, RADAR_ACC_CAR, EPS_SCALE, UNSUPPORTED_DSU_CAR
+from openpilot.selfdrive.controls.lib.drive_helpers import CRUISE_LONG_PRESS
 
 SteerControlType = car.CarParams.SteerControlType
 
@@ -165,6 +166,34 @@ class CarState(CarStateBase):
 
     if self.CP.carFingerprint != CAR.PRIUS_V:
       self.lkas_hud = copy.copy(cp_cam.vl["LKAS_HUD"])
+
+    # Experimental Mode via double clicking the LKAS button function
+    if frogpilot_variables.experimental_mode_via_lkas and ret.cruiseState.available and self.CP.carFingerprint != CAR.PRIUS_V:
+      message_keys = ["LDA_ON_MESSAGE", "SET_ME_X02"]
+      lkas_pressed = any(self.lkas_hud.get(key) == 1 for key in message_keys)
+
+      if lkas_pressed and not self.lkas_previously_pressed:
+        if frogpilot_variables.conditional_experimental_mode:
+          self.fpf.update_cestatus_distance()
+        else:
+          self.fpf.update_experimental_mode()
+
+      self.lkas_previously_pressed = lkas_pressed
+
+    # Experimental Mode via long pressing the distance button function
+    if ret.cruiseState.available:
+      if distance_pressed:
+        self.distance_pressed_counter += 1
+      elif self.distance_previously_pressed:
+        self.distance_pressed_counter = 0
+
+      if self.distance_pressed_counter == CRUISE_LONG_PRESS and frogpilot_variables.experimental_mode_via_distance:
+        if frogpilot_variables.conditional_experimental_mode:
+          self.fpf.update_cestatus_lkas()
+        else:
+          self.fpf.update_experimental_mode()
+
+      self.distance_previously_pressed = distance_pressed
 
     return ret
 

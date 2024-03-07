@@ -182,6 +182,7 @@ typedef struct UIScene {
   bool dynamic_path_width;
   bool enabled;
   bool experimental_mode;
+  bool experimental_mode_via_screen;
   bool lead_info;
   bool map_open;
   bool model_ui;

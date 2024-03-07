@@ -14,6 +14,11 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     {"CustomPersonalities", "Custom Driving Personalities", "Customize the driving personality profiles to your driving style.", "../frogpilot/assets/toggle_icons/icon_custom.png"},
     {"DeviceShutdown", "Device Shutdown Timer", "Configure the timer for automatic device shutdown when offroad conserving energy and preventing battery drain.", "../frogpilot/assets/toggle_icons/icon_time.png"},
 
+    {"ExperimentalModeActivation", "Experimental Mode Activation", "Toggle Experimental Mode with either buttons on ethe steering wheel or the screen.\n\nOverrides 'Conditional Experimental Mode'.", "../assets/img_experimental_white.svg"},
+    {"ExperimentalModeViaLKAS", "Double Clicking the LKAS Button", "Enable/disable 'Experimental Mode' by double clicking the 'LKAS' button on your steering wheel.", ""},
+    {"ExperimentalModeViaScreen", "Double Taping the Onroad UI", "Enable/disable 'Experimental Mode' by double taping the onroad UI within a 0.5 second time frame.", ""},
+    {"ExperimentalModeViaDistance", "Long Pressing the Distance Button", "Enable/disable 'Experimental Mode' by holding down the 'distance' button on your steering wheel for 0.5 seconds.", ""},
+
     {"LateralTune", "Lateral Tuning", "Modify openpilot's steering behavior.", "../frogpilot/assets/toggle_icons/icon_lateral_tune.png"},
 
     {"LongitudinalTune", "Longitudinal Tuning", "Modify openpilot's acceleration and braking behavior.", "../frogpilot/assets/toggle_icons/icon_longitudinal_tune.png"},
@@ -141,6 +146,16 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
         shutdownLabels[i] = i == 0 ? "Instant" : i <= 3 ? QString::number(i * 15) + " mins" : QString::number(i - 3) + (i == 4 ? " hour" : " hours");
       }
       toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 33, shutdownLabels, this, false);
+
+    } else if (param == "ExperimentalModeActivation") {
+      FrogPilotParamManageControl *experimentalModeActivationToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
+      QObject::connect(experimentalModeActivationToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
+        parentToggleClicked();
+        for (auto &[key, toggle] : toggles) {
+          toggle->setVisible(experimentalModeActivationKeys.find(key.c_str()) != experimentalModeActivationKeys.end());
+        }
+      });
+      toggle = experimentalModeActivationToggle;
 
     } else if (param == "LateralTune") {
       FrogPilotParamManageControl *lateralTuneToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
@@ -293,6 +308,7 @@ void FrogPilotControlsPanel::hideSubToggles() {
 
   for (auto &[key, toggle] : toggles) {
     bool subToggles = conditionalExperimentalKeys.find(key.c_str()) != conditionalExperimentalKeys.end() ||
+                      experimentalModeActivationKeys.find(key.c_str()) != experimentalModeActivationKeys.end() ||
                       fireTheBabysitterKeys.find(key.c_str()) != fireTheBabysitterKeys.end() ||
                       laneChangeKeys.find(key.c_str()) != laneChangeKeys.end() ||
                       lateralTuneKeys.find(key.c_str()) != lateralTuneKeys.end() ||

@@ -6,6 +6,7 @@
 #include <memory>
 #include <sstream>
 
+#include <QApplication>
 #include <QDebug>
 #include <QMouseEvent>
 
@@ -66,6 +67,12 @@ OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent), scene(uiState()->
   QObject::connect(uiState(), &UIState::uiUpdate, this, &OnroadWindow::updateState);
   QObject::connect(uiState(), &UIState::offroadTransition, this, &OnroadWindow::offroadTransition);
   QObject::connect(uiState(), &UIState::primeChanged, this, &OnroadWindow::primeChanged);
+
+  QObject::connect(&clickTimer, &QTimer::timeout, this, [this]() {
+    clickTimer.stop();
+    QMouseEvent *event = new QMouseEvent(QEvent::MouseButtonPress, timeoutPoint, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    QApplication::postEvent(this, event);
+  });
 }
 
 void OnroadWindow::updateState(const UIState &s) {
@@ -98,12 +105,33 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   // FrogPilot clickable widgets
   bool widgetClicked = false;
 
+  // If the click wasn't for anything specific, change the value of "ExperimentalMode"
+  if (scene.experimental_mode_via_screen && e->pos() != timeoutPoint) {
+    if (clickTimer.isActive()) {
+      clickTimer.stop();
+
+      if (scene.conditional_experimental) {
+        int override_value = (scene.conditional_status >= 1 && scene.conditional_status <= 6) ? 0 : scene.conditional_status >= 7 ? 1 : 2;
+        paramsMemory.putIntNonBlocking("CEStatus", override_value);
+      } else {
+        bool experimentalMode = params.getBool("ExperimentalMode");
+        params.putBoolNonBlocking("ExperimentalMode", !experimentalMode);
+      }
+
+    } else {
+      clickTimer.start(500);
+    }
+    widgetClicked = true;
+  }
+
 #ifdef ENABLE_MAPS
   if (map != nullptr && !widgetClicked) {
     // Switch between map and sidebar when using navigate on openpilot
     bool sidebarVisible = geometry().x() > 0;
     bool show_map = uiState()->scene.navigate_on_openpilot ? sidebarVisible : !sidebarVisible;
-    map->setVisible(show_map && !map->isVisible());
+    if (!clickTimer.isActive()) {
+      map->setVisible(show_map && !map->isVisible());
+    }
   }
 #endif
   // propagation event to parent(HomeWindow)
@@ -234,9 +262,14 @@ void ExperimentalButton::changeMode() {
   Params paramsMemory = Params("/dev/shm/params");
 
   const auto cp = (*uiState()->sm)["carParams"].getCarParams();
-  bool can_change = hasLongitudinalControl(cp) && params.getBool("ExperimentalModeConfirmed");
+  bool can_change = hasLongitudinalControl(cp) && (params.getBool("ExperimentalModeConfirmed") || scene.experimental_mode_via_screen);
   if (can_change) {
-    params.putBool("ExperimentalMode", !experimental_mode);
+    if (scene.conditional_experimental) {
+      int override_value = (scene.conditional_status >= 1 && scene.conditional_status <= 4) ? 0 : scene.conditional_status >= 5 ? 3 : 4;
+      paramsMemory.putIntNonBlocking("ConditionalStatus", override_value);
+    } else {
+      params.putBool("ExperimentalMode", !experimental_mode);
+    }
   }
 }
 
@@ -1136,15 +1169,17 @@ void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {
     {2, "Experimental Mode manually activated"},
     {3, "Conditional Experimental overridden"},
     {4, "Experimental Mode manually activated"},
-    {5, "Experimental Mode activated for" + (mapOpen ? " intersection" : QString(" upcoming intersection"))},
-    {6, "Experimental Mode activated for" + (mapOpen ? " turn" : QString(" upcoming turn"))},
-    {7, "Experimental Mode activated due to" + (mapOpen ? "SLC" : QString(" no speed limit set"))},
-    {8, "Experimental Mode activated due to" + (mapOpen ? " speed" : " speed being less than " + QString::number(conditionalSpeedLead) + (is_metric ? " kph" : " mph"))},
-    {9, "Experimental Mode activated due to" + (mapOpen ? " speed" : " speed being less than " + QString::number(conditionalSpeed) + (is_metric ? " kph" : " mph"))},
-    {10, "Experimental Mode activated for slower lead"},
-    {11, "Experimental Mode activated for turn" + (mapOpen ? "" : QString(" / lane change"))},
-    {12, "Experimental Mode activated for curve"},
-    {13, "Experimental Mode activated for stop" + (mapOpen ? "" : QString(" sign / stop light"))},
+    {5, "Conditional Experimental overridden"},
+    {6, "Experimental Mode manually activated"},
+    {7, "Experimental Mode activated for" + (mapOpen ? " intersection" : QString(" upcoming intersection"))},
+    {8, "Experimental Mode activated for" + (mapOpen ? " turn" : QString(" upcoming turn"))},
+    {9, "Experimental Mode activated due to" + (mapOpen ? "SLC" : QString(" no speed limit set"))},
+    {10, "Experimental Mode activated due to" + (mapOpen ? " speed" : " speed being less than " + QString::number(conditionalSpeedLead) + (is_metric ? " kph" : " mph"))},
+    {11, "Experimental Mode activated due to" + (mapOpen ? " speed" : " speed being less than " + QString::number(conditionalSpeed) + (is_metric ? " kph" : " mph"))},
+    {12, "Experimental Mode activated for slower lead"},
+    {13, "Experimental Mode activated for turn" + (mapOpen ? "" : QString(" / lane change"))},
+    {14, "Experimental Mode activated for curve"},
+    {15, "Experimental Mode activated for stop" + (mapOpen ? "" : QString(" sign / stop light"))},
   };
 
   // Update status text
@@ -1152,6 +1187,21 @@ void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {
     newStatus = QString("Always On Lateral active") + (mapOpen ? "" : ". Press the \"Cruise Control\" button to disable");
   } else if (conditionalExperimental) {
     newStatus = conditionalStatusMap[status != STATUS_DISENGAGED ? conditionalStatus : 0];
+  }
+
+  // Append suffix to the status
+  QString distanceSuffix = ". Long press the \"distance\" button to revert";
+  QString lkasSuffix = ". Double press the \"LKAS\" button to revert";
+  QString screenSuffix = ". Double tap the screen to revert";
+
+  if (!alwaysOnLateral && !mapOpen && status != STATUS_DISENGAGED && !newStatus.isEmpty()) {
+    if (conditionalStatus == 1 || conditionalStatus == 2) {
+      newStatus += screenSuffix;
+    } else if (conditionalStatus == 3 || conditionalStatus == 4) {
+      newStatus += distanceSuffix;
+    } else if (conditionalStatus == 5 || conditionalStatus == 6) {
+      newStatus += lkasSuffix;
+    }
   }
 
   // Check if status has changed
