@@ -282,7 +282,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
           }
           if (started) {
             if (FrogPilotConfirmationDialog::toggle("Reboot required to take effect.", "Reboot Now", this)) {
-              Hardware::soft_reboot();
+              Hardware::reboot();
             }
           }
         }
@@ -513,7 +513,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     QObject::connect(toggles[key], &ToggleControl::toggleFlipped, [this, key]() {
       if (started) {
         if (FrogPilotConfirmationDialog::toggle("Reboot required to take effect.", "Reboot Now", this)) {
-          Hardware::soft_reboot();
+          Hardware::reboot();
         }
       }
     });

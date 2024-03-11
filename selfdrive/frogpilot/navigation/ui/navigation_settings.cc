@@ -209,7 +209,7 @@ void FrogPilotNavigationPanel::cancelDownload(QWidget *parent) {
       std::system("pkill mapd");
     }).detach();
     if (FrogPilotConfirmationDialog::toggle("Reboot required to re-enable map downloads", "Reboot Now", parent)) {
-      Hardware::soft_reboot();
+      Hardware::reboot();
     }
     downloadActive = false;
     updateVisibility(downloadActive);

@@ -278,7 +278,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
     QObject::connect(toggles[key], &ToggleControl::toggleFlipped, [this, key]() {
       if (started || key == "DriveStats") {
         if (FrogPilotConfirmationDialog::toggle("Reboot required to take effect.", "Reboot Now", this)) {
-          Hardware::soft_reboot();
+          Hardware::reboot();
         }
       }
     });
