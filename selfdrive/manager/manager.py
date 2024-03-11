@@ -4,7 +4,9 @@ import os
 import signal
 import subprocess
 import sys
+import threading
 import traceback
+from pathlib import Path
 from typing import List, Tuple, Union
 
 from cereal import log
@@ -402,6 +404,35 @@ def manager_thread() -> None:
     if params_memory.get_bool("FrogPilotTogglesUpdated"):
       update_frogpilot_params(params, params_memory)
 
+def backup_openpilot():
+  # Configure the auto backup generator
+  backup_dir_path = '/data/backups'
+  Path(backup_dir_path).mkdir(parents=True, exist_ok=True)
+
+  # Sort backups by creation time and only keep the 5 newest auto generated ones
+  auto_backups = sorted([f for f in os.listdir(backup_dir_path) if f.endswith("_auto")],
+                        key=lambda x: os.path.getmtime(os.path.join(backup_dir_path, x)))
+  for old_backup in auto_backups:
+    subprocess.run(['sudo', 'rm', '-rf', os.path.join(backup_dir_path, old_backup)], check=True)
+    print(f"Deleted oldest backup to maintain limit: {old_backup}")
+
+  # Generate the backup folder name from the current git commit and branch name
+  branch = get_short_branch()
+  commit = get_commit_date()[12:-16]
+  backup_folder_name = f"{branch}_{commit}_auto"
+
+  # Check if the backup folder already exists
+  backup_path = os.path.join(backup_dir_path, backup_folder_name)
+
+  if os.path.exists(backup_path):
+    print(f"Backup folder {backup_folder_name} already exists. Skipping backup.")
+    return
+
+  # Create the backup directory and copy openpilot to it
+  Path(backup_path).mkdir(parents=True, exist_ok=True)
+  subprocess.run(['sudo', 'cp', '-a', '/data/openpilot/.', backup_path + '/'], check=True)
+  print(f"Successfully backed up openpilot to {backup_folder_name}.")
+
 def main() -> None:
   # Create the long term param storage folder
   try:
@@ -410,6 +441,13 @@ def main() -> None:
     print("Successfully remounted /persist as read-write.")
   except subprocess.CalledProcessError as e:
     print(f"Failed to remount /persist. Error: {e}")
+
+  # Backup the current version of openpilot
+  try:
+    backup_thread = threading.Thread(target=backup_openpilot)
+    backup_thread.start()
+  except subprocess.CalledProcessError as e:
+    print(f"Failed to backup openpilot. Error: {e}")
 
   manager_init()
   if os.getenv("PREPAREONLY") is not None:
