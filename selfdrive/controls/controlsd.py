@@ -987,7 +987,7 @@ class Controls:
             self.params_memory.put_int("CurrentRandomEvent", 1)
             self.random_event_triggered = True
           else:
-            lac_log.active and self.events.add(EventName.frogSteerSaturated if self.goat_scream else EventName.steerSaturated)
+            lac_log.active and self.events.add(EventName.frogSteerSaturated if self.goat_scream and self.params_memory.get_int("CurrentHolidayTheme") == 0 else EventName.steerSaturated)
       elif lac_log.saturated:
         # TODO probably should not use dpath_points but curvature
         dpath_points = model_v2.position.y
