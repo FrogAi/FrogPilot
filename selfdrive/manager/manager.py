@@ -332,7 +332,7 @@ def manager_cleanup() -> None:
 
 
 def update_frogpilot_params(params, params_memory):
-  keys = ["DisableOnroadUploads"]
+  keys = ["DisableOnroadUploads", "FireTheBabysitter", "NoLogging", "NoUploads"]
   for key in keys:
     params_memory.put_bool(key, params.get_bool(key))
 
