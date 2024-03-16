@@ -49,12 +49,12 @@ class CarInterface(CarInterfaceBase):
       # WARNING: THIS DISABLES AEB!
       # If Bosch radarless, this blocks ACC messages from the camera
       ret.experimentalLongitudinalAvailable = True
-      ret.openpilotLongitudinalControl = experimental_long
+      ret.openpilotLongitudinalControl = experimental_long and not params.get_bool("DisableOpenpilotLongitudinal")
       ret.pcmCruise = not ret.openpilotLongitudinalControl
     else:
       ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.hondaNidec)]
       ret.enableGasInterceptor = 0x201 in fingerprint[0]
-      ret.openpilotLongitudinalControl = True
+      ret.openpilotLongitudinalControl = True and not params.get_bool("DisableOpenpilotLongitudinal")
 
       ret.pcmCruise = not ret.enableGasInterceptor
 

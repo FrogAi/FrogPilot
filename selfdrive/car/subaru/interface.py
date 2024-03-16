@@ -119,7 +119,7 @@ class CarInterface(CarInterfaceBase):
       raise ValueError(f"unknown car: {candidate}")
 
     ret.experimentalLongitudinalAvailable = candidate not in (GLOBAL_GEN2 | PREGLOBAL_CARS | LKAS_ANGLE | HYBRID_CARS)
-    ret.openpilotLongitudinalControl = experimental_long and ret.experimentalLongitudinalAvailable
+    ret.openpilotLongitudinalControl = experimental_long and ret.experimentalLongitudinalAvailable and not params.get_bool("DisableOpenpilotLongitudinal")
 
     if candidate in GLOBAL_GEN2 and ret.openpilotLongitudinalControl:
       ret.flags |= SubaruFlags.DISABLE_EYESIGHT.value

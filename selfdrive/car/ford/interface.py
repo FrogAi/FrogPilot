@@ -34,7 +34,7 @@ class CarInterface(CarInterfaceBase):
     ret.experimentalLongitudinalAvailable = True
     if experimental_long:
       ret.safetyConfigs[-1].safetyParam |= Panda.FLAG_FORD_LONG_CONTROL
-      ret.openpilotLongitudinalControl = True
+      ret.openpilotLongitudinalControl = True and not params.get_bool("DisableOpenpilotLongitudinal")
 
     if candidate in CANFD_CAR:
       ret.safetyConfigs[-1].safetyParam |= Panda.FLAG_FORD_CANFD

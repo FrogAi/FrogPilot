@@ -124,7 +124,7 @@ class CarInterface(CarInterfaceBase):
 
       if experimental_long:
         ret.pcmCruise = False
-        ret.openpilotLongitudinalControl = True
+        ret.openpilotLongitudinalControl = True and not params.get_bool("DisableOpenpilotLongitudinal")
         ret.safetyConfigs[0].safetyParam |= Panda.FLAG_GM_HW_CAM_LONG
 
     elif candidate in SDGM_CAR:
@@ -137,7 +137,7 @@ class CarInterface(CarInterfaceBase):
       ret.safetyConfigs[0].safetyParam |= Panda.FLAG_GM_HW_SDGM
 
     else:  # ASCM, OBD-II harness
-      ret.openpilotLongitudinalControl = True
+      ret.openpilotLongitudinalControl = True and not params.get_bool("DisableOpenpilotLongitudinal")
       ret.networkLocation = NetworkLocation.gateway
       ret.radarUnavailable = RADAR_HEADER_MSG not in fingerprint[CanBus.OBSTACLE] and not docs
       ret.pcmCruise = False  # stock non-adaptive cruise control is kept off
@@ -322,7 +322,7 @@ class CarInterface(CarInterfaceBase):
       ret.radarUnavailable = True
       ret.experimentalLongitudinalAvailable = False
       ret.minEnableSpeed = 24 * CV.MPH_TO_MS
-      ret.openpilotLongitudinalControl = True
+      ret.openpilotLongitudinalControl = True and not params.get_bool("DisableOpenpilotLongitudinal")
       ret.pcmCruise = False
 
       ret.longitudinalTuning.deadzoneBP = [0.]

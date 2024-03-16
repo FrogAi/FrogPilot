@@ -1,6 +1,17 @@
 #include "selfdrive/frogpilot/ui/vehicle_settings.h"
 
 FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(SettingsWindow *parent) : FrogPilotListWidget(parent) {
+  ParamControl *disableOpenpilotLong = new ParamControl("DisableOpenpilotLongitudinal", "Disable Openpilot Longitudinal Control", "Disables openpilot longitudinal control to use stock ACC.", "", this);
+  addItem(disableOpenpilotLong);
+
+  QObject::connect(disableOpenpilotLong, &ToggleControl::toggleFlipped, [=]() {
+    if (started) {
+      if (FrogPilotConfirmationDialog::toggle("Reboot required to take effect.", "Reboot Now", this)) {
+        Hardware::reboot();
+      }
+    }
+  });
+
   std::vector<std::tuple<QString, QString, QString, QString>> vehicleToggles {
     {"LongitudinalTune", "Longitudinal Tune", "Use a custom Toyota longitudinal tune.\n\nCydia = More focused on TSS-P vehicles but works for all Toyotas\n\nDragonPilot = Focused on TSS2 vehicles\n\nFrogPilot = Takes the best of both worlds with some personal tweaks focused around my 2019 Lexus ES 350", ""},
   };
