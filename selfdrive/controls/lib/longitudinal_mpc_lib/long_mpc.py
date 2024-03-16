@@ -327,10 +327,10 @@ class LongitudinalMpc:
     lead_xv = np.column_stack((x_lead_traj, v_lead_traj))
     return lead_xv
 
-  def process_lead(self, lead, increased_stopping_distance):
+  def process_lead(self, lead, frogpilot_planner):
     v_ego = self.x0[1]
     if lead is not None and lead.status:
-      x_lead = lead.dRel - increased_stopping_distance
+      x_lead = lead.dRel - (frogpilot_planner.increased_stopping_distance if not frogpilot_planner.traffic_mode_active else 0)
       v_lead = lead.vLead
       a_lead = lead.aLeadK
       a_lead_tau = lead.aLeadTau
@@ -357,13 +357,17 @@ class LongitudinalMpc:
     self.max_a = max_a
 
   def update(self, radarstate, v_cruise, x, v, a, j, frogpilot_planner, personality=log.LongitudinalPersonality.standard):
-    t_follow = get_T_FOLLOW(frogpilot_planner.custom_personalities, frogpilot_planner.aggressive_follow, frogpilot_planner.standard_follow, frogpilot_planner.relaxed_follow, personality)
+    if frogpilot_planner.traffic_mode_active:
+      t_follow = frogpilot_planner.traffic_mode_t_follow
+    else:
+      t_follow = get_T_FOLLOW(frogpilot_planner.custom_personalities, frogpilot_planner.aggressive_follow, frogpilot_planner.standard_follow, frogpilot_planner.relaxed_follow, personality)
+
     self.t_follow = t_follow
     v_ego = self.x0[1]
     self.status = radarstate.leadOne.status or radarstate.leadTwo.status
 
-    lead_xv_0 = self.process_lead(radarstate.leadOne, frogpilot_planner.increased_stopping_distance)
-    lead_xv_1 = self.process_lead(radarstate.leadTwo, frogpilot_planner.increased_stopping_distance)
+    lead_xv_0 = self.process_lead(radarstate.leadOne, frogpilot_planner)
+    lead_xv_1 = self.process_lead(radarstate.leadTwo, frogpilot_planner)
 
     # Offset by FrogAi for FrogPilot for a more natural takeoff with a lead
     if frogpilot_planner.aggressive_acceleration:

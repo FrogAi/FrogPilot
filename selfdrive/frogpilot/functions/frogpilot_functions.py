@@ -113,6 +113,11 @@ class FrogPilotFunctions:
     # Invert the value of "ExperimentalMode"
     self.params.put_bool("ExperimentalMode", not experimental_mode)
 
+  def update_traffic_mode(self):
+    traffic_mode = self.params_memory.get_bool("TrafficModeActive")
+    # Invert the value of "TrafficModeActive"
+    self.params_memory.put_bool("TrafficModeActive", not traffic_mode)
+
   @staticmethod
   def road_curvature(modelData, v_ego):
     predicted_velocities = np.array(modelData.velocity.x)

@@ -349,6 +349,9 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.experimental_mode_via_screen = params.getBool("ExperimentalModeViaScreen") && params.getBool("ExperimentalModeActivation");
   scene.fahrenheit = params.getBool("Fahrenheit");
 
+  bool longitudinal_tune = params.getBool("LongitudinalTune");
+  scene.traffic_mode = longitudinal_tune && params.getBool("TrafficMode");
+
   scene.model_ui = params.getBool("ModelUI");
   scene.dynamic_path_width = scene.model_ui && params.getBool("DynamicPathWidth");
   scene.hide_lead_marker = scene.model_ui && params.getBool("HideLeadMarker");
@@ -401,7 +404,9 @@ void UIState::updateStatus() {
     if (state == cereal::ControlsState::OpenpilotState::PRE_ENABLED || state == cereal::ControlsState::OpenpilotState::OVERRIDING) {
       status = STATUS_OVERRIDE;
     } else if (scene.always_on_lateral_active) {
-      status = STATUS_LATERAL_ACTIVE;
+      status = STATUS_ALWAYS_ON_LATERAL_ACTIVE;
+    } else if (scene.traffic_mode_active) {
+      status = STATUS_TRAFFIC_MODE_ACTIVE;
     } else {
       status = controls_state.getEnabled() ? STATUS_ENGAGED : STATUS_DISENGAGED;
     }
@@ -469,15 +474,10 @@ void UIState::update() {
   }
 
   // FrogPilot live variables that need to be constantly checked
-  if (scene.conditional_experimental) {
-    scene.conditional_status = paramsMemory.getInt("CEStatus");
-  }
-  if (scene.holiday_themes) {
-    scene.current_holiday_theme = paramsMemory.getInt("CurrentHolidayTheme");
-  }
-  if (scene.random_events) {
-    scene.current_random_event = paramsMemory.getInt("CurrentRandomEvent");
-  }
+  scene.conditional_status = scene.conditional_experimental ? paramsMemory.getInt("CEStatus") : 0;
+  scene.current_holiday_theme = scene.holiday_themes ? paramsMemory.getInt("CurrentHolidayTheme") : 0;
+  scene.current_random_event = scene.random_events ? paramsMemory.getInt("CurrentRandomEvent") : 0;
+  scene.traffic_mode_active = scene.conditional_experimental && scene.enabled && paramsMemory.getBool("TrafficModeActive");
 }
 
 void UIState::setPrimeType(PrimeType type) {

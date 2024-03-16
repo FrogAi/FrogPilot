@@ -226,10 +226,11 @@ class CarState(CarStateBase):
         self.fpf.update_traffic_mode()
 
         # Revert the previous changes to Experimental Mode
-        if frogpilot_variables.conditional_experimental_mode:
-          self.fpf.update_cestatus_distance()
-        else:
-          self.fpf.update_experimental_mode()
+        if frogpilot_variables.experimental_mode_via_distance:
+          if frogpilot_variables.conditional_experimental_mode:
+            self.fpf.update_cestatus_distance()
+          else:
+            self.fpf.update_experimental_mode()
 
       self.distance_previously_pressed = distance_pressed
 
