@@ -1,0 +1,50 @@
+name: tests
+on: [push, pull_request]
+
+env:
+  RUN: docker run --rm body /bin/bash -c
+  PERSIST: docker run --name body body /bin/sh -c
+  BUILD: |
+      docker pull $(grep -ioP '(?<=^from)\s+\S+' Dockerfile) || true
+      docker pull ghcr.io/commaai/body:latest || true
+      docker build --cache-from ghcr.io/commaai/body:latest -t body -f Dockerfile .
+
+jobs:
+  docker_push:
+    name: docker push
+    runs-on: ubuntu-20.04
+    timeout-minutes: 20
+    if: github.ref == 'refs/heads/master' && github.event_name != 'pull_request' && github.repository == 'commaai/body'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build Docker image
+        run: eval "$BUILD"
+      - name: Login to dockerhub
+        run: docker login ghcr.io -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }}
+      - name: Tag image
+        run: docker tag body ghcr.io/commaai/body:latest
+      - name: Push image
+        run: docker push ghcr.io/commaai/body:latest
+
+  build:
+    name: build
+    runs-on: ubuntu-20.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build Docker image
+        run: eval "$BUILD"
+      - name: Build firmware
+        run: $RUN "cd /tmp/openpilot/body && scons"
+
+  python_linter:
+    name: python linter
+    runs-on: ubuntu-20.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build Docker image
+        run: eval "$BUILD"
+      - name: Run static analysis
+        run: |
+          $RUN "cd /tmp/openpilot/body && git init && git add -A && pre-commit run --all"
