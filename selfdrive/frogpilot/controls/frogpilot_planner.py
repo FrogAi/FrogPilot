@@ -18,7 +18,7 @@ from openpilot.selfdrive.controls.lib.longitudinal_planner import A_CRUISE_MIN, 
 from openpilot.system.version import get_short_branch
 
 from openpilot.selfdrive.frogpilot.controls.lib.conditional_experimental_mode import ConditionalExperimentalMode
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import CITY_SPEED_LIMIT, CRUISING_SPEED, STAGING_BRANCHES, calculate_lane_width, calculate_road_curvature
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import CITY_SPEED_LIMIT, CRUISING_SPEED, calculate_lane_width, calculate_road_curvature
 from openpilot.selfdrive.frogpilot.controls.lib.map_turn_speed_controller import MapTurnSpeedController
 from openpilot.selfdrive.frogpilot.controls.lib.model_manager import RADARLESS_MODELS
 
@@ -57,7 +57,7 @@ class FrogPilotPlanner:
     self.lead_one = Lead()
     self.mtsc = MapTurnSpeedController()
 
-    self.staging = get_short_branch() in STAGING_BRANCHES
+    self.release = get_short_branch() == "FrogPilot"
 
     self.radarless_model = self.params.get("Model", block=True, encoding='utf-8') in RADARLESS_MODELS
 
@@ -146,6 +146,15 @@ class FrogPilotPlanner:
       acceleration_offset = np.clip((v_lead - v_ego) + standstill_offset - COMFORT_BRAKE, 1, distance_factor)
       t_follow /= acceleration_offset
 
+    # Offset by FrogAi for FrogPilot for a more natural approach to a slower lead
+    if self.smoother_braking:
+      distance_factor = np.maximum(1, lead_distance - (v_lead * t_follow))
+      far_lead_offset = max(lead_distance - (v_ego * t_follow) - stopping_distance, 0) if self.smoother_braking_far_lead else 0
+      braking_offset = np.clip((v_ego - v_lead) + far_lead_offset - COMFORT_BRAKE, 1, distance_factor)
+      if self.smoother_braking_jerk:
+        jerk *= np.minimum(braking_offset, COMFORT_BRAKE)
+      t_follow /= braking_offset
+
     return jerk, t_follow
 
   def update_v_cruise(self, carState, controlsState, enabled, liveLocationKalman, modelData, road_curvature, v_cruise, v_ego):
@@ -231,6 +240,9 @@ class FrogPilotPlanner:
     self.deceleration_profile = self.params.get_int("DecelerationProfile") if longitudinal_tune else 0
     self.aggressive_acceleration = longitudinal_tune and self.params.get_bool("AggressiveAcceleration")
     self.increased_stopping_distance = self.params.get_int("StoppingDistance") * (1 if self.is_metric else CV.FOOT_TO_METER) if longitudinal_tune else 0
+    self.smoother_braking = longitudinal_tune and self.params.get_bool("SmoothBraking")
+    self.smoother_braking_far_lead = self.smoother_braking and self.params.get_bool("SmoothBrakingFarLead") and not self.release
+    self.smoother_braking_jerk = self.smoother_braking and self.params.get_bool("SmoothBrakingJerk") and not self.release
 
     self.map_turn_speed_controller = self.CP.openpilotLongitudinalControl and self.params.get_bool("MTSCEnabled")
     self.mtsc_curvature_check = self.map_turn_speed_controller and self.params.get_bool("MTSCCurvatureCheck")

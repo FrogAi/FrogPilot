@@ -43,7 +43,7 @@ private:
   std::set<QString> experimentalModeActivationKeys = {"ExperimentalModeViaDistance", "ExperimentalModeViaLKAS", "ExperimentalModeViaTap"};
   std::set<QString> laneChangeKeys = {"LaneChangeTime", "LaneDetectionWidth", "OneLaneChange"};
   std::set<QString> lateralTuneKeys = {"ForceAutoTune", "NNFF", "NNFFLite"};
-  std::set<QString> longitudinalTuneKeys = {"AccelerationProfile", "AggressiveAcceleration", "DecelerationProfile", "StoppingDistance"};
+  std::set<QString> longitudinalTuneKeys = {"AccelerationProfile", "AggressiveAcceleration", "DecelerationProfile", "SmoothBraking", "StoppingDistance"};
   std::set<QString> mtscKeys = {"DisableMTSCSmoothing", "MTSCAggressiveness", "MTSCCurvatureCheck"};
   std::set<QString> qolKeys = {"CustomCruise", "CustomCruiseLong", "DisableOnroadUploads", "OnroadDistanceButton", "PauseLateralSpeed", "ReverseCruise", "SetSpeedOffset"};
   std::set<QString> speedLimitControllerKeys = {};
@@ -64,7 +64,7 @@ private:
   bool hasPCMCruise;
   bool hasDashSpeedLimits;
   bool isMetric = params.getBool("IsMetric");
-  bool isStaging;
+  bool isRelease;
   bool isToyota;
   bool started;
 };
