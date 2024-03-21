@@ -1,5 +1,9 @@
 """Install exception handler for process crash."""
+import os
 import sentry_sdk
+import traceback
+
+from datetime import datetime
 from enum import Enum
 from sentry_sdk.integrations.threading import ThreadingIntegration
 
@@ -10,6 +14,7 @@ from openpilot.common.swaglog import cloudlog
 from openpilot.system.version import get_branch, get_commit, get_origin, get_version, \
                               is_comma_remote, is_dirty, is_tested_branch
 
+CRASHES_DIR = "/data/community/crashes/"
 
 class SentryProject(Enum):
   # python project
@@ -29,6 +34,7 @@ def report_tombstone(fn: str, message: str, contents: str) -> None:
 
 
 def capture_exception(*args, **kwargs) -> None:
+  save_exception(traceback.format_exc())
   cloudlog.error("crash", exc_info=kwargs.get('exc_info', 1))
 
   try:
@@ -36,6 +42,26 @@ def capture_exception(*args, **kwargs) -> None:
     sentry_sdk.flush()  # https://github.com/getsentry/sentry-python/issues/291
   except Exception:
     cloudlog.exception("sentry exception")
+
+
+def save_exception(exc_text: str) -> None:
+  if not os.path.exists(CRASHES_DIR):
+    os.makedirs(CRASHES_DIR)
+
+  files = [
+    os.path.join(CRASHES_DIR, datetime.now().strftime('%Y-%m-%d--%H-%M-%S.log')),
+    os.path.join(CRASHES_DIR, 'error.txt')
+  ]
+
+  for file in files:
+    with open(file, 'w') as f:
+      if file.endswith("error.txt"):
+        lines = exc_text.splitlines()[-10:]
+        f.write("\n".join(lines))
+      else:
+        f.write(exc_text)
+
+  print('Logged current crash to {}'.format(files))
 
 
 def set_tag(key: str, value: str) -> None:

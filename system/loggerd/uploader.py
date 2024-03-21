@@ -14,6 +14,7 @@ from collections.abc import Iterator
 
 from cereal import log
 import cereal.messaging as messaging
+import openpilot.selfdrive.sentry as sentry
 from openpilot.common.api import Api
 from openpilot.common.params import Params
 from openpilot.common.realtime import set_core_affinity
@@ -251,7 +252,8 @@ def main(exit_event: threading.Event = None) -> None:
     offroad = params.get_bool("IsOffroad")
     network_type = sm['deviceState'].networkType if not force_wifi else NetworkType.wifi
     at_home = not params.get_bool("DisableOnroadUploads") or offroad and network_type in (NetworkType.ethernet, NetworkType.wifi)
-    if network_type == NetworkType.none or not at_home:
+    openpilot_crashed = os.path.isfile(os.path.join(sentry.CRASHES_DIR, 'error.txt'))
+    if network_type == NetworkType.none or not at_home or openpilot_crashed:
       if allow_sleep:
         time.sleep(60 if offroad else 5)
       continue

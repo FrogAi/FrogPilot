@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from typing import SupportsFloat
 
 import cereal.messaging as messaging
+import openpilot.selfdrive.sentry as sentry
 
 from cereal import car, custom, log
 from cereal.visionipc import VisionIpcClient, VisionStreamType
@@ -946,6 +947,11 @@ class Controls:
 
       if lead_departing:
         self.events.add(EventName.leadDeparting)
+
+    if os.path.isfile(os.path.join(sentry.CRASHES_DIR, 'error.txt')) and not self.openpilot_crashed_triggered:
+      self.events.add(EventName.openpilotCrashed)
+
+      self.openpilot_crashed_triggered = True
 
     if self.sm.frame == 550 and self.CP.lateralTuning.which() == 'torque' and self.CI.use_nnff:
       self.events.add(EventName.torqueNNLoad)

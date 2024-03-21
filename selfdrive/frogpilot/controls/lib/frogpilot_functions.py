@@ -5,6 +5,7 @@ import numpy as np
 import os
 import shutil
 import subprocess
+import time
 
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.numpy_fast import interp
@@ -115,6 +116,22 @@ class FrogPilotFunctions:
     if not os.path.exists(backup_path):
       cmd = ['sudo', 'cp', '-a', '/data/params/.', f"{backup_path}/"]
       cls.run_cmd(cmd, f"Successfully backed up toggles to {backup_folder_name}.", f"Failed to backup toggles to {backup_folder_name}.")
+
+  @classmethod
+  def delete_logs(cls):
+    directories_to_check = []
+    for root, dirs, files in os.walk('/data/media/0/realdata/', topdown=False):
+      for name in files:
+        filepath = os.path.join(root, name)
+        if time.time() - max(os.path.getctime(filepath), os.path.getmtime(filepath)) < 3600:
+          os.remove(filepath)
+          if root not in directories_to_check:
+            directories_to_check.append(root)
+    for directory in directories_to_check:
+      try:
+        os.rmdir(directory)
+      except OSError:
+        pass
 
   @classmethod
   def setup_frogpilot(cls):
