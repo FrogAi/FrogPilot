@@ -250,6 +250,9 @@ class CarInterface(CarInterfaceBase):
     elif candidate == CAR.CT6_CC:
       CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
 
+    elif candidate == CAR.TRAX:
+      CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
+
     if ret.enableGasInterceptor:
       ret.networkLocation = NetworkLocation.fwdCamera
       ret.safetyConfigs[0].safetyParam |= Panda.FLAG_GM_HW_CAM

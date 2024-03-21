@@ -239,6 +239,11 @@ class CAR(Platforms):
     [GMCarDocs("Buick Baby Enclave 2020-23")],
     CarSpecs(mass=2050, wheelbase=2.86, steerRatio=16.0, centerToFrontRatio=0.5),
   )
+  TRAX = GMPlatformConfig(
+    "CHEVROLET TRAX 2024",
+    [GMCarDocs("Chevrolet TRAX 2024")],
+    CarSpecs(mass=1365, wheelbase=2.7, steerRatio=16.4, centerToFrontRatio=0.4),
+  )
 
 
 class CruiseButtons:
@@ -328,7 +333,7 @@ SDGM_CAR = {CAR.XT4, CAR.BABYENCLAVE}
 SLOW_ACC = {CAR.SILVERADO}
 
 # We're integrated at the camera with VOACC on these cars (instead of ASCM w/ OBD-II harness)
-CAMERA_ACC_CAR = {CAR.BOLT_EUV, CAR.SILVERADO, CAR.EQUINOX, CAR.TRAILBLAZER}
+CAMERA_ACC_CAR = {CAR.BOLT_EUV, CAR.SILVERADO, CAR.EQUINOX, CAR.TRAILBLAZER, CAR.TRAX}
 CAMERA_ACC_CAR.update({CAR.VOLT_CC, CAR.BOLT_CC, CAR.EQUINOX_CC, CAR.YUKON_CC, CAR.CT6_CC, CAR.TRAILBLAZER_CC})
 
 STEER_THRESHOLD = 1.0
