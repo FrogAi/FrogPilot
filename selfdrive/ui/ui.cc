@@ -378,6 +378,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.map_style = quality_of_life_visuals ? params.getInt("MapStyle") : 0;
   scene.numerical_temp = quality_of_life_visuals && params.getBool("NumericalTemp");
   scene.fahrenheit = scene.numerical_temp && params.getBool("Fahrenheit");
+  scene.wheel_speed = quality_of_life_visuals && params.getBool("WheelSpeed");
 
   bool screen_management = params.getBool("ScreenManagement");
   bool hide_ui_elements = screen_management && params.getBool("HideUIElements");
