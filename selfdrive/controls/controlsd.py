@@ -995,6 +995,12 @@ class Controls:
       if lead_departing:
         self.events.add(EventName.leadDeparting)
 
+    if not CS.standstill:
+      if self.sm['modelV2'].meta.turnDirection == Desire.turnLeft:
+        self.events.add(EventName.turningLeft)
+      elif self.sm['modelV2'].meta.turnDirection == Desire.turnRight:
+        self.events.add(EventName.turningRight)
+
     if os.path.isfile(os.path.join(sentry.CRASHES_DIR, 'error.txt')) and not self.openpilot_crashed_triggered:
       if self.random_events:
         self.events.add(EventName.openpilotCrashedRandomEvents)

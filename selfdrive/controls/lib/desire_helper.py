@@ -5,6 +5,7 @@ from openpilot.common.realtime import DT_MDL
 
 LaneChangeState = log.LaneChangeState
 LaneChangeDirection = log.LaneChangeDirection
+TurnDirection = log.Desire
 
 LANE_CHANGE_SPEED_MIN = 20 * CV.MPH_TO_MS
 LANE_CHANGE_TIME_MAX = 10.
@@ -30,6 +31,11 @@ DESIRES = {
   },
 }
 
+TURN_DESIRES = {
+  TurnDirection.none: log.Desire.none,
+  TurnDirection.turnLeft: log.Desire.turnLeft,
+  TurnDirection.turnRight: log.Desire.turnRight,
+}
 
 class DesireHelper:
   def __init__(self):
@@ -45,7 +51,10 @@ class DesireHelper:
     self.params = Params()
     self.params_memory = Params("/dev/shm/params")
 
+    self.turn_direction = TurnDirection.none
+
     self.lane_change_completed = False
+    self.turn_completed = False
 
     self.lane_change_wait_timer = 0
 
@@ -65,7 +74,14 @@ class DesireHelper:
     if not lateral_active or self.lane_change_timer > LANE_CHANGE_TIME_MAX:
       self.lane_change_state = LaneChangeState.off
       self.lane_change_direction = LaneChangeDirection.none
+      self.turn_direction = TurnDirection.none
+    elif one_blinker and below_lane_change_speed and self.turn_desires:
+      self.turn_direction = TurnDirection.turnLeft if carstate.leftBlinker else TurnDirection.turnRight
+      # Set the "turn_completed" flag to prevent lane changes after completing a turn
+      self.turn_completed = True
     else:
+      self.turn_direction = TurnDirection.none
+
       # LaneChangeState.off
       if self.lane_change_state == LaneChangeState.off and one_blinker and not self.prev_one_blinker and not below_lane_change_speed:
         self.lane_change_state = LaneChangeState.preLaneChange
@@ -125,8 +141,14 @@ class DesireHelper:
 
     self.lane_change_completed &= one_blinker
     self.prev_one_blinker = one_blinker
+    self.turn_completed &= one_blinker
 
-    self.desire = DESIRES[self.lane_change_direction][self.lane_change_state]
+    if self.turn_direction != TurnDirection.none:
+      self.desire = TURN_DESIRES[self.turn_direction]
+    elif not self.turn_completed:
+      self.desire = DESIRES[self.lane_change_direction][self.lane_change_state]
+    else:
+      self.desire = log.Desire.none
 
     # Send keep pulse once per second during LaneChangeStart.preLaneChange
     if self.lane_change_state in (LaneChangeState.off, LaneChangeState.laneChangeStarting):
@@ -145,6 +167,7 @@ class DesireHelper:
     is_metric = self.params.get_bool("IsMetric")
 
     lateral_tune = self.params.get_bool("LateralTune")
+    self.turn_desires = lateral_tune and self.params.get_bool("TurnDesires")
 
     self.nudgeless = self.params.get_bool("NudgelessLaneChange")
     self.lane_change_delay = self.params.get_int("LaneChangeTime") if self.nudgeless else 0

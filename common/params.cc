@@ -435,6 +435,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"TrafficJerk", PERSISTENT},
     {"TrafficMode", PERSISTENT},
     {"TrafficModeActive", CLEAR_ON_OFFROAD_TRANSITION},
+    {"TurnDesires", PERSISTENT},
     {"UnlimitedLength", PERSISTENT},
     {"UnlockDoors", PERSISTENT},
     {"Updated", PERSISTENT},
