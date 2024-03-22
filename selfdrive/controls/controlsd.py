@@ -1196,6 +1196,8 @@ class Controls:
     self.frogpilot_variables.lock_doors = toyota_doors and self.params.get_bool("LockDoors")
     self.frogpilot_variables.unlock_doors = toyota_doors and self.params.get_bool("UnlockDoors")
 
+    self.frogpilot_variables.use_ev_tables = self.params.get_bool("EVTable")
+
 def main():
   config_realtime_process(4, Priority.CTRL_HIGH)
   controls = Controls()

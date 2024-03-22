@@ -112,6 +112,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(SettingsWindow *parent) : FrogPil
   addItem(disableOpenpilotLong);
 
   std::vector<std::tuple<QString, QString, QString, QString>> vehicleToggles {
+    {"EVTable", tr("EV Lookup Tables"), tr("Smoothen out the gas and brake controls for EV vehicles."), ""},
     {"LongPitch", tr("Long Pitch Compensation"), tr("Smoothen out the gas and pedal controls."), ""},
     {"GasRegenCmd", tr("Truck Tune"), tr("Increase the acceleration and smoothen out the brake control when coming to a stop. For use on Silverado/Sierra only."), ""},
 
@@ -257,10 +258,10 @@ void FrogPilotVehiclesPanel::hideToggles() {
   bool subaru = carMake == "Subaru";
   bool toyota = carMake == "Lexus" || carMake == "Toyota";
 
-  std::set<QString> evCarKeys = {};
+  std::set<QString> evCarKeys = {"EVTable"};
   std::set<QString> gmTruckKeys = {"GasRegenCmd"};
   std::set<QString> imprezaKeys = {"CrosstrekTorque"};
-  std::set<QString> longitudinalKeys = {"GasRegenCmd", "LongitudinalTune", "LongPitch", "SNGHack"};
+  std::set<QString> longitudinalKeys = {"EVTable", "GasRegenCmd", "LongitudinalTune", "LongPitch", "SNGHack"};
   std::set<QString> sngKeys = {"SNGHack"};
 
   for (auto &[key, toggle] : toggles) {
