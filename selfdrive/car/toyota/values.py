@@ -610,4 +610,7 @@ ANGLE_CONTROL_CAR = CAR.with_flags(ToyotaFlags.ANGLE_CONTROL)
 # no resume button press required
 NO_STOP_TIMER_CAR = CAR.with_flags(ToyotaFlags.NO_STOP_TIMER)
 
+STOP_AND_GO_CAR = TSS2_CAR | {CAR.PRIUS, CAR.PRIUS_V, CAR.RAV4H, CAR.LEXUS_RX, CAR.CHR, CAR.CAMRY, CAR.HIGHLANDER,
+                              CAR.SIENNA, CAR.LEXUS_CTH, CAR.LEXUS_NX, CAR.MIRAI, CAR.AVALON_2019}
+
 DBC = CAR.create_dbc_map()
