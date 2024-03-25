@@ -211,6 +211,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     // FrogPilot parameters
     {"AccelerationPath", PERSISTENT},
     {"AccelerationProfile", PERSISTENT},
+    {"AggressiveAcceleration", PERSISTENT},
     {"ApiCache_DriveStats", PERSISTENT},
     {"CustomAlerts", PERSISTENT},
     {"CustomPaths", PERSISTENT},
