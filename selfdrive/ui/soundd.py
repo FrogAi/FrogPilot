@@ -150,9 +150,12 @@ class Soundd:
       while True:
         sm.update(0)
 
-        if sm.updated['microphone'] and self.current_alert == AudibleAlert.none: # only update volume filter when not playing alert
+        if sm.updated['microphone'] and self.current_alert == AudibleAlert.none and not self.alert_volume_control: # only update volume filter when not playing alert
           self.spl_filter_weighted.update(sm["microphone"].soundPressureWeightedDb)
           self.current_volume = self.calculate_volume(float(self.spl_filter_weighted.x))
+
+        elif self.alert_volume_control and self.current_alert in self.volume_map:
+          self.current_volume = self.volume_map[self.current_alert] / 100.0
 
         self.get_audible_alert(sm)
 
@@ -165,6 +168,21 @@ class Soundd:
           self.update_frogpilot_params()
 
   def update_frogpilot_params(self):
+    self.alert_volume_control = self.params.get_bool("AlertVolumeControl")
+
+    self.volume_map = {
+      AudibleAlert.engage: self.params.get_int("EngageVolume"),
+      AudibleAlert.disengage: self.params.get_int("DisengageVolume"),
+      AudibleAlert.refuse: self.params.get_int("RefuseVolume"),
+
+      AudibleAlert.prompt: self.params.get_int("PromptVolume"),
+      AudibleAlert.promptRepeat: self.params.get_int("PromptVolume"),
+      AudibleAlert.promptDistracted: self.params.get_int("PromptDistractedVolume"),
+
+      AudibleAlert.warningSoft: self.params.get_int("WarningSoftVolume"),
+      AudibleAlert.warningImmediate: self.params.get_int("WarningImmediateVolume"),
+    }
+
     self.load_sounds()
 
 def main():
