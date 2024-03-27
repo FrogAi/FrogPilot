@@ -207,6 +207,7 @@ typedef struct UIScene {
   bool numerical_temp;
   bool online;
   bool onroad_distance_button;
+  bool pedals_on_ui;
   bool reverse;
   bool reverse_cruise;
   bool reverse_cruise_ui;
@@ -216,6 +217,7 @@ typedef struct UIScene {
   bool show_cem_status_bar;
   bool show_jerk;
   bool show_tuning;
+  bool standstill;
   bool turn_signal_left;
   bool turn_signal_right;
   bool unlimited_road_ui_length;

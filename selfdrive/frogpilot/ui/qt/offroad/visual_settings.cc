@@ -25,6 +25,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
     {"FPSCounter", tr("FPS Counter"), tr("Display the 'Frames Per Second' (FPS) of your onroad UI for monitoring system performance."), ""},
     {"LeadInfo", tr("Lead Info and Logics"), tr("Get detailed information about the vehicle ahead, including speed and distance, and the logic behind your following distance."), ""},
     {"CustomPaths", tr("Paths"), tr("Show your projected acceleration on the driving path, detected adjacent lanes, or when a vehicle is detected in your blindspot."), ""},
+    {"PedalsOnUI", tr("Pedals Being Pressed"), tr("Display the brake and gas pedals on the onroad UI below the steering wheel icon."), ""},
     {"RoadNameUI", tr("Road Name"), tr("Display the current road's name at the bottom of the screen. Sourced from OpenStreetMap."), ""},
 
     {"CustomTheme", tr("Custom Themes"), tr("Enable the ability to use custom themes."), "../frogpilot/assets/wheel_images/frog.png"},

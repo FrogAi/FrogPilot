@@ -25,7 +25,7 @@ private:
 
   std::set<QString> alertVolumeControlKeys = {"DisengageVolume", "EngageVolume", "PromptDistractedVolume", "PromptVolume", "RefuseVolume", "WarningImmediateVolume", "WarningSoftVolume"};
   std::set<QString> customAlertsKeys = {"GreenLightAlert", "LeadDepartingAlert", "LoudBlindspotAlert"};
-  std::set<QString> customOnroadUIKeys = {"Compass", "CustomPaths", "DeveloperUI", "FPSCounter", "LeadInfo", "RoadNameUI"};
+  std::set<QString> customOnroadUIKeys = {"Compass", "CustomPaths", "DeveloperUI", "FPSCounter", "LeadInfo", "PedalsOnUI", "RoadNameUI"};
   std::set<QString> customThemeKeys = {"CustomColors", "CustomIcons", "CustomSignals", "CustomSounds", "HolidayThemes"};
   std::set<QString> modelUIKeys = {"DynamicPathWidth", "HideLeadMarker", "LaneLinesWidth", "PathEdgeWidth", "PathWidth", "RoadEdgesWidth", "UnlimitedLength"};
   std::set<QString> qolKeys = {"BigMap", "CameraView", "DriverCamera", "FullMap", "HideSpeed", "NumericalTemp"};

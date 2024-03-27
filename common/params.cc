@@ -345,6 +345,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"PauseAOLOnBrake", PERSISTENT},
     {"PauseLateralOnSignal", PERSISTENT},
     {"PauseLateralSpeed", PERSISTENT},
+    {"PedalsOnUI", PERSISTENT},
     {"PreferredSchedule", PERSISTENT},
     {"PromptDistractedVolume", PERSISTENT},
     {"PromptVolume", PERSISTENT},
