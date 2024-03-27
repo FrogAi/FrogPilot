@@ -46,6 +46,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
     {"CameraView", tr("Camera View"), tr("Choose your preferred camera view for the onroad UI. This is purely a visual change and doesn't impact how openpilot drives."), ""},
     {"DriverCamera", tr("Driver Camera On Reverse"), tr("Show the driver camera feed when in reverse."), ""},
     {"HideSpeed", tr("Hide Speed"), tr("Hide the speed indicator in the onroad UI. Additional toggle allows it to be hidden/shown via tapping the speed itself."), ""},
+    {"NumericalTemp", tr("Numerical Temperature Gauge"), tr("Replace the 'GOOD', 'OK', and 'HIGH' temperature statuses with a numerical temperature gauge based on the highest temperature between the memory, CPU, and GPU."), ""},
   };
 
   for (const auto &[param, title, desc, icon] : visualToggles) {
@@ -184,6 +185,10 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
       std::vector<QString> hideSpeedToggles{"HideSpeedUI"};
       std::vector<QString> hideSpeedToggleNames{tr("Control Via UI")};
       toggle = new FrogPilotParamToggleControl(param, title, desc, icon, hideSpeedToggles, hideSpeedToggleNames);
+    } else if (param == "NumericalTemp") {
+      std::vector<QString> temperatureToggles{"Fahrenheit"};
+      std::vector<QString> temperatureToggleNames{tr("Fahrenheit")};
+      toggle = new FrogPilotParamToggleControl(param, title, desc, icon, temperatureToggles, temperatureToggleNames);
 
     } else {
       toggle = new ParamControl(param, title, desc, icon, this);
