@@ -24,7 +24,7 @@ widgets_src = ["ui.cc", "qt/widgets/input.cc", "qt/widgets/drive_stats.cc", "qt/
                "qt/widgets/offroad_alerts.cc", "qt/widgets/prime.cc", "qt/widgets/keyboard.cc",
                "qt/widgets/scrollview.cc", "qt/widgets/cameraview.cc", "#third_party/qrcode/QrCode.cc",
                "qt/request_repeater.cc", "qt/qt_window.cc", "qt/network/networking.cc", "qt/network/wifi_manager.cc",
-               "../frogpilot/ui/qt/widgets/frogpilot_controls.cc",
+               "../frogpilot/ui/qt/widgets/frogpilot_controls.cc", "../frogpilot/navigation/ui/navigation_settings.cc",
                "../frogpilot/ui/qt/offroad/control_settings.cc", "../frogpilot/ui/qt/offroad/vehicle_settings.cc",
                "../frogpilot/ui/qt/offroad/visual_settings.cc"]
 

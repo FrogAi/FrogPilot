@@ -14,7 +14,7 @@
 #include "common/transformations/orientation.hpp"
 #include "cereal/messaging/messaging.h"
 
-const QString MAPBOX_TOKEN = util::getenv("MAPBOX_TOKEN").c_str();
+const QString MAPBOX_TOKEN = QString::fromStdString(Params().get("MapboxPublicKey"));
 const QString MAPS_HOST = util::getenv("MAPS_HOST", MAPBOX_TOKEN.isEmpty() ? "https://maps.comma.ai" : "https://api.mapbox.com").c_str();
 const QString MAPS_CACHE_PATH = "/data/mbgl-cache-navd.db";
 
