@@ -316,7 +316,7 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
 
   int margin = 40;
   int radius = 30;
-  int offset = scene.show_aol_status_bar || scene.show_cem_status_bar ? 25 : 0;
+  int offset = scene.show_aol_status_bar || scene.show_cem_status_bar || scene.road_name_ui ? 25 : 0;
   if (alert.size == cereal::ControlsState::AlertSize::FULL) {
     margin = 0;
     radius = 0;
@@ -855,7 +855,7 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
   int offset = UI_BORDER_SIZE + btn_size / 2;
   int x = rightHandDM ? width() - offset : offset;
   x += onroadDistanceButton ? 250 : 0;
-  offset += showAlwaysOnLateralStatusBar || showConditionalExperimentalStatusBar ? 25 : 0;
+  offset += showAlwaysOnLateralStatusBar || showConditionalExperimentalStatusBar || roadNameUI ? 25 : 0;
   int y = height() - offset;
   float opacity = dmActive ? 0.65 : 0.2;
   drawIcon(painter, QPoint(x, y), dm_img, blackColor(70), opacity);
@@ -1160,6 +1160,8 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets() {
 
   onroadDistanceButton = scene.onroad_distance_button;
 
+  roadNameUI = scene.road_name_ui;
+
   turnSignalLeft = scene.turn_signal_left;
   turnSignalRight = scene.turn_signal_right;
 
@@ -1202,7 +1204,7 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets() {
 }
 
 void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
-  if ((showAlwaysOnLateralStatusBar || showConditionalExperimentalStatusBar) && !bigMapOpen) {
+  if ((showAlwaysOnLateralStatusBar || showConditionalExperimentalStatusBar || roadNameUI) && !bigMapOpen) {
     drawStatusBar(p);
   }
 
@@ -1549,6 +1551,8 @@ void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {
     {15, tr("Experimental Mode activated for stop") + (mapOpen ? "" : tr(" sign / stop light"))},
   };
 
+  QString roadName = roadNameUI ? QString::fromStdString(paramsMemory.get("RoadName")) : QString();
+
   if (alwaysOnLateralActive && showAlwaysOnLateralStatusBar) {
     newStatus = tr("Always On Lateral active") + (mapOpen ? "" : tr(". Press the \"Cruise Control\" button to disable"));
   } else if (showConditionalExperimentalStatusBar) {
@@ -1569,7 +1573,7 @@ void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {
     }
   }
 
-  if (newStatus != lastShownStatus) {
+  if (newStatus != lastShownStatus || roadName.isEmpty()) {
     displayStatusText = true;
     lastShownStatus = newStatus;
     timer.restart();
@@ -1581,16 +1585,28 @@ void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {
   p.setPen(Qt::white);
   p.setRenderHint(QPainter::TextAntialiasing);
 
+  static qreal roadNameOpacity;
   static qreal statusTextOpacity;
   int elapsed = timer.elapsed();
   if (displayStatusText) {
     statusTextOpacity = qBound(0.0, 1.0 - (elapsed - textDuration) / fadeDuration, 1.0);
+    roadNameOpacity = 1.0 - statusTextOpacity;
+  } else {
+    roadNameOpacity = qBound(0.0, elapsed / fadeDuration, 1.0);
+    statusTextOpacity = 0.0;
   }
 
   p.setOpacity(statusTextOpacity);
   QRect textRect = p.fontMetrics().boundingRect(statusBarRect, Qt::AlignCenter | Qt::TextWordWrap, newStatus);
   textRect.moveBottom(statusBarRect.bottom() - 50);
   p.drawText(textRect, Qt::AlignCenter | Qt::TextWordWrap, newStatus);
+
+  if (!roadName.isEmpty()) {
+    p.setOpacity(roadNameOpacity);
+    textRect = p.fontMetrics().boundingRect(statusBarRect, Qt::AlignCenter | Qt::TextWordWrap, roadName);
+    textRect.moveBottom(statusBarRect.bottom() - 50);
+    p.drawText(textRect, Qt::AlignCenter | Qt::TextWordWrap, roadName);
+  }
 
   p.restore();
 }
@@ -1601,7 +1617,7 @@ void AnnotatedCameraWidget::drawTurnSignals(QPainter &p) {
 
   p.setRenderHint(QPainter::Antialiasing);
 
-  int baseYPosition = (height() - signalHeight) / 2 + (showAlwaysOnLateralStatusBar || showConditionalExperimentalStatusBar ? 225 : 300) - alertSize;
+  int baseYPosition = (height() - signalHeight) / 2 + (showAlwaysOnLateralStatusBar || showConditionalExperimentalStatusBar || roadNameUI ? 225 : 300) - alertSize;
   int leftSignalXPosition = 75 + width() - signalWidth - 300 * (blindSpotLeft ? 0 : animationFrameIndex);
   int rightSignalXPosition = -75 + 300 * (blindSpotRight ? 0 : animationFrameIndex);
 
