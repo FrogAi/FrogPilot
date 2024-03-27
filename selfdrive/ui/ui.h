@@ -184,6 +184,7 @@ typedef struct UIScene {
   bool enabled;
   bool experimental_mode;
   bool experimental_mode_via_screen;
+  bool fps_counter;
   bool has_auto_tune;
   bool hide_lead_marker;
   bool lead_info;
