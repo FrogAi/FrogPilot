@@ -35,6 +35,30 @@ private:
   UIScene &scene;
 };
 
+class Compass : public QWidget {
+public:
+  explicit Compass(QWidget *parent = nullptr);
+
+  void updateState();
+
+protected:
+  void paintEvent(QPaintEvent *event) override;
+
+private:
+  UIScene &scene;
+
+  int bearingDeg;
+  int circleOffset;
+  int compassSize;
+  int degreeLabelOffset;
+  int innerCompass;
+  int x;
+  int y;
+
+  QPixmap compassInnerImg;
+  QPixmap staticElements;
+};
+
 class ExperimentalButton : public QPushButton {
   Q_OBJECT
 
@@ -121,12 +145,15 @@ private:
   Params paramsMemory{"/dev/shm/params"};
   UIScene &scene;
 
+  Compass *compass_img;
+
   QHBoxLayout *bottom_layout;
 
   bool alwaysOnLateralActive;
   bool bigMapOpen;
   bool blindSpotLeft;
   bool blindSpotRight;
+  bool compass;
   bool experimentalMode;
   bool leadInfo;
   bool mapOpen;
