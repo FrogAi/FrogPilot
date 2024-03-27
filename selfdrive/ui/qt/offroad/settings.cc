@@ -302,21 +302,45 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   });
   addItem(deleteDrivingDataBtn);
 
-  // Delete long term toggle storage button
-  auto deleteStorageParamsBtn = new ButtonControl(tr("Delete Toggle Storage Data"), tr("DELETE"), tr("This button provides a swift and secure way to permanently delete all "
-    "long term stored toggle settings. Ideal for maintaining privacy or freeing up space.")
-  );
-  connect(deleteStorageParamsBtn, &ButtonControl::clicked, [=]() {
-    if (!ConfirmationDialog::confirm(tr("Are you sure you want to permanently delete all of your long term toggle settings storage?"), tr("Delete"), this)) return;
+  // Panda flashing button
+  auto flashPandaBtn = new ButtonControl(tr("Flash Panda"), tr("FLASH"), tr("Use this button to troubleshoot and update the Panda device's firmware."));
+  connect(flashPandaBtn, &ButtonControl::clicked, [=]() {
+    if (ConfirmationDialog::confirm(tr("Are you sure you want to flash the Panda?"), tr("Flash"), this)) {
+      std::thread([=]() {
+        flashPandaBtn->setValue(tr("Flashing..."));
+
+        QProcess process;
+
+        process.setWorkingDirectory("/data/openpilot/panda/board");
+        process.start("/bin/sh", QStringList{"-c", "./recover.py"});
+        process.waitForFinished();
+        process.start("/bin/sh", QStringList{"-c", "./flash.py"});
+        process.waitForFinished();
+
+        process.setWorkingDirectory("/data/openpilot/panda/tests");
+        process.start("/bin/sh", QStringList{"-c", "python reflash_internal_panda.py"});
+        process.waitForFinished();
+
+        Hardware::reboot();
+      }).detach();
+    }
+  });
+  addItem(flashPandaBtn);
+
+  // Reset toggle button
+  auto resetTogglesBtn = new ButtonControl(tr("Reset Toggle Settings"), tr("RESET"), tr("Reset your toggle settings back to default."));
+  connect(resetTogglesBtn, &ButtonControl::clicked, [=]() {
+    if (!ConfirmationDialog::confirm(tr("Are you sure you want to completely reset your toggle settings? This is irreversible!"), tr("Reset"), this)) return;
     std::thread([&] {
-      deleteStorageParamsBtn->setValue(tr("Deleting params..."));
-      std::system("rm -rf /persist/params");
-      deleteStorageParamsBtn->setValue(tr("Deleted!"));
-      std::this_thread::sleep_for(std::chrono::seconds(3));
-      deleteStorageParamsBtn->setValue("");
+      resetTogglesBtn->setValue(tr("Resetting toggles..."));
+
+      std::system("find /data/params -type f ! -name 'FrogPilotDrives' ! -name 'FrogPilotMinutes' ! -name 'FrogPilotKilometers' -exec rm {} +");
+      std::system("find /persist/params -type f ! -name 'FrogPilotDrives' ! -name 'FrogPilotMinutes' ! -name 'FrogPilotKilometers' -exec rm {} +");
+
+      Hardware::reboot();
     }).detach();
   });
-  addItem(deleteStorageParamsBtn);
+  addItem(resetTogglesBtn);
 
   // Backup FrogPilot
   std::vector<QString> frogpilotBackupOptions{tr("Backup"), tr("Delete"), tr("Restore")};
