@@ -323,6 +323,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"MapboxSecretKey", PERSISTENT},
     {"MapsSelected", PERSISTENT},
     {"MapSpeedLimit", PERSISTENT},
+    {"MapStyle", PERSISTENT},
     {"MapTargetLatA", PERSISTENT},
     {"MapTargetVelocities", PERSISTENT},
     {"Model", PERSISTENT},

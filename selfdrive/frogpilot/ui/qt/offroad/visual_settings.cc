@@ -50,6 +50,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
     {"CameraView", tr("Camera View"), tr("Choose your preferred camera view for the onroad UI. This is purely a visual change and doesn't impact how openpilot drives."), ""},
     {"DriverCamera", tr("Driver Camera On Reverse"), tr("Show the driver camera feed when in reverse."), ""},
     {"HideSpeed", tr("Hide Speed"), tr("Hide the speed indicator in the onroad UI. Additional toggle allows it to be hidden/shown via tapping the speed itself."), ""},
+    {"MapStyle", tr("Map Style"), tr("Select a map style to use with navigation."), ""},
     {"NumericalTemp", tr("Numerical Temperature Gauge"), tr("Replace the 'GOOD', 'OK', and 'HIGH' temperature statuses with a numerical temperature gauge based on the highest temperature between the memory, CPU, and GPU."), ""},
 
     {"ScreenManagement", tr("Screen Management"), tr("Manage your screen's brightness, timeout settings, and hide onroad UI elements."), "../frogpilot/assets/toggle_icons/icon_light.png"},
@@ -189,6 +190,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
         for (auto &[key, toggle] : toggles) {
           toggle->setVisible(qolKeys.find(key.c_str()) != qolKeys.end());
         }
+        mapStyleButton->setVisible(true);
       });
       toggle = qolToggle;
     } else if (param == "CameraView") {
@@ -203,6 +205,39 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
       std::vector<QString> hideSpeedToggles{"HideSpeedUI"};
       std::vector<QString> hideSpeedToggleNames{tr("Control Via UI")};
       toggle = new FrogPilotParamToggleControl(param, title, desc, icon, hideSpeedToggles, hideSpeedToggleNames);
+    } else if (param == "MapStyle") {
+      QMap<int, QString> styleMap = {
+        {0, tr("Stock openpilot")},
+        {1, tr("Mapbox Streets")},
+        {2, tr("Mapbox Outdoors")},
+        {3, tr("Mapbox Light")},
+        {4, tr("Mapbox Dark")},
+        {5, tr("Mapbox Satellite")},
+        {6, tr("Mapbox Satellite Streets")},
+        {7, tr("Mapbox Navigation Day")},
+        {8, tr("Mapbox Navigation Night")},
+        {9, tr("Mapbox Traffic Night")},
+        {10, tr("mike854's (Satellite hybrid)")},
+      };
+
+      QStringList styles = styleMap.values();
+
+      mapStyleButton = new ButtonControl(title, tr("SELECT"), desc);
+      QObject::connect(mapStyleButton, &ButtonControl::clicked, this, [this, styleMap]() {
+        QStringList styles = styleMap.values();
+        QString selection = MultiOptionDialog::getSelection(tr("Select a map style"), styles, "", this);
+        if (!selection.isEmpty()) {
+          int selectedStyle = styleMap.key(selection);
+          params.putInt("MapStyle", selectedStyle);
+          mapStyleButton->setValue(selection);
+          updateToggles();
+        }
+      });
+
+      int currentStyle = params.getInt("MapStyle");
+      mapStyleButton->setValue(styleMap[currentStyle]);
+
+      addItem(mapStyleButton);
     } else if (param == "NumericalTemp") {
       std::vector<QString> temperatureToggles{"Fahrenheit"};
       std::vector<QString> temperatureToggleNames{tr("Fahrenheit")};
@@ -340,6 +375,8 @@ void FrogPilotVisualsPanel::updateMetric() {
 }
 
 void FrogPilotVisualsPanel::hideToggles() {
+  mapStyleButton->setVisible(false);
+
   for (auto &[key, toggle] : toggles) {
     bool subToggles = alertVolumeControlKeys.find(key.c_str()) != alertVolumeControlKeys.end() ||
                       customAlertsKeys.find(key.c_str()) != customAlertsKeys.end() ||

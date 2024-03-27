@@ -373,6 +373,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.driver_camera = quality_of_life_visuals && params.getBool("DriverCamera");
   scene.hide_speed = quality_of_life_visuals && params.getBool("HideSpeed");
   scene.hide_speed_ui = scene.hide_speed && params.getBool("HideSpeedUI");
+  scene.map_style = quality_of_life_visuals ? params.getInt("MapStyle") : 0;
   scene.numerical_temp = quality_of_life_visuals && params.getBool("NumericalTemp");
   scene.fahrenheit = scene.numerical_temp && params.getBool("Fahrenheit");
 
