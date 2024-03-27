@@ -1032,6 +1032,7 @@ class Controls:
     self.pause_lateral_below_speed = self.params.get_int("PauseLateralSpeed") * (CV.KPH_TO_MS if self.is_metric else CV.MPH_TO_MS) if quality_of_life else 0
     self.pause_lateral_below_signal = quality_of_life and self.params.get_bool("PauseLateralOnSignal")
     self.frogpilot_variables.reverse_cruise_increase = quality_of_life and self.params.get_bool("ReverseCruise")
+    self.frogpilot_variables.set_speed_offset = self.params.get_int("SetSpeedOffset") * (1 if self.is_metric else CV.MPH_TO_KPH) if quality_of_life else 0
 
     toyota_doors = self.params.get_bool("ToyotaDoors")
     self.frogpilot_variables.lock_doors = toyota_doors and self.params.get_bool("LockDoors")
