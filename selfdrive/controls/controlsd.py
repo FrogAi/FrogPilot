@@ -994,6 +994,10 @@ class Controls:
     self.frogpilot_variables.custom_cruise_increase_long = self.params.get_int("CustomCruiseLong") if quality_of_life else 5
     self.frogpilot_variables.reverse_cruise_increase = quality_of_life and self.params.get_bool("ReverseCruise")
 
+    toyota_doors = self.params.get_bool("ToyotaDoors")
+    self.frogpilot_variables.lock_doors = toyota_doors and self.params.get_bool("LockDoors")
+    self.frogpilot_variables.unlock_doors = toyota_doors and self.params.get_bool("UnlockDoors")
+
 def main():
   config_realtime_process(4, Priority.CTRL_HIGH)
   controls = Controls()

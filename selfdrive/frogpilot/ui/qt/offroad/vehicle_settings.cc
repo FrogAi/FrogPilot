@@ -115,6 +115,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(SettingsWindow *parent) : FrogPil
     {"LongPitch", tr("Long Pitch Compensation"), tr("Smoothen out the gas and pedal controls."), ""},
     {"GasRegenCmd", tr("Truck Tune"), tr("Increase the acceleration and smoothen out the brake control when coming to a stop. For use on Silverado/Sierra only."), ""},
 
+    {"ToyotaDoors", tr("Automatically Lock/Unlock Doors"), tr("Automatically lock the doors when in drive and unlock when in park."), ""},
     {"LongitudinalTune", tr("Longitudinal Tune"), tr("Use a custom Toyota longitudinal tune.\n\nCydia = More focused on TSS-P vehicles but works for all Toyotas\n\nDragonPilot = Focused on TSS2 vehicles\n\nFrogPilot = Takes the best of both worlds with some personal tweaks focused around FrogsGoMoo's 2019 Lexus ES 350"), ""},
   };
 
@@ -137,6 +138,11 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(SettingsWindow *parent) : FrogPil
           }
         }
       });
+
+    } else if (param == "ToyotaDoors") {
+      std::vector<QString> lockToggles{"LockDoors", "UnlockDoors"};
+      std::vector<QString> lockToggleNames{tr("Lock"), tr("Unlock")};
+      toggle = new FrogPilotParamToggleControl(param, title, desc, icon, lockToggles, lockToggleNames);
 
     } else {
       toggle = new ParamControl(param, title, desc, icon, this);

@@ -10,6 +10,8 @@ from openpilot.selfdrive.car.toyota.values import CAR, STATIC_DSU_MSGS, NO_STOP_
                                         UNSUPPORTED_DSU_CAR, TSS2_CAR
 from opendbc.can.packer import CANPacker
 
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import CRUISING_SPEED
+
 LongCtrlState = car.CarControl.Actuators.LongControlState
 SteerControlType = car.CarParams.SteerControlType
 VisualAlert = car.CarControl.HUDControl.VisualAlert
@@ -32,6 +34,12 @@ MAX_LTA_DRIVER_TORQUE_ALLOWANCE = 150  # slightly above steering pressed allows 
 # applying when speed is high
 COMPENSATORY_CALCULATION_THRESHOLD_V = [-0.3, -0.25, 0.]  # m/s^2
 COMPENSATORY_CALCULATION_THRESHOLD_BP = [0., 11., 23.]  # m/s
+
+# Lock / unlock door commands - Credit goes to AlexandreSato!
+LOCK_CMD = b'\x40\x05\x30\x11\x00\x80\x00\x00'
+UNLOCK_CMD = b'\x40\x05\x30\x11\x00\x40\x00\x00'
+
+PARK = car.CarState.GearShifter.park
 
 
 def compute_gb_toyota(accel, speed):
@@ -67,6 +75,9 @@ class CarController(CarControllerBase):
 
     self.cydia_tune = params.get_bool("CydiaTune")
     self.frogs_go_moo_tune = params.get_bool("FrogsGoMooTune")
+
+    self.doors_locked = False
+    self.doors_unlocked = True
 
     self.pcm_accel_comp = 0
 
@@ -278,6 +289,19 @@ class CarController(CarControllerBase):
     new_actuators.steeringAngleDeg = self.last_angle
     new_actuators.accel = self.accel
     new_actuators.gas = self.gas
+
+    # Lock doors when in drive / unlock doors when in park
+    if self.doors_unlocked and CS.out.gearShifter != PARK and CS.out.vEgo >= CRUISING_SPEED:
+      if frogpilot_variables.lock_doors:
+        can_sends.append(make_can_msg(0x750, LOCK_CMD, 0))
+      self.doors_locked = True
+      self.doors_unlocked = False
+
+    elif self.doors_locked and CS.out.gearShifter == PARK:
+      if frogpilot_variables.unlock_doors:
+        can_sends.append(make_can_msg(0x750, UNLOCK_CMD, 0))
+      self.doors_locked = False
+      self.doors_unlocked = True
 
     self.frame += 1
     return new_actuators, can_sends
