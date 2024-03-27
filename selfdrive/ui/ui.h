@@ -189,6 +189,8 @@ typedef struct UIScene {
   bool full_map;
   bool has_auto_tune;
   bool hide_lead_marker;
+  bool hide_speed;
+  bool hide_speed_ui;
   bool lead_info;
   bool live_valid;
   bool map_open;

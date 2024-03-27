@@ -42,6 +42,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
     {"BigMap", tr("Big Map"), tr("Increase the size of the map in the onroad UI."), ""},
     {"CameraView", tr("Camera View"), tr("Choose your preferred camera view for the onroad UI. This is purely a visual change and doesn't impact how openpilot drives."), ""},
     {"DriverCamera", tr("Driver Camera On Reverse"), tr("Show the driver camera feed when in reverse."), ""},
+    {"HideSpeed", tr("Hide Speed"), tr("Hide the speed indicator in the onroad UI. Additional toggle allows it to be hidden/shown via tapping the speed itself."), ""},
   };
 
   for (const auto &[param, title, desc, icon] : visualToggles) {
@@ -172,6 +173,10 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
       std::vector<QString> mapToggles{"FullMap"};
       std::vector<QString> mapToggleNames{tr("Full Map")};
       toggle = new FrogPilotParamToggleControl(param, title, desc, icon, mapToggles, mapToggleNames);
+    } else if (param == "HideSpeed") {
+      std::vector<QString> hideSpeedToggles{"HideSpeedUI"};
+      std::vector<QString> hideSpeedToggleNames{tr("Control Via UI")};
+      toggle = new FrogPilotParamToggleControl(param, title, desc, icon, hideSpeedToggles, hideSpeedToggleNames);
 
     } else {
       toggle = new ParamControl(param, title, desc, icon, this);
