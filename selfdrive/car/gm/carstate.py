@@ -55,7 +55,7 @@ class CarState(CarStateBase):
     self.loopback_lka_steering_cmd_updated = len(loopback_cp.vl_all["ASCMLKASteeringCmd"]["RollingCounter"]) > 0
     if self.loopback_lka_steering_cmd_updated:
       self.loopback_lka_steering_cmd_ts_nanos = loopback_cp.ts_nanos["ASCMLKASteeringCmd"]["RollingCounter"]
-    if self.CP.networkLocation == NetworkLocation.fwdCamera:
+    if self.CP.networkLocation == NetworkLocation.fwdCamera and not self.CP.flags & GMFlags.NO_CAMERA.value:
       self.pt_lka_steering_cmd_counter = pt_cp.vl["ASCMLKASteeringCmd"]["RollingCounter"]
       self.cam_lka_steering_cmd_counter = cam_cp.vl["ASCMLKASteeringCmd"]["RollingCounter"]
 
@@ -179,7 +179,7 @@ class CarState(CarStateBase):
   @staticmethod
   def get_cam_can_parser(CP):
     messages = []
-    if CP.networkLocation == NetworkLocation.fwdCamera:
+    if CP.networkLocation == NetworkLocation.fwdCamera and not CP.flags & GMFlags.NO_CAMERA.value:
       messages += [
         ("ASCMLKASteeringCmd", 10),
       ]

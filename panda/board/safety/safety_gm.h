@@ -98,6 +98,7 @@ bool gm_pcm_cruise = false;
 bool gm_cc_long = false;
 bool gm_has_acc = true;
 bool gm_pedal_long = false;
+bool gm_skip_relay_check = false;
 bool gm_force_ascm = false;
 
 static void handle_gm_wheel_buttons(const CANPacket_t *to_push) {
@@ -325,6 +326,7 @@ static safety_config gm_init(uint16_t param) {
   gm_cc_long = GET_FLAG(param, GM_PARAM_CC_LONG);
   gm_cam_long = GET_FLAG(param, GM_PARAM_HW_CAM_LONG) && !gm_cc_long;
   gm_pcm_cruise = ((gm_hw == GM_CAM) && (!gm_cam_long || gm_cc_long) && !gm_force_ascm && !gm_pedal_long) || (gm_hw == GM_SDGM);
+  gm_skip_relay_check = GET_FLAG(param, GM_PARAM_NO_CAMERA);
   gm_has_acc = !GET_FLAG(param, GM_PARAM_NO_ACC);
   enable_gas_interceptor = GET_FLAG(param, GM_PARAM_PEDAL_INTERCEPTOR);
 
