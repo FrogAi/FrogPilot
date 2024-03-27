@@ -43,6 +43,8 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
   isCPU = params.getBool("ShowCPU");
   isGPU = params.getBool("ShowGPU");
 
+  isIP = params.getBool("ShowIP");
+
   isMemoryUsage = params.getBool("ShowMemoryUsage");
   isStorageLeft = params.getBool("ShowStorageLeft");
   isStorageUsed = params.getBool("ShowStorageUsed");
@@ -99,10 +101,12 @@ void Sidebar::mousePressEvent(QMouseEvent *event) {
   // Declare the click boxes
   QRect cpuRect = {30, 496, 240, 126};
   QRect memoryRect = {30, 654, 240, 126};
+  QRect networkRect = {30, 196, 240, 126};
   QRect tempRect = {30, 338, 240, 126};
 
   static int showChip = 0;
   static int showMemory = 0;
+  static int showNetwork = 0;
   static int showTemp = 0;
 
   // Swap between the respective metrics upon tap
@@ -126,6 +130,12 @@ void Sidebar::mousePressEvent(QMouseEvent *event) {
     params.putBoolNonBlocking("ShowMemoryUsage", isMemoryUsage);
     params.putBoolNonBlocking("ShowStorageLeft", isStorageLeft);
     params.putBoolNonBlocking("ShowStorageUsed", isStorageUsed);
+
+    update();
+  } else if (networkRect.contains(event->pos())) {
+    showNetwork = (showNetwork + 1) % 2;
+    isIP = (showNetwork == 1);
+    params.putBoolNonBlocking("ShowIP", isIP);
 
     update();
   } else if (tempRect.contains(event->pos())) {
@@ -290,14 +300,24 @@ void Sidebar::paintEvent(QPaintEvent *event) {
   // network
   int x = 58;
   const QColor gray(0x54, 0x54, 0x54);
-  for (int i = 0; i < 5; ++i) {
-    p.setBrush(i < net_strength ? Qt::white : gray);
-    p.drawEllipse(x, 196, 27, 27);
-    x += 37;
+  p.setFont(InterFont(35));
+
+  if (isIP) {
+    p.setPen(QColor(0xff, 0xff, 0xff));
+    p.save();
+    p.setFont(InterFont(30));
+    QRect ipBox = QRect(50, 196, 225, 27);
+    p.drawText(ipBox, Qt::AlignLeft | Qt::AlignVCenter, uiState()->wifi->getIp4Address());
+    p.restore();
+  } else {
+    for (int i = 0; i < 5; ++i) {
+      p.setBrush(i < net_strength ? Qt::white : gray);
+      p.drawEllipse(x, 196, 27, 27);
+      x += 37;
+    }
+    p.setPen(QColor(0xff, 0xff, 0xff));
   }
 
-  p.setFont(InterFont(35));
-  p.setPen(QColor(0xff, 0xff, 0xff));
   const QRect r = QRect(50, 247, 100, 50);
   p.drawText(r, Qt::AlignCenter, net_type);
 
