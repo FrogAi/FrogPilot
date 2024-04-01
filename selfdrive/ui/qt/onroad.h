@@ -119,6 +119,8 @@ private:
   QHBoxLayout *bottom_layout;
 
   bool alwaysOnLateralActive;
+  bool blindSpotLeft;
+  bool blindSpotRight;
   bool experimentalMode;
   bool mapOpen;
   bool showAlwaysOnLateralStatusBar;
