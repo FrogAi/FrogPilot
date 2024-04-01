@@ -10,6 +10,7 @@ from openpilot.selfdrive.car.toyota.values import CAR, STATIC_DSU_MSGS, NO_STOP_
                                         UNSUPPORTED_DSU_CAR
 from opendbc.can.packer import CANPacker
 
+LongCtrlState = car.CarControl.Actuators.LongControlState
 SteerControlType = car.CarParams.SteerControlType
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 
@@ -26,6 +27,11 @@ MAX_USER_TORQUE = 500
 MAX_LTA_ANGLE = 94.9461  # deg
 MAX_LTA_DRIVER_TORQUE_ALLOWANCE = 150  # slightly above steering pressed allows some resistance when changing lanes
 
+# PCM compensatory force calculation threshold
+# a variation in accel command is more pronounced at higher speeds, let compensatory forces ramp to zero before
+# applying when speed is high
+COMPENSATORY_CALCULATION_THRESHOLD_V = [-0.3, -0.25, 0.]  # m/s^2
+COMPENSATORY_CALCULATION_THRESHOLD_BP = [0., 11., 23.]  # m/s
 
 class CarController(CarControllerBase):
   def __init__(self, dbc_name, CP, VM):
@@ -36,6 +42,7 @@ class CarController(CarControllerBase):
     self.last_angle = 0
     self.alert_active = False
     self.last_standstill = False
+    self.prohibit_neg_calculation = True
     self.standstill_req = False
     self.steer_rate_counter = 0
     self.distance_button = 0
@@ -47,11 +54,14 @@ class CarController(CarControllerBase):
     # FrogPilot variables
     params = Params()
 
+    self.cydia_tune = params.get_bool("CydiaTune")
+
   def update(self, CC, CS, now_nanos, frogpilot_variables):
     actuators = CC.actuators
     hud_control = CC.hudControl
     pcm_cancel_cmd = CC.cruiseControl.cancel
     lat_active = CC.latActive and abs(CS.out.steeringTorque) < MAX_USER_TORQUE
+    stopping = actuators.longControlState == LongCtrlState.stopping
 
     # *** control msgs ***
     can_sends = []
@@ -120,10 +130,30 @@ class CarController(CarControllerBase):
       interceptor_gas_cmd = clip(pedal_command, 0., MAX_INTERCEPTOR_GAS)
     else:
       interceptor_gas_cmd = 0.
-    if frogpilot_variables.sport_plus:
-      pcm_accel_cmd = clip(actuators.accel, self.params.ACCEL_MIN, self.params.ACCEL_MAX_PLUS)
+
+    # prohibit negative compensatory calculations when first activating long after accelerator depression or engagement
+    if not CC.longActive:
+      self.prohibit_neg_calculation = True
+
+    comp_thresh = interp(CS.out.vEgo, COMPENSATORY_CALCULATION_THRESHOLD_BP, COMPENSATORY_CALCULATION_THRESHOLD_V)
+    # don't reset until a reasonable compensatory value is reached
+    if CS.pcm_neutral_force > comp_thresh * self.CP.mass:
+      self.prohibit_neg_calculation = False
+
+    # limit minimum to only positive until first positive is reached after engagement, don't calculate when long isn't active
+    if CC.longActive and not self.prohibit_neg_calculation and self.cydia_tune:
+      accel_offset = CS.pcm_neutral_force / self.CP.mass
     else:
-      pcm_accel_cmd = clip(actuators.accel, self.params.ACCEL_MIN, self.params.ACCEL_MAX)
+      accel_offset = 0.
+
+    # only calculate pcm_accel_cmd when long is active to prevent disengagement from accelerator depression
+    if CC.longActive:
+      if frogpilot_variables.sport_plus:
+        pcm_accel_cmd = clip(actuators.accel + accel_offset, self.params.ACCEL_MIN, self.params.ACCEL_MAX_PLUS)
+      else:
+        pcm_accel_cmd = clip(actuators.accel + accel_offset, self.params.ACCEL_MIN, self.params.ACCEL_MAX)
+    else:
+      pcm_accel_cmd = 0.
 
     # TODO: probably can delete this. CS.pcm_acc_status uses a different signal
     # than CS.cruiseState.enabled. confirm they're not meaningfully different
@@ -146,6 +176,8 @@ class CarController(CarControllerBase):
     # we can spam can to cancel the system even if we are using lat only control
     if (self.frame % 3 == 0 and self.CP.openpilotLongitudinalControl) or pcm_cancel_cmd:
       lead = hud_control.leadVisible or CS.out.vEgo < 12.  # at low speed we always assume the lead is present so ACC can be engaged
+      # when stopping, send -2.5 raw acceleration immediately to prevent vehicle from creeping, else send actuators.accel
+      accel_raw = -2.5 if stopping and self.cydia_tune else actuators.accel
 
       # Press distance button until we are at the correct bar length. Only change while enabled to avoid skipping startup popup
       if self.frame % 6 == 0 and self.CP.openpilotLongitudinalControl:
@@ -159,11 +191,11 @@ class CarController(CarControllerBase):
       if pcm_cancel_cmd and self.CP.carFingerprint in UNSUPPORTED_DSU_CAR:
         can_sends.append(toyotacan.create_acc_cancel_command(self.packer))
       elif self.CP.openpilotLongitudinalControl:
-        can_sends.append(toyotacan.create_accel_command(self.packer, pcm_accel_cmd, pcm_cancel_cmd, self.standstill_req, lead, CS.acc_type, fcw_alert,
+        can_sends.append(toyotacan.create_accel_command(self.packer, pcm_accel_cmd, accel_raw, pcm_cancel_cmd, self.standstill_req, lead, CS.acc_type, fcw_alert,
                                                         self.distance_button, frogpilot_variables))
         self.accel = pcm_accel_cmd
       else:
-        can_sends.append(toyotacan.create_accel_command(self.packer, 0, pcm_cancel_cmd, False, lead, CS.acc_type, False, self.distance_button, frogpilot_variables))
+        can_sends.append(toyotacan.create_accel_command(self.packer, 0, 0, pcm_cancel_cmd, False, lead, CS.acc_type, False, self.distance_button, frogpilot_variables))
 
     if self.frame % 2 == 0 and self.CP.enableGasInterceptor and self.CP.openpilotLongitudinalControl:
       # send exactly zero if gas cmd is zero. Interceptor will send the max between read value and gas cmd.
