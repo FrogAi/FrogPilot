@@ -255,5 +255,44 @@ class TestGmSdgmSafety(TestGmSafetyBase):
       self._rx(self._pcm_status_msg(enabled))
       self.assertEqual(enabled, self._tx(self._button_msg(Buttons.CANCEL)))
 
+class TestGmCcLongitudinalSafety(TestGmCameraSafety):
+  TX_MSGS = [[384, 0], [481, 0], [388, 2]]
+  FWD_BLACKLISTED_ADDRS = {2: [384], 0: [388]}  # block LKAS message and PSCMStatus
+  BUTTONS_BUS = 0  # tx only
+
+  MAX_GAS = 3400
+  MAX_REGEN = 1514
+  INACTIVE_REGEN = 1554
+  MAX_BRAKE = 400
+
+  def setUp(self):
+    self.packer = CANPackerPanda("gm_global_a_powertrain_generated")
+    self.packer_chassis = CANPackerPanda("gm_global_a_chassis")
+    self.safety = libpanda_py.libpanda
+    self.safety.set_safety_hooks(Panda.SAFETY_GM, Panda.FLAG_GM_HW_CAM | Panda.FLAG_GM_NO_ACC | Panda.FLAG_GM_CC_LONG)
+    self.safety.init_tests()
+
+  def _pcm_status_msg(self, enable):
+    values = {"CruiseActive": enable}
+    return self.packer.make_can_msg_panda("ECMCruiseControl", 0, values)
+
+  def test_fwd_hook(self):
+    pass
+
+  def test_buttons(self):
+    self.safety.set_controls_allowed(0)
+    for btn in range(8):
+      self.assertFalse(self._tx(self._button_msg(btn)))
+
+    self.safety.set_controls_allowed(1)
+    for btn in range(8):
+      self.assertFalse(self._tx(self._button_msg(btn)))
+
+    for enabled in (True, False):
+      for btn in (Buttons.RES_ACCEL, Buttons.DECEL_SET, Buttons.CANCEL):
+        self._rx(self._pcm_status_msg(enabled))
+        self.assertEqual(enabled, self._tx(self._button_msg(btn)))
+
+
 if __name__ == "__main__":
   unittest.main()
