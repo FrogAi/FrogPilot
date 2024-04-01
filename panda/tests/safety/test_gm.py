@@ -255,6 +255,91 @@ class TestGmSdgmSafety(TestGmSafetyBase):
       self._rx(self._pcm_status_msg(enabled))
       self.assertEqual(enabled, self._tx(self._button_msg(Buttons.CANCEL)))
 
+##### OPGM TESTS #####
+
+def interceptor_msg(gas, addr):
+  to_send = common.make_msg(0, addr, 6)
+  to_send[0].data[0] = (gas & 0xFF00) >> 8
+  to_send[0].data[1] = gas & 0xFF
+  to_send[0].data[2] = (gas & 0xFF00) >> 8
+  to_send[0].data[3] = gas & 0xFF
+  return to_send
+
+
+class TestGmInterceptorSafety(common.GasInterceptorSafetyTest, TestGmCameraSafety):
+  INTERCEPTOR_THRESHOLD = 515
+
+  def setUp(self):
+    self.packer = CANPackerPanda("gm_global_a_powertrain_generated")
+    self.packer_chassis = CANPackerPanda("gm_global_a_chassis")
+    self.safety = libpanda_py.libpanda
+    self.safety.set_safety_hooks(
+      Panda.SAFETY_GM,
+      Panda.FLAG_GM_HW_CAM | Panda.FLAG_GM_NO_ACC | Panda.FLAG_GM_PEDAL_LONG | Panda.FLAG_GM_GAS_INTERCEPTOR)
+    self.safety.init_tests()
+
+  def test_pcm_sets_cruise_engaged(self):
+    for enabled in [True, False]:
+      self._rx(self._pcm_status_msg(enabled))
+      self.assertEqual(enabled, self.safety.get_cruise_engaged_prev())
+
+  def test_no_pcm_enable(self):
+    self._rx(self._interceptor_user_gas(0))
+    self.safety.set_controls_allowed(0)
+    self.assertFalse(self.safety.get_controls_allowed())
+    self._rx(self._pcm_status_msg(True))
+    self.assertFalse(self.safety.get_controls_allowed())
+    self.assertTrue(self.safety.get_cruise_engaged_prev())
+
+  def test_no_response_to_acc_pcm_message(self):
+    self._rx(self._interceptor_user_gas(0))
+    def _acc_pcm_msg(enable):
+      values = {"CruiseState": enable}
+      return self.packer.make_can_msg_panda("AcceleratorPedal2", 0, values)
+    for enable in [True, False]:
+      self.safety.set_controls_allowed(enable)
+      self._rx(_acc_pcm_msg(True))
+      self.assertEqual(enable, self.safety.get_controls_allowed())
+      self._rx(_acc_pcm_msg(False))
+      self.assertEqual(enable, self.safety.get_controls_allowed())
+
+  def test_buttons(self):
+    self._rx(self._interceptor_user_gas(0))
+    # Only CANCEL button is allowed while cruise is enabled
+    self.safety.set_controls_allowed(0)
+    for btn in range(8):
+      self.assertFalse(self._tx(self._button_msg(btn)))
+
+    self.safety.set_controls_allowed(1)
+    for btn in range(8):
+      self.assertFalse(self._tx(self._button_msg(btn)))
+
+    self.safety.set_controls_allowed(1)
+    for enabled in (True, False):
+      self._rx(self._pcm_status_msg(enabled))
+      self.assertEqual(enabled, self._tx(self._button_msg(Buttons.CANCEL)))
+      self.assertTrue(self.safety.get_controls_allowed())
+
+  def test_fwd_hook(self):
+    pass
+
+  def test_disable_control_allowed_from_cruise(self):
+    pass
+
+  def test_enable_control_allowed_from_cruise(self):
+    pass
+
+  def _interceptor_gas_cmd(self, gas):
+    return interceptor_msg(gas, 0x200)
+
+  def _interceptor_user_gas(self, gas):
+    return interceptor_msg(gas, 0x201)
+
+  def _pcm_status_msg(self, enable):
+    values = {"CruiseActive": enable}
+    return self.packer.make_can_msg_panda("ECMCruiseControl", 0, values)
+
+
 class TestGmCcLongitudinalSafety(TestGmCameraSafety):
   TX_MSGS = [[384, 0], [481, 0], [388, 2]]
   FWD_BLACKLISTED_ADDRS = {2: [384], 0: [388]}  # block LKAS message and PSCMStatus
