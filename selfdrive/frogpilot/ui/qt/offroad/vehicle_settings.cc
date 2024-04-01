@@ -123,6 +123,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(SettingsWindow *parent) : FrogPil
         {"StockTune", tr("Stock")},
         {"CydiaTune", tr("Cydia")},
         {"DragonPilotTune", tr("DragonPilot")},
+        {"FrogsGoMooTune", tr("FrogPilot")},
       };
       toggle = new FrogPilotButtonsParamControl(param, title, desc, icon, tuneOptions);
 
