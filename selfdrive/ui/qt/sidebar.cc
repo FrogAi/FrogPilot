@@ -47,6 +47,31 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
   isStorageLeft = params.getBool("ShowStorageLeft");
   isStorageUsed = params.getBool("ShowStorageUsed");
 
+  holidayThemeConfiguration = {
+    {0, {"stock", {QColor(255, 255, 255)}}},
+    {1, {"april_fools", {QColor(255, 165, 0)}}},
+    {2, {"christmas", {QColor(0, 72, 255)}}},
+    {3, {"cinco_de_mayo", {QColor(0, 104, 71)}}},
+    {4, {"easter", {QColor(200, 150, 200)}}},
+    {5, {"fourth_of_july", {QColor(0, 72, 255)}}},
+    {6, {"halloween", {QColor(255, 0, 0)}}},
+    {7, {"new_years_day", {QColor(23, 134, 68)}}},
+    {8, {"st_patricks_day", {QColor(0, 128, 0)}}},
+    {9, {"thanksgiving", {QColor(255, 0, 0)}}},
+    {10, {"valentines_day", {QColor(23, 134, 68)}}},
+    {11, {"world_frog_day", {QColor(23, 134, 68)}}},
+  };
+
+  for (auto &[key, themeData] : holidayThemeConfiguration) {
+    QString &themeName = themeData.first;
+    QString base = themeName == "stock" ? "../assets/images" : QString("../frogpilot/assets/holiday_themes/%1/images").arg(themeName);
+    std::vector<QString> paths = {base + "/button_home.png", base + "/button_flag.png", base + "/button_settings.png"};
+
+    holiday_home_imgs[key] = loadPixmap(paths[0], home_btn.size());
+    holiday_flag_imgs[key] = loadPixmap(paths[1], home_btn.size());
+    holiday_settings_imgs[key] = loadPixmap(paths[2], settings_btn.size(), Qt::IgnoreAspectRatio);
+  }
+
   themeConfiguration = {
     {0, {"stock", {QColor(255, 255, 255)}}},
     {1, {"frog_theme", {QColor(23, 134, 68)}}},
@@ -140,11 +165,17 @@ void Sidebar::updateState(const UIState &s) {
   setProperty("netStrength", strength > 0 ? strength + 1 : 0);
 
   // FrogPilot properties
-  home_img = home_imgs[scene.custom_icons];
-  flag_img = flag_imgs[scene.custom_icons];
-  settings_img = settings_imgs[scene.custom_icons];
-
-  currentColors = themeConfiguration[scene.custom_colors].second;
+  if (scene.current_holiday_theme != 0) {
+    home_img = holiday_home_imgs[scene.current_holiday_theme];
+    flag_img = holiday_flag_imgs[scene.current_holiday_theme];
+    settings_img = holiday_settings_imgs[scene.current_holiday_theme];
+    currentColors = holidayThemeConfiguration[scene.current_holiday_theme].second;
+  } else {
+    home_img = home_imgs[scene.custom_icons];
+    flag_img = flag_imgs[scene.custom_icons];
+    settings_img = settings_imgs[scene.custom_icons];
+    currentColors = themeConfiguration[scene.custom_colors].second;
+  }
 
   auto frogpilotDeviceState = sm["frogpilotDeviceState"].getFrogpilotDeviceState();
 

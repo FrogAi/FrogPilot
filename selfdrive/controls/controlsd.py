@@ -183,6 +183,7 @@ class Controls:
     self.always_on_lateral = self.params.get_bool("AlwaysOnLateral")
     self.always_on_lateral_main = self.always_on_lateral and self.params.get_bool("AlwaysOnLateralMain")
 
+    self.holiday_theme_alerted = False
     self.previously_enabled = False
 
     self.green_light_mac = MovingAverageCalculator()
@@ -907,6 +908,10 @@ class Controls:
       if self.green_light_mac.get_moving_average() >= PROBABILITY:
         self.events.add(EventName.greenLight)
 
+    if self.sm.frame >= 1000 and self.holiday_themes and self.params_memory.get_int("CurrentHolidayTheme") != 0 and not self.holiday_theme_alerted:
+      self.events.add(EventName.holidayActive)
+      self.holiday_theme_alerted = True
+
   def update_frogpilot_variables(self, CS):
     self.driving_gear = CS.gearShifter not in (GearShifter.neutral, GearShifter.park, GearShifter.reverse, GearShifter.unknown)
 
@@ -950,6 +955,7 @@ class Controls:
     custom_sounds = self.params.get_int("CustomSounds") if custom_theme else 0
     frog_sounds = custom_sounds == 1
     self.goat_scream = frog_sounds and self.params.get_bool("GoatScream")
+    self.holiday_themes = custom_theme and self.params.get_bool("HolidayThemes")
 
     device_management = self.params.get_bool("DeviceManagement")
     self.increase_thermal_limits = device_management and self.params.get_bool("IncreaseThermalLimits")

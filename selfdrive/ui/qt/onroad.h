@@ -143,6 +143,7 @@ private:
   int alertSize;
   int cameraView;
   int conditionalStatus;
+  int currentHolidayTheme;
   int customColors;
   int customSignals;
   int obstacleDistance;
@@ -155,6 +156,7 @@ private:
   size_t animationFrameIndex;
 
   std::unordered_map<int, std::tuple<QString, QColor, std::map<double, QBrush>>> themeConfiguration;
+  std::unordered_map<int, std::tuple<QString, QColor, std::map<double, QBrush>>> holidayThemeConfiguration;
   std::vector<QPixmap> signalImgVector;
 
   QTimer *animationTimer;

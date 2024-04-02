@@ -337,6 +337,29 @@ def joystick_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster,
 
 
 # FrogPilot alerts
+def holiday_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int) -> Alert:
+  holiday_messages = {
+    1: ("Happy April Fool's Day! 🤡", "aprilFoolsAlert"),
+    2: ("Merry Christmas! 🎄", "christmasAlert"),
+    3: ("¡Feliz Cinco de Mayo! 🌮", "cincoDeMayoAlert"),
+    4: ("Happy Easter! 🐰", "easterAlert"),
+    5: ("Happy Fourth of July! 🎆", "fourthOfJulyAlert"),
+    6: ("Happy Halloween! 🎃", "halloweenAlert"),
+    7: ("Happy New Year! 🎉", "newYearsDayAlert"),
+    8: ("Happy St. Patrick's Day! 🍀", "stPatricksDayAlert"),
+    9: ("Happy Thanksgiving! 🦃", "thanksgivingAlert"),
+    10: ("Happy Valentine's Day! ❤️", "valentinesDayAlert"),
+    11: ("Happy World Frog Day! 🐸", "worldFrogDayAlert"),
+  }
+
+  theme_id = params_memory.get_int("CurrentHolidayTheme")
+  message, alert_type = holiday_messages.get(theme_id, ("", ""))
+
+  return Alert(
+    message,
+    "",
+    AlertStatus.normal, AlertSize.small,
+    Priority.LOWEST, VisualAlert.none, AudibleAlert.none, 5.)
 
 EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   # ********** events with no alerts **********
@@ -982,6 +1005,10 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "",
       AlertStatus.frogpilot, AlertSize.small,
       Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
+  EventName.holidayActive: {
+    ET.PERMANENT: holiday_alert,
   },
 }
 

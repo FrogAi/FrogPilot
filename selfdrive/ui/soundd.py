@@ -206,8 +206,30 @@ class Soundd:
       3: "stalin_theme"
     }
 
-    theme_name = theme_configuration.get(custom_sounds)
-    self.sound_directory = BASEDIR + ("/selfdrive/frogpilot/assets/custom_themes/" + theme_name + "/sounds/" if custom_sounds != 0 else "/selfdrive/assets/sounds/")
+    holiday_themes = custom_theme and self.params.get_bool("HolidayThemes")
+    current_holiday_theme = self.params_memory.get_int("CurrentHolidayTheme") if holiday_themes else 0
+
+    holiday_theme_configuration = {
+      1: "april_fools",
+      2: "christmas",
+      3: "cinco_de_mayo",
+      4: "easter",
+      5: "fourth_of_july",
+      6: "halloween",
+      7: "new_years_day",
+      8: "st_patricks_day",
+      9: "thanksgiving",
+      10: "valentines_day",
+      11: "world_frog_day",
+    }
+
+    if current_holiday_theme != 0:
+      theme_name = holiday_theme_configuration.get(current_holiday_theme)
+      self.sound_directory = BASEDIR + ("/selfdrive/frogpilot/assets/holiday_themes/" + theme_name + "/sounds/")
+      self.goat_scream = False
+    else:
+      theme_name = theme_configuration.get(custom_sounds)
+      self.sound_directory = BASEDIR + ("/selfdrive/frogpilot/assets/custom_themes/" + theme_name + "/sounds/" if custom_sounds != 0 else "/selfdrive/assets/sounds/")
 
     if self.sound_directory != self.previous_sound_directory:
       self.load_sounds()
