@@ -568,3 +568,4 @@ selfdrive/frogpilot/frogpilot_process.py
 selfdrive/frogpilot/controls/frogpilot_planner.py
 selfdrive/frogpilot/controls/lib/conditional_experimental_mode.py
 selfdrive/frogpilot/controls/lib/frogpilot_functions.py
+selfdrive/frogpilot/fleet_manager/fleet_manager.py
