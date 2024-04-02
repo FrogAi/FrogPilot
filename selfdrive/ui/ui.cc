@@ -376,6 +376,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.hide_max_speed = hide_ui_elements && params.getBool("HideMaxSpeed");
   scene.screen_brightness = screen_management ? params.getInt("ScreenBrightness") : 101;
   scene.screen_brightness_onroad = screen_management ? params.getInt("ScreenBrightnessOnroad") : 101;
+  scene.screen_recorder = screen_management && params.getBool("ScreenRecorder");
   scene.screen_timeout = screen_management ? params.getInt("ScreenTimeout") : 30;
   scene.screen_timeout_onroad = screen_management ? params.getInt("ScreenTimeoutOnroad") : 10;
   scene.standby_mode = screen_management && params.getBool("StandbyMode");
