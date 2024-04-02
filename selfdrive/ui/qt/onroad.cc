@@ -658,6 +658,42 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
     }
   }
 
+  // Paint adjacent lane paths
+  if (scene.adjacent_path && (laneWidthLeft != 0 || laneWidthRight != 0)) {
+    QString unit_d = is_metric ? tr(" meters") : tr(" feet");
+
+    float minLaneWidth = laneDetectionWidth * 0.5;
+    float maxLaneWidth = laneDetectionWidth * 1.5;
+
+    auto paintLane = [=](QPainter &painter, const QPolygonF &lane, float laneWidth, bool blindspot) {
+      QLinearGradient al(0, height(), 0, 0);
+
+      bool redPath = laneWidth < minLaneWidth || laneWidth > maxLaneWidth || blindspot;
+      float hue = redPath ? 0.0 : 120.0 * (laneWidth - minLaneWidth) / (maxLaneWidth - minLaneWidth);
+
+      al.setColorAt(0.0, QColor::fromHslF(hue / 360.0, 0.75, 0.50, 0.6));
+      al.setColorAt(0.5, QColor::fromHslF(hue / 360.0, 0.75, 0.50, 0.4));
+      al.setColorAt(1.0, QColor::fromHslF(hue / 360.0, 0.75, 0.50, 0.2));
+
+      painter.setBrush(al);
+      painter.drawPolygon(lane);
+
+      painter.setFont(InterFont(30, QFont::DemiBold));
+      painter.setPen(Qt::white);
+
+      QRectF boundingRect = lane.boundingRect();
+      if (scene.adjacent_path_metrics) {
+        QString text = blindspot ? tr("Vehicle in blind spot") :
+                       QString("%1%2").arg(laneWidth * distanceConversion, 0, 'f', 2).arg(unit_d);
+        painter.drawText(boundingRect, Qt::AlignCenter, text);
+      }
+      painter.setPen(Qt::NoPen);
+    };
+
+    paintLane(painter, scene.track_adjacent_vertices[4], laneWidthLeft, blindSpotLeft);
+    paintLane(painter, scene.track_adjacent_vertices[5], laneWidthRight, blindSpotRight);
+  }
+
   painter.restore();
 }
 
@@ -909,6 +945,9 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets() {
   customColors = scene.custom_colors;
 
   experimentalMode = scene.experimental_mode;
+
+  laneWidthLeft = scene.lane_width_left;
+  laneWidthRight = scene.lane_width_right;
 
   leadInfo = scene.lead_info;
   obstacleDistance = scene.obstacle_distance;

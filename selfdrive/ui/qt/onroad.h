@@ -134,6 +134,8 @@ private:
   bool turnSignalRight;
 
   float distanceConversion;
+  float laneWidthLeft;
+  float laneWidthRight;
   float speedConversion;
 
   int alertSize;
