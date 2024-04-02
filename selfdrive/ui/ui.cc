@@ -332,6 +332,8 @@ void ui_update_frogpilot_params(UIState *s) {
   bool quality_of_life_controls = params.getBool("QOLControls");
 
   bool quality_of_life_visuals = params.getBool("QOLVisuals");
+  scene.big_map = quality_of_life_visuals && params.getBool("BigMap");
+  scene.full_map = scene.big_map && params.getBool("FullMap");
   scene.camera_view = quality_of_life_visuals ? params.getInt("CameraView") : 0;
   scene.driver_camera = quality_of_life_visuals && params.getBool("DriverCamera");
 }

@@ -38,6 +38,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
     {"UnlimitedLength", tr("'Unlimited' Road UI Length"), tr("Extend the display of the path, lane lines, and road edges out as far as the model can see."), ""},
 
     {"QOLVisuals", tr("Quality of Life"), tr("Miscellaneous quality of life changes to improve your overall openpilot experience."), "../frogpilot/assets/toggle_icons/quality_of_life.png"},
+    {"BigMap", tr("Big Map"), tr("Increase the size of the map in the onroad UI."), ""},
     {"CameraView", tr("Camera View"), tr("Choose your preferred camera view for the onroad UI. This is purely a visual change and doesn't impact how openpilot drives."), ""},
     {"DriverCamera", tr("Driver Camera On Reverse"), tr("Show the driver camera feed when in reverse."), ""},
   };
@@ -166,6 +167,10 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
       std::vector<QString> cameraOptions{tr("Auto"), tr("Driver"), tr("Standard"), tr("Wide")};
       FrogPilotButtonParamControl *preferredCamera = new FrogPilotButtonParamControl(param, title, desc, icon, cameraOptions);
       toggle = preferredCamera;
+    } else if (param == "BigMap") {
+      std::vector<QString> mapToggles{"FullMap"};
+      std::vector<QString> mapToggleNames{tr("Full Map")};
+      toggle = new FrogPilotParamToggleControl(param, title, desc, icon, mapToggles, mapToggleNames);
 
     } else {
       toggle = new ParamControl(param, title, desc, icon, this);

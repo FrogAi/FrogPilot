@@ -175,6 +175,7 @@ typedef struct UIScene {
   bool adjacent_path;
   bool adjacent_path_metrics;
   bool always_on_lateral_active;
+  bool big_map;
   bool blind_spot_left;
   bool blind_spot_path;
   bool blind_spot_right;
@@ -185,6 +186,7 @@ typedef struct UIScene {
   bool experimental_mode;
   bool experimental_mode_via_screen;
   bool fps_counter;
+  bool full_map;
   bool has_auto_tune;
   bool hide_lead_marker;
   bool lead_info;
