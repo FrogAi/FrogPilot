@@ -214,6 +214,7 @@ typedef struct UIScene {
   bool reverse_cruise_ui;
   bool right_hand_drive;
   bool road_name_ui;
+  bool rotating_wheel;
   bool show_aol_status_bar;
   bool show_cem_status_bar;
   bool show_jerk;
@@ -256,6 +257,7 @@ typedef struct UIScene {
   int driver_camera_timer;
   int obstacle_distance;
   int obstacle_distance_stock;
+  int steering_angle_deg;
   int stopped_equivalence;
 
   QPolygonF track_adjacent_vertices[6];
