@@ -8,6 +8,8 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     {"LateralTune", tr("Lateral Tuning"), tr("Modify openpilot's steering behavior."), "../frogpilot/assets/toggle_icons/icon_lateral_tune.png"},
 
     {"LongitudinalTune", tr("Longitudinal Tuning"), tr("Modify openpilot's acceleration and braking behavior."), "../frogpilot/assets/toggle_icons/icon_longitudinal_tune.png"},
+    {"AccelerationProfile", tr("Acceleration Profile"), tr("Change the acceleration rate to be either sporty or eco-friendly."), ""},
+    {"DecelerationProfile", tr("Deceleration Profile"), tr("Change the deceleration rate to be either sporty or eco-friendly."), ""},
 
     {"QOLControls", tr("Quality of Life"), tr("Miscellaneous quality of life changes to improve your overall openpilot experience."), "../frogpilot/assets/toggle_icons/quality_of_life.png"},
   };
@@ -34,6 +36,21 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
         }
       });
       toggle = longitudinalTuneToggle;
+    } else if (param == "AccelerationProfile") {
+      std::vector<QString> profileOptions{tr("Standard"), tr("Eco"), tr("Sport"), tr("Sport+")};
+      FrogPilotButtonParamControl *profileSelection = new FrogPilotButtonParamControl(param, title, desc, icon, profileOptions);
+      toggle = profileSelection;
+
+      QObject::connect(static_cast<FrogPilotButtonParamControl*>(toggle), &FrogPilotButtonParamControl::buttonClicked, [this](int id) {
+        if (id == 3) {
+          FrogPilotConfirmationDialog::toggleAlert(tr("WARNING: This maxes out openpilot's acceleration from 2.0 m/s to 4.0 m/s and may cause oscillations when accelerating!"),
+          tr("I understand the risks."), this);
+        }
+      });
+    } else if (param == "DecelerationProfile") {
+      std::vector<QString> profileOptions{tr("Standard"), tr("Eco"), tr("Sport")};
+      FrogPilotButtonParamControl *profileSelection = new FrogPilotButtonParamControl(param, title, desc, icon, profileOptions);
+      toggle = profileSelection;
 
     } else if (param == "QOLControls") {
       FrogPilotParamManageControl *qolToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);

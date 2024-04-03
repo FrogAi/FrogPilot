@@ -31,6 +31,7 @@ class CarControllerParams:
   # Our controller should still keep the 2 second average above
   # -3.5 m/s^2 as per planner limits
   ACCEL_MAX = 2.  # m/s^2
+  ACCEL_MAX_PLUS = 4.  # m/s^2
   ACCEL_MIN = -4.  # m/s^2
 
   def __init__(self, CP):
@@ -40,6 +41,7 @@ class CarControllerParams:
 
     if CP.carFingerprint in CAMERA_ACC_CAR:
       self.MAX_GAS = 3400
+      self.MAX_GAS_PLUS = 8848
       self.MAX_ACC_REGEN = 1514
       self.INACTIVE_REGEN = 1554
       # Camera ACC vehicles have no regen while enabled.
@@ -48,6 +50,7 @@ class CarControllerParams:
 
     else:
       self.MAX_GAS = 3072  # Safety limit, not ACC max. Stock ACC >4096 from standstill.
+      self.MAX_GAS_PLUS = 8191 # 8292 uses new bit, possible but not tested. Matches Twilsonco tw-main max
       self.MAX_ACC_REGEN = 1404  # Max ACC regen is slightly less than max paddle regen
       self.INACTIVE_REGEN = 1404
       # ICE has much less engine braking force compared to regen in EVs,
@@ -55,7 +58,9 @@ class CarControllerParams:
       max_regen_acceleration = -1. if CP.carFingerprint in EV_CAR else -0.1
 
     self.GAS_LOOKUP_BP = [max_regen_acceleration, 0., self.ACCEL_MAX]
+    self.GAS_LOOKUP_BP_PLUS = [max_regen_acceleration, 0., self.ACCEL_MAX_PLUS]
     self.GAS_LOOKUP_V = [self.MAX_ACC_REGEN, self.ZERO_GAS, self.MAX_GAS]
+    self.GAS_LOOKUP_V_PLUS = [self.MAX_ACC_REGEN, self.ZERO_GAS, self.MAX_GAS_PLUS]
 
     self.BRAKE_LOOKUP_BP = [self.ACCEL_MIN, max_regen_acceleration]
     self.BRAKE_LOOKUP_V = [self.MAX_BRAKE, 0.]

@@ -54,6 +54,8 @@ class CarD:
     if not disengage_on_accelerator:
       self.CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.DISABLE_DISENGAGE_ON_GAS
 
+    self.CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.RAISE_LONGITUDINAL_LIMITS_TO_ISO_MAX
+
     car_recognized = self.CP.carName != 'mock'
     openpilot_enabled_toggle = self.params.get_bool("OpenpilotEnabledToggle")
 

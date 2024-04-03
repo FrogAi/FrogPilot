@@ -26,6 +26,7 @@ EventName = car.CarEvent.EventName
 
 MAX_CTRL_SPEED = (V_CRUISE_MAX + 4) * CV.KPH_TO_MS
 ACCEL_MAX = 2.0
+ACCEL_MAX_PLUS = 4.0
 ACCEL_MIN = -3.5
 FRICTION_THRESHOLD = 0.3
 
@@ -105,8 +106,11 @@ class CarInterfaceBase(ABC):
     lateral_tune = self.params.get_bool("LateralTune")
 
   @staticmethod
-  def get_pid_accel_limits(CP, current_speed, cruise_speed):
-    return ACCEL_MIN, ACCEL_MAX
+  def get_pid_accel_limits(CP, current_speed, cruise_speed, frogpilot_variables):
+    if frogpilot_variables.sport_plus:
+      return ACCEL_MIN, ACCEL_MAX_PLUS
+    else:
+      return ACCEL_MIN, ACCEL_MAX
 
   @classmethod
   def get_non_essential_params(cls, candidate: str):

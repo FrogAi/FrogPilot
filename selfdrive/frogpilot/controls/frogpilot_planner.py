@@ -15,6 +15,30 @@ from openpilot.system.version import get_short_branch
 
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import CITY_SPEED_LIMIT, CRUISING_SPEED, calculate_lane_width, calculate_road_curvature
 
+# Acceleration profiles - Credit goes to the DragonPilot team!
+                 # MPH = [0., 18,  36,  63,  94]
+A_CRUISE_MIN_BP_CUSTOM = [0., 8., 16., 28., 42.]
+                 # MPH = [0., 6.71, 13.4, 17.9, 24.6, 33.6, 44.7, 55.9, 67.1, 123]
+A_CRUISE_MAX_BP_CUSTOM = [0.,    3,   6.,   8.,  11.,  15.,  20.,  25.,  30., 55.]
+
+A_CRUISE_MIN_VALS_ECO = [-0.001, -0.010, -0.28, -0.56, -0.56]
+A_CRUISE_MAX_VALS_ECO = [3.5, 3.2, 2.3, 2.0, 1.15, .80, .58, .36, .30, .091]
+
+A_CRUISE_MIN_VALS_SPORT = [-0.50, -0.52, -0.55, -0.57, -0.60]
+A_CRUISE_MAX_VALS_SPORT = [3.5, 3.5, 3.3, 2.8, 1.5, 1.0, .75, .6, .38, .2]
+
+def get_min_accel_eco(v_ego):
+  return interp(v_ego, A_CRUISE_MIN_BP_CUSTOM, A_CRUISE_MIN_VALS_ECO)
+
+def get_max_accel_eco(v_ego):
+  return interp(v_ego, A_CRUISE_MAX_BP_CUSTOM, A_CRUISE_MAX_VALS_ECO)
+
+def get_min_accel_sport(v_ego):
+  return interp(v_ego, A_CRUISE_MIN_BP_CUSTOM, A_CRUISE_MIN_VALS_SPORT)
+
+def get_max_accel_sport(v_ego):
+  return interp(v_ego, A_CRUISE_MAX_BP_CUSTOM, A_CRUISE_MAX_VALS_SPORT)
+
 class FrogPilotPlanner:
   def __init__(self, CP):
     self.CP = CP
@@ -32,6 +56,24 @@ class FrogPilotPlanner:
     v_cruise = v_cruise_kph * CV.KPH_TO_MS
     v_ego = max(carState.vEgo, 0)
     v_lead = radarState.leadOne.vLead
+
+    if self.acceleration_profile == 1:
+      self.max_accel = get_max_accel_eco(v_ego)
+    elif self.acceleration_profile in (2, 3):
+      self.max_accel = get_max_accel_sport(v_ego)
+    elif not controlsState.experimentalMode:
+      self.max_accel = get_max_accel(v_ego)
+    else:
+      self.max_accel = ACCEL_MAX
+
+    if self.deceleration_profile == 1:
+      self.min_accel = get_min_accel_eco(v_ego)
+    elif self.deceleration_profile == 2:
+      self.min_accel = get_min_accel_sport(v_ego)
+    elif not controlsState.experimentalMode:
+      self.min_accel = A_CRUISE_MIN
+    else:
+      self.min_accel = ACCEL_MIN
 
     road_curvature = calculate_road_curvature(modelData, v_ego)
 
@@ -69,6 +111,8 @@ class FrogPilotPlanner:
     frogpilotPlan = frogpilot_plan_send.frogpilotPlan
 
     frogpilotPlan.jerk = float(self.jerk)
+    frogpilotPlan.minAcceleration = self.min_accel
+    frogpilotPlan.maxAcceleration = self.max_accel
     frogpilotPlan.tFollow = float(self.t_follow)
     frogpilotPlan.vCruise = float(self.v_cruise)
 
@@ -82,3 +126,5 @@ class FrogPilotPlanner:
     custom_ui = self.params.get_bool("CustomUI")
 
     longitudinal_tune = self.CP.openpilotLongitudinalControl and self.params.get_bool("LongitudinalTune")
+    self.acceleration_profile = self.params.get_int("AccelerationProfile") if longitudinal_tune else 0
+    self.deceleration_profile = self.params.get_int("DecelerationProfile") if longitudinal_tune else 0

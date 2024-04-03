@@ -594,7 +594,7 @@ class Controls:
 
     if not self.joystick_mode:
       # accel PID loop
-      pid_accel_limits = self.CI.get_pid_accel_limits(self.CP, CS.vEgo, self.v_cruise_helper.v_cruise_kph * CV.KPH_TO_MS)
+      pid_accel_limits = self.CI.get_pid_accel_limits(self.CP, CS.vEgo, self.v_cruise_helper.v_cruise_kph * CV.KPH_TO_MS, self.frogpilot_variables)
       t_since_plan = (self.sm.frame - self.sm.recv_frame['longitudinalPlan']) * DT_CTRL
       actuators.accel = self.LoC.update(CC.longActive, CS, long_plan, pid_accel_limits, t_since_plan)
 
@@ -897,6 +897,7 @@ class Controls:
     lateral_tune = self.params.get_bool("LateralTune")
 
     longitudinal_tune = self.CP.openpilotLongitudinalControl and self.params.get_bool("LongitudinalTune")
+    self.frogpilot_variables.sport_plus = longitudinal_tune and self.params.get_int("AccelerationProfile") == 3
 
     quality_of_life = self.params.get_bool("QOLControls")
 

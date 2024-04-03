@@ -210,9 +210,11 @@ std::unordered_map<std::string, uint32_t> keys = {
 
     // FrogPilot parameters
     {"AccelerationPath", PERSISTENT},
+    {"AccelerationProfile", PERSISTENT},
     {"CustomAlerts", PERSISTENT},
     {"CustomPaths", PERSISTENT},
     {"CustomUI", PERSISTENT},
+    {"DecelerationProfile", PERSISTENT},
     {"FrogPilotTogglesUpdated", PERSISTENT},
     {"FrogsGoMoo", PERSISTENT},
     {"LateralTune", PERSISTENT},
