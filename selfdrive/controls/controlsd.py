@@ -186,6 +186,8 @@ class Controls:
     self.holiday_theme_alerted = False
     self.previously_enabled = False
 
+    self.previous_lead_distance = 0
+
     self.green_light_mac = MovingAverageCalculator()
 
     self.update_frogpilot_params()
@@ -912,6 +914,20 @@ class Controls:
       self.events.add(EventName.holidayActive)
       self.holiday_theme_alerted = True
 
+    if self.lead_departing_alert and self.sm.frame % 50 == 0:
+      lead = self.sm['radarState'].leadOne
+      lead_distance = lead.dRel
+
+      lead_departing = lead_distance - self.previous_lead_distance > 0.5 and self.previous_lead_distance != 0 and CS.standstill
+      self.previous_lead_distance = lead_distance
+
+      lead_departing &= not CS.gasPressed
+      lead_departing &= lead.vLead > 1
+      lead_departing &= self.driving_gear
+
+      if lead_departing:
+        self.events.add(EventName.leadDeparting)
+
   def update_frogpilot_variables(self, CS):
     self.driving_gear = CS.gearShifter not in (GearShifter.neutral, GearShifter.park, GearShifter.reverse, GearShifter.unknown)
 
@@ -950,6 +966,7 @@ class Controls:
 
     custom_alerts = self.params.get_bool("CustomAlerts")
     self.green_light_alert = custom_alerts and self.params.get_bool("GreenLightAlert")
+    self.lead_departing_alert = custom_alerts and self.params.get_bool("LeadDepartingAlert")
 
     custom_theme = self.params.get_bool("CustomTheme")
     custom_sounds = self.params.get_int("CustomSounds") if custom_theme else 0
