@@ -105,9 +105,12 @@ private:
   Params paramsMemory{"/dev/shm/params"};
   UIScene &scene;
 
+  QMap<int, QPixmap> wheelImages;
+
   bool rotatingWheel;
 
   int steeringAngleDeg;
+  int wheelIcon;
   int y_offset;
 };
 
