@@ -29,7 +29,7 @@ private:
   QString carMake;
   QStringList models;
 
-  std::set<QString> gmKeys = {"LongPitch"};
+  std::set<QString> gmKeys = {"GasRegenCmd", "LongPitch"};
   std::set<QString> subaruKeys = {};
   std::set<QString> toyotaKeys = {"LongitudinalTune"};
 
