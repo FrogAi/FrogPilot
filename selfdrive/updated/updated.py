@@ -237,6 +237,7 @@ class Updater:
     self._has_internet: bool = False
 
     # FrogPilot variables
+    self.offline_mode = self.params.get_bool("DeviceManagement") and self.params.get_bool("OfflineMode")
 
   @property
   def has_internet(self) -> bool:
@@ -326,6 +327,8 @@ class Updater:
       set_offroad_alert(alert, False)
 
     now = datetime.datetime.utcnow()
+    if self.offline_mode:
+      last_update = now
     dt = now - last_update
     if failed_count > 15 and exception is not None and self.has_internet:
       if is_tested_branch():

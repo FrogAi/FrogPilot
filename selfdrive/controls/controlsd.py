@@ -245,7 +245,8 @@ class Controls:
 
     # Create events for temperature, disk space, and memory
     if self.sm['deviceState'].thermalStatus >= ThermalStatus.red:
-      self.events.add(EventName.overheat)
+      if not self.increase_thermal_limits or self.sm['deviceState'].thermalStatus == ThermalStatus.danger:
+        self.events.add(EventName.overheat)
     if self.sm['deviceState'].freeSpacePercent < 7 and not SIMULATION:
       # under 7% of space free no enable allowed
       self.events.add(EventName.outOfSpace)
@@ -921,6 +922,9 @@ class Controls:
     custom_sounds = self.params.get_int("CustomSounds") if custom_theme else 0
     frog_sounds = custom_sounds == 1
     self.goat_scream = frog_sounds and self.params.get_bool("GoatScream")
+
+    device_management = self.params.get_bool("DeviceManagement")
+    self.increase_thermal_limits = device_management and self.params.get_bool("IncreaseThermalLimits")
 
     lateral_tune = self.params.get_bool("LateralTune")
 

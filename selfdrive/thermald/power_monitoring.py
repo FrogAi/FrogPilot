@@ -37,6 +37,11 @@ class PowerMonitoring:
     self.car_battery_capacity_uWh = max((CAR_BATTERY_CAPACITY_uWh / 10), int(car_battery_capacity_uWh))
 
     # FrogPilot variables
+    device_management = self.params.get_bool("DeviceManagement")
+    device_shutdown_setting = self.params.get_int("DeviceShutdown") if device_management else 33
+    # If the toggle is set for < 1 hour, configure by 15 minute increments
+    self.device_shutdown_time = (device_shutdown_setting - 3) * 3600 if device_shutdown_setting >= 4 else device_shutdown_setting * (60 * 15)
+    self.low_voltage_shutdown = self.params.get_float("LowVoltageShutdown") if device_management else VBATT_PAUSE_CHARGING
 
   # Calculation tick
   def calculate(self, voltage: int | None, ignition: bool):
@@ -116,9 +121,9 @@ class PowerMonitoring:
     now = time.monotonic()
     should_shutdown = False
     offroad_time = (now - offroad_timestamp)
-    low_voltage_shutdown = (self.car_voltage_mV < (VBATT_PAUSE_CHARGING * 1e3) and
+    low_voltage_shutdown = (self.car_voltage_mV < (self.low_voltage_shutdown * 1e3) and
                             offroad_time > VOLTAGE_SHUTDOWN_MIN_OFFROAD_TIME_S)
-    should_shutdown |= offroad_time > MAX_TIME_OFFROAD_S
+    should_shutdown |= offroad_time > self.device_shutdown_time
     should_shutdown |= low_voltage_shutdown
     should_shutdown |= (self.car_battery_capacity_uWh <= 0)
     should_shutdown &= not ignition

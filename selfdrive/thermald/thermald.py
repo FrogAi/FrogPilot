@@ -204,6 +204,10 @@ def thermald_thread(end_event, hw_queue) -> None:
 
   fan_controller = None
 
+  # FrogPilot variables
+  device_management = params.get_bool("DeviceManagement")
+  offline_mode = device_management and params.get_bool("OfflineMode")
+
   while not end_event.is_set():
     sm.update(PANDA_STATES_TIMEOUT)
 
@@ -296,7 +300,7 @@ def thermald_thread(end_event, hw_queue) -> None:
 
     # **** starting logic ****
 
-    startup_conditions["up_to_date"] = params.get("Offroad_ConnectivityNeeded") is None or params.get_bool("DisableUpdates") or params.get_bool("SnoozeUpdate")
+    startup_conditions["up_to_date"] = params.get("Offroad_ConnectivityNeeded") is None or params.get_bool("DisableUpdates") or params.get_bool("SnoozeUpdate") or offline_mode
     startup_conditions["not_uninstalling"] = not params.get_bool("DoUninstall")
     startup_conditions["accepted_terms"] = params.get("HasAcceptedTerms") == terms_version
 
