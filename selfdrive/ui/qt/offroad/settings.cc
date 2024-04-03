@@ -154,6 +154,9 @@ void TogglesPanel::showEvent(QShowEvent *event) {
 }
 
 void TogglesPanel::updateToggles() {
+  auto disengage_on_accelerator_toggle = toggles["DisengageOnAccelerator"];
+  disengage_on_accelerator_toggle->setVisible(!params.getBool("AlwaysOnLateral"));
+
   auto experimental_mode_toggle = toggles["ExperimentalMode"];
   auto op_long_toggle = toggles["ExperimentalLongitudinalEnabled"];
   const QString e2e_description = QString("%1<br>"
