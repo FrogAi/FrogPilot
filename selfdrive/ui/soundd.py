@@ -1,5 +1,6 @@
 import math
 import numpy as np
+import os
 import time
 import wave
 
@@ -40,6 +41,15 @@ sound_list: dict[int, tuple[str, int | None, float]] = {
   AudibleAlert.warningSoft: ("warning_soft.wav", None, MAX_VOLUME),
   AudibleAlert.warningImmediate: ("warning_immediate.wav", None, MAX_VOLUME),
 
+  # Random Events
+  AudibleAlert.angry: ("angry.wav", 1, MAX_VOLUME),
+  AudibleAlert.doc: ("doc.wav", 1, MAX_VOLUME),
+  AudibleAlert.fart: ("fart.wav", 1, MAX_VOLUME),
+  AudibleAlert.firefox: ("firefox.wav", 1, MAX_VOLUME),
+  AudibleAlert.nessie: ("nessie.wav", 1, MAX_VOLUME),
+  AudibleAlert.noice: ("noice.wav", 1, MAX_VOLUME),
+  AudibleAlert.uwu: ("uwu.wav", 1, MAX_VOLUME),
+
   # Other
   AudibleAlert.goat: ("goat.wav", None, MAX_VOLUME),
 }
@@ -61,6 +71,17 @@ class Soundd:
     self.params_memory = Params("/dev/shm/params")
 
     self.previous_sound_directory = None
+    self.random_events_directory = BASEDIR + "/selfdrive/frogpilot/assets/random_events/sounds/"
+
+    self.random_events_map = {
+      AudibleAlert.angry: MAX_VOLUME,
+      AudibleAlert.doc: MAX_VOLUME,
+      AudibleAlert.fart: MAX_VOLUME,
+      AudibleAlert.firefox: MAX_VOLUME,
+      AudibleAlert.nessie: MAX_VOLUME,
+      AudibleAlert.noice: MAX_VOLUME,
+      AudibleAlert.uwu: MAX_VOLUME,
+    }
 
     self.update_frogpilot_params()
 
@@ -82,10 +103,13 @@ class Soundd:
 
       filename, play_count, volume = sound_list[sound]
 
-      try:
-        wavefile = wave.open(self.sound_directory + filename, 'r')
-      except FileNotFoundError:
-        wavefile = wave.open(BASEDIR + "/selfdrive/assets/sounds/" + filename, 'r')
+      if sound in self.random_events_map:
+        wavefile = wave.open(self.random_events_directory + filename, 'r')
+      else:
+        try:
+          wavefile = wave.open(self.sound_directory + filename, 'r')
+        except FileNotFoundError:
+          wavefile = wave.open(BASEDIR + "/selfdrive/assets/sounds/" + filename, 'r')
 
       assert wavefile.getnchannels() == 1
       assert wavefile.getsampwidth() == 2
@@ -167,6 +191,9 @@ class Soundd:
 
         elif self.alert_volume_control and self.current_alert in self.volume_map:
           self.current_volume = self.volume_map[self.current_alert] / 100.0
+
+        elif self.current_alert in self.random_events_map:
+          self.current_volume = self.random_events_map[self.current_alert]
 
         self.get_audible_alert(sm)
 

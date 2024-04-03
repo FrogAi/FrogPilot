@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include <QMovie>
+#include <QLabel>
 #include <QPushButton>
 #include <QStackedLayout>
 #include <QWidget>
@@ -106,11 +108,20 @@ private:
   UIScene &scene;
 
   QMap<int, QPixmap> wheelImages;
+  QMap<int, QMovie*> wheelImagesGif;
 
+  QMovie engage_gif;
+  QLabel *gifLabel;
+
+  bool docRandomEventTriggered;
+  bool firefoxRandomEventTriggered;
   bool rotatingWheel;
+  bool treeFiddyRandomEventTriggered;
+  bool weebRandomEventTriggered;
 
   int steeringAngleDeg;
   int wheelIcon;
+  int wheelIconGif;
   int y_offset;
 };
 
