@@ -200,11 +200,23 @@ def get_car_interface(CP):
 
 
 def get_car(params, logcan, sendcan, disable_openpilot_long, experimental_long_allowed, num_pandas=1):
+  car_brand = params.get("CarMake", encoding='utf-8')
+  car_model = params.get("CarModel", encoding='utf-8')
+
+  force_fingerprint = params.get_bool("ForceFingerprint")
+
   candidate, fingerprints, vin, car_fw, source, exact_match = fingerprint(logcan, sendcan, num_pandas)
 
-  if candidate is None:
-    cloudlog.event("car doesn't match any fingerprints", fingerprints=repr(fingerprints), error=True)
-    candidate = "mock"
+  if candidate is None or force_fingerprint:
+    if car_model is not None:
+      candidate = car_model
+    else:
+      cloudlog.event("car doesn't match any fingerprints", fingerprints=repr(fingerprints), error=True)
+      candidate = "mock"
+
+  if car_model is None and candidate != "mock":
+    params.put("CarMake", candidate.split(' ')[0].title())
+    params.put("CarModel", candidate)
 
   if get_short_branch() == "FrogPilot-Development" and not Params("/persist/params").get_bool("FrogsGoMoo"):
     cloudlog.event("Blocked user from using the 'FrogPilot-Development' branch", fingerprints=repr(fingerprints), error=True)
