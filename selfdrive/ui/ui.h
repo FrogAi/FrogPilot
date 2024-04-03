@@ -177,18 +177,26 @@ typedef struct UIScene {
   bool blind_spot_path;
   bool blind_spot_right;
   bool conditional_experimental;
+  bool dynamic_path_width;
   bool enabled;
   bool experimental_mode;
+  bool hide_lead_marker;
   bool map_open;
+  bool model_ui;
   bool right_hand_drive;
   bool show_aol_status_bar;
   bool show_cem_status_bar;
   bool turn_signal_left;
   bool turn_signal_right;
+  bool unlimited_road_ui_length;
 
   float acceleration;
+  float lane_line_width;
   float lane_width_left;
   float lane_width_right;
+  float path_edge_width;
+  float path_width;
+  float road_edge_width;
 
   int alert_size;
   int camera_view;
@@ -200,6 +208,7 @@ typedef struct UIScene {
   int custom_signals;
 
   QPolygonF track_adjacent_vertices[6];
+  QPolygonF track_edge_vertices;
 
 } UIScene;
 

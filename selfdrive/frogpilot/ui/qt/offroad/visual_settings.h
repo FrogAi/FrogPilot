@@ -26,7 +26,7 @@ private:
   std::set<QString> customAlertsKeys = {};
   std::set<QString> customOnroadUIKeys = {"CustomPaths"};
   std::set<QString> customThemeKeys = {"CustomColors", "CustomIcons", "CustomSignals", "CustomSounds"};
-  std::set<QString> modelUIKeys = {};
+  std::set<QString> modelUIKeys = {"DynamicPathWidth", "HideLeadMarker", "LaneLinesWidth", "PathEdgeWidth", "PathWidth", "RoadEdgesWidth", "UnlimitedLength"};
   std::set<QString> qolKeys = {"CameraView"};
   std::set<QString> screenKeys = {};
 
