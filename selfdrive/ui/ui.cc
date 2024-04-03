@@ -318,7 +318,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.fps_counter = custom_onroad_ui && params.getBool("FPSCounter");
   scene.lead_info = scene.longitudinal_control && custom_onroad_ui && params.getBool("LeadInfo");
   scene.show_jerk = scene.longitudinal_control && developer_ui && params.getBool("ShowJerk");
-  scene.show_tuning = scene.has_auto_tune && developer_ui && params.getBool("ShowTuning");
+  scene.show_tuning = scene.has_auto_tune && developer_ui && !(params.getBool("LateralTune") && params.getBool("NNFF")) && params.getBool("ShowTuning");
   scene.use_si = (scene.lead_info || developer_ui) && params.getBool("UseSI");
 
   bool custom_theme = params.getBool("CustomTheme");

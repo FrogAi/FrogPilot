@@ -1,4 +1,46 @@
+#include <filesystem>
+#include <iostream>
+
 #include "selfdrive/frogpilot/ui/qt/offroad/control_settings.h"
+
+namespace fs = std::filesystem;
+
+bool checkCommaNNFFSupport(const std::string &carFingerprint) {
+  const std::string filePath = "../car/torque_data/neural_ff_weights.json";
+
+  if (!std::filesystem::exists(filePath)) {
+    return false;
+  }
+
+  std::ifstream file(filePath);
+  std::string line;
+  while (std::getline(file, line)) {
+    if (line.find(carFingerprint) != std::string::npos) {
+      std::cout << "comma's NNFF supports fingerprint: " << carFingerprint << std::endl;
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool checkNNFFLogFileExists(const std::string &carFingerprint) {
+  const fs::path dirPath("../car/torque_data/lat_models");
+
+  if (!fs::exists(dirPath)) {
+    std::cerr << "Directory does not exist: " << fs::absolute(dirPath) << std::endl;
+    return false;
+  }
+
+  for (const auto &entry : fs::directory_iterator(dirPath)) {
+    if (entry.path().filename().string().find(carFingerprint) == 0) {
+      std::cout << "NNFF supports fingerprint: " << entry.path().filename() << std::endl;
+      return true;
+    }
+  }
+
+  return false;
+}
 
 FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPilotListWidget(parent) {
   std::string branch = params.get("GitBranch");
@@ -36,6 +78,8 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
 
     {"LateralTune", tr("Lateral Tuning"), tr("Modify openpilot's steering behavior."), "../frogpilot/assets/toggle_icons/icon_lateral_tune.png"},
     {"ForceAutoTune", tr("Force Auto Tune"), tr("Forces comma's auto lateral tuning for unsupported vehicles."), ""},
+    {"NNFF", tr("NNFF"), tr("Use Twilsonco's Neural Network Feedforward for enhanced precision in lateral control."), ""},
+    {"NNFFLite", tr("NNFF-Lite"), tr("Use Twilsonco's Neural Network Feedforward for enhanced precision in lateral control for cars without available NNFF logs."), ""},
 
     {"LongitudinalTune", tr("Longitudinal Tuning"), tr("Modify openpilot's acceleration and braking behavior."), "../frogpilot/assets/toggle_icons/icon_longitudinal_tune.png"},
     {"AccelerationProfile", tr("Acceleration Profile"), tr("Change the acceleration rate to be either sporty or eco-friendly."), ""},
@@ -197,8 +241,17 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
         for (auto &[key, toggle] : toggles) {
           std::set<QString> modifiedLateralTuneKeys = lateralTuneKeys;
 
-          if (hasAutoTune || params.getBool("NNFF")) {
+          if (hasAutoTune || params.getBool("LateralTune") && params.getBool("NNFF")) {
             modifiedLateralTuneKeys.erase("ForceAutoTune");
+          }
+
+          if (hasCommaNNFFSupport) {
+            modifiedLateralTuneKeys.erase("NNFF");
+            modifiedLateralTuneKeys.erase("NNFFLite");
+          } else if (hasNNFFLog) {
+            modifiedLateralTuneKeys.erase("NNFFLite");
+          } else {
+            modifiedLateralTuneKeys.erase("NNFF");
           }
 
           toggle->setVisible(modifiedLateralTuneKeys.find(key.c_str()) != modifiedLateralTuneKeys.end());
@@ -525,7 +578,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     }
   });
 
-  std::set<QString> rebootKeys = {"AlwaysOnLateral", "AlwaysOnLateralMain", "HigherBitrate"};
+  std::set<QString> rebootKeys = {"AlwaysOnLateral", "AlwaysOnLateralMain", "HigherBitrate", "NNFF", "NNFFLite"};
   for (const QString &key : rebootKeys) {
     QObject::connect(toggles[key.toStdString().c_str()], &ToggleControl::toggleFlipped, [this]() {
       if (started) {
@@ -579,6 +632,8 @@ void FrogPilotControlsPanel::updateCarToggles() {
 
     hasAutoTune = (carName == "hyundai" || carName == "toyota") && CP.getLateralTuning().which() == cereal::CarParams::LateralTuning::TORQUE;
     uiState()->scene.has_auto_tune = hasAutoTune;
+    hasCommaNNFFSupport = checkCommaNNFFSupport(carFingerprint);
+    hasNNFFLog = checkNNFFLogFileExists(carFingerprint);
     hasOpenpilotLongitudinal = CP.getOpenpilotLongitudinalControl() && !params.getBool("DisableOpenpilotLongitudinal");
     hasPCMCruise = CP.getPcmCruise();
     isToyota = carName == "toyota";
