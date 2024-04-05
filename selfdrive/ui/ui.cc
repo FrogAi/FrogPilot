@@ -226,6 +226,7 @@ static void update_state(UIState *s) {
     scene.acceleration = carState.getAEgo();
     scene.blind_spot_left = carState.getLeftBlindspot();
     scene.blind_spot_right = carState.getRightBlindspot();
+    scene.reverse = carState.getGearShifter() == cereal::CarState::GearShifter::REVERSE;
     scene.turn_signal_left = carState.getLeftBlinker();
     scene.turn_signal_right = carState.getRightBlinker();
   }
@@ -329,6 +330,7 @@ void ui_update_frogpilot_params(UIState *s) {
 
   bool quality_of_life_visuals = params.getBool("QOLVisuals");
   scene.camera_view = quality_of_life_visuals ? params.getInt("CameraView") : 0;
+  scene.driver_camera = quality_of_life_visuals && params.getBool("DriverCamera");
 }
 
 void UIState::updateStatus() {
@@ -398,6 +400,7 @@ void UIState::update() {
 
   // FrogPilot live variables that need to be constantly checked
   scene.conditional_status = scene.conditional_experimental ? paramsMemory.getInt("CEStatus") : 0;
+  scene.driver_camera_timer = (scene.driver_camera && scene.reverse) ? scene.driver_camera_timer + 1 : 0;
 }
 
 void UIState::setPrimeType(PrimeType type) {
