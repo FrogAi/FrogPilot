@@ -105,6 +105,9 @@ class CarInterfaceBase(ABC):
 
     lateral_tune = self.params.get_bool("LateralTune")
 
+    self.belowSteerSpeed_shown = False
+    self.disable_belowSteerSpeed = False
+
   @staticmethod
   def get_pid_accel_limits(CP, current_speed, cruise_speed, frogpilot_variables):
     if frogpilot_variables.sport_plus:
