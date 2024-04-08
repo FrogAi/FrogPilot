@@ -322,8 +322,13 @@ class CarInterface(CarInterfaceBase):
       events.add(EventName.belowEngageSpeed)
     if ret.cruiseState.standstill and not self.CP.autoResumeSng:
       events.add(EventName.resumeRequired)
-    if ret.vEgo < self.CP.minSteerSpeed:
+    if ret.vEgo < self.CP.minSteerSpeed and not self.disable_belowSteerSpeed:
       events.add(EventName.belowSteerSpeed)
+      self.belowSteerSpeed_shown = True
+
+    # Disable the "belowSteerSpeed" event after it's been shown once to not annoy the driver
+    if self.belowSteerSpeed_shown and ret.vEgo >= self.CP.minSteerSpeed:
+      self.disable_belowSteerSpeed = True
 
     if (self.CP.flags & GMFlags.CC_LONG.value) and ret.vEgo < self.CP.minEnableSpeed and ret.cruiseState.enabled:
       events.add(EventName.speedTooLow)

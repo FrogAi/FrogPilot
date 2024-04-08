@@ -102,6 +102,9 @@ class CarInterfaceBase(ABC):
     self.params = Params()
     self.params_memory = Params("/dev/shm/params")
 
+    self.belowSteerSpeed_shown = False
+    self.disable_belowSteerSpeed = False
+
   @staticmethod
   def get_pid_accel_limits(CP, current_speed, cruise_speed):
     return ACCEL_MIN, ACCEL_MAX
