@@ -109,7 +109,8 @@ class FrogPilotPlanner:
       self.cem.update(carState, controlsState.enabled, frogpilotNavigation, modelData, radarState, road_curvature, self.t_follow, v_ego)
 
   def update_follow_values(self, jerk, radarState, t_follow, v_ego, v_lead):
-    lead_distance = radarState.leadOne.dRel
+    stopping_distance = STOP_DISTANCE + max(self.increased_stopping_distance - v_ego, 0)
+    lead_distance = self.lead_one.dRel + stopping_distance
 
     # Offset by FrogAi for FrogPilot for a more natural takeoff with a lead
     if self.aggressive_acceleration and not self.release:
@@ -192,3 +193,4 @@ class FrogPilotPlanner:
     self.acceleration_profile = self.params.get_int("AccelerationProfile") if longitudinal_tune else 0
     self.deceleration_profile = self.params.get_int("DecelerationProfile") if longitudinal_tune else 0
     self.aggressive_acceleration = longitudinal_tune and self.params.get_bool("AggressiveAcceleration")
+    self.increased_stopping_distance = self.params.get_int("StoppingDistance") * (1 if self.is_metric else CV.FOOT_TO_METER) if longitudinal_tune else 0

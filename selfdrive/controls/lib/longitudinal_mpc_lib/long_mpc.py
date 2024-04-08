@@ -327,10 +327,12 @@ class LongitudinalMpc:
     lead_xv = np.column_stack((x_lead_traj, v_lead_traj))
     return lead_xv
 
-  def process_lead(self, lead):
+  def process_lead(self, lead, increased_stopping_distance=0):
     v_ego = self.x0[1]
+    increased_stopping_distance = max(increased_stopping_distance - v_ego, 0)
+
     if lead is not None and lead.status:
-      x_lead = lead.dRel
+      x_lead = lead.dRel - increased_stopping_distance
       v_lead = lead.vLead
       a_lead = lead.aLeadK
       a_lead_tau = lead.aLeadTau
@@ -360,7 +362,7 @@ class LongitudinalMpc:
     v_ego = self.x0[1]
     self.status = radarstate.leadOne.status or radarstate.leadTwo.status
 
-    lead_xv_0 = self.process_lead(radarstate.leadOne)
+    lead_xv_0 = self.process_lead(radarstate.leadOne, self.increased_stopping_distance)
     lead_xv_1 = self.process_lead(radarstate.leadTwo)
 
     # To estimate a safe distance from a moving lead, we calculate how much stopping
@@ -486,6 +488,7 @@ class LongitudinalMpc:
     is_metric = params.get_bool("IsMetric")
 
     longitudinal_tune = params.get_bool("LongitudinalTune")
+    self.increased_stopping_distance = params.get_int("StoppingDistance") * (1 if is_metric else CV.FOOT_TO_METER) if longitudinal_tune else 0
 
 if __name__ == "__main__":
   ocp = gen_long_ocp()
