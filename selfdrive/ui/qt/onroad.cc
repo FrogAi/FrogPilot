@@ -509,7 +509,8 @@ void ExperimentalButton::paintEvent(QPaintEvent *event) {
     (scene.always_on_lateral_active ? QColor(10, 186, 181, 255) :
     (scene.conditional_status == 1 || scene.conditional_status == 3 || scene.conditional_status == 5 ? QColor(255, 246, 0, 255) :
     (experimental_mode ? QColor(218, 111, 37, 241) :
-    (scene.navigate_on_openpilot ? QColor(49, 161, 238, 255) : QColor(0, 0, 0, 166))))) :
+    (scene.traffic_mode_active ? QColor(201, 34, 49, 255) :
+    (scene.navigate_on_openpilot ? QColor(49, 161, 238, 255) : QColor(0, 0, 0, 166)))))) :
     QColor(0, 0, 0, 166);
 
   if (!(scene.map_open && scene.big_map)) {
@@ -676,6 +677,8 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
       ), 10));
     } else if (scene.reverse_cruise) {
       p.setPen(QPen(blueColor(), 6));
+    } else if (trafficModeActive) {
+      p.setPen(QPen(redColor(), 10));
     } else {
       p.setPen(QPen(whiteColor(75), 6));
     }
@@ -925,6 +928,10 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
     pe.setColorAt(0.0, QColor::fromHslF(25 / 360., 0.71, 0.50, 1.0));
     pe.setColorAt(0.5, QColor::fromHslF(25 / 360., 0.71, 0.50, 0.5));
     pe.setColorAt(1.0, QColor::fromHslF(25 / 360., 0.71, 0.50, 0.1));
+  } else if (trafficModeActive) {
+    pe.setColorAt(0.0, QColor::fromHslF(355 / 360., 0.71, 0.46, 1.0));
+    pe.setColorAt(0.5, QColor::fromHslF(355 / 360., 0.71, 0.46, 0.5));
+    pe.setColorAt(1.0, QColor::fromHslF(355 / 360., 0.71, 0.46, 0.1));
   } else if (scene.navigate_on_openpilot) {
     pe.setColorAt(0.0, QColor::fromHslF(205 / 360., 0.85, 0.56, 1.0));
     pe.setColorAt(0.5, QColor::fromHslF(205 / 360., 0.85, 0.56, 0.5));
@@ -1343,6 +1350,8 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets() {
   slcSpeedLimitOffset = scene.speed_limit_offset * (is_metric ? MS_TO_KPH : MS_TO_MPH);
   useViennaSLCSign = scene.use_vienna_slc_sign;
 
+  trafficModeActive = scene.traffic_mode_active;
+
   turnSignalLeft = scene.turn_signal_left;
   turnSignalRight = scene.turn_signal_right;
 
@@ -1545,12 +1554,14 @@ DistanceButton::DistanceButton(QWidget *parent) : QPushButton(parent), scene(uiS
   setFixedSize(btn_size * 1.5, btn_size * 1.5);
 
   profile_data = {
+    {QPixmap("../frogpilot/assets/other_images/traffic.png"), "Traffic"},
     {QPixmap("../frogpilot/assets/other_images/aggressive.png"), "Aggressive"},
     {QPixmap("../frogpilot/assets/other_images/standard.png"), "Standard"},
     {QPixmap("../frogpilot/assets/other_images/relaxed.png"), "Relaxed"}
   };
 
   profile_data_kaofui = {
+    {QPixmap("../frogpilot/assets/other_images/traffic_kaofui.png"), "Traffic"},
     {QPixmap("../frogpilot/assets/other_images/aggressive_kaofui.png"), "Aggressive"},
     {QPixmap("../frogpilot/assets/other_images/standard_kaofui.png"), "Standard"},
     {QPixmap("../frogpilot/assets/other_images/relaxed_kaofui.png"), "Relaxed"}
@@ -1571,11 +1582,12 @@ void DistanceButton::buttonReleased() {
 }
 
 void DistanceButton::updateState() {
-  if (personality != static_cast<int>(scene.personality)) {
+  if (trafficModeActive != scene.traffic_mode_active || personality != static_cast<int>(scene.personality) && !trafficModeActive) {
     transitionTimer.restart();
   }
 
   personality = static_cast<int>(scene.personality);
+  trafficModeActive = scene.traffic_mode_active;
 }
 
 void DistanceButton::paintEvent(QPaintEvent *event) {
@@ -1589,7 +1601,8 @@ void DistanceButton::paintEvent(QPaintEvent *event) {
   qreal textOpacity = qBound(0.0, 1.0 - ((elapsed - textDuration) / fadeDuration), 1.0);
   qreal imageOpacity = qBound(0.0, (elapsed - textDuration) / fadeDuration, 1.0);
 
-  auto &[profileImage, profileText] = scene.use_kaofui_icons ? profile_data_kaofui[personality] : profile_data[personality];
+  int profile = trafficModeActive ? 0 : personality + 1;
+  auto &[profileImage, profileText] = scene.use_kaofui_icons ? profile_data_kaofui[profile] : profile_data[profile];
 
   if (textOpacity != 0.0) {
     p.setOpacity(textOpacity);
@@ -1636,7 +1649,7 @@ void AnnotatedCameraWidget::drawLeadInfo(QPainter &p) {
   double acceleration = std::round(scene.acceleration * 100) / 100;
   int randomEvent = scene.current_random_event;
 
-  if (acceleration > maxAcceleration && status == STATUS_ENGAGED) {
+  if (acceleration > maxAcceleration && (status == STATUS_ENGAGED || status == STATUS_TRAFFIC_MODE_ACTIVE)) {
     maxAcceleration = acceleration;
     isFiveSecondsPassed = false;
     timer.start();
@@ -1708,7 +1721,7 @@ void AnnotatedCameraWidget::drawLeadInfo(QPainter &p) {
 
   drawText(accelText, Qt::white);
   if (!maxAccSuffix.isEmpty()) {
-    drawText(maxAccSuffix, isFiveSecondsPassed ? Qt::white : Qt::red);
+    drawText(maxAccSuffix, isFiveSecondsPassed ? Qt::white : redColor());
   }
   drawText(obstacleText, Qt::white);
   drawText(createDiffText(obstacleDistance, obstacleDistanceStock), (obstacleDistance - obstacleDistanceStock) > 0 ? Qt::green : Qt::red);

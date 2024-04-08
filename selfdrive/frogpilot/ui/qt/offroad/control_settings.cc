@@ -88,6 +88,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     {"AggressiveAcceleration", tr("Increase Acceleration Behind Faster Lead"), tr("Increase aggressiveness when following a faster lead."), ""},
     {"StoppingDistance", tr("Increase Stop Distance Behind Lead"), tr("Increase the stopping distance for a more comfortable stop from lead vehicles."), ""},
     {"SmoothBraking", tr("Smoother Braking"), tr("Smoothen out the braking behavior when approaching slower vehicles."), ""},
+    {"TrafficMode", tr("Traffic Mode"), tr("Enable the ability to activate 'Traffic Mode' by holding down the 'distance' button for 2.5 seconds. When 'Traffic Mode' is active the onroad UI will turn red and openpilot will drive catered towards stop and go traffic."), ""},
 
     {"MTSCEnabled", tr("Map Turn Speed Control"), tr("Slow down for anticipated curves detected by the downloaded maps."), "../frogpilot/assets/toggle_icons/icon_speed_map.png"},
     {"DisableMTSCSmoothing", tr("Disable MTSC UI Smoothing"), tr("Disables the smoothing for the requested speed in the onroad UI to show exactly what speed MTSC is currently requesting."), ""},
@@ -194,16 +195,38 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
         aggressiveProfile->setVisible(true);
         standardProfile->setVisible(true);
         relaxedProfile->setVisible(true);
+        trafficProfile->setVisible(!isRelease && params.getBool("TrafficMode"));
       });
       toggle = customPersonalitiesToggle;
 
+      FrogPilotParamValueControl *trafficFollow = new FrogPilotParamValueControl("TrafficFollow", tr("Follow"),
+                                                                              tr("Set the minimum following distance when using 'Traffic Mode'. Your following distance will dynamically "
+                                                                                 "adjust between this distance and the following distance from the 'Aggressive' profile when driving between "
+                                                                                 "0 and %1.\n\nFor example:\n\nTraffic Mode: 0.5s\nAggressive: 1.0s\n\n0%2 = 0.5s\n%3 = 0.75s\n%1 = 1.0s")
+                                                                                 .arg(isMetric ? "90ph" : "55mph")
+                                                                                 .arg(isMetric ? "kph" : "mph")
+                                                                                 .arg(isMetric ? "45kph" : "27.5mph"),
+                                                                                 "../frogpilot/assets/other_images/traffic.png",
+                                                                                 0.5, 5, std::map<int, QString>(), this, false, tr(" sec"), 1, 0.01);
+      FrogPilotParamValueControl *trafficJerk = new FrogPilotParamValueControl("TrafficJerk", tr("Jerk"),
+                                                                            tr("Set the minimum jerk value when using 'Traffic Mode'. Your jerk will dynamically "
+                                                                               "adjust between this jerk and the jerk from the 'Aggressive' profile when driving between "
+                                                                               "0 and %1.\n\nFor example:\n\nTraffic Mode: 0.1\nAggressive: 1.0\n\n0%2 = 0.1\n%3 = 0.5\n%1 = 1.0")
+                                                                               .arg(isMetric ? "90ph" : "55mph")
+                                                                               .arg(isMetric ? "kph" : "mph")
+                                                                               .arg(isMetric ? "45kph" : "27.5mph"),
+                                                                               "",
+                                                                               0.01, 5, std::map<int, QString>(), this, false, "", 1, 0.01);
+      trafficProfile = new FrogPilotDualParamControl(trafficFollow, trafficJerk, this, true);
+      addItem(trafficProfile);
+
       FrogPilotParamValueControl *aggressiveFollow = new FrogPilotParamValueControl("AggressiveFollow", tr("Follow"),
-                                                                                 tr("Set the 'Aggressive' personality' following distance. "
+                                                                                 tr("Set the 'Aggressive' personality following distance. "
                                                                                     "Represents seconds to follow behind the lead vehicle.\n\nStock: 1.25 seconds."),
                                                                                     "../frogpilot/assets/other_images/aggressive.png",
                                                                                     1, 5, std::map<int, QString>(), this, false, tr(" sec"), 1, 0.01);
       FrogPilotParamValueControl *aggressiveJerk = new FrogPilotParamValueControl("AggressiveJerk", tr("Jerk"),
-                                                                               tr("Configure brake/gas pedal responsiveness for the 'Aggressive' personality. "
+                                                                               tr("Adjust brake/gas pedal responsiveness for the 'Aggressive' personality. "
                                                                                   "Higher jerk value = Less likely to use the gas/brake.\nLower jerk value = More likely.\n\nStock: 0.5."),
                                                                                   "",
                                                                                   0.01, 5, std::map<int, QString>(), this, false, "", 1, 0.01);
@@ -229,7 +252,7 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
                                                                                  "../frogpilot/assets/other_images/relaxed.png",
                                                                                  1, 5, std::map<int, QString>(), this, false, tr(" sec"), 1, 0.01);
       FrogPilotParamValueControl *relaxedJerk = new FrogPilotParamValueControl("RelaxedJerk", tr("Jerk"),
-                                                                            tr("Set brake/gas pedal responsiveness for the 'Relaxed' personality. "
+                                                                            tr("Adjust brake/gas pedal responsiveness for the 'Relaxed' personality. "
                                                                                "Higher jerk value = Less likely to use the gas/brake.\nLower jerk value = More likely.\n\nStock: 1.0."),
                                                                                "",
                                                                                0.01, 5, std::map<int, QString>(), this, false, "", 1, 0.01);
@@ -959,6 +982,7 @@ void FrogPilotControlsPanel::hideToggles() {
   slcPriorityButton->setVisible(false);
   standardProfile->setVisible(false);
   relaxedProfile->setVisible(false);
+  trafficProfile->setVisible(false);
 
   std::set<QString> longitudinalKeys = {"ConditionalExperimental", "CustomPersonalities", "ExperimentalModeActivation",
                                         "LongitudinalTune", "MTSCEnabled", "SpeedLimitController"};

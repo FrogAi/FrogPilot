@@ -221,6 +221,7 @@ class CarInterfaceBase(ABC):
     self.disable_resumeRequired = False
     self.prev_distance_button = False
     self.resumeRequired_shown = False
+    self.traffic_mode_changed = False
 
     self.gap_counter = 0
 
@@ -492,7 +493,7 @@ class CarInterfaceBase(ABC):
     elif not prev_distance_button:
       self.gap_counter = 0
 
-    if self.gap_counter == CRUISE_LONG_PRESS * 1.5 and frogpilot_variables.experimental_mode_via_distance:
+    if self.gap_counter == CRUISE_LONG_PRESS * 1.5 and frogpilot_variables.experimental_mode_via_distance or self.traffic_mode_changed:
       if frogpilot_variables.conditional_experimental_mode:
         conditional_status = self.params_memory.get_int("CEStatus")
         override_value = 0 if conditional_status in {1, 2, 3, 4, 5, 6} else 1 if conditional_status >= 7 else 2
@@ -500,6 +501,12 @@ class CarInterfaceBase(ABC):
       else:
         experimental_mode = self.params.get_bool("ExperimentalMode")
         self.params.put_bool("ExperimentalMode", not experimental_mode)
+      self.traffic_mode_changed = False
+
+    if self.gap_counter == CRUISE_LONG_PRESS * 5 and frogpilot_variables.traffic_mode:
+      traffic_mode = self.params_memory.get_bool("TrafficModeActive")
+      self.params_memory.put_bool("TrafficModeActive", not traffic_mode)
+      self.traffic_mode_changed = frogpilot_variables.experimental_mode_via_distance
 
     return self.gap_counter >= CRUISE_LONG_PRESS
 

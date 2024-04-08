@@ -11,6 +11,7 @@ $Cxx.namespace("cereal");
 struct FrogPilotCarControl @0x81c2f05a394cf4af {
   alwaysOnLateral @0 :Bool;
   speedLimitChanged @1 :Bool;
+  trafficModeActive @2 :Bool;
 }
 
 struct FrogPilotCarState @0xaedffd8f31e7b55d {

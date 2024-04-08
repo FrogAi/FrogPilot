@@ -33,8 +33,9 @@ private:
   FrogPilotDualParamControl *aggressiveProfile;
   FrogPilotDualParamControl *conditionalSpeedsImperial;
   FrogPilotDualParamControl *conditionalSpeedsMetric;
-  FrogPilotDualParamControl *standardProfile;
   FrogPilotDualParamControl *relaxedProfile;
+  FrogPilotDualParamControl *standardProfile;
+  FrogPilotDualParamControl *trafficProfile;
 
   FrogPilotParamManageControl *modelManagerToggle;
 
@@ -44,7 +45,7 @@ private:
   std::set<QString> experimentalModeActivationKeys = {"ExperimentalModeViaDistance", "ExperimentalModeViaLKAS", "ExperimentalModeViaTap"};
   std::set<QString> laneChangeKeys = {"LaneChangeTime", "LaneDetectionWidth", "OneLaneChange"};
   std::set<QString> lateralTuneKeys = {"ForceAutoTune", "NNFF", "NNFFLite", "TacoTune"};
-  std::set<QString> longitudinalTuneKeys = {"AccelerationProfile", "AggressiveAcceleration", "DecelerationProfile", "SmoothBraking", "StoppingDistance"};
+  std::set<QString> longitudinalTuneKeys = {"AccelerationProfile", "AggressiveAcceleration", "DecelerationProfile", "SmoothBraking", "StoppingDistance", "TrafficMode"};
   std::set<QString> mtscKeys = {"DisableMTSCSmoothing", "MTSCAggressiveness", "MTSCCurvatureCheck"};
   std::set<QString> qolKeys = {"CustomCruise", "CustomCruiseLong", "DisableOnroadUploads", "OnroadDistanceButton", "PauseLateralSpeed", "ReverseCruise", "SetSpeedOffset"};
   std::set<QString> speedLimitControllerKeys = {"SLCControls", "SLCQOL", "SLCVisuals"};

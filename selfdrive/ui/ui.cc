@@ -253,6 +253,7 @@ static void update_state(UIState *s) {
     auto frogpilotCarControl = sm["frogpilotCarControl"].getFrogpilotCarControl();
     scene.always_on_lateral_active = !scene.enabled && frogpilotCarControl.getAlwaysOnLateral();
     scene.speed_limit_changed = scene.speed_limit_controller && frogpilotCarControl.getSpeedLimitChanged();
+    scene.traffic_mode_active = frogpilotCarControl.getTrafficModeActive();
   }
   if (sm.updated("frogpilotPlan")) {
     auto frogpilotPlan = sm["frogpilotPlan"].getFrogpilotPlan();
@@ -405,6 +406,8 @@ void UIState::updateStatus() {
       status = STATUS_OVERRIDE;
     } else if (scene.always_on_lateral_active) {
       status = STATUS_ALWAYS_ON_LATERAL_ACTIVE;
+    } else if (scene.traffic_mode_active && scene.enabled) {
+      status = STATUS_TRAFFIC_MODE_ACTIVE;
     } else {
       status = controls_state.getEnabled() ? STATUS_ENGAGED : STATUS_DISENGAGED;
     }
