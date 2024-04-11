@@ -6,6 +6,7 @@
 #include <memory>
 #include <sstream>
 
+#include <QApplication>
 #include <QDebug>
 #include <QMouseEvent>
 
@@ -66,6 +67,12 @@ OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent), scene(uiState()->
   QObject::connect(uiState(), &UIState::uiUpdate, this, &OnroadWindow::updateState);
   QObject::connect(uiState(), &UIState::offroadTransition, this, &OnroadWindow::offroadTransition);
   QObject::connect(uiState(), &UIState::primeChanged, this, &OnroadWindow::primeChanged);
+
+  QObject::connect(&clickTimer, &QTimer::timeout, this, [this]() {
+    clickTimer.stop();
+    QMouseEvent *event = new QMouseEvent(QEvent::MouseButtonPress, timeoutPoint, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    QApplication::postEvent(this, event);
+  });
 }
 
 void OnroadWindow::updateState(const UIState &s) {
@@ -95,6 +102,25 @@ void OnroadWindow::updateState(const UIState &s) {
 void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   // FrogPilot clickable widgets
   bool widgetClicked = false;
+
+  // If the click wasn't for anything specific, change the value of "ExperimentalMode"
+  if (scene.experimental_mode_via_screen && e->pos() != timeoutPoint) {
+    if (clickTimer.isActive()) {
+      clickTimer.stop();
+
+      if (scene.conditional_experimental) {
+        int override_value = (scene.conditional_status >= 1 && scene.conditional_status <= 6) ? 0 : scene.conditional_status >= 7 ? 5 : 6;
+        paramsMemory.putIntNonBlocking("CEStatus", override_value);
+      } else {
+        bool experimentalMode = params.getBool("ExperimentalMode");
+        params.putBoolNonBlocking("ExperimentalMode", !experimentalMode);
+      }
+
+    } else {
+      clickTimer.start(500);
+    }
+    widgetClicked = true;
+  }
 
 #ifdef ENABLE_MAPS
   if (map != nullptr && !widgetClicked) {
@@ -269,7 +295,12 @@ void ExperimentalButton::changeMode() {
   const auto cp = (*uiState()->sm)["carParams"].getCarParams();
   bool can_change = hasLongitudinalControl(cp) && params.getBool("ExperimentalModeConfirmed");
   if (can_change) {
-    params.putBool("ExperimentalMode", !experimental_mode);
+    if (scene.conditional_experimental) {
+      int override_value = (scene.conditional_status >= 1 && scene.conditional_status <= 4) ? 0 : scene.conditional_status >= 5 ? 5 : 6;
+      paramsMemory.putIntNonBlocking("ConditionalStatus", override_value);
+    } else {
+      params.putBool("ExperimentalMode", !experimental_mode);
+    }
   }
 }
 
@@ -1158,6 +1189,20 @@ void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {
     newStatus = tr("Always On Lateral active") + (mapOpen ? "" : tr(". Press the \"Cruise Control\" button to disable"));
   } else if (showConditionalExperimentalStatusBar) {
     newStatus = conditionalStatusMap[status != STATUS_DISENGAGED ? conditionalStatus : 0];
+  }
+
+  QString distanceSuffix = tr(". Long press the \"distance\" button to revert");
+  QString lkasSuffix = tr(". Double press the \"LKAS\" button to revert");
+  QString screenSuffix = tr(". Double tap the screen to revert");
+
+  if (!alwaysOnLateralActive && !mapOpen && status != STATUS_DISENGAGED && !newStatus.isEmpty()) {
+    if (conditionalStatus == 1 || conditionalStatus == 2) {
+      newStatus += distanceSuffix;
+    } else if (conditionalStatus == 3 || conditionalStatus == 4) {
+      newStatus += lkasSuffix;
+    } else if (conditionalStatus == 5 || conditionalStatus == 6) {
+      newStatus += screenSuffix;
+    }
   }
 
   if (newStatus != lastShownStatus) {

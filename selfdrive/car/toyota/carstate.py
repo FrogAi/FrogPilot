@@ -182,6 +182,11 @@ class CarState(CarStateBase):
       else:
         self.distance_button = cp.vl["SDSU"]["FD_BUTTON"]
 
+    if self.CP.carFingerprint != CAR.PRIUS_V:
+      self.lkas_previously_enabled = self.lkas_enabled
+      message_keys = ["LDA_ON_MESSAGE", "SET_ME_X02"]
+      self.lkas_enabled = any(self.lkas_hud.get(key) == 1 for key in message_keys)
+
     return ret
 
   @staticmethod

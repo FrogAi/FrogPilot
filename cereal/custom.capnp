@@ -13,6 +13,11 @@ struct FrogPilotCarControl @0x81c2f05a394cf4af {
 }
 
 struct FrogPilotCarState @0xaedffd8f31e7b55d {
+  struct ButtonEvent {
+    enum Type {
+      lkas @0;
+    }
+  }
 }
 
 struct FrogPilotDeviceState @0xf35cc4560bbf6ec2 {

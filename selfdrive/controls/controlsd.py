@@ -680,8 +680,9 @@ class Controls:
     # decrement personality on distance button press
     if self.CP.openpilotLongitudinalControl:
       if any(not be.pressed and be.type == ButtonType.gapAdjustCruise for be in CS.buttonEvents):
-        self.personality = (self.personality - 1) % 3
-        self.params.put_nonblocking('LongitudinalPersonality', str(self.personality))
+        if not self.params_memory.get_bool("DistanceLongPressed"):
+          self.personality = (self.personality - 1) % 3
+          self.params.put_nonblocking('LongitudinalPersonality', str(self.personality))
 
     return CC, lac_log
 
@@ -903,6 +904,14 @@ class Controls:
     if self.CP.openpilotLongitudinalControl and self.frogpilot_variables.conditional_experimental_mode:
       self.experimental_mode = self.sm['frogpilotPlan'].conditionalExperimental
 
+    if any(be.pressed and be.type == FrogPilotButtonType.lkas for be in CS.buttonEvents) and self.experimental_mode_via_lkas:
+      if self.frogpilot_variables.conditional_experimental_mode:
+        conditional_status = self.params_memory.get_int("CEStatus")
+        override_value = 0 if conditional_status in {1, 2, 3, 4, 5, 6} else 3 if conditional_status >= 7 else 4
+        self.params_memory.put_int("CEStatus", override_value)
+      else:
+        self.params.put_bool_nonblocking("ExperimentalMode", not self.experimental_mode)
+
     fpcc_send = messaging.new_message('frogpilotCarControl')
     fpcc_send.valid = CS.canValid
     fpcc_send.frogpilotCarControl = self.FPCC
@@ -925,6 +934,10 @@ class Controls:
 
     device_management = self.params.get_bool("DeviceManagement")
     self.increase_thermal_limits = device_management and self.params.get_bool("IncreaseThermalLimits")
+
+    experimental_mode_activation = self.CP.openpilotLongitudinalControl and self.params.get_bool("ExperimentalModeActivation")
+    self.frogpilot_variables.experimental_mode_via_distance = experimental_mode_activation and self.params.get_bool("ExperimentalModeViaDistance")
+    self.experimental_mode_via_lkas = experimental_mode_activation and self.params.get_bool("ExperimentalModeViaLKAS")
 
     lateral_tune = self.params.get_bool("LateralTune")
 

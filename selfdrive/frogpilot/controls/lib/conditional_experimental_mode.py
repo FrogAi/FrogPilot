@@ -39,15 +39,21 @@ class ConditionalExperimentalMode:
     standstill = carState.standstill
     v_lead = lead.vLead
 
+    if self.experimental_mode_via_press and enabled:
+      overridden = self.params_memory.get_int("CEStatus")
+    else:
+      overridden = 0
+
     self.update_conditions(lead_distance, lead.status, modelData, road_curvature, standstill, t_follow, v_ego, v_lead)
 
     condition_met = self.check_conditions(carState, frogpilotNavigation, lead, modelData, standstill, v_ego) and enabled
-    if condition_met:
+    if condition_met and overridden not in {1, 3, 5} or overridden in {2, 4, 6}:
       self.experimental_mode = True
     else:
       self.experimental_mode = False
       self.status_value = 0
 
+    self.status_value = overridden if overridden in {1, 2, 3, 4, 5, 6} else self.status_value
     if self.status_value != self.previous_status_value:
       self.params_memory.put_int("CEStatus", self.status_value)
       self.previous_status_value = self.status_value
@@ -167,6 +173,8 @@ class ConditionalExperimentalMode:
 
     self.curves = self.params.get_bool("CECurves")
     self.curves_lead = self.curves and self.params.get_bool("CECurvesLead")
+
+    self.experimental_mode_via_press = self.params.get_bool("ExperimentalModeActivation")
 
     self.limit = self.params.get_int("CESpeed") * (CV.KPH_TO_MS if is_metric else CV.MPH_TO_MS)
     self.limit_lead = self.params.get_int("CESpeedLead") * (CV.KPH_TO_MS if is_metric else CV.MPH_TO_MS)

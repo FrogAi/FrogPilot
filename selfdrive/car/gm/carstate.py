@@ -160,6 +160,12 @@ class CarState(CarStateBase):
         ret.leftBlindspot = cam_cp.vl["BCMBlindSpotMonitor"]["LeftBSM"] == 1
         ret.rightBlindspot = cam_cp.vl["BCMBlindSpotMonitor"]["RightBSM"] == 1
 
+    self.lkas_previously_enabled = self.lkas_enabled
+    if self.CP.carFingerprint in SDGM_CAR:
+      self.lkas_enabled = cam_cp.vl["ASCMSteeringButton"]["LKAButton"]
+    else:
+      self.lkas_enabled = pt_cp.vl["ASCMSteeringButton"]["LKAButton"]
+
     return ret
 
   @staticmethod

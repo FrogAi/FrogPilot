@@ -183,6 +183,7 @@ typedef struct UIScene {
   bool dynamic_path_width;
   bool enabled;
   bool experimental_mode;
+  bool experimental_mode_via_screen;
   bool has_auto_tune;
   bool hide_lead_marker;
   bool lead_info;

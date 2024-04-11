@@ -110,6 +110,9 @@ class CarState(CarStateBase):
     self.cam_laneinfo = cp_cam.vl["CAM_LANEINFO"]
     ret.steerFaultPermanent = cp_cam.vl["CAM_LKAS"]["ERR_BIT_1"] == 1
 
+    self.lkas_previously_enabled = self.lkas_enabled
+    self.lkas_enabled = not self.lkas_disabled
+
     return ret
 
   @staticmethod
