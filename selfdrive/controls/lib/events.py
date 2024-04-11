@@ -967,6 +967,14 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
                                        "Please don't use the 'Development' branch!",
                                        priority=Priority.HIGHEST),
   },
+
+  EventName.goatSteerSaturated: {
+    ET.WARNING: Alert(
+      "Turn Exceeds Steering Limit",
+      "JESUS TAKE THE WHEEL!!",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.goat, 2.),
+  },
 }
 
 

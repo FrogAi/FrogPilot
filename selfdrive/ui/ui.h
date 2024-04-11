@@ -183,6 +183,8 @@ typedef struct UIScene {
   bool right_hand_drive;
   bool show_aol_status_bar;
   bool show_cem_status_bar;
+  bool turn_signal_left;
+  bool turn_signal_right;
 
   float acceleration;
   float lane_width_left;
@@ -193,6 +195,9 @@ typedef struct UIScene {
   int conditional_speed;
   int conditional_speed_lead;
   int conditional_status;
+  int custom_colors;
+  int custom_icons;
+  int custom_signals;
 
   QPolygonF track_adjacent_vertices[6];
 

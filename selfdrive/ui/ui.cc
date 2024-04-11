@@ -214,6 +214,8 @@ static void update_state(UIState *s) {
     scene.acceleration = carState.getAEgo();
     scene.blind_spot_left = carState.getLeftBlindspot();
     scene.blind_spot_right = carState.getRightBlindspot();
+    scene.turn_signal_left = carState.getLeftBlinker();
+    scene.turn_signal_right = carState.getRightBlinker();
   }
   if (sm.updated("controlsState")) {
     auto controlsState = sm["controlsState"].getControlsState();
@@ -272,6 +274,11 @@ void ui_update_frogpilot_params(UIState *s) {
   bool custom_paths = custom_onroad_ui && params.getBool("CustomPaths");
   scene.acceleration_path = custom_paths && params.getBool("AccelerationPath");
   scene.blind_spot_path = custom_paths && params.getBool("BlindSpotPath");
+
+  bool custom_theme = params.getBool("CustomTheme");
+  scene.custom_colors = custom_theme ? params.getInt("CustomColors") : 0;
+  scene.custom_icons = custom_theme ? params.getInt("CustomIcons") : 0;
+  scene.custom_signals = custom_theme ? params.getInt("CustomSignals") : 0;
 
   bool quality_of_life_controls = params.getBool("QOLControls");
 
