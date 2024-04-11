@@ -252,6 +252,7 @@ void ui_update_frogpilot_params(UIState *s) {
 
   bool custom_onroad_ui = params.getBool("CustomUI");
   bool custom_paths = custom_onroad_ui && params.getBool("CustomPaths");
+  scene.acceleration_path = custom_paths && params.getBool("AccelerationPath");
 
   bool quality_of_life_controls = params.getBool("QOLControls");
 

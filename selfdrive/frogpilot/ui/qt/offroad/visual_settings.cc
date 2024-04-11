@@ -37,8 +37,8 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
       });
       toggle = customUIToggle;
     } else if (param == "CustomPaths") {
-      std::vector<QString> pathToggles{};
-      std::vector<QString> pathToggleNames{};
+      std::vector<QString> pathToggles{"AccelerationPath"};
+      std::vector<QString> pathToggleNames{tr("Acceleration")};
       toggle = new FrogPilotParamToggleControl(param, title, desc, icon, pathToggles, pathToggleNames);
 
     } else if (param == "QOLVisuals") {
