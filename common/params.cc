@@ -277,6 +277,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"FullMap", PERSISTENT},
     {"GasRegenCmd", PERSISTENT},
     {"GoatScream", PERSISTENT},
+    {"GreenLightAlert", PERSISTENT},
     {"HideAOLStatusBar", PERSISTENT},
     {"HideCEMStatusBar", PERSISTENT},
     {"HideDisableOpenpilotLongitudinal", PERSISTENT},

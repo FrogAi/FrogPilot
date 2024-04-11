@@ -33,7 +33,7 @@ from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
 from openpilot.system.hardware import HARDWARE
 from openpilot.system.version import get_short_branch
 
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import CRUISING_SPEED
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import CRUISING_SPEED, PROBABILITY, MovingAverageCalculator
 
 SOFT_DISABLE_TIME = 3  # seconds
 LDW_MIN_SPEED = 31 * CV.MPH_TO_MS
@@ -182,6 +182,10 @@ class Controls:
 
     self.always_on_lateral = self.params.get_bool("AlwaysOnLateral")
     self.always_on_lateral_main = self.always_on_lateral and self.params.get_bool("AlwaysOnLateralMain")
+
+    self.previously_enabled = False
+
+    self.green_light_mac = MovingAverageCalculator()
 
     self.update_frogpilot_params()
 
@@ -892,6 +896,17 @@ class Controls:
       self.events.add(EventName.blockUser)
       return
 
+    if self.green_light_alert:
+      green_light = not self.sm['frogpilotPlan'].redLight
+      green_light &= not CS.gasPressed
+      green_light &= not self.sm['longitudinalPlan'].hasLead
+      green_light &= self.previously_enabled
+      green_light &= CS.standstill
+
+      self.green_light_mac.add_data(green_light)
+      if self.green_light_mac.get_moving_average() >= PROBABILITY:
+        self.events.add(EventName.greenLight)
+
   def update_frogpilot_variables(self, CS):
     self.driving_gear = CS.gearShifter not in (GearShifter.neutral, GearShifter.park, GearShifter.reverse, GearShifter.unknown)
 
@@ -912,6 +927,9 @@ class Controls:
       else:
         self.params.put_bool_nonblocking("ExperimentalMode", not self.experimental_mode)
 
+    self.previously_enabled |= (self.enabled or self.FPCC.alwaysOnLateral) and CS.vEgo > CRUISING_SPEED
+    self.previously_enabled &= self.driving_gear
+
     fpcc_send = messaging.new_message('frogpilotCarControl')
     fpcc_send.valid = CS.canValid
     fpcc_send.frogpilotCarControl = self.FPCC
@@ -926,6 +944,7 @@ class Controls:
     self.frogpilot_variables.conditional_experimental_mode = self.CP.openpilotLongitudinalControl and self.params.get_bool("ConditionalExperimental")
 
     custom_alerts = self.params.get_bool("CustomAlerts")
+    self.green_light_alert = custom_alerts and self.params.get_bool("GreenLightAlert")
 
     custom_theme = self.params.get_bool("CustomTheme")
     custom_sounds = self.params.get_int("CustomSounds") if custom_theme else 0
