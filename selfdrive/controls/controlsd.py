@@ -190,6 +190,7 @@ class Controls:
     self.always_on_lateral_main = self.always_on_lateral and self.params.get_bool("AlwaysOnLateralMain")
 
     self.holiday_theme_alerted = False
+    self.onroad_distance_pressed = False
     self.previously_enabled = False
 
     self.previous_lead_distance = 0
@@ -703,10 +704,11 @@ class Controls:
 
     # decrement personality on distance button press
     if self.CP.openpilotLongitudinalControl:
-      if any(not be.pressed and be.type == ButtonType.gapAdjustCruise for be in CS.buttonEvents):
-        if not self.params_memory.get_bool("DistanceLongPressed"):
+      if any(not be.pressed and be.type == ButtonType.gapAdjustCruise for be in CS.buttonEvents) or self.onroad_distance_pressed:
+        if not (self.params_memory.get_bool("DistanceLongPressed") or self.params_memory.get_bool("OnroadDistanceButtonPressed")):
           self.personality = (self.personality - 1) % 3
           self.params.put_nonblocking('LongitudinalPersonality', str(self.personality))
+      self.onroad_distance_pressed = self.params_memory.get_bool("OnroadDistanceButtonPressed")
 
     return CC, lac_log
 

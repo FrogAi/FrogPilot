@@ -348,6 +348,8 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.unlimited_road_ui_length = scene.model_ui && params.getBool("UnlimitedLength");
 
   bool quality_of_life_controls = params.getBool("QOLControls");
+  scene.onroad_distance_button = scene.longitudinal_control && quality_of_life_controls && params.getBool("OnroadDistanceButton");
+  scene.use_kaofui_icons = scene.onroad_distance_button && params.getBool("KaofuiIcons");
   scene.reverse_cruise = quality_of_life_controls && params.getBool("ReverseCruise");
   scene.reverse_cruise_ui = scene.reverse_cruise && params.getBool("ReverseCruiseUI");
 

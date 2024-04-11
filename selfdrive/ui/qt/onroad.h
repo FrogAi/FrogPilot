@@ -59,6 +59,30 @@ private:
   QPixmap staticElements;
 };
 
+class DistanceButton : public QPushButton {
+public:
+  explicit DistanceButton(QWidget *parent = nullptr);
+
+  void buttonPressed();
+  void buttonReleased();
+  void updateState();
+
+protected:
+  void paintEvent(QPaintEvent *event) override;
+
+private:
+  Params paramsMemory{"/dev/shm/params"};
+
+  UIScene &scene;
+
+  int personality;
+
+  QElapsedTimer transitionTimer;
+
+  QVector<std::pair<QPixmap, QString>> profile_data;
+  QVector<std::pair<QPixmap, QString>> profile_data_kaofui;
+};
+
 class ExperimentalButton : public QPushButton {
   Q_OBJECT
 
@@ -146,6 +170,7 @@ private:
   UIScene &scene;
 
   Compass *compass_img;
+  DistanceButton *distance_btn;
 
   QHBoxLayout *bottom_layout;
 
@@ -157,6 +182,7 @@ private:
   bool experimentalMode;
   bool leadInfo;
   bool mapOpen;
+  bool onroadDistanceButton;
   bool showAlwaysOnLateralStatusBar;
   bool showConditionalExperimentalStatusBar;
   bool turnSignalLeft;

@@ -201,6 +201,7 @@ typedef struct UIScene {
   bool model_ui;
   bool numerical_temp;
   bool online;
+  bool onroad_distance_button;
   bool reverse;
   bool reverse_cruise;
   bool reverse_cruise_ui;
@@ -212,6 +213,7 @@ typedef struct UIScene {
   bool turn_signal_left;
   bool turn_signal_right;
   bool unlimited_road_ui_length;
+  bool use_kaofui_icons;
   bool use_si;
 
   float acceleration;

@@ -854,6 +854,7 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
   // base icon
   int offset = UI_BORDER_SIZE + btn_size / 2;
   int x = rightHandDM ? width() - offset : offset;
+  x += onroadDistanceButton ? 250 : 0;
   offset += showAlwaysOnLateralStatusBar || showConditionalExperimentalStatusBar ? 25 : 0;
   int y = height() - offset;
   float opacity = dmActive ? 0.65 : 0.2;
@@ -1055,6 +1056,9 @@ void AnnotatedCameraWidget::showEvent(QShowEvent *event) {
 void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
   bottom_layout = new QHBoxLayout();
 
+  distance_btn = new DistanceButton(this);
+  bottom_layout->addWidget(distance_btn);
+
   QSpacerItem *spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
   bottom_layout->addItem(spacer);
 
@@ -1154,6 +1158,8 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets() {
   mapOpen = scene.map_open;
   bigMapOpen = mapOpen && scene.big_map;
 
+  onroadDistanceButton = scene.onroad_distance_button;
+
   turnSignalLeft = scene.turn_signal_left;
   turnSignalRight = scene.turn_signal_right;
 
@@ -1218,6 +1224,13 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
   if (enableCompass) {
     compass_img->updateState();
     bottom_layout->setAlignment(compass_img, (rightHandDM ? Qt::AlignLeft : Qt::AlignRight));
+  }
+
+  bool enableDistanceButton = onroadDistanceButton && !hideBottomIcons;
+  distance_btn->setVisible(enableDistanceButton);
+  if (enableDistanceButton) {
+    distance_btn->updateState();
+    bottom_layout->setAlignment(distance_btn, (rightHandDM ? Qt::AlignRight : Qt::AlignLeft));
   }
 
   map_settings_btn_bottom->setEnabled(map_settings_btn->isEnabled());
@@ -1330,6 +1343,69 @@ void Compass::paintEvent(QPaintEvent *event) {
     p.setOpacity(isInRange ? 1.0 : 0.2);
     p.setPen(QPen(color));
     p.drawText(textRect, alignmentFlag, direction);
+  }
+}
+
+DistanceButton::DistanceButton(QWidget *parent) : QPushButton(parent), scene(uiState()->scene) {
+  setFixedSize(btn_size * 1.5, btn_size * 1.5);
+
+  profile_data = {
+    {QPixmap("../frogpilot/assets/other_images/aggressive.png"), "Aggressive"},
+    {QPixmap("../frogpilot/assets/other_images/standard.png"), "Standard"},
+    {QPixmap("../frogpilot/assets/other_images/relaxed.png"), "Relaxed"}
+  };
+
+  profile_data_kaofui = {
+    {QPixmap("../frogpilot/assets/other_images/aggressive_kaofui.png"), "Aggressive"},
+    {QPixmap("../frogpilot/assets/other_images/standard_kaofui.png"), "Standard"},
+    {QPixmap("../frogpilot/assets/other_images/relaxed_kaofui.png"), "Relaxed"}
+  };
+
+  transitionTimer.start();
+
+  connect(this, &QPushButton::pressed, this, &DistanceButton::buttonPressed);
+  connect(this, &QPushButton::released, this, &DistanceButton::buttonReleased);
+}
+
+void DistanceButton::buttonPressed() {
+  paramsMemory.putBool("OnroadDistanceButtonPressed", true);
+}
+
+void DistanceButton::buttonReleased() {
+  paramsMemory.putBool("OnroadDistanceButtonPressed", false);
+}
+
+void DistanceButton::updateState() {
+  if (personality != static_cast<int>(scene.personality)) {
+    transitionTimer.restart();
+  }
+
+  personality = static_cast<int>(scene.personality);
+}
+
+void DistanceButton::paintEvent(QPaintEvent *event) {
+  QPainter p(this);
+  p.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
+
+  constexpr qreal fadeDuration = 1000.0;
+  constexpr qreal textDuration = 3000.0;
+  int elapsed = transitionTimer.elapsed();
+
+  qreal textOpacity = qBound(0.0, 1.0 - ((elapsed - textDuration) / fadeDuration), 1.0);
+  qreal imageOpacity = qBound(0.0, (elapsed - textDuration) / fadeDuration, 1.0);
+
+  auto &[profileImage, profileText] = scene.use_kaofui_icons ? profile_data_kaofui[personality] : profile_data[personality];
+
+  if (textOpacity != 0.0) {
+    p.setOpacity(textOpacity);
+    p.setFont(InterFont(40, QFont::Bold));
+    p.setPen(Qt::white);
+    QRect textRect(-25, 0, width(), height() + 95);
+    p.drawText(textRect, Qt::AlignCenter, profileText);
+  }
+
+  if (imageOpacity != 0.0) {
+    drawIcon(p, QPoint((btn_size / 2) * 1.25, btn_size / 2 + 95), profileImage, Qt::transparent, imageOpacity);
   }
 }
 
