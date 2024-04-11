@@ -1011,6 +1011,14 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.PERMANENT: holiday_alert,
   },
 
+  EventName.laneChangeBlockedLoud: {
+    ET.WARNING: Alert(
+      "Car Detected in Blindspot",
+      "",
+      AlertStatus.userPrompt, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.warningSoft, .1),
+  },
+
   EventName.leadDeparting: {
     ET.PERMANENT: Alert(
       "Lead departed",
