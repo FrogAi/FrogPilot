@@ -190,6 +190,7 @@ typedef struct UIScene {
   bool compass;
   bool conditional_experimental;
   bool disable_smoothing_mtsc;
+  bool disable_smoothing_vtsc;
   bool driver_camera;
   bool dynamic_path_width;
   bool enabled;
@@ -243,6 +244,7 @@ typedef struct UIScene {
   bool use_kaofui_icons;
   bool use_si;
   bool use_vienna_slc_sign;
+  bool vtsc_controlling_curve;
   bool wake_up_screen;
   bool wheel_speed;
 

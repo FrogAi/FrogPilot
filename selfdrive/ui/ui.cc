@@ -273,6 +273,7 @@ static void update_state(UIState *s) {
     scene.speed_limit_overridden_speed = frogpilotPlan.getSlcOverriddenSpeed();
     scene.stopped_equivalence = frogpilotPlan.getStoppedEquivalenceFactor();
     scene.unconfirmed_speed_limit = frogpilotPlan.getUnconfirmedSlcSpeedLimit();
+    scene.vtsc_controlling_curve = frogpilotPlan.getVtscControllingCurve();
   }
   if (sm.updated("liveLocationKalman")) {
     auto liveLocationKalman = sm["liveLocationKalman"].getLiveLocationKalman();
@@ -348,6 +349,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.random_events = custom_theme && params.getBool("RandomEvents");
 
   scene.disable_smoothing_mtsc = params.getBool("MTSCEnabled") && params.getBool("DisableMTSCSmoothing");
+  scene.disable_smoothing_vtsc = params.getBool("VisionTurnControl") && params.getBool("DisableVTSCSmoothing");
   scene.experimental_mode_via_screen = scene.longitudinal_control && params.getBool("ExperimentalModeActivation") && params.getBool("ExperimentalModeViaTap");
 
   bool lane_detection = params.getBool("NudgelessLaneChange") && params.getInt("LaneDetectionWidth") != 0;

@@ -668,7 +668,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
     if (is_cruise_set && cruiseAdjustment != 0) {
       float transition = qBound(0.0f, 4.0f * (cruiseAdjustment / setSpeed), 1.0f);
       QColor min = whiteColor(75);
-      QColor max = greenColor();
+      QColor max = vtscControllingCurve ? redColor() : greenColor();
 
       p.setPen(QPen(QColor::fromRgbF(
         min.redF()   + transition * (max.redF()   - min.redF()),
@@ -1322,8 +1322,9 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets() {
   conditionalStatus = scene.conditional_status;
   showConditionalExperimentalStatusBar = scene.show_cem_status_bar;
 
-  bool disableSmoothing = scene.disable_smoothing_mtsc;
+  bool disableSmoothing = vtscControllingCurve ? scene.disable_smoothing_vtsc : scene.disable_smoothing_mtsc;
   cruiseAdjustment = disableSmoothing || !is_cruise_set ? fmax(setSpeed - scene.adjusted_cruise, 0) : fmax(0.25 * (setSpeed - scene.adjusted_cruise) + 0.75 * cruiseAdjustment - 1, 0);
+  vtscControllingCurve = scene.vtsc_controlling_curve;
 
   customColors = scene.custom_colors;
 
