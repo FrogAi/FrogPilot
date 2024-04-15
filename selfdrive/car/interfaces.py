@@ -544,6 +544,10 @@ class CarStateBase(ABC):
     # FrogPilot variables
     self.params_memory = Params("/dev/shm/params")
 
+    self.cruise_decreased = False
+    self.cruise_decreased_previously = False
+    self.cruise_increased = False
+    self.cruise_increased_previously = False
     self.lkas_enabled = False
     self.lkas_previously_enabled = False
 

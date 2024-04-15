@@ -101,8 +101,8 @@ def capture_fingerprint(params, candidate, blocked=False):
     "LaneDetectionWidth", "OneLaneChange", "LaneDetectionWidth", "QOLControls", "CustomCruise", "CustomCruiseLong", "DisableOnroadUploads", "HigherBitrate",
     "OnroadDistanceButton", "KaofuiIcons", "PauseLateralSpeed", "PauseLateralOnSignal", "ReverseCruise", "SetSpeedOffset", "SpeedLimitController", "Offset1",
     "Offset2", "Offset3", "Offset4", "SLCFallback", "SLCOverride", "SLCPriority", "SLCConfirmation", "SLCConfirmationLower", "SLCConfirmationHigher",
-    "ForceMPHDashboard", "SetSpeedLimit", "ShowSLCOffset", "ShowSLCOffsetUI", "UseVienna", "VisionTurnControl", "DisableVTSCSmoothing", "CurveSensitivity",
-    "TurnAggressiveness",
+    "ForceMPHDashboard", "SLCLookaheadHigher", "SLCLookaheadLower", "SetSpeedLimit", "ShowSLCOffset", "ShowSLCOffsetUI", "UseVienna", "VisionTurnControl",
+    "DisableVTSCSmoothing", "CurveSensitivity", "TurnAggressiveness",
   ], [
     "ForceFingerprint", "DisableOpenpilotLongitudinal", "EVTable", "LongPitch", "GasRegenCmd", "CrosstrekTorque", "LockDoors", "StockTune", "CydiaTune",
     "DragonPilotTune", "FrogsGoMooTune", "LockDoors", "SNGHack",

@@ -250,6 +250,8 @@ def manager_init(frogpilot_functions) -> None:
     ("SLCConfirmationLower", "1"),
     ("SLCConfirmationHigher", "1"),
     ("SLCFallback", "2"),
+    ("SLCLookaheadHigher", "5"),
+    ("SLCLookaheadLower", "5"),
     ("SLCOverride", "1"),
     ("SLCPriority1", "Dashboard"),
     ("SLCPriority2", "Offline Maps"),

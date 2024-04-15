@@ -252,6 +252,7 @@ static void update_state(UIState *s) {
   if (sm.updated("frogpilotCarControl")) {
     auto frogpilotCarControl = sm["frogpilotCarControl"].getFrogpilotCarControl();
     scene.always_on_lateral_active = !scene.enabled && frogpilotCarControl.getAlwaysOnLateral();
+    scene.speed_limit_changed = scene.speed_limit_controller && frogpilotCarControl.getSpeedLimitChanged();
   }
   if (sm.updated("frogpilotPlan")) {
     auto frogpilotPlan = sm["frogpilotPlan"].getFrogpilotPlan();
@@ -265,7 +266,12 @@ static void update_state(UIState *s) {
     scene.lane_width_right = frogpilotPlan.getLaneWidthRight();
     scene.obstacle_distance = frogpilotPlan.getSafeObstacleDistance();
     scene.obstacle_distance_stock = frogpilotPlan.getSafeObstacleDistanceStock();
+    scene.speed_limit = frogpilotPlan.getSlcSpeedLimit();
+    scene.speed_limit_offset = frogpilotPlan.getSlcSpeedLimitOffset();
+    scene.speed_limit_overridden = frogpilotPlan.getSlcOverridden();
+    scene.speed_limit_overridden_speed = frogpilotPlan.getSlcOverriddenSpeed();
     scene.stopped_equivalence = frogpilotPlan.getStoppedEquivalenceFactor();
+    scene.unconfirmed_speed_limit = frogpilotPlan.getUnconfirmedSlcSpeedLimit();
   }
   if (sm.updated("liveLocationKalman")) {
     auto liveLocationKalman = sm["liveLocationKalman"].getLiveLocationKalman();
@@ -380,6 +386,11 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.screen_timeout = screen_management ? params.getInt("ScreenTimeout") : 30;
   scene.screen_timeout_onroad = screen_management ? params.getInt("ScreenTimeoutOnroad") : 10;
   scene.standby_mode = screen_management && params.getBool("StandbyMode");
+
+  scene.speed_limit_controller = scene.longitudinal_control && params.getBool("SpeedLimitController");
+  scene.show_slc_offset = scene.speed_limit_controller && params.getBool("ShowSLCOffset");
+  scene.show_slc_offset_ui = scene.speed_limit_controller && params.getBool("ShowSLCOffsetUI");
+  scene.use_vienna_slc_sign = scene.speed_limit_controller && params.getBool("UseVienna");
 }
 
 void UIState::updateStatus() {

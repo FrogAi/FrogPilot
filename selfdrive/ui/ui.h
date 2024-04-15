@@ -223,7 +223,12 @@ typedef struct UIScene {
   bool show_aol_status_bar;
   bool show_cem_status_bar;
   bool show_jerk;
+  bool show_slc_offset;
+  bool show_slc_offset_ui;
   bool show_tuning;
+  bool speed_limit_changed;
+  bool speed_limit_controller;
+  bool speed_limit_overridden;
   bool standby_mode;
   bool standstill;
   bool tethering_enabled;
@@ -232,6 +237,7 @@ typedef struct UIScene {
   bool unlimited_road_ui_length;
   bool use_kaofui_icons;
   bool use_si;
+  bool use_vienna_slc_sign;
   bool wake_up_screen;
 
   float acceleration;
@@ -249,6 +255,10 @@ typedef struct UIScene {
   float path_edge_width;
   float path_width;
   float road_edge_width;
+  float speed_limit;
+  float speed_limit_offset;
+  float speed_limit_overridden_speed;
+  float unconfirmed_speed_limit;
 
   int alert_size;
   int bearing_deg;

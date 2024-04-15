@@ -268,6 +268,7 @@ class RouteEngine:
 
     if self.step_idx is None:
       msg.valid = False
+      self.params_memory.put_float("NavSpeedLimit", 0)
       self.pm.send('navInstruction', msg)
       return
 
@@ -342,6 +343,9 @@ class RouteEngine:
 
     if ('maxspeed' in closest.annotations) and self.localizer_valid:
       msg.navInstruction.speedLimit = closest.annotations['maxspeed']
+      self.params_memory.put_float("NavSpeedLimit", closest.annotations['maxspeed'])
+    if not self.localizer_valid or ('maxspeed' not in closest.annotations):
+      self.params_memory.put_float("NavSpeedLimit", 0)
 
     # Speed limit sign type
     if 'speedLimitSign' in step:

@@ -1072,6 +1072,14 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       Priority.HIGH, VisualAlert.wrongGear, AudibleAlert.promptRepeat, 4.),
   },
 
+  EventName.speedLimitChanged: {
+    ET.PERMANENT: Alert(
+      "Speed Limit Changed",
+      "",
+      AlertStatus.frogpilot, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
   EventName.torqueNNLoad: {
     ET.PERMANENT: torque_nn_load_alert,
   },
