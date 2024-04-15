@@ -1,6 +1,10 @@
 import datetime
+import http.client
 import os
+import socket
 import time
+import urllib.error
+import urllib.request
 
 import cereal.messaging as messaging
 
@@ -13,7 +17,34 @@ from openpilot.system.hardware import HARDWARE
 from openpilot.selfdrive.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import FrogPilotFunctions
 
-NetworkType = log.DeviceState.NetworkType
+WIFI = log.DeviceState.NetworkType.wifi
+
+def automatic_update_check(params):
+  update_available = params.get_bool("UpdaterFetchAvailable")
+  update_ready = params.get_bool("UpdateAvailable")
+  update_state = params.get("UpdaterState", encoding='utf8')
+
+  if update_ready:
+    HARDWARE.reboot()
+  elif update_available:
+    os.system("pkill -SIGHUP -f selfdrive.updated.updated")
+  elif update_state == "idle":
+    os.system("pkill -SIGUSR1 -f selfdrive.updated.updated")
+
+def github_pinged(url="https://github.com", timeout=5):
+  try:
+    urllib.request.urlopen(url, timeout=timeout)
+    return True
+  except (urllib.error.URLError, socket.timeout, http.client.RemoteDisconnected):
+    return False
+
+def time_checks(automatic_updates, deviceState, params):
+  if github_pinged():
+    screen_off = deviceState.screenBrightnessPercent == 0
+    wifi_connection = deviceState.networkType == WIFI
+
+    if automatic_updates and screen_off and wifi_connection:
+      automatic_update_check(params)
 
 def frogpilot_thread():
   config_realtime_process(5, Priority.CTRL_LOW)
@@ -25,6 +56,8 @@ def frogpilot_thread():
 
   CP = None
 
+  automatic_updates = params.get_bool("AutomaticUpdates")
+  first_run = True
   time_validated = system_time_valid()
 
   pm = messaging.PubMaster(['frogpilotPlan'])
@@ -51,6 +84,8 @@ def frogpilot_thread():
         frogpilot_planner.publish(sm, pm)
 
     if params_memory.get_bool("FrogPilotTogglesUpdated"):
+      automatic_updates = params.get_bool("AutomaticUpdates")
+
       if started:
         frogpilot_planner.update_frogpilot_params()
 
@@ -58,6 +93,12 @@ def frogpilot_thread():
       time_validated = system_time_valid()
       if not time_validated:
         continue
+
+    if datetime.datetime.now().second == 0 or first_run or params_memory.get_bool("ManualUpdateInitiated"):
+      if not started:
+        time_checks(automatic_updates, deviceState, params)
+
+      first_run = False
 
     time.sleep(DT_MDL)
 

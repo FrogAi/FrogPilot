@@ -446,6 +446,7 @@ def main() -> None:
 
     # Run the update loop
     first_run = True
+    branches_set = "FrogPilot" in (params.get("UpdaterAvailableBranches", encoding='utf-8') or "").split(',')
     while True:
       wait_helper.ready_event.clear()
 
@@ -463,11 +464,17 @@ def main() -> None:
           wait_helper.sleep(60)
           continue
 
+        if not (params.get_bool("AutomaticUpdates") or params_memory.get_bool("ManualUpdateInitiated") or not branches_set):
+          wait_helper.sleep(60*60*24*365*100)
+          continue
+
         update_failed_count += 1
 
         # check for update
         params.put("UpdaterState", "checking...")
         updater.check_for_update()
+        branches_set = True
+        params_memory.put_bool("ManualUpdateInitiated", False)
 
         # download update
         last_fetch = read_time_from_param(params, "UpdaterLastFetchTime")
