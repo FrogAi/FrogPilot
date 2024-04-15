@@ -180,6 +180,7 @@ typedef struct UIScene {
   bool blind_spot_path;
   bool blind_spot_right;
   bool conditional_experimental;
+  bool disable_smoothing_mtsc;
   bool driver_camera;
   bool dynamic_path_width;
   bool enabled;
@@ -212,6 +213,7 @@ typedef struct UIScene {
   float acceleration;
   float acceleration_jerk;
   float acceleration_jerk_difference;
+  float adjusted_cruise;
   float ego_jerk;
   float ego_jerk_difference;
   float friction;
