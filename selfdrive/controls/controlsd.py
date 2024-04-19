@@ -866,7 +866,8 @@ class Controls:
   def params_thread(self, evt):
     while not evt.is_set():
       self.is_metric = self.params.get_bool("IsMetric")
-      self.experimental_mode = self.params.get_bool("ExperimentalMode") and self.CP.openpilotLongitudinalControl
+      if self.CP.openpilotLongitudinalControl and not self.frogpilot_variables.conditional_experimental_mode:
+        self.experimental_mode = self.params.get_bool("ExperimentalMode")
       self.personality = self.read_personality_param()
       if self.CP.notCar:
         self.joystick_mode = self.params.get_bool("JoystickDebugMode")
@@ -898,6 +899,9 @@ class Controls:
     self.FPCC.alwaysOnLateral &= self.driving_gear
     self.FPCC.alwaysOnLateral &= not (CS.brakePressed and CS.vEgo < self.always_on_lateral_pause_speed) or CS.standstill
 
+    if self.CP.openpilotLongitudinalControl and self.frogpilot_variables.conditional_experimental_mode:
+      self.experimental_mode = self.sm['frogpilotPlan'].conditionalExperimental
+
     fpcc_send = messaging.new_message('frogpilotCarControl')
     fpcc_send.valid = CS.canValid
     fpcc_send.frogpilotCarControl = self.FPCC
@@ -908,6 +912,8 @@ class Controls:
 
   def update_frogpilot_params(self):
     self.always_on_lateral_pause_speed = self.always_on_lateral and self.params.get_int("PauseAOLOnBrake")
+
+    self.frogpilot_variables.conditional_experimental_mode = self.CP.openpilotLongitudinalControl and self.params.get_bool("ConditionalExperimental")
 
     custom_alerts = self.params.get_bool("CustomAlerts")
 

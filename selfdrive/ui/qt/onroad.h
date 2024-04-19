@@ -124,9 +124,11 @@ private:
   bool experimentalMode;
   bool mapOpen;
   bool showAlwaysOnLateralStatusBar;
+  bool showConditionalExperimentalStatusBar;
 
   int alertSize;
   int cameraView;
+  int conditionalStatus;
 
 protected:
   void paintGL() override;
