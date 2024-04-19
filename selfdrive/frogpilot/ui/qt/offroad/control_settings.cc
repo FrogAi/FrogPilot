@@ -18,6 +18,8 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     {"CESignal", tr("Turn Signal When Below Highway Speeds"), tr("Switch to 'Experimental Mode' when using turn signals below highway speeds to help assist with turns."), ""},
     {"HideCEMStatusBar", tr("Hide the Status Bar"), tr("Don't use the status bar for 'Conditional Experimental Mode'."), ""},
 
+    {"CustomPersonalities", tr("Custom Driving Personalities"), tr("Customize the driving personality profiles to your driving style."), "../frogpilot/assets/toggle_icons/icon_custom.png"},
+
     {"LateralTune", tr("Lateral Tuning"), tr("Modify openpilot's steering behavior."), "../frogpilot/assets/toggle_icons/icon_lateral_tune.png"},
 
     {"LongitudinalTune", tr("Longitudinal Tuning"), tr("Modify openpilot's acceleration and braking behavior."), "../frogpilot/assets/toggle_icons/icon_longitudinal_tune.png"},
@@ -80,6 +82,58 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
       std::vector<QString> stopLightToggles{"CEStopLightsLead"};
       std::vector<QString> stopLightToggleNames{tr("With Lead")};
       toggle = new FrogPilotParamToggleControl(param, title, desc, icon, stopLightToggles, stopLightToggleNames);
+
+    } else if (param == "CustomPersonalities") {
+      FrogPilotParamManageControl *customPersonalitiesToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
+      QObject::connect(customPersonalitiesToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
+        openParentToggle();
+        for (auto &[key, toggle] : toggles) {
+          toggle->setVisible(false);
+        }
+        aggressiveProfile->setVisible(true);
+        standardProfile->setVisible(true);
+        relaxedProfile->setVisible(true);
+      });
+      toggle = customPersonalitiesToggle;
+
+      FrogPilotParamValueControl *aggressiveFollow = new FrogPilotParamValueControl("AggressiveFollow", tr("Follow"),
+                                                                                 tr("Set the 'Aggressive' personality' following distance. "
+                                                                                    "Represents seconds to follow behind the lead vehicle.\n\nStock: 1.25 seconds."),
+                                                                                    "../frogpilot/assets/other_images/aggressive.png",
+                                                                                    1, 5, std::map<int, QString>(), this, false, tr(" sec"), 1, 0.01);
+      FrogPilotParamValueControl *aggressiveJerk = new FrogPilotParamValueControl("AggressiveJerk", tr("Jerk"),
+                                                                               tr("Configure brake/gas pedal responsiveness for the 'Aggressive' personality. "
+                                                                                  "Higher jerk value = Less likely to use the gas/brake.\nLower jerk value = More likely.\n\nStock: 0.5."),
+                                                                                  "",
+                                                                                  0.01, 5, std::map<int, QString>(), this, false, "", 1, 0.01);
+      aggressiveProfile = new FrogPilotDualParamControl(aggressiveFollow, aggressiveJerk, this, true);
+      addItem(aggressiveProfile);
+
+      FrogPilotParamValueControl *standardFollow = new FrogPilotParamValueControl("StandardFollow", tr("Follow"),
+                                                                               tr("Set the 'Standard' personality following distance. "
+                                                                                  "Represents seconds to follow behind the lead vehicle.\n\nStock: 1.45 seconds."),
+                                                                                  "../frogpilot/assets/other_images/standard.png",
+                                                                                  1, 5, std::map<int, QString>(), this, false, tr(" sec"), 1, 0.01);
+      FrogPilotParamValueControl *standardJerk = new FrogPilotParamValueControl("StandardJerk", tr("Jerk"),
+                                                                             tr("Adjust brake/gas pedal responsiveness for the 'Standard' personality. "
+                                                                                "Higher jerk value = Less likely to use the gas/brake.\nLower jerk value = More likely.\n\nStock: 1.0."),
+                                                                                "",
+                                                                                0.01, 5, std::map<int, QString>(), this, false, "", 1, 0.01);
+      standardProfile = new FrogPilotDualParamControl(standardFollow, standardJerk, this, true);
+      addItem(standardProfile);
+
+      FrogPilotParamValueControl *relaxedFollow = new FrogPilotParamValueControl("RelaxedFollow", tr("Follow"),
+                                                                              tr("Set the 'Relaxed' personality following distance. "
+                                                                                 "Represents seconds to follow behind the lead vehicle.\n\nStock: 1.75 seconds."),
+                                                                                 "../frogpilot/assets/other_images/relaxed.png",
+                                                                                 1, 5, std::map<int, QString>(), this, false, tr(" sec"), 1, 0.01);
+      FrogPilotParamValueControl *relaxedJerk = new FrogPilotParamValueControl("RelaxedJerk", tr("Jerk"),
+                                                                            tr("Set brake/gas pedal responsiveness for the 'Relaxed' personality. "
+                                                                               "Higher jerk value = Less likely to use the gas/brake.\nLower jerk value = More likely.\n\nStock: 1.0."),
+                                                                               "",
+                                                                               0.01, 5, std::map<int, QString>(), this, false, "", 1, 0.01);
+      relaxedProfile = new FrogPilotDualParamControl(relaxedFollow, relaxedJerk, this, true);
+      addItem(relaxedProfile);
 
     } else if (param == "LateralTune") {
       FrogPilotParamManageControl *lateralTuneToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
@@ -252,10 +306,13 @@ void FrogPilotControlsPanel::updateMetric() {
 }
 
 void FrogPilotControlsPanel::hideToggles() {
+  aggressiveProfile->setVisible(false);
   conditionalSpeedsImperial->setVisible(false);
   conditionalSpeedsMetric->setVisible(false);
+  standardProfile->setVisible(false);
+  relaxedProfile->setVisible(false);
 
-  std::set<QString> longitudinalKeys = {"ConditionalExperimental", "LongitudinalTune"};
+  std::set<QString> longitudinalKeys = {"ConditionalExperimental", "CustomPersonalities", "LongitudinalTune"};
 
   for (auto &[key, toggle] : toggles) {
     toggle->setVisible(false);

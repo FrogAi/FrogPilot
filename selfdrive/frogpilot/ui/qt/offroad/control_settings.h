@@ -25,8 +25,11 @@ private:
   void updateState();
   void updateToggles();
 
+  FrogPilotDualParamControl *aggressiveProfile;
   FrogPilotDualParamControl *conditionalSpeedsImperial;
   FrogPilotDualParamControl *conditionalSpeedsMetric;
+  FrogPilotDualParamControl *standardProfile;
+  FrogPilotDualParamControl *relaxedProfile;
 
   std::set<QString> aolKeys = {"AlwaysOnLateralMain", "HideAOLStatusBar", "PauseAOLOnBrake"};
   std::set<QString> conditionalExperimentalKeys = {"CECurves", "CECurvesLead", "CENavigation", "CESignal", "CESlowerLead", "CEStopLights", "HideCEMStatusBar"};

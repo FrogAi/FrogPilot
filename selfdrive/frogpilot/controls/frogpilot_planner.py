@@ -90,8 +90,8 @@ class FrogPilotPlanner:
     road_curvature = calculate_road_curvature(modelData, v_ego)
 
     if radarState.leadOne.status and self.CP.openpilotLongitudinalControl:
-      base_jerk = get_jerk_factor(controlsState.personality)
-      base_t_follow = get_T_FOLLOW(controlsState.personality)
+      base_jerk = get_jerk_factor(self.custom_personalities, self.aggressive_jerk, self.standard_jerk, self.relaxed_jerk, controlsState.personality)
+      base_t_follow = get_T_FOLLOW(self.custom_personalities, self.aggressive_follow, self.standard_follow, self.relaxed_follow, controlsState.personality)
       self.jerk, self.t_follow = self.update_follow_values(base_jerk, radarState, base_t_follow, v_ego, v_lead)
     else:
       self.t_follow = 1.45
@@ -157,6 +157,14 @@ class FrogPilotPlanner:
       self.cem.update_frogpilot_params()
 
     custom_alerts = self.params.get_bool("CustomAlerts")
+
+    self.custom_personalities = self.params.get_bool("CustomPersonalities")
+    self.aggressive_jerk = self.params.get_float("AggressiveJerk")
+    self.aggressive_follow = self.params.get_float("AggressiveFollow")
+    self.standard_jerk = self.params.get_float("StandardJerk")
+    self.standard_follow = self.params.get_float("StandardFollow")
+    self.relaxed_jerk = self.params.get_float("RelaxedJerk")
+    self.relaxed_follow = self.params.get_float("RelaxedFollow")
 
     custom_ui = self.params.get_bool("CustomUI")
     self.blind_spot_path = custom_ui and self.params.get_bool("BlindSpotPath")
