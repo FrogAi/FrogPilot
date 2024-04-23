@@ -172,6 +172,7 @@ class CarInterface(CarInterfaceBase):
     ret.longitudinalActuatorDelayUpperBound = 0.5  # large delay to initially start braking
 
     if candidate in (CAR.VOLT, CAR.VOLT_CC):
+      ret.minEnableSpeed = -1
       ret.lateralTuning.pid.kpBP = [0., 40.]
       ret.lateralTuning.pid.kpV = [0., 0.17]
       ret.lateralTuning.pid.kiBP = [0.]
