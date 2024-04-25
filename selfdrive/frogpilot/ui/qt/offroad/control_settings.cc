@@ -289,6 +289,8 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
 }
 
 void FrogPilotControlsPanel::showEvent(QShowEvent *event, const UIState &s) {
+  hasOpenpilotLongitudinal = hasOpenpilotLongitudinal && !params.getBool("DisableOpenpilotLongitudinal");
+
   online = s.scene.online;
   bool parked = s.scene.parked;
   started = s.scene.started;

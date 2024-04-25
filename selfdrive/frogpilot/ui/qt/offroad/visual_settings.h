@@ -17,6 +17,7 @@ signals:
 
 private:
   void hideToggles();
+  void showEvent(QShowEvent *event);
   void updateCarToggles();
   void updateMetric();
   void updateState(const UIState &s);
