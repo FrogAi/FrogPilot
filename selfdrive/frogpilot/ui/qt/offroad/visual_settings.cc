@@ -1,6 +1,9 @@
 #include "selfdrive/frogpilot/ui/qt/offroad/visual_settings.h"
 
 FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilotListWidget(parent) {
+  std::string branch = params.get("GitBranch");
+  isRelease = branch == "FrogPilot";
+
   const std::vector<std::tuple<QString, QString, QString, QString>> visualToggles {
     {"AlertVolumeControl", tr("Alert Volume Controller"), tr("Control the volume level for each individual sound in openpilot."), "../frogpilot/assets/toggle_icons/icon_mute.png"},
     {"DisengageVolume", tr("Disengage Volume"), tr("Related alerts:\n\nAdaptive Cruise Disabled\nParking Brake Engaged\nBrake Pedal Pressed\nSpeed too Low"), ""},
@@ -14,6 +17,8 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
     {"CustomAlerts", tr("Custom Alerts"), tr("Enable custom alerts for openpilot events."), "../frogpilot/assets/toggle_icons/icon_green_light.png"},
 
     {"CustomUI", tr("Custom Onroad UI"), tr("Customize the Onroad UI."), "../assets/offroad/icon_road.png"},
+    {"DeveloperUI", tr("Developer UI"), tr("Get various detailed information of what openpilot is doing behind the scenes."), ""},
+    {"LeadInfo", tr("Lead Info and Logics"), tr("Get detailed information about the vehicle ahead, including speed and distance, and the logic behind your following distance."), ""},
     {"CustomPaths", tr("Paths"), tr("Show your projected acceleration on the driving path, detected adjacent lanes, or when a vehicle is detected in your blindspot."), ""},
 
     {"CustomTheme", tr("Custom Themes"), tr("Enable the ability to use custom themes."), "../frogpilot/assets/wheel_images/frog.png"},
@@ -99,10 +104,26 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(SettingsWindow *parent) : FrogPilot
         for (auto &[key, toggle] : toggles) {
           std::set<QString> modifiedCustomOnroadUIKeys = customOnroadUIKeys;
 
+          if (!hasOpenpilotLongitudinal && !hasAutoTune || isRelease) {
+            modifiedCustomOnroadUIKeys.erase("DeveloperUI");
+          }
+
+          if (!hasOpenpilotLongitudinal || !isRelease) {
+            modifiedCustomOnroadUIKeys.erase("LeadInfo");
+          }
+
           toggle->setVisible(modifiedCustomOnroadUIKeys.find(key.c_str()) != modifiedCustomOnroadUIKeys.end());
         }
       });
       toggle = customUIToggle;
+    } else if (param == "DeveloperUI") {
+      std::vector<QString> developerUIToggles{"LeadInfo", "ShowTuning", "ShowJerk", "UseSI"};
+      std::vector<QString> developerUIToggleNames{tr("Lead Info"), tr("Live Tuning"), tr("Jerk"), tr("Use SI")};
+      toggle = new FrogPilotParamToggleControl(param, title, desc, icon, developerUIToggles, developerUIToggleNames);
+    } else if (param == "LeadInfo") {
+      std::vector<QString> leadInfoToggles{"UseSI"};
+      std::vector<QString> leadInfoToggleNames{tr("Use SI Values")};
+      toggle = new FrogPilotParamToggleControl(param, title, desc, icon, leadInfoToggles, leadInfoToggleNames);
     } else if (param == "CustomPaths") {
       std::vector<QString> pathToggles{"AccelerationPath", "BlindSpotPath"};
       std::vector<QString> pathToggleNames{tr("Acceleration"), tr("Blind Spot")};
@@ -204,7 +225,9 @@ void FrogPilotVisualsPanel::updateCarToggles() {
     AlignedBuffer aligned_buf;
     capnp::FlatArrayMessageReader cmsg(aligned_buf.align(carParams.data(), carParams.size()));
     cereal::CarParams::Reader CP = cmsg.getRoot<cereal::CarParams>();
+    auto carName = CP.getCarName();
 
+    hasAutoTune = (carName == "hyundai" || carName == "toyota") && CP.getLateralTuning().which() == cereal::CarParams::LateralTuning::TORQUE;
     hasBSM = CP.getEnableBsm();
     hasOpenpilotLongitudinal = CP.getOpenpilotLongitudinalControl() && !params.getBool("DisableOpenpilotLongitudinal");
   } else {

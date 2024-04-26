@@ -25,7 +25,7 @@ private:
 
   std::set<QString> alertVolumeControlKeys = {"DisengageVolume", "EngageVolume", "PromptDistractedVolume", "PromptVolume", "RefuseVolume", "WarningImmediateVolume", "WarningSoftVolume"};
   std::set<QString> customAlertsKeys = {};
-  std::set<QString> customOnroadUIKeys = {"CustomPaths"};
+  std::set<QString> customOnroadUIKeys = {"CustomPaths", "DeveloperUI", "LeadInfo"};
   std::set<QString> customThemeKeys = {"CustomColors", "CustomIcons", "CustomSignals", "CustomSounds"};
   std::set<QString> modelUIKeys = {"DynamicPathWidth", "HideLeadMarker", "LaneLinesWidth", "PathEdgeWidth", "PathWidth", "RoadEdgesWidth", "UnlimitedLength"};
   std::set<QString> qolKeys = {"CameraView"};
@@ -36,8 +36,10 @@ private:
   Params params;
   Params paramsMemory{"/dev/shm/params"};
 
+  bool hasAutoTune;
   bool hasBSM;
   bool hasOpenpilotLongitudinal;
   bool isMetric = params.getBool("IsMetric");
+  bool isRelease;
   bool started;
 };

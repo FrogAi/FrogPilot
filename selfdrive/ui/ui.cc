@@ -244,11 +244,25 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("frogpilotPlan")) {
     auto frogpilotPlan = sm["frogpilotPlan"].getFrogpilotPlan();
+    scene.acceleration_jerk = frogpilotPlan.getAccelerationJerk();
+    scene.acceleration_jerk_difference = frogpilotPlan.getAccelerationJerkStock() - scene.acceleration_jerk;
+    scene.desired_follow = frogpilotPlan.getDesiredFollowDistance();
+    scene.ego_jerk = frogpilotPlan.getEgoJerk();
+    scene.ego_jerk_difference = frogpilotPlan.getEgoJerkStock() - scene.ego_jerk;
     scene.lane_width_left = frogpilotPlan.getLaneWidthLeft();
     scene.lane_width_right = frogpilotPlan.getLaneWidthRight();
+    scene.obstacle_distance = frogpilotPlan.getSafeObstacleDistance();
+    scene.obstacle_distance_stock = frogpilotPlan.getSafeObstacleDistanceStock();
+    scene.stopped_equivalence = frogpilotPlan.getStoppedEquivalenceFactor();
   }
   if (sm.updated("liveLocationKalman")) {
     auto liveLocationKalman = sm["liveLocationKalman"].getLiveLocationKalman();
+  }
+  if (sm.updated("liveTorqueParameters")) {
+    auto torque_params = sm["liveTorqueParameters"].getLiveTorqueParameters();
+    scene.friction = torque_params.getFrictionCoefficientFiltered();
+    scene.lat_accel = torque_params.getLatAccelFactorFiltered();
+    scene.live_valid = torque_params.getLiveValid();
   }
   if (sm.updated("wideRoadCameraState")) {
     auto cam_state = sm["wideRoadCameraState"].getWideRoadCameraState();
@@ -274,6 +288,9 @@ void ui_update_frogpilot_params(UIState *s) {
   Params params = Params();
   UIScene &scene = s->scene;
 
+  std::string branch = params.get("GitBranch");
+  bool isRelease = branch == "FrogPilot";
+
   bool always_on_lateral = params.getBool("AlwaysOnLateral");
   scene.show_aol_status_bar = always_on_lateral && !params.getBool("HideAOLStatusBar");
 
@@ -284,8 +301,13 @@ void ui_update_frogpilot_params(UIState *s) {
 
   bool custom_onroad_ui = params.getBool("CustomUI");
   bool custom_paths = custom_onroad_ui && params.getBool("CustomPaths");
+  bool developer_ui = !isRelease && custom_onroad_ui && params.getBool("DeveloperUI");
   scene.acceleration_path = custom_paths && params.getBool("AccelerationPath");
   scene.blind_spot_path = custom_paths && params.getBool("BlindSpotPath");
+  scene.lead_info = scene.longitudinal_control && custom_onroad_ui && params.getBool("LeadInfo");
+  scene.show_jerk = scene.longitudinal_control && developer_ui && params.getBool("ShowJerk");
+  scene.show_tuning = scene.has_auto_tune && developer_ui && params.getBool("ShowTuning");
+  scene.use_si = (scene.lead_info || developer_ui) && params.getBool("UseSI");
 
   bool custom_theme = params.getBool("CustomTheme");
   scene.custom_colors = custom_theme ? params.getInt("CustomColors") : 0;
@@ -336,7 +358,7 @@ UIState::UIState(QObject *parent) : QObject(parent) {
   sm = std::make_unique<SubMaster, const std::initializer_list<const char *>>({
     "modelV2", "controlsState", "liveCalibration", "radarState", "deviceState",
     "pandaStates", "carParams", "driverMonitoringState", "carState", "liveLocationKalman", "driverStateV2",
-    "wideRoadCameraState", "managerState", "navInstruction", "navRoute", "uiPlan",
+    "wideRoadCameraState", "managerState", "navInstruction", "navRoute", "uiPlan", "liveTorqueParameters",
     "frogpilotCarControl", "frogpilotDeviceState", "frogpilotPlan",
   });
 

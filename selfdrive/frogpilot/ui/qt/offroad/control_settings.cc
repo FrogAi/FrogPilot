@@ -318,6 +318,8 @@ void FrogPilotControlsPanel::updateCarToggles() {
     auto carFingerprint = CP.getCarFingerprint();
     auto carName = CP.getCarName();
 
+    hasAutoTune = (carName == "hyundai" || carName == "toyota") && CP.getLateralTuning().which() == cereal::CarParams::LateralTuning::TORQUE;
+    uiState()->scene.has_auto_tune = hasAutoTune;
     hasOpenpilotLongitudinal = CP.getOpenpilotLongitudinalControl() && !params.getBool("DisableOpenpilotLongitudinal");
     hasPCMCruise = CP.getPcmCruise();
     isToyota = carName == "toyota";
