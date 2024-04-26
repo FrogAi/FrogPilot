@@ -3,11 +3,12 @@ import os
 import math
 import time
 import threading
+from types import SimpleNamespace
 from typing import SupportsFloat
 
 import cereal.messaging as messaging
 
-from cereal import car, log
+from cereal import car, custom, log
 from cereal.visionipc import VisionIpcClient, VisionStreamType
 
 
@@ -32,6 +33,8 @@ from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
 from openpilot.system.hardware import HARDWARE
 from openpilot.system.version import get_short_branch
 
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import CRUISING_SPEED
+
 SOFT_DISABLE_TIME = 3  # seconds
 LDW_MIN_SPEED = 31 * CV.MPH_TO_MS
 LANE_DEPARTURE_THRESHOLD = 0.1
@@ -50,7 +53,9 @@ LaneChangeState = log.LaneChangeState
 LaneChangeDirection = log.LaneChangeDirection
 EventName = car.CarEvent.EventName
 ButtonType = car.CarState.ButtonEvent.Type
+GearShifter = car.CarState.GearShifter
 SafetyModel = car.CarParams.SafetyModel
+FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
 
 IGNORED_SAFETY_MODES = (SafetyModel.silent, SafetyModel.noOutput)
 CSID_MAP = {"1": EventName.roadCameraError, "2": EventName.wideRoadCameraError, "0": EventName.driverCameraError}
@@ -64,6 +69,8 @@ class Controls:
     self.card = CarD(CI)
 
     self.params = Params()
+    self.params_memory = Params("/dev/shm/params")
+    self.params_storage = Params("/persist/params")
 
     with car.CarParams.from_bytes(self.params.get("CarParams", block=True)) as msg:
       # TODO: this shouldn't need to be a builder
@@ -76,7 +83,7 @@ class Controls:
     self.branch = get_short_branch()
 
     # Setup sockets
-    self.pm = messaging.PubMaster(['controlsState', 'carControl', 'onroadEvents'])
+    self.pm = messaging.PubMaster(['controlsState', 'carControl', 'onroadEvents', 'frogpilotCarControl'])
 
     self.sensor_packets = ["accelerometer", "gyroscope"]
     self.camera_packets = ["roadCameraState", "driverCameraState", "wideRoadCameraState"]
@@ -89,7 +96,7 @@ class Controls:
     self.sm = messaging.SubMaster(['deviceState', 'pandaStates', 'peripheralState', 'modelV2', 'liveCalibration',
                                    'carOutput', 'driverMonitoringState', 'longitudinalPlan', 'liveLocationKalman',
                                    'managerState', 'liveParameters', 'radarState', 'liveTorqueParameters',
-                                   'testJoystick'] + self.camera_packets + self.sensor_packets,
+                                   'testJoystick', 'frogpilotPlan'] + self.camera_packets + self.sensor_packets,
                                   ignore_alive=ignore, ignore_avg_freq=ignore+['radarState', 'testJoystick'], ignore_valid=['testJoystick', ],
                                   frequency=int(1/DT_CTRL))
 
@@ -113,6 +120,7 @@ class Controls:
 
     self.CC = car.CarControl.new_message()
     self.CS_prev = car.CarState.new_message()
+    self.FPCC = custom.FrogPilotCarControl.new_message()
     self.AM = AlertManager()
     self.events = Events()
 
@@ -166,6 +174,13 @@ class Controls:
 
     # controlsd is driven by can recv, expected at 100Hz
     self.rk = Ratekeeper(100, print_delay_threshold=None)
+
+    # FrogPilot variables
+    self.frogpilot_variables = SimpleNamespace()
+
+    self.block_user = self.branch == "FrogPilot-Development" and not self.params_storage.get_bool("FrogsGoMoo")
+
+    self.update_frogpilot_params()
 
   def set_initial_state(self):
     if REPLAY:
@@ -394,10 +409,12 @@ class Controls:
       if self.sm['modelV2'].frameDropPerc > 20:
         self.events.add(EventName.modeldLagging)
 
+    self.update_frogpilot_events(CS)
+
   def data_sample(self):
     """Receive data from sockets and update carState"""
 
-    CS = self.card.state_update()
+    CS = self.card.state_update(self.frogpilot_variables)
 
     self.sm.update(0)
 
@@ -521,7 +538,7 @@ class Controls:
           else:
             self.state = State.enabled
           self.current_alert_types.append(ET.ENABLE)
-          self.v_cruise_helper.initialize_v_cruise(CS, self.experimental_mode)
+          self.v_cruise_helper.initialize_v_cruise(CS, self.experimental_mode, self.frogpilot_variables)
 
     # Check if openpilot is engaged and actuators are enabled
     self.enabled = self.state in ENABLED_STATES
@@ -726,7 +743,7 @@ class Controls:
       hudControl.visualAlert = current_alert.visual_alert
 
     if not self.CP.passive and self.initialized:
-      self.card.controls_update(CC)
+      self.card.controls_update(CC, self.frogpilot_variables)
       if self.CP.steerControlType == car.CarParams.SteerControlType.angle:
         self.steer_limited = abs(CC.actuators.steeringAngleDeg - CO.actuatorsOutput.steeringAngleDeg) > \
                              STEER_ANGLE_SATURATION_THRESHOLD
@@ -828,6 +845,9 @@ class Controls:
 
     self.CS_prev = CS
 
+    # Update FrogPilot variables
+    self.update_frogpilot_variables(CS)
+
   def read_personality_param(self):
     try:
       return int(self.params.get('LongitudinalPersonality'))
@@ -855,6 +875,30 @@ class Controls:
       e.set()
       t.join()
 
+  def update_frogpilot_events(self, CS):
+    if self.block_user:
+      self.events.add(EventName.blockUser)
+      return
+
+  def update_frogpilot_variables(self, CS):
+    self.driving_gear = CS.gearShifter not in (GearShifter.neutral, GearShifter.park, GearShifter.reverse, GearShifter.unknown)
+
+    fpcc_send = messaging.new_message('frogpilotCarControl')
+    fpcc_send.valid = CS.canValid
+    fpcc_send.frogpilotCarControl = self.FPCC
+    self.pm.send('frogpilotCarControl', fpcc_send)
+
+    if self.params_memory.get_bool("FrogPilotTogglesUpdated"):
+      self.update_frogpilot_params()
+
+  def update_frogpilot_params(self):
+    custom_alerts = self.params.get_bool("CustomAlerts")
+
+    lateral_tune = self.params.get_bool("LateralTune")
+
+    longitudinal_tune = self.CP.openpilotLongitudinalControl and self.params.get_bool("LongitudinalTune")
+
+    quality_of_life = self.params.get_bool("QOLControls")
 
 def main():
   config_realtime_process(4, Priority.CTRL_HIGH)

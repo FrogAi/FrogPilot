@@ -3,7 +3,9 @@ import os
 import time
 import numpy as np
 from cereal import log
+from openpilot.common.conversions import Conversions as CV
 from openpilot.common.numpy_fast import clip
+from openpilot.common.params import Params
 from openpilot.common.swaglog import cloudlog
 # WARNING: imports outside of constants will not trigger a rebuild
 from openpilot.selfdrive.modeld.constants import index_function
@@ -221,6 +223,11 @@ def gen_long_ocp():
 
 class LongitudinalMpc:
   def __init__(self, mode='acc'):
+    # FrogPilot variables
+    self.params_memory = Params("/dev/shm/params")
+
+    self.update_frogpilot_params()
+
     self.mode = mode
     self.solver = AcadosOcpSolverCython(MODEL_NAME, ACADOS_SOLVER_TYPE, N)
     self.reset()
@@ -271,8 +278,7 @@ class LongitudinalMpc:
     for i in range(N):
       self.solver.cost_set(i, 'Zl', Zl)
 
-  def set_weights(self, prev_accel_constraint=True, personality=log.LongitudinalPersonality.standard):
-    jerk_factor = get_jerk_factor(personality)
+  def set_weights(self, jerk_factor=1.0, prev_accel_constraint=True, personality=log.LongitudinalPersonality.standard):
     if self.mode == 'acc':
       a_change_cost = A_CHANGE_COST if prev_accel_constraint else 0
       cost_weights = [X_EGO_OBSTACLE_COST, X_EGO_COST, V_EGO_COST, A_EGO_COST, jerk_factor * a_change_cost, jerk_factor * J_EGO_COST]
@@ -330,8 +336,7 @@ class LongitudinalMpc:
     self.cruise_min_a = min_a
     self.max_a = max_a
 
-  def update(self, radarstate, v_cruise, x, v, a, j, personality=log.LongitudinalPersonality.standard):
-    t_follow = get_T_FOLLOW(personality)
+  def update(self, radarstate, v_cruise, x, v, a, j, t_follow, personality=log.LongitudinalPersonality.standard):
     v_ego = self.x0[1]
     self.status = radarstate.leadOne.status or radarstate.leadTwo.status
 
@@ -410,6 +415,9 @@ class LongitudinalMpc:
          (lead_1_obstacle[0] - lead_0_obstacle[0]):
         self.source = 'lead1'
 
+    if self.params_memory.get_bool("FrogPilotTogglesUpdated"):
+      self.update_frogpilot_params()
+
   def run(self):
     # t0 = time.monotonic()
     # reset = 0
@@ -452,6 +460,12 @@ class LongitudinalMpc:
     # print(f"long_mpc timings: total internal {self.solve_time:.2e}, external: {(time.monotonic() - t0):.2e} qp {self.time_qp_solution:.2e}, \
     # lin {self.time_linearization:.2e} qp_iter {qp_iter}, reset {reset}")
 
+  def update_frogpilot_params(self):
+    params = Params()
+
+    is_metric = params.get_bool("IsMetric")
+
+    longitudinal_tune = params.get_bool("LongitudinalTune")
 
 if __name__ == "__main__":
   ocp = gen_long_ocp()

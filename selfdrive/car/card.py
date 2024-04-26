@@ -44,7 +44,7 @@ class CarD:
 
       num_pandas = len(messaging.recv_one_retry(self.sm.sock['pandaStates']).pandaStates)
       experimental_long_allowed = self.params.get_bool("ExperimentalLongitudinalEnabled")
-      self.CI, self.CP = get_car(self.can_sock, self.pm.sock['sendcan'], experimental_long_allowed, num_pandas)
+      self.CI, self.CP = get_car(self.params, self.can_sock, self.pm.sock['sendcan'], experimental_long_allowed, num_pandas)
     else:
       self.CI, self.CP = CI, CI.CP
 
@@ -80,12 +80,12 @@ class CarD:
     """Initialize CarInterface, once controls are ready"""
     self.CI.init(self.CP, self.can_sock, self.pm.sock['sendcan'])
 
-  def state_update(self):
+  def state_update(self, frogpilot_variables):
     """carState update loop, driven by can"""
 
     # Update carState from CAN
     can_strs = messaging.drain_sock_raw(self.can_sock, wait_for_one=True)
-    self.CS = self.CI.update(self.CC_prev, can_strs)
+    self.CS = self.CI.update(self.CC_prev, can_strs, frogpilot_variables)
 
     self.sm.update(0)
 
@@ -130,13 +130,12 @@ class CarD:
       co_send.carOutput.actuatorsOutput = self.last_actuators
     self.pm.send('carOutput', co_send)
 
-  def controls_update(self, CC: car.CarControl):
+  def controls_update(self, CC: car.CarControl, frogpilot_variables):
     """control update loop, driven by carControl"""
 
     # send car controls over can
     now_nanos = self.can_log_mono_time if REPLAY else int(time.monotonic() * 1e9)
-    self.last_actuators, can_sends = self.CI.apply(CC, now_nanos)
+    self.last_actuators, can_sends = self.CI.apply(CC, now_nanos, frogpilot_variables)
     self.pm.send('sendcan', can_list_to_can_capnp(can_sends, msgtype='sendcan', valid=self.CS.canValid))
 
     self.CC_prev = CC
-

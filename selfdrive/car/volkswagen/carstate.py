@@ -32,9 +32,9 @@ class CarState(CarStateBase):
 
     return button_events
 
-  def update(self, pt_cp, cam_cp, ext_cp, trans_type):
+  def update(self, pt_cp, cam_cp, ext_cp, trans_type, frogpilot_variables):
     if self.CP.flags & VolkswagenFlags.PQ:
-      return self.update_pq(pt_cp, cam_cp, ext_cp, trans_type)
+      return self.update_pq(pt_cp, cam_cp, ext_cp, trans_type, frogpilot_variables)
 
     ret = car.CarState.new_message()
     # Update vehicle speed and acceleration from ABS wheel speeds.
@@ -152,7 +152,7 @@ class CarState(CarStateBase):
     self.frame += 1
     return ret
 
-  def update_pq(self, pt_cp, cam_cp, ext_cp, trans_type):
+  def update_pq(self, pt_cp, cam_cp, ext_cp, trans_type, frogpilot_variables):
     ret = car.CarState.new_message()
     # Update vehicle speed and acceleration from ABS wheel speeds.
     ret.wheelSpeeds = self.get_wheel_speeds(

@@ -23,8 +23,14 @@ def main():
                        dirty=is_dirty(),
                        device=HARDWARE.get_device_type())
 
+  frogs_go_moo = Params("/persist/params").get_bool("FrogsGoMoo")
+
   try:
     while 1:
+      if frogs_go_moo:
+        time.sleep(60*60*24*365*100)
+        continue
+
       cloudlog.info("starting athena daemon")
       proc = Process(name='athenad', target=launcher, args=('selfdrive.athena.athenad', 'athenad'))
       proc.start()

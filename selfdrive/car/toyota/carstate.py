@@ -49,7 +49,9 @@ class CarState(CarStateBase):
     self.acc_type = 1
     self.lkas_hud = {}
 
-  def update(self, cp, cp_cam):
+    # FrogPilot variables
+
+  def update(self, cp, cp_cam, frogpilot_variables):
     ret = car.CarState.new_message()
 
     ret.doorOpen = any([cp.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_FL"], cp.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_FR"],

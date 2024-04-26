@@ -126,7 +126,7 @@ class CarController(CarControllerBase):
     self.brake = 0.0
     self.last_steer = 0.0
 
-  def update(self, CC, CS, now_nanos):
+  def update(self, CC, CS, now_nanos, frogpilot_variables):
     actuators = CC.actuators
     hud_control = CC.hudControl
     conversion = hondacan.get_cruise_speed_conversion(self.CP.carFingerprint, CS.is_metric)

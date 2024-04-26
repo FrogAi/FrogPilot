@@ -236,6 +236,8 @@ class Updater:
     self.branches = defaultdict(str)
     self._has_internet: bool = False
 
+    # FrogPilot variables
+
   @property
   def has_internet(self) -> bool:
     return self._has_internet
@@ -407,6 +409,7 @@ class Updater:
 
 def main() -> None:
   params = Params()
+  params_memory = Params("/dev/shm/params")
 
   if params.get_bool("DisableUpdates"):
     cloudlog.warning("updates are disabled by the DisableUpdates param")

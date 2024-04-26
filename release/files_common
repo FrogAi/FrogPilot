@@ -563,3 +563,7 @@ tinygrad_repo/tinygrad/runtime/ops_disk.py
 tinygrad_repo/tinygrad/runtime/ops_gpu.py
 tinygrad_repo/tinygrad/shape/*
 tinygrad_repo/tinygrad/*.py
+
+selfdrive/frogpilot/frogpilot_process.py
+selfdrive/frogpilot/controls/frogpilot_planner.py
+selfdrive/frogpilot/controls/lib/frogpilot_functions.py

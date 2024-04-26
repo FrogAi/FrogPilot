@@ -52,9 +52,11 @@ class CarState(CarStateBase):
 
     self.params = CarControllerParams(CP)
 
-  def update(self, cp, cp_cam):
+    # FrogPilot variables
+
+  def update(self, cp, cp_cam, frogpilot_variables):
     if self.CP.carFingerprint in CANFD_CAR:
-      return self.update_canfd(cp, cp_cam)
+      return self.update_canfd(cp, cp_cam, frogpilot_variables)
 
     ret = car.CarState.new_message()
     cp_cruise = cp_cam if self.CP.carFingerprint in CAMERA_SCC_CAR else cp
@@ -166,7 +168,7 @@ class CarState(CarStateBase):
 
     return ret
 
-  def update_canfd(self, cp, cp_cam):
+  def update_canfd(self, cp, cp_cam, frogpilot_variables):
     ret = car.CarState.new_message()
 
     self.is_metric = cp.vl["CRUISE_BUTTONS_ALT"]["DISTANCE_UNIT"] != 1

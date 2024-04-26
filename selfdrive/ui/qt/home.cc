@@ -74,6 +74,7 @@ void HomeWindow::offroadTransition(bool offroad) {
     slayout->setCurrentWidget(home);
   } else {
     slayout->setCurrentWidget(onroad);
+    uiState()->scene.map_open = onroad->isMapVisible();
   }
 }
 
@@ -91,6 +92,7 @@ void HomeWindow::mousePressEvent(QMouseEvent* e) {
   // Handle sidebar collapsing
   if ((onroad->isVisible() || body->isVisible()) && (!sidebar->isVisible() || e->x() > sidebar->width())) {
     sidebar->setVisible(!sidebar->isVisible() && !onroad->isMapVisible());
+    uiState()->scene.map_open = onroad->isMapVisible();
   }
 }
 

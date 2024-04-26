@@ -29,7 +29,9 @@ class CarState(CarStateBase):
     self.prev_distance_button = 0
     self.distance_button = 0
 
-  def update(self, pt_cp, cam_cp, loopback_cp):
+    # FrogPilot variables
+
+  def update(self, pt_cp, cam_cp, loopback_cp, frogpilot_variables):
     ret = car.CarState.new_message()
 
     self.prev_cruise_buttons = self.cruise_buttons

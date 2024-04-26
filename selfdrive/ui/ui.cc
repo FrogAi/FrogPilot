@@ -148,6 +148,8 @@ void update_dmonitoring(UIState *s, const cereal::DriverStateV2::Reader &drivers
     kpt_this = matvecmul3(r_xyz, kpt_this);
     scene.face_kpts_draw[kpi] = (vec3){{(float)kpt_this.v[0], (float)kpt_this.v[1], (float)(kpt_this.v[2] * (1.0-dm_fade_state) + 8 * dm_fade_state)}};
   }
+
+  scene.right_hand_drive = is_rhd;
 }
 
 static void update_sockets(UIState *s) {
@@ -200,6 +202,29 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("carParams")) {
     scene.longitudinal_control = sm["carParams"].getCarParams().getOpenpilotLongitudinalControl();
+    ui_update_frogpilot_params(s);
+  }
+  if (sm.updated("carState")) {
+    auto carState = sm["carState"].getCarState();
+    scene.acceleration = carState.getAEgo();
+  }
+  if (sm.updated("controlsState")) {
+    auto controlsState = sm["controlsState"].getControlsState();
+    scene.alert_size = controlsState.getAlertSize() == cereal::ControlsState::AlertSize::MID ? 350 : controlsState.getAlertSize() == cereal::ControlsState::AlertSize::SMALL ? 200 : 0;
+    scene.enabled = controlsState.getEnabled();
+    scene.experimental_mode = controlsState.getExperimentalMode();
+  }
+  if (sm.updated("deviceState")) {
+    auto deviceState = sm["deviceState"].getDeviceState();
+  }
+  if (sm.updated("frogpilotCarControl")) {
+    auto frogpilotCarControl = sm["frogpilotCarControl"].getFrogpilotCarControl();
+  }
+  if (sm.updated("frogpilotPlan")) {
+    auto frogpilotPlan = sm["frogpilotPlan"].getFrogpilotPlan();
+  }
+  if (sm.updated("liveLocationKalman")) {
+    auto liveLocationKalman = sm["liveLocationKalman"].getLiveLocationKalman();
   }
   if (sm.updated("wideRoadCameraState")) {
     auto cam_state = sm["wideRoadCameraState"].getWideRoadCameraState();
@@ -219,6 +244,18 @@ void ui_update_params(UIState *s) {
   auto params = Params();
   s->scene.is_metric = params.getBool("IsMetric");
   s->scene.map_on_left = params.getBool("NavSettingLeftSide");
+}
+
+void ui_update_frogpilot_params(UIState *s) {
+  Params params = Params();
+  UIScene &scene = s->scene;
+
+  bool custom_onroad_ui = params.getBool("CustomUI");
+  bool custom_paths = custom_onroad_ui && params.getBool("CustomPaths");
+
+  bool quality_of_life_controls = params.getBool("QOLControls");
+
+  bool quality_of_life_visuals = params.getBool("QOLVisuals");
 }
 
 void UIState::updateStatus() {
@@ -249,6 +286,7 @@ UIState::UIState(QObject *parent) : QObject(parent) {
     "modelV2", "controlsState", "liveCalibration", "radarState", "deviceState",
     "pandaStates", "carParams", "driverMonitoringState", "carState", "liveLocationKalman", "driverStateV2",
     "wideRoadCameraState", "managerState", "navInstruction", "navRoute", "uiPlan",
+    "frogpilotCarControl", "frogpilotDeviceState", "frogpilotPlan",
   });
 
   Params params;
@@ -262,6 +300,10 @@ UIState::UIState(QObject *parent) : QObject(parent) {
   timer = new QTimer(this);
   QObject::connect(timer, &QTimer::timeout, this, &UIState::update);
   timer->start(1000 / UI_FREQ);
+
+  wifi = new WifiManager(this);
+
+  ui_update_frogpilot_params(this);
 }
 
 void UIState::update() {
@@ -273,6 +315,13 @@ void UIState::update() {
     watchdog_kick(nanos_since_boot());
   }
   emit uiUpdate(*this);
+
+  // Update FrogPilot variables when they are changed
+  if (paramsMemory.getBool("FrogPilotTogglesUpdated")) {
+    ui_update_frogpilot_params(this);
+  }
+
+  // FrogPilot live variables that need to be constantly checked
 }
 
 void UIState::setPrimeType(PrimeType type) {

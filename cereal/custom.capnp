@@ -8,19 +8,22 @@ $Cxx.namespace("cereal");
 # cereal, so use these if you want custom events in your fork.
 
 # you can rename the struct, but don't change the identifier
-struct CustomReserved0 @0x81c2f05a394cf4af {
+struct FrogPilotCarControl @0x81c2f05a394cf4af {
 }
 
-struct CustomReserved1 @0xaedffd8f31e7b55d {
+struct FrogPilotCarState @0xaedffd8f31e7b55d {
 }
 
-struct CustomReserved2 @0xf35cc4560bbf6ec2 {
+struct FrogPilotDeviceState @0xf35cc4560bbf6ec2 {
 }
 
-struct CustomReserved3 @0xda96579883444c35 {
+struct FrogPilotNavigation @0xda96579883444c35 {
 }
 
-struct CustomReserved4 @0x80ae746ee2596b11 {
+struct FrogPilotPlan @0x80ae746ee2596b11 {
+  jerk @7 :Float32;
+  tFollow @20 :Float32;
+  vCruise @22 :Float32;
 }
 
 struct CustomReserved5 @0xa5cd762cd951a455 {

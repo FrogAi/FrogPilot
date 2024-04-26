@@ -1,5 +1,6 @@
 from cereal import log
 from openpilot.common.conversions import Conversions as CV
+from openpilot.common.params import Params
 from openpilot.common.realtime import DT_MDL
 
 LaneChangeState = log.LaneChangeState
@@ -40,7 +41,13 @@ class DesireHelper:
     self.prev_one_blinker = False
     self.desire = log.Desire.none
 
-  def update(self, carstate, lateral_active, lane_change_prob):
+    # FrogPilot variables
+    self.params = Params()
+    self.params_memory = Params("/dev/shm/params")
+
+    self.update_frogpilot_params()
+
+  def update(self, carstate, lateral_active, lane_change_prob, frogpilotPlan):
     v_ego = carstate.vEgo
     one_blinker = carstate.leftBlinker != carstate.rightBlinker
     below_lane_change_speed = v_ego < LANE_CHANGE_SPEED_MIN
@@ -112,3 +119,11 @@ class DesireHelper:
         self.keep_pulse_timer = 0.0
       elif self.desire in (log.Desire.keepLeft, log.Desire.keepRight):
         self.desire = log.Desire.none
+
+    if self.params_memory.get_bool("FrogPilotTogglesUpdated"):
+      self.update_frogpilot_params()
+
+  def update_frogpilot_params(self):
+    is_metric = self.params.get_bool("IsMetric")
+
+    lateral_tune = self.params.get_bool("LateralTune")
