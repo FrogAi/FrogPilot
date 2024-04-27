@@ -43,7 +43,7 @@ def create_accel_command(packer, accel, accel_raw, pcm_cancel, standstill_req, l
     "PERMIT_BRAKING": 1,
     "RELEASE_STANDSTILL": not standstill_req,
     "CANCEL_REQ": pcm_cancel,
-    "ALLOW_LONG_PRESS": 1,
+    "ALLOW_LONG_PRESS": 2 if frogpilot_variables.reverse_cruise_increase else 1,
     "ACC_CUT_IN": fcw_alert,  # only shown when ACC enabled
     "ACCEL_CMD_ALT": accel_raw,  # raw accel command, pcm uses this to calculate a compensatory force
   }

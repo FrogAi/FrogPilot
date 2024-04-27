@@ -161,6 +161,8 @@ private:
 
   QTimer *animationTimer;
 
+  inline QColor blueColor(int alpha = 255) { return QColor(0, 150, 255, alpha); }
+
 protected:
   void paintGL() override;
   void initializeGL() override;

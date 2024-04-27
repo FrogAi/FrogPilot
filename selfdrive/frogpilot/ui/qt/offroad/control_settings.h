@@ -39,7 +39,7 @@ private:
   std::set<QString> lateralTuneKeys = {"ForceAutoTune"};
   std::set<QString> longitudinalTuneKeys = {"AccelerationProfile", "AggressiveAcceleration", "DecelerationProfile"};
   std::set<QString> mtscKeys = {};
-  std::set<QString> qolKeys = {"DisableOnroadUploads"};
+  std::set<QString> qolKeys = {"CustomCruise", "CustomCruiseLong", "DisableOnroadUploads", "ReverseCruise"};
   std::set<QString> speedLimitControllerKeys = {};
   std::set<QString> speedLimitControllerControlsKeys = {};
   std::set<QString> speedLimitControllerQOLKeys = {};

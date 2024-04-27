@@ -43,7 +43,10 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     {"AggressiveAcceleration", tr("Increase Acceleration Behind Faster Lead"), tr("Increase aggressiveness when following a faster lead."), ""},
 
     {"QOLControls", tr("Quality of Life"), tr("Miscellaneous quality of life changes to improve your overall openpilot experience."), "../frogpilot/assets/toggle_icons/quality_of_life.png"},
+    {"CustomCruise", tr("Cruise Increase Interval"), tr("Set a custom interval to increase the max set speed by."), ""},
+    {"CustomCruiseLong", tr("Cruise Increase Interval (Long Press)"), tr("Set a custom interval to increase the max set speed by when holding down the cruise increase button."), ""},
     {"DisableOnroadUploads", tr("Disable Onroad Uploads"), tr("Prevent uploads to comma connect unless you're offroad and connected to Wi-Fi."), ""},
+    {"ReverseCruise", tr("Reverse Cruise Increase"), tr("Reverses the 'long press' functionality logic to increase the max set speed by 5 instead of 1. Useful to increase the max speed quickly."), ""},
   };
 
   for (const auto &[param, title, desc, icon] : controlToggles) {
@@ -227,10 +230,25 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
         for (auto &[key, toggle] : toggles) {
           std::set<QString> modifiedQolKeys = qolKeys;
 
+          if (!hasPCMCruise) {
+            modifiedQolKeys.erase("ReverseCruise");
+          } else {
+            modifiedQolKeys.erase("CustomCruise");
+            modifiedQolKeys.erase("CustomCruiseLong");
+          }
+
           toggle->setVisible(modifiedQolKeys.find(key.c_str()) != modifiedQolKeys.end());
         }
       });
       toggle = qolToggle;
+    } else if (param == "CustomCruise") {
+      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 99, std::map<int, QString>(), this, false, tr(" mph"));
+    } else if (param == "CustomCruiseLong") {
+      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 99, std::map<int, QString>(), this, false, tr(" mph"));
+    } else if (param == "ReverseCruise") {
+      std::vector<QString> reverseCruiseToggles{"ReverseCruiseUI"};
+      std::vector<QString> reverseCruiseNames{tr("Control Via UI")};
+      toggle = new FrogPilotParamToggleControl(param, title, desc, icon, reverseCruiseToggles, reverseCruiseNames);
 
     } else {
       toggle = new ParamControl(param, title, desc, icon, this);
@@ -369,17 +387,27 @@ void FrogPilotControlsPanel::updateMetric() {
 
     params.putIntNonBlocking("CESpeed", std::nearbyint(params.getInt("CESpeed") * speedConversion));
     params.putIntNonBlocking("CESpeedLead", std::nearbyint(params.getInt("CESpeedLead") * speedConversion));
+    params.putIntNonBlocking("CustomCruise", std::nearbyint(params.getInt("CustomCruise") * speedConversion));
+    params.putIntNonBlocking("CustomCruiseLong", std::nearbyint(params.getInt("CustomCruiseLong") * speedConversion));
     params.putIntNonBlocking("PauseAOLOnBrake", std::nearbyint(params.getInt("PauseAOLOnBrake") * speedConversion));
   }
 
+  FrogPilotParamValueControl *customCruiseToggle = static_cast<FrogPilotParamValueControl*>(toggles["CustomCruise"]);
+  FrogPilotParamValueControl *customCruiseLongToggle = static_cast<FrogPilotParamValueControl*>(toggles["CustomCruiseLong"]);
   FrogPilotParamValueControl *pauseAOLOnBrakeToggle = static_cast<FrogPilotParamValueControl*>(toggles["PauseAOLOnBrake"]);
 
   if (isMetric) {
+    customCruiseToggle->updateControl(1, 150, tr(" kph"));
+    customCruiseLongToggle->updateControl(1, 150, tr(" kph"));
     pauseAOLOnBrakeToggle->updateControl(0, 99, tr(" kph"));
   } else {
+    customCruiseToggle->updateControl(1, 99, tr(" mph"));
+    customCruiseLongToggle->updateControl(1, 99, tr(" mph"));
     pauseAOLOnBrakeToggle->updateControl(0, 99, tr(" mph"));
   }
 
+  customCruiseToggle->refresh();
+  customCruiseLongToggle->refresh();
   pauseAOLOnBrakeToggle->refresh();
 }
 
