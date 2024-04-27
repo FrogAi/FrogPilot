@@ -94,6 +94,11 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
 
     {"ModelSelector", tr("Model Selector"), tr("Manage openpilot's driving models."), "../assets/offroad/icon_calibration.png"},
 
+    {"NudgelessLaneChange", tr("Nudgeless Lane Change"), tr("Enable lane changes without requiring manual steering input."), "../frogpilot/assets/toggle_icons/icon_lane.png"},
+    {"LaneChangeTime", tr("Lane Change Timer"), tr("Set a delay before executing a nudgeless lane change."), ""},
+    {"LaneDetectionWidth", tr("Lane Detection Threshold"), tr("Set the required lane width to be qualified as a lane."), ""},
+    {"OneLaneChange", tr("One Lane Change Per Signal"), tr("Only allow one nudgeless lane change per turn signal activation."), ""},
+
     {"QOLControls", tr("Quality of Life"), tr("Miscellaneous quality of life changes to improve your overall openpilot experience."), "../frogpilot/assets/toggle_icons/quality_of_life.png"},
     {"CustomCruise", tr("Cruise Increase Interval"), tr("Set a custom interval to increase the max set speed by."), ""},
     {"CustomCruiseLong", tr("Cruise Increase Interval (Long Press)"), tr("Set a custom interval to increase the max set speed by when holding down the cruise increase button."), ""},
@@ -518,6 +523,24 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
       std::vector<QString> reverseCruiseNames{tr("Control Via UI")};
       toggle = new FrogPilotParamToggleControl(param, title, desc, icon, reverseCruiseToggles, reverseCruiseNames);
 
+    } else if (param == "NudgelessLaneChange") {
+      FrogPilotParamManageControl *laneChangeToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
+      QObject::connect(laneChangeToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
+        openParentToggle();
+        for (auto &[key, toggle] : toggles) {
+          toggle->setVisible(laneChangeKeys.find(key.c_str()) != laneChangeKeys.end());
+        }
+      });
+      toggle = laneChangeToggle;
+    } else if (param == "LaneChangeTime") {
+      std::map<int, QString> laneChangeTimeLabels;
+      for (int i = 0; i <= 10; ++i) {
+        laneChangeTimeLabels[i] = i == 0 ? "Instant" : QString::number(i / 2.0) + " seconds";
+      }
+      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 10, laneChangeTimeLabels, this, false);
+    } else if (param == "LaneDetectionWidth") {
+      toggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 100, std::map<int, QString>(), this, false, " feet", 10);
+
     } else {
       toggle = new ParamControl(param, title, desc, icon, this);
     }
@@ -662,29 +685,34 @@ void FrogPilotControlsPanel::updateMetric() {
     params.putIntNonBlocking("CESpeedLead", std::nearbyint(params.getInt("CESpeedLead") * speedConversion));
     params.putIntNonBlocking("CustomCruise", std::nearbyint(params.getInt("CustomCruise") * speedConversion));
     params.putIntNonBlocking("CustomCruiseLong", std::nearbyint(params.getInt("CustomCruiseLong") * speedConversion));
+    params.putIntNonBlocking("LaneDetectionWidth", std::nearbyint(params.getInt("LaneDetectionWidth") * distanceConversion));
     params.putIntNonBlocking("PauseAOLOnBrake", std::nearbyint(params.getInt("PauseAOLOnBrake") * speedConversion));
     params.putIntNonBlocking("StoppingDistance", std::nearbyint(params.getInt("StoppingDistance") * distanceConversion));
   }
 
   FrogPilotParamValueControl *customCruiseToggle = static_cast<FrogPilotParamValueControl*>(toggles["CustomCruise"]);
   FrogPilotParamValueControl *customCruiseLongToggle = static_cast<FrogPilotParamValueControl*>(toggles["CustomCruiseLong"]);
+  FrogPilotParamValueControl *laneWidthToggle = static_cast<FrogPilotParamValueControl*>(toggles["LaneDetectionWidth"]);
   FrogPilotParamValueControl *pauseAOLOnBrakeToggle = static_cast<FrogPilotParamValueControl*>(toggles["PauseAOLOnBrake"]);
   FrogPilotParamValueControl *stoppingDistanceToggle = static_cast<FrogPilotParamValueControl*>(toggles["StoppingDistance"]);
 
   if (isMetric) {
     customCruiseToggle->updateControl(1, 150, tr(" kph"));
     customCruiseLongToggle->updateControl(1, 150, tr(" kph"));
+    laneWidthToggle->updateControl(0, 30, tr(" meters"), 10);
     pauseAOLOnBrakeToggle->updateControl(0, 99, tr(" kph"));
     stoppingDistanceToggle->updateControl(0, 5, tr(" meters"));
   } else {
     customCruiseToggle->updateControl(1, 99, tr(" mph"));
     customCruiseLongToggle->updateControl(1, 99, tr(" mph"));
+    laneWidthToggle->updateControl(0, 100, tr(" feet"), 10);
     pauseAOLOnBrakeToggle->updateControl(0, 99, tr(" mph"));
     stoppingDistanceToggle->updateControl(0, 10, tr(" feet"));
   }
 
   customCruiseToggle->refresh();
   customCruiseLongToggle->refresh();
+  laneWidthToggle->refresh();
   pauseAOLOnBrakeToggle->refresh();
   stoppingDistanceToggle->refresh();
 }
