@@ -13,13 +13,14 @@ from openpilot.selfdrive.controls.lib.desire_helper import LANE_CHANGE_SPEED_MIN
 from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import A_CHANGE_COST, J_EGO_COST, COMFORT_BRAKE, STOP_DISTANCE, get_jerk_factor, \
                                                                            get_safe_obstacle_distance, get_stopped_equivalence_factor, get_T_FOLLOW
-from openpilot.selfdrive.controls.lib.longitudinal_planner import A_CRUISE_MIN, get_max_accel
+from openpilot.selfdrive.controls.lib.longitudinal_planner import A_CRUISE_MIN, Lead, get_max_accel
 
 from openpilot.system.version import get_short_branch
 
 from openpilot.selfdrive.frogpilot.controls.lib.conditional_experimental_mode import ConditionalExperimentalMode
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import CITY_SPEED_LIMIT, CRUISING_SPEED, calculate_lane_width, calculate_road_curvature
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import CITY_SPEED_LIMIT, CRUISING_SPEED, STAGING_BRANCHES, calculate_lane_width, calculate_road_curvature
 from openpilot.selfdrive.frogpilot.controls.lib.map_turn_speed_controller import MapTurnSpeedController
+from openpilot.selfdrive.frogpilot.controls.lib.model_manager import RADARLESS_MODELS
 
 # Acceleration profiles - Credit goes to the DragonPilot team!
                  # MPH = [0., 18,  36,  63,  94]
@@ -53,9 +54,12 @@ class FrogPilotPlanner:
     self.params_memory = Params("/dev/shm/params")
 
     self.cem = ConditionalExperimentalMode()
+    self.lead_one = Lead()
     self.mtsc = MapTurnSpeedController()
 
-    self.staging = get_short_branch() in ["FrogPilot-Development", "FrogPilot-Staging", "FrogPilot-Testing"]
+    self.staging = get_short_branch() in STAGING_BRANCHES
+
+    self.radarless_model = self.params.get("Model", block=True, encoding='utf-8') in RADARLESS_MODELS
 
     self.jerk = 0
     self.mtsc_target = 0
@@ -65,7 +69,7 @@ class FrogPilotPlanner:
     v_cruise_kph = min(controlsState.vCruise, V_CRUISE_MAX)
     v_cruise = v_cruise_kph * CV.KPH_TO_MS
     v_ego = max(carState.vEgo, 0)
-    v_lead = radarState.leadOne.vLead
+    v_lead = self.lead_one.vLead
 
     if self.acceleration_profile == 1:
       self.max_accel = get_max_accel_eco(v_ego)
@@ -97,13 +101,13 @@ class FrogPilotPlanner:
 
     road_curvature = calculate_road_curvature(modelData, v_ego)
 
-    if radarState.leadOne.status and self.CP.openpilotLongitudinalControl:
+    if self.lead_one.status and self.CP.openpilotLongitudinalControl:
       base_jerk = get_jerk_factor(self.custom_personalities, self.aggressive_jerk, self.standard_jerk, self.relaxed_jerk, controlsState.personality)
       base_t_follow = get_T_FOLLOW(self.custom_personalities, self.aggressive_follow, self.standard_follow, self.relaxed_follow, controlsState.personality)
       self.safe_obstacle_distance = int(np.mean(get_safe_obstacle_distance(v_ego, self.t_follow)))
       self.safe_obstacle_distance_stock = int(np.mean(get_safe_obstacle_distance(v_ego, base_t_follow)))
       self.stopped_equivalence_factor = int(np.mean(get_stopped_equivalence_factor(v_lead)))
-      self.jerk, self.t_follow = self.update_follow_values(base_jerk, radarState, base_t_follow, v_ego, v_lead)
+      self.jerk, self.t_follow = self.update_follow_values(base_jerk, self.lead_one, base_t_follow, v_ego, v_lead)
     else:
       self.safe_obstacle_distance = 0
       self.safe_obstacle_distance_stock = 0
@@ -113,9 +117,19 @@ class FrogPilotPlanner:
     self.v_cruise = self.update_v_cruise(carState, controlsState, controlsState.enabled, liveLocationKalman, modelData, road_curvature, v_cruise, v_ego)
 
     if self.conditional_experimental_mode and self.CP.openpilotLongitudinalControl or self.green_light_alert:
-      self.cem.update(carState, controlsState.enabled, frogpilotNavigation, modelData, radarState, road_curvature, self.t_follow, v_ego)
+      self.cem.update(carState, controlsState.enabled, frogpilotNavigation, self.lead_one, modelData, road_curvature, self.t_follow, v_ego)
 
-  def update_follow_values(self, jerk, radarState, t_follow, v_ego, v_lead):
+    if self.radarless_model:
+      model_leads = list(modelData.leadsV3)
+      if len(model_leads) > 0:
+        model_lead = model_leads[0]
+        self.lead_one.update(model_lead.x[0], model_lead.y[0], model_lead.v[0], model_lead.a[0], model_lead.prob)
+      else:
+        self.lead_one.reset()
+    else:
+      self.lead_one = radarState.leadOne
+
+  def update_follow_values(self, jerk, lead_one, t_follow, v_ego, v_lead):
     stopping_distance = STOP_DISTANCE + max(self.increased_stopping_distance - v_ego, 0)
     lead_distance = self.lead_one.dRel + stopping_distance
 

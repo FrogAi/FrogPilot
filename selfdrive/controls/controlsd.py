@@ -35,6 +35,8 @@ from openpilot.system.version import get_short_branch
 
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import CRUISING_SPEED, PROBABILITY, MovingAverageCalculator
 
+from openpilot.selfdrive.frogpilot.controls.lib.model_manager import RADARLESS_MODELS
+
 SOFT_DISABLE_TIME = 3  # seconds
 LDW_MIN_SPEED = 31 * CV.MPH_TO_MS
 LANE_DEPARTURE_THRESHOLD = 0.1
@@ -72,6 +74,8 @@ class Controls:
     self.params_memory = Params("/dev/shm/params")
     self.params_storage = Params("/persist/params")
 
+    self.radarless_model = self.params.get("Model", block=True, encoding='utf-8') in RADARLESS_MODELS
+
     with car.CarParams.from_bytes(self.params.get("CarParams", block=True)) as msg:
       # TODO: this shouldn't need to be a builder
       self.CP = msg.as_builder()
@@ -93,6 +97,8 @@ class Controls:
     ignore = self.sensor_packets + ['testJoystick']
     if SIMULATION:
       ignore += ['driverCameraState', 'managerState']
+    if self.radarless_model:
+      ignore += ['radarState']
     self.sm = messaging.SubMaster(['deviceState', 'pandaStates', 'peripheralState', 'modelV2', 'liveCalibration',
                                    'carOutput', 'driverMonitoringState', 'longitudinalPlan', 'liveLocationKalman',
                                    'managerState', 'liveParameters', 'radarState', 'liveTorqueParameters',
@@ -340,8 +346,9 @@ class Controls:
           self.events.add(EventName.cameraFrameRate)
     if not REPLAY and self.rk.lagging:
       self.events.add(EventName.controlsdLagging)
-    if len(self.sm['radarState'].radarErrors) or (not self.rk.lagging and not self.sm.all_checks(['radarState'])):
-      self.events.add(EventName.radarFault)
+    if not self.radarless_model:
+      if len(self.sm['radarState'].radarErrors) or (not self.rk.lagging and not self.sm.all_checks(['radarState'])):
+        self.events.add(EventName.radarFault)
     if not self.sm.valid['pandaStates']:
       self.events.add(EventName.usbError)
     if CS.canTimeout:
@@ -969,7 +976,7 @@ class Controls:
 
     custom_alerts = self.params.get_bool("CustomAlerts")
     self.green_light_alert = custom_alerts and self.params.get_bool("GreenLightAlert")
-    self.lead_departing_alert = custom_alerts and self.params.get_bool("LeadDepartingAlert")
+    self.lead_departing_alert = not self.radarless_model and custom_alerts and self.params.get_bool("LeadDepartingAlert")
     self.loud_blindspot_alert = custom_alerts and self.params.get_bool("LoudBlindspotAlert")
 
     custom_theme = self.params.get_bool("CustomTheme")

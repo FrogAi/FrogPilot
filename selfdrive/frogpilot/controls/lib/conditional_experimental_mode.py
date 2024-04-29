@@ -33,8 +33,7 @@ class ConditionalExperimentalMode:
 
     self.update_frogpilot_params()
 
-  def update(self, carState, enabled, frogpilotNavigation, modelData, radarState, road_curvature, t_follow, v_ego):
-    lead = radarState.leadOne
+  def update(self, carState, enabled, frogpilotNavigation, lead, modelData, road_curvature, t_follow, v_ego):
     lead_distance = lead.dRel
     standstill = carState.standstill
     v_lead = lead.vLead

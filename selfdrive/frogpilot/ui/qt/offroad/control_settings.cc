@@ -48,6 +48,8 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     {"MTSCCurvatureCheck",  tr("Model Curvature Detection Failsafe"), tr("Only trigger MTSC when the model detects a curve in the road. Purely used as a failsafe to prevent false positives. Leave this off if you never experience false positives."), ""},
     {"MTSCAggressiveness", tr("Turn Speed Aggressiveness"), tr("Set turn speed aggressiveness. Higher values result in faster turns, lower values yield gentler turns.\n\nA change of +- 1% results in the speed being raised or lowered by about 1 mph."), ""},
 
+    {"ModelSelector", tr("Model Selector"), tr("Manage openpilot's driving models."), "../assets/offroad/icon_calibration.png"},
+
     {"QOLControls", tr("Quality of Life"), tr("Miscellaneous quality of life changes to improve your overall openpilot experience."), "../frogpilot/assets/toggle_icons/quality_of_life.png"},
     {"CustomCruise", tr("Cruise Increase Interval"), tr("Set a custom interval to increase the max set speed by."), ""},
     {"CustomCruiseLong", tr("Cruise Increase Interval (Long Press)"), tr("Set a custom interval to increase the max set speed by when holding down the cruise increase button."), ""},
@@ -209,7 +211,13 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
       QObject::connect(longitudinalTuneToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
         openParentToggle();
         for (auto &[key, toggle] : toggles) {
-          toggle->setVisible(longitudinalTuneKeys.find(key.c_str()) != longitudinalTuneKeys.end());
+          std::set<QString> modifiedLongitudinalTuneKeys = longitudinalTuneKeys;
+
+          if (params.get("Model") == "radical-turtle") {
+            modifiedLongitudinalTuneKeys.erase("LeadDetectionThreshold");
+          }
+
+          toggle->setVisible(modifiedLongitudinalTuneKeys.find(key.c_str()) != modifiedLongitudinalTuneKeys.end());
         }
       });
       toggle = longitudinalTuneToggle;
@@ -242,6 +250,193 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
       toggle = mtscToggle;
     } else if (param == "MTSCAggressiveness") {
       toggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 200, std::map<int, QString>(), this, false, "%");
+
+    } else if (param == "ModelSelector") {
+      FrogPilotParamManageControl *modelsToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
+      QObject::connect(modelsToggle, &FrogPilotParamManageControl::manageButtonClicked, this, [this]() {
+        openParentToggle();
+        for (auto &[key, toggle] : toggles) {
+          toggle->setVisible(false);
+        }
+
+        deleteModelBtn->setVisible(true);
+        downloadModelBtn->setVisible(true);
+        selectModelBtn->setVisible(true);
+      });
+      toggle = modelsToggle;
+
+      QDir modelDir("/data/models/");
+
+      deleteModelBtn = new ButtonControl(tr("Delete Model"), tr("DELETE"), "");
+      QObject::connect(deleteModelBtn, &ButtonControl::clicked, [=]() {
+        std::string currentModel = params.get("Model") + ".thneed";
+
+        QStringList availableModels = QString::fromStdString(params.get("AvailableModels")).split(",");
+        QStringList modelLabels = QString::fromStdString(params.get("AvailableModelsNames")).split(",");
+
+        QStringList existingModelFiles = modelDir.entryList({"*.thneed"}, QDir::Files);
+        QMap<QString, QString> labelToFileMap;
+        QStringList deletableModelLabels;
+        for (int i = 0; i < availableModels.size(); ++i) {
+          QString modelFileName = availableModels[i] + ".thneed";
+          if (existingModelFiles.contains(modelFileName) && modelFileName != QString::fromStdString(currentModel)) {
+            QString readableName = modelLabels[i];
+            deletableModelLabels.append(readableName);
+            labelToFileMap[readableName] = modelFileName;
+          }
+        }
+
+        QString selectedModel = MultiOptionDialog::getSelection(tr("Select a model to delete"), deletableModelLabels, "", this);
+        if (!selectedModel.isEmpty() && ConfirmationDialog::confirm(tr("Are you sure you want to delete this model?"), tr("Delete"), this)) {
+          std::thread([=]() {
+            deleteModelBtn->setValue(tr("Deleting..."));
+
+            deleteModelBtn->setEnabled(false);
+            downloadModelBtn->setEnabled(false);
+            selectModelBtn->setEnabled(false);
+
+            QString modelToDelete = labelToFileMap[selectedModel];
+
+            QFile::remove(modelDir.absoluteFilePath(modelToDelete));
+
+            deleteModelBtn->setEnabled(true);
+            downloadModelBtn->setEnabled(true);
+            selectModelBtn->setEnabled(true);
+
+            deleteModelBtn->setValue(tr("Deleted!"));
+            std::this_thread::sleep_for(std::chrono::seconds(3));
+            deleteModelBtn->setValue("");
+          }).detach();
+        }
+      });
+      addItem(deleteModelBtn);
+
+      downloadModelBtn = new ButtonControl(tr("Download Model"), tr("DOWNLOAD"), "");
+      QObject::connect(downloadModelBtn, &ButtonControl::clicked, [=]() {
+        QStringList availableModels = QString::fromStdString(params.get("AvailableModels")).split(",");
+        QStringList modelLabels = QString::fromStdString(params.get("AvailableModelsNames")).split(",");
+
+        QMap<QString, QString> labelToModelMap;
+        QStringList downloadableModelLabels;
+        QStringList existingModelFiles = modelDir.entryList({"*.thneed"}, QDir::Files);
+        for (int i = 0; i < availableModels.size(); ++i) {
+          QString modelFileName = availableModels.at(i) + ".thneed";
+          if (!existingModelFiles.contains(modelFileName)) {
+            QString readableName = modelLabels.at(i);
+            if (!readableName.endsWith("(Default)")) {
+              downloadableModelLabels.append(readableName);
+              labelToModelMap.insert(readableName, availableModels.at(i));
+            }
+          }
+        }
+
+        QString modelToDownload = MultiOptionDialog::getSelection(tr("Select a driving model to download"), downloadableModelLabels, "", this);
+        if (!modelToDownload.isEmpty()) {
+          QString selectedModelValue = labelToModelMap.value(modelToDownload);
+          paramsMemory.put("ModelToDownload", selectedModelValue.toStdString());
+
+          deleteModelBtn->setEnabled(false);
+          downloadModelBtn->setEnabled(false);
+          selectModelBtn->setEnabled(false);
+
+          QTimer *failureTimer = new QTimer(this);
+          failureTimer->setSingleShot(true);
+
+          QTimer *progressTimer = new QTimer(this);
+          progressTimer->setInterval(100);
+
+          connect(failureTimer, &QTimer::timeout, this, [=]() {
+            deleteModelBtn->setEnabled(true);
+            downloadModelBtn->setEnabled(true);
+            selectModelBtn->setEnabled(true);
+
+            downloadModelBtn->setValue(tr("Download failed..."));
+            paramsMemory.remove("ModelDownloadProgress");
+            paramsMemory.remove("ModelToDownload");
+
+            progressTimer->stop();
+            progressTimer->deleteLater();
+
+            QTimer::singleShot(3000, this, [this]() {
+              downloadModelBtn->setValue("");
+            });
+          });
+
+          connect(progressTimer, &QTimer::timeout, this, [=]() mutable {
+            static int lastProgress = -1;
+            int progress = paramsMemory.getInt("ModelDownloadProgress");
+
+            if (progress == lastProgress) {
+              if (!failureTimer->isActive()) {
+                failureTimer->start(30000);
+              }
+            } else {
+              lastProgress = progress;
+              downloadModelBtn->setValue(QString::number(progress) + "%");
+              failureTimer->stop();
+
+              if (progress == 100) {
+                deleteModelBtn->setEnabled(true);
+                downloadModelBtn->setEnabled(true);
+                selectModelBtn->setEnabled(true);
+
+                downloadModelBtn->setValue(tr("Downloaded!"));
+                paramsMemory.remove("ModelDownloadProgress");
+                paramsMemory.remove("ModelToDownload");
+
+                progressTimer->stop();
+                progressTimer->deleteLater();
+
+                QTimer::singleShot(3000, this, [this]() {
+                  if (paramsMemory.get("ModelDownloadProgress").empty()) {
+                    downloadModelBtn->setValue("");
+                  }
+                });
+              }
+            }
+          });
+          progressTimer->start();
+        }
+      });
+      addItem(downloadModelBtn);
+
+      selectModelBtn = new ButtonControl(tr("Select Model"), tr("SELECT"), "");
+      QObject::connect(selectModelBtn, &ButtonControl::clicked, [=]() {
+        QStringList availableModels = QString::fromStdString(params.get("AvailableModels")).split(",");
+        QStringList modelLabels = QString::fromStdString(params.get("AvailableModelsNames")).split(",");
+
+        QStringList modelFiles = modelDir.entryList({"*.thneed"}, QDir::Files);
+        QSet<QString> modelFilesBaseNames;
+        for (const QString &modelFile : modelFiles) {
+          modelFilesBaseNames.insert(modelFile.section('.', 0, 0));
+        }
+
+        QStringList selectableModelLabels;
+        for (int i = 0; i < availableModels.size(); ++i) {
+          if (modelFilesBaseNames.contains(availableModels[i]) || modelLabels[i].endsWith("(Default)")) {
+            selectableModelLabels.append(modelLabels[i]);
+          }
+        }
+
+        QString modelToSelect = MultiOptionDialog::getSelection(tr("Select a model"), selectableModelLabels, "", this);
+        if (!modelToSelect.isEmpty()) {
+          selectModelBtn->setValue(modelToSelect);
+
+          int modelIndex = modelLabels.indexOf(modelToSelect);
+          if (modelIndex != -1) {
+            QString selectedModel = availableModels.at(modelIndex);
+            params.put("Model", selectedModel.toStdString());
+            params.put("ModelName", modelToSelect.toStdString());
+          }
+
+          if (FrogPilotConfirmationDialog::yesorno(tr("Do you want to start with a fresh calibration for the newly selected model?"), this)) {
+            params.remove("CalibrationParams");
+            params.remove("LiveTorqueParameters");
+          }
+        }
+      });
+      addItem(selectModelBtn);
+      selectModelBtn->setValue(QString::fromStdString(params.get("ModelName")));
 
     } else if (param == "QOLControls") {
       FrogPilotParamManageControl *qolToggle = new FrogPilotParamManageControl(param, title, desc, icon, this);
@@ -341,6 +536,8 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
     });
   }
 
+  modelManagerToggle = static_cast<FrogPilotParamManageControl*>(toggles["ModelSelector"]);
+
   QObject::connect(parent, &SettingsWindow::closeParentToggle, this, &FrogPilotControlsPanel::hideToggles);
   QObject::connect(parent, &SettingsWindow::closeSubParentToggle, this, &FrogPilotControlsPanel::hideSubToggles);
   QObject::connect(parent, &SettingsWindow::updateMetric, this, &FrogPilotControlsPanel::updateMetric);
@@ -352,14 +549,15 @@ FrogPilotControlsPanel::FrogPilotControlsPanel(SettingsWindow *parent) : FrogPil
 
 void FrogPilotControlsPanel::showEvent(QShowEvent *event, const UIState &s) {
   hasOpenpilotLongitudinal = hasOpenpilotLongitudinal && !params.getBool("DisableOpenpilotLongitudinal");
-
-  online = s.scene.online;
-  bool parked = s.scene.parked;
-  started = s.scene.started;
 }
 
-void FrogPilotControlsPanel::updateState() {
+void FrogPilotControlsPanel::updateState(const UIState &s) {
   if (!isVisible()) return;
+
+  started = s.scene.started;
+
+  downloadModelBtn->setEnabled(s.scene.online);
+  modelManagerToggle->setEnabled(!s.scene.started);
 }
 
 void FrogPilotControlsPanel::updateToggles() {
@@ -440,6 +638,9 @@ void FrogPilotControlsPanel::hideToggles() {
   aggressiveProfile->setVisible(false);
   conditionalSpeedsImperial->setVisible(false);
   conditionalSpeedsMetric->setVisible(false);
+  deleteModelBtn->setVisible(false);
+  downloadModelBtn->setVisible(false);
+  selectModelBtn->setVisible(false);
   standardProfile->setVisible(false);
   relaxedProfile->setVisible(false);
 
