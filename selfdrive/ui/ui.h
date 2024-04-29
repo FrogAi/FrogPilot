@@ -187,6 +187,7 @@ typedef struct UIScene {
   float lane_width_right;
 
   int alert_size;
+  int camera_view;
 
   QPolygonF track_adjacent_vertices[6];
 

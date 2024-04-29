@@ -62,6 +62,10 @@ def manager_init(frogpilot_functions) -> None:
   if is_release_branch():
     params.clear_all(ParamKeyType.DEVELOPMENT_ONLY)
 
+  if not params.get_bool("CameraViewReset"):
+    params.remove("CameraView")
+    params.put_bool("CameraViewReset", True)
+
   default_params: list[tuple[str, str | bytes]] = [
     ("CarParamsPersistent", ""),
     ("CompletedTrainingVersion", "0"),

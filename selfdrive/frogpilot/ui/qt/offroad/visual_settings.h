@@ -27,7 +27,7 @@ private:
   std::set<QString> customOnroadUIKeys = {"CustomPaths"};
   std::set<QString> customThemeKeys = {};
   std::set<QString> modelUIKeys = {};
-  std::set<QString> qolKeys = {};
+  std::set<QString> qolKeys = {"CameraView"};
   std::set<QString> screenKeys = {};
 
   std::map<std::string, ParamControl*> toggles;

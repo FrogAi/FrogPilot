@@ -126,6 +126,7 @@ private:
   bool showAlwaysOnLateralStatusBar;
 
   int alertSize;
+  int cameraView;
 
 protected:
   void paintGL() override;
