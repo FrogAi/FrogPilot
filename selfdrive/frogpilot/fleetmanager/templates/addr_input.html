@@ -1,0 +1,64 @@
+{% block main %}
+  <!-- Your form markup -->
+  <form name="searchForm" method="post">
+    <fieldset class="uk-fieldset">
+      <div class="uk-margin">
+        {% if home or work or fav1 or fav2 or fav3 %}
+        <select class="uk-select" name="fav_val">
+          <option value="favorites">Select Saved Destinations</option>
+          {% if home %} <option value="home">Home: {{home}}</option> {% endif %}
+          {% if work %} <option value="work">Work: {{work}}</option> {% endif %}
+          {% if fav1 %} <option value="fav1">Favorite 1: {{fav1}}</option> {% endif %}
+          {% if fav2 %} <option value="fav2">Favorite 2: {{fav2}}</option> {% endif %}
+          {% if fav3 %} <option value="fav3">Favorite 3: {{fav3}}</option> {% endif %}
+        </select>
+        {% endif %}
+        <input class="uk-input" type="text" name="addr_val" id="pac-input" placeholder="Search a place">
+        <input class="uk-button uk-button-primary uk-width-1-1 uk-margin-small-bottom" type="submit" value="Search">
+      </div>
+    </fieldset>
+  </form>
+<!-- Include the Google Maps Places API script conditionally with JavaScript -->
+<script>
+  // attach gmap_key to variable
+  let gmap = "{{gmap_key}}";
+
+  // Check if gmap_key is defined
+  if (gmap && gmap !== "None") {
+    var script = document.createElement('script');
+    script.src = 'https://maps.googleapis.com/maps/api/js?key={{gmap_key}}&libraries=places&callback=initAutocomplete';
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+
+    // Define the callback function for place_changed
+    function onPlaceChanged() {
+      var place = autocomplete.getPlace();
+
+      // Check if the place has a formatted address
+      if (place.formatted_address) {
+        // Set the value of the input field to the formatted address
+        document.getElementById('pac-input').value = place.formatted_address;
+      }
+    }
+
+    // Define the autocomplete variable
+    var autocomplete;
+
+    // Define the initAutocomplete function with initial bounds
+    function initAutocomplete() {
+      var center = new google.maps.LatLng({{lat}}, {{lon}});
+      var bounds = new google.maps.Circle({ center: center, radius: 5000 }).getBounds();
+
+      autocomplete = new google.maps.places.Autocomplete(
+        document.getElementById('pac-input'),
+        {
+          bounds: bounds // Set initial bounds here
+        }
+      );
+
+      autocomplete.addListener('place_changed', onPlaceChanged);
+    }
+  }
+</script>
+{% endblock %}
