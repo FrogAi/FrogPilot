@@ -202,6 +202,12 @@ class CAR(Platforms):
     dbc_dict('acura_ilx_2016_can_generated', 'acura_ilx_2016_nidec'),
     flags=HondaFlags.NIDEC_ALT_SCM_MESSAGES,
   )
+  CLARITY = HondaNidecPlatformConfig(
+    "HONDA CLARITY 2018",
+    [HondaCarDocs("Honda Clarity 2018-22", "All", min_steer_speed=3. * CV.MPH_TO_MS)],
+    CarSpecs(mass=4052. * CV.LB_TO_KG, wheelbase=2.75, centerToFrontRatio=0.41, steerRatio=16.50, tireStiffnessFactor=1.),
+    dbc_dict('honda_clarity_hybrid_2018_can_generated', 'acura_ilx_2016_nidec'),
+  )
   CRV = HondaNidecPlatformConfig(
     "HONDA CR-V 2016",
     [HondaCarDocs("Honda CR-V 2015-16", "Touring Trim", min_steer_speed=12. * CV.MPH_TO_MS)],
