@@ -6,6 +6,7 @@
 #include <memory>
 #include <sstream>
 
+#include <QApplication>
 #include <QDebug>
 #include <QMouseEvent>
 
@@ -66,6 +67,12 @@ OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent), scene(uiState()->
   QObject::connect(uiState(), &UIState::uiUpdate, this, &OnroadWindow::updateState);
   QObject::connect(uiState(), &UIState::offroadTransition, this, &OnroadWindow::offroadTransition);
   QObject::connect(uiState(), &UIState::primeChanged, this, &OnroadWindow::primeChanged);
+
+  QObject::connect(&clickTimer, &QTimer::timeout, this, [this]() {
+    clickTimer.stop();
+    QMouseEvent *event = new QMouseEvent(QEvent::MouseButtonPress, timeoutPoint, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    QApplication::postEvent(this, event);
+  });
 }
 
 void OnroadWindow::updateState(const UIState &s) {
@@ -93,6 +100,24 @@ void OnroadWindow::updateState(const UIState &s) {
 }
 
 void OnroadWindow::mousePressEvent(QMouseEvent* e) {
+  // FrogPilot clickable widgets
+  if (scene.experimental_mode_via_screen && e->pos() != timeoutPoint) {
+    if (clickTimer.isActive()) {
+      clickTimer.stop();
+
+      if (scene.conditional_experimental) {
+        int override_value = (scene.conditional_status >= 1 && scene.conditional_status <= 6) ? 0 : (scene.conditional_status >= 7 ? 5 : 6);
+        paramsMemory.putIntNonBlocking("CEStatus", override_value);
+      } else {
+        bool experimentalMode = params.getBool("ExperimentalMode");
+        params.putBoolNonBlocking("ExperimentalMode", !experimentalMode);
+      }
+    } else {
+      clickTimer.start(500);
+    }
+    return;
+  }
+
 #ifdef ENABLE_MAPS
   if (map != nullptr) {
     // Switch between map and sidebar when using navigate on openpilot

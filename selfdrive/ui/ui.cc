@@ -272,6 +272,8 @@ void ui_update_frogpilot_params(UIState *s) {
   bool driving_personalities = scene.longitudinal_control && params.getBool("DrivingPersonalities");
   scene.onroad_distance_button = driving_personalities && params.getBool("OnroadDistanceButton");
   scene.use_kaofui_icons = scene.onroad_distance_button && params.getBool("KaofuiIcons");
+
+  scene.experimental_mode_via_screen = scene.longitudinal_control && params.getBool("ExperimentalModeActivation") && params.getBool("ExperimentalModeViaTap");
 }
 
 void UIState::updateStatus() {

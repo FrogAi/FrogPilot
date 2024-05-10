@@ -207,6 +207,9 @@ private:
   Params params;
   Params paramsMemory{"/dev/shm/params"};
 
+  QPoint timeoutPoint = QPoint(420, 69);
+  QTimer clickTimer;
+
 private slots:
   void offroadTransition(bool offroad);
   void primeChanged(bool prime);
