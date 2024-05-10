@@ -309,7 +309,7 @@ def hardware_thread(end_event, hw_queue, frogpilot_toggles) -> None:
     startup_conditions["not_taking_snapshot"] = not params.get_bool("IsTakingSnapshot")
 
     # must be at an engageable thermal band to go onroad
-    startup_conditions["device_temp_engageable"] = thermal_status < ThermalStatus.red
+    startup_conditions["device_temp_engageable"] = thermal_status < (ThermalStatus.danger if frogpilot_toggles.increase_thermal_limits else ThermalStatus.red)
 
     # ensure device is fully booted
     startup_conditions["device_booted"] = startup_conditions.get("device_booted", False) or HARDWARE.booted()
