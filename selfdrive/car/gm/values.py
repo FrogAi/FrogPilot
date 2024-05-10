@@ -231,6 +231,7 @@ class CAR(Platforms):
     GMCarSpecs(mass=1345, wheelbase=2.64, steerRatio=16.8, centerToFrontRatio=0.4, tireStiffnessFactor=1.0),
   )
   XT4 = GMPlatformConfig(
+    "CADILLAC XT4 2023",
     [GMCarDocs("Cadillac XT4 2023", "Driver Assist Package")],
     CarSpecs(mass=1660, wheelbase=2.78, steerRatio=14.4, centerToFrontRatio=0.4),
   )
@@ -238,6 +239,11 @@ class CAR(Platforms):
     "CHEVROLET MALIBU NO ACC 2023",
     [GMCarDocs("Chevrolet Malibu 2023 No ACC")],
     CarSpecs(mass=1450, wheelbase=2.8, steerRatio=15.8, centerToFrontRatio=0.4),
+  )
+  TRAX = GMPlatformConfig(
+    "CHEVROLET TRAX 2024",
+    [GMCarDocs("Chevrolet TRAX 2024")],
+    CarSpecs(mass=1365, wheelbase=2.7, steerRatio=16.4, centerToFrontRatio=0.4),
   )
 
 
@@ -326,7 +332,7 @@ CC_ONLY_CAR = {CAR.VOLT_CC, CAR.BOLT_CC, CAR.EQUINOX_CC, CAR.SUBURBAN_CC, CAR.YU
 SDGM_CAR = {CAR.XT4}
 
 # We're integrated at the camera with VOACC on these cars (instead of ASCM w/ OBD-II harness)
-CAMERA_ACC_CAR = {CAR.BOLT_EUV, CAR.SILVERADO, CAR.EQUINOX, CAR.TRAILBLAZER}
+CAMERA_ACC_CAR = {CAR.BOLT_EUV, CAR.SILVERADO, CAR.EQUINOX, CAR.TRAILBLAZER, CAR.TRAX}
 CAMERA_ACC_CAR.update({CAR.VOLT_CC, CAR.BOLT_CC, CAR.EQUINOX_CC, CAR.YUKON_CC, CAR.CT6_CC, CAR.TRAILBLAZER_CC, CAR.MALIBU_CC})
 
 STEER_THRESHOLD = 1.0
