@@ -435,6 +435,23 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   });
   addItem(toggleBackup);
 
+  // Delete driving footage button
+  auto deleteDrivingDataBtn = new ButtonControl(tr("Delete Driving Data"), tr("DELETE"), tr("This button provides a swift and secure way to permanently delete all "
+    "stored driving footage and data from your device. Ideal for maintaining privacy or freeing up space.")
+  );
+  connect(deleteDrivingDataBtn, &ButtonControl::clicked, [=]() {
+    if (ConfirmationDialog::confirm(tr("Are you sure you want to permanently delete all of your driving footage and data?"), tr("Delete"), this)) {
+      std::thread([&] {
+        deleteDrivingDataBtn->setValue(tr("Deleting footage..."));
+        std::system("rm -rf /data/media/0/realdata");
+        deleteDrivingDataBtn->setValue(tr("Deleted!"));
+        std::this_thread::sleep_for(std::chrono::seconds(3));
+        deleteDrivingDataBtn->setValue("");
+      }).detach();
+    }
+  });
+  addItem(deleteDrivingDataBtn);
+
   // power buttons
   QHBoxLayout *power_layout = new QHBoxLayout();
   power_layout->setSpacing(30);
