@@ -33,6 +33,18 @@ def frogpilot_boot_functions(frogpilot_functions):
       print("Waiting for system time to become valid...")
       time.sleep(1)
 
+    try:
+      frogpilot_functions.backup_frogpilot()
+    except subprocess.CalledProcessError as e:
+      print(f"Failed to backup FrogPilot. Error: {e}")
+      return
+
+    try:
+      frogpilot_functions.backup_toggles()
+    except subprocess.CalledProcessError as e:
+      print(f"Failed to backup toggles. Error: {e}")
+      return
+
   except Exception as e:
     print(f"An unexpected error occurred: {e}")
 

@@ -82,6 +82,9 @@ def frogpilot_thread(frogpilot_toggles):
     if FrogPilotVariables.toggles_updated:
       FrogPilotVariables.update_frogpilot_params(started)
 
+      if not started and time_validated:
+        frogpilot_functions.backup_toggles()
+
     if not time_validated:
       time_validated = system_time_valid()
       if not time_validated:
