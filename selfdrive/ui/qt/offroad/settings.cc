@@ -462,6 +462,42 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   });
   addItem(toggleBackupBtn);
 
+  // Panda flashing
+  ButtonControl *flashPandaBtn = new ButtonControl(tr("Flash Panda"), tr("FLASH"), tr("Use this button to troubleshoot and update the Panda device's firmware."));
+  connect(flashPandaBtn, &ButtonControl::clicked, [=]() {
+    if (ConfirmationDialog::confirm(tr("Are you sure you want to flash the Panda?"), tr("Flash"), this)) {
+      std::thread([=]() {
+        flashPandaBtn->setEnabled(false);
+        flashPandaBtn->setValue(tr("Flashing..."));
+
+        QProcess recoverProcess;
+        recoverProcess.setWorkingDirectory("/data/openpilot/panda/board");
+        recoverProcess.start("/bin/sh", QStringList{"-c", "./recover.py"});
+        if (!recoverProcess.waitForFinished()) {
+          flashPandaBtn->setValue(tr("Recovery Failed..."));
+          flashPandaBtn->setEnabled(true);
+          return;
+        }
+
+        QProcess flashProcess;
+        flashProcess.setWorkingDirectory("/data/openpilot/panda/board");
+        flashProcess.start("/bin/sh", QStringList{"-c", "./flash.py"});
+        if (!flashProcess.waitForFinished()) {
+          flashPandaBtn->setValue(tr("Flash Failed..."));
+          flashPandaBtn->setEnabled(true);
+          return;
+        }
+
+        flashPandaBtn->setValue(tr("Flashed!"));
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+        flashPandaBtn->setValue(tr("Rebooting..."));
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+        Hardware::reboot();
+      }).detach();
+    }
+  });
+  addItem(flashPandaBtn);
+
   // Force offroad/onroad
   std::vector<QString> forceStartedOptions{tr("OFFROAD"), tr("ONROAD"), tr("OFF")};
   forceStartedBtn = new FrogPilotButtonsControl(tr("Force Started State"), tr("Force openpilot either offroad or onroad."), "", forceStartedOptions, true);
