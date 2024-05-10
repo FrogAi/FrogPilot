@@ -117,6 +117,8 @@ class CarInterfaceBase(ABC):
 
     self.belowSteerSpeed_shown = False
     self.disable_belowSteerSpeed = False
+    self.disable_resumeRequired = False
+    self.resumeRequired_shown = False
 
   def apply(self, c: car.CarControl, now_nanos: int, frogpilot_toggles) -> tuple[car.CarControl.Actuators, list[tuple[int, int, bytes, int]]]:
     return self.CC.update(c, self.CS, now_nanos, frogpilot_toggles)
