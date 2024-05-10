@@ -46,6 +46,10 @@ def allow_logging(started, params, CP: car.CarParams) -> bool:
   allow_logging = not (params.get_bool("DeviceManagement") and params.get_bool("NoLogging"))
   return allow_logging and logging(started, params, CP)
 
+def allow_uploads(started, params, CP: car.CarParams) -> bool:
+  allow_uploads = not (params.get_bool("DeviceManagement") and params.get_bool("NoUploads"))
+  return allow_uploads
+
 procs = [
   DaemonProcess("manage_athenad", "system.athena.manage_athenad", "AthenadPid"),
 
@@ -86,7 +90,7 @@ procs = [
   PythonProcess("hardwared", "system.hardware.hardwared", always_run),
   PythonProcess("tombstoned", "system.tombstoned", always_run, enabled=not PC),
   PythonProcess("updated", "system.updated.updated", always_run, enabled=not PC),
-  PythonProcess("uploader", "system.loggerd.uploader", always_run),
+  PythonProcess("uploader", "system.loggerd.uploader", allow_uploads),
   PythonProcess("statsd", "system.statsd", allow_logging),
 
   # debug procs
