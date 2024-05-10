@@ -209,6 +209,7 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("carState")) {
     auto carState = sm["carState"].getCarState();
+    scene.parked = carState.getGearShifter() == cereal::CarState::GearShifter::PARK;
   }
   if (sm.updated("controlsState")) {
     auto controlsState = sm["controlsState"].getControlsState();

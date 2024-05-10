@@ -184,6 +184,7 @@ typedef struct UIScene {
   bool experimental_mode;
   bool map_open;
   bool online;
+  bool parked;
   bool right_hand_drive;
   bool tethering_enabled;
 
