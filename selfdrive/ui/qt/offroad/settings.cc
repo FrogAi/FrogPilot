@@ -453,6 +453,26 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   });
   addItem(deleteDrivingDataBtn);
 
+  // Panda flashing button
+  auto flashPandaBtn = new ButtonControl(tr("Flash Panda"), tr("FLASH"), tr("Use this button to troubleshoot and update the Panda device's firmware."));
+  connect(flashPandaBtn, &ButtonControl::clicked, [=]() {
+    if (ConfirmationDialog::confirm(tr("Are you sure you want to flash the Panda?"), tr("Flash"), this)) {
+      std::thread([=]() {
+        QProcess process;
+        flashPandaBtn->setValue(tr("Flashing..."));
+
+        process.setWorkingDirectory("/data/openpilot/panda/board");
+        process.start("/bin/sh", QStringList{"-c", "./recover.py"});
+        process.waitForFinished();
+        process.start("/bin/sh", QStringList{"-c", "./flash.py"});
+        process.waitForFinished();
+
+        Hardware::reboot();
+      }).detach();
+    }
+  });
+  addItem(flashPandaBtn);
+
   // power buttons
   QHBoxLayout *power_layout = new QHBoxLayout();
   power_layout->setSpacing(30);
