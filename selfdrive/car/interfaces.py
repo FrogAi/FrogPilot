@@ -214,6 +214,7 @@ class CarInterfaceBase(ABC):
     nnff_supported = self.initialize_lat_torque_nn(CP.carFingerprint, eps_firmware)
     use_comma_nnff = self.check_comma_nn_ff_support(CP.carFingerprint)
     self.use_nnff = not use_comma_nnff and nnff_supported and lateral_tune and self.params.get_bool("NNFF")
+    self.use_nnff_lite = not use_comma_nnff and not self.use_nnff and lateral_tune and self.params.get_bool("NNFFLite")
 
     self.belowSteerSpeed_shown = False
     self.disable_belowSteerSpeed = False
