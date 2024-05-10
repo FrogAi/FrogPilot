@@ -115,6 +115,7 @@ typedef enum UIStatus {
   STATUS_ENGAGED,
 
   // FrogPilot statuses
+  STATUS_ALWAYS_ON_LATERAL_ACTIVE,
   STATUS_EXPERIMENTAL_MODE_ACTIVE,
   STATUS_NAVIGATION_ACTIVE,
 } UIStatus;
@@ -135,6 +136,7 @@ const QColor bg_colors [] = {
   [STATUS_ENGAGED] = QColor(0x17, 0x86, 0x44, 0xf1),
 
   // FrogPilot colors
+  [STATUS_ALWAYS_ON_LATERAL_ACTIVE] = QColor(0x0a, 0xba, 0xb5, 0xf1),
   [STATUS_EXPERIMENTAL_MODE_ACTIVE] = QColor(0xda, 0x6f, 0x25, 0xf1),
   [STATUS_NAVIGATION_ACTIVE] = QColor(0x31, 0xa1, 0xee, 0xf1),
 };
@@ -180,12 +182,14 @@ typedef struct UIScene {
   uint64_t started_frame;
 
   // FrogPilot variables
+  bool always_on_lateral_active;
   bool enabled;
   bool experimental_mode;
   bool map_open;
   bool online;
   bool parked;
   bool right_hand_drive;
+  bool show_aol_status_bar;
   bool tethering_enabled;
 
   int alert_size;
