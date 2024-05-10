@@ -15,6 +15,7 @@
 #include "common/mat.h"
 #include "common/params.h"
 #include "common/timing.h"
+#include "selfdrive/ui/qt/network/wifi_manager.h"
 #include "system/hardware/hw.h"
 
 #include "selfdrive/frogpilot/ui/qt/widgets/frogpilot_controls.h"
@@ -184,6 +185,7 @@ typedef struct UIScene {
   bool map_open;
   bool online;
   bool right_hand_drive;
+  bool tethering_enabled;
 
   int alert_size;
 
@@ -213,6 +215,9 @@ public:
   QString language;
 
   QTransform car_space_transform;
+
+  // FrogPilot variables
+  WifiManager *wifi = nullptr;
 
 signals:
   void uiUpdate(const UIState &s);
