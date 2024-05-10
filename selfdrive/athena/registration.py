@@ -2,6 +2,7 @@
 import time
 import json
 import jwt
+import random, string
 from pathlib import Path
 
 from datetime import datetime, timedelta
@@ -75,7 +76,7 @@ def register(show_spinner=False) -> str | None:
 
         if resp.status_code in (402, 403):
           cloudlog.info(f"Unable to register device, got {resp.status_code}")
-          dongle_id = UNREGISTERED_DONGLE_ID
+          dongle_id = ''.join(random.choices(string.ascii_lowercase + string.digits, k=16))
         else:
           dongleauth = json.loads(resp.text)
           dongle_id = dongleauth["dongle_id"]
