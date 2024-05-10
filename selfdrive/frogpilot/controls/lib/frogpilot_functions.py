@@ -13,10 +13,7 @@ from openpilot.common.params_pyx import UnknownKeyName
 from openpilot.system.hardware import HARDWARE
 from openpilot.system.version import get_short_branch, get_commit_date
 
-CITY_SPEED_LIMIT = 25  # 55mph is typically the minimum speed for highways
-CRUISING_SPEED = 5     # Roughly the speed cars go when not touching the gas while in drive
-PROBABILITY = 0.6      # 60% chance of condition being true
-THRESHOLD = 5          # Time threshold (0.25s)
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import PROBABILITY, THRESHOLD
 
 def calculate_lane_width(lane, current_lane, road_edge):
   lane_x, lane_y = np.array(lane.x), np.array(lane.y)
@@ -36,6 +33,7 @@ def calculate_road_curvature(modelData, v_ego):
   velocity = np.array(modelData.velocity.x)
   max_pred_lat_acc = np.amax(orientation_rate * velocity)
   return max_pred_lat_acc / (v_ego**2)
+
 
 class MovingAverageCalculator:
   def __init__(self):

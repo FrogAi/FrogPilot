@@ -4,6 +4,8 @@ import os
 import signal
 import subprocess
 import sys
+import threading
+import time
 import traceback
 
 from cereal import log
@@ -11,6 +13,7 @@ import cereal.messaging as messaging
 import openpilot.selfdrive.sentry as sentry
 from openpilot.common.params import Params, ParamKeyType
 from openpilot.common.text_window import TextWindow
+from openpilot.common.time import system_time_valid
 from openpilot.system.hardware import HARDWARE, PC
 from openpilot.selfdrive.manager.helpers import unblock_stdout, write_onroad_params, save_bootlog
 from openpilot.selfdrive.manager.process import ensure_running

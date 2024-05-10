@@ -6,6 +6,7 @@ from openpilot.selfdrive.car.chrysler.values import CAR, RAM_HD, RAM_DT, RAM_CAR
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase
 
 ButtonType = car.CarState.ButtonEvent.Type
+FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
 
 
 class CarInterface(CarInterfaceBase):
