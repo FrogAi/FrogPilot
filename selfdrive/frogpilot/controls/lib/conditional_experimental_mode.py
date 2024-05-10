@@ -58,6 +58,10 @@ class ConditionalExperimentalMode:
       self.status_value = 12 if self.lead_stopped else 13
       return True
 
+    if frogpilot_toggles.conditional_signal and v_ego <= CITY_SPEED_LIMIT and (carState.leftBlinker or carState.rightBlinker):
+      self.status_value = 14
+      return True
+
     if frogpilot_toggles.conditional_curves and self.curve_detected:
       self.status_value = 15
       return True
