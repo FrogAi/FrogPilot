@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Preserved Routes
+{% endblock %}
+
+{% block main %}
+    <br>
+    <h1>Preserved Routes</h1>
+    <br>
+    <div class="row">
+        {% for route_path, gif_path, segment in zipped %}
+        <div class="col-xs-6 col-sm-4 col-md-3">
+            <div class="card mb-4 shadow-sm" style="background-color: #212529; color: white;">
+                <div class="gif-container">
+                    <img src="/previewgif/{{ gif_path }}" class="card-img-top static-gif" alt="GIF">
+                </div>
+                <div class="card-body">
+                    <p class="card-text">{{ segment }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="btn-group">
+                            <a href="/footage/{{ route_path }}" class="btn btn-sm btn-outline-secondary">View Footage</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+{% endblock %}
