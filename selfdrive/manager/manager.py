@@ -56,13 +56,14 @@ def manager_init(frogpilot_functions) -> None:
 
   params = Params()
   params_storage = Params("/persist/params")
+  params_tracking = Params("/persist/tracking")
   params.clear_all(ParamKeyType.CLEAR_ON_MANAGER_START)
   params.clear_all(ParamKeyType.CLEAR_ON_ONROAD_TRANSITION)
   params.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
   if is_release_branch():
     params.clear_all(ParamKeyType.DEVELOPMENT_ONLY)
 
-  frogpilot_functions.convert_params(params, params_storage)
+  frogpilot_functions.convert_params(params, params_storage, params_tracking)
 
   default_params: list[tuple[str, str | bytes]] = [
     ("CarParamsPersistent", ""),

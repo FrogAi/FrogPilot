@@ -70,15 +70,19 @@ class Controls:
     # FrogPilot variables
     self.frogpilot_toggles = FrogPilotVariables.toggles
 
+    self.drive_added = False
     self.openpilot_crashed_triggered = False
 
     self.display_timer = 0
+    self.drive_distance = 0
+    self.drive_time = 0
 
     self.card = CarD(CI)
 
     self.params = Params()
     self.params_memory = Params("/dev/shm/params")
     self.params_storage = Params("/persist/params")
+    self.params_tracking = Params("/persist/tracking")
 
     with car.CarParams.from_bytes(self.params.get("CarParams", block=True)) as msg:
       # TODO: this shouldn't need to be a builder
@@ -908,6 +912,27 @@ class Controls:
 
   def update_frogpilot_variables(self, CS):
     self.driving_gear = CS.gearShifter not in (GearShifter.neutral, GearShifter.park, GearShifter.reverse, GearShifter.unknown)
+
+    self.drive_distance += CS.vEgo * DT_CTRL
+    self.drive_time += DT_CTRL
+
+    if self.drive_time > 60 and CS.standstill:
+      current_total_distance = self.params_tracking.get_float("FrogPilotKilometers")
+      distance_to_add = self.drive_distance / 1000
+      new_total_distance = current_total_distance + distance_to_add
+      self.params_tracking.put_float_nonblocking("FrogPilotKilometers", new_total_distance)
+      self.drive_distance = 0
+
+      current_total_time = self.params_tracking.get_float("FrogPilotMinutes")
+      time_to_add = self.drive_time / 60
+      new_total_time = current_total_time + time_to_add
+      self.params_tracking.put_float_nonblocking("FrogPilotMinutes", new_total_time)
+      self.drive_time = 0
+
+      if self.sm.frame * DT_CTRL > 60 * 5 and not self.drive_added:
+        new_total_drives = self.params_tracking.get_int("FrogPilotDrives") + 1
+        self.params_tracking.put_int_nonblocking("FrogPilotDrives", new_total_drives)
+        self.drive_added = True
 
     fpcc_send = messaging.new_message('frogpilotCarControl')
     fpcc_send.valid = CS.canValid
