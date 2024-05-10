@@ -6,6 +6,7 @@ import threading
 from typing import SupportsFloat
 
 import cereal.messaging as messaging
+import openpilot.selfdrive.sentry as sentry
 
 from cereal import car, custom, log
 from cereal.visionipc import VisionIpcClient, VisionStreamType
@@ -68,6 +69,8 @@ class Controls:
   def __init__(self, CI=None):
     # FrogPilot variables
     self.frogpilot_toggles = FrogPilotVariables.toggles
+
+    self.openpilot_crashed_triggered = False
 
     self.card = CarD(CI)
 
@@ -891,6 +894,10 @@ class Controls:
   def update_frogpilot_events(self, CS):
     if self.block_user:
       self.events.add(EventName.blockUser)
+
+    if os.path.isfile(os.path.join(sentry.CRASHES_DIR, 'error.txt')) and not self.openpilot_crashed_triggered:
+      self.events.add(EventName.openpilotCrashed)
+      self.openpilot_crashed_triggered = True
 
   def update_frogpilot_variables(self, CS):
     self.driving_gear = CS.gearShifter not in (GearShifter.neutral, GearShifter.park, GearShifter.reverse, GearShifter.unknown)
