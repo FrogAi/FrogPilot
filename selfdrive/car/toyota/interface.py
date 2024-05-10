@@ -2,7 +2,7 @@ from cereal import car, custom
 from panda import Panda
 from panda.python import uds
 from openpilot.selfdrive.car.toyota.values import Ecu, CAR, DBC, ToyotaFlags, CarControllerParams, TSS2_CAR, RADAR_ACC_CAR, NO_DSU_CAR, \
-                                        MIN_ACC_SPEED, EPS_SCALE, UNSUPPORTED_DSU_CAR, NO_STOP_TIMER_CAR, ANGLE_CONTROL_CAR
+                                        MIN_ACC_SPEED, EPS_SCALE, UNSUPPORTED_DSU_CAR, NO_STOP_TIMER_CAR, ANGLE_CONTROL_CAR, STOP_AND_GO_CAR
 from openpilot.selfdrive.car import create_button_events, get_safety_config
 from openpilot.selfdrive.car.disable_ecu import disable_ecu
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase
@@ -46,8 +46,6 @@ class CarInterface(CarInterfaceBase):
 
     ret.stoppingControl = False  # Toyota starts braking more when it thinks you want to stop
 
-    stop_and_go = candidate in TSS2_CAR
-
     # Detect smartDSU, which intercepts ACC_CMD from the DSU (or radar) allowing openpilot to send it
     # 0x2AA is sent by a similar device which intercepts the radar instead of DSU on NO_DSU_CARs
     if 0x2FF in fingerprint[0] or (0x2AA in fingerprint[0] and candidate in NO_DSU_CAR):
@@ -67,7 +65,6 @@ class CarInterface(CarInterfaceBase):
                                         and not (ret.flags & ToyotaFlags.SMART_DSU)
 
     if candidate == CAR.PRIUS:
-      stop_and_go = True
       # Only give steer angle deadzone to for bad angle sensor prius
       for fw in car_fw:
         if fw.ecu == "eps" and not fw.fwVersion == b'8965B47060\x00\x00\x00\x00\x00\x00':
@@ -75,13 +72,7 @@ class CarInterface(CarInterfaceBase):
           CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning, steering_angle_deadzone_deg=0.2)
 
     elif candidate in (CAR.LEXUS_RX, CAR.LEXUS_RX_TSS2):
-      stop_and_go = True
       ret.wheelSpeedFactor = 1.035
-
-    elif candidate in (CAR.AVALON, CAR.AVALON_2019, CAR.AVALON_TSS2):
-      # starting from 2019, all Avalon variants have stop and go
-      # https://engage.toyota.com/static/images/toyota_safety_sense/TSS_Applicability_Chart.pdf
-      stop_and_go = candidate != CAR.AVALON
 
     elif candidate in (CAR.RAV4_TSS2, CAR.RAV4_TSS2_2022, CAR.RAV4_TSS2_2023):
       ret.lateralTuning.init('pid')
@@ -99,15 +90,6 @@ class CarInterface(CarInterfaceBase):
           ret.lateralTuning.pid.kiV = [0.05]
           ret.lateralTuning.pid.kf = 0.00004
           break
-
-    elif candidate in (CAR.RAV4H, CAR.CHR, CAR.CAMRY, CAR.SIENNA, CAR.LEXUS_CTH, CAR.LEXUS_NX):
-      # TODO: Some of these platforms are not advertised to have full range ACC, are they similar to SNG_WITHOUT_DSU cars?
-      stop_and_go = True
-
-    # TODO: these models can do stop and go, but unclear if it requires sDSU or unplugging DSU.
-    #  For now, don't list stop and go functionality in the docs
-    if ret.flags & ToyotaFlags.SNG_WITHOUT_DSU:
-      stop_and_go = stop_and_go or bool(ret.flags & ToyotaFlags.SMART_DSU.value) or (ret.enableDsu and not docs)
 
     ret.centerToFront = ret.wheelbase * 0.44
 
@@ -153,7 +135,7 @@ class CarInterface(CarInterfaceBase):
 
     # min speed to enable ACC. if car can do stop and go, then set enabling speed
     # to a negative value, so it won't matter.
-    ret.minEnableSpeed = -1. if (stop_and_go or ret.enableGasInterceptor) else MIN_ACC_SPEED
+    ret.minEnableSpeed = -1. if (candidate in STOP_AND_GO_CAR or ret.enableGasInterceptor) else MIN_ACC_SPEED
 
     tune = ret.longitudinalTuning
     tune.deadzoneBP = [0., 9.]
