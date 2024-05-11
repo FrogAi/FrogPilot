@@ -343,6 +343,8 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.show_steering = border_metrics && params.getBool("ShowSteering");
   scene.fps_counter = developer_ui && params.getBool("FPSCounter");
   scene.lead_info = scene.longitudinal_control && developer_ui && params.getBool("LongitudinalMetrics");
+  scene.numerical_temp = developer_ui && params.getBool("NumericalTemp");
+  scene.fahrenheit = scene.numerical_temp && params.getBool("Fahrenheit");
   scene.show_jerk = scene.longitudinal_control && developer_ui && params.getBool("LongitudinalMetrics");
   scene.show_tuning = developer_ui && scene.has_auto_tune && params.getBool("LateralMetrics");
 

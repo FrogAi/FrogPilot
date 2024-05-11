@@ -89,7 +89,21 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
 }
 
 void Sidebar::mousePressEvent(QMouseEvent *event) {
-  if (onroad && home_btn.contains(event->pos())) {
+  QRect tempRect = {30, 338, 240, 126};
+
+  static int showTemp = 0;
+
+  if (tempRect.contains(event->pos())) {
+    showTemp = (showTemp + 1) % 3;
+
+    scene.fahrenheit = showTemp == 2;
+    scene.numerical_temp = showTemp != 0;
+
+    params.putBoolNonBlocking("Fahrenheit", showTemp == 2);
+    params.putBoolNonBlocking("NumericalTemp", showTemp != 0);
+
+    update();
+  } else if (onroad && home_btn.contains(event->pos())) {
     flag_pressed = true;
     update();
   } else if (settings_btn.contains(event->pos())) {
@@ -142,6 +156,11 @@ void Sidebar::updateState(const UIState &s) {
 
   auto frogpilotDeviceState = sm["frogpilotDeviceState"].getFrogpilotDeviceState();
 
+  bool isNumericalTemp = scene.numerical_temp;
+
+  int maxTempC = deviceState.getMaxTempC();
+  QString max_temp = scene.fahrenheit ? QString::number(maxTempC * 9 / 5 + 32) + "°F" : QString::number(maxTempC) + "°C";
+
   ItemStatus connectStatus;
   auto last_ping = deviceState.getLastAthenaPingTime();
   if (last_ping == 0) {
@@ -153,12 +172,12 @@ void Sidebar::updateState(const UIState &s) {
   }
   setProperty("connectStatus", QVariant::fromValue(connectStatus));
 
-  ItemStatus tempStatus = {{tr("TEMP"), tr("HIGH")}, danger_color};
+  ItemStatus tempStatus = {{tr("TEMP"), isNumericalTemp ? max_temp : tr("HIGH")}, danger_color};
   auto ts = deviceState.getThermalStatus();
   if (ts == cereal::DeviceState::ThermalStatus::GREEN) {
-    tempStatus = {{tr("TEMP"), tr("GOOD")}, currentColors[0]};
+    tempStatus = {{tr("TEMP"), isNumericalTemp ? max_temp : tr("GOOD")}, currentColors[0]};
   } else if (ts == cereal::DeviceState::ThermalStatus::YELLOW) {
-    tempStatus = {{tr("TEMP"), tr("OK")}, warning_color};
+    tempStatus = {{tr("TEMP"), isNumericalTemp ? max_temp : tr("OK")}, warning_color};
   }
   setProperty("tempStatus", QVariant::fromValue(tempStatus));
 
