@@ -605,7 +605,7 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
 
   // paint path
   QLinearGradient bg(0, height(), 0, 0);
-  if (experimentalMode) {
+  if (experimentalMode || scene.acceleration_path) {
     // The first half of track_vertices are the points for the right side of the path
     // and the indices match the positions of accel from uiPlan
     const auto &acceleration = sm["uiPlan"].getUiPlan().getAccel();
