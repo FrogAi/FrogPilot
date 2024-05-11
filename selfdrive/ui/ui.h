@@ -189,6 +189,7 @@ typedef struct UIScene {
   bool speed_limit_changed;
   bool speed_limit_controller;
   bool speed_limit_overridden;
+  bool standby_mode;
   bool standstill;
   bool static_pedals_on_ui;
   bool stopped_timer;
@@ -202,6 +203,7 @@ typedef struct UIScene {
   bool use_si;
   bool use_vienna_slc_sign;
   bool vtsc_controlling_curve;
+  bool wake_up_screen;
   bool wheel_speed;
 
   double fps;
