@@ -222,6 +222,7 @@ typedef struct UIScene {
 
   int alert_size;
   int bearing_deg;
+  int camera_view;
   int conditional_speed;
   int conditional_speed_lead;
   int conditional_status;

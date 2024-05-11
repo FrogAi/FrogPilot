@@ -142,6 +142,7 @@ private:
   float unconfirmedSpeedLimit;
 
   int alertSize;
+  int cameraView;
   int conditionalSpeed;
   int conditionalSpeedLead;
   int conditionalStatus;
