@@ -416,6 +416,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.screen_brightness = screen_management ? params.getInt("ScreenBrightness") : 101;
   scene.screen_brightness_onroad = screen_management ? params.getInt("ScreenBrightnessOnroad") : 101;
   scene.screen_recorder = screen_management && params.getBool("ScreenRecorder");
+  scene.screen_timeout = screen_management ? params.getInt("ScreenTimeout") : 30;
 
   scene.speed_limit_controller = scene.longitudinal_control && params.getBool("SpeedLimitController");
   scene.show_slc_offset = scene.speed_limit_controller && params.getBool("ShowSLCOffset");
@@ -537,6 +538,8 @@ void Device::setAwake(bool on) {
 void Device::resetInteractiveTimeout(int timeout) {
   if (timeout == -1) {
     timeout = (ignition_on ? 10 : 30);
+  } else {
+    timeout = timeout;
   }
   interactive_timeout = timeout * UI_FREQ;
 }
@@ -579,7 +582,7 @@ void Device::updateWakefulness(const UIState &s) {
   ignition_on = s.scene.ignition;
 
   if (ignition_just_turned_off) {
-    resetInteractiveTimeout();
+    resetInteractiveTimeout(s.scene.screen_timeout);
   } else if (interactive_timeout > 0 && --interactive_timeout == 0) {
     emit interactiveTimeout();
   }
