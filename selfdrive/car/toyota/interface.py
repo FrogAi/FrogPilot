@@ -144,7 +144,17 @@ class CarInterface(CarInterfaceBase):
     tune = ret.longitudinalTuning
     tune.deadzoneBP = [0., 9.]
     tune.deadzoneV = [.0, .15]
-    if candidate in TSS2_CAR or ret.enableGasInterceptor:
+    if params.get_bool("CydiaTune"):
+      # on stock Toyota this is -2.5
+      ret.stopAccel = -2.5
+      tune.deadzoneBP = [0., 16., 20., 30.]
+      tune.deadzoneV = [.04, .05, .08, .15]
+      ret.stoppingDecelRate = 0.17
+      tune.kpBP = [0., 5.]
+      tune.kpV = [0.8, 1.]
+      tune.kiBP = [0., 5.]
+      tune.kiV = [0.3, 1.]
+    elif candidate in TSS2_CAR or ret.enableGasInterceptor:
       tune.kpBP = [0., 5., 20.]
       tune.kpV = [1.3, 1.0, 0.7]
       tune.kiBP = [0., 5., 12., 20., 27.]
