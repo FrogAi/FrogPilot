@@ -306,6 +306,51 @@ void OnroadWindow::paintEvent(QPaintEvent *event) {
       blindspot_frames_left = blindspot_frames_right = 0;
     }
   }
+
+  if (scene.fps_counter) {
+    qint64 currentMillis = QDateTime::currentMSecsSinceEpoch();
+    auto fpsQueue = std::queue<std::pair<qint64, double>>();
+
+    static double avgFPS = 0.0;
+    static double maxFPS = 0.0;
+    static double minFPS = 99.9;
+
+    minFPS = qMin(minFPS, fps);
+    maxFPS = qMax(maxFPS, fps);
+
+    fpsQueue.push({currentMillis, fps});
+
+    while (!fpsQueue.empty() && currentMillis - fpsQueue.front().first > 60000) {
+      fpsQueue.pop();
+    }
+
+    if (!fpsQueue.empty()) {
+      double totalFPS = 0;
+      for (auto tempQueue = fpsQueue; !tempQueue.empty(); tempQueue.pop()) {
+        totalFPS += tempQueue.front().second;
+      }
+      avgFPS = totalFPS / fpsQueue.size();
+    }
+
+    QString fpsDisplayString = QString("FPS: %1 (%2) | Min: %3 | Max: %4 | Avg: %5")
+      .arg(qRound(fps))
+      .arg(paramsMemory.getInt("CameraFPS"))
+      .arg(qRound(minFPS))
+      .arg(qRound(maxFPS))
+      .arg(qRound(avgFPS));
+
+    p.setFont(InterFont(28, QFont::DemiBold));
+    p.setRenderHint(QPainter::TextAntialiasing);
+    p.setPen(Qt::white);
+
+    int textWidth = p.fontMetrics().horizontalAdvance(fpsDisplayString);
+    int xPos = (rect.width() - textWidth) / 2;
+    int yPos = rect.bottom() - 5;
+
+    p.drawText(xPos, yPos, fpsDisplayString);
+
+    update();
+  }
 }
 
 // ***** onroad widgets *****
@@ -1087,7 +1132,7 @@ void AnnotatedCameraWidget::paintGL() {
 
   double cur_draw_t = millis_since_boot();
   double dt = cur_draw_t - prev_draw_t;
-  double fps = fps_filter.update(1. / dt * 1000);
+  fps = fps_filter.update(1. / dt * 1000);
   if (fps < 15) {
     LOGW("slow frame rate: %.2f fps", fps);
   }

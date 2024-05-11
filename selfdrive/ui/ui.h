@@ -202,6 +202,7 @@ typedef struct UIScene {
   bool enabled;
   bool experimental_mode;
   bool experimental_mode_via_screen;
+  bool fps_counter;
   bool holiday_themes;
   bool map_open;
   bool online;

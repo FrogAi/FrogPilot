@@ -329,6 +329,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.show_blind_spot = border_metrics && params.getBool("BlindSpotMetrics");
   scene.show_signal = border_metrics && params.getBool("SignalMetrics");
   scene.show_steering = border_metrics && params.getBool("ShowSteering");
+  scene.fps_counter = developer_ui && params.getBool("FPSCounter");
 
   scene.disable_smoothing_mtsc = params.getBool("MTSCEnabled") && params.getBool("DisableMTSCSmoothing");
   scene.disable_smoothing_vtsc = params.getBool("VisionTurnControl") && params.getBool("DisableVTSCSmoothing");
