@@ -293,6 +293,30 @@ void MapWindow::updateState(const UIState &s) {
     route_rcv_frame = sm.rcv_frame("navRoute");
     updateDestinationMarker();
   }
+
+  // Map Styling - Credit goes to OPKR!
+  int map_style = uiState()->scene.map_style;
+
+  if (map_style != previous_map_style) {
+    std::unordered_map<int, std::string> styleUrls = {
+      {0, "mapbox://styles/commaai/clkqztk0f00ou01qyhsa5bzpj"},  // Stock openpilot
+      {1, "mapbox://styles/mapbox/streets-v11"},  // Mapbox Streets
+      {2, "mapbox://styles/mapbox/outdoors-v11"},  // Mapbox Outdoors
+      {3, "mapbox://styles/mapbox/light-v10"},  // Mapbox Light
+      {4, "mapbox://styles/mapbox/dark-v10"},  // Mapbox Dark
+      {5, "mapbox://styles/mapbox/satellite-v9"},  // Mapbox Satellite
+      {6, "mapbox://styles/mapbox/satellite-streets-v11"},  // Mapbox Satellite Streets
+      {7, "mapbox://styles/mapbox/navigation-day-v1"},  // Mapbox Navigation Day
+      {8, "mapbox://styles/mapbox/navigation-night-v1"},  // Mapbox Navigation Night
+      {9, "mapbox://styles/mapbox/traffic-night-v2"},  // Mapbox Traffic Night
+      {10, "mapbox://styles/mike854/clt0hm8mw01ok01p4blkr27jp"},  // mike854's (Satellite hybrid)
+    };
+
+    std::unordered_map<int, std::string>::iterator it = styleUrls.find(map_style);
+    m_map->setStyleUrl(QString::fromStdString(it->second));
+  }
+
+  previous_map_style = map_style;
 }
 
 void MapWindow::setError(const QString &err_str) {
