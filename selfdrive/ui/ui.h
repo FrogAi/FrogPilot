@@ -304,6 +304,7 @@ typedef struct UIScene {
   int obstacle_distance;
   int obstacle_distance_stock;
   int screen_brightness;
+  int screen_brightness_onroad;
   int steering_angle_deg;
   int stopped_equivalence;
   int wheel_icon;
