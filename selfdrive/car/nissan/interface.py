@@ -11,7 +11,7 @@ FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
 class CarInterface(CarInterfaceBase):
 
   @staticmethod
-  def _get_params(ret, params, candidate, fingerprint, car_fw, experimental_long, docs):
+  def _get_params(ret, params, candidate, fingerprint, car_fw, disable_openpilot_long, experimental_long, docs):
     ret.carName = "nissan"
     ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.nissan)]
     ret.autoResumeSng = False

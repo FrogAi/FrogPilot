@@ -41,7 +41,7 @@ class CarInterface(CarInterfaceBase):
       return CarControllerParams.NIDEC_ACCEL_MIN, interp(current_speed, ACCEL_MAX_BP, ACCEL_MAX_VALS)
 
   @staticmethod
-  def _get_params(ret, params, candidate, fingerprint, car_fw, experimental_long, docs):
+  def _get_params(ret, params, candidate, fingerprint, car_fw, disable_openpilot_long, experimental_long, docs):
     ret.carName = "honda"
 
     CAN = CanBus(ret, fingerprint)
@@ -58,7 +58,7 @@ class CarInterface(CarInterfaceBase):
     else:
       ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.hondaNidec)]
       ret.enableGasInterceptor = 0x201 in fingerprint[CAN.pt]
-      ret.openpilotLongitudinalControl = True
+      ret.openpilotLongitudinalControl = not disable_openpilot_long
 
       ret.pcmCruise = not ret.enableGasInterceptor
 
