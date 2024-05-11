@@ -118,7 +118,7 @@ void update_model(UIState *s,
   float path;
   if (scene.dynamic_path_width) {
     float multiplier = scene.enabled ? 1.0f : scene.always_on_lateral_active ? 0.75f : 0.50f;
-    path = 0.9 * multiplier;
+    path = scene.path_width * multiplier;
   } else {
     path = scene.path_width;
   }
@@ -404,6 +404,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.hide_lead_marker = scene.model_ui && params.getBool("HideLeadMarker");
   scene.lane_line_width = params.getInt("LaneLinesWidth") * (scene.is_metric ? 1.0f : INCH_TO_CM) / 200.0f;
   scene.path_edge_width = params.getInt("PathEdgeWidth");
+  scene.path_width = params.getInt("PathWidth") / 10.0f * (scene.is_metric ? 1.0f : FOOT_TO_METER) / 2.0f;
 
   bool quality_of_life_controls = params.getBool("QOLControls");
   scene.reverse_cruise = quality_of_life_controls && params.getBool("ReverseCruise");
