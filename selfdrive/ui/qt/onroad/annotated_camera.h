@@ -111,6 +111,7 @@ private:
   bool blindSpotRight;
   bool compass;
   bool experimentalMode;
+  bool hideSpeed;
   bool leadInfo;
   bool mapOpen;
   bool onroadDistanceButton;
