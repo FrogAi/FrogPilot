@@ -34,6 +34,30 @@ private:
   UIScene &scene;
 };
 
+class Compass : public QWidget {
+public:
+  explicit Compass(QWidget *parent = nullptr);
+
+  void updateState();
+
+protected:
+  void paintEvent(QPaintEvent *event) override;
+
+private:
+  UIScene &scene;
+
+  int bearingDeg;
+  int circleOffset;
+  int compassSize;
+  int degreeLabelOffset;
+  int innerCompass;
+  int x;
+  int y;
+
+  QPixmap compassInnerImg;
+  QPixmap staticElements;
+};
+
 class DistanceButton : public QPushButton {
 public:
   explicit DistanceButton(QWidget *parent = nullptr);
@@ -143,11 +167,13 @@ private:
   Params paramsMemory{"/dev/shm/params"};
   UIScene &scene;
 
+  Compass *compass_img;
   DistanceButton *distance_btn;
 
   QHBoxLayout *bottom_layout;
 
   bool alwaysOnLateralActive;
+  bool compass;
   bool experimentalMode;
   bool mapOpen;
   bool onroadDistanceButton;
