@@ -12,6 +12,7 @@
 #include "selfdrive/ui/ui.h"
 #include "selfdrive/ui/qt/widgets/cameraview.h"
 
+#include "selfdrive/frogpilot/screenrecorder/screenrecorder.h"
 
 const int btn_size = 192;
 const int img_size = (btn_size / 4) * 3;
@@ -213,6 +214,7 @@ private:
   Compass *compass_img;
   DistanceButton *distance_btn;
   PedalIcons *pedal_icons;
+  ScreenRecorder *recorder;
 
   QHBoxLayout *bottom_layout;
 
@@ -267,6 +269,7 @@ private:
   std::vector<QPixmap> signalImgVector;
 
   QTimer *animationTimer;
+  std::shared_ptr<QTimer> record_timer;
 
   inline QColor blueColor(int alpha = 255) { return QColor(0, 150, 255, alpha); }
   inline QColor greenColor(int alpha = 242) { return QColor(23, 134, 68, alpha); }
@@ -280,6 +283,7 @@ protected:
   void drawLead(QPainter &painter, const cereal::ModelDataV2::LeadDataV3::Reader &lead_data, const QPointF &vd, const float v_ego);
   void drawHud(QPainter &p);
   void drawDriverState(QPainter &painter, const UIState *s);
+  void paintEvent(QPaintEvent *event) override;
   inline QColor redColor(int alpha = 255) { return QColor(201, 34, 49, alpha); }
   inline QColor whiteColor(int alpha = 255) { return QColor(255, 255, 255, alpha); }
   inline QColor blackColor(int alpha = 255) { return QColor(0, 0, 0, alpha); }
