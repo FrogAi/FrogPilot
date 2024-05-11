@@ -727,7 +727,7 @@ void AnnotatedCameraWidget::updateState(const UIState &s) {
 
   // hide map settings button for alerts and flip for right hand DM
   if (map_settings_btn->isEnabled()) {
-    map_settings_btn->setVisible(!hideBottomIcons && compass);
+    map_settings_btn->setVisible(!hideBottomIcons && compass && !scene.hide_map_icon);
     main_layout->setAlignment(map_settings_btn, (rightHandDM ? Qt::AlignLeft : Qt::AlignRight) | Qt::AlignTop);
   }
 
@@ -1533,7 +1533,7 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
 
   map_settings_btn_bottom->setEnabled(map_settings_btn->isEnabled());
   if (map_settings_btn_bottom->isEnabled()) {
-    map_settings_btn_bottom->setVisible(!hideBottomIcons && !compass);
+    map_settings_btn_bottom->setVisible(!hideBottomIcons && !compass && !scene.hide_map_icon);
     bottom_layout->setAlignment(map_settings_btn_bottom, rightHandDM ? Qt::AlignLeft : Qt::AlignRight);
   }
 }
