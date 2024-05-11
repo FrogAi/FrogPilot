@@ -145,6 +145,8 @@ typedef struct UIScene {
   bool has_auto_tune;
   bool has_lead;
   bool hide_lead_marker;
+  bool hide_speed;
+  bool hide_speed_ui;
   bool holiday_themes;
   bool is_CPU;
   bool is_GPU;

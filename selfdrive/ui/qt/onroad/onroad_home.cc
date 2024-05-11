@@ -127,6 +127,7 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   QRect leftRect(0, 0, size.width() / 2, size.height());
   QRect rightRect(size.width() / 2, 0, size.width() / 2, size.height());
 
+  QRect hideSpeedRect(rect().center().x() - 175, 50, 350, 350);
   QRect maxSpeedRect(7, 25, 225, 225);
   QRect speedLimitRect(7, 250, 225, 225);
 
@@ -141,6 +142,12 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
     scene.reverse_cruise = !scene.reverse_cruise;
     params.putBoolNonBlocking("ReverseCruise", scene.reverse_cruise);
     updateFrogPilotToggles();
+    return;
+  }
+
+  if (hideSpeedRect.contains(pos) && scene.hide_speed_ui) {
+    scene.hide_speed = !scene.hide_speed;
+    params.putBoolNonBlocking("HideSpeed", scene.hide_speed);
     return;
   }
 
