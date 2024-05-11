@@ -298,6 +298,8 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.show_cem_status_bar = scene.conditional_experimental && !params.getBool("HideCEMStatusBar");
 
   bool custom_onroad_ui = params.getBool("CustomUI");
+  bool custom_paths = custom_onroad_ui && params.getBool("CustomPaths");
+  scene.acceleration_path = custom_paths && params.getBool("AccelerationPath");
   scene.compass = custom_onroad_ui && params.getBool("Compass");
 
   scene.disable_smoothing_mtsc = params.getBool("MTSCEnabled") && params.getBool("DisableMTSCSmoothing");
