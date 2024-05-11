@@ -208,6 +208,7 @@ typedef struct UIScene {
   bool onroad_distance_button;
   bool parked;
   bool pedals_on_ui;
+  bool random_events;
   bool reverse_cruise;
   bool reverse_cruise_ui;
   bool right_hand_drive;
@@ -247,6 +248,7 @@ typedef struct UIScene {
   int conditional_speed_lead;
   int conditional_status;
   int current_holiday_theme;
+  int current_random_event;
   int custom_colors;
   int custom_icons;
   int custom_signals;

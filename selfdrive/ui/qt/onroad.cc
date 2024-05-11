@@ -33,6 +33,18 @@ static void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, cons
   p.restore();
 }
 
+static void drawIconGif(QPainter &p, const QPoint &center, const QMovie &img, const QBrush &bg, float opacity) {
+  p.setRenderHint(QPainter::Antialiasing);
+  p.setOpacity(1.0);  // bg dictates opacity of ellipse
+  p.setPen(Qt::NoPen);
+  p.setBrush(bg);
+  p.drawEllipse(center.x() - btn_size / 2, center.y() - btn_size / 2, btn_size, btn_size);
+  p.setOpacity(opacity);
+  QPixmap currentFrame = img.currentPixmap();
+  p.drawPixmap(center - QPoint(currentFrame.width() / 2, currentFrame.height() / 2), currentFrame);
+  p.setOpacity(1.0);
+}
+
 OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent), scene(uiState()->scene) {
   QVBoxLayout *main_layout  = new QVBoxLayout(this);
   main_layout->setMargin(UI_BORDER_SIZE);
@@ -296,7 +308,12 @@ ExperimentalButton::ExperimentalButton(QWidget *parent) : experimental_mode(fals
     {4, loadPixmap("../frogpilot/assets/wheel_images/rocket.png", {img_size, img_size})},
     {5, loadPixmap("../frogpilot/assets/wheel_images/hyundai.png", {img_size, img_size})},
     {6, loadPixmap("../frogpilot/assets/wheel_images/stalin.png", {img_size, img_size})},
+    {7, loadPixmap("../frogpilot/assets/random_events/images/firefox.png", {img_size, img_size})},
   };
+
+  wheelImagesGif[1] = new QMovie("../frogpilot/assets/random_events/images/weeb_wheel.gif", QByteArray(), this);
+  wheelImagesGif[2] = new QMovie("../frogpilot/assets/random_events/images/tree_fiddy.gif", QByteArray(), this);
+  wheelImagesGif[3] = new QMovie("../frogpilot/assets/random_events/images/great_scott.gif", QByteArray(), this);
 }
 
 void ExperimentalButton::changeMode() {
@@ -322,10 +339,39 @@ void ExperimentalButton::updateState(const UIState &s) {
   }
 
   // FrogPilot variables
+  int randomEvent = scene.current_random_event;
+
   rotatingWheel = scene.rotating_wheel;
   wheelIcon = scene.wheel_icon;
+  wheelIconGif = 0;
 
-  if (rotatingWheel && steeringAngleDeg != scene.steering_angle_deg) {
+  if (randomEvent == 0 && gifLabel) {
+    delete gifLabel;
+    gifLabel = nullptr;
+  } else if (randomEvent == 1) {
+    static int rotationDegree = 0;
+    rotationDegree = (rotationDegree + 36) % 360;
+    steeringAngleDeg = rotationDegree;
+    wheelIcon = 7;
+    update();
+
+  } else if (randomEvent == 2 || randomEvent == 3 || randomEvent == 4) {
+    if (!gifLabel) {
+      gifLabel = new QLabel(this);
+      QMovie *movie = wheelImagesGif[randomEvent - 1];
+      if (movie) {
+        gifLabel->setMovie(movie);
+        gifLabel->setFixedSize(img_size, img_size);
+        gifLabel->move((width() - gifLabel->width()) / 2, (height() - gifLabel->height()) / 2);
+        gifLabel->movie()->start();
+      }
+    }
+    gifLabel->show();
+    wheelIconGif = randomEvent - 1;
+    update();
+
+  } else if (rotatingWheel && steeringAngleDeg != scene.steering_angle_deg) {
+    steeringAngleDeg = scene.steering_angle_deg;
     update();
     steeringAngleDeg = scene.steering_angle_deg;
   } else if (!rotatingWheel) {
@@ -341,6 +387,7 @@ void ExperimentalButton::paintEvent(QPaintEvent *event) {
   QPainter p(this);
   engage_img = wheelImages[wheelIcon];
   QPixmap img = wheelIcon != 0 ? engage_img : (experimental_mode ? experimental_img : engage_img);
+  QMovie *gif = wheelImagesGif[wheelIconGif];
 
   QColor background_color = wheelIcon != 0 && !isDown() && engageable ?
     (scene.always_on_lateral_active ? bg_colors[STATUS_ALWAYS_ON_LATERAL_ACTIVE] :
@@ -350,7 +397,11 @@ void ExperimentalButton::paintEvent(QPaintEvent *event) {
     (scene.navigate_on_openpilot ? bg_colors[STATUS_NAVIGATION_ACTIVE] : QColor(0, 0, 0, 166)))))) :
     QColor(0, 0, 0, 166);
 
-  drawIcon(p, QPoint(btn_size / 2, btn_size / 2), img, QColor(0, 0, 0, 166), (isDown() || !engageable) ? 0.6 : 1.0, steeringAngleDeg);
+  if (wheelIconGif != 0) {
+    drawIconGif(p, QPoint(btn_size / 2, btn_size / 2), *gif, background_color, 1.0);
+  } else {
+    drawIcon(p, QPoint(btn_size / 2, btn_size / 2), img, background_color, (isDown() || !engageable) ? 0.6 : 1.0, steeringAngleDeg);
+  }
 }
 
 
