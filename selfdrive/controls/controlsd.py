@@ -300,7 +300,10 @@ class Controls:
       direction = self.sm['modelV2'].meta.laneChangeDirection
       if (CS.leftBlindspot and direction == LaneChangeDirection.left) or \
          (CS.rightBlindspot and direction == LaneChangeDirection.right):
-        self.events.add(EventName.laneChangeBlocked)
+        if self.frogpilot_toggles.loud_blindspot_alert:
+          self.events.add(EventName.laneChangeBlockedLoud)
+        else:
+          self.events.add(EventName.laneChangeBlocked)
       else:
         if direction == LaneChangeDirection.left:
           if self.sm['frogpilotPlan'].laneWidthLeft >= self.frogpilot_toggles.lane_detection_width:

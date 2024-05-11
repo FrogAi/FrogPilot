@@ -998,6 +998,14 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
   },
 
+  EventName.laneChangeBlockedLoud: {
+    ET.WARNING: Alert(
+      "Car Detected in Blindspot",
+      "",
+      AlertStatus.userPrompt, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.warningSoft, .1),
+  },
+
   EventName.leadDeparting: {
     ET.PERMANENT: Alert(
       "Lead departed",
