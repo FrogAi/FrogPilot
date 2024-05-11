@@ -307,6 +307,7 @@ typedef struct UIScene {
   int screen_brightness;
   int screen_brightness_onroad;
   int screen_timeout;
+  int screen_timeout_onroad;
   int steering_angle_deg;
   int stopped_equivalence;
   int wheel_icon;
@@ -394,7 +395,7 @@ signals:
   void interactiveTimeout();
 
 public slots:
-  void resetInteractiveTimeout(int timeout = -1);
+  void resetInteractiveTimeout(int timeout = -1, int timeout_onroad = -1);
   void update(const UIState &s);
 };
 
