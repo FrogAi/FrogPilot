@@ -100,7 +100,7 @@ void OnroadWindow::updateState(const UIState &s) {
   Alert alert = Alert::get(*(s.sm), s.scene.started_frame);
   alerts->updateAlert(alert);
 
-  if (s.scene.map_on_left) {
+  if (s.scene.map_on_left || scene.full_map) {
     split->setDirection(QBoxLayout::LeftToRight);
   } else {
     split->setDirection(QBoxLayout::RightToLeft);

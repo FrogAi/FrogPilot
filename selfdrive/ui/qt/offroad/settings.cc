@@ -161,6 +161,8 @@ void TogglesPanel::updateToggles() {
   disengage_on_accelerator_toggle->setVisible(!params.getBool("AlwaysOnLateral"));
   auto driver_camera_toggle = toggles["RecordFront"];
   driver_camera_toggle->setVisible(!(params.getBool("DeviceManagement") && params.getBool("NoLogging") && params.getBool("NoUploads")));
+  auto nav_settings_left_toggle = toggles["NavSettingLeftSide"];
+  nav_settings_left_toggle->setVisible(!params.getBool("FullMap"));
 
   auto experimental_mode_toggle = toggles["ExperimentalMode"];
   auto op_long_toggle = toggles["ExperimentalLongitudinalEnabled"];
