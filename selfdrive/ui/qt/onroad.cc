@@ -1314,14 +1314,14 @@ void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
 }
 
 void AnnotatedCameraWidget::updateFrogPilotWidgets() {
-  if (is_metric) {
+  if (is_metric || scene.use_si) {
     accelerationUnit = tr(" m/s²");
     leadDistanceUnit = tr(mapOpen ? "m" : "meters");
-    leadSpeedUnit = tr("kph");
+    leadSpeedUnit = scene.use_si ? tr("m/s") : tr("kph");
 
     accelerationConversion = 1.0f;
     distanceConversion = 1.0f;
-    speedConversion = MS_TO_KPH;
+    speedConversion = scene.use_si ? 1.0f : MS_TO_KPH;
   } else {
     accelerationUnit = tr(" ft/s²");
     leadDistanceUnit = tr(mapOpen ? "ft" : "feet");
