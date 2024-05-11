@@ -73,6 +73,7 @@ class Controls:
     self.frogpilot_toggles = FrogPilotVariables.toggles
 
     self.drive_added = False
+    self.holiday_theme_alerted = False
     self.onroad_distance_pressed = False
     self.openpilot_crashed_triggered = False
     self.previously_enabled = False
@@ -948,6 +949,10 @@ class Controls:
       self.green_light_mac.add_data(green_light)
       if self.green_light_mac.get_moving_average() >= PROBABILITY:
         self.events.add(EventName.greenLight)
+
+    if self.sm.frame >= 1000 and self.frogpilot_toggles.current_holiday_theme != 0 and not self.holiday_theme_alerted:
+      self.events.add(EventName.holidayActive)
+      self.holiday_theme_alerted = True
 
     if self.frogpilot_toggles.lead_departing_alert and self.sm['frogpilotPlan'].leadDeparting:
       self.events.add(EventName.leadDeparting)

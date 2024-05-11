@@ -573,5 +573,6 @@ selfdrive/frogpilot/controls/lib/frogpilot_variables.py
 selfdrive/frogpilot/controls/lib/map_turn_speed_controller.py
 selfdrive/frogpilot/controls/lib/model_manager.py
 selfdrive/frogpilot/controls/lib/speed_limit_controller.py
+selfdrive/frogpilot/controls/lib/theme_manager.py
 selfdrive/frogpilot/fleet_manager/fleet_manager.py
 selfdrive/frogpilot/navigation/mapd.py
