@@ -347,6 +347,13 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.fahrenheit = scene.numerical_temp && params.getBool("Fahrenheit");
   scene.show_jerk = scene.longitudinal_control && developer_ui && params.getBool("LongitudinalMetrics");
   scene.show_tuning = developer_ui && scene.has_auto_tune && params.getBool("LateralMetrics");
+  scene.sidebar_metrics = developer_ui && params.getBool("SidebarMetrics");
+  scene.is_CPU = scene.sidebar_metrics && params.getBool("ShowCPU");
+  scene.is_GPU = scene.sidebar_metrics && params.getBool("ShowGPU");
+  scene.is_IP = scene.sidebar_metrics && params.getBool("ShowIP");
+  scene.is_memory = scene.sidebar_metrics && params.getBool("ShowMemoryUsage");
+  scene.is_storage_left = scene.sidebar_metrics && params.getBool("ShowStorageLeft");
+  scene.is_storage_used = scene.sidebar_metrics && params.getBool("ShowStorageUsed");
 
   scene.disable_smoothing_mtsc = params.getBool("MTSCEnabled") && params.getBool("DisableMTSCSmoothing");
   scene.disable_smoothing_vtsc = params.getBool("VisionTurnControl") && params.getBool("DisableVTSCSmoothing");

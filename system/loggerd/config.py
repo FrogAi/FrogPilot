@@ -27,3 +27,14 @@ def get_available_bytes(default=None):
     available_bytes = default
 
   return available_bytes
+
+def get_used_bytes(default=None):
+  try:
+    statvfs = os.statvfs(Paths.log_root())
+    total_bytes = statvfs.f_blocks * statvfs.f_frsize
+    available_bytes = get_available_bytes(default)
+    used_bytes = total_bytes - available_bytes
+  except OSError:
+    used_bytes = default
+
+  return used_bytes
