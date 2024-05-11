@@ -251,10 +251,10 @@ class CarInterfaceBase(ABC):
     """
     Parameters essential to controlling the car may be incomplete or wrong without FW versions or fingerprints.
     """
-    return cls.get_params(candidate, gen_empty_fingerprint(), list(), False, False)
+    return cls.get_params(candidate, gen_empty_fingerprint(), list(), False, False, False)
 
   @classmethod
-  def get_params(cls, params, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[car.CarParams.CarFw], experimental_long: bool, docs: bool):
+  def get_params(cls, params, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[car.CarParams.CarFw], disable_openpilot_long: bool, experimental_long: bool, docs: bool):
     ret = CarInterfaceBase.get_std_params(candidate)
 
     platform = PLATFORMS[candidate]
@@ -267,7 +267,7 @@ class CarInterfaceBase(ABC):
     ret.tireStiffnessFactor = platform.config.specs.tireStiffnessFactor
     ret.flags |= int(platform.config.flags)
 
-    ret = cls._get_params(ret, params, candidate, fingerprint, car_fw, experimental_long, docs)
+    ret = cls._get_params(ret, params, candidate, fingerprint, car_fw, disable_openpilot_long, experimental_long, docs)
 
     # Enable torque controller for all cars that do not use angle based steering
     if ret.steerControlType != car.CarParams.SteerControlType.angle and params.get_bool("LateralTune") and params.get_bool("NNFF"):

@@ -43,8 +43,9 @@ class CarD:
       get_one_can(self.can_sock)
 
       num_pandas = len(messaging.recv_one_retry(self.sm.sock['pandaStates']).pandaStates)
-      experimental_long_allowed = self.params.get_bool("ExperimentalLongitudinalEnabled")
-      self.CI, self.CP = get_car(self.params, self.can_sock, self.pm.sock['sendcan'], experimental_long_allowed, num_pandas)
+      disable_openpilot_long = self.params.get_bool("DisableOpenpilotLongitudinal")
+      experimental_long_allowed = not disable_openpilot_long and self.params.get_bool("ExperimentalLongitudinalEnabled")
+      self.CI, self.CP = get_car(self.params, self.can_sock, self.pm.sock['sendcan'], disable_openpilot_long, experimental_long_allowed, num_pandas)
     else:
       self.CI, self.CP = CI, CI.CP
 

@@ -92,7 +92,9 @@ class CarInterface(CarInterfaceBase):
       return self.torque_from_lateral_accel_linear
 
   @staticmethod
-  def _get_params(ret, params, candidate, fingerprint, car_fw, experimental_long, docs):
+  def _get_params(ret, params, candidate, fingerprint, car_fw, disable_openpilot_long, experimental_long, docs):
+    params.put_bool("HideDisableOpenpilotLongitudinal", candidate not in (SDGM_CAR | CAMERA_ACC_CAR))
+
     ret.carName = "gm"
     ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.gm)]
     ret.autoResumeSng = False
@@ -143,7 +145,7 @@ class CarInterface(CarInterfaceBase):
       ret.safetyConfigs[0].safetyParam |= Panda.FLAG_GM_HW_SDGM
 
     else:  # ASCM, OBD-II harness
-      ret.openpilotLongitudinalControl = True
+      ret.openpilotLongitudinalControl = not disable_openpilot_long
       ret.networkLocation = NetworkLocation.gateway
       ret.radarUnavailable = RADAR_HEADER_MSG not in fingerprint[CanBus.OBSTACLE] and not docs
       ret.pcmCruise = False  # stock non-adaptive cruise control is kept off
@@ -250,7 +252,7 @@ class CarInterface(CarInterfaceBase):
       ret.safetyConfigs[0].safetyParam |= Panda.FLAG_GM_HW_CAM
       ret.minEnableSpeed = -1
       ret.pcmCruise = False
-      ret.openpilotLongitudinalControl = True
+      ret.openpilotLongitudinalControl = not disable_openpilot_long
       ret.stoppingControl = True
       ret.autoResumeSng = True
 
@@ -276,7 +278,7 @@ class CarInterface(CarInterfaceBase):
       ret.radarUnavailable = True
       ret.experimentalLongitudinalAvailable = False
       ret.minEnableSpeed = 24 * CV.MPH_TO_MS
-      ret.openpilotLongitudinalControl = True
+      ret.openpilotLongitudinalControl = not disable_openpilot_long
       ret.pcmCruise = False
 
       ret.longitudinalTuning.deadzoneBP = [0.]
