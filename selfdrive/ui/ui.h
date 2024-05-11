@@ -249,6 +249,7 @@ typedef struct UIScene {
   bool traffic_mode_active;
   bool turn_signal_left;
   bool turn_signal_right;
+  bool unlimited_road_ui_length;
   bool use_kaofui_icons;
   bool use_si;
   bool use_vienna_slc_sign;
