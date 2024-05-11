@@ -412,6 +412,7 @@ void ui_update_frogpilot_params(UIState *s) {
   bool hide_ui_elements = screen_management && params.getBool("HideUIElements");
   scene.hide_alerts = hide_ui_elements && params.getBool("HideAlerts");
   scene.hide_map_icon = hide_ui_elements && params.getBool("HideMapIcon");
+  scene.hide_max_speed = hide_ui_elements && params.getBool("HideMaxSpeed");
 
   scene.speed_limit_controller = scene.longitudinal_control && params.getBool("SpeedLimitController");
   scene.show_slc_offset = scene.speed_limit_controller && params.getBool("ShowSLCOffset");
