@@ -47,7 +47,7 @@ def allow_logging(started, params, CP: car.CarParams) -> bool:
   return allow_logging and logging(started, params, CP)
 
 def allow_uploads(started, params, CP: car.CarParams) -> bool:
-  allow_uploads = not (params.get_bool("DeviceManagement") and params.get_bool("NoUploads"))
+  allow_uploads = not (params.get_bool("DeviceManagement") and params.get_bool("NoUploads") and not params.get_bool("DisableOnroadUploads"))
   return allow_uploads
 
 procs = [
