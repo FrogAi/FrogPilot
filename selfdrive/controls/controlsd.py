@@ -73,6 +73,7 @@ class Controls:
     self.drive_added = False
     self.onroad_distance_pressed = False
     self.openpilot_crashed_triggered = False
+    self.speed_check = False
 
     self.display_timer = 0
     self.drive_distance = 0
@@ -589,7 +590,7 @@ class Controls:
 
     # Check which actuators can be enabled
     standstill = CS.vEgo <= max(self.CP.minSteerSpeed, MIN_LATERAL_CONTROL_SPEED) or CS.standstill
-    CC.latActive = (self.active or self.FPCC.alwaysOnLateral) and not CS.steerFaultTemporary and not CS.steerFaultPermanent and \
+    CC.latActive = (self.active or self.FPCC.alwaysOnLateral) and self.speed_check and not CS.steerFaultTemporary and not CS.steerFaultPermanent and \
                    (not standstill or self.joystick_mode)
     CC.longActive = self.enabled and not self.events.contains(ET.OVERRIDE_LONGITUDINAL) and self.CP.openpilotLongitudinalControl
 
@@ -943,6 +944,7 @@ class Controls:
     self.FPCC.alwaysOnLateral &= CS.cruiseState.available
     self.FPCC.alwaysOnLateral &= self.card.always_on_lateral
     self.FPCC.alwaysOnLateral &= self.driving_gear
+    self.FPCC.alwaysOnLateral &= self.speed_check
     self.FPCC.alwaysOnLateral &= not (CS.brakePressed and CS.vEgo < self.frogpilot_toggles.always_on_lateral_pause_speed) or CS.standstill
 
     if self.frogpilot_toggles.conditional_experimental_mode:
@@ -976,6 +978,9 @@ class Controls:
         self.params_memory.put_int("CEStatus", override_value)
       else:
         self.params.put_bool_nonblocking("ExperimentalMode", not self.experimental_mode)
+
+    signal_check = CS.vEgo >= self.frogpilot_toggles.pause_lateral_below_speed or not (CS.leftBlinker or CS.rightBlinker) or CS.standstill
+    self.speed_check = CS.vEgo >= self.frogpilot_toggles.pause_lateral_below_speed or CS.standstill or signal_check and self.frogpilot_toggles.pause_lateral_below_signal
 
     self.FPCC.trafficModeActive = self.frogpilot_toggles.traffic_mode and self.params_memory.get_bool("TrafficModeActive")
 
