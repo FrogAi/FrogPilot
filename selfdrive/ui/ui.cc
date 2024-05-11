@@ -397,6 +397,9 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.reverse_cruise = quality_of_life_controls && params.getBool("ReverseCruise");
   scene.reverse_cruise_ui = params.getBool("ReverseCruiseUI");
 
+  bool quality_of_life_visuals = params.getBool("QOLVisuals");
+  scene.big_map = quality_of_life_visuals && params.getBool("BigMap");
+
   scene.speed_limit_controller = scene.longitudinal_control && params.getBool("SpeedLimitController");
   scene.show_slc_offset = scene.speed_limit_controller && params.getBool("ShowSLCOffset");
   scene.show_slc_offset_ui = scene.speed_limit_controller && params.getBool("ShowSLCOffsetUI");
