@@ -75,6 +75,7 @@ class Controls:
     self.drive_added = False
     self.onroad_distance_pressed = False
     self.openpilot_crashed_triggered = False
+    self.previously_enabled = False
     self.speed_check = False
 
     self.display_timer = 0
@@ -82,6 +83,8 @@ class Controls:
     self.drive_time = 0
     self.previous_speed_limit = 0
     self.speed_limit_timer = 0
+
+    self.green_light_mac = MovingAverageCalculator()
 
     self.card = CarD(CI)
 
@@ -932,6 +935,17 @@ class Controls:
       self.events.add(EventName.openpilotCrashed)
       self.openpilot_crashed_triggered = True
 
+    if self.frogpilot_toggles.green_light_alert:
+      green_light = not self.sm['frogpilotPlan'].redLight
+      green_light &= not CS.gasPressed
+      green_light &= not self.sm['longitudinalPlan'].hasLead
+      green_light &= self.previously_enabled
+      green_light &= CS.standstill
+
+      self.green_light_mac.add_data(green_light)
+      if self.green_light_mac.get_moving_average() >= PROBABILITY:
+        self.events.add(EventName.greenLight)
+
     if self.frogpilot_toggles.speed_limit_alert or self.frogpilot_toggles.speed_limit_confirmation:
       current_speed_limit = self.sm['frogpilotPlan'].slcSpeedLimit
       desired_speed_limit = self.sm['frogpilotPlan'].unconfirmedSlcSpeedLimit
@@ -1029,6 +1043,9 @@ class Controls:
         self.params_memory.put_int("CEStatus", override_value)
       else:
         self.params.put_bool_nonblocking("ExperimentalMode", not self.experimental_mode)
+
+    self.previously_enabled |= (self.enabled or self.FPCC.alwaysOnLateral) and CS.vEgo > CRUISING_SPEED
+    self.previously_enabled &= self.driving_gear
 
     signal_check = CS.vEgo >= self.frogpilot_toggles.pause_lateral_below_speed or not (CS.leftBlinker or CS.rightBlinker) or CS.standstill
     self.speed_check = CS.vEgo >= self.frogpilot_toggles.pause_lateral_below_speed or CS.standstill or signal_check and self.frogpilot_toggles.pause_lateral_below_signal

@@ -157,7 +157,7 @@ class FrogPilotPlanner:
     self.road_curvature = calculate_road_curvature(modelData, v_ego)
     self.v_cruise = self.update_v_cruise(carState, controlsState, frogpilotCarState, frogpilotNavigation, liveLocationKalman, modelData, v_cruise, v_ego, frogpilot_toggles)
 
-    if frogpilot_toggles.conditional_experimental_mode:
+    if frogpilot_toggles.conditional_experimental_mode or frogpilot_toggles.green_light_alert:
       self.cem.update(carState, controlsState.enabled, frogpilotNavigation, lead_distance, self.lead_one, modelData, self.road_curvature, self.slower_lead, v_ego, v_lead, frogpilot_toggles)
 
     self.frame += 1
@@ -265,6 +265,7 @@ class FrogPilotPlanner:
     frogpilotPlan.adjustedCruise = float(min(self.mtsc_target, self.vtsc_target) * (CV.MS_TO_KPH if frogpilot_toggles.is_metric else CV.MS_TO_MPH))
 
     frogpilotPlan.conditionalExperimental = self.cem.experimental_mode
+    frogpilotPlan.redLight = self.cem.red_light_detected
 
     frogpilotPlan.maxAcceleration = self.max_accel
     frogpilotPlan.minAcceleration = self.min_accel

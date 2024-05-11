@@ -990,6 +990,14 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.NO_ENTRY: NoEntryAlert("Please don't use the 'Development' branch!"),
   },
 
+  EventName.greenLight: {
+    ET.PERMANENT: Alert(
+      "Light turned green",
+      "",
+      AlertStatus.frogpilot, AlertSize.small,
+      Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
   EventName.noLaneAvailable : {
     ET.PERMANENT: no_lane_available_alert,
   },
