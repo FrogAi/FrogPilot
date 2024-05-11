@@ -260,6 +260,7 @@ typedef struct UIScene {
   float adjusted_cruise;
   float friction;
   float lane_detection_width;
+  float lane_line_width;
   float lane_width_left;
   float lane_width_right;
   float lat_accel;
