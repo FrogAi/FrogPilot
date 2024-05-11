@@ -146,6 +146,7 @@ typedef struct UIScene {
   bool has_lead;
   bool hide_alerts;
   bool hide_lead_marker;
+  bool hide_map_icon;
   bool hide_speed;
   bool hide_speed_ui;
   bool holiday_themes;
