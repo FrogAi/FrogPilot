@@ -47,6 +47,19 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
     {3, {"stalin_theme", {QColor(255, 0, 0)}}}
   };
 
+  for (auto &[key, themeData] : themeConfiguration) {
+    QString &themeName = themeData.first;
+    QString base = themeName == "stock" ? "../assets/images" : QString("../frogpilot/assets/custom_themes/%1/images").arg(themeName);
+    std::vector<QString> paths = {base + "/button_home.png", base + "/button_flag.png", base + "/button_settings.png"};
+
+    home_imgs[key] = loadPixmap(paths[0], home_btn.size());
+    flag_imgs[key] = loadPixmap(paths[1], home_btn.size());
+    settings_imgs[key] = loadPixmap(paths[2], settings_btn.size(), Qt::IgnoreAspectRatio);
+  }
+
+  home_img = home_imgs[scene.custom_icons];
+  flag_img = flag_imgs[scene.custom_icons];
+  settings_img = settings_imgs[scene.custom_icons];
   currentColors = themeConfiguration[scene.custom_colors].second;
 }
 
@@ -90,6 +103,10 @@ void Sidebar::updateState(const UIState &s) {
   setProperty("netStrength", strength > 0 ? strength + 1 : 0);
 
   // FrogPilot properties
+  home_img = home_imgs[scene.custom_icons];
+  flag_img = flag_imgs[scene.custom_icons];
+  settings_img = settings_imgs[scene.custom_icons];
+
   currentColors = themeConfiguration[scene.custom_colors].second;
 
   auto frogpilotDeviceState = sm["frogpilotDeviceState"].getFrogpilotDeviceState();
