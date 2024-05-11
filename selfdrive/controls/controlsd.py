@@ -913,6 +913,9 @@ class Controls:
       self.events.add(EventName.openpilotCrashed)
       self.openpilot_crashed_triggered = True
 
+    if self.frogpilot_toggles.speed_limit_alert and self.speed_limit_changed:
+      self.events.add(EventName.speedLimitChanged)
+
     if self.sm.frame * DT_CTRL == 5.5 and self.CP.lateralTuning.which() == 'torque' and self.CI.use_nnff:
       self.events.add(EventName.torqueNNLoad)
 
