@@ -114,6 +114,14 @@ void update_model(UIState *s,
   }
 
   // update path
+  float path;
+  if (scene.dynamic_path_width) {
+    float multiplier = scene.enabled ? 1.0f : scene.always_on_lateral_active ? 0.75f : 0.50f;
+    path = 0.9 * multiplier;
+  } else {
+    path = scene.path_width;
+  }
+
   auto lead_count = model.getLeadsV3().size();
   if (lead_count > 0) {
     auto lead_one = model.getLeadsV3()[0];
@@ -391,6 +399,9 @@ void ui_update_frogpilot_params(UIState *s, Params &params) {
 
   bool model_manager = params.getBool("ModelManagement");
   scene.model_randomizer = model_manager && params.getBool("ModelRandomizer");
+
+  scene.model_ui = params.getBool("ModelUI");
+  scene.dynamic_path_width = scene.model_ui && params.getBool("DynamicPathWidth");
 
   bool quality_of_life_controls = params.getBool("QOLControls");
   scene.reverse_cruise = quality_of_life_controls && params.getBool("ReverseCruise");
