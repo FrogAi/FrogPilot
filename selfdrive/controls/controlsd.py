@@ -932,7 +932,7 @@ class Controls:
       self.events.add(EventName.openpilotCrashed)
       self.openpilot_crashed_triggered = True
 
-    if self.frogpilot_toggles.speed_limit_confirmation:
+    if self.frogpilot_toggles.speed_limit_alert or self.frogpilot_toggles.speed_limit_confirmation:
       current_speed_limit = self.sm['frogpilotPlan'].slcSpeedLimit
       desired_speed_limit = self.sm['frogpilotPlan'].unconfirmedSlcSpeedLimit
 
@@ -965,6 +965,9 @@ class Controls:
       if self.params_memory.get_bool("SLCConfirmedPressed") or not self.frogpilot_toggles.speed_limit_confirmation or not abs(current_speed_limit - desired_speed_limit) > 1:
         self.FPCC.speedLimitChanged = False
         self.params_memory.put_bool("SLCConfirmedPressed", False)
+
+      if (speed_limit_changed_lower or speed_limit_changed_higher) and self.frogpilot_toggles.speed_limit_alert:
+        self.events.add(EventName.speedLimitChanged)
 
       if self.FPCC.speedLimitChanged:
         self.speed_limit_timer += DT_CTRL
