@@ -267,6 +267,7 @@ typedef struct UIScene {
   float lead_detection_threshold;
   float path_edge_width;
   float path_width;
+  float road_edge_width;
   float speed_jerk;
   float speed_jerk_difference;
   float speed_limit;
