@@ -1219,7 +1219,7 @@ void AnnotatedCameraWidget::paintGL() {
 
     // Wide or narrow cam dependent on speed
     bool has_wide_cam = available_streams.count(VISION_STREAM_WIDE_ROAD);
-    if (has_wide_cam) {
+    if (has_wide_cam && cameraView == 0) {
       if ((v_ego < 10) || available_streams.size() == 1) {
         wide_cam_requested = true;
       } else if (v_ego > 15) {
@@ -1229,7 +1229,9 @@ void AnnotatedCameraWidget::paintGL() {
       // for replay of old routes, never go to widecam
       wide_cam_requested = wide_cam_requested && s->scene.calibration_wide_valid;
     }
-    CameraWidget::setStreamType(wide_cam_requested ? VISION_STREAM_WIDE_ROAD : VISION_STREAM_ROAD);
+    CameraWidget::setStreamType(cameraView == 1 ? VISION_STREAM_DRIVER :
+                                cameraView == 3 || wide_cam_requested ? VISION_STREAM_WIDE_ROAD :
+                                VISION_STREAM_ROAD);
 
     s->scene.wide_cam = CameraWidget::getStreamType() == VISION_STREAM_WIDE_ROAD;
     if (s->scene.calibration_valid) {
@@ -1392,6 +1394,8 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets() {
 
   blindSpotLeft = scene.blind_spot_left;
   blindSpotRight = scene.blind_spot_right;
+
+  cameraView = scene.camera_view;
 
   compass = scene.compass;
 
