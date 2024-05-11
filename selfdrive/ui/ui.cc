@@ -418,6 +418,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.screen_recorder = screen_management && params.getBool("ScreenRecorder");
   scene.screen_timeout = screen_management ? params.getInt("ScreenTimeout") : 30;
   scene.screen_timeout_onroad = screen_management ? params.getInt("ScreenTimeoutOnroad") : 10;
+  scene.standby_mode = screen_management && params.getBool("StandbyMode");
 
   scene.speed_limit_controller = scene.longitudinal_control && params.getBool("SpeedLimitController");
   scene.show_slc_offset = scene.speed_limit_controller && params.getBool("ShowSLCOffset");
@@ -429,6 +430,7 @@ void UIState::updateStatus() {
   if (scene.started && sm->updated("controlsState")) {
     auto controls_state = (*sm)["controlsState"].getControlsState();
     auto state = controls_state.getState();
+    auto previous_status = status;
     if (state == cereal::ControlsState::OpenpilotState::PRE_ENABLED || state == cereal::ControlsState::OpenpilotState::OVERRIDING) {
       status = STATUS_OVERRIDE;
     } else if (scene.always_on_lateral_active) {
@@ -438,6 +440,8 @@ void UIState::updateStatus() {
     } else {
       status = controls_state.getEnabled() ? STATUS_ENGAGED : STATUS_DISENGAGED;
     }
+
+    scene.wake_up_screen = controls_state.getAlertStatus() != cereal::ControlsState::AlertStatus::NORMAL || status != previous_status;
   }
 
   // Handle onroad/offroad transition
@@ -564,6 +568,8 @@ void Device::updateBrightness(const UIState &s) {
   int brightness = brightness_filter.update(clipped_brightness);
   if (!awake) {
     brightness = 0;
+  } else if (s.scene.started && s.scene.standby_mode && !s.scene.wake_up_screen && interactive_timeout == 0) {
+    brightness = 0;
   } else if (s.scene.started && s.scene.screen_brightness_onroad != 101) {
     brightness = interactive_timeout > 0 ? fmax(5, s.scene.screen_brightness_onroad) : s.scene.screen_brightness_onroad;
   } else if (s.scene.screen_brightness != 101) {
@@ -582,8 +588,18 @@ void Device::updateWakefulness(const UIState &s) {
   bool ignition_state_changed = s.scene.ignition != ignition_on;
   ignition_on = s.scene.ignition;
 
+  if (ignition_on && s.scene.standby_mode) {
+    if (s.scene.wake_up_screen) {
+      resetInteractiveTimeout(s.scene.screen_timeout, s.scene.screen_timeout_onroad);
+    }
+  }
+
   if (ignition_state_changed) {
-    resetInteractiveTimeout(s.scene.screen_timeout, s.scene.screen_timeout_onroad);
+    if (ignition_on && s.scene.screen_brightness_onroad == 0 && !s.scene.standby_mode) {
+      resetInteractiveTimeout(0, 0);
+    } else {
+      resetInteractiveTimeout(s.scene.screen_timeout, s.scene.screen_timeout_onroad);
+    }
   } else if (interactive_timeout > 0 && --interactive_timeout == 0) {
     emit interactiveTimeout();
   }
