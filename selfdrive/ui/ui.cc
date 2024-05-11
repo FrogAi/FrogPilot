@@ -270,6 +270,9 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("liveTorqueParameters")) {
     auto torque_params = sm["liveTorqueParameters"].getLiveTorqueParameters();
+    scene.friction = torque_params.getFrictionCoefficientFiltered();
+    scene.lat_accel = torque_params.getLatAccelFactorFiltered();
+    scene.live_valid = torque_params.getLiveValid();
   }
   if (sm.updated("wideRoadCameraState")) {
     auto cam_state = sm["wideRoadCameraState"].getWideRoadCameraState();
@@ -330,6 +333,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.show_signal = border_metrics && params.getBool("SignalMetrics");
   scene.show_steering = border_metrics && params.getBool("ShowSteering");
   scene.fps_counter = developer_ui && params.getBool("FPSCounter");
+  scene.show_tuning = developer_ui && scene.has_auto_tune && params.getBool("LateralMetrics");
 
   scene.disable_smoothing_mtsc = params.getBool("MTSCEnabled") && params.getBool("DisableMTSCSmoothing");
   scene.disable_smoothing_vtsc = params.getBool("VisionTurnControl") && params.getBool("DisableVTSCSmoothing");

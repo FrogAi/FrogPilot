@@ -351,6 +351,33 @@ void OnroadWindow::paintEvent(QPaintEvent *event) {
 
     update();
   }
+
+  QString logicsDisplayString = QString();
+  if (scene.show_tuning) {
+    if (!scene.live_valid) {
+      logicsDisplayString += "Friction: Calculating... | Lateral Acceleration: Calculating...";
+    } else {
+      logicsDisplayString += QString("Friction: %1 | Lateral Acceleration: %2")
+        .arg(scene.friction, 0, 'f', 3)
+        .arg(scene.lat_accel, 0, 'f', 3);
+    }
+  }
+  if (logicsDisplayString.endsWith(" | ")) {
+    logicsDisplayString.chop(3);
+  }
+
+  if (!logicsDisplayString.isEmpty()) {
+    p.setFont(InterFont(28, QFont::DemiBold));
+    p.setRenderHint(QPainter::TextAntialiasing);
+    p.setPen(Qt::white);
+
+    int logicsWidth = p.fontMetrics().horizontalAdvance(logicsDisplayString);
+    int logicsX = (rect.width() - logicsWidth) / 2;
+    int logicsY = rect.top() + 27;
+
+    p.drawText(logicsX, logicsY, logicsDisplayString);
+    update();
+  }
 }
 
 // ***** onroad widgets *****
