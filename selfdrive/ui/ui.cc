@@ -430,6 +430,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.hide_map_icon = hide_ui_elements && params.getBool("HideMapIcon");
   scene.hide_max_speed = hide_ui_elements && params.getBool("HideMaxSpeed");
   scene.screen_brightness = screen_management ? params.getInt("ScreenBrightness") : 101;
+  scene.screen_brightness_onroad = screen_management ? params.getInt("ScreenBrightnessOnroad") : 101;
 
   scene.speed_limit_controller = scene.longitudinal_control && params.getBool("SpeedLimitController");
   scene.show_slc_offset = scene.speed_limit_controller && params.getBool("ShowSLCOffset");
@@ -589,6 +590,8 @@ void Device::updateBrightness(const UIState &s) {
   int brightness = brightness_filter.update(clipped_brightness);
   if (!awake) {
     brightness = 0;
+  } else if (s.scene.started && s.scene.screen_brightness_onroad != 101) {
+    brightness = interactive_timeout > 0 ? fmax(5, s.scene.screen_brightness_onroad) : s.scene.screen_brightness_onroad;
   } else if (s.scene.screen_brightness != 101) {
     brightness = s.scene.screen_brightness;
   }
@@ -611,7 +614,11 @@ void Device::updateWakefulness(const UIState &s) {
     emit interactiveTimeout();
   }
 
-  setAwake(s.scene.ignition || interactive_timeout > 0);
+  if (s.scene.screen_brightness_onroad != 0) {
+    setAwake(s.scene.ignition || interactive_timeout > 0);
+  } else {
+    setAwake(interactive_timeout > 0);
+  }
 }
 
 UIState *uiState() {
