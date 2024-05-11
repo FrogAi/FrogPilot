@@ -403,6 +403,8 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.full_map = scene.big_map && params.getBool("FullMap");
   scene.camera_view = quality_of_life_visuals ? params.getInt("CameraView") : 0;
   scene.driver_camera = quality_of_life_visuals && params.getBool("DriverCamera");
+  scene.hide_speed = quality_of_life_visuals && params.getBool("HideSpeed");
+  scene.hide_speed_ui = scene.hide_speed && params.getBool("HideSpeedUI");
 
   scene.speed_limit_controller = scene.longitudinal_control && params.getBool("SpeedLimitController");
   scene.show_slc_offset = scene.speed_limit_controller && params.getBool("ShowSLCOffset");

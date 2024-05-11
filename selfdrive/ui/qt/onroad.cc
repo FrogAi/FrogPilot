@@ -123,6 +123,9 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   bool isLeftSideClicked = leftRect.contains(e->pos()) && scene.speed_limit_changed;
   bool isRightSideClicked = rightRect.contains(e->pos()) && scene.speed_limit_changed;
 
+  QRect hideSpeedRect(rect().center().x() - 175, 50, 350, 350);
+  bool isSpeedClicked = hideSpeedRect.contains(e->pos()) && scene.hide_speed_ui;
+
   QRect maxSpeedRect(7, 25, 225, 225);
   bool isMaxSpeedClicked = maxSpeedRect.contains(e->pos()) && scene.reverse_cruise_ui;
 
@@ -141,6 +144,13 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
     uiState()->scene.reverse_cruise = !currentReverseCruise;
     params.putBoolNonBlocking("ReverseCruise", !currentReverseCruise);
     updateFrogPilotToggles();
+    return;
+  }
+
+  if (isSpeedClicked) {
+    bool currentHideSpeed = scene.hide_speed;
+    uiState()->scene.hide_speed = !currentHideSpeed;
+    params.putBoolNonBlocking("HideSpeed", !currentHideSpeed);
     return;
   }
 
@@ -849,7 +859,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
   }
 
   // current speed
-  if (!bigMapOpen) {
+  if (!(scene.hide_speed || bigMapOpen)) {
     p.setFont(InterFont(176, QFont::Bold));
     drawText(p, rect().center().x(), 210, speedStr);
     p.setFont(InterFont(66));
