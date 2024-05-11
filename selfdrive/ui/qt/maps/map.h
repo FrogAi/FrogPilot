@@ -82,6 +82,8 @@ private:
   // FrogPilot variables
   Params params;
 
+  int previous_map_style;
+
   uint64_t model_rcv_frame = 0;
 
 private slots:
