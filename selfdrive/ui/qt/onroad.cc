@@ -451,6 +451,11 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
   if (alert.size == cereal::ControlsState::AlertSize::NONE) {
     return;
   }
+
+  if (scene.hide_alerts && alert.status == cereal::ControlsState::AlertStatus::NORMAL) {
+    return;
+  }
+
   static std::map<cereal::ControlsState::AlertSize, const int> alert_heights = {
     {cereal::ControlsState::AlertSize::SMALL, 271},
     {cereal::ControlsState::AlertSize::MID, 420},
