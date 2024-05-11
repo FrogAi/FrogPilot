@@ -248,9 +248,11 @@ def main(exit_event: threading.Event = None) -> None:
   backoff = 0.1
   while not exit_event.is_set():
     sm.update(0)
+    disable_onroad_uploads = params.get_bool("DeviceManagement") and params.get_bool("NoUploads") and params.get_bool("DisableOnroadUploads")
     offroad = params.get_bool("IsOffroad")
     network_type = sm['deviceState'].networkType if not force_wifi else NetworkType.wifi
-    if network_type == NetworkType.none:
+    at_home = not disable_onroad_uploads or offroad and network_type in (NetworkType.ethernet, NetworkType.wifi)
+    if network_type == NetworkType.none or not at_home:
       if allow_sleep:
         time.sleep(60 if offroad else 5)
       continue
