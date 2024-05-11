@@ -137,7 +137,7 @@ class CarController(CarControllerBase):
     # on entering standstill, send standstill request
     if CS.out.standstill and not self.last_standstill and (self.CP.carFingerprint not in NO_STOP_TIMER_CAR or self.CP.enableGasInterceptor):
       self.standstill_req = True
-    if CS.pcm_acc_status != 8:
+    if CS.pcm_acc_status != 8 or frogpilot_toggles.sng_hack:
       # pcm entered standstill or it's disabled
       self.standstill_req = False
 
