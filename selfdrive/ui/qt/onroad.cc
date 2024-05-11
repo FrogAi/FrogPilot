@@ -438,7 +438,7 @@ void AnnotatedCameraWidget::updateState(const UIState &s) {
   has_eu_speed_limit = (nav_alive && speed_limit_sign == cereal::NavInstruction::SpeedLimitSign::VIENNA) && !(speedLimitController && !useViennaSLCSign) || (speedLimitController && useViennaSLCSign);
   is_metric = s.scene.is_metric;
   speedUnit =  s.scene.is_metric ? tr("km/h") : tr("mph");
-  hideBottomIcons = (cs.getAlertSize() != cereal::ControlsState::AlertSize::NONE);
+  hideBottomIcons = (cs.getAlertSize() != cereal::ControlsState::AlertSize::NONE || customSignals != 0 && (turnSignalLeft || turnSignalRight));
   status = s.status;
 
   // update engageability/experimental mode button
@@ -984,6 +984,11 @@ void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
                                                   {0.5, QBrush(QColor::fromHslF(0 / 360., 1.0, 0.5, 0.5))},
                                                   {1.0, QBrush(QColor::fromHslF(0 / 360., 1.0, 0.5, 0.1))}}}},
   };
+
+  animationTimer = new QTimer(this);
+  connect(animationTimer, &QTimer::timeout, this, [this] {
+    animationFrameIndex = (animationFrameIndex + 1) % totalFrames;
+  });
 }
 
 void AnnotatedCameraWidget::updateFrogPilotWidgets() {
@@ -1043,11 +1048,53 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets() {
   useViennaSLCSign = scene.use_vienna_slc_sign;
 
   trafficModeActive = scene.traffic_mode_active;
+
+  turnSignalLeft = scene.turn_signal_left;
+  turnSignalRight = scene.turn_signal_right;
+
+  if (customSignals != scene.custom_signals) {
+    customSignals = scene.custom_signals;
+
+    QString themePath;
+
+    themePath = QString("../frogpilot/assets/custom_themes/%1/images").arg(
+      themeConfiguration.find(customSignals) != themeConfiguration.end() ?
+      std::get<0>(themeConfiguration[customSignals]) : "");
+
+    const QStringList imagePaths = {
+      themePath + "/turn_signal_1.png",
+      themePath + "/turn_signal_2.png",
+      themePath + "/turn_signal_3.png",
+      themePath + "/turn_signal_4.png"
+    };
+
+    signalImgVector.clear();
+    signalImgVector.reserve(2 * imagePaths.size() + 2);
+
+    for (const QString &imagePath : imagePaths) {
+      QPixmap pixmap(imagePath);
+      signalImgVector.push_back(pixmap);
+      signalImgVector.push_back(pixmap.transformed(QTransform().scale(-1, 1)));
+    }
+
+    const QPixmap blindSpotPixmap(themePath + "/turn_signal_1_red.png");
+    signalImgVector.push_back(blindSpotPixmap);
+    signalImgVector.push_back(blindSpotPixmap.transformed(QTransform().scale(-1, 1)));
+  }
 }
 
 void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
   if (showAlwaysOnLateralStatusBar || showConditionalExperimentalStatusBar || roadNameUI) {
     drawStatusBar(p);
+  }
+
+  if (customSignals != 0 && (turnSignalLeft || turnSignalRight)) {
+    if (!animationTimer->isActive()) {
+      animationTimer->start(totalFrames * 11);  // 440 milliseconds per loop; syncs up perfectly with my 2019 Lexus ES 350 turn signal clicks
+    }
+    drawTurnSignals(p);
+  } else if (animationTimer->isActive()) {
+    animationTimer->stop();
   }
 
   if (scene.speed_limit_changed) {
@@ -1431,4 +1478,29 @@ void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {
   }
 
   p.restore();
+}
+
+void AnnotatedCameraWidget::drawTurnSignals(QPainter &p) {
+  constexpr int signalHeight = 480;
+  constexpr int signalWidth = 360;
+
+  p.setRenderHint(QPainter::Antialiasing);
+
+  int baseYPosition = (height() - signalHeight) / 2 + (showAlwaysOnLateralStatusBar || showConditionalExperimentalStatusBar || roadNameUI ? 225 : 300) - alertSize;
+  int leftSignalXPosition = 75 + width() - signalWidth - 300 * (blindSpotLeft ? 0 : animationFrameIndex);
+  int rightSignalXPosition = -75 + 300 * (blindSpotRight ? 0 : animationFrameIndex);
+
+  if (animationFrameIndex < signalImgVector.size()) {
+    auto drawSignal = [&](bool signalActivated, int xPosition, bool flip, bool blindspot) {
+      if (signalActivated) {
+        int uniqueImages = signalImgVector.size() / 4;
+        int index = (blindspot ? 2 * uniqueImages : 2 * animationFrameIndex % totalFrames) + (flip ? 1 : 0);
+        QPixmap &signal = signalImgVector[index];
+        p.drawPixmap(xPosition, baseYPosition, signalWidth, signalHeight, signal);
+      }
+    };
+
+    drawSignal(turnSignalLeft, leftSignalXPosition, false, blindSpotLeft);
+    drawSignal(turnSignalRight, rightSignalXPosition, true, blindSpotRight);
+  }
 }
