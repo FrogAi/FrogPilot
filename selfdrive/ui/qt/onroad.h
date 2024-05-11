@@ -201,6 +201,7 @@ private:
   bool experimentalMode;
   bool mapOpen;
   bool onroadDistanceButton;
+  bool roadNameUI;
   bool showAlwaysOnLateralStatusBar;
   bool showConditionalExperimentalStatusBar;
   bool showSLCOffset;
