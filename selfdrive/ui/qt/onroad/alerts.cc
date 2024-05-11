@@ -15,6 +15,7 @@ void OnroadAlerts::updateState(const UIState &s) {
   // FrogPilot variables
   const UIScene &scene = s.scene;
 
+  hideAlerts = scene.hide_alerts;
   roadNameUI = scene.road_name_ui;
   showAOLStatusBar = scene.show_aol_status_bar;
   showCEMStatusBar = scene.show_cem_status_bar;
@@ -65,6 +66,11 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
   if (alert.size == cereal::ControlsState::AlertSize::NONE) {
     return;
   }
+
+  if (hideAlerts && alert.status == cereal::ControlsState::AlertStatus::NORMAL) {
+    return;
+  }
+
   static std::map<cereal::ControlsState::AlertSize, const int> alert_heights = {
     {cereal::ControlsState::AlertSize::SMALL, 271},
     {cereal::ControlsState::AlertSize::MID, 420},
