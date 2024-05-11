@@ -424,6 +424,10 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.stopped_timer = quality_of_life_visuals && params.getBool("StoppedTimer");
   scene.wheel_speed = quality_of_life_visuals && params.getBool("WheelSpeed");
 
+  bool screen_management = params.getBool("ScreenManagement");
+  bool hide_ui_elements = screen_management && params.getBool("HideUIElements");
+  scene.hide_alerts = hide_ui_elements && params.getBool("HideAlerts");
+
   scene.speed_limit_controller = scene.longitudinal_control && params.getBool("SpeedLimitController");
   scene.show_slc_offset = scene.speed_limit_controller && params.getBool("ShowSLCOffset");
   scene.show_slc_offset_ui = scene.speed_limit_controller && params.getBool("ShowSLCOffsetUI");

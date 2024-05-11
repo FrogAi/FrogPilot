@@ -144,6 +144,7 @@ typedef struct UIScene {
   bool full_map;
   bool has_auto_tune;
   bool has_lead;
+  bool hide_alerts;
   bool hide_lead_marker;
   bool hide_speed;
   bool hide_speed_ui;
