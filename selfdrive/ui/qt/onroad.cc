@@ -283,6 +283,16 @@ ExperimentalButton::ExperimentalButton(QWidget *parent) : experimental_mode(fals
   engage_img = loadPixmap("../assets/img_chffr_wheel.png", {img_size, img_size});
   experimental_img = loadPixmap("../assets/img_experimental.svg", {img_size, img_size});
   QObject::connect(this, &QPushButton::clicked, this, &ExperimentalButton::changeMode);
+
+  wheelImages = {
+    {0, loadPixmap("../assets/img_chffr_wheel.png", {img_size, img_size})},
+    {1, loadPixmap("../frogpilot/assets/wheel_images/lexus.png", {img_size, img_size})},
+    {2, loadPixmap("../frogpilot/assets/wheel_images/toyota.png", {img_size, img_size})},
+    {3, loadPixmap("../frogpilot/assets/wheel_images/frog.png", {img_size, img_size})},
+    {4, loadPixmap("../frogpilot/assets/wheel_images/rocket.png", {img_size, img_size})},
+    {5, loadPixmap("../frogpilot/assets/wheel_images/hyundai.png", {img_size, img_size})},
+    {6, loadPixmap("../frogpilot/assets/wheel_images/stalin.png", {img_size, img_size})},
+  };
 }
 
 void ExperimentalButton::changeMode() {
@@ -306,11 +316,28 @@ void ExperimentalButton::updateState(const UIState &s) {
     experimental_mode = cs.getExperimentalMode();
     update();
   }
+
+  // FrogPilot variables
+  wheelIcon = scene.wheel_icon;
 }
 
 void ExperimentalButton::paintEvent(QPaintEvent *event) {
+  if (wheelIcon < 0) {
+    return;
+  }
+
   QPainter p(this);
-  QPixmap img = experimental_mode ? experimental_img : engage_img;
+  engage_img = wheelImages[wheelIcon];
+  QPixmap img = wheelIcon != 0 ? engage_img : (experimental_mode ? experimental_img : engage_img);
+
+  QColor background_color = wheelIcon != 0 && !isDown() && engageable ?
+    (scene.always_on_lateral_active ? bg_colors[STATUS_ALWAYS_ON_LATERAL_ACTIVE] :
+    (scene.conditional_status == 1 || scene.conditional_status == 3 || scene.conditional_status == 5 ? bg_colors[STATUS_CONDITIONAL_OVERRIDDEN] :
+    (experimental_mode ? bg_colors[STATUS_EXPERIMENTAL_MODE_ACTIVE] :
+    (scene.traffic_mode_active ? bg_colors[STATUS_TRAFFIC_MODE_ACTIVE] :
+    (scene.navigate_on_openpilot ? bg_colors[STATUS_NAVIGATION_ACTIVE] : QColor(0, 0, 0, 166)))))) :
+    QColor(0, 0, 0, 166);
+
   drawIcon(p, QPoint(btn_size / 2, btn_size / 2), img, QColor(0, 0, 0, 166), (isDown() || !engageable) ? 0.6 : 1.0);
 }
 

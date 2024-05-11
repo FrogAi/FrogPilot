@@ -242,6 +242,7 @@ typedef struct UIScene {
   int conditional_speed;
   int conditional_speed_lead;
   int conditional_status;
+  int wheel_icon;
 
   QPolygonF track_adjacent_vertices[6];
 
