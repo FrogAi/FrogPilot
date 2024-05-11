@@ -221,6 +221,8 @@ class CarState(CarStateBase):
       message_keys = ["LDA_ON_MESSAGE", "SET_ME_X02"]
       self.lkas_enabled = any(self.lkas_hud.get(key) == 1 for key in message_keys)
 
+    self.pcm_neutral_force = cp.vl["PCM_CRUISE"]["NEUTRAL_FORCE"]
+
     # ZSS Support - Credit goes to the DragonPilot team!
     if self.CP.flags & ToyotaFlags.ZSS and self.zss_threshold_count < ZSS_THRESHOLD_COUNT:
       zorro_steer = cp.vl["SECONDARY_STEER_ANGLE"]["ZORRO_STEER"]
