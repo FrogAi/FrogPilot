@@ -230,6 +230,7 @@ static void update_state(UIState *s) {
   if (sm.updated("frogpilotCarControl")) {
     auto frogpilotCarControl = sm["frogpilotCarControl"].getFrogpilotCarControl();
     scene.always_on_lateral_active = !scene.enabled && frogpilotCarControl.getAlwaysOnLateral();
+    scene.speed_limit_changed = scene.speed_limit_controller && frogpilotCarControl.getSpeedLimitChanged();
     scene.traffic_mode_active = frogpilotCarControl.getTrafficModeActive();
   }
   if (sm.updated("frogpilotCarState")) {
@@ -240,6 +241,7 @@ static void update_state(UIState *s) {
     scene.adjusted_cruise = frogpilotPlan.getAdjustedCruise();
     scene.speed_limit = frogpilotPlan.getSlcSpeedLimit();
     scene.speed_limit_offset = frogpilotPlan.getSlcSpeedLimitOffset();
+    scene.unconfirmed_speed_limit = frogpilotPlan.getUnconfirmedSlcSpeedLimit();
   }
   if (sm.updated("liveLocationKalman")) {
     auto liveLocationKalman = sm["liveLocationKalman"].getLiveLocationKalman();

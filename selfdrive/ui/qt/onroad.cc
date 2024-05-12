@@ -101,11 +101,24 @@ void OnroadWindow::updateState(const UIState &s) {
 
 void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   // FrogPilot clickable widgets
+  QSize size = this->size();
+  QRect leftRect(0, 0, size.width() / 2, size.height());
+  QRect rightRect = leftRect.translated(size.width() / 2, 0);
+  bool isLeftSideClicked = leftRect.contains(e->pos()) && scene.speed_limit_changed;
+  bool isRightSideClicked = rightRect.contains(e->pos()) && scene.speed_limit_changed;
+
   QRect maxSpeedRect(7, 25, 225, 225);
   bool isMaxSpeedClicked = maxSpeedRect.contains(e->pos()) && scene.reverse_cruise_ui;
 
   QRect speedLimitRect(7, 250, 225, 225);
   bool isSpeedLimitClicked = speedLimitRect.contains(e->pos()) && scene.show_slc_offset_ui;
+
+  if (isLeftSideClicked || isRightSideClicked) {
+    bool slcConfirmed = isLeftSideClicked && !scene.right_hand_drive || isRightSideClicked && scene.right_hand_drive;
+    paramsMemory.putBoolNonBlocking("SLCConfirmed", slcConfirmed);
+    paramsMemory.putBoolNonBlocking("SLCConfirmedPressed", true);
+    return;
+  }
 
   if (isMaxSpeedClicked) {
     bool currentReverseCruise = scene.reverse_cruise;
@@ -874,6 +887,10 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
     drawStatusBar(p);
   }
 
+  if (scene.speed_limit_changed) {
+    drawSLCConfirmation(p);
+  }
+
   bool enableDistanceButton = onroadDistanceButton && !hideBottomIcons;
   distance_btn->setVisible(enableDistanceButton);
   if (enableDistanceButton) {
@@ -956,6 +973,36 @@ void DistanceButton::paintEvent(QPaintEvent *event) {
   if (imageOpacity > 0.0) {
     drawIcon(p, QPoint((btn_size / 2) * 1.25, btn_size / 2 + 95), profileImage, Qt::transparent, imageOpacity);
   }
+}
+
+void AnnotatedCameraWidget::drawSLCConfirmation(QPainter &p) {
+  p.save();
+
+  QSize size = this->size();
+
+  QRect leftRect(0, 0, size.width() / 2, size.height());
+  QRect rightRect = leftRect.translated(size.width() / 2, 0);
+
+  p.setOpacity(0.5);
+  p.fillRect(leftRect, rightHandDM ? redColor() : greenColor());
+  p.fillRect(rightRect, rightHandDM ? greenColor() : redColor());
+  p.setOpacity(1.0);
+
+  p.setFont(InterFont(75, QFont::Bold));
+  p.setPen(Qt::white);
+
+  QString unitText = is_metric ? tr("kph") : tr("mph");
+  QString speedText = QString::number(std::nearbyint(scene.unconfirmed_speed_limit * (is_metric ? MS_TO_KPH : MS_TO_MPH))) + " " + unitText;
+  QString confirmText = tr("Confirm speed limit\n") + speedText;
+  QString ignoreText = tr("Ignore speed limit\n") + speedText;
+
+  QRect textLeftRect = QRect(leftRect.left(), leftRect.top() + leftRect.height() / 2 - 225, leftRect.width(), leftRect.height() / 2);
+  QRect textRightRect = QRect(rightRect.left(), rightRect.top() + rightRect.height() / 2 - 225, rightRect.width(), rightRect.height() / 2);
+
+  p.drawText(textLeftRect, Qt::AlignCenter, rightHandDM ? ignoreText : confirmText);
+  p.drawText(textRightRect, Qt::AlignCenter, rightHandDM ? confirmText : ignoreText);
+
+  p.restore();
 }
 
 void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {

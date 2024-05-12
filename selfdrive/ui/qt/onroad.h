@@ -136,6 +136,7 @@ private:
   void paintFrogPilotWidgets(QPainter &p);
   void updateFrogPilotWidgets();
 
+  void drawSLCConfirmation(QPainter &p);
   void drawStatusBar(QPainter &p);
 
   // FrogPilot variables

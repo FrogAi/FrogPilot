@@ -190,6 +190,12 @@ class CarState(CarStateBase):
         self.distance_button = cp.vl["SDSU"]["FD_BUTTON"]
 
     # FrogPilot carstate functions
+    self.cruise_decreased_previously = self.cruise_decreased
+    self.cruise_increased_previously = self.cruise_increased
+
+    self.cruise_decreased = self.pcm_acc_status == 10
+    self.cruise_increased = self.pcm_acc_status == 9
+
     fp_ret.ecoGear = cp.vl["GEAR_PACKET"]['ECON_ON'] == 1
     fp_ret.sportGear = cp.vl["GEAR_PACKET"]['SPORT_ON_2' if self.CP.flags & ToyotaFlags.NO_DSU else 'SPORT_ON'] == 1
 
