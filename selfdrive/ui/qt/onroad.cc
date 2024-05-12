@@ -101,6 +101,17 @@ void OnroadWindow::updateState(const UIState &s) {
 
 void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   // FrogPilot clickable widgets
+  QRect maxSpeedRect(7, 25, 225, 225);
+  bool isMaxSpeedClicked = maxSpeedRect.contains(e->pos()) && scene.reverse_cruise_ui;
+
+  if (isMaxSpeedClicked) {
+    bool currentReverseCruise = scene.reverse_cruise;
+    uiState()->scene.reverse_cruise = !currentReverseCruise;
+    params.putBoolNonBlocking("ReverseCruise", !currentReverseCruise);
+    updateFrogPilotToggles();
+    return;
+  }
+
   if (scene.experimental_mode_via_screen && e->pos() != timeoutPoint) {
     if (clickTimer.isActive()) {
       clickTimer.stop();
@@ -414,6 +425,8 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
     ), 10));
   } else if (trafficModeActive) {
     p.setPen(QPen(redColor(), 10));
+  } else if (scene.reverse_cruise) {
+    p.setPen(QPen(blueColor(), 6));
   } else {
     p.setPen(QPen(whiteColor(75), 6));
   }
