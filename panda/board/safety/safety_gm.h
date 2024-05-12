@@ -18,8 +18,8 @@ const LongitudinalLimits GM_ASCM_LONG_LIMITS = {
 
 const LongitudinalLimits GM_ASCM_LONG_LIMITS_SPORT = {
   .max_gas = 8191,
-  .min_gas = 1404,
-  .inactive_gas = 1404,
+  .min_gas = 5500,
+  .inactive_gas = 5500,
   .max_brake = 400,
 };
 
@@ -32,8 +32,8 @@ const LongitudinalLimits GM_CAM_LONG_LIMITS = {
 
 const LongitudinalLimits GM_CAM_LONG_LIMITS_SPORT = {
   .max_gas = 8848,
-  .min_gas = 1514,
-  .inactive_gas = 1554,
+  .min_gas = 5610,
+  .inactive_gas = 5650,
   .max_brake = 400,
 };
 
@@ -244,7 +244,7 @@ static bool gm_tx_hook(const CANPacket_t *to_send) {
   // GAS/REGEN: safety check
   if (addr == 0x2CB) {
     bool apply = GET_BIT(to_send, 0U);
-    int gas_regen = ((GET_BYTE(to_send, 2) & 0x7FU) << 5) + ((GET_BYTE(to_send, 3) & 0xF8U) >> 3);
+    int gas_regen = ((GET_BYTE(to_send, 1) & 0x1U) << 13) + ((GET_BYTE(to_send, 2) & 0xFFU) << 5) + ((GET_BYTE(to_send, 3) & 0xF8U) >> 3);
 
     bool violation = false;
     // Allow apply bit in pre-enabled and overriding states
