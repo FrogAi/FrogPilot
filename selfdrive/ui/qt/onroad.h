@@ -306,6 +306,8 @@ private:
   Params params;
   Params paramsMemory{"/dev/shm/params"};
 
+  float steer;
+
   QPoint timeoutPoint = QPoint(420, 69);
   QTimer clickTimer;
 

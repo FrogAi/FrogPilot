@@ -213,6 +213,7 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("carControl")) {
     auto carControl = sm["carControl"].getCarControl();
+    scene.steer = carControl.getActuators().getSteer();
   }
   if (sm.updated("carParams")) {
     scene.longitudinal_control = sm["carParams"].getCarParams().getOpenpilotLongitudinalControl();
@@ -326,6 +327,7 @@ void ui_update_frogpilot_params(UIState *s) {
   bool developer_ui = params.getBool("DeveloperUI");
   bool border_metrics = developer_ui && params.getBool("BorderMetrics");
   scene.show_blind_spot = border_metrics && params.getBool("BlindSpotMetrics");
+  scene.show_steering = border_metrics && params.getBool("ShowSteering");
 
   scene.disable_smoothing_mtsc = params.getBool("MTSCEnabled") && params.getBool("DisableMTSCSmoothing");
   scene.disable_smoothing_vtsc = params.getBool("VisionTurnControl") && params.getBool("DisableVTSCSmoothing");

@@ -223,6 +223,33 @@ void OnroadWindow::paintEvent(QPaintEvent *event) {
   QRect rect = this->rect();
   p.fillRect(rect, QColor(bg.red(), bg.green(), bg.blue(), 255));
 
+  if (scene.show_steering) {
+    QLinearGradient gradient(rect.topLeft(), rect.bottomLeft());
+    gradient.setColorAt(0.0, bg_colors[STATUS_TRAFFIC_MODE_ACTIVE]);
+    gradient.setColorAt(0.15, bg_colors[STATUS_EXPERIMENTAL_MODE_ACTIVE]);
+    gradient.setColorAt(0.5, bg_colors[STATUS_CONDITIONAL_OVERRIDDEN]);
+    gradient.setColorAt(0.85, bg_colors[STATUS_ENGAGED]);
+    gradient.setColorAt(1.0, bg_colors[STATUS_ENGAGED]);
+
+    QBrush brush(gradient);
+    int fillWidth = UI_BORDER_SIZE;
+
+    steer = 0.10 * abs(scene.steer) + 0.90 * steer;
+    int visibleHeight = rect.height() * steer;
+
+    if (scene.steering_angle_deg < 0) {
+      QRect leftRect(rect.x(), rect.y() + rect.height() - visibleHeight, fillWidth, visibleHeight);
+      p.fillRect(leftRect, brush);
+      QRect leftRectHidden(rect.x(), rect.y(), fillWidth, rect.height() - visibleHeight);
+      p.fillRect(leftRectHidden, QColor(bg.red(), bg.green(), bg.blue(), 255));
+    } else if (scene.steering_angle_deg > 0 ) {
+      QRect rightRect(rect.x() + rect.width() - fillWidth, rect.y() + rect.height() - visibleHeight, fillWidth, visibleHeight);
+      p.fillRect(rightRect, brush);
+      QRect rightRectHidden(rect.x() + rect.width() - fillWidth, rect.y(), fillWidth, rect.height() - visibleHeight);
+      p.fillRect(rightRectHidden, QColor(bg.red(), bg.green(), bg.blue(), 255));
+    }
+  }
+
   if (scene.show_blind_spot) {
     auto getBlindspotColor = [&](bool turn_signal, int &frames) {
       if (turn_signal) {
