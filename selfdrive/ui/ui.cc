@@ -382,6 +382,7 @@ void ui_update_frogpilot_params(UIState *s) {
 
   scene.model_ui = params.getBool("ModelUI");
   scene.dynamic_path_width = scene.model_ui && params.getBool("DynamicPathWidth");
+  scene.hide_lead_marker = scene.model_ui && params.getBool("HideLeadMarker");
 
   bool quality_of_life_controls = params.getBool("QOLControls");
   scene.reverse_cruise = quality_of_life_controls && params.getBool("ReverseCruise");

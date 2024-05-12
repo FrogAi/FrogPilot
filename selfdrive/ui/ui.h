@@ -206,6 +206,7 @@ typedef struct UIScene {
   bool fahrenheit;
   bool fps_counter;
   bool has_auto_tune;
+  bool hide_lead_marker;
   bool holiday_themes;
   bool is_CPU;
   bool is_GPU;

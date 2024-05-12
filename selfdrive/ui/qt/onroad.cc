@@ -1197,7 +1197,7 @@ void AnnotatedCameraWidget::paintGL() {
     update_model(s, model, sm["uiPlan"].getUiPlan());
     drawLaneLines(painter, s);
 
-    if (s->scene.longitudinal_control && sm.rcv_frame("modelV2") > s->scene.started_frame) {
+    if (s->scene.longitudinal_control && sm.rcv_frame("modelV2") > s->scene.started_frame && !s->scene.hide_lead_marker) {
       update_leads(s, model);
       float prev_drel = -1;
       for (int i = 0; i < model.getLeadsV3().size() && i < 2; i++) {
