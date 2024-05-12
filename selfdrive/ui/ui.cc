@@ -314,6 +314,9 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.rotating_wheel = custom_onroad_ui && params.getBool("RotatingWheel");
   scene.wheel_icon = custom_onroad_ui ? params.getInt("WheelIcon") : 0;
 
+  bool custom_theme = params.getBool("CustomTheme");
+  scene.custom_colors = custom_theme ? params.getInt("CustomColors") : 0;
+
   scene.disable_smoothing_mtsc = params.getBool("MTSCEnabled") && params.getBool("DisableMTSCSmoothing");
   scene.disable_smoothing_vtsc = params.getBool("VisionTurnControl") && params.getBool("DisableVTSCSmoothing");
 
