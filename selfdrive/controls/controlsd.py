@@ -927,6 +927,12 @@ class Controls:
     if self.sm.frame == 550 and self.CP.lateralTuning.which() == 'torque' and self.CI.use_nnff:
       self.events.add(EventName.torqueNNLoad)
 
+    if not CS.standstill:
+      if self.sm['modelV2'].meta.turnDirection == Desire.turnLeft:
+        self.events.add(EventName.turningLeft)
+      elif self.sm['modelV2'].meta.turnDirection == Desire.turnRight:
+        self.events.add(EventName.turningRight)
+
   def update_frogpilot_variables(self, CS):
     self.driving_gear = CS.gearShifter not in (GearShifter.neutral, GearShifter.park, GearShifter.reverse, GearShifter.unknown)
 
