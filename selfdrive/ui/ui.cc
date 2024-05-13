@@ -224,6 +224,7 @@ static void update_state(UIState *s) {
     scene.blind_spot_right = carState.getRightBlindspot();
     scene.parked = carState.getGearShifter() == cereal::CarState::GearShifter::PARK;
     scene.standstill = carState.getStandstill();
+    scene.steering_angle_deg = -carState.getSteeringAngleDeg();
   }
   if (sm.updated("controlsState")) {
     auto controlsState = sm["controlsState"].getControlsState();
@@ -310,6 +311,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.dynamic_pedals_on_ui = scene.pedals_on_ui && params.getBool("DynamicPedalsOnUI");
   scene.static_pedals_on_ui = scene.pedals_on_ui && params.getBool("StaticPedalsOnUI");
   scene.road_name_ui = custom_onroad_ui && params.getBool("RoadNameUI");
+  scene.rotating_wheel = custom_onroad_ui && params.getBool("RotatingWheel");
   scene.wheel_icon = custom_onroad_ui ? params.getInt("WheelIcon") : 0;
 
   scene.disable_smoothing_mtsc = params.getBool("MTSCEnabled") && params.getBool("DisableMTSCSmoothing");

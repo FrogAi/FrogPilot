@@ -107,6 +107,9 @@ private:
 
   QMap<int, QPixmap> wheelImages;
 
+  bool rotatingWheel;
+
+  int steeringAngleDeg;
   int wheelIcon;
 };
 
