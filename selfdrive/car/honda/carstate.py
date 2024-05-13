@@ -274,6 +274,14 @@ class CarState(CarStateBase):
       ret.rightBlindspot = cp_body.vl["BSM_STATUS_RIGHT"]["BSM_ALERT"] == 1
 
     # FrogPilot carstate functions
+    brake_light_cars = (CAR.CIVIC, CAR.ODYSSEY, CAR.ODYSSEY_CHN, CAR.CRV_5G, CAR.ACCORD, CAR.CIVIC_BOSCH,
+                        CAR.CIVIC_BOSCH_DIESEL, CAR.CRV_HYBRID, CAR.ACURA_RDX_3G, CAR.HONDA_E)
+
+    if self.CP.carFingerprint in brake_light_cars:
+      fp_ret.brakeLights = bool(cp.vl["ACC_CONTROL"]['BRAKE_LIGHTS'] != 0 or ret.brake > 0.4) if not self.CP.openpilotLongitudinalControl else bool(ret.brake > 0.4)
+    elif self.CP.carFingerprint in HONDA_BOSCH and self.CP.carFingerprint not in HONDA_BOSCH_RADARLESS:
+      fp_ret.brakeLights = bool(cp.vl["ACC_CONTROL"]['BRAKE_LIGHTS'] != 0 or ret.brake > 0.4) if not self.CP.openpilotLongitudinalControl else bool(ret.brake > 0.4)
+
     self.prev_distance_button = self.distance_button
     self.distance_button = self.cruise_setting == 3
 

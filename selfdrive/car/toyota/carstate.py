@@ -208,6 +208,8 @@ class CarState(CarStateBase):
         self.distance_button = cp.vl["SDSU"]["FD_BUTTON"]
 
     # FrogPilot carstate functions
+    fp_ret.brakeLights = bool(cp.vl["ESP_CONTROL"]["BRAKE_LIGHTS_ACC"])
+
     self.cruise_decreased_previously = self.cruise_decreased
     self.cruise_increased_previously = self.cruise_increased
 

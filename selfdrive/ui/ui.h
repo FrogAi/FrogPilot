@@ -193,10 +193,12 @@ typedef struct UIScene {
   bool blind_spot_left;
   bool blind_spot_path;
   bool blind_spot_right;
+  bool brake_lights_on;
   bool compass;
   bool conditional_experimental;
   bool disable_smoothing_mtsc;
   bool disable_smoothing_vtsc;
+  bool dynamic_pedals_on_ui;
   bool enabled;
   bool experimental_mode;
   bool experimental_mode_via_screen;
@@ -204,6 +206,7 @@ typedef struct UIScene {
   bool online;
   bool onroad_distance_button;
   bool parked;
+  bool pedals_on_ui;
   bool reverse_cruise;
   bool reverse_cruise_ui;
   bool right_hand_drive;
@@ -214,6 +217,8 @@ typedef struct UIScene {
   bool speed_limit_changed;
   bool speed_limit_controller;
   bool speed_limit_overridden;
+  bool standstill;
+  bool static_pedals_on_ui;
   bool tethering_enabled;
   bool traffic_mode;
   bool traffic_mode_active;

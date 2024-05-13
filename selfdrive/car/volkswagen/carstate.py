@@ -151,6 +151,10 @@ class CarState(CarStateBase):
     self.upscale_lead_car_signal = bool(pt_cp.vl["Kombi_03"]["KBI_Variante"])
 
     self.frame += 1
+
+    # FrogPilot carstate functions
+    fp_ret.brakeLights = bool(pt_cp.vl["ESP_05"]['ESP_Status_Bremsdruck'])
+
     return ret, fp_ret
 
   def update_pq(self, pt_cp, cam_cp, ext_cp, trans_type, frogpilot_variables):
@@ -251,6 +255,10 @@ class CarState(CarStateBase):
     ret.espDisabled = bool(pt_cp.vl["Bremse_1"]["ESP_Passiv_getastet"])
 
     self.frame += 1
+
+    # FrogPilot carstate functions
+    fp_ret.brakeLights = bool(pt_cp.vl["Motor_2"]['Bremstestschalter'])
+
     return ret, fp_ret
 
   def update_hca_state(self, hca_status):

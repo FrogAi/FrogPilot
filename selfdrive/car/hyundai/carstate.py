@@ -186,6 +186,8 @@ class CarState(CarStateBase):
       self.main_enabled = not self.main_enabled
 
     # FrogPilot carstate functions
+    fp_ret.brakeLights = bool(cp.vl["TCS13"]["BrakeLight"])
+
     fp_ret.dashboardSpeedLimit = self.calculate_speed_limit(cp, cp_cam) * speed_conv
 
     self.prev_distance_button = self.distance_button
@@ -282,6 +284,8 @@ class CarState(CarStateBase):
                                           else cp_cam.vl["CAM_0x2a4"])
 
     # FrogPilot carstate functions
+    fp_ret.brakeLights = cp.vl["TCS"]["DriverBraking"] == 1
+
     fp_ret.dashboardSpeedLimit = self.calculate_speed_limit(cp, cp_cam) * speed_factor
 
     self.prev_distance_button = self.distance_button
