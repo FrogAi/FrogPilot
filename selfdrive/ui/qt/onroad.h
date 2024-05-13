@@ -152,6 +152,7 @@ private:
   bool onroadDistanceButton;
   bool showAlwaysOnLateralStatusBar;
   bool showConditionalExperimentalStatusBar;
+  bool trafficModeActive;
 
   float accelerationConversion;
   float distanceConversion;

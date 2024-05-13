@@ -974,6 +974,8 @@ class Controls:
       else:
         self.params.put_bool_nonblocking("ExperimentalMode", not self.experimental_mode)
 
+    self.FPCC.trafficModeActive = self.frogpilot_toggles.traffic_mode and self.params_memory.get_bool("TrafficModeActive")
+
     fpcc_send = messaging.new_message('frogpilotCarControl')
     fpcc_send.valid = CS.canValid
     fpcc_send.frogpilotCarControl = self.FPCC

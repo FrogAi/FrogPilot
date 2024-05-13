@@ -126,7 +126,7 @@ class LongitudinalPlanner:
     self.mpc.set_cur_state(self.v_desired_filter.x, self.a_desired)
     x, v, a, j = self.parse_model(sm['modelV2'], self.v_model_error, v_ego, frogpilot_toggles.taco_tune)
     self.mpc.update(sm['radarState'], sm['frogpilotPlan'].vCruise, x, v, a, j, sm['frogpilotPlan'].tFollow,
-                    frogpilot_toggles, personality=sm['controlsState'].personality)
+                    sm['frogpilotCarControl'].trafficModeActive, frogpilot_toggles, personality=sm['controlsState'].personality)
 
     self.v_desired_trajectory_full = np.interp(ModelConstants.T_IDXS, T_IDXS_MPC, self.mpc.v_solution)
     self.a_desired_trajectory_full = np.interp(ModelConstants.T_IDXS, T_IDXS_MPC, self.mpc.a_solution)
