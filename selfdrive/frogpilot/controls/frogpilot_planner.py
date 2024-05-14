@@ -66,7 +66,9 @@ class FrogPilotPlanner:
     v_ego = max(carState.vEgo, 0)
     v_lead = self.lead_one.vLead
 
-    lead_distance = self.lead_one.dRel
+    distance_offset = max(frogpilot_toggles.increased_stopping_distance + min(CITY_SPEED_LIMIT - v_ego, 0), 0)
+    lead_distance = self.lead_one.dRel - distance_offset
+    stopping_distance = STOP_DISTANCE + distance_offset
 
     if frogpilot_toggles.acceleration_profile == 1:
       self.max_accel = get_max_accel_eco(v_ego)
