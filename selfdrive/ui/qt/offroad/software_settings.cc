@@ -29,6 +29,12 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent), scene(uiStat
   versionLbl = new LabelControl(tr("Current Version"), "");
   addItem(versionLbl);
 
+  // automatic updates toggle
+  ParamControl *automaticUpdatesToggle = new ParamControl("AutomaticUpdates", tr("Automatically Update FrogPilot"),
+                                                       tr("FrogPilot will automatically update itself and it's assets when you're offroad and connected to Wi-Fi."), "");
+  connect(automaticUpdatesToggle, &ToggleControl::toggleFlipped, this, updateFrogPilotToggles);
+  addItem(automaticUpdatesToggle);
+
   // download update btn
   downloadBtn = new ButtonControl(tr("Download"), tr("CHECK"));
   connect(downloadBtn, &ButtonControl::clicked, [=]() {
@@ -38,6 +44,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent), scene(uiStat
     } else {
       std::system("pkill -SIGHUP -f selfdrive.updated.updated");
     }
+    paramsMemory.putBool("ManualUpdateInitiated", true);
   });
   addItem(downloadBtn);
 
