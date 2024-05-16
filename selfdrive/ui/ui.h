@@ -116,6 +116,7 @@ typedef enum UIStatus {
 
   // FrogPilot statuses
   STATUS_ALWAYS_ON_LATERAL_ACTIVE,
+  STATUS_CONDITIONAL_OVERRIDDEN,
   STATUS_EXPERIMENTAL_MODE_ACTIVE,
   STATUS_NAVIGATION_ACTIVE,
 } UIStatus;
@@ -137,6 +138,7 @@ const QColor bg_colors [] = {
 
   // FrogPilot colors
   [STATUS_ALWAYS_ON_LATERAL_ACTIVE] = QColor(0x0a, 0xba, 0xb5, 0xf1),
+  [STATUS_CONDITIONAL_OVERRIDDEN] = QColor(0xff, 0xff, 0x00, 0xf1),
   [STATUS_EXPERIMENTAL_MODE_ACTIVE] = QColor(0xda, 0x6f, 0x25, 0xf1),
   [STATUS_NAVIGATION_ACTIVE] = QColor(0x31, 0xa1, 0xee, 0xf1),
 };

@@ -230,7 +230,12 @@ void ExperimentalButton::changeMode() {
   const auto cp = (*uiState()->sm)["carParams"].getCarParams();
   bool can_change = hasLongitudinalControl(cp) && params.getBool("ExperimentalModeConfirmed");
   if (can_change) {
-    params.putBool("ExperimentalMode", !experimental_mode);
+    if (scene.conditional_experimental) {
+      int override_value = (scene.conditional_status >= 1 && scene.conditional_status <= 6) ? 0 : scene.conditional_status >= 7 ? 5 : 6;
+      paramsMemory.putIntNonBlocking("CEStatus", override_value);
+    } else {
+      params.putBool("ExperimentalMode", !experimental_mode);
+    }
   }
 }
 
@@ -899,6 +904,20 @@ void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {
     newStatus = tr("Always On Lateral active") + (mapOpen ? "" : tr(". Press the \"Cruise Control\" button to disable"));
   } else if (showConditionalExperimentalStatusBar) {
     newStatus = conditionalStatusMap[status != STATUS_DISENGAGED ? conditionalStatus : 0];
+  }
+
+  QString distanceSuffix = tr(". Long press the \"distance\" button to revert");
+  QString lkasSuffix = tr(". Double press the \"LKAS\" button to revert");
+  QString screenSuffix = tr(". Double tap the screen to revert");
+
+  if (!alwaysOnLateralActive && !mapOpen && status != STATUS_DISENGAGED && !newStatus.isEmpty()) {
+    if (conditionalStatus == 1 || conditionalStatus == 2) {
+      newStatus += distanceSuffix;
+    } else if (conditionalStatus == 3 || conditionalStatus == 4) {
+      newStatus += lkasSuffix;
+    } else if (conditionalStatus == 5 || conditionalStatus == 6) {
+      newStatus += screenSuffix;
+    }
   }
 
   if (newStatus != lastShownStatus) {

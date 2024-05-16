@@ -29,12 +29,17 @@ class ConditionalExperimentalMode:
     self.stop_light_mac = MovingAverageCalculator()
 
   def update(self, carState, enabled, frogpilotNavigation, lead_distance, lead, modelData, road_curvature, slower_lead, v_ego, v_lead, frogpilot_toggles):
+    if frogpilot_toggles.experimental_mode_via_press and enabled:
+      overridden = self.params_memory.get_int("CEStatus")
+    else:
+      overridden = 0
+
     self.update_conditions(lead_distance, lead.status, modelData, road_curvature, slower_lead, carState.standstill, v_ego, v_lead, frogpilot_toggles)
 
     condition_met = self.check_conditions(carState, frogpilotNavigation, lead, modelData, v_ego, frogpilot_toggles) and enabled
-    self.experimental_mode = condition_met
+    self.experimental_mode = condition_met and overridden not in {1, 3, 5} or overridden in {2, 4, 6}
 
-    self.params_memory.put_int("CEStatus", self.status_value if condition_met else 0)
+    self.params_memory.put_int("CEStatus", overridden if overridden in {1, 2, 3, 4, 5, 6} else self.status_value if condition_met else 0)
 
   def check_conditions(self, carState, frogpilotNavigation, lead, modelData, v_ego, frogpilot_toggles):
     if carState.standstill:
