@@ -684,7 +684,7 @@ class Controls:
     if self.CP.openpilotLongitudinalControl:
       if any(not be.pressed and be.type == ButtonType.gapAdjustCruise for be in CS.buttonEvents) or self.onroad_distance_pressed:
         menu_open = self.display_timer > 0 or self.CP.carName != "gm" or not self.sm['frogpilotCarState'].hasCamera
-        if not self.params_memory.get_bool("OnroadDistanceButtonPressed") and menu_open:
+        if not (self.sm['frogpilotCarState'].distanceLongPressed or self.params_memory.get_bool("OnroadDistanceButtonPressed")) and menu_open:
           self.personality = (self.personality - 1) % 3
           self.params.put_nonblocking('LongitudinalPersonality', str(self.personality))
         self.display_timer = 350
