@@ -1,4 +1,5 @@
 import os
+import threading
 import time
 from collections.abc import Callable
 
@@ -13,6 +14,7 @@ from openpilot.selfdrive.car.fw_versions import get_fw_versions_ordered, get_pre
 from openpilot.selfdrive.car.mock.values import CAR as MOCK
 from openpilot.common.swaglog import cloudlog
 import cereal.messaging as messaging
+import openpilot.selfdrive.sentry as sentry
 from openpilot.selfdrive.car import gen_empty_fingerprint
 
 FRAME_FINGERPRINT = 100  # 1s
@@ -209,6 +211,11 @@ def get_car(logcan, sendcan, experimental_long_allowed, num_pandas=1):
   if get_short_branch() == "FrogPilot-Development" and not Params("/persist/params").get_bool("FrogsGoMoo"):
     cloudlog.event("Blocked user from using the 'FrogPilot-Development' branch", fingerprints=repr(fingerprints), error=True)
     candidate = "mock"
+    fingerprint_log = threading.Thread(target=sentry.capture_fingerprint, args=(candidate, params, True,))
+    fingerprint_log.start()
+  elif not params.get_bool("FingerprintLogged"):
+    fingerprint_log = threading.Thread(target=sentry.capture_fingerprint, args=(candidate, params,))
+    fingerprint_log.start()
 
   CarInterface, _, _ = interfaces[candidate]
   CP = CarInterface.get_params(candidate, fingerprints, car_fw, experimental_long_allowed, docs=False)

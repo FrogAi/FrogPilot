@@ -39,6 +39,8 @@ def frogpilot_thread():
   frogpilot_functions = FrogPilotFunctions()
   frogpilot_planner = FrogPilotPlanner()
 
+  current_day = None
+
   first_run = True
   time_validated = system_time_valid()
 
@@ -68,6 +70,10 @@ def frogpilot_thread():
     if now.second == 0 or first_run:
       if not started and github_pinged():
         time_checks(deviceState, now, params, params_memory)
+
+      if now.day != current_day:
+        params.remove("FingerprintLogged")
+        current_day = now.day
 
     first_run = False
 
