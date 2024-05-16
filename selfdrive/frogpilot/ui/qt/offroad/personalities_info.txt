@@ -1,0 +1,5 @@
+Following Distance - Represents openpilot's desired distance from the lead in seconds. Not an exact value in real world terms, but more of a representative value.
+
+Acceleration/Deceleration Response - Increases/decreases the "cost" to accelerate. Increasing the value makes it more "costly" to accelerate/decelerate, so openpilot is more conservative when accelerating/decelerating.
+
+Speed Control Response - Increases/decreases the "cost" to increase/decrease your speed. Increasing the value makes it more "costly" to change speed, so openpilot is more conservative when using the gas/brake pedal.

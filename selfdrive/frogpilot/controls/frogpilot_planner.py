@@ -44,8 +44,13 @@ class FrogPilotPlanner:
 
     lead_distance = self.lead_one.dRel
 
-    self.base_acceleration_jerk, self.base_speed_jerk = get_jerk_factor(controlsState.personality)
-    self.t_follow = get_T_FOLLOW(controlsState.personality)
+    self.base_acceleration_jerk, self.base_speed_jerk = get_jerk_factor(frogpilot_toggles.custom_personalities,
+                                                                        frogpilot_toggles.aggressive_jerk_acceleration, frogpilot_toggles.aggressive_jerk_speed,
+                                                                        frogpilot_toggles.standard_jerk_acceleration, frogpilot_toggles.standard_jerk_speed,
+                                                                        frogpilot_toggles.relaxed_jerk_acceleration, frogpilot_toggles.relaxed_jerk_speed,
+                                                                        controlsState.personality)
+    self.t_follow = get_T_FOLLOW(frogpilot_toggles.custom_personalities, frogpilot_toggles.aggressive_follow,
+                                 frogpilot_toggles.standard_follow, frogpilot_toggles.relaxed_follow, controlsState.personality)
 
     if self.lead_one.status:
       self.update_follow_values(lead_distance, stopping_distance, v_ego, v_lead, frogpilot_toggles)
