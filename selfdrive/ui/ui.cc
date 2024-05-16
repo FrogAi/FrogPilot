@@ -128,7 +128,10 @@ void update_model(UIState *s,
     }
   }
   max_idx = get_path_length_idx(plan_position, max_distance);
-  update_line_data(s, plan_position, 0.9, 1.22, &scene.track_vertices, max_idx, false);
+  update_line_data(s, plan_position, scene.model_ui ? path * (1 - scene.path_edge_width / 100) : 0.9, 1.22, &scene.track_vertices, max_idx, false);
+
+  // Update path edges
+  update_line_data(s, plan_position, scene.model_ui ? path : 0, 1.22, &scene.track_edge_vertices, max_idx, false);
 
   // Update adjacent paths
   for (int i = 4; i <= 5; i++) {
@@ -384,6 +387,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.dynamic_path_width = scene.model_ui && params.getBool("DynamicPathWidth");
   scene.hide_lead_marker = scene.model_ui && params.getBool("HideLeadMarker");
   scene.lane_line_width = params.getInt("LaneLinesWidth") * (scene.is_metric ? 1.0f : INCH_TO_CM) / 200.0f;
+  scene.path_edge_width = params.getInt("PathEdgeWidth");
 
   bool quality_of_life_controls = params.getBool("QOLControls");
   scene.reverse_cruise = quality_of_life_controls && params.getBool("ReverseCruise");
