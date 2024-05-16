@@ -215,6 +215,7 @@ typedef struct UIScene {
   bool road_name_ui;
   bool rotating_wheel;
   bool show_aol_status_bar;
+  bool show_blind_spot;
   bool show_cem_status_bar;
   bool show_slc_offset;
   bool show_slc_offset_ui;

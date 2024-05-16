@@ -323,6 +323,10 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.holiday_themes = custom_theme && params.getBool("HolidayThemes");
   scene.random_events = custom_theme && params.getBool("RandomEvents");
 
+  bool developer_ui = params.getBool("DeveloperUI");
+  bool border_metrics = developer_ui && params.getBool("BorderMetrics");
+  scene.show_blind_spot = border_metrics && params.getBool("BlindSpotMetrics");
+
   scene.disable_smoothing_mtsc = params.getBool("MTSCEnabled") && params.getBool("DisableMTSCSmoothing");
   scene.disable_smoothing_vtsc = params.getBool("VisionTurnControl") && params.getBool("DisableVTSCSmoothing");
 

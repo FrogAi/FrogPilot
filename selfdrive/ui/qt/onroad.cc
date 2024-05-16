@@ -220,7 +220,38 @@ void OnroadWindow::paintEvent(QPaintEvent *event) {
   SubMaster &sm = *(s->sm);
 
   QPainter p(this);
-  p.fillRect(rect(), QColor(bg.red(), bg.green(), bg.blue(), 255));
+  QRect rect = this->rect();
+  p.fillRect(rect, QColor(bg.red(), bg.green(), bg.blue(), 255));
+
+  if (scene.show_blind_spot) {
+    auto getBlindspotColor = [&](bool turn_signal, int &frames) {
+      if (turn_signal) {
+        if (sm.frame % 10 == 0) {
+          frames = 5;
+        }
+        return (frames-- > 0) ? bg_colors[STATUS_TRAFFIC_MODE_ACTIVE] : bg;
+      }
+      return bg_colors[STATUS_TRAFFIC_MODE_ACTIVE];
+    };
+
+    static int blindspot_frames_left = 0;
+    static int blindspot_frames_right = 0;
+
+    if (scene.blind_spot_left || scene.blind_spot_right) {
+      if (scene.blind_spot_left) {
+        QRect leftHalf(rect.x(), rect.y(), rect.width() / 2, rect.height());
+        QColor color = getBlindspotColor(scene.turn_signal_left, blindspot_frames_left);
+        p.fillRect(leftHalf, QColor(color.red(), color.green(), color.blue(), 255));
+      }
+      if (scene.blind_spot_right) {
+        QRect rightHalf(rect.x() + rect.width() / 2, rect.y(), rect.width() / 2, rect.height());
+        QColor color = getBlindspotColor(scene.turn_signal_right, blindspot_frames_right);
+        p.fillRect(rightHalf, QColor(color.red(), color.green(), color.blue(), 255));
+      }
+    } else {
+      blindspot_frames_left = blindspot_frames_right = 0;
+    }
+  }
 }
 
 // ***** onroad widgets *****
