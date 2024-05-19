@@ -55,6 +55,7 @@ def manager_init(frogpilot_functions) -> None:
   save_bootlog()
 
   params = Params()
+  params_storage = Params("/persist/params")
   params.clear_all(ParamKeyType.CLEAR_ON_MANAGER_START)
   params.clear_all(ParamKeyType.CLEAR_ON_ONROAD_TRANSITION)
   params.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
@@ -313,8 +314,15 @@ def manager_init(frogpilot_functions) -> None:
 
   # set unset params
   for k, v in default_params:
-    if params.get(k) is None:
-      params.put(k, v)
+    if params.get(k) is None or params.get_bool("DoToggleReset"):
+      if params_storage.get(k) is None:
+        params.put(k, v)
+      else:
+        params.put(k, params_storage.get(k))
+    else:
+      params_storage.put(k, params.get(k))
+
+  params.put_bool("DoToggleReset", False)
 
   # Create folders needed for msgq
   try:
