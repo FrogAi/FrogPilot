@@ -459,6 +459,7 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to completely reset all of your toggle settings?"), tr("Reset"), this)) {
       std::thread([&] {
         resetTogglesBtn->setValue(tr("Resetting toggles..."));
+        std::system("rm -rf /persist/params");
         params.putBool("DoToggleReset", true);
         std::this_thread::sleep_for(std::chrono::seconds(2));
         resetTogglesBtn->setValue(tr("Reset!"));
