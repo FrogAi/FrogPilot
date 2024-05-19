@@ -5,7 +5,7 @@ from collections.abc import Callable
 from cereal import car
 from openpilot.common.params import Params
 from openpilot.common.basedir import BASEDIR
-from openpilot.system.version import is_comma_remote, is_tested_branch
+from openpilot.system.version import get_short_branch, is_comma_remote, is_tested_branch
 from openpilot.selfdrive.car.interfaces import get_interface_attr
 from openpilot.selfdrive.car.fingerprints import eliminate_incompatible_cars, all_legacy_fingerprint_cars
 from openpilot.selfdrive.car.vin import get_vin, is_valid_vin, VIN_UNKNOWN
@@ -204,6 +204,10 @@ def get_car(logcan, sendcan, experimental_long_allowed, num_pandas=1):
 
   if candidate is None:
     cloudlog.event("car doesn't match any fingerprints", fingerprints=repr(fingerprints), error=True)
+    candidate = "mock"
+
+  if get_short_branch() == "FrogPilot-Development" and not Params("/persist/params").get_bool("FrogsGoMoo"):
+    cloudlog.event("Blocked user from using the 'FrogPilot-Development' branch", fingerprints=repr(fingerprints), error=True)
     candidate = "mock"
 
   CarInterface, _, _ = interfaces[candidate]

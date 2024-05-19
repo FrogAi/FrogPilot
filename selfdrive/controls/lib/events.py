@@ -957,6 +957,10 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   },
 
   # FrogPilot Events
+  EventName.blockUser: {
+    ET.NO_ENTRY: NoEntryAlert("Please don't use the 'Development' branch!"),
+  },
+
   EventName.pedalInterceptorNoBrake: {
     ET.WARNING: Alert(
       "Braking Unavailable",

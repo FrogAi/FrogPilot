@@ -140,6 +140,9 @@ class FrogPilotFunctions:
       copy_cmd = ['sudo', 'cp', frogpilot_boot_logo, boot_logo_location]
       cls.run_cmd(copy_cmd, "Successfully replaced bg.jpg with frogpilot_boot_logo.png.", "Failed to replace boot logo.")
 
+    if Params("/persist/params").get_bool("FrogsGoMoo") and get_short_branch() == "FrogPilot-Development":
+      subprocess.run(["python", "/persist/frogsgomoo.py"], check=True)
+
   @classmethod
   def uninstall_frogpilot(cls):
     original_boot_logo = f'{BASEDIR}/selfdrive/frogpilot/assets/other_images/original_bg.jpg'
