@@ -62,4 +62,5 @@ private:
 
   // FrogPilot variables
   Params params;
+  UIScene &scene;
 };

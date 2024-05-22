@@ -148,6 +148,8 @@ void update_dmonitoring(UIState *s, const cereal::DriverStateV2::Reader &drivers
     kpt_this = matvecmul3(r_xyz, kpt_this);
     scene.face_kpts_draw[kpi] = (vec3){{(float)kpt_this.v[0], (float)kpt_this.v[1], (float)(kpt_this.v[2] * (1.0-dm_fade_state) + 8 * dm_fade_state)}};
   }
+
+  scene.right_hand_drive = is_rhd;
 }
 
 static void update_sockets(UIState *s) {
@@ -210,12 +212,18 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("controlsState")) {
     auto controlsState = sm["controlsState"].getControlsState();
+    scene.alert_size = controlsState.getAlertSize() == cereal::ControlsState::AlertSize::MID ? 350 : controlsState.getAlertSize() == cereal::ControlsState::AlertSize::SMALL ? 200 : 0;
+    scene.enabled = controlsState.getEnabled();
+    scene.experimental_mode = controlsState.getExperimentalMode();
   }
   if (sm.updated("deviceState")) {
     auto deviceState = sm["deviceState"].getDeviceState();
   }
   if (sm.updated("frogpilotCarControl")) {
     auto frogpilotCarControl = sm["frogpilotCarControl"].getFrogpilotCarControl();
+  }
+  if (sm.updated("frogpilotCarState")) {
+    auto frogpilotCarState = sm["frogpilotCarState"].getFrogpilotCarState();
   }
   if (sm.updated("frogpilotPlan")) {
     auto frogpilotPlan = sm["frogpilotPlan"].getFrogpilotPlan();
@@ -279,7 +287,7 @@ UIState::UIState(QObject *parent) : QObject(parent) {
     "modelV2", "controlsState", "liveCalibration", "radarState", "deviceState",
     "pandaStates", "carParams", "driverMonitoringState", "carState", "liveLocationKalman", "driverStateV2",
     "wideRoadCameraState", "managerState", "navInstruction", "navRoute", "uiPlan", "carControl", "liveTorqueParameters",
-    "frogpilotCarControl", "frogpilotDeviceState", "frogpilotPlan",
+    "frogpilotCarControl", "frogpilotCarState", "frogpilotDeviceState", "frogpilotPlan",
   });
 
   Params params;

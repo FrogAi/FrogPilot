@@ -20,7 +20,7 @@ class OnroadAlerts : public QWidget {
   Q_OBJECT
 
 public:
-  OnroadAlerts(QWidget *parent = 0) : QWidget(parent) {}
+  OnroadAlerts(QWidget *parent = 0) : QWidget(parent), scene(uiState()->scene) {}
   void updateAlert(const Alert &a);
 
 protected:
@@ -29,6 +29,9 @@ protected:
 private:
   QColor bg;
   Alert alert = {};
+
+  // FrogPilot variables
+  UIScene &scene;
 };
 
 class ExperimentalButton : public QPushButton {
@@ -50,6 +53,7 @@ private:
 
   // FrogPilot variables
   Params paramsMemory{"/dev/shm/params"};
+  UIScene &scene;
 };
 
 
@@ -74,6 +78,7 @@ public:
   void updateState(const UIState &s);
 
   MapSettingsButton *map_settings_btn;
+  MapSettingsButton *map_settings_btn_bottom;
 
 private:
   void drawText(QPainter &p, int x, int y, const QString &text, int alpha = 255);
@@ -100,8 +105,31 @@ private:
   int skip_frame_count = 0;
   bool wide_cam_requested = false;
 
+  // FrogPilot widgets
+  void initializeFrogPilotWidgets();
+  void paintFrogPilotWidgets(QPainter &p);
+  void updateFrogPilotWidgets();
+
+  void drawStatusBar(QPainter &p);
+
   // FrogPilot variables
   Params paramsMemory{"/dev/shm/params"};
+  UIScene &scene;
+
+  QHBoxLayout *bottom_layout;
+
+  bool experimentalMode;
+  bool mapOpen;
+
+  float accelerationConversion;
+  float distanceConversion;
+  float speedConversion;
+
+  int alertSize;
+
+  QString accelerationUnit;
+  QString leadDistanceUnit;
+  QString leadSpeedUnit;
 
 protected:
   void paintGL() override;
@@ -142,6 +170,7 @@ private:
   QHBoxLayout* split;
 
   // FrogPilot variables
+  UIScene &scene;
   Params params;
   Params paramsMemory{"/dev/shm/params"};
 

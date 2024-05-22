@@ -20,7 +20,7 @@ void SoftwarePanel::checkForUpdates() {
   std::system("pkill -SIGUSR1 -f selfdrive.updated.updated");
 }
 
-SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
+SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent), scene(uiState()->scene) {
   onroadLbl = new QLabel(tr("Updates are only downloaded while the car is off."));
   onroadLbl->setStyleSheet("font-size: 50px; font-weight: 400; text-align: left; padding-top: 30px; padding-bottom: 30px;");
   addItem(onroadLbl);
