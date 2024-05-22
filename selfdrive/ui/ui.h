@@ -189,6 +189,7 @@ typedef struct UIScene {
   bool always_on_lateral_active;
   bool conditional_experimental;
   bool disable_smoothing_mtsc;
+  bool disable_smoothing_vtsc;
   bool enabled;
   bool experimental_mode;
   bool experimental_mode_via_screen;
@@ -211,6 +212,7 @@ typedef struct UIScene {
   bool traffic_mode_active;
   bool use_kaofui_icons;
   bool use_vienna_slc_sign;
+  bool vtsc_controlling_curve;
 
   float adjusted_cruise;
   float lead_detection_threshold;
