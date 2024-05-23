@@ -92,7 +92,7 @@ class ExperimentalButton : public QPushButton {
 
 public:
   explicit ExperimentalButton(QWidget *parent = 0);
-  void updateState(const UIState &s);
+  void updateState(const UIState &s, bool leadInfo);
 
 private:
   void paintEvent(QPaintEvent *event) override;
@@ -123,6 +123,7 @@ private:
   int steeringAngleDeg;
   int wheelIcon;
   int wheelIconGif;
+  int y_offset;
 };
 
 
@@ -200,6 +201,7 @@ private:
   void paintFrogPilotWidgets(QPainter &p);
   void updateFrogPilotWidgets();
 
+  void drawLeadInfo(QPainter &p);
   void drawSLCConfirmation(QPainter &p);
   void drawStatusBar(QPainter &p);
   void drawTurnSignals(QPainter &p);
@@ -219,6 +221,7 @@ private:
   bool blindSpotRight;
   bool compass;
   bool experimentalMode;
+  bool leadInfo;
   bool mapOpen;
   bool onroadDistanceButton;
   bool roadNameUI;
@@ -247,6 +250,8 @@ private:
   int currentHolidayTheme;
   int customColors;
   int customSignals;
+  int obstacleDistance;
+  int obstacleDistanceStock;
   int totalFrames = 8;
 
   QString accelerationUnit;
@@ -311,6 +316,8 @@ private:
 
   QPoint timeoutPoint = QPoint(420, 69);
   QTimer clickTimer;
+
+  inline QColor redColor(int alpha = 255) { return QColor(201, 34, 49, alpha); }
 
 private slots:
   void offroadTransition(bool offroad);

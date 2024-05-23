@@ -221,6 +221,7 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("carState")) {
     auto carState = sm["carState"].getCarState();
+    scene.acceleration = carState.getAEgo();
     scene.blind_spot_left = carState.getLeftBlindspot();
     scene.blind_spot_right = carState.getRightBlindspot();
     scene.parked = carState.getGearShifter() == cereal::CarState::GearShifter::PARK;
@@ -251,13 +252,21 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("frogpilotPlan")) {
     auto frogpilotPlan = sm["frogpilotPlan"].getFrogpilotPlan();
+    scene.acceleration_jerk = frogpilotPlan.getAccelerationJerk();
+    scene.acceleration_jerk_difference = frogpilotPlan.getAccelerationJerkStock() - scene.acceleration_jerk;
     scene.adjusted_cruise = frogpilotPlan.getAdjustedCruise();
+    scene.desired_follow = frogpilotPlan.getDesiredFollowDistance();
     scene.lane_width_left = frogpilotPlan.getLaneWidthLeft();
     scene.lane_width_right = frogpilotPlan.getLaneWidthRight();
+    scene.obstacle_distance = frogpilotPlan.getSafeObstacleDistance();
+    scene.obstacle_distance_stock = frogpilotPlan.getSafeObstacleDistanceStock();
+    scene.speed_jerk = frogpilotPlan.getSpeedJerk();
+    scene.speed_jerk_difference = frogpilotPlan.getSpeedJerkStock() - scene.speed_jerk;
     scene.speed_limit = frogpilotPlan.getSlcSpeedLimit();
     scene.speed_limit_offset = frogpilotPlan.getSlcSpeedLimitOffset();
     scene.speed_limit_overridden = frogpilotPlan.getSlcOverridden();
     scene.speed_limit_overridden_speed = frogpilotPlan.getSlcOverriddenSpeed();
+    scene.stopped_equivalence = frogpilotPlan.getStoppedEquivalenceFactor();
     scene.unconfirmed_speed_limit = frogpilotPlan.getUnconfirmedSlcSpeedLimit();
     scene.vtsc_controlling_curve = frogpilotPlan.getVtscControllingCurve();
   }
@@ -333,6 +342,8 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.show_signal = border_metrics && params.getBool("SignalMetrics");
   scene.show_steering = border_metrics && params.getBool("ShowSteering");
   scene.fps_counter = developer_ui && params.getBool("FPSCounter");
+  scene.lead_info = scene.longitudinal_control && developer_ui && params.getBool("LongitudinalMetrics");
+  scene.show_jerk = scene.longitudinal_control && developer_ui && params.getBool("LongitudinalMetrics");
   scene.show_tuning = developer_ui && scene.has_auto_tune && params.getBool("LateralMetrics");
 
   scene.disable_smoothing_mtsc = params.getBool("MTSCEnabled") && params.getBool("DisableMTSCSmoothing");
