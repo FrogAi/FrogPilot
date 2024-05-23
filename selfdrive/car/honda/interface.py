@@ -271,7 +271,7 @@ class CarInterface(CarInterfaceBase):
           # non loud alert if cruise disables below 25mph as expected (+ a little margin)
           events.add(EventName.speedTooLow)
         else:
-          events.add(EventName.cruiseDisabled)
+          events.add(EventName.buttonCancel)
     if self.CS.CP.minEnableSpeed > 0 and ret.vEgo < 0.001:
       events.add(EventName.manualRestart)
 
