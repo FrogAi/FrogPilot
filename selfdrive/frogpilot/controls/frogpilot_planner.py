@@ -117,6 +117,20 @@ class FrogPilotPlanner:
     self.frame += 1
 
   def update_follow_values(self, lead_distance, stopping_distance, v_ego, v_lead, frogpilot_toggles):
+    # Offset by FrogAi for FrogPilot for a more natural approach to a faster lead
+    if frogpilot_toggles.aggressive_acceleration_experimental and v_lead > v_ego:
+      distance_factor = max(lead_distance - (v_ego * self.t_follow), 1)
+      standstill_offset = max(stopping_distance - v_ego, 0) * max(v_lead - v_ego, 0)
+      acceleration_offset = np.clip((v_lead - v_ego) + standstill_offset - COMFORT_BRAKE, 1, distance_factor)
+      self.acceleration_jerk = self.base_acceleration_jerk / acceleration_offset
+      self.speed_jerk = self.base_speed_jerk / acceleration_offset
+      self.t_follow /= acceleration_offset
+    elif frogpilot_toggles.aggressive_acceleration and v_lead > v_ego:
+      distance_factor = np.maximum(lead_distance - (v_lead * self.t_follow), 1)
+      standstill_offset = max(STOP_DISTANCE - (v_ego**COMFORT_BRAKE), 0)
+      acceleration_offset = np.clip((v_lead - v_ego) + standstill_offset - COMFORT_BRAKE, 1, distance_factor)
+      self.t_follow /= acceleration_offset
+
     # Offset by FrogAi for FrogPilot for a more natural approach to a slower lead
     if frogpilot_toggles.conditional_experimental_mode and v_lead < v_ego:
       distance_factor = max(lead_distance - (v_lead * self.t_follow), 1)
