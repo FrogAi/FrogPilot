@@ -33,7 +33,7 @@ class CarState(CarStateBase):
     # FrogPilot variables
     self.single_pedal_mode = False
 
-  def update(self, pt_cp, cam_cp, loopback_cp):
+  def update(self, pt_cp, cam_cp, loopback_cp, frogpilot_variables):
     ret = car.CarState.new_message()
     fp_ret = custom.FrogPilotCarState.new_message()
 

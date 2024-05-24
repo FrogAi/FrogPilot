@@ -47,6 +47,9 @@ private:
   QPixmap experimental_img;
   bool experimental_mode;
   bool engageable;
+
+  // FrogPilot variables
+  Params paramsMemory{"/dev/shm/params"};
 };
 
 
@@ -97,6 +100,9 @@ private:
   int skip_frame_count = 0;
   bool wide_cam_requested = false;
 
+  // FrogPilot variables
+  Params paramsMemory{"/dev/shm/params"};
+
 protected:
   void paintGL() override;
   void initializeGL() override;
@@ -134,6 +140,10 @@ private:
   QColor bg = bg_colors[STATUS_DISENGAGED];
   QWidget *map = nullptr;
   QHBoxLayout* split;
+
+  // FrogPilot variables
+  Params params;
+  Params paramsMemory{"/dev/shm/params"};
 
 private slots:
   void offroadTransition(bool offroad);

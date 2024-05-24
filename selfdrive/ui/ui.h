@@ -17,6 +17,8 @@
 #include "common/timing.h"
 #include "system/hardware/hw.h"
 
+#include "selfdrive/frogpilot/ui/qt/widgets/frogpilot_controls.h"
+
 const int UI_BORDER_SIZE = 30;
 const int UI_HEADER_HEIGHT = 420;
 
@@ -202,6 +204,9 @@ private:
   QTimer *timer;
   bool started_prev = false;
   PrimeType prime_type = PrimeType::UNKNOWN;
+
+  // FrogPilot variables
+  Params paramsMemory{"/dev/shm/params"};
 };
 
 UIState *uiState();
@@ -251,3 +256,6 @@ void update_dmonitoring(UIState *s, const cereal::DriverStateV2::Reader &drivers
 void update_leads(UIState *s, const cereal::RadarState::Reader &radar_state, const cereal::XYZTData::Reader &line);
 void update_line_data(const UIState *s, const cereal::XYZTData::Reader &line,
                       float y_off, float z_off, QPolygonF *pvd, int max_idx, bool allow_invert);
+
+// FrogPilot functions
+void ui_update_frogpilot_params(UIState *s);

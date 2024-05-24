@@ -3,6 +3,7 @@ from enum import Enum, IntFlag
 
 from cereal import car
 from openpilot.common.numpy_fast import interp
+from openpilot.common.params import Params
 from openpilot.selfdrive.car import dbc_dict, PlatformConfig, DbcDict, Platforms, CarSpecs
 from openpilot.selfdrive.car.docs_definitions import CarFootnote, CarHarness, CarDocs, CarParts, Column
 from openpilot.selfdrive.car.fw_query_definitions import FwQueryConfig, Request, StdQueries

@@ -933,6 +933,9 @@ void process_road_camera(MultiCameraState *s, CameraState *c, int cnt) {
 }
 
 void cameras_run(MultiCameraState *s) {
+  // FrogPilot variables
+  Params paramsMemory{"/dev/shm/params"};
+
   LOG("-- Starting threads");
   std::vector<std::thread> threads;
   if (s->driver_cam.enabled) threads.push_back(start_process_thread(s, &s->driver_cam, process_driver_camera));
