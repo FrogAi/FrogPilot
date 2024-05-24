@@ -19,6 +19,8 @@ from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import CITY_
 
 GearShifter = car.CarState.GearShifter
 
+A_CRUISE_MIN_ECO = A_CRUISE_MIN / 5
+A_CRUISE_MIN_SPORT = A_CRUISE_MIN / 2
                        # MPH = [ 0.,  11,  22,  34,  45,  56,  89]
 A_CRUISE_MAX_BP_CUSTOM =       [ 0.,  5., 10., 15., 20., 25., 40.]
 A_CRUISE_MAX_VALS_ECO =        [1.4, 1.2, 1.0, 0.8, 0.6, 0.4, 0.2]
@@ -103,6 +105,10 @@ class FrogPilotPlanner:
 
     if controlsState.experimentalMode:
       self.min_accel = ACCEL_MIN
+    elif frogpilot_toggles.deceleration_profile == 1:
+      self.min_accel = A_CRUISE_MIN_ECO
+    elif frogpilot_toggles.deceleration_profile == 2:
+      self.min_accel = A_CRUISE_MIN_SPORT
     else:
       self.min_accel = A_CRUISE_MIN
 
