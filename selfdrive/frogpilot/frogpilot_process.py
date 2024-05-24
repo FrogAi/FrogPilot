@@ -36,13 +36,35 @@ def automatic_update_check(params):
   elif update_state_idle:
     os.system("pkill -SIGUSR1 -f system.updated.updated")
 
-def time_checks(automatic_updates, deviceState, now, params, params_memory):
+def time_checks(automatic_updates, deviceState, maps_downloaded, now, params, params_memory):
   screen_off = deviceState.screenBrightnessPercent == 0
   wifi_connection = deviceState.networkType == WIFI
 
-  if screen_off and wifi_connection:
+  if screen_off and wifi_connection or not maps_downloaded:
     if automatic_updates:
       automatic_update_check(params)
+
+    update_maps(maps_downloaded, now, params, params_memory)
+
+def update_maps(maps_downloaded, now, params, params_memory):
+  day = now.day
+  is_first = day == 1
+  is_Sunday = now.weekday() == 6
+  maps_selected = params.get("MapsSelected")
+  schedule = params.get_int("PreferredSchedule")
+
+  if maps_downloaded and (maps_selected is None or schedule == 0 or (schedule == 1 and not is_Sunday) or (schedule == 2 and not is_first)):
+    return
+
+  suffix = "th" if 4 <= day <= 20 or 24 <= day <= 30 else ["st", "nd", "rd"][day % 10 - 1]
+  todays_date = now.strftime(f"%B {day}{suffix}, %Y")
+
+  if params.get("LastMapsUpdate") == todays_date:
+    return
+
+  if params.get("OSMDownloadProgress") is None:
+    params_memory.put("OSMDownloadLocations", maps_selected)
+    params.put("LastMapsUpdate", todays_date)
 
 def frogpilot_thread(frogpilot_toggles):
   config_realtime_process(5, Priority.CTRL_LOW)
@@ -53,6 +75,7 @@ def frogpilot_thread(frogpilot_toggles):
   frogpilot_functions = FrogPilotFunctions()
   frogpilot_planner = FrogPilotPlanner()
 
+  maps_downloaded = os.path.exists('/data/media/0/osm/offline') or params.get("MapsSelected") is None
   time_validated = system_time_valid()
   update_toggles = False
 
@@ -87,6 +110,9 @@ def frogpilot_thread(frogpilot_toggles):
       if not started:
         if github_pinged():
           time_checks(frogpilot_toggles.automatic_updates, deviceState, maps_downloaded, now, params, params_memory)
+
+        if not maps_downloaded:
+          maps_downloaded = os.path.exists('/data/media/0/osm/offline') or params.get("OSMDownloadProgress") is not None or params.get("MapsSelected") is None
 
       if not time_validated:
         time_validated = system_time_valid()
