@@ -570,3 +570,4 @@ selfdrive/frogpilot/controls/frogpilot_planner.py
 selfdrive/frogpilot/controls/lib/frogpilot_functions.py
 selfdrive/frogpilot/controls/lib/frogpilot_variables.py
 selfdrive/frogpilot/fleet_manager/fleet_manager.py
+selfdrive/frogpilot/navigation/mapd.py
