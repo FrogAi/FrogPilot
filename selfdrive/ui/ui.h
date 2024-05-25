@@ -191,6 +191,7 @@ typedef struct UIScene {
   bool adjacent_path_metrics;
   bool always_on_lateral_active;
   bool blind_spot_left;
+  bool blind_spot_path;
   bool blind_spot_right;
   bool compass;
   bool conditional_experimental;

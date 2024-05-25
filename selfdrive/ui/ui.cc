@@ -302,6 +302,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.acceleration_path = custom_paths && params.getBool("AccelerationPath");
   scene.adjacent_path = custom_paths && params.getBool("AdjacentPath");
   scene.adjacent_path_metrics = scene.adjacent_path && params.getBool("AdjacentPathMetrics");
+  scene.blind_spot_path = custom_paths && params.getBool("BlindSpotPath");
   scene.compass = custom_onroad_ui && params.getBool("Compass");
 
   scene.disable_smoothing_mtsc = params.getBool("MTSCEnabled") && params.getBool("DisableMTSCSmoothing");

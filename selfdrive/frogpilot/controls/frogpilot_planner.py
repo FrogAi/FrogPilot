@@ -129,7 +129,7 @@ class FrogPilotPlanner:
       else:
         self.min_accel = A_CRUISE_MIN
 
-    check_lane_width = frogpilot_toggles.adjacent_lanes or frogpilot_toggles.lane_detection
+    check_lane_width = frogpilot_toggles.adjacent_lanes or frogpilot_toggles.blind_spot_path or frogpilot_toggles.lane_detection
     if check_lane_width and v_ego >= frogpilot_toggles.minimum_lane_change_speed:
       self.lane_width_left = float(calculate_lane_width(modelData.laneLines[0], modelData.laneLines[1], modelData.roadEdges[0]))
       self.lane_width_right = float(calculate_lane_width(modelData.laneLines[3], modelData.laneLines[2], modelData.roadEdges[1]))
