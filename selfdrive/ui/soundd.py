@@ -41,6 +41,9 @@ sound_list: dict[int, tuple[str, int | None, float]] = {
 
   AudibleAlert.warningSoft: ("warning_soft.wav", None, MAX_VOLUME),
   AudibleAlert.warningImmediate: ("warning_immediate.wav", None, MAX_VOLUME),
+
+  # Other
+  AudibleAlert.goat: ("goat.wav", None, MAX_VOLUME),
 }
 
 def check_controls_timeout_alert(sm):
@@ -55,8 +58,6 @@ def check_controls_timeout_alert(sm):
 
 class Soundd:
   def __init__(self):
-    self.load_sounds()
-
     self.current_alert = AudibleAlert.none
     self.current_volume = MIN_VOLUME
     self.current_sound_frame = 0
@@ -68,6 +69,8 @@ class Soundd:
     # FrogPilot variables
     self.frogpilot_toggles = FrogPilotVariables.toggles
 
+    self.previous_sound_directory = None
+
     self.update_frogpilot_sounds()
 
   def load_sounds(self):
@@ -77,7 +80,12 @@ class Soundd:
     for sound in sound_list:
       filename, play_count, volume = sound_list[sound]
 
-      wavefile = wave.open(BASEDIR + "/selfdrive/assets/sounds/" + filename, 'r')
+      try:
+        if sound == AudibleAlert.goat and not self.frogpilot_toggles.goat_scream:
+          continue
+        wavefile = wave.open(self.sound_directory + filename, 'r')
+      except FileNotFoundError:
+        wavefile = wave.open(BASEDIR + "/selfdrive/assets/sounds/" + filename, 'r')
 
       assert wavefile.getnchannels() == 1
       assert wavefile.getsampwidth() == 2
@@ -186,7 +194,24 @@ class Soundd:
 
       AudibleAlert.warningSoft: self.frogpilot_toggles.warningSoft_volume,
       AudibleAlert.warningImmediate: self.frogpilot_toggles.warningImmediate_volume,
+
+      AudibleAlert.goat: self.frogpilot_toggles.prompt_volume,
     }
+
+    theme_configuration = {
+      0: "stock_theme",
+      1: "frog_theme",
+      2: "tesla_theme",
+      3: "stalin_theme"
+    }
+
+    theme_name = theme_configuration.get(self.frogpilot_toggles.custom_sounds)
+    self.sound_directory = BASEDIR + ("/selfdrive/frogpilot/assets/custom_themes/" + theme_name + "/sounds/" if theme_name != "stock_theme" else "/selfdrive/assets/sounds/")
+
+    if self.sound_directory != self.previous_sound_directory:
+      self.load_sounds()
+
+    self.previous_sound_directory = self.sound_directory
 
 def main():
   s = Soundd()
