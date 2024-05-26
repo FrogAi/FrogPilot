@@ -994,6 +994,14 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       Priority.MID, VisualAlert.none, AudibleAlert.prompt, 1.),
   },
 
+  EventName.goatSteerSaturated: {
+    ET.WARNING: Alert(
+      "Turn exceeds steering limit",
+      "JESUS TAKE THE WHEEL!!",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.goat, 2.),
+  },
+
   EventName.greenLight: {
     ET.PERMANENT: Alert(
       "Light turned green",
