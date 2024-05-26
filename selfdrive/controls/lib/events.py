@@ -986,6 +986,14 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.NO_ENTRY: NoEntryAlert("Please don't use the 'Development' branch!"),
   },
 
+  EventName.goatSteerSaturated: {
+    ET.WARNING: Alert(
+      "Turn Exceeds Steering Limit",
+      "JESUS TAKE THE WHEEL!!",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.LOW, VisualAlert.steerRequired, AudibleAlert.goat, 2.),
+  },
+
   EventName.greenLight: {
     ET.PERMANENT: Alert(
       "Light turned green",
