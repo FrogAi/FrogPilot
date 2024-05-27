@@ -28,6 +28,11 @@ class ConditionalExperimentalMode:
       self.status_value = 0
       return self.experimental_mode
 
+    approaching_maneuver = modelData.navEnabled and (frogpilotNavigation.approachingIntersection or frogpilotNavigation.approachingTurn)
+    if frogpilot_toggles.conditional_navigation and approaching_maneuver and (frogpilot_toggles.conditional_navigation_lead or not self.lead_detected):
+      self.status_value = 7 if frogpilotNavigation.approachingIntersection else 8
+      return True
+
     if (not self.lead_detected and v_ego <= frogpilot_toggles.conditional_limit) or (self.lead_detected and v_ego <= frogpilot_toggles.conditional_limit_lead):
       self.status_value = 11 if self.lead_detected else 12
       return True
