@@ -5,6 +5,7 @@ from openpilot.selfdrive.modeld.constants import ModelConstants
 
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import MovingAverageCalculator
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import CITY_SPEED_LIMIT, CRUISING_SPEED, PROBABILITY
+from openpilot.selfdrive.frogpilot.controls.lib.speed_limit_controller import SpeedLimitController
 
 SLOW_DOWN_BP = [0., 10., 20., 30., 40., 50., 55., 60.]
 SLOW_DOWN_DISTANCE = [20, 30., 50., 70., 80., 90., 105., 120.]
@@ -53,6 +54,10 @@ class ConditionalExperimentalMode:
     approaching_maneuver = modelData.navEnabled and (frogpilotNavigation.approachingIntersection or frogpilotNavigation.approachingTurn)
     if frogpilot_toggles.conditional_navigation and approaching_maneuver and (frogpilot_toggles.conditional_navigation_lead or not self.lead_detected):
       self.status_value = 7 if frogpilotNavigation.approachingIntersection else 8
+      return True
+
+    if SpeedLimitController.experimental_mode:
+      self.status_value = 9
       return True
 
     if (not self.lead_detected and v_ego <= frogpilot_toggles.conditional_limit) or (self.lead_detected and v_ego <= frogpilot_toggles.conditional_limit_lead):

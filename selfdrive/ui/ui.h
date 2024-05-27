@@ -201,13 +201,19 @@ typedef struct UIScene {
   bool right_hand_drive;
   bool show_aol_status_bar;
   bool show_cem_status_bar;
+  bool show_slc_offset;
+  bool show_slc_offset_ui;
+  bool speed_limit_controller;
   bool tethering_enabled;
   bool traffic_mode;
   bool traffic_mode_active;
   bool use_kaofui_icons;
+  bool use_vienna_slc_sign;
 
   float adjusted_cruise;
   float lead_detection_threshold;
+  float speed_limit;
+  float speed_limit_offset;
 
   int alert_size;
   int conditional_speed;

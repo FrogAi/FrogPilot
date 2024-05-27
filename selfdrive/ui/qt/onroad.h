@@ -152,11 +152,15 @@ private:
   bool onroadDistanceButton;
   bool showAlwaysOnLateralStatusBar;
   bool showConditionalExperimentalStatusBar;
+  bool showSLCOffset;
+  bool speedLimitController;
   bool trafficModeActive;
+  bool useViennaSLCSign;
 
   float accelerationConversion;
   float cruiseAdjustment;
   float distanceConversion;
+  float slcSpeedLimitOffset;
   float speedConversion;
 
   int alertSize;
