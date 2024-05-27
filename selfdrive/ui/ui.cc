@@ -268,6 +268,10 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.conditional_speed = scene.conditional_experimental ? params.getInt("CESpeed") : 0;
   scene.conditional_speed_lead = scene.conditional_experimental ? params.getInt("CESpeedLead") : 0;
   scene.show_cem_status_bar = scene.conditional_experimental && !params.getBool("HideCEMStatusBar");
+
+  bool driving_personalities = scene.longitudinal_control && params.getBool("DrivingPersonalities");
+  scene.onroad_distance_button = driving_personalities && params.getBool("OnroadDistanceButton");
+  scene.use_kaofui_icons = scene.onroad_distance_button && params.getBool("KaofuiIcons");
 }
 
 void UIState::updateStatus() {
