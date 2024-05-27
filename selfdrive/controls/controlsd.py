@@ -950,6 +950,14 @@ class Controls:
         self.params_tracking.put_int_nonblocking("FrogPilotDrives", new_total_drives)
         self.drive_added = True
 
+    if any(be.pressed and be.type == FrogPilotButtonType.lkas for be in CS.buttonEvents) and self.frogpilot_toggles.experimental_mode_via_lkas:
+      if self.frogpilot_toggles.conditional_experimental_mode:
+        conditional_status = self.params_memory.get_int("CEStatus")
+        override_value = 0 if conditional_status in {1, 2, 3, 4, 5, 6} else 3 if conditional_status >= 7 else 4
+        self.params_memory.put_int("CEStatus", override_value)
+      else:
+        self.params.put_bool_nonblocking("ExperimentalMode", not self.experimental_mode)
+
     fpcc_send = messaging.new_message('frogpilotCarControl')
     fpcc_send.valid = CS.canValid
     fpcc_send.frogpilotCarControl = self.FPCC

@@ -108,11 +108,6 @@ class CarState(CarStateBase):
     can_gear = int(cp.vl["GEARBOX"]["GEAR_SHIFTER"])
     ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(can_gear, None))
 
-    if self.CP.carFingerprint == CAR.ALTIMA:
-      self.lkas_enabled = bool(cp.vl["LKAS_SETTINGS"]["LKAS_ENABLED"])
-    else:
-      self.lkas_enabled = bool(cp_adas.vl["LKAS_SETTINGS"]["LKAS_ENABLED"])
-
     self.cruise_throttle_msg = copy.copy(cp.vl["CRUISE_THROTTLE"])
 
     if self.CP.carFingerprint in (CAR.LEAF, CAR.LEAF_IC):
@@ -121,6 +116,13 @@ class CarState(CarStateBase):
     if self.CP.carFingerprint != CAR.ALTIMA:
       self.lkas_hud_msg = copy.copy(cp_adas.vl["PROPILOT_HUD"])
       self.lkas_hud_info_msg = copy.copy(cp_adas.vl["PROPILOT_HUD_INFO_MSG"])
+
+    # FrogPilot carstate functions
+    self.lkas_previously_enabled = self.lkas_enabled
+    if self.CP.carFingerprint == CAR.ALTIMA:
+      self.lkas_enabled = bool(cp.vl["LKAS_SETTINGS"]["LKAS_ENABLED"])
+    else:
+      self.lkas_enabled = bool(cp_adas.vl["LKAS_SETTINGS"]["LKAS_ENABLED"])
 
     return ret, fp_ret
 

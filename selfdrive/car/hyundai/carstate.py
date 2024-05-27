@@ -171,6 +171,11 @@ class CarState(CarStateBase):
     if self.prev_main_buttons == 0 and self.main_buttons[-1] != 0:
       self.main_enabled = not self.main_enabled
 
+    # FrogPilot carstate functions
+    if self.CP.flags & HyundaiFlags.CAN_LFA_BTN:
+      self.lkas_previously_enabled = self.lkas_enabled
+      self.lkas_enabled = cp.vl["BCM_PO_11"]["LFA_Pressed"]
+
     return ret, fp_ret
 
   def update_canfd(self, cp, cp_cam, frogpilot_variables):
@@ -257,6 +262,10 @@ class CarState(CarStateBase):
       self.hda2_lfa_block_msg = copy.copy(cp_cam.vl["CAM_0x362"] if self.CP.flags & HyundaiFlags.CANFD_HDA2_ALT_STEERING
                                           else cp_cam.vl["CAM_0x2a4"])
 
+    # FrogPilot carstate functions
+    self.lkas_previously_enabled = self.lkas_enabled
+    self.lkas_enabled = cp.vl[self.cruise_btns_msg_canfd]["LFA_BTN"]
+
     return ret, fp_ret
 
   def get_can_parser(self, CP):
@@ -305,6 +314,9 @@ class CarState(CarStateBase):
       messages.append(("TCU12", 100))
     else:
       messages.append(("LVR12", 100))
+
+    if CP.flags & HyundaiFlags.CAN_LFA_BTN:
+      messages.append(("BCM_PO_11", 50))
 
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, 0)
 

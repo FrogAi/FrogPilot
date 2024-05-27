@@ -107,6 +107,10 @@ class CarInterface(CarInterfaceBase):
 
     ret, fp_ret = self.CS.update(self.cp, self.cp_cam, self.cp_body, frogpilot_variables)
 
+    ret.buttonEvents = [
+      *create_button_events(self.CS.lkas_enabled, self.CS.lkas_previously_enabled, {1: FrogPilotButtonType.lkas}),
+    ]
+
     ret.events = self.create_common_events(ret).to_msg()
 
     return ret, fp_ret
