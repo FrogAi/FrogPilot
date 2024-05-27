@@ -154,6 +154,7 @@ private:
   bool showAlwaysOnLateralStatusBar;
   bool showConditionalExperimentalStatusBar;
   bool showSLCOffset;
+  bool slcOverridden;
   bool speedLimitController;
   bool trafficModeActive;
   bool useViennaSLCSign;

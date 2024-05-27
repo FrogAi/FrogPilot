@@ -241,6 +241,8 @@ static void update_state(UIState *s) {
     scene.adjusted_cruise = frogpilotPlan.getAdjustedCruise();
     scene.speed_limit = frogpilotPlan.getSlcSpeedLimit();
     scene.speed_limit_offset = frogpilotPlan.getSlcSpeedLimitOffset();
+    scene.speed_limit_overridden = frogpilotPlan.getSlcOverridden();
+    scene.speed_limit_overridden_speed = frogpilotPlan.getSlcOverriddenSpeed();
     scene.unconfirmed_speed_limit = frogpilotPlan.getUnconfirmedSlcSpeedLimit();
   }
   if (sm.updated("liveLocationKalman")) {
