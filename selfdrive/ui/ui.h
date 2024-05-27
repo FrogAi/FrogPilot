@@ -134,6 +134,7 @@ typedef struct UIScene {
   bool conditional_experimental;
   bool disable_smoothing_mtsc;
   bool disable_smoothing_vtsc;
+  bool driver_camera;
   bool dynamic_path_width;
   bool dynamic_pedals_on_ui;
   bool enabled;
@@ -232,6 +233,7 @@ typedef struct UIScene {
   int custom_icons;
   int custom_signals;
   int desired_follow;
+  int driver_camera_timer;
   int lead_distance;
   int model_length;
   int obstacle_distance;
