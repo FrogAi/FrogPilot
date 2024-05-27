@@ -263,6 +263,11 @@ void ui_update_frogpilot_params(UIState *s) {
 
   bool always_on_lateral = params.getBool("AlwaysOnLateral");
   scene.show_aol_status_bar = always_on_lateral && !params.getBool("HideAOLStatusBar");
+
+  scene.conditional_experimental = scene.longitudinal_control && params.getBool("ConditionalExperimental");
+  scene.conditional_speed = scene.conditional_experimental ? params.getInt("CESpeed") : 0;
+  scene.conditional_speed_lead = scene.conditional_experimental ? params.getInt("CESpeedLead") : 0;
+  scene.show_cem_status_bar = scene.conditional_experimental && !params.getBool("HideCEMStatusBar");
 }
 
 void UIState::updateStatus() {
@@ -332,6 +337,7 @@ void UIState::update() {
   }
 
   // FrogPilot live variables that need to be constantly checked
+  scene.conditional_status = scene.conditional_experimental && scene.enabled ? paramsMemory.getInt("CEStatus") : 0;
 }
 
 void UIState::setPrimeType(PrimeType type) {

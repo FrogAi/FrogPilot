@@ -122,12 +122,14 @@ private:
   bool experimentalMode;
   bool mapOpen;
   bool showAlwaysOnLateralStatusBar;
+  bool showConditionalExperimentalStatusBar;
 
   float accelerationConversion;
   float distanceConversion;
   float speedConversion;
 
   int alertSize;
+  int conditionalStatus;
 
   QString accelerationUnit;
   QString leadDistanceUnit;

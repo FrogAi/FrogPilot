@@ -183,6 +183,7 @@ typedef struct UIScene {
 
   // FrogPilot variables
   bool always_on_lateral_active;
+  bool conditional_experimental;
   bool enabled;
   bool experimental_mode;
   bool map_open;
@@ -190,9 +191,13 @@ typedef struct UIScene {
   bool parked;
   bool right_hand_drive;
   bool show_aol_status_bar;
+  bool show_cem_status_bar;
   bool tethering_enabled;
 
   int alert_size;
+  int conditional_speed;
+  int conditional_speed_lead;
+  int conditional_status;
 
 } UIScene;
 
