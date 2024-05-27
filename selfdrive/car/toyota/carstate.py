@@ -24,6 +24,8 @@ TEMP_STEER_FAULTS = (0, 9, 11, 21, 25)
 # - prolonged high driver torque: 17 (permanent)
 PERM_STEER_FAULTS = (3, 17)
 
+ZSS_THRESHOLD = 4.0
+ZSS_THRESHOLD_COUNT = 10
 
 class CarState(CarStateBase):
   def __init__(self, CP):
@@ -48,6 +50,13 @@ class CarState(CarStateBase):
     self.low_speed_lockout = False
     self.acc_type = 1
     self.lkas_hud = {}
+
+    # FrogPilot variables
+    self.zss_compute = False
+    self.zss_cruise_active_last = False
+
+    self.zss_angle_offset = 0
+    self.zss_threshold_count = 0
 
   def update(self, cp, cp_cam, frogpilot_variables):
     ret = car.CarState.new_message()
@@ -180,6 +189,33 @@ class CarState(CarStateBase):
       else:
         self.distance_button = cp.vl["SDSU"]["FD_BUTTON"]
 
+    # FrogPilot carstate functions
+
+    # ZSS Support - Credit goes to the DragonPilot team!
+    if self.CP.flags & ToyotaFlags.ZSS and self.zss_threshold_count < ZSS_THRESHOLD_COUNT:
+      zorro_steer = cp.vl["SECONDARY_STEER_ANGLE"]["ZORRO_STEER"]
+
+      # Only compute ZSS offset when acc is active
+      zss_cruise_active = ret.cruiseState.available
+      if zss_cruise_active and not self.zss_cruise_active_last:
+        self.zss_compute = True  # Cruise was just activated, so allow offset to be recomputed
+        self.zss_threshold_count = 0
+      self.zss_cruise_active_last = zss_cruise_active
+
+      # Compute ZSS offset
+      if self.zss_compute:
+        if abs(ret.steeringAngleDeg) > 1e-3 and abs(zorro_steer) > 1e-3:
+          self.zss_compute = False
+          self.zss_angle_offset = zorro_steer - ret.steeringAngleDeg
+
+      # Error check
+      new_steering_angle_deg = zorro_steer - self.zss_angle_offset
+      if abs(ret.steeringAngleDeg - new_steering_angle_deg) > ZSS_THRESHOLD:
+        self.zss_threshold_count += 1
+      else:
+        # Apply offset
+        ret.steeringAngleDeg = new_steering_angle_deg
+
     return ret, fp_ret
 
   @staticmethod
@@ -234,6 +270,8 @@ class CarState(CarStateBase):
       messages += [
         ("SDSU", 100),
       ]
+
+    messages += [("SECONDARY_STEER_ANGLE", 0)]
 
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, 0)
 

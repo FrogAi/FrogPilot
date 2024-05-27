@@ -59,6 +59,8 @@ class ToyotaFlags(IntFlag):
   # these cars are speculated to allow stop and go when the DSU is unplugged or disabled with sDSU
   SNG_WITHOUT_DSU = 512
 
+  # FrogPilot Toyota flags
+  ZSS = 2048
 
 class Footnote(Enum):
   CAMRY = CarFootnote(
