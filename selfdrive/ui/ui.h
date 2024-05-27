@@ -188,6 +188,7 @@ typedef struct UIScene {
   // FrogPilot variables
   bool always_on_lateral_active;
   bool conditional_experimental;
+  bool disable_smoothing_mtsc;
   bool enabled;
   bool experimental_mode;
   bool experimental_mode_via_screen;
@@ -202,6 +203,8 @@ typedef struct UIScene {
   bool traffic_mode;
   bool traffic_mode_active;
   bool use_kaofui_icons;
+
+  float adjusted_cruise;
 
   int alert_size;
   int conditional_speed;
