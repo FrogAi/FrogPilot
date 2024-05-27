@@ -195,7 +195,13 @@ void TogglesPanel::updateToggles() {
     op_long_toggle->setVisible(CP.getExperimentalLongitudinalAvailable() && !is_release);
     if (hasLongitudinalControl(CP)) {
       // normal description and toggle
-      experimental_mode_toggle->setEnabled(true);
+      bool conditional_experimental = params.getBool("ConditionalExperimental");
+      if (conditional_experimental) {
+        params.putBool("ExperimentalMode", true);
+        params.putBool("ExperimentalModeConfirmed", true);
+        experimental_mode_toggle->refresh();
+      }
+      experimental_mode_toggle->setEnabled(!conditional_experimental);
       experimental_mode_toggle->setDescription(e2e_description);
       long_personality_setting->setEnabled(true);
     } else {
