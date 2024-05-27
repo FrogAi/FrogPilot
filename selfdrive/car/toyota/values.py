@@ -60,6 +60,7 @@ class ToyotaFlags(IntFlag):
   SNG_WITHOUT_DSU = 512
 
   # FrogPilot Toyota flags
+  DSU_BYPASS = 1024
   ZSS = 2048
 
 class Footnote(Enum):
