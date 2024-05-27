@@ -46,7 +46,7 @@ class DesireHelper:
   def update(self, carstate, lateral_active, lane_change_prob, frogpilotPlan, frogpilot_toggles):
     v_ego = carstate.vEgo
     one_blinker = carstate.leftBlinker != carstate.rightBlinker
-    below_lane_change_speed = v_ego < LANE_CHANGE_SPEED_MIN
+    below_lane_change_speed = v_ego < frogpilot_toggles.minimum_lane_change_speed
 
     if not (frogpilot_toggles.lane_detection and one_blinker) or below_lane_change_speed:
       lane_available = True
