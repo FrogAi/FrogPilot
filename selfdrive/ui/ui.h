@@ -199,6 +199,7 @@ typedef struct UIScene {
   bool conditional_experimental;
   bool disable_smoothing_mtsc;
   bool disable_smoothing_vtsc;
+  bool driver_camera;
   bool dynamic_path_width;
   bool dynamic_pedals_on_ui;
   bool enabled;
@@ -226,6 +227,7 @@ typedef struct UIScene {
   bool parked;
   bool pedals_on_ui;
   bool random_events;
+  bool reverse;
   bool reverse_cruise;
   bool reverse_cruise_ui;
   bool right_hand_drive;
@@ -291,6 +293,7 @@ typedef struct UIScene {
   int custom_icons;
   int custom_signals;
   int desired_follow;
+  int driver_camera_timer;
   int obstacle_distance;
   int obstacle_distance_stock;
   int steering_angle_deg;
