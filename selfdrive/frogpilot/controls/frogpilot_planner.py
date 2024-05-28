@@ -58,6 +58,7 @@ class FrogPilotPlanner:
     self.lead_one = Lead()
     self.mtsc = MapTurnSpeedController()
 
+    self.lead_departing = False
     self.override_slc = False
     self.slower_lead = False
 
@@ -65,6 +66,7 @@ class FrogPilotPlanner:
     self.frame = 0
     self.mtsc_target = 0
     self.overridden_speed = 0
+    self.previous_lead_distance = 0
     self.road_curvature = 0
     self.slc_target = 0
     self.speed_jerk = 0
@@ -153,6 +155,14 @@ class FrogPilotPlanner:
     else:
       self.acceleration_jerk = self.base_acceleration_jerk
       self.speed_jerk = self.base_speed_jerk
+
+    if self.frame % 10 == 0:
+      self.lead_departing = lead_distance - self.previous_lead_distance > 0.5 and self.previous_lead_distance != 0 and carState.standstill
+      self.previous_lead_distance = lead_distance
+
+      self.lead_departing &= not carState.gasPressed
+      self.lead_departing &= v_lead > 1
+      self.lead_departing &= carState.gearShifter not in (GearShifter.neutral, GearShifter.park, GearShifter.reverse, GearShifter.unknown)
 
     self.road_curvature = calculate_road_curvature(modelData, v_ego)
     self.v_cruise = self.update_v_cruise(carState, controlsState, frogpilotCarState, frogpilotNavigation, liveLocationKalman, modelData, v_cruise, v_ego, frogpilot_toggles)
@@ -266,6 +276,8 @@ class FrogPilotPlanner:
 
     frogpilotPlan.conditionalExperimental = self.cem.experimental_mode
     frogpilotPlan.redLight = self.cem.red_light_detected
+
+    frogpilotPlan.leadDeparting = self.lead_departing
 
     frogpilotPlan.maxAcceleration = self.max_accel
     frogpilotPlan.minAcceleration = self.min_accel
