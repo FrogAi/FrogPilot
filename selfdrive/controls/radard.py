@@ -195,6 +195,8 @@ def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capn
 
 class RadarD:
   def __init__(self, radar_ts: float, delay: int = 0):
+    self.points: dict[int, tuple[float, float, float]] = {}
+
     self.current_time = 0.0
 
     self.tracks: dict[int, Track] = {}
@@ -206,6 +208,7 @@ class RadarD:
 
     self.radar_state: capnp._DynamicStructBuilder | None = None
     self.radar_state_valid = False
+    self.radar_tracks_valid = False
 
     self.ready = False
 
@@ -289,6 +292,31 @@ class RadarD:
       }
     pm.send('liveTracks', tracks_msg)
 
+  def update_radardless(self, rr: Optional[car.RadarData]):
+    radar_points = []
+    radar_errors = []
+    if rr is not None:
+      radar_points = rr.points
+      radar_errors = rr.errors
+
+    self.radar_tracks_valid = len(radar_errors) == 0
+
+    self.points = {}
+    for pt in radar_points:
+      self.points[pt.trackId] = (pt.dRel, pt.yRel, pt.vRel)
+
+  def publish_radardless(self):
+    tracks_msg = messaging.new_message('liveTracks', len(self.points))
+    tracks_msg.valid = self.radar_tracks_valid
+    for index, tid in enumerate(sorted(self.points.keys())):
+      tracks_msg.liveTracks[index] = {
+        "trackId": tid,
+        "dRel": float(self.points[tid][0]) + RADAR_TO_CAMERA,
+        "yRel": -float(self.points[tid][1]),
+        "vRel": float(self.points[tid][2]),
+      }
+
+    return tracks_msg
 
 # fuses camera and radar data for best lead detection
 def main():
@@ -306,26 +334,41 @@ def main():
 
   # *** setup messaging
   can_sock = messaging.sub_sock('can')
-  sm = messaging.SubMaster(['modelV2', 'carState'], frequency=int(1./DT_CTRL))
-  pm = messaging.PubMaster(['radarState', 'liveTracks'])
+  pub_sock = messaging.pub_sock('liveTracks')
 
   RI = RadarInterface(CP)
 
+  # TODO timing is different between cars, need a single time step for all cars
+  # TODO just take the fastest one for now, and keep resending same messages for slower radars
   rk = Ratekeeper(1.0 / CP.radarTimeStep, print_delay_threshold=None)
   RD = RadarD(CP.radarTimeStep, RI.delay)
 
-  while 1:
-    can_strings = messaging.drain_sock_raw(can_sock, wait_for_one=True)
-    rr = RI.update(can_strings)
-    sm.update(0)
-    if rr is None:
-      continue
+  if not FrogPilotVariables.toggles.radarless_model:
+    sm = messaging.SubMaster(['modelV2', 'carState'], frequency=int(1./DT_CTRL))
+    pm = messaging.PubMaster(['radarState', 'liveTracks'])
 
-    RD.update(sm, rr)
-    RD.publish(pm, -rk.remaining*1000.0)
+    while True:
+      can_strings = messaging.drain_sock_raw(can_sock, wait_for_one=True)
+      rr = RI.update(can_strings)
+      sm.update(0)
+      if rr is None:
+        continue
 
-    rk.monitor_time()
+      RD.update(sm, rr)
+      RD.publish(pm, -rk.remaining*1000.0)
+      rk.monitor_time()
+  else:
+    while True:
+      can_strings = messaging.drain_sock_raw(can_sock, wait_for_one=True)
+      rr = RI.update(can_strings)
+      if rr is None:
+        continue
 
+      RD.update_radardless(rr)
+      msg = RD.publish_radardless()
+      pub_sock.send(msg.to_bytes())
+
+      rk.monitor_time()
 
 if __name__ == "__main__":
   main()

@@ -25,6 +25,7 @@ from openpilot.system.version import is_dirty, get_commit, get_version, get_orig
                            is_tested_branch, is_release_branch, get_commit_date
 
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import FrogPilotFunctions
+from openpilot.selfdrive.frogpilot.controls.lib.model_manager import DEFAULT_MODEL, DEFAULT_MODEL_NAME, delete_deprecated_models
 
 
 def frogpilot_boot_functions(frogpilot_functions):
@@ -32,6 +33,12 @@ def frogpilot_boot_functions(frogpilot_functions):
     while not system_time_valid():
       print("Waiting for system time to become valid...")
       time.sleep(1)
+
+    try:
+      delete_deprecated_models()
+    except subprocess.CalledProcessError as e:
+      print(f"Failed to delete deprecated models. Error: {e}")
+      return
 
     try:
       frogpilot_functions.backup_frogpilot()

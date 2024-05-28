@@ -8,7 +8,6 @@ from openpilot.common.swaglog import cloudlog
 # WARNING: imports outside of constants will not trigger a rebuild
 from openpilot.selfdrive.modeld.constants import index_function
 from openpilot.selfdrive.car.interfaces import ACCEL_MIN
-from openpilot.selfdrive.controls.radard import _LEAD_ACCEL_TAU
 
 if __name__ == '__main__':  # generating code
   from openpilot.third_party.acados.acados_template import AcadosModel, AcadosOcp, AcadosOcpSolver
@@ -44,6 +43,8 @@ CRASH_DISTANCE = .25
 LEAD_DANGER_FACTOR = 0.75
 LIMIT_COST = 1e6
 ACADOS_SOLVER_TYPE = 'SQP_RTI'
+# Default lead acceleration decay set to 50% at 1s
+LEAD_ACCEL_TAU = 1.5
 
 
 # Fewer timestamps don't hurt performance and lead to
@@ -335,7 +336,7 @@ class LongitudinalMpc:
       x_lead = 50.0
       v_lead = v_ego + 10.0
       a_lead = 0.0
-      a_lead_tau = _LEAD_ACCEL_TAU
+      a_lead_tau = LEAD_ACCEL_TAU
 
     # MPC will not converge if immediate crash is expected
     # Clip lead distance to what is still possible to brake for
@@ -352,13 +353,13 @@ class LongitudinalMpc:
     self.cruise_min_a = min_a
     self.max_a = max_a
 
-  def update(self, radarstate, v_cruise, x, v, a, j, t_follow, trafficModeActive, frogpilot_toggles, personality=log.LongitudinalPersonality.standard):
+  def update(self, lead_one, lead_two, v_cruise, x, v, a, j, t_follow, trafficModeActive, frogpilot_toggles, personality=log.LongitudinalPersonality.standard):
     v_ego = self.x0[1]
-    self.status = radarstate.leadOne.status or radarstate.leadTwo.status
+    self.status = lead_one.status or lead_two.status
     increased_distance = frogpilot_toggles.increased_stopping_distance + min(CITY_SPEED_LIMIT - v_ego, 0) if not trafficModeActive else 0
 
-    lead_xv_0 = self.process_lead(radarstate.leadOne, increased_distance)
-    lead_xv_1 = self.process_lead(radarstate.leadTwo)
+    lead_xv_0 = self.process_lead(lead_one, increased_distance)
+    lead_xv_1 = self.process_lead(lead_two)
 
     # To estimate a safe distance from a moving lead, we calculate how much stopping
     # distance that lead needs as a minimum. We can add that to the current distance
@@ -417,8 +418,8 @@ class LongitudinalMpc:
     self.params[:,4] = t_follow
 
     self.run()
-    if (np.any(lead_xv_0[FCW_IDXS,0] - self.x_sol[FCW_IDXS,0] < CRASH_DISTANCE) and
-            radarstate.leadOne.modelProb > 0.9):
+    lead_probability = lead_one.prob if frogpilot_toggles.radarless_model else lead_one.modelProb
+    if (np.any(lead_xv_0[FCW_IDXS,0] - self.x_sol[FCW_IDXS,0] < CRASH_DISTANCE) and lead_probability > 0.9):
       self.crash_cnt += 1
     else:
       self.crash_cnt = 0

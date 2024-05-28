@@ -14,6 +14,7 @@ from openpilot.system.hardware import HARDWARE
 from openpilot.system.version import get_short_branch, get_commit_date
 
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import PROBABILITY, THRESHOLD
+from openpilot.selfdrive.frogpilot.controls.lib.model_manager import MODELS_PATH
 
 def calculate_lane_width(lane, current_lane, road_edge):
   lane_x, lane_y = np.array(lane.x), np.array(lane.y)
@@ -176,6 +177,7 @@ class FrogPilotFunctions:
     remount_persist = ['sudo', 'mount', '-o', 'remount,rw', '/persist']
     cls.run_cmd(remount_persist, "Successfully remounted /persist as read-write.", "Failed to remount /persist.")
 
+    os.makedirs(MODELS_PATH, exist_ok=True)
     os.makedirs("/persist/params", exist_ok=True)
 
     frogpilot_boot_logo = f'{BASEDIR}/selfdrive/frogpilot/assets/other_images/frogpilot_boot_logo.png'

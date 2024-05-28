@@ -25,12 +25,18 @@ from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.selfdrive.modeld.models.commonmodel_pyx import ModelFrame, CLContext
 
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import FrogPilotVariables
+from openpilot.selfdrive.frogpilot.controls.lib.model_manager import DEFAULT_MODEL, MODELS_PATH, NAVIGATION_MODELS, RADARLESS_MODELS
 
 PROCESS_NAME = "selfdrive.modeld.modeld"
 SEND_RAW_PRED = os.getenv('SEND_RAW_PRED')
 
+MODEL_NAME = Params().get("Model", block=True, encoding='utf-8')
+
+DISABLE_NAV = MODEL_NAME not in NAVIGATION_MODELS
+DISABLE_RADAR = MODEL_NAME in RADARLESS_MODELS
+
 MODEL_PATHS = {
-  ModelRunner.THNEED: Path(__file__).parent / 'models/supercombo.thneed',
+  ModelRunner.THNEED: Path(__file__).parent / ('models/supercombo.thneed' if MODEL_NAME == DEFAULT_MODEL else f'{MODELS_PATH}/{MODEL_NAME}.thneed'),
   ModelRunner.ONNX: Path(__file__).parent / 'models/supercombo.onnx'}
 
 METADATA_PATH = Path(__file__).parent / 'models/supercombo_metadata.pkl'
@@ -61,9 +67,10 @@ class ModelState:
       'traffic_convention': np.zeros(ModelConstants.TRAFFIC_CONVENTION_LEN, dtype=np.float32),
       'lateral_control_params': np.zeros(ModelConstants.LATERAL_CONTROL_PARAMS_LEN, dtype=np.float32),
       'prev_desired_curv': np.zeros(ModelConstants.PREV_DESIRED_CURV_LEN * (ModelConstants.HISTORY_BUFFER_LEN+1), dtype=np.float32),
-      'nav_features': np.zeros(ModelConstants.NAV_FEATURE_LEN, dtype=np.float32),
-      'nav_instructions': np.zeros(ModelConstants.NAV_INSTRUCTION_LEN, dtype=np.float32),
+      **({'nav_features': np.zeros(ModelConstants.NAV_FEATURE_LEN, dtype=np.float32),
+          'nav_instructions': np.zeros(ModelConstants.NAV_INSTRUCTION_LEN, dtype=np.float32)} if not DISABLE_NAV else {}),
       'features_buffer': np.zeros(ModelConstants.HISTORY_BUFFER_LEN * ModelConstants.FEATURE_LEN, dtype=np.float32),
+      **({'radar_tracks': np.zeros(ModelConstants.RADAR_TRACKS_LEN * ModelConstants.RADAR_TRACKS_WIDTH, dtype=np.float32)} if DISABLE_RADAR else {}),
     }
 
     with open(METADATA_PATH, 'rb') as f:
@@ -96,8 +103,11 @@ class ModelState:
 
     self.inputs['traffic_convention'][:] = inputs['traffic_convention']
     self.inputs['lateral_control_params'][:] = inputs['lateral_control_params']
-    self.inputs['nav_features'][:] = inputs['nav_features']
-    self.inputs['nav_instructions'][:] = inputs['nav_instructions']
+    if not DISABLE_NAV:
+      self.inputs['nav_features'][:] = inputs['nav_features']
+      self.inputs['nav_instructions'][:] = inputs['nav_instructions']
+    if DISABLE_RADAR:
+      self.inputs['radar_tracks'][:] = inputs['radar_tracks']
 
     # if getCLBuffer is not None, frame will be None
     self.model.setInputBuffer("input_imgs", self.frame.prepare(buf, transform.flatten(), self.model.getCLBuffer("input_imgs")))
@@ -156,7 +166,7 @@ def main(demo=False, frogpilot_toggles=None):
 
   # messaging
   pm = PubMaster(["modelV2", "cameraOdometry"])
-  sm = SubMaster(["deviceState", "carState", "roadCameraState", "liveCalibration", "driverMonitoringState", "navModel", "navInstruction", "carControl", "frogpilotPlan"])
+  sm = SubMaster(["deviceState", "carState", "roadCameraState", "liveCalibration", "driverMonitoringState", "navModel", "navInstruction", "carControl", "liveTracks", "frogpilotPlan"])
 
   publish_state = PublishState()
   params = Params()
@@ -245,7 +255,7 @@ def main(demo=False, frogpilot_toggles=None):
     # Enable/disable nav features
     timestamp_llk = sm["navModel"].locationMonoTime
     nav_valid = sm.valid["navModel"] # and (nanos_since_boot() - timestamp_llk < 1e9)
-    nav_enabled = nav_valid and params.get_bool("ExperimentalMode")
+    nav_enabled = nav_valid and not DISABLE_NAV
 
     if not nav_enabled:
       nav_features[:] = 0
@@ -266,6 +276,14 @@ def main(demo=False, frogpilot_toggles=None):
         if 0 <= distance_idx < 50:
           nav_instructions[distance_idx*3 + direction_idx] = 1
 
+    radar_tracks = np.zeros(ModelConstants.RADAR_TRACKS_LEN * ModelConstants.RADAR_TRACKS_WIDTH, dtype=np.float32)
+    if sm.updated["liveTracks"]:
+      for i, track in enumerate(sm["liveTracks"]):
+        if i >= ModelConstants.RADAR_TRACKS_LEN:
+          break
+        vec_index = i * ModelConstants.RADAR_TRACKS_WIDTH
+        radar_tracks[vec_index:vec_index+ModelConstants.RADAR_TRACKS_WIDTH] = [track.dRel, track.yRel, track.vRel]
+
     # tracked dropped frames
     vipc_dropped_frames = max(0, meta_main.frame_id - last_vipc_frame_id - 1)
     frames_dropped = frame_dropped_filter.update(min(vipc_dropped_frames, 10))
@@ -283,8 +301,9 @@ def main(demo=False, frogpilot_toggles=None):
       'desire': vec_desire,
       'traffic_convention': traffic_convention,
       'lateral_control_params': lateral_control_params,
-      'nav_features': nav_features,
-      'nav_instructions': nav_instructions}
+      **({'nav_features': nav_features, 'nav_instructions': nav_instructions} if not DISABLE_NAV else {}),
+      **({'radar_tracks': radar_tracks,} if DISABLE_RADAR else {}),
+    }
 
     mt1 = time.perf_counter()
     model_output = model.run(buf_main, buf_extra, model_transform_main, model_transform_extra, inputs, prepare_only)
