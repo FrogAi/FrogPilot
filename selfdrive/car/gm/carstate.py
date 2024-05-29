@@ -172,6 +172,8 @@ class CarState(CarStateBase):
     # FrogPilot carstate functions
     fp_ret.hasCamera = not (self.CP.flags & GMFlags.NO_CAMERA.value) and self.CP.carFingerprint not in CC_ONLY_CAR
 
+    fp_ret.sportGear = pt_cp.vl["SportMode"]["SportMode"] == 1
+
     self.lkas_previously_enabled = self.lkas_enabled
     if self.CP.carFingerprint in SDGM_CAR:
       self.lkas_enabled = cam_cp.vl["ASCMSteeringButton"]["LKAButton"]
@@ -217,6 +219,7 @@ class CarState(CarStateBase):
       ("EBCMFrictionBrakeStatus", 20),
       ("PSCMSteeringAngle", 100),
       ("ECMAcceleratorPos", 80),
+      ("SportMode", 0),
     ]
 
     if CP.carFingerprint in SDGM_CAR:

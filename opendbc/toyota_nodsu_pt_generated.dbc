@@ -246,6 +246,7 @@ BO_ 956 GEAR_PACKET: 8 XXX
  SG_ SPORT_GEAR_ON : 33|1@0+ (1,0) [0|1] "" XXX
  SG_ SPORT_GEAR : 38|3@0+ (1,0) [0|7] "" XXX
  SG_ ECON_ON : 40|1@0+ (1,0) [0|1] "" XXX
+ SG_ SPORT_ON_2 : 55|1@0+ (1,0) [0|1] "" XXX
  SG_ B_GEAR_ENGAGED : 41|1@0+ (1,0) [0|1] "" XXX
  SG_ DRIVE_ENGAGED : 47|1@0+ (1,0) [0|1] "" XXX
 
@@ -528,6 +529,7 @@ VAL_ 956 GEAR 0 "D" 1 "S" 8 "N" 16 "R" 32 "P";
 VAL_ 956 SPORT_GEAR_ON 0 "off" 1 "on";
 VAL_ 956 SPORT_GEAR 1 "S1" 2 "S2" 3 "S3" 4 "S4" 5 "S5" 6 "S6";
 VAL_ 956 ECON_ON 0 "off" 1 "on";
+VAL_ 956 SPORT_ON_2 0 "off" 1 "on";
 VAL_ 956 B_GEAR_ENGAGED 0 "off" 1 "on";
 VAL_ 956 DRIVE_ENGAGED 0 "off" 1 "on";
 VAL_ 1005 REVERSE_CAMERA_GUIDELINES 3 "No guidelines" 2 "Static guidelines" 1 "Active guidelines";
