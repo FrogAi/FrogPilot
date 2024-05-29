@@ -290,9 +290,15 @@ class Controls:
         self.events.add(EventName.laneChangeBlocked)
       else:
         if direction == LaneChangeDirection.left:
-          self.events.add(EventName.preLaneChangeLeft)
+          if self.sm['frogpilotPlan'].laneWidthLeft >= self.frogpilot_toggles.lane_detection_width:
+            self.events.add(EventName.preLaneChangeLeft)
+          else:
+            self.events.add(EventName.noLaneAvailable)
         else:
-          self.events.add(EventName.preLaneChangeRight)
+          if self.sm['frogpilotPlan'].laneWidthRight >= self.frogpilot_toggles.lane_detection_width:
+            self.events.add(EventName.preLaneChangeRight)
+          else:
+            self.events.add(EventName.noLaneAvailable)
     elif self.sm['modelV2'].meta.laneChangeState in (LaneChangeState.laneChangeStarting,
                                                     LaneChangeState.laneChangeFinishing):
       self.events.add(EventName.laneChange)

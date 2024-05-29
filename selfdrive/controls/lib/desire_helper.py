@@ -48,6 +48,12 @@ class DesireHelper:
     one_blinker = carstate.leftBlinker != carstate.rightBlinker
     below_lane_change_speed = v_ego < LANE_CHANGE_SPEED_MIN
 
+    if not (frogpilot_toggles.lane_detection and one_blinker) or below_lane_change_speed:
+      lane_available = True
+    else:
+      desired_lane = frogpilotPlan.laneWidthLeft if carstate.leftBlinker else frogpilotPlan.laneWidthRight
+      lane_available = desired_lane >= frogpilot_toggles.lane_detection_width
+
     if not lateral_active or self.lane_change_timer > LANE_CHANGE_TIME_MAX:
       self.lane_change_state = LaneChangeState.off
       self.lane_change_direction = LaneChangeDirection.none
@@ -79,7 +85,7 @@ class DesireHelper:
         if not one_blinker or below_lane_change_speed:
           self.lane_change_state = LaneChangeState.off
           self.lane_change_direction = LaneChangeDirection.none
-        elif torque_applied and not blindspot_detected and self.lane_change_wait_timer >= frogpilot_toggles.lane_change_delay:
+        elif torque_applied and not blindspot_detected and lane_available and self.lane_change_wait_timer >= frogpilot_toggles.lane_change_delay:
           self.lane_change_state = LaneChangeState.laneChangeStarting
           self.lane_change_wait_timer = 0.0
 
