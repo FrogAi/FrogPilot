@@ -24,7 +24,19 @@ from openpilot.system.version import is_dirty, get_commit, get_version, get_orig
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import FrogPilotFunctions
 
 
-def manager_init() -> None:
+def frogpilot_boot_functions(frogpilot_functions):
+  try:
+    while not system_time_valid():
+      print("Waiting for system time to become valid...")
+      time.sleep(1)
+
+  except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+
+def manager_init(frogpilot_functions) -> None:
+  frogpilot_boot = threading.Thread(target=frogpilot_boot_functions, args=(frogpilot_functions,))
+  frogpilot_boot.start()
+
   save_bootlog()
 
   params = Params()
@@ -33,6 +45,8 @@ def manager_init() -> None:
   params.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
   if is_release_branch():
     params.clear_all(ParamKeyType.DEVELOPMENT_ONLY)
+
+  frogpilot_functions.convert_params(params, params_storage)
 
   default_params: list[tuple[str, str | bytes]] = [
     ("CompletedTrainingVersion", "0"),
@@ -180,7 +194,7 @@ def manager_thread() -> None:
 def main(frogpilot_functions) -> None:
   frogpilot_functions.setup_frogpilot()
 
-  manager_init()
+  manager_init(frogpilot_functions)
   if os.getenv("PREPAREONLY") is not None:
     return
 
