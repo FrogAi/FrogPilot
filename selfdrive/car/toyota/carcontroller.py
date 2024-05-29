@@ -76,6 +76,14 @@ class CarController(CarControllerBase):
         # EPS uses the torque sensor angle to control with, offset to compensate
         apply_angle = actuators.steeringAngleDeg + CS.out.steeringAngleOffsetDeg
 
+        # PFEIFER - TSH {{
+        # Ignore limits while overriding, this prevents pull when releasing the wheel. This will cause messages to be
+        # blocked by panda safety, usually while the driver is overriding and limited to at most 1 message while the
+        # driver is not overriding.
+        if CS.out.steeringPressed:
+          self.last_angle = apply_angle
+        # }} PFEIFER - TSH
+
         # Angular rate limit based on speed
         apply_angle = apply_std_steer_angle_limits(apply_angle, self.last_angle, CS.out.vEgoRaw, self.params)
 
