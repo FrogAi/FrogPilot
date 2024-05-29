@@ -43,6 +43,9 @@ const CanMsg GM_CAM_TX_MSGS[] = {{0x180, 0, 4}, {0x200, 0, 6}, {0x1E1, 0, 7},  /
 const CanMsg GM_CAM_LONG_TX_MSGS[] = {{0x180, 0, 4}, {0x315, 0, 5}, {0x2CB, 0, 8}, {0x370, 0, 6}, {0x200, 0, 6},  // pt bus
                                       {0x1E1, 2, 7}, {0x184, 2, 8}};  // camera bus
 
+const CanMsg GM_SDGM_TX_MSGS[] = {{0x180, 0, 4}, {0x1E1, 0, 7},  // pt bus
+                                  {0x184, 2, 8}};  // camera bus
+
 const CanMsg GM_CC_LONG_TX_MSGS[] = {{0x180, 0, 4}, {0x1E1, 0, 7},  // pt bus
                                      {0x184, 2, 8}, {0x1E1, 2, 7}};  // camera bus
 
@@ -50,18 +53,21 @@ const CanMsg GM_CC_LONG_TX_MSGS[] = {{0x180, 0, 4}, {0x1E1, 0, 7},  // pt bus
 RxCheck gm_rx_checks[] = {
   {.msg = {{0x184, 0, 8, .frequency = 10U}, { 0 }, { 0 }}},
   {.msg = {{0x34A, 0, 5, .frequency = 10U}, { 0 }, { 0 }}},
-  {.msg = {{0x1E1, 0, 7, .frequency = 10U}, { 0 }, { 0 }}},
-  {.msg = {{0xF1, 0, 6, .frequency = 10U}, { 0 }, { 0 }}},
+  {.msg = {{0x1E1, 0, 7, .frequency = 10U},   // Non-SDGM Car
+           {0x1E1, 2, 7, .frequency = 100000U}}}, // SDGM Car
+  {.msg = {{0xF1, 0, 6, .frequency = 10U},   // Non-SDGM Car
+           {0xF1, 2, 6, .frequency = 100000U}}}, // SDGM Car
   {.msg = {{0x1C4, 0, 8, .frequency = 10U}, { 0 }, { 0 }}},
   {.msg = {{0xC9, 0, 8, .frequency = 10U}, { 0 }, { 0 }}},
 };
 
 const uint16_t GM_PARAM_HW_CAM = 1;
 const uint16_t GM_PARAM_HW_CAM_LONG = 2;
-const uint16_t GM_PARAM_CC_LONG = 4;
-const uint16_t GM_PARAM_HW_ASCM_LONG = 8;
-const uint16_t GM_PARAM_NO_CAMERA = 16;
-const uint16_t GM_PARAM_NO_ACC = 32;
+const uint16_t GM_PARAM_HW_SDGM = 4;
+const uint16_t GM_PARAM_CC_LONG = 8;
+const uint16_t GM_PARAM_HW_ASCM_LONG = 16;
+const uint16_t GM_PARAM_NO_CAMERA = 32;
+const uint16_t GM_PARAM_NO_ACC = 64;
 const uint16_t GM_PARAM_PEDAL_LONG = 128;  // TODO: this can be inferred
 const uint16_t GM_PARAM_PEDAL_INTERCEPTOR = 256;
 
@@ -72,7 +78,12 @@ enum {
   GM_BTN_CANCEL = 6,
 };
 
-enum {GM_ASCM, GM_CAM} gm_hw = GM_ASCM;
+typedef enum {
+  GM_ASCM,
+  GM_CAM,
+  GM_SDGM
+} GmHardware;
+GmHardware gm_hw = GM_ASCM;
 bool gm_cam_long = false;
 bool gm_pcm_cruise = false;
 bool gm_has_acc = true;
@@ -81,7 +92,29 @@ bool gm_cc_long = false;
 bool gm_skip_relay_check = false;
 bool gm_force_ascm = false;
 
+static void handle_gm_wheel_buttons(const CANPacket_t *to_push) {
+  int button = (GET_BYTE(to_push, 5) & 0x70U) >> 4;
+
+  // enter controls on falling edge of set or rising edge of resume (avoids fault)
+  bool set = (button != GM_BTN_SET) && (cruise_button_prev == GM_BTN_SET);
+  bool res = (button == GM_BTN_RESUME) && (cruise_button_prev != GM_BTN_RESUME);
+  if (set || res) {
+    controls_allowed = true;
+  }
+
+  // exit controls on cancel press
+  if (button == GM_BTN_CANCEL) {
+    controls_allowed = false;
+  }
+
+  cruise_button_prev = button;
+}
+
 static void gm_rx_hook(const CANPacket_t *to_push) {
+  if ((GET_BUS(to_push) == 2U) && (GET_ADDR(to_push) == 0x1E1) && (gm_hw == GM_SDGM)) {
+    // SDGM buttons are on bus 2
+    handle_gm_wheel_buttons(to_push);
+  }
   if (GET_BUS(to_push) == 0U) {
     int addr = GET_ADDR(to_push);
 
@@ -99,23 +132,9 @@ static void gm_rx_hook(const CANPacket_t *to_push) {
       vehicle_moving = (left_rear_speed > GM_STANDSTILL_THRSLD) || (right_rear_speed > GM_STANDSTILL_THRSLD);
     }
 
-    // ACC steering wheel buttons (GM_CAM is tied to the PCM)
-    if ((addr == 0x1E1) && (!gm_pcm_cruise || gm_cc_long)) {
-      int button = (GET_BYTE(to_push, 5) & 0x70U) >> 4;
-
-      // enter controls on falling edge of set or rising edge of resume (avoids fault)
-      bool set = (button != GM_BTN_SET) && (cruise_button_prev == GM_BTN_SET);
-      bool res = (button == GM_BTN_RESUME) && (cruise_button_prev != GM_BTN_RESUME);
-      if (set || res) {
-        controls_allowed = true;
-      }
-
-      // exit controls on cancel press
-      if (button == GM_BTN_CANCEL) {
-        controls_allowed = false;
-      }
-
-      cruise_button_prev = button;
+    // ACC steering wheel buttons (GM_CAM and GM_SDGM are tied to the PCM)
+    if ((addr == 0x1E1) && (!gm_pcm_cruise || gm_cc_long) && (gm_hw != GM_SDGM)) {
+      handle_gm_wheel_buttons(to_push);
     }
 
     // Reference for brake pressed signals:
@@ -124,7 +143,7 @@ static void gm_rx_hook(const CANPacket_t *to_push) {
       brake_pressed = GET_BYTE(to_push, 1) >= 8U;
     }
 
-    if ((addr == 0xC9) && (gm_hw == GM_CAM)) {
+    if ((addr == 0xC9) && ((gm_hw == GM_CAM) || (gm_hw == GM_SDGM))) {
       brake_pressed = GET_BIT(to_push, 40U);
     }
 
@@ -240,7 +259,7 @@ static bool gm_tx_hook(const CANPacket_t *to_send) {
 static int gm_fwd_hook(int bus_num, int addr) {
   int bus_fwd = -1;
 
-  if (gm_hw == GM_CAM) {
+  if ((gm_hw == GM_CAM) || (gm_hw == GM_SDGM)) {
     if (bus_num == 0) {
       // block PSCMStatus; forwarded through openpilot to hide an alert from the camera
       bool is_pscm_msg = (addr == 0x184);
@@ -264,13 +283,19 @@ static int gm_fwd_hook(int bus_num, int addr) {
 }
 
 static safety_config gm_init(uint16_t param) {
-  gm_hw = GET_FLAG(param, GM_PARAM_HW_CAM) ? GM_CAM : GM_ASCM;
+  if GET_FLAG(param, GM_PARAM_HW_CAM) {
+    gm_hw = GM_CAM;
+  } else if GET_FLAG(param, GM_PARAM_HW_SDGM) {
+    gm_hw = GM_SDGM;
+  } else {
+    gm_hw = GM_ASCM;
+  }
 
   gm_force_ascm = GET_FLAG(param, GM_PARAM_HW_ASCM_LONG);
 
   if (gm_hw == GM_ASCM || gm_force_ascm) {
     gm_long_limits = &GM_ASCM_LONG_LIMITS;
-  } else if (gm_hw == GM_CAM) {
+  } else if ((gm_hw == GM_CAM) || (gm_hw == GM_SDGM)) {
     gm_long_limits = &GM_CAM_LONG_LIMITS;
   } else {
   }
@@ -278,7 +303,7 @@ static safety_config gm_init(uint16_t param) {
   gm_pedal_long = GET_FLAG(param, GM_PARAM_PEDAL_LONG);
   gm_cc_long = GET_FLAG(param, GM_PARAM_CC_LONG);
   gm_cam_long = GET_FLAG(param, GM_PARAM_HW_CAM_LONG) && !gm_cc_long;
-  gm_pcm_cruise = ((gm_hw == GM_CAM) && (!gm_cam_long || gm_cc_long) && !gm_force_ascm && !gm_pedal_long);
+  gm_pcm_cruise = ((gm_hw == GM_CAM) && (!gm_cam_long || gm_cc_long) && !gm_force_ascm && !gm_pedal_long) || (gm_hw == GM_SDGM);
   gm_skip_relay_check = GET_FLAG(param, GM_PARAM_NO_CAMERA);
   gm_has_acc = !GET_FLAG(param, GM_PARAM_NO_ACC);
   enable_gas_interceptor = GET_FLAG(param, GM_PARAM_PEDAL_INTERCEPTOR);
@@ -292,6 +317,8 @@ static safety_config gm_init(uint16_t param) {
     } else {
       ret = BUILD_SAFETY_CFG(gm_rx_checks, GM_CAM_TX_MSGS);
     }
+  } else if (gm_hw == GM_SDGM) {
+    ret = BUILD_SAFETY_CFG(gm_rx_checks, GM_SDGM_TX_MSGS);
   }
   return ret;
 }
