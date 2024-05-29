@@ -26,7 +26,7 @@ class CarInterface(CarInterfaceBase):
     return ret
 
   def _update(self, c):
-    ret = self.CS.update(self.cp)
+    ret, fp_ret = self.CS.update(self.cp)
 
     # wait for everything to init first
     if self.frame > int(5. / DT_CTRL):
@@ -36,7 +36,7 @@ class CarInterface(CarInterfaceBase):
       ret.events[0].enable = True
     self.frame += 1
 
-    return ret
+    return ret, fp_ret
 
   def apply(self, c, now_nanos):
     return self.CC.update(c, self.CS, now_nanos)

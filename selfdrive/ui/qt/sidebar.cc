@@ -79,6 +79,9 @@ void Sidebar::updateState(const UIState &s) {
   int strength = (int)deviceState.getNetworkStrength();
   setProperty("netStrength", strength > 0 ? strength + 1 : 0);
 
+  // FrogPilot properties
+  auto frogpilotDeviceState = sm["frogpilotDeviceState"].getFrogpilotDeviceState();
+
   ItemStatus connectStatus;
   auto last_ping = deviceState.getLastAthenaPingTime();
   if (last_ping == 0) {

@@ -224,7 +224,7 @@ class CarInterfaceBase(ABC):
         cp.update_strings(can_strings)
 
     # get CarState
-    ret = self._update(c)
+    ret, fp_ret = self._update(c)
 
     ret.canValid = all(cp.can_valid for cp in self.can_parsers if cp is not None)
     ret.canTimeout = any(cp.bus_timeout for cp in self.can_parsers if cp is not None)
@@ -245,10 +245,11 @@ class CarInterfaceBase(ABC):
 
     # copy back for next iteration
     reader = ret.as_reader()
+    frogpilot_reader = fp_ret.as_reader()
     if self.CS is not None:
       self.CS.out = reader
 
-    return reader
+    return reader, frogpilot_reader
 
   @abstractmethod
   def apply(self, c: car.CarControl, now_nanos: int) -> tuple[car.CarControl.Actuators, list[bytes]]:

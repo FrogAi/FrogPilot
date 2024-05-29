@@ -1,4 +1,4 @@
-from cereal import car
+from cereal import car, custom
 from panda import Panda
 from openpilot.common.conversions import Conversions as CV
 from openpilot.selfdrive.car import create_button_events, get_safety_config
@@ -60,7 +60,7 @@ class CarInterface(CarInterfaceBase):
     return ret
 
   def _update(self, c):
-    ret = self.CS.update(self.cp, self.cp_cam)
+    ret, fp_ret = self.CS.update(self.cp, self.cp_cam)
 
     ret.buttonEvents = create_button_events(self.CS.distance_button, self.CS.prev_distance_button, {1: ButtonType.gapAdjustCruise})
 
@@ -70,7 +70,7 @@ class CarInterface(CarInterfaceBase):
 
     ret.events = events.to_msg()
 
-    return ret
+    return ret, fp_ret
 
   def apply(self, c, now_nanos):
     return self.CC.update(c, self.CS, now_nanos)

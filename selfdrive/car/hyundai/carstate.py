@@ -2,7 +2,7 @@ from collections import deque
 import copy
 import math
 
-from cereal import car
+from cereal import car, custom
 from openpilot.common.conversions import Conversions as CV
 from opendbc.can.parser import CANParser
 from opendbc.can.can_define import CANDefine
@@ -57,6 +57,7 @@ class CarState(CarStateBase):
       return self.update_canfd(cp, cp_cam)
 
     ret = car.CarState.new_message()
+    fp_ret = custom.FrogPilotCarState.new_message()
     cp_cruise = cp_cam if self.CP.carFingerprint in CAMERA_SCC_CAR else cp
     self.is_metric = cp.vl["CLU11"]["CF_Clu_SPEED_UNIT"] == 0
     speed_conv = CV.KPH_TO_MS if self.is_metric else CV.MPH_TO_MS
@@ -164,10 +165,11 @@ class CarState(CarStateBase):
     self.cruise_buttons.extend(cp.vl_all["CLU11"]["CF_Clu_CruiseSwState"])
     self.main_buttons.extend(cp.vl_all["CLU11"]["CF_Clu_CruiseSwMain"])
 
-    return ret
+    return ret, fp_ret
 
   def update_canfd(self, cp, cp_cam):
     ret = car.CarState.new_message()
+    fp_ret = custom.FrogPilotCarState.new_message()
 
     self.is_metric = cp.vl["CRUISE_BUTTONS_ALT"]["DISTANCE_UNIT"] != 1
     speed_factor = CV.KPH_TO_MS if self.is_metric else CV.MPH_TO_MS
@@ -246,7 +248,7 @@ class CarState(CarStateBase):
       self.hda2_lfa_block_msg = copy.copy(cp_cam.vl["CAM_0x362"] if self.CP.flags & HyundaiFlags.CANFD_HDA2_ALT_STEERING
                                           else cp_cam.vl["CAM_0x2a4"])
 
-    return ret
+    return ret, fp_ret
 
   def get_can_parser(self, CP):
     if CP.carFingerprint in CANFD_CAR:

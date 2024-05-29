@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from cereal import car
+from cereal import car, custom
 from panda import Panda
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.numpy_fast import interp
@@ -233,7 +233,7 @@ class CarInterface(CarInterfaceBase):
 
   # returns a car.CarState
   def _update(self, c):
-    ret = self.CS.update(self.cp, self.cp_cam, self.cp_body)
+    ret, fp_ret = self.CS.update(self.cp, self.cp_cam, self.cp_body)
 
     ret.buttonEvents = [
       *create_button_events(self.CS.cruise_buttons, self.CS.prev_cruise_buttons, BUTTONS_DICT),
@@ -262,7 +262,7 @@ class CarInterface(CarInterfaceBase):
 
     ret.events = events.to_msg()
 
-    return ret
+    return ret, fp_ret
 
   # pass in a car.CarControl
   # to be called @ 100hz

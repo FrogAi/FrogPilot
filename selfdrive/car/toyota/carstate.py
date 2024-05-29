@@ -1,6 +1,6 @@
 import copy
 
-from cereal import car
+from cereal import car, custom
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.numpy_fast import mean
 from openpilot.common.filter_simple import FirstOrderFilter
@@ -51,6 +51,7 @@ class CarState(CarStateBase):
 
   def update(self, cp, cp_cam):
     ret = car.CarState.new_message()
+    fp_ret = custom.FrogPilotCarState.new_message()
 
     ret.doorOpen = any([cp.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_FL"], cp.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_FR"],
                         cp.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_RL"], cp.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_RR"]])
@@ -179,7 +180,7 @@ class CarState(CarStateBase):
       else:
         self.distance_button = cp.vl["SDSU"]["FD_BUTTON"]
 
-    return ret
+    return ret, fp_ret
 
   @staticmethod
   def get_can_parser(CP):

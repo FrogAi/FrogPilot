@@ -198,8 +198,32 @@ static void update_state(UIState *s) {
   } else if ((s->sm->frame - s->sm->rcv_frame("pandaStates")) > 5*UI_FREQ) {
     scene.pandaType = cereal::PandaState::PandaType::UNKNOWN;
   }
+  if (sm.updated("carControl")) {
+    auto carControl = sm["carControl"].getCarControl();
+  }
   if (sm.updated("carParams")) {
     scene.longitudinal_control = sm["carParams"].getCarParams().getOpenpilotLongitudinalControl();
+  }
+  if (sm.updated("carState")) {
+    auto carState = sm["carState"].getCarState();
+  }
+  if (sm.updated("controlsState")) {
+    auto controlsState = sm["controlsState"].getControlsState();
+  }
+  if (sm.updated("deviceState")) {
+    auto deviceState = sm["deviceState"].getDeviceState();
+  }
+  if (sm.updated("frogpilotCarControl")) {
+    auto frogpilotCarControl = sm["frogpilotCarControl"].getFrogpilotCarControl();
+  }
+  if (sm.updated("frogpilotPlan")) {
+    auto frogpilotPlan = sm["frogpilotPlan"].getFrogpilotPlan();
+  }
+  if (sm.updated("liveLocationKalman")) {
+    auto liveLocationKalman = sm["liveLocationKalman"].getLiveLocationKalman();
+  }
+  if (sm.updated("liveTorqueParameters")) {
+    auto torque_params = sm["liveTorqueParameters"].getLiveTorqueParameters();
   }
   if (sm.updated("wideRoadCameraState")) {
     auto cam_state = sm["wideRoadCameraState"].getWideRoadCameraState();
@@ -248,7 +272,8 @@ UIState::UIState(QObject *parent) : QObject(parent) {
   sm = std::make_unique<SubMaster, const std::initializer_list<const char *>>({
     "modelV2", "controlsState", "liveCalibration", "radarState", "deviceState",
     "pandaStates", "carParams", "driverMonitoringState", "carState", "liveLocationKalman", "driverStateV2",
-    "wideRoadCameraState", "managerState", "navInstruction", "navRoute", "uiPlan",
+    "wideRoadCameraState", "managerState", "navInstruction", "navRoute", "uiPlan", "carControl", "liveTorqueParameters",
+    "frogpilotCarControl", "frogpilotDeviceState", "frogpilotPlan",
   });
 
   Params params;

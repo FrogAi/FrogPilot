@@ -7,7 +7,7 @@ from typing import SupportsFloat
 
 import cereal.messaging as messaging
 
-from cereal import car, log
+from cereal import car, custom, log
 from cereal.visionipc import VisionIpcClient, VisionStreamType
 
 
@@ -76,7 +76,7 @@ class Controls:
     self.branch = get_short_branch()
 
     # Setup sockets
-    self.pm = messaging.PubMaster(['controlsState', 'carControl', 'onroadEvents'])
+    self.pm = messaging.PubMaster(['controlsState', 'carControl', 'onroadEvents', 'frogpilotCarControl'])
 
     self.sensor_packets = ["accelerometer", "gyroscope"]
     self.camera_packets = ["roadCameraState", "driverCameraState", "wideRoadCameraState"]
@@ -89,7 +89,7 @@ class Controls:
     self.sm = messaging.SubMaster(['deviceState', 'pandaStates', 'peripheralState', 'modelV2', 'liveCalibration',
                                    'carOutput', 'driverMonitoringState', 'longitudinalPlan', 'liveLocationKalman',
                                    'managerState', 'liveParameters', 'radarState', 'liveTorqueParameters',
-                                   'testJoystick'] + self.camera_packets + self.sensor_packets,
+                                   'testJoystick', 'frogpilotCarState', 'frogpilotPlan'] + self.camera_packets + self.sensor_packets,
                                   ignore_alive=ignore, ignore_avg_freq=ignore+['radarState', 'testJoystick'], ignore_valid=['testJoystick', ],
                                   frequency=int(1/DT_CTRL))
 
@@ -113,6 +113,7 @@ class Controls:
 
     self.CC = car.CarControl.new_message()
     self.CS_prev = car.CarState.new_message()
+    self.FPCC = custom.FrogPilotCarControl.new_message()
     self.AM = AlertManager()
     self.events = Events()
 
@@ -810,6 +811,12 @@ class Controls:
 
     # copy CarControl to pass to CarInterface on the next iteration
     self.CC = CC
+
+    # frogpilotCarControl
+    fpcc_send = messaging.new_message('frogpilotCarControl')
+    fpcc_send.valid = CS.canValid
+    fpcc_send.frogpilotCarControl = self.FPCC
+    self.pm.send('frogpilotCarControl', fpcc_send)
 
   def step(self):
     start_time = time.monotonic()

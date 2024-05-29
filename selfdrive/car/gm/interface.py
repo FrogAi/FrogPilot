@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import os
-from cereal import car
+from cereal import car, custom
 from math import fabs, exp
 from panda import Panda
 
@@ -294,7 +294,7 @@ class CarInterface(CarInterfaceBase):
 
   # returns a car.CarState
   def _update(self, c):
-    ret = self.CS.update(self.cp, self.cp_cam, self.cp_loopback)
+    ret, fp_ret = self.CS.update(self.cp, self.cp_cam, self.cp_loopback)
 
     # Don't add event if transitioning from INIT, unless it's to an actual button
     if self.CS.cruise_buttons != CruiseButtons.UNPRESS or self.CS.prev_cruise_buttons != CruiseButtons.INIT:
@@ -335,7 +335,7 @@ class CarInterface(CarInterfaceBase):
 
     ret.events = events.to_msg()
 
-    return ret
+    return ret, fp_ret
 
   def apply(self, c, now_nanos):
     return self.CC.update(c, self.CS, now_nanos)
