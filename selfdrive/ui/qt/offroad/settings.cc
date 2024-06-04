@@ -388,22 +388,21 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   panel_widget = new QStackedWidget();
 
   // close button
-  QPushButton *close_btn = new QPushButton(tr("×"));
+  QPushButton *close_btn = new QPushButton(tr("← Back"));
   close_btn->setStyleSheet(R"(
     QPushButton {
-      font-size: 140px;
-      padding-bottom: 20px;
-      border-radius: 100px;
+      font-size: 50px;
+      border-radius: 25px;
       background-color: #292929;
-      font-weight: 400;
+      font-weight: 500;
     }
     QPushButton:pressed {
-      background-color: #3B3B3B;
+      background-color: #ADADAD;
     }
   )");
-  close_btn->setFixedSize(200, 200);
-  sidebar_layout->addSpacing(45);
-  sidebar_layout->addWidget(close_btn, 0, Qt::AlignCenter);
+  close_btn->setFixedSize(300, 125);
+  sidebar_layout->addSpacing(10);
+  sidebar_layout->addWidget(close_btn, 0, Qt::AlignRight);
   QObject::connect(close_btn, &QPushButton::clicked, [this]() {
     if (subSubParentToggleOpen) {
       closeSubSubParentToggle();
