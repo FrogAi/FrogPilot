@@ -82,6 +82,8 @@ private:
   // FrogPilot variables
   Params params;
 
+  uint64_t model_rcv_frame = 0;
+
 private slots:
   void updateState(const UIState &s);
 
