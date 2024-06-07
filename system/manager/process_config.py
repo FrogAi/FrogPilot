@@ -86,6 +86,9 @@ procs = [
   NativeProcess("bridge", "cereal/messaging", ["./bridge"], notcar),
   PythonProcess("webrtcd", "system.webrtc.webrtcd", notcar),
   PythonProcess("webjoystick", "tools.bodyteleop.web", notcar),
+
+  # FrogPilot processes
+  PythonProcess("frogpilot_process", "selfdrive.frogpilot.frogpilot_process", always_run),
 ]
 
 managed_processes = {p.name: p for p in procs}
