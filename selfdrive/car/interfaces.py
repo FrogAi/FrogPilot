@@ -237,7 +237,7 @@ class CarInterfaceBase(ABC):
         cp.update_strings(can_strings)
 
     # get CarState
-    ret = self._update(c)
+    ret, fp_ret = self._update(c)
 
     ret.canValid = all(cp.can_valid for cp in self.can_parsers if cp is not None)
     ret.canTimeout = any(cp.bus_timeout for cp in self.can_parsers if cp is not None)
@@ -260,7 +260,7 @@ class CarInterfaceBase(ABC):
     if self.CS is not None:
       self.CS.out = ret.as_reader()
 
-    return ret
+    return ret, fp_ret
 
 
   def create_common_events(self, cs_out, extra_gears=None, pcm_enable=True, allow_enable=True,

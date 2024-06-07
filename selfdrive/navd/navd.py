@@ -304,6 +304,11 @@ class RouteEngine:
           self.params.remove("NavDestination")
           self.clear_route()
 
+    frogpilot_plan_send = messaging.new_message('frogpilotNavigation')
+    frogpilotNavigation = frogpilot_plan_send.frogpilotNavigation
+
+    self.pm.send('frogpilotNavigation', frogpilot_plan_send)
+
   def send_route(self):
     coords = []
 
@@ -354,7 +359,7 @@ class RouteEngine:
 
 
 def main():
-  pm = messaging.PubMaster(['navInstruction', 'navRoute'])
+  pm = messaging.PubMaster(['navInstruction', 'navRoute', 'frogpilotNavigation'])
   sm = messaging.SubMaster(['liveLocationKalman', 'managerState'])
 
   rk = Ratekeeper(1.0)

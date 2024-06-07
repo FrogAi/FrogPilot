@@ -1,6 +1,6 @@
 import copy
 from collections import deque
-from cereal import car
+from cereal import car, custom
 from openpilot.common.conversions import Conversions as CV
 from openpilot.selfdrive.car.tesla.values import CAR, DBC, CANBUS, GEAR_MAP, DOORS, BUTTONS
 from openpilot.selfdrive.car.interfaces import CarStateBase
@@ -22,6 +22,7 @@ class CarState(CarStateBase):
 
   def update(self, cp, cp_cam):
     ret = car.CarState.new_message()
+    fp_ret = custom.FrogPilotCarState.new_message()
 
     # Vehicle speed
     ret.vEgoRaw = cp.vl["ESP_B"]["ESP_vehicleSpeed"] * CV.KPH_TO_MS
@@ -102,7 +103,7 @@ class CarState(CarStateBase):
     self.acc_state = cp_cam.vl["DAS_control"]["DAS_accState"]
     self.das_control_counters.extend(cp_cam.vl_all["DAS_control"]["DAS_controlCounter"])
 
-    return ret
+    return ret, fp_ret
 
   @staticmethod
   def get_can_parser(CP):

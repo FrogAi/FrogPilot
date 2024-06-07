@@ -1,4 +1,4 @@
-from cereal import car
+from cereal import car, custom
 from panda import Panda
 from openpilot.selfdrive.car.hyundai.hyundaicanfd import CanBus
 from openpilot.selfdrive.car.hyundai.values import HyundaiFlags, CAR, DBC, CANFD_CAR, CAMERA_SCC_CAR, CANFD_RADAR_SCC_CAR, \
@@ -151,7 +151,7 @@ class CarInterface(CarInterfaceBase):
       disable_ecu(logcan, sendcan, bus=CanBus(CP).ECAN, addr=0x7B1, com_cont_req=b'\x28\x83\x01')
 
   def _update(self, c):
-    ret = self.CS.update(self.cp, self.cp_cam)
+    ret, fp_ret = self.CS.update(self.cp, self.cp_cam)
 
     if self.CS.CP.openpilotLongitudinalControl:
       ret.buttonEvents = create_button_events(self.CS.cruise_buttons[-1], self.CS.prev_cruise_buttons, BUTTONS_DICT)
@@ -172,4 +172,4 @@ class CarInterface(CarInterfaceBase):
 
     ret.events = events.to_msg()
 
-    return ret
+    return ret, fp_ret
