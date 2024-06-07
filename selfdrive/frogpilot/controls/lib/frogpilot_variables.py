@@ -8,6 +8,7 @@ from openpilot.system.version import get_build_metadata
 
 CITY_SPEED_LIMIT = 25  # 55mph is typically the minimum speed for highways
 CRUISING_SPEED = 5     # Roughly the speed cars go when not touching the gas while in drive
+PROBABILITY = 0.6      # 60% chance of condition being true
 
 class FrogPilotVariables:
   def __init__(self):
