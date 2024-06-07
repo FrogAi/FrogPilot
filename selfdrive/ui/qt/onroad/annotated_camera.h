@@ -50,11 +50,14 @@ private:
   // FrogPilot variables
   Params paramsMemory{"/dev/shm/params"};
 
+  DistanceButton *distance_btn;
+
   QHBoxLayout *bottom_layout;
 
   bool alwaysOnLateralActive;
   bool experimentalMode;
   bool mapOpen;
+  bool onroadDistanceButton;
   bool showAlwaysOnLateralStatusBar;
   bool showConditionalExperimentalStatusBar;
 

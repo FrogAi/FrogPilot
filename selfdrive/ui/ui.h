@@ -123,11 +123,13 @@ typedef struct UIScene {
   bool experimental_mode;
   bool map_open;
   bool online;
+  bool onroad_distance_button;
   bool parked;
   bool right_hand_drive;
   bool show_aol_status_bar;
   bool show_cem_status_bar;
   bool tethering_enabled;
+  bool use_kaofui_icons;
 
   int alert_size;
   int conditional_speed;
