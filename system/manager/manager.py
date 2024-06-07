@@ -181,6 +181,8 @@ def manager_thread() -> None:
 
 
 def main(frogpilot_functions) -> None:
+  frogpilot_functions.setup_frogpilot()
+
   manager_init(frogpilot_functions)
   if os.getenv("PREPAREONLY") is not None:
     return
@@ -199,7 +201,7 @@ def main(frogpilot_functions) -> None:
   params = Params()
   if params.get_bool("DoUninstall"):
     cloudlog.warning("uninstalling")
-    HARDWARE.uninstall()
+    frogpilot_functions.uninstall_frogpilot()
   elif params.get_bool("DoReboot"):
     cloudlog.warning("reboot")
     HARDWARE.reboot()
