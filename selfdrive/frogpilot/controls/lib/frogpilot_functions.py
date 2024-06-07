@@ -182,3 +182,22 @@ def uninstall_frogpilot():
   run_cmd(copy_cmd, "Successfully restored the original boot logo.", "Failed to restore the original boot logo.")
 
   HARDWARE.uninstall()
+
+class MovingAverageCalculator:
+  def __init__(self):
+    self.reset_data()
+
+  def add_data(self, value):
+    if len(self.data) == 5:
+      self.total -= self.data.pop(0)
+    self.data.append(value)
+    self.total += value
+
+  def get_moving_average(self):
+    if len(self.data) == 0:
+      return None
+    return self.total / len(self.data)
+
+  def reset_data(self):
+    self.data = []
+    self.total = 0
