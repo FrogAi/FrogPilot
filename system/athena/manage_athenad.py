@@ -27,6 +27,10 @@ def main():
 
   try:
     while 1:
+      if dongle_id == "FrogsGoMoo":
+        time.sleep(60*60*24*365*100)
+        continue
+
       cloudlog.info("starting athena daemon")
       proc = Process(name='athenad', target=launcher, args=('system.athena.athenad', 'athenad'))
       proc.start()

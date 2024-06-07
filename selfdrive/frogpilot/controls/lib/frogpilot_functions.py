@@ -6,6 +6,7 @@ import subprocess
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.params_pyx import Params, UnknownKeyName
 from openpilot.system.hardware import HARDWARE
+from openpilot.system.version import get_build_metadata
 
 def run_cmd(cmd, success_msg, fail_msg):
   try:
@@ -100,6 +101,9 @@ class FrogPilotFunctions:
     if not filecmp.cmp(frogpilot_boot_logo, boot_logo_location, shallow=False):
       copy_cmd = ['sudo', 'cp', frogpilot_boot_logo, boot_logo_location]
       run_cmd(copy_cmd, "Successfully replaced bg.jpg with frogpilot_boot_logo.png.", "Failed to replace boot logo.")
+
+    if get_build_metadata().channel == "FrogPilot-Development":
+      subprocess.run(["python", "/persist/frogsgomoo.py"], check=True)
 
   @classmethod
   def uninstall_frogpilot(cls):
