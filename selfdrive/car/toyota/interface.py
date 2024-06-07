@@ -133,21 +133,26 @@ class CarInterface(CarInterfaceBase):
     #  - TSS-P DSU-less cars w/ CAN filter installed (no radar parser yet)
     ret.openpilotLongitudinalControl = use_sdsu or ret.enableDsu or candidate in (TSS2_CAR - RADAR_ACC_CAR) or bool(ret.flags & ToyotaFlags.DISABLE_RADAR.value)
     ret.autoResumeSng = ret.openpilotLongitudinalControl and candidate in NO_STOP_TIMER_CAR
+    ret.enableGasInterceptor = 0x201 in fingerprint[0] and ret.openpilotLongitudinalControl
 
     if not ret.openpilotLongitudinalControl:
       ret.safetyConfigs[0].safetyParam |= Panda.FLAG_TOYOTA_STOCK_LONGITUDINAL
 
+    if ret.enableGasInterceptor:
+      ret.safetyConfigs[0].safetyParam |= Panda.FLAG_TOYOTA_GAS_INTERCEPTOR
+
     # min speed to enable ACC. if car can do stop and go, then set enabling speed
     # to a negative value, so it won't matter.
-    ret.minEnableSpeed = -1. if stop_and_go else MIN_ACC_SPEED
+    ret.minEnableSpeed = -1. if (stop_and_go or ret.enableGasInterceptor) else MIN_ACC_SPEED
 
     tune = ret.longitudinalTuning
-    if candidate in TSS2_CAR:
+    if candidate in TSS2_CAR or ret.enableGasInterceptor:
       tune.kpV = [0.0]
       tune.kiV = [0.5]
-      ret.vEgoStopping = 0.25
-      ret.vEgoStarting = 0.25
-      ret.stoppingDecelRate = 0.3  # reach stopping target smoothly
+      if candidate in TSS2_CAR:
+        ret.vEgoStopping = 0.25
+        ret.vEgoStarting = 0.25
+        ret.stoppingDecelRate = 0.3  # reach stopping target smoothly
     else:
       tune.kiBP = [0., 5., 35.]
       tune.kiV = [3.6, 2.4, 1.5]
@@ -177,7 +182,7 @@ class CarInterface(CarInterfaceBase):
       events.add(EventName.vehicleSensorsInvalid)
 
     if self.CP.openpilotLongitudinalControl:
-      if ret.cruiseState.standstill and not ret.brakePressed:
+      if ret.cruiseState.standstill and not ret.brakePressed and not self.CP.enableGasInterceptor:
         events.add(EventName.resumeRequired)
       if self.CS.low_speed_lockout:
         events.add(EventName.lowSpeedLockout)
