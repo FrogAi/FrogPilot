@@ -320,8 +320,10 @@ def manager_init(frogpilot_functions) -> None:
 
   # set unset params
   for k, v in default_params:
-    if params.get(k) is None:
+    if params.get(k) is None or params.get_bool("DoToggleReset"):
       params.put(k, v)
+
+  params.put_bool("DoToggleReset", False)
 
   # Create folders needed for msgq
   try:
