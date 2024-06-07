@@ -62,7 +62,7 @@ MapSettings::MapSettings(bool closeable, QWidget *parent) : QFrame(parent) {
       title->setStyleSheet("color: #FFFFFF; font-size: 54px; font-weight: 600;");
       heading->addWidget(title);
 
-      auto *subtitle = new QLabel(tr("Manage at connect.comma.ai"), this);
+      subtitle = new QLabel(tr("Manage at connect.comma.ai"), this);
       subtitle->setStyleSheet("color: #A0A0A0; font-size: 40px; font-weight: 300;");
       heading->addWidget(subtitle);
     }
@@ -93,6 +93,8 @@ MapSettings::MapSettings(bool closeable, QWidget *parent) : QFrame(parent) {
 
   setStyleSheet("MapSettings { background-color: #333333; }");
   QObject::connect(NavManager::instance(), &NavManager::updated, this, &MapSettings::refresh);
+
+  wifi = new WifiManager(this);
 }
 
 void MapSettings::showEvent(QShowEvent *event) {
@@ -138,6 +140,12 @@ void MapSettings::refresh() {
   for (; n < widgets.size(); ++n) widgets[n]->setVisible(false);
 
   setUpdatesEnabled(true);
+
+  // Use IP for NOO without Prime
+  if (!uiState()->hasPrime()) {
+    QString ipAddress = QString("%1:8082").arg(wifi->getIp4Address());
+    subtitle->setText(tr("Manage at %1").arg(ipAddress));
+  }
 }
 
 void MapSettings::navigateTo(const QJsonObject &place) {
