@@ -169,6 +169,9 @@ class CarState(CarStateBase):
         ret.leftBlindspot = cam_cp.vl["BCMBlindSpotMonitor"]["LeftBSM"] == 1
         ret.rightBlindspot = cam_cp.vl["BCMBlindSpotMonitor"]["RightBSM"] == 1
 
+    # FrogPilot CarState functions
+    fp_ret.hasMenu = not (self.CP.flags & GMFlags.NO_CAMERA.value or self.CP.carFingerprint in CC_ONLY_CAR)
+
     return ret, fp_ret
 
   @staticmethod
