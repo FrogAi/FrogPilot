@@ -327,6 +327,8 @@ class Updater:
       set_offroad_alert(alert, False)
 
     now = datetime.datetime.utcnow()
+    if FrogPilotVariables.toggles.offline_mode:
+      last_update = now
     dt = now - last_update
     build_metadata = get_build_metadata()
     if failed_count > 15 and exception is not None and self.has_internet:

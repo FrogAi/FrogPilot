@@ -15,6 +15,7 @@ class AbstractAlert : public QFrame {
 protected:
   AbstractAlert(bool hasRebootBtn, QWidget *parent = nullptr);
 
+  QPushButton *disable_check_btn;
   QPushButton *snooze_btn;
   QVBoxLayout *scrollable_layout;
   Params params;
