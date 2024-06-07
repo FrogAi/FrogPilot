@@ -41,6 +41,8 @@ class DesireHelper:
     self.desire = log.Desire.none
 
     # FrogPilot variables
+    self.lane_change_completed = False
+
     self.lane_change_wait_timer = 0.0
 
   def update(self, carstate, lateral_active, lane_change_prob, frogpilotPlan, frogpilot_toggles):
@@ -84,11 +86,12 @@ class DesireHelper:
         blindspot_detected = ((carstate.leftBlindspot and self.lane_change_direction == LaneChangeDirection.left) or
                               (carstate.rightBlindspot and self.lane_change_direction == LaneChangeDirection.right))
 
-        if not one_blinker or below_lane_change_speed:
+        if not one_blinker or below_lane_change_speed or self.lane_change_completed:
           self.lane_change_state = LaneChangeState.off
           self.lane_change_direction = LaneChangeDirection.none
         elif torque_applied and not blindspot_detected and lane_available and self.lane_change_wait_timer >= frogpilot_toggles.lane_change_delay:
           self.lane_change_state = LaneChangeState.laneChangeStarting
+          self.lane_change_completed = frogpilot_toggles.one_lane_change
           self.lane_change_wait_timer = 0.0
 
       # LaneChangeState.laneChangeStarting
@@ -117,6 +120,7 @@ class DesireHelper:
     else:
       self.lane_change_timer += DT_MDL
 
+    self.lane_change_completed &= one_blinker
     self.prev_one_blinker = one_blinker
 
     self.desire = DESIRES[self.lane_change_direction][self.lane_change_state]
