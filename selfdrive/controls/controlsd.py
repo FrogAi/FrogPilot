@@ -6,6 +6,7 @@ import threading
 from typing import SupportsFloat
 
 import cereal.messaging as messaging
+import openpilot.system.sentry as sentry
 
 from cereal import car, custom, log
 from msgq.visionipc import VisionIpcClient, VisionStreamType
@@ -180,6 +181,7 @@ class Controls:
     # FrogPilot variables
     self.frogpilot_toggles = FrogPilotVariables.toggles
 
+    self.openpilot_crashed_triggered = False
     self.update_toggles = False
 
     self.display_timer = 0
@@ -397,6 +399,9 @@ class Controls:
 
       if self.sm['modelV2'].frameDropPerc > 20:
         self.events.add(EventName.modeldLagging)
+
+    # Update FrogPilot events
+    self.update_frogpilot_events(CS)
 
   def data_sample(self):
     """Receive data from sockets"""
@@ -870,6 +875,11 @@ class Controls:
     except SystemExit:
       e.set()
       t.join()
+
+  def update_frogpilot_events(self, CS):
+    if not self.openpilot_crashed_triggered and os.path.isfile(os.path.join(sentry.CRASHES_DIR, 'error.txt')):
+      self.events.add(EventName.openpilotCrashed)
+      self.openpilot_crashed_triggered = True
 
   def update_frogpilot_variables(self, CS):
     FPCC = custom.FrogPilotCarControl.new_message()
