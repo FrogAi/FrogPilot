@@ -116,6 +116,7 @@ typedef struct UIScene {
   bool enabled;
   bool experimental_mode;
   bool map_open;
+  bool online;
   bool right_hand_drive;
 
   int alert_size;

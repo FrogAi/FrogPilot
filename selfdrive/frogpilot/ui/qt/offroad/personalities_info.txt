@@ -1,0 +1,23 @@
+Following Distance:
+Represents the desired time-based distance from the lead vehicle in seconds. This value adjusts how closely openpilot follows the car in front. It is not an exact physical distance but a representative value in terms of time.
+
+Real-World Example:
+If this value is set to 1.5 seconds, and you are driving at 50 mph (approximately 80 kph), openpilot aims to keep a distance of approximately 110 feet (about 33.5 meters) from the lead vehicle. This means it will maintain a time gap of 1.5 seconds at any given speed.
+
+Acceleration/Deceleration Response:
+Controls how aggressively openpilot adjusts the rate of acceleration and deceleration. Increasing this value makes it more "costly" to change the rate at which the vehicle accelerates or decelerates, leading to smoother transitions. This primarily affects the vehicle's behavior during changes in speed, such as when speeding up or slowing down.
+
+Real-World Example:
+If you prefer a smoother driving experience when your car changes speed, you can increase this value. For instance, with a higher value, when following a lead vehicle that suddenly accelerates or decelerates, openpilot will take more time to match the lead vehicle's speed, resulting in a gentler ride.
+
+Danger Zone Response:
+Adjusts how aggressively enters the "danger zone" state. Increasing this value makes it more cautious when approaching lead vehicles. This setting affects how the vehicle responds to heavier traffic conditions.
+
+Real-World Example:
+If you are approaching a much slower car farther ahead, setting a higher danger zone will cause openpilot to be more cautious and brake sooner and harder the higher the speed difference is and the smaller the distance is.
+
+Speed Control Response:
+Adjusts how aggressively openpilot changes the vehicle's speed overall. Increasing this value makes it more "costly" to adjust the speed, leading to more gradual changes. This setting affects how the vehicle responds to traffic conditions and set cruise speeds.
+
+Real-World Example:
+If you are driving in a city with frequent stop-and-go traffic, setting a higher speed jerk factor will make openpilot's speed adjustments smoother. For example, when accelerating to match the set cruise speed or slowing down due to traffic, openpilot will make these speed changes more gradually, providing a smoother overall driving experience.
