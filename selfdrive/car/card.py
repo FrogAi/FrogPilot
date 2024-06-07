@@ -4,7 +4,7 @@ import time
 
 import cereal.messaging as messaging
 
-from cereal import car
+from cereal import car, custom
 
 from panda import ALTERNATIVE_EXPERIENCE
 
@@ -27,7 +27,7 @@ class Car:
   def __init__(self, CI=None):
     self.can_sock = messaging.sub_sock('can', timeout=20)
     self.sm = messaging.SubMaster(['pandaStates', 'carControl', 'onroadEvents'])
-    self.pm = messaging.PubMaster(['sendcan', 'carState', 'carParams', 'carOutput'])
+    self.pm = messaging.PubMaster(['sendcan', 'carState', 'carParams', 'carOutput', 'frogpilotCarState'])
 
     self.can_rcv_cum_timeout_counter = 0
 
@@ -87,7 +87,7 @@ class Car:
 
     # Update carState from CAN
     can_strs = messaging.drain_sock_raw(self.can_sock, wait_for_one=True)
-    CS = self.CI.update(self.CC_prev, can_strs)
+    CS, FPCS = self.CI.update(self.CC_prev, can_strs)
 
     self.sm.update(0)
 
@@ -100,7 +100,7 @@ class Car:
     if can_rcv_valid and REPLAY:
       self.can_log_mono_time = messaging.log_from_bytes(can_strs[0]).logMonoTime
 
-    return CS
+    return CS, FPCS
 
   def update_events(self, CS: car.CarState) -> car.CarState:
     self.events.clear()
@@ -115,7 +115,7 @@ class Car:
 
     CS.events = self.events.to_msg()
 
-  def state_publish(self, CS: car.CarState):
+  def state_publish(self, CS: car.CarState, FPCS: custom.FrogPilotCarState):
     """carState and carParams publish loop"""
 
     # carParams - logged every 50 seconds (> 1 per segment)
@@ -139,6 +139,12 @@ class Car:
     cs_send.carState.cumLagMs = -self.rk.remaining * 1000.
     self.pm.send('carState', cs_send)
 
+    # frogpilotCarState
+    fpcs_send = messaging.new_message('frogpilotCarState')
+    fpcs_send.valid = CS.canValid
+    fpcs_send.frogpilotCarState = FPCS
+    self.pm.send('frogpilotCarState', fpcs_send)
+
   def controls_update(self, CS: car.CarState, CC: car.CarControl):
     """control update loop, driven by carControl"""
 
@@ -158,11 +164,11 @@ class Car:
       self.CC_prev = CC
 
   def step(self):
-    CS = self.state_update()
+    CS, FPCS = self.state_update()
 
     self.update_events(CS)
 
-    self.state_publish(CS)
+    self.state_publish(CS, FPCS)
 
     initialized = (not any(e.name == EventName.controlsInitializing for e in self.sm['onroadEvents']) and
                    self.sm.seen['onroadEvents'])

@@ -1,4 +1,4 @@
-from cereal import car
+from cereal import car, custom
 from panda import Panda
 from openpilot.selfdrive.car import get_safety_config
 from openpilot.selfdrive.car.disable_ecu import disable_ecu
@@ -99,11 +99,11 @@ class CarInterface(CarInterfaceBase):
   # returns a car.CarState
   def _update(self, c):
 
-    ret = self.CS.update(self.cp, self.cp_cam, self.cp_body)
+    ret, fp_ret = self.CS.update(self.cp, self.cp_cam, self.cp_body)
 
     ret.events = self.create_common_events(ret).to_msg()
 
-    return ret
+    return ret, fp_ret
 
   @staticmethod
   def init(CP, logcan, sendcan):

@@ -126,4 +126,8 @@ void OnroadWindow::primeChanged(bool prime) {
 void OnroadWindow::paintEvent(QPaintEvent *event) {
   QPainter p(this);
   p.fillRect(rect(), QColor(bg.red(), bg.green(), bg.blue(), 255));
+
+  // FrogPilot variables
+  UIState *s = uiState();
+  SubMaster &sm = *(s->sm);
 }

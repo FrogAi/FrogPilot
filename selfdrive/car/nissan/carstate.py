@@ -1,6 +1,6 @@
 import copy
 from collections import deque
-from cereal import car
+from cereal import car, custom
 from opendbc.can.can_define import CANDefine
 from openpilot.selfdrive.car.interfaces import CarStateBase
 from openpilot.common.conversions import Conversions as CV
@@ -25,6 +25,7 @@ class CarState(CarStateBase):
 
   def update(self, cp, cp_adas, cp_cam):
     ret = car.CarState.new_message()
+    fp_ret = custom.FrogPilotCarState.new_message()
 
     self.prev_distance_button = self.distance_button
     self.distance_button = cp.vl["CRUISE_THROTTLE"]["FOLLOW_DISTANCE_BUTTON"]
@@ -121,7 +122,7 @@ class CarState(CarStateBase):
       self.lkas_hud_msg = copy.copy(cp_adas.vl["PROPILOT_HUD"])
       self.lkas_hud_info_msg = copy.copy(cp_adas.vl["PROPILOT_HUD_INFO_MSG"])
 
-    return ret
+    return ret, fp_ret
 
   @staticmethod
   def get_can_parser(CP):

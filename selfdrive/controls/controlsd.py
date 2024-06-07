@@ -7,7 +7,7 @@ from typing import SupportsFloat
 
 import cereal.messaging as messaging
 
-from cereal import car, log
+from cereal import car, custom, log
 from msgq.visionipc import VisionIpcClient, VisionStreamType
 
 
@@ -78,7 +78,7 @@ class Controls:
     self.branch = get_short_branch()
 
     # Setup sockets
-    self.pm = messaging.PubMaster(['controlsState', 'carControl', 'onroadEvents'])
+    self.pm = messaging.PubMaster(['controlsState', 'carControl', 'onroadEvents', 'frogpilotCarControl'])
 
     self.sensor_packets = ["accelerometer", "gyroscope"]
     self.camera_packets = ["roadCameraState", "driverCameraState", "wideRoadCameraState"]
@@ -97,7 +97,7 @@ class Controls:
     self.sm = messaging.SubMaster(['deviceState', 'pandaStates', 'peripheralState', 'modelV2', 'liveCalibration',
                                    'carOutput', 'driverMonitoringState', 'longitudinalPlan', 'liveLocationKalman',
                                    'managerState', 'liveParameters', 'radarState', 'liveTorqueParameters',
-                                   'testJoystick'] + self.camera_packets + self.sensor_packets,
+                                   'testJoystick', 'frogpilotCarState', 'frogpilotPlan'] + self.camera_packets + self.sensor_packets,
                                   ignore_alive=ignore, ignore_avg_freq=ignore+['radarState', 'testJoystick'], ignore_valid=['testJoystick', ],
                                   frequency=int(1/DT_CTRL))
 
@@ -648,9 +648,11 @@ class Controls:
         self.personality = (self.personality - 1) % 3
         self.params.put_nonblocking('LongitudinalPersonality', str(self.personality))
 
-    return CC, lac_log
+    FPCC = self.update_frogpilot_variables(CS)
 
-  def publish_logs(self, CS, start_time, CC, lac_log):
+    return CC, lac_log, FPCC
+
+  def publish_logs(self, CS, start_time, CC, lac_log, FPCC):
     """Send actuators and hud commands to the car, send controlsstate and MPC logging"""
 
     # Orientation and angle rates can be useful for carcontroller
@@ -791,6 +793,12 @@ class Controls:
     cc_send.carControl = CC
     self.pm.send('carControl', cc_send)
 
+    # frogpilotCarControl
+    fpcc_send = messaging.new_message('frogpilotCarControl')
+    fpcc_send.valid = CS.canValid
+    fpcc_send.frogpilotCarControl = FPCC
+    self.pm.send('frogpilotCarControl', fpcc_send)
+
   def step(self):
     start_time = time.monotonic()
 
@@ -806,10 +814,10 @@ class Controls:
       self.state_transition(CS)
 
     # Compute actuators (runs PID loops and lateral MPC)
-    CC, lac_log = self.state_control(CS)
+    CC, lac_log, FPCC = self.state_control(CS)
 
     # Publish data
-    self.publish_logs(CS, start_time, CC, lac_log)
+    self.publish_logs(CS, start_time, CC, lac_log, FPCC)
 
     self.CS_prev = CS
 
@@ -840,6 +848,10 @@ class Controls:
       e.set()
       t.join()
 
+  def update_frogpilot_variables(self, CS):
+    FPCC = custom.FrogPilotCarControl.new_message()
+
+    return FPCC
 
 def main():
   config_realtime_process(4, Priority.CTRL_HIGH)
