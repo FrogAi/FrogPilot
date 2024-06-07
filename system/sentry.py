@@ -1,7 +1,10 @@
 """Install exception handler for process crash."""
+import os
 import sentry_sdk
 import time
+import traceback
 
+from datetime import datetime
 from enum import Enum
 from sentry_sdk.integrations.threading import ThreadingIntegration
 
@@ -12,6 +15,8 @@ from openpilot.common.swaglog import cloudlog
 from openpilot.system.version import get_build_metadata, get_version
 
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import is_url_pingable
+
+CRASHES_DIR = "/data/crashes/"
 
 class SentryProject(Enum):
   # python project
@@ -111,6 +116,16 @@ def capture_fingerprint(candidate, params, blocked=False):
 
 
 def capture_exception(*args, **kwargs) -> None:
+  exc_text = traceback.format_exc()
+
+  phrases_to_check = [
+    "To overwrite it, set 'overwrite' to True.",
+  ]
+
+  if any(phrase in exc_text for phrase in phrases_to_check):
+    return
+
+  save_exception(exc_text)
   cloudlog.error("crash", exc_info=kwargs.get('exc_info', 1))
 
   FrogPilot = "frogai" in get_build_metadata().openpilot.git_origin.lower()
@@ -123,6 +138,26 @@ def capture_exception(*args, **kwargs) -> None:
     sentry_sdk.flush()  # https://github.com/getsentry/sentry-python/issues/291
   except Exception:
     cloudlog.exception("sentry exception")
+
+
+def save_exception(exc_text: str) -> None:
+  if not os.path.exists(CRASHES_DIR):
+    os.makedirs(CRASHES_DIR)
+
+  files = [
+    os.path.join(CRASHES_DIR, datetime.now().strftime('%Y-%m-%d--%H-%M-%S.log')),
+    os.path.join(CRASHES_DIR, 'error.txt')
+  ]
+
+  for file in files:
+    with open(file, 'w') as f:
+      if file.endswith("error.txt"):
+        lines = exc_text.splitlines()[-10:]
+        f.write("\n".join(lines))
+      else:
+        f.write(exc_text)
+
+  print('Logged current crash to {}'.format(files))
 
 
 def set_tag(key: str, value: str) -> None:
