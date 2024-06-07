@@ -14,7 +14,7 @@ from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import A_CHA
 from openpilot.selfdrive.controls.lib.longitudinal_planner import A_CRUISE_MIN, Lead, get_max_accel
 from openpilot.selfdrive.modeld.constants import ModelConstants
 
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import calculate_lane_width
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import calculate_lane_width, calculate_road_curvature
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import CITY_SPEED_LIMIT, CRUISING_SPEED, TRAJECTORY_SIZE
 
 class FrogPilotPlanner:
@@ -26,6 +26,7 @@ class FrogPilotPlanner:
     self.acceleration_jerk = 0
     self.danger_jerk = 0
     self.model_length = 0
+    self.road_curvature = 0
     self.speed_jerk = 0
     self.v_cruise = 0
 
@@ -47,6 +48,7 @@ class FrogPilotPlanner:
       self.lane_width_right = 0
 
     self.model_length = modelData.position.x[TRAJECTORY_SIZE - 1]
+    self.road_curvature = abs(float(calculate_road_curvature(modelData, v_ego)))
 
     if v_ego > CRUISING_SPEED:
       self.tracking_lead = self.lead_one.status

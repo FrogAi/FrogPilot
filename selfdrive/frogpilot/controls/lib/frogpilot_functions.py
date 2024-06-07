@@ -24,6 +24,13 @@ def calculate_lane_width(lane, current_lane, road_edge):
 
   return min(distance_to_lane, distance_to_road_edge)
 
+# Credit goes to Pfeiferj!
+def calculate_road_curvature(modelData, v_ego):
+  orientation_rate = np.array(np.abs(modelData.orientationRate.z))
+  velocity = np.array(modelData.velocity.x)
+  max_pred_lat_acc = np.amax(orientation_rate * velocity)
+  return max_pred_lat_acc / (v_ego**2)
+
 def run_cmd(cmd, success_msg, fail_msg):
   try:
     subprocess.check_call(cmd)
