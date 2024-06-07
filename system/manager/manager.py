@@ -414,6 +414,11 @@ def manager_thread() -> None:
 
     if started and not started_prev:
       params.clear_all(ParamKeyType.CLEAR_ON_ONROAD_TRANSITION)
+
+      error_log = os.path.join(sentry.CRASHES_DIR, 'error.txt')
+      if os.path.isfile(error_log):
+        os.remove(error_log)
+
     elif not started and started_prev:
       params.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
       params_memory.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
