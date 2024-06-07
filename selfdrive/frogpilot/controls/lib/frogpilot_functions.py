@@ -11,6 +11,8 @@ from openpilot.common.params_pyx import Params, UnknownKeyName
 from openpilot.system.hardware import HARDWARE
 from openpilot.system.version import get_build_metadata
 
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import THRESHOLD
+
 def calculate_lane_width(lane, current_lane, road_edge):
   current_x, current_y = np.array(current_lane.x), np.array(current_lane.y)
   edge_x, edge_y = np.array(road_edge.x), np.array(road_edge.y)
@@ -39,6 +41,26 @@ def run_cmd(cmd, success_msg, fail_msg):
     print(f"{fail_msg}: {e}")
   except Exception as e:
     print(f"Unexpected error occurred: {e}")
+
+class MovingAverageCalculator:
+  def __init__(self):
+    self.data = []
+    self.total = 0
+
+  def add_data(self, value):
+    if len(self.data) == THRESHOLD:
+      self.total -= self.data.pop(0)
+    self.data.append(value)
+    self.total += value
+
+  def get_moving_average(self):
+    if len(self.data) == 0:
+      return None
+    return self.total / len(self.data)
+
+  def reset_data(self):
+    self.data = []
+    self.total = 0
 
 class FrogPilotFunctions:
   @classmethod
