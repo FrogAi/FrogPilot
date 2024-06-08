@@ -129,7 +129,10 @@ class CarState(CarStateBase):
     # FrogPilot CarState functions
     self.lkas_previously_enabled = self.lkas_enabled
     if self.car_fingerprint not in PREGLOBAL_CARS:
+      fp_ret.brakeLights = bool(cp_cam.vl["ES_DashStatus"]["Brake_Lights"])
       self.lkas_enabled = cp_cam.vl["ES_LKAS_State"]["LKAS_Dash_State"]
+    else:
+      fp_ret.brakeLights = bool(cp_cam.vl["ES_Brake"]["Cruise_Brake_Lights"])
 
     return ret, fp_ret
 
@@ -202,6 +205,7 @@ class CarState(CarStateBase):
       messages = [
         ("ES_DashStatus", 20),
         ("ES_Distance", 20),
+        ("ES_Brake", 20),
       ]
     else:
       messages = [
