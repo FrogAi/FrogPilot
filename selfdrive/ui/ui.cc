@@ -302,6 +302,10 @@ void ui_update_frogpilot_params(UIState *s, Params &params) {
   bool model_manager = params.getBool("ModelManagement");
   scene.model_randomizer = model_manager && params.getBool("ModelRandomizer");
 
+  bool quality_of_life_controls = params.getBool("QOLControls");
+  scene.reverse_cruise = quality_of_life_controls && params.getBool("ReverseCruise");
+  scene.reverse_cruise_ui = params.getBool("ReverseCruiseUI");
+
   scene.tethering_config = params.getInt("TetheringEnabled");
   if (scene.tethering_config == 2) {
     WifiManager(s).setTetheringEnabled(true);
