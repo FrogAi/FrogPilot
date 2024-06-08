@@ -29,6 +29,29 @@ private:
   QPixmap staticElements;
 };
 
+class PedalIcons : public QWidget {
+  Q_OBJECT
+
+public:
+  explicit PedalIcons(QWidget *parent = 0);
+  void updateState(const UIScene &scene);
+
+private:
+  void paintEvent(QPaintEvent *event) override;
+
+  QPixmap brake_pedal_img;
+  QPixmap gas_pedal_img;
+
+  bool accelerating;
+  bool brakeLightOn;
+  bool decelerating;
+  bool dynamicPedals;
+  bool standstill;
+  bool staticPedals;
+
+  float acceleration;
+};
+
 class AnnotatedCameraWidget : public CameraWidget {
   Q_OBJECT
 
@@ -76,6 +99,7 @@ private:
 
   Compass *compass_img;
   DistanceButton *distance_btn;
+  PedalIcons *pedal_icons;
 
   QHBoxLayout *bottom_layout;
 
