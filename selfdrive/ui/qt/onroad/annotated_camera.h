@@ -58,6 +58,7 @@ private:
   bool experimentalMode;
   bool mapOpen;
   bool onroadDistanceButton;
+  bool reverseCruise;
   bool showAlwaysOnLateralStatusBar;
   bool showConditionalExperimentalStatusBar;
   bool trafficModeActive;
@@ -76,6 +77,7 @@ private:
   QString leadDistanceUnit;
   QString leadSpeedUnit;
 
+  inline QColor blueColor(int alpha = 255) { return QColor(0, 150, 255, alpha); }
   inline QColor greenColor(int alpha = 242) { return QColor(23, 134, 68, alpha); }
 
 protected:
