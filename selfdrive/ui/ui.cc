@@ -361,6 +361,8 @@ void ui_update_frogpilot_params(UIState *s) {
   bool show_longitudinal = scene.longitudinal_control && developer_ui && params.getBool("LongitudinalMetrics");
   scene.lead_info = show_longitudinal && params.getBool("LeadInfo");
   scene.show_jerk = show_longitudinal && params.getBool("JerkInfo");
+  scene.numerical_temp = developer_ui && params.getBool("NumericalTemp");
+  scene.fahrenheit = scene.numerical_temp && params.getBool("Fahrenheit");
 
   scene.disable_smoothing_mtsc = params.getBool("MTSCEnabled") && params.getBool("DisableMTSCSmoothing");
   scene.disable_smoothing_vtsc = params.getBool("VisionTurnControl") && params.getBool("DisableVTSCSmoothing");
