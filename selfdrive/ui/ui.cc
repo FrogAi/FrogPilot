@@ -281,6 +281,8 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.onroad_distance_button = driving_personalities && params.getBool("OnroadDistanceButton");
   scene.use_kaofui_icons = scene.onroad_distance_button && params.getBool("KaofuiIcons");
 
+  scene.experimental_mode_via_screen = scene.longitudinal_control && params.getBool("ExperimentalModeActivation") && params.getBool("ExperimentalModeViaTap");
+
   scene.tethering_config = params.getInt("TetheringEnabled");
   if (scene.tethering_config == 2) {
     WifiManager(s).setTetheringEnabled(true);

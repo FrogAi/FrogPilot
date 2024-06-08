@@ -123,6 +123,7 @@ typedef struct UIScene {
   bool conditional_experimental;
   bool enabled;
   bool experimental_mode;
+  bool experimental_mode_via_screen;
   bool map_open;
   bool online;
   bool onroad_distance_button;
