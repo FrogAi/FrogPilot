@@ -921,8 +921,8 @@ struct ModelDataV2 {
   # Model perceived motion
   temporalPose @21 :Pose;
 
-  navEnabledDEPRECATED @22 :Bool;
-  locationMonoTimeDEPRECATED @24 :UInt64;
+  navEnabled @22 :Bool;
+  locationMonoTime @24 :UInt64;
 
   # e2e lateral planner
   lateralPlannerSolutionDEPRECATED @25: LateralPlannerSolution;
@@ -2377,6 +2377,6 @@ struct Event {
     driverStateDEPRECATED @59 :DriverStateDEPRECATED;
     sensorEventsDEPRECATED @11 :List(SensorEventData);
     lateralPlanDEPRECATED @64 :LateralPlan;
-    navModelDEPRECATED @104 :NavModelData;
+    navModel @104 :NavModelData;
   }
 }
