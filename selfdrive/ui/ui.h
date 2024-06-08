@@ -138,6 +138,7 @@ typedef struct UIScene {
   bool experimental_mode;
   bool experimental_mode_via_screen;
   bool has_lead;
+  bool holiday_themes;
   bool map_open;
   bool online;
   bool onroad_distance_button;
@@ -184,6 +185,7 @@ typedef struct UIScene {
   int conditional_speed;
   int conditional_speed_lead;
   int conditional_status;
+  int current_holiday_theme;
   int custom_colors;
   int custom_icons;
   int custom_signals;

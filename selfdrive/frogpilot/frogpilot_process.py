@@ -15,6 +15,7 @@ from openpilot.selfdrive.frogpilot.controls.frogpilot_planner import FrogPilotPl
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import FrogPilotFunctions
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import FrogPilotVariables
 from openpilot.selfdrive.frogpilot.controls.lib.model_manager import DEFAULT_MODEL, DEFAULT_MODEL_NAME, download_model, populate_models
+from openpilot.selfdrive.frogpilot.controls.lib.theme_manager import ThemeManager
 
 WIFI = log.DeviceState.NetworkType.wifi
 
@@ -77,6 +78,7 @@ def frogpilot_thread(frogpilot_toggles):
 
   frogpilot_functions = FrogPilotFunctions()
   frogpilot_planner = FrogPilotPlanner()
+  theme_manager = ThemeManager()
 
   maps_downloaded = os.path.exists('/data/media/0/osm/offline') or params.get("MapsSelected") is None
   time_validated = system_time_valid()
@@ -128,6 +130,8 @@ def frogpilot_thread(frogpilot_toggles):
         time_validated = system_time_valid()
         if not time_validated:
           continue
+
+      theme_manager.update_holiday()
 
 def main():
   frogpilot_thread(FrogPilotVariables.toggles)
