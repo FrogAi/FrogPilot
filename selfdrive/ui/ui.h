@@ -173,6 +173,7 @@ typedef struct UIScene {
   bool right_hand_drive;
   bool road_name_ui;
   bool rotating_wheel;
+  bool screen_recorder;
   bool show_aol_status_bar;
   bool show_blind_spot;
   bool show_cem_status_bar;
