@@ -140,6 +140,7 @@ typedef struct UIScene {
   bool experimental_mode;
   bool experimental_mode_via_screen;
   bool fahrenheit;
+  bool full_map;
   bool has_auto_tune;
   bool has_lead;
   bool hide_lead_marker;

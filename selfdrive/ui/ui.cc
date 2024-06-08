@@ -415,6 +415,7 @@ void ui_update_frogpilot_params(UIState *s) {
 
   bool quality_of_life_visuals = params.getBool("QOLVisuals");
   scene.big_map = quality_of_life_visuals && params.getBool("BigMap");
+  scene.full_map = scene.big_map && params.getBool("FullMap");
 
   scene.speed_limit_controller = scene.longitudinal_control && params.getBool("SpeedLimitController");
   scene.show_slc_offset = scene.speed_limit_controller && params.getBool("ShowSLCOffset");
