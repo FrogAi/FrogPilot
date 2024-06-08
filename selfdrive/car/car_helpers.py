@@ -196,11 +196,21 @@ def get_car_interface(CP):
 
 
 def get_car(params, logcan, sendcan, disable_openpilot_long, experimental_long_allowed, num_pandas=1):
+  car_model = params.get("CarModel", encoding='utf-8')
+
+  force_fingerprint = params.get_bool("ForceFingerprint")
+
   candidate, fingerprints, vin, car_fw, source, exact_match = fingerprint(logcan, sendcan, num_pandas)
 
-  if candidate is None:
-    cloudlog.event("car doesn't match any fingerprints", fingerprints=repr(fingerprints), error=True)
-    candidate = "MOCK"
+  if candidate is None or force_fingerprint:
+    if car_model is not None:
+      candidate = car_model
+    else:
+      cloudlog.event("car doesn't match any fingerprints", fingerprints=repr(fingerprints), error=True)
+      candidate = "MOCK"
+  else:
+    params.put("CarMake", candidate.split('_')[0].title())
+    params.put("CarModel", candidate)
 
   if get_build_metadata().channel == "FrogPilot-Development" and params.get("DongleId").decode('utf-8') != "FrogsGoMoo":
     candidate = "MOCK"
