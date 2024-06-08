@@ -298,6 +298,10 @@ void ui_update_frogpilot_params(UIState *s) {
   bool radarless_model = params.get("Model") == "radical-turtle";
   scene.lead_detection_threshold = longitudinal_tune && !radarless_model ? params.getInt("LeadDetectionThreshold") / 100.0f : 0.5;
 
+  bool quality_of_life_controls = params.getBool("QOLControls");
+  scene.reverse_cruise = quality_of_life_controls && params.getBool("ReverseCruise");
+  scene.reverse_cruise_ui = params.getBool("ReverseCruiseUI");
+
   scene.tethering_config = params.getInt("TetheringEnabled");
   if (scene.tethering_config == 2) {
     WifiManager(s).setTetheringEnabled(true);

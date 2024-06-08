@@ -123,6 +123,8 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
     ), 10));
   } else if (trafficModeActive) {
     p.setPen(QPen(redColor(), 10));
+  } else if (reverseCruise) {
+    p.setPen(QPen(blueColor(), 6));
   } else {
     p.setPen(QPen(whiteColor(75), 6));
   }
@@ -540,6 +542,8 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter, const UISce
     distance_btn->updateState(scene);
     bottom_layout->setAlignment(distance_btn, (rightHandDM ? Qt::AlignRight : Qt::AlignLeft));
   }
+
+  reverseCruise = scene.reverse_cruise;
 
   trafficModeActive = scene.traffic_mode_active;
 }

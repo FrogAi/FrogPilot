@@ -97,6 +97,15 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   // FrogPilot clickable widgets
   QPoint pos = e->pos();
 
+  QRect maxSpeedRect(7, 25, 225, 225);
+
+  if (maxSpeedRect.contains(pos) && scene.reverse_cruise_ui) {
+    scene.reverse_cruise = !scene.reverse_cruise;
+    params.putBoolNonBlocking("ReverseCruise", scene.reverse_cruise);
+    updateFrogPilotToggles();
+    return;
+  }
+
   if (scene.experimental_mode_via_screen && pos != timeoutPoint) {
     if (clickTimer.isActive()) {
       clickTimer.stop();
