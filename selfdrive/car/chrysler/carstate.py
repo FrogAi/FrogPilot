@@ -104,6 +104,8 @@ class CarState(CarStateBase):
     self.button_counter = cp.vl[self.button_message]["COUNTER"]
 
     # FrogPilot CarState functions
+    fp_ret.brakeLights = bool(cp.vl["ESP_1"]["BRAKE_PRESSED_ACC"])
+
     self.lkas_previously_enabled = self.lkas_enabled
     if self.CP.carFingerprint in RAM_CARS:
       self.lkas_enabled = cp.vl["Center_Stack_2"]["LKAS_Button"] or cp.vl["Center_Stack_1"]["LKAS_Button"]

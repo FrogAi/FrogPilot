@@ -154,6 +154,8 @@ class CarState(CarStateBase):
     self.upscale_lead_car_signal = bool(pt_cp.vl["Kombi_03"]["KBI_Variante"])
 
     # FrogPilot CarState functions
+    fp_ret.brakeLights = bool(pt_cp.vl["ESP_05"]['ESP_Status_Bremsdruck'])
+
     self.prev_distance_button = self.distance_button
     self.distance_button = bool(pt_cp.vl["GRA_ACC_01"]["GRA_Verstellung_Zeitluecke"])
 
@@ -258,6 +260,8 @@ class CarState(CarStateBase):
     ret.espDisabled = bool(pt_cp.vl["Bremse_1"]["ESP_Passiv_getastet"])
 
     # FrogPilot CarState functions
+    fp_ret.brakeLights = bool(pt_cp.vl["Motor_2"]['Bremstestschalter'])
+
     self.prev_distance_button = self.distance_button
     self.distance_button = bool(pt_cp.vl["GRA_Neu"]["GRA_Zeitluecke"])
 
