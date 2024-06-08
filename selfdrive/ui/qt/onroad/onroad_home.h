@@ -25,6 +25,10 @@ private:
   QHBoxLayout* split;
 
   // FrogPilot variables
+  QPoint timeoutPoint = QPoint(420, 69);
+
+  QTimer clickTimer;
+
   Params params;
   Params paramsMemory{"/dev/shm/params"};
 
