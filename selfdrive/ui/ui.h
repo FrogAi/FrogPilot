@@ -183,6 +183,7 @@ typedef struct UIScene {
   int conditional_speed_lead;
   int conditional_status;
   int custom_colors;
+  int custom_icons;
   int lead_distance;
   int model_length;
   int steering_angle_deg;
