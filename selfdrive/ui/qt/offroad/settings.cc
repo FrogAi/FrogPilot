@@ -314,6 +314,62 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   });
   addItem(deleteDrivingDataBtn);
 
+  // Screen recordings
+  std::vector<QString> recordingsOptions{tr("DELETE"), tr("RENAME")};
+  FrogPilotButtonsControl *screenRecordingsBtn = new FrogPilotButtonsControl(tr("Screen Recordings"), tr("Delete or rename your screen recordings."), "", recordingsOptions);
+  connect(screenRecordingsBtn, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
+    QDir recordingsDir("/data/media/0/videos");
+    QStringList recordingsNames = recordingsDir.entryList(QDir::Files | QDir::NoDotAndDotDot);
+
+    if (id == 0) {
+      QString selection = MultiOptionDialog::getSelection(tr("Select a recording to delete"), recordingsNames, "", this);
+      if (!selection.isEmpty()) {
+        if (!ConfirmationDialog::confirm(tr("Are you sure you want to delete this recording?"), tr("Delete"), this)) return;
+        std::thread([=]() {
+          screenRecordingsBtn->setEnabled(false);
+          screenRecordingsBtn->setValue(tr("Deleting..."));
+
+          QFile fileToDelete(recordingsDir.absoluteFilePath(selection));
+          if (fileToDelete.remove()) {
+            screenRecordingsBtn->setValue(tr("Deleted!"));
+          } else {
+            screenRecordingsBtn->setValue(tr("Failed..."));
+          }
+
+          std::this_thread::sleep_for(std::chrono::seconds(2));
+          screenRecordingsBtn->setValue("");
+          screenRecordingsBtn->setEnabled(true);
+        }).detach();
+      }
+
+    } else if (id == 1) {
+      QString selection = MultiOptionDialog::getSelection(tr("Select a recording to rename"), recordingsNames, "", this);
+      if (!selection.isEmpty()) {
+        QString newName = InputDialog::getText(tr("Enter a new name"), this, tr("Rename Recording"));
+        if (!newName.isEmpty()) {
+          std::thread([=]() {
+            screenRecordingsBtn->setEnabled(false);
+            screenRecordingsBtn->setValue(tr("Renaming..."));
+
+            QString oldPath = recordingsDir.absoluteFilePath(selection);
+            QString newPath = recordingsDir.absoluteFilePath(newName);
+
+            if (QFile::rename(oldPath, newPath)) {
+              screenRecordingsBtn->setValue(tr("Renamed!"));
+            } else {
+              screenRecordingsBtn->setValue(tr("Failed..."));
+            }
+
+            std::this_thread::sleep_for(std::chrono::seconds(2));
+            screenRecordingsBtn->setValue("");
+            screenRecordingsBtn->setEnabled(true);
+          }).detach();
+        }
+      }
+    }
+  });
+  addItem(screenRecordingsBtn);
+
   // Backup FrogPilot
   std::vector<QString> frogpilotBackupOptions{tr("BACKUP"), tr("DELETE"), tr("RESTORE")};
   FrogPilotButtonsControl *frogpilotBackupBtn = new FrogPilotButtonsControl(tr("FrogPilot Backups"), tr("Backup, delete, or restore your FrogPilot backups."), "", frogpilotBackupOptions);
