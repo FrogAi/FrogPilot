@@ -63,6 +63,8 @@ private:
   // FrogPilot variables
   Params params;
 
+  bool isNumericalTemp;
+
   std::unordered_map<int, std::pair<QString, std::vector<QColor>>> themeConfiguration;
   std::unordered_map<int, QPixmap> flag_imgs;
   std::unordered_map<int, QPixmap> home_imgs;
