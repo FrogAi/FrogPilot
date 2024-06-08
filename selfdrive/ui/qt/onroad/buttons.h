@@ -25,9 +25,15 @@ private:
   bool engageable;
 
   // FrogPilot variables
+  bool alwaysOnLateralActive;
   bool conditionalExperimental;
+  bool navigateOnOpenpilot;
+  bool trafficModeActive;
 
   int conditionalStatus;
+  int wheelIcon;
+
+  QMap<int, QPixmap> wheelImages;
 
   Params paramsMemory{"/dev/shm/params"};
 };
