@@ -247,6 +247,10 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("liveLocationKalman")) {
     auto liveLocationKalman = sm["liveLocationKalman"].getLiveLocationKalman();
+    auto orientation = liveLocationKalman.getCalibratedOrientationNED();
+    if (orientation.getValid()) {
+      scene.bearing_deg = RAD2DEG(orientation.getValue()[2]);
+    }
   }
   if (sm.updated("liveTorqueParameters")) {
     auto liveTorqueParameters = sm["liveTorqueParameters"].getLiveTorqueParameters();
@@ -292,6 +296,9 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.conditional_speed = scene.conditional_experimental ? params.getInt("CESpeed") : 0;
   scene.conditional_speed_lead = scene.conditional_experimental ? params.getInt("CESpeedLead") : 0;
   scene.show_cem_status_bar = scene.conditional_experimental && !params.getBool("HideCEMStatusBar");
+
+  bool custom_onroad_ui = params.getBool("CustomUI");
+  scene.compass = custom_onroad_ui && params.getBool("Compass");
 
   scene.disable_smoothing_mtsc = params.getBool("MTSCEnabled") && params.getBool("DisableMTSCSmoothing");
   scene.disable_smoothing_vtsc = params.getBool("VisionTurnControl") && params.getBool("DisableVTSCSmoothing");
