@@ -28,9 +28,11 @@ private:
   bool alwaysOnLateralActive;
   bool conditionalExperimental;
   bool navigateOnOpenpilot;
+  bool rotatingWheel;
   bool trafficModeActive;
 
   int conditionalStatus;
+  int steeringAngleDeg;
   int wheelIcon;
 
   QMap<int, QPixmap> wheelImages;
@@ -51,7 +53,7 @@ private:
   QPixmap settings_img;
 };
 
-void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity);
+void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity, const int angle = 0);
 
 // FrogPilot buttons
 class DistanceButton : public QPushButton {
