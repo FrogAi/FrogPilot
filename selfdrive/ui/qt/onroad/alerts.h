@@ -41,6 +41,7 @@ protected:
   Alert alert = {};
 
   // FrogPilot variables
+  bool roadNameUI;
   bool showAOLStatusBar;
   bool showCEMStatusBar;
 };
