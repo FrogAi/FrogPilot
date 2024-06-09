@@ -2,7 +2,10 @@
 import datetime
 import os
 import signal
+import subprocess
 import sys
+import threading
+import time
 import traceback
 
 from cereal import log
@@ -16,12 +19,33 @@ from openpilot.system.manager.process import ensure_running
 from openpilot.system.manager.process_config import managed_processes
 from openpilot.system.athena.registration import register, UNREGISTERED_DONGLE_ID
 from openpilot.common.swaglog import cloudlog, add_file_handler
+from openpilot.common.time import system_time_valid
 from openpilot.system.version import get_build_metadata, terms_version, training_version
 
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import FrogPilotFunctions
 
 
+def frogpilot_boot_functions(frogpilot_functions):
+  while not system_time_valid():
+    print("Waiting for system time to become valid...")
+    time.sleep(1)
+
+  try:
+    frogpilot_functions.backup_frogpilot()
+  except subprocess.CalledProcessError as e:
+    print(f"Failed to backup FrogPilot. Error: {e}")
+    return
+
+  try:
+    frogpilot_functions.backup_toggles()
+  except subprocess.CalledProcessError as e:
+    print(f"Failed to backup toggles. Error: {e}")
+    return
+
 def manager_init(frogpilot_functions) -> None:
+  frogpilot_boot = threading.Thread(target=frogpilot_boot_functions, args=(frogpilot_functions,))
+  frogpilot_boot.start()
+
   save_bootlog()
 
   build_metadata = get_build_metadata()

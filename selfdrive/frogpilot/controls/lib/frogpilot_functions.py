@@ -1,4 +1,6 @@
+import datetime
 import filecmp
+import glob
 import os
 import shutil
 import subprocess
@@ -18,6 +20,52 @@ def run_cmd(cmd, success_msg, fail_msg):
     print(f"Unexpected error occurred: {e}")
 
 class FrogPilotFunctions:
+  @classmethod
+  def backup_frogpilot(cls):
+    frogpilot_backup_directory = "/data/backups"
+    os.makedirs(frogpilot_backup_directory, exist_ok=True)
+
+    auto_backups = sorted(glob.glob(os.path.join(frogpilot_backup_directory, "*_auto")), key=os.path.getmtime, reverse=True)
+    for old_backup in auto_backups[4:]:
+      shutil.rmtree(old_backup)
+      print(f"Deleted oldest FrogPilot backup to maintain limit: {os.path.basename(old_backup)}")
+
+    build_metadata = get_build_metadata()
+    branch = build_metadata.channel
+    commit = build_metadata.openpilot.git_commit_date[12:-16]
+    backup_folder_name = f"{branch}_{commit}_auto"
+    backup_path = os.path.join(frogpilot_backup_directory, backup_folder_name)
+
+    if not os.path.exists(backup_path):
+      cmd = ['sudo', 'cp', '-a', f"{BASEDIR}", f"{backup_path}/"]
+      run_cmd(cmd, f"Successfully backed up FrogPilot to {backup_folder_name}.", f"Failed to backup FrogPilot to {backup_folder_name}.")
+
+  @classmethod
+  def backup_toggles(cls):
+    params = Params()
+    params_storage = Params("/persist/params")
+
+    for key in params.all_keys():
+      value = params.get(key)
+      if value is not None:
+        params_storage.put(key, value)
+
+    toggle_backup_directory = "/data/toggle_backups"
+    os.makedirs(toggle_backup_directory, exist_ok=True)
+
+    auto_backups = sorted(glob.glob(os.path.join(toggle_backup_directory, "*_auto")), key=os.path.getmtime, reverse=True)
+    for old_backup in auto_backups[9:]:
+      shutil.rmtree(old_backup)
+      print(f"Deleted oldest toggle backup to maintain limit: {os.path.basename(old_backup)}")
+
+    current_datetime = datetime.datetime.now().strftime("%Y-%m-%d_%I-%M%p").lower()
+    backup_folder_name = f"{current_datetime}_auto"
+    backup_path = os.path.join(toggle_backup_directory, backup_folder_name)
+
+    if not os.path.exists(backup_path):
+      cmd = ['sudo', 'cp', '-a', '/data/params/.', f"{backup_path}/"]
+      run_cmd(cmd, f"Successfully backed up toggles to {backup_folder_name}.", f"Failed to backup toggles to {backup_folder_name}.")
+
   @classmethod
   def convert_params(cls, params, params_storage, params_tracking):
     def convert_param(key, action_func):
