@@ -3,6 +3,7 @@ import os
 import numpy as np
 import tomllib
 from abc import abstractmethod, ABC
+from difflib import SequenceMatcher
 from enum import StrEnum
 from typing import Any, NamedTuple
 from collections.abc import Callable
@@ -31,9 +32,14 @@ ACCEL_MAX = 2.0
 ACCEL_MIN = -3.5
 FRICTION_THRESHOLD = 0.3
 
+NEURAL_PARAMS_PATH = os.path.join(BASEDIR, 'selfdrive/car/torque_data/neural_ff_weights.json')
+TORQUE_NN_MODEL_PATH = os.path.join(BASEDIR, 'selfdrive/car/torque_data/lat_models')
 TORQUE_PARAMS_PATH = os.path.join(BASEDIR, 'selfdrive/car/torque_data/params.toml')
 TORQUE_OVERRIDE_PATH = os.path.join(BASEDIR, 'selfdrive/car/torque_data/override.toml')
 TORQUE_SUBSTITUTE_PATH = os.path.join(BASEDIR, 'selfdrive/car/torque_data/substitute.toml')
+
+# dict used to rename activation functions whose names aren't valid python identifiers
+ACTIVATION_FUNCTION_NAMES = {'σ': 'sigmoid'}
 
 GEAR_SHIFTER_MAP: dict[str, car.CarState.GearShifter] = {
   'P': GearShifter.park, 'PARK': GearShifter.park,
@@ -47,6 +53,8 @@ GEAR_SHIFTER_MAP: dict[str, car.CarState.GearShifter] = {
   'B': GearShifter.brake, 'BRAKE': GearShifter.brake,
 }
 
+def similarity(s1: str, s2: str) -> float:
+  return SequenceMatcher(None, s1, s2).ratio()
 
 class LatControlInputs(NamedTuple):
   lateral_acceleration: float
@@ -87,6 +95,108 @@ def get_torque_params():
 
   return torque_params
 
+# Twilsonco's Lateral Neural Network Feedforward
+class FluxModel:
+  def __init__(self, params_file, zero_bias=False):
+    with open(params_file, "r") as f:
+      params = json.load(f)
+
+    self.input_size = params["input_size"]
+    self.output_size = params["output_size"]
+    self.input_mean = np.array(params["input_mean"], dtype=np.float32).T
+    self.input_std = np.array(params["input_std"], dtype=np.float32).T
+    self.layers = []
+    self.friction_override = False
+
+    for layer_params in params["layers"]:
+      W = np.array(layer_params[next(key for key in layer_params.keys() if key.endswith('_W'))], dtype=np.float32).T
+      b = np.array(layer_params[next(key for key in layer_params.keys() if key.endswith('_b'))], dtype=np.float32).T
+      if zero_bias:
+        b = np.zeros_like(b)
+      activation = layer_params["activation"]
+      for k, v in ACTIVATION_FUNCTION_NAMES.items():
+        activation = activation.replace(k, v)
+      self.layers.append((W, b, activation))
+
+    self.validate_layers()
+    self.check_for_friction_override()
+
+  # Begin activation functions.
+  # These are called by name using the keys in the model json file
+  @staticmethod
+  def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+  @staticmethod
+  def identity(x):
+    return x
+  # End activation functions
+
+  def forward(self, x):
+    for W, b, activation in self.layers:
+      x = getattr(self, activation)(x.dot(W) + b)
+    return x
+
+  def evaluate(self, input_array):
+    in_len = len(input_array)
+    if in_len != self.input_size:
+      # If the input is length 2-4, then it's a simplified evaluation.
+      # In that case, need to add on zeros to fill out the input array to match the correct length.
+      if 2 <= in_len:
+        input_array = input_array + [0] * (self.input_size - in_len)
+      else:
+        raise ValueError(f"Input array length {len(input_array)} must be length 2 or greater")
+
+    input_array = np.array(input_array, dtype=np.float32)
+
+    # Rescale the input array using the input_mean and input_std
+    input_array = (input_array - self.input_mean) / self.input_std
+
+    output_array = self.forward(input_array)
+
+    return float(output_array[0, 0])
+
+  def validate_layers(self):
+    for W, b, activation in self.layers:
+      if not hasattr(self, activation):
+        raise ValueError(f"Unknown activation: {activation}")
+
+  def check_for_friction_override(self):
+    y = self.evaluate([10.0, 0.0, 0.2])
+    self.friction_override = (y < 0.1)
+
+def get_nn_model_path(car, eps_firmware) -> tuple[str | None, float]:
+  def check_nn_path(check_model):
+    model_path = None
+    max_similarity = -1.0
+    for f in os.listdir(TORQUE_NN_MODEL_PATH):
+      if f.endswith(".json"):
+        model = f.replace(".json", "").replace(f"{TORQUE_NN_MODEL_PATH}/", "")
+        similarity_score = similarity(model, check_model)
+        if similarity_score > max_similarity:
+          max_similarity = similarity_score
+          model_path = os.path.join(TORQUE_NN_MODEL_PATH, f)
+    return model_path, max_similarity
+
+  if len(eps_firmware) > 3:
+    eps_firmware = eps_firmware.replace("\\", "")
+    check_model = f"{car} {eps_firmware}"
+  else:
+    check_model = car
+  model_path, max_similarity = check_nn_path(check_model)
+  if car not in model_path or 0.0 <= max_similarity < 0.9:
+    check_model = car
+    model_path, max_similarity = check_nn_path(check_model)
+    if car not in model_path or 0.0 <= max_similarity < 0.9:
+      model_path = None
+  return model_path
+
+def get_nn_model(car, eps_firmware) -> tuple[FluxModel | None, float]:
+  model = get_nn_model_path(car, eps_firmware)
+  if model is not None:
+    model = FluxModel(model)
+  return model
+
 # generic car and radar interfaces
 
 class CarInterfaceBase(ABC):
@@ -116,6 +226,14 @@ class CarInterfaceBase(ABC):
     self.params = Params()
     self.params_memory = Params("/dev/shm/params")
 
+    eps_firmware = str(next((fw.fwVersion for fw in CP.carFw if fw.ecu == "eps"), ""))
+
+    comma_nnff_supported = self.check_comma_nn_ff_support(CP.carFingerprint)
+    nnff_supported = self.initialize_lat_torque_nn(CP.carFingerprint, eps_firmware)
+
+    lateral_tune = self.params.get_bool("LateralTune")
+    self.use_nnff = not comma_nnff_supported and nnff_supported and lateral_tune and self.params.get_bool("NNFF")
+
     self.always_on_lateral_disabled = False
     self.belowSteerSpeed_shown = False
     self.disable_belowSteerSpeed = False
@@ -125,6 +243,18 @@ class CarInterfaceBase(ABC):
     self.resumeRequired_shown = False
 
     self.gap_counter = 0
+
+  def get_ff_nn(self, x):
+    return self.lat_torque_nn_model.evaluate(x)
+
+  def check_comma_nn_ff_support(self, car):
+    with open(NEURAL_PARAMS_PATH, 'r') as file:
+      data = json.load(file)
+    return car in data
+
+  def initialize_lat_torque_nn(self, car, eps_firmware) -> bool:
+    self.lat_torque_nn_model = get_nn_model(car, eps_firmware)
+    return self.lat_torque_nn_model is not None
 
   def apply(self, c: car.CarControl, now_nanos: int, frogpilot_toggles) -> tuple[car.CarControl.Actuators, list[tuple[int, int, bytes, int]]]:
     return self.CC.update(c, self.CS, now_nanos, frogpilot_toggles)
@@ -155,6 +285,14 @@ class CarInterfaceBase(ABC):
     ret.flags |= int(platform.config.flags)
 
     ret = cls._get_params(ret, params, candidate, fingerprint, car_fw, experimental_long, docs)
+
+    # Enable torque controller for all cars that do not use angle based steering
+    if ret.steerControlType != car.CarParams.SteerControlType.angle and params.get_bool("LateralTune") and params.get_bool("NNFF"):
+      CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
+      eps_firmware = str(next((fw.fwVersion for fw in car_fw if fw.ecu == "eps"), ""))
+      model = get_nn_model_path(candidate, eps_firmware)
+      if model is not None:
+        params.put("NNFFModelName", candidate.replace("_", " "))
 
     # Vehicle mass is published curb weight plus assumed payload such as a human driver; notCars have no assumed payload
     if not ret.notCar:
