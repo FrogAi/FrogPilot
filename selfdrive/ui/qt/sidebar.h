@@ -62,4 +62,8 @@ private:
 
   // FrogPilot variables
   Params params;
+
+  std::unordered_map<int, std::pair<QString, std::vector<QColor>>> themeConfiguration;
+
+  std::vector<QColor> currentColors;
 };

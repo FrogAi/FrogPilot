@@ -136,12 +136,15 @@ private:
   int conditionalSpeed;
   int conditionalSpeedLead;
   int conditionalStatus;
+  int customColors;
 
   QPixmap stopSignImg;
 
   QString accelerationUnit;
   QString leadDistanceUnit;
   QString leadSpeedUnit;
+
+  std::unordered_map<int, std::tuple<QString, QColor, std::map<double, QBrush>>> themeConfiguration;
 
   inline QColor blueColor(int alpha = 255) { return QColor(0, 150, 255, alpha); }
   inline QColor greenColor(int alpha = 242) { return QColor(23, 134, 68, alpha); }

@@ -277,13 +277,21 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s, c
 
   // lanelines
   for (int i = 0; i < std::size(scene.lane_line_vertices); ++i) {
-    painter.setBrush(QColor::fromRgbF(1.0, 1.0, 1.0, std::clamp<float>(scene.lane_line_probs[i], 0.0, 0.7)));
+    if (customColors != 0) {
+      painter.setBrush(std::get<2>(themeConfiguration[customColors]).begin()->second);
+    } else {
+      painter.setBrush(QColor::fromRgbF(1.0, 1.0, 1.0, std::clamp<float>(scene.lane_line_probs[i], 0.0, 0.7)));
+    }
     painter.drawPolygon(scene.lane_line_vertices[i]);
   }
 
   // road edges
   for (int i = 0; i < std::size(scene.road_edge_vertices); ++i) {
-    painter.setBrush(QColor::fromRgbF(1.0, 0, 0, std::clamp<float>(1.0 - scene.road_edge_stds[i], 0.0, 1.0)));
+    if (customColors != 0) {
+      painter.setBrush(std::get<2>(themeConfiguration[customColors]).begin()->second);
+    } else {
+      painter.setBrush(QColor::fromRgbF(1.0, 0, 0, std::clamp<float>(1.0 - scene.road_edge_stds[i], 0.0, 1.0)));
+    }
     painter.drawPolygon(scene.road_edge_vertices[i]);
   }
 
@@ -292,8 +300,14 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s, c
   if (experimentalMode || scene.acceleration_path) {
     // The first half of track_vertices are the points for the right side of the path
     // and the indices match the positions of accel from uiPlan
-    const auto &acceleration = sm["uiPlan"].getUiPlan().getAccel();
-    const int max_len = std::min<int>(scene.track_vertices.length() / 2, acceleration.size());
+    const auto &acceleration_const = sm["uiPlan"].getUiPlan().getAccel();
+    const int max_len = std::min<int>(scene.track_vertices.length() / 2, acceleration_const.size());
+
+    // Copy of the acceleration vector
+    std::vector<float> acceleration;
+    for (int i = 0; i < acceleration_const.size(); i++) {
+      acceleration.push_back(acceleration_const[i]);
+    }
 
     for (int i = 0; i < max_len; ++i) {
       // Some points are out of frame
@@ -302,18 +316,31 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s, c
       // Flip so 0 is bottom of frame
       float lin_grad_point = (height() - scene.track_vertices[i].y()) / height();
 
-      // speed up: 120, slow down: 0
-      float path_hue = fmax(fmin(60 + acceleration[i] * 35, 120), 0);
-      // FIXME: painter.drawPolygon can be slow if hue is not rounded
-      path_hue = int(path_hue * 100 + 0.5) / 100;
+      // If acceleration is between -0.25 and 0.25, resort to the theme color
+      if (std::abs(acceleration[i]) < 0.25 && (customColors != 0)) {
+        const std::map<double, QBrush> &colorMap = std::get<2>(themeConfiguration[customColors]);
+        for (const std::pair<double, QBrush> &entry : colorMap) {
+          bg.setColorAt(entry.first, entry.second.color());
+        }
+      } else {
+        // speed up: 120, slow down: 0
+        float path_hue = fmax(fmin(60 + acceleration[i] * 35, 120), 0);
+        // FIXME: painter.drawPolygon can be slow if hue is not rounded
+        path_hue = int(path_hue * 100 + 0.5) / 100;
 
-      float saturation = fmin(fabs(acceleration[i] * 1.5), 1);
-      float lightness = util::map_val(saturation, 0.0f, 1.0f, 0.95f, 0.62f);  // lighter when grey
-      float alpha = util::map_val(lin_grad_point, 0.75f / 2.f, 0.75f, 0.4f, 0.0f);  // matches previous alpha fade
-      bg.setColorAt(lin_grad_point, QColor::fromHslF(path_hue / 360., saturation, lightness, alpha));
+        float saturation = fmin(fabs(acceleration[i] * 1.5), 1);
+        float lightness = util::map_val(saturation, 0.0f, 1.0f, 0.95f, 0.62f);  // lighter when grey
+        float alpha = util::map_val(lin_grad_point, 0.75f / 2.f, 0.75f, 0.4f, 0.0f);  // matches previous alpha fade
+        bg.setColorAt(lin_grad_point, QColor::fromHslF(path_hue / 360., saturation, lightness, alpha));
 
-      // Skip a point, unless next is last
-      i += (i + 2) < max_len ? 1 : 0;
+        // Skip a point, unless next is last
+        i += (i + 2) < max_len ? 1 : 0;
+      }
+    }
+  } else if (customColors != 0) {
+    const std::map<double, QBrush> &colorMap = std::get<2>(themeConfiguration[customColors]);
+    for (const std::pair<double, QBrush> &entry : colorMap) {
+      bg.setColorAt(entry.first, entry.second.color());
     }
 
   } else {
@@ -451,8 +478,8 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
 void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::ModelDataV2::LeadDataV3::Reader &lead_data, const QPointF &vd, const float v_ego) {
   painter.save();
 
-  const float speedBuff = 10.;
-  const float leadBuff = 40.;
+  const float speedBuff = customColors != 0 ? 25. : 10.;  // Make the center of the chevron appear sooner if a custom theme is active
+  const float leadBuff = customColors != 0 ? 100. : 40.;  // Make the center of the chevron appear sooner if a custom theme is active
   const float d_rel = lead_data.getX()[0];
   const float v_rel = lead_data.getV()[0] - v_ego;
 
@@ -478,7 +505,11 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::ModelDataV
 
   // chevron
   QPointF chevron[] = {{x + (sz * 1.25), y + sz}, {x, y}, {x - (sz * 1.25), y + sz}};
-  painter.setBrush(redColor(fillAlpha));
+  if (customColors != 0) {
+    painter.setBrush(std::get<2>(themeConfiguration[customColors]).begin()->second);
+  } else {
+    painter.setBrush(redColor(fillAlpha));
+  }
   painter.drawPolygon(chevron, std::size(chevron));
 
   painter.restore();
@@ -608,6 +639,18 @@ void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
   main_layout->addLayout(bottom_layout);
 
   stopSignImg = loadPixmap("../frogpilot/assets/other_images/stop_sign.png", QSize(img_size, img_size));
+
+  themeConfiguration = {
+    {1, {"frog_theme", QColor(23, 134, 68, 242), {{0.0, QBrush(QColor::fromHslF(144 / 360., 0.71, 0.31, 0.9))},
+                                                  {0.5, QBrush(QColor::fromHslF(144 / 360., 0.71, 0.31, 0.5))},
+                                                  {1.0, QBrush(QColor::fromHslF(144 / 360., 0.71, 0.31, 0.1))}}}},
+    {2, {"tesla_theme", QColor(0, 72, 255, 255), {{0.0, QBrush(QColor::fromHslF(223 / 360., 1.0, 0.5, 0.9))},
+                                                  {0.5, QBrush(QColor::fromHslF(223 / 360., 1.0, 0.5, 0.5))},
+                                                  {1.0, QBrush(QColor::fromHslF(223 / 360., 1.0, 0.5, 0.1))}}}},
+    {3, {"stalin_theme", QColor(255, 0, 0, 255), {{0.0, QBrush(QColor::fromHslF(0 / 360., 1.0, 0.5, 0.9))},
+                                                  {0.5, QBrush(QColor::fromHslF(0 / 360., 1.0, 0.5, 0.5))},
+                                                  {1.0, QBrush(QColor::fromHslF(0 / 360., 1.0, 0.5, 0.1))}}}},
+  };
 }
 
 void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter, const UIScene &scene) {
@@ -656,6 +699,8 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter, const UISce
   bool disableSmoothing = vtscControllingCurve ? scene.disable_smoothing_vtsc : scene.disable_smoothing_mtsc;
   cruiseAdjustment = disableSmoothing || !is_cruise_set ? fmax(setSpeed - scene.adjusted_cruise, 0) : fmax(0.25 * (setSpeed - scene.adjusted_cruise) + 0.75 * cruiseAdjustment - 1, 0);
   vtscControllingCurve = scene.vtsc_controlling_curve;
+
+  customColors = scene.custom_colors;
 
   experimentalMode = scene.experimental_mode;
 
