@@ -24,6 +24,7 @@ class SpeedLimitController:
     self.params = Params()
     self.params_memory = Params("/dev/shm/params")
 
+    self.car_speed_limit = 0  # m/s
     self.map_speed_limit = 0  # m/s
     self.max_speed_limit = 0  # m/s
     self.nav_speed_limit = 0  # m/s
@@ -40,7 +41,8 @@ class SpeedLimitController:
       self.params.put_float_nonblocking("PreviousSpeedLimit", speed_limit)
       self.prv_speed_limit = speed_limit
 
-  def update(self, enabled, navigationSpeedLimit, v_cruise, v_ego, frogpilot_toggles):
+  def update(self, dashboardSpeedLimit, enabled, navigationSpeedLimit, v_cruise, v_ego, frogpilot_toggles):
+    self.car_speed_limit = dashboardSpeedLimit
     self.write_map_state(v_ego)
     self.nav_speed_limit = navigationSpeedLimit
 
@@ -94,7 +96,7 @@ class SpeedLimitController:
 
   @property
   def speed_limit(self):
-    limits = [self.map_speed_limit, self.nav_speed_limit]
+    limits = [self.car_speed_limit, self.map_speed_limit, self.nav_speed_limit]
     filtered_limits = [float(limit) for limit in limits if limit > 1]
 
     if self.frogpilot_toggles.speed_limit_priority_highest and filtered_limits:
@@ -103,6 +105,7 @@ class SpeedLimitController:
       return min(filtered_limits)
 
     speed_limits = {
+      "Dashboard": self.car_speed_limit,
       "Offline Maps": self.map_speed_limit,
       "Navigation": self.nav_speed_limit,
     }

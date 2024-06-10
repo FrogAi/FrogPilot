@@ -27,6 +27,22 @@ PERM_STEER_FAULTS = (3, 17)
 ZSS_THRESHOLD = 4.0
 ZSS_THRESHOLD_COUNT = 10
 
+# Traffic signals for Speed Limit Controller - Credit goes to the DragonPilot team!
+@staticmethod
+def calculate_speed_limit(cp_cam, frogpilot_toggles):
+  signals = ["TSGN1", "SPDVAL1", "SPLSGN1", "TSGN2", "SPLSGN2", "TSGN3", "SPLSGN3", "TSGN4", "SPLSGN4"]
+  traffic_signals = {signal: cp_cam.vl["RSA1"].get(signal, cp_cam.vl["RSA2"].get(signal)) for signal in signals}
+
+  tsgn1 = traffic_signals.get("TSGN1", None)
+  spdval1 = traffic_signals.get("SPDVAL1", None)
+
+  if tsgn1 == 1 and not frogpilot_toggles.force_mph_dashboard:
+    return spdval1 * CV.KPH_TO_MS
+  elif tsgn1 == 36 or frogpilot_toggles.force_mph_dashboard:
+    return spdval1 * CV.MPH_TO_MS
+  else:
+    return 0
+
 class CarState(CarStateBase):
   def __init__(self, CP):
     super().__init__(CP)
@@ -196,6 +212,8 @@ class CarState(CarStateBase):
     self.cruise_increased_previously = self.cruise_increased
     self.cruise_increased = self.pcm_acc_status == 9
 
+    fp_ret.dashboardSpeedLimit = calculate_speed_limit(cp_cam, frogpilot_toggles)
+
     fp_ret.ecoGear = cp.vl["GEAR_PACKET"]['ECON_ON'] == 1
     fp_ret.sportGear = cp.vl["GEAR_PACKET"]['SPORT_ON_2' if self.CP.flags & ToyotaFlags.NO_DSU else 'SPORT_ON'] == 1
 
@@ -290,6 +308,11 @@ class CarState(CarStateBase):
   @staticmethod
   def get_cam_can_parser(CP):
     messages = []
+
+    messages += [
+      ("RSA1", 0),
+      ("RSA2", 0),
+    ]
 
     if CP.carFingerprint != CAR.TOYOTA_PRIUS_V:
       messages += [
