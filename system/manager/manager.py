@@ -18,19 +18,24 @@ from openpilot.system.athena.registration import register, UNREGISTERED_DONGLE_I
 from openpilot.common.swaglog import cloudlog, add_file_handler
 from openpilot.system.version import get_build_metadata, terms_version, training_version
 
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import FrogPilotFunctions
 
 
-def manager_init() -> None:
+def manager_init(frogpilot_functions) -> None:
   save_bootlog()
 
   build_metadata = get_build_metadata()
 
   params = Params()
+  params_storage = Params("/persist/params")
+  params_tracking = Params("/persist/tracking")
   params.clear_all(ParamKeyType.CLEAR_ON_MANAGER_START)
   params.clear_all(ParamKeyType.CLEAR_ON_ONROAD_TRANSITION)
   params.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
   if build_metadata.release_channel:
     params.clear_all(ParamKeyType.DEVELOPMENT_ONLY)
+
+  frogpilot_functions.convert_params(params, params_storage, params_tracking)
 
   default_params: list[tuple[str, str | bytes]] = [
     ("CompletedTrainingVersion", "0"),
@@ -175,8 +180,8 @@ def manager_thread() -> None:
       break
 
 
-def main() -> None:
-  manager_init()
+def main(frogpilot_functions) -> None:
+  manager_init(frogpilot_functions)
   if os.getenv("PREPAREONLY") is not None:
     return
 
@@ -207,7 +212,7 @@ if __name__ == "__main__":
   unblock_stdout()
 
   try:
-    main()
+    main(FrogPilotFunctions())
   except KeyboardInterrupt:
     print("got CTRL-C, exiting")
   except Exception:
