@@ -52,6 +52,7 @@ LaneChangeState = log.LaneChangeState
 LaneChangeDirection = log.LaneChangeDirection
 EventName = car.CarEvent.EventName
 ButtonType = car.CarState.ButtonEvent.Type
+FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
 GearShifter = car.CarState.GearShifter
 SafetyModel = car.CarParams.SafetyModel
 
@@ -925,6 +926,15 @@ class Controls:
 
     if self.frogpilot_toggles.conditional_experimental_mode:
       self.experimental_mode = self.sm['frogpilotPlan'].conditionalExperimentalActive
+
+    if any(be.pressed and be.type == FrogPilotButtonType.lkas for be in CS.buttonEvents):
+      if self.frogpilot_toggles.experimental_mode_via_lkas and self.enabled:
+        if self.frogpilot_toggles.conditional_experimental_mode:
+          conditional_status = self.params_memory.get_int("CEStatus")
+          override_value = 0 if conditional_status in {1, 2, 3, 4, 5, 6} else 3 if conditional_status >= 7 else 4
+          self.params_memory.put_int("CEStatus", override_value)
+        else:
+          self.params.put_bool_nonblocking("ExperimentalMode", not self.experimental_mode)
 
     FPCC = custom.FrogPilotCarControl.new_message()
     FPCC.alwaysOnLateral = self.always_on_lateral_active
