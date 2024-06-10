@@ -25,6 +25,11 @@ MAX_USER_TORQUE = 500
 MAX_LTA_ANGLE = 94.9461  # deg
 MAX_LTA_DRIVER_TORQUE_ALLOWANCE = 150  # slightly above steering pressed allows some resistance when changing lanes
 
+# Lock / unlock door commands - Credit goes to AlexandreSato!
+LOCK_CMD = b"\x40\x05\x30\x11\x00\x80\x00\x00"
+UNLOCK_CMD = b"\x40\x05\x30\x11\x00\x40\x00\x00"
+
+PARK = car.CarState.GearShifter.park
 
 class CarController(CarControllerBase):
   def __init__(self, dbc_name, CP, VM):
@@ -45,6 +50,9 @@ class CarController(CarControllerBase):
 
     # FrogPilot variables
     params = Params()
+
+    self.doors_locked = False
+    self.doors_unlocked = True
 
   def update(self, CC, CS, now_nanos, frogpilot_toggles):
     actuators = CC.actuators
@@ -204,6 +212,19 @@ class CarController(CarControllerBase):
     new_actuators.steeringAngleDeg = self.last_angle
     new_actuators.accel = self.accel
     new_actuators.gas = self.gas
+
+    # Lock doors when in drive / unlock doors when in park
+    if self.doors_unlocked and CS.out.gearShifter != PARK:
+      if frogpilot_toggles.lock_doors:
+        can_sends.append(make_can_msg(0x750, LOCK_CMD, 0))
+      self.doors_locked = True
+      self.doors_unlocked = False
+
+    elif self.doors_locked and CS.out.gearShifter == PARK:
+      if frogpilot_toggles.unlock_doors:
+        can_sends.append(make_can_msg(0x750, UNLOCK_CMD, 0))
+      self.doors_locked = False
+      self.doors_unlocked = True
 
     self.frame += 1
     return new_actuators, can_sends
