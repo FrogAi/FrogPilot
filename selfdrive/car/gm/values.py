@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from enum import IntFlag
 
 from cereal import car
+from openpilot.common.numpy_fast import interp
 from openpilot.selfdrive.car import dbc_dict, PlatformConfig, DbcDict, Platforms, CarSpecs
 from openpilot.selfdrive.car.docs_definitions import CarHarness, CarDocs, CarParts
 from openpilot.selfdrive.car.fw_query_definitions import FwQueryConfig, Request, StdQueries
@@ -67,6 +68,17 @@ class CarControllerParams:
     self.BRAKE_LOOKUP_BP = [self.ACCEL_MIN, max_regen_acceleration]
     self.BRAKE_LOOKUP_V = [self.MAX_BRAKE, 0.]
 
+  # determined by letting Volt regen to a stop in L gear from 89mph,
+  # and by letting off gas and allowing car to creep, for determining
+  # the positive threshold values at very low speed
+  EV_GAS_BRAKE_THRESHOLD_BP = [1.29, 1.52, 1.55, 1.6, 1.7, 1.8, 2.0, 2.2, 2.5, 5.52, 9.6, 20.5, 23.5, 35.0] # [m/s]
+  EV_GAS_BRAKE_THRESHOLD_V = [0.0, -0.14, -0.16, -0.18, -0.215, -0.255, -0.32, -0.41, -0.5, -0.72, -0.895, -1.125, -1.145, -1.16] # [m/s^s]
+
+  def update_ev_gas_brake_threshold(self, v_ego):
+    gas_brake_threshold = interp(v_ego, self.EV_GAS_BRAKE_THRESHOLD_BP, self.EV_GAS_BRAKE_THRESHOLD_V)
+    self.EV_GAS_LOOKUP_BP = [gas_brake_threshold, max(0., gas_brake_threshold), self.ACCEL_MAX]
+    self.EV_BRAKE_LOOKUP_BP = [self.ACCEL_MIN, gas_brake_threshold]
+
 
 @dataclass
 class GMCarDocs(CarDocs):
@@ -103,7 +115,7 @@ class CAR(Platforms):
   )
   CHEVROLET_VOLT = GMASCMPlatformConfig(
     [GMCarDocs("Chevrolet Volt 2017-18", min_enable_speed=0, video_link="https://youtu.be/QeMCN_4TFfQ")],
-    GMCarSpecs(mass=1607, wheelbase=2.69, steerRatio=17.7, centerToFrontRatio=0.45, tireStiffnessFactor=0.469),
+    GMCarSpecs(mass=1607, wheelbase=2.69, steerRatio=17.7, centerToFrontRatio=0.45, tireStiffnessFactor=0.469, minEnableSpeed=-1),
     dbc_dict=dbc_dict('gm_global_a_powertrain_volt', 'gm_global_a_object', chassis_dbc='gm_global_a_chassis')
   )
   CADILLAC_ATS = GMASCMPlatformConfig(
