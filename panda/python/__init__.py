@@ -224,6 +224,7 @@ class Panda:
 
   FLAG_GM_HW_CAM = 1
   FLAG_GM_HW_CAM_LONG = 2
+  FLAG_GM_CC_LONG = 4
   FLAG_GM_PEDAL_LONG = 128  # TODO: This can be inferred
   FLAG_GM_GAS_INTERCEPTOR = 256
 
