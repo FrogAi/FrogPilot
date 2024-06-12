@@ -98,7 +98,7 @@ class FrogPilotPlanner:
     if run_cem and (controlsState.enabled or frogpilotCarControl.alwaysOnLateral) and driving_gear:
       self.cem.update(carState, frogpilotNavigation, modelData, v_ego, v_lead, frogpilot_toggles)
 
-    check_lane_width = frogpilot_toggles.lane_detection
+    check_lane_width = frogpilot_toggles.adjacent_lanes or frogpilot_toggles.lane_detection
     if check_lane_width and v_ego >= frogpilot_toggles.minimum_lane_change_speed:
       self.lane_width_left = calculate_lane_width(modelData.laneLines[0], modelData.laneLines[1], modelData.roadEdges[0])
       self.lane_width_right = calculate_lane_width(modelData.laneLines[3], modelData.laneLines[2], modelData.roadEdges[1])
