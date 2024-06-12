@@ -94,10 +94,31 @@ def fill_model_msg(msg: capnp._DynamicStructBuilder, net_output_data: dict[str, 
     PLAN_T_IDXS[xidx] = p * ModelConstants.T_IDXS[tidx+1] + (1 - p) * ModelConstants.T_IDXS[tidx]
 
   # lane lines
-  modelV2.init('laneLines', 4)
-  for i in range(4):
+  modelV2.init('laneLines', 6)
+  for i in range(6):
     lane_line = modelV2.laneLines[i]
-    fill_xyzt(lane_line, PLAN_T_IDXS, np.array(ModelConstants.X_IDXS), net_output_data['lane_lines'][0,i,:,0], net_output_data['lane_lines'][0,i,:,1])
+    if i < 4:
+      fill_xyzt(lane_line, PLAN_T_IDXS, np.array(ModelConstants.X_IDXS), net_output_data['lane_lines'][0,i,:,0], net_output_data['lane_lines'][0,i,:,1])
+    else:
+      far_lane, near_lane, road_edge = (0, 1, 0) if i == 4 else (3, 2, 1)
+
+      near_lane_y = net_output_data['lane_lines'][0,near_lane,:,0]
+      road_edge_y = net_output_data['road_edges'][0,road_edge,:,0]
+      far_lane_y = net_output_data['lane_lines'][0,far_lane,:,0]
+
+      road_edge_distance = abs(np.linalg.norm(road_edge_y - near_lane_y))
+      far_lane_distance = abs(np.linalg.norm(far_lane_y - near_lane_y))
+
+      if road_edge_distance < far_lane_distance:
+        closest_lane_y = road_edge_y
+      else:
+        closest_lane_y = far_lane_y
+
+      diff_y = closest_lane_y - near_lane_y
+      new_lane_y = near_lane_y + diff_y / 2
+
+      fill_xyzt(lane_line, PLAN_T_IDXS, np.array(ModelConstants.X_IDXS), new_lane_y, net_output_data['lane_lines'][0,near_lane,:,1])
+
   modelV2.laneLineStds = net_output_data['lane_lines_stds'][0,:,0,0].tolist()
   modelV2.laneLineProbs = net_output_data['lane_lines_prob'][0,1::2].tolist()
 

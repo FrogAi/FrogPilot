@@ -107,6 +107,11 @@ void update_model(UIState *s,
     update_line_data(s, road_edges[i], 0.025, 0, &scene.road_edge_vertices[i], max_idx);
   }
 
+  // Update adjacent paths
+  for (int i = 4; i <= 5; i++) {
+    update_line_data(s, lane_lines[i], (i == 4 ? scene.lane_width_left : scene.lane_width_right) / 2.0f, 0, &scene.track_adjacent_vertices[i], max_idx, false);
+  }
+
   // update path
   auto lead_count = model.getLeadsV3().size();
   if (lead_count > 0) {
@@ -214,6 +219,8 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("carState")) {
     auto carState = sm["carState"].getCarState();
+    scene.blind_spot_left = carState.getLeftBlindspot();
+    scene.blind_spot_right = carState.getRightBlindspot();
     scene.parked = carState.getGearShifter() == cereal::CarState::GearShifter::PARK;
   }
   if (sm.updated("controlsState")) {
@@ -238,6 +245,8 @@ static void update_state(UIState *s) {
   if (sm.updated("frogpilotPlan")) {
     auto frogpilotPlan = sm["frogpilotPlan"].getFrogpilotPlan();
     scene.adjusted_cruise = frogpilotPlan.getAdjustedCruise();
+    scene.lane_width_left = frogpilotPlan.getLaneWidthLeft();
+    scene.lane_width_right = frogpilotPlan.getLaneWidthRight();
     scene.speed_limit = frogpilotPlan.getSlcSpeedLimit();
     scene.speed_limit_offset = frogpilotPlan.getSlcSpeedLimitOffset();
     scene.speed_limit_overridden = frogpilotPlan.getSlcOverridden();
@@ -300,6 +309,8 @@ void ui_update_frogpilot_params(UIState *s) {
   bool custom_onroad_ui = params.getBool("CustomUI");
   bool custom_paths = custom_onroad_ui && params.getBool("CustomPaths");
   scene.acceleration_path = custom_paths && params.getBool("AccelerationPath");
+  scene.adjacent_path = custom_paths && params.getBool("AdjacentPath");
+  scene.adjacent_path_metrics = scene.adjacent_path && params.getBool("AdjacentPathMetrics");
   scene.compass = custom_onroad_ui && params.getBool("Compass");
 
   scene.disable_smoothing_mtsc = params.getBool("MTSCEnabled") && params.getBool("DisableMTSCSmoothing");
@@ -310,6 +321,9 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.use_kaofui_icons = scene.onroad_distance_button && params.getBool("KaofuiIcons");
 
   scene.experimental_mode_via_screen = scene.longitudinal_control && params.getBool("ExperimentalModeActivation") && params.getBool("ExperimentalModeViaTap");
+
+  bool lane_detection = params.getBool("NudgelessLaneChange") && params.getInt("LaneDetectionWidth") != 0;
+  scene.lane_detection_width = lane_detection ? params.getInt("LaneDetectionWidth") * (scene.is_metric ? 1 : FOOT_TO_METER) / 10.0f : 2.75f;
 
   bool longitudinal_tune = scene.longitudinal_control && params.getBool("LongitudinalTune");
   bool radarless_model = params.get("Model") == "radical-turtle";

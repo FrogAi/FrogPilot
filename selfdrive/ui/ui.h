@@ -122,7 +122,11 @@ typedef struct UIScene {
 
   // FrogPilot variables
   bool acceleration_path;
+  bool adjacent_path;
+  bool adjacent_path_metrics;
   bool always_on_lateral_active;
+  bool blind_spot_left;
+  bool blind_spot_right;
   bool compass;
   bool conditional_experimental;
   bool disable_smoothing_mtsc;
@@ -153,6 +157,9 @@ typedef struct UIScene {
   bool vtsc_controlling_curve;
 
   float adjusted_cruise;
+  float lane_detection_width;
+  float lane_width_left;
+  float lane_width_right;
   float lead_detection_threshold;
   float speed_limit;
   float speed_limit_offset;
@@ -165,6 +172,8 @@ typedef struct UIScene {
   int conditional_speed_lead;
   int conditional_status;
   int tethering_config;
+
+  QPolygonF track_adjacent_vertices[6];
 
 } UIScene;
 
