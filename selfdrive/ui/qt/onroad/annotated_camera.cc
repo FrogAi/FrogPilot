@@ -443,6 +443,50 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s, c
     paintLane(scene.track_adjacent_vertices[5], laneWidthRight, blindSpotRight);
   }
 
+  // Paint path edges
+  QLinearGradient pe(0, height(), 0, 0);
+  auto setGradientColors = [&](const QColor &baseColor) {
+    pe.setColorAt(0.0, baseColor);
+    QColor color = baseColor;
+    color.setAlphaF(0.5);
+    pe.setColorAt(0.5, color);
+    color.setAlphaF(0.1);
+    pe.setColorAt(1.0, color);
+  };
+
+  if (alwaysOnLateralActive) {
+    setGradientColors(bg_colors[STATUS_ALWAYS_ON_LATERAL_ACTIVE]);
+  } else if (conditionalStatus == 1 || conditionalStatus == 3 || conditionalStatus == 5) {
+    setGradientColors(bg_colors[STATUS_CONDITIONAL_OVERRIDDEN]);
+  } else if (experimentalMode) {
+    setGradientColors(bg_colors[STATUS_EXPERIMENTAL_MODE_ACTIVE]);
+  } else if (trafficModeActive) {
+    setGradientColors(bg_colors[STATUS_TRAFFIC_MODE_ACTIVE]);
+  } else if (scene.navigate_on_openpilot) {
+    setGradientColors(bg_colors[STATUS_NAVIGATION_ACTIVE]);
+  } else if (currentHolidayTheme != 0) {
+    const std::map<double, QBrush> &colorMap = std::get<2>(holidayThemeConfiguration[currentHolidayTheme]);
+    for (const std::pair<double, QBrush> &entry : colorMap) {
+      pe.setColorAt(entry.first, entry.second.color().darker(120));
+    }
+  } else if (customColors != 0) {
+    const std::map<double, QBrush> &colorMap = std::get<2>(themeConfiguration[customColors]);
+    for (const std::pair<double, QBrush> &entry : colorMap) {
+      pe.setColorAt(entry.first, entry.second.color().darker(120));
+    }
+  } else {
+    pe.setColorAt(0.0, QColor::fromHslF(148 / 360., 0.94, 0.51, 1.0));
+    pe.setColorAt(0.5, QColor::fromHslF(112 / 360., 1.00, 0.68, 0.5));
+    pe.setColorAt(1.0, QColor::fromHslF(112 / 360., 1.00, 0.68, 0.1));
+  }
+
+  QPainterPath path;
+  path.addPolygon(scene.track_vertices);
+  path.addPolygon(scene.track_edge_vertices);
+
+  painter.setBrush(pe);
+  painter.drawPath(path);
+
   painter.restore();
 }
 
