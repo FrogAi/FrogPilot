@@ -173,6 +173,9 @@ class CarState(CarStateBase):
       self.main_enabled = not self.main_enabled
 
     # FrogPilot CarState functions
+    self.prev_distance_button = self.distance_button
+    self.distance_button = self.cruise_buttons[-1] == Buttons.GAP_DIST
+
     if self.CP.flags & HyundaiFlags.CAN_LFA_BTN:
       self.lkas_previously_enabled = self.lkas_enabled
       self.lkas_enabled = cp.vl["BCM_PO_11"]["LFA_Pressed"]
@@ -264,6 +267,9 @@ class CarState(CarStateBase):
                                           else cp_cam.vl["CAM_0x2a4"])
 
     # FrogPilot CarState functions
+    self.prev_distance_button = self.distance_button
+    self.distance_button = self.cruise_buttons[-1] == Buttons.GAP_DIST
+
     self.lkas_previously_enabled = self.lkas_enabled
     self.lkas_enabled = cp.vl[self.cruise_btns_msg_canfd]["LKAS_BTN"]
 
