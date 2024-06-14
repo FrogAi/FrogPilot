@@ -55,6 +55,8 @@ class CarState(CarStateBase):
     self.zss_compute = False
     self.zss_cruise_active_last = False
 
+    self.pcm_accel_net = 0
+    self.pcm_neutral_force = 0
     self.zss_angle_offset = 0
     self.zss_threshold_count = 0
 
@@ -221,6 +223,7 @@ class CarState(CarStateBase):
       message_keys = ["LDA_ON_MESSAGE", "SET_ME_X02"]
       self.lkas_enabled = any(self.lkas_hud.get(key) == 1 for key in message_keys)
 
+    self.pcm_accel_net = cp.vl["PCM_CRUISE"]["ACCEL_NET"]
     self.pcm_neutral_force = cp.vl["PCM_CRUISE"]["NEUTRAL_FORCE"]
 
     # ZSS Support - Credit goes to the DragonPilot team!

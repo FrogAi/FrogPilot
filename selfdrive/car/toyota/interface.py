@@ -159,6 +159,13 @@ class CarInterface(CarInterfaceBase):
         tune.kiBP = [0., 35.]
         tune.kpV = [3.6, 2.4, 1.5]
         tune.kiV = [0.54, 0.36]
+    elif params.get_bool("FrogsGoMooTune"):
+      tune.kpV = [0.0]
+      tune.kiV = [0.5]
+      ret.stopAccel = -0.4             # Toyota requests -0.4 when stopped
+      ret.stoppingDecelRate = 0.1     # reach stopping target smoothly
+      ret.vEgoStopping = 0.15          # car is near 0.1 to 0.2 when car starts requesting stopping accel
+      ret.vEgoStarting = 0.15          # needs to be > or == vEgoStopping
     elif candidate in TSS2_CAR or ret.enableGasInterceptor:
       tune.kpV = [0.0]
       tune.kiV = [0.5]
