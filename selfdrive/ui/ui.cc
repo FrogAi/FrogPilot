@@ -267,6 +267,11 @@ void ui_update_frogpilot_params(UIState *s) {
     cereal::CarParams::Reader CP = cmsg.getRoot<cereal::CarParams>();
     scene.longitudinal_control = CP.getOpenpilotLongitudinalControl() && !params.getBool("DisableOpenpilotLongitudinal");
   }
+
+  scene.tethering_config = params.getInt("TetheringEnabled");
+  if (scene.tethering_config == 2) {
+    WifiManager(s).setTetheringEnabled(true);
+  }
 }
 
 void UIState::updateStatus() {
@@ -289,6 +294,9 @@ void UIState::updateStatus() {
     started_prev = scene.started;
     scene.world_objects_visible = false;
     emit offroadTransition(!scene.started);
+    if (scene.tethering_config == 1) {
+      wifi->setTetheringEnabled(scene.started);
+    }
   }
 }
 
@@ -314,6 +322,8 @@ UIState::UIState(QObject *parent) : QObject(parent) {
   timer->start(1000 / UI_FREQ);
 
   // FrogPilot variables
+  wifi = new WifiManager(this);
+
   ui_update_frogpilot_params(this);
 }
 

@@ -127,9 +127,12 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
 
   ListWidget *list = new ListWidget(this);
   // Enable tethering layout
-  tetheringToggle = new ToggleControl(tr("Enable Tethering"), "", "", wifi->isTetheringEnabled());
+  std::vector<QString> tetheringSelection{tr("Off"), tr("Only Onroad"), tr("Always")};
+  tetheringToggle = new FrogPilotButtonParamControl("TetheringEnabled", "Enable Tethering", "", "", tetheringSelection);
   list->addItem(tetheringToggle);
-  QObject::connect(tetheringToggle, &ToggleControl::toggleFlipped, this, &AdvancedNetworking::toggleTethering);
+  QObject::connect(tetheringToggle, &FrogPilotButtonParamControl::buttonClicked, [this](int id) {
+    toggleTethering(id);
+  });
 
   // Change tethering password
   ButtonControl *editPasswordButton = new ButtonControl(tr("Tethering Password"), tr("EDIT"));
@@ -221,9 +224,10 @@ void AdvancedNetworking::refresh() {
   update();
 }
 
-void AdvancedNetworking::toggleTethering(bool enabled) {
-  wifi->setTetheringEnabled(enabled);
+void AdvancedNetworking::toggleTethering(int id) {
+  wifi->setTetheringEnabled(id == 2);
   tetheringToggle->setEnabled(false);
+  updateFrogPilotToggles();
 }
 
 // WifiUI functions
