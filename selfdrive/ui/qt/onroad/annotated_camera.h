@@ -63,7 +63,7 @@ public:
   MapSettingsButton *map_settings_btn_bottom;
 
 private:
-  void drawText(QPainter &p, int x, int y, const QString &text, int alpha = 255);
+  void drawText(QPainter &p, int x, int y, const QString &text, int alpha = 255, bool overridePen = false);
 
   QVBoxLayout *main_layout;
   ExperimentalButton *experimental_btn;
@@ -154,6 +154,7 @@ private:
   int desiredFollow;
   int obstacleDistance;
   int obstacleDistanceStock;
+  int standstillDuration;
   int stoppedEquivalence;
   int totalFrames;
 
@@ -170,6 +171,7 @@ private:
 
   std::vector<QPixmap> signalImgVector;
 
+  QElapsedTimer standstillTimer;
   QTimer *animationTimer;
 
   inline QColor blueColor(int alpha = 255) { return QColor(0, 150, 255, alpha); }
