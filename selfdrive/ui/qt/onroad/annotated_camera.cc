@@ -225,20 +225,56 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
 
   // current speed
   if (!(bigMapOpen || hideSpeed)) {
-    p.setFont(InterFont(176, QFont::Bold));
-    drawText(p, rect().center().x(), 210, speedStr);
-    p.setFont(InterFont(66));
-    drawText(p, rect().center().x(), 290, speedUnit, 200);
+    if (standstillDuration != 0) {
+      float transition = qBound(0.0f, standstillDuration / 120.0f, 1.0f);
+      QColor start, end;
+
+      if (standstillDuration <= 60) {
+        start = end = bg_colors[STATUS_ENGAGED];
+      } else if (standstillDuration <= 90) {
+        start = bg_colors[STATUS_ENGAGED];
+        end = bg_colors[STATUS_CONDITIONAL_OVERRIDDEN];
+        transition = (standstillDuration - 60) / 30.0f;
+      } else if (standstillDuration <= 120) {
+        start = bg_colors[STATUS_CONDITIONAL_OVERRIDDEN];
+        end = bg_colors[STATUS_TRAFFIC_MODE_ACTIVE];
+        transition = (standstillDuration - 90) / 30.0f;
+      } else {
+        start = end = bg_colors[STATUS_TRAFFIC_MODE_ACTIVE];
+        transition = 0.0f;
+      }
+
+      float red = start.redF() + transition * (end.redF() - start.redF());
+      float green = start.greenF() + transition * (end.greenF() - start.greenF());
+      float blue = start.blueF() + transition * (end.blueF() - start.blueF());
+
+      p.setPen(QPen(QColor::fromRgbF(red, green, blue)));
+
+      int minutes = standstillDuration / 60;
+      int seconds = standstillDuration % 60;
+
+      p.setFont(InterFont(176, QFont::Bold));
+      drawText(p, rect().center().x(), 210, minutes == 1 ? "1 minute" : QString("%1 minutes").arg(minutes), 255, true);
+      p.setFont(InterFont(66));
+      drawText(p, rect().center().x(), 290, QString("%1 seconds").arg(seconds));
+    } else {
+      p.setFont(InterFont(176, QFont::Bold));
+      drawText(p, rect().center().x(), 210, speedStr);
+      p.setFont(InterFont(66));
+      drawText(p, rect().center().x(), 290, speedUnit, 200);
+    }
   }
 
   p.restore();
 }
 
-void AnnotatedCameraWidget::drawText(QPainter &p, int x, int y, const QString &text, int alpha) {
+void AnnotatedCameraWidget::drawText(QPainter &p, int x, int y, const QString &text, int alpha, bool overridePen) {
   QRect real_rect = p.fontMetrics().boundingRect(text);
   real_rect.moveCenter({x, y - real_rect.height() / 2});
 
-  p.setPen(QColor(0xff, 0xff, 0xff, alpha));
+  if (!overridePen) {
+    p.setPen(QColor(0xff, 0xff, 0xff, alpha));
+  }
   p.drawText(real_rect.x(), real_rect.bottom(), text);
 }
 
@@ -888,6 +924,17 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter, const UISce
   useViennaSLCSign = scene.use_vienna_slc_sign;
   if (speedLimitChanged) {
     drawSLCConfirmation(painter);
+  }
+
+  bool stoppedTimer = scene.stopped_timer && scene.standstill && scene.started_timer / UI_FREQ >= 10;
+  if (stoppedTimer) {
+    if (!standstillTimer.isValid()) {
+      standstillTimer.start();
+    }
+    standstillDuration = standstillTimer.elapsed() / 1000.0;
+  } else {
+    standstillDuration = 0;
+    standstillTimer.invalidate();
   }
 
   trafficModeActive = scene.traffic_mode_active;

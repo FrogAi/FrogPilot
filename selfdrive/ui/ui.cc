@@ -421,6 +421,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.hide_speed = quality_of_life_visuals && params.getBool("HideSpeed");
   scene.hide_speed_ui = scene.hide_speed && params.getBool("HideSpeedUI");
   scene.map_style = quality_of_life_visuals ? params.getInt("MapStyle") : 0;
+  scene.stopped_timer = quality_of_life_visuals && params.getBool("StoppedTimer");
 
   scene.speed_limit_controller = scene.longitudinal_control && params.getBool("SpeedLimitController");
   scene.show_slc_offset = scene.speed_limit_controller && params.getBool("ShowSLCOffset");
@@ -515,6 +516,7 @@ void UIState::update() {
   scene.current_holiday_theme = scene.holiday_themes ? paramsMemory.getInt("CurrentHolidayTheme") : 0;
   scene.current_random_event = scene.random_events ? paramsMemory.getInt("CurrentRandomEvent") : 0;
   scene.driver_camera_timer = scene.driver_camera && scene.reverse ? scene.driver_camera_timer + 1 : 0;
+  scene.started_timer = scene.started ? scene.started_timer + 1 : 0;
 }
 
 void UIState::setPrimeType(PrimeType type) {
