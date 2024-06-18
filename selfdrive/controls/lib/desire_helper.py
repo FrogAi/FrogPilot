@@ -79,6 +79,8 @@ class DesireHelper:
         if torque_applied:
           self.lane_change_wait_timer = frogpilot_toggles.lane_change_delay
 
+        torque_applied |= frogpilot_toggles.nudgeless
+
         blindspot_detected = ((carstate.leftBlindspot and self.lane_change_direction == LaneChangeDirection.left) or
                               (carstate.rightBlindspot and self.lane_change_direction == LaneChangeDirection.right))
 
