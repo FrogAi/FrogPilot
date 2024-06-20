@@ -341,6 +341,7 @@ void ui_update_frogpilot_params(UIState *s) {
   bool developer_ui = params.getBool("DeveloperUI");
   bool border_metrics = developer_ui && params.getBool("BorderMetrics");
   scene.show_blind_spot = border_metrics && params.getBool("BlindSpotMetrics");
+  scene.show_fps = developer_ui && params.getBool("FPSCounter");
   scene.show_signal = border_metrics && params.getBool("SignalMetrics");
   scene.show_steering = border_metrics && params.getBool("ShowSteering");
 

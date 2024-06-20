@@ -154,6 +154,7 @@ typedef struct UIScene {
   bool show_aol_status_bar;
   bool show_blind_spot;
   bool show_cem_status_bar;
+  bool show_fps;
   bool show_signal;
   bool show_slc_offset;
   bool show_slc_offset_ui;
@@ -172,6 +173,8 @@ typedef struct UIScene {
   bool use_kaofui_icons;
   bool use_vienna_slc_sign;
   bool vtsc_controlling_curve;
+
+  double fps;
 
   float adjusted_cruise;
   float lane_detection_width;

@@ -613,6 +613,7 @@ void AnnotatedCameraWidget::paintGL() {
   double cur_draw_t = millis_since_boot();
   double dt = cur_draw_t - prev_draw_t;
   double fps = fps_filter.update(1. / dt * 1000);
+  s->scene.fps = fps;
   if (fps < 15) {
     LOGW("slow frame rate: %.2f fps", fps);
   }
