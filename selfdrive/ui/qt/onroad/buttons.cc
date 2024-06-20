@@ -34,7 +34,7 @@ void ExperimentalButton::changeMode() {
 
 void ExperimentalButton::updateState(const UIState &s) {
   const auto cs = (*s.sm)["controlsState"].getControlsState();
-  bool eng = cs.getEngageable() || cs.getEnabled();
+  bool eng = cs.getEngageable() || cs.getEnabled() || s.scene.always_on_lateral_active;
   if ((cs.getExperimentalMode() != experimental_mode) || (eng != engageable)) {
     engageable = eng;
     experimental_mode = cs.getExperimentalMode();

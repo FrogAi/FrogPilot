@@ -14,6 +14,8 @@ void OnroadAlerts::updateState(const UIState &s) {
 
   // FrogPilot variables
   const UIScene &scene = s.scene;
+
+  showAOLStatusBar = scene.show_aol_status_bar;
 }
 
 void OnroadAlerts::clear() {
@@ -70,7 +72,7 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
 
   int margin = 40;
   int radius = 30;
-  int offset = true ? 25 : 0;
+  int offset = showAOLStatusBar ? 25 : 0;
   if (alert.size == cereal::ControlsState::AlertSize::FULL) {
     margin = 0;
     radius = 0;
