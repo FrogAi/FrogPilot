@@ -366,6 +366,7 @@ def manager_thread() -> None:
   cloudlog.info({"environ": os.environ})
 
   params = Params()
+  params_memory = Params("/dev/shm/params")
 
   ignore: list[str] = []
   if params.get("DongleId", encoding='utf8') in (None, UNREGISTERED_DONGLE_ID):
@@ -391,6 +392,7 @@ def manager_thread() -> None:
       params.clear_all(ParamKeyType.CLEAR_ON_ONROAD_TRANSITION)
     elif not started and started_prev:
       params.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
+      params_memory.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
 
     # update onroad params, which drives pandad's safety setter thread
     if started != started_prev:

@@ -16,6 +16,8 @@ from openpilot.selfdrive.car.car_helpers import get_car, get_one_can
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase
 from openpilot.selfdrive.controls.lib.events import Events
 
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import FrogPilotVariables
+
 REPLAY = "REPLAY" in os.environ
 
 EventName = car.CarEvent.EventName
@@ -46,7 +48,7 @@ class Car:
 
       num_pandas = len(messaging.recv_one_retry(self.sm.sock['pandaStates']).pandaStates)
       experimental_long_allowed = self.params.get_bool("ExperimentalLongitudinalEnabled")
-      self.CI, self.CP = get_car(self.can_sock, self.pm.sock['sendcan'], experimental_long_allowed, num_pandas)
+      self.CI, self.CP = get_car(self.params, self.can_sock, self.pm.sock['sendcan'], experimental_long_allowed, num_pandas)
     else:
       self.CI, self.CP = CI, CI.CP
 
@@ -82,12 +84,17 @@ class Car:
     # card is driven by can recv, expected at 100Hz
     self.rk = Ratekeeper(100, print_delay_threshold=None)
 
+    # FrogPilot variables
+    self.frogpilot_toggles = FrogPilotVariables.toggles
+
+    self.update_toggles = False
+
   def state_update(self) -> car.CarState:
     """carState update loop, driven by can"""
 
     # Update carState from CAN
     can_strs = messaging.drain_sock_raw(self.can_sock, wait_for_one=True)
-    CS, FPCS = self.CI.update(self.CC_prev, can_strs)
+    CS, FPCS = self.CI.update(self.CC_prev, can_strs, self.frogpilot_toggles)
 
     self.sm.update(0)
 
@@ -158,7 +165,7 @@ class Car:
     if self.sm.all_alive(['carControl']):
       # send car controls over can
       now_nanos = self.can_log_mono_time if REPLAY else int(time.monotonic() * 1e9)
-      self.last_actuators_output, can_sends = self.CI.apply(CC, now_nanos)
+      self.last_actuators_output, can_sends = self.CI.apply(CC, now_nanos, self.frogpilot_toggles)
       self.pm.send('sendcan', can_list_to_can_capnp(can_sends, msgtype='sendcan', valid=CS.canValid))
 
       self.CC_prev = CC
@@ -183,6 +190,12 @@ class Car:
       self.step()
       self.rk.monitor_time()
 
+      # Update FrogPilot parameters
+      if FrogPilotVariables.toggles_updated:
+        self.update_toggles = True
+      elif self.update_toggles:
+        FrogPilotVariables.update_frogpilot_params()
+        self.update_toggles = False
 
 def main():
   config_realtime_process(4, Priority.CTRL_HIGH)

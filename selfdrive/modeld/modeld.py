@@ -24,6 +24,8 @@ from openpilot.selfdrive.modeld.fill_model_msg import fill_model_msg, fill_pose_
 from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.selfdrive.modeld.models.commonmodel_pyx import ModelFrame, CLContext
 
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import FrogPilotVariables
+
 PROCESS_NAME = "selfdrive.modeld.modeld"
 SEND_RAW_PRED = os.getenv('SEND_RAW_PRED')
 
@@ -111,7 +113,7 @@ class ModelState:
     return outputs
 
 
-def main(demo=False):
+def main(demo=False, frogpilot_toggles=None):
   cloudlog.warning("modeld init")
 
   sentry.set_tag("daemon", PROCESS_NAME)
@@ -180,6 +182,9 @@ def main(demo=False):
   steer_delay = CP.steerActuatorDelay + .2
 
   DH = DesireHelper()
+
+  # FrogPilot variables
+  update_toggles = False
 
   while True:
     # Keep receiving frames until we are at least 1 frame ahead of previous extra frame
@@ -267,7 +272,7 @@ def main(demo=False):
       l_lane_change_prob = desire_state[log.Desire.laneChangeLeft]
       r_lane_change_prob = desire_state[log.Desire.laneChangeRight]
       lane_change_prob = l_lane_change_prob + r_lane_change_prob
-      DH.update(sm['carState'], sm['carControl'].latActive, lane_change_prob, sm['frogpilotPlan'])
+      DH.update(sm['carState'], sm['carControl'].latActive, lane_change_prob, sm['frogpilotPlan'], frogpilot_toggles)
       modelv2_send.modelV2.meta.laneChangeState = DH.lane_change_state
       modelv2_send.modelV2.meta.laneChangeDirection = DH.lane_change_direction
 
@@ -277,6 +282,12 @@ def main(demo=False):
 
     last_vipc_frame_id = meta_main.frame_id
 
+    # Update FrogPilot parameters
+    if FrogPilotVariables.toggles_updated:
+      update_toggles = True
+    elif update_toggles:
+      FrogPilotVariables.update_frogpilot_params()
+      update_toggles = False
 
 if __name__ == "__main__":
   try:
@@ -284,7 +295,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--demo', action='store_true', help='A boolean for demo mode.')
     args = parser.parse_args()
-    main(demo=args.demo)
+    main(demo=args.demo, frogpilot_toggles=FrogPilotVariables.toggles)
   except KeyboardInterrupt:
     cloudlog.warning(f"child {PROCESS_NAME} got SIGINT")
   except Exception:

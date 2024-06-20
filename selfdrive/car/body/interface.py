@@ -7,7 +7,7 @@ from openpilot.selfdrive.car.body.values import SPEED_FROM_RPM
 
 class CarInterface(CarInterfaceBase):
   @staticmethod
-  def _get_params(ret, candidate, fingerprint, car_fw, experimental_long, docs):
+  def _get_params(ret, params, candidate, fingerprint, car_fw, experimental_long, docs):
     ret.notCar = True
     ret.carName = "body"
     ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.body)]
@@ -25,8 +25,8 @@ class CarInterface(CarInterfaceBase):
 
     return ret
 
-  def _update(self, c):
-    ret, fp_ret = self.CS.update(self.cp)
+  def _update(self, c, frogpilot_toggles):
+    ret, fp_ret = self.CS.update(self.cp, frogpilot_toggles)
 
     # wait for everything to init first
     if self.frame > int(5. / DT_CTRL):

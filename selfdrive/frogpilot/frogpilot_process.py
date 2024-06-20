@@ -11,6 +11,7 @@ from openpilot.common.time import system_time_valid
 
 from openpilot.selfdrive.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import FrogPilotFunctions
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import FrogPilotVariables
 
 WIFI = log.DeviceState.NetworkType.wifi
 
@@ -25,7 +26,7 @@ def time_checks(deviceState, now, params, params_memory):
   screen_off = deviceState.screenBrightnessPercent == 0
   wifi_connection = deviceState.networkType == WIFI
 
-def frogpilot_thread():
+def frogpilot_thread(frogpilot_toggles):
   config_realtime_process(5, Priority.CTRL_LOW)
 
   params = Params()
@@ -35,6 +36,7 @@ def frogpilot_thread():
   frogpilot_planner = FrogPilotPlanner()
 
   time_validated = system_time_valid()
+  update_toggles = False
 
   pm = messaging.PubMaster(['frogpilotPlan'])
   sm = messaging.SubMaster(['carState', 'controlsState', 'deviceState', 'frogpilotCarControl', 'frogpilotCarState', 'frogpilotNavigation',
@@ -50,8 +52,15 @@ def frogpilot_thread():
 
     if started and sm.updated['modelV2']:
       frogpilot_planner.update(sm['carState'], sm['controlsState'], sm['frogpilotCarControl'], sm['frogpilotCarState'],
-                               sm['frogpilotNavigation'], sm['modelV2'], sm['radarState'])
-      frogpilot_planner.publish(sm, pm)
+                               sm['frogpilotNavigation'], sm['modelV2'], sm['radarState'], frogpilot_toggles)
+      frogpilot_planner.publish(sm, pm, frogpilot_toggles)
+
+    if FrogPilotVariables.toggles_updated:
+      update_toggles = True
+    elif update_toggles:
+      FrogPilotVariables.update_frogpilot_params(started)
+
+      update_toggles = False
 
     if now.second == 0 or not time_validated:
       if not started:
@@ -64,7 +73,7 @@ def frogpilot_thread():
           continue
 
 def main():
-  frogpilot_thread()
+  frogpilot_thread(FrogPilotVariables.toggles)
 
 if __name__ == "__main__":
   main()

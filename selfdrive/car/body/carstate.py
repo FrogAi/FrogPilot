@@ -6,7 +6,7 @@ from openpilot.selfdrive.car.body.values import DBC
 STARTUP_TICKS = 100
 
 class CarState(CarStateBase):
-  def update(self, cp):
+  def update(self, cp, frogpilot_toggles):
     ret = car.CarState.new_message()
     fp_ret = custom.FrogPilotCarState.new_message()
 

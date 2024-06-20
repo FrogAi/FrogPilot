@@ -195,7 +195,7 @@ def get_car_interface(CP):
   return CarInterface(CP, CarController, CarState)
 
 
-def get_car(logcan, sendcan, experimental_long_allowed, num_pandas=1):
+def get_car(params, logcan, sendcan, experimental_long_allowed, num_pandas=1):
   candidate, fingerprints, vin, car_fw, source, exact_match = fingerprint(logcan, sendcan, num_pandas)
 
   if candidate is None:
@@ -211,7 +211,7 @@ def get_car(logcan, sendcan, experimental_long_allowed, num_pandas=1):
     fingerprint_log.start()
 
   CarInterface, _, _ = interfaces[candidate]
-  CP = CarInterface.get_params(candidate, fingerprints, car_fw, experimental_long_allowed, docs=False)
+  CP = CarInterface.get_params(params, candidate, fingerprints, car_fw, experimental_long_allowed, docs=False)
   CP.carVin = vin
   CP.carFw = car_fw
   CP.fingerprintSource = source

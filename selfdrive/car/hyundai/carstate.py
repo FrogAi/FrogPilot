@@ -52,9 +52,9 @@ class CarState(CarStateBase):
 
     self.params = CarControllerParams(CP)
 
-  def update(self, cp, cp_cam):
+  def update(self, cp, cp_cam, frogpilot_toggles):
     if self.CP.carFingerprint in CANFD_CAR:
-      return self.update_canfd(cp, cp_cam)
+      return self.update_canfd(cp, cp_cam, frogpilot_toggles)
 
     ret = car.CarState.new_message()
     fp_ret = custom.FrogPilotCarState.new_message()
@@ -168,7 +168,7 @@ class CarState(CarStateBase):
 
     return ret, fp_ret
 
-  def update_canfd(self, cp, cp_cam):
+  def update_canfd(self, cp, cp_cam, frogpilot_toggles):
     ret = car.CarState.new_message()
     fp_ret = custom.FrogPilotCarState.new_message()
 

@@ -35,7 +35,7 @@ class CarController(CarControllerBase):
       torque -= deadband
     return torque
 
-  def update(self, CC, CS, now_nanos):
+  def update(self, CC, CS, now_nanos, frogpilot_toggles):
 
     torque_l = 0
     torque_r = 0

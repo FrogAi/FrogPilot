@@ -254,6 +254,19 @@ void ui_update_params(UIState *s) {
   s->scene.map_on_left = params.getBool("NavSettingLeftSide");
 }
 
+void ui_update_frogpilot_params(UIState *s) {
+  UIScene &scene = s->scene;
+  Params params = Params();
+
+  auto carParams = params.get("CarParamsPersistent");
+  if (!carParams.empty() && !scene.started) {
+    AlignedBuffer aligned_buf;
+    capnp::FlatArrayMessageReader cmsg(aligned_buf.align(carParams.data(), carParams.size()));
+    cereal::CarParams::Reader CP = cmsg.getRoot<cereal::CarParams>();
+    scene.longitudinal_control = CP.getOpenpilotLongitudinalControl() && !params.getBool("DisableOpenpilotLongitudinal");
+  }
+}
+
 void UIState::updateStatus() {
   if (scene.started && sm->updated("controlsState")) {
     auto controls_state = (*sm)["controlsState"].getControlsState();
@@ -297,6 +310,9 @@ UIState::UIState(QObject *parent) : QObject(parent) {
   timer = new QTimer(this);
   QObject::connect(timer, &QTimer::timeout, this, &UIState::update);
   timer->start(1000 / UI_FREQ);
+
+  // FrogPilot variables
+  ui_update_frogpilot_params(this);
 }
 
 void UIState::update() {
@@ -308,6 +324,18 @@ void UIState::update() {
     watchdog_kick(nanos_since_boot());
   }
   emit uiUpdate(*this);
+
+  // Update FrogPilot parameters
+  static bool update_toggles = false;
+
+  if (paramsMemory.getBool("FrogPilotTogglesUpdated")) {
+    update_toggles = true;
+  } else if (update_toggles) {
+    ui_update_frogpilot_params(this);
+    update_toggles = false;
+  }
+
+  // FrogPilot variables that need to be constantly updated
 }
 
 void UIState::setPrimeType(PrimeType type) {

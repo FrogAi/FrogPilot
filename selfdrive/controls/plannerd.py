@@ -6,6 +6,8 @@ from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.controls.lib.longitudinal_planner import LongitudinalPlanner
 import cereal.messaging as messaging
 
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import FrogPilotVariables
+
 def publish_ui_plan(sm, pm, longitudinal_planner):
   ui_send = messaging.new_message('uiPlan')
   ui_send.valid = sm.all_checks(service_list=['carState', 'controlsState', 'modelV2'])
@@ -17,7 +19,7 @@ def publish_ui_plan(sm, pm, longitudinal_planner):
   uiPlan.accel = longitudinal_planner.a_desired_trajectory_full.tolist()
   pm.send('uiPlan', ui_send)
 
-def plannerd_thread():
+def plannerd_thread(frogpilot_toggles):
   config_realtime_process(5, Priority.CTRL_LOW)
 
   cloudlog.info("plannerd is waiting for CarParams")
@@ -31,15 +33,25 @@ def plannerd_thread():
   sm = messaging.SubMaster(['carControl', 'carState', 'controlsState', 'radarState', 'modelV2', 'frogpilotCarControl', 'frogpilotCarState', 'frogpilotPlan'],
                            poll='modelV2', ignore_avg_freq=['radarState'])
 
+  # FrogPilot variables
+  update_toggles = False
+
   while True:
     sm.update()
     if sm.updated['modelV2']:
-      longitudinal_planner.update(sm)
+      longitudinal_planner.update(sm, frogpilot_toggles)
       longitudinal_planner.publish(sm, pm)
       publish_ui_plan(sm, pm, longitudinal_planner)
 
+    # Update FrogPilot parameters
+    if FrogPilotVariables.toggles_updated:
+      update_toggles = True
+    elif update_toggles:
+      FrogPilotVariables.update_frogpilot_params()
+      update_toggles = False
+
 def main():
-  plannerd_thread()
+  plannerd_thread(FrogPilotVariables.toggles)
 
 
 if __name__ == "__main__":

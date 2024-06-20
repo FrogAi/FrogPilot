@@ -20,7 +20,7 @@ class CarInterface(CarInterfaceBase):
       self.cp_ext = self.cp_cam
 
   @staticmethod
-  def _get_params(ret, candidate: CAR, fingerprint, car_fw, experimental_long, docs):
+  def _get_params(ret, params, candidate: CAR, fingerprint, car_fw, experimental_long, docs):
     ret.carName = "volkswagen"
     ret.radarUnavailable = True
 
@@ -101,8 +101,8 @@ class CarInterface(CarInterfaceBase):
     return ret
 
   # returns a car.CarState
-  def _update(self, c):
-    ret, fp_ret = self.CS.update(self.cp, self.cp_cam, self.cp_ext, self.CP.transmissionType)
+  def _update(self, c, frogpilot_toggles):
+    ret, fp_ret = self.CS.update(self.cp, self.cp_cam, self.cp_ext, self.CP.transmissionType, frogpilot_toggles)
 
     events = self.create_common_events(ret, extra_gears=[GearShifter.eco, GearShifter.sport, GearShifter.manumatic],
                                        pcm_enable=not self.CS.CP.openpilotLongitudinalControl,
@@ -128,4 +128,3 @@ class CarInterface(CarInterfaceBase):
     ret.events = events.to_msg()
 
     return ret, fp_ret
-

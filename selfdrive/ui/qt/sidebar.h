@@ -59,4 +59,7 @@ protected:
 
 private:
   std::unique_ptr<PubMaster> pm;
+
+  // FrogPilot variables
+  Params params;
 };

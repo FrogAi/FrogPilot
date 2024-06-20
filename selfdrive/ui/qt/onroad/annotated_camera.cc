@@ -454,6 +454,7 @@ void AnnotatedCameraWidget::showEvent(QShowEvent *event) {
   CameraWidget::showEvent(event);
 
   ui_update_params(uiState());
+  ui_update_frogpilot_params(uiState());
   prev_draw_t = millis_since_boot();
 }
 

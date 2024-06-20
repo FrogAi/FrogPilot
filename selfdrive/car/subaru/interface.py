@@ -9,7 +9,7 @@ from openpilot.selfdrive.car.subaru.values import CAR, GLOBAL_ES_ADDR, SubaruFla
 class CarInterface(CarInterfaceBase):
 
   @staticmethod
-  def _get_params(ret, candidate: CAR, fingerprint, car_fw, experimental_long, docs):
+  def _get_params(ret, params, candidate: CAR, fingerprint, car_fw, experimental_long, docs):
     ret.carName = "subaru"
     ret.radarUnavailable = True
     # for HYBRID CARS to be upstreamed, we need:
@@ -97,9 +97,9 @@ class CarInterface(CarInterfaceBase):
     return ret
 
   # returns a car.CarState
-  def _update(self, c):
+  def _update(self, c, frogpilot_toggles):
 
-    ret, fp_ret = self.CS.update(self.cp, self.cp_cam, self.cp_body)
+    ret, fp_ret = self.CS.update(self.cp, self.cp_cam, self.cp_body, frogpilot_toggles)
 
     ret.events = self.create_common_events(ret).to_msg()
 

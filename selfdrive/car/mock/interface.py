@@ -12,7 +12,7 @@ class CarInterface(CarInterfaceBase):
     self.sm = messaging.SubMaster(['gpsLocation', 'gpsLocationExternal'])
 
   @staticmethod
-  def _get_params(ret, candidate, fingerprint, car_fw, experimental_long, docs):
+  def _get_params(ret, params, candidate, fingerprint, car_fw, experimental_long, docs):
     ret.carName = "mock"
     ret.mass = 1700.
     ret.wheelbase = 2.70
@@ -21,7 +21,7 @@ class CarInterface(CarInterfaceBase):
     ret.dashcamOnly = True
     return ret
 
-  def _update(self, c):
+  def _update(self, c, frogpilot_toggles):
     self.sm.update(0)
     gps_sock = 'gpsLocationExternal' if self.sm.recv_frame['gpsLocationExternal'] > 1 else 'gpsLocation'
 

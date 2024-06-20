@@ -13,6 +13,7 @@ from openpilot.common.basedir import BASEDIR
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.simple_kalman import KF1D, get_kalman_gain
 from openpilot.common.numpy_fast import clip
+from openpilot.common.params import Params
 from openpilot.common.realtime import DT_CTRL
 from openpilot.selfdrive.car import apply_hysteresis, gen_empty_fingerprint, scale_rot_inertia, scale_tire_stiffness, STD_CARGO_KG
 from openpilot.selfdrive.car.values import PLATFORMS
@@ -110,8 +111,12 @@ class CarInterfaceBase(ABC):
     dbc_name = "" if self.cp is None else self.cp.dbc_name
     self.CC: CarControllerBase = CarController(dbc_name, CP, self.VM)
 
-  def apply(self, c: car.CarControl, now_nanos: int) -> tuple[car.CarControl.Actuators, list[tuple[int, int, bytes, int]]]:
-    return self.CC.update(c, self.CS, now_nanos)
+    # FrogPilot variables
+    self.params = Params()
+    self.params_memory = Params("/dev/shm/params")
+
+  def apply(self, c: car.CarControl, now_nanos: int, frogpilot_toggles) -> tuple[car.CarControl.Actuators, list[tuple[int, int, bytes, int]]]:
+    return self.CC.update(c, self.CS, now_nanos, frogpilot_toggles)
 
   @staticmethod
   def get_pid_accel_limits(CP, current_speed, cruise_speed):
@@ -125,7 +130,7 @@ class CarInterfaceBase(ABC):
     return cls.get_params(candidate, gen_empty_fingerprint(), list(), False, False)
 
   @classmethod
-  def get_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[car.CarParams.CarFw], experimental_long: bool, docs: bool):
+  def get_params(cls, params: Params, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[car.CarParams.CarFw], experimental_long: bool, docs: bool):
     ret = CarInterfaceBase.get_std_params(candidate)
 
     platform = PLATFORMS[candidate]
@@ -138,7 +143,7 @@ class CarInterfaceBase(ABC):
     ret.tireStiffnessFactor = platform.config.specs.tireStiffnessFactor
     ret.flags |= int(platform.config.flags)
 
-    ret = cls._get_params(ret, candidate, fingerprint, car_fw, experimental_long, docs)
+    ret = cls._get_params(ret, params, candidate, fingerprint, car_fw, experimental_long, docs)
 
     # Vehicle mass is published curb weight plus assumed payload such as a human driver; notCars have no assumed payload
     if not ret.notCar:
@@ -230,14 +235,14 @@ class CarInterfaceBase(ABC):
   def _update(self, c: car.CarControl) -> car.CarState:
     pass
 
-  def update(self, c: car.CarControl, can_strings: list[bytes]) -> car.CarState:
+  def update(self, c: car.CarControl, can_strings: list[bytes], frogpilot_toggles) -> car.CarState:
     # parse can
     for cp in self.can_parsers:
       if cp is not None:
         cp.update_strings(can_strings)
 
     # get CarState
-    ret, fp_ret = self._update(c)
+    ret, fp_ret = self._update(c, frogpilot_toggles)
 
     ret.canValid = all(cp.can_valid for cp in self.can_parsers if cp is not None)
     ret.canTimeout = any(cp.bus_timeout for cp in self.can_parsers if cp is not None)
