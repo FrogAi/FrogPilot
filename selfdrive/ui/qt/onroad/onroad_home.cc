@@ -173,6 +173,11 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
     bool sidebarVisible = geometry().x() > 0;
     bool show_map = scene.navigate_on_openpilot ? sidebarVisible : !sidebarVisible;
     map->setVisible(show_map && !map->isVisible());
+    if (scene.big_map) {
+      map->setFixedWidth(width());
+    } else {
+      map->setFixedWidth(topWidget(this)->width() / 2 - UI_BORDER_SIZE);
+    }
   }
 #endif
   // propagation event to parent(HomeWindow)

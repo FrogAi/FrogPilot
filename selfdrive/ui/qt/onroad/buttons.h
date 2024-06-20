@@ -28,7 +28,9 @@ private:
 
   // FrogPilot variables
   bool alwaysOnLateralActive;
+  bool bigMap;
   bool conditionalExperimental;
+  bool mapOpen;
   bool navigateOnOpenpilot;
   bool rotatingWheel;
   bool trafficModeActive;
