@@ -7,7 +7,7 @@ from openpilot.selfdrive.controls.lib.desire_helper import LANE_CHANGE_SPEED_MIN
 from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.system.version import get_build_metadata
 
-from openpilot.selfdrive.frogpilot.controls.lib.model_manager import RADARLESS_MODELS
+from openpilot.selfdrive.frogpilot.controls.lib.model_manager import NAVIGATION_MODELS, RADARLESS_MODELS
 
 CITY_SPEED_LIMIT = 25                   # 55mph is typically the minimum speed for highways
 CRUISING_SPEED = 5                      # Roughly the speed cars go when not touching the gas while in drive

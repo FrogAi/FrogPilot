@@ -7,6 +7,7 @@
 #include "common/clutil.h"
 
 ModelFrame::ModelFrame(cl_device_id device_id, cl_context context) {
+  frame = std::make_unique<float[]>(MODEL_FRAME_SIZE);
   input_frames = std::make_unique<float[]>(buf_size);
 
   q = CL_CHECK_ERR(clCreateCommandQueue(context, device_id, 0, &err));
@@ -37,6 +38,16 @@ float* ModelFrame::prepare(cl_mem yuv_cl, int frame_width, int frame_height, int
     clFinish(q);
     return NULL;
   }
+}
+
+float* ModelFrame::prepareSecret(cl_mem yuv_cl, int frame_width, int frame_height, int frame_stride, int frame_uv_offset, const mat3 &projection, cl_mem *output) {
+  transform_queue(&this->transform, q,
+                  yuv_cl, frame_width, frame_height, frame_stride, frame_uv_offset,
+                  y_cl, u_cl, v_cl, MODEL_WIDTH, MODEL_HEIGHT, projection);
+  loadyuv_queue(&loadyuv, q, y_cl, u_cl, v_cl, net_input_cl);
+  CL_CHECK(clEnqueueReadBuffer(q, net_input_cl, CL_TRUE, 0, MODEL_FRAME_SIZE * sizeof(float), &frame[0], 0, nullptr, nullptr));
+  clFinish(q);
+  return &frame[0];
 }
 
 ModelFrame::~ModelFrame() {

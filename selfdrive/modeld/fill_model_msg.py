@@ -44,7 +44,7 @@ def fill_xyvat(builder, t, x, y, v, a, x_std=None, y_std=None, v_std=None, a_std
 def fill_model_msg(msg: capnp._DynamicStructBuilder, net_output_data: dict[str, np.ndarray], publish_state: PublishState,
                    vipc_frame_id: int, vipc_frame_id_extra: int, frame_id: int, frame_drop: float,
                    timestamp_eof: int, timestamp_llk: int, model_execution_time: float,
-                   nav_enabled: bool, valid: bool) -> None:
+                   nav_enabled: bool, valid: bool, secret_good_openpilot: bool) -> None:
   frame_age = frame_id - vipc_frame_id if frame_id > vipc_frame_id else 0
   msg.valid = valid
 
@@ -118,7 +118,10 @@ def fill_model_msg(msg: capnp._DynamicStructBuilder, net_output_data: dict[str, 
 
   # meta
   meta = modelV2.meta
-  meta.desireState = net_output_data['desire_state'][0].reshape(-1).tolist()
+  if secret_good_openpilot:
+    meta.desireState = np.zeros((ModelConstants.DESIRE_PRED_WIDTH,), dtype=np.float32).reshape(-1).tolist() # TODO
+  else:
+    meta.desireState = net_output_data['desire_state'][0].reshape(-1).tolist()
   meta.desirePrediction = net_output_data['desire_pred'][0].reshape(-1).tolist()
   meta.engagedProb = net_output_data['meta'][0,Meta.ENGAGED].item()
   meta.init('disengagePredictions')
@@ -141,10 +144,16 @@ def fill_model_msg(msg: capnp._DynamicStructBuilder, net_output_data: dict[str, 
 
   # temporal pose
   temporal_pose = modelV2.temporalPose
-  temporal_pose.trans = net_output_data['sim_pose'][0,:3].tolist()
-  temporal_pose.transStd = net_output_data['sim_pose_stds'][0,:3].tolist()
-  temporal_pose.rot = net_output_data['sim_pose'][0,3:].tolist()
-  temporal_pose.rotStd = net_output_data['sim_pose_stds'][0,3:].tolist()
+  if secret_good_openpilot:
+    temporal_pose.trans = np.zeros((3,), dtype=np.float32).reshape(-1).tolist()
+    temporal_pose.transStd = np.zeros((3,), dtype=np.float32).reshape(-1).tolist()
+    temporal_pose.rot = np.zeros((3,), dtype=np.float32).reshape(-1).tolist()
+    temporal_pose.rotStd = np.zeros((3,), dtype=np.float32).reshape(-1).tolist()
+  else:
+    temporal_pose.trans = net_output_data['sim_pose'][0,:3].tolist()
+    temporal_pose.transStd = net_output_data['sim_pose_stds'][0,:3].tolist()
+    temporal_pose.rot = net_output_data['sim_pose'][0,3:].tolist()
+    temporal_pose.rotStd = net_output_data['sim_pose_stds'][0,3:].tolist()
 
   # confidence
   if vipc_frame_id % (2*ModelConstants.MODEL_FREQ) == 0:

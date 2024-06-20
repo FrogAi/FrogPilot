@@ -39,6 +39,7 @@ class FrogPilotPlanner:
     self.params_memory = Params("/dev/shm/params")
 
     self.cem = ConditionalExperimentalMode()
+    self.lead_one = Lead()
     self.mtsc = MapTurnSpeedController()
 
     self.slower_lead = False
@@ -53,7 +54,15 @@ class FrogPilotPlanner:
     self.v_cruise = 0
 
   def update(self, carState, controlsState, frogpilotCarControl, frogpilotCarState, frogpilotNavigation, modelData, radarState, frogpilot_toggles):
-    self.lead_one = radarState.leadOne
+    if frogpilot_toggles.radarless_model:
+      model_leads = list(modelData.leadsV3)
+      if len(model_leads) > 0:
+        model_lead = model_leads[0]
+        self.lead_one.update(model_lead.x[0], model_lead.y[0], model_lead.v[0], model_lead.a[0], model_lead.prob)
+      else:
+        self.lead_one.reset()
+    else:
+      self.lead_one = radarState.leadOne
 
     v_cruise = min(controlsState.vCruise, V_CRUISE_UNSET) * CV.KPH_TO_MS
     v_ego = max(carState.vEgo, 0)

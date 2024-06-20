@@ -23,6 +23,7 @@ public:
   ModelFrame(cl_device_id device_id, cl_context context);
   ~ModelFrame();
   float* prepare(cl_mem yuv_cl, int width, int height, int frame_stride, int frame_uv_offset, const mat3& transform, cl_mem *output);
+  float* prepareSecret(cl_mem yuv_cl, int width, int height, int frame_stride, int frame_uv_offset, const mat3& transform, cl_mem *output);
 
   const int MODEL_WIDTH = 512;
   const int MODEL_HEIGHT = 256;
@@ -34,5 +35,6 @@ private:
   LoadYUVState loadyuv;
   cl_command_queue q;
   cl_mem y_cl, u_cl, v_cl, net_input_cl;
+  std::unique_ptr<float[]> frame;
   std::unique_ptr<float[]> input_frames;
 };
