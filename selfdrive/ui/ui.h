@@ -154,6 +154,7 @@ typedef struct UIScene {
   bool show_aol_status_bar;
   bool show_blind_spot;
   bool show_cem_status_bar;
+  bool show_signal;
   bool show_slc_offset;
   bool show_slc_offset_ui;
   bool show_steering;

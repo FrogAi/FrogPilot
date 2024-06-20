@@ -87,11 +87,14 @@ void OnroadWindow::updateState(const UIState &s) {
   blindSpotLeft = scene.blind_spot_left;
   blindSpotRight = scene.blind_spot_right;
   showBlindspot = scene.show_blind_spot && (blindSpotLeft || blindSpotRight);
+  showSignal = scene.show_signal && (turnSignalLeft || turnSignalRight);
   showSteering = scene.show_steering;
   steer = scene.steer;
   steeringAngleDeg = scene.steering_angle_deg;
+  turnSignalLeft = scene.turn_signal_left;
+  turnSignalRight = scene.turn_signal_right;
 
-  if (showBlindspot || showSteering) {
+  if (showBlindspot || showSignal || showSteering) {
     shouldUpdate = true;
   }
 
@@ -262,5 +265,55 @@ void OnroadWindow::paintEvent(QPaintEvent *event) {
 
     p.fillRect(blindspotRectLeft, blindspotColorLeft);
     p.fillRect(blindspotRectRight, blindspotColorRight);
+  }
+
+  if (showSignal) {
+    static int signalFramesLeft = 0;
+    static int signalFramesRight = 0;
+
+    bool blindSpotActive = (blindSpotLeft && turnSignalLeft) || (blindSpotRight && turnSignalRight);
+    bool turnSignalActive = (turnSignalLeft && signalFramesLeft > 0) || (turnSignalRight && signalFramesRight > 0);
+
+    QColor signalBorderColorLeft = bg;
+    QColor signalBorderColorRight = bg;
+
+    if (blindSpotLeft) {
+      signalBorderColorLeft = bg_colors[STATUS_TRAFFIC_MODE_ACTIVE];
+    }
+
+    if (blindSpotRight) {
+      signalBorderColorRight = bg_colors[STATUS_TRAFFIC_MODE_ACTIVE];
+    }
+
+    if (sm.frame % 20 == 0 || blindSpotActive || turnSignalActive) {
+      QColor activeColor = bg_colors[STATUS_CONDITIONAL_OVERRIDDEN];
+
+      if (turnSignalLeft) {
+        signalFramesLeft = sm.frame % 10 == 0 && blindSpotActive ? 5 : sm.frame % 20 == 0 ? 10 : signalFramesLeft - 1;
+        if (signalFramesLeft > 0) {
+          signalBorderColorLeft = activeColor;
+        }
+      }
+
+      if (turnSignalRight) {
+        signalFramesRight = sm.frame % 10 == 0 && blindSpotActive ? 5 : sm.frame % 20 == 0 ? 10 : signalFramesRight - 1;
+        if (signalFramesRight > 0) {
+          signalBorderColorRight = activeColor;
+        }
+      }
+    }
+
+    int xLeft = rect.x();
+    int xRight = rect.x() + rect.width() / 2;
+    QRect signalRectLeft(xLeft, rect.y(), rect.width() / 2, rect.height());
+    QRect signalRectRight(xRight, rect.y(), rect.width() / 2, rect.height());
+
+    if (turnSignalLeft) {
+      p.fillRect(signalRectLeft, signalBorderColorLeft);
+    }
+
+    if (turnSignalRight) {
+      p.fillRect(signalRectRight, signalBorderColorRight);
+    }
   }
 }
