@@ -28,11 +28,13 @@ private:
   bool blindSpotLeft;
   bool blindSpotRight;
   bool showBlindspot;
+  bool showFPS;
   bool showSignal;
   bool showSteering;
   bool turnSignalLeft;
   bool turnSignalRight;
 
+  float fps;
   float steer;
 
   int steeringAngleDeg;
