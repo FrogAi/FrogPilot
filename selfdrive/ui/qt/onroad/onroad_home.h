@@ -25,6 +25,10 @@ private:
   QHBoxLayout* split;
 
   // FrogPilot variables
+  bool blindSpotLeft;
+  bool blindSpotRight;
+  bool showBlindspot;
+
   QPoint timeoutPoint = QPoint(420, 69);
 
   QTimer clickTimer;
