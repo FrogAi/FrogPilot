@@ -551,6 +551,12 @@ void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {
 
   std::map<int, QString> conditionalStatusMap = {
     {0, tr("Conditional Experimental Mode ready")},
+    {1, tr("Conditional Experimental overridden")},
+    {2, tr("Experimental Mode manually activated")},
+    {3, tr("Conditional Experimental overridden")},
+    {4, tr("Experimental Mode manually activated")},
+    {5, tr("Conditional Experimental overridden")},
+    {6, tr("Experimental Mode manually activated")},
     {7, tr("Experimental Mode activated for") + (mapOpen ? tr(" low speed") : tr(" speed being less than ") + QString::number(conditionalSpeedLead) + (is_metric ? tr("kph") : tr("mph")))},
     {8, tr("Experimental Mode activated for") + (mapOpen ? tr(" low speed") : tr(" speed being less than ") + QString::number(conditionalSpeed) + (is_metric ? tr("kph") : tr("mph")))},
     {9, tr("Experimental Mode activated for turn") + (mapOpen ? "" : tr(" / lane change"))},
@@ -566,6 +572,21 @@ void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {
     newStatus = tr("Always On Lateral active") + (mapOpen ? "" : tr(". Press the \"Cruise Control\" button to disable"));
   } else if (showConditionalExperimentalStatusBar) {
     newStatus = conditionalStatusMap.at(conditionalStatus);
+  }
+
+  static const std::map<int, QString> suffixMap = {
+    {1, tr(". Long press the \"distance\" button to revert")},
+    {2, tr(". Long press the \"distance\" button to revert")},
+    {3, tr(". Click the \"LKAS\" button to revert")},
+    {4, tr(". Click the \"LKAS\" button to revert")},
+    {5, tr(". Double tap the screen to revert")},
+    {6, tr(". Double tap the screen to revert")},
+  };
+
+  if (!alwaysOnLateralActive && !mapOpen && !newStatus.isEmpty()) {
+    if (suffixMap.find(conditionalStatus) != suffixMap.end()) {
+      newStatus += suffixMap.at(conditionalStatus);
+    }
   }
 
   if (newStatus != lastShownStatus) {
