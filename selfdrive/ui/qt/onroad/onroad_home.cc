@@ -87,8 +87,11 @@ void OnroadWindow::updateState(const UIState &s) {
   blindSpotLeft = scene.blind_spot_left;
   blindSpotRight = scene.blind_spot_right;
   showBlindspot = scene.show_blind_spot && (blindSpotLeft || blindSpotRight);
+  showSteering = scene.show_steering;
+  steer = scene.steer;
+  steeringAngleDeg = scene.steering_angle_deg;
 
-  if (showBlindspot) {
+  if (showBlindspot || showSteering) {
     shouldUpdate = true;
   }
 
@@ -211,6 +214,34 @@ void OnroadWindow::paintEvent(QPaintEvent *event) {
   QRect rect = this->rect();
   QColor bgColor(bg.red(), bg.green(), bg.blue(), 255);
   p.fillRect(rect, bgColor);
+
+  if (showSteering) {
+    QLinearGradient gradient(rect.topLeft(), rect.bottomLeft());
+    gradient.setColorAt(0.0, bg_colors[STATUS_TRAFFIC_MODE_ACTIVE]);
+    gradient.setColorAt(0.15, bg_colors[STATUS_EXPERIMENTAL_MODE_ACTIVE]);
+    gradient.setColorAt(0.5, bg_colors[STATUS_CONDITIONAL_OVERRIDDEN]);
+    gradient.setColorAt(0.85, bg_colors[STATUS_ENGAGED]);
+    gradient.setColorAt(1.0, bg_colors[STATUS_ENGAGED]);
+
+    QBrush brush(gradient);
+    int fillWidth = UI_BORDER_SIZE;
+
+    steer = 0.10 * std::abs(steer) + 0.90 * steer;
+    int visibleHeight = rect.height() * steer;
+
+    if (steeringAngleDeg != 0) {
+      QRect rectToFill, rectToHide;
+      if (steeringAngleDeg < 0) {
+        rectToFill = QRect(rect.x(), rect.y() + rect.height() - visibleHeight, fillWidth, visibleHeight);
+        rectToHide = QRect(rect.x(), rect.y(), fillWidth, rect.height() - visibleHeight);
+      } else {
+        rectToFill = QRect(rect.x() + rect.width() - fillWidth, rect.y() + rect.height() - visibleHeight, fillWidth, visibleHeight);
+        rectToHide = QRect(rect.x() + rect.width() - fillWidth, rect.y(), fillWidth, rect.height() - visibleHeight);
+      }
+      p.fillRect(rectToFill, brush);
+      p.fillRect(rectToHide, bgColor);
+    }
+  }
 
   if (showBlindspot) {
     QColor blindspotColorLeft = bgColor;

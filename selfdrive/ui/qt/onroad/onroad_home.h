@@ -28,6 +28,11 @@ private:
   bool blindSpotLeft;
   bool blindSpotRight;
   bool showBlindspot;
+  bool showSteering;
+
+  float steer;
+
+  int steeringAngleDeg;
 
   QPoint timeoutPoint = QPoint(420, 69);
 
