@@ -287,7 +287,7 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
   if (rightHandDM && map_settings_btn->isEnabled()) {
     x -= 250;
   }
-  offset += true ? 25 : 0;
+  offset += showAlwaysOnLateralStatusBar ? 25 : 0;
   int y = height() - offset;
   float opacity = dmActive ? 0.65 : 0.2;
   drawIcon(painter, QPoint(x, y), dm_img, blackColor(70), opacity);
@@ -495,7 +495,9 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter, const UISce
 
   alertSize = scene.alert_size;
 
-  if (true) {
+  alwaysOnLateralActive = scene.always_on_lateral_active;
+  showAlwaysOnLateralStatusBar = scene.show_aol_status_bar;
+  if (showAlwaysOnLateralStatusBar) {
     drawStatusBar(painter);
   }
 
@@ -528,6 +530,10 @@ void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {
   p.setBrush(QColor(0, 0, 0, 150));
   p.setOpacity(1.0);
   p.drawRoundedRect(statusBarRect, 30, 30);
+
+  if (alwaysOnLateralActive && showAlwaysOnLateralStatusBar) {
+    newStatus = tr("Always On Lateral active") + (mapOpen ? "" : tr(". Press the \"Cruise Control\" button to disable"));
+  }
 
   if (newStatus != lastShownStatus) {
     lastShownStatus = newStatus;
