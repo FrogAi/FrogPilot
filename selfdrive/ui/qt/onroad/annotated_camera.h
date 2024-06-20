@@ -106,6 +106,7 @@ private:
   QHBoxLayout *bottom_layout;
 
   bool alwaysOnLateralActive;
+  bool bigMapOpen;
   bool blindSpotLeft;
   bool blindSpotRight;
   bool compass;
