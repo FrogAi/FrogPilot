@@ -184,11 +184,16 @@ class FrogPilotPlanner:
       )
 
     if self.tracking_lead:
-      self.update_follow_values(lead_distance, stopping_distance, v_ego, v_lead, frogpilot_toggles)
+      self.safe_obstacle_distance = int(get_safe_obstacle_distance(v_ego, self.t_follow))
+      self.safe_obstacle_distance_stock = self.safe_obstacle_distance
+      self.stopped_equivalence_factor = int(get_stopped_equivalence_factor(v_lead))
     else:
       self.acceleration_jerk = self.base_acceleration_jerk
       self.danger_jerk = self.base_danger_jerk
       self.speed_jerk = self.base_speed_jerk
+      self.safe_obstacle_distance = 0
+      self.safe_obstacle_distance_stock = 0
+      self.stopped_equivalence_factor = 0
 
   def update_follow_values(self, lead_distance, stopping_distance, v_ego, v_lead, frogpilot_toggles):
     # Offset by FrogAi for FrogPilot for a more natural approach to a faster lead
@@ -306,6 +311,11 @@ class FrogPilotPlanner:
     frogpilotPlan.vtscControllingCurve = bool(self.mtsc_target > self.vtsc_target)
 
     frogpilotPlan.conditionalExperimentalActive = bool(self.cem.experimental_mode)
+
+    frogpilotPlan.desiredFollowDistance = self.safe_obstacle_distance - self.stopped_equivalence_factor
+    frogpilotPlan.safeObstacleDistance = self.safe_obstacle_distance
+    frogpilotPlan.safeObstacleDistanceStock = self.safe_obstacle_distance_stock
+    frogpilotPlan.stoppedEquivalenceFactor = self.stopped_equivalence_factor
 
     frogpilotPlan.greenLight = self.model_length > TRAJECTORY_SIZE
 

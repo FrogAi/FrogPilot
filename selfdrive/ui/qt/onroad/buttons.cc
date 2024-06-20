@@ -33,7 +33,7 @@ void drawIconGif(QPainter &p, const QPoint &center, const QMovie &img, const QBr
 
 // ExperimentalButton
 ExperimentalButton::ExperimentalButton(QWidget *parent) : experimental_mode(false), engageable(false), QPushButton(parent) {
-  setFixedSize(btn_size, btn_size);
+  setFixedSize(btn_size, btn_size + 10);
 
   engage_img = loadPixmap("../assets/img_chffr_wheel.png", {img_size, img_size});
   experimental_img = loadPixmap("../assets/img_experimental.svg", {img_size, img_size});
@@ -70,7 +70,7 @@ void ExperimentalButton::changeMode() {
   }
 }
 
-void ExperimentalButton::updateState(const UIState &s) {
+void ExperimentalButton::updateState(const UIState &s, bool leadInfo) {
   const auto cs = (*s.sm)["controlsState"].getControlsState();
   bool eng = cs.getEngageable() || cs.getEnabled() || s.scene.always_on_lateral_active;
   if ((cs.getExperimentalMode() != experimental_mode) || (eng != engageable)) {
@@ -91,6 +91,7 @@ void ExperimentalButton::updateState(const UIState &s) {
   trafficModeActive = scene.traffic_mode_active;
   wheelIcon = scene.wheel_icon;
   wheelIconGif = 0;
+  y_offset = leadInfo ? 10 : 0;
 
   if (randomEvent == 0 && gifLabel) {
     delete gifLabel;
@@ -102,7 +103,7 @@ void ExperimentalButton::updateState(const UIState &s) {
       if (movie) {
         gifLabel->setMovie(movie);
         gifLabel->setFixedSize(img_size, img_size);
-        gifLabel->move((width() - gifLabel->width()) / 2, (height() - gifLabel->height()) / 2);
+        gifLabel->move((width() - gifLabel->width()) / 2, (height() - gifLabel->height()) / 2 + y_offset);
         gifLabel->movie()->start();
       }
     }
@@ -137,9 +138,9 @@ void ExperimentalButton::paintEvent(QPaintEvent *event) {
     QColor(0, 0, 0, 166);
 
   if (wheelIconGif != 0) {
-    drawIconGif(p, QPoint(btn_size / 2, btn_size / 2), *gif, background_color, 1.0);
+    drawIconGif(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), *gif, background_color, 1.0);
   } else {
-    drawIcon(p, QPoint(btn_size / 2, btn_size / 2), img, background_color, (isDown() || !engageable) ? 0.6 : 1.0, steeringAngleDeg);
+    drawIcon(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), img, background_color, (isDown() || !engageable) ? 0.6 : 1.0, steeringAngleDeg);
   }
 }
 

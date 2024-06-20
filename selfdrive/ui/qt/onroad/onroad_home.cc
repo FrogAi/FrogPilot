@@ -84,23 +84,29 @@ void OnroadWindow::updateState(const UIState &s) {
   // FrogPilot variables
   const UIScene &scene = s.scene;
 
+  accelerationJerk = scene.acceleration_jerk;
+  accelerationJerkDifference = scene.acceleration_jerk_difference;
   blindSpotLeft = scene.blind_spot_left;
   blindSpotRight = scene.blind_spot_right;
   fps = scene.fps;
   friction = scene.friction;
+  hasLead = scene.has_lead;
   latAccel = scene.lat_accel;
   liveValid = scene.live_valid;
   showBlindspot = scene.show_blind_spot && (blindSpotLeft || blindSpotRight);
   showFPS = scene.show_fps;
+  showJerk = scene.show_jerk;
   showSignal = scene.show_signal && (turnSignalLeft || turnSignalRight);
   showSteering = scene.show_steering;
   showTuning = scene.show_tuning;
+  speedJerk = scene.speed_jerk;
+  speedJerkDifference = scene.speed_jerk_difference;
   steer = scene.steer;
   steeringAngleDeg = scene.steering_angle_deg;
   turnSignalLeft = scene.turn_signal_left;
   turnSignalRight = scene.turn_signal_right;
 
-  if (showBlindspot || showFPS || showSignal || showSteering || showTuning) {
+  if (showBlindspot || showFPS || (showJerk && hasLead) || showSignal || showSteering || showTuning) {
     shouldUpdate = true;
   }
 
@@ -324,10 +330,27 @@ void OnroadWindow::paintEvent(QPaintEvent *event) {
   }
 
   QString logicsDisplayString;
+  auto appendJerkInfo = [&](const QString &label, float value, float difference) {
+    logicsDisplayString += QString("%1: %2").arg(label).arg(value, 0, 'f', 3);
+    if (difference != 0) {
+      logicsDisplayString += QString(" (%1%2)").arg(difference > 0 ? "-" : "").arg(difference, 0, 'f', 3);
+    }
+    logicsDisplayString += " | ";
+  };
+
+  if (showJerk) {
+    appendJerkInfo("Acceleration Jerk", accelerationJerk, accelerationJerkDifference);
+    appendJerkInfo("Speed Jerk", speedJerk, speedJerkDifference);
+  }
+
   if (showTuning) {
     logicsDisplayString += liveValid
         ? QString("Friction: %1 | Lateral Acceleration: %2").arg(friction, 0, 'f', 3).arg(latAccel, 0, 'f', 3)
         : "Friction: Calculating... | Lateral Acceleration: Calculating...";
+  }
+
+  if (logicsDisplayString.endsWith(" | ")) {
+    logicsDisplayString.chop(3);
   }
 
   if (!logicsDisplayString.isEmpty()) {
@@ -347,7 +370,13 @@ void OnroadWindow::paintEvent(QPaintEvent *event) {
       for (int i = 0; i < subParts.size(); ++i) {
         QString text = subParts[i];
 
-        if (text.startsWith("(") && i > 0) {
+        if (text.endsWith(")") && i > 0 && (subParts[i - 1].contains("Acceleration") || subParts[i - 1].contains("Speed"))) {
+          QString prefix = subParts[i - 1] + " (";
+          p.drawText(currentX, logicsY, prefix);
+          currentX += p.fontMetrics().horizontalAdvance(prefix);
+          text.chop(1);
+          p.setPen(text.contains("-") ? redColor() : Qt::white);
+        } else if (text.startsWith("(") && i > 0) {
           p.drawText(currentX, logicsY, " (");
           currentX += p.fontMetrics().horizontalAdvance(" (");
           text = text.mid(1);

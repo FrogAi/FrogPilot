@@ -14,7 +14,7 @@ class ExperimentalButton : public QPushButton {
 
 public:
   explicit ExperimentalButton(QWidget *parent = 0);
-  void updateState(const UIState &s);
+  void updateState(const UIState &s, bool leadInfo);
 
 private:
   void paintEvent(QPaintEvent *event) override;
@@ -38,6 +38,7 @@ private:
   int steeringAngleDeg;
   int wheelIcon;
   int wheelIconGif;
+  int y_offset;
 
   QLabel *gifLabel;
 

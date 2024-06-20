@@ -140,6 +140,7 @@ typedef struct UIScene {
   bool has_auto_tune;
   bool has_lead;
   bool holiday_themes;
+  bool lead_info;
   bool live_valid;
   bool map_open;
   bool online;
@@ -157,6 +158,7 @@ typedef struct UIScene {
   bool show_blind_spot;
   bool show_cem_status_bar;
   bool show_fps;
+  bool show_jerk;
   bool show_signal;
   bool show_slc_offset;
   bool show_slc_offset_ui;
@@ -179,6 +181,9 @@ typedef struct UIScene {
 
   double fps;
 
+  float acceleration;
+  float acceleration_jerk;
+  float acceleration_jerk_difference;
   float adjusted_cruise;
   float friction;
   float lane_detection_width;
@@ -187,6 +192,8 @@ typedef struct UIScene {
   float lat_accel;
   float lead_detection_threshold;
   float road_curvature;
+  float speed_jerk;
+  float speed_jerk_difference;
   float speed_limit;
   float speed_limit_offset;
   float speed_limit_overridden_speed;
@@ -203,9 +210,13 @@ typedef struct UIScene {
   int custom_colors;
   int custom_icons;
   int custom_signals;
+  int desired_follow;
   int lead_distance;
   int model_length;
+  int obstacle_distance;
+  int obstacle_distance_stock;
   int steering_angle_deg;
+  int stopped_equivalence;
   int tethering_config;
   int wheel_icon;
 
