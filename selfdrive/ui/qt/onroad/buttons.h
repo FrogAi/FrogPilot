@@ -25,6 +25,10 @@ private:
   bool engageable;
 
   // FrogPilot variables
+  bool conditionalExperimental;
+
+  int conditionalStatus;
+
   Params paramsMemory{"/dev/shm/params"};
 };
 

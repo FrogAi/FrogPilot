@@ -28,7 +28,12 @@ void ExperimentalButton::changeMode() {
   const auto cp = (*uiState()->sm)["carParams"].getCarParams();
   bool can_change = hasLongitudinalControl(cp) && params.getBool("ExperimentalModeConfirmed");
   if (can_change) {
-    params.putBool("ExperimentalMode", !experimental_mode);
+    if (conditionalExperimental) {
+      int override_value = (conditionalStatus >= 1 && conditionalStatus <= 6) ? 0 : conditionalStatus >= 7 ? 5 : 6;
+      paramsMemory.putIntNonBlocking("CEStatus", override_value);
+    } else {
+      params.putBool("ExperimentalMode", !experimental_mode);
+    }
   }
 }
 
@@ -43,6 +48,9 @@ void ExperimentalButton::updateState(const UIState &s) {
 
   // FrogPilot variables
   const UIScene &scene = s.scene;
+
+  conditionalExperimental = scene.conditional_experimental;
+  conditionalStatus = scene.conditional_status;
 }
 
 void ExperimentalButton::paintEvent(QPaintEvent *event) {
