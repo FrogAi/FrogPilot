@@ -77,7 +77,7 @@ void AnnotatedCameraWidget::updateState(const UIState &s) {
   has_eu_speed_limit = (nav_alive && speed_limit_sign == cereal::NavInstruction::SpeedLimitSign::VIENNA) && !(speedLimitController && !useViennaSLCSign) || (speedLimitController && useViennaSLCSign);
   is_metric = s.scene.is_metric;
   speedUnit =  s.scene.is_metric ? tr("km/h") : tr("mph");
-  hideBottomIcons = (cs.getAlertSize() != cereal::ControlsState::AlertSize::NONE || customSignals != 0 && (turnSignalLeft || turnSignalRight));
+  hideBottomIcons = (cs.getAlertSize() != cereal::ControlsState::AlertSize::NONE || customSignals != 0 && (turnSignalLeft || turnSignalRight) || bigMapOpen);
   status = s.status;
 
   // update engageability/experimental mode button
@@ -224,10 +224,12 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
   p.restore();
 
   // current speed
-  p.setFont(InterFont(176, QFont::Bold));
-  drawText(p, rect().center().x(), 210, speedStr);
-  p.setFont(InterFont(66));
-  drawText(p, rect().center().x(), 290, speedUnit, 200);
+  if (!bigMapOpen) {
+    p.setFont(InterFont(176, QFont::Bold));
+    drawText(p, rect().center().x(), 210, speedStr);
+    p.setFont(InterFont(66));
+    drawText(p, rect().center().x(), 290, speedUnit, 200);
+  }
 
   p.restore();
 }
@@ -799,7 +801,7 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter, const UISce
 
   alwaysOnLateralActive = scene.always_on_lateral_active;
   showAlwaysOnLateralStatusBar = scene.show_aol_status_bar;
-  if (showAlwaysOnLateralStatusBar || showConditionalExperimentalStatusBar || roadNameUI) {
+  if ((showAlwaysOnLateralStatusBar || showConditionalExperimentalStatusBar || roadNameUI) && !bigMapOpen) {
     drawStatusBar(painter);
   }
 
@@ -841,11 +843,12 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter, const UISce
   leadInfo = scene.lead_info;
   obstacleDistance = scene.obstacle_distance;
   obstacleDistanceStock = scene.obstacle_distance_stock;
-  if (leadInfo) {
+  if (leadInfo && !bigMapOpen) {
     drawLeadInfo(painter);
   }
 
   mapOpen = scene.map_open;
+  bigMapOpen = mapOpen && scene.big_map;
   map_settings_btn_bottom->setEnabled(map_settings_btn->isEnabled());
   if (map_settings_btn_bottom->isEnabled()) {
     map_settings_btn_bottom->setVisible(!hideBottomIcons && !compass);
@@ -860,7 +863,7 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter, const UISce
     bottom_layout->setAlignment(distance_btn, (rightHandDM ? Qt::AlignRight : Qt::AlignLeft));
   }
 
-  bool enablePedalIcons = scene.pedals_on_ui;
+  bool enablePedalIcons = scene.pedals_on_ui && !bigMapOpen;
   pedal_icons->setVisible(enablePedalIcons);
   if (enablePedalIcons) {
     pedal_icons->updateState(scene);
@@ -885,7 +888,7 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter, const UISce
 
   turnSignalLeft = scene.turn_signal_left;
   turnSignalRight = scene.turn_signal_right;
-  if (customSignals != 0 && (turnSignalLeft || turnSignalRight)) {
+  if (customSignals != 0 && (turnSignalLeft || turnSignalRight) && !bigMapOpen) {
     if (!animationTimer->isActive()) {
       animationTimer->start(totalFrames * 11);  // 440 milliseconds per loop; syncs up perfectly with my 2019 Lexus ES 350 turn signal clicks
     }

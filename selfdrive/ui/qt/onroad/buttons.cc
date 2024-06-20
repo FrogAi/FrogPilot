@@ -83,8 +83,10 @@ void ExperimentalButton::updateState(const UIState &s, bool leadInfo) {
   const UIScene &scene = s.scene;
 
   alwaysOnLateralActive = scene.always_on_lateral_active;
+  bigMap = scene.big_map;
   conditionalExperimental = scene.conditional_experimental;
   conditionalStatus = scene.conditional_status;
+  mapOpen = scene.map_open;
   navigateOnOpenpilot = scene.navigate_on_openpilot;
   randomEvent = scene.current_random_event;
   rotatingWheel = scene.rotating_wheel;
@@ -137,10 +139,12 @@ void ExperimentalButton::paintEvent(QPaintEvent *event) {
     (navigateOnOpenpilot ? bg_colors[STATUS_NAVIGATION_ACTIVE] : QColor(0, 0, 0, 166)))))) :
     QColor(0, 0, 0, 166);
 
-  if (wheelIconGif != 0) {
-    drawIconGif(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), *gif, background_color, 1.0);
-  } else {
-    drawIcon(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), img, background_color, (isDown() || !engageable) ? 0.6 : 1.0, steeringAngleDeg);
+  if (!(bigMap && mapOpen)) {
+    if (wheelIconGif != 0) {
+      drawIconGif(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), *gif, background_color, 1.0);
+    } else {
+      drawIcon(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), img, background_color, (isDown() || !engageable) ? 0.6 : 1.0, steeringAngleDeg);
+    }
   }
 }
 
