@@ -24,6 +24,10 @@ private:
   QWidget *map = nullptr;
   QHBoxLayout* split;
 
+  // FrogPilot variables
+  Params params;
+  Params paramsMemory{"/dev/shm/params"};
+
 private slots:
   void offroadTransition(bool offroad);
   void primeChanged(bool prime);

@@ -23,6 +23,9 @@ private:
   QPixmap experimental_img;
   bool experimental_mode;
   bool engageable;
+
+  // FrogPilot variables
+  Params paramsMemory{"/dev/shm/params"};
 };
 
 

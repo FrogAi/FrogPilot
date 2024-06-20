@@ -147,6 +147,8 @@ void update_dmonitoring(UIState *s, const cereal::DriverStateV2::Reader &drivers
     vec3 kpt_this = matvecmul3(r_xyz, default_face_kpts_3d[kpi]);
     scene.face_kpts_draw[kpi] = (vec3){{kpt_this.v[0], kpt_this.v[1], (float)(kpt_this.v[2] * (1.0-dm_fade_state) + 8 * dm_fade_state)}};
   }
+
+  scene.right_hand_drive = is_rhd;
 }
 
 static void update_sockets(UIState *s) {
@@ -208,6 +210,9 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("controlsState")) {
     auto controlsState = sm["controlsState"].getControlsState();
+    scene.alert_size = controlsState.getAlertSize() == cereal::ControlsState::AlertSize::MID ? 350 : controlsState.getAlertSize() == cereal::ControlsState::AlertSize::SMALL ? 200 : 0;
+    scene.enabled = controlsState.getEnabled();
+    scene.experimental_mode = controlsState.getExperimentalMode();
   }
   if (sm.updated("deviceState")) {
     auto deviceState = sm["deviceState"].getDeviceState();
@@ -256,7 +261,7 @@ void UIState::updateStatus() {
     if (state == cereal::ControlsState::OpenpilotState::PRE_ENABLED || state == cereal::ControlsState::OpenpilotState::OVERRIDING) {
       status = STATUS_OVERRIDE;
     } else {
-      status = controls_state.getEnabled() ? STATUS_ENGAGED : STATUS_DISENGAGED;
+      status = scene.enabled ? STATUS_ENGAGED : STATUS_DISENGAGED;
     }
   }
 

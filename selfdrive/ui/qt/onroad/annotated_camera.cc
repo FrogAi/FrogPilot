@@ -24,6 +24,9 @@ AnnotatedCameraWidget::AnnotatedCameraWidget(VisionStreamType type, QWidget* par
   main_layout->addWidget(map_settings_btn, 0, Qt::AlignBottom | Qt::AlignRight);
 
   dm_img = loadPixmap("../assets/img_driver_face.png", {img_size + 5, img_size + 5});
+
+  // Initialize FrogPilot widgets
+  initializeFrogPilotWidgets();
 }
 
 void AnnotatedCameraWidget::updateState(const UIState &s) {
@@ -233,7 +236,7 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
 
   // paint path
   QLinearGradient bg(0, height(), 0, 0);
-  if (sm["controlsState"].getControlsState().getExperimentalMode()) {
+  if (experimentalMode) {
     // The first half of track_vertices are the points for the right side of the path
     // and the indices match the positions of accel from uiPlan
     const auto &acceleration = sm["uiPlan"].getUiPlan().getAccel();
@@ -280,6 +283,7 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
   // base icon
   int offset = UI_BORDER_SIZE + btn_size / 2;
   int x = rightHandDM ? width() - offset : offset;
+  offset += true ? 25 : 0;
   int y = height() - offset;
   float opacity = dmActive ? 0.65 : 0.2;
   drawIcon(painter, QPoint(x, y), dm_img, blackColor(70), opacity);
@@ -381,7 +385,7 @@ void AnnotatedCameraWidget::paintGL() {
       } else if (v_ego > 15) {
         wide_cam_requested = false;
       }
-      wide_cam_requested = wide_cam_requested && sm["controlsState"].getControlsState().getExperimentalMode();
+      wide_cam_requested = wide_cam_requested && experimentalMode;
       // for replay of old routes, never go to widecam
       wide_cam_requested = wide_cam_requested && s->scene.calibration_wide_valid;
     }
@@ -441,6 +445,9 @@ void AnnotatedCameraWidget::paintGL() {
   auto m = msg.initEvent().initUiDebug();
   m.setDrawTimeMillis(cur_draw_t - start_draw_t);
   pm->send("uiDebug", msg);
+
+  // Paint FrogPilot widgets
+  paintFrogPilotWidgets(painter, s->scene);
 }
 
 void AnnotatedCameraWidget::showEvent(QShowEvent *event) {
@@ -448,4 +455,98 @@ void AnnotatedCameraWidget::showEvent(QShowEvent *event) {
 
   ui_update_params(uiState());
   prev_draw_t = millis_since_boot();
+}
+
+// FrogPilot widgets
+void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
+  bottom_layout = new QHBoxLayout();
+
+  QSpacerItem *spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
+  bottom_layout->addItem(spacer);
+
+  map_settings_btn_bottom = new MapSettingsButton(this);
+  bottom_layout->addWidget(map_settings_btn_bottom);
+
+  main_layout->addLayout(bottom_layout);
+}
+
+void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter, const UIScene &scene) {
+  if (is_metric) {
+    accelerationUnit = tr(" m/s²");
+    leadDistanceUnit = tr(mapOpen ? "m" : "meters");
+    leadSpeedUnit = tr("kph");
+
+    accelerationConversion = 1.0f;
+    distanceConversion = 1.0f;
+    speedConversion = MS_TO_KPH;
+  } else {
+    accelerationUnit = tr(" ft/s²");
+    leadDistanceUnit = tr(mapOpen ? "ft" : "feet");
+    leadSpeedUnit = tr("mph");
+
+    accelerationConversion = METER_TO_FOOT;
+    distanceConversion = METER_TO_FOOT;
+    speedConversion = MS_TO_MPH;
+  }
+
+  alertSize = scene.alert_size;
+
+  if (true) {
+    drawStatusBar(painter);
+  }
+
+  experimentalMode = scene.experimental_mode;
+
+  mapOpen = scene.map_open;
+  map_settings_btn_bottom->setEnabled(map_settings_btn->isEnabled());
+  if (map_settings_btn_bottom->isEnabled()) {
+    map_settings_btn_bottom->setVisible(!hideBottomIcons);
+    bottom_layout->setAlignment(map_settings_btn_bottom, rightHandDM ? Qt::AlignLeft : Qt::AlignRight);
+  }
+}
+
+void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {
+  p.save();
+
+  static QElapsedTimer timer;
+  static QString lastShownStatus;
+
+  static bool displayStatusText = false;
+
+  constexpr qreal fadeDuration = 1500.0;
+  constexpr qreal textDuration = 5000.0;
+
+  static qreal statusTextOpacity = 0.0;
+
+  QString newStatus;
+
+  QRect statusBarRect(rect().left() - 1, rect().bottom() - 50, rect().width() + 2, 100);
+  p.setBrush(QColor(0, 0, 0, 150));
+  p.setOpacity(1.0);
+  p.drawRoundedRect(statusBarRect, 30, 30);
+
+  if (newStatus != lastShownStatus) {
+    lastShownStatus = newStatus;
+    displayStatusText = true;
+    timer.restart();
+  } else if (displayStatusText && timer.hasExpired(textDuration + fadeDuration)) {
+    displayStatusText = false;
+  }
+
+  if (displayStatusText) {
+    statusTextOpacity = qBound(0.0, 1.0 - (timer.elapsed() - textDuration) / fadeDuration, 1.0);
+  } else {
+    statusTextOpacity = 0.0;
+  }
+
+  p.setFont(InterFont(40, QFont::Bold));
+  p.setOpacity(statusTextOpacity);
+  p.setPen(Qt::white);
+  p.setRenderHint(QPainter::TextAntialiasing);
+
+  QRect textRect = p.fontMetrics().boundingRect(statusBarRect, Qt::AlignCenter | Qt::TextWordWrap, newStatus);
+  textRect.moveBottom(statusBarRect.bottom() - 50);
+  p.drawText(textRect, Qt::AlignCenter | Qt::TextWordWrap, newStatus);
+
+  p.restore();
 }
