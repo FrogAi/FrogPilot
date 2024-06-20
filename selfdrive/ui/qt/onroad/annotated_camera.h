@@ -93,6 +93,7 @@ private:
 
   void drawSLCConfirmation(QPainter &p);
   void drawStatusBar(QPainter &p);
+  void drawTurnSignals(QPainter &p);
 
   // FrogPilot variables
   Params paramsMemory{"/dev/shm/params"};
@@ -119,6 +120,8 @@ private:
   bool speedLimitChanged;
   bool speedLimitController;
   bool trafficModeActive;
+  bool turnSignalLeft;
+  bool turnSignalRight;
   bool useViennaSLCSign;
   bool vtscControllingCurve;
 
@@ -137,6 +140,8 @@ private:
   int conditionalSpeedLead;
   int conditionalStatus;
   int customColors;
+  int customSignals;
+  int totalFrames;
 
   QPixmap stopSignImg;
 
@@ -144,7 +149,12 @@ private:
   QString leadDistanceUnit;
   QString leadSpeedUnit;
 
+  size_t animationFrameIndex;
+
   std::unordered_map<int, std::tuple<QString, QColor, std::map<double, QBrush>>> themeConfiguration;
+  std::vector<QPixmap> signalImgVector;
+
+  QTimer *animationTimer;
 
   inline QColor blueColor(int alpha = 255) { return QColor(0, 150, 255, alpha); }
   inline QColor greenColor(int alpha = 242) { return QColor(23, 134, 68, alpha); }

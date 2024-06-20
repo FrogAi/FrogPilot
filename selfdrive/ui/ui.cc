@@ -227,6 +227,8 @@ static void update_state(UIState *s) {
     scene.reverse = carState.getGearShifter() == cereal::CarState::GearShifter::REVERSE;
     scene.standstill = carState.getStandstill() && !scene.reverse;
     scene.steering_angle_deg = -carState.getSteeringAngleDeg();
+    scene.turn_signal_left = carState.getLeftBlinker();
+    scene.turn_signal_right = carState.getRightBlinker();
   }
   if (sm.updated("controlsState")) {
     auto controlsState = sm["controlsState"].getControlsState();
@@ -331,6 +333,7 @@ void ui_update_frogpilot_params(UIState *s) {
   bool custom_theme = params.getBool("CustomTheme");
   scene.custom_colors = custom_theme ? params.getInt("CustomColors") : 0;
   scene.custom_icons = custom_theme ? params.getInt("CustomIcons") : 0;
+  scene.custom_signals = custom_theme ? params.getInt("CustomSignals") : 0;
 
   scene.disable_smoothing_mtsc = params.getBool("MTSCEnabled") && params.getBool("DisableMTSCSmoothing");
   scene.disable_smoothing_vtsc = params.getBool("VisionTurnControl") && params.getBool("DisableVTSCSmoothing");
