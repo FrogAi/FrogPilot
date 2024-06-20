@@ -733,14 +733,14 @@ void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
 }
 
 void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter, const UIScene &scene) {
-  if (is_metric) {
+  if (is_metric || useSI) {
     accelerationUnit = tr(" m/s²");
     leadDistanceUnit = tr(mapOpen ? "m" : "meters");
-    leadSpeedUnit = tr("kph");
+    leadSpeedUnit = useSI ? tr("m/s") : tr("kph");
 
     accelerationConversion = 1.0f;
     distanceConversion = 1.0f;
-    speedConversion = MS_TO_KPH;
+    speedConversion = useSI ? 1.0f : MS_TO_KPH;
   } else {
     accelerationUnit = tr(" ft/s²");
     leadDistanceUnit = tr(mapOpen ? "ft" : "feet");
@@ -849,6 +849,8 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter, const UISce
   } else if (animationTimer->isActive()) {
     animationTimer->stop();
   }
+
+  useSI = scene.use_si;
 
   if (currentHolidayTheme != scene.current_holiday_theme || customSignals != scene.custom_signals) {
     currentHolidayTheme = scene.current_holiday_theme;

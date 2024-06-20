@@ -370,6 +370,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.is_memory = scene.sidebar_metrics && params.getBool("ShowMemoryUsage");
   scene.is_storage_left = scene.sidebar_metrics && params.getBool("ShowStorageLeft");
   scene.is_storage_used = scene.sidebar_metrics && params.getBool("ShowStorageUsed");
+  scene.use_si = developer_ui && params.getBool("UseSI");
 
   scene.disable_smoothing_mtsc = params.getBool("MTSCEnabled") && params.getBool("DisableMTSCSmoothing");
   scene.disable_smoothing_vtsc = params.getBool("VisionTurnControl") && params.getBool("DisableVTSCSmoothing");

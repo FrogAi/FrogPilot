@@ -185,6 +185,7 @@ typedef struct UIScene {
   bool turn_signal_left;
   bool turn_signal_right;
   bool use_kaofui_icons;
+  bool use_si;
   bool use_vienna_slc_sign;
   bool vtsc_controlling_curve;
 
