@@ -429,6 +429,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.hide_alerts = hide_ui_elements && params.getBool("HideAlerts");
   scene.hide_map_icon = hide_ui_elements && params.getBool("HideMapIcon");
   scene.hide_max_speed = hide_ui_elements && params.getBool("HideMaxSpeed");
+  scene.screen_brightness = screen_management ? params.getInt("ScreenBrightness") : 101;
 
   scene.speed_limit_controller = scene.longitudinal_control && params.getBool("SpeedLimitController");
   scene.show_slc_offset = scene.speed_limit_controller && params.getBool("ShowSLCOffset");
@@ -588,6 +589,8 @@ void Device::updateBrightness(const UIState &s) {
   int brightness = brightness_filter.update(clipped_brightness);
   if (!awake) {
     brightness = 0;
+  } else if (s.scene.screen_brightness != 101) {
+    brightness = s.scene.screen_brightness;
   }
 
   if (brightness != last_brightness) {
