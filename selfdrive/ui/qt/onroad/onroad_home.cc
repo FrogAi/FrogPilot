@@ -84,6 +84,14 @@ void OnroadWindow::updateState(const UIState &s) {
   // FrogPilot variables
   const UIScene &scene = s.scene;
 
+  blindSpotLeft = scene.blind_spot_left;
+  blindSpotRight = scene.blind_spot_right;
+  showBlindspot = scene.show_blind_spot && (blindSpotLeft || blindSpotRight);
+
+  if (showBlindspot) {
+    shouldUpdate = true;
+  }
+
   if (shouldUpdate) {
     update();
   }
@@ -203,4 +211,25 @@ void OnroadWindow::paintEvent(QPaintEvent *event) {
   QRect rect = this->rect();
   QColor bgColor(bg.red(), bg.green(), bg.blue(), 255);
   p.fillRect(rect, bgColor);
+
+  if (showBlindspot) {
+    QColor blindspotColorLeft = bgColor;
+    QColor blindspotColorRight = bgColor;
+
+    if (blindSpotLeft) {
+      blindspotColorLeft = bg_colors[STATUS_TRAFFIC_MODE_ACTIVE];
+    }
+
+    if (blindSpotRight) {
+      blindspotColorRight = bg_colors[STATUS_TRAFFIC_MODE_ACTIVE];
+    }
+
+    int xLeft = rect.x();
+    int xRight = rect.x() + rect.width() / 2;
+    QRect blindspotRectLeft(xLeft, rect.y(), rect.width() / 2, rect.height());
+    QRect blindspotRectRight(xRight, rect.y(), rect.width() / 2, rect.height());
+
+    p.fillRect(blindspotRectLeft, blindspotColorLeft);
+    p.fillRect(blindspotRectRight, blindspotColorRight);
+  }
 }
