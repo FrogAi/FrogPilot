@@ -159,6 +159,7 @@ typedef struct UIScene {
   bool show_cem_status_bar;
   bool show_slc_offset;
   bool show_slc_offset_ui;
+  bool show_steering;
   bool show_stopping_point;
   bool show_stopping_point_metrics;
   bool speed_limit_changed;
@@ -183,6 +184,7 @@ typedef struct UIScene {
   float speed_limit;
   float speed_limit_offset;
   float speed_limit_overridden_speed;
+  float steer;
   float unconfirmed_speed_limit;
 
   int alert_size;
