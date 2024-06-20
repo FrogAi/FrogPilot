@@ -166,6 +166,8 @@ typedef struct UIScene {
   bool tethering_enabled;
   bool traffic_mode;
   bool traffic_mode_active;
+  bool turn_signal_left;
+  bool turn_signal_right;
   bool use_kaofui_icons;
   bool use_vienna_slc_sign;
   bool vtsc_controlling_curve;
@@ -187,6 +189,7 @@ typedef struct UIScene {
   int conditional_status;
   int custom_colors;
   int custom_icons;
+  int custom_signals;
   int model_length;
   int steering_angle_deg;
   int tethering_config;
