@@ -55,6 +55,9 @@ class CarState(CarStateBase):
     # FrogPilot variables
     self.main_enabled = False
 
+    self.active_mode = 0
+    self.drive_mode_prev = 0
+
   def update(self, cp, cp_cam, frogpilot_toggles):
     if self.CP.carFingerprint in CANFD_CAR:
       return self.update_canfd(cp, cp_cam, frogpilot_toggles)
@@ -270,6 +273,15 @@ class CarState(CarStateBase):
     self.prev_distance_button = self.distance_button
     self.distance_button = self.cruise_buttons[-1] == Buttons.GAP_DIST
 
+    drive_mode = cp.vl["DRIVE_MODE"]["DRIVE_MODE2"]
+
+    if drive_mode != 0 and drive_mode != self.drive_mode_prev:
+      self.active_mode = drive_mode if drive_mode in (2, 3) else 1
+      self.drive_mode_prev = drive_mode
+
+    fp_ret.ecoGear = self.active_mode == 2
+    fp_ret.sportGear = self.active_mode == 3
+
     self.lkas_previously_enabled = self.lkas_enabled
     self.lkas_enabled = cp.vl[self.cruise_btns_msg_canfd]["LKAS_BTN"]
 
@@ -359,6 +371,7 @@ class CarState(CarStateBase):
       ("CRUISE_BUTTONS_ALT", 50),
       ("BLINKERS", 4),
       ("DOORS_SEATBELTS", 4),
+      ("DRIVE_MODE", 0),
     ]
 
     if CP.flags & HyundaiFlags.EV:

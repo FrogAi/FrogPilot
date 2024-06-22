@@ -191,6 +191,9 @@ class CarState(CarStateBase):
         self.distance_button = cp.vl["SDSU"]["FD_BUTTON"]
 
     # FrogPilot CarState functions
+    fp_ret.ecoGear = cp.vl["GEAR_PACKET"]['ECON_ON'] == 1
+    fp_ret.sportGear = cp.vl["GEAR_PACKET"]['SPORT_ON_2' if self.CP.flags & ToyotaFlags.NO_DSU else 'SPORT_ON'] == 1
+
     if self.CP.carFingerprint != CAR.TOYOTA_PRIUS_V:
       self.lkas_previously_enabled = self.lkas_enabled
       message_keys = ["LDA_ON_MESSAGE", "SET_ME_X02"]
