@@ -420,6 +420,8 @@ class CarInterfaceBase(ABC):
     # Add any additional frogpilotCarStates
     fp_ret.alwaysOnLateralDisabled = self.always_on_lateral_disabled
     fp_ret.distanceLongPressed = self.frogpilot_distance_functions(frogpilot_toggles)
+    fp_ret.ecoGear |= ret.gearShifter == GearShifter.eco
+    fp_ret.sportGear |= ret.gearShifter == GearShifter.sport
     fp_ret.trafficModeActive = frogpilot_toggles.traffic_mode and self.traffic_mode_active
 
     # copy back for next iteration
