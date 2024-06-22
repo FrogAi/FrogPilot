@@ -25,6 +25,11 @@ class ConditionalExperimentalMode:
       self.status_value = 7 if tracking_lead else 8
       return True
 
+    approaching_maneuver = modelData.navEnabled and (frogpilotNavigation.approachingIntersection or frogpilotNavigation.approachingTurn)
+    if frogpilot_toggles.conditional_navigation and approaching_maneuver and (frogpilot_toggles.conditional_navigation_lead or not lead_status):
+      self.status_value = 10 if frogpilotNavigation.approachingIntersection else 11
+      return True
+
     if frogpilot_toggles.conditional_curves and self.curve_detected and (frogpilot_toggles.conditional_curves_lead or not tracking_lead):
       self.status_value = 12
       return True
