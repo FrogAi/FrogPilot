@@ -68,6 +68,7 @@ private:
   bool speedLimitController;
   bool trafficModeActive;
   bool useViennaSLCSign;
+  bool vtscControllingCurve;
 
   float accelerationConversion;
   float cruiseAdjustment;
