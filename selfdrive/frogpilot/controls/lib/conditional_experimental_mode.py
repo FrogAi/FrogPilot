@@ -3,6 +3,7 @@ from openpilot.selfdrive.modeld.constants import ModelConstants
 
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import MovingAverageCalculator
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import CITY_SPEED_LIMIT, CRUISING_SPEED, PROBABILITY, TRAJECTORY_SIZE
+from openpilot.selfdrive.frogpilot.controls.lib.speed_limit_controller import SpeedLimitController
 
 class ConditionalExperimentalMode:
   def __init__(self):
@@ -52,6 +53,10 @@ class ConditionalExperimentalMode:
 
     if frogpilot_toggles.conditional_stop_lights and self.stop_light_detected:
       self.status_value = 15
+      return True
+
+    if SpeedLimitController.experimental_mode:
+      self.status_value = 16
       return True
 
     return False

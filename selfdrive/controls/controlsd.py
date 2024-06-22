@@ -879,7 +879,7 @@ class Controls:
     while not evt.is_set():
       self.is_metric = self.params.get_bool("IsMetric")
       if self.CP.openpilotLongitudinalControl and not self.frogpilot_toggles.conditional_experimental_mode:
-        self.experimental_mode = self.params.get_bool("ExperimentalMode")
+        self.experimental_mode = self.params.get_bool("ExperimentalMode") or self.frogpilot_toggles.speed_limit_controller and SpeedLimitController.experimental_mode
       self.personality = self.read_personality_param()
       if self.CP.notCar:
         self.joystick_mode = self.params.get_bool("JoystickDebugMode")
