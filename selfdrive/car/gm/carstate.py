@@ -172,6 +172,8 @@ class CarState(CarStateBase):
     # FrogPilot CarState functions
     fp_ret.hasMenu = not (self.CP.flags & GMFlags.NO_CAMERA.value or self.CP.carFingerprint in CC_ONLY_CAR)
 
+    self.pcm_acc_status = pt_cp.vl["AcceleratorPedal2"]["CruiseState"]
+
     return ret, fp_ret
 
   @staticmethod
