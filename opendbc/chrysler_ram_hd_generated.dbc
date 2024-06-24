@@ -90,9 +90,11 @@ BO_ 500 DAS_3: 8 XXX
  SG_ DISABLE_FUEL_SHUTOFF : 23|1@1+ (1,0) [0|0] "" XXX
  SG_ GR_MAX_REQ : 32|4@1+ (1,0) [0|0] "" XXX
  SG_ ACC_DECEL_REQ : 36|3@1+ (1,0) [0|0] "" XXX
- SG_ ACC_FAULTED : 46|2@1+ (1,0) [0|0] "" XXX
+ SG_ STS : 46|2@1+ (1,0) [0|0] "" XXX
+ SG_ ACC_FAULTED : 47|1@0+ (1,0) [0|1] "" XXX
  SG_ COLLISION_BRK_PREP : 48|1@1+ (1,0) [0|0] "" XXX
  SG_ ACC_BRK_PREP : 49|1@1+ (1,0) [0|0] "" XXX
+ SG_ BRAKE_BOOL_1 : 36|1@0+ (1,0) [0|3] "" XXX
  SG_ COUNTER : 55|4@0+ (1,0) [0|15] "" XXX
  SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
 
@@ -126,6 +128,18 @@ BO_ 559 ECM_5: 8 XXX
  SG_ CHECKSUM : 63|8@0+ (1,0) [0|255] "" XXX
 
 BO_ 570 CRUISE_BUTTONS: 3 XXX
+ SG_ ACC_Cancel : 0|1@1+ (1,0) [0|0] "" XXX
+ SG_ ACC_Distance_Dec : 1|1@1+ (1,0) [0|0] "" XXX
+ SG_ ACC_Accel : 2|1@1+ (1,0) [0|0] "" XXX
+ SG_ ACC_Decel : 3|1@1+ (1,0) [0|0] "" XXX
+ SG_ ACC_Resume : 4|1@0+ (1,0) [0|1] "" XXX
+ SG_ Cruise_OnOff : 6|1@1+ (1,0) [0|0] "" XXX
+ SG_ ACC_OnOff : 7|1@1+ (1,0) [0|0] "" XXX
+ SG_ ACC_Distance_Inc : 8|1@1+ (1,0) [0|0] "" XXX
+ SG_ COUNTER : 15|4@0+ (1,0) [0|15] "" XXX
+ SG_ CHECKSUM : 23|8@0+ (1,0) [0|255] "" XXX
+
+BO_ 571 CRUISE_BUTTONS_ALT: 3 XXX
  SG_ ACC_Cancel : 0|1@1+ (1,0) [0|0] "" XXX
  SG_ ACC_Distance_Dec : 1|1@1+ (1,0) [0|0] "" XXX
  SG_ ACC_Accel : 2|1@1+ (1,0) [0|0] "" XXX
