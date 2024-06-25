@@ -87,16 +87,20 @@ void OnroadWindow::updateState(const UIState &s) {
   blindSpotLeft = scene.blind_spot_left;
   blindSpotRight = scene.blind_spot_right;
   fps = scene.fps;
+  friction = scene.friction;
+  latAccel = scene.lat_accel;
+  liveValid = scene.live_valid;
   showBlindspot = scene.show_blind_spot && (blindSpotLeft || blindSpotRight);
   showFPS = scene.show_fps;
   showSignal = scene.show_signal && (turnSignalLeft || turnSignalRight);
   showSteering = scene.show_steering;
+  showTuning = scene.show_tuning;
   steer = scene.steer;
   steeringAngleDeg = scene.steering_angle_deg;
   turnSignalLeft = scene.turn_signal_left;
   turnSignalRight = scene.turn_signal_right;
 
-  if (showBlindspot || showFPS || showSignal || showSteering) {
+  if (showBlindspot || showFPS || showSignal || showSteering || showTuning) {
     shouldUpdate = true;
   }
 
@@ -316,6 +320,45 @@ void OnroadWindow::paintEvent(QPaintEvent *event) {
 
     if (turnSignalRight) {
       p.fillRect(signalRectRight, signalBorderColorRight);
+    }
+  }
+
+  QString logicsDisplayString;
+  if (showTuning) {
+    logicsDisplayString += liveValid
+        ? QString("Friction: %1 | Lateral Acceleration: %2").arg(friction, 0, 'f', 3).arg(latAccel, 0, 'f', 3)
+        : "Friction: Calculating... | Lateral Acceleration: Calculating...";
+  }
+
+  if (!logicsDisplayString.isEmpty()) {
+    p.setFont(InterFont(28, QFont::DemiBold));
+    p.setRenderHint(QPainter::TextAntialiasing);
+    p.setPen(Qt::white);
+
+    int logicsWidth = p.fontMetrics().horizontalAdvance(logicsDisplayString);
+    int logicsX = (rect.width() - logicsWidth) / 2;
+    int logicsY = rect.top() + 27;
+
+    QStringList parts = logicsDisplayString.split(" | ");
+    int currentX = logicsX;
+
+    for (const QString &part : parts) {
+      QStringList subParts = part.split(" ");
+      for (int i = 0; i < subParts.size(); ++i) {
+        QString text = subParts[i];
+
+        if (text.startsWith("(") && i > 0) {
+          p.drawText(currentX, logicsY, " (");
+          currentX += p.fontMetrics().horizontalAdvance(" (");
+          text = text.mid(1);
+          p.setPen(text.contains("-") ? redColor() : Qt::white);
+        } else {
+          p.setPen(Qt::white);
+        }
+
+        p.drawText(currentX, logicsY, text);
+        currentX += p.fontMetrics().horizontalAdvance(text + " ");
+      }
     }
   }
 

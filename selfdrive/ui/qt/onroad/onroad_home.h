@@ -27,14 +27,18 @@ private:
   // FrogPilot variables
   bool blindSpotLeft;
   bool blindSpotRight;
+  bool liveValid;
   bool showBlindspot;
   bool showFPS;
   bool showSignal;
   bool showSteering;
+  bool showTuning;
   bool turnSignalLeft;
   bool turnSignalRight;
 
   float fps;
+  float friction;
+  float latAccel;
   float steer;
 
   int steeringAngleDeg;
