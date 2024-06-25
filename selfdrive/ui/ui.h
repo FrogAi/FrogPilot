@@ -59,6 +59,7 @@ typedef enum UIStatus {
   STATUS_CONDITIONAL_OVERRIDDEN,
   STATUS_EXPERIMENTAL_MODE_ACTIVE,
   STATUS_NAVIGATION_ACTIVE,
+  STATUS_TRAFFIC_MODE_ACTIVE,
 } UIStatus;
 
 enum PrimeType {
@@ -82,6 +83,7 @@ const QColor bg_colors [] = {
   [STATUS_CONDITIONAL_OVERRIDDEN] = QColor(0xff, 0xff, 0x00, 0xf1),
   [STATUS_EXPERIMENTAL_MODE_ACTIVE] = QColor(0xda, 0x6f, 0x25, 0xf1),
   [STATUS_NAVIGATION_ACTIVE] = QColor(0x31, 0xa1, 0xee, 0xf1),
+  [STATUS_TRAFFIC_MODE_ACTIVE] = QColor(0xc9, 0x22, 0x31, 0xf1),
 };
 
 
@@ -132,6 +134,8 @@ typedef struct UIScene {
   bool show_aol_status_bar;
   bool show_cem_status_bar;
   bool tethering_enabled;
+  bool traffic_mode;
+  bool traffic_mode_active;
   bool use_kaofui_icons;
 
   int alert_size;

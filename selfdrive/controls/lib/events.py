@@ -1010,6 +1010,22 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.PERMANENT: torque_nn_load_alert,
   },
 
+  EventName.trafficModeActive: {
+    ET.PERMANENT: Alert(
+      "Traffic Mode Enabled",
+      "",
+      AlertStatus.frogpilot, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
+  EventName.trafficModeInactive: {
+    ET.PERMANENT: Alert(
+      "Traffic Mode Disabled",
+      "",
+      AlertStatus.frogpilot, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
   EventName.turningLeft: {
     ET.WARNING: Alert(
       "Turning Left",

@@ -193,6 +193,7 @@ class Controls:
     self.drive_added = False
     self.onroad_distance_pressed = False
     self.openpilot_crashed_triggered = False
+    self.previous_traffic_mode = False
     self.update_toggles = False
 
     self.display_timer = 0
@@ -906,6 +907,13 @@ class Controls:
 
     if self.sm.frame * DT_CTRL == 5.5 and self.CP.lateralTuning.which() == 'torque' and self.CI.use_nnff:
       self.events.add(EventName.torqueNNLoad)
+
+    if self.sm['frogpilotCarState'].trafficModeActive != self.previous_traffic_mode:
+      if self.previous_traffic_mode:
+        self.events.add(EventName.trafficModeInactive)
+      else:
+        self.events.add(EventName.trafficModeActive)
+      self.previous_traffic_mode = self.sm['frogpilotCarState'].trafficModeActive
 
     if self.sm['modelV2'].meta.turnDirection == Desire.turnLeft:
       self.events.add(EventName.turningLeft)
