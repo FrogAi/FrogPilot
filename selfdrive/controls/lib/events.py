@@ -994,6 +994,14 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
   },
 
+  EventName.leadDeparting: {
+    ET.PERMANENT: Alert(
+      "Lead departed",
+      "",
+      AlertStatus.frogpilot, AlertSize.small,
+      Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
   EventName.noLaneAvailable : {
     ET.PERMANENT: no_lane_available_alert,
   },

@@ -45,6 +45,7 @@ class FrogPilotPlanner:
     self.lead_one = Lead()
     self.mtsc = MapTurnSpeedController()
 
+    self.lead_departing = False
     self.override_force_stop = False
     self.override_slc = False
     self.slower_lead = False
@@ -59,6 +60,7 @@ class FrogPilotPlanner:
     self.slc_target = 0
     self.speed_jerk = 0
     self.tracked_model_length = 0
+    self.tracking_lead_distance = 0
     self.v_cruise = 0
     self.vtsc_target = 0
 
@@ -92,6 +94,12 @@ class FrogPilotPlanner:
       self.lane_width_left = 0
       self.lane_width_right = 0
 
+    if frogpilot_toggles.lead_departing_alert and self.tracking_lead and carState.standstill:
+      self.lead_departing = self.lead_one.dRel - self.tracking_lead_distance > 1
+      self.lead_departing &= v_lead > 1
+    else:
+      self.lead_departing = False
+
     self.model_length = modelData.position.x[TRAJECTORY_SIZE - 1]
     self.road_curvature = abs(float(calculate_road_curvature(modelData, v_ego)))
 
@@ -99,6 +107,8 @@ class FrogPilotPlanner:
       self.override_force_stop = False
       self.tracking_lead = self.lead_one.status
       self.tracked_model_length = 0
+    elif not carState.standstill and self.tracking_lead and self.lead_one.dRel < CITY_SPEED_LIMIT:
+      self.tracking_lead_distance = self.lead_one.dRel
     elif carState.standstill and frogpilot_toggles.force_stops:
       self.override_force_stop = True
     else:
@@ -297,6 +307,8 @@ class FrogPilotPlanner:
 
     frogpilotPlan.laneWidthLeft = self.lane_width_left
     frogpilotPlan.laneWidthRight = self.lane_width_right
+
+    frogpilotPlan.leadDeparting = self.lead_departing
 
     frogpilotPlan.maxAcceleration = self.max_accel
     frogpilotPlan.minAcceleration = self.min_accel
