@@ -181,10 +181,19 @@ class Controls:
     # FrogPilot variables
     self.frogpilot_toggles = FrogPilotVariables.toggles
 
+    self.params_tracking = Params("/persist/tracking")
+
+    self.total_distance = self.params_tracking.get_float("FrogPilotKilometers")
+    self.total_drives = self.params_tracking.get_int("FrogPilotDrives")
+    self.total_time = self.params_tracking.get_float("FrogPilotMinutes")
+
+    self.drive_added = False
     self.openpilot_crashed_triggered = False
     self.update_toggles = False
 
     self.display_timer = 0
+    self.drive_distance = 0
+    self.drive_time = 0
 
   def set_initial_state(self):
     if REPLAY:
@@ -882,6 +891,23 @@ class Controls:
       self.openpilot_crashed_triggered = True
 
   def update_frogpilot_variables(self, CS):
+    self.drive_distance += CS.vEgo * DT_CTRL
+    self.drive_time += DT_CTRL
+
+    if self.drive_time > 60 and CS.standstill:
+      self.total_distance += self.drive_distance / 1000
+      self.params_tracking.put_float_nonblocking("FrogPilotKilometers", self.total_distance)
+      self.drive_distance = 0
+
+      self.total_time += self.drive_time / 60
+      self.params_tracking.put_float_nonblocking("FrogPilotMinutes", self.total_time)
+      self.drive_time = 0
+
+      if not self.drive_added and self.sm.frame * DT_CTRL > 60 * 5:
+        self.total_drives += 1
+        self.params_tracking.put_int_nonblocking("FrogPilotDrives", self.total_drives)
+        self.drive_added = True
+
     FPCC = custom.FrogPilotCarControl.new_message()
 
     return FPCC

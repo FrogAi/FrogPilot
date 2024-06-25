@@ -7,6 +7,7 @@
 
 #include "selfdrive/ui/qt/offroad/experimental_mode.h"
 #include "selfdrive/ui/qt/util.h"
+#include "selfdrive/ui/qt/widgets/drive_stats.h"
 #include "selfdrive/ui/qt/widgets/prime.h"
 
 #ifdef ENABLE_MAPS
@@ -166,11 +167,12 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
     left_widget->addWidget(new QWidget);
 #endif
     left_widget->addWidget(new PrimeAdWidget);
+    left_widget->addWidget(new DriveStats);
     left_widget->setStyleSheet("border-radius: 10px;");
 
-    left_widget->setCurrentIndex(uiState()->hasPrime() ? 0 : 1);
+    left_widget->setCurrentIndex(2);
     connect(uiState(), &UIState::primeChanged, [=](bool prime) {
-      left_widget->setCurrentIndex(prime ? 0 : 1);
+      left_widget->setCurrentIndex(2);
     });
 
     home_layout->addWidget(left_widget, 1);
