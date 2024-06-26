@@ -283,7 +283,7 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
   // base icon
   int offset = UI_BORDER_SIZE + btn_size / 2;
   int x = rightHandDM ? width() - offset : offset;
-  offset += showAlwaysOnLateralStatusBar ? 25 : 0;
+  offset += showAlwaysOnLateralStatusBar || showConditionalExperimentalStatusBar ? 25 : 0;
   int y = height() - offset;
   float opacity = dmActive ? 0.65 : 0.2;
   drawIcon(painter, QPoint(x, y), dm_img, blackColor(70), opacity);
@@ -494,9 +494,14 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter, const UISce
 
   alwaysOnLateralActive = scene.always_on_lateral_active;
   showAlwaysOnLateralStatusBar = scene.show_aol_status_bar;
-  if (showAlwaysOnLateralStatusBar) {
+  if (showAlwaysOnLateralStatusBar || showConditionalExperimentalStatusBar) {
     drawStatusBar(painter);
   }
+
+  conditionalSpeed = scene.conditional_speed;
+  conditionalSpeedLead = scene.conditional_speed_lead;
+  conditionalStatus = scene.conditional_status;
+  showConditionalExperimentalStatusBar = scene.show_cem_status_bar;
 
   experimentalMode = scene.experimental_mode;
 
@@ -528,8 +533,23 @@ void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {
   p.setOpacity(1.0);
   p.drawRoundedRect(statusBarRect, 30, 30);
 
+  static const std::map<int, QString> conditionalStatusMap = {
+    {0, tr("Conditional Experimental Mode ready")},
+    {7, tr("Experimental Mode activated for") + (mapOpen ? tr(" low speed") : tr(" speed being less than ") + QString::number(conditionalSpeedLead) + leadSpeedUnit)},
+    {8, tr("Experimental Mode activated for") + (mapOpen ? tr(" low speed") : tr(" speed being less than ") + QString::number(conditionalSpeed) + leadSpeedUnit)},
+    {9, tr("Experimental Mode activated for turn") + (mapOpen ? "" : tr(" / lane change"))},
+    {10, tr("Experimental Mode activated for intersection")},
+    {11, tr("Experimental Mode activated for upcoming turn")},
+    {12, tr("Experimental Mode activated for curve")},
+    {13, tr("Experimental Mode activated for slower lead")},
+    {14, tr("Experimental Mode activated for stopped lead")},
+    {15, tr("Experimental Mode activated for stop light") + (mapOpen ? tr("") : tr(" or stop sign"))},
+  };
+
   if (alwaysOnLateralActive && showAlwaysOnLateralStatusBar) {
     newStatus = tr("Always On Lateral active") + (mapOpen ? "" : tr(". Press the \"Cruise Control\" button to disable"));
+  } else if (showConditionalExperimentalStatusBar) {
+    newStatus = conditionalStatusMap.at(conditionalStatus);
   }
 
   if (newStatus != lastShownStatus) {
