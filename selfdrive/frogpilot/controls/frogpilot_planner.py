@@ -49,6 +49,7 @@ class FrogPilotPlanner:
     self.override_force_stop = False
     self.override_slc = False
     self.slower_lead = False
+    self.taking_curve_quickly = False
     self.tracking_lead = False
 
     self.acceleration_jerk = 0
@@ -102,6 +103,9 @@ class FrogPilotPlanner:
 
     self.model_length = modelData.position.x[TRAJECTORY_SIZE - 1]
     self.road_curvature = abs(float(calculate_road_curvature(modelData, v_ego)))
+
+    if frogpilot_toggles.random_events:
+      self.taking_curve_quickly = v_ego > (1 / self.road_curvature)**0.5 * 2 > CRUISING_SPEED * 2 and abs(carState.steeringAngleDeg) > 30
 
     if v_ego > CRUISING_SPEED:
       self.override_force_stop = False
@@ -320,6 +324,8 @@ class FrogPilotPlanner:
     frogpilotPlan.slcSpeedLimit = self.slc_target
     frogpilotPlan.slcSpeedLimitOffset = SpeedLimitController.offset
     frogpilotPlan.unconfirmedSlcSpeedLimit = SpeedLimitController.desired_speed_limit
+
+    frogpilotPlan.takingCurveQuickly = bool(self.taking_curve_quickly)
 
     frogpilotPlan.vCruise = float(self.v_cruise)
 

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QLabel>
+#include <QMovie>
 #include <QPushButton>
 
 #include "selfdrive/ui/ui.h"
@@ -32,10 +34,15 @@ private:
   bool trafficModeActive;
 
   int conditionalStatus;
+  int randomEvent;
   int steeringAngleDeg;
   int wheelIcon;
+  int wheelIconGif;
+
+  QLabel *gifLabel;
 
   QMap<int, QPixmap> wheelImages;
+  QMap<int, QMovie*> wheelImagesGif;
 
   Params paramsMemory{"/dev/shm/params"};
 };
