@@ -108,6 +108,10 @@ class CarState(CarStateBase):
     self.acc_tja_status_stock_values = cp_cam.vl["ACCDATA_3"]
     self.lkas_status_stock_values = cp_cam.vl["IPMA_Data"]
 
+    # FrogPilot CarState functions
+    self.lkas_previously_enabled = self.lkas_enabled
+    self.lkas_enabled = ret.genericToggle
+
     return ret, fp_ret
 
   @staticmethod

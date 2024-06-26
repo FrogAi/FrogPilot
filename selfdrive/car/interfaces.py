@@ -8,7 +8,7 @@ from typing import Any, NamedTuple
 from collections.abc import Callable
 from functools import cache
 
-from cereal import car
+from cereal import car, custom
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.simple_kalman import KF1D, get_kalman_gain
@@ -22,6 +22,7 @@ from openpilot.selfdrive.controls.lib.events import Events
 from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
 
 ButtonType = car.CarState.ButtonEvent.Type
+FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
 GearShifter = car.CarState.GearShifter
 EventName = car.CarEvent.EventName
 
@@ -115,6 +116,7 @@ class CarInterfaceBase(ABC):
     self.params = Params()
     self.params_memory = Params("/dev/shm/params")
 
+    self.always_on_lateral_disabled = False
     self.belowSteerSpeed_shown = False
     self.disable_belowSteerSpeed = False
     self.disable_resumeRequired = False
@@ -266,6 +268,9 @@ class CarInterfaceBase(ABC):
     if ret.cruiseState.speedCluster == 0:
       ret.cruiseState.speedCluster = ret.cruiseState.speed
 
+    # Add any additional frogpilotCarStates
+    fp_ret.alwaysOnLateralDisabled = self.always_on_lateral_disabled
+
     # copy back for next iteration
     if self.CS is not None:
       self.CS.out = ret.as_reader()
@@ -319,6 +324,10 @@ class CarInterfaceBase(ABC):
       # Disable on rising and falling edge of cancel for both stock and OP long
       if b.type == ButtonType.cancel:
         events.add(EventName.buttonCancel)
+
+      # FrogPilot button presses
+      if b.type == FrogPilotButtonType.lkas:
+        self.always_on_lateral_disabled = not self.always_on_lateral_disabled
 
     # Handle permanent and temporary steering faults
     self.steering_unpressed = 0 if cs_out.steeringPressed else self.steering_unpressed + 1
@@ -388,6 +397,10 @@ class CarStateBase(ABC):
     x0=[[0.0], [0.0]]
     K = get_kalman_gain(DT_CTRL, np.array(A), np.array(C), np.array(Q), R)
     self.v_ego_kf = KF1D(x0=x0, A=A, C=C[0], K=K)
+
+    # FrogPilot variables
+    self.lkas_enabled = False
+    self.lkas_previously_enabled = False
 
   def update_speed_kf(self, v_ego_raw):
     if abs(v_ego_raw - self.v_ego_kf.x[0][0]) > 2.0:  # Prevent large accelerations when car starts at non zero speed

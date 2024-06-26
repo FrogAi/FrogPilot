@@ -13,6 +13,7 @@ from openpilot.selfdrive.car.interfaces import CarInterfaceBase, TorqueFromLater
 from openpilot.selfdrive.controls.lib.drive_helpers import get_friction
 
 ButtonType = car.CarState.ButtonEvent.Type
+FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
 EventName = car.CarEvent.EventName
 GearShifter = car.CarState.GearShifter
 TransmissionType = car.CarParams.TransmissionType
@@ -320,7 +321,9 @@ class CarInterface(CarInterfaceBase):
         *create_button_events(self.CS.cruise_buttons, self.CS.prev_cruise_buttons, BUTTONS_DICT,
                               unpressed_btn=CruiseButtons.UNPRESS),
         *create_button_events(self.CS.distance_button, self.CS.prev_distance_button,
-                              {1: ButtonType.gapAdjustCruise})
+                              {1: ButtonType.gapAdjustCruise}),
+        *create_button_events(self.CS.lkas_enabled, self.CS.lkas_previously_enabled,
+                              {1: FrogPilotButtonType.lkas}),
       ]
 
     # The ECM allows enabling on falling edge of set, but only rising edge of resume

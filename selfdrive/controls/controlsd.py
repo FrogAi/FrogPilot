@@ -899,6 +899,7 @@ class Controls:
     self.always_on_lateral_active &= CS.cruiseState.available
     self.always_on_lateral_active &= self.frogpilot_toggles.always_on_lateral
     self.always_on_lateral_active &= driving_gear
+    self.always_on_lateral_active &= not (self.frogpilot_toggles.always_on_lateral_lkas and self.sm['frogpilotCarState'].alwaysOnLateralDisabled)
     self.always_on_lateral_active &= not (CS.brakePressed and CS.vEgo < self.frogpilot_toggles.always_on_lateral_pause_speed) or CS.standstill
 
     self.drive_distance += CS.vEgo * DT_CTRL
