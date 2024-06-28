@@ -15,6 +15,10 @@
         <source>Reboot and Update</source>
         <translation>Redémarrer et mettre à jour</translation>
     </message>
+    <message>
+        <source>Disable Internet Check</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>AdvancedNetworking</name>
@@ -24,7 +28,7 @@
     </message>
     <message>
         <source>Enable Tethering</source>
-        <translation>Activer le partage de connexion</translation>
+        <translation type="vanished">Activer le partage de connexion</translation>
     </message>
     <message>
         <source>Tethering Password</source>
@@ -86,6 +90,18 @@
         <source>for &quot;%1&quot;</source>
         <translation>pour &quot;%1&quot;</translation>
     </message>
+    <message>
+        <source>Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only Onroad</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Always</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>AnnotatedCameraWidget</name>
@@ -108,6 +124,156 @@
     <message>
         <source>LIMIT</source>
         <translation>LIMITE</translation>
+    </message>
+    <message>
+        <source>Vehicle in blind spot</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>m/s²</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>m/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>kph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> ft/s²</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Accel: %1%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> - Max: %1%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> | Obstacle: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>  |  Obstacle Factor: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> - Stop: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>  -  Stop Factor: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Follow: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Follow Distance: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirm speed limit
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ignore speed limit
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Conditional Experimental Mode ready</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Conditional Experimental overridden</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Experimental Mode manually activated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Experimental Mode activated for %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>low speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>speed being less than %1 %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Experimental Mode activated for turn</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> / lane change</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Experimental Mode activated for intersection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Experimental Mode activated for upcoming turn</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Experimental Mode activated for curve</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Experimental Mode activated for stopped lead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Experimental Mode activated for slower lead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Experimental Mode activated %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>to stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Experimental Mode forced on %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Experimental Mode activated due to no speed limit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Always On Lateral active</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>. Press the &quot;Cruise Control&quot; button to disable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>. Long press the &quot;distance&quot; button to revert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>. Click the &quot;LKAS&quot; button to revert</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>. Double tap the screen to revert</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -305,6 +471,242 @@
         <source>PAIR</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Delete Driving Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>DELETE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This button provides a swift and secure way to permanently delete all stored driving footage and data from your device. Ideal for maintaining privacy or freeing up space.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to permanently delete all of your driving footage and data?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deleting footage...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deleted!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RENAME</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Screen Recordings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete or rename your screen recordings.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select a recording to delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete this recording?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deleting...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select a recording to rename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter a new name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rename Recording</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Renaming...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Renamed!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BACKUP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RESTORE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FrogPilot Backups</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Backup, delete, or restore your FrogPilot backups.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name your backup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Do you want to compress this backup? The end file size will be 2.25x smaller, but can take 10+ minutes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Backing up...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Compressing backup...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Success!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select a backup to delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete this backup?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select a restore point</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to restore this version of FrogPilot?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restoring...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extracting...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Restored!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rebooting...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle Backups</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Backup, delete, or restore your toggle backups.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to restore this toggle backup?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flash Panda</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FLASH</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Use this button to troubleshoot and update the Panda device&apos;s firmware.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to flash the Panda?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flash</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flashing...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Recovery Failed...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flash Failed...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flashed!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset Toggles To Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset your toggle settings back to their default settings.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset all of your toggle settings?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resetting toggles...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OFFROAD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ONROAD</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OFF</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Force Started State</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Force openpilot either offroad or onroad.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DriverViewWindow</name>
@@ -336,6 +738,10 @@
             <numerusform>Besoin d&apos;au moins %n caractère !</numerusform>
             <numerusform>Besoin d&apos;au moins %n caractères !</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>Characters: %1/%2</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -369,6 +775,10 @@
     <message>
         <source>Manage at connect.comma.ai</source>
         <translation>Gérer sur connect.comma.ai</translation>
+    </message>
+    <message>
+        <source>Manage at %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -591,7 +1001,7 @@
     </message>
     <message>
         <source>openpilot</source>
-        <translation>openpilot</translation>
+        <translation type="vanished">openpilot</translation>
     </message>
     <message numerus="yes">
         <source>%n minute(s) ago</source>
@@ -632,6 +1042,10 @@
     </message>
     <message>
         <source>now</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FrogPilot</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -680,7 +1094,7 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     <name>SettingsWindow</name>
     <message>
         <source>×</source>
-        <translation>×</translation>
+        <translation type="vanished">×</translation>
     </message>
     <message>
         <source>Device</source>
@@ -697,6 +1111,26 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     <message>
         <source>Software</source>
         <translation>Logiciel</translation>
+    </message>
+    <message>
+        <source>← Back</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Controls</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Navigation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Vehicles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Visuals</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -891,12 +1325,36 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
         <source>5G</source>
         <translation>5G</translation>
     </message>
+    <message>
+        <source>GPU</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>CPU</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> GB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MEMORY</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LEFT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>USED</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SoftwarePanel</name>
     <message>
         <source>Updates are only downloaded while the car is off.</source>
-        <translation>Les MàJ sont téléchargées uniquement si la voiture est éteinte.</translation>
+        <translation type="vanished">Les MàJ sont téléchargées uniquement si la voiture est éteinte.</translation>
     </message>
     <message>
         <source>Current Version</source>
@@ -965,6 +1423,30 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     <message>
         <source>up to date, last checked %1</source>
         <translation>à jour, dernière vérification %1</translation>
+    </message>
+    <message>
+        <source>Updates are only downloaded while the car is off or in park.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automatically Update FrogPilot</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FrogPilot will automatically update itself and it&apos;s assets when you&apos;re offroad and connected to Wi-Fi.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error Log</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>VIEW</source>
+        <translation type="unfinished">VOIR</translation>
+    </message>
+    <message>
+        <source>View the error log for openpilot crashes.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1144,7 +1626,7 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     </message>
     <message>
         <source>An alpha version of openpilot longitudinal control can be tested, along with Experimental mode, on non-release branches.</source>
-        <translation>Une version alpha du contrôle longitudinal openpilot peut être testée, avec le mode expérimental, sur des branches non publiées.</translation>
+        <translation type="vanished">Une version alpha du contrôle longitudinal openpilot peut être testée, avec le mode expérimental, sur des branches non publiées.</translation>
     </message>
     <message>
         <source>End-to-End Longitudinal Control</source>
@@ -1161,14 +1643,6 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     <message>
         <source>The driving visualization will transition to the road-facing wide-angle camera at low speeds to better show some turns. The Experimental mode logo will also be shown in the top right corner.</source>
         <translation>La visualisation de la conduite passera sur la caméra grand angle dirigée vers la route à faible vitesse afin de mieux montrer certains virages. Le logo du mode expérimental s&apos;affichera également dans le coin supérieur droit.</translation>
-    </message>
-    <message>
-        <source>Always-On Driver Monitoring</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enable driver monitoring even when openpilot is not engaged.</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1227,6 +1701,14 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     <message>
         <source>Training data will be pulled periodically while your device is on Wi-Fi</source>
         <translation>Les données d&apos;entraînement seront envoyées périodiquement lorsque votre appareil est connecté au réseau Wi-Fi</translation>
+    </message>
+    <message>
+        <source>Uploading disabled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle off the &apos;Disable Uploading&apos; toggle to enable uploads.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
