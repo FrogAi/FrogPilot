@@ -1431,10 +1431,6 @@ Default matches half of the MUTCD standard lane line width of 4 inches.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Longitudinal Jerk</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Fahrenheit</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1504,6 +1500,10 @@ Default matches the MUTCD standard of 4 inches.</source>
         <source>Adjust how thick the road edges appear on the display.
 
 Default matches half of the MUTCD standard of 4 inches.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jerk Values</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2634,10 +2634,6 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>FrogPilot features than impact acceleration, braking, and steering.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Offline maps downloader and &apos;Navigate On openpilot (NOO)&apos; settings.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2691,6 +2687,18 @@ This overrides &apos;Conditional Experimental Mode&apos;.</source>
     </message>
     <message>
         <source>THEME</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FrogPilot features that impact acceleration, braking, and steering.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OFFLINE MAPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PRIMELESS NAVIGATION</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3180,6 +3188,14 @@ Want to submit your own animations? Share them in the &apos;feature-request&apos
     </message>
     <message>
         <source>Unlock</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>comma&apos;s New Toyota/Lexus Tune</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Activate comma&apos;s latest Toyota tuning, expertly crafted by Shane for enhanced vehicle performance.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
