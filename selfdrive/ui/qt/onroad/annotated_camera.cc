@@ -54,9 +54,9 @@ void AnnotatedCameraWidget::updateState(const UIState &s) {
   speed *= s.scene.is_metric ? MS_TO_KPH : MS_TO_MPH;
 
   auto speed_limit_sign = nav_instruction.getSpeedLimitSign();
-  speedLimit = speedLimitController ? scene.speed_limit : nav_alive ? nav_instruction.getSpeedLimit() : 0.0;
+  speedLimit = slcOverridden ? s.scene.speed_limit_overridden_speed : speedLimitController ? s.scene.speed_limit : nav_alive ? nav_instruction.getSpeedLimit() : 0.0;
   speedLimit *= (s.scene.is_metric ? MS_TO_KPH : MS_TO_MPH);
-  if (speedLimitController) {
+  if (speedLimitController && !slcOverridden) {
     speedLimit = speedLimit - (showSLCOffset ? slcSpeedLimitOffset : 0);
   }
 
@@ -162,6 +162,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
   p.drawText(set_speed_rect.adjusted(0, 77, 0, 0), Qt::AlignTop | Qt::AlignHCenter, setSpeedStr);
 
   const QRect sign_rect = set_speed_rect.adjusted(sign_margin, default_size.height(), -sign_margin, -sign_margin);
+  p.save();
   // US/Canada (MUTCD style) sign
   if (has_us_speed_limit) {
     p.setPen(Qt::NoPen);
@@ -170,7 +171,8 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
     p.setPen(QPen(blackColor(), 6));
     p.drawRoundedRect(sign_rect.adjusted(9, 9, -9, -9), 16, 16);
 
-    if (speedLimitController && showSLCOffset) {
+    p.setOpacity(slcOverridden ? 0.25 : 1.0);
+    if (speedLimitController && showSLCOffset && !slcOverridden) {
       p.setFont(InterFont(28, QFont::DemiBold));
       p.drawText(sign_rect.adjusted(0, 22, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("LIMIT"));
       p.setFont(InterFont(70, QFont::Bold));
@@ -194,6 +196,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
     p.setPen(QPen(Qt::red, 20));
     p.drawEllipse(sign_rect.adjusted(16, 16, -16, -16));
 
+    p.setOpacity(slcOverridden ? 0.25 : 1.0);
     p.setPen(blackColor());
     if (showSLCOffset) {
       p.setFont(InterFont((speedLimitStr.size() >= 3) ? 60 : 70, QFont::Bold));
@@ -205,6 +208,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
       p.drawText(sign_rect, Qt::AlignCenter, speedLimitStr);
     }
   }
+  p.restore();
 
   // current speed
   p.setFont(InterFont(176, QFont::Bold));
@@ -567,6 +571,7 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter, const UISce
 
   speedLimitController = scene.speed_limit_controller;
   showSLCOffset = speedLimitController && scene.show_slc_offset;
+  slcOverridden = speedLimitController && scene.speed_limit_overridden;
   slcSpeedLimitOffset = scene.speed_limit_offset * (is_metric ? MS_TO_KPH : MS_TO_MPH);
   speedLimitChanged = speedLimitController && scene.speed_limit_changed;
   unconfirmedSpeedLimit = speedLimitController ? scene.unconfirmed_speed_limit : 0;

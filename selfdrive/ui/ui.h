@@ -141,6 +141,7 @@ typedef struct UIScene {
   bool show_slc_offset_ui;
   bool speed_limit_changed;
   bool speed_limit_controller;
+  bool speed_limit_overridden;
   bool tethering_enabled;
   bool traffic_mode;
   bool traffic_mode_active;
@@ -151,6 +152,7 @@ typedef struct UIScene {
   float lead_detection_threshold;
   float speed_limit;
   float speed_limit_offset;
+  float speed_limit_overridden_speed;
   float unconfirmed_speed_limit;
 
   int alert_size;
