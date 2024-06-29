@@ -293,6 +293,8 @@ class FrogPilotPlanner:
 
     frogpilotPlan.conditionalExperimentalActive = bool(self.cem.experimental_mode)
 
+    frogpilotPlan.greenLight = self.model_length > TRAJECTORY_SIZE
+
     frogpilotPlan.laneWidthLeft = self.lane_width_left
     frogpilotPlan.laneWidthRight = self.lane_width_right
 
