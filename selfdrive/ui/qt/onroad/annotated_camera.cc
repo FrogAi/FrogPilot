@@ -568,9 +568,44 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter, const UISce
   speedLimitController = scene.speed_limit_controller;
   showSLCOffset = speedLimitController && scene.show_slc_offset;
   slcSpeedLimitOffset = scene.speed_limit_offset * (is_metric ? MS_TO_KPH : MS_TO_MPH);
+  speedLimitChanged = speedLimitController && scene.speed_limit_changed;
+  unconfirmedSpeedLimit = speedLimitController ? scene.unconfirmed_speed_limit : 0;
   useViennaSLCSign = scene.use_vienna_slc_sign;
+  if (speedLimitChanged) {
+    drawSLCConfirmation(painter);
+  }
 
   trafficModeActive = scene.traffic_mode_active;
+}
+
+void AnnotatedCameraWidget::drawSLCConfirmation(QPainter &p) {
+  p.save();
+
+  QSize size = this->size();
+  int halfWidth = size.width() / 2;
+
+  QRect leftRect(0, 0, halfWidth, size.height());
+  QRect rightRect(halfWidth, 0, halfWidth, size.height());
+
+  p.setOpacity(0.5);
+  p.fillRect(leftRect, rightHandDM ? redColor() : greenColor());
+  p.fillRect(rightRect, rightHandDM ? greenColor() : redColor());
+  p.setOpacity(1.0);
+
+  p.setFont(InterFont(75, QFont::Bold));
+  p.setPen(Qt::white);
+
+  QString unitText = is_metric ? tr("kph") : tr("mph");
+  QString speedText = QString::number(std::nearbyint(unconfirmedSpeedLimit * (is_metric ? MS_TO_KPH : MS_TO_MPH))) + " " + unitText;
+  QString confirmText = tr("Confirm speed limit\n") + speedText;
+  QString ignoreText = tr("Ignore speed limit\n") + speedText;
+
+  QRect textRect(0, leftRect.height() / 2 - 225, halfWidth, leftRect.height() / 2);
+
+  p.drawText(textRect.translated(0, 0), Qt::AlignCenter, rightHandDM ? ignoreText : confirmText);
+  p.drawText(textRect.translated(halfWidth, 0), Qt::AlignCenter, rightHandDM ? confirmText : ignoreText);
+
+  p.restore();
 }
 
 void AnnotatedCameraWidget::drawStatusBar(QPainter &p) {

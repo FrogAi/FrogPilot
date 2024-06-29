@@ -45,6 +45,7 @@ private:
   void initializeFrogPilotWidgets();
   void paintFrogPilotWidgets(QPainter &painter, const UIScene &scene);
 
+  void drawSLCConfirmation(QPainter &p);
   void drawStatusBar(QPainter &p);
 
   // FrogPilot variables
@@ -62,6 +63,7 @@ private:
   bool showAlwaysOnLateralStatusBar;
   bool showConditionalExperimentalStatusBar;
   bool showSLCOffset;
+  bool speedLimitChanged;
   bool speedLimitController;
   bool trafficModeActive;
   bool useViennaSLCSign;
@@ -71,6 +73,7 @@ private:
   float distanceConversion;
   float slcSpeedLimitOffset;
   float speedConversion;
+  float unconfirmedSpeedLimit;
 
   int alertSize;
   int conditionalSpeed;

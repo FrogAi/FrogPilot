@@ -33,6 +33,7 @@ from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
 from openpilot.system.hardware import HARDWARE
 
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import FrogPilotVariables
+from openpilot.selfdrive.frogpilot.controls.lib.speed_limit_controller import SpeedLimitController
 
 SOFT_DISABLE_TIME = 3  # seconds
 LDW_MIN_SPEED = 31 * CV.MPH_TO_MS
@@ -197,11 +198,14 @@ class Controls:
     self.openpilot_crashed_triggered = False
     self.previous_traffic_mode = False
     self.speed_check = False
+    self.speed_limit_changed = False
     self.update_toggles = False
 
     self.display_timer = 0
     self.drive_distance = 0
     self.drive_time = 0
+    self.previous_speed_limit = 0
+    self.speed_limit_timer = 0
 
   def set_initial_state(self):
     if REPLAY:
@@ -477,7 +481,7 @@ class Controls:
   def state_transition(self, CS):
     """Compute conditional state transitions and execute actions on state transitions"""
 
-    self.v_cruise_helper.update_v_cruise(CS, self.enabled, self.is_metric, self.frogpilot_toggles)
+    self.v_cruise_helper.update_v_cruise(CS, self.enabled, self.is_metric, self.speed_limit_changed, self.frogpilot_toggles)
 
     # decrement the soft disable timer at every step, as it's reset on
     # entrance in SOFT_DISABLING state
@@ -552,7 +556,7 @@ class Controls:
           else:
             self.state = State.enabled
           self.current_alert_types.append(ET.ENABLE)
-          self.v_cruise_helper.initialize_v_cruise(CS, self.experimental_mode, self.frogpilot_toggles)
+          self.v_cruise_helper.initialize_v_cruise(CS, self.experimental_mode, self.sm['frogpilotPlan'].unconfirmedSlcSpeedLimit, self.frogpilot_toggles)
 
     # Check if openpilot is engaged and actuators are enabled
     self.enabled = self.state in ENABLED_STATES
@@ -968,8 +972,53 @@ class Controls:
     self.speed_check |= self.frogpilot_toggles.pause_lateral_below_signal and not (CS.leftBlinker or CS.rightBlinker)
     self.speed_check |= CS.standstill
 
+    if self.frogpilot_toggles.speed_limit_confirmation:
+      current_speed_limit = self.sm['frogpilotPlan'].slcSpeedLimit
+      desired_speed_limit = self.sm['frogpilotPlan'].unconfirmedSlcSpeedLimit
+
+      limit_changed = desired_speed_limit != self.previous_speed_limit and abs(current_speed_limit - desired_speed_limit) > 1
+
+      speed_limit_decreased = limit_changed and self.previous_speed_limit > desired_speed_limit
+      speed_limit_increased = limit_changed and self.previous_speed_limit < desired_speed_limit
+
+      self.previous_speed_limit = desired_speed_limit
+
+      if self.CP.pcmCruise and self.speed_limit_changed:
+        if any(be.type == ButtonType.accelCruise for be in CS.buttonEvents):
+          self.params_memory.put_bool("SLCConfirmed", True)
+          self.params_memory.put_bool("SLCConfirmedPressed", True)
+        elif any(be.type == ButtonType.decelCruise for be in CS.buttonEvents):
+          self.params_memory.put_bool("SLCConfirmed", False)
+          self.params_memory.put_bool("SLCConfirmedPressed", True)
+
+      if speed_limit_decreased:
+        if self.frogpilot_toggles.speed_limit_confirmation_lower:
+          self.speed_limit_changed = True
+        else:
+          self.params_memory.put_bool("SLCConfirmed", True)
+      elif speed_limit_increased:
+        if self.frogpilot_toggles.speed_limit_confirmation_higher:
+          self.speed_limit_changed = True
+        else:
+          self.params_memory.put_bool("SLCConfirmed", True)
+
+      if self.params_memory.get_bool("SLCConfirmedPressed") or not abs(current_speed_limit - desired_speed_limit) > 1:
+        self.speed_limit_changed = False
+        self.params_memory.put_bool("SLCConfirmedPressed", False)
+
+      if self.speed_limit_changed:
+        self.speed_limit_timer += DT_CTRL
+        if self.speed_limit_timer >= 10:
+          self.speed_limit_changed = False
+          self.speed_limit_timer = 0
+      else:
+        self.speed_limit_timer = 0
+    else:
+      self.speed_limit_changed = False
+
     FPCC = custom.FrogPilotCarControl.new_message()
     FPCC.alwaysOnLateral = self.always_on_lateral_active
+    FPCC.speedLimitChanged = self.speed_limit_changed
 
     return FPCC
 
