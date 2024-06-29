@@ -63,6 +63,8 @@ class Car:
       self.CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL
       self.params.put_bool("AlwaysOnLateralSet", True)
 
+    self.CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.RAISE_LONGITUDINAL_LIMITS_TO_ISO_MAX
+
     openpilot_enabled_toggle = self.params.get_bool("OpenpilotEnabledToggle")
 
     controller_available = self.CI.CC is not None and openpilot_enabled_toggle and not self.CP.dashcamOnly

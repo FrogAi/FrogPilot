@@ -18,6 +18,17 @@ from openpilot.selfdrive.frogpilot.controls.lib.conditional_experimental_mode im
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import calculate_lane_width, calculate_road_curvature
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import CITY_SPEED_LIMIT, CRUISING_SPEED, TRAJECTORY_SIZE
 
+                  # MPH = [ 0.,  11,  22,  34,  45,  56,  89]
+A_CRUISE_MAX_BP_CUSTOM =  [ 0.,  5., 10., 15., 20., 25., 40.]
+A_CRUISE_MAX_VALS_ECO =   [1.4, 1.2, 1.0, 0.8, 0.6, 0.4, 0.2]
+A_CRUISE_MAX_VALS_SPORT = [4.0, 3.0, 2.0, 1.0, 0.9, 0.8, 0.6]
+
+def get_max_accel_eco(v_ego):
+  return interp(v_ego, A_CRUISE_MAX_BP_CUSTOM, A_CRUISE_MAX_VALS_ECO)
+
+def get_max_accel_sport(v_ego):
+  return interp(v_ego, A_CRUISE_MAX_BP_CUSTOM, A_CRUISE_MAX_VALS_SPORT)
+
 class FrogPilotPlanner:
   def __init__(self):
     self.params_memory = Params("/dev/shm/params")
@@ -69,10 +80,17 @@ class FrogPilotPlanner:
     self.update_v_cruise(carState, controlsState, frogpilotCarState, frogpilotNavigation, modelData, v_cruise, v_ego, frogpilot_toggles)
 
   def set_acceleration(self, controlsState, frogpilotCarState, v_cruise, v_ego, frogpilot_toggles):
-    if controlsState.experimentalMode:
+    if frogpilot_toggles.acceleration_profile == 1:
+      self.max_accel = get_max_accel_eco(v_ego)
+    elif frogpilot_toggles.acceleration_profile in (2, 3):
+      self.max_accel = get_max_accel_sport(v_ego)
+    elif controlsState.experimentalMode:
       self.max_accel = ACCEL_MAX
     else:
       self.max_accel = get_max_accel(v_ego)
+
+    if not self.tracking_lead:
+      self.max_accel = float(min(self.max_accel, self.max_accel * (self.v_cruise / CITY_SPEED_LIMIT)))
 
     if controlsState.experimentalMode:
       self.min_accel = ACCEL_MIN
