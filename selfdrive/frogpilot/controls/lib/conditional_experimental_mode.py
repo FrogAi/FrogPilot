@@ -1,4 +1,5 @@
 from openpilot.common.params import Params
+from openpilot.selfdrive.modeld.constants import ModelConstants
 
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import MovingAverageCalculator
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import CITY_SPEED_LIMIT, CRUISING_SPEED, PROBABILITY, TRAJECTORY_SIZE
@@ -12,6 +13,7 @@ class ConditionalExperimentalMode:
 
     self.curvature_mac = MovingAverageCalculator()
     self.slow_lead_mac = MovingAverageCalculator()
+    self.stop_light_mac = MovingAverageCalculator()
 
   def update(self, carState, frogpilotNavigation, lead, modelData, model_length, road_curvature, slower_lead, tracking_lead, v_ego, v_lead, frogpilot_toggles):
     if not carState.standstill:
@@ -39,11 +41,16 @@ class ConditionalExperimentalMode:
       self.status_value = 13 if v_lead < 1 else 14
       return True
 
+    if frogpilot_toggles.conditional_stop_lights and self.stop_light_detected:
+      self.status_value = 15
+      return True
+
     return False
 
   def update_conditions(self, lead_distance, model_length, road_curvature, slower_lead, tracking_lead, v_ego, v_lead, frogpilot_toggles):
     self.road_curvature(road_curvature, v_ego, frogpilot_toggles)
     self.slow_lead(slower_lead, tracking_lead, v_lead, frogpilot_toggles)
+    self.stop_sign_and_light(lead_distance, model_length, tracking_lead, v_ego, v_lead, frogpilot_toggles)
 
   def road_curvature(self, road_curvature, v_ego, frogpilot_toggles):
     curve_detected = (1 / road_curvature)**0.5 < v_ego
@@ -62,3 +69,18 @@ class ConditionalExperimentalMode:
     else:
       self.slow_lead_mac.reset_data()
       self.slow_lead_detected = False
+
+  def stop_sign_and_light(self, lead_distance, model_length, tracking_lead, v_ego, v_lead, frogpilot_toggles):
+    lead_close = lead_distance < CITY_SPEED_LIMIT
+    lead_far = lead_distance > CITY_SPEED_LIMIT and v_ego < CRUISING_SPEED
+    lead_stopped = v_lead < 1
+    lead_stopping = lead_distance < model_length
+    following_lead = tracking_lead and (lead_close or lead_stopped or lead_stopping) and not lead_far
+
+    model_projection = ModelConstants.T_IDXS[TRAJECTORY_SIZE - (5 if frogpilot_toggles.less_sensitive_lights else 3)]
+    model_stopped = model_length < TRAJECTORY_SIZE
+    model_threshold = v_ego * model_projection
+    model_stopping = model_length < model_threshold and not self.curve_detected
+
+    self.stop_light_mac.add_data(not following_lead and (model_stopped or model_stopping))
+    self.stop_light_detected = self.stop_light_mac.get_moving_average() >= PROBABILITY
