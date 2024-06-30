@@ -153,6 +153,7 @@ typedef struct UIScene {
   bool show_cem_status_bar;
   bool show_slc_offset;
   bool show_slc_offset_ui;
+  bool show_stopping_point;
   bool speed_limit_changed;
   bool speed_limit_controller;
   bool speed_limit_overridden;
@@ -170,6 +171,7 @@ typedef struct UIScene {
   float lane_width_left;
   float lane_width_right;
   float lead_detection_threshold;
+  float road_curvature;
   float speed_limit;
   float speed_limit_offset;
   float speed_limit_overridden_speed;
@@ -180,6 +182,8 @@ typedef struct UIScene {
   int conditional_speed;
   int conditional_speed_lead;
   int conditional_status;
+  int lead_distance;
+  int model_length;
   int steering_angle_deg;
   int tethering_config;
   int wheel_icon;

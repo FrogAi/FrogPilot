@@ -137,6 +137,8 @@ private:
   int conditionalSpeedLead;
   int conditionalStatus;
 
+  QPixmap stopSignImg;
+
   QString accelerationUnit;
   QString leadDistanceUnit;
   QString leadSpeedUnit;
@@ -149,7 +151,7 @@ protected:
   void initializeGL() override;
   void showEvent(QShowEvent *event) override;
   void updateFrameMat() override;
-  void drawLaneLines(QPainter &painter, const UIState *s);
+  void drawLaneLines(QPainter &painter, const UIState *s, const float v_ego);
   void drawLead(QPainter &painter, const cereal::ModelDataV2::LeadDataV3::Reader &lead_data, const QPointF &vd, const float v_ego);
   void drawHud(QPainter &p);
   void drawDriverState(QPainter &painter, const UIState *s);

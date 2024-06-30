@@ -313,6 +313,8 @@ class FrogPilotPlanner:
     frogpilotPlan.maxAcceleration = self.max_accel
     frogpilotPlan.minAcceleration = self.min_accel
 
+    frogpilotPlan.roadCurvature = self.road_curvature
+
     frogpilotPlan.slcOverridden = bool(self.override_slc)
     frogpilotPlan.slcOverriddenSpeed = float(self.overridden_speed)
     frogpilotPlan.slcSpeedLimit = self.slc_target
