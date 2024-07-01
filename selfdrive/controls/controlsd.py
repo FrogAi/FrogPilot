@@ -205,6 +205,7 @@ class Controls:
     self.speed_check = False
     self.speed_limit_changed = False
     self.update_toggles = False
+    self.use_old_long = self.CP.carName == "hyundai"
     self.vCruise69_alert_played = False
 
     self.display_timer = 0
@@ -625,12 +626,19 @@ class Controls:
     if not CC.latActive:
       self.LaC.reset()
     if not CC.longActive:
-      self.LoC.reset()
+      if self.use_old_long:
+        self.LoC.reset_old_long(v_pid=CS.vEgo)
+      else:
+        self.LoC.reset()
 
     if not self.joystick_mode:
       # accel PID loop
       pid_accel_limits = self.CI.get_pid_accel_limits(self.CP, CS.vEgo, self.v_cruise_helper.v_cruise_kph * CV.KPH_TO_MS, self.frogpilot_toggles)
-      actuators.accel = self.LoC.update(CC.longActive, CS, long_plan.aTarget, long_plan.shouldStop, pid_accel_limits)
+      if self.use_old_long:
+        t_since_plan = (self.sm.frame - self.sm.recv_frame['longitudinalPlan']) * DT_CTRL
+        actuators.accel = self.LoC.update_old_long(CC.longActive, CS, long_plan, pid_accel_limits, t_since_plan)
+      else:
+        actuators.accel = self.LoC.update(CC.longActive, CS, long_plan.aTarget, long_plan.shouldStop, pid_accel_limits)
 
       if len(long_plan.speeds):
         actuators.speed = long_plan.speeds[-1]
@@ -835,6 +843,7 @@ class Controls:
     controlsState.state = self.state
     controlsState.engageable = not self.events.contains(ET.NO_ENTRY)
     controlsState.longControlState = self.LoC.long_control_state
+    controlsState.vPid = float(self.LoC.v_pid)
     controlsState.vCruise = float(self.v_cruise_helper.v_cruise_kph)
     controlsState.vCruiseCluster = float(self.v_cruise_helper.v_cruise_cluster_kph)
     controlsState.upAccelCmd = float(self.LoC.pid.p)
