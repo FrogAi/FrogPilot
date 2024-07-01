@@ -52,6 +52,7 @@ class FrogPilotPlanner:
     self.mtsc_target = 0
     self.road_curvature = 0
     self.speed_jerk = 0
+    self.tracked_model_length = 0
     self.v_cruise = 0
 
   def update(self, carState, controlsState, frogpilotCarControl, frogpilotCarState, frogpilotNavigation, modelData, radarState, frogpilot_toggles):
@@ -74,7 +75,7 @@ class FrogPilotPlanner:
     stopping_distance = STOP_DISTANCE + distance_offset
 
     if frogpilot_toggles.conditional_experimental_mode and controlsState.enabled:
-      self.cem.update(carState, frogpilotNavigation, self.lead_one, modelData, self.model_length, self.road_curvature, self.slower_lead, self.tracking_lead, v_ego, v_lead, frogpilot_toggles)
+      self.cem.update(carState, frogpilotNavigation, self.lead_one, modelData, self.model_length, self.road_curvature, self.slower_lead, self.tracking_lead, self.v_cruise, v_ego, v_lead, frogpilot_toggles)
 
     check_lane_width = frogpilot_toggles.lane_detection
     if check_lane_width and v_ego >= frogpilot_toggles.minimum_lane_change_speed:
@@ -90,6 +91,9 @@ class FrogPilotPlanner:
     if v_ego > CRUISING_SPEED:
       self.override_force_stop = False
       self.tracking_lead = self.lead_one.status
+      self.tracked_model_length = 0
+    elif carState.standstill and frogpilot_toggles.force_stops:
+      self.override_force_stop = True
     else:
       self.tracking_lead &= self.lead_one.status
 
@@ -192,11 +196,21 @@ class FrogPilotPlanner:
     else:
       self.mtsc_target = v_cruise if v_cruise != V_CRUISE_UNSET else 0
 
-    if frogpilot_toggles.force_standstill and v_ego < 1 and not self.override_force_stop:
+    if (frogpilot_toggles.force_standstill or frogpilot_toggles.force_stops) and v_ego < 1 and not self.override_force_stop:
       if carState.gasPressed:
         self.override_force_stop = True
       else:
         self.v_cruise = -1
+
+    elif frogpilot_toggles.force_stops and v_ego < CRUISING_SPEED and controlsState.experimentalMode and not self.override_force_stop:
+      if carState.gasPressed or self.tracking_lead or abs(carState.steeringAngleDeg) > 15:
+        self.override_force_stop = True
+      else:
+        if self.tracked_model_length == 0:
+          self.tracked_model_length = self.model_length
+
+        self.tracked_model_length -= v_ego * DT_MDL
+        self.v_cruise = self.tracked_model_length / ModelConstants.T_IDXS[TRAJECTORY_SIZE - 1]
 
     else:
       targets = [self.mtsc_target]
