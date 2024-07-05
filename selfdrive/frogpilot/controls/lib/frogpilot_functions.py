@@ -1,11 +1,42 @@
 import filecmp
+import http.client
 import os
 import shutil
+import socket
 import subprocess
+import threading
+import time
+import urllib.error
+import urllib.request
 
 from openpilot.common.basedir import BASEDIR
+from openpilot.common.numpy_fast import clip, interp, mean
 from openpilot.common.params_pyx import Params, UnknownKeyName
 from openpilot.system.hardware import HARDWARE
+
+def delete_file(file):
+  try:
+    os.remove(file)
+    print(f"Deleted file: {file}")
+  except FileNotFoundError:
+    print(f"File not found: {file}")
+  except Exception as e:
+    print(f"An error occurred: {e}")
+
+def is_url_pingable(url, timeout=5):
+  try:
+    urllib.request.urlopen(url, timeout=timeout)
+    return True
+  except (http.client.IncompleteRead, http.client.RemoteDisconnected, socket.gaierror, socket.timeout, urllib.error.HTTPError, urllib.error.URLError):
+    return False
+
+def update_frogpilot_toggles():
+  def update_params():
+    params_memory = Params("/dev/shm/params")
+    params_memory.put_bool("FrogPilotTogglesUpdated", True)
+    time.sleep(1)
+    params_memory.put_bool("FrogPilotTogglesUpdated", False)
+  threading.Thread(target=update_params).start()
 
 def run_cmd(cmd, success_msg, fail_msg):
   try:
