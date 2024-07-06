@@ -6,7 +6,6 @@
 #include <QScrollBar>
 #include <QStyle>
 
-#include "selfdrive/ui/ui.h"
 #include "selfdrive/ui/qt/qt_window.h"
 #include "selfdrive/ui/qt/util.h"
 #include "selfdrive/ui/qt/widgets/controls.h"
@@ -290,6 +289,15 @@ WifiUI::WifiUI(QWidget *parent, WifiManager* wifi) : QWidget(parent), wifi(wifi)
       color: #696969;
     }
   )");
+
+  // FrogPilot variables
+  QObject::connect(uiState(), &UIState::uiUpdate, this, &WifiUI::updateState);
+}
+
+void WifiUI::updateState(const UIState &s) {
+  if (!isVisible() || s.sm->frame % UI_FREQ != 0) return;
+
+  refresh();
 }
 
 void WifiUI::refresh() {
