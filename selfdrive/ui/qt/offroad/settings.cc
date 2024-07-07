@@ -276,6 +276,28 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
     }
   });
 
+  // Delete driving footage
+  ButtonControl *deleteDrivingDataBtn = new ButtonControl(tr("Delete Driving Data"), tr("DELETE"), tr("This button provides a swift and secure way to permanently delete all "
+    "stored driving footage and data from your device. Ideal for maintaining privacy or freeing up space.")
+  );
+  connect(deleteDrivingDataBtn, &ButtonControl::clicked, [=]() {
+    if (ConfirmationDialog::confirm(tr("Are you sure you want to permanently delete all of your driving footage and data?"), tr("Delete"), this)) {
+      std::thread([&] {
+        deleteDrivingDataBtn->setEnabled(false);
+        deleteDrivingDataBtn->setValue(tr("Deleting footage..."));
+
+        std::system("rm -rf /data/media/0/realdata");
+
+        deleteDrivingDataBtn->setValue(tr("Deleted!"));
+
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+        deleteDrivingDataBtn->setValue("");
+        deleteDrivingDataBtn->setEnabled(true);
+      }).detach();
+    }
+  });
+  addItem(deleteDrivingDataBtn);
+
   // Backup FrogPilot
   std::vector<QString> frogpilotBackupOptions{tr("BACKUP"), tr("DELETE"), tr("RESTORE")};
   FrogPilotButtonsControl *frogpilotBackupBtn = new FrogPilotButtonsControl(tr("FrogPilot Backups"), tr("Backup, delete, or restore your FrogPilot backups."), "", frogpilotBackupOptions);
