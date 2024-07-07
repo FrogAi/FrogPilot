@@ -141,6 +141,7 @@ typedef struct UIScene {
   bool has_auto_tune;
   bool has_lead;
   bool holiday_themes;
+  bool lead_info;
   bool live_valid;
   bool map_open;
   bool model_randomizer;
@@ -183,6 +184,7 @@ typedef struct UIScene {
 
   double fps;
 
+  float acceleration;
   float adjusted_cruise;
   float friction;
   float lane_detection_width;
@@ -206,8 +208,12 @@ typedef struct UIScene {
   int custom_colors;
   int custom_icons;
   int custom_signals;
+  int desired_follow;
   int model_length;
+  int obstacle_distance;
+  int obstacle_distance_stock;
   int steering_angle_deg;
+  int stopped_equivalence;
   int tethering_config;
   int wheel_icon;
 

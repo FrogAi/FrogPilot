@@ -91,6 +91,7 @@ private:
   void initializeFrogPilotWidgets();
   void paintFrogPilotWidgets(QPainter &painter, const UIScene &scene);
 
+  void drawLeadInfo(QPainter &p);
   void drawSLCConfirmation(QPainter &p);
   void drawStatusBar(QPainter &p);
   void drawTurnSignals(QPainter &p);
@@ -109,6 +110,7 @@ private:
   bool blindSpotRight;
   bool compass;
   bool experimentalMode;
+  bool leadInfo;
   bool mapOpen;
   bool onroadDistanceButton;
   bool reverseCruise;
@@ -125,6 +127,8 @@ private:
   bool useViennaSLCSign;
   bool vtscControllingCurve;
 
+  double currentAcceleration;
+
   float accelerationConversion;
   float cruiseAdjustment;
   float distanceConversion;
@@ -140,8 +144,13 @@ private:
   int conditionalSpeedLead;
   int conditionalStatus;
   int currentHolidayTheme;
+  int currentRandomEvent;
   int customColors;
   int customSignals;
+  int desiredFollow;
+  int obstacleDistance;
+  int obstacleDistanceStock;
+  int stoppedEquivalence;
   int totalFrames;
 
   QPixmap stopSignImg;
