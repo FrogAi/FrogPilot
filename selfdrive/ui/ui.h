@@ -138,8 +138,10 @@ typedef struct UIScene {
   bool enabled;
   bool experimental_mode;
   bool experimental_mode_via_screen;
+  bool has_auto_tune;
   bool has_lead;
   bool holiday_themes;
+  bool live_valid;
   bool map_open;
   bool model_randomizer;
   bool online;
@@ -164,6 +166,7 @@ typedef struct UIScene {
   bool show_steering;
   bool show_stopping_point;
   bool show_stopping_point_metrics;
+  bool show_tuning;
   bool speed_limit_changed;
   bool speed_limit_controller;
   bool speed_limit_overridden;
@@ -181,9 +184,11 @@ typedef struct UIScene {
   double fps;
 
   float adjusted_cruise;
+  float friction;
   float lane_detection_width;
   float lane_width_left;
   float lane_width_right;
+  float lat_accel;
   float lead_detection_threshold;
   float speed_limit;
   float speed_limit_offset;
