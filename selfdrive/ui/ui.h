@@ -161,6 +161,7 @@ typedef struct UIScene {
   bool show_blind_spot;
   bool show_cem_status_bar;
   bool show_fps;
+  bool show_jerk;
   bool show_signal;
   bool show_slc_offset;
   bool show_slc_offset_ui;
@@ -185,6 +186,8 @@ typedef struct UIScene {
   double fps;
 
   float acceleration;
+  float acceleration_jerk;
+  float acceleration_jerk_difference;
   float adjusted_cruise;
   float friction;
   float lane_detection_width;
@@ -192,6 +195,8 @@ typedef struct UIScene {
   float lane_width_right;
   float lat_accel;
   float lead_detection_threshold;
+  float speed_jerk;
+  float speed_jerk_difference;
   float speed_limit;
   float speed_limit_offset;
   float speed_limit_overridden_speed;

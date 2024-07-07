@@ -253,6 +253,8 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("frogpilotPlan")) {
     auto frogpilotPlan = sm["frogpilotPlan"].getFrogpilotPlan();
+    scene.acceleration_jerk = frogpilotPlan.getAccelerationJerk();
+    scene.acceleration_jerk_difference = frogpilotPlan.getAccelerationJerkStock() - scene.acceleration_jerk;
     scene.adjusted_cruise = frogpilotPlan.getAdjustedCruise();
     scene.desired_follow = frogpilotPlan.getDesiredFollowDistance();
     scene.lane_width_left = frogpilotPlan.getLaneWidthLeft();
@@ -260,6 +262,8 @@ static void update_state(UIState *s) {
     scene.obstacle_distance = frogpilotPlan.getSafeObstacleDistance();
     scene.obstacle_distance_stock = frogpilotPlan.getSafeObstacleDistanceStock();
     scene.red_light = frogpilotPlan.getRedLight();
+    scene.speed_jerk = frogpilotPlan.getSpeedJerk();
+    scene.speed_jerk_difference = frogpilotPlan.getSpeedJerkStock() - scene.speed_jerk;
     scene.speed_limit = frogpilotPlan.getSlcSpeedLimit();
     scene.speed_limit_offset = frogpilotPlan.getSlcSpeedLimitOffset();
     scene.speed_limit_overridden = frogpilotPlan.getSlcOverridden();
@@ -357,6 +361,7 @@ void ui_update_frogpilot_params(UIState *s, Params &params) {
   scene.show_tuning = show_lateral && scene.has_auto_tune && params.getBool("TuningInfo");
   bool show_longitudinal = scene.longitudinal_control && developer_ui && params.getBool("LongitudinalMetrics");
   scene.lead_info = show_longitudinal && params.getBool("LeadInfo");
+  scene.show_jerk = show_longitudinal && params.getBool("JerkInfo");
 
   scene.disable_smoothing_mtsc = params.getBool("MTSCEnabled") && params.getBool("DisableMTSCSmoothing");
   scene.disable_smoothing_vtsc = params.getBool("VisionTurnControl") && params.getBool("DisableVTSCSmoothing");
