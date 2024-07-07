@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 import math
+import random
 import time
 import threading
 from typing import SupportsFloat
@@ -21,7 +22,7 @@ from openpilot.common.swaglog import cloudlog
 
 from openpilot.selfdrive.car.car_helpers import get_car_interface, get_startup_event
 from openpilot.selfdrive.controls.lib.alertmanager import AlertManager, set_offroad_alert
-from openpilot.selfdrive.controls.lib.drive_helpers import VCruiseHelper, clip_curvature
+from openpilot.selfdrive.controls.lib.drive_helpers import IMPERIAL_INCREMENT, VCruiseHelper, clip_curvature
 from openpilot.selfdrive.controls.lib.events import Events, ET
 from openpilot.selfdrive.controls.lib.latcontrol import LatControl, MIN_LATERAL_CONTROL_SPEED
 from openpilot.selfdrive.controls.lib.latcontrol_pid import LatControlPID
@@ -194,10 +195,14 @@ class Controls:
 
     self.always_on_lateral_active = False
     self.drive_added = False
+    self.fcw_random_event_triggered = False
     self.holiday_theme_alerted = False
+    self.no_entry_alert_played = False
+    self.no_entry_alert_triggered = False
     self.onroad_distance_pressed = False
     self.openpilot_crashed_triggered = False
     self.previous_traffic_mode = False
+    self.random_event_triggered = False
     self.resume_pressed = False
     self.resume_previously_pressed = False
     self.speed_check = False
@@ -208,7 +213,10 @@ class Controls:
     self.display_timer = 0
     self.drive_distance = 0
     self.drive_time = 0
+    self.max_acceleration = 0
     self.previous_speed_limit = 0
+    self.previous_v_cruise = 0
+    self.random_event_timer = 0
     self.speed_limit_timer = 0
 
   def set_initial_state(self):
@@ -411,6 +419,11 @@ class Controls:
     planner_fcw = self.sm['longitudinalPlan'].fcw and self.enabled
     if (planner_fcw or model_fcw) and not (self.CP.notCar and self.joystick_mode):
       self.events.add(EventName.fcw)
+      self.fcw_random_event_triggered = not self.random_event_triggered
+    elif self.fcw_random_event_triggered and self.frogpilot_toggles.random_events:
+      self.events.add(EventName.yourFrogTriedToKillMe)
+      self.fcw_random_event_triggered = False
+      self.random_event_triggered = True
 
     for m in messaging.drain_sock(self.log_sock, wait_for_one=False):
       try:
@@ -553,6 +566,7 @@ class Controls:
       if self.events.contains(ET.ENABLE):
         if self.events.contains(ET.NO_ENTRY):
           self.current_alert_types.append(ET.NO_ENTRY)
+          self.no_entry_alert_triggered = True
 
         else:
           if self.events.contains(ET.PRE_ENABLE):
@@ -665,8 +679,18 @@ class Controls:
         turning = abs(lac_log.desiredLateralAccel) > 1.0
         good_speed = CS.vEgo > 5
         max_torque = abs(self.sm['carOutput'].actuatorsOutput.steer) > 0.99
-        if undershooting and turning and good_speed and max_torque:
-          lac_log.active and self.events.add(EventName.goatSteerSaturated if self.frogpilot_toggles.goat_scream else EventName.steerSaturated)
+        if undershooting and turning and good_speed and max_torque and not self.random_event_triggered:
+          event_choices = [1, 2]
+          if self.sm.frame % (10000 // len(event_choices)) == 0 and self.frogpilot_toggles.random_events:
+            event_choice = random.choice(event_choices)
+            if event_choice == 1:
+              lac_log.active and self.events.add(EventName.firefoxSteerSaturated)
+              self.params_memory.put_int("CurrentRandomEvent", 1)
+            elif event_choice == 2:
+              lac_log.active and self.events.add(EventName.goatSteerSaturated)
+            self.random_event_triggered = True
+          else:
+            lac_log.active and self.events.add(EventName.goatSteerSaturated if self.frogpilot_toggles.goat_scream else EventName.steerSaturated)
       elif lac_log.saturated:
         # TODO probably should not use dpath_points but curvature
         dpath_points = model_v2.position.y
@@ -933,8 +957,55 @@ class Controls:
       self.events.add(EventName.leadDeparting)
 
     if not self.openpilot_crashed_triggered and os.path.isfile(os.path.join(sentry.CRASHES_DIR, 'error.txt')):
-      self.events.add(EventName.openpilotCrashed)
+      if self.frogpilot_toggles.random_events:
+        self.events.add(EventName.openpilotCrashedRandomEvent)
+      else:
+        self.events.add(EventName.openpilotCrashed)
       self.openpilot_crashed_triggered = True
+
+    if self.frogpilot_toggles.random_events and not self.random_event_triggered:
+      acceleration = CS.aEgo
+
+      if not CS.gasPressed:
+        self.max_acceleration = max(acceleration, self.max_acceleration)
+      else:
+        self.max_acceleration = 0
+
+      if 3.5 > self.max_acceleration >= 3.0 and acceleration < 1.5:
+        self.events.add(EventName.accel30)
+        self.params_memory.put_int("CurrentRandomEvent", 2)
+        self.random_event_triggered = True
+        self.max_acceleration = 0
+
+      elif 4.0 > self.max_acceleration >= 3.5 and acceleration < 1.5:
+        self.events.add(EventName.accel35)
+        self.params_memory.put_int("CurrentRandomEvent", 3)
+        self.random_event_triggered = True
+        self.max_acceleration = 0
+
+      elif self.max_acceleration >= 4.0 and acceleration < 1.5:
+        self.events.add(EventName.accel40)
+        self.params_memory.put_int("CurrentRandomEvent", 4)
+        self.random_event_triggered = True
+        self.max_acceleration = 0
+
+      if frogpilotPlan.takingCurveQuickly:
+        self.events.add(EventName.dejaVuCurve)
+        self.params_memory.put_int("CurrentRandomEvent", 5)
+        self.random_event_triggered = True
+
+      if self.no_entry_alert_triggered and not self.no_entry_alert_played:
+        self.events.add(EventName.hal9000)
+        self.no_entry_alert_played = True
+        self.random_event_triggered = True
+
+      conversion = 1 if self.is_metric else IMPERIAL_INCREMENT
+      v_cruise = max(self.v_cruise_helper.v_cruise_kph, self.v_cruise_helper.v_cruise_cluster_kph) * conversion
+
+      if 70 > v_cruise >= 69 and v_cruise != self.previous_v_cruise:
+        self.events.add(EventName.vCruise69)
+        self.random_event_triggered = True
+        self.previous_v_cruise = v_cruise
 
     if self.frogpilot_toggles.speed_limit_alert and self.speed_limit_changed:
       self.events.add(EventName.speedLimitChanged)
@@ -993,6 +1064,13 @@ class Controls:
         else:
           self.experimental_mode = not self.experimental_mode
           self.params.put_bool_nonblocking("ExperimentalMode", self.experimental_mode)
+
+    if self.random_event_triggered:
+      self.random_event_timer += DT_CTRL
+      if self.random_event_timer >= 4:
+        self.random_event_triggered = False
+        self.random_event_timer = 0
+        self.params_memory.remove("CurrentRandomEvent")
 
     if self.sm.frame % 10 == 0 or self.resume_pressed:
       self.resume_previously_pressed = self.resume_pressed
