@@ -59,7 +59,7 @@ class ConditionalExperimentalMode:
       return True
 
     if frogpilot_toggles.conditional_stop_lights and self.stop_light_detected:
-      self.status_value = 15
+      self.status_value = 15 if not self.frogpilot_planner.forcing_stop else 16
       return True
 
     return False
