@@ -14,6 +14,7 @@
 #endif
 
 #include "selfdrive/frogpilot/ui/qt/widgets/drive_stats.h"
+#include "selfdrive/frogpilot/ui/qt/widgets/model_reviewer.h"
 
 // HomeWindow: the container for the offroad and onroad UIs
 
@@ -172,9 +173,16 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
     left_widget->addWidget(new QWidget);
 #endif
     left_widget->addWidget(new DriveStats);
+    left_widget->addWidget(new ModelReview);
     left_widget->setStyleSheet("border-radius: 10px;");
 
     left_widget->setCurrentIndex(1);
+    connect(uiState(), &UIState::driveRated, [=]() {
+      left_widget->setCurrentIndex(1);
+    });
+    connect(uiState(), &UIState::reviewModel, [=]() {
+      left_widget->setCurrentIndex(2);
+    });
 
     home_layout->addWidget(left_widget, 1);
 
@@ -244,6 +252,10 @@ void OffroadHome::refresh() {
 
   if (model.contains("(Default)")) {
     model = model.remove("(Default)").trimmed();
+  }
+
+  if (uiState()->scene.model_randomizer) {
+    model = "Mystery Model 👻";
   }
 
   date->setText(QLocale(uiState()->language.mid(5)).toString(QDateTime::currentDateTime(), "dddd, MMMM d"));
