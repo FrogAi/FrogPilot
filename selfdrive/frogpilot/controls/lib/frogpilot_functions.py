@@ -139,6 +139,11 @@ def frogpilot_boot_functions(build_metadata, params, params_storage):
     print(f"Backup failed: {e}")
 
 def setup_frogpilot(build_metadata):
+  remount_persist = ['sudo', 'mount', '-o', 'remount,rw', '/persist']
+  run_cmd(remount_persist, "Successfully remounted /persist as read-write.", "Failed to remount /persist.")
+
+  os.makedirs("/persist/params", exist_ok=True)
+
   remount_root = ['sudo', 'mount', '-o', 'remount,rw', '/']
   run_cmd(remount_root, "File system remounted as read-write.", "Failed to remount file system.")
 
