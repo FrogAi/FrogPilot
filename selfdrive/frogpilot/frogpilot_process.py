@@ -1,10 +1,12 @@
 import datetime
+import os
 import threading
 
 from cereal import log, messaging
 from openpilot.common.params import Params
 from openpilot.common.realtime import Priority, config_realtime_process
 from openpilot.common.time import system_time_valid
+from openpilot.system.hardware import HARDWARE
 
 from openpilot.selfdrive.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import is_url_pingable
@@ -26,7 +28,19 @@ def run_thread_with_lock(name, lock, target, args):
       thread.start()
       running_threads[name] = thread
 
-def time_checks(deviceState, now, started, params, params_memory):
+def automatic_update_check(started, params):
+  update_available = params.get_bool("UpdaterFetchAvailable")
+  update_ready = params.get_bool("UpdateAvailable")
+  update_state_idle = params.get("UpdaterState", encoding='utf8') == "idle"
+
+  if update_ready and not started:
+    HARDWARE.reboot()
+  elif update_available:
+    os.system("pkill -SIGHUP -f system.updated.updated")
+  elif update_state_idle:
+    os.system("pkill -SIGUSR1 -f system.updated.updated")
+
+def time_checks(automatic_updates, deviceState, now, started, params, params_memory):
   if deviceState.networkType == OFFLINE:
     return
 
@@ -34,7 +48,8 @@ def time_checks(deviceState, now, started, params, params_memory):
     return
 
   screen_off = deviceState.screenBrightnessPercent == 0
-  wifi_connection = deviceState.networkType == WIFI
+  if automatic_updates and screen_off:
+    automatic_update_check(started, params)
 
 def frogpilot_thread():
   config_realtime_process(5, Priority.CTRL_LOW)
@@ -83,7 +98,7 @@ def frogpilot_thread():
     if now.second == 0:
       run_time_checks = True
     elif run_time_checks or not time_validated:
-      run_thread_with_lock("time_checks", locks["time_checks"], time_checks, (deviceState, now, started, params, params_memory))
+      run_thread_with_lock("time_checks", locks["time_checks"], time_checks, (frogpilot_toggles.automatic_updates, deviceState, now, started, params, params_memory))
       run_time_checks = False
 
       if not time_validated:
