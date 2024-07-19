@@ -357,7 +357,12 @@ def manager_init() -> None:
   # set unset params
   for k, v in default_params:
     if params.get(k) is None or params.get_bool("DoToggleReset"):
-      params.put(k, v)
+      if params_storage.get(k) is None:
+        params.put(k, v)
+      else:
+        params.put(k, params_storage.get(k))
+    else:
+      params_storage.put(k, params.get(k))
 
   params.put_bool_nonblocking("DoToggleReset", False)
 

@@ -511,6 +511,7 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
         resetTogglesBtn->setEnabled(false);
         resetTogglesBtn->setValue(tr("Resetting toggles..."));
 
+        std::system("rm -rf /persist/params");
         params.putBool("DoToggleReset", true);
 
         resetTogglesBtn->setValue(tr("Reset!"));
