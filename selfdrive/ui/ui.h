@@ -130,6 +130,7 @@ typedef struct UIScene {
   bool experimental_mode_via_screen;
   bool has_lead;
   bool map_open;
+  bool model_randomizer;
   bool online;
   bool onroad_distance_button;
   bool parked;
@@ -186,6 +187,9 @@ signals:
   void primeChanged(bool prime);
   void primeTypeChanged(PrimeType prime_type);
 
+  // FrogPilot signals
+  void driveRated();
+  void reviewModel();
 private slots:
   void update();
 

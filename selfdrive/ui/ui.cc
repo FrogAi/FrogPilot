@@ -299,6 +299,9 @@ void ui_update_frogpilot_params(UIState *s, Params &params) {
   bool radarless_model = params.get("Model") == "radical-turtle";
   scene.lead_detection_threshold = longitudinal_tune && !radarless_model ? params.getInt("LeadDetectionThreshold") / 100.0f : 0.5;
 
+  bool model_manager = params.getBool("ModelManagement");
+  scene.model_randomizer = model_manager && params.getBool("ModelRandomizer");
+
   scene.tethering_config = params.getInt("TetheringEnabled");
   if (scene.tethering_config == 2) {
     WifiManager(s).setTetheringEnabled(true);
@@ -328,6 +331,8 @@ void UIState::updateStatus() {
     if (scene.started) {
       status = STATUS_DISENGAGED;
       scene.started_frame = sm->frame;
+    } else if (scene.started_timer > 15*60*UI_FREQ && scene.model_randomizer) {
+      emit reviewModel();
     }
     started_prev = scene.started;
     scene.world_objects_visible = false;
@@ -385,8 +390,14 @@ void UIState::update() {
     update_toggles = false;
   }
 
+  if (paramsMemory.getBool("DriveRated")) {
+    emit driveRated();
+    paramsMemory.remove("DriveRated");
+  }
+
   // FrogPilot variables that need to be constantly updated
   scene.conditional_status = scene.conditional_experimental && scene.enabled ? paramsMemory.getInt("CEStatus") : 0;
+  scene.started_timer = scene.started || started_prev ? scene.started_timer + 1 : 0;
 }
 
 void UIState::setPrimeType(PrimeType type) {
