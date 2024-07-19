@@ -3,6 +3,7 @@ import datetime
 import os
 import signal
 import sys
+import threading
 import traceback
 
 from cereal import log
@@ -18,6 +19,7 @@ from openpilot.system.athena.registration import register, UNREGISTERED_DONGLE_I
 from openpilot.common.swaglog import cloudlog, add_file_handler
 from openpilot.system.version import get_build_metadata, terms_version, training_version
 
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import frogpilot_boot_functions
 
 
 def manager_init() -> None:
@@ -26,11 +28,14 @@ def manager_init() -> None:
   build_metadata = get_build_metadata()
 
   params = Params()
+  params_storage = Params("/persist/params")
   params.clear_all(ParamKeyType.CLEAR_ON_MANAGER_START)
   params.clear_all(ParamKeyType.CLEAR_ON_ONROAD_TRANSITION)
   params.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
   if build_metadata.release_channel:
     params.clear_all(ParamKeyType.DEVELOPMENT_ONLY)
+
+  threading.Thread(target=frogpilot_boot_functions, args=(params, params_storage,)).start()
 
   default_params: list[tuple[str, str | bytes]] = [
     ("CompletedTrainingVersion", "0"),
