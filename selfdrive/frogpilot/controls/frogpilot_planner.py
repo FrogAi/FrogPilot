@@ -13,7 +13,7 @@ from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import A_CHA
                                                                            get_jerk_factor, get_safe_obstacle_distance, get_stopped_equivalence_factor, get_T_FOLLOW
 from openpilot.selfdrive.controls.lib.longitudinal_planner import A_CRUISE_MIN, Lead, get_max_accel
 
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import MovingAverageCalculator
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import MovingAverageCalculator, calculate_lane_width
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import CITY_SPEED_LIMIT, CRUISING_SPEED, PROBABILITY
 
 GearShifter = car.CarState.GearShifter
@@ -42,6 +42,13 @@ class FrogPilotPlanner:
 
     lead_distance = self.lead_one.dRel
     stopping_distance = STOP_DISTANCE
+
+    if v_ego >= frogpilot_toggles.minimum_lane_change_speed:
+      self.lane_width_left = calculate_lane_width(modelData.laneLines[0], modelData.laneLines[1], modelData.roadEdges[0])
+      self.lane_width_right = calculate_lane_width(modelData.laneLines[3], modelData.laneLines[2], modelData.roadEdges[1])
+    else:
+      self.lane_width_left = 0
+      self.lane_width_right = 0
 
     self.set_acceleration(controlsState, frogpilotCarState, v_cruise, v_ego, frogpilot_toggles)
     self.set_follow_values(controlsState, frogpilotCarState, lead_distance, stopping_distance, v_ego, v_lead, frogpilot_toggles)
@@ -100,6 +107,9 @@ class FrogPilotPlanner:
     frogpilotPlan.speedJerk = float(J_EGO_COST * self.speed_jerk)
     frogpilotPlan.speedJerkStock = float(J_EGO_COST * self.base_speed_jerk)
     frogpilotPlan.tFollow = float(self.t_follow)
+
+    frogpilotPlan.laneWidthLeft = self.lane_width_left
+    frogpilotPlan.laneWidthRight = self.lane_width_right
 
     frogpilotPlan.maxAcceleration = float(self.max_accel)
     frogpilotPlan.minAcceleration = float(self.min_accel)

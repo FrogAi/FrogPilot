@@ -2,6 +2,7 @@ import datetime
 import filecmp
 import glob
 import http.client
+import numpy as np
 import os
 import shutil
 import socket
@@ -49,6 +50,17 @@ def run_cmd(cmd, success_msg, fail_msg):
     print(f"{fail_msg}: {e}")
   except Exception as e:
     print(f"Unexpected error occurred: {e}")
+
+def calculate_lane_width(lane, current_lane, road_edge):
+  current_x, current_y = np.array(current_lane.x), np.array(current_lane.y)
+
+  lane_y_interp = interp(current_x, np.array(lane.x), np.array(lane.y))
+  road_edge_y_interp = interp(current_x, np.array(road_edge.x), np.array(road_edge.y))
+
+  distance_to_lane = np.mean(abs(current_y - lane_y_interp))
+  distance_to_road_edge = np.mean(abs(current_y - road_edge_y_interp))
+
+  return float(min(distance_to_lane, distance_to_road_edge))
 
 def backup_directory(backup, destination, success_msg, fail_msg):
   os.makedirs(destination, exist_ok=True)
