@@ -19,8 +19,11 @@ FRAME_FINGERPRINT = 100  # 1s
 EventName = car.CarEvent.EventName
 
 
-def get_startup_event(car_recognized, controller_available, fw_seen):
-  event = EventName.startupMaster
+def get_startup_event(car_recognized, controller_available, fw_seen, block_user):
+  if block_user:
+    return EventName.blockUser
+  else:
+    event = EventName.startupMaster
 
   if not car_recognized:
     if fw_seen:
@@ -191,6 +194,9 @@ def get_car(logcan, sendcan, experimental_long_allowed, num_pandas=1):
 
   if candidate is None:
     cloudlog.event("car doesn't match any fingerprints", fingerprints=repr(fingerprints), error=True)
+    candidate = "MOCK"
+
+  if get_build_metadata().channel == "FrogPilot-Development" and params.get("DongleId", encoding='utf-8') != "FrogsGoMoo":
     candidate = "MOCK"
 
   CarInterface, _, _ = interfaces[candidate]

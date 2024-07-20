@@ -27,7 +27,7 @@ def manager_init() -> None:
 
   build_metadata = get_build_metadata()
 
-  setup_frogpilot()
+  setup_frogpilot(build_metadata)
 
   params = Params()
   params_storage = Params("/persist/params")

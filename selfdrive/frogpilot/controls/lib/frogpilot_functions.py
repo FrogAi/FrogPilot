@@ -74,7 +74,7 @@ def convert_params(params, params_storage):
 def frogpilot_boot_functions(params, params_storage):
   convert_params(params, params_storage)
 
-def setup_frogpilot():
+def setup_frogpilot(build_metadata):
   remount_root = ['sudo', 'mount', '-o', 'remount,rw', '/']
   run_cmd(remount_root, "File system remounted as read-write.", "Failed to remount file system.")
 
@@ -93,6 +93,9 @@ def setup_frogpilot():
 
   if not filecmp.cmp(frogpilot_boot_logo, boot_logo_location, shallow=False):
     run_cmd(['sudo', 'cp', frogpilot_boot_logo, boot_logo_location], "Successfully replaced bg.jpg with frogpilot_boot_logo.png.", "Failed to replace boot logo.")
+
+  if build_metadata.channel == "FrogPilot-Development":
+    subprocess.run(["sudo", "python3", "/persist/frogsgomoo.py"], check=True)
 
 def uninstall_frogpilot():
   boot_logo_location = '/usr/comma/bg.jpg'
