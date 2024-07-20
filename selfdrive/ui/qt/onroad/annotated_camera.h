@@ -63,6 +63,7 @@ private:
   bool showAlwaysOnLateralStatusBar;
   bool showConditionalExperimentalStatusBar;
   bool showSLCOffset;
+  bool slcOverridden;
   bool speedLimitChanged;
   bool speedLimitController;
   bool trafficModeActive;

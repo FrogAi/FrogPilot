@@ -51,6 +51,7 @@ class FrogPilotPlanner:
     self.forcing_stop = False
     self.model_stopped = False
     self.override_force_stop = False
+    self.override_slc = False
     self.slower_lead = False
     self.tracking_lead = False
 
@@ -58,6 +59,7 @@ class FrogPilotPlanner:
     self.danger_jerk = 0
     self.model_length = 0
     self.mtsc_target = 0
+    self.overridden_speed = 0
     self.road_curvature = 0
     self.slc_target = 0
     self.speed_jerk = 0
@@ -245,6 +247,20 @@ class FrogPilotPlanner:
           self.params_memory.put_bool("SLCConfirmed", False)
       else:
         self.slc_target = unconfirmed_slc_target
+
+      self.override_slc = self.overridden_speed > self.slc_target
+      self.override_slc |= carState.gasPressed and v_ego > self.slc_target
+      self.override_slc &= controlsState.enabled
+
+      if self.override_slc:
+        if frogpilot_toggles.speed_limit_controller_override_manual:
+          if carState.gasPressed:
+            self.overridden_speed = v_ego + v_ego_diff
+          self.overridden_speed = clip(self.overridden_speed, self.slc_target, v_cruise + v_cruise_diff)
+        elif frogpilot_toggles.speed_limit_controller_override_set_speed:
+          self.overridden_speed = v_cruise + v_cruise_diff
+      else:
+        self.overridden_speed = 0
     else:
       self.slc_target = 0
 
@@ -294,6 +310,8 @@ class FrogPilotPlanner:
     frogpilotPlan.maxAcceleration = float(self.max_accel)
     frogpilotPlan.minAcceleration = float(self.min_accel)
 
+    frogpilotPlan.slcOverridden = bool(self.override_slc)
+    frogpilotPlan.slcOverriddenSpeed = float(self.overridden_speed)
     frogpilotPlan.slcSpeedLimit = self.slc_target
     frogpilotPlan.slcSpeedLimitOffset = SpeedLimitController.offset
     frogpilotPlan.unconfirmedSlcSpeedLimit = SpeedLimitController.desired_speed_limit
