@@ -156,10 +156,15 @@ class FrogPilotPlanner:
       self.t_follow /= acceleration_offset
 
     # Offset by FrogAi for FrogPilot for a more natural approach to a slower lead
-    if frogpilot_toggles.conditional_slower_lead and v_lead < v_ego:
+    if (frogpilot_toggles.conditional_slower_lead or frogpilot_toggles.smoother_braking) and v_lead < v_ego:
       distance_factor = max(lead_distance - (v_lead * self.t_follow), 1)
-      braking_offset = clip((v_ego - v_lead) - COMFORT_BRAKE, 1, distance_factor)
-      self.slower_lead = braking_offset > 1
+      far_lead_offset = max(lead_distance - (v_ego * self.t_follow) - stopping_distance + (v_lead - CITY_SPEED_LIMIT), 0)
+      braking_offset = clip((v_ego - v_lead) + far_lead_offset - COMFORT_BRAKE, 1, distance_factor)
+      if frogpilot_toggles.smoother_braking:
+        self.acceleration_jerk = self.base_acceleration_jerk * min(braking_offset, COMFORT_BRAKE / 2)
+        self.speed_jerk = self.base_speed_jerk * min(braking_offset, COMFORT_BRAKE * 2)
+        self.t_follow /= braking_offset
+      self.slower_lead = braking_offset - far_lead_offset > 1
 
   def update_v_cruise(self, carState, controlsState, frogpilotCarState, frogpilotNavigation, modelData, v_cruise, v_ego, frogpilot_toggles):
     v_cruise_cluster = max(controlsState.vCruiseCluster, v_cruise) * CV.KPH_TO_MS
