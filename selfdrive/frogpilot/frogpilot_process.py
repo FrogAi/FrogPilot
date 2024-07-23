@@ -52,6 +52,32 @@ def time_checks(automatic_updates, deviceState, now, started, params, params_mem
   if automatic_updates and screen_off:
     automatic_update_check(started, params)
 
+  update_maps(now, params, params_memory)
+
+def update_maps(now, params, params_memory):
+  maps_selected = params.get("MapsSelected", encoding='utf8')
+  if maps_selected is None:
+    return
+
+  day = now.day
+  is_first = day == 1
+  is_Sunday = now.weekday() == 6
+  schedule = params.get_int("PreferredSchedule")
+
+  maps_downloaded = os.path.exists('/data/media/0/osm/offline')
+  if maps_downloaded and (schedule == 0 or (schedule == 1 and not is_Sunday) or (schedule == 2 and not is_first)):
+    return
+
+  suffix = "th" if 4 <= day <= 20 or 24 <= day <= 30 else ["st", "nd", "rd"][day % 10 - 1]
+  todays_date = now.strftime(f"%B {day}{suffix}, %Y")
+
+  if params.get("LastMapsUpdate", encoding='utf-8') == todays_date:
+    return
+
+  if params.get("OSMDownloadProgress", encoding='utf-8') is None:
+    params_memory.put_nonblocking("OSMDownloadLocations", maps_selected)
+    params.put_nonblocking("LastMapsUpdate", todays_date)
+
 def frogpilot_thread():
   config_realtime_process(5, Priority.CTRL_LOW)
 
