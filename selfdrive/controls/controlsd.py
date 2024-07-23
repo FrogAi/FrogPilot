@@ -193,6 +193,7 @@ class Controls:
     self.drive_added = False
     self.onroad_distance_pressed = False
     self.openpilot_crashed_triggered = False
+    self.previous_traffic_mode = False
     self.update_toggles = False
 
     self.display_timer = 0
@@ -420,7 +421,7 @@ class Controls:
         self.events.add(EventName.modeldLagging)
 
     # Update FrogPilot events
-    self.update_frogpilot_events(CS)
+    self.update_frogpilot_events(CS, self.sm['frogpilotCarState'])
 
   def data_sample(self):
     """Receive data from sockets"""
@@ -898,13 +899,20 @@ class Controls:
       e.set()
       t.join()
 
-  def update_frogpilot_events(self, CS):
+  def update_frogpilot_events(self, frogpilotCarState, CS):
     if not self.openpilot_crashed_triggered and os.path.isfile(os.path.join(sentry.CRASHES_DIR, 'error.txt')):
       self.events.add(EventName.openpilotCrashed)
       self.openpilot_crashed_triggered = True
 
     if self.sm.frame * DT_CTRL == 5.5 and self.CP.lateralTuning.which() == "torque" and self.CI.use_nnff:
       self.events.add(EventName.torqueNNLoad)
+
+    if frogpilotCarState.trafficModeActive != self.previous_traffic_mode:
+      if self.previous_traffic_mode:
+        self.events.add(EventName.trafficModeInactive)
+      else:
+        self.events.add(EventName.trafficModeActive)
+      self.previous_traffic_mode = frogpilotCarState.trafficModeActive
 
     if self.sm['modelV2'].meta.turnDirection == Desire.turnLeft:
       self.events.add(EventName.turningLeft)
