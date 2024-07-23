@@ -576,6 +576,8 @@ class CarStateBase(ABC):
     self.v_ego_kf = KF1D(x0=x0, A=A, C=C[0], K=K)
 
     # FrogPilot variables
+    self.cruise_decreased = False
+    self.cruise_increased = False
     self.distance_button = False
     self.lkas_enabled = False
 
