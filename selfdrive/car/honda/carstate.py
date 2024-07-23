@@ -274,6 +274,9 @@ class CarState(CarStateBase):
       ret.rightBlindspot = cp_body.vl["BSM_STATUS_RIGHT"]["BSM_ALERT"] == 1
 
     # FrogPilot CarState functions
+    self.prev_distance_button = self.distance_button
+    self.distance_button = self.cruise_setting == 3
+
     self.lkas_previously_enabled = self.lkas_enabled
     self.lkas_enabled = self.cruise_setting == 1
 
