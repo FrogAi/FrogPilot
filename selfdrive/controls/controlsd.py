@@ -32,7 +32,7 @@ from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
 
 from openpilot.system.hardware import HARDWARE
 
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import FrogPilotVariables
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import CRUISING_SPEED, FrogPilotVariables
 from openpilot.selfdrive.frogpilot.controls.lib.speed_limit_controller import SpeedLimitController
 
 SOFT_DISABLE_TIME = 3  # seconds
@@ -201,6 +201,7 @@ class Controls:
     self.resume_previously_pressed = False
     self.speed_check = False
     self.speed_limit_changed = False
+    self.stopped_for_light = False
     self.update_toggles = False
 
     self.display_timer = 0
@@ -912,6 +913,13 @@ class Controls:
   def update_frogpilot_events(self, CS, frogpilotCarState, frogpilotPlan):
     if frogpilotPlan.forcingStop:
       self.events.add(EventName.forcingStop)
+
+    if self.frogpilot_toggles.green_light_alert and not self.sm['longitudinalPlan'].hasLead and CS.standstill:
+      if frogpilotPlan.greenLight and self.stopped_for_light:
+        self.events.add(EventName.greenLight)
+      self.stopped_for_light = frogpilotPlan.redLight
+    else:
+      self.stopped_for_light = False
 
     if not self.openpilot_crashed_triggered and os.path.isfile(os.path.join(sentry.CRASHES_DIR, 'error.txt')):
       self.events.add(EventName.openpilotCrashed)
