@@ -269,7 +269,7 @@ void AnnotatedCameraWidget::updateFrameMat() {
       .translate(-intrinsic_matrix.v[2], -intrinsic_matrix.v[5]);
 }
 
-void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
+void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s, const float v_ego) {
   painter.save();
 
   const UIScene &scene = s->scene;
@@ -325,6 +325,27 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
 
   painter.setBrush(bg);
   painter.drawPolygon(scene.track_vertices);
+
+  if (scene.show_stopping_point && scene.red_light && v_ego > 1 && !(conditionalStatus == 1 || conditionalStatus == 3 || conditionalStatus == 5)) {
+    QPointF last_point = scene.track_vertices.last();
+
+    QPointF adjusted_point = last_point - QPointF(stopSignImg.width() / 2, stopSignImg.height());
+    painter.drawPixmap(adjusted_point, stopSignImg);
+
+    if (scene.show_stopping_point_metrics) {
+      QString text = QString::number(scene.model_length * distanceConversion) + leadDistanceUnit;
+      QFont font = InterFont(35, QFont::DemiBold);
+      QFontMetrics fm(font);
+      int text_width = fm.horizontalAdvance(text);
+      QPointF text_position = last_point - QPointF(text_width / 2, stopSignImg.height() + 35);
+
+      painter.save();
+      painter.setFont(font);
+      painter.setPen(Qt::white);
+      painter.drawText(text_position, text);
+      painter.restore();
+    }
+  }
 
   // Paint blindspot path
   if (scene.blind_spot_path) {
@@ -519,7 +540,7 @@ void AnnotatedCameraWidget::paintGL() {
 
   if (s->scene.world_objects_visible) {
     update_model(s, model, sm["uiPlan"].getUiPlan());
-    drawLaneLines(painter, s);
+    drawLaneLines(painter, s, v_ego);
 
     if (s->scene.longitudinal_control && sm.rcv_frame("modelV2") > s->scene.started_frame) {
       update_leads(s, model);
@@ -585,6 +606,8 @@ void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
   bottom_layout->addWidget(map_settings_btn_bottom, 0, Qt::AlignBottom | Qt::AlignRight);
 
   main_layout->addLayout(bottom_layout);
+
+  stopSignImg = loadPixmap("../frogpilot/assets/other_images/stop_sign.png", QSize(img_size, img_size));
 }
 
 void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter, const UIScene &scene) {

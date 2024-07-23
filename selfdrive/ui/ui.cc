@@ -84,6 +84,7 @@ void update_model(UIState *s,
                   const cereal::UiPlan::Reader &plan) {
   UIScene &scene = s->scene;
   auto plan_position = plan.getPosition();
+  scene.model_length = model.getPosition().getX()[33 - 1];
   if (plan_position.getX().size() < model.getPosition().getX().size()) {
     plan_position = model.getPosition();
   }
@@ -251,6 +252,7 @@ static void update_state(UIState *s) {
     scene.adjusted_cruise = frogpilotPlan.getAdjustedCruise();
     scene.lane_width_left = frogpilotPlan.getLaneWidthLeft();
     scene.lane_width_right = frogpilotPlan.getLaneWidthRight();
+    scene.red_light = frogpilotPlan.getRedLight();
     scene.speed_limit = frogpilotPlan.getSlcSpeedLimit();
     scene.speed_limit_offset = frogpilotPlan.getSlcSpeedLimitOffset();
     scene.speed_limit_overridden = frogpilotPlan.getSlcOverridden();
@@ -323,6 +325,8 @@ void ui_update_frogpilot_params(UIState *s, Params &params) {
   scene.static_pedals_on_ui = scene.pedals_on_ui && params.getBool("StaticPedalsOnUI");
   scene.road_name_ui = custom_onroad_ui && params.getBool("RoadNameUI");
   scene.rotating_wheel = custom_onroad_ui && params.getBool("RotatingWheel");
+  scene.show_stopping_point = custom_onroad_ui && params.getBool("ShowStoppingPoint");
+  scene.show_stopping_point_metrics = scene.show_stopping_point && params.getBool("ShowStoppingPointMetrics");
   scene.wheel_icon = custom_onroad_ui ? params.getInt("WheelIcon") : 0;
 
   scene.disable_smoothing_mtsc = params.getBool("MTSCEnabled") && params.getBool("DisableMTSCSmoothing");

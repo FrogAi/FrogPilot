@@ -94,7 +94,7 @@ class FrogPilotPlanner:
     lead_distance = self.lead_one.dRel - distance_offset
     stopping_distance = STOP_DISTANCE + distance_offset
 
-    run_cem = frogpilot_toggles.conditional_experimental_mode or frogpilot_toggles.force_stops
+    run_cem = frogpilot_toggles.conditional_experimental_mode or frogpilot_toggles.force_stops or frogpilot_toggles.show_stopping_point
     if run_cem and (controlsState.enabled or frogpilotCarControl.alwaysOnLateral) and driving_gear:
       self.cem.update(carState, frogpilotNavigation, modelData, v_ego, v_lead, frogpilot_toggles)
 
@@ -331,6 +331,7 @@ class FrogPilotPlanner:
     frogpilotPlan.forcingStop = self.forcing_stop
 
     frogpilotPlan.greenLight = not self.model_stopped
+    frogpilotPlan.redLight = self.cem.stop_light_detected
 
     frogpilotPlan.laneWidthLeft = self.lane_width_left
     frogpilotPlan.laneWidthRight = self.lane_width_right
