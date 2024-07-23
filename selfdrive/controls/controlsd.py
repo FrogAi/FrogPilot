@@ -680,7 +680,7 @@ class Controls:
 
     self.display_timer -= 1
 
-    FPCC = self.update_frogpilot_variables(CS)
+    FPCC = self.update_frogpilot_variables(CS, self.sm['frogpilotCarState'])
 
     return CC, lac_log, FPCC
 
@@ -892,12 +892,13 @@ class Controls:
       self.events.add(EventName.openpilotCrashed)
       self.openpilot_crashed_triggered = True
 
-  def update_frogpilot_variables(self, CS):
+  def update_frogpilot_variables(self, CS, frogpilotCarState):
     driving_gear = CS.gearShifter not in (GearShifter.neutral, GearShifter.park, GearShifter.reverse, GearShifter.unknown)
 
     self.always_on_lateral_active |= self.frogpilot_toggles.always_on_lateral_main or CS.cruiseState.enabled
     self.always_on_lateral_active &= self.frogpilot_toggles.always_on_lateral and CS.cruiseState.available
     self.always_on_lateral_active &= driving_gear
+    self.always_on_lateral_active &= not (self.frogpilot_toggles.always_on_lateral_lkas and frogpilotCarState.alwaysOnLateralDisabled)
     self.always_on_lateral_active &= not (CS.brakePressed and CS.vEgo < self.frogpilot_toggles.always_on_lateral_pause_speed) or CS.standstill
 
     self.drive_distance += CS.vEgo * DT_CTRL

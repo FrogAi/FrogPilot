@@ -172,6 +172,12 @@ class CarState(CarStateBase):
     # FrogPilot CarState functions
     fp_ret.hasMenu = not (self.CP.flags & GMFlags.NO_CAMERA.value or self.CP.carFingerprint in CC_ONLY_CAR)
 
+    self.lkas_previously_enabled = self.lkas_enabled
+    if self.CP.carFingerprint in SDGM_CAR:
+      self.lkas_enabled = cam_cp.vl["ASCMSteeringButton"]["LKAButton"]
+    else:
+      self.lkas_enabled = pt_cp.vl["ASCMSteeringButton"]["LKAButton"]
+
     self.pcm_acc_status = pt_cp.vl["AcceleratorPedal2"]["CruiseState"]
 
     return ret, fp_ret
