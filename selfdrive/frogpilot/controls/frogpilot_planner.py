@@ -47,7 +47,9 @@ class FrogPilotPlanner:
     self.lead_one = Lead()
     self.mtsc = MapTurnSpeedController()
 
+    self.forcing_stop = False
     self.model_stopped = False
+    self.override_force_stop = False
     self.slower_lead = False
     self.tracking_lead = False
 
@@ -96,6 +98,8 @@ class FrogPilotPlanner:
 
     self.model_length = modelData.position.x[MODEL_LENGTH - 1]
     self.model_stopped = self.model_length < CRUISING_SPEED * PLANNER_TIME
+    self.override_force_stop |= carState.gasPressed
+    self.override_force_stop |= frogpilotCarControl.resumePressed
     self.road_curvature = calculate_road_curvature(modelData, v_ego) if not carState.standstill and driving_gear else 1
 
     self.set_acceleration(controlsState, frogpilotCarState, v_cruise, v_ego, frogpilot_toggles)
@@ -207,8 +211,15 @@ class FrogPilotPlanner:
     else:
       self.mtsc_target = v_cruise if v_cruise != V_CRUISE_UNSET else 0
 
-    targets = [self.mtsc_target]
-    self.v_cruise = float(min([target if target > CRUISING_SPEED else v_cruise for target in targets]))
+    if frogpilot_toggles.force_standstill and carState.standstill and not self.override_force_stop and controlsState.enabled:
+      self.forcing_stop = True
+      self.v_cruise = -1
+
+    else:
+      self.forcing_stop = False
+
+      targets = [self.mtsc_target]
+      self.v_cruise = float(min([target if target > CRUISING_SPEED else v_cruise for target in targets]))
 
   def publish(self, sm, pm, frogpilot_toggles):
     frogpilot_plan_send = messaging.new_message('frogpilotPlan')
@@ -225,6 +236,8 @@ class FrogPilotPlanner:
     frogpilotPlan.adjustedCruise = float(self.mtsc_target * (CV.MS_TO_KPH if frogpilot_toggles.is_metric else CV.MS_TO_MPH))
 
     frogpilotPlan.conditionalExperimentalActive = self.cem.experimental_mode
+
+    frogpilotPlan.forcingStop = self.forcing_stop
 
     frogpilotPlan.laneWidthLeft = self.lane_width_left
     frogpilotPlan.laneWidthRight = self.lane_width_right
