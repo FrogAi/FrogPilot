@@ -318,6 +318,8 @@ class FrogPilotPlanner:
 
     frogpilotPlan.forcingStop = self.forcing_stop
 
+    frogpilotPlan.greenLight = not self.model_stopped
+
     frogpilotPlan.laneWidthLeft = self.lane_width_left
     frogpilotPlan.laneWidthRight = self.lane_width_right
 
