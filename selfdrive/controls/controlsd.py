@@ -921,6 +921,9 @@ class Controls:
     else:
       self.stopped_for_light = False
 
+    if frogpilotPlan.leadDeparting:
+      self.events.add(EventName.leadDeparting)
+
     if not self.openpilot_crashed_triggered and os.path.isfile(os.path.join(sentry.CRASHES_DIR, 'error.txt')):
       self.events.add(EventName.openpilotCrashed)
       self.openpilot_crashed_triggered = True
