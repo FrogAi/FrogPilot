@@ -40,6 +40,9 @@ void ExperimentalButton::updateState(const UIState &s) {
     experimental_mode = cs.getExperimentalMode();
     update();
   }
+
+  // FrogPilot variables
+  const UIScene &scene = s.scene;
 }
 
 void ExperimentalButton::paintEvent(QPaintEvent *event) {
@@ -50,7 +53,7 @@ void ExperimentalButton::paintEvent(QPaintEvent *event) {
 
 // MapSettingsButton
 MapSettingsButton::MapSettingsButton(QWidget *parent) : QPushButton(parent) {
-  setFixedSize(btn_size, btn_size);
+  setFixedSize(btn_size, btn_size + 20);
   settings_img = loadPixmap("../assets/navigation/icon_directions_outlined.svg", {img_size, img_size});
 
   // hidden by default, made visible if map is created (has prime or mapbox token)

@@ -64,15 +64,31 @@ void OnroadWindow::updateState(const UIState &s) {
   alerts->updateState(s);
   nvg->updateState(s);
 
+  bool shouldUpdate = false;
+
   QColor bgColor = bg_colors[s.status];
   if (bg != bgColor) {
     // repaint border
     bg = bgColor;
+    shouldUpdate = true;
+  }
+
+  // FrogPilot variables
+  const UIScene &scene = s.scene;
+
+  if (shouldUpdate) {
     update();
   }
 }
 
 void OnroadWindow::mousePressEvent(QMouseEvent* e) {
+  // FrogPilot variables
+  UIState *s = uiState();
+  UIScene &scene = s->scene;
+
+  // FrogPilot clickable widgets
+  QPoint pos = e->pos();
+
 #ifdef ENABLE_MAPS
   if (map != nullptr) {
     bool sidebarVisible = geometry().x() > 0;
@@ -90,6 +106,7 @@ void OnroadWindow::createMapWidget() {
   map = m;
   QObject::connect(m, &MapPanel::mapPanelRequested, this, &OnroadWindow::mapPanelRequested);
   QObject::connect(nvg->map_settings_btn, &MapSettingsButton::clicked, m, &MapPanel::toggleMapSettings);
+  QObject::connect(nvg->map_settings_btn_bottom, &MapSettingsButton::clicked, m, &MapPanel::toggleMapSettings);
   nvg->map_settings_btn->setEnabled(true);
 
   m->setFixedWidth(topWidget(this)->width() / 2 - UI_BORDER_SIZE);
@@ -125,9 +142,12 @@ void OnroadWindow::primeChanged(bool prime) {
 
 void OnroadWindow::paintEvent(QPaintEvent *event) {
   QPainter p(this);
-  p.fillRect(rect(), QColor(bg.red(), bg.green(), bg.blue(), 255));
 
   // FrogPilot variables
   UIState *s = uiState();
   SubMaster &sm = *(s->sm);
+
+  QRect rect = this->rect();
+  QColor bgColor(bg.red(), bg.green(), bg.blue(), 255);
+  p.fillRect(rect, bgColor);
 }
