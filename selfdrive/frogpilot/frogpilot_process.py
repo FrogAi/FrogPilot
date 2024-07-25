@@ -8,11 +8,13 @@ from openpilot.common.time import system_time_valid
 
 from openpilot.selfdrive.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import is_url_pingable
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import FrogPilotVariables
 
 OFFLINE = log.DeviceState.NetworkType.none
 
 locks = {
   "time_checks": threading.Lock(),
+  "update_frogpilot_params": threading.Lock(),
 }
 
 running_threads = {}
@@ -37,6 +39,8 @@ def time_checks(deviceState, now, started, params, params_memory):
 def frogpilot_thread():
   config_realtime_process(5, Priority.CTRL_LOW)
 
+  frogpilot_toggles = FrogPilotVariables.toggles
+
   params = Params()
   params_memory = Params("/dev/shm/params")
 
@@ -45,6 +49,7 @@ def frogpilot_thread():
   run_time_checks = False
   started_previously = False
   time_validated = system_time_valid()
+  update_toggles = False
 
   pm = messaging.PubMaster(['frogpilotPlan'])
   sm = messaging.SubMaster(['carState', 'controlsState', 'deviceState', 'frogpilotCarControl',
@@ -65,6 +70,13 @@ def frogpilot_thread():
       frogpilot_planner.update(sm['carState'], sm['controlsState'], sm['frogpilotCarControl'], sm['frogpilotCarState'],
                                sm['frogpilotNavigation'], sm['modelV2'], sm['radarState'], frogpilot_toggles)
       frogpilot_planner.publish(sm, pm, frogpilot_toggles)
+
+    if FrogPilotVariables.toggles_updated:
+      update_toggles = True
+    elif update_toggles:
+      run_thread_with_lock("update_frogpilot_params", locks["update_frogpilot_params"], FrogPilotVariables.update_frogpilot_params, (started,))
+
+      update_toggles = False
 
     started_previously = started
 

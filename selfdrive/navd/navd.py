@@ -17,6 +17,8 @@ from openpilot.selfdrive.navd.helpers import (Coordinate, coordinate_from_param,
                                     parse_banner_instructions)
 from openpilot.common.swaglog import cloudlog
 
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import FrogPilotVariables
+
 REROUTE_DISTANCE = 25
 MANEUVER_TRANSITION_THRESHOLD = 10
 REROUTE_COUNTER_MIN = 3
@@ -58,6 +60,11 @@ class RouteEngine:
       self.api = Api(self.params.get("DongleId", encoding='utf8'))
       self.mapbox_host = "https://maps.comma.ai"
 
+    # FrogPilot variables
+    self.frogpilot_toggles = FrogPilotVariables.toggles
+
+    self.update_toggles = False
+
   def update(self):
     self.sm.update(0)
 
@@ -75,6 +82,13 @@ class RouteEngine:
       self.send_instruction()
     except Exception:
       cloudlog.exception("navd.failed_to_compute")
+
+    # Update FrogPilot parameters
+    if FrogPilotVariables.toggles_updated:
+      self.update_toggles = True
+    elif self.update_toggles:
+      FrogPilotVariables.update_frogpilot_params()
+      self.update_toggles = False
 
   def update_location(self):
     location = self.sm['liveLocationKalman']
