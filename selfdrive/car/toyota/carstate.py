@@ -49,7 +49,7 @@ class CarState(CarStateBase):
     self.acc_type = 1
     self.lkas_hud = {}
 
-  def update(self, cp, cp_cam):
+  def update(self, cp, cp_cam, frogpilot_toggles):
     ret = car.CarState.new_message()
     fp_ret = custom.FrogPilotCarState.new_message()
 

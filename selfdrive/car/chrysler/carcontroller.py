@@ -20,7 +20,7 @@ class CarController(CarControllerBase):
     self.packer = CANPacker(dbc_name)
     self.params = CarControllerParams(CP)
 
-  def update(self, CC, CS, now_nanos):
+  def update(self, CC, CS, now_nanos, frogpilot_toggles):
     can_sends = []
 
     lkas_active = CC.latActive and self.lkas_control_bit_prev
