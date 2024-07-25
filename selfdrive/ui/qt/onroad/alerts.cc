@@ -11,6 +11,9 @@ void OnroadAlerts::updateState(const UIState &s) {
     alert = a;
     update();
   }
+
+  // FrogPilot variables
+  const UIScene &scene = s.scene;
 }
 
 void OnroadAlerts::clear() {
@@ -67,11 +70,13 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
 
   int margin = 40;
   int radius = 30;
+  int offset = true ? 25 : 0;
   if (alert.size == cereal::ControlsState::AlertSize::FULL) {
     margin = 0;
     radius = 0;
+    offset = 0;
   }
-  QRect r = QRect(0 + margin, height() - h + margin, width() - margin*2, h - margin*2);
+  QRect r = QRect(0 + margin, height() - h + margin - offset, width() - margin*2, h - margin*2);
 
   QPainter p(this);
 
