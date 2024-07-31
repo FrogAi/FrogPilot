@@ -140,6 +140,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(SettingsWindow *parent) : FrogPil
   std::vector<std::tuple<QString, QString, QString, QString>> vehicleToggles {
     {"LongPitch", tr("Long Pitch Compensation"), tr("Smoothen out the gas and pedal controls."), ""},
     {"VoltSNG", tr("2017 Volt SNG"), tr("Enable the 'Stop and Go' hack for 2017 Chevy Volts."), ""},
+    {"NewLongAPIGM", tr("Use comma's New Longitudinal API"), tr("Use comma's new longitudinal controls that have shown great improvement with acceleration and braking, but has a few issues on some GM vehicles."), ""},
 
     {"CrosstrekTorque", tr("Subaru Crosstrek Torque Increase"), tr("Increases the maximum allowed torque for the Subaru Crosstrek."), ""},
 
