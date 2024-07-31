@@ -213,6 +213,7 @@ def manager_init() -> None:
     ("MTSCCurvatureCheck", "0"),
     ("MTSCEnabled", "1"),
     ("NavigationModels", ""),
+    ("NewLongAPI", "0"),
     ("NewLongAPIGM", "1"),
     ("NNFF", "1"),
     ("NNFFLite", "1"),
