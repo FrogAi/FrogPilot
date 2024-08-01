@@ -1,5 +1,7 @@
 #include <cassert>
 #include <cmath>
+#include <iomanip>
+#include <iostream>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -269,7 +271,171 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
         btn->setEnabled(offroad);
       }
     }
+    for (FrogPilotButtonsControl *btn : findChildren<FrogPilotButtonsControl *>()) {
+      btn->setEnabled(offroad);
+    }
   });
+
+  // Backup FrogPilot
+  std::vector<QString> frogpilotBackupOptions{tr("BACKUP"), tr("DELETE"), tr("RESTORE")};
+  FrogPilotButtonsControl *frogpilotBackupBtn = new FrogPilotButtonsControl(tr("FrogPilot Backups"), tr("Backup, delete, or restore your FrogPilot backups."), "", frogpilotBackupOptions);
+  connect(frogpilotBackupBtn, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
+    QDir backupDir("/data/backups");
+
+    if (id == 0) {
+      QString nameSelection = InputDialog::getText(tr("Name your backup"), this, "", false, 1);
+      if (!nameSelection.isEmpty()) {
+        std::thread([=]() {
+          frogpilotBackupBtn->setEnabled(false);
+          frogpilotBackupBtn->setValue(tr("Backing up..."));
+
+          std::string fullBackupPath = backupDir.absolutePath().toStdString() + "/" + nameSelection.toStdString();
+          std::string command = "mkdir -p " + fullBackupPath + " && rsync -av /data/openpilot/ " + fullBackupPath + "/";
+
+          int result = std::system(command.c_str());
+          frogpilotBackupBtn->setValue(result == 0 ? tr("Success!") : tr("Failed..."));
+
+          std::this_thread::sleep_for(std::chrono::seconds(2));
+          frogpilotBackupBtn->setValue("");
+          frogpilotBackupBtn->setEnabled(true);
+        }).detach();
+      }
+
+    } else if (id == 1) {
+      QStringList backupNames = backupDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+
+      QString selection = MultiOptionDialog::getSelection(tr("Select a backup to delete"), backupNames, "", this);
+      if (!selection.isEmpty()) {
+        if (!ConfirmationDialog::confirm(tr("Are you sure you want to delete this backup?"), tr("Delete"), this)) return;
+        std::thread([=]() {
+          frogpilotBackupBtn->setEnabled(false);
+          frogpilotBackupBtn->setValue(tr("Deleting..."));
+
+          QDir dirToDelete(backupDir.absoluteFilePath(selection));
+
+          frogpilotBackupBtn->setValue(dirToDelete.removeRecursively() ? tr("Deleted!") : tr("Failed..."));
+
+          std::this_thread::sleep_for(std::chrono::seconds(2));
+          frogpilotBackupBtn->setValue("");
+          frogpilotBackupBtn->setEnabled(true);
+        }).detach();
+      }
+
+    } else if (id == 2) {
+      QStringList backupNames = backupDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+
+      QString selection = MultiOptionDialog::getSelection(tr("Select a restore point"), backupNames, "", this);
+      if (!selection.isEmpty()) {
+        if (!ConfirmationDialog::confirm(tr("Are you sure you want to restore this version of FrogPilot?"), tr("Restore"), this)) return;
+        std::thread([=]() {
+          frogpilotBackupBtn->setEnabled(false);
+          frogpilotBackupBtn->setValue(tr("Restoring..."));
+
+          std::string sourcePath = backupDir.absolutePath().toStdString() + "/" + selection.toStdString();
+          std::string targetPath = "/data/safe_staging/finalized";
+          std::string consistentFilePath = targetPath + "/.overlay_consistent";
+          std::string command = "rsync -av --delete -l --exclude='.overlay_consistent' " + sourcePath + "/ " + targetPath + "/";
+          int result = std::system(command.c_str());
+
+          if (result == 0) {
+            std::ofstream consistentFile(consistentFilePath);
+            if (consistentFile) {
+              frogpilotBackupBtn->setValue(tr("Restored!"));
+              std::this_thread::sleep_for(std::chrono::seconds(2));
+              frogpilotBackupBtn->setValue(tr("Rebooting..."));
+              std::this_thread::sleep_for(std::chrono::seconds(2));
+              consistentFile.close();
+              Hardware::reboot();
+            } else {
+              frogpilotBackupBtn->setValue(tr("Failed..."));
+            }
+          } else {
+            frogpilotBackupBtn->setValue(tr("Failed..."));
+          }
+          std::this_thread::sleep_for(std::chrono::seconds(2));
+          frogpilotBackupBtn->setValue("");
+          frogpilotBackupBtn->setEnabled(true);
+        }).detach();
+      }
+    }
+  });
+  addItem(frogpilotBackupBtn);
+
+  // Backup toggles
+  std::vector<QString> toggleBackupOptions{tr("BACKUP"), tr("DELETE"), tr("RESTORE")};
+  FrogPilotButtonsControl *toggleBackupBtn = new FrogPilotButtonsControl(tr("Toggle Backups"), tr("Backup, delete, or restore your toggle backups."), "", toggleBackupOptions);
+  connect(toggleBackupBtn, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
+    QDir backupDir("/data/toggle_backups");
+
+    if (id == 0) {
+      QString nameSelection = InputDialog::getText(tr("Name your backup"), this, "", false, 1);
+      if (!nameSelection.isEmpty()) {
+        std::thread([=]() {
+          toggleBackupBtn->setEnabled(false);
+          toggleBackupBtn->setValue(tr("Backing up..."));
+
+          std::string fullBackupPath = backupDir.absolutePath().toStdString() + "/" + nameSelection.toStdString() + "/";
+          std::string command = "mkdir -p " + fullBackupPath + " && rsync -av /data/params/d/ " + fullBackupPath;
+
+          int result = std::system(command.c_str());
+          toggleBackupBtn->setValue(result == 0 ? tr("Success!") : tr("Failed..."));
+
+          std::this_thread::sleep_for(std::chrono::seconds(2));
+          toggleBackupBtn->setValue("");
+          toggleBackupBtn->setEnabled(true);
+        }).detach();
+      }
+
+    } else if (id == 1) {
+      QStringList backupNames = backupDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+
+      QString selection = MultiOptionDialog::getSelection(tr("Select a backup to delete"), backupNames, "", this);
+      if (!selection.isEmpty()) {
+        if (!ConfirmationDialog::confirm(tr("Are you sure you want to delete this backup?"), tr("Delete"), this)) return;
+        std::thread([=]() {
+          toggleBackupBtn->setEnabled(false);
+          toggleBackupBtn->setValue(tr("Deleting..."));
+
+          QDir dirToDelete(backupDir.absoluteFilePath(selection));
+
+          toggleBackupBtn->setValue(dirToDelete.removeRecursively() ? tr("Deleted!") : tr("Failed..."));
+
+          std::this_thread::sleep_for(std::chrono::seconds(2));
+          toggleBackupBtn->setValue("");
+          toggleBackupBtn->setEnabled(true);
+        }).detach();
+      }
+
+    } else if (id == 2) {
+      QStringList backupNames = backupDir.entryList(QDir::Dirs | QDir::NoDotAndDotDot);
+
+      QString selection = MultiOptionDialog::getSelection(tr("Select a restore point"), backupNames, "", this);
+      if (!selection.isEmpty()) {
+        if (!ConfirmationDialog::confirm(tr("Are you sure you want to restore this toggle backup?"), tr("Restore"), this)) return;
+        std::thread([=]() {
+          toggleBackupBtn->setEnabled(false);
+          toggleBackupBtn->setValue(tr("Restoring..."));
+
+          std::string sourcePath = backupDir.absolutePath().toStdString() + "/" + selection.toStdString() + "/";
+          std::string targetPath = "/data/params/d/";
+          std::string command = "rsync -av --delete -l " + sourcePath + " " + targetPath;
+          int result = std::system(command.c_str());
+
+          if (result == 0) {
+            toggleBackupBtn->setValue(tr("Success!"));
+            updateFrogPilotToggles();
+          } else {
+            toggleBackupBtn->setValue(tr("Failed..."));
+          }
+
+          std::this_thread::sleep_for(std::chrono::seconds(2));
+          toggleBackupBtn->setValue("");
+          toggleBackupBtn->setEnabled(true);
+        }).detach();
+      }
+    }
+  });
+  addItem(toggleBackupBtn);
 
   // power buttons
   QHBoxLayout *power_layout = new QHBoxLayout();

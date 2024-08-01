@@ -37,7 +37,7 @@ def manager_init() -> None:
   if build_metadata.release_channel:
     params.clear_all(ParamKeyType.DEVELOPMENT_ONLY)
 
-  threading.Thread(target=frogpilot_boot_functions, args=(params, params_storage,)).start()
+  threading.Thread(target=frogpilot_boot_functions, args=(build_metadata, params, params_storage,)).start()
 
   default_params: list[tuple[str, str | bytes]] = [
     ("AlwaysOnDM", "0"),
