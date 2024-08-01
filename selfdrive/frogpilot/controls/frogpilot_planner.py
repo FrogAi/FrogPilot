@@ -13,7 +13,7 @@ from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import A_CHA
                                                                            get_jerk_factor, get_safe_obstacle_distance, get_stopped_equivalence_factor, get_T_FOLLOW
 from openpilot.selfdrive.controls.lib.longitudinal_planner import A_CRUISE_MIN, Lead, get_max_accel
 
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import MovingAverageCalculator, calculate_lane_width
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import MovingAverageCalculator, calculate_lane_width, calculate_road_curvature
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import CITY_SPEED_LIMIT, CRUISING_SPEED, PROBABILITY
 
 GearShifter = car.CarState.GearShifter
@@ -26,6 +26,7 @@ class FrogPilotPlanner:
 
     self.acceleration_jerk = 0
     self.danger_jerk = 0
+    self.road_curvature = 0
     self.speed_jerk = 0
     self.v_cruise = 0
 
@@ -49,6 +50,8 @@ class FrogPilotPlanner:
     else:
       self.lane_width_left = 0
       self.lane_width_right = 0
+
+    self.road_curvature = calculate_road_curvature(modelData, v_ego) if not carState.standstill and driving_gear else 1
 
     self.set_acceleration(controlsState, frogpilotCarState, v_cruise, v_ego, frogpilot_toggles)
     self.set_follow_values(controlsState, frogpilotCarState, lead_distance, stopping_distance, v_ego, v_lead, frogpilot_toggles)

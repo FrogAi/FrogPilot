@@ -7,6 +7,7 @@ import os
 import shutil
 import socket
 import subprocess
+import sys
 import threading
 import time
 import urllib.error
@@ -61,6 +62,13 @@ def calculate_lane_width(lane, current_lane, road_edge):
   distance_to_road_edge = np.mean(abs(current_y - road_edge_y_interp))
 
   return float(min(distance_to_lane, distance_to_road_edge))
+
+# Credit goes to Pfeiferj!
+def calculate_road_curvature(modelData, v_ego):
+  orientation_rate = np.abs(modelData.orientationRate.z)
+  velocity = modelData.velocity.x
+  max_pred_lat_acc = np.amax(orientation_rate * velocity)
+  return abs(float(max(max_pred_lat_acc / v_ego**2, sys.float_info.min)))
 
 def backup_directory(backup, destination, success_msg, fail_msg):
   os.makedirs(destination, exist_ok=True)
