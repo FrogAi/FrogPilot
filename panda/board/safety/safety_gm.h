@@ -10,16 +10,30 @@ const SteeringLimits GM_STEERING_LIMITS = {
 };
 
 const LongitudinalLimits GM_ASCM_LONG_LIMITS = {
-  .max_gas = 3072,
-  .min_gas = 1404,
-  .inactive_gas = 1404,
+  .max_gas = 7168,
+  .min_gas = 5500,
+  .inactive_gas = 5500,
+  .max_brake = 400,
+};
+
+const LongitudinalLimits GM_ASCM_LONG_LIMITS_SPORT = {
+  .max_gas = 8191,
+  .min_gas = 5500,
+  .inactive_gas = 5500,
   .max_brake = 400,
 };
 
 const LongitudinalLimits GM_CAM_LONG_LIMITS = {
-  .max_gas = 3400,
-  .min_gas = 1514,
-  .inactive_gas = 1554,
+  .max_gas = 7496,
+  .min_gas = 5610,
+  .inactive_gas = 5650,
+  .max_brake = 400,
+};
+
+const LongitudinalLimits GM_CAM_LONG_LIMITS_SPORT = {
+  .max_gas = 8848,
+  .min_gas = 5610,
+  .inactive_gas = 5650,
   .max_brake = 400,
 };
 
@@ -229,7 +243,7 @@ static bool gm_tx_hook(const CANPacket_t *to_send) {
   // GAS/REGEN: safety check
   if (addr == 0x2CB) {
     bool apply = GET_BIT(to_send, 0U);
-    int gas_regen = ((GET_BYTE(to_send, 2) & 0x7FU) << 5) + ((GET_BYTE(to_send, 3) & 0xF8U) >> 3);
+    int gas_regen = ((GET_BYTE(to_send, 1) & 0x1U) << 13) + ((GET_BYTE(to_send, 2) & 0xFFU) << 5) + ((GET_BYTE(to_send, 3) & 0xF8U) >> 3);
 
     bool violation = false;
     // Allow apply bit in pre-enabled and overriding states
@@ -286,6 +300,8 @@ static int gm_fwd_hook(int bus_num, int addr) {
 }
 
 static safety_config gm_init(uint16_t param) {
+  sport_mode = alternative_experience & ALT_EXP_RAISE_LONGITUDINAL_LIMITS_TO_ISO_MAX;
+
   if GET_FLAG(param, GM_PARAM_HW_CAM) {
     gm_hw = GM_CAM;
   } else if GET_FLAG(param, GM_PARAM_HW_SDGM) {
@@ -297,9 +313,17 @@ static safety_config gm_init(uint16_t param) {
   gm_force_ascm = GET_FLAG(param, GM_PARAM_HW_ASCM_LONG);
 
   if (gm_hw == GM_ASCM || gm_force_ascm) {
-    gm_long_limits = &GM_ASCM_LONG_LIMITS;
+    if (sport_mode) {
+      gm_long_limits = &GM_ASCM_LONG_LIMITS_SPORT;
+    } else {
+      gm_long_limits = &GM_ASCM_LONG_LIMITS;
+    }
   } else if ((gm_hw == GM_CAM) || (gm_hw == GM_SDGM)) {
-    gm_long_limits = &GM_CAM_LONG_LIMITS;
+    if (sport_mode) {
+      gm_long_limits = &GM_CAM_LONG_LIMITS_SPORT;
+    } else {
+      gm_long_limits = &GM_CAM_LONG_LIMITS;
+    }
   } else {
   }
 
