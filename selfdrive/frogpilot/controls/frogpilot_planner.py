@@ -13,7 +13,7 @@ from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import A_CHA
                                                                            get_jerk_factor, get_safe_obstacle_distance, get_stopped_equivalence_factor, get_T_FOLLOW
 from openpilot.selfdrive.controls.lib.longitudinal_planner import A_CRUISE_MIN, Lead, get_max_accel
 
-from openpilot.selfdrive.frogpilot.controls.lib.conditional_experimental_mode import ConditionalExperimentalMode
+from openpilot.selfdrive.frogpilot.controls.lib.conditional_experimental_mode import MODEL_LENGTH, PLANNER_TIME, ConditionalExperimentalMode
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import MovingAverageCalculator, calculate_lane_width, calculate_road_curvature
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import CITY_SPEED_LIMIT, CRUISING_SPEED, PROBABILITY
 
@@ -25,11 +25,13 @@ class FrogPilotPlanner:
 
     self.cem = ConditionalExperimentalMode(self)
 
+    self.model_stopped = False
     self.slower_lead = False
     self.tracking_lead = False
 
     self.acceleration_jerk = 0
     self.danger_jerk = 0
+    self.model_length = 0
     self.road_curvature = 0
     self.speed_jerk = 0
     self.v_cruise = 0
@@ -59,6 +61,8 @@ class FrogPilotPlanner:
       self.lane_width_left = 0
       self.lane_width_right = 0
 
+    self.model_length = modelData.position.x[MODEL_LENGTH - 1]
+    self.model_stopped = self.model_length < CRUISING_SPEED * PLANNER_TIME
     self.road_curvature = calculate_road_curvature(modelData, v_ego) if not carState.standstill and driving_gear else 1
 
     self.set_acceleration(controlsState, frogpilotCarState, v_cruise, v_ego, frogpilot_toggles)
