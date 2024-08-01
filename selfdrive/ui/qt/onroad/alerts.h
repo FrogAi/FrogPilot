@@ -42,4 +42,5 @@ protected:
 
   // FrogPilot variables
   bool showAOLStatusBar;
+  bool showCEMStatusBar;
 };

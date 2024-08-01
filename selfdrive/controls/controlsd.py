@@ -680,7 +680,7 @@ class Controls:
 
     self.display_timer -= 1
 
-    FPCC = self.update_frogpilot_variables(CS, self.sm['frogpilotCarState'])
+    FPCC = self.update_frogpilot_variables(CS, self.sm['frogpilotCarState'], self.sm['frogpilotPlan'])
 
     return CC, lac_log, FPCC
 
@@ -862,7 +862,8 @@ class Controls:
   def params_thread(self, evt):
     while not evt.is_set():
       self.is_metric = self.params.get_bool("IsMetric")
-      self.experimental_mode = self.params.get_bool("ExperimentalMode") and self.CP.openpilotLongitudinalControl
+      if self.CP.openpilotLongitudinalControl and not self.frogpilot_toggles.conditional_experimental_mode:
+        self.experimental_mode = self.params.get_bool("ExperimentalMode")
       self.personality = self.read_personality_param()
       if self.CP.notCar:
         self.joystick_mode = self.params.get_bool("JoystickDebugMode")
@@ -892,7 +893,7 @@ class Controls:
       self.events.add(EventName.openpilotCrashed)
       self.openpilot_crashed_triggered = True
 
-  def update_frogpilot_variables(self, CS, frogpilotCarState):
+  def update_frogpilot_variables(self, CS, frogpilotCarState, frogpilotPlan):
     driving_gear = CS.gearShifter not in (GearShifter.neutral, GearShifter.park, GearShifter.reverse, GearShifter.unknown)
 
     self.always_on_lateral_active |= self.frogpilot_toggles.always_on_lateral_main or CS.cruiseState.enabled
@@ -917,6 +918,9 @@ class Controls:
         self.total_drives += 1
         self.params_tracking.put_int_nonblocking("FrogPilotDrives", self.total_drives)
         self.drive_added = True
+
+    if self.frogpilot_toggles.conditional_experimental_mode:
+      self.experimental_mode = frogpilotPlan.conditionalExperimentalActive
 
     FPCC = custom.FrogPilotCarControl.new_message()
     FPCC.alwaysOnLateral = self.always_on_lateral_active
