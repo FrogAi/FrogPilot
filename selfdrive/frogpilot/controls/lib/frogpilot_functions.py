@@ -1,4 +1,6 @@
+import datetime
 import filecmp
+import glob
 import http.client
 import os
 import shutil
@@ -11,7 +13,8 @@ import urllib.request
 
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.numpy_fast import clip, interp, mean
-from openpilot.common.params_pyx import Params, UnknownKeyName
+from openpilot.common.params_pyx import Params, ParamKeyType, UnknownKeyName
+from openpilot.common.time import system_time_valid
 from openpilot.system.hardware import HARDWARE
 
 def delete_file(file):
@@ -47,6 +50,45 @@ def run_cmd(cmd, success_msg, fail_msg):
   except Exception as e:
     print(f"Unexpected error occurred: {e}")
 
+def backup_directory(backup, destination, success_msg, fail_msg):
+  os.makedirs(destination, exist_ok=True)
+  try:
+    run_cmd(['sudo', 'cp', '-a', os.path.join(backup, '.'), destination], success_msg, fail_msg)
+  except OSError as e:
+    if e.errno == 28:
+      print("Not enough space to perform the backup.")
+    else:
+      print(f"Failed to backup due to unexpected error: {e}")
+
+def cleanup_backups(directory, limit):
+  backups = sorted(glob.glob(os.path.join(directory, "*_auto")), key=os.path.getmtime, reverse=True)
+  for old_backup in backups[limit:]:
+    subprocess.run(['sudo', 'rm', '-rf', old_backup], check=True)
+    print(f"Deleted oldest backup: {os.path.basename(old_backup)}")
+
+def backup_frogpilot(build_metadata):
+  backup_path = "/data/backups"
+  cleanup_backups(backup_path, 4)
+
+  branch = build_metadata.channel
+  commit = build_metadata.openpilot.git_commit_date[12:-16]
+
+  backup_dir = f"{backup_path}/{branch}_{commit}_auto"
+  backup_directory(BASEDIR, backup_dir, f"Successfully backed up FrogPilot to {backup_dir}.", f"Failed to backup FrogPilot to {backup_dir}.")
+
+def backup_toggles(params, params_storage):
+  for key in params.all_keys():
+    if params.get_key_type(key) & ParamKeyType.FROGPILOT_STORAGE:
+      value = params.get(key)
+      if value is not None:
+        params_storage.put(key, value)
+
+  backup_path = "/data/toggle_backups"
+  cleanup_backups(backup_path, 9)
+
+  backup_dir = f"{backup_path}/{datetime.datetime.now().strftime('%Y-%m-%d_%I-%M%p').lower()}_auto"
+  backup_directory("/data/params/d", backup_dir, f"Successfully backed up toggles to {backup_dir}.", f"Failed to backup toggles to {backup_dir}.")
+
 def convert_params(params, params_storage):
   def convert_param(key, action_func):
     try:
@@ -71,8 +113,18 @@ def convert_params(params, params_storage):
   print("Params successfully converted!")
   params_storage.put_int_nonblocking("ParamConversionVersion", version)
 
-def frogpilot_boot_functions(params, params_storage):
+def frogpilot_boot_functions(build_metadata, params, params_storage):
   convert_params(params, params_storage)
+
+  while not system_time_valid():
+    print("Waiting for system time to become valid...")
+    time.sleep(1)
+
+  try:
+    backup_frogpilot(build_metadata)
+    backup_toggles(params, params_storage)
+  except subprocess.CalledProcessError as e:
+    print(f"Backup failed: {e}")
 
 def setup_frogpilot(build_metadata):
   remount_root = ['sudo', 'mount', '-o', 'remount,rw', '/']
