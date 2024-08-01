@@ -234,7 +234,7 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   connect(dcamBtn, &ButtonControl::clicked, [=]() { emit showDriverView(); });
   addItem(dcamBtn);
 
-  auto resetCalibBtn = new ButtonControl(tr("Reset Calibration"), tr("RESET"), "");
+  resetCalibBtn = new ButtonControl(tr("Reset Calibration"), tr("RESET"), "");
   connect(resetCalibBtn, &ButtonControl::showDescriptionEvent, this, &DevicePanel::updateCalibDescription);
   connect(resetCalibBtn, &ButtonControl::clicked, [&]() {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to reset calibration?"), tr("Reset"), this)) {
@@ -629,6 +629,8 @@ void DevicePanel::poweroff() {
 void DevicePanel::showEvent(QShowEvent *event) {
   pair_device->setVisible(uiState()->primeType() == PrimeType::UNPAIRED);
   ListWidget::showEvent(event);
+
+  resetCalibBtn->setVisible(!params.getBool("ModelManagement"));
 }
 
 void SettingsWindow::hideEvent(QHideEvent *event) {
