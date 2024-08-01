@@ -209,6 +209,8 @@ def hardware_thread(end_event, hw_queue) -> None:
   # FrogPilot variables
   frogpilot_toggles = FrogPilotVariables.toggles
 
+  params_memory = Params("/dev/shm/params")
+
   update_toggles = False
 
   while not end_event.is_set():
@@ -342,6 +344,10 @@ def hardware_thread(end_event, hw_queue) -> None:
     should_start = all(onroad_conditions.values())
     if started_ts is None:
       should_start = should_start and all(startup_conditions.values())
+
+    # Handle force offroad/onroad
+    should_start |= params_memory.get_bool("ForceOnroad")
+    should_start &= not params_memory.get_bool("ForceOffroad")
 
     if should_start != should_start_prev or (count == 0):
       params.put_bool("IsEngaged", False)

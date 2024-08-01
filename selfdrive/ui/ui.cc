@@ -286,6 +286,9 @@ void UIState::updateStatus() {
     }
   }
 
+  scene.started |= paramsMemory.getBool("ForceOnroad");
+  scene.started &= !paramsMemory.getBool("ForceOffroad");
+
   // Handle onroad/offroad transition
   if (scene.started != started_prev || sm->frame == 1) {
     if (scene.started) {
