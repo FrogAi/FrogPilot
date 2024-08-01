@@ -286,6 +286,8 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
   int x = rightHandDM ? width() - offset : offset;
   if (rightHandDM && map_settings_btn->isEnabled()) {
     x -= 250;
+  } else if (onroadDistanceButton) {
+    x += 250;
   }
   offset += showAlwaysOnLateralStatusBar || showConditionalExperimentalStatusBar ? 25 : 0;
   int y = height() - offset;
@@ -465,6 +467,9 @@ void AnnotatedCameraWidget::showEvent(QShowEvent *event) {
 void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
   bottom_layout = new QHBoxLayout();
 
+  distance_btn = new DistanceButton(this);
+  bottom_layout->addWidget(distance_btn, 0, Qt::AlignBottom | Qt::AlignLeft);
+
   QSpacerItem *spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
   bottom_layout->addItem(spacer);
 
@@ -513,6 +518,14 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter, const UISce
   if (map_settings_btn_bottom->isEnabled()) {
     map_settings_btn_bottom->setVisible(!hideBottomIcons);
     bottom_layout->setAlignment(map_settings_btn_bottom, (rightHandDM ? Qt::AlignLeft : Qt::AlignRight) | Qt::AlignBottom);
+  }
+
+  onroadDistanceButton = scene.onroad_distance_button;
+  bool enableDistanceButton = onroadDistanceButton && !hideBottomIcons;
+  distance_btn->setVisible(enableDistanceButton);
+  if (enableDistanceButton) {
+    distance_btn->updateState(scene);
+    bottom_layout->setAlignment(distance_btn, (rightHandDM ? Qt::AlignRight : Qt::AlignLeft) | Qt::AlignBottom);
   }
 }
 
