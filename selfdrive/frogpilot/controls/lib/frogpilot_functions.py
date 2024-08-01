@@ -19,6 +19,8 @@ from openpilot.common.params_pyx import Params, ParamKeyType, UnknownKeyName
 from openpilot.common.time import system_time_valid
 from openpilot.system.hardware import HARDWARE
 
+MODELS_PATH = "/data/models"
+
 def delete_file(file):
   try:
     os.remove(file)
@@ -151,6 +153,7 @@ def setup_frogpilot(build_metadata):
   run_cmd(remount_persist, "Successfully remounted /persist as read-write.", "Failed to remount /persist.")
 
   os.makedirs("/persist/params", exist_ok=True)
+  os.makedirs(MODELS_PATH, exist_ok=True)
 
   remount_root = ['sudo', 'mount', '-o', 'remount,rw', '/']
   run_cmd(remount_root, "File system remounted as read-write.", "Failed to remount file system.")

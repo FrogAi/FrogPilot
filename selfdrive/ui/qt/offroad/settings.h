@@ -76,6 +76,7 @@ private:
   // FrogPilot variables
   Params paramsMemory{"/dev/shm/params"};
 
+  ButtonControl *resetCalibBtn;
   FrogPilotButtonsControl *forceStartedBtn;
 };
 

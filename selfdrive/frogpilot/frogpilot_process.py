@@ -11,13 +11,17 @@ from openpilot.system.hardware import HARDWARE
 from openpilot.selfdrive.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import backup_toggles, is_url_pingable
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import FrogPilotVariables
+from openpilot.selfdrive.frogpilot.controls.lib.model_manager import DEFAULT_MODEL, DEFAULT_MODEL_NAME, download_all_models, download_model, update_models
 
 OFFLINE = log.DeviceState.NetworkType.none
 
 locks = {
   "backup_toggles": threading.Lock(),
+  "download_all_models": threading.Lock(),
+  "download_model": threading.Lock(),
   "time_checks": threading.Lock(),
   "update_frogpilot_params": threading.Lock(),
+  "update_models": threading.Lock()
 }
 
 running_threads = {}
@@ -53,6 +57,9 @@ def time_checks(automatic_updates, deviceState, now, started, params, params_mem
     automatic_update_check(started, params)
 
   update_maps(now, params, params_memory)
+
+  with locks["update_models"]:
+    update_models(params, params_memory, False)
 
 def update_maps(now, params, params_memory):
   maps_selected = params.get("MapsSelected", encoding='utf8')
@@ -114,10 +121,21 @@ def frogpilot_thread():
                                sm['frogpilotNavigation'], sm['modelV2'], sm['radarState'], frogpilot_toggles)
       frogpilot_planner.publish(sm, pm, frogpilot_toggles)
 
+    model_to_download = params_memory.get("ModelToDownload", encoding='utf-8')
+    if model_to_download:
+      run_thread_with_lock("download_model", locks["download_model"], download_model, (model_to_download, params_memory))
+
+    if params_memory.get_bool("DownloadAllModels"):
+      run_thread_with_lock("download_all_models", locks["download_all_models"], download_all_models, (params, params_memory))
+
     if FrogPilotVariables.toggles_updated:
       update_toggles = True
     elif update_toggles:
       run_thread_with_lock("update_frogpilot_params", locks["update_frogpilot_params"], FrogPilotVariables.update_frogpilot_params, (started,))
+
+      if not frogpilot_toggles.model_manager:
+        params.put_nonblocking("Model", DEFAULT_MODEL)
+        params.put_nonblocking("ModelName", DEFAULT_MODEL_NAME)
 
       if time_validated and not started:
         run_thread_with_lock("backup_toggles", locks["backup_toggles"], backup_toggles, (params, params_storage))
@@ -136,6 +154,7 @@ def frogpilot_thread():
         time_validated = system_time_valid()
         if not time_validated:
           continue
+        run_thread_with_lock("update_models", locks["update_models"], update_models, (params, params_memory))
 
 def main():
   frogpilot_thread()
