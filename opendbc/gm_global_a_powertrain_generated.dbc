@@ -221,8 +221,7 @@ BO_ 715 ASCMGasRegenCmd: 8 K124_ASCM
  SG_ GasRegenFullStopActive : 13|1@0+ (1,0) [0|0] ""  NEO
  SG_ GasRegenCmdActive : 0|1@0+ (1,0) [0|0] ""  NEO
  SG_ RollingCounter : 7|2@0+ (1,0) [0|0] ""  NEO
- SG_ GasRegenAlwaysOne3 : 23|1@0+ (1,0) [0|1] ""  NEO
- SG_ GasRegenCmd : 22|12@0+ (1,0) [0|0] ""  NEO
+ SG_ GasRegenCmd : 8|14@0+ (1,0) [0|0] "" NEO
 
 BO_ 717 ASCM_2CD: 5 K124_ASCM
 
