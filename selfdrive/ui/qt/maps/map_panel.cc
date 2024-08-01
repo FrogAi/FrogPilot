@@ -41,3 +41,11 @@ void MapPanel::toggleMapSettings() {
   emit mapPanelRequested();
   show();
 }
+
+void MapPanel::showEvent(QShowEvent *event) {
+  uiState()->scene.map_open = true;
+}
+
+void MapPanel::hideEvent(QHideEvent *event) {
+  uiState()->scene.map_open = false;
+}

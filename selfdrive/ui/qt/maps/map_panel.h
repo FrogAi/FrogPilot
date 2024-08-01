@@ -18,4 +18,8 @@ public slots:
 
 private:
   QStackedLayout *content_stack;
+
+  // FrogPilot widgets
+  void hideEvent(QHideEvent *event);
+  void showEvent(QShowEvent *event);
 };
