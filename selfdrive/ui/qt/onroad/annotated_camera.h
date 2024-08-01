@@ -6,6 +6,29 @@
 #include "selfdrive/ui/qt/onroad/buttons.h"
 #include "selfdrive/ui/qt/widgets/cameraview.h"
 
+class Compass : public QWidget {
+  Q_OBJECT
+
+public:
+  explicit Compass(QWidget *parent = 0);
+  void updateState(const UIScene &scene);
+
+private:
+  void initializeStaticElements();
+  void paintEvent(QPaintEvent *event) override;
+
+  int bearingDeg;
+  int circleOffset;
+  int compassSize;
+  int degreeLabelOffset;
+  int innerCompass;
+  int x;
+  int y;
+
+  QPixmap compassInnerImg;
+  QPixmap staticElements;
+};
+
 class AnnotatedCameraWidget : public CameraWidget {
   Q_OBJECT
 
@@ -51,11 +74,13 @@ private:
   // FrogPilot variables
   Params paramsMemory{"/dev/shm/params"};
 
+  Compass *compass_img;
   DistanceButton *distance_btn;
 
   QHBoxLayout *bottom_layout;
 
   bool alwaysOnLateralActive;
+  bool compass;
   bool experimentalMode;
   bool mapOpen;
   bool onroadDistanceButton;
