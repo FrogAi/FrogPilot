@@ -272,7 +272,9 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
       }
     }
     for (FrogPilotButtonsControl *btn : findChildren<FrogPilotButtonsControl *>()) {
-      btn->setEnabled(offroad);
+      if (btn != forceStartedBtn) {
+        btn->setEnabled(offroad);
+      }
     }
   });
 
@@ -458,6 +460,25 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
     }
   });
   addItem(toggleBackupBtn);
+
+  // Force offroad/onroad
+  std::vector<QString> forceStartedOptions{tr("OFFROAD"), tr("ONROAD"), tr("OFF")};
+  forceStartedBtn = new FrogPilotButtonsControl(tr("Force Started State"), tr("Force openpilot either offroad or onroad."), "", forceStartedOptions, true);
+  connect(forceStartedBtn, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
+    if (id == 0) {
+      paramsMemory.putBool("ForceOffroad", true);
+      paramsMemory.putBool("ForceOnroad", false);
+    } else if (id == 1) {
+      paramsMemory.putBool("ForceOffroad", false);
+      paramsMemory.putBool("ForceOnroad", true);
+    } else if (id == 2) {
+      paramsMemory.putBool("ForceOffroad", false);
+      paramsMemory.putBool("ForceOnroad", false);
+    }
+    forceStartedBtn->updateButtonStyles(id);
+  });
+  forceStartedBtn->updateButtonStyles(2);
+  addItem(forceStartedBtn);
 
   // power buttons
   QHBoxLayout *power_layout = new QHBoxLayout();
