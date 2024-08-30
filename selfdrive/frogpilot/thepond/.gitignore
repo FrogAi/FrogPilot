@@ -1,0 +1,8 @@
+__pycache__
+preview.*
+allparams.json
+# Screenshots I use to create all the settings
+deletethis
+# Copy of manager.py I used to start thepond in the background
+manager.py
+.DS_Store

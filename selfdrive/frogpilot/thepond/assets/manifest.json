@@ -1,0 +1,20 @@
+{
+  "name": "ThePond",
+  "short_name": "",
+  "icons": [
+    {
+      "src": "/assets/images/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/images/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "id": "46bf2df73deba8e1512c35de",
+  "background_color": "#151414",
+  "theme_color": "#151414",
+  "display": "standalone"
+}
