@@ -1,0 +1,166 @@
+@media only screen and (max-width: 768px) {
+  #sidebarUnderlay {
+    position: fixed;
+    width: 100vw;
+    height: 100dvh;
+    background-color: rgba(0, 0, 0, 0.8);
+    top: 0;
+    left: 0;
+    z-index: 5;
+    transition: 0.5s;
+  }
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  /* To get toggles to the bottom of side-bar*/
+  justify-content: space-between;
+  height: 100dvh;
+  width: 250px;
+  min-width: 250px;
+  background-color: var(--sidebar-bg);
+  border-right: 1px solid var(--sidebar-border-color);
+  font-size: 1rem;
+  z-index: 6;
+}
+
+.sidebar li {
+  color: var(--sidebar-fg);
+}
+
+.sidebar.visible {
+  left: 0;
+}
+
+.sidebar a,
+.sidebar i {
+  text-decoration: none;
+  color: var(--sidebar-fg);
+  font-weight: 300;
+}
+
+.sidebar .active,
+.sidebar li li:hover {
+  background-color: var(--sidebar-active-bg);
+}
+.sidebar .active a {
+  font-weight: 500;
+}
+
+.sidebar .title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: rgb(25, 52, 70);
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.sidebar .title > div:first-of-type a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: row;
+}
+.sidebar .title div:first-of-type a p {
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar .title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.sidebar .title div:last-of-type a {
+  font-size: 0.8em;
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--sidebar-fg);
+}
+
+.sidebar .menu_section {
+  padding-right: 1.5rem;
+  padding-left: 1.5rem;
+  padding-bottom: 1rem;
+  padding-top: 1rem;
+}
+.sidebar .menu_section > li > a {
+  font-size: 1.2rem;
+  padding-bottom: 0.5rem;
+}
+.sidebar .menu_section > li > ul > li {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem;
+  border-radius: 4px;
+}
+
+.sidebar #theme_button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  height: 50px;
+  background: none;
+  border: none;
+  color: var(--sidebar-fg);
+  cursor: pointer;
+  margin-left: 1rem;
+  margin-bottom: 1rem;
+}
+.sidebar #theme_button i {
+  font-size: 2rem;
+}
+
+@media only screen and (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: -252px;
+    transition: 0.2s;
+    overflow-y: scroll;
+  }
+
+  .sidebar .title {
+    font-size: 1rem;
+    margin: 0;
+  }
+  .sidebar .menu_section > li > a {
+    font-size: 0.6rem;
+  }
+
+  .sidebar hr {
+    margin: 0;
+  }
+}
+
+#menu_button {
+  position: fixed;
+  z-index: 9;
+  width: 50px;
+  height: 50px;
+  bottom: 1rem;
+  right: 1rem;
+  background-color: rgb(74, 74, 74);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+#menu_button i {
+  font-size: 2rem;
+  color: white;
+}
+
+@media only screen and (min-width: 768px) {
+  #menu_button {
+    display: none;
+  }
+}

@@ -1,0 +1,794 @@
+{
+  "ApiCache_DriveStats": {
+    "value": {
+      "all": {
+        "distance": 0,
+        "hours": 0,
+        "drives": 0
+      },
+      "week": {
+        "distance": 0,
+        "hours": 0,
+        "drives": 0
+      }
+    }
+  },
+  "LastGPSPosition": {},
+  "NavDestination": {},
+  "ApiCache_NavDestinations": {},
+  "OpenpilotEnabledToggle": {
+    "title": "Enable openpilot",
+    "description": "Use the openpilot system for adaptive cruise control and lane keep driver assistance. Your attention is required at all times to use this feature. Changing this setting takes effect when the car is powered off.",
+    "section": "toggles",
+    "type": "toggle"
+  },
+  "ExperimentalLongitudinalEnabled": {
+    "title": "openpilot Longitudinal Control (Alpha)",
+    "description": "<b>WARNING: openpilot longitudinal control is in alpha for this car and will disable Automatic Emergency Braking (AEB).</b><br><br>On this car, openpilot defaults to the car's built-in ACC instead of openpilot's longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.",
+    "section": "toggles",
+    "type": "toggle"
+  },
+  "ExperimentalMode": {
+    "title": "Experimental Mode",
+    "description": "Openpilot defaults to driving in <b>chill mode</b>. Experimental mode enables <b>alpha-level features</b> that aren't ready for chill mode. Experimental features are listed below:<br><br><details><summary><b>End-to-End Longitudinal Control</b></summary><div>Let the driving model control the gas and brakes. openpilot will drive as it thinks a human would, including stopping for red lights and stop signs. Since the driving model decides the speed to drive, the set speed will only act as an upper bound. This is an alpha quality feature; mistakes should be expected.<br></div></details><br><details><summary><b>Navigate on openpilot</b></summary><div>When navigation has a destination, openpilot will input the map information into the model. This provides useful context for the model and allows openpilot to keep left or right appropriately at forks/exits. Lane change behavior is unchanged and still activated by the driver. This is an alpha quality feature; mistakes should be expected, particularly around exits and forks. These mistakes can include unintended lane line crossings, late exit taking, driving towards dividing barriers in the gore areas, etc.<br></div></details><br><details><summary><b>New Driving Visualization</b></summary><div>The driving visualization will transition to the road-facing wide-angle camera at low speeds to better show some turns. The Experimental mode logo will also be shown in the top right corner. When a navigation destination is set and the driving model is using it as input, the driving path on the map will turn green.</div></details>",
+    "section": "toggles",
+    "type": "toggle"
+  },
+  "DisengageOnAccelerator": {
+    "title": "Disengage on Accelerator Pedal",
+    "description": "When enabled, pressing the accelerator pedal will disengage openpilot.",
+    "section": "toggles",
+    "type": "toggle"
+  },
+  "IsLdwEnabled": {
+    "title": "Enable Lane Departure Warnings",
+    "description": "Receive alerts to steer back into the lane when your vehicle drifts over a detected lane line without a turn signal activated while driving over 31 mph (50 km/h).",
+    "section": "toggles",
+    "type": "toggle"
+  },
+  "RecordFront": {
+    "title": "Record and Upload Driver Camera",
+    "description": "Upload data from the driver-facing camera and help improve the driver monitoring algorithm.",
+    "section": "toggles",
+    "type": "toggle"
+  },
+  "IsMetric": {
+    "title": "Use Metric System",
+    "description": "Display speed in km/h instead of mph.",
+    "section": "toggles",
+    "type": "toggle"
+  },
+  "NavSettingTime24h": {
+    "title": "Show ETA in 24h Format",
+    "description": "Use 24h format instead of am/pm",
+    "section": "toggles",
+    "type": "toggle"
+  },
+  "NavSettingLeftSide": {
+    "title": "Show Map on Left Side of UI",
+    "description": "Show map on left side when in split-screen view.",
+    "section": "toggles",
+    "type": "toggle"
+  },
+  "AutomaticUpdates": {
+    "title": "Automatically Update FrogPilot",
+    "description": "FrogPilot will automatically update itself and it's assets when you're offroad and connected to Wi-Fi.",
+    "section": "software",
+    "type": "toggle"
+  },
+  "AlwaysOnLateral": {
+    "title": "Always on Lateral",
+    "description": "Maintain openpilot lateral control when the brake or gas pedals are used. Deactivation occurs only through the 'Cruise Control' button.",
+    "section": "controls",
+    "type": "toggle",
+    "subsettings": {
+      "AlwaysOnLateralLKAS": {
+        "title": "Control Via LKAS Button",
+        "description": "Enable or disable 'Always On Lateral' by clicking your 'LKAS' button.",
+        "section": "controls",
+        "type": "toggle"
+      },
+      "AlwaysOnLateralMain": {
+        "title": "Enable On Cruise Main",
+        "description": "Enable 'Always On Lateral' by clicking your 'Cruise Control' button without requiring openpilot to be enabled first.",
+        "section": "controls",
+        "type": "toggle"
+      },
+      "PauseAOLOnBrake": {
+        "title": "Pause On Brake Below",
+        "description": "Pause 'Always On Lateral' when the brake pedal is being pressed below the set speed.",
+        "section": "controls",
+        "type": "number",
+        "min": 0,
+        "max": 99,
+        "unit": "kph"
+      },
+      "HideAOLStatusBar": {
+        "title": "Hide the Status Bar",
+        "description": "Don't use the status bar for 'Always On Lateral'.",
+        "section": "controls",
+        "type": "toggle"
+      }
+    }
+  },
+  "ConditionalExperimental": {
+    "title": "Conditional Experimental Mode",
+    "description": "Automatically switches to 'Experimental Mode' under predefined conditions.",
+    "section": "controls",
+    "type": "toggle",
+    "subsettings": {
+      "CESpeed": {
+        "title": "Below",
+        "description": "Switch to 'Experimental Mode' below this speed when not following a lead vehicle.",
+        "section": "controls",
+        "type": "number",
+        "min": 0,
+        "max": 99,
+        "unit": "kph"
+      },
+      "CESpeedLead": {
+        "title": "Below With Lead",
+        "description": "Switch to 'Experimental Mode' below this speed when following a lead vehicle.",
+        "section": "controls",
+        "type": "number",
+        "min": 0,
+        "max": 99,
+        "unit": "kph"
+      },
+      "CECurves": {
+        "title": "Curve Detected Ahead",
+        "description": "Switch to 'Experimental Mode' when a curve is detected.",
+        "section": "controls",
+        "type": "toggle",
+        "toggles": {
+          "CECurvesLead": {
+            "title": "With Lead",
+            "section": "controls",
+            "type": "toggle"
+          }
+        }
+      },
+      "CELead": {
+        "title": "Lead Detected Ahead",
+        "description": "Switch to 'Experimental Mode' when a slower or stopped lead vehicle is detected ahead.",
+        "section": "controls",
+        "type": "toggle",
+        "toggles": {
+          "CESlowerLead": {
+            "title": "Slower Lead",
+            "section": "controls",
+            "type": "toggle"
+          },
+          "CEStoppedLead": {
+            "title": "Stopped Lead",
+            "section": "controls",
+            "type": "toggle"
+          }
+        }
+      },
+      "CEModelStopTime": {
+        "title": "Model Wants To Stop In The Next",
+        "description": "Switch to 'Experimental Mode' when the model wants to stop like when it detects a stop light or stop sign.",
+        "section": "controls",
+        "type": "number",
+        "min": 1,
+        "max": 10,
+        "unit": "seconds"
+      },
+      "CENavigation": {
+        "title": "Navigation Based",
+        "description": "Switch to 'Experimental Mode' based on navigation data. (i.e. Intersections, stop signs, upcoming turns, etc.)",
+        "section": "controls",
+        "type": "toggle",
+        "toggles": {
+          "CENavigationIntersections": {
+            "title": "Intersections",
+            "section": "controls",
+            "type": "toggle"
+          },
+          "CENavigationTurns": {
+            "title": "Turns",
+            "section": "controls",
+            "type": "toggle"
+          },
+          "CENavigationLead": {
+            "title": "With Lead",
+            "section": "controls",
+            "type": "toggle"
+          }
+        }
+      },
+      "CESignalSpeed": {
+        "title": "Turn Signal When Below Highway Speeds",
+        "description": "Switch to 'Experimental Mode' when using turn signals below highway speeds to help assist with turns.",
+        "section": "controls",
+        "type": "toggle"
+      },
+      "HideCEMStatusBar": {
+        "title": "Hide the Status Bar",
+        "description": "Don't use the status bar for 'Conditional Experimental Mode'.",
+        "section": "controls",
+        "type": "toggle"
+      }
+    }
+  },
+  "DeviceManagement": {
+    "title": "Device Management",
+    "description": "Tweak your device's behaviors to your personal preferences.",
+    "section": "controls",
+    "type": "toggle",
+    "subsettings": {
+      "DeviceShutdown": {
+        "title": "Device Shutdown Timer",
+        "description": "Configure how quickly the device shuts down after going offroad.",
+        "section": "controls",
+        "type": "select",
+        "options": [
+          "Instant",
+          "15 mins",
+          "30 mins",
+          "45 mins",
+          "1 hour", "2 hours", "3 hours", "4 hours", "5 hours", "6 hours", "7 hours", "8 hours", "9 hours", "10 hours",
+          "11 hours", "12 hours", "13 hours", "14 hours", "15 hours", "16 hours", "17 hours", "18 hours", "19 hours", "20 hours",
+          "21 hours", "22 hours", "23 hours", "24 hours", "25 hours", "26 hours", "27 hours", "28 hours", "29 hours", "30 hours"
+        ]
+      },
+      "NoLogging": {
+        "title": "Disable Logging",
+        "description": "Turn off all data tracking to enhance privacy or reduce thermal load.",
+        "section": "controls",
+        "type": "toggle"
+      },
+      "NoUploads": {
+        "title": "Disable Uploads",
+        "description": "Turn off all data uploads to comma's servers.",
+        "section": "controls",
+        "type": "toggle",
+        "toggles": {
+          "DisableOnroadUploads": {
+            "title": "Only Onroad",
+            "section": "controls",
+            "type": "toggle"
+          }
+        }
+      },
+      "IncreaseThermalLimits": {
+        "title": "Increase Thermal Safety Limit",
+        "description": "Allow the device to run at a temperature above comma's recommended thermal limits.",
+        "section": "controls",
+        "type": "toggle"
+      },
+      "LowVoltageShutdown": {
+        "title": "Low Voltage Shutdown Threshold",
+        "description": "Automatically shut the device down when your battery reaches a specific voltage level to prevent killing your battery.",
+        "section": "controls",
+        "type": "number",
+        "min": 1,
+        "max": 10
+      },
+      "OfflineMode": {
+        "title": "Offline Mode",
+        "description": "Allow the device to be offline indefinitely.",
+        "section": "controls",
+        "type": "toggle"
+      }
+    }
+  },
+  "ExperimentalModeActivation": {
+    "title": "Experimental Mode Activation",
+    "description": "Toggle Experimental Mode with either buttons on the steering wheel or the screen. Overrides 'Conditional Experimental Mode'.",
+    "section": "controls",
+    "type": "toggle",
+    "subsettings": {
+      "ExperimentalModeViaLKAS": {
+        "title": "Click LKAS Button",
+        "description": "Enable/disable 'Experimental Mode' by clicking the 'LKAS' button on your steering wheel.",
+        "section": "controls",
+        "type": "toggle"
+      },
+      "ExperimentalModeViaTap": {
+        "title": "Double Tap the UI",
+        "description": "Enable/disable 'Experimental Mode' by double tapping the onroad UI within a 0.5 second time frame.",
+        "section": "controls",
+        "type": "toggle"
+      },
+      "ExperimentalModeViaDistance": {
+        "title": "Long Press Distance",
+        "description": "Enable/disable 'Experimental Mode' by holding down the 'distance' button on your steering wheel for 0.5 seconds.",
+        "section": "controls",
+        "type": "toggle"
+      }
+    }
+  },
+  "LaneChangeCustomizations": {
+    "title": "Lane Change Customizations",
+    "description": "Customize the lane change behaviors in openpilot.",
+    "section": "controls",
+    "type": "toggle",
+    "subsettings": {
+      "LaneChangeTime": {
+        "title": "Lane Change Timer",
+        "description": "Set a delay before executing a lane change.",
+        "section": "controls",
+        "type": "number",
+        "min": 0,
+        "max": 5,
+        "unit": "seconds"
+      },
+      "LaneDetectionWidth": {
+        "title": "Lane Detection Threshold",
+        "description": "Set the required lane width to be qualified as a lane.",
+        "section": "controls",
+        "type": "number",
+        "min": 0,
+        "max": 10,
+        "unit": "meters"
+      },
+      "MinimumLaneChangeSpeed": {
+        "title": "Minimum Lane Change Speed",
+        "description": "Customize the minimum driving speed to allow openpilot to change lanes.",
+        "section": "controls",
+        "type": "number",
+        "min": 0,
+        "max": 99,
+        "unit": "kph"
+      },
+      "NudgelessLaneChange": {
+        "title": "Nudgeless Lane Change",
+        "description": "Enable lane changes without requiring manual steering input.",
+        "section": "controls",
+        "type": "toggle"
+      },
+      "OneLaneChange": {
+        "title": "One Lane Change Per Signal",
+        "description": "Only allow one lane change per turn signal activation.",
+        "section": "controls",
+        "type": "toggle"
+      }
+    }
+  },
+  "LateralTune": {
+    "title": "Lateral Tuning",
+    "description": "Modify openpilot's steering behavior.",
+    "section": "controls",
+    "type": "toggle",
+    "subsettings": {
+      "ForceAutoTune": {
+        "title": "Force Auto Tune",
+        "description": "Forces comma's auto lateral tuning for unsupported vehicles.",
+        "section": "controls",
+        "type": "toggle"
+      },
+      "NNFF": {
+        "title": "NNFF",
+        "description": "Use Twilsonco's Neural Network Feedforward for enhanced precision in lateral control.",
+        "section": "controls",
+        "type": "toggle"
+      },
+      "NNFFLite": {
+        "title": "NNFF-Lite",
+        "description": "Use Twilsonco's Neural Network Feedforward for enhanced precision in lateral control for cars without available NNFF logs.",
+        "section": "controls",
+        "type": "toggle"
+      },
+      "SteerRatio": {
+        "title": "Steer Ratio",
+        "description": "Use a custom steer ratio as opposed to comma's auto tune value.",
+        "section": "controls",
+        "type": "number",
+        "min": 0,
+        "max": 99
+      },
+      "TacoTune": {
+        "title": "Taco Tune",
+        "description": "Use comma's 'Taco Tune' designed for handling left and right turns.",
+        "section": "controls",
+        "type": "toggle"
+      },
+      "TurnDesires": {
+        "title": "Use Turn Desires",
+        "description": "Use turn desires for greater precision in turns below the minimum lane change speed.",
+        "section": "controls",
+        "type": "toggle"
+      }
+    }
+  },
+  "LongitudinalTune": {
+    "title": "Longitudinal Tuning",
+    "description": "Modify openpilot's acceleration and braking behavior.",
+    "section": "controls",
+    "type": "toggle",
+    "subsettings": {
+      "AccelerationProfile": {
+        "title": "Acceleration Profile",
+        "description": "Change the acceleration rate to be either sporty or eco-friendly.",
+        "section": "controls",
+        "type": "select",
+        "options": [
+          "Standard",
+          "Eco",
+          "Sport",
+          "Sport+"
+        ]
+      },
+      "DecelerationProfile": {
+        "title": "Deceleration Profile",
+        "description": "Change the deceleration rate to be either sporty or eco-friendly.",
+        "section": "controls",
+        "type": "select",
+        "options": [
+          "Standard",
+          "Eco",
+          "Sport"
+        ]
+      },
+      "HumanAcceleration": {
+        "title": "Human-Like Acceleration",
+        "description": "Tweaks the acceleration behavior to be more 'human-like'.",
+        "section": "controls",
+        "type": "toggle"
+      },
+      "HumanFollowing": {
+        "title": "Human-Like Following Distance",
+        "description": "Tweaks the following distance dynamically to be more 'human-like' when coming up behind slower/stopped leads or following faster leads.",
+        "section": "controls",
+        "type": "toggle"
+      },
+      "StoppingDistance": {
+        "title": "Increase Stop Distance Behind Lead",
+        "description": "Increase the stopping distance for a more comfortable stop from lead vehicles.",
+        "section": "controls",
+        "type": "number",
+        "min": 0,
+        "max": 10,
+        "unit": "meters"
+      },
+      "LeadDetectionThreshold": {
+        "title": "Lead Detection Threshold",
+        "description": "Increase or decrease the lead detection threshold to either detect leads sooner, or increase model confidence.",
+        "section": "controls",
+        "type": "number",
+        "min": 1,
+        "max": 100,
+        "unit": "%"
+      },
+    }
+  },
+  "MTSCEnabled": {
+    "title": "Map Turn Speed Control",
+    "description": "Slow down for anticipated curves detected by the downloaded maps.",
+    "section": "controls",
+    "type": "toggle",
+    "subsettings": {
+      "MTSCCurvatureCheck": {
+        "title": "Model Curvature Detection Failsafe",
+        "description": "Only trigger MTSC when the model detects a curve in the road. Purely used as a failsafe to prevent false positives. Leave this off if you never experience false positives.",
+        "section": "controls",
+        "type": "toggle"
+      },
+    }
+  },
+  "ModelManagement": {
+    "title": "Model Management",
+    "description": "Manage openpilot's driving models.",
+    "section": "controls",
+    "type": "toggle",
+    "subsettings": {
+      "AutomaticallyUpdateModels": {
+        "title": "Automatically Update and Download Models",
+        "description": "Automatically download models as they're updated or added to the model list.",
+        "section": "controls",
+        "type": "toggle"
+      },
+      "ModelRandomizer": {
+        "title": "Model Randomizer",
+        "description": "Have a random model be selected each drive that can be reviewed at the end of each drive to find your preferred model.",
+        "section": "controls",
+        "type": "toggle"
+      }
+    }
+  },
+  "QOLControls": {
+    "title": "Quality of Life",
+    "description": "Miscellaneous quality of life changes to improve your overall openpilot experience.",
+    "section": "controls",
+    "type": "toggle",
+    "subsettings": {
+      "CustomCruise": {
+        "title": "Cruise Increase Interval",
+        "description": "Set a custom interval to increase the max set speed by.",
+        "section": "controls",
+        "type": "number",
+        "min": 0,
+        "max": 99,
+        "unit": "kph"
+      },
+      "CustomCruiseLong": {
+        "title": "Cruise Increase Interval (Long Press)",
+        "description": "Set a custom interval to increase the max set speed by when holding down the cruise increase button.",
+        "section": "controls",
+        "type": "number",
+        "min": 0,
+        "max": 99,
+        "unit": "kph"
+      },
+      "ForceStandstill": {
+        "title": "Force Standstill State",
+        "description": "Keeps openpilot in the 'standstill' state until the gas pedal is pressed.",
+        "section": "controls",
+        "type": "toggle"
+      },
+      "MapGears": {
+        "title": "Map Accel/Decel To Gears",
+        "description": "Map your acceleration/deceleration profile to your 'Eco' and/or 'Sport' gears.",
+        "section": "controls",
+        "type": "toggle",
+        "toggles": {
+          "MapAcceleration": {
+            "title": "Acceleration",
+            "section": "controls",
+            "type": "toggle"
+          },
+          "MapDeceleration": {
+            "title": "Deceleration",
+            "section": "controls",
+            "type": "toggle"
+          }
+        }
+      },
+      "PauseLateralSpeed": {
+        "title": "Pause Lateral Below",
+        "description": "Pause lateral control on all speeds below the set speed.",
+        "section": "controls",
+        "type": "number",
+        "min": 0,
+        "max": 99,
+        "unit": "kph",
+        "toggles": {
+          "PauseLateralOnSignal": {
+            "title": "Turn Signal Only",
+            "section": "controls",
+            "type": "toggle"
+          }
+        }
+      },
+      "ReverseCruise": {
+        "title": "Reverse Cruise Increase",
+        "description": "Reverses the 'long press' functionality logic to increase the max set speed by 5 instead of 1. Useful to increase the max speed quickly.",
+        "section": "controls",
+        "type": "toggle"
+      },
+      "SetSpeedOffset": {
+        "title": "Set Speed Offset",
+        "description": "Set an offset for your desired set speed.",
+        "section": "controls",
+        "type": "number",
+        "min": 0,
+        "max": 99,
+        "unit": "kph"
+      }
+    }
+  },
+  "SpeedLimitController": {
+    "title": "Speed Limit Controller",
+    "description": "Automatically adjust the max speed to match the current speed limit using 'Open Street Maps', 'Navigate On openpilot', or your car's dashboard (Toyotas/Lexus/HKG only).",
+    "section": "controls",
+    "type": "toggle",
+    "subsettings": {
+      "Offset1": {
+        "title": "Speed Limit Offset (0-34 mph)",
+        "description": "Speed limit offset for speed limits between 0-34 mph.",
+        "section": "controls",
+        "type": "number",
+        "min": 0,
+        "max": 99,
+        "unit": "mph"
+      },
+      "Offset2": {
+        "title": "Speed Limit Offset (35-54 mph)",
+        "description": "Speed limit offset for speed limits between 35-54 mph.",
+        "section": "controls",
+        "type": "number",
+        "min": 0,
+        "max": 99,
+        "unit": "mph"
+      },
+      "Offset3": {
+        "title": "Speed Limit Offset (55-64 mph)",
+        "description": "Speed limit offset for speed limits between 55-64 mph.",
+        "section": "controls",
+        "type": "number",
+        "min": 0,
+        "max": 99,
+        "unit": "mph"
+      },
+      "Offset4": {
+        "title": "Speed Limit Offset (65-99 mph)",
+        "description": "Speed limit offset for speed limits between 65-99 mph.",
+        "section": "controls",
+        "type": "number",
+        "min": 0,
+        "max": 99,
+        "unit": "mph"
+      },
+      "SLCFallback": {
+        "title": "Fallback Method",
+        "description": "Choose your fallback method when there is no speed limit available.",
+        "section": "controls",
+        "type": "toggle",
+        "type": "select",
+        "options": [
+          "Set Speed",
+          "Experimental Mode",
+          "Previous Limit"
+        ]
+      },
+      "SLCOverride": {
+        "title": "Override Method",
+        "description": "Choose your preferred method to override the current speed limit.",
+        "section": "controls",
+        "type": "toggle",
+        "type": "select",
+        "options": [
+          "None",
+          "Manual Set Speed",
+          "Set Speed"
+        ]
+      },
+      "SLCPriority1": {
+        "title": "Priority Order - Primary",
+        "description": "Self your primary speed limit priority.",
+        "section": "controls",
+        "type": "toggle",
+        "type": "select",
+        "options": [
+          "None",
+          "Dashboard",
+          "Navigation",
+          "Offline Maps",
+          "Highest",
+          "Lowest"
+        ]
+      },
+      "SLCPriority2": {
+        "title": "Priority Order - Secondary",
+        "description": "Self your secondary speed limit priority.",
+        "section": "controls",
+        "type": "toggle",
+        "type": "select",
+        "options": [
+          "None",
+          "Dashboard",
+          "Navigation",
+          "Offline Maps",
+          "Highest",
+          "Lowest"
+        ]
+      },
+      "SLCPriority3": {
+        "title": "Priority Order - Tertiary",
+        "description": "Self your tertiary speed limit priority.",
+        "section": "controls",
+        "type": "toggle",
+        "type": "select",
+        "options": [
+          "None",
+          "Dashboard",
+          "Navigation",
+          "Offline Maps",
+          "Highest",
+          "Lowest"
+        ]
+      },
+      "ForceMPHDashboard": {
+        "title": "Force MPH From Dashboard Readings",
+        "description": "Force MPH readings from the dashboard. Only use this if you live in an area where the speed limits from your dashboard are in KPH, but you use MPH.",
+        "section": "controls",
+        "type": "toggle"
+      },
+      "SLCLookaheadHigher": {
+        "title": "Prepare For Higher Speed Limits",
+        "description": "Set a 'lookahead' value to prepare for upcoming speed limits higher than your current speed limit using the data stored in 'Open Street Maps'.",
+        "section": "controls",
+        "type": "number",
+        "min": 0,
+        "max": 60,
+        "unit": "seconds"
+      },
+      "SLCLookaheadLower": {
+        "title": "Prepare For Lower Speed Limits",
+        "description": "Set a 'lookahead' value to prepare for upcoming speed limits lower than your current speed limit using the data stored in 'Open Street Maps'.",
+        "section": "controls",
+        "type": "number",
+        "min": 0,
+        "max": 60,
+        "unit": "seconds"
+      },
+      "SetSpeedLimit": {
+        "title": "Use Current Speed Limit As Set Speed",
+        "description": "Sets your max speed to the current speed limit if one is populated when you initially enable openpilot.",
+        "section": "controls",
+        "type": "toggle"
+      },
+      "ShowSLCOffset": {
+        "title": "Show Speed Limit Offset",
+        "description": "Show the speed limit offset separated from the speed limit in the onroad UI when using 'Speed Limit Controller'.",
+        "section": "controls",
+        "type": "toggle",
+        "toggles": {
+          "ShowSLCOffsetUI": {
+            "title": "Control Via UI",
+            "section": "controls",
+            "type": "toggle"
+          }
+        }
+      },
+      "SpeedLimitChangedAlert": {
+        "title": "Speed Limit Changed Alert",
+        "description": "Trigger an alert whenever the speed limit changes.",
+        "section": "controls",
+        "type": "toggle"
+      },
+      "UseVienna": {
+        "title": "Use Vienna Speed Limit Signs",
+        "description": "Use the Vienna (EU) speed limit style signs as opposed to MUTCD (US).",
+        "section": "controls",
+        "type": "toggle"
+      }
+    }
+  },
+  "VisionTurnControl": {
+    "title": "Vision Turn Speed Controller",
+    "description": "Slow down for detected curves in the road.",
+    "section": "controls",
+    "type": "toggle",
+    "subsettings": {
+      "CurveSensitivity": {
+        "title": "Curve Detection Sensitivity",
+        "description": "Set curve detection sensitivity. Higher values prompt earlier responses, lower values lead to smoother but later reactions.",
+        "section": "controls",
+        "type": "number",
+        "min": 1,
+        "max": 100,
+        "unit": "%"
+      },
+      "TurnAggressiveness": {
+        "title": "Turn Speed Aggressiveness",
+        "description": "Set turn speed aggressiveness. Higher values result in faster turns, lower values yield gentler turns.",
+        "section": "controls",
+        "type": "number",
+        "min": 1,
+        "max": 100,
+        "unit": "%"
+      }
+    }
+  },
+  "MapboxPublicKey": {
+    "title": "Public Mapbox Key",
+    "section": "navigation",
+    "type": "text"
+  },
+  "MapboxSecretKey": {
+    "title": "Secret Mapbox Key",
+    "section": "navigation",
+    "type": "text"
+  },
+  "CarMake": {
+    "title": "Car Make",
+    "section": "vehicles",
+    "type": "select",
+    "options": [
+      "Acura", "Audi", "Buick", "Cadillac", "Chevrolet", "Chrysler", "Dodge", "Ford", "Genesis",
+      "GMC", "Holden", "Honda", "Hyundai", "Jeep", "Kia", "Lexus", "Lincoln", "MAN", "Mazda",
+      "Nissan", "Ram", "SEAT", "Škoda", "Subaru", "Tesla", "Toyota", "Volkswagen"
+    ]
+  },
+  "CarModel": {
+    "title": "Car Model",
+    "section": "vehicles",
+    "type": "select",
+    "options": [
+      ""
+    ]
+  }
+}

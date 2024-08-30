@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/data/openpilot/selfdrive/manager/./manager.py", line 405, in main
+    manager_thread()
+  File "/data/openpilot/selfdrive/manager/./manager.py", line 379, in manager_thread
+    pm.send('managerState', msg)
+  File "/data/openpilot/cereal/messaging/__init__.py", line 293, in send
+    self.sock[s].send(dat)
+  File "cereal/messaging/messaging_pyx.pyx", line 242, in cereal.messaging.messaging_pyx.PubSocket.send
+cereal.messaging.messaging_pyx.MultiplePublishersError: Messaging failure : Address already in use
