@@ -1,0 +1,196 @@
+.open-sans-regular {
+  font-family: "Open Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+  font-variation-settings: "wdth" 100;
+}
+
+/* Reset CSS */
+html,
+body {
+  min-height: 100dvh;
+}
+body {
+  padding-bottom: 2rem !important;
+  background-color: var(--main-bg);
+}
+
+html,
+body,
+h1,
+h2,
+h3 {
+  padding: 0;
+  margin: 0;
+  font-family: "Open Sans", sans-serif;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 600;
+  padding-top: 1rem;
+  padding-bottom: 10px;
+}
+
+/* Change the default styles to make them easier to work with */
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+hr {
+  height: 1px;
+  background-color: var(--sidebar-border-color);
+  border: none;
+}
+
+ul,
+li,
+a {
+  display: block;
+}
+/* End of default styles */
+
+[data-theme="light"] {
+  --main-bg: #fff;
+  --main-fg: #000;
+  --secondary-bg: #868484;
+  --sidebar-bg: #f4f4f4;
+  --sidebar-fg: rgb(25, 52, 70);
+  --sidebar-border-color: rgb(234, 234, 234);
+  --sidebar-active-bg: #4d4c4c21;
+  --card-bg: #f4f4f4;
+  --track-color: #4d4c4c;
+  --thumb-color: #4d4c4c;
+  --selected-camera-bg: rgb(215, 215, 215);
+  --switch-inactive-bg: #645f5f;
+}
+
+[data-theme="dark"] {
+  --main-bg: #151414;
+  --main-fg: #dfdfdf;
+  --secondary-bg: #292121;
+  --sidebar-bg: #292121;
+  --sidebar-fg: rgb(255, 238, 238);
+  --sidebar-border-color: rgb(50, 50, 50);
+  --sidebar-active-bg: #c9c9c921;
+  --card-bg: #292121;
+  --track-color: #053a5f;
+  --thumb-color: #5cd5eb;
+  --selected-camera-bg: #343333;
+  --switch-inactive-bg: #514d4d;
+}
+
+.content {
+  padding-left: 1.5rem;
+  flex-grow: 1;
+  color: var(--main-fg);
+  overflow-y: auto;
+  margin-left: 250px;
+}
+@media only screen and (max-width: 768px) {
+  .content {
+    margin-left: 0;
+  }
+}
+
+.no_scroll {
+  overflow: hidden;
+}
+.hidden {
+  display: none;
+}
+
+.not_implemented {
+  text-decoration: line-through;
+  cursor: not-allowed;
+}
+
+/* The snackbar - position it at the bottom and in the middle of the screen */
+#snackbar_wrapper {
+  position: fixed;
+  bottom: 30px; /* 30px from the bottom */
+  z-index: 10; /* Add a z-index if needed */
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  width: min(300px, 70%);
+}
+.snackbar {
+  margin-bottom: 1rem;
+  visibility: hidden; /* Hidden by default. Visible on click */
+  background-color: var(--sidebar-bg); /* Black background color */
+  color: var(--main-fg); /* White text color */
+  text-align: center; /* Centered text */
+  border-radius: 5px; /* Rounded borders */
+  padding: 16px; /* Padding */
+  transition: 1s;
+}
+
+/* Show the snackbar when clicking on a button (class added with JavaScript) */
+.snackbar.show {
+  visibility: visible; /* Show the snackbar */
+  /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+  However, delay the fade out process for 2.5 seconds */
+  -webkit-animation: fadein 0.5s /*, fadeout 0.5s 2.5s*/;
+  animation: fadein 0.5s /*, fadeout 0.5s 2.5s*/;
+}
+
+/* Animations to fade the snackbar in and out */
+@-webkit-keyframes fadein {
+  from {
+    bottom: 0;
+    opacity: 0;
+  }
+  to {
+    bottom: 30px;
+    opacity: 1;
+  }
+}
+
+@keyframes fadein {
+  from {
+    bottom: 0;
+    opacity: 0;
+  }
+  to {
+    bottom: 30px;
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes fadeout {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fadeout {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+a.button {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  margin: 1rem 0;
+  background-color: var(--sidebar-active-bg);
+  color: var(--main-fg);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+}

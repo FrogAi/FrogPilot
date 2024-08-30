@@ -1,0 +1,390 @@
+.settings {
+  max-width: 700px;
+}
+.settings h1 {
+  margin-bottom: 1rem;
+}
+
+.setting {
+  margin-bottom: 1rem;
+  padding-right: 1.5rem;
+  display: grid;
+  align-items: center;
+  grid-template-columns: 4fr 4fr 1fr;
+  grid-template-areas:
+    "a b b"
+    "c c d";
+}
+@media only screen and (max-width: 768px) {
+  .setting {
+    max-width: calc(100vw - 3rem);
+    margin-bottom: 0.5rem;
+  }
+}
+
+.setting.subsetting_link {
+  cursor: pointer;
+}
+
+.setting.subtoggle {
+  margin-left: 2rem;
+  margin-bottom: 0;
+}
+@media only screen and (max-width: 768px) {
+  .setting.subtoggle {
+    margin-left: 0;
+  }
+}
+.setting.subtoggle p {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Weird hack to "restore" the bottom margin
+  after subtoggles has been added, since the 
+  subtoggles are on the same level as all other
+  settings
+*/
+.setting.subtoggle + .setting {
+  margin-top: 1rem;
+}
+
+/* subtoggle "L" beside title */
+.setting.subtoggle .title:before {
+  width: 12px;
+  height: 10px;
+  position: relative;
+  content: "";
+  display: inline-block;
+  border-bottom: 2px solid;
+  border-left: 2px solid;
+  border-color: gray;
+  margin-right: 1rem;
+  margin-bottom: 6px;
+}
+
+.setting .title {
+  grid-area: a;
+  font-size: 1.1rem;
+  margin-right: 1rem;
+}
+@media only screen and (max-width: 768px) {
+  .setting .title {
+    font-size: 0.9em;
+  }
+}
+.setting .title.wide {
+  grid-column: span 2;
+}
+.setting .options {
+  grid-area: b;
+  grid-column: span 2;
+  justify-self: end;
+  align-items: center;
+  width: 100%;
+}
+@media only screen and (max-width: 768px) {
+  .setting .description.collapsed {
+    display: none;
+  }
+}
+
+.setting .description {
+  grid-area: c;
+  grid-column: span 3;
+  opacity: 0.5;
+  margin: 0;
+  padding-top: 0.3rem;
+  font-size: 0.8em;
+}
+.setting .description summary {
+  margin-bottom: 10px;
+}
+
+.setting .textwrapper {
+  grid-column: span 2;
+}
+.settings .textinput {
+  padding: 6px 12px;
+  background: var(--sidebar-bg);
+  border: 1px solid rgb(60, 63, 68);
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--main-fg);
+  height: 46px;
+  appearance: none;
+  transition: border 0.15s ease 0s;
+}
+.setting .savebutton {
+  display: inline-block;
+  outline: none;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  border-radius: 500px;
+  transition-property: background-color, border-color, color, box-shadow, filter;
+  transition-duration: 0.3s;
+  border: 1px solid transparent;
+  white-space: normal;
+  font-weight: bold;
+  text-align: center;
+  color: #fff;
+  background-color: #009d24;
+  justify-self: start;
+  padding: 10px;
+  margin-left: 1rem;
+  width: 65px;
+  justify-self: end;
+}
+.setting .savebutton.loading {
+  cursor: progress;
+}
+
+.options {
+  display: flex;
+  gap: 1rem;
+  max-width: 336px;
+  position: relative;
+  user-select: none;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  z-index: 1;
+  font-size: 12px;
+  color: var(--main-fg);
+}
+.options > input {
+  display: none;
+}
+
+.options label {
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  border-radius: 3rem;
+  background-color: var(--sidebar-bg);
+  padding: 6px 3px;
+  transition: color 250ms cubic-bezier(0, 0.95, 0.38, 0.98);
+}
+
+.options > input:checked + label {
+  background-color: #009d24;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+  grid-row: 1;
+  grid-column: 3;
+  justify-self: end;
+}
+i.switch {
+  /* For subtoggle chevrons, they should kind of line up with toggle
+  switches, but not exactly*/
+  width: 34px;
+  align-self: end;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--switch-inactive-bg);
+  -webkit-transition: 0.2s;
+  transition: 0.2s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: var(--main-bg);
+  -webkit-transition: 0.2s;
+  transition: 0.2s;
+}
+
+.slider.loading:before {
+  background-color: none !important;
+  border: 5px solid #fff;
+  border-bottom-color: #46439b;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+input:checked + .slider {
+  background-color: #33a400;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #33a400;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+input:checked + .slider.loading:before {
+  animation: rotationChecked 1s linear infinite;
+}
+@keyframes rotationChecked {
+  0% {
+    transform: translateX(26px) rotate(0deg);
+  }
+  100% {
+    transform: translateX(26px) rotate(360deg);
+  }
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+/** Dropdown select for strings */
+.dropdown {
+  position: relative;
+  grid-area: b;
+  justify-self: end;
+}
+
+.dropdown > select {
+  appearance: none;
+  /*  safari  */
+  -webkit-appearance: none;
+  /*  other styles for aesthetics */
+  width: 100%;
+  font-size: 1.15rem;
+  padding: 0.675em 2em 0.675em 1em;
+  background-color: var(--sidebar-bg);
+  border: 1px solid var(--sidebar-border-color);
+  border-radius: 0.25rem;
+  color: var(--main-fg);
+  cursor: pointer;
+}
+
+.dropdown::before,
+.dropdown::after {
+  --size: 0.3rem;
+  content: "";
+  position: absolute;
+  right: 1rem;
+  pointer-events: none;
+}
+
+.dropdown::before {
+  border-left: var(--size) solid transparent;
+  border-right: var(--size) solid transparent;
+  border-bottom: var(--size) solid var(--main-fg);
+  top: 40%;
+}
+
+.dropdown::after {
+  border-left: var(--size) solid transparent;
+  border-right: var(--size) solid transparent;
+  border-top: var(--size) solid var(--main-fg);
+  top: 55%;
+}
+
+/* Really weird solution to mask passwords, but it prevents FF from prompting to save
+  any time you navigate away from a page with api keys, if using type=password fields
+*/
+@font-face {
+  font-family: "password";
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://jsbin-user-assets.s3.amazonaws.com/rafaelcastrocouto/password.ttf);
+}
+
+input.password {
+  font-family: "password";
+}
+
+input.searchfield {
+  padding: 0.1rem 1rem;
+  margin-top: 1rem;
+  background: var(--sidebar-bg);
+  border: 1px solid rgb(60, 63, 68);
+  border-radius: 4px;
+  font-size: 13px;
+  color: var(--main-fg);
+  height: 46px;
+  appearance: none;
+  transition: border 0.15s ease 0s;
+  -moz-appearance: none;
+}
+.settings input.searchfield {
+  width: calc(100% - 5rem);
+}
+
+input.searchfield:focus {
+  outline: none;
+  box-shadow: none;
+  border-color: #009d24;
+}
+
+.numberInput {
+  display: flex;
+  border: 1px solid var(--sidebar-border-color);
+  border-radius: 5px;
+  justify-content: space-between;
+  width: 150px;
+  height: 50px;
+  align-items: center;
+  grid-row: 1;
+  grid-column: 3;
+  white-space: nowrap;
+}
+
+.numberInput button {
+  width: 40px;
+  height: 100%;
+  background: none;
+  color: inherit;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+  outline: inherit;
+}
+.numberInput button:active:not([disabled]) {
+  background-color: #009d24;
+}
+
+.numberInput button[disabled] {
+  color: grey;
+}

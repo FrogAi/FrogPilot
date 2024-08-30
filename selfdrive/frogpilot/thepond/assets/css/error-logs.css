@@ -1,0 +1,88 @@
+#errorLogs p {
+  margin: 0;
+  padding: 0;
+}
+
+#errorLogs > div {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+#errorLogs #fileList {
+  max-width: min(95%, 900px);
+  min-width: 500px;
+  max-height: 200px;
+  overflow-y: auto;
+  background-color: var(--sidebar-bg);
+  border: 5px solid var(--sidebar-border-color);
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}
+@media only screen and (max-width: 768px) {
+  #errorLogs #fileList {
+    width: calc(100% - 2rem);
+    min-width: 0;
+  }
+}
+
+#errorLogs .fileEntry {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  display: flex;
+  cursor: pointer;
+  border-bottom: 1px solid var(--sidebar-border-color);
+  justify-content: space-between;
+}
+#errorLogs .fileEntry:hover {
+  background-color: var(--sidebar-active-bg);
+}
+
+#errorLogs #fileViewer {
+  background-color: var(--sidebar-bg);
+  border: 5px solid var(--sidebar-border-color);
+  border-radius: 5px;
+  max-width: min(95%, 860px);
+  overflow: auto;
+  max-height: calc(100vh - 200px - 70px);
+  padding: 20px;
+  border-radius: 10px;
+  scrollbar-color: #626365 #1c1d21;
+  scrollbar-width: thin;
+}
+@media only screen and (max-width: 768px) {
+  #errorLogs #fileViewer {
+    width: calc(100% - 2rem - 40px);
+    min-width: 0;
+  }
+}
+
+#errorLogs #fileViewer > div {
+  display: flex;
+  justify-content: space-between;
+}
+
+#errorLogs #fileViewer button {
+  border: none;
+  background-color: transparent;
+  color: var(--main-fg);
+  width: 35px;
+  height: 35px;
+  padding: 0.5rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#errorLogs #fileViewer button:hover {
+  background-color: var(--sidebar-active-bg);
+}
+
+#errorLogs #fileViewer pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  color: var(--main-fg);
+  font-family: "Courier New", Courier, monospace;
+}
