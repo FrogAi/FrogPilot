@@ -2,11 +2,16 @@
 
 #include <cmath>
 
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonParseError>
 #include <QTimer>
 
 #include "selfdrive/ui/qt/widgets/controls.h"
 
 void updateFrogPilotToggles();
+
+QColor loadThemeColors(const QString &colorKey);
 
 class FrogPilotConfirmationDialog : public ConfirmationDialog {
   Q_OBJECT
@@ -239,6 +244,22 @@ public:
     for (auto btn : button_group->buttons()) {
       btn->setEnabled(enable);
     }
+  }
+
+  void setButtonEnabled(int id, bool enable) {
+    if (QPushButton *button = qobject_cast<QPushButton *>(button_group->button(id))) {
+      button->setEnabled(enable);
+    }
+  }
+
+  void setText(int id, const QString &text) {
+    if (QPushButton *button = qobject_cast<QPushButton *>(button_group->button(id))) {
+      button->setText(text);
+    }
+  }
+
+  QPushButton *getButton(int id) const {
+    return qobject_cast<QPushButton *>(button_group->button(id));
   }
 
 signals:

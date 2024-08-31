@@ -25,10 +25,6 @@ void Sidebar::drawMetric(QPainter &p, const QPair<QString, QString> &label, QCol
 }
 
 Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(false), settings_pressed(false) {
-  home_img = loadPixmap("../assets/images/button_home.png", home_btn.size());
-  flag_img = loadPixmap("../assets/images/button_flag.png", home_btn.size());
-  settings_img = loadPixmap("../assets/images/button_settings.png", settings_btn.size(), Qt::IgnoreAspectRatio);
-
   connect(this, &Sidebar::valueChanged, [=] { update(); });
 
   setAttribute(Qt::WA_OpaquePaintEvent);
@@ -40,55 +36,57 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
   pm = std::make_unique<PubMaster, const std::initializer_list<const char *>>({"userFlag"});
 
   // FrogPilot variables
-  UIState *s = uiState();
-  UIScene &scene = s->scene;
+  home_label = new QLabel(this);
+  settings_label = new QLabel(this);
 
-  holidayThemeConfiguration = {
-    {0, {"stock", {QColor(255, 255, 255)}}},
-    {1, {"april_fools", {QColor(255, 165, 0)}}},
-    {2, {"christmas", {QColor(0, 72, 255)}}},
-    {3, {"cinco_de_mayo", {QColor(0, 104, 71)}}},
-    {4, {"easter", {QColor(200, 150, 200)}}},
-    {5, {"fourth_of_july", {QColor(10, 49, 97)}}},
-    {6, {"halloween", {QColor(255, 0, 0)}}},
-    {7, {"new_years_day", {QColor(23, 134, 68)}}},
-    {8, {"st_patricks_day", {QColor(0, 128, 0)}}},
-    {9, {"thanksgiving", {QColor(255, 0, 0)}}},
-    {10, {"valentines_day", {QColor(23, 134, 68)}}},
-    {11, {"world_frog_day", {QColor(23, 134, 68)}}},
-  };
+  flagPngPath = "../frogpilot/assets/active_theme/icons/button_flag.png";
+  homeGifPath = "../frogpilot/assets/active_theme/icons/button_home.gif";
+  homePngPath = "../frogpilot/assets/active_theme/icons/button_home.png";
+  settingsGifPath = "../frogpilot/assets/active_theme/icons/button_settings.gif";
+  settingsPngPath = "../frogpilot/assets/active_theme/icons/button_settings.png";
 
-  for (auto &[key, themeData] : holidayThemeConfiguration) {
-    QString &themeName = themeData.first;
-    QString base = themeName == "stock" ? "../assets/images" : QString("../frogpilot/assets/holiday_themes/%1/images").arg(themeName);
-    std::vector<QString> paths = {base + "/button_home.png", base + "/button_flag.png", base + "/button_settings.png"};
+  randomEventGifPath = "../frogpilot/assets/random_events/icons/button_home.gif";
+}
 
-    holiday_home_imgs[key] = loadPixmap(paths[0], home_btn.size());
-    holiday_flag_imgs[key] = loadPixmap(paths[1], home_btn.size());
-    holiday_settings_imgs[key] = loadPixmap(paths[2], settings_btn.size(), Qt::IgnoreAspectRatio);
+void Sidebar::showEvent(QShowEvent *event) {
+  updateIcon(home_label, home_gif, homeGifPath, home_btn, homePngPath, isHomeGif);
+  updateIcon(settings_label, settings_gif, settingsGifPath, settings_btn, settingsPngPath, isSettingsGif);
+}
+
+void Sidebar::updateIcon(QLabel *&label, QMovie *&gif, const QString &gifPath, const QRect &btnRect, const QString &pngPath, bool &isGif) {
+  QString selectedGifPath = gifPath;
+  if (qrand() % 100 == 0 && btnRect == home_btn && isRandomEvents) {
+    selectedGifPath = randomEventGifPath;
   }
 
-  themeConfiguration = {
-    {0, {"stock", {QColor(255, 255, 255)}}},
-    {1, {"frog_theme", {QColor(23, 134, 68)}}},
-    {2, {"tesla_theme", {QColor(0, 72, 255)}}},
-    {3, {"stalin_theme", {QColor(255, 0, 0)}}}
-  };
-
-  for (auto &[key, themeData] : themeConfiguration) {
-    QString &themeName = themeData.first;
-    QString base = themeName == "stock" ? "../assets/images" : QString("../frogpilot/assets/custom_themes/%1/images").arg(themeName);
-    std::vector<QString> paths = {base + "/button_home.png", base + "/button_flag.png", base + "/button_settings.png"};
-
-    home_imgs[key] = loadPixmap(paths[0], home_btn.size());
-    flag_imgs[key] = loadPixmap(paths[1], home_btn.size());
-    settings_imgs[key] = loadPixmap(paths[2], settings_btn.size(), Qt::IgnoreAspectRatio);
+  if (gif != nullptr) {
+    gif->stop();
+    delete gif;
+    gif = nullptr;
+    label->hide();
   }
 
-  home_img = home_imgs[scene.custom_icons];
-  flag_img = flag_imgs[scene.custom_icons];
-  settings_img = settings_imgs[scene.custom_icons];
-  currentColors = themeConfiguration[scene.custom_colors].second;
+  if (QFile::exists(selectedGifPath)) {
+    gif = new QMovie(selectedGifPath);
+    gif->setScaledSize(btnRect.size());
+
+    label->setGeometry(btnRect);
+    label->setMovie(gif);
+    label->show();
+
+    gif->start();
+
+    isGif = true;
+  } else {
+    if (btnRect == home_btn) {
+      home_img = loadPixmap(homePngPath, btnRect.size());
+      flag_img = loadPixmap(flagPngPath, btnRect.size());
+    } else {
+      settings_img = loadPixmap(settingsPngPath, btnRect.size(), Qt::IgnoreAspectRatio);
+    }
+
+    isGif = false;
+  }
 }
 
 void Sidebar::mousePressEvent(QMouseEvent *event) {
@@ -105,7 +103,7 @@ void Sidebar::mousePressEvent(QMouseEvent *event) {
   static int showMemory = 0;
   static int showTemp = 0;
 
-  if (cpuRect.contains(pos) && sidebarMetrics) {
+  if (cpuRect.contains(pos) && isSidebarMetrics) {
     showChip = (showChip + 1) % 3;
 
     isCPU = (showChip == 1);
@@ -119,7 +117,7 @@ void Sidebar::mousePressEvent(QMouseEvent *event) {
 
     update();
     return;
-  } else if (memoryRect.contains(pos) && sidebarMetrics) {
+  } else if (memoryRect.contains(pos) && isSidebarMetrics) {
     showMemory = (showMemory + 1) % 4;
 
     isMemoryUsage = (showMemory == 1);
@@ -136,10 +134,12 @@ void Sidebar::mousePressEvent(QMouseEvent *event) {
 
     update();
     return;
-  } else if (tempRect.contains(pos) && sidebarMetrics) {
+  } else if (tempRect.contains(pos) && isSidebarMetrics) {
     showTemp = (showTemp + 1) % 3;
 
-    scene.fahrenheit = showTemp == 2;
+    isFahrenheit = showTemp == 2;
+
+    scene.fahrenheit = isFahrenheit;
     scene.numerical_temp = showTemp != 0;
 
     params.putBoolNonBlocking("Fahrenheit", showTemp == 2);
@@ -178,7 +178,23 @@ void Sidebar::offroadTransition(bool offroad) {
 }
 
 void Sidebar::updateState(const UIState &s) {
-  if (!isVisible()) return;
+  if (!isVisible()) {
+    if (home_gif != nullptr) {
+      home_gif->stop();
+      delete home_gif;
+      home_gif = nullptr;
+      home_label->hide();
+    }
+
+    if (settings_gif != nullptr) {
+      settings_gif->stop();
+      delete settings_gif;
+      settings_gif = nullptr;
+      settings_label->hide();
+    }
+
+    return;
+  }
 
   auto &sm = *(s.sm);
 
@@ -187,34 +203,57 @@ void Sidebar::updateState(const UIState &s) {
   int strength = (int)deviceState.getNetworkStrength();
   setProperty("netStrength", strength > 0 ? strength + 1 : 0);
 
-  // FrogPilot properties
+  ItemStatus connectStatus;
+  auto last_ping = deviceState.getLastAthenaPingTime();
+  if (last_ping == 0) {
+    connectStatus = ItemStatus{{tr("CONNECT"), tr("OFFLINE")}, warning_color};
+  } else {
+    connectStatus = nanos_since_boot() - last_ping < 80e9
+                        ? ItemStatus{{tr("CONNECT"), tr("ONLINE")}, sidebar_color1}
+                        : ItemStatus{{tr("CONNECT"), tr("ERROR")}, danger_color};
+  }
+  setProperty("connectStatus", QVariant::fromValue(connectStatus));
+
+  ItemStatus tempStatus = {{tr("TEMP"), isNumericalTemp ? max_temp : tr("HIGH")}, danger_color};
+  auto ts = deviceState.getThermalStatus();
+  if (ts == cereal::DeviceState::ThermalStatus::GREEN) {
+    tempStatus = {{tr("TEMP"), isNumericalTemp ? max_temp : tr("GOOD")}, sidebar_color1};
+  } else if (ts == cereal::DeviceState::ThermalStatus::YELLOW) {
+    tempStatus = {{tr("TEMP"), isNumericalTemp ? max_temp : tr("OK")}, warning_color};
+  }
+  setProperty("tempStatus", QVariant::fromValue(tempStatus));
+
+  ItemStatus pandaStatus = {{tr("VEHICLE"), tr("ONLINE")}, sidebar_color2};
+  if (s.scene.pandaType == cereal::PandaState::PandaType::UNKNOWN) {
+    pandaStatus = {{tr("NO"), tr("PANDA")}, danger_color};
+  } else if (s.scene.started && !sm["liveLocationKalman"].getLiveLocationKalman().getGpsOK()) {
+    pandaStatus = {{tr("GPS"), tr("SEARCH")}, warning_color};
+  }
+  setProperty("pandaStatus", QVariant::fromValue(pandaStatus));
+
+  // FrogPilot variables
   const UIScene &scene = s.scene;
 
-  if (scene.current_holiday_theme != 0) {
-    home_img = holiday_home_imgs[scene.current_holiday_theme];
-    flag_img = holiday_flag_imgs[scene.current_holiday_theme];
-    settings_img = holiday_settings_imgs[scene.current_holiday_theme];
-    currentColors = holidayThemeConfiguration[scene.current_holiday_theme].second;
-  } else {
-    home_img = home_imgs[scene.custom_icons];
-    flag_img = flag_imgs[scene.custom_icons];
-    settings_img = settings_imgs[scene.custom_icons];
-    currentColors = themeConfiguration[scene.custom_colors].second;
-  }
-
-  auto frogpilotDeviceState = sm["frogpilotDeviceState"].getFrogpilotDeviceState();
-
   isCPU = scene.is_CPU;
+  isFahrenheit = scene.fahrenheit;
   isGPU = scene.is_GPU;
   isIP = scene.is_IP;
   isMemoryUsage = scene.is_memory;
   isNumericalTemp = scene.numerical_temp;
+  isRandomEvents = scene.random_events;
   isStorageLeft = scene.is_storage_left;
   isStorageUsed = scene.is_storage_used;
-  sidebarMetrics = scene.sidebar_metrics;
+  isSidebarMetrics = scene.sidebar_metrics;
+
+  bool useStockColors = scene.use_stock_colors;
+  sidebar_color1 = useStockColors ? good_color : scene.sidebar_color1;
+  sidebar_color2 = useStockColors ? good_color : scene.sidebar_color2;
+  sidebar_color3 = useStockColors ? good_color : scene.sidebar_color3;
+
+  const cereal::FrogPilotDeviceState::Reader &frogpilotDeviceState = sm["frogpilotDeviceState"].getFrogpilotDeviceState();
 
   int maxTempC = deviceState.getMaxTempC();
-  QString max_temp = scene.fahrenheit ? QString::number(maxTempC * 9 / 5 + 32) + "°F" : QString::number(maxTempC) + "°C";
+  max_temp = isFahrenheit ? QString::number(maxTempC * 9 / 5 + 32) + "°F" : QString::number(maxTempC) + "°C";
 
   if (isCPU || isGPU) {
     auto cpu_loads = deviceState.getCpuUsagePercent();
@@ -227,7 +266,7 @@ void Sidebar::updateState(const UIState &s) {
     QString metric = isGPU ? gpu : cpu;
     int usage = isGPU ? gpu_usage : cpu_usage;
 
-    ItemStatus cpuStatus = {{isGPU ? tr("GPU") : tr("CPU"), metric}, currentColors[0]};
+    ItemStatus cpuStatus = {{isGPU ? tr("GPU") : tr("CPU"), metric}, sidebar_color2};
     if (usage >= 85) {
       cpuStatus = {{isGPU ? tr("GPU") : tr("CPU"), metric}, danger_color};
     } else if (usage >= 70) {
@@ -245,7 +284,7 @@ void Sidebar::updateState(const UIState &s) {
     QString storage = QString::number(isStorageLeft ? storage_left : storage_used) + tr(" GB");
 
     if (isMemoryUsage) {
-      ItemStatus memoryStatus = {{tr("MEMORY"), memory}, currentColors[0]};
+      ItemStatus memoryStatus = {{tr("MEMORY"), memory}, sidebar_color3};
       if (memory_usage >= 85) {
         memoryStatus = {{tr("MEMORY"), memory}, danger_color};
       } else if (memory_usage >= 70) {
@@ -253,7 +292,7 @@ void Sidebar::updateState(const UIState &s) {
       }
       setProperty("memoryStatus", QVariant::fromValue(memoryStatus));
     } else {
-      ItemStatus storageStatus = {{isStorageLeft ? tr("LEFT") : tr("USED"), storage}, currentColors[0]};
+      ItemStatus storageStatus = {{isStorageLeft ? tr("LEFT") : tr("USED"), storage}, sidebar_color3};
       if (25 > storage_left && storage_left >= 10) {
         storageStatus = {{isStorageLeft ? tr("LEFT") : tr("USED"), storage}, warning_color};
       } else if (10 > storage_left) {
@@ -262,34 +301,6 @@ void Sidebar::updateState(const UIState &s) {
       setProperty("storageStatus", QVariant::fromValue(storageStatus));
     }
   }
-
-  ItemStatus connectStatus;
-  auto last_ping = deviceState.getLastAthenaPingTime();
-  if (last_ping == 0) {
-    connectStatus = ItemStatus{{tr("CONNECT"), tr("OFFLINE")}, warning_color};
-  } else {
-    connectStatus = nanos_since_boot() - last_ping < 80e9
-                        ? ItemStatus{{tr("CONNECT"), tr("ONLINE")}, currentColors[0]}
-                        : ItemStatus{{tr("CONNECT"), tr("ERROR")}, danger_color};
-  }
-  setProperty("connectStatus", QVariant::fromValue(connectStatus));
-
-  ItemStatus tempStatus = {{tr("TEMP"), isNumericalTemp ? max_temp : tr("HIGH")}, danger_color};
-  auto ts = deviceState.getThermalStatus();
-  if (ts == cereal::DeviceState::ThermalStatus::GREEN) {
-    tempStatus = {{tr("TEMP"), isNumericalTemp ? max_temp : tr("GOOD")}, currentColors[0]};
-  } else if (ts == cereal::DeviceState::ThermalStatus::YELLOW) {
-    tempStatus = {{tr("TEMP"), isNumericalTemp ? max_temp : tr("OK")}, warning_color};
-  }
-  setProperty("tempStatus", QVariant::fromValue(tempStatus));
-
-  ItemStatus pandaStatus = {{tr("VEHICLE"), tr("ONLINE")}, currentColors[0]};
-  if (s.scene.pandaType == cereal::PandaState::PandaType::UNKNOWN) {
-    pandaStatus = {{tr("NO"), tr("PANDA")}, danger_color};
-  } else if (s.scene.started && !sm["liveLocationKalman"].getLiveLocationKalman().getGpsOK()) {
-    pandaStatus = {{tr("GPS"), tr("SEARCH")}, warning_color};
-  }
-  setProperty("pandaStatus", QVariant::fromValue(pandaStatus));
 }
 
 void Sidebar::paintEvent(QPaintEvent *event) {
@@ -300,10 +311,14 @@ void Sidebar::paintEvent(QPaintEvent *event) {
   p.fillRect(rect(), QColor(57, 57, 57));
 
   // buttons
-  p.setOpacity(settings_pressed ? 0.65 : 1.0);
-  p.drawPixmap(settings_btn.x(), settings_btn.y(), settings_img);
-  p.setOpacity(onroad && flag_pressed ? 0.65 : 1.0);
-  p.drawPixmap(home_btn.x(), home_btn.y(), onroad ? flag_img : home_img);
+  if (!isSettingsGif) {
+    p.setOpacity(settings_pressed ? 0.65 : 1.0);
+    p.drawPixmap(settings_btn.x(), settings_btn.y(), settings_img);
+  }
+  if (!isHomeGif) {
+    p.setOpacity(onroad && flag_pressed ? 0.65 : 1.0);
+    p.drawPixmap(home_btn.x(), home_btn.y(), onroad ? flag_img : home_img);
+  }
   p.setOpacity(1.0);
 
   // network

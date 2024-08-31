@@ -507,6 +507,8 @@ void Primeless::createMapboxKeyControl(ButtonControl *&control, const QString &l
       }
       if (key.length() >= 80) {
         params.putNonBlocking(paramKey, key.toStdString());
+      } else {
+        FrogPilotConfirmationDialog::toggleAlert(tr("Inputted key is too short to be valid!"), tr("Okay"), this);
       }
     } else {
       if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to remove your %1?").arg(label), this)) {

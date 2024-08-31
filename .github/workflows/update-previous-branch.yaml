@@ -1,0 +1,21 @@
+name: Update FrogPilot-Previous Branch
+
+on:
+  schedule:
+    - cron: '0 7 1 * *'
+
+jobs:
+  update-branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Reset "FrogPilot-Previous" branch to match "FrogPilot"
+        run: |
+          git fetch origin
+          git checkout FrogPilot-Previous || git checkout -b FrogPilot-Previous
+          git reset --hard origin/FrogPilot
+          git push origin FrogPilot-Previous --force

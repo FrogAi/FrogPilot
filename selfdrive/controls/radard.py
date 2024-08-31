@@ -214,8 +214,9 @@ class RadarD:
 
     # FrogPilot variables
     self.frogpilot_toggles = FrogPilotVariables.toggles
+    FrogPilotVariables.update_frogpilot_params()
 
-    self.secret_good_openpilot = self.frogpilot_toggles.secretgoodopenpilot_model
+    self.e2e_longitudinal_model = self.frogpilot_toggles.clairvoyant_model or self.frogpilot_toggles.secretgoodopenpilot_model
     self.update_toggles = False
 
   def update(self, sm: messaging.SubMaster, rr):
@@ -261,7 +262,7 @@ class RadarD:
     self.radar_state.radarErrors = list(radar_errors)
     self.radar_state.carStateMonoTime = sm.logMonoTime['carState']
 
-    if len(sm['modelV2'].temporalPose.trans) and not self.secret_good_openpilot:
+    if len(sm['modelV2'].temporalPose.trans) and not self.e2e_longitudinal_model:
       model_v_ego = sm['modelV2'].temporalPose.trans[0]
     else:
       model_v_ego = self.v_ego
@@ -340,20 +341,20 @@ def main():
 
   # *** setup messaging
   can_sock = messaging.sub_sock('can')
-  pub_sock = messaging.pub_sock('liveTracks')
 
   RI = RadarInterface(CP)
 
-  # TODO timing is different between cars, need a single time step for all cars
-  # TODO just take the fastest one for now, and keep resending same messages for slower radars
   rk = Ratekeeper(1.0 / CP.radarTimeStep, print_delay_threshold=None)
   RD = RadarD(CP.radarTimeStep, RI.delay)
 
-  if not FrogPilotVariables.toggles.radarless_model:
+  # FrogPilot variables
+  frogpilot_toggles = FrogPilotVariables.toggles
+  FrogPilotVariables.update_frogpilot_params()
+
+  if not frogpilot_toggles.radarless_model:
     sm = messaging.SubMaster(['modelV2', 'carState'], frequency=int(1./DT_CTRL))
     pm = messaging.PubMaster(['radarState', 'liveTracks'])
-
-    while True:
+    while 1:
       can_strings = messaging.drain_sock_raw(can_sock, wait_for_one=True)
       rr = RI.update(can_strings)
       sm.update(0)
@@ -364,7 +365,8 @@ def main():
       RD.publish(pm, -rk.remaining*1000.0)
       rk.monitor_time()
   else:
-    while True:
+    pub_sock = messaging.pub_sock('liveTracks')
+    while 1:
       can_strings = messaging.drain_sock_raw(can_sock, wait_for_one=True)
       rr = RI.update(can_strings)
       if rr is None:

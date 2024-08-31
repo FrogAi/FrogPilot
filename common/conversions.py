@@ -12,6 +12,8 @@ class Conversions:
   KNOTS_TO_MS = 1. / MS_TO_KNOTS
 
   # Distance
+  KM_TO_MILES = KPH_TO_MPH
+  MILES_TO_KM = MPH_TO_KPH
   METER_TO_FOOT = 3.28084
   FOOT_TO_METER = 1. / METER_TO_FOOT
   CM_TO_INCH = 1. / 2.54

@@ -14,7 +14,11 @@ class ExperimentalButton : public QPushButton {
 
 public:
   explicit ExperimentalButton(QWidget *parent = 0);
-  void updateState(const UIState &s, bool leadInfo);
+  ~ExperimentalButton();
+  void updateState(const UIState &s, bool lead_info);
+
+  // FrogPilot widgets
+  void updateIcon();
 
 private:
   void paintEvent(QPaintEvent *event) override;
@@ -26,28 +30,37 @@ private:
   bool experimental_mode;
   bool engageable;
 
-  // FrogPilot variables
-  bool alwaysOnLateralActive;
-  bool bigMap;
-  bool conditionalExperimental;
-  bool mapOpen;
-  bool navigateOnOpenpilot;
-  bool rotatingWheel;
-  bool trafficModeActive;
+  // FrogPilot widgets
+  void updateBackgroundColor();
 
-  int conditionalStatus;
-  int randomEvent;
-  int steeringAngleDeg;
-  int wheelIcon;
-  int wheelIconGif;
+  // FrogPilot variables
+  Params params_memory{"/dev/shm/params"};
+
+  bool always_on_lateral_active;
+  bool big_map;
+  bool conditional_experimental;
+  bool image_empty;
+  bool map_open;
+  bool navigate_on_openpilot;
+  bool rotating_wheel;
+  bool traffic_mode_active;
+  bool use_gif;
+  bool use_stock_wheel;
+
+  int conditional_status;
+  int steering_angle_deg;
   int y_offset;
 
-  QLabel *gifLabel;
+  QColor background_color;
 
-  QMap<int, QPixmap> wheelImages;
-  QMap<int, QMovie*> wheelImagesGif;
+  QLabel *gif_label;
 
-  Params paramsMemory{"/dev/shm/params"};
+  QMovie *gif;
+
+  QPixmap img;
+
+  QString wheel_gif_path;
+  QString wheel_png_path;
 };
 
 
@@ -71,35 +84,23 @@ class DistanceButton : public QPushButton {
 
 public:
   explicit DistanceButton(QWidget *parent = 0);
+  ~DistanceButton();
+  void updateIcon();
   void updateState(const UIScene &scene);
 
 private:
-  void buttonPressed();
-  void buttonReleased();
   void paintEvent(QPaintEvent *event) override;
 
-  bool trafficModeActive;
+  Params params_memory{"/dev/shm/params"};
+
+  bool traffic_mode_active;
+  bool use_gif;
 
   int personality;
 
-  QElapsedTimer transitionTimer;
+  QLabel *gif_label;
+  QPixmap profile_image;
 
-  QPixmap profileImage;
-  QString profileText;
-
-  Params paramsMemory{"/dev/shm/params"};
-
-  const QVector<std::pair<QPixmap, QString>> profileData = {
-    {QPixmap("../frogpilot/assets/other_images/traffic.png"), "Traffic"},
-    {QPixmap("../frogpilot/assets/other_images/aggressive.png"), "Aggressive"},
-    {QPixmap("../frogpilot/assets/other_images/standard.png"), "Standard"},
-    {QPixmap("../frogpilot/assets/other_images/relaxed.png"), "Relaxed"}
-  };
-
-  const QVector<std::pair<QPixmap, QString>> profileDataKaofui = {
-    {QPixmap("../frogpilot/assets/other_images/traffic_kaofui.png"), "Traffic"},
-    {QPixmap("../frogpilot/assets/other_images/aggressive_kaofui.png"), "Aggressive"},
-    {QPixmap("../frogpilot/assets/other_images/standard_kaofui.png"), "Standard"},
-    {QPixmap("../frogpilot/assets/other_images/relaxed_kaofui.png"), "Relaxed"}
-  };
+  QVector<QPixmap> profile_data_png;
+  QVector<QMovie*> profile_data_gif;
 };

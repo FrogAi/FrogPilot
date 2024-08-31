@@ -35,14 +35,18 @@ def plannerd_thread():
 
   # FrogPilot variables
   frogpilot_toggles = FrogPilotVariables.toggles
+  FrogPilotVariables.update_frogpilot_params()
+
+  clairvoyant_model = frogpilot_toggles.clairvoyant_model
+  e2e_longitudinal_model = clairvoyant_model or frogpilot_toggles.secretgoodopenpilot_model
 
   update_toggles = False
 
   while True:
     sm.update()
     if sm.updated['modelV2']:
-      longitudinal_planner.update(sm, frogpilot_toggles)
-      longitudinal_planner.publish(sm, pm)
+      longitudinal_planner.update(clairvoyant_model, e2e_longitudinal_model, sm, frogpilot_toggles)
+      longitudinal_planner.publish(e2e_longitudinal_model, sm, pm)
       publish_ui_plan(sm, pm, longitudinal_planner)
 
     # Update FrogPilot parameters

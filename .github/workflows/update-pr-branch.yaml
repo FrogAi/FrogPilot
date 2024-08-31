@@ -1,0 +1,59 @@
+name: Update MAKE-PRS-HERE
+
+on:
+  push:
+    branches:
+      - FrogPilot-Staging
+
+env:
+  SOURCE_BRANCH: FrogPilot-Staging
+  TARGET_BRANCH: MAKE-PRS-HERE
+
+jobs:
+  squash-and-cherry-pick:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.SOURCE_BRANCH }}
+          fetch-depth: 0
+
+      - name: Set Git user name and email
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Get the second to last commit hash and create a temporary branch
+        run: |
+          commit_hash=$(git rev-parse HEAD~1)
+          git checkout -b temp-branch $commit_hash
+
+      - name: Squash all commits into one with today's date in Phoenix time zone
+        run: |
+          day=$(TZ='America/Phoenix' date '+%-d')
+          suffix="th"
+          case $day in
+            1|21|31) suffix="st" ;;
+            2|22) suffix="nd" ;;
+            3|23) suffix="rd" ;;
+          esac
+          commit_message="$(TZ='America/Phoenix' date '+%B ')$day$suffix, $(TZ='America/Phoenix' date '+%Y') Update"
+          git reset --soft $(git rev-list --max-parents=0 HEAD)
+          git commit -m "$commit_message"
+
+      - name: Cherry-pick the squashed commit to target branch and push
+        run: |
+          git fetch origin
+          git checkout ${{ env.TARGET_BRANCH }}
+          git cherry-pick temp-branch -X theirs || {
+            if git status | grep -q "nothing to commit, working tree clean"; then
+              echo "Empty commit detected, skipping cherry-pick."
+              git cherry-pick --skip
+            else
+              echo "Continuing with cherry-pick."
+              git cherry-pick --continue
+            fi
+          }
+          git push origin ${{ env.TARGET_BRANCH }}

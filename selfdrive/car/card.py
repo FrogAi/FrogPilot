@@ -94,6 +94,7 @@ class Car:
 
     # FrogPilot variables
     self.frogpilot_toggles = FrogPilotVariables.toggles
+    FrogPilotVariables.update_frogpilot_params()
 
     self.update_toggles = False
 

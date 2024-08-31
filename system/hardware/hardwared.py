@@ -208,6 +208,7 @@ def hardware_thread(end_event, hw_queue) -> None:
 
   # FrogPilot variables
   frogpilot_toggles = FrogPilotVariables.toggles
+  FrogPilotVariables.update_frogpilot_params()
 
   params_memory = Params("/dev/shm/params")
 

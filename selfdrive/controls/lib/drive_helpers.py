@@ -46,9 +46,6 @@ class VCruiseHelper:
     self.button_timers = {ButtonType.decelCruise: 0, ButtonType.accelCruise: 0}
     self.button_change_states = {btn: {"standstill": False, "enabled": False} for btn in self.button_timers}
 
-    # FrogPilot variables
-    self.params_memory = Params("/dev/shm/params")
-
   @property
   def v_cruise_initialized(self):
     return self.v_cruise_kph != V_CRUISE_UNSET
@@ -96,16 +93,9 @@ class VCruiseHelper:
     if button_type is None:
       return
 
-    # Confirm or deny the new speed limit value
+    # Don't adjust speed when pressing to confirm/deny speed limits
     if speed_limit_changed:
-      if button_type == ButtonType.accelCruise:
-        self.params_memory.put_bool("SLCConfirmed", True)
-        self.params_memory.put_bool("SLCConfirmedPressed", True)
-        return
-      elif button_type == ButtonType.decelCruise:
-        self.params_memory.put_bool("SLCConfirmed", False)
-        self.params_memory.put_bool("SLCConfirmedPressed", True)
-        return
+      return
 
     # Don't adjust speed when pressing resume to exit standstill
     cruise_standstill = self.button_change_states[button_type]["standstill"] or CS.cruiseState.standstill

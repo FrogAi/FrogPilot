@@ -1,6 +1,8 @@
 using Cxx = import "./include/c++.capnp";
 $Cxx.namespace("cereal");
 
+using Car = import "car.capnp";
+
 @0xb526ba661d550a59;
 
 # custom.capnp: a home for empty structs reserved for custom forks
@@ -9,9 +11,11 @@ $Cxx.namespace("cereal");
 
 # you can rename the struct, but don't change the identifier
 struct FrogPilotCarControl @0x81c2f05a394cf4af {
-  alwaysOnLateral @0 :Bool;
-  resumePressed @1 :Bool;
-  speedLimitChanged @2 :Bool;
+  alwaysOnLateralActive @0 :Bool;
+  fcwEventTriggered @1 :Bool;
+  noEntryEventTriggered @2 :Bool;
+  resumePressed @3 :Bool;
+  steerSaturatedEventTriggered @4 :Bool;
 }
 
 struct FrogPilotCarState @0xaedffd8f31e7b55d {
@@ -46,31 +50,32 @@ struct FrogPilotPlan @0x80ae746ee2596b11 {
   accelerationJerk @0 :Float32;
   accelerationJerkStock @1 :Float32;
   adjustedCruise @2 :Float32;
-  conditionalExperimentalActive @3 :Bool;
+  alwaysOnLateralActive @3 :Bool;
   dangerJerk @4 :Float32;
   desiredFollowDistance @5 :Float32;
-  forcingStop @6 :Bool;
-  greenLight @7 :Bool;
-  laneWidthLeft @8 :Float32;
-  laneWidthRight @9 :Float32;
-  leadDeparting @10 :Bool;
-  maxAcceleration @11 :Float32;
-  minAcceleration @12 :Float32;
-  redLight @13 :Bool;
-  safeObstacleDistance @14 :Int16;
-  safeObstacleDistanceStock @15 :Int16;
-  slcOverridden @16 :Bool;
-  slcOverriddenSpeed @17 :Float32;
-  slcSpeedLimit @18 :Float32;
-  slcSpeedLimitOffset @19 :Float32;
-  speedJerk @20 :Float32;
-  speedJerkStock @21 :Float32;
-  stoppedEquivalenceFactor @22 :Int16;
-  takingCurveQuickly @23 :Bool;
-  tFollow @24 :Float32;
-  unconfirmedSlcSpeedLimit @25 :Float32;
-  vCruise @26 :Float32;
-  vtscControllingCurve @27 :Bool;
+  experimentalMode @6 :Bool;
+  forcingStop @7 :Bool;
+  frogpilotEvents @8: List(Car.CarEvent);
+  lateralCheck @9 :Bool;
+  laneWidthLeft @10 :Float32;
+  laneWidthRight @11 :Float32;
+  maxAcceleration @12 :Float32;
+  minAcceleration @13 :Float32;
+  redLight @14 :Bool;
+  safeObstacleDistance @15 :Int32;
+  safeObstacleDistanceStock @16 :Int32;
+  slcOverridden @17 :Bool;
+  slcOverriddenSpeed @18 :Float32;
+  slcSpeedLimit @19 :Float32;
+  slcSpeedLimitOffset @20 :Float32;
+  speedJerk @21 :Float32;
+  speedJerkStock @22 :Float32;
+  speedLimitChanged @23 :Bool;
+  stoppedEquivalenceFactor @24 :Int32;
+  tFollow @25 :Float32;
+  unconfirmedSlcSpeedLimit @26 :Float32;
+  vCruise @27 :Float32;
+  vtscControllingCurve @28 :Bool;
 }
 
 struct CustomReserved5 @0xa5cd762cd951a455 {

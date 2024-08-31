@@ -70,7 +70,7 @@ void OnroadWindow::updateState(const UIState &s) {
   }
 
   alerts->updateState(s);
-  nvg->updateState(s);
+  nvg->updateState(alerts->alert_height, s);
 
   bool shouldUpdate = false;
 

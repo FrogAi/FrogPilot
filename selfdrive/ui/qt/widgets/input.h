@@ -9,6 +9,7 @@
 
 #include "selfdrive/ui/qt/widgets/keyboard.h"
 
+const int DEFAULT_MAX_LENGTH = 512;
 
 class DialogBase : public QDialog {
   Q_OBJECT
@@ -27,11 +28,14 @@ class InputDialog : public DialogBase {
 public:
   explicit InputDialog(const QString &title, QWidget *parent, const QString &subtitle = "", bool secret = false);
   static QString getText(const QString &title, QWidget *parent, const QString &subtitle = "",
-                         bool secret = false, int minLength = -1, const QString &defaultText = "");
+                         bool secret = false, int minLength = -1, const QString &defaultText = "", int maxLength = DEFAULT_MAX_LENGTH);
   QString text();
   void setMessage(const QString &message, bool clearInputField = true);
   void setMinLength(int length);
   void show();
+
+  // FrogPilot widgets
+  void setMaxLength(int length);
 
 private:
   int minLength;
@@ -41,6 +45,12 @@ private:
   QLabel *sublabel;
   QVBoxLayout *main_layout;
   QPushButton *eye_btn;
+
+  // FrogPilot widgets
+  void updateMaxLengthSublabel(const QString &text);
+
+  // FrogPilot variables
+  int maxLength;
 
 private slots:
   void handleEnter();
