@@ -8,11 +8,30 @@ void updateFrogPilotToggles() {
   int currentCall = ++callCounter;
   std::thread([currentCall]() {
     paramsMemory.putBool("FrogPilotTogglesUpdated", true);
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    util::sleep_for(1000);
     if (currentCall == callCounter) {
       paramsMemory.putBool("FrogPilotTogglesUpdated", false);
     }
   }).detach();
+}
+
+QColor loadThemeColors(const QString &colorKey) {
+  QFile file("../frogpilot/assets/active_theme/colors/colors.json");
+  if (!file.open(QIODevice::ReadOnly)) return QColor();
+
+  QJsonParseError parseError;
+  QJsonDocument doc = QJsonDocument::fromJson(file.readAll(), &parseError);
+  file.close();
+
+  if (parseError.error != QJsonParseError::NoError || !doc.isObject()) return QColor();
+
+  QJsonObject colorObj = doc.object().value(colorKey).toObject();
+  int red = colorObj["red"].toInt();
+  int green = colorObj["green"].toInt();
+  int blue = colorObj["blue"].toInt();
+  int alpha = colorObj["alpha"].toInt();
+
+  return QColor(red, green, blue, alpha);
 }
 
 bool FrogPilotConfirmationDialog::toggle(const QString &prompt_text, const QString &confirm_text, QWidget *parent) {

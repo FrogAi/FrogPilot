@@ -20,6 +20,7 @@ def distance_to_point(ax, ay, bx, by):
 class SpeedLimitController:
   def __init__(self):
     self.frogpilot_toggles = FrogPilotVariables.toggles
+    FrogPilotVariables.update_frogpilot_params()
 
     self.params = Params()
     self.params_memory = Params("/dev/shm/params")
@@ -125,5 +126,3 @@ class SpeedLimitController:
       return self.max_speed_limit
 
     return 0
-
-SpeedLimitController = SpeedLimitController()

@@ -1,5 +1,6 @@
 import math
 import numpy as np
+import os
 import time
 import wave
 
@@ -13,6 +14,7 @@ from openpilot.common.swaglog import cloudlog
 
 from openpilot.system import micd
 
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import ACTIVE_THEME_PATH, RANDOM_EVENTS_PATH
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import FrogPilotVariables
 
 SAMPLE_RATE = 48000
@@ -79,8 +81,9 @@ class Soundd:
     # FrogPilot variables
     self.frogpilot_toggles = FrogPilotVariables.toggles
 
-    self.previous_sound_directory = None
-    self.random_events_directory = BASEDIR + "/selfdrive/frogpilot/assets/random_events/sounds/"
+    self.previous_sound_pack = None
+
+    self.random_events_directory = os.path.join(RANDOM_EVENTS_PATH, "sounds/")
 
     self.random_events_map = {
       AudibleAlert.angry: MAX_VOLUME,
@@ -109,8 +112,6 @@ class Soundd:
       if sound in self.random_events_map:
         wavefile = wave.open(self.random_events_directory + filename, 'r')
       else:
-        if sound == AudibleAlert.goat and not self.frogpilot_toggles.goat_scream:
-          continue
         try:
           wavefile = wave.open(self.sound_directory + filename, 'r')
         except FileNotFoundError:
@@ -213,11 +214,12 @@ class Soundd:
         if FrogPilotVariables.toggles_updated:
           self.update_toggles = True
         elif self.update_toggles:
-          FrogPilotVariables.update_frogpilot_params()
           self.update_frogpilot_sounds()
           self.update_toggles = False
 
   def update_frogpilot_sounds(self):
+    FrogPilotVariables.update_frogpilot_params()
+
     self.volume_map = {
       AudibleAlert.engage: self.frogpilot_toggles.engage_volume,
       AudibleAlert.disengage: self.frogpilot_toggles.disengage_volume,
@@ -233,38 +235,14 @@ class Soundd:
       AudibleAlert.goat: self.frogpilot_toggles.prompt_volume,
     }
 
-    holiday_theme_configuration = {
-      1: "april_fools",
-      2: "christmas",
-      3: "cinco_de_mayo",
-      4: "easter",
-      5: "fourth_of_july",
-      6: "halloween",
-      7: "new_years_day",
-      8: "st_patricks_day",
-      9: "thanksgiving",
-      10: "valentines_day",
-      11: "world_frog_day",
-    }
-
-    theme_configuration = {
-      0: "stock_theme",
-      1: "frog_theme",
-      2: "tesla_theme",
-      3: "stalin_theme"
-    }
-
-    if self.frogpilot_toggles.current_holiday_theme != 0:
-      theme_name = holiday_theme_configuration.get(self.frogpilot_toggles.current_holiday_theme)
-      self.sound_directory = BASEDIR + ("/selfdrive/frogpilot/assets/holiday_themes/" + theme_name + "/sounds/")
+    if self.frogpilot_toggles.sound_pack != "stock":
+      self.sound_directory = os.path.join(ACTIVE_THEME_PATH, "sounds/")
     else:
-      theme_name = theme_configuration.get(self.frogpilot_toggles.custom_sounds)
-      self.sound_directory = BASEDIR + ("/selfdrive/frogpilot/assets/custom_themes/" + theme_name + "/sounds/" if theme_name != "stock_theme" else "/selfdrive/assets/sounds/")
+      self.sound_directory = os.path.join(BASEDIR, "selfdrive", "assets", "sounds/")
 
-    if self.sound_directory != self.previous_sound_directory:
+    if self.frogpilot_toggles.sound_pack != self.previous_sound_pack:
       self.load_sounds()
-
-    self.previous_sound_directory = self.sound_directory
+      self.previous_sound_pack = self.frogpilot_toggles.sound_pack
 
 def main():
   s = Soundd()

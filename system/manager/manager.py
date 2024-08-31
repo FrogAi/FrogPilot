@@ -19,7 +19,7 @@ from openpilot.system.athena.registration import register, UNREGISTERED_DONGLE_I
 from openpilot.common.swaglog import cloudlog, add_file_handler
 from openpilot.system.version import get_build_metadata, terms_version, training_version
 
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import frogpilot_boot_functions, setup_frogpilot, uninstall_frogpilot
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import convert_params, frogpilot_boot_functions, setup_frogpilot, uninstall_frogpilot
 from openpilot.selfdrive.frogpilot.controls.lib.model_manager import DEFAULT_MODEL, DEFAULT_MODEL_NAME
 
 
@@ -38,6 +38,7 @@ def manager_init() -> None:
   if build_metadata.release_channel:
     params.clear_all(ParamKeyType.DEVELOPMENT_ONLY)
 
+  convert_params(params, params_storage)
   threading.Thread(target=frogpilot_boot_functions, args=(build_metadata, params, params_storage,)).start()
 
   default_params: list[tuple[str, str | bytes]] = [
@@ -68,7 +69,6 @@ def manager_init() -> None:
     ("AccelerationProfile", "2"),
     ("AdjacentPath", "0"),
     ("AdjacentPathMetrics", "0"),
-    ("AggressiveAcceleration", "1"),
     ("AggressiveFollow", "1.25"),
     ("AggressiveJerkAcceleration", "50"),
     ("AggressiveJerkDanger", "100"),
@@ -88,6 +88,7 @@ def manager_init() -> None:
     ("BlacklistedModels", ""),
     ("BlindSpotMetrics", "0"),
     ("BlindSpotPath", "1"),
+    ("BonusContent", "1"),
     ("BorderMetrics", "1"),
     ("CameraView", "2"),
     ("CarMake", ""),
@@ -104,28 +105,31 @@ def manager_init() -> None:
     ("CertifiedHerbalistDrives", "0"),
     ("CertifiedHerbalistLiveTorqueParameters", ""),
     ("CertifiedHerbalistScore", "0"),
+    ("CEModelStopTime", "8"),
     ("CESignal", "1"),
     ("CESlowerLead", "1"),
     ("CESpeed", "0"),
     ("CESpeedLead", "0"),
-    ("CEStopLights", "1"),
-    ("CEStopLightsLessSensitive", "0"),
     ("CEStoppedLead", "1"),
+    ("ClairvoyantDriverCalibrationParams", ""),
+    ("ClairvoyantDriverDrives", "0"),
+    ("ClairvoyantDriverLiveTorqueParameters", ""),
+    ("ClairvoyantDriverScore", "0"),
     ("ClusterOffset", "1.015"),
     ("Compass", "0"),
     ("ConditionalExperimental", "1"),
     ("CrosstrekTorque", "1"),
     ("CurveSensitivity", "100"),
     ("CustomAlerts", "1"),
-    ("CustomColors", "1"),
+    ("CustomColors", "frog"),
     ("CustomCruise", "1"),
     ("CustomCruiseLong", "5"),
-    ("CustomIcons", "1"),
+    ("CustomDistanceIcons", "stock"),
+    ("CustomIcons", "frog-animated"),
     ("CustomPaths", "1"),
     ("CustomPersonalities", "0"),
-    ("CustomSignals", "1"),
-    ("CustomSounds", "1"),
-    ("CustomTheme", "1"),
+    ("CustomSignals", "frog"),
+    ("CustomSounds", "frog"),
     ("CustomUI", "1"),
     ("CydiaTune", "0"),
     ("DecelerationProfile", "1"),
@@ -146,6 +150,7 @@ def manager_init() -> None:
     ("DynamicPathWidth", "0"),
     ("DynamicPedalsOnUI", "1"),
     ("EngageVolume", "100"),
+    ("ExperimentalGMTune", "0"),
     ("ExperimentalModeActivation", "1"),
     ("ExperimentalModels", ""),
     ("ExperimentalModeViaDistance", "1"),
@@ -162,7 +167,7 @@ def manager_init() -> None:
     ("FullMap", "0"),
     ("GasRegenCmd", "1"),
     ("GMapKey", ""),
-    ("GoatScream", "1"),
+    ("GoatScream", "0"),
     ("GreenLightAlert", "0"),
     ("HideAlerts", "0"),
     ("HideAOLStatusBar", "0"),
@@ -174,9 +179,10 @@ def manager_init() -> None:
     ("HideSpeedUI", "0"),
     ("HideUIElements", "0"),
     ("HolidayThemes", "1"),
+    ("HumanAcceleration", "1"),
+    ("HumanFollowing", "1"),
     ("IncreaseThermalLimits", "0"),
     ("JerkInfo", "1"),
-    ("KaofuiIcons", "0"),
     ("LaneChangeCustomizations", "1"),
     ("LaneChangeTime", "0"),
     ("LaneDetectionWidth", "60"),
@@ -246,6 +252,7 @@ def manager_init() -> None:
     ("PauseLateralOnSignal", "0"),
     ("PauseLateralSpeed", "0"),
     ("PedalsOnUI", "1"),
+    ("PersonalizeOpenpilot", "1"),
     ("PreferredSchedule", "0"),
     ("PromptDistractedVolume", "100"),
     ("PromptVolume", "100"),
@@ -309,10 +316,11 @@ def manager_init() -> None:
     ("SLCPriority1", "Dashboard"),
     ("SLCPriority2", "Offline Maps"),
     ("SLCPriority3", "Navigation"),
-    ("SmoothBraking", "1"),
     ("SNGHack", "1"),
     ("SpeedLimitChangedAlert", "1"),
     ("SpeedLimitController", "1"),
+    ("StartupMessageBottom", "so I do what I want 🐸"),
+    ("StartupMessageTop", "Hippity hoppity this is my property"),
     ("StandardFollow", "1.45"),
     ("StandardJerkAcceleration", "100"),
     ("StandardJerkDanger", "100"),
@@ -348,7 +356,7 @@ def manager_init() -> None:
     ("WD40Drives", "0"),
     ("WD40LiveTorqueParameters", ""),
     ("WD40Score", "0"),
-    ("WheelIcon", "3"),
+    ("WheelIcon", "frog"),
     ("WheelSpeed", "0")
   ]
   if not PC:

@@ -10,7 +10,6 @@ params_memory = Params("/dev/shm/params")
 
 R = 6373000.0 # approximate radius of earth in meters
 TO_RADIANS = math.pi / 180
-TO_DEGREES = 180 / math.pi
 TARGET_JERK = -0.6   # m/s^3 should match up with the long planner
 TARGET_ACCEL = -1.2  # m/s^2 should match up with the long planner
 TARGET_OFFSET = 1.0  # seconds - This controls how soon before the curve you reach the target velocity. It also helps

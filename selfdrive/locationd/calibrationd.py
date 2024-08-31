@@ -62,7 +62,8 @@ def moving_avg_with_linear_decay(prev_mean: np.ndarray, new_val: np.ndarray, idx
 class Calibrator:
   def __init__(self, param_put: bool = False):
     # FrogPilot variables
-    self.frogpilot_toggles = FrogPilotVariables.toggles
+    frogpilot_toggles = FrogPilotVariables.toggles
+    FrogPilotVariables.update_frogpilot_params()
 
     self.update_toggles = False
 
@@ -72,10 +73,8 @@ class Calibrator:
 
     # Read saved calibration
     self.params = Params()
-    if self.params.check_key(self.frogpilot_toggles.part_model_param + "CalibrationParams"):
-      calibration_params = self.params.get(self.frogpilot_toggles.part_model_param + "CalibrationParams")
-    else:
-      calibration_params = self.params.get("CalibrationParams")
+    self.calibration_key = frogpilot_toggles.part_model_param + "CalibrationParams"
+    calibration_params = self.params.get(self.calibration_key)
     rpy_init = RPY_INIT
     wide_from_device_euler = WIDE_FROM_DEVICE_EULER_INIT
     height = HEIGHT_INIT
@@ -174,7 +173,7 @@ class Calibrator:
 
     write_this_cycle = (self.idx == 0) and (self.block_idx % (INPUTS_WANTED//5) == 5)
     if self.param_put and write_this_cycle:
-      self.params.put_nonblocking(self.frogpilot_toggles.part_model_param + "CalibrationParams", self.get_msg(True).to_bytes())
+      self.params.put_nonblocking(self.calibration_key, self.get_msg(True).to_bytes())
 
     # Update FrogPilot parameters
     if FrogPilotVariables.toggles_updated:

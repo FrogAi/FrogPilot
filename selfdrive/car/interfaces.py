@@ -22,6 +22,8 @@ from openpilot.selfdrive.controls.lib.drive_helpers import CRUISE_LONG_PRESS, V_
 from openpilot.selfdrive.controls.lib.events import Events
 from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
 
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import get_max_allowed_accel
+
 ButtonType = car.CarState.ButtonEvent.Type
 FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
 GearShifter = car.CarState.GearShifter
@@ -29,7 +31,6 @@ EventName = car.CarEvent.EventName
 
 MAX_CTRL_SPEED = (V_CRUISE_MAX + 4) * CV.KPH_TO_MS
 ACCEL_MAX = 2.0
-ACCEL_MAX_PLUS = 4.0
 ACCEL_MIN = -3.5
 FRICTION_THRESHOLD = 0.3
 
@@ -266,7 +267,7 @@ class CarInterfaceBase(ABC):
   @staticmethod
   def get_pid_accel_limits(CP, current_speed, cruise_speed, frogpilot_toggles):
     if frogpilot_toggles.sport_plus:
-      return ACCEL_MIN, ACCEL_MAX_PLUS
+      return ACCEL_MIN, get_max_allowed_accel(current_speed)
     else:
       return ACCEL_MIN, ACCEL_MAX
 

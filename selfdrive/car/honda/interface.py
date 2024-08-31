@@ -10,6 +10,8 @@ from openpilot.selfdrive.car import create_button_events, get_safety_config
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase
 from openpilot.selfdrive.car.disable_ecu import disable_ecu
 
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import get_max_allowed_accel
+
 
 ButtonType = car.CarState.ButtonEvent.Type
 FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
@@ -25,12 +27,12 @@ class CarInterface(CarInterfaceBase):
   def get_pid_accel_limits(CP, current_speed, cruise_speed, frogpilot_toggles):
     if CP.carFingerprint in HONDA_BOSCH:
       if frogpilot_toggles.sport_plus:
-        return CarControllerParams.BOSCH_ACCEL_MIN, CarControllerParams.BOSCH_ACCEL_MAX_PLUS
+        return CarControllerParams.BOSCH_ACCEL_MIN, get_max_allowed_accel(current_speed)
       else:
         return CarControllerParams.BOSCH_ACCEL_MIN, CarControllerParams.BOSCH_ACCEL_MAX
     elif CP.enableGasInterceptor:
       if frogpilot_toggles.sport_plus:
-        return CarControllerParams.NIDEC_ACCEL_MIN, CarControllerParams.NIDEC_ACCEL_MAX_PLUS
+        return CarControllerParams.NIDEC_ACCEL_MIN, get_max_allowed_accel(current_speed)
       else:
         return CarControllerParams.NIDEC_ACCEL_MIN, CarControllerParams.NIDEC_ACCEL_MAX
     else:

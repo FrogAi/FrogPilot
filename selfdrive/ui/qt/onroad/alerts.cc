@@ -6,7 +6,7 @@
 #include "selfdrive/ui/qt/util.h"
 
 void OnroadAlerts::updateState(const UIState &s) {
-  Alert a = getAlert(*(s.sm), s.scene.started_frame);
+  Alert a = getAlert(*(s.sm), s.scene.started_frame, s.scene.force_onroad);
   if (!alert.equal(a)) {
     alert = a;
     update();
@@ -15,10 +15,10 @@ void OnroadAlerts::updateState(const UIState &s) {
   // FrogPilot variables
   const UIScene &scene = s.scene;
 
-  hideAlerts = scene.hide_alerts;
-  roadNameUI = scene.road_name_ui;
-  showAOLStatusBar = scene.show_aol_status_bar;
-  showCEMStatusBar = scene.show_cem_status_bar;
+  hide_alerts = scene.hide_alerts;
+  road_name_ui = scene.road_name_ui;
+  show_aol_status_bar = scene.show_aol_status_bar;
+  show_cem_status_bar = scene.show_cem_status_bar;
 }
 
 void OnroadAlerts::clear() {
@@ -26,7 +26,7 @@ void OnroadAlerts::clear() {
   update();
 }
 
-OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started_frame) {
+OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started_frame, bool force_onroad) {
   const cereal::ControlsState::Reader &cs = sm["controlsState"].getControlsState();
   const uint64_t controls_frame = sm.rcv_frame("controlsState");
 
@@ -36,7 +36,7 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started
          cs.getAlertType().cStr(), cs.getAlertSize(), cs.getAlertStatus()};
   }
 
-  if (!sm.updated("controlsState") && (sm.frame - started_frame) > 5 * UI_FREQ) {
+  if (!sm.updated("controlsState") && (sm.frame - started_frame) > 5 * UI_FREQ && !force_onroad) {
     const int CONTROLS_TIMEOUT = 5;
     const int controls_missing = (nanos_since_boot() - sm.rcv_time("controlsState")) / 1e9;
 
@@ -64,10 +64,12 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started
 
 void OnroadAlerts::paintEvent(QPaintEvent *event) {
   if (alert.size == cereal::ControlsState::AlertSize::NONE) {
+    alert_height = 0;
     return;
   }
 
-  if (hideAlerts && alert.status == cereal::ControlsState::AlertStatus::NORMAL) {
+  if (hide_alerts && alert.status == cereal::ControlsState::AlertStatus::NORMAL) {
+    alert_height = 0;
     return;
   }
 
@@ -80,7 +82,8 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
 
   int margin = 40;
   int radius = 30;
-  int offset = roadNameUI || showAOLStatusBar || showCEMStatusBar ? 25 : 0;
+  int offset = road_name_ui || show_aol_status_bar || show_cem_status_bar ? 25 : 0;
+  alert_height = h - margin + offset;
   if (alert.size == cereal::ControlsState::AlertSize::FULL) {
     margin = 0;
     radius = 0;

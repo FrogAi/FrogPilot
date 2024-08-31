@@ -1,4 +1,5 @@
 import datetime
+import errno
 import filecmp
 import glob
 import http.client
@@ -8,6 +9,7 @@ import shutil
 import socket
 import subprocess
 import sys
+import tarfile
 import threading
 import time
 import urllib.error
@@ -19,23 +21,10 @@ from openpilot.common.params_pyx import Params, ParamKeyType, UnknownKeyName
 from openpilot.common.time import system_time_valid
 from openpilot.system.hardware import HARDWARE
 
+ACTIVE_THEME_PATH = os.path.join(BASEDIR, "selfdrive", "frogpilot", "assets", "active_theme")
 MODELS_PATH = "/data/models"
-
-def delete_file(file):
-  try:
-    os.remove(file)
-    print(f"Deleted file: {file}")
-  except FileNotFoundError:
-    print(f"File not found: {file}")
-  except Exception as e:
-    print(f"An error occurred: {e}")
-
-def is_url_pingable(url, timeout=5):
-  try:
-    urllib.request.urlopen(url, timeout=timeout)
-    return True
-  except (http.client.IncompleteRead, http.client.RemoteDisconnected, socket.gaierror, socket.timeout, urllib.error.HTTPError, urllib.error.URLError):
-    return False
+RANDOM_EVENTS_PATH = os.path.join(BASEDIR, "selfdrive", "frogpilot", "assets", "random_events")
+THEME_SAVE_PATH = "/data/themes"
 
 def update_frogpilot_toggles():
   def update_params():
@@ -45,58 +34,82 @@ def update_frogpilot_toggles():
     params_memory.put_bool("FrogPilotTogglesUpdated", False)
   threading.Thread(target=update_params).start()
 
-def run_cmd(cmd, success_msg, fail_msg):
+def cleanup_backups(directory, limit, minimum_backup_size=0, compressed=False):
+  backups = sorted(glob.glob(os.path.join(directory, "*_auto*")), key=os.path.getmtime, reverse=True)
+
+  if compressed:
+    for backup in backups:
+      if os.path.getsize(backup) < minimum_backup_size:
+        run_cmd(["sudo", "rm", "-rf", backup], f"Deleted incomplete backup: {os.path.basename(backup)}", f"Failed to delete incomplete backup: {os.path.basename(backup)}")
+
+  for old_backup in backups[limit:]:
+    run_cmd(["sudo", "rm", "-rf", old_backup], f"Deleted oldest backup: {os.path.basename(old_backup)}", f"Failed to delete backup: {os.path.basename(old_backup)}")
+
+def backup_directory(backup, destination, success_message, fail_message, minimum_backup_size=0, params=None, compressed=False):
+  compressed_backup = f"{destination}.tar.gz"
+  in_progress_compressed_backup = f"{compressed_backup}_in_progress"
+  in_progress_destination = f"{destination}_in_progress"
+
   try:
-    subprocess.check_call(cmd)
-    print(success_msg)
-  except subprocess.CalledProcessError as e:
-    print(f"{fail_msg}: {e}")
-  except Exception as e:
-    print(f"Unexpected error occurred: {e}")
+    if not compressed:
+      os.makedirs(in_progress_destination, exist_ok=False)
+      run_cmd(["sudo", "rsync", "-avq", os.path.join(backup, "."), in_progress_destination], success_message, fail_message)
 
-def calculate_lane_width(lane, current_lane, road_edge):
-  current_x, current_y = np.array(current_lane.x), np.array(current_lane.y)
+      if os.path.exists(destination):
+        shutil.rmtree(destination)
 
-  lane_y_interp = interp(current_x, np.array(lane.x), np.array(lane.y))
-  road_edge_y_interp = interp(current_x, np.array(road_edge.x), np.array(road_edge.y))
+      os.rename(in_progress_destination, destination)
+      print(f"Backup successfully created at {destination}.")
+    else:
+      if os.path.exists(compressed_backup) or os.path.exists(in_progress_compressed_backup):
+        print("Backup already exists. Aborting.")
+        return
 
-  distance_to_lane = np.mean(abs(current_y - lane_y_interp))
-  distance_to_road_edge = np.mean(abs(current_y - road_edge_y_interp))
+      os.makedirs(in_progress_destination, exist_ok=True)
+      run_cmd(["sudo", "rsync", "-avq", os.path.join(backup, "."), in_progress_destination], success_message, fail_message)
 
-  return float(min(distance_to_lane, distance_to_road_edge))
+      with tarfile.open(in_progress_compressed_backup, "w:gz") as tar:
+        tar.add(in_progress_destination, arcname=os.path.basename(destination))
 
-# Credit goes to Pfeiferj!
-def calculate_road_curvature(modelData, v_ego):
-  orientation_rate = np.abs(modelData.orientationRate.z)
-  velocity = modelData.velocity.x
-  max_pred_lat_acc = np.amax(orientation_rate * velocity)
-  return abs(float(max(max_pred_lat_acc / v_ego**2, sys.float_info.min)))
+      shutil.rmtree(in_progress_destination)
+      os.rename(in_progress_compressed_backup, compressed_backup)
+      print(f"Backup successfully compressed to {compressed_backup}.")
 
-def backup_directory(backup, destination, success_msg, fail_msg):
-  os.makedirs(destination, exist_ok=True)
-  try:
-    run_cmd(['sudo', 'cp', '-a', os.path.join(backup, '.'), destination], success_msg, fail_msg)
+      compressed_backup_size = os.path.getsize(compressed_backup)
+      if compressed_backup_size < minimum_backup_size or minimum_backup_size == 0:
+        params.put_int_nonblocking("MinimumBackupSize", compressed_backup_size)
+
+  except FileExistsError:
+    print(f"Destination '{destination}' already exists. Backup aborted.")
+  except subprocess.CalledProcessError:
+    print(fail_message)
+    cleanup_backup(in_progress_destination, in_progress_compressed_backup)
   except OSError as e:
-    if e.errno == 28:
+    if e.errno == errno.ENOSPC:
       print("Not enough space to perform the backup.")
     else:
       print(f"Failed to backup due to unexpected error: {e}")
+    cleanup_backup(in_progress_destination, in_progress_compressed_backup)
+  finally:
+    cleanup_backup(in_progress_destination, in_progress_compressed_backup)
 
-def cleanup_backups(directory, limit):
-  backups = sorted(glob.glob(os.path.join(directory, "*_auto")), key=os.path.getmtime, reverse=True)
-  for old_backup in backups[limit:]:
-    subprocess.run(['sudo', 'rm', '-rf', old_backup], check=True)
-    print(f"Deleted oldest backup: {os.path.basename(old_backup)}")
+def cleanup_backup(in_progress_destination, in_progress_compressed_backup):
+  if os.path.exists(in_progress_destination):
+    shutil.rmtree(in_progress_destination)
+  if os.path.exists(in_progress_compressed_backup):
+    os.remove(in_progress_compressed_backup)
 
-def backup_frogpilot(build_metadata):
+def backup_frogpilot(build_metadata, params):
+  minimum_backup_size = params.get_int("MinimumBackupSize")
+
   backup_path = "/data/backups"
-  cleanup_backups(backup_path, 4)
+  cleanup_backups(backup_path, 4, minimum_backup_size, True)
 
   branch = build_metadata.channel
   commit = build_metadata.openpilot.git_commit_date[12:-16]
 
-  backup_dir = f"{backup_path}/{branch}_{commit}_auto"
-  backup_directory(BASEDIR, backup_dir, f"Successfully backed up FrogPilot to {backup_dir}.", f"Failed to backup FrogPilot to {backup_dir}.")
+  backup_dir = os.path.join(backup_path, f"{branch}_{commit}_auto")
+  backup_directory(BASEDIR, backup_dir, f"Successfully backed up FrogPilot to {backup_dir}.", f"Failed to backup FrogPilot to {backup_dir}.", minimum_backup_size, params, True)
 
 def backup_toggles(params, params_storage):
   for key in params.all_keys():
@@ -108,99 +121,186 @@ def backup_toggles(params, params_storage):
   backup_path = "/data/toggle_backups"
   cleanup_backups(backup_path, 9)
 
-  backup_dir = f"{backup_path}/{datetime.datetime.now().strftime('%Y-%m-%d_%I-%M%p').lower()}_auto"
+  backup_dir = os.path.join(backup_path, datetime.datetime.now().strftime('%Y-%m-%d_%I-%M%p').lower() + "_auto")
   backup_directory("/data/params/d", backup_dir, f"Successfully backed up toggles to {backup_dir}.", f"Failed to backup toggles to {backup_dir}.")
 
+def calculate_lane_width(lane, current_lane, road_edge):
+  current_x = np.array(current_lane.x)
+  current_y = np.array(current_lane.y)
+
+  lane_y_interp = interp(current_x, np.array(lane.x), np.array(lane.y))
+  road_edge_y_interp = interp(current_x, np.array(road_edge.x), np.array(road_edge.y))
+
+  distance_to_lane = np.mean(np.abs(current_y - lane_y_interp))
+  distance_to_road_edge = np.mean(np.abs(current_y - road_edge_y_interp))
+
+  return float(min(distance_to_lane, distance_to_road_edge))
+
+# Credit goes to Pfeiferj!
+def calculate_road_curvature(modelData, v_ego):
+  orientation_rate = np.abs(modelData.orientationRate.z)
+  velocity = modelData.velocity.x
+  max_pred_lat_acc = np.amax(orientation_rate * velocity)
+  return abs(float(max(max_pred_lat_acc / v_ego**2, sys.float_info.min)))
+
 def convert_params(params, params_storage):
-  def convert_param(key, action_func):
+  print("Starting to convert params")
+
+  required_type = str
+
+  def remove_param(key):
     try:
-      if params_storage.check_key(key) and params_storage.get_bool(key):
-        action_func()
-    except UnknownKeyName:
+      value = params_storage.get(key)
+      value = value.decode('utf-8') if isinstance(value, bytes) else value
+
+      if isinstance(value, str) and value.replace('.', '', 1).isdigit():
+        value = float(value) if '.' in value else int(value)
+
+      if (required_type == int and not isinstance(value, int)) or (required_type == str and isinstance(value, int)):
+        params.remove(key)
+        params_storage.remove(key)
+      elif key == "CustomIcons" and value == "frog_(animated)":
+        params.remove(key)
+        params_storage.remove(key)
+
+    except (UnknownKeyName, ValueError):
       pass
 
-  version = 8
+  for key in ["CustomColors", "CustomDistanceIcons", "CustomIcons", "CustomSignals", "CustomSounds", "WheelIcon"]:
+    remove_param(key)
 
+  print("Param conversion completed")
+
+def delete_file(file):
   try:
-    if params_storage.check_key("ParamConversionVersion") and params_storage.get_int("ParamConversionVersion") == version:
-      print("Params already converted, moving on.")
-      return
-  except UnknownKeyName:
-    pass
-
-  print("Converting params...")
-  convert_param("ModelSelector", lambda: params.put_nonblocking("ModelManagement", "True"))
-  convert_param("DragonPilotTune", lambda: params.put_nonblocking("FrogsGoMooTune", "True"))
-
-  print("Params successfully converted!")
-  params_storage.put_int_nonblocking("ParamConversionVersion", version)
+    os.remove(file)
+    print(f"Deleted file: {file}")
+  except FileNotFoundError:
+    print(f"File not found: {file}")
+  except Exception as e:
+    print(f"An error occurred: {e}")
 
 def frogpilot_boot_functions(build_metadata, params, params_storage):
-  convert_params(params, params_storage)
-
   while not system_time_valid():
     print("Waiting for system time to become valid...")
     time.sleep(1)
 
   try:
-    backup_frogpilot(build_metadata)
+    backup_frogpilot(build_metadata, params)
     backup_toggles(params, params_storage)
   except subprocess.CalledProcessError as e:
     print(f"Backup failed: {e}")
 
+def is_url_pingable(url, timeout=5):
+  try:
+    urllib.request.urlopen(url, timeout=timeout)
+    return True
+  except (http.client.IncompleteRead, http.client.RemoteDisconnected, socket.gaierror, socket.timeout, urllib.error.HTTPError, urllib.error.URLError):
+    return False
+
+def run_cmd(cmd, success_message, fail_message):
+  try:
+    subprocess.check_call(cmd)
+    print(success_message)
+  except subprocess.CalledProcessError as e:
+    print(f"{fail_message}: {e}")
+  except Exception as e:
+    print(f"Unexpected error occurred: {e}")
+
 def setup_frogpilot(build_metadata):
-  remount_persist = ['sudo', 'mount', '-o', 'remount,rw', '/persist']
+  remount_persist = ["sudo", "mount", "-o", "remount,rw", "/persist"]
   run_cmd(remount_persist, "Successfully remounted /persist as read-write.", "Failed to remount /persist.")
 
   os.makedirs("/persist/params", exist_ok=True)
   os.makedirs(MODELS_PATH, exist_ok=True)
+  os.makedirs(THEME_SAVE_PATH, exist_ok=True)
 
-  remount_root = ['sudo', 'mount', '-o', 'remount,rw', '/']
+  def copy_if_exists(source, destination):
+    if os.path.exists(source):
+      shutil.copytree(source, destination, dirs_exist_ok=True)
+      print(f"Successfully copied {source} to {destination}.")
+    else:
+      print(f"Source directory {source} does not exist. Skipping copy.")
+
+  frog_color_source = os.path.join(ACTIVE_THEME_PATH, "colors")
+  frog_color_destination = os.path.join(THEME_SAVE_PATH, "theme_packs/frog/colors")
+  copy_if_exists(frog_color_source, frog_color_destination)
+
+  frog_distance_icon_source = os.path.join(ACTIVE_THEME_PATH, "distance_icons")
+  frog_distance_icon_destination = os.path.join(THEME_SAVE_PATH, "distance_icons/frog-animated")
+  copy_if_exists(frog_distance_icon_source, frog_distance_icon_destination)
+
+  frog_icon_source = os.path.join(ACTIVE_THEME_PATH, "icons")
+  frog_icon_destination = os.path.join(THEME_SAVE_PATH, "theme_packs/frog-animated/icons")
+  copy_if_exists(frog_icon_source, frog_icon_destination)
+
+  frog_signal_source = os.path.join(ACTIVE_THEME_PATH, "signals")
+  frog_signal_destination = os.path.join(THEME_SAVE_PATH, "theme_packs/frog/signals")
+  copy_if_exists(frog_signal_source, frog_signal_destination)
+
+  frog_sound_source = os.path.join(ACTIVE_THEME_PATH, "sounds")
+  frog_sound_destination = os.path.join(THEME_SAVE_PATH, "theme_packs/frog/sounds")
+  copy_if_exists(frog_sound_source, frog_sound_destination)
+
+  steering_wheel_source = os.path.join(ACTIVE_THEME_PATH, "steering_wheel")
+  steering_wheel_destination = os.path.join(THEME_SAVE_PATH, "steering_wheels")
+
+  if not os.path.exists(steering_wheel_destination):
+    os.makedirs(steering_wheel_destination)
+    for item in os.listdir(steering_wheel_source):
+      source_item = os.path.join(steering_wheel_source, item)
+      destination_item = os.path.join(steering_wheel_destination, "frog.png")
+      shutil.copy2(source_item, destination_item)
+      print(f"Successfully copied {source_item} to {destination_item}.")
+
+  remount_root = ["sudo", "mount", "-o", "remount,rw", "/"]
   run_cmd(remount_root, "File system remounted as read-write.", "Failed to remount file system.")
 
-  frogpilot_boot_logo = f'{BASEDIR}/selfdrive/frogpilot/assets/other_images/frogpilot_boot_logo.png'
-  frogpilot_boot_logo_jpg = f'{BASEDIR}/selfdrive/frogpilot/assets/other_images/frogpilot_boot_logo.jpg'
+  frogpilot_boot_logo = os.path.join(BASEDIR, "selfdrive", "frogpilot", "assets", "other_images", "frogpilot_boot_logo.png")
+  frogpilot_boot_logo_jpg = os.path.join(BASEDIR, "selfdrive", "frogpilot", "assets", "other_images", "frogpilot_boot_logo.jpg")
 
-  boot_logo_location = '/usr/comma/bg.jpg'
-  boot_logo_save_location = f'{BASEDIR}/selfdrive/frogpilot/assets/other_images/original_bg.jpg'
+  boot_logo_location = "/usr/comma/bg.jpg"
+  boot_logo_save_location = os.path.join(BASEDIR, "selfdrive", "frogpilot", "assets", "other_images", "original_bg.jpg")
 
   if not os.path.exists(boot_logo_save_location):
     shutil.copy(boot_logo_location, boot_logo_save_location)
     print("Successfully saved original_bg.jpg.")
 
   if filecmp.cmp(boot_logo_save_location, frogpilot_boot_logo_jpg, shallow=False):
-    os.remove(boot_logo_save_location)
+    delete_file(boot_logo_save_location)
 
   if not filecmp.cmp(frogpilot_boot_logo, boot_logo_location, shallow=False):
-    run_cmd(['sudo', 'cp', frogpilot_boot_logo, boot_logo_location], "Successfully replaced bg.jpg with frogpilot_boot_logo.png.", "Failed to replace boot logo.")
+    run_cmd(["sudo", "cp", frogpilot_boot_logo, boot_logo_location], "Successfully replaced bg.jpg with frogpilot_boot_logo.png.", "Failed to replace boot logo.")
 
   if build_metadata.channel == "FrogPilot-Development":
     subprocess.run(["sudo", "python3", "/persist/frogsgomoo.py"], check=True)
 
 def uninstall_frogpilot():
-  boot_logo_location = '/usr/comma/bg.jpg'
-  boot_logo_restore_location = f'{BASEDIR}/selfdrive/frogpilot/assets/other_images/original_bg.jpg'
+  boot_logo_location = "/usr/comma/bg.jpg"
+  boot_logo_restore_location = os.path.join(BASEDIR, "selfdrive", "frogpilot", "assets", "other_images", "original_bg.jpg")
 
-  copy_cmd = ['sudo', 'cp', boot_logo_restore_location, boot_logo_location]
+  copy_cmd = ["sudo", "cp", boot_logo_restore_location, boot_logo_location]
   run_cmd(copy_cmd, "Successfully restored the original boot logo.", "Failed to restore the original boot logo.")
 
   HARDWARE.uninstall()
 
-class MovingAverageCalculator:
-  def __init__(self):
-    self.reset_data()
+class WeightedMovingAverageCalculator:
+  def __init__(self, window_size):
+    self.window_size = window_size
+    self.data = []
+    self.weights = np.linspace(1, 2, window_size)
 
   def add_data(self, value):
-    if len(self.data) == 5:
-      self.total -= self.data.pop(0)
+    if len(self.data) == self.window_size:
+      self.data.pop(0)
     self.data.append(value)
-    self.total += value
 
-  def get_moving_average(self):
+  def get_weighted_average(self):
     if len(self.data) == 0:
       return None
-    return self.total / len(self.data)
+    weighted_sum = np.dot(self.data, self.weights[-len(self.data):])
+    weight_total = np.sum(self.weights[-len(self.data):])
+    return weighted_sum / weight_total
 
   def reset_data(self):
     self.data = []
-    self.total = 0

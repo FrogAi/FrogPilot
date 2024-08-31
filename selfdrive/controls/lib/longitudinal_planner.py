@@ -174,10 +174,8 @@ class LongitudinalPlanner:
 
     return x, v, a, j
 
-  def update(self, sm, frogpilot_toggles):
-    self.secret_good_openpilot = frogpilot_toggles.secretgoodopenpilot_model
-
-    self.mpc.mode = 'blended' if sm['controlsState'].experimentalMode else 'acc'
+  def update(self, clairvoyant_model, e2e_longitudinal_model, sm, frogpilot_toggles):
+    self.mpc.mode = 'blended' if sm['controlsState'].experimentalMode and not clairvoyant_model else 'acc'
 
     v_ego = sm['carState'].vEgo
     v_cruise_kph = min(sm['controlsState'].vCruise, V_CRUISE_MAX)
@@ -206,7 +204,7 @@ class LongitudinalPlanner:
     # Prevent divergence, smooth in current v_ego
     self.v_desired_filter.x = max(0.0, self.v_desired_filter.update(v_ego))
     # Compute model v_ego error
-    self.v_model_error = 0. if self.secret_good_openpilot else get_speed_error(sm['modelV2'], v_ego)
+    self.v_model_error = 0.0 if e2e_longitudinal_model else get_speed_error(sm['modelV2'], v_ego)
 
     if force_slow_decel:
       v_cruise = 0.0
@@ -250,7 +248,7 @@ class LongitudinalPlanner:
     self.a_desired = float(interp(self.dt, CONTROL_N_T_IDX, self.a_desired_trajectory))
     self.v_desired_filter.x = self.v_desired_filter.x + self.dt * (self.a_desired + a_prev) / 2.0
 
-  def publish(self, sm, pm):
+  def publish(self, e2e_longitudinal_model, sm, pm):
     plan_send = messaging.new_message('longitudinalPlan')
 
     plan_send.valid = sm.all_checks(service_list=['carState', 'controlsState'])
@@ -272,15 +270,21 @@ class LongitudinalPlanner:
     longitudinalPlan.longitudinalPlanSource = self.mpc.source
     longitudinalPlan.fcw = self.fcw
 
-    a_target, should_stop = get_accel_from_plan(self.CP, longitudinalPlan.speeds, longitudinalPlan.accels)
-    if self.secret_good_openpilot and sm['controlsState'].experimentalMode:
+    a_target_mpc, should_stop_mpc = get_accel_from_plan(self.CP, longitudinalPlan.speeds, longitudinalPlan.accels)
+
+    if e2e_longitudinal_model and sm['controlsState'].experimentalMode:
       model_speeds = np.interp(CONTROL_N_T_IDX, ModelConstants.T_IDXS, sm['modelV2'].velocity.x)
       model_accels = np.interp(CONTROL_N_T_IDX, ModelConstants.T_IDXS, sm['modelV2'].acceleration.x)
       a_target_model, should_stop_model = get_accel_from_plan(self.CP, model_speeds, model_accels)
-      a_target = min(a_target, a_target_model)
-      should_stop |= should_stop_model
+      a_target = min(a_target_mpc, a_target_model)
+      should_stop = should_stop_mpc or should_stop_model
+    else:
+      a_target = a_target_mpc
+      should_stop = should_stop_mpc
+
     longitudinalPlan.aTarget = float(a_target)
     longitudinalPlan.shouldStop = bool(should_stop)
+
     longitudinalPlan.allowBrake = True
     longitudinalPlan.allowThrottle = True
 

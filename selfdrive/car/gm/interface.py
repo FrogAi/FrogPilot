@@ -12,6 +12,8 @@ from openpilot.selfdrive.car.gm.values import CAR, CruiseButtons, CarControllerP
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase, TorqueFromLateralAccelCallbackType, FRICTION_THRESHOLD, LatControlInputs, NanoFFModel
 from openpilot.selfdrive.controls.lib.drive_helpers import get_friction
 
+from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import get_max_allowed_accel
+
 ButtonType = car.CarState.ButtonEvent.Type
 FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
 EventName = car.CarEvent.EventName
@@ -40,7 +42,7 @@ class CarInterface(CarInterfaceBase):
   @staticmethod
   def get_pid_accel_limits(CP, current_speed, cruise_speed, frogpilot_toggles):
     if frogpilot_toggles.sport_plus:
-      return CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX_PLUS
+      return CarControllerParams.ACCEL_MIN, get_max_allowed_accel(current_speed)
     else:
       return CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX
 
@@ -112,6 +114,11 @@ class CarInterface(CarInterfaceBase):
       ret.transmissionType = TransmissionType.direct
     else:
       ret.transmissionType = TransmissionType.automatic
+
+    if params.get_bool("ExperimentalGMTune"):
+      ret.stoppingDecelRate = 0.3
+      ret.vEgoStopping = 0.15
+      ret.vEgoStarting = 0.15
 
     if use_new_api:
       ret.longitudinalTuning.kiBP = [5., 35.]
