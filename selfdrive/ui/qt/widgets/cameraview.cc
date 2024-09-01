@@ -298,6 +298,12 @@ void CameraWidget::paintGL() {
   glViewport(0, 0, glWidth(), glHeight());
   glBindVertexArray(frame_vao);
   glUseProgram(program->programId());
+
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR) {
+    qDebug() << "OpenGL error after glUseProgram: " << error;
+  }
+
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 #ifdef QCOM2

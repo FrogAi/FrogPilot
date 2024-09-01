@@ -1,7 +1,5 @@
 #pragma once
 
-#include <QComboBox>
-
 #include "selfdrive/ui/ui.h"
 
 class ModelReview : public QFrame {
@@ -9,6 +7,10 @@ class ModelReview : public QFrame {
 
 public:
   explicit ModelReview(QWidget *parent = nullptr);
+
+protected:
+  void mousePressEvent(QMouseEvent *e) override;
+  void showEvent(QShowEvent *event) override;
 
 private slots:
   void onBlacklistButtonClicked();
@@ -21,20 +23,10 @@ private:
 
   QPushButton *createButton(const QString &text, const QString &type, int rating, int width, int height);
 
-  QString processModelName(const QString &modelName);
-
   void checkBlacklistButtonVisibility();
-  void mousePressEvent(QMouseEvent *e) override;
-  void showEvent(QShowEvent *event) override;
   void updateLabel();
 
   QStackedLayout *mainLayout;
-
-  QVBoxLayout *ratingLayout;
-  QVBoxLayout *modelInfoLayout;
-
-  Params params;
-  Params paramsMemory{"/dev/shm/params"};
 
   QLabel *blacklistMessageLabel;
   QLabel *modelLabel;
@@ -45,14 +37,15 @@ private:
   QLabel *totalDrivesLabel;
   QLabel *totalOverallDrivesLabel;
 
+  QPushButton *blacklistButton;
+
+  Params params;
+  Params paramsMemory{"/dev/shm/params"};
+
   QString currentModel;
   QString currentModelFiltered;
 
   QStringList blacklistedModels;
-
-  QPushButton *blacklistButton;
-
-  QList<QPushButton*> ratingButtons;
 
   bool modelRated;
 

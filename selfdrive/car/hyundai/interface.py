@@ -75,6 +75,9 @@ class CarInterface(CarInterfaceBase):
       if 0x38d in fingerprint[0] or 0x38d in fingerprint[2]:
         ret.flags |= HyundaiFlags.USE_FCA.value
 
+      if 0x53E in fingerprint[2]:
+        ret.flags |= HyundaiFlags.LKAS12.value
+
     ret.steerActuatorDelay = 0.1  # Default delay
     ret.steerLimitTimer = 0.4
     CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
@@ -109,8 +112,14 @@ class CarInterface(CarInterfaceBase):
     # *** feature detection ***
     if candidate in CANFD_CAR:
       ret.enableBsm = 0x1e5 in fingerprint[CAN.ECAN]
+
+      if 0x1fa in fingerprint[CAN.ECAN]:
+        ret.flags |= HyundaiFlags.NAV_MSG.value
     else:
       ret.enableBsm = 0x58b in fingerprint[0]
+
+      if 0x544 in fingerprint[0]:
+        ret.flags |= HyundaiFlags.NAV_MSG.value
 
     # *** panda safety config ***
     if candidate in CANFD_CAR:

@@ -22,8 +22,6 @@ from openpilot.selfdrive.controls.lib.drive_helpers import CRUISE_LONG_PRESS, V_
 from openpilot.selfdrive.controls.lib.events import Events
 from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
 
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import get_max_allowed_accel
-
 ButtonType = car.CarState.ButtonEvent.Type
 FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
 GearShifter = car.CarState.GearShifter
@@ -266,10 +264,7 @@ class CarInterfaceBase(ABC):
 
   @staticmethod
   def get_pid_accel_limits(CP, current_speed, cruise_speed, frogpilot_toggles):
-    if frogpilot_toggles.sport_plus:
-      return ACCEL_MIN, get_max_allowed_accel(current_speed)
-    else:
-      return ACCEL_MIN, ACCEL_MAX
+    return ACCEL_MIN, ACCEL_MAX
 
   @classmethod
   def get_non_essential_params(cls, candidate: str):
@@ -423,7 +418,7 @@ class CarInterfaceBase(ABC):
     fp_ret.distanceLongPressed = self.frogpilot_distance_functions(frogpilot_toggles)
     fp_ret.ecoGear |= ret.gearShifter == GearShifter.eco
     fp_ret.sportGear |= ret.gearShifter == GearShifter.sport
-    fp_ret.trafficModeActive = frogpilot_toggles.traffic_mode and self.traffic_mode_active
+    fp_ret.trafficModeActive = self.traffic_mode_active
 
     # copy back for next iteration
     if self.CS is not None:
@@ -531,7 +526,7 @@ class CarInterfaceBase(ABC):
         self.params.put_bool("ExperimentalMode", not experimental_mode)
       self.traffic_mode_changed = False
 
-    if self.gap_counter == CRUISE_LONG_PRESS * 5 and frogpilot_toggles.traffic_mode:
+    if self.gap_counter == CRUISE_LONG_PRESS * 5:
       self.traffic_mode_active = not self.traffic_mode_active
       self.traffic_mode_changed = frogpilot_toggles.experimental_mode_via_distance
 

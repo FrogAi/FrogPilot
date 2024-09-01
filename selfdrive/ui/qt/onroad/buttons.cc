@@ -39,7 +39,6 @@ ExperimentalButton::~ExperimentalButton() {
   if (gif != nullptr) {
     gif->stop();
     delete gif;
-    gif = nullptr;
     gif_label->hide();
   }
 }
@@ -127,7 +126,6 @@ void ExperimentalButton::updateIcon() {
   if (gif != nullptr) {
     gif->stop();
     delete gif;
-    gif = nullptr;
     gif_label->hide();
   }
 
@@ -145,6 +143,7 @@ void ExperimentalButton::updateIcon() {
     image_empty = false;
   } else if (QFile::exists(wheel_png_path)) {
     img = loadPixmap(wheel_png_path, QSize(img_size, img_size));
+
     image_empty = false;
     use_gif = false;
   } else {
@@ -161,6 +160,9 @@ void ExperimentalButton::paintEvent(QPaintEvent *event) {
   }
 
   QPainter p(this);
+  if (use_stock_wheel) {
+    img = experimental_mode ? experimental_img : engage_img;
+  }
   updateBackgroundColor();
   drawIcon(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), img, background_color, (isDown() || !engageable) ? 0.6 : 1.0, steering_angle_deg);
 }
@@ -195,6 +197,7 @@ DistanceButton::DistanceButton(QWidget *parent) : QPushButton(parent) {
 
 DistanceButton::~DistanceButton() {
   qDeleteAll(profile_data_gif);
+
   profile_data_gif.clear();
   profile_data_png.clear();
 }
@@ -234,6 +237,7 @@ void DistanceButton::updateState(const UIScene &scene) {
 
 void DistanceButton::updateIcon() {
   qDeleteAll(profile_data_gif);
+
   profile_data_gif.clear();
   profile_data_png.clear();
 
@@ -248,15 +252,14 @@ void DistanceButton::updateIcon() {
     const QString &file_name = file_names[i];
     QString gif_file = file_name + ".gif";
     QString png_file = file_name + ".png";
-    QString fallback_file = QString("../frogpilot/assets/other_images/%1.png").arg(QFileInfo(file_name).baseName().toLower());
+    QString fallback_file = QString("../frogpilot/assets/stock_theme/distance_icons/%1.png").arg(QFileInfo(file_name).baseName().toLower());
 
     if (QFile::exists(gif_file)) {
       QMovie *movie = new QMovie(gif_file);
       profile_data_gif.push_back(movie);
       profile_data_png.push_back(QPixmap());
     } else {
-      int pixmap_size = btn_size * 1.25;
-      QPixmap pixmap = loadPixmap(QFile::exists(png_file) ? png_file : fallback_file, QSize(pixmap_size, pixmap_size));
+      QPixmap pixmap = loadPixmap(QFile::exists(png_file) ? png_file : fallback_file, QSize(btn_size * 1.25, btn_size * 1.25));
       profile_data_gif.push_back(nullptr);
       profile_data_png.push_back(pixmap);
     }

@@ -12,7 +12,7 @@ public:
   explicit ScreenRecorder(QWidget *parent = 0);
   ~ScreenRecorder() override;
 
-  void updateScreen();
+  void updateScreen(double fps, bool started);
 
 private:
   void closeEncoder();
@@ -23,23 +23,21 @@ private:
   void stop();
   void toggleRecording();
 
-  bool recording;
-
-  int frame;
-  int screenHeight;
-  int screenWidth;
-
-  long long started;
-
-  std::unique_ptr<OmxEncoder> encoder;
-  std::unique_ptr<uint8_t[]> rgbScaleBuffer;
-
-  std::thread encodingThread;
-
-  BlockingQueue<QImage> imageQueue{30};
+  BlockingQueue<QImage> imageQueue{UI_FREQ};
+  BlockingQueue<QImage> encodeQueue{UI_FREQ};
 
   QWidget *rootWidget;
 
-  QPixmap recorderIcon;
-  QPixmap recordingIcon;
+  bool recording;
+
+  int screenHeight = 1080;
+  int screenWidth = 2160;
+
+  long long started_time;
+
+  std::thread encodingThread;
+
+  std::unique_ptr<OmxEncoder> encoder;
+
+  std::unique_ptr<uint8_t[]> rgbScaleBuffer;
 };

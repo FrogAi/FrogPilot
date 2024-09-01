@@ -5,7 +5,7 @@ import math
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
 
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import FrogPilotVariables
+from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
 
 R = 6373000.0  # approximate radius of earth in meters
 TO_RADIANS = math.pi / 180
@@ -76,7 +76,7 @@ class SpeedLimitController:
 
   @property
   def experimental_mode(self):
-    return self.speed_limit == 0 and self.frogpilot_toggles.use_experimental_mode
+    return self.speed_limit == 0 and self.frogpilot_toggles.slc_fallback_experimental
 
   @property
   def desired_speed_limit(self):
@@ -119,7 +119,7 @@ class SpeedLimitController:
       if speed_limits.get(priority, 0) in filtered_limits:
         return speed_limits[priority]
 
-    if self.frogpilot_toggles.use_previous_limit:
+    if self.frogpilot_toggles.slc_fallback_previous:
       return self.prv_speed_limit
 
     if self.frogpilot_toggles.use_set_speed:

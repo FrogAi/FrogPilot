@@ -13,7 +13,7 @@ from openpilot.common.swaglog import cloudlog
 
 from openpilot.common.simple_kalman import KF1D
 
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import FrogPilotVariables
+from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
 
 # Default lead acceleration decay set to 50% at 1s
 _LEAD_ACCEL_TAU = 1.5
@@ -216,7 +216,8 @@ class RadarD:
     self.frogpilot_toggles = FrogPilotVariables.toggles
     FrogPilotVariables.update_frogpilot_params()
 
-    self.e2e_longitudinal_model = self.frogpilot_toggles.clairvoyant_model or self.frogpilot_toggles.secretgoodopenpilot_model
+    self.velocity_model = self.frogpilot_toggles.velocity_model
+
     self.update_toggles = False
 
   def update(self, sm: messaging.SubMaster, rr):
@@ -262,7 +263,9 @@ class RadarD:
     self.radar_state.radarErrors = list(radar_errors)
     self.radar_state.carStateMonoTime = sm.logMonoTime['carState']
 
-    if len(sm['modelV2'].temporalPose.trans) and not self.e2e_longitudinal_model:
+    if self.velocity_model and len(sm['modelV2'].velocity.x):
+      model_v_ego = sm['modelV2'].velocity.x[0]
+    elif len(sm['modelV2'].temporalPose.trans):
       model_v_ego = sm['modelV2'].temporalPose.trans[0]
     else:
       model_v_ego = self.v_ego

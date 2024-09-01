@@ -9,7 +9,8 @@ from openpilot.common.realtime import DT_MDL
 from openpilot.selfdrive.controls.controlsd import Desire
 from openpilot.selfdrive.controls.lib.events import EventName, Events
 
-from openpilot.selfdrive.frogpilot.controls.lib.theme_manager import update_wheel_image
+from openpilot.selfdrive.frogpilot.assets.theme_manager import update_wheel_image
+from openpilot.selfdrive.frogpilot.frogpilot_variables import CRUISING_SPEED
 
 class FrogPilotEvents:
   def __init__(self, FrogPilotPlanner):
@@ -33,6 +34,7 @@ class FrogPilotEvents:
     self.random_event_played = False
     self.stopped_for_light = False
     self.vCruise69_played = False
+    self.youveGotMail_played = False
 
     self.frame = 0
     self.max_acceleration = 0
@@ -46,7 +48,7 @@ class FrogPilotEvents:
     if self.random_event_played:
       self.random_event_timer += DT_MDL
       if self.random_event_timer >= 4:
-        update_wheel_image(frogpilot_toggles.wheel_image, None, False)
+        update_wheel_image(frogpilot_toggles.wheel_image, frogpilot_toggles.current_holiday_theme, False)
         self.params_memory.put_bool("UpdateWheelImage", True)
         self.random_event_played = False
         self.random_event_timer = 0
@@ -124,7 +126,7 @@ class FrogPilotEvents:
         if not self.goat_played:
           event_choices.append("goatSteerSaturated")
 
-        if event_choices and self.frame % (100 // len(event_choices)) == 0:
+        if self.frame % 100 == 0 and event_choices:
           event_choice = random.choice(event_choices)
           if event_choice == "firefoxSteerSaturated":
             self.events.add(EventName.firefoxSteerSaturated)
@@ -147,6 +149,13 @@ class FrogPilotEvents:
         self.events.add(EventName.yourFrogTriedToKillMe)
         self.fcw_played = True
         self.random_event_played = True
+
+      if not self.youveGotMail_played and frogpilotCarControl.alwaysOnLateralActive and not self.always_on_lateral_active_previously:
+        if random.random() < 0.01 and carState.vEgo > CRUISING_SPEED:
+          self.events.add(EventName.youveGotMail)
+          self.youveGotMail_played = True
+          self.random_event_played = True
+      self.always_on_lateral_active_previously = frogpilotCarControl.alwaysOnLateralActive
 
     if frogpilot_toggles.speed_limit_alert and self.frogpilot_planner.frogpilot_vcruise.speed_limit_changed:
       self.events.add(EventName.speedLimitChanged)

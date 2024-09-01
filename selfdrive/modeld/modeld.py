@@ -7,6 +7,7 @@ import cereal.messaging as messaging
 from cereal import car, log
 from pathlib import Path
 from setproctitle import setproctitle
+from types import SimpleNamespace
 from cereal.messaging import PubMaster, SubMaster
 from msgq.visionipc import VisionIpcClient, VisionStreamType, VisionBuf
 from openpilot.common.swaglog import cloudlog
@@ -24,36 +25,18 @@ from openpilot.selfdrive.modeld.fill_model_msg import fill_model_msg, fill_pose_
 from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.selfdrive.modeld.models.commonmodel_pyx import ModelFrame, CLContext
 
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import FrogPilotVariables
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import MODELS_PATH
-from openpilot.selfdrive.frogpilot.controls.lib.model_manager import DEFAULT_MODEL
-
-frogpilot_toggles = FrogPilotVariables.toggles
+from openpilot.selfdrive.frogpilot.frogpilot_functions import MODELS_PATH
+from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
 
 PROCESS_NAME = "selfdrive.modeld.modeld"
 SEND_RAW_PRED = os.getenv('SEND_RAW_PRED')
 
-MODEL_NAME = frogpilot_toggles.model
-
-CLAIRVOYANT_MODEL = frogpilot_toggles.clairvoyant_model
-DISABLE_NAV = frogpilot_toggles.navigationless_model
-DISABLE_RADAR = frogpilot_toggles.radarless_model
-SECRET_GOOD_OPENPILOT = frogpilot_toggles.secretgoodopenpilot_model
-
 MODEL_PATHS = {
-  ModelRunner.THNEED: Path(__file__).parent / ('models/supercombo.thneed' if MODEL_NAME == DEFAULT_MODEL else f'{MODELS_PATH}/{MODEL_NAME}.thneed'),
+  ModelRunner.THNEED: Path(__file__).parent / 'models/supercombo.thneed',
   ModelRunner.ONNX: Path(__file__).parent / 'models/supercombo.onnx'}
 
-metadata_file = (
-  'secret-good-openpilot_metadata.pkl' if SECRET_GOOD_OPENPILOT else
-  'clairvoyant-driver_metadata.pkl' if CLAIRVOYANT_MODEL else
-  'supercombo_metadata.pkl'
-)
-METADATA_PATH = Path(__file__).parent / f'models/{metadata_file}'
+METADATA_PATH = Path(__file__).parent / 'models/supercombo_metadata.pkl'
 
-MODEL_WIDTH = 512
-MODEL_HEIGHT = 256
-MODEL_FRAME_SIZE = MODEL_WIDTH * MODEL_HEIGHT * 3 // 2
 
 class FrameMeta:
   frame_id: int = 0
@@ -72,27 +55,27 @@ class ModelState:
   prev_desire: np.ndarray  # for tracking the rising edge of the pulse
   model: ModelRunner
 
-  def __init__(self, context: CLContext):
+  def __init__(self, context: CLContext, frogpilot_toggles: SimpleNamespace):
+    # FrogPilot variables
+    model_path = Path(__file__).parent / f'{MODELS_PATH}/{frogpilot_toggles.model}.thneed'
+    if model_path.exists():
+      MODEL_PATHS[ModelRunner.THNEED] = model_path
+
     self.frame = ModelFrame(context)
     self.wide_frame = ModelFrame(context)
     self.prev_desire = np.zeros(ModelConstants.DESIRE_LEN, dtype=np.float32)
     self.full_features_20Hz = np.zeros((ModelConstants.FULL_HISTORY_BUFFER_LEN, ModelConstants.FEATURE_LEN), dtype=np.float32)
     self.desire_20Hz =  np.zeros((ModelConstants.FULL_HISTORY_BUFFER_LEN + 1, ModelConstants.DESIRE_LEN), dtype=np.float32)
+    self.prev_desired_curv_20hz = np.zeros((ModelConstants.FULL_HISTORY_BUFFER_LEN + 1, ModelConstants.PREV_DESIRED_CURV_LEN), dtype=np.float32)
+
+    # img buffers are managed in openCL transform code
     self.inputs = {
-      'desire': np.zeros(ModelConstants.DESIRE_LEN * (ModelConstants.HISTORY_BUFFER_LEN_SECRET+1 if SECRET_GOOD_OPENPILOT else ModelConstants.HISTORY_BUFFER_LEN+1), dtype=np.float32),
+      'desire': np.zeros(ModelConstants.DESIRE_LEN * (ModelConstants.HISTORY_BUFFER_LEN+1), dtype=np.float32),
       'traffic_convention': np.zeros(ModelConstants.TRAFFIC_CONVENTION_LEN, dtype=np.float32),
       'lateral_control_params': np.zeros(ModelConstants.LATERAL_CONTROL_PARAMS_LEN, dtype=np.float32),
       'prev_desired_curv': np.zeros(ModelConstants.PREV_DESIRED_CURV_LEN * (ModelConstants.HISTORY_BUFFER_LEN+1), dtype=np.float32),
-      **({'nav_features': np.zeros(ModelConstants.NAV_FEATURE_LEN, dtype=np.float32),
-          'nav_instructions': np.zeros(ModelConstants.NAV_INSTRUCTION_LEN, dtype=np.float32)} if not DISABLE_NAV else {}),
-      'features_buffer': np.zeros((ModelConstants.HISTORY_BUFFER_LEN_SECRET if SECRET_GOOD_OPENPILOT else ModelConstants.HISTORY_BUFFER_LEN) * ModelConstants.FEATURE_LEN, dtype=np.float32),
-      **({'radar_tracks': np.zeros(ModelConstants.RADAR_TRACKS_LEN * ModelConstants.RADAR_TRACKS_WIDTH, dtype=np.float32)} if DISABLE_RADAR else {}),
+      'features_buffer': np.zeros(ModelConstants.HISTORY_BUFFER_LEN * ModelConstants.FEATURE_LEN, dtype=np.float32),
     }
-
-    self.input_imgs_20hz = np.zeros(MODEL_FRAME_SIZE*5, dtype=np.float32)
-    self.big_input_imgs_20hz = np.zeros(MODEL_FRAME_SIZE*5, dtype=np.float32)
-    self.input_imgs = np.zeros(MODEL_FRAME_SIZE*2, dtype=np.float32)
-    self.big_input_imgs = np.zeros(MODEL_FRAME_SIZE*2, dtype=np.float32)
 
     with open(METADATA_PATH, 'rb') as f:
       model_metadata = pickle.load(f)
@@ -118,69 +101,45 @@ class ModelState:
                 inputs: dict[str, np.ndarray], prepare_only: bool) -> dict[str, np.ndarray] | None:
     # Model decides when action is completed, so desire input is just a pulse triggered on rising edge
     inputs['desire'][0] = 0
-
-    if SECRET_GOOD_OPENPILOT:
-      new_desire = np.where(inputs['desire'] - self.prev_desire > .99, inputs['desire'], 0)
-      self.desire_20Hz[:-1] = self.desire_20Hz[1:]
-      self.desire_20Hz[-1] = new_desire
-      self.inputs['desire'][:] = self.desire_20Hz.reshape((25,4,-1)).max(axis=1).flatten()
-    else:
-      self.inputs['desire'][:-ModelConstants.DESIRE_LEN] = self.inputs['desire'][ModelConstants.DESIRE_LEN:]
-      self.inputs['desire'][-ModelConstants.DESIRE_LEN:] = np.where(inputs['desire'] - self.prev_desire > .99, inputs['desire'], 0)
-
+    new_desire = np.where(inputs['desire'] - self.prev_desire > .99, inputs['desire'], 0)
     self.prev_desire[:] = inputs['desire']
+
+    self.desire_20Hz[:-1] = self.desire_20Hz[1:]
+    self.desire_20Hz[-1] = new_desire
+    self.inputs['desire'][:] = self.desire_20Hz.reshape((25,4,-1)).max(axis=1).flatten()
 
     self.inputs['traffic_convention'][:] = inputs['traffic_convention']
     self.inputs['lateral_control_params'][:] = inputs['lateral_control_params']
 
-    if not DISABLE_NAV:
-      self.inputs['nav_features'][:] = inputs['nav_features']
-      self.inputs['nav_instructions'][:] = inputs['nav_instructions']
-
-    if DISABLE_RADAR:
-      self.inputs['radar_tracks'][:] = inputs['radar_tracks']
-
-    if SECRET_GOOD_OPENPILOT:
-      new_img = self.frame.prepareSecret(buf, transform.flatten(), self.model.getCLBuffer("input_imgs"))
-      self.input_imgs_20hz[:-MODEL_FRAME_SIZE] = self.input_imgs_20hz[MODEL_FRAME_SIZE:]
-      self.input_imgs_20hz[-MODEL_FRAME_SIZE:] = new_img
-      self.input_imgs[:MODEL_FRAME_SIZE] = self.input_imgs_20hz[:MODEL_FRAME_SIZE]
-      self.input_imgs[MODEL_FRAME_SIZE:] = self.input_imgs_20hz[-MODEL_FRAME_SIZE:]
-      self.model.setInputBuffer("input_imgs", self.input_imgs)
-      if wbuf is not None:
-        new_big_img = self.wide_frame.prepareSecret(wbuf, transform_wide.flatten(), self.model.getCLBuffer("big_input_imgs"))
-        self.big_input_imgs_20hz[:-MODEL_FRAME_SIZE] = self.big_input_imgs_20hz[MODEL_FRAME_SIZE:]
-        self.big_input_imgs_20hz[-MODEL_FRAME_SIZE:] = new_big_img
-        self.big_input_imgs[:MODEL_FRAME_SIZE] = self.big_input_imgs_20hz[:MODEL_FRAME_SIZE]
-        self.big_input_imgs[MODEL_FRAME_SIZE:] = self.big_input_imgs_20hz[-MODEL_FRAME_SIZE:]
-        self.model.setInputBuffer("big_input_imgs", self.big_input_imgs)
-    else:
-      # if getCLBuffer is not None, frame will be None
-      self.model.setInputBuffer("input_imgs", self.frame.prepare(buf, transform.flatten(), self.model.getCLBuffer("input_imgs")))
-      if wbuf is not None:
-        self.model.setInputBuffer("big_input_imgs", self.wide_frame.prepare(wbuf, transform_wide.flatten(), self.model.getCLBuffer("big_input_imgs")))
+    self.model.setInputBuffer("input_imgs", self.frame.prepare(buf, transform.flatten(), self.model.getCLBuffer("input_imgs")))
+    self.model.setInputBuffer("big_input_imgs", self.wide_frame.prepare(wbuf, transform_wide.flatten(), self.model.getCLBuffer("big_input_imgs")))
 
     if prepare_only:
       return None
 
     self.model.execute()
-    outputs = self.parser.parse_outputs(self.slice_outputs(self.output), CLAIRVOYANT_MODEL, SECRET_GOOD_OPENPILOT)
+    outputs = self.parser.parse_outputs(self.slice_outputs(self.output))
 
-    if SECRET_GOOD_OPENPILOT:
-      self.full_features_20Hz[:-1] = self.full_features_20Hz[1:]
-      self.full_features_20Hz[-1] = outputs['hidden_state'][0, :]
-      idxs = np.arange(-4,-100,-4)[::-1]
-      self.inputs['features_buffer'][:] = self.full_features_20Hz[idxs].flatten()
-    else:
-      self.inputs['features_buffer'][:-ModelConstants.FEATURE_LEN] = self.inputs['features_buffer'][ModelConstants.FEATURE_LEN:]
-      self.inputs['features_buffer'][-ModelConstants.FEATURE_LEN:] = outputs['hidden_state'][0, :]
+    self.full_features_20Hz[:-1] = self.full_features_20Hz[1:]
+    self.full_features_20Hz[-1] = outputs['hidden_state'][0, :]
 
-    self.inputs['prev_desired_curv'][:-ModelConstants.PREV_DESIRED_CURV_LEN] = self.inputs['prev_desired_curv'][ModelConstants.PREV_DESIRED_CURV_LEN:]
-    self.inputs['prev_desired_curv'][-ModelConstants.PREV_DESIRED_CURV_LEN:] = outputs['desired_curvature'][0, :]
+    self.prev_desired_curv_20hz[:-1] = self.prev_desired_curv_20hz[1:]
+    self.prev_desired_curv_20hz[-1] = outputs['desired_curvature'][0, :]
+
+    idxs = np.arange(-4,-100,-4)[::-1]
+    self.inputs['features_buffer'][:] = self.full_features_20Hz[idxs].flatten()
+    # TODO model only uses last value now, once that changes we need to input strided action history buffer
+    self.inputs['prev_desired_curv'][-ModelConstants.PREV_DESIRED_CURV_LEN:] = 0. * self.prev_desired_curv_20hz[-4, :]
     return outputs
 
 
 def main(demo=False):
+  # FrogPilot variables
+  frogpilot_toggles = FrogPilotVariables.toggles
+  FrogPilotVariables.update_frogpilot_params()
+
+  update_toggles = False
+
   cloudlog.warning("modeld init")
 
   sentry.set_tag("daemon", PROCESS_NAME)
@@ -191,7 +150,7 @@ def main(demo=False):
   cloudlog.warning("setting up CL context")
   cl_context = CLContext()
   cloudlog.warning("CL context ready; loading model")
-  model = ModelState(cl_context)
+  model = ModelState(cl_context, frogpilot_toggles)
   cloudlog.warning("models loaded, modeld starting")
 
   # visionipc clients
@@ -218,8 +177,8 @@ def main(demo=False):
     cloudlog.warning(f"connected extra cam with buffer size: {vipc_client_extra.buffer_len} ({vipc_client_extra.width} x {vipc_client_extra.height})")
 
   # messaging
-  pm = PubMaster(["modelV2", "cameraOdometry"])
-  sm = SubMaster(["deviceState", "carState", "roadCameraState", "liveCalibration", "driverMonitoringState", "navModel", "navInstruction", "carControl", "liveTracks", "frogpilotPlan"])
+  pm = PubMaster(["modelV2", "drivingModelData", "cameraOdometry"])
+  sm = SubMaster(["deviceState", "carState", "roadCameraState", "liveCalibration", "driverMonitoringState", "carControl", "frogpilotPlan"])
 
   publish_state = PublishState()
   params = Params()
@@ -233,8 +192,6 @@ def main(demo=False):
   model_transform_main = np.zeros((3, 3), dtype=np.float32)
   model_transform_extra = np.zeros((3, 3), dtype=np.float32)
   live_calib_seen = False
-  nav_features = np.zeros(ModelConstants.NAV_FEATURE_LEN, dtype=np.float32)
-  nav_instructions = np.zeros(ModelConstants.NAV_INSTRUCTION_LEN, dtype=np.float32)
   buf_main, buf_extra = None, None
   meta_main = FrameMeta()
   meta_extra = FrameMeta()
@@ -245,15 +202,12 @@ def main(demo=False):
   else:
     with car.CarParams.from_bytes(params.get("CarParams", block=True)) as msg:
       CP = msg
-  cloudlog.info("modeld got CarParams: %s", CP.carName)
+  cloudlog.info("classic_modeld got CarParams: %s", CP.carName)
 
   # TODO this needs more thought, use .2s extra for now to estimate other delays
   steer_delay = CP.steerActuatorDelay + .2
 
   DH = DesireHelper()
-
-  # FrogPilot variables
-  update_toggles = False
 
   while True:
     # Keep receiving frames until we are at least 1 frame ahead of previous extra frame
@@ -292,7 +246,8 @@ def main(demo=False):
     desire = DH.desire
     is_rhd = sm["driverMonitoringState"].isRHD
     frame_id = sm["roadCameraState"].frameId
-    lateral_control_params = np.array([sm["carState"].vEgo, steer_delay], dtype=np.float32)
+    v_ego = max(sm["carState"].vEgo, 0.)
+    lateral_control_params = np.array([v_ego, steer_delay], dtype=np.float32)
     if sm.updated["liveCalibration"] and sm.seen['roadCameraState'] and sm.seen['deviceState']:
       device_from_calib_euler = np.array(sm["liveCalibration"].rpyCalib, dtype=np.float32)
       dc = DEVICE_CAMERAS[(str(sm['deviceState'].deviceType), str(sm['roadCameraState'].sensor))]
@@ -306,38 +261,6 @@ def main(demo=False):
     vec_desire = np.zeros(ModelConstants.DESIRE_LEN, dtype=np.float32)
     if desire >= 0 and desire < ModelConstants.DESIRE_LEN:
       vec_desire[desire] = 1
-
-    # Enable/disable nav features
-    timestamp_llk = sm["navModel"].locationMonoTime
-    nav_valid = sm.valid["navModel"] # and (nanos_since_boot() - timestamp_llk < 1e9)
-    nav_enabled = nav_valid and not DISABLE_NAV
-
-    if not nav_enabled:
-      nav_features[:] = 0
-      nav_instructions[:] = 0
-
-    if nav_enabled and sm.updated["navModel"]:
-      nav_features = np.array(sm["navModel"].features)
-
-    if nav_enabled and sm.updated["navInstruction"]:
-      nav_instructions[:] = 0
-      for maneuver in sm["navInstruction"].allManeuvers:
-        distance_idx = 25 + int(maneuver.distance / 20)
-        direction_idx = 0
-        if maneuver.modifier in ("left", "slight left", "sharp left"):
-          direction_idx = 1
-        if maneuver.modifier in ("right", "slight right", "sharp right"):
-          direction_idx = 2
-        if 0 <= distance_idx < 50:
-          nav_instructions[distance_idx*3 + direction_idx] = 1
-
-    radar_tracks = np.zeros(ModelConstants.RADAR_TRACKS_LEN * ModelConstants.RADAR_TRACKS_WIDTH, dtype=np.float32)
-    if sm.updated["liveTracks"]:
-      for i, track in enumerate(sm["liveTracks"]):
-        if i >= ModelConstants.RADAR_TRACKS_LEN:
-          break
-        vec_index = i * ModelConstants.RADAR_TRACKS_WIDTH
-        radar_tracks[vec_index:vec_index+ModelConstants.RADAR_TRACKS_WIDTH] = [track.dRel, track.yRel, track.vRel]
 
     # tracked dropped frames
     vipc_dropped_frames = max(0, meta_main.frame_id - last_vipc_frame_id - 1)
@@ -356,9 +279,7 @@ def main(demo=False):
       'desire': vec_desire,
       'traffic_convention': traffic_convention,
       'lateral_control_params': lateral_control_params,
-      **({'nav_features': nav_features, 'nav_instructions': nav_instructions} if not DISABLE_NAV else {}),
-      **({'radar_tracks': radar_tracks,} if DISABLE_RADAR else {}),
-    }
+      }
 
     mt1 = time.perf_counter()
     model_output = model.run(buf_main, buf_extra, model_transform_main, model_transform_extra, inputs, prepare_only)
@@ -367,10 +288,10 @@ def main(demo=False):
 
     if model_output is not None:
       modelv2_send = messaging.new_message('modelV2')
+      drivingdata_send = messaging.new_message('drivingModelData')
       posenet_send = messaging.new_message('cameraOdometry')
-      fill_model_msg(modelv2_send, model_output, publish_state, meta_main.frame_id, meta_extra.frame_id, frame_id, frame_drop_ratio,
-                     meta_main.timestamp_eof, timestamp_llk, model_execution_time, live_calib_seen, nav_enabled,
-                     CLAIRVOYANT_MODEL, SECRET_GOOD_OPENPILOT)
+      fill_model_msg(drivingdata_send, modelv2_send, model_output, publish_state, meta_main.frame_id, meta_extra.frame_id, frame_id,
+                     frame_drop_ratio, meta_main.timestamp_eof, model_execution_time, live_calib_seen)
 
       desire_state = modelv2_send.modelV2.meta.desireState
       l_lane_change_prob = desire_state[log.Desire.laneChangeLeft]
@@ -379,10 +300,12 @@ def main(demo=False):
       DH.update(sm['carState'], sm['carControl'].latActive, lane_change_prob, sm['frogpilotPlan'], frogpilot_toggles)
       modelv2_send.modelV2.meta.laneChangeState = DH.lane_change_state
       modelv2_send.modelV2.meta.laneChangeDirection = DH.lane_change_direction
-      modelv2_send.modelV2.meta.turnDirection = DH.turn_direction
+      drivingdata_send.drivingModelData.meta.laneChangeState = DH.lane_change_state
+      drivingdata_send.drivingModelData.meta.laneChangeDirection = DH.lane_change_direction
 
       fill_pose_msg(posenet_send, model_output, meta_main.frame_id, vipc_dropped_frames, meta_main.timestamp_eof, live_calib_seen)
       pm.send('modelV2', modelv2_send)
+      pm.send('drivingModelData', drivingdata_send)
       pm.send('cameraOdometry', posenet_send)
 
     last_vipc_frame_id = meta_main.frame_id

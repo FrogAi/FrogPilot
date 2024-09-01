@@ -65,7 +65,7 @@ public:
 
 private:
   LabelControl* ipLabel;
-  FrogPilotButtonParamControl* tetheringToggle;
+  ButtonParamControl* tetheringToggle;
   ToggleControl* roamingToggle;
   ButtonControl* editApnButton;
   ButtonControl* hiddenNetworkButton;

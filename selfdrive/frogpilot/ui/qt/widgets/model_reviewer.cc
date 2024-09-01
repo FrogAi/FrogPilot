@@ -3,7 +3,7 @@
 ModelReview::ModelReview(QWidget *parent) : QFrame(parent) {
   mainLayout = new QStackedLayout(this);
 
-  ratingLayout = new QVBoxLayout();
+  QVBoxLayout *ratingLayout = new QVBoxLayout();
   ratingLayout->setContentsMargins(50, 25, 50, 20);
 
   questionLabel = addLabel(ratingLayout, "What would you rate that drive?", "question");
@@ -14,30 +14,27 @@ ModelReview::ModelReview(QWidget *parent) : QFrame(parent) {
 
   for (int i = 0; i < emojis.size(); ++i) {
     QPushButton *ratingButton = createButton(emojis[i], "rating_button", scores[i], 150, 150);
-    connect(ratingButton, &QPushButton::clicked, this, &ModelReview::onRatingButtonClicked);
-    ratingButtons.append(ratingButton);
     ratingButtonsLayout->addWidget(ratingButton);
+    QObject::connect(ratingButton, &QPushButton::clicked, this, &ModelReview::onRatingButtonClicked);
   }
 
   ratingLayout->addLayout(ratingButtonsLayout);
 
   blacklistButton = createButton("Blacklist this model", "blacklist_button", 0, 600, 100);
-  connect(blacklistButton, &QPushButton::clicked, this, &ModelReview::onBlacklistButtonClicked);
+  QObject::connect(blacklistButton, &QPushButton::clicked, this, &ModelReview::onBlacklistButtonClicked);
   ratingLayout->addWidget(blacklistButton, 0, Qt::AlignCenter);
 
   QWidget *ratingWidget = new QWidget(this);
   ratingWidget->setLayout(ratingLayout);
-
   mainLayout->addWidget(ratingWidget);
 
-  modelInfoLayout = new QVBoxLayout();
+  QVBoxLayout *modelInfoLayout = new QVBoxLayout();
   modelInfoLayout->setContentsMargins(50, 25, 50, 20);
 
   titleLabel = addLabel(modelInfoLayout, "The model used during that drive was:", "title");
   modelLabel = addLabel(modelInfoLayout, "", "model");
 
-  QSpacerItem *spacer = new QSpacerItem(20, 75, QSizePolicy::Minimum, QSizePolicy::Fixed);
-  modelInfoLayout->addItem(spacer);
+  modelInfoLayout->addItem(new QSpacerItem(20, 75, QSizePolicy::Minimum, QSizePolicy::Fixed));
 
   QVBoxLayout *bottomLayout = new QVBoxLayout();
   modelScoreLabel = addLabel(bottomLayout, "Current Model Score: 0", "score");
@@ -50,7 +47,6 @@ ModelReview::ModelReview(QWidget *parent) : QFrame(parent) {
 
   QWidget *modelInfoWidget = new QWidget(this);
   modelInfoWidget->setLayout(modelInfoLayout);
-
   mainLayout->addWidget(modelInfoWidget);
 
   setStyleSheet(R"(
@@ -117,11 +113,7 @@ void ModelReview::showEvent(QShowEvent *event) {
   currentModel = QString::fromStdString(paramsMemory.get("CurrentModelName"));
   currentModelFiltered = processModelName(currentModel);
 
-  if (modelRated) {
-    mainLayout->setCurrentIndex(1);
-  } else {
-    mainLayout->setCurrentIndex(0);
-  }
+  mainLayout->setCurrentIndex(modelRated ? 1 : 0);
 
   checkBlacklistButtonVisibility();
 }
@@ -135,15 +127,15 @@ void ModelReview::mousePressEvent(QMouseEvent *e) {
 }
 
 void ModelReview::updateLabel() {
-  modelLabel->setText(currentModel.remove(QRegularExpression("[🗺️👀📡]")).remove(QRegularExpression(" \\(Default\\)")));
-  modelScoreLabel->setText(QString("Current Model Score: %1").arg(finalRating));
   totalDrivesLabel->setText(QString("Total Model Drives: %1").arg(totalDrives));
+  modelLabel->setText(currentModel.remove(QRegularExpression("[🗺️👀📡]")).remove(QRegularExpression(" \\(Default\\)")));
   modelRankLabel->setText(QString("Current Model Rank: %1").arg(getModelRank()));
+  modelScoreLabel->setText(QString("Current Model Score: %1").arg(finalRating));
   totalOverallDrivesLabel->setText(QString("Total Overall Drives: %1").arg(totalOverallDrives));
 
   mainLayout->setCurrentIndex(1);
 
-  QTimer::singleShot(30000, this, [this]() {
+  QTimer::singleShot(30000, [this]() {
     paramsMemory.putBool("DriveRated", true);
     modelRated = false;
   });
@@ -152,30 +144,28 @@ void ModelReview::updateLabel() {
 void ModelReview::onRatingButtonClicked() {
   int newRating = qobject_cast<QPushButton*>(sender())->property("rating").toInt();
 
-  QString drivesParam = QString("%1Drives").arg(currentModelFiltered);
-  std::string drivesParamStd = drivesParam.toStdString();
-  totalDrives = params.getInt(drivesParamStd) + 1;
+  totalDrives = params.getInt((QString("%1Drives").arg(currentModelFiltered)).toStdString()) + 1;
 
-  QString ratingParam = QString("%1Score").arg(currentModelFiltered);
-  std::string ratingParamStd = ratingParam.toStdString();
-  int currentRating = params.getInt(ratingParamStd);
-
+  int currentRating = params.getInt((QString("%1Score").arg(currentModelFiltered)).toStdString());
   finalRating = (currentRating * (totalDrives - 1) + newRating) / totalDrives;
 
-  params.putIntNonBlocking(drivesParamStd, totalDrives);
-  params.putIntNonBlocking(ratingParamStd, finalRating);
+  params.putInt((QString("%1Drives").arg(currentModelFiltered)).toStdString(), totalDrives);
+  params.putInt((QString("%1Score").arg(currentModelFiltered)).toStdString(), finalRating);
 
   modelRated = true;
-
   updateLabel();
 }
 
 void ModelReview::onBlacklistButtonClicked() {
-  params.putIntNonBlocking(QString("%1Score").arg(currentModelFiltered).toStdString(), 0);
+  params.putInt(QString("%1Score").arg(currentModelFiltered).toStdString(), 0);
+
+  totalDrives = params.getInt((QString("%1Drives").arg(currentModelFiltered)).toStdString()) + 1;
+
+  params.putInt((QString("%1Drives").arg(currentModelFiltered)).toStdString(), totalDrives);
 
   if (!blacklistedModels.contains(currentModel)) {
     blacklistedModels.append(currentModel);
-    params.putNonBlocking("BlacklistedModels", blacklistedModels.join(",").toStdString());
+    params.put("BlacklistedModels", blacklistedModels.join(",").toStdString());
   }
 
   blacklistMessageLabel->setText("Model successfully blacklisted!");
@@ -185,15 +175,8 @@ void ModelReview::onBlacklistButtonClicked() {
 void ModelReview::checkBlacklistButtonVisibility() {
   QStringList availableModels = QString::fromStdString(params.get("AvailableModels")).split(",");
   blacklistedModels = QString::fromStdString(params.get("BlacklistedModels")).split(",", QString::SkipEmptyParts);
-  QStringList selectableModels;
 
-  for (const QString &model : availableModels) {
-    if (!blacklistedModels.contains(model)) {
-      selectableModels.append(model);
-    }
-  }
-
-  blacklistButton->setVisible(selectableModels.size() > 1);
+  blacklistButton->setVisible(availableModels.size() > blacklistedModels.size());
 }
 
 int ModelReview::getModelRank() {
@@ -201,35 +184,27 @@ int ModelReview::getModelRank() {
   QList<QPair<QString, int>> modelScores;
   totalOverallDrives = 0;
 
-  for (const QString &model : availableModels) {
-    QString scoreParam = QString("%1Score").arg(processModelName(model));
-    int modelScore = params.getInt(scoreParam.toStdString());
+  for (QString &model : availableModels) {
+    QString processedModel = processModelName(model);
+    int modelDrives = params.getInt((QString("%1Drives").arg(processedModel)).toStdString());
+    int modelScore = params.getInt((QString("%1Score").arg(processedModel)).toStdString());
 
-    QString drivesParam = QString("%1Drives").arg(processModelName(model));
-    int modelDrives = params.getInt(drivesParam.toStdString());
     totalOverallDrives += modelDrives;
 
-    modelScores.append(qMakePair(processModelName(model), modelScore));
+    if (modelScore > 0) {
+      modelScores.append(qMakePair(processedModel, modelScore));
+    }
   }
 
-  std::sort(modelScores.begin(), modelScores.end(), [](const QPair<QString, int> &a, const QPair<QString, int> &b) {
+  std::sort(modelScores.begin(), modelScores.end(), [](QPair<QString, int> &a, QPair<QString, int> &b) {
     return a.second > b.second;
   });
 
-  QString processedCurrentModel = processModelName(currentModel);
   for (int i = 0; i < modelScores.size(); ++i) {
-    if (modelScores[i].first == processedCurrentModel) {
+    if (modelScores[i].first == currentModelFiltered) {
       return i + 1;
     }
   }
 
-  return -1;
-}
-
-QString ModelReview::processModelName(const QString &modelName) {
-  QString modelCleaned = modelName;
-  modelCleaned = modelCleaned.remove(QRegularExpression("[🗺️👀📡]")).simplified();
-  QString scoreParam = modelCleaned.remove(QRegularExpression("[^a-zA-Z0-9()-]")).replace(" ", "").simplified();
-  scoreParam = scoreParam.replace("(Default)", "").replace("-", "");
-  return scoreParam;
+  return 1;
 }

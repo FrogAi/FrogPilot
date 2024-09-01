@@ -9,9 +9,12 @@ import traceback
 from cereal import log
 import cereal.messaging as messaging
 import openpilot.system.sentry as sentry
+from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params, ParamKeyType
 from openpilot.common.text_window import TextWindow
+from openpilot.selfdrive.controls.lib.desire_helper import LANE_CHANGE_SPEED_MIN
 from openpilot.system.hardware import HARDWARE, PC
+from openpilot.system.hardware.power_monitoring import VBATT_PAUSE_CHARGING
 from openpilot.system.manager.helpers import unblock_stdout, write_onroad_params, save_bootlog
 from openpilot.system.manager.process import ensure_running
 from openpilot.system.manager.process_config import managed_processes
@@ -19,8 +22,8 @@ from openpilot.system.athena.registration import register, UNREGISTERED_DONGLE_I
 from openpilot.common.swaglog import cloudlog, add_file_handler
 from openpilot.system.version import get_build_metadata, terms_version, training_version
 
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import convert_params, frogpilot_boot_functions, setup_frogpilot, uninstall_frogpilot
-from openpilot.selfdrive.frogpilot.controls.lib.model_manager import DEFAULT_MODEL, DEFAULT_MODEL_NAME
+from openpilot.selfdrive.frogpilot.assets.model_manager import DEFAULT_MODEL, DEFAULT_MODEL_NAME
+from openpilot.selfdrive.frogpilot.frogpilot_functions import convert_params, frogpilot_boot_functions, setup_frogpilot, uninstall_frogpilot
 
 
 def manager_init() -> None:
@@ -28,9 +31,10 @@ def manager_init() -> None:
 
   build_metadata = get_build_metadata()
 
-  setup_frogpilot(build_metadata)
-
   params = Params()
+
+  setup_frogpilot(build_metadata, params)
+
   params_storage = Params("/persist/params")
   params.clear_all(ParamKeyType.CLEAR_ON_MANAGER_START)
   params.clear_all(ParamKeyType.CLEAR_ON_ONROAD_TRANSITION)
@@ -69,10 +73,16 @@ def manager_init() -> None:
     ("AccelerationProfile", "2"),
     ("AdjacentPath", "0"),
     ("AdjacentPathMetrics", "0"),
+    ("AdvancedCustomUI", "0"),
+    ("AdvancedLateralTune", "0"),
+    ("AdvancedLongitudinalTune", "1"),
+    ("AdvancedQOLDriving", "1"),
     ("AggressiveFollow", "1.25"),
     ("AggressiveJerkAcceleration", "50"),
     ("AggressiveJerkDanger", "100"),
+    ("AggressiveJerkDeceleration", "50"),
     ("AggressiveJerkSpeed", "50"),
+    ("AggressiveJerkSpeedDecrease", "50"),
     ("AggressivePersonalityProfile", "1"),
     ("AlertVolumeControl", "0"),
     ("AlwaysOnLateral", "1"),
@@ -88,7 +98,6 @@ def manager_init() -> None:
     ("BlacklistedModels", ""),
     ("BlindSpotMetrics", "0"),
     ("BlindSpotPath", "1"),
-    ("BonusContent", "1"),
     ("BorderMetrics", "1"),
     ("CameraView", "2"),
     ("CarMake", ""),
@@ -106,20 +115,18 @@ def manager_init() -> None:
     ("CertifiedHerbalistLiveTorqueParameters", ""),
     ("CertifiedHerbalistScore", "0"),
     ("CEModelStopTime", "8"),
-    ("CESignal", "1"),
+    ("CESignalSpeed", "55"),
+    ("CESignalLaneDetection", "1"),
     ("CESlowerLead", "1"),
     ("CESpeed", "0"),
     ("CESpeedLead", "0"),
     ("CEStoppedLead", "1"),
-    ("ClairvoyantDriverCalibrationParams", ""),
-    ("ClairvoyantDriverDrives", "0"),
-    ("ClairvoyantDriverLiveTorqueParameters", ""),
-    ("ClairvoyantDriverScore", "0"),
     ("ClusterOffset", "1.015"),
     ("Compass", "0"),
     ("ConditionalExperimental", "1"),
     ("CrosstrekTorque", "1"),
     ("CurveSensitivity", "100"),
+    ("CurveSpeedControl", "1"),
     ("CustomAlerts", "1"),
     ("CustomColors", "frog"),
     ("CustomCruise", "1"),
@@ -131,15 +138,13 @@ def manager_init() -> None:
     ("CustomSignals", "frog"),
     ("CustomSounds", "frog"),
     ("CustomUI", "1"),
-    ("CydiaTune", "0"),
     ("DecelerationProfile", "1"),
     ("DeveloperUI", "0"),
     ("DeviceManagement", "1"),
     ("DeviceShutdown", "9"),
-    ("DisableMTSCSmoothing", "0"),
+    ("DisableCurveSpeedSmoothing", "0"),
     ("DisableOnroadUploads", "0"),
     ("DisableOpenpilotLongitudinal", "0"),
-    ("DisableVTSCSmoothing", "0"),
     ("DisengageVolume", "100"),
     ("DriverCamera", "0"),
     ("DrivingPersonalities", "0"),
@@ -158,13 +163,18 @@ def manager_init() -> None:
     ("ExperimentalModeViaTap", "0"),
     ("Fahrenheit", "0"),
     ("ForceAutoTune", "1"),
+    ("ForceAutoTuneOff", "0"),
     ("ForceFingerprint", "0"),
     ("ForceMPHDashboard", "0"),
     ("ForceStandstill", "0"),
     ("ForceStops", "0"),
     ("FPSCounter", "1"),
-    ("FrogsGoMooTune", "1"),
+    ("FrogsGoMoosTweak", "1"),
     ("FullMap", "0"),
+    ("GameBoyCalibrationParams", ""),
+    ("GameBoyDrives", "0"),
+    ("GameBoyLiveTorqueParameters", ""),
+    ("GameBoyScore", "0"),
     ("GasRegenCmd", "1"),
     ("GMapKey", ""),
     ("GoatScream", "0"),
@@ -181,11 +191,12 @@ def manager_init() -> None:
     ("HolidayThemes", "1"),
     ("HumanAcceleration", "1"),
     ("HumanFollowing", "1"),
+    ("IncreasedStoppedDistance", "3"),
     ("IncreaseThermalLimits", "0"),
     ("JerkInfo", "1"),
     ("LaneChangeCustomizations", "1"),
     ("LaneChangeTime", "0"),
-    ("LaneDetectionWidth", "60"),
+    ("LaneDetectionWidth", "6"),
     ("LaneLinesWidth", "4"),
     ("LateralMetrics", "1"),
     ("LateralTune", "1"),
@@ -201,7 +212,7 @@ def manager_init() -> None:
     ("LosAngelesLiveTorqueParameters", ""),
     ("LosAngelesScore", "0"),
     ("LoudBlindspotAlert", "0"),
-    ("LowVoltageShutdown", "11.8"),
+    ("LowVoltageShutdown", str(VBATT_PAUSE_CHARGING)),
     ("MapAcceleration", "0"),
     ("MapDeceleration", "0"),
     ("MapGears", "0"),
@@ -209,18 +220,20 @@ def manager_init() -> None:
     ("MapboxSecretKey", ""),
     ("MapsSelected", ""),
     ("MapStyle", "10"),
-    ("MinimumLaneChangeSpeed", "20"),
+    ("MaxDesiredAcceleration", "4.0"),
+    ("MinimumLaneChangeSpeed", str(LANE_CHANGE_SPEED_MIN / CV.MPH_TO_MS)),
     ("Model", DEFAULT_MODEL),
     ("ModelManagement", "0"),
     ("ModelName", DEFAULT_MODEL_NAME),
+    ("ModelRandomizer", "0"),
     ("ModelSelector", "0"),
     ("ModelUI", "1"),
-    ("MTSCAggressiveness", "100"),
     ("MTSCCurvatureCheck", "0"),
     ("MTSCEnabled", "1"),
     ("NavigationModels", ""),
     ("NewLongAPI", "0"),
     ("NewLongAPIGM", "1"),
+    ("NewToyotaTune", "0"),
     ("NNFF", "1"),
     ("NNFFLite", "1"),
     ("NoLogging", "0"),
@@ -228,10 +241,6 @@ def manager_init() -> None:
     ("NorthDakotaDrives", "0"),
     ("NorthDakotaLiveTorqueParameters", ""),
     ("NorthDakotaScore", "0"),
-    ("NorthDakotaV2CalibrationParams", ""),
-    ("NorthDakotaV2Drives", "0"),
-    ("NorthDakotaV2LiveTorqueParameters", ""),
-    ("NorthDakotaV2Score", "0"),
     ("NotreDameCalibrationParams", ""),
     ("NotreDameDrives", "0"),
     ("NotreDameLiveTorqueParameters", ""),
@@ -247,7 +256,7 @@ def manager_init() -> None:
     ("OneLaneChange", "1"),
     ("OnroadDistanceButton", "0"),
     ("PathEdgeWidth", "20"),
-    ("PathWidth", "61"),
+    ("PathWidth", "6.1"),
     ("PauseAOLOnBrake", "0"),
     ("PauseLateralOnSignal", "0"),
     ("PauseLateralSpeed", "0"),
@@ -256,7 +265,8 @@ def manager_init() -> None:
     ("PreferredSchedule", "0"),
     ("PromptDistractedVolume", "100"),
     ("PromptVolume", "100"),
-    ("QOLControls", "1"),
+    ("QOLLateral", "1"),
+    ("QOLLongitudinal", "1"),
     ("QOLVisuals", "1"),
     ("RadarlessModels", ""),
     ("RadicalTurtleCalibrationParams", ""),
@@ -272,10 +282,12 @@ def manager_init() -> None:
     ("RelaxedFollow", "1.75"),
     ("RelaxedJerkAcceleration", "100"),
     ("RelaxedJerkDanger", "100"),
+    ("RelaxedJerkDeceleration", "100"),
     ("RelaxedJerkSpeed", "100"),
+    ("RelaxedJerkSpeedDecrease", "100"),
     ("RelaxedPersonalityProfile", "1"),
+    ("ResetFrogTheme", "0"),
     ("ReverseCruise", "0"),
-    ("ReverseCruiseUI", "1"),
     ("RoadEdgesWidth", "2"),
     ("RoadNameUI", "1"),
     ("RotatingWheel", "1"),
@@ -306,7 +318,6 @@ def manager_init() -> None:
     ("Sidebar", "0"),
     ("SidebarMetrics", "1"),
     ("SignalMetrics", "0"),
-    ("SLCConfirmation", "1"),
     ("SLCConfirmationHigher", "1"),
     ("SLCConfirmationLower", "1"),
     ("SLCFallback", "2"),
@@ -324,22 +335,33 @@ def manager_init() -> None:
     ("StandardFollow", "1.45"),
     ("StandardJerkAcceleration", "100"),
     ("StandardJerkDanger", "100"),
+    ("StandardJerkDeceleration", "100"),
     ("StandardJerkSpeed", "100"),
+    ("StandardJerkSpeedDecrease", "100"),
     ("StandardPersonalityProfile", "1"),
     ("StandbyMode", "0"),
     ("StaticPedalsOnUI", "0"),
-    ("SteerRatio", ""),
-    ("SteerRatioStock", ""),
-    ("StockTune", "0"),
+    ("SteerFriction", "0.1"),
+    ("SteerFrictionStock", "0.1"),
+    ("SteerLatAccel", "2.5"),
+    ("SteerLatAccelStock", "2.5"),
+    ("SteerKP", "1"),
+    ("SteerKPStock", "1"),
+    ("SteerRatio", "15"),
+    ("SteerRatioStock", "15"),
     ("StoppedTimer", "0"),
-    ("StoppingDistance", "3"),
     ("TacoTune", "0"),
+    ("TombRaiderCalibrationParams", ""),
+    ("TombRaiderDrives", "0"),
+    ("TombRaiderLiveTorqueParameters", ""),
+    ("TombRaiderScore", "0"),
     ("ToyotaDoors", "0"),
     ("TrafficFollow", "0.5"),
     ("TrafficJerkAcceleration", "50"),
     ("TrafficJerkDanger", "100"),
+    ("TrafficJerkDeceleration", "50"),
     ("TrafficJerkSpeed", "50"),
-    ("TrafficMode", "0"),
+    ("TrafficJerkSpeedDecrease", "50"),
     ("TrafficPersonalityProfile", "1"),
     ("TuningInfo", "1"),
     ("TurnAggressiveness", "100"),
@@ -348,6 +370,7 @@ def manager_init() -> None:
     ("UnlockDoors", "1"),
     ("UseSI", "1"),
     ("UseVienna", "0"),
+    ("VelocityModels", ""),
     ("VisionTurnControl", "1"),
     ("VoltSNG", "0"),
     ("WarningImmediateVolume", "100"),
@@ -457,9 +480,12 @@ def manager_thread() -> None:
   pm = messaging.PubMaster(['managerState'])
 
   write_onroad_params(False, params)
-  ensure_running(managed_processes.values(), False, params=params, CP=sm['carParams'], not_run=ignore)
+  ensure_running(managed_processes.values(), False, params=params, CP=sm['carParams'], not_run=ignore, secret_good_openpilot=False)
 
   started_prev = False
+
+  # FrogPilot variables
+  secret_good_openpilot = params.get("Model", encoding='utf-8') == "secret-good-openpilot"
 
   while True:
     sm.update(1000)
@@ -473,6 +499,9 @@ def manager_thread() -> None:
       if os.path.isfile(error_log):
         os.remove(error_log)
 
+      # FrogPilot variables
+      secret_good_openpilot = params.get("Model", encoding='utf-8') == "secret-good-openpilot"
+
     elif not started and started_prev:
       params.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
       params_memory.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
@@ -483,7 +512,7 @@ def manager_thread() -> None:
 
     started_prev = started
 
-    ensure_running(managed_processes.values(), started, params=params, CP=sm['carParams'], not_run=ignore)
+    ensure_running(managed_processes.values(), started, params=params, CP=sm['carParams'], not_run=ignore, secret_good_openpilot=secret_good_openpilot)
 
     running = ' '.join("{}{}\u001b[0m".format("\u001b[32m" if p.proc.is_alive() else "\u001b[31m", p.name)
                        for p in managed_processes.values() if p.proc)

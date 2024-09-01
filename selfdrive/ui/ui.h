@@ -133,8 +133,7 @@ typedef struct UIScene {
   bool brake_lights_on;
   bool compass;
   bool conditional_experimental;
-  bool disable_smoothing_mtsc;
-  bool disable_smoothing_vtsc;
+  bool disable_curve_speed_smoothing;
   bool driver_camera;
   bool dynamic_path_width;
   bool dynamic_pedals_on_ui;
@@ -168,11 +167,11 @@ typedef struct UIScene {
   bool onroad_distance_button;
   bool parked;
   bool pedals_on_ui;
+  bool radarless_model;
   bool random_events;
   bool red_light;
   bool reverse;
   bool reverse_cruise;
-  bool reverse_cruise_ui;
   bool right_hand_drive;
   bool road_name_ui;
   bool rotating_wheel;
@@ -243,6 +242,7 @@ typedef struct UIScene {
   int desired_follow;
   int driver_camera_timer;
   int map_style;
+  int minimum_lane_change_speed;
   int model_length;
   int obstacle_distance;
   int obstacle_distance_stock;
@@ -363,7 +363,7 @@ void update_model(UIState *s,
                   const cereal::ModelDataV2::Reader &model,
                   const cereal::UiPlan::Reader &plan);
 void update_dmonitoring(UIState *s, const cereal::DriverStateV2::Reader &driverstate, float dm_fade_state, bool is_rhd);
-void update_leads(UIState *s, const cereal::ModelDataV2::Reader &model_data);
+void update_leads(UIState *s, const cereal::RadarState::Reader &radar_state, const cereal::XYZTData::Reader &line);
 void update_line_data(const UIState *s, const cereal::XYZTData::Reader &line,
                       float y_off, float z_off, QPolygonF *pvd, int max_idx, bool allow_invert);
 
