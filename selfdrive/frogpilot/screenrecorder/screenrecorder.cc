@@ -19,7 +19,7 @@ ScreenRecorder::ScreenRecorder(QWidget *parent) : QPushButton(parent), recording
   rgbScaleBuffer = std::make_unique<uint8_t[]>(screenWidth * screenHeight * 4);
 
   setFixedSize(btn_size, btn_size);
-  connect(this, &QPushButton::clicked, this, &ScreenRecorder::toggleRecording);
+  QObject::connect(this, &QPushButton::clicked, this, &ScreenRecorder::toggleRecording);
 }
 
 ScreenRecorder::~ScreenRecorder() {

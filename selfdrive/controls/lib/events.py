@@ -226,13 +226,11 @@ def user_soft_disable_alert(alert_text_2: str) -> AlertCallbackType:
   return func
 
 def startup_master_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int) -> Alert:
-  params = Params()
-
   branch = get_short_branch()  # Ensure get_short_branch is cached to avoid lags on startup
   if "REPLAY" in os.environ:
     branch = "replay"
 
-  return StartupAlert(params.get("StartupMessageTop", encoding='utf-8'), params.get("StartupMessageBottom", encoding='utf-8'), alert_status=AlertStatus.frogpilot)
+  return StartupAlert("WARNING: This branch is not tested", branch, alert_status=AlertStatus.userPrompt)
 
 def below_engage_speed_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int) -> Alert:
   return NoEntryAlert(f"Drive above {get_display_speed(CP.minEnableSpeed, metric)} to engage")
@@ -345,6 +343,10 @@ def joystick_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster,
 
 
 # FrogPilot Alerts
+def custom_startup_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int) -> Alert:
+  params = Params()
+  return StartupAlert(params.get("StartupMessageTop", encoding='utf-8') or "", params.get("StartupMessageBottom", encoding='utf-8') or "", alert_status=AlertStatus.frogpilot)
+
 def holiday_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int) -> Alert:
   holiday_messages = {
     "new_years": ("Happy New Year! 🎉", "newYearsDayAlert"),
@@ -1009,6 +1011,10 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.NO_ENTRY: NoEntryAlert("Please don't use the 'Development' branch!"),
   },
 
+  EventName.customStartupAlert: {
+    ET.PERMANENT: custom_startup_alert,
+  },
+
   EventName.forcingStop: {
     ET.WARNING: Alert(
       "Forcing the car to stop",
@@ -1188,6 +1194,14 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "👺",
       AlertStatus.frogpilot, AlertSize.mid,
       Priority.MID, VisualAlert.none, AudibleAlert.angry, 5.),
+  },
+
+  EventName.youveGotMail: {
+    ET.PERMANENT: Alert(
+      "You've got mail! 📧",
+      "",
+      AlertStatus.frogpilot, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.mail, 3.),
   },
 }
 

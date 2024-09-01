@@ -165,6 +165,10 @@ def common_fault_avoidance(fault_condition: bool, request: bool, above_limit_fra
   return above_limit_frames, request
 
 
+def rate_limit(new_value, last_value, dw_step, up_step):
+  return clip(new_value, last_value + dw_step, last_value + up_step)
+
+
 def crc8_pedal(data):
   crc = 0xFF    # standard init value
   poly = 0xD5   # standard crc8: x8+x7+x6+x4+x2+1

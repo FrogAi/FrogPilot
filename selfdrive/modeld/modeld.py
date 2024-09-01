@@ -24,9 +24,9 @@ from openpilot.selfdrive.modeld.fill_model_msg import fill_model_msg, fill_pose_
 from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.selfdrive.modeld.models.commonmodel_pyx import ModelFrame, CLContext
 
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import FrogPilotVariables
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import MODELS_PATH
-from openpilot.selfdrive.frogpilot.controls.lib.model_manager import DEFAULT_MODEL
+from openpilot.selfdrive.frogpilot.assets.model_manager import DEFAULT_MODEL
+from openpilot.selfdrive.frogpilot.frogpilot_functions import MODELS_PATH
+from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
 
 frogpilot_toggles = FrogPilotVariables.toggles
 
@@ -35,10 +35,12 @@ SEND_RAW_PRED = os.getenv('SEND_RAW_PRED')
 
 MODEL_NAME = frogpilot_toggles.model
 
-CLAIRVOYANT_MODEL = frogpilot_toggles.clairvoyant_model
 DISABLE_NAV = frogpilot_toggles.navigationless_model
+DISABLE_POSE = frogpilot_toggles.poseless_model
 DISABLE_RADAR = frogpilot_toggles.radarless_model
+GAS_BRAKE = frogpilot_toggles.gas_brake_model
 SECRET_GOOD_OPENPILOT = frogpilot_toggles.secretgoodopenpilot_model
+USE_VELOCITY = frogpilot_toggles.velocity_model
 
 MODEL_PATHS = {
   ModelRunner.THNEED: Path(__file__).parent / ('models/supercombo.thneed' if MODEL_NAME == DEFAULT_MODEL else f'{MODELS_PATH}/{MODEL_NAME}.thneed'),
@@ -46,8 +48,9 @@ MODEL_PATHS = {
 
 metadata_file = (
   'secret-good-openpilot_metadata.pkl' if SECRET_GOOD_OPENPILOT else
-  'clairvoyant-driver_metadata.pkl' if CLAIRVOYANT_MODEL else
-  'supercombo_metadata.pkl'
+  'gas-brake_metadata.pkl' if GAS_BRAKE else
+  'poseless_metadata.pkl' if DISABLE_POSE else
+  'classic_metadata.pkl'
 )
 METADATA_PATH = Path(__file__).parent / f'models/{metadata_file}'
 
@@ -121,14 +124,15 @@ class ModelState:
 
     if SECRET_GOOD_OPENPILOT:
       new_desire = np.where(inputs['desire'] - self.prev_desire > .99, inputs['desire'], 0)
+      self.prev_desire[:] = inputs['desire']
+
       self.desire_20Hz[:-1] = self.desire_20Hz[1:]
       self.desire_20Hz[-1] = new_desire
       self.inputs['desire'][:] = self.desire_20Hz.reshape((25,4,-1)).max(axis=1).flatten()
     else:
       self.inputs['desire'][:-ModelConstants.DESIRE_LEN] = self.inputs['desire'][ModelConstants.DESIRE_LEN:]
       self.inputs['desire'][-ModelConstants.DESIRE_LEN:] = np.where(inputs['desire'] - self.prev_desire > .99, inputs['desire'], 0)
-
-    self.prev_desire[:] = inputs['desire']
+      self.prev_desire[:] = inputs['desire']
 
     self.inputs['traffic_convention'][:] = inputs['traffic_convention']
     self.inputs['lateral_control_params'][:] = inputs['lateral_control_params']
@@ -164,7 +168,7 @@ class ModelState:
       return None
 
     self.model.execute()
-    outputs = self.parser.parse_outputs(self.slice_outputs(self.output), CLAIRVOYANT_MODEL, SECRET_GOOD_OPENPILOT)
+    outputs = self.parser.parse_outputs(self.slice_outputs(self.output), DISABLE_POSE)
 
     if SECRET_GOOD_OPENPILOT:
       self.full_features_20Hz[:-1] = self.full_features_20Hz[1:]
@@ -370,15 +374,16 @@ def main(demo=False):
       posenet_send = messaging.new_message('cameraOdometry')
       fill_model_msg(modelv2_send, model_output, publish_state, meta_main.frame_id, meta_extra.frame_id, frame_id, frame_drop_ratio,
                      meta_main.timestamp_eof, timestamp_llk, model_execution_time, live_calib_seen, nav_enabled,
-                     CLAIRVOYANT_MODEL, SECRET_GOOD_OPENPILOT)
+                     GAS_BRAKE, SECRET_GOOD_OPENPILOT, USE_VELOCITY)
 
       desire_state = modelv2_send.modelV2.meta.desireState
       l_lane_change_prob = desire_state[log.Desire.laneChangeLeft]
       r_lane_change_prob = desire_state[log.Desire.laneChangeRight]
       lane_change_prob = l_lane_change_prob + r_lane_change_prob
       DH.update(sm['carState'], sm['carControl'].latActive, lane_change_prob, sm['frogpilotPlan'], frogpilot_toggles)
-      modelv2_send.modelV2.meta.laneChangeState = DH.lane_change_state
-      modelv2_send.modelV2.meta.laneChangeDirection = DH.lane_change_direction
+      if not SECRET_GOOD_OPENPILOT:
+        modelv2_send.modelV2.meta.laneChangeState = DH.lane_change_state
+        modelv2_send.modelV2.meta.laneChangeDirection = DH.lane_change_direction
       modelv2_send.modelV2.meta.turnDirection = DH.turn_direction
 
       fill_pose_msg(posenet_send, model_output, meta_main.frame_id, vipc_dropped_frames, meta_main.timestamp_eof, live_calib_seen)

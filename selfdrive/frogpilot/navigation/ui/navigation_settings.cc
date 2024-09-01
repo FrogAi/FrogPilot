@@ -8,7 +8,6 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(QWidget *parent) : QFrame(par
 
   navigationWidget = new QWidget();
   QVBoxLayout *navigationLayout = new QVBoxLayout(navigationWidget);
-  navigationLayout->setMargin(40);
 
   FrogPilotListWidget *list = new FrogPilotListWidget(navigationWidget);
 
@@ -84,8 +83,6 @@ void FrogPilotNavigationPanel::hideEvent(QHideEvent *event) {
 void FrogPilotNavigationPanel::showEvent(QShowEvent *event) {
   downloadActive = !paramsMemory.get("OSMDownloadLocations").empty();
   lastMapsDownload->setText(QString::fromStdString(params.get("LastMapsUpdate")));
-  qint64 fileSize = calculateDirectorySize(offlineFolderPath);
-  offlineMapsSize->setText(formatSize(fileSize));
   removeOfflineMapsButton->setVisible(QDir(offlineFolderPath).exists() && !downloadActive);
 }
 
@@ -102,6 +99,7 @@ void FrogPilotNavigationPanel::updateStatuses() {
   const int downloadedFiles = extractFromJson<int>(osmDownloadProgress, "\"downloaded_files\":");
 
   if (paramsMemory.get("OSMDownloadLocations").empty()) {
+    device()->resetInteractiveTimeout(30);
     downloadActive = false;
     updateDownloadedLabel();
     qint64 fileSize = calculateDirectorySize(offlineFolderPath);
@@ -170,6 +168,7 @@ void FrogPilotNavigationPanel::cancelDownload(QWidget *parent) {
 }
 
 void FrogPilotNavigationPanel::downloadMaps() {
+  device()->resetInteractiveTimeout(300);
   params.remove("OSMDownloadProgress");
   paramsMemory.put("OSMDownloadLocations", params.get("MapsSelected"));
   removeOfflineMapsButton->setVisible(true);
@@ -237,7 +236,7 @@ SelectMaps::SelectMaps(QWidget *parent) : QWidget(parent) {
   mapsLayout->setSpacing(20);
   mainLayout->addLayout(mapsLayout);
 
-  QObject::connect(backButton, &QPushButton::clicked, this, [this]() { emit backPress(), emit setMaps(); });
+  QObject::connect(backButton, &QPushButton::clicked, [this]() { emit backPress(), emit setMaps(); });
 
   FrogPilotListWidget *statesList = new FrogPilotListWidget();
 
@@ -274,7 +273,7 @@ SelectMaps::SelectMaps(QWidget *parent) : QWidget(parent) {
   statesScrollView = new ScrollView(statesList);
   mapsLayout->addWidget(statesScrollView);
 
-  QObject::connect(statesButton, &QPushButton::clicked, this, [this]() {
+  QObject::connect(statesButton, &QPushButton::clicked, [this]() {
     mapsLayout->setCurrentWidget(statesScrollView);
     statesButton->setStyleSheet(activeButtonStyle);
     countriesButton->setStyleSheet(normalButtonStyle);
@@ -327,7 +326,7 @@ SelectMaps::SelectMaps(QWidget *parent) : QWidget(parent) {
   countriesScrollView = new ScrollView(countriesList);
   mapsLayout->addWidget(countriesScrollView);
 
-  QObject::connect(countriesButton, &QPushButton::clicked, this, [this]() {
+  QObject::connect(countriesButton, &QPushButton::clicked, [this]() {
     mapsLayout->setCurrentWidget(countriesScrollView);
     statesButton->setStyleSheet(normalButtonStyle);
     countriesButton->setStyleSheet(activeButtonStyle);
@@ -401,7 +400,7 @@ Primeless::Primeless(QWidget *parent) : QWidget(parent) {
   backButton = new QPushButton(tr("Back"), this);
   backButton->setObjectName("backButton");
   backButton->setFixedSize(400, 100);
-  QObject::connect(backButton, &QPushButton::clicked, this, [this]() { emit backPress(); });
+  QObject::connect(backButton, &QPushButton::clicked, [this]() { emit backPress(); });
   mainLayout->addWidget(backButton, 0, Qt::AlignLeft);
 
   list = new FrogPilotListWidget(mainWidget);
@@ -433,7 +432,7 @@ Primeless::Primeless(QWidget *parent) : QWidget(parent) {
   imageLabel->hide();
 
   ButtonControl *setupButton = new ButtonControl(tr("Setup Instructions"), tr("VIEW"), tr("View the instructions to set up MapBox for Primeless Navigation."), this);
-  QObject::connect(setupButton, &ButtonControl::clicked, this, [this]() {
+  QObject::connect(setupButton, &ButtonControl::clicked, [this]() {
     updateStep();
     backButton->hide();
     list->setVisible(false);

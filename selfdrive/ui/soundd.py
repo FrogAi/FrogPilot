@@ -14,8 +14,8 @@ from openpilot.common.swaglog import cloudlog
 
 from openpilot.system import micd
 
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import ACTIVE_THEME_PATH, RANDOM_EVENTS_PATH
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import FrogPilotVariables
+from openpilot.selfdrive.frogpilot.frogpilot_functions import ACTIVE_THEME_PATH, RANDOM_EVENTS_PATH
+from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
 
 SAMPLE_RATE = 48000
 SAMPLE_BUFFER = 4096 # (approx 100ms)
@@ -50,6 +50,7 @@ sound_list: dict[int, tuple[str, int | None, float]] = {
   AudibleAlert.fart: ("fart.wav", 1, MAX_VOLUME),
   AudibleAlert.firefox: ("firefox.wav", 1, MAX_VOLUME),
   AudibleAlert.hal9000: ("hal9000.wav", 1, MAX_VOLUME),
+  AudibleAlert.mail: ("mail.wav", 1, MAX_VOLUME),
   AudibleAlert.nessie: ("nessie.wav", 1, MAX_VOLUME),
   AudibleAlert.noice: ("noice.wav", 1, MAX_VOLUME),
   AudibleAlert.uwu: ("uwu.wav", 1, MAX_VOLUME),
@@ -93,6 +94,7 @@ class Soundd:
       AudibleAlert.firefox: MAX_VOLUME,
       AudibleAlert.goat: MAX_VOLUME,
       AudibleAlert.hal9000: MAX_VOLUME,
+      AudibleAlert.mail: MAX_VOLUME,
       AudibleAlert.nessie: MAX_VOLUME,
       AudibleAlert.noice: MAX_VOLUME,
       AudibleAlert.uwu: MAX_VOLUME,

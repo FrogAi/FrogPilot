@@ -126,12 +126,21 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
 
   ListWidget *list = new ListWidget(this);
   // Enable tethering layout
-  std::vector<QString> tetheringSelection{tr("Off"), tr("Only Onroad"), tr("Always")};
-  tetheringToggle = new FrogPilotButtonParamControl("TetheringEnabled", "Enable Tethering", "", "", tetheringSelection);
+  std::vector<QString> tetheringSelection{tr("Off"), tr("Always"), tr("Only Onroad"), tr("Until Reboot")};
+  tetheringToggle = new ButtonParamControl("TetheringEnabled", tr("Enable Tethering"),
+                                           tr("Allow tethering with your data SIM and keep it active either while driving or continuously."),
+                                           "", tetheringSelection);
+  if (params.getInt("TetheringEnabled") == 3) {
+    params.remove("TetheringEnabled");
+    tetheringToggle->setCheckedButton(0);
+  }
+  QButtonGroup *buttonGroup = tetheringToggle->findChild<QButtonGroup *>();
+  if (buttonGroup) {
+    QObject::connect(buttonGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), [this](int id) {
+      toggleTethering(id);
+    });
+  }
   list->addItem(tetheringToggle);
-  QObject::connect(tetheringToggle, &FrogPilotButtonParamControl::buttonClicked, [this](int id) {
-    toggleTethering(id);
-  });
 
   // Change tethering password
   ButtonControl *editPasswordButton = new ButtonControl(tr("Tethering Password"), tr("EDIT"));
@@ -224,7 +233,7 @@ void AdvancedNetworking::refresh() {
 }
 
 void AdvancedNetworking::toggleTethering(int id) {
-  wifi->setTetheringEnabled(id == 2);
+  wifi->setTetheringEnabled(id == 1 || id == 3);
   tetheringToggle->setEnabled(false);
   updateFrogPilotToggles();
 }

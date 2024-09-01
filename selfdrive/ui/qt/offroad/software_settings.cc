@@ -38,6 +38,8 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   // download update btn
   downloadBtn = new ButtonControl(tr("Download"), tr("CHECK"));
   connect(downloadBtn, &ButtonControl::clicked, [=]() {
+    device()->resetInteractiveTimeout(300);
+
     downloadBtn->setEnabled(false);
     if (downloadBtn->text() == tr("CHECK")) {
       checkForUpdates();
@@ -89,6 +91,15 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   auto uninstallBtn = new ButtonControl(tr("Uninstall %1").arg(getBrand()), tr("UNINSTALL"));
   connect(uninstallBtn, &ButtonControl::clicked, [&]() {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to uninstall?"), tr("Uninstall"), this)) {
+      if (FrogPilotConfirmationDialog::yesorno(tr("Do you want to permanently delete any additional FrogPilot assets? This is 100% unrecoverable and includes backups, downloaded models, themes, and long-term storage toggle settings for easy reinstalls."), this)) {
+        std::system("rm -rf /data/backups");
+        std::system("rm -rf /data/crashes");
+        std::system("rm -rf /data/media/0/videos");
+        std::system("rm -rf /data/themes");
+        std::system("rm -rf /data/toggle_backups");
+        std::system("rm -rf /persist/params");
+        std::system("rm -rf /persist/tracking");
+      }
       params.putBool("DoUninstall", true);
     }
   });
@@ -172,7 +183,12 @@ void SoftwarePanel::updateLabels() {
   versionLbl->setText(QString::fromStdString(params.get("UpdaterCurrentDescription")));
   versionLbl->setDescription(QString::fromStdString(params.get("UpdaterCurrentReleaseNotes")));
 
-  installBtn->setVisible((!is_onroad || parked) && params.getBool("UpdateAvailable"));
+  bool install_ready = (!is_onroad || parked) && params.getBool("UpdateAvailable");
+  if (!installBtn->isVisible() && install_ready) {
+    device()->resetInteractiveTimeout(30);
+  }
+
+  installBtn->setVisible(install_ready);
   installBtn->setValue(QString::fromStdString(params.get("UpdaterNewDescription")));
   installBtn->setDescription(QString::fromStdString(params.get("UpdaterNewReleaseNotes")));
 

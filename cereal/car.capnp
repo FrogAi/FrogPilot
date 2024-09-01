@@ -122,27 +122,29 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     accel35 @122;
     accel40 @123;
     blockUser @124;
-    dejaVuCurve @125;
-    firefoxSteerSaturated @126;
-    forcingStop @127;
-    goatSteerSaturated @128;
-    greenLight @129;
-    hal9000 @130;
-    holidayActive @131;
-    laneChangeBlockedLoud @132;
-    leadDeparting @133;
-    noLaneAvailable @134;
-    openpilotCrashed @135;
-    openpilotCrashedRandomEvent @136;
-    pedalInterceptorNoBrake @137;
-    speedLimitChanged @138;
-    torqueNNLoad @139;
-    trafficModeActive @140;
-    trafficModeInactive @141;
-    turningLeft @142;
-    turningRight @143;
-    vCruise69 @144;
-    yourFrogTriedToKillMe @145;
+    customStartupAlert @125;
+    dejaVuCurve @126;
+    firefoxSteerSaturated @127;
+    forcingStop @128;
+    goatSteerSaturated @129;
+    greenLight @130;
+    hal9000 @131;
+    holidayActive @132;
+    laneChangeBlockedLoud @133;
+    leadDeparting @134;
+    noLaneAvailable @135;
+    openpilotCrashed @136;
+    openpilotCrashedRandomEvent @137;
+    pedalInterceptorNoBrake @138;
+    speedLimitChanged @139;
+    torqueNNLoad @140;
+    trafficModeActive @141;
+    trafficModeInactive @142;
+    turningLeft @143;
+    turningRight @144;
+    vCruise69 @145;
+    yourFrogTriedToKillMe @146;
+    youveGotMail @147;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
@@ -447,12 +449,13 @@ struct CarControl {
       fart @12;
       firefox @13;
       hal9000 @14;
-      nessie @15;
-      noice @16;
-      uwu @17;
+      mail @15;
+      nessie @16;
+      noice @17;
+      uwu @18;
 
       # Other
-      goat @18;
+      goat @19;
     }
   }
 

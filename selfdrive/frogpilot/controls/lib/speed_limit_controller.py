@@ -5,7 +5,7 @@ import math
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
 
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import FrogPilotVariables
+from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
 
 R = 6373000.0  # approximate radius of earth in meters
 TO_RADIANS = math.pi / 180
@@ -81,7 +81,6 @@ class SpeedLimitController:
   @property
   def desired_speed_limit(self):
     if self.speed_limit > 1:
-      self.update_previous_limit(self.speed_limit)
       return self.speed_limit + self.offset
     return 0
 

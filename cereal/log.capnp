@@ -989,6 +989,8 @@ struct ModelDataV2 {
     brake3MetersPerSecondSquaredProbs @4 :List(Float32);
     brake4MetersPerSecondSquaredProbs @5 :List(Float32);
     brake5MetersPerSecondSquaredProbs @6 :List(Float32);
+    gasPressProbs @7 :List(Float32);
+    brakePressProbs @8 :List(Float32);
   }
 
   struct Pose {

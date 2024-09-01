@@ -19,6 +19,7 @@
 #include "common/swaglog.h"
 #include "common/util.h"
 
+ExitHandler do_exit;
 
 using namespace libyuv;
 
@@ -178,8 +179,6 @@ int ABGRToNV12(const uint8_t* src_abgr,
   do {                                \
     assert(OMX_ErrorNone == (_expr)); \
   } while (0)
-
-extern ExitHandler do_exit;
 
 // ***** OMX callback functions *****
 
@@ -345,25 +344,40 @@ OmxEncoder::OmxEncoder(const char* path, int width, int height, int fps, int bit
   this->in_buf_headers.resize(in_port.nBufferCountActual);
 
   // setup output port
-
-  OMX_PARAM_PORTDEFINITIONTYPE out_port = {0};
+  OMX_PARAM_PORTDEFINITIONTYPE out_port;
+  memset(&out_port, 0, sizeof(OMX_PARAM_PORTDEFINITIONTYPE));
   out_port.nSize = sizeof(out_port);
+  out_port.nVersion.s.nVersionMajor = 1;
+  out_port.nVersion.s.nVersionMinor = 0;
+  out_port.nVersion.s.nRevision = 0;
+  out_port.nVersion.s.nStep = 0;
   out_port.nPortIndex = (OMX_U32) PORT_INDEX_OUT;
-  OMX_CHECK(OMX_GetParameter(this->handle, OMX_IndexParamPortDefinition, (OMX_PTR)&out_port));
+
+  OMX_ERRORTYPE error = OMX_GetParameter(this->handle, OMX_IndexParamPortDefinition, (OMX_PTR)&out_port);
+  if (error != OMX_ErrorNone) {
+    LOGE("Error getting output port parameters: 0x%08x", error);
+    return;
+  }
+
   out_port.format.video.nFrameWidth = this->width;
   out_port.format.video.nFrameHeight = this->height;
   out_port.format.video.xFramerate = 0;
   out_port.format.video.nBitrate = bitrate;
-  if (h265) {
-    out_port.format.video.eCompressionFormat = OMX_VIDEO_CodingHEVC;
-  } else {
-    out_port.format.video.eCompressionFormat = OMX_VIDEO_CodingAVC;
-  }
+  out_port.format.video.eCompressionFormat = h265 ? OMX_VIDEO_CodingHEVC : OMX_VIDEO_CodingAVC;
   out_port.format.video.eColorFormat = OMX_COLOR_FormatUnused;
 
-  OMX_CHECK(OMX_SetParameter(this->handle, OMX_IndexParamPortDefinition, (OMX_PTR) &out_port));
+  error = OMX_SetParameter(this->handle, OMX_IndexParamPortDefinition, (OMX_PTR) &out_port);
+  if (error != OMX_ErrorNone) {
+    LOGE("Error setting output port parameters: 0x%08x", error);
+    return;
+  }
 
-  OMX_CHECK(OMX_GetParameter(this->handle, OMX_IndexParamPortDefinition, (OMX_PTR) &out_port));
+  error = OMX_GetParameter(this->handle, OMX_IndexParamPortDefinition, (OMX_PTR) &out_port);
+  if (error != OMX_ErrorNone) {
+    LOGE("Error getting updated output port parameters: 0x%08x", error);
+    return;
+  }
+
   this->out_buf_headers.resize(out_port.nBufferCountActual);
 
   OMX_VIDEO_PARAM_BITRATETYPE bitrate_type = {0};

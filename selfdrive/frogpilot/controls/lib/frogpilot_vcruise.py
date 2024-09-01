@@ -5,9 +5,9 @@ from openpilot.common.realtime import DT_MDL
 from openpilot.selfdrive.controls.controlsd import ButtonType
 from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_UNSET
 
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_variables import CRUISING_SPEED, PLANNER_TIME
 from openpilot.selfdrive.frogpilot.controls.lib.map_turn_speed_controller import MapTurnSpeedController
 from openpilot.selfdrive.frogpilot.controls.lib.speed_limit_controller import SpeedLimitController
+from openpilot.selfdrive.frogpilot.frogpilot_variables import CRUISING_SPEED, PLANNER_TIME
 
 TARGET_LAT_A = 1.9
 
@@ -92,6 +92,7 @@ class FrogPilotVCruise:
           self.speed_limit_timer = 0
 
         if speed_limit_confirmed:
+          self.slc.update_previous_limit(unconfirmed_slc_target)
           self.slc_target = unconfirmed_slc_target
           self.speed_limit_changed = False
       else:

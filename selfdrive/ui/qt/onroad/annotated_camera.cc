@@ -100,7 +100,7 @@ void AnnotatedCameraWidget::updateState(int alert_height, const UIState &s) {
   }
 
   // Update FrogPilot widgets
-  updateFrogPilotWidgets(alert_height, s.scene);
+  updateFrogPilotVariables(alert_height, s.scene);
 }
 
 void AnnotatedCameraWidget::drawHud(QPainter &p) {
@@ -352,7 +352,7 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
     // Copy of the acceleration vector
     std::vector<float> acceleration;
     acceleration.reserve(acceleration_const.size());
-    for (size_t i = 0; i < acceleration_const.size(); i++) {
+    for (size_t i = 0; i < acceleration_const.size(); ++i) {
       acceleration.push_back(acceleration_const[i]);
     }
 
@@ -439,7 +439,7 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
   }
 
   // Paint adjacent lane paths
-  if (scene.adjacent_path && (laneWidthLeft != 0 || laneWidthRight != 0)) {
+  if ((scene.adjacent_path || scene.adjacent_path_metrics) && (laneWidthLeft != 0 || laneWidthRight != 0)) {
     const float minLaneWidth = laneDetectionWidth * 0.5f;
     const float maxLaneWidth = laneDetectionWidth * 1.5f;
 
@@ -760,18 +760,18 @@ void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
   stopSignImg = loadPixmap("../frogpilot/assets/other_images/stop_sign.png", QSize(img_size, img_size));
 
   animationTimer = new QTimer(this);
-  QObject::connect(animationTimer, &QTimer::timeout, this, [this] {
+  QObject::connect(animationTimer, &QTimer::timeout, [this] {
     animationFrameIndex = (animationFrameIndex + 1) % totalFrames;
   });
 
   QTimer *recordTimer = new QTimer(this);
-  QObject::connect(recordTimer, &QTimer::timeout, this, [this] {
+  QObject::connect(recordTimer, &QTimer::timeout, [this] {
     recorder->updateScreen();
   });
   recordTimer->start(75);
 }
 
-void AnnotatedCameraWidget::updateFrogPilotWidgets(int alert_height, const UIScene &scene) {
+void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIScene &scene) {
   if (is_metric || useSI) {
     accelerationUnit = tr("m/s²");
     leadDistanceUnit = tr(mapOpen ? "m" : "meters");
@@ -813,8 +813,7 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets(int alert_height, const UISce
   conditionalStatus = scene.conditional_status;
   showConditionalExperimentalStatusBar = scene.show_cem_status_bar;
 
-  bool disableSmoothing = vtscControllingCurve ? scene.disable_smoothing_vtsc : scene.disable_smoothing_mtsc;
-  cruiseAdjustment = disableSmoothing || !is_cruise_set ? fmax(setSpeed - scene.adjusted_cruise, 0) : fmax(0.25 * (setSpeed - scene.adjusted_cruise) + 0.75 * cruiseAdjustment - 1, 0);
+  cruiseAdjustment = scene.disable_curve_speed_smoothing || !is_cruise_set ? fmax(setSpeed - scene.adjusted_cruise, 0) : fmax(0.25 * (setSpeed - scene.adjusted_cruise) + 0.75 * cruiseAdjustment - 1, 0);
   vtscControllingCurve = scene.vtsc_controlling_curve;
 
   currentAcceleration = scene.acceleration;
@@ -874,7 +873,7 @@ void AnnotatedCameraWidget::updateFrogPilotWidgets(int alert_height, const UISce
   unconfirmedSpeedLimit = speedLimitController ? scene.unconfirmed_speed_limit : 0;
   useViennaSLCSign = scene.use_vienna_slc_sign;
 
-  bool stoppedTimer = scene.stopped_timer && scene.standstill && scene.started_timer / UI_FREQ >= 10;
+  bool stoppedTimer = scene.stopped_timer && scene.standstill && scene.started_timer / UI_FREQ >= 10 && !mapOpen;
   if (stoppedTimer) {
     if (!standstillTimer.isValid()) {
       standstillTimer.start();
@@ -901,40 +900,26 @@ void AnnotatedCameraWidget::updateSignals() {
 
   const QString signalFolderPath = "../frogpilot/assets/active_theme/signals/";
   QDir directory(signalFolderPath);
+  const QTransform flipTransform = QTransform().scale(-1, 1);
 
   QFileInfoList fileList = directory.entryInfoList({"turn_signal_*.png"}, QDir::Files);
-
-  const QTransform flipTransform = QTransform().scale(-1, 1);
-  std::vector<QPixmap> flippedImages;
+  QFileInfoList nonPngFileList = directory.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
+  nonPngFileList.erase(std::remove_if(nonPngFileList.begin(), nonPngFileList.end(), [](const QFileInfo &fileInfo) {return fileInfo.suffix() == "png";}), nonPngFileList.end());
 
   for (const QFileInfo &fileInfo : fileList) {
     QPixmap pixmap(fileInfo.absoluteFilePath());
-
-    if (fileInfo.fileName().contains("blindspot")) {
-      blindspotImages.push_back(pixmap);
-      blindspotImages.push_back(pixmap.transformed(flipTransform));
-    } else {
-      regularImages.push_back(pixmap);
-      flippedImages.push_back(pixmap.transformed(flipTransform));
-    }
+    QVector<QPixmap> *targetList = fileInfo.fileName().contains("blindspot") ? &blindspotImages : &regularImages;
+    targetList->push_back(pixmap);
   }
 
-  regularImages.insert(regularImages.end(), flippedImages.begin(), flippedImages.end());
-
-  QFileInfoList nonPngFileList = directory.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
-
-  for (QFileInfoList::iterator it = nonPngFileList.begin(); it != nonPngFileList.end(); ) {
-    if ((*it).suffix() == "png") {
-      it = nonPngFileList.erase(it);
-    } else {
-      it++;
-    }
+  for (const QFileInfo &fileInfo : fileList) {
+    QPixmap pixmap(fileInfo.absoluteFilePath());
+    QVector<QPixmap> *targetList = fileInfo.fileName().contains("blindspot") ? &blindspotImages : &regularImages;
+    targetList->push_back(pixmap.transformed(flipTransform));
   }
 
   if (!nonPngFileList.isEmpty()) {
-    const QFileInfo &fileInfo = nonPngFileList.first();
-    const QStringList parts = fileInfo.fileName().split('_');
-
+    QStringList parts = nonPngFileList.first().fileName().split('_');
     if (parts.size() == 2) {
       signalStyle = parts[0];
       signalAnimationLength = parts[1].toInt();

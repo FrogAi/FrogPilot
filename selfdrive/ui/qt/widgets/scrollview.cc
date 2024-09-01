@@ -44,10 +44,6 @@ ScrollView::ScrollView(QWidget *w, QWidget *parent) : QScrollArea(parent) {
   scroller->setScrollerProperties(sp);
 }
 
-void ScrollView::restorePosition(int previousScrollPosition) {
-  verticalScrollBar()->setValue(previousScrollPosition);
-}
-
 void ScrollView::hideEvent(QHideEvent *e) {
   verticalScrollBar()->setValue(0);
 }

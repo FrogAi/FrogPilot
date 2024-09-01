@@ -1,7 +1,7 @@
 import os
 import requests
 
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import delete_file, is_url_pingable
+from openpilot.selfdrive.frogpilot.frogpilot_functions import delete_file, is_url_pingable
 
 GITHUB_URL = "https://raw.githubusercontent.com/FrogAi/FrogPilot-Resources/"
 GITLAB_URL = "https://gitlab.com/FrogAi/FrogPilot-Resources/-/raw/"
@@ -43,34 +43,30 @@ def handle_error(destination, error_message, error, download_param, progress_par
     params_memory.put(progress_param, error_message)
 
 def handle_request_error(error, destination, download_param, progress_param, params_memory):
-  if isinstance(error, requests.HTTPError):
-    if error.response.status_code == 404:
-      return
-    error_message = f"Server error ({error.response.status_code})" if error.response else "Server error."
-  elif isinstance(error, requests.ConnectionError):
-    error_message = "Connection dropped."
-  elif isinstance(error, requests.Timeout):
-    error_message = "Download timed out."
-  elif isinstance(error, requests.RequestException):
-    error_message = "Network request error. Check connection."
-  else:
-    error_message = "Unexpected error."
+  error_map = {
+    requests.HTTPError: lambda e: f"Server error ({e.response.status_code})" if e.response else "Server error.",
+    requests.ConnectionError: "Connection dropped.",
+    requests.Timeout: "Download timed out.",
+    requests.RequestException: "Network request error. Check connection."
+  }
+
+  error_message = error_map.get(type(error), "Unexpected error.")
+  if isinstance(error, requests.HTTPError) and error.response and error.response.status_code == 404:
+    return
 
   handle_error(destination, f"Failed: {error_message}", error, download_param, progress_param, params_memory)
 
 def get_remote_file_size(url):
   try:
     response = requests.head(url, headers={'Accept-Encoding': 'identity'}, timeout=5)
+    if response.status_code == 404:
+      print(f"URL not found: {url}")
+      return None
     response.raise_for_status()
     return int(response.headers.get('Content-Length', 0))
-  except requests.HTTPError as e:
-    if e.response.status_code == 404:
-      return 0
-    else:
-      handle_request_error(e, None, None, None, None)
   except Exception as e:
     handle_request_error(e, None, None, None, None)
-    return 0
+    return None
 
 def get_repository_url():
   if is_url_pingable("https://github.com"):
@@ -84,17 +80,30 @@ def link_valid(url):
     response = requests.head(url, allow_redirects=True, timeout=5)
     response.raise_for_status()
     return True
+  except requests.HTTPError as e:
+    if e.response.status_code != 404:
+      handle_request_error(e, None, None, None, None)
+    return False
   except Exception as e:
     handle_request_error(e, None, None, None, None)
     return False
 
-def verify_download(file_path, url):
-  if not os.path.exists(file_path):
+def verify_download(file_path, url, initial_download=True):
+  remote_file_size = get_remote_file_size(url)
+  if remote_file_size is None:
+    print(f"Error fetching remote size for {file_path}")
+    return False if initial_download else True
+
+  if not os.path.isfile(file_path):
     print(f"File not found: {file_path}")
     return False
 
-  remote_file_size = get_remote_file_size(url)
-  if remote_file_size is None:
+  try:
+    if remote_file_size != os.path.getsize(file_path):
+      print(f"File size mismatch for {file_path}")
+      return False
+  except Exception as e:
+    print(f"An unexpected error occurred while trying to verify the {file_path} download: {e}")
     return False
 
-  return remote_file_size == os.path.getsize(file_path)
+  return True

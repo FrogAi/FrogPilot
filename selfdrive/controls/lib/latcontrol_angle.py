@@ -11,7 +11,7 @@ class LatControlAngle(LatControl):
     super().__init__(CP, CI)
     self.sat_check_min_speed = 5.
 
-  def update(self, active, CS, VM, params, steer_limited, desired_curvature, llk, model_data=None):
+  def update(self, active, CS, VM, params, steer_limited, desired_curvature, llk, model_data=None, frogpilot_toggles=None):
     angle_log = log.ControlsState.LateralAngleState.new_message()
 
     if not active:

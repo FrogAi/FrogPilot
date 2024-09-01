@@ -161,6 +161,9 @@ void ExperimentalButton::paintEvent(QPaintEvent *event) {
   }
 
   QPainter p(this);
+  if (use_stock_wheel) {
+    img = experimental_mode ? experimental_img : engage_img;
+  }
   updateBackgroundColor();
   drawIcon(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), img, background_color, (isDown() || !engageable) ? 0.6 : 1.0, steering_angle_deg);
 }

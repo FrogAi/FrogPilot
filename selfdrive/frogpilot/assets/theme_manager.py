@@ -10,8 +10,8 @@ import zipfile
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.params import Params
 
-from openpilot.selfdrive.frogpilot.controls.lib.download_functions import GITHUB_URL, GITLAB_URL, download_file, get_repository_url, handle_error, handle_request_error, link_valid, verify_download
-from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_functions import ACTIVE_THEME_PATH, THEME_SAVE_PATH, delete_file, update_frogpilot_toggles
+from openpilot.selfdrive.frogpilot.assets.download_functions import GITHUB_URL, GITLAB_URL, download_file, get_repository_url, handle_error, handle_request_error, link_valid, verify_download
+from openpilot.selfdrive.frogpilot.frogpilot_functions import ACTIVE_THEME_PATH, THEME_SAVE_PATH, delete_file, update_frogpilot_toggles
 
 def copy_theme_asset(asset_type, theme, holiday_theme, params):
   save_location = os.path.join(ACTIVE_THEME_PATH, asset_type)
@@ -171,10 +171,9 @@ class ThemeManager:
     if not os.path.exists(THEME_SAVE_PATH):
       return
 
-    bonus_content = self.params.get_bool("BonusContent")
-    holiday_themes = bonus_content and self.params.get_bool("HolidayThemes")
+    holiday_themes = self.params.get_bool("HolidayThemes")
     current_holiday_theme = self.previous_assets.get("holiday_theme") if holiday_themes else None
-    personalize_openpilot = bonus_content and self.params.get_bool("PersonalizeOpenpilot")
+    personalize_openpilot = self.params.get_bool("PersonalizeOpenpilot")
 
     default_value = "stock"
     asset_mappings = {
@@ -258,7 +257,7 @@ class ThemeManager:
 
     for ext in extentions:
       theme_path = download_path + ext
-      if os.path.exists(theme_path):
+      if os.path.isfile(theme_path):
         handle_error(theme_path, "Theme already exists...", "Theme already exists...", theme_param, self.download_progress_param, self.params_memory)
         return
 
@@ -366,22 +365,17 @@ class ThemeManager:
         self.previous_assets = {}
         self.update_active_theme()
 
-  def update_themes(self, boot_run=True):
+  def update_themes(self, boot_run=False):
     if not os.path.exists(THEME_SAVE_PATH):
       return
 
     repo_url = get_repository_url()
-    if boot_run:
-      boot_checks = 0
-      while repo_url is None and boot_checks < 60:
-        boot_checks += 1
-        if boot_checks > 60:
-          break
-        time.sleep(1)
-      self.validate_themes()
-    elif repo_url is None:
+    if repo_url is None:
       print("GitHub and GitLab are offline...")
       return
+
+    if boot_run:
+      self.validate_themes()
 
     if repo_url == GITHUB_URL:
       base_url = "https://github.com/FrogAi/FrogPilot-Resources/blob/Themes/"

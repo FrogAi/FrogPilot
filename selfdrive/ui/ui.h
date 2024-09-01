@@ -133,8 +133,7 @@ typedef struct UIScene {
   bool brake_lights_on;
   bool compass;
   bool conditional_experimental;
-  bool disable_smoothing_mtsc;
-  bool disable_smoothing_vtsc;
+  bool disable_curve_speed_smoothing;
   bool driver_camera;
   bool dynamic_path_width;
   bool dynamic_pedals_on_ui;
@@ -172,7 +171,6 @@ typedef struct UIScene {
   bool red_light;
   bool reverse;
   bool reverse_cruise;
-  bool reverse_cruise_ui;
   bool right_hand_drive;
   bool road_name_ui;
   bool rotating_wheel;

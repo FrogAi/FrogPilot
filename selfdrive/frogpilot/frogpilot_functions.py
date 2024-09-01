@@ -79,37 +79,54 @@ def backup_directory(backup, destination, success_message, fail_message, minimum
       if compressed_backup_size < minimum_backup_size or minimum_backup_size == 0:
         params.put_int_nonblocking("MinimumBackupSize", compressed_backup_size)
 
-  except FileExistsError:
-    print(f"Destination '{destination}' already exists. Backup aborted.")
-  except subprocess.CalledProcessError:
-    print(fail_message)
-    cleanup_backup(in_progress_destination, in_progress_compressed_backup)
-  except OSError as e:
-    if e.errno == errno.ENOSPC:
-      print("Not enough space to perform the backup.")
-    else:
-      print(f"Failed to backup due to unexpected error: {e}")
-    cleanup_backup(in_progress_destination, in_progress_compressed_backup)
+  except (FileExistsError, subprocess.CalledProcessError, OSError) as e:
+    handle_backup_error(e, destination, in_progress_destination, in_progress_compressed_backup, fail_message)
+  except Exception as e:
+    print(f"An unexpected error occurred while trying to create the {backup} backup: {e}")
   finally:
     cleanup_backup(in_progress_destination, in_progress_compressed_backup)
 
+def handle_backup_error(error, destination, in_progress_destination, in_progress_compressed_backup, fail_message):
+  if isinstance(error, FileExistsError):
+    print(f"Destination '{destination}' already exists. Backup aborted.")
+  elif isinstance(error, subprocess.CalledProcessError):
+    print(fail_message)
+  elif isinstance(error, OSError):
+    if error.errno == errno.ENOSPC:
+      print("Not enough space to perform the backup.")
+    else:
+      print(f"Failed to backup due to unexpected error: {error}")
+  cleanup_backup(in_progress_destination, in_progress_compressed_backup)
+
 def cleanup_backup(in_progress_destination, in_progress_compressed_backup):
   if os.path.exists(in_progress_destination):
-    shutil.rmtree(in_progress_destination)
+    try:
+      shutil.rmtree(in_progress_destination)
+    except Exception as e:
+      print(f"An unexpected error occurred while trying to delete the incomplete {backup} backup: {e}")
   if os.path.exists(in_progress_compressed_backup):
-    os.remove(in_progress_compressed_backup)
+    try:
+      os.remove(in_progress_compressed_backup)
+    except Exception as e:
+      print(f"An unexpected error occurred while trying to delete the incomplete {backup} backup: {e}")
 
 def backup_frogpilot(build_metadata, params):
+  maximum_backups = 5
   minimum_backup_size = params.get_int("MinimumBackupSize")
 
   backup_path = "/data/backups"
-  cleanup_backups(backup_path, 4, minimum_backup_size, True)
+  cleanup_backups(backup_path, maximum_backups - 1, minimum_backup_size, True)
 
-  branch = build_metadata.channel
-  commit = build_metadata.openpilot.git_commit_date[12:-16]
+  total, used, free = shutil.disk_usage(backup_path)
+  required_free_space = minimum_backup_size * maximum_backups
 
-  backup_dir = os.path.join(backup_path, f"{branch}_{commit}_auto")
-  backup_directory(BASEDIR, backup_dir, f"Successfully backed up FrogPilot to {backup_dir}.", f"Failed to backup FrogPilot to {backup_dir}.", minimum_backup_size, params, True)
+  if free > required_free_space:
+    branch = build_metadata.channel
+    commit = build_metadata.openpilot.git_commit_date[12:-16]
+
+    backup_dir = os.path.join(backup_path, f"{branch}_{commit}_auto")
+
+    backup_directory(BASEDIR, backup_dir, f"Successfully backed up FrogPilot to {backup_dir}.", f"Failed to backup FrogPilot to {backup_dir}.", minimum_backup_size, params, True)
 
 def backup_toggles(params, params_storage):
   for key in params.all_keys():
@@ -118,8 +135,10 @@ def backup_toggles(params, params_storage):
       if value is not None:
         params_storage.put(key, value)
 
+  maximum_backups = 10
+
   backup_path = "/data/toggle_backups"
-  cleanup_backups(backup_path, 9)
+  cleanup_backups(backup_path, 10 - 1)
 
   backup_dir = os.path.join(backup_path, datetime.datetime.now().strftime('%Y-%m-%d_%I-%M%p').lower() + "_auto")
   backup_directory("/data/params/d", backup_dir, f"Successfully backed up toggles to {backup_dir}.", f"Failed to backup toggles to {backup_dir}.")
@@ -165,20 +184,40 @@ def convert_params(params, params_storage):
 
     except (UnknownKeyName, ValueError):
       pass
+    except Exception as e:
+      print(f"An error occurred when converting params: {e}")
 
   for key in ["CustomColors", "CustomDistanceIcons", "CustomIcons", "CustomSignals", "CustomSounds", "WheelIcon"]:
     remove_param(key)
+
+  def decrease_param(key):
+    try:
+      value = params_storage.get_float(key)
+
+      if value > 10:
+        value /= 10
+        params.put_float(key, value)
+        params_storage.put_float(key, value)
+
+    except (UnknownKeyName, ValueError):
+      pass
+    except Exception as e:
+      print(f"An error occurred when converting params: {e}")
+
+  for key in ["LaneDetectionWidth", "PathWidth"]:
+    decrease_param(key)
 
   print("Param conversion completed")
 
 def delete_file(file):
   try:
-    os.remove(file)
-    print(f"Deleted file: {file}")
-  except FileNotFoundError:
-    print(f"File not found: {file}")
+    if os.path.isfile(file):
+      os.remove(file)
+      print(f"Deleted file: {file}")
+    else:
+      print(f"File not found: {file}")
   except Exception as e:
-    print(f"An error occurred: {e}")
+    print(f"An error occurred when deleting {file}: {e}")
 
 def frogpilot_boot_functions(build_metadata, params, params_storage):
   while not system_time_valid():
@@ -190,26 +229,36 @@ def frogpilot_boot_functions(build_metadata, params, params_storage):
     backup_toggles(params, params_storage)
   except subprocess.CalledProcessError as e:
     print(f"Backup failed: {e}")
+  except Exception as e:
+    print(f"An error occurred when creating boot backups: {e}")
 
 def is_url_pingable(url, timeout=5):
   try:
     urllib.request.urlopen(url, timeout=timeout)
     return True
-  except (http.client.IncompleteRead, http.client.RemoteDisconnected, socket.gaierror, socket.timeout, urllib.error.HTTPError, urllib.error.URLError):
+  except Exception as e:
+    print(f"An unexpected error occurred while trying to ping {url}: {e}")
     return False
 
-def run_cmd(cmd, success_message, fail_message):
-  try:
-    subprocess.check_call(cmd)
-    print(success_message)
-  except subprocess.CalledProcessError as e:
-    print(f"{fail_message}: {e}")
-  except Exception as e:
-    print(f"Unexpected error occurred: {e}")
+def run_cmd(cmd, success_message, fail_message, retries=5, delay=1):
+  attempt = 0
+  while attempt < retries:
+    try:
+      subprocess.check_call(cmd)
+      print(success_message)
+      return True
+    except subprocess.CalledProcessError as e:
+      print(f"{fail_message} (attempt {attempt + 1} of {retries}): {e}")
+    except Exception as e:
+      print(f"Unexpected error occurred (attempt {attempt + 1} of {retries}): {e}")
+    attempt += 1
+    time.sleep(delay)
+  return False
 
 def setup_frogpilot(build_metadata):
   remount_persist = ["sudo", "mount", "-o", "remount,rw", "/persist"]
-  run_cmd(remount_persist, "Successfully remounted /persist as read-write.", "Failed to remount /persist.")
+  if not run_cmd(remount_persist, "Successfully remounted /persist as read-write.", "Failed to remount /persist."):
+    HARDWARE.reboot()
 
   os.makedirs("/persist/params", exist_ok=True)
   os.makedirs(MODELS_PATH, exist_ok=True)
@@ -254,7 +303,8 @@ def setup_frogpilot(build_metadata):
       print(f"Successfully copied {source_item} to {destination_item}.")
 
   remount_root = ["sudo", "mount", "-o", "remount,rw", "/"]
-  run_cmd(remount_root, "File system remounted as read-write.", "Failed to remount file system.")
+  if not run_cmd(remount_root, "File system remounted as read-write.", "Failed to remount file system."):
+    HARDWARE.reboot()
 
   frogpilot_boot_logo = os.path.join(BASEDIR, "selfdrive", "frogpilot", "assets", "other_images", "frogpilot_boot_logo.png")
   frogpilot_boot_logo_jpg = os.path.join(BASEDIR, "selfdrive", "frogpilot", "assets", "other_images", "frogpilot_boot_logo.jpg")
@@ -280,27 +330,26 @@ def uninstall_frogpilot():
   boot_logo_restore_location = os.path.join(BASEDIR, "selfdrive", "frogpilot", "assets", "other_images", "original_bg.jpg")
 
   copy_cmd = ["sudo", "cp", boot_logo_restore_location, boot_logo_location]
-  run_cmd(copy_cmd, "Successfully restored the original boot logo.", "Failed to restore the original boot logo.")
+  if not run_cmd(copy_cmd, "Successfully restored the original boot logo.", "Failed to restore the original boot logo."):
+    HARDWARE.reboot()
 
   HARDWARE.uninstall()
 
-class WeightedMovingAverageCalculator:
-  def __init__(self, window_size):
-    self.window_size = window_size
-    self.data = []
-    self.weights = np.linspace(1, 2, window_size)
+class MovingAverageCalculator:
+  def __init__(self):
+    self.reset_data()
 
   def add_data(self, value):
-    if len(self.data) == self.window_size:
-      self.data.pop(0)
+    if len(self.data) == 5:
+      self.total -= self.data.pop(0)
     self.data.append(value)
+    self.total += value
 
-  def get_weighted_average(self):
+  def get_moving_average(self):
     if len(self.data) == 0:
       return None
-    weighted_sum = np.dot(self.data, self.weights[-len(self.data):])
-    weight_total = np.sum(self.weights[-len(self.data):])
-    return weighted_sum / weight_total
+    return self.total / len(self.data)
 
   def reset_data(self):
     self.data = []
+    self.total = 0

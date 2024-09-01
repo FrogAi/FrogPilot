@@ -17,7 +17,7 @@ class LatControlPID(LatControl):
     super().reset()
     self.pid.reset()
 
-  def update(self, active, CS, VM, params, steer_limited, desired_curvature, llk, model_data=None):
+  def update(self, active, CS, VM, params, steer_limited, desired_curvature, llk, model_data=None, frogpilot_toggles=None):
     pid_log = log.ControlsState.LateralPIDState.new_message()
     pid_log.steeringAngleDeg = float(CS.steeringAngleDeg)
     pid_log.steeringRateDeg = float(CS.steeringRateDeg)
@@ -37,7 +37,7 @@ class LatControlPID(LatControl):
       steer_feedforward = self.get_steer_feedforward(angle_steers_des_no_offset, CS.vEgo)
 
       output_steer = self.pid.update(error, override=CS.steeringPressed,
-                                     feedforward=steer_feedforward, speed=CS.vEgo)
+                                     feedforward=steer_feedforward, speed=CS.vEgo, frogpilot_toggles=frogpilot_toggles)
       pid_log.active = True
       pid_log.p = self.pid.p
       pid_log.i = self.pid.i

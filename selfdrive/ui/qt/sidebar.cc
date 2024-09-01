@@ -60,7 +60,9 @@ void Sidebar::updateIcon(QLabel *&label, QMovie *&gif, const QString &gifPath, c
   }
 
   if (gif != nullptr) {
-    gif->stop();
+    if (!gif->fileName().isEmpty()) {
+      gif->stop();
+    }
     delete gif;
     gif = nullptr;
     label->hide();
@@ -68,15 +70,22 @@ void Sidebar::updateIcon(QLabel *&label, QMovie *&gif, const QString &gifPath, c
 
   if (QFile::exists(selectedGifPath)) {
     gif = new QMovie(selectedGifPath);
-    gif->setScaledSize(btnRect.size());
 
-    label->setGeometry(btnRect);
-    label->setMovie(gif);
-    label->show();
+    if (!gif->fileName().isEmpty()) {
+      gif->setScaledSize(btnRect.size());
 
-    gif->start();
+      label->setGeometry(btnRect);
+      label->setMovie(gif);
+      label->show();
 
-    isGif = true;
+      gif->start();
+
+      isGif = true;
+    } else {
+      delete gif;
+      gif = nullptr;
+      isGif = false;
+    }
   } else {
     if (btnRect == home_btn) {
       home_img = loadPixmap(homePngPath, btnRect.size());
