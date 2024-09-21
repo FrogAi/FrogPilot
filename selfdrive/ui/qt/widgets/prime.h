@@ -22,6 +22,9 @@ private:
   void showEvent(QShowEvent *event) override;
   void hideEvent(QHideEvent *event) override;
 
+  // FrogPilot variables
+  bool useFrogPilotServer;
+
 private slots:
   void refresh();
 };
