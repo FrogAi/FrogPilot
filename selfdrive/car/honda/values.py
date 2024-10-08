@@ -168,8 +168,8 @@ class CAR(Platforms):
     flags=HondaFlags.BOSCH_RADARLESS,
   )
   ACURA_RDX_3G = HondaBoschPlatformConfig(
-    [HondaCarDocs("Acura RDX 2019-22", "All", min_steer_speed=3. * CV.MPH_TO_MS)],
-    CarSpecs(mass=4068 * CV.LB_TO_KG, wheelbase=2.75, steerRatio=11.95, centerToFrontRatio=0.41, tireStiffnessFactor=0.677),  # as spec
+    [HondaCarDocs("Acura RDX 2019-24", "All", min_steer_speed=3. * CV.MPH_TO_MS)],
+    CarSpecs(mass=4068 * CV.LB_TO_KG, wheelbase=2.75, steerRatio=17.33, centerToFrontRatio=0.41, tireStiffnessFactor=0.677),  # A-Spec
     dbc_dict('acura_rdx_2020_can_generated', None),
     flags=HondaFlags.BOSCH_ALT_BRAKE,
   )
