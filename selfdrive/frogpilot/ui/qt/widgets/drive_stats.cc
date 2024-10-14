@@ -84,7 +84,9 @@ void DriveStats::updateStats() {
 }
 
 void DriveStats::parseResponse(const QString &response, bool success) {
-  if (!success) return;
+  if (!success) {
+    return;
+  }
 
   QJsonDocument doc = QJsonDocument::fromJson(response.trimmed().toUtf8());
   if (doc.isNull()) {

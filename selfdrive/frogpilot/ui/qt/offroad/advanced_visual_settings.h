@@ -14,9 +14,10 @@ signals:
   void openParentToggle();
 
 private:
-  FrogPilotSettingsWindow *parent;
-
-  FrogPilotButtonToggleControl *borderMetricsBtn;
+  void hideToggles();
+  void showToggles(const std::set<QString> &keys);
+  void updateCarToggles();
+  void updateMetric();
 
   std::set<QString> advancedCustomOnroadUIKeys = {
     "CameraView", "HideLeadMarker", "HideSpeed",
@@ -34,7 +35,11 @@ private:
     "RoadEdgesWidth", "UnlimitedLength"
   };
 
-  std::map<QString, AbstractControl*> toggles;
+  FrogPilotButtonToggleControl *borderMetricsBtn;
+  FrogPilotButtonToggleControl *lateralMetricsBtn;
+  FrogPilotButtonToggleControl *longitudinalMetricsBtn;
+
+  FrogPilotSettingsWindow *parent;
 
   Params params;
 
@@ -42,10 +47,8 @@ private:
   bool hasAutoTune;
   bool hasBSM;
   bool hasOpenpilotLongitudinal;
+  bool hasRadar;
   bool isMetric = params.getBool("IsMetric");
 
-  void hideToggles();
-  void showToggles(const std::set<QString> &keys);
-  void updateCarToggles();
-  void updateMetric();
+  std::map<QString, AbstractControl*> toggles;
 };

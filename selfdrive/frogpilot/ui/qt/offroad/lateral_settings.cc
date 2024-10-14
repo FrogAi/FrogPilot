@@ -83,7 +83,7 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
       }
       lateralToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 10, QString(), laneChangeTimeLabels);
     } else if (param == "LaneDetectionWidth") {
-      lateralToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 100, tr(" feet"), std::map<int, QString>(), 0.1);
+      lateralToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 15, tr(" feet"), std::map<int, QString>(), 0.1);
     } else if (param == "MinimumLaneChangeSpeed") {
       lateralToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr("mph"));
 
@@ -189,13 +189,13 @@ void FrogPilotLateralPanel::updateMetric() {
     pauseAOLOnBrakeToggle->updateControl(0, 99, tr("kph"));
     pauseLateralToggle->updateControl(0, 99, tr("kph"));
 
-    laneWidthToggle->updateControl(0, 30, tr(" meters"));
+    laneWidthToggle->updateControl(0, 5, tr(" meters"));
   } else {
     minimumLaneChangeSpeedToggle->updateControl(0, 99, tr("mph"));
     pauseAOLOnBrakeToggle->updateControl(0, 99, tr("mph"));
     pauseLateralToggle->updateControl(0, 99, tr("mph"));
 
-    laneWidthToggle->updateControl(0, 100, tr(" feet"));
+    laneWidthToggle->updateControl(0, 15, tr(" feet"));
   }
 }
 

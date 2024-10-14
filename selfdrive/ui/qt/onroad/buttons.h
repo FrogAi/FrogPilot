@@ -14,10 +14,10 @@ class ExperimentalButton : public QPushButton {
 
 public:
   explicit ExperimentalButton(QWidget *parent = 0);
-  ~ExperimentalButton();
   void updateState(const UIState &s, bool lead_info);
 
   // FrogPilot widgets
+  ~ExperimentalButton();
   void updateIcon();
 
 private:
@@ -36,6 +36,17 @@ private:
   // FrogPilot variables
   Params params_memory{"/dev/shm/params"};
 
+  QColor background_color;
+
+  QLabel *gif_label;
+
+  QMovie *gif;
+
+  QPixmap img;
+
+  QString wheel_gif_path;
+  QString wheel_png_path;
+
   bool always_on_lateral_active;
   bool big_map;
   bool conditional_experimental;
@@ -50,17 +61,6 @@ private:
   int conditional_status;
   int steering_angle_deg;
   int y_offset;
-
-  QColor background_color;
-
-  QLabel *gif_label;
-
-  QMovie *gif;
-
-  QPixmap img;
-
-  QString wheel_gif_path;
-  QString wheel_png_path;
 };
 
 
@@ -93,14 +93,14 @@ private:
 
   Params params_memory{"/dev/shm/params"};
 
-  bool traffic_mode_active;
-  bool use_gif;
-
-  int personality;
-
   QLabel *gif_label;
   QPixmap profile_image;
 
   QVector<QPixmap> profile_data_png;
   QVector<QMovie*> profile_data_gif;
+
+  bool traffic_mode_active;
+  bool use_gif;
+
+  int personality;
 };

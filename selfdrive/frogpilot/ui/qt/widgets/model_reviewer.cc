@@ -3,8 +3,51 @@
 ModelReview::ModelReview(QWidget *parent) : QFrame(parent) {
   mainLayout = new QStackedLayout(this);
 
-  setupRatingLayout();
-  setupModelInfoLayout();
+  QVBoxLayout *ratingLayout = new QVBoxLayout();
+  ratingLayout->setContentsMargins(50, 25, 50, 20);
+
+  questionLabel = addLabel(ratingLayout, "What would you rate that drive?", "question");
+
+  QHBoxLayout *ratingButtonsLayout = new QHBoxLayout();
+  QStringList emojis = {"🤩", "🙂", "🤔", "🙁", "🤕"};
+  QList<int> scores = {100, 80, 60, 40, 20};
+
+  for (int i = 0; i < emojis.size(); ++i) {
+    QPushButton *ratingButton = createButton(emojis[i], "rating_button", scores[i], 150, 150);
+    ratingButtonsLayout->addWidget(ratingButton);
+    QObject::connect(ratingButton, &QPushButton::clicked, this, &ModelReview::onRatingButtonClicked);
+  }
+
+  ratingLayout->addLayout(ratingButtonsLayout);
+
+  blacklistButton = createButton("Blacklist this model", "blacklist_button", 0, 600, 100);
+  QObject::connect(blacklistButton, &QPushButton::clicked, this, &ModelReview::onBlacklistButtonClicked);
+  ratingLayout->addWidget(blacklistButton, 0, Qt::AlignCenter);
+
+  QWidget *ratingWidget = new QWidget(this);
+  ratingWidget->setLayout(ratingLayout);
+  mainLayout->addWidget(ratingWidget);
+
+  QVBoxLayout *modelInfoLayout = new QVBoxLayout();
+  modelInfoLayout->setContentsMargins(50, 25, 50, 20);
+
+  titleLabel = addLabel(modelInfoLayout, "The model used during that drive was:", "title");
+  modelLabel = addLabel(modelInfoLayout, "", "model");
+
+  modelInfoLayout->addItem(new QSpacerItem(20, 75, QSizePolicy::Minimum, QSizePolicy::Fixed));
+
+  QVBoxLayout *bottomLayout = new QVBoxLayout();
+  modelScoreLabel = addLabel(bottomLayout, "Current Model Score: 0", "score");
+  modelRankLabel = addLabel(bottomLayout, "Current Model Rank: 0", "rank");
+  totalDrivesLabel = addLabel(bottomLayout, "Total Model Drives: 0", "drives");
+  totalOverallDrivesLabel = addLabel(bottomLayout, "Total Overall Model Drives: 0", "drives");
+  blacklistMessageLabel = addLabel(bottomLayout, "", "blacklist_message");
+
+  modelInfoLayout->addLayout(bottomLayout);
+
+  QWidget *modelInfoWidget = new QWidget(this);
+  modelInfoWidget->setLayout(modelInfoLayout);
+  mainLayout->addWidget(modelInfoWidget);
 
   setStyleSheet(R"(
     ModelReview {
@@ -50,57 +93,6 @@ ModelReview::ModelReview(QWidget *parent) : QFrame(parent) {
   )");
 }
 
-void ModelReview::setupRatingLayout() {
-  ratingLayout = new QVBoxLayout();
-  ratingLayout->setContentsMargins(50, 25, 50, 20);
-
-  questionLabel = addLabel(ratingLayout, "What would you rate that drive?", "question");
-
-  QHBoxLayout *ratingButtonsLayout = new QHBoxLayout();
-  QStringList emojis = {"🤩", "🙂", "🤔", "🙁", "🤕"};
-  QList<int> scores = {100, 80, 60, 40, 20};
-
-  for (int i = 0; i < emojis.size(); ++i) {
-    QPushButton *ratingButton = createButton(emojis[i], "rating_button", scores[i], 150, 150);
-    QObject::connect(ratingButton, &QPushButton::clicked, this, &ModelReview::onRatingButtonClicked);
-    ratingButtons.append(ratingButton);
-    ratingButtonsLayout->addWidget(ratingButton);
-  }
-
-  ratingLayout->addLayout(ratingButtonsLayout);
-
-  blacklistButton = createButton("Blacklist this model", "blacklist_button", 0, 600, 100);
-  QObject::connect(blacklistButton, &QPushButton::clicked, this, &ModelReview::onBlacklistButtonClicked);
-  ratingLayout->addWidget(blacklistButton, 0, Qt::AlignCenter);
-
-  QWidget *ratingWidget = new QWidget(this);
-  ratingWidget->setLayout(ratingLayout);
-  mainLayout->addWidget(ratingWidget);
-}
-
-void ModelReview::setupModelInfoLayout() {
-  modelInfoLayout = new QVBoxLayout();
-  modelInfoLayout->setContentsMargins(50, 25, 50, 20);
-
-  titleLabel = addLabel(modelInfoLayout, "The model used during that drive was:", "title");
-  modelLabel = addLabel(modelInfoLayout, "", "model");
-
-  modelInfoLayout->addItem(new QSpacerItem(20, 75, QSizePolicy::Minimum, QSizePolicy::Fixed));
-
-  QVBoxLayout *bottomLayout = new QVBoxLayout();
-  modelScoreLabel = addLabel(bottomLayout, "Current Model Score: 0", "score");
-  modelRankLabel = addLabel(bottomLayout, "Current Model Rank: 0", "rank");
-  totalDrivesLabel = addLabel(bottomLayout, "Total Model Drives: 0", "drives");
-  totalOverallDrivesLabel = addLabel(bottomLayout, "Total Overall Model Drives: 0", "drives");
-  blacklistMessageLabel = addLabel(bottomLayout, "", "blacklist_message");
-
-  modelInfoLayout->addLayout(bottomLayout);
-
-  QWidget *modelInfoWidget = new QWidget(this);
-  modelInfoWidget->setLayout(modelInfoLayout);
-  mainLayout->addWidget(modelInfoWidget);
-}
-
 QLabel *ModelReview::addLabel(QVBoxLayout *layout, const QString &text, const QString &type) {
   QLabel *label = new QLabel(text, this);
   label->setProperty("type", type);
@@ -135,10 +127,10 @@ void ModelReview::mousePressEvent(QMouseEvent *e) {
 }
 
 void ModelReview::updateLabel() {
-  modelLabel->setText(currentModel.remove(QRegularExpression("[🗺️👀📡]")).remove(QRegularExpression(" \\(Default\\)")));
-  modelScoreLabel->setText(QString("Current Model Score: %1").arg(finalRating));
   totalDrivesLabel->setText(QString("Total Model Drives: %1").arg(totalDrives));
+  modelLabel->setText(currentModel.remove(QRegularExpression("[🗺️👀📡]")).remove(QRegularExpression(" \\(Default\\)")));
   modelRankLabel->setText(QString("Current Model Rank: %1").arg(getModelRank()));
+  modelScoreLabel->setText(QString("Current Model Score: %1").arg(finalRating));
   totalOverallDrivesLabel->setText(QString("Total Overall Drives: %1").arg(totalOverallDrives));
 
   mainLayout->setCurrentIndex(1);
@@ -157,19 +149,23 @@ void ModelReview::onRatingButtonClicked() {
   int currentRating = params.getInt((QString("%1Score").arg(currentModelFiltered)).toStdString());
   finalRating = (currentRating * (totalDrives - 1) + newRating) / totalDrives;
 
-  params.putIntNonBlocking((QString("%1Drives").arg(currentModelFiltered)).toStdString(), totalDrives);
-  params.putIntNonBlocking((QString("%1Score").arg(currentModelFiltered)).toStdString(), finalRating);
+  params.putInt((QString("%1Drives").arg(currentModelFiltered)).toStdString(), totalDrives);
+  params.putInt((QString("%1Score").arg(currentModelFiltered)).toStdString(), finalRating);
 
   modelRated = true;
   updateLabel();
 }
 
 void ModelReview::onBlacklistButtonClicked() {
-  params.putIntNonBlocking(QString("%1Score").arg(currentModelFiltered).toStdString(), 0);
+  params.putInt(QString("%1Score").arg(currentModelFiltered).toStdString(), 0);
+
+  totalDrives = params.getInt((QString("%1Drives").arg(currentModelFiltered)).toStdString()) + 1;
+
+  params.putInt((QString("%1Drives").arg(currentModelFiltered)).toStdString(), totalDrives);
 
   if (!blacklistedModels.contains(currentModel)) {
     blacklistedModels.append(currentModel);
-    params.putNonBlocking("BlacklistedModels", blacklistedModels.join(",").toStdString());
+    params.put("BlacklistedModels", blacklistedModels.join(",").toStdString());
   }
 
   blacklistMessageLabel->setText("Model successfully blacklisted!");
@@ -188,25 +184,27 @@ int ModelReview::getModelRank() {
   QList<QPair<QString, int>> modelScores;
   totalOverallDrives = 0;
 
-  for (const QString &model : availableModels) {
+  for (QString &model : availableModels) {
     QString processedModel = processModelName(model);
-    int modelScore = params.getInt((QString("%1Score").arg(processedModel)).toStdString());
     int modelDrives = params.getInt((QString("%1Drives").arg(processedModel)).toStdString());
+    int modelScore = params.getInt((QString("%1Score").arg(processedModel)).toStdString());
 
     totalOverallDrives += modelDrives;
-    modelScores.append(qMakePair(processedModel, modelScore));
+
+    if (modelScore > 0) {
+      modelScores.append(qMakePair(processedModel, modelScore));
+    }
   }
 
-  std::sort(modelScores.begin(), modelScores.end(), [](const QPair<QString, int> &a, const QPair<QString, int> &b) {
+  std::sort(modelScores.begin(), modelScores.end(), [](QPair<QString, int> &a, QPair<QString, int> &b) {
     return a.second > b.second;
   });
 
-  QString processedCurrentModel = processModelName(currentModel);
   for (int i = 0; i < modelScores.size(); ++i) {
-    if (modelScores[i].first == processedCurrentModel) {
+    if (modelScores[i].first == currentModelFiltered) {
       return i + 1;
     }
   }
 
-  return -1;
+  return 1;
 }

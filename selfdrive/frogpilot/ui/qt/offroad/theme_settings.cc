@@ -4,7 +4,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
   const std::vector<std::tuple<QString, QString, QString, QString>> themeToggles {
     {"PersonalizeOpenpilot", tr("Custom Theme"), tr("Custom openpilot themes."), "../frogpilot/assets/toggle_icons/frog.png"},
     {"CustomColors", tr("Color Scheme"), tr("Themed color schemes.\n\nWant to submit your own color scheme? Share it in the 'feature-request' channel on the FrogPilot Discord!"), ""},
-    {"CustomDistanceIcon", "Distance Button Icons", "Themed distance button icons.\n\nWant to submit your own icon pack? Share it in the 'feature-request' channel on the FrogPilot Discord!", ""},
+    {"CustomDistanceIcon", "Distance Button", "Themed distance button icons.\n\nWant to submit your own icon pack? Share it in the 'feature-request' channel on the FrogPilot Discord!", ""},
     {"CustomIcons", tr("Icon Pack"), tr("Themed icon packs.\n\nWant to submit your own icons? Share them in the 'feature-request' channel on the FrogPilot Discord!"), ""},
     {"CustomSounds", tr("Sound Pack"), tr("Themed sound effects.\n\nWant to submit your own sounds? Share them in the 'feature-request' channel on the FrogPilot Discord!"), ""},
     {"WheelIcon", tr("Steering Wheel"), tr("Custom steering wheel icons."), ""},
@@ -144,7 +144,6 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           QString colorSchemeToSelect = MultiOptionDialog::getSelection(tr("Select a color scheme"), availableColors, currentColor, this);
           if (!colorSchemeToSelect.isEmpty()) {
             params.put("CustomColors", formatColorNameForStorage(colorSchemeToSelect).toStdString());
-            loadThemeColors("", true);
             manageCustomColorsBtn->setValue(colorSchemeToSelect);
             paramsMemory.putBool("UpdateTheme", true);
           }
@@ -880,6 +879,14 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
       update();
     });
   }
+
+  QObject::connect(static_cast<ToggleControl*>(toggles["HolidayThemes"]), &ToggleControl::toggleFlipped, [this] {
+    paramsMemory.putBool("UpdateTheme", true);
+  });
+
+  QObject::connect(static_cast<ToggleControl*>(toggles["PersonalizeOpenpilot"]), &ToggleControl::toggleFlipped, [this] {
+    paramsMemory.putBool("UpdateTheme", true);
+  });
 
   QObject::connect(parent, &FrogPilotSettingsWindow::closeParentToggle, this, &FrogPilotThemesPanel::hideToggles);
   QObject::connect(parent, &FrogPilotSettingsWindow::updateCarToggles, this, &FrogPilotThemesPanel::updateCarToggles);

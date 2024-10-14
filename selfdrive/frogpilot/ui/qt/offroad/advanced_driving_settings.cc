@@ -86,6 +86,11 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
         } else {
           if (hasAutoTune) {
             modifiedLateralTuneKeys.erase("ForceAutoTune");
+          } else if (isPIDCar) {
+            modifiedLateralTuneKeys.erase("ForceAutoTuneOff");
+            modifiedLateralTuneKeys.erase("SteerFriction");
+            modifiedLateralTuneKeys.erase("SteerKP");
+            modifiedLateralTuneKeys.erase("SteerLatAccel");
           } else {
             modifiedLateralTuneKeys.erase("ForceAutoTuneOff");
           }
@@ -223,23 +228,20 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
       QObject::connect(modelRandomizerToggle, &FrogPilotParamManageControl::manageButtonClicked, [this]() {
         openSubParentToggle();
         showToggles(modelRandomizerKeys);
+        updateModelLabels();
       });
       advancedDrivingToggle = modelRandomizerToggle;
     } else if (param == "ManageBlacklistedModels") {
       FrogPilotButtonsControl *blacklistBtn = new FrogPilotButtonsControl(title, desc, {tr("ADD"), tr("REMOVE")});
-      QObject::connect(blacklistBtn, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
+      QObject::connect(blacklistBtn, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
         QStringList blacklistedModels = QString::fromStdString(params.get("BlacklistedModels")).split(",", QString::SkipEmptyParts);
-        QMap<QString, QString> labelToModelMap;
-        QStringList selectableModels, deletableModels;
+        QStringList selectableModels = availableModelNames;
 
-        for (int i = 0; i < availableModels.size(); ++i) {
-          QString model = availableModels[i];
-          if (blacklistedModels.contains(model)) {
-            deletableModels.append(availableModelNames[i]);
-          } else {
-            selectableModels.append(availableModelNames[i]);
+        for (QString &model : blacklistedModels) {
+          selectableModels.removeAll(model);
+          if (model.contains("(Default)")) {
+            blacklistedModels.move(blacklistedModels.indexOf(model), 0);
           }
-          labelToModelMap[availableModelNames[i]] = model;
         }
 
         if (id == 0) {
@@ -249,23 +251,22 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
             QString selectedModel = MultiOptionDialog::getSelection(tr("Select a model to add to the blacklist"), selectableModels, "", this);
             if (!selectedModel.isEmpty()) {
               if (ConfirmationDialog::confirm(tr("Are you sure you want to add the '%1' model to the blacklist?").arg(selectedModel), tr("Add"), this)) {
-                QString modelToAdd = labelToModelMap[selectedModel];
-                if (!blacklistedModels.contains(modelToAdd)) {
-                  blacklistedModels.append(modelToAdd);
+                if (!blacklistedModels.contains(selectedModel)) {
+                  blacklistedModels.append(selectedModel);
                   params.putNonBlocking("BlacklistedModels", blacklistedModels.join(",").toStdString());
+                  paramsStorage.putNonBlocking("BlacklistedModels", blacklistedModels.join(",").toStdString());
                 }
               }
             }
           }
         } else if (id == 1) {
-          QString selectedModel = MultiOptionDialog::getSelection(tr("Select a model to remove from the blacklist"), deletableModels, "", this);
+          QString selectedModel = MultiOptionDialog::getSelection(tr("Select a model to remove from the blacklist"), blacklistedModels, "", this);
           if (!selectedModel.isEmpty()) {
             if (ConfirmationDialog::confirm(tr("Are you sure you want to remove the '%1' model from the blacklist?").arg(selectedModel), tr("Remove"), this)) {
-              QString modelToRemove = labelToModelMap[selectedModel];
-              if (blacklistedModels.contains(modelToRemove)) {
-                blacklistedModels.removeAll(modelToRemove);
+              if (blacklistedModels.contains(selectedModel)) {
+                blacklistedModels.removeAll(selectedModel);
                 params.putNonBlocking("BlacklistedModels", blacklistedModels.join(",").toStdString());
-                paramsStorage.put("BlacklistedModels", blacklistedModels.join(",").toStdString());
+                paramsStorage.putNonBlocking("BlacklistedModels", blacklistedModels.join(",").toStdString());
               }
             }
           }
@@ -692,11 +693,9 @@ FrogPilotAdvancedDrivingPanel::FrogPilotAdvancedDrivingPanel(FrogPilotSettingsWi
   QObject::connect(parent, &FrogPilotSettingsWindow::closeSubSubParentToggle, this, &FrogPilotAdvancedDrivingPanel::hideSubSubToggles);
   QObject::connect(parent, &FrogPilotSettingsWindow::updateCarToggles, this, &FrogPilotAdvancedDrivingPanel::updateCarToggles);
   QObject::connect(parent, &FrogPilotSettingsWindow::updateMetric, this, &FrogPilotAdvancedDrivingPanel::updateMetric);
-  QObject::connect(uiState(), &UIState::driveRated, this, &FrogPilotAdvancedDrivingPanel::updateModelLabels);
   QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotAdvancedDrivingPanel::updateState);
 
   updateMetric();
-  updateModelLabels();
 }
 
 void FrogPilotAdvancedDrivingPanel::updateMetric() {
@@ -729,6 +728,7 @@ void FrogPilotAdvancedDrivingPanel::updateCarToggles() {
   hasNNFFLog = parent->hasNNFFLog;
   hasOpenpilotLongitudinal = parent->hasOpenpilotLongitudinal;
   hasPCMCruise = parent->hasPCMCruise;
+  isPIDCar = parent->isPIDCar;
   liveValid = parent->liveValid;
   steerFrictionStock = parent->steerFrictionStock;
   steerKPStock = parent->steerKPStock;
@@ -840,9 +840,7 @@ void FrogPilotAdvancedDrivingPanel::updateCalibrationDescription() {
 
 void FrogPilotAdvancedDrivingPanel::updateModelLabels() {
   QVector<QPair<QString, int>> modelScores;
-  availableModelNames = QString::fromStdString(params.get("AvailableModelsNames")).split(",");
-
-  for (const QString &model : availableModelNames) {
+  for (QString &model : availableModelNames) {
     QString cleanedModel = processModelName(model);
     int score = params.getInt((cleanedModel + "Score").toStdString());
 
@@ -855,11 +853,11 @@ void FrogPilotAdvancedDrivingPanel::updateModelLabels() {
 
   labelControls.clear();
 
-  for (const auto &pair : modelScores) {
+  for (QPair<QString, int> &pair : modelScores) {
     QString scoreDisplay = pair.second == 0 ? "N/A" : QString::number(pair.second) + "%";
     LabelControl *labelControl = new LabelControl(pair.first, scoreDisplay, "");
-    addItem(labelControl);
     labelControls.append(labelControl);
+    addItem(labelControl);
   }
 
   for (LabelControl *label : labelControls) {

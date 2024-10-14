@@ -29,7 +29,7 @@ class CarControllerParams:
   ANGLE_RATE_LIMIT_UP = AngleRateLimit(speed_bp=[5, 25], angle_v=[0.3, 0.15])
   ANGLE_RATE_LIMIT_DOWN = AngleRateLimit(speed_bp=[5, 25], angle_v=[0.36, 0.26])
 
-  def __init__(self, CP, vEgoRaw=100.):
+  def __init__(self, CP):
     if CP.flags & ToyotaFlags.RAISED_ACCEL_LIMIT:
       self.ACCEL_MAX = 2.0
     else:
@@ -37,12 +37,8 @@ class CarControllerParams:
     self.ACCEL_MIN = -3.5  # m/s2
 
     if CP.lateralTuning.which == 'torque':
-      if vEgoRaw < 11.0:
-        self.STEER_DELTA_UP = 15       # 1.0s time to peak torque
-        self.STEER_DELTA_DOWN = 25     # always lower than 45 otherwise the Rav4 faults (Prius seems ok with 50)
-      else:
-        self.STEER_DELTA_UP = 15       # 1.0s time to peak torque
-        self.STEER_DELTA_DOWN = 25     # always lower than 45 otherwise the Rav4 faults (Prius seems ok with 50)
+      self.STEER_DELTA_UP = 15       # 1.0s time to peak torque
+      self.STEER_DELTA_DOWN = 25     # always lower than 45 otherwise the Rav4 faults (Prius seems ok with 50)
     else:
       self.STEER_DELTA_UP = 10       # 1.5s time to peak torque
       self.STEER_DELTA_DOWN = 25     # always lower than 45 otherwise the Rav4 faults (Prius seems ok with 50)
@@ -69,7 +65,8 @@ class ToyotaFlags(IntFlag):
   RAISED_ACCEL_LIMIT = 1024
 
   # FrogPilot Toyota flags
-  ZSS = 4096
+  NEW_TOYOTA_TUNE = 4096
+  ZSS = 8192
 
 class Footnote(Enum):
   CAMRY = CarFootnote(
