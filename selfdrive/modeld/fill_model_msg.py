@@ -8,7 +8,6 @@ SEND_RAW_PRED = os.getenv('SEND_RAW_PRED')
 
 ConfidenceClass = log.ModelDataV2.ConfidenceClass
 
-
 class PublishState:
   def __init__(self):
     self.disengage_buffer = np.zeros(ModelConstants.CONFIDENCE_BUFFER_LEN*ModelConstants.DISENGAGE_WIDTH, dtype=np.float32)
@@ -42,22 +41,45 @@ def fill_xyvat(builder, t, x, y, v, a, x_std=None, y_std=None, v_std=None, a_std
   if a_std is not None:
     builder.aStd = a_std.tolist()
 
-def fill_model_msg(msg: capnp._DynamicStructBuilder, net_output_data: dict[str, np.ndarray], publish_state: PublishState,
-                   vipc_frame_id: int, vipc_frame_id_extra: int, frame_id: int, frame_drop: float,
-                   timestamp_eof: int, timestamp_llk: int, model_execution_time: float, valid: bool, nav_enabled: bool,
-                   gas_brake, secret_good_openpilot: bool, use_velocity: bool) -> None:
-  frame_age = frame_id - vipc_frame_id if frame_id > vipc_frame_id else 0
-  msg.valid = valid
+def fill_xyz_poly(builder, degree, x, y, z):
+  xyz = np.stack([x, y, z], axis=1)
+  coeffs = np.polynomial.polynomial.polyfit(ModelConstants.T_IDXS, xyz, deg=degree)
+  builder.xCoefficients = coeffs[:, 0].tolist()
+  builder.yCoefficients = coeffs[:, 1].tolist()
+  builder.zCoefficients = coeffs[:, 2].tolist()
 
-  modelV2 = msg.modelV2
+def fill_lane_line_meta(builder, lane_lines, lane_line_probs):
+  builder.leftY = lane_lines[1].y[0]
+  builder.leftProb = lane_line_probs[1]
+  builder.rightY = lane_lines[2].y[0]
+  builder.rightProb = lane_line_probs[2]
+
+def fill_model_msg(base_msg: capnp._DynamicStructBuilder, extended_msg: capnp._DynamicStructBuilder,
+                   net_output_data: dict[str, np.ndarray], publish_state: PublishState,
+                   vipc_frame_id: int, vipc_frame_id_extra: int, frame_id: int, frame_drop: float,
+                   timestamp_eof: int, model_execution_time: float, valid: bool) -> None:
+  frame_age = frame_id - vipc_frame_id if frame_id > vipc_frame_id else 0
+  frame_drop_perc = frame_drop * 100
+  extended_msg.valid = valid
+  base_msg.valid = valid
+
+  driving_model_data = base_msg.drivingModelData
+
+  driving_model_data.frameId = vipc_frame_id
+  driving_model_data.frameIdExtra = vipc_frame_id_extra
+  driving_model_data.frameDropPerc = frame_drop_perc
+  driving_model_data.modelExecutionTime = model_execution_time
+
+  action = driving_model_data.action
+  action.desiredCurvature = float(net_output_data['desired_curvature'][0,0])
+
+  modelV2 = extended_msg.modelV2
   modelV2.frameId = vipc_frame_id
   modelV2.frameIdExtra = vipc_frame_id_extra
   modelV2.frameAge = frame_age
-  modelV2.frameDropPerc = frame_drop * 100
+  modelV2.frameDropPerc = frame_drop_perc
   modelV2.timestampEof = timestamp_eof
-  modelV2.locationMonoTime = timestamp_llk
   modelV2.modelExecutionTime = model_execution_time
-  modelV2.navEnabled = nav_enabled
 
   # plan
   position = modelV2.position
@@ -70,6 +92,17 @@ def fill_model_msg(msg: capnp._DynamicStructBuilder, net_output_data: dict[str, 
   fill_xyzt(orientation, ModelConstants.T_IDXS, *net_output_data['plan'][0,:,Plan.T_FROM_CURRENT_EULER].T)
   orientation_rate = modelV2.orientationRate
   fill_xyzt(orientation_rate, ModelConstants.T_IDXS, *net_output_data['plan'][0,:,Plan.ORIENTATION_RATE].T)
+
+  # temporal pose
+  temporal_pose = modelV2.temporalPose
+  temporal_pose.trans = net_output_data['plan'][0,0,Plan.VELOCITY].tolist()
+  temporal_pose.transStd = net_output_data['plan_stds'][0,0,Plan.VELOCITY].tolist()
+  temporal_pose.rot = net_output_data['plan'][0,0,Plan.ORIENTATION_RATE].tolist()
+  temporal_pose.rotStd = net_output_data['plan_stds'][0,0,Plan.ORIENTATION_RATE].tolist()
+
+  # poly path
+  poly_path = driving_model_data.path
+  fill_xyz_poly(poly_path, ModelConstants.POLY_PATH_DEGREE, *net_output_data['plan'][0,:,Plan.POSITION].T)
 
   # lateral planning
   action = modelV2.action
@@ -123,6 +156,9 @@ def fill_model_msg(msg: capnp._DynamicStructBuilder, net_output_data: dict[str, 
   modelV2.laneLineStds = net_output_data['lane_lines_stds'][0,:,0,0].tolist()
   modelV2.laneLineProbs = net_output_data['lane_lines_prob'][0,1::2].tolist()
 
+  lane_line_meta = driving_model_data.laneLineMeta
+  fill_lane_line_meta(lane_line_meta, modelV2.laneLines, modelV2.laneLineProbs)
+
   # road edges
   modelV2.init('roadEdges', 2)
   for i in range(2):
@@ -146,43 +182,29 @@ def fill_model_msg(msg: capnp._DynamicStructBuilder, net_output_data: dict[str, 
   meta.init('disengagePredictions')
   disengage_predictions = meta.disengagePredictions
   disengage_predictions.t = ModelConstants.META_T_IDXS
-  disengage_predictions.brakeDisengageProbs = net_output_data['meta'][0,Meta.BRAKE_DISENGAGE_GB if gas_brake else Meta.BRAKE_DISENGAGE_SECRET if secret_good_openpilot else Meta.BRAKE_DISENGAGE].tolist()
-  disengage_predictions.gasDisengageProbs = net_output_data['meta'][0,Meta.GAS_DISENGAGE_GB if gas_brake else Meta.GAS_DISENGAGE_SECRET if secret_good_openpilot else Meta.GAS_DISENGAGE].tolist()
+  disengage_predictions.brakeDisengageProbs = net_output_data['meta'][0,Meta.BRAKE_DISENGAGE].tolist()
+  disengage_predictions.gasDisengageProbs = net_output_data['meta'][0,Meta.GAS_DISENGAGE].tolist()
   disengage_predictions.steerOverrideProbs = net_output_data['meta'][0,Meta.STEER_OVERRIDE].tolist()
-  disengage_predictions.brake3MetersPerSecondSquaredProbs = net_output_data['meta'][0,Meta.HARD_BRAKE_3_GB if gas_brake else Meta.HARD_BRAKE_3_SECRET if secret_good_openpilot else Meta.HARD_BRAKE_3].tolist()
-  disengage_predictions.brake4MetersPerSecondSquaredProbs = net_output_data['meta'][0,Meta.HARD_BRAKE_4_GB if gas_brake else Meta.HARD_BRAKE_4_SECRET if secret_good_openpilot else Meta.HARD_BRAKE_4].tolist()
-  disengage_predictions.brake5MetersPerSecondSquaredProbs = net_output_data['meta'][0,Meta.HARD_BRAKE_5_GB if gas_brake else Meta.HARD_BRAKE_5_SECRET if secret_good_openpilot else Meta.HARD_BRAKE_5].tolist()
-  if not secret_good_openpilot:
-    disengage_predictions.gasPressProbs = net_output_data['meta'][0,Meta.GAS_PRESS].tolist()
-    disengage_predictions.brakePressProbs = net_output_data['meta'][0,Meta.BRAKE_PRESS].tolist()
+  disengage_predictions.brake3MetersPerSecondSquaredProbs = net_output_data['meta'][0,Meta.HARD_BRAKE_3].tolist()
+  disengage_predictions.brake4MetersPerSecondSquaredProbs = net_output_data['meta'][0,Meta.HARD_BRAKE_4].tolist()
+  disengage_predictions.brake5MetersPerSecondSquaredProbs = net_output_data['meta'][0,Meta.HARD_BRAKE_5].tolist()
+  disengage_predictions.gasPressProbs = net_output_data['meta'][0,Meta.GAS_PRESS].tolist()
+  disengage_predictions.brakePressProbs = net_output_data['meta'][0,Meta.BRAKE_PRESS].tolist()
 
   publish_state.prev_brake_5ms2_probs[:-1] = publish_state.prev_brake_5ms2_probs[1:]
-  publish_state.prev_brake_5ms2_probs[-1] = net_output_data['meta'][0,Meta.HARD_BRAKE_5_GB if gas_brake else Meta.BRAKE_DISENGAGE_SECRET if secret_good_openpilot else Meta.HARD_BRAKE_5][0]
+  publish_state.prev_brake_5ms2_probs[-1] = net_output_data['meta'][0,Meta.HARD_BRAKE_5][0]
   publish_state.prev_brake_3ms2_probs[:-1] = publish_state.prev_brake_3ms2_probs[1:]
-  publish_state.prev_brake_3ms2_probs[-1] = net_output_data['meta'][0,Meta.HARD_BRAKE_3_GB if gas_brake else Meta.BRAKE_DISENGAGE_SECRET if secret_good_openpilot else Meta.HARD_BRAKE_3][0]
+  publish_state.prev_brake_3ms2_probs[-1] = net_output_data['meta'][0,Meta.HARD_BRAKE_3][0]
   hard_brake_predicted = (publish_state.prev_brake_5ms2_probs > ModelConstants.FCW_THRESHOLDS_5MS2).all() and \
     (publish_state.prev_brake_3ms2_probs > ModelConstants.FCW_THRESHOLDS_3MS2).all()
   meta.hardBrakePredicted = hard_brake_predicted.item()
 
-  # temporal pose
-  temporal_pose = modelV2.temporalPose
-  if use_velocity:
-    temporal_pose.trans = net_output_data['plan'][0,0,Plan.VELOCITY].tolist()
-    temporal_pose.transStd = net_output_data['plan_stds'][0,0,Plan.VELOCITY].tolist()
-    temporal_pose.rot = net_output_data['plan'][0,0,Plan.ORIENTATION_RATE].tolist()
-    temporal_pose.rotStd = net_output_data['plan_stds'][0,0,Plan.ORIENTATION_RATE].tolist()
-  else:
-    temporal_pose.trans = net_output_data['sim_pose'][0,:3].tolist()
-    temporal_pose.transStd = net_output_data['sim_pose_stds'][0,:3].tolist()
-    temporal_pose.rot = net_output_data['sim_pose'][0,3:].tolist()
-    temporal_pose.rotStd = net_output_data['sim_pose_stds'][0,3:].tolist()
-
   # confidence
   if vipc_frame_id % (2*ModelConstants.MODEL_FREQ) == 0:
     # any disengage prob
-    brake_disengage_probs = net_output_data['meta'][0,Meta.BRAKE_DISENGAGE_GB if gas_brake else Meta.BRAKE_DISENGAGE_SECRET if secret_good_openpilot else Meta.BRAKE_DISENGAGE]
-    gas_disengage_probs = net_output_data['meta'][0,Meta.GAS_DISENGAGE_GB if gas_brake else Meta.GAS_DISENGAGE_SECRET if secret_good_openpilot else Meta.GAS_DISENGAGE]
-    steer_override_probs = net_output_data['meta'][0,Meta.STEER_OVERRIDE_GB if gas_brake else Meta.STEER_OVERRIDE_SECRET if secret_good_openpilot else Meta.STEER_OVERRIDE]
+    brake_disengage_probs = net_output_data['meta'][0,Meta.BRAKE_DISENGAGE]
+    gas_disengage_probs = net_output_data['meta'][0,Meta.GAS_DISENGAGE]
+    steer_override_probs = net_output_data['meta'][0,Meta.STEER_OVERRIDE]
     any_disengage_probs = 1-((1-brake_disengage_probs)*(1-gas_disengage_probs)*(1-steer_override_probs))
     # independent disengage prob for each 2s slice
     ind_disengage_probs = np.r_[any_disengage_probs[0], np.diff(any_disengage_probs) / (1 - any_disengage_probs[:-1])]

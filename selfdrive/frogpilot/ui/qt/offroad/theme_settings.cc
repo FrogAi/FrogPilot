@@ -144,7 +144,6 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           QString colorSchemeToSelect = MultiOptionDialog::getSelection(tr("Select a color scheme"), availableColors, currentColor, this);
           if (!colorSchemeToSelect.isEmpty()) {
             params.put("CustomColors", formatColorNameForStorage(colorSchemeToSelect).toStdString());
-            loadThemeColors("", true);
             manageCustomColorsBtn->setValue(colorSchemeToSelect);
             paramsMemory.putBool("UpdateTheme", true);
           }
@@ -880,6 +879,14 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
       update();
     });
   }
+
+  QObject::connect(static_cast<ToggleControl*>(toggles["HolidayThemes"]), &ToggleControl::toggleFlipped, [this] {
+    paramsMemory.putBool("UpdateTheme", true);
+  });
+
+  QObject::connect(static_cast<ToggleControl*>(toggles["PersonalizeOpenpilot"]), &ToggleControl::toggleFlipped, [this] {
+    paramsMemory.putBool("UpdateTheme", true);
+  });
 
   QObject::connect(parent, &FrogPilotSettingsWindow::closeParentToggle, this, &FrogPilotThemesPanel::hideToggles);
   QObject::connect(parent, &FrogPilotSettingsWindow::updateCarToggles, this, &FrogPilotThemesPanel::updateCarToggles);

@@ -323,7 +323,7 @@ void ui_update_params(UIState *s) {
 void ui_update_frogpilot_params(UIState *s, Params &params) {
   UIScene &scene = s->scene;
 
-  auto carParams = params.get("CarParamsPersistent");
+  std::string carParams = params.get("CarParamsPersistent");
   if (!carParams.empty()) {
     AlignedBuffer aligned_buf;
     capnp::FlatArrayMessageReader cmsg(aligned_buf.align(carParams.data(), carParams.size()));
@@ -356,8 +356,7 @@ void ui_update_frogpilot_params(UIState *s, Params &params) {
   scene.sidebar_color1 = loadThemeColors("Sidebar1");
   scene.sidebar_color2 = loadThemeColors("Sidebar2");
   scene.sidebar_color3 = loadThemeColors("Sidebar3");
-  QString colorScheme = QString::fromStdString(params.get("CustomColors"));
-  scene.use_stock_colors = !personalize_openpilot || colorScheme == "stock" || params.getBool("UseStockColors");
+  scene.use_stock_colors = !personalize_openpilot || params.getBool("UseStockColors");
   scene.use_stock_wheel = !personalize_openpilot || QString::fromStdString(params.get("WheelIcon")) == "stock";
 
   scene.conditional_experimental = scene.longitudinal_control && params.getBool("ConditionalExperimental");
@@ -530,6 +529,7 @@ void UIState::update() {
   emit uiUpdate(*this);
 
   // Update FrogPilot parameters
+  static bool theme_updated = false;
   static bool update_toggles = false;
 
   if (paramsMemory.getBool("FrogPilotTogglesUpdated")) {
@@ -542,6 +542,18 @@ void UIState::update() {
   if (paramsMemory.getBool("DriveRated")) {
     emit driveRated();
     paramsMemory.remove("DriveRated");
+  }
+
+  if (theme_updated) {
+    loadThemeColors("", true);
+
+    ui_update_params(this);
+
+    paramsMemory.remove("UpdateTheme");
+
+    theme_updated = false;
+  } else if (paramsMemory.getBool("UpdateTheme")) {
+    theme_updated = true;
   }
 
   // FrogPilot variables that need to be constantly updated

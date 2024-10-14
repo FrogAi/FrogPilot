@@ -866,24 +866,6 @@
           "Lowest"
         ]
       },
-      "SLCConfirmation": {
-        "title": "Confirm New Speed Limits",
-        "description": "Don't automatically start using the new speed limit until it's been manually confirmed.",
-        "section": "controls",
-        "type": "toggle",
-        "toggles": {
-          "SLCConfirmationLower": {
-            "title": "Lower Limits",
-            "section": "controls",
-            "type": "toggle"
-          },
-          "SLCConfirmationHigher": {
-            "title": "Higher Limits",
-            "section": "controls",
-            "type": "toggle"
-          }
-        }
-      },
       "ForceMPHDashboard": {
         "title": "Force MPH From Dashboard Readings",
         "description": "Force MPH readings from the dashboard. Only use this if you live in an area where the speed limits from your dashboard are in KPH, but you use MPH.",

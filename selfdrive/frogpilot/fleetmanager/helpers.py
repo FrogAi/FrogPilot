@@ -59,10 +59,10 @@ PRESERVE_COUNT = 5
 
 # path to openpilot screen recordings and error logs
 if PC:
-  SCREENRECORD_PATH = os.path.join(str(Path.home()), ".comma", "media", "0", "videos", "")
+  SCREENRECORD_PATH = os.path.join(str(Path.home()), ".comma", "media", "screen_recordings", "")
   ERROR_LOGS_PATH = os.path.join(str(Path.home()), ".comma", "community", "crashes", "")
 else:
-  SCREENRECORD_PATH = "/data/media/0/videos/"
+  SCREENRECORD_PATH = "/data/media/screen_recordings/"
   ERROR_LOGS_PATH = sentry.CRASHES_DIR
 
 

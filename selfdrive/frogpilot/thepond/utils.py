@@ -41,7 +41,7 @@ else:
   params_memory = params
   params_tracking = params
 
-SCREENRECORD_PATH = f"{DATA_PATH}/data/media/0/videos/"
+SCREENRECORD_PATH = f"{DATA_PATH}/data/media/screen_recordings/"
 ERROR_LOGS_PATH = f"{DATA_PATH}/data/crashes/"
 FOOTAGE_PATH = f"{DATA_PATH}/data/media/0/realdata/"
 

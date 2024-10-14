@@ -33,11 +33,13 @@ class FrogPilotEvents:
     self.previous_traffic_mode = False
     self.random_event_played = False
     self.stopped_for_light = False
+    self.this_is_fine_played = False
     self.vCruise69_played = False
     self.youveGotMail_played = False
 
     self.frame = 0
     self.max_acceleration = 0
+    self.previous_speed_limit = 0
     self.random_event_timer = 0
 
   def update(self, carState, controlsState, frogpilotCarControl, frogpilotCarState, modelData, frogpilot_toggles):
@@ -48,7 +50,7 @@ class FrogPilotEvents:
     if self.random_event_played:
       self.random_event_timer += DT_MDL
       if self.random_event_timer >= 4:
-        update_wheel_image(frogpilot_toggles.wheel_image, None, False)
+        update_wheel_image(frogpilot_toggles.wheel_image, frogpilot_toggles.current_holiday_theme, False)
         self.params_memory.put_bool("UpdateWheelImage", True)
         self.random_event_played = False
         self.random_event_timer = 0
@@ -125,8 +127,10 @@ class FrogPilotEvents:
           event_choices.append("firefoxSteerSaturated")
         if not self.goat_played:
           event_choices.append("goatSteerSaturated")
+        if not self.this_is_fine_played:
+          event_choices.append("thisIsFineSteerSaturated")
 
-        if event_choices and self.frame % (100 // len(event_choices)) == 0:
+        if self.frame % 100 == 0 and event_choices:
           event_choice = random.choice(event_choices)
           if event_choice == "firefoxSteerSaturated":
             self.events.add(EventName.firefoxSteerSaturated)
@@ -138,6 +142,11 @@ class FrogPilotEvents:
             update_wheel_image("goat")
             self.params_memory.put_bool("UpdateWheelImage", True)
             self.goat_played = True
+          elif event_choice == "thisIsFineSteerSaturated":
+            self.events.add(EventName.thisIsFineSteerSaturated)
+            update_wheel_image("this_is_fine")
+            self.params_memory.put_bool("UpdateWheelImage", True)
+            self.this_is_fine_played = True
           self.random_event_played = True
 
       if not self.vCruise69_played and 70 > v_cruise * (1 if frogpilot_toggles.is_metric else CV.KPH_TO_MPH) >= 69:
@@ -151,14 +160,15 @@ class FrogPilotEvents:
         self.random_event_played = True
 
       if not self.youveGotMail_played and frogpilotCarControl.alwaysOnLateralActive and not self.always_on_lateral_active_previously:
-        if random.random() < 0.5 and carState.vEgo > CRUISING_SPEED:
+        if random.random() < 0.01 and carState.vEgo > CRUISING_SPEED:
           self.events.add(EventName.youveGotMail)
           self.youveGotMail_played = True
           self.random_event_played = True
       self.always_on_lateral_active_previously = frogpilotCarControl.alwaysOnLateralActive
 
-    if frogpilot_toggles.speed_limit_alert and self.frogpilot_planner.frogpilot_vcruise.speed_limit_changed:
+    if frogpilot_toggles.speed_limit_alert and self.frogpilot_planner.frogpilot_vcruise.slc_target != self.previous_speed_limit and self.previous_speed_limit != 0:
       self.events.add(EventName.speedLimitChanged)
+    self.previous_speed_limit = self.frogpilot_planner.frogpilot_vcruise.slc_target
 
     if self.frame == 4 and self.params.get("NNFFModelName", encoding='utf-8') is not None:
       self.events.add(EventName.torqueNNLoad)

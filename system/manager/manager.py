@@ -153,7 +153,6 @@ def manager_init() -> None:
     ("DuckAmigoScore", "0"),
     ("DynamicPathWidth", "0"),
     ("DynamicPedalsOnUI", "1"),
-    ("E2ELongitudinalModels", ""),
     ("EngageVolume", "100"),
     ("ExperimentalGMTune", "0"),
     ("ExperimentalModeActivation", "1"),
@@ -175,7 +174,6 @@ def manager_init() -> None:
     ("GameBoyDrives", "0"),
     ("GameBoyLiveTorqueParameters", ""),
     ("GameBoyScore", "0"),
-    ("GasBrakeModels", ""),
     ("GasRegenCmd", "1"),
     ("GMapKey", ""),
     ("GoatScream", "0"),
@@ -197,7 +195,7 @@ def manager_init() -> None:
     ("JerkInfo", "1"),
     ("LaneChangeCustomizations", "1"),
     ("LaneChangeTime", "0"),
-    ("LaneDetectionWidth", "60"),
+    ("LaneDetectionWidth", "6"),
     ("LaneLinesWidth", "4"),
     ("LateralMetrics", "1"),
     ("LateralTune", "1"),
@@ -242,10 +240,6 @@ def manager_init() -> None:
     ("NorthDakotaDrives", "0"),
     ("NorthDakotaLiveTorqueParameters", ""),
     ("NorthDakotaScore", "0"),
-    ("NorthDakotaV2CalibrationParams", ""),
-    ("NorthDakotaV2Drives", "0"),
-    ("NorthDakotaV2LiveTorqueParameters", ""),
-    ("NorthDakotaV2Score", "0"),
     ("NotreDameCalibrationParams", ""),
     ("NotreDameDrives", "0"),
     ("NotreDameLiveTorqueParameters", ""),
@@ -267,7 +261,6 @@ def manager_init() -> None:
     ("PauseLateralSpeed", "0"),
     ("PedalsOnUI", "1"),
     ("PersonalizeOpenpilot", "1"),
-    ("PoselessModels", ""),
     ("PreferredSchedule", "0"),
     ("PromptDistractedVolume", "100"),
     ("PromptVolume", "100"),
@@ -323,7 +316,6 @@ def manager_init() -> None:
     ("Sidebar", "0"),
     ("SidebarMetrics", "1"),
     ("SignalMetrics", "0"),
-    ("SLCConfirmation", "1"),
     ("SLCConfirmationHigher", "1"),
     ("SLCConfirmationLower", "1"),
     ("SLCFallback", "2"),
@@ -487,9 +479,12 @@ def manager_thread() -> None:
   pm = messaging.PubMaster(['managerState'])
 
   write_onroad_params(False, params)
-  ensure_running(managed_processes.values(), False, params=params, CP=sm['carParams'], not_run=ignore)
+  ensure_running(managed_processes.values(), False, params=params, CP=sm['carParams'], not_run=ignore, secret_good_openpilot=False)
 
   started_prev = False
+
+  # FrogPilot variables
+  secret_good_openpilot = params.get("Model", encoding='utf-8') == "secret-good-openpilot"
 
   while True:
     sm.update(1000)
@@ -503,6 +498,9 @@ def manager_thread() -> None:
       if os.path.isfile(error_log):
         os.remove(error_log)
 
+      # FrogPilot variables
+      secret_good_openpilot = params.get("Model", encoding='utf-8') == "secret-good-openpilot"
+
     elif not started and started_prev:
       params.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
       params_memory.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
@@ -513,7 +511,7 @@ def manager_thread() -> None:
 
     started_prev = started
 
-    ensure_running(managed_processes.values(), started, params=params, CP=sm['carParams'], not_run=ignore)
+    ensure_running(managed_processes.values(), started, params=params, CP=sm['carParams'], not_run=ignore, secret_good_openpilot=secret_good_openpilot)
 
     running = ' '.join("{}{}\u001b[0m".format("\u001b[32m" if p.proc.is_alive() else "\u001b[31m", p.name)
                        for p in managed_processes.values() if p.proc)

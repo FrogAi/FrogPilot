@@ -21,8 +21,10 @@ public:
   bool isGMPCMCruise;
   bool isHKGCanFd;
   bool isImpreza;
+  bool isPIDCar;
   bool isSubaru;
   bool isToyota;
+  bool isToyotaTuneSupported;
   bool isVolt;
   bool forcingAutoTune;
   bool liveValid;
@@ -33,9 +35,13 @@ public:
   float steerRatioStock;
 
 signals:
+  void closeMapBoxInstructions();
+  void closeMapSelection();
   void closeParentToggle();
   void closeSubParentToggle();
   void closeSubSubParentToggle();
+  void openMapBoxInstructions();
+  void openMapSelection();
   void openPanel();
   void openParentToggle();
   void openSubParentToggle();
@@ -44,17 +50,18 @@ signals:
   void updateMetric();
 
 private:
+  void addPanelControl(FrogPilotListWidget *list, QString &title, QString &desc, std::vector<QString> &button_labels, QString &icon, std::vector<QWidget*> &panels, bool isDrivingPanel, bool isNavigationPanel);
+  void closePanel();
+  void showEvent(QShowEvent *event) override;
+  void updateCarVariables();
+  void updatePanelVisibility();
+
   FrogPilotButtonsControl *drivingButton;
+  FrogPilotButtonsControl *navigationButton;
 
   Params params;
 
   QStackedLayout *mainLayout;
 
   QWidget *frogpilotSettingsWidget;
-
-  void addPanelControl(FrogPilotListWidget *list, const QString &title, const QString &desc, const std::vector<QString> &button_labels, const QString &icon, const std::vector<QWidget*> &panels, const bool isDrivingPanel = false);
-  void closePanel();
-  void showEvent(QShowEvent *event) override;
-  void updateCarVariables();
-  void updatePanelVisibility();
 };
