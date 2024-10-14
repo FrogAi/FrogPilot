@@ -44,15 +44,12 @@ int get_path_length_idx(const cereal::XYZTData::Reader &line, const float path_h
   return max_idx;
 }
 
-void update_leads(UIState *s, const cereal::ModelDataV2::Reader &model_data) {
-  const cereal::XYZTData::Reader &line = model_data.getPosition();
-  for (int i = 0; i < model_data.getLeadsV3().size() && i < 2; ++i) {
-    const auto &lead = model_data.getLeadsV3()[i];
-    if (s->scene.has_lead) {
-      float d_rel = lead.getX()[0];
-      float y_rel = lead.getY()[0];
-      float z = line.getZ()[get_path_length_idx(line, d_rel)];
-      calib_frame_to_full_frame(s, d_rel, y_rel, z + 1.22, &s->scene.lead_vertices[i]);
+void update_leads(UIState *s, const cereal::RadarState::Reader &radar_state, const cereal::XYZTData::Reader &line) {
+  for (int i = 0; i < 6; ++i) {
+    auto lead_data = (i == 0) ? radar_state.getLeadOne() : (i == 1) ? radar_state.getLeadTwo() : (i == 2) ? radar_state.getLeadLeft() : (i == 3) ? radar_state.getLeadRight() : (i == 4) ? radar_state.getLeadLeftFar() : radar_state.getLeadRightFar();
+    if (lead_data.getStatus()) {
+      float z = line.getZ()[get_path_length_idx(line, lead_data.getDRel())];
+      calib_frame_to_full_frame(s, lead_data.getDRel(), -lead_data.getYRel(), z + 1.22, &s->scene.lead_vertices[i]);
     }
   }
 }
@@ -115,28 +112,25 @@ void update_model(UIState *s,
   }
 
   // update path
-  float path;
+  float path_width;
   if (scene.dynamic_path_width) {
     float multiplier = scene.enabled ? 1.0f : scene.always_on_lateral_active ? 0.75f : 0.50f;
-    path = scene.path_width * multiplier;
+    path_width = scene.path_width * multiplier;
   } else {
-    path = scene.path_width;
+    path_width = scene.path_width;
   }
 
-  auto lead_count = model.getLeadsV3().size();
-  if (lead_count > 0) {
-    auto lead_one = model.getLeadsV3()[0];
-    scene.has_lead = lead_one.getProb() > scene.lead_detection_threshold;
-    if (scene.has_lead) {
-      const float lead_d = lead_one.getX()[0] * 2.;
-      max_distance = std::clamp((float)(lead_d - fmin(lead_d * 0.35, 10.)), 0.0f, max_distance);
-    }
+  auto lead_one = (*s->sm)["radarState"].getRadarState().getLeadOne();
+  scene.has_lead = lead_one.getModelProb() > scene.lead_detection_threshold;
+  if (lead_one.getStatus()) {
+    const float lead_d = lead_one.getDRel() * 2.;
+    max_distance = std::clamp((float)(lead_d - fmin(lead_d * 0.35, 10.)), 0.0f, max_distance);
   }
   max_idx = get_path_length_idx(plan_position, max_distance);
-  update_line_data(s, plan_position, scene.model_ui ? path * (1 - scene.path_edge_width / 100.0f) : 0.9, 1.22, &scene.track_vertices, max_idx, false);
+  update_line_data(s, plan_position, scene.model_ui ? path_width * (1 - scene.path_edge_width / 100.0f) : 0.9, 1.22, &scene.track_vertices, max_idx, false);
 
   // Update path edges
-  update_line_data(s, plan_position, scene.model_ui ? path : 0, 1.22, &scene.track_edge_vertices, max_idx, false);
+  update_line_data(s, plan_position, scene.model_ui ? path_width : 0, 1.22, &scene.track_edge_vertices, max_idx, false);
 }
 
 void update_dmonitoring(UIState *s, const cereal::DriverStateV2::Reader &driverstate, float dm_fade_state, bool is_rhd) {
