@@ -427,9 +427,8 @@ void OnroadWindow::paintEvent(QPaintEvent *event) {
       avgFPS = totalFPS / fpsQueue.size();
     }
 
-    QString fpsDisplayString = QString("FPS: %1 (%2) | Min: %3 | Max: %4 | Avg: %5")
+    QString fpsDisplayString = QString("FPS: %1 | Min: %3 | Max: %4 | Avg: %5")
         .arg(qRound(fps))
-        .arg(paramsMemory.getInt("CameraFPS"))
         .arg(qRound(minFPS))
         .arg(qRound(maxFPS))
         .arg(qRound(avgFPS));

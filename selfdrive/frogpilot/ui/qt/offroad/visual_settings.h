@@ -14,9 +14,9 @@ signals:
   void openParentToggle();
 
 private:
-  FrogPilotSettingsWindow *parent;
-
-  FrogPilotButtonToggleControl *customPathsBtn;
+  void hideToggles();
+  void showToggles(const std::set<QString> &keys);
+  void updateCarToggles();
 
   std::set<QString> customOnroadUIKeys = {
     "Compass", "CustomPaths", "DynamicPathWidth",
@@ -28,13 +28,13 @@ private:
     "StandbyMode", "StoppedTimer"
   };
 
-  std::map<QString, AbstractControl*> toggles;
+  FrogPilotSettingsWindow *parent;
+
+  FrogPilotButtonToggleControl *customPathsBtn;
 
   Params params;
 
   bool hasBSM;
 
-  void hideToggles();
-  void showToggles(const std::set<QString> &keys);
-  void updateCarToggles();
+  std::map<QString, AbstractControl*> toggles;
 };

@@ -182,7 +182,7 @@ class Controls:
 
     # FrogPilot variables
     self.frogpilot_toggles = FrogPilotVariables.toggles
-    FrogPilotVariables.update_frogpilot_params()
+    FrogPilotVariables.update_frogpilot_params(False)
 
     self.params_memory = Params("/dev/shm/params")
 
@@ -429,6 +429,9 @@ class Controls:
     # Add FrogPilot events
     self.events.add_from_msg(self.sm['frogpilotPlan'].frogpilotEvents)
 
+    if self.block_user:
+      return EventName.blockUser
+
   def data_sample(self):
     """Receive data from sockets"""
 
@@ -623,7 +626,7 @@ class Controls:
         t_since_plan = (self.sm.frame - self.sm.recv_frame['longitudinalPlan']) * DT_CTRL
         actuators.accel = self.LoC.update_old_long(CC.longActive, CS, long_plan, pid_accel_limits, t_since_plan)
       else:
-        actuators.accel = self.LoC.update(CC.longActive, CS, long_plan.aTarget, long_plan.shouldStop, pid_accel_limits)
+        actuators.accel = self.LoC.update(CC.longActive, CS, long_plan.aTarget, long_plan.shouldStop or self.sm['frogpilotPlan'].vCruise < 0, pid_accel_limits)
 
       if len(long_plan.speeds):
         actuators.speed = long_plan.speeds[-1]
@@ -727,7 +730,7 @@ class Controls:
     self.always_on_lateral_active &= not (CS.brakePressed and CS.vEgo < self.frogpilot_toggles.always_on_lateral_pause_speed) or CS.standstill
     self.always_on_lateral_active = bool(self.always_on_lateral_active)
 
-    if self.frogpilot_toggles.conditional_experimental_mode:
+    if self.frogpilot_toggles.conditional_experimental_mode or self.frogpilot_toggles.slc_fallback_experimental:
       self.experimental_mode = self.sm['frogpilotPlan'].experimentalMode
 
     if any(be.pressed and be.type == FrogPilotButtonType.lkas for be in CS.buttonEvents):

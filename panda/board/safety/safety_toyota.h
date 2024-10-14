@@ -27,35 +27,6 @@ const SteeringLimits TOYOTA_STEERING_LIMITS = {
   },
 };
 
-const SteeringLimits TOYOTA_STEERING_LIMITS_TACO = {
-  .max_steer = 1500,
-  .max_rate_up = 20,     // ramp up slow
-  .max_rate_down = 30,   // ramp down fast
-  .max_torque_error = 350,    // max torque cmd in excess of motor torque
-  .max_rt_delta = 450,        // the real time limit is 1800/sec, a 20% buffer
-  .max_rt_interval = 250000,
-  .type = TorqueMotorLimited,
-
-  // the EPS faults when the steering angle rate is above a certain threshold for too long. to prevent this,
-  // we allow setting STEER_REQUEST bit to 0 while maintaining the requested torque value for a single frame
-  .min_valid_request_frames = 18,
-  .max_invalid_request_frames = 1,
-  .min_valid_request_rt_interval = 170000,  // 170ms; a ~10% buffer on cutting every 19 frames
-  .has_steer_req_tolerance = true,
-
-  // LTA angle limits
-  // factor for STEER_TORQUE_SENSOR->STEER_ANGLE and STEERING_LTA->STEER_ANGLE_CMD (1 / 0.0573)
-  .angle_deg_to_can = 17.452007,
-  .angle_rate_up_lookup = {
-    {5., 25., 25.},
-    {0.3, 0.15, 0.15}
-  },
-  .angle_rate_down_lookup = {
-    {5., 25., 25.},
-    {0.36, 0.26, 0.26}
-  },
-};
-
 const int TOYOTA_LTA_MAX_ANGLE = 1657;  // EPS only accepts up to 94.9461
 const int TOYOTA_LTA_MAX_MEAS_TORQUE = 1500;
 const int TOYOTA_LTA_MAX_DRIVER_TORQUE = 150;
@@ -142,7 +113,6 @@ bool toyota_alt_brake = false;
 bool toyota_stock_longitudinal = false;
 bool toyota_lta = false;
 int toyota_dbc_eps_torque_factor = 100;   // conversion factor for STEER_TORQUE_EPS in %: see dbc file
-float v_ego = 0.;
 
 static uint32_t toyota_compute_checksum(const CANPacket_t *to_push) {
   int addr = GET_ADDR(to_push);
@@ -242,7 +212,6 @@ static void toyota_rx_hook(const CANPacket_t *to_push) {
       // check that all wheel speeds are at zero value
       vehicle_moving = speed != 0;
 
-      v_ego = speed / 4.0 * 0.01 / 3.6;
       UPDATE_VEHICLE_SPEED(speed / 4.0 * 0.01 / 3.6);
     }
 
@@ -340,14 +309,8 @@ static bool toyota_tx_hook(const CANPacket_t *to_send) {
         }
       } else {
         // check angle rate limits and inactive angle
-        if (v_ego < 11.0) {
-          if (steer_angle_cmd_checks(lta_angle, steer_control_enabled, TOYOTA_STEERING_LIMITS_TACO)) {
-            tx = false;
-          }
-        } else {
-          if (steer_angle_cmd_checks(lta_angle, steer_control_enabled, TOYOTA_STEERING_LIMITS)) {
-            tx = false;
-          }
+        if (steer_angle_cmd_checks(lta_angle, steer_control_enabled, TOYOTA_STEERING_LIMITS)) {
+          tx = false;
         }
 
         if (lta_request != lta_request2) {

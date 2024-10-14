@@ -19,17 +19,17 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
-  FrogPilotSettingsWindow *parent;
+  void hideSubToggles();
+  void hideSubSubToggles();
+  void hideToggles();
+  void showToggles(const std::set<QString> &keys);
 
-  ButtonControl *deleteModelBtn;
-  ButtonControl *downloadAllModelsBtn;
-  ButtonControl *downloadModelBtn;
-  ButtonControl *selectModelBtn;
-
-  FrogPilotParamValueButtonControl *steerFrictionToggle;
-  FrogPilotParamValueButtonControl *steerLatAccelToggle;
-  FrogPilotParamValueButtonControl *steerKPToggle;
-  FrogPilotParamValueButtonControl *steerRatioToggle;
+  void startDownloadAllModels();
+  void updateCalibrationDescription();
+  void updateCarToggles();
+  void updateMetric();
+  void updateModelLabels();
+  void updateState(const UIState &s);
 
   std::set<QString> aggressivePersonalityKeys = {
     "AggressiveFollow", "AggressiveJerkAcceleration", "AggressiveJerkDeceleration",
@@ -38,13 +38,14 @@ private:
   };
 
   std::set<QString> customDrivingPersonalityKeys = {
-    "AggressivePersonalityProfile", "RelaxedPersonalityProfile",
-    "StandardPersonalityProfile", "TrafficPersonalityProfile"
+    "AggressivePersonalityProfile", "RelaxedPersonalityProfile", "StandardPersonalityProfile",
+    "TrafficPersonalityProfile"
   };
 
   std::set<QString> lateralTuneKeys = {
-    "ForceAutoTune", "ForceAutoTuneOff", "SteerFriction", "SteerLatAccel",
-    "SteerKP", "SteerRatio", "TacoTune", "TurnDesires"
+    "ForceAutoTune", "ForceAutoTuneOff", "SteerFriction",
+    "SteerLatAccel", "SteerKP", "SteerRatio", "TacoTune",
+    "TurnDesires"
   };
 
   std::set<QString> longitudinalTuneKeys = {
@@ -52,8 +53,9 @@ private:
   };
 
   std::set<QString> modelManagementKeys = {
-    "AutomaticallyUpdateModels", "DeleteModel", "DownloadModel", "DownloadAllModels",
-    "ModelRandomizer", "ResetCalibrations", "SelectModel"
+    "AutomaticallyUpdateModels", "DeleteModel", "DownloadModel",
+    "DownloadAllModels", "ModelRandomizer", "ResetCalibrations",
+    "SelectModel"
   };
 
   std::set<QString> modelRandomizerKeys = {
@@ -82,19 +84,29 @@ private:
     "ResetTrafficPersonality"
   };
 
-  std::map<QString, AbstractControl*> toggles;
+  ButtonControl *deleteModelBtn;
+  ButtonControl *downloadAllModelsBtn;
+  ButtonControl *downloadModelBtn;
+  ButtonControl *selectModelBtn;
 
-  QStringList availableModelNames;
-  QStringList availableModels;
-  QStringList experimentalModels;
+  FrogPilotParamValueButtonControl *steerFrictionToggle;
+  FrogPilotParamValueButtonControl *steerLatAccelToggle;
+  FrogPilotParamValueButtonControl *steerKPToggle;
+  FrogPilotParamValueButtonControl *steerRatioToggle;
 
-  QList<LabelControl*> labelControls;
-
-  QDir modelDir{"/data/models/"};
+  FrogPilotSettingsWindow *parent;
 
   Params params;
   Params paramsMemory{"/dev/shm/params"};
   Params paramsStorage{"/persist/params"};
+
+  QDir modelDir{"/data/models/"};
+
+  QList<LabelControl*> labelControls;
+
+  QStringList availableModelNames;
+  QStringList availableModels;
+  QStringList experimentalModels;
 
   bool allModelsDownloading;
   bool cancellingDownload;
@@ -106,6 +118,7 @@ private:
   bool hasPCMCruise;
   bool haveModelsDownloaded;
   bool isMetric = params.getBool("IsMetric");
+  bool isPIDCar;
   bool liveValid;
   bool modelDeleting;
   bool modelDownloading;
@@ -120,15 +133,5 @@ private:
   float steerKPStock;
   float steerRatioStock;
 
-  void hideSubToggles();
-  void hideSubSubToggles();
-  void hideToggles();
-  void showToggles(const std::set<QString> &keys);
-
-  void startDownloadAllModels();
-  void updateCalibrationDescription();
-  void updateCarToggles();
-  void updateMetric();
-  void updateModelLabels();
-  void updateState(const UIState &s);
+  std::map<QString, AbstractControl*> toggles;
 };

@@ -63,7 +63,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   connect(targetBranchBtn, &ButtonControl::clicked, [=]() {
     auto current = params.get("GitBranch");
     QStringList branches = QString::fromStdString(params.get("UpdaterAvailableBranches")).split(",");
-    if (getDongleId().value_or("") != "FrogsGoMoo") {
+    if (!frogsGoMoo) {
       branches.removeAll("FrogPilot-Development");
       branches.removeAll("FrogPilot-New");
       branches.removeAll("FrogPilot-Test");
@@ -94,7 +94,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
       if (FrogPilotConfirmationDialog::yesorno(tr("Do you want to permanently delete any additional FrogPilot assets? This is 100% unrecoverable and includes backups, downloaded models, themes, and long-term storage toggle settings for easy reinstalls."), this)) {
         std::system("rm -rf /data/backups");
         std::system("rm -rf /data/crashes");
-        std::system("rm -rf /data/media/0/videos");
+        std::system("rm -rf /data/media/screen_recordings");
         std::system("rm -rf /data/themes");
         std::system("rm -rf /data/toggle_backups");
         std::system("rm -rf /persist/params");
@@ -150,8 +150,8 @@ void SoftwarePanel::updateLabels() {
   // updater only runs offroad or when parked
   bool parked = scene.parked;
 
-  onroadLbl->setVisible(is_onroad && !parked);
-  downloadBtn->setVisible(!is_onroad || parked);
+  onroadLbl->setVisible(is_onroad && !parked && !frogsGoMoo);
+  downloadBtn->setVisible(!is_onroad || parked || frogsGoMoo);
 
   // download update
   QString updater_state = QString::fromStdString(params.get("UpdaterState"));

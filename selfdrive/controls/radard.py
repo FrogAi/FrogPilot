@@ -108,6 +108,19 @@ class Track:
       "radarTrackId": self.identifier,
     }
 
+  def potential_adjacent_lead(self, far: bool, lane_width: float, left: bool, model_data: capnp._DynamicStructReader):
+    adjacent_lane_max = float('inf') if far else lane_width * 1.5
+    adjacent_lane_min = max(lane_width * 1.5, 4.5) if far else max(lane_width * 0.5, 1.5)
+
+    y_delta = self.yRel + interp(self.dRel, model_data.position.x, model_data.position.y)
+
+    if left and adjacent_lane_min < y_delta < adjacent_lane_max:
+      return True
+    elif not left and adjacent_lane_min < -y_delta < adjacent_lane_max:
+      return True
+    else:
+      return False
+
   def potential_low_speed_lead(self, v_ego: float):
     # stop for stuff in front of you and low speed, even without model confirmation
     # Radar points closer than 0.75, are almost always glitches on toyota radars
@@ -193,6 +206,17 @@ def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capn
   return lead_dict
 
 
+def get_lead_adjacent(tracks: dict[int, Track], model_data: capnp._DynamicStructReader, lane_width: float, left: bool = True, far: bool = False) -> dict[str, Any]:
+  lead_dict = {'status': False}
+
+  adjacent_tracks = [c for c in tracks.values() if c.vLead > 1 and c.potential_adjacent_lead(far, lane_width, left, model_data)]
+  if len(adjacent_tracks) > 0:
+    closest_track = min(adjacent_tracks, key=lambda c: c.dRel)
+    lead_dict = closest_track.get_RadarState()
+
+  return lead_dict
+
+
 class RadarD:
   def __init__(self, radar_ts: float, delay: int = 0):
     self.points: dict[int, tuple[float, float, float]] = {}
@@ -214,9 +238,9 @@ class RadarD:
 
     # FrogPilot variables
     self.frogpilot_toggles = FrogPilotVariables.toggles
-    FrogPilotVariables.update_frogpilot_params()
+    FrogPilotVariables.update_frogpilot_params(False)
 
-    self.velocity_model = self.frogpilot_toggles.velocity_model
+    self.classic_model = self.frogpilot_toggles.classic_model
 
     self.update_toggles = False
 
@@ -263,16 +287,22 @@ class RadarD:
     self.radar_state.radarErrors = list(radar_errors)
     self.radar_state.carStateMonoTime = sm.logMonoTime['carState']
 
-    if self.velocity_model and len(sm['modelV2'].velocity.x):
-      model_v_ego = sm['modelV2'].velocity.x[0]
-    elif len(sm['modelV2'].temporalPose.trans):
+    if self.classic_model and len(sm['modelV2'].temporalPose.trans):
       model_v_ego = sm['modelV2'].temporalPose.trans[0]
+    elif len(sm['modelV2'].velocity.x):
+      model_v_ego = sm['modelV2'].velocity.x[0]
     else:
       model_v_ego = self.v_ego
     leads_v3 = sm['modelV2'].leadsV3
     if len(leads_v3) > 1:
       self.radar_state.leadOne = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[0], model_v_ego, self.frogpilot_toggles.lead_detection_threshold, low_speed_override=True)
       self.radar_state.leadTwo = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[1], model_v_ego, self.frogpilot_toggles.lead_detection_threshold, low_speed_override=False)
+
+    if self.frogpilot_toggles.adjacent_lead_tracking_ui and self.ready:
+      self.radar_state.leadLeft = get_lead_adjacent(self.tracks, sm['modelV2'], sm['frogpilotPlan'].laneWidthLeft, left=True)
+      self.radar_state.leadLeftFar = get_lead_adjacent(self.tracks, sm['modelV2'], sm['frogpilotPlan'].laneWidthLeft, left=True, far=True)
+      self.radar_state.leadRight = get_lead_adjacent(self.tracks, sm['modelV2'], sm['frogpilotPlan'].laneWidthRight, left=False)
+      self.radar_state.leadRightFar = get_lead_adjacent(self.tracks, sm['modelV2'], sm['frogpilotPlan'].laneWidthRight, left=False, far=True)
 
     # Update FrogPilot parameters
     if FrogPilotVariables.toggles_updated:
@@ -352,10 +382,10 @@ def main():
 
   # FrogPilot variables
   frogpilot_toggles = FrogPilotVariables.toggles
-  FrogPilotVariables.update_frogpilot_params()
+  FrogPilotVariables.update_frogpilot_params(False)
 
   if not frogpilot_toggles.radarless_model:
-    sm = messaging.SubMaster(['modelV2', 'carState'], frequency=int(1./DT_CTRL))
+    sm = messaging.SubMaster(['modelV2', 'carState', 'frogpilotPlan'], frequency=int(1./DT_CTRL))
     pm = messaging.PubMaster(['radarState', 'liveTracks'])
     while 1:
       can_strings = messaging.drain_sock_raw(can_sock, wait_for_one=True)

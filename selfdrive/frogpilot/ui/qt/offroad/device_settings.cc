@@ -1,6 +1,6 @@
 #include "selfdrive/frogpilot/ui/qt/offroad/device_settings.h"
 
-FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
+FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent) {
   const std::vector<std::tuple<QString, QString, QString, QString>> deviceToggles {
     {"DeviceManagement", tr("Device Settings"), tr("Device behavior settings."), "../frogpilot/assets/toggle_icons/icon_device.png"},
     {"DeviceShutdown", tr("Device Shutdown Timer"), tr("How long the device stays on after you stop driving."), ""},

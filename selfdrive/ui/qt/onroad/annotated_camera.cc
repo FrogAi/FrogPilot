@@ -20,8 +20,8 @@ AnnotatedCameraWidget::AnnotatedCameraWidget(VisionStreamType type, QWidget* par
   buttons_layout->setSpacing(0);
 
   // Neokii screen recorder
-  recorder = new ScreenRecorder(this);
-  buttons_layout->addWidget(recorder);
+  screenRecorder = new ScreenRecorder(this);
+  buttons_layout->addWidget(screenRecorder);
 
   experimental_btn = new ExperimentalButton(this);
   buttons_layout->addWidget(experimental_btn);
@@ -80,7 +80,7 @@ void AnnotatedCameraWidget::updateState(int alert_height, const UIState &s) {
   has_eu_speed_limit = (nav_alive && speed_limit_sign == cereal::NavInstruction::SpeedLimitSign::VIENNA) && !(speedLimitController && !useViennaSLCSign) || (speedLimitController && useViennaSLCSign);
   is_metric = s.scene.is_metric;
   speedUnit =  s.scene.is_metric ? tr("km/h") : tr("mph");
-  hideBottomIcons = (cs.getAlertSize() != cereal::ControlsState::AlertSize::NONE || turnSignalAnimation && (turnSignalLeft || turnSignalRight) && signalStyle == "traditional" || bigMapOpen);
+  hideBottomIcons = (cs.getAlertSize() != cereal::ControlsState::AlertSize::NONE || turnSignalAnimation && (turnSignalLeft || turnSignalRight) && (signalStyle == "traditional" || signalStyle == "traditional_gif") || bigMapOpen);
   status = s.status;
 
   // update engageability/experimental mode button
@@ -315,7 +315,7 @@ void AnnotatedCameraWidget::updateFrameMat() {
       .translate(-intrinsic_matrix.v[2], -intrinsic_matrix.v[5]);
 }
 
-void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
+void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s, float v_ego) {
   painter.save();
 
   const UIScene &scene = s->scene;
@@ -333,11 +333,7 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
 
   // road edges
   for (int i = 0; i < std::size(scene.road_edge_vertices); ++i) {
-    if (useStockColors) {
-      painter.setBrush(QColor::fromRgbF(1.0, 0, 0, std::clamp<float>(1.0 - scene.road_edge_stds[i], 0.0, 1.0)));
-    } else {
-      painter.setBrush(scene.road_edges_color);
-    }
+    painter.setBrush(QColor::fromRgbF(1.0, 0, 0, std::clamp<float>(1.0 - scene.road_edge_stds[i], 0.0, 1.0)));
     painter.drawPolygon(scene.road_edge_vertices[i]);
   }
 
@@ -367,14 +363,11 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
       // If acceleration is between -0.25 and 0.25, resort to the theme color
       if (std::abs(acceleration[i]) < 0.25 && !useStockColors) {
         QColor color = scene.path_color;
-
-        bg.setColorAt(0.0, color);
-
-        color.setAlphaF(0.5);
-        bg.setColorAt(0.5, color);
-
-        color.setAlphaF(0.1);
-        bg.setColorAt(1.0, color);
+        bg.setColorAt(0.0f, color);
+        color.setAlphaF(0.5f);
+        bg.setColorAt(0.5f, color);
+        color.setAlphaF(0.1f);
+        bg.setColorAt(1.0f, color);
       } else {
         // speed up: 120, slow down: 0
         float path_hue = fmax(fmin(60 + acceleration[i] * 35, 120), 0);
@@ -402,15 +395,13 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
 
   if (scene.show_stopping_point && scene.red_light && speed > 1 && !(conditionalStatus == 1 || conditionalStatus == 3 || conditionalStatus == 5)) {
     QPointF last_point = scene.track_vertices.last();
-
     QPointF adjusted_point = last_point - QPointF(stopSignImg.width() / 2, stopSignImg.height());
     painter.drawPixmap(adjusted_point, stopSignImg);
 
     if (scene.show_stopping_point_metrics) {
-      QString text = QString::number(modelLength * distanceConversion) + leadDistanceUnit;
       QFont font = InterFont(35, QFont::DemiBold);
-      QFontMetrics fm(font);
-      int text_width = fm.horizontalAdvance(text);
+      QString text = QString::number(modelLength * distanceConversion) + leadDistanceUnit;
+      int text_width = QFontMetrics(font).horizontalAdvance(text);
       QPointF text_position = last_point - QPointF(text_width / 2, stopSignImg.height() + 35);
 
       painter.save();
@@ -425,9 +416,9 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
   if (scene.blind_spot_path) {
     QLinearGradient bs(0, height(), 0, 0);
 
-    bs.setColorAt(0.0, QColor::fromHslF(0 / 360., 0.75, 0.50, 0.6));
-    bs.setColorAt(0.5, QColor::fromHslF(0 / 360., 0.75, 0.50, 0.4));
-    bs.setColorAt(1.0, QColor::fromHslF(0 / 360., 0.75, 0.50, 0.2));
+    bs.setColorAt(0.0f, QColor::fromHslF(0 / 360.0f, 1.0f, 0.5f, 0.6f));
+    bs.setColorAt(0.5f, QColor::fromHslF(0 / 360.0f, 1.0f, 0.5f, 0.4f));
+    bs.setColorAt(1.0f, QColor::fromHslF(0 / 360.0f, 1.0f, 0.5f, 0.2f));
 
     painter.setBrush(bs);
     if (blindSpotLeft) {
@@ -439,67 +430,71 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
   }
 
   // Paint adjacent lane paths
-  if ((scene.adjacent_path || scene.adjacent_path_metrics) && (laneWidthLeft != 0 || laneWidthRight != 0)) {
-    const float minLaneWidth = laneDetectionWidth * 0.5f;
-    const float maxLaneWidth = laneDetectionWidth * 1.5f;
+  if ((scene.adjacent_path || scene.adjacent_path_metrics) && v_ego >= scene.minimum_lane_change_speed) {
+    QLinearGradient ap(0, height(), 0, 0);
 
-    auto paintLane = [&](const QPolygonF &lane, float laneWidth, bool blindspot) {
-      QLinearGradient gradient(0, height(), 0, 0);
+    float minLaneWidth = laneDetectionWidth * 0.5f;
+    float maxLaneWidth = laneDetectionWidth * 1.5f;
 
-      bool redPath = laneWidth < minLaneWidth || laneWidth > maxLaneWidth || blindspot;
-      float hue = redPath ? 0.0f : 120.0f * (laneWidth - minLaneWidth) / (maxLaneWidth - minLaneWidth);
-      float hueF = hue / 360.0f;
+    std::function<void(float)> setAdjacentPathColors = [&](float hue) {
+      ap.setColorAt(0.0f, QColor::fromHslF(hue / 360.0f, 1.0f, 0.5f, 0.6f));
+      ap.setColorAt(0.5f, QColor::fromHslF(hue / 360.0f, 1.0f, 0.5f, 0.4f));
+      ap.setColorAt(1.0f, QColor::fromHslF(hue / 360.0f, 1.0f, 0.5f, 0.2f));
+    };
 
-      gradient.setColorAt(0.0, QColor::fromHslF(hueF, 0.75f, 0.50f, 0.6f));
-      gradient.setColorAt(0.5, QColor::fromHslF(hueF, 0.75f, 0.50f, 0.4f));
-      gradient.setColorAt(1.0, QColor::fromHslF(hueF, 0.75f, 0.50f, 0.2f));
+    std::function<void(const QPolygonF&, float, bool)> drawAdjacentLane = [&](const QPolygonF &lane, float laneWidth, bool isBlindSpot) {
+      if (isBlindSpot || minLaneWidth > laneWidth || laneWidth > maxLaneWidth) {
+        setAdjacentPathColors(0.0f);
+      } else {
+        float hue = 270.0f * (laneWidth - minLaneWidth) / (maxLaneWidth - minLaneWidth);
+        setAdjacentPathColors(hue);
+      }
 
-      painter.setBrush(gradient);
+      painter.setBrush(ap);
       painter.drawPolygon(lane);
 
       if (scene.adjacent_path_metrics) {
         painter.setFont(InterFont(30, QFont::DemiBold));
         painter.setPen(Qt::white);
 
-        QRectF boundingRect = lane.boundingRect();
-        QString text = blindspot ? tr("Vehicle in blind spot") : QString::number(laneWidth * distanceConversion, 'f', 2) + leadDistanceUnit;
-        painter.drawText(boundingRect, Qt::AlignCenter, text);
-
+        QString text = isBlindSpot ? tr("Vehicle in blind spot") : QString::number(laneWidth * distanceConversion, 'f', 2) + leadDistanceUnit;
+        painter.drawText(lane.boundingRect(), Qt::AlignCenter, text);
         painter.setPen(Qt::NoPen);
       }
     };
 
-    paintLane(scene.track_adjacent_vertices[4], laneWidthLeft, blindSpotLeft);
-    paintLane(scene.track_adjacent_vertices[5], laneWidthRight, blindSpotRight);
+    drawAdjacentLane(scene.track_adjacent_vertices[4], scene.lane_width_left, blindSpotLeft);
+    drawAdjacentLane(scene.track_adjacent_vertices[5], scene.lane_width_right, blindSpotRight);
   }
 
   // Paint path edges
   QLinearGradient pe(0, height(), 0, 0);
-  auto setGradientColors = [&](const QColor &baseColor) {
-    pe.setColorAt(0.0, baseColor);
+
+  std::function<void(QLinearGradient&, const QColor&)> setPathEdgeColors = [&](QLinearGradient &gradient, const QColor &baseColor) {
+    gradient.setColorAt(0.0f, baseColor);
     QColor color = baseColor;
-    color.setAlphaF(0.5);
-    pe.setColorAt(0.5, color);
-    color.setAlphaF(0.1);
-    pe.setColorAt(1.0, color);
+    color.setAlphaF(0.5f);
+    gradient.setColorAt(0.5f, color);
+    color.setAlphaF(0.1f);
+    gradient.setColorAt(1.0f, color);
   };
 
   if (alwaysOnLateralActive) {
-    setGradientColors(bg_colors[STATUS_ALWAYS_ON_LATERAL_ACTIVE]);
+    setPathEdgeColors(pe, bg_colors[STATUS_ALWAYS_ON_LATERAL_ACTIVE]);
   } else if (conditionalStatus == 1 || conditionalStatus == 3 || conditionalStatus == 5) {
-    setGradientColors(bg_colors[STATUS_CONDITIONAL_OVERRIDDEN]);
+    setPathEdgeColors(pe, bg_colors[STATUS_CONDITIONAL_OVERRIDDEN]);
   } else if (experimentalMode) {
-    setGradientColors(bg_colors[STATUS_EXPERIMENTAL_MODE_ACTIVE]);
+    setPathEdgeColors(pe, bg_colors[STATUS_EXPERIMENTAL_MODE_ACTIVE]);
   } else if (trafficModeActive) {
-    setGradientColors(bg_colors[STATUS_TRAFFIC_MODE_ACTIVE]);
+    setPathEdgeColors(pe, bg_colors[STATUS_TRAFFIC_MODE_ACTIVE]);
   } else if (scene.navigate_on_openpilot) {
-    setGradientColors(bg_colors[STATUS_NAVIGATION_ACTIVE]);
+    setPathEdgeColors(pe, bg_colors[STATUS_NAVIGATION_ACTIVE]);
   } else if (!useStockColors) {
-    setGradientColors(scene.path_edges_color);
+    setPathEdgeColors(pe, scene.path_edges_color);
   } else {
-    pe.setColorAt(0.0, QColor::fromHslF(148 / 360., 0.94, 0.51, 1.0));
-    pe.setColorAt(0.5, QColor::fromHslF(112 / 360., 1.00, 0.68, 0.5));
-    pe.setColorAt(1.0, QColor::fromHslF(112 / 360., 1.00, 0.68, 0.1));
+    pe.setColorAt(0.0f, QColor::fromHslF(148 / 360.0f, 0.94f, 0.51f, 1.0f));
+    pe.setColorAt(0.5f, QColor::fromHslF(112 / 360.0f, 1.00f, 0.68f, 0.5f));
+    pe.setColorAt(1.0f, QColor::fromHslF(112 / 360.0f, 1.00f, 0.68f, 0.1f));
   }
 
   QPainterPath path;
@@ -559,13 +554,13 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
   painter.restore();
 }
 
-void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::ModelDataV2::LeadDataV3::Reader &lead_data, const QPointF &vd, const float v_ego, const QColor lead_marker_color) {
+void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::RadarState::LeadData::Reader &lead_data, const QPointF &vd, float v_ego, const QColor &lead_marker_color, bool adjacent) {
   painter.save();
 
-  const float speedBuff = useStockColors ? 10. : 25.;  // Make the center of the chevron appear sooner if a theme is active
-  const float leadBuff = useStockColors ? 40. : 100.;  // Make the center of the chevron appear sooner if a theme is active
-  const float d_rel = lead_data.getX()[0];
-  const float v_rel = lead_data.getV()[0] - v_ego;
+  const float speedBuff = useStockColors || adjacent ? 10. : 25.;  // Make the center of the chevron appear sooner if a theme is active
+  const float leadBuff = useStockColors || adjacent ? 40. : 100.;  // Make the center of the chevron appear sooner if a theme is active
+  const float d_rel = lead_data.getDRel() + (adjacent ? fabs(lead_data.getYRel()) : 0);
+  const float v_rel = lead_data.getVRel();
 
   float fillAlpha = 0;
   if (d_rel < leadBuff) {
@@ -576,7 +571,7 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::ModelDataV
     fillAlpha = (int)(fmin(fillAlpha, 255));
   }
 
-  float sz = std::clamp((25 * 30) / (d_rel / 3 + 30), 15.0f, 30.0f) * 2.35;
+  float sz = std::clamp((25 * 30) / (d_rel / 3 + 30), adjacent ? 5.0f : 15.0f, adjacent ? 20.0f : 30.0f) * 2.35;
   float x = std::clamp((float)vd.x(), 0.f, width() - sz / 2);
   float y = std::fmin(height() - sz * .6, (float)vd.y());
 
@@ -602,13 +597,22 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::ModelDataV
     painter.setPen(Qt::white);
     painter.setFont(InterFont(35, QFont::Bold));
 
-    QString text = QString("%1 %2 | %3 %4 | %5 %6")
-                    .arg(qRound(d_rel * distanceConversion))
-                    .arg(leadDistanceUnit)
-                    .arg(qRound(lead_speed * speedConversion))
-                    .arg(leadSpeedUnit)
-                    .arg(QString::number(d_rel / std::max(v_ego, 1.0f), 'f', 1))
-                    .arg("s");
+    QString text;
+    if (adjacent) {
+      text = QString("%1 %2 | %3 %4")
+              .arg(qRound(d_rel * distanceConversion))
+              .arg(leadDistanceUnit)
+              .arg(qRound(lead_speed * speedConversion))
+              .arg(leadSpeedUnit);
+    } else {
+      text = QString("%1 %2 | %3 %4 | %5 %6")
+              .arg(qRound(d_rel * distanceConversion))
+              .arg(leadDistanceUnit)
+              .arg(qRound(lead_speed * speedConversion))
+              .arg(leadSpeedUnit)
+              .arg(QString::number(d_rel / std::max(v_ego, 1.0f), 'f', 1))
+              .arg("s");
+    }
 
     QFontMetrics metrics(painter.font());
     int middle_x = (chevron[2].x() + chevron[0].x()) / 2;
@@ -684,18 +688,34 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
 
   if (s->scene.world_objects_visible) {
     update_model(s, model, sm["uiPlan"].getUiPlan());
-    drawLaneLines(painter, s);
+    drawLaneLines(painter, s, v_ego);
 
-    if (s->scene.longitudinal_control && sm.rcv_frame("modelV2") > s->scene.started_frame && !s->scene.hide_lead_marker) {
-      update_leads(s, model);
-      float prev_drel = -1;
-      for (int i = 0; i < model.getLeadsV3().size() && i < 2; i++) {
-        const auto &lead = model.getLeadsV3()[i];
-        auto lead_drel = lead.getX()[0];
-        if (s->scene.has_lead && (prev_drel < 0 || std::abs(lead_drel - prev_drel) > 3.0)) {
-          drawLead(painter, lead, s->scene.lead_vertices[i], (speed / (is_metric ? MS_TO_KPH : MS_TO_MPH)), s->scene.lead_marker_color);
-        }
-        prev_drel = lead_drel;
+    if (s->scene.longitudinal_control && sm.rcv_frame("radarState") > s->scene.started_frame && !s->scene.hide_lead_marker) {
+      auto radar_state = sm["radarState"].getRadarState();
+      update_leads(s, radar_state, model.getPosition());
+      auto lead_one = radar_state.getLeadOne();
+      auto lead_two = radar_state.getLeadTwo();
+      auto lead_left = radar_state.getLeadLeft();
+      auto lead_right = radar_state.getLeadRight();
+      auto lead_left_far = radar_state.getLeadLeftFar();
+      auto lead_right_far = radar_state.getLeadRightFar();
+      if (lead_one.getStatus()) {
+        drawLead(painter, lead_one, s->scene.lead_vertices[0], v_ego, s->scene.lead_marker_color);
+      }
+      if (lead_two.getStatus()) {
+        drawLead(painter, lead_two, s->scene.lead_vertices[1], v_ego, s->scene.lead_marker_color);
+      }
+      if (lead_left.getStatus()) {
+        drawLead(painter, lead_left, s->scene.lead_vertices[2], v_ego, blueColor(), true);
+      }
+      if (lead_right.getStatus()) {
+        drawLead(painter, lead_right, s->scene.lead_vertices[3], v_ego, redColor(), true);
+      }
+      if (lead_left_far.getStatus()) {
+        drawLead(painter, lead_left_far, s->scene.lead_vertices[4], v_ego, greenColor(), true);
+      }
+      if (lead_right_far.getStatus()) {
+        drawLead(painter, lead_right_far, s->scene.lead_vertices[5], v_ego, whiteColor(), true);
       }
     }
   }
@@ -740,6 +760,65 @@ void AnnotatedCameraWidget::showEvent(QShowEvent *event) {
 }
 
 // FrogPilot widgets
+void AnnotatedCameraWidget::updateSignals() {
+  blindspotImages.clear();
+  signalImages.clear();
+
+  QDir directory("../frogpilot/assets/active_theme/signals/");
+  QFileInfoList allFiles = directory.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
+
+  bool isGif = false;
+  for (QFileInfo &fileInfo : allFiles) {
+    if (fileInfo.fileName().endsWith(".gif", Qt::CaseInsensitive)) {
+      QMovie movie(fileInfo.absoluteFilePath());
+      movie.start();
+
+      for (int frameIndex = 0; frameIndex < movie.frameCount(); ++frameIndex) {
+        movie.jumpToFrame(frameIndex);
+        QPixmap currentFrame = movie.currentPixmap();
+        signalImages.push_back(currentFrame);
+        signalImages.push_back(currentFrame.transformed(QTransform().scale(-1, 1)));
+      }
+
+      movie.stop();
+      isGif = true;
+
+    } else if (fileInfo.fileName().endsWith(".png", Qt::CaseInsensitive)) {
+      QVector<QPixmap> *targetList = fileInfo.fileName().contains("blindspot") ? &blindspotImages : &signalImages;
+      QPixmap pixmap(fileInfo.absoluteFilePath());
+      targetList->push_back(pixmap);
+      targetList->push_back(pixmap.transformed(QTransform().scale(-1, 1)));
+
+    } else {
+      QStringList parts = fileInfo.fileName().split('_');
+      if (parts.size() == 2) {
+        signalStyle = parts[0];
+        signalAnimationLength = parts[1].toInt();
+      }
+    }
+  }
+
+  if (!signalImages.empty()) {
+    QPixmap &firstImage = signalImages.front();
+    signalWidth = firstImage.width();
+    signalHeight = firstImage.height();
+    totalFrames = signalImages.size() / 2;
+    turnSignalAnimation = true;
+
+    if (isGif && signalStyle == "traditional") {
+      signalMovement = (this->size().width() + (signalWidth * 2)) / totalFrames;
+      signalStyle = "traditional_gif";
+    } else {
+      signalMovement = 0;
+    }
+  } else {
+    signalWidth = 0;
+    signalHeight = 0;
+    totalFrames = 0;
+    turnSignalAnimation = false;
+  }
+}
+
 void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
   bottom_layout = new QHBoxLayout();
 
@@ -763,12 +842,6 @@ void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
   QObject::connect(animationTimer, &QTimer::timeout, [this] {
     animationFrameIndex = (animationFrameIndex + 1) % totalFrames;
   });
-
-  QTimer *recordTimer = new QTimer(this);
-  QObject::connect(recordTimer, &QTimer::timeout, [this] {
-    recorder->updateScreen();
-  });
-  recordTimer->start(75);
 }
 
 void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIScene &scene) {
@@ -828,8 +901,6 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
   hideSpeed = scene.hide_speed;
 
   laneDetectionWidth = scene.lane_detection_width;
-  laneWidthLeft = scene.lane_width_left;
-  laneWidthRight = scene.lane_width_right;
 
   leadInfo = scene.lead_info;
   obstacleDistance = scene.obstacle_distance;
@@ -859,11 +930,15 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
     pedal_icons->updateState(scene);
   }
 
-  recorder->setVisible(scene.screen_recorder && !mapOpen);
-
   reverseCruise = scene.reverse_cruise;
 
   roadNameUI = scene.road_name_ui;
+
+  bool enableScreenRecorder = scene.screen_recorder && !mapOpen;
+  screenRecorder->setVisible(enableScreenRecorder);
+  if (enableScreenRecorder) {
+    screenRecorder->updateScreen(scene.fps, scene.started);
+  }
 
   speedLimitController = scene.speed_limit_controller;
   showSLCOffset = speedLimitController && scene.show_slc_offset;
@@ -892,54 +967,6 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
   useSI = scene.use_si;
 
   useStockColors = scene.use_stock_colors;
-}
-
-void AnnotatedCameraWidget::updateSignals() {
-  blindspotImages.clear();
-  regularImages.clear();
-
-  const QString signalFolderPath = "../frogpilot/assets/active_theme/signals/";
-  QDir directory(signalFolderPath);
-  const QTransform flipTransform = QTransform().scale(-1, 1);
-
-  QFileInfoList fileList = directory.entryInfoList({"turn_signal_*.png"}, QDir::Files);
-  QFileInfoList nonPngFileList = directory.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
-  nonPngFileList.erase(std::remove_if(nonPngFileList.begin(), nonPngFileList.end(), [](const QFileInfo &fileInfo) {return fileInfo.suffix() == "png";}), nonPngFileList.end());
-
-  for (const QFileInfo &fileInfo : fileList) {
-    QPixmap pixmap(fileInfo.absoluteFilePath());
-    QVector<QPixmap> *targetList = fileInfo.fileName().contains("blindspot") ? &blindspotImages : &regularImages;
-    targetList->push_back(pixmap);
-  }
-
-  for (const QFileInfo &fileInfo : fileList) {
-    QPixmap pixmap(fileInfo.absoluteFilePath());
-    QVector<QPixmap> *targetList = fileInfo.fileName().contains("blindspot") ? &blindspotImages : &regularImages;
-    targetList->push_back(pixmap.transformed(flipTransform));
-  }
-
-  if (!nonPngFileList.isEmpty()) {
-    QStringList parts = nonPngFileList.first().fileName().split('_');
-    if (parts.size() == 2) {
-      signalStyle = parts[0];
-      signalAnimationLength = parts[1].toInt();
-    }
-  }
-
-  if (!regularImages.empty()) {
-    const QPixmap &firstImage = regularImages.front();
-    signalWidth = firstImage.width();
-    signalHeight = firstImage.height();
-
-    totalFrames = regularImages.size() / 2;
-    turnSignalAnimation = true;
-  } else {
-    signalWidth = 0;
-    signalHeight = 0;
-
-    totalFrames = 0;
-    turnSignalAnimation = false;
-  }
 }
 
 void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter) {
@@ -1337,7 +1364,7 @@ void AnnotatedCameraWidget::drawTurnSignals(QPainter &p) {
     if (blindspotActive && !blindspotImages.empty()) {
       p.drawPixmap(signalXPosition, signalYPosition, signalWidth, signalHeight, blindspotImages[turnSignalLeft ? 0 : 1]);
     } else {
-      p.drawPixmap(signalXPosition, signalYPosition, signalWidth, signalHeight, regularImages[animationFrameIndex + (turnSignalLeft ? 0 : totalFrames)]);
+      p.drawPixmap(signalXPosition, signalYPosition, signalWidth, signalHeight, signalImages[2 * animationFrameIndex + (turnSignalLeft ? 0 : 1)]);
     }
   } else if (signalStyle == "traditional") {
     int signalXPosition = turnSignalLeft ? width() - ((animationFrameIndex + 1) * signalWidth) : animationFrameIndex * signalWidth;
@@ -1348,7 +1375,18 @@ void AnnotatedCameraWidget::drawTurnSignals(QPainter &p) {
     if (blindspotActive && !blindspotImages.empty()) {
       p.drawPixmap(turnSignalLeft ? width() - signalWidth : 0, signalYPosition, signalWidth, signalHeight, blindspotImages[turnSignalLeft ? 0 : 1]);
     } else {
-      p.drawPixmap(signalXPosition, signalYPosition, signalWidth, signalHeight, regularImages[animationFrameIndex + (turnSignalLeft ? 0 : totalFrames)]);
+      p.drawPixmap(signalXPosition, signalYPosition, signalWidth, signalHeight, signalImages[2 * animationFrameIndex + (turnSignalLeft ? 0 : 1)]);
+    }
+  } else if (signalStyle == "traditional_gif") {
+    int signalXPosition = turnSignalLeft ? width() - (animationFrameIndex * signalMovement) + signalWidth : (animationFrameIndex * signalMovement) - signalWidth;
+    int signalYPosition = height() - signalHeight;
+
+    signalYPosition -= fmax(alertHeight, statusBarHeight);
+
+    if (blindspotActive && !blindspotImages.empty()) {
+      p.drawPixmap(turnSignalLeft ? width() - signalWidth : 0, signalYPosition, signalWidth, signalHeight, blindspotImages[turnSignalLeft ? 0 : 1]);
+    } else {
+      p.drawPixmap(signalXPosition, signalYPosition, signalWidth, signalHeight, signalImages[2 * animationFrameIndex + (turnSignalLeft ? 0 : 1)]);
     }
   }
 }

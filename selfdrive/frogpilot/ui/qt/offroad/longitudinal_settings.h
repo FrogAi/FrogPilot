@@ -15,10 +15,11 @@ signals:
   void openSubParentToggle();
 
 private:
-  FrogPilotSettingsWindow *parent;
-
-  FrogPilotButtonsControl *curveDetectionBtn;
-  FrogPilotButtonsControl *slcConfirmationBtn;
+  void hideSubToggles();
+  void hideToggles();
+  void showToggles(const std::set<QString> &keys);
+  void updateCarToggles();
+  void updateMetric();
 
   std::set<QString> conditionalExperimentalKeys = {
     "CESpeed", "CESpeedLead", "CECurves", "CELead",
@@ -65,7 +66,10 @@ private:
     "ShowSLCOffset", "UseVienna"
   };
 
-  std::map<QString, AbstractControl*> toggles;
+  FrogPilotSettingsWindow *parent;
+
+  FrogPilotButtonsControl *curveDetectionBtn;
+  FrogPilotButtonsControl *slcConfirmationBtn;
 
   Params params;
 
@@ -78,9 +82,5 @@ private:
   bool isToyota;
   bool slcOpen;
 
-  void hideSubToggles();
-  void hideToggles();
-  void showToggles(const std::set<QString> &keys);
-  void updateCarToggles();
-  void updateMetric();
+  std::map<QString, AbstractControl*> toggles;
 };

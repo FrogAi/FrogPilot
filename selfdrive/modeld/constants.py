@@ -16,17 +16,12 @@ class ModelConstants:
   MODEL_FREQ = 20
   FEATURE_LEN = 512
   FULL_HISTORY_BUFFER_LEN = 99
-  HISTORY_BUFFER_LEN = 99
-  HISTORY_BUFFER_LEN_SECRET = 24
+  HISTORY_BUFFER_LEN = 24
   DESIRE_LEN = 8
   TRAFFIC_CONVENTION_LEN = 2
-  NAV_FEATURE_LEN = 256
-  NAV_INSTRUCTION_LEN = 150
-  DRIVING_STYLE_LEN = 12
   LAT_PLANNER_STATE_LEN = 4
   LATERAL_CONTROL_PARAMS_LEN = 2
   PREV_DESIRED_CURV_LEN = 1
-  RADAR_TRACKS_LEN = 64
 
   # model outputs constants
   FCW_THRESHOLDS_5MS2 = np.array([.05, .05, .15, .15, .15], dtype=np.float32)
@@ -45,7 +40,6 @@ class ModelConstants:
   DESIRE_PRED_WIDTH = 8
   LAT_PLANNER_SOLUTION_WIDTH = 4
   DESIRED_CURV_WIDTH = 1
-  RADAR_TRACKS_WIDTH = 3
 
   NUM_LANE_LINES = 4
   NUM_ROAD_EDGES = 2
@@ -66,6 +60,8 @@ class ModelConstants:
   RYG_GREEN = 0.01165
   RYG_YELLOW = 0.06157
 
+  POLY_PATH_DEGREE = 4
+
 # model outputs slices
 class Plan:
   POSITION = slice(0, 3)
@@ -77,33 +73,14 @@ class Plan:
 class Meta:
   ENGAGED = slice(0, 1)
   # next 2, 4, 6, 8, 10 seconds
-  GAS_DISENGAGE = slice(1, 41, 8)
-  GAS_DISENGAGE_GB = slice(1, 31, 6)
-  GAS_DISENGAGE_SECRET = slice(1, 36, 7)
-  BRAKE_DISENGAGE = slice(2, 41, 8)
-  BRAKE_DISENGAGE_GB = slice(2, 31, 6)
-  BRAKE_DISENGAGE_SECRET = slice(2, 36, 7)
-  STEER_OVERRIDE = slice(3, 41, 8)
-  STEER_OVERRIDE_GB = slice(3, 31, 6)
-  STEER_OVERRIDE_SECRET = slice(3, 36, 7)
-  HARD_BRAKE_3 = slice(4, 41, 8)
-  HARD_BRAKE_3_GB = slice(4, 31, 6)
-  HARD_BRAKE_3_SECRET = slice(4, 36, 7)
-  HARD_BRAKE_4 = slice(5, 41, 8)
-  HARD_BRAKE_4_GB = slice(5, 31, 6)
-  HARD_BRAKE_4_SECRET = slice(5, 36, 7)
-  HARD_BRAKE_5 = slice(6, 41, 8)
-  HARD_BRAKE_5_GB = slice(6, 31, 6)
-  HARD_BRAKE_5_SECRET = slice(6, 36, 7)
-  GAS_PRESS = slice(7, 41, 8)
-  GAS_PRESS_GB = slice(31, 55, 4)
-  GAS_PRESS_SECRET = slice(7, 36, 7)
-  BRAKE_PRESS = slice(8, 41, 8)
-  BRAKE_PRESS_GB = slice(32, 55, 4)
+  GAS_DISENGAGE = slice(1, 31, 6)
+  BRAKE_DISENGAGE = slice(2, 31, 6)
+  STEER_OVERRIDE = slice(3, 31, 6)
+  HARD_BRAKE_3 = slice(4, 31, 6)
+  HARD_BRAKE_4 = slice(5, 31, 6)
+  HARD_BRAKE_5 = slice(6, 31, 6)
   # next 0, 2, 4, 6, 8, 10 seconds
-  LEFT_BLINKER = slice(41, 53, 2)
-  LEFT_BLINKER_GB = slice(33, 55, 4)
-  LEFT_BLINKER_SECRET = slice(36, 48, 2)
-  RIGHT_BLINKER = slice(42, 53, 2)
-  RIGHT_BLINKER_GB = slice(34, 55, 4)
-  RIGHT_BLINKER_SECRET = slice(37, 48, 2)
+  GAS_PRESS = slice(31, 55, 4)
+  BRAKE_PRESS = slice(32, 55, 4)
+  LEFT_BLINKER = slice(33, 55, 4)
+  RIGHT_BLINKER = slice(34, 55, 4)

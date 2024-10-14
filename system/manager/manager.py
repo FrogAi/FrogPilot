@@ -24,6 +24,7 @@ from openpilot.system.version import get_build_metadata, terms_version, training
 
 from openpilot.selfdrive.frogpilot.assets.model_manager import DEFAULT_MODEL, DEFAULT_MODEL_NAME
 from openpilot.selfdrive.frogpilot.frogpilot_functions import convert_params, frogpilot_boot_functions, setup_frogpilot, uninstall_frogpilot
+from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
 
 
 def manager_init() -> None:
@@ -31,9 +32,8 @@ def manager_init() -> None:
 
   build_metadata = get_build_metadata()
 
-  setup_frogpilot(build_metadata)
-
   params = Params()
+  setup_frogpilot(build_metadata, params)
   params_storage = Params("/persist/params")
   params.clear_all(ParamKeyType.CLEAR_ON_MANAGER_START)
   params.clear_all(ParamKeyType.CLEAR_ON_ONROAD_TRANSITION)
@@ -46,10 +46,13 @@ def manager_init() -> None:
 
   default_params: list[tuple[str, str | bytes]] = [
     ("AlwaysOnDM", "0"),
+    ("CalibrationParams", ""),
     ("CarParamsPersistent", ""),
     ("CompletedTrainingVersion", "0"),
     ("DisengageOnAccelerator", "0"),
     ("ExperimentalLongitudinalEnabled", "0"),
+    ("ExperimentalMode", "0"),
+    ("ExperimentalModeConfirmed", "0"),
     ("GithubSshKeys", ""),
     ("GithubUsername", ""),
     ("GsmApn", ""),
@@ -59,6 +62,7 @@ def manager_init() -> None:
     ("IsLdwEnabled", "0"),
     ("IsMetric", "0"),
     ("LanguageSetting", "main_en"),
+    ("LiveTorqueParameters", ""),
     ("NavSettingLeftSide", "0"),
     ("NavSettingTime24h", "0"),
     ("OpenpilotEnabledToggle", "1"),
@@ -70,6 +74,7 @@ def manager_init() -> None:
     # Default FrogPilot parameters
     ("AccelerationPath", "1"),
     ("AccelerationProfile", "2"),
+    ("AdjacentLeadsUI", "0"),
     ("AdjacentPath", "0"),
     ("AdjacentPathMetrics", "0"),
     ("AdvancedCustomUI", "0"),
@@ -89,7 +94,7 @@ def manager_init() -> None:
     ("AlwaysOnLateralMain", "1"),
     ("AMapKey1", ""),
     ("AMapKey2", ""),
-    ("AutomaticallyUpdateModels", "0"),
+    ("AutomaticallyUpdateModels", "1"),
     ("AutomaticUpdates", "1"),
     ("AvailableModels", ""),
     ("AvailableModelsNames", ""),
@@ -120,6 +125,7 @@ def manager_init() -> None:
     ("CESpeed", "0"),
     ("CESpeedLead", "0"),
     ("CEStoppedLead", "1"),
+    ("ClassicModels", ""),
     ("ClusterOffset", "1.015"),
     ("Compass", "0"),
     ("ConditionalExperimental", "1"),
@@ -145,15 +151,17 @@ def manager_init() -> None:
     ("DisableOnroadUploads", "0"),
     ("DisableOpenpilotLongitudinal", "0"),
     ("DisengageVolume", "100"),
+    ("DissolvedOxygenCalibrationParams", ""),
+    ("DissolvedOxygenDrives", "0"),
+    ("DissolvedOxygenLiveTorqueParameters", ""),
+    ("DissolvedOxygenScore", "0"),
     ("DriverCamera", "0"),
-    ("DrivingPersonalities", "0"),
     ("DuckAmigoCalibrationParams", ""),
     ("DuckAmigoDrives", "0"),
     ("DuckAmigoLiveTorqueParameters", ""),
     ("DuckAmigoScore", "0"),
     ("DynamicPathWidth", "0"),
     ("DynamicPedalsOnUI", "1"),
-    ("E2ELongitudinalModels", ""),
     ("EngageVolume", "100"),
     ("ExperimentalGMTune", "0"),
     ("ExperimentalModeActivation", "1"),
@@ -171,11 +179,6 @@ def manager_init() -> None:
     ("FPSCounter", "1"),
     ("FrogsGoMoosTweak", "1"),
     ("FullMap", "0"),
-    ("GameBoyCalibrationParams", ""),
-    ("GameBoyDrives", "0"),
-    ("GameBoyLiveTorqueParameters", ""),
-    ("GameBoyScore", "0"),
-    ("GasBrakeModels", ""),
     ("GasRegenCmd", "1"),
     ("GMapKey", ""),
     ("GoatScream", "0"),
@@ -197,7 +200,7 @@ def manager_init() -> None:
     ("JerkInfo", "1"),
     ("LaneChangeCustomizations", "1"),
     ("LaneChangeTime", "0"),
-    ("LaneDetectionWidth", "60"),
+    ("LaneDetectionWidth", "9"),
     ("LaneLinesWidth", "4"),
     ("LateralMetrics", "1"),
     ("LateralTune", "1"),
@@ -227,7 +230,6 @@ def manager_init() -> None:
     ("ModelManagement", "0"),
     ("ModelName", DEFAULT_MODEL_NAME),
     ("ModelRandomizer", "0"),
-    ("ModelSelector", "0"),
     ("ModelUI", "1"),
     ("MTSCCurvatureCheck", "0"),
     ("MTSCEnabled", "1"),
@@ -242,10 +244,6 @@ def manager_init() -> None:
     ("NorthDakotaDrives", "0"),
     ("NorthDakotaLiveTorqueParameters", ""),
     ("NorthDakotaScore", "0"),
-    ("NorthDakotaV2CalibrationParams", ""),
-    ("NorthDakotaV2Drives", "0"),
-    ("NorthDakotaV2LiveTorqueParameters", ""),
-    ("NorthDakotaV2Score", "0"),
     ("NotreDameCalibrationParams", ""),
     ("NotreDameDrives", "0"),
     ("NotreDameLiveTorqueParameters", ""),
@@ -267,8 +265,7 @@ def manager_init() -> None:
     ("PauseLateralSpeed", "0"),
     ("PedalsOnUI", "1"),
     ("PersonalizeOpenpilot", "1"),
-    ("PoselessModels", ""),
-    ("PreferredSchedule", "0"),
+    ("PreferredSchedule", "2"),
     ("PromptDistractedVolume", "100"),
     ("PromptVolume", "100"),
     ("QOLLateral", "1"),
@@ -292,6 +289,7 @@ def manager_init() -> None:
     ("RelaxedJerkSpeed", "100"),
     ("RelaxedJerkSpeedDecrease", "100"),
     ("RelaxedPersonalityProfile", "1"),
+    ("ResetFrogTheme", "0"),
     ("ReverseCruise", "0"),
     ("RoadEdgesWidth", "2"),
     ("RoadNameUI", "1"),
@@ -323,7 +321,6 @@ def manager_init() -> None:
     ("Sidebar", "0"),
     ("SidebarMetrics", "1"),
     ("SignalMetrics", "0"),
-    ("SLCConfirmation", "1"),
     ("SLCConfirmationHigher", "1"),
     ("SLCConfirmationLower", "1"),
     ("SLCFallback", "2"),
@@ -331,8 +328,8 @@ def manager_init() -> None:
     ("SLCLookaheadLower", "5"),
     ("SLCOverride", "1"),
     ("SLCPriority1", "Dashboard"),
-    ("SLCPriority2", "Offline Maps"),
-    ("SLCPriority3", "Navigation"),
+    ("SLCPriority2", "Navigation"),
+    ("SLCPriority3", "Offline Maps"),
     ("SNGHack", "1"),
     ("SpeedLimitChangedAlert", "1"),
     ("SpeedLimitController", "1"),
@@ -357,10 +354,6 @@ def manager_init() -> None:
     ("SteerRatioStock", "15"),
     ("StoppedTimer", "0"),
     ("TacoTune", "0"),
-    ("TombRaiderCalibrationParams", ""),
-    ("TombRaiderDrives", "0"),
-    ("TombRaiderLiveTorqueParameters", ""),
-    ("TombRaiderScore", "0"),
     ("ToyotaDoors", "0"),
     ("TrafficFollow", "0.5"),
     ("TrafficJerkAcceleration", "50"),
@@ -376,7 +369,6 @@ def manager_init() -> None:
     ("UnlockDoors", "1"),
     ("UseSI", "1"),
     ("UseVienna", "0"),
-    ("VelocityModels", ""),
     ("VisionTurnControl", "1"),
     ("VoltSNG", "0"),
     ("WarningImmediateVolume", "100"),
@@ -486,9 +478,15 @@ def manager_thread() -> None:
   pm = messaging.PubMaster(['managerState'])
 
   write_onroad_params(False, params)
-  ensure_running(managed_processes.values(), False, params=params, CP=sm['carParams'], not_run=ignore)
+  ensure_running(managed_processes.values(), False, params=params, CP=sm['carParams'], not_run=ignore, classic_model=False)
 
   started_prev = False
+
+  # FrogPilot variables
+  frogpilot_toggles = FrogPilotVariables.toggles
+  FrogPilotVariables.update_frogpilot_params(False)
+
+  classic_model = frogpilot_toggles.classic_model
 
   while True:
     sm.update(1000)
@@ -502,6 +500,11 @@ def manager_thread() -> None:
       if os.path.isfile(error_log):
         os.remove(error_log)
 
+      # FrogPilot variables
+      FrogPilotVariables.update_frogpilot_params(False)
+
+      classic_model = frogpilot_toggles.classic_model
+
     elif not started and started_prev:
       params.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
       params_memory.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
@@ -512,7 +515,7 @@ def manager_thread() -> None:
 
     started_prev = started
 
-    ensure_running(managed_processes.values(), started, params=params, CP=sm['carParams'], not_run=ignore)
+    ensure_running(managed_processes.values(), started, params=params, CP=sm['carParams'], not_run=ignore, classic_model=classic_model)
 
     running = ' '.join("{}{}\u001b[0m".format("\u001b[32m" if p.proc.is_alive() else "\u001b[31m", p.name)
                        for p in managed_processes.values() if p.proc)

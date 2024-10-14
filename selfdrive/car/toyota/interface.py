@@ -42,9 +42,6 @@ class CarInterface(CarInterfaceBase):
       ret.steerActuatorDelay = 0.12  # Default delay, Prius has larger delay
       ret.steerLimitTimer = 0.4
 
-      if 0x23 in fingerprint[0]:  # Detect if ZSS is present
-        ret.flags |= ToyotaFlags.ZSS.value
-
     ret.stoppingControl = False  # Toyota starts braking more when it thinks you want to stop
 
     # Detect smartDSU, which intercepts ACC_CMD from the DSU (or radar) allowing openpilot to send it
@@ -60,8 +57,11 @@ class CarInterface(CarInterfaceBase):
     ret.enableDsu = len(found_ecus) > 0 and Ecu.dsu not in found_ecus and candidate not in (NO_DSU_CAR | UNSUPPORTED_DSU_CAR) \
                                         and not (ret.flags & ToyotaFlags.SMART_DSU)
 
-    if candidate == CAR.LEXUS_ES_TSS2 and Ecu.hybrid not in found_ecus or params.get_bool("NewToyotaTune"):
+    if candidate == CAR.LEXUS_ES_TSS2 and Ecu.hybrid not in found_ecus:
       ret.flags |= ToyotaFlags.RAISED_ACCEL_LIMIT.value
+
+    if params.get_bool("NewToyotaTune"):
+      ret.flags |= ToyotaFlags.NEW_TOYOTA_TUNE.value
 
     if candidate == CAR.TOYOTA_PRIUS:
       # Only give steer angle deadzone to for bad angle sensor prius
@@ -69,6 +69,9 @@ class CarInterface(CarInterfaceBase):
         if fw.ecu == "eps" and not fw.fwVersion == b'8965B47060\x00\x00\x00\x00\x00\x00':
           ret.steerActuatorDelay = 0.25
           CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning, steering_angle_deadzone_deg=0.2)
+
+      if 0x23 in fingerprint[0]:  # Detect if ZSS is present
+        ret.flags |= ToyotaFlags.ZSS.value
 
     elif candidate in (CAR.LEXUS_RX, CAR.LEXUS_RX_TSS2):
       ret.wheelSpeedFactor = 1.035
@@ -137,7 +140,7 @@ class CarInterface(CarInterfaceBase):
     ret.minEnableSpeed = -1. if (candidate in STOP_AND_GO_CAR or ret.enableGasInterceptor) else MIN_ACC_SPEED
 
     tune = ret.longitudinalTuning
-    if candidate in TSS2_CAR:
+    if candidate in TSS2_CAR or ret.flags & ToyotaFlags.NEW_TOYOTA_TUNE:
       tune.kpV = [0.0]
       tune.kiV = [0.5]
       ret.vEgoStopping = 0.25
@@ -146,16 +149,19 @@ class CarInterface(CarInterfaceBase):
 
       # Since we compensate for imprecise acceleration in carcontroller, we can be less aggressive with tuning
       # This also prevents unnecessary request windup due to internal car jerk limits
-      if ret.flags & ToyotaFlags.RAISED_ACCEL_LIMIT:
+      if ret.flags & ToyotaFlags.NEW_TOYOTA_TUNE or ret.flags & ToyotaFlags.RAISED_ACCEL_LIMIT:
         tune.kiV = [0.25]
     else:
       tune.kiBP = [0., 5., 35.]
       tune.kiV = [3.6, 2.4, 1.5]
 
-    if ret.flags & ToyotaFlags.RAISED_ACCEL_LIMIT and params.get_bool("FrogsGoMoosTweak"):
+    if params.get_bool("FrogsGoMoosTweak"):
+      if ret.flags & ToyotaFlags.NEW_TOYOTA_TUNE or ret.flags & ToyotaFlags.RAISED_ACCEL_LIMIT:
+        tune.kiV = [0.3]
+
+      ret.stoppingDecelRate = 0.1  # reach stopping target smoothly
       ret.vEgoStopping = 0.15
       ret.vEgoStarting = 0.15
-      ret.stoppingDecelRate = 0.1  # reach stopping target smoothly
 
     return ret
 

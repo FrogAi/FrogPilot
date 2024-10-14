@@ -14,7 +14,9 @@ signals:
   void openParentToggle();
 
 private:
-  FrogPilotSettingsWindow *parent;
+  void hideToggles();
+  void showToggles(const std::set<QString> &keys);
+  void updateCarToggles();
 
   std::set<QString> alertVolumeControlKeys = {
     "DisengageVolume", "EngageVolume", "PromptDistractedVolume",
@@ -27,14 +29,12 @@ private:
     "LoudBlindspotAlert", "SpeedLimitChangedAlert"
   };
 
-  std::map<QString, AbstractControl*> toggles;
+  FrogPilotSettingsWindow *parent;
 
   Params params;
 
   bool hasBSM;
   bool hasOpenpilotLongitudinal;
 
-  void hideToggles();
-  void showToggles(const std::set<QString> &keys);
-  void updateCarToggles();
+  std::map<QString, AbstractControl*> toggles;
 };

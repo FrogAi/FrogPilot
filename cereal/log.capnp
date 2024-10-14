@@ -618,6 +618,10 @@ struct RadarState @0x9a185389d6fdd05f {
 
   leadOne @3 :LeadData;
   leadTwo @4 :LeadData;
+  leadLeft @13 :LeadData;
+  leadRight @14 :LeadData;
+  leadLeftFar @15 :LeadData;
+  leadRightFar @16 :LeadData;
   cumLagMs @5 :Float32;
 
   struct LeadData {
@@ -874,6 +878,38 @@ struct ControlsState @0x97ff69c53601abf1 {
   canMonoTimesDEPRECATED @21 :List(UInt64);
   desiredCurvatureRateDEPRECATED @62 :Float32;
   canErrorCounterDEPRECATED @57 :UInt32;
+}
+
+struct DrivingModelData {
+  frameId @0 :UInt32;
+  frameIdExtra @1 :UInt32;
+  frameDropPerc @6 :Float32;
+  modelExecutionTime @7 :Float32;
+
+  action @2 :ModelDataV2.Action;
+
+  laneLineMeta @3 :LaneLineMeta;
+  meta @4 :MetaData;
+
+  path @5 :PolyPath;
+
+  struct PolyPath {
+    xCoefficients @0 :List(Float32);
+    yCoefficients @1 :List(Float32);
+    zCoefficients @2 :List(Float32);
+  }
+
+  struct LaneLineMeta {
+    leftY @0 :Float32;
+    rightY @1 :Float32;
+    leftProb @2 :Float32;
+    rightProb @3 :Float32;
+  }
+
+  struct MetaData {
+    laneChangeState @0 :LaneChangeState;
+    laneChangeDirection @1 :LaneChangeDirection;
+  }
 }
 
 # All SI units and in device frame
@@ -2275,6 +2311,7 @@ struct Event {
     driverMonitoringState @71: DriverMonitoringState;
     liveLocationKalman @72 :LiveLocationKalman;
     modelV2 @75 :ModelDataV2;
+    drivingModelData @128 :DrivingModelData;
     driverStateV2 @92 :DriverStateV2;
 
     # camera stuff, each camera state has a matching encode idx

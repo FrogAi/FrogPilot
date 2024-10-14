@@ -8,7 +8,7 @@ import urllib.request
 
 from openpilot.common.realtime import Ratekeeper
 
-from openpilot.selfdrive.frogpilot.frogpilot_functions import is_url_pingable
+from openpilot.selfdrive.frogpilot.frogpilot_utilities import is_url_pingable
 
 VERSION = 'v1'
 

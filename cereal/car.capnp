@@ -137,14 +137,15 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     openpilotCrashedRandomEvent @137;
     pedalInterceptorNoBrake @138;
     speedLimitChanged @139;
-    torqueNNLoad @140;
-    trafficModeActive @141;
-    trafficModeInactive @142;
-    turningLeft @143;
-    turningRight @144;
-    vCruise69 @145;
-    yourFrogTriedToKillMe @146;
-    youveGotMail @147;
+    thisIsFineSteerSaturated @140;
+    torqueNNLoad @141;
+    trafficModeActive @142;
+    trafficModeInactive @143;
+    turningLeft @144;
+    turningRight @145;
+    vCruise69 @146;
+    yourFrogTriedToKillMe @147;
+    youveGotMail @148;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
@@ -442,20 +443,19 @@ struct CarControl {
       promptRepeat @7;
       promptDistracted @8;
 
-      # Random Events
+      # FrogPilot sounds
       angry @9;
       dejaVu @10;
       doc @11;
       fart @12;
       firefox @13;
-      hal9000 @14;
-      mail @15;
-      nessie @16;
-      noice @17;
-      uwu @18;
-
-      # Other
-      goat @19;
+      goat @14;
+      hal9000 @15;
+      mail @16;
+      nessie @17;
+      noice @18;
+      thisIsFine @19;
+      uwu @20;
     }
   }
 

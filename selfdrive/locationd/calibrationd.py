@@ -63,7 +63,7 @@ class Calibrator:
   def __init__(self, param_put: bool = False):
     # FrogPilot variables
     frogpilot_toggles = FrogPilotVariables.toggles
-    FrogPilotVariables.update_frogpilot_params()
+    FrogPilotVariables.update_frogpilot_params(False)
 
     self.update_toggles = False
 

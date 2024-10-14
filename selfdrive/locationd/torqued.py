@@ -55,7 +55,7 @@ class TorqueEstimator(ParameterEstimator):
   def __init__(self, CP, decimated=False):
     # FrogPilot variables
     frogpilot_toggles = FrogPilotVariables.toggles
-    FrogPilotVariables.update_frogpilot_params()
+    FrogPilotVariables.update_frogpilot_params(False)
 
     self.update_toggles = False
 
@@ -244,7 +244,7 @@ def main(demo=False):
 
   # FrogPilot variables
   frogpilot_toggles = FrogPilotVariables.toggles
-  FrogPilotVariables.update_frogpilot_params()
+  FrogPilotVariables.update_frogpilot_params(False)
 
   torque_key = frogpilot_toggles.part_model_param + "LiveTorqueParameters"
   torque_cache = params.get(torque_key)

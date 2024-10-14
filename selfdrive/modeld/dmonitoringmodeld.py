@@ -76,8 +76,8 @@ class ModelState:
     input_data = self.inputs['input_img'].reshape(MODEL_HEIGHT, MODEL_WIDTH)
     input_data[:] = buf_data[v_offset:v_offset+MODEL_HEIGHT, h_offset:h_offset+MODEL_WIDTH]
 
-    t1 = time.perf_counter()
     self.model.setInputBuffer("input_img", self.inputs['input_img'].view(np.float32))
+    t1 = time.perf_counter()
     self.model.execute()
     t2 = time.perf_counter()
     return self.output, t2 - t1

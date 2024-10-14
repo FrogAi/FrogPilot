@@ -57,12 +57,10 @@ FrogPilotAdvancedVisualsPanel::FrogPilotAdvancedVisualsPanel(FrogPilotSettingsWi
       FrogPilotParamManageControl *developerUIToggle = new FrogPilotParamManageControl(param, title, desc, icon);
       QObject::connect(developerUIToggle, &FrogPilotParamManageControl::manageButtonClicked, [this]() {
         borderMetricsBtn->setVisibleButton(0, hasBSM);
+        lateralMetricsBtn->setVisibleButton(1, hasAutoTune);
+        longitudinalMetricsBtn->setVisibleButton(0, hasRadar);
 
         std::set<QString> modifiedDeveloperUIKeys = developerUIKeys;
-
-        if (!hasAutoTune) {
-          modifiedDeveloperUIKeys.erase("LateralMetrics");
-        }
 
         if (disableOpenpilotLongitudinal || !hasOpenpilotLongitudinal) {
           modifiedDeveloperUIKeys.erase("LongitudinalMetrics");
@@ -79,11 +77,13 @@ FrogPilotAdvancedVisualsPanel::FrogPilotAdvancedVisualsPanel(FrogPilotSettingsWi
     } else if (param == "LateralMetrics") {
       std::vector<QString> lateralToggles{"AdjacentPathMetrics", "TuningInfo"};
       std::vector<QString> lateralToggleNames{tr("Adjacent Path Metrics"), tr("Auto Tune")};
-      advancedVisualToggle = new FrogPilotButtonToggleControl(param, title, desc, lateralToggles, lateralToggleNames);
+      lateralMetricsBtn = new FrogPilotButtonToggleControl(param, title, desc, lateralToggles, lateralToggleNames);
+      advancedVisualToggle = lateralMetricsBtn;
     } else if (param == "LongitudinalMetrics") {
-      std::vector<QString> longitudinalToggles{"LeadInfo", "JerkInfo"};
-      std::vector<QString> longitudinalToggleNames{tr("Lead Info"), tr("Longitudinal Jerk")};
-      advancedVisualToggle = new FrogPilotButtonToggleControl(param, title, desc, longitudinalToggles, longitudinalToggleNames);
+      std::vector<QString> longitudinalToggles{"AdjacentLeadsUI", "LeadInfo", "JerkInfo"};
+      std::vector<QString> longitudinalToggleNames{tr("Adjacent Leads"), tr("Lead Info"), tr("Jerk Values")};
+      longitudinalMetricsBtn = new FrogPilotButtonToggleControl(param, title, desc, longitudinalToggles, longitudinalToggleNames);
+      advancedVisualToggle = longitudinalMetricsBtn;
     } else if (param == "NumericalTemp") {
       std::vector<QString> temperatureToggles{"Fahrenheit"};
       std::vector<QString> temperatureToggleNames{tr("Fahrenheit")};
@@ -159,6 +159,7 @@ void FrogPilotAdvancedVisualsPanel::updateCarToggles() {
   hasAutoTune = parent->hasAutoTune;
   hasBSM = parent->hasBSM;
   hasOpenpilotLongitudinal = parent->hasOpenpilotLongitudinal;
+  hasRadar = parent->hasRadar;
 
   hideToggles();
 }

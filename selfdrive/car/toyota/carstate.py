@@ -24,9 +24,6 @@ TEMP_STEER_FAULTS = (0, 9, 11, 21, 25)
 # - prolonged high driver torque: 17 (permanent)
 PERM_STEER_FAULTS = (3, 17)
 
-ZSS_THRESHOLD = 4.0
-ZSS_THRESHOLD_COUNT = 10
-
 # Traffic signals for Speed Limit Controller - Credit goes to the DragonPilot team!
 @staticmethod
 def calculate_speed_limit(cp_cam, frogpilot_toggles):
@@ -69,11 +66,11 @@ class CarState(CarStateBase):
     self.pcm_accel_net = 0.0
 
     # FrogPilot variables
-    self.zss_compute = False
-    self.zss_cruise_active_last = False
+    self.latActive_previous = False
+    self.needs_angle_offset_zss = True
 
-    self.zss_angle_offset = 0
-    self.zss_threshold_count = 0
+    self.angle_offset_zss = 0
+    self.zorro_steer_value = 0
 
   def update(self, cp, cp_cam, CC, frogpilot_toggles):
     ret = car.CarState.new_message()
@@ -82,8 +79,11 @@ class CarState(CarStateBase):
     # Describes the acceleration request from the PCM if on flat ground, may be higher or lower if pitched
     # CLUTCH->ACCEL_NET is only accurate for gas, PCM_CRUISE->ACCEL_NET is only accurate for brake
     # These signals only have meaning when ACC is active
-    if self.CP.flags & ToyotaFlags.RAISED_ACCEL_LIMIT:
-      self.pcm_accel_net = max(cp.vl["CLUTCH"]["ACCEL_NET"], 0.0)
+    if self.CP.flags & ToyotaFlags.NEW_TOYOTA_TUNE or self.CP.flags & ToyotaFlags.RAISED_ACCEL_LIMIT:
+      if self.CP.flags & ToyotaFlags.RAISED_ACCEL_LIMIT:
+        self.pcm_accel_net = max(cp.vl["CLUTCH"]["ACCEL_NET"], 0.0)
+      else:
+        self.pcm_accel_net = max(cp.vl["PCM_CRUISE"]["ACCEL_NET"], 0.0)
 
       # Sometimes ACC_BRAKING can be 1 while showing we're applying gas already
       if cp.vl["PCM_CRUISE"]["ACC_BRAKING"]:
@@ -239,28 +239,27 @@ class CarState(CarStateBase):
       self.lkas_previously_enabled = self.lkas_enabled
       self.lkas_enabled = self.lkas_hud.get("LDA_ON_MESSAGE") == 1
 
-    # ZSS Support - Credit goes to the DragonPilot team!
-    if self.CP.flags & ToyotaFlags.ZSS and self.zss_threshold_count <= ZSS_THRESHOLD_COUNT:
-      zorro_steer = cp.vl["SECONDARY_STEER_ANGLE"]["ZORRO_STEER"]
+    # ZSS Support - Credit goes to Erich!
+    if self.CP.flags & ToyotaFlags.ZSS:
+      if abs(torque_sensor_angle_deg) > 1e-3:
+        self.accurate_steer_angle_seen = True
 
-      # Only compute ZSS offset when control is active
-      if CC.latActive and not self.zss_cruise_active_last:
-        self.zss_threshold_count = 0
-        self.zss_compute = True  # Control was just activated, so allow offset to be recomputed
-      self.zss_cruise_active_last = CC.latActive
+      if CC.latActive and not self.latActive_previous:
+        self.needs_angle_offset_zss = True
+      self.latActive_previous = CC.latActive
 
-      # Compute ZSS offset
-      if self.zss_compute:
+      if self.needs_angle_offset_zss:
+        zorro_steer = cp.vl["SECONDARY_STEER_ANGLE"]["ZORRO_STEER"]
         if abs(ret.steeringAngleDeg) > 1e-3 and abs(zorro_steer) > 1e-3:
-          self.zss_compute = False
-          self.zss_angle_offset = zorro_steer - ret.steeringAngleDeg
+          self.needs_angle_offset_zss = False
+          self.angle_offset_zss = zorro_steer - ret.steeringAngleDeg
+      self.zorro_steer_value = cp.vl["SECONDARY_STEER_ANGLE"]["ZORRO_STEER"] - self.angle_offset_zss
 
-      # Safety checks
-      steering_angle_deg = zorro_steer - self.zss_angle_offset
-      if abs(ret.steeringAngleDeg - steering_angle_deg) > ZSS_THRESHOLD:
-        self.zss_threshold_count += 1
-      else:
-        ret.steeringAngleDeg = steering_angle_deg
+      if not self.needs_angle_offset_zss:
+        if abs(ret.steeringAngleDeg - self.zorro_steer_value) > 4.0:
+          ret.steeringAngleDeg = ret.steeringAngleDeg
+        else:
+          ret.steeringAngleDeg = self.zorro_steer_value
 
     return ret, fp_ret
 
@@ -320,7 +319,8 @@ class CarState(CarStateBase):
         ("SDSU", 100),
       ]
 
-    messages += [("SECONDARY_STEER_ANGLE", 0)]
+    if CP.flags & ToyotaFlags.ZSS:
+      messages += [("SECONDARY_STEER_ANGLE", 0)]
 
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, 0)
 

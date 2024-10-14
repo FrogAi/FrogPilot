@@ -37,7 +37,7 @@ class LatControlPID(LatControl):
       steer_feedforward = self.get_steer_feedforward(angle_steers_des_no_offset, CS.vEgo)
 
       output_steer = self.pid.update(error, override=CS.steeringPressed,
-                                     feedforward=steer_feedforward, speed=CS.vEgo, frogpilot_toggles=frogpilot_toggles)
+                                     feedforward=steer_feedforward, speed=CS.vEgo)
       pid_log.active = True
       pid_log.p = self.pid.p
       pid_log.i = self.pid.i

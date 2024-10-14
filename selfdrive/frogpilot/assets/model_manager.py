@@ -9,12 +9,13 @@ from openpilot.common.basedir import BASEDIR
 from openpilot.common.params import Params, UnknownKeyName
 
 from openpilot.selfdrive.frogpilot.assets.download_functions import GITHUB_URL, GITLAB_URL, download_file, get_remote_file_size, get_repository_url, handle_error, handle_request_error, verify_download
-from openpilot.selfdrive.frogpilot.frogpilot_functions import MODELS_PATH, delete_file
+from openpilot.selfdrive.frogpilot.frogpilot_functions import MODELS_PATH
+from openpilot.selfdrive.frogpilot.frogpilot_utilities import delete_file
 
-VERSION = "v8"
+VERSION = "v10"
 
-DEFAULT_MODEL = "north-dakota-v2"
-DEFAULT_MODEL_NAME = "North Dakota V2 (Default)"
+DEFAULT_MODEL = "north-dakota"
+DEFAULT_MODEL_NAME = "North Dakota (Default)"
 
 def process_model_name(model_name):
   cleaned_name = re.sub(r'[🗺️👀📡]', '', model_name)
@@ -74,22 +75,20 @@ class ModelManager:
       return []
 
   def update_model_params(self, model_info, repo_url):
-    available_models, available_model_names, e2e_longitudinal_models, gas_brake_models, experimental_models, navigation_models, poseless_models, radarless_models, velocity_models = [], [], [], [], [], [], [], [], []
+    available_models, available_model_names, classic_models, experimental_models, navigation_models, radarless_models = [], [], [], [], [], []
 
     for model in model_info:
       available_models.append(model['id'])
       available_model_names.append(model['name'])
 
+      if model.get("classic_model", False):
+        classic_models.append(model['id'])
       if model.get("e2e_longitudinal", False):
         e2e_longitudinal_models.append(model['id'])
       if model.get("experimental", False):
         experimental_models.append(model['id'])
       if model.get("gas_brake", False):
         gas_brake_models.append(model['id'])
-      if model.get("poseless", False):
-        poseless_models.append(model['id'])
-      if model.get("velocity", False):
-        velocity_models.append(model['id'])
       if "🗺️" in model['name']:
         navigation_models.append(model['id'])
       if "📡" not in model['name']:
@@ -97,13 +96,10 @@ class ModelManager:
 
     self.params.put_nonblocking("AvailableModels", ','.join(available_models))
     self.params.put_nonblocking("AvailableModelsNames", ','.join(available_model_names))
-    self.params.put_nonblocking("E2ELongitudinalModels", ','.join(e2e_longitudinal_models))
+    self.params.put_nonblocking("ClassicModels", ','.join(classic_models))
     self.params.put_nonblocking("ExperimentalModels", ','.join(experimental_models))
-    self.params.put_nonblocking("GasBrakeModels", ','.join(gas_brake_models))
     self.params.put_nonblocking("NavigationModels", ','.join(navigation_models))
-    self.params.put_nonblocking("PoselessModels", ','.join(poseless_models))
     self.params.put_nonblocking("RadarlessModels", ','.join(radarless_models))
-    self.params.put_nonblocking("VelocityModels", ','.join(velocity_models))
     print("Models list updated successfully.")
 
     if available_models:
@@ -127,13 +123,11 @@ class ModelManager:
           elif not verify_result:
             print(f"Model {model} is outdated. Re-downloading...")
             delete_file(model_path)
-            self.remove_model_params(available_model_names, available_models, model)
             download_queue.append(model)
             all_models_downloaded = False
       else:
         if automatically_update_models:
           print(f"Model {model} isn't downloaded. Downloading...")
-          self.remove_model_params(available_model_names, available_models, model)
           download_queue.append(model)
         all_models_downloaded = False
 
@@ -141,15 +135,6 @@ class ModelManager:
       self.queue_model_download(model)
 
     return all_models_downloaded
-
-  def remove_model_params(self, available_model_names, available_models, model):
-    part_model_param = process_model_name(available_model_names[available_models.index(model)])
-    try:
-      self.params.check_key(part_model_param + "CalibrationParams")
-    except UnknownKeyName:
-      return
-    self.params.remove(part_model_param + "CalibrationParams")
-    self.params.remove(part_model_param + "LiveTorqueParameters")
 
   def queue_model_download(self, model, model_name=None):
     while self.params_memory.get(self.download_param, encoding='utf-8'):
@@ -186,16 +171,19 @@ class ModelManager:
         print(f"Deleted model file: {model_file} - Reason: {reason}")
 
   def copy_default_model(self):
-    default_model_path = os.path.join(MODELS_PATH, f"{DEFAULT_MODEL}.thneed")
+    classic_default_model_path = os.path.join(MODELS_PATH, f"{DEFAULT_MODEL}.thneed")
+    source_path = os.path.join(BASEDIR, "selfdrive", "classic_modeld", "models", "supercombo.thneed")
 
-    if not os.path.isfile(default_model_path):
-      source_path = os.path.join(BASEDIR, "selfdrive", "modeld", "models", "supercombo.thneed")
+    if os.path.isfile(source_path) and not os.path.isfile(classic_default_model_path):
+      shutil.copyfile(source_path, classic_default_model_path)
+      print(f"Copied the classic default model from {source_path} to {classic_default_model_path}")
 
-      if os.path.isfile(source_path):
-        shutil.copyfile(source_path, default_model_path)
-        print(f"Copied default model from {source_path} to {default_model_path}")
-      else:
-        print(f"Source default model not found at {source_path}. Exiting...")
+    default_model_path = os.path.join(MODELS_PATH, "secret-good-openpilot.thneed")
+    source_path = os.path.join(BASEDIR, "selfdrive", "modeld", "models", "supercombo.thneed")
+
+    if os.path.isfile(source_path) and not os.path.isfile(default_model_path):
+      shutil.copyfile(source_path, default_model_path)
+      print(f"Copied the default model from {source_path} to {default_model_path}")
 
   def update_models(self, boot_run=False):
     if boot_run:
@@ -206,12 +194,12 @@ class ModelManager:
       print("GitHub and GitLab are offline...")
       return
 
-    model_info = self.fetch_models(f"{repo_url}Versions/model_names_{VERSION}.json")
-    if model_info:
-      self.update_model_params(model_info, repo_url)
-
     if boot_run:
       self.validate_models()
+    else:
+      model_info = self.fetch_models(f"{repo_url}Versions/model_names_{VERSION}.json")
+      if model_info:
+        self.update_model_params(model_info, repo_url)
 
   def download_all_models(self):
     repo_url = get_repository_url()

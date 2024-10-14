@@ -11,12 +11,10 @@ public:
   explicit FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent);
 
 private:
-  FrogPilotSettingsWindow *parent;
-
-  ButtonControl *selectMakeButton;
-  ButtonControl *selectModelButton;
-
-  ToggleControl *disableOpenpilotLong;
+  void setModels();
+  void updateCarToggles();
+  void updateState(const UIState &s);
+  void updateToggles();
 
   std::set<QString> gmKeys = {
     "ExperimentalGMTune", "LongPitch", "NewLongAPIGM", "VoltSNG"
@@ -32,7 +30,7 @@ private:
 
   std::set<QString> longitudinalKeys = {
     "ExperimentalGMTune", "LongPitch", "NewLongAPI", "NewLongAPIGM",
-    "NewToyotaTune", "SNGHack", "VoltSNG"
+    "SNGHack", "VoltSNG"
   };
 
   std::set<QString> sngKeys = {
@@ -44,14 +42,22 @@ private:
   };
 
   std::set<QString> toyotaKeys = {
-    "ClusterOffset", "NewToyotaTune", "SNGHack", "ToyotaDoors"
+    "ClusterOffset", "FrogsGoMoosTweak", "NewToyotaTune", "SNGHack",
+    "ToyotaDoors"
+  };
+
+  std::set<QString> toyotaTuneKeys = {
+    "NewToyotaTune"
   };
 
   std::set<QString> voltKeys = {
     "VoltSNG"
   };
 
-  std::map<QString, AbstractControl*> toggles;
+  ButtonControl *selectMakeButton;
+  ButtonControl *selectModelButton;
+
+  FrogPilotSettingsWindow *parent;
 
   QString carMake;
   QString carModel;
@@ -62,17 +68,17 @@ private:
 
   Params params;
 
+  ToggleControl *disableOpenpilotLong;
+
   bool disableOpenpilotLongitudinal;
   bool hasExperimentalOpenpilotLongitudinal;
   bool hasOpenpilotLongitudinal;
   bool hasSNG;
   bool isGMPCMCruise;
   bool isImpreza;
+  bool isToyotaTuneSupported;
   bool isVolt;
   bool started;
 
-  void setModels();
-  void updateCarToggles();
-  void updateState(const UIState &s);
-  void updateToggles();
+  std::map<QString, AbstractControl*> toggles;
 };

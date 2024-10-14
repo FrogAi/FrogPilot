@@ -146,6 +146,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
     {"ToyotaDoors", tr("Automatically Lock/Unlock Doors"), tr("Automatically lock the doors when in drive and unlock when in park."), ""},
     {"ClusterOffset", tr("Cluster Speed Offset"), tr("Set the cluster offset openpilot uses to try and match the speed displayed on the dash."), ""},
     {"NewToyotaTune", tr("comma's New Toyota/Lexus Tune"), tr("Activate comma's latest Toyota tuning, expertly crafted by Shane for enhanced vehicle performance."), ""},
+    {"FrogsGoMoosTweak", tr("FrogsGoMoo's Personal Tweaks"), tr("Use FrogsGoMoo's personal tweaks to the Toyota tune focused around his 2019 Lexus ES 350 to take off a bit quicker and stop a bit smoother."), ""},
     {"SNGHack", tr("Stop and Go Hack"), tr("Force stop and go for vehicles without stock stop and go functionality."), ""},
   };
 
@@ -159,10 +160,6 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
     } else if (param == "ClusterOffset") {
       std::vector<QString> clusterOffsetToggleNames{"Reset"};
       vehicleToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 1.000, 1.050, "x", std::map<int, QString>(), 0.001, {}, clusterOffsetToggleNames, false);
-    } else if (param == "NewToyotaTune") {
-      std::vector<QString> toyotaTuneToggles{"FrogsGoMoosTweak"};
-      std::vector<QString> toyotaTuneToggleNames{tr("FrogsGoMoo's Personal Tweaks")};
-      vehicleToggle = new FrogPilotButtonToggleControl(param, title, desc, toyotaTuneToggles, toyotaTuneToggleNames);
 
     } else {
       vehicleToggle = new ParamControl(param, title, desc, icon);
@@ -186,7 +183,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
     updateFrogPilotToggles();
   });
 
-  std::set<QString> rebootKeys = {"CrosstrekTorque", "ExperimentalGMTune", "NewLongAPI", "NewLongAPIGM", "NewToyotaTune"};
+  std::set<QString> rebootKeys = {"CrosstrekTorque", "ExperimentalGMTune", "FrogsGoMoosTweak", "NewLongAPI", "NewLongAPIGM", "NewToyotaTune"};
   for (const QString &key : rebootKeys) {
     QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, [this]() {
       if (started) {
@@ -226,6 +223,7 @@ void FrogPilotVehiclesPanel::updateCarToggles() {
   hasSNG = parent->hasSNG;
   isGMPCMCruise = parent->isGMPCMCruise;
   isImpreza = parent->isImpreza;
+  isToyotaTuneSupported = parent->isToyotaTuneSupported;
   isVolt = parent->isVolt;
 
   updateToggles();
@@ -284,6 +282,8 @@ void FrogPilotVehiclesPanel::updateToggles() {
     } else if (toyota && toyotaKeys.find(key) != toyotaKeys.end()) {
       if (sngKeys.find(key) != sngKeys.end()) {
         setVisible = !hasSNG && hasOpenpilotLongitudinal && !disableOpenpilotLongitudinal;
+      } else if (toyotaTuneKeys.find(key) != toyotaTuneKeys.end()) {
+        setVisible = hasOpenpilotLongitudinal && !isToyotaTuneSupported;
       } else if (longitudinalKeys.find(key) != longitudinalKeys.end()) {
         setVisible = hasOpenpilotLongitudinal && !disableOpenpilotLongitudinal;
       } else {

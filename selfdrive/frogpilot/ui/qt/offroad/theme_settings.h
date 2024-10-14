@@ -17,7 +17,16 @@ signals:
   void openParentToggle();
 
 private:
-  FrogPilotSettingsWindow *parent;
+  void hideToggles();
+  void showToggles(const std::set<QString> &keys);
+  void updateCarToggles();
+  void updateState(const UIState &s);
+
+  std::set<QString> customThemeKeys = {
+    "CustomColors", "CustomDistanceIcon", "CustomIcons",
+    "CustomSignals", "CustomSounds", "DownloadStatusLabel",
+    "WheelIcon"
+  };
 
   FrogPilotButtonsControl *manageCustomColorsBtn;
   FrogPilotButtonsControl *manageCustomIconsBtn;
@@ -26,15 +35,9 @@ private:
   FrogPilotButtonsControl *manageDistanceIconsBtn;
   FrogPilotButtonsControl *manageWheelIconsBtn;
 
+  FrogPilotSettingsWindow *parent;
+
   LabelControl *downloadStatusLabel;
-
-  std::set<QString> customThemeKeys = {
-    "CustomColors", "CustomDistanceIcon", "CustomIcons",
-    "CustomSignals", "CustomSounds", "DownloadStatusLabel",
-    "WheelIcon"
-  };
-
-  std::map<QString, AbstractControl*> toggles;
 
   Params params;
   Params paramsMemory{"/dev/shm/params"};
@@ -58,8 +61,5 @@ private:
   bool wheelDownloading;
   bool wheelsDownloaded;
 
-  void hideToggles();
-  void showToggles(const std::set<QString> &keys);
-  void updateCarToggles();
-  void updateState(const UIState &s);
+  std::map<QString, AbstractControl*> toggles;
 };

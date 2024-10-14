@@ -60,11 +60,8 @@ void Sidebar::updateIcon(QLabel *&label, QMovie *&gif, const QString &gifPath, c
   }
 
   if (gif != nullptr) {
-    if (!gif->fileName().isEmpty()) {
-      gif->stop();
-    }
+    gif->stop();
     delete gif;
-    gif = nullptr;
     label->hide();
   }
 
@@ -83,7 +80,6 @@ void Sidebar::updateIcon(QLabel *&label, QMovie *&gif, const QString &gifPath, c
       isGif = true;
     } else {
       delete gif;
-      gif = nullptr;
       isGif = false;
     }
   } else {
