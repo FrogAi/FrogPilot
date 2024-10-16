@@ -8,8 +8,8 @@ from openpilot.selfdrive.frogpilot.frogpilot_variables import CITY_SPEED_LIMIT, 
 A_CRUISE_MIN_ECO =   A_CRUISE_MIN / 2
 A_CRUISE_MIN_SPORT = A_CRUISE_MIN * 2
 
-                       # MPH = [ 0.,  11,  22,  34,  45,  56,  89]
-A_CRUISE_MAX_BP_CUSTOM =       [ 0.,  5., 10., 15., 20., 25., 40.]
+                       # MPH = [0.0,  11,  22,  34,  45,  56,  89]
+A_CRUISE_MAX_BP_CUSTOM =       [0.0,  5., 10., 15., 20., 25., 40.]
 A_CRUISE_MAX_VALS_ECO =        [2.0, 1.5, 1.0, 0.8, 0.6, 0.4, 0.2]
 A_CRUISE_MAX_VALS_SPORT =      [3.0, 2.5, 2.0, 1.5, 1.0, 0.8, 0.6]
 A_CRUISE_MAX_VALS_SPORT_PLUS = [4.0, 3.5, 3.0, 2.0, 1.0, 0.8, 0.6]
@@ -24,10 +24,7 @@ def get_max_accel_sport_plus(v_ego):
   return interp(v_ego, A_CRUISE_MAX_BP_CUSTOM, A_CRUISE_MAX_VALS_SPORT_PLUS)
 
 def get_max_accel_ramp_off(max_accel, v_cruise, v_ego):
-  return interp(v_ego, [0., v_cruise * 0.5, v_cruise * 0.75, v_cruise], [max_accel, max_accel, max_accel / 2, max_accel / 4])
-
-def get_max_accel_ramp_off_highway(max_accel, v_cruise, v_ego):
-  return interp(v_ego, [0., v_cruise * 0.75, v_cruise], [max_accel, max_accel, max_accel / 2])
+  return interp(v_cruise - v_ego, [0., 1., 5., 10.], [0., 0.1, 1.0, max_accel])
 
 def get_max_allowed_accel(v_ego):
   return interp(v_ego, [0., 5., 20.], [4.0, 4.0, 2.0])  # ISO 15622:2018
@@ -77,10 +74,7 @@ class FrogPilotAcceleration:
     if frogpilot_toggles.human_acceleration:
       if self.frogpilot_planner.frogpilot_following.following_lead and not frogpilotCarState.trafficModeActive:
         self.max_accel = clip(self.frogpilot_planner.lead_one.aLeadK, get_max_accel_sport_plus(v_ego), get_max_allowed_accel(v_ego))
-      if self.frogpilot_planner.v_cruise < CITY_SPEED_LIMIT:
-        self.max_accel = get_max_accel_ramp_off(self.max_accel, self.frogpilot_planner.v_cruise, v_ego)
-      else:
-        self.max_accel = get_max_accel_ramp_off_highway(self.max_accel, self.frogpilot_planner.v_cruise, v_ego)
+      self.max_accel = min(get_max_accel_ramp_off(self.max_accel, self.frogpilot_planner.v_cruise, v_ego), self.max_accel)
 
     self.max_accel = min(self.max_accel, frogpilot_toggles.max_desired_accel)
 
