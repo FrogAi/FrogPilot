@@ -211,6 +211,10 @@ std::unordered_map<std::string, uint32_t> keys = {
     // FrogPilot parameters
     {"AccelerationPath", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_VISUALS},
     {"AccelerationProfile", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_CONTROLS},
+    {"AdjacentLeadDebugLeft", PERSISTENT},
+    {"AdjacentLeadDebugRight", PERSISTENT},
+    {"AdjacentLeadDebugLeftFar", PERSISTENT},
+    {"AdjacentLeadDebugRightFar", PERSISTENT},
     {"AdjacentPath", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_VISUALS},
     {"AdjacentPathMetrics", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_VISUALS},
     {"AdvancedCustomUI", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_VISUALS},

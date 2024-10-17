@@ -106,7 +106,7 @@ private:
   Compass *compass_img;
   DistanceButton *distance_btn;
   PedalIcons *pedal_icons;
-  ScreenRecorder *recorder;
+  ScreenRecorder *screenRecorder;
 
   QHBoxLayout *bottom_layout;
 
@@ -145,8 +145,6 @@ private:
   float cruiseAdjustment;
   float distanceConversion;
   float laneDetectionWidth;
-  float laneWidthLeft;
-  float laneWidthRight;
   float slcSpeedLimitOffset;
   float speedConversion;
   float unconfirmedSpeedLimit;
@@ -192,8 +190,8 @@ protected:
   void initializeGL() override;
   void showEvent(QShowEvent *event) override;
   void updateFrameMat() override;
-  void drawLaneLines(QPainter &painter, const UIState *s);
-  void drawLead(QPainter &painter, const cereal::RadarState::LeadData::Reader &lead_data, const QPointF &vd, const float v_ego, const QColor lead_marker_color, bool adjacent = true);
+  void drawLaneLines(QPainter &painter, const UIState *s, float v_ego);
+  void drawLead(QPainter &painter, const cereal::RadarState::LeadData::Reader &lead_data, const QPointF &vd, float v_ego, const QColor &lead_marker_color, const std::string &paramKey = "", bool adjacent = false, bool leadStatus = true);
   void drawHud(QPainter &p);
   void drawDriverState(QPainter &painter, const UIState *s);
   void paintEvent(QPaintEvent *event) override;

@@ -20,8 +20,8 @@ AnnotatedCameraWidget::AnnotatedCameraWidget(VisionStreamType type, QWidget* par
   buttons_layout->setSpacing(0);
 
   // Neokii screen recorder
-  recorder = new ScreenRecorder(this);
-  buttons_layout->addWidget(recorder);
+  screenRecorder = new ScreenRecorder(this);
+  buttons_layout->addWidget(screenRecorder);
 
   experimental_btn = new ExperimentalButton(this);
   buttons_layout->addWidget(experimental_btn);
@@ -315,7 +315,7 @@ void AnnotatedCameraWidget::updateFrameMat() {
       .translate(-intrinsic_matrix.v[2], -intrinsic_matrix.v[5]);
 }
 
-void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
+void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s, float v_ego) {
   painter.save();
 
   const UIScene &scene = s->scene;
@@ -439,7 +439,7 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
   }
 
   // Paint adjacent lane paths
-  if ((scene.adjacent_path || scene.adjacent_path_metrics) && (laneWidthLeft != 0 || laneWidthRight != 0)) {
+  if ((scene.adjacent_path || scene.adjacent_path_metrics) && v_ego > scene.minimum_lane_change_speed) {
     const float minLaneWidth = laneDetectionWidth * 0.5f;
     const float maxLaneWidth = laneDetectionWidth * 1.5f;
 
@@ -469,8 +469,8 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
       }
     };
 
-    paintLane(scene.track_adjacent_vertices[4], laneWidthLeft, blindSpotLeft);
-    paintLane(scene.track_adjacent_vertices[5], laneWidthRight, blindSpotRight);
+    paintLane(scene.track_adjacent_vertices[4], scene.lane_width_left, blindSpotLeft);
+    paintLane(scene.track_adjacent_vertices[5], scene.lane_width_right, blindSpotRight);
   }
 
   // Paint path edges
@@ -559,14 +559,13 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
   painter.restore();
 }
 
-void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::RadarState::LeadData::Reader &lead_data, const QPointF &vd, const float v_ego, const QColor lead_marker_color, bool adjacent) {
+void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::RadarState::LeadData::Reader &lead_data, const QPointF &vd, float v_ego, const QColor &lead_marker_color, const std::string &paramKey, bool adjacent, bool leadStatus) {
   painter.save();
 
   const float speedBuff = useStockColors || adjacent ? 10. : 25.;  // Make the center of the chevron appear sooner if a theme is active
   const float leadBuff = useStockColors || adjacent ? 40. : 100.;  // Make the center of the chevron appear sooner if a theme is active
-  const float d_rel = lead_data.getDRel();
+  const float d_rel = adjacent ? fabs(lead_data.getYRel()) : lead_data.getDRel();
   const float v_rel = lead_data.getVRel();
-  const float y_rel = fabs(lead_data.getYRel());
 
   float fillAlpha = 0;
   if (d_rel < leadBuff) {
@@ -580,6 +579,22 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::RadarState
   float sz = std::clamp((25 * 30) / (d_rel / 3 + 30), adjacent ? 10.0f : 15.0f, adjacent ? 20.0f : 30.0f) * 2.35;
   float x = std::clamp((float)vd.x(), 0.f, width() - sz / 2);
   float y = std::fmin(height() - sz * .6, (float)vd.y());
+
+  if (adjacent && !leadStatus) {
+    if (paramKey == "AdjacentLeadDebugLeft") {
+      x = width() * 0.25f;
+      y = height() * 0.75f;
+    } else if (paramKey == "AdjacentLeadDebugLeftFar") {
+      x = width() * 0.25f;
+      y = height() * 0.25f;
+    } else if (paramKey == "AdjacentLeadDebugRight") {
+      x = width() * 0.75f;
+      y = height() * 0.75f;
+    } else if (paramKey == "AdjacentLeadDebugRightFar") {
+      x = width() * 0.75f;
+      y = height() * 0.25f;
+    }
+  }
 
   float g_xo = sz / 5;
   float g_yo = sz / 10;
@@ -605,11 +620,19 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::RadarState
 
     QString text;
     if (adjacent) {
-      text = QString("%1 %2 | %3 %4")
-              .arg(qRound(y_rel * distanceConversion))
-              .arg(leadDistanceUnit)
-              .arg(qRound(lead_speed * speedConversion))
-              .arg(leadSpeedUnit);
+      QString paramText = QString::fromStdString(paramsMemory.get(paramKey));
+      QStringList lines = paramText.split("\n");
+
+      QFontMetrics metrics(painter.font());
+      int middle_x = (chevron[2].x() + chevron[0].x()) / 2;
+      int text_y = chevron[0].y() + metrics.height() + 5;
+
+      for (int i = 0; i < lines.size(); ++i) {
+        int textWidth = metrics.horizontalAdvance(lines[i]);
+        int text_x = middle_x - textWidth / 2;
+        painter.drawText(text_x, text_y, lines[i]);
+        text_y += metrics.height() + 5;
+      }
     } else {
       text = QString("%1 %2 | %3 %4 | %5 %6")
               .arg(qRound(d_rel * distanceConversion))
@@ -618,15 +641,15 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::RadarState
               .arg(leadSpeedUnit)
               .arg(QString::number(d_rel / std::max(v_ego, 1.0f), 'f', 1))
               .arg("s");
+
+      QFontMetrics metrics(painter.font());
+      int middle_x = (chevron[2].x() + chevron[0].x()) / 2;
+      int textWidth = metrics.horizontalAdvance(text);
+      int text_x = middle_x - textWidth / 2;
+      int text_y = chevron[0].y() + metrics.height() + 5;
+
+      painter.drawText(text_x, text_y, text);
     }
-
-    QFontMetrics metrics(painter.font());
-    int middle_x = (chevron[2].x() + chevron[0].x()) / 2;
-    int textWidth = metrics.horizontalAdvance(text);
-    int text_x = middle_x - textWidth / 2;
-    int text_y = chevron[0].y() + metrics.height() + 5;
-
-    painter.drawText(text_x, text_y, text);
   }
 
   painter.restore();
@@ -694,7 +717,7 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
 
   if (s->scene.world_objects_visible) {
     update_model(s, model, sm["uiPlan"].getUiPlan());
-    drawLaneLines(painter, s);
+    drawLaneLines(painter, s, v_ego);
 
     if (s->scene.longitudinal_control && sm.rcv_frame("radarState") > s->scene.started_frame && !s->scene.hide_lead_marker) {
       auto radar_state = sm["radarState"].getRadarState();
@@ -706,23 +729,15 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
       auto lead_left_far = radar_state.getLeadLeftFar();
       auto lead_right_far = radar_state.getLeadRightFar();
       if (lead_one.getStatus()) {
-        drawLead(painter, lead_one, s->scene.lead_vertices[0], v_ego, s->scene.lead_marker_color, false);
+        drawLead(painter, lead_one, s->scene.lead_vertices[0], v_ego, s->scene.lead_marker_color);
       }
       if (lead_two.getStatus()) {
         drawLead(painter, lead_two, s->scene.lead_vertices[1], v_ego, s->scene.lead_marker_color);
       }
-      if (lead_left.getStatus()) {
-        drawLead(painter, lead_left, s->scene.lead_vertices[2], v_ego, blueColor());
-      }
-      if (lead_right.getStatus()) {
-        drawLead(painter, lead_right, s->scene.lead_vertices[3], v_ego, redColor());
-      }
-      if (lead_left_far.getStatus()) {
-        drawLead(painter, lead_left_far, s->scene.lead_vertices[4], v_ego, greenColor());
-      }
-      if (lead_right_far.getStatus()) {
-        drawLead(painter, lead_right_far, s->scene.lead_vertices[5], v_ego, whiteColor());
-      }
+      drawLead(painter, lead_left, s->scene.lead_vertices[2], v_ego, blueColor(), "AdjacentLeadDebugLeft", true, lead_left.getStatus());
+      drawLead(painter, lead_right, s->scene.lead_vertices[3], v_ego, redColor(), "AdjacentLeadDebugRight", true, lead_right.getStatus());
+      drawLead(painter, lead_left_far, s->scene.lead_vertices[4], v_ego, greenColor(), "AdjacentLeadDebugLeftFar", true, lead_left_far.getStatus());
+      drawLead(painter, lead_right_far, s->scene.lead_vertices[5], v_ego, whiteColor(), "AdjacentLeadDebugRightFar", true, lead_right_far.getStatus());
     }
   }
 
@@ -848,12 +863,6 @@ void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
   QObject::connect(animationTimer, &QTimer::timeout, [this] {
     animationFrameIndex = (animationFrameIndex + 1) % totalFrames;
   });
-
-  QTimer *recordTimer = new QTimer(this);
-  QObject::connect(recordTimer, &QTimer::timeout, [this] {
-    recorder->updateScreen();
-  });
-  recordTimer->start(1000 / UI_FREQ);
 }
 
 void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIScene &scene) {
@@ -913,8 +922,6 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
   hideSpeed = scene.hide_speed;
 
   laneDetectionWidth = scene.lane_detection_width;
-  laneWidthLeft = scene.lane_width_left;
-  laneWidthRight = scene.lane_width_right;
 
   leadInfo = scene.lead_info;
   obstacleDistance = scene.obstacle_distance;
@@ -944,11 +951,15 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
     pedal_icons->updateState(scene);
   }
 
-  recorder->setVisible(scene.screen_recorder && !mapOpen);
-
   reverseCruise = scene.reverse_cruise;
 
   roadNameUI = scene.road_name_ui;
+
+  bool enableScreenRecorder = scene.screen_recorder && !mapOpen;
+  screenRecorder->setVisible(enableScreenRecorder);
+  if (enableScreenRecorder) {
+    screenRecorder->updateScreen(scene.fps, scene.started);
+  }
 
   speedLimitController = scene.speed_limit_controller;
   showSLCOffset = speedLimitController && scene.show_slc_offset;

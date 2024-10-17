@@ -60,6 +60,9 @@ class Track:
     self.K_K = kalman_params.K
     self.kf = KF1D([[v_lead], [0.0]], self.K_A, self.K_C, self.K_K)
 
+    # FrogPilot variables
+    self.params_memory = Params("/dev/shm/params")
+
   def update(self, d_rel: float, y_rel: float, v_rel: float, v_lead: float, measured: float):
     # relative values, copy
     self.dRel = d_rel   # LONG_DIST
@@ -114,9 +117,11 @@ class Track:
 
     y_delta = self.yRel + interp(self.dRel, model_data.position.x, model_data.position.y)
 
-    if left and adjacent_lane_min < y_delta < adjacent_lane_max and self.vLead > 1:
+    self.params_memory.put("AdjacentLeadDebug" + ("Left" if left else "Right") + ("Far" if far else ""), f"Min: {round(adjacent_lane_min, 2)}\nDelta: {round(y_delta, 2)} ({round(y_delta - self.yRel, 2)})\nMax: {round(min(adjacent_lane_max, 100), 2)}")
+
+    if left and adjacent_lane_min < y_delta < adjacent_lane_max:
       return True
-    elif not left and adjacent_lane_min < -y_delta < adjacent_lane_max and self.vLead > 1:
+    elif not left and adjacent_lane_min < -y_delta < adjacent_lane_max:
       return True
     else:
       return False
@@ -206,27 +211,14 @@ def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capn
   return lead_dict
 
 
-def get_lead_adjacent(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capnp._DynamicStructReader,
-                      model_v_ego: float, model_data: capnp._DynamicStructReader, lane_width: float, lead_detection_threshold: float, left: bool = True, far: bool = False) -> dict[str, Any]:
-  # Determine leads, this is where the essential logic happens
-  if len(tracks) > 0 and ready:
-    track = match_vision_to_track(v_ego, lead_msg, tracks)
-  else:
-    track = None
-
+def get_lead_adjacent(tracks: dict[int, Track], model_data: capnp._DynamicStructReader, lane_width: float,
+                      left: bool = True, far: bool = False) -> dict[str, Any]:
   lead_dict = {'status': False}
-  if track is not None:
-    lead_dict = track.get_RadarState(lead_msg.prob)
-  elif (track is None) and ready: #and (lead_msg.prob > lead_detection_threshold):
-    lead_dict = get_RadarState_from_vision(lead_msg, v_ego, model_v_ego)
 
-  adjacent_tracks = [c for c in tracks.values() if c.potential_adjacent_lead(far, lane_width, left, model_data)]
+  adjacent_tracks = [c for c in tracks.values() if c.vLead > 1 and c.potential_adjacent_lead(far, lane_width, left, model_data)]
   if len(adjacent_tracks) > 0:
     closest_track = min(adjacent_tracks, key=lambda c: c.dRel)
-
-    # Only choose new track if it is actually closer than the previous one
-    if (not lead_dict['status']) or (closest_track.dRel < lead_dict['dRel']):
-      lead_dict = closest_track.get_RadarState()
+    lead_dict = closest_track.get_RadarState()
 
   return lead_dict
 
@@ -312,11 +304,10 @@ class RadarD:
       self.radar_state.leadOne = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[0], model_v_ego, self.frogpilot_toggles.lead_detection_threshold, low_speed_override=True)
       self.radar_state.leadTwo = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[1], model_v_ego, self.frogpilot_toggles.lead_detection_threshold, low_speed_override=False)
 
-      if self.v_ego >= 1: #self.frogpilot_toggles.minimum_lane_change_speed:
-        self.radar_state.leadLeft = get_lead_adjacent(self.v_ego, self.ready, self.tracks, leads_v3[0], model_v_ego, sm['modelV2'], sm['frogpilotPlan'].laneWidthLeft, self.frogpilot_toggles.lead_detection_threshold, left=True)
-        self.radar_state.leadRight = get_lead_adjacent(self.v_ego, self.ready, self.tracks, leads_v3[0], model_v_ego, sm['modelV2'], sm['frogpilotPlan'].laneWidthRight, self.frogpilot_toggles.lead_detection_threshold, left=False)
-        self.radar_state.leadLeftFar = get_lead_adjacent(self.v_ego, self.ready, self.tracks, leads_v3[0], model_v_ego, sm['modelV2'], sm['frogpilotPlan'].laneWidthLeft, self.frogpilot_toggles.lead_detection_threshold, left=True, far=True)
-        self.radar_state.leadRightFar = get_lead_adjacent(self.v_ego, self.ready, self.tracks, leads_v3[0], model_v_ego, sm['modelV2'], sm['frogpilotPlan'].laneWidthRight, self.frogpilot_toggles.lead_detection_threshold, left=False, far=True)
+    self.radar_state.leadLeft = get_lead_adjacent(self.tracks, sm['modelV2'], sm['frogpilotPlan'].laneWidthLeft, left=True)
+    self.radar_state.leadLeftFar = get_lead_adjacent(self.tracks, sm['modelV2'], sm['frogpilotPlan'].laneWidthLeft, left=True, far=True)
+    self.radar_state.leadRight = get_lead_adjacent(self.tracks, sm['modelV2'], sm['frogpilotPlan'].laneWidthRight, left=False)
+    self.radar_state.leadRightFar = get_lead_adjacent(self.tracks, sm['modelV2'], sm['frogpilotPlan'].laneWidthRight, left=False, far=True)
 
     # Update FrogPilot parameters
     if FrogPilotVariables.toggles_updated:

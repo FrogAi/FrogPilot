@@ -167,6 +167,7 @@ typedef struct UIScene {
   bool onroad_distance_button;
   bool parked;
   bool pedals_on_ui;
+  bool radarless_model;
   bool random_events;
   bool red_light;
   bool reverse;
@@ -241,6 +242,7 @@ typedef struct UIScene {
   int desired_follow;
   int driver_camera_timer;
   int map_style;
+  int minimum_lane_change_speed;
   int model_length;
   int obstacle_distance;
   int obstacle_distance_stock;
