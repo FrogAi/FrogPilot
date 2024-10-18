@@ -55,13 +55,16 @@ def automatic_update_check(started, params):
   elif update_state_idle:
     os.system("pkill -SIGUSR1 -f system.updated.updated")
 
-def download_assets(model_manager, theme_manager, params, params_memory):
+def check_assets(model_manager, theme_manager, params, params_memory):
+  if params_memory.get_bool("DownloadAllModels"):
+    run_thread_with_lock("download_all_models", model_manager.download_all_models)
+
   model_to_download = params_memory.get("ModelToDownload", encoding='utf-8')
   if model_to_download:
     run_thread_with_lock("download_model", model_manager.download_model, (model_to_download,))
 
-  if params_memory.get_bool("DownloadAllModels"):
-    run_thread_with_lock("download_all_models", model_manager.download_all_models)
+  if params_memory.get_bool("UpdateTheme"):
+    run_thread_with_lock("update_active_theme", theme_manager.update_active_theme)
 
   assets = [
     ("ColorToDownload", "colors"),
@@ -176,9 +179,6 @@ def frogpilot_thread():
 
       frogpilot_tracking.update(sm['carState'])
 
-    if params_memory.get_bool("UpdateTheme"):
-      run_thread_with_lock("update_active_theme", theme_manager.update_active_theme)
-
     if FrogPilotVariables.toggles_updated:
       update_toggles = True
     elif update_toggles:
@@ -187,7 +187,7 @@ def frogpilot_thread():
 
     started_previously = started
 
-    download_assets(model_manager, theme_manager, params, params_memory)
+    check_assets(model_manager, theme_manager, params, params_memory)
 
     if params_memory.get_bool("ManualUpdateInitiated"):
       run_thread_with_lock("time_checks", time_checks, (False, deviceState, model_manager, now, screen_off, started, theme_manager, time_validated, params, params_memory))
@@ -204,7 +204,7 @@ def frogpilot_thread():
         run_thread_with_lock("update_models", model_manager.update_models, (True,))
         run_thread_with_lock("update_themes", theme_manager.update_themes, (True,))
 
-      theme_manager.update_holiday(now)
+      theme_manager.update_holiday()
 
 def main():
   frogpilot_thread()

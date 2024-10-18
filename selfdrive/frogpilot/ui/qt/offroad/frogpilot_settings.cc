@@ -178,7 +178,7 @@ void FrogPilotSettingsWindow::updateCarVariables() {
 
     hasAutoTune = (carModel == "hyundai" || carModel == "toyota") && CP.getLateralTuning().which() == cereal::CarParams::LateralTuning::TORQUE;
     hasBSM = CP.getEnableBsm();
-    hasDashSpeedLimits = carModel == "ford" || carModel == "hyundai" || carModel == "toyota";
+    hasDashSpeedLimits = carModel == "hyundai" || carModel == "toyota";
     hasExperimentalOpenpilotLongitudinal = CP.getExperimentalLongitudinalAvailable();
     hasNNFFLog = checkNNFFLogFileExists(carFingerprint);
     hasOpenpilotLongitudinal = hasLongitudinalControl(CP);

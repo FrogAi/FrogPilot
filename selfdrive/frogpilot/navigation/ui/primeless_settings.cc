@@ -75,6 +75,7 @@ void FrogPilotPrimelessPanel::createMapboxKeyControl(ButtonControl *&control, co
         control->setText(tr("ADD"));
 
         params.remove(paramKey);
+        paramsStorage.remove(paramKey);
 
         setupCompleted = false;
       }

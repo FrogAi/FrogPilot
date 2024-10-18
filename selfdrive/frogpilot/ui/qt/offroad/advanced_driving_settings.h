@@ -31,18 +31,6 @@ private:
   void updateModelLabels();
   void updateState(const UIState &s);
 
-  FrogPilotSettingsWindow *parent;
-
-  ButtonControl *deleteModelBtn;
-  ButtonControl *downloadAllModelsBtn;
-  ButtonControl *downloadModelBtn;
-  ButtonControl *selectModelBtn;
-
-  FrogPilotParamValueButtonControl *steerFrictionToggle;
-  FrogPilotParamValueButtonControl *steerLatAccelToggle;
-  FrogPilotParamValueButtonControl *steerKPToggle;
-  FrogPilotParamValueButtonControl *steerRatioToggle;
-
   std::set<QString> aggressivePersonalityKeys = {
     "AggressiveFollow", "AggressiveJerkAcceleration", "AggressiveJerkDeceleration",
     "AggressiveJerkDanger", "AggressiveJerkSpeed", "AggressiveJerkSpeedDecrease",
@@ -96,6 +84,22 @@ private:
     "ResetTrafficPersonality"
   };
 
+  ButtonControl *deleteModelBtn;
+  ButtonControl *downloadAllModelsBtn;
+  ButtonControl *downloadModelBtn;
+  ButtonControl *selectModelBtn;
+
+  FrogPilotParamValueButtonControl *steerFrictionToggle;
+  FrogPilotParamValueButtonControl *steerLatAccelToggle;
+  FrogPilotParamValueButtonControl *steerKPToggle;
+  FrogPilotParamValueButtonControl *steerRatioToggle;
+
+  FrogPilotSettingsWindow *parent;
+
+  Params params;
+  Params paramsMemory{"/dev/shm/params"};
+  Params paramsStorage{"/persist/params"};
+
   QDir modelDir{"/data/models/"};
 
   QList<LabelControl*> labelControls;
@@ -103,10 +107,6 @@ private:
   QStringList availableModelNames;
   QStringList availableModels;
   QStringList experimentalModels;
-
-  Params params;
-  Params paramsMemory{"/dev/shm/params"};
-  Params paramsStorage{"/persist/params"};
 
   bool allModelsDownloading;
   bool cancellingDownload;

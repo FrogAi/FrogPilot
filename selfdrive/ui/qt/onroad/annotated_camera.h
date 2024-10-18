@@ -106,7 +106,7 @@ private:
   Compass *compass_img;
   DistanceButton *distance_btn;
   PedalIcons *pedal_icons;
-  ScreenRecorder *recorder;
+  ScreenRecorder *screenRecorder;
 
   QHBoxLayout *bottom_layout;
 
@@ -145,8 +145,6 @@ private:
   float cruiseAdjustment;
   float distanceConversion;
   float laneDetectionWidth;
-  float laneWidthLeft;
-  float laneWidthRight;
   float slcSpeedLimitOffset;
   float speedConversion;
   float unconfirmedSpeedLimit;
@@ -163,6 +161,7 @@ private:
   int obstacleDistanceStock;
   int signalAnimationLength;
   int signalHeight;
+  int signalMovement;
   int signalWidth;
   int standstillDuration;
   int statusBarHeight;
@@ -180,8 +179,8 @@ private:
 
   QTimer *animationTimer;
 
-  QVector<QPixmap> regularImages;
   QVector<QPixmap> blindspotImages;
+  QVector<QPixmap> signalImages;
 
   inline QColor blueColor(int alpha = 255) { return QColor(0, 150, 255, alpha); }
   inline QColor greenColor(int alpha = 242) { return QColor(23, 134, 68, alpha); }
@@ -191,8 +190,8 @@ protected:
   void initializeGL() override;
   void showEvent(QShowEvent *event) override;
   void updateFrameMat() override;
-  void drawLaneLines(QPainter &painter, const UIState *s);
-  void drawLead(QPainter &painter, const cereal::ModelDataV2::LeadDataV3::Reader &lead_data, const QPointF &vd, const float v_ego, const QColor lead_marker_color);
+  void drawLaneLines(QPainter &painter, const UIState *s, float v_ego);
+  void drawLead(QPainter &painter, const cereal::RadarState::LeadData::Reader &lead_data, const QPointF &vd, float v_ego, const QColor lead_marker_color);
   void drawHud(QPainter &p);
   void drawDriverState(QPainter &painter, const UIState *s);
   void paintEvent(QPaintEvent *event) override;

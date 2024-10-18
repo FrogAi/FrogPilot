@@ -478,9 +478,12 @@ def manager_thread() -> None:
   pm = messaging.PubMaster(['managerState'])
 
   write_onroad_params(False, params)
-  ensure_running(managed_processes.values(), False, params=params, CP=sm['carParams'], not_run=ignore)
+  ensure_running(managed_processes.values(), False, params=params, CP=sm['carParams'], not_run=ignore, secret_good_openpilot=False)
 
   started_prev = False
+
+  # FrogPilot variables
+  secret_good_openpilot = params.get("Model", encoding='utf-8') == "secret-good-openpilot"
 
   while True:
     sm.update(1000)
@@ -494,6 +497,9 @@ def manager_thread() -> None:
       if os.path.isfile(error_log):
         os.remove(error_log)
 
+      # FrogPilot variables
+      secret_good_openpilot = params.get("Model", encoding='utf-8') == "secret-good-openpilot"
+
     elif not started and started_prev:
       params.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
       params_memory.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
@@ -504,7 +510,7 @@ def manager_thread() -> None:
 
     started_prev = started
 
-    ensure_running(managed_processes.values(), started, params=params, CP=sm['carParams'], not_run=ignore)
+    ensure_running(managed_processes.values(), started, params=params, CP=sm['carParams'], not_run=ignore, secret_good_openpilot=secret_good_openpilot)
 
     running = ' '.join("{}{}\u001b[0m".format("\u001b[32m" if p.proc.is_alive() else "\u001b[31m", p.name)
                        for p in managed_processes.values() if p.proc)

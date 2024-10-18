@@ -502,7 +502,6 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"SidebarMetrics", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_VISUALS},
     {"SignalMetrics", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_VISUALS},
     {"SignalToDownload", PERSISTENT},
-    {"SLCConfirmation", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_CONTROLS},
     {"SLCConfirmationHigher", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_CONTROLS},
     {"SLCConfirmationLower", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_CONTROLS},
     {"SLCConfirmed", PERSISTENT},

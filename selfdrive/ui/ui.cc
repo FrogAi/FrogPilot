@@ -44,15 +44,17 @@ int get_path_length_idx(const cereal::XYZTData::Reader &line, const float path_h
   return max_idx;
 }
 
-void update_leads(UIState *s, const cereal::ModelDataV2::Reader &model_data) {
-  const cereal::XYZTData::Reader &line = model_data.getPosition();
-  for (int i = 0; i < model_data.getLeadsV3().size() && i < 2; ++i) {
-    const auto &lead = model_data.getLeadsV3()[i];
-    if (s->scene.has_lead) {
-      float d_rel = lead.getX()[0];
-      float y_rel = lead.getY()[0];
-      float z = line.getZ()[get_path_length_idx(line, d_rel)];
-      calib_frame_to_full_frame(s, d_rel, y_rel, z + 1.22, &s->scene.lead_vertices[i]);
+void update_leads(UIState *s, const cereal::RadarState::Reader &radar_state, const cereal::XYZTData::Reader &line) {
+  cereal::RadarState::LeadData::Reader (cereal::RadarState::Reader::*get_lead_data[2])() const = {
+    &cereal::RadarState::Reader::getLeadOne,
+    &cereal::RadarState::Reader::getLeadTwo,
+  };
+
+  for (int i = 0; i < 2; ++i) {
+    auto lead_data = (radar_state.*get_lead_data[i])();
+    if (lead_data.getStatus()) {
+      float z = line.getZ()[get_path_length_idx(line, lead_data.getDRel())];
+      calib_frame_to_full_frame(s, lead_data.getDRel(), -lead_data.getYRel(), z + 1.22, &s->scene.lead_vertices[i]);
     }
   }
 }
@@ -115,28 +117,41 @@ void update_model(UIState *s,
   }
 
   // update path
-  float path;
+  float path_width;
   if (scene.dynamic_path_width) {
     float multiplier = scene.enabled ? 1.0f : scene.always_on_lateral_active ? 0.75f : 0.50f;
-    path = scene.path_width * multiplier;
+    path_width = scene.path_width * multiplier;
   } else {
-    path = scene.path_width;
+    path_width = scene.path_width;
   }
 
-  auto lead_count = model.getLeadsV3().size();
-  if (lead_count > 0) {
-    auto lead_one = model.getLeadsV3()[0];
-    scene.has_lead = lead_one.getProb() > scene.lead_detection_threshold;
+  if (scene.radarless_model) {
+    auto lead_count = model.getLeadsV3().size();
+    if (lead_count > 0) {
+      auto lead_one = model.getLeadsV3()[0];
+      scene.has_lead = lead_one.getProb() > scene.lead_detection_threshold;
+
+      if (scene.has_lead) {
+        const float lead_d = lead_one.getX()[0] * 2.;
+        max_distance = std::clamp((float)(lead_d - fmin(lead_d * 0.35, 10.)), 0.0f, max_distance);
+      }
+    } else {
+      scene.has_lead = false;
+    }
+  } else {
+    auto lead_one = (*s->sm)["radarState"].getRadarState().getLeadOne();
+    scene.has_lead = lead_one.getModelProb() > scene.lead_detection_threshold;
+
     if (scene.has_lead) {
-      const float lead_d = lead_one.getX()[0] * 2.;
+      const float lead_d = lead_one.getDRel() * 2.;
       max_distance = std::clamp((float)(lead_d - fmin(lead_d * 0.35, 10.)), 0.0f, max_distance);
     }
   }
   max_idx = get_path_length_idx(plan_position, max_distance);
-  update_line_data(s, plan_position, scene.model_ui ? path * (1 - scene.path_edge_width / 100.0f) : 0.9, 1.22, &scene.track_vertices, max_idx, false);
+  update_line_data(s, plan_position, scene.model_ui ? path_width * (1 - scene.path_edge_width / 100.0f) : 0.9, 1.22, &scene.track_vertices, max_idx, false);
 
   // Update path edges
-  update_line_data(s, plan_position, scene.model_ui ? path : 0, 1.22, &scene.track_edge_vertices, max_idx, false);
+  update_line_data(s, plan_position, scene.model_ui ? path_width : 0, 1.22, &scene.track_edge_vertices, max_idx, false);
 }
 
 void update_dmonitoring(UIState *s, const cereal::DriverStateV2::Reader &driverstate, float dm_fade_state, bool is_rhd) {
@@ -323,13 +338,17 @@ void ui_update_params(UIState *s) {
 void ui_update_frogpilot_params(UIState *s, Params &params) {
   UIScene &scene = s->scene;
 
-  auto carParams = params.get("CarParamsPersistent");
+  std::string carParams = params.get("CarParamsPersistent");
   if (!carParams.empty()) {
     AlignedBuffer aligned_buf;
     capnp::FlatArrayMessageReader cmsg(aligned_buf.align(carParams.data(), carParams.size()));
     cereal::CarParams::Reader CP = cmsg.getRoot<cereal::CarParams>();
     scene.longitudinal_control = hasLongitudinalControl(CP);
   }
+
+  float distance_conversion = scene.is_metric ? 1.0f : FOOT_TO_METER;
+  float small_distance_conversion = scene.is_metric ? 1.0f : INCH_TO_CM;
+  float speed_conversion = scene.is_metric ? 1 / MS_TO_KPH : 1 / MS_TO_MPH;
 
   bool advanced_custom_onroad_ui = params.getBool("AdvancedCustomUI");
   scene.camera_view = advanced_custom_onroad_ui ? params.getInt("CameraView") : 0;
@@ -356,8 +375,7 @@ void ui_update_frogpilot_params(UIState *s, Params &params) {
   scene.sidebar_color1 = loadThemeColors("Sidebar1");
   scene.sidebar_color2 = loadThemeColors("Sidebar2");
   scene.sidebar_color3 = loadThemeColors("Sidebar3");
-  QString colorScheme = QString::fromStdString(params.get("CustomColors"));
-  scene.use_stock_colors = !personalize_openpilot || colorScheme == "stock" || params.getBool("UseStockColors");
+  scene.use_stock_colors = !personalize_openpilot || params.getBool("UseStockColors");
   scene.use_stock_wheel = !personalize_openpilot || QString::fromStdString(params.get("WheelIcon")) == "stock";
 
   scene.conditional_experimental = scene.longitudinal_control && params.getBool("ConditionalExperimental");
@@ -405,21 +423,22 @@ void ui_update_frogpilot_params(UIState *s, Params &params) {
 
   scene.experimental_mode_via_screen = scene.longitudinal_control && params.getBool("ExperimentalModeActivation") && params.getBool("ExperimentalModeViaTap");
 
-  bool lane_detection = params.getBool("NudgelessLaneChange") && params.getInt("LaneDetectionWidth") != 0;
-  scene.lane_detection_width = lane_detection ? params.getInt("LaneDetectionWidth") * (scene.is_metric ? 1 : FOOT_TO_METER) / 10.0f : 2.75f;
+  bool lane_change_customizations = params.getBool("LaneChangeCustomizations");
+  scene.lane_detection_width = lane_change_customizations ? params.getInt("LaneDetectionWidth") * distance_conversion / 10.0f : 2.75f;
+  scene.minimum_lane_change_speed = lane_change_customizations ? params.getInt("MinimumLaneChangeSpeed") * speed_conversion : 20 * (1 / MS_TO_MPH);
 
   bool advanced_longitudinal_tune = scene.longitudinal_control && params.getBool("AdvancedLongitudinalTune");
-  bool radarless_model = params.get("Model") == "radical-turtle";
-  scene.lead_detection_threshold = advanced_longitudinal_tune && !radarless_model ? params.getInt("LeadDetectionThreshold") / 100.0f : 0.5;
+  scene.radarless_model = params.get("Model") == "radical-turtle";
+  scene.lead_detection_threshold = advanced_longitudinal_tune && !scene.radarless_model ? params.getInt("LeadDetectionThreshold") / 100.0f : 0.5;
 
   bool model_manager = params.getBool("ModelManagement");
   scene.model_randomizer = model_manager && params.getBool("ModelRandomizer");
 
   scene.model_ui = params.getBool("ModelUI");
-  scene.lane_line_width = params.getInt("LaneLinesWidth") * (scene.is_metric ? 1.0f : INCH_TO_CM) / 200.0f;
+  scene.lane_line_width = params.getInt("LaneLinesWidth") * small_distance_conversion / 200.0f;
   scene.path_edge_width = params.getInt("PathEdgeWidth");
-  scene.path_width = params.getFloat("PathWidth") * (scene.is_metric ? 1.0f : FOOT_TO_METER) / 2.0f;
-  scene.road_edge_width = params.getInt("RoadEdgesWidth") * (scene.is_metric ? 1.0f : INCH_TO_CM) / 200.0f;
+  scene.path_width = params.getFloat("PathWidth") * distance_conversion / 2.0f;
+  scene.road_edge_width = params.getInt("RoadEdgesWidth") * small_distance_conversion / 200.0f;
   scene.unlimited_road_ui_length = scene.model_ui && params.getBool("UnlimitedLength");
 
   bool quality_of_life_longitudinal = params.getBool("QOLLongitudinal");
@@ -547,8 +566,11 @@ void UIState::update() {
 
   if (theme_updated) {
     loadThemeColors("", true);
+
     ui_update_params(this);
+
     paramsMemory.remove("UpdateTheme");
+
     theme_updated = false;
   } else if (paramsMemory.getBool("UpdateTheme")) {
     theme_updated = true;

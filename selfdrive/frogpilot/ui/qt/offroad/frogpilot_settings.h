@@ -50,6 +50,12 @@ signals:
   void updateMetric();
 
 private:
+  void addPanelControl(FrogPilotListWidget *list, QString &title, QString &desc, std::vector<QString> &button_labels, QString &icon, std::vector<QWidget*> &panels, bool isDrivingPanel, bool isNavigationPanel);
+  void closePanel();
+  void showEvent(QShowEvent *event) override;
+  void updateCarVariables();
+  void updatePanelVisibility();
+
   FrogPilotButtonsControl *drivingButton;
   FrogPilotButtonsControl *navigationButton;
 
@@ -58,10 +64,4 @@ private:
   QStackedLayout *mainLayout;
 
   QWidget *frogpilotSettingsWidget;
-
-  void addPanelControl(FrogPilotListWidget *list, QString &title, QString &desc, std::vector<QString> &button_labels, QString &icon, std::vector<QWidget*> &panels, bool isDrivingPanel, bool isNavigationPanel);
-  void closePanel();
-  void showEvent(QShowEvent *event) override;
-  void updateCarVariables();
-  void updatePanelVisibility();
 };

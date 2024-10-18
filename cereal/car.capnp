@@ -442,20 +442,18 @@ struct CarControl {
       promptRepeat @7;
       promptDistracted @8;
 
-      # Random Events
+      # FrogPilot sounds
       angry @9;
       dejaVu @10;
       doc @11;
       fart @12;
       firefox @13;
-      hal9000 @14;
-      mail @15;
-      nessie @16;
-      noice @17;
-      uwu @18;
-
-      # Other
-      goat @19;
+      goat @14;
+      hal9000 @15;
+      mail @16;
+      nessie @17;
+      noice @18;
+      uwu @19;
     }
   }
 

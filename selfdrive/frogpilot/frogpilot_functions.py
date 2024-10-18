@@ -86,11 +86,9 @@ def backup_directory(backup, destination, success_message, fail_message, minimum
       if compressed:
         if filecmp.cmp(compressed_backup, latest_backup, shallow=False):
           run_cmd(["sudo", "rm", "-rf", compressed_backup], f"Deleted identical backup: {os.path.basename(compressed_backup)}", f"Failed to delete identical backup: {os.path.basename(compressed_backup)}")
-          print("Backup was identical to the previous backup and was deleted.")
       else:
         if filecmp.dircmp(destination, latest_backup).left_only == []:
           run_cmd(["sudo", "rm", "-rf", destination], f"Deleted identical backup: {os.path.basename(destination)}", f"Failed to delete identical backup: {os.path.basename(destination)}")
-          print("Backup was identical to the previous backup and was deleted.")
 
   except Exception as e:
     print(f"An unexpected error occurred while trying to create the {backup} backup: {e}")

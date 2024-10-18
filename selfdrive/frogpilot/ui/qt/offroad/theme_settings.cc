@@ -884,6 +884,10 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
     paramsMemory.putBool("UpdateTheme", true);
   });
 
+  QObject::connect(static_cast<ToggleControl*>(toggles["PersonalizeOpenpilot"]), &ToggleControl::toggleFlipped, [this] {
+    paramsMemory.putBool("UpdateTheme", true);
+  });
+
   QObject::connect(parent, &FrogPilotSettingsWindow::closeParentToggle, this, &FrogPilotThemesPanel::hideToggles);
   QObject::connect(parent, &FrogPilotSettingsWindow::updateCarToggles, this, &FrogPilotThemesPanel::updateCarToggles);
   QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotThemesPanel::updateState);

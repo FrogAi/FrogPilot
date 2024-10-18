@@ -11,12 +11,10 @@ public:
   explicit FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent);
 
 private:
-  FrogPilotSettingsWindow *parent;
-
-  ButtonControl *selectMakeButton;
-  ButtonControl *selectModelButton;
-
-  ToggleControl *disableOpenpilotLong;
+  void setModels();
+  void updateCarToggles();
+  void updateState(const UIState &s);
+  void updateToggles();
 
   std::set<QString> gmKeys = {
     "ExperimentalGMTune", "LongPitch", "NewLongAPIGM", "VoltSNG"
@@ -56,7 +54,10 @@ private:
     "VoltSNG"
   };
 
-  std::map<QString, AbstractControl*> toggles;
+  ButtonControl *selectMakeButton;
+  ButtonControl *selectModelButton;
+
+  FrogPilotSettingsWindow *parent;
 
   QString carMake;
   QString carModel;
@@ -66,6 +67,8 @@ private:
   QMap<QString, QString> carModels;
 
   Params params;
+
+  ToggleControl *disableOpenpilotLong;
 
   bool disableOpenpilotLongitudinal;
   bool hasExperimentalOpenpilotLongitudinal;
@@ -77,8 +80,5 @@ private:
   bool isVolt;
   bool started;
 
-  void setModels();
-  void updateCarToggles();
-  void updateState(const UIState &s);
-  void updateToggles();
+  std::map<QString, AbstractControl*> toggles;
 };

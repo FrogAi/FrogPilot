@@ -122,13 +122,11 @@ class ModelManager:
           elif not verify_result:
             print(f"Model {model} is outdated. Re-downloading...")
             delete_file(model_path)
-            self.remove_model_params(available_model_names, available_models, model)
             download_queue.append(model)
             all_models_downloaded = False
       else:
         if automatically_update_models:
           print(f"Model {model} isn't downloaded. Downloading...")
-          self.remove_model_params(available_model_names, available_models, model)
           download_queue.append(model)
         all_models_downloaded = False
 
@@ -136,15 +134,6 @@ class ModelManager:
       self.queue_model_download(model)
 
     return all_models_downloaded
-
-  def remove_model_params(self, available_model_names, available_models, model):
-    part_model_param = process_model_name(available_model_names[available_models.index(model)])
-    try:
-      self.params.check_key(part_model_param + "CalibrationParams")
-    except UnknownKeyName:
-      return
-    self.params.remove(part_model_param + "CalibrationParams")
-    self.params.remove(part_model_param + "LiveTorqueParameters")
 
   def queue_model_download(self, model, model_name=None):
     while self.params_memory.get(self.download_param, encoding='utf-8'):
@@ -184,7 +173,7 @@ class ModelManager:
     default_model_path = os.path.join(MODELS_PATH, f"{DEFAULT_MODEL}.thneed")
     source_path = os.path.join(BASEDIR, "selfdrive", "classic_modeld", "models", "supercombo.thneed")
 
-    if os.path.isfile(source_path):
+    if os.path.isfile(source_path) and not os.path.isfile(default_model_path):
       shutil.copyfile(source_path, default_model_path)
       print(f"Copied default model from {source_path} to {default_model_path}")
     else:
@@ -193,7 +182,7 @@ class ModelManager:
     sgo_model_path = os.path.join(MODELS_PATH, "secret-good-openpilot.thneed")
     source_path = os.path.join(BASEDIR, "selfdrive", "modeld", "models", "supercombo.thneed")
 
-    if os.path.isfile(source_path):
+    if os.path.isfile(source_path) and not os.path.isfile(sgo_model_path):
       shutil.copyfile(source_path, sgo_model_path)
       print(f"Copied 'secret-good-openpilot' model from {source_path} to {sgo_model_path}")
     else:
@@ -208,12 +197,12 @@ class ModelManager:
       print("GitHub and GitLab are offline...")
       return
 
-    model_info = self.fetch_models(f"{repo_url}Versions/model_names_{VERSION}.json")
-    if model_info:
-      self.update_model_params(model_info, repo_url)
-
     if boot_run:
       self.validate_models()
+    else:
+      model_info = self.fetch_models(f"{repo_url}Versions/model_names_{VERSION}.json")
+      if model_info:
+        self.update_model_params(model_info, repo_url)
 
   def download_all_models(self):
     repo_url = get_repository_url()

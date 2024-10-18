@@ -20,8 +20,8 @@ AnnotatedCameraWidget::AnnotatedCameraWidget(VisionStreamType type, QWidget* par
   buttons_layout->setSpacing(0);
 
   // Neokii screen recorder
-  recorder = new ScreenRecorder(this);
-  buttons_layout->addWidget(recorder);
+  screenRecorder = new ScreenRecorder(this);
+  buttons_layout->addWidget(screenRecorder);
 
   experimental_btn = new ExperimentalButton(this);
   buttons_layout->addWidget(experimental_btn);
@@ -80,7 +80,7 @@ void AnnotatedCameraWidget::updateState(int alert_height, const UIState &s) {
   has_eu_speed_limit = (nav_alive && speed_limit_sign == cereal::NavInstruction::SpeedLimitSign::VIENNA) && !(speedLimitController && !useViennaSLCSign) || (speedLimitController && useViennaSLCSign);
   is_metric = s.scene.is_metric;
   speedUnit =  s.scene.is_metric ? tr("km/h") : tr("mph");
-  hideBottomIcons = (cs.getAlertSize() != cereal::ControlsState::AlertSize::NONE || turnSignalAnimation && (turnSignalLeft || turnSignalRight) && signalStyle == "traditional" || bigMapOpen);
+  hideBottomIcons = (cs.getAlertSize() != cereal::ControlsState::AlertSize::NONE || turnSignalAnimation && (turnSignalLeft || turnSignalRight) && (signalStyle == "traditional" || signalStyle == "traditional_gif") || bigMapOpen);
   status = s.status;
 
   // update engageability/experimental mode button
@@ -315,7 +315,7 @@ void AnnotatedCameraWidget::updateFrameMat() {
       .translate(-intrinsic_matrix.v[2], -intrinsic_matrix.v[5]);
 }
 
-void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
+void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s, float v_ego) {
   painter.save();
 
   const UIScene &scene = s->scene;
@@ -439,7 +439,7 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
   }
 
   // Paint adjacent lane paths
-  if ((scene.adjacent_path || scene.adjacent_path_metrics) && (laneWidthLeft != 0 || laneWidthRight != 0)) {
+  if ((scene.adjacent_path || scene.adjacent_path_metrics) && v_ego > scene.minimum_lane_change_speed) {
     const float minLaneWidth = laneDetectionWidth * 0.5f;
     const float maxLaneWidth = laneDetectionWidth * 1.5f;
 
@@ -469,8 +469,8 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s) {
       }
     };
 
-    paintLane(scene.track_adjacent_vertices[4], laneWidthLeft, blindSpotLeft);
-    paintLane(scene.track_adjacent_vertices[5], laneWidthRight, blindSpotRight);
+    paintLane(scene.track_adjacent_vertices[4], scene.lane_width_left, blindSpotLeft);
+    paintLane(scene.track_adjacent_vertices[5], scene.lane_width_right, blindSpotRight);
   }
 
   // Paint path edges
@@ -559,13 +559,13 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
   painter.restore();
 }
 
-void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::ModelDataV2::LeadDataV3::Reader &lead_data, const QPointF &vd, const float v_ego, const QColor lead_marker_color) {
+void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::RadarState::LeadData::Reader &lead_data, const QPointF &vd, float v_ego, const QColor lead_marker_color) {
   painter.save();
 
   const float speedBuff = useStockColors ? 10. : 25.;  // Make the center of the chevron appear sooner if a theme is active
   const float leadBuff = useStockColors ? 40. : 100.;  // Make the center of the chevron appear sooner if a theme is active
-  const float d_rel = lead_data.getX()[0];
-  const float v_rel = lead_data.getV()[0] - v_ego;
+  const float d_rel = lead_data.getDRel();
+  const float v_rel = lead_data.getVRel();
 
   float fillAlpha = 0;
   if (d_rel < leadBuff) {
@@ -684,18 +684,18 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
 
   if (s->scene.world_objects_visible) {
     update_model(s, model, sm["uiPlan"].getUiPlan());
-    drawLaneLines(painter, s);
+    drawLaneLines(painter, s, v_ego);
 
-    if (s->scene.longitudinal_control && sm.rcv_frame("modelV2") > s->scene.started_frame && !s->scene.hide_lead_marker) {
-      update_leads(s, model);
-      float prev_drel = -1;
-      for (int i = 0; i < model.getLeadsV3().size() && i < 2; i++) {
-        const auto &lead = model.getLeadsV3()[i];
-        auto lead_drel = lead.getX()[0];
-        if (s->scene.has_lead && (prev_drel < 0 || std::abs(lead_drel - prev_drel) > 3.0)) {
-          drawLead(painter, lead, s->scene.lead_vertices[i], (speed / (is_metric ? MS_TO_KPH : MS_TO_MPH)), s->scene.lead_marker_color);
-        }
-        prev_drel = lead_drel;
+    if (s->scene.longitudinal_control && sm.rcv_frame("radarState") > s->scene.started_frame && !s->scene.hide_lead_marker) {
+      auto radar_state = sm["radarState"].getRadarState();
+      update_leads(s, radar_state, model.getPosition());
+      auto lead_one = radar_state.getLeadOne();
+      auto lead_two = radar_state.getLeadTwo();
+      if (lead_one.getStatus()) {
+        drawLead(painter, lead_one, s->scene.lead_vertices[0], v_ego, s->scene.lead_marker_color);
+      }
+      if (lead_two.getStatus()) {
+        drawLead(painter, lead_two, s->scene.lead_vertices[1], v_ego, s->scene.lead_marker_color);
       }
     }
   }
@@ -740,6 +740,65 @@ void AnnotatedCameraWidget::showEvent(QShowEvent *event) {
 }
 
 // FrogPilot widgets
+void AnnotatedCameraWidget::updateSignals() {
+  blindspotImages.clear();
+  signalImages.clear();
+
+  QDir directory("../frogpilot/assets/active_theme/signals/");
+  QFileInfoList allFiles = directory.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
+
+  bool isGif = false;
+  for (QFileInfo &fileInfo : allFiles) {
+    if (fileInfo.fileName().endsWith(".gif", Qt::CaseInsensitive)) {
+      QMovie movie(fileInfo.absoluteFilePath());
+      movie.start();
+
+      for (int frameIndex = 0; frameIndex < movie.frameCount(); ++frameIndex) {
+        movie.jumpToFrame(frameIndex);
+        QPixmap currentFrame = movie.currentPixmap();
+        signalImages.push_back(currentFrame);
+        signalImages.push_back(currentFrame.transformed(QTransform().scale(-1, 1)));
+      }
+
+      movie.stop();
+      isGif = true;
+
+    } else if (fileInfo.fileName().endsWith(".png", Qt::CaseInsensitive)) {
+      QVector<QPixmap> *targetList = fileInfo.fileName().contains("blindspot") ? &blindspotImages : &signalImages;
+      QPixmap pixmap(fileInfo.absoluteFilePath());
+      targetList->push_back(pixmap);
+      targetList->push_back(pixmap.transformed(QTransform().scale(-1, 1)));
+
+    } else {
+      QStringList parts = fileInfo.fileName().split('_');
+      if (parts.size() == 2) {
+        signalStyle = parts[0];
+        signalAnimationLength = parts[1].toInt();
+      }
+    }
+  }
+
+  if (!signalImages.empty()) {
+    QPixmap &firstImage = signalImages.front();
+    signalWidth = firstImage.width();
+    signalHeight = firstImage.height();
+    totalFrames = signalImages.size() / 2;
+    turnSignalAnimation = true;
+
+    if (isGif && signalStyle == "traditional") {
+      signalMovement = (this->size().width() + (signalWidth * 2)) / totalFrames;
+      signalStyle = "traditional_gif";
+    } else {
+      signalMovement = 0;
+    }
+  } else {
+    signalWidth = 0;
+    signalHeight = 0;
+    totalFrames = 0;
+    turnSignalAnimation = false;
+  }
+}
+
 void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
   bottom_layout = new QHBoxLayout();
 
@@ -763,12 +822,6 @@ void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
   QObject::connect(animationTimer, &QTimer::timeout, [this] {
     animationFrameIndex = (animationFrameIndex + 1) % totalFrames;
   });
-
-  QTimer *recordTimer = new QTimer(this);
-  QObject::connect(recordTimer, &QTimer::timeout, [this] {
-    recorder->updateScreen();
-  });
-  recordTimer->start(1000 / UI_FREQ);
 }
 
 void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIScene &scene) {
@@ -828,8 +881,6 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
   hideSpeed = scene.hide_speed;
 
   laneDetectionWidth = scene.lane_detection_width;
-  laneWidthLeft = scene.lane_width_left;
-  laneWidthRight = scene.lane_width_right;
 
   leadInfo = scene.lead_info;
   obstacleDistance = scene.obstacle_distance;
@@ -859,11 +910,15 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
     pedal_icons->updateState(scene);
   }
 
-  recorder->setVisible(scene.screen_recorder && !mapOpen);
-
   reverseCruise = scene.reverse_cruise;
 
   roadNameUI = scene.road_name_ui;
+
+  bool enableScreenRecorder = scene.screen_recorder && !mapOpen;
+  screenRecorder->setVisible(enableScreenRecorder);
+  if (enableScreenRecorder) {
+    screenRecorder->updateScreen(scene.fps, scene.started);
+  }
 
   speedLimitController = scene.speed_limit_controller;
   showSLCOffset = speedLimitController && scene.show_slc_offset;
@@ -892,54 +947,6 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
   useSI = scene.use_si;
 
   useStockColors = scene.use_stock_colors;
-}
-
-void AnnotatedCameraWidget::updateSignals() {
-  blindspotImages.clear();
-  regularImages.clear();
-
-  const QString signalFolderPath = "../frogpilot/assets/active_theme/signals/";
-  QDir directory(signalFolderPath);
-  const QTransform flipTransform = QTransform().scale(-1, 1);
-
-  QFileInfoList fileList = directory.entryInfoList({"turn_signal_*.png"}, QDir::Files);
-  QFileInfoList nonPngFileList = directory.entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
-  nonPngFileList.erase(std::remove_if(nonPngFileList.begin(), nonPngFileList.end(), [](const QFileInfo &fileInfo) {return fileInfo.suffix() == "png";}), nonPngFileList.end());
-
-  for (const QFileInfo &fileInfo : fileList) {
-    QPixmap pixmap(fileInfo.absoluteFilePath());
-    QVector<QPixmap> *targetList = fileInfo.fileName().contains("blindspot") ? &blindspotImages : &regularImages;
-    targetList->push_back(pixmap);
-  }
-
-  for (const QFileInfo &fileInfo : fileList) {
-    QPixmap pixmap(fileInfo.absoluteFilePath());
-    QVector<QPixmap> *targetList = fileInfo.fileName().contains("blindspot") ? &blindspotImages : &regularImages;
-    targetList->push_back(pixmap.transformed(flipTransform));
-  }
-
-  if (!nonPngFileList.isEmpty()) {
-    QStringList parts = nonPngFileList.first().fileName().split('_');
-    if (parts.size() == 2) {
-      signalStyle = parts[0];
-      signalAnimationLength = parts[1].toInt();
-    }
-  }
-
-  if (!regularImages.empty()) {
-    const QPixmap &firstImage = regularImages.front();
-    signalWidth = firstImage.width();
-    signalHeight = firstImage.height();
-
-    totalFrames = regularImages.size() / 2;
-    turnSignalAnimation = true;
-  } else {
-    signalWidth = 0;
-    signalHeight = 0;
-
-    totalFrames = 0;
-    turnSignalAnimation = false;
-  }
 }
 
 void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter) {
@@ -1337,7 +1344,7 @@ void AnnotatedCameraWidget::drawTurnSignals(QPainter &p) {
     if (blindspotActive && !blindspotImages.empty()) {
       p.drawPixmap(signalXPosition, signalYPosition, signalWidth, signalHeight, blindspotImages[turnSignalLeft ? 0 : 1]);
     } else {
-      p.drawPixmap(signalXPosition, signalYPosition, signalWidth, signalHeight, regularImages[animationFrameIndex + (turnSignalLeft ? 0 : totalFrames)]);
+      p.drawPixmap(signalXPosition, signalYPosition, signalWidth, signalHeight, signalImages[2 * animationFrameIndex + (turnSignalLeft ? 0 : 1)]);
     }
   } else if (signalStyle == "traditional") {
     int signalXPosition = turnSignalLeft ? width() - ((animationFrameIndex + 1) * signalWidth) : animationFrameIndex * signalWidth;
@@ -1348,7 +1355,18 @@ void AnnotatedCameraWidget::drawTurnSignals(QPainter &p) {
     if (blindspotActive && !blindspotImages.empty()) {
       p.drawPixmap(turnSignalLeft ? width() - signalWidth : 0, signalYPosition, signalWidth, signalHeight, blindspotImages[turnSignalLeft ? 0 : 1]);
     } else {
-      p.drawPixmap(signalXPosition, signalYPosition, signalWidth, signalHeight, regularImages[animationFrameIndex + (turnSignalLeft ? 0 : totalFrames)]);
+      p.drawPixmap(signalXPosition, signalYPosition, signalWidth, signalHeight, signalImages[2 * animationFrameIndex + (turnSignalLeft ? 0 : 1)]);
+    }
+  } else if (signalStyle == "traditional_gif") {
+    int signalXPosition = turnSignalLeft ? width() - (animationFrameIndex * signalMovement) + signalWidth : (animationFrameIndex * signalMovement) - signalWidth;
+    int signalYPosition = height() - signalHeight;
+
+    signalYPosition -= fmax(alertHeight, statusBarHeight);
+
+    if (blindspotActive && !blindspotImages.empty()) {
+      p.drawPixmap(turnSignalLeft ? width() - signalWidth : 0, signalYPosition, signalWidth, signalHeight, blindspotImages[turnSignalLeft ? 0 : 1]);
+    } else {
+      p.drawPixmap(signalXPosition, signalYPosition, signalWidth, signalHeight, signalImages[2 * animationFrameIndex + (turnSignalLeft ? 0 : 1)]);
     }
   }
 }

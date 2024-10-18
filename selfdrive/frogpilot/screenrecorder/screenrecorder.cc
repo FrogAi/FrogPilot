@@ -1,7 +1,8 @@
 #include "libyuv.h"
 
-#include "selfdrive/frogpilot/screenrecorder/screenrecorder.h"
 #include "selfdrive/ui/qt/util.h"
+
+#include "selfdrive/frogpilot/screenrecorder/screenrecorder.h"
 
 namespace {
   inline long long milliseconds() {
@@ -9,11 +10,11 @@ namespace {
   }
 }
 
-ScreenRecorder::ScreenRecorder(QWidget *parent) : QPushButton(parent) {
+ScreenRecorder::ScreenRecorder(QWidget *parent) : QPushButton(parent), recording(false) {
   setFixedSize(btn_size, btn_size);
 
   encoder = std::make_unique<OmxEncoder>("/data/media/screen_recordings", screenWidth, screenHeight, UI_FREQ, 8 * 1024 * 1024);
-  rgbScaleBuffer.resize(screenWidth * screenHeight * 4);
+  rgbScaleBuffer = std::make_unique<uint8_t[]>(screenWidth * screenHeight * 4);
 
   QObject::connect(this, &QPushButton::clicked, this, &ScreenRecorder::toggleRecording);
 }
@@ -32,8 +33,8 @@ void ScreenRecorder::start() {
   }
 
   recording = true;
-  rootWidget = this;
 
+  rootWidget = this;
   while (rootWidget->parentWidget()) {
     rootWidget = rootWidget->parentWidget();
   }
@@ -56,6 +57,7 @@ void ScreenRecorder::stop() {
   }
 
   recording = false;
+
   if (encodingThread.joinable()) {
     encodingThread.join();
   }
@@ -67,6 +69,7 @@ void ScreenRecorder::stop() {
   }
 
   imageQueue.clear();
+  rgbScaleBuffer.reset(new uint8_t[screenWidth * screenHeight * 4]);
 }
 
 void ScreenRecorder::openEncoder(const std::string &filename) {
@@ -82,50 +85,30 @@ void ScreenRecorder::closeEncoder() {
 }
 
 void ScreenRecorder::encodingThreadFunction() {
-  bool stop_encoding = false;
-  int threads = 4;
   uint64_t start_time = nanos_since_boot();
 
-  std::vector<std::unique_ptr<uint8_t[]>> thread_buffers(threads);
-  for (int i = 0; i < threads; ++i) {
-    thread_buffers[i] = std::make_unique<uint8_t[]>(screenWidth * screenHeight * 4);
-  }
+  while (recording) {
+    if (!encoder) {
+      break;
+    }
 
-  std::vector<std::thread> encoding_threads;
-  for (int i = 0; i < threads; ++i) {
-    encoding_threads.emplace_back([&, i]() {
-      while (recording && !stop_encoding) {
-        QImage popImage;
-        if (imageQueue.pop_wait_for(popImage, std::chrono::milliseconds(10))) {
-          QImage image = popImage.convertToFormat(QImage::Format_RGBA8888);
-
-          if (libyuv::ARGBScale(image.bits(), image.width() * 4,
-                                image.width(), image.height(),
-                                thread_buffers[i].get(), screenWidth * 4,
-                                screenWidth, screenHeight,
-                                libyuv::kFilterBilinear) == 0) {
-            encoder->encode_frame_rgba(thread_buffers[i].get(), screenWidth, screenHeight, nanos_since_boot() - start_time);
-          } else {
-            std::cerr << "libyuv::ARGBScale failed for thread " << i << std::endl;
-          }
-        }
-      }
-    });
-  }
-
-  for (int i = 0; i < threads; ++i) {
-    if (encoding_threads[i].joinable()) {
-      encoding_threads[i].join();
+    QImage popImage;
+    if (imageQueue.pop_wait_for(popImage, std::chrono::milliseconds(10))) {
+      QImage image = popImage.convertToFormat(QImage::Format_RGBA8888);
+      libyuv::ARGBScale(image.bits(), image.width() * 4, image.width(), image.height(),
+                        rgbScaleBuffer.get(), screenWidth * 4, screenWidth, screenHeight,
+                        libyuv::kFilterBilinear);
+      encoder->encode_frame_rgba(rgbScaleBuffer.get(), screenWidth, screenHeight, nanos_since_boot() - start_time);
     }
   }
 }
 
-void ScreenRecorder::updateScreen() {
+void ScreenRecorder::updateScreen(double fps, bool started) {
   if (!recording) {
     return;
   }
 
-  if (!uiState()->scene.started) {
+  if (!started) {
     stop();
     return;
   }
@@ -137,7 +120,7 @@ void ScreenRecorder::updateScreen() {
   }
 
   static bool previousFrameSkipped = false;
-  if (uiState()->scene.fps < UI_FREQ && !previousFrameSkipped) {
+  if (fps < UI_FREQ && !previousFrameSkipped) {
     previousFrameSkipped = true;
     return;
   } else {
