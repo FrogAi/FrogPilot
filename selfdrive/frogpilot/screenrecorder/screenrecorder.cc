@@ -1,7 +1,8 @@
 #include "libyuv.h"
 
-#include "selfdrive/frogpilot/screenrecorder/screenrecorder.h"
 #include "selfdrive/ui/qt/util.h"
+
+#include "selfdrive/frogpilot/screenrecorder/screenrecorder.h"
 
 namespace {
   inline long long milliseconds() {
@@ -68,7 +69,7 @@ void ScreenRecorder::stop() {
   }
 
   imageQueue.clear();
-  rgbScaleBuffer.reset();
+  rgbScaleBuffer.reset(new uint8_t[screenWidth * screenHeight * 4]);
 }
 
 void ScreenRecorder::openEncoder(const std::string &filename) {
