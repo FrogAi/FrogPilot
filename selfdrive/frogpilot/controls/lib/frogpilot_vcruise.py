@@ -67,7 +67,7 @@ class FrogPilotVCruise:
       self.slc.update(frogpilotCarState.dashboardSpeedLimit, controlsState.enabled, frogpilotNavigation.navigationSpeedLimit, v_cruise, v_ego, frogpilot_toggles)
       unconfirmed_slc_target = self.slc.desired_speed_limit
 
-      if (frogpilot_toggles.speed_limit_confirmation_lower or frogpilot_toggles.speed_limit_confirmation_higher) and self.slc_target != 0:
+      if (frogpilot_toggles.speed_limit_alert or frogpilot_toggles.speed_limit_confirmation_lower or frogpilot_toggles.speed_limit_confirmation_higher) and self.slc_target != 0:
         self.speed_limit_changed = unconfirmed_slc_target != self.previous_speed_limit and abs(self.slc_target - unconfirmed_slc_target) > 1
 
         speed_limit_decreased = self.speed_limit_changed and self.slc_target > unconfirmed_slc_target
@@ -98,6 +98,7 @@ class FrogPilotVCruise:
 
         if speed_limit_confirmed:
           self.slc_target = unconfirmed_slc_target
+        elif self.slc_target == unconfirmed_slc_target:
           self.speed_limit_changed = False
       else:
         self.slc_target = unconfirmed_slc_target

@@ -39,7 +39,6 @@ class FrogPilotEvents:
 
     self.frame = 0
     self.max_acceleration = 0
-    self.previous_speed_limit = 0
     self.random_event_timer = 0
 
   def update(self, carState, controlsState, frogpilotCarControl, frogpilotCarState, modelData, frogpilot_toggles):
@@ -166,9 +165,8 @@ class FrogPilotEvents:
           self.random_event_played = True
       self.always_on_lateral_active_previously = frogpilotCarControl.alwaysOnLateralActive
 
-    if frogpilot_toggles.speed_limit_alert and self.frogpilot_planner.frogpilot_vcruise.slc_target != self.previous_speed_limit and self.previous_speed_limit != 0:
+    if frogpilot_toggles.speed_limit_alert and self.frogpilot_planner.frogpilot_vcruise.speed_limit_changed:
       self.events.add(EventName.speedLimitChanged)
-    self.previous_speed_limit = self.frogpilot_planner.frogpilot_vcruise.slc_target
 
     if self.frame == 4 and self.params.get("NNFFModelName", encoding='utf-8') is not None:
       self.events.add(EventName.torqueNNLoad)
