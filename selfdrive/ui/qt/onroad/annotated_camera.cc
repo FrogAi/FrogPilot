@@ -749,7 +749,7 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
   pm->send("uiDebug", msg);
 
   // Paint FrogPilot widgets
-  paintFrogPilotWidgets(painter);
+  paintFrogPilotWidgets(model, painter, *s, sm);
 }
 
 void AnnotatedCameraWidget::showEvent(QShowEvent *event) {
@@ -974,7 +974,7 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
   useStockColors = scene.use_stock_colors;
 }
 
-void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter) {
+void AnnotatedCameraWidget::paintFrogPilotWidgets(const cereal::ModelDataV2::Reader &model, QPainter &painter, UIState &s, const SubMaster &sm) {
   if ((showAlwaysOnLateralStatusBar || showConditionalExperimentalStatusBar || roadNameUI) && !bigMapOpen) {
     drawStatusBar(painter);
   } else {
@@ -983,6 +983,11 @@ void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter) {
 
   if (leadInfo && !bigMapOpen) {
     drawLeadInfo(painter);
+  }
+
+  if (true) {
+    update_radar_tracks(&s, sm["liveTracks"].getLiveTracks(), model.getPosition());
+    drawRadarTracks(painter, s.scene);
   }
 
   if (speedLimitChanged) {
@@ -1220,6 +1225,45 @@ void PedalIcons::paintEvent(QPaintEvent *event) {
 
   p.setOpacity(gasOpacity);
   p.drawPixmap(gasX, (height() - img_size) / 2, gas_pedal_img);
+}
+
+void AnnotatedCameraWidget::drawRadarTracks(QPainter &painter, const UIScene &scene) {
+  painter.save();
+
+  float speedBuff = 10.0f;
+  float radarBuff = 40.0f;
+
+  for (size_t i = 0; i < scene.radar_tracks.size(); ++i) {
+    const RadarTrack &track = scene.radar_tracks[i];
+
+    float dRel = track.dRel;
+    float yRel = track.yRel;
+    float vRel = track.vRel;
+
+    float fillAlpha = 0;
+    if (dRel < radarBuff) {
+      fillAlpha = 255 * (1.0f - (dRel / radarBuff));
+      if (vRel < 0) {
+        fillAlpha += 255 * (-1 * (vRel / speedBuff));
+      }
+      fillAlpha = std::clamp(static_cast<int>(fillAlpha), 0, 255);
+    }
+
+    float sz = std::clamp((25 * 30) / (dRel / 3 + 30), 10.0f, 30.0f);
+
+    float x = std::clamp(dRel, 0.0f, static_cast<float>(width()) - sz / 2);
+    float y = std::fmin(static_cast<float>(height()) - sz * 0.6f, yRel);
+
+    QPointF point(x, y);
+
+    QColor radarColor(255, 255, 255, fillAlpha);
+    painter.setBrush(QBrush(radarColor));
+    painter.setPen(Qt::NoPen);
+
+    painter.drawEllipse(point, sz / 2, sz / 2);
+  }
+
+  painter.restore();
 }
 
 void AnnotatedCameraWidget::drawSLCConfirmation(QPainter &p) {
