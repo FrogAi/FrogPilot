@@ -12,7 +12,8 @@ from openpilot.common.basedir import BASEDIR
 from openpilot.common.params import Params
 
 from openpilot.selfdrive.frogpilot.assets.download_functions import GITHUB_URL, GITLAB_URL, download_file, get_repository_url, handle_error, handle_request_error, link_valid, verify_download
-from openpilot.selfdrive.frogpilot.frogpilot_functions import ACTIVE_THEME_PATH, THEME_SAVE_PATH, update_frogpilot_toggles
+from openpilot.selfdrive.frogpilot.frogpilot_functions import ACTIVE_THEME_PATH, THEME_SAVE_PATH
+from openpilot.selfdrive.frogpilot.frogpilot_utilities import update_frogpilot_toggles
 
 CANCEL_DOWNLOAD_PARAM = "CancelThemeDownload"
 DOWNLOAD_PROGRESS_PARAM = "ThemeDownloadProgress"

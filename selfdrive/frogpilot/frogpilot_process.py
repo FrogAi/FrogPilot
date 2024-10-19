@@ -13,7 +13,8 @@ from openpilot.selfdrive.frogpilot.assets.model_manager import DEFAULT_MODEL, DE
 from openpilot.selfdrive.frogpilot.assets.theme_manager import ThemeManager
 from openpilot.selfdrive.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_tracking import FrogPilotTracking
-from openpilot.selfdrive.frogpilot.frogpilot_functions import backup_toggles, is_url_pingable
+from openpilot.selfdrive.frogpilot.frogpilot_functions import backup_toggles
+from openpilot.selfdrive.frogpilot.frogpilot_utilities import is_url_pingable
 from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
 
 locks = {

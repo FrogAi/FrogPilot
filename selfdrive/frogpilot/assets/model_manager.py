@@ -9,7 +9,8 @@ from openpilot.common.basedir import BASEDIR
 from openpilot.common.params import Params, UnknownKeyName
 
 from openpilot.selfdrive.frogpilot.assets.download_functions import GITHUB_URL, GITLAB_URL, download_file, get_remote_file_size, get_repository_url, handle_error, handle_request_error, verify_download
-from openpilot.selfdrive.frogpilot.frogpilot_functions import MODELS_PATH, delete_file
+from openpilot.selfdrive.frogpilot.frogpilot_functions import MODELS_PATH
+from openpilot.selfdrive.frogpilot.frogpilot_utilities import delete_file
 
 VERSION = "v9"
 

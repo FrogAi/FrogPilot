@@ -12,7 +12,7 @@ from openpilot.common.conversions import Conversions as CV
 from openpilot.system.hardware import HARDWARE
 from openpilot.system.loggerd.config import get_available_bytes, get_used_bytes
 
-from openpilot.selfdrive.frogpilot.frogpilot_functions import update_frogpilot_toggles
+from openpilot.selfdrive.frogpilot.frogpilot_utilities import update_frogpilot_toggles
 
 def is_running_on_comma():
   return os.path.exists("/data/persist")

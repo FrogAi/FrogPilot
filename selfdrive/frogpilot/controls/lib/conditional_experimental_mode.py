@@ -1,6 +1,6 @@
 from openpilot.common.params import Params
 
-from openpilot.selfdrive.frogpilot.frogpilot_functions import MovingAverageCalculator
+from openpilot.selfdrive.frogpilot.frogpilot_utilities import MovingAverageCalculator
 from openpilot.selfdrive.frogpilot.frogpilot_variables import CITY_SPEED_LIMIT, CRUISING_SPEED, THRESHOLD
 
 class ConditionalExperimentalMode:
