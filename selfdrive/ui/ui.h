@@ -87,6 +87,13 @@ const QColor bg_colors [] = {
   [STATUS_TRAFFIC_MODE_ACTIVE] = QColor(0xc9, 0x22, 0x31, 0xf1),
 };
 
+struct RadarTrack {
+  QPointF position;
+
+  float dRel;
+  float yRel;
+  float vRel;
+};
 
 typedef struct UIScene {
   bool calibration_valid = false;
@@ -122,6 +129,18 @@ typedef struct UIScene {
   uint64_t started_frame;
 
   // FrogPilot variables
+  QColor lane_lines_color;
+  QColor lead_marker_color;
+  QColor path_color;
+  QColor path_edges_color;
+  QColor road_edges_color;
+  QColor sidebar_color1;
+  QColor sidebar_color2;
+  QColor sidebar_color3;
+
+  QPolygonF track_adjacent_vertices[6];
+  QPolygonF track_edge_vertices;
+
   bool acceleration_path;
   bool adjacent_path;
   bool adjacent_path_metrics;
@@ -255,17 +274,7 @@ typedef struct UIScene {
   int stopped_equivalence;
   int tethering_config;
 
-  QColor lane_lines_color;
-  QColor lead_marker_color;
-  QColor path_color;
-  QColor path_edges_color;
-  QColor road_edges_color;
-  QColor sidebar_color1;
-  QColor sidebar_color2;
-  QColor sidebar_color3;
-
-  QPolygonF track_adjacent_vertices[6];
-  QPolygonF track_edge_vertices;
+  std::vector<RadarTrack> radar_tracks;
 
 } UIScene;
 
@@ -369,3 +378,4 @@ void update_line_data(const UIState *s, const cereal::XYZTData::Reader &line,
 
 // FrogPilot functions
 void ui_update_frogpilot_params(UIState *s, Params &params);
+void update_radar_tracks(UIState *s, const capnp::List<cereal::LiveTracks>::Reader &radar_tracks, const cereal::XYZTData::Reader &line);
