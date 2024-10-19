@@ -31,21 +31,6 @@ def update_frogpilot_toggles():
     params_memory.put_bool("FrogPilotTogglesUpdated", False)
   threading.Thread(target=update_params).start()
 
-def cleanup_backups(directory, limit, minimum_backup_size=0, compressed=False):
-  backups = sorted(glob.glob(os.path.join(directory, "*_auto*")), key=os.path.getmtime, reverse=True)
-
-  for backup in backups:
-    if backup.endswith("_in_progress"):
-      run_cmd(["sudo", "rm", "-rf", backup], f"Deleted in-progress backup: {os.path.basename(backup)}", f"Failed to delete in-progress backup: {os.path.basename(backup)}")
-
-  if compressed:
-    for backup in backups:
-      if os.path.getsize(backup) < minimum_backup_size:
-        run_cmd(["sudo", "rm", "-rf", backup], f"Deleted incomplete backup: {os.path.basename(backup)}", f"Failed to delete incomplete backup: {os.path.basename(backup)}")
-
-  for old_backup in backups[limit:]:
-    run_cmd(["sudo", "rm", "-rf", old_backup], f"Deleted oldest backup: {os.path.basename(old_backup)}", f"Failed to delete backup: {os.path.basename(old_backup)}")
-
 def backup_directory(backup, destination, success_message, fail_message, minimum_backup_size=0, params=None, compressed=False):
   compressed_backup = f"{destination}.tar.gz"
   in_progress_compressed_backup = f"{compressed_backup}_in_progress"
@@ -104,6 +89,23 @@ def backup_directory(backup, destination, success_message, fail_message, minimum
         os.remove(in_progress_compressed_backup)
       except Exception as e:
         print(f"An unexpected error occurred while trying to delete the incomplete {backup} backup: {e}")
+
+def cleanup_backups(directory, limit, minimum_backup_size=0, compressed=False):
+  backups = sorted(glob.glob(os.path.join(directory, "*_auto*")), key=os.path.getmtime, reverse=True)
+
+  for backup in backups[:]:
+    if backup.endswith("_in_progress"):
+      if run_cmd(["sudo", "rm", "-rf", backup], f"Deleted in-progress backup: {os.path.basename(backup)}", f"Failed to delete in-progress backup: {os.path.basename(backup)}"):
+        backups.remove(backup)
+
+  if compressed:
+    for backup in backups[:]:
+      if os.path.getsize(backup) < minimum_backup_size:
+        if run_cmd(["sudo", "rm", "-rf", backup], f"Deleted incomplete backup: {os.path.basename(backup)}", f"Failed to delete incomplete backup: {os.path.basename(backup)}"):
+          backups.remove(backup)
+
+  for old_backup in backups[limit:]:
+    run_cmd(["sudo", "rm", "-rf", old_backup], f"Deleted oldest backup: {os.path.basename(old_backup)}", f"Failed to delete backup: {os.path.basename(old_backup)}")
 
 def backup_frogpilot(build_metadata, params):
   maximum_backups = 5
@@ -254,16 +256,18 @@ def is_url_pingable(url, timeout=5):
     return False
 
 def run_cmd(cmd, success_message, fail_message, retries=5, delay=1):
-  attempt = 0
-  while attempt < retries:
+  for attempt in range(retries):
     try:
       subprocess.check_call(cmd)
       print(success_message)
       return True
+    except subprocess.CalledProcessError as e:
+      print(f"Command failed (attempt {attempt + 1} of {retries}): {e}")
     except Exception as e:
       print(f"Unexpected error occurred (attempt {attempt + 1} of {retries}): {e}")
-    attempt += 1
     time.sleep(delay)
+
+  print(fail_message)
   return False
 
 def setup_frogpilot(build_metadata, params):
