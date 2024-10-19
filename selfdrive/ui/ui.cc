@@ -63,6 +63,28 @@ void update_leads(UIState *s, const cereal::RadarState::Reader &radar_state, con
   }
 }
 
+void update_radar_tracks(UIState *s, const capnp::List<cereal::LiveTracks>::Reader &radar_tracks, const cereal::XYZTData::Reader &line) {
+  s->scene.radar_tracks.clear();
+
+  for (int i = 0; i < radar_tracks.size(); ++i) {
+    cereal::LiveTracks::Reader track = radar_tracks[i];
+
+    RadarTrack radar_track;
+    radar_track.dRel = track.getDRel();
+    radar_track.yRel = track.getYRel();
+    radar_track.vRel = track.getVRel();
+
+    if (track.getVRel() > 0.0f) {
+      float z = line.getZ()[get_path_length_idx(line, track.getDRel())];
+      QPointF calibrated_point;
+      calib_frame_to_full_frame(s, track.getDRel(), -track.getYRel(), z + 1.22, &calibrated_point);
+      radar_track.position = calibrated_point;
+    }
+
+    s->scene.radar_tracks.push_back(radar_track);
+  }
+}
+
 void update_line_data(const UIState *s, const cereal::XYZTData::Reader &line,
                       float y_off, float z_off, QPolygonF *pvd, int max_idx, bool allow_invert=true) {
   const auto line_x = line.getX(), line_y = line.getY(), line_z = line.getZ();

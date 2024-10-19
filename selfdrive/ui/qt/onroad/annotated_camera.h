@@ -90,15 +90,15 @@ private:
   bool wide_cam_requested = false;
 
   // FrogPilot widgets
-  void initializeFrogPilotWidgets();
-  void paintFrogPilotWidgets(QPainter &painter);
-  void updateFrogPilotVariables(int alert_height, const UIScene &scene);
-  void updateSignals();
-
   void drawLeadInfo(QPainter &p);
+  void drawRadarTracks(QPainter &painter, const UIScene &scene);
   void drawSLCConfirmation(QPainter &p);
   void drawStatusBar(QPainter &p);
   void drawTurnSignals(QPainter &p);
+  void initializeFrogPilotWidgets();
+  void paintFrogPilotWidgets(const cereal::ModelDataV2::Reader &model, QPainter &painter, UIState &s, const SubMaster &sm);
+  void updateFrogPilotVariables(int alert_height, const UIScene &scene);
+  void updateSignals();
 
   // FrogPilot variables
   Params paramsMemory{"/dev/shm/params"};
