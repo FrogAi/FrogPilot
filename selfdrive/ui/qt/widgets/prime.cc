@@ -27,6 +27,9 @@ void PairingQRWidget::showEvent(QShowEvent *event) {
   refresh();
   timer->start(5 * 60 * 1000);
   device()->setOffroadBrightness(100);
+
+  // FrogPilot variables
+  useFrogPilotServer = Params().getBool("UseFrogServer");
 }
 
 void PairingQRWidget::hideEvent(QHideEvent *event) {
@@ -36,8 +39,13 @@ void PairingQRWidget::hideEvent(QHideEvent *event) {
 
 void PairingQRWidget::refresh() {
   QString pairToken = CommaApi::create_jwt({{"pair", true}});
-  QString qrString = "https://connect.comma.ai/?pair=" + pairToken;
-  this->updateQrCode(qrString);
+  if (useFrogPilotServer) {
+    QString qrString = "https://portal.springerelectronics.com/?pair=" + pairToken;
+    this->updateQrCode(qrString);
+  } else {
+    QString qrString = "https://connect.comma.ai/?pair=" + pairToken;
+    this->updateQrCode(qrString);
+  }
   update();
 }
 
@@ -236,7 +244,7 @@ SetupWidget::SetupWidget(QWidget* parent) : QFrame(parent) {
   mainLayout->addWidget(content);
 
   primeUser->setVisible(uiState()->hasPrime());
-  mainLayout->setCurrentIndex(1);
+  mainLayout->setCurrentIndex(0);
 
   setStyleSheet(R"(
     #primeWidget {
@@ -273,7 +281,7 @@ void SetupWidget::replyFinished(const QString &response, bool success) {
   PrimeType prime_type = static_cast<PrimeType>(json["prime_type"].toInt());
   uiState()->setPrimeType(is_paired ? prime_type : PrimeType::UNPAIRED);
 
-  if (!is_paired) {
+  if (true) {
     mainLayout->setCurrentIndex(0);
   } else {
     popup->reject();

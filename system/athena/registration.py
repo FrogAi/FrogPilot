@@ -3,7 +3,8 @@ import time
 import json
 import jwt
 import os
-import random, string
+import random
+import string
 from pathlib import Path
 
 from datetime import datetime, timedelta
@@ -33,7 +34,7 @@ def register(show_spinner=False) -> str | None:
   needs_registration = None in (IMEI, HardwareSerial, dongle_id)
 
   pubkey = Path(Paths.persist_root()+"/comma/id_rsa.pub")
-  if os.path.isfile("/persist/frogsgomoo.py"):
+  if False:
     dongle_id = "FrogsGoMoo"
   elif not pubkey.is_file():
     dongle_id = UNREGISTERED_DONGLE_ID
@@ -96,8 +97,12 @@ def register(show_spinner=False) -> str | None:
   if dongle_id:
     params.put("DongleId", dongle_id)
     set_offroad_alert("Offroad_UnofficialHardware", (dongle_id == UNREGISTERED_DONGLE_ID) and not PC)
-  return dongle_id
 
+    if params.get_bool("UseFrogServer"):
+      os.environ['API_HOST'] = 'https://api.springerelectronics.com'
+      os.environ['ATHENA_HOST'] = 'wss://athena.springerelectronics.com'
+
+  return dongle_id
 
 if __name__ == "__main__":
   print(register())
