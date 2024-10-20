@@ -146,6 +146,9 @@ class FrogPilotVCruise:
       if self.tracked_model_length == 0:
         self.tracked_model_length = self.frogpilot_planner.model_length
 
+      elif self.tracked_model_length > self.frogpilot_planner.model_length:
+        self.tracked_model_length = (self.frogpilot_planner.model_length + self.tracked_model_length) / 2
+
       self.forcing_stop = True
       self.tracked_model_length -= v_ego * DT_MDL
       v_cruise = min((self.tracked_model_length / PLANNER_TIME) - 1, v_cruise)
