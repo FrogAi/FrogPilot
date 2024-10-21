@@ -12,12 +12,14 @@ public:
 
 private:
   void setModels();
+  void showEvent(QShowEvent *event) override;
   void updateCarToggles();
   void updateState(const UIState &s);
   void updateToggles();
 
   std::set<QString> gmKeys = {
-    "ExperimentalGMTune", "LongPitch", "NewLongAPIGM", "VoltSNG"
+    "ExperimentalGMTune", "LongPitch", "NewLongAPIGM",
+    "VoltSNG"
   };
 
   std::set<QString> hyundaiKeys = {
@@ -29,8 +31,8 @@ private:
   };
 
   std::set<QString> longitudinalKeys = {
-    "ExperimentalGMTune", "LongPitch", "NewLongAPI", "NewLongAPIGM",
-    "SNGHack", "VoltSNG"
+    "ExperimentalGMTune", "LongPitch", "NewLongAPI",
+    "NewLongAPIGM", "SNGHack", "VoltSNG"
   };
 
   std::set<QString> sngKeys = {
@@ -42,12 +44,8 @@ private:
   };
 
   std::set<QString> toyotaKeys = {
-    "ClusterOffset", "FrogsGoMoosTweak", "NewToyotaTune", "SNGHack",
+    "ClusterOffset", "FrogsGoMoosTweak", "SNGHack",
     "ToyotaDoors"
-  };
-
-  std::set<QString> toyotaTuneKeys = {
-    "NewToyotaTune"
   };
 
   std::set<QString> voltKeys = {
@@ -59,12 +57,14 @@ private:
 
   FrogPilotSettingsWindow *parent;
 
+  QMap<QString, QString> carModels;
+
   QString carMake;
   QString carModel;
 
   QStringList models;
 
-  QMap<QString, QString> carModels;
+  ParamControl *forceFingerprint;
 
   Params params;
 
@@ -74,11 +74,13 @@ private:
   bool hasExperimentalOpenpilotLongitudinal;
   bool hasOpenpilotLongitudinal;
   bool hasSNG;
+  bool isBolt;
   bool isGMPCMCruise;
   bool isImpreza;
-  bool isToyotaTuneSupported;
   bool isVolt;
   bool started;
+
+  int customizationLevel;
 
   std::map<QString, AbstractControl*> toggles;
 };

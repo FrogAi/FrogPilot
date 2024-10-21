@@ -15,26 +15,60 @@ signals:
 
 private:
   void hideToggles();
+  void showEvent(QShowEvent *event) override;
   void showToggles(const std::set<QString> &keys);
   void updateCarToggles();
+  void updateMetric();
 
-  std::set<QString> customOnroadUIKeys = {
-    "Compass", "CustomPaths", "DynamicPathWidth",
-    "PedalsOnUI", "RoadNameUI", "RotatingWheel"
-  };
-
-  std::set<QString> qolKeys = {
-    "BigMap", "DriverCamera", "MapStyle",
+  std::set<QString> accessibilityKeys = {
+    "CameraView", "DriverCamera", "OnroadDistanceButton",
     "StandbyMode", "StoppedTimer"
   };
 
-  FrogPilotSettingsWindow *parent;
+  std::set<QString> advancedCustomOnroadUIKeys = {
+    "HideAlerts", "HideLeadMarker", "HideMapIcon",
+    "HideMaxSpeed", "HideSpeed", "HideSpeedLimit",
+    "WheelSpeed"
+  };
 
-  FrogPilotButtonToggleControl *customPathsBtn;
+  std::set<QString> customOnroadUIKeys = {
+    "AccelerationPath", "AdjacentPath", "BlindSpotPath",
+    "Compass", "PedalsOnUI", "RotatingWheel"
+  };
+
+  std::set<QString> developerUIKeys = {
+    "BorderMetrics", "FPSCounter", "LateralMetrics",
+    "LongitudinalMetrics", "NumericalTemp",
+    "SidebarMetrics", "UseSI"
+  };
+
+  std::set<QString> modelUIKeys = {
+    "DynamicPathWidth", "LaneLinesWidth", "PathEdgeWidth",
+    "PathWidth", "RoadEdgesWidth", "ShowStoppingPoint",
+    "UnlimitedLength"
+  };
+
+  std::set<QString> navigationUIKeys = {
+    "BigMap", "MapStyle", "RoadNameUI",
+    "ShowSLCOffset", "UseVienna"
+  };
+
+  FrogPilotButtonToggleControl *borderMetricsBtn;
+  FrogPilotButtonToggleControl *lateralMetricsBtn;
+  FrogPilotButtonToggleControl *longitudinalMetricsBtn;
+
+  FrogPilotSettingsWindow *parent;
 
   Params params;
 
+  bool disableOpenpilotLongitudinal;
+  bool hasAutoTune;
   bool hasBSM;
+  bool hasOpenpilotLongitudinal;
+  bool hasRadar;
+  bool isMetric = params.getBool("IsMetric");
+
+  int customizationLevel;
 
   std::map<QString, AbstractControl*> toggles;
 };

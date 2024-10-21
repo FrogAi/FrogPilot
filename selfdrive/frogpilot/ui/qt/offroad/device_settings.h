@@ -15,6 +15,7 @@ signals:
 
 private:
   void hideToggles();
+  void showEvent(QShowEvent *event) override;
   void showToggles(const std::set<QString> &keys);
   void updateState(const UIState &s);
 
@@ -28,9 +29,11 @@ private:
     "ScreenTimeout", "ScreenTimeoutOnroad"
   };
 
-  Params params;
+  FrogPilotSettingsWindow *parent;
 
   bool started;
+
+  int customizationLevel;
 
   std::map<QString, AbstractControl*> toggles;
 };

@@ -62,6 +62,8 @@ public:
   void updateState(int alert_height, const UIState &s);
 
   MapSettingsButton *map_settings_btn;
+
+  // FrogPilot variables
   MapSettingsButton *map_settings_btn_bottom;
 
 private:
@@ -90,15 +92,14 @@ private:
   bool wide_cam_requested = false;
 
   // FrogPilot widgets
-  void initializeFrogPilotWidgets();
-  void paintFrogPilotWidgets(QPainter &painter);
-  void updateFrogPilotVariables(int alert_height, const UIScene &scene);
-  void updateSignals();
-
   void drawLeadInfo(QPainter &p);
   void drawSLCConfirmation(QPainter &p);
   void drawStatusBar(QPainter &p);
   void drawTurnSignals(QPainter &p);
+  void initializeFrogPilotWidgets();
+  void paintFrogPilotWidgets(QPainter &painter);
+  void updateFrogPilotVariables(int alert_height, const UIScene &scene);
+  void updateSignals();
 
   // FrogPilot variables
   Params paramsMemory{"/dev/shm/params"};
@@ -108,7 +109,21 @@ private:
   PedalIcons *pedal_icons;
   ScreenRecorder *screenRecorder;
 
+  QElapsedTimer standstillTimer;
+
   QHBoxLayout *bottom_layout;
+
+  QPixmap stopSignImg;
+
+  QString accelerationUnit;
+  QString leadDistanceUnit;
+  QString leadSpeedUnit;
+  QString signalStyle;
+
+  QTimer *animationTimer;
+
+  QVector<QPixmap> blindspotImages;
+  QVector<QPixmap> signalImages;
 
   bool alwaysOnLateralActive;
   bool bigMapOpen;
@@ -119,10 +134,10 @@ private:
   bool hideMapIcon;
   bool hideMaxSpeed;
   bool hideSpeed;
+  bool hideSpeedLimit;
   bool leadInfo;
   bool mapOpen;
   bool onroadDistanceButton;
-  bool reverseCruise;
   bool roadNameUI;
   bool showAlwaysOnLateralStatusBar;
   bool showConditionalExperimentalStatusBar;
@@ -145,6 +160,8 @@ private:
   float cruiseAdjustment;
   float distanceConversion;
   float laneDetectionWidth;
+  float lead_x;
+  float lead_y;
   float slcSpeedLimitOffset;
   float speedConversion;
   float unconfirmedSpeedLimit;
@@ -168,20 +185,6 @@ private:
   int stoppedEquivalence;
   int totalFrames;
 
-  QElapsedTimer standstillTimer;
-
-  QPixmap stopSignImg;
-
-  QString accelerationUnit;
-  QString leadDistanceUnit;
-  QString leadSpeedUnit;
-  QString signalStyle;
-
-  QTimer *animationTimer;
-
-  QVector<QPixmap> blindspotImages;
-  QVector<QPixmap> signalImages;
-
   inline QColor blueColor(int alpha = 255) { return QColor(0, 150, 255, alpha); }
   inline QColor greenColor(int alpha = 242) { return QColor(23, 134, 68, alpha); }
 
@@ -191,7 +194,7 @@ protected:
   void showEvent(QShowEvent *event) override;
   void updateFrameMat() override;
   void drawLaneLines(QPainter &painter, const UIState *s, float v_ego);
-  void drawLead(QPainter &painter, const cereal::RadarState::LeadData::Reader &lead_data, const QPointF &vd, float v_ego, const QColor lead_marker_color);
+  void drawLead(QPainter &painter, const cereal::RadarState::LeadData::Reader &lead_data, const QPointF &vd, float v_ego, const QColor &lead_marker_color, bool adjacent = false);
   void drawHud(QPainter &p);
   void drawDriverState(QPainter &painter, const UIState *s);
   void paintEvent(QPaintEvent *event) override;

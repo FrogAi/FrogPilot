@@ -104,7 +104,7 @@ typedef struct UIScene {
   QPolygonF road_edge_vertices[2];
 
   // lead
-  QPointF lead_vertices[2];
+  QPointF lead_vertices[6];
 
   // DMoji state
   float driver_pose_vals[3];
@@ -122,27 +122,46 @@ typedef struct UIScene {
   uint64_t started_frame;
 
   // FrogPilot variables
+  QColor lane_lines_color;
+  QColor lead_marker_color;
+  QColor path_color;
+  QColor path_edges_color;
+  QColor sidebar_color1;
+  QColor sidebar_color2;
+  QColor sidebar_color3;
+
+  QJsonObject frogpilot_toggles;
+
+  QPolygonF track_adjacent_vertices[6];
+  QPolygonF track_edge_vertices;
+
   bool acceleration_path;
   bool adjacent_path;
   bool adjacent_path_metrics;
+  bool always_on_lateral;
   bool always_on_lateral_active;
+  bool aol_status_bar;
   bool big_map;
   bool blind_spot_left;
   bool blind_spot_path;
   bool blind_spot_right;
   bool brake_lights_on;
+  bool cem_status_bar;
   bool compass;
   bool conditional_experimental;
+  bool cpu_metrics;
   bool disable_curve_speed_smoothing;
-  bool driver_camera;
+  bool driver_camera_in_reverse;
   bool dynamic_path_width;
   bool dynamic_pedals_on_ui;
   bool enabled;
   bool experimental_mode;
-  bool experimental_mode_via_screen;
+  bool experimental_mode_via_tap;
   bool fahrenheit;
   bool force_onroad;
+  bool frogs_go_moo;
   bool full_map;
+  bool gpu_metrics;
   bool has_auto_tune;
   bool has_lead;
   bool hide_alerts;
@@ -150,18 +169,19 @@ typedef struct UIScene {
   bool hide_map_icon;
   bool hide_max_speed;
   bool hide_speed;
-  bool hide_speed_ui;
-  bool is_CPU;
-  bool is_GPU;
-  bool is_IP;
-  bool is_memory;
-  bool is_storage_left;
-  bool is_storage_used;
-  bool lead_info;
+  bool hide_speed_limit;
+  bool ip_metrics;
+  bool jerk_metrics;
+  bool keep_screen_on;
+  bool lateral_tuning_metrics;
+  bool lead_metrics;
   bool live_valid;
   bool map_open;
+  bool memory_metrics;
   bool model_randomizer;
   bool model_ui;
+  bool no_logging;
+  bool no_uploads;
   bool numerical_temp;
   bool online;
   bool onroad_distance_button;
@@ -171,44 +191,40 @@ typedef struct UIScene {
   bool random_events;
   bool red_light;
   bool reverse;
-  bool reverse_cruise;
   bool right_hand_drive;
   bool road_name_ui;
   bool rotating_wheel;
   bool screen_recorder;
-  bool show_aol_status_bar;
   bool show_blind_spot;
-  bool show_cem_status_bar;
   bool show_fps;
-  bool show_jerk;
-  bool show_signal;
-  bool show_slc_offset;
-  bool show_slc_offset_ui;
-  bool show_steering;
+  bool show_speed_limit_offset;
   bool show_stopping_point;
   bool show_stopping_point_metrics;
-  bool show_tuning;
   bool sidebar_metrics;
+  bool signal_metrics;
   bool speed_limit_changed;
   bool speed_limit_controller;
   bool speed_limit_overridden;
+  bool speed_limit_vienna;
   bool standby_mode;
   bool standstill;
   bool static_pedals_on_ui;
+  bool steering_metrics;
   bool stopped_timer;
+  bool storage_left_metrics;
+  bool storage_used_metrics;
   bool tethering_enabled;
   bool traffic_mode;
   bool traffic_mode_active;
   bool turn_signal_left;
   bool turn_signal_right;
   bool unlimited_road_ui_length;
-  bool use_si;
+  bool use_si_metrics;
   bool use_stock_colors;
   bool use_stock_wheel;
-  bool use_vienna_slc_sign;
+  bool use_wheel_speed;
   bool vtsc_controlling_curve;
   bool wake_up_screen;
-  bool wheel_speed;
 
   double fps;
 
@@ -222,7 +238,7 @@ typedef struct UIScene {
   float lane_width_left;
   float lane_width_right;
   float lat_accel;
-  float lead_detection_threshold;
+  float lead_detection_probability;
   float path_edge_width;
   float path_width;
   float road_edge_width;
@@ -236,8 +252,8 @@ typedef struct UIScene {
 
   int bearing_deg;
   int camera_view;
-  int conditional_speed;
-  int conditional_speed_lead;
+  int conditional_limit;
+  int conditional_limit_lead;
   int conditional_status;
   int desired_follow;
   int driver_camera_timer;
@@ -246,26 +262,14 @@ typedef struct UIScene {
   int model_length;
   int obstacle_distance;
   int obstacle_distance_stock;
-  int screen_brightness;
-  int screen_brightness_onroad;
+  int screen_brightness = -1;
+  int screen_brightness_onroad = -1;
   int screen_timeout;
   int screen_timeout_onroad;
   int started_timer;
   int steering_angle_deg;
   int stopped_equivalence;
   int tethering_config;
-
-  QColor lane_lines_color;
-  QColor lead_marker_color;
-  QColor path_color;
-  QColor path_edges_color;
-  QColor road_edges_color;
-  QColor sidebar_color1;
-  QColor sidebar_color2;
-  QColor sidebar_color3;
-
-  QPolygonF track_adjacent_vertices[6];
-  QPolygonF track_edge_vertices;
 
 } UIScene;
 
@@ -368,4 +372,4 @@ void update_line_data(const UIState *s, const cereal::XYZTData::Reader &line,
                       float y_off, float z_off, QPolygonF *pvd, int max_idx, bool allow_invert);
 
 // FrogPilot functions
-void ui_update_frogpilot_params(UIState *s, Params &params);
+void ui_update_frogpilot_params(UIState *s);

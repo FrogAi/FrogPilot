@@ -17,8 +17,8 @@ void OnroadAlerts::updateState(const UIState &s) {
 
   hide_alerts = scene.hide_alerts;
   road_name_ui = scene.road_name_ui;
-  show_aol_status_bar = scene.show_aol_status_bar;
-  show_cem_status_bar = scene.show_cem_status_bar;
+  show_aol_status_bar = scene.aol_status_bar;
+  show_cem_status_bar = scene.cem_status_bar;
 }
 
 void OnroadAlerts::clear() {

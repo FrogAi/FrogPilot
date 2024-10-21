@@ -11,7 +11,7 @@ FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
 
 class CarInterface(CarInterfaceBase):
   @staticmethod
-  def _get_params(ret, candidate, fingerprint, car_fw, disable_openpilot_long, experimental_long, docs, params):
+  def _get_params(ret, candidate, fingerprint, car_fw, disable_openpilot_long, experimental_long, docs):
     ret.carName = "chrysler"
 
     # radar parsing needs some work, see https://github.com/commaai/openpilot/issues/26842

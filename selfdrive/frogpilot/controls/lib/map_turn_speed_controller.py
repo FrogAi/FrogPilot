@@ -2,14 +2,11 @@
 import json
 import math
 
-from openpilot.common.conversions import Conversions as CV
 from openpilot.common.numpy_fast import interp
-from openpilot.common.params import Params
 
-params_memory = Params("/dev/shm/params")
+from openpilot.selfdrive.frogpilot.frogpilot_utilities import calculate_distance_to_point
+from openpilot.selfdrive.frogpilot.frogpilot_variables import TO_RADIANS, params_memory
 
-R = 6373000.0 # approximate radius of earth in meters
-TO_RADIANS = math.pi / 180
 TARGET_JERK = -0.6   # m/s^3 should match up with the long planner
 TARGET_ACCEL = -1.2  # m/s^2 should match up with the long planner
 TARGET_OFFSET = 1.0  # seconds - This controls how soon before the curve you reach the target velocity. It also helps
@@ -24,15 +21,6 @@ def calculate_velocity(t, target_jerk, a_ego, v_ego):
 
 def calculate_distance(t, target_jerk, a_ego, v_ego):
   return t * v_ego + a_ego/2 * (t ** 2) + target_jerk/6 * (t ** 3)
-
-
-# points should be in radians
-# output is meters
-def distance_to_point(ax, ay, bx, by):
-  a = math.sin((bx-ax)/2)*math.sin((bx-ax)/2) + math.cos(ax) * math.cos(bx)*math.sin((by-ay)/2)*math.sin((by-ay)/2)
-  c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
-
-  return R * c  # in meters
 
 class MapTurnSpeedController:
   def __init__(self):
@@ -62,7 +50,7 @@ class MapTurnSpeedController:
       target_velocity = target_velocities[i]
       tlat = target_velocity["latitude"]
       tlon = target_velocity["longitude"]
-      d = distance_to_point(lat * TO_RADIANS, lon * TO_RADIANS, tlat * TO_RADIANS, tlon * TO_RADIANS)
+      d = calculate_distance_to_point(lat * TO_RADIANS, lon * TO_RADIANS, tlat * TO_RADIANS, tlon * TO_RADIANS)
       distances.append(d)
       if d < min_dist:
         min_dist = d

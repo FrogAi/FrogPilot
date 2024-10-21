@@ -56,7 +56,7 @@ void ExperimentalButton::changeMode() {
   }
 }
 
-void ExperimentalButton::updateState(const UIState &s, bool lead_info) {
+void ExperimentalButton::updateState(const UIState &s, bool lead_metrics) {
   const auto cs = (*s.sm)["controlsState"].getControlsState();
   bool eng = cs.getEngageable() || cs.getEnabled() || always_on_lateral_active;
   if ((cs.getExperimentalMode() != experimental_mode) || (eng != engageable)) {
@@ -77,7 +77,7 @@ void ExperimentalButton::updateState(const UIState &s, bool lead_info) {
   rotating_wheel = scene.rotating_wheel;
   traffic_mode_active = scene.traffic_mode_active;
   use_stock_wheel = scene.use_stock_wheel;
-  y_offset = lead_info ? 10 : 0;
+  y_offset = lead_metrics ? 10 : 0;
 
   if (rotating_wheel && steering_angle_deg != scene.steering_angle_deg) {
     steering_angle_deg = scene.steering_angle_deg;
@@ -276,5 +276,5 @@ void DistanceButton::paintEvent(QPaintEvent *event) {
   QPainter p(this);
   p.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
 
-  drawIcon(p, QPoint((btn_size / 2) + (UI_BORDER_SIZE * 0.5), btn_size - (UI_BORDER_SIZE * 1.5)), profile_image, Qt::transparent, 1.0);
+  drawIcon(p, QPoint((btn_size / 2) + UI_BORDER_SIZE, btn_size - (UI_BORDER_SIZE * 1.5)), profile_image, Qt::transparent, 1.0);
 }

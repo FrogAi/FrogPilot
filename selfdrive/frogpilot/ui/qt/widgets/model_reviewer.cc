@@ -123,7 +123,7 @@ void ModelReview::mousePressEvent(QMouseEvent *e) {
     return;
   }
 
-  paramsMemory.putBool("DriveRated", true);
+  emit driveRated();
 }
 
 void ModelReview::updateLabel() {
@@ -136,7 +136,7 @@ void ModelReview::updateLabel() {
   mainLayout->setCurrentIndex(1);
 
   QTimer::singleShot(30000, [this]() {
-    paramsMemory.putBool("DriveRated", true);
+    emit driveRated();
     modelRated = false;
   });
 }

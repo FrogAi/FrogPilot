@@ -5,12 +5,14 @@ from openpilot.selfdrive.car.disable_ecu import disable_ecu
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase
 from openpilot.selfdrive.car.subaru.values import CAR, GLOBAL_ES_ADDR, SubaruFlags
 
+from openpilot.selfdrive.frogpilot.frogpilot_variables import params
+
 FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
 
 class CarInterface(CarInterfaceBase):
 
   @staticmethod
-  def _get_params(ret, candidate: CAR, fingerprint, car_fw, disable_openpilot_long, experimental_long, docs, params):
+  def _get_params(ret, candidate: CAR, fingerprint, car_fw, disable_openpilot_long, experimental_long, docs):
     # FrogPilot variables
     crosstrek_torque_increase = params.get_bool("CrosstrekTorque")
 

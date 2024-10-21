@@ -5,14 +5,14 @@ FrogPilotPrimelessPanel::FrogPilotPrimelessPanel(FrogPilotSettingsWindow *parent
 
   std::vector<QString> searchOptions{tr("MapBox"), tr("Amap"), tr("Google")};
   searchInput = new ButtonParamControl("SearchInput", tr("Destination Search Provider"),
-                                    tr("Select a search provider for destination queries in Navigate on Openpilot. Options include MapBox (recommended), Amap, and Google Maps."),
+                                    tr("The search provider used for destination queries in 'Navigate on Openpilot'. Options include 'MapBox' (recommended), 'Amap', and 'Google Maps'."),
                                        "", searchOptions);
   addItem(searchInput);
 
   createMapboxKeyControl(publicMapboxKeyControl, tr("Public Mapbox Key"), "MapboxPublicKey", "pk.");
   createMapboxKeyControl(secretMapboxKeyControl, tr("Secret Mapbox Key"), "MapboxSecretKey", "sk.");
 
-  setupButton = new ButtonControl(tr("Mapbox Setup Instructions"), tr("VIEW"), tr("View the instructions to set up MapBox for 'Primeless Navigation'."), this);
+  setupButton = new ButtonControl(tr("MapBox Setup Instructions"), tr("VIEW"), tr("View the instructions to set up 'MapBox' for 'Primeless Navigation'."), this);
   QObject::connect(setupButton, &ButtonControl::clicked, [this]() {
     displayMapboxInstructions(true);
     openMapBoxInstructions();
@@ -30,8 +30,7 @@ FrogPilotPrimelessPanel::FrogPilotPrimelessPanel(FrogPilotSettingsWindow *parent
 }
 
 void FrogPilotPrimelessPanel::showEvent(QShowEvent *event) {
-  WifiManager *wifi = new WifiManager(this);
-  QString ipAddress = wifi->getIp4Address();
+  QString ipAddress = uiState()->wifi->getIp4Address();
   ipLabel->setText(ipAddress.isEmpty() ? tr("Device Offline") : QString("%1:8082").arg(ipAddress));
 
   mapboxPublicKeySet = !params.get("MapboxPublicKey").empty();
@@ -91,6 +90,7 @@ void FrogPilotPrimelessPanel::hideEvent(QHideEvent *event) {
 }
 
 void FrogPilotPrimelessPanel::mousePressEvent(QMouseEvent *event) {
+  closeMapBoxInstructions();
   displayMapboxInstructions(false);
 }
 

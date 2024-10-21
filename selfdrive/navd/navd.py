@@ -18,7 +18,7 @@ from openpilot.selfdrive.navd.helpers import (Coordinate, coordinate_from_param,
                                     parse_banner_instructions)
 from openpilot.common.swaglog import cloudlog
 
-from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
+from openpilot.selfdrive.frogpilot.frogpilot_variables import get_frogpilot_toggles, has_prime
 
 REROUTE_DISTANCE = 25
 MANEUVER_TRANSITION_THRESHOLD = 10
@@ -57,25 +57,23 @@ class RouteEngine:
     if "MAPBOX_TOKEN" in os.environ:
       self.mapbox_token = os.environ["MAPBOX_TOKEN"]
       self.mapbox_host = "https://api.mapbox.com"
-    elif not FrogPilotVariables.has_prime:
+    elif not has_prime():
       self.mapbox_token = self.params.get("MapboxSecretKey", encoding='utf8')
       self.mapbox_host = "https://api.mapbox.com"
     else:
       self.api = Api(self.params.get("DongleId", encoding='utf8'))
-      self.mapbox_host = os.getenv('MAPS_HOST', 'https://maps.comma.ai')
+      self.mapbox_host = "https://maps.comma.ai"
 
     # FrogPilot variables
-    self.frogpilot_toggles = FrogPilotVariables.toggles
-    FrogPilotVariables.update_frogpilot_params()
-
-    self.stop_coord = []
-    self.stop_signal = []
+    self.frogpilot_toggles = get_frogpilot_toggles()
 
     self.approaching_intersection = False
     self.approaching_turn = False
-    self.update_toggles = False
 
     self.nav_speed_limit = 0
+
+    self.stop_coord = []
+    self.stop_signal = []
 
   def update(self):
     self.sm.update(0)
@@ -96,11 +94,8 @@ class RouteEngine:
       cloudlog.exception("navd.failed_to_compute")
 
     # Update FrogPilot parameters
-    if FrogPilotVariables.toggles_updated:
-      self.update_toggles = True
-    elif self.update_toggles:
-      FrogPilotVariables.update_frogpilot_params()
-      self.update_toggles = False
+    if self.sm['frogpilotPlan'].togglesUpdated:
+      self.frogpilot_toggles = get_frogpilot_toggles()
 
   def update_location(self):
     location = self.sm['liveLocationKalman']
@@ -467,7 +462,7 @@ class RouteEngine:
 
 def main():
   pm = messaging.PubMaster(['navInstruction', 'navRoute', 'frogpilotNavigation'])
-  sm = messaging.SubMaster(['carState', 'liveLocationKalman', 'managerState'])
+  sm = messaging.SubMaster(['carState', 'liveLocationKalman', 'managerState', 'frogpilotPlan'])
 
   rk = Ratekeeper(1.0)
   route_engine = RouteEngine(sm, pm)

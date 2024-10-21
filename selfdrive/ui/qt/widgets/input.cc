@@ -206,7 +206,7 @@ void InputDialog::updateMaxLengthSublabel(const QString &text) {
 // ConfirmationDialog
 
 ConfirmationDialog::ConfirmationDialog(const QString &prompt_text, const QString &confirm_text, const QString &cancel_text,
-                                       const bool rich, QWidget *parent) : DialogBase(parent) {
+                                       const bool rich, QWidget *parent, const bool is_long) : DialogBase(parent) {
   QFrame *container = new QFrame(this);
   container->setStyleSheet(R"(
     QFrame { background-color: #1B1B1B; color: #C9C9C9; }
@@ -214,7 +214,7 @@ ConfirmationDialog::ConfirmationDialog(const QString &prompt_text, const QString
     #confirm_btn:pressed { background-color: #3049F4; }
   )");
   QVBoxLayout *main_layout = new QVBoxLayout(container);
-  main_layout->setContentsMargins(32, rich ? 32 : 120, 32, 32);
+  main_layout->setContentsMargins(32, rich || is_long ? 32 : 120, 32, 32);
 
   QLabel *prompt = new QLabel(prompt_text, this);
   prompt->setWordWrap(true);

@@ -8,8 +8,6 @@
 #include "selfdrive/ui/qt/widgets/toggle.h"
 #include "selfdrive/ui/ui.h"
 
-#include "selfdrive/frogpilot/ui/qt/widgets/frogpilot_controls.h"
-
 class WifiItem : public QWidget {
   Q_OBJECT
 public:

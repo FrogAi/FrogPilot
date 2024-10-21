@@ -219,9 +219,9 @@ class CarController(CarControllerBase):
 
         if self.CP.carFingerprint in HONDA_BOSCH:
           if frogpilot_toggles.sport_plus:
-            self.accel = clip(accel, self.params.BOSCH_ACCEL_MIN, min(frogpilot_toggles.max_desired_accel, get_max_allowed_accel(CS.out.vEgo)))
+            self.accel = clip(accel, self.params.BOSCH_ACCEL_MIN, min(frogpilot_toggles.max_desired_acceleration, get_max_allowed_accel(CS.out.vEgo)))
           else:
-            self.accel = clip(accel, self.params.BOSCH_ACCEL_MIN, min(frogpilot_toggles.max_desired_accel, self.params.BOSCH_ACCEL_MAX))
+            self.accel = clip(accel, self.params.BOSCH_ACCEL_MIN, min(frogpilot_toggles.max_desired_acceleration, self.params.BOSCH_ACCEL_MAX))
           self.gas = interp(accel, self.params.BOSCH_GAS_LOOKUP_BP, self.params.BOSCH_GAS_LOOKUP_V)
 
           stopping = actuators.longControlState == LongCtrlState.stopping

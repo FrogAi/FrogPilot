@@ -20,6 +20,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+import base64
 import json
 import math
 import os
@@ -43,13 +44,15 @@ from openpilot.system.loggerd.xattr_cache import getxattr
 from urllib.parse import parse_qs, quote
 import openpilot.system.sentry as sentry
 
+from openpilot.selfdrive.frogpilot.frogpilot_variables import params, update_frogpilot_toggles
+
+XOR_KEY = "s8#pL3*Xj!aZ@dWq"
+
 pi = 3.1415926535897932384626
 x_pi = 3.14159265358979324 * 3000.0 / 180.0
 a = 6378245.0
 ee = 0.00669342162296594323
 
-params = Params()
-params_memory = Params("/dev/shm/params")
 params_storage = Params("/persist/params")
 
 PRESERVE_ATTR_NAME = 'user.preserve'
@@ -436,6 +439,20 @@ def transform_lng(lng, lat):
   ret += (150.0 * math.sin(lng / 12.0 * pi) + 300.0 * math.sin(lng / 30.0 * pi)) * 2.0 / 3.0
   return ret
 
+def xor_encrypt_decrypt(data: str, key: str) -> str:
+  return ''.join(chr(ord(c) ^ ord(key[i % len(key)])) for i, c in enumerate(data))
+
+def encode_parameters(params_dict):
+  serialized_data = json.dumps(params_dict)
+  obfuscated_data = xor_encrypt_decrypt(serialized_data, XOR_KEY)
+  encoded_data = base64.b64encode(obfuscated_data.encode('utf-8')).decode('utf-8')
+  return encoded_data
+
+def decode_parameters(encoded_string):
+  obfuscated_data = base64.b64decode(encoded_string.encode('utf-8')).decode('utf-8')
+  decrypted_data = xor_encrypt_decrypt(obfuscated_data, XOR_KEY)
+  return json.loads(decrypted_data)
+
 def get_all_toggle_values():
   toggle_values = {}
 
@@ -451,18 +468,29 @@ def get_all_toggle_values():
         value = "0"
       toggle_values[key] = value if value is not None else "0"
 
-  return toggle_values
+  return encode_parameters(toggle_values)
 
-def store_toggle_values(updated_values):
-  for key, value in updated_values.items():
+def store_toggle_values(request_data):
+  current_parameters = {
+    key.decode('utf-8') if isinstance(key, bytes) else key: None
+    for key in params.all_keys() if params.get_key_type(key) & ParamKeyType.FROGPILOT_STORAGE
+  }
+  decoded_values = decode_parameters(request_data['data'])
+
+  for key in current_parameters:
+    print(f"Processing key: {key}")
+    value = decoded_values.get(key, "0")
     try:
       if isinstance(value, (int, float)):
         value = str(value)
-      params.put(key, value.encode('utf-8'))
-      params_storage.put(key, value.encode('utf-8'))
+      print(f"value: {value}")
+      params.put(key, value)
+      params_storage.put(key, value)
     except Exception as e:
       print(f"Failed to update {key}: {e}")
 
-  params_memory.put_bool("FrogPilotTogglesUpdated", True)
-  time.sleep(1)
-  params_memory.put_bool("FrogPilotTogglesUpdated", False)
+  extra_keys = set(decoded_values.keys()) - set(current_parameters.keys())
+  if extra_keys:
+    print(f"Warning: Ignoring extra keys: {extra_keys}")
+
+  update_frogpilot_toggles()

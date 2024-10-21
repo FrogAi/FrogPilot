@@ -38,8 +38,6 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   // download update btn
   downloadBtn = new ButtonControl(tr("Download"), tr("CHECK"));
   connect(downloadBtn, &ButtonControl::clicked, [=]() {
-    device()->resetInteractiveTimeout(300);
-
     downloadBtn->setEnabled(false);
     if (downloadBtn->text() == tr("CHECK")) {
       checkForUpdates();
@@ -63,7 +61,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   connect(targetBranchBtn, &ButtonControl::clicked, [=]() {
     auto current = params.get("GitBranch");
     QStringList branches = QString::fromStdString(params.get("UpdaterAvailableBranches")).split(",");
-    if (!frogsGoMoo) {
+    if (!uiState()->scene.frogs_go_moo) {
       branches.removeAll("FrogPilot-Development");
       branches.removeAll("FrogPilot-New");
       branches.removeAll("FrogPilot-Test");
@@ -91,14 +89,11 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   auto uninstallBtn = new ButtonControl(tr("Uninstall %1").arg(getBrand()), tr("UNINSTALL"));
   connect(uninstallBtn, &ButtonControl::clicked, [&]() {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to uninstall?"), tr("Uninstall"), this)) {
-      if (FrogPilotConfirmationDialog::yesorno(tr("Do you want to permanently delete any additional FrogPilot assets? This is 100% unrecoverable and includes backups, downloaded models, themes, and long-term storage toggle settings for easy reinstalls."), this)) {
-        std::system("rm -rf /data/backups");
-        std::system("rm -rf /data/crashes");
-        std::system("rm -rf /data/media/screen_recordings");
-        std::system("rm -rf /data/themes");
-        std::system("rm -rf /data/toggle_backups");
-        std::system("rm -rf /persist/params");
-        std::system("rm -rf /persist/tracking");
+      if (FrogPilotConfirmationDialog::yesorno(tr("Do you want to delete deep storage FrogPilot assets? This is 100% unrecoverable and includes FrogPilot stats and toggle settings for quick reinstalls."), this)) {
+        if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure? This is 100% unrecoverable and includes FrogPilot stats and toggle settings for quick reinstalls."), this)) {
+          std::system("rm -rf /persist/params");
+          std::system("rm -rf /persist/tracking");
+        }
       }
       params.putBool("DoUninstall", true);
     }
@@ -108,7 +103,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   // error log button
   auto errorLogBtn = new ButtonControl(tr("Error Log"), tr("VIEW"), tr("View the error log for openpilot crashes."));
   connect(errorLogBtn, &ButtonControl::clicked, [=]() {
-    const std::string txt = util::read_file("/data/crashes/error.txt");
+    std::string txt = util::read_file("/data/crashes/error.txt");
     ConfirmationDialog::rich(QString::fromStdString(txt), this);
   });
   addItem(errorLogBtn);
@@ -150,8 +145,8 @@ void SoftwarePanel::updateLabels() {
   // updater only runs offroad or when parked
   bool parked = scene.parked;
 
-  onroadLbl->setVisible(is_onroad && !parked && !frogsGoMoo);
-  downloadBtn->setVisible(!is_onroad || parked || frogsGoMoo);
+  onroadLbl->setVisible(is_onroad && !parked && !scene.frogs_go_moo);
+  downloadBtn->setVisible(!is_onroad || parked || scene.frogs_go_moo);
 
   // download update
   QString updater_state = QString::fromStdString(params.get("UpdaterState"));
@@ -159,7 +154,9 @@ void SoftwarePanel::updateLabels() {
   if (updater_state != "idle") {
     downloadBtn->setEnabled(false);
     downloadBtn->setValue(updater_state);
+    scene.keep_screen_on = true;
   } else {
+    scene.keep_screen_on = false;
     if (failed) {
       downloadBtn->setText(tr("CHECK"));
       downloadBtn->setValue(tr("failed to check for update"));
@@ -183,12 +180,7 @@ void SoftwarePanel::updateLabels() {
   versionLbl->setText(QString::fromStdString(params.get("UpdaterCurrentDescription")));
   versionLbl->setDescription(QString::fromStdString(params.get("UpdaterCurrentReleaseNotes")));
 
-  bool install_ready = (!is_onroad || parked) && params.getBool("UpdateAvailable");
-  if (!installBtn->isVisible() && install_ready) {
-    device()->resetInteractiveTimeout(30);
-  }
-
-  installBtn->setVisible(install_ready);
+  installBtn->setVisible((!is_onroad || parked) && params.getBool("UpdateAvailable"));
   installBtn->setValue(QString::fromStdString(params.get("UpdaterNewDescription")));
   installBtn->setDescription(QString::fromStdString(params.get("UpdaterNewReleaseNotes")));
 

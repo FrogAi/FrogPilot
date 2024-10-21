@@ -8,14 +8,14 @@
 
 FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent) {
   std::vector<QString> scheduleOptions{tr("Manually"), tr("Weekly"), tr("Monthly")};
-  preferredSchedule = new ButtonParamControl("PreferredSchedule", tr("Maps Scheduler"),
-                                          tr("Choose the frequency for updating maps with the latest OpenStreetMap (OSM) changes. "
+  preferredSchedule = new ButtonParamControl("PreferredSchedule", tr("Automatically Update Maps"),
+                                          tr("Controls the frequency at which maps update with the latest OpenStreetMap (OSM) changes. "
                                              "Weekly updates begin at midnight every Sunday, while monthly updates start at midnight on the 1st of each month."),
                                              "",
                                              scheduleOptions);
   addItem(preferredSchedule);
 
-  selectMapsButton = new FrogPilotButtonsControl(tr("Select Offline Maps"), tr("Select your maps to use with 'Curve Speed Control' and 'Speed Limit Controller'."), {tr("COUNTRIES"), tr("STATES")});
+  selectMapsButton = new FrogPilotButtonsControl(tr("Select Offline Maps"), tr("Offline maps to use with 'Curve Speed Control' and 'Speed Limit Controller'."), {tr("COUNTRIES"), tr("STATES")});
   QObject::connect(selectMapsButton, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
     if (id == 0) {
       countriesOpen = true;
@@ -25,7 +25,7 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent) : FrogPi
   });
   addItem(selectMapsButton);
 
-  downloadMapsButton = new ButtonControl(tr("Download Maps"), tr("DOWNLOAD"), tr("Download your selected maps to use with 'Curve Speed Control' and 'Speed Limit Controller'."));
+  downloadMapsButton = new ButtonControl(tr("Download Maps"), tr("DOWNLOAD"), tr("Downloads the selected maps to use with 'Curve Speed Control' and 'Speed Limit Controller'."));
   QObject::connect(downloadMapsButton, &ButtonControl::clicked, [this] {
     if (downloadMapsButton->text() == tr("CANCEL")) {
       cancelDownload();
@@ -45,7 +45,7 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent) : FrogPi
   downloadStatus->setVisible(false);
   downloadTimeElapsed->setVisible(false);
 
-  removeMapsButton = new ButtonControl(tr("Remove Maps"), tr("REMOVE"), tr("Remove your downloaded maps to clear up storage space."));
+  removeMapsButton = new ButtonControl(tr("Remove Maps"), tr("REMOVE"), tr("Removes downloaded maps to clear up storage space."));
   QObject::connect(removeMapsButton, &ButtonControl::clicked, [this] {
     if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to delete all of your downloaded maps?"), this)) {
       std::thread([this] {
@@ -121,6 +121,8 @@ void FrogPilotMapsPanel::updateState(const UIState &s) {
     return;
   }
 
+  uiState()->scene.keep_screen_on = downloadActive;
+
   if (downloadActive) {
     updateDownloadStatusLabels();
   }
@@ -136,8 +138,6 @@ void FrogPilotMapsPanel::cancelDownload() {
 }
 
 void FrogPilotMapsPanel::downloadMaps() {
-  device()->resetInteractiveTimeout(300);
-
   params.remove("OSMDownloadProgress");
 
   resetDownloadLabels();
@@ -263,6 +263,8 @@ void FrogPilotMapsPanel::finalizeDownload() {
   params.putNonBlocking("LastMapsUpdate", formattedDate.toStdString());
   params.remove("OSMDownloadProgress");
 
+  mapsSize->setText(calculateDirectorySize(mapsFolderPath));
+
   resetDownloadLabels();
 
   downloadMapsButton->setText(tr("DOWNLOAD"));
@@ -311,7 +313,7 @@ void FrogPilotMapsPanel::displayMapButtons(bool visible) {
   lastMapsDownload->setVisible(!visible && !downloadActive);
   mapsSize->setVisible(!visible);
   preferredSchedule->setVisible(!visible);
-  removeMapsButton->setVisible(!visible && QDir(mapsFolderPath).exists());
+  removeMapsButton->setVisible(!visible && QDir(mapsFolderPath).exists() && !downloadActive);
   selectMapsButton->setVisible(!visible);
 
   africaMaps->setVisible(visible && countriesOpen);

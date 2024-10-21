@@ -1,4 +1,5 @@
 from collections import deque
+
 import math
 import numpy as np
 

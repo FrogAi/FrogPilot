@@ -8,6 +8,9 @@ class ModelReview : public QFrame {
 public:
   explicit ModelReview(QWidget *parent = nullptr);
 
+signals:
+  void driveRated();
+
 protected:
   void mousePressEvent(QMouseEvent *e) override;
   void showEvent(QShowEvent *event) override;

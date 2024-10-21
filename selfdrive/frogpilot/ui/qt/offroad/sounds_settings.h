@@ -15,6 +15,7 @@ signals:
 
 private:
   void hideToggles();
+  void showEvent(QShowEvent *event) override;
   void showToggles(const std::set<QString> &keys);
   void updateCarToggles();
 
@@ -35,6 +36,8 @@ private:
 
   bool hasBSM;
   bool hasOpenpilotLongitudinal;
+
+  int customizationLevel;
 
   std::map<QString, AbstractControl*> toggles;
 };

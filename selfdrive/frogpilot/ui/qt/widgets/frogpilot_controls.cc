@@ -6,26 +6,7 @@
 
 void updateFrogPilotToggles() {
   static Params paramsMemory{"/dev/shm/params"};
-  static std::atomic<bool> isUpdating(false);
-  static std::thread resetThread;
-
-  bool expected = false;
-  if (!isUpdating.compare_exchange_strong(expected, true)) {
-    return;
-  }
-
-  if (resetThread.joinable()) {
-    resetThread.join();
-  }
-
   paramsMemory.putBool("FrogPilotTogglesUpdated", true);
-
-  resetThread = std::thread([&]() {
-    util::sleep_for(1000);
-    paramsMemory.putBool("FrogPilotTogglesUpdated", false);
-
-    isUpdating.store(false);
-  });
 }
 
 QColor loadThemeColors(const QString &colorKey, bool clearCache) {
@@ -62,17 +43,17 @@ QColor loadThemeColors(const QString &colorKey, bool clearCache) {
   );
 }
 
-bool FrogPilotConfirmationDialog::toggle(const QString &prompt_text, const QString &confirm_text, QWidget *parent) {
-  ConfirmationDialog d(prompt_text, confirm_text, tr("Reboot Later"), false, parent);
+bool FrogPilotConfirmationDialog::toggle(const QString &prompt_text, const QString &confirm_text, QWidget *parent, const bool isLong) {
+  ConfirmationDialog d(prompt_text, confirm_text, tr("Reboot Later"), false, parent, isLong);
   return d.exec();
 }
 
-bool FrogPilotConfirmationDialog::toggleAlert(const QString &prompt_text, const QString &button_text, QWidget *parent) {
-  ConfirmationDialog d(prompt_text, button_text, "", false, parent);
+bool FrogPilotConfirmationDialog::toggleAlert(const QString &prompt_text, const QString &button_text, QWidget *parent, const bool isLong) {
+  ConfirmationDialog d(prompt_text, button_text, "", false, parent, isLong);
   return d.exec();
 }
 
-bool FrogPilotConfirmationDialog::yesorno(const QString &prompt_text, QWidget *parent) {
-  ConfirmationDialog d(prompt_text, tr("Yes"), tr("No"), false, parent);
+bool FrogPilotConfirmationDialog::yesorno(const QString &prompt_text, QWidget *parent, const bool isLong) {
+  ConfirmationDialog d(prompt_text, tr("Yes"), tr("No"), false, parent, isLong);
   return d.exec();
 }

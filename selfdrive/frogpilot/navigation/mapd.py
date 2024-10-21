@@ -8,7 +8,7 @@ import urllib.request
 
 from openpilot.common.realtime import Ratekeeper
 
-from openpilot.selfdrive.frogpilot.frogpilot_functions import is_url_pingable
+from openpilot.selfdrive.frogpilot.frogpilot_utilities import is_url_pingable
 
 VERSION = 'v1'
 
@@ -65,7 +65,7 @@ def ensure_mapd_is_running():
       print(f"Error: {MAPD_PATH} does not exist.")
     time.sleep(1)
 
-def mapd_thread(sm=None, pm=None):
+def mapd_thread():
   rk = Ratekeeper(0.05)
 
   while True:
@@ -83,9 +83,9 @@ def mapd_thread(sm=None, pm=None):
 
     rk.keep_time()
 
-def main(sm=None, pm=None):
+def main():
   try:
-    mapd_thread(sm, pm)
+    mapd_thread()
   except Exception as e:
     print(f"Unhandled exception in main: {e}")
 

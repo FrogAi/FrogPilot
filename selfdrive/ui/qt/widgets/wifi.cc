@@ -103,7 +103,7 @@ WiFiPromptWidget::WiFiPromptWidget(QWidget *parent) : QFrame(parent) {
     }
     not_uploading_layout->addLayout(title_layout);
 
-    QLabel *desc = new QLabel(tr("Toggle off the 'Disable Uploading' toggle to enable uploads."));
+    QLabel *desc = new QLabel(tr("Toggle off the 'Turn Off Data Uploads' toggle to re-enable uploads."));
     desc->setStyleSheet("font-size: 48px; font-weight: 400;");
     desc->setWordWrap(true);
     not_uploading_layout->addWidget(desc);
@@ -128,6 +128,5 @@ void WiFiPromptWidget::updateState(const UIState &s) {
   auto network_type = sm["deviceState"].getDeviceState().getNetworkType();
   auto uploading = network_type == cereal::DeviceState::NetworkType::WIFI ||
       network_type == cereal::DeviceState::NetworkType::ETHERNET;
-  bool uploading_disabled = params.getBool("DeviceManagement") && params.getBool("NoUploads");
-  stack->setCurrentIndex(uploading_disabled ? 2 : uploading ? 1 : 0);
+  stack->setCurrentIndex(s.scene.no_uploads ? 2 : uploading ? 1 : 0);
 }

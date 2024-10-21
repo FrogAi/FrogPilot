@@ -21,6 +21,8 @@ from openpilot.system.hardware.hw import Paths
 from openpilot.system.loggerd.xattr_cache import getxattr, setxattr
 from openpilot.common.swaglog import cloudlog
 
+from openpilot.selfdrive.frogpilot.frogpilot_variables import get_frogpilot_toggles
+
 NetworkType = log.DeviceState.NetworkType
 UPLOAD_ATTR_NAME = 'user.upload'
 UPLOAD_ATTR_VALUE = b'1'
@@ -242,16 +244,19 @@ def main(exit_event: threading.Event = None) -> None:
     cloudlog.info("uploader missing dongle_id")
     raise Exception("uploader can't start without dongle id")
 
-  sm = messaging.SubMaster(['deviceState'])
+  sm = messaging.SubMaster(['deviceState', 'frogpilotPlan'])
   uploader = Uploader(dongle_id, Paths.log_root())
 
   backoff = 0.1
+
+  # FrogPilot variables
+  frogpilot_toggles = get_frogpilot_toggles()
+
   while not exit_event.is_set():
     sm.update(0)
-    disable_onroad_uploads = params.get_bool("DeviceManagement") and params.get_bool("NoUploads") and params.get_bool("DisableOnroadUploads")
     offroad = params.get_bool("IsOffroad")
     network_type = sm['deviceState'].networkType if not force_wifi else NetworkType.wifi
-    at_home = not disable_onroad_uploads or offroad and network_type in (NetworkType.ethernet, NetworkType.wifi)
+    at_home = not frogpilot_toggles.no_onroad_uploads or offroad and network_type in {NetworkType.ethernet, NetworkType.wifi}
     if network_type == NetworkType.none or not at_home:
       if allow_sleep:
         time.sleep(60 if offroad else 5)
@@ -268,6 +273,9 @@ def main(exit_event: threading.Event = None) -> None:
     if allow_sleep:
       time.sleep(backoff + random.uniform(0, backoff))
 
+    # Update FrogPilot parameters
+    if sm['frogpilotPlan'].togglesUpdated:
+      frogpilot_toggles = get_frogpilot_toggles()
 
 if __name__ == "__main__":
   main()

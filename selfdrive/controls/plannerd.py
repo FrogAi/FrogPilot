@@ -6,7 +6,7 @@ from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.controls.lib.longitudinal_planner import LongitudinalPlanner
 import cereal.messaging as messaging
 
-from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
+from openpilot.selfdrive.frogpilot.frogpilot_variables import get_frogpilot_toggles
 
 def publish_ui_plan(sm, pm, longitudinal_planner):
   ui_send = messaging.new_message('uiPlan')
@@ -30,31 +30,26 @@ def plannerd_thread():
 
   longitudinal_planner = LongitudinalPlanner(CP)
   pm = messaging.PubMaster(['longitudinalPlan', 'uiPlan'])
-  sm = messaging.SubMaster(['carControl', 'carState', 'controlsState', 'radarState', 'modelV2', 'frogpilotCarControl', 'frogpilotCarState', 'frogpilotPlan'],
+  sm = messaging.SubMaster(['carControl', 'carState', 'controlsState', 'liveParameters', 'radarState', 'modelV2',
+                            'frogpilotCarState', 'frogpilotPlan'],
                            poll='modelV2', ignore_avg_freq=['radarState'])
 
   # FrogPilot variables
-  frogpilot_toggles = FrogPilotVariables.toggles
-  FrogPilotVariables.update_frogpilot_params()
+  frogpilot_toggles = get_frogpilot_toggles()
 
+  classic_model = frogpilot_toggles.classic_model
   radarless_model = frogpilot_toggles.radarless_model
-  secretgoodopenpilot_model = frogpilot_toggles.secretgoodopenpilot_model
-
-  update_toggles = False
 
   while True:
     sm.update()
     if sm.updated['modelV2']:
-      longitudinal_planner.update(radarless_model, secretgoodopenpilot_model, sm, frogpilot_toggles)
+      longitudinal_planner.update(classic_model, radarless_model, sm, frogpilot_toggles)
       longitudinal_planner.publish(sm, pm)
       publish_ui_plan(sm, pm, longitudinal_planner)
 
     # Update FrogPilot parameters
-    if FrogPilotVariables.toggles_updated:
-      update_toggles = True
-    elif update_toggles:
-      FrogPilotVariables.update_frogpilot_params()
-      update_toggles = False
+    if sm['frogpilotPlan'].togglesUpdated:
+      frogpilot_toggles = get_frogpilot_toggles()
 
 def main():
   plannerd_thread()

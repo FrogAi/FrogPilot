@@ -1,21 +1,21 @@
 #include "selfdrive/frogpilot/ui/qt/offroad/device_settings.h"
 
-FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent) {
+FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
   const std::vector<std::tuple<QString, QString, QString, QString>> deviceToggles {
     {"DeviceManagement", tr("Device Settings"), tr("Device behavior settings."), "../frogpilot/assets/toggle_icons/icon_device.png"},
-    {"DeviceShutdown", tr("Device Shutdown Timer"), tr("How long the device stays on after you stop driving."), ""},
-    {"OfflineMode", tr("Disable Internet Requirement"), tr("The device can work without an internet connection for as long as you need."), ""},
-    {"IncreaseThermalLimits", tr("Increase Thermal Safety Limit"), tr("The device can run at higher temperatures than recommended."), ""},
-    {"LowVoltageShutdown", tr("Low Battery Shutdown Threshold"), tr("Shut down the device when the car's battery gets too low to prevent damage to the 12V battery."), ""},
-    {"NoLogging", tr("Turn Off Data Tracking"), tr("Disable all tracking to improve privacy."), ""},
-    {"NoUploads", tr("Turn Off Data Uploads"), tr("Stop the device from sending any data to the servers."), ""},
+    {"DeviceShutdown", tr("Device Shutdown Timer"), tr("Controls how long the device stays on after you stop driving."), ""},
+    {"OfflineMode", tr("Disable Internet Requirement"), tr("Allows the device to work without an internet connection."), ""},
+    {"IncreaseThermalLimits", tr("Increase Thermal Safety Limit"), tr("Allows the device to run at higher temperatures than recommended."), ""},
+    {"LowVoltageShutdown", tr("Low Battery Shutdown Threshold"), tr("Manages the threshold for shutting down the device to protect the car's battery from excessive drain and potential damage."), ""},
+    {"NoLogging", tr("Turn Off Data Tracking"), tr("Disables all data tracking to improve privacy."), ""},
+    {"NoUploads", tr("Turn Off Data Uploads"), tr("Stops the device from sending any data to the servers."), ""},
 
     {"ScreenManagement", tr("Screen Settings"), tr("Screen behavior settings."), "../frogpilot/assets/toggle_icons/icon_light.png"},
-    {"ScreenBrightness", tr("Screen Brightness (Offroad)"), tr("The screen brightness when you're not driving."), ""},
-    {"ScreenBrightnessOnroad", tr("Screen Brightness (Onroad)"), tr("The screen brightness while you're driving."), ""},
-    {"ScreenRecorder", tr("Screen Recorder"), tr("Display a button in the onroad UI to record the screen."), ""},
-    {"ScreenTimeout", tr("Screen Timeout (Offroad)"), tr("How long it takes for the screen to turn off when you're not driving."), ""},
-    {"ScreenTimeoutOnroad", tr("Screen Timeout (Onroad)"), tr("How long it takes for the screen to turn off while you're driving."), ""}
+    {"ScreenBrightness", tr("Screen Brightness (Offroad)"), tr("Controls the screen brightness when you're not driving."), ""},
+    {"ScreenBrightnessOnroad", tr("Screen Brightness (Onroad)"), tr("Controls the screen brightness while you're driving."), ""},
+    {"ScreenRecorder", tr("Screen Recorder"), tr("Enables a button in the onroad UI to record the screen."), ""},
+    {"ScreenTimeout", tr("Screen Timeout (Offroad)"), tr("Controls how long it takes for the screen to turn off when you're not driving."), ""},
+    {"ScreenTimeoutOnroad", tr("Screen Timeout (Onroad)"), tr("Controls how long it takes for the screen to turn off while you're driving."), ""}
   };
 
   for (const auto &[param, title, desc, icon] : deviceToggles) {
@@ -24,7 +24,17 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
     if (param == "DeviceManagement") {
       FrogPilotParamManageControl *deviceManagementToggle = new FrogPilotParamManageControl(param, title, desc, icon);
       QObject::connect(deviceManagementToggle, &FrogPilotParamManageControl::manageButtonClicked, [this]() {
-        showToggles(deviceManagementKeys);
+        std::set<QString> modifiedDeviceManagementKeys = deviceManagementKeys;
+
+        if (customizationLevel != 2) {
+          modifiedDeviceManagementKeys.erase("IncreaseThermalLimits");
+          modifiedDeviceManagementKeys.erase("LowVoltageShutdown");
+          modifiedDeviceManagementKeys.erase("NoLogging");
+          modifiedDeviceManagementKeys.erase("NoUploads");
+          modifiedDeviceManagementKeys.erase("OfflineMode");
+        }
+
+        showToggles(modifiedDeviceManagementKeys);
       });
       deviceToggle = deviceManagementToggle;
     } else if (param == "DeviceShutdown") {
@@ -43,14 +53,16 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
     } else if (param == "ScreenManagement") {
       FrogPilotParamManageControl *screenToggle = new FrogPilotParamManageControl(param, title, desc, icon);
       QObject::connect(screenToggle, &FrogPilotParamManageControl::manageButtonClicked, [this]() {
-        showToggles(screenKeys);
+        std::set<QString> modifiedScreenKeys = screenKeys;
+
+        showToggles(modifiedScreenKeys);
       });
       deviceToggle = screenToggle;
     } else if (param == "ScreenBrightness" || param == "ScreenBrightnessOnroad") {
       std::map<int, QString> brightnessLabels;
       int minBrightness = (param == "ScreenBrightnessOnroad") ? 0 : 1;
-      for (int i = 1; i <= 101; ++i) {
-        brightnessLabels[i] = (i == 101) ? tr("Auto") : QString::number(i) + "%";
+      for (int i = 0; i <= 101; ++i) {
+        brightnessLabels[i] = i == 101 ? tr("Auto") : i == 0 ? tr("Screen Off") : QString::number(i) + "%";
       }
       deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, minBrightness, 101, QString(), brightnessLabels, 1, false, true);
     } else if (param == "ScreenTimeout" || param == "ScreenTimeoutOnroad") {
@@ -99,14 +111,14 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
   });
 
   FrogPilotParamValueControl *screenBrightnessToggle = static_cast<FrogPilotParamValueControl*>(toggles["ScreenBrightness"]);
-  QObject::connect(screenBrightnessToggle, &FrogPilotParamValueControl::valueChanged, [this](float value) {
+  QObject::connect(screenBrightnessToggle, &FrogPilotParamValueControl::valueChanged, [this](int value) {
     if (!started) {
       uiState()->scene.screen_brightness = value;
     }
   });
 
   FrogPilotParamValueControl *screenBrightnessOnroadToggle = static_cast<FrogPilotParamValueControl*>(toggles["ScreenBrightnessOnroad"]);
-  QObject::connect(screenBrightnessOnroadToggle, &FrogPilotParamValueControl::valueChanged, [this](float value) {
+  QObject::connect(screenBrightnessOnroadToggle, &FrogPilotParamValueControl::valueChanged, [this](int value) {
     if (started) {
       uiState()->scene.screen_brightness_onroad = value;
     }
@@ -114,11 +126,19 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
 
   QObject::connect(parent, &FrogPilotSettingsWindow::closeParentToggle, this, &FrogPilotDevicePanel::hideToggles);
   QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotDevicePanel::updateState);
+}
 
-  hideToggles();
+void FrogPilotDevicePanel::showEvent(QShowEvent *event) {
+  customizationLevel = parent->customizationLevel;
+
+  toggles["ScreenManagement"]->setVisible(customizationLevel == 2);
 }
 
 void FrogPilotDevicePanel::updateState(const UIState &s) {
+  if (!isVisible()) {
+    return;
+  }
+
   started = s.scene.started;
 }
 
@@ -141,6 +161,8 @@ void FrogPilotDevicePanel::hideToggles() {
                       screenKeys.find(key) != screenKeys.end();
     toggle->setVisible(!subToggles);
   }
+
+  toggles["ScreenManagement"]->setVisible(customizationLevel == 2);
 
   setUpdatesEnabled(true);
   update();

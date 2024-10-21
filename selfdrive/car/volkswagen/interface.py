@@ -20,7 +20,7 @@ class CarInterface(CarInterfaceBase):
       self.cp_ext = self.cp_cam
 
   @staticmethod
-  def _get_params(ret, candidate: CAR, fingerprint, car_fw, disable_openpilot_long, experimental_long, docs, params):
+  def _get_params(ret, candidate: CAR, fingerprint, car_fw, disable_openpilot_long, experimental_long, docs):
     ret.carName = "volkswagen"
     ret.radarUnavailable = True
 

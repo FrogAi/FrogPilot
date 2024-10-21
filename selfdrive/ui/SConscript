@@ -3,7 +3,7 @@ import json
 Import('qt_env', 'arch', 'common', 'messaging', 'visionipc', 'transformations')
 
 base_libs = [common, messaging, visionipc, transformations,
-             'm', 'OpenCL', 'ssl', 'crypto', 'pthread', 'OmxCore', 'avformat', 'avcodec', 'avutil', 'yuv'] + qt_env["LIBS"]
+             'm', 'OpenCL', 'ssl', 'crypto', 'pthread', 'avcodec', 'avformat', 'avutil', 'yuv', 'OmxCore'] + qt_env["LIBS"]
 
 if arch == 'larch64':
   base_libs.append('EGL')
@@ -42,16 +42,16 @@ qt_src = ["main.cc", "qt/sidebar.cc", "qt/body.cc",
           "qt/onroad/onroad_home.cc", "qt/onroad/annotated_camera.cc",
           "qt/onroad/buttons.cc", "qt/onroad/alerts.cc"]
 
-frogpilot_src = ["../frogpilot/navigation/ui/maps_settings.cc", "../frogpilot/navigation/ui/primeless_settings.cc",
-                 "../frogpilot/screenrecorder/omx_encoder.cc", "../frogpilot/screenrecorder/screenrecorder.cc",
-                 "../frogpilot/navigation/ui/navigation_functions.cc", "../frogpilot/ui/qt/widgets/drive_stats.cc",
-                 "../frogpilot/ui/qt/widgets/frogpilot_controls.cc", "../frogpilot/ui/qt/widgets/model_reviewer.cc",
-                 "../frogpilot/ui/qt/offroad/advanced_driving_settings.cc", "../frogpilot/ui/qt/offroad/advanced_visual_settings.cc",
-                 "../frogpilot/ui/qt/offroad/data_settings.cc", "../frogpilot/ui/qt/offroad/device_settings.cc",
-                 "../frogpilot/ui/qt/offroad/frogpilot_settings.cc", "../frogpilot/ui/qt/offroad/longitudinal_settings.cc",
-                 "../frogpilot/ui/qt/offroad/lateral_settings.cc", "../frogpilot/ui/qt/offroad/sounds_settings.cc",
+frogpilot_src = ["../frogpilot/navigation/ui/maps_settings.cc", "../frogpilot/navigation/ui/navigation_functions.cc",
+                 "../frogpilot/navigation/ui/primeless_settings.cc", "../frogpilot/screenrecorder/omx_encoder.cc",
+                 "../frogpilot/screenrecorder/screenrecorder.cc", "../frogpilot/ui/qt/offroad/data_settings.cc",
+                 "../frogpilot/ui/qt/offroad/device_settings.cc", "../frogpilot/ui/qt/offroad/frogpilot_settings.cc",
+                 "../frogpilot/ui/qt/offroad/lateral_settings.cc", "../frogpilot/ui/qt/offroad/longitudinal_settings.cc",
+                 "../frogpilot/ui/qt/offroad/model_settings.cc", "../frogpilot/ui/qt/offroad/sounds_settings.cc",
                  "../frogpilot/ui/qt/offroad/theme_settings.cc", "../frogpilot/ui/qt/offroad/utilities.cc",
-                 "../frogpilot/ui/qt/offroad/vehicle_settings.cc", "../frogpilot/ui/qt/offroad/visual_settings.cc"]
+                 "../frogpilot/ui/qt/offroad/vehicle_settings.cc", "../frogpilot/ui/qt/offroad/visual_settings.cc",
+                 "../frogpilot/ui/qt/widgets/drive_stats.cc", "../frogpilot/ui/qt/widgets/frogpilot_controls.cc",
+                 "../frogpilot/ui/qt/widgets/model_reviewer.cc"]
 
 qt_src += frogpilot_src
 

@@ -8,49 +8,50 @@ class FrogPilotSettingsWindow : public QFrame {
 public:
   explicit FrogPilotSettingsWindow(SettingsWindow *parent);
 
-  bool disableOpenpilotLongitudinal;
-  bool hasAutoTune;
-  bool hasBSM;
-  bool hasDashSpeedLimits;
-  bool hasExperimentalOpenpilotLongitudinal;
-  bool hasNNFFLog;
-  bool hasOpenpilotLongitudinal;
-  bool hasPCMCruise;
-  bool hasSNG;
-  bool isGM;
-  bool isGMPCMCruise;
-  bool isHKGCanFd;
-  bool isImpreza;
-  bool isPIDCar;
-  bool isSubaru;
-  bool isToyota;
-  bool isToyotaTuneSupported;
-  bool isVolt;
-  bool forcingAutoTune;
-  bool liveValid;
+  bool disableOpenpilotLongitudinal = false;
+  bool forcingAutoTune = false;
+  bool hasAutoTune = true;
+  bool hasBSM = true;
+  bool hasDashSpeedLimits = true;
+  bool hasExperimentalOpenpilotLongitudinal = false;
+  bool hasNNFFLog = true;
+  bool hasOpenpilotLongitudinal = true;
+  bool hasPCMCruise = true;
+  bool hasRadar = true;
+  bool hasSNG = false;
+  bool isBolt = false;
+  bool isGM = true;
+  bool isGMPCMCruise = false;
+  bool isHKGCanFd = true;
+  bool isImpreza = true;
+  bool isPIDCar = false;
+  bool isSubaru = true;
+  bool isToyota = true;
+  bool isVolt = true;
+  bool liveValid = false;
 
   float steerFrictionStock;
   float steerKPStock;
   float steerLatAccelStock;
   float steerRatioStock;
 
+  int customizationLevel;
+
 signals:
   void closeMapBoxInstructions();
   void closeMapSelection();
   void closeParentToggle();
   void closeSubParentToggle();
-  void closeSubSubParentToggle();
   void openMapBoxInstructions();
   void openMapSelection();
   void openPanel();
   void openParentToggle();
   void openSubParentToggle();
-  void openSubSubParentToggle();
   void updateCarToggles();
   void updateMetric();
 
 private:
-  void addPanelControl(FrogPilotListWidget *list, QString &title, QString &desc, std::vector<QString> &button_labels, QString &icon, std::vector<QWidget*> &panels, bool isDrivingPanel, bool isNavigationPanel);
+  void addPanelControl(FrogPilotListWidget *list, QString &title, QString &desc, std::vector<QString> &button_labels, QString &icon, std::vector<QWidget*> &panels, QString &currentPanel);
   void closePanel();
   void showEvent(QShowEvent *event) override;
   void updateCarVariables();
@@ -58,6 +59,7 @@ private:
 
   FrogPilotButtonsControl *drivingButton;
   FrogPilotButtonsControl *navigationButton;
+  FrogPilotButtonsControl *systemButton;
 
   Params params;
 

@@ -3,10 +3,11 @@ from enum import Enum, IntFlag
 
 from cereal import car
 from panda.python import uds
-from openpilot.common.params import Params
 from openpilot.selfdrive.car import CarSpecs, DbcDict, PlatformConfig, Platforms, dbc_dict
 from openpilot.selfdrive.car.docs_definitions import CarFootnote, CarHarness, CarDocs, CarParts, Tool, Column
 from openpilot.selfdrive.car.fw_query_definitions import FwQueryConfig, Request, StdQueries, p16
+
+from openpilot.selfdrive.frogpilot.frogpilot_variables import params
 
 Ecu = car.CarParams.Ecu
 
@@ -26,7 +27,7 @@ class CarControllerParams:
       self.STEER_DELTA_DOWN = 40
     elif CP.carFingerprint == CAR.SUBARU_IMPREZA_2020:
       self.STEER_MAX = 1439
-    elif CP.carFingerprint == CAR.SUBARU_IMPREZA and Params().get_bool("CrosstrekTorque"):
+    elif CP.carFingerprint == CAR.SUBARU_IMPREZA and params.get_bool("CrosstrekTorque"):
       self.STEER_MAX = 3071
     else:
       self.STEER_MAX = 2047

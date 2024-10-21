@@ -14,6 +14,7 @@ from openpilot.selfdrive.locationd.models.car_kf import CarKalman, ObservationKi
 from openpilot.selfdrive.locationd.models.constants import GENERATED_DIR
 from openpilot.common.swaglog import cloudlog
 
+from openpilot.selfdrive.frogpilot.frogpilot_variables import params_memory
 
 MAX_ANGLE_OFFSET_DELTA = 20 * DT_MDL  # Max 20 deg/s
 ROLL_MAX_DELTA = math.radians(20.0) * DT_MDL  # 20deg in 1 second is well within curvature limits
@@ -128,7 +129,6 @@ def main():
   sm = messaging.SubMaster(['liveLocationKalman', 'carState'], poll='liveLocationKalman')
 
   params_reader = Params()
-  params_memory = Params("/dev/shm/params")
   # wait for stats about the car to come in from controls
   cloudlog.info("paramsd is waiting for CarParams")
   with car.CarParams.from_bytes(params_reader.get("CarParams", block=True)) as msg:

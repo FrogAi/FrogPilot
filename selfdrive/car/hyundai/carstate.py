@@ -64,11 +64,9 @@ class CarState(CarStateBase):
       speed_limit_bus = cp if self.CP.flags & HyundaiFlags.CANFD_HDA2 else cp_cam
       return speed_limit_bus.vl["CLUSTER_SPEED_LIMIT"]["SPEED_LIMIT_1"]
     else:
-      if self.CP.flags & HyundaiFlags.LKAS12:
-        speed_limit = cp_cam.vl["LKAS12"]["CF_Lkas_TsrSpeed_Display_Clu"]
-      else:
-        speed_limit = cp.vl["Navi_HU"]["SpeedLim_Nav_Clu"]
-      return speed_limit if speed_limit not in (0, 255) else 0
+      speed_limit_nav = cp.vl["Navi_HU"]["SpeedLim_Nav_Clu"] if self.CP.flags & HyundaiFlags.NAV_MSG else 0
+      speed_limit_cam = cp_cam.vl["LKAS12"]["CF_Lkas_TsrSpeed_Display_Clu"] if self.CP.flags & HyundaiFlags.LKAS12 else 0
+      return speed_limit_cam if speed_limit_cam not in (0, 255) else speed_limit_nav
 
   def update(self, cp, cp_cam, frogpilot_toggles):
     if self.CP.carFingerprint in CANFD_CAR:

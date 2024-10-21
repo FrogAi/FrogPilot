@@ -46,9 +46,9 @@ class FrogPilotConfirmationDialog : public ConfirmationDialog {
 public:
   explicit FrogPilotConfirmationDialog(const QString &prompt_text, const QString &confirm_text,
                                        const QString &cancel_text, const bool rich, QWidget *parent);
-  static bool toggle(const QString &prompt_text, const QString &confirm_text, QWidget *parent);
-  static bool toggleAlert(const QString &prompt_text, const QString &button_text, QWidget *parent);
-  static bool yesorno(const QString &prompt_text, QWidget *parent);
+  static bool toggle(const QString &prompt_text, const QString &confirm_text, QWidget *parent, const bool isLong=false);
+  static bool toggleAlert(const QString &prompt_text, const QString &button_text, QWidget *parent, const bool isLong=false);
+  static bool yesorno(const QString &prompt_text, QWidget *parent, const bool isLong=false);
 };
 
 class FrogPilotListWidget : public QWidget {
@@ -197,7 +197,7 @@ public:
     for (int i = 0; i < buttons.size(); ++i) {
       QAbstractButton *button = buttons[i];
       if (button) {
-        button->setVisible(state);
+        button->setEnabled(state);
         button->setChecked(params.getBool(buttonParams[i].toStdString()));
       }
     }
@@ -280,6 +280,8 @@ class FrogPilotParamValueControl : public AbstractControl {
   Q_OBJECT
 
 public:
+  QLabel *valueLabel;
+
   FrogPilotParamValueControl(const QString &param, const QString &title, const QString &desc, const QString &icon,
                              const float minValue, const float maxValue, const QString &label = "", const std::map<int, QString> &valueLabels = {},
                              const float interval = 1.0f, const bool compactSize = false, const bool instantUpdate = false)
@@ -379,7 +381,7 @@ private:
   }
 
   void updateValueDisplay() {
-    int intValue = static_cast<int>(value);
+    int intValue = static_cast<int>(value / interval);
     if (valueLabels.count(intValue)) {
       valueLabel->setText(valueLabels.at(intValue));
     } else {
@@ -411,8 +413,6 @@ private:
 
   Params params;
 
-  QLabel *valueLabel;
-
   QPushButton decrementButton;
   QPushButton incrementButton;
 
@@ -442,12 +442,11 @@ public:
                                    const float minValue, const float maxValue, const QString &label = "", const std::map<int, QString> &valueLabels = {},
                                    const float interval = 1.0f,
                                    const std::vector<QString> &buttonParams = {}, const std::vector<QString> &buttonLabels = {},
-                                   const bool checkable = true, const int minimumButtonWidth = 225)
+                                   const bool leftButton = false, const bool checkable = true, const int minimumButtonWidth = 225)
     : FrogPilotParamValueControl(param, title, desc, icon, minValue, maxValue, label, valueLabels, interval, true),
       buttonParams(buttonParams),
       buttonGroup(new QButtonGroup(this)),
       checkable(checkable) {
-
     buttonGroup->setExclusive(false);
 
     for (int i = 0; i < buttonLabels.size(); ++i) {
@@ -456,7 +455,11 @@ public:
       button->setStyleSheet(buttonStyle);
       button->setMinimumWidth(minimumButtonWidth);
 
-      hlayout->addWidget(button);
+      if (leftButton) {
+        hlayout->insertWidget(hlayout->indexOf(valueLabel) - 1, button);
+      } else {
+        hlayout->addWidget(button);
+      }
       buttonGroup->addButton(button, i);
     }
 

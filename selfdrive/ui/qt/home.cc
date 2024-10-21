@@ -174,11 +174,14 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
     left_widget->addWidget(new QWidget);
 #endif
     left_widget->addWidget(new DriveStats);
-    left_widget->addWidget(new ModelReview);
-    left_widget->setStyleSheet("border-radius: 10px;");
 
+    ModelReview *modelReview = new ModelReview(this);
+    left_widget->addWidget(modelReview);
+
+    left_widget->setStyleSheet("border-radius: 10px;");
     left_widget->setCurrentIndex(1);
-    connect(uiState(), &UIState::driveRated, [=]() {
+
+    connect(modelReview, &ModelReview::driveRated, [=]() {
       left_widget->setCurrentIndex(1);
     });
     connect(uiState(), &UIState::reviewModel, [=]() {
@@ -249,10 +252,10 @@ void OffroadHome::hideEvent(QHideEvent *event) {
 }
 
 void OffroadHome::refresh() {
-  QString model = QString::fromStdString(params.get("ModelName"));
+  QString model = QString::fromStdString(params.get("ModelName")).remove(QRegularExpression("[🗺️👀📡]")).remove("(Default)").trimmed();
 
-  if (model.contains("(Default)")) {
-    model = model.remove("(Default)").trimmed();
+  if (params.getBool("CustomizationLevelConfirmed") && params.getInt("CustomizationLevel") != 2) {
+    model = QString::fromStdString(params.get("DefaultModelName")).trimmed();
   }
 
   if (uiState()->scene.model_randomizer) {

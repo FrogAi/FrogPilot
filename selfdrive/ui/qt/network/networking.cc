@@ -308,7 +308,9 @@ WifiUI::WifiUI(QWidget *parent, WifiManager* wifi) : QWidget(parent), wifi(wifi)
 }
 
 void WifiUI::updateState(const UIState &s) {
-  if (!isVisible() || s.sm->frame % UI_FREQ != 0) return;
+  if (!isVisible() || s.sm->frame % UI_FREQ != 0) {
+    return;
+  }
 
   refresh();
 }

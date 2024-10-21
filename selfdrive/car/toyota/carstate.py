@@ -24,21 +24,22 @@ TEMP_STEER_FAULTS = (0, 9, 11, 21, 25)
 # - prolonged high driver torque: 17 (permanent)
 PERM_STEER_FAULTS = (3, 17)
 
+
 # Traffic signals for Speed Limit Controller - Credit goes to the DragonPilot team!
 @staticmethod
 def calculate_speed_limit(cp_cam, frogpilot_toggles):
   signals = ["TSGN1", "SPDVAL1", "SPLSGN1", "TSGN2", "SPLSGN2", "TSGN3", "SPLSGN3", "TSGN4", "SPLSGN4"]
   traffic_signals = {signal: cp_cam.vl["RSA1"].get(signal, cp_cam.vl["RSA2"].get(signal)) for signal in signals}
 
-  tsgn1 = traffic_signals.get("TSGN1", None)
-  spdval1 = traffic_signals.get("SPDVAL1", None)
+  tsgn1 = traffic_signals.get("TSGN1")
+  spdval1 = traffic_signals.get("SPDVAL1")
 
   if tsgn1 == 1 and not frogpilot_toggles.force_mph_dashboard:
     return spdval1 * CV.KPH_TO_MS
   elif tsgn1 == 36 or frogpilot_toggles.force_mph_dashboard:
     return spdval1 * CV.MPH_TO_MS
-  else:
-    return 0
+  return 0
+
 
 class CarState(CarStateBase):
   def __init__(self, CP):
@@ -64,7 +65,6 @@ class CarState(CarStateBase):
     self.acc_type = 1
     self.lkas_hud = {}
     self.pcm_accel_net = 0.0
-    self.slope_angle = 0.0
 
     # FrogPilot variables
     self.latActive_previous = False
@@ -80,11 +80,8 @@ class CarState(CarStateBase):
     # Describes the acceleration request from the PCM if on flat ground, may be higher or lower if pitched
     # CLUTCH->ACCEL_NET is only accurate for gas, PCM_CRUISE->ACCEL_NET is only accurate for brake
     # These signals only have meaning when ACC is active
-    if self.CP.flags & ToyotaFlags.NEW_TOYOTA_TUNE or self.CP.flags & ToyotaFlags.RAISED_ACCEL_LIMIT:
-      if self.CP.flags & ToyotaFlags.RAISED_ACCEL_LIMIT:
-        self.pcm_accel_net = max(cp.vl["CLUTCH"]["ACCEL_NET"], 0.0)
-      else:
-        self.pcm_accel_net = max(cp.vl["PCM_CRUISE"]["ACCEL_NET"], 0.0)
+    if self.CP.flags & ToyotaFlags.RAISED_ACCEL_LIMIT:
+      self.pcm_accel_net = max(cp.vl["CLUTCH"]["ACCEL_NET"], 0.0)
 
       # Sometimes ACC_BRAKING can be 1 while showing we're applying gas already
       if cp.vl["PCM_CRUISE"]["ACC_BRAKING"]:
@@ -273,7 +270,6 @@ class CarState(CarStateBase):
       ("BODY_CONTROL_STATE", 3),
       ("BODY_CONTROL_STATE_2", 2),
       ("ESP_CONTROL", 3),
-      ("VSC1S07", 20),
       ("EPS_STATUS", 25),
       ("BRAKE_MODULE", 40),
       ("WHEEL_SPEEDS", 80),

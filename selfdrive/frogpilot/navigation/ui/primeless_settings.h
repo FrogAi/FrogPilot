@@ -9,6 +9,7 @@ public:
   explicit FrogPilotPrimelessPanel(FrogPilotSettingsWindow *parent);
 
 signals:
+  void closeMapBoxInstructions();
   void openMapBoxInstructions();
 
 private:

@@ -11,8 +11,6 @@ from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.controls.lib.vehicle_model import ACCELERATION_DUE_TO_GRAVITY
 from openpilot.selfdrive.locationd.helpers import PointBuckets, ParameterEstimator
 
-from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
-
 HISTORY = 5  # secs
 POINTS_PER_BUCKET = 1500
 MIN_POINTS_TOTAL = 4000
@@ -53,12 +51,6 @@ class TorqueBuckets(PointBuckets):
 
 class TorqueEstimator(ParameterEstimator):
   def __init__(self, CP, decimated=False):
-    # FrogPilot variables
-    frogpilot_toggles = FrogPilotVariables.toggles
-    FrogPilotVariables.update_frogpilot_params()
-
-    self.update_toggles = False
-
     self.hist_len = int(HISTORY / DT_MDL)
     self.lag = CP.steerActuatorDelay + .2   # from controlsd
     if decimated:
@@ -101,8 +93,7 @@ class TorqueEstimator(ParameterEstimator):
     # try to restore cached params
     params = Params()
     params_cache = params.get("CarParamsPrevRoute")
-    self.torque_key = frogpilot_toggles.part_model_param + "LiveTorqueParameters"
-    torque_cache = params.get(self.torque_key)
+    torque_cache = params.get("LiveTorqueParameters")
     if params_cache is not None and torque_cache is not None:
       try:
         with log.Event.from_bytes(torque_cache) as log_evt:
@@ -122,7 +113,7 @@ class TorqueEstimator(ParameterEstimator):
           cloudlog.info("restored torque params from cache")
       except Exception:
         cloudlog.exception("failed to restore cached torque params")
-        params.remove(self.torque_key)
+        params.remove("LiveTorqueParameters")
 
     self.filtered_params = {}
     for param in initial_params:
@@ -164,13 +155,6 @@ class TorqueEstimator(ParameterEstimator):
     for param, value in params.items():
       self.filtered_params[param].update(value)
       self.filtered_params[param].update_alpha(self.decay)
-
-    # Update FrogPilot parameters
-    if FrogPilotVariables.toggles_updated:
-      self.update_toggles = True
-    elif self.update_toggles:
-      FrogPilotVariables.update_frogpilot_params()
-      self.update_toggles = False
 
   def handle_log(self, t, which, msg):
     if which == "carControl":
@@ -242,13 +226,6 @@ def main(demo=False):
   with car.CarParams.from_bytes(params.get("CarParams", block=True)) as CP:
     estimator = TorqueEstimator(CP)
 
-  # FrogPilot variables
-  frogpilot_toggles = FrogPilotVariables.toggles
-  FrogPilotVariables.update_frogpilot_params()
-
-  torque_key = frogpilot_toggles.part_model_param + "LiveTorqueParameters"
-  torque_cache = params.get(torque_key)
-
   while True:
     sm.update()
     if sm.all_checks():
@@ -264,7 +241,7 @@ def main(demo=False):
     # Cache points every 60 seconds while onroad
     if sm.frame % 240 == 0:
       msg = estimator.get_msg(valid=sm.all_checks(), with_points=True)
-      params.put_nonblocking(torque_key, msg.to_bytes())
+      params.put_nonblocking("LiveTorqueParameters", msg.to_bytes())
 
 if __name__ == "__main__":
   import argparse

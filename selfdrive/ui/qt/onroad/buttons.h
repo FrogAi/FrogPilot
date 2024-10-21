@@ -14,7 +14,7 @@ class ExperimentalButton : public QPushButton {
 
 public:
   explicit ExperimentalButton(QWidget *parent = 0);
-  void updateState(const UIState &s, bool lead_info);
+  void updateState(const UIState &s, bool lead_metrics);
 
   // FrogPilot widgets
   ~ExperimentalButton();

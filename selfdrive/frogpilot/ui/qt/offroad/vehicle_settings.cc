@@ -110,11 +110,11 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
   addItem(selectModelButton);
   selectModelButton->setVisible(false);
 
-  ParamControl *forceFingerprint = new ParamControl("ForceFingerprint", tr("Disable Automatic Fingerprint Detection"), tr("Forces the selected fingerprint and prevents it from ever changing."), "");
+  forceFingerprint = new ParamControl("ForceFingerprint", tr("Disable Automatic Fingerprint Detection"), tr("Forces the selected fingerprint and prevents it from ever changing."), "");
   addItem(forceFingerprint);
 
   bool disableOpenpilotLongState = params.getBool("DisableOpenpilotLongitudinal");
-  disableOpenpilotLong = new ToggleControl(tr("Disable openpilot Longitudinal Control"), tr("Disable openpilot longitudinal control and use stock ACC instead."), "", disableOpenpilotLongState);
+  disableOpenpilotLong = new ToggleControl(tr("Disable openpilot Longitudinal Control"), tr("Disables openpilot longitudinal control and uses the car's stock ACC instead."), "", disableOpenpilotLongState);
   QObject::connect(disableOpenpilotLong, &ToggleControl::toggleFlipped, [this](bool state) {
     if (state) {
       if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely disable openpilot longitudinal control?"), this)) {
@@ -134,20 +134,19 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
   addItem(disableOpenpilotLong);
 
   std::vector<std::tuple<QString, QString, QString, QString>> vehicleToggles {
-    {"VoltSNG", tr("2017 Volt Stop and Go Hack"), tr("Force stop and go for the 2017 Chevy Volt."), ""},
-    {"ExperimentalGMTune", tr("Experimental GM Tune"), tr("FrogsGoMoo's experimental GM tune that is based on nothing but guesswork. Use at your own risk!"), ""},
-    {"LongPitch", tr("Uphill/Downhill Smoothing"), tr("Smoothen the car’s gas and brake response when driving on slopes."), ""},
-    {"NewLongAPIGM", tr("Use comma's New Longitudinal API"), tr("Comma's new longitudinal control system that has shown great improvement with acceleration and braking, but has a few issues on some GM vehicles."), ""},
+    {"VoltSNG", tr("2017 Volt Stop and Go Hack"), tr("Forces stop and go for the 2017 Chevy Volt."), ""},
+    {"ExperimentalGMTune", tr("Experimental GM Tune"), tr("Enables FrogsGoMoo's experimental GM tune that is based on nothing but guesswork. Use at your own risk!"), ""},
+    {"LongPitch", tr("Uphill/Downhill Smoothing"), tr("Smoothens the gas and brake response when driving on slopes."), ""},
+    {"NewLongAPIGM", tr("Use comma's New Longitudinal API"), tr("Enables comma's new control system that has shown great improvement with acceleration and braking, but has a few issues on some GM vehicles."), ""},
 
-    {"NewLongAPI", tr("Use comma's New Longitudinal API"), tr("Use comma's new longitudinal control system that has shown great improvement with acceleration and braking, but has a few issues on Hyundai/Kia/Genesis."), ""},
+    {"NewLongAPI", tr("Use comma's New Longitudinal API"), tr("Enables comma's new control system that has shown great improvement with acceleration and braking, but has a few issues on Hyundai/Kia/Genesis."), ""},
 
     {"CrosstrekTorque", tr("Subaru Crosstrek Torque Increase"), tr("Increases the maximum allowed torque for the Subaru Crosstrek."), ""},
 
-    {"ToyotaDoors", tr("Automatically Lock/Unlock Doors"), tr("Automatically lock the doors when in drive and unlock when in park."), ""},
-    {"ClusterOffset", tr("Cluster Speed Offset"), tr("Set the cluster offset openpilot uses to try and match the speed displayed on the dash."), ""},
-    {"NewToyotaTune", tr("comma's New Toyota/Lexus Tune"), tr("Activate comma's latest Toyota tuning, expertly crafted by Shane for enhanced vehicle performance."), ""},
-    {"FrogsGoMoosTweak", tr("FrogsGoMoo's Personal Tweaks"), tr("Use FrogsGoMoo's personal tweaks to the Toyota tune focused around his 2019 Lexus ES 350 to take off a bit quicker and stop a bit smoother."), ""},
-    {"SNGHack", tr("Stop and Go Hack"), tr("Force stop and go for vehicles without stock stop and go functionality."), ""},
+    {"ToyotaDoors", tr("Automatically Lock/Unlock Doors"), tr("Automatically locks the doors when in drive and unlocks when in park."), ""},
+    {"ClusterOffset", tr("Cluster Speed Offset"), tr("Sets the cluster offset openpilot uses to try and match the speed displayed on the dash."), ""},
+    {"FrogsGoMoosTweak", tr("FrogsGoMoo's Personal Tweaks"), tr("Enables FrogsGoMoo's personal tweaks to the Toyota tune focused around his 2019 Lexus ES 350 to take off a bit quicker and stop a bit smoother."), ""},
+    {"SNGHack", tr("Stop and Go Hack"), tr("Forces stop and go for vehicles without stock stop and go functionality."), ""},
   };
 
   for (const auto &[param, title, desc, icon] : vehicleToggles) {
@@ -158,8 +157,8 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
       std::vector<QString> lockToggleNames{tr("Lock"), tr("Unlock")};
       vehicleToggle = new FrogPilotButtonToggleControl(param, title, desc, lockToggles, lockToggleNames);
     } else if (param == "ClusterOffset") {
-      std::vector<QString> clusterOffsetToggleNames{"Reset"};
-      vehicleToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 1.000, 1.050, "x", std::map<int, QString>(), 0.001, {}, clusterOffsetToggleNames, false);
+      std::vector<QString> clusterOffsetButton{"Reset"};
+      vehicleToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 1.000, 1.050, "x", std::map<int, QString>(), 0.001, {}, clusterOffsetButton, false, false);
 
     } else {
       vehicleToggle = new ParamControl(param, title, desc, icon);
@@ -183,7 +182,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
     updateFrogPilotToggles();
   });
 
-  std::set<QString> rebootKeys = {"CrosstrekTorque", "ExperimentalGMTune", "FrogsGoMoosTweak", "NewLongAPI", "NewLongAPIGM", "NewToyotaTune"};
+  std::set<QString> rebootKeys = {"CrosstrekTorque", "ExperimentalGMTune", "FrogsGoMoosTweak", "NewLongAPI", "NewLongAPIGM"};
   for (const QString &key : rebootKeys) {
     QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, [this]() {
       if (started) {
@@ -216,21 +215,29 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
   QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotVehiclesPanel::updateState);
 }
 
+void FrogPilotVehiclesPanel::showEvent(QShowEvent *event) {
+  customizationLevel = parent->customizationLevel;
+
+  updateToggles();
+}
+
 void FrogPilotVehiclesPanel::updateCarToggles() {
   disableOpenpilotLongitudinal = parent->disableOpenpilotLongitudinal;
   hasExperimentalOpenpilotLongitudinal = parent->hasExperimentalOpenpilotLongitudinal;
   hasOpenpilotLongitudinal = parent->hasOpenpilotLongitudinal;
   hasSNG = parent->hasSNG;
+  isBolt = parent->isBolt;
   isGMPCMCruise = parent->isGMPCMCruise;
   isImpreza = parent->isImpreza;
-  isToyotaTuneSupported = parent->isToyotaTuneSupported;
   isVolt = parent->isVolt;
 
   updateToggles();
 }
 
 void FrogPilotVehiclesPanel::updateState(const UIState &s) {
-  if (!isVisible()) return;
+  if (!isVisible()) {
+    return;
+  }
 
   started = s.scene.started;
 }
@@ -243,7 +250,8 @@ void FrogPilotVehiclesPanel::setModels() {
 void FrogPilotVehiclesPanel::updateToggles() {
   setUpdatesEnabled(false);
 
-  disableOpenpilotLong->setVisible((hasOpenpilotLongitudinal && !hasExperimentalOpenpilotLongitudinal && !isGMPCMCruise) || disableOpenpilotLongitudinal);
+  disableOpenpilotLong->setVisible((hasOpenpilotLongitudinal && !hasExperimentalOpenpilotLongitudinal && !isGMPCMCruise && customizationLevel == 2) || disableOpenpilotLongitudinal);
+  forceFingerprint ->setVisible(customizationLevel == 2 || isBolt);
 
   selectMakeButton->setValue(carMake);
   selectModelButton->setValue(carModel);
@@ -282,8 +290,6 @@ void FrogPilotVehiclesPanel::updateToggles() {
     } else if (toyota && toyotaKeys.find(key) != toyotaKeys.end()) {
       if (sngKeys.find(key) != sngKeys.end()) {
         setVisible = !hasSNG && hasOpenpilotLongitudinal && !disableOpenpilotLongitudinal;
-      } else if (toyotaTuneKeys.find(key) != toyotaTuneKeys.end()) {
-        setVisible = hasOpenpilotLongitudinal && !isToyotaTuneSupported;
       } else if (longitudinalKeys.find(key) != longitudinalKeys.end()) {
         setVisible = hasOpenpilotLongitudinal && !disableOpenpilotLongitudinal;
       } else {
@@ -293,6 +299,13 @@ void FrogPilotVehiclesPanel::updateToggles() {
 
     toggle->setVisible(setVisible);
   }
+
+  toggles["ClusterOffset"]->setVisible(toggles["ClusterOffset"]->isVisible() && customizationLevel == 2);
+  toggles["CrosstrekTorque"]->setVisible(toggles["CrosstrekTorque"]->isVisible() && customizationLevel == 2);
+  toggles["ExperimentalGMTune"]->setVisible(toggles["ExperimentalGMTune"]->isVisible() && customizationLevel == 2);
+  toggles["FrogsGoMoosTweak"]->setVisible(toggles["FrogsGoMoosTweak"]->isVisible() && customizationLevel == 2);
+  toggles["LongPitch"]->setVisible(toggles["LongPitch"]->isVisible() && customizationLevel == 2);
+  toggles["NewLongAPI"]->setVisible(toggles["NewLongAPI"]->isVisible() && customizationLevel == 2);
 
   setUpdatesEnabled(true);
   update();

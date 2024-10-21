@@ -49,7 +49,7 @@ class DesireHelper:
     # FrogPilot variables
     self.lane_change_completed = False
 
-    self.lane_change_wait_timer = 0.0
+    self.lane_change_wait_timer = 0
 
     self.turn_direction = TurnDirection.none
 
@@ -68,7 +68,7 @@ class DesireHelper:
       self.lane_change_state = LaneChangeState.off
       self.lane_change_direction = LaneChangeDirection.none
       self.turn_direction = TurnDirection.none
-    elif one_blinker and below_lane_change_speed and not carstate.standstill and frogpilot_toggles.turn_desires:
+    elif one_blinker and below_lane_change_speed and not carstate.standstill and frogpilot_toggles.use_turn_desires:
       self.lane_change_state = LaneChangeState.off
       self.lane_change_direction = LaneChangeDirection.none
       self.turn_direction = TurnDirection.turnLeft if carstate.leftBlinker else TurnDirection.turnRight

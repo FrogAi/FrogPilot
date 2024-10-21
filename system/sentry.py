@@ -36,7 +36,7 @@ def capture_exception(*args, **kwargs) -> None:
   exc_text = traceback.format_exc()
 
   phrases_to_check = [
-    "To overwrite it, set 'overwrite' to True.",
+    "already exists. To overwrite it, set 'overwrite' to True",
   ]
 
   if any(phrase in exc_text for phrase in phrases_to_check):
@@ -87,7 +87,8 @@ def capture_fingerprint(candidate, params, blocked=False):
       matched_params[label] = {k: int(v) if isinstance(v, float) and v.is_integer() else v for k, v in sorted(key_values.items())}
 
   with sentry_sdk.configure_scope() as scope:
-    scope.fingerprint = [HARDWARE.get_serial()]
+    scope.fingerprint = [params.get("DongleId", encoding='utf-8')]
+
     for label, key_values in matched_params.items():
       scope.set_extra(label, "\n".join(f"{k}: {v}" for k, v in key_values.items()))
 
@@ -100,7 +101,7 @@ def capture_fingerprint(candidate, params, blocked=False):
   sentry_sdk.flush()
 
 
-def capture_tmux(process, params) -> None:
+def capture_tmux(process, started_time, params) -> None:
   updated = params.get("Updated", encoding='utf-8')
 
   result = subprocess.run(['tmux', 'capture-pane', '-p', '-S', '-50'], stdout=subprocess.PIPE)
@@ -109,7 +110,7 @@ def capture_tmux(process, params) -> None:
   if lines:
     with sentry_sdk.configure_scope() as scope:
       scope.set_extra("tmux_log", "\n".join(lines))
-      sentry_sdk.capture_message(f"{process} crashed - Last updated: {updated}", level='info')
+      sentry_sdk.capture_message(f"{process} crashed - Last updated: {updated} - Started time: {started_time}", level='info')
       sentry_sdk.flush()
 
 
@@ -158,6 +159,8 @@ def init(project: SentryProject) -> bool:
   else:
     env = short_branch
 
+  dongle_id = params.get("DongleId", encoding='utf-8')
+
   integrations = []
   if project == SentryProject.SELFDRIVE:
     integrations.append(ThreadingIntegration(propagate_hub=True))
@@ -170,7 +173,7 @@ def init(project: SentryProject) -> bool:
                   max_value_length=8192,
                   environment=env)
 
-  sentry_sdk.set_user({"id": HARDWARE.get_serial()})
+  sentry_sdk.set_user({"id": dongle_id})
   sentry_sdk.set_tag("origin", build_metadata.openpilot.git_origin)
   sentry_sdk.set_tag("branch", short_branch)
   sentry_sdk.set_tag("commit", build_metadata.openpilot.git_commit)

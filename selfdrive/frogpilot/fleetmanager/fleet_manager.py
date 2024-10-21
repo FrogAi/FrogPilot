@@ -35,7 +35,7 @@ from openpilot.common.realtime import set_core_affinity
 from openpilot.common.swaglog import cloudlog
 from openpilot.system.hardware.hw import Paths
 
-from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
+from openpilot.selfdrive.frogpilot.frogpilot_variables import has_prime
 
 app = Flask(__name__)
 
@@ -190,7 +190,7 @@ def addr_input():
       return redirect(url_for('nav_confirmation', addr=addr, lon=lon, lat=lat))
     else:
       return render_template("error.html")
-  elif FrogPilotVariables.has_prime:
+  elif has_prime():
     return render_template("prime.html")
   # amap stuff
   elif SearchInput == 1:

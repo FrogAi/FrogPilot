@@ -89,7 +89,7 @@ def long_control_state_trans_old_long(CP, active, long_control_state, v_ego, v_t
 class LongControl:
   def __init__(self, CP):
     self.CP = CP
-    self.long_control_state = LongCtrlState.off  # initialized to off
+    self.long_control_state = LongCtrlState.off
     self.pid = PIDController((CP.longitudinalTuning.kpBP, CP.longitudinalTuning.kpV),
                              (CP.longitudinalTuning.kiBP, CP.longitudinalTuning.kiV),
                              k_f=CP.longitudinalTuning.kf, rate=1 / DT_CTRL)
