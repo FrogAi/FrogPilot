@@ -52,8 +52,6 @@ class FrogPilotVCruise:
     elif self.override_force_stop_timer > 0:
       self.override_force_stop_timer -= DT_MDL
 
-    road_curvature = self.frogpilot_planner.road_curvature * frogpilot_toggles.curve_sensitivity
-
     v_cruise_cluster = max(controlsState.vCruiseCluster, v_cruise) * CV.KPH_TO_MS
     v_cruise_diff = v_cruise_cluster - v_cruise
 
@@ -65,7 +63,7 @@ class FrogPilotVCruise:
       mtsc_active = self.mtsc_target < v_cruise
       self.mtsc_target = clip(self.mtsc.target_speed(v_ego, carState.aEgo, frogpilot_toggles), CRUISING_SPEED, v_cruise)
 
-      curve_detected = (1 / road_curvature)**0.5 < v_ego
+      curve_detected = (1 / self.frogpilot_planner.road_curvature)**0.5 < v_ego
       if curve_detected and mtsc_active:
         self.mtsc_target = self.frogpilot_planner.v_cruise
       elif not curve_detected and frogpilot_toggles.mtsc_curvature_check:
@@ -135,7 +133,7 @@ class FrogPilotVCruise:
 
     # Pfeiferj's Vision Turn Controller
     if frogpilot_toggles.vision_turn_controller and v_ego > CRUISING_SPEED and controlsState.enabled:
-      self.vtsc_target = (TARGET_LAT_A * frogpilot_toggles.turn_aggressiveness / road_curvature)**0.5
+      self.vtsc_target = (TARGET_LAT_A * frogpilot_toggles.turn_aggressiveness / self.frogpilot_planner.road_curvature * frogpilot_toggles.curve_sensitivity)**0.5
       self.vtsc_target = clip(self.vtsc_target, CRUISING_SPEED, v_cruise)
     else:
       self.vtsc_target = v_cruise if v_cruise != V_CRUISE_UNSET else 0
