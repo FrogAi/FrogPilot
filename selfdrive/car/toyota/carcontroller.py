@@ -54,7 +54,7 @@ class CarController(CarControllerBase):
     self.distance_button = 0
 
     self.pcm_accel_compensation = 0.0
-    self.permit_braking = 0.0
+    self.permit_braking = True
 
     self.packer = CANPacker(dbc_name)
     self.accel = 0
@@ -141,10 +141,13 @@ class CarController(CarControllerBase):
       interceptor_gas_cmd = 0.
 
     # For cars where we allow a higher max acceleration of 2.0 m/s^2, compensate for PCM request overshoot and imprecise braking
-    # TODO: sometimes when switching from brake to gas quickly, CLUTCH->ACCEL_NET shows a slow unwind. make it go to 0 immediately
     if (self.CP.flags & ToyotaFlags.RAISED_ACCEL_LIMIT or self.CP.flags & ToyotaFlags.NEW_TOYOTA_TUNE) and CC.longActive and not CS.out.cruiseState.standstill:
       # calculate amount of acceleration PCM should apply to reach target, given pitch
-      accel_due_to_pitch = math.sin(CS.slope_angle) * ACCELERATION_DUE_TO_GRAVITY
+      if len(CC.orientationNED) == 3:
+        accel_due_to_pitch = math.sin(CC.orientationNED[1]) * ACCELERATION_DUE_TO_GRAVITY
+      else:
+        accel_due_to_pitch = 0.0
+
       net_acceleration_request = actuators.accel + accel_due_to_pitch
 
       # let PCM handle stopping for now
@@ -171,9 +174,9 @@ class CarController(CarControllerBase):
       self.permit_braking = True
 
     if frogpilot_toggles.sport_plus:
-      pcm_accel_cmd = clip(pcm_accel_cmd, self.params.ACCEL_MIN, min(frogpilot_toggles.max_desired_accel, get_max_allowed_accel(CS.out.vEgo)))
+      pcm_accel_cmd = clip(pcm_accel_cmd, self.params.ACCEL_MIN, min(frogpilot_toggles.max_desired_acceleration, get_max_allowed_accel(CS.out.vEgo)))
     else:
-      pcm_accel_cmd = clip(pcm_accel_cmd, self.params.ACCEL_MIN, min(frogpilot_toggles.max_desired_accel, self.params.ACCEL_MAX))
+      pcm_accel_cmd = clip(pcm_accel_cmd, self.params.ACCEL_MIN, min(frogpilot_toggles.max_desired_acceleration, self.params.ACCEL_MAX))
 
     # on entering standstill, send standstill request
     if CS.out.standstill and not self.last_standstill and (self.CP.carFingerprint not in NO_STOP_TIMER_CAR or self.CP.enableGasInterceptor):

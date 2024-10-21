@@ -214,7 +214,7 @@ ConfirmationDialog::ConfirmationDialog(const QString &prompt_text, const QString
     #confirm_btn:pressed { background-color: #3049F4; }
   )");
   QVBoxLayout *main_layout = new QVBoxLayout(container);
-  main_layout->setContentsMargins(32, rich ? 32 : 120, 32, 32);
+  main_layout->setContentsMargins(32, 32, 32, 32);
 
   QLabel *prompt = new QLabel(prompt_text, this);
   prompt->setWordWrap(true);

@@ -114,8 +114,8 @@ void Sidebar::mousePressEvent(QMouseEvent *event) {
     isCPU = (showChip == 1);
     isGPU = (showChip == 2);
 
-    scene.is_CPU = isCPU;
-    scene.is_GPU = isGPU;
+    scene.cpu_metrics = isCPU;
+    scene.gpu_metrics = isGPU;
 
     params.putBoolNonBlocking("ShowCPU", isCPU);
     params.putBoolNonBlocking("ShowGPU", isGPU);
@@ -129,9 +129,9 @@ void Sidebar::mousePressEvent(QMouseEvent *event) {
     isStorageLeft = (showMemory == 2);
     isStorageUsed = (showMemory == 3);
 
-    scene.is_memory = isMemoryUsage;
-    scene.is_storage_left = isStorageLeft;
-    scene.is_storage_used = isStorageUsed;
+    scene.memory_metrics = isMemoryUsage;
+    scene.storage_left_metrics = isStorageLeft;
+    scene.storage_used_metrics = isStorageUsed;
 
     params.putBoolNonBlocking("ShowMemoryUsage", isMemoryUsage);
     params.putBoolNonBlocking("ShowStorageLeft", isStorageLeft);
@@ -239,15 +239,15 @@ void Sidebar::updateState(const UIState &s) {
   // FrogPilot variables
   const UIScene &scene = s.scene;
 
-  isCPU = scene.is_CPU;
+  isCPU = scene.cpu_metrics;
   isFahrenheit = scene.fahrenheit;
-  isGPU = scene.is_GPU;
-  isIP = scene.is_IP;
-  isMemoryUsage = scene.is_memory;
+  isGPU = scene.gpu_metrics;
+  isIP = scene.ip_metrics;
+  isMemoryUsage = scene.memory_metrics;
   isNumericalTemp = scene.numerical_temp;
   isRandomEvents = scene.random_events;
-  isStorageLeft = scene.is_storage_left;
-  isStorageUsed = scene.is_storage_used;
+  isStorageLeft = scene.storage_left_metrics;
+  isStorageUsed = scene.storage_used_metrics;
   isSidebarMetrics = scene.sidebar_metrics;
 
   bool useStockColors = scene.use_stock_colors;

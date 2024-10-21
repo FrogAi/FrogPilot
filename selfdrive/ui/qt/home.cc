@@ -249,7 +249,10 @@ void OffroadHome::hideEvent(QHideEvent *event) {
 }
 
 void OffroadHome::refresh() {
-  QString model = QString::fromStdString(params.get("ModelName"));
+  QString model = QString::fromStdString(params.get("ModelName")).remove(QRegularExpression("[🗺️👀📡]")).trimmed();
+  if (params.getBool("CustomizationLevelConfirmed") && params.getInt("CustomizationLevel") != 2) {
+    model = QString::fromStdString(params.get("DefaultModelName"));
+  }
 
   if (model.contains("(Default)")) {
     model = model.remove("(Default)").trimmed();

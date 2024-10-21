@@ -137,14 +137,15 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     openpilotCrashedRandomEvent @137;
     pedalInterceptorNoBrake @138;
     speedLimitChanged @139;
-    torqueNNLoad @140;
-    trafficModeActive @141;
-    trafficModeInactive @142;
-    turningLeft @143;
-    turningRight @144;
-    vCruise69 @145;
-    yourFrogTriedToKillMe @146;
-    youveGotMail @147;
+    thisIsFineSteerSaturated @140;
+    torqueNNLoad @141;
+    trafficModeActive @142;
+    trafficModeInactive @143;
+    turningLeft @144;
+    turningRight @145;
+    vCruise69 @146;
+    yourFrogTriedToKillMe @147;
+    youveGotMail @148;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
@@ -453,7 +454,8 @@ struct CarControl {
       mail @16;
       nessie @17;
       noice @18;
-      uwu @19;
+      thisIsFine @19;
+      uwu @20;
     }
   }
 

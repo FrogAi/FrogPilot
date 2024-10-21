@@ -100,7 +100,7 @@ def capture_fingerprint(candidate, params, blocked=False):
   sentry_sdk.flush()
 
 
-def capture_tmux(process, params) -> None:
+def capture_tmux(process, started_time, params) -> None:
   updated = params.get("Updated", encoding='utf-8')
 
   result = subprocess.run(['tmux', 'capture-pane', '-p', '-S', '-50'], stdout=subprocess.PIPE)
@@ -109,7 +109,7 @@ def capture_tmux(process, params) -> None:
   if lines:
     with sentry_sdk.configure_scope() as scope:
       scope.set_extra("tmux_log", "\n".join(lines))
-      sentry_sdk.capture_message(f"{process} crashed - Last updated: {updated}", level='info')
+      sentry_sdk.capture_message(f"{process} crashed - Last updated: {updated} - Started time: {started_time}", level='info')
       sentry_sdk.flush()
 
 

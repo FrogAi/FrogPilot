@@ -16,7 +16,8 @@ from openpilot.selfdrive.car.car_helpers import get_car, get_one_can
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase
 from openpilot.selfdrive.controls.lib.events import Events
 
-from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
+from openpilot.selfdrive.frogpilot.frogpilot_utilities import update_frogpilot_toggles
+from openpilot.selfdrive.frogpilot.frogpilot_variables import get_frogpilot_toggles
 
 REPLAY = "REPLAY" in os.environ
 
@@ -28,7 +29,7 @@ class Car:
 
   def __init__(self, CI=None):
     self.can_sock = messaging.sub_sock('can', timeout=20)
-    self.sm = messaging.SubMaster(['pandaStates', 'carControl', 'onroadEvents'])
+    self.sm = messaging.SubMaster(['pandaStates', 'carControl', 'onroadEvents', 'frogpilotPlan'])
     self.pm = messaging.PubMaster(['sendcan', 'carState', 'carParams', 'carOutput', 'frogpilotCarState'])
 
     self.can_rcv_cum_timeout_counter = 0
@@ -74,10 +75,7 @@ class Car:
     self.rk = Ratekeeper(100, print_delay_threshold=None)
 
     # FrogPilot variables
-    self.frogpilot_toggles = FrogPilotVariables.toggles
-    FrogPilotVariables.update_frogpilot_params()
-
-    self.update_toggles = False
+    self.frogpilot_toggles = get_frogpilot_toggles(True)
 
     # set alternative experiences from parameters
     self.disengage_on_accelerator = self.params.get_bool("DisengageOnAccelerator")
@@ -96,6 +94,8 @@ class Car:
     self.params.put("CarParams", cp_bytes)
     self.params.put_nonblocking("CarParamsCache", cp_bytes)
     self.params.put_nonblocking("CarParamsPersistent", cp_bytes)
+
+    update_frogpilot_toggles()
 
   def state_update(self) -> car.CarState:
     """carState update loop, driven by can"""
@@ -199,11 +199,8 @@ class Car:
       self.rk.monitor_time()
 
       # Update FrogPilot parameters
-      if FrogPilotVariables.toggles_updated:
-        self.update_toggles = True
-      elif self.update_toggles:
-        FrogPilotVariables.update_frogpilot_params()
-        self.update_toggles = False
+      if self.sm['frogpilotPlan'].togglesUpdated:
+        self.frogpilot_toggles = get_frogpilot_toggles()
 
 def main():
   config_realtime_process(4, Priority.CTRL_HIGH)

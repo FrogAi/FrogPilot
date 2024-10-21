@@ -27,7 +27,7 @@ from openpilot.selfdrive.classic_modeld.models.commonmodel_pyx import ModelFrame
 
 from openpilot.selfdrive.frogpilot.assets.model_manager import DEFAULT_MODEL
 from openpilot.selfdrive.frogpilot.frogpilot_functions import MODELS_PATH
-from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
+from openpilot.selfdrive.frogpilot.frogpilot_variables import get_frogpilot_toggles
 
 PROCESS_NAME = "selfdrive.classic_modeld.modeld"
 SEND_RAW_PRED = os.getenv('SEND_RAW_PRED')
@@ -136,13 +136,10 @@ class ModelState:
 
 def main(demo=False):
   # FrogPilot variables
-  frogpilot_toggles = FrogPilotVariables.toggles
-  FrogPilotVariables.update_frogpilot_params()
+  frogpilot_toggles = get_frogpilot_toggles(True)
 
   enable_navigation = not frogpilot_toggles.navigationless_model
   radarless = frogpilot_toggles.radarless_model
-
-  update_toggles = False
 
   cloudlog.warning("classic_modeld init")
 
@@ -347,11 +344,8 @@ def main(demo=False):
     last_vipc_frame_id = meta_main.frame_id
 
     # Update FrogPilot parameters
-    if FrogPilotVariables.toggles_updated:
-      update_toggles = True
-    elif update_toggles:
-      FrogPilotVariables.update_frogpilot_params()
-      update_toggles = False
+    if sm['frogpilotPlan'].togglesUpdated:
+      frogpilot_toggles = get_frogpilot_toggles()
 
 if __name__ == "__main__":
   try:

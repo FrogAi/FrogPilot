@@ -83,9 +83,9 @@ class CarController(CarControllerBase):
     if self.frame % self.CCP.ACC_CONTROL_STEP == 0 and self.CP.openpilotLongitudinalControl:
       acc_control = self.CCS.acc_control_value(CS.out.cruiseState.available, CS.out.accFaulted, CC.longActive)
       if frogpilot_toggles.sport_plus:
-        accel = clip(actuators.accel, self.CCP.ACCEL_MIN, min(frogpilot_toggles.max_desired_accel, get_max_allowed_accel(CS.out.vEgo))) if CC.longActive else 0
+        accel = clip(actuators.accel, self.CCP.ACCEL_MIN, min(frogpilot_toggles.max_desired_acceleration, get_max_allowed_accel(CS.out.vEgo))) if CC.longActive else 0
       else:
-        accel = clip(actuators.accel, self.CCP.ACCEL_MIN, min(frogpilot_toggles.max_desired_accel, self.CCP.ACCEL_MAX)) if CC.longActive else 0
+        accel = clip(actuators.accel, self.CCP.ACCEL_MIN, min(frogpilot_toggles.max_desired_acceleration, self.CCP.ACCEL_MAX)) if CC.longActive else 0
       stopping = actuators.longControlState == LongCtrlState.stopping
       starting = actuators.longControlState == LongCtrlState.pid and (CS.esp_hold_confirmation or CS.out.vEgo < self.CP.vEgoStopping)
       can_sends.extend(self.CCS.create_acc_accel_control(self.packer_pt, CANBUS.pt, CS.acc_type, CC.longActive, accel,

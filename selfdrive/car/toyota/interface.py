@@ -156,9 +156,6 @@ class CarInterface(CarInterfaceBase):
       tune.kiV = [3.6, 2.4, 1.5]
 
     if params.get_bool("FrogsGoMoosTweak"):
-      if ret.flags & ToyotaFlags.NEW_TOYOTA_TUNE or ret.flags & ToyotaFlags.RAISED_ACCEL_LIMIT:
-        tune.kiV = [0.3]
-
       ret.stoppingDecelRate = 0.1  # reach stopping target smoothly
       ret.vEgoStopping = 0.15
       ret.vEgoStarting = 0.15

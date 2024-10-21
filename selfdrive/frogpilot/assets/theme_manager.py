@@ -1,4 +1,5 @@
 import glob
+import json
 import os
 import re
 import requests
@@ -11,11 +12,13 @@ from dateutil import easter
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.params import Params
 
-from openpilot.selfdrive.frogpilot.assets.download_functions import GITHUB_URL, GITLAB_URL, download_file, get_repository_url, handle_error, handle_request_error, link_valid, verify_download
-from openpilot.selfdrive.frogpilot.frogpilot_functions import ACTIVE_THEME_PATH, THEME_SAVE_PATH, update_frogpilot_toggles
+from openpilot.selfdrive.frogpilot.assets.download_functions import GITHUB_URL, GITLAB_URL, download_file, get_repository_url, handle_error, handle_request_error, verify_download
+from openpilot.selfdrive.frogpilot.frogpilot_functions import ACTIVE_THEME_PATH, THEME_SAVE_PATH
+from openpilot.selfdrive.frogpilot.frogpilot_utilities import update_frogpilot_toggles
 
 CANCEL_DOWNLOAD_PARAM = "CancelThemeDownload"
 DOWNLOAD_PROGRESS_PARAM = "ThemeDownloadProgress"
+
 
 def update_theme_asset(asset_type, theme, holiday_theme, params):
   save_location = os.path.join(ACTIVE_THEME_PATH, asset_type)
@@ -49,6 +52,7 @@ def update_theme_asset(asset_type, theme, holiday_theme, params):
   shutil.copytree(asset_location, save_location)
   print(f"Copied {asset_location} to {save_location}")
 
+
 def update_wheel_image(image, holiday_theme=None, random_event=True):
   wheel_save_location = os.path.join(ACTIVE_THEME_PATH, "steering_wheel")
 
@@ -74,6 +78,7 @@ def update_wheel_image(image, holiday_theme=None, random_event=True):
       print(f"Copied {source_file} to {destination_file}")
       break
 
+
 class ThemeManager:
   def __init__(self):
     self.params = Params()
@@ -90,8 +95,83 @@ class ThemeManager:
   @staticmethod
   def is_within_week_of(target_date, now):
     start_of_week = target_date - timedelta(days=target_date.weekday())
-    end_of_week = start_of_week + timedelta(days=6)
-    return start_of_week <= now <= end_of_week
+    return start_of_week <= now < target_date
+
+  @staticmethod
+  def fetch_files(url):
+    try:
+      response = requests.get(url, timeout=10)
+      response.raise_for_status()
+      return [name for name in re.findall(r'href="[^"]*\/blob\/[^"]*\/([^"]*)"', response.text) if name.lower() != "license"]
+    except Exception as error:
+      handle_request_error(error, None, None, None, None)
+      return []
+
+  @staticmethod
+  def fetch_assets(repo_url):
+    repo = "FrogAi/FrogPilot-Resources"
+    branches = ["Themes", "Distance-Icons", "Steering-Wheels"]
+
+    assets = {
+      "themes": {},
+      "distance_icons": [],
+      "wheels": []
+    }
+
+    if "github" in repo_url:
+      base_api_url = "https://api.github.com/repos"
+    elif "gitlab" in repo_url:
+      base_api_url = "https://gitlab.com/api/v4/projects"
+      repo = repo.replace("/", "%2F")
+    else:
+      print(f"Unsupported repository URL: {repo_url}")
+      return assets
+
+    for branch in branches:
+      if "github" in repo_url:
+        api_url = f"{base_api_url}/{repo}/git/trees/{branch}?recursive=1"
+      elif "gitlab" in repo_url:
+        api_url = f"{base_api_url}/{repo}/repository/tree?ref={branch}&recursive=true"
+
+      try:
+        print(f"Fetching assets from branch '{branch}': {api_url}")
+        response = requests.get(api_url, timeout=10)
+        response.raise_for_status()
+        content = response.json()
+
+        if "github" in repo_url:
+          items = content.get('tree', [])
+        elif "gitlab" in repo_url:
+          items = content
+
+        for item in items:
+          if item["type"] != "blob":
+            continue
+
+          item_path = item["path"].lower()
+          if branch == "Themes":
+            theme_name = item["path"].split('/')[0]
+            assets["themes"].setdefault(theme_name, set())
+            if "icons" in item_path:
+              assets["themes"][theme_name].add("icons")
+            elif "signals" in item_path:
+              assets["themes"][theme_name].add("signals")
+            elif "sounds" in item_path:
+              assets["themes"][theme_name].add("sounds")
+            else:
+              assets["themes"][theme_name].add("colors")
+
+          elif branch == "Distance-Icons":
+            assets["distance_icons"].append(item["path"])
+
+          elif branch == "Steering-Wheels":
+            assets["wheels"].append(item["path"])
+
+      except requests.exceptions.RequestException as error:
+        print(f"Error occurred when fetching from branch '{branch}': {error}")
+
+    assets["themes"] = {k: list(v) for k, v in assets["themes"].items()}
+    return assets
 
   def update_holiday(self):
     now = date.today()
@@ -150,6 +230,7 @@ class ThemeManager:
         "wheel_image": ("wheel_image", "stock")
       }
 
+    theme_changed = False
     for asset, (asset_type, current_value) in asset_mappings.items():
       if current_value != self.previous_assets.get(asset) or current_holiday_theme != self.previous_assets.get("holiday_theme"):
         print(f"Updating {asset}: {asset_type} with value {current_holiday_theme if current_holiday_theme else current_value}")
@@ -160,9 +241,13 @@ class ThemeManager:
           update_theme_asset(asset_type, current_value, current_holiday_theme, self.params)
 
         self.previous_assets[asset] = current_value
+        theme_changed = True
 
-    self.previous_assets["holiday_theme"] = current_holiday_theme
-    update_frogpilot_toggles()
+    if theme_changed:
+      if current_holiday_theme:
+        self.previous_assets["holiday_theme"] = current_holiday_theme
+      self.params_memory.put_bool("ThemeUpdated", True)
+      update_frogpilot_toggles()
 
   def extract_zip(self, zip_file, extract_path):
     print(f"Extracting {zip_file} to {extract_path}")
@@ -242,26 +327,6 @@ class ThemeManager:
 
     self.handle_verification_failure(extentions, theme_component, theme_name, theme_param, download_path)
 
-  @staticmethod
-  def fetch_files(url):
-    try:
-      response = requests.get(url, timeout=10)
-      response.raise_for_status()
-      return [name for name in re.findall(r'href="[^"]*\/blob\/[^"]*\/([^"]*)"', response.text) if name.lower() != "license"]
-    except Exception as error:
-      handle_request_error(error, None, None, None, None)
-      return []
-
-  @staticmethod
-  def fetch_folders(url):
-    try:
-      response = requests.get(url, timeout=10)
-      response.raise_for_status()
-      return re.findall(r'href="[^"]*\/tree\/[^"]*\/([^"]*)"', response.text)
-    except Exception as error:
-      handle_request_error(error, None, None, None, None)
-      return []
-
   def update_theme_params(self, downloadable_colors, downloadable_distance_icons, downloadable_icons, downloadable_signals, downloadable_sounds, downloadable_wheels):
     def filter_existing_assets(assets, subfolder):
       existing_themes = {
@@ -333,6 +398,7 @@ class ThemeManager:
 
   def update_themes(self, boot_run=False):
     if not os.path.exists(THEME_SAVE_PATH):
+      print(f"Theme save path does not exist: {THEME_SAVE_PATH}")
       return
 
     repo_url = get_repository_url()
@@ -343,34 +409,34 @@ class ThemeManager:
     if boot_run:
       self.validate_themes()
 
-    if repo_url == GITHUB_URL:
-      base_url = "https://github.com/FrogAi/FrogPilot-Resources/blob/Themes/"
-      distance_icons_files = self.fetch_files("https://github.com/FrogAi/FrogPilot-Resources/blob/Distance-Icons")
-      wheel_files = self.fetch_files("https://github.com/FrogAi/FrogPilot-Resources/blob/Steering-Wheels")
-    else:
-      base_url = "https://gitlab.com/FrogAi/FrogPilot-Resources/-/blob/Themes/"
-      distance_icons_files = self.fetch_files("https://github.com/FrogAi/FrogPilot-Resources/blob/Distance-Icons")
-      wheel_files = self.fetch_files("https://gitlab.com/FrogAi/FrogPilot-Resources/-/blob/Steering-Wheels")
+    assets = self.fetch_assets(repo_url)
 
-    theme_folders = self.fetch_folders(base_url)
     downloadable_colors = []
     downloadable_icons = []
     downloadable_signals = []
     downloadable_sounds = []
 
-    for theme in theme_folders:
+    for theme, available_assets in assets["themes"].items():
       theme_name = theme.replace('_', ' ').split('.')[0].title()
+      print(f"Checking theme: {theme_name}")
 
-      if link_valid(f"{base_url}{theme}/colors.zip"):
+      if "colors" in available_assets:
         downloadable_colors.append(theme_name)
-      if link_valid(f"{base_url}{theme}/icons.zip"):
+      if "icons" in available_assets:
         downloadable_icons.append(theme_name)
-      if link_valid(f"{base_url}{theme}/signals.zip"):
+      if "signals" in available_assets:
         downloadable_signals.append(theme_name)
-      if link_valid(f"{base_url}{theme}/sounds.zip"):
+      if "sounds" in available_assets:
         downloadable_sounds.append(theme_name)
 
-    downloadable_distance_icons = [distance_icons.replace('_', ' ').split('.')[0].title() for distance_icons in distance_icons_files]
-    downloadable_wheels = [wheel.replace('_', ' ').split('.')[0].title() for wheel in wheel_files]
+    downloadable_distance_icons = [distance_icon.replace('_', ' ').split('.')[0].title() for distance_icon in assets["distance_icons"]]
+    downloadable_wheels = [wheel.replace('_', ' ').split('.')[0].title() for wheel in assets["wheels"]]
+
+    print(f"Downloadable Colors: {downloadable_colors}")
+    print(f"Downloadable Icons: {downloadable_icons}")
+    print(f"Downloadable Signals: {downloadable_signals}")
+    print(f"Downloadable Sounds: {downloadable_sounds}")
+    print(f"Downloadable Distance Icons: {downloadable_distance_icons}")
+    print(f"Downloadable Wheels: {downloadable_wheels}")
 
     self.update_theme_params(downloadable_colors, downloadable_distance_icons, downloadable_icons, downloadable_signals, downloadable_sounds, downloadable_wheels)

@@ -11,12 +11,12 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent) : Fr
     {"WarningSoftVolume", tr("Warning Soft Volume"), tr("Related alerts:\n\nBRAKE!, Risk of Collision\nTAKE CONTROL IMMEDIATELY"), ""},
     {"WarningImmediateVolume", tr("Warning Immediate Volume"), tr("Related alerts:\n\nDISENGAGE IMMEDIATELY, Driver Distracted\nDISENGAGE IMMEDIATELY, Driver Unresponsive"), ""},
 
-    {"CustomAlerts", tr("Custom Alerts"), tr("Enable custom alerts for openpilot events."), "../frogpilot/assets/toggle_icons/icon_green_light.png"},
-    {"GoatScream", tr("Goat Scream Steering Saturated Alert"), tr("Enable the famed 'Goat Scream' that has brought both joy and anger to FrogPilot users all around the world!"), ""},
-    {"GreenLightAlert", tr("Green Light Alert"), tr("Get an alert when a traffic light changes from red to green."), ""},
-    {"LeadDepartingAlert", tr("Lead Departing Alert"), tr("Get an alert when the lead vehicle starts departing when at a standstill."), ""},
-    {"LoudBlindspotAlert", tr("Loud Blindspot Alert"), tr("Enable a louder alert for when a vehicle is detected in the blindspot when attempting to change lanes."), ""},
-    {"SpeedLimitChangedAlert", tr("Speed Limit Change Alert"), tr("Trigger an alert when the speed limit changes."), ""},
+    {"CustomAlerts", tr("Custom Alerts"), tr("Custom alerts for openpilot events."), "../frogpilot/assets/toggle_icons/icon_green_light.png"},
+    {"GoatScream", tr("Goat Scream Steering Saturated Alert"), tr("Enables the famed 'Goat Scream' that has brought both joy and anger to FrogPilot users all around the world!"), ""},
+    {"GreenLightAlert", tr("Green Light Alert"), tr("Plays an alert when a traffic light changes from red to green."), ""},
+    {"LeadDepartingAlert", tr("Lead Departing Alert"), tr("Plays an alert when the lead vehicle starts departing when at a standstill."), ""},
+    {"LoudBlindspotAlert", tr("Loud Blindspot Alert"), tr("Plays a louder alert for when a vehicle is detected in the blindspot when attempting to change lanes."), ""},
+    {"SpeedLimitChangedAlert", tr("Speed Limit Change Alert"), tr("Plays an alert when the speed limit changes."), ""},
   };
 
   for (const auto &[param, title, desc, icon] : soundsToggles) {
@@ -29,10 +29,14 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent) : Fr
       });
       soundsToggle = alertVolumeControlToggle;
     } else if (alertVolumeControlKeys.find(param) != alertVolumeControlKeys.end()) {
+      std::map<int, QString> volumeLabels;
+      for (int i = 0; i <= 101; ++i) {
+        volumeLabels[i] = i == 101 ? tr("Auto") : i == 0 ? tr("Muted") : QString::number(i) + "%";
+      }
       if (param == "WarningImmediateVolume") {
-        soundsToggle = new FrogPilotParamValueControl(param, title, desc, icon, 25, 100, "%");
+        soundsToggle = new FrogPilotParamValueControl(param, title, desc, icon, 25, 101, QString(), volumeLabels);
       } else {
-        soundsToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 100, "%");
+        soundsToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 101, QString(), volumeLabels);
       }
 
     } else if (param == "CustomAlerts") {
@@ -74,6 +78,12 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent) : Fr
   QObject::connect(parent, &FrogPilotSettingsWindow::updateCarToggles, this, &FrogPilotSoundsPanel::updateCarToggles);
 }
 
+void FrogPilotSoundsPanel::showEvent(QShowEvent *event) {
+  customizationLevel = parent->customizationLevel;
+
+  toggles["AlertVolumeControl"]->setVisible(customizationLevel == 2);
+}
+
 void FrogPilotSoundsPanel::updateCarToggles() {
   hasBSM = parent->hasBSM;
   hasOpenpilotLongitudinal = parent->hasOpenpilotLongitudinal;
@@ -100,6 +110,8 @@ void FrogPilotSoundsPanel::hideToggles() {
                       customAlertsKeys.find(key) != customAlertsKeys.end();
     toggle->setVisible(!subToggles);
   }
+
+  toggles["AlertVolumeControl"]->setVisible(customizationLevel == 2);
 
   setUpdatesEnabled(true);
   update();

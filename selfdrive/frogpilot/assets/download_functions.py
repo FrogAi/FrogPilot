@@ -1,7 +1,7 @@
 import os
 import requests
 
-from openpilot.selfdrive.frogpilot.frogpilot_functions import delete_file, is_url_pingable
+from openpilot.selfdrive.frogpilot.frogpilot_utilities import delete_file, is_url_pingable
 
 GITHUB_URL = "https://raw.githubusercontent.com/FrogAi/FrogPilot-Resources/"
 GITLAB_URL = "https://gitlab.com/FrogAi/FrogPilot-Resources/-/raw/"
@@ -44,10 +44,10 @@ def handle_error(destination, error_message, error, download_param, progress_par
 
 def handle_request_error(error, destination, download_param, progress_param, params_memory):
   error_map = {
-    requests.HTTPError: lambda e: f"Server error ({e.response.status_code})" if e.response else "Server error.",
     requests.ConnectionError: "Connection dropped.",
-    requests.Timeout: "Download timed out.",
-    requests.RequestException: "Network request error. Check connection."
+    requests.HTTPError: lambda e: f"Server error ({e.response.status_code})" if e.response else "Server error.",
+    requests.RequestException: "Network request error. Check connection.",
+    requests.Timeout: "Download timed out."
   }
 
   error_message = error_map.get(type(error), "Unexpected error.")
@@ -74,19 +74,6 @@ def get_repository_url():
   if is_url_pingable("https://gitlab.com"):
     return GITLAB_URL
   return None
-
-def link_valid(url):
-  try:
-    response = requests.head(url, allow_redirects=True, timeout=5)
-    response.raise_for_status()
-    return True
-  except requests.HTTPError as e:
-    if e.response.status_code != 404:
-      handle_request_error(e, None, None, None, None)
-    return False
-  except Exception as e:
-    handle_request_error(e, None, None, None, None)
-    return False
 
 def verify_download(file_path, url, initial_download=True):
   remote_file_size = get_remote_file_size(url)

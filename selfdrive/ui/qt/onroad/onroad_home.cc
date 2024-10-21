@@ -95,10 +95,10 @@ void OnroadWindow::updateState(const UIState &s) {
   liveValid = scene.live_valid;
   showBlindspot = scene.show_blind_spot && (blindSpotLeft || blindSpotRight);
   showFPS = scene.show_fps;
-  showJerk = scene.show_jerk;
-  showSignal = scene.show_signal && (turnSignalLeft || turnSignalRight);
-  showSteering = scene.show_steering;
-  showTuning = scene.show_tuning;
+  showJerk = scene.jerk_metrics;
+  showSignal = scene.signal_metrics && (turnSignalLeft || turnSignalRight);
+  showSteering = scene.steering_metrics;
+  showTuning = scene.lateral_tuning_metrics;
   speedJerk = scene.speed_jerk;
   speedJerkDifference = scene.speed_jerk_difference;
   steer = scene.steer;
@@ -127,9 +127,6 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   QRect leftRect(0, 0, size.width() / 2, size.height());
   QRect rightRect(size.width() / 2, 0, size.width() / 2, size.height());
 
-  QRect hideSpeedRect(rect().center().x() - 175, 50, 350, 350);
-  QRect speedLimitRect(7, 250, 225, 225);
-
   if (scene.speed_limit_changed && (leftRect.contains(pos) || rightRect.contains(pos))) {
     bool slcConfirmed = leftRect.contains(pos) ? !scene.right_hand_drive : scene.right_hand_drive;
     paramsMemory.putBoolNonBlocking("SLCConfirmed", slcConfirmed);
@@ -137,19 +134,7 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
     return;
   }
 
-  if (hideSpeedRect.contains(pos) && scene.hide_speed_ui) {
-    scene.hide_speed = !scene.hide_speed;
-    params.putBoolNonBlocking("HideSpeed", scene.hide_speed);
-    return;
-  }
-
-  if (speedLimitRect.contains(pos) && scene.show_slc_offset_ui) {
-    scene.show_slc_offset = !scene.show_slc_offset;
-    params.putBoolNonBlocking("ShowSLCOffset", scene.show_slc_offset);
-    return;
-  }
-
-  if (scene.experimental_mode_via_screen && pos != timeoutPoint) {
+  if (scene.experimental_mode_via_tap && pos != timeoutPoint) {
     if (clickTimer.isActive()) {
       clickTimer.stop();
 
@@ -427,9 +412,8 @@ void OnroadWindow::paintEvent(QPaintEvent *event) {
       avgFPS = totalFPS / fpsQueue.size();
     }
 
-    QString fpsDisplayString = QString("FPS: %1 (%2) | Min: %3 | Max: %4 | Avg: %5")
+    QString fpsDisplayString = QString("FPS: %1 | Min: %3 | Max: %4 | Avg: %5")
         .arg(qRound(fps))
-        .arg(paramsMemory.getInt("CameraFPS"))
         .arg(qRound(minFPS))
         .arg(qRound(maxFPS))
         .arg(qRound(avgFPS));
