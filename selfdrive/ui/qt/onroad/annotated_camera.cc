@@ -398,15 +398,12 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s, f
 
   if (scene.show_stopping_point && scene.red_light && speed > 1 && !(conditionalStatus == 1 || conditionalStatus == 3 || conditionalStatus == 5)) {
     QPointF last_point = scene.track_vertices.last();
-
     QPointF adjusted_point = last_point - QPointF(stopSignImg.width() / 2, stopSignImg.height());
     painter.drawPixmap(adjusted_point, stopSignImg);
 
     if (scene.show_stopping_point_metrics) {
       QString text = QString::number(modelLength * distanceConversion) + leadDistanceUnit;
-      QFont font = InterFont(35, QFont::DemiBold);
-      QFontMetrics fm(font);
-      int text_width = fm.horizontalAdvance(text);
+      int text_width = QFontMetrics(InterFont(35, QFont::DemiBold)).horizontalAdvance(text);
       QPointF text_position = last_point - QPointF(text_width / 2, stopSignImg.height() + 35);
 
       painter.save();
@@ -436,62 +433,67 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s, f
 
   // Paint adjacent lane paths
   if ((scene.adjacent_path || scene.adjacent_path_metrics) && v_ego > scene.minimum_lane_change_speed) {
-    const float minLaneWidth = laneDetectionWidth * 0.5f;
-    const float maxLaneWidth = laneDetectionWidth * 1.5f;
+    QLinearGradient ap(0, height(), 0, 0);
 
-    auto paintLane = [&](const QPolygonF &lane, float laneWidth, bool blindspot) {
-      QLinearGradient gradient(0, height(), 0, 0);
+    float minLaneWidth = laneDetectionWidth * 0.5f;
+    float maxLaneWidth = laneDetectionWidth * 1.5f;
 
-      bool redPath = laneWidth < minLaneWidth || laneWidth > maxLaneWidth || blindspot;
-      float hue = redPath ? 0.0f : 120.0f * (laneWidth - minLaneWidth) / (maxLaneWidth - minLaneWidth);
-      float hueF = hue / 360.0f;
+    void setGradientColors(float hue) {
+      ap.setColorAt(0.0, QColor::fromHslF(hue / 360.0, 0.75, 0.50, 0.6));
+      ap.setColorAt(0.5, QColor::fromHslF(hue / 360.0, 0.75, 0.50, 0.4));
+      ap.setColorAt(1.0, QColor::fromHslF(hue / 360.0, 0.75, 0.50, 0.2));
+    }
 
-      gradient.setColorAt(0.0, QColor::fromHslF(hueF, 0.75f, 0.50f, 0.6f));
-      gradient.setColorAt(0.5, QColor::fromHslF(hueF, 0.75f, 0.50f, 0.4f));
-      gradient.setColorAt(1.0, QColor::fromHslF(hueF, 0.75f, 0.50f, 0.2f));
+    void drawAdjacentLane(int vertexIndex, float laneWidth, bool isBlindSpot) {
+      if (isBlindSpot || minLaneWidth > laneWidth || laneWidth > maxLaneWidth) {
+        setGradientColors(0.0);
+      } else {
+        float hue = 120.0 * (laneWidth - minLaneWidth) / (maxLaneWidth - minLaneWidth);
+        setGradientColors(hue);
+      }
 
-      painter.setBrush(gradient);
-      painter.drawPolygon(lane);
+      painter.setBrush(ap);
+      painter.drawPolygon(scene.track_adjacent_vertices[vertexIndex]);
 
       if (scene.adjacent_path_metrics) {
         painter.setFont(InterFont(30, QFont::DemiBold));
         painter.setPen(Qt::white);
 
-        QRectF boundingRect = lane.boundingRect();
-        QString text = blindspot ? tr("Vehicle in blind spot") : QString::number(laneWidth * distanceConversion, 'f', 2) + leadDistanceUnit;
-        painter.drawText(boundingRect, Qt::AlignCenter, text);
+        QString text = isBlindSpot ? tr("Vehicle in blind spot") : QString::number(laneWidth * distanceConversion, 'f', 2) + leadDistanceUnit;
 
+        painter.drawText(lane.boundingRect(), Qt::AlignCenter, text);
         painter.setPen(Qt::NoPen);
       }
-    };
+    }
 
-    paintLane(scene.track_adjacent_vertices[4], scene.lane_width_left, blindSpotLeft);
-    paintLane(scene.track_adjacent_vertices[5], scene.lane_width_right, blindSpotRight);
+    drawAdjacentLane(4, scene.lane_width_left, blindSpotLeft);
+    drawAdjacentLane(5, scene.lane_width_right, blindSpotRight);
   }
 
   // Paint path edges
   QLinearGradient pe(0, height(), 0, 0);
-  auto setGradientColors = [&](const QColor &baseColor) {
-    pe.setColorAt(0.0, baseColor);
+
+  void setGradientColors(QLinearGradient &gradient, const QColor &baseColor) {
+    gradient.setColorAt(0.0, baseColor);
     QColor color = baseColor;
     color.setAlphaF(0.5);
-    pe.setColorAt(0.5, color);
+    gradient.setColorAt(0.5, color);
     color.setAlphaF(0.1);
-    pe.setColorAt(1.0, color);
-  };
+    gradient.setColorAt(1.0, color);
+  }
 
   if (alwaysOnLateralActive) {
-    setGradientColors(bg_colors[STATUS_ALWAYS_ON_LATERAL_ACTIVE]);
+    setGradientColors(pe, bg_colors[STATUS_ALWAYS_ON_LATERAL_ACTIVE]);
   } else if (conditionalStatus == 1 || conditionalStatus == 3 || conditionalStatus == 5) {
-    setGradientColors(bg_colors[STATUS_CONDITIONAL_OVERRIDDEN]);
+    setGradientColors(pe, bg_colors[STATUS_CONDITIONAL_OVERRIDDEN]);
   } else if (experimentalMode) {
-    setGradientColors(bg_colors[STATUS_EXPERIMENTAL_MODE_ACTIVE]);
+    setGradientColors(pe, bg_colors[STATUS_EXPERIMENTAL_MODE_ACTIVE]);
   } else if (trafficModeActive) {
-    setGradientColors(bg_colors[STATUS_TRAFFIC_MODE_ACTIVE]);
+    setGradientColors(pe, bg_colors[STATUS_TRAFFIC_MODE_ACTIVE]);
   } else if (scene.navigate_on_openpilot) {
-    setGradientColors(bg_colors[STATUS_NAVIGATION_ACTIVE]);
+    setGradientColors(pe, bg_colors[STATUS_NAVIGATION_ACTIVE]);
   } else if (!useStockColors) {
-    setGradientColors(scene.path_edges_color);
+    setGradientColors(pe, scene.path_edges_color);
   } else {
     pe.setColorAt(0.0, QColor::fromHslF(148 / 360., 0.94, 0.51, 1.0));
     pe.setColorAt(0.5, QColor::fromHslF(112 / 360., 1.00, 0.68, 0.5));
