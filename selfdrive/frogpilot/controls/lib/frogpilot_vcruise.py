@@ -37,7 +37,7 @@ class FrogPilotVCruise:
 
   def update(self, carState, controlsState, frogpilotCarControl, frogpilotCarState, frogpilotNavigation, modelData, v_cruise, v_ego, frogpilot_toggles):
     force_stop_enabled = frogpilot_toggles.force_stops and self.frogpilot_planner.cem.stop_light_detected and controlsState.enabled
-    force_stop_enabled &= self.frogpilot_planner.model_length < 100
+    force_stop_enabled &= self.frogpilot_planner.model_length < 150
     force_stop_enabled &= self.override_force_stop_timer <= 0
 
     self.force_stop_timer = self.force_stop_timer + DT_MDL if force_stop_enabled else 0
