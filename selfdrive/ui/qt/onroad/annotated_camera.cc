@@ -699,7 +699,7 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
       auto lead_right = radar_state.getLeadRight();
       auto lead_left_far = radar_state.getLeadLeftFar();
       auto lead_right_far = radar_state.getLeadRightFar();
-      if (lead_one.getStatus()) {
+      if (lead_one.getStatus() && !lead_two.getStatus()) {
         drawLead(painter, lead_one, s->scene.lead_vertices[0], v_ego, s->scene.lead_marker_color);
       }
       if (lead_two.getStatus()) {
