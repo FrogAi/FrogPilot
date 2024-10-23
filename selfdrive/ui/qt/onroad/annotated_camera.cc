@@ -554,7 +554,7 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
   painter.restore();
 }
 
-void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::RadarState::LeadData::Reader &lead_data, const QPointF &vd, float v_ego, const QColor &lead_marker_color, bool adjacent) {
+void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::RadarState::LeadData::Reader &lead_data, const QPointF &vd, float v_ego, const QColor &lead_marker_color, bool adjacent, int lead_distance) {
   painter.save();
 
   const float speedBuff = useStockColors || adjacent ? 10. : 25.;  // Make the center of the chevron appear sooner if a theme is active
@@ -598,7 +598,7 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::RadarState
     painter.setFont(InterFont(35, QFont::Bold));
 
     QString text;
-    if (adjacent) {
+    if (adjacent && fabs(d_rel - lead_distance) > 10) {
       text = QString("%1 %2 | %3 %4")
               .arg(qRound(d_rel * distanceConversion))
               .arg(leadDistanceUnit)
@@ -706,16 +706,16 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
         drawLead(painter, lead_two, s->scene.lead_vertices[1], v_ego, s->scene.lead_marker_color);
       }
       if (lead_left.getStatus()) {
-        drawLead(painter, lead_left, s->scene.lead_vertices[2], v_ego, blueColor(), true);
+        drawLead(painter, lead_left, s->scene.lead_vertices[2], v_ego, blueColor(), true, lead_one.getDRel());
       }
       if (lead_right.getStatus()) {
-        drawLead(painter, lead_right, s->scene.lead_vertices[3], v_ego, redColor(), true);
+        drawLead(painter, lead_right, s->scene.lead_vertices[3], v_ego, redColor(), true, lead_one.getDRel());
       }
       if (lead_left_far.getStatus()) {
-        drawLead(painter, lead_left_far, s->scene.lead_vertices[4], v_ego, greenColor(), true);
+        drawLead(painter, lead_left_far, s->scene.lead_vertices[4], v_ego, greenColor(), true, lead_one.getDRel());
       }
       if (lead_right_far.getStatus()) {
-        drawLead(painter, lead_right_far, s->scene.lead_vertices[5], v_ego, whiteColor(), true);
+        drawLead(painter, lead_right_far, s->scene.lead_vertices[5], v_ego, whiteColor(), true, lead_one.getDRel());
       }
     }
   }
