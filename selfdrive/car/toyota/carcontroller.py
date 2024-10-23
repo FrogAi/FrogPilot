@@ -9,6 +9,7 @@ from openpilot.selfdrive.car.toyota import toyotacan
 from openpilot.selfdrive.car.toyota.values import CAR, STATIC_DSU_MSGS, NO_STOP_TIMER_CAR, TSS2_CAR, \
                                         MIN_ACC_SPEED, PEDAL_TRANSITION, CarControllerParams, ToyotaFlags, \
                                         UNSUPPORTED_DSU_CAR, STOP_AND_GO_CAR
+from openpilot.selfdrive.controls.lib.drive_helpers import CRUISE_LONG_PRESS
 from opendbc.can.packer import CANPacker
 
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_acceleration import get_max_allowed_accel
@@ -63,6 +64,9 @@ class CarController(CarControllerBase):
     params = Params()
 
     self.doors_locked = False
+    self.reverse_cruise_active = False
+
+    self.cruise_timer = 0
 
   def update(self, CC, CS, now_nanos, frogpilot_toggles):
     actuators = CC.actuators
@@ -211,10 +215,10 @@ class CarController(CarControllerBase):
         pcm_accel_cmd = min(pcm_accel_cmd, self.accel + ACCEL_WINDUP_LIMIT) if CC.longActive else 0.0
 
         can_sends.append(toyotacan.create_accel_command(self.packer, pcm_accel_cmd, pcm_cancel_cmd, self.permit_braking, self.standstill_req, lead,
-                                                        CS.acc_type, fcw_alert, self.distance_button, frogpilot_toggles))
+                                                        CS.acc_type, fcw_alert, self.distance_button, frogpilot_toggles, self.reverse_cruise_active))
         self.accel = pcm_accel_cmd
       else:
-        can_sends.append(toyotacan.create_accel_command(self.packer, 0, pcm_cancel_cmd, True, False, lead, CS.acc_type, False, self.distance_button, frogpilot_toggles))
+        can_sends.append(toyotacan.create_accel_command(self.packer, 0, pcm_cancel_cmd, True, False, lead, CS.acc_type, False, self.distance_button, frogpilot_toggles, self.reverse_cruise_active))
 
     if self.frame % 2 == 0 and self.CP.enableGasInterceptor and self.CP.openpilotLongitudinalControl:
       # send exactly zero if gas cmd is zero. Interceptor will send the max between read value and gas cmd.
@@ -258,6 +262,12 @@ class CarController(CarControllerBase):
     new_actuators.steeringAngleDeg = self.last_angle
     new_actuators.accel = self.accel
 
+    # FrogPilot Toyota carcontroller functions
+    if CS.cruise_decreased or CS.cruise_increased:
+      self.cruise_timer = CRUISE_LONG_PRESS
+    elif self.cruise_timer > 0:
+      self.cruise_timer -= 1
+
     # Lock doors when in drive / unlock doors when in park
     if not self.doors_locked and CS.out.gearShifter != PARK:
       if frogpilot_toggles.lock_doors:
@@ -267,6 +277,9 @@ class CarController(CarControllerBase):
       if frogpilot_toggles.unlock_doors:
         can_sends.append(make_can_msg(0x750, UNLOCK_CMD, 0))
       self.doors_locked = False
+
+    self.reverse_cruise_active = frogpilot_toggles.reverse_cruise_increase
+    self.reverse_cruise_active &= self.cruise_timer <= 0
 
     self.frame += 1
     return new_actuators, can_sends
