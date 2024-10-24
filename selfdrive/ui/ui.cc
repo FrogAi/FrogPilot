@@ -324,9 +324,6 @@ static void update_state(UIState *s) {
     scene.unconfirmed_speed_limit = frogpilotPlan.getUnconfirmedSlcSpeedLimit();
     scene.vtsc_controlling_curve = frogpilotPlan.getVtscControllingCurve();
   }
-  if (sm.updated("frogpilotToggles")) {
-    ui_update_params(uiState());
-  }
   if (sm.updated("liveLocationKalman")) {
     auto liveLocationKalman = sm["liveLocationKalman"].getLiveLocationKalman();
     auto orientation = liveLocationKalman.getCalibratedOrientationNED();
@@ -545,7 +542,7 @@ UIState::UIState(QObject *parent) : QObject(parent) {
     "pandaStates", "carParams", "driverMonitoringState", "carState", "liveLocationKalman", "driverStateV2",
     "wideRoadCameraState", "managerState", "navInstruction", "navRoute", "uiPlan", "clocks",
     "carControl", "liveTorqueParameters", "frogpilotCarControl", "frogpilotCarState", "frogpilotDeviceState",
-    "frogpilotPlan", "frogpilotToggles"
+    "frogpilotPlan",
   });
 
   Params params;
@@ -576,7 +573,16 @@ void UIState::update() {
   }
   emit uiUpdate(*this);
 
-  // Update FrogPilot variables
+  // Update FrogPilot parameters
+  static bool update_toggles = false;
+
+  if (paramsMemory.getBool("FrogPilotTogglesUpdated")) {
+    update_toggles = true;
+  } else if (update_toggles) {
+    ui_update_params(this);
+    update_toggles = false;
+  }
+
   if (paramsMemory.getBool("DriveRated")) {
     emit driveRated();
     paramsMemory.remove("DriveRated");

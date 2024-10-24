@@ -337,7 +337,6 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"FrogPilotDrives", PERSISTENT | FROGPILOT_TRACKING},
     {"FrogPilotKilometers", PERSISTENT | FROGPILOT_TRACKING},
     {"FrogPilotMinutes", PERSISTENT | FROGPILOT_TRACKING},
-    {"FrogPilotToggles", PERSISTENT},
     {"FrogPilotTogglesUpdated", PERSISTENT},
     {"FrogsGoMoo", PERSISTENT},
     {"FrogsGoMoosTweak", PERSISTENT | FROGPILOT_STORAGE | FROGPILOT_VEHICLES},

@@ -1,10 +1,7 @@
 #!/usr/bin/env python3
 import importlib
-import json
 import math
-import pickle
 from collections import deque
-from types import SimpleNamespace
 from typing import Any
 
 import capnp
@@ -15,6 +12,8 @@ from openpilot.common.realtime import DT_CTRL, Ratekeeper, Priority, config_real
 from openpilot.common.swaglog import cloudlog
 
 from openpilot.common.simple_kalman import KF1D
+
+from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
 
 # Default lead acceleration decay set to 50% at 1s
 _LEAD_ACCEL_TAU = 1.5
@@ -219,7 +218,7 @@ def get_lead_adjacent(tracks: dict[int, Track], model_data: capnp._DynamicStruct
 
 
 class RadarD:
-  def __init__(self, frogpilot_toggles, radar_ts: float, delay: int = 0):
+  def __init__(self, radar_ts: float, delay: int = 0):
     self.points: dict[int, tuple[float, float, float]] = {}
 
     self.current_time = 0.0
@@ -238,9 +237,12 @@ class RadarD:
     self.ready = False
 
     # FrogPilot variables
-    self.frogpilot_toggles = frogpilot_toggles
+    self.frogpilot_toggles = FrogPilotVariables.toggles
+    FrogPilotVariables.update_frogpilot_params(False)
 
     self.classic_model = self.frogpilot_toggles.classic_model
+
+    self.update_toggles = False
 
   def update(self, sm: messaging.SubMaster, rr):
     self.ready = sm.seen['modelV2']
@@ -303,8 +305,11 @@ class RadarD:
       self.radar_state.leadRightFar = get_lead_adjacent(self.tracks, sm['modelV2'], sm['frogpilotPlan'].laneWidthRight, left=False, far=True)
 
     # Update FrogPilot parameters
-    if sm.updated['frogpilotToggles']:
-      self.frogpilot_toggles = SimpleNamespace(**json.loads(sm['frogpilotToggles'].frogpilotToggles[0]))
+    if FrogPilotVariables.toggles_updated:
+      self.update_toggles = True
+    elif self.update_toggles:
+      FrogPilotVariables.update_frogpilot_params()
+      self.update_toggles = False
 
   def publish(self, pm: messaging.PubMaster, lag_ms: float):
     assert self.radar_state is not None
@@ -355,9 +360,6 @@ class RadarD:
 
 # fuses camera and radar data for best lead detection
 def main():
-  # FrogPilot variables
-  frogpilot_toggles = pickle.loads(Params().get("FrogPilotToggles", block=True))
-
   config_realtime_process(5, Priority.CTRL_LOW)
 
   # wait for stats about the car to come in from controls
@@ -376,10 +378,14 @@ def main():
   RI = RadarInterface(CP)
 
   rk = Ratekeeper(1.0 / CP.radarTimeStep, print_delay_threshold=None)
-  RD = RadarD(frogpilot_toggles, CP.radarTimeStep, RI.delay)
+  RD = RadarD(CP.radarTimeStep, RI.delay)
+
+  # FrogPilot variables
+  frogpilot_toggles = FrogPilotVariables.toggles
+  FrogPilotVariables.update_frogpilot_params(False)
 
   if not frogpilot_toggles.radarless_model:
-    sm = messaging.SubMaster(['modelV2', 'carState', 'frogpilotPlan', 'frogpilotToggles'], frequency=int(1./DT_CTRL))
+    sm = messaging.SubMaster(['modelV2', 'carState', 'frogpilotPlan'], frequency=int(1./DT_CTRL))
     pm = messaging.PubMaster(['radarState', 'liveTracks'])
     while 1:
       can_strings = messaging.drain_sock_raw(can_sock, wait_for_one=True)

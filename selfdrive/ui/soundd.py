@@ -1,17 +1,13 @@
-import json
 import math
 import numpy as np
 import os
-import pickle
 import time
 import wave
 
-from types import SimpleNamespace
 
 from cereal import car, messaging
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.filter_simple import FirstOrderFilter
-from openpilot.common.params import Params
 from openpilot.common.realtime import Ratekeeper
 from openpilot.common.retry import retry
 from openpilot.common.swaglog import cloudlog
@@ -19,6 +15,7 @@ from openpilot.common.swaglog import cloudlog
 from openpilot.system import micd
 
 from openpilot.selfdrive.frogpilot.frogpilot_functions import ACTIVE_THEME_PATH, RANDOM_EVENTS_PATH
+from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
 
 SAMPLE_RATE = 48000
 SAMPLE_BUFFER = 4096 # (approx 100ms)
@@ -83,11 +80,11 @@ class Soundd:
     self.spl_filter_weighted = FirstOrderFilter(0, 2.5, FILTER_DT, initialized=False)
 
     # FrogPilot variables
-    self.params = Params()
-
-    self.frogpilot_toggles = pickle.loads(self.params.get("FrogPilotToggles", block=True))
+    self.frogpilot_toggles = FrogPilotVariables.toggles
+    FrogPilotVariables.update_frogpilot_params(False)
 
     self.previous_sound_pack = None
+
     self.random_events_directory = os.path.join(RANDOM_EVENTS_PATH, "sounds/")
 
     self.random_events_map = {
@@ -104,6 +101,8 @@ class Soundd:
       AudibleAlert.thisIsFine: MAX_VOLUME,
       AudibleAlert.uwu: MAX_VOLUME,
     }
+
+    self.update_toggles = False
 
     self.update_frogpilot_sounds()
 
@@ -189,7 +188,7 @@ class Soundd:
     # sounddevice must be imported after forking processes
     import sounddevice as sd
 
-    sm = messaging.SubMaster(['controlsState', 'microphone', 'frogpilotToggles'])
+    sm = messaging.SubMaster(['controlsState', 'microphone'])
 
     with self.get_stream(sd) as stream:
       rk = Ratekeeper(20)
@@ -218,9 +217,12 @@ class Soundd:
         assert stream.active
 
         # Update FrogPilot parameters
-        if sm.updated['frogpilotToggles']:
-          self.frogpilot_toggles = SimpleNamespace(**json.loads(sm['frogpilotToggles'].frogpilotToggles[0]))
+        if FrogPilotVariables.toggles_updated:
+          self.update_toggles = True
+        elif self.update_toggles:
+          FrogPilotVariables.update_frogpilot_params()
           self.update_frogpilot_sounds()
+          self.update_toggles = False
 
   def update_frogpilot_sounds(self):
     self.volume_map = {

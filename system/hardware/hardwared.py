@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 import os
 import json
-import pickle
 import queue
 import threading
 import time
 from collections import OrderedDict, namedtuple
 from pathlib import Path
-from types import SimpleNamespace
 
 import psutil
 
@@ -26,6 +24,8 @@ from openpilot.common.swaglog import cloudlog
 from openpilot.system.hardware.power_monitoring import PowerMonitoring
 from openpilot.system.hardware.fan_controller import TiciFanController
 from openpilot.system.version import terms_version, training_version
+
+from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
 
 ThermalStatus = log.DeviceState.ThermalStatus
 NetworkType = log.DeviceState.NetworkType
@@ -166,7 +166,7 @@ def hw_state_thread(end_event, hw_queue):
 
 def hardware_thread(end_event, hw_queue) -> None:
   pm = messaging.PubMaster(['deviceState', 'frogpilotDeviceState'])
-  sm = messaging.SubMaster(["peripheralState", "gpsLocationExternal", "controlsState", "pandaStates", "frogpilotToggles"], poll="pandaStates")
+  sm = messaging.SubMaster(["peripheralState", "gpsLocationExternal", "controlsState", "pandaStates"], poll="pandaStates")
 
   count = 0
 
@@ -207,9 +207,12 @@ def hardware_thread(end_event, hw_queue) -> None:
   fan_controller = None
 
   # FrogPilot variables
-  frogpilot_toggles = pickle.loads(params.get("FrogPilotToggles", block=True))
+  frogpilot_toggles = FrogPilotVariables.toggles
+  FrogPilotVariables.update_frogpilot_params(False)
 
   params_memory = Params("/dev/shm/params")
+
+  update_toggles = False
 
   while not end_event.is_set():
     sm.update(PANDA_STATES_TIMEOUT)
@@ -467,8 +470,11 @@ def hardware_thread(end_event, hw_queue) -> None:
     should_start_prev = should_start
 
     # Update FrogPilot parameters
-    if sm.updated['frogpilotToggles']:
-      frogpilot_toggles = SimpleNamespace(**json.loads(sm['frogpilotToggles'].frogpilotToggles[0]))
+    if FrogPilotVariables.toggles_updated:
+      update_toggles = True
+    elif update_toggles:
+      FrogPilotVariables.update_frogpilot_params(started_ts is not None)
+      update_toggles = False
 
 def main():
   hw_queue = queue.Queue(maxsize=1)

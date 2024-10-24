@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
-import json
 import os
 import math
-import pickle
 import time
 import threading
-from types import SimpleNamespace
 from typing import SupportsFloat
 
 import cereal.messaging as messaging
@@ -35,7 +32,7 @@ from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
 from openpilot.system.hardware import HARDWARE
 
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_acceleration import get_max_allowed_accel
-from openpilot.selfdrive.frogpilot.frogpilot_variables import NON_DRIVING_GEARS
+from openpilot.selfdrive.frogpilot.frogpilot_variables import NON_DRIVING_GEARS, FrogPilotVariables
 
 SOFT_DISABLE_TIME = 3  # seconds
 LDW_MIN_SPEED = 31 * CV.MPH_TO_MS
@@ -102,12 +99,12 @@ class Controls:
     if REPLAY:
       # no vipc in replay will make them ignored anyways
       ignore += ['roadCameraState', 'wideRoadCameraState']
-    if pickle.loads(self.params.get("FrogPilotToggles", block=True)).radarless_model:
+    if FrogPilotVariables.toggles.radarless_model:
       ignore += ['radarState']
     self.sm = messaging.SubMaster(['deviceState', 'pandaStates', 'peripheralState', 'modelV2', 'liveCalibration',
                                    'carOutput', 'driverMonitoringState', 'longitudinalPlan', 'liveLocationKalman',
                                    'managerState', 'liveParameters', 'radarState', 'liveTorqueParameters',
-                                   'testJoystick', 'frogpilotCarState', 'frogpilotPlan', 'frogpilotToggles'] + self.camera_packets + self.sensor_packets,
+                                   'testJoystick', 'frogpilotCarState', 'frogpilotPlan'] + self.camera_packets + self.sensor_packets,
                                   ignore_alive=ignore, ignore_avg_freq=ignore+['radarState', 'testJoystick'], ignore_valid=['testJoystick', ],
                                   frequency=int(1/DT_CTRL))
 
@@ -167,7 +164,7 @@ class Controls:
 
     self.can_log_mono_time = 0
 
-    self.startup_event = get_startup_event(car_recognized, not self.CP.passive, len(self.CP.carFw) > 0, self.block_user, pickle.loads(self.params.get("FrogPilotToggles", block=True)))
+    self.startup_event = get_startup_event(car_recognized, not self.CP.passive, len(self.CP.carFw) > 0, self.block_user, FrogPilotVariables.toggles)
 
     if not sounds_available:
       self.events.add(EventName.soundsUnavailable, static=True)
@@ -184,7 +181,8 @@ class Controls:
     self.rk = Ratekeeper(100, print_delay_threshold=None)
 
     # FrogPilot variables
-    self.frogpilot_toggles = pickle.loads(self.params.get("FrogPilotToggles", block=True))
+    self.frogpilot_toggles = FrogPilotVariables.toggles
+    FrogPilotVariables.update_frogpilot_params(False)
 
     self.params_memory = Params("/dev/shm/params")
 
@@ -193,12 +191,11 @@ class Controls:
     self.fcw_event_triggered = False
     self.no_entry_alert_triggered = False
     self.onroad_distance_pressed = False
+    self.radarless_model = self.frogpilot_toggles.radarless_model
     self.resume_pressed = False
     self.resume_previously_pressed = False
     self.steer_saturated_event_triggered = False
-
-    self.radarless_model = self.frogpilot_toggles.radarless_model
-
+    self.update_toggles = False
     self.use_old_long = self.CP.carName == "hyundai" and not self.params.get_bool("NewLongAPI")
     self.use_old_long |= self.CP.carName == "gm" and not self.params.get_bool("NewLongAPIGM")
 
@@ -944,8 +941,11 @@ class Controls:
       time.sleep(0.1)
 
       # Update FrogPilot parameters
-      if self.sm.updated['frogpilotToggles']:
-        self.frogpilot_toggles = SimpleNamespace(**json.loads(self.sm['frogpilotToggles'].frogpilotToggles[0]))
+      if FrogPilotVariables.toggles_updated:
+        self.update_toggles = True
+      elif self.update_toggles:
+        FrogPilotVariables.update_frogpilot_params()
+        self.update_toggles = False
 
   def controlsd_thread(self):
     e = threading.Event()

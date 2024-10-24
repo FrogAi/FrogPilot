@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
-import json
 import os
-import pickle
 import time
-
-from types import SimpleNamespace
 
 import cereal.messaging as messaging
 
@@ -20,6 +16,8 @@ from openpilot.selfdrive.car.car_helpers import get_car, get_one_can
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase
 from openpilot.selfdrive.controls.lib.events import Events
 
+from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
+
 REPLAY = "REPLAY" in os.environ
 
 EventName = car.CarEvent.EventName
@@ -30,7 +28,7 @@ class Car:
 
   def __init__(self, CI=None):
     self.can_sock = messaging.sub_sock('can', timeout=20)
-    self.sm = messaging.SubMaster(['pandaStates', 'carControl', 'onroadEvents', 'frogpilotToggles'])
+    self.sm = messaging.SubMaster(['pandaStates', 'carControl', 'onroadEvents'])
     self.pm = messaging.PubMaster(['sendcan', 'carState', 'carParams', 'carOutput', 'frogpilotCarState'])
 
     self.can_rcv_cum_timeout_counter = 0
@@ -76,7 +74,10 @@ class Car:
     self.rk = Ratekeeper(100, print_delay_threshold=None)
 
     # FrogPilot variables
-    self.frogpilot_toggles = pickle.loads(self.params.get("FrogPilotToggles", block=True))
+    self.frogpilot_toggles = FrogPilotVariables.toggles
+    FrogPilotVariables.update_frogpilot_params(False)
+
+    self.update_toggles = False
 
     # set alternative experiences from parameters
     self.disengage_on_accelerator = self.params.get_bool("DisengageOnAccelerator")
@@ -198,8 +199,11 @@ class Car:
       self.rk.monitor_time()
 
       # Update FrogPilot parameters
-      if self.sm.updated['frogpilotToggles']:
-        self.frogpilot_toggles = SimpleNamespace(**json.loads(self.sm['frogpilotToggles'].frogpilotToggles[0]))
+      if FrogPilotVariables.toggles_updated:
+        self.update_toggles = True
+      elif self.update_toggles:
+        FrogPilotVariables.update_frogpilot_params()
+        self.update_toggles = False
 
 def main():
   config_realtime_process(4, Priority.CTRL_HIGH)

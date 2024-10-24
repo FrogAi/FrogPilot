@@ -43,8 +43,6 @@ from openpilot.system.loggerd.xattr_cache import getxattr
 from urllib.parse import parse_qs, quote
 import openpilot.system.sentry as sentry
 
-from openpilot.selfdrive.frogpilot.frogpilot_utilities import update_frogpilot_toggles
-
 pi = 3.1415926535897932384626
 x_pi = 3.14159265358979324 * 3000.0 / 180.0
 a = 6378245.0
@@ -465,4 +463,6 @@ def store_toggle_values(updated_values):
     except Exception as e:
       print(f"Failed to update {key}: {e}")
 
-  update_frogpilot_toggles()
+  params_memory.put_bool("FrogPilotTogglesUpdated", True)
+  time.sleep(1)
+  params_memory.put_bool("FrogPilotTogglesUpdated", False)
