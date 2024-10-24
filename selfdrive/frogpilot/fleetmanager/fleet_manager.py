@@ -31,6 +31,7 @@ import openpilot.selfdrive.frogpilot.fleetmanager.helpers as fleet
 from flask import Flask, Response, jsonify, redirect, render_template, request, send_from_directory, session, url_for
 from requests.exceptions import ConnectionError
 
+from openpilot.common.params import Params
 from openpilot.common.realtime import set_core_affinity
 from openpilot.common.swaglog import cloudlog
 from openpilot.system.hardware.hw import Paths
@@ -190,7 +191,7 @@ def addr_input():
       return redirect(url_for('nav_confirmation', addr=addr, lon=lon, lat=lat))
     else:
       return render_template("error.html")
-  elif FrogPilotVariables.has_prime:
+  elif Params().get_int("PrimeType") > 0:
     return render_template("prime.html")
   # amap stuff
   elif SearchInput == 1:

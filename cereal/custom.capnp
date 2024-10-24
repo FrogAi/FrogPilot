@@ -78,7 +78,8 @@ struct FrogPilotPlan @0x80ae746ee2596b11 {
   vtscControllingCurve @28 :Bool;
 }
 
-struct CustomReserved5 @0xa5cd762cd951a455 {
+struct FrogPilotToggles @0xa5cd762cd951a455 {
+  frogpilotToggles @0 :List(Text);
 }
 
 struct CustomReserved6 @0xf98d843bfd7004a3 {

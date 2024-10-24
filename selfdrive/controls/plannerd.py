@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
+import json
+import pickle
+
+from types import SimpleNamespace
+
 from cereal import car
 from openpilot.common.params import Params
 from openpilot.common.realtime import Priority, config_realtime_process
 from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.controls.lib.longitudinal_planner import LongitudinalPlanner
 import cereal.messaging as messaging
-
-from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
 
 def publish_ui_plan(sm, pm, longitudinal_planner):
   ui_send = messaging.new_message('uiPlan')
@@ -30,17 +33,15 @@ def plannerd_thread():
 
   longitudinal_planner = LongitudinalPlanner(CP)
   pm = messaging.PubMaster(['longitudinalPlan', 'uiPlan'])
-  sm = messaging.SubMaster(['carControl', 'carState', 'controlsState', 'radarState', 'modelV2', 'frogpilotCarControl', 'frogpilotCarState', 'frogpilotPlan'],
+  sm = messaging.SubMaster(['carControl', 'carState', 'controlsState', 'radarState', 'modelV2',
+                            'frogpilotCarControl', 'frogpilotCarState', 'frogpilotPlan', 'frogpilotToggles'],
                            poll='modelV2', ignore_avg_freq=['radarState'])
 
   # FrogPilot variables
-  frogpilot_toggles = FrogPilotVariables.toggles
-  FrogPilotVariables.update_frogpilot_params(False)
+  frogpilot_toggles = pickle.loads(params.get("FrogPilotToggles", block=True))
 
   classic_model = frogpilot_toggles.classic_model
   radarless_model = frogpilot_toggles.radarless_model
-
-  update_toggles = False
 
   while True:
     sm.update()
@@ -50,11 +51,8 @@ def plannerd_thread():
       publish_ui_plan(sm, pm, longitudinal_planner)
 
     # Update FrogPilot parameters
-    if FrogPilotVariables.toggles_updated:
-      update_toggles = True
-    elif update_toggles:
-      FrogPilotVariables.update_frogpilot_params()
-      update_toggles = False
+    if sm.updated['frogpilotToggles']:
+      frogpilot_toggles = SimpleNamespace(**json.loads(sm['frogpilotToggles'].frogpilotToggles[0]))
 
 def main():
   plannerd_thread()

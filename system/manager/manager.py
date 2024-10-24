@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 import datetime
+import json
 import os
+import pickle
 import signal
 import sys
 import threading
 import traceback
+
+from types import SimpleNamespace
 
 from cereal import log
 import cereal.messaging as messaging
@@ -24,7 +28,6 @@ from openpilot.system.version import get_build_metadata, terms_version, training
 
 from openpilot.selfdrive.frogpilot.assets.model_manager import DEFAULT_MODEL, DEFAULT_MODEL_NAME
 from openpilot.selfdrive.frogpilot.frogpilot_functions import convert_params, frogpilot_boot_functions, setup_frogpilot, uninstall_frogpilot
-from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
 
 
 def manager_init() -> None:
@@ -177,6 +180,7 @@ def manager_init() -> None:
     ("ForceStandstill", "0"),
     ("ForceStops", "0"),
     ("FPSCounter", "1"),
+    ("FrogPilotToggles", ""),
     ("FrogsGoMoosTweak", "1"),
     ("FullMap", "0"),
     ("GasRegenCmd", "1"),
@@ -475,7 +479,7 @@ def manager_thread() -> None:
     ignore.append("pandad")
   ignore += [x for x in os.getenv("BLOCK", "").split(",") if len(x) > 0]
 
-  sm = messaging.SubMaster(['deviceState', 'carParams'], poll='deviceState')
+  sm = messaging.SubMaster(['deviceState', 'carParams', 'frogpilotToggles'], poll='deviceState')
   pm = messaging.PubMaster(['managerState'])
 
   write_onroad_params(False, params)
@@ -484,9 +488,7 @@ def manager_thread() -> None:
   started_prev = False
 
   # FrogPilot variables
-  frogpilot_toggles = FrogPilotVariables.toggles
-  FrogPilotVariables.update_frogpilot_params(False)
-
+  frogpilot_toggles = pickle.loads(params.get("FrogPilotToggles", block=True))
   classic_model = frogpilot_toggles.classic_model
 
   while True:
@@ -502,8 +504,6 @@ def manager_thread() -> None:
         os.remove(error_log)
 
       # FrogPilot variables
-      FrogPilotVariables.update_frogpilot_params(False)
-
       classic_model = frogpilot_toggles.classic_model
 
     elif not started and started_prev:
@@ -539,6 +539,9 @@ def manager_thread() -> None:
     if shutdown:
       break
 
+    # Update FrogPilot parameters
+    if sm.updated['frogpilotToggles']:
+      frogpilot_toggles = SimpleNamespace(**json.loads(sm['frogpilotToggles'].frogpilotToggles[0]))
 
 def main() -> None:
   manager_init()

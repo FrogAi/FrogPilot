@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import json
 import os
 import time
 import pickle
@@ -26,7 +27,6 @@ from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.selfdrive.modeld.models.commonmodel_pyx import ModelFrame, CLContext
 
 from openpilot.selfdrive.frogpilot.frogpilot_functions import MODELS_PATH
-from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
 
 PROCESS_NAME = "selfdrive.modeld.modeld"
 SEND_RAW_PRED = os.getenv('SEND_RAW_PRED')
@@ -135,10 +135,7 @@ class ModelState:
 
 def main(demo=False):
   # FrogPilot variables
-  frogpilot_toggles = FrogPilotVariables.toggles
-  FrogPilotVariables.update_frogpilot_params(False)
-
-  update_toggles = False
+  frogpilot_toggles = pickle.loads(Params().get("FrogPilotToggles", block=True))
 
   cloudlog.warning("modeld init")
 
@@ -178,7 +175,7 @@ def main(demo=False):
 
   # messaging
   pm = PubMaster(["modelV2", "drivingModelData", "cameraOdometry"])
-  sm = SubMaster(["deviceState", "carState", "roadCameraState", "liveCalibration", "driverMonitoringState", "carControl", "frogpilotPlan"])
+  sm = SubMaster(["deviceState", "carState", "roadCameraState", "liveCalibration", "driverMonitoringState", "carControl", "frogpilotPlan", "frogpilotToggles"])
 
   publish_state = PublishState()
   params = Params()
@@ -311,11 +308,8 @@ def main(demo=False):
     last_vipc_frame_id = meta_main.frame_id
 
     # Update FrogPilot parameters
-    if FrogPilotVariables.toggles_updated:
-      update_toggles = True
-    elif update_toggles:
-      FrogPilotVariables.update_frogpilot_params()
-      update_toggles = False
+    if sm.updated['frogpilotToggles']:
+      frogpilot_toggles = SimpleNamespace(**json.loads(sm['frogpilotToggles'].frogpilotToggles[0]))
 
 if __name__ == "__main__":
   try:

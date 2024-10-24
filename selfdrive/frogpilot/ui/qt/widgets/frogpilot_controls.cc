@@ -6,26 +6,7 @@
 
 void updateFrogPilotToggles() {
   static Params paramsMemory{"/dev/shm/params"};
-  static std::atomic<bool> isUpdating(false);
-  static std::thread resetThread;
-
-  bool expected = false;
-  if (!isUpdating.compare_exchange_strong(expected, true)) {
-    return;
-  }
-
-  if (resetThread.joinable()) {
-    resetThread.join();
-  }
-
   paramsMemory.putBool("FrogPilotTogglesUpdated", true);
-
-  resetThread = std::thread([&]() {
-    util::sleep_for(1000);
-    paramsMemory.putBool("FrogPilotTogglesUpdated", false);
-
-    isUpdating.store(false);
-  });
 }
 
 QColor loadThemeColors(const QString &colorKey, bool clearCache) {

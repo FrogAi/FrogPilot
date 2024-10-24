@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
+import json
 import numpy as np
+import pickle
 from collections import deque, defaultdict
+from types import SimpleNamespace
 
 import cereal.messaging as messaging
 from cereal import car, log
@@ -10,8 +13,6 @@ from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.controls.lib.vehicle_model import ACCELERATION_DUE_TO_GRAVITY
 from openpilot.selfdrive.locationd.helpers import PointBuckets, ParameterEstimator
-
-from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
 
 HISTORY = 5  # secs
 POINTS_PER_BUCKET = 1500
@@ -52,13 +53,7 @@ class TorqueBuckets(PointBuckets):
 
 
 class TorqueEstimator(ParameterEstimator):
-  def __init__(self, CP, decimated=False):
-    # FrogPilot variables
-    frogpilot_toggles = FrogPilotVariables.toggles
-    FrogPilotVariables.update_frogpilot_params(False)
-
-    self.update_toggles = False
-
+  def __init__(self, CP, torque_cache, decimated=False):
     self.hist_len = int(HISTORY / DT_MDL)
     self.lag = CP.steerActuatorDelay + .2   # from controlsd
     if decimated:
@@ -101,8 +96,6 @@ class TorqueEstimator(ParameterEstimator):
     # try to restore cached params
     params = Params()
     params_cache = params.get("CarParamsPrevRoute")
-    self.torque_key = frogpilot_toggles.part_model_param + "LiveTorqueParameters"
-    torque_cache = params.get(self.torque_key)
     if params_cache is not None and torque_cache is not None:
       try:
         with log.Event.from_bytes(torque_cache) as log_evt:
@@ -164,13 +157,6 @@ class TorqueEstimator(ParameterEstimator):
     for param, value in params.items():
       self.filtered_params[param].update(value)
       self.filtered_params[param].update_alpha(self.decay)
-
-    # Update FrogPilot parameters
-    if FrogPilotVariables.toggles_updated:
-      self.update_toggles = True
-    elif self.update_toggles:
-      FrogPilotVariables.update_frogpilot_params()
-      self.update_toggles = False
 
   def handle_log(self, t, which, msg):
     if which == "carControl":
@@ -239,15 +225,11 @@ def main(demo=False):
   sm = messaging.SubMaster(['carControl', 'carOutput', 'carState', 'liveLocationKalman'], poll='liveLocationKalman')
 
   params = Params()
-  with car.CarParams.from_bytes(params.get("CarParams", block=True)) as CP:
-    estimator = TorqueEstimator(CP)
-
-  # FrogPilot variables
-  frogpilot_toggles = FrogPilotVariables.toggles
-  FrogPilotVariables.update_frogpilot_params(False)
-
-  torque_key = frogpilot_toggles.part_model_param + "LiveTorqueParameters"
+  torque_key = pickle.loads(params.get("FrogPilotToggles", block=True)).part_model_param + "LiveTorqueParameters"
   torque_cache = params.get(torque_key)
+
+  with car.CarParams.from_bytes(params.get("CarParams", block=True)) as CP:
+    estimator = TorqueEstimator(CP, torque_cache)
 
   while True:
     sm.update()

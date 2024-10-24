@@ -2,9 +2,12 @@
 import json
 import math
 import os
+import pickle
 import threading
 
 import requests
+
+from types import SimpleNamespace
 
 import cereal.messaging as messaging
 from cereal import log
@@ -17,8 +20,6 @@ from openpilot.selfdrive.navd.helpers import (Coordinate, coordinate_from_param,
                                     minimum_distance,
                                     parse_banner_instructions)
 from openpilot.common.swaglog import cloudlog
-
-from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables
 
 REROUTE_DISTANCE = 25
 MANEUVER_TRANSITION_THRESHOLD = 10
@@ -57,7 +58,7 @@ class RouteEngine:
     if "MAPBOX_TOKEN" in os.environ:
       self.mapbox_token = os.environ["MAPBOX_TOKEN"]
       self.mapbox_host = "https://api.mapbox.com"
-    elif not FrogPilotVariables.has_prime:
+    elif not self.params.get_int("PrimeType") > 0:
       self.mapbox_token = self.params.get("MapboxSecretKey", encoding='utf8')
       self.mapbox_host = "https://api.mapbox.com"
     else:
@@ -65,15 +66,13 @@ class RouteEngine:
       self.mapbox_host = os.getenv('MAPS_HOST', 'https://maps.comma.ai')
 
     # FrogPilot variables
-    self.frogpilot_toggles = FrogPilotVariables.toggles
-    FrogPilotVariables.update_frogpilot_params(False)
+    self.frogpilot_toggles = pickle.loads(self.params.get("FrogPilotToggles", block=True))
 
     self.stop_coord = []
     self.stop_signal = []
 
     self.approaching_intersection = False
     self.approaching_turn = False
-    self.update_toggles = False
 
     self.nav_speed_limit = 0
 
@@ -96,11 +95,8 @@ class RouteEngine:
       cloudlog.exception("navd.failed_to_compute")
 
     # Update FrogPilot parameters
-    if FrogPilotVariables.toggles_updated:
-      self.update_toggles = True
-    elif self.update_toggles:
-      FrogPilotVariables.update_frogpilot_params()
-      self.update_toggles = False
+    if self.sm.updated['frogpilotToggles']:
+      frogpilot_toggles = SimpleNamespace(**json.loads(self.sm['frogpilotToggles'].frogpilotToggles[0]))
 
   def update_location(self):
     location = self.sm['liveLocationKalman']
@@ -467,7 +463,7 @@ class RouteEngine:
 
 def main():
   pm = messaging.PubMaster(['navInstruction', 'navRoute', 'frogpilotNavigation'])
-  sm = messaging.SubMaster(['carState', 'liveLocationKalman', 'managerState'])
+  sm = messaging.SubMaster(['carState', 'liveLocationKalman', 'managerState', 'frogpilotToggles'])
 
   rk = Ratekeeper(1.0)
   route_engine = RouteEngine(sm, pm)
