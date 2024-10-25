@@ -446,7 +446,7 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s, f
       if (isBlindSpot || minLaneWidth > laneWidth || laneWidth > maxLaneWidth) {
         setAdjacentPathColors(0.0f);
       } else {
-        float hue = 270.0f * (laneWidth - minLaneWidth) / (maxLaneWidth - minLaneWidth);
+        float hue = 120.0f * fmin(laneWidth / laneDetectionWidth, 1);
         setAdjacentPathColors(hue);
       }
 
@@ -591,14 +591,14 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::RadarState
   }
   painter.drawPolygon(chevron, std::size(chevron));
 
-  if (leadInfo) {
+  if (leadInfo && (adjacent ? fabs(d_rel - lead_distance) > 10 : true)) {
     float lead_speed = std::max(v_rel + v_ego, 0.0f);
 
     painter.setPen(Qt::white);
     painter.setFont(InterFont(35, QFont::Bold));
 
     QString text;
-    if (adjacent && fabs(d_rel - lead_distance) > 10) {
+    if (adjacent) {
       text = QString("%1 %2 | %3 %4")
               .arg(qRound(d_rel * distanceConversion))
               .arg(leadDistanceUnit)
