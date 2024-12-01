@@ -17,27 +17,20 @@ private:
   void hideToggles();
   void showEvent(QShowEvent *event) override;
   void showToggles(const std::set<QString> &keys);
-  void updateCarToggles();
-
-  std::set<QString> alertVolumeControlKeys = {
-    "DisengageVolume", "EngageVolume", "PromptDistractedVolume",
-    "PromptVolume", "RefuseVolume", "WarningImmediateVolume",
-    "WarningSoftVolume"
-  };
-
-  std::set<QString> customAlertsKeys = {
-    "GoatScream", "GreenLightAlert", "LeadDepartingAlert",
-    "LoudBlindspotAlert", "SpeedLimitChangedAlert"
-  };
 
   FrogPilotSettingsWindow *parent;
+
+  QJsonObject frogpilotToggleLevels;
 
   Params params;
 
   bool hasBSM;
   bool hasOpenpilotLongitudinal;
 
-  int customizationLevel;
+  int tuningLevel;
 
   std::map<QString, AbstractControl*> toggles;
+
+  std::set<QString> alertVolumeControlKeys = {"DisengageVolume", "EngageVolume", "PromptDistractedVolume", "PromptVolume", "RefuseVolume", "WarningImmediateVolume", "WarningSoftVolume"};
+  std::set<QString> customAlertsKeys = {"GoatScream", "GreenLightAlert", "LeadDepartingAlert", "LoudBlindspotAlert", "SpeedLimitChangedAlert"};
 };

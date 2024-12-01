@@ -2,7 +2,7 @@ from cereal import car, custom
 from panda import Panda
 from panda.python import uds
 from openpilot.selfdrive.car.toyota.values import Ecu, CAR, DBC, ToyotaFlags, CarControllerParams, TSS2_CAR, RADAR_ACC_CAR, NO_DSU_CAR, \
-                                        MIN_ACC_SPEED, EPS_SCALE, UNSUPPORTED_DSU_CAR, NO_STOP_TIMER_CAR, ANGLE_CONTROL_CAR, STOP_AND_GO_CAR
+                                        MIN_ACC_SPEED, PEDAL_TRANSITION, EPS_SCALE, UNSUPPORTED_DSU_CAR, NO_STOP_TIMER_CAR, ANGLE_CONTROL_CAR, STOP_AND_GO_CAR
 from openpilot.selfdrive.car import create_button_events, get_safety_config
 from openpilot.selfdrive.car.disable_ecu import disable_ecu
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase
@@ -28,6 +28,10 @@ class CarInterface(CarInterfaceBase):
     # BRAKE_MODULE is on a different address for these cars
     if DBC[candidate]["pt"] == "toyota_new_mc_pt_generated":
       ret.safetyConfigs[0].safetyParam |= Panda.FLAG_TOYOTA_ALT_BRAKE
+
+    if ret.flags & ToyotaFlags.SECOC.value:
+      ret.secOcRequired = True
+      ret.safetyConfigs[0].safetyParam |= Panda.FLAG_TOYOTA_SECOC
 
     if candidate in ANGLE_CONTROL_CAR:
       ret.steerControlType = SteerControlType.angle
@@ -57,8 +61,8 @@ class CarInterface(CarInterfaceBase):
     ret.enableDsu = len(found_ecus) > 0 and Ecu.dsu not in found_ecus and candidate not in (NO_DSU_CAR | UNSUPPORTED_DSU_CAR) \
                                         and not (ret.flags & ToyotaFlags.SMART_DSU)
 
-    if candidate == CAR.LEXUS_ES_TSS2 and Ecu.hybrid not in found_ecus:
-      ret.flags |= ToyotaFlags.RAISED_ACCEL_LIMIT.value
+    if Ecu.hybrid in found_ecus:
+      ret.flags |= ToyotaFlags.HYBRID.value
 
     if candidate == CAR.TOYOTA_PRIUS:
       # Only give steer angle deadzone to for bad angle sensor prius
@@ -73,7 +77,7 @@ class CarInterface(CarInterfaceBase):
     elif candidate in (CAR.LEXUS_RX, CAR.LEXUS_RX_TSS2):
       ret.wheelSpeedFactor = 1.035
 
-    elif candidate in (CAR.TOYOTA_RAV4_TSS2, CAR.TOYOTA_RAV4_TSS2_2022, CAR.TOYOTA_RAV4_TSS2_2023):
+    elif candidate in (CAR.TOYOTA_RAV4_TSS2, CAR.TOYOTA_RAV4_TSS2_2022, CAR.TOYOTA_RAV4_TSS2_2023, CAR.TOYOTA_RAV4_PRIME, CAR.TOYOTA_SIENNA_4TH_GEN):
       ret.lateralTuning.init('pid')
       ret.lateralTuning.pid.kiBP = [0.0]
       ret.lateralTuning.pid.kpBP = [0.0]
@@ -121,8 +125,13 @@ class CarInterface(CarInterfaceBase):
     #  - TSS2 radar ACC cars w/ smartDSU installed
     #  - TSS2 radar ACC cars w/o smartDSU installed (disables radar)
     #  - TSS-P DSU-less cars w/ CAN filter installed (no radar parser yet)
-    ret.openpilotLongitudinalControl = use_sdsu or ret.enableDsu or candidate in (TSS2_CAR - RADAR_ACC_CAR) or bool(ret.flags & ToyotaFlags.DISABLE_RADAR.value)
+
+    if ret.flags & ToyotaFlags.SECOC.value:
+      ret.openpilotLongitudinalControl = False
+    else:
+      ret.openpilotLongitudinalControl = use_sdsu or ret.enableDsu or candidate in (TSS2_CAR - RADAR_ACC_CAR) or bool(ret.flags & ToyotaFlags.DISABLE_RADAR.value)
     ret.openpilotLongitudinalControl &= not disable_openpilot_long
+
     ret.autoResumeSng = ret.openpilotLongitudinalControl and candidate in NO_STOP_TIMER_CAR
     ret.enableGasInterceptor = 0x201 in fingerprint[0] and ret.openpilotLongitudinalControl
 
@@ -136,21 +145,16 @@ class CarInterface(CarInterfaceBase):
     # to a negative value, so it won't matter.
     ret.minEnableSpeed = -1. if (candidate in STOP_AND_GO_CAR or ret.enableGasInterceptor) else MIN_ACC_SPEED
 
-    tune = ret.longitudinalTuning
     if candidate in TSS2_CAR:
-      tune.kpV = [0.0]
-      tune.kiV = [0.5]
+      ret.flags |= ToyotaFlags.RAISED_ACCEL_LIMIT.value
+
       ret.vEgoStopping = 0.25
       ret.vEgoStarting = 0.25
       ret.stoppingDecelRate = 0.3  # reach stopping target smoothly
 
-      # Since we compensate for imprecise acceleration in carcontroller, we can be less aggressive with tuning
-      # This also prevents unnecessary request windup due to internal car jerk limits
-      if ret.flags & ToyotaFlags.RAISED_ACCEL_LIMIT:
-        tune.kiV = [0.25]
-    else:
-      tune.kiBP = [0., 5., 35.]
-      tune.kiV = [3.6, 2.4, 1.5]
+      # Hybrids have much quicker longitudinal actuator response
+      if ret.flags & ToyotaFlags.HYBRID.value:
+        ret.longitudinalActuatorDelay = 0.05
 
     if params.get_bool("FrogsGoMoosTweak"):
       ret.stoppingDecelRate = 0.1  # reach stopping target smoothly

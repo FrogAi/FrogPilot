@@ -312,7 +312,7 @@ def main(demo=False):
       'traffic_convention': traffic_convention,
       'lateral_control_params': lateral_control_params,
       **({'nav_features': nav_features, 'nav_instructions': nav_instructions} if enable_navigation else {}),
-      **({'radar_tracks': radar_tracks,} if radarless else {}),
+      **({'radar_tracks': radar_tracks} if radarless else {}),
     }
 
     mt1 = time.perf_counter()

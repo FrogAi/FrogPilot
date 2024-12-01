@@ -123,14 +123,8 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   // FrogPilot clickable widgets
   QPoint pos = e->pos();
 
-  QSize size = this->size();
-  QRect leftRect(0, 0, size.width() / 2, size.height());
-  QRect rightRect(size.width() / 2, 0, size.width() / 2, size.height());
-
-  if (scene.speed_limit_changed && (leftRect.contains(pos) || rightRect.contains(pos))) {
-    bool slcConfirmed = leftRect.contains(pos) ? !scene.right_hand_drive : scene.right_hand_drive;
-    paramsMemory.putBool("SLCConfirmed", slcConfirmed);
-    paramsMemory.putBool("SLCConfirmedPressed", true);
+  if (scene.speed_limit_changed && nvg->newSpeedLimitRect.contains(pos)) {
+    paramsMemory.putBool("SLCConfirmed", true);
     return;
   }
 
@@ -326,65 +320,70 @@ void OnroadWindow::paintEvent(QPaintEvent *event) {
   }
 
   QString logicsDisplayString;
-  auto appendJerkInfo = [&](const QString &label, float value, float difference) {
-    logicsDisplayString += QString("%1: %2").arg(label).arg(value, 0, 'f', 3);
-    if (difference != 0) {
-      logicsDisplayString += QString(" (%1%2)").arg(difference > 0 ? "-" : "").arg(difference, 0, 'f', 3);
-    }
-    logicsDisplayString += " | ";
-  };
-
   if (showJerk) {
-    appendJerkInfo("Acceleration Jerk", accelerationJerk, accelerationJerkDifference);
-    appendJerkInfo("Speed Jerk", speedJerk, speedJerkDifference);
+    logicsDisplayString += QString("Acceleration Jerk: %1 | ").arg(accelerationJerk, 0, 'f', 3);
+    logicsDisplayString += QString("Speed Jerk: %1").arg(speedJerk, 0, 'f', 3);
   }
-
   if (showTuning) {
-    logicsDisplayString += liveValid
-        ? QString("Friction: %1 | Lateral Acceleration: %2").arg(friction, 0, 'f', 3).arg(latAccel, 0, 'f', 3)
-        : "Friction: Calculating... | Lateral Acceleration: Calculating...";
+    if (!logicsDisplayString.isEmpty()) {
+      logicsDisplayString += " | ";
+    }
+    logicsDisplayString += QString("Friction: %1 | ").arg(liveValid ? QString::number(friction, 'f', 3) : "Calculating...");
+    logicsDisplayString += QString("Lateral Acceleration: %1").arg(liveValid ? QString::number(latAccel, 'f', 3) : "Calculating...");
   }
-
-  if (logicsDisplayString.endsWith(" | ")) {
-    logicsDisplayString.chop(3);
-  }
-
   if (!logicsDisplayString.isEmpty()) {
+    p.save();
+
     p.setFont(InterFont(28, QFont::DemiBold));
     p.setRenderHint(QPainter::TextAntialiasing);
-    p.setPen(Qt::white);
 
-    int logicsWidth = p.fontMetrics().horizontalAdvance(logicsDisplayString);
-    int logicsX = (rect.width() - logicsWidth) / 2;
-    int logicsY = rect.top() + 27;
+    QFontMetrics fontMetrics(p.font());
 
-    QStringList parts = logicsDisplayString.split(" | ");
-    int currentX = logicsX;
+    int x = (rect.width() - fontMetrics.horizontalAdvance(logicsDisplayString)) / 2;
+    int y = rect.top() + (fontMetrics.height() / 1.5);
 
-    for (const QString &part : parts) {
-      QStringList subParts = part.split(" ");
-      for (int i = 0; i < subParts.size(); ++i) {
-        QString text = subParts[i];
+    QStringList parts = logicsDisplayString.split("|");
+    for (QString part : parts) {
+      if (part.contains("Acceleration Jerk") && accelerationJerkDifference != 0) {
+        QString baseText = QString("Acceleration Jerk: %1").arg(accelerationJerk, 0, 'f', 3);
+        p.setPen(Qt::white);
+        p.drawText(x, y, baseText);
+        x += fontMetrics.horizontalAdvance(baseText);
 
-        if (text.endsWith(")") && i > 0 && (subParts[i - 1].contains("Acceleration") || subParts[i - 1].contains("Speed"))) {
-          QString prefix = subParts[i - 1] + " (";
-          p.drawText(currentX, logicsY, prefix);
-          currentX += p.fontMetrics().horizontalAdvance(prefix);
-          text.chop(1);
-          p.setPen(text.contains("-") ? redColor() : Qt::white);
-        } else if (text.startsWith("(") && i > 0) {
-          p.drawText(currentX, logicsY, " (");
-          currentX += p.fontMetrics().horizontalAdvance(" (");
-          text = text.mid(1);
-          p.setPen(text.contains("-") ? redColor() : Qt::white);
-        } else {
-          p.setPen(Qt::white);
+        QString diffText = QString(" (%1) | ").arg(accelerationJerkDifference, 0, 'f', 3);
+        p.setPen(redColor());
+        p.drawText(x, y, diffText);
+        x += fontMetrics.horizontalAdvance(diffText);
+      } else if (part.contains("Speed Jerk") && speedJerkDifference != 0) {
+        QString baseText = QString("Speed Jerk: %1").arg(speedJerk, 0, 'f', 3);
+        p.setPen(Qt::white);
+        p.drawText(x, y, baseText);
+        x += fontMetrics.horizontalAdvance(baseText);
+
+        QString diffText = QString(" (%1)").arg(speedJerkDifference, 0, 'f', 3);
+        if (showTuning) {
+          diffText += " | ";
         }
-
-        p.drawText(currentX, logicsY, text);
-        currentX += p.fontMetrics().horizontalAdvance(text + " ");
+        p.setPen(redColor());
+        p.drawText(x, y, diffText);
+        x += fontMetrics.horizontalAdvance(diffText);
+      } else if (part.contains("Speed Jerk") && !showTuning) {
+        p.setPen(Qt::white);
+        p.drawText(x, y, part);
+        x += fontMetrics.horizontalAdvance(part);
+      } else if (part.contains("Lateral Acceleration")) {
+        p.setPen(Qt::white);
+        p.drawText(x, y, part);
+        x += fontMetrics.horizontalAdvance(part);
+      } else {
+        part += " | ";
+        p.setPen(Qt::white);
+        p.drawText(x, y, part);
+        x += fontMetrics.horizontalAdvance(part);
       }
     }
+
+    p.restore();
   }
 
   if (showFPS) {

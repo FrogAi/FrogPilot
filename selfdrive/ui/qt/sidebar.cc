@@ -46,9 +46,15 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
   settingsPngPath = "../frogpilot/assets/active_theme/icons/button_settings.png";
 
   randomEventGifPath = "../frogpilot/assets/random_events/icons/button_home.gif";
+
+  QObject::connect(uiState(), &UIState::themeUpdated, this, &Sidebar::updateIcons);
 }
 
 void Sidebar::showEvent(QShowEvent *event) {
+  updateIcons();
+}
+
+void Sidebar::updateIcons() {
   updateIcon(home_label, home_gif, homeGifPath, home_btn, homePngPath, isHomeGif);
   updateIcon(settings_label, settings_gif, settingsGifPath, settings_btn, settingsPngPath, isSettingsGif);
 }
@@ -63,24 +69,28 @@ void Sidebar::updateIcon(QLabel *&label, QMovie *&gif, const QString &gifPath, c
     gif->stop();
     delete gif;
     gif = nullptr;
-    label->hide();
+    if (label) {
+      label->hide();
+    }
   }
 
   if (QFile::exists(selectedGifPath)) {
     gif = new QMovie(selectedGifPath);
 
-    if (!gif->fileName().isEmpty()) {
+    if (gif->isValid()) {
       gif->setScaledSize(btnRect.size());
 
-      label->setGeometry(btnRect);
-      label->setMovie(gif);
-      label->show();
+      if (label) {
+        label->setGeometry(btnRect);
+        label->setMovie(gif);
+        label->show();
+      }
 
       gif->start();
-
       isGif = true;
     } else {
       delete gif;
+      gif = nullptr;
       isGif = false;
     }
   } else {

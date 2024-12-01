@@ -13,49 +13,15 @@ public:
 private:
   void setModels();
   void showEvent(QShowEvent *event) override;
-  void updateCarToggles();
   void updateState(const UIState &s);
   void updateToggles();
-
-  std::set<QString> gmKeys = {
-    "ExperimentalGMTune", "LongPitch", "NewLongAPIGM",
-    "VoltSNG"
-  };
-
-  std::set<QString> hyundaiKeys = {
-    "NewLongAPI"
-  };
-
-  std::set<QString> imprezaKeys = {
-    "CrosstrekTorque"
-  };
-
-  std::set<QString> longitudinalKeys = {
-    "ExperimentalGMTune", "LongPitch", "NewLongAPI",
-    "NewLongAPIGM", "SNGHack", "VoltSNG"
-  };
-
-  std::set<QString> sngKeys = {
-    "SNGHack"
-  };
-
-  std::set<QString> subaruKeys = {
-    "CrosstrekTorque"
-  };
-
-  std::set<QString> toyotaKeys = {
-    "ClusterOffset", "FrogsGoMoosTweak", "SNGHack",
-    "ToyotaDoors"
-  };
-
-  std::set<QString> voltKeys = {
-    "VoltSNG"
-  };
 
   ButtonControl *selectMakeButton;
   ButtonControl *selectModelButton;
 
   FrogPilotSettingsWindow *parent;
+
+  QJsonObject frogpilotToggleLevels;
 
   QMap<QString, QString> carModels;
 
@@ -67,20 +33,29 @@ private:
   ParamControl *forceFingerprint;
 
   Params params;
+  Params params_default{"/data/params_default"};
 
   ToggleControl *disableOpenpilotLong;
 
-  bool disableOpenpilotLongitudinal;
+  bool disableOpenpilotLongitudinal = params.getBool("DisableOpenpilotLongitudinal");
   bool hasExperimentalOpenpilotLongitudinal;
   bool hasOpenpilotLongitudinal;
   bool hasSNG;
   bool isBolt;
-  bool isGMPCMCruise;
   bool isImpreza;
   bool isVolt;
   bool started;
 
-  int customizationLevel;
+  int tuningLevel;
 
   std::map<QString, AbstractControl*> toggles;
+
+  std::set<QString> gmKeys = {"ExperimentalGMTune", "LongPitch", "NewLongAPIGM", "VoltSNG"};
+  std::set<QString> hyundaiKeys = {"NewLongAPI"};
+  std::set<QString> imprezaKeys = {"CrosstrekTorque"};
+  std::set<QString> longitudinalKeys = {"ExperimentalGMTune", "FrogsGoMoosTweak", "LongPitch", "NewLongAPI", "NewLongAPIGM", "SNGHack", "VoltSNG"};
+  std::set<QString> sngKeys = {"SNGHack"};
+  std::set<QString> subaruKeys = {"CrosstrekTorque"};
+  std::set<QString> toyotaKeys = {"ClusterOffset", "FrogsGoMoosTweak", "SNGHack", "ToyotaDoors"};
+  std::set<QString> voltKeys = {"VoltSNG"};
 };

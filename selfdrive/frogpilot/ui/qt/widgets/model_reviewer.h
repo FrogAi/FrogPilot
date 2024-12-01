@@ -43,7 +43,7 @@ private:
   QPushButton *blacklistButton;
 
   Params params;
-  Params paramsMemory{"/dev/shm/params"};
+  Params params_memory{"/dev/shm/params"};
 
   QString currentModel;
   QString currentModelFiltered;

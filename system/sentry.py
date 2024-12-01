@@ -37,6 +37,7 @@ def capture_exception(*args, **kwargs) -> None:
 
   phrases_to_check = [
     "already exists. To overwrite it, set 'overwrite' to True",
+    "setup_quectel failed after retry",
   ]
 
   if any(phrase in exc_text for phrase in phrases_to_check):
@@ -70,47 +71,41 @@ def capture_fingerprint(candidate, params, blocked=False):
         if key_type == ParamKeyType.FROGPILOT_TRACKING:
           value = params_tracking.get_int(key)
         else:
-          try:
-            value = params.get(key)
-            if isinstance(value, bytes):
-              value = value.decode('utf-8')
-            if isinstance(value, str) and value.replace('.', '', 1).isdigit():
-              value = float(value) if '.' in value else int(value)
-          except Exception:
-            value = "0"
+          value = params.get(key).decode('utf-8') if isinstance(params.get(key), bytes) else params.get(key) or "0"
+
+        if isinstance(value, str) and "." in value:
+          value = value.rstrip("0").rstrip(".")
         matched_params[label][key.decode('utf-8')] = value
 
   for label, key_values in matched_params.items():
     if label == "FrogPilot Tracking":
-      matched_params[label] = {k: f"{v:,}" for k, v in key_values.items()}
+      matched_params[label] = {key: f"{value:,}" for key, value in key_values.items()}
     else:
-      matched_params[label] = {k: int(v) if isinstance(v, float) and v.is_integer() else v for k, v in sorted(key_values.items())}
+      matched_params[label] = {key: f"{value:}" for key, value in key_values.items()}
 
-  with sentry_sdk.configure_scope() as scope:
-    scope.fingerprint = [params.get("DongleId", encoding='utf-8')]
-
+  with sentry_sdk.push_scope() as scope:
     for label, key_values in matched_params.items():
-      scope.set_extra(label, "\n".join(f"{k}: {v}" for k, v in key_values.items()))
+      scope.set_context(label, key_values)
 
-  if blocked:
-    sentry_sdk.capture_message("Blocked user from using the development branch", level='error')
-  else:
-    sentry_sdk.capture_message(f"Fingerprinted {candidate}", level='info')
-    params.put_bool_nonblocking("FingerprintLogged", True)
+    if blocked:
+      sentry_sdk.capture_message("Blocked user from using the development branch", level='error')
+    else:
+      sentry_sdk.capture_message(f"Fingerprinted {candidate}", level='info')
+      params.put_bool("FingerprintLogged", True)
 
   sentry_sdk.flush()
 
 
-def capture_tmux(process, started_time, params) -> None:
+def capture_tmux(started_time, params) -> None:
   updated = params.get("Updated", encoding='utf-8')
 
-  result = subprocess.run(['tmux', 'capture-pane', '-p', '-S', '-50'], stdout=subprocess.PIPE)
+  result = subprocess.run(['tmux', 'capture-pane', '-p', '-S', '-100'], stdout=subprocess.PIPE)
   lines = result.stdout.decode('utf-8').splitlines()
 
   if lines:
     with sentry_sdk.configure_scope() as scope:
       scope.set_extra("tmux_log", "\n".join(lines))
-      sentry_sdk.capture_message(f"{process} crashed - Last updated: {updated} - Started time: {started_time}", level='info')
+      sentry_sdk.capture_message(f"UI Debugging Log - Last updated: {updated} - Started time: {started_time}", level='info')
       sentry_sdk.flush()
 
 

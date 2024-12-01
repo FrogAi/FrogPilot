@@ -39,6 +39,7 @@ ExperimentalButton::~ExperimentalButton() {
   if (gif != nullptr) {
     gif->stop();
     delete gif;
+    gif = nullptr;
     gif_label->hide();
   }
 }
@@ -126,11 +127,18 @@ void ExperimentalButton::updateIcon() {
   if (gif != nullptr) {
     gif->stop();
     delete gif;
+    gif = nullptr;
     gif_label->hide();
   }
 
   if (QFile::exists(wheel_gif_path)) {
     gif = new QMovie(wheel_gif_path);
+
+    if (!gif->isValid()) {
+      delete gif;
+      gif = nullptr;
+      return;
+    }
 
     gif_label->setMovie(gif);
     gif_label->resize(img_size, img_size);

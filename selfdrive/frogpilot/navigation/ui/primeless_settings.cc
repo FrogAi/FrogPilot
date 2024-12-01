@@ -59,7 +59,7 @@ void FrogPilotPrimelessPanel::createMapboxKeyControl(ButtonControl *&control, co
 
   QObject::connect(control, &ButtonControl::clicked, [=] {
     if (control->text() == tr("ADD")) {
-      QString key = InputDialog::getText(tr("Enter your %1").arg(label), this);
+      QString key = InputDialog::getText(tr("Enter your %1").arg(label), this).trimmed();
 
       if (!key.startsWith(prefix)) {
         key = prefix + key;

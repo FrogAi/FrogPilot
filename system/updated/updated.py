@@ -411,7 +411,7 @@ class Updater:
     cloudlog.info("finalize success!")
 
     # Format "Updated" to Phoenix time zone
-    self.params.put_nonblocking("Updated", datetime.datetime.now().astimezone(ZoneInfo('America/Phoenix')).strftime("%B %d, %Y - %I:%M%p").encode('utf8'))
+    self.params.put("Updated", datetime.datetime.now().astimezone(ZoneInfo('America/Phoenix')).strftime("%B %d, %Y - %I:%M%p").encode('utf8'))
 
 def main() -> None:
   params = Params()
@@ -468,7 +468,7 @@ def main() -> None:
 
         # Format "InstallDate" to Phoenix time zone
         if not install_date_set:
-          params.put_nonblocking("InstallDate", datetime.datetime.now().astimezone(ZoneInfo('America/Phoenix')).strftime("%B %d, %Y - %I:%M%p").encode('utf8'))
+          params.put("InstallDate", datetime.datetime.now().astimezone(ZoneInfo('America/Phoenix')).strftime("%B %d, %Y - %I:%M%p").encode('utf8'))
           install_date_set = True
 
         if not (frogpilot_toggles.automatic_updates or params_memory.get_bool("ManualUpdateInitiated")):

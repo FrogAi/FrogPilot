@@ -1,13 +1,13 @@
 import math
 import numpy as np
-import os
 import shutil
 import subprocess
-import threading
-import time
 import urllib.request
+import zipfile
 
-from openpilot.common.numpy_fast import interp, mean
+from pathlib import Path
+
+from openpilot.common.numpy_fast import interp
 
 EARTH_RADIUS = 6378137  # Radius of the Earth in meters
 
@@ -35,47 +35,48 @@ def calculate_road_curvature(modelData, v_ego):
   max_pred_lat_acc = np.amax(orientation_rate * velocity)
   return max_pred_lat_acc / max(v_ego, 1)**2
 
-def copy_if_exists(source, destination, single_file_name=None):
-  if not os.path.exists(source):
-    print(f"Source directory {source} does not exist. Skipping copy.")
-    return
-
-  if single_file_name:
-    os.makedirs(destination, exist_ok=True)
-    for item in os.listdir(source):
-      shutil.copy2(os.path.join(source, item), os.path.join(destination, single_file_name))
-      print(f"Successfully copied {item} to {single_file_name}.")
-  else:
-    shutil.copytree(source, destination, dirs_exist_ok=True)
-    print(f"Successfully copied {source} to {destination}.")
-
-def delete_file(file):
+def delete_file(path):
+  path = Path(path)
   try:
-    if os.path.isfile(file):
-      os.remove(file)
-      print(f"Deleted file: {file}")
+    if path.is_file():
+      path.unlink()
+      print(f"Deleted file: {path}")
+    elif path.is_dir():
+      shutil.rmtree(path)
+      print(f"Deleted directory: {path}")
     else:
-      print(f"File not found: {file}")
-  except Exception as e:
-    print(f"An error occurred when deleting {file}: {e}")
+      print(f"File not found: {path}")
+  except Exception as error:
+    print(f"An error occurred when deleting {path}: {error}")
 
-def is_url_pingable(url, timeout=5):
+def extract_zip(zip_file, extract_path):
+  zip_file = Path(zip_file)
+  extract_path = Path(extract_path)
+  print(f"Extracting {zip_file} to {extract_path}")
+
+  try:
+    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+      zip_ref.extractall(extract_path)
+    zip_file.unlink()
+    print(f"Extraction completed: {zip_file} has been removed")
+  except Exception as error:
+    print(f"An error occurred while extracting {zip_file}: {error}")
+
+def is_url_pingable(url, timeout=10):
   try:
     urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'}), timeout=timeout)
     return True
-  except Exception as e:
-    print(f"Failed to ping {url}: {e}")
+  except Exception as error:
+    print(f"Failed to ping {url}: {error}")
     return False
 
 def run_cmd(cmd, success_message, fail_message):
   try:
     subprocess.check_call(cmd)
     print(success_message)
-    return True
-  except Exception as e:
-    print(f"Unexpected error occurred: {e}")
+  except Exception as error:
+    print(f"Unexpected error occurred: {error}")
     print(fail_message)
-    return False
 
 class MovingAverageCalculator:
   def __init__(self):

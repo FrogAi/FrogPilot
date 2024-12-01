@@ -32,8 +32,7 @@ class FrogPilotFollowing:
         self.base_speed_jerk = interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_speed_decrease)
 
       self.base_danger_jerk = interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_danger)
-      self.t_follow = interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_t_follow)
-
+      self.t_follow = interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_follow)
     else:
       if aEgo >= 0:
         self.base_acceleration_jerk, self.base_danger_jerk, self.base_speed_jerk = get_jerk_factor(
@@ -77,19 +76,17 @@ class FrogPilotFollowing:
     # Offset by FrogAi for FrogPilot for a more natural approach to a faster lead
     if frogpilot_toggles.human_following and v_lead > v_ego:
       distance_factor = max(lead_distance - (v_ego * self.t_follow), 1)
-      standstill_offset = max(STOP_DISTANCE - v_ego, 0) * max(v_lead - v_ego, 1)
-      acceleration_offset = clip((v_lead - v_ego) + standstill_offset - COMFORT_BRAKE, 1, distance_factor)
-      self.acceleration_jerk /= acceleration_offset
-      self.speed_jerk /= acceleration_offset
+      standstill_offset = max(STOP_DISTANCE - v_ego, 1)
+      acceleration_offset = clip((v_lead - v_ego) * standstill_offset - COMFORT_BRAKE, 1, distance_factor)
+      self.acceleration_jerk /= standstill_offset
+      self.speed_jerk /= standstill_offset
       self.t_follow /= acceleration_offset
 
     # Offset by FrogAi for FrogPilot for a more natural approach to a slower lead
-    if (frogpilot_toggles.conditional_slower_lead or frogpilot_toggles.human_following) and v_lead < v_ego:
+    if (frogpilot_toggles.conditional_slower_lead or frogpilot_toggles.human_following) and v_lead < v_ego > CRUISING_SPEED:
       distance_factor = max(lead_distance - (v_lead * self.t_follow), 1)
-      far_lead_offset = max(lead_distance - (v_ego * self.t_follow) - STOP_DISTANCE + (v_lead - CITY_SPEED_LIMIT), 0)
-      braking_offset = clip((v_ego - v_lead) + far_lead_offset - COMFORT_BRAKE, 1, distance_factor)
+      far_lead_offset = max(v_lead - CITY_SPEED_LIMIT, 1)
+      braking_offset = clip(min(v_ego - v_lead, v_lead) * far_lead_offset - COMFORT_BRAKE, 1, distance_factor)
       if frogpilot_toggles.human_following:
-        self.acceleration_jerk *= braking_offset if far_lead_offset != 0 else max(braking_offset / COMFORT_BRAKE, 1)
-        self.speed_jerk *= braking_offset if far_lead_offset != 0 else max(braking_offset / COMFORT_BRAKE, 1)
         self.t_follow /= braking_offset
-      self.slower_lead = braking_offset - far_lead_offset > 1
+      self.slower_lead = braking_offset / far_lead_offset > 1

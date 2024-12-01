@@ -1,53 +1,62 @@
-import os
 import requests
+import tempfile
+
+from pathlib import Path
 
 from openpilot.selfdrive.frogpilot.frogpilot_utilities import delete_file, is_url_pingable
 
-GITHUB_URL = "https://raw.githubusercontent.com/FrogAi/FrogPilot-Resources/"
-GITLAB_URL = "https://gitlab.com/FrogAi/FrogPilot-Resources/-/raw/"
+GITHUB_URL = "https://raw.githubusercontent.com/FrogAi/FrogPilot-Resources"
+GITLAB_URL = "https://gitlab.com/FrogAi/FrogPilot-Resources/-/raw"
 
-def download_file(cancel_param, destination, temp_destination, progress_param, url, download_param, params_memory):
+def download_file(cancel_param, destination, progress_param, url, download_param, params_memory):
   try:
-    os.makedirs(os.path.dirname(destination), exist_ok=True)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+
     total_size = get_remote_file_size(url)
     if total_size == 0:
       return
 
-    downloaded_size = 0
-    with requests.get(url, stream=True, timeout=5) as response, open(temp_destination, 'wb') as file:
+    with requests.get(url, stream=True, timeout=10) as response:
       response.raise_for_status()
-      for chunk in response.iter_content(chunk_size=8192):
-        if params_memory.get_bool(cancel_param):
-          handle_error(temp_destination, "Download cancelled", "Download cancelled", download_param, progress_param, params_memory)
-          return
 
-        if chunk:
-          file.write(chunk)
-          downloaded_size += len(chunk)
-          progress = (downloaded_size / total_size) * 100
+      with tempfile.NamedTemporaryFile(dir=destination.parent, delete=False) as temp_file:
+        temp_file_path = Path(temp_file.name)
 
-          if progress != 100:
-            params_memory.put(progress_param, f"{progress:.0f}%")
-          else:
-            params_memory.put(progress_param, "Verifying authenticity...")
-  except Exception as e:
-    handle_request_error(e, temp_destination, download_param, progress_param, params_memory)
+        downloaded_size = 0
+        for chunk in response.iter_content(chunk_size=16384):
+          if params_memory.get_bool(cancel_param):
+            temp_file_path.unlink(missing_ok=True)
+            handle_error(None, "Download cancelled...", "Download cancelled...", download_param, progress_param, params_memory)
+            return
+
+          if chunk:
+            temp_file.write(chunk)
+            downloaded_size += len(chunk)
+
+            progress = (downloaded_size / total_size) * 100
+            if progress != 100:
+              params_memory.put(progress_param, f"{progress:.0f}%")
+            else:
+              params_memory.put(progress_param, "Verifying authenticity...")
+
+        temp_file_path.rename(destination)
+
+  except Exception as error:
+    handle_request_error(error, destination, download_param, progress_param, params_memory)
 
 def handle_error(destination, error_message, error, download_param, progress_param, params_memory):
   if destination:
     delete_file(destination)
 
-  if download_param:
-    params_memory.remove(download_param)
-
   if progress_param and "404" not in error_message:
     print(f"Error occurred: {error}")
     params_memory.put(progress_param, error_message)
+    params_memory.remove(download_param)
 
 def handle_request_error(error, destination, download_param, progress_param, params_memory):
   error_map = {
     requests.ConnectionError: "Connection dropped",
-    requests.HTTPError: lambda e: f"Server error ({e.response.status_code})" if e.response else "Server error",
+    requests.HTTPError: lambda error: f"Server error ({error.response.status_code})" if error.response else "Server error",
     requests.RequestException: "Network request error. Check connection",
     requests.Timeout: "Download timed out"
   }
@@ -57,20 +66,11 @@ def handle_request_error(error, destination, download_param, progress_param, par
 
 def get_remote_file_size(url):
   try:
-    response = requests.head(url, headers={'Accept-Encoding': 'identity'}, timeout=5)
-    if response.status_code == 404:
-      print(f"URL not found: {url}")
-      return 0
+    response = requests.head(url, headers={'Accept-Encoding': 'identity'}, timeout=10)
     response.raise_for_status()
     return int(response.headers.get('Content-Length', 0))
-  except requests.HTTPError as e:
-    if e.response and e.response.status_code == 404:
-      print(f"URL not found: {url}")
-      return 0
-    handle_request_error(e, None, None, None, None)
-    return 0
-  except Exception as e:
-    handle_request_error(e, None, None, None, None)
+  except Exception as error:
+    handle_request_error(error, None, None, None, None)
     return 0
 
 def get_repository_url():
@@ -80,23 +80,19 @@ def get_repository_url():
     return GITLAB_URL
   return None
 
-def verify_download(file_path, temp_file_path, url, initial_download=True):
+def verify_download(file_path, url):
   remote_file_size = get_remote_file_size(url)
-  if remote_file_size is None:
+
+  if remote_file_size == 0:
     print(f"Error fetching remote size for {file_path}")
-    return False if initial_download else True
-
-  if not os.path.isfile(temp_file_path):
-    print(f"File not found: {temp_file_path}")
     return False
 
-  try:
-    if remote_file_size != os.path.getsize(temp_file_path):
-      print(f"File size mismatch for {temp_file_path}")
-      return False
-  except Exception as e:
-    print(f"An unexpected error occurred while trying to verify the {temp_file_path} download: {e}")
+  if not file_path.is_file():
+    print(f"File not found: {file_path}")
     return False
 
-  os.rename(temp_file_path, file_path)
+  if remote_file_size != file_path.stat().st_size:
+    print(f"File size mismatch for {file_path}")
+    return False
+
   return True

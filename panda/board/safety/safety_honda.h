@@ -359,7 +359,7 @@ static bool honda_tx_hook(const CANPacket_t *to_send) {
 
   // STEER: safety check
   if ((addr == 0xE4) || (addr == 0x194)) {
-    bool aol_allowed = acc_main_on && (alternative_experience & ALT_EXP_DISABLE_DISENGAGE_ON_GAS);
+    bool aol_allowed = acc_main_on && (alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL);
     if (!(controls_allowed || aol_allowed)) {
       bool steer_applied = GET_BYTE(to_send, 0) | GET_BYTE(to_send, 1);
       if (steer_applied) {

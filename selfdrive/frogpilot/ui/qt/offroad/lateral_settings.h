@@ -18,31 +18,7 @@ private:
   void showEvent(QShowEvent *event) override;
   void showToggles(const std::set<QString> &keys);
   void updateMetric();
-  void updateCarToggles();
   void updateState(const UIState &s);
-
-  std::set<QString> advancedLateralTuneKeys = {
-    "ForceAutoTune", "ForceAutoTuneOff", "SteerFriction",
-    "SteerLatAccel", "SteerKP", "SteerRatio"
-  };
-
-  std::set<QString> aolKeys = {
-    "AlwaysOnLateralLKAS", "AlwaysOnLateralMain", "HideAOLStatusBar",
-    "PauseAOLOnBrake"
-  };
-
-  std::set<QString> laneChangeKeys = {
-    "LaneChangeTime", "LaneDetectionWidth", "MinimumLaneChangeSpeed",
-    "NudgelessLaneChange", "OneLaneChange"
-  };
-
-  std::set<QString> lateralTuneKeys = {
-    "NNFF", "NNFFLite", "TurnDesires"
-  };
-
-  std::set<QString> qolKeys = {
-    "PauseLateralSpeed"
-  };
 
   FrogPilotParamValueButtonControl *steerFrictionToggle;
   FrogPilotParamValueButtonControl *steerLatAccelToggle;
@@ -50,6 +26,8 @@ private:
   FrogPilotParamValueButtonControl *steerRatioToggle;
 
   FrogPilotSettingsWindow *parent;
+
+  QJsonObject frogpilotToggleLevels;
 
   Params params;
 
@@ -66,7 +44,13 @@ private:
   float steerKPStock;
   float steerRatioStock;
 
-  int customizationLevel;
+  int tuningLevel;
 
   std::map<QString, AbstractControl*> toggles;
+
+  std::set<QString> advancedLateralTuneKeys = {"ForceAutoTune", "ForceAutoTuneOff", "SteerFriction", "SteerLatAccel", "SteerKP", "SteerRatio"};
+  std::set<QString> aolKeys = {"AlwaysOnLateralLKAS", "AlwaysOnLateralMain", "HideAOLStatusBar", "PauseAOLOnBrake"};
+  std::set<QString> laneChangeKeys = {"LaneChangeTime", "LaneDetectionWidth", "MinimumLaneChangeSpeed", "NudgelessLaneChange", "OneLaneChange"};
+  std::set<QString> lateralTuneKeys = {"NNFF", "NNFFLite", "TurnDesires"};
+  std::set<QString> qolKeys = {"PauseLateralSpeed"};
 };

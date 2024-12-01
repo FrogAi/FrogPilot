@@ -209,10 +209,18 @@ OmxEncoder::OmxEncoder(const char* path, int width, int height, int fps, int bit
   this->height = height;
   this->fps = fps;
 
-  OMX_STRING component = (OMX_STRING)("OMX.qcom.video.encoder.avc");
-  int err = OMX_GetHandle(&handle, component, this, &omx_callbacks);
+  OMX_ERRORTYPE err = OMX_Init();
   if (err != OMX_ErrorNone) {
-    LOGE("error getting codec: %x", err);
+    LOGE("OMX_Init failed: %x", err);
+    return;
+  }
+
+  OMX_STRING component = (OMX_STRING)("OMX.qcom.video.encoder.avc");
+  err = OMX_GetHandle(&handle, component, this, &omx_callbacks);
+  if (err != OMX_ErrorNone) {
+    LOGE("Error getting codec: %x", err);
+    OMX_Deinit();
+    return;
   }
 
   // setup input port
@@ -542,6 +550,11 @@ OmxEncoder::~OmxEncoder() {
   wait_for_state(OMX_StateLoaded);
 
   OMX_CHECK(OMX_FreeHandle(handle));
+
+  OMX_ERRORTYPE err = OMX_Deinit();
+  if (err != OMX_ErrorNone) {
+    LOGE("OMX_Deinit failed: %x", err);
+  }
 
   OMX_BUFFERHEADERTYPE *out_buf;
   while (free_in.try_pop(out_buf));

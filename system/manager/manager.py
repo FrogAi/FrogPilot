@@ -3,7 +3,6 @@ import datetime
 import os
 import signal
 import sys
-import threading
 import traceback
 
 from cereal import log
@@ -29,20 +28,19 @@ def manager_init() -> None:
   build_metadata = get_build_metadata()
 
   params = Params()
-  setup_frogpilot(build_metadata, params)
-  params_storage = Params("/persist/params")
   params.clear_all(ParamKeyType.CLEAR_ON_MANAGER_START)
   params.clear_all(ParamKeyType.CLEAR_ON_ONROAD_TRANSITION)
   params.clear_all(ParamKeyType.CLEAR_ON_OFFROAD_TRANSITION)
   if build_metadata.release_channel:
     params.clear_all(ParamKeyType.DEVELOPMENT_ONLY)
 
-  convert_params(params, params_storage)
-  threading.Thread(target=frogpilot_boot_functions, args=(build_metadata, params, params_storage,)).start()
+  # FrogPilot variables
+  setup_frogpilot(build_metadata)
+  params_storage = Params("/persist/params")
+  convert_params(params_storage)
 
   default_params: list[tuple[str, str | bytes]] = [
     ("AlwaysOnDM", "0"),
-    ("CalibrationParams", ""),
     ("CarParamsPersistent", ""),
     ("CompletedTrainingVersion", "0"),
     ("DisengageOnAccelerator", "0"),
@@ -58,13 +56,13 @@ def manager_init() -> None:
     ("IsLdwEnabled", "0"),
     ("IsMetric", "0"),
     ("LanguageSetting", "main_en"),
-    ("LiveTorqueParameters", ""),
     ("NavSettingLeftSide", "0"),
     ("NavSettingTime24h", "0"),
     ("OpenpilotEnabledToggle", "1"),
     ("RecordFront", "0"),
     ("SshEnabled", "0"),
     ("TetheringEnabled", "0"),
+    ("UpdaterAvailableBranches", ""),
     ("LongitudinalPersonality", str(log.LongitudinalPersonality.standard)),
   ]
   if not PC:
@@ -75,15 +73,17 @@ def manager_init() -> None:
 
   # set unset params
   reset_toggles = params.get_bool("DoToggleReset")
-  for k, v in default_params + frogpilot_default_params:
+  for k, v in default_params + [(k, v) for k, v, _ in frogpilot_default_params]:
     if params.get(k) is None or reset_toggles:
       if params_storage.get(k) is None or reset_toggles:
-        params.put(k, v if isinstance(v, bytes) else str(v).encode('utf-8'))
+        params.put(k, v)
+        params_storage.remove(k)
       else:
         params.put(k, params_storage.get(k))
     else:
       params_storage.put(k, params.get(k))
   params.remove("DoToggleReset")
+  frogpilot_boot_functions(build_metadata, params_storage)
 
   # Create folders needed for msgq
   try:

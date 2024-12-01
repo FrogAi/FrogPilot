@@ -9,35 +9,43 @@ class ScreenRecorder : public QPushButton {
   Q_OBJECT
 
 public:
-  explicit ScreenRecorder(QWidget *parent = 0);
+  explicit ScreenRecorder(QWidget *parent = nullptr);
   ~ScreenRecorder() override;
 
   void updateScreen(double fps, bool started);
+
+protected:
+  void paintEvent(QPaintEvent *event) override;
+
+private slots:
+  void toggleRecording();
 
 private:
   void closeEncoder();
   void encodingThreadFunction();
   void openEncoder(const std::string &filename);
-  void paintEvent(QPaintEvent *event) override;
-  void start();
-  void stop();
-  void toggleRecording();
+  void startRecording();
+  void stopRecording();
 
   BlockingQueue<QImage> imageQueue{UI_FREQ};
-  BlockingQueue<QImage> encodeQueue{UI_FREQ};
 
-  QWidget *rootWidget;
+  inline QColor blackColor(int alpha = 255) { return QColor(0, 0, 0, alpha); }
+  inline QColor redColor(int alpha = 255) { return QColor(201, 34, 49, alpha); }
+  inline QColor whiteColor(int alpha = 255) { return QColor(255, 255, 255, alpha); }
 
-  bool recording;
+  QWidget *rootWidget = nullptr;
 
   int screenHeight = 1080;
   int screenWidth = 2160;
 
-  long long started_time;
+  long long startedTime = 0;
 
-  std::thread encodingThread;
+  std::atomic<bool> encoderReady{false};
+  std::atomic<bool> recording{false};
 
   std::unique_ptr<OmxEncoder> encoder;
 
   std::unique_ptr<uint8_t[]> rgbScaleBuffer;
+
+  std::thread encodingThread;
 };

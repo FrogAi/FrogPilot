@@ -12,8 +12,8 @@ from msgq.visionipc import VisionIpcClient, VisionStreamType
 from openpilot.common.swaglog import cloudlog
 from openpilot.common.params import Params
 from openpilot.common.realtime import set_realtime_priority
-from openpilot.selfdrive.modeld.constants import ModelConstants
-from openpilot.selfdrive.modeld.runners import ModelRunner, Runtime
+from openpilot.selfdrive.classic_modeld.constants import ModelConstants
+from openpilot.selfdrive.classic_modeld.runners import ModelRunner, Runtime
 
 NAV_INPUT_SIZE = 256*256
 NAV_FEATURE_LEN = 256
@@ -80,12 +80,6 @@ def get_navmodel_packet(model_output: np.ndarray, valid: bool, frame_id: int, lo
 def main():
   gc.disable()
   set_realtime_priority(1)
-
-  # there exists a race condition when two processes try to create a
-  # SNPE model runner at the same time, wait for dmonitoringmodeld to finish
-  cloudlog.warning("waiting for dmonitoringmodeld to initialize")
-  if not Params().get_bool("DmModelInitialized", True):
-    return
 
   model = ModelState()
   cloudlog.warning("models loaded, navmodeld starting")

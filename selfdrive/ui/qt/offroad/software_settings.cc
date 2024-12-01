@@ -32,7 +32,6 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   // automatic updates toggle
   ParamControl *automaticUpdatesToggle = new ParamControl("AutomaticUpdates", tr("Automatically Update FrogPilot"),
                                                        tr("FrogPilot will automatically update itself and it's assets when you're offroad and connected to Wi-Fi."), "");
-  connect(automaticUpdatesToggle, &ToggleControl::toggleFlipped, this, updateFrogPilotToggles);
   addItem(automaticUpdatesToggle);
 
   // download update btn
@@ -44,7 +43,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
     } else {
       std::system("pkill -SIGHUP -f system.updated.updated");
     }
-    paramsMemory.putBool("ManualUpdateInitiated", true);
+    params_memory.putBool("ManualUpdateInitiated", true);
   });
   addItem(downloadBtn);
 
@@ -89,10 +88,9 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   auto uninstallBtn = new ButtonControl(tr("Uninstall %1").arg(getBrand()), tr("UNINSTALL"));
   connect(uninstallBtn, &ButtonControl::clicked, [&]() {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to uninstall?"), tr("Uninstall"), this)) {
-      if (FrogPilotConfirmationDialog::yesorno(tr("Do you want to delete deep storage FrogPilot assets? This is 100% unrecoverable and includes FrogPilot stats and toggle settings for quick reinstalls."), this)) {
-        if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure? This is 100% unrecoverable and includes FrogPilot stats and toggle settings for quick reinstalls."), this)) {
+      if (FrogPilotConfirmationDialog::yesorno(tr("Do you want to delete deep storage FrogPilot assets? This includes your toggle settings for quick reinstalls."), this)) {
+        if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure? This is 100% unrecoverable and if you reinstall FrogPilot you'll lose all your previous settings!"), this)) {
           std::system("rm -rf /persist/params");
-          std::system("rm -rf /persist/tracking");
         }
       }
       params.putBool("DoUninstall", true);
@@ -139,14 +137,15 @@ void SoftwarePanel::updateLabels() {
   fs_watch->addParam("UpdateAvailable");
 
   if (!isVisible()) {
+    scene.keep_screen_on = false;
     return;
   }
 
   // updater only runs offroad or when parked
-  bool parked = scene.parked;
+  bool parked = scene.parked || scene.frogs_go_moo;
 
-  onroadLbl->setVisible(is_onroad && !parked && !scene.frogs_go_moo);
-  downloadBtn->setVisible(!is_onroad || parked || scene.frogs_go_moo);
+  onroadLbl->setVisible(is_onroad && !parked);
+  downloadBtn->setVisible(!is_onroad || parked);
 
   // download update
   QString updater_state = QString::fromStdString(params.get("UpdaterState"));

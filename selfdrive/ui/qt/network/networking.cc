@@ -235,7 +235,6 @@ void AdvancedNetworking::refresh() {
 void AdvancedNetworking::toggleTethering(int id) {
   wifi->setTetheringEnabled(id == 1 || id == 3);
   tetheringToggle->setEnabled(false);
-  updateFrogPilotToggles();
 }
 
 // WifiUI functions

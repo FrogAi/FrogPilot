@@ -1,3 +1,6 @@
+#include <QJsonDocument>
+#include <QJsonObject>
+
 #include "selfdrive/frogpilot/ui/qt/widgets/model_reviewer.h"
 
 ModelReview::ModelReview(QWidget *parent) : QFrame(parent) {
@@ -110,7 +113,7 @@ QPushButton *ModelReview::createButton(const QString &text, const QString &type,
 }
 
 void ModelReview::showEvent(QShowEvent *event) {
-  currentModel = QString::fromStdString(paramsMemory.get("CurrentModelName"));
+  currentModel = uiState()->scene.model_name;
   currentModelFiltered = processModelName(currentModel);
 
   mainLayout->setCurrentIndex(modelRated ? 1 : 0);
@@ -128,7 +131,7 @@ void ModelReview::mousePressEvent(QMouseEvent *e) {
 
 void ModelReview::updateLabel() {
   totalDrivesLabel->setText(QString("Total Model Drives: %1").arg(totalDrives));
-  modelLabel->setText(currentModel.remove(QRegularExpression("[🗺️👀📡]")).remove(QRegularExpression(" \\(Default\\)")));
+  modelLabel->setText(currentModelFiltered);
   modelRankLabel->setText(QString("Current Model Rank: %1").arg(getModelRank()));
   modelScoreLabel->setText(QString("Current Model Score: %1").arg(finalRating));
   totalOverallDrivesLabel->setText(QString("Total Overall Drives: %1").arg(totalOverallDrives));
@@ -144,29 +147,46 @@ void ModelReview::updateLabel() {
 void ModelReview::onRatingButtonClicked() {
   int newRating = qobject_cast<QPushButton*>(sender())->property("rating").toInt();
 
-  totalDrives = params.getInt((QString("%1Drives").arg(currentModelFiltered)).toStdString()) + 1;
+  QString jsonString = QString::fromStdString(params.get("ModelDrivesAndScores"));
+  QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonString.toUtf8());
+  QJsonObject jsonObject = jsonDoc.isObject() ? jsonDoc.object() : QJsonObject();
 
-  int currentRating = params.getInt((QString("%1Score").arg(currentModelFiltered)).toStdString());
-  finalRating = (currentRating * (totalDrives - 1) + newRating) / totalDrives;
+  QJsonObject modelData = jsonObject.value(currentModelFiltered).toObject();
+  int modelDrives = modelData.value("Drives").toInt();
+  int modelScore = modelData.value("Score").toInt();
 
-  params.putInt((QString("%1Drives").arg(currentModelFiltered)).toStdString(), totalDrives);
-  params.putInt((QString("%1Score").arg(currentModelFiltered)).toStdString(), finalRating);
+  totalDrives = modelDrives + 1;
+  finalRating = ((modelScore * modelDrives) + newRating) / totalDrives;
+
+  modelData["Drives"] = totalDrives;
+  modelData["Score"] = finalRating;
+  jsonObject[currentModelFiltered] = modelData;
+
+  params.put("ModelDrivesAndScores", QString(QJsonDocument(jsonObject).toJson(QJsonDocument::Compact)).toStdString());
 
   modelRated = true;
   updateLabel();
 }
 
 void ModelReview::onBlacklistButtonClicked() {
-  params.putInt(QString("%1Score").arg(currentModelFiltered).toStdString(), 0);
+  QString jsonString = QString::fromStdString(params.get("ModelDrivesAndScores"));
+  QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonString.toUtf8());
+  QJsonObject jsonObject = jsonDoc.isObject() ? jsonDoc.object() : QJsonObject();
 
-  totalDrives = params.getInt((QString("%1Drives").arg(currentModelFiltered)).toStdString()) + 1;
+  QJsonObject modelData = jsonObject.value(currentModelFiltered).toObject();
+  int modelDrives = modelData.value("Drives").toInt();
 
-  params.putInt((QString("%1Drives").arg(currentModelFiltered)).toStdString(), totalDrives);
+  totalDrives = modelDrives + 1;
+  modelData["Drives"] = totalDrives;
+  modelData["Score"] = 0;
+  jsonObject[currentModelFiltered] = modelData;
 
   if (!blacklistedModels.contains(currentModel)) {
     blacklistedModels.append(currentModel);
     params.put("BlacklistedModels", blacklistedModels.join(",").toStdString());
   }
+
+  params.put("ModelDrivesAndScores", QString(QJsonDocument(jsonObject).toJson(QJsonDocument::Compact)).toStdString());
 
   blacklistMessageLabel->setText("Model successfully blacklisted!");
   updateLabel();
@@ -180,14 +200,20 @@ void ModelReview::checkBlacklistButtonVisibility() {
 }
 
 int ModelReview::getModelRank() {
-  QStringList availableModels = QString::fromStdString(params.get("AvailableModelsNames")).split(",");
+  QString jsonString = QString::fromStdString(params.get("ModelDrivesAndScores"));
+  QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonString.toUtf8());
+  QJsonObject jsonObject = jsonDoc.isObject() ? jsonDoc.object() : QJsonObject();
+
   QList<QPair<QString, int>> modelScores;
   totalOverallDrives = 0;
 
-  for (QString &model : availableModels) {
+  QStringList availableModels = QString::fromStdString(params.get("AvailableModelNames")).split(",");
+  for (const QString &model : availableModels) {
     QString processedModel = processModelName(model);
-    int modelDrives = params.getInt((QString("%1Drives").arg(processedModel)).toStdString());
-    int modelScore = params.getInt((QString("%1Score").arg(processedModel)).toStdString());
+    QJsonObject modelData = jsonObject.value(processedModel).toObject();
+
+    int modelDrives = modelData.value("Drives").toInt();
+    int modelScore = modelData.value("Score").toInt();
 
     totalOverallDrives += modelDrives;
 

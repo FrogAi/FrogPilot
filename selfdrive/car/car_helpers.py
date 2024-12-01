@@ -206,7 +206,7 @@ def get_car(logcan, sendcan, disable_openpilot_long, experimental_long_allowed, 
   if frogpilot_toggles.block_user:
     candidate = "MOCK"
     threading.Thread(target=sentry.capture_fingerprint, args=(candidate, params, True,)).start()
-  elif not params.get_bool("FingerprintLogged"):
+  elif candidate != "MOCK" and not params.get_bool("FingerprintLogged"):
     threading.Thread(target=sentry.capture_fingerprint, args=(candidate, params,)).start()
 
   CarInterface, _, _ = interfaces[candidate]

@@ -1,9 +1,9 @@
 import math
 import numpy as np
-import os
 import time
 import wave
 
+from pathlib import Path
 
 from cereal import car, messaging
 from openpilot.common.basedir import BASEDIR
@@ -44,6 +44,7 @@ sound_list: dict[int, tuple[str, int | None, float]] = {
 
   # FrogPilot sounds
   AudibleAlert.angry: ("angry.wav", 1, MAX_VOLUME),
+  AudibleAlert.continued: ("continued.wav", 1, MAX_VOLUME),
   AudibleAlert.dejaVu: ("dejaVu.wav", 1, MAX_VOLUME),
   AudibleAlert.doc: ("doc.wav", 1, MAX_VOLUME),
   AudibleAlert.fart: ("fart.wav", 1, MAX_VOLUME),
@@ -54,7 +55,8 @@ sound_list: dict[int, tuple[str, int | None, float]] = {
   AudibleAlert.nessie: ("nessie.wav", 1, MAX_VOLUME),
   AudibleAlert.noice: ("noice.wav", 1, MAX_VOLUME),
   AudibleAlert.promptRepeat: ("prompt_repeat.wav", None, MAX_VOLUME),
-  AudibleAlert.thisIsFine: ("this_is_fine.wav", None, MAX_VOLUME),
+  AudibleAlert.startup: ("startup.wav", 1, MAX_VOLUME),
+  AudibleAlert.thisIsFine: ("this_is_fine.wav", 1, MAX_VOLUME),
   AudibleAlert.uwu: ("uwu.wav", 1, MAX_VOLUME),
 }
 
@@ -85,10 +87,11 @@ class Soundd:
 
     self.previous_sound_pack = None
 
-    self.random_events_directory = os.path.join(RANDOM_EVENTS_PATH, "sounds/")
+    self.random_events_directory = Path(RANDOM_EVENTS_PATH) / "sounds"
 
     self.random_events_map = {
       AudibleAlert.angry: MAX_VOLUME,
+      AudibleAlert.continued: MAX_VOLUME,
       AudibleAlert.dejaVu: MAX_VOLUME,
       AudibleAlert.doc: MAX_VOLUME,
       AudibleAlert.fart: MAX_VOLUME,
@@ -112,13 +115,15 @@ class Soundd:
       filename, play_count, volume = sound_list[sound]
 
       if sound in self.random_events_map:
-        wavefile = wave.open(self.random_events_directory + filename, 'r')
+        wavefile = wave.open(str(self.random_events_directory / filename), 'r')
       else:
         try:
-          wavefile = wave.open(self.sound_directory + filename, 'r')
+          wavefile = wave.open(str(self.sound_directory / filename), 'r')
         except FileNotFoundError:
           if filename == "prompt_repeat.wav":
             filename = "prompt.wav"
+          if filename == "startup.wav":
+            filename = "engage.wav"
           wavefile = wave.open(BASEDIR + "/selfdrive/assets/sounds/" + filename, 'r')
 
       assert wavefile.getnchannels() == 1
@@ -240,9 +245,9 @@ class Soundd:
     }
 
     if self.frogpilot_toggles.sound_pack != "stock":
-      self.sound_directory = os.path.join(ACTIVE_THEME_PATH, "sounds/")
+      self.sound_directory = Path(ACTIVE_THEME_PATH) / "sounds"
     else:
-      self.sound_directory = os.path.join(BASEDIR, "selfdrive", "assets", "sounds/")
+      self.sound_directory = Path(BASEDIR) / "selfdrive" / "assets" / "sounds"
 
     if self.frogpilot_toggles.sound_pack != self.previous_sound_pack:
       self.load_sounds()

@@ -77,6 +77,9 @@ private slots:
 private:
   Params params;
   ButtonControl *pair_device;
+
+  // FrogPilot variables
+  Params paramsStorage{"/persist/params"};
 };
 
 class TogglesPanel : public ListWidget {
@@ -125,5 +128,5 @@ private:
   ParamWatcher *fs_watch;
 
   // FrogPilot variables
-  Params paramsMemory{"/dev/shm/params"};
+  Params params_memory{"/dev/shm/params"};
 };

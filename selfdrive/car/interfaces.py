@@ -295,7 +295,7 @@ class CarInterfaceBase(ABC):
       eps_firmware = str(next((fw.fwVersion for fw in car_fw if fw.ecu == "eps"), ""))
       model = get_nn_model_path(candidate, eps_firmware)
       if model is not None:
-        params.put_nonblocking("NNFFModelName", candidate.replace("_", " "))
+        params.put("NNFFModelName", candidate.replace("_", " "))
 
     # Vehicle mass is published curb weight plus assumed payload such as a human driver; notCars have no assumed payload
     if not ret.notCar:

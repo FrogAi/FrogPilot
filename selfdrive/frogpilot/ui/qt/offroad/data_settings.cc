@@ -10,18 +10,19 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
     if (ConfirmationDialog::confirm(tr("Are you sure you want to permanently delete all of your driving footage and data?"), tr("Delete"), this)) {
       std::thread([=]() mutable {
         deleteDrivingDataBtn->setEnabled(false);
+
         deleteDrivingDataBtn->setValue(tr("Deleting..."));
 
-        if (realdataDir.removeRecursively()) {
-          realdataDir.mkpath(".");
-          deleteDrivingDataBtn->setValue(tr("Deleted!"));
-        } else {
-          deleteDrivingDataBtn->setValue(tr("Failed..."));
-        }
+        realdataDir.removeRecursively();
+        realdataDir.mkpath(".");
 
-        util::sleep_for(2000);
-        deleteDrivingDataBtn->setValue("");
+        deleteDrivingDataBtn->setValue(tr("Deleted!"));
+
+        util::sleep_for(2500);
+
         deleteDrivingDataBtn->setEnabled(true);
+
+        deleteDrivingDataBtn->setValue("");
       }).detach();
     }
   });
@@ -36,22 +37,24 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
       QString selection = MultiOptionDialog::getSelection(tr("Select a recording to delete"), recordingsNames, "", this);
       if (!selection.isEmpty()) {
         if (ConfirmationDialog::confirm(tr("Are you sure you want to delete this recording?"), tr("Delete"), this)) {
-          std::thread([=]() mutable {
+          std::thread([=]() {
             screenRecordingsBtn->setEnabled(false);
-            screenRecordingsBtn->setVisibleButton(1, false);
-            screenRecordingsBtn->setVisibleButton(2, false);
+
             screenRecordingsBtn->setValue(tr("Deleting..."));
 
-            QFile fileToDelete(recordingsDir.absoluteFilePath(selection));
-            if (fileToDelete.remove()) {
-              screenRecordingsBtn->setValue(tr("Deleted!"));
-            } else {
-              screenRecordingsBtn->setValue(tr("Failed..."));
-            }
+            screenRecordingsBtn->setVisibleButton(1, false);
+            screenRecordingsBtn->setVisibleButton(2, false);
 
-            util::sleep_for(2000);
-            screenRecordingsBtn->setValue("");
+            QFile::remove(recordingsDir.absoluteFilePath(selection));
+
+            screenRecordingsBtn->setValue(tr("Deleted!"));
+
+            util::sleep_for(2500);
+
             screenRecordingsBtn->setEnabled(true);
+
+            screenRecordingsBtn->setValue("");
+
             screenRecordingsBtn->setVisibleButton(1, true);
             screenRecordingsBtn->setVisibleButton(2, true);
           }).detach();
@@ -62,20 +65,23 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
       if (ConfirmationDialog::confirm(tr("Are you sure you want to delete all screen recordings?"), tr("Delete All"), this)) {
         std::thread([=]() mutable {
           screenRecordingsBtn->setEnabled(false);
-          screenRecordingsBtn->setVisibleButton(0, false);
-          screenRecordingsBtn->setVisibleButton(2, false);
+
           screenRecordingsBtn->setValue(tr("Deleting..."));
 
-          if (recordingsDir.removeRecursively()) {
-            recordingsDir.mkpath(".");
-            screenRecordingsBtn->setValue(tr("Deleted!"));
-          } else {
-            screenRecordingsBtn->setValue(tr("Failed..."));
-          }
+          screenRecordingsBtn->setVisibleButton(0, false);
+          screenRecordingsBtn->setVisibleButton(2, false);
 
-          util::sleep_for(2000);
-          screenRecordingsBtn->setValue("");
+          recordingsDir.removeRecursively();
+          recordingsDir.mkpath(".");
+
+          screenRecordingsBtn->setValue(tr("Deleted!"));
+
+          util::sleep_for(2500);
+
           screenRecordingsBtn->setEnabled(true);
+
+          screenRecordingsBtn->setValue("");
+
           screenRecordingsBtn->setVisibleButton(0, true);
           screenRecordingsBtn->setVisibleButton(2, true);
         }).detach();
@@ -84,26 +90,33 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
     } else if (id == 2) {
       QString selection = MultiOptionDialog::getSelection(tr("Select a recording to rename"), recordingsNames, "", this);
       if (!selection.isEmpty()) {
-        QString newName = InputDialog::getText(tr("Enter a new name"), this, tr("Rename Recording"));
+        QString newName = InputDialog::getText(tr("Enter a new name"), this, tr("Rename Recording")).trimmed().replace(" ", "_");
         if (!newName.isEmpty()) {
-          std::thread([=]() mutable {
+          if (recordingsNames.contains(newName)) {
+            ConfirmationDialog::alert(tr("A recording with this name already exists. Please choose a different name."), this);
+            return;
+          }
+          std::thread([=]() {
             screenRecordingsBtn->setEnabled(false);
-            screenRecordingsBtn->setVisibleButton(0, false);
-            screenRecordingsBtn->setVisibleButton(1, false);
+
             screenRecordingsBtn->setValue(tr("Renaming..."));
 
-            QString oldPath = recordingsDir.absoluteFilePath(selection);
+            screenRecordingsBtn->setVisibleButton(0, false);
+            screenRecordingsBtn->setVisibleButton(1, false);
+
             QString newPath = recordingsDir.absoluteFilePath(newName);
+            QString oldPath = recordingsDir.absoluteFilePath(selection);
 
-            if (QFile::rename(oldPath, newPath)) {
-              screenRecordingsBtn->setValue(tr("Renamed!"));
-            } else {
-              screenRecordingsBtn->setValue(tr("Failed..."));
-            }
+            QFile::rename(oldPath, newPath);
 
-            util::sleep_for(2000);
-            screenRecordingsBtn->setValue("");
+            screenRecordingsBtn->setValue(tr("Renamed!"));
+
+            util::sleep_for(2500);
+
             screenRecordingsBtn->setEnabled(true);
+
+            screenRecordingsBtn->setValue("");
+
             screenRecordingsBtn->setVisibleButton(0, true);
             screenRecordingsBtn->setVisibleButton(1, true);
           }).detach();
@@ -119,47 +132,49 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
     QStringList backupNames = backupDir.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot, QDir::Name).filter(QRegularExpression("^(?!.*_in_progress$).*$"));
 
     if (id == 0) {
-      QString nameSelection = InputDialog::getText(tr("Name your backup"), this, "", false, 1);
+      QString nameSelection = InputDialog::getText(tr("Name your backup"), this, "", false, 1).trimmed().replace(" ", "_");
       if (!nameSelection.isEmpty()) {
-        bool compressed = FrogPilotConfirmationDialog::yesorno(tr("Do you want to compress this backup? The end file size will be 2.25x smaller, but can take 10+ minutes."), this);
-        std::thread([=]() mutable {
-          uiState()->scene.keep_screen_on = true;
-
+        if (backupNames.contains(nameSelection)) {
+          ConfirmationDialog::alert(tr("A backup with this name already exists. Please choose a different name."), this);
+          return;
+        }
+        bool compressed = FrogPilotConfirmationDialog::yesorno(tr("Do you want to compress this backup? The final result will be 2.25x smaller and will run in the background, but can take 10+ minutes."), this);
+        std::thread([=]() {
           frogpilotBackupBtn->setEnabled(false);
+
+          frogpilotBackupBtn->setValue(tr("Backing up..."));
+
           frogpilotBackupBtn->setVisibleButton(1, false);
           frogpilotBackupBtn->setVisibleButton(2, false);
           frogpilotBackupBtn->setVisibleButton(3, false);
-          frogpilotBackupBtn->setValue(tr("Backing up..."));
 
-          std::string fullBackupPath = backupDir.absolutePath().toStdString() + "/" + nameSelection.toStdString();
+          std::string fullBackupPath = backupDir.filePath(nameSelection).toStdString();
           std::string inProgressBackupPath = fullBackupPath + "_in_progress";
-          int result = std::system(("mkdir -p " + inProgressBackupPath + " && rsync -av /data/openpilot/ " + inProgressBackupPath + "/").c_str());
 
-          if (result == 0 && compressed) {
+          std::filesystem::create_directories(inProgressBackupPath);
+          std::system(("rsync -av /data/openpilot/ " + inProgressBackupPath + "/").c_str());
+
+          if (compressed) {
             frogpilotBackupBtn->setValue(tr("Compressing..."));
-            result = std::system(("tar -czf " + fullBackupPath + "_in_progress.tar.gz -C " + inProgressBackupPath + " . && rm -rf " + inProgressBackupPath).c_str());
-            if (result == 0) {
-              result = std::system(("mv " + fullBackupPath + "_in_progress.tar.gz " + fullBackupPath + ".tar.gz").c_str());
-            }
-          } else if (result == 0) {
-            result = std::system(("mv " + inProgressBackupPath + " " + fullBackupPath).c_str());
-          }
 
-          if (result == 0) {
-            frogpilotBackupBtn->setValue(tr("Success!"));
+            std::system(("tar -czf " + fullBackupPath + "_in_progress.tar.gz -C " + inProgressBackupPath + " .").c_str());
+            std::filesystem::remove_all(inProgressBackupPath);
+            std::filesystem::rename(fullBackupPath + "_in_progress.tar.gz", fullBackupPath + ".tar.gz");
           } else {
-            frogpilotBackupBtn->setValue(tr("Failed..."));
-            std::system(("rm -rf " + inProgressBackupPath).c_str());
+            std::filesystem::rename(inProgressBackupPath, fullBackupPath);
           }
 
-          util::sleep_for(2000);
-          frogpilotBackupBtn->setValue("");
+          frogpilotBackupBtn->setValue(tr("Backup created!"));
+
+          util::sleep_for(2500);
+
           frogpilotBackupBtn->setEnabled(true);
+
+          frogpilotBackupBtn->setValue("");
+
           frogpilotBackupBtn->setVisibleButton(1, true);
           frogpilotBackupBtn->setVisibleButton(2, true);
           frogpilotBackupBtn->setVisibleButton(3, true);
-
-          uiState()->scene.keep_screen_on = false;
         }).detach();
       }
 
@@ -167,31 +182,26 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
       QString selection = MultiOptionDialog::getSelection(tr("Select a backup to delete"), backupNames, "", this);
       if (!selection.isEmpty()) {
         if (ConfirmationDialog::confirm(tr("Are you sure you want to delete this backup?"), tr("Delete"), this)) {
-          std::thread([=]() mutable {
-            frogpilotBackupBtn->setEnabled(false);
+          std::thread([=]() {
             frogpilotBackupBtn->setVisibleButton(0, false);
             frogpilotBackupBtn->setVisibleButton(2, false);
             frogpilotBackupBtn->setVisibleButton(3, false);
+
             frogpilotBackupBtn->setValue(tr("Deleting..."));
 
-            QDir dirToDelete(backupDir.absoluteFilePath(selection));
+            QDir dirToDelete(backupDir.filePath(selection));
             if (selection.endsWith(".tar.gz")) {
-              if (QFile::remove(dirToDelete.absolutePath())) {
-                frogpilotBackupBtn->setValue(tr("Deleted!"));
-              } else {
-                frogpilotBackupBtn->setValue(tr("Failed..."));
-              }
+              QFile::remove(dirToDelete.absolutePath());
             } else {
-              if (dirToDelete.removeRecursively()) {
-                frogpilotBackupBtn->setValue(tr("Deleted!"));
-              } else {
-                frogpilotBackupBtn->setValue(tr("Failed..."));
-              }
+              dirToDelete.removeRecursively();
             }
 
-            util::sleep_for(2000);
+            util::sleep_for(2500);
+
             frogpilotBackupBtn->setValue("");
+
             frogpilotBackupBtn->setEnabled(true);
+
             frogpilotBackupBtn->setVisibleButton(0, true);
             frogpilotBackupBtn->setVisibleButton(2, true);
             frogpilotBackupBtn->setVisibleButton(3, true);
@@ -203,21 +213,24 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
       if (ConfirmationDialog::confirm(tr("Are you sure you want to delete all FrogPilot backups?"), tr("Delete All"), this)) {
         std::thread([=]() mutable {
           frogpilotBackupBtn->setEnabled(false);
+
           frogpilotBackupBtn->setVisibleButton(0, false);
           frogpilotBackupBtn->setVisibleButton(1, false);
           frogpilotBackupBtn->setVisibleButton(3, false);
+
           frogpilotBackupBtn->setValue(tr("Deleting..."));
 
-          if (backupDir.removeRecursively()) {
-            backupDir.mkpath(".");
-            frogpilotBackupBtn->setValue(tr("Deleted!"));
-          } else {
-            frogpilotBackupBtn->setValue(tr("Failed..."));
-          }
+          backupDir.removeRecursively();
+          backupDir.mkpath(".");
 
-          util::sleep_for(2000);
+          frogpilotBackupBtn->setValue(tr("Deleted!"));
+
+          util::sleep_for(2500);
+
           frogpilotBackupBtn->setValue("");
+
           frogpilotBackupBtn->setEnabled(true);
+
           frogpilotBackupBtn->setVisibleButton(0, true);
           frogpilotBackupBtn->setVisibleButton(1, true);
           frogpilotBackupBtn->setVisibleButton(3, true);
@@ -228,68 +241,49 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
       QString selection = MultiOptionDialog::getSelection(tr("Select a restore point"), backupNames, "", this);
       if (!selection.isEmpty()) {
         if (ConfirmationDialog::confirm(tr("Are you sure you want to restore this version of FrogPilot?"), tr("Restore"), this)) {
-          std::thread([=]() mutable {
-            uiState()->scene.keep_screen_on = true;
-
+          std::thread([=]() {
             frogpilotBackupBtn->setEnabled(false);
+
             frogpilotBackupBtn->setVisibleButton(0, false);
             frogpilotBackupBtn->setVisibleButton(1, false);
             frogpilotBackupBtn->setVisibleButton(2, false);
-            frogpilotBackupBtn->setValue(tr("Restoring..."));
 
-            std::string sourcePath = backupDir.absolutePath().toStdString() + "/" + selection.toStdString();
-            std::string targetPath = "/data/safe_staging/finalized";
             std::string extractDirectory = "/data/restore_temp";
+            std::string sourcePath = backupDir.filePath(selection).toStdString();
+            std::string targetPath = "/data/safe_staging/finalized";
 
             if (selection.endsWith(".tar.gz")) {
               frogpilotBackupBtn->setValue(tr("Extracting..."));
 
-              if (std::system(("mkdir -p " + extractDirectory).c_str()) != 0 || std::system(("tar --strip-components=1 -xzf " + sourcePath + " -C " + extractDirectory).c_str()) != 0) {
-                frogpilotBackupBtn->setValue(tr("Failed..."));
-                util::sleep_for(2000);
-                frogpilotBackupBtn->setValue("");
-                frogpilotBackupBtn->setEnabled(true);
-                return;
-              }
+              std::filesystem::create_directories(extractDirectory);
+              std::system(("tar --strip-components=1 -xzf " + sourcePath + " -C " + extractDirectory).c_str());
 
               sourcePath = extractDirectory;
-              frogpilotBackupBtn->setValue(tr("Restoring..."));
             }
 
-            if (std::system(("rsync -av --delete -l --exclude='.overlay_consistent' " + sourcePath + "/ " + targetPath + "/").c_str()) == 0) {
-              std::ofstream consistentFile(targetPath + "/.overlay_consistent");
-              if (consistentFile) {
-                frogpilotBackupBtn->setValue(tr("Restored!"));
-                params.putBool("AutomaticUpdates", false);
-                util::sleep_for(2000);
+            frogpilotBackupBtn->setValue(tr("Restoring..."));
 
-                frogpilotBackupBtn->setValue(tr("Rebooting..."));
-                consistentFile.close();
-                std::filesystem::remove_all(extractDirectory);
+            std::filesystem::create_directories(targetPath);
+            std::system(("rsync -av --delete -l " + sourcePath + "/ " + targetPath + "/").c_str());
 
-                util::sleep_for(2000);
-                Hardware::reboot();
-              } else {
-                frogpilotBackupBtn->setValue(tr("Failed..."));
+            std::filesystem::path overlayFile = targetPath + "/.overlay_consistent";
+            std::ofstream(overlayFile).close();
 
-                util::sleep_for(2000);
-
-                frogpilotBackupBtn->setValue("");
-                frogpilotBackupBtn->setEnabled(true);
-                frogpilotBackupBtn->setVisibleButton(0, true);
-                frogpilotBackupBtn->setVisibleButton(1, true);
-                frogpilotBackupBtn->setVisibleButton(2, true);
-
-                uiState()->scene.keep_screen_on = false;
-              }
-            } else {
-              frogpilotBackupBtn->setValue(tr("Failed..."));
-              util::sleep_for(2000);
-              frogpilotBackupBtn->setValue("");
-              frogpilotBackupBtn->setEnabled(true);
-
-              uiState()->scene.keep_screen_on = false;
+            if (std::filesystem::exists(extractDirectory)) {
+              std::filesystem::remove_all(extractDirectory);
             }
+
+            params.putBool("AutomaticUpdates", false);
+
+            frogpilotBackupBtn->setValue(tr("Restored!"));
+
+            util::sleep_for(2500);
+
+            frogpilotBackupBtn->setValue(tr("Rebooting..."));
+
+            util::sleep_for(2500);
+
+            Hardware::reboot();
           }).detach();
         }
       }
@@ -303,26 +297,38 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
     QStringList backupNames = backupDir.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot, QDir::Name).filter(QRegularExpression("^(?!.*_in_progress$).*$"));
 
     if (id == 0) {
-      QString nameSelection = InputDialog::getText(tr("Name your backup"), this, "", false, 1);
+      QString nameSelection = InputDialog::getText(tr("Name your backup"), this, "", false, 1).trimmed().replace(" ", "_");
       if (!nameSelection.isEmpty()) {
-        std::thread([=]() mutable {
+        if (backupNames.contains(nameSelection)) {
+          ConfirmationDialog::alert(tr("A backup with this name already exists. Please choose a different name."), this);
+          return;
+        }
+        std::thread([=]() {
           toggleBackupBtn->setEnabled(false);
+
+          toggleBackupBtn->setValue(tr("Backing up..."));
+
           toggleBackupBtn->setVisibleButton(1, false);
           toggleBackupBtn->setVisibleButton(2, false);
           toggleBackupBtn->setVisibleButton(3, false);
-          toggleBackupBtn->setValue(tr("Backing up..."));
 
-          std::string command = "mkdir -p " + backupDir.absolutePath().toStdString() + "/" + nameSelection.toStdString() + " && rsync -av /data/params/d/ " + backupDir.absolutePath().toStdString() + "/" + nameSelection.toStdString();
-          int result = std::system(command.c_str());
-          if (result == 0) {
-            toggleBackupBtn->setValue(tr("Success!"));
-          } else {
-            toggleBackupBtn->setValue(tr("Failed..."));
-          }
+          std::string fullBackupPath = backupDir.filePath(nameSelection).toStdString();
+          std::string inProgressBackupPath = fullBackupPath + "_in_progress";
 
-          util::sleep_for(2000);
-          toggleBackupBtn->setValue("");
+          std::filesystem::create_directories(inProgressBackupPath);
+
+          std::system(("rsync -av /data/params/d/ " + inProgressBackupPath + "/").c_str());
+
+          std::filesystem::rename(inProgressBackupPath, fullBackupPath);
+
+          toggleBackupBtn->setValue(tr("Backup created!"));
+
+          util::sleep_for(2500);
+
           toggleBackupBtn->setEnabled(true);
+
+          toggleBackupBtn->setValue("");
+
           toggleBackupBtn->setVisibleButton(1, true);
           toggleBackupBtn->setVisibleButton(2, true);
           toggleBackupBtn->setVisibleButton(3, true);
@@ -333,23 +339,22 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
       QString selection = MultiOptionDialog::getSelection(tr("Select a backup to delete"), backupNames, "", this);
       if (!selection.isEmpty()) {
         if (ConfirmationDialog::confirm(tr("Are you sure you want to delete this backup?"), tr("Delete"), this)) {
-          std::thread([=]() mutable {
-            toggleBackupBtn->setEnabled(false);
+          std::thread([=]() {
             toggleBackupBtn->setVisibleButton(0, false);
             toggleBackupBtn->setVisibleButton(2, false);
             toggleBackupBtn->setVisibleButton(3, false);
+
             toggleBackupBtn->setValue(tr("Deleting..."));
 
-            QDir dirToDelete(backupDir.absoluteFilePath(selection));
-            if (dirToDelete.removeRecursively()) {
-              toggleBackupBtn->setValue(tr("Deleted!"));
-            } else {
-              toggleBackupBtn->setValue(tr("Failed..."));
-            }
+            QDir dirToDelete(backupDir.filePath(selection));
+            dirToDelete.removeRecursively();
 
-            util::sleep_for(2000);
+            util::sleep_for(2500);
+
             toggleBackupBtn->setValue("");
+
             toggleBackupBtn->setEnabled(true);
+
             toggleBackupBtn->setVisibleButton(0, true);
             toggleBackupBtn->setVisibleButton(2, true);
             toggleBackupBtn->setVisibleButton(3, true);
@@ -361,21 +366,24 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
       if (ConfirmationDialog::confirm(tr("Are you sure you want to delete all toggle backups?"), tr("Delete All"), this)) {
         std::thread([=]() mutable {
           toggleBackupBtn->setEnabled(false);
+
           toggleBackupBtn->setVisibleButton(0, false);
           toggleBackupBtn->setVisibleButton(1, false);
           toggleBackupBtn->setVisibleButton(3, false);
+
           toggleBackupBtn->setValue(tr("Deleting..."));
 
-          if (backupDir.removeRecursively()) {
-            backupDir.mkpath(".");
-            toggleBackupBtn->setValue(tr("Deleted!"));
-          } else {
-            toggleBackupBtn->setValue(tr("Failed..."));
-          }
+          backupDir.removeRecursively();
+          backupDir.mkpath(".");
 
-          util::sleep_for(2000);
+          toggleBackupBtn->setValue(tr("Deleted!"));
+
+          util::sleep_for(2500);
+
           toggleBackupBtn->setValue("");
+
           toggleBackupBtn->setEnabled(true);
+
           toggleBackupBtn->setVisibleButton(0, true);
           toggleBackupBtn->setVisibleButton(1, true);
           toggleBackupBtn->setVisibleButton(3, true);
@@ -386,37 +394,32 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
       QString selection = MultiOptionDialog::getSelection(tr("Select a restore point"), backupNames, "", this);
       if (!selection.isEmpty()) {
         if (ConfirmationDialog::confirm(tr("Are you sure you want to restore this toggle backup?"), tr("Restore"), this)) {
-          std::thread([=]() mutable {
+          std::thread([=]() {
             toggleBackupBtn->setEnabled(false);
+
             toggleBackupBtn->setVisibleButton(0, false);
             toggleBackupBtn->setVisibleButton(1, false);
             toggleBackupBtn->setVisibleButton(2, false);
+
             toggleBackupBtn->setValue(tr("Restoring..."));
 
-            std::string targetPath = "/data/params/d/";
-            std::string tempBackupPath = "/data/params/d_backup/";
+            std::string sourcePath = backupDir.filePath(selection).toStdString();
+            std::string targetPath = "/data/params/d";
 
-            int backupResult = std::system(("rsync -av --delete -l " + targetPath + " " + tempBackupPath).c_str());
-            if (backupResult == 0) {
-              toggleBackupBtn->setValue(tr("Restoring..."));
-              std::string restoreCommand = "rsync -av --delete -l " + backupDir.absolutePath().toStdString() + "/" + selection.toStdString() + "/ " + targetPath;
-              int restoreResult = std::system(restoreCommand.c_str());
+            std::filesystem::create_directories(targetPath);
 
-              if (restoreResult == 0) {
-                toggleBackupBtn->setValue(tr("Success!"));
-              } else {
-                toggleBackupBtn->setValue(tr("Failed..."));
-                std::system(("rsync -av --delete -l " + tempBackupPath + " " + targetPath).c_str());
-              }
+            std::system(("rsync -av -l " + sourcePath + "/ " + targetPath + "/").c_str());
 
-              std::system(("rm -rf " + tempBackupPath).c_str());
-            } else {
-              toggleBackupBtn->setValue(tr("Failed..."));
-            }
+            updateFrogPilotToggles();
 
-            util::sleep_for(2000);
+            toggleBackupBtn->setValue(tr("Restored!"));
+
+            util::sleep_for(2500);
+
             toggleBackupBtn->setValue("");
+
             toggleBackupBtn->setEnabled(true);
+
             toggleBackupBtn->setVisibleButton(0, true);
             toggleBackupBtn->setVisibleButton(1, true);
             toggleBackupBtn->setVisibleButton(2, true);

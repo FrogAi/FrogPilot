@@ -115,7 +115,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
 
   bool disableOpenpilotLongState = params.getBool("DisableOpenpilotLongitudinal");
   disableOpenpilotLong = new ToggleControl(tr("Disable openpilot Longitudinal Control"), tr("Disables openpilot longitudinal control and uses the car's stock ACC instead."), "", disableOpenpilotLongState);
-  QObject::connect(disableOpenpilotLong, &ToggleControl::toggleFlipped, [this](bool state) {
+  QObject::connect(disableOpenpilotLong, &ToggleControl::toggleFlipped, [this, parent](bool state) {
     if (state) {
       if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely disable openpilot longitudinal control?"), this)) {
         params.putBool("DisableOpenpilotLongitudinal", state);
@@ -130,6 +130,8 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
     } else {
       params.putBool("DisableOpenpilotLongitudinal", state);
     }
+    disableOpenpilotLongitudinal = state;
+    parent->updateVariables();
   });
   addItem(disableOpenpilotLong);
 
@@ -168,8 +170,6 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
     addItem(vehicleToggle);
     toggles[param] = vehicleToggle;
 
-    makeConnections(vehicleToggle);
-
     QObject::connect(vehicleToggle, &AbstractControl::showDescriptionEvent, [this]() {
       update();
     });
@@ -177,9 +177,8 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
 
   FrogPilotParamValueButtonControl *clusterOffsetToggle = static_cast<FrogPilotParamValueButtonControl*>(toggles["ClusterOffset"]);
   QObject::connect(clusterOffsetToggle, &FrogPilotParamValueButtonControl::buttonClicked, [=]() {
-    params.putFloat("ClusterOffset", 1.015);
+    params.putFloat("ClusterOffset", params_default.getFloat("ClusterOffset"));
     clusterOffsetToggle->refresh();
-    updateFrogPilotToggles();
   });
 
   std::set<QString> rebootKeys = {"CrosstrekTorque", "ExperimentalGMTune", "FrogsGoMoosTweak", "NewLongAPI", "NewLongAPIGM"};
@@ -211,25 +210,18 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
     setModels();
   }
 
-  QObject::connect(parent, &FrogPilotSettingsWindow::updateCarToggles, this, &FrogPilotVehiclesPanel::updateCarToggles);
   QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotVehiclesPanel::updateState);
 }
 
 void FrogPilotVehiclesPanel::showEvent(QShowEvent *event) {
-  customizationLevel = parent->customizationLevel;
-
-  updateToggles();
-}
-
-void FrogPilotVehiclesPanel::updateCarToggles() {
-  disableOpenpilotLongitudinal = parent->disableOpenpilotLongitudinal;
+  frogpilotToggleLevels = parent->frogpilotToggleLevels;
   hasExperimentalOpenpilotLongitudinal = parent->hasExperimentalOpenpilotLongitudinal;
   hasOpenpilotLongitudinal = parent->hasOpenpilotLongitudinal;
   hasSNG = parent->hasSNG;
   isBolt = parent->isBolt;
-  isGMPCMCruise = parent->isGMPCMCruise;
   isImpreza = parent->isImpreza;
   isVolt = parent->isVolt;
+  tuningLevel = parent->tuningLevel;
 
   updateToggles();
 }
@@ -250,8 +242,9 @@ void FrogPilotVehiclesPanel::setModels() {
 void FrogPilotVehiclesPanel::updateToggles() {
   setUpdatesEnabled(false);
 
-  disableOpenpilotLong->setVisible((hasOpenpilotLongitudinal && !hasExperimentalOpenpilotLongitudinal && !isGMPCMCruise && customizationLevel == 2) || disableOpenpilotLongitudinal);
-  forceFingerprint ->setVisible(customizationLevel == 2 || isBolt);
+  disableOpenpilotLong->setVisible(hasOpenpilotLongitudinal && !hasExperimentalOpenpilotLongitudinal && tuningLevel >= frogpilotToggleLevels["DisableOpenpilotLongitudinal"].toDouble());
+  disableOpenpilotLong->setVisible(disableOpenpilotLong->isVisible() || disableOpenpilotLongitudinal);
+  forceFingerprint ->setVisible(tuningLevel >= frogpilotToggleLevels["ForceFingerprint"].toDouble() || isBolt);
 
   selectMakeButton->setValue(carMake);
   selectModelButton->setValue(carModel);
@@ -267,15 +260,15 @@ void FrogPilotVehiclesPanel::updateToggles() {
 
     if (gm && gmKeys.find(key) != gmKeys.end()) {
       if (voltKeys.find(key) != voltKeys.end()) {
-        setVisible = isVolt && hasOpenpilotLongitudinal && !disableOpenpilotLongitudinal;
+        setVisible = isVolt && hasOpenpilotLongitudinal;
       } else if (longitudinalKeys.find(key) != longitudinalKeys.end()) {
-        setVisible = hasOpenpilotLongitudinal && !disableOpenpilotLongitudinal;
+        setVisible = hasOpenpilotLongitudinal;
       } else {
         setVisible = true;
       }
     } else if (hyundai && hyundaiKeys.find(key) != hyundaiKeys.end()) {
       if (longitudinalKeys.find(key) != longitudinalKeys.end()) {
-        setVisible = hasOpenpilotLongitudinal && !disableOpenpilotLongitudinal;
+        setVisible = hasOpenpilotLongitudinal;
       } else {
         setVisible = true;
       }
@@ -283,29 +276,22 @@ void FrogPilotVehiclesPanel::updateToggles() {
       if (imprezaKeys.find(key) != imprezaKeys.end()) {
         setVisible = isImpreza;
       } else if (longitudinalKeys.find(key) != longitudinalKeys.end()) {
-        setVisible = hasOpenpilotLongitudinal && !disableOpenpilotLongitudinal;
+        setVisible = hasOpenpilotLongitudinal;
       } else {
         setVisible = true;
       }
     } else if (toyota && toyotaKeys.find(key) != toyotaKeys.end()) {
       if (sngKeys.find(key) != sngKeys.end()) {
-        setVisible = !hasSNG && hasOpenpilotLongitudinal && !disableOpenpilotLongitudinal;
+        setVisible = !hasSNG && hasOpenpilotLongitudinal;
       } else if (longitudinalKeys.find(key) != longitudinalKeys.end()) {
-        setVisible = hasOpenpilotLongitudinal && !disableOpenpilotLongitudinal;
+        setVisible = hasOpenpilotLongitudinal;
       } else {
         setVisible = true;
       }
     }
 
-    toggle->setVisible(setVisible);
+    toggle->setVisible(setVisible && tuningLevel >= frogpilotToggleLevels[key].toDouble());
   }
-
-  toggles["ClusterOffset"]->setVisible(toggles["ClusterOffset"]->isVisible() && customizationLevel == 2);
-  toggles["CrosstrekTorque"]->setVisible(toggles["CrosstrekTorque"]->isVisible() && customizationLevel == 2);
-  toggles["ExperimentalGMTune"]->setVisible(toggles["ExperimentalGMTune"]->isVisible() && customizationLevel == 2);
-  toggles["FrogsGoMoosTweak"]->setVisible(toggles["FrogsGoMoosTweak"]->isVisible() && customizationLevel == 2);
-  toggles["LongPitch"]->setVisible(toggles["LongPitch"]->isVisible() && customizationLevel == 2);
-  toggles["NewLongAPI"]->setVisible(toggles["NewLongAPI"]->isVisible() && customizationLevel == 2);
 
   setUpdatesEnabled(true);
   update();

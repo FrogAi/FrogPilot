@@ -486,8 +486,8 @@ def store_toggle_values(request_data):
       print(f"value: {value}")
       params.put(key, value)
       params_storage.put(key, value)
-    except Exception as e:
-      print(f"Failed to update {key}: {e}")
+    except Exception as error:
+      print(f"Failed to update {key}: {error}")
 
   extra_keys = set(decoded_values.keys()) - set(current_parameters.keys())
   if extra_keys:

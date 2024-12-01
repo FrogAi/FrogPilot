@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <memory>
 #include <string>
 
@@ -104,7 +105,7 @@ typedef struct UIScene {
   QPolygonF road_edge_vertices[2];
 
   // lead
-  QPointF lead_vertices[6];
+  QPointF lead_vertices[7];
 
   // DMoji state
   float driver_pose_vals[3];
@@ -135,6 +136,8 @@ typedef struct UIScene {
   QPolygonF track_adjacent_vertices[6];
   QPolygonF track_edge_vertices;
 
+  QString model_name;
+
   bool acceleration_path;
   bool adjacent_path;
   bool adjacent_path_metrics;
@@ -150,7 +153,6 @@ typedef struct UIScene {
   bool compass;
   bool conditional_experimental;
   bool cpu_metrics;
-  bool disable_curve_speed_smoothing;
   bool driver_camera_in_reverse;
   bool dynamic_path_width;
   bool dynamic_pedals_on_ui;
@@ -162,9 +164,9 @@ typedef struct UIScene {
   bool frogs_go_moo;
   bool full_map;
   bool gpu_metrics;
-  bool has_auto_tune;
   bool has_lead;
   bool hide_alerts;
+  bool hide_csc_ui;
   bool hide_lead_marker;
   bool hide_map_icon;
   bool hide_max_speed;
@@ -175,11 +177,13 @@ typedef struct UIScene {
   bool keep_screen_on;
   bool lateral_tuning_metrics;
   bool lead_metrics;
+  bool left_curve;
   bool live_valid;
   bool map_open;
   bool memory_metrics;
   bool model_randomizer;
   bool model_ui;
+  bool mtsc_enabled;
   bool no_logging;
   bool no_uploads;
   bool numerical_temp;
@@ -188,16 +192,17 @@ typedef struct UIScene {
   bool parked;
   bool pedals_on_ui;
   bool radarless_model;
+  bool rainbow_path;
   bool random_events;
   bool red_light;
   bool reverse;
-  bool right_hand_drive;
   bool road_name_ui;
   bool rotating_wheel;
   bool screen_recorder;
   bool show_blind_spot;
   bool show_fps;
   bool show_speed_limit_offset;
+  bool show_speed_limits;
   bool show_stopping_point;
   bool show_stopping_point_metrics;
   bool sidebar_metrics;
@@ -205,6 +210,7 @@ typedef struct UIScene {
   bool speed_limit_changed;
   bool speed_limit_controller;
   bool speed_limit_overridden;
+  bool speed_limit_sources;
   bool speed_limit_vienna;
   bool standby_mode;
   bool standstill;
@@ -224,6 +230,7 @@ typedef struct UIScene {
   bool use_stock_wheel;
   bool use_wheel_speed;
   bool vtsc_controlling_curve;
+  bool vtsc_enabled;
   bool wake_up_screen;
 
   double fps;
@@ -231,7 +238,7 @@ typedef struct UIScene {
   float acceleration;
   float acceleration_jerk;
   float acceleration_jerk_difference;
-  float adjusted_cruise;
+  float dashboard_speed_limit;
   float friction;
   float lane_detection_width;
   float lane_line_width;
@@ -239,16 +246,21 @@ typedef struct UIScene {
   float lane_width_right;
   float lat_accel;
   float lead_detection_probability;
+  float mtsc_speed;
+  float navigation_speed_limit;
   float path_edge_width;
   float path_width;
   float road_edge_width;
   float speed_jerk;
   float speed_jerk_difference;
   float speed_limit;
+  float speed_limit_map;
   float speed_limit_offset;
   float speed_limit_overridden_speed;
   float steer;
   float unconfirmed_speed_limit;
+  float upcoming_speed_limit;
+  float vtsc_speed;
 
   int bearing_deg;
   int camera_view;
@@ -270,6 +282,8 @@ typedef struct UIScene {
   int steering_angle_deg;
   int stopped_equivalence;
   int tethering_config;
+
+  std::string speed_limit_source;
 
 } UIScene;
 
@@ -299,6 +313,8 @@ public:
   QTransform car_space_transform;
 
   // FrogPilot variables
+  Params params_memory{"/dev/shm/params"};
+
   WifiManager *wifi = nullptr;
 
 signals:
@@ -310,6 +326,8 @@ signals:
   // FrogPilot signals
   void driveRated();
   void reviewModel();
+  void themeUpdated();
+  void togglesUpdated();
 
 private slots:
   void update();
@@ -318,9 +336,6 @@ private:
   QTimer *timer;
   bool started_prev = false;
   PrimeType prime_type = PrimeType::UNKNOWN;
-
-  // FrogPilot variables
-  Params paramsMemory{"/dev/shm/params"};
 };
 
 UIState *uiState();
@@ -373,3 +388,4 @@ void update_line_data(const UIState *s, const cereal::XYZTData::Reader &line,
 
 // FrogPilot functions
 void ui_update_frogpilot_params(UIState *s);
+void ui_update_theme(UIState *s);

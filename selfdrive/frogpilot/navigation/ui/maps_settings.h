@@ -65,7 +65,7 @@ private:
   MapSelectionControl *westMaps;
 
   Params params;
-  Params paramsMemory{"/dev/shm/params"};
+  Params params_memory{"/dev/shm/params"};
 
   bool countriesOpen;
   bool downloadActive;

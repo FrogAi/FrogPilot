@@ -333,8 +333,8 @@ def store_toggle_values_route():
     updated_values = request.get_json()
     fleet.store_toggle_values(updated_values)
     return jsonify({"message": "Values updated successfully"}), 200
-  except Exception as e:
-    return jsonify({"error": "Failed to update values", "details": str(e)}), 400
+  except Exception as error:
+    return jsonify({"error": "Failed to update values", "details": str(error)}), 400
 
 def main():
   try:

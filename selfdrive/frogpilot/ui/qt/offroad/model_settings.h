@@ -21,40 +21,45 @@ private:
   void hideSubToggles();
   void hideToggles();
   void showToggles(const std::set<QString> &keys);
-  void startDownloadAllModels();
   void updateModelLabels();
   void updateState(const UIState &s);
 
-  std::set<QString> modelRandomizerKeys = {
-    "ManageBlacklistedModels", "ResetScores", "ReviewScores"
-  };
-
-  ButtonControl *deleteModelBtn;
-  ButtonControl *downloadAllModelsBtn;
-  ButtonControl *downloadModelBtn;
   ButtonControl *selectModelBtn;
 
+  FrogPilotButtonsControl *deleteModelBtn;
+  FrogPilotButtonsControl *downloadModelBtn;
+
+  FrogPilotSettingsWindow *parent;
+
   Params params;
-  Params paramsMemory{"/dev/shm/params"};
-  Params paramsStorage{"/persist/params"};
+  Params params_default{"/data/params_default"};
+  Params params_memory{"/dev/shm/params"};
+  Params params_storage{"/persist/params"};
 
   QDir modelDir{"/data/models/"};
 
+  QJsonObject frogpilotToggleLevels;
+
   QList<LabelControl*> labelControls;
 
-  QStringList availableModelNames;
-  QStringList availableModels;
-  QStringList experimentalModels;
+  QMap<QString, QString> modelFileToNameMap;
+  QMap<QString, QString> modelFileToNameMapProcessed;
 
+  QStringList availableModels;
+  QStringList availableModelNames;
+
+  bool allModelsDownloaded;
   bool allModelsDownloading;
   bool cancellingDownload;
-  bool haveModelsDownloaded;
-  bool modelDeleting;
+  bool finalizingDownload;
   bool modelDownloading;
-  bool modelRandomizer;
   bool modelRandomizerOpen;
-  bool modelsDownloaded;
+  bool noModelsDownloaded;
   bool started;
 
+  int tuningLevel;
+
   std::map<QString, AbstractControl*> toggles;
+
+  std::set<QString> modelRandomizerKeys = {"ManageBlacklistedModels", "ResetScores", "ReviewScores"};
 };

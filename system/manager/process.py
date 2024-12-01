@@ -111,8 +111,8 @@ class ManagerProcess(ABC):
       if self.watchdog_seen and ENABLE_WATCHDOG:
         cloudlog.error(f"Watchdog timeout for {self.name} (exitcode {self.proc.exitcode}) restarting ({started=})")
         self.restart()
-        if self.started_time > 100:
-          sentry.capture_tmux(self.name, self.started_time, params)
+        if self.started_time > 100 and self.name == "ui":
+          sentry.capture_tmux(self.started_time, params)
     else:
       self.watchdog_seen = True
 

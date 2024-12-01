@@ -8,7 +8,10 @@ class FrogPilotSettingsWindow : public QFrame {
 public:
   explicit FrogPilotSettingsWindow(SettingsWindow *parent);
 
-  bool disableOpenpilotLongitudinal = false;
+  void updateVariables();
+
+  QJsonObject frogpilotToggleLevels;
+
   bool forcingAutoTune = false;
   bool hasAutoTune = true;
   bool hasBSM = true;
@@ -16,16 +19,15 @@ public:
   bool hasExperimentalOpenpilotLongitudinal = false;
   bool hasNNFFLog = true;
   bool hasOpenpilotLongitudinal = true;
-  bool hasPCMCruise = true;
+  bool hasPCMCruise = false;
   bool hasRadar = true;
   bool hasSNG = false;
   bool isBolt = false;
   bool isGM = true;
-  bool isGMPCMCruise = false;
   bool isHKGCanFd = true;
   bool isImpreza = true;
   bool isPIDCar = false;
-  bool isSubaru = true;
+  bool isSubaru = false;
   bool isToyota = true;
   bool isVolt = true;
   bool liveValid = false;
@@ -35,7 +37,7 @@ public:
   float steerLatAccelStock;
   float steerRatioStock;
 
-  int customizationLevel;
+  int tuningLevel;
 
 signals:
   void closeMapBoxInstructions();
@@ -47,14 +49,12 @@ signals:
   void openPanel();
   void openParentToggle();
   void openSubParentToggle();
-  void updateCarToggles();
   void updateMetric();
 
 private:
   void addPanelControl(FrogPilotListWidget *list, QString &title, QString &desc, std::vector<QString> &button_labels, QString &icon, std::vector<QWidget*> &panels, QString &currentPanel);
   void closePanel();
   void showEvent(QShowEvent *event) override;
-  void updateCarVariables();
   void updatePanelVisibility();
 
   FrogPilotButtonsControl *drivingButton;
@@ -62,6 +62,8 @@ private:
   FrogPilotButtonsControl *systemButton;
 
   Params params;
+  Params params_memory{"/dev/shm/params"};
+  Params paramsTracking{"/persist/tracking"};
 
   QStackedLayout *mainLayout;
 
