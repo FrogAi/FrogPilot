@@ -21,11 +21,7 @@ private:
   void showToggles(const std::set<QString> &keys);
   void updateState(const UIState &s);
 
-  std::set<QString> customThemeKeys = {
-    "CustomColors", "CustomDistanceIcons", "CustomIcons",
-    "CustomSignals", "CustomSounds", "DownloadStatusLabel",
-    "WheelIcon"
-  };
+  std::set<QString> customThemeKeys = {"CustomColors", "CustomDistanceIcons", "CustomIcons", "CustomSignals", "CustomSounds", "DownloadStatusLabel", "WheelIcon"};
 
   FrogPilotButtonsControl *manageCustomColorsBtn;
   FrogPilotButtonsControl *manageCustomIconsBtn;

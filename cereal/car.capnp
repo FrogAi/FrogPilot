@@ -84,7 +84,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     startup @75;
     startupNoCar @76;
     startupNoControl @77;
-    startupNoSecOcKey @149;
+    startupNoSecOcKey @121;
     startupMaster @78;
     startupNoFw @104;
     fcw @79;
@@ -119,34 +119,35 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     actuatorsApiUnavailable @120;
 
     # FrogPilot Events
-    accel30 @121;
-    accel35 @122;
-    accel40 @123;
-    blockUser @124;
-    customStartupAlert @125;
-    dejaVuCurve @126;
-    firefoxSteerSaturated @127;
-    forcingStop @128;
-    goatSteerSaturated @129;
-    greenLight @130;
-    hal9000 @131;
-    holidayActive @132;
-    laneChangeBlockedLoud @133;
-    leadDeparting @134;
-    noLaneAvailable @135;
-    openpilotCrashed @136;
-    openpilotCrashedRandomEvent @137;
-    pedalInterceptorNoBrake @138;
-    speedLimitChanged @139;
-    thisIsFineSteerSaturated @140;
-    torqueNNLoad @141;
-    trafficModeActive @142;
-    trafficModeInactive @143;
-    turningLeft @144;
-    turningRight @145;
-    vCruise69 @146;
-    yourFrogTriedToKillMe @147;
-    youveGotMail @148;
+    accel30 @122;
+    accel35 @123;
+    accel40 @124;
+    blockUser @125;
+    customStartupAlert @126;
+    dejaVuCurve @127;
+    firefoxSteerSaturated @128;
+    forcingStop @129;
+    goatSteerSaturated @130;
+    greenLight @131;
+    hal9000 @132;
+    holidayActive @133;
+    laneChangeBlockedLoud @134;
+    leadDeparting @135;
+    noLaneAvailable @136;
+    openpilotCrashed @137;
+    openpilotCrashedRandomEvent @138;
+    pedalInterceptorNoBrake @139;
+    speedLimitChanged @140;
+    thisIsFineSteerSaturated @141;
+    toBeContinued @142;
+    torqueNNLoad @143;
+    trafficModeActive @144;
+    trafficModeInactive @145;
+    turningLeft @146;
+    turningRight @147;
+    vCruise69 @148;
+    yourFrogTriedToKillMe @149;
+    youveGotMail @150;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
@@ -446,17 +447,18 @@ struct CarControl {
 
       # FrogPilot sounds
       angry @9;
-      dejaVu @10;
-      doc @11;
-      fart @12;
-      firefox @13;
-      goat @14;
-      hal9000 @15;
-      mail @16;
-      nessie @17;
-      noice @18;
-      thisIsFine @19;
-      uwu @20;
+      continued @10;
+      dejaVu @11;
+      doc @12;
+      fart @13;
+      firefox @14;
+      goat @15;
+      hal9000 @16;
+      mail @17;
+      nessie @18;
+      noice @19;
+      thisIsFine @20;
+      uwu @21;
     }
   }
 

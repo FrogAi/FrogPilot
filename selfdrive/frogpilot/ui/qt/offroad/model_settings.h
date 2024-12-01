@@ -25,9 +25,7 @@ private:
   void updateModelLabels();
   void updateState(const UIState &s);
 
-  std::set<QString> modelRandomizerKeys = {
-    "ManageBlacklistedModels", "ResetScores", "ReviewScores"
-  };
+  std::set<QString> modelRandomizerKeys = {"ManageBlacklistedModels", "ResetScores", "ReviewScores"};
 
   ButtonControl *deleteModelBtn;
   ButtonControl *downloadAllModelsBtn;

@@ -4,7 +4,6 @@ import os
 import re
 import requests
 import shutil
-import time
 import zipfile
 
 from datetime import date, timedelta
@@ -13,17 +12,19 @@ from dateutil import easter
 from openpilot.common.basedir import BASEDIR
 
 from openpilot.selfdrive.frogpilot.assets.download_functions import GITHUB_URL, GITLAB_URL, download_file, get_repository_url, handle_error, handle_request_error, verify_download
-from openpilot.selfdrive.frogpilot.frogpilot_variables import ACTIVE_THEME_PATH, THEME_SAVE_PATH, params, params_memory, update_frogpilot_toggles
+from openpilot.selfdrive.frogpilot.frogpilot_variables import ACTIVE_THEME_PATH, RANDOM_EVENTS_PATH, THEME_SAVE_PATH, params, params_memory, update_frogpilot_toggles
 
 CANCEL_DOWNLOAD_PARAM = "CancelThemeDownload"
 DOWNLOAD_PROGRESS_PARAM = "ThemeDownloadProgress"
 
+HOLIDAY_THEME_PATH = os.path.join(BASEDIR, "selfdrive", "frogpilot", "assets", "holiday_themes")
+STOCKOP_THEME_PATH = os.path.join(BASEDIR, "selfdrive", "frogpilot", "assets", "stock_theme")
 
 def update_theme_asset(asset_type, theme, holiday_theme):
   save_location = os.path.join(ACTIVE_THEME_PATH, asset_type)
 
   if holiday_theme:
-    asset_location = os.path.join(BASEDIR, "selfdrive", "frogpilot", "assets", "holiday_themes", holiday_theme, asset_type)
+    asset_location = os.path.join(HOLIDAY_THEME_PATH, holiday_theme, asset_type)
   elif asset_type == "distance_icons":
     asset_location = os.path.join(THEME_SAVE_PATH, "distance_icons", theme)
   else:
@@ -35,47 +36,71 @@ def update_theme_asset(asset_type, theme, holiday_theme):
       print("Using the stock color scheme instead")
       return
     elif asset_type in ("distance_icons", "icons"):
-      asset_location = os.path.join(BASEDIR, "selfdrive", "frogpilot", "assets", "stock_theme", asset_type)
+      asset_location = os.path.join(STOCKOP_THEME_PATH, asset_type)
       print("Using the stock icon pack instead")
     else:
       if os.path.exists(save_location):
-        shutil.rmtree(save_location)
+        if os.path.islink(save_location):
+          os.unlink(save_location)
+        elif os.path.isdir(save_location):
+          shutil.rmtree(save_location)
       print(f"Using the stock {asset_type[:-1]} instead")
       return
   elif asset_type == "colors":
     params.put_bool("UseStockColors", False)
 
+  os.makedirs(os.path.dirname(save_location), exist_ok=True)
+
   if os.path.exists(save_location):
-    shutil.rmtree(save_location)
+    if os.path.islink(save_location):
+      os.unlink(save_location)
+    elif os.path.isdir(save_location):
+      shutil.rmtree(save_location)
 
-  shutil.copytree(asset_location, save_location)
-  print(f"Copied {asset_location} to {save_location}")
-
+  os.symlink(asset_location, save_location, target_is_directory=True)
+  print(f"Linked {save_location} to {asset_location}")
 
 def update_wheel_image(image, holiday_theme=None, random_event=True):
   wheel_save_location = os.path.join(ACTIVE_THEME_PATH, "steering_wheel")
 
   if holiday_theme:
-    wheel_location = os.path.join(BASEDIR, "selfdrive", "frogpilot", "assets", "holiday_themes", holiday_theme, "steering_wheel")
+    wheel_location = os.path.join(HOLIDAY_THEME_PATH, holiday_theme, "steering_wheel")
   elif random_event:
-    wheel_location = os.path.join(BASEDIR, "selfdrive", "frogpilot", "assets", "random_events", "icons")
+    wheel_location = os.path.join(RANDOM_EVENTS_PATH, "icons")
   elif image == "stock":
-    wheel_location = os.path.join(BASEDIR, "selfdrive", "frogpilot", "assets", "stock_theme", "steering_wheel")
+    wheel_location = os.path.join(STOCKOP_THEME_PATH, "steering_wheel")
   else:
     wheel_location = os.path.join(THEME_SAVE_PATH, "steering_wheels")
 
+  if not os.path.exists(wheel_location):
+    return
+
   if os.path.exists(wheel_save_location):
-    shutil.rmtree(wheel_save_location)
+    if os.path.islink(wheel_save_location):
+      os.unlink(wheel_save_location)
+    elif os.path.isdir(wheel_save_location):
+      shutil.rmtree(wheel_save_location)
+
   os.makedirs(wheel_save_location, exist_ok=True)
 
   image_name = image.replace(" ", "_").lower()
-  for filename in os.listdir(wheel_location):
-    if os.path.splitext(filename)[0].lower() in (image_name, "wheel"):
-      source_file = os.path.join(wheel_location, filename)
-      destination_file = os.path.join(wheel_save_location, f"wheel{os.path.splitext(filename)[1]}")
-      shutil.copy2(source_file, destination_file)
-      print(f"Copied {source_file} to {destination_file}")
-      break
+
+  matching_files = [
+    f for f in os.listdir(wheel_location)
+    if os.path.splitext(f)[0].lower() in (image_name, "wheel")
+  ]
+
+  if matching_files:
+    filename = matching_files[0]
+    source_file = os.path.join(wheel_location, filename)
+    ext = os.path.splitext(filename)[1]
+    destination_file = os.path.join(wheel_save_location, f"wheel{ext}")
+
+    if os.path.exists(destination_file):
+      os.unlink(destination_file)
+
+    os.symlink(source_file, destination_file)
+    print(f"Linked {destination_file} to {source_file}")
 
 
 class ThemeManager:
@@ -94,6 +119,85 @@ class ThemeManager:
   def is_within_week_of(target_date, now):
     start_of_week = target_date - timedelta(days=target_date.weekday())
     return start_of_week <= now < target_date
+
+  def update_holiday(self):
+    now = date.today()
+    year = now.year
+
+    holidays = {
+      "new_years": date(year, 1, 1),
+      "valentines": date(year, 2, 14),
+      "st_patricks": date(year, 3, 17),
+      "world_frog_day": date(year, 3, 20),
+      "april_fools": date(year, 4, 1),
+      "easter_week": easter.easter(year),
+      "may_the_fourth": date(year, 5, 4),
+      "cinco_de_mayo": date(year, 5, 5),
+      "fourth_of_july": date(year, 7, 4),
+      "halloween_week": date(year, 10, 31),
+      "thanksgiving_week": self.calculate_thanksgiving(year),
+      "christmas_week": date(year, 12, 25)
+    }
+
+    for holiday, holiday_date in holidays.items():
+      if (holiday.endswith("_week") and self.is_within_week_of(holiday_date, now)) or (now == holiday_date):
+        if holiday != self.previous_assets.get("holiday_theme"):
+          params.put("CurrentHolidayTheme", holiday)
+          update_frogpilot_toggles()
+          self.previous_assets["holiday_theme"] = holiday
+        return
+
+    if "holiday_theme" in self.previous_assets:
+      params.remove("CurrentHolidayTheme")
+      update_frogpilot_toggles()
+      self.previous_assets.pop("holiday_theme")
+
+  def update_active_theme(self, frogpilot_toggles):
+    if frogpilot_toggles.current_holiday_theme is not None:
+      asset_mappings = {
+        "color_scheme": ("colors", frogpilot_toggles.current_holiday_theme),
+        "distance_icons": ("distance_icons", frogpilot_toggles.current_holiday_theme),
+        "icon_pack": ("icons", frogpilot_toggles.current_holiday_theme),
+        "sound_pack": ("sounds", frogpilot_toggles.current_holiday_theme),
+        "turn_signal_pack": ("signals", frogpilot_toggles.current_holiday_theme),
+        "wheel_image": ("wheel_image", frogpilot_toggles.current_holiday_theme)
+      }
+    elif frogpilot_toggles.personalize_openpilot:
+      asset_mappings = {
+        "color_scheme": ("colors", frogpilot_toggles.color_scheme),
+        "distance_icons": ("distance_icons", frogpilot_toggles.distance_icons),
+        "icon_pack": ("icons", frogpilot_toggles.icon_pack),
+        "sound_pack": ("sounds", frogpilot_toggles.sound_pack),
+        "turn_signal_pack": ("signals", frogpilot_toggles.signal_icons),
+        "wheel_image": ("wheel_image", frogpilot_toggles.wheel_image)
+      }
+    else:
+      asset_mappings = {
+        "color_scheme": ("colors", "stock"),
+        "distance_icons": ("distance_icons", "stock"),
+        "icon_pack": ("icons", "stock"),
+        "sound_pack": ("sounds", "stock"),
+        "turn_signal_pack": ("signals", "stock"),
+        "wheel_image": ("wheel_image", "stock")
+      }
+
+    for asset, (asset_type, current_value) in asset_mappings.items():
+      if current_value != self.previous_assets.get(asset):
+        print(f"Updating {asset}: {asset_type} with value {current_value}")
+
+        if asset_type == "wheel_image":
+          update_wheel_image(current_value, frogpilot_toggles.current_holiday_theme, random_event=False)
+        else:
+          update_theme_asset(asset_type, current_value, frogpilot_toggles.current_holiday_theme)
+
+        self.previous_assets[asset] = current_value
+
+  def extract_zip(self, zip_file, extract_path):
+    print(f"Extracting {zip_file} to {extract_path}")
+    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+      zip_ref.extractall(extract_path)
+    os.remove(zip_file)
+    print(f"Extraction completed")
 
   @staticmethod
   def fetch_files(url):
@@ -170,89 +274,6 @@ class ThemeManager:
 
     assets["themes"] = {k: list(v) for k, v in assets["themes"].items()}
     return assets
-
-  def update_holiday(self):
-    now = date.today()
-    year = now.year
-
-    holidays = {
-      "new_years": date(year, 1, 1),
-      "valentines": date(year, 2, 14),
-      "st_patricks": date(year, 3, 17),
-      "world_frog_day": date(year, 3, 20),
-      "april_fools": date(year, 4, 1),
-      "easter_week": easter.easter(year),
-      "may_the_fourth": date(year, 5, 4),
-      "cinco_de_mayo": date(year, 5, 5),
-      "fourth_of_july": date(year, 7, 4),
-      "halloween_week": date(year, 10, 31),
-      "thanksgiving_week": self.calculate_thanksgiving(year),
-      "christmas_week": date(year, 12, 25)
-    }
-
-    for holiday, holiday_date in holidays.items():
-      if (holiday.endswith("_week") and self.is_within_week_of(holiday_date, now)) or (now == holiday_date):
-        if holiday != self.previous_assets.get("holiday_theme"):
-          params.put("CurrentHolidayTheme", holiday)
-          params_memory.put_bool("UpdateTheme", True)
-        return
-
-    if "holiday_theme" in self.previous_assets:
-      params.remove("CurrentHolidayTheme")
-      params_memory.put_bool("UpdateTheme", True)
-      self.previous_assets.pop("holiday_theme")
-
-  def update_active_theme(self):
-    if not os.path.exists(THEME_SAVE_PATH):
-      return
-
-    holiday_themes = params.get_bool("HolidayThemes")
-    current_holiday_theme = params.get("CurrentHolidayTheme", encoding='utf-8') if holiday_themes else None
-
-    if not current_holiday_theme and params.get_bool("PersonalizeOpenpilot"):
-      asset_mappings = {
-        "color_scheme": ("colors", params.get("CustomColors", encoding='utf-8')),
-        "distance_icons": ("distance_icons", params.get("CustomDistanceIcons", encoding='utf-8')),
-        "icon_pack": ("icons", params.get("CustomIcons", encoding='utf-8')),
-        "sound_pack": ("sounds", params.get("CustomSounds", encoding='utf-8')),
-        "turn_signal_pack": ("signals", params.get("CustomSignals", encoding='utf-8')),
-        "wheel_image": ("wheel_image", params.get("WheelIcon", encoding='utf-8'))
-      }
-    else:
-      asset_mappings = {
-        "color_scheme": ("colors", "stock"),
-        "distance_icons": ("distance_icons", "stock"),
-        "icon_pack": ("icons", "stock"),
-        "sound_pack": ("sounds", "stock"),
-        "turn_signal_pack": ("signals", "stock"),
-        "wheel_image": ("wheel_image", "stock")
-      }
-
-    theme_changed = False
-    for asset, (asset_type, current_value) in asset_mappings.items():
-      if current_value != self.previous_assets.get(asset) or current_holiday_theme != self.previous_assets.get("holiday_theme"):
-        print(f"Updating {asset}: {asset_type} with value {current_holiday_theme if current_holiday_theme else current_value}")
-
-        if asset_type == "wheel_image":
-          update_wheel_image(current_value, current_holiday_theme, random_event=False)
-        else:
-          update_theme_asset(asset_type, current_value, current_holiday_theme)
-
-        self.previous_assets[asset] = current_value
-        theme_changed = True
-
-    if theme_changed:
-      if current_holiday_theme:
-        self.previous_assets["holiday_theme"] = current_holiday_theme
-      time.sleep(5)
-      update_frogpilot_toggles()
-
-  def extract_zip(self, zip_file, extract_path):
-    print(f"Extracting {zip_file} to {extract_path}")
-    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
-      zip_ref.extractall(extract_path)
-    os.remove(zip_file)
-    print(f"Extraction completed and zip file deleted")
 
   def handle_existing_theme(self, theme_name, theme_param):
     print(f"Theme {theme_name} already exists, skipping download...")
@@ -363,18 +384,17 @@ class ThemeManager:
       }))
     )
 
-  def validate_themes(self):
+  def validate_themes(self, frogpilot_toggles):
     asset_mappings = {
-      "CustomColors": "colors",
-      "CustomDistanceIcons": "distance_icons",
-      "CustomIcons": "icons",
-      "CustomSounds": "sounds",
-      "CustomSignals": "signals",
-      "WheelIcon": "steering_wheels"
+      "CustomColors": ("colors", frogpilot_toggles.color_scheme),
+      "CustomDistanceIcons": ("distance_icons", frogpilot_toggles.distance_icons),
+      "CustomIcons": ("icons", frogpilot_toggles.icon_pack),
+      "CustomSounds": ("sounds", frogpilot_toggles.sound_pack),
+      "CustomSignals": ("signals", frogpilot_toggles.signal_icons),
+      "WheelIcon": ("steering_wheels", frogpilot_toggles.wheel_image)
     }
 
-    for theme_param, theme_component in asset_mappings.items():
-      theme_name = params.get(theme_param, encoding='utf-8')
+    for theme_param, (theme_component, theme_name) in asset_mappings.items():
       if not theme_name or theme_name == "stock":
         continue
 
@@ -396,18 +416,14 @@ class ThemeManager:
         self.download_theme(theme_component, theme_name, theme_param)
         self.previous_assets = {}
 
-  def update_themes(self, boot_run=False):
-    if not os.path.exists(THEME_SAVE_PATH):
-      print(f"Theme save path does not exist: {THEME_SAVE_PATH}")
-      return
-
+  def update_themes(self, frogpilot_toggles, boot_run=False):
     repo_url = get_repository_url()
     if repo_url is None:
       print("GitHub and GitLab are offline...")
       return
 
     if boot_run:
-      self.validate_themes()
+      self.validate_themes(frogpilot_toggles)
 
     assets = self.fetch_assets(repo_url)
 

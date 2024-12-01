@@ -5,10 +5,10 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
     {"DeviceManagement", tr("Device Settings"), tr("Device behavior settings."), "../frogpilot/assets/toggle_icons/icon_device.png"},
     {"DeviceShutdown", tr("Device Shutdown Timer"), tr("Controls how long the device stays on after you stop driving."), ""},
     {"OfflineMode", tr("Disable Internet Requirement"), tr("Allows the device to work without an internet connection."), ""},
-    {"IncreaseThermalLimits", tr("Increase Thermal Safety Limit"), tr("Allows the device to run at higher temperatures than recommended."), ""},
+    {"IncreaseThermalLimits", tr("Increase Thermal Safety Limit"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This can cause premature wear or damage by running the device over comma's recommended temperature limits!")).arg(tr("Allows the device to run at higher temperatures than recommended.")), ""},
     {"LowVoltageShutdown", tr("Low Battery Shutdown Threshold"), tr("Manages the threshold for shutting down the device to protect the car's battery from excessive drain and potential damage."), ""},
-    {"NoLogging", tr("Turn Off Data Tracking"), tr("Disables all data tracking to improve privacy."), ""},
-    {"NoUploads", tr("Turn Off Data Uploads"), tr("Stops the device from sending any data to the servers."), ""},
+    {"NoLogging", tr("Turn Off Data Tracking"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This will prevent your drives from being recorded and the data will be unobtainable!")).arg(tr("Disables all data tracking to improve privacy.")), ""},
+    {"NoUploads", tr("Turn Off Data Uploads"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This will prevent your drives from appearing on comma connect which may impact debugging and support!")).arg(tr("Stops the device from sending any data to the servers.")), ""},
 
     {"ScreenManagement", tr("Screen Settings"), tr("Screen behavior settings."), "../frogpilot/assets/toggle_icons/icon_light.png"},
     {"ScreenBrightness", tr("Screen Brightness (Offroad)"), tr("Controls the screen brightness when you're not driving."), ""},
@@ -86,29 +86,10 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
     });
   }
 
-  QObject::connect(static_cast<ToggleControl*>(toggles["IncreaseThermalLimits"]), &ToggleControl::toggleFlipped, [this](bool state) {
-    if (state) {
-      FrogPilotConfirmationDialog::toggleAlert(
-        tr("WARNING: This can cause premature wear or damage by running the device over comma's recommended temperature limits!"),
-        tr("I understand the risks."), this);
-    }
-  });
+  static_cast<ParamControl*>(toggles["IncreaseThermalLimits"])->setConfirmation(true, false);
+  static_cast<ParamControl*>(toggles["NoLogging"])->setConfirmation(true, false);
+  static_cast<ParamControl*>(toggles["NoUploads"])->setConfirmation(true, false);
 
-  QObject::connect(static_cast<ToggleControl*>(toggles["NoLogging"]), &ToggleControl::toggleFlipped, [this](bool state) {
-    if (state) {
-      FrogPilotConfirmationDialog::toggleAlert(
-        tr("WARNING: This will prevent your drives from being recorded and the data will be unobtainable!"),
-        tr("I understand the risks."), this);
-    }
-  });
-
-  QObject::connect(static_cast<ToggleControl*>(toggles["NoUploads"]), &ToggleControl::toggleFlipped, [this](bool state) {
-    if (state) {
-      FrogPilotConfirmationDialog::toggleAlert(
-        tr("WARNING: This will prevent your drives from appearing on comma connect which may impact debugging and support!"),
-        tr("I understand the risks."), this);
-    }
-  });
 
   FrogPilotParamValueControl *screenBrightnessToggle = static_cast<FrogPilotParamValueControl*>(toggles["ScreenBrightness"]);
   QObject::connect(screenBrightnessToggle, &FrogPilotParamValueControl::valueChanged, [this](int value) {

@@ -66,6 +66,8 @@ public:
   // FrogPilot variables
   MapSettingsButton *map_settings_btn_bottom;
 
+  QRect newSpeedLimitRect;
+
 private:
   void drawText(QPainter &p, int x, int y, const QString &text, int alpha = 255, bool overridePen = false);
 
@@ -93,7 +95,6 @@ private:
 
   // FrogPilot widgets
   void drawLeadInfo(QPainter &p);
-  void drawSLCConfirmation(QPainter &p);
   void drawStatusBar(QPainter &p);
   void drawTurnSignals(QPainter &p);
   void initializeFrogPilotWidgets();
@@ -109,11 +110,15 @@ private:
   PedalIcons *pedal_icons;
   ScreenRecorder *screenRecorder;
 
-  QElapsedTimer standstillTimer;
-
   QHBoxLayout *bottom_layout;
 
+  QPixmap curveSpeedLeftIcon;
+  QPixmap curveSpeedRightIcon;
+  QPixmap dashboardIcon;
+  QPixmap mapDataIcon;
+  QPixmap navigationIcon;
   QPixmap stopSignImg;
+  QPixmap upcomingMapsIcon;
 
   QString accelerationUnit;
   QString leadDistanceUnit;
@@ -131,12 +136,15 @@ private:
   bool blindSpotRight;
   bool compass;
   bool experimentalMode;
+  bool hideCSCUI;
   bool hideMapIcon;
   bool hideMaxSpeed;
   bool hideSpeed;
   bool hideSpeedLimit;
   bool leadInfo;
+  bool leftCurve;
   bool mapOpen;
+  bool mtscEnabled;
   bool onroadDistanceButton;
   bool roadNameUI;
   bool showAlwaysOnLateralStatusBar;
@@ -144,7 +152,7 @@ private:
   bool showSLCOffset;
   bool slcOverridden;
   bool speedLimitChanged;
-  bool speedLimitController;
+  bool speedLimitSources;
   bool trafficModeActive;
   bool turnSignalAnimation;
   bool turnSignalLeft;
@@ -153,18 +161,26 @@ private:
   bool useSI;
   bool useViennaSLCSign;
   bool vtscControllingCurve;
+  bool vtscEnabled;
 
   double currentAcceleration;
 
   float accelerationConversion;
-  float cruiseAdjustment;
+  float dashboardSpeedLimit;
   float distanceConversion;
   float laneDetectionWidth;
   float lead_x;
   float lead_y;
+  float mapsSpeedLimit;
+  float mtscSpeed;
+  float navigationSpeedLimit;
   float slcSpeedLimitOffset;
   float speedConversion;
+  float speedConversionMetrics;
   float unconfirmedSpeedLimit;
+  float upcomingSpeedLimit;
+  float vCruiseDiff;
+  float vtscSpeed;
 
   int alertHeight;
   int animationFrameIndex;
@@ -184,6 +200,8 @@ private:
   int statusBarHeight;
   int stoppedEquivalence;
   int totalFrames;
+
+  std::string speedLimitSource;
 
   inline QColor blueColor(int alpha = 255) { return QColor(0, 150, 255, alpha); }
   inline QColor greenColor(int alpha = 242) { return QColor(23, 134, 68, alpha); }

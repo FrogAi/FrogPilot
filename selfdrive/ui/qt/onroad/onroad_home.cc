@@ -123,13 +123,8 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   // FrogPilot clickable widgets
   QPoint pos = e->pos();
 
-  QSize size = this->size();
-  QRect leftRect(0, 0, size.width() / 2, size.height());
-  QRect rightRect(size.width() / 2, 0, size.width() / 2, size.height());
-
-  if (scene.speed_limit_changed && (leftRect.contains(pos) || rightRect.contains(pos))) {
-    bool slcConfirmed = leftRect.contains(pos) ? !scene.right_hand_drive : scene.right_hand_drive;
-    paramsMemory.putBool("SLCConfirmed", slcConfirmed);
+  if (scene.speed_limit_changed && nvg->newSpeedLimitRect.contains(pos)) {
+    paramsMemory.putBool("SLCConfirmed", true);
     paramsMemory.putBool("SLCConfirmedPressed", true);
     return;
   }

@@ -16,7 +16,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     {"MTSCCurvatureCheck", tr("Curve Detection Failsafe"), tr("Triggers 'Curve Speed Control' only when a curve is detected with the model as well when using the 'Map Based' method."), ""},
     {"CurveSensitivity", tr("Curve Detection Sensitivity"), tr("Controls how sensitive openpilot is to detecting curves. Higher values trigger earlier responses at the risk of triggering too often, while lower values increase confidence at the risk of triggering too infrequently."), ""},
     {"TurnAggressiveness", tr("Speed Aggressiveness"), tr("Controls how aggressive openpilot takes turns. Higher values result in faster turns, while lower values result in slower turns."), ""},
-    {"DisableCurveSpeedSmoothing", tr("Disable Speed Value Smoothing In the UI"), tr("Speed value smoothing is disabled in the UI to instead display the exact speed requested by the curve control."), ""},
+    {"HideCSCUI", tr("Hide Desired Speed Widget From UI"), tr("Hides the desired speed widget from the onroad UI."), ""},
 
     {"CustomPersonalities", tr("Customize Driving Personalities"), tr("Customize the personality profiles to suit your driving style."), "../frogpilot/assets/toggle_icons/icon_personality.png"},
     {"TrafficPersonalityProfile", tr("Traffic Personality"), tr("Customizes the 'Traffic' personality profile, tailored for navigating through traffic."), "../frogpilot/assets/stock_theme/distance_icons/traffic.png"},
@@ -94,6 +94,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     {"Offset2", tr("Speed Limit Offset (35-54 mph)"), tr("Sets the speed limit offset for speeds between 35 and 54 mph."), ""},
     {"Offset3", tr("Speed Limit Offset (55-64 mph)"), tr("Sets the speed limit offset for speeds between 55 and 64 mph."), ""},
     {"Offset4", tr("Speed Limit Offset (65-99 mph)"), tr("Sets the speed limit offset for speeds between 65 and 99 mph."), ""},
+    {"SpeedLimitSources", tr("Show Speed Limit Sources"), tr("Displays the speed limit sources in the onroad UI when using 'Speed Limit Controller'."), ""},
   };
 
   for (const auto &[param, title, desc, icon] : longitudinalToggles) {
@@ -346,6 +347,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
           modifiedSpeedLimitControllerKeys.erase("SLCOverride");
           modifiedSpeedLimitControllerKeys.erase("SLCPriority");
           modifiedSpeedLimitControllerKeys.erase("SLCQOL");
+          modifiedSpeedLimitControllerKeys.erase("SpeedLimitSources");
         } else if (customizationLevel != 2) {
           modifiedSpeedLimitControllerKeys.erase("SLCPriority");
           modifiedSpeedLimitControllerKeys.erase("SLCQOL");
@@ -370,8 +372,8 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       longitudinalToggle = overrideSelection;
     } else if (param == "SLCPriority") {
       ButtonControl *slcPriorityButton = new ButtonControl(title, tr("SELECT"), desc);
-      QStringList primaryPriorities = {tr("None"), tr("Dashboard"), tr("Navigation"), tr("Offline Maps"), tr("Highest"), tr("Lowest")};
-      QStringList secondaryTertiaryPriorities = {tr("None"), tr("Dashboard"), tr("Navigation"), tr("Offline Maps")};
+      QStringList primaryPriorities = {tr("None"), tr("Dashboard"), tr("Map Data"), tr("Navigation"), tr("Highest"), tr("Lowest")};
+      QStringList secondaryTertiaryPriorities = {tr("None"), tr("Dashboard"), tr("Map Data"), tr("Navigation")};
       QStringList priorityPrompts = {tr("Select your primary priority"), tr("Select your secondary priority"), tr("Select your tertiary priority")};
 
       QObject::connect(slcPriorityButton, &ButtonControl::clicked, [=]() {
@@ -752,6 +754,7 @@ void FrogPilotLongitudinalPanel::hideSubToggles() {
       modifiedSpeedLimitControllerKeys.erase("SLCOverride");
       modifiedSpeedLimitControllerKeys.erase("SLCPriority");
       modifiedSpeedLimitControllerKeys.erase("SLCQOL");
+      modifiedSpeedLimitControllerKeys.erase("SpeedLimitSources");
     }
 
     showToggles(modifiedSpeedLimitControllerKeys);

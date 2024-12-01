@@ -35,8 +35,8 @@ MODELS_PATH = os.path.join("/data", "models")
 RANDOM_EVENTS_PATH = os.path.join(BASEDIR, "selfdrive", "frogpilot", "assets", "random_events")
 THEME_SAVE_PATH = os.path.join("/data", "themes")
 
-DEFAULT_MODEL = "dragon-rider"
-DEFAULT_MODEL_NAME = "Dragon Rider"
+DEFAULT_MODEL = "alabama"
+DEFAULT_MODEL_NAME = "Alabama"
 
 DEFAULT_CLASSIC_MODEL = "north-dakota"
 DEFAULT_CLASSIC_MODEL_NAME = "North Dakota (Default)"
@@ -132,7 +132,6 @@ frogpilot_default_params: list[tuple[str, bool | bytes | int | float | str]] = [
   ("DeveloperUI", 0),
   ("DeviceManagement", 1),
   ("DeviceShutdown", 9),
-  ("DisableCurveSpeedSmoothing", 0),
   ("DisableOnroadUploads", 0),
   ("DisableOpenpilotLongitudinal", 0),
   ("DisengageVolume", 101),
@@ -168,6 +167,7 @@ frogpilot_default_params: list[tuple[str, bool | bytes | int | float | str]] = [
   ("HideAlerts", 0),
   ("HideAOLStatusBar", 0),
   ("HideCEMStatusBar", 0),
+  ("HideCSCUI", 0),
   ("HideLeadMarker", 0),
   ("HideMapIcon", 0),
   ("HideMaxSpeed", 0),
@@ -249,6 +249,7 @@ frogpilot_default_params: list[tuple[str, bool | bytes | int | float | str]] = [
   ("RadarlessModels", ""),
   ("RadicalTurtleDrives", 0),
   ("RadicalTurtleScore", 0),
+  ("RainbowPath", 0),
   ("RandomEvents", 0),
   ("RecertifiedHerbalistDrives", 0),
   ("RecertifiedHerbalistScore", 0),
@@ -302,6 +303,7 @@ frogpilot_default_params: list[tuple[str, bool | bytes | int | float | str]] = [
   ("SNGHack", 1),
   ("SpeedLimitChangedAlert", 1),
   ("SpeedLimitController", 1),
+  ("SpeedLimitSources", 0),
   ("StartupMessageBottom", "so I do what I want 🐸"),
   ("StartupMessageTop", "Hippity hoppity this is my property"),
   ("StandardFollow", 1.45),
@@ -461,17 +463,16 @@ class FrogPilotVariables:
 
     toggle.crosstrek_torque = car_model == "SUBARU_IMPREZA" and params.get_bool("CrosstrekTorque")
 
-    toggle.current_holiday_theme = params.get("CurrentHolidayTheme", encoding='utf-8') if params.get_bool("HolidayThemes") else None
-
     toggle.curve_speed_controller = openpilot_longitudinal and params.get_bool("CurveSpeedControl")
     toggle.curve_sensitivity = params.get_int("CurveSensitivity") / 100 if toggle.curve_speed_controller else 1
+    toggle.hide_csc_ui = toggle.curve_speed_controller and params.get_bool("HideCSCUI")
     toggle.turn_aggressiveness = params.get_int("TurnAggressiveness") / 100 if toggle.curve_speed_controller else 1
     toggle.map_turn_speed_controller = toggle.curve_speed_controller and params.get_bool("MTSCEnabled")
     toggle.mtsc_curvature_check = toggle.map_turn_speed_controller and params.get_bool("MTSCCurvatureCheck")
     toggle.vision_turn_controller = toggle.curve_speed_controller and params.get_bool("VisionTurnControl")
 
     toggle.custom_alerts = params.get_bool("CustomAlerts")
-    toggle.goat_scream_alert = toggle.current_holiday_theme is None and toggle.custom_alerts and params.get_bool("GoatScream")
+    toggle.goat_scream_alert = toggle.custom_alerts and params.get_bool("GoatScream")
     toggle.green_light_alert = toggle.custom_alerts and params.get_bool("GreenLightAlert")
     toggle.lead_departing_alert = toggle.custom_alerts and params.get_bool("LeadDepartingAlert")
     toggle.loud_blindspot_alert = has_bsm and toggle.custom_alerts and params.get_bool("LoudBlindspotAlert")
@@ -559,6 +560,9 @@ class FrogPilotVariables:
     toggle.experimental_mode_via_tap = toggle.experimental_mode_via_press and params.get_bool("ExperimentalModeViaTap")
 
     toggle.frogsgomoo_tweak = openpilot_longitudinal and car_make == "toyota" and params.get_bool("FrogsGoMoosTweak")
+
+    toggle.holiday_themes = params.get_bool("HolidayThemes")
+    toggle.current_holiday_theme = params.get("CurrentHolidayTheme", encoding='utf-8') if params.get_bool("HolidayThemes") else None
 
     toggle.lane_change_customizations = params.get_bool("LaneChangeCustomizations")
     toggle.lane_change_delay = params.get_float("LaneChangeTime") if toggle.lane_change_customizations else 0
@@ -661,6 +665,8 @@ class FrogPilotVariables:
     toggle.standby_mode = toggle.quality_of_life_visuals and params.get_bool("StandbyMode")
     toggle.stopped_timer = toggle.quality_of_life_visuals and params.get_bool("StoppedTimer")
 
+    toggle.rainbow_path = params.get_bool("RainbowPath")
+
     toggle.random_events = params.get_bool("RandomEvents")
 
     toggle.screen_management = params.get_bool("ScreenManagement")
@@ -696,6 +702,7 @@ class FrogPilotVariables:
     toggle.speed_limit_priority3 = params.get("SLCPriority3", encoding='utf-8') if toggle.speed_limit_controller else None
     toggle.speed_limit_priority_highest = toggle.speed_limit_priority1 == "Highest"
     toggle.speed_limit_priority_lowest = toggle.speed_limit_priority1 == "Lowest"
+    toggle.speed_limit_sources = toggle.speed_limit_controller and params.get_bool("SpeedLimitSources")
 
     toggle.startup_alert_top = params.get("StartupMessageTop", encoding='utf-8') or ""
     toggle.startup_alert_bottom = params.get("StartupMessageBottom", encoding='utf-8') or ""
@@ -768,6 +775,7 @@ class FrogPilotVariables:
 
       toggle.curve_speed_controller = bool(openpilot_longitudinal and self.default_frogpilot_toggles.CurveSpeedControl)
       toggle.curve_sensitivity = int(self.default_frogpilot_toggles.CurveSensitivity) / 100 if toggle.curve_speed_controller else 1
+      toggle.hide_csc_ui = bool(toggle.curve_speed_controller and self.default_frogpilot_toggles.HideCSCUI)
       toggle.turn_aggressiveness = int(self.default_frogpilot_toggles.TurnAggressiveness) / 100 if toggle.curve_speed_controller else 1
       toggle.map_turn_speed_controller = bool(toggle.curve_speed_controller and self.default_frogpilot_toggles.MTSCEnabled)
       toggle.mtsc_curvature_check = bool(toggle.map_turn_speed_controller and self.default_frogpilot_toggles.MTSCCurvatureCheck)
@@ -925,6 +933,8 @@ class FrogPilotVariables:
       toggle.standby_mode = bool(toggle.quality_of_life_visuals and self.default_frogpilot_toggles.StandbyMode)
       toggle.stopped_timer = bool(toggle.quality_of_life_visuals and self.default_frogpilot_toggles.StoppedTimer)
 
+      toggle.rainbow_path = bool(self.default_frogpilot_toggles.RainbowPath)
+
       toggle.random_events = bool(self.default_frogpilot_toggles.RandomEvents)
 
       toggle.screen_management = bool(self.default_frogpilot_toggles.ScreenManagement)
@@ -952,6 +962,7 @@ class FrogPilotVariables:
       toggle.speed_limit_priority3 = self.default_frogpilot_toggles.SLCPriority3 if toggle.speed_limit_controller else None
       toggle.speed_limit_priority_highest = bool(toggle.speed_limit_priority1 == "Highest")
       toggle.speed_limit_priority_lowest = bool(toggle.speed_limit_priority1 == "Lowest")
+      toggle.speed_limit_sources = bool(toggle.speed_limit_controller and self.default_frogpilot_toggles.SpeedLimitSources)
 
       toggle.startup_alert_top = str(self.default_frogpilot_toggles.StartupMessageTop)
       toggle.startup_alert_bottom = str(self.default_frogpilot_toggles.StartupMessageBottom)
@@ -1002,6 +1013,7 @@ class FrogPilotVariables:
       toggle.crosstrek_torque = bool(car_model == "SUBARU_IMPREZA" and self.default_frogpilot_toggles.CrosstrekTorque)
 
       toggle.curve_sensitivity = int(self.default_frogpilot_toggles.CurveSensitivity) / 100 if toggle.curve_speed_controller else 1
+      toggle.hide_csc_ui = bool(toggle.curve_speed_controller and self.default_frogpilot_toggles.HideCSCUI)
       toggle.turn_aggressiveness = int(self.default_frogpilot_toggles.TurnAggressiveness) / 100 if toggle.curve_speed_controller else 1
       toggle.mtsc_curvature_check = bool(toggle.map_turn_speed_controller and self.default_frogpilot_toggles.MTSCCurvatureCheck)
 
@@ -1142,6 +1154,7 @@ class FrogPilotVariables:
       toggle.speed_limit_priority3 = self.default_frogpilot_toggles.SLCPriority3 if toggle.speed_limit_controller else None
       toggle.speed_limit_priority_highest = bool(toggle.speed_limit_priority1 == "Highest")
       toggle.speed_limit_priority_lowest = bool(toggle.speed_limit_priority1 == "Lowest")
+      toggle.speed_limit_sources = bool(toggle.speed_limit_controller and self.default_frogpilot_toggles.SpeedLimitSources)
 
       toggle.startup_alert_top = str(self.default_frogpilot_toggles.StartupMessageTop)
       toggle.startup_alert_bottom = str(self.default_frogpilot_toggles.StartupMessageBottom)

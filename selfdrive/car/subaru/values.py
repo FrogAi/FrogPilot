@@ -7,7 +7,7 @@ from openpilot.selfdrive.car import CarSpecs, DbcDict, PlatformConfig, Platforms
 from openpilot.selfdrive.car.docs_definitions import CarFootnote, CarHarness, CarDocs, CarParts, Tool, Column
 from openpilot.selfdrive.car.fw_query_definitions import FwQueryConfig, Request, StdQueries, p16
 
-from openpilot.selfdrive.frogpilot.frogpilot_variables import params
+from openpilot.selfdrive.frogpilot.frogpilot_variables import get_frogpilot_toggles
 
 Ecu = car.CarParams.Ecu
 
@@ -27,7 +27,7 @@ class CarControllerParams:
       self.STEER_DELTA_DOWN = 40
     elif CP.carFingerprint == CAR.SUBARU_IMPREZA_2020:
       self.STEER_MAX = 1439
-    elif CP.carFingerprint == CAR.SUBARU_IMPREZA and params.get_bool("CrosstrekTorque"):
+    elif CP.carFingerprint == CAR.SUBARU_IMPREZA and get_frogpilot_toggles().crosstrek_torque:
       self.STEER_MAX = 3071
     else:
       self.STEER_MAX = 2047

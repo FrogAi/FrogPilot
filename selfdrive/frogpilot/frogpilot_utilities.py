@@ -71,11 +71,9 @@ def run_cmd(cmd, success_message, fail_message):
   try:
     subprocess.check_call(cmd)
     print(success_message)
-    return True
   except Exception as e:
     print(f"Unexpected error occurred: {e}")
     print(fail_message)
-    return False
 
 class MovingAverageCalculator:
   def __init__(self):

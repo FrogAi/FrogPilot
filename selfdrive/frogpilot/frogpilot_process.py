@@ -62,17 +62,13 @@ def automatic_update_check(frogs_go_moo, started):
     os.system("pkill -SIGUSR1 -f system.updated.updated")
 
 
-def check_assets(model_manager, theme_manager):
+def check_assets(model_manager, theme_manager, frogpilot_toggles):
   if params_memory.get_bool("DownloadAllModels"):
     run_thread_with_lock("download_all_models", model_manager.download_all_models)
 
   model_to_download = params_memory.get("ModelToDownload", encoding='utf-8')
   if model_to_download is not None:
     run_thread_with_lock("download_model", model_manager.download_model, (model_to_download,))
-
-  if params_memory.get_bool("UpdateTheme"):
-    run_thread_with_lock("update_active_theme", theme_manager.update_active_theme)
-    params_memory.remove("UpdateTheme");
 
   assets = [
     ("ColorToDownload", "colors"),
@@ -147,7 +143,7 @@ def frogpilot_thread():
 
   radarless_model = frogpilot_toggles.radarless_model
 
-  toggles_last_updated = None
+  toggles_last_updated = datetime.datetime.now()
 
   error_log = os.path.join(sentry.CRASHES_DIR, 'error.txt')
   if os.path.isfile(error_log):
@@ -171,13 +167,9 @@ def frogpilot_thread():
       frogpilot_toggles = get_frogpilot_toggles()
       if time_validated:
         run_thread_with_lock("backup_toggles", backup_toggles, (params, params_storage))
+      run_thread_with_lock("update_active_theme", theme_manager.update_active_theme, (frogpilot_toggles,))
       toggles_last_updated = now
-
-    if toggles_last_updated and (now - toggles_last_updated).total_seconds() <= 1:
-      toggles_updated = True
-    else:
-      toggles_last_updated = None
-      toggles_updated = False
+    toggles_updated = (now - toggles_last_updated).total_seconds() <= 1
 
     if not started and started_previously:
       frogpilot_planner = FrogPilotPlanner()
@@ -201,12 +193,11 @@ def frogpilot_thread():
 
     started_previously = started
 
-    if now.second % 2 == 0:
-      check_assets(model_manager, theme_manager)
+    check_assets(model_manager, theme_manager, frogpilot_toggles)
 
     if params_memory.get_bool("ManualUpdateInitiated"):
       run_thread_with_lock("update_checks", update_checks, (False, frogpilot_toggles.frogs_go_moo, model_manager, now, screen_off, started, theme_manager, time_validated))
-      run_thread_with_lock("update_themes", theme_manager.update_themes())
+      run_thread_with_lock("update_themes", theme_manager.update_themes(frogpilot_toggles))
     elif now.second == 0:
       run_update_checks = not screen_off and not started or now.minute % 15 == 0 or frogpilot_toggles.frogs_go_moo
     elif run_update_checks:
@@ -223,7 +214,7 @@ def frogpilot_thread():
         continue
       theme_manager.update_holiday()
       run_thread_with_lock("update_models", model_manager.update_models, (True,))
-      run_thread_with_lock("update_themes", theme_manager.update_themes, (True,))
+      run_thread_with_lock("update_themes", theme_manager.update_themes, (frogpilot_toggles, True,))
 
 def main():
   frogpilot_thread()

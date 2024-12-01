@@ -19,16 +19,6 @@ private:
   void showToggles(const std::set<QString> &keys);
   void updateState(const UIState &s);
 
-  std::set<QString> deviceManagementKeys = {
-    "DeviceShutdown", "IncreaseThermalLimits", "LowVoltageShutdown",
-    "NoLogging", "NoUploads", "OfflineMode"
-  };
-
-  std::set<QString> screenKeys = {
-    "ScreenBrightness", "ScreenBrightnessOnroad", "ScreenRecorder",
-    "ScreenTimeout", "ScreenTimeoutOnroad"
-  };
-
   FrogPilotSettingsWindow *parent;
 
   bool started;
@@ -36,4 +26,7 @@ private:
   int customizationLevel;
 
   std::map<QString, AbstractControl*> toggles;
+
+  std::set<QString> deviceManagementKeys = {"DeviceShutdown", "IncreaseThermalLimits", "LowVoltageShutdown", "NoLogging", "NoUploads", "OfflineMode"};
+  std::set<QString> screenKeys = {"ScreenBrightness", "ScreenBrightnessOnroad", "ScreenRecorder", "ScreenTimeout", "ScreenTimeoutOnroad"};
 };

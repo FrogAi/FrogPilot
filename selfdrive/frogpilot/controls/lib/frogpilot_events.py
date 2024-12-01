@@ -160,12 +160,18 @@ class FrogPilotEvents:
         self.random_event_played = True
 
       if not self.fcw_played and frogpilotCarControl.fcwEventTriggered:
-        self.events.add(EventName.yourFrogTriedToKillMe)
-        self.fcw_played = True
-        self.random_event_played = True
+        event_choices = ["toBeContinued", "yourFrogTriedToKillMe"]
+        event_choice = random.choice(event_choices)
+        if random.random() < 0.1:
+          if event_choice == "toBeContinued":
+            self.events.add(EventName.toBeContinued)
+          elif event_choice == "yourFrogTriedToKillMe":
+            self.events.add(EventName.yourFrogTriedToKillMe)
+          self.fcw_played = True
+          self.random_event_played = True
 
       if not self.youveGotMail_played and frogpilotCarControl.alwaysOnLateralActive and not self.always_on_lateral_active_previously:
-        if random.random() < 0.01 and carState.vEgo > CRUISING_SPEED:
+        if random.random() < 0.01 and not carState.standstill:
           self.events.add(EventName.youveGotMail)
           self.youveGotMail_played = True
           self.random_event_played = True

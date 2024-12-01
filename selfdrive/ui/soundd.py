@@ -44,6 +44,7 @@ sound_list: dict[int, tuple[str, int | None, float]] = {
 
   # FrogPilot sounds
   AudibleAlert.angry: ("angry.wav", 1, MAX_VOLUME),
+  AudibleAlert.continued: ("continued.wav", 1, MAX_VOLUME),
   AudibleAlert.dejaVu: ("dejaVu.wav", 1, MAX_VOLUME),
   AudibleAlert.doc: ("doc.wav", 1, MAX_VOLUME),
   AudibleAlert.fart: ("fart.wav", 1, MAX_VOLUME),
@@ -89,6 +90,7 @@ class Soundd:
 
     self.random_events_map = {
       AudibleAlert.angry: MAX_VOLUME,
+      AudibleAlert.continued: MAX_VOLUME,
       AudibleAlert.dejaVu: MAX_VOLUME,
       AudibleAlert.doc: MAX_VOLUME,
       AudibleAlert.fart: MAX_VOLUME,

@@ -136,18 +136,28 @@ void ScreenRecorder::paintEvent(QPaintEvent *event) {
   QPainter painter(this);
   painter.setRenderHint(QPainter::Antialiasing);
 
+  if (recording) {
+    painter.setPen(QPen(redColor(), 6));
+    painter.setBrush(redColor(166));
+
+    painter.setFont(InterFont(25, QFont::Bold));
+  } else {
+    painter.setPen(QPen(redColor(), 6));
+    painter.setBrush(blackColor(166));
+
+    painter.setFont(InterFont(25, QFont::DemiBold));
+  }
+
   int centeringOffset = 10;
 
   QRect buttonRect(centeringOffset, btn_size / 3, btn_size - centeringOffset * 2, btn_size / 3);
-  painter.setPen(QPen(Qt::red, 6));
-  painter.drawRoundedRect(buttonRect, 15, 15);
+  painter.drawRoundedRect(buttonRect, 24, 24);
 
   QRect textRect = buttonRect.adjusted(centeringOffset, 0, -centeringOffset, 0);
-  painter.setFont(InterFont(25, QFont::Bold));
+  painter.setPen(QPen(whiteColor(), 6));
   painter.drawText(textRect, Qt::AlignLeft | Qt::AlignVCenter, tr("RECORD"));
 
   if (recording && ((milliseconds() - started_time) / 1000) % 2 == 0) {
-    painter.setBrush(QColor(255, 0, 0));
     painter.setPen(Qt::NoPen);
     painter.drawEllipse(QPoint(buttonRect.right() - btn_size / 10 - centeringOffset, buttonRect.center().y()), btn_size / 10, btn_size / 10);
   }

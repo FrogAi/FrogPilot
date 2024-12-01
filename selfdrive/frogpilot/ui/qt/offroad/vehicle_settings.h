@@ -17,41 +17,6 @@ private:
   void updateState(const UIState &s);
   void updateToggles();
 
-  std::set<QString> gmKeys = {
-    "ExperimentalGMTune", "LongPitch", "NewLongAPIGM",
-    "VoltSNG"
-  };
-
-  std::set<QString> hyundaiKeys = {
-    "NewLongAPI"
-  };
-
-  std::set<QString> imprezaKeys = {
-    "CrosstrekTorque"
-  };
-
-  std::set<QString> longitudinalKeys = {
-    "ExperimentalGMTune", "LongPitch", "NewLongAPI",
-    "NewLongAPIGM", "SNGHack", "VoltSNG"
-  };
-
-  std::set<QString> sngKeys = {
-    "SNGHack"
-  };
-
-  std::set<QString> subaruKeys = {
-    "CrosstrekTorque"
-  };
-
-  std::set<QString> toyotaKeys = {
-    "ClusterOffset", "FrogsGoMoosTweak", "SNGHack",
-    "ToyotaDoors"
-  };
-
-  std::set<QString> voltKeys = {
-    "VoltSNG"
-  };
-
   ButtonControl *selectMakeButton;
   ButtonControl *selectModelButton;
 
@@ -83,4 +48,13 @@ private:
   int customizationLevel;
 
   std::map<QString, AbstractControl*> toggles;
+
+  std::set<QString> gmKeys = {"ExperimentalGMTune", "LongPitch", "NewLongAPIGM", "VoltSNG"};
+  std::set<QString> hyundaiKeys = {"NewLongAPI"};
+  std::set<QString> imprezaKeys = {"CrosstrekTorque"};
+  std::set<QString> longitudinalKeys = {"ExperimentalGMTune", "LongPitch", "NewLongAPI", "NewLongAPIGM", "SNGHack", "VoltSNG"};
+  std::set<QString> sngKeys = {"SNGHack"};
+  std::set<QString> subaruKeys = {"CrosstrekTorque"};
+  std::set<QString> toyotaKeys = {"ClusterOffset", "FrogsGoMoosTweak", "SNGHack", "ToyotaDoors"};
+  std::set<QString> voltKeys = {"VoltSNG"};
 };

@@ -105,7 +105,7 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
   std::vector<QString> descriptions = {
     tr("Options to customize FrogPilot's sound alerts and notifications."),
     tr("FrogPilot features that impact acceleration, braking, and steering."),
-    tr("Offline maps downloader and 'Navigate On openpilot (NOO)' settings."),
+    tr("Map data downloader and 'Navigate On openpilot (NOO)' settings."),
     tr("Tools and system utilities used to maintain and troubleshoot FrogPilot."),
     tr("Options for customizing FrogPilot's themes, UI appearance, and onroad widgets."),
     tr("Vehicle-specific settings and configurations for supported makes and models.")
@@ -114,7 +114,7 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
   std::vector<std::vector<QString>> buttonLabels = {
     {tr("MANAGE")},
     {tr("DRIVING MODEL"), tr("GAS / BRAKE"), tr("STEERING")},
-    {tr("OFFLINE MAPS"), tr("PRIMELESS NAVIGATION")},
+    {tr("MAP DATA"), tr("PRIMELESS NAVIGATION")},
     {tr("DATA"), tr("DEVICE"), tr("UTILITIES")},
     {tr("APPEARANCE"), tr("THEME")},
     {tr("MANAGE")}

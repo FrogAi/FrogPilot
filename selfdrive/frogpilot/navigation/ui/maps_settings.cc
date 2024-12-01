@@ -15,7 +15,7 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent) : FrogPi
                                              scheduleOptions);
   addItem(preferredSchedule);
 
-  selectMapsButton = new FrogPilotButtonsControl(tr("Select Offline Maps"), tr("Offline maps to use with 'Curve Speed Control' and 'Speed Limit Controller'."), {tr("COUNTRIES"), tr("STATES")});
+  selectMapsButton = new FrogPilotButtonsControl(tr("Select Map Data Sources"), tr("Map data sources to use with 'Curve Speed Control' and 'Speed Limit Controller'."), {tr("COUNTRIES"), tr("STATES")});
   QObject::connect(selectMapsButton, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
     if (id == 0) {
       countriesOpen = true;

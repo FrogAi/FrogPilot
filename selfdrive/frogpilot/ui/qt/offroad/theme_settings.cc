@@ -13,6 +13,8 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
 
     {"HolidayThemes", tr("Holiday Themes"), tr("Changes the openpilot theme based on the current holiday. Minor holidays last one day, while major holidays (Easter, Christmas, Halloween, etc.) last the entire week."), "../frogpilot/assets/toggle_icons/icon_calendar.png"},
 
+    {"RainbowPath", tr("Rainbow Path"), tr("Swap out the path in the onroad UI for a Mario Kart inspired 'Rainbow Path'."), "../frogpilot/assets/toggle_icons/icon_rainbow.png"},
+
     {"RandomEvents", tr("Random Events"), tr("Enables random cosmetic events that happen during certain driving conditions. These events are purely for fun and don't affect driving controls!"), "../frogpilot/assets/toggle_icons/icon_random.png"},
 
     {"StartupAlert", tr("Startup Alert"), tr("Controls the text of the 'Startup' alert message that appears when you start the drive."), "../frogpilot/assets/toggle_icons/icon_message.png"}
@@ -141,7 +143,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           if (!colorSchemeToSelect.isEmpty()) {
             params.put("CustomColors", formatColorNameForStorage(colorSchemeToSelect).toStdString());
             manageCustomColorsBtn->setValue(colorSchemeToSelect);
-            paramsMemory.putBool("UpdateTheme", true);
+            updateFrogPilotToggles();
           }
         }
       });
@@ -269,7 +271,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           if (!iconPackToSelect.isEmpty()) {
             params.put("CustomDistanceIcons", formatIconNameForStorage(iconPackToSelect).toStdString());
             manageDistanceIconsBtn->setValue(iconPackToSelect);
-            paramsMemory.putBool("UpdateTheme", true);
+            updateFrogPilotToggles();
           }
         }
       });
@@ -398,7 +400,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           if (!iconPackToSelect.isEmpty()) {
             params.put("CustomIcons", formatIconNameForStorage(iconPackToSelect).toStdString());
             manageCustomIconsBtn->setValue(iconPackToSelect);
-            paramsMemory.putBool("UpdateTheme", true);
+            updateFrogPilotToggles();
           }
         }
       });
@@ -527,7 +529,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           if (!signalPackToSelect.isEmpty()) {
             params.put("CustomSignals", formatSignalNameForStorage(signalPackToSelect).toStdString());
             manageCustomSignalsBtn->setValue(signalPackToSelect);
-            paramsMemory.putBool("UpdateTheme", true);
+            updateFrogPilotToggles();
           }
         }
       });
@@ -656,7 +658,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           if (!soundSchemeToSelect.isEmpty()) {
             params.put("CustomSounds", formatSoundNameForStorage(soundSchemeToSelect).toStdString());
             manageCustomSoundsBtn->setValue(soundSchemeToSelect);
-            paramsMemory.putBool("UpdateTheme", true);
+            updateFrogPilotToggles();
           }
         }
       });
@@ -785,7 +787,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           if (!imageToSelect.isEmpty()) {
             params.put("WheelIcon", formatWheelNameForStorage(imageToSelect).toStdString());
             manageWheelIconsBtn->setValue(imageToSelect);
-            paramsMemory.putBool("UpdateTheme", true);
+            updateFrogPilotToggles();
           }
         }
       });
@@ -861,14 +863,6 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
       update();
     });
   }
-
-  QObject::connect(static_cast<ToggleControl*>(toggles["HolidayThemes"]), &ToggleControl::toggleFlipped, [this] {
-    paramsMemory.putBool("UpdateTheme", true);
-  });
-
-  QObject::connect(static_cast<ToggleControl*>(toggles["PersonalizeOpenpilot"]), &ToggleControl::toggleFlipped, [this] {
-    paramsMemory.putBool("UpdateTheme", true);
-  });
 
   QObject::connect(parent, &FrogPilotSettingsWindow::closeParentToggle, this, &FrogPilotThemesPanel::hideToggles);
   QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotThemesPanel::updateState);

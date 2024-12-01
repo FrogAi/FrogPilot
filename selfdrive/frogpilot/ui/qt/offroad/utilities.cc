@@ -44,19 +44,28 @@ UtilitiesPanel::UtilitiesPanel(FrogPilotSettingsWindow *parent) : FrogPilotListW
   addItem(forceStartedBtn);
 
   ButtonControl *resetTogglesBtn = new ButtonControl(tr("Reset Toggles to Default"), tr("RESET"), tr("Resets your toggle settings back to their default settings."));
-  QObject::connect(resetTogglesBtn, &ButtonControl::clicked, [=]() {
+  QObject::connect(resetTogglesBtn, &ButtonControl::clicked, [=]() mutable {
+    QDir toggleDir("/data/params/d");
+
     if (ConfirmationDialog::confirm(tr("Are you sure you want to completely reset all of your toggle settings?"), tr("Reset"), this)) {
-      std::thread([=] {
+      std::thread([=]() mutable {
         resetTogglesBtn->setEnabled(false);
         resetTogglesBtn->setValue(tr("Resetting..."));
 
-        params.putBool("DoToggleReset", true);
+        if (toggleDir.removeRecursively()) {
+          toggleDir.mkpath(".");
+          params.putBool("DoToggleReset", true);
 
-        resetTogglesBtn->setValue(tr("Reset!"));
-        util::sleep_for(2000);
-        resetTogglesBtn->setValue(tr("Rebooting..."));
-        util::sleep_for(2000);
-        Hardware::reboot();
+          resetTogglesBtn->setValue(tr("Reset!"));
+
+          util::sleep_for(2000);
+          resetTogglesBtn->setValue(tr("Rebooting..."));
+          util::sleep_for(2000);
+
+          Hardware::reboot();
+        } else {
+          resetTogglesBtn->setValue(tr("Failed..."));
+        }
       }).detach();
     }
   });

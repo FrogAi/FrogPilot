@@ -1210,6 +1210,14 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       Priority.HIGHEST, VisualAlert.none, AudibleAlert.fart, 10.),
   },
 
+  EventName.toBeContinued: {
+    ET.PERMANENT: Alert(
+      "To be continued...",
+      "⬅️",
+      AlertStatus.frogpilot, AlertSize.mid,
+      Priority.MID, VisualAlert.none, AudibleAlert.continued, 7.),
+  },
+
   EventName.vCruise69: {
     ET.PERMANENT: Alert(
       "Lol 69",

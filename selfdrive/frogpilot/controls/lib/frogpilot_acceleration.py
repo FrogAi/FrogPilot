@@ -27,7 +27,7 @@ def get_max_accel_low_speeds(max_accel, v_cruise):
   return interp(v_cruise, [0., CITY_SPEED_LIMIT / 2, CITY_SPEED_LIMIT], [max_accel / 4, max_accel / 2, max_accel])
 
 def get_max_accel_ramp_off(max_accel, v_cruise, v_ego):
-  return interp(v_cruise - v_ego, [0., 1., 5., 10.], [0., 0.5, 1.0, max_accel])
+  return interp(v_cruise - v_ego, [0., 1., 5., 10.], [0., 0.25, 0.75, max_accel])
 
 def get_max_allowed_accel(v_ego):
   return interp(v_ego, [0., 5., 20.], [4.0, 4.0, 2.0])  # ISO 15622:2018
