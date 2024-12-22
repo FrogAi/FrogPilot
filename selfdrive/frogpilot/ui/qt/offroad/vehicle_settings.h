@@ -23,12 +23,10 @@ private:
 
   QJsonObject frogpilotToggleLevels;
 
-  QMap<QString, QString> carModels;
-
   QString carMake;
   QString carModel;
 
-  QStringList models;
+  QStringList carModels;
 
   ParamControl *forceFingerprint;
 
@@ -42,7 +40,11 @@ private:
   bool hasOpenpilotLongitudinal;
   bool hasSNG;
   bool isBolt;
+  bool isGM;
+  bool isHKG;
   bool isImpreza;
+  bool isSubaru;
+  bool isToyota;
   bool isVolt;
   bool started;
 

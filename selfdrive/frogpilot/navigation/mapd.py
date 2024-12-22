@@ -1,13 +1,12 @@
-# PFEIFER - MAPD - Modified by FrogAi for FrogPilot to automatically update
+# PFEIFER - MAPD - Modified by FrogAi for FrogPilot
 import json
 import stat
 import subprocess
-import time
 import urllib.request
 
 from pathlib import Path
 
-VERSION = 'v1'
+VERSION = "v1"
 
 GITHUB_VERSION_URL = f"https://github.com/FrogAi/FrogPilot-Resources/raw/Versions/mapd_version_{VERSION}.json"
 GITLAB_VERSION_URL = f"https://gitlab.com/FrogAi/FrogPilot-Resources/-/raw/Versions/mapd_version_{VERSION}.json"
@@ -69,7 +68,7 @@ def update_mapd():
   if installed_version != latest_version:
     print("New mapd version available, stopping the mapd process for update")
     try:
-      subprocess.run(["pkill", "-f", str(MAPD_PATH)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+      subprocess.run(["pkill", "-f", MAPD_PATH], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     except Exception as error:
       print(f"Error stopping mapd process: {error}")
 
@@ -81,15 +80,7 @@ def update_mapd():
     print("Mapd is up to date")
 
 def ensure_mapd_is_running():
-  while True:
-    try:
-      subprocess.run([str(MAPD_PATH)], check=True)
-    except Exception as error:
-      print(f"Error running mapd process: {error}")
-      time.sleep(60)
-
-def main():
-  ensure_mapd_is_running()
-
-if __name__ == "__main__":
-  main()
+  try:
+    subprocess.run([MAPD_PATH], check=True)
+  except Exception as error:
+    print(f"Error running mapd process: {error}")

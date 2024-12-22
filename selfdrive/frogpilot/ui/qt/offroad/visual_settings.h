@@ -12,8 +12,10 @@ public:
 
 signals:
   void openParentToggle();
+  void openSubParentToggle();
 
 private:
+  void hideSubToggles();
   void hideToggles();
   void showEvent(QShowEvent *event) override;
   void showToggles(const std::set<QString> &keys);
@@ -29,6 +31,7 @@ private:
 
   QJsonObject frogpilotToggleLevels;
 
+  bool developerUIOpen;
   bool hasAutoTune;
   bool hasBSM;
   bool hasOpenpilotLongitudinal;
@@ -42,7 +45,9 @@ private:
   std::set<QString> accessibilityKeys = {"CameraView", "DriverCamera", "OnroadDistanceButton", "StandbyMode", "StoppedTimer"};
   std::set<QString> advancedCustomOnroadUIKeys = {"HideAlerts", "HideLeadMarker", "HideMapIcon", "HideMaxSpeed", "HideSpeed", "HideSpeedLimit", "WheelSpeed"};
   std::set<QString> customOnroadUIKeys = {"AccelerationPath", "AdjacentPath", "BlindSpotPath", "Compass", "PedalsOnUI", "RotatingWheel"};
-  std::set<QString> developerUIKeys = {"BorderMetrics", "FPSCounter", "LateralMetrics", "LongitudinalMetrics", "NumericalTemp", "SidebarMetrics", "UseSI"};
-  std::set<QString> modelUIKeys = {"DynamicPathWidth", "LaneLinesWidth", "PathEdgeWidth", "PathWidth", "RoadEdgesWidth", "ShowStoppingPoint", "UnlimitedLength"};
-  std::set<QString> navigationUIKeys = {"BigMap", "MapStyle", "RoadNameUI", "ShowSLCOffset", "ShowSpeedLimits", "UseVienna"};
+  std::set<QString> developerMetricKeys = {"BorderMetrics", "FPSCounter", "LateralMetrics", "LongitudinalMetrics", "NumericalTemp", "SidebarMetrics", "UseSI"};
+  std::set<QString> developerUIKeys = {"DeveloperMetrics", "DeveloperWidgets"};
+  std::set<QString> developerWidgetKeys = {"ShowCEMStatus", "ShowStoppingPoint"};
+  std::set<QString> modelUIKeys = {"DynamicPathWidth", "LaneLinesWidth", "PathEdgeWidth", "PathWidth", "RoadEdgesWidth", "UnlimitedLength"};
+  std::set<QString> navigationUIKeys = {"BigMap", "MapStyle", "RoadNameUI", "ShowSpeedLimits", "UseVienna"};
 };

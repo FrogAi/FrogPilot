@@ -10,7 +10,6 @@ class SpeedLimitController:
 
     self.desired_speed_limit = 0
     self.map_speed_limit = 0
-    self.offset = 0
     self.speed_limit = 0
     self.upcoming_speed_limit = 0
 
@@ -22,7 +21,6 @@ class SpeedLimitController:
     self.update_map_speed_limit(v_ego, frogpilot_toggles)
     max_speed_limit = v_cruise if enabled else 0
 
-    self.offset = self.get_offset(frogpilot_toggles)
     self.speed_limit = self.get_speed_limit(dashboard_speed_limit, max_speed_limit, navigation_speed_limit, frogpilot_toggles)
     self.desired_speed_limit = self.get_desired_speed_limit()
 
@@ -30,25 +28,27 @@ class SpeedLimitController:
 
   def get_desired_speed_limit(self):
     if self.speed_limit > 1:
-      if self.previous_speed_limit != self.speed_limit:
+      if abs(self.speed_limit - self.previous_speed_limit) > 1:
         params.put_float_nonblocking("PreviousSpeedLimit", self.speed_limit)
         self.previous_speed_limit = self.speed_limit
-      return self.speed_limit + self.offset
-    return 0
+      return self.speed_limit
+    else:
+      return 0
 
   def update_map_speed_limit(self, v_ego, frogpilot_toggles):
     self.map_speed_limit = params_memory.get_float("MapSpeedLimit")
 
     next_map_speed_limit = json.loads(params_memory.get("NextMapSpeedLimit", "{}"))
-    next_lat = next_map_speed_limit.get("latitude", 0)
-    next_lon = next_map_speed_limit.get("longitude", 0)
     self.upcoming_speed_limit = next_map_speed_limit.get("speedlimit", 0)
 
-    position = json.loads(params_memory.get("LastGPSPosition", "{}"))
-    latitude = position.get("latitude", 0)
-    longitude = position.get("longitude", 0)
-
     if self.upcoming_speed_limit > 1:
+      position = json.loads(params_memory.get("LastGPSPosition", "{}"))
+      latitude = position.get("latitude", 0)
+      longitude = position.get("longitude", 0)
+
+      next_lat = next_map_speed_limit.get("latitude", 0)
+      next_lon = next_map_speed_limit.get("longitude", 0)
+
       distance = calculate_distance_to_point(latitude * TO_RADIANS, longitude * TO_RADIANS, next_lat * TO_RADIANS, next_lon * TO_RADIANS)
 
       if self.previous_speed_limit < self.upcoming_speed_limit:
@@ -59,12 +59,12 @@ class SpeedLimitController:
       if distance < max_distance:
         self.map_speed_limit = self.upcoming_speed_limit
 
-  def get_offset(self, frogpilot_toggles):
-    if self.speed_limit < 13.5:
+  def get_offset(self, speed_limit, frogpilot_toggles):
+    if speed_limit < 13.5:
       return frogpilot_toggles.speed_limit_offset1
-    if self.speed_limit < 24:
+    if speed_limit < 24:
       return frogpilot_toggles.speed_limit_offset2
-    if self.speed_limit < 29:
+    if speed_limit < 29:
       return frogpilot_toggles.speed_limit_offset3
     return frogpilot_toggles.speed_limit_offset4
 
@@ -100,7 +100,6 @@ class SpeedLimitController:
       return self.previous_speed_limit
 
     if frogpilot_toggles.slc_fallback_set_speed:
-      self.offset = 0
       return max_speed_limit
 
     return 0

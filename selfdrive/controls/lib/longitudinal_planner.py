@@ -52,6 +52,27 @@ def limit_accel_in_turns(v_ego, angle_steers, a_target, CP):
   return [a_target[0], min(a_target[1], a_x_allowed)]
 
 
+def get_accel_from_plan_classic(CP, speeds, accels):
+  if len(speeds) == CONTROL_N:
+    v_target_now = interp(DT_MDL, CONTROL_N_T_IDX, speeds)
+    a_target_now = interp(DT_MDL, CONTROL_N_T_IDX, accels)
+
+    v_target = interp(CP.longitudinalActuatorDelay + DT_MDL, CONTROL_N_T_IDX, speeds)
+    if v_target != v_target_now:
+      a_target = 2 * (v_target - v_target_now) / CP.longitudinalActuatorDelay - a_target_now
+    else:
+      a_target = a_target_now
+
+    v_target_1sec = interp(CP.longitudinalActuatorDelay + DT_MDL + 1.0, CONTROL_N_T_IDX, speeds)
+  else:
+    v_target = 0.0
+    v_target_1sec = 0.0
+    a_target = 0.0
+  should_stop = (v_target < CP.vEgoStopping and
+                 v_target_1sec < CP.vEgoStopping)
+  return a_target, should_stop
+
+
 def get_accel_from_plan(speeds, accels, action_t=DT_MDL, vEgoStopping=0.05):
   if len(speeds) == CONTROL_N:
     v_now = speeds[0]
@@ -273,7 +294,7 @@ class LongitudinalPlanner:
     self.a_desired = float(interp(self.dt, CONTROL_N_T_IDX, self.a_desired_trajectory))
     self.v_desired_filter.x = self.v_desired_filter.x + self.dt * (self.a_desired + a_prev) / 2.0
 
-  def publish(self, sm, pm):
+  def publish(self, classic_model, sm, pm):
     plan_send = messaging.new_message('longitudinalPlan')
 
     plan_send.valid = sm.all_checks(service_list=['carState', 'controlsState'])
@@ -291,9 +312,12 @@ class LongitudinalPlanner:
     longitudinalPlan.longitudinalPlanSource = self.mpc.source
     longitudinalPlan.fcw = self.fcw
 
-    action_t =  self.CP.longitudinalActuatorDelay + DT_MDL
-    a_target, should_stop = get_accel_from_plan(longitudinalPlan.speeds, longitudinalPlan.accels,
-                                                action_t=action_t, vEgoStopping=self.CP.vEgoStopping)
+    if classic_model:
+      a_target, should_stop = get_accel_from_plan_classic(self.CP, longitudinalPlan.speeds, longitudinalPlan.accels)
+    else:
+      action_t = self.CP.longitudinalActuatorDelay + DT_MDL
+      a_target, should_stop = get_accel_from_plan(longitudinalPlan.speeds, longitudinalPlan.accels,
+                                                  action_t=action_t, vEgoStopping=self.CP.vEgoStopping)
     longitudinalPlan.aTarget = a_target
     longitudinalPlan.shouldStop = should_stop
     longitudinalPlan.allowBrake = True

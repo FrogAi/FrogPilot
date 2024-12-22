@@ -349,23 +349,23 @@ class ThemeManager:
       if theme_name in {"none", "stock"}:
         continue
 
-      if theme_component == "steering_wheels":
-        matching_files = list(THEME_SAVE_PATH.joinpath(theme_component).glob(f"{theme_name}.*"))
-        if not matching_files:
-          continue
-        theme_path = matching_files[0]
-      else:
-        theme_path = THEME_SAVE_PATH / "theme_packs" / theme_name / theme_component
-
       if theme_name.replace('_', ' ').split('.')[0].title() not in downloadable_list:
-        print(f"{theme_name} for {theme_component} is outdated. Deleting...")
+        print(f"  {theme_name} for {theme_component} is outdated. Deleting...")
         delete_file(theme_path)
         continue
 
-      if not theme_path.exists():
-        print(f"{theme_name} for {theme_component} not found. Downloading...")
-        self.download_theme(theme_component, theme_name, theme_param)
-        update_frogpilot_toggles()
+      if theme_component == "steering_wheels":
+        matching_files = list(THEME_SAVE_PATH.joinpath(theme_component).glob(f"{theme_name}.*"))
+        if not matching_files:
+          print(f"  {theme_name} for {theme_component} not found. Downloading...")
+          self.download_theme(theme_component, theme_name, theme_param)
+          update_frogpilot_toggles()
+      else:
+        theme_path = THEME_SAVE_PATH / "theme_packs" / theme_name / theme_component
+        if not theme_path.exists():
+          print(f"  {theme_name} for {theme_component} not found. Downloading...")
+          self.download_theme(theme_component, theme_name, theme_param)
+          update_frogpilot_toggles()
 
     for dir_path in THEME_SAVE_PATH.glob('**/*'):
       if dir_path.is_dir() and not any(dir_path.iterdir()):
@@ -374,6 +374,8 @@ class ThemeManager:
       elif dir_path.is_file() and dir_path.name.startswith("tmp"):
         print(f"Deleting temp file: {dir_path}")
         dir_path.unlink()
+
+    print("Theme validation complete.")
 
   def update_themes(self, frogpilot_toggles, boot_run=False):
     if self.downloading_theme:

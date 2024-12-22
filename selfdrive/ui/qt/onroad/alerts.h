@@ -46,6 +46,4 @@ protected:
   // FrogPilot variables
   bool hide_alerts;
   bool road_name_ui;
-  bool show_aol_status_bar;
-  bool show_cem_status_bar;
 };

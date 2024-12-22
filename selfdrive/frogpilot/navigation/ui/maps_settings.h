@@ -67,11 +67,13 @@ private:
   Params params;
   Params params_memory{"/dev/shm/params"};
 
+  QString mapsFolderPath = "/data/media/0/osm/offline";
+
   bool countriesOpen;
   bool downloadActive;
+  bool hasMapsSelected;
 
   qint64 startTime;
 
-  QString mapsFolderPath = "/data/media/0/osm/offline";
-  QString mapsSelected;
+  std::string mapsSelected;
 };

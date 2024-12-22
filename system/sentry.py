@@ -71,7 +71,10 @@ def capture_fingerprint(candidate, params, blocked=False):
         if key_type == ParamKeyType.FROGPILOT_TRACKING:
           value = params_tracking.get_int(key)
         else:
-          value = params.get(key).decode('utf-8') if isinstance(params.get(key), bytes) else params.get(key) or "0"
+          if isinstance(params.get(key), bytes):
+            value = params.get(key).decode('utf-8')
+          else:
+            value = params.get(key) or "0"
 
         if isinstance(value, str) and "." in value:
           value = value.rstrip("0").rstrip(".")
@@ -87,26 +90,15 @@ def capture_fingerprint(candidate, params, blocked=False):
     for label, key_values in matched_params.items():
       scope.set_context(label, key_values)
 
+    scope.fingerprint = [params.get("DongleId", encoding='utf-8'), candidate]
+
     if blocked:
       sentry_sdk.capture_message("Blocked user from using the development branch", level='error')
     else:
       sentry_sdk.capture_message(f"Fingerprinted {candidate}", level='info')
-      params.put_bool("FingerprintLogged", True)
 
-  sentry_sdk.flush()
-
-
-def capture_tmux(started_time, params) -> None:
-  updated = params.get("Updated", encoding='utf-8')
-
-  result = subprocess.run(['tmux', 'capture-pane', '-p', '-S', '-100'], stdout=subprocess.PIPE)
-  lines = result.stdout.decode('utf-8').splitlines()
-
-  if lines:
-    with sentry_sdk.configure_scope() as scope:
-      scope.set_extra("tmux_log", "\n".join(lines))
-      sentry_sdk.capture_message(f"UI Debugging Log - Last updated: {updated} - Started time: {started_time}", level='info')
-      sentry_sdk.flush()
+    params.put_bool("FingerprintLogged", True)
+    sentry_sdk.flush()
 
 
 def set_tag(key: str, value: str) -> None:

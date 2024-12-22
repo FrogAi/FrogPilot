@@ -598,6 +598,7 @@ void FrogPilotThemesPanel::showToggles(const std::set<QString> &keys) {
   }
 
   setUpdatesEnabled(true);
+
   update();
 }
 
@@ -611,5 +612,6 @@ void FrogPilotThemesPanel::hideToggles() {
   }
 
   setUpdatesEnabled(true);
+
   update();
 }

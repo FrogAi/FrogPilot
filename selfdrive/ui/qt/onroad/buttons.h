@@ -14,7 +14,7 @@ class ExperimentalButton : public QPushButton {
 
 public:
   explicit ExperimentalButton(QWidget *parent = 0);
-  void updateState(const UIState &s, bool lead_metrics);
+  void updateState(const UIState &s);
 
   // FrogPilot widgets
   ~ExperimentalButton();
@@ -60,7 +60,6 @@ private:
 
   int conditional_status;
   int steering_angle_deg;
-  int y_offset;
 };
 
 

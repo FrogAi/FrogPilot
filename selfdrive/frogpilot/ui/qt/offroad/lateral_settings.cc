@@ -14,7 +14,6 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
     {"AlwaysOnLateralLKAS", tr("Control with LKAS Button"), tr("Controls the current state of 'Always on Lateral' with the 'LKAS' button."), ""},
     {"AlwaysOnLateralMain", tr("Enable with Cruise Control"), tr("Activates 'Always on Lateral' whenever 'Cruise Control' is active bypassing the requirement to enable openpilot first."), ""},
     {"PauseAOLOnBrake", tr("Pause on Brake Below"), tr("Pauses 'Always on Lateral' when the brake pedal is pressed below the set speed."), ""},
-    {"HideAOLStatusBar", tr("Hide the Status Bar"), tr("Hides status bar for 'Always On Lateral'."), ""},
 
     {"LaneChangeCustomizations", tr("Lane Change Settings"), tr("How openpilot handles lane changes."), "../frogpilot/assets/toggle_icons/icon_lane.png"},
     {"NudgelessLaneChange", tr("Automatic Lane Changes"), tr("Conducts lane changes without needing to touch the steering wheel upon turn signal activation."), ""},
@@ -157,7 +156,7 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
 
   QObject::connect(static_cast<ToggleControl*>(toggles["AlwaysOnLateralLKAS"]), &ToggleControl::toggleFlipped, [this](bool state) {
     if (state && params.getBool("ExperimentalModeViaLKAS")) {
-      params.putBoolNonBlocking("ExperimentalModeViaLKAS", false);
+      params.putBool("ExperimentalModeViaLKAS", false);
     }
   });
 
@@ -166,11 +165,18 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
 
     modifiedAdvancedLateralTuneKeys.erase("ForceAutoTuneOff");
 
-    if (!hasAutoTune && state) {
+    if (state) {
       modifiedAdvancedLateralTuneKeys.erase("SteerFriction");
       modifiedAdvancedLateralTuneKeys.erase("SteerKP");
       modifiedAdvancedLateralTuneKeys.erase("SteerLatAccel");
       modifiedAdvancedLateralTuneKeys.erase("SteerRatio");
+    } else if (isPIDCar) {
+      modifiedAdvancedLateralTuneKeys.erase("SteerFriction");
+      modifiedAdvancedLateralTuneKeys.erase("SteerKP");
+      modifiedAdvancedLateralTuneKeys.erase("SteerLatAccel");
+    } else if (!liveValid || hasNNFFLog && params.getBool("LateralTune") && params.getBool("NNFF")) {
+      modifiedAdvancedLateralTuneKeys.erase("SteerFriction");
+      modifiedAdvancedLateralTuneKeys.erase("SteerLatAccel");
     }
 
     showToggles(modifiedAdvancedLateralTuneKeys);
@@ -181,11 +187,14 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
 
     modifiedAdvancedLateralTuneKeys.erase("ForceAutoTune");
 
-    if (hasAutoTune && !state) {
+    if (!state) {
       modifiedAdvancedLateralTuneKeys.erase("SteerFriction");
       modifiedAdvancedLateralTuneKeys.erase("SteerKP");
       modifiedAdvancedLateralTuneKeys.erase("SteerLatAccel");
       modifiedAdvancedLateralTuneKeys.erase("SteerRatio");
+    } else if (!liveValid || hasNNFFLog && params.getBool("LateralTune") && params.getBool("NNFF")) {
+      modifiedAdvancedLateralTuneKeys.erase("SteerFriction");
+      modifiedAdvancedLateralTuneKeys.erase("SteerLatAccel");
     }
 
     showToggles(modifiedAdvancedLateralTuneKeys);
@@ -206,7 +215,7 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
 
   std::set<QString> rebootKeys = {"AlwaysOnLateral", "NNFF", "NNFFLite"};
   for (const QString &key : rebootKeys) {
-    QObject::connect(static_cast<ToggleControl*>(toggles[key.toStdString().c_str()]), &ToggleControl::toggleFlipped, [this, key](bool state) {
+    QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, [this, key](bool state) {
       if (started) {
         if (key == "AlwaysOnLateral" && state) {
           if (FrogPilotConfirmationDialog::toggle(tr("Reboot required to take effect."), tr("Reboot Now"), this)) {
@@ -325,9 +334,8 @@ void FrogPilotLateralPanel::showToggles(const std::set<QString> &keys) {
     toggle->setVisible(keys.find(key) != keys.end() && tuningLevel >= frogpilotToggleLevels[key].toDouble());
   }
 
-  static_cast<FrogPilotParamManageControl*>(toggles["AlwaysOnLateral"])->setVisibleButton(tuningLevel >= 1);
-
   setUpdatesEnabled(true);
+
   update();
 }
 
@@ -344,8 +352,13 @@ void FrogPilotLateralPanel::hideToggles() {
     toggle->setVisible(!subToggles && tuningLevel >= frogpilotToggleLevels[key].toDouble());
   }
 
-  static_cast<FrogPilotParamManageControl*>(toggles["AlwaysOnLateral"])->setVisibleButton(tuningLevel >= 1);
+  std::set<QString> toggleKeys = {"AlwaysOnLateral"};
+  for (const QString &key : toggleKeys) {
+    FrogPilotParamManageControl *control = static_cast<FrogPilotParamManageControl*>(toggles[key]);
+    control->setVisibleButton(tuningLevel > frogpilotToggleLevels[key].toDouble());
+  }
 
   setUpdatesEnabled(true);
+
   update();
 }

@@ -57,7 +57,7 @@ void ExperimentalButton::changeMode() {
   }
 }
 
-void ExperimentalButton::updateState(const UIState &s, bool lead_metrics) {
+void ExperimentalButton::updateState(const UIState &s) {
   const auto cs = (*s.sm)["controlsState"].getControlsState();
   bool eng = cs.getEngageable() || cs.getEnabled() || always_on_lateral_active;
   if ((cs.getExperimentalMode() != experimental_mode) || (eng != engageable)) {
@@ -78,7 +78,6 @@ void ExperimentalButton::updateState(const UIState &s, bool lead_metrics) {
   rotating_wheel = scene.rotating_wheel;
   traffic_mode_active = scene.traffic_mode_active;
   use_stock_wheel = scene.use_stock_wheel;
-  y_offset = lead_metrics ? 10 : 0;
 
   if (rotating_wheel && steering_angle_deg != scene.steering_angle_deg) {
     steering_angle_deg = scene.steering_angle_deg;
@@ -142,7 +141,7 @@ void ExperimentalButton::updateIcon() {
 
     gif_label->setMovie(gif);
     gif_label->resize(img_size, img_size);
-    gif_label->move((btn_size - img_size) / 2, (btn_size - img_size) / 2 + y_offset);
+    gif_label->move((btn_size - img_size) / 2, (btn_size - img_size) / 2);
     gif_label->show();
 
     gif->start();
@@ -150,7 +149,7 @@ void ExperimentalButton::updateIcon() {
     use_gif = true;
     image_empty = false;
   } else if (QFile::exists(wheel_png_path)) {
-    img = loadPixmap(wheel_png_path, QSize(img_size, img_size));
+    img = loadPixmap(wheel_png_path, {img_size, img_size});
 
     image_empty = false;
     use_gif = false;
@@ -172,7 +171,7 @@ void ExperimentalButton::paintEvent(QPaintEvent *event) {
     img = experimental_mode ? experimental_img : engage_img;
   }
   updateBackgroundColor();
-  drawIcon(p, QPoint(btn_size / 2, btn_size / 2 + y_offset), img, background_color, (isDown() || !engageable) ? 0.6 : 1.0, steering_angle_deg);
+  drawIcon(p, QPoint(btn_size / 2, btn_size / 2), img, background_color, (isDown() || !engageable) ? 0.6 : 1.0, steering_angle_deg);
 }
 
 // MapSettingsButton

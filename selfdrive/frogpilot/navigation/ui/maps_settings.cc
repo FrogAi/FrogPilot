@@ -1,7 +1,5 @@
 #include <regex>
-#include <string>
 
-#include <QDateTime>
 #include <QtConcurrent>
 
 #include "selfdrive/frogpilot/navigation/ui/maps_settings.h"
@@ -49,12 +47,9 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent) : FrogPi
   QObject::connect(removeMapsButton, &ButtonControl::clicked, [this] {
     if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to delete all of your downloaded maps?"), this)) {
       std::thread([this] {
-        lastMapsDownload->setText("Never");
         mapsSize->setText("0 MB");
 
         std::system("rm -rf /data/media/0/osm/offline");
-
-        params.remove("LastMapsUpdate");
       }).detach();
     }
   });
@@ -99,8 +94,12 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
   QObject::connect(parent, &FrogPilotSettingsWindow::closeMapSelection, [this]() {
     displayMapButtons(false);
+
     countriesOpen = false;
-    mapsSelected = QString::fromStdString(params.get("MapsSelected"));
+
+    mapsSelected = params.get("MapsSelected");
+    hasMapsSelected = !QJsonDocument::fromJson(QByteArray::fromStdString(mapsSelected)).object().value("nations").toArray().isEmpty();
+    hasMapsSelected |= !QJsonDocument::fromJson(QByteArray::fromStdString(mapsSelected)).object().value("states").toArray().isEmpty();
   });
   QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotMapsPanel::updateState);
 
@@ -108,11 +107,14 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent) : FrogPi
 }
 
 void FrogPilotMapsPanel::showEvent(QShowEvent *event) {
-  mapsSelected = QString::fromStdString(params.get("MapsSelected"));
+  mapsSelected = params.get("MapsSelected");
+  hasMapsSelected = !QJsonDocument::fromJson(QByteArray::fromStdString(mapsSelected)).object().value("nations").toArray().isEmpty();
+  hasMapsSelected |= !QJsonDocument::fromJson(QByteArray::fromStdString(mapsSelected)).object().value("states").toArray().isEmpty();
 }
 
 void FrogPilotMapsPanel::hideEvent(QHideEvent *event) {
   displayMapButtons(false);
+
   countriesOpen = false;
 }
 
@@ -125,12 +127,13 @@ void FrogPilotMapsPanel::updateState(const UIState &s) {
     updateDownloadStatusLabels();
   }
 
-  downloadMapsButton->setEnabled(!mapsSelected.isEmpty() && s.scene.online);
+  downloadMapsButton->setEnabled(hasMapsSelected && s.scene.online);
 }
 
 void FrogPilotMapsPanel::cancelDownload() {
   if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to cancel the download?"), this)) {
     std::system("pkill mapd");
+
     resetDownloadState();
   }
 }
@@ -152,7 +155,7 @@ void FrogPilotMapsPanel::downloadMaps() {
   int retryCount = 0;
   while (!isMapdRunning() && retryCount < 3) {
     retryCount++;
-    std::this_thread::sleep_for(std::chrono::seconds(1));
+    util::sleep_for(1000);
   }
 
   if (retryCount >= 3) {
@@ -160,7 +163,7 @@ void FrogPilotMapsPanel::downloadMaps() {
     return;
   }
 
-  params_memory.put("OSMDownloadLocations", params.get("MapsSelected"));
+  params_memory.put("OSMDownloadLocations", mapsSelected);
 
   downloadActive = true;
 
@@ -168,14 +171,13 @@ void FrogPilotMapsPanel::downloadMaps() {
 }
 
 void FrogPilotMapsPanel::updateDownloadStatusLabels() {
-  static const std::regex fileStatuses(R"("total_files":(\d+),.*"downloaded_files":(\d+))");
+  static std::regex fileStatuses(R"("total_files":(\d+),.*"downloaded_files":(\d+))");
   static int previousDownloadedFiles = 0;
   static qint64 lastUpdatedTime = QDateTime::currentMSecsSinceEpoch();
   static qint64 lastRemainingTime = 0;
 
   std::string osmDownloadProgress = params.get("OSMDownloadProgress");
   std::smatch match;
-
   if (!std::regex_search(osmDownloadProgress, match, fileStatuses)) {
     resetDownloadLabels();
     return;
@@ -244,7 +246,7 @@ void FrogPilotMapsPanel::handleDownloadError() {
 
   update();
 
-  std::this_thread::sleep_for(std::chrono::seconds(3));
+  util::sleep_for(3000);
 
   downloadStatus->setText("");
 
@@ -258,7 +260,7 @@ void FrogPilotMapsPanel::handleDownloadError() {
 void FrogPilotMapsPanel::finalizeDownload() {
   QString formattedDate = formatCurrentDate();
 
-  params.putNonBlocking("LastMapsUpdate", formattedDate.toStdString());
+  params.put("LastMapsUpdate", formattedDate.toStdString());
   params.remove("OSMDownloadProgress");
 
   mapsSize->setText(calculateDirectorySize(mapsFolderPath));
@@ -343,5 +345,6 @@ void FrogPilotMapsPanel::displayMapButtons(bool visible) {
   westLabel->setVisible(visible && !countriesOpen);
 
   setUpdatesEnabled(true);
+
   update();
 }

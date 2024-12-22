@@ -27,7 +27,6 @@ private:
   // FrogPilot variables
   bool blindSpotLeft;
   bool blindSpotRight;
-  bool hasLead;
   bool liveValid;
   bool showBlindspot;
   bool showFPS;
@@ -38,15 +37,18 @@ private:
   bool turnSignalLeft;
   bool turnSignalRight;
 
+  float acceleration;
   float accelerationJerk;
   float accelerationJerkDifference;
   float fps;
   float friction;
   float latAccel;
+  float maxAcceleration;
   float speedJerk;
   float speedJerkDifference;
   float steer;
 
+  int maxAccelTimer;
   int steeringAngleDeg;
 
   QPoint timeoutPoint = QPoint(420, 69);
@@ -54,9 +56,10 @@ private:
   QTimer clickTimer;
 
   inline QColor redColor(int alpha = 255) { return QColor(201, 34, 49, alpha); }
+  inline QColor whiteColor(int alpha = 255) { return QColor(255, 255, 255, alpha); }
 
   Params params;
-  Params paramsMemory{"/dev/shm/params"};
+  Params params_memory{"/dev/shm/params"};
 
 private slots:
   void offroadTransition(bool offroad);

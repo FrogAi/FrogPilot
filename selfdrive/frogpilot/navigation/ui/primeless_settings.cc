@@ -65,7 +65,7 @@ void FrogPilotPrimelessPanel::createMapboxKeyControl(ButtonControl *&control, co
         key = prefix + key;
       }
       if (key.length() >= 80) {
-        params.putNonBlocking(paramKey, key.toStdString());
+        params.put(paramKey, key.toStdString());
       } else {
         FrogPilotConfirmationDialog::toggleAlert(tr("Inputted key is invalid or too short!"), tr("Okay"), this);
       }
@@ -105,12 +105,12 @@ void FrogPilotPrimelessPanel::displayMapboxInstructions(bool visible) {
   setupButton->setVisible(!visible);
 
   setUpdatesEnabled(true);
+
   update();
 }
 
 void FrogPilotPrimelessPanel::updateStep() {
   QString currentStep;
-
   if (setupCompleted) {
     currentStep = "../frogpilot/navigation/navigation_training/setup_completed.png";
   } else if (mapboxPublicKeySet && mapboxSecretKeySet) {
@@ -123,7 +123,7 @@ void FrogPilotPrimelessPanel::updateStep() {
 
   QPixmap pixmap;
   pixmap.load(currentStep);
-
   imageLabel->setPixmap(pixmap.scaledToWidth(1500, Qt::SmoothTransformation));
+
   update();
 }

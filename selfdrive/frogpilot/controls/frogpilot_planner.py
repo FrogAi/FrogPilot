@@ -81,15 +81,13 @@ class FrogPilotPlanner:
 
     self.road_curvature = calculate_road_curvature(modelData, v_ego) if not carState.standstill else 1
 
-    self.tracking_lead = self.set_lead_status(frogpilotCarState, v_ego, frogpilot_toggles)
+    self.tracking_lead = self.set_lead_status(carState, v_lead)
     self.v_cruise = self.frogpilot_vcruise.update(carControl, carState, controlsState, frogpilotCarControl, frogpilotCarState, frogpilotNavigation, v_cruise, v_ego, frogpilot_toggles)
 
-  def set_lead_status(self, frogpilotCarState, v_ego, frogpilot_toggles):
-    distance_offset = frogpilot_toggles.increased_stopped_distance if not frogpilotCarState.trafficModeActive else 0
-
+  def set_lead_status(self, carState, v_lead):
     following_lead = self.lead_one.status
-    following_lead &= 1 < self.lead_one.dRel < self.model_length + STOP_DISTANCE + distance_offset
-    following_lead &= v_ego > CRUISING_SPEED or self.tracking_lead
+    following_lead &= self.lead_one.dRel < self.model_length + STOP_DISTANCE
+    following_lead &= not carState.standstill or self.tracking_lead
 
     self.tracking_lead_mac.add_data(following_lead)
     return self.tracking_lead_mac.get_moving_average() >= THRESHOLD
@@ -110,10 +108,7 @@ class FrogPilotPlanner:
     frogpilotPlan.vtscControllingCurve = bool(self.frogpilot_vcruise.mtsc_target > self.frogpilot_vcruise.vtsc_target)
     frogpilotPlan.vtscSpeed = float(self.frogpilot_vcruise.vtsc_target)
 
-    frogpilotPlan.desiredFollowDistance = self.frogpilot_following.safe_obstacle_distance - self.frogpilot_following.stopped_equivalence_factor
-    frogpilotPlan.safeObstacleDistance = self.frogpilot_following.safe_obstacle_distance
-    frogpilotPlan.safeObstacleDistanceStock = self.frogpilot_following.safe_obstacle_distance_stock
-    frogpilotPlan.stoppedEquivalenceFactor = self.frogpilot_following.stopped_equivalence_factor
+    frogpilotPlan.desiredFollowDistance = self.frogpilot_following.desired_follow_distance
 
     frogpilotPlan.experimentalMode = self.cem.experimental_mode or self.frogpilot_vcruise.slc.experimental_mode
 
@@ -136,7 +131,7 @@ class FrogPilotPlanner:
     frogpilotPlan.slcOverridden = bool(self.frogpilot_vcruise.override_slc)
     frogpilotPlan.slcOverriddenSpeed = float(self.frogpilot_vcruise.overridden_speed)
     frogpilotPlan.slcSpeedLimit = self.frogpilot_vcruise.slc_target
-    frogpilotPlan.slcSpeedLimitOffset = self.frogpilot_vcruise.slc.offset
+    frogpilotPlan.slcSpeedLimitOffset = self.frogpilot_vcruise.slc_offset
     frogpilotPlan.slcSpeedLimitSource = self.frogpilot_vcruise.slc.source
     frogpilotPlan.speedLimitChanged = self.frogpilot_vcruise.speed_limit_changed
     frogpilotPlan.unconfirmedSlcSpeedLimit = self.frogpilot_vcruise.slc.desired_speed_limit

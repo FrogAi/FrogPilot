@@ -1,9 +1,9 @@
 #pragma once
 
 #include <filesystem>
-#include <string>
 
 #include <QDateTime>
+#include <QJsonArray>
 
 #include "selfdrive/frogpilot/ui/qt/widgets/frogpilot_controls.h"
 
@@ -126,15 +126,15 @@ inline QMap<QString, QString> southAmericaMap = {
   {"VE", "Venezuela"}
 };
 
-namespace fs = std::filesystem;
-
 inline bool isMapdRunning() {
   return std::system("pgrep mapd > /dev/null 2>&1") == 0;
 }
 
+namespace fs = std::filesystem;
+
 inline QString calculateDirectorySize(const QString &directoryPath) {
-  constexpr uintmax_t oneGB = 1024 * 1024 * 1024;
   constexpr uintmax_t oneMB = 1024 * 1024;
+  constexpr uintmax_t oneGB = 1024 * 1024 * 1024;
 
   uintmax_t totalSize = 0;
   fs::path path(directoryPath.toStdString());
@@ -159,9 +159,9 @@ inline QString calculateDirectorySize(const QString &directoryPath) {
 
 inline QString formatCurrentDate() {
   QDate currentDate = QDate::currentDate();
-  QString suffix;
   int day = currentDate.day();
 
+  QString suffix;
   if (day % 10 == 1 && day != 11) {
     suffix = "st";
   } else if (day % 10 == 2 && day != 12) {
@@ -197,7 +197,7 @@ class MapSelectionControl : public QWidget {
   Q_OBJECT
 
 public:
-  MapSelectionControl(const QMap<QString, QString> &map, bool isCountry = false, QWidget *parent = nullptr);
+  MapSelectionControl(const QMap<QString, QString> &map, bool isCountry = false);
 
 private:
   void loadSelectedMaps();
@@ -209,7 +209,13 @@ private:
 
   QGridLayout *gridLayout;
 
+  QJsonArray mapSelections;
+
+  QList<QAbstractButton *> buttons;
+
   QMap<QString, QString> mapData;
+
+  QString selectionType;
 
   bool isCountry;
 };

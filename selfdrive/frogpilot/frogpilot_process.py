@@ -1,4 +1,5 @@
 import datetime
+import json
 import subprocess
 import threading
 import time
@@ -20,13 +21,14 @@ from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_tracking import FrogPi
 from openpilot.selfdrive.frogpilot.frogpilot_functions import backup_toggles
 from openpilot.selfdrive.frogpilot.frogpilot_utilities import is_url_pingable
 from openpilot.selfdrive.frogpilot.frogpilot_variables import FrogPilotVariables, get_frogpilot_toggles, params, params_memory
-from openpilot.selfdrive.frogpilot.navigation.mapd import update_mapd
+from openpilot.selfdrive.frogpilot.navigation.mapd import ensure_mapd_is_running, update_mapd
 
 locks = {
   "backup_toggles": threading.Lock(),
   "download_all_models": threading.Lock(),
   "download_model": threading.Lock(),
   "download_theme": threading.Lock(),
+  "ensure_mapd_is_running": threading.Lock(),
   "update_checks": threading.Lock(),
   "update_mapd": threading.Lock(),
   "update_models": threading.Lock(),
@@ -44,11 +46,13 @@ def run_thread_with_lock(name, target, args=()):
 
 def automatic_update_check():
   subprocess.run(["pkill", "-SIGUSR1", "-f", "system.updated.updated"], check=False)
-  while params.get("UpdaterState", encoding="utf8") != "idle":
-    time.sleep(60)
+  time.sleep(60)
 
   if not params.get_bool("UpdaterFetchAvailable"):
     return
+
+  while params.get("UpdaterState", encoding="utf8") != "idle":
+    time.sleep(60)
 
   subprocess.run(["pkill", "-SIGHUP", "-f", "system.updated.updated"], check=False)
   while not params.get_bool("UpdateAvailable"):
@@ -60,6 +64,8 @@ def automatic_update_check():
   HARDWARE.reboot()
 
 def check_assets(model_manager, theme_manager, frogpilot_toggles):
+  run_thread_with_lock("ensure_mapd_is_running", ensure_mapd_is_running)
+
   if params_memory.get_bool("DownloadAllModels"):
     run_thread_with_lock("download_all_models", model_manager.download_all_models)
 
@@ -81,11 +87,11 @@ def check_assets(model_manager, theme_manager, frogpilot_toggles):
     if asset_to_download is not None:
       run_thread_with_lock("download_theme", theme_manager.download_theme, (asset_type, asset_to_download, param))
 
-def update_checks(model_manager, now, theme_manager, frogpilot_toggles):
+def update_checks(manually_updated, model_manager, now, theme_manager, frogpilot_toggles):
   if not (is_url_pingable("https://github.com") or is_url_pingable("https://gitlab.com")):
     return
 
-  if frogpilot_toggles.automatic_updates and not params_memory.get_bool("ManualUpdateInitiated"):
+  if frogpilot_toggles.automatic_updates and not manually_updated:
     automatic_update_check()
 
   update_maps(now)
@@ -94,9 +100,11 @@ def update_checks(model_manager, now, theme_manager, frogpilot_toggles):
   run_thread_with_lock("update_models", model_manager.update_models)
   run_thread_with_lock("update_themes", theme_manager.update_themes, (frogpilot_toggles,))
 
+  time.sleep(1)
+
 def update_maps(now):
-  maps_selected = params.get("MapsSelected", encoding='utf8')
-  if maps_selected is None:
+  maps_selected = json.loads(params.get("MapsSelected", encoding='utf8'))
+  if not (maps_selected.get("nations") or maps_selected.get("states")):
     return
 
   day = now.day
@@ -115,7 +123,7 @@ def update_maps(now):
     return
 
   if params.get("OSMDownloadProgress", encoding='utf-8') is None:
-    params_memory.put("OSMDownloadLocations", maps_selected)
+    params_memory.put("OSMDownloadLocations", json.dumps(maps_selected))
     params.put("LastMapsUpdate", todays_date)
 
 def frogpilot_thread():
@@ -204,13 +212,15 @@ def frogpilot_thread():
     else:
       assets_checked = False
 
-    run_update_checks |= params_memory.get_bool("ManualUpdateInitiated")
+    manually_updated = params_memory.get_bool("ManualUpdateInitiated")
+
+    run_update_checks |= manually_updated
     run_update_checks |= now.second == 0 and (now.minute % 60 == 0 or frogpilot_toggles.frogs_go_moo)
     run_update_checks &= time_validated
 
     if run_update_checks:
       theme_updated = theme_manager.update_active_theme(time_validated, frogpilot_toggles)
-      run_thread_with_lock("update_checks", update_checks, (model_manager, now, theme_manager, frogpilot_toggles))
+      run_thread_with_lock("update_checks", update_checks, (manually_updated, model_manager, now, theme_manager, frogpilot_toggles))
 
       run_update_checks = False
     elif not time_validated:

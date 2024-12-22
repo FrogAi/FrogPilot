@@ -17,8 +17,6 @@ void OnroadAlerts::updateState(const UIState &s) {
 
   hide_alerts = scene.hide_alerts;
   road_name_ui = scene.road_name_ui;
-  show_aol_status_bar = scene.aol_status_bar;
-  show_cem_status_bar = scene.cem_status_bar;
 }
 
 void OnroadAlerts::clear() {
@@ -82,7 +80,7 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
 
   int margin = 40;
   int radius = 30;
-  int offset = road_name_ui || show_aol_status_bar || show_cem_status_bar ? 25 : 0;
+  int offset = road_name_ui ? 25 : 0;
   alert_height = h - margin + offset;
   if (alert.size == cereal::ControlsState::AlertSize::FULL) {
     margin = 0;

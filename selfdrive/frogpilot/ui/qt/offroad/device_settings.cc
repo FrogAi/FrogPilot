@@ -120,6 +120,7 @@ void FrogPilotDevicePanel::showToggles(const std::set<QString> &keys) {
   }
 
   setUpdatesEnabled(true);
+
   update();
 }
 
@@ -133,5 +134,6 @@ void FrogPilotDevicePanel::hideToggles() {
   }
 
   setUpdatesEnabled(true);
+
   update();
 }

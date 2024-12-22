@@ -141,6 +141,7 @@ void FrogPilotSoundsPanel::showToggles(const std::set<QString> &keys) {
   }
 
   setUpdatesEnabled(true);
+
   update();
 }
 
@@ -155,5 +156,6 @@ void FrogPilotSoundsPanel::hideToggles() {
   }
 
   setUpdatesEnabled(true);
+
   update();
 }

@@ -161,6 +161,8 @@ FrogPilotModelPanel::FrogPilotModelPanel(FrogPilotSettingsWindow *parent) : Frog
               params_memory.put("ModelDownloadProgress", "Downloading...");
 
               downloadModelBtn->setValue("Downloading...");
+
+              downloadModelBtn->setVisibleButton(1, false);
             }
           }
         } else if (id == 1) {
@@ -175,6 +177,8 @@ FrogPilotModelPanel::FrogPilotModelPanel(FrogPilotSettingsWindow *parent) : Frog
             params_memory.put("ModelDownloadProgress", "Downloading...");
 
             downloadModelBtn->setValue("Downloading...");
+
+            downloadModelBtn->setVisibleButton(0, false);
           }
         }
       });
@@ -339,7 +343,7 @@ void FrogPilotModelPanel::updateModelLabels() {
     int drives = modelData.value("Drives").toInt(0);
     int score = modelData.value("Score").toInt(0);
 
-    QString drivesDisplay = drives == 1 ? QString("%1 Drive") : drives > 0 ? QString("%1 Drives").arg(drives) : "N/A";
+    QString drivesDisplay = drives == 1 ? QString("%1 Drive").arg(drives) : drives > 0 ? QString("%1 Drives").arg(drives) : "N/A";
     QString scoreDisplay = score > 0 ? QString("Score: %1%").arg(score) : "N/A";
 
     QString labelTitle = QStringLiteral("%1").arg(processModelName(modelName));
@@ -363,6 +367,7 @@ void FrogPilotModelPanel::showToggles(const std::set<QString> &keys) {
   }
 
   setUpdatesEnabled(true);
+
   update();
 }
 
@@ -382,6 +387,7 @@ void FrogPilotModelPanel::hideToggles() {
   }
 
   setUpdatesEnabled(true);
+
   update();
 }
 
@@ -399,5 +405,6 @@ void FrogPilotModelPanel::hideSubToggles() {
   }
 
   setUpdatesEnabled(true);
+
   update();
 }

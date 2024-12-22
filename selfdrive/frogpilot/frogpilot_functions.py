@@ -20,84 +20,73 @@ from openpilot.selfdrive.frogpilot.frogpilot_utilities import run_cmd
 from openpilot.selfdrive.frogpilot.frogpilot_variables import MODELS_PATH, THEME_SAVE_PATH, FrogPilotVariables, get_frogpilot_toggles, params
 
 def backup_directory(backup, destination, success_message, fail_message, minimum_backup_size=0, compressed=False):
-  if not compressed:
-    if destination.exists():
-      print("Backup already exists. Aborting")
-      return
-
-    destination.mkdir(parents=True, exist_ok=False)
-
-    run_cmd(["sudo", "rsync", "-avq", f"{backup}/.", str(destination)], success_message, fail_message)
-    print(f"Backup successfully created at {destination}")
-
-  else:
+  if compressed:
     destination_compressed = destination.with_suffix(".tar.gz")
-    in_progress_compressed = destination_compressed.with_suffix(".tar.gz_in_progress")
-
     if destination_compressed.exists():
       print("Backup already exists. Aborting")
       return
 
     in_progress_destination = destination.parent / (destination.name + "_in_progress")
-    in_progress_destination.mkdir(parents=True, exist_ok=False)
+    run_cmd(["sudo", "rsync", "-avq", f"{backup}/.", in_progress_destination], "", fail_message)
 
-    run_cmd(["sudo", "rsync", "-avq", f"{backup}/.", str(in_progress_destination)], "", fail_message)
-
+    in_progress_compressed = destination_compressed.with_suffix(".tar.gz_in_progress")
     with tarfile.open(in_progress_compressed, "w:gz") as tar:
       tar.add(in_progress_destination, arcname=destination.name)
 
-    run_cmd(["sudo", "rm", "-rf", str(in_progress_destination)], success_message, fail_message)
+    run_cmd(["sudo", "rm", "-rf", in_progress_destination], success_message, fail_message)
     in_progress_compressed.rename(destination_compressed)
-    print(f"Backup successfully compressed to {destination_compressed}")
 
     compressed_backup_size = destination_compressed.stat().st_size
     if minimum_backup_size == 0 or compressed_backup_size < minimum_backup_size:
       params.put_int("MinimumBackupSize", compressed_backup_size)
+  else:
+    if destination.exists():
+      print("Backup already exists. Aborting")
+      return
+
+    run_cmd(["sudo", "rsync", "-avq", f"{backup}/.", destination], success_message, fail_message)
 
 def cleanup_backups(directory, limit, success_message, fail_message, compressed=False):
   directory.mkdir(parents=True, exist_ok=True)
+
   backups = sorted(directory.glob("*_auto*"), key=lambda x: x.stat().st_mtime, reverse=True)
   for backup in backups[:]:
     if backup.name.endswith("_in_progress") or backup.name.endswith("_in_progress.tar.gz"):
-      run_cmd(["sudo", "rm", "-rf", str(backup)], "", fail_message)
+      run_cmd(["sudo", "rm", "-rf", backup], "", fail_message)
       backups.remove(backup)
 
   for oldest_backup in backups[limit:]:
     if oldest_backup.is_dir():
-      run_cmd(["sudo", "rm", "-rf", str(oldest_backup)], success_message, fail_message)
+      run_cmd(["sudo", "rm", "-rf", oldest_backup], success_message, fail_message)
     else:
-      run_cmd(["sudo", "rm", str(oldest_backup)], success_message, fail_message)
+      run_cmd(["sudo", "rm", oldest_backup], success_message, fail_message)
 
 def backup_frogpilot(build_metadata):
   backup_path = Path("/data/backups")
   maximum_backups = 5
-  minimum_backup_size = params.get_int("MinimumBackupSize")
-
-  cleanup_backups(backup_path, maximum_backups, f"Successfully cleaned up old FrogPilot backups", f"Failed to cleanup old FrogPilot backups", True)
+  cleanup_backups(backup_path, maximum_backups, "Successfully cleaned up old FrogPilot backups", "Failed to cleanup old FrogPilot backups", True)
 
   _, _, free = shutil.disk_usage(backup_path)
-  required_free_space = minimum_backup_size * maximum_backups
-
-  if free > required_free_space:
-    branch = build_metadata.channel
-    commit = build_metadata.openpilot.git_commit_date[12:-16]
-    backup_dir = backup_path / f"{branch}_{commit}_auto"
-    backup_directory(Path(BASEDIR), backup_dir, f"Successfully backed up FrogPilot to {backup_dir}", f"Failed to backup FrogPilot to {backup_dir}", minimum_backup_size, compressed=True)
+  minimum_backup_size = params.get_int("MinimumBackupSize")
+  if free > minimum_backup_size * maximum_backups:
+    directory = Path(BASEDIR)
+    destination_directory = backup_path / f"{build_metadata.channel}_{build_metadata.openpilot.git_commit_date[12:-16]}_auto"
+    backup_directory(directory, destination_directory, f"Successfully backed up FrogPilot to {destination_directory}", f"Failed to backup FrogPilot to {destination_directory}", minimum_backup_size, compressed=True)
 
 def backup_toggles(params_storage):
   for key in params.all_keys():
-    if params.get_key_type(key) & ParamKeyType.FROGPILOT_STORAGE:
+    if params.get_key_type(key) & ParamKeyType.PERSISTENT:
       value = params.get(key)
       if value is not None:
         params_storage.put(key, value)
 
   backup_path = Path("/data/toggle_backups")
   maximum_backups = 10
+  cleanup_backups(backup_path, maximum_backups, "Successfully cleaned up old toggle backups", "Failed to cleanup old toggle backups")
 
-  cleanup_backups(backup_path, maximum_backups, f"Successfully cleaned up old toggle backups", f"Failed to cleanup old toggle backups")
-
-  backup_dir = backup_path / f"{datetime.datetime.now().strftime('%Y-%m-%d_%I-%M%p').lower()}_auto"
-  backup_directory(Path("/data/params/d"), backup_dir, f"Successfully backed up toggles to {backup_dir}", f"Failed to backup toggles to {backup_dir}")
+  directory = Path("/data/params/d")
+  destination_directory = backup_path / f"{datetime.datetime.now().strftime('%Y-%m-%d_%I-%M%p').lower()}_auto"
+  backup_directory(directory, destination_directory, f"Successfully backed up toggles to {destination_directory}", f"Failed to backup toggles to {destination_directory}")
 
 def convert_params(params_storage):
   print("Starting to convert params")
@@ -163,7 +152,6 @@ def frogpilot_boot_functions(build_metadata, params_storage):
 
   source = Path(THEME_SAVE_PATH) / "distance_icons"
   destination = Path(THEME_SAVE_PATH) / "theme_packs"
-
   if source.exists():
     for item in source.iterdir():
       if item.is_dir():
@@ -191,8 +179,7 @@ def frogpilot_boot_functions(build_metadata, params_storage):
       print("Waiting for system time to become valid...")
       time.sleep(1)
 
-    if params.get("UpdaterAvailableBranches") is None:
-      subprocess.run(["pkill", "-SIGUSR1", "-f", "system.updated.updated"], check=False)
+    subprocess.run(["pkill", "-SIGUSR1", "-f", "system.updated.updated"], check=False)
 
     backup_frogpilot(build_metadata)
     backup_toggles(params_storage)

@@ -76,9 +76,6 @@ class ManagerProcess(ABC):
   watchdog_seen = False
   shutting_down = False
 
-  # FrogPilot variables
-  started_time = 0
-
   @abstractmethod
   def prepare(self) -> None:
     pass
@@ -105,14 +102,10 @@ class ManagerProcess(ABC):
 
     dt = time.monotonic() - self.last_watchdog_time / 1e9
 
-    self.started_time = self.started_time + 1 if started else 0
-
     if dt > self.watchdog_max_dt:
       if self.watchdog_seen and ENABLE_WATCHDOG:
         cloudlog.error(f"Watchdog timeout for {self.name} (exitcode {self.proc.exitcode}) restarting ({started=})")
         self.restart()
-        if self.started_time > 100 and self.name == "ui":
-          sentry.capture_tmux(self.started_time, params)
     else:
       self.watchdog_seen = True
 

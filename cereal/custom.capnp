@@ -63,26 +63,23 @@ struct FrogPilotPlan @0x80ae746ee2596b11 {
   minAcceleration @12 :Float32;
   mtscSpeed @13 :Float32;
   redLight @14 :Bool;
-  safeObstacleDistance @15 :Int64;
-  safeObstacleDistanceStock @16 :Int64;
-  slcMapSpeedLimit @17 :Float32;
-  slcOverridden @18 :Bool;
-  slcOverriddenSpeed @19 :Float32;
-  slcSpeedLimit @20 :Float32;
-  slcSpeedLimitOffset @21 :Float32;
-  slcSpeedLimitSource @22 :Text;
-  speedJerk @23 :Float32;
-  speedJerkStock @24 :Float32;
-  speedLimitChanged @25 :Bool;
-  stoppedEquivalenceFactor @26 :Int64;
-  tFollow @27 :Float32;
-  themeUpdated @28 :Bool;
-  togglesUpdated @29 :Bool;
-  unconfirmedSlcSpeedLimit @30 :Float32;
-  upcomingSLCSpeedLimit @31 :Float32;
-  vCruise @32 :Float32;
-  vtscControllingCurve @33 :Bool;
-  vtscSpeed @34 :Float32;
+  slcMapSpeedLimit @15 :Float32;
+  slcOverridden @16 :Bool;
+  slcOverriddenSpeed @17 :Float32;
+  slcSpeedLimit @18 :Float32;
+  slcSpeedLimitOffset @19 :Float32;
+  slcSpeedLimitSource @20 :Text;
+  speedJerk @21 :Float32;
+  speedJerkStock @22 :Float32;
+  speedLimitChanged @23 :Bool;
+  tFollow @24 :Float32;
+  themeUpdated @25 :Bool;
+  togglesUpdated @26 :Bool;
+  unconfirmedSlcSpeedLimit @27 :Float32;
+  upcomingSLCSpeedLimit @28 :Float32;
+  vCruise @29 :Float32;
+  vtscControllingCurve @30 :Bool;
+  vtscSpeed @31 :Float32;
 }
 
 struct CustomReserved5 @0xa5cd762cd951a455 {

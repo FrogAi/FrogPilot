@@ -148,8 +148,6 @@ frogpilot_default_params: list[tuple[str, str | bytes, int]] = [
   ("GoatScream", "0", 2),
   ("GreenLightAlert", "0", 0),
   ("HideAlerts", "0", 2),
-  ("HideAOLStatusBar", "0", 2),
-  ("HideCEMStatusBar", "0", 2),
   ("HideCSCUI", "0", 2),
   ("HideLeadMarker", "0", 2),
   ("HideMapIcon", "0", 2),
@@ -248,6 +246,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int]] = [
   ("SearchInput", "0", 0),
   ("SetSpeedLimit", "0", 2),
   ("SetSpeedOffset", "0", 2),
+  ("ShowCEMStatus", "1", 3),
   ("ShowCPU", "1", 3),
   ("ShowGPU", "0", 3),
   ("ShowIP", "0", 3),
@@ -323,8 +322,10 @@ frogpilot_default_params: list[tuple[str, str | bytes, int]] = [
 ]
 
 misc_tuning_levels: list[tuple[str, str | bytes, int]] = [
+  ("DeveloperMetrics", "", 3),
+  ("DeveloperWidgets", "", 3),
   ("SLCPriority", "", 2),
-  ("SLCQOL", "", 2),
+  ("SLCQOL", "", 0),
   ("StartupAlert", "", 0)
 ]
 
@@ -423,7 +424,6 @@ class FrogPilotVariables:
     toggle.always_on_lateral_lkas = toggle.always_on_lateral_set and car_make != "subaru" and (params.get_bool("AlwaysOnLateralLKAS") if tuning_level >= level["AlwaysOnLateralLKAS"] else default.get_bool("AlwaysOnLateralLKAS"))
     toggle.always_on_lateral_main = toggle.always_on_lateral_set and (params.get_bool("AlwaysOnLateralMain") if tuning_level >= level["AlwaysOnLateralMain"] else default.get_bool("AlwaysOnLateralMain"))
     toggle.always_on_lateral_pause_speed = params.get_int("PauseAOLOnBrake") if toggle.always_on_lateral_set and tuning_level >= level["PauseAOLOnBrake"] else default.get_int("PauseAOLOnBrake")
-    toggle.always_on_lateral_status_bar = toggle.always_on_lateral_set and not (params.get_bool("HideAOLStatusBar") if tuning_level >= level["HideAOLStatusBar"] else default.get_bool("HideAOLStatusBar"))
 
     toggle.automatic_updates = params.get_bool("AutomaticUpdates") if tuning_level >= level["AutomaticUpdates"] else default.get_bool("AutomaticUpdates")
 
@@ -444,7 +444,6 @@ class FrogPilotVariables:
     toggle.conditional_model_stop_time = params.get_int("CEModelStopTime") if toggle.conditional_experimental_mode and tuning_level >= level["CEModelStopTime"] else default.get_int("CEModelStopTime")
     toggle.conditional_signal = params.get_int("CESignalSpeed") if toggle.conditional_experimental_mode and tuning_level >= level["CESignalSpeed"] else default.get_int("CESignalSpeed")
     toggle.conditional_signal_lane_detection = toggle.conditional_signal != 0 and (params.get_bool("CESignalLaneDetection") if tuning_level >= level["CESignalLaneDetection"] else default.get_bool("CESignalLaneDetection"))
-    toggle.conditional_status_bar = toggle.conditional_experimental_mode and not (params.get_bool("HideCEMStatusBar") if tuning_level >= level["HideCEMStatusBar"] else default.get_bool("HideCEMStatusBar"))
     if toggle.conditional_experimental_mode:
       params.put_bool("ExperimentalMode", True)
 
@@ -510,6 +509,7 @@ class FrogPilotVariables:
     toggle.blind_spot_metrics = has_bsm and border_metrics and (params.get_bool("BlindSpotMetrics") if tuning_level >= level["BlindSpotMetrics"] else default.get_bool("BlindSpotMetrics"))
     toggle.signal_metrics = border_metrics and (params.get_bool("SignalMetrics") if tuning_level >= level["SignalMetrics"] else default.get_bool("SignalMetrics"))
     toggle.steering_metrics = border_metrics and (params.get_bool("ShowSteering") if tuning_level >= level["ShowSteering"] else default.get_bool("ShowSteering"))
+    toggle.cem_status = toggle.developer_ui and (params.get_bool("ShowCEMStatus") if tuning_level >= level["ShowCEMStatus"] else default.get_bool("ShowCEMStatus"))
     toggle.show_fps = toggle.developer_ui and (params.get_bool("FPSCounter") if tuning_level >= level["FPSCounter"] else default.get_bool("FPSCounter"))
     lateral_metrics = toggle.developer_ui and (params.get_bool("LateralMetrics") if tuning_level >= level["LateralMetrics"] else default.get_bool("LateralMetrics"))
     toggle.adjacent_path_metrics = lateral_metrics and (params.get_bool("AdjacentPathMetrics") if tuning_level >= level["AdjacentPathMetrics"] else default.get_bool("AdjacentPathMetrics"))
@@ -620,7 +620,6 @@ class FrogPilotVariables:
     toggle.full_map = toggle.big_map and (params.get_bool("FullMap") if tuning_level >= level["FullMap"] else default.get_bool("FullMap"))
     toggle.map_style = params.get_int("MapStyle") if toggle.navigation_ui and tuning_level >= level["MapStyle"] else default.get_int("MapStyle")
     toggle.road_name_ui = toggle.navigation_ui and (params.get_bool("RoadNameUI") if tuning_level >= level["RoadNameUI"] else default.get_bool("RoadNameUI"))
-    toggle.show_speed_limit_offset = toggle.navigation_ui and (params.get_bool("ShowSLCOffset") if tuning_level >= level["ShowSLCOffset"] else default.get_bool("ShowSLCOffset"))
     toggle.show_speed_limits = toggle.navigation_ui and (params.get_bool("ShowSpeedLimits") if tuning_level >= level["ShowSpeedLimits"] else default.get_bool("ShowSpeedLimits"))
     toggle.speed_limit_vienna = toggle.navigation_ui and (params.get_bool("UseVienna") if tuning_level >= level["UseVienna"] else default.get_bool("UseVienna"))
 
@@ -676,6 +675,7 @@ class FrogPilotVariables:
     toggle.map_speed_lookahead_higher = params.get_int("SLCLookaheadHigher") if toggle.speed_limit_controller and tuning_level >= level["SLCLookaheadHigher"] else default.get_int("SLCLookaheadHigher")
     toggle.map_speed_lookahead_lower = params.get_int("SLCLookaheadLower") if toggle.speed_limit_controller and tuning_level >= level["SLCLookaheadLower"] else default.get_int("SLCLookaheadLower")
     toggle.set_speed_limit = toggle.speed_limit_controller and (params.get_bool("SetSpeedLimit") if tuning_level >= level["SetSpeedLimit"] else default.get_bool("SetSpeedLimit"))
+    toggle.show_speed_limit_offset = toggle.speed_limit_controller and (params.get_bool("ShowSLCOffset") if tuning_level >= level["ShowSLCOffset"] else default.get_bool("ShowSLCOffset"))
     slc_fallback_method = params.get_int("SLCFallback") if toggle.speed_limit_controller and tuning_level >= level["SLCFallback"] else default.get_int("SLCFallback")
     toggle.slc_fallback_experimental_mode = slc_fallback_method == 1
     toggle.slc_fallback_previous_speed_limit = slc_fallback_method == 2

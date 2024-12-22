@@ -105,6 +105,7 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
 
   FrogPilotVisualsPanel *frogpilotVisualsPanel = new FrogPilotVisualsPanel(this);
   QObject::connect(frogpilotVisualsPanel, &FrogPilotVisualsPanel::openParentToggle, this, &FrogPilotSettingsWindow::openParentToggle);
+  QObject::connect(frogpilotVisualsPanel, &FrogPilotVisualsPanel::openSubParentToggle, this, &FrogPilotSettingsWindow::openSubParentToggle);
 
   std::vector<std::pair<QString, std::vector<QWidget*>>> panels = {
     {tr("Alerts and Sounds"), {frogpilotSoundsPanel}},
@@ -188,11 +189,11 @@ void FrogPilotSettingsWindow::updateVariables() {
     cereal::CarParams::SafetyModel safetyModel = CP.getSafetyConfigs()[0].getSafetyModel();
 
     std::string carFingerprint = CP.getCarFingerprint();
-    std::string carModel = CP.getCarName();
+    std::string carMake = CP.getCarName();
 
-    hasAutoTune = (carModel == "hyundai" || carModel == "toyota") && CP.getLateralTuning().which() == cereal::CarParams::LateralTuning::TORQUE;
+    hasAutoTune = (carMake == "hyundai" || carMake == "toyota") && CP.getLateralTuning().which() == cereal::CarParams::LateralTuning::TORQUE;
     hasBSM = CP.getEnableBsm();
-    hasDashSpeedLimits = carModel == "hyundai" || carModel == "toyota";
+    hasDashSpeedLimits = carMake == "hyundai" || carMake == "toyota";
     hasExperimentalOpenpilotLongitudinal = CP.getExperimentalLongitudinalAvailable();
     hasNNFFLog = checkNNFFLogFileExists(carFingerprint);
     hasOpenpilotLongitudinal = hasLongitudinalControl(CP);
@@ -200,12 +201,13 @@ void FrogPilotSettingsWindow::updateVariables() {
     hasRadar = !CP.getRadarUnavailable();
     hasSNG = CP.getMinEnableSpeed() <= 0;
     isBolt = carFingerprint == "CHEVROLET_BOLT_CC" || carFingerprint == "CHEVROLET_BOLT_EUV";
-    isGM = carModel == "gm";
-    isHKGCanFd = carModel == "hyundai" && safetyModel == cereal::CarParams::SafetyModel::HYUNDAI_CANFD;
+    isGM = carMake == "gm";
+    isHKG = carMake == "hyundai";
+    isHKGCanFd = isHKG && safetyModel == cereal::CarParams::SafetyModel::HYUNDAI_CANFD;
     isImpreza = carFingerprint == "SUBARU_IMPREZA";
     isPIDCar = CP.getLateralTuning().which() == cereal::CarParams::LateralTuning::PID;
-    isSubaru = carModel == "subaru";
-    isToyota = carModel == "toyota";
+    isSubaru = carMake == "subaru";
+    isToyota = carMake == "toyota";
     isVolt = carFingerprint == "CHEVROLET_VOLT";
     forcingAutoTune = params.getBool("AdvancedLateralTune") && params.getBool("ForceAutoTune");
     steerFrictionStock = CP.getLateralTuning().getTorque().getFriction();

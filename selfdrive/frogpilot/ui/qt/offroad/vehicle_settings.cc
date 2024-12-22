@@ -1,17 +1,17 @@
-#include <QDir>
 #include <QRegularExpression>
 #include <QTextStream>
 
 #include "selfdrive/frogpilot/ui/qt/offroad/vehicle_settings.h"
 
-QStringList getCarNames(const QString &carMake, QMap<QString, QString> &carModels) {
-  static const QMap<QString, QString> makeMap = {
+QStringList getCarModels(const QString &carMake) {
+  static QMap<QString, QString> makeMap = {
     {"acura", "honda"},
     {"audi", "volkswagen"},
     {"buick", "gm"},
     {"cadillac", "gm"},
     {"chevrolet", "gm"},
     {"chrysler", "chrysler"},
+    {"cupra", "volkswagen"},
     {"dodge", "chrysler"},
     {"ford", "ford"},
     {"genesis", "hyundai"},
@@ -35,11 +35,9 @@ QStringList getCarNames(const QString &carMake, QMap<QString, QString> &carModel
     {"volkswagen", "volkswagen"}
   };
 
-  QString targetFolder = makeMap.value(carMake.toLower(), carMake);
-  QFile file(QString("../car/%1/values.py").arg(targetFolder));
   QStringList names;
-  QSet<QString> uniqueNames;
 
+  QFile file(QString("../car/%1/values.py").arg(makeMap.value(carMake, carMake)));
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
     return names;
   }
@@ -47,29 +45,24 @@ QStringList getCarNames(const QString &carMake, QMap<QString, QString> &carModel
   QString fileContent = QTextStream(&file).readAll();
   file.close();
 
+  static QRegularExpression carClassRegex(R"(class CAR\(.*\):\n(\s+.*(\n|$))*)");
+  QRegularExpressionMatch match = carClassRegex.match(fileContent);
+  fileContent = match.captured(0).trimmed();
+
   fileContent.remove(QRegularExpression("#[^\n]*"));
-  fileContent.remove(QRegularExpression("footnotes=\\[[^\\]]*\\],\\s*"));
+  fileContent.remove(QRegularExpression("footnotes\\s*=\\s*\\[.*?\\]"));
 
-  QRegularExpression carModelRegex(R"((\w+)\s*=\s*\w+\s*\(\s*\[([\s\S]*?)\]\s*,)");
-  QRegularExpression carDocsRegex("CarDocs\\(\\s*\"([^\"]+)\"[^)]*\\)");
-
+  static QRegularExpression carModelRegex(R"((\w+)\s*=\s*\w+\s*\(\s*\[([\s\S]*?)\]\s*,)");
   QRegularExpressionMatchIterator carModelIt = carModelRegex.globalMatch(fileContent);
-  while (carModelIt.hasNext()) {
-    QRegularExpressionMatch carModelMatch = carModelIt.next();
-    QString platform = carModelMatch.captured(1);
-    QString platformSection = carModelMatch.captured(2);
 
-    QRegularExpressionMatchIterator carDocsIt = carDocsRegex.globalMatch(platformSection);
+  while (carModelIt.hasNext()) {
+    static QRegularExpression carDocsRegex("CarDocs\\(\\s*\"([^\"]+)\"[^)]*\\)");
+    QRegularExpressionMatchIterator carDocsIt = carDocsRegex.globalMatch(carModelIt.next().captured(2));
+
     while (carDocsIt.hasNext()) {
       QString carName = carDocsIt.next().captured(1);
-
-      if (carName.contains(QRegularExpression("^[A-Za-z0-9 Š.()-]+$")) && carName.count(" ") >= 1) {
-        QStringList nameParts = carName.split(" ");
-        if (nameParts.contains(carMake, Qt::CaseInsensitive) && !uniqueNames.contains(carName)) {
-          uniqueNames.insert(carName);
-          names << carName;
-          carModels[carName] = platform;
-        }
+      if (carName.contains(carMake, Qt::CaseInsensitive)) {
+        names << carName;
       }
     }
   }
@@ -80,16 +73,18 @@ QStringList getCarNames(const QString &carMake, QMap<QString, QString> &carModel
 
 FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
   QStringList makes = {
-    "Acura", "Audi", "Buick", "Cadillac", "Chevrolet", "Chrysler", "Dodge", "Ford", "Genesis",
-    "GMC", "Holden", "Honda", "Hyundai", "Jeep", "Kia", "Lexus", "Lincoln", "MAN", "Mazda",
-    "Nissan", "Ram", "SEAT", "Škoda", "Subaru", "Tesla", "Toyota", "Volkswagen"
+    tr("Acura"), tr("Audi"), tr("Buick"), tr("Cadillac"), tr("Chevrolet"), tr("Chrysler"),
+    tr("CUPRA"), tr("Dodge"), tr("Ford"), tr("Genesis"), tr("GMC"), tr("Holden"), tr("Honda"),
+    tr("Hyundai"), tr("Jeep"), tr("Kia"), tr("Lexus"), tr("Lincoln"), tr("MAN"), tr("Mazda"),
+    tr("Nissan"), tr("Ram"), tr("SEAT"), tr("Škoda"), tr("Subaru"), tr("Tesla"), tr("Toyota"),
+    tr("Volkswagen")
   };
   selectMakeButton = new ButtonControl(tr("Select Make"), tr("SELECT"));
   QObject::connect(selectMakeButton, &ButtonControl::clicked, [this, makes]() {
     QString newMakeSelection = MultiOptionDialog::getSelection(tr("Select a Make"), makes, "", this);
     if (!newMakeSelection.isEmpty()) {
       carMake = newMakeSelection;
-      params.putNonBlocking("CarMake", carMake.toStdString());
+      params.put("CarMake", carMake.toStdString());
       selectMakeButton->setValue(newMakeSelection);
       setModels();
     }
@@ -98,12 +93,12 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
 
   selectModelButton = new ButtonControl(tr("Select Model"), tr("SELECT"));
   QObject::connect(selectModelButton, &ButtonControl::clicked, [this]() {
-    QString newModelSelection = MultiOptionDialog::getSelection(tr("Select a Model"), models, "", this);
+    QString newModelSelection = MultiOptionDialog::getSelection(tr("Select a Model"), carModels, "", this);
     if (!newModelSelection.isEmpty()) {
       carModel = newModelSelection;
-      QString modelIdentifier = carModels.value(newModelSelection);
-      params.putNonBlocking("CarModel", modelIdentifier.toStdString());
-      params.putNonBlocking("CarModelName", newModelSelection.toStdString());
+      QString modelIdentifier = newModelSelection;
+      params.put("CarModel", modelIdentifier.toStdString());
+      params.put("CarModelName", newModelSelection.toStdString());
       selectModelButton->setValue(newModelSelection);
     }
   });
@@ -118,7 +113,9 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
   QObject::connect(disableOpenpilotLong, &ToggleControl::toggleFlipped, [this, parent](bool state) {
     if (state) {
       if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely disable openpilot longitudinal control?"), this)) {
-        params.putBool("DisableOpenpilotLongitudinal", state);
+        disableOpenpilotLongitudinal = true;
+        params.putBool("DisableOpenpilotLongitudinal", true);
+
         if (started) {
           if (FrogPilotConfirmationDialog::toggle(tr("Reboot required to take effect."), tr("Reboot Now"), this)) {
             Hardware::reboot();
@@ -128,27 +125,27 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
         disableOpenpilotLong->refresh();
       }
     } else {
-      params.putBool("DisableOpenpilotLongitudinal", state);
+      disableOpenpilotLongitudinal = false;
+      params.putBool("DisableOpenpilotLongitudinal", false);
     }
-    disableOpenpilotLongitudinal = state;
     parent->updateVariables();
   });
   addItem(disableOpenpilotLong);
 
   std::vector<std::tuple<QString, QString, QString, QString>> vehicleToggles {
-    {"VoltSNG", tr("2017 Volt Stop and Go Hack"), tr("Forces stop and go for the 2017 Chevy Volt."), ""},
-    {"ExperimentalGMTune", tr("Experimental GM Tune"), tr("Enables FrogsGoMoo's experimental GM tune that is based on nothing but guesswork. Use at your own risk!"), ""},
-    {"LongPitch", tr("Uphill/Downhill Smoothing"), tr("Smoothens the gas and brake response when driving on slopes."), ""},
-    {"NewLongAPIGM", tr("Use comma's New Longitudinal API"), tr("Enables comma's new control system that has shown great improvement with acceleration and braking, but has a few issues on some GM vehicles."), ""},
+    {"VoltSNG", tr("2017 Volt Stop and Go Hack"), tr("Force stop and go for the 2017 Chevy Volt."), ""},
+    {"LongPitch", tr("Downhill/Uphill Smoothing"), tr("Smoothen the gas and brake response when driving downhill or uphill."), ""},
+    {"ExperimentalGMTune", tr("Experimental GM Longitudinal Tune"), tr("Enable FrogsGoMoo's experimental GM longitudinal tune that is based on nothing but guesswork. Use at your own risk!"), ""},
+    {"NewLongAPIGM", tr("Use comma's New Longitudinal API"), tr("Enable comma's new control system that has shown great improvement with acceleration and braking, but has issues on some GM vehicles."), ""},
 
-    {"NewLongAPI", tr("Use comma's New Longitudinal API"), tr("Enables comma's new control system that has shown great improvement with acceleration and braking, but has a few issues on Hyundai/Kia/Genesis."), ""},
+    {"NewLongAPI", tr("Use comma's New Longitudinal API"), tr("Enable comma's new control system that has shown great improvement with acceleration and braking, but has issues on some Hyundai/Kia/Genesis vehicles."), ""},
 
-    {"CrosstrekTorque", tr("Subaru Crosstrek Torque Increase"), tr("Increases the maximum allowed torque for the Subaru Crosstrek."), ""},
+    {"CrosstrekTorque", tr("Subaru Crosstrek Torque Increase"), tr("Increase the maximum allowed torque for the 'Subaru Crosstrek'."), ""},
 
-    {"ToyotaDoors", tr("Automatically Lock/Unlock Doors"), tr("Automatically locks the doors when in drive and unlocks when in park."), ""},
-    {"ClusterOffset", tr("Cluster Speed Offset"), tr("Sets the cluster offset openpilot uses to try and match the speed displayed on the dash."), ""},
-    {"FrogsGoMoosTweak", tr("FrogsGoMoo's Personal Tweaks"), tr("Enables FrogsGoMoo's personal tweaks to the Toyota tune focused around his 2019 Lexus ES 350 to take off a bit quicker and stop a bit smoother."), ""},
-    {"SNGHack", tr("Stop and Go Hack"), tr("Forces stop and go for vehicles without stock stop and go functionality."), ""},
+    {"ToyotaDoors", tr("Automatically Lock/Unlock Doors"), tr("Automatically lock the doors when in drive and unlock when in park."), ""},
+    {"ClusterOffset", tr("Cluster Speed Offset"), tr("Set the cluster offset openpilot uses to try and match the speed displayed on the dash."), ""},
+    {"FrogsGoMoosTweak", tr("FrogsGoMoo's Personal Tweaks"), tr("FrogsGoMoo's personal tweaks to the Toyota/Lexus tune that allows the vehicle to take off and stop a bit smoother."), ""},
+    {"SNGHack", tr("Stop and Go Hack"), tr("Force stop and go for vehicles without stop and go functionality."), ""},
   };
 
   for (const auto &[param, title, desc, icon] : vehicleToggles) {
@@ -160,13 +157,17 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
       vehicleToggle = new FrogPilotButtonToggleControl(param, title, desc, lockToggles, lockToggleNames);
     } else if (param == "ClusterOffset") {
       std::vector<QString> clusterOffsetButton{"Reset"};
-      vehicleToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 1.000, 1.050, "x", std::map<int, QString>(), 0.001, {}, clusterOffsetButton, false, false);
+      FrogPilotParamValueButtonControl *clusterOffsetToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 1.000, 1.050, "x", std::map<int, QString>(), 0.001, {}, clusterOffsetButton, false, false);
+      QObject::connect(clusterOffsetToggle, &FrogPilotParamValueButtonControl::buttonClicked, [=]() {
+        params.putFloat("ClusterOffset", params_default.getFloat("ClusterOffset"));
+        clusterOffsetToggle->refresh();
+      });
+      vehicleToggle = clusterOffsetToggle;
 
     } else {
       vehicleToggle = new ParamControl(param, title, desc, icon);
     }
 
-    vehicleToggle->setVisible(false);
     addItem(vehicleToggle);
     toggles[param] = vehicleToggle;
 
@@ -174,12 +175,6 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
       update();
     });
   }
-
-  FrogPilotParamValueButtonControl *clusterOffsetToggle = static_cast<FrogPilotParamValueButtonControl*>(toggles["ClusterOffset"]);
-  QObject::connect(clusterOffsetToggle, &FrogPilotParamValueButtonControl::buttonClicked, [=]() {
-    params.putFloat("ClusterOffset", params_default.getFloat("ClusterOffset"));
-    clusterOffsetToggle->refresh();
-  });
 
   std::set<QString> rebootKeys = {"CrosstrekTorque", "ExperimentalGMTune", "FrogsGoMoosTweak", "NewLongAPI", "NewLongAPIGM"};
   for (const QString &key : rebootKeys) {
@@ -219,7 +214,11 @@ void FrogPilotVehiclesPanel::showEvent(QShowEvent *event) {
   hasOpenpilotLongitudinal = parent->hasOpenpilotLongitudinal;
   hasSNG = parent->hasSNG;
   isBolt = parent->isBolt;
+  isGM = parent->isGM;
+  isHKG = parent->isHKG;
   isImpreza = parent->isImpreza;
+  isSubaru = parent->isSubaru;
+  isToyota = parent->isToyota;
   isVolt = parent->isVolt;
   tuningLevel = parent->tuningLevel;
 
@@ -235,58 +234,55 @@ void FrogPilotVehiclesPanel::updateState(const UIState &s) {
 }
 
 void FrogPilotVehiclesPanel::setModels() {
-  models = getCarNames(carMake.toLower(), carModels);
+  carModels = getCarModels(carMake.toLower());
   updateToggles();
 }
 
 void FrogPilotVehiclesPanel::updateToggles() {
   setUpdatesEnabled(false);
 
-  disableOpenpilotLong->setVisible(hasOpenpilotLongitudinal && !hasExperimentalOpenpilotLongitudinal && tuningLevel >= frogpilotToggleLevels["DisableOpenpilotLongitudinal"].toDouble());
-  disableOpenpilotLong->setVisible(disableOpenpilotLong->isVisible() || disableOpenpilotLongitudinal);
+  disableOpenpilotLong->setVisible(hasOpenpilotLongitudinal && !hasExperimentalOpenpilotLongitudinal && tuningLevel >= frogpilotToggleLevels["DisableOpenpilotLongitudinal"].toDouble() || disableOpenpilotLongitudinal);
   forceFingerprint ->setVisible(tuningLevel >= frogpilotToggleLevels["ForceFingerprint"].toDouble() || isBolt);
 
   selectMakeButton->setValue(carMake);
   selectModelButton->setValue(carModel);
   selectModelButton->setVisible(!carMake.isEmpty());
 
-  bool gm = carMake == "Buick" || carMake == "Cadillac" || carMake == "Chevrolet" || carMake == "GM" || carMake == "GMC";
-  bool hyundai = carMake == "Genesis" || carMake == "Hyundai" || carMake == "Kia";
-  bool subaru = carMake == "Subaru";
-  bool toyota = carMake == "Lexus" || carMake == "Toyota";
-
   for (auto &[key, toggle] : toggles) {
     bool setVisible = false;
 
-    if (gm && gmKeys.find(key) != gmKeys.end()) {
-      if (voltKeys.find(key) != voltKeys.end()) {
-        setVisible = isVolt && hasOpenpilotLongitudinal;
-      } else if (longitudinalKeys.find(key) != longitudinalKeys.end()) {
-        setVisible = hasOpenpilotLongitudinal;
-      } else {
-        setVisible = true;
-      }
-    } else if (hyundai && hyundaiKeys.find(key) != hyundaiKeys.end()) {
+    if (isGM && gmKeys.find(key) != gmKeys.end()) {
+      setVisible = true;
+
       if (longitudinalKeys.find(key) != longitudinalKeys.end()) {
-        setVisible = hasOpenpilotLongitudinal;
-      } else {
-        setVisible = true;
+        setVisible &= hasOpenpilotLongitudinal;
       }
-    } else if (subaru && subaruKeys.find(key) != subaruKeys.end()) {
+      if (voltKeys.find(key) != voltKeys.end()) {
+        setVisible &= isVolt;
+      }
+    } else if (isHKG && hyundaiKeys.find(key) != hyundaiKeys.end()) {
+      setVisible = true;
+
+      if (longitudinalKeys.find(key) != longitudinalKeys.end()) {
+        setVisible &= hasOpenpilotLongitudinal;
+      }
+    } else if (isSubaru && subaruKeys.find(key) != subaruKeys.end()) {
+      setVisible = true;
+
       if (imprezaKeys.find(key) != imprezaKeys.end()) {
-        setVisible = isImpreza;
-      } else if (longitudinalKeys.find(key) != longitudinalKeys.end()) {
-        setVisible = hasOpenpilotLongitudinal;
-      } else {
-        setVisible = true;
+        setVisible &= isImpreza;
       }
-    } else if (toyota && toyotaKeys.find(key) != toyotaKeys.end()) {
+      if (longitudinalKeys.find(key) != longitudinalKeys.end()) {
+        setVisible &= hasOpenpilotLongitudinal;
+      }
+    } else if (isToyota && toyotaKeys.find(key) != toyotaKeys.end()) {
+      setVisible = true;
+
+      if (longitudinalKeys.find(key) != longitudinalKeys.end()) {
+        setVisible &= hasOpenpilotLongitudinal;
+      }
       if (sngKeys.find(key) != sngKeys.end()) {
-        setVisible = !hasSNG && hasOpenpilotLongitudinal;
-      } else if (longitudinalKeys.find(key) != longitudinalKeys.end()) {
-        setVisible = hasOpenpilotLongitudinal;
-      } else {
-        setVisible = true;
+        setVisible &= !hasSNG;
       }
     }
 
@@ -294,5 +290,6 @@ void FrogPilotVehiclesPanel::updateToggles() {
   }
 
   setUpdatesEnabled(true);
+
   update();
 }

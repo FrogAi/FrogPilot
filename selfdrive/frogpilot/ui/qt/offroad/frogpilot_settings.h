@@ -24,6 +24,7 @@ public:
   bool hasSNG = false;
   bool isBolt = false;
   bool isGM = true;
+  bool isHKG = true;
   bool isHKGCanFd = true;
   bool isImpreza = true;
   bool isPIDCar = false;

@@ -18,12 +18,8 @@ ScreenRecorder::ScreenRecorder(QWidget *parent) : QPushButton(parent) {
   setFixedSize(btn_size, btn_size);
 
   std::thread encoderInitThread([this]() {
-    try {
-      encoder = std::make_unique<OmxEncoder>("/data/media/screen_recordings", screenWidth, screenHeight, UI_FREQ, 8 * 1024 * 1024);
-      encoderReady = true;
-    } catch (const std::exception &e) {
-      std::cerr << "Error initializing OmxEncoder: " << e.what() << std::endl;
-    }
+    encoder = std::make_unique<OmxEncoder>("/data/media/screen_recordings", screenWidth, screenHeight, UI_FREQ, 8 * 1024 * 1024);
+    encoderReady = true;
   });
   encoderInitThread.detach();
 
@@ -58,14 +54,8 @@ void ScreenRecorder::startRecording() {
   }
 
   QString filename = QDateTime::currentDateTime().toString("MMMM_dd_yyyy-hh:mmAP") + ".mp4";
-  try {
-    openEncoder(filename.toStdString());
-    encodingThread = std::thread(&ScreenRecorder::encodingThreadFunction, this);
-  } catch (const std::exception &e) {
-    std::cerr << "Error starting encoder: " << e.what() << std::endl;
-    recording = false;
-  }
-
+  openEncoder(filename.toStdString());
+  encodingThread = std::thread(&ScreenRecorder::encodingThreadFunction, this);
   startedTime = currentMilliseconds();
 }
 
@@ -80,12 +70,7 @@ void ScreenRecorder::stopRecording() {
     encodingThread.join();
   }
 
-  try {
-    closeEncoder();
-  } catch (const std::exception &e) {
-    std::cerr << "Error stopping encoder: " << e.what() << std::endl;
-  }
-
+  closeEncoder();
   imageQueue.clear();
   rgbScaleBuffer = std::make_unique<uint8_t[]>(screenWidth * screenHeight * 4);
 }
@@ -159,17 +144,14 @@ void ScreenRecorder::paintEvent(QPaintEvent *event) {
   if (recording) {
     painter.setPen(QPen(redColor(), 6));
     painter.setBrush(redColor(166));
-
     painter.setFont(InterFont(25, QFont::Bold));
   } else {
     painter.setPen(QPen(redColor(), 6));
     painter.setBrush(blackColor(166));
-
     painter.setFont(InterFont(25, QFont::DemiBold));
   }
 
   int centeringOffset = 10;
-
   QRect buttonRect(centeringOffset, btn_size / 3, btn_size - centeringOffset * 2, btn_size / 3);
   painter.drawRoundedRect(buttonRect, 24, 24);
 

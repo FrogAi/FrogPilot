@@ -53,8 +53,8 @@ OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent) {
   // FrogPilot variables
   QObject::connect(&clickTimer, &QTimer::timeout, [this]() {
     clickTimer.stop();
-    QMouseEvent *event = new QMouseEvent(QEvent::MouseButtonPress, timeoutPoint, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-    QApplication::postEvent(this, event);
+    QMouseEvent event(QEvent::MouseButtonPress, timeoutPoint, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    QApplication::sendEvent(this, &event);
   });
 }
 
@@ -84,13 +84,13 @@ void OnroadWindow::updateState(const UIState &s) {
   // FrogPilot variables
   const UIScene &scene = s.scene;
 
+  acceleration = scene.acceleration;
   accelerationJerk = scene.acceleration_jerk;
   accelerationJerkDifference = scene.acceleration_jerk_difference;
   blindSpotLeft = scene.blind_spot_left;
   blindSpotRight = scene.blind_spot_right;
   fps = scene.fps;
   friction = scene.friction;
-  hasLead = scene.has_lead;
   latAccel = scene.lat_accel;
   liveValid = scene.live_valid;
   showBlindspot = scene.show_blind_spot && (blindSpotLeft || blindSpotRight);
@@ -106,7 +106,7 @@ void OnroadWindow::updateState(const UIState &s) {
   turnSignalLeft = scene.turn_signal_left;
   turnSignalRight = scene.turn_signal_right;
 
-  if (showBlindspot || showFPS || (showJerk && hasLead) || showSignal || showSteering || showTuning) {
+  if (showBlindspot || showFPS || showJerk || showSignal || showSteering || showTuning) {
     shouldUpdate = true;
   }
 
@@ -119,12 +119,10 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   // FrogPilot variables
   UIState *s = uiState();
   UIScene &scene = s->scene;
-
-  // FrogPilot clickable widgets
   QPoint pos = e->pos();
 
   if (scene.speed_limit_changed && nvg->newSpeedLimitRect.contains(pos)) {
-    paramsMemory.putBool("SLCConfirmed", true);
+    params_memory.putBool("SpeedLimitAccepted", true);
     return;
   }
 
@@ -133,8 +131,8 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
       clickTimer.stop();
 
       if (scene.conditional_experimental) {
-        int override_value = (scene.conditional_status >= 1 && scene.conditional_status <= 6) ? 0 : (scene.conditional_status >= 7 ? 5 : 6);
-        paramsMemory.putInt("CEStatus", override_value);
+        int override_value = scene.conditional_status != 0 && scene.conditional_status <= 6 ? 0 : scene.conditional_status >= 7 ? 5 : 6;
+        params_memory.putInt("CEStatus", override_value);
       } else {
         params.putBoolNonBlocking("ExperimentalMode", !params.getBool("ExperimentalMode"));
       }
@@ -168,7 +166,6 @@ void OnroadWindow::createMapWidget() {
   map = m;
   QObject::connect(m, &MapPanel::mapPanelRequested, this, &OnroadWindow::mapPanelRequested);
   QObject::connect(nvg->map_settings_btn, &MapSettingsButton::clicked, m, &MapPanel::toggleMapSettings);
-  QObject::connect(nvg->map_settings_btn_bottom, &MapSettingsButton::clicked, m, &MapPanel::toggleMapSettings);
   nvg->map_settings_btn->setEnabled(true);
 
   m->setFixedWidth(topWidget(this)->width() / 2 - UI_BORDER_SIZE);
@@ -248,88 +245,53 @@ void OnroadWindow::paintEvent(QPaintEvent *event) {
     }
   }
 
-  if (showBlindspot) {
-    QColor blindspotColorLeft = bgColor;
-    QColor blindspotColorRight = bgColor;
+  if (showBlindspot || showSignal) {
+    static bool leftFlickerActive = false;
+    static bool rightFlickerActive = false;
 
-    if (blindSpotLeft) {
-      blindspotColorLeft = bg_colors[STATUS_TRAFFIC_MODE_ACTIVE];
-    }
-
-    if (blindSpotRight) {
-      blindspotColorRight = bg_colors[STATUS_TRAFFIC_MODE_ACTIVE];
-    }
-
-    int xLeft = rect.x();
-    int xRight = rect.x() + rect.width() / 2;
-    QRect blindspotRectLeft(xLeft, rect.y(), rect.width() / 2, rect.height());
-    QRect blindspotRectRight(xRight, rect.y(), rect.width() / 2, rect.height());
-
-    p.fillRect(blindspotRectLeft, blindspotColorLeft);
-    p.fillRect(blindspotRectRight, blindspotColorRight);
-  }
-
-  if (showSignal) {
-    static int signalFramesLeft = 0;
-    static int signalFramesRight = 0;
-
-    bool blindSpotActive = (blindSpotLeft && turnSignalLeft) || (blindSpotRight && turnSignalRight);
-    bool turnSignalActive = (turnSignalLeft && signalFramesLeft > 0) || (turnSignalRight && signalFramesRight > 0);
-
-    QColor signalBorderColorLeft = bg;
-    QColor signalBorderColorRight = bg;
-
-    if (blindSpotLeft) {
-      signalBorderColorLeft = bg_colors[STATUS_TRAFFIC_MODE_ACTIVE];
-    }
-
-    if (blindSpotRight) {
-      signalBorderColorRight = bg_colors[STATUS_TRAFFIC_MODE_ACTIVE];
-    }
-
-    if (sm.frame % 20 == 0 || blindSpotActive || turnSignalActive) {
-      QColor activeColor = bg_colors[STATUS_CONDITIONAL_OVERRIDDEN];
-
-      if (turnSignalLeft) {
-        signalFramesLeft = sm.frame % 10 == 0 && blindSpotActive ? 5 : sm.frame % 20 == 0 ? 10 : signalFramesLeft - 1;
-        if (signalFramesLeft > 0) {
-          signalBorderColorLeft = activeColor;
+    std::function<QColor(bool, bool, bool&)> getBorderColor = [&](bool blindSpot, bool turnSignal, bool &flickerActive) -> QColor {
+      if (showSignal && turnSignal) {
+        if (blindSpot) {
+          if (sm.frame % (UI_FREQ / 5) == 0) {
+            flickerActive = !flickerActive;
+          }
+          return flickerActive ? bg_colors[STATUS_TRAFFIC_MODE_ACTIVE] : bg_colors[STATUS_CONDITIONAL_OVERRIDDEN];
+        } else if (sm.frame % (UI_FREQ / 2) == 0) {
+          flickerActive = !flickerActive;
         }
+        return flickerActive ? bg_colors[STATUS_CONDITIONAL_OVERRIDDEN] : bg;
+      } else if (showBlindspot && blindSpot) {
+        return bg_colors[STATUS_TRAFFIC_MODE_ACTIVE];
+      } else {
+        return bg;
       }
+    };
 
-      if (turnSignalRight) {
-        signalFramesRight = sm.frame % 10 == 0 && blindSpotActive ? 5 : sm.frame % 20 == 0 ? 10 : signalFramesRight - 1;
-        if (signalFramesRight > 0) {
-          signalBorderColorRight = activeColor;
-        }
-      }
-    }
+    QColor borderColorLeft = getBorderColor(blindSpotLeft, turnSignalLeft, leftFlickerActive);
+    QColor borderColorRight = getBorderColor(blindSpotRight, turnSignalRight, rightFlickerActive);
 
-    int xLeft = rect.x();
-    int xRight = rect.x() + rect.width() / 2;
-    QRect signalRectLeft(xLeft, rect.y(), rect.width() / 2, rect.height());
-    QRect signalRectRight(xRight, rect.y(), rect.width() / 2, rect.height());
-
-    if (turnSignalLeft) {
-      p.fillRect(signalRectLeft, signalBorderColorLeft);
-    }
-
-    if (turnSignalRight) {
-      p.fillRect(signalRectRight, signalBorderColorRight);
-    }
+    p.fillRect(rect.x(), rect.y(), rect.width() / 2, rect.height(), borderColorLeft);
+    p.fillRect(rect.x() + rect.width() / 2, rect.y(), rect.width() / 2, rect.height(), borderColorRight);
   }
 
   QString logicsDisplayString;
   if (showJerk) {
-    logicsDisplayString += QString("Acceleration Jerk: %1 | ").arg(accelerationJerk, 0, 'f', 3);
-    logicsDisplayString += QString("Speed Jerk: %1").arg(speedJerk, 0, 'f', 3);
+    if (bg == bg_colors[STATUS_ENGAGED] || bg == bg_colors[STATUS_TRAFFIC_MODE_ACTIVE]) {
+      maxAcceleration = std::max(maxAcceleration, acceleration);
+    }
+    maxAccelTimer = maxAcceleration == acceleration && maxAcceleration != 0 ? UI_FREQ * 5 : maxAccelTimer - 1;
+
+    logicsDisplayString += QString("Acceleration: %1 %2 - ").arg(acceleration, 0, 'f', 2).arg(nvg->accelerationUnit);
+    logicsDisplayString += QString("Max: %1 %2 | ").arg(maxAcceleration, 0, 'f', 2).arg(nvg->accelerationUnit);
+    logicsDisplayString += QString("Acceleration Jerk: %1 | ").arg(accelerationJerk, 0, 'f', 2);
+    logicsDisplayString += QString("Speed Jerk: %1").arg(speedJerk, 0, 'f', 2);
   }
   if (showTuning) {
     if (!logicsDisplayString.isEmpty()) {
       logicsDisplayString += " | ";
     }
-    logicsDisplayString += QString("Friction: %1 | ").arg(liveValid ? QString::number(friction, 'f', 3) : "Calculating...");
-    logicsDisplayString += QString("Lateral Acceleration: %1").arg(liveValid ? QString::number(latAccel, 'f', 3) : "Calculating...");
+    logicsDisplayString += QString("Friction: %1 | ").arg(liveValid ? QString::number(friction, 'f', 2) : "Calculating...");
+    logicsDisplayString += QString("Lateral Acceleration: %1").arg(liveValid ? QString::number(latAccel, 'f', 2) : "Calculating...");
   }
   if (!logicsDisplayString.isEmpty()) {
     p.save();
@@ -339,28 +301,38 @@ void OnroadWindow::paintEvent(QPaintEvent *event) {
 
     QFontMetrics fontMetrics(p.font());
 
-    int x = (rect.width() - fontMetrics.horizontalAdvance(logicsDisplayString)) / 2;
+    int x = (rect.width() - fontMetrics.horizontalAdvance(logicsDisplayString)) / 2 - UI_BORDER_SIZE;
     int y = rect.top() + (fontMetrics.height() / 1.5);
 
     QStringList parts = logicsDisplayString.split("|");
     for (QString part : parts) {
-      if (part.contains("Acceleration Jerk") && accelerationJerkDifference != 0) {
-        QString baseText = QString("Acceleration Jerk: %1").arg(accelerationJerk, 0, 'f', 3);
-        p.setPen(Qt::white);
+      if (part.contains("Max:") && maxAccelTimer > 0) {
+        QString baseText = QString("Acceleration: %1 %2 - ").arg(acceleration, 0, 'f', 2).arg(nvg->accelerationUnit);
+        p.setPen(whiteColor());
         p.drawText(x, y, baseText);
         x += fontMetrics.horizontalAdvance(baseText);
 
-        QString diffText = QString(" (%1) | ").arg(accelerationJerkDifference, 0, 'f', 3);
+        QString maxText = QString("Max: %1 %2 | ").arg(maxAcceleration, 0, 'f', 2).arg(nvg->accelerationUnit);
+        p.setPen(redColor());
+        p.drawText(x, y, maxText);
+        x += fontMetrics.horizontalAdvance(maxText);
+      } else if (part.contains("Acceleration Jerk") && accelerationJerkDifference != 0) {
+        QString baseText = QString("Acceleration Jerk: %1").arg(accelerationJerk, 0, 'f', 2);
+        p.setPen(whiteColor());
+        p.drawText(x, y, baseText);
+        x += fontMetrics.horizontalAdvance(baseText);
+
+        QString diffText = QString(" (%1) | ").arg(accelerationJerkDifference, 0, 'f', 2);
         p.setPen(redColor());
         p.drawText(x, y, diffText);
         x += fontMetrics.horizontalAdvance(diffText);
       } else if (part.contains("Speed Jerk") && speedJerkDifference != 0) {
-        QString baseText = QString("Speed Jerk: %1").arg(speedJerk, 0, 'f', 3);
-        p.setPen(Qt::white);
+        QString baseText = QString("Speed Jerk: %1").arg(speedJerk, 0, 'f', 2);
+        p.setPen(whiteColor());
         p.drawText(x, y, baseText);
         x += fontMetrics.horizontalAdvance(baseText);
 
-        QString diffText = QString(" (%1)").arg(speedJerkDifference, 0, 'f', 3);
+        QString diffText = QString(" (%1)").arg(speedJerkDifference, 0, 'f', 2);
         if (showTuning) {
           diffText += " | ";
         }
@@ -368,16 +340,16 @@ void OnroadWindow::paintEvent(QPaintEvent *event) {
         p.drawText(x, y, diffText);
         x += fontMetrics.horizontalAdvance(diffText);
       } else if (part.contains("Speed Jerk") && !showTuning) {
-        p.setPen(Qt::white);
+        p.setPen(whiteColor());
         p.drawText(x, y, part);
         x += fontMetrics.horizontalAdvance(part);
       } else if (part.contains("Lateral Acceleration")) {
-        p.setPen(Qt::white);
+        p.setPen(whiteColor());
         p.drawText(x, y, part);
         x += fontMetrics.horizontalAdvance(part);
       } else {
         part += " | ";
-        p.setPen(Qt::white);
+        p.setPen(whiteColor());
         p.drawText(x, y, part);
         x += fontMetrics.horizontalAdvance(part);
       }
@@ -419,7 +391,7 @@ void OnroadWindow::paintEvent(QPaintEvent *event) {
 
     p.setFont(InterFont(28, QFont::DemiBold));
     p.setRenderHint(QPainter::TextAntialiasing);
-    p.setPen(Qt::white);
+    p.setPen(whiteColor());
 
     int textWidth = p.fontMetrics().horizontalAdvance(fpsDisplayString);
     int xPos = (rect.width() - textWidth) / 2;
