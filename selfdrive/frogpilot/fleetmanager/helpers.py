@@ -61,10 +61,12 @@ PRESERVE_COUNT = 5
 if PC:
   SCREENRECORD_PATH = os.path.join(str(Path.home()), ".comma", "media", "screen_recordings", "")
   ERROR_LOGS_PATH = os.path.join(str(Path.home()), ".comma", "community", "crashes", "")
+  SPEED_LIMITS_PATH = os.path.join(str(Path.home()), ".comma", "speed_limits")
   TMUX_LOGS_PATH = os.path.join(str(Path.home()), ".comma", "tmux_logs")
 else:
   SCREENRECORD_PATH = "/data/media/screen_recordings/"
   ERROR_LOGS_PATH = CRASHES_DIR
+  SPEED_LIMITS_PATH = "/data/speed_limits/"
   TMUX_LOGS_PATH = "/data/tmux_logs/"
 
 

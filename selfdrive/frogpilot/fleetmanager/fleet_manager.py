@@ -21,6 +21,7 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
+import json
 import os
 import requests
 import secrets
@@ -36,7 +37,7 @@ from openpilot.common.realtime import set_core_affinity
 from openpilot.common.swaglog import cloudlog
 from openpilot.system.hardware.hw import Paths
 
-from openpilot.selfdrive.frogpilot.frogpilot_variables import has_prime
+from openpilot.selfdrive.frogpilot.frogpilot_variables import has_prime, params
 
 app = Flask(__name__)
 
@@ -356,6 +357,19 @@ def download_tmux_log(filename):
     return send_from_directory(fleet.TMUX_LOGS_PATH, filename, as_attachment=True)
   except Exception as error:
     return jsonify({"error": "Failed to download the file...", "details": str(error)}), 400
+
+@app.route("/speed_limits", methods=['GET'])
+def speed_limits():
+  try:
+    os.makedirs(fleet.SPEED_LIMITS_PATH, exist_ok=True)
+    file_path = os.path.join(fleet.SPEED_LIMITS_PATH, "speed_limits.json")
+
+    with open(file_path, "w") as json_file:
+      json.dump(json.loads(params.get("SpeedLimitsFiltered") or "[]"), json_file, indent=2)
+
+    return send_from_directory(fleet.SPEED_LIMITS_PATH, "speed_limits.json", as_attachment=True)
+  except Exception as error:
+    return jsonify({"error": "Failed to download the speed limits file...", "details": str(error)}), 400
 
 @app.route("/lock_doors", methods=['POST'])
 def lock_doors_route():

@@ -292,6 +292,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int]] = [
   ("SNGHack", "1", 2),
   ("SpeedLimitChangedAlert", "1", 0),
   ("SpeedLimitController", "1", 0),
+  ("SpeedLimitsFiltered", "", 0),
   ("SpeedLimitSources", "0", 3),
   ("StartupMessageBottom", "Human-tested, frog-approved 🐸", 0),
   ("StartupMessageTop", "Hop in and buckle up!", 0),
