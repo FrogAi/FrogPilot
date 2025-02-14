@@ -11,6 +11,7 @@ public:
 
   void updateVariables();
 
+  bool allowTacoHacks = true;
   bool hasAutoTune = true;
   bool hasBSM = true;
   bool hasDashSpeedLimits = true;

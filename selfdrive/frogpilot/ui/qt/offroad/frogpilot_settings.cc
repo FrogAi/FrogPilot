@@ -194,6 +194,9 @@ void FrogPilotSettingsWindow::updateState() {
 }
 
 void FrogPilotSettingsWindow::updateVariables() {
+  UIState *s = uiState();
+  UIScene &scene = s->scene;
+
   std::string carParams = params.get("CarParamsPersistent");
   if (!carParams.empty()) {
     AlignedBuffer aligned_buf;
@@ -204,6 +207,7 @@ void FrogPilotSettingsWindow::updateVariables() {
     std::string carFingerprint = CP.getCarFingerprint();
     std::string carMake = CP.getCarName();
 
+    allowTacoHacks = scene.frogpilot_toggles.value("allow_taco_hacks").toBool();
     hasAutoTune = (carMake == "hyundai" || carMake == "toyota") && CP.getLateralTuning().which() == cereal::CarParams::LateralTuning::TORQUE;
     hasBSM = CP.getEnableBsm();
     hasDashSpeedLimits = carMake == "hyundai" || carMake == "toyota";

@@ -11,6 +11,7 @@ from cereal import car, log
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
 from openpilot.selfdrive.car.gm.values import GMFlags
+from openpilot.selfdrive.car.hyundai.values import HyundaiFlags
 from openpilot.selfdrive.controls.lib.desire_helper import LANE_CHANGE_SPEED_MIN
 from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.system.hardware.power_monitoring import VBATT_PAUSE_CHARGING
@@ -310,6 +311,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int]] = [
   ("SteerRatioStock", "0", 3),
   ("StoppedTimer", "0", 1),
   ("TacoTune", "0", 2),
+  ("TacoTuneHacks", "0", 2),
   ("ToyotaDoors", "1", 0),
   ("TrafficFollow", "0.5", 2),
   ("TrafficJerkAcceleration", "50", 3),
@@ -378,6 +380,7 @@ class FrogPilotVariables:
     msg_bytes = params.get("CarParams" if started else "CarParamsPersistent", block=started)
     if msg_bytes:
       with car.CarParams.from_bytes(msg_bytes) as CP:
+        toggle.allow_taco_hacks = bool(CP.flags & HyundaiFlags.CANFD.value) and not bool(CP.flags & HyundaiFlags.CANFD_HDA2.value)
         always_on_lateral_set = bool(CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
         toggle.car_make = CP.carName
         toggle.car_model = CP.carFingerprint
@@ -394,6 +397,7 @@ class FrogPilotVariables:
         vEgoStopping = CP.vEgoStopping
         vEgoStarting = CP.vEgoStarting
     else:
+      toggle.allow_taco_hacks = False
       always_on_lateral_set = False
       toggle.car_make = "MOCK"
       toggle.car_model = "MOCK"
@@ -738,6 +742,8 @@ class FrogPilotVariables:
 
     toggle.startup_alert_top = params.get("StartupMessageTop", encoding="utf-8") if tuning_level >= level["StartupMessageTop"] else default.get("StartupMessageTop", encoding="utf-8")
     toggle.startup_alert_bottom = params.get("StartupMessageBottom", encoding="utf-8") if tuning_level >= level["StartupMessageBottom"] else default.get("StartupMessageBottom", encoding="utf-8")
+
+    toggle.taco_tune_hacks = toggle.car_make == "hyundai" and toggle.allow_taco_hacks and (params.get_bool("TacoTuneHacks") if tuning_level >= level["TacoTuneHacks"] else default.get_bool("TacoTuneHacks"))
 
     toggle.tethering_config = params.get_int("TetheringEnabled")
 
