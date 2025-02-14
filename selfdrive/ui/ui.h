@@ -208,6 +208,8 @@ typedef struct UIScene {
   bool stopped_timer;
   bool storage_left_metrics;
   bool storage_used_metrics;
+  bool stsc_controlling_curve;
+  bool stsc_enabled;
   bool tethering_enabled;
   bool traffic_mode;
   bool traffic_mode_active;
@@ -247,6 +249,7 @@ typedef struct UIScene {
   float speed_limit_offset;
   float speed_limit_overridden_speed;
   float steer;
+  float stsc_speed;
   float unconfirmed_speed_limit;
   float upcoming_maneuver_distance;
   float upcoming_speed_limit;
