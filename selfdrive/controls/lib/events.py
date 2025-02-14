@@ -1044,8 +1044,8 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.goatSteerSaturated: {
     ET.WARNING: Alert(
-      "Turn exceeds steering limit",
       "JESUS TAKE THE WHEEL!!",
+      "Turn Exceeds Steering Limit",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.goat, 2.),
   },
@@ -1114,8 +1114,8 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.thisIsFineSteerSaturated: {
     ET.WARNING: Alert(
-      "This is fine",
-      "☕",
+      "This is fine ☕",
+      "Turn Exceeds Steering Limit",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.thisIsFine, 2.),
   },
@@ -1191,8 +1191,8 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
   EventName.firefoxSteerSaturated: {
     ET.WARNING: Alert(
-      "Turn Exceeds Steering Limit",
       "IE Has Stopped Responding...",
+      "Turn Exceeds Steering Limit",
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.LOW, VisualAlert.steerRequired, AudibleAlert.firefox, 4.),
   },

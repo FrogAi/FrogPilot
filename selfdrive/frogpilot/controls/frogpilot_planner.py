@@ -91,8 +91,8 @@ class FrogPilotPlanner:
 
   def set_lead_status(self, carState, v_lead):
     following_lead = self.lead_one.status
+    following_lead &= carState.gearShifter not in NON_DRIVING_GEARS
     following_lead &= self.lead_one.dRel < self.model_length + STOP_DISTANCE
-    following_lead &= not carState.standstill or self.tracking_lead
 
     self.tracking_lead_filter.update(following_lead)
     return self.tracking_lead_filter.x >= THRESHOLD**2

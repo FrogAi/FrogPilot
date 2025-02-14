@@ -28,8 +28,9 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     {"SidebarMetrics", tr("Sidebar"), tr("Displays system information like CPU, GPU, RAM usage, IP address, and storage space in the sidebar."), ""},
     {"UseSI", tr("Use International System of Units"), tr("Displays measurements using the 'International System of Units' (SI)."), ""},
     {"DeveloperWidgets", tr("Developer Widgets"), tr("Show detailed information about openpilot's internal operations."), ""},
-    {"ShowCEMStatus", tr("'Conditional Experimental Mode' Status"), tr("Show 'Conditional Experimental Mode''s current status in the onroad UI."), ""},
+    {"AdjacentLeadsUI", tr("Adjacent Leads Tracking"), tr("Show adjacent leads being detected by the car's radar."), ""},
     {"ShowStoppingPoint", tr("Model Stopping Point"), tr("Displays an image on the screen where openpilot is wanting to stop."), ""},
+    {"RadarTracksUI", tr("Radar Tracks"), tr("Show all of the radar points being tracked by the car's radar."), ""},
 
     {"ModelUI", tr("Model UI"), tr("Customize the model visualizations on the screen."), "../frogpilot/assets/toggle_icons/icon_vtc.png"},
     {"DynamicPathWidth", tr("Dynamic Path Width"), tr("Automatically adjusts the width of the driving path display based on the current engagement state:\n\nFully engaged = 100%\nAlways On Lateral Active = 75%\nFully disengaged = 50%"), ""},
@@ -109,7 +110,6 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
 
         borderMetricsBtn->setVisibleButton(0, hasBSM);
         lateralMetricsBtn->setVisibleButton(1, hasAutoTune);
-        longitudinalMetricsBtn->setVisibleButton(0, hasRadar);
 
         std::set<QString> modifiedDeveloperMetricKeys = developerMetricKeys;
 
@@ -131,10 +131,9 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
       lateralMetricsBtn = new FrogPilotButtonToggleControl(param, title, desc, icon, lateralToggles, lateralToggleNames);
       visualToggle = lateralMetricsBtn;
     } else if (param == "LongitudinalMetrics") {
-      std::vector<QString> longitudinalToggles{"AdjacentLeadsUI", "LeadInfo", "JerkInfo"};
-      std::vector<QString> longitudinalToggleNames{tr("Adjacent Leads"), tr("Lead Info"), tr("Jerk Values")};
-      longitudinalMetricsBtn = new FrogPilotButtonToggleControl(param, title, desc, icon, longitudinalToggles, longitudinalToggleNames);
-      visualToggle = longitudinalMetricsBtn;
+      std::vector<QString> longitudinalToggles{"LeadInfo", "JerkInfo"};
+      std::vector<QString> longitudinalToggleNames{tr("Lead Info"), tr("Jerk Values")};
+      visualToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, longitudinalToggles, longitudinalToggleNames);
     } else if (param == "NumericalTemp") {
       std::vector<QString> temperatureToggles{"Fahrenheit"};
       std::vector<QString> temperatureToggleNames{tr("Fahrenheit")};
@@ -171,12 +170,12 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
         std::set<QString> modifiedDeveloperWidgetKeys = developerWidgetKeys;
 
         if (!hasOpenpilotLongitudinal) {
-          modifiedDeveloperWidgetKeys.erase("ShowCEMStatus");
           modifiedDeveloperWidgetKeys.erase("ShowStoppingPoint");
         }
 
-        if (!params.getBool("ConditionalExperimental")) {
-          modifiedDeveloperWidgetKeys.erase("ShowCEMStatus");
+        if (!hasRadar) {
+          modifiedDeveloperWidgetKeys.erase("AdjacentLeadsUI");
+          modifiedDeveloperWidgetKeys.erase("RadarTracksUI");
         }
 
         showToggles(modifiedDeveloperWidgetKeys);

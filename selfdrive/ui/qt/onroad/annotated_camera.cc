@@ -1089,6 +1089,8 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
     pedal_icons->updateState(scene);
   }
 
+  radarTracks = scene.radar_tracks;
+
   roadNameUI = scene.road_name_ui;
 
   bool enableScreenRecorder = scene.screen_recorder && !mapOpen;
@@ -1139,6 +1141,10 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
 void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter) {
   if (cemStatus && !mapOpen && !hideBottomIcons) {
     drawCEMStatus(painter);
+  }
+
+  if (radarTracks) {
+    drawRadarTracks(painter);
   }
 
   if (roadNameUI && !bigMapOpen) {
@@ -1244,6 +1250,39 @@ void PedalIcons::paintEvent(QPaintEvent *event) {
 
   p.setOpacity(gasOpacity);
   p.drawPixmap(gasX, (height() - img_size) / 2, gas_pedal_img);
+}
+
+void AnnotatedCameraWidget::drawRadarTracks(QPainter &p) {
+  UIState *s = uiState();
+  SubMaster &sm = *(s->sm);
+  UIScene &scene = s->scene;
+
+  const cereal::ModelDataV2::Reader &model = sm["modelV2"].getModelV2();
+
+  if (scene.world_objects_visible) {
+    capnp::List<cereal::LiveTracks>::Reader liveTracks = sm["liveTracks"].getLiveTracks();
+    update_radar_tracks(s, liveTracks, model.getPosition());
+
+    constexpr int diameter = 25;
+
+    QRect viewport = p.viewport();
+
+    int width = viewport.width();
+    int height = viewport.height();
+
+    for (std::size_t i = 0; i < scene.live_radar_tracks.size(); i++) {
+      const RadarTrackData &track = scene.live_radar_tracks[i];
+
+      float x = std::clamp(static_cast<float>(track.calibrated_point.x()), 0.f, float(width - diameter));
+      float y = std::clamp(static_cast<float>(track.calibrated_point.y()), 0.f, float(height - diameter));
+
+      p.save();
+      p.setBrush(redColor());
+      p.setPen(Qt::NoPen);
+      p.drawEllipse(QPointF(x + diameter / 2.f, y + diameter / 2.f), diameter / 2.f, diameter / 2.f);
+      p.restore();
+    }
+  }
 }
 
 void AnnotatedCameraWidget::drawRoadName(QPainter &p) {

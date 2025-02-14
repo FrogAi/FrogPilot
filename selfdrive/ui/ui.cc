@@ -66,6 +66,31 @@ void update_leads(UIState *s, const cereal::RadarState::Reader &radar_state, con
   }
 }
 
+void update_radar_tracks(UIState *s, const capnp::List<cereal::LiveTracks>::Reader &tracks_msg, const cereal::XYZTData::Reader &line) {
+  s->scene.live_radar_tracks.clear();
+
+  SubMaster &sm = *(s->sm);
+  float path_offset_z = sm["liveCalibration"].getLiveCalibration().getHeight()[0];
+
+  std::size_t num_tracks = tracks_msg.size();
+  s->scene.live_radar_tracks.reserve(num_tracks);
+
+  for (std::size_t i = 0; i < num_tracks; i++) {
+    cereal::LiveTracks::Reader track = tracks_msg[i];
+
+    float dRel = track.getDRel();
+    float yRel = track.getYRel();
+    float z = line.getZ()[get_path_length_idx(line, dRel)];
+
+    QPointF calibrated_point;
+    if (calib_frame_to_full_frame(s, dRel, -yRel, z + path_offset_z, &calibrated_point)) {
+      RadarTrackData t;
+      t.calibrated_point = calibrated_point;
+      s->scene.live_radar_tracks.push_back(t);
+    }
+  }
+}
+
 void update_line_data(const UIState *s, const cereal::XYZTData::Reader &line,
                       float y_off, float z_off, QPolygonF *pvd, int max_idx, bool allow_invert=true) {
   const auto line_x = line.getX(), line_y = line.getY(), line_z = line.getZ();
@@ -415,6 +440,7 @@ void ui_update_frogpilot_params(UIState *s) {
   scene.path_edge_width = scene.frogpilot_toggles.value("path_edge_width").toDouble();
   scene.path_width = scene.frogpilot_toggles.value("path_width").toDouble();
   scene.pedals_on_ui = scene.frogpilot_toggles.value("pedals_on_ui").toBool();
+  scene.radar_tracks = scene.frogpilot_toggles.value("radar_tracks").toBool();
   scene.radarless_model = scene.frogpilot_toggles.value("radarless_model").toBool();
   scene.random_events = scene.frogpilot_toggles.value("random_events").toBool();
   scene.rainbow_path = scene.frogpilot_toggles.value("rainbow_path").toBool();
@@ -524,7 +550,7 @@ UIState::UIState(QObject *parent) : QObject(parent) {
     "modelV2", "controlsState", "liveCalibration", "radarState", "deviceState",
     "pandaStates", "carParams", "driverMonitoringState", "carState", "liveLocationKalman", "driverStateV2",
     "wideRoadCameraState", "managerState", "navInstruction", "navRoute", "uiPlan", "clocks",
-    "carControl", "liveTorqueParameters", "frogpilotCarControl", "frogpilotCarState", "frogpilotDeviceState",
+    "carControl", "liveTorqueParameters", "liveTracks", "frogpilotCarControl", "frogpilotCarState", "frogpilotDeviceState",
     "frogpilotNavigation", "frogpilotPlan",
   });
 

@@ -52,6 +52,14 @@ def capture_exception(*args, **kwargs) -> None:
     cloudlog.exception("sentry exception")
 
 
+def capture_mapbox_requests(requests: int, meters: float) -> None:
+  if requests == 0:
+    return
+
+  sentry_sdk.capture_message(f"User used {requests} MapBox requests for: {meters} meters " f"({round(meters / requests, 6)} meters per request)", level="info")
+  sentry_sdk.flush()
+
+
 def capture_report(discord_user, report, frogpilot_toggles):
   error_file_path = CRASHES_DIR / "error.txt"
   error_content = "No error log found."

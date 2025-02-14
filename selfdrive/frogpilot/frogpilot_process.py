@@ -113,6 +113,8 @@ def frogpilot_thread():
     toggles_updated = (now - toggles_last_updated).total_seconds() <= 1
 
     if not started and started_previously:
+      sentry.capture_mapbox_requests(params_memory.get_int("MapBoxRequests"), frogpilot_tracking.current_drive_distance)
+
       frogpilot_planner = FrogPilotPlanner()
       frogpilot_tracking = FrogPilotTracking()
 

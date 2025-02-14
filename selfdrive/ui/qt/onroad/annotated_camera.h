@@ -74,6 +74,7 @@ private:
 
   // FrogPilot widgets
   void drawCEMStatus(QPainter &p);
+  void drawRadarTracks(QPainter &p);
   void drawRoadName(QPainter &p);
   void drawTurnSignals(QPainter &p);
   void initializeFrogPilotWidgets();
@@ -132,6 +133,7 @@ private:
   bool mapOpen;
   bool mtscEnabled;
   bool onroadDistanceButton;
+  bool radarTracks;
   bool roadNameUI;
   bool showSLCOffset;
   bool slcOverridden;

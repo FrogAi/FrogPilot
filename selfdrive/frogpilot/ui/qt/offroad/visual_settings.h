@@ -36,13 +36,12 @@ private:
   std::set<QString> customOnroadUIKeys = {"AccelerationPath", "AdjacentPath", "BlindSpotPath", "Compass", "PedalsOnUI", "RotatingWheel"};
   std::set<QString> developerMetricKeys = {"BorderMetrics", "FPSCounter", "LateralMetrics", "LongitudinalMetrics", "NumericalTemp", "SidebarMetrics", "UseSI"};
   std::set<QString> developerUIKeys = {"DeveloperMetrics", "DeveloperWidgets"};
-  std::set<QString> developerWidgetKeys = {"ShowCEMStatus", "ShowStoppingPoint"};
+  std::set<QString> developerWidgetKeys = {"AdjacentLeadsUI", "RadarTracksUI", "ShowStoppingPoint"};
   std::set<QString> modelUIKeys = {"DynamicPathWidth", "LaneLinesWidth", "PathEdgeWidth", "PathWidth", "RoadEdgesWidth", "UnlimitedLength"};
   std::set<QString> navigationUIKeys = {"BigMap", "MapStyle", "RoadNameUI", "ShowSpeedLimits", "UseVienna"};
 
   FrogPilotButtonToggleControl *borderMetricsBtn;
   FrogPilotButtonToggleControl *lateralMetricsBtn;
-  FrogPilotButtonToggleControl *longitudinalMetricsBtn;
 
   FrogPilotSettingsWindow *parent;
 

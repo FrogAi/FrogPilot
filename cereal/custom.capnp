@@ -14,9 +14,6 @@ struct FrogPilotCarControl @0x81c2f05a394cf4af {
   accelPressed @0 :Bool;
   alwaysOnLateralActive @1 :Bool;
   decelPressed @2 :Bool;
-  fcwEventTriggered @3 :Bool;
-  noEntryEventTriggered @4 :Bool;
-  steerSaturatedEventTriggered @5 :Bool;
 }
 
 struct FrogPilotCarState @0xaedffd8f31e7b55d {
@@ -26,7 +23,7 @@ struct FrogPilotCarState @0xaedffd8f31e7b55d {
     }
   }
 
-  alwaysOnLateralDisabled @0 :Bool;
+  alwaysOnLateralEnabled @0 :Bool;
   brakeLights @1 :Bool;
   dashboardSpeedLimit @2 :Float32;
   distanceLongPressed @3 :Bool;
