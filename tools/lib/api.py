@@ -1,6 +1,10 @@
 import os
 import requests
+
+from openpilot.selfdrive.frogpilot.frogpilot_variables import get_frogpilot_toggles
+
 API_HOST = os.getenv('API_HOST', 'https://api.commadotai.com')
+KONIK_API_HOST = os.getenv('API_HOST', 'https://api.konik.ai')
 
 class CommaApi:
   def __init__(self, token=None):
@@ -10,7 +14,7 @@ class CommaApi:
       self.session.headers['Authorization'] = 'JWT ' + token
 
   def request(self, method, endpoint, **kwargs):
-    resp = self.session.request(method, API_HOST + '/' + endpoint, **kwargs)
+    resp = self.session.request(method, (KONIK_API_HOST if get_frogpilot_toggles().use_konik_server else API_HOST) + '/' + endpoint, **kwargs)
     resp_json = resp.json()
     if isinstance(resp_json, dict) and resp_json.get('error'):
       if resp.status_code in [401, 403]:

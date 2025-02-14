@@ -41,6 +41,8 @@ THEME_SAVE_PATH = Path("/data/themes")
 
 CRASHES_DIR = Path("/data/crashes")
 
+KONIK_PATH = Path("/data/openpilot/use_konik")
+
 MAPD_PATH = Path("/data/media/0/osm/mapd")
 MAPS_PATH = Path("/data/media/0/osm/offline")
 
@@ -348,6 +350,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int]] = [
   ("UnlimitedLength", "1", 2),
   ("UnlockDoors", "1", 0),
   ("UpdaterAvailableBranches", "", 0),
+  ("UseKonikServer", "0", 0),
   ("UseSI", "1", 3),
   ("UseVienna", "0", 2),
   ("VisionTurnControl", "1", 1),
@@ -380,6 +383,14 @@ class FrogPilotVariables:
     self.frogpilot_toggles.block_user = self.development_branch and not self.frogpilot_toggles.frogs_go_moo
 
     self.not_vetted = self.testing_branch and Path("/data/openpilot/not_vetted").is_file()
+
+    self.frogpilot_toggles.use_konik_server = params.get_bool("UseKonikServer")
+    self.frogpilot_toggles.use_konik_server |= self.not_vetted
+
+    if self.frogpilot_toggles.use_konik_server:
+      KONIK_PATH.touch(exist_ok=True)
+    else:
+      KONIK_PATH.unlink(missing_ok=True)
 
     for k, v, _ in frogpilot_default_params:
       params_default.put(k, v)

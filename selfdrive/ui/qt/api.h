@@ -1,15 +1,18 @@
 #pragma once
 
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QNetworkReply>
 #include <QString>
 #include <QTimer>
 
+#include "common/params.h"
 #include "common/util.h"
 
 namespace CommaApi {
 
-const QString BASE_URL = util::getenv("API_HOST", "https://api.commadotai.com").c_str();
+inline bool use_konik_server = QJsonDocument::fromJson(QString::fromStdString(Params("/dev/shm/params").get("FrogPilotToggles")).toUtf8()).object().value("use_konik_server").toBool();
+const QString BASE_URL = util::getenv("API_HOST", use_konik_server ? "https://api.konik.ai" : "https://api.commadotai.com").c_str();
 QByteArray rsa_sign(const QByteArray &data);
 QString create_jwt(const QJsonObject &payloads = {}, int expiry = 3600);
 
