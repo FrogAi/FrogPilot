@@ -36,7 +36,7 @@ private:
 
   std::set<QString> aggressivePersonalityKeys = {"AggressiveFollow", "AggressiveJerkAcceleration", "AggressiveJerkDeceleration", "AggressiveJerkDanger", "AggressiveJerkSpeed", "AggressiveJerkSpeedDecrease", "ResetAggressivePersonality"};
   std::set<QString> conditionalExperimentalKeys = {"CESpeed", "CESpeedLead", "CECurves", "CELead", "CEModelStopTime", "CENavigation", "CESignalSpeed", "ShowCEMStatus"};
-  std::set<QString> curveSpeedKeys = {"CurveDetectionMethod", "CurveSensitivity", "HideCSCUI", "MTSCCurvatureCheck", "TurnAggressiveness"};
+  std::set<QString> curveSpeedKeys = {"CurveDetectionMethod", "CurveSensitivity", "HideCSCUI", "MTSCCurvatureCheck", "ResetCurveData", "TurnAggressiveness"};
   std::set<QString> customDrivingPersonalityKeys = {"AggressivePersonalityProfile", "RelaxedPersonalityProfile", "StandardPersonalityProfile", "TrafficPersonalityProfile"};
   std::set<QString> experimentalModeActivationKeys = {"ExperimentalModeViaDistance", "ExperimentalModeViaLKAS", "ExperimentalModeViaTap"};
   std::set<QString> longitudinalTuneKeys = {"AccelerationProfile", "DecelerationProfile", "HumanAcceleration", "HumanFollowing", "LeadDetectionThreshold", "MaxDesiredAcceleration", "TacoTune"};
@@ -57,4 +57,5 @@ private:
 
   Params params;
   Params params_default{"/dev/shm/params_default"};
+  Params params_cache{"/cache/params"};
 };
