@@ -522,6 +522,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"UnlockDoors", PERSISTENT},
     {"Updated", PERSISTENT},
     {"UpdateWheelImage", CLEAR_ON_MANAGER_START},
+    {"UseKonikServer", PERSISTENT},
     {"UseSI", PERSISTENT},
     {"UseVienna", PERSISTENT},
     {"VisionTurnControl", PERSISTENT},
