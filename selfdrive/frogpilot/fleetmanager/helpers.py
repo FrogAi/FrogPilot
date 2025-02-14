@@ -30,7 +30,7 @@ import traceback
 
 import openpilot.system.sentry as sentry
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import List
 from urllib.parse import quote
@@ -62,10 +62,12 @@ PRESERVE_COUNT = 5
 if PC:
   SCREENRECORD_PATH = os.path.join(str(Path.home()), ".comma", "media", "screen_recordings", "")
   ERROR_LOGS_PATH = os.path.join(str(Path.home()), ".comma", "community", "crashes", "")
+  SPEED_LIMITS_PATH = os.path.join(str(Path.home()), ".comma", "speed_limits")
   TMUX_LOGS_PATH = os.path.join(str(Path.home()), ".comma", "tmux_logs")
 else:
   SCREENRECORD_PATH = "/data/media/screen_recordings/"
   ERROR_LOGS_PATH = CRASHES_DIR
+  SPEED_LIMITS_PATH = "/data/speed_limits/"
   TMUX_LOGS_PATH = "/data/tmux_logs/"
 
 
@@ -502,6 +504,12 @@ def capture_tmux_log():
 
   except subprocess.CalledProcessError as e:
     raise Exception(f"Error capturing tmux log: {e}")
+
+def update_dataset():
+  updated_dataset = json.loads(params.get("SpeedLimitsFiltered") or "[]")
+  last_vetted_time = (datetime.now(timezone.utc) - timedelta(days=6, hours=23)).isoformat()
+  updated_dataset = [{**entry, "last_vetted": last_vetted_time} for entry in updated_dataset]
+  params.put("SpeedLimitsFiltered", json.dumps(updated_dataset))
 
 def lock_doors():
   try:

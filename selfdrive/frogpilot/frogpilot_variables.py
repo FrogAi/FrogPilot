@@ -311,6 +311,8 @@ frogpilot_default_params: list[tuple[str, str | bytes, int]] = [
   ("SNGHack", "1", 2),
   ("SpeedLimitChangedAlert", "1", 0),
   ("SpeedLimitController", "1", 0),
+  ("SpeedLimitFiller", "0", 2),
+  ("SpeedLimitsFiltered", "", 0),
   ("SpeedLimitSources", "0", 3),
   ("SshEnabled", "0", 0),
   ("StartupMessageBottom", "Human-tested, frog-approved 🐸", 0),
@@ -770,6 +772,7 @@ class FrogPilotVariables:
     slc_override_method = params.get_int("SLCOverride") if toggle.speed_limit_controller and tuning_level >= level["SLCOverride"] else default.get_int("SLCOverride")
     toggle.speed_limit_controller_override_manual = slc_override_method == 1
     toggle.speed_limit_controller_override_set_speed = slc_override_method == 2
+    toggle.speed_limit_filler = toggle.speed_limit_controller and (params.get_bool("SpeedLimitFiller") if tuning_level >= level["SpeedLimitFiller"] else default.get_bool("SpeedLimitFiller"))
     toggle.speed_limit_offset1 = (params.get_int("Offset1") * speed_conversion if tuning_level >= level["Offset1"] else default.get_int("Offset1") * CV.MPH_TO_MS) if toggle.speed_limit_controller else 0
     toggle.speed_limit_offset2 = (params.get_int("Offset2") * speed_conversion if tuning_level >= level["Offset2"] else default.get_int("Offset2") * CV.MPH_TO_MS) if toggle.speed_limit_controller else 0
     toggle.speed_limit_offset3 = (params.get_int("Offset3") * speed_conversion if tuning_level >= level["Offset3"] else default.get_int("Offset3") * CV.MPH_TO_MS) if toggle.speed_limit_controller else 0
