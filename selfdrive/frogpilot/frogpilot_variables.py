@@ -330,6 +330,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int]] = [
   ("SteerRatioStock", "0", 3),
   ("StoppedTimer", "0", 1),
   ("TacoTune", "0", 2),
+  ("TacoTuneHacks", "0", 2),
   ("TetheringEnabled", "0", 0),
   ("ToyotaDoors", "1", 0),
   ("TrafficFollow", "0.5", 2),
@@ -400,6 +401,7 @@ class FrogPilotVariables:
     msg_bytes = params.get("CarParams" if started else "CarParamsPersistent", block=started)
     if msg_bytes:
       with car.CarParams.from_bytes(msg_bytes) as CP:
+        allow_taco_hacks = CP.safetyConfigs[0].safetyModel == SafetyModel.hyundaiCanfd
         always_on_lateral_set = bool(CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
         car_make = CP.carName
         car_model = CP.carFingerprint
@@ -417,6 +419,7 @@ class FrogPilotVariables:
         vEgoStopping = CP.vEgoStopping
         vEgoStarting = CP.vEgoStarting
     else:
+      allow_taco_hacks = False
       always_on_lateral_set = False
       car_make = "MOCK"
       car_model = "MOCK"
@@ -766,6 +769,8 @@ class FrogPilotVariables:
 
     toggle.startup_alert_top = params.get("StartupMessageTop", encoding="utf-8") if tuning_level >= level["StartupMessageTop"] else default.get("StartupMessageTop", encoding="utf-8")
     toggle.startup_alert_bottom = params.get("StartupMessageBottom", encoding="utf-8") if tuning_level >= level["StartupMessageBottom"] else default.get("StartupMessageBottom", encoding="utf-8")
+
+    toggle.taco_tune_hacks = allow_taco_hacks and (params.get_bool("TacoTuneHacks") if tuning_level >= level["TacoTuneHacks"] else default.get_bool("TacoTuneHacks"))
 
     toggle.tethering_config = params.get_int("TetheringEnabled")
 
