@@ -126,19 +126,25 @@ def create_lfahda_mfc(packer, enabled, lat_active, hda_set_speed=0):
   }
   return packer.make_can_msg("LFAHDA_MFC", 0, values)
 
-def create_acc_commands(packer, enabled, accel, upper_jerk, idx, hud_control, set_speed, stopping, long_override, use_fca, cruise_available):
-  commands = []
+def create_acc_commands(packer, enabled, accel, jerk_upper, jerk_lower, cb_upper, cb_lower,
+                        idx, hud_control, set_speed, stopping, long_override, use_fca, CS, CP,
+                        cruise_available):
 
+  d = hud_control.leadDistance
+  objGap = 0 if d == 0 else 2 if d < 20 else 3 if d < 35 else 4 if d < 50 else 5
+  objGap2 = 0 if objGap == 0 else 2 if hud_control.leadRelSpeed < -0.2 else 1
+
+  commands = []
   scc11_values = {
     "MainMode_ACC": 1 if cruise_available else 0,
     "TauGapSet": hud_control.leadDistanceBars,
     "VSetDis": set_speed if enabled else 0,
     "AliveCounterACC": idx % 0x10,
-    "ObjValid": 1, # close lead makes controls tighter
-    "ACC_ObjStatus": 1, # close lead makes controls tighter
+    "ObjValid":  1 if hud_control.leadVisible else 0, # close lead makes controls tighter
+    "ACC_ObjStatus":  1 if hud_control.leadVisible else 0, # close lead makes controls tighter
     "ACC_ObjLatPos": 0,
-    "ACC_ObjRelSpd": 0,
-    "ACC_ObjDist": 1, # close lead makes controls tighter
+    "ACC_ObjRelSpd": hud_control.leadRelSpeed,
+    "ACC_ObjDist": int(hud_control.leadDistance), # close lead makes controls tighter
     }
   commands.append(packer.make_can_msg("SCC11", 0, scc11_values))
 
@@ -162,12 +168,13 @@ def create_acc_commands(packer, enabled, accel, upper_jerk, idx, hud_control, se
   commands.append(packer.make_can_msg("SCC12", 0, scc12_values))
 
   scc14_values = {
-    "ComfortBandUpper": 0.0, # stock usually is 0 but sometimes uses higher values
-    "ComfortBandLower": 0.0, # stock usually is 0 but sometimes uses higher values
-    "JerkUpperLimit": upper_jerk, # stock usually is 1.0 but sometimes uses higher values
-    "JerkLowerLimit": 5.0, # stock usually is 0.5 but sometimes uses higher values
+    "ComfortBandUpper": 0, #cb_upper,
+    "ComfortBandLower": 0, #cb_lower,
+    "JerkUpperLimit": jerk_upper,
+    "JerkLowerLimit": jerk_lower,
     "ACCMode": 2 if enabled and long_override else 1 if enabled else 4, # stock will always be 4 instead of 0 after first disengage
-    "ObjGap": 2 if hud_control.leadVisible else 0, # 5: >30, m, 4: 25-30 m, 3: 20-25 m, 2: < 20 m, 0: no lead
+    "ObjGap": objGap, # 5: >30, m, 4: 25-30 m, 3: 20-25 m, 2: < 20 m, 0: no lead
+    "ObjDistStat": objGap2,
   }
   commands.append(packer.make_can_msg("SCC14", 0, scc14_values))
 

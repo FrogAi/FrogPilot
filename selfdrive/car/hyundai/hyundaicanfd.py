@@ -1,5 +1,6 @@
 from openpilot.common.numpy_fast import clip
 from openpilot.selfdrive.car import CanBusBase
+from openpilot.common.conversions import Conversions as CV
 from openpilot.selfdrive.car.hyundai.values import HyundaiFlags
 
 
@@ -121,7 +122,8 @@ def create_lfahda_cluster(packer, CAN, enabled, lat_active):
   return packer.make_can_msg("LFAHDA_CLUSTER", CAN.ECAN, values)
 
 
-def create_acc_control(packer, CAN, enabled, accel_last, accel, stopping, gas_override, set_speed, hud_control):
+def create_acc_control(packer, CAN, CS, enabled, accel_last, accel, jerk_upper, jerk_lower,
+                       stopping, gas_override, set_speed, hud_control):
   jerk = 5
   jn = jerk / 50
   if not enabled or gas_override:
@@ -132,13 +134,13 @@ def create_acc_control(packer, CAN, enabled, accel_last, accel, stopping, gas_ov
 
   values = {
     "ACCMode": 0 if not enabled else (2 if gas_override else 1),
-    "MainMode_ACC": 1,
+    "MainMode_ACC": 1 if CS.out.cruiseState.available else 0,
     "StopReq": 1 if stopping else 0,
     "aReqValue": a_val,
     "aReqRaw": a_raw,
     "VSetDis": set_speed,
-    "JerkLowerLimit": jerk if enabled else 1,
-    "JerkUpperLimit": 3.0,
+    "JerkLowerLimit": jerk_lower if enabled else 1,
+    "JerkUpperLimit": jerk_upper,
 
     "ACC_ObjDist": 1,
     "ObjValid": 0,

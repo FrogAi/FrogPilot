@@ -346,6 +346,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"HolidayThemes", PERSISTENT | FROGPILOT_VISUALS},
     {"HumanAcceleration", PERSISTENT | FROGPILOT_CONTROLS},
     {"HumanFollowing", PERSISTENT | FROGPILOT_CONTROLS},
+    {"HKGBraking", PERSISTENT},
     {"HKGtuning", PERSISTENT | FROGPILOT_VEHICLES},
     {"IconToDownload", CLEAR_ON_MANAGER_START},
     {"IncreasedStoppedDistance", PERSISTENT | FROGPILOT_CONTROLS},
