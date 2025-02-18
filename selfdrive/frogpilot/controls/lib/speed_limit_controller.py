@@ -19,8 +19,8 @@ class SpeedLimitController:
 
     self.previous_speed_limit = params.get_float("PreviousSpeedLimit")
 
-  def update(self, dashboard_speed_limit, enabled, gps_position, navigation_speed_limit, v_cruise, v_ego, frogpilot_toggles):
-    self.update_map_speed_limit(gps_position, v_ego, frogpilot_toggles)
+  def update(self, dashboard_speed_limit, enabled, navigation_speed_limit, v_cruise, v_ego, frogpilot_toggles):
+    self.update_map_speed_limit(v_ego, frogpilot_toggles)
     max_speed_limit = v_cruise if enabled else 0
 
     self.speed_limit = self.get_speed_limit(dashboard_speed_limit, max_speed_limit, navigation_speed_limit, frogpilot_toggles)
@@ -39,8 +39,9 @@ class SpeedLimitController:
       self.speed_limit_changed = False
       return 0
 
-  def update_map_speed_limit(self, gps_position, v_ego, frogpilot_toggles):
-    if not gps_position:
+  def update_map_speed_limit(self, v_ego, frogpilot_toggles):
+    position = json.loads(params_memory.get("LastGPSPosition") or "{}")
+    if not position:
       self.map_speed_limit = 0
       return
 
@@ -49,8 +50,8 @@ class SpeedLimitController:
     next_map_speed_limit = json.loads(params_memory.get("NextMapSpeedLimit") or "{}")
     self.upcoming_speed_limit = next_map_speed_limit.get("speedlimit", 0)
     if self.upcoming_speed_limit > 1:
-      current_latitude = gps_position.get("latitude")
-      current_longitude = gps_position.get("longitude")
+      current_latitude = position.get("latitude")
+      current_longitude = position.get("longitude")
 
       upcoming_latitude = next_map_speed_limit.get("latitude")
       upcoming_longitude = next_map_speed_limit.get("longitude")

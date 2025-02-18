@@ -35,11 +35,12 @@ def calculate_curvature(p1, p2, p3):
   return curvature
 
 class MapTurnSpeedController:
-  def get_map_curvature(self, gps_position, v_ego):
-    if not gps_position:
+  def get_map_curvature(self, v_ego):
+    position = json.loads(params_memory.get("LastGPSPosition") or "{}")
+    if not position:
       return 1e-6
-    current_latitude = gps_position["latitude"]
-    current_longitude = gps_position["longitude"]
+    current_latitude = position["latitude"]
+    current_longitude = position["longitude"]
 
     distances = []
     minimum_idx = 0
