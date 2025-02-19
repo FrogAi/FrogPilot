@@ -116,25 +116,27 @@ class Track:
     near_lane_index = 1 if left else 2
     far_lane_index = 0 if left else 3
 
-    yRel = self.yRel + interp(self.dRel, model_data.position.x, model_data.position.y)
+    if model_data.laneLineProbs[near_lane_index] < 0.3 or model_data.laneLineProbs[far_lane_index] < 0.3:
+      return False
 
     if far:
       far_lane = interp(self.dRel, model_data.laneLines[far_lane_index].x, model_data.laneLines[far_lane_index].y)
-      return yRel < far_lane if left else far_lane < yRel
+      return self.yRel < far_lane if left else far_lane < self.yRel
     else:
       near_lane = interp(self.dRel, model_data.laneLines[near_lane_index].x, model_data.laneLines[near_lane_index].y)
       far_lane = interp(self.dRel, model_data.laneLines[far_lane_index].x, model_data.laneLines[far_lane_index].y)
-      return min(near_lane, far_lane) < yRel < max(near_lane, far_lane)
+      return min(near_lane, far_lane) < self.yRel < max(near_lane, far_lane)
 
   def potential_far_lead(self, model_data: capnp._DynamicStructReader):
     if self.vLead < 1:
       return False
 
-    yRel = self.yRel + interp(self.dRel, model_data.position.x, model_data.position.y)
+    if model_data.laneLineProbs[1] < 0.3 or model_data.laneLineProbs[2] < 0.3:
+      return False
 
     left_lane = interp(self.dRel, model_data.laneLines[1].x, model_data.laneLines[1].y)
     right_lane = interp(self.dRel, model_data.laneLines[2].x, model_data.laneLines[2].y)
-    return left_lane < yRel < right_lane
+    return left_lane < self.yRel < right_lane
 
   def potential_low_speed_lead(self, v_ego: float):
     # stop for stuff in front of you and low speed, even without model confirmation
