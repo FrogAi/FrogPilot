@@ -222,7 +222,7 @@ def setup_frogpilot(build_metadata):
       shutil.rmtree(persist_tracking_path)
       print("Successfully deleted /persist/tracking")
 
-  if not persist_comma_path.exists():
+  if not persist_comma_path.exists() and backup_comma_path.exists() and backup_comma_path.is_dir():
     with RemountWritable("/persist"):
       shutil.copytree(backup_comma_path, persist_comma_path, dirs_exist_ok=True)
       print("Restored /persist/comma from backup")
