@@ -30,7 +30,7 @@ class HKGLongitudinalTuning:
     self.DT_CTRL = DT_CTRL
     self.params = Params()
     self.hkg_tuning = self.params.get_bool('HKGtuning')
-    self.has_radar = self.params.get_bool("HyundaiRadarTracks")
+    #self.has_radar = self.params.get_bool("HyundaiRadarTracks")
 
   def _init_state(self) -> None:
     self.last_accel = 0.0
