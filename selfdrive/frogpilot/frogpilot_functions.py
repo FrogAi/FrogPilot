@@ -235,7 +235,7 @@ def uninstall_frogpilot():
   boot_logo_location = Path("/usr/comma/bg.jpg")
   stock_boot_logo = Path(__file__).parent / "assets/other_images/stock_bg.jpg"
 
-  run_cmd(["sudo", "mount", "-o", "remount,rw", "/"], "Successfully remounted / as read-write", "Failed to remount / as read-write")
-  run_cmd(["sudo", "cp", stock_boot_logo, boot_logo_location], "Successfully restored boot logo", "Failed to restore boot logo")
+  with RemountWritable("/"):
+    run_cmd(["sudo", "cp", stock_boot_logo, boot_logo_location], "Successfully restored boot logo", "Failed to restore boot logo")
 
   HARDWARE.uninstall()
