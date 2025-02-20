@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+from contextlib import contextmanager
 from pathlib import Path
 
 import datetime
@@ -147,6 +148,15 @@ def frogpilot_boot_functions(build_metadata, params_cache):
 
   threading.Thread(target=backup_thread, daemon=True).start()
 
+@contextmanager
+def RemountWritable(mount_point):
+  try:
+    stock_mount_options = subprocess.run(["findmnt", "-no", "OPTIONS", mount_point], capture_output=True, text=True).stdout.strip()
+    run_cmd(["sudo", "mount", "-o", "remount,rw", mount_point], f"Successfully remounted {mount_point} as read-write", f"Failed to remount {mount_point} as read-write")
+    yield
+  finally:
+    run_cmd(["sudo", "mount", "-o", f"remount,{stock_mount_options}", mount_point], f"Successfully restored {mount_point} stock mount options", "Failed to restore stock mount options")
+
 def setup_frogpilot(build_metadata):
   run_cmd(["sudo", "chmod", "0777", "/cache"], "Successfully updated /cache permissions", "Failed to update /cache permissions")
 
@@ -184,11 +194,38 @@ def setup_frogpilot(build_metadata):
   boot_logo_location = Path("/usr/comma/bg.jpg")
   frogpilot_boot_logo = Path(__file__).parent / "assets/other_images/frogpilot_boot_logo.png"
   if not filecmp.cmp(frogpilot_boot_logo, boot_logo_location, shallow=False):
-    stock_mount_options = subprocess.run(["findmnt", "-no", "OPTIONS", "/"], capture_output=True, text=True).stdout.strip()
+    with RemountWritable("/"):
+      run_cmd(["sudo", "cp", frogpilot_boot_logo, boot_logo_location], "Successfully replaced boot logo", "Failed to replace boot logo")
 
-    run_cmd(["sudo", "mount", "-o", "remount,rw", "/"], "Successfully remounted / as read-write", "Failed to remount / as read-write")
-    run_cmd(["sudo", "cp", frogpilot_boot_logo, boot_logo_location], "Successfully replaced boot logo", "Failed to replace boot logo")
-    run_cmd(["sudo", "mount", "-o", f"remount,{stock_mount_options}", "/"], "Successfully restored stock mount options", "Failed to restore stock mount options")
+  persist_comma_path = Path("/persist/comma")
+  backup_comma_path = Path("/data/backup_comma")
+  if persist_comma_path.exists():
+    shutil.copytree(persist_comma_path, backup_comma_path, dirs_exist_ok=True)
+    print("Successfully backed up /persist/comma to /data/backup_comma")
+
+  persist_params_path = Path("/persist/params")
+  if persist_params_path.exists() and persist_params_path.is_dir():
+    with RemountWritable("/persist"):
+      shutil.rmtree(persist_params_path)
+      print("Successfully deleted /persist/params")
+
+  persist_tracking_path = Path("/persist/tracking")
+  if persist_tracking_path.exists() and persist_tracking_path.is_dir():
+    with RemountWritable("/persist"):
+      tracking_cache = Params("/cache/tracking")
+      tracking_persist = Params("/persist/tracking")
+
+      tracking_cache.put_float("FrogPilotDrives", tracking_persist.get_float("FrogPilotDrives"))
+      tracking_cache.put_float("FrogPilotKilometers", tracking_persist.get_float("FrogPilotKilometers"))
+      tracking_cache.put_float("FrogPilotMinutes", tracking_persist.get_float("FrogPilotMinutes"))
+
+      shutil.rmtree(persist_tracking_path)
+      print("Successfully deleted /persist/tracking")
+
+  if not persist_comma_path.exists():
+    with RemountWritable("/persist"):
+      shutil.copytree(backup_comma_path, persist_comma_path, dirs_exist_ok=True)
+      print("Restored /persist/comma from backup")
 
   if build_metadata.channel == "FrogPilot-Development" and Path("/persist/frogsgomoo.py").is_file():
     run_cmd(["sudo", "mount", "-o", "remount,rw", "/persist"], "Successfully remounted /persist as read-write", "Failed to remount /persist")
