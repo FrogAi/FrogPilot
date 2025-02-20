@@ -211,14 +211,14 @@ def setup_frogpilot(build_metadata):
 
   persist_tracking_path = Path("/persist/tracking")
   if persist_tracking_path.exists() and persist_tracking_path.is_dir():
+    tracking_cache = Params("/cache/tracking")
+    tracking_persist = Params("/persist/tracking")
+
+    tracking_cache.put_float("FrogPilotDrives", tracking_persist.get_float("FrogPilotDrives"))
+    tracking_cache.put_float("FrogPilotKilometers", tracking_persist.get_float("FrogPilotKilometers"))
+    tracking_cache.put_float("FrogPilotMinutes", tracking_persist.get_float("FrogPilotMinutes"))
+
     with RemountWritable("/persist"):
-      tracking_cache = Params("/cache/tracking")
-      tracking_persist = Params("/persist/tracking")
-
-      tracking_cache.put_float("FrogPilotDrives", tracking_persist.get_float("FrogPilotDrives"))
-      tracking_cache.put_float("FrogPilotKilometers", tracking_persist.get_float("FrogPilotKilometers"))
-      tracking_cache.put_float("FrogPilotMinutes", tracking_persist.get_float("FrogPilotMinutes"))
-
       shutil.rmtree(persist_tracking_path)
       print("Successfully deleted /persist/tracking")
 
