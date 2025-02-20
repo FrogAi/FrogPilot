@@ -204,13 +204,13 @@ def setup_frogpilot(build_metadata):
     print("Successfully backed up /persist/comma to /data/backup_comma")
 
   persist_params_path = Path("/persist/params")
-  if persist_params_path.exists() and persist_params_path.is_dir():
+  if persist_params_path.is_dir():
     with RemountWritable("/persist"):
       shutil.rmtree(persist_params_path)
       print("Successfully deleted /persist/params")
 
   persist_tracking_path = Path("/persist/tracking")
-  if persist_tracking_path.exists() and persist_tracking_path.is_dir():
+  if persist_tracking_path.is_dir():
     tracking_cache = Params("/cache/tracking")
     tracking_persist = Params("/persist/tracking")
 
@@ -222,7 +222,7 @@ def setup_frogpilot(build_metadata):
       shutil.rmtree(persist_tracking_path)
       print("Successfully deleted /persist/tracking")
 
-  if not persist_comma_path.exists() and backup_comma_path.exists() and backup_comma_path.is_dir():
+  if not persist_comma_path.exists() and backup_comma_path.is_dir():
     with RemountWritable("/persist"):
       shutil.copytree(backup_comma_path, persist_comma_path, dirs_exist_ok=True)
       print("Restored /persist/comma from backup")
