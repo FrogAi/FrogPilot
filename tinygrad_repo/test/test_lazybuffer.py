@@ -1,21 +1,15 @@
 #!/usr/bin/env python
 import numpy as np
 import unittest
-from tinygrad.lazy import LazyBuffer
-from tinygrad.ops import Device
-from tinygrad.tensor import Tensor
-from tinygrad.shape.symbolic import Variable
-from tinygrad.jit import CacheCollector
+from tinygrad import Tensor, Device, dtypes
+from tinygrad.engine.realize import run_schedule
+from tinygrad.ops import Ops, UOp
 
 class TestLazyBuffer(unittest.TestCase):
-  def test_fromcpu_buffer_sharing(self):
-    a = np.arange(8)
-    assert LazyBuffer.fromCPU(a).realized._buf is a
-
   def test_fromcpu_shape_tracker(self):
     def helper(a: np.ndarray):
       print(a.shape, a.strides, a.flags.c_contiguous)
-      b = LazyBuffer.fromCPU(a)
+      b = Tensor(a).lazydata
       #assert b.st.contiguous == a.flags.c_contiguous
       assert b.st.shape == a.shape
       np.testing.assert_equal(a, Tensor(b).numpy())
@@ -46,28 +40,74 @@ class TestLazyBuffer(unittest.TestCase):
     z = Tensor([1, np.e]).numpy()
     np.testing.assert_allclose(y, z)
 
-  @unittest.skipUnless(Device.DEFAULT in ["METAL", "CUDA", "GPU"], "Only GPU backends supports cache")
-  def test_children_count(self):
-    a = Tensor.ones(8,8,8)
-    d1 = a.sum((0))
-    d2 = a.sum((0)).reshape(32,2)
-    assert len(d1.lazydata.op.src[0].children) == 1
-    in1 = d1.reshape(16,4)
-    d3 = in1.reshape(8,8)
-    assert len(d3.lazydata.op.src[0].children) == 2
+  def test_device_0_is_the_same_device(self):
+    a = Tensor([1, 2, 3], f"{Device.DEFAULT}")
+    b = Tensor([1, 2, 3], f"{Device.DEFAULT}:0")
+    assert a.device == b.device
 
-    CacheCollector.start()
-    l = Tensor.ones(8,8)
-    r = Tensor.ones(8,8)
-    dd = d1 + l
-    dd.realize()
-    de = d3 + r
-    de.realize()
-    cache = CacheCollector.finish()
-    assert len(cache) == 3
-    assert cache[0][0].name.startswith("r_") # Reduce should not merged 2 times.
-    assert cache[1][0].name.startswith("E_")
-    assert cache[2][0].name.startswith("E_")
+  def test_shrink_const_into_zero(self):
+    # regression test to make sure the shapetracker is preserved
+    a = Tensor.zeros(4,4,4).shrink((None, (0,0), None))
+    b = Tensor.zeros(4,1,4)
+    c = a.cat(b, dim=1)
+    np.testing.assert_allclose(c.numpy(), np.concatenate((a.numpy(), b.numpy()), axis=1))
+
+  def test_shrink_const_then_cast(self):
+    # regression test to make sure the shapetracker is preserved
+    a = Tensor.zeros(4,4,4).shrink((None, (0,0), None)).cast(dtypes.int32)
+    b = Tensor.zeros(4,1,4)
+    c = a.cat(b, dim=1)
+    np.testing.assert_allclose(c.numpy(), np.concatenate((a.numpy(), b.numpy()), axis=1))
+
+  def test_const_dtype(self):
+    lb: UOp = Tensor([1], dtype=dtypes.int).lazydata
+    assert lb.const_like(1).const_arg == 1
+    assert type(lb.const_like(1).const_arg) is int
+
+    lb: UOp = Tensor([1], dtype=dtypes.float).lazydata
+    assert lb.const_like(1).const_arg == 1.0
+    assert type(lb.const_like(1).const_arg) is float
+
+  def test_forced_realized_alu(self):
+    a = Tensor.randn(2, 2).realize()
+    b = Tensor.randn(2, 2).realize()
+    add = (a+b).contiguous()
+    out = add+2
+    sched = out.schedule()
+    self.assertEqual(len(sched), 2)
+    run_schedule(sched)
+    np.testing.assert_allclose(out.numpy(), a.numpy()+b.numpy()+2)
+
+  def test_forced_realized_metaop(self):
+    empty = Tensor.empty(1).contiguous()
+    sched = empty.schedule()
+    self.assertEqual(len(sched), 1)
+    self.assertIs(sched[0].ast.op, Ops.EMPTY)
+    run_schedule(sched)
+
+class TestReduceOp(unittest.TestCase):
+  def test_no_split_reduce_kernel(self):
+    a = Tensor.rand(4, 4).realize()
+    a = a.sum()
+    sched = a.schedule()
+    assert len(sched) == 1
+    self.assertIs(sched[0].ast.src[0].src[2].op, Ops.REDUCE_AXIS)
+
+  def test_split_reduce_kernel_dim0(self):
+    a = Tensor.rand(256, 255).realize()
+    a = a.sum()
+    sched = a.schedule()
+    assert len(sched) == 2
+    for s in sched:
+      self.assertIs(s.ast.src[0].src[2].op, Ops.REDUCE_AXIS)
+
+  def test_split_reduce_kernel_dim1(self):
+    a = Tensor.rand(255, 256).realize()
+    a = a.sum()
+    sched = a.schedule()
+    assert len(sched) == 2
+    for s in sched:
+      self.assertIs(s.ast.src[0].src[2].op, Ops.REDUCE_AXIS)
 
 if __name__ == "__main__":
   unittest.main()

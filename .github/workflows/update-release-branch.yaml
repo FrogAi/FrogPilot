@@ -1,0 +1,143 @@
+name: Update FrogPilot Branch
+
+on:
+  schedule:
+    - cron: "0 18 * * *"
+
+env:
+  TZ: America/Phoenix
+
+  UPDATE_FILE: .github/update_date
+
+  BRANCH_FROGPILOT: FrogPilot
+  BRANCH_PREVIOUS: FrogPilot-Previous
+  BRANCH_STAGING: FrogPilot-Staging
+
+jobs:
+  update-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Check if Update is Due
+        id: check_update
+        run: |
+          set -e
+          git fetch origin ${{ env.BRANCH_STAGING }}
+          git checkout origin/${{ env.BRANCH_STAGING }} -- "${{ env.UPDATE_FILE }}"
+
+          if [ ! -f "${{ env.UPDATE_FILE }}" ]; then
+            echo "No update_date file found in FrogPilot-Staging. Skipping update."
+            echo "update_due=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          SCHEDULED_DATE=$(cat "${{ env.UPDATE_FILE }}")
+          CURRENT_DATE=$(TZ="${{ env.TZ }}" date +%F)
+
+          echo "Scheduled Date: $SCHEDULED_DATE"
+          echo "Current Date: $CURRENT_DATE"
+
+          if [ "$SCHEDULED_DATE" != "$CURRENT_DATE" ]; then
+            echo "Not the scheduled date. Exiting."
+            echo "update_due=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "update_due=true" >> "$GITHUB_OUTPUT"
+          echo "scheduled_date=$SCHEDULED_DATE" >> "$GITHUB_OUTPUT"
+
+      - name: Set Git Username and Email
+        if: steps.check_update.outputs.update_due == 'true'
+        run: |
+          set -e
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Reset FrogPilot-Previous to match FrogPilot
+        if: steps.check_update.outputs.update_due == 'true'
+        run: |
+          set -e
+          git fetch origin
+          git checkout ${{ env.BRANCH_PREVIOUS }} || git checkout -b ${{ env.BRANCH_PREVIOUS }}
+          git reset --hard origin/${{ env.BRANCH_FROGPILOT }}
+
+      - name: Reset FrogPilot to match FrogPilot-Staging
+        if: steps.check_update.outputs.update_due == 'true'
+        run: |
+          set -e
+          git fetch origin
+          git checkout ${{ env.BRANCH_FROGPILOT }} || git checkout -b ${{ env.BRANCH_FROGPILOT }}
+          git reset --hard origin/${{ env.BRANCH_STAGING }}
+
+      - name: Update README and Remove Update Trigger File
+        if: steps.check_update.outputs.update_due == 'true'
+        run: |
+          set -e
+          DAY=$(TZ="${{ env.TZ }}" date +'%d' | sed 's/^0//')
+          case "$DAY" in
+            1|21|31) SUFFIX="st" ;;
+            2|22) SUFFIX="nd" ;;
+            3|23) SUFFIX="rd" ;;
+            *) SUFFIX="th" ;;
+          esac
+
+          MONTH=$(TZ="${{ env.TZ }}" date +'%B')
+          YEAR=$(TZ="${{ env.TZ }}" date +'%Y')
+          NEW_DATE="**${MONTH} ${DAY}${SUFFIX}, ${YEAR}**"
+          echo "Updating README date to ${NEW_DATE}"
+
+          sed -i '/FrogPilot was last updated on:/ { N; N; s/\(\n\)\n.*$/\1\n'"${NEW_DATE}"'/; }' README.md
+
+          git add README.md
+          git rm -f "${{ env.UPDATE_FILE }}"
+          git commit -m "Update README last updated date and remove update_date file"
+
+      - name: Squash Last 2 Commits
+        if: steps.check_update.outputs.update_due == 'true'
+        run: |
+          set -e
+          git reset --soft HEAD~1
+
+          COMMIT_DATETIME="${{ steps.check_update.outputs.scheduled_date }} 12:00"
+          COMMIT_PHX=$(TZ="${{ env.TZ }}" date -d "$COMMIT_DATETIME" +"%Y-%m-%dT%H:%M:%S %z")
+
+          GIT_AUTHOR_DATE="$COMMIT_PHX" GIT_COMMITTER_DATE="$COMMIT_PHX" git commit --amend --no-edit --reset-author
+
+      - name: Rewrite Commit Dates to Noon Phoenix Time
+        if: steps.check_update.outputs.update_due == 'true'
+        run: |
+          set -e
+          COMMIT_DATETIME="${{ steps.check_update.outputs.scheduled_date }} 12:00"
+          COMMIT_PHX=$(TZ="${{ env.TZ }}" date -d "$COMMIT_DATETIME" +"%Y-%m-%dT%H:%M:%S %z")
+
+          git filter-branch --env-filter "
+            export GIT_AUTHOR_DATE=\"$COMMIT_PHX\"
+            export GIT_COMMITTER_DATE=\"$COMMIT_PHX\"
+          " -- --all
+
+      - name: Wait Until Noon Phoenix Time Before Pushing
+        if: steps.check_update.outputs.update_due == 'true'
+        run: |
+          set -e
+          NOW=$(TZ="${{ env.TZ }}" date +%s)
+          TARGET=$(TZ="${{ env.TZ }}" date -d "12:00" +%s)
+
+          if [ "$NOW" -lt "$TARGET" ]; then
+            SLEEP_TIME=$((TARGET - NOW))
+            echo "Sleeping for $SLEEP_TIME seconds until noon..."
+            sleep $SLEEP_TIME
+          else
+            echo "It is already noon or past noon, proceeding immediately."
+          fi
+
+      - name: Push All Changes
+        if: steps.check_update.outputs.update_due == 'true'
+        run: |
+          set -e
+          git push origin ${{ env.BRANCH_PREVIOUS }} --force
+          git push origin ${{ env.BRANCH_FROGPILOT }} --force

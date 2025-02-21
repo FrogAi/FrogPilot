@@ -1,0 +1,55 @@
+name: Update translations
+
+on:
+  schedule:
+    - cron: '0 7 * * *'
+
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: FrogPilot-Development
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Install Qt5 Tools
+        run: sudo apt update && sudo apt install -y qttools5-dev-tools
+
+      - name: Run update_translations.py
+        run: |
+          export PATH=/usr/bin:$PATH
+          export PYTHONPATH=$PWD
+          python3 selfdrive/ui/update_translations.py --vanish
+
+      - name: Run translation script
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python selfdrive/ui/translations/auto_translate.py --all-files
+
+      - name: Set Git Username and Email
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Commit and Push Translation Updates
+        run: |
+          git add selfdrive/ui/translations/*.ts
+
+          if git diff --cached --quiet; then
+            echo "No changes detected. Skipping commit."
+            exit 0
+          fi
+
+          git commit -m "Updated Translations"
+          git pull --rebase origin FrogPilot-Development
+          git push origin FrogPilot-Development

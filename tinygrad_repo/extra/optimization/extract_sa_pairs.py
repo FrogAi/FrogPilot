@@ -5,16 +5,16 @@ import numpy as np
 
 # stuff needed to unpack a kernel
 from tinygrad.ops import LazyOp, TernaryOps, BinaryOps, UnaryOps, ReduceOps, BufferOps, MemBuffer, ConstBuffer
-from tinygrad.helpers import dtypes
+from tinygrad.dtype import dtypes
 from tinygrad.shape.shapetracker import ShapeTracker
 from tinygrad.shape.view import View
-from tinygrad.shape.symbolic import Variable
+from tinygrad.ops import Variable
 inf, nan = float('inf'), float('nan')
 from tinygrad.codegen.kernel import Opt, OptOps
 
 # more stuff
-from tinygrad.codegen.linearizer import Linearizer
-from tinygrad.features.search import actions
+from tinygrad.codegen.kernel import Kernel
+from tinygrad.engine.search import actions
 from extra.optimization.helpers import lin_to_feats
 from extra.optimization.pretrain_valuenet import ValueNet
 from tinygrad.nn.optim import Adam
@@ -48,7 +48,7 @@ def dataset_from_cache(fn):
     new_tm = min(opts_to_outcome[(ast,k)])
     if math.isinf(old_tm) or math.isinf(new_tm) or old_tm < 1e-9 or new_tm < 1e-9: continue
     try:
-      lin = Linearizer(eval(ast))
+      lin = Kernel(eval(ast))
     except Exception:
       continue
     for opt in k[:-1]: lin.apply_opt(opt)

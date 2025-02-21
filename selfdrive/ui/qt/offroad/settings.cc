@@ -15,6 +15,8 @@
 #include "selfdrive/ui/qt/widgets/scrollview.h"
 #include "selfdrive/ui/qt/widgets/ssh_keys.h"
 
+#include "selfdrive/frogpilot/ui/qt/offroad/frogpilot_settings.h"
+
 TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
   // param, title, desc, icon
   std::vector<std::tuple<QString, QString, QString, QString>> toggle_defs{
@@ -114,6 +116,11 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
   connect(toggles["ExperimentalLongitudinalEnabled"], &ToggleControl::toggleFlipped, [=]() {
     updateToggles();
   });
+
+  // FrogPilot signals
+  connect(toggles["IsMetric"], &ToggleControl::toggleFlipped, [=](bool metric) {
+    updateMetric(metric);
+  });
 }
 
 void TogglesPanel::updateState(const UIState &s) {
@@ -137,6 +144,16 @@ void TogglesPanel::showEvent(QShowEvent *event) {
 }
 
 void TogglesPanel::updateToggles() {
+  UIState *s = uiState();
+  UIScene &scene = s->scene;
+
+  auto disengage_on_accelerator_toggle = toggles["DisengageOnAccelerator"];
+  disengage_on_accelerator_toggle->setVisible(!scene.always_on_lateral);
+  auto driver_camera_toggle = toggles["RecordFront"];
+  driver_camera_toggle->setVisible(!(scene.no_logging && scene.no_uploads));
+  auto nav_settings_left_toggle = toggles["NavSettingLeftSide"];
+  nav_settings_left_toggle->setVisible(!scene.full_map);
+
   auto experimental_mode_toggle = toggles["ExperimentalMode"];
   auto op_long_toggle = toggles["ExperimentalLongitudinalEnabled"];
   const QString e2e_description = QString("%1<br>"
@@ -152,17 +169,16 @@ void TogglesPanel::updateToggles() {
                                   .arg(tr("New Driving Visualization"))
                                   .arg(tr("The driving visualization will transition to the road-facing wide-angle camera at low speeds to better show some turns. The Experimental mode logo will also be shown in the top right corner."));
 
-  const bool is_release = params.getBool("IsReleaseBranch");
   auto cp_bytes = params.get("CarParamsPersistent");
   if (!cp_bytes.empty()) {
     AlignedBuffer aligned_buf;
     capnp::FlatArrayMessageReader cmsg(aligned_buf.align(cp_bytes.data(), cp_bytes.size()));
     cereal::CarParams::Reader CP = cmsg.getRoot<cereal::CarParams>();
 
-    if (!CP.getExperimentalLongitudinalAvailable() || is_release) {
+    if (!CP.getExperimentalLongitudinalAvailable()) {
       params.remove("ExperimentalLongitudinalEnabled");
     }
-    op_long_toggle->setVisible(CP.getExperimentalLongitudinalAvailable() && !is_release);
+    op_long_toggle->setVisible(CP.getExperimentalLongitudinalAvailable());
     if (hasLongitudinalControl(CP)) {
       // normal description and toggle
       experimental_mode_toggle->setEnabled(true);
@@ -179,11 +195,7 @@ void TogglesPanel::updateToggles() {
       QString long_desc = unavailable + " " + \
                           tr("openpilot longitudinal control may come in a future update.");
       if (CP.getExperimentalLongitudinalAvailable()) {
-        if (is_release) {
-          long_desc = unavailable + " " + tr("An alpha version of openpilot longitudinal control can be tested, along with Experimental mode, on non-release branches.");
-        } else {
-          long_desc = tr("Enable the openpilot longitudinal control (alpha) toggle to allow Experimental mode.");
-        }
+        long_desc = tr("Enable the openpilot longitudinal control (alpha) toggle to allow Experimental mode.");
       }
       experimental_mode_toggle->setDescription("<b>" + long_desc + "</b><br><br>" + e2e_description);
     }
@@ -221,6 +233,8 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to reset calibration?"), tr("Reset"), this)) {
       params.remove("CalibrationParams");
       params.remove("LiveTorqueParameters");
+      params_cache.remove("CalibrationParams");
+      params_cache.remove("LiveTorqueParameters");
     }
   });
   addItem(resetCalibBtn);
@@ -348,6 +362,19 @@ void DevicePanel::showEvent(QShowEvent *event) {
   ListWidget::showEvent(event);
 }
 
+void SettingsWindow::hideEvent(QHideEvent *event) {
+  closeMapBoxInstructions();
+  closeMapSelection();
+  closePanel();
+  closeParentToggle();
+
+  mapboxInstructionsOpen = false;
+  mapSelectionOpen = false;
+  panelOpen = false;
+  parentToggleOpen = false;
+  subParentToggleOpen = false;
+}
+
 void SettingsWindow::showEvent(QShowEvent *event) {
   setCurrentPanel(0);
 }
@@ -368,23 +395,41 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   panel_widget = new QStackedWidget();
 
   // close button
-  QPushButton *close_btn = new QPushButton(tr("×"));
+  QPushButton *close_btn = new QPushButton(tr("← Back"));
   close_btn->setStyleSheet(R"(
     QPushButton {
-      font-size: 140px;
-      padding-bottom: 20px;
-      border-radius: 100px;
+      font-size: 50px;
+      border-radius: 25px;
       background-color: #292929;
-      font-weight: 400;
+      font-weight: 500;
     }
     QPushButton:pressed {
-      background-color: #3B3B3B;
+      background-color: #ADADAD;
     }
   )");
-  close_btn->setFixedSize(200, 200);
-  sidebar_layout->addSpacing(45);
-  sidebar_layout->addWidget(close_btn, 0, Qt::AlignCenter);
-  QObject::connect(close_btn, &QPushButton::clicked, this, &SettingsWindow::closeSettings);
+  close_btn->setFixedSize(300, 125);
+  sidebar_layout->addSpacing(10);
+  sidebar_layout->addWidget(close_btn, 0, Qt::AlignRight);
+  QObject::connect(close_btn, &QPushButton::clicked, [this]() {
+    if (mapboxInstructionsOpen) {
+      closeMapBoxInstructions();
+      mapboxInstructionsOpen = false;
+    } else if (mapSelectionOpen) {
+      closeMapSelection();
+      mapSelectionOpen = false;
+    } else if (subParentToggleOpen) {
+      closeSubParentToggle();
+      subParentToggleOpen = false;
+    } else if (parentToggleOpen) {
+      closeParentToggle();
+      parentToggleOpen = false;
+    } else if (panelOpen) {
+      closePanel();
+      panelOpen = false;
+    } else {
+      closeSettings();
+    }
+  });
 
   // setup panels
   DevicePanel *device = new DevicePanel(this);
@@ -394,11 +439,23 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   TogglesPanel *toggles = new TogglesPanel(this);
   QObject::connect(this, &SettingsWindow::expandToggleDescription, toggles, &TogglesPanel::expandToggleDescription);
 
+  // FrogPilot panels
+  QObject::connect(toggles, &TogglesPanel::updateMetric, this, &SettingsWindow::updateMetric);
+
+  FrogPilotSettingsWindow *frogpilotSettingsWindow = new FrogPilotSettingsWindow(this);
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::closeMapBoxInstructions, [this]() {mapboxInstructionsOpen=false;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openMapBoxInstructions, [this]() {mapboxInstructionsOpen=true;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openMapSelection, [this]() {mapSelectionOpen=true;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openPanel, [this]() {panelOpen=true;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openParentToggle, [this]() {parentToggleOpen=true;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubParentToggle, [this]() {subParentToggleOpen=true;});
+
   QList<QPair<QString, QWidget *>> panels = {
     {tr("Device"), device},
     {tr("Network"), new Networking(this)},
     {tr("Toggles"), toggles},
     {tr("Software"), new SoftwarePanel(this)},
+    {tr("FrogPilot"), frogpilotSettingsWindow},
   };
 
   nav_btns = new QButtonGroup(this);
@@ -432,6 +489,60 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     panel_widget->addWidget(panel_frame);
 
     QObject::connect(btn, &QPushButton::clicked, [=, w = panel_frame]() {
+      if (w->widget() == frogpilotSettingsWindow) {
+        bool tuningLevelConfirmed = params.getBool("TuningLevelConfirmed");
+
+        if (!tuningLevelConfirmed) {
+          int frogpilotHours = paramsTracking.getInt("FrogPilotMinutes") / 60;
+          int openpilotHours = params.getInt("openpilotMinutes") / 60;
+
+          if (frogpilotHours < 1 && openpilotHours < 100) {
+            if (ConfirmationDialog::alert(tr("Welcome to FrogPilot! Since you're new to FrogPilot, the 'Minimal' toggle preset has been applied, but you can change this at any time via the 'Tuning Level' button!"), this, true)) {
+              params.putBool("TuningLevelConfirmed", true);
+              params.putInt("TuningLevel", 0);
+            }
+          } else if (frogpilotHours < 50 && openpilotHours < 100) {
+            if (ConfirmationDialog::alert(tr("Since you're fairly new to FrogPilot, the 'Minimal' toggle preset has been applied, but you can change this at any time via the 'Tuning Level' button!"), this, true)) {
+              params.putBool("TuningLevelConfirmed", true);
+              params.putInt("TuningLevel", 0);
+            }
+          } else if (frogpilotHours < 100) {
+            if (openpilotHours >= 100) {
+              if (ConfirmationDialog::alert(tr("Since you're experienced with openpilot, the 'Standard' toggle preset has been applied, but you can change this at any time via the 'Tuning Level' button!"), this, true)) {
+                params.putBool("TuningLevelConfirmed", true);
+                params.putInt("TuningLevel", 1);
+              }
+            } else {
+              if (ConfirmationDialog::alert(tr("Since you're experienced with FrogPilot, the 'Standard' toggle preset has been applied, but you can change this at any time via the 'Tuning Level' button!"), this, true)) {
+                params.putBool("TuningLevelConfirmed", true);
+                params.putInt("TuningLevel", 1);
+              }
+            }
+          } else if (frogpilotHours >= 100) {
+            if (ConfirmationDialog::alert(tr("Since you're very experienced with FrogPilot, the 'Advanced' toggle preset has been applied, but you can change this at any time via the 'Tuning Level' button!"), this, true)) {
+              params.putBool("TuningLevelConfirmed", true);
+              params.putInt("TuningLevel", 2);
+            }
+          }
+        }
+      }
+
+      if (mapboxInstructionsOpen) {
+        closeMapBoxInstructions();
+        mapboxInstructionsOpen = false;
+      }
+      if (mapSelectionOpen) {
+        closeMapSelection();
+        mapSelectionOpen = false;
+      }
+      if (panelOpen) {
+        closePanel();
+        panelOpen = false;
+      }
+      if (parentToggleOpen) {
+        closeParentToggle();
+        parentToggleOpen = false;
+      }
       btn->setChecked(true);
       panel_widget->setCurrentWidget(w);
     });

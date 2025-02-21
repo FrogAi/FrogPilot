@@ -3,7 +3,9 @@
 #include <memory>
 
 #include <QFrame>
+#include <QLabel>
 #include <QMap>
+#include <QMovie>
 
 #include "selfdrive/ui/ui.h"
 
@@ -17,6 +19,11 @@ class Sidebar : public QFrame {
   Q_PROPERTY(ItemStatus tempStatus MEMBER temp_status NOTIFY valueChanged);
   Q_PROPERTY(QString netType MEMBER net_type NOTIFY valueChanged);
   Q_PROPERTY(int netStrength MEMBER net_strength NOTIFY valueChanged);
+
+  // FrogPilot properties
+  Q_PROPERTY(ItemStatus cpuStatus MEMBER cpu_status NOTIFY valueChanged)
+  Q_PROPERTY(ItemStatus memoryStatus MEMBER memory_status NOTIFY valueChanged)
+  Q_PROPERTY(ItemStatus storageStatus MEMBER storage_status NOTIFY valueChanged)
 
 public:
   explicit Sidebar(QWidget* parent = 0);
@@ -59,4 +66,45 @@ protected:
 
 private:
   std::unique_ptr<PubMaster> pm;
+
+  // FrogPilot widgets
+  void showEvent(QShowEvent *event);
+  void updateIcon(QLabel *&label, QMovie *&gif, const QString &gifPath, const QRect &btnRect, const QString &pngPath, bool &isGif);
+  void updateIcons();
+
+  // FrogPilot variables
+  Params params;
+
+  ItemStatus cpu_status, memory_status, storage_status;
+
+  bool isCPU;
+  bool isFahrenheit;
+  bool isGPU;
+  bool isHomeGif;
+  bool isIP;
+  bool isMemoryUsage;
+  bool isNumericalTemp;
+  bool isRandomEvents;
+  bool isSettingsGif;
+  bool isSidebarMetrics;
+  bool isStorageLeft;
+  bool isStorageUsed;
+
+  QColor sidebar_color1;
+  QColor sidebar_color2;
+  QColor sidebar_color3;
+
+  QLabel *home_label;
+  QLabel *settings_label;
+
+  QMovie *home_gif;
+  QMovie *settings_gif;
+
+  QString flagPngPath;
+  QString homeGifPath;
+  QString homePngPath;
+  QString max_temp;
+  QString randomEventGifPath;
+  QString settingsGifPath;
+  QString settingsPngPath;
 };

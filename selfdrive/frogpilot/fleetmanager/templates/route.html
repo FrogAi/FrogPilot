@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Dashcam Segments
+{% endblock %}
+
+
+{% block main %}
+{% autoescape false %}
+    <br>
+    <h1>Dashcam Segments (one per minute)</h1>
+    <br>
+    <video id="video" width="320" height="240" controls autoplay="autoplay" style="background:black">
+    </video>
+    <br><br>
+    current segment: <span id="currentsegment"></span>
+    <br>
+    current view: <span id="currentview"></span>
+    <br>
+    <a download="{{ route }}-{{ query_type }}.mp4" href="/footage/full/{{ query_type }}/{{ route }}">download full route {{ query_type }}</a>
+    <br><br>
+    <a href="{{ route }}?{{ query_segment }},qcamera">qcamera</a> -
+    <a href="{{ route }}?{{ query_segment }},fcamera">fcamera</a> -
+    <a href="{{ route }}?{{ query_segment }},dcamera">dcamera</a> -
+    <a href="{{ route }}?{{ query_segment }},ecamera">ecamera</a>
+    <br><br>
+    {{ links }}
+    <script>
+    var video = document.getElementById('video');
+    var segments = [{{ segments  }}];
+    var q_segment = {{ query_segment }};
+    var q_index = 0;
+    for (var i = 0; i < segments.length; i++) {
+          var segment = segments[i];
+          var q_val = segment.split('--').slice(2).join('--');
+          if (parseInt(q_val) === q_segment) {
+            q_index = i;
+            break
+          }
+        }
+    var tracks = {
+      list: segments,
+      index: q_index,
+      next: function() {
+        if (this.index == this.list.length - 1) this.index = 0;
+        else {
+            this.index += 1;
+        }
+      },
+      play: function() {
+        return ( "{{ query_type }}/" + this.list[this.index] );
+      }
+    }
+    video.addEventListener('ended', function(e) {
+      tracks.next();
+      video.src = tracks.play();
+      document.getElementById("currentsegment").textContent=video.src.split("/")[5];
+      document.getElementById("currentview").textContent=video.src.split("/")[4];
+      video.load();
+      video.play();
+    });
+    video.src = tracks.play();
+    document.getElementById("currentsegment").textContent=video.src.split("/")[5];
+    document.getElementById("currentview").textContent=video.src.split("/")[4];
+    </script>
+{% endautoescape %}
+    <br><br>
+{% endblock %}
