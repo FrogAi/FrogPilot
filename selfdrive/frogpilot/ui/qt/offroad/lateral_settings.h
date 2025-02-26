@@ -22,6 +22,8 @@ private:
 
   bool hasAutoTune;
   bool hasNNFFLog;
+  bool hasOpenpilotLongitudinal;
+  bool isHKGCanFd;
   bool isPIDCar;
   bool isSubaru;
   bool liveValid;

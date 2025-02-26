@@ -56,21 +56,18 @@ def run_thread_with_lock(name, target, args=()):
       running_threads[name] = thread
 
 def calculate_distance_to_point(ax, ay, bx, by):
-  a = math.sin((bx - ax) / 2) * math.sin((bx - ax) / 2) + math.cos(ax) * math.cos(bx) * math.sin((by - ay) / 2) * math.sin((by - ay) / 2)
+  delta_x = (bx - ax) / 2
+  delta_y = (by - ay) / 2
+
+  a = (math.sin(delta_x)**2) + math.cos(ax) * math.cos(bx) * (math.sin(delta_y)**2)
   c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
   return EARTH_RADIUS * c
 
-def calculate_lane_width(lane, current_lane, road_edge):
-  current_x = np.array(current_lane.x)
-  current_y = np.array(current_lane.y)
-
-  lane_y_interp = np.interp(current_x, np.array(lane.x), np.array(lane.y))
-  road_edge_y_interp = np.interp(current_x, np.array(road_edge.x), np.array(road_edge.y))
-
-  distance_to_lane = np.mean(np.abs(current_y - lane_y_interp))
-  distance_to_road_edge = np.mean(np.abs(current_y - road_edge_y_interp))
-
-  return float(min(distance_to_lane, distance_to_road_edge))
+def calculate_lane_width(inner_lane, outter_lane, position):
+  inner_lane = np.interp(position, inner_lane.x, inner_lane.y)
+  outter_lane = np.interp(position, outter_lane.x, outter_lane.y)
+  return float(abs(inner_lane - outter_lane))
 
 # Credit goes to Pfeiferj!
 def calculate_road_curvature(modelData, v_ego):
@@ -81,37 +78,29 @@ def calculate_road_curvature(modelData, v_ego):
 
 def delete_file(path):
   path = Path(path)
-  try:
-    if path.is_file() or path.is_symlink():
-      path.unlink()
-      print(f"Deleted file: {path}")
-    elif path.is_dir():
-      shutil.rmtree(path)
-      print(f"Deleted directory: {path}")
-    else:
-      print(f"File not found: {path}")
-  except Exception as error:
-    print(f"An error occurred when deleting {path}: {error}")
-    sentry.capture_exception(error)
+  if path.is_file() or path.is_symlink():
+    path.unlink()
+    print(f"Deleted file: {path}")
+  elif path.is_dir():
+    shutil.rmtree(path)
+    print(f"Deleted directory: {path}")
+  else:
+    print(f"File not found: {path}")
 
 def extract_zip(zip_file, extract_path):
   zip_file = Path(zip_file)
   extract_path = Path(extract_path)
   print(f"Extracting {zip_file} to {extract_path}")
 
-  try:
-    with zipfile.ZipFile(zip_file, "r") as zip_ref:
-      zip_ref.extractall(extract_path)
-    zip_file.unlink()
-    print(f"Extraction completed: {zip_file} has been removed")
-  except Exception as error:
-    print(f"An error occurred while extracting {zip_file}: {error}")
-    sentry.capture_exception(error)
+  with zipfile.ZipFile(zip_file, "r") as zip_ref:
+    zip_ref.extractall(extract_path)
+  zip_file.unlink()
+  print(f"Extraction completed: {zip_file} has been removed")
 
 def flash_panda():
   HARDWARE.reset_internal_panda()
   Panda().wait_for_panda(None, 30)
-  params_memory.put_bool("FlashPanda", False)
+  params_memory.remove("FlashPanda")
 
 def is_url_pingable(url, timeout=10):
   try:

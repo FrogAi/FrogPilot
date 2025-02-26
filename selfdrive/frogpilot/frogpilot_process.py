@@ -89,7 +89,7 @@ def frogpilot_thread():
 
   pm = messaging.PubMaster(["frogpilotPlan"])
   sm = messaging.SubMaster(["carControl", "carState", "controlsState", "deviceState", "driverMonitoringState",
-                            "managerState", "modelV2", "pandaStates", "radarState",
+                            "liveLocationKalman", "managerState", "modelV2", "pandaStates", "radarState",
                             "frogpilotCarControl", "frogpilotCarState", "frogpilotNavigation"],
                             poll="modelV2", ignore_avg_freq=["radarState"])
 
@@ -131,7 +131,7 @@ def frogpilot_thread():
 
     if started and sm.updated["modelV2"]:
       frogpilot_planner.update(sm["carControl"], sm["carState"], sm["controlsState"], sm["frogpilotCarControl"], sm["frogpilotCarState"],
-                               sm["frogpilotNavigation"], sm["modelV2"], radarless_model, sm["radarState"], frogpilot_toggles)
+                               sm["frogpilotNavigation"], sm["liveLocationKalman"], sm["modelV2"], radarless_model, sm["radarState"], frogpilot_toggles)
       frogpilot_planner.publish(sm, pm, toggles_updated)
 
       frogpilot_tracking.update(sm["carState"], sm["controlsState"], sm["frogpilotCarControl"])

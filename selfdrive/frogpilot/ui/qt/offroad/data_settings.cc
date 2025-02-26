@@ -320,12 +320,22 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
     QStringList backupNames = backupDir.entryList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot, QDir::Name).filter(QRegularExpression("^(?!.*_in_progress$).*$"));
 
     QMap<QString, QString> backupFriendlyMap;
-    QRegularExpression autoRegex("^(\\d{4}-\\d{2}-\\d{2})_(\\d{1,2}-\\d{2}[ap]m)_auto(?:\\..*)?$");
+    QRegularExpression autoRegex("^(\\d{4}-\\d{2}-\\d{2})_(\\d{2}-\\d{2}[APMapm]{2})_auto(?:\\..*)?$");
     for (const QString &name : backupNames) {
       QString friendly = name;
       QRegularExpressionMatch match = autoRegex.match(name);
       if (match.hasMatch()) {
-        friendly = match.captured(1) + ": " + match.captured(2);
+        QString datePart = match.captured(1);
+        QString timePart = match.captured(2);
+
+        timePart.replace("-", ":");
+        if (timePart.endsWith("pm", Qt::CaseInsensitive)) {
+          timePart = timePart.left(timePart.size() - 2) + " PM";
+        } else if (timePart.endsWith("am", Qt::CaseInsensitive)) {
+          timePart = timePart.left(timePart.size() - 2) + " AM";
+        }
+
+        friendly = datePart + " - " + timePart;
       }
       backupFriendlyMap.insert(friendly, name);
     }

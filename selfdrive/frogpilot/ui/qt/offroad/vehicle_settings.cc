@@ -163,6 +163,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
     {"ClusterOffset", tr("Cluster Speed Offset"), tr("Set the cluster offset openpilot uses to try and match the speed displayed on the dash."), ""},
     {"FrogsGoMoosTweak", tr("Enable FrogsGoMoo's Personal Tweaks"), tr("FrogsGoMoo's personal tweaks that aim to take off faster and stop smoother."), ""},
     {"SNGHack", tr("Enable Stop and Go Hack"), tr("Force stop and go for vehicles without stock stop and go functionality."), ""},
+    {"LockDoorsTimer", tr("Lock Doors On Ignition Off After"), tr("Automatically lock the doors after the car's ignition has been turned off and no one is detected in either of the front seats."), ""},
   };
 
   for (const auto &[param, title, desc, icon] : vehicleToggles) {
@@ -195,9 +196,15 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
       std::vector<QString> lockToggles{"LockDoors", "UnlockDoors"};
       std::vector<QString> lockToggleNames{tr("Lock"), tr("Unlock")};
       vehicleToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, lockToggles, lockToggleNames);
+    } else if (param == "LockDoorsTimer") {
+      std::map<float, QString> autoLockLabels;
+      for (int i = 0; i <= 300; ++i) {
+        autoLockLabels[i] = i == 0 ? tr("Never") : QString::number(i) + " seconds";
+      }
+      vehicleToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 300, QString(), autoLockLabels, 5);
     } else if (param == "ClusterOffset") {
       std::vector<QString> clusterOffsetButton{"Reset"};
-      FrogPilotParamValueButtonControl *clusterOffsetToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 1.000, 1.050, "x", std::map<float, QString>(), 0.001, {}, clusterOffsetButton, false, false);
+      FrogPilotParamValueButtonControl *clusterOffsetToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 1.000, 1.050, "x", std::map<float, QString>(), 0.001, false, {}, clusterOffsetButton, false, false);
       QObject::connect(clusterOffsetToggle, &FrogPilotParamValueButtonControl::buttonClicked, [this, clusterOffsetToggle]() {
         params.putFloat("ClusterOffset", params_default.getFloat("ClusterOffset"));
         clusterOffsetToggle->refresh();
@@ -266,19 +273,31 @@ void FrogPilotVehiclesPanel::updateState(const UIState &s) {
 }
 
 void FrogPilotVehiclesPanel::updateToggles() {
-  toggles["GMToggles"]->setVisible(false);
-  toggles["HKGToggles"]->setVisible(false);
-  toggles["ToyotaToggles"]->setVisible(false);
+  std::set<QString> parentKeys = {
+    "GMToggles",
+    "HKGToggles",
+    "ToyotaToggles"
+  };
 
   for (auto &[key, toggle] : toggles) {
+    if (parentKeys.find(key) != parentKeys.end()) {
+      toggle->setVisible(false);
+    }
+  }
+
+  for (auto &[key, toggle] : toggles) {
+    if (parentKeys.find(key) != parentKeys.end()) {
+      continue;
+    }
+
     bool setVisible = parent->tuningLevel >= parent->frogpilotToggleLevels[key].toDouble();
 
-    if (key == "GMToggles" || gmKeys.find(key) != gmKeys.end()) {
-      setVisible = parent->isGM;
-    } else if (key == "HKGToggles" || hkgKeys.find(key) != hkgKeys.end()) {
-      setVisible = parent->isHKG;
-    } else if (key == "ToyotaToggles" || toyotaKeys.find(key) != toyotaKeys.end()) {
-      setVisible = parent->isToyota;
+    if (gmKeys.find(key) != gmKeys.end()) {
+      setVisible &= parent->isGM;
+    } else if (hkgKeys.find(key) != hkgKeys.end()) {
+      setVisible &= parent->isHKG;
+    } else if (toyotaKeys.find(key) != toyotaKeys.end()) {
+      setVisible &= parent->isToyota;
     }
 
     if (longitudinalKeys.find(key) != longitudinalKeys.end()) {

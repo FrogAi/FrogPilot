@@ -145,7 +145,7 @@ private:
   bool turnSignalRight;
   bool useStockColors;
   bool useSI;
-  bool useViennaSLCSign;
+  bool useVienna;
   bool vtscControllingCurve;
   bool vtscEnabled;
 

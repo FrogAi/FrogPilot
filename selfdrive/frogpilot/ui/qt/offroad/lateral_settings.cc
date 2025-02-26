@@ -83,16 +83,16 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
       lateralToggle = advancedLateralTuneToggle;
     } else if (param == "SteerFriction") {
       std::vector<QString> steerFrictionButton{"Reset"};
-      lateralToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 0.01, 0.25, QString(), std::map<float, QString>(), 0.01, {}, steerFrictionButton, false, false);
+      lateralToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 0.01, 0.25, QString(), std::map<float, QString>(), 0.01, false, {}, steerFrictionButton, false, false);
     } else if (param == "SteerKP") {
       std::vector<QString> steerKPButton{"Reset"};
-      lateralToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, kpStock * 0.50, kpStock * 1.50, QString(), std::map<float, QString>(), 0.01, {}, steerKPButton, false, false);
+      lateralToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, kpStock * 0.50, kpStock * 1.50, QString(), std::map<float, QString>(), 0.01, false, {}, steerKPButton, false, false);
     } else if (param == "SteerLatAccel") {
       std::vector<QString> steerLatAccelButton{"Reset"};
-      lateralToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, latAccelStock * 0.25, latAccelStock * 1.25, QString(), std::map<float, QString>(), 0.01, {}, steerLatAccelButton, false, false);
+      lateralToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, latAccelStock * 0.25, latAccelStock * 1.25, QString(), std::map<float, QString>(), 0.01, false, {}, steerLatAccelButton, false, false);
     } else if (param == "SteerRatio") {
       std::vector<QString> steerRatioButton{"Reset"};
-      lateralToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, steerRatioStock * 0.75, steerRatioStock * 1.25, QString(), std::map<float, QString>(), 0.01, {}, steerRatioButton, false, false);
+      lateralToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, steerRatioStock * 0.75, steerRatioStock * 1.25, QString(), std::map<float, QString>(), 0.01, false, {}, steerRatioButton, false, false);
 
     } else if (param == "AlwaysOnLateral") {
       FrogPilotManageControl *aolToggle = new FrogPilotManageControl(param, title, desc, icon);
@@ -103,11 +103,15 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
           modifiedAOLKeys.erase("AlwaysOnLateralLKAS");
         }
 
+        if (isHKGCanFd && !hasOpenpilotLongitudinal) {
+          modifiedAOLKeys.erase("AlwaysOnLateralMain");
+        }
+
         showToggles(modifiedAOLKeys);
       });
       lateralToggle = aolToggle;
     } else if (param == "PauseAOLOnBrake") {
-      lateralToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr("mph"));
+      lateralToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr("mph"), std::map<float, QString>(), 1, true);
 
     } else if (param == "LaneChangeCustomizations") {
       FrogPilotManageControl *laneChangeToggle = new FrogPilotManageControl(param, title, desc, icon);
@@ -124,7 +128,7 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
     } else if (param == "LaneDetectionWidth") {
       lateralToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 15, tr(" feet"), std::map<float, QString>(), 0.1);
     } else if (param == "MinimumLaneChangeSpeed") {
-      lateralToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr("mph"));
+      lateralToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr("mph"), std::map<float, QString>(), 1, true);
 
     } else if (param == "LateralTune") {
       FrogPilotManageControl *lateralTuneToggle = new FrogPilotManageControl(param, title, desc, icon);
@@ -151,9 +155,9 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
     } else if (param == "PauseLateralSpeed") {
       std::vector<QString> pauseLateralToggles{"PauseLateralOnSignal"};
       std::vector<QString> pauseLateralToggleNames{"Turn Signal Only"};
-      lateralToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 0, 99, tr("mph"), std::map<float, QString>(), 1, pauseLateralToggles, pauseLateralToggleNames, true);
+      lateralToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 0, 99, tr("mph"), std::map<float, QString>(), 1, true, pauseLateralToggles, pauseLateralToggleNames, true);
     } else if (param == "PauseLateralOnSignal") {
-      lateralToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr("mph"));
+      lateralToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr("mph"), std::map<float, QString>(), 1, true);
 
     } else {
       lateralToggle = new ParamControl(param, title, desc, icon);
@@ -284,6 +288,8 @@ void FrogPilotLateralPanel::showEvent(QShowEvent *event) {
   frogpilotToggleLevels = parent->frogpilotToggleLevels;
   hasAutoTune = parent->hasAutoTune;
   hasNNFFLog = parent->hasNNFFLog;
+  hasOpenpilotLongitudinal = parent->hasOpenpilotLongitudinal;
+  isHKGCanFd = parent->isHKGCanFd;
   isPIDCar = parent->isPIDCar;
   isSubaru = parent->isSubaru;
   liveValid = parent->liveValid;
@@ -293,6 +299,7 @@ void FrogPilotLateralPanel::showEvent(QShowEvent *event) {
   steerRatioStock = parent->steerRatioStock;
   tuningLevel = parent->tuningLevel;
 
+  toggles["AlwaysOnLateralLKAS"]->setTitle(tr(isHKGCanFd && !hasOpenpilotLongitudinal ? "Enable with LKAS Button" : "Control with LKAS Button"));
   steerFrictionToggle->setTitle(QString(tr("Friction (Default: %1)")).arg(QString::number(frictionStock, 'f', 2)));
   steerKPToggle->setTitle(QString(tr("Kp Factor (Default: %1)")).arg(QString::number(kpStock, 'f', 2)));
   steerKPToggle->updateControl(kpStock * 0.50, kpStock * 1.50);

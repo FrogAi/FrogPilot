@@ -234,7 +234,10 @@ class CarInterfaceBase(ABC):
     self.use_nnff = not comma_nnff_supported and nnff_supported and self.frogpilot_toggles.nnff
     self.use_nnff_lite = not self.use_nnff and self.frogpilot_toggles.nnff_lite
 
-    self.always_on_lateral_disabled = False
+    if self.frogpilot_toggles.use_lkas_for_aol:
+      self.always_on_lateral_disabled = True
+    else:
+      self.always_on_lateral_disabled = False
     self.belowSteerSpeed_shown = False
     self.disable_belowSteerSpeed = False
     self.disable_resumeRequired = False
