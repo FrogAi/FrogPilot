@@ -5,7 +5,7 @@ from openpilot.common.realtime import DT_CTRL
 from openpilot.common.params import Params
 from openpilot.selfdrive.controls.lib.longcontrol import LongControl
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import LongitudinalMpc
-from openpilot.selfdrive.car.hyundai.values import HyundaiFlags, CarControllerParams
+from openpilot.selfdrive.car.hyundai.values import CAR, CarControllerParams, HyundaiFlags
 
 
 LongCtrlState = car.CarControl.Actuators.LongControlState
@@ -25,7 +25,6 @@ class HKGLongitudinalTuning:
 
   def _setup_controllers(self) -> None:
     self.mpc = LongitudinalMpc(mode='acc')
-
     self.long_control = LongControl(self.CP)
     self.DT_CTRL = DT_CTRL
     self.params = Params()
@@ -46,47 +45,47 @@ class HKGLongitudinalTuning:
     self.cb_upper = self.cb_lower = 0.0
 
 
-  def make_jerk(self, CS, accel, actuators):
+  def make_jerk(self, CS, actuators):
     state = getattr(actuators, "longControlState", LongCtrlState.pid)
     # Handle cancel state to prevent cruise fault
-    if not CS.out.cruiseState.enabled:
+    if not CS.out.cruiseState.enabled or CS.out.gasPressed or CS.out.brakePressed:
       self.jerk_upper_limit = 0.0
       self.jerk_lower_limit = 0.0
       self.cb_upper = self.cb_lower = 0.0
       self.accel_last_jerk = 0.0
       return 0.0
 
-    current_accel = clip(actuators.accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
-    self.jerk = (current_accel - self.accel_last_jerk) / self.DT_CTRL
-    self.accel_last_jerk = current_accel
+    if state == LongCtrlState.stopping:
+      self.jerk = 1.5 / 2 - CS.out.aEgo
+      return self.jerk
+    else:
+      current_accel = clip(actuators.accel, CarControllerParams.ACCEL_MIN, CarControllerParams.ACCEL_MAX)
+      self.jerk = (current_accel - self.accel_last_jerk) / self.DT_CTRL
+      self.accel_last_jerk = current_accel
 
-    jerk_max = 5.0
-    v_error = abs(CS.out.vEgo - CS.out.cruiseState.speed)
+    # Calculate jerk limits
+    if CS.out.vEgo < 3.13 and CS.out.aEgo > 0:
+      jerk_max = interp(CS.out.vEgo,
+                       [0.0, 1.0, 2.0, 3.13],
+                       [0.75, 1.0, 2.5, 4.0])
+    else:
+      jerk_max = 5.0
 
     if self.CP.flags & HyundaiFlags.CANFD.value:
-      if v_error < 3.0:
-        jerk_reduction = interp(v_error,
-                              [0.0, 1.0, 3.0],
-                              [0.3, 0.5, 1.0])
-        jerk_max *= jerk_reduction
-
       self.jerk_upper_limit = min(max(0.5, self.jerk * 2.0), jerk_max)
       self.jerk_lower_limit = min(max(1.0, -self.jerk * 4.0), jerk_max)
       self.cb_upper = self.cb_lower = 0.0
     else:
       self.jerk_upper_limit = min(max(0.5, self.jerk * 2.0), jerk_max)
       self.jerk_lower_limit = min(max(1.0, -self.jerk * 2.0), jerk_max)
-      # Make comfort band smaller when close to set speed, bigger when far away
-      error_factor = interp(v_error, [0.0, 0.5, 1.0, 5.0],
-                                    [0.0, 0.1, 0.5, 1.0])
-
-      accel_factor = interp(abs(accel), [0.0, 1.0], [0.2, 0.1])
-      if accel >= 0:
-          self.cb_upper = clip(0.8 * error_factor + accel * accel_factor, 0, 1.0)
-          self.cb_lower = clip(0.6 * error_factor + accel * accel_factor, 0, 0.8)
+      if self.params.get_bool("HKGBraking") > 0:
+        self.cb_upper = self.cb_lower = 0.0
       else:
-          self.cb_upper = clip(1.0 * error_factor + accel * accel_factor, 0, 1.2)
-          self.cb_lower = clip(0.8 * error_factor + accel * accel_factor, 0, 1.2)
+        if CS.out.aEgo >= 0:
+          self.cb_upper = self.cb_lower = 0.0
+        else:
+          self.cb_upper = clip(0.15 + CS.out.aEgo * 0.2, 0, 1.0)
+          self.cb_lower = clip(0.15 + CS.out.aEgo * 0.15, 0, 1.0)
 
     return self.jerk
 
@@ -103,8 +102,8 @@ class HKGLongitudinalTuning:
     # Reset acceleration limits when cruise is disabled or brake is pressed
     if self.handle_cruise_cancel(CS):
       return accel
-
-    self.make_jerk(CS, accel, actuators)
+    self.make_jerk(CS, actuators)
+    accel = CS.out.aEgo
 
     accel_delta = accel - self.accel_last
     brake_aggressiveness = 0.0
@@ -117,7 +116,7 @@ class HKGLongitudinalTuning:
     if accel < 0:
       # Negative accel logic
       brake_ratio = clip(abs(accel / CarControllerParams.ACCEL_MIN), 0.0, 1.0)
-      brake_aggressiveness = brake_ratio ** 1.5
+      brake_aggressiveness = brake_ratio ** 1.2
 
       if CS.out.vEgo < 4.47:  # ~10 mph
         ramp_rate = interp(
@@ -129,22 +128,22 @@ class HKGLongitudinalTuning:
         ramp_rate = interp(
           brake_aggressiveness,
           [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
-          [0.2, 0.3, 0.4, 0.6, 0.9, 1.1]
+          [0.6, 0.75, 0.85, 1.0, 1.4, 1.5]
           )
 
-      if brake_ratio > 0.8:
-        ramp_rate *= 0.8
+      #if brake_ratio > 0.8:
+      #  ramp_rate *= 0.8
 
       if self.accel_last >= 0:
-        self.brake_ramp = 0.0
-        ramp_rate *= 0.5
+        self.brake_ramp = 0.1
+        ramp_rate *= 0.65
 
       self.brake_ramp = min(1.0, self.brake_ramp + (ramp_rate * self.DT_CTRL))
 
       # Smooth factor
       smooth_factor = interp(abs(accel), [0.0, 0.3, 1.0, 2.0], [0.95, 0.85, 0.75, 0.60])
       if brake_aggressiveness > 0.8:
-        smooth_factor *= 0.8
+        smooth_factor *= 0.85
 
       # Final smoothing scaled by brake ramp
       accel_delta *= (smooth_factor * self.brake_ramp)
@@ -152,7 +151,7 @@ class HKGLongitudinalTuning:
       # Enforce jerk limits
       accel_delta = clip(
         accel_delta,
-        -self.jerk_lower_limit * self.DT_CTRL,
+        -self.jerk_lower_limit * 1.2 * self.DT_CTRL,
         self.jerk_upper_limit * self.DT_CTRL
       )
 
@@ -165,8 +164,7 @@ class HKGLongitudinalTuning:
         accel_delta *= transition_factor
     else:
       # Positive Acceleration Logic
-      ramp_rate = 0.9 # Increase ramp rate for positive acceleration
-      accel_delta = min(accel - self.accel_last, ramp_rate * self.DT_CTRL)
+      accel_delta = min(accel - self.accel_last, self.DT_CTRL)
 
     # Update accel
     accel = self.accel_last + accel_delta
@@ -181,10 +179,13 @@ class HKGLongitudinalTuning:
     return clip(accel, CarControllerParams.ACCEL_MIN, min(frogpilot_toggles.max_desired_acceleration, CarControllerParams.ACCEL_MAX))
 
   def apply_tune(self, CP: Any) -> None:
-    CP.vEgoStopping = 0.3
+    if CP.carFingerprint in (CAR.KIA_EV6):
+      CP.vEgoStopping = 0.05
+    else:
+      CP.vEgoStopping = 0.22
     CP.vEgoStarting = 0.1
     CP.stoppingDecelRate = 0.01
-    CP.startAccel = 1.6
+    CP.startAccel = 1.0
     CP.startingState = True
 
   def get_jerk(self) -> JerkOutput:
@@ -195,14 +196,12 @@ class HKGLongitudinalTuning:
       self.cb_lower,
     )
 
-  def calculate_and_get_jerk(self, CS, accel, actuators):
+  def calculate_and_get_jerk(self, CS, actuators):
     """Calculate jerk and return JerkOutput."""
     if self.hkg_tuning:
-      self.make_jerk(CS, accel, actuators)
+      self.make_jerk(CS, actuators)
       return self.get_jerk()
-    else:
-      normal_jerk = self.calculate_normal_jerk(actuators.longControlState)
-      return JerkOutput(normal_jerk, normal_jerk, 0.0, 0.0)
+
 
 class HKGLongitudinalController:
   def __init__(self, CP):

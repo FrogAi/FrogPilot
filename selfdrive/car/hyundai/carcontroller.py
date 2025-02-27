@@ -102,7 +102,7 @@ class CarController(CarControllerBase, HKGLongitudinalController):
                                                                                       hud_control)
 
     if self.tuning is not None:
-      self.jerk = self.tuning.calculate_and_get_jerk(CS, accel, actuators)
+      self.jerk = self.tuning.calculate_and_get_jerk(CS, actuators)
     else:
       normal_jerk = self.calculate_normal_jerk(actuators.longControlState)
       self.jerk = JerkOutput(normal_jerk, normal_jerk, 0.0, 0.0)
