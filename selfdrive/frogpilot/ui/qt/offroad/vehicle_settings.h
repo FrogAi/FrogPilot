@@ -4,7 +4,8 @@
 
 #include "selfdrive/frogpilot/ui/qt/offroad/frogpilot_settings.h"
 
-class FrogPilotVehiclesPanel : public FrogPilotListWidget {
+class FrogPilotVehiclesPanel : public FrogPilotListWidget
+{
   Q_OBJECT
 
 public:
@@ -20,12 +21,13 @@ private:
 
   bool started;
 
-  std::map<QString, AbstractControl*> toggles;
+  std::map<QString, AbstractControl *> toggles;
 
   std::set<QString> gmKeys = {"ExperimentalGMTune", "LongPitch", "VoltSNG"};
   std::set<QString> hkgKeys = {"NewLongAPI"};
   std::set<QString> longitudinalKeys = {"ExperimentalGMTune", "FrogsGoMoosTweak", "LongPitch", "NewLongAPI", "SNGHack", "VoltSNG"};
   std::set<QString> toyotaKeys = {"ClusterOffset", "FrogsGoMoosTweak", "LockDoorsTimer", "SNGHack", "ToyotaDoors"};
+  std::set<QString> subaruKeys = {"SubaruManualParkingBrakeSNG"};
 
   FrogPilotSettingsWindow *parent;
 

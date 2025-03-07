@@ -3,7 +3,7 @@ from panda import Panda
 from openpilot.selfdrive.car import create_button_events, get_safety_config
 from openpilot.selfdrive.car.disable_ecu import disable_ecu
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase
-from openpilot.selfdrive.car.subaru.values import CAR, GLOBAL_ES_ADDR, SubaruFlags
+from openpilot.selfdrive.car.subaru.values import CAR, GLOBAL_ES_ADDR, GLOBAL_GEN2, HYBRID_CARS, SubaruFlags, SubaruFlagsFP
 
 from openpilot.selfdrive.frogpilot.frogpilot_variables import get_frogpilot_toggles
 
@@ -34,6 +34,11 @@ class CarInterface(CarInterfaceBase):
       ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.subaru)]
       if ret.flags & SubaruFlags.GLOBAL_GEN2:
         ret.safetyConfigs[0].safetyParam |= Panda.FLAG_SUBARU_GEN2
+
+    if candidate not in (GLOBAL_GEN2 | HYBRID_CARS):
+      ret.autoResumeSng = True
+      ret.fpFlags |= SubaruFlagsFP.FP_SUBARU_SNG.value
+      ret.safetyConfigs[0].safetyParam |= Panda.FLAG_SUBARU_SNG
 
     ret.steerLimitTimer = 0.4
     ret.steerActuatorDelay = 0.1
@@ -76,7 +81,7 @@ class CarInterface(CarInterfaceBase):
       ret.steerActuatorDelay = 0.1
 
     elif candidate in (CAR.SUBARU_FORESTER_PREGLOBAL, CAR.SUBARU_OUTBACK_PREGLOBAL_2018):
-      ret.safetyConfigs[0].safetyParam = Panda.FLAG_SUBARU_PREGLOBAL_REVERSED_DRIVER_TORQUE  # Outback 2018-2019 and Forester have reversed driver torque signal
+      ret.safetyConfigs[0].safetyParam |= Panda.FLAG_SUBARU_PREGLOBAL_REVERSED_DRIVER_TORQUE  # Outback 2018-2019 and Forester have reversed driver torque signal
 
     elif candidate == CAR.SUBARU_LEGACY_PREGLOBAL:
       ret.steerActuatorDelay = 0.15

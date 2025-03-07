@@ -329,6 +329,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int]] = [
   ("SteerRatio", "0", 3),
   ("SteerRatioStock", "0", 3),
   ("StoppedTimer", "0", 1),
+  ("SubaruManualParkingBrakeSNG", "0", 2),
   ("TacoTune", "0", 2),
   ("TetheringEnabled", "0", 0),
   ("ToyotaDoors", "1", 0),
@@ -738,6 +739,8 @@ class FrogPilotVariables:
     toggle.screen_timeout_onroad = params.get_int("ScreenTimeoutOnroad") if screen_management and tuning_level >= level["ScreenTimeoutOnroad"] else default.get_int("ScreenTimeoutOnroad")
 
     toggle.sng_hack = openpilot_longitudinal and car_make == "toyota" and not has_pedal and (params.get_bool("SNGHack") if tuning_level >= level["SNGHack"] else default.get_bool("SNGHack"))
+
+    toggle.subaru_manual_parking_brake_sng = toggle.car_make == "subaru" and (params.get_bool("SubaruManualParkingBrakeSNG") if tuning_level >= level["SubaruManualParkingBrakeSNG"] else default.get_bool("SubaruManualParkingBrakeSNG"))
 
     toggle.speed_limit_controller = openpilot_longitudinal and (params.get_bool("SpeedLimitController") if tuning_level >= level["SpeedLimitController"] else default.get_bool("SpeedLimitController"))
     toggle.force_mph_dashboard = toggle.speed_limit_controller and (params.get_bool("ForceMPHDashboard") if tuning_level >= level["ForceMPHDashboard"] else default.get_bool("ForceMPHDashboard"))

@@ -4,7 +4,7 @@ from opendbc.can.can_define import CANDefine
 from openpilot.common.conversions import Conversions as CV
 from openpilot.selfdrive.car.interfaces import CarStateBase
 from opendbc.can.parser import CANParser
-from openpilot.selfdrive.car.subaru.values import DBC, CanBus, PREGLOBAL_CARS, SubaruFlags
+from openpilot.selfdrive.car.subaru.values import DBC, CanBus, PREGLOBAL_CARS, SubaruFlags, SubaruFlagsFP
 from openpilot.selfdrive.car import CanSignalRateCalculator
 
 
@@ -119,8 +119,17 @@ class CarState(CarStateBase):
         self.es_status_msg = copy.copy(cp_es_status.vl["ES_Status"])
         self.cruise_control_msg = copy.copy(cp_cruise.vl["CruiseControl"])
 
+      if self.CP.fpFlags & SubaruFlagsFP.FP_SUBARU_SNG:
+        self.cruise_state = cp_cam.vl["ES_DashStatus"]["Cruise_State"]
+        self.brake_pedal_msg = copy.copy(cp.vl["Brake_Pedal"])
+
     if not (self.CP.flags & SubaruFlags.HYBRID):
       self.es_distance_msg = copy.copy(cp_es_distance.vl["ES_Distance"])
+
+      if self.CP.fpFlags & SubaruFlagsFP.FP_SUBARU_SNG:
+        self.throttle_msg = copy.copy(cp.vl["Throttle"])
+        self.car_follow = cp_es_distance.vl["ES_Distance"]["Car_Follow"]
+        self.close_distance = cp_es_distance.vl["ES_Distance"]["Close_Distance"]
 
     self.es_dashstatus_msg = copy.copy(cp_cam.vl["ES_DashStatus"])
     if self.CP.flags & SubaruFlags.SEND_INFOTAINMENT:
