@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
+import math
+
 import cereal.messaging as messaging
 
+from cereal import log
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.realtime import DT_MDL
@@ -15,7 +18,7 @@ from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_events import FrogPilo
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_following import FrogPilotFollowing
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_vcruise import FrogPilotVCruise
 from openpilot.selfdrive.frogpilot.frogpilot_utilities import calculate_lane_width, calculate_road_curvature
-from openpilot.selfdrive.frogpilot.frogpilot_variables import CRUISING_SPEED, MODEL_LENGTH, NON_DRIVING_GEARS, PLANNER_TIME, THRESHOLD
+from openpilot.selfdrive.frogpilot.frogpilot_variables import CRUISING_SPEED, PLANNER_TIME, THRESHOLD
 
 class FrogPilotPlanner:
   def __init__(self):
@@ -34,11 +37,13 @@ class FrogPilotPlanner:
     self.slower_lead = False
     self.tracking_lead = False
 
+    self.lane_width_left = 0
+    self.lane_width_right = 0
     self.model_length = 0
     self.road_curvature = 1
     self.v_cruise = 0
 
-  def update(self, carControl, carState, controlsState, frogpilotCarControl, frogpilotCarState, frogpilotNavigation, modelData, radarless_model, radarState, frogpilot_toggles):
+  def update(self, carControl, carState, controlsState, frogpilotCarControl, frogpilotCarState, frogpilotNavigation, liveLocationKalman, modelData, radarless_model, radarState, frogpilot_toggles):
     if radarless_model:
       model_leads = list(modelData.leadsV3)
       if len(model_leads) > 0:
@@ -56,7 +61,7 @@ class FrogPilotPlanner:
 
     self.frogpilot_acceleration.update(frogpilotCarState, v_ego, frogpilot_toggles)
 
-    if frogpilot_toggles.conditional_experimental_mode and controlsState.enabled and carState.gearShifter not in NON_DRIVING_GEARS:
+    if frogpilot_toggles.conditional_experimental_mode and controlsState.enabled:
       self.cem.update(carState, frogpilotCarState, frogpilotNavigation, v_ego, v_lead, frogpilot_toggles)
     elif frogpilot_toggles.force_stops or frogpilot_toggles.green_light_alert or frogpilot_toggles.show_stopping_point:
       self.cem.curve_detected = False
@@ -66,6 +71,16 @@ class FrogPilotPlanner:
 
     self.frogpilot_events.update(carState, controlsState, frogpilotCarControl, frogpilotCarState, self.lead_one.dRel, modelData, v_lead, frogpilot_toggles)
     self.frogpilot_following.update(carState.aEgo, controlsState, frogpilotCarState, self.lead_one.dRel, v_ego, v_lead, frogpilot_toggles)
+
+    localizer_valid = (liveLocationKalman.status == log.LiveLocationKalman.Status.valid) and liveLocationKalman.positionGeodetic.valid
+    if liveLocationKalman.gpsOK and localizer_valid:
+      gps_position = {
+        "latitude": liveLocationKalman.positionGeodetic.value[0],
+        "longitude": liveLocationKalman.positionGeodetic.value[1],
+        "bearing": math.degrees(liveLocationKalman.calibratedOrientationNED.value[2])
+      }
+    else:
+      gps_position = None
 
     check_lane_width = frogpilot_toggles.adjacent_paths or frogpilot_toggles.adjacent_path_metrics or frogpilot_toggles.blind_spot_path or frogpilot_toggles.lane_detection
     if check_lane_width and v_ego >= frogpilot_toggles.minimum_lane_change_speed:
@@ -79,20 +94,19 @@ class FrogPilotPlanner:
     self.lateral_check |= frogpilot_toggles.pause_lateral_below_signal and not (carState.leftBlinker or carState.rightBlinker)
     self.lateral_check |= carState.standstill
 
-    self.model_length = modelData.position.x[MODEL_LENGTH - 1]
+    self.model_length = modelData.position.x[-1]
     self.model_stopped = self.model_length < CRUISING_SPEED * PLANNER_TIME
     self.model_stopped |= self.frogpilot_vcruise.forcing_stop
 
-    self.road_curvature = calculate_road_curvature(modelData, v_ego) if v_ego > CRUISING_SPEED else 1
-    self.road_curvature_detected = (1 / self.road_curvature)**0.5 < v_ego
+    self.road_curvature = calculate_road_curvature(modelData, v_ego)
+    self.road_curvature_detected = (1 / abs(self.road_curvature))**0.5 < v_ego > CRUISING_SPEED
 
-    self.tracking_lead = self.set_lead_status(carState, v_lead)
-    self.v_cruise = self.frogpilot_vcruise.update(carControl, carState, controlsState, frogpilotCarControl, frogpilotCarState, frogpilotNavigation, v_cruise, v_ego, frogpilot_toggles)
+    self.tracking_lead = self.set_lead_status(v_lead)
+    self.v_cruise = self.frogpilot_vcruise.update(carControl, carState, controlsState, frogpilotCarControl, frogpilotCarState, frogpilotNavigation, gps_position, v_cruise, v_ego, frogpilot_toggles)
 
-  def set_lead_status(self, carState, v_lead):
+  def set_lead_status(self, v_lead):
     following_lead = self.lead_one.status
     following_lead &= self.lead_one.dRel < self.model_length + STOP_DISTANCE
-    following_lead &= not carState.standstill or self.tracking_lead
 
     self.tracking_lead_filter.update(following_lead)
     return self.tracking_lead_filter.x >= THRESHOLD**2
@@ -108,10 +122,6 @@ class FrogPilotPlanner:
     frogpilotPlan.speedJerk = float(J_EGO_COST * self.frogpilot_following.speed_jerk)
     frogpilotPlan.speedJerkStock = float(J_EGO_COST * self.frogpilot_following.base_speed_jerk)
     frogpilotPlan.tFollow = float(self.frogpilot_following.t_follow)
-
-    frogpilotPlan.mtscSpeed = float(self.frogpilot_vcruise.mtsc_target)
-    frogpilotPlan.vtscControllingCurve = bool(self.frogpilot_vcruise.mtsc_target > self.frogpilot_vcruise.vtsc_target)
-    frogpilotPlan.vtscSpeed = float(self.frogpilot_vcruise.vtsc_target)
 
     frogpilotPlan.desiredFollowDistance = self.frogpilot_following.desired_follow_distance
 
@@ -130,7 +140,13 @@ class FrogPilotPlanner:
     frogpilotPlan.maxAcceleration = float(self.frogpilot_acceleration.max_accel)
     frogpilotPlan.minAcceleration = float(self.frogpilot_acceleration.min_accel)
 
+    frogpilotPlan.mtscSpeed = float(self.frogpilot_vcruise.mtsc_target)
+    frogpilotPlan.vtscControllingCurve = bool(self.frogpilot_vcruise.mtsc_target > self.frogpilot_vcruise.vtsc_target)
+    frogpilotPlan.vtscSpeed = float(self.frogpilot_vcruise.vtsc_target)
+
     frogpilotPlan.redLight = bool(self.cem.stop_light_detected)
+
+    frogpilotPlan.roadCurvature = self.road_curvature
 
     frogpilotPlan.slcMapSpeedLimit = self.frogpilot_vcruise.slc.map_speed_limit
     frogpilotPlan.slcOverridden = bool(self.frogpilot_vcruise.override_slc)

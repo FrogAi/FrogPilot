@@ -6,6 +6,7 @@ import threading
 from typing import SupportsFloat
 
 import cereal.messaging as messaging
+import openpilot.system.sentry as sentry
 
 from cereal import car, custom, log
 from msgq.visionipc import VisionIpcClient, VisionStreamType
@@ -189,10 +190,8 @@ class Controls:
     self.always_on_lateral_active = False
     self.always_on_lateral_active_previously = False
     self.decel_pressed = False
-    self.fcw_event_triggered = False
-    self.no_entry_alert_triggered = False
     self.onroad_distance_pressed = False
-    self.steer_saturated_event_triggered = False
+    self.memory_log_sent = False
 
     self.planner_curves = self.frogpilot_toggles.planner_curvature_model
     self.radarless_model = self.frogpilot_toggles.radarless_model
@@ -256,6 +255,10 @@ class Controls:
       self.events.add(EventName.outOfSpace)
     if self.sm['deviceState'].memoryUsagePercent > 90 and not SIMULATION:
       self.events.add(EventName.lowMemory)
+      if not self.memory_log_sent:
+        sentry.capture_memory_log()
+
+        self.memory_log_sent = True
 
     # TODO: enable this once loggerd CPU usage is more reasonable
     #cpus = list(self.sm['deviceState'].cpuUsagePercent)
@@ -402,8 +405,6 @@ class Controls:
     planner_fcw = self.sm['longitudinalPlan'].fcw and self.enabled
     if (planner_fcw or model_fcw) and not (self.CP.notCar and self.joystick_mode):
       self.events.add(EventName.fcw)
-      if self.frogpilot_toggles.random_events:
-        self.fcw_event_triggered = True
 
     for m in messaging.drain_sock(self.log_sock, wait_for_one=False):
       try:
@@ -555,8 +556,6 @@ class Controls:
       if self.events.contains(ET.ENABLE):
         if self.events.contains(ET.NO_ENTRY):
           self.current_alert_types.append(ET.NO_ENTRY)
-          if self.frogpilot_toggles.random_events:
-            self.no_entry_alert_triggered = True
 
         else:
           if self.events.contains(ET.PRE_ENABLE):
@@ -566,7 +565,7 @@ class Controls:
           else:
             self.state = State.enabled
           self.current_alert_types.append(ET.ENABLE)
-          self.v_cruise_helper.initialize_v_cruise(CS, self.experimental_mode, self.sm['frogpilotPlan'].unconfirmedSlcSpeedLimit, self.frogpilot_toggles)
+          self.v_cruise_helper.initialize_v_cruise(CS, self.experimental_mode, self.sm['frogpilotPlan'].slcSpeedLimit + self.sm['frogpilotPlan'].slcSpeedLimitOffset, self.frogpilot_toggles)
 
     # Check if openpilot is engaged and actuators are enabled
     self.enabled = self.state in ENABLED_STATES
@@ -681,10 +680,6 @@ class Controls:
         max_torque = abs(self.sm['carOutput'].actuatorsOutput.steer) > 0.99
         if undershooting and turning and good_speed and max_torque:
           lac_log.active and self.events.add(EventName.goatSteerSaturated if self.frogpilot_toggles.goat_scream_alert else EventName.steerSaturated)
-          if self.frogpilot_toggles.random_events:
-            self.steer_saturated_event_triggered = True
-        else:
-          self.steer_saturated_event_triggered = False
       elif lac_log.saturated:
         # TODO probably should not use dpath_points but curvature
         dpath_points = model_v2.position.y
@@ -729,13 +724,19 @@ class Controls:
     return CC, lac_log, FPCC
 
   def update_frogpilot_variables(self, CS):
-    self.always_on_lateral_active |= self.frogpilot_toggles.always_on_lateral_main or CS.cruiseState.enabled
-    self.always_on_lateral_active &= self.frogpilot_toggles.always_on_lateral_set and CS.cruiseState.available
+    self.always_on_lateral_active = self.frogpilot_toggles.always_on_lateral_set
+    if self.frogpilot_toggles.always_on_lateral_main:
+      self.always_on_lateral_active &= CS.cruiseState.available
+    elif self.frogpilot_toggles.use_lkas_for_aol and self.frogpilot_toggles.always_on_lateral_lkas:
+      self.always_on_lateral_active &= not self.sm['frogpilotCarState'].alwaysOnLateralDisabled
+    else:
+      self.always_on_lateral_active &= CS.cruiseState.enabled
     self.always_on_lateral_active &= CS.gearShifter not in NON_DRIVING_GEARS
     self.always_on_lateral_active &= self.sm['frogpilotPlan'].lateralCheck
     self.always_on_lateral_active &= self.sm['liveCalibration'].calPerc >= 1
     self.always_on_lateral_active &= not (self.frogpilot_toggles.always_on_lateral_lkas and self.sm['frogpilotCarState'].alwaysOnLateralDisabled)
     self.always_on_lateral_active &= not (CS.brakePressed and CS.vEgo < self.frogpilot_toggles.always_on_lateral_pause_speed) or CS.standstill
+    self.always_on_lateral_active &= not self.events.contains(ET.IMMEDIATE_DISABLE)
 
     if self.frogpilot_toggles.conditional_experimental_mode or self.frogpilot_toggles.slc_fallback_experimental_mode:
       self.experimental_mode = self.sm['frogpilotPlan'].experimentalMode
@@ -760,9 +761,6 @@ class Controls:
     FPCC.alwaysOnLateralActive = self.always_on_lateral_active
     FPCC.accelPressed = self.accel_pressed
     FPCC.decelPressed = self.decel_pressed
-    FPCC.fcwEventTriggered = self.fcw_event_triggered
-    FPCC.noEntryEventTriggered = self.no_entry_alert_triggered
-    FPCC.steerSaturatedEventTriggered = self.steer_saturated_event_triggered
 
     # Update FrogPilot parameters
     if self.sm['frogpilotPlan'].togglesUpdated:

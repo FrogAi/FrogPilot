@@ -1,5 +1,5 @@
-# PFEIFER - MTSC - Modified by FrogAi for FrogPilot
 #!/usr/bin/env python3
+# PFEIFER - MTSC - Modified by FrogAi for FrogPilot
 import json
 import math
 
@@ -35,12 +35,11 @@ def calculate_curvature(p1, p2, p3):
   return curvature
 
 class MapTurnSpeedController:
-  def get_map_curvature(self, v_ego):
-    position = json.loads(params_memory.get("LastGPSPosition") or "{}")
-    if not position:
+  def get_map_curvature(self, gps_position, v_ego):
+    if not gps_position:
       return 1e-6
-    current_latitude = position["latitude"]
-    current_longitude = position["longitude"]
+    current_latitude = gps_position["latitude"]
+    current_longitude = gps_position["longitude"]
 
     distances = []
     minimum_idx = 0

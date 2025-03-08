@@ -62,6 +62,7 @@ jobs:
             echo "Applying changes from commits after the compile commit..."
             git cherry-pick --no-commit ${COMPILE_COMMIT}..$SOURCE_HEAD
           fi
+
           git add --all
 
       - name: Set Git Username and Email

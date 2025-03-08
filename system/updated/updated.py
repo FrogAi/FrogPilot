@@ -180,7 +180,7 @@ def init_overlay() -> None:
   cloudlog.info(f"git diff output:\n{git_diff}")
 
 
-def finalize_update() -> None:
+def finalize_update(params) -> None:
   """Take the current OverlayFS merged view and finalize a copy outside of
   OverlayFS, ready to be swapped-in at BASEDIR. Copy using shutil.copytree"""
 
@@ -199,6 +199,10 @@ def finalize_update() -> None:
   cloudlog.info("Starting git cleanup in finalized update")
   t = time.monotonic()
   try:
+    if params.get_bool("IsOnroad"):
+      run(["git", "config", "pack.threads", "1"], FINALIZED)
+      run(["git", "config", "pack.windowMemory", "64m"], FINALIZED)
+
     run(["git", "gc"], FINALIZED)
     run(["git", "lfs", "prune"], FINALIZED)
     cloudlog.event("Done git cleanup", duration=time.monotonic() - t)
@@ -407,7 +411,7 @@ class Updater:
 
     # Create the finalized, ready-to-swap update
     self.params.put("UpdaterState", "finalizing update...")
-    finalize_update()
+    finalize_update(self.params)
     cloudlog.info("finalize success!")
 
     # Format "Updated" to Phoenix time zone

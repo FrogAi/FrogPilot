@@ -34,7 +34,7 @@ class FrogPilotVCruise:
     self.tracked_model_length = 0
     self.vtsc_target = 0
 
-  def update(self, carControl, carState, controlsState, frogpilotCarControl, frogpilotCarState, frogpilotNavigation, v_cruise, v_ego, frogpilot_toggles):
+  def update(self, carControl, carState, controlsState, frogpilotCarControl, frogpilotCarState, frogpilotNavigation, gps_position, v_cruise, v_ego, frogpilot_toggles):
     force_stop = frogpilot_toggles.force_stops and self.frogpilot_planner.cem.stop_light_detected and controlsState.enabled
     force_stop &= self.frogpilot_planner.model_length < 100
     force_stop &= self.override_force_stop_timer <= 0
@@ -62,7 +62,7 @@ class FrogPilotVCruise:
     # Pfeiferj's Map Turn Speed Controller
     if frogpilot_toggles.map_turn_speed_controller and v_ego > CRUISING_SPEED and carControl.longActive:
       mtsc_active = self.mtsc_target < v_cruise
-      mtsc_speed = ((TARGET_LAT_A * frogpilot_toggles.turn_aggressiveness) / (self.mtsc.get_map_curvature(v_ego) * frogpilot_toggles.curve_sensitivity))**0.5
+      mtsc_speed = ((TARGET_LAT_A * frogpilot_toggles.turn_aggressiveness) / (self.mtsc.get_map_curvature(gps_position, v_ego) * frogpilot_toggles.curve_sensitivity))**0.5
       self.mtsc_target = np.clip(mtsc_speed, CRUISING_SPEED, v_cruise)
 
       if self.frogpilot_planner.road_curvature_detected and mtsc_active:
@@ -121,8 +121,8 @@ class FrogPilotVCruise:
       self.slc_target = 0
 
     # Pfeiferj's Vision Turn Controller
-    if frogpilot_toggles.vision_turn_speed_controller and v_ego > CRUISING_SPEED and carControl.longActive and self.frogpilot_planner.road_curvature_detected:
-      self.vtsc_target = ((TARGET_LAT_A * frogpilot_toggles.turn_aggressiveness) / (self.frogpilot_planner.road_curvature * frogpilot_toggles.curve_sensitivity))**0.5
+    if frogpilot_toggles.vision_turn_speed_controller and carControl.longActive and self.frogpilot_planner.road_curvature_detected:
+      self.vtsc_target = ((TARGET_LAT_A * frogpilot_toggles.turn_aggressiveness) / (abs(self.frogpilot_planner.road_curvature) * frogpilot_toggles.curve_sensitivity))**0.5
       self.vtsc_target = np.clip(self.vtsc_target, CRUISING_SPEED, v_cruise)
     else:
       self.vtsc_target = v_cruise if v_cruise != V_CRUISE_UNSET else 0

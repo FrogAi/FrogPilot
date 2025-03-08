@@ -16,6 +16,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Get previous commit date
+        id: get-commit-date
+        run: |
+          export COMMIT_DATE=$(git log -1 --format=%cI)
+          echo "commit_date=$COMMIT_DATE" >> $GITHUB_ENV
+
       - name: Create scheduled update file
         run: |
           echo "${{ github.event.inputs.scheduled_date }}" > .github/update_date
@@ -30,5 +36,5 @@ jobs:
       - name: Squash scheduled update file commit
         run: |
           git reset --soft HEAD~1
-          git commit --amend --no-edit --reset-author
+          git commit --amend --no-edit --reset-author --date="${{ env.commit_date }}"
           git push origin HEAD --force

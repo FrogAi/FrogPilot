@@ -51,8 +51,6 @@ class DesireHelper:
 
     self.lane_change_wait_timer = 0
 
-    self.turn_direction = TurnDirection.none
-
   def update(self, carstate, lateral_active, lane_change_prob, frogpilotPlan, frogpilot_toggles):
     v_ego = carstate.vEgo
     one_blinker = carstate.leftBlinker != carstate.rightBlinker
@@ -67,14 +65,7 @@ class DesireHelper:
     if not lateral_active or self.lane_change_timer > LANE_CHANGE_TIME_MAX:
       self.lane_change_state = LaneChangeState.off
       self.lane_change_direction = LaneChangeDirection.none
-      self.turn_direction = TurnDirection.none
-    elif one_blinker and below_lane_change_speed and not carstate.standstill and frogpilot_toggles.use_turn_desires:
-      self.lane_change_state = LaneChangeState.off
-      self.lane_change_direction = LaneChangeDirection.none
-      self.turn_direction = TurnDirection.turnLeft if carstate.leftBlinker else TurnDirection.turnRight
     else:
-      self.turn_direction = TurnDirection.none
-
       # LaneChangeState.off
       if self.lane_change_state == LaneChangeState.off and one_blinker and not self.prev_one_blinker and not below_lane_change_speed:
         self.lane_change_state = LaneChangeState.preLaneChange
@@ -138,9 +129,11 @@ class DesireHelper:
     self.lane_change_completed &= one_blinker
     self.prev_one_blinker = one_blinker
 
-    if self.turn_direction != TurnDirection.none:
+    if one_blinker and below_lane_change_speed and not carstate.standstill and frogpilot_toggles.use_turn_desires:
+      self.turn_direction = TurnDirection.turnLeft if carstate.leftBlinker else TurnDirection.turnRight
       self.desire = TURN_DESIRES[self.turn_direction]
     else:
+      self.turn_direction = TurnDirection.none
       self.desire = DESIRES[self.lane_change_direction][self.lane_change_state]
 
     # Send keep pulse once per second during LaneChangeStart.preLaneChange

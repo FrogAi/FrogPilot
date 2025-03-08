@@ -14,7 +14,6 @@ import zstandard as zstd
 
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.params import Params
-from openpilot.common.params_pyx import ParamKeyType
 from openpilot.common.time import system_time_valid
 from openpilot.system.hardware import HARDWARE
 
@@ -25,6 +24,7 @@ from openpilot.selfdrive.frogpilot.frogpilot_variables import CRASHES_DIR, EXCLU
 
 def backup_directory(backup, destination, success_message, fail_message, minimum_backup_size=0, compressed=False):
   in_progress_destination = destination.parent / (destination.name + "_in_progress")
+  in_progress_destination.mkdir(parents=True, exist_ok=True)
 
   if compressed:
     destination_compressed = destination.parent / (destination.name + ".tar.zst")
@@ -38,7 +38,7 @@ def backup_directory(backup, destination, success_message, fail_message, minimum
     with tarfile.open(tar_file, "w") as tar:
       tar.add(in_progress_destination, arcname=destination.name)
 
-    shutil.rmtree(in_progress_destination, ignore_errors=True)
+    delete_file(in_progress_destination)
 
     compressed_file = destination.parent / (destination.name + "_in_progress.tar.zst")
     with open(compressed_file, "wb") as f:
@@ -53,11 +53,10 @@ def backup_directory(backup, destination, success_message, fail_message, minimum
 
     tar_file.unlink(missing_ok=True)
 
-    final_compressed_file = destination.parent / (destination.name + ".tar.zst")
-    compressed_file.rename(final_compressed_file)
-    print(f"Backup saved: {final_compressed_file}")
+    compressed_file.rename(destination_compressed)
+    print(f"Backup saved: {destination_compressed}")
 
-    compressed_backup_size = final_compressed_file.stat().st_size
+    compressed_backup_size = destination_compressed.stat().st_size
     if minimum_backup_size == 0 or compressed_backup_size < minimum_backup_size:
       params.put_int("MinimumBackupSize", compressed_backup_size)
   else:
@@ -68,25 +67,22 @@ def backup_directory(backup, destination, success_message, fail_message, minimum
     run_cmd(["sudo", "rsync", "-avq", f"{backup}/.", in_progress_destination], success_message, fail_message)
     in_progress_destination.rename(destination)
 
-def cleanup_backups(directory, limit, success_message, fail_message, compressed=False):
+def cleanup_backups(directory, limit, compressed=False):
   directory.mkdir(parents=True, exist_ok=True)
 
   backups = sorted(directory.glob("*_auto*"), key=lambda x: x.stat().st_mtime, reverse=True)
   for backup in backups[:]:
     if "_in_progress" in backup.name:
-      run_cmd(["sudo", "rm", "-rf", backup], "", fail_message)
+      delete_file(backup)
       backups.remove(backup)
 
   for oldest_backup in backups[limit:]:
-    if oldest_backup.is_dir():
-      run_cmd(["sudo", "rm", "-rf", oldest_backup], success_message, fail_message)
-    else:
-      run_cmd(["sudo", "rm", oldest_backup], success_message, fail_message)
+    delete_file(oldest_backup)
 
 def backup_frogpilot(build_metadata):
   backup_path = Path("/data/backups")
-  maximum_backups = 5
-  cleanup_backups(backup_path, maximum_backups, "Successfully cleaned up old FrogPilot backups", "Failed to cleanup old FrogPilot backups", compressed=True)
+  maximum_backups = 3
+  cleanup_backups(backup_path, maximum_backups, compressed=True)
 
   _, _, free = shutil.disk_usage(backup_path)
   minimum_backup_size = params.get_int("MinimumBackupSize")
@@ -102,6 +98,7 @@ def backup_toggles(params_cache):
   for key, _, _ in frogpilot_default_params:
     if key in EXCLUDED_KEYS:
       continue
+
     new_value = params.get(key) or "0"
     current_value = params_backup.get(key) or "0"
 
@@ -110,13 +107,15 @@ def backup_toggles(params_cache):
       params_cache.put(key, new_value)
       changes_found = True
 
-  if not changes_found:
+  backup_path = Path("/data/toggle_backups")
+  maximum_backups = 5
+
+  existing_backups = list(backup_path.glob("*"))
+  if not changes_found and existing_backups:
     print("Toggles are identical to the previous backup. Aborting...")
     return
 
-  backup_path = Path("/data/toggle_backups")
-  maximum_backups = 10
-  cleanup_backups(backup_path, maximum_backups, "Successfully cleaned up old toggle backups", "Failed to cleanup old toggle backups")
+  cleanup_backups(backup_path, maximum_backups)
 
   directory = Path("/data/params_backup/d")
   destination_directory = backup_path / f"{datetime.datetime.now().strftime('%Y-%m-%d_%I-%M%p').lower()}_auto"

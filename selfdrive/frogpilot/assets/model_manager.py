@@ -22,6 +22,7 @@ MODEL_DOWNLOAD_PARAM = "ModelToDownload"
 class ModelManager:
   def __init__(self):
     self.available_models = (params.get("AvailableModels", encoding="utf-8") or "").split(",")
+    self.model_versions = (params.get("ModelVersions", encoding="utf-8") or "").split(",")
 
     self.downloading_model = False
 

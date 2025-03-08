@@ -14,9 +14,6 @@ struct FrogPilotCarControl @0x81c2f05a394cf4af {
   accelPressed @0 :Bool;
   alwaysOnLateralActive @1 :Bool;
   decelPressed @2 :Bool;
-  fcwEventTriggered @3 :Bool;
-  noEntryEventTriggered @4 :Bool;
-  steerSaturatedEventTriggered @5 :Bool;
 }
 
 struct FrogPilotCarState @0xaedffd8f31e7b55d {
@@ -63,22 +60,23 @@ struct FrogPilotPlan @0x80ae746ee2596b11 {
   minAcceleration @12 :Float32;
   mtscSpeed @13 :Float32;
   redLight @14 :Bool;
-  slcMapSpeedLimit @15 :Float32;
-  slcOverridden @16 :Bool;
-  slcOverriddenSpeed @17 :Float32;
-  slcSpeedLimit @18 :Float32;
-  slcSpeedLimitOffset @19 :Float32;
-  slcSpeedLimitSource @20 :Text;
-  speedJerk @21 :Float32;
-  speedJerkStock @22 :Float32;
-  speedLimitChanged @23 :Bool;
-  tFollow @24 :Float32;
-  togglesUpdated @25 :Bool;
-  unconfirmedSlcSpeedLimit @26 :Float32;
-  upcomingSLCSpeedLimit @27 :Float32;
-  vCruise @28 :Float32;
-  vtscControllingCurve @29 :Bool;
-  vtscSpeed @30 :Float32;
+  roadCurvature @15 :Float32;
+  slcMapSpeedLimit @16 :Float32;
+  slcOverridden @17 :Bool;
+  slcOverriddenSpeed @18 :Float32;
+  slcSpeedLimit @19 :Float32;
+  slcSpeedLimitOffset @20 :Float32;
+  slcSpeedLimitSource @21 :Text;
+  speedJerk @22 :Float32;
+  speedJerkStock @23 :Float32;
+  speedLimitChanged @24 :Bool;
+  tFollow @25 :Float32;
+  togglesUpdated @26 :Bool;
+  unconfirmedSlcSpeedLimit @27 :Float32;
+  upcomingSLCSpeedLimit @28 :Float32;
+  vCruise @29 :Float32;
+  vtscControllingCurve @30 :Bool;
+  vtscSpeed @31 :Float32;
 }
 
 struct CustomReserved5 @0xa5cd762cd951a455 {

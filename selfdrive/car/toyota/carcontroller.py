@@ -266,7 +266,10 @@ class CarController(CarControllerBase):
         self.aego.update(a_ego_blended)
         j_ego = (self.aego.x - prev_aego) / (DT_CTRL * 3)
 
-        future_t = float(np.interp(CS.out.vEgo, [2., 5.], [0.25, 0.5]))
+        if frogpilot_toggles.frogsgomoo_tweak:
+          future_t = float(np.interp(CS.out.vEgo, [2., 5.], [0.35, 1.0]))
+        else:
+          future_t = float(np.interp(CS.out.vEgo, [2., 5.], [0.25, 0.5]))
         a_ego_future = a_ego_blended + j_ego * future_t
 
         if CC.longActive:

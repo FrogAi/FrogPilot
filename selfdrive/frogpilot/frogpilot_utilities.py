@@ -56,8 +56,12 @@ def run_thread_with_lock(name, target, args=()):
       running_threads[name] = thread
 
 def calculate_distance_to_point(ax, ay, bx, by):
-  a = math.sin((bx - ax) / 2) * math.sin((bx - ax) / 2) + math.cos(ax) * math.cos(bx) * math.sin((by - ay) / 2) * math.sin((by - ay) / 2)
+  delta_x = (bx - ax) / 2
+  delta_y = (by - ay) / 2
+
+  a = (math.sin(delta_x)**2) + math.cos(ax) * math.cos(bx) * (math.sin(delta_y)**2)
   c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
   return EARTH_RADIUS * c
 
 def calculate_lane_width(lane, current_lane, road_edge):
@@ -74,44 +78,38 @@ def calculate_lane_width(lane, current_lane, road_edge):
 
 # Credit goes to Pfeiferj!
 def calculate_road_curvature(modelData, v_ego):
-  orientation_rate = np.abs(modelData.orientationRate.z)
-  velocity = modelData.velocity.x
-  max_pred_lat_acc = np.amax(orientation_rate * velocity)
-  return max_pred_lat_acc / max(v_ego, 1)**2
+  orientation_rate = np.array(modelData.orientationRate.z)
+  velocity = np.array(modelData.velocity.x)
+
+  max_pred_lat_acc = max(np.max(orientation_rate * velocity), np.min(orientation_rate * velocity), key=abs)
+
+  return float(max_pred_lat_acc / max(v_ego, 1)**2)
 
 def delete_file(path):
   path = Path(path)
-  try:
-    if path.is_file() or path.is_symlink():
-      path.unlink()
-      print(f"Deleted file: {path}")
-    elif path.is_dir():
-      shutil.rmtree(path)
-      print(f"Deleted directory: {path}")
-    else:
-      print(f"File not found: {path}")
-  except Exception as error:
-    print(f"An error occurred when deleting {path}: {error}")
-    sentry.capture_exception(error)
+  if path.is_file() or path.is_symlink():
+    path.unlink()
+    print(f"Deleted file: {path}")
+  elif path.is_dir():
+    shutil.rmtree(path)
+    print(f"Deleted directory: {path}")
+  else:
+    print(f"File not found: {path}")
 
 def extract_zip(zip_file, extract_path):
   zip_file = Path(zip_file)
   extract_path = Path(extract_path)
   print(f"Extracting {zip_file} to {extract_path}")
 
-  try:
-    with zipfile.ZipFile(zip_file, "r") as zip_ref:
-      zip_ref.extractall(extract_path)
-    zip_file.unlink()
-    print(f"Extraction completed: {zip_file} has been removed")
-  except Exception as error:
-    print(f"An error occurred while extracting {zip_file}: {error}")
-    sentry.capture_exception(error)
+  with zipfile.ZipFile(zip_file, "r") as zip_ref:
+    zip_ref.extractall(extract_path)
+  zip_file.unlink()
+  print(f"Extraction completed: {zip_file} has been removed")
 
 def flash_panda():
   HARDWARE.reset_internal_panda()
   Panda().wait_for_panda(None, 30)
-  params_memory.put_bool("FlashPanda", False)
+  params_memory.remove("FlashPanda")
 
 def is_url_pingable(url, timeout=10):
   try:
