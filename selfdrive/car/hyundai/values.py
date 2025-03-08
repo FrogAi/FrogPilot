@@ -95,6 +95,10 @@ class HyundaiFlags(IntFlag):
 
   MIN_STEER_32_MPH = 2 ** 23
 
+  # FrogPilot HKG flags
+  CAN_LFA_BTN = 2 ** 24
+  LKAS12 = 2 ** 25
+  NAV_MSG = 2 ** 26
 
 class Footnote(Enum):
   CANFD = CarFootnote(

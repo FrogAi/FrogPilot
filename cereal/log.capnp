@@ -335,6 +335,12 @@ enum LaneChangeDirection {
   right @2;
 }
 
+enum TurnDirection {
+  none @0;
+  turnLeft @1;
+  turnRight @2;
+}
+
 struct CanData {
   address @0 :UInt32;
   busTime @1 :UInt16;
@@ -612,6 +618,10 @@ struct RadarState @0x9a185389d6fdd05f {
 
   leadOne @3 :LeadData;
   leadTwo @4 :LeadData;
+  leadLeft @13 :LeadData;
+  leadRight @14 :LeadData;
+  leadLeftFar @15 :LeadData;
+  leadRightFar @16 :LeadData;
   cumLagMs @5 :Float32;
 
   struct LeadData {
@@ -698,6 +708,7 @@ struct ControlsState @0x97ff69c53601abf1 {
   personality @66 :LongitudinalPersonality;
 
   longControlState @30 :Car.CarControl.Actuators.LongControlState;
+  vPid @2 :Float32;
   vTargetLead @3 :Float32;
   vCruise @22 :Float32;  # actual set speed
   vCruiseCluster @63 :Float32;  # set speed to display in the UI
@@ -744,6 +755,7 @@ struct ControlsState @0x97ff69c53601abf1 {
     normal @0;       # low priority alert for user's convenience
     userPrompt @1;   # mid priority alert that might require user intervention
     critical @2;     # high priority alert that needs immediate user intervention
+    frogpilot @3;    # FrogPilot startup alert
   }
 
   enum AlertSize {
@@ -794,6 +806,7 @@ struct ControlsState @0x97ff69c53601abf1 {
     saturated @7 :Bool;
     actualLateralAccel @9 :Float32;
     desiredLateralAccel @10 :Float32;
+    nnLog @11 :List(Float32);
    }
 
   struct LateralLQRState {
@@ -865,7 +878,39 @@ struct ControlsState @0x97ff69c53601abf1 {
   canMonoTimesDEPRECATED @21 :List(UInt64);
   desiredCurvatureRateDEPRECATED @62 :Float32;
   canErrorCounterDEPRECATED @57 :UInt32;
-  vPidDEPRECATED @2 :Float32;
+}
+
+struct DrivingModelData {
+  frameId @0 :UInt32;
+  frameIdExtra @1 :UInt32;
+  frameDropPerc @6 :Float32;
+  modelExecutionTime @7 :Float32;
+
+  action @2 :ModelDataV2.Action;
+
+  laneLineMeta @3 :LaneLineMeta;
+  meta @4 :MetaData;
+
+  path @5 :PolyPath;
+
+  struct PolyPath {
+    xCoefficients @0 :List(Float32);
+    yCoefficients @1 :List(Float32);
+    zCoefficients @2 :List(Float32);
+  }
+
+  struct LaneLineMeta {
+    leftY @0 :Float32;
+    rightY @1 :Float32;
+    leftProb @2 :Float32;
+    rightProb @3 :Float32;
+  }
+
+  struct MetaData {
+    laneChangeState @0 :LaneChangeState;
+    laneChangeDirection @1 :LaneChangeDirection;
+    turnDirection @2 :TurnDirection;
+  }
 }
 
 # All SI units and in device frame
@@ -913,8 +958,8 @@ struct ModelDataV2 {
   # Model perceived motion
   temporalPose @21 :Pose;
 
-  navEnabledDEPRECATED @22 :Bool;
-  locationMonoTimeDEPRECATED @24 :UInt64;
+  navEnabled @22 :Bool;
+  locationMonoTime @24 :UInt64;
 
   # e2e lateral planner
   lateralPlannerSolutionDEPRECATED @25: LateralPlannerSolution;
@@ -958,6 +1003,7 @@ struct ModelDataV2 {
     hardBrakePredicted @7 :Bool;
     laneChangeState @8 :LaneChangeState;
     laneChangeDirection @9 :LaneChangeDirection;
+    turnDirection @10 :TurnDirection;
 
 
     # deprecated
@@ -980,6 +1026,8 @@ struct ModelDataV2 {
     brake3MetersPerSecondSquaredProbs @4 :List(Float32);
     brake4MetersPerSecondSquaredProbs @5 :List(Float32);
     brake5MetersPerSecondSquaredProbs @6 :List(Float32);
+    gasPressProbs @7 :List(Float32);
+    brakePressProbs @8 :List(Float32);
   }
 
   struct Pose {
@@ -2264,6 +2312,7 @@ struct Event {
     driverMonitoringState @71: DriverMonitoringState;
     liveLocationKalman @72 :LiveLocationKalman;
     modelV2 @75 :ModelDataV2;
+    drivingModelData @128 :DrivingModelData;
     driverStateV2 @92 :DriverStateV2;
 
     # camera stuff, each camera state has a matching encode idx
@@ -2318,11 +2367,11 @@ struct Event {
     customReservedRawData2 @126 :Data;
 
     # *********** Custom: reserved for forks ***********
-    customReserved0 @107 :Custom.CustomReserved0;
-    customReserved1 @108 :Custom.CustomReserved1;
-    customReserved2 @109 :Custom.CustomReserved2;
-    customReserved3 @110 :Custom.CustomReserved3;
-    customReserved4 @111 :Custom.CustomReserved4;
+    frogpilotCarControl @107 :Custom.FrogPilotCarControl;
+    frogpilotCarState @108 :Custom.FrogPilotCarState;
+    frogpilotDeviceState @109 :Custom.FrogPilotDeviceState;
+    frogpilotNavigation @110 :Custom.FrogPilotNavigation;
+    frogpilotPlan @111 :Custom.FrogPilotPlan;
     customReserved5 @112 :Custom.CustomReserved5;
     customReserved6 @113 :Custom.CustomReserved6;
     customReserved7 @114 :Custom.CustomReserved7;
@@ -2368,6 +2417,6 @@ struct Event {
     driverStateDEPRECATED @59 :DriverStateDEPRECATED;
     sensorEventsDEPRECATED @11 :List(SensorEventData);
     lateralPlanDEPRECATED @64 :LateralPlan;
-    navModelDEPRECATED @104 :NavModelData;
+    navModel @104 :NavModelData;
   }
 }

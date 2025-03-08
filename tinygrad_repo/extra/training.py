@@ -1,32 +1,37 @@
 import numpy as np
-from tqdm import trange
 from tinygrad.tensor import Tensor
-from tinygrad.helpers import CI
+from tinygrad.helpers import CI, trange
+from tinygrad.engine.jit import TinyJit
+
 
 def train(model, X_train, Y_train, optim, steps, BS=128, lossfn=lambda out,y: out.sparse_categorical_crossentropy(y),
-        transform=lambda x: x, target_transform=lambda x: x, noloss=False):
+        transform=lambda x: x, target_transform=lambda x: x, noloss=False, allow_jit=True):
+
+  def train_step(x, y):
+    # network
+    out = model.forward(x) if hasattr(model, 'forward') else model(x)
+    loss = lossfn(out, y)
+    optim.zero_grad()
+    loss.backward()
+    if noloss: del loss
+    optim.step()
+    if noloss: return (None, None)
+    cat = out.argmax(axis=-1)
+    accuracy = (cat == y).mean()
+    return loss.realize(), accuracy.realize()
+
+  if allow_jit: train_step = TinyJit(train_step)
+
   with Tensor.train():
     losses, accuracies = [], []
     for i in (t := trange(steps, disable=CI)):
       samp = np.random.randint(0, X_train.shape[0], size=(BS))
       x = Tensor(transform(X_train[samp]), requires_grad=False)
       y = Tensor(target_transform(Y_train[samp]))
-
-      # network
-      out = model.forward(x) if hasattr(model, 'forward') else model(x)
-
-      loss = lossfn(out, y)
-      optim.zero_grad()
-      loss.backward()
-      if noloss: del loss
-      optim.step()
-
+      loss, accuracy = train_step(x, y)
       # printing
       if not noloss:
-        cat = out.argmax(axis=-1)
-        accuracy = (cat == y).mean().numpy()
-
-        loss = loss.detach().numpy()
+        loss, accuracy = loss.numpy(), accuracy.numpy()
         losses.append(loss)
         accuracies.append(accuracy)
         t.set_description("loss %.2f accuracy %.2f" % (loss, accuracy))

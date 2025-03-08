@@ -1,31 +1,28 @@
 # NOTE: this only tests the speed of the LLaMA codegen, it doesn't actually run the net
 import unittest, time
-import numpy as np
 from examples.llama import Transformer, MODEL_PARAMS
-from test.test_net_speed import start_profile, stop_profile
 from tinygrad.tensor import Tensor
-from tinygrad.ops import Device
+from tinygrad import Device
 from tinygrad.nn.state import get_state_dict
-from tinygrad.ops import Compiled
-from tinygrad.helpers import dtypes, prod
-from tinygrad.runtime.lib import RawBuffer
+from tinygrad.device import Allocator
+from tinygrad.engine.realize import method_cache
+from tinygrad.helpers import Profiling
 
 class FakeProgram:
-  def __init__(self, name:str, prg:str): pass
-  def __call__(self, *bufs, global_size, local_size, wait=False): pass
+  def __init__(self, name:str, prg:bytes): pass
+  def __call__(self, *bufs, global_size, local_size, vals=(), wait=False): pass
 
-class RawFakeBuffer(RawBuffer):
-  @classmethod
-  def fromCPU(cls, x:np.ndarray, **kwargs): return cls(prod(x.shape), dtypes.from_np(x.dtype), **kwargs)
-  def toCPU(self): return np.empty(self.size, dtype=self.dtype.np)
+class FakeAllocator(Allocator):
+  def _alloc(self, sz, options): return None
+  def _copyin(self, dest, src:memoryview): pass
 
 class TestLLaMASpeed(unittest.TestCase):
-  @unittest.skipIf(not isinstance(Device[Device.DEFAULT], Compiled), "only test for compiled backends")
   def test_llama_compile(self):
     backup_program = Device[Device.DEFAULT].runtime
-    backup_buffer = Device[Device.DEFAULT].buffer
+    backup_allocator = Device[Device.DEFAULT].allocator
+    backup_compiler = Device[Device.DEFAULT].compiler
     Device[Device.DEFAULT].runtime = FakeProgram
-    Device[Device.DEFAULT].buffer = RawFakeBuffer
+    Device[Device.DEFAULT].allocator = FakeAllocator()
 
     print("testing llama python run time")
     model = Transformer(**MODEL_PARAMS["1"]["7B"]["args"])
@@ -35,23 +32,27 @@ class TestLLaMASpeed(unittest.TestCase):
     print("assigned empty tensors, doing warmup")
 
     def run_llama(st, empty_method_cache=True):
-      if empty_method_cache: Device[Device.DEFAULT].method_cache.clear()
+      if empty_method_cache: method_cache.clear()
       tms = [time.perf_counter()]
-      for i in range(10):
-        model(Tensor([[2]]), i).realize()
+      for i in range(5):
+        model(Tensor([[1,2,3,4]]), i).realize()
         tms.append(time.perf_counter())
       timings = [(tms[i+1]-tms[i])*1000 for i in range(len(tms)-1)]
       print(f"{st:15s} mean runtime: {sum(timings)/len(timings):7.2f}ms, runs: ", ", ".join(f'{x:7.2f}' for x in timings))
 
-    run_llama("codegen")
-    run_llama("methodcache", False)
+    run_llama("codegen(0)")
+    run_llama("codegen(1)")
 
-    pr = start_profile()
-    run_llama("profile")
-    stop_profile(pr, sort='time', frac=0.1)
+    # test no compiler use for this
+    Device[Device.DEFAULT].compiler = None
+    run_llama("methodcache", False)
+    with Profiling(sort='time', frac=0.1, fn="/tmp/llama.prof", ts=5):
+      run_llama("profile", False)
 
     Device[Device.DEFAULT].runtime = backup_program
-    Device[Device.DEFAULT].buffer = backup_buffer
+    Device[Device.DEFAULT].allocator = backup_allocator
+    Device[Device.DEFAULT].compiler = backup_compiler
 
 if __name__ == '__main__':
-  unittest.main()
+  TestLLaMASpeed().test_llama_compile()
+  #unittest.main()

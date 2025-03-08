@@ -1,20 +1,9 @@
-import os
-#os.environ["METAL"] = "1"
 import numpy as np
 import time, torch, torch.mps
 
-from tinygrad.helpers import GlobalCounters
-from tinygrad.tensor import Tensor
-from tinygrad.jit import TinyJit
-from tinygrad.ops import Device
-from tinygrad.helpers import colored, getenv, CI
-
-import os
-os.environ["METAL"] = "1"
-import time
-import numpy as np
-from tinygrad.helpers import dtypes, getenv
-from tinygrad.runtime.ops_metal import RawMetalBuffer, MetalProgram
+from tinygrad import Tensor, TinyJit, Device
+from tinygrad.helpers import flat_mv
+from tinygrad.runtime.ops_metal import MetalAllocator, MetalDevice, MetalProgram, MetalCompiler
 
 N = 16384
 M = 4096
@@ -23,7 +12,6 @@ FLOPS = N*M*2
 nb = np.random.default_rng().standard_normal(size=(N), dtype=np.float32) #.astype(np.int32).astype(np.float32)
 nc = np.random.default_rng().standard_normal(size=(N,M), dtype=np.float32) #.astype(np.int32).astype(np.float32)
 
-import torch, torch.mps
 b = torch.from_numpy(nb).to('mps')
 c = torch.from_numpy(nc).to('mps')
 
@@ -36,11 +24,13 @@ tm = min([torch_prog(b, c) for _ in range(200)])
 print(f"{N:d}x{M:d} {tm*1e6:9.2f} us, would be {FLOPS*1e-9/tm:9.2f} GFLOPS matvec in torch")
 torch_a = (b@c).cpu()
 
+device = MetalDevice("METAL")
+metalalloc = MetalAllocator(device)
 WORKSIZE_ROW = 16
 WORKSIZE_COL = 1
 LOCAL_SIZE = [32, WORKSIZE_COL, WORKSIZE_ROW]
 GLOBAL_SIZE = [M//(LOCAL_SIZE[0]*LOCAL_SIZE[1]*4), 1, 1]
-prog_string = f"""
+prog = MetalProgram(device, "test", MetalCompiler(device).compile(f"""
 #include <metal_stdlib>
 using namespace metal;
 kernel void test(device float* data0, const device float* data1, const device float* data2, uint3 gid [[threadgroup_position_in_grid]], uint3 lid [[thread_position_in_threadgroup]]) {{
@@ -86,15 +76,14 @@ kernel void test(device float* data0, const device float* data1, const device fl
     *( (device float4 *) (data0 + (gidx0*{M//GLOBAL_SIZE[0]}) + ( ( (lidx1*{LOCAL_SIZE[1]})+lidx2 ) * 4 ) ) ) = out;
   }}
 }}
-"""
-prog = MetalProgram("test", prog_string)
-# print(prog_string)
-na = np.zeros(M, dtype=np.float32)
-b = RawMetalBuffer.fromCPU(nb)
-c = RawMetalBuffer.fromCPU(nc)
+"""))
+a = metalalloc.alloc(M*4)
+b = metalalloc.alloc(N*4)
+c = metalalloc.alloc(N*M*4)
+metalalloc._copyin(b,nb.tobytes())
+metalalloc._copyin(c,nc.tobytes())
 def metalrun():
-  a = RawMetalBuffer.fromCPU(na)
-  prog(GLOBAL_SIZE, LOCAL_SIZE, a, b, c, wait=True)
+  prog(a, b, c, global_size=GLOBAL_SIZE, local_size=LOCAL_SIZE, wait=True)
   return a
 def timeit(fxn):
   st = time.perf_counter()
@@ -103,12 +92,10 @@ def timeit(fxn):
   return time.perf_counter() - st
 tm = min([timeit(metalrun) for _ in range(200)])
 print(f"{N:d}x{M:d} {tm*1e6:9.2f} us, would be {FLOPS*1e-9/tm:9.2f} GFLOPS matvec in metal")
-metal_a = metalrun().toCPU().reshape(M)
+metal_a = np.zeros(M, dtype=np.float32)
+metalalloc._copyout(flat_mv(metal_a.data), a)
 np.testing.assert_allclose(metal_a, torch_a, atol=5e-3)
 
-from tinygrad.tensor import Tensor
-from tinygrad.jit import TinyJit
-from tinygrad.runtime.ops_metal import METAL
 b = Tensor(nb)
 c = Tensor(nc)
 # TODO: slowness without the JIT I suspect comes from a lack of a caching allocator
@@ -118,7 +105,7 @@ def tiny_jit(b, c):
 def tiny_prog(b, c):
   st = time.perf_counter()
   a = tiny_jit(b, c)
-  METAL.synchronize()
+  Device["METAL"].synchronize()
   return time.perf_counter() - st
 tm = min([tiny_prog(b, c) for _ in range(200)])
 print(f"{N:d}x{M:d} {tm*1e6:9.2f} us, would be {FLOPS*1e-9/tm:9.2f} GFLOPS matvec in tinygrad")

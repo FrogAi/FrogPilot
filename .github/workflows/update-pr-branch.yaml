@@ -1,0 +1,101 @@
+name: Update MAKE-PRS-HERE
+
+on:
+  push:
+    branches:
+      - FrogPilot-Staging
+
+env:
+  SOURCE_BRANCH: FrogPilot-Staging
+  TARGET_BRANCH: MAKE-PRS-HERE
+
+jobs:
+  update_branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout FrogPilot-Staging Branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.SOURCE_BRANCH }}
+          fetch-depth: 0
+
+      - name: Identify the 'Compile FrogPilot' commit
+        id: find_parent
+        run: |
+          set -e
+          COMMIT=$(git rev-list HEAD -n 1 --grep="Compile FrogPilot")
+          if [ -z "$COMMIT" ]; then
+            echo "Commit with message 'Compile FrogPilot' not found." >&2
+            exit 1
+          fi
+
+          PARENT=$(git rev-list --parents -n 1 "$COMMIT" | awk '{print $2}')
+          if [ -z "$PARENT" ]; then
+            echo "Parent commit not found." >&2
+            exit 1
+          fi
+
+          echo "Compile commit: $COMMIT"
+          echo "Parent commit: $PARENT"
+          echo "parent_commit=$PARENT" >> "$GITHUB_OUTPUT"
+          echo "compile_commit=$COMMIT" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout MAKE-PRS-HERE Branch
+        run: |
+          set -e
+          git fetch origin ${{ env.TARGET_BRANCH }}
+          git checkout ${{ env.TARGET_BRANCH }}
+
+      - name: Clean MAKE-PRS-HERE and Update Files
+        run: |
+          set -e
+          git rm -r --ignore-unmatch .
+          git clean -fdx
+
+          PARENT_COMMIT=${{ steps.find_parent.outputs.parent_commit }}
+          git checkout $PARENT_COMMIT -- .
+
+          COMPILE_COMMIT=${{ steps.find_parent.outputs.compile_commit }}
+          SOURCE_HEAD=$(git rev-parse origin/${{ env.SOURCE_BRANCH }})
+          if [ "$COMPILE_COMMIT" != "$SOURCE_HEAD" ]; then
+            echo "Applying changes from commits after the compile commit..."
+            git cherry-pick --no-commit ${COMPILE_COMMIT}..$SOURCE_HEAD
+          fi
+          git add --all
+
+      - name: Set Git Username and Email
+        run: |
+          set -e
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Commit and Push Changes
+        run: |
+          set -e
+          TZ_VALUE="America/Phoenix"
+          current_day=$(TZ="$TZ_VALUE" date +"%-d")
+          month=$(TZ="$TZ_VALUE" date +"%B")
+          year=$(TZ="$TZ_VALUE" date +"%Y")
+
+          if [ "$current_day" -eq 11 ] || [ "$current_day" -eq 12 ] || [ "$current_day" -eq 13 ]; then
+            suffix="th"
+          else
+            case $(($current_day % 10)) in
+              1) suffix="st" ;;
+              2) suffix="nd" ;;
+              3) suffix="rd" ;;
+              *) suffix="th" ;;
+            esac
+          fi
+
+          commit_message="${month} ${current_day}${suffix}, ${year} Update"
+          echo "Commit message: $commit_message"
+
+          if git log --oneline --format="%s" | grep -q "$commit_message"; then
+            echo "Existing commit found with message: $commit_message"
+            git commit --amend --no-edit
+          else
+            git commit -m "$commit_message"
+          fi
+          git push origin ${{ env.TARGET_BRANCH }} --force

@@ -1,6 +1,6 @@
-from models.mask_rcnn import MaskRCNN
-from models.resnet import ResNet
-from models.mask_rcnn import BoxList
+from extra.models.mask_rcnn import MaskRCNN
+from extra.models.resnet import ResNet
+from extra.models.mask_rcnn import BoxList
 from torch.nn import functional as F
 from torchvision import transforms as T
 from torchvision.transforms import functional as Ft
@@ -151,7 +151,7 @@ class Masker:
       for mask, box in zip(masks, boxes.bbox)
     ]
     if len(res) > 0:
-      res = torch.stack(res, dim=0)[:, None]
+      res = torch.stack(*res, dim=0)[:, None]
     else:
       res = masks.new_empty((0, 1, masks.shape[-2], masks.shape[-1]))
     return Tensor(res.numpy())

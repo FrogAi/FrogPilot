@@ -25,17 +25,38 @@ public:
 protected:
   void showEvent(QShowEvent *event) override;
 
+  // FrogPilot widgets
+  void hideEvent(QHideEvent *event) override;
+
 signals:
   void closeSettings();
   void reviewTrainingGuide();
   void showDriverView();
   void expandToggleDescription(const QString &param);
 
+  // FrogPilot signals
+  void closeMapBoxInstructions();
+  void closeMapSelection();
+  void closePanel();
+  void closeParentToggle();
+  void closeSubParentToggle();
+  void updateMetric(bool metric, bool bootRun=false);
+
 private:
   QPushButton *sidebar_alert_widget;
   QWidget *sidebar_widget;
   QButtonGroup *nav_btns;
   QStackedWidget *panel_widget;
+
+  // FrogPilot variables
+  Params params;
+  Params paramsTracking{"/cache/tracking"};
+
+  bool mapboxInstructionsOpen;
+  bool mapSelectionOpen;
+  bool panelOpen;
+  bool parentToggleOpen;
+  bool subParentToggleOpen;
 };
 
 class DevicePanel : public ListWidget {
@@ -56,6 +77,9 @@ private slots:
 private:
   Params params;
   ButtonControl *pair_device;
+
+  // FrogPilot variables
+  Params params_cache{"/cache/params"};
 };
 
 class TogglesPanel : public ListWidget {
@@ -63,6 +87,10 @@ class TogglesPanel : public ListWidget {
 public:
   explicit TogglesPanel(SettingsWindow *parent);
   void showEvent(QShowEvent *event) override;
+
+signals:
+  // FrogPilot signals
+  void updateMetric(bool metric, bool bootRun=false);
 
 public slots:
   void expandToggleDescription(const QString &param);
@@ -98,4 +126,7 @@ private:
 
   Params params;
   ParamWatcher *fs_watch;
+
+  // FrogPilot variables
+  Params params_memory{"/dev/shm/params"};
 };

@@ -81,6 +81,35 @@ WiFiPromptWidget::WiFiPromptWidget(QWidget *parent) : QFrame(parent) {
   }
   stack->addWidget(uploading);
 
+  // not uploading data
+  QWidget *notUploading = new QWidget;
+  QVBoxLayout *not_uploading_layout = new QVBoxLayout(notUploading);
+  not_uploading_layout->setContentsMargins(64, 56, 64, 56);
+  not_uploading_layout->setSpacing(36);
+  {
+    QHBoxLayout *title_layout = new QHBoxLayout;
+    {
+      QLabel *title = new QLabel(tr("Uploading disabled"));
+      title->setStyleSheet("font-size: 64px; font-weight: 600;");
+      title->setWordWrap(true);
+      title->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
+      title_layout->addWidget(title);
+      title_layout->addStretch();
+
+      QLabel *icon = new QLabel;
+      QPixmap pixmap("../frogpilot/assets/other_images/icon_wifi_uploading_disabled.svg");
+      icon->setPixmap(pixmap.scaledToWidth(120, Qt::SmoothTransformation));
+      title_layout->addWidget(icon);
+    }
+    not_uploading_layout->addLayout(title_layout);
+
+    QLabel *desc = new QLabel(tr("Toggle off the 'Turn Off Data Uploads' toggle to re-enable uploads."));
+    desc->setStyleSheet("font-size: 48px; font-weight: 400;");
+    desc->setWordWrap(true);
+    not_uploading_layout->addWidget(desc);
+  }
+  stack->addWidget(notUploading);
+
   setStyleSheet(R"(
     WiFiPromptWidget {
       background-color: #333333;
@@ -99,5 +128,5 @@ void WiFiPromptWidget::updateState(const UIState &s) {
   auto network_type = sm["deviceState"].getDeviceState().getNetworkType();
   auto uploading = network_type == cereal::DeviceState::NetworkType::WIFI ||
       network_type == cereal::DeviceState::NetworkType::ETHERNET;
-  stack->setCurrentIndex(uploading ? 1 : 0);
+  stack->setCurrentIndex(s.scene.no_uploads ? 2 : uploading ? 1 : 0);
 }

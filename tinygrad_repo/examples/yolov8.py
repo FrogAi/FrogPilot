@@ -1,20 +1,22 @@
 from tinygrad.nn import Conv2d, BatchNorm2d
 from tinygrad.tensor import Tensor
+from tinygrad.device import is_dtype_supported
+from tinygrad import dtypes
 import numpy as np
 from itertools import chain
-from extra.utils import get_child, fetch, download_file
 from pathlib import Path
 import cv2
 from collections import defaultdict
-import time, io, sys
+import time, sys
+from tinygrad.helpers import fetch
 from tinygrad.nn.state import safe_load, load_state_dict
-
+import json
 
 #Model architecture from https://github.com/ultralytics/ultralytics/issues/189
 #The upsampling class has been taken from this pull request https://github.com/tinygrad/tinygrad/pull/784 by dc-dc-dc. Now 2(?) models use upsampling. (retinet and this)
 
 #Pre processing image functions.
-def compute_transform(image, new_shape=(640, 640), auto=False, scaleFill=False, scaleup=True, stride=32):
+def compute_transform(image, new_shape=(640, 640), auto=False, scaleFill=False, scaleup=True, stride=32) -> Tensor:
   shape = image.shape[:2]  # current shape [height, width]
   new_shape = (new_shape, new_shape) if isinstance(new_shape, int) else new_shape
   r = min(new_shape[0] / shape[0], new_shape[1] / shape[1])
@@ -29,15 +31,15 @@ def compute_transform(image, new_shape=(640, 640), auto=False, scaleFill=False, 
   top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
   left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
   image = cv2.copyMakeBorder(image, top, bottom, left, right, cv2.BORDER_CONSTANT, value=(114, 114, 114))
-  return image
+  return Tensor(image)
 
 def preprocess(im, imgsz=640, model_stride=32, model_pt=True):
   same_shapes = all(x.shape == im[0].shape for x in im)
   auto = same_shapes and model_pt
-  im = Tensor([compute_transform(x, new_shape=imgsz, auto=auto, stride=model_stride) for x in im])
-  im = Tensor.stack(im) if im.shape[0] > 1 else im
+  im = [compute_transform(x, new_shape=imgsz, auto=auto, stride=model_stride) for x in im]
+  im = Tensor.stack(*im) if len(im) > 1 else im[0].unsqueeze(0)
   im = im[..., ::-1].permute(0, 3, 1, 2)  # BGR to RGB, BHWC to BCHW, (n, 3, h, w)
-  im /= 255  # 0 - 255 to 0.0 - 1.0
+  im = im / 255.0  # 0 - 255 to 0.0 - 1.0
   return im
 
 # Post Processing functions
@@ -62,7 +64,7 @@ def compute_nms(boxes, scores, iou_threshold):
     if order.size == 1:
       break
     iou = box_iou(boxes[i][None, :], boxes[order[1:]])
-    inds = np.where(iou.squeeze() <= iou_threshold)[0]
+    inds = np.where(np.atleast_1d(iou.squeeze()) <= iou_threshold)[0]
     order = order[inds + 1]
   return np.array(keep)
 
@@ -181,7 +183,7 @@ def make_anchors(feats, strides, grid_cell_offset=0.5):
     sx = sx.reshape(1, -1).repeat([h, 1]).reshape(-1)
     sy = sy.reshape(-1, 1).repeat([1, w]).reshape(-1)
 
-    anchor_points.append(Tensor.stack((sx, sy), -1).reshape(-1, 2))
+    anchor_points.append(Tensor.stack(sx, sy, dim=-1).reshape(-1, 2))
     stride_tensor.append(Tensor.full((h * w), stride))
   anchor_points = anchor_points[0].cat(anchor_points[1], anchor_points[2])
   stride_tensor = stride_tensor[0].cat(stride_tensor[1], stride_tensor[2]).unsqueeze(1)
@@ -283,7 +285,7 @@ class SPPF:
     self.cv2 = Conv_Block(c_ * 4, c2, 1, 1, padding=None)
 
     # TODO: this pads with 0s, whereas torch function pads with -infinity. This results in a < 2% difference in prediction which does not make a difference visually.
-    self.maxpool = lambda x : x.pad2d((k // 2, k // 2, k // 2, k // 2)).max_pool2d(kernel_size=k, stride=1)
+    self.maxpool = lambda x : x.pad((k // 2, k // 2, k // 2, k // 2)).max_pool2d(kernel_size=k, stride=1)
 
   def __call__(self, x):
     x = self.cv1(x)
@@ -296,7 +298,7 @@ class DFL:
   def __init__(self, c1=16):
     self.conv = Conv2d(c1, 1, 1, bias=False)
     x = Tensor.arange(c1)
-    self.conv.weight.assign(x.reshape(1, c1, 1, 1))
+    self.conv.weight.replace(x.reshape(1, c1, 1, 1))
     self.c1 = c1
 
   def __call__(self, x):
@@ -386,6 +388,32 @@ class YOLOv8:
     yolov8_head_weights = [(22, self.head)]
     return [*zip(backbone_modules, self.net.return_modules()), *zip(yolov8neck_modules, self.fpn.return_modules()), *yolov8_head_weights]
 
+def convert_f16_safetensor_to_f32(input_file: Path, output_file: Path):
+  with open(input_file, 'rb') as f:
+    metadata_length = int.from_bytes(f.read(8), 'little')
+    metadata = json.loads(f.read(metadata_length).decode())
+    float32_values = np.fromfile(f, dtype=np.float16).astype(np.float32)
+
+  for v in metadata.values():
+    if v["dtype"] == "F16": v.update({"dtype": "F32", "data_offsets": [offset * 2 for offset in v["data_offsets"]]})
+
+  with open(output_file, 'wb') as f:
+    new_metadata_bytes = json.dumps(metadata).encode()
+    f.write(len(new_metadata_bytes).to_bytes(8, 'little'))
+    f.write(new_metadata_bytes)
+    float32_values.tofile(f)
+
+def get_weights_location(yolo_variant: str) -> Path:
+  weights_location = Path(__file__).parents[1] / "weights" / f'yolov8{yolo_variant}.safetensors'
+  fetch(f'https://gitlab.com/r3sist/yolov8_weights/-/raw/master/yolov8{yolo_variant}.safetensors', weights_location)
+
+  if not is_dtype_supported(dtypes.half):
+    f32_weights = weights_location.with_name(f"{weights_location.stem}_f32.safetensors")
+    if not f32_weights.exists(): convert_f16_safetensor_to_f32(weights_location, f32_weights)
+    weights_location = f32_weights
+
+  return weights_location
+
 if __name__ == '__main__':
 
   # usage : python3 yolov8.py "image_URL OR image_path" "v8 variant" (optional, n is default)
@@ -400,22 +428,18 @@ if __name__ == '__main__':
   output_folder_path = Path('./outputs_yolov8')
   output_folder_path.mkdir(parents=True, exist_ok=True)
   #absolute image path or URL
-  image_location = [np.frombuffer(io.BytesIO(fetch(img_path)).read(), np.uint8)]
+  image_location = [np.frombuffer(fetch(img_path).read_bytes(), np.uint8)]
   image = [cv2.imdecode(image_location[0], 1)]
-  out_paths = [(output_folder_path / f"{Path(img_path).stem}_output{Path(img_path).suffix}").as_posix()]
+  out_paths = [(output_folder_path / f"{Path(img_path).stem}_output{Path(img_path).suffix or '.png'}").as_posix()]
   if not isinstance(image[0], np.ndarray):
     print('Error in image loading. Check your image file.')
     sys.exit(1)
   pre_processed_image = preprocess(image)
 
-  # Different YOLOv8 variants use different w , r, and d multiples. For a list , refer to this yaml file (the scales section) https://github.com/ultralytics/ultralytics/blob/main/ultralytics/models/v8/yolov8.yaml
+  # Different YOLOv8 variants use different w , r, and d multiples. For a list , refer to this yaml file (the scales section) https://github.com/ultralytics/ultralytics/blob/main/ultralytics/cfg/models/v8/yolov8.yaml
   depth, width, ratio = get_variant_multiples(yolo_variant)
   yolo_infer = YOLOv8(w=width, r=ratio, d=depth, num_classes=80)
-
-  weights_location = Path(__file__).parents[1] / "weights" / f'yolov8{yolo_variant}.safetensors'
-  download_file(f'https://gitlab.com/r3sist/yolov8_weights/-/raw/master/yolov8{yolo_variant}.safetensors', weights_location)
-
-  state_dict = safe_load(weights_location)
+  state_dict = safe_load(get_weights_location(yolo_variant))
   load_state_dict(yolo_infer, state_dict)
 
   st = time.time()
@@ -425,8 +449,7 @@ if __name__ == '__main__':
   post_predictions = postprocess(preds=predictions, img=pre_processed_image, orig_imgs=image)
 
   #v8 and v3 have same 80 class names for Object Detection
-  class_labels = fetch('https://raw.githubusercontent.com/pjreddie/darknet/master/data/coco.names')
-  class_labels = class_labels.decode('utf-8').split('\n')
+  class_labels = fetch('https://raw.githubusercontent.com/pjreddie/darknet/master/data/coco.names').read_text().split("\n")
 
   draw_bounding_boxes_and_save(orig_img_paths=image_location, output_img_paths=out_paths, all_predictions=post_predictions, class_labels=class_labels)
 

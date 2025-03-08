@@ -12,7 +12,6 @@ from openpilot.selfdrive.car.mock.values import CAR as MOCK
 from openpilot.common.swaglog import cloudlog
 import cereal.messaging as messaging
 from openpilot.selfdrive.car import gen_empty_fingerprint
-from openpilot.system.version import get_build_metadata
 
 FRAME_FINGERPRINT = 100  # 1s
 
@@ -20,11 +19,7 @@ EventName = car.CarEvent.EventName
 
 
 def get_startup_event(car_recognized, controller_available, fw_seen):
-  build_metadata = get_build_metadata()
-  if build_metadata.openpilot.comma_remote and build_metadata.tested_channel:
-    event = EventName.startup
-  else:
-    event = EventName.startupMaster
+  event = EventName.customStartupAlert
 
   if not car_recognized:
     if fw_seen:
@@ -190,15 +185,27 @@ def get_car_interface(CP):
   return CarInterface(CP, CarController, CarState)
 
 
-def get_car(logcan, sendcan, experimental_long_allowed, num_pandas=1):
+def get_car(logcan, sendcan, disable_openpilot_long, experimental_long_allowed, params, num_pandas=1, frogpilot_toggles=None):
+  car_model = params.get("CarModel", encoding='utf-8')
+  force_fingerprint = params.get_bool("ForceFingerprint")
+
   candidate, fingerprints, vin, car_fw, source, exact_match = fingerprint(logcan, sendcan, num_pandas)
 
-  if candidate is None:
-    cloudlog.event("car doesn't match any fingerprints", fingerprints=repr(fingerprints), error=True)
+  if candidate is None or force_fingerprint:
+    if car_model is not None:
+      candidate = car_model
+    else:
+      cloudlog.event("car doesn't match any fingerprints", fingerprints=repr(fingerprints), error=True)
+      candidate = "MOCK"
+  else:
+    params.put_nonblocking("CarMake", candidate.split('_')[0].title())
+    params.put_nonblocking("CarModel", candidate)
+
+  if frogpilot_toggles.block_user:
     candidate = "MOCK"
 
   CarInterface, _, _ = interfaces[candidate]
-  CP = CarInterface.get_params(candidate, fingerprints, car_fw, experimental_long_allowed, docs=False)
+  CP = CarInterface.get_params(candidate, fingerprints, car_fw, disable_openpilot_long, experimental_long_allowed, params, docs=False)
   CP.carVin = vin
   CP.carFw = car_fw
   CP.fingerprintSource = source

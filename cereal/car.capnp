@@ -84,6 +84,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     startup @75;
     startupNoCar @76;
     startupNoControl @77;
+    startupNoSecOcKey @121;
     startupMaster @78;
     startupNoFw @104;
     fcw @79;
@@ -118,7 +119,35 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     actuatorsApiUnavailable @120;
 
     # FrogPilot Events
-    pedalInterceptorNoBrake @134;
+    accel30 @122;
+    accel35 @123;
+    accel40 @124;
+    blockUser @125;
+    customStartupAlert @126;
+    dejaVuCurve @127;
+    firefoxSteerSaturated @128;
+    forcingStop @129;
+    goatSteerSaturated @130;
+    greenLight @131;
+    hal9000 @132;
+    holidayActive @133;
+    laneChangeBlockedLoud @134;
+    leadDeparting @135;
+    noLaneAvailable @136;
+    openpilotCrashed @137;
+    openpilotCrashedRandomEvent @138;
+    pedalInterceptorNoBrake @139;
+    speedLimitChanged @140;
+    thisIsFineSteerSaturated @141;
+    toBeContinued @142;
+    torqueNNLoad @143;
+    trafficModeActive @144;
+    trafficModeInactive @145;
+    turningLeft @146;
+    turningRight @147;
+    vCruise69 @148;
+    yourFrogTriedToKillMe @149;
+    youveGotMail @150;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
@@ -415,6 +444,22 @@ struct CarControl {
       prompt @6;
       promptRepeat @7;
       promptDistracted @8;
+
+      # FrogPilot sounds
+      angry @9;
+      continued @10;
+      dejaVu @11;
+      doc @12;
+      fart @13;
+      firefox @14;
+      goat @15;
+      hal9000 @16;
+      mail @17;
+      nessie @18;
+      noice @19;
+      startup @20;
+      thisIsFine @21;
+      uwu @22;
     }
   }
 
@@ -507,6 +552,9 @@ struct CarParams {
 
   wheelSpeedFactor @63 :Float32; # Multiplier on wheels speeds to computer actual speeds
 
+  secOcRequired @74 :Bool;  # Car requires SecOC message authentication to operate
+  secOcKeyAvailable @75 :Bool;  # Stored SecOC key loaded from params
+
   struct SafetyConfig {
     safetyModel @0 :SafetyModel;
     safetyParam @3 :UInt16;
@@ -544,8 +592,8 @@ struct CarParams {
     kiBP @2 :List(Float32);
     kiV @3 :List(Float32);
     kf @6 :Float32;
-    deadzoneBPDEPRECATED @4 :List(Float32);
-    deadzoneVDEPRECATED @5 :List(Float32);
+    deadzoneBP @4 :List(Float32);
+    deadzoneV @5 :List(Float32);
   }
 
   struct LateralINDITuning {

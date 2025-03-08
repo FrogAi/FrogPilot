@@ -64,11 +64,16 @@ static void nissan_rx_hook(const CANPacket_t *to_push) {
       UPDATE_VEHICLE_SPEED((right_rear + left_rear) / 2.0 * 0.005 / 3.6);
     }
 
+    if (addr == 0x1b6) {
+      acc_main_on = GET_BIT(to_push, 36U);
+    }
+
     // X-Trail 0x15c, Leaf 0x239
     if ((addr == 0x15c) || (addr == 0x239)) {
       if (addr == 0x15c){
         gas_pressed = ((GET_BYTE(to_push, 5) << 2) | ((GET_BYTE(to_push, 6) >> 6) & 0x3U)) > 3U;
       } else {
+        acc_main_on = GET_BIT(to_push, 17U);
         gas_pressed = GET_BYTE(to_push, 0) > 3U;
       }
     }

@@ -1,6 +1,5 @@
 import ast
 import pathlib
-import sys
 import unittest
 
 import numpy as np
@@ -8,9 +7,9 @@ from PIL import Image
 
 from tinygrad.helpers import getenv
 from tinygrad.tensor import Tensor
-from models.efficientnet import EfficientNet
-from models.vit import ViT
-from models.resnet import ResNet50
+from extra.models.efficientnet import EfficientNet
+from extra.models.vit import ViT
+from extra.models.resnet import ResNet50
 
 def _load_labels():
   labels_filename = pathlib.Path(__file__).parent / 'efficientnet/imagenet1000_clsidx_to_labels.txt'
@@ -43,11 +42,13 @@ def preprocess(img, new=False):
 
 
 def _infer(model: EfficientNet, img, bs=1):
+  old_training = Tensor.training
   Tensor.training = False
   img = preprocess(img)
   # run the net
   if bs > 1: img = img.repeat(bs, axis=0)
-  out = model.forward(Tensor(img)).cpu()
+  out = model.forward(Tensor(img))
+  Tensor.training = old_training
   return _LABELS[np.argmax(out.numpy()[0])]
 
 chicken_img = Image.open(pathlib.Path(__file__).parent / 'efficientnet/Chicken.jpg')

@@ -75,7 +75,7 @@ void MapWindow::initLayers() {
 
     QVariantMap transition;
     transition["duration"] = 400;  // ms
-    m_map->setPaintProperty("navLayer", "line-color", QColor("#31a1ee"));
+    m_map->setPaintProperty("navLayer", "line-color", getNavPathColor(uiState()->scene.navigate_on_openpilot));
     m_map->setPaintProperty("navLayer", "line-color-transition", transition);
     m_map->setPaintProperty("navLayer", "line-width", 7.5);
     m_map->setLayoutProperty("navLayer", "line-cap", "round");
@@ -110,6 +110,50 @@ void MapWindow::initLayers() {
     // TODO: remove, symbol-sort-key does not seem to matter outside of each layer
     m_map->setLayoutProperty("carPosLayer", "symbol-sort-key", 0);
   }
+  // Credit goes to jakethesnake420!
+  if (!m_map->layerExists("buildingsLayer")) {
+    qDebug() << "Initializing buildingsLayer";
+    QVariantMap buildings;
+    buildings["id"] = "buildingsLayer";
+    buildings["source"] = "composite";
+    buildings["source-layer"] = "building";
+    buildings["type"] = "fill-extrusion";
+    buildings["minzoom"] = 15;
+    m_map->addLayer("buildingsLayer", buildings);
+    m_map->setFilter("buildingsLayer", QVariantList({"==", "extrude", "true"}));
+
+    QVariantList fillExtrusionHight = {
+      "interpolate",
+      QVariantList{"linear"},
+      QVariantList{"zoom"},
+      15, 0,
+      15.05, QVariantList{"get", "height"}
+    };
+
+    QVariantList fillExtrusionBase = {
+      "interpolate",
+      QVariantList{"linear"},
+      QVariantList{"zoom"},
+      15, 0,
+      15.05, QVariantList{"get", "min_height"}
+    };
+
+    QVariantList fillExtrusionOpacity = {
+      "interpolate",
+      QVariantList{"linear"},
+      QVariantList{"zoom"},
+      15, 0,
+      15.5, .6,
+      17, .6,
+      20, 0
+    };
+
+    m_map->setPaintProperty("buildingsLayer", "fill-extrusion-color", QColor("grey"));
+    m_map->setPaintProperty("buildingsLayer", "fill-extrusion-opacity", fillExtrusionOpacity);
+    m_map->setPaintProperty("buildingsLayer", "fill-extrusion-height", fillExtrusionHight);
+    m_map->setPaintProperty("buildingsLayer", "fill-extrusion-base", fillExtrusionBase);
+    m_map->setLayoutProperty("buildingsLayer", "visibility", "visible");
+  }
 }
 
 void MapWindow::updateState(const UIState &s) {
@@ -126,6 +170,21 @@ void MapWindow::updateState(const UIState &s) {
     initializeGL();
   }
   prev_time_valid = sm.valid("clocks");
+
+  if (sm.updated("modelV2")) {
+    // set path color on change, and show map on rising edge of navigate on openpilot
+    bool nav_enabled = sm["modelV2"].getModelV2().getNavEnabled() &&
+                       (sm["controlsState"].getControlsState().getEnabled() || uiState()->scene.always_on_lateral_active);
+    if (nav_enabled != uiState()->scene.navigate_on_openpilot) {
+      if (loaded_once) {
+        m_map->setPaintProperty("navLayer", "line-color", getNavPathColor(nav_enabled));
+      }
+      if (nav_enabled) {
+        emit requestVisible(true);
+      }
+    }
+    uiState()->scene.navigate_on_openpilot = nav_enabled;
+  }
 
   if (sm.updated("liveLocationKalman")) {
     auto locationd_location = sm["liveLocationKalman"].getLiveLocationKalman();
@@ -234,6 +293,41 @@ void MapWindow::updateState(const UIState &s) {
     route_rcv_frame = sm.rcv_frame("navRoute");
     updateDestinationMarker();
   }
+
+  // Credit to jakethesnake420
+  if (loaded_once && (sm.rcv_frame("uiPlan") != model_rcv_frame)) {
+    auto locationd_location = sm["liveLocationKalman"].getLiveLocationKalman();
+    auto model_path = model_to_collection(locationd_location.getCalibratedOrientationECEF(), locationd_location.getPositionECEF(), sm["uiPlan"].getUiPlan().getPosition());
+    QMapLibre::Feature model_path_feature(QMapLibre::Feature::LineStringType, model_path, {}, {});
+    QVariantMap modelV2Path;
+    modelV2Path["type"] =  "geojson";
+    modelV2Path["data"] = QVariant::fromValue<QMapLibre::Feature>(model_path_feature);
+    m_map->updateSource("modelPathSource", modelV2Path);
+    model_rcv_frame = sm.rcv_frame("uiPlan");
+  }
+
+  // Map Styling - Credit goes to OPKR!
+  int map_style = uiState()->scene.map_style;
+
+  if (map_style != previous_map_style) {
+    std::array<std::string, 11> styleUrls = {
+      "mapbox://styles/commaai/clkqztk0f00ou01qyhsa5bzpj",  // Stock openpilot
+      "mapbox://styles/mapbox/streets-v11",                 // Mapbox Streets
+      "mapbox://styles/mapbox/outdoors-v11",                // Mapbox Outdoors
+      "mapbox://styles/mapbox/light-v10",                   // Mapbox Light
+      "mapbox://styles/mapbox/dark-v10",                    // Mapbox Dark
+      "mapbox://styles/mapbox/satellite-v9",                // Mapbox Satellite
+      "mapbox://styles/mapbox/satellite-streets-v11",       // Mapbox Satellite Streets
+      "mapbox://styles/mapbox/navigation-day-v1",           // Mapbox Navigation Day
+      "mapbox://styles/mapbox/navigation-night-v1",         // Mapbox Navigation Night
+      "mapbox://styles/mapbox/traffic-night-v2",            // Mapbox Traffic Night
+      "mapbox://styles/mike854/clt0hm8mw01ok01p4blkr27jp"   // mike854's (Satellite hybrid)
+    };
+
+    m_map->setStyleUrl(QString::fromStdString(styleUrls[map_style]));
+  }
+
+  previous_map_style = map_style;
 }
 
 void MapWindow::setError(const QString &err_str) {
@@ -366,6 +460,7 @@ void MapWindow::pinchTriggered(QPinchGesture *gesture) {
 void MapWindow::offroadTransition(bool offroad) {
   if (offroad) {
     clearRoute();
+    uiState()->scene.navigate_on_openpilot = false;
     routing_problem = false;
   } else {
     auto dest = coordinate_from_param("NavDestination");

@@ -1,16 +1,23 @@
 #include "selfdrive/ui/qt/onroad/alerts.h"
 
 #include <QPainter>
+#include <filesystem>
 #include <map>
 
 #include "selfdrive/ui/qt/util.h"
 
 void OnroadAlerts::updateState(const UIState &s) {
-  Alert a = getAlert(*(s.sm), s.scene.started_frame);
+  Alert a = getAlert(*(s.sm), s.scene.started_frame, s.scene.force_onroad, s.scene.random_events);
   if (!alert.equal(a)) {
     alert = a;
     update();
   }
+
+  // FrogPilot variables
+  const UIScene &scene = s.scene;
+
+  hide_alerts = scene.hide_alerts;
+  road_name_ui = scene.road_name_ui;
 }
 
 void OnroadAlerts::clear() {
@@ -18,17 +25,36 @@ void OnroadAlerts::clear() {
   update();
 }
 
-OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started_frame) {
+OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started_frame, bool force_onroad, bool random_events) {
   const cereal::ControlsState::Reader &cs = sm["controlsState"].getControlsState();
   const uint64_t controls_frame = sm.rcv_frame("controlsState");
 
   Alert a = {};
+
+  const std::string crash_log_path = "/data/crashes/error.txt";
+  if (std::filesystem::exists(crash_log_path) && (cs.getAlertText2() != "Please post the 'Error Log' in the FrogPilot Discord!")) {
+    if (random_events) {
+      a = {tr("openpilot crashed 💩"),
+           tr("Please post the 'Error Log' in the FrogPilot Discord!"),
+           "openpilotCrashedRandomEvent",
+           cereal::ControlsState::AlertSize::MID,
+           cereal::ControlsState::AlertStatus::NORMAL};
+    } else {
+      a = {tr("openpilot crashed"),
+           tr("Please post the 'Error Log' in the FrogPilot Discord!"),
+           "openpilotCrashed",
+           cereal::ControlsState::AlertSize::MID,
+           cereal::ControlsState::AlertStatus::NORMAL};
+    }
+    return a;
+  }
+
   if (controls_frame >= started_frame) {  // Don't get old alert.
     a = {cs.getAlertText1().cStr(), cs.getAlertText2().cStr(),
          cs.getAlertType().cStr(), cs.getAlertSize(), cs.getAlertStatus()};
   }
 
-  if (!sm.updated("controlsState") && (sm.frame - started_frame) > 5 * UI_FREQ) {
+  if (!sm.updated("controlsState") && (sm.frame - started_frame) > 5 * UI_FREQ && !force_onroad) {
     const int CONTROLS_TIMEOUT = 5;
     const int controls_missing = (nanos_since_boot() - sm.rcv_time("controlsState")) / 1e9;
 
@@ -56,8 +82,15 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started
 
 void OnroadAlerts::paintEvent(QPaintEvent *event) {
   if (alert.size == cereal::ControlsState::AlertSize::NONE) {
+    alert_height = 0;
     return;
   }
+
+  if (hide_alerts && alert.status == cereal::ControlsState::AlertStatus::NORMAL) {
+    alert_height = 0;
+    return;
+  }
+
   static std::map<cereal::ControlsState::AlertSize, const int> alert_heights = {
     {cereal::ControlsState::AlertSize::SMALL, 271},
     {cereal::ControlsState::AlertSize::MID, 420},
@@ -67,11 +100,14 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
 
   int margin = 40;
   int radius = 30;
+  int offset = road_name_ui ? 25 : 0;
+  alert_height = h - margin + offset;
   if (alert.size == cereal::ControlsState::AlertSize::FULL) {
     margin = 0;
     radius = 0;
+    offset = 0;
   }
-  QRect r = QRect(0 + margin, height() - h + margin, width() - margin*2, h - margin*2);
+  QRect r = QRect(0 + margin, height() - h + margin - offset, width() - margin*2, h - margin*2);
 
   QPainter p(this);
 

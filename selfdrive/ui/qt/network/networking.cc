@@ -6,7 +6,6 @@
 #include <QScrollBar>
 #include <QStyle>
 
-#include "selfdrive/ui/ui.h"
 #include "selfdrive/ui/qt/qt_window.h"
 #include "selfdrive/ui/qt/util.h"
 #include "selfdrive/ui/qt/widgets/controls.h"
@@ -127,9 +126,21 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
 
   ListWidget *list = new ListWidget(this);
   // Enable tethering layout
-  tetheringToggle = new ToggleControl(tr("Enable Tethering"), "", "", wifi->isTetheringEnabled());
+  std::vector<QString> tetheringSelection{tr("Off"), tr("Always"), tr("Only Onroad"), tr("Until Reboot")};
+  tetheringToggle = new ButtonParamControl("TetheringEnabled", tr("Enable Tethering"),
+                                           tr("Allow tethering with your data SIM and keep it active either while driving or continuously."),
+                                           "", tetheringSelection);
+  if (params.getInt("TetheringEnabled") == 3) {
+    params.remove("TetheringEnabled");
+    tetheringToggle->setCheckedButton(0);
+  }
+  QButtonGroup *buttonGroup = tetheringToggle->findChild<QButtonGroup *>();
+  if (buttonGroup) {
+    QObject::connect(buttonGroup, QOverload<int>::of(&QButtonGroup::buttonClicked), [this](int id) {
+      toggleTethering(id);
+    });
+  }
   list->addItem(tetheringToggle);
-  QObject::connect(tetheringToggle, &ToggleControl::toggleFlipped, this, &AdvancedNetworking::toggleTethering);
 
   // Change tethering password
   ButtonControl *editPasswordButton = new ButtonControl(tr("Tethering Password"), tr("EDIT"));
@@ -221,8 +232,8 @@ void AdvancedNetworking::refresh() {
   update();
 }
 
-void AdvancedNetworking::toggleTethering(bool enabled) {
-  wifi->setTetheringEnabled(enabled);
+void AdvancedNetworking::toggleTethering(int id) {
+  wifi->setTetheringEnabled(id == 1 || id == 3);
   tetheringToggle->setEnabled(false);
 }
 
@@ -290,6 +301,17 @@ WifiUI::WifiUI(QWidget *parent, WifiManager* wifi) : QWidget(parent), wifi(wifi)
       color: #696969;
     }
   )");
+
+  // FrogPilot variables
+  QObject::connect(uiState(), &UIState::uiUpdate, this, &WifiUI::updateState);
+}
+
+void WifiUI::updateState(const UIState &s) {
+  if (!isVisible() || s.sm->frame % UI_FREQ != 0) {
+    return;
+  }
+
+  refresh();
 }
 
 void WifiUI::refresh() {

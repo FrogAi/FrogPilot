@@ -1,0 +1,34 @@
+name: Schedule FrogPilot Update
+
+on:
+  workflow_dispatch:
+    inputs:
+      scheduled_date:
+        description: "Enter the date to update the 'FrogPilot' branch at (YYYY-MM-DD)"
+        required: true
+
+jobs:
+  schedule-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Create scheduled update file
+        run: |
+          echo "${{ github.event.inputs.scheduled_date }}" > .github/update_date
+
+      - name: Commit scheduled update file
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git add .github/update_date
+          git commit -m "Schedule update for ${{ github.event.inputs.scheduled_date }} at noon Phoenix time"
+
+      - name: Squash scheduled update file commit
+        run: |
+          git reset --soft HEAD~1
+          git commit --amend --no-edit --reset-author
+          git push origin HEAD --force

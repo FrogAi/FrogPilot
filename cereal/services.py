@@ -60,12 +60,15 @@ _services: dict[str, tuple] = {
   "driverMonitoringState": (True, 20., 10),
   "wideRoadEncodeIdx": (False, 20., 1),
   "wideRoadCameraState": (True, 20., 20),
+  "drivingModelData": (True, 20., 10),
   "modelV2": (True, 20., 40),
   "managerState": (True, 2., 1),
   "uploaderState": (True, 0., 1),
   "navInstruction": (True, 1., 10),
   "navRoute": (True, 0.),
   "navThumbnail": (True, 0.),
+  "navModel": (True, 2., 4.),
+  "mapRenderState": (True, 2., 1.),
   "uiPlan": (True, 20., 40.),
   "qRoadEncodeIdx": (False, 20.),
   "userFlag": (True, 0., 1),
@@ -87,6 +90,13 @@ _services: dict[str, tuple] = {
   "customReservedRawData0": (True, 0.),
   "customReservedRawData1": (True, 0.),
   "customReservedRawData2": (True, 0.),
+
+  # FrogPilot
+  "frogpilotCarControl": (True, 100., 10),
+  "frogpilotCarState": (True, 100., 10),
+  "frogpilotDeviceState": (True, 2., 1),
+  "frogpilotNavigation": (True, 1., 10),
+  "frogpilotPlan": (True, 20., 5),
 }
 SERVICE_LIST = {name: Service(*vals) for
                 idx, (name, vals) in enumerate(_services.items())}

@@ -1,0 +1,229 @@
+{% extends "layout.html" %}
+
+{% block title %}
+Tools
+{% endblock %}
+
+{% block main %}
+<style>
+  button {
+    margin-top: 10px;
+    font-size: 1em;
+    padding: 8px 16px;
+  }
+
+  .toggle_values {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    flex-wrap: wrap;
+  }
+
+  .toggle-values-btn {
+  }
+
+  .textarea-container {
+    width: 80%;
+    margin-top: 20px;
+  }
+
+  textarea {
+    width: 100%;
+    height: 200px;
+  }
+
+  .separator {
+    width: 100%;
+    border-top: 1px solid #ccc;
+    margin: 10px 0;
+  }
+
+  .door-control {
+    width: 80%;
+    text-align: center;
+  }
+
+  .door-indicator {
+    font-size: 2em;
+    font-weight: normal;
+    margin-bottom: 10px;
+  }
+
+  .toggle_values h1 {
+    font-size: 2em;
+    font-weight: normal;
+    margin-bottom: 10px;
+  }
+
+  .door-btn {
+  }
+</style>
+
+<div class="toggle_values">
+  <div class="door-control">
+    <div class="door-indicator">
+      Lock/Unlock Doors (Toyota/Lexus Only)
+    </div>
+    <button type="button" id="lockButton" class="door-btn">
+      Lock Doors
+    </button>
+    <button type="button" id="unlockButton" class="door-btn">
+      Unlock Doors
+    </button>
+  </div>
+
+  <div class="separator"></div>
+
+  <h1>Backup/Restore Toggle Values</h1>
+  <div class="textarea-container">
+    <textarea id="toggleValuesBox" placeholder="Retrieve or restore toggle values."></textarea>
+    <button type="button" id="retrieveButton" class="toggle-values-btn">
+      Retrieve Toggle Values
+    </button>
+    <button type="button" id="restoreButton" class="toggle-values-btn">
+      Submit Toggle Values
+    </button>
+  </div>
+
+  <div class="separator"></div>
+
+  <h1>Reset Toggle Values</h1>
+  <div class="textarea-container">
+    <button type="button" id="resetButton" class="toggle-values-btn">
+      Reset Toggle Values
+    </button>
+  </div>
+
+  <div class="separator"></div>
+
+  <h1>Reboot Device</h1>
+  <div class="textarea-container">
+    <button type="button" id="rebootButton" class="toggle-values-btn">
+      Reboot Device
+    </button>
+  </div>
+
+  <div class="separator"></div>
+
+  <h1>Capture Tmux Log</h1>
+  <div class="textarea-container">
+    <button type="button" id="captureTmuxLogButton" class="toggle-values-btn">
+      Capture Console Log
+    </button>
+    <a id="downloadTmuxLogButton" class="toggle-values-btn" style="display: none;" download>
+      <button type="button">Download Log</button>
+    </a>
+  </div>
+</div>
+
+<script>
+  const toggleValuesBox = document.getElementById('toggleValuesBox');
+  const rebootButton = document.getElementById('rebootButton');
+  const retrieveButton = document.getElementById('retrieveButton');
+  const resetButton = document.getElementById('resetButton');
+  const restoreButton = document.getElementById('restoreButton');
+  const lockButton = document.getElementById('lockButton');
+  const unlockButton = document.getElementById('unlockButton');
+  const captureTmuxLogButton = document.getElementById('captureTmuxLogButton');
+  const downloadTmuxLogButton = document.getElementById('downloadTmuxLogButton');
+
+  rebootButton.addEventListener('click', () => {
+    fetch('/reboot_device', { method: 'POST' })
+      .then(response => response.json().then(data => ({ status: response.status, body: data })))
+      .then(result => {
+        if (result.status === 200) {
+          alert(result.body.message);
+        } else {
+          alert('Error rebooting device: ' + result.body.error);
+        }
+      })
+      .catch(error => console.error('Error rebooting device:', error));
+  });
+
+  retrieveButton.addEventListener('click', () => {
+    fetch('/get_toggle_values')
+      .then(response => response.text())
+      .then(data => {
+        toggleValuesBox.value = data.trim();
+      })
+      .catch(error => console.error('Error fetching toggle values:', error));
+  });
+
+  resetButton.addEventListener('click', () => {
+    fetch('/reset_toggle_values', { method: 'POST' })
+      .then(response => response.json().then(data => ({ status: response.status, body: data })))
+      .then(result => {
+        if (result.status === 200) {
+          alert(result.body.message);
+        } else {
+          alert('Error resetting toggle values: ' + result.body.error);
+        }
+      })
+      .catch(error => console.error('Error resetting toggle values:', error));
+  });
+
+  restoreButton.addEventListener('click', () => {
+    const inputData = toggleValuesBox.value;
+    fetch('/store_toggle_values', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: inputData.trim() })
+    })
+      .then(response => response.json().then(data => ({ status: response.status, body: data })))
+      .then(result => {
+        if (result.status === 200) {
+          alert('Values stored successfully.');
+        } else {
+          alert('Error storing values: ' + result.body.error);
+        }
+      })
+      .catch(error => console.error('Error storing toggle values:', error));
+  });
+
+  lockButton.addEventListener('click', () => {
+    fetch('/lock_doors', { method: 'POST' })
+      .then(response => response.json().then(data => ({ status: response.status, body: data })))
+      .then(result => {
+        if (result.status === 200) {
+          alert(result.body.message);
+        } else {
+          alert('Error locking doors: ' + result.body.error);
+        }
+      })
+      .catch(error => console.error('Error locking doors:', error));
+  });
+
+  unlockButton.addEventListener('click', () => {
+    fetch('/unlock_doors', { method: 'POST' })
+      .then(response => response.json().then(data => ({ status: response.status, body: data })))
+      .then(result => {
+        if (result.status === 200) {
+          alert(result.body.message);
+        } else {
+          alert('Error unlocking doors: ' + result.body.error);
+        }
+      })
+      .catch(error => console.error('Error unlocking doors:', error));
+  });
+
+  captureTmuxLogButton.addEventListener('click', () => {
+    fetch('/capture_tmux_log', { method: 'POST' })
+      .then(response => response.json().then(data => ({ status: response.status, body: data })))
+      .then(result => {
+        if (result.status === 200) {
+          alert(result.body.message);
+
+          const logFile = result.body.log_file;
+          downloadTmuxLogButton.href = `/download_tmux_log/${logFile}`;
+          downloadTmuxLogButton.style.display = "inline";
+
+        } else {
+          alert('Error capturing console log: ' + result.body.error);
+        }
+      })
+      .catch(error => console.error('Error capturing console log:', error));
+  });
+</script>
+
+{% endblock %}
