@@ -1,0 +1,58 @@
+name: Build Openpilot
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout repository from FrogPilot-Development
+        uses: actions/checkout@v3
+        with:
+          ref: FrogPilot-Development
+          lfs: true
+          fetch-depth: 0
+
+      - name: Install Git LFS
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git-lfs
+          git lfs install
+
+      - name: Pull Git LFS files
+        run: git lfs pull
+
+      - name: Set permissions for setup scripts
+        run: |
+          chmod +x tools/ubuntu_setup.sh
+          chmod +x tools/install_ubuntu_dependencies.sh
+
+      - name: Run Ubuntu setup script
+        run: ./tools/ubuntu_setup.sh
+
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "${HOME}/.local/bin" >> $GITHUB_PATH
+
+      - name: Install Python dependencies via Poetry
+        run: poetry install
+
+      - name: Build openpilot with SCons
+        run: scons -u -j$(nproc)
+
+      - name: Publish build artifacts to test branch
+        run: |
+          mkdir compiled_artifacts
+          cp -r build/* compiled_artifacts/
+          cd compiled_artifacts
+          git init
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git add .
+          git commit -m "Publish compiled code from FrogPilot-Development"
+          git branch -M test
+          git remote add origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git push -f origin test
