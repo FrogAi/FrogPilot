@@ -55,8 +55,8 @@ class FrogPilotPlanner:
     else:
       self.lead_one = radarState.leadOne
 
-    v_cruise = min(controlsState.vCruise, V_CRUISE_UNSET) * CV.KPH_TO_MS
-    v_ego = max(carState.vEgo, 0)
+    v_cruise = min(V_CRUISE_UNSET, max(controlsState.vCruise, controlsState.vCruiseCluster)) * CV.KPH_TO_MS
+    v_ego = max(carState.vEgo, carState.vEgoCluster)
     v_lead = self.lead_one.vLead
 
     self.frogpilot_acceleration.update(frogpilotCarState, v_ego, frogpilot_toggles)
@@ -149,14 +149,15 @@ class FrogPilotPlanner:
     frogpilotPlan.roadCurvature = self.road_curvature
 
     frogpilotPlan.slcMapSpeedLimit = self.frogpilot_vcruise.slc.map_speed_limit
-    frogpilotPlan.slcOverridden = bool(self.frogpilot_vcruise.override_slc)
-    frogpilotPlan.slcOverriddenSpeed = float(self.frogpilot_vcruise.overridden_speed)
-    frogpilotPlan.slcSpeedLimit = self.frogpilot_vcruise.slc_target
+    frogpilotPlan.slcMapboxSpeedLimit = self.frogpilot_vcruise.slc.mapbox_limit
+    frogpilotPlan.slcNextSpeedLimit = self.frogpilot_vcruise.slc.next_speed_limit
+    frogpilotPlan.slcOverridden = self.frogpilot_vcruise.slc.override_slc
+    frogpilotPlan.slcOverriddenSpeed = self.frogpilot_vcruise.slc.overridden_speed
+    frogpilotPlan.slcSpeedLimit = self.frogpilot_vcruise.slc.target
     frogpilotPlan.slcSpeedLimitOffset = self.frogpilot_vcruise.slc_offset
     frogpilotPlan.slcSpeedLimitSource = self.frogpilot_vcruise.slc.source
-    frogpilotPlan.speedLimitChanged = self.frogpilot_vcruise.slc.speed_limit_changed
-    frogpilotPlan.unconfirmedSlcSpeedLimit = self.frogpilot_vcruise.slc.desired_speed_limit
-    frogpilotPlan.upcomingSLCSpeedLimit = self.frogpilot_vcruise.slc.upcoming_speed_limit
+    frogpilotPlan.speedLimitChanged = self.frogpilot_vcruise.slc.speed_limit_changed_timer > DT_MDL
+    frogpilotPlan.unconfirmedSlcSpeedLimit = self.frogpilot_vcruise.slc.unconfirmed_speed_limit
 
     frogpilotPlan.togglesUpdated = toggles_updated
 

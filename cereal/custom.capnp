@@ -62,21 +62,22 @@ struct FrogPilotPlan @0x80ae746ee2596b11 {
   redLight @14 :Bool;
   roadCurvature @15 :Float32;
   slcMapSpeedLimit @16 :Float32;
-  slcOverridden @17 :Bool;
-  slcOverriddenSpeed @18 :Float32;
-  slcSpeedLimit @19 :Float32;
-  slcSpeedLimitOffset @20 :Float32;
-  slcSpeedLimitSource @21 :Text;
-  speedJerk @22 :Float32;
-  speedJerkStock @23 :Float32;
-  speedLimitChanged @24 :Bool;
-  tFollow @25 :Float32;
-  togglesUpdated @26 :Bool;
-  unconfirmedSlcSpeedLimit @27 :Float32;
-  upcomingSLCSpeedLimit @28 :Float32;
-  vCruise @29 :Float32;
-  vtscControllingCurve @30 :Bool;
-  vtscSpeed @31 :Float32;
+  slcMapboxSpeedLimit @17 :Float32;
+  slcNextSpeedLimit @18 :Float32;
+  slcOverridden @19 :Bool;
+  slcOverriddenSpeed @20 :Float32;
+  slcSpeedLimit @21 :Float32;
+  slcSpeedLimitOffset @22 :Float32;
+  slcSpeedLimitSource @23 :Text;
+  speedJerk @24 :Float32;
+  speedJerkStock @25 :Float32;
+  speedLimitChanged @26 :Bool;
+  tFollow @27 :Float32;
+  togglesUpdated @28 :Bool;
+  unconfirmedSlcSpeedLimit @29 :Float32;
+  vCruise @30 :Float32;
+  vtscControllingCurve @31 :Bool;
+  vtscSpeed @32 :Float32;
 }
 
 struct CustomReserved5 @0xa5cd762cd951a455 {

@@ -189,7 +189,7 @@ class FrogPilotEvents:
           self.random_event_playing = True
       self.always_on_lateral_active_previously = frogpilotCarControl.alwaysOnLateralActive
 
-    if frogpilot_toggles.speed_limit_changed_alert and self.frogpilot_planner.frogpilot_vcruise.slc.speed_limit_changed and self.frogpilot_planner.frogpilot_vcruise.speed_limit_timer < 1:
+    if frogpilot_toggles.speed_limit_changed_alert and self.frogpilot_planner.frogpilot_vcruise.slc.speed_limit_changed_timer == DT_MDL:
       self.events.add(EventName.speedLimitChanged)
 
     startup_alert_match = controlsState.alertText1 == frogpilot_toggles.startup_alert_top and controlsState.alertText2 == frogpilot_toggles.startup_alert_bottom

@@ -319,7 +319,12 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
 
   if (speedLimitSources && (has_eu_speed_limit || has_us_speed_limit)) {
     std::function<void(QRect&, const QPixmap&, const QString&, double)> drawSource = [&](QRect &rect, const QPixmap &icon, QString title, double speedLimitValue) {
-      if (speedLimitSource == title.toStdString() && speedLimitValue != 0) {
+      if (speedLimitSource == "Mapbox" && title.toStdString() == "Navigation") {
+        speedLimitValue = mapboxSpeedLimit;
+        title = "Mapbox";
+      }
+
+      if (speedLimitSource == title.toStdString() && !slcOverridden && speedLimitValue != 0) {
         p.setPen(QPen(redColor(), 10));
         p.setBrush(redColor(166));
         p.setFont(InterFont(35, QFont::Bold));
@@ -1086,6 +1091,7 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
   screenRecorder->setVisible(enableScreenRecorder);
 
   dashboardSpeedLimit = scene.dashboard_speed_limit * speedConversion;
+  mapboxSpeedLimit = scene.speed_limit_mapbox * speedConversion;
   mapsSpeedLimit = scene.speed_limit_map * speedConversion;
   navigationSpeedLimit = scene.navigation_speed_limit * speedConversion;
   showSLCOffset = scene.show_speed_limit_offset;

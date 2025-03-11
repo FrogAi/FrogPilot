@@ -88,6 +88,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     {"SLCLookaheadHigher", tr("Prepare for Higher Speed Limits"), tr("Sets a lookahead value to prepare for upcoming higher speed limits when using downloaded map data."), ""},
     {"SLCLookaheadLower", tr("Prepare for Lower Speed Limits"), tr("Sets a lookahead value to prepare for upcoming lower speed limits when using downloaded map data."), ""},
     {"SetSpeedLimit", tr("Set Speed to Current Limit"), tr("Sets your max speed to match the current speed limit when enabling openpilot."), ""},
+    {"SLCMapboxFiller", tr("Use Mapbox For Missing Speed Limits"), tr("Uses data from 'Mapbox' when all the current speed limit sources aren't currently providing a speed limit."), ""},
     {"SLCPriority", tr("Speed Limit Source Priority Order"), tr("Sets the order of priority for speed limit data sources."), ""},
     {"SLCOffsets", tr("Speed Limit Offsets"), tr("Set speed limit offsets to drive over the posted speed limit."), ""},
     {"Offset1", tr("Speed Limit Offset (0-34 mph)"), tr("Sets the speed limit offset for speeds between 0 and 34 mph."), ""},
@@ -405,6 +406,10 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
 
         if (!isToyota) {
           modifiedSpeedLimitControllerQOLKeys.erase("ForceMPHDashboard");
+        }
+
+        if (params.get("MapboxSecretKey").empty() && !uiState()->hasPrime()) {
+          modifiedSpeedLimitControllerQOLKeys.erase("SLCMapboxFiller");
         }
 
         showToggles(modifiedSpeedLimitControllerQOLKeys);

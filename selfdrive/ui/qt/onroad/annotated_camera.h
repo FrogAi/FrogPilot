@@ -152,6 +152,7 @@ private:
   float dashboardSpeedLimit;
   float distanceConversion;
   float laneDetectionWidth;
+  float mapboxSpeedLimit;
   float mapsSpeedLimit;
   float mtscSpeed;
   float navigationSpeedLimit;

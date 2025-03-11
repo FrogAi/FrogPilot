@@ -302,6 +302,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int]] = [
   ("SLCFallback", "2", 2),
   ("SLCLookaheadHigher", "0", 1),
   ("SLCLookaheadLower", "0", 1),
+  ("SLCMapboxFiller", "1", 2),
   ("SLCOverride", "1", 2),
   ("SLCPriority1", "Navigation", 2),
   ("SLCPriority2", "Map Data", 2),
@@ -761,6 +762,7 @@ class FrogPilotVariables:
     toggle.slc_fallback_experimental_mode = slc_fallback_method == 1
     toggle.slc_fallback_previous_speed_limit = slc_fallback_method == 2
     toggle.slc_fallback_set_speed = slc_fallback_method == 0
+    toggle.slc_mapbox_filler = toggle.speed_limit_controller and (params.get("MapboxSecretKey", encoding="utf-8") or has_prime()) and (params.get_bool("SLCMapboxFiller") if tuning_level >= level["SLCMapboxFiller"] else default.get_bool("SLCMapboxFiller"))
     toggle.speed_limit_confirmation = toggle.speed_limit_controller and (params.get_bool("SLCConfirmation") if tuning_level >= level["SLCConfirmation"] else default.get_bool("SLCConfirmation"))
     toggle.speed_limit_confirmation_higher = toggle.speed_limit_confirmation and (params.get_bool("SLCConfirmationHigher") if tuning_level >= level["SLCConfirmationHigher"] else default.get_bool("SLCConfirmationHigher"))
     toggle.speed_limit_confirmation_lower = toggle.speed_limit_confirmation and (params.get_bool("SLCConfirmationLower") if tuning_level >= level["SLCConfirmationLower"] else default.get_bool("SLCConfirmationLower"))

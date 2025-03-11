@@ -244,6 +244,7 @@ typedef struct UIScene {
   float speed_jerk_difference;
   float speed_limit;
   float speed_limit_map;
+  float speed_limit_mapbox;
   float speed_limit_offset;
   float speed_limit_overridden_speed;
   float steer;

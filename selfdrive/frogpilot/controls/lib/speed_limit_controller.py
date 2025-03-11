@@ -1,112 +1,297 @@
-# PFEIFER - SLC - Modified by FrogAi for FrogPilot
 #!/usr/bin/env python3
+# PFEIFER - SLC - Modified by FrogAi for FrogPilot
+import calendar
 import json
+import math
+import numpy as np
+import requests
 
-from openpilot.selfdrive.frogpilot.frogpilot_utilities import calculate_distance_to_point
-from openpilot.selfdrive.frogpilot.frogpilot_variables import TO_RADIANS, params, params_memory
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
+
+import openpilot.system.sentry as sentry
+
+from openpilot.common.api import Api
+from openpilot.common.conversions import Conversions as CV
+from openpilot.common.realtime import DT_MDL
+from openpilot.common.time import system_time_valid
+
+from openpilot.selfdrive.frogpilot.frogpilot_utilities import calculate_bearing_offset, calculate_distance_to_point, is_url_pingable
+from openpilot.selfdrive.frogpilot.frogpilot_variables import TO_RADIANS, has_prime, params, params_memory
+
+FREE_MAPBOX_REQUESTS = 100_000
 
 class SpeedLimitController:
   def __init__(self):
-    self.experimental_mode = False
-    self.speed_limit_changed = False
+    self.executor = ThreadPoolExecutor(max_workers=1)
 
-    self.desired_speed_limit = 0
+    self.calling_mapbox = False
+    self.override_slc = False
+
     self.map_speed_limit = 0
-    self.speed_limit = 0
-    self.upcoming_speed_limit = 0
+    self.mapbox_limit = 0
+    self.next_speed_limit = 0
+    self.overridden_speed = 0
+    self.segment_distance = 0
+    self.speed_limit_changed_timer = 0
+    self.target = 0
+    self.unconfirmed_speed_limit = 0
 
+    self.previous_source = "None"
     self.source = "None"
 
-    self.previous_speed_limit = params.get_float("PreviousSpeedLimit")
+    self.mapbox_requests = json.loads(params.get("MapBoxRequests") or "{}")
+    self.mapbox_requests.setdefault("month", datetime.now().month)
+    self.mapbox_requests.setdefault("total_requests", 0)
+    self.mapbox_requests.setdefault("max_requests", FREE_MAPBOX_REQUESTS - (28 * 100))
 
-  def update(self, dashboard_speed_limit, enabled, navigation_speed_limit, v_cruise, v_ego, frogpilot_toggles):
-    self.update_map_speed_limit(v_ego, frogpilot_toggles)
-    max_speed_limit = v_cruise if enabled else 0
-
-    self.speed_limit = self.get_speed_limit(dashboard_speed_limit, max_speed_limit, navigation_speed_limit, frogpilot_toggles)
-    self.desired_speed_limit = self.get_desired_speed_limit()
-
-    self.experimental_mode = frogpilot_toggles.slc_fallback_experimental_mode and self.speed_limit == 0
-
-  def get_desired_speed_limit(self):
-    if self.speed_limit > 1:
-      if abs(self.speed_limit - self.previous_speed_limit) > 1:
-        params.put_float_nonblocking("PreviousSpeedLimit", self.speed_limit)
-        self.previous_speed_limit = self.speed_limit
-        self.speed_limit_changed = True
-      return self.speed_limit
+    if has_prime():
+      self.mapbox_host = "https://maps.comma.ai"
+      self.mapbox_token = Api(params.get("DongleId", encoding="utf8")).get_token()
     else:
-      self.speed_limit_changed = False
+      self.mapbox_host = "https://api.mapbox.com"
+      self.mapbox_token = params.get("MapboxSecretKey", encoding="utf8")
+
+    self.previous_target = params.get_float("PreviousSpeedLimit")
+
+  @property
+  def experimental_mode(self):
+    return self.frogpilot_toggles.slc_fallback_experimental_mode and self.target == 0
+
+  @property
+  def offset(self):
+    offset_map = [
+      (0, 13.5, self.frogpilot_toggles.speed_limit_offset1),          # 0-48.6 kph / 0-30.2 mph
+      (13.5, 24, self.frogpilot_toggles.speed_limit_offset2),         # 48.6-86.4 kph / 30.2-53.7 mph
+      (24, 29, self.frogpilot_toggles.speed_limit_offset3),           # 86.4-104.4 kph / 53.7-64.9 mph
+      (29, float("inf"), self.frogpilot_toggles.speed_limit_offset4)  # > 104.4 kph / > 64.9 mph
+    ]
+    return next((offset for low, high, offset in offset_map if low < self.target < high), 0)
+
+  def get_map_speed_limit(self, gps_position, v_ego):
+    if not gps_position:
       return 0
 
-  def update_map_speed_limit(self, v_ego, frogpilot_toggles):
-    position = json.loads(params_memory.get("LastGPSPosition") or "{}")
-    if not position:
-      self.map_speed_limit = 0
-      return
-
-    self.map_speed_limit = params_memory.get_float("MapSpeedLimit")
-
     next_map_speed_limit = json.loads(params_memory.get("NextMapSpeedLimit") or "{}")
-    self.upcoming_speed_limit = next_map_speed_limit.get("speedlimit", 0)
-    if self.upcoming_speed_limit > 1:
-      current_latitude = position.get("latitude")
-      current_longitude = position.get("longitude")
+    self.next_speed_limit = next_map_speed_limit.get("speedlimit", 0)
 
-      upcoming_latitude = next_map_speed_limit.get("latitude")
-      upcoming_longitude = next_map_speed_limit.get("longitude")
+    if self.next_speed_limit:
+      current_latitude = gps_position.get("latitude")
+      current_longitude = gps_position.get("longitude")
 
-      distance_to_upcoming = calculate_distance_to_point(current_latitude * TO_RADIANS, current_longitude * TO_RADIANS, upcoming_latitude * TO_RADIANS, upcoming_longitude * TO_RADIANS)
+      next_latitude = next_map_speed_limit.get("latitude")
+      next_longitude = next_map_speed_limit.get("longitude")
 
-      if self.previous_speed_limit < self.upcoming_speed_limit:
-        max_distance = frogpilot_toggles.map_speed_lookahead_higher * v_ego
+      distance_to_upcoming = calculate_distance_to_point(current_latitude * TO_RADIANS, current_longitude * TO_RADIANS, next_latitude * TO_RADIANS, next_longitude * TO_RADIANS)
+
+      if self.map_speed_limit < self.next_speed_limit:
+        max_lookahead_distance = self.frogpilot_toggles.map_speed_lookahead_higher * v_ego
+      elif self.map_speed_limit > self.next_speed_limit:
+        max_lookahead_distance = self.frogpilot_toggles.map_speed_lookahead_lower * v_ego
       else:
-        max_distance = frogpilot_toggles.map_speed_lookahead_lower * v_ego
+        max_lookahead_distance = 0
 
-      if distance_to_upcoming < max_distance:
-        self.map_speed_limit = self.upcoming_speed_limit
+      if distance_to_upcoming < max_lookahead_distance:
+        return self.next_speed_limit
 
-  def get_offset(self, speed_limit, frogpilot_toggles):
-    if speed_limit < 13.5:
-      return frogpilot_toggles.speed_limit_offset1
-    if speed_limit < 24:
-      return frogpilot_toggles.speed_limit_offset2
-    if speed_limit < 29:
-      return frogpilot_toggles.speed_limit_offset3
-    return frogpilot_toggles.speed_limit_offset4
+    return params_memory.get_float("MapSpeedLimit")
 
-  def get_speed_limit(self, dashboard_speed_limit, max_speed_limit, navigation_speed_limit, frogpilot_toggles):
+  def get_mapbox_speed_limit(self, gps_position, v_ego):
+    try:
+      if not gps_position or not self.mapbox_token:
+        self.mapbox_limit = 0
+        self.segment_distance = 0
+        return
+
+      if v_ego == 0:
+        return
+
+      if self.segment_distance > 0:
+        self.segment_distance -= v_ego * DT_MDL
+        return
+
+      if self.calling_mapbox:
+        self.segment_distance = v_ego
+        return
+
+      def make_request():
+        try:
+          self.calling_mapbox = True
+
+          if not is_url_pingable(self.mapbox_host):
+            return None
+
+          if system_time_valid():
+            current_month = datetime.now().month
+            if current_month != self.mapbox_requests.get("month"):
+              self.mapbox_requests.update({
+                "month": current_month,
+                "total_requests": 0,
+                "max_requests": FREE_MAPBOX_REQUESTS - calendar.monthrange(datetime.now().year, current_month)[1] * 100,
+              })
+
+          self.mapbox_requests["total_requests"] += 1
+          params.put_nonblocking("MapBoxRequests", json.dumps(self.mapbox_requests))
+
+          current_bearing = gps_position.get("bearing")
+          current_latitude = gps_position.get("latitude")
+          current_longitude = gps_position.get("longitude")
+
+          future_latitude, future_longitude = calculate_bearing_offset(current_latitude, current_longitude, current_bearing, v_ego)
+
+          url = f"{self.mapbox_host}/matching/v5/mapbox/driving/{current_longitude},{current_latitude};{future_longitude},{future_latitude}.json"
+          mapbox_params = {
+            "access_token": self.mapbox_token,
+            "annotations": "maxspeed,distance",
+            "geometries": "geojson",
+            "overview": "full",
+          }
+
+          response = requests.get(url, params=mapbox_params, timeout=10)
+          response.raise_for_status()
+          return response.json()
+        except requests.ConnectionError:
+          print("ConnectionError while fetching Mapbox data...")
+        except requests.HTTPError:
+          print("HTTPError while fetching Mapbox data...")
+        except requests.RequestException:
+          print("RequestException while fetching Mapbox data...")
+        except requests.Timeout:
+          print("Timeout while fetching Mapbox data...")
+        except Exception as error:
+          sentry.capture_exception(error)
+          print(f"Unexpected error in Mapbox request: {error}")
+        finally:
+          self.calling_mapbox = False
+          self.mapbox_limit = 0
+          self.segment_distance = v_ego
+          return None
+
+      def complete_request(future):
+        try:
+          data = future.result()
+          if data:
+            if (matchings := data.get("matchings")) and matchings[0].get("legs"):
+              annotations = matchings[0]["legs"][0].get("annotation", {})
+              if (speed_data := annotations.get("maxspeed")) and (speed_limit_kph := speed_data[0].get("speed")):
+                self.mapbox_limit = speed_limit_kph * CV.KPH_TO_MS
+                self.segment_distance = annotations.get("distance", [v_ego])[0]
+                return
+        except Exception as error:
+          sentry.capture_exception(error)
+          print(f"Mapbox Callback Error: {error}")
+          self.mapbox_limit = 0
+          self.segment_distance = v_ego
+
+      future = self.executor.submit(make_request)
+      future.add_done_callback(complete_request)
+    except Exception as error:
+      sentry.capture_exception(error)
+      print(f"Unexpected error in get_mapbox_speed_limit: {error}")
+      self.calling_mapbox = False
+      self.mapbox_limit = 0
+      self.segment_distance = v_ego
+
+  def handle_limit_change(self, controlsState, desired_source, desired_target, frogpilotCarControl):
+    self.speed_limit_changed_timer += DT_MDL
+
+    speed_limit_accepted = (frogpilotCarControl.accelPressed and controlsState.active) or params_memory.get_bool("SpeedLimitAccepted")
+    speed_limit_denied = frogpilotCarControl.decelPressed or (self.speed_limit_changed_timer >= 30)
+
+    if speed_limit_accepted:
+      self.source = desired_source
+      self.target = desired_target
+      params_memory.remove("SpeedLimitAccepted")
+    elif speed_limit_denied:
+      self.previous_source = desired_source
+      self.previous_target = desired_target
+    elif desired_target < self.target and not self.frogpilot_toggles.speed_limit_confirmation_lower:
+      self.source = desired_source
+      self.target = desired_target
+    elif desired_target > self.target and not self.frogpilot_toggles.speed_limit_confirmation_higher:
+      self.source = desired_source
+      self.target = desired_target
+    else:
+      self.source = "None"
+      self.unconfirmed_speed_limit = desired_target
+
+    if self.target != self.previous_target and self.target > 0 and not speed_limit_denied:
+      self.previous_source = self.source
+      self.previous_target = self.target
+      params.put_float_nonblocking("PreviousSpeedLimit", self.target)
+
+  def update_limits(self, controlsState, dashboard_speed_limit, frogpilotCarControl, gps_position, navigation_speed_limit, v_cruise, v_ego):
+    self.map_speed_limit = self.get_map_speed_limit(gps_position, v_ego)
+
     limits = {
       "Dashboard": dashboard_speed_limit,
       "Map Data": self.map_speed_limit,
       "Navigation": navigation_speed_limit
     }
-    filtered_limits = {source: float(limit) for source, limit in limits.items() if limit > 1}
+    filtered_limits = {source: limit for source, limit in limits.items() if limit}
 
-    if filtered_limits:
-      if frogpilot_toggles.speed_limit_priority_highest:
-        self.source = max(filtered_limits, key=filtered_limits.get)
-        return filtered_limits[self.source]
-
-      if frogpilot_toggles.speed_limit_priority_lowest:
-        self.source = min(filtered_limits, key=filtered_limits.get)
-        return filtered_limits[self.source]
-
+    if self.frogpilot_toggles.speed_limit_priority_highest:
+      desired_source = max(filtered_limits, key=filtered_limits.get, default="None")
+      desired_target = filtered_limits.get(desired_source, 0)
+    elif self.frogpilot_toggles.speed_limit_priority_lowest:
+      desired_source = min(filtered_limits, key=filtered_limits.get, default="None")
+      desired_target = filtered_limits.get(desired_source, 0)
+    elif filtered_limits:
       for priority in [
-        frogpilot_toggles.speed_limit_priority1,
-        frogpilot_toggles.speed_limit_priority2,
-        frogpilot_toggles.speed_limit_priority3
+        self.frogpilot_toggles.speed_limit_priority1,
+        self.frogpilot_toggles.speed_limit_priority2,
+        self.frogpilot_toggles.speed_limit_priority3
       ]:
-        if priority is not None and priority in filtered_limits:
-          self.source = priority
-          return filtered_limits[priority]
+        if priority in filtered_limits:
+          desired_source = priority
+          desired_target = filtered_limits[desired_source]
+          break
+      else:
+        desired_source = "None"
+        desired_target = 0
+    else:
+      desired_source = "None"
+      desired_target = 0
 
-    self.source = "None"
+    if desired_target == 0:
+      if self.mapbox_requests["total_requests"] < self.mapbox_requests["max_requests"] and self.frogpilot_toggles.slc_mapbox_filler:
+        self.get_mapbox_speed_limit(gps_position, v_ego)
+        if self.mapbox_limit:
+          desired_source = "Mapbox"
+          desired_target = self.mapbox_limit
 
-    if frogpilot_toggles.slc_fallback_previous_speed_limit:
-      return self.previous_speed_limit
+      if desired_target == 0:
+        if self.previous_target and self.frogpilot_toggles.slc_fallback_previous_speed_limit:
+          desired_source = self.previous_source
+          desired_target = self.previous_target
 
-    if frogpilot_toggles.slc_fallback_set_speed:
-      return max_speed_limit
+          self.target = desired_target
+        elif controlsState.enabled and self.frogpilot_toggles.slc_fallback_set_speed:
+          desired_source = "None"
+          desired_target = v_cruise
+    else:
+      self.mapbox_limit = 0
+      self.segment_distance = 0
 
-    return 0
+    if desired_target != self.previous_target:
+      self.handle_limit_change(controlsState, desired_source, desired_target, frogpilotCarControl)
+    elif desired_source != self.source:
+      self.source = desired_source
+    else:
+      self.speed_limit_changed_timer = 0
+      self.unconfirmed_speed_limit = 0
+
+  def update_override(self, carState, controlsState, v_cruise, v_ego):
+    self.override_slc = self.overridden_speed > self.target + self.offset
+    self.override_slc |= carState.gasPressed and v_ego > self.target + self.offset
+    self.override_slc &= controlsState.enabled
+
+    if self.override_slc:
+      if self.frogpilot_toggles.speed_limit_controller_override_manual:
+        if carState.gasPressed:
+          self.overridden_speed = v_ego
+        self.overridden_speed = float(np.clip(self.overridden_speed, self.target + self.offset, v_cruise))
+      elif self.frogpilot_toggles.speed_limit_controller_override_set_speed:
+        self.overridden_speed = v_cruise
+    else:
+      self.overridden_speed = 0

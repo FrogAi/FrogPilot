@@ -56,6 +56,17 @@ def run_thread_with_lock(name, target, args=()):
       thread.start()
       running_threads[name] = thread
 
+def calculate_bearing_offset(latitude, longitude, current_bearing, distance):
+  bearing = math.radians(current_bearing)
+  lat_rad = math.radians(latitude)
+  lon_rad = math.radians(longitude)
+
+  delta = distance / EARTH_RADIUS
+
+  new_latitude = math.asin(math.sin(lat_rad) * math.cos(delta) + math.cos(lat_rad) * math.sin(delta) * math.cos(bearing))
+  new_longitude = lon_rad + math.atan2(math.sin(bearing) * math.sin(delta) * math.cos(lat_rad),  math.cos(delta) - math.sin(lat_rad) * math.sin(new_latitude))
+  return math.degrees(new_latitude), math.degrees(new_longitude)
+
 def calculate_distance_to_point(ax, ay, bx, by):
   delta_x = (bx - ax) / 2
   delta_y = (by - ay) / 2
