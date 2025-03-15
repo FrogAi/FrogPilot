@@ -183,10 +183,7 @@ def lock_doors(lock_doors_timer, sm):
   os.system("pkill -STOP -f pandad")
 
   panda.set_safety_mode(panda.SAFETY_TOYOTA)
-  for bus in [0, 1, 2]:
-    print(f"Trying to send lock command on CAN{bus}...")
-    panda.can_send(0x750, LOCK_CMD, bus, retry=False)
-    time.sleep(0.1)
+  panda.can_send(0x750, LOCK_CMD, 0, retry=False)
   panda.send_heartbeat()
 
   params.remove("IsDriverViewEnabled")
