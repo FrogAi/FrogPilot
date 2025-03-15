@@ -45,7 +45,7 @@ class SpeedLimitController:
     self.mapbox_requests.setdefault("total_requests", 0)
     self.mapbox_requests.setdefault("max_requests", FREE_MAPBOX_REQUESTS - (28 * 100))
 
-    if has_prime():
+    if False:#has_prime():
       self.mapbox_host = "https://maps.comma.ai"
       self.mapbox_token = Api(params.get("DongleId", encoding="utf8")).get_token()
     else:
