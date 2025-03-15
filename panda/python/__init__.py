@@ -809,9 +809,9 @@ class Panda:
     self._handle.controlWrite(Panda.REQUEST_OUT, 0xc0, 0, 0, b'')
 
   @ensure_can_packet_version
-  def can_send_many(self, arr, timeout=CAN_SEND_TIMEOUT_MS, retry=True):
+  def can_send_many(self, arr, timeout=CAN_SEND_TIMEOUT_MS):
     snds = pack_can_buffer(arr)
-    while retry:
+    while True:
       try:
         for tx in snds:
           while True:
@@ -824,8 +824,8 @@ class Panda:
       except (usb1.USBErrorIO, usb1.USBErrorOverflow):
         logging.error("CAN: BAD SEND MANY, RETRYING")
 
-  def can_send(self, addr, dat, bus, timeout=CAN_SEND_TIMEOUT_MS, retry=True):
-    self.can_send_many([[addr, None, dat, bus]], timeout=timeout, retry=retry)
+  def can_send(self, addr, dat, bus, timeout=CAN_SEND_TIMEOUT_MS):
+    self.can_send_many([[addr, None, dat, bus]], timeout=timeout)
 
   @ensure_can_packet_version
   def can_recv(self):

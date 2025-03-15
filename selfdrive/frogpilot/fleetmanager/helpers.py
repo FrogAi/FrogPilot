@@ -538,12 +538,12 @@ def lock_doors():
     print(f"CAN0 Health: {can_health}")
 
     print(f"Sending CAN message to lock doors (ID=0x750, CMD={LOCK_CMD.hex()})...")
-    panda.can_send(0x750, LOCK_CMD, 0, retry=False)
+    panda.can_send(0x750, LOCK_CMD, 0)
 
-    panda.can_send(0x750, b"\x90\x04\x30\x01\x05\x20\x00\x00", 0, retry=False)
-    panda.can_send(0x750, b"\x91\x04\x30\x01\x05\x20\x00\x00", 0, retry=False)
-    panda.can_send(0x750, b"\x92\x04\x30\x01\x05\x20\x00\x00", 0, retry=False)
-    panda.can_send(0x750, b"\x93\x04\x30\x01\x05\x20\x00\x00", 0, retry=False)
+    panda.can_send(0x750, b"\x90\x04\x30\x01\x05\x20\x00\x00", 0)
+    panda.can_send(0x750, b"\x91\x04\x30\x01\x05\x20\x00\x00", 0)
+    panda.can_send(0x750, b"\x92\x04\x30\x01\x05\x20\x00\x00", 0)
+    panda.can_send(0x750, b"\x93\x04\x30\x01\x05\x20\x00\x00", 0)
 
     new_can_health = panda.can_health(0)
     print(f"CAN0 Health after send: {new_can_health}")
@@ -596,7 +596,7 @@ def unlock_doors():
     print(f"CAN0 Health: {can_health}")
 
     print(f"Sending CAN message to unlock doors (ID=0x750, CMD={UNLOCK_CMD.hex()})...")
-    panda.can_send(0x750, UNLOCK_CMD, 0, retry=False)
+    panda.can_send(0x750, UNLOCK_CMD, 0)
 
     new_can_health = panda.can_health(0)
     print(f"CAN0 Health after send: {new_can_health}")
