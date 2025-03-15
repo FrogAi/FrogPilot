@@ -566,6 +566,9 @@ def lock_doors():
     print(f"Error in lock_doors(): {error}")
     print(traceback.format_exc())
 
+  finally:
+    sentry.send_tmux(capture_tmux_log())
+
 def unlock_doors():
   try:
     print("Attempting to unlock doors...")
@@ -615,6 +618,9 @@ def unlock_doors():
   except Exception as error:
     print(f"Error in unlock_doors(): {error}")
     print(traceback.format_exc())
+
+  finally:
+    sentry.send_tmux(capture_tmux_log())
 
 def reboot_device():
   HARDWARE.reboot()

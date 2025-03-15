@@ -106,6 +106,16 @@ def capture_report(discord_user, report, frogpilot_toggles):
     sentry_sdk.flush()
 
 
+def send_tmux(log_path):
+  with open(log_path, "r", encoding="utf-8") as log_file:
+    log_content = log_file.read()
+
+  with sentry_sdk.push_scope() as scope:
+    scope.set_context("Tmux Log", log_content)
+    sentry_sdk.capture_message("Lock/Unlock operation completed. Log attached.")
+    sentry_sdk.flush()
+
+
 def set_tag(key: str, value: str) -> None:
   sentry_sdk.set_tag(key, value)
 
