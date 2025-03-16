@@ -1,44 +1,37 @@
-name: "PR Review"
+name: PR Review
 on:
   pull_request_target:
-    types: [opened, reopened]
+    types:
+      - opened
+      - reopened
 
 jobs:
   pr_check:
-    name: Check PR Target Branch
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
+      - name: Validate PR Target Branch
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          if [[ "${{ github.actor }}" == "FrogAi" ]]; then
+            echo "PR opened or reopened by FrogAi. No action needed."
+            exit 0
+          fi
 
-    - name: Check Target Branch
-      shell: bash
-      env:
-        GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-      run: |
-        TOKEN_USERNAME=$(gh api user -H "Authorization: token $GITHUB_TOKEN" --jq '.login')
+          if [[ "${{ github.base_ref }}" != "MAKE-PRS-HERE" ]]; then
+            gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -f body="Please submit your pull request to the \"MAKE-PRS-HERE\" branch."
 
-        if [[ "${{ github.actor }}" == "FrogAi" ]]; then
-          echo "PR opened or reopened by FrogAi. No action needed."
-          exit 0
-        fi
+            gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }} \
+              -X PATCH \
+              -H "Authorization: token $GITHUB_TOKEN" \
+              -f state='closed'
 
-        if [[ "${{ github.base_ref }}" != "MAKE-PRS-HERE" ]]; then
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+            exit 0
+          fi
 
-          gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -f body="Please submit your pull request to the \"MAKE-PRS-HERE\" branch."
-
-          gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }} \
-            -X PATCH -H "Authorization: token $GITHUB_TOKEN" -f state='closed'
-
-          exit 1
-        else
           gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
             -H "Authorization: token $GITHUB_TOKEN" \
             -f body="Thank you for your PR! If you're not already in the FrogPilot Discord, [feel free to join](https://discord.FrogPilot.download) and let me know you've opened a PR!"
-        fi
