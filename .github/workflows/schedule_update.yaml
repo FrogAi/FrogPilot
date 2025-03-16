@@ -4,42 +4,45 @@ on:
   workflow_dispatch:
     inputs:
       scheduled_date:
-        description: "Enter the date to update the 'FrogPilot' branch at (YYYY-MM-DD)"
+        description: "Enter the date to update the \"FrogPilot\" branch (YYYY-MM-DD)"
         required: true
 
 jobs:
   schedule-update:
     runs-on: ubuntu-latest
+    env:
+      BRANCH: FrogPilot-Staging
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
+          ref: ${{ env.BRANCH }}
           fetch-depth: 0
 
-      - name: Switch to FrogPilot-Staging branch
+      - name: Switch to target branch
         run: |
-          git fetch origin
-          git checkout ${{ env.BRANCH_STAGING }} || git checkout -b ${{ env.BRANCH_STAGING }}
+          git checkout ${{ env.BRANCH }} || git checkout -b ${{ env.BRANCH }}
 
-      - name: Get previous commit date
-        id: get-commit-date
+      - name: Get last commit details
+        id: last-commit
         run: |
-          export COMMIT_DATE=$(git log -1 --format=%cI)
-          echo "commit_date=$COMMIT_DATE" >> $GITHUB_ENV
+          echo "LAST_MESSAGE<<EOF" >> $GITHUB_ENV
+          git log -1 --format="%B" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          echo "LAST_DATE=$(git log -1 --format="%cI")" >> $GITHUB_ENV
 
-      - name: Create scheduled update file
-        run: |
-          echo "${{ github.event.inputs.scheduled_date }}" > .github/update_date
+      - name: Create update date file
+        run: echo "${{ github.event.inputs.scheduled_date }}" > .github/update_date
 
-      - name: Commit scheduled update file
+      - name: Commit update date file
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git add .github/update_date
-          git commit -m "Schedule update for ${{ github.event.inputs.scheduled_date }} at noon Phoenix time"
+          git commit -m "Scheduled update for ${{ github.event.inputs.scheduled_date }}"
 
       - name: Squash scheduled update file commit
         run: |
           git reset --soft HEAD~1
-          git commit --amend --no-edit --reset-author --date="${{ env.commit_date }}"
+          GIT_COMMITTER_DATE="${{ env.LAST_DATE }}" git commit --amend -m "${{ env.LAST_MESSAGE }}"
           git push origin HEAD --force
