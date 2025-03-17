@@ -398,7 +398,7 @@ def main():
 
   while True:
     try:
-      if not logger.speed_limits_checked:
+      if False:#not logger.speed_limits_checked:
         logger.update_speed_limits()
 
       logger.log_speed_limit()
