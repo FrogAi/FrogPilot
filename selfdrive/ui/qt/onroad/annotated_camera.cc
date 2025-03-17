@@ -265,7 +265,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
     }
     p.restore();
 
-    if (speedLimitChanged && !(setSpeed - mtscSpeed > 1 || setSpeed - stscSpeed > 1 || setSpeed - vtscSpeed > 1)) {
+    if (speedLimitChanged && (!(setSpeed - mtscSpeed > 1 || setSpeed - stscSpeed > 1 || setSpeed - vtscSpeed > 1) || hideCSCUI || !is_cruise_set)) {
       QRect new_sign_rect(sign_rect.translated(sign_rect.width() + 25, 0));
       new_sign_rect.setWidth(newSpeedLimitStr.size() >= 3 ? 200 : 175);
 
