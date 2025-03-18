@@ -17,19 +17,21 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{ env.BRANCH }}
-          fetch-depth: 0
+          fetch-depth: 2
 
       - name: Switch to target branch
         run: |
           git checkout ${{ env.BRANCH }} || git checkout -b ${{ env.BRANCH }}
 
-      - name: Get last commit details
-        id: last-commit
+      - name: Capture last commit details
         run: |
+          last_date=$(git log -1 --format="%cI")
+          last_message=$(git log -1 --format="%B")
+
+          echo "LAST_DATE=$last_date" >> $GITHUB_ENV
           echo "LAST_MESSAGE<<EOF" >> $GITHUB_ENV
-          git log -1 --format="%B" >> $GITHUB_ENV
+          echo "$last_message" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-          echo "LAST_DATE=$(git log -1 --format="%cI")" >> $GITHUB_ENV
 
       - name: Create update date file
         run: echo "${{ github.event.inputs.scheduled_date }}" > .github/update_date
@@ -38,11 +40,14 @@ jobs:
         run: |
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
           git add .github/update_date
           git commit -m "Scheduled update for ${{ github.event.inputs.scheduled_date }}"
 
-      - name: Squash scheduled update file commit
+      - name: Squash update date file commit
         run: |
           git reset --soft HEAD~1
+
           GIT_COMMITTER_DATE="${{ env.LAST_DATE }}" git commit --amend -m "${{ env.LAST_MESSAGE }}"
+
           git push origin HEAD --force
