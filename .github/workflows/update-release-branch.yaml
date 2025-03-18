@@ -28,7 +28,8 @@ jobs:
         run: |
           set -e
           git fetch origin ${{ env.BRANCH_STAGING }}
-          git checkout origin/${{ env.BRANCH_STAGING }} -- "${{ env.UPDATE_FILE }}"
+          git checkout ${{ env.BRANCH_STAGING }}
+          git pull origin ${{ env.BRANCH_STAGING }}
 
           if [ ! -f "${{ env.UPDATE_FILE }}" ]; then
             echo "No update_date file found in FrogPilot-Staging. Skipping update."
