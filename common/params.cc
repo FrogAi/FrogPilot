@@ -281,6 +281,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"CustomSignals", PERSISTENT},
     {"CustomSounds", PERSISTENT},
     {"CustomUI", PERSISTENT},
+    {"DebugMode", CLEAR_ON_OFFROAD_TRANSITION},
     {"DecelerationProfile", PERSISTENT},
     {"DeveloperUI", PERSISTENT},
     {"DeviceManagement", PERSISTENT},

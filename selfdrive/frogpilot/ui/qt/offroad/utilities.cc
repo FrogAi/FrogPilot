@@ -3,6 +3,10 @@
 #include "selfdrive/frogpilot/ui/qt/offroad/utilities.h"
 
 FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
+  ParamControl *debugModeToggle = new ParamControl("DebugMode", tr("Debug Mode"),
+                                                tr("Debug FrogPilot during the next drive by utilizing all of FrogPilot's developer metrics for either bug reporting, or self-debugging."), "");
+  addItem(debugModeToggle);
+
   ButtonControl *flashPandaBtn = new ButtonControl(tr("Flash Panda"), tr("FLASH"), tr("Flashes the Panda device's firmware if you're running into issues."));
   QObject::connect(flashPandaBtn, &ButtonControl::clicked, [this, flashPandaBtn, parent]() {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to flash the Panda?"), tr("Flash"), this)) {
