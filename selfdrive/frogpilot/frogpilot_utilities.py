@@ -39,7 +39,7 @@ locks = {
   "update_themes": threading.Lock()
 }
 
-def run_thread_with_lock(name, target, args=()):
+def run_thread_with_lock(name, target, args=(), report=True):
   if not running_threads.get(name, threading.Thread()).is_alive():
     with locks[name]:
       def wrapped_target(*t_args):
@@ -51,7 +51,8 @@ def run_thread_with_lock(name, target, args=()):
           print(f"CalledProcessError in thread '{name}': {error}")
         except Exception as error:
           print(f"Error in thread '{name}': {error}")
-          sentry.capture_exception(error)
+          if report:
+            sentry.capture_exception(error)
       thread = threading.Thread(target=wrapped_target, args=args, daemon=True)
       thread.start()
       running_threads[name] = thread
@@ -190,19 +191,21 @@ def lock_doors(lock_doors_timer, sm):
 
   os.system("pkill -CONT -f pandad")
 
-def run_cmd(cmd, success_message, fail_message, capture_output=True):
+def run_cmd(cmd, success_message, fail_message, report=True):
   try:
-    subprocess.run(cmd, capture_output=capture_output, text=capture_output, check=True)
+    subprocess.run(cmd, capture_output=True, text=True, check=True)
     print(success_message)
   except subprocess.CalledProcessError as error:
     print(f"Command failed with return code {error.returncode}")
     if error.stderr:
       print(f"Error Output: {error.stderr.strip()}")
-    sentry.capture_exception(error)
+    if report:
+      sentry.capture_exception(error)
   except Exception as error:
     print(f"Unexpected error occurred: {error}")
     print(fail_message)
-    sentry.capture_exception(error)
+    if report:
+      sentry.capture_exception(error)
 
 def update_maps(now):
   while not MAPD_PATH.exists():

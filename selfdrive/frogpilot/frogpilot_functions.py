@@ -32,7 +32,7 @@ def backup_directory(backup, destination, success_message, fail_message, minimum
       print("Backup already exists. Aborting...")
       return
 
-    run_cmd(["sudo", "rsync", "-avq", f"{backup}/.", in_progress_destination], "", fail_message, capture_output=False)
+    run_cmd(["sudo", "rsync", "-avq", f"{backup}/.", in_progress_destination], "", fail_message, report=False)
 
     tar_file = destination.parent / (destination.name + "_in_progress.tar")
     with tarfile.open(tar_file, "w") as tar:
@@ -64,7 +64,7 @@ def backup_directory(backup, destination, success_message, fail_message, minimum
       print("Backup already exists. Aborting...")
       return
 
-    run_cmd(["sudo", "rsync", "-avq", f"{backup}/.", in_progress_destination], success_message, fail_message, capture_output=False)
+    run_cmd(["sudo", "rsync", "-avq", f"{backup}/.", in_progress_destination], success_message, fail_message, report=False)
     in_progress_destination.rename(destination)
 
 def cleanup_backups(directory, limit, compressed=False):

@@ -107,7 +107,7 @@ def frogpilot_thread():
       theme_updated = theme_manager.update_active_theme(time_validated, frogpilot_toggles)
 
       if time_validated:
-        run_thread_with_lock("backup_toggles", backup_toggles, (params_cache,))
+        run_thread_with_lock("backup_toggles", backup_toggles, (params_cache,), report=False)
 
       toggles_last_updated = now
     toggles_updated = (now - toggles_last_updated).total_seconds() <= 1
