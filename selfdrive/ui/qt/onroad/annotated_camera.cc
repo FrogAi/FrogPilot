@@ -191,7 +191,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
     p.drawText(set_speed_rect.adjusted(0, 77, 0, 0), Qt::AlignTop | Qt::AlignHCenter, setSpeedStr);
   }
 
-  if (!speedLimitChanged && is_cruise_set && (setSpeed - mtscSpeed > 1 || setSpeed - stscSpeed > 1 || setSpeed - vtscSpeed > 1) && !hideCSCUI) {
+  if (!speedLimitChanged && !hideCSCUI) {
     std::function<void(const QRect&, const QString&, bool)> drawCurveSpeedControl = [&](const QRect &rect, const QString &speedStr, bool isMtsc) {
       if (isMtsc && !stscControllingCurve && !vtscControllingCurve) {
         p.setPen(QPen(greenColor(), 10));
@@ -265,7 +265,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
     }
     p.restore();
 
-    if (speedLimitChanged && (!(setSpeed - mtscSpeed > 1 || setSpeed - stscSpeed > 1 || setSpeed - vtscSpeed > 1) || hideCSCUI || !is_cruise_set)) {
+    if (speedLimitChanged && hideCSCUI) {
       QRect new_sign_rect(sign_rect.translated(sign_rect.width() + 25, 0));
       new_sign_rect.setWidth(newSpeedLimitStr.size() >= 3 ? 200 : 175);
 
@@ -1055,7 +1055,7 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
 
   experimentalMode = scene.experimental_mode;
 
-  hideCSCUI = scene.hide_csc_ui;
+  hideCSCUI = scene.hide_csc_ui || scene.accel_pressed || !(setSpeed - mtscSpeed > 1 || setSpeed - stscSpeed > 1 || setSpeed - vtscSpeed > 1) || !is_cruise_set;
   hideMapIcon = scene.hide_map_icon;
   hideMaxSpeed = scene.hide_max_speed;
   hideSpeed = scene.hide_speed;

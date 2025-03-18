@@ -127,6 +127,7 @@ typedef struct UIScene {
   uint64_t started_frame;
 
   // FrogPilot variables
+  bool accel_pressed;
   bool acceleration_path;
   bool adjacent_path;
   bool adjacent_path_metrics;

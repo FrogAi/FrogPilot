@@ -297,6 +297,7 @@ static void update_state(UIState *s) {
   }
   if (sm.updated("frogpilotCarControl")) {
     auto frogpilotCarControl = sm["frogpilotCarControl"].getFrogpilotCarControl();
+    scene.accel_pressed = frogpilotCarControl.getAccelPressed();
     scene.always_on_lateral_active = !scene.enabled && frogpilotCarControl.getAlwaysOnLateralActive();
   }
   if (sm.updated("frogpilotCarState")) {
