@@ -108,8 +108,8 @@ def create_ui_command(packer, steer, chime, left_line, right_line, left_lane_dep
   values = {
     "TWO_BEEPS": chime,
     "LDA_ALERT": steer if enabled else 0,
-    "RIGHT_LINE": 0 if not lat_active else 2 if lateral_paused else 3 if right_lane_depart else 1 if right_line else 2,
-    "LEFT_LINE": 0 if not lat_active else 2 if lateral_paused else 3 if left_lane_depart else 1 if left_line else 2,
+    "RIGHT_LINE": 2 if lateral_paused else 0 if not lat_active else 3 if right_lane_depart else 1 if right_line else 2,
+    "LEFT_LINE": 2 if lateral_paused else 0 if not lat_active else 3 if left_lane_depart else 1 if left_line else 2,
     "BARRIERS": 1 if lat_active else 0,
     "LKAS_STATUS": 2 if lat_active else 1 if lateral_paused else 0,
 
