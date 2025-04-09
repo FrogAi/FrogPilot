@@ -180,6 +180,9 @@ frogpilot_default_params: list[tuple[str, str | bytes, int]] = [
   ("HideSpeed", "0", 2),
   ("HideSpeedLimit", "0", 2),
   ("HolidayThemes", "1", 0),
+  ("HondaAltTune", "0", 2),
+  ("HondaBrakeMax", "0", 2),
+  ("HondaLsPedal", "0", 2),
   ("HumanAcceleration", "1", 2),
   ("HumanFollowing", "1", 2),
   ("IncreasedStoppedDistance", "0", 2),
@@ -640,6 +643,10 @@ class FrogPilotVariables:
     toggle.lead_detection_probability = np.clip(params.get_int("LeadDetectionThreshold") / 100, 0.01, 0.99) if longitudinal_tuning and tuning_level >= level["LeadDetectionThreshold"] else np.clip(default.get_int("LeadDetectionThreshold") / 100, 0.01, 0.99)
     toggle.max_desired_acceleration = np.clip(params.get_float("MaxDesiredAcceleration"), 0.1, 4.0) if longitudinal_tuning and tuning_level >= level["MaxDesiredAcceleration"] else default.get_float("MaxDesiredAcceleration")
     toggle.taco_tune = longitudinal_tuning and (params.get_bool("TacoTune") if tuning_level >= level["TacoTune"] else default.get_bool("TacoTune"))
+
+    toggle.honda_alt_Tune = params.get_bool("HondaAltTune") and car_make == "honda" and tuning_level >= level["HondaAltTune"] else default.get_bool("HondaAltTune")
+    toggle.honda_lowspeedPedal = params.get_bool("HondaLsPedal") and car_make == "honda"  and has_pedal and tuning_level >= level["HondaLsPedal"] else default.get_bool("HondaLsPedal")
+    toggle.honda_nidec_brakeMax = params.get_bool("HondaBrakeMax") and car_make == "honda" and tuning_level >= level["HondaBrakeMax"] else default.get_bool("HondaBrakeMax")
 
     toggle.available_models = params.get("AvailableModels", encoding="utf-8") or ""
     toggle.available_model_names = params.get("AvailableModelNames", encoding="utf-8") or ""

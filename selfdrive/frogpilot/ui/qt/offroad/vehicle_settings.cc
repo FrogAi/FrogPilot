@@ -148,6 +148,8 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
   vehiclesLayout->addWidget(gmPanel);
   ScrollView *hkgPanel = new ScrollView(hkgList, this);
   vehiclesLayout->addWidget(hkgPanel);
+  ScrollView *hondaPanel = new ScrollView(hondaList, this);
+  vehiclesLayout->addWidget(hondaPanel);
   ScrollView *toyotaPanel = new ScrollView(toyotaList, this);
   vehiclesLayout->addWidget(toyotaPanel);
 
@@ -159,6 +161,11 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
 
     {"HKGToggles", tr("Hyundai/Kia/Genesis Toggles"), tr("Toggles catered towards \"Hyundai/Kia/Genesis\" vehicles."), ""},
     {"NewLongAPI", tr("comma's New Longitudinal API"), tr("comma's new longitudinal control system that has shown great improvement with acceleration and braking, but has issues on some Hyundai/Kia/Genesis vehicles."), ""},
+
+    {"HondaToggles", tr("Honda/Acura Toggles"), tr("Toggles catered towards \"Honda/Acura\" vehicles."), ""},
+    {"HondaAltTune", tr("Alt Long Tuning"), tr("Alternate Long Tuning values that aims to smoothen out oscillations behind a lead"), ""},
+    {"HondaBrakeMax", tr("Nidec Brake Max"), tr("Increases max braking performance on Nidec vehicles"), ""},
+    {"HondaLsPedal", tr("Low Speed Pedal Tune"), tr("Increases low speed acceleration response on \"Honda/Acura\" vehicles with a Comma Pedal"), ""},
 
     {"ToyotaToggles", tr("Toyota/Lexus Toggles"), tr("Toggles catered towards \"Toyota/Lexus\" vehicles."), ""},
     {"ToyotaDoors", tr("Automatically Lock/Unlock Doors"), tr("Automatically lock the doors when shifting into drive and unlocks them when shifting into park."), ""},
@@ -184,6 +191,13 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
         vehiclesLayout->setCurrentWidget(hkgPanel);
       });
       vehicleToggle = hkgToggle;
+
+    } else if (param == "HondaToggles") {
+      ButtonControl *hondaToggle = new ButtonControl(title, tr("MANAGE"), desc);
+      QObject::connect(hondaToggle, &ButtonControl::clicked, [vehiclesLayout, hondaPanel]() {
+        vehiclesLayout->setCurrentWidget(hondaPanel);
+      });
+      vehicleToggle = hondaToggle;
 
     } else if (param == "ToyotaToggles") {
       ButtonControl *toyotaToggle = new ButtonControl(title, tr("MANAGE"), desc);
@@ -273,6 +287,7 @@ void FrogPilotVehiclesPanel::updateToggles() {
   std::set<QString> parentKeys = {
     "GMToggles",
     "HKGToggles",
+    "HondaToggles",
     "ToyotaToggles"
   };
 
@@ -293,6 +308,8 @@ void FrogPilotVehiclesPanel::updateToggles() {
       setVisible &= parent->isGM;
     } else if (hkgKeys.find(key) != hkgKeys.end()) {
       setVisible &= parent->isHKG;
+    } else if (hondaKeys.find(key) != hondaKeys.end()) {
+      setVisible &= parent->isHonda;
     } else if (toyotaKeys.find(key) != toyotaKeys.end()) {
       setVisible &= parent->isToyota;
     }
@@ -316,6 +333,8 @@ void FrogPilotVehiclesPanel::updateToggles() {
         toggles["GMToggles"]->setVisible(true);
       } else if (hkgKeys.find(key) != hkgKeys.end()) {
         toggles["HKGToggles"]->setVisible(true);
+      } else if (hondaKeys.find(key) != hondaKeys.end()) {
+        toggles["HondaToggles"]->setVisible(true);
       } else if (toyotaKeys.find(key) != toyotaKeys.end()) {
         toggles["ToyotaToggles"]->setVisible(true);
       }

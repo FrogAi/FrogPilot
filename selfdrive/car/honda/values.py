@@ -36,6 +36,8 @@ class CarControllerParams:
   BOSCH_GAS_LOOKUP_BP = [-0.2, 2.0]  # 2m/s^2
   BOSCH_GAS_LOOKUP_V = [0, 1600]
 
+  PEDAL_ACCEL_MAX = 3.0  # m/s^2, max acceleration pedal value except in Sport Max Accel mode
+
   def __init__(self, CP):
     self.STEER_MAX = CP.lateralParams.torqueBP[-1]
     # mirror of list (assuming first item is zero) for interp of signed request values
