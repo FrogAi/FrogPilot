@@ -12,32 +12,26 @@ public:
 
 signals:
   void openParentToggle();
-  void openSubParentToggle();
 
 protected:
   void showEvent(QShowEvent *event) override;
 
 private:
-  void hideSubToggles();
-  void hideToggles();
-  void showToggles(const std::set<QString> &keys);
-  void updateModelLabels();
+  void updateModelLabels(FrogPilotListWidget *labelsList);
   void updateState(const UIState &s);
+  void updateToggles();
 
   bool allModelsDownloaded;
   bool allModelsDownloading;
   bool cancellingDownload;
   bool finalizingDownload;
   bool modelDownloading;
-  bool modelRandomizerOpen;
   bool noModelsDownloaded;
   bool started;
 
   int tuningLevel;
 
   std::map<QString, AbstractControl*> toggles;
-
-  std::set<QString> modelRandomizerKeys = {"ManageBlacklistedModels", "ResetScores", "ReviewScores"};
 
   ButtonControl *selectModelBtn;
 
@@ -47,15 +41,13 @@ private:
   FrogPilotSettingsWindow *parent;
 
   Params params;
+  Params params_cache{"/cache/params"};
   Params params_default{"/dev/shm/params_default"};
   Params params_memory{"/dev/shm/params"};
-  Params params_cache{"/cache/params"};
 
   QDir modelDir{"/data/models/"};
 
   QJsonObject frogpilotToggleLevels;
-
-  QList<LabelControl*> labelControls;
 
   QMap<QString, QString> modelFileToNameMap;
   QMap<QString, QString> modelFileToNameMapProcessed;
@@ -64,5 +56,6 @@ private:
 
   QStringList availableModels;
   QStringList availableModelNames;
+  QStringList deletableModels;
   QStringList downloadableModels;
 };

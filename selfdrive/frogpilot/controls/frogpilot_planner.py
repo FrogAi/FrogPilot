@@ -8,7 +8,7 @@ from openpilot.common.conversions import Conversions as CV
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.realtime import DT_MDL
 
-from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_UNSET
+from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import A_CHANGE_COST, DANGER_ZONE_COST, J_EGO_COST, STOP_DISTANCE
 from openpilot.selfdrive.controls.lib.longitudinal_planner import Lead
 
@@ -40,14 +40,14 @@ class FrogPilotPlanner:
     self.lane_width_left = 0
     self.lane_width_right = 0
     self.model_length = 0
-    self.road_curvature = 1
+    self.road_curvature = 0
     self.v_cruise = 0
 
-  def update(self, carControl, carState, controlsState, frogpilotCarControl, frogpilotCarState, frogpilotNavigation, liveLocationKalman, modelData, radarless_model, radarState, frogpilot_toggles):
+  def update(self, carState, controlsState, frogpilotCarState, frogpilotNavigation, liveLocationKalman, modelData, radarless_model, radarState, frogpilot_toggles):
     if radarless_model:
       model_leads = list(modelData.leadsV3)
       if len(model_leads) > 0:
-        distance_offset = frogpilot_toggles.increased_stopped_distance if not frogpilotCarState.trafficModeActive else 0
+        distance_offset = frogpilot_toggles.increased_stopped_distance if not frogpilotCarState.trafficMode else 0
         model_lead = model_leads[0]
         self.lead_one.update(model_lead.x[0] - distance_offset, model_lead.y[0], model_lead.v[0], model_lead.a[0], model_lead.prob)
       else:
@@ -55,22 +55,27 @@ class FrogPilotPlanner:
     else:
       self.lead_one = radarState.leadOne
 
-    v_cruise = min(controlsState.vCruise, V_CRUISE_UNSET) * CV.KPH_TO_MS
+    v_cruise = min(controlsState.vCruise, V_CRUISE_MAX) * CV.KPH_TO_MS
     v_ego = max(carState.vEgo, 0)
     v_lead = self.lead_one.vLead
 
-    self.frogpilot_acceleration.update(frogpilotCarState, v_ego, frogpilot_toggles)
+    if controlsState.enabled:
+      self.frogpilot_acceleration.update(frogpilotCarState, v_ego, frogpilot_toggles)
+    else:
+      self.frogpilot_acceleration.max_accel = 0
+      self.frogpilot_acceleration.min_accel = 0
 
-    if frogpilot_toggles.conditional_experimental_mode and controlsState.enabled:
-      self.cem.update(carState, frogpilotCarState, frogpilotNavigation, v_ego, v_lead, frogpilot_toggles)
+    if controlsState.enabled and frogpilot_toggles.conditional_experimental_mode:
+      self.cem.update(carState, frogpilotCarState, frogpilotNavigation, v_ego, frogpilot_toggles)
     elif frogpilot_toggles.force_stops or frogpilot_toggles.green_light_alert or frogpilot_toggles.show_stopping_point:
       self.cem.curve_detected = False
       self.cem.stop_sign_and_light(frogpilotCarState, v_ego, frogpilot_toggles)
     else:
       self.cem.stop_light_detected = False
 
-    self.frogpilot_events.update(carState, controlsState, frogpilotCarControl, frogpilotCarState, self.lead_one.dRel, modelData, v_lead, frogpilot_toggles)
-    self.frogpilot_following.update(carState.aEgo, controlsState, frogpilotCarState, self.lead_one.dRel, v_ego, v_lead, frogpilot_toggles)
+    self.frogpilot_events.update(carState, controlsState, frogpilotCarState, self.lead_one.dRel, modelData, v_cruise, frogpilot_toggles)
+
+    self.frogpilot_following.update(carState.aEgo, controlsState, frogpilotCarState, self.lead_one.dRel, v_ego, frogpilot_toggles)
 
     localizer_valid = (liveLocationKalman.status == log.LiveLocationKalman.Status.valid) and liveLocationKalman.positionGeodetic.valid
     if liveLocationKalman.gpsOK and localizer_valid:
@@ -91,20 +96,23 @@ class FrogPilotPlanner:
       self.lane_width_right = 0
 
     self.lateral_check = v_ego >= frogpilot_toggles.pause_lateral_below_speed
-    self.lateral_check |= frogpilot_toggles.pause_lateral_below_signal and not (carState.leftBlinker or carState.rightBlinker)
+    self.lateral_check |= not (carState.leftBlinker or carState.rightBlinker) and frogpilot_toggles.pause_lateral_below_signal
     self.lateral_check |= carState.standstill
 
     self.model_length = modelData.position.x[-1]
+
     self.model_stopped = self.model_length < CRUISING_SPEED * PLANNER_TIME
     self.model_stopped |= self.frogpilot_vcruise.forcing_stop
 
     self.road_curvature = calculate_road_curvature(modelData, v_ego)
+
     self.road_curvature_detected = (1 / abs(self.road_curvature))**0.5 < v_ego > CRUISING_SPEED
 
-    self.tracking_lead = self.set_lead_status(v_lead)
-    self.v_cruise = self.frogpilot_vcruise.update(carControl, carState, controlsState, frogpilotCarControl, frogpilotCarState, frogpilotNavigation, gps_position, v_cruise, v_ego, frogpilot_toggles)
+    self.tracking_lead = self.set_lead_status()
 
-  def set_lead_status(self, v_lead):
+    self.v_cruise = self.frogpilot_vcruise.update(carState, controlsState, frogpilotCarState, frogpilotNavigation, gps_position, v_cruise, v_ego, frogpilot_toggles)
+
+  def set_lead_status(self):
     following_lead = self.lead_one.status
     following_lead &= self.lead_one.dRel < self.model_length + STOP_DISTANCE
 
@@ -140,9 +148,9 @@ class FrogPilotPlanner:
     frogpilotPlan.maxAcceleration = self.frogpilot_acceleration.max_accel
     frogpilotPlan.minAcceleration = self.frogpilot_acceleration.min_accel
 
-    frogpilotPlan.mtscSpeed = float(self.frogpilot_vcruise.mtsc_target)
-    frogpilotPlan.vtscControllingCurve = bool(self.frogpilot_vcruise.mtsc_target > self.frogpilot_vcruise.vtsc_target)
-    frogpilotPlan.vtscSpeed = float(self.frogpilot_vcruise.vtsc_target)
+    frogpilotPlan.mtscSpeed = self.frogpilot_vcruise.mtsc_target
+    frogpilotPlan.vtscControllingCurve = self.frogpilot_vcruise.mtsc_target > self.frogpilot_vcruise.vtsc_target
+    frogpilotPlan.vtscSpeed = self.frogpilot_vcruise.vtsc_target
 
     frogpilotPlan.redLight = self.cem.stop_light_detected
 
@@ -160,6 +168,6 @@ class FrogPilotPlanner:
 
     frogpilotPlan.togglesUpdated = toggles_updated
 
-    frogpilotPlan.vCruise = self.v_cruise
+    frogpilotPlan.vCruise = float(self.v_cruise)
 
     pm.send("frogpilotPlan", frogpilot_plan_send)

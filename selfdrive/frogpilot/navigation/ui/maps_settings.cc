@@ -12,13 +12,13 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent) : FrogPi
 
   std::vector<QString> scheduleOptions{tr("Manually"), tr("Weekly"), tr("Monthly")};
   ButtonParamControl *preferredSchedule = new ButtonParamControl("PreferredSchedule", tr("Automatically Update Maps"),
-                                          tr("The frequency at which maps update with the latest OpenStreetMap (OSM) changes. "
-                                             "Weekly updates begin at midnight every Sunday, while monthly updates start at midnight on the 1st of each month."),
+                                          tr("The frequency at which maps sync with the latest OpenStreetMap (OSM) changes. "
+                                             "Weekly updates occur every Sunday, and monthly updates occur on the 1st."),
                                              "",
                                              scheduleOptions);
   settingsList->addItem(preferredSchedule);
 
-  FrogPilotButtonsControl *selectMaps = new FrogPilotButtonsControl(tr("Select Map Data Sources"),
+  FrogPilotButtonsControl *selectMaps = new FrogPilotButtonsControl(tr("Data Sources"),
                                                                     tr("Select map data sources to use with \"Curve Speed Control\" and \"Speed Limit Controller\"."),
                                                                     "", {tr("COUNTRIES"), tr("STATES")});
   QObject::connect(selectMaps, &FrogPilotButtonsControl::buttonClicked, [this, mapsLayout](int id) {
@@ -43,7 +43,7 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent) : FrogPi
   settingsList->addItem(downloadStatus = new LabelControl(tr("Download Progress")));
   settingsList->addItem(downloadTimeElapsed = new LabelControl(tr("Download Time Elapsed")));
   settingsList->addItem(lastMapsDownload = new LabelControl(tr("Maps Last Updated"), params.get("LastMapsUpdate").empty() ? "Never" : QString::fromStdString(params.get("LastMapsUpdate"))));
-  settingsList->addItem(mapsSize = new LabelControl(tr("Downloaded Maps Size"), calculateDirectorySize(mapsFolderPath)));
+  settingsList->addItem(mapsSize = new LabelControl(tr("Maps Size"), calculateDirectorySize(mapsFolderPath)));
 
   downloadETA->setVisible(false);
   downloadStatus->setVisible(false);
@@ -61,7 +61,7 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent) : FrogPi
   });
   settingsList->addItem(removeMapsButton);
 
-  resetMapdBtn = new ButtonControl(tr("Reset The Map Downloader"), tr("RESET"),
+  resetMapdBtn = new ButtonControl(tr("Reset Map Downloader"), tr("RESET"),
                                    tr("Reset the map downloader. Use if you're running into issues with downloading maps."));
   QObject::connect(resetMapdBtn, &ButtonControl::clicked, [this, parent]() {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to reset the map downloader? This will force a reboot once completed."), tr("Reset"), this)) {
@@ -157,6 +157,8 @@ void FrogPilotMapsPanel::showEvent(QShowEvent *event) {
     resetMapdBtn->setVisible(false);
 
     updateDownloadLabels(osmDownloadProgress);
+  } else {
+    downloadMapsButton->setEnabled(!cancellingDownload && hasMapsSelected && uiState()->scene.online);
   }
 }
 

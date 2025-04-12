@@ -61,6 +61,16 @@ class FrogPilotListWidget : public QWidget {
   inline void addItem(QLayout *layout) { inner_layout.addLayout(layout); }
   inline void setSpacing(int spacing) { inner_layout.setSpacing(spacing); }
 
+  void clear() {
+    while (QLayoutItem *child = inner_layout.takeAt(0)) {
+      if (child->widget()) {
+        child->widget()->deleteLater();
+      }
+      delete child;
+    }
+    outer_layout.addStretch();
+  }
+
 private:
   void paintEvent(QPaintEvent *) override {
     QPainter p(this);
@@ -76,13 +86,14 @@ private:
         }
       }
 
-      if (widget == nullptr || widget->isVisible() && nextWidget->isVisible()) {
+      if (widget == nullptr || (widget->isVisible() && nextWidget->isVisible())) {
         QRect r = inner_layout.itemAt(i)->geometry();
         int bottom = r.bottom() + inner_layout.spacing() / 2;
         p.drawLine(r.left() + 40, bottom, r.right() - 40, bottom);
       }
     }
   }
+
   QVBoxLayout outer_layout;
   QVBoxLayout inner_layout;
 };
@@ -352,6 +363,10 @@ public:
   }
 
   void decrementPressed() {
+    if (display_warning && !warning_shown) {
+      showWarning();
+    }
+
     float delta = decrement_repeating && fast_increase ? interval * 5 : interval;
     value = std::max(value - delta, min_value);
 
@@ -365,10 +380,16 @@ public:
   void hideEvent(QHideEvent *event) override {
     AbstractControl::hideEvent(event);
 
+    warning_shown = false;
+
     updateParam();
   }
 
   void incrementPressed() {
+    if (display_warning && !warning_shown) {
+      showWarning();
+    }
+
     float delta = increment_repeating && fast_increase ? interval * 5 : interval;
     value = std::min(value + delta, max_value);
 
@@ -387,6 +408,12 @@ public:
     updateParam();
   }
 
+  void setWarning(const QString &newWarning) {
+    display_warning = true;
+
+    warning = newWarning;
+  }
+
   void setupButton(QPushButton &button, const QString &text) {
     button.setAutoRepeat(true);
     button.setAutoRepeatDelay(500);
@@ -400,11 +427,16 @@ public:
     refresh();
   }
 
-  void updateControl(const float &newMinValue, const float &newMaxValue, const QString &newLabel = "", const std::map<float, QString> &newValueLabels = {}) {
+  void showWarning() {
+    ConfirmationDialog::alert(warning, this);
+
+    warning_shown = true;
+  }
+
+  void updateControl(const float &newMinValue, const float &newMaxValue, const std::map<float, QString> &newValueLabels = {}) {
     min_value = newMinValue;
     max_value = newMaxValue;
 
-    label = newLabel;
     value_labels = newValueLabels;
 
     refresh();
@@ -443,8 +475,10 @@ protected:
 
 private:
   bool decrement_repeating;
+  bool display_warning;
   bool fast_increase;
   bool increment_repeating;
+  bool warning_shown;
 
   float interval;
   float factor;
@@ -463,6 +497,7 @@ private:
   QPushButton increment_button;
 
   QString label;
+  QString warning;
 
   QTimer decrement_repeating_timer;
   QTimer increment_repeating_timer;
@@ -538,9 +573,9 @@ public:
     hlayout->addWidget(control2);
   }
 
-  void updateControl(const float &newMinValue, const float &newMaxValue, const QString &newLabel = "") {
-    control1->updateControl(newMinValue, newMaxValue, newLabel);
-    control2->updateControl(newMinValue, newMaxValue, newLabel);
+  void updateControl(const float &newMinValue, const float &newMaxValue, const std::map<float, QString> &newValueLabels = {}) {
+    control1->updateControl(newMinValue, newMaxValue, newValueLabels);
+    control2->updateControl(newMinValue, newMaxValue, newValueLabels);
   }
 
   void refresh() {

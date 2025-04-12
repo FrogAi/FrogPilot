@@ -54,7 +54,8 @@ frogpilot_src = ["../frogpilot/navigation/ui/maps_settings.cc", "../frogpilot/na
                  "../frogpilot/ui/qt/offroad/lateral_settings.cc", "../frogpilot/ui/qt/offroad/longitudinal_settings.cc",
                  "../frogpilot/ui/qt/offroad/model_settings.cc", "../frogpilot/ui/qt/offroad/sounds_settings.cc",
                  "../frogpilot/ui/qt/offroad/theme_settings.cc", "../frogpilot/ui/qt/offroad/utilities.cc",
-                 "../frogpilot/ui/qt/offroad/vehicle_settings.cc", "../frogpilot/ui/qt/offroad/visual_settings.cc"]
+                 "../frogpilot/ui/qt/offroad/vehicle_settings.cc", "../frogpilot/ui/qt/offroad/visual_settings.cc",
+                 "../frogpilot/ui/qt/offroad/wheel_settings.cc"]
 
 qt_src += frogpilot_src
 

@@ -105,25 +105,21 @@ class Track:
     if standstill or self.vLeadK < 1:
       return False
 
-    lead_y = self.yRel + interp(self.dRel, model_data.position.x, model_data.position.y)
-
     if left:
       left_lane = interp(self.dRel, model_data.laneLines[1].x, model_data.laneLines[1].y)
-      return lead_y < left_lane
+      return -self.yRel < left_lane
     else:
       right_lane = interp(self.dRel, model_data.laneLines[2].x, model_data.laneLines[2].y)
-      return lead_y > right_lane
+      return -self.yRel > right_lane
 
   def potential_far_lead(self, standstill: bool, model_data: capnp._DynamicStructReader):
-    if standstill or self.vLeadK < 1 or abs(self.yRel) > 1:
+    if standstill or self.vLeadK < 1:
       return False
-
-    lead_y = self.yRel + interp(self.dRel, model_data.position.x, model_data.position.y)
 
     left_lane = interp(self.dRel, model_data.laneLines[1].x, model_data.laneLines[1].y)
     right_lane = interp(self.dRel, model_data.laneLines[2].x, model_data.laneLines[2].y)
 
-    return left_lane < lead_y < right_lane
+    return left_lane < -self.yRel < right_lane
 
   def potential_low_speed_lead(self, v_ego: float):
     # stop for stuff in front of you and low speed, even without model confirmation
@@ -217,7 +213,7 @@ def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capn
         lead_dict['vLead'] = lead_dict['vLeadK']
 
   if 'dRel' in lead_dict:
-    lead_dict['dRel'] -= frogpilot_toggles.increased_stopped_distance if not frogpilotCarState.trafficModeActive else 0
+    lead_dict['dRel'] -= frogpilot_toggles.increased_stopped_distance if not frogpilotCarState.trafficMode else 0
 
   return lead_dict
 

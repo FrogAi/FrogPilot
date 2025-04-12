@@ -21,12 +21,14 @@ public:
   bool hasRadar = true;
   bool hasSNG = false;
   bool isBolt = false;
+  bool isC3 = false;
   bool isGM = true;
   bool isHKG = true;
   bool isHKGCanFd = true;
   bool isSubaru = false;
   bool isTorqueCar = false;
   bool isToyota = true;
+  bool isTSK = false;
   bool isVolt = true;
   bool keepScreenOn = false;
 
@@ -61,6 +63,7 @@ private:
 
   FrogPilotButtonsControl *drivingPanelButtons;
   FrogPilotButtonsControl *systemPanelButtons;
+  FrogPilotButtonsControl *vehiclePanelButtons;
 
   Params params;
   Params params_memory{"/dev/shm/params"};

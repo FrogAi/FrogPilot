@@ -279,7 +279,7 @@ void Sidebar::updateState(const UIState &s) {
   max_temp = isFahrenheit ? QString::number(maxTempC * 9 / 5 + 32) + "°F" : QString::number(maxTempC) + "°C";
 
   if (isCPU || isGPU) {
-    auto cpu_loads = deviceState.getCpuUsagePercent();
+    capnp::List<int8_t>::Reader cpu_loads = deviceState.getCpuUsagePercent();
     int cpu_usage = cpu_loads.size() != 0 ? std::accumulate(cpu_loads.begin(), cpu_loads.end(), 0) / cpu_loads.size() : 0;
     int gpu_usage = deviceState.getGpuUsagePercent();
     int usage = isGPU ? gpu_usage : cpu_usage;

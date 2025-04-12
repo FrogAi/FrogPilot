@@ -1,7 +1,6 @@
 #include "selfdrive/ui/qt/onroad/alerts.h"
 
 #include <QPainter>
-#include <filesystem>
 #include <map>
 
 #include "selfdrive/ui/qt/util.h"
@@ -31,8 +30,8 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started
 
   Alert a = {};
 
-  const std::string crash_log_path = "/data/crashes/error.txt";
-  if (std::filesystem::exists(crash_log_path) && (cs.getAlertText2() != "Please post the 'Error Log' in the FrogPilot Discord!")) {
+  const QString crash_log_path = "/data/crashes/error.txt";
+  if (QFile::exists(crash_log_path) && (cs.getAlertText2() != "Please post the 'Error Log' in the FrogPilot Discord!")) {
     if (random_events) {
       a = {tr("openpilot crashed 💩"),
            tr("Please post the 'Error Log' in the FrogPilot Discord!"),

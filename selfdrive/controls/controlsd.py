@@ -19,6 +19,7 @@ from openpilot.common.realtime import config_realtime_process, Priority, Ratekee
 from openpilot.common.swaglog import cloudlog
 
 from openpilot.selfdrive.car.car_helpers import get_car_interface, get_startup_event
+from openpilot.selfdrive.car.gm.values import CC_ONLY_CAR, GMFlags
 from openpilot.selfdrive.controls.lib.alertmanager import AlertManager, set_offroad_alert
 from openpilot.selfdrive.controls.lib.drive_helpers import VCruiseHelper, clip_curvature
 from openpilot.selfdrive.controls.lib.events import ET, EVENTS, Events
@@ -32,7 +33,7 @@ from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
 from openpilot.system.hardware import HARDWARE
 
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_acceleration import get_max_allowed_accel
-from openpilot.selfdrive.frogpilot.frogpilot_variables import ERROR_LOGS_PATH, NON_DRIVING_GEARS, get_frogpilot_toggles, params_memory
+from openpilot.selfdrive.frogpilot.frogpilot_variables import ERROR_LOGS_PATH, get_frogpilot_toggles, params_memory
 
 SOFT_DISABLE_TIME = 3  # seconds
 LDW_MIN_SPEED = 31 * CV.MPH_TO_MS
@@ -82,7 +83,7 @@ class Controls:
     self.branch = get_short_branch()
 
     # Setup sockets
-    self.pm = messaging.PubMaster(['controlsState', 'carControl', 'onroadEvents', 'frogpilotCarControl'])
+    self.pm = messaging.PubMaster(['controlsState', 'carControl', 'onroadEvents'])
 
     self.sensor_packets = ["accelerometer", "gyroscope"]
     self.camera_packets = ["roadCameraState", "driverCameraState", "wideRoadCameraState"]
@@ -185,17 +186,15 @@ class Controls:
     # FrogPilot variables
     self.frogpilot_toggles = get_frogpilot_toggles()
 
-    self.accel_pressed = False
-    self.always_on_lateral_active = False
-    self.always_on_lateral_active_previously = False
-    self.decel_pressed = False
-    self.onroad_distance_pressed = False
+    self.distance_pressed_previously = False
 
     self.planner_curves = self.frogpilot_toggles.planner_curvature_model
     self.radarless_model = self.frogpilot_toggles.radarless_model
     self.use_old_long = self.frogpilot_toggles.old_long_api
 
     self.display_timer = 0
+
+    self.has_menu = self.CP.carName == "gm" and not (self.CP.flags & GMFlags.NO_CAMERA.value or self.CP.carFingerprint in CC_ONLY_CAR)
 
     self.error_log = ERROR_LOGS_PATH / "error.txt"
 
@@ -564,7 +563,7 @@ class Controls:
     # Check if openpilot is engaged and actuators are enabled
     self.enabled = self.state in ENABLED_STATES
     self.active = self.state in ACTIVE_STATES
-    if self.active or self.always_on_lateral_active:
+    if self.active or self.sm['frogpilotCarState'].alwaysOnLateralEnabled:
       self.current_alert_types.append(ET.WARNING)
 
   def state_control(self, CS):
@@ -591,9 +590,9 @@ class Controls:
 
     # Check which actuators can be enabled
     standstill = CS.vEgo <= max(self.CP.minSteerSpeed, MIN_LATERAL_CONTROL_SPEED) or CS.standstill
-    CC.latActive = (self.active or self.always_on_lateral_active) and not CS.steerFaultTemporary and not CS.steerFaultPermanent and \
-                   (not standstill or self.joystick_mode) and self.sm['frogpilotPlan'].lateralCheck
-    CC.longActive = self.enabled and not self.events.contains(ET.OVERRIDE_LONGITUDINAL) and self.CP.openpilotLongitudinalControl
+    CC.latActive = (self.active or self.sm['frogpilotCarState'].alwaysOnLateralEnabled) and not CS.steerFaultTemporary and not CS.steerFaultPermanent and \
+                   (not standstill or self.joystick_mode) and self.sm['frogpilotPlan'].lateralCheck and not self.sm['frogpilotCarState'].pauseLateral
+    CC.longActive = self.enabled and not self.events.contains(ET.OVERRIDE_LONGITUDINAL) and not self.sm['frogpilotCarState'].pauseLongitudinal and self.CP.openpilotLongitudinalControl
 
     actuators = CC.actuators
     actuators.longControlState = self.LoC.long_control_state
@@ -703,67 +702,41 @@ class Controls:
 
     # decrement personality on distance button press
     if self.CP.openpilotLongitudinalControl:
-      if any(not be.pressed and be.type == ButtonType.gapAdjustCruise for be in CS.buttonEvents) or self.onroad_distance_pressed:
-        menu_open = self.display_timer > 0 or not self.sm['frogpilotCarState'].hasMenu
-        if not (self.sm['frogpilotCarState'].distanceLongPressed or params_memory.get_bool("OnroadDistanceButtonPressed")) and menu_open:
+      distance_pressed = params_memory.get_bool("OnroadDistanceButtonPressed")
+
+      if self.frogpilot_toggles.personality_profile_via_distance:
+        distance_pressed |= any(not be.pressed and be.type == ButtonType.gapAdjustCruise for be in CS.buttonEvents)
+        distance_pressed &= not (self.sm['frogpilotCarState'].distanceLongPressed or self.sm['frogpilotCarState'].distanceVeryLongPressed)
+      if self.frogpilot_toggles.personality_profile_via_distance_long:
+        distance_pressed |= self.sm['frogpilotCarState'].distanceLongPressed
+      if self.frogpilot_toggles.personality_profile_via_distance_very_long:
+        distance_pressed |= self.sm['frogpilotCarState'].distanceVeryLongPressed
+      if self.frogpilot_toggles.personality_profile_via_lkas:
+        distance_pressed |= any(be.pressed and be.type == FrogPilotButtonType.lkas for be in CS.buttonEvents)
+
+      if not distance_pressed and self.distance_pressed_previously:
+        if self.display_timer > 0 or not self.has_menu:
           self.personality = (self.personality - 1) % 3
           self.params.put_nonblocking('LongitudinalPersonality', str(self.personality))
         self.display_timer = 350
-      self.onroad_distance_pressed = params_memory.get_bool("OnroadDistanceButtonPressed")
 
-    self.display_timer -= 1
+      self.distance_pressed_previously = distance_pressed
 
-    FPCC = self.update_frogpilot_variables(CS)
+      self.display_timer -= 1
 
-    return CC, lac_log, FPCC
+    self.update_frogpilot_variables(CS)
+
+    return CC, lac_log
 
   def update_frogpilot_variables(self, CS):
-    self.always_on_lateral_active = self.frogpilot_toggles.always_on_lateral_set
-
-    if self.frogpilot_toggles.use_lkas_for_aol and self.frogpilot_toggles.always_on_lateral_lkas:
-      self.always_on_lateral_active &= not self.sm['frogpilotCarState'].alwaysOnLateralDisabled
-    else:
-      self.always_on_lateral_active |= self.frogpilot_toggles.always_on_lateral_main or CS.cruiseState.enabled
-      self.always_on_lateral_active &= CS.cruiseState.available
-
-    self.always_on_lateral_active &= CS.gearShifter not in NON_DRIVING_GEARS
-    self.always_on_lateral_active &= self.sm['frogpilotPlan'].lateralCheck
-    self.always_on_lateral_active &= self.sm['liveCalibration'].calPerc >= 1
-    self.always_on_lateral_active &= not (self.frogpilot_toggles.always_on_lateral_lkas and self.sm['frogpilotCarState'].alwaysOnLateralDisabled)
-    self.always_on_lateral_active &= not (CS.brakePressed and CS.vEgo < self.frogpilot_toggles.always_on_lateral_pause_speed) or CS.standstill
-    self.always_on_lateral_active &= not any(ET.IMMEDIATE_DISABLE in EVENTS.get(event, {}) for event in self.events.events if event != EventName.speedTooLow)
-
     if self.frogpilot_toggles.conditional_experimental_mode or self.frogpilot_toggles.slc_fallback_experimental_mode:
       self.experimental_mode = self.sm['frogpilotPlan'].experimentalMode
-
-    if any(be.pressed and be.type == FrogPilotButtonType.lkas for be in CS.buttonEvents):
-      if self.frogpilot_toggles.experimental_mode_via_lkas and self.enabled:
-        if self.frogpilot_toggles.conditional_experimental_mode:
-          conditional_status = params_memory.get_int("CEStatus")
-          override_value = 0 if conditional_status in {1, 2, 3, 4, 5, 6} else 3 if conditional_status >= 7 else 4
-          params_memory.put_int("CEStatus", override_value)
-        else:
-          self.experimental_mode = not self.experimental_mode
-          self.params.put_bool_nonblocking("ExperimentalMode", self.experimental_mode)
-
-    if self.sm.updated['frogpilotPlan'] or any(be.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for be in CS.buttonEvents):
-      self.accel_pressed = any(be.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for be in CS.buttonEvents)
-
-    if self.sm.updated['frogpilotPlan'] or any(be.type == ButtonType.decelCruise for be in CS.buttonEvents):
-      self.decel_pressed = any(be.type == ButtonType.decelCruise for be in CS.buttonEvents)
-
-    FPCC = custom.FrogPilotCarControl.new_message()
-    FPCC.alwaysOnLateralActive = self.always_on_lateral_active
-    FPCC.accelPressed = self.accel_pressed
-    FPCC.decelPressed = self.decel_pressed
 
     # Update FrogPilot parameters
     if self.sm['frogpilotPlan'].togglesUpdated:
       self.frogpilot_toggles = get_frogpilot_toggles()
 
-    return FPCC
-
-  def publish_logs(self, CS, start_time, CC, lac_log, FPCC):
+  def publish_logs(self, CS, start_time, CC, lac_log):
     """Send actuators and hud commands to the car, send controlsstate and MPC logging"""
 
     # Orientation and angle rates can be useful for carcontroller
@@ -837,7 +810,8 @@ class Controls:
         self.steer_limited = abs(CC.actuators.steer - CO.actuatorsOutput.steer) > 1e-2
 
     force_decel = (self.sm['driverMonitoringState'].awarenessStatus < 0.) or \
-                  (self.state == State.softDisabling)
+                  (self.state == State.softDisabling) or \
+                  self.sm['frogpilotCarState'].forceCoast
 
     # Curvature & Steering angle
     lp = self.sm['liveParameters']
@@ -905,12 +879,6 @@ class Controls:
     cc_send.carControl = CC
     self.pm.send('carControl', cc_send)
 
-    # frogpilotCarControl
-    fpcc_send = messaging.new_message('frogpilotCarControl')
-    fpcc_send.valid = CS.canValid
-    fpcc_send.frogpilotCarControl = FPCC
-    self.pm.send('frogpilotCarControl', fpcc_send)
-
   def step(self):
     start_time = time.monotonic()
 
@@ -926,10 +894,10 @@ class Controls:
       self.state_transition(CS)
 
     # Compute actuators (runs PID loops and lateral MPC)
-    CC, lac_log, FPCC = self.state_control(CS)
+    CC, lac_log = self.state_control(CS)
 
     # Publish data
-    self.publish_logs(CS, start_time, CC, lac_log, FPCC)
+    self.publish_logs(CS, start_time, CC, lac_log)
 
     self.CS_prev = CS
 

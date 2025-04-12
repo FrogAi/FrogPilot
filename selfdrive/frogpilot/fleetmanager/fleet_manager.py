@@ -76,7 +76,7 @@ def route(route):
 
   if str(request.query_string) == "b''":
     query_segment = str("0")
-    query_type = "qcamera"
+    query_type = "fcamera"
   else:
     query_segment = (str(request.query_string).split(","))[0][2:]
     query_type = (str(request.query_string).split(","))[1][:-1]

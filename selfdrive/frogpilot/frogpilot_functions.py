@@ -129,7 +129,7 @@ def frogpilot_boot_functions(build_metadata, params_cache):
   if params.get_bool("HasAcceptedTerms"):
     params_cache.clear_all()
 
-  FrogPilotVariables().update(holiday_theme="stock", started=False)
+  FrogPilotVariables().update(holiday_theme="stock", started=False, boot_run=True)
   ModelManager().copy_default_model()
   ThemeManager().update_active_theme(time_validated=system_time_valid(), frogpilot_toggles=get_frogpilot_toggles(), boot_run=True)
 

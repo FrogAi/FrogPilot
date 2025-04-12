@@ -14,13 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Exit If PR Opened by FrogAi
-        if: ${{ github.actor == 'FrogAi' }}
+        if: ${{ github.actor == "FrogAi" }}
         run: |
           echo "PR opened or reopened by FrogAi. No action needed."
           exit 0
 
       - name: Close PR for Invalid Target Branch
-        if: ${{ github.event.pull_request.base.ref != 'MAKE-PRS-HERE' }}
+        if: ${{ github.base_ref != "MAKE-PRS-HERE" }}
         run: |
           gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
             -f body="Please submit your pull request to the \"MAKE-PRS-HERE\" branch."
@@ -30,7 +30,7 @@ jobs:
             -f state="closed"
 
       - name: Acknowledge PR for Valid Target Branch
-        if: ${{ github.event.pull_request.base.ref == 'MAKE-PRS-HERE' }}
+        if: ${{ github.base_ref == "MAKE-PRS-HERE" }}
         run: |
           gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
             -f body="Thank you for your PR! If you're not already in the FrogPilot Discord, [feel free to join](https://discord.FrogPilot.download) and let me know you've opened a PR!"

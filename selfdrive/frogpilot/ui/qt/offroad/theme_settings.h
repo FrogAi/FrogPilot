@@ -17,9 +17,8 @@ signals:
   void openParentToggle();
 
 private:
-  void hideToggles();
-  void showToggles(const std::set<QString> &keys);
   void updateState(const UIState &s);
+  void updateToggles();
 
   bool cancellingDownload;
   bool colorDownloading;
@@ -42,6 +41,8 @@ private:
   std::map<QString, AbstractControl*> toggles;
 
   std::set<QString> customThemeKeys = {"CustomColors", "CustomDistanceIcons", "CustomIcons", "CustomSignals", "CustomSounds", "DownloadStatusLabel", "WheelIcon"};
+
+  std::set<QString> parentKeys;
 
   FrogPilotButtonsControl *manageCustomColorsBtn;
   FrogPilotButtonsControl *manageCustomIconsBtn;

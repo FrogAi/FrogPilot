@@ -10,32 +10,34 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
 
   FrogPilotListWidget *deviceList = new FrogPilotListWidget(this);
 
+  ScrollView *devicePanel = new ScrollView(deviceList, this);
+
+  deviceLayout->addWidget(devicePanel);
+
   FrogPilotListWidget *deviceManagementList = new FrogPilotListWidget(this);
   FrogPilotListWidget *screenList = new FrogPilotListWidget(this);
 
-  ScrollView *devicePanel = new ScrollView(deviceList, this);
-  deviceLayout->addWidget(devicePanel);
-
   ScrollView *deviceManagementPanel = new ScrollView(deviceManagementList, this);
-  deviceLayout->addWidget(deviceManagementPanel);
   ScrollView *screenPanel = new ScrollView(screenList, this);
+
+  deviceLayout->addWidget(deviceManagementPanel);
   deviceLayout->addWidget(screenPanel);
 
   const std::vector<std::tuple<QString, QString, QString, QString>> deviceToggles {
-    {"DeviceManagement", tr("Device Settings"), tr("Device behavior settings."), "../frogpilot/assets/toggle_icons/icon_device.png"},
-    {"LowVoltageShutdown", tr("Battery Shutdown Threshold"), tr("The battery level threshold used for automatically shutting down the device to protect the car's battery from excessive drain and potential damage."), ""},
-    {"DeviceShutdown", tr("Device Shutdown Timer"), tr("How long the device stays on after you go offroad."), ""},
+    {"DeviceManagement", tr("Device Settings"), tr("Settings that control device behavior."), "../frogpilot/assets/toggle_icons/icon_device.png"},
+    {"LowVoltageShutdown", tr("Battery Shutdown Threshold"), tr("Automatically shut down the device when the vehicle's battery voltage reaches the set threshold preventing excessive battery drain to protect the battery."), ""},
+    {"DeviceShutdown", tr("Device Shutdown Timer"), tr("How long the device stays on for after you go offroad."), ""},
+    {"NoLogging", tr("Disable Data Logging"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This will prevent your drives from being recorded and all data will be unobtainable!")).arg(tr("Disable all data logging to improve privacy.")), ""},
+    {"NoUploads", tr("Disable Data Uploads"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This will prevent your drives from appearing on <b>comma connect</b> which may impact debugging and support!")).arg(tr("Prevent the device from sending any data to <b>comma</b>'s servers.")), ""},
     {"OfflineMode", tr("Disable Internet Requirement"), tr("Allow the device to work indefinitely without an internet connection."), ""},
-    {"IncreaseThermalLimits", tr("Increase Thermal Safety Limit"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This can cause premature wear or damage by running the device over comma's recommended temperature limits!")).arg(tr("Allow the device to run at higher temperatures than comma recommends.")), ""},
-    {"NoLogging", tr("Turn Off Data Logging"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This will prevent your drives from being recorded and all data will be unobtainable!")).arg(tr("Disable all data logging to improve privacy.")), ""},
-    {"NoUploads", tr("Turn Off Data Uploads"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This will prevent your drives from appearing on comma connect which may impact debugging and support!")).arg(tr("Prevent the device from sending any data to comma's servers.")), ""},
+    {"IncreaseThermalLimits", tr("Increase Thermal Safety Limit"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This can damage your device by exceeding safe temperature limits!")).arg(tr("Allow the device to run hotter than comma recommended limit.")), ""},
 
-    {"ScreenManagement", tr("Screen Settings"), tr("Screen behavior settings."), "../frogpilot/assets/toggle_icons/icon_light.png"},
-    {"ScreenBrightness", tr("Screen Brightness (Offroad)"), tr("The screen brightness while you're not driving."), ""},
-    {"ScreenBrightnessOnroad", tr("Screen Brightness (Onroad)"), tr("The screen brightness while you're driving."), ""},
-    {"ScreenRecorder", tr("Screen Recorder"), tr("Enable a button in the onroad UI to record the screen."), ""},
-    {"ScreenTimeout", tr("Screen Timeout (Offroad)"), tr("How long it takes for the screen to turn off when you're not driving."), ""},
-    {"ScreenTimeoutOnroad", tr("Screen Timeout (Onroad)"), tr("How long it takes for the screen to turn off while you're driving."), ""}
+    {"ScreenManagement", tr("Screen Settings"), tr("Settings that control screen behavior."), "../frogpilot/assets/toggle_icons/icon_light.png"},
+    {"ScreenBrightness", tr("Screen Brightness (Offroad)"), tr("The screen brightness when not driving."), ""},
+    {"ScreenBrightnessOnroad", tr("Screen Brightness (Onroad)"), tr("The screen brightness while driving."), ""},
+    {"ScreenRecorder", tr("Screen Recorder"), tr("Enable a button in the driving screen to record the screen."), ""},
+    {"ScreenTimeout", tr("Screen Timeout (Offroad)"), tr("How long it takes for the screen to turn off when not driving."), ""},
+    {"ScreenTimeoutOnroad", tr("Screen Timeout (Onroad)"), tr("How long it takes for the screen to turn off while driving."), ""}
   };
 
   for (const auto &[param, title, desc, icon] : deviceToggles) {
@@ -173,7 +175,7 @@ void FrogPilotDevicePanel::updateToggles() {
       continue;
     }
 
-    bool setVisible = parent->tuningLevel >= parent->frogpilotToggleLevels[key].toDouble();
+    bool setVisible = tuningLevel >= frogpilotToggleLevels[key].toDouble();
 
     toggle->setVisible(setVisible);
 

@@ -155,7 +155,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
 
   QRect set_speed_rect(QPoint(60 + (default_size.width() - set_speed_size.width()) / 2, 45), set_speed_size);
   if (!hideMaxSpeed) {
-    if (trafficModeActive) {
+    if (trafficMode) {
       p.setPen(QPen(redColor(), 10));
     } else {
       p.setPen(QPen(whiteColor(75), 6));
@@ -191,7 +191,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
     p.drawText(set_speed_rect.adjusted(0, 77, 0, 0), Qt::AlignTop | Qt::AlignHCenter, setSpeedStr);
   }
 
-  if (!speedLimitChanged && !hideCSCUI) {
+  if (!speedLimitChanged && cscStatus) {
     std::function<void(const QRect&, const QString&, bool)> drawCurveSpeedControl = [&](const QRect &rect, const QString &speedStr, bool isMtsc) {
       if (isMtsc && !vtscControllingCurve) {
         p.setPen(QPen(greenColor(), 10));
@@ -261,7 +261,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
     }
     p.restore();
 
-    if (speedLimitChanged && hideCSCUI) {
+    if (speedLimitChanged && !cscStatus) {
       QRect new_sign_rect(sign_rect.translated(sign_rect.width() + 25, 0));
       new_sign_rect.setWidth(newSpeedLimitStr.size() >= 3 ? 200 : 175);
 
@@ -320,7 +320,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
 
   if (speedLimitSources && (has_eu_speed_limit || has_us_speed_limit)) {
     std::function<void(QRect&, const QPixmap&, const QString&, double)> drawSource = [&](QRect &rect, const QPixmap &icon, QString title, double speedLimitValue) {
-      if (speedLimitSource == title.toStdString() && !slcOverridden && speedLimitValue != 0) {
+      if (speedLimitSource == title && !slcOverridden && speedLimitValue != 0) {
         p.setPen(QPen(redColor(), 10));
         p.setBrush(redColor(166));
         p.setFont(InterFont(35, QFont::Bold));
@@ -351,7 +351,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
       p.drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft, fullText);
     };
 
-    QRect dashboardRect(sign_rect.x() - sign_margin, sign_rect.y() + sign_rect.height() + 45, 500, 60);
+    QRect dashboardRect(sign_rect.x() - sign_margin, sign_rect.y() + sign_rect.height() + 30, 500, 60);
     QRect mapDataRect(dashboardRect.x(), dashboardRect.y() + dashboardRect.height() + 15, 500, 60);
     QRect navigationRect(mapDataRect.x(), mapDataRect.y() + mapDataRect.height() + 15, 500, 60);
     QRect upcomingLimitRect(navigationRect.x(), navigationRect.y() + navigationRect.height() + 15, 500, 60);
@@ -480,8 +480,6 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s, f
     const auto &acceleration = sm["modelV2"].getModelV2().getAcceleration().getX();
     const int max_len = std::min<int>(scene.track_vertices.length() / 2, acceleration.size());
 
-    float acceleration_abs = fabs(scene.acceleration);
-
     for (int i = 0; i < max_len; ++i) {
       // Some points are out of frame
       int track_idx = max_len - i - 1;  // flip idx to start from bottom right
@@ -490,10 +488,10 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s, f
       // Flip so 0 is bottom of frame
       float lin_grad_point = (height() - scene.track_vertices[track_idx].y()) / height();
 
-      if ((acceleration_abs < 0.25 || !scene.acceleration_path) && scene.rainbow_path) {
+      if ((fabs(acceleration[i]) < 0.5 || !scene.acceleration_path) && scene.rainbow_path) {
         static float hue_offset = 0.0;
         if (v_ego > 0) {
-          hue_offset += powf(v_ego, 0.25f) / sqrtf(145.0f / MS_TO_KPH);
+          hue_offset += powf(v_ego, 0.5f) / sqrtf(145.0f / MS_TO_KPH);
         }
 
         float alpha = util::map_val(lin_grad_point, 0.0f, 1.0f, 0.5f, 0.1f);
@@ -501,9 +499,9 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s, f
 
         bg.setColorAt(lin_grad_point, QColor::fromHslF(path_hue / 360.0f, 1.0f, 0.5f, alpha));
         bg.setSpread(QGradient::RepeatSpread);
-      } else if (acceleration_abs < 0.25 && !useStockColors) {
+      } else if (fabs(acceleration[i]) < 0.5 && !useStockColors) {
         QColor color = scene.path_color;
-        color.setAlphaF(util::map_val(lin_grad_point, 0.0f, 1.0f, 0.5f, 0.1f));
+        color.setAlphaF(util::map_val(lin_grad_point, 0.0f, 1.0f, 1.0f, 0.1f));
         bg.setColorAt(lin_grad_point, color);
       } else {
         // speed up: 120, slow down: 0
@@ -524,7 +522,7 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s, f
   } else if (!useStockColors) {
     QColor color = scene.path_color;
     bg.setColorAt(0.0f, color);
-    color.setAlphaF(0.5f);
+    color.setAlphaF(1.0f);
     bg.setColorAt(0.5f, color);
     color.setAlphaF(0.1f);
     bg.setColorAt(1.0f, color);
@@ -612,22 +610,22 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s, f
   // Paint path edges
   QLinearGradient pe(0, height(), 0, 0);
 
-  std::function<void(QLinearGradient&, const QColor&)> setPathEdgeColors = [&](QLinearGradient &gradient, const QColor &baseColor) {
+  std::function<void(QLinearGradient&, const QColor&)> setPathEdgeColors = [&](QLinearGradient &gradient, QColor baseColor) {
+    baseColor.setAlphaF(1.0f);
     gradient.setColorAt(0.0f, baseColor);
-    QColor color = baseColor;
-    color.setAlphaF(0.5f);
-    gradient.setColorAt(0.5f, color);
-    color.setAlphaF(0.1f);
-    gradient.setColorAt(1.0f, color);
+    baseColor.setAlphaF(0.5f);
+    gradient.setColorAt(0.5f, baseColor);
+    baseColor.setAlphaF(0.1f);
+    gradient.setColorAt(1.0f, baseColor);
   };
 
-  if (scene.always_on_lateral_active) {
-    setPathEdgeColors(pe, bg_colors[STATUS_ALWAYS_ON_LATERAL_ACTIVE]);
-  } else if (conditionalStatus == 1 || conditionalStatus == 3 || conditionalStatus == 5) {
+  if (scene.always_on_lateral_enabled) {
+    setPathEdgeColors(pe, bg_colors[STATUS_ALWAYS_ON_LATERAL_ENABLED]);
+  } else if (conditionalStatus == 1) {
     setPathEdgeColors(pe, bg_colors[STATUS_CONDITIONAL_OVERRIDDEN]);
   } else if (experimentalMode) {
     setPathEdgeColors(pe, bg_colors[STATUS_EXPERIMENTAL_MODE_ACTIVE]);
-  } else if (trafficModeActive) {
+  } else if (trafficMode) {
     setPathEdgeColors(pe, bg_colors[STATUS_TRAFFIC_MODE_ACTIVE]);
   } else if (modelLength > scene.upcoming_maneuver_distance && scene.upcoming_maneuver_distance > 1) {
     setPathEdgeColors(pe, bg_colors[STATUS_NAVIGATION_ACTIVE]);
@@ -656,6 +654,9 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s)
 
   // base icon
   int offset = UI_BORDER_SIZE + btn_size / 2;
+  if (roadNameUI) {
+    offset += 30;
+  }
   int x = rightHandDM ? width() - offset : offset;
   if (rightHandDM && map_settings_btn->isEnabled() && !hideMapIcon) {
     x -= 250;
@@ -984,6 +985,7 @@ void AnnotatedCameraWidget::initializeFrogPilotWidgets() {
   lightIcon = loadPixmap("../frogpilot/assets/other_images/light_icon.png", {img_size / 2, img_size / 2});
   mapDataIcon = loadPixmap("../frogpilot/assets/other_images/offline_maps_icon.png", {img_size / 2, img_size / 2});
   navigationIcon = loadPixmap("../frogpilot/assets/other_images/navigation_icon.png", {img_size / 2, img_size / 2});
+  pausedIcon = loadPixmap("../frogpilot/assets/other_images/paused_icon.png", {img_size / 2, img_size / 2});
   speedIcon = loadPixmap("../frogpilot/assets/other_images/speed_icon.png", {img_size / 2, img_size / 2});
   stopSignImg = loadPixmap("../frogpilot/assets/other_images/stop_sign.png", {img_size, img_size});
   turnIcon = loadPixmap("../frogpilot/assets/other_images/turn_icon.png", {img_size / 2, img_size / 2});
@@ -1030,23 +1032,28 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
   cemStatus = scene.cem_status;
   conditionalStatus = scene.conditional_status;
 
+  cscStatus = scene.csc_status && (setSpeed - mtscSpeed > 1 || setSpeed - vtscSpeed > 1) && is_cruise_set;
+
   compass = scene.compass;
 
   desiredFollow = scene.desired_follow;
 
   experimentalMode = scene.experimental_mode;
 
-  hideCSCUI = scene.hide_csc_ui || !(setSpeed - mtscSpeed > 1 || setSpeed - vtscSpeed > 1) || !is_cruise_set;
   hideMapIcon = scene.hide_map_icon;
   hideMaxSpeed = scene.hide_max_speed;
   hideSpeed = scene.hide_speed;
   hideSpeedLimit = scene.hide_speed_limit;
+
+  lateralPaused = scene.lateral_paused;
 
   laneDetectionWidth = scene.lane_detection_width;
 
   leadInfo = scene.lead_metrics;
 
   leftCurve = scene.left_curve;
+
+  longitudinalPaused = scene.longitudinal_paused;
 
   mapOpen = scene.map_open;
   bigMapOpen = mapOpen && scene.big_map;
@@ -1072,6 +1079,7 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
   radarTracks = scene.radar_tracks;
 
   roadNameUI = scene.road_name_ui;
+  distance_btn->road_name_ui = roadNameUI;
 
   bool enableScreenRecorder = scene.screen_recorder && !mapOpen;
   screenRecorder->setVisible(enableScreenRecorder);
@@ -1101,7 +1109,7 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
     standstillTimer.invalidate();
   }
 
-  trafficModeActive = scene.traffic_mode_active;
+  trafficMode = scene.traffic_mode_active;
 
   turnSignalLeft = scene.turn_signal_left;
   turnSignalRight = scene.turn_signal_right;
@@ -1116,8 +1124,22 @@ void AnnotatedCameraWidget::updateFrogPilotVariables(int alert_height, const UIS
 }
 
 void AnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &painter) {
-  if (cemStatus && !mapOpen && !hideBottomIcons) {
+  if (cemStatus && !hideBottomIcons) {
     drawCEMStatus(painter);
+  } else {
+    cemIconPosition.setX(0);
+    cemIconPosition.setY(0);
+  }
+
+  if (lateralPaused && !mapOpen && !hideBottomIcons) {
+    drawLateralPaused(painter);
+  } else {
+    lateralIconPosition.setX(0);
+    lateralIconPosition.setY(0);
+  }
+
+  if (longitudinalPaused && !mapOpen && !hideBottomIcons) {
+    drawLongitudinalPaused(painter);
   }
 
   if (radarTracks) {
@@ -1143,11 +1165,15 @@ void AnnotatedCameraWidget::drawCEMStatus(QPainter &p) {
     return;
   }
 
-  p.save();
-  p.setOpacity(1.0);
+  cemIconPosition.rx() = dmIconPosition.x();
+  cemIconPosition.ry() = dmIconPosition.y() - img_size / 2;
+  cemIconPosition.rx() += (rightHandDM ? -img_size : img_size) / (mapOpen ? 1.25 : 1);
 
-  QRect cemWidget(dmIconPosition.x() + (rightHandDM ? -img_size : img_size), dmIconPosition.y() - img_size / 2, img_size, img_size);
-  if (conditionalStatus == 1 || conditionalStatus == 3 || conditionalStatus == 5) {
+  QRect cemWidget(cemIconPosition.x(), cemIconPosition.y(), img_size, img_size);
+
+  p.save();
+
+  if (conditionalStatus == 1) {
     p.setPen(QPen(QColor(bg_colors[STATUS_CONDITIONAL_OVERRIDDEN]), 10));
   } else if (experimentalMode) {
     p.setPen(QPen(QColor(bg_colors[STATUS_EXPERIMENTAL_MODE_ACTIVE]), 10));
@@ -1157,28 +1183,90 @@ void AnnotatedCameraWidget::drawCEMStatus(QPainter &p) {
   p.setBrush(blackColor(166));
   p.drawRoundedRect(cemWidget, 24, 24);
 
-  QSize iconSize(cemWidget.size().width() - 10, cemWidget.size().height() - 10);
   QPixmap iconToDraw;
-  if (conditionalStatus == 1 || conditionalStatus == 3 || conditionalStatus == 5) {
-    iconToDraw = chillModeIcon.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-  } else if (conditionalStatus == 2 || conditionalStatus == 4 || conditionalStatus == 6) {
-    iconToDraw = experimentalModeIcon.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-  } else if (conditionalStatus == 7 || conditionalStatus == 8) {
-    iconToDraw = speedIcon.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-  } else if (conditionalStatus == 9 || conditionalStatus == 11) {
-    iconToDraw = turnIcon.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-  } else if (conditionalStatus == 10 || conditionalStatus == 15 || conditionalStatus == 16) {
-    iconToDraw = lightIcon.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-  } else if (conditionalStatus == 12) {
-    iconToDraw = curveIcon.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-  } else if (conditionalStatus == 13 || conditionalStatus == 14) {
-    iconToDraw = leadIcon.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-  } else if (experimentalMode) {
-    iconToDraw = experimentalModeIcon.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+  if (experimentalMode) {
+    if (conditionalStatus == 1) {
+      iconToDraw = chillModeIcon;
+    } else if (conditionalStatus == 2) {
+      iconToDraw = experimentalModeIcon;
+    } else if (conditionalStatus == 3 || conditionalStatus == 4) {
+      iconToDraw = speedIcon;
+    } else if (conditionalStatus == 5 || conditionalStatus == 7) {
+      iconToDraw = turnIcon;
+    } else if (conditionalStatus == 6 || conditionalStatus == 11 || conditionalStatus == 12) {
+      iconToDraw = lightIcon;
+    } else if (conditionalStatus == 8) {
+      iconToDraw = curveIcon;
+    } else if (conditionalStatus == 9 || conditionalStatus == 10) {
+      iconToDraw = leadIcon;
+    } else {
+      iconToDraw = experimentalModeIcon;
+    }
   } else {
-    iconToDraw = chillModeIcon.scaled(iconSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    iconToDraw = chillModeIcon;
   }
-  p.drawPixmap(QRect(cemWidget.center() - QPoint(iconToDraw.width() / 2, iconToDraw.height() / 2), iconToDraw.size()), iconToDraw);
+  p.drawPixmap(cemWidget, iconToDraw);
+
+  p.restore();
+}
+
+void AnnotatedCameraWidget::drawLateralPaused(QPainter &p) {
+  if (dmIconPosition == QPoint(0, 0)) {
+    return;
+  }
+
+  if (cemIconPosition != QPoint(0, 0)) {
+    lateralIconPosition = cemIconPosition;
+  } else {
+    lateralIconPosition.rx() = dmIconPosition.x();
+    lateralIconPosition.ry() = dmIconPosition.y() - img_size / 2;
+  }
+  lateralIconPosition.rx() += ((rightHandDM ? -img_size : img_size) * 1.5) / (mapOpen ? 1.25 : 1);
+
+  QRect lateralWidget(lateralIconPosition.x(), lateralIconPosition.y(), img_size, img_size);
+
+  p.save();
+
+  p.setPen(QPen(QColor(bg_colors[STATUS_TRAFFIC_MODE_ACTIVE]), 10));
+  p.setBrush(blackColor(166));
+  p.drawRoundedRect(lateralWidget, 24, 24);
+
+  p.setOpacity(0.5);
+  p.drawPixmap(lateralWidget, turnIcon);
+  p.setOpacity(0.75);
+  p.drawPixmap(lateralWidget, pausedIcon);
+
+  p.restore();
+}
+
+void AnnotatedCameraWidget::drawLongitudinalPaused(QPainter &p) {
+  if (dmIconPosition == QPoint(0, 0)) {
+    return;
+  }
+
+  QPoint longitudinalIconPosition;
+  if (lateralIconPosition != QPoint(0, 0)) {
+    longitudinalIconPosition = lateralIconPosition;
+  } else if (cemIconPosition != QPoint(0, 0)) {
+    longitudinalIconPosition = cemIconPosition;
+  } else {
+    longitudinalIconPosition.rx() = dmIconPosition.x();
+    longitudinalIconPosition.ry() = dmIconPosition.y() - img_size / 2;
+  }
+  longitudinalIconPosition.rx() += ((rightHandDM ? -img_size : img_size) * 1.5) / (mapOpen ? 1.25 : 1);
+
+  QRect longitudinalWidget(longitudinalIconPosition.x(), longitudinalIconPosition.y(), img_size, img_size);
+
+  p.save();
+
+  p.setPen(QPen(QColor(bg_colors[STATUS_TRAFFIC_MODE_ACTIVE]), 10));
+  p.setBrush(blackColor(166));
+  p.drawRoundedRect(longitudinalWidget, 24, 24);
+
+  p.setOpacity(0.5);
+  p.drawPixmap(longitudinalWidget, speedIcon);
+  p.setOpacity(0.75);
+  p.drawPixmap(longitudinalWidget, pausedIcon);
 
   p.restore();
 }
@@ -1247,7 +1335,7 @@ void AnnotatedCameraWidget::drawRadarTracks(QPainter &p) {
     int width = viewport.width();
     int height = viewport.height();
 
-    for (std::size_t i = 0; i < scene.live_radar_tracks.size(); i++) {
+    for (std::size_t i = 0; i < scene.live_radar_tracks.size(); ++i) {
       const RadarTrackData &track = scene.live_radar_tracks[i];
 
       float x = std::clamp(static_cast<float>(track.calibrated_point.x()), 0.f, float(width - diameter));
@@ -1273,7 +1361,7 @@ void AnnotatedCameraWidget::drawRoadName(QPainter &p) {
 
   p.save();
 
-  QRect roadNameRect((width() - textWidth * 1.25) / 2, rect().bottom() - 55 + 1, textWidth * 1.25, 50);
+  QRect roadNameRect((width() - (textWidth + 100)) / 2, rect().bottom() - 55 + 1, textWidth + 100, 50);
 
   p.setBrush(blackColor(166));
   p.setOpacity(1.0);

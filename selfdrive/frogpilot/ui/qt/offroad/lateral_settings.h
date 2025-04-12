@@ -13,8 +13,10 @@ public:
 signals:
   void openParentToggle();
 
-private:
+protected:
   void showEvent(QShowEvent *event) override;
+
+private:
   void updateMetric(bool metric, bool bootRun);
   void updateState(const UIState &s);
   void updateToggles();
@@ -23,7 +25,6 @@ private:
   bool hasNNFFLog;
   bool hasOpenpilotLongitudinal;
   bool isHKGCanFd;
-  bool isSubaru;
   bool isTorqueCar;
   bool started;
 

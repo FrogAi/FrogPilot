@@ -15,7 +15,7 @@ from openpilot.selfdrive.frogpilot.assets.theme_manager import ThemeManager
 from openpilot.selfdrive.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.selfdrive.frogpilot.controls.lib.frogpilot_tracking import FrogPilotTracking
 from openpilot.selfdrive.frogpilot.frogpilot_functions import backup_toggles
-from openpilot.selfdrive.frogpilot.frogpilot_utilities import flash_panda, is_url_pingable, lock_doors, run_thread_with_lock, update_maps, update_openpilot
+from openpilot.selfdrive.frogpilot.frogpilot_utilities import flash_panda, is_url_pingable, lock_doors, restart_processes, run_thread_with_lock, update_maps, update_openpilot
 from openpilot.selfdrive.frogpilot.frogpilot_variables import ERROR_LOGS_PATH, FrogPilotVariables, get_frogpilot_toggles, params, params_memory
 
 def assets_checks(model_manager, theme_manager):
@@ -48,14 +48,17 @@ def assets_checks(model_manager, theme_manager):
     if asset_to_download:
       run_thread_with_lock("download_theme", theme_manager.download_theme, (asset_type, asset_to_download, param))
 
-def update_checks(manually_updated, model_manager, now, theme_manager, frogpilot_toggles, boot_run=False):
+def update_checks(manually_updated, model_manager, now, sm, theme_manager, frogpilot_toggles, boot_run=False):
   while not (is_url_pingable("https://github.com") or is_url_pingable("https://gitlab.com")):
     time.sleep(60)
 
+  model_manager.update_models(boot_run)
+  theme_manager.update_themes(frogpilot_toggles, boot_run)
+
   run_thread_with_lock("update_maps", update_maps, (now,))
-  run_thread_with_lock("update_models", model_manager.update_models, (boot_run,))
-  run_thread_with_lock("update_openpilot", update_openpilot, (manually_updated, frogpilot_toggles,))
-  run_thread_with_lock("update_themes", theme_manager.update_themes, (frogpilot_toggles, boot_run,))
+
+  if frogpilot_toggles.automatic_updates and not manually_updated:
+    run_thread_with_lock("update_openpilot", update_openpilot)
 
   time.sleep(1)
 
@@ -86,9 +89,9 @@ def frogpilot_thread():
   toggles_last_updated = datetime.datetime.now()
 
   pm = messaging.PubMaster(["frogpilotPlan"])
-  sm = messaging.SubMaster(["carControl", "carState", "controlsState", "deviceState", "driverMonitoringState",
+  sm = messaging.SubMaster(["carState", "controlsState", "deviceState", "driverMonitoringState",
                             "liveLocationKalman", "managerState", "modelV2", "pandaStates", "radarState",
-                            "frogpilotCarControl", "frogpilotCarState", "frogpilotNavigation"],
+                            "frogpilotCarState", "frogpilotNavigation"],
                             poll="modelV2", ignore_avg_freq=["radarState"])
 
   while True:
@@ -121,6 +124,12 @@ def frogpilot_thread():
 
       if frogpilot_toggles.lock_doors_timer:
         run_thread_with_lock("lock_doors", lock_doors, (frogpilot_toggles.lock_doors_timer, sm))
+
+      if frogpilot_toggles.random_themes:
+        theme_updated = theme_manager.update_active_theme(time_validated, frogpilot_toggles, randomize_theme=True)
+
+      run_thread_with_lock("restart_processes", restart_processes, (sm,))
+
     elif started and not started_previously:
       radarless_model = frogpilot_toggles.radarless_model
 
@@ -128,11 +137,11 @@ def frogpilot_thread():
         error_log.unlink()
 
     if started and sm.updated["modelV2"]:
-      frogpilot_planner.update(sm["carControl"], sm["carState"], sm["controlsState"], sm["frogpilotCarControl"], sm["frogpilotCarState"],
-                               sm["frogpilotNavigation"], sm["liveLocationKalman"], sm["modelV2"], radarless_model, sm["radarState"], frogpilot_toggles)
+      frogpilot_planner.update(sm["carState"], sm["controlsState"], sm["frogpilotCarState"], sm["frogpilotNavigation"],
+                               sm["liveLocationKalman"], sm["modelV2"], radarless_model, sm["radarState"], frogpilot_toggles)
       frogpilot_planner.publish(sm, pm, toggles_updated)
 
-      frogpilot_tracking.update(sm["carState"], sm["controlsState"], sm["frogpilotCarControl"])
+      frogpilot_tracking.update(sm["carState"], sm["controlsState"], sm["frogpilotCarState"])
     elif not started and toggles_updated:
       frogpilot_plan_send = messaging.new_message("frogpilotPlan")
       frogpilot_plan_send.frogpilotPlan.togglesUpdated = toggles_updated
@@ -156,7 +165,7 @@ def frogpilot_thread():
 
     if run_update_checks:
       theme_updated = theme_manager.update_active_theme(time_validated, frogpilot_toggles)
-      run_thread_with_lock("update_checks", update_checks, (manually_updated, model_manager, now, theme_manager, frogpilot_toggles))
+      run_thread_with_lock("update_checks", update_checks, (manually_updated, model_manager, now, sm, theme_manager, frogpilot_toggles))
 
       run_update_checks = False
     elif not time_validated:
@@ -165,7 +174,7 @@ def frogpilot_thread():
         continue
 
       theme_updated = theme_manager.update_active_theme(time_validated, frogpilot_toggles)
-      run_thread_with_lock("update_checks", update_checks, (manually_updated, model_manager, now, theme_manager, frogpilot_toggles, True))
+      run_thread_with_lock("update_checks", update_checks, (manually_updated, model_manager, now, sm, theme_manager, frogpilot_toggles, True))
 
 def main():
   frogpilot_thread()

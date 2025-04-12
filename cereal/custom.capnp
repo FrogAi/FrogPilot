@@ -10,41 +10,42 @@ using Car = import "car.capnp";
 # cereal, so use these if you want custom events in your fork.
 
 # you can rename the struct, but don't change the identifier
-struct FrogPilotCarControl @0x81c2f05a394cf4af {
-  accelPressed @0 :Bool;
-  alwaysOnLateralActive @1 :Bool;
-  decelPressed @2 :Bool;
-}
-
-struct FrogPilotCarState @0xaedffd8f31e7b55d {
+struct FrogPilotCarState @0x81c2f05a394cf4af {
   struct ButtonEvent {
     enum Type {
       lkas @0;
     }
   }
 
-  alwaysOnLateralDisabled @0 :Bool;
-  brakeLights @1 :Bool;
-  dashboardSpeedLimit @2 :Float32;
-  distanceLongPressed @3 :Bool;
-  ecoGear @4 :Bool;
-  hasMenu @5 :Bool;
-  sportGear @6 :Bool;
-  trafficModeActive @7 :Bool;
+  accelPressed @0 :Bool;
+  alwaysOnLateralAllowed @1 :Bool;
+  alwaysOnLateralEnabled @2 :Bool;
+  brakeLights @3 :Bool;
+  dashboardSpeedLimit @4 :Float32;
+  decelPressed @5 :Bool;
+  distancePressed @6 :Bool;
+  distanceLongPressed @7 :Bool;
+  distanceVeryLongPressed @8 :Bool;
+  ecoGear @9 :Bool;
+  forceCoast @10 :Bool;
+  pauseLateral @11 :Bool;
+  pauseLongitudinal @12 :Bool;
+  sportGear @13 :Bool;
+  trafficMode @14 :Bool;
 }
 
-struct FrogPilotDeviceState @0xf35cc4560bbf6ec2 {
+struct FrogPilotDeviceState @0xaedffd8f31e7b55d {
   freeSpace @0 :Int16;
   usedSpace @1 :Int16;
 }
 
-struct FrogPilotNavigation @0xda96579883444c35 {
+struct FrogPilotNavigation @0xf35cc4560bbf6ec2 {
   approachingIntersection @0 :Bool;
   approachingTurn @1 :Bool;
   navigationSpeedLimit @2 :Float32;
 }
 
-struct FrogPilotPlan @0x80ae746ee2596b11 {
+struct FrogPilotPlan @0xda96579883444c35 {
   accelerationJerk @0 :Float32;
   accelerationJerkStock @1 :Float32;
   dangerJerk @2 :Float32;
@@ -77,6 +78,9 @@ struct FrogPilotPlan @0x80ae746ee2596b11 {
   vCruise @29 :Float32;
   vtscControllingCurve @30 :Bool;
   vtscSpeed @31 :Float32;
+}
+
+struct CustomReserved4 @0x80ae746ee2596b11 {
 }
 
 struct CustomReserved5 @0xa5cd762cd951a455 {

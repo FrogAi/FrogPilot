@@ -57,7 +57,7 @@ typedef enum UIStatus {
   STATUS_ENGAGED,
 
   // FrogPilot statuses
-  STATUS_ALWAYS_ON_LATERAL_ACTIVE,
+  STATUS_ALWAYS_ON_LATERAL_ENABLED,
   STATUS_CONDITIONAL_OVERRIDDEN,
   STATUS_EXPERIMENTAL_MODE_ACTIVE,
   STATUS_NAVIGATION_ACTIVE,
@@ -81,7 +81,7 @@ const QColor bg_colors [] = {
   [STATUS_ENGAGED] = QColor(0x17, 0x86, 0x44, 0xf1),
 
   // FrogPilot colors
-  [STATUS_ALWAYS_ON_LATERAL_ACTIVE] = QColor(0x0a, 0xba, 0xb5, 0xf1),
+  [STATUS_ALWAYS_ON_LATERAL_ENABLED] = QColor(0x0a, 0xba, 0xb5, 0xf1),
   [STATUS_CONDITIONAL_OVERRIDDEN] = QColor(0xff, 0xff, 0x00, 0xf1),
   [STATUS_EXPERIMENTAL_MODE_ACTIVE] = QColor(0xda, 0x6f, 0x25, 0xf1),
   [STATUS_NAVIGATION_ACTIVE] = QColor(0x31, 0xa1, 0xee, 0xf1),
@@ -131,7 +131,7 @@ typedef struct UIScene {
   bool adjacent_path;
   bool adjacent_path_metrics;
   bool always_on_lateral;
-  bool always_on_lateral_active;
+  bool always_on_lateral_enabled;
   bool big_map;
   bool blind_spot_left;
   bool blind_spot_path;
@@ -141,13 +141,13 @@ typedef struct UIScene {
   bool compass;
   bool conditional_experimental;
   bool cpu_metrics;
+  bool csc_status;
   bool downloading_update;
   bool driver_camera_in_reverse;
   bool dynamic_path_width;
   bool dynamic_pedals_on_ui;
   bool enabled;
   bool experimental_mode;
-  bool experimental_mode_via_tap;
   bool fahrenheit;
   bool force_onroad;
   bool frogpilot_panel_active;
@@ -155,7 +155,6 @@ typedef struct UIScene {
   bool full_map;
   bool gpu_metrics;
   bool hide_alerts;
-  bool hide_csc_ui;
   bool hide_lead_marker;
   bool hide_map_icon;
   bool hide_max_speed;
@@ -163,10 +162,12 @@ typedef struct UIScene {
   bool hide_speed_limit;
   bool ip_metrics;
   bool jerk_metrics;
+  bool lateral_paused;
   bool lateral_tuning_metrics;
   bool lead_metrics;
   bool left_curve;
   bool live_valid;
+  bool longitudinal_paused;
   bool map_open;
   bool memory_metrics;
   bool model_randomizer;
@@ -267,8 +268,6 @@ typedef struct UIScene {
   int steering_angle_deg;
   int tethering_config;
 
-  std::string speed_limit_source;
-
   std::vector<RadarTrackData> live_radar_tracks;
 
   QColor lane_lines_color;
@@ -284,6 +283,7 @@ typedef struct UIScene {
   QPolygonF track_adjacent_vertices[6];
   QPolygonF track_edge_vertices;
 
+  QString speed_limit_source;
   QString model;
   QString model_name;
 

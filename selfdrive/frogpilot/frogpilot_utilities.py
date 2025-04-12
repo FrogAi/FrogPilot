@@ -19,6 +19,7 @@ from cereal import log
 from openpilot.common.realtime import DT_DMON, DT_HW
 from openpilot.selfdrive.car.toyota.carcontroller import LOCK_CMD
 from openpilot.system.hardware import HARDWARE
+from openpilot.system.manager.process_config import managed_processes
 from panda import Panda
 
 from openpilot.selfdrive.frogpilot.frogpilot_variables import EARTH_RADIUS, MAPD_PATH, MAPS_PATH, params, params_memory
@@ -32,11 +33,10 @@ locks = {
   "download_theme": threading.Lock(),
   "flash_panda": threading.Lock(),
   "lock_doors": threading.Lock(),
+  "restart_processes": threading.Lock(),
   "update_checks": threading.Lock(),
   "update_maps": threading.Lock(),
-  "update_models": threading.Lock(),
   "update_openpilot": threading.Lock(),
-  "update_themes": threading.Lock()
 }
 
 def run_thread_with_lock(name, target, args=(), report=True):
@@ -70,19 +70,13 @@ def calculate_lane_width(lane, current_lane, road_edge=None):
   current_x = np.asarray(current_lane.x)
   current_y = np.asarray(current_lane.y)
 
-  lane_x = np.asarray(lane.x)
-  lane_y = np.asarray(lane.y)
-
-  lane_y_interp = np.interp(current_x, lane_x, lane_y)
+  lane_y_interp = np.interp(current_x, np.asarray(lane.x), np.asarray(lane.y))
 
   distance_to_lane = np.mean(np.abs(current_y - lane_y_interp))
   if road_edge is None:
     return float(distance_to_lane)
 
-  road_edge_x = np.asarray(road_edge.x)
-  road_edge_y = np.asarray(road_edge.y)
-
-  road_edge_y_interp = np.interp(current_x, road_edge_x, road_edge_y)
+  road_edge_y_interp = np.interp(current_x, np.asarray(road_edge.x), np.asarray(road_edge.y))
 
   distance_to_road_edge = np.mean(np.abs(current_y - road_edge_y_interp))
   return float(min(distance_to_lane, distance_to_road_edge))
@@ -149,38 +143,23 @@ def is_url_pingable(url, timeout=10):
   return False
 
 def lock_doors(lock_doors_timer, sm):
-  while any(proc.name == "dmonitoringd" and proc.running for proc in sm["managerState"].processes):
-    time.sleep(DT_HW)
-    sm.update()
+  wait_for_no_driver(sm, lock_doors_timer)
 
-  params.put_bool("IsDriverViewEnabled", True)
+  if not any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown):
+    panda = Panda()
+    panda.set_safety_mode(panda.SAFETY_TOYOTA)
+    panda.can_send(0x750, LOCK_CMD, 0)
+    panda.send_heartbeat()
 
-  while not any(proc.name == "dmonitoringd" and proc.running for proc in sm["managerState"].processes):
-    time.sleep(DT_HW)
-    sm.update()
+def restart_processes(sm):
+  while running_threads.get("lock_doors", threading.Thread()).is_alive():
+    time.sleep(1)
 
-  start_time = time.monotonic()
-  while True:
-    elapsed_time = time.monotonic() - start_time
-    if elapsed_time >= lock_doors_timer:
-      break
+  wait_for_no_driver(sm)
 
-    if any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown):
-      params.remove("IsDriverViewEnabled")
-      return
-
-    if sm["driverMonitoringState"].faceDetected or not sm.alive["driverMonitoringState"]:
-      start_time = time.monotonic()
-
-    time.sleep(DT_DMON)
-    sm.update()
-
-  panda = Panda()
-  panda.set_safety_mode(panda.SAFETY_TOYOTA)
-  panda.can_send(0x750, LOCK_CMD, 0)
-  panda.send_heartbeat()
-
-  params.remove("IsDriverViewEnabled")
+  if not any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown):
+    for name in ["mapd", "ui"]:
+      managed_processes[name].stop(block=False)
 
 def run_cmd(cmd, success_message, fail_message, report=True):
   try:
@@ -234,13 +213,12 @@ def update_maps(now):
 
   params.put("LastMapsUpdate", todays_date)
 
-def update_openpilot(manually_updated, frogpilot_toggles):
-  if not frogpilot_toggles.automatic_updates or manually_updated:
-    return
-
+def update_openpilot():
   subprocess.run(["pkill", "-SIGUSR1", "-f", "system.updated.updated"], check=False)
+
   while not params.get("UpdaterState", encoding="utf-8") == "checking...":
     time.sleep(DT_HW)
+
   while params.get("UpdaterState", encoding="utf-8") == "checking...":
     time.sleep(DT_HW)
 
@@ -251,10 +229,46 @@ def update_openpilot(manually_updated, frogpilot_toggles):
     time.sleep(DT_HW)
 
   subprocess.run(["pkill", "-SIGHUP", "-f", "system.updated.updated"], check=False)
+
   while not params.get_bool("UpdateAvailable"):
     time.sleep(DT_HW)
 
-  while params.get_bool("IsOnroad") or running_threads.get("lock_doors", threading.Thread()).is_alive():
+  while running_threads.get("lock_doors", threading.Thread()).is_alive() or params.get_bool("IsOnroad"):
     time.sleep(60)
 
   HARDWARE.reboot()
+
+def wait_for_no_driver(sm, time_threshold=60):
+  while sm["deviceState"].screenBrightnessPercent != 0 or any(proc.name == "dmonitoringd" and proc.running for proc in sm["managerState"].processes):
+    if any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown):
+      return
+
+    time.sleep(DT_HW)
+
+    sm.update()
+
+  params.put_bool("IsDriverViewEnabled", True)
+
+  while not any(proc.name == "dmonitoringd" and proc.running for proc in sm["managerState"].processes):
+    time.sleep(DT_HW)
+
+    sm.update()
+
+  start_time = time.monotonic()
+  while True:
+    elapsed_time = time.monotonic() - start_time
+    if elapsed_time >= time_threshold:
+      break
+
+    if any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown):
+      params.remove("IsDriverViewEnabled")
+      return
+
+    if sm["driverMonitoringState"].faceDetected or not sm.alive["driverMonitoringState"]:
+      start_time = time.monotonic()
+
+    time.sleep(DT_DMON)
+
+    sm.update()
+
+  params.remove("IsDriverViewEnabled")

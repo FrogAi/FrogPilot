@@ -85,6 +85,10 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
 
   FrogPilotListWidget *settingsList = new FrogPilotListWidget(this);
 
+  ScrollView *vehiclesPanel = new ScrollView(settingsList, this);
+
+  vehiclesLayout->addWidget(vehiclesPanel);
+
   QStringList makes = {
     "Acura", "Audi", "Buick", "Cadillac", "Chevrolet", "Chrysler",
     "CUPRA", "Dodge", "Ford", "Genesis", "GMC", "Holden", "Honda",
@@ -141,31 +145,29 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
   FrogPilotListWidget *hkgList = new FrogPilotListWidget(this);
   FrogPilotListWidget *toyotaList = new FrogPilotListWidget(this);
 
-  ScrollView *vehiclesPanel = new ScrollView(settingsList, this);
-  vehiclesLayout->addWidget(vehiclesPanel);
-
   ScrollView *gmPanel = new ScrollView(gmList, this);
-  vehiclesLayout->addWidget(gmPanel);
   ScrollView *hkgPanel = new ScrollView(hkgList, this);
-  vehiclesLayout->addWidget(hkgPanel);
   ScrollView *toyotaPanel = new ScrollView(toyotaList, this);
+
+  vehiclesLayout->addWidget(gmPanel);
+  vehiclesLayout->addWidget(hkgPanel);
   vehiclesLayout->addWidget(toyotaPanel);
 
   std::vector<std::tuple<QString, QString, QString, QString>> vehicleToggles {
-    {"GMToggles", tr("General Motors Toggles"), tr("Toggles catered towards \"General Motors\" vehicles."), ""},
-    {"ExperimentalGMTune", tr("FrogsGoMoo's Experimental Longitudinal Tune"), tr("FrogsGoMoo's experimental GM longitudinal tune that aims to smoothen out stopping and takeoff control based on nothing but guesswork. Use at your own risk!"), ""},
-    {"LongPitch", tr("Smoothen Pedal Response While Going Downhill/Uphill"), tr("Smoothen the gas and brake response when driving downhill or uphill."), ""},
-    {"VoltSNG", tr("Stop and Go Hack"), tr("Force stop and go for the \"2017 Chevy Volt\"."), ""},
+    {"GMToggles", tr("General Motors Settings"), tr("Settings specific to <b>General Motors</b> vehicles."), ""},
+    {"ExperimentalGMTune", tr("FrogsGoMoo's Experimental Tune"), tr("<b>FrogsGoMoo's</b> experimental <b>General Motors</b> tune that aims to smoothen out stopping and takeoff control based on nothing but guesswork. Use at your own risk!"), ""},
+    {"LongPitch", tr("Smooth Pedal Response on Hills"), tr("Smoothen the acceleration and braking when driving uphill or downhill."), ""},
+    {"VoltSNG", tr("Stop and Go Hack"), tr("Force stop and go on the <b>2017 Chevy Volt</b>."), ""},
 
-    {"HKGToggles", tr("Hyundai/Kia/Genesis Toggles"), tr("Toggles catered towards \"Hyundai/Kia/Genesis\" vehicles."), ""},
-    {"NewLongAPI", tr("comma's New Longitudinal API"), tr("comma's new longitudinal control system that has shown great improvement with acceleration and braking, but has issues on some Hyundai/Kia/Genesis vehicles."), ""},
+    {"HKGToggles", tr("Hyundai/Kia/Genesis Settings"), tr("Settings specific to <b>Hyundai</b>, <b>Kia</b>, and <b>Genesis</b> vehicles."), ""},
+    {"NewLongAPI", tr("comma's New Longitudinal API"), tr("comma's new longitudinal control system that has shown great improvement with acceleration and braking, but has issues on some <b>Hyundai</b>/<b>Kia</b>/<b>Genesis</b> vehicles."), ""},
 
-    {"ToyotaToggles", tr("Toyota/Lexus Toggles"), tr("Toggles catered towards \"Toyota/Lexus\" vehicles."), ""},
-    {"ToyotaDoors", tr("Automatically Lock/Unlock Doors"), tr("Automatically lock the doors when shifting into drive and unlocks them when shifting into park."), ""},
-    {"ClusterOffset", tr("Cluster Speed Offset"), tr("The cluster offset openpilot uses to try and match the speed displayed on the dash."), ""},
-    {"FrogsGoMoosTweak", tr("FrogsGoMoo's Personal Tweaks"), tr("FrogsGoMoo's personal tweaks aimed to provide quicker acceleration and smoother braking."), ""},
+    {"ToyotaToggles", tr("Toyota/Lexus Settings"), tr("Settings specific to <b>Toyota</b> and <b>Lexus</b> vehicles."), ""},
+    {"ToyotaDoors", tr("Automatically Lock/Unlock Doors"), tr("Automatically lock the doors when shifting into drive and unlock them when shifting into park."), ""},
+    {"ClusterOffset", tr("Cluster Speed Offset"), tr("The cluster speed offset used by openpilot to match the speed displayed on the dash."), ""},
+    {"FrogsGoMoosTweak", tr("FrogsGoMoo's Personal Tweaks"), tr("<b>FrogsGoMoo's</b> personal tweaks for quicker acceleration and smoother braking."), ""},
     {"LockDoorsTimer", tr("Lock Doors On Ignition Off After"), tr("Automatically lock the doors after the car's ignition has been turned off and no one is detected in either of the front seats."), ""},
-    {"SNGHack", tr("Stop and Go Hack"), tr("Force stop and go for \"Toyota/Lexus\" vehicles without stock stop and go functionality."), ""},
+    {"SNGHack", tr("Stop and Go Hack"), tr("Force stop and go on <b>Toyota</b>/<b>Lexus</b> vehicles without stock stop and go functionality."), ""}
   };
 
   for (const auto &[param, title, desc, icon] : vehicleToggles) {
@@ -198,7 +200,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
     } else if (param == "LockDoorsTimer") {
       std::map<float, QString> autoLockLabels;
       for (int i = 0; i <= 300; ++i) {
-        autoLockLabels[i] = i == 0 ? tr("Never") : QString::number(i) + " seconds";
+        autoLockLabels[i] = i == 0 ? tr("Never") : QString::number(i) + tr(" seconds");
       }
       vehicleToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 300, QString(), autoLockLabels, 5);
     } else if (param == "ClusterOffset") {
@@ -235,6 +237,8 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
     });
   }
 
+  static_cast<FrogPilotParamValueControl*>(toggles["LockDoorsTimer"])->setWarning("<b>Warning:</b> openpilot can't detect if keys are still inside the car, so ensure you have a spare key to prevent accidental lockouts!");
+
   std::set<QString> rebootKeys = {"NewLongAPI"};
   for (const QString &key : rebootKeys) {
     QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, [this]() {
@@ -258,6 +262,18 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
 }
 
 void FrogPilotVehiclesPanel::showEvent(QShowEvent *event) {
+  frogpilotToggleLevels = parent->frogpilotToggleLevels;
+  hasExperimentalOpenpilotLongitudinal = parent->hasExperimentalOpenpilotLongitudinal;
+  hasOpenpilotLongitudinal = parent->hasOpenpilotLongitudinal;
+  hasSNG = parent->hasSNG;
+  isC3 = parent->isC3;
+  isGM = parent->isGM;
+  isHKG = parent->isHKG;
+  isHKGCanFd = parent->isHKGCanFd;
+  isToyota = parent->isToyota;
+  isVolt = parent->isVolt;
+  tuningLevel = parent->tuningLevel;
+
   updateToggles();
 }
 
@@ -287,26 +303,30 @@ void FrogPilotVehiclesPanel::updateToggles() {
       continue;
     }
 
-    bool setVisible = parent->tuningLevel >= parent->frogpilotToggleLevels[key].toDouble();
+    bool setVisible = tuningLevel >= frogpilotToggleLevels[key].toDouble();
 
     if (gmKeys.find(key) != gmKeys.end()) {
-      setVisible &= parent->isGM;
+      setVisible &= isGM;
     } else if (hkgKeys.find(key) != hkgKeys.end()) {
-      setVisible &= parent->isHKG;
+      setVisible &= isHKG;
     } else if (toyotaKeys.find(key) != toyotaKeys.end()) {
-      setVisible &= parent->isToyota;
+      setVisible &= isToyota;
     }
 
     if (longitudinalKeys.find(key) != longitudinalKeys.end()) {
-      setVisible &= parent->hasOpenpilotLongitudinal;
+      setVisible &= hasOpenpilotLongitudinal;
+    }
+
+    if (key == "LockDoorsTimer") {
+      setVisible &= !isC3;
     }
 
     if (key == "SNGHack") {
-      setVisible &= !parent->hasSNG;
+      setVisible &= !hasSNG;
     }
 
     if (key == "VoltSNG") {
-      setVisible &= parent->isVolt && !parent->hasSNG;
+      setVisible &= isVolt && !hasSNG;
     }
 
     toggle->setVisible(setVisible);
@@ -322,7 +342,7 @@ void FrogPilotVehiclesPanel::updateToggles() {
     }
   }
 
-  disableOpenpilotLong->setVisible((parent->hasOpenpilotLongitudinal || params.getBool("DisableOpenpilotLongitudinal")) && !parent->hasExperimentalOpenpilotLongitudinal);
+  disableOpenpilotLong->setVisible((hasOpenpilotLongitudinal || params.getBool("DisableOpenpilotLongitudinal")) && !hasExperimentalOpenpilotLongitudinal);
 
   update();
 }

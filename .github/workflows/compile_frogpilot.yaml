@@ -99,11 +99,10 @@ jobs:
         run: sudo apt update && sudo apt install -y qttools5-dev-tools
 
       - name: Update Translations
-        run: |
-          python selfdrive/ui/update_translations.py --vanish
+        run: python selfdrive/ui/update_translations.py --vanish
 
       - name: Translate Missing or Outdated Translations
-        run: python selfdrive/ui/translations/auto_translate.py --all-files ${INPUT_VET:+--vet-translations}
+        run: python selfdrive/ui/translations/auto_translate.py --all-files $([[ "${{ github.event.inputs.vet_existing_translations }}" == "true" ]] && echo "--vet-translations")
 
       - name: Commit and Push Translation Updates
         run: |
@@ -114,7 +113,6 @@ jobs:
 
           git fetch --unshallow origin ${{ needs.get_branch.outputs.branch }}
           git checkout ${{ needs.get_branch.outputs.branch }}
-
           git add selfdrive/ui/translations/*.ts
           git commit --amend --no-edit
           git push --force origin ${{ needs.get_branch.outputs.branch }}
@@ -127,16 +125,19 @@ jobs:
     runs-on: [self-hosted, c3x]
     permissions:
       contents: write
+    defaults:
+      run:
+        working-directory: ${{ env.BUILD_DIR }}
     steps:
       - name: Configure Git Identity
         run: |
+          git config --global http.postBuffer 104857600
+
           git config --global user.name "${{ github.actor }}"
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
 
       - name: Update Repository
         run: |
-          cd $BUILD_DIR
-
           git remote set-url origin https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/FrogAi/FrogPilot.git
 
           if [ "${{ github.event.inputs.update_translations }}" = "true" ]; then
@@ -147,12 +148,10 @@ jobs:
 
       - name: Take Ownership of Build
         run: |
-          sudo chown -R $(whoami):$(whoami) $BUILD_DIR
+          sudo chown -R $(whoami):$(whoami) .
 
       - name: Finalize Build
         run: |
-          cd $BUILD_DIR
-
           rm -f .clang-tidy
           rm -f .dockerignore
           rm -f .editorconfig
@@ -172,9 +171,7 @@ jobs:
           rm -f Jenkinsfile
 
           rm -f panda/board/obj/.placeholder
-          rm -f panda/board/obj/bootstub.panda.bin
           rm -f panda/board/obj/bootstub.panda.elf
-          rm -f panda/board/obj/bootstub.panda_h7.bin
           rm -f panda/board/obj/bootstub.panda_h7.elf
           rm -f panda/board/obj/panda.bin
           rm -f panda/board/obj/panda.elf
@@ -239,22 +236,13 @@ jobs:
             touch not_vetted
           fi
 
-      - name: Retrieve update_date from FrogPilot-Staging
+      - name: Add the update_date file
+        if: github.event.inputs.publish_staging == 'true'
         run: |
-          if [ "${{ github.event.inputs.publish_staging }}" = "true" ]; then
-            git fetch origin FrogPilot-Staging
-
-            if git ls-tree --name-only origin/FrogPilot-Staging .github/update_date | grep -q ".github/update_date"; then
-              git show origin/FrogPilot-Staging:.github/update_date > .github/update_date
-            else
-              echo "No .github/update_date found in FrogPilot-Staging branch."
-            fi
-          fi
+          curl -fLsS https://raw.githubusercontent.com/FrogAi/FrogPilot/FrogPilot-Staging/.github/update_date -o .github/update_date || echo "No update_date found, skipping."
 
       - name: Commit Build
         run: |
-          cd $BUILD_DIR
-
           git add -f .
           git commit -m "Compile FrogPilot"
           git push --force origin HEAD

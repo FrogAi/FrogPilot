@@ -20,22 +20,21 @@ jobs:
       update_due: ${{ steps.check_update.outputs.update_due }}
       scheduled_date: ${{ steps.check_update.outputs.scheduled_date }}
     steps:
-      - name: Checkout ${{ env.BRANCH_STAGING }}
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          ref: ${{ env.BRANCH_STAGING }}
+      - name: Download the 'update_date' File
+        id: download_update
+        run: |
+          curl -fLsS "https://raw.githubusercontent.com/FrogAi/FrogPilot/${{ env.BRANCH_STAGING }}/${{ env.UPDATE_FILE }}" -o update_date || touch update_date_missing
 
       - name: Check If Update Is Due
         id: check_update
         run: |
-          if [ ! -f "${{ env.UPDATE_FILE }}" ]; then
+          if [ -f update_date_missing ]; then
             echo "No update_date file found in FrogPilot-Staging."
             echo "update_due=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          SCHEDULED_DATE=$(cat "${{ env.UPDATE_FILE }}")
+          SCHEDULED_DATE=$(cat update_date)
           CURRENT_DATE=$(TZ="${{ env.TZ }}" date +%F)
           echo "Scheduled Date: $SCHEDULED_DATE"
           echo "Current Date: $CURRENT_DATE"
@@ -89,8 +88,7 @@ jobs:
         run: |
           COMMIT_MSG=$(git log -1 --pretty=%B HEAD~1)
 
-          git reset --mixed HEAD~2
-          git add -A
+          git reset --soft HEAD~2
           git commit -m "$COMMIT_MSG"
 
       - name: Rewrite Commit Dates to Noon ${{ env.TZ }}

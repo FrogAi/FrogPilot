@@ -47,7 +47,7 @@ private:
   QString wheel_gif_path;
   QString wheel_png_path;
 
-  bool always_on_lateral_active;
+  bool always_on_lateral_enabled;
   bool big_map;
   bool conditional_experimental;
   bool image_empty;
@@ -86,6 +86,8 @@ public:
   ~DistanceButton();
   void updateIcon();
   void updateState(const UIScene &scene);
+
+  bool road_name_ui;
 
 private:
   void paintEvent(QPaintEvent *event) override;

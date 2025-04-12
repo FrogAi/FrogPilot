@@ -3,13 +3,12 @@ import numpy as np
 
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.realtime import DT_MDL
-
-from openpilot.selfdrive.controls.controlsd import ButtonType
-from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_UNSET
+from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX
+from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import COMFORT_BRAKE
 
 from openpilot.selfdrive.frogpilot.controls.lib.map_turn_speed_controller import MapTurnSpeedController
 from openpilot.selfdrive.frogpilot.controls.lib.speed_limit_controller import SpeedLimitController
-from openpilot.selfdrive.frogpilot.frogpilot_variables import CRUISING_SPEED, PLANNER_TIME, params_memory
+from openpilot.selfdrive.frogpilot.frogpilot_variables import CRUISING_SPEED, PLANNER_TIME, State, params_memory
 
 TARGET_LAT_A = 2.0
 
@@ -24,28 +23,24 @@ class FrogPilotVCruise:
     self.override_force_stop = False
     self.override_slc = False
 
-    self.force_stop_timer = 0
     self.mtsc_target = 0
     self.overridden_speed = 0
     self.override_force_stop_timer = 0
     self.slc_offset = 0
     self.slc_target = 0
     self.speed_limit_timer = 0
-    self.tracked_model_length = 0
-    self.vtsc_target = 0
 
-  def update(self, carControl, carState, controlsState, frogpilotCarControl, frogpilotCarState, frogpilotNavigation, gps_position, v_cruise, v_ego, frogpilot_toggles):
-    force_stop = frogpilot_toggles.force_stops and self.frogpilot_planner.cem.stop_light_detected and controlsState.enabled
-    force_stop &= self.frogpilot_planner.model_length < 100
+  def update(self, carState, controlsState, frogpilotCarState, frogpilotNavigation, gps_position, v_cruise, v_ego, frogpilot_toggles):
+    force_stop = self.frogpilot_planner.cem.stop_light_detected and controlsState.enabled and frogpilot_toggles.force_stops
+    force_stop &= self.frogpilot_planner.model_stopped
     force_stop &= self.override_force_stop_timer <= 0
 
     self.force_stop_timer = self.force_stop_timer + DT_MDL if force_stop else 0
 
     force_stop_enabled = self.force_stop_timer >= 1
 
-    self.override_force_stop |= not frogpilot_toggles.force_standstill and carState.standstill and self.frogpilot_planner.tracking_lead
     self.override_force_stop |= carState.gasPressed
-    self.override_force_stop |= frogpilotCarControl.accelPressed
+    self.override_force_stop |= frogpilotCarState.accelPressed
     self.override_force_stop &= force_stop_enabled
 
     if self.override_force_stop:
@@ -59,18 +54,33 @@ class FrogPilotVCruise:
     v_ego_cluster = max(carState.vEgoCluster, v_ego)
     v_ego_diff = v_ego_cluster - v_ego
 
+    # Mike's extended lead linear braking
+    if self.frogpilot_planner.lead_one.vLead < v_ego > CRUISING_SPEED and controlsState.enabled and self.frogpilot_planner.tracking_lead and frogpilot_toggles.human_following:
+      self.linear_braking_active |= self.frogpilot_planner.v_cruise - v_ego < 1
+
+      if not self.frogpilot_planner.frogpilot_following.following_lead and self.linear_braking_active:
+        decel_rate = (v_ego - self.frogpilot_planner.lead_one.vLead - COMFORT_BRAKE) / self.frogpilot_planner.lead_one.dRel
+        self.braking_target = v_ego - (decel_rate * DT_MDL)
+      else:
+        self.braking_target = v_cruise
+    else:
+      self.linear_braking_active = False
+
+      self.braking_target = v_cruise
+
     # Pfeiferj's Map Turn Speed Controller
-    if frogpilot_toggles.map_turn_speed_controller and v_ego > CRUISING_SPEED and carControl.longActive:
+    if v_ego > CRUISING_SPEED and controlsState.enabled and frogpilot_toggles.map_turn_speed_controller:
       mtsc_active = self.mtsc_target < v_cruise
-      mtsc_speed = ((TARGET_LAT_A * frogpilot_toggles.turn_aggressiveness) / (self.mtsc.get_map_curvature(gps_position, v_ego) * frogpilot_toggles.curve_sensitivity))**0.5
-      self.mtsc_target = np.clip(mtsc_speed, CRUISING_SPEED, v_cruise)
 
       if self.frogpilot_planner.road_curvature_detected and mtsc_active:
-        self.mtsc_target = self.frogpilot_planner.v_cruise
+        self.mtsc_target = self.mtsc_target
       elif not self.frogpilot_planner.road_curvature_detected and frogpilot_toggles.mtsc_curvature_check:
         self.mtsc_target = v_cruise
+      else:
+        mtsc_speed = ((TARGET_LAT_A * frogpilot_toggles.turn_aggressiveness) / (self.mtsc.get_map_curvature(gps_position, v_ego) * frogpilot_toggles.curve_sensitivity))**0.5
+        self.mtsc_target = float(np.clip(mtsc_speed, CRUISING_SPEED, v_cruise))
     else:
-      self.mtsc_target = v_cruise if v_cruise != V_CRUISE_UNSET else 0
+      self.mtsc_target = v_cruise
 
     # Pfeiferj's Speed Limit Controller
     if frogpilot_toggles.show_speed_limits or frogpilot_toggles.speed_limit_controller:
@@ -78,8 +88,8 @@ class FrogPilotVCruise:
       desired_slc_target = self.slc.desired_speed_limit
 
       if self.slc.speed_limit_changed:
-        speed_limit_accepted = frogpilotCarControl.accelPressed and carControl.longActive or params_memory.get_bool("SpeedLimitAccepted")
-        speed_limit_denied = frogpilotCarControl.decelPressed and carControl.longActive or self.speed_limit_timer >= 30
+        speed_limit_accepted = frogpilotCarState.accelPressed and controlsState.state == State.enabled or params_memory.get_bool("SpeedLimitAccepted")
+        speed_limit_denied = frogpilotCarState.decelPressed and controlsState.state == State.enabled or self.speed_limit_timer >= 30
 
         if speed_limit_accepted:
           self.slc_target = desired_slc_target
@@ -121,34 +131,30 @@ class FrogPilotVCruise:
       self.slc_target = 0
 
     # Pfeiferj's Vision Turn Controller
-    if frogpilot_toggles.vision_turn_speed_controller and carControl.longActive and self.frogpilot_planner.road_curvature_detected:
+    if v_ego > CRUISING_SPEED and controlsState.enabled and self.frogpilot_planner.road_curvature_detected and frogpilot_toggles.vision_turn_speed_controller:
       self.vtsc_target = ((TARGET_LAT_A * frogpilot_toggles.turn_aggressiveness) / (abs(self.frogpilot_planner.road_curvature) * frogpilot_toggles.curve_sensitivity))**0.5
-      self.vtsc_target = np.clip(self.vtsc_target, CRUISING_SPEED, v_cruise)
+      self.vtsc_target = float(np.clip(self.vtsc_target, CRUISING_SPEED, v_cruise))
     else:
-      self.vtsc_target = v_cruise if v_cruise != V_CRUISE_UNSET else 0
+      self.vtsc_target = v_cruise
 
-    if frogpilot_toggles.force_standstill and carState.standstill and not self.override_force_stop and controlsState.enabled:
+    if carState.standstill and not self.override_force_stop and controlsState.enabled and frogpilot_toggles.force_standstill:
       self.forcing_stop = True
       v_cruise = -1
 
     elif force_stop_enabled and not self.override_force_stop:
       self.forcing_stop |= not carState.standstill
-      self.tracked_model_length = max(self.tracked_model_length - v_ego * DT_MDL, 0)
+      self.tracked_model_length = max(self.tracked_model_length - (v_ego * DT_MDL), 0)
       v_cruise = min((self.tracked_model_length // PLANNER_TIME), v_cruise)
 
     else:
-      if not self.frogpilot_planner.cem.stop_light_detected:
-        self.override_force_stop = False
-
       self.forcing_stop = False
-
       self.tracked_model_length = self.frogpilot_planner.model_length
 
+      targets = [self.braking_target, self.mtsc_target, self.vtsc_target]
       if frogpilot_toggles.speed_limit_controller:
-        targets = [self.mtsc_target, max(self.overridden_speed, self.slc_target + self.slc_offset) - v_ego_diff, self.vtsc_target]
-      else:
-        targets = [self.mtsc_target, self.vtsc_target]
-      v_cruise = float(min([target if target > CRUISING_SPEED else v_cruise for target in targets]))
+        targets.append(max(self.overridden_speed, self.slc_target + self.slc_offset))
+
+      v_cruise = min([target if target > CRUISING_SPEED else v_cruise for target in targets])
 
     self.mtsc_target += v_cruise_diff
     self.vtsc_target += v_cruise_diff

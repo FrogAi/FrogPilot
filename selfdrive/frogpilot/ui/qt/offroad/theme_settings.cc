@@ -2,7 +2,6 @@
 
 void updateAssetParam(const QString &assetParam, Params &params, const QString &value, bool add) {
   QStringList assets = QString::fromStdString(params.get(assetParam.toStdString())).split(",", QString::SkipEmptyParts);
-
   if (add) {
     if (!assets.contains(value)) {
       assets.append(value);
@@ -10,18 +9,18 @@ void updateAssetParam(const QString &assetParam, Params &params, const QString &
   } else {
     assets.removeAll(value);
   }
-
   assets.sort();
+
   params.put(assetParam.toStdString(), assets.join(",").toStdString());
 }
 
 void deleteThemeAsset(QDir &directory, const QString &subFolder, const QString &assetParam, const QString &themeToDelete, Params &params) {
   bool useFiles = subFolder.isEmpty();
 
-  QString themeName = themeToDelete.toLower().replace(" (", "-").replace(")", "").replace(' ', '-');
+  QString themeName = themeToDelete.toLower().replace(" (", "-").replace(")", "").replace(" ", "-");
   if (useFiles) {
     for (const QString &file : directory.entryList(QDir::Files)) {
-      QString fileName = QFileInfo(file).baseName().toLower().replace('_', '-');
+      QString fileName = QFileInfo(file).baseName().toLower().replace("_", "-");
       if (fileName == themeName) {
         QFile::remove(directory.filePath(file));
         break;
@@ -38,8 +37,9 @@ void deleteThemeAsset(QDir &directory, const QString &subFolder, const QString &
 }
 
 void downloadThemeAsset(const QString &input, const std::string &paramKey, const QString &assetParam, Params &params, Params &params_memory) {
-  QString output = input.toLower().remove('(').remove(')');
-  output.replace(' ', input.contains('(') ? '-' : '_');
+  QString output = input.toLower().remove("(").remove(")");
+  output.replace(" ", input.contains("(") ? "-" : "_");
+
   params_memory.put(paramKey, output.toStdString());
 
   updateAssetParam(assetParam, params, input, false);
@@ -49,6 +49,7 @@ QStringList getThemeList(const QDir &themePacksDirectory, const QString &subFold
   bool useFiles = subFolder.isEmpty();
 
   QString currentAsset = QString::fromStdString(params.get(assetParam.toStdString()));
+
   QStringList themeList;
   for (const QFileInfo &entry : themePacksDirectory.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot)) {
     if (entry.baseName() == currentAsset) {
@@ -66,13 +67,12 @@ QStringList getThemeList(const QDir &themePacksDirectory, const QString &subFold
       }
     }
 
-    QChar delimiter = entry.baseName().contains('-') ? '-' : '_';
-    QStringList parts = entry.baseName().split(delimiter, QString::SkipEmptyParts);
+    QStringList parts = entry.baseName().split(entry.baseName().contains("-") ? "-" : "_", QString::SkipEmptyParts);
     for (QString &part : parts) {
       part[0] = part[0].toUpper();
     }
 
-    themeList.append(parts.size() <= 1 || useFiles ? parts.join(' ') : QString("%1 (%2)").arg(parts[0], parts.mid(1).join(' ')));
+    themeList.append(parts.size() <= 1 || useFiles ? parts.join(" ") : QString("%1 (%2)").arg(parts[0], parts.mid(1).join(" ")));
   }
 
   return themeList;
@@ -80,44 +80,56 @@ QStringList getThemeList(const QDir &themePacksDirectory, const QString &subFold
 
 QString getThemeName(const std::string &paramKey, Params &params) {
   QString value = QString::fromStdString(params.get(paramKey));
-  QChar delimiter = value.contains('-') ? '-' : '_';
 
-  QStringList parts = value.split(delimiter, QString::SkipEmptyParts);
+  QStringList parts = value.split(value.contains("-") ? "-" : "_", QString::SkipEmptyParts);
   for (QString &part : parts) {
     part[0] = part[0].toUpper();
   }
 
-  if (value.contains('-') && parts.size() > 1) {
-    return QString("%1 (%2)").arg(parts[0], parts.mid(1).join(' '));
+  if (value.contains("-") && parts.size() > 1) {
+    return QString("%1 (%2)").arg(parts[0], parts.mid(1).join(" "));
   }
-  return parts.join(' ');
+  return parts.join(" ");
 }
 
 QString storeThemeName(const QString &input, const std::string &paramKey, Params &params) {
-  QString output = input.toLower().remove('(').remove(')');
-  output.replace(' ', input.contains('(') ? '-' : '_');
+  QString output = input.toLower().remove("(").remove(")");
+  output.replace(" ", input.contains("(") ? "-" : "_");
   params.put(paramKey, output.toStdString());
   return getThemeName(paramKey, params);
 }
 
 FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
+  QStackedLayout *themesLayout = new QStackedLayout();
+  addItem(themesLayout);
+
+  FrogPilotListWidget *themesList = new FrogPilotListWidget(this);
+
+  ScrollView *themesPanel = new ScrollView(themesList, this);
+
+  themesLayout->addWidget(themesPanel);
+
+  FrogPilotListWidget *customThemesList = new FrogPilotListWidget(this);
+
+  ScrollView *customThemesPanel = new ScrollView(customThemesList, this);
+
+  themesLayout->addWidget(customThemesPanel);
+
   const std::vector<std::tuple<QString, QString, QString, QString>> themeToggles {
-    {"PersonalizeOpenpilot", tr("Custom Theme"), tr("Custom openpilot themes."), "../frogpilot/assets/toggle_icons/frog.png"},
-    {"CustomColors", tr("Color Scheme"), tr("Changes out openpilot's color scheme.\n\nWant to submit your own color scheme? Share it in the 'custom-themes' channel on the FrogPilot Discord!"), ""},
-    {"CustomDistanceIcons", "Distance Button", "Changes out openpilot's distance button icons.\n\nWant to submit your own icon pack? Share it in the 'custom-themes' channel on the FrogPilot Discord!", ""},
-    {"CustomIcons", tr("Icon Pack"), tr("Changes out openpilot's icon pack.\n\nWant to submit your own icons? Share them in the 'custom-themes' channel on the FrogPilot Discord!"), ""},
-    {"CustomSounds", tr("Sound Pack"), tr("Changes out openpilot's sound effects.\n\nWant to submit your own sounds? Share them in the 'custom-themes' channel on the FrogPilot Discord!"), ""},
-    {"WheelIcon", tr("Steering Wheel"), tr("Enables a custom steering wheel icon in the top right of the screen."), ""},
-    {"CustomSignals", tr("Turn Signal Animation"), tr("Enables themed turn signal animations.\n\nWant to submit your own animations? Share them in the 'custom-themes' channel on the FrogPilot Discord!"), ""},
+    {"PersonalizeOpenpilot", tr("Custom Theme"), tr("The overall appearance of openpilot."), "../frogpilot/assets/toggle_icons/frog.png"},
+    {"CustomColors", tr("Color Scheme"), tr("openpilot's color scheme.\n\nWant to submit your own color scheme? Share it in the \"custom-themes\" channel on the FrogPilot Discord!"), ""},
+    {"CustomDistanceIcons", "Distance Button", "The distance button icons displayed in the driving screen.\n\nWant to submit your own icon pack? Share it in the \"custom-themes\" channel on the FrogPilot Discord!", ""},
+    {"CustomIcons", tr("Icon Pack"), tr("openpilot's icon pack.\n\nWant to submit your own icons? Share them in the \"custom-themes\" channel on the FrogPilot Discord!"), ""},
+    {"CustomSounds", tr("Sound Pack"), tr("openpilot's sound effects.\n\nWant to submit your own sounds? Share them in the \"custom-themes\" channel on the FrogPilot Discord!"), ""},
+    {"WheelIcon", tr("Steering Wheel"), tr("The steering wheel icon in the top right of the driving screen."), ""},
+    {"CustomSignals", tr("Turn Signal Animation"), tr("Themed turn signal animations.\n\nWant to submit your own animations? Share them in the \"custom-themes\" channel on the FrogPilot Discord!"), ""},
     {"DownloadStatusLabel", tr("Download Status"), "", ""},
 
-    {"HolidayThemes", tr("Holiday Themes"), tr("Changes the openpilot theme based on the current holiday. Minor holidays last one day, while major holidays (Easter, Christmas, Halloween, etc.) last the entire week."), "../frogpilot/assets/toggle_icons/icon_calendar.png"},
-
-    {"RainbowPath", tr("Rainbow Path"), tr("Swap out the path in the onroad UI for a Mario Kart inspired 'Rainbow Path'."), "../frogpilot/assets/toggle_icons/icon_rainbow.png"},
-
-    {"RandomEvents", tr("Random Events"), tr("Enables random cosmetic events that happen during certain driving conditions. These events are purely for fun and don't affect driving controls!"), "../frogpilot/assets/toggle_icons/icon_random.png"},
-
-    {"StartupAlert", tr("Startup Alert"), tr("Controls the text of the 'Startup' alert message that appears when you start the drive."), "../frogpilot/assets/toggle_icons/icon_message.png"}
+    {"HolidayThemes", tr("Holiday Themes"), tr("Holiday-based visual themes for openpilot. Minor holidays last one day; major holidays (Christmas, Easter, Halloween, etc.) continue all week."), "../frogpilot/assets/toggle_icons/icon_calendar.png"},
+    {"RainbowPath", tr("Rainbow Path"), tr("The path on the driving screen turns into a Mario Kart inspired \"Rainbow Path\"."), "../frogpilot/assets/toggle_icons/icon_rainbow.png"},
+    {"RandomEvents", tr("Random Events"), tr("Random cosmetic events that trigger after certain driving conditions. These events are purely for fun and don't affect driving controls!"), "../frogpilot/assets/toggle_icons/icon_random.png"},
+    {"RandomThemes", tr("Random Themes"), tr("Cycles through your downloaded themes randomly on each boot, giving every theme in your collection a chance to shine!"), "../frogpilot/assets/toggle_icons/icon_random_themes.png"},
+    {"StartupAlert", tr("Startup Alert"), tr("The text of the \"Startup Alert\" message that appears at the beginning of a drive."), "../frogpilot/assets/toggle_icons/icon_message.png"}
   };
 
   for (const auto &[param, title, desc, icon] : themeToggles) {
@@ -125,18 +137,18 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
 
     if (param == "PersonalizeOpenpilot") {
       FrogPilotManageControl *personalizeOpenpilotToggle = new FrogPilotManageControl(param, title, desc, icon);
-      QObject::connect(personalizeOpenpilotToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
-        showToggles(customThemeKeys);
+      QObject::connect(personalizeOpenpilotToggle, &FrogPilotManageControl::manageButtonClicked, [customThemesPanel, themesLayout]() {
+        themesLayout->setCurrentWidget(customThemesPanel);
       });
       themeToggle = personalizeOpenpilotToggle;
     } else if (param == "CustomColors") {
-      manageCustomColorsBtn = new FrogPilotButtonsControl(title, desc, "", {tr("DELETE"), tr("DOWNLOAD"), tr("SELECT")});
+      manageCustomColorsBtn = new FrogPilotButtonsControl(title, desc, icon, {tr("DELETE"), tr("DOWNLOAD"), tr("SELECT")});
       QObject::connect(manageCustomColorsBtn, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
         QStringList colorSchemes = getThemeList(QDir(themePacksDirectory.path()), "colors", "CustomColors", params);
 
         if (id == 0) {
           QString colorSchemeToDelete = MultiOptionDialog::getSelection(tr("Select a color scheme to delete"), colorSchemes, "", this);
-          if (!colorSchemeToDelete.isEmpty() && ConfirmationDialog::confirm(tr("Are you sure you want to delete the '%1' color scheme?").arg(colorSchemeToDelete), tr("Delete"), this)) {
+          if (!colorSchemeToDelete.isEmpty() && ConfirmationDialog::confirm(tr("Are you sure you want to delete the \"%1\" color scheme?").arg(colorSchemeToDelete), tr("Delete"), this)) {
             colorsDownloaded = false;
 
             deleteThemeAsset(themePacksDirectory, "colors", "DownloadableColors", colorSchemeToDelete, params);
@@ -166,12 +178,14 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
               params_memory.put("ThemeDownloadProgress", "Downloading...");
 
               downloadThemeAsset(colorSchemeToDownload, "ColorToDownload", "DownloadableColors", params, params_memory);
+
               downloadStatusLabel->setText("Downloading...");
             }
           }
         } else if (id == 2) {
           colorSchemes.append("Stock");
           colorSchemes.sort();
+
           QString colorSchemeToSelect = MultiOptionDialog::getSelection(tr("Select a color scheme"), colorSchemes, getThemeName("CustomColors", params), this);
           if (!colorSchemeToSelect.isEmpty()) {
             manageCustomColorsBtn->setValue(storeThemeName(colorSchemeToSelect, "CustomColors", params));
@@ -181,13 +195,13 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
       manageCustomColorsBtn->setValue(getThemeName(param.toStdString(), params));
       themeToggle = manageCustomColorsBtn;
     } else if (param == "CustomDistanceIcons") {
-      manageDistanceIconsBtn = new FrogPilotButtonsControl(title, desc, "", {tr("DELETE"), tr("DOWNLOAD"), tr("SELECT")});
+      manageDistanceIconsBtn = new FrogPilotButtonsControl(title, desc, icon, {tr("DELETE"), tr("DOWNLOAD"), tr("SELECT")});
       QObject::connect(manageDistanceIconsBtn, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
         QStringList distanceIconPacks = getThemeList(QDir(themePacksDirectory.path()), "distance_icons", "CustomDistanceIcons", params);
 
         if (id == 0) {
           QString distanceIconPackToDelete = MultiOptionDialog::getSelection(tr("Select a distance icon pack to delete"), distanceIconPacks, "", this);
-          if (!distanceIconPackToDelete.isEmpty() && ConfirmationDialog::confirm(tr("Are you sure you want to delete the '%1' distance icon pack?").arg(distanceIconPackToDelete), tr("Delete"), this)) {
+          if (!distanceIconPackToDelete.isEmpty() && ConfirmationDialog::confirm(tr("Are you sure you want to delete the \"%1\" distance icon pack?").arg(distanceIconPackToDelete), tr("Delete"), this)) {
             distanceIconsDownloaded = false;
 
             deleteThemeAsset(themePacksDirectory, "distance_icons", "DownloadableDistanceIcons", distanceIconPackToDelete, params);
@@ -217,12 +231,14 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
               params_memory.put("ThemeDownloadProgress", "Downloading...");
 
               downloadThemeAsset(distanceIconPackToDownload, "DistanceIconToDownload", "DownloadableDistanceIcons", params, params_memory);
+
               downloadStatusLabel->setText("Downloading...");
             }
           }
         } else if (id == 2) {
           distanceIconPacks.append("Stock");
           distanceIconPacks.sort();
+
           QString distanceIconPackToSelect = MultiOptionDialog::getSelection(tr("Select a distance icon pack"), distanceIconPacks, getThemeName("CustomDistanceIcons", params), this);
           if (!distanceIconPackToSelect.isEmpty()) {
             manageDistanceIconsBtn->setValue(storeThemeName(distanceIconPackToSelect, "CustomDistanceIcons", params));
@@ -232,13 +248,13 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
       manageDistanceIconsBtn->setValue(getThemeName(param.toStdString(), params));
       themeToggle = manageDistanceIconsBtn;
     } else if (param == "CustomIcons") {
-      manageCustomIconsBtn = new FrogPilotButtonsControl(title, desc, "", {tr("DELETE"), tr("DOWNLOAD"), tr("SELECT")});
+      manageCustomIconsBtn = new FrogPilotButtonsControl(title, desc, icon, {tr("DELETE"), tr("DOWNLOAD"), tr("SELECT")});
       QObject::connect(manageCustomIconsBtn, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
         QStringList iconPacks = getThemeList(QDir(themePacksDirectory.path()), "icons", "CustomIcons", params);
 
         if (id == 0) {
           QString iconPackToDelete = MultiOptionDialog::getSelection(tr("Select an icon pack to delete"), iconPacks, "", this);
-          if (!iconPackToDelete.isEmpty() && ConfirmationDialog::confirm(tr("Are you sure you want to delete the '%1' icon pack?").arg(iconPackToDelete), tr("Delete"), this)) {
+          if (!iconPackToDelete.isEmpty() && ConfirmationDialog::confirm(tr("Are you sure you want to delete the \"%1\" icon pack?").arg(iconPackToDelete), tr("Delete"), this)) {
             iconsDownloaded = false;
 
             deleteThemeAsset(themePacksDirectory, "icons", "DownloadableIcons", iconPackToDelete, params);
@@ -268,12 +284,14 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
               params_memory.put("ThemeDownloadProgress", "Downloading...");
 
               downloadThemeAsset(iconPackToDownload, "IconToDownload", "DownloadableIcons", params, params_memory);
+
               downloadStatusLabel->setText("Downloading...");
             }
           }
         } else if (id == 2) {
           iconPacks.append("Stock");
           iconPacks.sort();
+
           QString iconPackToSelect = MultiOptionDialog::getSelection(tr("Select an icon pack"), iconPacks, getThemeName("CustomIcons", params), this);
           if (!iconPackToSelect.isEmpty()) {
             manageCustomIconsBtn->setValue(storeThemeName(iconPackToSelect, "CustomIcons", params));
@@ -283,13 +301,13 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
       manageCustomIconsBtn->setValue(getThemeName(param.toStdString(), params));
       themeToggle = manageCustomIconsBtn;
     } else if (param == "CustomSignals") {
-      manageCustomSignalsBtn = new FrogPilotButtonsControl(title, desc, "", {tr("DELETE"), tr("DOWNLOAD"), tr("SELECT")});
+      manageCustomSignalsBtn = new FrogPilotButtonsControl(title, desc, icon, {tr("DELETE"), tr("DOWNLOAD"), tr("SELECT")});
       QObject::connect(manageCustomSignalsBtn, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
         QStringList signalAnimations = getThemeList(QDir(themePacksDirectory.path()), "signals", "CustomSignals", params);
 
         if (id == 0) {
           QString signalAnimationToDelete = MultiOptionDialog::getSelection(tr("Select a signal animation to delete"), signalAnimations, "", this);
-          if (!signalAnimationToDelete.isEmpty() && ConfirmationDialog::confirm(tr("Are you sure you want to delete the '%1' signal animation?").arg(signalAnimationToDelete), tr("Delete"), this)) {
+          if (!signalAnimationToDelete.isEmpty() && ConfirmationDialog::confirm(tr("Are you sure you want to delete the \"%1\" signal animation?").arg(signalAnimationToDelete), tr("Delete"), this)) {
             signalsDownloaded = false;
 
             deleteThemeAsset(themePacksDirectory, "signals", "DownloadableSignals", signalAnimationToDelete, params);
@@ -319,12 +337,14 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
               params_memory.put("ThemeDownloadProgress", "Downloading...");
 
               downloadThemeAsset(signalAnimationToDownload, "SignalToDownload", "DownloadableSignals", params, params_memory);
+
               downloadStatusLabel->setText("Downloading...");
             }
           }
         } else if (id == 2) {
           signalAnimations.append("None");
           signalAnimations.sort();
+
           QString signalAnimationToSelect = MultiOptionDialog::getSelection(tr("Select a signal animation"), signalAnimations, getThemeName("CustomSignals", params), this);
           if (!signalAnimationToSelect.isEmpty()) {
             manageCustomSignalsBtn->setValue(storeThemeName(signalAnimationToSelect, "CustomSignals", params));
@@ -334,13 +354,13 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
       manageCustomSignalsBtn->setValue(getThemeName(param.toStdString(), params));
       themeToggle = manageCustomSignalsBtn;
     } else if (param == "CustomSounds") {
-      manageCustomSoundsBtn = new FrogPilotButtonsControl(title, desc, "", {tr("DELETE"), tr("DOWNLOAD"), tr("SELECT")});
+      manageCustomSoundsBtn = new FrogPilotButtonsControl(title, desc, icon, {tr("DELETE"), tr("DOWNLOAD"), tr("SELECT")});
       QObject::connect(manageCustomSoundsBtn, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
         QStringList soundPacks = getThemeList(QDir(themePacksDirectory.path()), "sounds", "CustomSounds", params);
 
         if (id == 0) {
           QString soundPackToDelete = MultiOptionDialog::getSelection(tr("Select a sound pack to delete"), soundPacks, "", this);
-          if (!soundPackToDelete.isEmpty() && ConfirmationDialog::confirm(tr("Are you sure you want to delete the '%1' sound pack?").arg(soundPackToDelete), tr("Delete"), this)) {
+          if (!soundPackToDelete.isEmpty() && ConfirmationDialog::confirm(tr("Are you sure you want to delete the \"%1\" sound pack?").arg(soundPackToDelete), tr("Delete"), this)) {
             soundsDownloaded = false;
 
             deleteThemeAsset(themePacksDirectory, "sounds", "DownloadableSounds", soundPackToDelete, params);
@@ -370,12 +390,14 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
               params_memory.put("ThemeDownloadProgress", "Downloading...");
 
               downloadThemeAsset(soundPackToDownload, "SoundToDownload", "DownloadableSounds", params, params_memory);
+
               downloadStatusLabel->setText("Downloading...");
             }
           }
         } else if (id == 2) {
           soundPacks.append("Stock");
           soundPacks.sort();
+
           QString soundPackToSelect = MultiOptionDialog::getSelection(tr("Select a sound pack"), soundPacks, getThemeName("CustomSounds", params), this);
           if (!soundPackToSelect.isEmpty()) {
             manageCustomSoundsBtn->setValue(storeThemeName(soundPackToSelect, "CustomSounds", params));
@@ -385,13 +407,13 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
       manageCustomSoundsBtn->setValue(getThemeName(param.toStdString(), params));
       themeToggle = manageCustomSoundsBtn;
     } else if (param == "WheelIcon") {
-      manageWheelIconsBtn = new FrogPilotButtonsControl(title, desc, "", {tr("DELETE"), tr("DOWNLOAD"), tr("SELECT")});
+      manageWheelIconsBtn = new FrogPilotButtonsControl(title, desc, icon, {tr("DELETE"), tr("DOWNLOAD"), tr("SELECT")});
       QObject::connect(manageWheelIconsBtn, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
         QStringList wheelIcons = getThemeList(QDir(wheelsDirectory.path()), "", "WheelIcon", params);
 
         if (id == 0) {
           QString wheelIconToDelete = MultiOptionDialog::getSelection(tr("Select a steering wheel to delete"), wheelIcons, "", this);
-          if (!wheelIconToDelete.isEmpty() && ConfirmationDialog::confirm(tr("Are you sure you want to delete the '%1' steering wheel?").arg(wheelIconToDelete), tr("Delete"), this)) {
+          if (!wheelIconToDelete.isEmpty() && ConfirmationDialog::confirm(tr("Are you sure you want to delete the \"%1\" steering wheel?").arg(wheelIconToDelete), tr("Delete"), this)) {
             wheelsDownloaded = false;
 
             deleteThemeAsset(wheelsDirectory, "", "DownloadableWheels", wheelIconToDelete, params);
@@ -421,6 +443,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
               params_memory.put("ThemeDownloadProgress", "Downloading...");
 
               downloadThemeAsset(wheelToDownload, "WheelToDownload", "DownloadableWheels", params, params_memory);
+
               downloadStatusLabel->setText("Downloading...");
             }
           }
@@ -428,6 +451,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           wheelIcons.append("None");
           wheelIcons.append("Stock");
           wheelIcons.sort();
+
           QString steeringWheelToSelect = MultiOptionDialog::getSelection(tr("Select a steering wheel"), wheelIcons, getThemeName("WheelIcon", params), this);
           if (!steeringWheelToSelect.isEmpty()) {
             manageWheelIconsBtn->setValue(storeThemeName(steeringWheelToSelect, "WheelIcon", params));
@@ -491,15 +515,71 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
       themeToggle = new ParamControl(param, title, desc, icon);
     }
 
-    addItem(themeToggle);
     toggles[param] = themeToggle;
+
+    if (customThemeKeys.find(param) != customThemeKeys.end()) {
+      customThemesList->addItem(themeToggle);
+    } else {
+      themesList->addItem(themeToggle);
+
+      if (param == "PersonalizeOpenpilot") {
+        parentKeys.insert(param);
+      }
+    }
 
     if (FrogPilotManageControl *frogPilotManageToggle = qobject_cast<FrogPilotManageControl*>(themeToggle)) {
       QObject::connect(frogPilotManageToggle, &FrogPilotManageControl::manageButtonClicked, this, &FrogPilotThemesPanel::openParentToggle);
     }
+
+    QObject::connect(themeToggle, &AbstractControl::showDescriptionEvent, [this]() {
+      update();
+    });
   }
 
-  QObject::connect(parent, &FrogPilotSettingsWindow::closeParentToggle, this, &FrogPilotThemesPanel::hideToggles);
+  QObject::connect(static_cast<ToggleControl *>(toggles["PersonalizeOpenpilot"]), &ToggleControl::toggleFlipped, this, &FrogPilotThemesPanel::updateToggles);
+  QObject::connect(static_cast<ToggleControl*>(toggles["RandomThemes"]), &ToggleControl::toggleFlipped, [this](bool state) {
+    if (state) {
+      ConfirmationDialog::alert(tr("\"Random Themes\" only works with downloaded themes, so make sure you download the themes you want it to use!"), this);
+
+      manageCustomColorsBtn->setValue("");
+      manageCustomColorsBtn->setVisibleButton(2, false);
+
+      manageCustomIconsBtn->setValue("");
+      manageCustomIconsBtn->setVisibleButton(2, false);
+
+      manageCustomSignalsBtn->setValue("");
+      manageCustomSignalsBtn->setVisibleButton(2, false);
+
+      manageCustomSoundsBtn->setValue("");
+      manageCustomSoundsBtn->setVisibleButton(2, false);
+
+      manageDistanceIconsBtn->setValue("");
+      manageDistanceIconsBtn->setVisibleButton(2, false);
+
+      manageWheelIconsBtn->setValue("");
+      manageWheelIconsBtn->setVisibleButton(2, false);
+    } else {
+      manageCustomColorsBtn->setValue(getThemeName("CustomColors", params));
+      manageCustomColorsBtn->setVisibleButton(2, true);
+
+      manageCustomIconsBtn->setValue(getThemeName("CustomIcons", params));
+      manageCustomIconsBtn->setVisibleButton(2, true);
+
+      manageCustomSignalsBtn->setValue(getThemeName("CustomSignals", params));
+      manageCustomSignalsBtn->setVisibleButton(2, true);
+
+      manageCustomSoundsBtn->setValue(getThemeName("CustomSounds", params));
+      manageCustomSoundsBtn->setVisibleButton(2, true);
+
+      manageDistanceIconsBtn->setValue(getThemeName("CustomDistanceIcons", params));
+      manageDistanceIconsBtn->setVisibleButton(2, true);
+
+      manageWheelIconsBtn->setValue(getThemeName("WheelIcon", params));
+      manageWheelIconsBtn->setVisibleButton(2, true);
+    }
+  });
+
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeParentToggle, [themesLayout, themesPanel] {themesLayout->setCurrentWidget(themesPanel);});
   QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotThemesPanel::updateState);
 }
 
@@ -514,7 +594,27 @@ void FrogPilotThemesPanel::showEvent(QShowEvent *event) {
   frogpilotToggleLevels = parent->frogpilotToggleLevels;
   tuningLevel = parent->tuningLevel;
 
-  hideToggles();
+  if (params.getBool("RandomThemes")) {
+    manageCustomColorsBtn->setValue("");
+    manageCustomColorsBtn->setVisibleButton(2, false);
+
+    manageCustomIconsBtn->setValue("");
+    manageCustomIconsBtn->setVisibleButton(2, false);
+
+    manageCustomSignalsBtn->setValue("");
+    manageCustomSignalsBtn->setVisibleButton(2, false);
+
+    manageCustomSoundsBtn->setValue("");
+    manageCustomSoundsBtn->setVisibleButton(2, false);
+
+    manageDistanceIconsBtn->setValue("");
+    manageDistanceIconsBtn->setVisibleButton(2, false);
+
+    manageWheelIconsBtn->setValue("");
+    manageWheelIconsBtn->setVisibleButton(2, false);
+  }
+
+  updateToggles();
 }
 
 void FrogPilotThemesPanel::updateState(const UIState &s) {
@@ -599,28 +699,36 @@ void FrogPilotThemesPanel::updateState(const UIState &s) {
   parent->keepScreenOn = themeDownloading;
 }
 
-void FrogPilotThemesPanel::showToggles(const std::set<QString> &keys) {
-  setUpdatesEnabled(false);
-
+void FrogPilotThemesPanel::updateToggles() {
   for (auto &[key, toggle] : toggles) {
-    toggle->setVisible(keys.find(key) != keys.end() && tuningLevel >= frogpilotToggleLevels[key].toDouble());
+    if (parentKeys.find(key) != parentKeys.end()) {
+      toggle->setVisible(false);
+    }
   }
 
-  setUpdatesEnabled(true);
-
-  update();
-}
-
-void FrogPilotThemesPanel::hideToggles() {
-  setUpdatesEnabled(false);
-
   for (auto &[key, toggle] : toggles) {
-    bool subToggles = customThemeKeys.find(key) != customThemeKeys.end();
+    if (parentKeys.find(key) != parentKeys.end()) {
+      continue;
+    }
 
-    toggle->setVisible(!subToggles && tuningLevel >= frogpilotToggleLevels[key].toDouble());
+    bool setVisible = tuningLevel >= frogpilotToggleLevels[key].toDouble();
+
+    if (key == "CustomDistanceIcons") {
+      setVisible &= params.getBool("QOLVisuals") && params.getBool("OnroadDistanceButton");
+    }
+
+    if (key == "RandomThemes") {
+      setVisible &= params.getBool("PersonalizeOpenpilot");
+    }
+
+    toggle->setVisible(setVisible);
+
+    if (setVisible) {
+      if (customThemeKeys.find(key) != customThemeKeys.end()) {
+        toggles["PersonalizeOpenpilot"]->setVisible(true);
+      }
+    }
   }
-
-  setUpdatesEnabled(true);
 
   update();
 }

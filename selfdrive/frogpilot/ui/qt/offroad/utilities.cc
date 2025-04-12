@@ -1,5 +1,3 @@
-#include <filesystem>
-
 #include "selfdrive/frogpilot/ui/qt/offroad/utilities.h"
 
 FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
@@ -54,15 +52,15 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
   forceStartedBtn->setCheckedButton(2);
   addItem(forceStartedBtn);
 
-  ButtonControl *reportIssueBtn = new ButtonControl(tr("Report a Bug or an Issue"), tr("REPORT"), tr("Let \"FrogsGoMoo\" know about an issue you're facing."));
+  ButtonControl *reportIssueBtn = new ButtonControl(tr("Report a Bug or an Issue"), tr("REPORT"), tr("Let FrogsGoMoo know about an issue you're facing!"));
   QObject::connect(reportIssueBtn, &ButtonControl::clicked, [this]() {
     QStringList report_messages = {
-      "I saw an alert that said \"openpilot crashed\"",
-      "I'm noticing harsh acceleration",
-      "I'm noticing harsh braking",
-      "I'm noticing unusual steering",
-      "My car isn't staying in its lane",
-      "Something else"
+      tr("I saw an alert that said <b>openpilot crashed</b>"),
+      tr("I'm noticing harsh acceleration"),
+      tr("I'm noticing harsh braking"),
+      tr("I'm noticing unusual steering"),
+      tr("My car isn't staying in its lane"),
+      tr("Something else")
     };
 
     QString selected_issue = MultiOptionDialog::getSelection(tr("What's going on?"), report_messages, "", this);
@@ -86,9 +84,9 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
   });
   addItem(reportIssueBtn);
 
-  ButtonControl *resetTogglesBtn = new ButtonControl(tr("Reset Toggles to Default"), tr("RESET"), tr("Reset your toggle settings back to their default settings."));
+  ButtonControl *resetTogglesBtn = new ButtonControl(tr("Reset Toggles to Default"), tr("RESET"), tr("Reset all toggles to their default values."));
   QObject::connect(resetTogglesBtn, &ButtonControl::clicked, [this, parent, resetTogglesBtn]() {
-    if (ConfirmationDialog::confirm(tr("Are you sure you want to completely reset all of your toggle settings?"), tr("Reset"), this)) {
+    if (ConfirmationDialog::confirm(tr("Are you sure you want to reset all toggles to their default values?"), tr("Reset"), this)) {
       std::thread([this, parent, resetTogglesBtn]() mutable {
         parent->keepScreenOn = true;
 

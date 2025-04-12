@@ -151,7 +151,7 @@
     </message>
     <message>
         <source>ft/s²</source>
-        <translation type="gpt-4o-generated">pi/s²</translation>
+        <translation type="gpt-4o-generated">ft/s²</translation>
     </message>
 </context>
 <context>
@@ -343,7 +343,7 @@
     </message>
     <message>
         <source>Pair Device</source>
-        <translation type="gpt-4o-generated">Appairer un appareil</translation>
+        <translation type="gpt-4o-generated">Appareiller l'appareil</translation>
     </message>
     <message>
         <source>PAIR</source>
@@ -358,7 +358,7 @@
     </message>
     <message>
         <source>PAST WEEK</source>
-        <translation type="gpt-4o-generated">SEMAINE DERNIÈRE</translation>
+        <translation type="gpt-4o-generated">SEMAINE PASSÉE</translation>
     </message>
     <message>
         <source>FROGPILOT</source>
@@ -433,10 +433,6 @@
         <translation type="gpt-4o-generated">SUPPRIMER</translation>
     </message>
     <message>
-        <source>Are you sure you want to permanently delete all of your driving footage and data?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer définitivement toutes vos séquences de conduite et données ?</translation>
-    </message>
-    <message>
         <source>Delete</source>
         <translation type="gpt-4o-generated">Supprimer</translation>
     </message>
@@ -482,7 +478,7 @@
     </message>
     <message>
         <source>Renaming...</source>
-        <translation type="gpt-4o-generated">Renommage...</translation>
+        <translation type="gpt-4o-generated">Renommer...</translation>
     </message>
     <message>
         <source>Renamed!</source>
@@ -494,7 +490,7 @@
     </message>
     <message>
         <source>Manage your FrogPilot backups.</source>
-        <translation type="gpt-4o-generated">Gérez vos sauvegardes FrogPilot.</translation>
+        <translation type="gpt-4o-generated">Gérer vos sauvegardes FrogPilot.</translation>
     </message>
     <message>
         <source>BACKUP</source>
@@ -506,7 +502,7 @@
     </message>
     <message>
         <source>Name your backup</source>
-        <translation type="gpt-4o-generated">Nommez votre sauvegarde</translation>
+        <translation type="gpt-4o-generated">Nommez votre sauvegarde.</translation>
     </message>
     <message>
         <source>Compressing...</source>
@@ -522,7 +518,7 @@
     </message>
     <message>
         <source>Select a restore point</source>
-        <translation type="gpt-4o-generated">Sélectionner un point de restauration</translation>
+        <translation type="gpt-4o-generated">Sélectionnez un point de restauration</translation>
     </message>
     <message>
         <source>Are you sure you want to restore this version of FrogPilot?</source>
@@ -550,7 +546,7 @@
     </message>
     <message>
         <source>Toggle Backups</source>
-        <translation type="gpt-4o-generated">Activer/désactiver les sauvegardes</translation>
+        <translation type="gpt-4o-generated">Activer/Désactiver les sauvegardes</translation>
     </message>
     <message>
         <source>Manage your toggle backups.</source>
@@ -559,10 +555,6 @@
     <message>
         <source>Are you sure you want to restore this toggle backup?</source>
         <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir restaurer cette sauvegarde de bascule ?</translation>
-    </message>
-    <message>
-        <source>Permanently deletes all stored driving footage and data from your device. Ideal for maintaining privacy or freeing up space.</source>
-        <translation type="gpt-4o-generated">Supprime définitivement toutes les vidéos de conduite et données stockées sur votre appareil. Idéal pour préserver la confidentialité ou libérer de l'espace.</translation>
     </message>
     <message>
         <source>DELETE ALL</source>
@@ -578,7 +570,7 @@
     </message>
     <message>
         <source>A recording with this name already exists. Please choose a different name.</source>
-        <translation type="gpt-4o-generated">Un enregistrement portant ce nom existe déjà. Veuillez choisir un autre nom.</translation>
+        <translation type="gpt-4o-generated">Un enregistrement avec ce nom existe déjà. Veuillez choisir un autre nom.</translation>
     </message>
     <message>
         <source>A backup with this name already exists. Please choose a different name.</source>
@@ -601,20 +593,48 @@
         <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer toutes les sauvegardes des bascules ?</translation>
     </message>
     <message>
-        <source>Do you want to compress this backup? This will take an extra few minutes, but the final result will be significantly smaller and will run in the background.</source>
-        <translation type="gpt-4o-generated">Voulez-vous compresser cette sauvegarde ? Cela prendra quelques minutes supplémentaires, mais le résultat final sera nettement plus petit et le processus s'exécutera en arrière-plan.</translation>
-    </message>
-    <message>
         <source>Delete Error Logs</source>
         <translation type="gpt-4o-generated">Supprimer les journaux d'erreurs</translation>
     </message>
     <message>
-        <source>Permanently deletes all stored error logs from your device. Ideal for freeing up space.</source>
-        <translation type="gpt-4o-generated">Supprime définitivement tous les journaux d'erreurs enregistrés sur votre appareil. Idéal pour libérer de l'espace.</translation>
+        <source>Deletes all stored driving footage and data from your device. Ideal for maintaining privacy or for simply freeing up space.</source>
+        <translation type="gpt-4o-generated">Supprime toutes les séquences de conduite et les données stockées sur votre appareil. Idéal pour maintenir la confidentialité ou pour simplement libérer de l'espace.</translation>
     </message>
     <message>
-        <source>Are you sure you want to permanently delete all of the error logs?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer définitivement tous les journaux d'erreurs ?</translation>
+        <source>Are you sure you want to delete all of your driving footage and data?</source>
+        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer toutes vos séquences de conduite et vos données ?</translation>
+    </message>
+    <message>
+        <source>Deletes all stored error logs from your device. Ideal for freeing up space.</source>
+        <translation type="gpt-4o-generated">Supprime tous les journaux d'erreurs stockés sur votre appareil. Idéal pour libérer de l'espace.</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete all of the error logs?</source>
+        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer tous les journaux d'erreurs ?</translation>
+    </message>
+    <message>
+        <source>Do you want to compress this backup? This will take a few minutes, but the final result will be smaller and run in the background.</source>
+        <translation type="gpt-4o-generated">Voulez-vous compresser cette sauvegarde ? Cela prendra quelques minutes, mais le résultat final sera plus petit et s'exécutera en arrière-plan.</translation>
+    </message>
+    <message>
+        <source>Name your toggle backup</source>
+        <translation type="gpt-4o-generated">Nommez votre sauvegarde de basculement</translation>
+    </message>
+    <message>
+        <source>A toggle backup with this name already exists. Please choose a different name.</source>
+        <translation type="gpt-4o-generated">Une sauvegarde basculable avec ce nom existe déjà. Veuillez choisir un autre nom.</translation>
+    </message>
+    <message>
+        <source>Select a toggle backup to delete</source>
+        <translation type="gpt-4o-generated">Sélectionnez une sauvegarde à supprimer</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete this toggle backup?</source>
+        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer cette sauvegarde de bascule ?</translation>
+    </message>
+    <message>
+        <source>Select a toggle restore point</source>
+        <translation type="gpt-4o-generated">Sélectionner un point de restauration du commutateur</translation>
     </message>
 </context>
 <context>
@@ -622,10 +642,6 @@
     <message>
         <source>Device Settings</source>
         <translation type="gpt-4o-generated">Paramètres de l'appareil</translation>
-    </message>
-    <message>
-        <source>Device behavior settings.</source>
-        <translation type="gpt-4o-generated">Paramètres de comportement de l'appareil.</translation>
     </message>
     <message>
         <source>Device Shutdown Timer</source>
@@ -640,16 +656,8 @@
         <translation type="gpt-4o-generated">Augmenter la limite de sécurité thermique</translation>
     </message>
     <message>
-        <source>Turn Off Data Uploads</source>
-        <translation type="gpt-4o-generated">Désactiver le téléchargement de données</translation>
-    </message>
-    <message>
         <source>Screen Settings</source>
         <translation type="gpt-4o-generated">Paramètres de l'écran</translation>
-    </message>
-    <message>
-        <source>Screen behavior settings.</source>
-        <translation type="gpt-4o-generated">Paramètres du comportement de l'écran.</translation>
     </message>
     <message>
         <source>Screen Brightness (Offroad)</source>
@@ -700,14 +708,6 @@
         <translation type="gpt-4o-generated">secondes</translation>
     </message>
     <message>
-        <source>WARNING: This can cause premature wear or damage by running the device over comma's recommended temperature limits!</source>
-        <translation type="gpt-4o-generated">AVERTISSEMENT : Cela peut entraîner une usure prématurée ou des dommages en faisant fonctionner l'appareil au-delà des limites de température recommandées par comma !</translation>
-    </message>
-    <message>
-        <source>WARNING: This will prevent your drives from appearing on comma connect which may impact debugging and support!</source>
-        <translation type="gpt-4o-generated">AVERTISSEMENT : Cela empêchera vos trajets d'apparaître sur comma connect, ce qui pourrait affecter le débogage et le support !</translation>
-    </message>
-    <message>
         <source>Screen Off</source>
         <translation type="gpt-4o-generated">Écran éteint</translation>
     </message>
@@ -716,36 +716,8 @@
         <translation type="gpt-4o-generated">Seuil d'arrêt de la batterie</translation>
     </message>
     <message>
-        <source>The battery level threshold used for automatically shutting down the device to protect the car's battery from excessive drain and potential damage.</source>
-        <translation type="gpt-4o-generated">Le seuil de niveau de batterie utilisé pour éteindre automatiquement l'appareil afin de protéger la batterie de la voiture d'une décharge excessive et d'éventuels dommages.</translation>
-    </message>
-    <message>
-        <source>How long the device stays on after you go offroad.</source>
-        <translation type="gpt-4o-generated">Combien de temps l'appareil reste-t-il allumé après que vous ayez désactivé le mode route.</translation>
-    </message>
-    <message>
-        <source>Turn Off Data Logging</source>
-        <translation type="gpt-4o-generated">Désactiver l'enregistrement des données</translation>
-    </message>
-    <message>
         <source>WARNING: This will prevent your drives from being recorded and all data will be unobtainable!</source>
         <translation type="gpt-4o-generated">AVERTISSEMENT : Cela empêchera l'enregistrement de vos trajets et toutes les données seront inaccessibles !</translation>
-    </message>
-    <message>
-        <source>The screen brightness while you're not driving.</source>
-        <translation type="gpt-4o-generated">La luminosité de l'écran lorsque vous ne conduisez pas.</translation>
-    </message>
-    <message>
-        <source>The screen brightness while you're driving.</source>
-        <translation type="gpt-4o-generated">La luminosité de l'écran pendant que vous conduisez.</translation>
-    </message>
-    <message>
-        <source>How long it takes for the screen to turn off when you're not driving.</source>
-        <translation type="gpt-4o-generated">Combien de temps l'écran met-il à s'éteindre lorsque vous ne conduisez pas.</translation>
-    </message>
-    <message>
-        <source>How long it takes for the screen to turn off while you're driving.</source>
-        <translation type="gpt-4o-generated">Temps nécessaire pour que l'écran s'éteigne pendant que vous conduisez.</translation>
     </message>
     <message>
         <source>Only Disable While Onroad</source>
@@ -753,23 +725,11 @@
     </message>
     <message>
         <source>Allow the device to work indefinitely without an internet connection.</source>
-        <translation type="gpt-4o-generated">Permettre à l'appareil de fonctionner indéfiniment sans connexion Internet.</translation>
-    </message>
-    <message>
-        <source>Allow the device to run at higher temperatures than comma recommends.</source>
-        <translation type="gpt-4o-generated">Autoriser l'appareil à fonctionner à des températures plus élevées que celles recommandées par comma.</translation>
+        <translation type="gpt-4o-generated">Autoriser l'appareil à fonctionner indéfiniment sans connexion Internet.</translation>
     </message>
     <message>
         <source>Disable all data logging to improve privacy.</source>
         <translation type="gpt-4o-generated">Désactiver tous les enregistrements de données pour améliorer la confidentialité.</translation>
-    </message>
-    <message>
-        <source>Prevent the device from sending any data to comma's servers.</source>
-        <translation type="gpt-4o-generated">Empêcher l'appareil d'envoyer des données aux serveurs de comma.</translation>
-    </message>
-    <message>
-        <source>Enable a button in the onroad UI to record the screen.</source>
-        <translation type="gpt-4o-generated">Activer un bouton dans l'interface utilisateur sur la route pour enregistrer l'écran.</translation>
     </message>
     <message>
         <source>Start Recording</source>
@@ -778,6 +738,66 @@
     <message>
         <source>Stop Recording</source>
         <translation type="gpt-4o-generated">Arrêter l'enregistrement</translation>
+    </message>
+    <message>
+        <source>Settings that control device behavior.</source>
+        <translation type="gpt-4o-generated">Paramètres qui contrôlent le comportement de l'appareil.</translation>
+    </message>
+    <message>
+        <source>Disable Data Logging</source>
+        <translation type="gpt-4o-generated">Désactiver l'enregistrement des données</translation>
+    </message>
+    <message>
+        <source>Disable Data Uploads</source>
+        <translation type="gpt-4o-generated">Désactiver les téléversements de données</translation>
+    </message>
+    <message>
+        <source>Prevent the device from sending any data to &lt;b&gt;comma&lt;/b&gt;'s servers.</source>
+        <translation type="gpt-4o-generated">Empêcher l'appareil d'envoyer des données aux serveurs de &lt;b&gt;comma&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>WARNING: This can damage your device by exceeding safe temperature limits!</source>
+        <translation type="gpt-4o-generated">AVERTISSEMENT : Cela peut endommager votre appareil en dépassant les limites de température sûres !</translation>
+    </message>
+    <message>
+        <source>Settings that control screen behavior.</source>
+        <translation type="gpt-4o-generated">Paramètres qui contrôlent le comportement de l'écran.</translation>
+    </message>
+    <message>
+        <source>The screen brightness when not driving.</source>
+        <translation type="gpt-4o-generated">La luminosité de l'écran lorsque le véhicule n'est pas en mouvement.</translation>
+    </message>
+    <message>
+        <source>The screen brightness while driving.</source>
+        <translation type="gpt-4o-generated">La luminosité de l'écran pendant la conduite.</translation>
+    </message>
+    <message>
+        <source>Enable a button in the driving screen to record the screen.</source>
+        <translation type="gpt-4o-generated">Activer un bouton dans l'écran de conduite pour enregistrer l'écran.</translation>
+    </message>
+    <message>
+        <source>How long it takes for the screen to turn off when not driving.</source>
+        <translation type="gpt-4o-generated">Combien de temps faut-il pour que l'écran s'éteigne lorsque vous ne conduisez pas.</translation>
+    </message>
+    <message>
+        <source>How long it takes for the screen to turn off while driving.</source>
+        <translation type="gpt-4o-generated">Durée avant que l'écran s'éteigne en conduisant.</translation>
+    </message>
+    <message>
+        <source>Automatically shut down the device when the vehicle's battery voltage reaches the set threshold preventing excessive battery drain to protect the battery.</source>
+        <translation type="gpt-4o-generated">Éteindre automatiquement l'appareil lorsque la tension de la batterie du véhicule atteint le seuil défini pour éviter une décharge excessive de la batterie et la protéger.</translation>
+    </message>
+    <message>
+        <source>How long the device stays on for after you go offroad.</source>
+        <translation type="gpt-4o-generated">Durée de fonctionnement de l'appareil après le passage en mode hors route.</translation>
+    </message>
+    <message>
+        <source>WARNING: This will prevent your drives from appearing on &lt;b&gt;comma connect&lt;/b&gt; which may impact debugging and support!</source>
+        <translation type="gpt-4o-generated">AVERTISSEMENT : Cela empêchera vos trajets d'apparaître sur &lt;b&gt;comma connect&lt;/b&gt;, ce qui pourrait affecter le débogage et le support !</translation>
+    </message>
+    <message>
+        <source>Allow the device to run hotter than comma recommended limit.</source>
+        <translation type="gpt-4o-generated">Autoriser l'appareil à fonctionner à une température supérieure à la limite recommandée par comma.</translation>
     </message>
 </context>
 <context>
@@ -800,15 +820,11 @@
     </message>
     <message>
         <source>Neural Network Feedforward (NNFF)</source>
-        <translation type="gpt-4o-generated">Propagation avant du réseau de neurones (NNFF)</translation>
+        <translation type="gpt-4o-generated">Réseau de Neurones Feedforward (NNFF)</translation>
     </message>
     <message>
         <source>Smooth Curve Handling</source>
-        <translation type="gpt-4o-generated">Gestion Douce des Courbes</translation>
-    </message>
-    <message>
-        <source>Quality of Life Improvements</source>
-        <translation type="gpt-4o-generated">Améliorations de la qualité de vie</translation>
+        <translation type="gpt-4o-generated">Gestion fluide des courbes</translation>
     </message>
     <message>
         <source>Pause Steering Below</source>
@@ -856,11 +872,11 @@
     </message>
     <message>
         <source>Steer Ratio (Default: %1)</source>
-        <translation type="gpt-4o-generated">Ratio de direction (Par défaut : %1)</translation>
+        <translation type="gpt-4o-generated">Rapport de direction (Par défaut : %1)</translation>
     </message>
     <message>
         <source>Steer Ratio</source>
-        <translation type="gpt-4o-generated">Rapport de direction</translation>
+        <translation type="gpt-4o-generated">Ratio de direction</translation>
     </message>
     <message>
         <source>Force Auto Tune On</source>
@@ -875,12 +891,8 @@
         <translation type="gpt-4o-generated">Changements de voie automatiques</translation>
     </message>
     <message>
-        <source>Only One Lane Change Per Signal</source>
-        <translation type="gpt-4o-generated">Un seul changement de voie par signal</translation>
-    </message>
-    <message>
         <source>Force Turn Desires Below Lane Change Speed</source>
-        <translation type="gpt-4o-generated">Forcer les désirs de changement de voie en dessous de la vitesse de changement de voie</translation>
+        <translation type="gpt-4o-generated">Forcer les désirs de changement de voie en dessous de la vitesse de changement de voie.</translation>
     </message>
     <message>
         <source>Instant</source>
@@ -891,44 +903,12 @@
         <translation type="gpt-4o-generated">Paramètres avancés pour le réglage fin des contrôles latéraux d'openpilot.</translation>
     </message>
     <message>
-        <source>Force-enable comma’s auto lateral tuning for unsupported vehicles.</source>
-        <translation type="gpt-4o-generated">Forcer l'activation du réglage latéral automatique de comma pour les véhicules non pris en charge.</translation>
-    </message>
-    <message>
-        <source>Force-disable comma’s auto lateral tuning for supported vehicles.</source>
-        <translation type="gpt-4o-generated">Désactiver de force le réglage latéral automatique de comma pour les véhicules pris en charge.</translation>
-    </message>
-    <message>
-        <source>openpilot's steering control stays active even when the brake or gas pedals are pressed.
-
-Deactivation only occurs with the "Cruise Control" button.</source>
-        <translation type="gpt-4o-generated">Le contrôle de direction d'openpilot reste actif même lorsque les pédales de frein ou d'accélérateur sont pressées.
-
-La désactivation ne s'effectue qu'avec le bouton "Régulateur de vitesse".</translation>
-    </message>
-    <message>
-        <source>Control With LKAS Button</source>
-        <translation type="gpt-4o-generated">Contrôler avec le bouton LKAS</translation>
-    </message>
-    <message>
-        <source>Control the current state of "Always on Lateral" with the "LKAS" button.</source>
-        <translation type="gpt-4o-generated">Contrôlez l'état actuel de "Toujours en latéral" avec le bouton "LKAS".</translation>
-    </message>
-    <message>
         <source>Enable With Cruise Control</source>
         <translation type="gpt-4o-generated">Activer avec le régulateur de vitesse</translation>
     </message>
     <message>
-        <source>Customize how openpilot handles lane changes.</source>
-        <translation type="gpt-4o-generated">Personnaliser la gestion des changements de voie par openpilot.</translation>
-    </message>
-    <message>
-        <source>openpilot won't initiate a lane change into detected lanes narrower than this width.</source>
-        <translation type="gpt-4o-generated">openpilot n'initiera pas de changement de voie vers des voies détectées plus étroites que cette largeur.</translation>
-    </message>
-    <message>
         <source>Minimum Lane Change Speed</source>
-        <translation type="gpt-4o-generated">Vitesse minimale pour le changement de voie</translation>
+        <translation type="gpt-4o-generated">Vitesse minimale de changement de voie</translation>
     </message>
     <message>
         <source>Minimum speed required for openpilot to perform a lane change.</source>
@@ -936,35 +916,11 @@ La désactivation ne s'effectue qu'avec le bouton "Régulateur de vitesse".</tra
     </message>
     <message>
         <source>Settings for fine-tuning openpilot's lateral controls.</source>
-        <translation type="gpt-4o-generated">Paramètres pour l'ajustement des contrôles latéraux d'openpilot.</translation>
+        <translation type="gpt-4o-generated">Paramètres pour l'ajustement précis des contrôles latéraux d'openpilot.</translation>
     </message>
     <message>
         <source>Force turn desires below the minimum lane change speed to improve turning accuracy.</source>
-        <translation type="gpt-4o-generated">Forcer les désirs de virage en dessous de la vitesse minimale de changement de voie pour améliorer la précision de virage.</translation>
-    </message>
-    <message>
-        <source>Miscellaneous lateral control features to improve your overall openpilot experience.</source>
-        <translation type="gpt-4o-generated">Fonctionnalités latérales diverses pour améliorer votre expérience globale avec openpilot.</translation>
-    </message>
-    <message>
-        <source>Pause steering control when driving below the configured speed.</source>
-        <translation type="gpt-4o-generated">Suspendre le contrôle de direction lorsque la conduite est inférieure à la vitesse configurée.</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to completely reset your "Friction" values?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir réinitialiser complètement vos valeurs de "Friction" ?</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to completely reset your "Kp Factor" values?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir réinitialiser complètement vos valeurs de "Facteur Kp" ?</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to completely reset your "Lateral Accel" values?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir réinitialiser complètement vos valeurs "Lateral Accel" ?</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to completely reset your "Steer Ratio" values?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir réinitialiser complètement vos valeurs de "Steer Ratio" ?</translation>
+        <translation type="gpt-4o-generated">Imposer les désirs de virage en dessous de la vitesse minimale de changement de voie pour améliorer la précision du virage.</translation>
     </message>
     <message>
         <source>Off</source>
@@ -979,63 +935,139 @@ La désactivation ne s'effectue qu'avec le bouton "Régulateur de vitesse".</tra
         <translation type="gpt-4o-generated">Changements de voie</translation>
     </message>
     <message>
-        <source>Lane Detection Width</source>
-        <translation type="gpt-4o-generated">Largeur de détection de voie</translation>
-    </message>
-    <message>
         <source>Adjust steering resistance. Higher values feel more stable but heavier; lower values feel lighter but more sensitive.</source>
-        <translation type="gpt-4o-generated">Ajustez la résistance de la direction. Des valeurs plus élevées donnent une sensation de stabilité mais sont plus lourdes ; des valeurs plus basses donnent une sensation de légèreté mais sont plus sensibles.</translation>
-    </message>
-    <message>
-        <source>Adjust how aggressively openpilot corrects steering. Higher values respond faster but may feel jerky; lower values respond more smoothly but slower.</source>
-        <translation type="gpt-4o-generated">Ajustez l'agressivité avec laquelle openpilot corrige la direction. Des valeurs plus élevées réagissent plus rapidement mais peuvent sembler brusques ; des valeurs plus basses réagissent plus doucement mais plus lentement.</translation>
-    </message>
-    <message>
-        <source>Control how quickly openpilot can steer laterally. Higher values allow faster maneuvers but may feel unstable; lower values provide smoother, slower steering.</source>
-        <translation type="gpt-4o-generated">Contrôlez la rapidité avec laquelle openpilot peut diriger latéralement. Des valeurs plus élevées permettent des manœuvres plus rapides mais peuvent sembler instables ; des valeurs plus basses offrent une direction plus douce et plus lente.</translation>
-    </message>
-    <message>
-        <source>Adjust how much the wheel turns to steer. Higher values feel like a truck—stable at speed but sluggish in corners; lower values feel like a go-kart—quick but twitchy.</source>
-        <translation type="gpt-4o-generated">Ajustez l'angle de rotation du volant pour diriger. Des valeurs plus élevées donnent une sensation de camion—stable à grande vitesse mais lent dans les virages ; des valeurs plus basses donnent une sensation de kart—rapide mais nerveux.</translation>
-    </message>
-    <message>
-        <source>Allow "Always on Lateral" to be active whenever "Cruise Control" is active, bypassing the need to enable openpilot first.</source>
-        <translation type="gpt-4o-generated">Autoriser "Toujours activé latéral" à être actif dès que le "Régulateur de vitesse" est actif, sans avoir besoin d'activer openpilot d'abord.</translation>
-    </message>
-    <message>
-        <source>Temporarily disable "Always on Lateral" below the configured speed when the brake is pressed.</source>
-        <translation type="gpt-4o-generated">Désactiver temporairement "Toujours activé en latéral" en dessous de la vitesse configurée lorsque le frein est enfoncé.</translation>
-    </message>
-    <message>
-        <source>Automatically initiate lane changes when the turn signal is active — no steering input required!</source>
-        <translation type="gpt-4o-generated">Initier automatiquement les changements de voie lorsque le clignotant est activé — aucune intervention sur le volant n'est nécessaire !</translation>
-    </message>
-    <message>
-        <source>Delay automatic lane changes by the configured time.</source>
-        <translation type="gpt-4o-generated">Retarder les changements de voie automatiques selon le temps configuré.</translation>
+        <translation type="gpt-4o-generated">Ajustez la résistance de direction. Des valeurs plus élevées offrent une sensation plus stable mais plus lourde ; des valeurs plus basses offrent une sensation plus légère mais plus sensible.</translation>
     </message>
     <message>
         <source>Limit lane changes to one per turn signal activation.</source>
         <translation type="gpt-4o-generated">Limiter les changements de voie à un par activation du clignotant.</translation>
     </message>
     <message>
-        <source>Use Twilsonco's "Neural Network FeedForward" for smoother steering, trained on past driving data from your car model.</source>
-        <translation type="gpt-4o-generated">Utilisez le "Réseau de Neurones FeedForward" de Twilsonco pour une direction plus fluide, entraîné sur les données de conduite passées de votre modèle de voiture.</translation>
+        <source>How aggressively openpilot corrects steering. Higher values respond faster but may feel jerky; lower values are smoother but slower.</source>
+        <translation type="gpt-4o-generated">Avec quelle agressivité openpilot corrige la direction. Des valeurs plus élevées répondent plus rapidement mais peuvent sembler saccadées ; des valeurs plus basses sont plus fluides mais plus lentes.</translation>
     </message>
     <message>
-        <source>Smoothen steering control during curves using Twilsonco's torque adjustments.</source>
-        <translation type="gpt-4o-generated">Adoucissez le contrôle de la direction dans les virages en utilisant les ajustements de couple de Twilsonco.</translation>
+        <source>How quickly openpilot makes lateral adjustments. Higher values allow sharper turns; lower values provide smoother steering.</source>
+        <translation type="gpt-4o-generated">La rapidité avec laquelle openpilot effectue des ajustements latéraux. Des valeurs plus élevées permettent des virages plus serrés ; des valeurs plus faibles offrent une direction plus fluide.</translation>
+    </message>
+    <message>
+        <source>How much the steering wheel turns in response to commands. Higher values feel more stable; lower values feel quicker.</source>
+        <translation type="gpt-4o-generated">De combien le volant tourne en réponse aux commandes. Des valeurs plus élevées donnent une sensation de stabilité accrue; des valeurs plus faibles donnent une sensation de réactivité accrue.</translation>
+    </message>
+    <message>
+        <source>openpilot's steering control stays active even when the brake or gas pedals are pressed.&lt;br&gt;&lt;br&gt;Deactivation only occurs with the &lt;b&gt;Cruise Control&lt;/b&gt; button.</source>
+        <translation type="gpt-4o-generated">Le contrôle de la direction d'openpilot reste actif même lorsque les pédales de frein ou d'accélérateur sont enfoncées.&lt;br&gt;&lt;br&gt;La désactivation ne se produit qu'avec le bouton &lt;b&gt;Régulateur de Vitesse&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Allow &lt;b&gt;Always on Lateral&lt;/b&gt; to be active whenever &lt;b&gt;Cruise Control&lt;/b&gt; is active, bypassing the need to enable openpilot first.</source>
+        <translation type="gpt-4o-generated">Permettre à &lt;b&gt;Always on Lateral&lt;/b&gt; d'être actif chaque fois que le &lt;b&gt;Régulateur de vitesse&lt;/b&gt; est actif, en contournant la nécessité d'activer d'abord openpilot.</translation>
+    </message>
+    <message>
+        <source>Enable With LKAS Button</source>
+        <translation type="gpt-4o-generated">Activer avec le bouton LKAS</translation>
+    </message>
+    <message>
+        <source>Allow &lt;b&gt;Always on Lateral&lt;/b&gt; to be active whenever &lt;b&gt;LKAS&lt;/b&gt; is active, bypassing the need to enable openpilot first.</source>
+        <translation type="gpt-4o-generated">Autoriser &lt;b&gt;Latéral toujours actif&lt;/b&gt; à être actif chaque fois que &lt;b&gt;LKAS&lt;/b&gt; est actif, en contournant la nécessité d'activer openpilot d'abord.</translation>
+    </message>
+    <message>
+        <source>Temporarily pause &lt;b&gt;Always on Lateral&lt;/b&gt; below the set speed when braking.</source>
+        <translation type="gpt-4o-generated">Suspendre temporairement &lt;b&gt;Toujours en latéral&lt;/b&gt; en dessous de la vitesse définie lors du freinage.</translation>
+    </message>
+    <message>
+        <source>Customize how openpilot performs lane changes.</source>
+        <translation type="gpt-4o-generated">Personnalisez la manière dont openpilot effectue les changements de voie.</translation>
+    </message>
+    <message>
+        <source>Change lanes automatically when the turn signal is on. No steering input needed!</source>
+        <translation type="gpt-4o-generated">Changez de voie automatiquement lorsque le clignotant est activé. Aucune intervention sur le volant nécessaire !</translation>
+    </message>
+    <message>
+        <source>Delay automatic lane changes by the set amount of time.</source>
+        <translation type="gpt-4o-generated">Retarder les changements de voie automatiques de la durée définie.</translation>
+    </message>
+    <message>
+        <source>Minimum Lane Width</source>
+        <translation type="gpt-4o-generated">Largeur de voie minimale</translation>
+    </message>
+    <message>
+        <source>openpilot won't initiate a lane change into a lane narrower than this width.</source>
+        <translation type="gpt-4o-generated">openpilot ne lancera pas de changement de voie vers une voie plus étroite que cette largeur.</translation>
+    </message>
+    <message>
+        <source>One Lane Change Per Signal</source>
+        <translation type="gpt-4o-generated">Un changement de voie par signal</translation>
+    </message>
+    <message>
+        <source>Use &lt;b&gt;Twilsonco’s&lt;/b&gt; &lt;b&gt;Neural Network FeedForward&lt;/b&gt; model for smoother, model-based steering trained on your vehicle's data.</source>
+        <translation type="gpt-4o-generated">Utilisez le modèle &lt;b&gt;Neural Network FeedForward&lt;/b&gt; de &lt;b&gt;Twilsonco&lt;/b&gt; pour un pilotage plus fluide, basé sur un modèle entraîné avec les données de votre véhicule.</translation>
+    </message>
+    <message>
+        <source>Use &lt;b&gt;Twilsonco’s&lt;/b&gt; torque-based adjustments to smooth out steering during curves.</source>
+        <translation type="gpt-4o-generated">Utilisez les ajustements basés sur le couple de &lt;b&gt;Twilsonco&lt;/b&gt; pour adoucir la direction dans les virages.</translation>
+    </message>
+    <message>
+        <source>Quality of Life</source>
+        <translation type="gpt-4o-generated">Qualité de vie</translation>
+    </message>
+    <message>
+        <source>Miscellaneous features to improve the steering experience.</source>
+        <translation type="gpt-4o-generated">Fonctionnalités diverses pour améliorer l'expérience de conduite.</translation>
+    </message>
+    <message>
+        <source>Temporarily pause steering control below the set speed.</source>
+        <translation type="gpt-4o-generated">Suspendre temporairement le contrôle de direction en dessous de la vitesse définie.</translation>
+    </message>
+    <message>
+        <source> second</source>
+        <translation type="gpt-4o-generated">seconde</translation>
+    </message>
+    <message>
+        <source> seconds</source>
+        <translation type="gpt-4o-generated">secondes</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset your &lt;b&gt;Friction&lt;/b&gt; values?</source>
+        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir réinitialiser complètement vos valeurs de &lt;b&gt;Friction&lt;/b&gt; ?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset your &lt;b&gt;Kp Factor&lt;/b&gt; values?</source>
+        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir réinitialiser complètement vos valeurs de &lt;b&gt;facteur Kp&lt;/b&gt; ?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset your &lt;b&gt;Lateral Accel&lt;/b&gt; values?</source>
+        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir réinitialiser complètement vos valeurs &lt;b&gt;Accélération latérale&lt;/b&gt; ?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset your &lt;b&gt;Steer Ratio&lt;/b&gt; values?</source>
+        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir réinitialiser complètement vos valeurs de &lt;b&gt;Rapport de Direction&lt;/b&gt; ?</translation>
+    </message>
+    <message>
+        <source> foot</source>
+        <translation type="gpt-4o-generated">pied</translation>
+    </message>
+    <message>
+        <source> meter</source>
+        <translation type="gpt-4o-generated">mètre</translation>
+    </message>
+    <message>
+        <source>Force-enable comma’s auto lateral tuning.</source>
+        <translation type="gpt-4o-generated">Forcer l'activation du réglage latéral automatique de comma.</translation>
+    </message>
+    <message>
+        <source>Force-disable comma’s auto lateral tuning.</source>
+        <translation type="gpt-4o-generated">Désactiver de force le réglage latéral automatique de comma.</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotLongitudinalPanel</name>
     <message>
         <source>Conditional Experimental Mode</source>
-        <translation type="gpt-4o-generated">Mode Expérimental Conditionnel</translation>
+        <translation type="gpt-4o-generated">Mode expérimental conditionnel</translation>
     </message>
     <message>
         <source>Below</source>
-        <translation type="gpt-4o-generated">En dessous</translation>
+        <translation type="gpt-4o-generated">Ci-dessous</translation>
     </message>
     <message>
         <source>Curve Detected Ahead</source>
@@ -1059,11 +1091,7 @@ La désactivation ne s'effectue qu'avec le bouton "Régulateur de vitesse".</tra
     </message>
     <message>
         <source>Curve Speed Control</source>
-        <translation type="gpt-4o-generated">Contrôle de la Vitesse dans les Virages</translation>
-    </message>
-    <message>
-        <source>Automatically slow down for curves detected ahead or through the downloaded maps.</source>
-        <translation type="gpt-4o-generated">Ralentir automatiquement pour les virages détectés à l'avance ou via les cartes téléchargées.</translation>
+        <translation type="gpt-4o-generated">Contrôle de vitesse en courbe</translation>
     </message>
     <message>
         <source>Curve Detection Method</source>
@@ -1072,22 +1100,6 @@ La désactivation ne s'effectue qu'avec le bouton "Régulateur de vitesse".</tra
     <message>
         <source>Curve Detection Failsafe</source>
         <translation type="gpt-4o-generated">Système de secours en cas d'échec de détection de courbe</translation>
-    </message>
-    <message>
-        <source>Experimental Mode Activation</source>
-        <translation type="gpt-4o-generated">Activation du mode expérimental</translation>
-    </message>
-    <message>
-        <source>Click the LKAS Button</source>
-        <translation type="gpt-4o-generated">Cliquez sur le bouton LKAS.</translation>
-    </message>
-    <message>
-        <source>Double-Tap the Screen</source>
-        <translation type="gpt-4o-generated">Double-tapez sur l'écran</translation>
-    </message>
-    <message>
-        <source>Long Press the Distance Button</source>
-        <translation type="gpt-4o-generated">Appuyez longuement sur le bouton de distance</translation>
     </message>
     <message>
         <source>Longitudinal Tuning</source>
@@ -1114,18 +1126,6 @@ La désactivation ne s'effectue qu'avec le bouton "Régulateur de vitesse".</tra
         <translation type="gpt-4o-generated">Augmenter la distance d'arrêt</translation>
     </message>
     <message>
-        <source>Increases the distance to stop behind vehicles.</source>
-        <translation type="gpt-4o-generated">Augmente la distance pour s'arrêter derrière les véhicules.</translation>
-    </message>
-    <message>
-        <source>Quality of Life Improvements</source>
-        <translation type="gpt-4o-generated">Améliorations de la qualité de vie</translation>
-    </message>
-    <message>
-        <source>Miscellaneous longitudinal focused features to improve your overall openpilot experience.</source>
-        <translation type="gpt-4o-generated">'Fonctionnalités diverses axées sur la conduite longitudinale pour améliorer votre expérience globale avec openpilot.'</translation>
-    </message>
-    <message>
         <source>Map Accel/Decel to Gears</source>
         <translation type="gpt-4o-generated">Mapper l'accélération/décélération aux vitesses</translation>
     </message>
@@ -1142,52 +1142,8 @@ La désactivation ne s'effectue qu'avec le bouton "Régulateur de vitesse".</tra
         <translation type="gpt-4o-generated">Confirmer les nouvelles limites de vitesse</translation>
     </message>
     <message>
-        <source>Fallback Method</source>
-        <translation type="gpt-4o-generated">Méthode de secours</translation>
-    </message>
-    <message>
-        <source>Override Method</source>
-        <translation type="gpt-4o-generated">Méthode de Remplacement</translation>
-    </message>
-    <message>
         <source>Speed Limit Offsets</source>
         <translation type="gpt-4o-generated">Décalages de limite de vitesse</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (0-34 mph)</source>
-        <translation type="gpt-4o-generated">Décalage de la limite de vitesse (0-34 mph)</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (35-54 mph)</source>
-        <translation type="gpt-4o-generated">Décalage de la limite de vitesse (35-54 mph)</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (55-64 mph)</source>
-        <translation type="gpt-4o-generated">Décalage de la limite de vitesse (55-64 mph)</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (65-99 mph)</source>
-        <translation type="gpt-4o-generated">Décalage de la Limite de Vitesse (65-99 mph)</translation>
-    </message>
-    <message>
-        <source>Miscellaneous 'Speed Limit Controller' focused features to improve your overall openpilot experience.</source>
-        <translation type="gpt-4o-generated">Fonctionnalités diverses axées sur le 'Contrôleur de Limitation de Vitesse' pour améliorer votre expérience globale avec openpilot.</translation>
-    </message>
-    <message>
-        <source>Force MPH Readings from Dashboard</source>
-        <translation type="gpt-4o-generated">Forcer les lectures en MPH depuis le tableau de bord</translation>
-    </message>
-    <message>
-        <source>Prepare for Higher Speed Limits</source>
-        <translation type="gpt-4o-generated">Préparez-vous à des limites de vitesse plus élevées</translation>
-    </message>
-    <message>
-        <source>Prepare for Lower Speed Limits</source>
-        <translation type="gpt-4o-generated">Préparez-vous aux limites de vitesse inférieures</translation>
-    </message>
-    <message>
-        <source>Set Speed to Current Limit</source>
-        <translation type="gpt-4o-generated">Régler la vitesse à la limite actuelle</translation>
     </message>
     <message>
         <source>Show Speed Limit Offset</source>
@@ -1198,16 +1154,8 @@ La désactivation ne s'effectue qu'avec le bouton "Régulateur de vitesse".</tra
         <translation type="gpt-4o-generated">mi/h</translation>
     </message>
     <message>
-        <source> With Lead</source>
-        <translation type="gpt-4o-generated">Avec véhicule de tête</translation>
-    </message>
-    <message>
-        <source>Switches to 'Experimental Mode' when driving below the set speed with a lead vehicle.</source>
-        <translation type="gpt-4o-generated">Passe en « Mode Expérimental » lorsque vous conduisez en dessous de la vitesse définie avec un véhicule de tête.</translation>
-    </message>
-    <message>
         <source>With Lead</source>
-        <translation type="gpt-4o-generated">Avec Leader</translation>
+        <translation type="gpt-4o-generated">Avec leader</translation>
     </message>
     <message>
         <source>Slower Lead</source>
@@ -1215,7 +1163,7 @@ La désactivation ne s'effectue qu'avec le bouton "Régulateur de vitesse".</tra
     </message>
     <message>
         <source>Stopped Lead</source>
-        <translation type="gpt-4o-generated">Plomb arrêté</translation>
+        <translation type="gpt-4o-generated">Plomb avant arrêté</translation>
     </message>
     <message>
         <source>Intersections</source>
@@ -1275,7 +1223,7 @@ La désactivation ne s'effectue qu'avec le bouton "Régulateur de vitesse".</tra
     </message>
     <message>
         <source>Set Speed</source>
-        <translation type="gpt-4o-generated">Régler la vitesse</translation>
+        <translation type="gpt-4o-generated">Définir la vitesse</translation>
     </message>
     <message>
         <source>Experimental Mode</source>
@@ -1330,522 +1278,80 @@ La désactivation ne s'effectue qu'avec le bouton "Régulateur de vitesse".</tra
         <translation type="gpt-4o-generated">mètres</translation>
     </message>
     <message>
-        <source>Automatically switch to 'Experimental Mode' when specific conditions are met.</source>
-        <translation type="gpt-4o-generated">Passer automatiquement en « Mode Expérimental » lorsque certaines conditions sont remplies.</translation>
-    </message>
-    <message>
-        <source>Triggers 'Experimental Mode' when driving below the set speed without a lead vehicle.</source>
-        <translation type="gpt-4o-generated">Déclenche le 'Mode Expérimental' lorsque vous conduisez en dessous de la vitesse définie sans véhicule précédent.</translation>
-    </message>
-    <message>
-        <source>Triggers 'Experimental Mode' when a curve is detected in the road ahead.</source>
-        <translation type="gpt-4o-generated">Déclenche 'Mode Expérimental' lorsqu'une courbe est détectée sur la route devant.</translation>
-    </message>
-    <message>
-        <source>Triggers 'Experimental Mode' when a slower or stopped vehicle is detected ahead.</source>
-        <translation type="gpt-4o-generated">Déclenche le 'Mode Expérimental' lorsqu'un véhicule plus lent ou à l'arrêt est détecté devant.</translation>
-    </message>
-    <message>
-        <source>Triggers 'Experimental Mode' based on navigation data, such as upcoming intersections or turns.</source>
-        <translation type="gpt-4o-generated">Déclenche le 'Mode Expérimental' basé sur les données de navigation, telles que les intersections ou virages à venir.</translation>
-    </message>
-    <message>
-        <source>Triggers 'Experimental Mode' when openpilot wants to stop such as for a stop sign or red light.</source>
-        <translation type="gpt-4o-generated">Déclenche le 'Mode Expérimental' lorsque openpilot veut s'arrêter, par exemple à un panneau stop ou à un feu rouge.</translation>
-    </message>
-    <message>
-        <source>Triggers 'Experimental Mode' when using turn signals below the set speed.</source>
-        <translation type="gpt-4o-generated">Déclenche le 'Mode Expérimental' lors de l'utilisation des clignotants en dessous de la vitesse définie.</translation>
-    </message>
-    <message>
-        <source>Uses data from either the downloaded maps or the model to determine where curves are.</source>
-        <translation type="gpt-4o-generated">Utilise les données soit des cartes téléchargées, soit du modèle pour déterminer où se trouvent les virages.</translation>
-    </message>
-    <message>
-        <source>Triggers 'Curve Speed Control' only when a curve is detected with the model as well when using the 'Map Based' method.</source>
-        <translation type="gpt-4o-generated">Déclenche le 'Contrôle de Vitesse en Virage' uniquement lorsqu'une courbe est détectée par le modèle ainsi que lors de l'utilisation de la méthode 'Basée sur la Carte'.</translation>
-    </message>
-    <message>
         <source>Curve Detection Sensitivity</source>
         <translation type="gpt-4o-generated">Sensibilité de détection des courbes</translation>
-    </message>
-    <message>
-        <source>Controls how sensitive openpilot is to detecting curves. Higher values trigger earlier responses at the risk of triggering too often, while lower values increase confidence at the risk of triggering too infrequently.</source>
-        <translation type="gpt-4o-generated">Contrôle la sensibilité d'openpilot à détecter les virages. Des valeurs plus élevées déclencheront des réponses plus tôt, au risque de déclenchements trop fréquents, tandis que des valeurs plus basses augmentent la confiance au risque de déclenchements trop rares.</translation>
-    </message>
-    <message>
-        <source>Speed Aggressiveness</source>
-        <translation type="gpt-4o-generated">Agressivité de la vitesse</translation>
-    </message>
-    <message>
-        <source>Controls how aggressive openpilot takes turns. Higher values result in faster turns, while lower values result in slower turns.</source>
-        <translation type="gpt-4o-generated">Contrôle l'agressivité avec laquelle openpilot prend les virages. Des valeurs plus élevées entraînent des virages plus rapides, tandis que des valeurs plus basses entraînent des virages plus lents.</translation>
-    </message>
-    <message>
-        <source>Hide Desired Speed Widget From UI</source>
-        <translation type="gpt-4o-generated">Masquer le widget de vitesse souhaitée de l'interface utilisateur</translation>
-    </message>
-    <message>
-        <source>Hides the desired speed widget from the onroad UI.</source>
-        <translation type="gpt-4o-generated">Masque le widget de vitesse souhaitée de l'interface utilisateur en conduite.</translation>
     </message>
     <message>
         <source>Customize Driving Personalities</source>
         <translation type="gpt-4o-generated">Personnaliser les personnalités de conduite</translation>
     </message>
     <message>
-        <source>Customize the personality profiles to suit your driving style.</source>
-        <translation type="gpt-4o-generated">Personnalisez les profils de personnalité pour correspondre à votre style de conduite.</translation>
-    </message>
-    <message>
         <source>Traffic Personality</source>
         <translation type="gpt-4o-generated">Personnalité de conduite</translation>
-    </message>
-    <message>
-        <source>Customizes the 'Traffic' personality profile, tailored for navigating through traffic.</source>
-        <translation type="gpt-4o-generated">Personnalise le profil de personnalité 'Trafic', adapté pour naviguer dans la circulation.</translation>
     </message>
     <message>
         <source>Following Distance</source>
         <translation type="gpt-4o-generated">Distance de suivi</translation>
     </message>
     <message>
-        <source>Controls the minimum following distance in 'Traffic' mode. openpilot will automatically dynamically between this value and the 'Aggressive' profile distance based on your current speed.</source>
-        <translation type="gpt-4o-generated">Contrôle la distance de suivi minimale en mode 'Traffic'. openpilot ajustera automatiquement cette distance dynamiquement entre cette valeur et celle du profil 'Aggressive' en fonction de votre vitesse actuelle.</translation>
-    </message>
-    <message>
         <source>Acceleration Sensitivity</source>
-        <translation type="gpt-4o-generated">Sensibilité d'accélération</translation>
-    </message>
-    <message>
-        <source>Controls how sensitive openpilot is to changes in acceleration in 'Traffic' mode. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
-        <translation type="gpt-4o-generated">Contrôle la sensibilité d'openpilot aux changements d'accélération en mode 'Trafic'. Des valeurs plus élevées entraînent une accélération plus douce et progressive, tandis que des valeurs plus basses permettent des changements plus rapides et réactifs qui peuvent sembler brusques.</translation>
+        <translation type="gpt-4o-generated">Sensibilité à l'accélération</translation>
     </message>
     <message>
         <source>Deceleration Sensitivity</source>
         <translation type="gpt-4o-generated">Sensibilité de décélération</translation>
     </message>
     <message>
-        <source>Controls how sensitive openpilot is to changes in deceleration in 'Traffic' mode. Higher values result in smoother, more gradual deceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
-        <translation type="gpt-4o-generated">Contrôle la sensibilité d'openpilot aux changements de décélération en mode 'Traffic'. Des valeurs plus élevées entraînent une décélération plus douce et progressive, tandis que des valeurs plus basses permettent des changements plus rapides et réactifs qui peuvent sembler brusques.</translation>
-    </message>
-    <message>
         <source>Safety Distance Sensitivity</source>
         <translation type="gpt-4o-generated">Sensibilité de la distance de sécurité</translation>
-    </message>
-    <message>
-        <source>Adjusts how cautious openpilot is around other vehicles or obstacles in 'Traffic' mode. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.</source>
-        <translation type="gpt-4o-generated">Ajuste le niveau de prudence d'openpilot autour des autres véhicules ou des obstacles en mode 'Traffic'. Des valeurs plus élevées augmentent les distances de suivi et privilégient la sécurité, conduisant à une conduite plus prudente, tandis que des valeurs plus basses permettent un suivi plus rapproché mais peuvent réduire le temps de réaction.</translation>
-    </message>
-    <message>
-        <source>Speed Increase Responsiveness</source>
-        <translation type="gpt-4o-generated">Augmenter la Réactivité de la Vitesse</translation>
-    </message>
-    <message>
-        <source>Controls how quickly openpilot increases speed in 'Traffic' mode. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
-        <translation type="gpt-4o-generated">Contrôle la rapidité avec laquelle openpilot augmente la vitesse en mode 'Trafic'. Des valeurs plus élevées garantissent des changements de vitesse plus doux et plus progressifs lors de l'accélération, tandis que des valeurs plus faibles permettent des changements plus rapides et réactifs qui peuvent sembler brusques.</translation>
-    </message>
-    <message>
-        <source>Speed Decrease Responsiveness</source>
-        <translation type="gpt-4o-generated">Réactivité de réduction de vitesse</translation>
-    </message>
-    <message>
-        <source>Controls how quickly openpilot decreases speed in 'Traffic' mode. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
-        <translation type="gpt-4o-generated">Contrôle la vitesse à laquelle openpilot réduit la vitesse en mode 'Trafic'. Des valeurs plus élevées garantissent des changements de vitesse plus doux et plus progressifs lors du ralentissement, tandis que des valeurs plus basses permettent des changements plus rapides et réactifs qui peuvent sembler brusques.</translation>
     </message>
     <message>
         <source>Reset Settings</source>
         <translation type="gpt-4o-generated">Réinitialiser les paramètres</translation>
     </message>
     <message>
-        <source>Restores the 'Traffic Mode' settings to their default values.</source>
-        <translation type="gpt-4o-generated">Rétablit les paramètres du 'Mode Trafic' à leurs valeurs par défaut.</translation>
-    </message>
-    <message>
         <source>Aggressive Personality</source>
         <translation type="gpt-4o-generated">Personnalité agressive</translation>
-    </message>
-    <message>
-        <source>Customize the 'Aggressive' personality profile, designed for a more assertive driving style.</source>
-        <translation type="gpt-4o-generated">Personnalisez le profil de personnalité 'Agressif', conçu pour un style de conduite plus affirmé.</translation>
-    </message>
-    <message>
-        <source>Sets the following distance for 'Aggressive' mode. This determines roughly how many seconds you'll follow behind the car ahead.
-
-Default: 1.25 seconds.</source>
-        <translation type="gpt-4o-generated">Définit la distance suivante pour le mode « Agressif ». Cela détermine approximativement combien de secondes vous suivrez la voiture devant.
-
-Par défaut : 1,25 secondes.</translation>
-    </message>
-    <message>
-        <source>Controls how sensitive openpilot is to changes in acceleration in 'Aggressive' mode. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.
-
-Default: 0.5.</source>
-        <translation type="gpt-4o-generated">Contrôle la sensibilité d'openpilot aux changements d'accélération en mode 'Agressif'. Des valeurs plus élevées entraînent une accélération plus douce et plus progressive, tandis que des valeurs plus faibles permettent des changements plus rapides et plus réactifs qui peuvent sembler brusques.
-
-Par défaut : 0,5.</translation>
-    </message>
-    <message>
-        <source>Controls how sensitive openpilot is to changes in deceleration in 'Aggressive' mode. Higher values result in smoother, more gradual deceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.
-
-Default: 0.5.</source>
-        <translation type="gpt-4o-generated">Contrôle la sensibilité d'openpilot aux changements de décélération en mode 'Agressif'. Des valeurs plus élevées entraînent une décélération plus douce et progressive, tandis que des valeurs plus faibles permettent des changements plus rapides et réactifs, qui peuvent sembler brusques.
-
-Par défaut : 0,5.</translation>
-    </message>
-    <message>
-        <source>Adjusts how cautious openpilot is around other vehicles or obstacles in 'Aggressive' mode. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Ajuste le niveau de prudence d'openpilot vis-à-vis des autres véhicules ou obstacles en mode 'Agressif'. Des valeurs plus élevées augmentent les distances de suivi et privilégient la sécurité, ce qui entraîne une conduite plus prudente, tandis que des valeurs plus basses permettent un suivi plus rapproché mais peuvent réduire le temps de réaction.
-
-Par défaut : 1.0.</translation>
-    </message>
-    <message>
-        <source>Controls how quickly openpilot increases speed in 'Aggressive' mode. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.
-
-Default: 0.5.</source>
-        <translation type="gpt-4o-generated">Contrôle la vitesse à laquelle openpilot augmente la vitesse en mode 'Agressif'. Des valeurs plus élevées garantissent des changements de vitesse plus progressifs et plus fluides lors de l'accélération, tandis que des valeurs plus basses permettent des changements plus rapides et plus réactifs, qui peuvent sembler brusques.
-
-Par défaut : 0.5.</translation>
-    </message>
-    <message>
-        <source>Controls how quickly openpilot decreases speed in 'Aggressive' mode. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.
-
-Default: 0.5.</source>
-        <translation type="gpt-4o-generated">Contrôle la rapidité avec laquelle openpilot réduit la vitesse en mode « Agressif ». Des valeurs plus élevées garantissent des changements de vitesse plus doux et progressifs lors du ralentissement, tandis que des valeurs plus basses permettent des changements plus rapides et réactifs qui peuvent sembler brusques.
-
-Par défaut : 0,5.</translation>
-    </message>
-    <message>
-        <source>Restores the 'Aggressive' settings to their default values.</source>
-        <translation type="gpt-4o-generated">Rétablit les paramètres 'Agressif' à leurs valeurs par défaut.</translation>
     </message>
     <message>
         <source>Standard Personality</source>
         <translation type="gpt-4o-generated">Personnalité Standard</translation>
     </message>
     <message>
-        <source>Customize the 'Standard' personality profile, optimized for balanced driving.</source>
-        <translation type="gpt-4o-generated">Personnalisez le profil de personnalité 'Standard', optimisé pour une conduite équilibrée.</translation>
-    </message>
-    <message>
-        <source>Set the following distance for 'Standard' mode. This determines roughly how many seconds you'll follow behind the car ahead.
-
-Default: 1.45 seconds.</source>
-        <translation type="gpt-4o-generated">Définissez la distance suivante pour le mode « Standard ». Cela détermine approximativement combien de secondes vous suivrez derrière la voiture devant.
-
-Par défaut : 1,45 secondes.</translation>
-    </message>
-    <message>
-        <source>Controls how sensitive openpilot is to changes in acceleration in 'Standard' mode. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Contrôle la sensibilité d'openpilot aux changements d'accélération en mode 'Standard'. Des valeurs plus élevées entraînent une accélération plus douce et progressive, tandis que des valeurs plus faibles permettent des changements plus rapides et réactifs qui peuvent sembler brusques.
-
-Par défaut : 1.0.</translation>
-    </message>
-    <message>
-        <source>Controls how sensitive openpilot is to changes in deceleration in 'Standard' mode. Higher values result in smoother braking, while lower values allow for quicker, more immediate braking that may feel abrupt.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Contrôle la sensibilité d'openpilot aux changements de décélération en mode « Standard ». Des valeurs plus élevées entraînent un freinage plus doux, tandis que des valeurs plus basses permettent un freinage plus rapide et plus immédiat qui peut sembler brusque.
-
-Par défaut : 1,0.</translation>
-    </message>
-    <message>
-        <source>Adjusts how cautious openpilot is around other vehicles or obstacles in 'Standard' mode. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Règle le niveau de prudence d'openpilot envers les autres véhicules ou obstacles en mode 'Standard'. Des valeurs plus élevées augmentent les distances de suivi et priorisent la sécurité, menant à une conduite plus prudente, tandis que des valeurs plus basses permettent un suivi plus rapproché mais peuvent réduire le temps de réaction.
-
-Par défaut : 1.0.</translation>
-    </message>
-    <message>
-        <source>Controls how quickly openpilot increases speed in 'Standard' mode. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Contrôle la rapidité avec laquelle openpilot augmente la vitesse en mode « Standard ». Des valeurs plus élevées garantissent des changements de vitesse plus doux et progressifs lors de l'accélération, tandis que des valeurs plus basses permettent des changements plus rapides et réactifs qui peuvent sembler brusques.
-
-Par défaut : 1.0.</translation>
-    </message>
-    <message>
-        <source>Controls how quickly openpilot decreases speed in 'Standard' mode. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Contrôle la vitesse à laquelle openpilot réduit la vitesse en mode « Standard ». Des valeurs plus élevées garantissent des changements de vitesse plus doux et plus progressifs lors du ralentissement, tandis que des valeurs plus faibles permettent des changements plus rapides et plus réactifs qui peuvent sembler brusques.
-
-Par défaut : 1,0.</translation>
-    </message>
-    <message>
-        <source>Restores the 'Standard' settings to their default values.</source>
-        <translation type="gpt-4o-generated">Rétablit les paramètres « Standard » à leurs valeurs par défaut.</translation>
-    </message>
-    <message>
         <source>Relaxed Personality</source>
         <translation type="gpt-4o-generated">Personnalité Décontractée</translation>
-    </message>
-    <message>
-        <source>Customize the 'Relaxed' personality profile, ideal for a more laid-back driving style.</source>
-        <translation type="gpt-4o-generated">Personnalisez le profil de personnalité 'Détendu', idéal pour un style de conduite plus décontracté.</translation>
-    </message>
-    <message>
-        <source>Set the following distance for 'Relaxed' mode. This determines roughly how many seconds you'll follow behind the car ahead.
-
-Default: 1.75 seconds.</source>
-        <translation type="gpt-4o-generated">Définir la distance suivante pour le mode « Détendu ». Cela détermine approximativement combien de secondes vous suivrez la voiture devant.
-
-Par défaut : 1,75 secondes.</translation>
-    </message>
-    <message>
-        <source>Controls how sensitive openpilot is to changes in acceleration in 'Relaxed' mode. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Contrôle la sensibilité d'openpilot aux changements d'accélération en mode 'Détendu'. Des valeurs plus élevées entraînent une accélération plus douce et progressive, tandis que des valeurs plus faibles permettent des changements plus rapides et réactifs qui peuvent sembler brusques.
-
-Par défaut : 1.0.</translation>
-    </message>
-    <message>
-        <source>Controls how sensitive openpilot is to changes in deceleration in 'Relaxed' mode. Higher values result in smoother braking, while lower values allow for quicker, more immediate braking that may feel abrupt.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Contrôle la sensibilité d'openpilot aux changements de décélération en mode 'Détendu'. Des valeurs plus élevées entraînent un freinage plus doux, tandis que des valeurs plus basses permettent un freinage plus rapide et immédiat qui peut sembler brusque.
-
-Par défaut : 1,0.</translation>
-    </message>
-    <message>
-        <source>Adjusts how cautious openpilot is around other vehicles or obstacles in 'Relaxed' mode. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Ajuste le niveau de prudence d'openpilot vis-à-vis des autres véhicules ou obstacles en mode 'Détendu'. Des valeurs plus élevées augmentent les distances de suivi et privilégient la sécurité, ce qui conduit à une conduite plus prudente, tandis que des valeurs plus faibles permettent un suivi plus rapproché mais peuvent réduire le temps de réaction.
-
-Par défaut : 1.0.</translation>
-    </message>
-    <message>
-        <source>Controls how quickly openpilot increases speed in 'Relaxed' mode. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Contrôle la rapidité avec laquelle openpilot augmente la vitesse en mode 'Relaxé'. Des valeurs plus élevées garantissent des changements de vitesse plus progressifs et plus doux lors de l'accélération, tandis que des valeurs plus basses permettent des changements plus rapides et réactifs qui peuvent sembler brusques.
-
-Par défaut : 1.0.</translation>
-    </message>
-    <message>
-        <source>Controls how quickly openpilot decreases speed in 'Relaxed' mode. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Contrôle la rapidité avec laquelle openpilot réduit la vitesse en mode 'Détendu'. Des valeurs plus élevées garantissent des changements de vitesse plus fluides et progressifs lors du ralentissement, tandis que des valeurs plus basses permettent des changements plus rapides et plus réactifs qui peuvent sembler brusques.
-
-Par défaut : 1.0.</translation>
-    </message>
-    <message>
-        <source>Restores the 'Relaxed' settings to their default values.</source>
-        <translation type="gpt-4o-generated">Rétablit les paramètres 'Détendu' à leurs valeurs par défaut.</translation>
-    </message>
-    <message>
-        <source>Toggle 'Experimental Mode' on/off using either the steering wheel buttons or screen.
-
-This overrides 'Conditional Experimental Mode'.</source>
-        <translation type="gpt-4o-generated">Activez ou désactivez le 'Mode Expérimental' à l'aide des boutons du volant ou de l'écran.
-
-Cela remplace le 'Mode Expérimental Conditionnel'.</translation>
-    </message>
-    <message>
-        <source>Toggles 'Experimental Mode' by pressing the 'LKAS' button on the steering wheel.</source>
-        <translation type="gpt-4o-generated">Active le 'Mode Expérimental' en appuyant sur le bouton 'LKAS' du volant.</translation>
-    </message>
-    <message>
-        <source>Toggles 'Experimental Mode' by double-tapping the onroad UI within a 0.5 second period.</source>
-        <translation type="gpt-4o-generated">Bascule le "Mode Expérimental" en tapant deux fois sur l'interface utilisateur en route en moins de 0,5 seconde.</translation>
-    </message>
-    <message>
-        <source>Toggles 'Experimental Mode' by holding down the 'distance' button on the steering wheel for 0.5 seconds.</source>
-        <translation type="gpt-4o-generated">Active le 'Mode Expérimental' en maintenant le bouton 'distance' sur le volant pendant 0,5 seconde.</translation>
-    </message>
-    <message>
-        <source>Enables either a sporty or eco-friendly acceleration rate. 'Sport+' aims to make openpilot accelerate as fast as possible.</source>
-        <translation type="gpt-4o-generated">Active soit un taux d'accélération sportif, soit respectueux de l'environnement. 'Sport+' vise à faire accélérer openpilot aussi vite que possible.</translation>
-    </message>
-    <message>
-        <source>Enables either a sporty or eco-friendly deceleration rate.</source>
-        <translation type="gpt-4o-generated">Active un taux de décélération sportif ou écologique.</translation>
-    </message>
-    <message>
-        <source>Uses the lead's acceleration rate when at a takeoff and ramps off the acceleration rate when approaching the maximum set speed for a more 'human-like' driving experience.</source>
-        <translation type="gpt-4o-generated">Utilise le taux d'accélération du véhicule de tête lors d'un démarrage et réduit progressivement le taux d'accélération lorsqu'on approche de la vitesse maximale définie pour une expérience de conduite plus « humaine ».</translation>
     </message>
     <message>
         <source>Human-Like Approach Behind Leads</source>
         <translation type="gpt-4o-generated">Approche humaine derrière les véhicules en tête</translation>
     </message>
     <message>
-        <source>Dynamically adjusts the following distance when approaching slower or stopped vehicles for a more 'human-like' driving experience.</source>
-        <translation type="gpt-4o-generated">Ajuste dynamiquement la distance de suivi lors de l'approche de véhicules plus lents ou arrêtés pour une expérience de conduite plus 'humaine'.</translation>
-    </message>
-    <message>
         <source>Lead Detection Confidence</source>
-        <translation type="gpt-4o-generated">Confiance de détection de tête</translation>
-    </message>
-    <message>
-        <source>Controls how sensitive openpilot is to detecting vehicles ahead. A lower value can help detect vehicles sooner and from farther away, but increases the chance openpilot mistakes other objects for vehicles.</source>
-        <translation type="gpt-4o-generated">Contrôle la sensibilité d'openpilot à détecter les véhicules devant. Une valeur inférieure peut aider à détecter les véhicules plus tôt et de plus loin, mais augmente le risque qu'openpilot confonde d'autres objets avec des véhicules.</translation>
+        <translation type="gpt-4o-generated">Confiance en la détection des véhicules précédents</translation>
     </message>
     <message>
         <source>Maximum Acceleration Rate</source>
         <translation type="gpt-4o-generated">Taux d'accélération maximal</translation>
     </message>
     <message>
-        <source>Sets a cap on how fast openpilot can accelerate.</source>
-        <translation type="gpt-4o-generated">Définit une limite à la vitesse à laquelle openpilot peut accélérer.</translation>
-    </message>
-    <message>
-        <source>'Taco Bell Run' Turn Speed Hack</source>
-        <translation type="gpt-4o-generated">'Hack de vitesse de virage Taco Bell Run'</translation>
-    </message>
-    <message>
-        <source>Enable comma's speed hack they used to help handle left and right turns more precisely during their 2022 'Taco Bell' drive by reducing the maximum allowed speed and acceleration while turning.</source>
-        <translation type="gpt-4o-generated">Activer le hack de vitesse de comma, utilisé pour aider à gérer les virages à gauche et à droite de manière plus précise lors de leur trajet 'Taco Bell' en 2022, en réduisant la vitesse et l'accélération maximales autorisées en virage.</translation>
-    </message>
-    <message>
-        <source>Cruise Increase</source>
-        <translation type="gpt-4o-generated">Augmenter la vitesse de croisière</translation>
-    </message>
-    <message>
-        <source>Controls the interval used when increasing the cruise control speed.</source>
-        <translation type="gpt-4o-generated">Contrôle l'intervalle utilisé lors de l'augmentation de la vitesse du régulateur de vitesse.</translation>
-    </message>
-    <message>
-        <source>Cruise Increase (Long Press)</source>
-        <translation type="gpt-4o-generated">Augmenter la vitesse de croisière (Appui long)</translation>
-    </message>
-    <message>
-        <source>Controls the interval used when increasing the cruise control speed while holding down the button for 0.5+ seconds.</source>
-        <translation type="gpt-4o-generated">Contrôle l'intervalle utilisé lors de l'augmentation de la vitesse du régulateur de vitesse en maintenant le bouton enfoncé pendant plus de 0,5 seconde.</translation>
-    </message>
-    <message>
         <source>Force Keep openpilot in the Standstill State</source>
         <translation type="gpt-4o-generated">Forcer openpilot à rester dans l'état d'arrêt complet</translation>
-    </message>
-    <message>
-        <source>Keeps openpilot in the 'standstill' state until the gas pedal or 'resume' button is pressed.</source>
-        <translation type="gpt-4o-generated">Maintient openpilot dans l'état 'immobilisé' jusqu'à ce que la pédale d'accélérateur ou le bouton 'reprendre' soit pressé.</translation>
-    </message>
-    <message>
-        <source>Force Stop for 'Detected' Stop Lights/Signs</source>
-        <translation type="gpt-4o-generated">Arrêt forcé pour feux/panneaux d'arrêt 'détectés'.</translation>
-    </message>
-    <message>
-        <source>Forces a stop whenever openpilot 'detects' a potential red light/stop sign to prevent it from running the red light/stop sign.</source>
-        <translation type="gpt-4o-generated">Forcer un arrêt chaque fois qu'openpilot "détecte" un feu rouge/panneau d'arrêt potentiel pour éviter de le dépasser.</translation>
     </message>
     <message>
         <source>Set Speed Offset</source>
         <translation type="gpt-4o-generated">Définir le décalage de vitesse</translation>
     </message>
     <message>
-        <source>Controls how much higher or lower the set speed should be compared to your current set speed. For example, if you prefer to drive 5 mph above the speed limit, this setting will automatically add that difference when you adjust your set speed.</source>
-        <translation type="gpt-4o-generated">Contrôle de combien plus ou moins la vitesse définie doit être par rapport à votre vitesse actuelle. Par exemple, si vous préférez conduire 5 mph au-dessus de la limite de vitesse, ce paramètre ajoutera automatiquement cette différence lorsque vous ajustez votre vitesse définie.</translation>
-    </message>
-    <message>
-        <source>Maps the acceleration and deceleration profiles to your car's 'Eco' or 'Sport' gear modes.</source>
-        <translation type="gpt-4o-generated">Configure les profils d'accélération et de décélération en fonction des modes de conduite 'Éco' ou 'Sport' de votre voiture.</translation>
-    </message>
-    <message>
-        <source>Reverses the long press cruise increase feature to increase the max speed by 5 mph instead of 1 on short presses.</source>
-        <translation type="gpt-4o-generated">Inverse la fonction d'augmentation prolongée du régulateur de vitesse pour augmenter la vitesse maximale de 5 mph au lieu de 1 lors des pressions courtes.</translation>
-    </message>
-    <message>
-        <source>Automatically adjust your max speed to match the speed limit using downloaded 'Open Street Maps' data, 'Navigate on openpilot', or your car's dashboard (Toyota/Lexus/HKG only).</source>
-        <translation type="gpt-4o-generated">Ajustez automatiquement votre vitesse maximale pour correspondre à la limitation de vitesse en utilisant les données téléchargées de 'Open Street Maps', 'Navigate on openpilot', ou le tableau de bord de votre voiture (Toyota/Lexus/HKG uniquement).</translation>
-    </message>
-    <message>
-        <source>Controls what happens when no speed limit data is available.</source>
-        <translation type="gpt-4o-generated">Contrôle ce qui se passe lorsque aucune donnée de limite de vitesse n'est disponible.</translation>
-    </message>
-    <message>
-        <source>Controls how the current speed limit is overriden.
-
-</source>
-        <translation type="gpt-4o-generated">Contrôle la façon dont la limite de vitesse actuelle est remplacée.</translation>
-    </message>
-    <message>
-        <source>Enables manual confirmations before using a new speed limit.</source>
-        <translation type="gpt-4o-generated">Active les confirmations manuelles avant d'utiliser une nouvelle limitation de vitesse.</translation>
-    </message>
-    <message>
-        <source>Forces speed limit readings from the dashboard to MPH if it normally displays them in KPH.</source>
-        <translation type="gpt-4o-generated">Force les lectures de la limite de vitesse du tableau de bord à MPH si elles sont normalement affichées en KPH.</translation>
-    </message>
-    <message>
-        <source>Sets a lookahead value to prepare for upcoming higher speed limits when using downloaded map data.</source>
-        <translation type="gpt-4o-generated">Définit une valeur d'anticipation pour se préparer aux limites de vitesse plus élevées à venir lors de l'utilisation des données cartographiques téléchargées.</translation>
-    </message>
-    <message>
-        <source>Sets a lookahead value to prepare for upcoming lower speed limits when using downloaded map data.</source>
-        <translation type="gpt-4o-generated">Définit une valeur d'anticipation pour se préparer aux limitations de vitesse inférieures à venir lors de l'utilisation de données cartographiques téléchargées.</translation>
-    </message>
-    <message>
-        <source>Sets your max speed to match the current speed limit when enabling openpilot.</source>
-        <translation type="gpt-4o-generated">Définit votre vitesse maximale pour correspondre à la limite de vitesse actuelle lors de l'activation d'openpilot.</translation>
-    </message>
-    <message>
-        <source>Speed Limit Source Priority Order</source>
-        <translation type="gpt-4o-generated">Ordre de priorité des sources de limitation de vitesse</translation>
-    </message>
-    <message>
-        <source>Sets the order of priority for speed limit data sources.</source>
-        <translation type="gpt-4o-generated">Définit l'ordre de priorité des sources de données de limitation de vitesse.</translation>
-    </message>
-    <message>
-        <source>Set speed limit offsets to drive over the posted speed limit.</source>
-        <translation type="gpt-4o-generated">Définir les décalages de limite de vitesse pour dépasser la vitesse limite affichée.</translation>
-    </message>
-    <message>
-        <source>Sets the speed limit offset for speeds between 0 and 34 mph.</source>
-        <translation type="gpt-4o-generated">Définit la marge de dépassement de la limite de vitesse pour des vitesses entre 0 et 34 mph.</translation>
-    </message>
-    <message>
-        <source>Sets the speed limit offset for speeds between 35 and 54 mph.</source>
-        <translation type="gpt-4o-generated">Définit l'écart de limite de vitesse pour des vitesses entre 35 et 54 mph.</translation>
-    </message>
-    <message>
-        <source>Sets the speed limit offset for speeds between 55 and 64 mph.</source>
-        <translation type="gpt-4o-generated">Définit le décalage de la limite de vitesse pour les vitesses comprises entre 55 et 64 mph.</translation>
-    </message>
-    <message>
-        <source>Sets the speed limit offset for speeds between 65 and 99 mph.</source>
-        <translation type="gpt-4o-generated">Définit l'écart de limite de vitesse pour des vitesses entre 65 et 99 mph.</translation>
-    </message>
-    <message>
-        <source>Visuals</source>
-        <translation type="gpt-4o-generated">Visuels</translation>
-    </message>
-    <message>
-        <source>Visual 'Speed Limit Controller' features to improve your overall openpilot experience.</source>
-        <translation type="gpt-4o-generated">Fonctionnalités 'Contrôleur de Vitesse Visuel' pour améliorer votre expérience globale avec openpilot.</translation>
-    </message>
-    <message>
-        <source>Displays the speed limit offset separately in the onroad UI when using 'Speed Limit Controller'.</source>
-        <translation type="gpt-4o-generated">Affiche le décalage de la limitation de vitesse séparément dans l'interface utilisateur sur la route lors de l'utilisation du 'Contrôleur de Limitation de Vitesse'.</translation>
-    </message>
-    <message>
         <source>Show Speed Limit Sources</source>
-        <translation type="gpt-4o-generated">Afficher les sources des limites de vitesse</translation>
-    </message>
-    <message>
-        <source>Displays the speed limit sources in the onroad UI when using 'Speed Limit Controller'.</source>
-        <translation type="gpt-4o-generated">Affiche les sources de limitation de vitesse dans l'interface utilisateur sur la route lors de l'utilisation du 'Contrôleur de Limite de Vitesse'.</translation>
+        <translation type="gpt-4o-generated">Afficher les sources des limitations de vitesse</translation>
     </message>
     <message>
         <source>RESET</source>
         <translation type="gpt-4o-generated">RÉINITIALISER</translation>
     </message>
     <message>
-        <source>The 'Map Based' option is only available when some 'Map Data' has been downloaded!</source>
-        <translation type="gpt-4o-generated">L'option 'Basé sur la carte' n'est disponible que lorsque certaines 'Données cartographiques' ont été téléchargées !</translation>
-    </message>
-    <message>
         <source>Set With Gas Pedal</source>
-        <translation type="gpt-4o-generated">Réglé avec la pédale d'accélérateur</translation>
+        <translation type="gpt-4o-generated">Régler avec la pédale d'accélérateur</translation>
     </message>
     <message>
         <source>Max Set Speed</source>
@@ -1854,38 +1360,6 @@ Cela remplace le 'Mode Expérimental Conditionnel'.</translation>
     <message>
         <source>Map Data</source>
         <translation type="gpt-4o-generated">Données cartographiques</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to completely reset your settings for 'Traffic Mode'?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir réinitialiser complètement vos paramètres pour le « Mode Circulation » ?</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to completely reset your settings for the 'Aggressive' personality?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir réinitialiser complètement vos paramètres pour la personnalité 'Aggressive' ?</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to completely reset your settings for the 'Standard' personality?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir réinitialiser complètement vos paramètres pour la personnalité 'Standard' ?</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to completely reset your settings for the 'Relaxed' personality?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir réinitialiser complètement vos paramètres pour la personnalité 'Relaxée' ?</translation>
-    </message>
-    <message>
-        <source>Sets the speed limit offset for speeds between 0-34 mph.</source>
-        <translation type="gpt-4o-generated">Définit la marge de vitesse pour des vitesses comprises entre 0-34 mph.</translation>
-    </message>
-    <message>
-        <source>Sets the speed limit offset for speeds between 35-54 mph.</source>
-        <translation type="gpt-4o-generated">Définit le décalage de la limite de vitesse pour les vitesses comprises entre 35-54 mph.</translation>
-    </message>
-    <message>
-        <source>Sets the speed limit offset for speeds between 55-64 mph.</source>
-        <translation type="gpt-4o-generated">Définit la compensation de limite de vitesse pour les vitesses entre 55 et 64 mph.</translation>
-    </message>
-    <message>
-        <source>Sets the speed limit offset for speeds between 65-99 mph.</source>
-        <translation type="gpt-4o-generated">Définit le décalage de la limite de vitesse pour des vitesses comprises entre 65-99 mph.</translation>
     </message>
     <message>
         <source>Off</source>
@@ -1900,44 +1374,524 @@ Cela remplace le 'Mode Expérimental Conditionnel'.</translation>
         <translation type="gpt-4o-generated">Widget d'état</translation>
     </message>
     <message>
-        <source>Show the current status in the onroad UI.</source>
-        <translation type="gpt-4o-generated">Afficher l'état actuel dans l'interface utilisateur en conduite.</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (0-34 km/h)</source>
-        <translation type="gpt-4o-generated">Décalage de la Limite de Vitesse (0-34 km/h)</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (35-54 km/h)</source>
-        <translation type="gpt-4o-generated">Décalage de limite de vitesse (35-54 km/h)</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (55-64 km/h)</source>
-        <translation type="gpt-4o-generated">Décalage de la Limite de Vitesse (55-64 km/h)</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (65-99 km/h)</source>
-        <translation type="gpt-4o-generated">Décalage de Limite de Vitesse (65-99 km/h)</translation>
-    </message>
-    <message>
-        <source>Sets the speed limit offset for speeds between 0-34 km/h.</source>
-        <translation type="gpt-4o-generated">Définit l'écart de limitation de vitesse pour les vitesses comprises entre 0 et 34 km/h.</translation>
-    </message>
-    <message>
-        <source>Sets the speed limit offset for speeds between 35-54 km/h.</source>
-        <translation type="gpt-4o-generated">Définit la marge de vitesse pour les vitesses comprises entre 35 et 54 km/h.</translation>
-    </message>
-    <message>
-        <source>Sets the speed limit offset for speeds between 55-64 km/h.</source>
-        <translation type="gpt-4o-generated">Définit la marge de vitesse pour des vitesses comprises entre 55 et 64 km/h.</translation>
-    </message>
-    <message>
-        <source>Sets the speed limit offset for speeds between 65-99 km/h.</source>
-        <translation type="gpt-4o-generated">Définit la marge de vitesse pour des vitesses entre 65-99 km/h.</translation>
-    </message>
-    <message>
         <source>km/h</source>
         <translation type="gpt-4o-generated">km/h</translation>
+    </message>
+    <message>
+        <source>Automatically switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when set conditions are met.</source>
+        <translation type="gpt-4o-generated">Passer automatiquement en &lt;b&gt;mode expérimental&lt;/b&gt; lorsque les conditions définies sont remplies.</translation>
+    </message>
+    <message>
+        <source>Switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when driving below this speed.</source>
+        <translation type="gpt-4o-generated">Passer en &lt;b&gt;mode expérimental&lt;/b&gt; lorsque vous roulez en dessous de cette vitesse.</translation>
+    </message>
+    <message>
+        <source>Switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when a curve is detected ahead. Useful for letting the model choose the appropriate speed for the curve.</source>
+        <translation type="gpt-4o-generated">Passez en &lt;b&gt;Mode Expérimental&lt;/b&gt; lorsqu'une courbe est détectée devant. Utile pour laisser le modèle choisir la vitesse appropriée pour la courbe.</translation>
+    </message>
+    <message>
+        <source>Switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when a slower or stopped vehicle is detected ahead. Can improve braking smoothness and reliability on some vehicles.</source>
+        <translation type="gpt-4o-generated">Passer en &lt;b&gt;Mode Expérimental&lt;/b&gt; lorsqu'un véhicule plus lent ou à l'arrêt est détecté devant. Peut améliorer la fluidité et la fiabilité du freinage sur certains véhicules.</translation>
+    </message>
+    <message>
+        <source>Switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when approaching intersections or turns on the active route while using &lt;b&gt;Navigate on openpilot (NOO)&lt;/b&gt;. Useful for letting the model choose the appropriate speed for upcoming navigation maneuvers.</source>
+        <translation type="gpt-4o-generated">Passez en &lt;b&gt;Mode Expérimental&lt;/b&gt; lorsque vous approchez des intersections ou des virages sur l'itinéraire actif en utilisant &lt;b&gt;Navigate on openpilot (NOO)&lt;/b&gt;. Utile pour laisser le modèle choisir la vitesse appropriée pour les manœuvres de navigation à venir.</translation>
+    </message>
+    <message>
+        <source>Switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when openpilot wants to stop within the set amount of time. This is typically triggered by the driving model "detecting" a red light or stop sign.</source>
+        <translation type="gpt-4o-generated">Passez en &lt;b&gt;Mode Expérimental&lt;/b&gt; lorsque openpilot souhaite s'arrêter dans le temps imparti. Cela est généralement déclenché par le modèle de conduite qui "détecte" un feu rouge ou un panneau stop.</translation>
+    </message>
+    <message>
+        <source>Switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when using a turn signal below the set speed. Useful for letting the model choose the appropriate speed for upcoming left or right turns.</source>
+        <translation type="gpt-4o-generated">Passez en &lt;b&gt;Mode Expérimental&lt;/b&gt; lorsque vous utilisez un clignotant en dessous de la vitesse définie. Utile pour laisser le modèle choisir la vitesse appropriée pour les virages à gauche ou à droite à venir.</translation>
+    </message>
+    <message>
+        <source>Show the &lt;b&gt;Conditional Experimental Mode&lt;/b&gt; status on the driving screen.</source>
+        <translation type="gpt-4o-generated">Afficher l'état du &lt;b&gt;Mode Expérimental Conditionnel&lt;/b&gt; sur l'écran de conduite.</translation>
+    </message>
+    <message>
+        <source>Automatically slow down for upcoming curves using downloaded maps or the driving model.</source>
+        <translation type="gpt-4o-generated">Ralentir automatiquement pour les virages à venir en utilisant des cartes téléchargées ou le modèle de conduite.</translation>
+    </message>
+    <message>
+        <source>How curves are detected. &lt;b&gt;Map-Based&lt;/b&gt; uses downloaded map data to identify curves and determine the appropriate speed in which to handle them at, while &lt;b&gt;Vision&lt;/b&gt; relies solely on the driving model.</source>
+        <translation type="gpt-4o-generated">Comment les virages sont détectés. &lt;b&gt;Basé sur la carte&lt;/b&gt; utilise des données cartographiques téléchargées pour identifier les virages et déterminer la vitesse appropriée pour les aborder, tandis que &lt;b&gt;Vision&lt;/b&gt; repose uniquement sur le modèle de conduite.</translation>
+    </message>
+    <message>
+        <source>Only trigger &lt;b&gt;Curve Speed Control&lt;/b&gt; if a curve is detected with the model while using the &lt;b&gt;Map-Based&lt;/b&gt; method. Useful to help prevent false positives.</source>
+        <translation type="gpt-4o-generated">Déclencher &lt;b&gt;le contrôle de vitesse en courbe&lt;/b&gt; uniquement si une courbe est détectée par le modèle lors de l'utilisation de la méthode &lt;b&gt;basée sur la carte&lt;/b&gt;. Utile pour aider à prévenir les faux positifs.</translation>
+    </message>
+    <message>
+        <source>How sensitive openpilot is when detecting curves. Higher values trigger earlier responses at the risk of triggering too often, while lower values increase confidence at the risk of triggering too infrequently.</source>
+        <translation type="gpt-4o-generated">Sensibilité d'openpilot lors de la détection des courbes. Des valeurs plus élevées déclenchent des réponses plus précoces au risque de déclenchements trop fréquents, tandis que des valeurs plus basses augmentent la confiance au risque de déclenchements trop rares.</translation>
+    </message>
+    <message>
+        <source>Curve Speed Aggressiveness</source>
+        <translation type="gpt-4o-generated">Agressivité de la vitesse en virage</translation>
+    </message>
+    <message>
+        <source>How aggressive openpilot is when navigating through curves. Higher values result in faster turns but may reduce comfort or stability, while lower values result in slower, smoother turns at the risk of being overly cautious.</source>
+        <translation type="gpt-4o-generated">Niveau d'agressivité d'openpilot lors de la navigation dans les courbes. Des valeurs plus élevées entraînent des virages plus rapides mais peuvent réduire le confort ou la stabilité, tandis que des valeurs plus basses entraînent des virages plus lents et plus fluides, au risque d'être excessivement prudent.</translation>
+    </message>
+    <message>
+        <source>Show &lt;b&gt;Curve Speed Control&lt;/b&gt;'s desired speed on the driving screen.</source>
+        <translation type="gpt-4o-generated">Afficher la vitesse souhaitée du &lt;b&gt;Contrôle de Vitesse en Courbe&lt;/b&gt; sur l'écran de conduite.</translation>
+    </message>
+    <message>
+        <source>Customize the personality profiles to your driving style.</source>
+        <translation type="gpt-4o-generated">Personnalisez les profils de personnalité selon votre style de conduite.</translation>
+    </message>
+    <message>
+        <source>Customize the &lt;b&gt;Traffic&lt;/b&gt; personality profile. Tailored for navigating through traffic.</source>
+        <translation type="gpt-4o-generated">Personnalisez le profil de personnalité &lt;b&gt;Traffic&lt;/b&gt;. Adapté pour naviguer dans la circulation.</translation>
+    </message>
+    <message>
+        <source>The minimum following distance while in &lt;b&gt;Traffic Mode&lt;/b&gt;. openpilot will dynamically adjust between this value and the value in the &lt;b&gt;Aggressive&lt;/b&gt; profile based on your current speed.</source>
+        <translation type="gpt-4o-generated">La distance de suivi minimale en &lt;b&gt;Mode Trafic&lt;/b&gt;. openpilot ajustera dynamiquement entre cette valeur et la valeur du profil &lt;b&gt;Agressif&lt;/b&gt; en fonction de votre vitesse actuelle.</translation>
+    </message>
+    <message>
+        <source>How sensitive openpilot is to changes in acceleration while in &lt;b&gt;Traffic Mode&lt;/b&gt;. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">Sensibilité d'openpilot aux changements d'accélération en mode &lt;b&gt;Trafic&lt;/b&gt;. Des valeurs plus élevées entraînent une accélération plus douce et plus progressive, tandis que des valeurs plus basses permettent des changements plus rapides et plus réactifs qui peuvent sembler brusques.</translation>
+    </message>
+    <message>
+        <source>How sensitive openpilot is to changes in deceleration while in &lt;b&gt;Traffic Mode&lt;/b&gt;. Higher values result in smoother, more gradual deceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">Sensibilité d'openpilot aux changements de décélération en &lt;b&gt;Mode Trafic&lt;/b&gt;. Des valeurs plus élevées entraînent une décélération plus douce et progressive, tandis que des valeurs plus basses permettent des changements plus rapides et réactifs qui peuvent sembler brusques.</translation>
+    </message>
+    <message>
+        <source>How cautious openpilot is around other vehicles or obstacles while in &lt;b&gt;Traffic Mode&lt;/b&gt;. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.</source>
+        <translation type="gpt-4o-generated">Le niveau de prudence d'openpilot vis-à-vis des autres véhicules ou obstacles en &lt;b&gt;Mode Trafic&lt;/b&gt;. Des valeurs plus élevées augmentent les distances de suivi et priorisent la sécurité, conduisant à une conduite plus prudente, tandis que des valeurs plus basses permettent un suivi plus rapproché mais peuvent réduire le temps de réaction.</translation>
+    </message>
+    <message>
+        <source>Speed Increase Response</source>
+        <translation type="gpt-4o-generated">Réponse à l'augmentation de la vitesse</translation>
+    </message>
+    <message>
+        <source>How quickly openpilot increases speed while in &lt;b&gt;Traffic Mode&lt;/b&gt;. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">La rapidité avec laquelle openpilot augmente la vitesse en &lt;b&gt;Mode Trafic&lt;/b&gt;. Des valeurs plus élevées garantissent des changements de vitesse plus fluides et progressifs lors de l'accélération, tandis que des valeurs plus basses permettent des changements plus rapides et réactifs qui peuvent sembler brusques.</translation>
+    </message>
+    <message>
+        <source>Speed Decrease Response</source>
+        <translation type="gpt-4o-generated">Réponse à la diminution de vitesse</translation>
+    </message>
+    <message>
+        <source>How quickly openpilot decreases speed while in &lt;b&gt;Traffic Mode&lt;/b&gt;. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">À quelle vitesse openpilot diminue la vitesse en &lt;b&gt;Mode Trafic&lt;/b&gt;. Des valeurs plus élevées garantissent des changements de vitesse plus doux et plus progressifs lors du ralentissement, tandis que des valeurs plus faibles permettent des changements plus rapides et réactifs qui peuvent sembler brusques.</translation>
+    </message>
+    <message>
+        <source>Reset &lt;b&gt;Traffic Mode&lt;/b&gt; settings to default values.</source>
+        <translation type="gpt-4o-generated">Réinitialiser les paramètres du &lt;b&gt;Mode Circulation&lt;/b&gt; aux valeurs par défaut.</translation>
+    </message>
+    <message>
+        <source>Customize the &lt;b&gt;Aggressive&lt;/b&gt; personality profile. Designed for a more assertive driving style.</source>
+        <translation type="gpt-4o-generated">Personnalisez le profil de personnalité &lt;b&gt;Agressif&lt;/b&gt;. Conçu pour un style de conduite plus affirmé.</translation>
+    </message>
+    <message>
+        <source>How many seconds openpilot will follow behind lead vehicles while using the &lt;b&gt;Aggressive&lt;/b&gt; personality profile.&lt;br&gt;&lt;br&gt;Default: 1.25 seconds.</source>
+        <translation type="gpt-4o-generated">Combien de secondes openpilot suivra-t-il derrière les véhicules de tête en utilisant le profil de personnalité &lt;b&gt;Agressif&lt;/b&gt;.&lt;br&gt;&lt;br&gt;Défaut : 1,25 secondes.</translation>
+    </message>
+    <message>
+        <source>How sensitive openpilot is to changes in acceleration while using the &lt;b&gt;Aggressive&lt;/b&gt; personality profile. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">Sensibilité d'openpilot aux changements d'accélération lors de l'utilisation du profil de personnalité &lt;b&gt;Agressif&lt;/b&gt;. Des valeurs plus élevées entraînent une accélération plus douce et progressive, tandis que des valeurs plus basses permettent des changements plus rapides et réactifs qui peuvent sembler brusques.</translation>
+    </message>
+    <message>
+        <source>How sensitive openpilot is to changes in deceleration while using the &lt;b&gt;Aggressive&lt;/b&gt; personality profile. Higher values result in smoother, more gradual deceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">Sensibilité d'openpilot aux changements de décélération lors de l'utilisation du profil de personnalité &lt;b&gt;Agressif&lt;/b&gt;. Des valeurs plus élevées entraînent une décélération plus douce et progressive, tandis que des valeurs plus faibles permettent des changements plus rapides et réactifs qui peuvent sembler brusques.</translation>
+    </message>
+    <message>
+        <source>How cautious openpilot is around other vehicles or obstacles while using the &lt;b&gt;Aggressive&lt;/b&gt; personality profile. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.</source>
+        <translation type="gpt-4o-generated">À quel point openpilot est prudent autour des autres véhicules ou obstacles lors de l'utilisation du profil de personnalité &lt;b&gt;Agressif&lt;/b&gt;. Des valeurs plus élevées augmentent les distances de suivi et privilégient la sécurité, ce qui conduit à une conduite plus prudente, tandis que des valeurs plus faibles permettent de suivre de plus près mais peuvent réduire le temps de réaction.</translation>
+    </message>
+    <message>
+        <source>How quickly openpilot increases speed while using the &lt;b&gt;Aggressive&lt;/b&gt; personality profile. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">À quelle vitesse openpilot augmente la vitesse lorsqu'il utilise le profil de personnalité &lt;b&gt;Agressif&lt;/b&gt;. Des valeurs plus élevées garantissent des changements de vitesse plus progressifs et plus fluides lors de l'accélération, tandis que des valeurs plus basses permettent des changements plus rapides et plus réactifs qui peuvent sembler brusques.</translation>
+    </message>
+    <message>
+        <source>How quickly openpilot decreases speed while using the &lt;b&gt;Aggressive&lt;/b&gt; personality profile. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">La rapidité avec laquelle openpilot réduit la vitesse lors de l'utilisation du profil de personnalité &lt;b&gt;Agressif&lt;/b&gt;. Des valeurs plus élevées assurent des changements de vitesse plus doux et progressifs lors du ralentissement, tandis que des valeurs plus basses permettent des changements plus rapides et réactifs qui peuvent sembler brusques.</translation>
+    </message>
+    <message>
+        <source>Reset the &lt;b&gt;Aggressive&lt;/b&gt; personality profile settings to default values.</source>
+        <translation type="gpt-4o-generated">Réinitialiser les paramètres du profil de personnalité &lt;b&gt;Agressif&lt;/b&gt; aux valeurs par défaut.</translation>
+    </message>
+    <message>
+        <source>Customize the &lt;b&gt;Standard&lt;/b&gt; personality profile. Designed for a balanced driving style.</source>
+        <translation type="gpt-4o-generated">Personnalisez le profil de personnalité &lt;b&gt;Standard&lt;/b&gt;. Conçu pour un style de conduite équilibré.</translation>
+    </message>
+    <message>
+        <source>How many seconds openpilot will follow behind lead vehicles while using the &lt;b&gt;Standard&lt;/b&gt; personality profile.&lt;br&gt;&lt;br&gt;Default: 1.45 seconds.</source>
+        <translation type="gpt-4o-generated">Combien de secondes openpilot suivra-t-il derrière les véhicules de tête en utilisant le profil de personnalité &lt;b&gt;Standard&lt;/b&gt;.&lt;br&gt;&lt;br&gt;Par défaut : 1,45 secondes.</translation>
+    </message>
+    <message>
+        <source>How sensitive openpilot is to changes in acceleration while using the &lt;b&gt;Standard&lt;/b&gt; personality profile. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">Sensibilité d'openpilot aux changements d'accélération lors de l'utilisation du profil de personnalité &lt;b&gt;Standard&lt;/b&gt;. Des valeurs plus élevées entraînent une accélération plus douce et plus graduelle, tandis que des valeurs plus basses permettent des changements plus rapides et plus réactifs qui peuvent sembler brusques.</translation>
+    </message>
+    <message>
+        <source>How sensitive openpilot is to changes in deceleration while using the &lt;b&gt;Standard&lt;/b&gt; personality profile. Higher values result in smoother, more gradual deceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">Sensibilité d'openpilot aux changements de décélération lors de l'utilisation du profil de personnalité &lt;b&gt;Standard&lt;/b&gt;. Des valeurs plus élevées se traduisent par une décélération plus douce et plus progressive, tandis que des valeurs plus basses permettent des changements plus rapides et réactifs qui peuvent sembler brusques.</translation>
+    </message>
+    <message>
+        <source>How cautious openpilot is around other vehicles or obstacles while using the &lt;b&gt;Standard&lt;/b&gt; personality profile. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.</source>
+        <translation type="gpt-4o-generated">À quel point openpilot est prudent autour des autres véhicules ou obstacles lors de l'utilisation du profil de personnalité &lt;b&gt;Standard&lt;/b&gt;. Des valeurs plus élevées augmentent les distances de suivi et priorisent la sécurité, ce qui conduit à une conduite plus prudente, tandis que des valeurs plus basses permettent un suivi plus rapproché mais peuvent réduire le temps de réaction.</translation>
+    </message>
+    <message>
+        <source>How quickly openpilot increases speed while using the &lt;b&gt;Standard&lt;/b&gt; personality profile. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">À quelle vitesse openpilot augmente la vitesse lorsqu'il utilise le profil de personnalité &lt;b&gt;Standard&lt;/b&gt;. Des valeurs plus élevées garantissent des changements de vitesse plus doux et plus progressifs lors de l'accélération, tandis que des valeurs plus basses permettent des changements plus rapides et réactifs qui peuvent sembler brusques.</translation>
+    </message>
+    <message>
+        <source>How quickly openpilot decreases speed while using the &lt;b&gt;Standard&lt;/b&gt; personality profile. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">La rapidité avec laquelle openpilot réduit la vitesse lors de l'utilisation du profil de personnalité &lt;b&gt;Standard&lt;/b&gt;. Des valeurs plus élevées garantissent des changements de vitesse plus fluides et progressifs lors du ralentissement, tandis que des valeurs plus basses permettent des changements plus rapides et réactifs qui peuvent sembler brusques.</translation>
+    </message>
+    <message>
+        <source>Reset the &lt;b&gt;Standard&lt;/b&gt; personality profile settings to default values.</source>
+        <translation type="gpt-4o-generated">Réinitialiser les paramètres du profil de personnalité &lt;b&gt;Standard&lt;/b&gt; aux valeurs par défaut.</translation>
+    </message>
+    <message>
+        <source>Customize the &lt;b&gt;Relaxed&lt;/b&gt; personality profile. Designed for a more laid-back driving style.</source>
+        <translation type="gpt-4o-generated">Personnalisez le profil de personnalité &lt;b&gt;Détendu&lt;/b&gt;. Conçu pour un style de conduite plus décontracté.</translation>
+    </message>
+    <message>
+        <source>How many seconds openpilot will follow behind lead vehicles while using the &lt;b&gt;Relaxed&lt;/b&gt; personality profile.&lt;br&gt;&lt;br&gt;Default: 1.75 seconds.</source>
+        <translation type="gpt-4o-generated">Combien de secondes openpilot suivra-t-il les véhicules de tête en utilisant le profil de personnalité &lt;b&gt;Relaxé&lt;/b&gt;.&lt;br&gt;&lt;br&gt;Par défaut : 1,75 secondes.</translation>
+    </message>
+    <message>
+        <source>How sensitive openpilot is to changes in acceleration while using the &lt;b&gt;Relaxed&lt;/b&gt; personality profile. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">Sensibilité d'openpilot aux changements d'accélération lors de l'utilisation du profil de personnalité &lt;b&gt;Relaxed&lt;/b&gt;. Des valeurs plus élevées entraînent une accélération plus douce et plus progressive, tandis que des valeurs plus basses permettent des changements plus rapides et plus réactifs qui peuvent sembler brusques.</translation>
+    </message>
+    <message>
+        <source>How sensitive openpilot is to changes in deceleration while using the &lt;b&gt;Relaxed&lt;/b&gt; personality profile. Higher values result in smoother, more gradual deceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">Sensibilité d'openpilot aux changements de décélération lors de l'utilisation du profil de personnalité &lt;b&gt;Relaxed&lt;/b&gt;. Des valeurs plus élevées entraînent une décélération plus douce et progressive, tandis que des valeurs plus basses permettent des changements plus rapides et réactifs qui peuvent sembler brusques.</translation>
+    </message>
+    <message>
+        <source>How cautious openpilot is around other vehicles or obstacles while using the &lt;b&gt;Relaxed&lt;/b&gt; personality profile. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.</source>
+        <translation type="gpt-4o-generated">Niveau de prudence d'openpilot autour des autres véhicules ou obstacles lors de l'utilisation du profil de personnalité &lt;b&gt;Relaxé&lt;/b&gt;. Des valeurs plus élevées augmentent les distances de suivi et privilégient la sécurité, entraînant une conduite plus prudente, tandis que des valeurs plus faibles permettent un suivi plus rapproché mais peuvent réduire le temps de réaction.</translation>
+    </message>
+    <message>
+        <source>How quickly openpilot increases speed while using the &lt;b&gt;Relaxed&lt;/b&gt; personality profile. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">À quelle vitesse openpilot augmente la vitesse en utilisant le profil de personnalité &lt;b&gt;Détendu&lt;/b&gt;. Des valeurs plus élevées assurent des changements de vitesse plus doux et progressifs lors de l'accélération, tandis que des valeurs plus faibles permettent des changements plus rapides et réactifs qui peuvent sembler brusques.</translation>
+    </message>
+    <message>
+        <source>How quickly openpilot decreases speed while using the &lt;b&gt;Relaxed&lt;/b&gt; personality profile. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">À quelle vitesse openpilot réduit la vitesse lors de l'utilisation du profil de personnalité &lt;b&gt;Relaxed&lt;/b&gt;. Des valeurs plus élevées garantissent des changements de vitesse plus fluides et plus progressifs lors du ralentissement, tandis que des valeurs plus basses permettent des changements plus rapides et plus réactifs qui peuvent sembler brusques.</translation>
+    </message>
+    <message>
+        <source>Reset the &lt;b&gt;Relaxed&lt;/b&gt; personality profile settings to default values.</source>
+        <translation type="gpt-4o-generated">Réinitialiser les paramètres du profil de personnalité &lt;b&gt;Relaxé&lt;/b&gt; aux valeurs par défaut.</translation>
+    </message>
+    <message>
+        <source>Enable either a sporty or eco-friendly acceleration profile. &lt;b&gt;Sport+&lt;/b&gt; aims to make openpilot accelerate as fast as possible!</source>
+        <translation type="gpt-4o-generated">Activez soit un profil d'accélération sportif, soit un profil écologique. &lt;b&gt;Sport+&lt;/b&gt; vise à faire accélérer openpilot aussi rapidement que possible !</translation>
+    </message>
+    <message>
+        <source>Enable either a sporty or eco-friendly deceleration profile.</source>
+        <translation type="gpt-4o-generated">Activez soit un profil de décélération sportif, soit un profil respectueux de l'environnement.</translation>
+    </message>
+    <message>
+        <source>Use the lead vehicle's acceleration rate when at a takeoff and ramp off the acceleration rate when approaching the maximum set speed for a more "human-like" driving experience.</source>
+        <translation type="gpt-4o-generated">Utilisez le taux d'accélération du véhicule de tête lors d'un départ et réduisez progressivement le taux d'accélération en approchant de la vitesse maximale définie pour une expérience de conduite plus "humaine".</translation>
+    </message>
+    <message>
+        <source>Dynamically adjust the desired following distance when approaching slower or stopped vehicles for a more "human-like" driving experience.</source>
+        <translation type="gpt-4o-generated">Ajustez dynamiquement la distance de suivi souhaitée lors de l'approche de véhicules plus lents ou arrêtés pour une expérience de conduite plus "humaine".</translation>
+    </message>
+    <message>
+        <source>How sensitive openpilot is to detecting vehicles ahead. A lower value can help detect vehicles sooner and from farther away, but increases the chance openpilot mistakes other objects for vehicles.</source>
+        <translation type="gpt-4o-generated">Sensibilité d'openpilot à détecter les véhicules devant. Une valeur plus basse peut aider à détecter les véhicules plus tôt et de plus loin, mais augmente le risque qu'openpilot confonde d'autres objets avec des véhicules.</translation>
+    </message>
+    <message>
+        <source>Set a cap on how fast openpilot can accelerate.</source>
+        <translation type="gpt-4o-generated">Définir une limite à la vitesse d'accélération d'openpilot.</translation>
+    </message>
+    <message>
+        <source>"Taco Bell Run" Turn Speed Hack</source>
+        <translation type="gpt-4o-generated">"Hack de Vitesse de Virage 'Taco Bell Run'"</translation>
+    </message>
+    <message>
+        <source>The turn speed hack from comma’s 2022 "Taco Bell Run" drive. Designed to slow down when taking left/right turns for smoother turns.</source>
+        <translation type="gpt-4o-generated">Le hack de vitesse en virage du trajet "Taco Bell Run" de comma en 2022. Conçu pour ralentir lors des virages à gauche/droite pour des virages plus fluides.</translation>
+    </message>
+    <message>
+        <source>Quality of Life</source>
+        <translation type="gpt-4o-generated">Qualité de vie</translation>
+    </message>
+    <message>
+        <source>Miscellaneous features to improve the acceleration and braking experience.</source>
+        <translation type="gpt-4o-generated">Fonctionnalités diverses pour améliorer l'expérience d'accélération et de freinage.</translation>
+    </message>
+    <message>
+        <source>Cruise Interval</source>
+        <translation type="gpt-4o-generated">Intervalle de régulateur de vitesse</translation>
+    </message>
+    <message>
+        <source>The interval used when changing the cruise control speed.</source>
+        <translation type="gpt-4o-generated">L'intervalle utilisé lors du changement de la vitesse du régulateur de vitesse.</translation>
+    </message>
+    <message>
+        <source>Cruise Interval (Long Press)</source>
+        <translation type="gpt-4o-generated">Intervalle de croisière (Appui long)</translation>
+    </message>
+    <message>
+        <source>The interval used when changing the cruise control speed while holding down the button for 0.5+ seconds.</source>
+        <translation type="gpt-4o-generated">L'intervalle utilisé lors du changement de la vitesse du régulateur de croisière en maintenant le bouton enfoncé pendant plus de 0,5 seconde.</translation>
+    </message>
+    <message>
+        <source>Keep openpilot in the standstill state until either the gas pedal or &lt;b&gt;resume&lt;/b&gt; button is pressed.</source>
+        <translation type="gpt-4o-generated">Gardez openpilot dans l'état d'arrêt jusqu'à ce que la pédale d'accélérateur ou le bouton &lt;b&gt;reprendre&lt;/b&gt; soit pressé.</translation>
+    </message>
+    <message>
+        <source>Force Stop for "Detected" Stop Lights/Signs</source>
+        <translation type="gpt-4o-generated">Arrêt forcé pour les feux/panneaux d'arrêt "détectés".</translation>
+    </message>
+    <message>
+        <source>Force a stop whenever openpilot &lt;b&gt;detects&lt;/b&gt; a potential red light/stop sign to prevent it from running the red light/stop sign.</source>
+        <translation type="gpt-4o-generated">Forcer un arrêt chaque fois qu'openpilot &lt;b&gt;détecte&lt;/b&gt; un feu rouge/stop potentiel afin d'éviter de passer le feu rouge/stop.</translation>
+    </message>
+    <message>
+        <source>Increase the distance openpilot stops behind vehicles.</source>
+        <translation type="gpt-4o-generated">Augmenter la distance à laquelle openpilot s'arrête derrière les véhicules.</translation>
+    </message>
+    <message>
+        <source>How much higher or lower the set speed should be compared to your current set speed. For example, if you prefer to drive 5 mph above the speed limit, this setting will automatically add that difference when you adjust your set speed.</source>
+        <translation type="gpt-4o-generated">De combien la vitesse de consigne doit-elle être supérieure ou inférieure par rapport à votre vitesse de consigne actuelle. Par exemple, si vous préférez rouler à 5 mph au-dessus de la limite de vitesse, ce réglage ajoutera automatiquement cette différence lorsque vous ajusterez votre vitesse de consigne.</translation>
+    </message>
+    <message>
+        <source>Map the acceleration and deceleration profiles to your car's &lt;b&gt;Eco&lt;/b&gt; or &lt;b&gt;Sport&lt;/b&gt; gear modes.</source>
+        <translation type="gpt-4o-generated">Mappez les profils d'accélération et de décélération aux modes de conduite &lt;b&gt;Éco&lt;/b&gt; ou &lt;b&gt;Sport&lt;/b&gt; de votre voiture.</translation>
+    </message>
+    <message>
+        <source>Reverse the &lt;b&gt;long press&lt;/b&gt; cruise increase feature to increase the max speed by 5 instead of 1 on short presses.</source>
+        <translation type="gpt-4o-generated">Inversez la fonctionnalité d'&lt;b&gt;appui long&lt;/b&gt; pour augmenter la vitesse de croisière afin d'augmenter la vitesse maximale de 5 au lieu de 1 lors des appuis courts.</translation>
+    </message>
+    <message>
+        <source>Limit openpilot's maximum driving speed based on data from downloaded maps, &lt;b&gt;Mapbox&lt;/b&gt;, &lt;b&gt;Navigate on openpilot&lt;/b&gt;, or the dashboard (supported vehicles: &lt;b&gt;Ford&lt;/b&gt;, &lt;b&gt;Genesis&lt;/b&gt;, &lt;b&gt;Hyundai&lt;/b&gt;, &lt;b&gt;Kia&lt;/b&gt;, &lt;b&gt;Lexus&lt;/b&gt;, &lt;b&gt;Toyota&lt;/b&gt;).</source>
+        <translation type="gpt-4o-generated">Limiter la vitesse de conduite maximale d'openpilot en fonction des données provenant des cartes téléchargées, &lt;b&gt;Mapbox&lt;/b&gt;, &lt;b&gt;Navigate on openpilot&lt;/b&gt;, ou le tableau de bord (véhicules pris en charge : &lt;b&gt;Ford&lt;/b&gt;, &lt;b&gt;Genesis&lt;/b&gt;, &lt;b&gt;Hyundai&lt;/b&gt;, &lt;b&gt;Kia&lt;/b&gt;, &lt;b&gt;Lexus&lt;/b&gt;, &lt;b&gt;Toyota&lt;/b&gt;).</translation>
+    </message>
+    <message>
+        <source>Fallback Speed</source>
+        <translation type="gpt-4o-generated">Vitesse de secours</translation>
+    </message>
+    <message>
+        <source>The speed limit source when no speed limit data is available.</source>
+        <translation type="gpt-4o-generated">La source de la limitation de vitesse lorsqu'aucune donnée de limitation de vitesse n'est disponible.</translation>
+    </message>
+    <message>
+        <source>Override Speed</source>
+        <translation type="gpt-4o-generated">Remplacer la vitesse</translation>
+    </message>
+    <message>
+        <source>The speed openpilot uses after manually exceeding the posted speed limit.&lt;br&gt;&lt;br&gt;&lt;b&gt;- Set With Gas Pedal&lt;/b&gt;: Uses the speed obtained while pressing the gas&lt;br&gt;&lt;b&gt;- Max Set Speed&lt;/b&gt;: Uses the cruise control set speed&lt;br&gt;&lt;br&gt;Overrides clear upon disengagement.</source>
+        <translation type="gpt-4o-generated">La vitesse qu'openpilot utilise après avoir dépassé manuellement la limite de vitesse affichée.&lt;br&gt;&lt;br&gt;&lt;b&gt;- Régler avec la pédale d'accélérateur&lt;/b&gt; : Utilise la vitesse obtenue en appuyant sur l'accélérateur&lt;br&gt;&lt;b&gt;- Vitesse maximale réglée&lt;/b&gt; : Utilise la vitesse définie par le régulateur de vitesse&lt;br&gt;&lt;br&gt;Les dérogations sont annulées lors de la désactivation.</translation>
+    </message>
+    <message>
+        <source>Miscellaneous features to improve the &lt;b&gt;Speed Limit Controller&lt;/b&gt; experience.</source>
+        <translation type="gpt-4o-generated">Fonctionnalités diverses pour améliorer l'expérience du &lt;b&gt;contrôleur de limitation de vitesse&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Require confirmation before applying new speed limits. To accept, use the flashing widget on the driving screen or press the &lt;b&gt;Cruise Increase&lt;/b&gt; button. To deny, press the &lt;b&gt;Cruise Decrease&lt;/b&gt; button or simply ignore the prompt for 30 seconds.</source>
+        <translation type="gpt-4o-generated">Exiger une confirmation avant d'appliquer de nouvelles limitations de vitesse. Pour accepter, utilisez le widget clignotant sur l'écran de conduite ou appuyez sur le bouton &lt;b&gt;Augmenter la vitesse de croisière&lt;/b&gt;. Pour refuser, appuyez sur le bouton &lt;b&gt;Diminuer la vitesse de croisière&lt;/b&gt; ou ignorez simplement la demande pendant 30 secondes.</translation>
+    </message>
+    <message>
+        <source>Force dashboard speed limit readings to be in mph.</source>
+        <translation type="gpt-4o-generated">Forcer les relevés de limitation de vitesse du tableau de bord à être en mph.</translation>
+    </message>
+    <message>
+        <source>Higher Limit Lookahead Time</source>
+        <translation type="gpt-4o-generated">Temps d'anticipation de la limite supérieure</translation>
+    </message>
+    <message>
+        <source>How far ahead openpilot anticipates upcoming higher speed limits from the downloaded map data.</source>
+        <translation type="gpt-4o-generated">Jusqu'où openpilot anticipe les limites de vitesse supérieures à venir à partir des données de carte téléchargées.</translation>
+    </message>
+    <message>
+        <source>Lower Limit Lookahead Time</source>
+        <translation type="gpt-4o-generated">Temps d'anticipation de la limite inférieure</translation>
+    </message>
+    <message>
+        <source>How far ahead openpilot anticipates upcoming lower speed limits from the downloaded map data.</source>
+        <translation type="gpt-4o-generated">Jusqu'où openpilot anticipe les limitations de vitesse inférieures à venir à partir des données de carte téléchargées.</translation>
+    </message>
+    <message>
+        <source>Match Speed Limit on Engage</source>
+        <translation type="gpt-4o-generated">Correspondre à la Limite de Vitesse lors de l'Engagement</translation>
+    </message>
+    <message>
+        <source>Automatically set cruise control speed to match the current speed limit when first enabling openpilot.</source>
+        <translation type="gpt-4o-generated">Régler automatiquement la vitesse du régulateur de croisière pour correspondre à la limite de vitesse actuelle lors de la première activation d'openpilot.</translation>
+    </message>
+    <message>
+        <source>Speed Limit Source Priority</source>
+        <translation type="gpt-4o-generated">Priorité de la source de limitation de vitesse</translation>
+    </message>
+    <message>
+        <source>Define the priority order for speed limit sources (&lt;b&gt;Dashboard&lt;/b&gt;, &lt;b&gt;Map Data&lt;/b&gt;, &lt;b&gt;Navigation&lt;/b&gt;). Higher-priority sources override lower ones when multiple limits are detected.</source>
+        <translation type="gpt-4o-generated">Définissez l'ordre de priorité pour les sources de limitation de vitesse (&lt;b&gt;Tableau de bord&lt;/b&gt;, &lt;b&gt;Données cartographiques&lt;/b&gt;, &lt;b&gt;Navigation&lt;/b&gt;). Les sources de priorité supérieure remplacent les sources de priorité inférieure lorsque plusieurs limitations sont détectées.</translation>
+    </message>
+    <message>
+        <source>Offsets relative to the posted speed limit for a more "human-like" driving experience.</source>
+        <translation type="gpt-4o-generated">Décalages par rapport à la limite de vitesse affichée pour une expérience de conduite plus "humaine".</translation>
+    </message>
+    <message>
+        <source>Speed Limit Offset (0–24 mph)</source>
+        <translation type="gpt-4o-generated">Décalage de la limite de vitesse (0–24 mph)</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 0 and 24 mph.</source>
+        <translation type="gpt-4o-generated">Décalage de vitesse cible appliqué pour les limites affichées entre 0 et 24 mph.</translation>
+    </message>
+    <message>
+        <source>Speed Limit Offset (25–34 mph)</source>
+        <translation type="gpt-4o-generated">Décalage de la limite de vitesse (25–34 mph)</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 25 and 34 mph.</source>
+        <translation type="gpt-4o-generated">Décalage de vitesse cible appliqué pour les limites affichées entre 25 et 34 mph.</translation>
+    </message>
+    <message>
+        <source>Speed Limit Offset (35–44 mph)</source>
+        <translation type="gpt-4o-generated">Décalage de la limite de vitesse (35–44 mph)</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 35 and 44 mph.</source>
+        <translation type="gpt-4o-generated">Décalage de vitesse cible appliqué pour les limitations affichées entre 35 et 44 mph.</translation>
+    </message>
+    <message>
+        <source>Speed Limit Offset (45–54 mph)</source>
+        <translation type="gpt-4o-generated">Décalage de la limite de vitesse (72–87 km/h)</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 45 and 54 mph.</source>
+        <translation type="gpt-4o-generated">Décalage de vitesse cible appliqué pour les limites affichées entre 45 et 54 mph.</translation>
+    </message>
+    <message>
+        <source>Speed Limit Offset (55–64 mph)</source>
+        <translation type="gpt-4o-generated">Décalage de la limite de vitesse (88–103 km/h)</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 55 and 64 mph.</source>
+        <translation type="gpt-4o-generated">Décalage de vitesse cible appliqué pour les limites affichées entre 55 et 64 mph.</translation>
+    </message>
+    <message>
+        <source>Speed Limit Offset (65–74 mph)</source>
+        <translation type="gpt-4o-generated">Décalage de limite de vitesse (65–74 mph)</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 65 and 74 mph.</source>
+        <translation type="gpt-4o-generated">Décalage de vitesse cible appliqué pour les limites affichées entre 65 et 74 mph.</translation>
+    </message>
+    <message>
+        <source>Speed Limit Offset (75–99 mph)</source>
+        <translation type="gpt-4o-generated">Décalage de la limite de vitesse (75–99 mph)</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 75 and 99 mph.</source>
+        <translation type="gpt-4o-generated">Décalage de vitesse cible appliqué pour les limites affichées entre 75 et 99 mph.</translation>
+    </message>
+    <message>
+        <source>Visual Settings</source>
+        <translation type="gpt-4o-generated">Paramètres visuels</translation>
+    </message>
+    <message>
+        <source>Visual features to improve the &lt;b&gt;Speed Limit Controller&lt;/b&gt; experience.</source>
+        <translation type="gpt-4o-generated">Fonctionnalités visuelles pour améliorer l'expérience du &lt;b&gt;contrôleur de limite de vitesse&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Display the speed limit offset separately on the driving screen.</source>
+        <translation type="gpt-4o-generated">Afficher le décalage de la limite de vitesse séparément sur l'écran de conduite.</translation>
+    </message>
+    <message>
+        <source>Display the speed limit sources on the driving screen.</source>
+        <translation type="gpt-4o-generated">Afficher les sources de limitation de vitesse sur l'écran de conduite.</translation>
+    </message>
+    <message>
+        <source>Switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when driving below this speed with a lead.</source>
+        <translation type="gpt-4o-generated">Passez en &lt;b&gt;Mode Expérimental&lt;/b&gt; lorsque vous conduisez en dessous de cette vitesse avec un véhicule précédant.</translation>
+    </message>
+    <message>
+        <source>The &lt;b&gt;Map Based&lt;/b&gt; option is only available when some &lt;b&gt;Map Data&lt;/b&gt; has been downloaded!</source>
+        <translation type="gpt-4o-generated">L'option &lt;b&gt;Basée sur la carte&lt;/b&gt; n'est disponible que lorsque certaines &lt;b&gt;Données cartographiques&lt;/b&gt; ont été téléchargées !</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset your settings for &lt;b&gt;Traffic Mode&lt;/b&gt;?</source>
+        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir réinitialiser complètement vos paramètres pour le &lt;b&gt;Mode Circulation&lt;/b&gt; ?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset your settings for the &lt;b&gt;Aggressive&lt;/b&gt; personality?</source>
+        <translation type="gpt-4o-generated">Voulez-vous vraiment réinitialiser complètement vos paramètres pour la personnalité &lt;b&gt;agressive&lt;/b&gt; ?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset your settings for the &lt;b&gt;Standard&lt;/b&gt; personality?</source>
+        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir réinitialiser complètement vos paramètres pour la personnalité &lt;b&gt;Standard&lt;/b&gt; ?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset your settings for the &lt;b&gt;Relaxed&lt;/b&gt; personality?</source>
+        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir réinitialiser complètement vos paramètres pour la personnalité &lt;b&gt;Relaxée&lt;/b&gt; ?</translation>
+    </message>
+    <message>
+        <source> foot</source>
+        <translation type="gpt-4o-generated">pied</translation>
+    </message>
+    <message>
+        <source> meter</source>
+        <translation type="gpt-4o-generated">mètre</translation>
+    </message>
+    <message>
+        <source>Speed Limit Offset (0–29 km/h)</source>
+        <translation type="gpt-4o-generated">Décalage de la limite de vitesse (0–29 km/h)</translation>
+    </message>
+    <message>
+        <source>Speed Limit Offset (30–49 km/h)</source>
+        <translation type="gpt-4o-generated">Décalage de la limite de vitesse (30–49 km/h)</translation>
+    </message>
+    <message>
+        <source>Speed Limit Offset (50–59 km/h)</source>
+        <translation type="gpt-4o-generated">Décalage de la limite de vitesse (50–59 km/h)</translation>
+    </message>
+    <message>
+        <source>Speed Limit Offset (60–79 km/h)</source>
+        <translation type="gpt-4o-generated">Décalage de la limite de vitesse (60–79 km/h)</translation>
+    </message>
+    <message>
+        <source>Speed Limit Offset (80–99 km/h)</source>
+        <translation type="gpt-4o-generated">Décalage de la limite de vitesse (80–99 km/h)</translation>
+    </message>
+    <message>
+        <source>Speed Limit Offset (100–119 km/h)</source>
+        <translation type="gpt-4o-generated">Décalage de la Limite de Vitesse (100–119 km/h)</translation>
+    </message>
+    <message>
+        <source>Speed Limit Offset (120–140 km/h)</source>
+        <translation type="gpt-4o-generated">Décalage de la limite de vitesse (120–140 km/h)</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 0 and 29 km/h.</source>
+        <translation type="gpt-4o-generated">Décalage de vitesse cible appliqué pour les limites affichées entre 0 et 29 km/h.</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 30 and 49 km/h.</source>
+        <translation type="gpt-4o-generated">Décalage de vitesse cible appliqué pour les limites affichées entre 30 et 49 km/h.</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 50 and 59 km/h.</source>
+        <translation type="gpt-4o-generated">Décalage de vitesse cible appliqué pour les limites affichées entre 50 et 59 km/h.</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 60 and 79 km/h.</source>
+        <translation type="gpt-4o-generated">Décalage de vitesse cible appliqué pour les limites affichées entre 60 et 79 km/h.</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 80 and 99 km/h.</source>
+        <translation type="gpt-4o-generated">Décalage de vitesse cible appliqué pour les limites affichées entre 80 et 99 km/h.</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 100 and 119 km/h.</source>
+        <translation type="gpt-4o-generated">Décalage de vitesse cible appliqué pour les limites affichées entre 100 et 119 km/h.</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 120 and 140 km/h.</source>
+        <translation type="gpt-4o-generated">Décalage de vitesse cible appliqué pour les limites affichées entre 120 et 140 km/h.</translation>
+    </message>
+    <message>
+        <source>Force MPH Readings from Dashboard</source>
+        <translation type="gpt-4o-generated">Forcer les lectures MPH depuis le tableau de bord</translation>
     </message>
 </context>
 <context>
@@ -1950,68 +1904,12 @@ Cela remplace le 'Mode Expérimental Conditionnel'.</translation>
 <context>
     <name>FrogPilotModelPanel</name>
     <message>
-        <source>Automatically Update and Download Models</source>
-        <translation type="gpt-4o-generated">Mettre à jour et télécharger automatiquement les modèles.</translation>
-    </message>
-    <message>
-        <source>Automatically downloads new models and updates existing ones if needed.</source>
-        <translation type="gpt-4o-generated">Télécharge automatiquement de nouveaux modèles et met à jour les modèles existants si nécessaire.</translation>
-    </message>
-    <message>
         <source>Model Randomizer</source>
-        <translation type="gpt-4o-generated">Générateur de modèles aléatoires</translation>
-    </message>
-    <message>
-        <source>Randomly selects a model each drive and brings up a model review prompt at the end to help find your preferred model.</source>
-        <translation type="gpt-4o-generated">Sélectionne un modèle au hasard à chaque trajet et affiche une invite de révision du modèle à la fin pour vous aider à trouver votre modèle préféré.</translation>
+        <translation type="gpt-4o-generated">Aléatoire de Modèle</translation>
     </message>
     <message>
         <source>Manage Model Blacklist</source>
         <translation type="gpt-4o-generated">Gérer la liste noire des modèles</translation>
-    </message>
-    <message>
-        <source>Manage the blacklisted models that aren't being used with 'Model Randomizer'.</source>
-        <translation type="gpt-4o-generated">Gérer les modèles sur liste noire qui ne sont pas utilisés avec 'Model Randomizer'.</translation>
-    </message>
-    <message>
-        <source>Reset Model Scores</source>
-        <translation type="gpt-4o-generated">Réinitialiser les scores du modèle</translation>
-    </message>
-    <message>
-        <source>Clear the ratings you've given to the driving models.</source>
-        <translation type="gpt-4o-generated">Effacer les évaluations que vous avez attribuées aux modèles de conduite.</translation>
-    </message>
-    <message>
-        <source>Review Model Scores</source>
-        <translation type="gpt-4o-generated">Examiner les scores du modèle</translation>
-    </message>
-    <message>
-        <source>View the ratings you've assigned to the driving models.</source>
-        <translation type="gpt-4o-generated">Consulter les évaluations que vous avez attribuées aux modèles de conduite.</translation>
-    </message>
-    <message>
-        <source>Delete Model</source>
-        <translation type="gpt-4o-generated">Supprimer le modèle</translation>
-    </message>
-    <message>
-        <source>Delete driving models from your device.</source>
-        <translation type="gpt-4o-generated">Supprimer les modèles de conduite de votre appareil.</translation>
-    </message>
-    <message>
-        <source>Download Model</source>
-        <translation type="gpt-4o-generated">Télécharger le modèle</translation>
-    </message>
-    <message>
-        <source>Download new driving models.</source>
-        <translation type="gpt-4o-generated">Télécharger de nouveaux modèles de conduite.</translation>
-    </message>
-    <message>
-        <source>Select Model</source>
-        <translation type="gpt-4o-generated">Sélectionner le modèle</translation>
-    </message>
-    <message>
-        <source>Select your preferred driving model.</source>
-        <translation type="gpt-4o-generated">Sélectionnez votre modèle de conduite préféré.</translation>
     </message>
     <message>
         <source>ADD</source>
@@ -2031,11 +1929,7 @@ Cela remplace le 'Mode Expérimental Conditionnel'.</translation>
     </message>
     <message>
         <source>Select a model to add to the blacklist</source>
-        <translation type="gpt-4o-generated">Sélectionnez un modèle à ajouter à la liste noire</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to add the '%1' model to the blacklist?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir ajouter le modèle '%1' à la liste noire ?</translation>
+        <translation type="gpt-4o-generated">Sélectionnez un modèle à ajouter à la liste noire.</translation>
     </message>
     <message>
         <source>Add</source>
@@ -2043,11 +1937,7 @@ Cela remplace le 'Mode Expérimental Conditionnel'.</translation>
     </message>
     <message>
         <source>Select a model to remove from the blacklist</source>
-        <translation type="gpt-4o-generated">Sélectionnez un modèle à retirer de la liste noire</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to remove the '%1' model from the blacklist?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer le modèle '%1' de la liste noire ?</translation>
+        <translation type="gpt-4o-generated">Sélectionnez un modèle à retirer de la liste noire.</translation>
     </message>
     <message>
         <source>Remove</source>
@@ -2055,7 +1945,7 @@ Cela remplace le 'Mode Expérimental Conditionnel'.</translation>
     </message>
     <message>
         <source>Are you sure you want to remove all of your blacklisted models?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer tous vos modèles mis sur liste noire ?</translation>
+        <translation type="gpt-4o-generated">Voulez-vous vraiment supprimer tous vos modèles sur liste noire ?</translation>
     </message>
     <message>
         <source>RESET</source>
@@ -2064,10 +1954,6 @@ Cela remplace le 'Mode Expérimental Conditionnel'.</translation>
     <message>
         <source>Are you sure you want to reset all of your model drives and scores?</source>
         <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir réinitialiser tous vos trajets modèles et scores ?</translation>
-    </message>
-    <message>
-        <source>REVIEW</source>
-        <translation type="gpt-4o-generated">ÉVALUER</translation>
     </message>
     <message>
         <source>DELETE</source>
@@ -2080,10 +1966,6 @@ Cela remplace le 'Mode Expérimental Conditionnel'.</translation>
     <message>
         <source>Select a driving model to delete</source>
         <translation type="gpt-4o-generated">Sélectionnez un modèle de conduite à supprimer.</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to delete the '%1' model?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer le modèle « %1 » ?</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -2103,7 +1985,7 @@ Cela remplace le 'Mode Expérimental Conditionnel'.</translation>
     </message>
     <message>
         <source>Select a driving model to download</source>
-        <translation type="gpt-4o-generated">Sélectionnez un modèle de conduite à télécharger</translation>
+        <translation type="gpt-4o-generated">Sélectionner un modèle de conduite à télécharger.</translation>
     </message>
     <message>
         <source>SELECT</source>
@@ -2111,15 +1993,79 @@ Cela remplace le 'Mode Expérimental Conditionnel'.</translation>
     </message>
     <message>
         <source>Select a model - 🗺️ = Navigation | 📡 = Radar | 👀 = VOACC</source>
-        <translation type="gpt-4o-generated">Sélectionnez un modèle - 🗺️ = Navigation | 📡 = Radar | 👀 = VOACC</translation>
-    </message>
-    <message>
-        <source>The 'Model Randomizer' only works with downloaded models. Do you want to download all the driving models?</source>
-        <translation type="gpt-4o-generated">Le 'Randomiseur de Modèles' ne fonctionne qu'avec des modèles téléchargés. Voulez-vous télécharger tous les modèles de conduite ?</translation>
+        <translation type="gpt-4o-generated">Sélectionner un modèle - 🗺️ = Navigation | 📡 = Radar | 👀 = VOACC</translation>
     </message>
     <message>
         <source>CANCEL</source>
         <translation type="gpt-4o-generated">ANNULER</translation>
+    </message>
+    <message>
+        <source>Automatically Download New Models</source>
+        <translation type="gpt-4o-generated">Télécharger automatiquement de nouveaux modèles</translation>
+    </message>
+    <message>
+        <source>Delete Driving Models</source>
+        <translation type="gpt-4o-generated">Supprimer les modèles de conduite</translation>
+    </message>
+    <message>
+        <source>Download Driving Models</source>
+        <translation type="gpt-4o-generated">Télécharger les modèles de conduite</translation>
+    </message>
+    <message>
+        <source>Manage Model Ratings</source>
+        <translation type="gpt-4o-generated">Gérer les évaluations des modèles</translation>
+    </message>
+    <message>
+        <source>Select Driving Model</source>
+        <translation type="gpt-4o-generated">Sélectionner le modèle de conduite</translation>
+    </message>
+    <message>
+        <source>Select the active driving model.</source>
+        <translation type="gpt-4o-generated">Sélectionnez le modèle de conduite actif.</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete the "%1" model?</source>
+        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer le modèle « %1 » ?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to add the "%1" model to the blacklist?</source>
+        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir ajouter le modèle "%1" à la liste noire ?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove the "%1" model from the blacklist?</source>
+        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer le modèle "%1" de la liste noire ?</translation>
+    </message>
+    <message>
+        <source>VIEW</source>
+        <translation type="gpt-4o-generated">AFFICHER</translation>
+    </message>
+    <message>
+        <source>The "Model Randomizer" only works with downloaded models. Do you want to download all the driving models?</source>
+        <translation type="gpt-4o-generated">Le "Modèle Aléatoire" ne fonctionne qu'avec des modèles téléchargés. Voulez-vous télécharger tous les modèles de conduite ?</translation>
+    </message>
+    <message>
+        <source>Automatically download new driving models as they become available.</source>
+        <translation type="gpt-4o-generated">Télécharger automatiquement les nouveaux modèles de conduite dès qu'ils sont disponibles.</translation>
+    </message>
+    <message>
+        <source>Delete driving models from the device.</source>
+        <translation type="gpt-4o-generated">Supprimer les modèles de conduite de l'appareil.</translation>
+    </message>
+    <message>
+        <source>Download driving models to the device.</source>
+        <translation type="gpt-4o-generated">Télécharger les modèles de conduite sur l'appareil.</translation>
+    </message>
+    <message>
+        <source>Driving models are chosen at random each drive and feedback prompts are used to find the model that best suits your needs.</source>
+        <translation type="gpt-4o-generated">Les modèles de conduite sont choisis au hasard à chaque trajet et des invites de retour d'information sont utilisées pour trouver le modèle qui correspond le mieux à vos besoins.</translation>
+    </message>
+    <message>
+        <source>Add or remove models from the &lt;b&gt;Model Randomizer&lt;/b&gt;'s blacklist list.</source>
+        <translation type="gpt-4o-generated">Ajouter ou supprimer des modèles de la liste noire du &lt;b&gt;Générateur de Modèles Aléatoires&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Reset or view the saved ratings for the driving models.</source>
+        <translation type="gpt-4o-generated">Réinitialiser ou afficher les évaluations enregistrées pour les modèles de conduite.</translation>
     </message>
 </context>
 <context>
@@ -2182,27 +2128,11 @@ Cela remplace le 'Mode Expérimental Conditionnel'.</translation>
     </message>
     <message>
         <source>MAP DATA</source>
-        <translation type="gpt-4o-generated">Données cartographiques</translation>
+        <translation type="gpt-4o-generated">DONNÉES CARTOGRAPHIQUES</translation>
     </message>
     <message>
         <source>DEVICE CONTROLS</source>
         <translation type="gpt-4o-generated">COMMANDES DE L'APPAREIL</translation>
-    </message>
-    <message>
-        <source>Manage FrogPilot's alerts and sounds.</source>
-        <translation type="gpt-4o-generated">Gérer les alertes et les sons de FrogPilot.</translation>
-    </message>
-    <message>
-        <source>Manage FrogPilot's features that affect acceleration, braking, and steering.</source>
-        <translation type="gpt-4o-generated">Gérez les fonctionnalités de FrogPilot qui influencent l'accélération, le freinage et la direction.</translation>
-    </message>
-    <message>
-        <source>Manage openpilot's theme and onroad widgets.</source>
-        <translation type="gpt-4o-generated">Gérer le thème d'openpilot et les widgets en conduite.</translation>
-    </message>
-    <message>
-        <source>Manage vehicle-specific settings.</source>
-        <translation type="gpt-4o-generated">Gérer les paramètres spécifiques au véhicule.</translation>
     </message>
     <message>
         <source>Minimal</source>
@@ -2225,50 +2155,66 @@ Cela remplace le 'Mode Expérimental Conditionnel'.</translation>
         <translation type="gpt-4o-generated">Niveau de réglage</translation>
     </message>
     <message>
-        <source>Select a tuning level that suits your preferences:
-
-Minimal - Ideal for those who prefer simplicity or ease of use
-Standard - Recommended for most users for a balanced experience
-Advanced - Unlocks fine-tuning controls for more experienced users
-Developer - Unlocks highly customizable settings for seasoned enthusiasts</source>
-        <translation type="gpt-4o-generated">'Sélectionnez un niveau de réglage qui correspond à vos préférences :
-
-Minimal - Idéal pour ceux qui préfèrent la simplicité ou la facilité d'utilisation
-Standard - Recommandé pour la plupart des utilisateurs pour une expérience équilibrée
-Avancé - Débloque des contrôles de réglage fin pour les utilisateurs plus expérimentés
-Développeur - Débloque des paramètres hautement personnalisables pour les passionnés aguerris'</translation>
-    </message>
-    <message>
         <source>WARNING: This unlocks some potentially dangerous settings that can DRASTICALLY alter your driving experience!</source>
-        <translation type="gpt-4o-generated">AVERTISSEMENT : Cela déverrouille certains paramètres potentiellement dangereux qui peuvent modifier DRASTIQUEMENT votre expérience de conduite !</translation>
+        <translation type="gpt-4o-generated">AVERTISSEMENT : Cela déverrouille certains paramètres potentiellement dangereux qui peuvent ALTÉRER DRASTIQUEMENT votre expérience de conduite !</translation>
     </message>
     <message>
         <source>NAVIGATION</source>
         <translation type="gpt-4o-generated">NAVIGATION</translation>
     </message>
     <message>
-        <source>Download map data that can be used with "Curve Speed Control" and "Speed Limit Controller" and set up "Navigate On openpilot (NOO)".</source>
-        <translation type="gpt-4o-generated">Téléchargez les données cartographiques pouvant être utilisées avec "Contrôle de la vitesse en courbe" et "Contrôleur de limite de vitesse" et configurez "Navigation sur openpilot (NOO)".</translation>
+        <source>VEHICLE SETTINGS</source>
+        <translation type="gpt-4o-generated">PARAMÈTRES DU VÉHICULE</translation>
     </message>
     <message>
-        <source>Manage the device's internal settings along with other tools and utilities used to maintain and troubleshoot FrogPilot.</source>
-        <translation type="gpt-4o-generated">Gérer les paramètres internes de l'appareil ainsi que d'autres outils et utilitaires utilisés pour maintenir et dépanner FrogPilot.</translation>
+        <source>WHEEL CONTROLS</source>
+        <translation type="gpt-4o-generated">COMMANDES DU VOLANT</translation>
     </message>
     <message>
-        <source>The "Developer" preset is only available for users with either over 100 hours on FrogPilot, or 250 hours with openpilot.</source>
-        <translation type="gpt-4o-generated">Le préréglage "Développeur" est uniquement disponible pour les utilisateurs ayant soit plus de 100 heures sur FrogPilot, soit 250 heures avec openpilot.</translation>
+        <source>FrogPilot settings for alert volumes and custom notifications to stay informed about important driving events.</source>
+        <translation type="gpt-4o-generated">Paramètres FrogPilot pour les volumes d'alerte et les notifications personnalisées afin de rester informé des événements de conduite importants.</translation>
+    </message>
+    <message>
+        <source>FrogPilot settings for acceleration, braking, and steering.</source>
+        <translation type="gpt-4o-generated">Paramètres de FrogPilot pour l'accélération, le freinage et la direction.</translation>
+    </message>
+    <message>
+        <source>Download map data for &lt;b&gt;Curve Speed Control&lt;/b&gt;, &lt;b&gt;Speed Limit Controller&lt;/b&gt;, and set up &lt;b&gt;Navigate on openpilot (NOO)&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">Téléchargez les données cartographiques pour le &lt;b&gt;Contrôle de Vitesse en Courbe&lt;/b&gt;, le &lt;b&gt;Régulateur de Vitesse Maximale&lt;/b&gt;, et configurez &lt;b&gt;Naviguer avec openpilot (NOO)&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Data storage management, debugging tools, device settings, screen behavior settings, system backups, and utilities to maintain, optimize, and troubleshoot FrogPilot.</source>
+        <translation type="gpt-4o-generated">Gestion du stockage des données, outils de débogage, paramètres de l'appareil, paramètres de comportement de l'écran, sauvegardes du système et utilitaires pour maintenir, optimiser et dépanner FrogPilot.</translation>
+    </message>
+    <message>
+        <source>FrogPilot settings for the current theme, driving-screen, and the overall user interface.</source>
+        <translation type="gpt-4o-generated">Paramètres de FrogPilot pour le thème actuel, l'écran de conduite et l'interface utilisateur globale.</translation>
+    </message>
+    <message>
+        <source>Options unique to supported manufacturers and vehicle fingerprint management.</source>
+        <translation type="gpt-4o-generated">Options uniques aux fabricants pris en charge et gestion des empreintes digitales des véhicules.</translation>
+    </message>
+    <message>
+        <source>The visibility and complexity of tuning settings. Lower levels simplify the interface by hiding advanced options, while higher levels unlock detailed customization.
+
+Minimal - Ideal for those who prefer simplicity or ease of use
+Standard - Recommended for most users for a balanced experience
+Advanced - Unlocks fine-tuning controls for more experienced users
+Developer - Unlocks highly customizable settings for seasoned enthusiasts</source>
+        <translation type="gpt-4o-generated">La visibilité et la complexité des paramètres de réglage. Les niveaux inférieurs simplifient l'interface en masquant les options avancées, tandis que les niveaux supérieurs débloquent une personnalisation détaillée.
+
+Minimal - Idéal pour ceux qui recherchent la simplicité ou la facilité d'utilisation
+Standard - Recommandé pour la plupart des utilisateurs pour une expérience équilibrée
+Avancé - Débloque des contrôles de réglage fin pour les utilisateurs plus expérimentés
+Développeur - Débloque des paramètres hautement personnalisables pour les passionnés chevronnés</translation>
+    </message>
+    <message>
+        <source>The &lt;b&gt;Developer&lt;/b&gt; preset is only available for users with either over 100 hours on FrogPilot, or 250 hours with openpilot.</source>
+        <translation type="gpt-4o-generated">Le préréglage &lt;b&gt;Développeur&lt;/b&gt; est uniquement disponible pour les utilisateurs ayant soit plus de 100 heures sur FrogPilot, soit 250 heures avec openpilot.</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotSoundsPanel</name>
-    <message>
-        <source>Alert Volume Controller</source>
-        <translation type="gpt-4o-generated">Contrôleur de Volume d'Alerte</translation>
-    </message>
-    <message>
-        <source>Control the volume level for each individual sound in openpilot.</source>
-        <translation type="gpt-4o-generated">Contrôlez le niveau de volume pour chaque son individuel dans openpilot.</translation>
-    </message>
     <message>
         <source>Disengage Volume</source>
         <translation type="gpt-4o-generated">Volume de désengagement</translation>
@@ -2278,80 +2224,28 @@ Développeur - Débloque des paramètres hautement personnalisables pour les pas
         <translation type="gpt-4o-generated">Activer le volume</translation>
     </message>
     <message>
-        <source>Related alerts:
-
-NNFF Torque Controller loaded
-openpilot engaged</source>
-        <translation type="gpt-4o-generated">Alertes associées :
-
-Contrôleur de couple NNFF chargé
-openpilot activé</translation>
-    </message>
-    <message>
         <source>Prompt Volume</source>
-        <translation type="gpt-4o-generated">Volume du Prompt</translation>
+        <translation type="gpt-4o-generated">Volume de l'invite</translation>
     </message>
     <message>
         <source>Prompt Distracted Volume</source>
-        <translation type="gpt-4o-generated">Volume de Notification de Distraction</translation>
-    </message>
-    <message>
-        <source>Related alerts:
-
-Pay Attention, Driver Distracted
-Touch Steering Wheel, Driver Unresponsive</source>
-        <translation type="gpt-4o-generated">Alertes associées :
-
-Restez attentif, conducteur distrait
-Touchez le volant, conducteur non réactif</translation>
+        <translation type="gpt-4o-generated">Volume d'alerte de distraction</translation>
     </message>
     <message>
         <source>Refuse Volume</source>
         <translation type="gpt-4o-generated">Volume de refus</translation>
     </message>
     <message>
-        <source>Related alerts:
-
-openpilot Unavailable</source>
-        <translation type="gpt-4o-generated">Alertes associées :
-
-openpilot indisponible</translation>
-    </message>
-    <message>
         <source>Warning Soft Volume</source>
         <translation type="gpt-4o-generated">Avertissement Volume Doux</translation>
-    </message>
-    <message>
-        <source>Related alerts:
-
-BRAKE!, Risk of Collision
-TAKE CONTROL IMMEDIATELY</source>
-        <translation type="gpt-4o-generated">Alertes associées :
-
-FREINEZ ! Risque de collision
-PRENEZ LE CONTRÔLE IMMÉDIATEMENT</translation>
     </message>
     <message>
         <source>Warning Immediate Volume</source>
         <translation type="gpt-4o-generated">Avertissement Volume Immédiat</translation>
     </message>
     <message>
-        <source>Related alerts:
-
-DISENGAGE IMMEDIATELY, Driver Distracted
-DISENGAGE IMMEDIATELY, Driver Unresponsive</source>
-        <translation type="gpt-4o-generated">Alertes connexes :
-
-DÉSENGAGEZ IMMÉDIATEMENT, Conducteur Distrait
-DÉSENGAGEZ IMMÉDIATEMENT, Conducteur Non Réactif</translation>
-    </message>
-    <message>
-        <source>Custom Alerts</source>
-        <translation type="gpt-4o-generated">Alertes personnalisées</translation>
-    </message>
-    <message>
         <source>Goat Scream Steering Saturated Alert</source>
-        <translation type="gpt-4o-generated">Alerte de saturation de la direction - Cri de chèvre</translation>
+        <translation type="gpt-4o-generated">Alerte de saturation de la direction "Goat Scream"</translation>
     </message>
     <message>
         <source>Green Light Alert</source>
@@ -2362,72 +2256,84 @@ DÉSENGAGEZ IMMÉDIATEMENT, Conducteur Non Réactif</translation>
         <translation type="gpt-4o-generated">Alerte de départ du véhicule de tête</translation>
     </message>
     <message>
-        <source>Speed Limit Changed Alert</source>
-        <translation type="gpt-4o-generated">Alerte de changement de limitation de vitesse</translation>
-    </message>
-    <message>
         <source>Auto</source>
         <translation type="gpt-4o-generated">Auto</translation>
     </message>
     <message>
         <source>Muted</source>
-        <translation type="gpt-4o-generated">Silencieux</translation>
+        <translation type="gpt-4o-generated">Muet</translation>
     </message>
     <message>
-        <source>Related alerts:
-
-Adaptive Cruise Disabled
-Brake Pedal Pressed
-Parking Brake Engaged
-Speed too Low</source>
-        <translation type="gpt-4o-generated">Alertes associées :
-
-Régulateur adaptatif désactivé
-Pédale de frein enfoncée
-Frein à main activé
-Vitesse trop basse</translation>
+        <source>Alert Volume Control</source>
+        <translation type="gpt-4o-generated">Contrôle du volume des alertes</translation>
     </message>
     <message>
-        <source>Related alerts:
-
-Car Detected in Blindspot
-Steer Unavailable Below "X"
-Speed too Low
-Take Control, Turn Exceeds Steering Limit</source>
-        <translation type="gpt-4o-generated">Alertes associées :
-
-Véhicule détecté dans l'angle mort
-Direction indisponible en dessous de "X"
-Vitesse trop basse
-Prenez le contrôle, le virage dépasse la limite de direction</translation>
+        <source>Adjust the volume for each alert in openpilot.</source>
+        <translation type="gpt-4o-generated">Ajustez le volume pour chaque alerte dans openpilot.</translation>
     </message>
     <message>
-        <source>Custom FrogPilot alerts for openpilot events.</source>
-        <translation type="gpt-4o-generated">Alertes FrogPilot personnalisées pour les événements openpilot.</translation>
+        <source>Adjust the volume for alerts like:&lt;br&gt;&lt;br&gt;&lt;b&gt;Adaptive Cruise Disabled&lt;/b&gt;&lt;br&gt;&lt;b&gt;Brake Pedal Pressed&lt;/b&gt;&lt;br&gt;&lt;b&gt;Parking Brake Engaged&lt;/b&gt;&lt;br&gt;&lt;b&gt;Speed too Low&lt;/b&gt;</source>
+        <translation type="gpt-4o-generated">Ajustez le volume pour les alertes telles que :&lt;br&gt;&lt;br&gt;&lt;b&gt;Régulateur Adaptatif Désactivé&lt;/b&gt;&lt;br&gt;&lt;b&gt;Pédale de Frein Enfoncée&lt;/b&gt;&lt;br&gt;&lt;b&gt;Frein de Stationnement Activé&lt;/b&gt;&lt;br&gt;&lt;b&gt;Vitesse Trop Basse&lt;/b&gt;.</translation>
     </message>
     <message>
-        <source>Enable the famed "Goat Scream" that has brought both joy and anger to FrogPilot users all around the world!</source>
-        <translation type="gpt-4o-generated">Activer le célèbre "Cri de Chèvre" qui a apporté à la fois joie et colère aux utilisateurs de FrogPilot du monde entier !</translation>
+        <source>Adjust the volume for alerts like:&lt;br&gt;&lt;br&gt;&lt;b&gt;NNFF Torque Controller loaded&lt;/b&gt;&lt;br&gt;&lt;b&gt;openpilot engaged&lt;/b&gt;</source>
+        <translation type="gpt-4o-generated">Ajustez le volume des alertes telles que :&lt;br&gt;&lt;br&gt;&lt;b&gt;Contrôleur de couple NNFF chargé&lt;/b&gt;&lt;br&gt;&lt;b&gt;openpilot activé&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>Play an alert when the traffic light changes from red to green.</source>
-        <translation type="gpt-4o-generated">Jouer une alerte lorsque le feu de circulation passe du rouge au vert.</translation>
+        <source>Adjust the volume for alerts like:&lt;br&gt;&lt;br&gt;&lt;b&gt;Pay Attention, Driver Distracted&lt;/b&gt;&lt;br&gt;&lt;b&gt;Touch Steering Wheel, Driver Unresponsive&lt;/b&gt;</source>
+        <translation type="gpt-4o-generated">Ajustez le volume pour les alertes telles que :&lt;br&gt;&lt;br&gt;&lt;b&gt;Attention, conducteur distrait&lt;/b&gt;&lt;br&gt;&lt;b&gt;Touchez le volant, conducteur non réactif&lt;/b&gt;.</translation>
     </message>
     <message>
-        <source>Play an alert when the lead vehicle starts starts to depart.</source>
-        <translation type="gpt-4o-generated">Jouer une alerte lorsque le véhicule de tête commence à partir.</translation>
+        <source>Adjust the volume for alerts like:&lt;br&gt;&lt;br&gt;&lt;b&gt;openpilot Unavailable&lt;/b&gt;</source>
+        <translation type="gpt-4o-generated">Ajuster le volume pour les alertes telles que :&lt;br&gt;&lt;br&gt;&lt;b&gt;openpilot Indisponible&lt;/b&gt;.</translation>
     </message>
     <message>
-        <source>Loud Blindspot Vehicle Alert</source>
-        <translation type="gpt-4o-generated">Alerte Véhicule dans l'Angle Mort Forte</translation>
+        <source>Adjust the volume for alerts like:&lt;br&gt;&lt;br&gt;&lt;b&gt;BRAKE!, Risk of Collision&lt;/b&gt;&lt;br&gt;&lt;b&gt;TAKE CONTROL IMMEDIATELY&lt;/b&gt;</source>
+        <translation type="gpt-4o-generated">Ajustez le volume pour les alertes telles que :&lt;br&gt;&lt;br&gt;&lt;b&gt;FREINEZ ! Risque de collision&lt;/b&gt;&lt;br&gt;&lt;b&gt;PRENEZ LE CONTRÔLE IMMÉDIATEMENT&lt;/b&gt;.</translation>
     </message>
     <message>
-        <source>Play a loud alert for when a vehicle is detected in the blindspot when attempting to change lanes.</source>
-        <translation type="gpt-4o-generated">Jouer une alerte sonore forte lorsqu'un véhicule est détecté dans l'angle mort lors d'une tentative de changement de voie.</translation>
+        <source>Adjust the volume for alerts like:&lt;br&gt;&lt;br&gt;&lt;b&gt;DISENGAGE IMMEDIATELY, Driver Distracted&lt;/b&gt;&lt;br&gt;&lt;b&gt;DISENGAGE IMMEDIATELY, Driver Unresponsive&lt;/b&gt;</source>
+        <translation type="gpt-4o-generated">Ajustez le volume pour les alertes telles que :&lt;br&gt;&lt;br&gt;&lt;b&gt;DÉSENGAGEZ IMMÉDIATEMENT, Conducteur Distrait&lt;/b&gt;&lt;br&gt;&lt;b&gt;DÉSENGAGEZ IMMÉDIATEMENT, Conducteur Non Réactif&lt;/b&gt;.</translation>
     </message>
     <message>
-        <source>Play an alert when the speed limit changes.</source>
-        <translation type="gpt-4o-generated">Jouer une alerte lorsque la limite de vitesse change.</translation>
+        <source>FrogPilot Alerts</source>
+        <translation type="gpt-4o-generated">Alertes FrogPilot</translation>
+    </message>
+    <message>
+        <source>FrogPilot alerts for various events in openpilot.</source>
+        <translation type="gpt-4o-generated">FrogPilot alerte pour divers événements dans openpilot.</translation>
+    </message>
+    <message>
+        <source>Loud "Car Detected in Blindspot" Alert</source>
+        <translation type="gpt-4o-generated">Alerte forte "Voiture détectée dans l'angle mort"</translation>
+    </message>
+    <message>
+        <source>A louder alert for when a vehicle is detected in the blindspot when attempting to change lanes.</source>
+        <translation type="gpt-4o-generated">Une alerte plus forte lorsqu'un véhicule est détecté dans l'angle mort lors d'une tentative de changement de voie.</translation>
+    </message>
+    <message>
+        <source>Adjust the volume for alerts like:&lt;br&gt;&lt;br&gt;&lt;b&gt;Car Detected in Blindspot&lt;/b&gt;&lt;br&gt;&lt;b&gt;Steer Unavailable Below "X"&lt;/b&gt;&lt;br&gt;&lt;b&gt;Speed too Low&lt;/b&gt;&lt;br&gt;&lt;b&gt;Take Control, Turn Exceeds Steering Limit&lt;/b&gt;</source>
+        <translation type="gpt-4o-generated">Ajustez le volume pour les alertes telles que :&lt;br&gt;&lt;br&gt;&lt;b&gt;Véhicule détecté dans l'angle mort&lt;/b&gt;&lt;br&gt;&lt;b&gt;Direction indisponible en dessous de "X"&lt;/b&gt;&lt;br&gt;&lt;b&gt;Vitesse trop basse&lt;/b&gt;&lt;br&gt;&lt;b&gt;Reprenez le contrôle, le virage dépasse la limite de direction&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>The infamous "Goat Scream" that has brought both joy and anger to FrogPilot users all around the world!</source>
+        <translation type="gpt-4o-generated">Le célèbre "Cri de Chèvre" qui a apporté à la fois joie et colère aux utilisateurs de FrogPilot du monde entier !</translation>
+    </message>
+    <message>
+        <source>Get an alert when the traffic light changes from red to green.</source>
+        <translation type="gpt-4o-generated">Recevez une alerte lorsque le feu de circulation passe du rouge au vert.</translation>
+    </message>
+    <message>
+        <source>Get an alert when the lead vehicle begins to depart from a standstill.</source>
+        <translation type="gpt-4o-generated">Recevez une alerte lorsque le véhicule de tête commence à démarrer après un arrêt.</translation>
+    </message>
+    <message>
+        <source>Speed Limit Changed Alert</source>
+        <translation type="gpt-4o-generated">Alerte de Changement de Limite de Vitesse</translation>
+    </message>
+    <message>
+        <source>Get an alert when the speed limit changes.</source>
+        <translation type="gpt-4o-generated">Recevez une alerte lorsque la limitation de vitesse change.</translation>
     </message>
 </context>
 <context>
@@ -2435,10 +2341,6 @@ Prenez le contrôle, le virage dépasse la limite de direction</translation>
     <message>
         <source>Custom Theme</source>
         <translation type="gpt-4o-generated">Thème personnalisé</translation>
-    </message>
-    <message>
-        <source>Custom openpilot themes.</source>
-        <translation type="gpt-4o-generated">Thèmes openpilot personnalisés.</translation>
     </message>
     <message>
         <source>Color Scheme</source>
@@ -2490,11 +2392,7 @@ Prenez le contrôle, le virage dépasse la limite de direction</translation>
     </message>
     <message>
         <source>Select a color scheme to delete</source>
-        <translation type="gpt-4o-generated">Sélectionnez un schéma de couleurs à supprimer</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to delete the '%1' color scheme?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer le schéma de couleurs '%1' ?</translation>
+        <translation type="gpt-4o-generated">'Sélectionnez un schéma de couleurs à supprimer'</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -2510,11 +2408,7 @@ Prenez le contrôle, le virage dépasse la limite de direction</translation>
     </message>
     <message>
         <source>Select an icon pack to delete</source>
-        <translation type="gpt-4o-generated">Sélectionnez un pack d'icônes à supprimer</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to delete the '%1' icon pack?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer le pack d'icônes '%1' ?</translation>
+        <translation type="gpt-4o-generated">Sélectionnez un pack d'icônes à supprimer.</translation>
     </message>
     <message>
         <source>Select an icon pack to download</source>
@@ -2526,7 +2420,7 @@ Prenez le contrôle, le virage dépasse la limite de direction</translation>
     </message>
     <message>
         <source>Select a sound pack to delete</source>
-        <translation type="gpt-4o-generated">Sélectionnez un pack sonore à supprimer</translation>
+        <translation type="gpt-4o-generated">Sélectionner un pack de sons à supprimer</translation>
     </message>
     <message>
         <source>Select a sound pack to download</source>
@@ -2542,7 +2436,7 @@ Prenez le contrôle, le virage dépasse la limite de direction</translation>
     </message>
     <message>
         <source>Select a steering wheel</source>
-        <translation type="gpt-4o-generated">Sélectionnez un volant</translation>
+        <translation type="gpt-4o-generated">Sélectionner un volant</translation>
     </message>
     <message>
         <source>STOCK</source>
@@ -2562,75 +2456,19 @@ Prenez le contrôle, le virage dépasse la limite de direction</translation>
     </message>
     <message>
         <source>Characters: 0/%1</source>
-        <translation type="gpt-4o-generated">Caractères : 0/%1</translation>
+        <translation type="gpt-4o-generated">Caractères : 0/%1</translation>
     </message>
     <message>
         <source>CANCEL</source>
         <translation type="gpt-4o-generated">ANNULER</translation>
     </message>
     <message>
-        <source>Changes out openpilot's color scheme.
-
-Want to submit your own color scheme? Share it in the 'custom-themes' channel on the FrogPilot Discord!</source>
-        <translation type="gpt-4o-generated">Modifie le schéma de couleurs d'openpilot.
-
-Vous souhaitez soumettre votre propre schéma de couleurs ? Partagez-le dans le canal 'custom-themes' sur le Discord de FrogPilot !</translation>
-    </message>
-    <message>
-        <source>Changes out openpilot's icon pack.
-
-Want to submit your own icons? Share them in the 'custom-themes' channel on the FrogPilot Discord!</source>
-        <translation type="gpt-4o-generated">Modifie le pack d'icônes d'openpilot.
-
-Vous souhaitez soumettre vos propres icônes ? Partagez-les dans le canal 'custom-themes' sur le Discord de FrogPilot !</translation>
-    </message>
-    <message>
-        <source>Changes out openpilot's sound effects.
-
-Want to submit your own sounds? Share them in the 'custom-themes' channel on the FrogPilot Discord!</source>
-        <translation type="gpt-4o-generated">Modifie les effets sonores d'openpilot.
-
-Vous voulez soumettre vos propres sons ? Partagez-les dans le canal 'custom-themes' sur le Discord de FrogPilot !</translation>
-    </message>
-    <message>
-        <source>Enables a custom steering wheel icon in the top right of the screen.</source>
-        <translation type="gpt-4o-generated">Active une icône de volant personnalisée en haut à droite de l'écran.</translation>
-    </message>
-    <message>
-        <source>Enables themed turn signal animations.
-
-Want to submit your own animations? Share them in the 'custom-themes' channel on the FrogPilot Discord!</source>
-        <translation type="gpt-4o-generated">Active les animations thématiques de clignotants.
-
-Vous souhaitez soumettre vos propres animations ? Partagez-les dans le canal 'custom-themes' sur le Discord de FrogPilot !</translation>
-    </message>
-    <message>
-        <source>Changes the openpilot theme based on the current holiday. Minor holidays last one day, while major holidays (Easter, Christmas, Halloween, etc.) last the entire week.</source>
-        <translation type="gpt-4o-generated">Change le thème d'openpilot en fonction de la fête actuelle. Les fêtes mineures durent une journée, tandis que les fêtes majeures (Pâques, Noël, Halloween, etc.) durent toute la semaine.</translation>
-    </message>
-    <message>
         <source>Rainbow Path</source>
         <translation type="gpt-4o-generated">Chemin Arc-en-ciel</translation>
     </message>
     <message>
-        <source>Swap out the path in the onroad UI for a Mario Kart inspired 'Rainbow Path'.</source>
-        <translation type="gpt-4o-generated">Remplacez le chemin dans l'interface utilisateur en conduite par un 'Chemin Arc-en-ciel' inspiré de Mario Kart.</translation>
-    </message>
-    <message>
-        <source>Enables random cosmetic events that happen during certain driving conditions. These events are purely for fun and don't affect driving controls!</source>
-        <translation type="gpt-4o-generated">'Active des événements cosmétiques aléatoires qui se produisent dans certaines conditions de conduite. Ces événements sont purement ludiques et n'affectent pas les commandes de conduite !'</translation>
-    </message>
-    <message>
-        <source>Controls the text of the 'Startup' alert message that appears when you start the drive.</source>
-        <translation type="gpt-4o-generated">Contrôle le texte du message d'alerte 'Démarrage' qui apparaît lorsque vous commencez à conduire.</translation>
-    </message>
-    <message>
         <source>Select a distance icon pack to delete</source>
         <translation type="gpt-4o-generated">Sélectionnez un pack d'icônes de distance à supprimer</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to delete the '%1' distance icon pack?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer le pack d'icônes de distance '%1' ?</translation>
     </message>
     <message>
         <source>Select a distance icon pack to download</source>
@@ -2638,15 +2476,11 @@ Vous souhaitez soumettre vos propres animations ? Partagez-les dans le canal 'cu
     </message>
     <message>
         <source>Select a distance icon pack</source>
-        <translation type="gpt-4o-generated">Sélectionnez un pack d'icônes de distance.</translation>
+        <translation type="gpt-4o-generated">Sélectionnez un pack d'icônes de distance</translation>
     </message>
     <message>
         <source>Select a signal animation to delete</source>
         <translation type="gpt-4o-generated">Sélectionnez une animation de signal à supprimer</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to delete the '%1' signal animation?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer l'animation du signal '%1' ?</translation>
     </message>
     <message>
         <source>Select a signal animation to download</source>
@@ -2657,16 +2491,8 @@ Vous souhaitez soumettre vos propres animations ? Partagez-les dans le canal 'cu
         <translation type="gpt-4o-generated">Sélectionner une animation de signal</translation>
     </message>
     <message>
-        <source>Are you sure you want to delete the '%1' sound pack?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer le pack sonore '%1' ?</translation>
-    </message>
-    <message>
         <source>Select a sound pack</source>
         <translation type="gpt-4o-generated">Sélectionner un pack de sons</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to delete the '%1' steering wheel?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer le volant '%1' ?</translation>
     </message>
     <message>
         <source>Enter the text for the top half</source>
@@ -2676,12 +2502,104 @@ Vous souhaitez soumettre vos propres animations ? Partagez-les dans le canal 'cu
         <source>Enter the text for the bottom half</source>
         <translation type="gpt-4o-generated">Entrez le texte pour la moitié inférieure</translation>
     </message>
+    <message>
+        <source>The overall appearance of openpilot.</source>
+        <translation type="gpt-4o-generated">L'apparence générale d'openpilot.</translation>
+    </message>
+    <message>
+        <source>openpilot's color scheme.
+
+Want to submit your own color scheme? Share it in the "custom-themes" channel on the FrogPilot Discord!</source>
+        <translation type="gpt-4o-generated">Palette de couleurs d'openpilot.
+
+Vous souhaitez proposer votre propre palette de couleurs ? Partagez-la dans le canal "custom-themes" sur le Discord de FrogPilot !</translation>
+    </message>
+    <message>
+        <source>openpilot's icon pack.
+
+Want to submit your own icons? Share them in the "custom-themes" channel on the FrogPilot Discord!</source>
+        <translation type="gpt-4o-generated">pack d'icônes d'openpilot.
+
+Vous souhaitez soumettre vos propres icônes ? Partagez-les dans le canal "custom-themes" sur le serveur Discord de FrogPilot !</translation>
+    </message>
+    <message>
+        <source>openpilot's sound effects.
+
+Want to submit your own sounds? Share them in the "custom-themes" channel on the FrogPilot Discord!</source>
+        <translation type="gpt-4o-generated">Effets sonores d'openpilot.
+
+Vous souhaitez soumettre vos propres sons ? Partagez-les dans le canal "custom-themes" sur le Discord de FrogPilot !</translation>
+    </message>
+    <message>
+        <source>The steering wheel icon in the top right of the driving screen.</source>
+        <translation type="gpt-4o-generated">L'icône du volant dans le coin supérieur droit de l'écran de conduite.</translation>
+    </message>
+    <message>
+        <source>Themed turn signal animations.
+
+Want to submit your own animations? Share them in the "custom-themes" channel on the FrogPilot Discord!</source>
+        <translation type="gpt-4o-generated">Animations de clignotant à thème.
+
+Vous souhaitez soumettre vos propres animations ? Partagez-les dans le canal "custom-themes" sur le Discord de FrogPilot !</translation>
+    </message>
+    <message>
+        <source>Holiday-based visual themes for openpilot. Minor holidays last one day; major holidays (Christmas, Easter, Halloween, etc.) continue all week.</source>
+        <translation type="gpt-4o-generated">Thèmes visuels basés sur les fêtes pour openpilot. Les fêtes mineures durent une journée ; les fêtes majeures (Noël, Pâques, Halloween, etc.) se poursuivent toute la semaine.</translation>
+    </message>
+    <message>
+        <source>The path on the driving screen turns into a Mario Kart inspired "Rainbow Path".</source>
+        <translation type="gpt-4o-generated">Le chemin sur l'écran de conduite se transforme en une "Route Arc-en-ciel" inspirée de Mario Kart.</translation>
+    </message>
+    <message>
+        <source>Random cosmetic events that trigger after certain driving conditions. These events are purely for fun and don't affect driving controls!</source>
+        <translation type="gpt-4o-generated">Événements cosmétiques aléatoires qui se déclenchent après certaines conditions de conduite. Ces événements sont purement ludiques et n'affectent pas les commandes de conduite !</translation>
+    </message>
+    <message>
+        <source>Random Themes</source>
+        <translation type="gpt-4o-generated">Thèmes Aléatoires</translation>
+    </message>
+    <message>
+        <source>Cycles through your downloaded themes randomly on each boot, giving every theme in your collection a chance to shine!</source>
+        <translation type="gpt-4o-generated">Fait défiler aléatoirement vos thèmes téléchargés à chaque démarrage, donnant à chaque thème de votre collection une chance de briller !</translation>
+    </message>
+    <message>
+        <source>The text of the "Startup Alert" message that appears at the beginning of a drive.</source>
+        <translation type="gpt-4o-generated">Le texte du message "Alerte de démarrage" qui apparaît au début d'un trajet.</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete the "%1" color scheme?</source>
+        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer le schéma de couleurs "%1" ?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete the "%1" distance icon pack?</source>
+        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer le pack d'icônes de distance « %1 » ?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete the "%1" icon pack?</source>
+        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer le pack d'icônes "%1" ?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete the "%1" signal animation?</source>
+        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer l'animation du signal "%1" ?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete the "%1" sound pack?</source>
+        <translation type="gpt-4o-generated">Voulez-vous vraiment supprimer le pack de sons « %1 » ?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete the "%1" steering wheel?</source>
+        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir supprimer le volant « %1 » ?</translation>
+    </message>
+    <message>
+        <source>"Random Themes" only works with downloaded themes, so make sure you download the themes you want it to use!</source>
+        <translation type="gpt-4o-generated">"Thèmes aléatoires" fonctionne uniquement avec les thèmes téléchargés, alors assurez-vous de télécharger les thèmes que vous souhaitez utiliser !</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotUtilitiesPanel</name>
     <message>
         <source>Flash Panda</source>
-        <translation type="gpt-4o-generated">Mettre à jour Panda</translation>
+        <translation type="gpt-4o-generated">Flasher Panda</translation>
     </message>
     <message>
         <source>FLASH</source>
@@ -2725,7 +2643,7 @@ Vous souhaitez soumettre vos propres animations ? Partagez-les dans le canal 'cu
     </message>
     <message>
         <source>Report a Bug or an Issue</source>
-        <translation type="gpt-4o-generated">Signaler un bug ou un problème</translation>
+        <translation type="gpt-4o-generated">Signaler un bogue ou un problème</translation>
     </message>
     <message>
         <source>REPORT</source>
@@ -2749,19 +2667,11 @@ Vous souhaitez soumettre vos propres animations ? Partagez-les dans le canal 'cu
     </message>
     <message>
         <source>Reset Toggles to Default</source>
-        <translation type="gpt-4o-generated">Réinitialiser les bascules par défaut</translation>
+        <translation type="gpt-4o-generated">Réinitialiser les commutateurs par défaut</translation>
     </message>
     <message>
         <source>RESET</source>
         <translation type="gpt-4o-generated">RÉINITIALISER</translation>
-    </message>
-    <message>
-        <source>Reset your toggle settings back to their default settings.</source>
-        <translation type="gpt-4o-generated">Réinitialisez vos paramètres de bascule à leurs paramètres par défaut.</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to completely reset all of your toggle settings?</source>
-        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir réinitialiser complètement tous vos paramètres de bascule ?</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -2788,16 +2698,48 @@ Vous souhaitez soumettre vos propres animations ? Partagez-les dans le canal 'cu
         <translation type="gpt-4o-generated">Forcer openpilot soit hors route, soit sur route.</translation>
     </message>
     <message>
-        <source>Let "FrogsGoMoo" know about an issue you're facing.</source>
-        <translation type="gpt-4o-generated">Informez "FrogsGoMoo" d'un problème que vous rencontrez.</translation>
-    </message>
-    <message>
         <source>Your report has been submitted. Thanks for letting us know!</source>
         <translation type="gpt-4o-generated">Votre rapport a été soumis. Merci de nous l'avoir signalé !</translation>
     </message>
     <message>
         <source>Flash the Panda's firmware. Use if you're running into issues with the Panda.</source>
-        <translation type="gpt-4o-generated">Flashez le firmware du Panda. À utiliser si vous rencontrez des problèmes avec le Panda.</translation>
+        <translation type="gpt-4o-generated">Flashez le firmware du Panda. Utilisez cette option si vous rencontrez des problèmes avec le Panda.</translation>
+    </message>
+    <message>
+        <source>I saw an alert that said &lt;b&gt;openpilot crashed&lt;/b&gt;</source>
+        <translation type="gpt-4o-generated">J'ai vu une alerte indiquant que &lt;b&gt;openpilot a planté&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>I'm noticing harsh acceleration</source>
+        <translation type="gpt-4o-generated">Je remarque une accélération brusque</translation>
+    </message>
+    <message>
+        <source>I'm noticing harsh braking</source>
+        <translation type="gpt-4o-generated">Je remarque un freinage brusque.</translation>
+    </message>
+    <message>
+        <source>I'm noticing unusual steering</source>
+        <translation type="gpt-4o-generated">Je remarque une direction inhabituelle</translation>
+    </message>
+    <message>
+        <source>My car isn't staying in its lane</source>
+        <translation type="gpt-4o-generated">Ma voiture ne reste pas dans sa voie</translation>
+    </message>
+    <message>
+        <source>Something else</source>
+        <translation type="gpt-4o-generated">Autre chose</translation>
+    </message>
+    <message>
+        <source>Let FrogsGoMoo know about an issue you're facing!</source>
+        <translation type="gpt-4o-generated">Informez FrogsGoMoo d'un problème que vous rencontrez !</translation>
+    </message>
+    <message>
+        <source>Reset all toggles to their default values.</source>
+        <translation type="gpt-4o-generated">Réinitialiser tous les commutateurs à leurs valeurs par défaut.</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to reset all toggles to their default values?</source>
+        <translation type="gpt-4o-generated">Êtes-vous sûr de vouloir réinitialiser tous les commutateurs à leurs valeurs par défaut ?</translation>
     </message>
 </context>
 <context>
@@ -2812,7 +2754,7 @@ Vous souhaitez soumettre vos propres animations ? Partagez-les dans le canal 'cu
     </message>
     <message>
         <source>Select a Make</source>
-        <translation type="gpt-4o-generated">Sélectionner une marque</translation>
+        <translation type="gpt-4o-generated">Sélectionner une marque.</translation>
     </message>
     <message>
         <source>Select Model</source>
@@ -2844,7 +2786,7 @@ Vous souhaitez soumettre vos propres animations ? Partagez-les dans le canal 'cu
     </message>
     <message>
         <source>Cluster Speed Offset</source>
-        <translation type="gpt-4o-generated">Décalage de Vitesse du Tableau de Bord</translation>
+        <translation type="gpt-4o-generated">Décalage de vitesse du tableau de bord</translation>
     </message>
     <message>
         <source>Lock</source>
@@ -2859,104 +2801,104 @@ Vous souhaitez soumettre vos propres animations ? Partagez-les dans le canal 'cu
         <translation type="gpt-4o-generated">Désactive le contrôle longitudinal d'openpilot et utilise à la place le régulateur de vitesse adaptatif (ACC) d'origine de la voiture.</translation>
     </message>
     <message>
-        <source>General Motors Toggles</source>
-        <translation type="gpt-4o-generated">Interrupteurs General Motors</translation>
-    </message>
-    <message>
-        <source>Smoothen Pedal Response While Going Downhill/Uphill</source>
-        <translation type="gpt-4o-generated">Adoucir la réponse de la pédale en descente/montée</translation>
-    </message>
-    <message>
-        <source>Hyundai/Kia/Genesis Toggles</source>
-        <translation type="gpt-4o-generated">Commutateurs Hyundai/Kia/Genesis</translation>
-    </message>
-    <message>
-        <source>Toyota/Lexus Toggles</source>
-        <translation type="gpt-4o-generated">Commutateurs Toyota/Lexus</translation>
-    </message>
-    <message>
         <source>MANAGE</source>
         <translation type="gpt-4o-generated">GÉRER</translation>
     </message>
     <message>
         <source>Lock Doors On Ignition Off After</source>
-        <translation type="gpt-4o-generated">Verrouiller les portes après l'arrêt du contact</translation>
+        <translation type="gpt-4o-generated">Verrouiller les portes après l'arrêt du contact.</translation>
     </message>
     <message>
         <source>Never</source>
         <translation type="gpt-4o-generated">Jamais</translation>
     </message>
     <message>
-        <source>Toggles catered towards "General Motors" vehicles.</source>
-        <translation type="gpt-4o-generated">Basculeurs destinés aux véhicules "General Motors".</translation>
-    </message>
-    <message>
-        <source>FrogsGoMoo's Experimental Longitudinal Tune</source>
-        <translation type="gpt-4o-generated">Réglage longitudinal expérimental de FrogsGoMoo</translation>
-    </message>
-    <message>
-        <source>FrogsGoMoo's experimental GM longitudinal tune that aims to smoothen out stopping and takeoff control based on nothing but guesswork. Use at your own risk!</source>
-        <translation type="gpt-4o-generated">La configuration longitudinale expérimentale GM de FrogsGoMoo visant à adoucir le contrôle de l'arrêt et du démarrage basée uniquement sur des suppositions. Utilisez à vos risques et périls !</translation>
-    </message>
-    <message>
         <source>Stop and Go Hack</source>
-        <translation type="gpt-4o-generated">Hack Stop and Go</translation>
-    </message>
-    <message>
-        <source>Toggles catered towards "Hyundai/Kia/Genesis" vehicles.</source>
-        <translation type="gpt-4o-generated">Basculeurs adaptés aux véhicules "Hyundai/Kia/Genesis".</translation>
+        <translation type="gpt-4o-generated">Hack de démarrage et arrêt</translation>
     </message>
     <message>
         <source>comma's New Longitudinal API</source>
         <translation type="gpt-4o-generated">Nouvelle API longitudinale de comma</translation>
     </message>
     <message>
-        <source>comma's new longitudinal control system that has shown great improvement with acceleration and braking, but has issues on some Hyundai/Kia/Genesis vehicles.</source>
-        <translation type="gpt-4o-generated">le nouveau système de contrôle longitudinal de comma qui a montré une grande amélioration en termes d'accélération et de freinage, mais qui présente des problèmes sur certains véhicules Hyundai/Kia/Genesis.</translation>
-    </message>
-    <message>
-        <source>Toggles catered towards "Toyota/Lexus" vehicles.</source>
-        <translation type="gpt-4o-generated">Bascules adaptées aux véhicules "Toyota/Lexus".</translation>
-    </message>
-    <message>
-        <source>The cluster offset openpilot uses to try and match the speed displayed on the dash.</source>
-        <translation type="gpt-4o-generated">Le décalage du tableau de bord qu'openpilot utilise pour essayer de correspondre à la vitesse affichée sur le tableau de bord.</translation>
-    </message>
-    <message>
         <source>FrogsGoMoo's Personal Tweaks</source>
         <translation type="gpt-4o-generated">Ajustements Personnels de FrogsGoMoo</translation>
     </message>
     <message>
-        <source>FrogsGoMoo's personal tweaks aimed to provide quicker acceleration and smoother braking.</source>
-        <translation type="gpt-4o-generated">Les ajustements personnels de FrogsGoMoo visent à offrir une accélération plus rapide et un freinage plus fluide.</translation>
-    </message>
-    <message>
-        <source>Smoothen the gas and brake response when driving downhill or uphill.</source>
-        <translation type="gpt-4o-generated">Adoucissez la réponse de l'accélérateur et du frein lors de la conduite en descente ou en montée.</translation>
-    </message>
-    <message>
-        <source>Force stop and go for the "2017 Chevy Volt".</source>
-        <translation type="gpt-4o-generated">Forcer l'arrêt et le démarrage pour la "Chevy Volt 2017".</translation>
-    </message>
-    <message>
-        <source>Automatically lock the doors when shifting into drive and unlocks them when shifting into park.</source>
-        <translation type="gpt-4o-generated">Verrouille automatiquement les portes lors du passage en conduite et les déverrouille lors du passage au stationnement.</translation>
-    </message>
-    <message>
         <source>Automatically lock the doors after the car's ignition has been turned off and no one is detected in either of the front seats.</source>
-        <translation type="gpt-4o-generated">Verrouiller automatiquement les portes après que le contact de la voiture a été coupé et qu'aucune personne n'est détectée sur les sièges avant.</translation>
+        <translation type="gpt-4o-generated">Verrouiller automatiquement les portes après que le contact de la voiture a été coupé et que personne n'est détecté sur l'un des sièges avant.</translation>
     </message>
     <message>
-        <source>Force stop and go for "Toyota/Lexus" vehicles without stock stop and go functionality.</source>
-        <translation type="gpt-4o-generated">Forcer l'arrêt et le démarrage pour les véhicules "Toyota/Lexus" sans fonctionnalité d'arrêt et de démarrage d'origine.</translation>
+        <source>General Motors Settings</source>
+        <translation type="gpt-4o-generated">Paramètres General Motors</translation>
+    </message>
+    <message>
+        <source>Settings specific to &lt;b&gt;General Motors&lt;/b&gt; vehicles.</source>
+        <translation type="gpt-4o-generated">Paramètres spécifiques aux véhicules &lt;b&gt;General Motors&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>FrogsGoMoo's Experimental Tune</source>
+        <translation type="gpt-4o-generated">Expérimentation musicale de FrogsGoMoo</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;FrogsGoMoo's&lt;/b&gt; experimental &lt;b&gt;General Motors&lt;/b&gt; tune that aims to smoothen out stopping and takeoff control based on nothing but guesswork. Use at your own risk!</source>
+        <translation type="gpt-4o-generated">&lt;b&gt;Réglage expérimental pour &lt;b&gt;General Motors&lt;/b&gt; de FrogsGoMoo&lt;/b&gt; qui vise à adoucir le contrôle de l'arrêt et du démarrage basé uniquement sur des suppositions. Utilisez à vos risques et périls !</translation>
+    </message>
+    <message>
+        <source>Smooth Pedal Response on Hills</source>
+        <translation type="gpt-4o-generated">Réponse Douce de l'Accélérateur en Côte</translation>
+    </message>
+    <message>
+        <source>Smoothen the acceleration and braking when driving uphill or downhill.</source>
+        <translation type="gpt-4o-generated">Adoucissez l'accélération et le freinage lors de la conduite en montée ou en descente.</translation>
+    </message>
+    <message>
+        <source>Force stop and go on the &lt;b&gt;2017 Chevy Volt&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">Forcer l'arrêt et le démarrage sur la &lt;b&gt;Chevy Volt 2017&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Hyundai/Kia/Genesis Settings</source>
+        <translation type="gpt-4o-generated">Paramètres Hyundai/Kia/Genesis</translation>
+    </message>
+    <message>
+        <source>Settings specific to &lt;b&gt;Hyundai&lt;/b&gt;, &lt;b&gt;Kia&lt;/b&gt;, and &lt;b&gt;Genesis&lt;/b&gt; vehicles.</source>
+        <translation type="gpt-4o-generated">Paramètres spécifiques aux véhicules &lt;b&gt;Hyundai&lt;/b&gt;, &lt;b&gt;Kia&lt;/b&gt; et &lt;b&gt;Genesis&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>comma's new longitudinal control system that has shown great improvement with acceleration and braking, but has issues on some &lt;b&gt;Hyundai&lt;/b&gt;/&lt;b&gt;Kia&lt;/b&gt;/&lt;b&gt;Genesis&lt;/b&gt; vehicles.</source>
+        <translation type="gpt-4o-generated">le nouveau système de contrôle longitudinal de comma qui a montré une grande amélioration en matière d'accélération et de freinage, mais qui présente des problèmes sur certains véhicules &lt;b&gt;Hyundai&lt;/b&gt;/&lt;b&gt;Kia&lt;/b&gt;/&lt;b&gt;Genesis&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Toyota/Lexus Settings</source>
+        <translation type="gpt-4o-generated">Paramètres Toyota/Lexus</translation>
+    </message>
+    <message>
+        <source>Settings specific to &lt;b&gt;Toyota&lt;/b&gt; and &lt;b&gt;Lexus&lt;/b&gt; vehicles.</source>
+        <translation type="gpt-4o-generated">Paramètres spécifiques aux véhicules &lt;b&gt;Toyota&lt;/b&gt; et &lt;b&gt;Lexus&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Automatically lock the doors when shifting into drive and unlock them when shifting into park.</source>
+        <translation type="gpt-4o-generated">Verrouiller automatiquement les portes lors du passage en marche avant et les déverrouiller lors du passage en position de stationnement.</translation>
+    </message>
+    <message>
+        <source>The cluster speed offset used by openpilot to match the speed displayed on the dash.</source>
+        <translation type="gpt-4o-generated">Le décalage de vitesse du tableau de bord utilisé par openpilot pour correspondre à la vitesse affichée sur le tableau de bord.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;FrogsGoMoo's&lt;/b&gt; personal tweaks for quicker acceleration and smoother braking.</source>
+        <translation type="gpt-4o-generated">&lt;b&gt;Les ajustements personnels de FrogsGoMoo&lt;/b&gt; pour une accélération plus rapide et un freinage plus fluide.</translation>
+    </message>
+    <message>
+        <source>Force stop and go on &lt;b&gt;Toyota&lt;/b&gt;/&lt;b&gt;Lexus&lt;/b&gt; vehicles without stock stop and go functionality.</source>
+        <translation type="gpt-4o-generated">Forcer l'arrêt et le démarrage sur les véhicules &lt;b&gt;Toyota&lt;/b&gt;/&lt;b&gt;Lexus&lt;/b&gt; sans fonctionnalité d'arrêt et de démarrage d'origine.</translation>
+    </message>
+    <message>
+        <source> seconds</source>
+        <translation type="gpt-4o-generated">secondes</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>
-    <message>
-        <source>Custom FrogPilot widgets used in the onroad user interface.</source>
-        <translation type="gpt-4o-generated">Widgets personnalisés de FrogPilot utilisés dans l'interface utilisateur en conduite.</translation>
-    </message>
     <message>
         <source>Compass</source>
         <translation type="gpt-4o-generated">Boussole</translation>
@@ -2971,7 +2913,7 @@ Vous souhaitez soumettre vos propres animations ? Partagez-les dans le canal 'cu
     </message>
     <message>
         <source>Rotating Steering Wheel</source>
-        <translation type="gpt-4o-generated">Volant Rotatif</translation>
+        <translation type="gpt-4o-generated">Volant tournant</translation>
     </message>
     <message>
         <source>Larger Map Display</source>
@@ -2979,15 +2921,15 @@ Vous souhaitez soumettre vos propres animations ? Partagez-les dans le canal 'cu
     </message>
     <message>
         <source>Map Style</source>
-        <translation type="gpt-4o-generated">Style de la carte</translation>
+        <translation type="gpt-4o-generated">Style de carte</translation>
     </message>
     <message>
         <source>Show Driver Camera When In Reverse</source>
-        <translation type="gpt-4o-generated">Afficher la caméra conducteur en marche arrière</translation>
+        <translation type="gpt-4o-generated">Afficher la caméra du conducteur en marche arrière</translation>
     </message>
     <message>
         <source>Stopped Timer</source>
-        <translation type="gpt-4o-generated">Minuterie arrêtée</translation>
+        <translation type="gpt-4o-generated">Minuteur arrêté</translation>
     </message>
     <message>
         <source>Blind Spot</source>
@@ -3031,11 +2973,11 @@ Vous souhaitez soumettre vos propres animations ? Partagez-les dans le canal 'cu
     </message>
     <message>
         <source>Mapbox Navigation Day</source>
-        <translation type="gpt-4o-generated">Navigation de jour Mapbox</translation>
+        <translation type="gpt-4o-generated">Journée de navigation Mapbox</translation>
     </message>
     <message>
         <source>Mapbox Navigation Night</source>
-        <translation type="gpt-4o-generated">Navigation de nuit Mapbox</translation>
+        <translation type="gpt-4o-generated">Navigation nocturne Mapbox</translation>
     </message>
     <message>
         <source>Mapbox Traffic Night</source>
@@ -3043,7 +2985,7 @@ Vous souhaitez soumettre vos propres animations ? Partagez-les dans le canal 'cu
     </message>
     <message>
         <source>mike854's (Satellite hybrid)</source>
-        <translation type="gpt-4o-generated">(Satellite hybride) de mike854</translation>
+        <translation type="gpt-4o-generated">'(Satellite hybride) de mike854'</translation>
     </message>
     <message>
         <source>SELECT</source>
@@ -3054,10 +2996,6 @@ Vous souhaitez soumettre vos propres animations ? Partagez-les dans le canal 'cu
         <translation type="gpt-4o-generated">Sélectionnez un style de carte</translation>
     </message>
     <message>
-        <source>Accessibility</source>
-        <translation type="gpt-4o-generated">Accessibilité</translation>
-    </message>
-    <message>
         <source>Visual features to improve your overall openpilot experience.</source>
         <translation type="gpt-4o-generated">Fonctionnalités visuelles pour améliorer votre expérience globale avec openpilot.</translation>
     </message>
@@ -3066,104 +3004,40 @@ Vous souhaitez soumettre vos propres animations ? Partagez-les dans le canal 'cu
         <translation type="gpt-4o-generated">Vue de la caméra</translation>
     </message>
     <message>
-        <source>Changes the camera view display. This is purely a visual change and doesn't impact how openpilot drives.</source>
-        <translation type="gpt-4o-generated">Modifie l'affichage de la vue de la caméra. Ceci est uniquement un changement visuel et n'affecte pas la conduite d'openpilot.</translation>
-    </message>
-    <message>
-        <source>On Screen Personality Button</source>
-        <translation type="gpt-4o-generated">Bouton de personnalité à l'écran</translation>
-    </message>
-    <message>
-        <source>Displays the current driving personality on the screen. Tap to switch personalities, or long press for 2.5 seconds to activate 'Traffic' mode.</source>
-        <translation type="gpt-4o-generated">Affiche la personnalité de conduite actuelle à l'écran. Touchez pour changer de personnalité, ou appuyez longuement pendant 2,5 secondes pour activer le mode 'Trafic'.</translation>
-    </message>
-    <message>
-        <source>Displays the driver camera feed when the vehicle is in reverse.</source>
-        <translation type="gpt-4o-generated">Affiche le flux de la caméra conducteur lorsque le véhicule est en marche arrière.</translation>
-    </message>
-    <message>
         <source>Standby Mode</source>
         <translation type="gpt-4o-generated">Mode Veille</translation>
-    </message>
-    <message>
-        <source>Turns the screen off when driving and automatically wakes it up if engagement state changes or important alerts occur.</source>
-        <translation type="gpt-4o-generated">'Éteint l'écran en conduisant et le rallume automatiquement si l'état d'engagement change ou si des alertes importantes surviennent.'</translation>
-    </message>
-    <message>
-        <source>Activates a timer when stopped to indicate how long the vehicle has been stopped for.</source>
-        <translation type="gpt-4o-generated">Active un minuteur lorsqu'il est arrêté pour indiquer depuis combien de temps le véhicule est à l'arrêt.</translation>
     </message>
     <message>
         <source>Advanced UI Controls</source>
         <translation type="gpt-4o-generated">Commandes UI avancées</translation>
     </message>
     <message>
-        <source>Advanced features to fine tune your personalized UI.</source>
-        <translation type="gpt-4o-generated">Fonctionnalités avancées pour affiner votre interface utilisateur personnalisée.</translation>
-    </message>
-    <message>
         <source>Hide Current Speed</source>
         <translation type="gpt-4o-generated">Masquer la vitesse actuelle</translation>
-    </message>
-    <message>
-        <source>Hides the current speed.</source>
-        <translation type="gpt-4o-generated">Masque la vitesse actuelle.</translation>
     </message>
     <message>
         <source>Hide Lead Marker</source>
         <translation type="gpt-4o-generated">Masquer le marqueur principal</translation>
     </message>
     <message>
-        <source>Hides the marker for the vehicle ahead.</source>
-        <translation type="gpt-4o-generated">Masque le marqueur pour le véhicule devant.</translation>
-    </message>
-    <message>
-        <source>Hide Map Icon</source>
-        <translation type="gpt-4o-generated">Masquer l'icône de la carte</translation>
-    </message>
-    <message>
-        <source>Hides the map icon.</source>
-        <translation type="gpt-4o-generated">Masquer l'icône de la carte.</translation>
-    </message>
-    <message>
         <source>Hide Max Speed</source>
         <translation type="gpt-4o-generated">Masquer la vitesse maximale</translation>
-    </message>
-    <message>
-        <source>Hides the max speed.</source>
-        <translation type="gpt-4o-generated">Masque la vitesse maximale.</translation>
     </message>
     <message>
         <source>Hide Non-Critical Alerts</source>
         <translation type="gpt-4o-generated">Masquer les alertes non critiques</translation>
     </message>
     <message>
-        <source>Hides non-critical alerts.</source>
-        <translation type="gpt-4o-generated">Masque les alertes non critiques.</translation>
-    </message>
-    <message>
         <source>Hide Speed Limits</source>
         <translation type="gpt-4o-generated">Masquer les limitations de vitesse</translation>
     </message>
     <message>
-        <source>Hides the speed limits.</source>
-        <translation type="gpt-4o-generated">Masque les limites de vitesse.</translation>
-    </message>
-    <message>
         <source>Use Wheel Speed</source>
-        <translation type="gpt-4o-generated">Utiliser la Vitesse des Roues</translation>
-    </message>
-    <message>
-        <source>Uses the wheel speed instead of the cluster speed. This is purely a visual change and doesn't impact how openpilot drives.</source>
-        <translation type="gpt-4o-generated">Utilise la vitesse des roues au lieu de la vitesse du tableau de bord. Il s'agit d'un changement purement visuel et cela n'affecte pas la façon dont openpilot conduit.</translation>
+        <translation type="gpt-4o-generated">Utiliser la vitesse des roues</translation>
     </message>
     <message>
         <source>Developer UI</source>
         <translation type="gpt-4o-generated">Interface développeur</translation>
-    </message>
-    <message>
-        <source>Show detailed information about openpilot's internal operations.</source>
-        <translation type="gpt-4o-generated">Afficher des informations détaillées sur le fonctionnement interne d'openpilot.</translation>
     </message>
     <message>
         <source>Developer Metrics</source>
@@ -3174,56 +3048,28 @@ Vous souhaitez soumettre vos propres animations ? Partagez-les dans le canal 'cu
         <translation type="gpt-4o-generated">Métriques de Bordure</translation>
     </message>
     <message>
-        <source>Displays performance metrics around the edge of the screen while driving.</source>
-        <translation type="gpt-4o-generated">Affiche les indicateurs de performance autour du bord de l'écran pendant la conduite.</translation>
-    </message>
-    <message>
         <source>FPS Display</source>
         <translation type="gpt-4o-generated">Affichage des FPS</translation>
     </message>
     <message>
-        <source>Displays the 'Frames Per Second' (FPS) at the bottom of the screen while driving.</source>
-        <translation type="gpt-4o-generated">Affiche le nombre d'images par seconde (FPS) en bas de l'écran pendant la conduite.</translation>
-    </message>
-    <message>
         <source>Lateral Metrics</source>
-        <translation type="gpt-4o-generated">Métriques latérales</translation>
-    </message>
-    <message>
-        <source>Displays metrics related to steering control at the top of the screen while driving.</source>
-        <translation type="gpt-4o-generated">Affiche des métriques liées au contrôle de la direction en haut de l'écran pendant la conduite.</translation>
+        <translation type="gpt-4o-generated">Mesures latérales</translation>
     </message>
     <message>
         <source>Longitudinal Metrics</source>
-        <translation type="gpt-4o-generated">Métriques Longitudinales</translation>
-    </message>
-    <message>
-        <source>Displays metrics related to acceleration, speed, and desired following distance at the top of the screen while driving.</source>
-        <translation type="gpt-4o-generated">Affiche les métriques liées à l'accélération, à la vitesse et à la distance de suivi souhaitée en haut de l'écran pendant la conduite.</translation>
+        <translation type="gpt-4o-generated">Métriques longitudinales</translation>
     </message>
     <message>
         <source>Numerical Temperature Gauge</source>
         <translation type="gpt-4o-generated">Jauge de température numérique</translation>
     </message>
     <message>
-        <source>Shows exact temperature readings instead of status labels like 'GOOD', 'OK', or 'HIGH' in the sidebar.</source>
-        <translation type="gpt-4o-generated">Affiche les relevés de température exacts au lieu des étiquettes d'état comme 'BON', 'OK' ou 'ÉLEVÉ' dans la barre latérale.</translation>
-    </message>
-    <message>
         <source>Sidebar</source>
         <translation type="gpt-4o-generated">Barre latérale</translation>
     </message>
     <message>
-        <source>Displays system information like CPU, GPU, RAM usage, IP address, and storage space in the sidebar.</source>
-        <translation type="gpt-4o-generated">Affiche des informations système telles que l'utilisation du CPU, du GPU, de la RAM, l'adresse IP et l'espace de stockage dans la barre latérale.</translation>
-    </message>
-    <message>
         <source>Use International System of Units</source>
         <translation type="gpt-4o-generated">Utiliser le Système international d'unités.</translation>
-    </message>
-    <message>
-        <source>Displays measurements using the 'International System of Units' (SI).</source>
-        <translation type="gpt-4o-generated">Affiche les mesures en utilisant le 'Système international d'unités' (SI).</translation>
     </message>
     <message>
         <source>Developer Widgets</source>
@@ -3234,182 +3080,52 @@ Vous souhaitez soumettre vos propres animations ? Partagez-les dans le canal 'cu
         <translation type="gpt-4o-generated">Point d'arrêt du modèle</translation>
     </message>
     <message>
-        <source>Displays an image on the screen where openpilot is wanting to stop.</source>
-        <translation type="gpt-4o-generated">Affiche une image à l'écran indiquant l'endroit où openpilot souhaite s'arrêter.</translation>
-    </message>
-    <message>
         <source>Model UI</source>
         <translation type="gpt-4o-generated">Interface du modèle</translation>
-    </message>
-    <message>
-        <source>Customize the model visualizations on the screen.</source>
-        <translation type="gpt-4o-generated">Personnalisez les visualisations du modèle à l'écran.</translation>
-    </message>
-    <message>
-        <source>Automatically adjusts the width of the driving path display based on the current engagement state:
-
-Fully engaged = 100%
-Always On Lateral Active = 75%
-Fully disengaged = 50%</source>
-        <translation type="gpt-4o-generated">Ajuste automatiquement la largeur de l'affichage de la voie de conduite en fonction de l'état d'engagement actuel :
-
-Entièrement engagé = 100 %
-Toujours actif latéral = 75 %
-Entièrement désengagé = 50 %.</translation>
     </message>
     <message>
         <source>Lane Lines Width</source>
         <translation type="gpt-4o-generated">Largeur des lignes de voie</translation>
     </message>
     <message>
-        <source>Controls the thickness the lane lines appear on the display.
-
-Default matches the MUTCD standard of 4 inches.</source>
-        <translation type="gpt-4o-generated">Contrôle l'épaisseur des lignes de voie affichées à l'écran.
-
-La valeur par défaut correspond à la norme MUTCD de 4 pouces.</translation>
-    </message>
-    <message>
         <source>Path Edges Width</source>
         <translation type="gpt-4o-generated">Largeur des bords du chemin</translation>
-    </message>
-    <message>
-        <source>Controls the width of the edges of the driving path to represent different modes and statuses.
-
-Default is 20% of the total path width.
-
-Color Guide:
-
-- Blue: Navigation
-- Light Blue: 'Always On Lateral'
-- Green: Default
-- Orange: 'Experimental Mode'
-- Red: 'Traffic Mode'
-- Yellow: 'Conditional Experimental Mode' Overridden</source>
-        <translation type="gpt-4o-generated">Contrôle la largeur des bords du chemin de conduite pour représenter différents modes et statuts.
-
-La valeur par défaut est de 20 % de la largeur totale du chemin.
-
-Guide des couleurs :
-
-- Bleu : Navigation
-- Bleu clair : 'Latéral Toujours Activé'
-- Vert : Par défaut
-- Orange : 'Mode Expérimental'
-- Rouge : 'Mode Trafic'
-- Jaune : 'Mode Expérimental Conditionnel' Outrepassé'.</translation>
     </message>
     <message>
         <source>Path Width</source>
         <translation type="gpt-4o-generated">Largeur du chemin</translation>
     </message>
     <message>
-        <source>Controls how wide the driving path appears on your screen.
-
-Default (6.1 feet / 1.9 meters) matches the width of a 2019 Lexus ES 350.</source>
-        <translation type="gpt-4o-generated">Contrôle la largeur de l'itinéraire de conduite affiché sur votre écran.
-
-La valeur par défaut (6,1 pieds / 1,9 mètres) correspond à la largeur d'une Lexus ES 350 de 2019.</translation>
-    </message>
-    <message>
         <source>Road Edges Width</source>
         <translation type="gpt-4o-generated">Largeur des bords de la route</translation>
-    </message>
-    <message>
-        <source>Controls how thick the road edges appear on the display.
-
-Default matches half of the MUTCD standard lane line width of 4 inches.</source>
-        <translation type="gpt-4o-generated">Contrôle l'épaisseur des bords de la route affichés à l'écran.
-
-Par défaut, cela correspond à la moitié de la largeur standard des lignes de voie de 4 pouces selon le MUTCD.</translation>
-    </message>
-    <message>
-        <source>'Unlimited' Road UI</source>
-        <translation type="gpt-4o-generated">Interface utilisateur 'Illimitée' de la route</translation>
-    </message>
-    <message>
-        <source>Extends the display of the path, lane lines, and road edges as far as the model can see.</source>
-        <translation type="gpt-4o-generated">Étend l'affichage du chemin, des lignes de voie et des bords de route aussi loin que le modèle peut le voir.</translation>
     </message>
     <message>
         <source>Navigation Widgets</source>
         <translation type="gpt-4o-generated">Widgets de navigation</translation>
     </message>
     <message>
-        <source>Wwidgets focused around navigation.</source>
-        <translation type="gpt-4o-generated">Widgets axés sur la navigation.</translation>
-    </message>
-    <message>
-        <source>Increases the size of the map for easier navigation readings.</source>
-        <translation type="gpt-4o-generated">Augmente la taille de la carte pour faciliter la lecture de la navigation.</translation>
-    </message>
-    <message>
-        <source>Swaps out the stock map style for community created ones.</source>
-        <translation type="gpt-4o-generated">Remplace le style de carte par défaut par ceux créés par la communauté.</translation>
-    </message>
-    <message>
-        <source>Displays the current road name at the bottom of the screen using data from 'OpenStreetMap'.</source>
-        <translation type="gpt-4o-generated">Affiche le nom de la route actuelle en bas de l'écran en utilisant les données d'« OpenStreetMap ».</translation>
-    </message>
-    <message>
         <source>Show Speed Limits</source>
         <translation type="gpt-4o-generated">Afficher les limites de vitesse</translation>
-    </message>
-    <message>
-        <source>Displays the currently detected speed limit in the top left corner of the onroad UI. Uses data from your car's dashboard (if supported) and data from 'OpenStreetMaps'.</source>
-        <translation type="gpt-4o-generated">Affiche la limitation de vitesse détectée actuellement dans le coin supérieur gauche de l'interface de conduite. Utilise les données du tableau de bord de votre véhicule (si pris en charge) et les données de 'OpenStreetMaps'.</translation>
     </message>
     <message>
         <source>Use Vienna-Style Speed Signs</source>
         <translation type="gpt-4o-generated">Utiliser les panneaux de vitesse de style viennois</translation>
     </message>
     <message>
-        <source>Forces Vienna-style (EU) speed limit signs instead of MUTCD (US).</source>
-        <translation type="gpt-4o-generated">Force l'utilisation des panneaux de limitation de vitesse de style Vienne (UE) au lieu de MUTCD (US).</translation>
-    </message>
-    <message>
-        <source>Onroad Screen Widgets</source>
-        <translation type="gpt-4o-generated">Widgets de l'écran sur la route</translation>
-    </message>
-    <message>
         <source>Acceleration Path</source>
         <translation type="gpt-4o-generated">Chemin d'accélération</translation>
-    </message>
-    <message>
-        <source>Projects a path based on openpilot's current desired acceleration or deceleration.</source>
-        <translation type="gpt-4o-generated">Projette un chemin basé sur l'accélération ou la décélération souhaitée actuelle d'openpilot.</translation>
     </message>
     <message>
         <source>Adjacent Lanes</source>
         <translation type="gpt-4o-generated">Voies adjacentes</translation>
     </message>
     <message>
-        <source>Projects paths for the adjascent lanes.</source>
-        <translation type="gpt-4o-generated">Projette les trajectoires pour les voies adjacentes.</translation>
-    </message>
-    <message>
         <source>Blind Spot Path</source>
         <translation type="gpt-4o-generated">Chemin de l'angle mort</translation>
     </message>
     <message>
-        <source>Projects a red path when vehicles are detected in the blind spot for the respective lane.</source>
-        <translation type="gpt-4o-generated">Projette un chemin rouge lorsqu'un véhicule est détecté dans l'angle mort pour la voie correspondante.</translation>
-    </message>
-    <message>
-        <source>Displays a compass to show the current driving direction.</source>
-        <translation type="gpt-4o-generated">Affiche une boussole pour indiquer la direction de conduite actuelle.</translation>
-    </message>
-    <message>
         <source>Gas / Brake Pedal Indicators</source>
         <translation type="gpt-4o-generated">Indicateurs de pédale d'accélérateur / frein</translation>
-    </message>
-    <message>
-        <source>Displays pedal indicators to indicate when either of the pedals are currently being used.</source>
-        <translation type="gpt-4o-generated">Affiche des indicateurs de pédale pour indiquer quand l'une des pédales est actuellement utilisée.</translation>
-    </message>
-    <message>
-        <source>Rotates the steering wheel in the onroad UI rotates along with your steering wheel movements.</source>
-        <translation type="gpt-4o-generated">Fait tourner le volant dans l'interface utilisateur sur route avec les mouvements de votre volant.</translation>
     </message>
     <message>
         <source>Auto</source>
@@ -3445,11 +3161,11 @@ Par défaut, cela correspond à la moitié de la largeur standard des lignes de 
     </message>
     <message>
         <source>Auto Tune</source>
-        <translation type="gpt-4o-generated">Accord automatique</translation>
+        <translation type="gpt-4o-generated">Accordage automatique</translation>
     </message>
     <message>
         <source>Lead Info</source>
-        <translation type="gpt-4o-generated">Informations de conduite</translation>
+        <translation type="gpt-4o-generated">Informations principales</translation>
     </message>
     <message>
         <source>Jerk Values</source>
@@ -3492,32 +3208,12 @@ Par défaut, cela correspond à la moitié de la largeur standard des lignes de 
         <translation type="gpt-4o-generated">pouces</translation>
     </message>
     <message>
-        <source>%</source>
-        <translation type="gpt-4o-generated">%</translation>
-    </message>
-    <message>
         <source> feet</source>
         <translation type="gpt-4o-generated">pieds</translation>
     </message>
     <message>
         <source>Stock</source>
         <translation type="gpt-4o-generated">Stock</translation>
-    </message>
-    <message>
-        <source>Adjust how thick the lane lines appear on the display.
-
-Default matches the Vienna standard of 10 centimeters.</source>
-        <translation type="gpt-4o-generated">Ajustez l'épaisseur des lignes de voie affichées à l'écran.
-
-La valeur par défaut correspond à la norme de Vienne de 10 centimètres.</translation>
-    </message>
-    <message>
-        <source>Adjust how thick the road edges appear on the display.
-
-Default matches half of the Vienna standard of 10 centimeters.</source>
-        <translation type="gpt-4o-generated">Ajustez l'épaisseur des bords de la route affichés à l'écran.
-
-Par défaut, cela correspond à la moitié de la norme de Vienne de 10 centimètres.</translation>
     </message>
     <message>
         <source> centimeters</source>
@@ -3528,36 +3224,315 @@ Par défaut, cela correspond à la moitié de la norme de Vienne de 10 centimèt
         <translation type="gpt-4o-generated">mètres</translation>
     </message>
     <message>
-        <source>Adjust how thick the lane lines appear on the display.
-
-Default matches the MUTCD standard of 4 inches.</source>
-        <translation type="gpt-4o-generated">Ajustez l'épaisseur des lignes de voie affichées à l'écran.
-
-La valeur par défaut correspond à la norme MUTCD de 4 pouces.</translation>
-    </message>
-    <message>
-        <source>Adjust how thick the road edges appear on the display.
-
-Default matches half of the MUTCD standard of 4 inches.</source>
-        <translation type="gpt-4o-generated">Ajustez l'épaisseur des bords de la route affichés à l'écran.
-
-La valeur par défaut correspond à la moitié de la norme MUTCD de 4 pouces.</translation>
-    </message>
-    <message>
         <source>Adjacent Leads Tracking</source>
         <translation type="gpt-4o-generated">Suivi des véhicules adjacents</translation>
-    </message>
-    <message>
-        <source>Show adjacent leads being detected by the car's radar.</source>
-        <translation type="gpt-4o-generated">Afficher les véhicules adjacents détectés par le radar de la voiture.</translation>
     </message>
     <message>
         <source>Radar Tracks</source>
         <translation type="gpt-4o-generated">Pistes radar</translation>
     </message>
     <message>
-        <source>Show all of the radar points being tracked by the car's radar.</source>
-        <translation type="gpt-4o-generated">Afficher tous les points radar suivis par le radar de la voiture.</translation>
+        <source>Advanced settings for fine-tuning openpilot's driving screen.</source>
+        <translation type="gpt-4o-generated">Paramètres avancés pour affiner l'écran de conduite d'openpilot.</translation>
+    </message>
+    <message>
+        <source>Hide the current speed from the driving screen.</source>
+        <translation type="gpt-4o-generated">Masquer la vitesse actuelle de l'écran de conduite.</translation>
+    </message>
+    <message>
+        <source>Hide the marker for lead vehicles from the driving screen.</source>
+        <translation type="gpt-4o-generated">Masquer le marqueur pour les véhicules précédents sur l'écran de conduite.</translation>
+    </message>
+    <message>
+        <source>Hide Map Settings Button</source>
+        <translation type="gpt-4o-generated">Masquer le bouton des paramètres de la carte</translation>
+    </message>
+    <message>
+        <source>Hide the map settings button from the driving screen.</source>
+        <translation type="gpt-4o-generated">Masquer le bouton des paramètres de la carte de l'écran de conduite.</translation>
+    </message>
+    <message>
+        <source>Hide the max speed from the driving screen.</source>
+        <translation type="gpt-4o-generated">Masquer la vitesse maximale de l'écran de conduite.</translation>
+    </message>
+    <message>
+        <source>Hide non-critical alerts from the driving screen.</source>
+        <translation type="gpt-4o-generated">Masquer les alertes non critiques de l'écran de conduite.</translation>
+    </message>
+    <message>
+        <source>Hide the speed limits from the driving screen.</source>
+        <translation type="gpt-4o-generated">Masquer les limites de vitesse sur l'écran de conduite.</translation>
+    </message>
+    <message>
+        <source>Use the vehicle's wheel speed instead of the cluster speed. This is purely a visual change and doesn't impact how openpilot drives.</source>
+        <translation type="gpt-4o-generated">Utiliser la vitesse des roues du véhicule au lieu de la vitesse du tableau de bord. Ceci est un changement purement visuel et n'affecte pas la manière dont openpilot conduit.</translation>
+    </message>
+    <message>
+        <source>Detailed information about openpilot's internal operations.</source>
+        <translation type="gpt-4o-generated">Informations détaillées sur le fonctionnement interne d'openpilot.</translation>
+    </message>
+    <message>
+        <source>Performance data, sensor readings, and system metrics for debugging and optimizing openpilot.</source>
+        <translation type="gpt-4o-generated">Données de performance, lectures de capteurs et métriques système pour le débogage et l'optimisation d'openpilot.</translation>
+    </message>
+    <message>
+        <source>Metrics displayed around the border of the driving screen.&lt;br&gt;&lt;br&gt;&lt;b&gt;Blind Spot&lt;/b&gt;: Turn the border red when a vehicle is detected in a blind spot&lt;br&gt;&lt;b&gt;Steering Torque&lt;/b&gt;: Highlight the border green to red in accordance to the amount of steering torque being used&lt;br&gt;&lt;b&gt;Turn Signal&lt;/b&gt;: Flash the border yellow when a turn signal is active</source>
+        <translation type="gpt-4o-generated">Métriques affichées autour de la bordure de l'écran de conduite.&lt;br&gt;&lt;br&gt;&lt;b&gt;Angle Mort&lt;/b&gt; : Changez la bordure en rouge lorsqu'un véhicule est détecté dans un angle mort&lt;br&gt;&lt;b&gt;Couple de Direction&lt;/b&gt; : Mettez en surbrillance la bordure de vert à rouge en fonction de la quantité de couple de direction utilisée&lt;br&gt;&lt;b&gt;Clignotant&lt;/b&gt; : Faites clignoter la bordure en jaune lorsqu'un clignotant est activé.</translation>
+    </message>
+    <message>
+        <source>Display the &lt;b&gt;Frames Per Second (FPS)&lt;/b&gt; at the bottom of the driving screen.</source>
+        <translation type="gpt-4o-generated">Afficher le &lt;b&gt;nombre d'images par seconde (IPS)&lt;/b&gt; en bas de l'écran de conduite.</translation>
+    </message>
+    <message>
+        <source>Metrics related to steering control.&lt;br&gt;&lt;br&gt;&lt;b&gt;Adjacent Path Metrics&lt;/b&gt;: Paint the adjacent lanes and their width measurements&lt;br&gt;&lt;b&gt;Auto Tune&lt;/b&gt;: Display the &lt;b&gt;Friction&lt;/b&gt; and &lt;b&gt;Lateral Acceleration&lt;/b&gt; values from comma's auto tune at the top of the driving screen</source>
+        <translation type="gpt-4o-generated">Métriques liées au contrôle de la direction.&lt;br&gt;&lt;br&gt;&lt;b&gt;Métriques de voie adjacente&lt;/b&gt; : Peindre les voies adjacentes et leurs mesures de largeur&lt;br&gt;&lt;b&gt;Réglage automatique&lt;/b&gt; : Afficher les valeurs de &lt;b&gt;Friction&lt;/b&gt; et &lt;b&gt;Accélération latérale&lt;/b&gt; issues du réglage automatique de comma en haut de l'écran de conduite.</translation>
+    </message>
+    <message>
+        <source>Metrics related to gas/brake control.&lt;br&gt;&lt;br&gt;&lt;b&gt;Lead Info&lt;/b&gt;: Display the lead vehicle's distance and speed on the lead marker&lt;br&gt;&lt;b&gt;Jerk Values&lt;/b&gt;: Display the current longitudinal jerk values and any offsets from FrogPilot functions at the top of the driving screen</source>
+        <translation type="gpt-4o-generated">Metrics liés au contrôle de l'accélérateur/frein.&lt;br&gt;&lt;br&gt;&lt;b&gt;Informations sur le véhicule précédent&lt;/b&gt; : Affichez la distance et la vitesse du véhicule précédent sur le marqueur de tête&lt;br&gt;&lt;b&gt;Valeurs de secousse&lt;/b&gt; : Affichez les valeurs actuelles de secousse longitudinale et tous les décalages des fonctions FrogPilot en haut de l'écran de conduite.</translation>
+    </message>
+    <message>
+        <source>Use numerical temperature readings instead of status labels in the sidebar.</source>
+        <translation type="gpt-4o-generated">Utiliser des relevés de température numériques au lieu des étiquettes d'état dans la barre latérale.</translation>
+    </message>
+    <message>
+        <source>Display system information (&lt;b&gt;CPU&lt;/b&gt;, &lt;b&gt;GPU&lt;/b&gt;, &lt;b&gt;RAM usage&lt;/b&gt;, &lt;b&gt;IP address&lt;/b&gt;, &lt;b&gt;device storage&lt;/b&gt;) in the sidebar.</source>
+        <translation type="gpt-4o-generated">Afficher les informations système (&lt;b&gt;CPU&lt;/b&gt;, &lt;b&gt;GPU&lt;/b&gt;, &lt;b&gt;utilisation de la RAM&lt;/b&gt;, &lt;b&gt;adresse IP&lt;/b&gt;, &lt;b&gt;stockage de l'appareil&lt;/b&gt;) dans la barre latérale.</translation>
+    </message>
+    <message>
+        <source>Display measurements using the &lt;b&gt;International System of Units (SI)&lt;/b&gt; standard.</source>
+        <translation type="gpt-4o-generated">Afficher les mesures en utilisant la norme du &lt;b&gt;Système international d'unités (SI)&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Overlays displaying debugging visuals, internal states, and model predictions on the driving screen.</source>
+        <translation type="gpt-4o-generated">Superpositions affichant des visuels de débogage, des états internes et des prédictions du modèle sur l'écran de conduite.</translation>
+    </message>
+    <message>
+        <source>Adjacent leads detected by the car's radar to the left and right of the current driving path.</source>
+        <translation type="gpt-4o-generated">Des véhicules adjacents détectés par le radar de la voiture à gauche et à droite de la trajectoire de conduite actuelle.</translation>
+    </message>
+    <message>
+        <source>Display an image on the screen where openpilot is wanting to stop.</source>
+        <translation type="gpt-4o-generated">Afficher une image à l'écran lorsque openpilot souhaite s'arrêter.</translation>
+    </message>
+    <message>
+        <source>Display all of the radar points produced by the car's radar.</source>
+        <translation type="gpt-4o-generated">Afficher tous les points radar produits par le radar de la voiture.</translation>
+    </message>
+    <message>
+        <source>Driving Screen Widgets</source>
+        <translation type="gpt-4o-generated">Widgets de l'écran de conduite</translation>
+    </message>
+    <message>
+        <source>Custom FrogPilot widgets for the driving screen.</source>
+        <translation type="gpt-4o-generated">Widgets FrogPilot personnalisés pour l'écran de conduite.</translation>
+    </message>
+    <message>
+        <source>Colorize the driving path based on openpilot's current desired acceleration and deceleration rate.</source>
+        <translation type="gpt-4o-generated">Colorer le trajet de conduite en fonction du taux actuel d'accélération et de décélération souhaité par openpilot.</translation>
+    </message>
+    <message>
+        <source>Driving paths for the left and right adjacent lanes.</source>
+        <translation type="gpt-4o-generated">Trajectoires de conduite pour les voies adjacentes gauche et droite.</translation>
+    </message>
+    <message>
+        <source>Display a red driving path for detected vehicles in the corresponding lane's blind spot.</source>
+        <translation type="gpt-4o-generated">Afficher un chemin de conduite rouge pour les véhicules détectés dans l'angle mort de la voie correspondante.</translation>
+    </message>
+    <message>
+        <source>A compass to show the current driving direction.</source>
+        <translation type="gpt-4o-generated">Une boussole pour indiquer la direction de conduite actuelle.</translation>
+    </message>
+    <message>
+        <source>Pedals to indicate when either of the pedals are currently being used.&lt;br&gt;&lt;br&gt;&lt;b&gt;Dynamic&lt;/b&gt;: The pedals change in opacity in accordance to how much openpilot is accelerating or decelerating&lt;br&gt;&lt;b&gt;Static&lt;/b&gt;: The pedals are displayed with full opacity when active, and dimmed when not in use</source>
+        <translation type="gpt-4o-generated">Pédales pour indiquer quand l'une ou l'autre des pédales est actuellement utilisée.&lt;br&gt;&lt;br&gt;&lt;b&gt;Dynamique&lt;/b&gt;: Les pédales changent d'opacité en fonction de l'intensité de l'accélération ou de la décélération par openpilot&lt;br&gt;&lt;b&gt;Statique&lt;/b&gt;: Les pédales sont affichées avec opacité maximale lorsqu'elles sont actives, et atténuées lorsqu'elles ne sont pas utilisées.</translation>
+    </message>
+    <message>
+        <source>Rotate the steering wheel alongside the vehicle's physical steering wheel.</source>
+        <translation type="gpt-4o-generated">Tournez le volant en même temps que le volant physique du véhicule.</translation>
+    </message>
+    <message>
+        <source>Model visualizations on the driving screen for the driving path, lane lines, path edges, and road edges.</source>
+        <translation type="gpt-4o-generated">Visualisations du modèle sur l'écran de conduite pour le trajet, les lignes de voie, les bords du trajet et les bords de la route.</translation>
+    </message>
+    <message>
+        <source>Adjust the width of the driving path based on the current engagement state.&lt;br&gt;&lt;br&gt;&lt;b&gt;Fully engaged&lt;/b&gt;: 100%&lt;br&gt;&lt;b&gt;Always On Lateral&lt;/b&gt;: 75%&lt;br&gt;&lt;b&gt;Fully disengaged&lt;/b&gt;: 50%</source>
+        <translation type="gpt-4o-generated">Ajuster la largeur de la voie de conduite en fonction de l'état d'engagement actuel.&lt;br&gt;&lt;br&gt;&lt;b&gt;Entièrement engagé&lt;/b&gt; : 100%&lt;br&gt;&lt;b&gt;Lateral toujours activé&lt;/b&gt; : 75%&lt;br&gt;&lt;b&gt;Entièrement désengagé&lt;/b&gt; : 50%</translation>
+    </message>
+    <message>
+        <source>The thickness of the lane lines on the driving screen.&lt;br&gt;&lt;br&gt;&lt;b&gt;Default matches the &lt;b&gt;MUTCD&lt;/b&gt; lane line width standard of 4 inches.</source>
+        <translation type="gpt-4o-generated">L'épaisseur des lignes de voie sur l'écran de conduite.&lt;br&gt;&lt;br&gt;&lt;b&gt;Par défaut, elle correspond à la norme de largeur des lignes de voie &lt;b&gt;MUTCD&lt;/b&gt; de 4 pouces.</translation>
+    </message>
+    <message>
+        <source>The width of the edges of the driving path that represent different driving modes and statuses.&lt;br&gt;&lt;br&gt;Default is &lt;b&gt;20%&lt;/b&gt; of the total path width.&lt;br&gt;&lt;br&gt;Color Guide:&lt;br&gt;&lt;br&gt;- &lt;b&gt;Blue&lt;/b&gt;: Navigation&lt;br&gt;- &lt;b&gt;Light Blue&lt;/b&gt;: Always On Lateral&lt;br&gt;- &lt;b&gt;Green&lt;/b&gt;: Default&lt;br&gt;- &lt;b&gt;Orange&lt;/b&gt;: Experimental Mode&lt;br&gt;- &lt;b&gt;Red&lt;/b&gt;: Traffic Mode&lt;br&gt;- &lt;b&gt;Yellow&lt;/b&gt;: Conditional Experimental Mode overridden</source>
+        <translation type="gpt-4o-generated">La largeur des bords du chemin de conduite qui représentent différents modes et statuts de conduite.&lt;br&gt;&lt;br&gt;Par défaut, elle est de &lt;b&gt;20%&lt;/b&gt; de la largeur totale du chemin.&lt;br&gt;&lt;br&gt;Guide des couleurs :&lt;br&gt;&lt;br&gt;- &lt;b&gt;Bleu&lt;/b&gt; : Navigation&lt;br&gt;- &lt;b&gt;Bleu clair&lt;/b&gt; : Latéral toujours activé&lt;br&gt;- &lt;b&gt;Vert&lt;/b&gt; : Par défaut&lt;br&gt;- &lt;b&gt;Orange&lt;/b&gt; : Mode expérimental&lt;br&gt;- &lt;b&gt;Rouge&lt;/b&gt; : Mode trafic&lt;br&gt;- &lt;b&gt;Jaune&lt;/b&gt; : Mode expérimental conditionnel remplacé.</translation>
+    </message>
+    <message>
+        <source>The width of the driving path on the driving screen.&lt;br&gt;&lt;br&gt;Default &lt;b&gt;(6.1 feet / 1.9 meters)&lt;/b&gt; matches the width of a &lt;b&gt;2019 Lexus ES 350&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">La largeur du chemin de conduite sur l'écran de conduite.&lt;br&gt;&lt;br&gt;La valeur par défaut &lt;b&gt;(6,1 pieds / 1,9 mètres)&lt;/b&gt; correspond à la largeur d'une &lt;b&gt;Lexus ES 350 de 2019&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>The thickness of the road edges on the driving screen.&lt;br&gt;&lt;br&gt;&lt;b&gt;Default matches half of the &lt;b&gt;MUTCD&lt;/b&gt; lane line width standard of 4 inches.</source>
+        <translation type="gpt-4o-generated">L'épaisseur des bords de la route sur l'écran de conduite.&lt;br&gt;&lt;br&gt;&lt;b&gt;Par défaut, elle correspond à la moitié de la largeur standard de la ligne de voie de 4 pouces selon le &lt;b&gt;MUTCD&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>"Unlimited" Road UI</source>
+        <translation type="gpt-4o-generated">"Interface Routière 'Illimitée'"</translation>
+    </message>
+    <message>
+        <source>Extend the display of the driving path, lane lines, and road edges as far as the model can see.</source>
+        <translation type="gpt-4o-generated">Étendre l'affichage du chemin de conduite, des lignes de voie et des bords de route aussi loin que le modèle peut voir.</translation>
+    </message>
+    <message>
+        <source>Map style tweaks, speed limits, and other navigation related widgets.</source>
+        <translation type="gpt-4o-generated">Ajustements du style de carte, limites de vitesse, et autres widgets liés à la navigation.</translation>
+    </message>
+    <message>
+        <source>Increase the size of the map for easier navigation readings.</source>
+        <translation type="gpt-4o-generated">Augmenter la taille de la carte pour faciliter la lecture de la navigation.</translation>
+    </message>
+    <message>
+        <source>The map style used for &lt;b&gt;Navigate on openpilot (NOO)&lt;/b&gt;:&lt;br&gt;&lt;br&gt;&lt;b&gt;Stock&lt;/b&gt;: Default comma.ai style&lt;br&gt;&lt;b&gt;Mapbox Streets&lt;/b&gt;: Standard street-focused view&lt;br&gt;&lt;b&gt;Mapbox Outdoors&lt;/b&gt;: Emphasizes outdoor and terrain features&lt;br&gt;&lt;b&gt;Mapbox Light&lt;/b&gt;: Minimalist, bright theme&lt;br&gt;&lt;b&gt;Mapbox Dark&lt;/b&gt;: Minimalist, dark theme&lt;br&gt;&lt;b&gt;Mapbox Navigation Day&lt;/b&gt;: Optimized for daytime navigation&lt;br&gt;&lt;b&gt;Mapbox Navigation Night&lt;/b&gt;: Optimized for nighttime navigation&lt;br&gt;&lt;b&gt;Mapbox Satellite&lt;/b&gt;: Satellite imagery only&lt;br&gt;&lt;b&gt;Mapbox Satellite Streets&lt;/b&gt;: Hybrid satellite imagery with street labels&lt;br&gt;&lt;b&gt;Mapbox Traffic Night&lt;/b&gt;: Dark theme emphasizing traffic conditions&lt;br&gt;&lt;b&gt;mike854's (Satellite hybrid)&lt;/b&gt;: Customized hybrid satellite view</source>
+        <translation type="gpt-4o-generated">Le style de carte utilisé pour &lt;b&gt;Navigate on openpilot (NOO)&lt;/b&gt; :&lt;br&gt;&lt;br&gt;&lt;b&gt;Stock&lt;/b&gt; : Style par défaut de comma.ai&lt;br&gt;&lt;b&gt;Mapbox Streets&lt;/b&gt; : Vue standard centrée sur les rues&lt;br&gt;&lt;b&gt;Mapbox Outdoors&lt;/b&gt; : Met en avant les éléments extérieurs et le terrain&lt;br&gt;&lt;b&gt;Mapbox Light&lt;/b&gt; : Thème minimaliste et lumineux&lt;br&gt;&lt;b&gt;Mapbox Dark&lt;/b&gt; : Thème minimaliste et sombre&lt;br&gt;&lt;b&gt;Mapbox Navigation Day&lt;/b&gt; : Optimisé pour la navigation de jour&lt;br&gt;&lt;b&gt;Mapbox Navigation Night&lt;/b&gt; : Optimisé pour la navigation de nuit&lt;br&gt;&lt;b&gt;Mapbox Satellite&lt;/b&gt; : Imagerie satellite uniquement&lt;br&gt;&lt;b&gt;Mapbox Satellite Streets&lt;/b&gt; : Imagerie satellite hybride avec étiquettes de rues&lt;br&gt;&lt;b&gt;Mapbox Traffic Night&lt;/b&gt; : Thème sombre mettant en avant les conditions de trafic&lt;br&gt;&lt;b&gt;mike854's (Satellite hybrid)&lt;/b&gt; : Vue personnalisée hybride satellite</translation>
+    </message>
+    <message>
+        <source>Display the road name at the bottom of the driving screen using data from &lt;b&gt;OpenStreetMap&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">Afficher le nom de la route en bas de l'écran de conduite en utilisant les données d'&lt;b&gt;OpenStreetMap&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Display speed limits in the top left corner of the driving screen. Uses data from your car's dashboard (if supported) and data from &lt;b&gt;OpenStreetMaps&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">Afficher les limites de vitesse dans le coin supérieur gauche de l'écran de conduite. Utilise les données du tableau de bord de votre voiture (si pris en charge) et les données d'&lt;b&gt;OpenStreetMaps&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Force &lt;b&gt;Vienna-style (EU)&lt;/b&gt; speed limit signs instead of &lt;b&gt;MUTCD (US)&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">Forcer les panneaux de limitation de vitesse de style &lt;b&gt;Vienne (UE)&lt;/b&gt; au lieu de &lt;b&gt;MUTCD (US)&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Quality of Life</source>
+        <translation type="gpt-4o-generated">Qualité de vie</translation>
+    </message>
+    <message>
+        <source>The active camera view display. This is purely a visual change and doesn't impact how openpilot drives!</source>
+        <translation type="gpt-4o-generated">L'affichage de la vue de la caméra active. Il s'agit d'un changement purement visuel qui n'affecte pas la conduite d'openpilot !</translation>
+    </message>
+    <message>
+        <source>Display the current driving personality on the screen. Tap to switch personalities, or long press for 0.5 seconds to change the current state of &lt;b&gt;Experimental Mode&lt;/b&gt;, or 2.5 seconds for &lt;b&gt;Traffic Mode&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">Afficher la personnalité de conduite actuelle à l'écran. Appuyez pour changer de personnalité, ou appuyez longuement pendant 0,5 seconde pour changer l'état actuel du &lt;b&gt;Mode Expérimental&lt;/b&gt;, ou 2,5 secondes pour le &lt;b&gt;Mode Trafic&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Display the driver camera feed when the vehicle is in reverse.</source>
+        <translation type="gpt-4o-generated">Afficher le flux de la caméra conducteur lorsque le véhicule est en marche arrière.</translation>
+    </message>
+    <message>
+        <source>Turn the screen off when driving and automatically wake it up if engagement state changes or important alerts occur.</source>
+        <translation type="gpt-4o-generated">Éteindre l'écran en conduisant et le réveiller automatiquement si l'état d'engagement change ou si des alertes importantes surviennent.</translation>
+    </message>
+    <message>
+        <source>Replace the current speed with a timer when stopped to indicate how long the vehicle has been stopped for.</source>
+        <translation type="gpt-4o-generated">Remplacez la vitesse actuelle par un minuteur à l'arrêt pour indiquer depuis combien de temps le véhicule est arrêté.</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation type="gpt-4o-generated">Désactivé</translation>
+    </message>
+    <message>
+        <source> foot</source>
+        <translation type="gpt-4o-generated">pied</translation>
+    </message>
+    <message>
+        <source> inch</source>
+        <translation type="gpt-4o-generated">pouce</translation>
+    </message>
+    <message>
+        <source> meter</source>
+        <translation type="gpt-4o-generated">mètre</translation>
+    </message>
+    <message>
+        <source> centimeter</source>
+        <translation type="gpt-4o-generated">centimètre</translation>
+    </message>
+    <message>
+        <source>The thickness of the lane lines on the driving screen.&lt;br&gt;&lt;br&gt;&lt;b&gt;Default matches the &lt;b&gt;MUTCD&lt;/b&gt; lane line width standard of 10 centimeters.</source>
+        <translation type="gpt-4o-generated">L'épaisseur des lignes de voie sur l'écran de conduite.&lt;br&gt;&lt;br&gt;&lt;b&gt;Par défaut, elle correspond à la norme de largeur de ligne de voie &lt;b&gt;MUTCD&lt;/b&gt; de 10 centimètres.</translation>
+    </message>
+    <message>
+        <source>The thickness of the road edges on the driving screen.&lt;br&gt;&lt;br&gt;&lt;b&gt;Default matches half of the &lt;b&gt;MUTCD&lt;/b&gt; lane line width standard of 10 centimeters.</source>
+        <translation type="gpt-4o-generated">L'épaisseur des bords de la route sur l'écran de conduite.&lt;br&gt;&lt;br&gt;&lt;b&gt;Par défaut, elle correspond à la moitié de la norme de largeur de ligne de voie &lt;b&gt;MUTCD&lt;/b&gt; de 10 centimètres.</translation>
+    </message>
+    <message>
+        <source>Driving Personality Button</source>
+        <translation type="gpt-4o-generated">Bouton de personnalité de conduite</translation>
+    </message>
+</context>
+<context>
+    <name>FrogPilotWheelPanel</name>
+    <message>
+        <source>Distance Button</source>
+        <translation type="gpt-4o-generated">Bouton de distance</translation>
+    </message>
+    <message>
+        <source>The action for a short press of the &lt;b&gt;Distance&lt;/b&gt; button.</source>
+        <translation type="gpt-4o-generated">L'action pour un appui court sur le bouton &lt;b&gt;Distance&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Distance Button (Long Press)</source>
+        <translation type="gpt-4o-generated">Bouton de distance (Appui long)</translation>
+    </message>
+    <message>
+        <source>The action for a 0.5+ second press of the &lt;b&gt;Distance&lt;/b&gt; button.</source>
+        <translation type="gpt-4o-generated">L'action pour une pression de 0,5 seconde ou plus sur le bouton &lt;b&gt;Distance&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Distance Button (Very Long Press)</source>
+        <translation type="gpt-4o-generated">Bouton de distance (Appui très long)</translation>
+    </message>
+    <message>
+        <source>The action for a 2.5+ second press of the &lt;b&gt;Distance&lt;/b&gt; button.</source>
+        <translation type="gpt-4o-generated">L'action pour une pression de plus de 2,5 secondes sur le bouton &lt;b&gt;Distance&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>LKAS Button</source>
+        <translation type="gpt-4o-generated">Bouton LKAS</translation>
+    </message>
+    <message>
+        <source>The ahe action for pressing the &lt;b&gt;LKAS&lt;/b&gt; button.</source>
+        <translation type="gpt-4o-generated">L'action ahe pour appuyer sur le bouton &lt;b&gt;LKAS&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Nothing</source>
+        <translation type="gpt-4o-generated">Rien</translation>
+    </message>
+    <message>
+        <source>Pause Lateral</source>
+        <translation type="gpt-4o-generated">Pause Latérale</translation>
+    </message>
+    <message>
+        <source>Change "Personality Profile"</source>
+        <translation type="gpt-4o-generated">Modifier le "Profil de personnalité"</translation>
+    </message>
+    <message>
+        <source>Force openpilot to Coast</source>
+        <translation type="gpt-4o-generated">Forcer openpilot à passer en roue libre</translation>
+    </message>
+    <message>
+        <source>Pause Longitudinal</source>
+        <translation type="gpt-4o-generated">Pause longitudinale</translation>
+    </message>
+    <message>
+        <source>Toggle "Experimental Mode" On/Off</source>
+        <translation type="gpt-4o-generated">Activer/désactiver le "Mode expérimental"</translation>
+    </message>
+    <message>
+        <source>Toggle "Traffic Mode" On/Off</source>
+        <translation type="gpt-4o-generated">Activer/Désactiver le "Mode Circulation"</translation>
+    </message>
+    <message>
+        <source>SELECT</source>
+        <translation type="gpt-4o-generated">SÉLECTIONNER</translation>
+    </message>
+    <message>
+        <source>Select a function to assign to this button</source>
+        <translation type="gpt-4o-generated">Sélectionnez une fonction à attribuer à ce bouton</translation>
     </message>
 </context>
 <context>
@@ -3752,7 +3727,7 @@ La valeur par défaut correspond à la moitié de la norme MUTCD de 4 pouces.</t
     </message>
     <message>
         <source>openpilot crashed 💩</source>
-        <translation type="gpt-4o-generated">openpilot a crashé 💩</translation>
+        <translation type="gpt-4o-generated">openpilot s'est planté 💩</translation>
     </message>
     <message>
         <source>Please post the 'Error Log' in the FrogPilot Discord!</source>
@@ -3775,11 +3750,11 @@ La valeur par défaut correspond à la moitié de la norme MUTCD de 4 pouces.</t
     </message>
     <message>
         <source>Go to https://connect.comma.ai on your phone</source>
-        <translation type="gpt-4o-generated">Allez sur https://connect.comma.ai sur votre téléphone</translation>
+        <translation type="gpt-4o-generated">Accédez à https://connect.comma.ai sur votre téléphone.</translation>
     </message>
     <message>
         <source>Bookmark connect.comma.ai to your home screen to use it like an app</source>
-        <translation type="gpt-4o-generated">Ajoutez connect.comma.ai à votre écran d'accueil pour l'utiliser comme une application</translation>
+        <translation type="gpt-4o-generated">Ajoutez connect.comma.ai à votre écran d'accueil pour l'utiliser comme une application.</translation>
     </message>
 </context>
 <context>
@@ -3959,24 +3934,24 @@ Cela peut prendre jusqu'à une minute.</translation>
         <translation type="gpt-4o-generated">FrogPilot</translation>
     </message>
     <message>
-        <source>Welcome to FrogPilot! Since you're new to FrogPilot, the 'Minimal' toggle preset has been applied, but you can change this at any time via the 'Tuning Level' button!</source>
-        <translation type="gpt-4o-generated">Bienvenue sur FrogPilot ! Étant donné que vous êtes nouveau sur FrogPilot, le préréglage 'Minimal' a été appliqué, mais vous pouvez le modifier à tout moment via le bouton 'Niveau de réglage' !</translation>
+        <source>Welcome to FrogPilot! Since you're new to FrogPilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the 'Tuning Level' button!</source>
+        <translation type="gpt-4o-generated">Bienvenue sur FrogPilot ! Comme vous êtes nouveau sur FrogPilot, le préréglage "Minimal" a été appliqué, mais vous pouvez le modifier à tout moment via le bouton 'Niveau de réglage' !</translation>
     </message>
     <message>
-        <source>Since you're fairly new to FrogPilot, the 'Minimal' toggle preset has been applied, but you can change this at any time via the 'Tuning Level' button!</source>
-        <translation type="gpt-4o-generated">Puisque vous êtes relativement nouveau sur FrogPilot, le préréglage 'Minimal' a été appliqué, mais vous pouvez le modifier à tout moment via le bouton 'Niveau de réglage' !</translation>
+        <source>Since you're fairly new to FrogPilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the 'Tuning Level' button!</source>
+        <translation type="gpt-4o-generated">Comme vous êtes assez nouveau sur FrogPilot, le préréglage "Minimal" a été appliqué, mais vous pouvez le modifier à tout moment via le bouton 'Niveau de réglage' !</translation>
     </message>
     <message>
-        <source>Since you're experienced with openpilot, the 'Standard' toggle preset has been applied, but you can change this at any time via the 'Tuning Level' button!</source>
-        <translation type="gpt-4o-generated">Étant donné votre expérience avec openpilot, le préréglage 'Standard' a été appliqué, mais vous pouvez le modifier à tout moment via le bouton 'Niveau de réglage' !</translation>
+        <source>Since you're experienced with openpilot, the "Standard" toggle preset has been applied, but you can change this at any time via the 'Tuning Level' button!</source>
+        <translation type="gpt-4o-generated">Étant donné que vous avez de l'expérience avec openpilot, le préréglage "Standard" a été appliqué, mais vous pouvez le modifier à tout moment via le bouton 'Niveau de réglage' !</translation>
     </message>
     <message>
-        <source>Since you're experienced with FrogPilot, the 'Standard' toggle preset has been applied, but you can change this at any time via the 'Tuning Level' button!</source>
-        <translation type="gpt-4o-generated">Étant donné votre expérience avec FrogPilot, le préréglage 'Standard' a été appliqué, mais vous pouvez le modifier à tout moment via le bouton 'Niveau de réglage' !</translation>
+        <source>Since you're experienced with FrogPilot, the "Standard" toggle preset has been applied, but you can change this at any time via the 'Tuning Level' button!</source>
+        <translation type="gpt-4o-generated">Étant donné votre expérience avec FrogPilot, le préréglage "Standard" a été appliqué, mais vous pouvez le modifier à tout moment via le bouton 'Niveau de réglage' !</translation>
     </message>
     <message>
-        <source>Since you're very experienced with FrogPilot, the 'Advanced' toggle preset has been applied, but you can change this at any time via the 'Tuning Level' button!</source>
-        <translation type="gpt-4o-generated">Étant donné que vous êtes très expérimenté avec FrogPilot, le préréglage 'Avancé' a été appliqué, mais vous pouvez le modifier à tout moment via le bouton 'Niveau de réglage' !</translation>
+        <source>Since you're very experienced with FrogPilot, the "Advanced" toggle preset has been applied, but you can change this at any time via the 'Tuning Level' button!</source>
+        <translation type="gpt-4o-generated">Étant donné votre grande expérience avec FrogPilot, le préréglage "Avancé" a été appliqué, mais vous pouvez le modifier à tout moment via le bouton 'Niveau de Réglage' !</translation>
     </message>
 </context>
 <context>
@@ -4181,7 +4156,7 @@ Cela peut prendre jusqu'à une minute.</translation>
     </message>
     <message>
         <source> GB</source>
-        <translation type="gpt-4o-generated">Go</translation>
+        <translation type="gpt-4o-generated">GB</translation>
     </message>
     <message>
         <source>MEMORY</source>
@@ -4276,7 +4251,7 @@ Cela peut prendre jusqu'à une minute.</translation>
     </message>
     <message>
         <source>FrogPilot will automatically update itself and it's assets when you're offroad and connected to Wi-Fi.</source>
-        <translation type="gpt-4o-generated">FrogPilot se mettra automatiquement à jour ainsi que ses ressources lorsque vous êtes hors route et connecté au Wi-Fi.</translation>
+        <translation type="gpt-4o-generated">FrogPilot se mettra automatiquement à jour, ainsi que ses ressources, lorsque vous êtes hors route et connecté au Wi-Fi.</translation>
     </message>
     <message>
         <source>Error Log</source>
@@ -4284,7 +4259,7 @@ Cela peut prendre jusqu'à une minute.</translation>
     </message>
     <message>
         <source>VIEW</source>
-        <translation type="gpt-4o-generated">VOIR</translation>
+        <translation type="gpt-4o-generated">AFFICHER</translation>
     </message>
     <message>
         <source>View the error log for openpilot crashes.</source>
@@ -4292,7 +4267,7 @@ Cela peut prendre jusqu'à une minute.</translation>
     </message>
     <message>
         <source>Do you want to delete deep storage FrogPilot assets? This includes your toggle settings for quick reinstalls.</source>
-        <translation type="gpt-4o-generated">Voulez-vous supprimer les ressources de stockage profond de FrogPilot ? Cela inclut vos paramètres de bascule pour des réinstallations rapides.</translation>
+        <translation type="gpt-4o-generated">Voulez-vous supprimer les ressources de stockage profond de FrogPilot ? Cela inclut vos paramètres de bascule pour les réinstallations rapides.</translation>
     </message>
     <message>
         <source>Are you sure? This is 100% unrecoverable and if you reinstall FrogPilot you'll lose all your previous settings!</source>
@@ -4300,7 +4275,7 @@ Cela peut prendre jusqu'à une minute.</translation>
     </message>
     <message>
         <source>This branch must be downloaded before switching. Would you like to download it now?</source>
-        <translation type="gpt-4o-generated">Cette branche doit être téléchargée avant de changer. Voulez-vous la télécharger maintenant ?</translation>
+        <translation type="gpt-4o-generated">Cette branche doit être téléchargée avant de changer. Souhaitez-vous la télécharger maintenant ?</translation>
     </message>
 </context>
 <context>
@@ -4488,7 +4463,7 @@ Cela peut prendre jusqu'à une minute.</translation>
     </message>
     <message>
         <source>Standard is recommended. In aggressive mode, openpilot will follow lead cars closer and be more aggressive with the gas and brake. In relaxed mode openpilot will stay further away from lead cars. On supported cars, you can cycle through these personalities with your steering wheel distance button.</source>
-        <translation type="gpt-4o-generated">Standard est recommandé. En mode agressif, openpilot suivra les voitures de tête de plus près et sera plus agressif avec l'accélérateur et le frein. En mode détendu, openpilot restera plus éloigné des voitures de tête. Sur les voitures prises en charge, vous pouvez parcourir ces personnalités avec le bouton de distance de votre volant.</translation>
+        <translation type="gpt-4o-generated">Standard est recommandé. En mode agressif, openpilot suivra les voitures de tête de plus près et sera plus agressif avec l'accélérateur et le frein. En mode détendu, openpilot restera plus éloigné des voitures de tête. Sur les voitures compatibles, vous pouvez alterner entre ces personnalités avec le bouton de distance de votre volant.</translation>
     </message>
     <message>
         <source>The driving visualization will transition to the road-facing wide-angle camera at low speeds to better show some turns. The Experimental mode logo will also be shown in the top right corner.</source>

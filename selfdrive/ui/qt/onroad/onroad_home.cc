@@ -49,13 +49,6 @@ OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent) {
   QObject::connect(uiState(), &UIState::uiUpdate, this, &OnroadWindow::updateState);
   QObject::connect(uiState(), &UIState::offroadTransition, this, &OnroadWindow::offroadTransition);
   QObject::connect(uiState(), &UIState::primeChanged, this, &OnroadWindow::primeChanged);
-
-  // FrogPilot variables
-  QObject::connect(&clickTimer, &QTimer::timeout, [this]() {
-    clickTimer.stop();
-    QMouseEvent event(QEvent::MouseButtonPress, timeoutPoint, Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-    QApplication::sendEvent(this, &event);
-  });
 }
 
 void OnroadWindow::updateState(const UIState &s) {
@@ -123,23 +116,6 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
 
   if (scene.speed_limit_changed && nvg->newSpeedLimitRect.contains(pos)) {
     params_memory.putBool("SpeedLimitAccepted", true);
-    return;
-  }
-
-  if (scene.experimental_mode_via_tap && pos != timeoutPoint) {
-    if (clickTimer.isActive()) {
-      clickTimer.stop();
-
-      if (scene.conditional_experimental) {
-        int override_value = scene.conditional_status != 0 && scene.conditional_status <= 6 ? 0 : scene.conditional_status >= 7 ? 5 : 6;
-        params_memory.putInt("CEStatus", override_value);
-      } else {
-        params.putBoolNonBlocking("ExperimentalMode", !params.getBool("ExperimentalMode"));
-      }
-
-    } else {
-      clickTimer.start(500);
-    }
     return;
   }
 

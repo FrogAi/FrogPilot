@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import glob
 import json
+import random
 import requests
 import shutil
 
@@ -17,6 +18,66 @@ DOWNLOAD_PROGRESS_PARAM = "ThemeDownloadProgress"
 
 HOLIDAY_THEME_PATH = Path(__file__).parent / "holiday_themes"
 STOCKOP_THEME_PATH = Path(__file__).parent / "stock_theme"
+
+def randomize_distance_icons():
+  theme_packs_path = THEME_SAVE_PATH / "theme_packs"
+  if not theme_packs_path.exists():
+    return "stock"
+
+  candidates = [directory.name for directory in theme_packs_path.iterdir() if (directory / "distance_icons").is_dir()]
+
+  return random.choice(candidates) if candidates else "stock"
+
+def randomize_theme_asset():
+  theme_packs_path = THEME_SAVE_PATH / "theme_packs"
+  if not theme_packs_path.exists():
+    return "stock"
+
+  animated_required = {"icons"}
+  base_required = {"colors", "icons", "sounds"}
+
+  candidates = []
+  for theme_directory in theme_packs_path.iterdir():
+    if not theme_directory.is_dir():
+      continue
+
+    name = theme_directory.name
+    base_name = name.replace("-animated", "")
+    base_path = theme_packs_path / base_name
+
+    animated_valid = "-animated" in name and all((theme_directory / directory).is_dir() for directory in animated_required)
+    base_valid = all((base_path / directory).is_dir() for directory in base_required) or (theme_packs_path / f"{base_name}-animated" / "icons").is_dir()
+
+    if animated_valid or base_valid:
+      candidates.append(name)
+
+  animated_themes = {name.replace("-animated", "") for name in candidates if name.endswith("-animated")}
+  candidates = [name for name in candidates if name not in animated_themes]
+
+  return random.choice(candidates) if candidates else "stock"
+
+def randomize_wheel_image(selected_theme):
+  steering_wheels_path = THEME_SAVE_PATH / "steering_wheels"
+  theme_packs_path = THEME_SAVE_PATH / "theme_packs"
+
+  if not steering_wheels_path.exists():
+    return "stock"
+
+  theme_names = []
+  if theme_packs_path.exists():
+    theme_names = [directory.name.replace("-animated", "") for directory in theme_packs_path.iterdir() if directory.is_dir()]
+
+  candidates = []
+  for wheel_file in steering_wheels_path.iterdir():
+    if not wheel_file.is_file():
+      continue
+
+    if any(part in theme_names for part in wheel_file.stem.split("_")):
+      continue
+
+    candidates.append(wheel_file.stem)
+
+  return random.choice(candidates) if candidates else "stock"
 
 def update_theme_asset(asset_type, theme, holiday_theme):
   save_location = ACTIVE_THEME_PATH / asset_type
@@ -84,7 +145,6 @@ def update_wheel_image(image, holiday_theme="stock", random_event=True):
     destination_file.symlink_to(source_file)
     print(f"Linked {destination_file} to {source_file}")
 
-
 class ThemeManager:
   def __init__(self):
     self.downloading_theme = False
@@ -125,6 +185,7 @@ class ThemeManager:
       "easter_week": easter.easter(year),
       "may_the_fourth": date(year, 5, 4),
       "cinco_de_mayo": date(year, 5, 5),
+      "stitch_day": date(year, 6, 26),
       "fourth_of_july": date(year, 7, 4),
       "halloween_week": date(year, 10, 31),
       "thanksgiving_week": self.calculate_thanksgiving(year),
@@ -139,7 +200,7 @@ class ThemeManager:
 
     self.theme_assets["holiday_theme"] = "stock"
 
-  def update_active_theme(self, time_validated, frogpilot_toggles, boot_run=False):
+  def update_active_theme(self, time_validated, frogpilot_toggles, boot_run=False, randomize_theme=False):
     if time_validated and frogpilot_toggles.holiday_themes:
       self.update_holiday()
     else:
@@ -154,7 +215,21 @@ class ThemeManager:
         "turn_signal_pack": ("signals", self.theme_assets.get("holiday_theme")),
         "wheel_image": ("wheel_image", self.theme_assets.get("holiday_theme"))
       }
-    else:
+    elif (boot_run or randomize_theme) and frogpilot_toggles.random_themes:
+      selected_theme = randomize_theme_asset()
+      selected_wheel = randomize_wheel_image(selected_theme)
+
+      asset_mappings = {
+        "color_scheme": ("colors", selected_theme.replace("-animated", "")),
+        "distance_icons": ("distance_icons", randomize_distance_icons()),
+        "icon_pack": ("icons", selected_theme),
+        "sound_pack": ("sounds", selected_theme.replace("-animated", "")),
+        "turn_signal_pack": ("signals", selected_theme.replace("-animated", "")),
+        "wheel_image": ("wheel_image", selected_wheel)
+      }
+
+      update_frogpilot_toggles()
+    elif not frogpilot_toggles.random_themes:
       asset_mappings = {
         "color_scheme": ("colors", frogpilot_toggles.color_scheme),
         "distance_icons": ("distance_icons", frogpilot_toggles.distance_icons),
@@ -163,6 +238,8 @@ class ThemeManager:
         "turn_signal_pack": ("signals", frogpilot_toggles.signal_icons),
         "wheel_image": ("wheel_image", frogpilot_toggles.wheel_image)
       }
+    else:
+      return False
 
     theme_updated = False
     for asset, (asset_type, current_value) in asset_mappings.items():

@@ -16,8 +16,8 @@ class FrogPilotTracking:
     self.drive_distance = 0
     self.drive_time = 0
 
-  def update(self, carState, controlsState, frogpilotCarControl):
-    self.enabled |= controlsState.enabled or frogpilotCarControl.alwaysOnLateralActive
+  def update(self, carState, controlsState, frogpilotCarState):
+    self.enabled |= controlsState.enabled or frogpilotCarState.alwaysOnLateralEnabled
 
     self.drive_distance += carState.vEgo * DT_MDL
     self.drive_time += DT_MDL

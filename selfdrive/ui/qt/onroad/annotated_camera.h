@@ -74,6 +74,8 @@ private:
 
   // FrogPilot widgets
   void drawCEMStatus(QPainter &p);
+  void drawLateralPaused(QPainter &p);
+  void drawLongitudinalPaused(QPainter &p);
   void drawRadarTracks(QPainter &p);
   void drawRoadName(QPainter &p);
   void drawTurnSignals(QPainter &p);
@@ -99,12 +101,15 @@ private:
   QPixmap lightIcon;
   QPixmap mapDataIcon;
   QPixmap navigationIcon;
+  QPixmap pausedIcon;
   QPixmap speedIcon;
   QPixmap stopSignImg;
   QPixmap turnIcon;
   QPixmap upcomingMapsIcon;
 
+  QPoint cemIconPosition;
   QPoint dmIconPosition;
+  QPoint lateralIconPosition;
 
   QRect leadTextRect;
 
@@ -121,15 +126,17 @@ private:
   bool blindSpotLeft;
   bool blindSpotRight;
   bool cemStatus;
+  bool cscStatus;
   bool compass;
   bool experimentalMode;
-  bool hideCSCUI;
   bool hideMapIcon;
   bool hideMaxSpeed;
   bool hideSpeed;
   bool hideSpeedLimit;
+  bool lateralPaused;
   bool leadInfo;
   bool leftCurve;
+  bool longitudinalPaused;
   bool mapOpen;
   bool mtscEnabled;
   bool onroadDistanceButton;
@@ -139,7 +146,9 @@ private:
   bool slcOverridden;
   bool speedLimitChanged;
   bool speedLimitSources;
-  bool trafficModeActive;
+  bool stscControllingCurve;
+  bool stscEnabled;
+  bool trafficMode;
   bool turnSignalAnimation;
   bool turnSignalLeft;
   bool turnSignalRight;
@@ -152,12 +161,14 @@ private:
   float dashboardSpeedLimit;
   float distanceConversion;
   float laneDetectionWidth;
+  float mapboxSpeedLimit;
   float mapsSpeedLimit;
   float mtscSpeed;
   float navigationSpeedLimit;
   float slcSpeedLimitOffset;
   float speedConversion;
   float speedConversionMetrics;
+  float stscSpeed;
   float unconfirmedSpeedLimit;
   float upcomingSpeedLimit;
   float vtscSpeed;
@@ -175,13 +186,13 @@ private:
   int standstillDuration;
   int totalFrames;
 
-  std::string speedLimitSource;
+  QColor blueColor(int alpha = 255) { return QColor(0, 0, 255, alpha); }
+  QColor greenColor(int alpha = 242) { return QColor(23, 134, 68, alpha); }
+  QColor orangeColor(int alpha = 255) { return QColor(255, 165, 0, alpha); }
+  QColor purpleColor(int alpha = 255) { return QColor(128, 0, 128, alpha); }
+  QColor yellowColor(int alpha = 255) { return QColor(255, 255, 0, alpha); }
 
-  inline QColor blueColor(int alpha = 255) { return QColor(0, 0, 255, alpha); }
-  inline QColor greenColor(int alpha = 242) { return QColor(23, 134, 68, alpha); }
-  inline QColor orangeColor(int alpha = 255) { return QColor(255, 165, 0, alpha); }
-  inline QColor purpleColor(int alpha = 255) { return QColor(128, 0, 128, alpha); }
-  inline QColor yellowColor(int alpha = 255) { return QColor(255, 255, 0, alpha); }
+  QString speedLimitSource;
 
 protected:
   void paintGL() override;

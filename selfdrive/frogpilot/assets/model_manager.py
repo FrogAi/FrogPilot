@@ -11,7 +11,7 @@ from pathlib import Path
 
 from openpilot.selfdrive.frogpilot.assets.download_functions import GITLAB_URL, download_file, get_repository_url, handle_error, handle_request_error, verify_download
 from openpilot.selfdrive.frogpilot.frogpilot_utilities import delete_file
-from openpilot.selfdrive.frogpilot.frogpilot_variables import DEFAULT_CLASSIC_MODEL, DEFAULT_MODEL, DEFAULT_TINYGRAD_MODEL, MODELS_PATH, params, params_memory
+from openpilot.selfdrive.frogpilot.frogpilot_variables import DEFAULT_CLASSIC_MODEL, DEFAULT_MODEL, DEFAULT_TINYGRAD_MODEL, MODELS_PATH, params, params_default, params_memory
 
 VERSION = "v13"
 
@@ -143,15 +143,18 @@ class ModelManager:
     outdated_models = downloaded_models - available_models
     for model in outdated_models:
       for model_file in MODELS_PATH.glob(f"{model}.*"):
-        print(f"Removing outdated model: {model}")
+        print(f"Removing outdated model: {model_file}")
         delete_file(model_file)
 
     for tmp_file in MODELS_PATH.glob("tmp*"):
       if tmp_file.is_file():
         delete_file(tmp_file)
 
-    automatically_update_models = not boot_run and params.get_bool("AutomaticallyUpdateModels")
-    if not automatically_update_models:
+    if params.get("Model", encoding="utf-8") not in self.available_models:
+      params.put("Model", params_default.get("Model", encoding="utf-8"))
+
+    automatically_download_models = not boot_run and params.get_bool("AutomaticallyDownloadModels")
+    if not automatically_download_models:
       return
 
     model_sizes = self.fetch_all_model_sizes(repo_url)
@@ -159,23 +162,29 @@ class ModelManager:
       print("No model size data available. Skipping model checks")
       return
 
-    for model in available_models:
-      model_files = list(MODELS_PATH.glob(f"{model}.*"))
-      expected_size = model_sizes.get(model)
+    needs_download = False
 
+    for model in available_models:
+      expected_size = model_sizes.get(model)
       if expected_size is None:
-        print(f"Size data for {model} not available.")
+        print(f"Size data for {model} not found in fetched metadata.")
+        continue
+
+      model_files = list(MODELS_PATH.glob(f"{model}.*"))
+      if not model_files:
+        needs_download = True
         continue
 
       for model_file in model_files:
         if model_file.is_file():
           local_size = model_file.stat().st_size
-          if local_size == expected_size:
-            continue
-          print(f"Model {model} is outdated. Deleting {model_file}...")
-          delete_file(model_file)
+          if local_size != expected_size:
+            print(f"Model {model} is outdated. Deleting {model_file}...")
+            delete_file(model_file)
+            needs_download = True
 
-    self.download_all_models()
+    if needs_download:
+      self.download_all_models()
 
   def update_model_params(self, model_info, repo_url):
     self.available_models = [model["id"] for model in model_info]

@@ -67,13 +67,27 @@ class SpeedLimitController:
         self.map_speed_limit = self.upcoming_speed_limit
 
   def get_offset(self, speed_limit, frogpilot_toggles):
-    if speed_limit < 13.5:
-      return frogpilot_toggles.speed_limit_offset1
-    if speed_limit < 24:
-      return frogpilot_toggles.speed_limit_offset2
-    if speed_limit < 29:
-      return frogpilot_toggles.speed_limit_offset3
-    return frogpilot_toggles.speed_limit_offset4
+    if frogpilot_toggles.is_metric:
+      offset_map = [
+        (0, 8.1, frogpilot_toggles.speed_limit_offset1),      # 0–29 km/h
+        (8.1, 13.6, frogpilot_toggles.speed_limit_offset2),   # 30–49
+        (13.6, 16.4, frogpilot_toggles.speed_limit_offset3),  # 50–59
+        (16.4, 21.9, frogpilot_toggles.speed_limit_offset4),  # 60–79
+        (21.9, 27.5, frogpilot_toggles.speed_limit_offset5),  # 80–99
+        (27.5, 33.1, frogpilot_toggles.speed_limit_offset6),  # 100–119
+        (33.1, 38.9, frogpilot_toggles.speed_limit_offset7),  # 120–140
+      ]
+    else:
+      offset_map = [
+        (0, 11.2, frogpilot_toggles.speed_limit_offset1),     # 0–24 mph
+        (11.2, 15.2, frogpilot_toggles.speed_limit_offset2),  # 25–34
+        (15.2, 19.6, frogpilot_toggles.speed_limit_offset3),  # 35–44
+        (19.6, 24.1, frogpilot_toggles.speed_limit_offset4),  # 45–54
+        (24.1, 28.6, frogpilot_toggles.speed_limit_offset5),  # 55–64
+        (28.6, 33.1, frogpilot_toggles.speed_limit_offset6),  # 65–74
+        (33.1, 44.2, frogpilot_toggles.speed_limit_offset7),  # 75–99
+      ]
+    return next((offset for low, high, offset in offset_map if low < speed_limit < high), 0)
 
   def get_speed_limit(self, dashboard_speed_limit, max_speed_limit, navigation_speed_limit, frogpilot_toggles):
     limits = {

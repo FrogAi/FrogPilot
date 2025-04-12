@@ -15,15 +15,13 @@ class FrogPilotFollowing:
     self.slower_lead = False
 
     self.acceleration_jerk = 0
-    self.base_acceleration_jerk = 0
-    self.base_speed_jerk = 0
     self.danger_jerk = 0
     self.desired_follow_distance = 0
     self.speed_jerk = 0
     self.t_follow = 0
 
-  def update(self, aEgo, controlsState, frogpilotCarState, lead_distance, v_ego, v_lead, frogpilot_toggles):
-    if frogpilotCarState.trafficModeActive:
+  def update(self, aEgo, controlsState, frogpilotCarState, lead_distance, v_ego, frogpilot_toggles):
+    if controlsState.enabled and frogpilotCarState.trafficMode:
       if aEgo >= 0:
         self.base_acceleration_jerk = float(np.interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_acceleration))
         self.base_speed_jerk = float(np.interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_speed))
@@ -33,7 +31,7 @@ class FrogPilotFollowing:
 
       self.base_danger_jerk = float(np.interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_danger))
       self.t_follow = float(np.interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_follow))
-    else:
+    elif controlsState.enabled:
       if aEgo >= 0:
         self.base_acceleration_jerk, self.base_danger_jerk, self.base_speed_jerk = get_jerk_factor(
           frogpilot_toggles.aggressive_jerk_acceleration, frogpilot_toggles.aggressive_jerk_danger, frogpilot_toggles.aggressive_jerk_speed,
@@ -55,6 +53,11 @@ class FrogPilotFollowing:
         frogpilot_toggles.relaxed_follow,
         frogpilot_toggles.custom_personalities, controlsState.personality
       )
+    else:
+      self.base_acceleration_jerk = 0
+      self.base_danger_jerk = 0
+      self.base_speed_jerk = 0
+      self.t_follow = 0
 
     self.acceleration_jerk = self.base_acceleration_jerk
     self.danger_jerk = self.base_danger_jerk
@@ -62,9 +65,9 @@ class FrogPilotFollowing:
 
     self.following_lead = self.frogpilot_planner.tracking_lead and lead_distance < (self.t_follow + 1) * v_ego
 
-    if self.frogpilot_planner.tracking_lead:
-      self.update_follow_values(lead_distance, v_ego, v_lead, frogpilot_toggles)
-      self.desired_follow_distance = int(desired_follow_distance(v_ego, v_lead, self.t_follow))
+    if controlsState.enabled and self.frogpilot_planner.tracking_lead:
+      self.update_follow_values(lead_distance, v_ego, self.frogpilot_planner.lead_one.vLead, frogpilot_toggles)
+      self.desired_follow_distance = int(desired_follow_distance(v_ego, self.frogpilot_planner.lead_one.vLead, self.t_follow))
     else:
       self.desired_follow_distance = 0
 

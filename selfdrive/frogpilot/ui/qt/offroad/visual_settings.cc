@@ -1,123 +1,121 @@
 #include "selfdrive/frogpilot/ui/qt/offroad/visual_settings.h"
 
 FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
+  QStackedLayout *visualsLayout = new QStackedLayout();
+  addItem(visualsLayout);
+
+  FrogPilotListWidget *visualsList = new FrogPilotListWidget(this);
+
+  ScrollView *visualsPanel = new ScrollView(visualsList, this);
+
+  visualsLayout->addWidget(visualsPanel);
+
+  FrogPilotListWidget *advancedCustomList = new FrogPilotListWidget(this);
+  FrogPilotListWidget *customUIList = new FrogPilotListWidget(this);
+  FrogPilotListWidget *developerMetricList = new FrogPilotListWidget(this);
+  FrogPilotListWidget *developerUIList = new FrogPilotListWidget(this);
+  FrogPilotListWidget *developerWidgetList = new FrogPilotListWidget(this);
+  FrogPilotListWidget *modelUIList = new FrogPilotListWidget(this);
+  FrogPilotListWidget *navigationUIList = new FrogPilotListWidget(this);
+  FrogPilotListWidget *qualityOfLifeList = new FrogPilotListWidget(this);
+
+  ScrollView *advancedCustomPanel = new ScrollView(advancedCustomList, this);
+  ScrollView *customUIPanel = new ScrollView(customUIList, this);
+  ScrollView *developerMetricPanel = new ScrollView(developerMetricList, this);
+  ScrollView *developerUIPanel = new ScrollView(developerUIList, this);
+  ScrollView *developerWidgetPanel = new ScrollView(developerWidgetList, this);
+  ScrollView *modelUIPanel = new ScrollView(modelUIList, this);
+  ScrollView *navigationUIPanel = new ScrollView(navigationUIList, this);
+  ScrollView *qualityOfLifePanel = new ScrollView(qualityOfLifeList, this);
+
+  visualsLayout->addWidget(advancedCustomPanel);
+  visualsLayout->addWidget(customUIPanel);
+  visualsLayout->addWidget(developerMetricPanel);
+  visualsLayout->addWidget(developerUIPanel);
+  visualsLayout->addWidget(developerWidgetPanel);
+  visualsLayout->addWidget(modelUIPanel);
+  visualsLayout->addWidget(navigationUIPanel);
+  visualsLayout->addWidget(qualityOfLifePanel);
+
   const std::vector<std::tuple<QString, QString, QString, QString>> visualToggles {
-    {"QOLVisuals", tr("Accessibility"), tr("Visual features to improve your overall openpilot experience."), "../frogpilot/assets/toggle_icons/icon_accessibility.png"},
-    {"CameraView", tr("Camera View"), tr("Changes the camera view display. This is purely a visual change and doesn't impact how openpilot drives."), ""},
-    {"OnroadDistanceButton", tr("On Screen Personality Button"), tr("Displays the current driving personality on the screen. Tap to switch personalities, or long press for 2.5 seconds to activate 'Traffic' mode."), ""},
-    {"DriverCamera", tr("Show Driver Camera When In Reverse"), tr("Displays the driver camera feed when the vehicle is in reverse."), ""},
-    {"StandbyMode", tr("Standby Mode"), tr("Turns the screen off when driving and automatically wakes it up if engagement state changes or important alerts occur."), ""},
-    {"StoppedTimer", tr("Stopped Timer"), tr("Activates a timer when stopped to indicate how long the vehicle has been stopped for."), ""},
+    {"AdvancedCustomUI", tr("Advanced UI Controls"), tr("Advanced settings for fine-tuning openpilot's driving screen."), "../frogpilot/assets/toggle_icons/icon_advanced_device.png"},
+    {"HideSpeed", tr("Hide Current Speed"), tr("Hide the current speed from the driving screen."), ""},
+    {"HideLeadMarker", tr("Hide Lead Marker"), tr("Hide the marker for lead vehicles from the driving screen."), ""},
+    {"HideMapIcon", tr("Hide Map Settings Button"), tr("Hide the map settings button from the driving screen."), ""},
+    {"HideMaxSpeed", tr("Hide Max Speed"), tr("Hide the max speed from the driving screen."), ""},
+    {"HideAlerts", tr("Hide Non-Critical Alerts"), tr("Hide non-critical alerts from the driving screen."), ""},
+    {"HideSpeedLimit", tr("Hide Speed Limits"), tr("Hide the speed limits from the driving screen."), ""},
+    {"WheelSpeed", tr("Use Wheel Speed"), tr("Use the vehicle's wheel speed instead of the cluster speed. This is purely a visual change and doesn't impact how openpilot drives."), ""},
 
-    {"AdvancedCustomUI", tr("Advanced UI Controls"), tr("Advanced features to fine tune your personalized UI."), "../frogpilot/assets/toggle_icons/icon_advanced_device.png"},
-    {"HideSpeed", tr("Hide Current Speed"), tr("Hides the current speed."), ""},
-    {"HideLeadMarker", tr("Hide Lead Marker"), tr("Hides the marker for the vehicle ahead."), ""},
-    {"HideMapIcon", tr("Hide Map Icon"), tr("Hides the map icon."), ""},
-    {"HideMaxSpeed", tr("Hide Max Speed"), tr("Hides the max speed."), ""},
-    {"HideAlerts", tr("Hide Non-Critical Alerts"), tr("Hides non-critical alerts."), ""},
-    {"HideSpeedLimit", tr("Hide Speed Limits"), tr("Hides the speed limits."), ""},
-    {"WheelSpeed", tr("Use Wheel Speed"), tr("Uses the wheel speed instead of the cluster speed. This is purely a visual change and doesn't impact how openpilot drives."), ""},
+    {"DeveloperUI", tr("Developer UI"), tr("Detailed information about openpilot's internal operations."), "../assets/offroad/icon_shell.png"},
+    {"DeveloperMetrics", tr("Developer Metrics"), tr("Performance data, sensor readings, and system metrics for debugging and optimizing openpilot."), ""},
+    {"BorderMetrics", tr("Border Metrics"), tr("Metrics displayed around the border of the driving screen.<br><br><b>Blind Spot</b>: Turn the border red when a vehicle is detected in a blind spot<br><b>Steering Torque</b>: Highlight the border green to red in accordance to the amount of steering torque being used<br><b>Turn Signal</b>: Flash the border yellow when a turn signal is active"), ""},
+    {"FPSCounter", tr("FPS Display"), tr("Display the <b>Frames Per Second (FPS)</b> at the bottom of the driving screen."), ""},
+    {"LateralMetrics", tr("Lateral Metrics"), tr("Metrics related to steering control.<br><br><b>Adjacent Path Metrics</b>: Paint the adjacent lanes and their width measurements<br><b>Auto Tune</b>: Display the <b>Friction</b> and <b>Lateral Acceleration</b> values from comma's auto tune at the top of the driving screen"), ""},
+    {"LongitudinalMetrics", tr("Longitudinal Metrics"), tr("Metrics related to gas/brake control.<br><br><b>Lead Info</b>: Display the lead vehicle's distance and speed on the lead marker<br><b>Jerk Values</b>: Display the current longitudinal jerk values and any offsets from FrogPilot functions at the top of the driving screen"), ""},
+    {"NumericalTemp", tr("Numerical Temperature Gauge"), tr("Use numerical temperature readings instead of status labels in the sidebar."), ""},
+    {"SidebarMetrics", tr("Sidebar"), tr("Display system information (<b>CPU</b>, <b>GPU</b>, <b>RAM usage</b>, <b>IP address</b>, <b>device storage</b>) in the sidebar."), ""},
+    {"UseSI", tr("Use International System of Units"), tr("Display measurements using the <b>International System of Units (SI)</b> standard."), ""},
+    {"DeveloperWidgets", tr("Developer Widgets"), tr("Overlays displaying debugging visuals, internal states, and model predictions on the driving screen."), ""},
+    {"AdjacentLeadsUI", tr("Adjacent Leads Tracking"), tr("Adjacent leads detected by the car's radar to the left and right of the current driving path."), ""},
+    {"ShowStoppingPoint", tr("Model Stopping Point"), tr("Display an image on the screen where openpilot is wanting to stop."), ""},
+    {"RadarTracksUI", tr("Radar Tracks"), tr("Display all of the radar points produced by the car's radar."), ""},
 
-    {"DeveloperUI", tr("Developer UI"), tr("Show detailed information about openpilot's internal operations."), "../assets/offroad/icon_shell.png"},
-    {"DeveloperMetrics", tr("Developer Metrics"), tr("Show detailed information about openpilot's internal operations."), ""},
-    {"BorderMetrics", tr("Border Metrics"), tr("Displays performance metrics around the edge of the screen while driving."), ""},
-    {"FPSCounter", tr("FPS Display"), tr("Displays the 'Frames Per Second' (FPS) at the bottom of the screen while driving."), ""},
-    {"LateralMetrics", tr("Lateral Metrics"), tr("Displays metrics related to steering control at the top of the screen while driving."), ""},
-    {"LongitudinalMetrics", tr("Longitudinal Metrics"), tr("Displays metrics related to acceleration, speed, and desired following distance at the top of the screen while driving."), ""},
-    {"NumericalTemp", tr("Numerical Temperature Gauge"), tr("Shows exact temperature readings instead of status labels like 'GOOD', 'OK', or 'HIGH' in the sidebar."), ""},
-    {"SidebarMetrics", tr("Sidebar"), tr("Displays system information like CPU, GPU, RAM usage, IP address, and storage space in the sidebar."), ""},
-    {"UseSI", tr("Use International System of Units"), tr("Displays measurements using the 'International System of Units' (SI)."), ""},
-    {"DeveloperWidgets", tr("Developer Widgets"), tr("Show detailed information about openpilot's internal operations."), ""},
-    {"AdjacentLeadsUI", tr("Adjacent Leads Tracking"), tr("Show adjacent leads being detected by the car's radar."), ""},
-    {"ShowStoppingPoint", tr("Model Stopping Point"), tr("Displays an image on the screen where openpilot is wanting to stop."), ""},
-    {"RadarTracksUI", tr("Radar Tracks"), tr("Show all of the radar points being tracked by the car's radar."), ""},
+    {"CustomUI", tr("Driving Screen Widgets"), tr("Custom FrogPilot widgets for the driving screen."), "../assets/offroad/icon_road.png"},
+    {"AccelerationPath", tr("Acceleration Path"), tr("Colorize the driving path based on openpilot's current desired acceleration and deceleration rate."), ""},
+    {"AdjacentPath", tr("Adjacent Lanes"), tr("Driving paths for the left and right adjacent lanes."), ""},
+    {"BlindSpotPath", tr("Blind Spot Path"), tr("Display a red driving path for detected vehicles in the corresponding lane's blind spot."), ""},
+    {"Compass", tr("Compass"), tr("A compass to show the current driving direction."), ""},
+    {"OnroadDistanceButton", tr("Driving Personality Button"), tr("Display the current driving personality on the screen. Tap to switch personalities, or long press for 0.5 seconds to change the current state of <b>Experimental Mode</b>, or 2.5 seconds for <b>Traffic Mode</b>."), ""},
+    {"PedalsOnUI", tr("Gas / Brake Pedal Indicators"), tr("Pedals to indicate when either of the pedals are currently being used.<br><br><b>Dynamic</b>: The pedals change in opacity in accordance to how much openpilot is accelerating or decelerating<br><b>Static</b>: The pedals are displayed with full opacity when active, and dimmed when not in use"), ""},
+    {"RotatingWheel", tr("Rotating Steering Wheel"), tr("Rotate the steering wheel alongside the vehicle's physical steering wheel."), ""},
 
-    {"ModelUI", tr("Model UI"), tr("Customize the model visualizations on the screen."), "../frogpilot/assets/toggle_icons/icon_vtc.png"},
-    {"DynamicPathWidth", tr("Dynamic Path Width"), tr("Automatically adjusts the width of the driving path display based on the current engagement state:\n\nFully engaged = 100%\nAlways On Lateral Active = 75%\nFully disengaged = 50%"), ""},
-    {"LaneLinesWidth", tr("Lane Lines Width"), tr("Controls the thickness the lane lines appear on the display.\n\nDefault matches the MUTCD standard of 4 inches."), ""},
-    {"PathEdgeWidth", tr("Path Edges Width"), tr("Controls the width of the edges of the driving path to represent different modes and statuses.\n\nDefault is 20% of the total path width.\n\nColor Guide:\n\n- Blue: Navigation\n- Light Blue: 'Always On Lateral'\n- Green: Default\n- Orange: 'Experimental Mode'\n- Red: 'Traffic Mode'\n- Yellow: 'Conditional Experimental Mode' Overridden"), ""},
-    {"PathWidth", tr("Path Width"), tr("Controls how wide the driving path appears on your screen.\n\nDefault (6.1 feet / 1.9 meters) matches the width of a 2019 Lexus ES 350."), ""},
-    {"RoadEdgesWidth", tr("Road Edges Width"), tr("Controls how thick the road edges appear on the display.\n\nDefault matches half of the MUTCD standard lane line width of 4 inches."), ""},
-    {"UnlimitedLength", tr("'Unlimited' Road UI"), tr("Extends the display of the path, lane lines, and road edges as far as the model can see."), ""},
+    {"ModelUI", tr("Model UI"), tr("Model visualizations on the driving screen for the driving path, lane lines, path edges, and road edges."), "../frogpilot/assets/toggle_icons/icon_vtc.png"},
+    {"DynamicPathWidth", tr("Dynamic Path Width"), tr("Adjust the width of the driving path based on the current engagement state.<br><br><b>Fully engaged</b>: 100%<br><b>Always On Lateral</b>: 75%<br><b>Fully disengaged</b>: 50%"), ""},
+    {"LaneLinesWidth", tr("Lane Lines Width"), tr("The thickness of the lane lines on the driving screen.<br><br><b>Default matches the <b>MUTCD</b> lane line width standard of 4 inches."), ""},
+    {"PathEdgeWidth", tr("Path Edges Width"), tr("The width of the edges of the driving path that represent different driving modes and statuses.<br><br>Default is <b>20%</b> of the total path width.<br><br>Color Guide:<br><br>- <b>Blue</b>: Navigation<br>- <b>Light Blue</b>: Always On Lateral<br>- <b>Green</b>: Default<br>- <b>Orange</b>: Experimental Mode<br>- <b>Red</b>: Traffic Mode<br>- <b>Yellow</b>: Conditional Experimental Mode overridden"), ""},
+    {"PathWidth", tr("Path Width"), tr("The width of the driving path on the driving screen.<br><br>Default <b>(6.1 feet / 1.9 meters)</b> matches the width of a <b>2019 Lexus ES 350</b>."), ""},
+    {"RoadEdgesWidth", tr("Road Edges Width"), tr("The thickness of the road edges on the driving screen.<br><br><b>Default matches half of the <b>MUTCD</b> lane line width standard of 4 inches."), ""},
+    {"UnlimitedLength", tr("\"Unlimited\" Road UI"), tr("Extend the display of the driving path, lane lines, and road edges as far as the model can see."), ""},
 
-    {"NavigationUI", tr("Navigation Widgets"), tr("Wwidgets focused around navigation."), "../frogpilot/assets/toggle_icons/icon_map.png"},
-    {"BigMap", tr("Larger Map Display"), tr("Increases the size of the map for easier navigation readings."), ""},
-    {"MapStyle", tr("Map Style"), tr("Swaps out the stock map style for community created ones."), ""},
-    {"RoadNameUI", tr("Road Name"), tr("Displays the current road name at the bottom of the screen using data from 'OpenStreetMap'."), ""},
-    {"ShowSpeedLimits", tr("Show Speed Limits"), tr("Displays the currently detected speed limit in the top left corner of the onroad UI. Uses data from your car's dashboard (if supported) and data from 'OpenStreetMaps'."), ""},
-    {"UseVienna", tr("Use Vienna-Style Speed Signs"), tr("Forces Vienna-style (EU) speed limit signs instead of MUTCD (US)."), ""},
+    {"NavigationUI", tr("Navigation Widgets"), tr("Map style tweaks, speed limits, and other navigation related widgets."), "../frogpilot/assets/toggle_icons/icon_map.png"},
+    {"BigMap", tr("Larger Map Display"), tr("Increase the size of the map for easier navigation readings."), ""},
+    {"MapStyle", tr("Map Style"), tr("The map style used for <b>Navigate on openpilot (NOO)</b>:<br><br><b>Stock</b>: Default comma.ai style<br><b>Mapbox Streets</b>: Standard street-focused view<br><b>Mapbox Outdoors</b>: Emphasizes outdoor and terrain features<br><b>Mapbox Light</b>: Minimalist, bright theme<br><b>Mapbox Dark</b>: Minimalist, dark theme<br><b>Mapbox Navigation Day</b>: Optimized for daytime navigation<br><b>Mapbox Navigation Night</b>: Optimized for nighttime navigation<br><b>Mapbox Satellite</b>: Satellite imagery only<br><b>Mapbox Satellite Streets</b>: Hybrid satellite imagery with street labels<br><b>Mapbox Traffic Night</b>: Dark theme emphasizing traffic conditions<br><b>mike854's (Satellite hybrid)</b>: Customized hybrid satellite view"), ""},
+    {"RoadNameUI", tr("Road Name"), tr("Display the road name at the bottom of the driving screen using data from <b>OpenStreetMap</b>."), ""},
+    {"ShowSpeedLimits", tr("Show Speed Limits"), tr("Display speed limits in the top left corner of the driving screen. Uses data from your car's dashboard (if supported) and data from <b>OpenStreetMaps</b>."), ""},
+    {"UseVienna", tr("Use Vienna-Style Speed Signs"), tr("Force <b>Vienna-style (EU)</b> speed limit signs instead of <b>MUTCD (US)</b>."), ""},
 
-    {"CustomUI", tr("Onroad Screen Widgets"), tr("Custom FrogPilot widgets used in the onroad user interface."), "../assets/offroad/icon_road.png"},
-    {"AccelerationPath", tr("Acceleration Path"), tr("Projects a path based on openpilot's current desired acceleration or deceleration."), ""},
-    {"AdjacentPath", tr("Adjacent Lanes"), tr("Projects paths for the adjascent lanes."), ""},
-    {"BlindSpotPath", tr("Blind Spot Path"), tr("Projects a red path when vehicles are detected in the blind spot for the respective lane."), ""},
-    {"Compass", tr("Compass"), tr("Displays a compass to show the current driving direction."), ""},
-    {"PedalsOnUI", tr("Gas / Brake Pedal Indicators"), tr("Displays pedal indicators to indicate when either of the pedals are currently being used."), ""},
-    {"RotatingWheel", tr("Rotating Steering Wheel"), tr("Rotates the steering wheel in the onroad UI rotates along with your steering wheel movements."), ""}
+    {"QOLVisuals", tr("Quality of Life"), tr("Visual features to improve your overall openpilot experience."), "../frogpilot/assets/toggle_icons/quality_of_life.png"},
+    {"CameraView", tr("Camera View"), tr("The active camera view display. This is purely a visual change and doesn't impact how openpilot drives!"), ""},
+    {"DriverCamera", tr("Show Driver Camera When In Reverse"), tr("Display the driver camera feed when the vehicle is in reverse."), ""},
+    {"StandbyMode", tr("Standby Mode"), tr("Turn the screen off when driving and automatically wake it up if engagement state changes or important alerts occur."), ""},
+    {"StoppedTimer", tr("Stopped Timer"), tr("Replace the current speed with a timer when stopped to indicate how long the vehicle has been stopped for."), ""}
   };
 
   for (const auto &[param, title, desc, icon] : visualToggles) {
     AbstractControl *visualToggle;
 
-    if (param == "QOLVisuals") {
-      FrogPilotManageControl *qolToggle = new FrogPilotManageControl(param, title, desc, icon);
-      QObject::connect(qolToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
-        std::set<QString> modifiedAccessibilityKeys = accessibilityKeys;
-
-        if (!hasOpenpilotLongitudinal) {
-          modifiedAccessibilityKeys.erase("OnroadDistanceButton");
-        }
-
-        showToggles(modifiedAccessibilityKeys);
-      });
-      visualToggle = qolToggle;
-    } else if (param == "CameraView") {
-      std::vector<QString> cameraOptions{tr("Auto"), tr("Driver"), tr("Standard"), tr("Wide")};
-      ButtonParamControl *preferredCamera = new ButtonParamControl(param, title, desc, icon, cameraOptions);
-      visualToggle = preferredCamera;
-
-    } else if (param == "AdvancedCustomUI") {
+    if (param == "AdvancedCustomUI") {
       FrogPilotManageControl *advancedCustomUIToggle = new FrogPilotManageControl(param, title, desc, icon);
-      QObject::connect(advancedCustomUIToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
-        std::set<QString> modifiedAdvancedCustomOnroadUIKeys = advancedCustomOnroadUIKeys;
-
-        if (!hasOpenpilotLongitudinal) {
-          modifiedAdvancedCustomOnroadUIKeys.erase("HideLeadMarker");
-        }
-
-        showToggles(modifiedAdvancedCustomOnroadUIKeys);
+      QObject::connect(advancedCustomUIToggle, &FrogPilotManageControl::manageButtonClicked, [visualsLayout, advancedCustomPanel]() {
+        visualsLayout->setCurrentWidget(advancedCustomPanel);
       });
       visualToggle = advancedCustomUIToggle;
 
     } else if (param == "DeveloperUI") {
       FrogPilotManageControl *developerUIToggle = new FrogPilotManageControl(param, title, desc, icon);
-      QObject::connect(developerUIToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
-        std::set<QString> modifiedDeveloperUIKeys = developerUIKeys;
-
-        if (!hasOpenpilotLongitudinal) {
-          modifiedDeveloperUIKeys.erase("DeveloperWidgets");
-        }
-
-        showToggles(modifiedDeveloperUIKeys);
+      QObject::connect(developerUIToggle, &FrogPilotManageControl::manageButtonClicked, [visualsLayout, developerUIPanel]() {
+        visualsLayout->setCurrentWidget(developerUIPanel);
       });
       visualToggle = developerUIToggle;
     } else if (param == "DeveloperMetrics") {
       ButtonControl *developerMetricsToggle = new ButtonControl(title, tr("MANAGE"), desc);
-      QObject::connect(developerMetricsToggle, &ButtonControl::clicked, [this]() {
-        developerUIOpen = true;
-
+      QObject::connect(developerMetricsToggle, &ButtonControl::clicked, [this, visualsLayout, developerMetricPanel]() {
         openSubParentToggle();
 
-        borderMetricsBtn->setVisibleButton(0, hasBSM);
-        lateralMetricsBtn->setVisibleButton(1, hasAutoTune);
+        visualsLayout->setCurrentWidget(developerMetricPanel);
 
-        std::set<QString> modifiedDeveloperMetricKeys = developerMetricKeys;
-
-        if (!hasOpenpilotLongitudinal) {
-          modifiedDeveloperMetricKeys.erase("LongitudinalMetrics");
-        }
-
-        showToggles(modifiedDeveloperMetricKeys);
+        developerUIOpen = true;
       });
       visualToggle = developerMetricsToggle;
     } else if (param == "BorderMetrics") {
@@ -133,7 +131,8 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     } else if (param == "LongitudinalMetrics") {
       std::vector<QString> longitudinalToggles{"LeadInfo", "JerkInfo"};
       std::vector<QString> longitudinalToggleNames{tr("Lead Info"), tr("Jerk Values")};
-      visualToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, longitudinalToggles, longitudinalToggleNames);
+      longitudinalMetricsBtn = new FrogPilotButtonToggleControl(param, title, desc, icon, longitudinalToggles, longitudinalToggleNames);
+      visualToggle = longitudinalMetricsBtn;
     } else if (param == "NumericalTemp") {
       std::vector<QString> temperatureToggles{"Fahrenheit"};
       std::vector<QString> temperatureToggleNames{tr("Fahrenheit")};
@@ -162,23 +161,12 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
       visualToggle = sidebarMetricsToggle;
     } else if (param == "DeveloperWidgets") {
       ButtonControl *developerWidgetsToggle = new ButtonControl(title, tr("MANAGE"), desc);
-      QObject::connect(developerWidgetsToggle, &ButtonControl::clicked, [this]() {
-        developerUIOpen = true;
-
+      QObject::connect(developerWidgetsToggle, &ButtonControl::clicked, [this, visualsLayout, developerWidgetPanel]() {
         openSubParentToggle();
 
-        std::set<QString> modifiedDeveloperWidgetKeys = developerWidgetKeys;
+        visualsLayout->setCurrentWidget(developerWidgetPanel);
 
-        if (!hasOpenpilotLongitudinal) {
-          modifiedDeveloperWidgetKeys.erase("ShowStoppingPoint");
-        }
-
-        if (!hasRadar) {
-          modifiedDeveloperWidgetKeys.erase("AdjacentLeadsUI");
-          modifiedDeveloperWidgetKeys.erase("RadarTracksUI");
-        }
-
-        showToggles(modifiedDeveloperWidgetKeys);
+        developerUIOpen = true;
       });
       visualToggle = developerWidgetsToggle;
     } else if (param == "ShowStoppingPoint") {
@@ -186,79 +174,10 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
       std::vector<QString> stoppingPointToggleNames{tr("Show Distance")};
       visualToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, stoppingPointToggles, stoppingPointToggleNames);
 
-    } else if (param == "ModelUI") {
-      FrogPilotManageControl *modelUIToggle = new FrogPilotManageControl(param, title, desc, icon);
-      QObject::connect(modelUIToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
-        showToggles(modelUIKeys);
-      });
-      visualToggle = modelUIToggle;
-    } else if (param == "LaneLinesWidth" || param == "RoadEdgesWidth") {
-      visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 24, tr(" inches"));
-    } else if (param == "PathEdgeWidth") {
-      visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 100, tr("%"));
-    } else if (param == "PathWidth") {
-      visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 10, tr(" feet"), std::map<float, QString>(), 0.1);
-
-    } else if (param == "NavigationUI") {
-      FrogPilotManageControl *customUIToggle = new FrogPilotManageControl(param, title, desc, icon);
-      QObject::connect(customUIToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
-        std::set<QString> modifiedNavigationUIKeys = navigationUIKeys;
-
-        if (params.getBool("SpeedLimitController")) {
-          modifiedNavigationUIKeys.erase("ShowSpeedLimits");
-        }
-
-        showToggles(modifiedNavigationUIKeys);
-      });
-      visualToggle = customUIToggle;
-    } else if (param == "BigMap") {
-      std::vector<QString> mapToggles{"FullMap"};
-      std::vector<QString> mapToggleNames{tr("Full Map")};
-      visualToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, mapToggles, mapToggleNames);
-    } else if (param == "MapStyle") {
-      QMap<int, QString> styleMap {
-        {0, tr("Stock")},
-        {1, tr("Mapbox Streets")},
-        {2, tr("Mapbox Outdoors")},
-        {3, tr("Mapbox Light")},
-        {4, tr("Mapbox Dark")},
-        {5, tr("Mapbox Satellite")},
-        {6, tr("Mapbox Satellite Streets")},
-        {7, tr("Mapbox Navigation Day")},
-        {8, tr("Mapbox Navigation Night")},
-        {9, tr("Mapbox Traffic Night")},
-        {10, tr("mike854's (Satellite hybrid)")}
-      };
-
-      ButtonControl *mapStyleButton = new ButtonControl(title, tr("SELECT"), desc);
-      QObject::connect(mapStyleButton, &ButtonControl::clicked, [this, mapStyleButton, styleMap]() {
-        QString selection = MultiOptionDialog::getSelection(tr("Select a map style"), styleMap.values(), "", this);
-        if (!selection.isEmpty()) {
-          int selectedStyle = styleMap.key(selection);
-          params.putInt("MapStyle", selectedStyle);
-          mapStyleButton->setValue(selection);
-        }
-      });
-      int currentStyle = params.getInt("MapStyle");
-      mapStyleButton->setValue(styleMap[currentStyle]);
-
-      visualToggle = mapStyleButton;
-
     } else if (param == "CustomUI") {
       FrogPilotManageControl *customUIToggle = new FrogPilotManageControl(param, title, desc, icon);
-      QObject::connect(customUIToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
-        std::set<QString> modifiedCustomOnroadUIKeys = customOnroadUIKeys;
-
-        if (!hasBSM) {
-          modifiedCustomOnroadUIKeys.erase("BlindSpotPath");
-        }
-
-        if (!hasOpenpilotLongitudinal) {
-          modifiedCustomOnroadUIKeys.erase("AccelerationPath");
-          modifiedCustomOnroadUIKeys.erase("PedalsOnUI");
-        }
-
-        showToggles(modifiedCustomOnroadUIKeys);
+      QObject::connect(customUIToggle, &FrogPilotManageControl::manageButtonClicked, [visualsLayout, customUIPanel]() {
+        visualsLayout->setCurrentWidget(customUIPanel);
       });
       visualToggle = customUIToggle;
     } else if (param == "PedalsOnUI") {
@@ -274,20 +193,120 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
       });
       visualToggle = pedalsToggle;
 
+    } else if (param == "ModelUI") {
+      FrogPilotManageControl *modelUIToggle = new FrogPilotManageControl(param, title, desc, icon);
+      QObject::connect(modelUIToggle, &FrogPilotManageControl::manageButtonClicked, [visualsLayout, modelUIPanel]() {
+        visualsLayout->setCurrentWidget(modelUIPanel);
+      });
+      visualToggle = modelUIToggle;
+    } else if (param == "LaneLinesWidth" || param == "RoadEdgesWidth") {
+      visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 24, tr(" inches"));
+    } else if (param == "PathEdgeWidth") {
+      std::map<float, QString> pathEdgeLabels;
+      for (int i = 0; i <= 100; ++i) {
+        pathEdgeLabels[i] = i == 0 ? tr("Off") : QString::number(i) + "%";
+      }
+      visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 100, QString(), pathEdgeLabels);
+    } else if (param == "PathWidth") {
+      visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 10, tr(" feet"), std::map<float, QString>(), 0.1);
+
+    } else if (param == "NavigationUI") {
+      FrogPilotManageControl *navigationUIToggle = new FrogPilotManageControl(param, title, desc, icon);
+      QObject::connect(navigationUIToggle, &FrogPilotManageControl::manageButtonClicked, [visualsLayout, navigationUIPanel]() {
+        visualsLayout->setCurrentWidget(navigationUIPanel);
+      });
+      visualToggle = navigationUIToggle;
+    } else if (param == "BigMap") {
+      std::vector<QString> mapToggles{"FullMap"};
+      std::vector<QString> mapToggleNames{tr("Full Map")};
+      visualToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, mapToggles, mapToggleNames);
+    } else if (param == "MapStyle") {
+      QMap<int, QString> styleMap {
+        {0, tr("Stock")},
+        {1, tr("Mapbox Streets")},
+        {2, tr("Mapbox Outdoors")},
+        {3, tr("Mapbox Light")},
+        {4, tr("Mapbox Dark")},
+        {7, tr("Mapbox Navigation Day")},
+        {8, tr("Mapbox Navigation Night")},
+        {5, tr("Mapbox Satellite")},
+        {6, tr("Mapbox Satellite Streets")},
+        {9, tr("Mapbox Traffic Night")},
+        {10, tr("mike854's (Satellite hybrid)")}
+      };
+
+      ButtonControl *mapStyleButton = new ButtonControl(title, tr("SELECT"), desc);
+      QObject::connect(mapStyleButton, &ButtonControl::clicked, [this, mapStyleButton, styleMap]() {
+        QString selection = MultiOptionDialog::getSelection(tr("Select a map style"), styleMap.values(), "", this);
+        if (!selection.isEmpty()) {
+          int selectedStyle = styleMap.key(selection);
+
+          params.putInt("MapStyle", selectedStyle);
+
+          mapStyleButton->setValue(selection);
+        }
+      });
+      int currentStyle = params.getInt("MapStyle");
+      mapStyleButton->setValue(styleMap[currentStyle]);
+
+      visualToggle = mapStyleButton;
+
+    } else if (param == "QOLVisuals") {
+      FrogPilotManageControl *qolToggle = new FrogPilotManageControl(param, title, desc, icon);
+      QObject::connect(qolToggle, &FrogPilotManageControl::manageButtonClicked, [visualsLayout, qualityOfLifePanel]() {
+        visualsLayout->setCurrentWidget(qualityOfLifePanel);
+      });
+      visualToggle = qolToggle;
+    } else if (param == "CameraView") {
+      std::vector<QString> cameraOptions{tr("Auto"), tr("Driver"), tr("Standard"), tr("Wide")};
+      ButtonParamControl *cameraSelection = new ButtonParamControl(param, title, desc, icon, cameraOptions);
+      visualToggle = cameraSelection;
+
     } else {
       visualToggle = new ParamControl(param, title, desc, icon);
     }
 
-    addItem(visualToggle);
     toggles[param] = visualToggle;
+
+    if (advancedCustomOnroadUIKeys.find(param) != advancedCustomOnroadUIKeys.end()) {
+      advancedCustomList->addItem(visualToggle);
+    } else if (customOnroadUIKeys.find(param) != customOnroadUIKeys.end()) {
+      customUIList->addItem(visualToggle);
+    } else if (developerMetricKeys.find(param) != developerMetricKeys.end()) {
+      developerMetricList->addItem(visualToggle);
+    } else if (developerUIKeys.find(param) != developerUIKeys.end()) {
+      developerUIList->addItem(visualToggle);
+    } else if (developerWidgetKeys.find(param) != developerWidgetKeys.end()) {
+      developerWidgetList->addItem(visualToggle);
+    } else if (modelUIKeys.find(param) != modelUIKeys.end()) {
+      modelUIList->addItem(visualToggle);
+    } else if (navigationUIKeys.find(param) != navigationUIKeys.end()) {
+      navigationUIList->addItem(visualToggle);
+    } else if (qualityOfLifeKeys.find(param) != qualityOfLifeKeys.end()) {
+      qualityOfLifeList->addItem(visualToggle);
+    } else {
+      visualsList->addItem(visualToggle);
+
+      parentKeys.insert(param);
+    }
 
     if (FrogPilotManageControl *frogPilotManageToggle = qobject_cast<FrogPilotManageControl*>(visualToggle)) {
       QObject::connect(frogPilotManageToggle, &FrogPilotManageControl::manageButtonClicked, this, &FrogPilotVisualsPanel::openParentToggle);
     }
+
+    QObject::connect(visualToggle, &AbstractControl::showDescriptionEvent, [this]() {
+      update();
+    });
   }
 
-  QObject::connect(parent, &FrogPilotSettingsWindow::closeParentToggle, this, &FrogPilotVisualsPanel::hideToggles);
-  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubParentToggle, this, &FrogPilotVisualsPanel::hideSubToggles);
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeParentToggle, [visualsLayout, visualsPanel] {visualsLayout->setCurrentWidget(visualsPanel);});
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubParentToggle, [this, visualsLayout, developerUIPanel]() {
+    if (developerUIOpen) {
+      visualsLayout->setCurrentWidget(developerUIPanel);
+
+      developerUIOpen = false;
+    }
+  });
   QObject::connect(parent, &FrogPilotSettingsWindow::updateMetric, this, &FrogPilotVisualsPanel::updateMetric);
 }
 
@@ -299,83 +318,151 @@ void FrogPilotVisualsPanel::showEvent(QShowEvent *event) {
   hasRadar = parent->hasRadar;
   tuningLevel = parent->tuningLevel;
 
-  hideToggles();
+  updateToggles();
 }
 
 void FrogPilotVisualsPanel::updateMetric(bool metric, bool bootRun) {
   static bool previousMetric;
   if (metric != previousMetric && !bootRun) {
-    double smallDistanceConversion = metric ? INCH_TO_CM : CM_TO_INCH;
     double distanceConversion = metric ? FOOT_TO_METER : METER_TO_FOOT;
+    double smallDistanceConversion = metric ? INCH_TO_CM : CM_TO_INCH;
 
-    params.putFloatNonBlocking("LaneLinesWidth", params.getFloat("LaneLinesWidth") * smallDistanceConversion);
-    params.putFloatNonBlocking("RoadEdgesWidth", params.getFloat("RoadEdgesWidth") * smallDistanceConversion);
+    params.putIntNonBlocking("LaneLinesWidth", params.getInt("LaneLinesWidth") * smallDistanceConversion);
+    params.putIntNonBlocking("RoadEdgesWidth", params.getInt("RoadEdgesWidth") * smallDistanceConversion);
 
     params.putFloatNonBlocking("PathWidth", params.getFloat("PathWidth") * distanceConversion);
   }
   previousMetric = metric;
+
+  static std::map<float, QString> imperialDistanceLabels;
+  static std::map<float, QString> imperialSmallDistanceLabels;
+  static std::map<float, QString> metricDistanceLabels;
+  static std::map<float, QString> metricSmallDistanceLabels;
+
+  static bool labelsInitialized = false;
+  if (!labelsInitialized) {
+    for (int i = 0; i <= 10; ++i) {
+      imperialDistanceLabels[i] = i == 0 ? tr("Off") : i == 1 ? QString::number(i) + tr(" foot") : QString::number(i) + tr(" feet");
+    }
+
+    for (int i = 0; i <= 24; ++i) {
+      imperialSmallDistanceLabels[i] = i == 0 ? tr("Off") : i == 1 ? QString::number(i) + tr(" inch") : QString::number(i) + tr(" inches");
+    }
+
+    for (int i = 0; i <= 3; ++i) {
+      metricDistanceLabels[i] = i == 0 ? tr("Off") : i == 1 ? QString::number(i) + tr(" meter") : QString::number(i) + tr(" meters");
+    }
+
+    for (int i = 0; i <= 60; ++i) {
+      metricSmallDistanceLabels[i] = i == 0 ? tr("Off") : i == 1 ? QString::number(i) + tr(" centimeter") : QString::number(i) + tr(" centimeters");
+    }
+
+    labelsInitialized = true;
+  }
 
   FrogPilotParamValueControl *laneLinesWidthToggle = static_cast<FrogPilotParamValueControl*>(toggles["LaneLinesWidth"]);
   FrogPilotParamValueControl *pathWidthToggle = static_cast<FrogPilotParamValueControl*>(toggles["PathWidth"]);
   FrogPilotParamValueControl *roadEdgesWidthToggle = static_cast<FrogPilotParamValueControl*>(toggles["RoadEdgesWidth"]);
 
   if (metric) {
-    laneLinesWidthToggle->setDescription(tr("Adjust how thick the lane lines appear on the display.\n\nDefault matches the Vienna standard of 10 centimeters."));
-    roadEdgesWidthToggle->setDescription(tr("Adjust how thick the road edges appear on the display.\n\nDefault matches half of the Vienna standard of 10 centimeters."));
+    laneLinesWidthToggle->setDescription(tr("The thickness of the lane lines on the driving screen.<br><br><b>Default matches the <b>MUTCD</b> lane line width standard of 10 centimeters."));
+    roadEdgesWidthToggle->setDescription(tr("The thickness of the road edges on the driving screen.<br><br><b>Default matches half of the <b>MUTCD</b> lane line width standard of 10 centimeters."));
 
-    laneLinesWidthToggle->updateControl(0, 60, tr(" centimeters"));
-    roadEdgesWidthToggle->updateControl(0, 60, tr(" centimeters"));
+    laneLinesWidthToggle->updateControl(0, 60, metricSmallDistanceLabels);
+    roadEdgesWidthToggle->updateControl(0, 60, metricSmallDistanceLabels);
 
-    pathWidthToggle->updateControl(0, 3, tr(" meters"));
+    pathWidthToggle->updateControl(0, 3, metricDistanceLabels);
   } else {
-    laneLinesWidthToggle->setDescription(tr("Adjust how thick the lane lines appear on the display.\n\nDefault matches the MUTCD standard of 4 inches."));
-    roadEdgesWidthToggle->setDescription(tr("Adjust how thick the road edges appear on the display.\n\nDefault matches half of the MUTCD standard of 4 inches."));
+    laneLinesWidthToggle->setDescription(tr("The thickness of the lane lines on the driving screen.<br><br><b>Default matches the <b>MUTCD</b> lane line width standard of 4 inches."));
+    roadEdgesWidthToggle->setDescription(tr("The thickness of the road edges on the driving screen.<br><br><b>Default matches half of the <b>MUTCD</b> lane line width standard of 4 inches."));
 
-    laneLinesWidthToggle->updateControl(0, 24, tr(" inches"));
-    roadEdgesWidthToggle->updateControl(0, 24, tr(" inches"));
+    laneLinesWidthToggle->updateControl(0, 24, imperialSmallDistanceLabels);
+    roadEdgesWidthToggle->updateControl(0, 24, imperialSmallDistanceLabels);
 
-    pathWidthToggle->updateControl(0, 10, tr(" feet"));
+    pathWidthToggle->updateControl(0, 10, imperialDistanceLabels);
   }
 }
 
-void FrogPilotVisualsPanel::showToggles(const std::set<QString> &keys) {
-  setUpdatesEnabled(false);
+void FrogPilotVisualsPanel::updateToggles() {
+  for (auto &[key, toggle] : toggles) {
+    if (parentKeys.find(key) != parentKeys.end()) {
+      toggle->setVisible(false);
+    }
+  }
 
   for (auto &[key, toggle] : toggles) {
-    toggle->setVisible(keys.find(key) != keys.end() && tuningLevel >= frogpilotToggleLevels[key].toDouble());
+    if (parentKeys.find(key) != parentKeys.end()) {
+      continue;
+    }
+
+    bool setVisible = tuningLevel >= frogpilotToggleLevels[key].toDouble();
+
+    if (key == "AccelerationPath") {
+      setVisible &= hasOpenpilotLongitudinal;
+    }
+
+    if (key == "AdjacentLeadsUI") {
+      setVisible &= hasRadar;
+    }
+
+    if (key == "BlindSpotPath") {
+      setVisible &= hasBSM;
+    }
+
+    if (key == "HideLeadMarker") {
+      setVisible &= hasOpenpilotLongitudinal;
+    }
+
+    if (key == "LongitudinalMetrics") {
+      setVisible &= hasOpenpilotLongitudinal;
+    }
+
+    if (key == "OnroadDistanceButton") {
+      setVisible &= hasOpenpilotLongitudinal;
+    }
+
+    if (key == "PedalsOnUI") {
+      setVisible &= hasOpenpilotLongitudinal;
+    }
+
+    if (key == "RadarTracksUI") {
+      setVisible &= hasRadar;
+    }
+
+    if (key == "ShowSpeedLimits") {
+      setVisible &= !params.getBool("SpeedLimitController");
+    }
+
+    if (key == "ShowStoppingPoint") {
+      setVisible &= hasOpenpilotLongitudinal;
+    }
+
+    toggle->setVisible(setVisible);
+
+    if (setVisible) {
+      if (advancedCustomOnroadUIKeys.find(key) != advancedCustomOnroadUIKeys.end()) {
+        toggles["AdvancedCustomUI"]->setVisible(true);
+      } else if (customOnroadUIKeys.find(key) != customOnroadUIKeys.end()) {
+        toggles["CustomUI"]->setVisible(true);
+      } else if (developerMetricKeys.find(key) != developerMetricKeys.end()) {
+        toggles["DeveloperMetrics"]->setVisible(true);
+      } else if (developerUIKeys.find(key) != developerUIKeys.end()) {
+        toggles["DeveloperUI"]->setVisible(true);
+      } else if (developerWidgetKeys.find(key) != developerWidgetKeys.end()) {
+        toggles["DeveloperWidgets"]->setVisible(true);
+      } else if (modelUIKeys.find(key) != modelUIKeys.end()) {
+        toggles["ModelUI"]->setVisible(true);
+      } else if (navigationUIKeys.find(key) != navigationUIKeys.end()) {
+        toggles["NavigationUI"]->setVisible(true);
+      } else if (qualityOfLifeKeys.find(key) != qualityOfLifeKeys.end()) {
+        toggles["QOLVisuals"]->setVisible(true);
+      }
+    }
   }
 
-  setUpdatesEnabled(true);
+  borderMetricsBtn->setVisibleButton(0, hasBSM);
+  lateralMetricsBtn->setVisibleButton(1, hasAutoTune);
+  longitudinalMetricsBtn->setVisibleButton(1, tuningLevel >= frogpilotToggleLevels["JerkInfo"].toDouble());
 
   update();
-}
-
-void FrogPilotVisualsPanel::hideToggles() {
-  setUpdatesEnabled(false);
-
-  for (auto &[key, toggle] : toggles) {
-    bool subToggles = accessibilityKeys.find(key) != accessibilityKeys.end() ||
-                      advancedCustomOnroadUIKeys.find(key) != advancedCustomOnroadUIKeys.end() ||
-                      customOnroadUIKeys.find(key) != customOnroadUIKeys.end() ||
-                      developerMetricKeys.find(key) != developerMetricKeys.end() ||
-                      developerUIKeys.find(key) != developerUIKeys.end() ||
-                      developerWidgetKeys.find(key) != developerWidgetKeys.end() ||
-                      modelUIKeys.find(key) != modelUIKeys.end() ||
-                      navigationUIKeys.find(key) != navigationUIKeys.end();
-
-    toggle->setVisible(!subToggles && tuningLevel >= frogpilotToggleLevels[key].toDouble());
-  }
-
-  toggles["QOLVisuals"]->setVisible(toggles["QOLVisuals"]->isVisible() || hasOpenpilotLongitudinal);
-
-  setUpdatesEnabled(true);
-
-  update();
-}
-
-void FrogPilotVisualsPanel::hideSubToggles() {
-  if (developerUIOpen) {
-    developerUIOpen = false;
-    showToggles(developerUIKeys);
-  }
 }

@@ -17,6 +17,7 @@ from openpilot.selfdrive.car.car_helpers import get_car, get_one_can
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase
 from openpilot.selfdrive.controls.lib.events import Events
 
+from openpilot.selfdrive.frogpilot.controls.frogpilot_card import FrogPilotCard
 from openpilot.selfdrive.frogpilot.frogpilot_variables import get_frogpilot_toggles, update_frogpilot_toggles
 
 REPLAY = "REPLAY" in os.environ
@@ -29,7 +30,7 @@ class Car:
 
   def __init__(self, CI=None):
     self.can_sock = messaging.sub_sock('can', timeout=20)
-    self.sm = messaging.SubMaster(['pandaStates', 'carControl', 'onroadEvents', 'frogpilotPlan'])
+    self.sm = messaging.SubMaster(['pandaStates', 'carControl', 'liveCalibration', 'onroadEvents', 'frogpilotPlan'])
     self.pm = messaging.PubMaster(['sendcan', 'carState', 'carParams', 'carOutput', 'frogpilotCarState'])
 
     self.can_rcv_cum_timeout_counter = 0
@@ -93,6 +94,8 @@ class Car:
     self.rk = Ratekeeper(100, print_delay_threshold=None)
 
     # FrogPilot variables
+    self.frogpilot_card = FrogPilotCard(self)
+
     self.frogpilot_toggles = get_frogpilot_toggles()
 
     if self.frogpilot_toggles.acceleration_profile == 3:
@@ -127,6 +130,9 @@ class Car:
 
     if can_rcv_valid and REPLAY:
       self.can_log_mono_time = messaging.log_from_bytes(can_strs[0]).logMonoTime
+
+    # FrogPilot variables
+    FPCS = self.frogpilot_card.update(CS, FPCS, self.sm)
 
     return CS, FPCS
 

@@ -35,7 +35,8 @@ def download_file(cancel_param, destination, progress_param, url, download_param
 
     total_size = get_remote_file_size(url)
     if total_size == 0:
-      handle_error(None, "Download invalid...", "Download invalid...", download_param, progress_param, params_memory)
+      if not url.endswith(".gif"):
+        handle_error(None, "Download invalid...", "Download invalid...", download_param, progress_param, params_memory)
       return
 
     with requests.get(url, stream=True, timeout=10) as response:

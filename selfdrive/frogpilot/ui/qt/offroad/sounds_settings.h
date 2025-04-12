@@ -13,8 +13,10 @@ public:
 signals:
   void openParentToggle();
 
-private:
+protected:
   void showEvent(QShowEvent *event) override;
+
+private:
   void updateState(const UIState &s);
   void updateToggles();
 

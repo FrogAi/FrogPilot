@@ -94,11 +94,7 @@ Reset::Reset(ResetMode mode, QWidget *parent) : QWidget(parent) {
   rejectBtn->setVisible(!recover);
   rebootBtn->setVisible(recover);
   if (recover) {
-    if (std::filesystem::exists("/persist/frogsgomoo.py")) {
-      std::system("sudo reboot");
-    } else {
-      body->setText(tr("Unable to mount data partition. Partition may be corrupted. Press confirm to erase and reset your device."));
-    }
+    body->setText(tr("Unable to mount data partition. Partition may be corrupted. Press confirm to erase and reset your device."));
   }
 
   setStyleSheet(R"(
