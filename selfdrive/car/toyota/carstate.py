@@ -47,7 +47,7 @@ class CarState(CarStateBase):
     self.cluster_speed_hyst_gap = CV.KPH_TO_MS / 2.
     self.cluster_min_speed = CV.KPH_TO_MS / 2.
 
-    if CP.flags & ToyotaFlags.SECOC.value:
+    if CP.flags & ToyotaFlags.HYBRID.value:
       self.shifter_values = can_define.dv["GEAR_PACKET_HYBRID"]["GEAR"]
     else:
       self.shifter_values = can_define.dv["GEAR_PACKET"]["GEAR"]
@@ -81,7 +81,7 @@ class CarState(CarStateBase):
     fp_ret = custom.FrogPilotCarState.new_message()
     cp_acc = cp_cam if self.CP.carFingerprint in (TSS2_CAR - RADAR_ACC_CAR) else cp
 
-    if not self.CP.flags & ToyotaFlags.SECOC.value:
+    if not self.CP.flags & ToyotaFlags.HYBRID.value:
       self.gvc = cp.vl["VSC1S07"]["GVC"]
 
     ret.doorOpen = any([cp.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_FL"], cp.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_FR"],
@@ -96,7 +96,11 @@ class CarState(CarStateBase):
       self.secoc_synchronization = copy.copy(cp.vl["SECOC_SYNCHRONIZATION"])
       ret.gas = cp.vl["GAS_PEDAL"]["GAS_PEDAL_USER"]
       ret.gasPressed = cp.vl["GAS_PEDAL"]["GAS_PEDAL_USER"] > 0
-      can_gear = int(cp.vl["GEAR_PACKET_HYBRID"]["GEAR"])
+
+      if self.CP.flags & ToyotaFlags.HYBRID.value:
+        can_gear = int(cp.vl["GEAR_PACKET_HYBRID"]["GEAR"])
+      else:
+        can_gear = int(cp.vl["GEAR_PACKET"]["GEAR"])
     else:
       if self.CP.enableGasInterceptor:
         ret.gas = (cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS"] + cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS2"]) // 2
@@ -274,10 +278,13 @@ class CarState(CarStateBase):
 
     if CP.flags & ToyotaFlags.SECOC.value:
       messages += [
-        ("GEAR_PACKET_HYBRID", 60),
         ("SECOC_SYNCHRONIZATION", 10),
         ("GAS_PEDAL", 42),
       ]
+      if CP.flags & ToyotaFlags.HYBRID.value:
+        messages.append(("GEAR_PACKET_HYBRID", 60))
+      else:
+        messages.append(("GEAR_PACKET", 1))
     else:
       messages.append(("VSC1S07", 20))
       if CP.carFingerprint not in [CAR.TOYOTA_MIRAI]:
