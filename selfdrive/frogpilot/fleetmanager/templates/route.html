@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+
+{% block title %}
+  Dashcam Segments
+{% endblock %}
+
+{% block main %}
+{% autoescape false %}
+  <section>
+    <h1>Dashcam Segments (one per minute)</h1>
+    <video id="video" width="320" height="240" controls autoplay style="background:black"></video>
+    <p>
+      Current segment: <span id="currentsegment"></span><br>
+      Current view: <span id="currentview"></span>
+    </p>
+    <p>
+      <a download="{{ route }}-{{ query_type }}.mp4" href="/footage/full/{{ query_type }}/{{ route }}">
+        download full route {{ query_type }}
+      </a>
+    </p>
+    <p>
+      <a href="{{ route }}?{{ query_segment }},fcamera">Primary Camera</a> -
+      <a href="{{ route }}?{{ query_segment }},qcamera">Primary Camera (Low Quality)</a> -
+      <a href="{{ route }}?{{ query_segment }},ecamera">Wide Angle Camera</a> -
+      <a href="{{ route }}?{{ query_segment }},dcamera">Driver Camera</a>
+    </p>
+    {{ links }}
+  </section>
+  <script>
+    const video = document.getElementById('video');
+    const segments = [{{ segments }}];
+    const q_segment = {{ query_segment }};
+    let q_index = 0;
+
+    for (let i = 0; i < segments.length; i++) {
+      const segment = segments[i];
+      const q_val = segment.split('--').slice(2).join('--');
+      if (parseInt(q_val) === q_segment) {
+        q_index = i;
+        break;
+      }
+    }
+
+    const cameraNames = {
+      fcamera: "Primary Camera",
+      qcamera: "Primary Camera (Low Quality)",
+      ecamera: "Wide Angle Camera",
+      dcamera: "Driver Camera"
+    };
+
+    const tracks = {
+      list: segments,
+      index: q_index,
+      next() {
+        this.index = (this.index === this.list.length - 1) ? 0 : this.index + 1;
+      },
+      play() {
+        return `{{ query_type }}/${this.list[this.index]}`;
+      }
+    };
+
+    function updateLabels() {
+      const parts = video.src.split("/");
+      const cameraKey = parts[4];
+      const segmentName = parts[5];
+      document.getElementById("currentview").textContent = cameraNames[cameraKey] || cameraKey;
+      document.getElementById("currentsegment").textContent = segmentName;
+    }
+
+    video.addEventListener('ended', () => {
+      tracks.next();
+      video.src = tracks.play();
+      updateLabels();
+      video.load();
+      video.play();
+    });
+
+    video.src = tracks.play();
+    updateLabels();
+  </script>
+{% endautoescape %}
+{% endblock %}

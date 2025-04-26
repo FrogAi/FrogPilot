@@ -17,7 +17,7 @@
   }
 
 
-const SteeringLimits SUBARU_STEERING_LIMITS      = SUBARU_STEERING_LIMITS_GENERATOR(2047, 50, 70);
+const SteeringLimits SUBARU_STEERING_LIMITS      = SUBARU_STEERING_LIMITS_GENERATOR(3071, 50, 70);
 const SteeringLimits SUBARU_GEN2_STEERING_LIMITS = SUBARU_STEERING_LIMITS_GENERATOR(1000, 40, 40);
 
 
@@ -152,6 +152,7 @@ static void subaru_rx_hook(const CANPacket_t *to_push) {
 
   // enter controls on rising edge of ACC, exit controls on ACC off
   if ((addr == MSG_SUBARU_CruiseControl) && (bus == alt_main_bus)) {
+    acc_main_on = GET_BIT(to_push, 40U);
     bool cruise_engaged = GET_BIT(to_push, 41U);
     pcm_cruise_check(cruise_engaged);
   }

@@ -18,6 +18,10 @@ signals:
 public slots:
   void updateState(const UIState &s);
 
+private:
+  // FrogPilot variables
+  Params params;
+
 protected:
   QStackedLayout *stack;
 };

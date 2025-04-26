@@ -1,9 +1,9 @@
-from cereal import car
+from cereal import car, custom
 from openpilot.common.conversions import Conversions as CV
 from opendbc.can.parser import CANParser
 from opendbc.can.can_define import CANDefine
 from openpilot.selfdrive.car.interfaces import CarStateBase
-from openpilot.selfdrive.car.chrysler.values import DBC, STEER_THRESHOLD, RAM_CARS
+from openpilot.selfdrive.car.chrysler.values import ChryslerFlags, DBC, STEER_THRESHOLD, RAM_CARS
 
 
 class CarState(CarStateBase):
@@ -15,6 +15,7 @@ class CarState(CarStateBase):
     self.auto_high_beam = 0
     self.button_counter = 0
     self.lkas_car_model = -1
+    self.button_message = "CRUISE_BUTTONS_ALT" if CP.flags & ChryslerFlags.RAM_HD_ALT_BUTTONS else "CRUISE_BUTTONS"
 
     if CP.carFingerprint in RAM_CARS:
       self.shifter_values = can_define.dv["Transmission_Status"]["Gear_State"]
@@ -24,12 +25,13 @@ class CarState(CarStateBase):
     self.prev_distance_button = 0
     self.distance_button = 0
 
-  def update(self, cp, cp_cam):
+  def update(self, cp, cp_cam, frogpilot_toggles):
 
     ret = car.CarState.new_message()
+    fp_ret = custom.FrogPilotCarState.new_message()
 
     self.prev_distance_button = self.distance_button
-    self.distance_button = cp.vl["CRUISE_BUTTONS"]["ACC_Distance_Dec"]
+    self.distance_button = cp.vl[self.button_message]["ACC_Distance_Dec"]
 
     # lock info
     ret.doorOpen = any([cp.vl["BCM_1"]["DOOR_OPEN_FL"],
@@ -99,9 +101,18 @@ class CarState(CarStateBase):
       ret.rightBlindspot = cp.vl["BSM_1"]["RIGHT_STATUS"] == 1
 
     self.lkas_car_model = cp_cam.vl["DAS_6"]["CAR_MODEL"]
-    self.button_counter = cp.vl["CRUISE_BUTTONS"]["COUNTER"]
+    self.button_counter = cp.vl[self.button_message]["COUNTER"]
 
-    return ret
+    # FrogPilot CarState functions
+    fp_ret.brakeLights = bool(cp.vl["ESP_1"]["BRAKE_PRESSED_ACC"])
+
+    self.lkas_previously_enabled = self.lkas_enabled
+    if self.CP.carFingerprint in RAM_CARS:
+      self.lkas_enabled = cp.vl["Center_Stack_2"]["LKAS_Button"] or cp.vl["Center_Stack_1"]["LKAS_Button"]
+    else:
+      self.lkas_enabled = cp.vl["TRACTION_BUTTON"]["TOGGLE_LKAS"] == 1
+
+    return ret, fp_ret
 
   @staticmethod
   def get_cruise_messages():
@@ -113,6 +124,7 @@ class CarState(CarStateBase):
 
   @staticmethod
   def get_can_parser(CP):
+    button_message = "CRUISE_BUTTONS_ALT" if CP.flags & ChryslerFlags.RAM_HD_ALT_BUTTONS else "CRUISE_BUTTONS"
     messages = [
       # sig_address, frequency
       ("ESP_1", 50),
@@ -120,7 +132,7 @@ class CarState(CarStateBase):
       ("ESP_6", 50),
       ("STEERING", 100),
       ("ECM_5", 50),
-      ("CRUISE_BUTTONS", 50),
+      (button_message, 50),
       ("STEERING_LEVERS", 10),
       ("ORC_1", 2),
       ("BCM_1", 1),
@@ -134,11 +146,14 @@ class CarState(CarStateBase):
         ("ESP_8", 50),
         ("EPS_3", 50),
         ("Transmission_Status", 50),
+        ("Center_Stack_1", 1),
+        ("Center_Stack_2", 1),
       ]
     else:
       messages += [
         ("GEAR", 50),
         ("SPEED_1", 100),
+        ("TRACTION_BUTTON", 1),
       ]
       messages += CarState.get_cruise_messages()
 

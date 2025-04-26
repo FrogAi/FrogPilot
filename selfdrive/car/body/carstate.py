@@ -1,4 +1,4 @@
-from cereal import car
+from cereal import car, custom
 from opendbc.can.parser import CANParser
 from openpilot.selfdrive.car.interfaces import CarStateBase
 from openpilot.selfdrive.car.body.values import DBC
@@ -6,8 +6,9 @@ from openpilot.selfdrive.car.body.values import DBC
 STARTUP_TICKS = 100
 
 class CarState(CarStateBase):
-  def update(self, cp):
+  def update(self, cp, frogpilot_toggles):
     ret = car.CarState.new_message()
+    fp_ret = custom.FrogPilotCarState.new_message()
 
     ret.wheelSpeeds.fl = cp.vl['MOTORS_DATA']['SPEED_L']
     ret.wheelSpeeds.fr = cp.vl['MOTORS_DATA']['SPEED_R']
@@ -28,7 +29,7 @@ class CarState(CarStateBase):
     ret.cruiseState.enabled = True
     ret.cruiseState.available = True
 
-    return ret
+    return ret, fp_ret
 
   @staticmethod
   def get_can_parser(CP):

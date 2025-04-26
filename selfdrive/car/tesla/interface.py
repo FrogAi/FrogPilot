@@ -8,7 +8,7 @@ from openpilot.selfdrive.car.interfaces import CarInterfaceBase
 
 class CarInterface(CarInterfaceBase):
   @staticmethod
-  def _get_params(ret, candidate, fingerprint, car_fw, experimental_long, docs):
+  def _get_params(ret, candidate, fingerprint, car_fw, disable_openpilot_long, experimental_long, docs):
     ret.carName = "tesla"
 
     # There is no safe way to do steer blending with user torque,
@@ -25,7 +25,7 @@ class CarInterface(CarInterfaceBase):
     # If so, we assume that it is connected to the longitudinal harness.
     flags = (Panda.FLAG_TESLA_RAVEN if candidate == CAR.TESLA_MODELS_RAVEN else 0)
     if (CANBUS.autopilot_powertrain in fingerprint.keys()) and (0x2bf in fingerprint[CANBUS.autopilot_powertrain].keys()):
-      ret.openpilotLongitudinalControl = True
+      ret.openpilotLongitudinalControl = not disable_openpilot_long
       flags |= Panda.FLAG_TESLA_LONG_CONTROL
       ret.safetyConfigs = [
         get_safety_config(car.CarParams.SafetyModel.tesla, flags),
@@ -39,9 +39,9 @@ class CarInterface(CarInterfaceBase):
     ret.steerActuatorDelay = 0.25
     return ret
 
-  def _update(self, c):
-    ret = self.CS.update(self.cp, self.cp_cam)
+  def _update(self, c, frogpilot_toggles):
+    ret, fp_ret = self.CS.update(self.cp, self.cp_cam, frogpilot_toggles)
 
     ret.events = self.create_common_events(ret).to_msg()
 
-    return ret
+    return ret, fp_ret

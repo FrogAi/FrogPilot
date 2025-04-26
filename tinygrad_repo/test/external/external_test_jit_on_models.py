@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 import unittest
 import numpy as np
-from tinygrad.tensor import Tensor
-from tinygrad.jit import TinyJit, JIT_SUPPORTED_DEVICE
-from tinygrad.helpers import dtypes, CI
-from tinygrad.ops import Device
+from tinygrad import Tensor, dtypes
+from tinygrad.engine.jit import TinyJit
+from tinygrad.helpers import CI
 from test.helpers import derandomize_model
 
 from examples.llama import Transformer
@@ -14,13 +13,12 @@ def helper_test_jitted_correctness(gen, train, train_jit):
   for _ in range(5): jit = train_jit(*gen()).numpy()
   np.testing.assert_allclose(nojit, jit, rtol=1e-3, atol=1e-5)
 
-@unittest.skipUnless(Device.DEFAULT in JIT_SUPPORTED_DEVICE, "needs JIT")
 class TestJittedModels(unittest.TestCase):
   def test_jitted_tiny_llama(self):
-    old_type = Tensor.default_type
-    Tensor.default_type = dtypes.float16
+    old_float = dtypes.default_float
+    dtypes.default_float = dtypes.float16
 
-    args_tiny = {"dim": 1024, "multiple_of": 256, "n_heads": 8, "n_layers": 8, "norm_eps": 1e-05, "vocab_size": 1000}
+    args_tiny = {"dim": 1024, "hidden_dim": 1024, "n_heads": 8, "n_layers": 8, "norm_eps": 1e-05, "vocab_size": 1000}
     model = Transformer(**args_tiny)
     derandomize_model(model)
     def test(t): return model(t, 0).realize()
@@ -28,12 +26,12 @@ class TestJittedModels(unittest.TestCase):
     @TinyJit
     def test_jit(t): return model(t, 0).realize()
     helper_test_jitted_correctness(lambda: (Tensor([[1,]]),), test, test_jit)
-    Tensor.default_type = old_type
+    dtypes.default_float = old_float
 
   @unittest.skipUnless(not CI, "huge for CI")
   def test_jitted_stable_diffusion(self):
-    from examples.stable_diffusion import UNetModel
-    model = UNetModel()
+    from examples.stable_diffusion import UNetModel, unet_params
+    model = UNetModel(**unet_params)
     derandomize_model(model)
     def test(t, t2): return model(t, 801, t2).realize()
 

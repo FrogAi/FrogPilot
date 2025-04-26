@@ -3,10 +3,21 @@ import capnp
 import numpy as np
 from cereal import log
 from openpilot.selfdrive.modeld.constants import ModelConstants, Plan, Meta
+from openpilot.selfdrive.controls.lib.drive_helpers import MIN_SPEED
 
 SEND_RAW_PRED = os.getenv('SEND_RAW_PRED')
 
 ConfidenceClass = log.ModelDataV2.ConfidenceClass
+
+def curv_from_psis(psi_target, psi_rate, vego, delay):
+  vego = np.clip(vego, MIN_SPEED, np.inf)
+  curv_from_psi = psi_target / (vego * delay)  # epsilon to prevent divide-by-zero
+  return 2*curv_from_psi - psi_rate / vego
+
+def get_curvature_from_plan(plan, vego, delay):
+  psi_target = np.interp(delay, ModelConstants.T_IDXS, plan[:, Plan.T_FROM_CURRENT_EULER][:, 2])
+  psi_rate = plan[:, Plan.ORIENTATION_RATE][0, 2]
+  return curv_from_psis(psi_target, psi_rate, vego, delay)
 
 class PublishState:
   def __init__(self):
@@ -41,17 +52,46 @@ def fill_xyvat(builder, t, x, y, v, a, x_std=None, y_std=None, v_std=None, a_std
   if a_std is not None:
     builder.aStd = a_std.tolist()
 
-def fill_model_msg(msg: capnp._DynamicStructBuilder, net_output_data: dict[str, np.ndarray], publish_state: PublishState,
-                   vipc_frame_id: int, vipc_frame_id_extra: int, frame_id: int, frame_drop: float,
-                   timestamp_eof: int, model_execution_time: float, valid: bool) -> None:
-  frame_age = frame_id - vipc_frame_id if frame_id > vipc_frame_id else 0
-  msg.valid = valid
+def fill_xyz_poly(builder, degree, x, y, z):
+  xyz = np.stack([x, y, z], axis=1)
+  coeffs = np.polynomial.polynomial.polyfit(ModelConstants.T_IDXS, xyz, deg=degree)
+  builder.xCoefficients = coeffs[:, 0].tolist()
+  builder.yCoefficients = coeffs[:, 1].tolist()
+  builder.zCoefficients = coeffs[:, 2].tolist()
 
-  modelV2 = msg.modelV2
+def fill_lane_line_meta(builder, lane_lines, lane_line_probs):
+  builder.leftY = lane_lines[1].y[0]
+  builder.leftProb = lane_line_probs[1]
+  builder.rightY = lane_lines[2].y[0]
+  builder.rightProb = lane_line_probs[2]
+
+def fill_model_msg(base_msg: capnp._DynamicStructBuilder, extended_msg: capnp._DynamicStructBuilder,
+                   net_output_data: dict[str, np.ndarray], v_ego: float, delay: float,
+                   publish_state: PublishState, vipc_frame_id: int, vipc_frame_id_extra: int,
+                   frame_id: int, frame_drop: float, timestamp_eof: int, model_execution_time: float,
+                   valid: bool, planner_curves: bool) -> None:
+  frame_age = frame_id - vipc_frame_id if frame_id > vipc_frame_id else 0
+  frame_drop_perc = frame_drop * 100
+  extended_msg.valid = valid
+  base_msg.valid = valid
+
+  desired_curv = float(get_curvature_from_plan(net_output_data['plan'][0], v_ego, delay))
+
+  driving_model_data = base_msg.drivingModelData
+
+  driving_model_data.frameId = vipc_frame_id
+  driving_model_data.frameIdExtra = vipc_frame_id_extra
+  driving_model_data.frameDropPerc = frame_drop_perc
+  driving_model_data.modelExecutionTime = model_execution_time
+
+  action = driving_model_data.action
+  action.desiredCurvature = desired_curv if planner_curves else float(net_output_data['desired_curvature'][0,0])
+
+  modelV2 = extended_msg.modelV2
   modelV2.frameId = vipc_frame_id
   modelV2.frameIdExtra = vipc_frame_id_extra
   modelV2.frameAge = frame_age
-  modelV2.frameDropPerc = frame_drop * 100
+  modelV2.frameDropPerc = frame_drop_perc
   modelV2.timestampEof = timestamp_eof
   modelV2.modelExecutionTime = model_execution_time
 
@@ -67,9 +107,20 @@ def fill_model_msg(msg: capnp._DynamicStructBuilder, net_output_data: dict[str, 
   orientation_rate = modelV2.orientationRate
   fill_xyzt(orientation_rate, ModelConstants.T_IDXS, *net_output_data['plan'][0,:,Plan.ORIENTATION_RATE].T)
 
+  # temporal pose
+  temporal_pose = modelV2.temporalPose
+  temporal_pose.trans = net_output_data['plan'][0,0,Plan.VELOCITY].tolist()
+  temporal_pose.transStd = net_output_data['plan_stds'][0,0,Plan.VELOCITY].tolist()
+  temporal_pose.rot = net_output_data['plan'][0,0,Plan.ORIENTATION_RATE].tolist()
+  temporal_pose.rotStd = net_output_data['plan_stds'][0,0,Plan.ORIENTATION_RATE].tolist()
+  
+  # poly path
+  poly_path = driving_model_data.path
+  fill_xyz_poly(poly_path, ModelConstants.POLY_PATH_DEGREE, *net_output_data['plan'][0,:,Plan.POSITION].T)
+
   # lateral planning
   action = modelV2.action
-  action.desiredCurvature = float(net_output_data['desired_curvature'][0,0])
+  action.desiredCurvature = desired_curv if planner_curves else float(net_output_data['desired_curvature'][0,0])
 
   # times at X_IDXS according to model plan
   PLAN_T_IDXS = [np.nan] * ModelConstants.IDX_N
@@ -91,19 +142,38 @@ def fill_model_msg(msg: capnp._DynamicStructBuilder, net_output_data: dict[str, 
     PLAN_T_IDXS[xidx] = p * ModelConstants.T_IDXS[tidx+1] + (1 - p) * ModelConstants.T_IDXS[tidx]
 
   # lane lines
-  modelV2.init('laneLines', 4)
-  for i in range(4):
+  modelV2.init('laneLines', 6)
+  road_edge_stds = net_output_data['road_edges_stds'][0,:,0,0]
+  for i in range(6):
     lane_line = modelV2.laneLines[i]
-    fill_xyzt(lane_line, PLAN_T_IDXS, np.array(ModelConstants.X_IDXS), net_output_data['lane_lines'][0,i,:,0], net_output_data['lane_lines'][0,i,:,1])
+    if i < 4:
+      fill_xyzt(lane_line, PLAN_T_IDXS, np.array(ModelConstants.X_IDXS), net_output_data['lane_lines'][0,i,:,0], net_output_data['lane_lines'][0,i,:,1])
+    elif i == 4:
+      if road_edge_stds[0] >= 0.5:
+        leftLane_x = 0.5 * (net_output_data['lane_lines'][0,0,:,0] + net_output_data['lane_lines'][0,1,:,0])
+        leftLane_y = 0.5 * (net_output_data['lane_lines'][0,0,:,1] + net_output_data['lane_lines'][0,1,:,1])
+        fill_xyzt(lane_line, PLAN_T_IDXS, np.array(ModelConstants.X_IDXS), leftLane_x, leftLane_y)
+      else:
+        fill_xyzt(lane_line, PLAN_T_IDXS, np.empty((0,)), np.empty((0,)), np.empty((0,)))
+    elif i == 5:
+      if road_edge_stds[1] >= 0.5:
+        rightLane_x = 0.5 * (net_output_data['lane_lines'][0,2,:,0] + net_output_data['lane_lines'][0,3,:,0])
+        rightLane_y = 0.5 * (net_output_data['lane_lines'][0,2,:,1] + net_output_data['lane_lines'][0,3,:,1])
+        fill_xyzt(lane_line, PLAN_T_IDXS, np.array(ModelConstants.X_IDXS), rightLane_x, rightLane_y)
+      else:
+        fill_xyzt(lane_line, PLAN_T_IDXS, np.empty((0,)), np.empty((0,)), np.empty((0,)))
   modelV2.laneLineStds = net_output_data['lane_lines_stds'][0,:,0,0].tolist()
   modelV2.laneLineProbs = net_output_data['lane_lines_prob'][0,1::2].tolist()
+
+  lane_line_meta = driving_model_data.laneLineMeta
+  fill_lane_line_meta(lane_line_meta, modelV2.laneLines, modelV2.laneLineProbs)
 
   # road edges
   modelV2.init('roadEdges', 2)
   for i in range(2):
     road_edge = modelV2.roadEdges[i]
     fill_xyzt(road_edge, PLAN_T_IDXS, np.array(ModelConstants.X_IDXS), net_output_data['road_edges'][0,i,:,0], net_output_data['road_edges'][0,i,:,1])
-  modelV2.roadEdgeStds = net_output_data['road_edges_stds'][0,:,0,0].tolist()
+  modelV2.roadEdgeStds = road_edge_stds.tolist()
 
   # leads
   modelV2.init('leadsV3', 3)
@@ -127,6 +197,8 @@ def fill_model_msg(msg: capnp._DynamicStructBuilder, net_output_data: dict[str, 
   disengage_predictions.brake3MetersPerSecondSquaredProbs = net_output_data['meta'][0,Meta.HARD_BRAKE_3].tolist()
   disengage_predictions.brake4MetersPerSecondSquaredProbs = net_output_data['meta'][0,Meta.HARD_BRAKE_4].tolist()
   disengage_predictions.brake5MetersPerSecondSquaredProbs = net_output_data['meta'][0,Meta.HARD_BRAKE_5].tolist()
+  disengage_predictions.gasPressProbs = net_output_data['meta'][0,Meta.GAS_PRESS].tolist()
+  disengage_predictions.brakePressProbs = net_output_data['meta'][0,Meta.BRAKE_PRESS].tolist()
 
   publish_state.prev_brake_5ms2_probs[:-1] = publish_state.prev_brake_5ms2_probs[1:]
   publish_state.prev_brake_5ms2_probs[-1] = net_output_data['meta'][0,Meta.HARD_BRAKE_5][0]
@@ -135,13 +207,6 @@ def fill_model_msg(msg: capnp._DynamicStructBuilder, net_output_data: dict[str, 
   hard_brake_predicted = (publish_state.prev_brake_5ms2_probs > ModelConstants.FCW_THRESHOLDS_5MS2).all() and \
     (publish_state.prev_brake_3ms2_probs > ModelConstants.FCW_THRESHOLDS_3MS2).all()
   meta.hardBrakePredicted = hard_brake_predicted.item()
-
-  # temporal pose
-  temporal_pose = modelV2.temporalPose
-  temporal_pose.trans = net_output_data['sim_pose'][0,:3].tolist()
-  temporal_pose.transStd = net_output_data['sim_pose_stds'][0,:3].tolist()
-  temporal_pose.rot = net_output_data['sim_pose'][0,3:].tolist()
-  temporal_pose.rotStd = net_output_data['sim_pose_stds'][0,3:].tolist()
 
   # confidence
   if vipc_frame_id % (2*ModelConstants.MODEL_FREQ) == 0:

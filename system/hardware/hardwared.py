@@ -18,12 +18,14 @@ from openpilot.common.params import Params
 from openpilot.common.realtime import DT_HW
 from openpilot.selfdrive.controls.lib.alertmanager import set_offroad_alert
 from openpilot.system.hardware import HARDWARE, TICI, AGNOS
-from openpilot.system.loggerd.config import get_available_percent
+from openpilot.system.loggerd.config import get_available_bytes, get_available_percent, get_used_bytes
 from openpilot.system.statsd import statlog
 from openpilot.common.swaglog import cloudlog
 from openpilot.system.hardware.power_monitoring import PowerMonitoring
 from openpilot.system.hardware.fan_controller import TiciFanController
 from openpilot.system.version import terms_version, training_version
+
+from openpilot.selfdrive.frogpilot.frogpilot_variables import get_frogpilot_toggles, params_memory
 
 ThermalStatus = log.DeviceState.ThermalStatus
 NetworkType = log.DeviceState.NetworkType
@@ -163,8 +165,8 @@ def hw_state_thread(end_event, hw_queue):
 
 
 def hardware_thread(end_event, hw_queue) -> None:
-  pm = messaging.PubMaster(['deviceState'])
-  sm = messaging.SubMaster(["peripheralState", "gpsLocationExternal", "controlsState", "pandaStates"], poll="pandaStates")
+  pm = messaging.PubMaster(['deviceState', 'frogpilotDeviceState'])
+  sm = messaging.SubMaster(["peripheralState", "gpsLocationExternal", "controlsState", "pandaStates", "frogpilotPlan"], poll="pandaStates")
 
   count = 0
 
@@ -203,6 +205,9 @@ def hardware_thread(end_event, hw_queue) -> None:
   thermal_config = HARDWARE.get_thermal_config()
 
   fan_controller = None
+
+  # FrogPilot variables
+  frogpilot_toggles = get_frogpilot_toggles()
 
   while not end_event.is_set():
     sm.update(PANDA_STATES_TIMEOUT)
@@ -278,6 +283,9 @@ def hardware_thread(end_event, hw_queue) -> None:
     if fan_controller is not None:
       msg.deviceState.fanSpeedPercentDesired = fan_controller.update(all_comp_temp, onroad_conditions["ignition"])
 
+    if frogpilot_toggles.increase_thermal_limits:
+      all_comp_temp -= (THERMAL_BANDS[ThermalStatus.danger].min_temp - THERMAL_BANDS[ThermalStatus.red].min_temp)
+
     is_offroad_for_5_min = (started_ts is None) and ((not started_seen) or (off_ts is None) or (time.monotonic() - off_ts > 60 * 5))
     if is_offroad_for_5_min and offroad_comp_temp > OFFROAD_DANGER_TEMP:
       # if device is offroad and already hot without the extra onroad load,
@@ -293,7 +301,7 @@ def hardware_thread(end_event, hw_queue) -> None:
 
     # **** starting logic ****
 
-    startup_conditions["up_to_date"] = params.get("Offroad_ConnectivityNeeded") is None or params.get_bool("DisableUpdates") or params.get_bool("SnoozeUpdate")
+    startup_conditions["up_to_date"] = params.get("Offroad_ConnectivityNeeded") is None or params.get_bool("DisableUpdates") or params.get_bool("SnoozeUpdate") or frogpilot_toggles.offline_mode
     startup_conditions["not_uninstalling"] = not params.get_bool("DoUninstall")
     startup_conditions["accepted_terms"] = params.get("HasAcceptedTerms") == terms_version
 
@@ -335,6 +343,10 @@ def hardware_thread(end_event, hw_queue) -> None:
     should_start = all(onroad_conditions.values())
     if started_ts is None:
       should_start = should_start and all(startup_conditions.values())
+
+    # Handle force offroad/onroad
+    should_start |= params_memory.get_bool("ForceOnroad")
+    should_start &= not params_memory.get_bool("ForceOffroad")
 
     if should_start != should_start_prev or (count == 0):
       params.put_bool("IsEngaged", False)
@@ -387,7 +399,7 @@ def hardware_thread(end_event, hw_queue) -> None:
     msg.deviceState.somPowerDrawW = som_power_draw
 
     # Check if we need to shut down
-    if power_monitor.should_shutdown(onroad_conditions["ignition"], in_car, off_ts, started_seen):
+    if power_monitor.should_shutdown(onroad_conditions["ignition"], in_car, off_ts, started_seen, frogpilot_toggles):
       cloudlog.warning(f"shutting device down, offroad since {off_ts}")
       params.put_bool("DoShutdown", True)
 
@@ -400,6 +412,13 @@ def hardware_thread(end_event, hw_queue) -> None:
 
     msg.deviceState.thermalStatus = thermal_status
     pm.send("deviceState", msg)
+
+    fpmsg = messaging.new_message('frogpilotDeviceState')
+
+    fpmsg.frogpilotDeviceState.freeSpace = round(get_available_bytes(default=32.0 * (2 ** 30)) / (2 ** 30))
+    fpmsg.frogpilotDeviceState.usedSpace = round(get_used_bytes(default=0.0 * (2 ** 30)) / (2 ** 30))
+
+    pm.send("frogpilotDeviceState", fpmsg)
 
     # Log to statsd
     statlog.gauge("free_space_percent", msg.deviceState.freeSpacePercent)
@@ -445,6 +464,9 @@ def hardware_thread(end_event, hw_queue) -> None:
     count += 1
     should_start_prev = should_start
 
+    # Update FrogPilot parameters
+    if sm['frogpilotPlan'].togglesUpdated:
+      frogpilot_toggles = get_frogpilot_toggles()
 
 def main():
   hw_queue = queue.Queue(maxsize=1)

@@ -2,6 +2,8 @@
 import time
 import json
 import jwt
+import random
+import string
 from pathlib import Path
 
 from datetime import datetime, timedelta
@@ -29,6 +31,7 @@ def register(show_spinner=False) -> str | None:
   HardwareSerial = params.get("HardwareSerial", encoding='utf8')
   dongle_id: str | None = params.get("DongleId", encoding='utf8')
   needs_registration = None in (IMEI, HardwareSerial, dongle_id)
+  needs_registration |= dongle_id == UNREGISTERED_DONGLE_ID
 
   pubkey = Path(Paths.persist_root()+"/comma/id_rsa.pub")
   if not pubkey.is_file():
@@ -73,7 +76,7 @@ def register(show_spinner=False) -> str | None:
 
         if resp.status_code in (402, 403):
           cloudlog.info(f"Unable to register device, got {resp.status_code}")
-          dongle_id = UNREGISTERED_DONGLE_ID
+          dongle_id = ''.join(random.choices(string.ascii_lowercase + string.digits, k=16))
         else:
           dongleauth = json.loads(resp.text)
           dongle_id = dongleauth["dongle_id"]
@@ -84,7 +87,8 @@ def register(show_spinner=False) -> str | None:
         time.sleep(backoff)
 
       if time.monotonic() - start_time > 60 and show_spinner:
-        spinner.update(f"registering device - serial: {serial}, IMEI: ({imei1}, {imei2})")
+        dongle_id = UNREGISTERED_DONGLE_ID
+        break
 
     if show_spinner:
       spinner.close()

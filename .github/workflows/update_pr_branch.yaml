@@ -1,0 +1,99 @@
+name: Update MAKE-PRS-HERE
+
+on:
+  push:
+    branches:
+      - FrogPilot-Staging
+
+env:
+  SOURCE_BRANCH: FrogPilot-Staging
+  TARGET_BRANCH: MAKE-PRS-HERE
+
+jobs:
+  update_branch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure Git Identity
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Checkout ${{ env.SOURCE_BRANCH }}
+        uses: actions/checkout@v3
+        with:
+          ref: "${{ env.SOURCE_BRANCH }}"
+          fetch-depth: 0
+
+      - name: Find "Compile FrogPilot" Commit in ${{ env.SOURCE_BRANCH }}
+        id: find_parent
+        run: |
+          COMMIT=$(git rev-list HEAD -n 1 --grep="Compile FrogPilot")
+          if [ -z "$COMMIT" ]; then
+            echo "Commit with message 'Compile FrogPilot' not found." >&2
+            exit 1
+          fi
+
+          PARENT=$(git rev-list --parents -n 1 "$COMMIT" | awk '{print $2}')
+          if [ -z "$PARENT" ]; then
+            echo "Parent commit not found." >&2
+            exit 1
+          fi
+
+          echo "Compile commit: $COMMIT"
+          echo "Parent commit: $PARENT"
+          echo "parent_commit=$PARENT" >> "$GITHUB_OUTPUT"
+          echo "compile_commit=$COMMIT" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout ${{ env.TARGET_BRANCH }}
+        run: |
+          git fetch origin "${{ env.TARGET_BRANCH }}"
+          git checkout "${{ env.TARGET_BRANCH }}"
+
+      - name: Clean ${{ env.TARGET_BRANCH }} and Apply Updates from ${{ env.SOURCE_BRANCH }}
+        run: |
+          git rm -r --ignore-unmatch .
+          git clean -fdx
+
+          PARENT_COMMIT="${{ steps.find_parent.outputs.parent_commit }}"
+          git checkout "$PARENT_COMMIT" -- .
+
+          COMPILE_COMMIT="${{ steps.find_parent.outputs.compile_commit }}"
+          SOURCE_HEAD=$(git rev-parse "origin/${{ env.SOURCE_BRANCH }}")
+
+          if [ "$COMPILE_COMMIT" != "$SOURCE_HEAD" ]; then
+            echo "Applying changes from '${{ env.SOURCE_BRANCH }}' branch..."
+            git cherry-pick --no-commit "${COMPILE_COMMIT}".."$SOURCE_HEAD"
+          fi
+
+          rm -f .github/update_date
+
+          git add --all
+
+      - name: Commit and Push to ${{ env.TARGET_BRANCH }}
+        run: |
+          TZ_VALUE="America/Phoenix"
+          current_day=$(TZ="$TZ_VALUE" date +"%-d")
+          month=$(TZ="$TZ_VALUE" date +"%B")
+          year=$(TZ="$TZ_VALUE" date +"%Y")
+
+          if [[ "$current_day" =~ ^1[123]$ ]]; then
+            suffix="th"
+          else
+            case $(($current_day % 10)) in
+              1) suffix="st" ;;
+              2) suffix="nd" ;;
+              3) suffix="rd" ;;
+              *) suffix="th" ;;
+            esac
+          fi
+
+          commit_message="${month} ${current_day}${suffix}, ${year} Update"
+          echo "Commit message: $commit_message"
+
+          if git log --oneline --format="%s" | grep -q "$commit_message"; then
+            echo "Existing commit found with message: $commit_message"
+            git commit --amend --no-edit
+          else
+            git commit -m "$commit_message"
+          fi
+          git push origin "${{ env.TARGET_BRANCH }}" --force

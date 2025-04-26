@@ -7,6 +7,8 @@ from openpilot.selfdrive.car import CarSpecs, DbcDict, PlatformConfig, Platforms
 from openpilot.selfdrive.car.docs_definitions import CarFootnote, CarHarness, CarDocs, CarParts, Tool, Column
 from openpilot.selfdrive.car.fw_query_definitions import FwQueryConfig, Request, StdQueries, p16
 
+from openpilot.selfdrive.frogpilot.frogpilot_variables import get_frogpilot_toggles
+
 Ecu = car.CarParams.Ecu
 
 
@@ -25,6 +27,8 @@ class CarControllerParams:
       self.STEER_DELTA_DOWN = 40
     elif CP.carFingerprint == CAR.SUBARU_IMPREZA_2020:
       self.STEER_MAX = 1439
+    elif CP.carFingerprint == CAR.SUBARU_IMPREZA:
+      self.STEER_MAX = 3071
     else:
       self.STEER_MAX = 2047
 
@@ -207,6 +211,8 @@ class CAR(Platforms):
     flags=SubaruFlags.LKAS_ANGLE,
   )
 
+
+PREGLOBAL_CARS = {CAR.SUBARU_FORESTER_PREGLOBAL, CAR.SUBARU_LEGACY_PREGLOBAL, CAR.SUBARU_OUTBACK_PREGLOBAL, CAR.SUBARU_OUTBACK_PREGLOBAL_2018}
 
 SUBARU_VERSION_REQUEST = bytes([uds.SERVICE_TYPE.READ_DATA_BY_IDENTIFIER]) + \
   p16(uds.DATA_IDENTIFIER_TYPE.APPLICATION_DATA_IDENTIFICATION)

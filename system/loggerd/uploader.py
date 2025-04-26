@@ -21,11 +21,17 @@ from openpilot.system.hardware.hw import Paths
 from openpilot.system.loggerd.xattr_cache import getxattr, setxattr
 from openpilot.common.swaglog import cloudlog
 
+from openpilot.selfdrive.frogpilot.frogpilot_variables import get_frogpilot_toggles
+
 NetworkType = log.DeviceState.NetworkType
 UPLOAD_ATTR_NAME = 'user.upload'
 UPLOAD_ATTR_VALUE = b'1'
 
-UPLOAD_QLOG_QCAM_MAX_SIZE = 5 * 1e6  # MB
+MAX_UPLOAD_SIZES = {
+  "qlog": 25*1e6,  # can't be too restrictive here since we use qlogs to find
+                   # bugs, including ones that can cause massive log sizes
+  "qcam": 5*1e6,
+}
 
 allow_sleep = bool(os.getenv("UPLOADER_SLEEP", "1"))
 force_wifi = os.getenv("FORCEWIFI") is not None
@@ -172,7 +178,7 @@ class Uploader:
     if sz == 0:
       # tag files of 0 size as uploaded
       success = True
-    elif name in self.immediate_priority and sz > UPLOAD_QLOG_QCAM_MAX_SIZE:
+    elif name in MAX_UPLOAD_SIZES and sz > MAX_UPLOAD_SIZES[name]:
       cloudlog.event("uploader_too_large", key=key, fn=fn, sz=sz)
       success = True
     else:
@@ -242,15 +248,20 @@ def main(exit_event: threading.Event = None) -> None:
     cloudlog.info("uploader missing dongle_id")
     raise Exception("uploader can't start without dongle id")
 
-  sm = messaging.SubMaster(['deviceState'])
+  sm = messaging.SubMaster(['deviceState', 'frogpilotPlan'])
   uploader = Uploader(dongle_id, Paths.log_root())
 
   backoff = 0.1
+
+  # FrogPilot variables
+  frogpilot_toggles = get_frogpilot_toggles()
+
   while not exit_event.is_set():
     sm.update(0)
     offroad = params.get_bool("IsOffroad")
     network_type = sm['deviceState'].networkType if not force_wifi else NetworkType.wifi
-    if network_type == NetworkType.none:
+    at_home = not frogpilot_toggles.no_onroad_uploads or offroad and network_type in {NetworkType.ethernet, NetworkType.wifi}
+    if network_type == NetworkType.none or not at_home:
       if allow_sleep:
         time.sleep(60 if offroad else 5)
       continue
@@ -266,6 +277,9 @@ def main(exit_event: threading.Event = None) -> None:
     if allow_sleep:
       time.sleep(backoff + random.uniform(0, backoff))
 
+    # Update FrogPilot parameters
+    if sm['frogpilotPlan'].togglesUpdated:
+      frogpilot_toggles = get_frogpilot_toggles()
 
 if __name__ == "__main__":
   main()
