@@ -1,0 +1,57 @@
+name: Schedule FrogPilot Update
+
+on:
+  workflow_dispatch:
+    inputs:
+      scheduled_date:
+        description: "Enter the date to update the \"FrogPilot\" branch (YYYY-MM-DD)"
+        required: true
+
+env:
+  BRANCH: FrogPilot-Staging
+
+jobs:
+  schedule-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure Git Identity
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Checkout ${{ env.BRANCH }}
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ env.BRANCH }}
+          fetch-depth: 3
+
+      - name: Schedule Update for ${{ github.event.inputs.scheduled_date }}
+        run: |
+          echo "${{ github.event.inputs.scheduled_date }}" > .github/update_date
+          git add .github/update_date
+
+      - name: Get Target Commit (Second Most Recent)
+        id: get_target
+        run: |
+          TARGET_COMMIT=$(git rev-parse HEAD~1)
+
+          AUTHOR_DATE=$(git show -s --format=%aD "$TARGET_COMMIT")
+          COMMITTER_DATE=$(git show -s --format=%cD "$TARGET_COMMIT")
+
+          echo "AUTHOR_DATE=$AUTHOR_DATE" >> $GITHUB_ENV
+          echo "COMMITTER_DATE=$COMMITTER_DATE" >> $GITHUB_ENV
+          echo "TARGET_COMMIT=$TARGET_COMMIT" >> $GITHUB_ENV
+
+      - name: Create Fixup Commit for ${{ env.TARGET_COMMIT }}
+        run: git commit --fixup="${{ env.TARGET_COMMIT }}"
+
+      - name: Autosquash Fixup into Target Commit
+        run: |
+          GIT_SEQUENCE_EDITOR=: git rebase --autosquash -i HEAD~3
+
+      - name: Restore Timestamps on Final Two Commits
+        run: |
+          git rebase --exec "GIT_COMMITTER_DATE='${{ env.COMMITTER_DATE }}' git commit --amend --no-edit --date='${{ env.AUTHOR_DATE }}'" HEAD~2
+
+      - name: Push Updated ${{ env.BRANCH }} Branch
+        run: git push origin "${{ env.BRANCH }}" --force-with-lease

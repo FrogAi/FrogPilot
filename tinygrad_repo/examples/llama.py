@@ -1,255 +1,180 @@
 #!/usr/bin/env python3
-# pip3 install sentencepiece pyobjc-framework-Metal pyobjc-framework-Cocoa pyobjc-framework-libdispatch
+# pip3 install sentencepiece tiktoken blobfile
 #import typeguard.importhook
 #typeguard.importhook.install_import_hook('tinygrad')
 
 from pathlib import Path
-import functools, sys, argparse, json, os
-import numpy as np
-np.set_printoptions(linewidth=200)
-from typing import Optional, Tuple, Dict
+from typing import List, Optional
+import argparse, json
+from tinygrad import Tensor, Device, GlobalCounters, nn
+from tinygrad.helpers import Context, Timing, Profiling, DEBUG, JIT, getenv, colored
+from tinygrad.nn.state import safe_load, torch_load, load_state_dict, get_parameters
+from extra.models.llama import Transformer, convert_from_huggingface, fix_bf16
+from sentencepiece import SentencePieceProcessor
+import tiktoken, sys
+from tiktoken.load import load_tiktoken_bpe
 
-from tinygrad.helpers import Timing, getenv, DEBUG, dtypes, CI
-from tinygrad.ops import Device
-from tinygrad.tensor import Tensor
-from tinygrad.nn import Embedding, Linear
-from tinygrad.nn.state import safe_load, torch_load, load_state_dict
-from tinygrad.helpers import GlobalCounters
-from tinygrad.jit import TinyJit, JIT_SUPPORTED_DEVICE
-from tinygrad.shape.symbolic import Variable, sym_infer
+MAX_CONTEXT = getenv("MAX_CONTEXT", 4096)
 
-JIT = getenv("JIT", 0 if CI else int(Device.DEFAULT in JIT_SUPPORTED_DEVICE))
+class TikToken:
+  num_reserved_special_tokens: int = 256
+  pat_str: str =  r"(?i:'s|'t|'re|'ve|'m|'ll|'d)|[^\r\n\p{L}\p{N}]?\p{L}+|\p{N}{1,3}| ?[^\s\p{L}\p{N}]+[\r\n]*|\s*[\r\n]+|\s+(?!\S)|\s+"  # noqa: E501
 
-# https://github.com/facebookresearch/llama/blob/1076b9c51c77ad06e9d7ba8a4c6df775741732bd/llama/model.py#L47
-def precompute_freqs_cis(dim: int, end: int, theta: float = 10000.0):
-  freqs = 1.0 / (theta ** (Tensor.arange(0, dim, 2)[:(dim // 2)] / dim))
-  freqs = Tensor.arange(end).unsqueeze(dim=1)*freqs.unsqueeze(dim=0)
-  return Tensor.stack([Tensor.cos(freqs), Tensor.sin(freqs)], dim=-1).reshape(1, end, 1, dim//2, 2)
+  def __init__(self, model_file):
+    mergeable_ranks = load_tiktoken_bpe(model_file)
+    self.num_base_tokens = len(mergeable_ranks)
 
-# (a+i*b) * (c+i*d) = (ac-bd) + i*(ad+bc)
-def complex_mult(A, c, d):
-  a,b = A[:, :, :, :, 0:1], A[:, :, :, :, 1:2]
-  ro = a*c - b*d
-  co = a*d + b*c
-  return ro.cat(co, dim=-1)
+    special_tokens = [
+        "<|begin_of_text|>",
+        "<|end_of_text|>",
+        "<|reserved_special_token_0|>",
+        "<|reserved_special_token_1|>",
+        "<|reserved_special_token_2|>",
+        "<|reserved_special_token_3|>",
+        "<|start_header_id|>",
+        "<|end_header_id|>",
+        "<|reserved_special_token_4|>",
+        "<|eot_id|>",  # end of turn
+      ] + [
+        f"<|reserved_special_token_{i}|>"
+        for i in range(5, self.num_reserved_special_tokens - 5)
+      ]
+    self.special_tokens = {
+        token: self.num_base_tokens + i for i, token in enumerate(special_tokens)
+    }
 
-def apply_rotary_emb(xq, xk, freqs_cis) -> Tuple[Tensor, Tensor]:
-  assert freqs_cis.shape[1] == xq.shape[1] and freqs_cis.shape[1] == xk.shape[1], f"freqs_cis shape mismatch {freqs_cis.shape} xq:{xq.shape} xk:{xk.shape}"
-  xq = xq.reshape(*xq.shape[0:-1], -1, 2)
-  xk = xk.reshape(*xk.shape[0:-1], -1, 2)
-  assert len(xq.shape) == 5 and len(xk.shape) == 5 and len(freqs_cis.shape) == 5
-  c, d = freqs_cis[:, :xq.shape[1], :, :, 0:1], freqs_cis[:, :xq.shape[1], :, :, 1:2]
-  xq_out = complex_mult(xq, c, d)
-  xk_out = complex_mult(xk, c, d)
-  return xq_out.flatten(3), xk_out.flatten(3)
+    self.model = tiktoken.Encoding(
+      name=model_file,
+      pat_str=self.pat_str,
+      mergeable_ranks=mergeable_ranks,
+      special_tokens=self.special_tokens,
+    )
 
-def repeat_kv(x:Tensor, n_rep:int) -> Tensor:
-  bs, seqlen, n_kv_heads, head_dim = x.shape
-  if n_rep == 1: return x
-  return x.reshape(bs, seqlen, n_kv_heads, 1, head_dim).expand(bs, seqlen, n_kv_heads, n_rep, head_dim).reshape(bs, seqlen, n_kv_heads * n_rep, head_dim)
+  def decode(self, toks): return self.model.decode([t for t in toks if t < self.num_base_tokens])
+  def encode(self, s): return self.model.encode(s)
 
-class RMSNorm:
-  def __init__(self, dim, eps=1e-6):
-    self.eps = eps
-    self.weight = Tensor.ones(dim)
+  def bos_id(self): return self.special_tokens["<|begin_of_text|>"]
+  def eos_id(self): return self.special_tokens["<|end_of_text|>"]
+  def vocab_size(self): return self.model.n_vocab
 
-  def __call__(self, x:Tensor):
-    # TODO: convert to float?
-    return (x * (x.pow(2).mean(-1, keepdim=True) + self.eps).rsqrt()) * self.weight
-
-class Attention:
-  def __init__(self, dim, n_heads, n_kv_heads, linear=Linear):
-    self.n_heads = n_heads
-    self.n_kv_heads = n_kv_heads if n_kv_heads is not None else n_heads
-    self.head_dim = dim // n_heads
-    self.n_rep = self.n_heads // self.n_kv_heads
-
-    self.wq = linear(dim, self.n_heads * self.head_dim, bias=False)
-    self.wk = linear(dim, self.n_kv_heads * self.head_dim, bias=False)
-    self.wv = linear(dim, self.n_kv_heads * self.head_dim, bias=False)
-    self.wo = linear(self.n_heads * self.head_dim, dim, bias=False)
-
-  def __call__(self, x:Tensor, cache_k:Optional[Tensor], cache_v:Optional[Tensor], start_pos:int, freqs_cis:Tensor, mask:Optional[Tensor], jit_ctx:Optional[Dict[Variable,int]]=None) -> Tuple[Tensor, Tensor, Tensor]:
-    bsz, seqlen, _ = x.shape
-    xq, xk, xv = self.wq(x), self.wk(x), self.wv(x)
-    xq = xq.reshape(xq.shape[0], xq.shape[1], self.n_heads, self.head_dim)
-    xk = xk.reshape(xk.shape[0], xk.shape[1], self.n_kv_heads, self.head_dim)
-    xv = xv.reshape(xv.shape[0], xv.shape[1], self.n_kv_heads, self.head_dim)
-    xq, xk = apply_rotary_emb(xq, xk, freqs_cis=freqs_cis)
-
-    # kv caching!
-    if start_pos == 0:
-      keys, values = xk, xv
-    else:
-      assert cache_k is not None and cache_v is not None, "no cache"
-      assert start_pos == (cache_k.shape[1].val if isinstance(cache_k.shape[1], Variable) else cache_k.shape[1]) == (cache_v.shape[1].val if isinstance(cache_v.shape[1], Variable) else cache_v.shape[1]), f"cache has wrong shape, {start_pos=}, {cache_k.shape[1]=}, {cache_v.shape[1]=}"
-      assert seqlen == xk.shape[1] and seqlen == xv.shape[1], "seqlen is wrong shape?!?"
-      keys, values = cache_k.cat(xk, dim=1), cache_v.cat(xv, dim=1)
-
-    cache_k, cache_v = keys, values
-    keys, values = repeat_kv(keys, self.n_rep).realize(), repeat_kv(values, self.n_rep).realize()
-    attn = Tensor.scaled_dot_product_attention(xq.transpose(1, 2), keys.transpose(1, 2), values.transpose(1, 2), mask).transpose(1, 2).reshape(bsz, seqlen, -1)
-    return self.wo(attn).realize(), cache_k.realize(), cache_v.realize()
-
-class FeedForward:
-  def __init__(self, dim, hidden_dim, multiple_of, linear=Linear, ffn_dim_multiplier=None):
-    # TODO: what is this?
-    hidden_dim = int(2 * hidden_dim / 3)
-    # custom dim factor multiplier
-    if ffn_dim_multiplier is not None:
-      hidden_dim = int(ffn_dim_multiplier * hidden_dim)
-    hidden_dim = multiple_of * ((hidden_dim + multiple_of - 1) // multiple_of)
-    self.w1 = linear(dim, hidden_dim, bias=False)
-    self.w2 = linear(hidden_dim, dim, bias=False)
-    self.w3 = linear(dim, hidden_dim, bias=False)
-
-  def __call__(self, x:Tensor) -> Tensor:
-    return self.w2(self.w1(x).silu() * self.w3(x))
-
-class TransformerBlock:
-  def __init__(self, dim, multiple_of, n_heads, n_kv_heads, norm_eps, linear=Linear, ffn_dim_multiplier=None):
-    self.attention = Attention(dim, n_heads, n_kv_heads, linear)
-    self.feed_forward = FeedForward(dim, 4*dim, multiple_of, linear, ffn_dim_multiplier)
-    self.attention_norm = RMSNorm(dim, norm_eps)
-    self.ffn_norm = RMSNorm(dim, norm_eps)
-
-  def __call__(self, x:Tensor, cache_k:Optional[Tensor], cache_v:Optional[Tensor], start_pos:int, freqs_cis:Tensor, mask:Optional[Tensor], jit_ctx:Optional[Dict[Variable,int]]=None):
-    bsz, seqlen, _ = x.shape
-    if JIT and mask is None:
-      assert cache_k is not None and cache_v is not None, "no cache"
-      pos = Variable("pos", 1, 1024).bind(start_pos)
-      cache_k = cache_k.reshape(cache_k.shape[0], pos, cache_k.shape[2], cache_k.shape[3])
-      cache_v = cache_v.reshape(cache_v.shape[0], pos, cache_v.shape[2], cache_v.shape[3])
-
-    output, cache_k, cache_v = self.attention(self.attention_norm(x), cache_k, cache_v, start_pos, freqs_cis, mask, jit_ctx=jit_ctx)
-    h = x + output
-    return (h + self.feed_forward(self.ffn_norm(h))).realize(), cache_k.realize(), cache_v.realize()
-
-class Transformer:
-  def __init__(self, dim, multiple_of, n_heads, n_layers, norm_eps, vocab_size, linear=Linear, max_batch_size=32, max_seq_len=1024, ffn_dim_multiplier=None, n_kv_heads=None, rope_theta=10000):
-    self.layers = [TransformerBlock(dim, multiple_of, n_heads, n_kv_heads, norm_eps, linear, ffn_dim_multiplier) for _ in range(n_layers)]
-    self.kv_caches = [(None, None) for _ in range(n_layers)]
-    self.norm = RMSNorm(dim, norm_eps)
-    self.tok_embeddings = Embedding(vocab_size, dim)
-    self.output = linear(dim, vocab_size, bias=False)
-    self.freqs_cis = precompute_freqs_cis(dim // n_heads, max_seq_len * 2, rope_theta)
-    self.norm_output = lambda x: self.output(self.norm(x))
-
-    self.tok_embeddings_jitted = TinyJit(lambda x: self.tok_embeddings(x).realize())
-    self.postprocess_jitted = TinyJit(self.postprocess)
-    self.layers_jitted = [TinyJit(layer.__call__) for layer in self.layers]
-
-  def postprocess(self, x, temperature:Optional[float]):
-    logits = self.output(self.norm(x))
-    if temperature is not None: return (logits[:, -1, :] / (temperature+1e-10)).softmax().flatten().realize()
-    return logits.realize()
-
-  def __call__(self, tokens:Tensor, start_pos:int, temperature:Optional[float]=None):
-    _bsz, seqlen = tokens.shape
-    if seqlen == 1 and start_pos > 0 and JIT:
-      pos = Variable("pos", 1, 1024).bind(start_pos)
-      # get only the part of freqs_cis that we are using.
-      freqs_cis = self.freqs_cis.shrink(((0, self.freqs_cis.shape[0]), (pos, pos+seqlen),(0, self.freqs_cis.shape[2]),(0, self.freqs_cis.shape[3]),(0, self.freqs_cis.shape[4])))
-      h = self.tok_embeddings_jitted(tokens)
-      for i, (layer, (cache_k, cache_v)) in enumerate(zip(self.layers_jitted, self.kv_caches)):
-        h, cache_k, cache_v = layer(h, cache_k, cache_v, start_pos=start_pos, freqs_cis=freqs_cis, mask=None, jit_ctx={pos.unbind()[0]: start_pos})
-        self.kv_caches[i] = (cache_k, cache_v)
-      return self.postprocess_jitted(h, temperature)
-    else:
-      freqs_cis = self.freqs_cis.shrink(((0, self.freqs_cis.shape[0]), (start_pos, start_pos+seqlen),(0, self.freqs_cis.shape[2]),(0, self.freqs_cis.shape[3]),(0, self.freqs_cis.shape[4])))
-      mask = Tensor.full((1, 1, seqlen, start_pos + seqlen), float("-inf"), dtype=dtypes.float32).triu(start_pos+1).realize()
-      h = self.tok_embeddings(tokens)
-      for i, (layer, (cache_k, cache_v)) in enumerate(zip(self.layers, self.kv_caches)):
-        # need this reshape back to int shape in conversational mode because jitted and unjitted calls share the same cache
-        if cache_k is not None and start_pos > 0:
-          cache_k = cache_k.reshape(cache_k.shape[0], start_pos, cache_k.shape[2], cache_k.shape[3])
-          cache_v = cache_v.reshape(cache_v.shape[0], start_pos, cache_v.shape[2], cache_v.shape[3])
-        h, cache_k, cache_v = layer(h, cache_k, cache_v, start_pos=start_pos, freqs_cis=freqs_cis, mask=mask)
-        self.kv_caches[i] = (cache_k, cache_v)
-      return self.postprocess(h, temperature)
-
-# **** files and arguments ****
+# calculating params:
+# traditionally, the MLP in the transformer architecture has hidden_dim = dim*4 [arxiv/1706.03762, 3.3]
+# however, Llama uses SwiGLU. in order to preserve param count to original transformer arch, hidden_dim must be = 2/3 * (dim*4) [arxiv/2002.05202]
+# for models using MQA (n_kv_heads != n_heads), preserving param count means hidden dim must be further multiplied by 1.3 [arxiv/2307.09288, A.2.1]
 MODEL_PARAMS = {
   "1": {
     "7B": {
-      "args": {"dim": 4096, "multiple_of": 256, "n_heads": 32, "n_layers": 32, "norm_eps": 1e-06, "vocab_size": 32000},
+      "args": {"dim": 4096, "n_heads": 32, "n_layers": 32, "norm_eps": 1e-06, "vocab_size": 32000, "hidden_dim": 11008},
       "files": 1,
     },
     "13B": {
-      "args": {"dim": 5120, "multiple_of": 256, "n_heads": 40, "n_layers": 40, "norm_eps": 1e-06, "vocab_size": 32000},
+      "args": {"dim": 5120, "n_heads": 40, "n_layers": 40, "norm_eps": 1e-06, "vocab_size": 32000, "hidden_dim": 13824},
       "files": 2,
     },
     "30B": {
-      "args": {"dim": 6656, "multiple_of": 256, "n_heads": 52, "n_layers": 60, "norm_eps": 1e-06, "vocab_size": 32000},
+      "args": {"dim": 6656, "n_heads": 52, "n_layers": 60, "norm_eps": 1e-06, "vocab_size": 32000, "hidden_dim": 17920},
       "files": 4,
     },
     "65B": {
-      "args": {"dim": 8192, "multiple_of": 256, "n_heads": 64, "n_layers": 80, "norm_eps": 1e-05, "vocab_size": 32000},
+      "args": {"dim": 8192, "n_heads": 64, "n_layers": 80, "norm_eps": 1e-05, "vocab_size": 32000, "hidden_dim": 22016},
       "files": 8,
     },
+    "tokenizer": SentencePieceProcessor,
   },
   "2": {
     "7B": {
-      "args": {"dim": 4096, "multiple_of": 256, "n_heads": 32, "n_layers": 32, "norm_eps": 1e-05, "vocab_size": 32000},
+      "args": {"dim": 4096, "n_heads": 32, "n_layers": 32, "norm_eps": 1e-05, "vocab_size": 32000, "hidden_dim": 11008},
       "files": 1,
     },
     "13B": {
-      "args": {"dim": 5120, "multiple_of": 256, "n_heads": 40, "n_layers": 40, "norm_eps": 1e-05, "vocab_size": 32000},
+      "args": {"dim": 5120, "n_heads": 40, "n_layers": 40, "norm_eps": 1e-05, "vocab_size": 32000, "hidden_dim": 13824},
       "files": 2,
     },
     "70B": {
-      "args": {"dim": 8192, "multiple_of": 4096, "ffn_dim_multiplier": 1.3, "n_heads": 64, "n_kv_heads": 8, "n_layers": 80, "norm_eps": 1e-05, "vocab_size": 32000},
+      "args": {"dim": 8192, "n_heads": 64, "n_kv_heads": 8, "n_layers": 80, "norm_eps": 1e-05, "vocab_size": 32000, "hidden_dim": 28672},
       "files": 8,
     },
+    "tokenizer": SentencePieceProcessor,
+  },
+  "3": {
+    "8B": {
+      "args": {"dim": 4096, "n_heads": 32, "n_kv_heads": 8, "n_layers": 32, "norm_eps": 1e-05, "rope_theta": 500000, "vocab_size": 128256,  "hidden_dim": 14336},
+      "files": 1,
+    },
+    "8B-Chat": {
+      "args": {"dim": 4096, "n_heads": 32, "n_kv_heads": 8, "n_layers": 32, "norm_eps": 1e-05, "rope_theta": 500000, "vocab_size": 128256,  "hidden_dim": 14336},
+      "files": 1,
+    },
+    "70B": {
+      "args": {"dim": 8192, "n_heads": 64, "n_kv_heads": 8, "n_layers": 80, "norm_eps": 1e-05, "rope_theta": 500000, "vocab_size": 128256,  "hidden_dim": 28672},
+      "files": 8,
+    },
+    "70B-Chat": {
+      "args": {"dim": 8192, "n_heads": 64, "n_kv_heads": 8, "n_layers": 80, "norm_eps": 1e-05, "rope_theta": 500000, "vocab_size": 128256,  "hidden_dim": 28672},
+      "files": 8,
+    },
+    "tokenizer": TikToken,
   },
   "code": {
     "7B": {
-      "args": {"dim": 4096, "n_layers": 32, "n_heads": 32, "multiple_of": 256, "ffn_dim_multiplier": 1.0, "norm_eps": 1e-5, "rope_theta": 1000000, "vocab_size": 32016},
+      "args": {"dim": 4096, "n_layers": 32, "n_heads": 32, "norm_eps": 1e-05, "rope_theta": 1000000, "vocab_size": 32016, "hidden_dim": 11008},
       "files": 1,
     },
     "7B-Python": {
-      "args": {"dim": 4096, "n_layers": 32, "n_heads": 32, "multiple_of": 256, "ffn_dim_multiplier": 1.0, "norm_eps": 1e-5, "rope_theta": 1000000, "vocab_size": 32000},
+      "args": {"dim": 4096, "n_layers": 32, "n_heads": 32, "norm_eps": 1e-05, "rope_theta": 1000000, "vocab_size": 32000, "hidden_dim": 11008},
       "files": 1,
     },
     "7B-Instruct": {
-      "args": {"dim": 4096, "n_layers": 32, "n_heads": 32, "multiple_of": 256, "ffn_dim_multiplier": 1.0, "norm_eps": 1e-5, "rope_theta": 1000000, "vocab_size": 32016},
+      "args": {"dim": 4096, "n_layers": 32, "n_heads": 32, "norm_eps": 1e-05, "rope_theta": 1000000, "vocab_size": 32016, "hidden_dim": 11008},
       "files": 1,
     },
     "13B": {
-      "args": {"dim": 5120, "n_layers": 40, "n_heads": 40, "multiple_of": 256, "ffn_dim_multiplier": 1.0, "norm_eps": 1e-5, "rope_theta": 1000000, "vocab_size": 32016},
+      "args": {"dim": 5120, "n_layers": 40, "n_heads": 40, "norm_eps": 1e-05, "rope_theta": 1000000, "vocab_size": 32016, "hidden_dim": 13824},
       "files": 2,
     },
     "13B-Python": {
-      "args": {"dim": 5120, "n_layers": 40, "n_heads": 40, "multiple_of": 256, "ffn_dim_multiplier": 1.0, "norm_eps": 1e-5, "rope_theta": 1000000, "vocab_size": 32000},
+      "args": {"dim": 5120, "n_layers": 40, "n_heads": 40, "norm_eps": 1e-05, "rope_theta": 1000000, "vocab_size": 32000, "hidden_dim": 13824},
       "files": 2,
     },
     "13B-Instruct": {
-      "args": {"dim": 5120, "n_layers": 40, "n_heads": 40, "multiple_of": 256, "ffn_dim_multiplier": 1.0, "norm_eps": 1e-5, "rope_theta": 1000000, "vocab_size": 32016},
+      "args": {"dim": 5120, "n_layers": 40, "n_heads": 40, "norm_eps": 1e-05, "rope_theta": 1000000, "vocab_size": 32016, "hidden_dim": 13824},
       "files": 2,
     },
     "34B": {
-      "args": {"dim": 8192, "n_layers": 48, "n_heads": 64, "n_kv_heads": 8, "multiple_of": 256, "ffn_dim_multiplier": 1.0, "norm_eps": 1e-5, "rope_theta": 1000000, "vocab_size": 32000},
+      "args": {"dim": 8192, "n_layers": 48, "n_heads": 64, "n_kv_heads": 8, "norm_eps": 1e-05, "rope_theta": 1000000, "vocab_size": 32000, "hidden_dim": 22016},
       "files": 4,
     },
     "34B-Python": {
-      "args": {"dim": 8192, "n_layers": 48, "n_heads": 64, "n_kv_heads": 8, "multiple_of": 256, "ffn_dim_multiplier": 1.0, "norm_eps": 1e-5, "rope_theta": 1000000, "vocab_size": 32000},
+      "args": {"dim": 8192, "n_layers": 48, "n_heads": 64, "n_kv_heads": 8, "norm_eps": 1e-05, "rope_theta": 1000000, "vocab_size": 32000, "hidden_dim": 22016},
       "files": 4,
     },
     "34B-Instruct": {
-      "args": {"dim": 8192, "n_layers": 48, "n_heads": 64, "n_kv_heads": 8, "multiple_of": 256, "ffn_dim_multiplier": 1.0, "norm_eps": 1e-5, "rope_theta": 1000000, "vocab_size": 32000},
+      "args": {"dim": 8192, "n_layers": 48, "n_heads": 64, "n_kv_heads": 8, "norm_eps": 1e-05, "rope_theta": 1000000, "vocab_size": 32000, "hidden_dim": 22016},
       "files": 4,
     },
+    "tokenizer": SentencePieceProcessor,
+  },
+  "tiny": {
+    "1B": {
+      "args": {"dim": 2048, "n_layers": 22, "n_heads": 32, "n_kv_heads": 4, "norm_eps": 1e-05, "vocab_size": 32000, "hidden_dim": 5632},
+      "files": 1,
+    },
+    "1B-Chat": {
+      "args": {"dim": 2048, "n_layers": 22, "n_heads": 32, "n_kv_heads": 4, "norm_eps": 1e-05, "vocab_size": 32003, "hidden_dim": 5632},
+      "files": 1,
+    },
+    "tokenizer": SentencePieceProcessor,
   }
 }
 
 # **** helper functions ****
-def concat_weights(models):
+def concat_weights(models, device=None):
   def convert(name) -> Tensor:
-    disk_tensors = [model[name] for model in models]
+    disk_tensors: List[Tensor] = [model[name] for model in models]
     if len(disk_tensors) == 1 or len(disk_tensors[0].shape) == 1:
-      return disk_tensors[0].to(device=Device.DEFAULT)
+      return disk_tensors[0].to(device=device)
     axis = 1 if name.startswith("tok_embeddings.") or name.endswith(".attention.wo.weight") or name.endswith(".feed_forward.w2.weight") else 0
-    lazy_tensors = [data.to(device=Device.DEFAULT) for data in disk_tensors]
+    lazy_tensors = [data.to(device=device) for data in disk_tensors]
     return lazy_tensors[0].cat(*lazy_tensors[1:], dim=axis)
   return {name: convert(name) for name in {name: None for model in models for name in model}}
 
@@ -263,73 +188,72 @@ def load(fn:str):
   else:
     return torch_load(fn)
 
-def convert_from_huggingface(weights, model):
-  keymap = {
-    "model.embed_tokens.weight": "tok_embeddings.weight",
-    **{f"model.layers.{l}.input_layernorm.weight": f"layers.{l}.attention_norm.weight" for l in range(len(model.layers))},
-    **{f"model.layers.{l}.self_attn.{x}_proj.weight": f"layers.{l}.attention.w{x}.weight" for x in ["q", "k", "v", "o"] for l in range(len(model.layers))},
-    **{f"model.layers.{l}.post_attention_layernorm.weight": f"layers.{l}.ffn_norm.weight" for l in range(len(model.layers))},
-    **{f"model.layers.{l}.mlp.{x}_proj.weight": f"layers.{l}.feed_forward.w{y}.weight" for x, y in {"gate": "1", "down": "2", "up": "3"}.items() for l in range(len(model.layers))},
-    "model.norm.weight": "norm.weight",
-    "lm_head.weight": "output.weight",
-  }
-  return {keymap[k]: v for k,v in weights.items() if ".rotary_emb." not in k}
-
-class AbsmaxQuantizedLinear:
-  def __init__(self, in_features, out_features, bias=False):
-    assert bias == False
-    self.weight = Tensor.ones(out_features, in_features, dtype=dtypes.int8)
-    self.scale = Tensor.ones(out_features, dtype=dtypes.half)
-
-  def __call__(self, x):
-    return x.dot(self.weight.cast(dtype=dtypes.half).T*self.scale)
-
-  @staticmethod
-  def quantize(tensors):
-    new_tensors = {}
-    for name,v in tensors.items():
-      if "feed_forward" in name or ("attention.w") in name or name == "output.weight":
-        scale = v.abs().max(axis=1) / 127.0
-        int8_weight = (v.T/scale).T.cast(dtype=dtypes.int8)
-        new_tensors[name] = int8_weight
-        new_tensors[name.replace('weight', 'scale')] = scale
-      else:
-        new_tensors[name] = v
-    return new_tensors
-
 class LLaMa:
   @staticmethod
-  def build(model_path, tokenizer_path, model_gen="1", model_size="7B", quantize=False):
-    from sentencepiece import SentencePieceProcessor
-    sp_model = SentencePieceProcessor(model_file=str(tokenizer_path))
-    assert sp_model.vocab_size() == MODEL_PARAMS[model_gen][model_size]["args"]["vocab_size"], f"{sp_model.vocab_size()=} not equal to {MODEL_PARAMS[model_gen][model_size]['args']['vocab_size']}"
-
+  def build(model_path, tokenizer_path, model_gen="1", model_size="7B", quantize=None, device=None):
     params = MODEL_PARAMS[model_gen][model_size]
-    model = Transformer(**params["args"], linear=AbsmaxQuantizedLinear) if quantize else Transformer(**params["args"])
+    tokenizer = MODEL_PARAMS[model_gen]['tokenizer'](model_file=str(tokenizer_path))
+    assert tokenizer.vocab_size() == params["args"]["vocab_size"], f"{tokenizer.vocab_size()=} not equal to {params['args']['vocab_size']}"
+
+    if quantize == "int8":
+      from llama3 import Int8Linear
+      linear = Int8Linear
+    elif quantize == "nf4":
+      from llama3 import NF4Linear
+      linear = NF4Linear(64)
+    else:
+      linear = nn.Linear
+
+    model = Transformer(**params["args"], linear=linear, max_context=MAX_CONTEXT, jit=bool(JIT))
 
     if model_path.is_dir():
-      weights = concat_weights([load(filename) for filename in [f"{model_path}/consolidated.{i:02d}.pth" for i in range(params["files"])]])
+      weights = concat_weights([load(filename) for filename in [f"{model_path}/consolidated.{i:02d}.pth" for i in range(params["files"])]], device[0] if isinstance(device, tuple) else device)
     else:
       weights = load(str(model_path))
     if "model.embed_tokens.weight" in weights:
-      weights = convert_from_huggingface(weights, model)
+      weights = convert_from_huggingface(weights, model, params["args"]["n_heads"], params["args"].get("n_kv_heads", params["args"]["n_heads"]))
 
-    if quantize:
-      weights = AbsmaxQuantizedLinear.quantize(weights)
-      for _,v in weights.items(): v.realize()
-    load_state_dict(model, weights, strict=False)
+    weights = fix_bf16(weights)
 
-    return LLaMa(model, sp_model)
+    with Context(BEAM=0):
+      # quantize
+      if quantize is not None:
+        weights = linear.quantize(weights, device)
+        for _,v in weights.items(): v.realize()
+
+      # shard
+      if isinstance(device, tuple):
+        for k,v in nn.state.get_state_dict(model).items():
+          if 'scale' in k: v.shard_(device, axis=None)  # from quantized
+          elif '.attention.' in k:
+            if getenv("SHARD_KVCACHE") and ('.wq.' in k or '.wk.' in k or '.wv.' in k): v.shard_(device, axis=0)
+            else: v.shard_(device, axis=-1)
+          elif '.feed_forward.w1.' in k: v.shard_(device, axis=0)
+          elif '.feed_forward.w3.' in k: v.shard_(device, axis=0)
+          elif '.feed_forward.' in k: v.shard_(device, axis=-1)
+          elif 'tok_embeddings.weight' in k: v.shard_(device, axis=0)
+          elif 'output.weight' in k: v.shard_(device, axis=-1)
+          #elif k.endswith('.weight'): v.shard_(device, axis=-1)
+          #elif 'norm.' in k: v.shard_(device, axis=-1)
+          else: v.shard_(device, axis=None)
+          #print(k, v.shape, v.lazydata.axis)
+
+      # replace weights in model
+      load_state_dict(model, weights, strict=False, consume=True)
+
+    return LLaMa(model, tokenizer)
 
   def __init__(self, model, tokenizer):
     self.model = model
     self.tokenizer = tokenizer
 
   def greedy_until(self, prompt:str, until, max_length, temperature):
+    # only used in old eval script
+    import numpy as np
     toks = [self.tokenizer.bos_id()] + self.tokenizer.encode(prompt)
     start_pos = 0
     for i in range(max_length):
-      probs = llama.model(Tensor([toks[start_pos:]]), start_pos, args.temperature).realize()
+      probs = llama.model(Tensor([toks[start_pos:]]), start_pos, temperature).realize()
       probs_np = probs.numpy()
       tok = int(np.random.choice(len(probs_np), p=probs_np))
       start_pos = len(toks)
@@ -342,7 +266,7 @@ class LLaMa:
     return output
 
 # **** main code ****
-"""
+r"""
 test:
 python3 examples/llama.py  --temperature=0 --count=50 --prompt="Hello."
 output:
@@ -413,12 +337,15 @@ if __name__ == "__main__":
   parser.add_argument("--temperature", type=float, default=0.7, help="Temperature in the softmax")
   parser.add_argument("--timing", action="store_true", help="Print timing per token")
   parser.add_argument("--profile", action="store_true", help="Output profile data to out.prof")
-  parser.add_argument("--size", type=str, default="7B", help="Size of model to use [7B, 13B, 30B, 65B] for Gen 1, [7B, 13B, 70B] for Gen 2, [7B, 13B, 34B] for Code LLaMA")
-  parser.add_argument("--gen", default="1", help="Generation of the model to use ['1', '2', 'code']")
-  parser.add_argument("--quantize", action="store_true", help="Quantize the weights to int8 in memory")
+  parser.add_argument("--gen", default="1", help=f"""Generation of the model to use {list(MODEL_PARAMS.keys())}""")
+  parser.add_argument("--size", type=str, default=None, help=f"""Size of model to use {", ".join([f"{list(v.keys())} for gen '{k}'" for k, v in MODEL_PARAMS.items()])}""")
+  parser.add_argument("--quantize", type=str, default=None, help="Quantize the weights to int8 or nf4 in memory")
   parser.add_argument("--model", type=Path, default=None, help="Folder with the original weights to load, or single .index.json, .safetensors or .bin file")
+  parser.add_argument("--shard", type=int, default=1, help="number of devices to load the weights to")
 
   args = parser.parse_args()
+  if args.gen not in MODEL_PARAMS: raise ValueError("Invalid model generation")
+  if args.size is None: args.size = list(MODEL_PARAMS[args.gen].items())[0][0]
   chatbot = args.prompt == None
 
   # *** prompt engineers work here ****
@@ -510,33 +437,22 @@ After you are done speaking, output [EOS]. You are not Chad.
 
   # *** prompt engineers stop here ****
 
-  LLAMA_SUFFIX = {"1": "", "2": "-2", "code": "-code"}[args.gen]
+  LLAMA_SUFFIX = {"1": "", "2": "-2", "3": "-3", "code": "-code", "tiny": "-tiny"}[args.gen]
   MODEL_PATH = args.model or Path(__file__).parents[1] / f"weights/LLaMA{LLAMA_SUFFIX}/{args.size}"
   TOKENIZER_PATH = (MODEL_PATH if MODEL_PATH.is_dir() else MODEL_PATH.parent) / "tokenizer.model"
   print(f"using LLaMA{LLAMA_SUFFIX}-{args.size} model")
-  llama = LLaMa.build(MODEL_PATH, TOKENIZER_PATH, model_gen=args.gen, model_size=args.size, quantize=args.quantize)
+  device = tuple(f"{Device.DEFAULT}:{i}" for i in range(args.shard)) if args.shard > 1 else Device.DEFAULT
+  llama = LLaMa.build(MODEL_PATH, TOKENIZER_PATH, model_gen=args.gen, model_size=args.size, quantize=args.quantize, device=device)
+  param_bytes = sum(x.lazydata.size * x.dtype.itemsize for x in get_parameters(llama.model))
 
+  outputted = pre_prompt if chatbot else args.prompt
+  start_pos, toks = 0, [llama.tokenizer.bos_id()] + llama.tokenizer.encode(outputted)
   if chatbot:
-    # encode pre prompt
-    toks = [llama.tokenizer.bos_id()] + llama.tokenizer.encode(pre_prompt)
-
     print(f"Preparing KV cache for chatbot with personality {args.personality}...")
-    with Timing():
-      llama.model(Tensor([toks]), 0, args.temperature).realize()  # NOTE: output logits are not used
     start_pos = len(toks)
-  else:
-    # non chat bot mode
-    toks = [llama.tokenizer.bos_id()] + llama.tokenizer.encode(args.prompt)
-    start_pos = 0
-
-  # print prompt
-  outputted = llama.tokenizer.decode(toks)
-  sys.stdout.write(outputted)
-  sys.stdout.flush()
-
-  if args.profile:
-    import cProfile, pstats
-    profiler = cProfile.Profile()
+    with Timing():
+      llama.model(Tensor([toks], device=device), 0, args.temperature).realize()  # NOTE: outputs are not used
+  print(outputted, end='', flush=True)
 
   # chatbot loop
   while 1:
@@ -546,24 +462,24 @@ After you are done speaking, output [EOS]. You are not Chad.
       outputted += user_prompt
 
     new_toks = [llama.tokenizer.bos_id()] + llama.tokenizer.encode(outputted)
-    assert toks == new_toks[:len(toks)]
+    assert toks == new_toks[:len(toks)] or args.gen == "3"
     toks = new_toks
     assert outputted == llama.tokenizer.decode(toks)
 
-    last_break = len(outputted)
+    tok_tensor: Optional[Tensor] = None
     for i in range(args.count):
       GlobalCounters.reset()
-      if args.profile and i == 2: profiler.enable()
 
-      if args.timing: print("")
+      if args.timing or args.profile: print("")
       st = GlobalCounters.time_sum_s
-      with Timing("total ", enabled=args.timing, on_exit=lambda x: f", {1e9/x:.2f} tok/sec"):
-        with Timing("ran model in ", on_exit=(lambda et: (f", {(GlobalCounters.time_sum_s-st)*1e3:.2f} ms on GPU" if DEBUG>=2 else "")+
-                    f", {GlobalCounters.global_ops*1e-9:.2f} GOPS, {GlobalCounters.global_mem*1e-9:.2f} GB"+
-                    (f", {GlobalCounters.global_mem*1e-9/(GlobalCounters.time_sum_s-st):.2f} GB/s" if DEBUG>=2 else "")) if DEBUG else None, enabled=args.timing):
-          probs = llama.model(Tensor([toks[start_pos:]]), start_pos, args.temperature).realize()
-        probs_np = probs.numpy()
-        tok = int(np.random.choice(len(probs_np), p=probs_np))
+      next_tok = Tensor([toks[start_pos:]], device=device) if tok_tensor is None or (len(toks)-start_pos) > 1 else tok_tensor.reshape(1, 1)
+      with Profiling(enabled=args.profile):
+        with Timing("total ", enabled=args.timing, on_exit=lambda x: f", {1e9/x:.2f} tok/s, {GlobalCounters.global_mem/x:.2f} GB/s, param {param_bytes/x:.2f} GB/s"):
+          with Timing("enqueue in ", on_exit=(lambda et: (f", {(GlobalCounters.time_sum_s-st)*1e3:.2f} ms on GPU" if DEBUG>=2 else "")+
+                      f", {GlobalCounters.global_ops*1e-9:.2f} GOPS, {GlobalCounters.global_mem*1e-9:.2f} GB"+
+                      (f", {GlobalCounters.global_mem*1e-9/(GlobalCounters.time_sum_s-st):.2f} GB/s, param {param_bytes*1e-9/(GlobalCounters.time_sum_s-st):.2f} GB/s" if DEBUG>=2 else "")) if DEBUG else None, enabled=args.timing):
+            tok_tensor = llama.model(next_tok, start_pos, args.temperature)
+          tok = tok_tensor.item()
 
       # use the kv cache
       start_pos = len(toks)
@@ -578,10 +494,23 @@ After you are done speaking, output [EOS]. You are not Chad.
       outputted = cur
 
       # stop after you have your answer
-      if chatbot and outputted.endswith(end_delim): break
+      if chatbot and end_delim in outputted[-10:]: break
     if not chatbot: break
 
-  if args.profile:
-    profiler.disable()
-    stats = pstats.Stats(profiler)
-    stats.dump_stats("out.prof")
+  # validate output!
+  if args.temperature == 0 and args.count == 10 and args.prompt == "Hello.":
+    text = llama.tokenizer.decode(toks)
+    key = (args.gen, args.size, args.quantize)
+    expected = {
+      ("1", "7B", None): "Hello. I'm a 20 year old male",
+      ("1", "7B", "int8"): "Hello. I'm a 20 year old male",
+      ("1", "7B", "nf4"): "Hello. I'm a 20 year old male",
+      ("2", "7B", None): "Hello. I'm a 20 year old girl",
+      ("2", "70B", None): "Hello. I am a 20 year old female.",
+      ("3", "8B", None): "Hello. I am a 20 year old female. I",
+    }
+    try:
+      assert text == expected[key], f"invalid output: `{colored(text, 'red')}` != `{expected[key]}`"
+      print("\n" + colored("output validated", "green"))  # NOTE: "\n" iside colored does not render the color in github action
+    except KeyError:
+      pass

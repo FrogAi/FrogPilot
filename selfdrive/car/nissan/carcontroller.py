@@ -19,7 +19,7 @@ class CarController(CarControllerBase):
 
     self.packer = CANPacker(dbc_name)
 
-  def update(self, CC, CS, now_nanos):
+  def update(self, CC, CS, now_nanos, frogpilot_toggles):
     actuators = CC.actuators
     hud_control = CC.hudControl
     pcm_cancel_cmd = CC.cruiseControl.cancel
@@ -68,7 +68,7 @@ class CarController(CarControllerBase):
     if self.CP.carFingerprint != CAR.NISSAN_ALTIMA:
       if self.frame % 2 == 0:
         can_sends.append(nissancan.create_lkas_hud_msg(self.packer, CS.lkas_hud_msg, CC.enabled, hud_control.leftLaneVisible, hud_control.rightLaneVisible,
-                                                       hud_control.leftLaneDepart, hud_control.rightLaneDepart))
+                                                       hud_control.leftLaneDepart, hud_control.rightLaneDepart, CC.latActive))
 
       if self.frame % 50 == 0:
         can_sends.append(nissancan.create_lkas_hud_info_msg(

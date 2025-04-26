@@ -1,12 +1,15 @@
 import json, logging, math, re, sys, time, wave, argparse, numpy as np
+from phonemizer.phonemize import default_separator, _phonemize
+from phonemizer.backend import EspeakBackend
+from phonemizer.punctuation import Punctuation
 from functools import reduce
 from pathlib import Path
 from typing import List
-from extra.utils import download_file
-from tinygrad import nn
-from tinygrad.helpers import dtypes
+from tinygrad import nn, dtypes
+from tinygrad.helpers import fetch
 from tinygrad.nn.state import torch_load
 from tinygrad.tensor import Tensor
+from tinygrad.engine.jit import TinyJit
 from unidecode import unidecode
 
 LRELU_SLOPE = 0.1
@@ -20,24 +23,32 @@ class Synthesizer:
     self.flow = ResidualCouplingBlock(inter_channels, hidden_channels, 5, 1, 4, gin_channels=gin_channels)
     self.dp = StochasticDurationPredictor(hidden_channels, 192, 3, 0.5, 4, gin_channels=gin_channels) if use_sdp else DurationPredictor(hidden_channels, 256, 3, 0.5, gin_channels=gin_channels)
     if n_speakers > 1: self.emb_g = nn.Embedding(n_speakers, gin_channels)
-  def infer(self, x, x_lengths, sid=None, noise_scale=1.0, length_scale=1, noise_scale_w=1., max_len=None, emotion_embedding=None, max_y_length_estimate_scale=None):
-    x, m_p, logs_p, x_mask = self.enc_p.forward(x, x_lengths, emotion_embedding)
+  def infer(self, x, x_lengths, sid=None, noise_scale=1.0, length_scale=1, noise_scale_w=1., max_len=None, emotion_embedding=None, max_y_length_estimate_scale=None, pad_length=-1):
+    x, m_p, logs_p, x_mask = self.enc_p.forward(x.realize(), x_lengths.realize(), emotion_embedding.realize() if emotion_embedding is not None else emotion_embedding)
     g = self.emb_g(sid.reshape(1, 1)).squeeze(1).unsqueeze(-1) if self.n_speakers > 0 else None
-    logw = self.dp.forward(x, x_mask, g=g, reverse=self.use_sdp, noise_scale=noise_scale_w if self.use_sdp else 1.0)
+    logw = self.dp.forward(x, x_mask.realize(), g=g.realize(), reverse=self.use_sdp, noise_scale=noise_scale_w if self.use_sdp else 1.0)
     w_ceil = Tensor.ceil(logw.exp() * x_mask * length_scale)
     y_lengths = Tensor.maximum(w_ceil.sum([1, 2]), 1).cast(dtypes.int64)
-    return self.generate(g, logs_p, m_p, max_len, max_y_length_estimate_scale, noise_scale, w_ceil, x, x_mask, y_lengths)
-  def generate(self, g, logs_p, m_p, max_len, max_y_length_estimate_scale, noise_scale, w_ceil, x, x_mask, y_lengths):
-    max_y_length = y_lengths.max().numpy() if max_y_length_estimate_scale is None else max(15, x.shape[-1]) * max_y_length_estimate_scale
+    return self.generate(g, logs_p, m_p, max_len, max_y_length_estimate_scale, noise_scale, w_ceil, x, x_mask, y_lengths, pad_length)
+  def generate(self, g, logs_p, m_p, max_len, max_y_length_estimate_scale, noise_scale, w_ceil, x, x_mask, y_lengths, pad_length):
+    max_y_length = y_lengths.max().item() if max_y_length_estimate_scale is None else max(15, x.shape[-1]) * max_y_length_estimate_scale
     y_mask = sequence_mask(y_lengths, max_y_length).unsqueeze(1).cast(x_mask.dtype)
     attn_mask = x_mask.unsqueeze(2) * y_mask.unsqueeze(-1)
     attn = generate_path(w_ceil, attn_mask)
     m_p_2 = attn.squeeze(1).matmul(m_p.transpose(1, 2)).transpose(1, 2)        # [b, t', t], [b, t, d] -> [b, d, t']
     logs_p_2 = attn.squeeze(1).matmul(logs_p.transpose(1, 2)).transpose(1, 2)  # [b, t', t], [b, t, d] -> [b, d, t']
     z_p = m_p_2 + Tensor.randn(*m_p_2.shape, dtype=m_p_2.dtype) * logs_p_2.exp() * noise_scale
-    y_mask = y_mask.cast(z_p.dtype)
-    z = self.flow.forward(z_p, y_mask, g=g, reverse=True)
-    o = self.dec.forward((z * y_mask)[:, :, :max_len], g=g)
+    row_len = y_mask.shape[2]
+    if pad_length > -1:
+      # Pad flow forward inputs to enable JIT
+      assert pad_length > row_len, "pad length is too small"
+      y_mask = y_mask.pad(((0, 0), (0, 0), (0, pad_length - row_len))).cast(z_p.dtype)
+      # New y_mask tensor to remove sts mask
+      y_mask = Tensor(y_mask.numpy(), device=y_mask.device, dtype=y_mask.dtype, requires_grad=y_mask.requires_grad)
+      z_p = z_p.squeeze(0).pad(((0, 0), (0, pad_length - z_p.shape[2])), value=1).unsqueeze(0)
+    z = self.flow.forward(z_p.realize(), y_mask.realize(), g=g.realize(), reverse=True)
+    result_length = reduce(lambda x, y: x * y, self.dec.upsample_rates, row_len)
+    o = self.dec.forward((z * y_mask)[:, :, :max_len], g=g)[:, :, :result_length]
     if max_y_length_estimate_scale is not None:
       length_scaler = o.shape[-1] / max_y_length
       o.realize()
@@ -69,6 +80,7 @@ class StochasticDurationPredictor:
     self.pre, self.proj = nn.Conv1d(in_channels, filter_channels, 1), nn.Conv1d(filter_channels, filter_channels, 1)
     self.convs = DDSConv(filter_channels, kernel_size, n_layers=3, p_dropout=p_dropout)
     if gin_channels != 0: self.cond = nn.Conv1d(gin_channels, filter_channels, 1)
+  @TinyJit
   def forward(self, x: Tensor, x_mask, w=None, g=None, reverse=False, noise_scale=1.0):
     x = self.pre(x.detach())
     if g is not None: x = x + self.cond(g.detach())
@@ -97,13 +109,13 @@ class StochasticDurationPredictor:
         z, log_det = flow.forward(z, x_mask, g=x, reverse=reverse)
         log_det_tot = log_det_tot + log_det
       nll = Tensor.sum(0.5 * (math.log(2*math.pi) + (z**2)) * x_mask, [1,2]) - log_det_tot
-      return nll + log_q # [b]
+      return (nll + log_q).realize() # [b]
     flows = list(reversed(self.flows))
     flows = flows[:-2] + [flows[-1]] # remove a useless vflow
     z = Tensor.randn(x.shape[0], 2, x.shape[2], dtype=x.dtype).to(device=x.device) * noise_scale
     for flow in flows: z = flow.forward(z, x_mask, g=x, reverse=reverse)
-    z0, z1 = split(z, [1, 1], 1)
-    return z0
+    z0, z1 = z.split([1, 1], 1)
+    return z0.realize()
 
 class DurationPredictor:
   def __init__(self, in_channels, filter_channels, kernel_size, p_dropout, gin_channels=0):
@@ -128,14 +140,15 @@ class TextEncoder:
     if emotion_embedding: self.emo_proj = nn.Linear(1024, hidden_channels)
     self.encoder = Encoder(hidden_channels, filter_channels, n_heads, n_layers, kernel_size, p_dropout)
     self.proj = nn.Conv1d(hidden_channels, out_channels * 2, 1)
+  @TinyJit
   def forward(self, x: Tensor, x_lengths: Tensor, emotion_embedding=None):
     if self.n_vocab!=0: x = (self.emb(x) * math.sqrt(self.hidden_channels))
     if emotion_embedding: x = x + self.emo_proj(emotion_embedding).unsqueeze(1)
     x = x.transpose(1, -1)  # [b, t, h] -transpose-> [b, h, t]
     x_mask = sequence_mask(x_lengths, x.shape[2]).unsqueeze(1).cast(x.dtype)
     x = self.encoder.forward(x * x_mask, x_mask)
-    m, logs = split(self.proj(x) * x_mask, self.out_channels, dim=1)
-    return x, m, logs, x_mask
+    m, logs = (self.proj(x) * x_mask).split(self.out_channels, dim=1)
+    return x.realize(), m.realize(), logs.realize(), x_mask.realize()
 
 class ResidualCouplingBlock:
   def __init__(self, channels, hidden_channels, kernel_size, dilation_rate, n_layers, n_flows=4, gin_channels=0):
@@ -144,9 +157,10 @@ class ResidualCouplingBlock:
     for _ in range(n_flows):
       self.flows.append(ResidualCouplingLayer(channels, hidden_channels, kernel_size, dilation_rate, n_layers, gin_channels=gin_channels, mean_only=True))
       self.flows.append(Flip())
+  @TinyJit
   def forward(self, x, x_mask, g=None, reverse=False):
     for flow in reversed(self.flows) if reverse else self.flows: x = flow.forward(x, x_mask, g=g, reverse=reverse)
-    return x
+    return x.realize()
 
 class PosteriorEncoder:
   def __init__(self, in_channels, out_channels, hidden_channels, kernel_size, dilation_rate, n_layers, gin_channels=0):
@@ -167,22 +181,23 @@ class Generator:
     resblock = ResBlock1 if resblock == '1' else ResBlock2
     self.ups = [nn.ConvTranspose1d(upsample_initial_channel//(2**i), upsample_initial_channel//(2**(i+1)), k, u, padding=(k-u)//2) for i, (u, k) in enumerate(zip(upsample_rates, upsample_kernel_sizes))]
     self.resblocks = []
+    self.upsample_rates = upsample_rates
     for i in range(len(self.ups)):
       ch = upsample_initial_channel // (2 ** (i + 1))
       for _, (k, d) in enumerate(zip(resblock_kernel_sizes, resblock_dilation_sizes)):
         self.resblocks.append(resblock(ch, k, d))
     self.conv_post = nn.Conv1d(ch, 1, 7, 1, padding=3, bias=False)
     if gin_channels != 0: self.cond = nn.Conv1d(gin_channels, upsample_initial_channel, 1)
+  @TinyJit
   def forward(self, x: Tensor, g=None):
     x = self.conv_pre(x)
     if g is not None:  x = x + self.cond(g)
     for i in range(self.num_upsamples):
-      x, xs = self.ups[i](x.leakyrelu(LRELU_SLOPE)), None
-      for j in range(self.num_kernels):
-        if xs is None: xs = self.resblocks[i * self.num_kernels + j].forward(x)
-        else: xs += self.resblocks[i * self.num_kernels + j].forward(x)
-      x = xs / self.num_kernels
-    return self.conv_post(x.leakyrelu()).tanh()
+      x = self.ups[i](x.leakyrelu(LRELU_SLOPE))
+      xs = sum(self.resblocks[i * self.num_kernels + j].forward(x) for j in range(self.num_kernels))
+      x = (xs / self.num_kernels).realize()
+    res = self.conv_post(x.leakyrelu()).tanh().realize()
+    return res
 
 class LayerNorm(nn.LayerNorm):
   def __init__(self, channels, eps=1e-5): super().__init__(channels, eps, elementwise_affine=True)
@@ -267,7 +282,7 @@ class ConvFlow:
     self.convs = DDSConv(filter_channels, kernel_size, n_layers, p_dropout=0.)
     self.proj = nn.Conv1d(filter_channels, self.half_channels * (num_bins * 3 - 1), 1)
   def forward(self, x, x_mask, g=None, reverse=False):
-    x0, x1 = split(x, [self.half_channels] * 2, 1)
+    x0, x1 = x.split([self.half_channels] * 2, 1)
     h = self.proj(self.convs.forward(self.pre(x0), x_mask, g=g)) * x_mask
     b, c, t = x0.shape
     h = h.reshape(b, c, -1, t).permute(0, 1, 3, 2) # [b, cx?, t] -> [b, c, t, ?]
@@ -287,10 +302,10 @@ class ResidualCouplingLayer:
     self.enc = WN(hidden_channels, kernel_size, dilation_rate, n_layers, p_dropout=p_dropout, gin_channels=gin_channels)
     self.post = nn.Conv1d(hidden_channels, self.half_channels * (2 - mean_only), 1)
   def forward(self, x, x_mask, g=None, reverse=False):
-    x0, x1 = split(x, [self.half_channels] * 2, 1)
+    x0, x1 = x.split([self.half_channels] * 2, 1)
     stats = self.post(self.enc.forward(self.pre(x0) * x_mask, x_mask, g=g)) * x_mask
     if not self.mean_only:
-      m, logs = split(stats, [self.half_channels] * 2, 1)
+      m, logs = stats.split([self.half_channels] * 2, 1)
     else:
       m = stats
       logs = Tensor.zeros_like(m)
@@ -405,7 +420,7 @@ def piecewise_rational_quadratic_transform(inputs, un_normalized_widths, un_norm
   return spline_fn(inputs=inputs, un_normalized_widths=un_normalized_widths, un_normalized_heights=un_normalized_heights, un_normalized_derivatives=un_normalized_derivatives, inverse=inverse, min_bin_width=min_bin_width, min_bin_height=min_bin_height, min_derivative=min_derivative, **spline_kwargs)
 def unconstrained_rational_quadratic_spline(inputs, un_normalized_widths, un_normalized_heights, un_normalized_derivatives, inverse=False, tails='linear', tail_bound=1., min_bin_width=DEFAULT_MIN_BIN_WIDTH, min_bin_height=DEFAULT_MIN_BIN_HEIGHT, min_derivative=DEFAULT_MIN_DERIVATIVE):
   if not tails == 'linear': raise RuntimeError('{} tails are not implemented.'.format(tails))
-  constant = np.log(np.exp(1 - min_derivative) - 1)
+  constant = np.log(np.exp(1 - min_derivative) - 1).item()
   un_normalized_derivatives = cat_lr(un_normalized_derivatives, constant, constant)
   output, log_abs_det = rational_quadratic_spline(inputs=inputs.squeeze(dim=0).squeeze(dim=0), unnormalized_widths=un_normalized_widths.squeeze(dim=0).squeeze(dim=0), unnormalized_heights=un_normalized_heights.squeeze(dim=0).squeeze(dim=0), unnormalized_derivatives=un_normalized_derivatives.squeeze(dim=0).squeeze(dim=0), inverse=inverse, left=-tail_bound, right=tail_bound, bottom=-tail_bound, top=tail_bound, min_bin_width=min_bin_width, min_bin_height=min_bin_height, min_derivative=min_derivative)
   return output.unsqueeze(dim=0).unsqueeze(dim=0), log_abs_det.unsqueeze(dim=0).unsqueeze(dim=0)
@@ -446,7 +461,7 @@ def rational_quadratic_spline(inputs: Tensor, unnormalized_widths: Tensor, unnor
   derivative_numerator = input_delta.pow(2) * (input_derivatives_plus_one * theta.pow(2) + 2 * input_delta * theta_one_minus_theta + input_derivatives * (1 - theta).pow(2))
   return input_cum_heights + numerator / denominator, derivative_numerator.log() - 2 * denominator.log()
 
-def sequence_mask(length: Tensor, max_length): return Tensor.arange(max_length, dtype=length.dtype, device=length.device).unsqueeze(0).__lt__(length.unsqueeze(1))
+def sequence_mask(length: Tensor, max_length): return Tensor.arange(max_length, dtype=length.dtype, device=length.device).unsqueeze(0) < length.unsqueeze(1)
 def generate_path(duration: Tensor, mask: Tensor):  # duration: [b, 1, t_x], mask: [b, 1, t_y, t_x]
   b, _, t_y, t_x = mask.shape
   path = sequence_mask(duration.cumsum(axis=2).reshape(b * t_x), t_y).cast(mask.dtype).reshape(b, t_x, t_y)
@@ -463,25 +478,16 @@ def get_shape(tensor):
   return tuple(shape)
 def convert_pad_shape(pad_shape): return tuple(tuple(x) for x in pad_shape)
 def get_padding(kernel_size, dilation=1): return int((kernel_size*dilation - dilation)/2)
-def split(tensor, split_sizes, dim=0):  # if split_sizes is an integer, convert it to a tuple of size split_sizes elements
-  if isinstance(split_sizes, int): split_sizes = (split_sizes,) * (tensor.shape[dim] // split_sizes)
-  assert sum(split_sizes) == tensor.shape[
-    dim], "Sum of split_sizes must equal the dimension size of tensor along the given dimension."
-  start, slices = 0, []
-  for size in split_sizes:
-    slice_range = [(start, start + size) if j == dim else None for j in range(len(tensor.shape))]
-    slices.append(slice_range)
-    start += size
-  return [tensor.slice(s) for s in slices]
+
 def gather(x, indices, axis):
-  indices = (indices < 0).where(indices + x.shape[axis], indices).transpose(ax1=axis, ax2=0)
+  indices = (indices < 0).where(indices + x.shape[axis], indices).transpose(0, axis)
   permute_args = list(range(x.ndim))
   permute_args[0], permute_args[axis] = permute_args[axis], permute_args[0]
   permute_args.append(permute_args.pop(0))
   x = x.permute(*permute_args)
   reshape_arg = [1] * x.ndim + [x.shape[-1]]
   return ((indices.unsqueeze(indices.ndim).expand(*indices.shape, x.shape[-1]) ==
-           Tensor.arange(x.shape[-1]).reshape(*reshape_arg).expand(*indices.shape, x.shape[-1])) * x).sum(indices.ndim).transpose(ax1=0, ax2=axis)
+           Tensor.arange(x.shape[-1]).reshape(*reshape_arg).expand(*indices.shape, x.shape[-1])) * x).sum(indices.ndim).transpose(0, axis)
 
 def norm_except_dim(v, dim):
   if dim == -1: return np.linalg.norm(v)
@@ -516,10 +522,8 @@ class HParams:
 
 # MODEL LOADING
 def load_model(symbols, hps, model) -> Synthesizer:
-  weights_path = model[1]
-  download_if_not_present(weights_path, model[3])
   net_g = Synthesizer(len(symbols), hps.data.filter_length // 2 + 1, hps.train.segment_size // hps.data.hop_length, n_speakers = hps.data.n_speakers, **hps.model)
-  _ = load_checkpoint(weights_path, net_g, None)
+  _ = load_checkpoint(fetch(model[1]), net_g, None)
   return net_g
 def load_checkpoint(checkpoint_path, model: Synthesizer, optimizer=None, skip_list=[]):
   assert Path(checkpoint_path).is_file()
@@ -544,7 +548,7 @@ def load_checkpoint(checkpoint_path, model: Synthesizer, optimizer=None, skip_li
             if k == "weight_g": weight_g = v
             else: weight_v = v
           if not skip: obj = getattr(obj, k)
-      if weight_g and weight_v:
+      if weight_g is not None and weight_v is not None:
         setattr(obj, "weight_g", weight_g.numpy())
         setattr(obj, "weight_v", weight_v.numpy())
         obj, v = getattr(parent, "weight"), weight_norm(weight_v, weight_g, 0)
@@ -555,18 +559,15 @@ def load_checkpoint(checkpoint_path, model: Synthesizer, optimizer=None, skip_li
   logging.info(f"Loaded checkpoint '{checkpoint_path}' (iteration {iteration}) in {time.time() - start_time:.4f}s")
   return model, optimizer, learning_rate, iteration
 
-def download_if_not_present(file_path: Path, url: str):
-  if not file_path.is_file():
-    logging.info(f"Did not find {file_path.as_posix()}, downloading...")
-    download_file(url, file_path)
-  return file_path
-
 # Used for cleaning input text and mapping to symbols
 class TextMapper: # Based on https://github.com/keithito/tacotron
   def __init__(self, symbols, apply_cleaners=True):
     self.apply_cleaners, self.symbols, self._inflect = apply_cleaners, symbols, None
     self._symbol_to_id, _id_to_symbol = {s: i for i, s in enumerate(symbols)}, {i: s for i, s in enumerate(symbols)}
     self._whitespace_re, self._abbreviations = re.compile(r'\s+'), [(re.compile('\\b%s\\.' % x[0], re.IGNORECASE), x[1]) for x in [('mrs', 'misess'), ('mr', 'mister'), ('dr', 'doctor'), ('st', 'saint'), ('co', 'company'), ('jr', 'junior'), ('maj', 'major'), ('gen', 'general'), ('drs', 'doctors'), ('rev', 'reverend'), ('lt', 'lieutenant'), ('hon', 'honorable'), ('sgt', 'sergeant'), ('capt', 'captain'), ('esq', 'esquire'), ('ltd', 'limited'), ('col', 'colonel'), ('ft', 'fort'), ]]
+    self.phonemizer = EspeakBackend(
+        language="en-us", punctuation_marks=Punctuation.default_marks(), preserve_punctuation=True, with_stress=True,
+    )
   def text_to_sequence(self, text, cleaner_names):
     if self.apply_cleaners:
       for name in cleaner_names:
@@ -575,18 +576,16 @@ class TextMapper: # Based on https://github.com/keithito/tacotron
         text = cleaner(text)
     else: text = text.strip()
     return [self._symbol_to_id[symbol] for symbol in text]
-  def get_text(self, text, add_blank=False, cleaners=('english_cleaners',)):
+  def get_text(self, text, add_blank=False, cleaners=('english_cleaners2',)):
     text_norm = self.text_to_sequence(text, cleaners)
     return Tensor(self.intersperse(text_norm, 0) if add_blank else text_norm, dtype=dtypes.int64)
   def intersperse(self, lst, item):
     (result := [item] * (len(lst) * 2 + 1))[1::2] = lst
     return result
+  def phonemize(self, text, strip=True): return _phonemize(self.phonemizer, text, default_separator, strip, 1, False, False)
   def filter_oov(self, text): return "".join(list(filter(lambda x: x in self._symbol_to_id, text)))
-  def base_english_cleaners(self, text, preserve_punctuation=False, with_stress=False):
-    from phonemizer import phonemize
-    return self.collapse_whitespace(phonemize(self.expand_abbreviations(unidecode(text.lower())), language='en-us', backend='espeak', strip=True, preserve_punctuation=preserve_punctuation, with_stress=with_stress))
-  def english_cleaners(self, text): return self.base_english_cleaners(text)
-  def english_cleaners2(self, text): return self.base_english_cleaners(text, preserve_punctuation=True, with_stress=True)
+  def base_english_cleaners(self, text): return self.collapse_whitespace(self.phonemize(self.expand_abbreviations(unidecode(text.lower()))))
+  def english_cleaners2(self, text): return self.base_english_cleaners(text)
   def transliteration_cleaners(self, text): return self.collapse_whitespace(unidecode(text.lower()))
   def cjke_cleaners(self, text): return re.sub(r'([^\.,!\?\-…~])$', r'\1.', re.sub(r'\s+$', '', self.english_to_ipa2(text).replace('ɑ', 'a').replace('ɔ', 'o').replace('ɛ', 'e').replace('ɪ', 'i').replace('ʊ', 'u')))
   def cjke_cleaners2(self, text): return re.sub(r'([^\.,!\?\-…~])$', r'\1.', re.sub(r'\s+$', '', self.english_to_ipa2(text)))
@@ -650,13 +649,13 @@ class TextMapper: # Based on https://github.com/keithito/tacotron
 # anime lady 2 | --model_to_use uma_trilingual --speaker_id 121
 #########################################################################################
 VITS_PATH = Path(__file__).parents[1] / "weights/VITS/"
-MODELS = { # config_path, weights_path, config_url, weights_url
-  "ljs": (VITS_PATH / "config_ljs.json", VITS_PATH / "pretrained_ljs.pth", "https://raw.githubusercontent.com/jaywalnut310/vits/main/configs/ljs_base.json", "https://drive.google.com/uc?export=download&id=1q86w74Ygw2hNzYP9cWkeClGT5X25PvBT&confirm=t"),
-  "vctk": (VITS_PATH / "config_vctk.json", VITS_PATH / "pretrained_vctk.pth", "https://raw.githubusercontent.com/jaywalnut310/vits/main/configs/vctk_base.json", "https://drive.google.com/uc?export=download&id=11aHOlhnxzjpdWDpsz1vFDCzbeEfoIxru&confirm=t"),
-  "mmts-tts": (VITS_PATH / "config_mmts-tts.json", VITS_PATH / "pretrained_mmts-tts.pth", "https://huggingface.co/facebook/mms-tts/raw/main/full_models/eng/config.json", "https://huggingface.co/facebook/mms-tts/resolve/main/full_models/eng/G_100000.pth"),
-  "uma_trilingual": (VITS_PATH / "config_uma_trilingual.json", VITS_PATH / "pretrained_uma_trilingual.pth", "https://huggingface.co/spaces/Plachta/VITS-Umamusume-voice-synthesizer/raw/main/configs/uma_trilingual.json", "https://huggingface.co/spaces/Plachta/VITS-Umamusume-voice-synthesizer/resolve/main/pretrained_models/G_trilingual.pth"),
-  "cjks": (VITS_PATH / "config_cjks.json", VITS_PATH / "pretrained_cjks.pth", "https://huggingface.co/spaces/skytnt/moe-tts/resolve/main/saved_model/14/config.json", "https://huggingface.co/spaces/skytnt/moe-tts/resolve/main/saved_model/14/model.pth"),
-  "voistock": (VITS_PATH / "config_voistock.json", VITS_PATH / "pretrained_voistock.pth", "https://huggingface.co/spaces/skytnt/moe-tts/resolve/main/saved_model/15/config.json", "https://huggingface.co/spaces/skytnt/moe-tts/resolve/main/saved_model/15/model.pth"),
+MODELS = { # config_url, weights_url
+  "ljs": ("https://raw.githubusercontent.com/jaywalnut310/vits/main/configs/ljs_base.json", "https://drive.google.com/uc?export=download&id=1q86w74Ygw2hNzYP9cWkeClGT5X25PvBT&confirm=t"),
+  "vctk": ("https://raw.githubusercontent.com/jaywalnut310/vits/main/configs/vctk_base.json", "https://drive.google.com/uc?export=download&id=11aHOlhnxzjpdWDpsz1vFDCzbeEfoIxru&confirm=t"),
+  "mmts-tts": ("https://huggingface.co/facebook/mms-tts/raw/main/full_models/eng/config.json", "https://huggingface.co/facebook/mms-tts/resolve/main/full_models/eng/G_100000.pth"),
+  "uma_trilingual": ("https://huggingface.co/spaces/Plachta/VITS-Umamusume-voice-synthesizer/raw/main/configs/uma_trilingual.json", "https://huggingface.co/spaces/Plachta/VITS-Umamusume-voice-synthesizer/resolve/main/pretrained_models/G_trilingual.pth"),
+  "cjks": ("https://huggingface.co/spaces/skytnt/moe-tts/resolve/main/saved_model/14/config.json", "https://huggingface.co/spaces/skytnt/moe-tts/resolve/main/saved_model/14/model.pth"),
+  "voistock": ("https://huggingface.co/spaces/skytnt/moe-tts/resolve/main/saved_model/15/config.json", "https://huggingface.co/spaces/skytnt/moe-tts/resolve/main/saved_model/15/model.pth"),
 }
 Y_LENGTH_ESTIMATE_SCALARS = {"ljs": 2.8, "vctk": 1.74, "mmts-tts": 1.9, "uma_trilingual": 2.3, "cjks": 3.3, "voistock": 3.1}
 if __name__ == '__main__':
@@ -681,9 +680,7 @@ if __name__ == '__main__':
   model_config = MODELS[args.model_to_use]
 
   # Load the hyperparameters from the config file.
-  config_path = model_config[0]
-  download_if_not_present(config_path, model_config[2])
-  hps = get_hparams_from_file(config_path)
+  hps = get_hparams_from_file(fetch(model_config[0]))
 
   # If model has multiple speakers, validate speaker id and retrieve name if available.
   model_has_multiple_speakers = hps.data.n_speakers > 0
@@ -705,7 +702,7 @@ if __name__ == '__main__':
 
   # Load symbols, instantiate TextMapper and clean the text.
   if hps.__contains__("symbols"): symbols = hps.symbols
-  elif args.model_to_use == "mmts-tts": symbols = [x.replace("\n", "") for x in open(download_if_not_present(VITS_PATH / "vocab_mmts-tts.txt", "https://huggingface.co/facebook/mms-tts/raw/main/full_models/eng/vocab.txt"), encoding="utf-8").readlines()]
+  elif args.model_to_use == "mmts-tts": symbols = [x.replace("\n", "") for x in fetch("https://huggingface.co/facebook/mms-tts/raw/main/full_models/eng/vocab.txt").open(encoding="utf-8").readlines()]
   else: symbols = ['_'] + list(';:,.!?¡¿—…"«»“” ') + list('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz') + list("ɑɐɒæɓʙβɔɕçɗɖðʤəɘɚɛɜɝɞɟʄɡɠɢʛɦɧħɥʜɨɪʝɭɬɫɮʟɱɯɰŋɳɲɴøɵɸθœɶʘɹɺɾɻʀʁɽʂʃʈʧʉʊʋⱱʌɣɤʍχʎʏʑʐʒʔʡʕʢǀǁǂǃˈˌːˑʼʴʰʱʲʷˠˤ˞↓↑→↗↘'̩'ᵻ")
   text_mapper = TextMapper(apply_cleaners=True, symbols=symbols)
 

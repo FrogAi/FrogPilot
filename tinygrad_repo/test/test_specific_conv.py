@@ -1,12 +1,10 @@
 import unittest
-from tinygrad.tensor import Tensor
-from tinygrad.helpers import dtypes
-from tinygrad.ops import Device
-import pytest
+from tinygrad.helpers import CI
+from tinygrad import Tensor, Device, dtypes
+from tinygrad.device import is_dtype_supported
 # similar to test/external/external_test_gpu_ast.py, but universal
 
-pytestmark = pytest.mark.exclude_cuda
-
+@unittest.skipIf(Device.DEFAULT in {"CUDA", "NV"} and CI, "slow on CUDA CI")
 class TestSpecific(unittest.TestCase):
   # from openpilot
 
@@ -22,14 +20,14 @@ class TestSpecific(unittest.TestCase):
     w = Tensor.randn(2048, 512)
     (x @ w).reshape(1, 128, 4).contiguous().realize()
 
-  @unittest.skipIf(Device.DEFAULT in ["LLVM", "WEBGPU"], "Broken on LLVM and webgpu")
+  @unittest.skipUnless(is_dtype_supported(dtypes.float16), "need float16 support")
   def test_big_vec_mul(self):
     # from LLaMA
     #   0 buffer<4096, dtypes.float>                      [View((1024, 1, 1, 4), (4, 0, 0, 1), 0, None)]
     #   1 buffer<4096, dtypes.float>                      [View((1024, 1024, 4, 4), (0, 4, 1, 0), 0, None)]
     #   2 buffer<16777216, dtypes.half>                   [View((1024, 1024, 4, 4), (16384, 4, 1, 4096), 0, None)]
     x = Tensor.randn(4096).realize()
-    w = Tensor.randn(4096, 4096, device='cpu').cast(dtypes.float16).to(Device.DEFAULT).realize()
+    w = Tensor.randn(4096, 4096, dtype=dtypes.float16).realize()
     (x @ w.T).realize()
 
   # from https://dl.acm.org/doi/pdf/10.1145/3495243.3517020

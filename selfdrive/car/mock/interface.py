@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from cereal import car
+from cereal import car, custom
 import cereal.messaging as messaging
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase
 
@@ -12,7 +12,7 @@ class CarInterface(CarInterfaceBase):
     self.sm = messaging.SubMaster(['gpsLocation', 'gpsLocationExternal'])
 
   @staticmethod
-  def _get_params(ret, candidate, fingerprint, car_fw, experimental_long, docs):
+  def _get_params(ret, candidate, fingerprint, car_fw, disable_openpilot_long, experimental_long, docs):
     ret.carName = "mock"
     ret.mass = 1700.
     ret.wheelbase = 2.70
@@ -21,12 +21,13 @@ class CarInterface(CarInterfaceBase):
     ret.dashcamOnly = True
     return ret
 
-  def _update(self, c):
+  def _update(self, c, frogpilot_toggles):
     self.sm.update(0)
     gps_sock = 'gpsLocationExternal' if self.sm.recv_frame['gpsLocationExternal'] > 1 else 'gpsLocation'
 
     ret = car.CarState.new_message()
+    fp_ret = custom.FrogPilotCarState.new_message()
     ret.vEgo = self.sm[gps_sock].speed
     ret.vEgoRaw = self.sm[gps_sock].speed
 
-    return ret
+    return ret, fp_ret

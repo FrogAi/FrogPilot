@@ -5,17 +5,17 @@ from tinygrad.nn import Linear
 from tinygrad.tensor import Tensor
 from tinygrad.nn.optim import Adam
 from tinygrad.nn.state import get_parameters, get_state_dict, safe_save, safe_load, load_state_dict
-from tinygrad.features.search import actions
+from tinygrad.engine.search import actions
 from extra.optimization.helpers import load_worlds, ast_str_to_lin, lin_to_feats, assert_same_lin
-from tinygrad.codegen.linearizer import Linearizer
+from tinygrad.codegen.kernel import Kernel
 from tinygrad.helpers import getenv
 
 # stuff needed to unpack a kernel
 from tinygrad.ops import LazyOp, TernaryOps, BinaryOps, UnaryOps, ReduceOps, BufferOps, MemBuffer, ConstBuffer
-from tinygrad.helpers import dtypes
+from tinygrad.dtype import dtypes
 from tinygrad.shape.shapetracker import ShapeTracker
 from tinygrad.shape.view import View
-from tinygrad.shape.symbolic import Variable
+from tinygrad.ops import Variable
 inf, nan = float('inf'), float('nan')
 from tinygrad.codegen.kernel import Opt, OptOps
 
@@ -38,7 +38,7 @@ def dataset_from_cache(fn):
   for f in tqdm(cur.fetchall()):
     Xs,As = [], []
     try:
-      lin = Linearizer(eval(f[0]))
+      lin = Kernel(eval(f[0]))
       opts = pickle.loads(f[-1])
       for o in opts:
         Xs.append(lin_to_feats(lin, use_sts=True))

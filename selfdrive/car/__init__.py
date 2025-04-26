@@ -1,4 +1,5 @@
 # functions common among cars
+import logging
 from collections import namedtuple
 from dataclasses import dataclass
 from enum import IntFlag, ReprEnum, EnumType
@@ -11,6 +12,10 @@ from openpilot.common.numpy_fast import clip, interp
 from openpilot.common.utils import Freezable
 from openpilot.selfdrive.car.docs_definitions import CarDocs
 
+# set up logging
+carlog = logging.getLogger('carlog')
+carlog.setLevel(logging.INFO)
+carlog.propagate = False
 
 # kg of standard extra cargo to count for drive, gas, etc...
 STD_CARGO_KG = 136.
@@ -163,6 +168,10 @@ def common_fault_avoidance(fault_condition: bool, request: bool, above_limit_fra
     above_limit_frames = 0
 
   return above_limit_frames, request
+
+
+def rate_limit(new_value, last_value, dw_step, up_step):
+  return clip(new_value, last_value + dw_step, last_value + up_step)
 
 
 def crc8_pedal(data):
