@@ -186,7 +186,6 @@ jobs:
           find . -name '*.os' -delete
           find . -name '*.pyc' -delete
           find . -name 'moc_*' -delete
-          find . -name '__pycache__' -exec rm -rf {} +
 
           find . -name '*.h' | while read -r header; do
             if [[ "$header" != *"common/version.h" && "$header" != *"system/camerad/sensors/"* ]]; then
@@ -228,6 +227,7 @@ jobs:
 
           find . -type d \( -iname "debug" -o -iname "test" -o -iname "tests" \) -exec rm -rf {} +
           find . -type d -empty ! -path "./.git*" -delete
+          find . -type d -name '__pycache__' -exec rm -rf {} +
           find . -type f -regex '.*matlab.*\.md' -delete
 
           touch prebuilt

@@ -351,10 +351,10 @@ void AnnotatedCameraWidget::drawHud(QPainter &p) {
       p.drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft, fullText);
     };
 
-    QRect dashboardRect(sign_rect.x() - sign_margin, sign_rect.y() + sign_rect.height() + 30, 500, 60);
-    QRect mapDataRect(dashboardRect.x(), dashboardRect.y() + dashboardRect.height() + 15, 500, 60);
-    QRect navigationRect(mapDataRect.x(), mapDataRect.y() + mapDataRect.height() + 15, 500, 60);
-    QRect upcomingLimitRect(navigationRect.x(), navigationRect.y() + navigationRect.height() + 15, 500, 60);
+    QRect dashboardRect(sign_rect.x() - sign_margin, sign_rect.y() + sign_rect.height() + 30, 450, 60);
+    QRect mapDataRect(dashboardRect.x(), dashboardRect.y() + dashboardRect.height() + 15, 450, 60);
+    QRect navigationRect(mapDataRect.x(), mapDataRect.y() + mapDataRect.height() + 15, 450, 60);
+    QRect upcomingLimitRect(navigationRect.x(), navigationRect.y() + navigationRect.height() + 15, 450, 60);
 
     drawSource(dashboardRect, dashboardIcon, "Dashboard", dashboardSpeedLimit);
     drawSource(mapDataRect, mapDataIcon, "Map Data", mapsSpeedLimit);

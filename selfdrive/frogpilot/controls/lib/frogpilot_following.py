@@ -77,8 +77,8 @@ class FrogPilotFollowing:
       distance_factor = max(lead_distance - (v_ego * self.t_follow), 1)
       standstill_offset = max(STOP_DISTANCE - v_ego, 1)
       acceleration_offset = float(np.clip((v_lead - v_ego) * standstill_offset - COMFORT_BRAKE, 1, distance_factor))
-      self.acceleration_jerk /= acceleration_offset
-      self.speed_jerk /= acceleration_offset
+      self.acceleration_jerk /= standstill_offset
+      self.speed_jerk /= standstill_offset
       self.t_follow /= acceleration_offset
 
     # Offset by FrogAi for FrogPilot for a more natural approach to a slower lead

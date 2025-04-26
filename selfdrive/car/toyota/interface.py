@@ -173,7 +173,7 @@ class CarInterface(CarInterfaceBase):
         *create_button_events(self.CS.cruise_decreased, self.CS.cruise_decreased_previously, {1: ButtonType.decelCruise}),
         *create_button_events(self.CS.cruise_increased, self.CS.cruise_increased_previously, {1: ButtonType.accelCruise}),
         *create_button_events(self.CS.distance_button, self.CS.prev_distance_button, {1: ButtonType.gapAdjustCruise}),
-        *create_button_events(self.CS.lkas_enabled, self.CS.lkas_previously_enabled, {1: FrogPilotButtonType.lkas}),
+        *create_button_events(self.CS.lkas_enabled != self.CS.lkas_previously_enabled, False, {1: FrogPilotButtonType.lkas}),
       ]
 
     # events
