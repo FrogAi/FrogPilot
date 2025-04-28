@@ -97,8 +97,8 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   auto uninstallBtn = new ButtonControl(tr("Uninstall %1").arg(getBrand()), tr("UNINSTALL"));
   connect(uninstallBtn, &ButtonControl::clicked, [&]() {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to uninstall?"), tr("Uninstall"), this)) {
-      if (FrogPilotConfirmationDialog::yesorno(tr("Do you want to delete deep storage FrogPilot assets? This includes your toggle settings for quick reinstalls."), this)) {
-        if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure? This is 100% unrecoverable and if you reinstall FrogPilot you'll lose all your previous settings!"), this)) {
+      if (FrogPilotConfirmationDialog::yesorno(tr("Do you want to delete deep storage FrogPilot assets in /cache/params which includes your SecOCKey (Toyota Security Key)? This includes your toggle settings for quick reinstalls."), this)) {
+        if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure? This is 100% unrecoverable and if you reinstall FrogPilot you'll lose all your previous settings! You will also have to reinstall the SecOCKey!"), this)) {
           std::system("rm -rf /cache/params");
         }
       }
