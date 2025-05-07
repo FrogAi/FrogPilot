@@ -2,7 +2,6 @@
 import argparse
 import json
 import os
-import pathlib
 import xml.etree.ElementTree as ET
 
 if "BASEDIR" in os.environ:
@@ -30,6 +29,47 @@ def generate_translations_include():
     f.write(content)
 
 
+def backup_translation_types(root):
+  backup = {}
+  for context in root.findall("context"):
+    context_name = context.findtext("name")
+    if not context_name:
+      continue
+
+    for message in context.findall("message"):
+      source_text = message.findtext("source")
+      translation = message.find("translation")
+
+      if not source_text or translation is None:
+        continue
+
+      type_attr = translation.attrib.get("type", "")
+      if type_attr.endswith("-generated"):
+        backup[(context_name, source_text)] = type_attr
+
+  return backup
+
+
+def restore_translation_types(root, backup):
+  for context in root.findall("context"):
+    context_name = context.findtext("name")
+    if not context_name:
+      continue
+
+    for message in context.findall("message"):
+      source_text = message.findtext("source")
+      if not source_text:
+        continue
+
+      key = (context_name, source_text)
+      if key not in backup:
+        continue
+
+      translation = message.find("translation")
+      if translation is not None:
+        translation.attrib["type"] = backup[key]
+
+
 def update_translations(vanish: bool = False, translation_files: None | list[str] = None, translations_dir: str = TRANSLATIONS_DIR):
   generate_translations_include()
 
@@ -38,29 +78,13 @@ def update_translations(vanish: bool = False, translation_files: None | list[str
       translation_files = json.load(f).values()
 
   for file in translation_files:
-    tr_file = pathlib.Path(translations_dir) / f"{file}.ts"
+    tr_file = os.path.join(translations_dir, f"{file}.ts")
 
     tree = ET.parse(tr_file)
     root = tree.getroot()
+    backup = backup_translation_types(root)
 
-    backup = {}
-    for context in root.findall("context"):
-      name = context.find("name")
-      if name is None:
-        continue
-
-      context_name = name.text
-      for message in context.findall("message"):
-        source = message.find("source")
-        if source is None:
-          continue
-
-        source_text = source.text
-        translation = message.find("translation")
-        if translation is not None and "type" in translation.attrib:
-          backup[(context_name, source_text)] = translation.attrib["type"]
-
-    args = f"lupdate -locations none -recursive {UI_DIR} {FROGPILOT_UI_DIR} -ts {tr_file} -I {BASEDIR}"
+    args = f"lupdate -locations none -recursive {UI_DIR} -ts {tr_file} -I {BASEDIR}"
     if vanish:
       args += " -no-obsolete"
     if file in PLURAL_ONLY:
@@ -70,25 +94,9 @@ def update_translations(vanish: bool = False, translation_files: None | list[str
 
     tree = ET.parse(tr_file)
     root = tree.getroot()
+    restore_translation_types(root, backup)
 
-    for context in root.findall("context"):
-      name = context.find("name")
-      if name is None:
-        continue
-
-      context_name = name.text
-      for message in context.findall("message"):
-        source = message.find("source")
-        if source is None:
-          continue
-
-        source_text = source.text
-        if (context_name, source_text) in backup:
-          translation = message.find("translation")
-          if translation is not None:
-            translation.attrib["type"] = backup[(context_name, source_text)]
-
-    with tr_file.open("w", encoding="utf-8") as fp:
+    with open(tr_file, "w", encoding="utf-8") as fp:
       fp.write('<?xml version="1.0" encoding="utf-8"?>\n' +
                '<!DOCTYPE TS>\n' +
                ET.tostring(root, encoding="utf-8", short_empty_elements=False).decode() +

@@ -9,8 +9,8 @@ public:
   explicit FrogPilotNavigationPanel(FrogPilotSettingsWindow *parent);
 
 signals:
-  void closeMapBoxInstructions();
-  void openMapBoxInstructions();
+  void closeSubSubPanel();
+  void openSubSubPanel();
 
 protected:
   void hideEvent(QHideEvent *event);

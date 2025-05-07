@@ -121,7 +121,7 @@ void ModelReview::showEvent(QShowEvent *event) {
     modelFileToNameMap.insert(availableModels[i], processModelName(availableModelNames[i]));
   }
 
-  currentModel = uiState()->scene.model;
+  currentModel = frogpilotUIState()->frogpilot_toggles.value("model").toString();
   currentModelFiltered = modelFileToNameMap.value(currentModel);
 
   mainLayout->setCurrentIndex(modelRated ? 1 : 0);

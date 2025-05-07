@@ -10,7 +10,6 @@ class ScreenRecorder : public QPushButton {
 
 public:
   explicit ScreenRecorder(QWidget *parent = nullptr);
-  ~ScreenRecorder() override;
 
   void startRecording();
   void stopRecording();

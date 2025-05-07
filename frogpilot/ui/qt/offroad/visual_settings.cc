@@ -111,7 +111,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     } else if (param == "DeveloperMetrics") {
       ButtonControl *developerMetricsToggle = new ButtonControl(title, tr("MANAGE"), desc);
       QObject::connect(developerMetricsToggle, &ButtonControl::clicked, [this, visualsLayout, developerMetricPanel]() {
-        openSubParentToggle();
+        openSubSubPanel();
 
         visualsLayout->setCurrentWidget(developerMetricPanel);
 
@@ -162,7 +162,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     } else if (param == "DeveloperWidgets") {
       ButtonControl *developerWidgetsToggle = new ButtonControl(title, tr("MANAGE"), desc);
       QObject::connect(developerWidgetsToggle, &ButtonControl::clicked, [this, visualsLayout, developerWidgetPanel]() {
-        openSubParentToggle();
+        openSubSubPanel();
 
         visualsLayout->setCurrentWidget(developerWidgetPanel);
 
@@ -291,7 +291,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     }
 
     if (FrogPilotManageControl *frogPilotManageToggle = qobject_cast<FrogPilotManageControl*>(visualToggle)) {
-      QObject::connect(frogPilotManageToggle, &FrogPilotManageControl::manageButtonClicked, this, &FrogPilotVisualsPanel::openParentToggle);
+      QObject::connect(frogPilotManageToggle, &FrogPilotManageControl::manageButtonClicked, this, &FrogPilotVisualsPanel::openSubPanel);
     }
 
     QObject::connect(visualToggle, &AbstractControl::showDescriptionEvent, [this]() {
@@ -299,8 +299,8 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     });
   }
 
-  QObject::connect(parent, &FrogPilotSettingsWindow::closeParentToggle, [visualsLayout, visualsPanel] {visualsLayout->setCurrentWidget(visualsPanel);});
-  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubParentToggle, [this, visualsLayout, developerUIPanel]() {
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [visualsLayout, visualsPanel] {visualsLayout->setCurrentWidget(visualsPanel);});
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubSubPanel, [this, visualsLayout, developerUIPanel]() {
     if (developerUIOpen) {
       visualsLayout->setCurrentWidget(developerUIPanel);
 
@@ -402,7 +402,7 @@ void FrogPilotVisualsPanel::updateToggles() {
     }
 
     if (key == "AdjacentLeadsUI") {
-      setVisible &= hasRadar;
+      setVisible &= hasRadar && !(params.getBool("AdvancedCustomUI") && params.getBool("HideLeadMarker"));
     }
 
     if (key == "BlindSpotPath") {

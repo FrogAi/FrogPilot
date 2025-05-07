@@ -9,11 +9,11 @@ class OnroadAlerts : public QWidget {
 
 public:
   OnroadAlerts(QWidget *parent = 0) : QWidget(parent) {}
-  void updateState(const UIState &s);
+  void updateState(const UIState &s, const FrogPilotUIState &fs);
   void clear();
 
   // FrogPilot variables
-  int alert_height;
+  int alertHeight;
 
 protected:
   struct Alert {
@@ -38,12 +38,8 @@ protected:
   };
 
   void paintEvent(QPaintEvent*) override;
-  OnroadAlerts::Alert getAlert(const SubMaster &sm, uint64_t started_frame, bool force_onroad, bool random_events);
+  OnroadAlerts::Alert getAlert(const SubMaster &sm, uint64_t started_frame, bool random_events);
 
   QColor bg;
   Alert alert = {};
-
-  // FrogPilot variables
-  bool hide_alerts;
-  bool road_name_ui;
 };

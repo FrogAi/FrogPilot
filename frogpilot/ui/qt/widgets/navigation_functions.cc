@@ -2,7 +2,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-#include "frogpilot/navigation/ui/navigation_functions.h"
+#include "frogpilot/ui/qt/widgets/navigation_functions.h"
 
 MapSelectionControl::MapSelectionControl(const QMap<QString, QString> &map, bool isCountry) : selectionType(isCountry ? "nations" : "states") {
   mapButtons = new QButtonGroup(this);

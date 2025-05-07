@@ -95,7 +95,7 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent) : Fr
     }
 
     if (FrogPilotManageControl *frogPilotManageToggle = qobject_cast<FrogPilotManageControl*>(soundsToggle)) {
-      QObject::connect(frogPilotManageToggle, &FrogPilotManageControl::manageButtonClicked, this, &FrogPilotSoundsPanel::openParentToggle);
+      QObject::connect(frogPilotManageToggle, &FrogPilotManageControl::manageButtonClicked, this, &FrogPilotSoundsPanel::openSubPanel);
     }
 
     QObject::connect(soundsToggle, &AbstractControl::showDescriptionEvent, [this]() {
@@ -137,7 +137,7 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent) : Fr
     });
   }
 
-  QObject::connect(parent, &FrogPilotSettingsWindow::closeParentToggle, [soundsLayout, soundsPanel] {soundsLayout->setCurrentWidget(soundsPanel);});
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [soundsLayout, soundsPanel] {soundsLayout->setCurrentWidget(soundsPanel);});
   QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotSoundsPanel::updateState);
 }
 

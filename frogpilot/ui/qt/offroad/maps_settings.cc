@@ -2,7 +2,7 @@
 
 #include <QtConcurrent>
 
-#include "frogpilot/navigation/ui/maps_settings.h"
+#include "frogpilot/ui/qt/offroad/maps_settings.h"
 
 FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
   QStackedLayout *mapsLayout = new QStackedLayout();
@@ -23,7 +23,8 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent) : FrogPi
                                                                     "", {tr("COUNTRIES"), tr("STATES")});
   QObject::connect(selectMaps, &FrogPilotButtonsControl::buttonClicked, [this, mapsLayout](int id) {
     mapsLayout->setCurrentIndex(id + 1);
-    openMapSelection();
+
+    openSubPanel();
   });
   settingsList->addItem(selectMaps);
 
@@ -128,7 +129,7 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent) : FrogPi
   ScrollView *stateMapsPanel = new ScrollView(statesList, this);
   mapsLayout->addWidget(stateMapsPanel);
 
-  QObject::connect(parent, &FrogPilotSettingsWindow::closeMapSelection, [this, mapsLayout, settingsPanel] {
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [this, mapsLayout, settingsPanel] {
     std::string mapsSelected = params.get("MapsSelected");
     hasMapsSelected = !QJsonDocument::fromJson(QByteArray::fromStdString(mapsSelected)).object().value("nations").toArray().isEmpty();
     hasMapsSelected |= !QJsonDocument::fromJson(QByteArray::fromStdString(mapsSelected)).object().value("states").toArray().isEmpty();
@@ -158,17 +159,17 @@ void FrogPilotMapsPanel::showEvent(QShowEvent *event) {
 
     updateDownloadLabels(osmDownloadProgress);
   } else {
-    downloadMapsButton->setEnabled(!cancellingDownload && hasMapsSelected && uiState()->scene.online);
+    downloadMapsButton->setEnabled(!cancellingDownload && hasMapsSelected && frogpilotUIState()->frogpilot_scene.online);
   }
 }
 
 
-void FrogPilotMapsPanel::updateState(const UIState &s) {
+void FrogPilotMapsPanel::updateState(const UIState &s, const FrogPilotUIState &fs) {
   if (!isVisible() || s.sm->frame % (UI_FREQ / 2) != 0) {
     return;
   }
 
-  downloadMapsButton->setEnabled(!cancellingDownload && hasMapsSelected && s.scene.online);
+  downloadMapsButton->setEnabled(!cancellingDownload && hasMapsSelected && fs.frogpilot_scene.online);
 
   std::string osmDownloadProgress = params.get("OSMDownloadProgress");
   if (!osmDownloadProgress.empty() && !cancellingDownload) {

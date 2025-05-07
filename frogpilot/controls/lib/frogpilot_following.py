@@ -21,7 +21,7 @@ class FrogPilotFollowing:
     self.t_follow = 0
 
   def update(self, aEgo, controlsState, frogpilotCarState, lead_distance, v_ego, frogpilot_toggles):
-    if controlsState.enabled and frogpilotCarState.trafficMode:
+    if controlsState.enabled and frogpilotCarState.trafficModeEnabled:
       if aEgo >= 0:
         self.base_acceleration_jerk = float(np.interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_acceleration))
         self.base_speed_jerk = float(np.interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_speed))

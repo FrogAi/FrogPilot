@@ -232,7 +232,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
     }
 
     if (ButtonControl *buttonControl = qobject_cast<ButtonControl*>(vehicleToggle)) {
-      QObject::connect(buttonControl, &ButtonControl::clicked, this, &FrogPilotVehiclesPanel::openParentToggle);
+      QObject::connect(buttonControl, &ButtonControl::clicked, this, &FrogPilotVehiclesPanel::openSubPanel);
     }
 
     QObject::connect(vehicleToggle, &AbstractControl::showDescriptionEvent, [this]() {
@@ -260,7 +260,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent) 
     }).detach();
   });
 
-  QObject::connect(parent, &FrogPilotSettingsWindow::closeParentToggle, [vehiclesLayout, vehiclesPanel] {vehiclesLayout->setCurrentWidget(vehiclesPanel);});
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [vehiclesLayout, vehiclesPanel] {vehiclesLayout->setCurrentWidget(vehiclesPanel);});
   QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotVehiclesPanel::updateState);
 }
 

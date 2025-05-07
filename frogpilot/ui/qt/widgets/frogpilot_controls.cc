@@ -1,5 +1,7 @@
+#include <QFileInfo>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QMovie>
 #include <QRegularExpression>
 
 #include "selfdrive/ui/ui.h"
@@ -15,7 +17,32 @@ bool FrogPilotConfirmationDialog::yesorno(const QString &prompt_text, QWidget *p
 }
 
 bool useKonikServer() {
-  return QFile::exists("/cache/use_konik");
+  static const bool use_konik = QFile::exists("/cache/use_konik");
+  return use_konik;
+}
+
+void loadImage(const QString &basePath, QPixmap &pixmap, QMovie *&movie, const QSize &size, QWidget *parent, Qt::AspectRatioMode aspectRatioMode) {
+  delete movie;
+  movie = nullptr;
+
+  QFileInfo gifFile(basePath + ".gif");
+  if (gifFile.exists()) {
+    movie = new QMovie(gifFile.filePath(), QByteArray(), parent);
+    if (movie->isValid()) {
+      movie->setCacheMode(QMovie::CacheAll);
+      movie->setScaledSize(size);
+
+      QObject::connect(movie, &QMovie::frameChanged, parent, [parent](int){parent->update();});
+
+      movie->start();
+      return;
+    } else {
+      delete movie;
+      movie = nullptr;
+    }
+  }
+
+  pixmap = loadPixmap(basePath + ".png", size, aspectRatioMode);
 }
 
 void updateFrogPilotToggles() {

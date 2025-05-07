@@ -144,15 +144,15 @@ void TogglesPanel::showEvent(QShowEvent *event) {
 }
 
 void TogglesPanel::updateToggles() {
-  UIState *s = uiState();
-  UIScene &scene = s->scene;
+  FrogPilotUIState &fs = *frogpilotUIState();
+  QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
 
   auto disengage_on_accelerator_toggle = toggles["DisengageOnAccelerator"];
-  disengage_on_accelerator_toggle->setVisible(!scene.always_on_lateral);
+  disengage_on_accelerator_toggle->setVisible(!frogpilot_toggles.value("always_on_lateral").toBool());
   auto driver_camera_toggle = toggles["RecordFront"];
-  driver_camera_toggle->setVisible(!(scene.no_logging && scene.no_uploads));
+  driver_camera_toggle->setVisible(!(frogpilot_toggles.value("no_logging").toBool() && frogpilot_toggles.value("no_uploads").toBool()));
   auto nav_settings_left_toggle = toggles["NavSettingLeftSide"];
-  nav_settings_left_toggle->setVisible(!scene.full_map);
+  nav_settings_left_toggle->setVisible(!frogpilot_toggles.value("full_map").toBool());
 
   auto experimental_mode_toggle = toggles["ExperimentalMode"];
   auto op_long_toggle = toggles["ExperimentalLongitudinalEnabled"];
@@ -361,16 +361,14 @@ void DevicePanel::showEvent(QShowEvent *event) {
 }
 
 void SettingsWindow::hideEvent(QHideEvent *event) {
-  closeMapBoxInstructions();
-  closeMapSelection();
   closePanel();
-  closeParentToggle();
+  closeSubPanel();
 
-  mapboxInstructionsOpen = false;
-  mapSelectionOpen = false;
   panelOpen = false;
-  parentToggleOpen = false;
-  subParentToggleOpen = false;
+  subPanelOpen = false;
+  subSubPanelOpen = false;
+
+  updateFrogPilotToggles();
 }
 
 void SettingsWindow::showEvent(QShowEvent *event) {
@@ -409,20 +407,17 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   sidebar_layout->addSpacing(10);
   sidebar_layout->addWidget(close_btn, 0, Qt::AlignRight);
   QObject::connect(close_btn, &QPushButton::clicked, [this]() {
-    if (mapboxInstructionsOpen) {
-      closeMapBoxInstructions();
-      mapboxInstructionsOpen = false;
-    } else if (mapSelectionOpen) {
-      closeMapSelection();
-      mapSelectionOpen = false;
-    } else if (subParentToggleOpen) {
-      closeSubParentToggle();
-      subParentToggleOpen = false;
-    } else if (parentToggleOpen) {
-      closeParentToggle();
-      parentToggleOpen = false;
+    if (subSubPanelOpen) {
+      closeSubSubPanel();
+
+      subSubPanelOpen = false;
+    } else if (subPanelOpen) {
+      closeSubPanel();
+
+      subPanelOpen = false;
     } else if (panelOpen) {
       closePanel();
+
       panelOpen = false;
     } else {
       closeSettings();
@@ -441,12 +436,9 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   QObject::connect(toggles, &TogglesPanel::updateMetric, this, &SettingsWindow::updateMetric);
 
   FrogPilotSettingsWindow *frogpilotSettingsWindow = new FrogPilotSettingsWindow(this);
-  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::closeMapBoxInstructions, [this]() {mapboxInstructionsOpen=false;});
-  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openMapBoxInstructions, [this]() {mapboxInstructionsOpen=true;});
-  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openMapSelection, [this]() {mapSelectionOpen=true;});
   QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openPanel, [this]() {panelOpen=true;});
-  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openParentToggle, [this]() {parentToggleOpen=true;});
-  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubParentToggle, [this]() {subParentToggleOpen=true;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubPanel, [this]() {subPanelOpen=true;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubSubPanel, [this]() {subSubPanelOpen=true;});
 
   QList<QPair<QString, QWidget *>> panels = {
     {tr("Device"), device},
@@ -525,21 +517,15 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
         }
       }
 
-      if (mapboxInstructionsOpen) {
-        closeMapBoxInstructions();
-        mapboxInstructionsOpen = false;
-      }
-      if (mapSelectionOpen) {
-        closeMapSelection();
-        mapSelectionOpen = false;
-      }
       if (panelOpen) {
         closePanel();
+
         panelOpen = false;
       }
-      if (parentToggleOpen) {
-        closeParentToggle();
-        parentToggleOpen = false;
+      if (subPanelOpen) {
+        closeSubPanel();
+
+        subPanelOpen = false;
       }
       btn->setChecked(true);
       panel_widget->setCurrentWidget(w);

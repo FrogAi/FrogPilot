@@ -4,10 +4,12 @@
 
 #include <QTimer>
 
+#include "selfdrive/ui/qt/util.h"
 #include "selfdrive/ui/qt/widgets/controls.h"
 
 bool useKonikServer();
 
+void loadImage(const QString &basePath, QPixmap &pixmap, QMovie *&movie, const QSize &size, QWidget *parent, Qt::AspectRatioMode aspectRatioMode = Qt::KeepAspectRatio);
 void updateFrogPilotToggles();
 
 QColor loadThemeColors(const QString &colorKey, bool clearCache = false);
@@ -149,6 +151,12 @@ public:
   void setCheckedButton(int id) {
     if (QAbstractButton *button = button_group->button(id)) {
       button->setChecked(true);
+    }
+  }
+
+  void setEnabledButton(int id, bool enable) {
+    if (QAbstractButton *button = button_group->button(id)) {
+      button->setEnabled(enable);
     }
   }
 

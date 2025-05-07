@@ -4,7 +4,6 @@ import math
 import numpy as np
 import requests
 import shutil
-import signal
 import subprocess
 import threading
 import time
@@ -14,13 +13,13 @@ import zipfile
 
 import openpilot.system.sentry as sentry
 
+from functools import cache
 from pathlib import Path
 
 from cereal import log
 from openpilot.common.realtime import DT_DMON, DT_HW
 from openpilot.selfdrive.car.toyota.carcontroller import LOCK_CMD
 from openpilot.system.hardware import HARDWARE
-from openpilot.system.manager.process_config import managed_processes
 from panda import Panda
 
 from openpilot.frogpilot.common.frogpilot_variables import EARTH_RADIUS, KONIK_PATH, MAPD_PATH, MAPS_PATH, params, params_memory
@@ -34,7 +33,6 @@ locks = {
   "download_theme": threading.Lock(),
   "flash_panda": threading.Lock(),
   "lock_doors": threading.Lock(),
-  "restart_processes": threading.Lock(),
   "update_checks": threading.Lock(),
   "update_maps": threading.Lock(),
   "update_openpilot": threading.Lock(),
@@ -163,16 +161,6 @@ def lock_doors(lock_doors_timer, sm):
     panda.can_send(0x750, LOCK_CMD, 0)
     panda.send_heartbeat()
 
-def restart_processes(sm):
-  while running_threads.get("lock_doors", threading.Thread()).is_alive():
-    time.sleep(1)
-
-  wait_for_no_driver(sm)
-
-  if not any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown):
-    for name in ["mapd", "ui"]:
-      managed_processes[name].stop(block=True, retry=True, sig=signal.SIGKILL)
-
 def run_cmd(cmd, success_message, fail_message, report=True):
   try:
     subprocess.run(cmd, capture_output=True, text=True, check=True)
@@ -250,6 +238,7 @@ def update_openpilot():
 
   HARDWARE.reboot()
 
+@cache
 def use_konik_server():
   return KONIK_PATH.is_file()
 

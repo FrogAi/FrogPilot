@@ -76,5 +76,5 @@ private:
   Params params;
 
 private slots:
-  void updateState(const UIState &s);
+  void updateState(const UIState &s, const FrogPilotUIState &fs);
 };

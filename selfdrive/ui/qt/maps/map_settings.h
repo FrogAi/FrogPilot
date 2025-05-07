@@ -12,7 +12,6 @@
 #include <QVBoxLayout>
 
 #include "common/params.h"
-#include "selfdrive/ui/qt/network/wifi_manager.h"
 #include "selfdrive/ui/qt/util.h"
 #include "selfdrive/ui/qt/widgets/controls.h"
 
@@ -67,8 +66,6 @@ private:
 
   // FrogPilot variables
   QLabel *subtitle;
-
-  WifiManager *wifi;
 
 signals:
   void closeSettings();

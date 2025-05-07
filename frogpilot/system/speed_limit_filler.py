@@ -5,18 +5,18 @@ import requests
 import time
 
 from collections import OrderedDict, deque
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 
 import openpilot.system.sentry as sentry
 
 from cereal import log, messaging
-from openpilot.common.time import system_time_valid
 
-from openpilot.frogpilot.common.frogpilot_utilities import calculate_bearing_offset, calculate_distance_to_point, calculate_lane_width, is_url_pingable
+from openpilot.frogpilot.common.frogpilot_utilities import calculate_bearing_offset, calculate_distance_to_point, calculate_lane_width
 from openpilot.frogpilot.common.frogpilot_variables import params, params_memory
 
 MAX_ENTRIES = 1_000_000
+MAX_OVERPASS_REQUESTS = 10_000
+VETTING_INTERVAL = 7
 
 OVERPASS_API_URL = "https://overpass-api.de/api/interpreter"
 
@@ -34,17 +34,30 @@ def cleanup_dataset(dataset):
 
 class MapSpeedLogger:
   def __init__(self):
-    self.speed_limits_checked = False
     self.started_previously = False
 
-    self.overpass_calls_made = 0
-    self.overpass_calls_skipped = 0
-
-    self.dataset_additions = cleanup_dataset(json.loads("[]"))
+    self.total_queries_to_process = 0
+    self.total_requests = 0
 
     self.previous_coords = None
 
+    self.dataset_additions = cleanup_dataset(json.loads("[]"))
+
+    self.overpass_requests = json.loads(params.get("OverpassRequests") or "{}")
+    self.overpass_requests.setdefault("day", datetime.now().day)
+    self.overpass_requests.setdefault("total_requests", 0)
+    self.overpass_requests.setdefault("max_requests", MAX_OVERPASS_REQUESTS)
+
     self.sm = messaging.SubMaster(["deviceState", "frogpilotCarState", "frogpilotNavigation", "frogpilotPlan", "liveLocationKalman", "modelV2"])
+
+  def can_make_overpass_request(self):
+    if datetime.now().day != self.overpass_requests["day"]:
+      self.overpass_requests.update({"day": datetime.now().day, "total_requests": 0})
+    return self.overpass_requests["total_requests"] < self.overpass_requests["max_requests"]
+
+  def record_overpass_request(self):
+    self.total_requests += 1
+    params_memory.put("UpdateSpeedLimitsStatus", f"{self.total_requests} / {self.total_queries_to_process}")
 
   def log_speed_limit(self):
     self.sm.update()
@@ -60,8 +73,6 @@ class MapSpeedLogger:
         params.put("SpeedLimits", json.dumps(list(existing_dataset)))
 
         self.dataset_additions.clear()
-
-      self.speed_limits_checked = False
 
       self.previous_coords = None
 
@@ -150,8 +161,8 @@ class MapSpeedLogger:
 
     points = [(start_latitude, start_longitude), start_left, start_right]
 
-    min_latitude  = min(pt[0] for pt in points)
-    max_latitude  = max(pt[0] for pt in points)
+    min_latitude = min(pt[0] for pt in points)
+    max_latitude = max(pt[0] for pt in points)
     min_longitude = min(pt[1] for pt in points)
     max_longitude = max(pt[1] for pt in points)
 
@@ -165,10 +176,13 @@ class MapSpeedLogger:
       try:
         response = requests.get(api_url, params={"data": query}, timeout=10)
         if response.status_code == 429:
-          time.sleep(5)
+          print("Rate limited. Retrying after 15 seconds...")
+          time.sleep(15)
           continue
 
         response.raise_for_status()
+        self.record_overpass_request()
+
         data = response.json()
         node_elements = {element["id"]: element for element in data.get("elements", []) if element.get("type") == "node"}
         ways = [element for element in data.get("elements", []) if element.get("type") == "way"]
@@ -223,11 +237,13 @@ class MapSpeedLogger:
       try:
         response = requests.get(api_url, params={"data": query}, timeout=10)
         if response.status_code == 429:
-          print("Rate limited. Retrying after 5 seconds...")
-          time.sleep(5)
+          print("Rate limited. Retrying after 15 seconds...")
+          time.sleep(15)
           continue
 
         response.raise_for_status()
+        self.record_overpass_request()
+
         data = response.json()
         ways = [element for element in data.get("elements", []) if element.get("type") == "way"]
         return ways[0].get("tags", {}).get("maxspeed") if ways else None
@@ -256,7 +272,7 @@ class MapSpeedLogger:
     return entry, segments
 
   def process_vetted_entry(self, entry):
-    if datetime.now(timezone.utc) - datetime.fromisoformat(entry.get("last_vetted")) < timedelta(days=7):
+    if datetime.now(timezone.utc) - datetime.fromisoformat(entry.get("last_vetted")) < timedelta(days=VETTING_INTERVAL):
       return entry
 
     if self.fetch_speed_limit_for_segment_id(entry.get("segment_id")) is None:
@@ -264,133 +280,104 @@ class MapSpeedLogger:
       return entry
 
   def update_speed_limits(self):
-    while not system_time_valid():
-      self.sm.update()
-
-      if self.sm["deviceState"].started:
-        return
-
-      time.sleep(60)
-
-    while not is_url_pingable("https://overpass-api.de"):
-      self.sm.update()
-
-      if self.sm["deviceState"].started:
-        return
-
-      time.sleep(60)
-
-    filtered_dataset = cleanup_dataset(json.loads(params.get("SpeedLimitsFiltered") or "[]"))
-
-    existing_segment_boxes = []
-
-    filtered_vetted = deque(maxlen=MAX_ENTRIES)
-    with ThreadPoolExecutor(max_workers=10) as executor:
-      futures = {}
-      for entry in filtered_dataset:
-        self.sm.update()
-
-        if self.sm["deviceState"].started:
-          return
-
-        future = executor.submit(self.process_vetted_entry, entry)
-        futures[future] = entry
-
-      for future in as_completed(futures):
-        result = future.result()
-        if result is not None:
-          filtered_vetted.append(result)
-
-    filtered_dataset = cleanup_dataset(filtered_vetted)
-    params.put("SpeedLimitsFiltered", json.dumps(list(filtered_dataset)))
+    if datetime.now().day != self.overpass_requests["day"]:
+      self.overpass_requests.update({"day": datetime.now().day, "total_requests": 0})
 
     dataset = cleanup_dataset(json.loads(params.get("SpeedLimits") or "[]"))
+    filtered_dataset = cleanup_dataset(json.loads(params.get("SpeedLimitsFiltered") or "[]"))
+
+    vetted_needed = sum(1 for entry in filtered_dataset if datetime.now(timezone.utc) - datetime.fromisoformat(entry.get("last_vetted")) >= timedelta(days=VETTING_INTERVAL))
+    self.total_queries_to_process = min(vetted_needed + len(dataset), self.overpass_requests["max_requests"] - self.overpass_requests["total_requests"])
+
+    filtered_vetted = deque(maxlen=MAX_ENTRIES)
+    for entry in filtered_dataset:
+      self.sm.update()
+
+      if self.sm["deviceState"].started:
+        break
+
+      if not self.can_make_overpass_request():
+        break
+
+      result = self.process_vetted_entry(entry)
+      if result is not None:
+        filtered_vetted.append(result)
+
+    filtered_dataset = cleanup_dataset(filtered_vetted)
+
     if not dataset:
-      self.speed_limits_checked = True
+      self.overpass_requests["total_requests"] += self.total_requests
+
+      params.put("OverpassRequests", json.dumps(self.overpass_requests))
+      params.put("SpeedLimitsFiltered", json.dumps(list(filtered_dataset)))
+
+      params_memory.remove("UpdateSpeedLimits")
+      params_memory.remove("UpdateSpeedLimitsStatus")
       return
 
     existing_segment_ids = {entry["segment_id"] for entry in filtered_dataset if "segment_id" in entry}
+    processed_count = 0
 
-    with ThreadPoolExecutor(max_workers=10) as executor:
-      futures = {}
-      for entry in dataset:
-        self.sm.update()
+    for entry in list(dataset):
+      self.sm.update()
 
-        if self.sm["deviceState"].started:
-          break
+      if self.sm["deviceState"].started:
+        break
 
-        end_coords = entry.get("end_coordinates", {})
-        end_latitude = end_coords.get("latitude")
-        end_longitude = end_coords.get("longitude")
+      if not self.can_make_overpass_request():
+        break
 
-        for box in existing_segment_boxes:
-          if box["min_latitude"] <= end_latitude <= box["max_latitude"] and box["min_longitude"] <= end_longitude <= box["max_longitude"]:
-            self.overpass_calls_skipped += 1
-            break
-        else:
-          print("Submitting entry for processing...")
-          future = executor.submit(self.process_entry, entry)
-          futures[future] = entry
-          self.overpass_calls_made += 1
+      entry, segments = self.process_entry(entry)
 
-          if len(futures) >= 100:
-            break
+      if segments is None:
+        continue
 
-      print("Processing results...")
-      for future in as_completed(futures):
-        print("Fetching result for entry...")
+      dataset.remove(entry)
 
-        entry, segments = future.result()
-
-        if segments is None:
-          print("No segments returned for entry. Skipping...")
+      for segment in segments:
+        segment_id = segment["segment_id"]
+        if segment_id in existing_segment_ids:
+          continue
+        if segment["maxspeed"]:
+          continue
+        if segment["road_name"] != entry.get("road_name"):
           continue
 
-        dataset.remove(entry)
+        filtered_dataset.append({
+          "segment_id": segment_id,
+          "source": entry.get("source"),
+          "speed_limit": entry.get("speed_limit"),
+          "last_vetted": datetime.now(timezone.utc).isoformat()
+        })
 
-        for segment in segments:
-          segment_id = segment["segment_id"]
-          print(f"Processing segment {segment_id}...")
-          if segment_id in existing_segment_ids:
-            print(f"Skipping segment {segment_id} (already exists)")
-            continue
+        existing_segment_ids.add(segment_id)
 
-          if segment["maxspeed"]:
-            print(f"Skipping segment {segment_id} (has maxspeed)")
-            continue
+      processed_count += 1
 
-          if segment["road_name"] != entry.get("road_name"):
-            print(f"Skipping segment {segment_id} (road name mismatch)")
-            continue
+      if processed_count % 100 == 0:
+        self.overpass_requests["total_requests"] += 100
 
-          filtered_dataset.append({
-            "segment_id": segment_id,
-            "source": entry.get("source"),
-            "speed_limit": entry.get("speed_limit"),
-            "last_vetted": datetime.now(timezone.utc).isoformat()
-          })
+        params.put("OverpassRequests", json.dumps(self.overpass_requests))
+        params.put("SpeedLimits", json.dumps(list(dataset)))
+        params.put("SpeedLimitsFiltered", json.dumps(list(filtered_dataset)))
+      elif len(dataset) == 0:
+        self.overpass_requests["total_requests"] += processed_count
+        self.total_requests = 0
 
-          existing_segment_ids.add(segment_id)
+        params.put("OverpassRequests", json.dumps(self.overpass_requests))
+        params.put("SpeedLimits", json.dumps(list(dataset)))
+        params.put("SpeedLimitsFiltered", json.dumps(list(filtered_dataset)))
 
-          if segment.get("segment_coordinates") is not None:
-            existing_segment_boxes.append(segment["segment_coordinates"])
-
-    #params.put("SpeedLimits", json.dumps(list(dataset)))
-    params.put("SpeedLimitsFiltered", json.dumps(list(filtered_dataset)))
-
-    self.speed_limits_checked = not dataset
-    if not self.speed_limits_checked:
-      print(f"{len(dataset)} remaining in dataset")
-    else:
-      print(f"Overpass API summary: {self.overpass_calls_made} calls made, {self.overpass_calls_skipped} skipped due to previously fetched segments.")
+        params_memory.remove("UpdateSpeedLimits")
+        params_memory.remove("UpdateSpeedLimitsStatus")
 
 def main():
   logger = MapSpeedLogger()
 
   while True:
     try:
-      #if not logger.speed_limits_checked:
-        #logger.update_speed_limits()
+      if not logger.sm["deviceState"].started and params_memory.get_bool("UpdateSpeedLimits"):
+        logger.update_speed_limits()
 
       logger.log_speed_limit()
     except Exception as error:

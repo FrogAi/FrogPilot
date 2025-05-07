@@ -1,7 +1,5 @@
 #pragma once
 
-#include <QLabel>
-#include <QMovie>
 #include <QPushButton>
 
 #include "selfdrive/ui/ui.h"
@@ -14,11 +12,7 @@ class ExperimentalButton : public QPushButton {
 
 public:
   explicit ExperimentalButton(QWidget *parent = 0);
-  void updateState(const UIState &s);
-
-  // FrogPilot widgets
-  ~ExperimentalButton();
-  void updateIcon();
+  void updateState(const UIState &s, const FrogPilotUIState &fs, const QJsonObject &frogpilot_toggles);
 
 private:
   void paintEvent(QPaintEvent *event) override;
@@ -30,36 +24,19 @@ private:
   bool experimental_mode;
   bool engageable;
 
-  // FrogPilot widgets
+  // FrogPilot variables
+  void showEvent(QShowEvent *event) override;
   void updateBackgroundColor();
 
-  // FrogPilot variables
+  int steering_angle;
+
   Params params_memory{"/dev/shm/params"};
 
   QColor background_color;
 
-  QLabel *gif_label;
+  QMovie *wheel_gif;
 
-  QMovie *gif;
-
-  QPixmap img;
-
-  QString wheel_gif_path;
-  QString wheel_png_path;
-
-  bool always_on_lateral_enabled;
-  bool big_map;
-  bool conditional_experimental;
-  bool image_empty;
-  bool map_open;
-  bool navigate_on_openpilot;
-  bool rotating_wheel;
-  bool traffic_mode_active;
-  bool use_gif;
-  bool use_stock_wheel;
-
-  int conditional_status;
-  int steering_angle_deg;
+  QPixmap wheel_img;
 };
 
 
@@ -69,39 +46,13 @@ class MapSettingsButton : public QPushButton {
 public:
   explicit MapSettingsButton(QWidget *parent = 0);
 
+  // FrogPilot variables
+  bool road_name_ui;
+
 private:
   void paintEvent(QPaintEvent *event) override;
 
   QPixmap settings_img;
 };
 
-void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity, const int angle = 0);
-
-// FrogPilot buttons
-class DistanceButton : public QPushButton {
-  Q_OBJECT
-
-public:
-  explicit DistanceButton(QWidget *parent = 0);
-  ~DistanceButton();
-  void updateIcon();
-  void updateState(const UIScene &scene);
-
-  bool road_name_ui;
-
-private:
-  void paintEvent(QPaintEvent *event) override;
-
-  Params params_memory{"/dev/shm/params"};
-
-  QLabel *gif_label;
-  QPixmap profile_image;
-
-  QVector<QPixmap> profile_data_png;
-  QVector<QMovie*> profile_data_gif;
-
-  bool traffic_mode_active;
-  bool use_gif;
-
-  int personality;
-};
+void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity, const int &angle = 0);

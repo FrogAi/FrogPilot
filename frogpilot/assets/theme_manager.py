@@ -19,63 +19,82 @@ DOWNLOAD_PROGRESS_PARAM = "ThemeDownloadProgress"
 HOLIDAY_THEME_PATH = Path(__file__).parent / "holiday_themes"
 STOCKOP_THEME_PATH = Path(__file__).parent / "stock_theme"
 
-def randomize_distance_icons():
+def get_full_themes():
   theme_packs_path = THEME_SAVE_PATH / "theme_packs"
   if not theme_packs_path.exists():
-    return "stock"
+    return []
 
-  candidates = [directory.name for directory in theme_packs_path.iterdir() if (directory / "distance_icons").is_dir()]
-
-  return random.choice(candidates) if candidates else "stock"
-
-def randomize_theme_asset():
-  theme_packs_path = THEME_SAVE_PATH / "theme_packs"
-  if not theme_packs_path.exists():
-    return "stock"
-
-  animated_required = {"icons"}
-  base_required = {"colors", "icons", "sounds"}
-
-  candidates = []
+  valid_themes = set()
   for theme_directory in theme_packs_path.iterdir():
     if not theme_directory.is_dir():
       continue
 
-    name = theme_directory.name
-    base_name = name.replace("-animated", "")
+    base_name = theme_directory.name.replace("-animated", "")
+
+    animated_path = theme_packs_path / f"{base_name}-animated"
     base_path = theme_packs_path / base_name
 
-    animated_valid = "-animated" in name and all((theme_directory / directory).is_dir() for directory in animated_required)
-    base_valid = all((base_path / directory).is_dir() for directory in base_required) or (theme_packs_path / f"{base_name}-animated" / "icons").is_dir()
+    base_valid = all((base_path / asset).is_dir() for asset in {"colors", "sounds"})
+    animated_icons_exist = (animated_path / "icons").is_dir()
+    base_icons_exist = (base_path / "icons").is_dir()
 
-    if animated_valid or base_valid:
-      candidates.append(name)
+    if base_valid and (animated_icons_exist or base_icons_exist):
+      if animated_icons_exist:
+        valid_themes.add(f"{base_name}-animated")
+      else:
+        valid_themes.add(base_name)
 
-  animated_themes = {name.replace("-animated", "") for name in candidates if name.endswith("-animated")}
-  candidates = [name for name in candidates if name not in animated_themes]
+  return sorted(valid_themes)
+
+def randomize_distance_icons(available_themes, selected_theme):
+  distance_icons_path = THEME_SAVE_PATH / "distance_icons"
+  if not distance_icons_path.exists():
+    return "stock"
+
+  selected_base = selected_theme.replace("-animated", "").lower()
+
+  candidates = []
+  for name in distance_icons_path.iterdir():
+    if not name.is_dir():
+      continue
+
+    icon_name = name.name.lower()
+
+    theme_association = [theme for theme in available_themes if theme.replace("-animated", "") in icon_name]
+    if theme_association and selected_base not in icon_name:
+      continue
+
+    weight = 5 if selected_base in icon_name else 1
+    candidates.extend([name.name] * weight)
 
   return random.choice(candidates) if candidates else "stock"
 
-def randomize_wheel_image(selected_theme):
-  steering_wheels_path = THEME_SAVE_PATH / "steering_wheels"
-  theme_packs_path = THEME_SAVE_PATH / "theme_packs"
+def randomize_theme_asset(available_themes):
+  if not available_themes:
+    return "stock"
 
+  return random.choice(available_themes)
+
+def randomize_wheel_image(available_themes, selected_theme):
+  steering_wheels_path = THEME_SAVE_PATH / "steering_wheels"
   if not steering_wheels_path.exists():
     return "stock"
 
-  theme_names = []
-  if theme_packs_path.exists():
-    theme_names = [directory.name.replace("-animated", "") for directory in theme_packs_path.iterdir() if directory.is_dir()]
+  selected_base = selected_theme.replace("-animated", "").lower()
 
   candidates = []
   for wheel_file in steering_wheels_path.iterdir():
     if not wheel_file.is_file():
       continue
 
-    if any(part in theme_names for part in wheel_file.stem.split("_")):
+    name = wheel_file.stem.lower()
+
+    theme_association = [theme for theme in available_themes if theme.replace("-animated", "") in name]
+    if theme_association and selected_base not in name:
       continue
 
-    candidates.append(wheel_file.stem)
+    weight = 5 if selected_base in name else 1
+    candidates.extend([wheel_file.stem] * weight)
 
   return random.choice(candidates) if candidates else "stock"
 
@@ -149,15 +168,7 @@ class ThemeManager:
   def __init__(self):
     self.downloading_theme = False
 
-    self.theme_assets = {
-      "holiday_theme": "stock",
-      "color_scheme": "stock",
-      "distance_icons": "stock",
-      "icon_pack": "stock",
-      "sound_pack": "stock",
-      "turn_signal_pack": "stock",
-      "wheel_image": "stock"
-    }
+    self.holiday_theme = "stock"
 
   @staticmethod
   def calculate_thanksgiving(year):
@@ -194,38 +205,36 @@ class ThemeManager:
 
     for holiday, holiday_date in holidays.items():
       if (holiday.endswith("_week") and self.is_within_week_of(holiday_date, current_date)) or (current_date == holiday_date):
-        if holiday != self.theme_assets.get("holiday_theme"):
-          self.theme_assets["holiday_theme"] = holiday
-        return
+        return holiday
 
-    self.theme_assets["holiday_theme"] = "stock"
+    return "stock"
 
   def update_active_theme(self, time_validated, frogpilot_toggles, boot_run=False, randomize_theme=False):
     if time_validated and frogpilot_toggles.holiday_themes:
-      self.update_holiday()
+      self.holiday_theme = self.update_holiday()
     else:
-      self.theme_assets["holiday_theme"] = "stock"
+      self.holiday_theme = "stock"
 
-    if self.theme_assets.get("holiday_theme") != "stock":
+    if self.holiday_theme != "stock":
       asset_mappings = {
-        "color_scheme": ("colors", self.theme_assets.get("holiday_theme")),
-        "distance_icons": ("distance_icons", self.theme_assets.get("holiday_theme")),
-        "icon_pack": ("icons", self.theme_assets.get("holiday_theme")),
-        "sound_pack": ("sounds", self.theme_assets.get("holiday_theme")),
-        "turn_signal_pack": ("signals", self.theme_assets.get("holiday_theme")),
-        "wheel_image": ("wheel_image", self.theme_assets.get("holiday_theme"))
+        "color_scheme": ("colors", self.holiday_theme),
+        "distance_icons": ("distance_icons", self.holiday_theme),
+        "icon_pack": ("icons", self.holiday_theme),
+        "sound_pack": ("sounds", self.holiday_theme),
+        "turn_signal_pack": ("signals", self.holiday_theme),
+        "wheel_image": ("wheel_image", self.holiday_theme)
       }
     elif (boot_run or randomize_theme) and frogpilot_toggles.random_themes:
-      selected_theme = randomize_theme_asset()
-      selected_wheel = randomize_wheel_image(selected_theme)
+      available_themes = get_full_themes()
+      selected_theme = randomize_theme_asset(available_themes)
 
       asset_mappings = {
         "color_scheme": ("colors", selected_theme.replace("-animated", "")),
-        "distance_icons": ("distance_icons", randomize_distance_icons()),
+        "distance_icons": ("distance_icons", randomize_distance_icons(available_themes, selected_theme)),
         "icon_pack": ("icons", selected_theme),
         "sound_pack": ("sounds", selected_theme.replace("-animated", "")),
         "turn_signal_pack": ("signals", selected_theme.replace("-animated", "")),
-        "wheel_image": ("wheel_image", selected_wheel)
+        "wheel_image": ("wheel_image", randomize_wheel_image(available_themes, selected_theme))
       }
 
       update_frogpilot_toggles()
@@ -241,20 +250,13 @@ class ThemeManager:
     else:
       return False
 
-    theme_updated = False
     for asset, (asset_type, current_value) in asset_mappings.items():
-      if current_value != self.theme_assets.get(asset) or boot_run:
-        print(f"Updating {asset}: {asset_type} with value {current_value}")
+      print(f"Updating {asset}: {asset_type} with value {current_value}")
 
-        if asset_type == "wheel_image":
-          update_wheel_image(current_value, self.theme_assets.get("holiday_theme"), random_event=False)
-        else:
-          update_theme_asset(asset_type, current_value, self.theme_assets.get("holiday_theme"))
-
-        self.theme_assets[asset] = current_value
-        theme_updated = True
-
-    return theme_updated
+      if asset_type == "wheel_image":
+        update_wheel_image(current_value, self.holiday_theme, random_event=False)
+      else:
+        update_theme_asset(asset_type, current_value, self.holiday_theme)
 
   @staticmethod
   def handle_verification_failure(ext, theme_component, theme_name, theme_param, theme_path, download_path):

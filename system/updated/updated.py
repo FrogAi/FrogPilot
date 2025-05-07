@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import gc
 import os
 import re
 import datetime
@@ -60,6 +61,7 @@ class WaitTimeHelper:
     self.ready_event.set()
 
   def sleep(self, t: float) -> None:
+    gc.collect()
     self.ready_event.wait(timeout=t)
 
 def write_time_to_param(params, param) -> None:
@@ -458,6 +460,8 @@ def main() -> None:
     while True:
       wait_helper.ready_event.clear()
 
+      frogpilot_toggles = get_frogpilot_toggles()
+
       manual_update_requested = params_memory.get_bool("ManualUpdateInitiated")
       params_memory.remove("ManualUpdateInitiated")
 
@@ -525,7 +529,7 @@ def main() -> None:
 
       # infrequent attempts if we successfully updated recently
       wait_helper.user_request = UserRequest.NONE
-      wait_helper.sleep(5*60 if update_failed_count > 0 else 1.5*60*60)
+      wait_helper.sleep(5*60 if update_failed_count > 0 and updater.has_internet else 1.5*60*60)
 
 
 if __name__ == "__main__":

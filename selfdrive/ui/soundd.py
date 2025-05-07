@@ -93,22 +93,6 @@ class Soundd:
     self.error_log = ERROR_LOGS_PATH / "error.txt"
     self.random_events_directory = RANDOM_EVENTS_PATH / "sounds"
 
-    self.random_events_map = {
-      AudibleAlert.angry: MAX_VOLUME,
-      AudibleAlert.continued: MAX_VOLUME,
-      AudibleAlert.dejaVu: MAX_VOLUME,
-      AudibleAlert.doc: MAX_VOLUME,
-      AudibleAlert.fart: MAX_VOLUME,
-      AudibleAlert.firefox: MAX_VOLUME,
-      AudibleAlert.goat: MAX_VOLUME,
-      AudibleAlert.hal9000: MAX_VOLUME,
-      AudibleAlert.mail: MAX_VOLUME,
-      AudibleAlert.nessie: MAX_VOLUME,
-      AudibleAlert.noice: MAX_VOLUME,
-      AudibleAlert.thisIsFine: MAX_VOLUME,
-      AudibleAlert.uwu: MAX_VOLUME,
-    }
-
     self.update_frogpilot_sounds()
 
   def load_sounds(self):
@@ -118,17 +102,19 @@ class Soundd:
     for sound in sound_list:
       filename, play_count, volume = sound_list[sound]
 
-      if sound in self.random_events_map:
-        wavefile = wave.open(str(self.random_events_directory / filename), 'r')
+      random_events_path = self.random_events_directory / filename
+      sounds_path = self.sound_directory / filename
+
+      if random_events_path.exists():
+        wavefile = wave.open(str(random_events_path), 'r')
+      elif sounds_path.exists():
+        wavefile = wave.open(str(sounds_path), 'r')
       else:
-        try:
-          wavefile = wave.open(str(self.sound_directory / filename), 'r')
-        except FileNotFoundError:
-          if filename == "prompt_repeat.wav":
-            filename = "prompt.wav"
-          elif filename == "startup.wav":
-            filename = "engage.wav"
-          wavefile = wave.open(BASEDIR + "/selfdrive/assets/sounds/" + filename, 'r')
+        if filename == "prompt_repeat.wav":
+          filename = "prompt.wav"
+        elif filename == "startup.wav":
+          filename = "engage.wav"
+        wavefile = wave.open(BASEDIR + "/selfdrive/assets/sounds/" + filename, 'r')
 
       assert wavefile.getnchannels() == 1
       assert wavefile.getsampwidth() == 2
@@ -231,9 +217,6 @@ class Soundd:
               self.current_volume = MAX_VOLUME
             else:
               self.current_volume = self.auto_volume
-
-        elif self.current_alert in self.random_events_map:
-          self.current_volume = self.random_events_map[self.current_alert]
 
         elif self.current_alert == AudibleAlert.startup:
           self.current_volume = MAX_VOLUME

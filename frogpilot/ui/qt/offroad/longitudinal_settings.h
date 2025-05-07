@@ -11,15 +11,15 @@ public:
   explicit FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *parent);
 
 signals:
-  void openParentToggle();
-  void openSubParentToggle();
+  void openSubPanel();
+  void openSubSubPanel();
 
 protected:
   void showEvent(QShowEvent *event) override;
 
 private:
   void updateMetric(bool metric, bool bootRun);
-  void updateState(const UIState &s);
+  void updateState(const UIState &s, const FrogPilotUIState &fs);
   void updateToggles();
 
   bool customPersonalityOpen;
@@ -30,6 +30,7 @@ private:
   bool isToyota;
   bool isTSK;
   bool slcOpen;
+  bool updatingLimits;
 
   int tuningLevel;
 
@@ -51,6 +52,8 @@ private:
 
   std::set<QString> parentKeys;
 
+  FrogPilotButtonControl *updateSpeedLimitsToggle;
+
   FrogPilotButtonsControl *curveDetectionToggle;
 
   FrogPilotSettingsWindow *parent;
@@ -60,4 +63,5 @@ private:
   Params params;
   Params params_cache{"/cache/params"};
   Params params_default{"/dev/shm/params_default"};
+  Params params_memory{"/dev/shm/params"};
 };

@@ -93,7 +93,7 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
           recorderToggle->setVisibleButton(1, true);
 
           screenRecorder->startRecording();
-        } else {
+        } else if (id == 1) {
           recorderToggle->clearCheckedButtons();
 
           recorderToggle->setVisibleButton(0, true);
@@ -124,7 +124,7 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
     }
 
     if (FrogPilotManageControl *frogPilotManageToggle = qobject_cast<FrogPilotManageControl*>(deviceToggle)) {
-      QObject::connect(frogPilotManageToggle, &FrogPilotManageControl::manageButtonClicked, this, &FrogPilotDevicePanel::openParentToggle);
+      QObject::connect(frogPilotManageToggle, &FrogPilotManageControl::manageButtonClicked, this, &FrogPilotDevicePanel::openSubPanel);
     }
 
     QObject::connect(deviceToggle, &AbstractControl::showDescriptionEvent, [this]() {
@@ -170,7 +170,7 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
     });
   }
 
-  QObject::connect(parent, &FrogPilotSettingsWindow::closeParentToggle, [deviceLayout, devicePanel] {deviceLayout->setCurrentWidget(devicePanel);});
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [deviceLayout, devicePanel] {deviceLayout->setCurrentWidget(devicePanel);});
   QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotDevicePanel::updateState);
 }
 

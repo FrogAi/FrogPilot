@@ -12,7 +12,7 @@ from openpilot.common.time import system_time_valid
 from openpilot.frogpilot.assets.model_manager import ModelManager, MODEL_DOWNLOAD_ALL_PARAM, MODEL_DOWNLOAD_PARAM
 from openpilot.frogpilot.assets.theme_manager import ThemeManager
 from openpilot.frogpilot.common.frogpilot_functions import backup_toggles
-from openpilot.frogpilot.common.frogpilot_utilities import flash_panda, is_url_pingable, lock_doors, restart_processes, run_thread_with_lock, update_maps, update_openpilot
+from openpilot.frogpilot.common.frogpilot_utilities import flash_panda, is_url_pingable, lock_doors, run_thread_with_lock, update_maps, update_openpilot
 from openpilot.frogpilot.common.frogpilot_variables import ERROR_LOGS_PATH, FrogPilotVariables, get_frogpilot_toggles, params, params_cache, params_memory
 from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.frogpilot.controls.lib.frogpilot_tracking import FrogPilotTracking
@@ -77,7 +77,6 @@ def frogpilot_thread():
   assets_checked = False
   run_update_checks = False
   started_previously = False
-  theme_updated = False
   time_validated = False
   toggles_updated = False
 
@@ -98,11 +97,13 @@ def frogpilot_thread():
 
     started = sm["deviceState"].started
 
-    if params_memory.get_bool("FrogPilotTogglesUpdated") or theme_updated:
-      frogpilot_variables.update(theme_manager.theme_assets["holiday_theme"], started)
+    if params_memory.get_bool("FrogPilotTogglesUpdated"):
+      previous_holiday_themes = frogpilot_toggles.holiday_themes
+
+      frogpilot_variables.update(theme_manager.holiday_theme, started)
       frogpilot_toggles = get_frogpilot_toggles()
 
-      theme_updated = theme_manager.update_active_theme(time_validated, frogpilot_toggles)
+      theme_manager.update_active_theme(time_validated, frogpilot_toggles, randomize_theme=frogpilot_toggles.holiday_themes != previous_holiday_themes)
 
       if time_validated:
         run_thread_with_lock("backup_toggles", backup_toggles, (params_cache,), report=False)
@@ -116,16 +117,14 @@ def frogpilot_thread():
 
       run_update_checks = True
 
-      frogpilot_variables.update(theme_manager.theme_assets["holiday_theme"], started)
+      frogpilot_variables.update(theme_manager.holiday_theme, started)
       frogpilot_toggles = get_frogpilot_toggles()
 
       if frogpilot_toggles.lock_doors_timer:
         run_thread_with_lock("lock_doors", lock_doors, (frogpilot_toggles.lock_doors_timer, sm))
 
       if frogpilot_toggles.random_themes:
-        theme_updated = theme_manager.update_active_theme(time_validated, frogpilot_toggles, randomize_theme=True)
-
-      run_thread_with_lock("restart_processes", restart_processes, (sm,))
+        theme_manager.update_active_theme(time_validated, frogpilot_toggles, randomize_theme=True)
 
       params_memory.put_bool("IsOnroad", False)
 
@@ -165,7 +164,7 @@ def frogpilot_thread():
     run_update_checks &= time_validated
 
     if run_update_checks:
-      theme_updated = theme_manager.update_active_theme(time_validated, frogpilot_toggles)
+      theme_manager.update_active_theme(time_validated, frogpilot_toggles)
       run_thread_with_lock("update_checks", update_checks, (manually_updated, model_manager, now, sm, theme_manager, frogpilot_toggles))
 
       run_update_checks = False
@@ -174,7 +173,7 @@ def frogpilot_thread():
       if not time_validated:
         continue
 
-      theme_updated = theme_manager.update_active_theme(time_validated, frogpilot_toggles)
+      theme_manager.update_active_theme(time_validated, frogpilot_toggles)
       run_thread_with_lock("update_checks", update_checks, (manually_updated, model_manager, now, sm, theme_manager, frogpilot_toggles, True))
 
 def main():

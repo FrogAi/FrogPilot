@@ -25,6 +25,7 @@ public:
   bool isGM = true;
   bool isHKG = true;
   bool isHKGCanFd = true;
+  bool isHonda = false;
   bool isSubaru = false;
   bool isTorqueCar = false;
   bool isToyota = true;
@@ -43,15 +44,11 @@ public:
   QJsonObject frogpilotToggleLevels;
 
 signals:
-  void closeMapBoxInstructions();
-  void closeMapSelection();
-  void closeParentToggle();
-  void closeSubParentToggle();
-  void openMapBoxInstructions();
-  void openMapSelection();
+  void closeSubPanel();
+  void closeSubSubPanel();
   void openPanel();
-  void openParentToggle();
-  void openSubParentToggle();
+  void openSubPanel();
+  void openSubSubPanel();
   void updateMetric(bool metric, bool bootRun=false);
 
 private:

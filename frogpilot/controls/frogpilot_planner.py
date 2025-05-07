@@ -48,7 +48,7 @@ class FrogPilotPlanner:
     if radarless_model:
       model_leads = list(modelData.leadsV3)
       if len(model_leads) > 0:
-        distance_offset = frogpilot_toggles.increased_stopped_distance if not frogpilotCarState.trafficMode else 0
+        distance_offset = frogpilot_toggles.increased_stopped_distance if not frogpilotCarState.trafficModeEnabled else 0
         model_lead = model_leads[0]
         self.lead_one.update(model_lead.x[0] - distance_offset, model_lead.y[0], model_lead.v[0], model_lead.a[0], model_lead.prob)
       else:
@@ -113,11 +113,11 @@ class FrogPilotPlanner:
 
     self.road_curvature_detected = (1 / abs(self.road_curvature))**0.5 < v_ego > CRUISING_SPEED
 
-    self.tracking_lead = self.set_lead_status()
+    self.tracking_lead = self.update_lead_status()
 
     self.v_cruise = self.frogpilot_vcruise.update(carState, controlsState, frogpilotCarState, frogpilotNavigation, gps_position, v_cruise, v_ego, frogpilot_toggles)
 
-  def set_lead_status(self):
+  def update_lead_status(self):
     following_lead = self.lead_one.status
     following_lead &= self.lead_one.dRel < self.model_length + STOP_DISTANCE
 
@@ -164,7 +164,6 @@ class FrogPilotPlanner:
     frogpilotPlan.slcMapSpeedLimit = self.frogpilot_vcruise.slc.map_speed_limit
     frogpilotPlan.slcMapboxSpeedLimit = self.frogpilot_vcruise.slc.mapbox_limit
     frogpilotPlan.slcNextSpeedLimit = self.frogpilot_vcruise.slc.next_speed_limit
-    frogpilotPlan.slcOverridden = self.frogpilot_vcruise.slc.override_slc
     frogpilotPlan.slcOverriddenSpeed = self.frogpilot_vcruise.slc.overridden_speed
     frogpilotPlan.slcSpeedLimit = self.frogpilot_vcruise.slc_target
     frogpilotPlan.slcSpeedLimitOffset = self.frogpilot_vcruise.slc_offset

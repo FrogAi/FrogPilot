@@ -120,7 +120,7 @@ WiFiPromptWidget::WiFiPromptWidget(QWidget *parent) : QFrame(parent) {
   QObject::connect(uiState(), &UIState::uiUpdate, this, &WiFiPromptWidget::updateState);
 }
 
-void WiFiPromptWidget::updateState(const UIState &s) {
+void WiFiPromptWidget::updateState(const UIState &s, const FrogPilotUIState &fs) {
   if (!isVisible()) return;
 
   auto &sm = *(s.sm);
@@ -128,5 +128,5 @@ void WiFiPromptWidget::updateState(const UIState &s) {
   auto network_type = sm["deviceState"].getDeviceState().getNetworkType();
   auto uploading = network_type == cereal::DeviceState::NetworkType::WIFI ||
       network_type == cereal::DeviceState::NetworkType::ETHERNET;
-  stack->setCurrentIndex(s.scene.no_uploads ? 2 : uploading ? 1 : 0);
+  stack->setCurrentIndex(fs.frogpilot_toggles.value("no_uploads").toBool() ? 2 : uploading ? 1 : 0);
 }

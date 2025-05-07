@@ -1,6 +1,5 @@
 #pragma once
 
-#include <iostream>
 #include <memory>
 #include <string>
 
@@ -15,11 +14,9 @@
 #include "common/mat.h"
 #include "common/params.h"
 #include "common/timing.h"
-#include "selfdrive/ui/qt/network/wifi_manager.h"
-#include "selfdrive/ui/qt/util.h"
 #include "system/hardware/hw.h"
 
-#include "frogpilot/ui/qt/widgets/frogpilot_controls.h"
+#include "frogpilot/ui/frogpilot_ui.h"
 
 const int UI_BORDER_SIZE = 30;
 const int UI_HEADER_HEIGHT = 420;
@@ -57,11 +54,11 @@ typedef enum UIStatus {
   STATUS_ENGAGED,
 
   // FrogPilot statuses
-  STATUS_ALWAYS_ON_LATERAL_ENABLED,
+  STATUS_ALWAYS_ON_LATERAL_ACTIVE,
   STATUS_CONDITIONAL_OVERRIDDEN,
-  STATUS_EXPERIMENTAL_MODE_ACTIVE,
+  STATUS_EXPERIMENTAL_MODE_ENABLED,
   STATUS_NAVIGATION_ACTIVE,
-  STATUS_TRAFFIC_MODE_ACTIVE,
+  STATUS_TRAFFIC_MODE_ENABLED,
 } UIStatus;
 
 enum PrimeType {
@@ -81,17 +78,13 @@ const QColor bg_colors [] = {
   [STATUS_ENGAGED] = QColor(0x17, 0x86, 0x44, 0xf1),
 
   // FrogPilot colors
-  [STATUS_ALWAYS_ON_LATERAL_ENABLED] = QColor(0x0a, 0xba, 0xb5, 0xf1),
+  [STATUS_ALWAYS_ON_LATERAL_ACTIVE] = QColor(0x0a, 0xba, 0xb5, 0xf1),
   [STATUS_CONDITIONAL_OVERRIDDEN] = QColor(0xff, 0xff, 0x00, 0xf1),
-  [STATUS_EXPERIMENTAL_MODE_ACTIVE] = QColor(0xda, 0x6f, 0x25, 0xf1),
+  [STATUS_EXPERIMENTAL_MODE_ENABLED] = QColor(0xda, 0x6f, 0x25, 0xf1),
   [STATUS_NAVIGATION_ACTIVE] = QColor(0x31, 0xa1, 0xee, 0xf1),
-  [STATUS_TRAFFIC_MODE_ACTIVE] = QColor(0xc9, 0x22, 0x31, 0xf1),
+  [STATUS_TRAFFIC_MODE_ENABLED] = QColor(0xc9, 0x22, 0x31, 0xf1),
 };
 
-
-struct RadarTrackData {
-  QPointF calibrated_point;
-};
 
 typedef struct UIScene {
   bool calibration_valid = false;
@@ -125,169 +118,6 @@ typedef struct UIScene {
   bool started, ignition, is_metric, map_on_left, longitudinal_control;
   bool world_objects_visible = false;
   uint64_t started_frame;
-
-  // FrogPilot variables
-  bool acceleration_path;
-  bool adjacent_path;
-  bool adjacent_path_metrics;
-  bool always_on_lateral;
-  bool always_on_lateral_enabled;
-  bool big_map;
-  bool blind_spot_left;
-  bool blind_spot_path;
-  bool blind_spot_right;
-  bool brake_lights_on;
-  bool cem_status;
-  bool compass;
-  bool conditional_experimental;
-  bool cpu_metrics;
-  bool csc_status;
-  bool downloading_update;
-  bool driver_camera_in_reverse;
-  bool dynamic_path_width;
-  bool dynamic_pedals_on_ui;
-  bool enabled;
-  bool experimental_mode;
-  bool fahrenheit;
-  bool force_onroad;
-  bool frogpilot_panel_active;
-  bool frogs_go_moo;
-  bool full_map;
-  bool gpu_metrics;
-  bool hide_alerts;
-  bool hide_lead_marker;
-  bool hide_map_icon;
-  bool hide_max_speed;
-  bool hide_speed;
-  bool hide_speed_limit;
-  bool ip_metrics;
-  bool jerk_metrics;
-  bool lateral_paused;
-  bool lateral_tuning_metrics;
-  bool lead_metrics;
-  bool left_curve;
-  bool live_valid;
-  bool longitudinal_paused;
-  bool map_open;
-  bool memory_metrics;
-  bool model_randomizer;
-  bool model_ui;
-  bool mtsc_enabled;
-  bool no_logging;
-  bool no_uploads;
-  bool numerical_temp;
-  bool online;
-  bool onroad_distance_button;
-  bool parked;
-  bool pedals_on_ui;
-  bool radar_tracks;
-  bool radarless_model;
-  bool rainbow_path;
-  bool random_events;
-  bool red_light;
-  bool reverse;
-  bool road_name_ui;
-  bool rotating_wheel;
-  bool screen_recorder;
-  bool show_blind_spot;
-  bool show_fps;
-  bool show_speed_limit_offset;
-  bool show_speed_limits;
-  bool show_stopping_point;
-  bool show_stopping_point_metrics;
-  bool sidebar_metrics;
-  bool signal_metrics;
-  bool speed_limit_changed;
-  bool speed_limit_controller;
-  bool speed_limit_overridden;
-  bool speed_limit_sources;
-  bool speed_limit_vienna;
-  bool standby_mode;
-  bool standstill;
-  bool static_pedals_on_ui;
-  bool steering_metrics;
-  bool stopped_timer;
-  bool storage_left_metrics;
-  bool storage_used_metrics;
-  bool tethering_enabled;
-  bool traffic_mode;
-  bool traffic_mode_active;
-  bool turn_signal_left;
-  bool turn_signal_right;
-  bool unlimited_road_ui_length;
-  bool use_si_metrics;
-  bool use_stock_colors;
-  bool use_stock_wheel;
-  bool use_wheel_speed;
-  bool vtsc_controlling_curve;
-  bool vtsc_enabled;
-  bool wake_up_screen;
-
-  double fps;
-
-  float acceleration;
-  float acceleration_jerk;
-  float acceleration_jerk_difference;
-  float dashboard_speed_limit;
-  float friction;
-  float lane_detection_width;
-  float lane_line_width;
-  float lane_width_left;
-  float lane_width_right;
-  float lat_accel;
-  float lead_detection_probability;
-  float mtsc_speed;
-  float navigation_speed_limit;
-  float path_edge_width;
-  float path_width;
-  float road_edge_width;
-  float speed_jerk;
-  float speed_jerk_difference;
-  float speed_limit;
-  float speed_limit_map;
-  float speed_limit_mapbox;
-  float speed_limit_offset;
-  float speed_limit_overridden_speed;
-  float steer;
-  float unconfirmed_speed_limit;
-  float upcoming_maneuver_distance;
-  float upcoming_speed_limit;
-  float vtsc_speed;
-
-  int bearing_deg;
-  int camera_view;
-  int conditional_status;
-  int desired_follow;
-  int driver_camera_timer;
-  int map_style;
-  int model_length;
-  int screen_brightness = -1;
-  int screen_brightness_onroad = -1;
-  int screen_timeout;
-  int screen_timeout_onroad;
-  int started_timer;
-  int steering_angle_deg;
-  int tethering_config;
-
-  std::vector<RadarTrackData> live_radar_tracks;
-
-  QColor lane_lines_color;
-  QColor lead_marker_color;
-  QColor path_color;
-  QColor path_edges_color;
-  QColor sidebar_color1;
-  QColor sidebar_color2;
-  QColor sidebar_color3;
-
-  QJsonObject frogpilot_toggles;
-
-  QPolygonF track_adjacent_vertices[6];
-  QPolygonF track_edge_vertices;
-
-  QString speed_limit_source;
-  QString model;
-  QString model_name;
-
 } UIScene;
 
 class UIState : public QObject {
@@ -295,7 +125,7 @@ class UIState : public QObject {
 
 public:
   UIState(QObject* parent = 0);
-  void updateStatus();
+  void updateStatus(FrogPilotUIState *fs);
   inline bool engaged() const {
     return scene.started && (*sm)["controlsState"].getControlsState().getEnabled();
   }
@@ -315,22 +145,11 @@ public:
 
   QTransform car_space_transform;
 
-  // FrogPilot variables
-  Params params_memory{"/dev/shm/params"};
-
-  WifiManager *wifi = nullptr;
-
 signals:
-  void uiUpdate(const UIState &s);
+  void uiUpdate(const UIState &s, const FrogPilotUIState &fs);
   void offroadTransition(bool offroad);
   void primeChanged(bool prime);
   void primeTypeChanged(PrimeType prime_type);
-
-  // FrogPilot signals
-  void driveRated();
-  void reviewModel();
-  void themeUpdated();
-  void togglesUpdated();
 
 private slots:
   void update();
@@ -364,8 +183,8 @@ private:
   FirstOrderFilter brightness_filter;
   QFuture<void> brightness_future;
 
-  void updateBrightness(const UIState &s);
-  void updateWakefulness(const UIState &s);
+  void updateBrightness(const UIState &s, const FrogPilotUIState &fs);
+  void updateWakefulness(const UIState &s, const FrogPilotUIState &fs);
   void setAwake(bool on);
 
 signals:
@@ -374,22 +193,21 @@ signals:
 
 public slots:
   void resetInteractiveTimeout(int timeout = -1, int timeout_onroad = -1);
-  void update(const UIState &s);
+  void update(const UIState &s, const FrogPilotUIState &fs);
 };
 
 Device *device();
 
 void ui_update_params(UIState *s);
 int get_path_length_idx(const cereal::XYZTData::Reader &line, const float path_height);
-void update_model(UIState *s,
+void update_model(UIState *s, FrogPilotUIState *fs,
                   const cereal::ModelDataV2::Reader &model,
-                  const cereal::UiPlan::Reader &plan);
+                  const cereal::UiPlan::Reader &plan,
+                  const QJsonObject &frogpilot_toggles);
 void update_dmonitoring(UIState *s, const cereal::DriverStateV2::Reader &driverstate, float dm_fade_state, bool is_rhd);
 void update_leads(UIState *s, const cereal::RadarState::Reader &radar_state, const cereal::XYZTData::Reader &line);
 void update_line_data(const UIState *s, const cereal::XYZTData::Reader &line,
                       float y_off, float z_off, QPolygonF *pvd, int max_idx, bool allow_invert);
 
-// FrogPilot functions
-void ui_update_frogpilot_params(UIState *s);
-void ui_update_theme(UIState *s);
-void update_radar_tracks(UIState *s, const capnp::List<cereal::LiveTracks>::Reader &tracks_msg, const cereal::XYZTData::Reader &line);
+// FrogPilot variables
+void update_radar_tracks(capnp::List<cereal::LiveTracks>::Reader &tracks_msg, cereal::XYZTData::Reader line, const UIState &s, const SubMaster &sm);

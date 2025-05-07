@@ -11,8 +11,8 @@ public:
   explicit FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent);
 
 signals:
-  void openParentToggle();
-  void openSubParentToggle();
+  void openSubPanel();
+  void openSubSubPanel();
 
 protected:
   void showEvent(QShowEvent *event) override;

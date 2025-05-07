@@ -14,10 +14,10 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 signals:
-  void openParentToggle();
+  void openSubPanel();
 
 private:
-  void updateState(const UIState &s);
+  void updateState(const UIState &s, const FrogPilotUIState &fs);
   void updateToggles();
 
   bool cancellingDownload;
@@ -28,6 +28,7 @@ private:
   bool finalizingDownload;
   bool iconDownloading;
   bool iconsDownloaded;
+  bool randomThemes;
   bool signalDownloading;
   bool signalsDownloaded;
   bool soundDownloading;

@@ -174,7 +174,7 @@ void MapWindow::updateState(const UIState &s) {
   if (sm.updated("modelV2")) {
     // set path color on change, and show map on rising edge of navigate on openpilot
     bool nav_enabled = sm["modelV2"].getModelV2().getNavEnabled() &&
-                       (sm["controlsState"].getControlsState().getEnabled() || uiState()->scene.always_on_lateral_enabled);
+                       (sm["controlsState"].getControlsState().getEnabled() || frogpilotUIState()->frogpilot_scene.always_on_lateral_active);
     if (nav_enabled != uiState()->scene.navigate_on_openpilot) {
       if (loaded_once) {
         m_map->setPaintProperty("navLayer", "line-color", getNavPathColor(nav_enabled));
@@ -307,7 +307,7 @@ void MapWindow::updateState(const UIState &s) {
   }
 
   // Map Styling - Credit goes to OPKR!
-  int map_style = uiState()->scene.map_style;
+  int map_style = frogpilotUIState()->frogpilot_toggles.value("map_style").toInt();
 
   if (map_style != previous_map_style) {
     std::array<std::string, 11> styleUrls = {

@@ -46,7 +46,7 @@ class FrogPilotEvents:
     if self.random_event_playing:
       self.random_event_timer += DT_MDL
 
-      if self.random_event_timer >= 4:
+      if self.random_event_timer >= 5:
         update_wheel_image(frogpilot_toggles.wheel_image, frogpilot_toggles.current_holiday_theme, False)
 
         params_memory.put_bool("UpdateWheelImage", True)
@@ -226,12 +226,12 @@ class FrogPilotEvents:
     startup_alert_match = controlsState.alertText1 == frogpilot_toggles.startup_alert_top and controlsState.alertText2 == frogpilot_toggles.startup_alert_bottom
     self.startup_seen |= startup_alert_match
 
-    if frogpilotCarState.trafficMode != self.previous_traffic_mode:
+    if frogpilotCarState.trafficModeEnabled != self.previous_traffic_mode:
       if self.previous_traffic_mode:
         self.events.add(EventName.trafficModeInactive)
       else:
         self.events.add(EventName.trafficModeActive)
-      self.previous_traffic_mode = frogpilotCarState.trafficMode
+      self.previous_traffic_mode = frogpilotCarState.trafficModeEnabled
 
     if modelData.meta.turnDirection == Desire.turnLeft:
       self.events.add(EventName.turningLeft)

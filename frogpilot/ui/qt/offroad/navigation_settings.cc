@@ -1,4 +1,4 @@
-#include "frogpilot/navigation/ui/navigation_settings.h"
+#include "frogpilot/ui/qt/offroad/navigation_settings.h"
 
 void FrogPilotNavigationPanel::createMapboxKeyControl(ButtonControl *&control, const QString &label, const std::string &paramKey, const QString &prefix, FrogPilotListWidget *list) {
   control = new ButtonControl(label, "", tr("Manage your %1.").arg(label));
@@ -126,7 +126,8 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
 
   ButtonControl *setupButton = new ButtonControl(tr("MapBox Setup Instructions"), tr("VIEW"), tr("View the instructions to set up \"MapBox\" for \"Primeless Navigation\"."), this);
   QObject::connect(setupButton, &ButtonControl::clicked, [this]() {
-    openMapBoxInstructions();
+    openSubSubPanel();
+
     updateStep();
 
     primelessLayout->setCurrentIndex(1);
@@ -141,12 +142,12 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
   ScrollView *instructionsPanel = new ScrollView(imageLabel, this);
   primelessLayout->addWidget(instructionsPanel);
 
-  QObject::connect(parent, &FrogPilotSettingsWindow::closeMapBoxInstructions, [this] {primelessLayout->setCurrentIndex(0);});
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubSubPanel, [this] {primelessLayout->setCurrentIndex(0);});
   QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotNavigationPanel::updateState);
 }
 
 void FrogPilotNavigationPanel::showEvent(QShowEvent *event) {
-  QString ipAddress = uiState()->wifi->getIp4Address();
+  QString ipAddress = frogpilotUIState()->wifi->getIp4Address();
   ipLabel->setText(ipAddress.isEmpty() ? tr("Device Offline") : QString("%1:8082").arg(ipAddress));
 
   updateButtons();
@@ -167,7 +168,7 @@ void FrogPilotNavigationPanel::hideEvent(QHideEvent *event) {
 
 void FrogPilotNavigationPanel::mousePressEvent(QMouseEvent *event) {
   if (primelessLayout->currentIndex() == 1) {
-    closeMapBoxInstructions();
+    closeSubSubPanel();
 
     primelessLayout->setCurrentIndex(0);
   }

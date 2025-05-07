@@ -43,9 +43,9 @@ void MapPanel::toggleMapSettings() {
 }
 
 void MapPanel::showEvent(QShowEvent *event) {
-  uiState()->scene.map_open = true;
+  frogpilotUIState()->frogpilot_scene.map_open = true;
 }
 
 void MapPanel::hideEvent(QHideEvent *event) {
-  uiState()->scene.map_open = false;
+  frogpilotUIState()->frogpilot_scene.map_open = false;
 }

@@ -1,29 +1,36 @@
 #!/usr/bin/env python3
+
 import argparse
 import json
 import os
 import pathlib
-import requests
 import xml.etree.ElementTree as ET
-
 from typing import cast
+
+import requests
 
 TRANSLATIONS_DIR = pathlib.Path(__file__).resolve().parent
 TRANSLATIONS_LANGUAGES = TRANSLATIONS_DIR / "languages.json"
 
 OPENAI_MODEL = "gpt-4.1"
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-OPENAI_PROMPT = "You are a professional translator from English to {language} (ISO 639 language code). " + \
-                "The following sentence or word is in the GUI of a software called openpilot, translate it accordingly."
+OPENAI_PROMPT = "You are an experienced software-localization translator.\n\n" + \
+                "TASK\n" + \
+                "• Translate the *TEXT* block that follows from English to {language} (ISO-639 code).\n" + \
+                "• The text appears in the GUI of the openpilot driver-assistance software.\n\n" + \
+                "GUIDELINES\n" + \
+                "1. Keep placeholders exactly as in the source (e.g. %s, %d, {{0}}, {{file}}, <b>…</b>, \\n).\n" + \
+                "2. Match punctuation and capitalization unless target-language rules require otherwise.\n" + \
+                "3. Return the translation only—no extra quotes or commentary.\n" + \
+                "4. Preserve brand/product names, acronyms, camelCase/snake_case identifiers, file extensions, and similar code literals.\n" + \
+                "5. Maintain a concise, tech-neutral tone.\n\n" + \
+                "OUTPUT\n" + \
+                "Return a single UTF-8 string with no surrounding markdown or code fences."
 
-FUN_LANGUAGES = {"duck", "frog", "pirate"}
-FUN_PROMPT = "Your task is to playfully reword the English text using a clever, light-touch '{language}' theme. " + \
-             "Lean into in-character expressions, gentle slang, or subtle stylistic flourishes that evoke the theme, while keeping everything readable and user-friendly. " + \
-             "Think Facebook's Pirate mode — not in terms of *what* it says, but *how* it adds personality without breaking clarity. " + \
-             "Do not rename features, alter technical terms, or change any units of measurement (e.g. km/h, mph, m/s², %, volts). " + \
-             "Only rewrite plain English phrases and labels; symbols, units, and structured strings must be left untouched. " + \
-             "Keep the flair subtle — enough to be fun, but not over the top."
-
+OPENAI_EVAL_PROMPT = "You are an experienced software-localization translation evaluator.\n\n" + \
+                     "Compare two translations (A and B) of the following English source text into {language}.\n" + \
+                     "Return only the better translation (A or B), with no extra commentary.\n\n" + \
+                     "Keep placeholders, punctuation and capitalization exactly."
 
 def get_language_files(languages: list[str] = None) -> dict[str, pathlib.Path]:
   files = {}
@@ -41,14 +48,7 @@ def get_language_files(languages: list[str] = None) -> dict[str, pathlib.Path]:
   return files
 
 
-def compare_translations(source: str, old_translation: str, new_translation: str, language: str) -> str:
-  prompt = (
-    f"You are a professional translator and quality assessor. For the source text: '{source}', "
-    f"you have two candidate translations for the GUI of openpilot. Candidate 1: '{old_translation}'. "
-    f"Candidate 2: '{new_translation}'. Evaluate which candidate better captures the intended meaning, tone, "
-    f"and context. Return only the text of the selected translation without any labels, prefixes, or additional commentary."
-  )
-
+def evaluate_translation(source: str, old: str, new: str, language: str) -> str:
   response = requests.post(
     "https://api.openai.com/v1/chat/completions",
     json={
@@ -56,10 +56,18 @@ def compare_translations(source: str, old_translation: str, new_translation: str
       "messages": [
         {
           "role": "system",
-          "content": prompt,
+          "content": OPENAI_EVAL_PROMPT.format(language=language),
+        },
+        {
+          "role": "user",
+          "content": (
+            f"Source: {source}\n\n"
+            f"Translation A: {old}\n\n"
+            f"Translation B: {new}"
+          ),
         },
       ],
-      "temperature": 0.8,
+      "temperature": 0.0,
       "max_tokens": 1024,
       "top_p": 1,
     },
@@ -70,8 +78,7 @@ def compare_translations(source: str, old_translation: str, new_translation: str
   )
 
   if 400 <= response.status_code < 600:
-    print(f'Error comparing translations {response.status_code}: {response.text}')
-    return new_translation
+    raise requests.HTTPError(f'Error {response.status_code}: {response.json()}', response=response)
 
   data = response.json()
 
@@ -79,11 +86,6 @@ def compare_translations(source: str, old_translation: str, new_translation: str
 
 
 def translate_phrase(text: str, language: str) -> str:
-  system_prompt = OPENAI_PROMPT.format(language=language)
-  if language in FUN_LANGUAGES:
-    fun_prompt = FUN_PROMPT.format(language=language)
-    system_prompt += "\n\n" + fun_prompt
-
   response = requests.post(
     "https://api.openai.com/v1/chat/completions",
     json={
@@ -91,14 +93,14 @@ def translate_phrase(text: str, language: str) -> str:
       "messages": [
         {
           "role": "system",
-          "content": system_prompt,
+          "content": OPENAI_PROMPT.format(language=language),
         },
         {
           "role": "user",
           "content": text,
         },
       ],
-      "temperature": 0.8,
+      "temperature": 0.2,
       "max_tokens": 1024,
       "top_p": 1,
     },
@@ -117,7 +119,7 @@ def translate_phrase(text: str, language: str) -> str:
   return cast(str, data["choices"][0]["message"]["content"])
 
 
-def translate_file(path: pathlib.Path, language: str, all_: bool, vet_translations: bool = False) -> None:
+def translate_file(path: pathlib.Path, language: str, all_: bool, vet_translations: bool) -> None:
   tree = ET.parse(path)
 
   root = tree.getroot()
@@ -136,55 +138,39 @@ def translate_file(path: pathlib.Path, language: str, all_: bool, vet_translatio
       if source is None or translation is None:
         raise ValueError("source or translation not found")
 
-      current_type = translation.attrib.get("type", "")
+      translation_type = translation.attrib.get("type", "")
+
       if vet_translations:
-        if not all_ and current_type == "":
+        if not translation_type.endswith("-generated"):
+          continue
+      elif not all_:
+        if translation_type != "unfinished":
           continue
 
-        new_translation = translate_phrase(cast(str, source.text), language)
+      text = cast(str, source.text)
+      llm_translation = translate_phrase(text, language)
 
-        if not new_translation.strip():
-          print(f"Skipping empty translation for: {source.text}")
-          continue
-
-        if current_type == f"{OPENAI_MODEL}-generated":
-          if translation.text and translation.text.strip():
-            final_translation = compare_translations(cast(str, source.text), cast(str, translation.text), new_translation, language)
-          else:
-            final_translation = new_translation
-        else:
-          final_translation = new_translation
-      else:
-        if not all_ and current_type in ("", f"{OPENAI_MODEL}-generated"):
-          continue
-
-        llm_translation = translate_phrase(cast(str, source.text), language)
-
-        if not llm_translation.strip():
-          print(f"Skipping empty translation for: {source.text}")
-          continue
-
-        final_translation = llm_translation
-
-      print(f"Source: {source.text}\n" +
+      print(f"Source: {text}\n" +
             f"Current translation: {translation.text}\n" +
-            f"Final translation: {final_translation}")
+            f"LLM translation: {llm_translation}")
 
-      if "%n" in cast(str, source.text):
-        translation.text = None
-        plural_elem = ET.Element("numerusform")
-        plural_elem.text = final_translation.strip()
-        translation.clear()
-        translation.append(plural_elem)
+      if vet_translations:
+        old_translation = translation.text or ""
+        print(f"Comparison:\n" +
+              f"Current translation: {old_translation}\n" +
+              f"New translation: {llm_translation}")
+
+        best = evaluate_translation(text, old_translation, llm_translation, language)
+        print(f"Chosen translation: {best}")
+        translation.text = best
       else:
-        translation.text = final_translation.strip()
         translation.set("type", f"{OPENAI_MODEL}-generated")
+        translation.text = llm_translation
 
   with path.open("w", encoding="utf-8") as fp:
     fp.write('<?xml version="1.0" encoding="utf-8"?>\n' +
              '<!DOCTYPE TS>\n' +
-             ET.tostring(root, encoding="utf-8", short_empty_elements=False).decode() +
-             "\n")
+             ET.tostring(root, encoding="utf-8").decode())
 
 
 def main():
@@ -195,7 +181,7 @@ def main():
   group.add_argument("-f", "--file", nargs="+", help="Translate the selected files. (Example: -f fr de)")
 
   arg_parser.add_argument("-t", "--all-translations", action="store_true", default=False, help="Translate all sections. (Default: only unfinished)")
-  arg_parser.add_argument("--vet-translations", action="store_true", default=False, help="Re-evaluate AI-generated translations")
+  arg_parser.add_argument("-v", "--vet-translations", action="store_true", default=False, help="Re-evaluate AI-generated translations")
 
   args = arg_parser.parse_args()
 
@@ -212,15 +198,14 @@ def main():
       print(f"No language files found: {missing_files}")
       exit(1)
 
-  vet_translations = args.vet_translations
-  if vet_translations:
+  if args.vet_translations:
     print(f"Re-evaluating all translations with the '{OPENAI_MODEL}-generated' type.")
   else:
     print(f"Translation mode: {'all' if args.all_translations else 'only unfinished'}. Files: {list(files)}")
 
   for lang, path in files.items():
     print(f"Translate {lang} ({path})")
-    translate_file(path, lang, args.all_translations, vet_translations)
+    translate_file(path, lang, args.all_translations, args.vet_translations)
 
 
 if __name__ == "__main__":

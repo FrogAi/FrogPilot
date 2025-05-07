@@ -54,7 +54,7 @@ class TorqueBuckets(PointBuckets):
 class TorqueEstimator(ParameterEstimator):
   def __init__(self, CP, decimated=False):
     self.hist_len = int(HISTORY / DT_MDL)
-    self.lag = CP.steerActuatorDelay + .2   # from controlsd
+    self.lag = 0.0
     if decimated:
       self.min_bucket_points = MIN_BUCKET_POINTS / 10
       self.min_points_total = MIN_POINTS_TOTAL_QLOG
@@ -169,6 +169,8 @@ class TorqueEstimator(ParameterEstimator):
       self.raw_points["carState_t"].append(t + self.lag)
       self.raw_points["vego"].append(msg.vEgo)
       self.raw_points["steer_override"].append(msg.steeringPressed)
+    elif which == "liveDelay":
+      self.lag = msg.lateralDelay
     elif which == "liveLocationKalman":
       if len(self.raw_points['steer_torque']) == self.hist_len:
         yaw_rate = msg.angularVelocityCalibrated.value[2]
@@ -222,7 +224,7 @@ def main(demo=False):
   config_realtime_process([0, 1, 2, 3], 5)
 
   pm = messaging.PubMaster(['liveTorqueParameters'])
-  sm = messaging.SubMaster(['carControl', 'carOutput', 'carState', 'liveLocationKalman', 'frogpilotPlan'], poll='liveLocationKalman')
+  sm = messaging.SubMaster(['carControl', 'carOutput', 'carState', 'liveLocationKalman', 'liveDelay', 'frogpilotPlan'], poll='liveLocationKalman')
 
   params = Params()
   with car.CarParams.from_bytes(params.get("CarParams", block=True)) as CP:

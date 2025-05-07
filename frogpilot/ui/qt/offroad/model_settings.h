@@ -11,14 +11,14 @@ public:
   explicit FrogPilotModelPanel(FrogPilotSettingsWindow *parent);
 
 signals:
-  void openParentToggle();
+  void openSubPanel();
 
 protected:
   void showEvent(QShowEvent *event) override;
 
 private:
   void updateModelLabels(FrogPilotListWidget *labelsList);
-  void updateState(const UIState &s);
+  void updateState(const UIState &s, const FrogPilotUIState &fs);
   void updateToggles();
 
   bool allModelsDownloaded;

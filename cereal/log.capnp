@@ -1048,6 +1048,8 @@ struct ModelDataV2 {
 
   struct Action {
     desiredCurvature @0 :Float32;
+    desiredAcceleration @1 :Float32;
+    shouldStop @2 :Bool;
   }
 }
 
@@ -1261,6 +1263,38 @@ struct LiveLocationKalman {
   }
 
   struct Measurement {
+    value @0 : List(Float64);
+    std @1 : List(Float64);
+    valid @2 : Bool;
+  }
+}
+
+
+struct LivePose {
+  # More info on reference frames:
+  # https://github.com/commaai/openpilot/tree/master/common/transformations
+  orientationNED @0 :XYZMeasurement;
+  velocityDevice @1 :XYZMeasurement;
+  accelerationDevice @2 :XYZMeasurement;
+  angularVelocityDevice @3 :XYZMeasurement;
+
+  inputsOK @4 :Bool = false;
+  posenetOK @5 :Bool = false;
+  sensorsOK @6 :Bool = false;
+
+  filterState @7 :FilterState;
+
+  struct XYZMeasurement {
+    x @0 :Float32;
+    y @1 :Float32;
+    z @2 :Float32;
+    xStd @3 :Float32;
+    yStd @4 :Float32;
+    zStd @5 :Float32;
+    valid @6 :Bool;
+  }
+
+  struct FilterState {
     value @0 : List(Float64);
     std @1 : List(Float64);
     valid @2 : Bool;
@@ -2087,6 +2121,22 @@ struct LiveTorqueParametersData {
   useParams @12 :Bool;
 }
 
+struct LiveDelayData {
+  lateralDelay @0 :Float32;
+  validBlocks @1 :Int32;
+  status @2 :Status;
+
+  lateralDelayEstimate @3 :Float32;
+  lateralDelayEstimateStd @5 :Float32;
+  points @4 :List(Float32);
+
+  enum Status {
+    unestimated @0;
+    estimated @1;
+    invalid @2;
+  }
+}
+
 struct LiveMapDataDEPRECATED {
   speedLimitValid @0 :Bool;
   speedLimit @1 :Float32;
@@ -2303,12 +2353,14 @@ struct Event {
     gnssMeasurements @91 :GnssMeasurements;
     liveParameters @61 :LiveParametersData;
     liveTorqueParameters @94 :LiveTorqueParametersData;
+    liveDelay @130 : LiveDelayData;
     cameraOdometry @63 :CameraOdometry;
     thumbnail @66: Thumbnail;
     onroadEvents @68: List(Car.CarEvent);
     carParams @69: Car.CarParams;
     driverMonitoringState @71: DriverMonitoringState;
     liveLocationKalman @72 :LiveLocationKalman;
+    livePose @129 :LivePose;
     modelV2 @75 :ModelDataV2;
     drivingModelData @128 :DrivingModelData;
     driverStateV2 @92 :DriverStateV2;

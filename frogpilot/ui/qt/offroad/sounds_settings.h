@@ -11,7 +11,7 @@ public:
   explicit FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent);
 
 signals:
-  void openParentToggle();
+  void openSubPanel();
 
 protected:
   void showEvent(QShowEvent *event) override;

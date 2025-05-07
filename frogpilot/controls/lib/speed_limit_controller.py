@@ -186,63 +186,47 @@ class SpeedLimitController:
       self.segment_distance = v_ego
 
   def handle_limit_change(self, controlsState, desired_source, desired_target, frogpilotCarState):
-    print(f"\n[handle_limit_change] Called with source: {desired_source}, target: {desired_target}")
     self.speed_limit_changed_timer += DT_MDL
-    print(f"Timer incremented: {self.speed_limit_changed_timer:.2f}s")
 
     speed_limit_accepted = (frogpilotCarState.accelPressed and controlsState.state == State.enabled) or params_memory.get_bool("SpeedLimitAccepted")
     speed_limit_denied = frogpilotCarState.decelPressed or (self.speed_limit_changed_timer >= 30)
 
-    print(f"Speed limit accepted: {speed_limit_accepted}")
-    print(f"Speed limit denied: {speed_limit_denied}")
-
     if speed_limit_accepted:
-      print("✅ Speed limit accepted — applying target")
       self.overridden_speed = 0
 
       self.source = desired_source
       self.target = desired_target
 
       params_memory.remove("SpeedLimitAccepted")
-      print(f"Target set to {self.target}, source set to {self.source}")
 
     elif speed_limit_denied:
-      print("❌ Speed limit denied — saving denied target")
       self.denied_target = desired_target
 
       self.previous_source = desired_source
       self.previous_target = desired_target
-      print(f"Denied target set to {self.denied_target}")
 
     elif desired_target < self.target and not self.frogpilot_toggles.speed_limit_confirmation_lower:
-      print("⬇️ Lower limit accepted without confirmation")
       self.source = desired_source
       self.target = desired_target
 
     elif desired_target > self.target and not self.frogpilot_toggles.speed_limit_confirmation_higher:
-      print("⬆️ Higher limit accepted without confirmation")
       self.source = desired_source
       self.target = desired_target
 
     else:
-      print("❔ Limit change needs confirmation — marking as unconfirmed")
       self.source = "None"
       self.unconfirmed_speed_limit = desired_target
-      print(f"Unconfirmed target stored: {self.unconfirmed_speed_limit}")
 
     if self.target != self.previous_target and self.target > 0 and not speed_limit_denied:
-      print("🔁 Target changed — updating previous values")
       self.denied_target = 0
 
       self.previous_source = self.source
       self.previous_target = self.target
 
       params.put_float_nonblocking("PreviousSpeedLimit", self.target)
-      print(f"Previous target updated: {self.previous_target}")
 
 
   def update_limits(self, controlsState, dashboard_speed_limit, frogpilotCarState, gps_position, navigation_speed_limit, v_cruise, v_ego):
-    print("\n[update_limits] Updating limits...")
     self.update_map_speed_limit(gps_position, v_ego)
 
     limits = {
@@ -251,20 +235,16 @@ class SpeedLimitController:
       "Navigation": navigation_speed_limit
     }
     filtered_limits = {source: limit for source, limit in limits.items() if limit}
-    print(f"Filtered limits: {filtered_limits}")
 
     if self.frogpilot_toggles.speed_limit_priority_highest:
       desired_source = max(filtered_limits, key=filtered_limits.get, default="None")
       desired_target = filtered_limits.get(desired_source, 0)
-      print(f"🔝 Highest priority source selected: {desired_source} = {desired_target}")
 
     elif self.frogpilot_toggles.speed_limit_priority_lowest:
       desired_source = min(filtered_limits, key=filtered_limits.get, default="None")
       desired_target = filtered_limits.get(desired_source, 0)
-      print(f"🔽 Lowest priority source selected: {desired_source} = {desired_target}")
 
     elif filtered_limits:
-      print("🧩 Using custom priority list...")
       for priority in [
         self.frogpilot_toggles.speed_limit_priority1,
         self.frogpilot_toggles.speed_limit_priority2,
@@ -273,20 +253,16 @@ class SpeedLimitController:
         if priority in filtered_limits:
           desired_source = priority
           desired_target = filtered_limits[desired_source]
-          print(f"🎯 Priority match found: {desired_source} = {desired_target}")
           break
       else:
         desired_source = "None"
         desired_target = 0
-        print("⚠️ No match found in priority list")
 
     else:
       desired_source = "None"
       desired_target = 0
-      print("🚫 No valid limits found from sources")
 
     if desired_target == 0:
-      print("🗺️ Attempting Mapbox fallback...")
       if self.mapbox_requests["total_requests"] < self.mapbox_requests["max_requests"] and self.frogpilot_toggles.slc_mapbox_filler:
         self.get_mapbox_speed_limit(gps_position, v_ego)
         if self.mapbox_limit:
@@ -295,36 +271,30 @@ class SpeedLimitController:
           print(f"Mapbox limit found: {desired_target}")
 
       if desired_target == 0:
-        print("🧭 Trying fallback options...")
         if self.denied_target != self.previous_target > 0 and self.frogpilot_toggles.slc_fallback_previous_speed_limit:
           desired_source = self.previous_source
           desired_target = self.previous_target
 
           self.target = desired_target
-          print(f"Fallback to previous target: {desired_target}")
 
         elif controlsState.enabled and self.frogpilot_toggles.slc_fallback_set_speed:
           desired_source = "None"
           desired_target = v_cruise
-          print(f"Fallback to cruise speed: {v_cruise}")
     else:
       self.mapbox_limit = 0
       self.segment_distance = 0
-      print("✅ Valid target selected — clearing Mapbox state")
 
     if abs(desired_target - self.previous_target) >= 1:
-      print("🔁 Target significantly changed — calling handle_limit_change")
       self.handle_limit_change(controlsState, desired_source, desired_target, frogpilotCarState)
     elif desired_source != self.source and abs(desired_target - self.target) < 1:
-      print("ℹ️ Source changed — updating source")
       self.source = desired_source
     else:
       self.speed_limit_changed_timer = 0
       self.unconfirmed_speed_limit = 0
 
   def update_override(self, carState, controlsState, v_cruise, v_ego):
-    self.override_slc = self.overridden_speed > self.target + self.offset
-    self.override_slc |= carState.gasPressed and v_ego > self.target + self.offset
+    self.override_slc = self.overridden_speed > self.target + self.offset > 0
+    self.override_slc |= carState.gasPressed and v_ego > self.target + self.offset > 0
     self.override_slc &= controlsState.enabled
 
     if self.override_slc:
@@ -334,6 +304,8 @@ class SpeedLimitController:
         self.overridden_speed = float(np.clip(self.overridden_speed, self.target + self.offset, v_cruise))
       elif self.frogpilot_toggles.speed_limit_controller_override_set_speed:
         self.overridden_speed = v_cruise
+
+      self.source = "None"
     else:
       self.overridden_speed = 0
 

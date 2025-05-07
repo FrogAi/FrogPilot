@@ -35,11 +35,9 @@ signals:
   void expandToggleDescription(const QString &param);
 
   // FrogPilot signals
-  void closeMapBoxInstructions();
-  void closeMapSelection();
   void closePanel();
-  void closeParentToggle();
-  void closeSubParentToggle();
+  void closeSubPanel();
+  void closeSubSubPanel();
   void updateMetric(bool metric, bool bootRun=false);
 
 private:
@@ -52,11 +50,9 @@ private:
   Params params;
   Params paramsTracking{"/cache/tracking"};
 
-  bool mapboxInstructionsOpen;
-  bool mapSelectionOpen;
   bool panelOpen;
-  bool parentToggleOpen;
-  bool subParentToggleOpen;
+  bool subPanelOpen;
+  bool subSubPanelOpen;
 };
 
 class DevicePanel : public ListWidget {
@@ -123,7 +119,4 @@ private:
 
   Params params;
   ParamWatcher *fs_watch;
-
-  // FrogPilot variables
-  Params params_memory{"/dev/shm/params"};
 };

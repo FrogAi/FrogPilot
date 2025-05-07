@@ -1,11 +1,11 @@
-#include "frogpilot/navigation/ui/maps_settings.h"
-#include "frogpilot/navigation/ui/navigation_settings.h"
 #include "frogpilot/ui/qt/offroad/data_settings.h"
 #include "frogpilot/ui/qt/offroad/device_settings.h"
 #include "frogpilot/ui/qt/offroad/frogpilot_settings.h"
 #include "frogpilot/ui/qt/offroad/lateral_settings.h"
 #include "frogpilot/ui/qt/offroad/longitudinal_settings.h"
+#include "frogpilot/ui/qt/offroad/maps_settings.h"
 #include "frogpilot/ui/qt/offroad/model_settings.h"
+#include "frogpilot/ui/qt/offroad/navigation_settings.h"
 #include "frogpilot/ui/qt/offroad/sounds_settings.h"
 #include "frogpilot/ui/qt/offroad/theme_settings.h"
 #include "frogpilot/ui/qt/offroad/utilities.h"
@@ -100,19 +100,19 @@ void FrogPilotSettingsWindow::createPanelButtons(FrogPilotListWidget *list) {
     list->addItem(panelButton);
   }
 
-  QObject::connect(frogpilotDevicePanel, &FrogPilotDevicePanel::openParentToggle, this, &FrogPilotSettingsWindow::openParentToggle);
-  QObject::connect(frogpilotLateralPanel, &FrogPilotLateralPanel::openParentToggle, this, &FrogPilotSettingsWindow::openParentToggle);
-  QObject::connect(frogpilotLongitudinalPanel, &FrogPilotLongitudinalPanel::openParentToggle, this, &FrogPilotSettingsWindow::openParentToggle);
-  QObject::connect(frogpilotLongitudinalPanel, &FrogPilotLongitudinalPanel::openSubParentToggle, this, &FrogPilotSettingsWindow::openSubParentToggle);
-  QObject::connect(frogpilotMapsPanel, &FrogPilotMapsPanel::openMapSelection, this, &FrogPilotSettingsWindow::openMapSelection);
-  QObject::connect(frogpilotModelPanel, &FrogPilotModelPanel::openParentToggle, this, &FrogPilotSettingsWindow::openParentToggle);
-  QObject::connect(frogpilotNavigationPanel, &FrogPilotNavigationPanel::closeMapBoxInstructions, this, &FrogPilotSettingsWindow::closeMapBoxInstructions);
-  QObject::connect(frogpilotNavigationPanel, &FrogPilotNavigationPanel::openMapBoxInstructions, this, &FrogPilotSettingsWindow::openMapBoxInstructions);
-  QObject::connect(frogpilotSoundsPanel, &FrogPilotSoundsPanel::openParentToggle, this, &FrogPilotSettingsWindow::openParentToggle);
-  QObject::connect(frogpilotThemesPanel, &FrogPilotThemesPanel::openParentToggle, this, &FrogPilotSettingsWindow::openParentToggle);
-  QObject::connect(frogpilotVehiclesPanel, &FrogPilotVehiclesPanel::openParentToggle, this, &FrogPilotSettingsWindow::openParentToggle);
-  QObject::connect(frogpilotVisualsPanel, &FrogPilotVisualsPanel::openParentToggle, this, &FrogPilotSettingsWindow::openParentToggle);
-  QObject::connect(frogpilotVisualsPanel, &FrogPilotVisualsPanel::openSubParentToggle, this, &FrogPilotSettingsWindow::openSubParentToggle);
+  QObject::connect(frogpilotDevicePanel, &FrogPilotDevicePanel::openSubPanel, this, &FrogPilotSettingsWindow::openSubPanel);
+  QObject::connect(frogpilotLateralPanel, &FrogPilotLateralPanel::openSubPanel, this, &FrogPilotSettingsWindow::openSubPanel);
+  QObject::connect(frogpilotLongitudinalPanel, &FrogPilotLongitudinalPanel::openSubPanel, this, &FrogPilotSettingsWindow::openSubPanel);
+  QObject::connect(frogpilotLongitudinalPanel, &FrogPilotLongitudinalPanel::openSubSubPanel, this, &FrogPilotSettingsWindow::openSubSubPanel);
+  QObject::connect(frogpilotMapsPanel, &FrogPilotMapsPanel::openSubPanel, this, &FrogPilotSettingsWindow::openSubPanel);
+  QObject::connect(frogpilotModelPanel, &FrogPilotModelPanel::openSubPanel, this, &FrogPilotSettingsWindow::openSubPanel);
+  QObject::connect(frogpilotNavigationPanel, &FrogPilotNavigationPanel::closeSubSubPanel, this, &FrogPilotSettingsWindow::closeSubSubPanel);
+  QObject::connect(frogpilotNavigationPanel, &FrogPilotNavigationPanel::openSubSubPanel, this, &FrogPilotSettingsWindow::openSubSubPanel);
+  QObject::connect(frogpilotSoundsPanel, &FrogPilotSoundsPanel::openSubPanel, this, &FrogPilotSettingsWindow::openSubPanel);
+  QObject::connect(frogpilotThemesPanel, &FrogPilotThemesPanel::openSubPanel, this, &FrogPilotSettingsWindow::openSubPanel);
+  QObject::connect(frogpilotVehiclesPanel, &FrogPilotVehiclesPanel::openSubPanel, this, &FrogPilotSettingsWindow::openSubPanel);
+  QObject::connect(frogpilotVisualsPanel, &FrogPilotVisualsPanel::openSubPanel, this, &FrogPilotSettingsWindow::openSubPanel);
+  QObject::connect(frogpilotVisualsPanel, &FrogPilotVisualsPanel::openSubSubPanel, this, &FrogPilotSettingsWindow::openSubSubPanel);
 }
 
 FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFrame(parent) {
@@ -166,11 +166,9 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
 
   createPanelButtons(list);
 
-  QObject::connect(parent, &SettingsWindow::closeMapBoxInstructions, this, &FrogPilotSettingsWindow::closeMapBoxInstructions);
-  QObject::connect(parent, &SettingsWindow::closeMapSelection, this, &FrogPilotSettingsWindow::closeMapSelection);
   QObject::connect(parent, &SettingsWindow::closePanel, this, &FrogPilotSettingsWindow::closePanel);
-  QObject::connect(parent, &SettingsWindow::closeParentToggle, this, &FrogPilotSettingsWindow::closeParentToggle);
-  QObject::connect(parent, &SettingsWindow::closeSubParentToggle, this, &FrogPilotSettingsWindow::closeSubParentToggle);
+  QObject::connect(parent, &SettingsWindow::closeSubPanel, this, &FrogPilotSettingsWindow::closeSubPanel);
+  QObject::connect(parent, &SettingsWindow::closeSubSubPanel, this, &FrogPilotSettingsWindow::closeSubSubPanel);
   QObject::connect(parent, &SettingsWindow::updateMetric, this, &FrogPilotSettingsWindow::updateMetric);
   QObject::connect(uiState(), &UIState::offroadTransition, this, &FrogPilotSettingsWindow::updateVariables);
   QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotSettingsWindow::updateState);
@@ -178,7 +176,7 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
   frogpilotToggleLevels = QJsonDocument::fromJson(params_memory.get("FrogPilotTuningLevels", true).c_str()).object();
   tuningLevel = params.getInt("TuningLevel");
 
-  closeParentToggle();
+  closeSubPanel();
   updateMetric(params.getBool("IsMetric"), true);
   updateVariables();
 }
@@ -196,10 +194,10 @@ void FrogPilotSettingsWindow::closePanel() {
 }
 
 void FrogPilotSettingsWindow::updateState() {
-  UIState *s = uiState();
-  UIScene &scene = s->scene;
+  FrogPilotUIState &fs = *frogpilotUIState();
+  FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
 
-  scene.frogpilot_panel_active = panelOpen && keepScreenOn;
+  frogpilot_scene.frogpilot_panel_active = panelOpen && keepScreenOn;
 }
 
 void FrogPilotSettingsWindow::updateVariables() {
@@ -226,6 +224,7 @@ void FrogPilotSettingsWindow::updateVariables() {
     isGM = carMake == "gm";
     isHKG = carMake == "hyundai";
     isHKGCanFd = isHKG && safetyModel == cereal::CarParams::SafetyModel::HYUNDAI_CANFD;
+    isHonda = carMake == "honda";
     isSubaru = carMake == "subaru";
     isTorqueCar = CP.getLateralTuning().which() == cereal::CarParams::LateralTuning::TORQUE;
     isToyota = carMake == "toyota";

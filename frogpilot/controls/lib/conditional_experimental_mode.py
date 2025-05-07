@@ -90,7 +90,7 @@ class ConditionalExperimentalMode:
       self.slow_lead_detected = False
 
   def stop_sign_and_light(self, frogpilotCarState, v_ego, frogpilot_toggles):
-    if not (self.curve_detected or frogpilotCarState.trafficMode):
+    if not (self.curve_detected or frogpilotCarState.trafficModeEnabled):
       model_stopping = self.frogpilot_planner.model_length < v_ego * frogpilot_toggles.conditional_model_stop_time
 
       self.stop_light_filter.update(self.frogpilot_planner.model_stopped or model_stopping)

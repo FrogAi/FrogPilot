@@ -11,7 +11,7 @@ public:
   explicit FrogPilotLateralPanel(FrogPilotSettingsWindow *parent);
 
 signals:
-  void openParentToggle();
+  void openSubPanel();
 
 protected:
   void showEvent(QShowEvent *event) override;
@@ -25,6 +25,7 @@ private:
   bool hasNNFFLog;
   bool hasOpenpilotLongitudinal;
   bool isHKGCanFd;
+  bool isHonda;
   bool isTorqueCar;
   bool started;
 

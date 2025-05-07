@@ -1,7 +1,7 @@
 #pragma once
 
-#include "frogpilot/navigation/ui/navigation_functions.h"
 #include "frogpilot/ui/qt/offroad/frogpilot_settings.h"
+#include "frogpilot/ui/qt/widgets/navigation_functions.h"
 
 class FrogPilotMapsPanel : public FrogPilotListWidget {
   Q_OBJECT
@@ -10,7 +10,7 @@ public:
   explicit FrogPilotMapsPanel(FrogPilotSettingsWindow *parent);
 
 signals:
-  void openMapSelection();
+  void openSubPanel();
 
 protected:
   void showEvent(QShowEvent *event) override;
@@ -19,7 +19,7 @@ private:
   void cancelDownload();
   void startDownload();
   void updateDownloadLabels(std::string &osmDownloadProgress);
-  void updateState(const UIState &s);
+  void updateState(const UIState &s, const FrogPilotUIState &fs);
 
   bool cancellingDownload;
   bool hasMapsSelected;
