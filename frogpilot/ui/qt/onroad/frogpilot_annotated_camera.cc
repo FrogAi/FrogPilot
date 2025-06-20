@@ -532,10 +532,20 @@ void FrogPilotAnnotatedCameraWidget::paintLateralPaused(QPainter &p, FrogPilotUI
 }
 
 void FrogPilotAnnotatedCameraWidget::paintLeadMetrics(QPainter &p, bool adjacent, QPointF *chevron, const cereal::FrogPilotPlan::Reader &frogpilotPlan, const cereal::RadarState::LeadData::Reader &lead_data) {
+  // Access the FrogPilot toggles through the shared UI state
+  FrogPilotUIState &fs = *frogpilotUIState();
+  QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
+
   float leadDistance = lead_data.getDRel() + (adjacent ? fabs(lead_data.getYRel()) : 0);
   float leadSpeed = std::max(lead_data.getVLead(), 0.0f);
 
-  p.setFont(InterFont(35, QFont::Bold));
+  // Adjust text size based on toggle
+  if (frogpilot_toggles.value("big_lead_metrics").toBool()) {
+    p.setFont(InterFont(45, QFont::Bold));
+  } else {
+    p.setFont(InterFont(35, QFont::Bold));
+  }
+
   p.setPen(QPen(whiteColor()));
 
   QString text;
