@@ -4,8 +4,7 @@
 import numpy
 from tinygrad.tensor import Tensor
 from PIL import Image
-from pathlib import Path
-from extra.utils import download_file
+from tinygrad.helpers import fetch
 
 # File Formats
 
@@ -106,12 +105,12 @@ class Vgg7:
     Output format: (1, 3, Y - 14, X - 14)
     (the - 14 represents the 7-pixel context border that is lost)
     """
-    x = self.conv1.forward(x).leakyrelu(0.1)
-    x = self.conv2.forward(x).leakyrelu(0.1)
-    x = self.conv3.forward(x).leakyrelu(0.1)
-    x = self.conv4.forward(x).leakyrelu(0.1)
-    x = self.conv5.forward(x).leakyrelu(0.1)
-    x = self.conv6.forward(x).leakyrelu(0.1)
+    x = self.conv1.forward(x).leaky_relu(0.1)
+    x = self.conv2.forward(x).leaky_relu(0.1)
+    x = self.conv3.forward(x).leaky_relu(0.1)
+    x = self.conv4.forward(x).leaky_relu(0.1)
+    x = self.conv5.forward(x).leaky_relu(0.1)
+    x = self.conv6.forward(x).leaky_relu(0.1)
     x = self.conv7.forward(x)
     return x
 
@@ -122,13 +121,8 @@ class Vgg7:
     """
     Downloads a nagadomi/waifu2x JSON weight file and loads it.
     """
-    fn = Path(__file__).parents[2] / ("weights/vgg_7_" + intent + "_" + subtype + "_model.json")
-    download_file("https://github.com/nagadomi/waifu2x/raw/master/models/vgg_7/" + intent + "/" + subtype + "_model.json", fn)
-
     import json
-    with open(fn, "rb") as f:
-      data = json.load(f)
-
+    data = json.loads(fetch("https://github.com/nagadomi/waifu2x/raw/master/models/vgg_7/" + intent + "/" + subtype + "_model.json").read_bytes())
     self.load_waifu2x_json(data)
 
   def load_waifu2x_json(self, data: list):

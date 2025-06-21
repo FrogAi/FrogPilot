@@ -1,5 +1,6 @@
 __pycache__
 .venv/
+.venv-*/
 .vscode
 .DS_Store
 notebooks
@@ -9,6 +10,7 @@ notebooks
 *.so
 *.txt
 build
+!examples/tinychat/assets/cdn.jsdelivr.net/npm/purecss@3.0.0/build/
 /dist
 *.egg-info
 /env
@@ -18,12 +20,13 @@ pandecode.dump
 vertex.bin
 recognize*
 .idea
-disassemblers/applegpu
-disassemblers/cuda_ioctl_sniffer
 *.prof
+extra/disassemblers/applegpu
 extra/datasets/cifar-10-python.tar.gz
 extra/datasets/librispeech/
 extra/datasets/imagenet/
+extra/datasets/wiki/
+extra/datasets/kits19
 extra/datasets/kits19/
 extra/datasets/squad/
 extra/datasets/img_align_celeba*
@@ -31,6 +34,9 @@ extra/datasets/open-images-v6-mlperf
 extra/datasets/kits/
 extra/datasets/COCO/
 extra/datasets/audio*
+extra/huggingface_onnx/models/*
+extra/huggingface_onnx/*.yaml
+extra/weights
 venv
 examples/**/net.*[js,json]
 examples/**/*.safetensors
@@ -43,3 +49,16 @@ temp
 coverage.xml
 htmlcov
 outputs_yolov8
+wandb
+model.safetensors
+quickstart.py
+.hypothesis
+weights
+*.lprof
+comgr_*
+*.pkl
+site/
+profile_stats
+*.log
+target
+.mypy_cache

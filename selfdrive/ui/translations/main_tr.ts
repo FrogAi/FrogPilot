@@ -15,6 +15,10 @@
         <source>Reboot and Update</source>
         <translation>Güncelle ve Yeniden başlat</translation>
     </message>
+    <message>
+        <source>Disable Internet Check</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
 </context>
 <context>
     <name>AdvancedNetworking</name>
@@ -60,54 +64,74 @@
     </message>
     <message>
         <source>Cellular Metered</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">B</translation>
     </message>
     <message>
         <source>Prevent large data uploads when on a metered connection</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
         <source>Hidden Network</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Gizli Ağ</translation>
     </message>
     <message>
         <source>CONNECT</source>
-        <translation type="unfinished">BAĞLANTI</translation>
+        <translation type="gpt-4.1-generated">BAĞLAN</translation>
     </message>
     <message>
         <source>Enter SSID</source>
-        <translation type="unfinished">APN Gir</translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
         <source>Enter password</source>
-        <translation type="unfinished">Parolayı girin</translation>
+        <translation type="gpt-4.1-generated">Translation B: Şifreyi girin</translation>
     </message>
     <message>
-        <source>for &quot;%1&quot;</source>
-        <translation type="unfinished">için &quot;%1&quot;</translation>
+        <source>for "%1"</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Always</source>
+        <translation type="gpt-4.1-generated">Her zaman</translation>
+    </message>
+    <message>
+        <source>Only Onroad</source>
+        <translation type="gpt-4.1-generated">Yalnızca Yolda</translation>
+    </message>
+    <message>
+        <source>Until Reboot</source>
+        <translation type="gpt-4.1-generated">Yeniden Başlatılana Kadar</translation>
+    </message>
+    <message>
+        <source>Allow tethering with your data SIM and keep it active either while driving or continuously.</source>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
 </context>
 <context>
     <name>AnnotatedCameraWidget</name>
     <message>
         <source>km/h</source>
-        <translation type="unfinished">km/h</translation>
+        <translation type="gpt-4.1-generated">Both translations are identical.</translation>
     </message>
     <message>
         <source>mph</source>
-        <translation type="unfinished">mph</translation>
+        <translation type="gpt-4.1-generated">Translation B</translation>
     </message>
     <message>
         <source>MAX</source>
-        <translation type="unfinished">MAX</translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>SPEED</source>
-        <translation type="unfinished">HIZ</translation>
+        <translation type="gpt-4.1-generated">HIZ</translation>
     </message>
     <message>
         <source>LIMIT</source>
-        <translation type="unfinished">LİMİT</translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
 </context>
 <context>
@@ -140,27 +164,27 @@
     <name>DestinationWidget</name>
     <message>
         <source>Home</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>Work</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation B</translation>
     </message>
     <message>
         <source>No destination set</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>home</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">ana ekran</translation>
     </message>
     <message>
         <source>work</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>No %1 location set</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
 </context>
 <context>
@@ -287,11 +311,11 @@
     </message>
     <message>
         <source>Reset</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>Review</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>Pair your device with comma connect (connect.comma.ai) and claim your comma prime offer.</source>
@@ -299,11 +323,15 @@
     </message>
     <message>
         <source>Pair Device</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Cihaz Eşleştir</translation>
     </message>
     <message>
         <source>PAIR</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation B: ÇİFT</translation>
+    </message>
+    <message>
+        <source>Pair your device with Konik connect (stable.konik.ai).</source>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
 </context>
 <context>
@@ -317,11 +345,11 @@
     <name>ExperimentalModeButton</name>
     <message>
         <source>EXPERIMENTAL MODE ON</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">DENEYSEL MOD AÇIK</translation>
     </message>
     <message>
         <source>CHILL MODE ON</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A: RAHAT MODU AÇIK</translation>
     </message>
 </context>
 <context>
@@ -335,6 +363,10 @@
         <translation>
             <numerusform>En az %n karakter gerekli!</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>Characters: %1/%2</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
 </context>
 <context>
@@ -363,11 +395,11 @@
     <name>MapSettings</name>
     <message>
         <source>NAVIGATION</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
-        <source>Manage at connect.comma.ai</source>
-        <translation type="unfinished"></translation>
+        <source>Manage at %1</source>
+        <translation type="gpt-4.1-generated">Translation A: %1'de yönet</translation>
     </message>
 </context>
 <context>
@@ -382,7 +414,7 @@
     </message>
     <message>
         <source>Waiting for route</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Rota bekleniyor</translation>
     </message>
 </context>
 <context>
@@ -407,8 +439,8 @@
         <translation>Parolayı girin</translation>
     </message>
     <message>
-        <source>for &quot;%1&quot;</source>
-        <translation>için &quot;%1&quot;</translation>
+        <source>for "%1"</source>
+        <translation>için "%1"</translation>
     </message>
     <message>
         <source>Wrong password</source>
@@ -419,52 +451,53 @@
     <name>OffroadAlert</name>
     <message>
         <source>Device temperature too high. System cooling down before starting. Current internal component temperature: %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
-        <source>Immediately connect to the internet to check for updates. If you do not connect to the internet, openpilot won&apos;t engage in %1</source>
-        <translation type="unfinished"></translation>
+        <source>Immediately connect to the internet to check for updates. If you do not connect to the internet, openpilot won't engage in %1</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
-        <source>Connect to internet to check for updates. openpilot won&apos;t automatically start until it connects to internet to check for updates.</source>
-        <translation type="unfinished"></translation>
+        <source>Connect to internet to check for updates. openpilot won't automatically start until it connects to internet to check for updates.</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
     </message>
     <message>
         <source>Unable to download updates
 %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A: Güncellemeler indirilemedi
+%1</translation>
     </message>
     <message>
-        <source>Taking camera snapshots. System won&apos;t start until finished.</source>
-        <translation type="unfinished"></translation>
+        <source>Taking camera snapshots. System won't start until finished.</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
-        <source>An update to your device&apos;s operating system is downloading in the background. You will be prompted to update when it&apos;s ready to install.</source>
-        <translation type="unfinished"></translation>
+        <source>An update to your device's operating system is downloading in the background. You will be prompted to update when it's ready to install.</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
         <source>Device failed to register. It will not connect to or upload to comma.ai servers, and receives no support from comma.ai. If this is an official device, visit https://comma.ai/support.</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
         <source>NVMe drive not mounted.</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A: NVMe sürücüsü bağlanmadı.</translation>
     </message>
     <message>
         <source>Unsupported NVMe drive detected. Device may draw significantly more power and overheat due to the unsupported NVMe.</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation B</translation>
     </message>
     <message>
         <source>openpilot was unable to identify your car. Your car is either unsupported or its ECUs are not recognized. Please submit a pull request to add the firmware versions to the proper vehicle. Need help? Join discord.comma.ai.</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
         <source>openpilot was unable to identify your car. Check integrity of cables and ensure all connections are secure, particularly that the comma power is fully inserted in the OBD-II port of the vehicle. Need help? Join discord.comma.ai.</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation B</translation>
     </message>
     <message>
-        <source>openpilot detected a change in the device&apos;s mounting position. Ensure the device is fully seated in the mount and the mount is firmly secured to the windshield.</source>
-        <translation type="unfinished"></translation>
+        <source>openpilot detected a change in the device's mounting position. Ensure the device is fully seated in the mount and the mount is firmly secured to the windshield.</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
 </context>
 <context>
@@ -486,53 +519,65 @@
     <name>OnroadAlerts</name>
     <message>
         <source>openpilot Unavailable</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
         <source>Waiting for controls to start</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>TAKE CONTROL IMMEDIATELY</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation B: HEMEN KONTROLÜ ELE ALIN</translation>
     </message>
     <message>
         <source>Controls Unresponsive</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
         <source>Reboot Device</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Cihazı Yeniden Başlat</translation>
+    </message>
+    <message>
+        <source>openpilot crashed 💩</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>openpilot crashed</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Please post the "Error Log" in the FrogPilot Discord!</source>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
 </context>
 <context>
     <name>PairingPopup</name>
     <message>
-        <source>Pair your device to your comma account</source>
-        <translation>comma.ai hesabınız ile cihazı eşleştirin</translation>
-    </message>
-    <message>
-        <source>Go to https://connect.comma.ai on your phone</source>
-        <translation>Telefonuzdan https://connect.comma.ai sitesine gidin</translation>
-    </message>
-    <message>
-        <source>Click &quot;add new device&quot; and scan the QR code on the right</source>
+        <source>Click "add new device" and scan the QR code on the right</source>
         <translation>Yeni cihaz eklemek için sağdaki QR kodunu okutun</translation>
     </message>
     <message>
-        <source>Bookmark connect.comma.ai to your home screen to use it like an app</source>
-        <translation>Uygulama gibi kullanmak için connect.comma.ai sitesini yer işaretlerine ekleyin.</translation>
+        <source>Pair your device to your %1 account</source>
+        <translation type="gpt-4.1-generated">Translation B: Cihazınızı %1 hesabınıza eşleştirin</translation>
+    </message>
+    <message>
+        <source>Go to https://%1 on your phone</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Bookmark %1 to your home screen to use it like an app</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
     </message>
 </context>
 <context>
     <name>ParamControl</name>
     <message>
         <source>Enable</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Etkinleştir</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">İptal Et</translation>
     </message>
 </context>
 <context>
@@ -555,15 +600,15 @@
     </message>
     <message>
         <source>24/7 LTE connectivity</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">7/24 LTE bağlantısı</translation>
     </message>
     <message>
         <source>1 year of drive storage</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">1 yıl sürüş depolama</translation>
     </message>
     <message>
         <source>Turn-by-turn navigation</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Adım adım navigasyon</translation>
     </message>
 </context>
 <context>
@@ -586,10 +631,6 @@
     <message>
         <source>Exit</source>
         <translation>Çık</translation>
-    </message>
-    <message>
-        <source>openpilot</source>
-        <translation>openpilot</translation>
     </message>
     <message numerus="yes">
         <source>%n minute(s) ago</source>
@@ -627,7 +668,11 @@
     </message>
     <message>
         <source>now</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>FrogPilot</source>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
 </context>
 <context>
@@ -659,23 +704,19 @@
     <message>
         <source>Resetting device...
 This may take up to a minute.</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
         <source>Unable to mount data partition. Partition may be corrupted. Press confirm to erase and reset your device.</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>System reset triggered. Press confirm to erase all content and settings. Press cancel to resume boot.</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation B</translation>
     </message>
 </context>
 <context>
     <name>SettingsWindow</name>
-    <message>
-        <source>×</source>
-        <translation>x</translation>
-    </message>
     <message>
         <source>Device</source>
         <translation>Cihaz</translation>
@@ -691,6 +732,38 @@ This may take up to a minute.</source>
     <message>
         <source>Software</source>
         <translation>Yazılım</translation>
+    </message>
+    <message>
+        <source>← Back</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>FrogPilot</source>
+        <translation type="gpt-4.1-generated">B</translation>
+    </message>
+    <message>
+        <source>Welcome to FrogPilot! Since you're new to FrogPilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Since you're fairly new to FrogPilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Since you're experienced with openpilot, the "Standard" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Since you're experienced with FrogPilot, the "Standard" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Since you're very experienced with FrogPilot, the "Advanced" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Welcome to FrogPilot! Since you're new to openpilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">FrogPilot'a hoş geldiniz! openpilot'a yeni olduğunuz için "Minimal" geçiş ön ayarı uygulandı, ancak bunu istediğiniz zaman "Tuning Level" düğmesiyle değiştirebilirsiniz!</translation>
     </message>
 </context>
 <context>
@@ -765,11 +838,11 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Something went wrong. Reboot the device.</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>No custom software found at this URL.</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>Select a language</source>
@@ -777,15 +850,15 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Choose Software to Install</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Yüklenecek Yazılımı Seç</translation>
     </message>
     <message>
         <source>openpilot</source>
-        <translation type="unfinished">openpilot</translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
         <source>Custom Software</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
 </context>
 <context>
@@ -801,6 +874,10 @@ This may take up to a minute.</source>
     <message>
         <source>Pair device</source>
         <translation>Cihazı eşleştirme</translation>
+    </message>
+    <message>
+        <source>Pair your device with Konik connect (stable.konik.ai).</source>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
 </context>
 <context>
@@ -885,6 +962,30 @@ This may take up to a minute.</source>
         <source>5G</source>
         <translation>5G</translation>
     </message>
+    <message>
+        <source>GPU</source>
+        <translation type="gpt-4.1-generated">GPU</translation>
+    </message>
+    <message>
+        <source>CPU</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
+    </message>
+    <message>
+        <source> GB</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>MEMORY</source>
+        <translation type="gpt-4.1-generated">BELLEK</translation>
+    </message>
+    <message>
+        <source>LEFT</source>
+        <translation type="gpt-4.1-generated">Translation A: SOL</translation>
+    </message>
+    <message>
+        <source>USED</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
+    </message>
 </context>
 <context>
     <name>SoftwarePanel</name>
@@ -905,60 +1006,92 @@ This may take up to a minute.</source>
         <translation>KONTROL ET</translation>
     </message>
     <message>
-        <source>Updates are only downloaded while the car is off.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Current Version</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>Download</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>Install Update</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Güncellemeyi Yükle</translation>
     </message>
     <message>
         <source>INSTALL</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">YÜKLE</translation>
     </message>
     <message>
         <source>Target Branch</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>SELECT</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>Select a branch</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>Uninstall</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>failed to check for update</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
         <source>DOWNLOAD</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>update available</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">güncelleme mevcut</translation>
     </message>
     <message>
         <source>never</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>up to date, last checked %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Updates are only downloaded while the car is off or in park.</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
+    </message>
+    <message>
+        <source>Automatically Update FrogPilot</source>
+        <translation type="gpt-4.1-generated">Translation A: FrogPilot’ı Otomatik Olarak Güncelle</translation>
+    </message>
+    <message>
+        <source>Error Log</source>
+        <translation type="gpt-4.1-generated">Hata Günlüğü</translation>
+    </message>
+    <message>
+        <source>VIEW</source>
+        <translation type="gpt-4.1-generated">Translation A: GÖRÜNTÜLE</translation>
+    </message>
+    <message>
+        <source>View the error log for openpilot crashes.</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Do you want to delete deep storage FrogPilot assets? This includes your toggle settings for quick reinstalls.</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Are you sure? This is 100% unrecoverable and if you reinstall FrogPilot you'll lose all your previous settings!</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>This branch must be downloaded before switching. Would you like to download it now?</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>FrogPilot will automatically update itself and it's assets when you're offroad and have an active internet connection.</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
     </message>
 </context>
 <context>
@@ -988,15 +1121,15 @@ This may take up to a minute.</source>
         <translation>KALDIR</translation>
     </message>
     <message>
-        <source>Username &apos;%1&apos; has no keys on GitHub</source>
-        <translation>Kullanısının &apos;%1&apos; Github erişim anahtarı yok</translation>
+        <source>Username '%1' has no keys on GitHub</source>
+        <translation>Kullanısının '%1' Github erişim anahtarı yok</translation>
     </message>
     <message>
         <source>Request timed out</source>
         <translation>İstek zaman aşımına uğradı</translation>
     </message>
     <message>
-        <source>Username &apos;%1&apos; doesn&apos;t exist on GitHub</source>
+        <source>Username '%1' doesn't exist on GitHub</source>
         <translation>Github kullanıcısı %1 bulunamadı</translation>
     </message>
 </context>
@@ -1030,7 +1163,7 @@ This may take up to a minute.</source>
     <name>TogglesPanel</name>
     <message>
         <source>Enable openpilot</source>
-        <translation>openpilot&apos;u aktifleştir</translation>
+        <translation>openpilot'u aktifleştir</translation>
     </message>
     <message>
         <source>Use the openpilot system for adaptive cruise control and lane keep driver assistance. Your attention is required at all times to use this feature. Changing this setting takes effect when the car is powered off.</source>
@@ -1082,87 +1215,75 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>openpilot Longitudinal Control (Alpha)</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>WARNING: openpilot longitudinal control is in alpha for this car and will disable Automatic Emergency Braking (AEB).</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
         <source>Experimental Mode</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>Disengage on Accelerator Pedal</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation B: Gaz Pedalinde Devreden Çıkart</translation>
     </message>
     <message>
         <source>Aggressive</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Agresif</translation>
     </message>
     <message>
         <source>Standard</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Standart</translation>
     </message>
     <message>
         <source>Relaxed</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>Driving Personality</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Sürüş Kişiliği</translation>
     </message>
     <message>
-        <source>On this car, openpilot defaults to the car&apos;s built-in ACC instead of openpilot&apos;s longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
-        <translation type="unfinished"></translation>
+        <source>On this car, openpilot defaults to the car's built-in ACC instead of openpilot's longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
-        <source>openpilot defaults to driving in &lt;b&gt;chill mode&lt;/b&gt;. Experimental mode enables &lt;b&gt;alpha-level features&lt;/b&gt; that aren&apos;t ready for chill mode. Experimental features are listed below:</source>
-        <translation type="unfinished"></translation>
+        <source>openpilot defaults to driving in &lt;b&gt;chill mode&lt;/b&gt;. Experimental mode enables &lt;b&gt;alpha-level features&lt;/b&gt; that aren't ready for chill mode. Experimental features are listed below:</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
         <source>End-to-End Longitudinal Control</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Uçtan Uca Boylamsal Kontrol</translation>
     </message>
     <message>
         <source>Let the driving model control the gas and brakes. openpilot will drive as it thinks a human would, including stopping for red lights and stop signs. Since the driving model decides the speed to drive, the set speed will only act as an upper bound. This is an alpha quality feature; mistakes should be expected.</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
         <source>New Driving Visualization</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Yeni Sürüş Görselleştirmesi</translation>
     </message>
     <message>
-        <source>Experimental mode is currently unavailable on this car since the car&apos;s stock ACC is used for longitudinal control.</source>
-        <translation type="unfinished"></translation>
+        <source>Experimental mode is currently unavailable on this car since the car's stock ACC is used for longitudinal control.</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
         <source>openpilot longitudinal control may come in a future update.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>An alpha version of openpilot longitudinal control can be tested, along with Experimental mode, on non-release branches.</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
         <source>Enable the openpilot longitudinal control (alpha) toggle to allow Experimental mode.</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation B</translation>
     </message>
     <message>
         <source>Standard is recommended. In aggressive mode, openpilot will follow lead cars closer and be more aggressive with the gas and brake. In relaxed mode openpilot will stay further away from lead cars. On supported cars, you can cycle through these personalities with your steering wheel distance button.</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
         <source>The driving visualization will transition to the road-facing wide-angle camera at low speeds to better show some turns. The Experimental mode logo will also be shown in the top right corner.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Always-On Driver Monitoring</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enable driver monitoring even when openpilot is not engaged.</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
 </context>
 <context>
@@ -1204,23 +1325,31 @@ This may take up to a minute.</source>
     <name>WiFiPromptWidget</name>
     <message>
         <source>Setup Wi-Fi</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Wi-Fi Kurulumu</translation>
     </message>
     <message>
         <source>Connect to Wi-Fi to upload driving data and help improve openpilot</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>Open Settings</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>Ready to upload</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Yüklemeye hazır</translation>
     </message>
     <message>
         <source>Training data will be pulled periodically while your device is on Wi-Fi</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Uploading disabled</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Toggle off the "Turn Off Data Uploads" toggle to re-enable uploads.</source>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
 </context>
 <context>
@@ -1238,12 +1367,12 @@ This may take up to a minute.</source>
         <translation>UNUT</translation>
     </message>
     <message>
-        <source>Forget Wi-Fi Network &quot;%1&quot;?</source>
-        <translation>Wi-Fi ağını unut &quot;%1&quot;?</translation>
+        <source>Forget Wi-Fi Network "%1"?</source>
+        <translation>Wi-Fi ağını unut "%1"?</translation>
     </message>
     <message>
         <source>Forget</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Unut</translation>
     </message>
 </context>
 </TS>

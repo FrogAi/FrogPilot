@@ -1,63 +1,68 @@
-import unittest
+import unittest, math
 import numpy as np
-from tinygrad.helpers import CI, DTYPES_DICT, getenv, DType, DEBUG, ImageDType, PtrDType
-from tinygrad.ops import Device
-from tinygrad.tensor import Tensor, dtypes
+import torch
 from typing import Any, List
-from extra.utils import OSX, temp
+from tinygrad.device import is_dtype_supported
+from tinygrad.helpers import getenv, DEBUG, CI
+from tinygrad.dtype import DType, DTYPES_DICT, ImageDType, PtrDType, least_upper_dtype, to_dtype, fp8_to_float, float_to_fp8
+from tinygrad import Device, Tensor, dtypes
+from tinygrad.tensor import _to_np_dtype
+from hypothesis import assume, given, settings, strategies as strat
+from test.helpers import rand_for_dtype
+from test.unit.test_dtype_spec import _assert_eq, core_dtypes, dtype_ints, dtype_floats, FP8E4M3_MAX, FP8E5M2_MAX
+import ml_dtypes
+import pytest
+pytestmark = pytest.mark.filterwarnings("ignore")
 
-def is_dtype_supported(dtype: DType):
-  # for GPU, cl_khr_fp16 isn't supported (except now we don't need it!)
-  # for LLVM, it segfaults because it can't link to the casting function
-  if dtype == dtypes.half: return not (CI and Device.DEFAULT in ["GPU", "LLVM"]) and Device.DEFAULT != "WEBGPU" and getenv("CUDACPU") != 1
-  if dtype == dtypes.bfloat16: return False # numpy doesn't support bf16, tested separately in TestBFloat16DType
-  if dtype == dtypes.float64: return Device.DEFAULT not in ["WEBGPU", "METAL"] and not OSX
-  if dtype in [dtypes.int8, dtypes.uint8]: return Device.DEFAULT not in ["WEBGPU"]
-  if dtype in [dtypes.int16, dtypes.uint16]: return Device.DEFAULT not in ["WEBGPU", "TORCH"]
-  if dtype == dtypes.uint32: return Device.DEFAULT not in ["TORCH"]
-  if dtype in [dtypes.int64, dtypes.uint64]: return Device.DEFAULT not in ["WEBGPU", "TORCH"]
-  if dtype == dtypes.bool:
-   # host-shareablity is a requirement for storage buffers, but 'bool' type is not host-shareable
-    if Device.DEFAULT == "WEBGPU": return False
-   # TODO remove triton from here once internal casting is fixed. CAST of fp32s between 0-1 is broken in triton
-    if getenv("TRITON") == 1: return False
-  return True
+settings.register_profile("my_profile", max_examples=200, deadline=None, derandomize=getenv("DERANDOMIZE_CI", False))
+settings.load_profile("my_profile")
 
-def get_available_cast_dtypes(dtype: DType) -> List[DType]: return [v for k, v in DTYPES_DICT.items() if v != dtype and is_dtype_supported(v) and not k.startswith("_")] # dont cast internal dtypes
+if Device.DEFAULT == "CPU": core_dtypes.remove(dtypes.bfloat16)  # NOTE: this is for teenygrad, don't remove
+
+def get_available_cast_dtypes(dtype: DType) -> List[DType]:
+  if not is_dtype_supported(dtype): return []
+  # dont cast internal dtypes
+  return [v for k, v in DTYPES_DICT.items() if v != dtype and is_dtype_supported(v) and not k.startswith("_")]
 
 def _test_to_np(a:Tensor, np_dtype, target):
   if DEBUG >= 2: print(a)
   na = a.numpy()
-  if DEBUG >= 2: print(na, na.dtype, a.lazydata.realized)
+  if DEBUG >= 2: print(na, na.dtype, a.uop.base.realized)
   try:
     assert na.dtype == np_dtype
     np.testing.assert_allclose(na, target)
   except AssertionError as e:
     raise AssertionError(f"\ntensor {a.numpy()} does not match target {target} with np_dtype {np_dtype}") from e
 
-def _assert_eq(tensor:Tensor, target_dtype:DType, target):
-  if DEBUG >= 2: print(tensor.numpy())
-  try:
-    assert tensor.dtype == target_dtype
-    np.testing.assert_allclose(tensor.numpy(), target)
-  except AssertionError as e:
-    raise AssertionError(f"\ntensor {tensor.numpy()} dtype {tensor.dtype} does not match target {target} with dtype {target_dtype}") from e
+def _test_op(fxn, target_dtype:DType, target):
+  _assert_eq(fxn(), target_dtype, target)
+def _test_cast(a:Tensor, target_dtype:DType):
+  if a.is_floating_point() and dtypes.is_unsigned(target_dtype):
+    # converting negative float to unsigned integer is undefined
+    a = a.abs()
+  if target_dtype == dtypes.half and Device.DEFAULT == "PYTHON":
+    # TODO: struct.pack cannot pack value > 65504 (max of half) into e format
+    a = (a > 65504).where(65504, a)
 
-def _test_op(fxn, target_dtype:DType, target): _assert_eq(fxn(), target_dtype, target)
-def _test_cast(a:Tensor, target_dtype:DType): _test_op(lambda: a.cast(target_dtype), target_dtype, a.numpy().astype(target_dtype.np).tolist())
-def _test_bitcast(a:Tensor, target_dtype:DType, target): _test_op(lambda: a.bitcast(target_dtype), target_dtype, target)
+  _test_op(lambda: a.cast(target_dtype), target_dtype, list(a.numpy().astype(_to_np_dtype(target_dtype))))
+def _test_bitcast(a:Tensor, target_dtype:DType, target=None):
+  if target_dtype == dtypes.bfloat16: raise unittest.SkipTest("no test for bf16 bitcast yet")
+  if getenv("PTX") and a.dtype == dtypes.int8 and target_dtype.itemsize != a.dtype.itemsize:
+    raise unittest.SkipTest("shape changing bitcast of int8 broken on PTX")
+  _test_op(lambda: a.bitcast(target_dtype), target_dtype, target or a.numpy().view(_to_np_dtype(target_dtype)).tolist())
 
 class TestDType(unittest.TestCase):
   DTYPE: Any = None
   DATA: Any = None
   @classmethod
   def setUpClass(cls):
-    if not is_dtype_supported(cls.DTYPE): raise unittest.SkipTest("dtype not supported")
-    cls.DATA = np.random.randint(0, 100, size=10, dtype=cls.DTYPE.np).tolist() if dtypes.is_int(cls.DTYPE) else np.random.choice([True, False], size=10).tolist() if cls.DTYPE == dtypes.bool else np.random.uniform(0, 1, size=10).tolist()
+    if not cls.DTYPE or not is_dtype_supported(cls.DTYPE): raise unittest.SkipTest("dtype not supported")
+    cls.DATA = rand_for_dtype(cls.DTYPE, 10)
   def setUp(self):
     if self.DTYPE is None: raise unittest.SkipTest("base class")
 
-  def test_to_np(self): _test_to_np(Tensor(self.DATA, dtype=self.DTYPE), self.DTYPE.np, np.array(self.DATA, dtype=self.DTYPE.np))
+  def test_to_np(self):
+    _test_to_np(Tensor(self.DATA, dtype=self.DTYPE), _to_np_dtype(self.DTYPE), np.array(self.DATA, dtype=_to_np_dtype(self.DTYPE)))
 
   def test_casts_to(self): list(map(
     lambda dtype: _test_cast(Tensor(self.DATA, dtype=dtype), self.DTYPE),
@@ -68,34 +73,130 @@ class TestDType(unittest.TestCase):
     get_available_cast_dtypes(self.DTYPE)
   ))
 
-  def test_upcast_ops(self): list(map(
-    lambda dtype: _test_ops(a_dtype=self.DTYPE, b_dtype=dtype, target_dtype=dtype) if dtype.sz > self.DTYPE.sz else None,
-    get_available_cast_dtypes(self.DTYPE)
+  def test_same_size_ops(self):
+    list(map(
+      lambda dtype: _test_ops(a_dtype=self.DTYPE, b_dtype=dtype) if dtype.itemsize == self.DTYPE.itemsize else None,
+      get_available_cast_dtypes(self.DTYPE)
+    ))
+  def test_upcast_ops(self):
+    list(map(
+      lambda dtype: _test_ops(a_dtype=self.DTYPE, b_dtype=dtype) if dtype.itemsize > self.DTYPE.itemsize else None,
+      get_available_cast_dtypes(self.DTYPE)
   ))
-  def test_upcast_to_ops(self): list(map(
-    lambda dtype: _test_ops(a_dtype=dtype, b_dtype=self.DTYPE, target_dtype=self.DTYPE) if dtype.sz < self.DTYPE.sz else None,
-    get_available_cast_dtypes(self.DTYPE)
+  def test_upcast_to_ops(self):
+    list(map(
+      lambda dtype: _test_ops(a_dtype=dtype, b_dtype=self.DTYPE) if dtype.itemsize < self.DTYPE.itemsize else None,
+      get_available_cast_dtypes(self.DTYPE)
   ))
+  def test_bitcast(self):
+    if self.DTYPE == dtypes.bool: raise unittest.SkipTest("no bools in bitcast")
+    list(map(
+      lambda dtype:
+        _test_bitcast(Tensor(self.DATA[:8], dtype=self.DTYPE), dtype) if dtype != dtypes.bool else None,
+     get_available_cast_dtypes(self.DTYPE)
+    ))
 
-def _test_ops(a_dtype:DType, b_dtype:DType, target_dtype:DType):
-  if not is_dtype_supported(a_dtype) or not is_dtype_supported(b_dtype): raise unittest.SkipTest("dtype not supported")
+  def test_dtypes_fields(self):
+    fields = dtypes.fields()
+    self.assertIn("float", fields)
+    self.assertIn("float32", fields)
+    self.assertEqual(len(fields), 26)
+    self.assertTrue(all(isinstance(value, DType) for value in fields.values()))
+    self.assertTrue(all(issubclass(_to_np_dtype(value), np.generic) for value in fields.values() if _to_np_dtype(value) is not None))
+
+  def test_resulting_and_init_dtypes_match(self):
+    dtypes = list(map(np.dtype, ["bool", "uint8", "int8", "int16", "int32", "int64", "float32", "float64"]))
+    data = [1., 2., 0., 0.5, -1.5, 5.25]
+    for dt in dtypes:
+      arr = np.asarray(data).astype(dt)
+      tensor = Tensor(arr)
+      if not is_dtype_supported(tensor.dtype): continue
+      tin = tensor.numpy()
+      tor = torch.as_tensor(arr).detach().numpy()
+      assert dt == tin.dtype == tor.dtype, f"dtype mismatch: expected={dt} | tinygrad={tin.dtype} | torch={tor.dtype}"
+      np.testing.assert_allclose(tin, tor, atol=1e-6, rtol=1e-3)
+
+  def test_finfo(self):
+    if self.DTYPE not in [dtypes.float16, dtypes.bfloat16, dtypes.float32, dtypes.float64]: return
+    info = np.finfo(_to_np_dtype(self.DTYPE))
+    assert info.bits == self.DTYPE.itemsize*8
+    assert info.nexp == dtypes.finfo(self.DTYPE)[0]
+    assert info.nmant == dtypes.finfo(self.DTYPE)[1]
+
+def _test_ops(a_dtype:DType, b_dtype:DType, target_dtype=None):
+  target_dtype = target_dtype or least_upper_dtype(a_dtype, b_dtype)
+  if not is_dtype_supported(a_dtype) or not is_dtype_supported(b_dtype) or not is_dtype_supported(target_dtype): return
+  if a_dtype == dtypes.bool or b_dtype == dtypes.bool: return
   _assert_eq(Tensor([1,2,3,4], dtype=a_dtype)+Tensor([1,2,3,4], dtype=b_dtype), target_dtype, [2,4,6,8])
+  _assert_eq((Tensor([1], dtype=a_dtype).cast(b_dtype)+Tensor([1], dtype=a_dtype).cast(b_dtype)).cast(a_dtype), a_dtype, [2])
   _assert_eq(Tensor([1,2,3,4], dtype=a_dtype)*Tensor([1,2,3,4], dtype=b_dtype), target_dtype, [1,4,9,16])
   _assert_eq(Tensor([[1,2],[3,4]], dtype=a_dtype)@Tensor.eye(2, dtype=b_dtype), target_dtype, [[1,2],[3,4]])
   _assert_eq(Tensor([1,1,1,1], dtype=a_dtype)+Tensor.ones((4,4), dtype=b_dtype), target_dtype, 2*Tensor.ones(4,4).numpy())
 
+class TestFp8s(unittest.TestCase):
+  def test_fp8e4m3_creation(self): assert Tensor([-1, 1, 2], dtype=dtypes.fp8e4m3).dtype == dtypes.fp8e4m3
+  def test_fp8e5m2_creation(self): assert Tensor([-1, 1, 2], dtype=dtypes.fp8e5m2).dtype == dtypes.fp8e5m2
+
+class TestFp8sConversions(unittest.TestCase):
+  @given(strat.floats(width=32, allow_subnormal=True, allow_nan=False, allow_infinity=False, min_value=-FP8E4M3_MAX, max_value=FP8E4M3_MAX))
+  def test_float_to_fp8e4m3(self, x): np.testing.assert_equal(float_to_fp8(x, dtypes.fp8e4m3), ml_dtypes.float8_e4m3fn(x).tobytes()[0])
+
+  def test_float_to_fp8e4m3_extreme_values(self):
+    np.testing.assert_equal(float_to_fp8(FP8E4M3_MAX, dtypes.fp8e4m3), 126)
+    np.testing.assert_equal(float_to_fp8(FP8E4M3_MAX*1.01, dtypes.fp8e4m3), 126)
+    np.testing.assert_equal(float_to_fp8(math.inf, dtypes.fp8e4m3), 126)
+    np.testing.assert_equal(float_to_fp8(-FP8E4M3_MAX, dtypes.fp8e4m3), 254)
+    np.testing.assert_equal(float_to_fp8(-FP8E4M3_MAX*1.01, dtypes.fp8e4m3), 254)
+    np.testing.assert_equal(float_to_fp8(-math.inf, dtypes.fp8e4m3), 254)
+    np.testing.assert_equal(float_to_fp8(math.nan, dtypes.fp8e4m3), 127)
+    np.testing.assert_equal(float_to_fp8(-math.nan, dtypes.fp8e4m3), 255)
+
+  @given(strat.floats(width=32, allow_subnormal=True, allow_nan=False, allow_infinity=False, min_value=-FP8E5M2_MAX, max_value=FP8E5M2_MAX))
+  def test_float_to_fp8e5m2(self, x): np.testing.assert_equal(float_to_fp8(x, dtypes.fp8e5m2), ml_dtypes.float8_e5m2(x).tobytes()[0])
+
+  def test_float_to_fp8e5m2_extreme_values(self):
+    np.testing.assert_equal(float_to_fp8(FP8E5M2_MAX, dtypes.fp8e5m2), 123)
+    np.testing.assert_equal(float_to_fp8(FP8E5M2_MAX*1.01, dtypes.fp8e5m2), 123)
+    np.testing.assert_equal(float_to_fp8(math.inf, dtypes.fp8e5m2), 123)
+    np.testing.assert_equal(float_to_fp8(-FP8E5M2_MAX, dtypes.fp8e5m2), 251)
+    np.testing.assert_equal(float_to_fp8(-FP8E5M2_MAX*1.01, dtypes.fp8e5m2), 251)
+    np.testing.assert_equal(float_to_fp8(-math.inf, dtypes.fp8e5m2), 251)
+    np.testing.assert_equal(float_to_fp8(math.nan, dtypes.fp8e5m2), 126)
+    np.testing.assert_equal(float_to_fp8(-math.nan, dtypes.fp8e5m2), 254)
+
+  @given(strat.integers(min_value=0, max_value=255))
+  def test_fp8e4m3_to_float(self, x): np.testing.assert_equal(fp8_to_float(x, dtypes.fp8e4m3), np.uint8(x).view(ml_dtypes.float8_e4m3fn).item())
+
+  @given(strat.integers(min_value=0, max_value=255))
+  def test_fp8e5m2_to_float(self, x): np.testing.assert_equal(fp8_to_float(x, dtypes.fp8e5m2), np.uint8(x).view(ml_dtypes.float8_e5m2).item())
+
+@unittest.skipUnless(is_dtype_supported(dtypes.bfloat16), "bfloat16 not supported")
+class TestBFloat16(unittest.TestCase):
+  def test_bf16_creation_numpy(self):
+    data = [-1, 1, 2]
+    t = Tensor(data, dtype=dtypes.bfloat16)
+    assert t.dtype == dtypes.bfloat16
+    tnp = t.numpy()
+    assert tnp.dtype == np.float32
+    np.testing.assert_allclose(tnp, np.array(data))
+
+  def test_bf16_ones(self):
+    t = Tensor.ones(3, 5, dtype=dtypes.bfloat16)
+    assert t.dtype == dtypes.bfloat16
+    np.testing.assert_allclose(t.numpy(), np.ones((3, 5)))
+
+  def test_bf16_eye(self):
+    t = Tensor.eye(3, dtype=dtypes.bfloat16)
+    assert t.dtype == dtypes.bfloat16
+    np.testing.assert_allclose(t.numpy(), np.eye(3))
+
+@unittest.skipUnless(is_dtype_supported(dtypes.bfloat16), "bfloat16 not supported")
 class TestBFloat16DType(unittest.TestCase):
-  def setUp(self):
-    if not is_dtype_supported(dtypes.bfloat16): raise unittest.SkipTest("bfloat16 not supported")
   def test_bf16_to_float(self):
-    with self.assertRaises(AssertionError):
-      _test_cast(Tensor([100000], dtype=dtypes.bfloat16), dtypes.float32, [100000])
+    _test_cast(Tensor([100000], dtype=dtypes.bfloat16), dtypes.float32)
 
   def test_float_to_bf16(self):
-    with self.assertRaises(AssertionError):
-      _test_cast(Tensor([100000], dtype=dtypes.float32), dtypes.bfloat16, [100000])
-
-  # torch.tensor([10000, -1, -1000, -10000, 20]).type(torch.bfloat16)
+    _test_cast(Tensor([100000], dtype=dtypes.float32), dtypes.bfloat16)
 
   def test_bf16(self):
     t = Tensor([10000, -1, -1000, -10000, 20]).cast(dtypes.bfloat16)
@@ -103,80 +204,244 @@ class TestBFloat16DType(unittest.TestCase):
     back = t.cast(dtypes.float32)
     assert tuple(back.numpy().tolist()) == (9984., -1, -1000, -9984, 20)
 
-  def test_bf16_disk_write_read(self):
-    t = Tensor([10000, -1, -1000, -10000, 20]).cast(dtypes.float32)
-    t.to(f"disk:{temp('f32')}").realize()
+@unittest.skipUnless(is_dtype_supported(dtypes.bfloat16), "bfloat16 not supported")
+class TestBFloat16DTypeCast(unittest.TestCase):
+  def test_f16_to_bf16_conversion(self):
+    original_tensor = Tensor([1.0, 2.0, 3.0], dtype=dtypes.float16)
+    converted_tensor = original_tensor.cast(dtypes.bfloat16)
+    self.assertEqual(converted_tensor.dtype, dtypes.bfloat16)
+    back_to_float32 = converted_tensor.cast(dtypes.float32)
+    original_to_float32 = original_tensor.cast(dtypes.float32)
+    np.testing.assert_allclose(back_to_float32.numpy(), original_to_float32.numpy(), rtol=1e-2, atol=1e-3)
 
-    # hack to "cast" f32 -> bf16
-    dat = open(temp('f32'), "rb").read()
-    adat = b''.join([dat[i+2:i+4] for i in range(0, len(dat), 4)])
-    with open(temp('bf16'), "wb") as f: f.write(adat)
+  def test_f16_to_bf16_edge_cases(self):
+    edge_cases = Tensor([0.0, -0.0, float('inf'), float('-inf'), float('nan')], dtype=dtypes.float16)
+    converted = edge_cases.cast(dtypes.bfloat16).cast(dtypes.float32)
+    np.testing.assert_equal(converted.numpy(), edge_cases.cast(dtypes.float32).numpy())
 
-    t = Tensor.empty(5, dtype=dtypes.bfloat16, device=f"disk:{temp('bf16')}").llvm().realize()
-    back = t.cast(dtypes.float32)
-    assert tuple(back.numpy().tolist()) == (9984., -1, -1000, -9984, 20)
+  def test_f16_to_bf16_range_precision(self):
+    large_value = Tensor([65504.0], dtype=dtypes.float16)  # Max representable in float16
+    small_value = Tensor([6.1035e-5], dtype=dtypes.float16)  # Smallest positive normal float16
+    large_converted = large_value.cast(dtypes.bfloat16).cast(dtypes.float32)
+    small_converted = small_value.cast(dtypes.bfloat16).cast(dtypes.float32)
+    np.testing.assert_allclose(large_converted.numpy(), large_value.cast(dtypes.float32).numpy(), rtol=1e-2, atol=1e-3)
+    np.testing.assert_equal(small_converted.numpy(), small_value.cast(dtypes.float32).numpy())
 
-class TestHalfDtype(TestDType): DTYPE = dtypes.half
+  def test_f16_to_bf16_randomized(self):
+    np.random.seed(42)  # For reproducibility
+    random_values = Tensor(np.random.uniform(-65504, 65504, 1000), dtype=dtypes.float16)
+    converted = random_values.cast(dtypes.bfloat16).cast(dtypes.float32)
+    np.testing.assert_allclose(converted.numpy(), random_values.cast(dtypes.float32).numpy(), rtol=1e-2, atol=1e-3)
 
-class TestFloatDType(TestDType): DTYPE = dtypes.float
+class TestHalfDType(TestDType): DTYPE = dtypes.half
 
-class TestDoubleDtype(TestDType): DTYPE = dtypes.double
+class TestFloatDType(TestDType):
+  DTYPE = dtypes.float
 
-class TestInt8Dtype(TestDType):
+  def test_float_to_uint(self):
+    _test_op(lambda: Tensor([-0.9, -0.3, 1.2], dtype=dtypes.float32).cast(dtypes.uint32), dtypes.uint32,
+             [0, 0, 1])
+
+class TestDoubleDType(TestDType):
+  DTYPE = dtypes.double
+  @unittest.skipIf((CI and Device.DEFAULT in {"CUDA", "NV"}) or getenv("PTX"), "conversion not supported on CI CUDA and PTX")  # TODO: why not?
+  def test_float64_increased_precision(self):
+    for func in [
+      lambda t: t.exp(),
+      lambda t: t.exp2(),
+      lambda t: t.log(),
+      lambda t: t.log2(),
+      lambda t: t.sqrt(),
+      lambda t: t.rsqrt(),
+      lambda t: t.sin(),
+      lambda t: t.cos(),
+      lambda t: t.tan(),
+      lambda t: t.sigmoid(),
+    ]:
+      a = [2, 3, 4]
+      np.testing.assert_allclose(func(Tensor(a, dtype=self.DTYPE)).numpy(), func(torch.tensor(a, dtype=torch.float64)), rtol=1e-12, atol=1e-12)
+
+  def test_float64_to_float32_cast_inf(self):
+    _test_op(lambda: Tensor([3.4e40, 3.4e38, 1, 0], dtype=dtypes.float64).cast(dtypes.float32),
+             dtypes.float32, [float('inf'), 3.4e38, 1, 0])
+
+
+class TestInt8DType(TestDType):
   DTYPE = dtypes.int8
   @unittest.skipIf(getenv("CUDA",0)==1 or getenv("PTX", 0)==1, "cuda saturation works differently")
-  def test_int8_to_uint8_negative(self): _test_op(lambda: Tensor([-1, -2, -3, -4], dtype=dtypes.int8).cast(dtypes.uint8), dtypes.uint8, [255, 254, 253, 252])
+  def test_int8_to_uint8_negative(self):
+    _test_op(lambda: Tensor([-1, -2, -3, -4], dtype=dtypes.int8).cast(dtypes.uint8), dtypes.uint8, [255, 254, 253, 252])
 
-class TestUint8Dtype(TestDType):
+  def test_int8_to_uint16_negative(self):
+    _test_op(lambda: Tensor([-1, -2, -3, -4], dtype=dtypes.int8).cast(dtypes.uint16), dtypes.uint16, [2**16-1, 2**16-2, 2**16-3, 2**16-4])
+
+  @unittest.skipIf(getenv("PTX"), "broken in ptx")
+  def test_bitcast_alt(self):
+    a = Tensor([72, -90, 27, 40, -53, 70, 96, 51], dtype=dtypes.int8).bitcast(dtypes.short)
+    self.assertListEqual(a.tolist(), [-22968, 10267, 18123, 13152])
+
+class TestUint8DType(TestDType):
   DTYPE = dtypes.uint8
   @unittest.skipIf(getenv("CUDA",0)==1 or getenv("PTX", 0)==1, "cuda saturation works differently")
-  def test_uint8_to_int8_overflow(self): _test_op(lambda: Tensor([255, 254, 253, 252], dtype=dtypes.uint8).cast(dtypes.int8), dtypes.int8, [-1, -2, -3, -4])
+  def test_uint8_to_int8_overflow(self):
+    _test_op(lambda: Tensor([255, 254, 253, 252], dtype=dtypes.uint8).cast(dtypes.int8), dtypes.int8, [-1, -2, -3, -4])
 
-@unittest.skipIf(Device.DEFAULT not in {"CPU", "TORCH"}, "only bitcast in CPU and TORCH")
+@unittest.skipIf(Device.DEFAULT == "WEBGL", "No bitcast on WebGL")
 class TestBitCast(unittest.TestCase):
-  def test_float32_bitcast_to_int32(self): _test_bitcast(Tensor([1,2,3,4], dtype=dtypes.float32), dtypes.int32, [1065353216, 1073741824, 1077936128, 1082130432])
-  @unittest.skipIf(Device.DEFAULT == "TORCH", "no uint32 in torch")
-  def test_float32_bitcast_to_uint32(self): _test_bitcast(Tensor([1,2,3,4], dtype=dtypes.float32), dtypes.uint32, [1065353216, 1073741824, 1077936128, 1082130432])
-  def test_int32_bitcast_to_float32(self): _test_bitcast(Tensor([1065353216, 1073741824, 1077936128, 1082130432], dtype=dtypes.int32), dtypes.float32, [1.0, 2.0, 3.0, 4.0])
+  @given(strat.sampled_from(dtype_ints + dtype_floats), strat.sampled_from(dtype_ints + dtype_floats))
+  def test_shape_change_bitcast(self, dt1, dt2):
+    # NOTE: this has to be assume to prevent hypothesis from skipping all samples
+    assume(dt2 != dtypes.bfloat16 and dt1 != dtypes.bfloat16) # no test for bf16 bitcast yet
+    assume(not (getenv("PTX") and dt1 == dtypes.int8)) # TODO: bitcasting int8 fails in PTX
+    data = rand_for_dtype(dt1, 32).reshape(2, 2, 8)
+    _test_op(lambda: Tensor(data, dtype=dt1).bitcast(dt2), dt2, data.view(_to_np_dtype(dt2)).tolist())
 
-  # NOTE: these are the same as normal casts
-  def test_int8_bitcast_to_uint8(self): _test_bitcast(Tensor([-1, -2, -3, -4], dtype=dtypes.int8), dtypes.uint8, [255, 254, 253, 252])
-  def test_uint8_bitcast_to_int8(self): _test_bitcast(Tensor([255, 254, 253, 252], dtype=dtypes.uint8), dtypes.int8, [-1, -2, -3, -4])
-  @unittest.skipIf(Device.DEFAULT == "TORCH", "no uint64 in torch")
-  def test_int64_bitcast_to_uint64(self): _test_bitcast(Tensor([-1, -2, -3, -4], dtype=dtypes.int64), dtypes.uint64, [18446744073709551615, 18446744073709551614, 18446744073709551613, 18446744073709551612])
-  @unittest.skipIf(Device.DEFAULT == "TORCH", "no uint64 in torch")
-  def test_uint64_bitcast_to_int64(self): _test_bitcast(Tensor([18446744073709551615, 18446744073709551614, 18446744073709551613, 18446744073709551612], dtype=dtypes.uint64), dtypes.int64, [-1, -2, -3, -4])
+  def test_shape_change_bitcast_exceptions(self):
+    with self.assertRaises(RuntimeError):
+      # should fail because 3 int8 is 3 bytes but float16 is two and 3 isn't a multiple of 2
+      Tensor.empty((3,), dtype=dtypes.int8).bitcast(dtypes.float16)
 
-  def test_shape_change_bitcast(self):
-    with self.assertRaises(AssertionError):
-      _test_bitcast(Tensor([100000], dtype=dtypes.float32), dtypes.uint8, [100000])
+    with self.assertRaises(RuntimeError):
+      # should fail because backprop through bitcast is undefined
+      Tensor.empty((4,), dtype=dtypes.int8, requires_grad=True).bitcast(dtypes.float16)
 
-class TestInt16Dtype(TestDType): DTYPE = dtypes.int16
-class TestUint16Dtype(TestDType): DTYPE = dtypes.uint16
+  def test_bitcast_float_to_int32(self):
+    a = Tensor([1.,2,3])
+    b = a.bitcast(dtypes.int32)
+    assert b.numpy()[0] == 0x3f800000
 
-class TestInt32Dtype(TestDType): DTYPE = dtypes.int32
-class TestUint32Dtype(TestDType): DTYPE = dtypes.uint32
+  def test_bitcast_upcasted(self):
+    a = Tensor.zeros(100, 4, dtype=dtypes.int32).contiguous() + 0x3f800000
+    b = a.bitcast(dtypes.float32)
+    assert b.numpy()[0,0] == 1.
 
-class TestInt64Dtype(TestDType): DTYPE = dtypes.int64
-class TestUint64Dtype(TestDType): DTYPE = dtypes.uint64
+class TestInt16DType(TestDType): DTYPE = dtypes.int16
 
-class TestBoolDtype(TestDType): DTYPE = dtypes.bool
+class TestUint16DType(TestDType):
+  DTYPE = dtypes.uint16
+
+  def test_uint16_to_int8_overflow(self):
+    _test_op(lambda: Tensor([2**16-1, 2**16-2, 1, 0], dtype=dtypes.uint16).cast(dtypes.int8), dtypes.int8, [-1, -2, 1, 0])
+
+class TestInt32DType(TestDType): DTYPE = dtypes.int32
+class TestUint32DType(TestDType): DTYPE = dtypes.uint32
+
+class TestInt64DType(TestDType): DTYPE = dtypes.int64
+class TestUint64DType(TestDType):
+  DTYPE = dtypes.uint64
+  def test_uint64_load(self):
+    assert Tensor(2**64 - 1, dtype=dtypes.uint64).numpy() == 2**64 - 1
+
+class TestBoolDType(TestDType): DTYPE = dtypes.bool
+
+class TestPtrDType(unittest.TestCase):
+  def test_vec_double(self):
+    dt1 = dtypes.float.vec(4).ptr().vec(4)
+    dt2 = dtypes.float.vec(4).ptr().vec(4)
+    self.assertEqual(dt1, dt2)
+    self.assertEqual(str(dt1), str(dt2))
+
+  def test_scalar(self):
+    dt = dtypes.float.vec(4).ptr().scalar()
+    self.assertEqual(dt.base, dtypes.float.vec(4))
+
+    dt = dtypes.float.vec(4).ptr().vec(4).scalar()
+    self.assertEqual(dt.base, dtypes.float.vec(4))
+
+    dt = dtypes.float.vec(4).scalar()
+    self.assertEqual(dt, dtypes.float)
+
+  def test_serialize(self):
+    dt = dtypes.float.vec(4).ptr().vec(4)
+    self.assertEqual(dt, eval(str(dt)))
+
+  def test_vec_ptr_sz(self):
+    dt = dtypes.float.ptr(1024).vec(4)
+    self.assertEqual(dt, eval(str(dt)))
+    self.assertEqual(str(dt), "dtypes.float.ptr(1024).vec(4)")
+
+  def test_vcount(self):
+    dt = dtypes.float.ptr().vec(4)
+    self.assertEqual(dt.vcount, 4)
+    self.assertEqual(dt.v, 4)
+    self.assertEqual(dt.count, 1)
+
+    dt = dtypes.float.vec(4).ptr()
+    self.assertEqual(dt.vcount, 1)
+    self.assertEqual(dt.v, 1)
+    self.assertEqual(dt.count, 4)
+
+    dt = dtypes.float.vec(4).ptr().vec(4)
+    self.assertEqual(dt.vcount, 4)
+    self.assertEqual(dt.v, 4)
+    self.assertEqual(dt.count, 4)
+
+class TestImageDType(unittest.TestCase):
+  def test_image_scalar(self):
+    assert dtypes.imagef((10,10)).base.scalar() == dtypes.float32
+    assert dtypes.imageh((10,10)).base.scalar() == dtypes.float32
+  def test_image_vec(self):
+    assert dtypes.imagef((10,10)).base.vec(4) == dtypes.float32.vec(4)
+    assert dtypes.imageh((10,10)).base.vec(4) == dtypes.float32.vec(4)
 
 class TestEqStrDType(unittest.TestCase):
   def test_image_ne(self):
+    if ImageDType is None: raise unittest.SkipTest("no ImageDType support")
     assert dtypes.float == dtypes.float32, "float doesn't match?"
     assert dtypes.imagef((1,2,4)) != dtypes.imageh((1,2,4)), "different image dtype doesn't match"
     assert dtypes.imageh((1,2,4)) != dtypes.imageh((1,4,2)), "different shape doesn't match"
     assert dtypes.imageh((1,2,4)) == dtypes.imageh((1,2,4)), "same shape matches"
     assert isinstance(dtypes.imageh((1,2,4)), ImageDType)
-  def test_ptr_ne(self):
-    # TODO: is this the wrong behavior?
-    assert PtrDType(dtypes.float32) == dtypes.float32
-    #assert PtrDType(dtypes.float32) == PtrDType(dtypes.float32)
-    #assert PtrDType(dtypes.float32) != dtypes.float32
+  def test_ptr_eq(self):
+    assert dtypes.float32.ptr() == dtypes.float32.ptr()
+    assert not (dtypes.float32.ptr() != dtypes.float32.ptr())
   def test_strs(self):
+    if PtrDType is None: raise unittest.SkipTest("no PtrDType support")
     self.assertEqual(str(dtypes.imagef((1,2,4))), "dtypes.imagef((1, 2, 4))")
-    self.assertEqual(str(PtrDType(dtypes.float32)), "ptr.dtypes.float")
+    self.assertEqual(str(dtypes.float32.ptr(16)), "dtypes.float.ptr(16)")
+
+class TestImplicitFunctionTypeChange(unittest.TestCase):
+  def test_functions(self):
+    result = []
+    for func in [
+      lambda t: t.exp(),
+      lambda t: t.exp2(),
+      lambda t: t.log(),
+      lambda t: t.log2(),
+      lambda t: t.sqrt(),
+      lambda t: t.sin(),
+    ]:
+      t = func(Tensor([4.0, 3.0])).max() == func(Tensor([4.0, 3.0]))
+      result.append(t.numpy().sum())
+    assert all(result)
+
+class TestTensorMethod(unittest.TestCase):
+  @given(strat.sampled_from(core_dtypes))
+  def test_abs_diff(self, dt):
+    if dt == dtypes.bool or not is_dtype_supported(dt): return
+    a, b = Tensor([2], dtype=dt), Tensor([1], dtype=dt)
+    ret = (a - b).abs()
+    np.testing.assert_allclose(ret.numpy(), np.abs(a.numpy()-b.numpy()))
+
+class TestDtypeUsage(unittest.TestCase):
+  def test_max_w_alu(self):
+    for d in dtypes.ints:
+      if is_dtype_supported(d):
+        t = Tensor([[1, 2], [3, 4]], dtype=d)
+        (t*t).max().item()
+
+class TestToDtype(unittest.TestCase):
+  def test_dtype_to_dtype(self):
+    dtype = dtypes.int32
+    res = to_dtype(dtype)
+    self.assertIsInstance(res, DType)
+    self.assertEqual(res, dtypes.int32)
+
+  def test_str_to_dtype(self):
+    dtype = "int32"
+    res = to_dtype(dtype)
+    self.assertIsInstance(res, DType)
+    self.assertEqual(res, dtypes.int32)
 
 if __name__ == '__main__':
   unittest.main()

@@ -15,6 +15,10 @@
         <source>Reboot and Update</source>
         <translation>إعادة التشغيل والتحديث</translation>
     </message>
+    <message>
+        <source>Disable Internet Check</source>
+        <translation type="gpt-4.1-generated">Translation A: تعطيل التحقق من الإنترنت</translation>
+    </message>
 </context>
 <context>
     <name>AdvancedNetworking</name>
@@ -83,8 +87,28 @@
         <translation>أدخل كلمة المرور</translation>
     </message>
     <message>
-        <source>for &quot;%1&quot;</source>
-        <translation>من أجل &quot;%1&quot;</translation>
+        <source>for "%1"</source>
+        <translation>من أجل "%1"</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation type="gpt-4.1-generated">إيقاف</translation>
+    </message>
+    <message>
+        <source>Always</source>
+        <translation type="gpt-4.1-generated">Translation A: دائمًا</translation>
+    </message>
+    <message>
+        <source>Only Onroad</source>
+        <translation type="gpt-4.1-generated">فقط أثناء القيادة</translation>
+    </message>
+    <message>
+        <source>Until Reboot</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Allow tethering with your data SIM and keep it active either while driving or continuously.</source>
+        <translation type="gpt-4.1-generated">Translation A: اسمح بالربط باستخدام شريحة بياناتك واحتفظ به نشطًا أثناء القيادة أو بشكل مستمر.</translation>
     </message>
 </context>
 <context>
@@ -305,6 +329,10 @@
         <source>PAIR</source>
         <translation>إقران</translation>
     </message>
+    <message>
+        <source>Pair your device with Konik connect (stable.konik.ai).</source>
+        <translation type="gpt-4.1-generated">Translation B: قم بإقران جهازك مع Konik connect (stable.konik.ai).</translation>
+    </message>
 </context>
 <context>
     <name>DriverViewWindow</name>
@@ -341,6 +369,10 @@
             <numerusform>تحتاج إلى %n حرف على الأقل!</numerusform>
         </translation>
     </message>
+    <message>
+        <source>Characters: %1/%2</source>
+        <translation type="gpt-4.1-generated">Translation B: الأحرف: %1/%2</translation>
+    </message>
 </context>
 <context>
     <name>Installer</name>
@@ -371,8 +403,8 @@
         <translation>التنقل</translation>
     </message>
     <message>
-        <source>Manage at connect.comma.ai</source>
-        <translation>الإدارة في connect.comma.ai</translation>
+        <source>Manage at %1</source>
+        <translation type="gpt-4.1-generated">Translation B: إدارة في %1</translation>
     </message>
 </context>
 <context>
@@ -412,8 +444,8 @@
         <translation>أدخل كلمة المرور</translation>
     </message>
     <message>
-        <source>for &quot;%1&quot;</source>
-        <translation>من أجل &quot;%1&quot;</translation>
+        <source>for "%1"</source>
+        <translation>من أجل "%1"</translation>
     </message>
     <message>
         <source>Wrong password</source>
@@ -427,11 +459,11 @@
         <translation>درجة حرارة الجهاز مرتفعة جداً. يقوم النظام بالتبريد قبل البدء. درجة الحرارة الحالية للمكونات الداخلية: %1</translation>
     </message>
     <message>
-        <source>Immediately connect to the internet to check for updates. If you do not connect to the internet, openpilot won&apos;t engage in %1</source>
+        <source>Immediately connect to the internet to check for updates. If you do not connect to the internet, openpilot won't engage in %1</source>
         <translation>اتصل فوراً بالإنترنت للتحقق من وجود تحديثات. إذا لم تكم متصلاً بالإنترنت فإن openpilot لن يساهم في %1</translation>
     </message>
     <message>
-        <source>Connect to internet to check for updates. openpilot won&apos;t automatically start until it connects to internet to check for updates.</source>
+        <source>Connect to internet to check for updates. openpilot won't automatically start until it connects to internet to check for updates.</source>
         <translation>اتصل بالإنترنت للتحقق من وجود تحديثات. لا يعمل openpilot تلقائياً إلا إذا اتصل بالإنترنت من أجل التحقق من التحديثات.</translation>
     </message>
     <message>
@@ -441,11 +473,11 @@
 %1</translation>
     </message>
     <message>
-        <source>Taking camera snapshots. System won&apos;t start until finished.</source>
+        <source>Taking camera snapshots. System won't start until finished.</source>
         <translation>التقاط لقطات كاميرا. لن يبدأ النظام حتى تنتهي هذه العملية.</translation>
     </message>
     <message>
-        <source>An update to your device&apos;s operating system is downloading in the background. You will be prompted to update when it&apos;s ready to install.</source>
+        <source>An update to your device's operating system is downloading in the background. You will be prompted to update when it's ready to install.</source>
         <translation>يتم تنزيل تحديث لنظام تشغيل جهازك في الخلفية. سيطلَب منك التحديث عندما يصبح جاهزاً للتثبيت.</translation>
     </message>
     <message>
@@ -469,7 +501,7 @@
         <translation>لم يتمكن openpilot من تحديد سيارتك. تحقق من سلامة الكابلات وتأكد من تأمين جميع الوصلات، لا سيما أنه قد تم إدخال طاقة الفاصلة بالكامل في منفذ OBD-II في السيارة. هل تريد أي مساعدة؟ لا تتردد في الانضمام إلى discord.comma.ai.</translation>
     </message>
     <message>
-        <source>openpilot detected a change in the device&apos;s mounting position. Ensure the device is fully seated in the mount and the mount is firmly secured to the windshield.</source>
+        <source>openpilot detected a change in the device's mounting position. Ensure the device is fully seated in the mount and the mount is firmly secured to the windshield.</source>
         <translation>لقد اكتشف openpilot تغييراً في موقع تركيب الجهاز. تأكد من تثبيت الجهاز بشكل كامل في موقعه وتثبيته بإحكام على الزجاج الأمامي.</translation>
     </message>
 </context>
@@ -510,24 +542,36 @@
         <source>Reboot Device</source>
         <translation>إعادة التشغيل</translation>
     </message>
+    <message>
+        <source>openpilot crashed 💩</source>
+        <translation type="gpt-4.1-generated">Translation B: تعطل openpilot 💩</translation>
+    </message>
+    <message>
+        <source>openpilot crashed</source>
+        <translation type="gpt-4.1-generated">Translation A: تعطل openpilot</translation>
+    </message>
+    <message>
+        <source>Please post the "Error Log" in the FrogPilot Discord!</source>
+        <translation type="gpt-4.1-generated">Translation A: يرجى نشر "سجل الأخطاء" في ديسكورد FrogPilot!</translation>
+    </message>
 </context>
 <context>
     <name>PairingPopup</name>
     <message>
-        <source>Pair your device to your comma account</source>
-        <translation>اقرن جهازك مع حسابك على comma</translation>
+        <source>Click "add new device" and scan the QR code on the right</source>
+        <translation>انقر "،إضافة جهاز جديد"، وامسح رمز الاستجابة السريعة (QR) على اليمين</translation>
     </message>
     <message>
-        <source>Go to https://connect.comma.ai on your phone</source>
-        <translation>انتقل إلى https://connect.comma.ai على جوالك</translation>
+        <source>Pair your device to your %1 account</source>
+        <translation type="gpt-4.1-generated">Translation B: قم بإقران جهازك بحساب %1</translation>
     </message>
     <message>
-        <source>Click &quot;add new device&quot; and scan the QR code on the right</source>
-        <translation>انقر &quot;،إضافة جهاز جديد&quot;، وامسح رمز الاستجابة السريعة (QR) على اليمين</translation>
+        <source>Go to https://%1 on your phone</source>
+        <translation type="gpt-4.1-generated">Translation A: انتقل إلى https://%1 على هاتفك</translation>
     </message>
     <message>
-        <source>Bookmark connect.comma.ai to your home screen to use it like an app</source>
-        <translation>اجعل لـconnect.comma.ai إشارة مرجعية على شاشتك  الرئيسية من أجل استخدامه مثل أي تطبيق</translation>
+        <source>Bookmark %1 to your home screen to use it like an app</source>
+        <translation type="gpt-4.1-generated">Translation B: أضف %1 إلى الشاشة الرئيسية لاستخدامه كتطبيق</translation>
     </message>
 </context>
 <context>
@@ -593,10 +637,6 @@
         <source>Exit</source>
         <translation>إغلاق</translation>
     </message>
-    <message>
-        <source>openpilot</source>
-        <translation>openpilot</translation>
-    </message>
     <message numerus="yes">
         <source>%n minute(s) ago</source>
         <translation>
@@ -650,6 +690,10 @@
         <source>now</source>
         <translation>الآن</translation>
     </message>
+    <message>
+        <source>FrogPilot</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
+    </message>
 </context>
 <context>
     <name>Reset</name>
@@ -695,10 +739,6 @@ This may take up to a minute.</source>
 <context>
     <name>SettingsWindow</name>
     <message>
-        <source>×</source>
-        <translation>×</translation>
-    </message>
-    <message>
         <source>Device</source>
         <translation>الجهاز</translation>
     </message>
@@ -713,6 +753,38 @@ This may take up to a minute.</source>
     <message>
         <source>Software</source>
         <translation>البرنامج</translation>
+    </message>
+    <message>
+        <source>← Back</source>
+        <translation type="gpt-4.1-generated">← رجوع</translation>
+    </message>
+    <message>
+        <source>FrogPilot</source>
+        <translation type="gpt-4.1-generated">B</translation>
+    </message>
+    <message>
+        <source>Welcome to FrogPilot! Since you're new to FrogPilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Since you're fairly new to FrogPilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Since you're experienced with openpilot, the "Standard" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Since you're experienced with FrogPilot, the "Standard" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Since you're very experienced with FrogPilot, the "Advanced" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Welcome to FrogPilot! Since you're new to openpilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">مرحبًا بك في FrogPilot! بما أنك جديد في openpilot، تم تطبيق إعداد "الحد الأدنى" تلقائيًا، ولكن يمكنك تغييره في أي وقت عبر زر "مستوى الضبط"!</translation>
     </message>
 </context>
 <context>
@@ -824,6 +896,10 @@ This may take up to a minute.</source>
         <source>Pair device</source>
         <translation>اقتران الجهاز</translation>
     </message>
+    <message>
+        <source>Pair your device with Konik connect (stable.konik.ai).</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
 </context>
 <context>
     <name>Sidebar</name>
@@ -907,6 +983,30 @@ This may take up to a minute.</source>
         <source>5G</source>
         <translation>5G</translation>
     </message>
+    <message>
+        <source>GPU</source>
+        <translation type="gpt-4.1-generated">وحدة معالجة الرسومات</translation>
+    </message>
+    <message>
+        <source>CPU</source>
+        <translation type="gpt-4.1-generated">وحدة المعالجة المركزية</translation>
+    </message>
+    <message>
+        <source> GB</source>
+        <translation type="gpt-4.1-generated">Translation A: غيغابايت</translation>
+    </message>
+    <message>
+        <source>MEMORY</source>
+        <translation type="gpt-4.1-generated">الذاكرة</translation>
+    </message>
+    <message>
+        <source>LEFT</source>
+        <translation type="gpt-4.1-generated">يسار</translation>
+    </message>
+    <message>
+        <source>USED</source>
+        <translation type="gpt-4.1-generated">Translation B: مستخدم</translation>
+    </message>
 </context>
 <context>
     <name>SoftwarePanel</name>
@@ -925,10 +1025,6 @@ This may take up to a minute.</source>
     <message>
         <source>CHECK</source>
         <translation>التحقق</translation>
-    </message>
-    <message>
-        <source>Updates are only downloaded while the car is off.</source>
-        <translation>يتم تحميل التحديثات فقط عندما تكون السيارة متوقفة.</translation>
     </message>
     <message>
         <source>Current Version</source>
@@ -982,6 +1078,42 @@ This may take up to a minute.</source>
         <source>up to date, last checked %1</source>
         <translation>أحدث نسخة، آخر تحقق %1</translation>
     </message>
+    <message>
+        <source>Updates are only downloaded while the car is off or in park.</source>
+        <translation type="gpt-4.1-generated">Translation A: يتم تنزيل التحديثات فقط عندما تكون السيارة متوقفة أو في وضع الانتظار.</translation>
+    </message>
+    <message>
+        <source>Automatically Update FrogPilot</source>
+        <translation type="gpt-4.1-generated">تحديث FrogPilot تلقائيًا</translation>
+    </message>
+    <message>
+        <source>Error Log</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>VIEW</source>
+        <translation type="gpt-4.1-generated">عرض</translation>
+    </message>
+    <message>
+        <source>View the error log for openpilot crashes.</source>
+        <translation type="gpt-4.1-generated">Translation A: عرض سجل الأخطاء لحالات تعطل openpilot.</translation>
+    </message>
+    <message>
+        <source>Do you want to delete deep storage FrogPilot assets? This includes your toggle settings for quick reinstalls.</source>
+        <translation type="gpt-4.1-generated">Translation A: هل تريد حذف أصول FrogPilot المخزنة بعمق؟ يتضمن ذلك إعدادات التبديل الخاصة بك لإعادة التثبيت السريع.</translation>
+    </message>
+    <message>
+        <source>Are you sure? This is 100% unrecoverable and if you reinstall FrogPilot you'll lose all your previous settings!</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
+    </message>
+    <message>
+        <source>This branch must be downloaded before switching. Would you like to download it now?</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>FrogPilot will automatically update itself and it's assets when you're offroad and have an active internet connection.</source>
+        <translation type="gpt-4.1-generated">Translation B: سيقوم FrogPilot بتحديث نفسه وموارده تلقائيًا عندما تكون خارج الطريق ولديك اتصال إنترنت نشط.</translation>
+    </message>
 </context>
 <context>
     <name>SshControl</name>
@@ -1010,16 +1142,16 @@ This may take up to a minute.</source>
         <translation>إزالة</translation>
     </message>
     <message>
-        <source>Username &apos;%1&apos; has no keys on GitHub</source>
-        <translation>لا يحتوي اسم المستخدم &apos;%1&apos; أي مفاتيح على GitHub</translation>
+        <source>Username '%1' has no keys on GitHub</source>
+        <translation>لا يحتوي اسم المستخدم '%1' أي مفاتيح على GitHub</translation>
     </message>
     <message>
         <source>Request timed out</source>
         <translation>انتهى وقت الطلب</translation>
     </message>
     <message>
-        <source>Username &apos;%1&apos; doesn&apos;t exist on GitHub</source>
-        <translation>اسم المستخدم &apos;%1&apos; غير موجود على GitHub</translation>
+        <source>Username '%1' doesn't exist on GitHub</source>
+        <translation>اسم المستخدم '%1' غير موجود على GitHub</translation>
     </message>
 </context>
 <context>
@@ -1115,7 +1247,7 @@ This may take up to a minute.</source>
         <translation>تحذير: التحكم الطولي في openpilot في المرحلة ألفا لهذه السيارة، وسيقوم بتعطيل مكابح الطوارئ الآلية (AEB).</translation>
     </message>
     <message>
-        <source>On this car, openpilot defaults to the car&apos;s built-in ACC instead of openpilot&apos;s longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
+        <source>On this car, openpilot defaults to the car's built-in ACC instead of openpilot's longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
         <translation>في هذه السيارة يعمل openpilot افتراضياً بالشكل المدمج في التحكم التكيفي في السرعة بدلاً من التحكم الطولي. قم بتمكين هذا الخيار من أجل الانتقال إلى التحكم الطولي. يوصى بتمكين الوضع التجريبي عند استخدام وضع التحكم الطولي ألفا من openpilot.</translation>
     </message>
     <message>
@@ -1139,7 +1271,7 @@ This may take up to a minute.</source>
         <translation>شخصية القيادة</translation>
     </message>
     <message>
-        <source>openpilot defaults to driving in &lt;b&gt;chill mode&lt;/b&gt;. Experimental mode enables &lt;b&gt;alpha-level features&lt;/b&gt; that aren&apos;t ready for chill mode. Experimental features are listed below:</source>
+        <source>openpilot defaults to driving in &lt;b&gt;chill mode&lt;/b&gt;. Experimental mode enables &lt;b&gt;alpha-level features&lt;/b&gt; that aren't ready for chill mode. Experimental features are listed below:</source>
         <translation>يتم وضع openpilot بشكل قياسي في &lt;b&gt;وضعية الراحة&lt;/b&gt;. يمكن الوضع التجريبي &lt;b&gt;ميزات المستوى ألفا&lt;/b&gt; التي لا تكون جاهزة في وضع الراحة:</translation>
     </message>
     <message>
@@ -1155,16 +1287,12 @@ This may take up to a minute.</source>
         <translation>تصور القيادة الديد</translation>
     </message>
     <message>
-        <source>Experimental mode is currently unavailable on this car since the car&apos;s stock ACC is used for longitudinal control.</source>
+        <source>Experimental mode is currently unavailable on this car since the car's stock ACC is used for longitudinal control.</source>
         <translation>الوضع التجريبي غير متوفر حالياً في هذه السيارة نظراً لاستخدام رصيد التحكم التكيفي بالسرعة من أجل التحكم الطولي.</translation>
     </message>
     <message>
         <source>openpilot longitudinal control may come in a future update.</source>
         <translation>قد يتم الحصول على التحكم الطولي في openpilot في عمليات التحديث المستقبلية.</translation>
-    </message>
-    <message>
-        <source>An alpha version of openpilot longitudinal control can be tested, along with Experimental mode, on non-release branches.</source>
-        <translation>يمكن اختبار نسخة ألفا من التحكم الطولي من openpilot، مع الوضع التجريبي، لكن على الفروع غير المطلقة.</translation>
     </message>
     <message>
         <source>Enable the openpilot longitudinal control (alpha) toggle to allow Experimental mode.</source>
@@ -1176,15 +1304,7 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>The driving visualization will transition to the road-facing wide-angle camera at low speeds to better show some turns. The Experimental mode logo will also be shown in the top right corner.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Always-On Driver Monitoring</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enable driver monitoring even when openpilot is not engaged.</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
 </context>
 <context>
@@ -1244,6 +1364,14 @@ This may take up to a minute.</source>
         <source>Training data will be pulled periodically while your device is on Wi-Fi</source>
         <translation>سيتم سحب بيانات التدريب دورياً عندما يكون جهازك متصل بشبكة واي فاي</translation>
     </message>
+    <message>
+        <source>Uploading disabled</source>
+        <translation type="gpt-4.1-generated">Translation A: تم تعطيل التحميل</translation>
+    </message>
+    <message>
+        <source>Toggle off the "Turn Off Data Uploads" toggle to re-enable uploads.</source>
+        <translation type="gpt-4.1-generated">Translation A: قم بإيقاف تشغيل خيار "إيقاف تحميل البيانات" لإعادة تفعيل التحميلات.</translation>
+    </message>
 </context>
 <context>
     <name>WifiUI</name>
@@ -1260,8 +1388,8 @@ This may take up to a minute.</source>
         <translation>نسيان هذه الشبكة</translation>
     </message>
     <message>
-        <source>Forget Wi-Fi Network &quot;%1&quot;?</source>
-        <translation>هل تريد نسيان شبكة الواي فاي &quot;%1&quot;؟</translation>
+        <source>Forget Wi-Fi Network "%1"?</source>
+        <translation>هل تريد نسيان شبكة الواي فاي "%1"؟</translation>
     </message>
     <message>
         <source>Forget</source>

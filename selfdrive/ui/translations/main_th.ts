@@ -15,6 +15,10 @@
         <source>Reboot and Update</source>
         <translation>รีบูตและอัปเดต</translation>
     </message>
+    <message>
+        <source>Disable Internet Check</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
 </context>
 <context>
     <name>AdvancedNetworking</name>
@@ -83,8 +87,28 @@
         <translation>ใส่รหัสผ่าน</translation>
     </message>
     <message>
-        <source>for &quot;%1&quot;</source>
-        <translation>สำหรับ &quot;%1&quot;</translation>
+        <source>for "%1"</source>
+        <translation>สำหรับ "%1"</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Always</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Only Onroad</source>
+        <translation type="gpt-4.1-generated">Translation B: เฉพาะขณะขับขี่</translation>
+    </message>
+    <message>
+        <source>Until Reboot</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Allow tethering with your data SIM and keep it active either while driving or continuously.</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
 </context>
 <context>
@@ -305,6 +329,10 @@
         <source>PAIR</source>
         <translation>จับคู่</translation>
     </message>
+    <message>
+        <source>Pair your device with Konik connect (stable.konik.ai).</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
 </context>
 <context>
     <name>DriverViewWindow</name>
@@ -336,6 +364,10 @@
             <numerusform>ต้องการอย่างน้อย %n ตัวอักษร!</numerusform>
         </translation>
     </message>
+    <message>
+        <source>Characters: %1/%2</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
 </context>
 <context>
     <name>Installer</name>
@@ -366,8 +398,8 @@
         <translation>การนำทาง</translation>
     </message>
     <message>
-        <source>Manage at connect.comma.ai</source>
-        <translation>จัดการได้ที่ connect.comma.ai</translation>
+        <source>Manage at %1</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
 </context>
 <context>
@@ -407,8 +439,8 @@
         <translation>ใส่รหัสผ่าน</translation>
     </message>
     <message>
-        <source>for &quot;%1&quot;</source>
-        <translation>สำหรับ &quot;%1&quot;</translation>
+        <source>for "%1"</source>
+        <translation>สำหรับ "%1"</translation>
     </message>
     <message>
         <source>Wrong password</source>
@@ -422,11 +454,11 @@
         <translation>อุณหภูมิของอุปกรณ์สูงเกินไป ระบบกำลังทำความเย็นก่อนเริ่ม อุณหภูมิของชิ้นส่วนภายในปัจจุบัน: %1</translation>
     </message>
     <message>
-        <source>Immediately connect to the internet to check for updates. If you do not connect to the internet, openpilot won&apos;t engage in %1</source>
+        <source>Immediately connect to the internet to check for updates. If you do not connect to the internet, openpilot won't engage in %1</source>
         <translation>กรุณาเชื่อมต่ออินเตอร์เน็ตเพื่อตรวจสอบอัปเดทเดี๋ยวนี้ ถ้าคุณไม่เชื่อมต่ออินเตอร์เน็ต openpilot จะไม่ทำงานในอีก %1</translation>
     </message>
     <message>
-        <source>Connect to internet to check for updates. openpilot won&apos;t automatically start until it connects to internet to check for updates.</source>
+        <source>Connect to internet to check for updates. openpilot won't automatically start until it connects to internet to check for updates.</source>
         <translation>กรุณาเชื่อมต่ออินเตอร์เน็ตเพื่อตรวจสอบอัปเดท openpilot จะไม่เริ่มทำงานอัตโนมัติจนกว่าจะได้เชื่อมต่อกับอินเตอร์เน็ตเพื่อตรวจสอบอัปเดท</translation>
     </message>
     <message>
@@ -436,11 +468,11 @@
 %1</translation>
     </message>
     <message>
-        <source>Taking camera snapshots. System won&apos;t start until finished.</source>
+        <source>Taking camera snapshots. System won't start until finished.</source>
         <translation>กล้องกำลังถ่ายภาพ ระบบจะไม่เริ่มทำงานจนกว่าจะเสร็จ</translation>
     </message>
     <message>
-        <source>An update to your device&apos;s operating system is downloading in the background. You will be prompted to update when it&apos;s ready to install.</source>
+        <source>An update to your device's operating system is downloading in the background. You will be prompted to update when it's ready to install.</source>
         <translation>กำลังดาวน์โหลดอัปเดทสำหรับระบบปฏิบัติการอยู่เบื้องหลัง คุณจะได้รับการแจ้งเตือนเมื่อระบบพร้อมสำหรับการติดตั้ง</translation>
     </message>
     <message>
@@ -464,7 +496,7 @@
         <translation>openpilot ไม่สามารถระบุรถยนต์ของคุณได้ กรุณาตรวจสอบสายเคเบิ้ลและจุดเชื่อมต่อทั้งหมดว่าแน่นหนา โดยเฉพาะ comma power ว่าได้ดันเข้าไปยังพอร์ต OBD II ของรถยนต์จนสุด หากต้องการความช่วยเหลือให้เข้าร่วม discord.comma.ai</translation>
     </message>
     <message>
-        <source>openpilot detected a change in the device&apos;s mounting position. Ensure the device is fully seated in the mount and the mount is firmly secured to the windshield.</source>
+        <source>openpilot detected a change in the device's mounting position. Ensure the device is fully seated in the mount and the mount is firmly secured to the windshield.</source>
         <translation>openpilot ตรวจพบการเปลี่ยนแปลงของตำแหน่งที่ติดตั้ง กรุณาตรวจสอบว่าได้เลื่อนอุปกรณ์เข้ากับจุดติดตั้งจนสุดแล้ว และจุดติดตั้งได้ยึดติดกับกระจกหน้าอย่างแน่นหนา</translation>
     </message>
 </context>
@@ -505,24 +537,36 @@
         <source>Reboot Device</source>
         <translation>รีบูตอุปกรณ์</translation>
     </message>
+    <message>
+        <source>openpilot crashed 💩</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>openpilot crashed</source>
+        <translation type="gpt-4.1-generated">Translation A: openpilot ขัดข้อง</translation>
+    </message>
+    <message>
+        <source>Please post the "Error Log" in the FrogPilot Discord!</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
 </context>
 <context>
     <name>PairingPopup</name>
     <message>
-        <source>Pair your device to your comma account</source>
-        <translation>จับคู่อุปกรณ์ของคุณกับบัญชี comma ของคุณ</translation>
+        <source>Click "add new device" and scan the QR code on the right</source>
+        <translation>กดที่ "add new device" และสแกนคิวอาร์โค้ดทางด้านขวา</translation>
     </message>
     <message>
-        <source>Go to https://connect.comma.ai on your phone</source>
-        <translation>ไปที่ https://connect.comma.ai ด้วยโทรศัพท์ของคุณ</translation>
+        <source>Pair your device to your %1 account</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
-        <source>Click &quot;add new device&quot; and scan the QR code on the right</source>
-        <translation>กดที่ &quot;add new device&quot; และสแกนคิวอาร์โค้ดทางด้านขวา</translation>
+        <source>Go to https://%1 on your phone</source>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
-        <source>Bookmark connect.comma.ai to your home screen to use it like an app</source>
-        <translation>จดจำ connect.comma.ai โดยการเพิ่มไปยังหน้าจอโฮม เพื่อใช้งานเหมือนเป็นแอปพลิเคชัน</translation>
+        <source>Bookmark %1 to your home screen to use it like an app</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
 </context>
 <context>
@@ -588,10 +632,6 @@
         <source>Exit</source>
         <translation>ปิด</translation>
     </message>
-    <message>
-        <source>openpilot</source>
-        <translation>openpilot</translation>
-    </message>
     <message numerus="yes">
         <source>%n minute(s) ago</source>
         <translation>
@@ -629,6 +669,10 @@
     <message>
         <source>now</source>
         <translation>ตอนนี้</translation>
+    </message>
+    <message>
+        <source>FrogPilot</source>
+        <translation type="gpt-4.1-generated">FrogPilot</translation>
     </message>
 </context>
 <context>
@@ -675,10 +719,6 @@ This may take up to a minute.</source>
 <context>
     <name>SettingsWindow</name>
     <message>
-        <source>×</source>
-        <translation>×</translation>
-    </message>
-    <message>
         <source>Device</source>
         <translation>อุปกรณ์</translation>
     </message>
@@ -693,6 +733,38 @@ This may take up to a minute.</source>
     <message>
         <source>Software</source>
         <translation>ซอฟต์แวร์</translation>
+    </message>
+    <message>
+        <source>← Back</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>FrogPilot</source>
+        <translation type="gpt-4.1-generated">B</translation>
+    </message>
+    <message>
+        <source>Welcome to FrogPilot! Since you're new to FrogPilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
+    </message>
+    <message>
+        <source>Since you're fairly new to FrogPilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
+    </message>
+    <message>
+        <source>Since you're experienced with openpilot, the "Standard" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Since you're experienced with FrogPilot, the "Standard" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Since you're very experienced with FrogPilot, the "Advanced" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Welcome to FrogPilot! Since you're new to openpilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">ยินดีต้อนรับสู่ FrogPilot! เนื่องจากคุณเป็นผู้ใช้ใหม่ของ openpilot จึงได้ตั้งค่าพรีเซ็ต "Minimal" ให้โดยอัตโนมัติ แต่คุณสามารถเปลี่ยนแปลงได้ตลอดเวลาผ่านปุ่ม "Tuning Level"!</translation>
     </message>
 </context>
 <context>
@@ -804,6 +876,10 @@ This may take up to a minute.</source>
         <source>Pair device</source>
         <translation>จับคู่อุปกรณ์</translation>
     </message>
+    <message>
+        <source>Pair your device with Konik connect (stable.konik.ai).</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
 </context>
 <context>
     <name>Sidebar</name>
@@ -887,6 +963,30 @@ This may take up to a minute.</source>
         <source>5G</source>
         <translation>5G</translation>
     </message>
+    <message>
+        <source>GPU</source>
+        <translation type="gpt-4.1-generated">Translation B: GPU</translation>
+    </message>
+    <message>
+        <source>CPU</source>
+        <translation type="gpt-4.1-generated">Translation B: CPU</translation>
+    </message>
+    <message>
+        <source> GB</source>
+        <translation type="gpt-4.1-generated">Translation B: GB</translation>
+    </message>
+    <message>
+        <source>MEMORY</source>
+        <translation type="gpt-4.1-generated">หน่วยความจำ</translation>
+    </message>
+    <message>
+        <source>LEFT</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>USED</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
 </context>
 <context>
     <name>SoftwarePanel</name>
@@ -905,10 +1005,6 @@ This may take up to a minute.</source>
     <message>
         <source>CHECK</source>
         <translation>ตรวจสอบ</translation>
-    </message>
-    <message>
-        <source>Updates are only downloaded while the car is off.</source>
-        <translation>ตัวอัปเดตจะดำเนินการดาวน์โหลดเมื่อรถดับเครื่องยนต์อยู่เท่านั้น</translation>
     </message>
     <message>
         <source>Current Version</source>
@@ -962,6 +1058,42 @@ This may take up to a minute.</source>
         <source>up to date, last checked %1</source>
         <translation>ล่าสุดแล้ว ตรวจสอบครั้งสุดท้ายเมื่อ %1</translation>
     </message>
+    <message>
+        <source>Updates are only downloaded while the car is off or in park.</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
+    </message>
+    <message>
+        <source>Automatically Update FrogPilot</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Error Log</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>VIEW</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>View the error log for openpilot crashes.</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Do you want to delete deep storage FrogPilot assets? This includes your toggle settings for quick reinstalls.</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Are you sure? This is 100% unrecoverable and if you reinstall FrogPilot you'll lose all your previous settings!</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>This branch must be downloaded before switching. Would you like to download it now?</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>FrogPilot will automatically update itself and it's assets when you're offroad and have an active internet connection.</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
 </context>
 <context>
     <name>SshControl</name>
@@ -990,16 +1122,16 @@ This may take up to a minute.</source>
         <translation>ลบ</translation>
     </message>
     <message>
-        <source>Username &apos;%1&apos; has no keys on GitHub</source>
-        <translation>ชื่อผู้ใช้ &apos;%1&apos; ไม่มีคีย์บน GitHub</translation>
+        <source>Username '%1' has no keys on GitHub</source>
+        <translation>ชื่อผู้ใช้ '%1' ไม่มีคีย์บน GitHub</translation>
     </message>
     <message>
         <source>Request timed out</source>
         <translation>ตรวจสอบไม่สำเร็จ เนื่องจากใช้เวลามากเกินไป</translation>
     </message>
     <message>
-        <source>Username &apos;%1&apos; doesn&apos;t exist on GitHub</source>
-        <translation>ไม่พบชื่อผู้ใช้ &apos;%1&apos; บน GitHub</translation>
+        <source>Username '%1' doesn't exist on GitHub</source>
+        <translation>ไม่พบชื่อผู้ใช้ '%1' บน GitHub</translation>
     </message>
 </context>
 <context>
@@ -1091,7 +1223,7 @@ This may take up to a minute.</source>
         <translation>โหมดทดลอง</translation>
     </message>
     <message>
-        <source>openpilot defaults to driving in &lt;b&gt;chill mode&lt;/b&gt;. Experimental mode enables &lt;b&gt;alpha-level features&lt;/b&gt; that aren&apos;t ready for chill mode. Experimental features are listed below:</source>
+        <source>openpilot defaults to driving in &lt;b&gt;chill mode&lt;/b&gt;. Experimental mode enables &lt;b&gt;alpha-level features&lt;/b&gt; that aren't ready for chill mode. Experimental features are listed below:</source>
         <translation>โดยปกติ openpilot จะขับใน&lt;b&gt;โหมดชิล&lt;/b&gt; เปิดโหมดทดลองเพื่อใช้&lt;b&gt;ความสามารถในขั้นพัฒนา&lt;/b&gt; ซึ่งยังไม่พร้อมสำหรับโหมดชิล ความสามารถในขั้นพัฒนามีดังนี้:</translation>
     </message>
     <message>
@@ -1103,7 +1235,7 @@ This may take up to a minute.</source>
         <translation>การแสดงภาพการขับขี่แบบใหม่</translation>
     </message>
     <message>
-        <source>Experimental mode is currently unavailable on this car since the car&apos;s stock ACC is used for longitudinal control.</source>
+        <source>Experimental mode is currently unavailable on this car since the car's stock ACC is used for longitudinal control.</source>
         <translation>ขณะนี้โหมดทดลองไม่สามารถใช้งานได้ในรถคันนี้ เนื่องจากเปิดใช้ระบบควบคุมการเร่ง/เบรคของรถที่ติดตั้งจากโรงงานอยู่</translation>
     </message>
     <message>
@@ -1119,7 +1251,7 @@ This may take up to a minute.</source>
         <translation>คำเตือน: การควบคุมการเร่ง/เบรคโดย openpilot สำหรับรถคันนี้ยังอยู่ในสถานะ alpha และระบบเบรคฉุกเฉินอัตโนมัติ (AEB) จะถูกปิด</translation>
     </message>
     <message>
-        <source>On this car, openpilot defaults to the car&apos;s built-in ACC instead of openpilot&apos;s longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
+        <source>On this car, openpilot defaults to the car's built-in ACC instead of openpilot's longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
         <translation>โดยปกติสำหรับรถคันนี้ openpilot จะควบคุมการเร่ง/เบรคด้วยระบบ ACC จากโรงงาน แทนการควยคุมโดย openpilot เปิดสวิตซ์นี้เพื่อให้ openpilot ควบคุมการเร่ง/เบรค แนะนำให้เปิดโหมดทดลองเมื่อต้องการให้ openpilot ควบคุมการเร่ง/เบรค ซึ่งอยู่ในสถานะ alpha</translation>
     </message>
     <message>
@@ -1139,10 +1271,6 @@ This may take up to a minute.</source>
         <translation>บุคลิกการขับขี่</translation>
     </message>
     <message>
-        <source>An alpha version of openpilot longitudinal control can be tested, along with Experimental mode, on non-release branches.</source>
-        <translation>ระบบควบคุมการเร่ง/เบรคโดย openpilot เวอร์ชัน alpha สามารถทดสอบได้พร้อมกับโหมดการทดลอง บน branch ที่กำลังพัฒนา</translation>
-    </message>
-    <message>
         <source>End-to-End Longitudinal Control</source>
         <translation>ควบคุมเร่ง/เบรคแบบ End-to-End</translation>
     </message>
@@ -1157,14 +1285,6 @@ This may take up to a minute.</source>
     <message>
         <source>The driving visualization will transition to the road-facing wide-angle camera at low speeds to better show some turns. The Experimental mode logo will also be shown in the top right corner.</source>
         <translation>การแสดงภาพการขับขี่จะเปลี่ยนไปใช้กล้องมุมกว้างที่หันหน้าไปทางถนนเมื่ออยู่ในความเร็วต่ำ เพื่อแสดงภาพการเลี้ยวที่ดีขึ้น โลโก้โหมดการทดลองจะแสดงที่มุมบนขวาด้วย</translation>
-    </message>
-    <message>
-        <source>Always-On Driver Monitoring</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enable driver monitoring even when openpilot is not engaged.</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1224,6 +1344,14 @@ This may take up to a minute.</source>
         <source>Training data will be pulled periodically while your device is on Wi-Fi</source>
         <translation>ข้อมูลการฝึกฝนจะถูกดึงเป็นระยะระหว่างที่อุปกรณ์ของคุณเชื่อมต่อกับ Wi-Fi</translation>
     </message>
+    <message>
+        <source>Uploading disabled</source>
+        <translation type="gpt-4.1-generated">Translation B: การอัปโหลดถูกปิดใช้งาน</translation>
+    </message>
+    <message>
+        <source>Toggle off the "Turn Off Data Uploads" toggle to re-enable uploads.</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
 </context>
 <context>
     <name>WifiUI</name>
@@ -1240,8 +1368,8 @@ This may take up to a minute.</source>
         <translation>เลิกใช้</translation>
     </message>
     <message>
-        <source>Forget Wi-Fi Network &quot;%1&quot;?</source>
-        <translation>เลิกใช้เครือข่าย Wi-Fi &quot;%1&quot;?</translation>
+        <source>Forget Wi-Fi Network "%1"?</source>
+        <translation>เลิกใช้เครือข่าย Wi-Fi "%1"?</translation>
     </message>
     <message>
         <source>Forget</source>

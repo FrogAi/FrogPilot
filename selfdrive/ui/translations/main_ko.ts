@@ -15,6 +15,10 @@
         <source>Reboot and Update</source>
         <translation>업데이트 및 재부팅</translation>
     </message>
+    <message>
+        <source>Disable Internet Check</source>
+        <translation type="gpt-4.1-generated">Translation A: 인터넷 검사 비활성화</translation>
+    </message>
 </context>
 <context>
     <name>AdvancedNetworking</name>
@@ -83,8 +87,28 @@
         <translation>비밀번호를 입력하세요</translation>
     </message>
     <message>
-        <source>for &quot;%1&quot;</source>
-        <translation>&quot;%1&quot;에 접속하려면 비밀번호가 필요합니다</translation>
+        <source>for "%1"</source>
+        <translation>"%1"에 접속하려면 비밀번호가 필요합니다</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Always</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Only Onroad</source>
+        <translation type="gpt-4.1-generated">Translation B: 주행 중에만</translation>
+    </message>
+    <message>
+        <source>Until Reboot</source>
+        <translation type="gpt-4.1-generated">Translation B: 재부팅할 때까지</translation>
+    </message>
+    <message>
+        <source>Allow tethering with your data SIM and keep it active either while driving or continuously.</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
     </message>
 </context>
 <context>
@@ -305,6 +329,10 @@
         <source>PAIR</source>
         <translation>동기화</translation>
     </message>
+    <message>
+        <source>Pair your device with Konik connect (stable.konik.ai).</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
 </context>
 <context>
     <name>DriverViewWindow</name>
@@ -336,6 +364,10 @@
             <numerusform>최소 %n자 이상이어야 합니다!</numerusform>
         </translation>
     </message>
+    <message>
+        <source>Characters: %1/%2</source>
+        <translation type="gpt-4.1-generated">Translation A: 문자 수: %1/%2</translation>
+    </message>
 </context>
 <context>
     <name>Installer</name>
@@ -366,8 +398,8 @@
         <translation>내비게이션</translation>
     </message>
     <message>
-        <source>Manage at connect.comma.ai</source>
-        <translation>connect.comma.ai에서 관리하세요</translation>
+        <source>Manage at %1</source>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
 </context>
 <context>
@@ -407,8 +439,8 @@
         <translation>비밀번호를 입력하세요</translation>
     </message>
     <message>
-        <source>for &quot;%1&quot;</source>
-        <translation>&quot;%1&quot;에 접속하려면 비밀번호가 필요합니다</translation>
+        <source>for "%1"</source>
+        <translation>"%1"에 접속하려면 비밀번호가 필요합니다</translation>
     </message>
     <message>
         <source>Wrong password</source>
@@ -418,11 +450,11 @@
 <context>
     <name>OffroadAlert</name>
     <message>
-        <source>Immediately connect to the internet to check for updates. If you do not connect to the internet, openpilot won&apos;t engage in %1</source>
+        <source>Immediately connect to the internet to check for updates. If you do not connect to the internet, openpilot won't engage in %1</source>
         <translation>즉시 인터넷에 연결하여 업데이트를 확인하세요. 인터넷에 연결되어 있지 않으면 %1 이후에는 openpilot이 활성화되지 않습니다.</translation>
     </message>
     <message>
-        <source>Connect to internet to check for updates. openpilot won&apos;t automatically start until it connects to internet to check for updates.</source>
+        <source>Connect to internet to check for updates. openpilot won't automatically start until it connects to internet to check for updates.</source>
         <translation>업데이트를 확인하려면 인터넷에 연결하세요. openpilot은 업데이트를 확인하기 위해 인터넷에 연결할 때까지 자동으로 시작되지 않습니다.</translation>
     </message>
     <message>
@@ -432,11 +464,11 @@
 %1</translation>
     </message>
     <message>
-        <source>Taking camera snapshots. System won&apos;t start until finished.</source>
+        <source>Taking camera snapshots. System won't start until finished.</source>
         <translation>카메라 스냅샷 찍기가 완료될 때까지 시스템이 시작되지 않습니다.</translation>
     </message>
     <message>
-        <source>An update to your device&apos;s operating system is downloading in the background. You will be prompted to update when it&apos;s ready to install.</source>
+        <source>An update to your device's operating system is downloading in the background. You will be prompted to update when it's ready to install.</source>
         <translation>백그라운드에서 운영 체제에 대한 업데이트가 다운로드되고 있습니다. 설치가 준비되면 업데이트 메시지가 표시됩니다.</translation>
     </message>
     <message>
@@ -460,7 +492,7 @@
         <translation>openpilot이 차량을 식별할 수 없었습니다. 케이블의 무결성을 점검하고 모든 연결부, 특히 comma power가 차량의 OBD-II 포트에 제대로 삽입되었는지 확인하세요. 도움이 필요하시면 discord.comma.ai에 가입하세요.</translation>
     </message>
     <message>
-        <source>openpilot detected a change in the device&apos;s mounting position. Ensure the device is fully seated in the mount and the mount is firmly secured to the windshield.</source>
+        <source>openpilot detected a change in the device's mounting position. Ensure the device is fully seated in the mount and the mount is firmly secured to the windshield.</source>
         <translation>openpilot 장치의 장착 위치가 변경되었습니다. 장치가 마운트에 완전히 장착되고 마운트가 앞유리에 단단히 고정되었는지 확인하세요. </translation>
     </message>
     <message>
@@ -505,24 +537,36 @@
         <source>Reboot Device</source>
         <translation>장치를 재부팅하세요</translation>
     </message>
+    <message>
+        <source>openpilot crashed 💩</source>
+        <translation type="gpt-4.1-generated">Translation A: openpilot가 충돌했습니다 💩</translation>
+    </message>
+    <message>
+        <source>openpilot crashed</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Please post the "Error Log" in the FrogPilot Discord!</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
 </context>
 <context>
     <name>PairingPopup</name>
     <message>
-        <source>Pair your device to your comma account</source>
-        <translation>장치를 comma 계정에 동기화합니다</translation>
+        <source>Click "add new device" and scan the QR code on the right</source>
+        <translation>"새 장치 추가"를 클릭하고 오른쪽 QR 코드를 스캔하세요</translation>
     </message>
     <message>
-        <source>Go to https://connect.comma.ai on your phone</source>
-        <translation>https://connect.comma.ai에 접속하세요</translation>
+        <source>Pair your device to your %1 account</source>
+        <translation type="gpt-4.1-generated">Translation A: 기기를 %1 계정에 연결하세요</translation>
     </message>
     <message>
-        <source>Click &quot;add new device&quot; and scan the QR code on the right</source>
-        <translation>&quot;새 장치 추가&quot;를 클릭하고 오른쪽 QR 코드를 스캔하세요</translation>
+        <source>Go to https://%1 on your phone</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
-        <source>Bookmark connect.comma.ai to your home screen to use it like an app</source>
-        <translation>connect.comma.ai를 앱처럼 사용하려면 홈 화면에 바로가기를 만드세요</translation>
+        <source>Bookmark %1 to your home screen to use it like an app</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
     </message>
 </context>
 <context>
@@ -588,10 +632,6 @@
         <source>Exit</source>
         <translation>종료</translation>
     </message>
-    <message>
-        <source>openpilot</source>
-        <translation>openpilot</translation>
-    </message>
     <message numerus="yes">
         <source>%n minute(s) ago</source>
         <translation>
@@ -629,6 +669,10 @@
     <message>
         <source>now</source>
         <translation>now</translation>
+    </message>
+    <message>
+        <source>FrogPilot</source>
+        <translation type="gpt-4.1-generated">FrogPilot</translation>
     </message>
 </context>
 <context>
@@ -675,10 +719,6 @@ This may take up to a minute.</source>
 <context>
     <name>SettingsWindow</name>
     <message>
-        <source>×</source>
-        <translation>×</translation>
-    </message>
-    <message>
         <source>Device</source>
         <translation>장치</translation>
     </message>
@@ -693,6 +733,38 @@ This may take up to a minute.</source>
     <message>
         <source>Software</source>
         <translation>소프트웨어</translation>
+    </message>
+    <message>
+        <source>← Back</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>FrogPilot</source>
+        <translation type="gpt-4.1-generated">B</translation>
+    </message>
+    <message>
+        <source>Welcome to FrogPilot! Since you're new to FrogPilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
+    </message>
+    <message>
+        <source>Since you're fairly new to FrogPilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
+    </message>
+    <message>
+        <source>Since you're experienced with openpilot, the "Standard" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
+    </message>
+    <message>
+        <source>Since you're experienced with FrogPilot, the "Standard" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Since you're very experienced with FrogPilot, the "Advanced" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Welcome to FrogPilot! Since you're new to openpilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">FrogPilot에 오신 것을 환영합니다! openpilot를 처음 사용하셔서 "최소" 토글 프리셋이 적용되었습니다. 언제든지 "튜닝 레벨" 버튼을 통해 변경하실 수 있습니다!</translation>
     </message>
 </context>
 <context>
@@ -804,6 +876,10 @@ This may take up to a minute.</source>
         <source>Pair device</source>
         <translation>장치 페어링</translation>
     </message>
+    <message>
+        <source>Pair your device with Konik connect (stable.konik.ai).</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
 </context>
 <context>
     <name>Sidebar</name>
@@ -887,13 +963,33 @@ This may take up to a minute.</source>
         <source>5G</source>
         <translation>5G</translation>
     </message>
+    <message>
+        <source>GPU</source>
+        <translation type="gpt-4.1-generated">GPU</translation>
+    </message>
+    <message>
+        <source>CPU</source>
+        <translation type="gpt-4.1-generated">CPU</translation>
+    </message>
+    <message>
+        <source> GB</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>MEMORY</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>LEFT</source>
+        <translation type="gpt-4.1-generated">Translation B: 왼쪽</translation>
+    </message>
+    <message>
+        <source>USED</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
 </context>
 <context>
     <name>SoftwarePanel</name>
-    <message>
-        <source>Updates are only downloaded while the car is off.</source>
-        <translation>업데이트는 차량 시동이 꺼졌을 때 다운로드됩니다.</translation>
-    </message>
     <message>
         <source>Current Version</source>
         <translation>현재 버전</translation>
@@ -962,6 +1058,42 @@ This may take up to a minute.</source>
         <source>never</source>
         <translation>업데이트 안함</translation>
     </message>
+    <message>
+        <source>Updates are only downloaded while the car is off or in park.</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Automatically Update FrogPilot</source>
+        <translation type="gpt-4.1-generated">FrogPilot 자동 업데이트</translation>
+    </message>
+    <message>
+        <source>Error Log</source>
+        <translation type="gpt-4.1-generated">오류 로그</translation>
+    </message>
+    <message>
+        <source>VIEW</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>View the error log for openpilot crashes.</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Do you want to delete deep storage FrogPilot assets? This includes your toggle settings for quick reinstalls.</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Are you sure? This is 100% unrecoverable and if you reinstall FrogPilot you'll lose all your previous settings!</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>This branch must be downloaded before switching. Would you like to download it now?</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>FrogPilot will automatically update itself and it's assets when you're offroad and have an active internet connection.</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
 </context>
 <context>
     <name>SshControl</name>
@@ -990,16 +1122,16 @@ This may take up to a minute.</source>
         <translation>삭제</translation>
     </message>
     <message>
-        <source>Username &apos;%1&apos; has no keys on GitHub</source>
-        <translation>사용자 &apos;%1&apos;의 GitHub에 키가 등록되어 있지 않습니다</translation>
+        <source>Username '%1' has no keys on GitHub</source>
+        <translation>사용자 '%1'의 GitHub에 키가 등록되어 있지 않습니다</translation>
     </message>
     <message>
         <source>Request timed out</source>
         <translation>요청 시간 초과</translation>
     </message>
     <message>
-        <source>Username &apos;%1&apos; doesn&apos;t exist on GitHub</source>
-        <translation>GitHub 사용자 &apos;%1&apos;를 찾지 못했습니다</translation>
+        <source>Username '%1' doesn't exist on GitHub</source>
+        <translation>GitHub 사용자 '%1'를 찾지 못했습니다</translation>
     </message>
 </context>
 <context>
@@ -1091,7 +1223,7 @@ This may take up to a minute.</source>
         <translation>실험 모드</translation>
     </message>
     <message>
-        <source>openpilot defaults to driving in &lt;b&gt;chill mode&lt;/b&gt;. Experimental mode enables &lt;b&gt;alpha-level features&lt;/b&gt; that aren&apos;t ready for chill mode. Experimental features are listed below:</source>
+        <source>openpilot defaults to driving in &lt;b&gt;chill mode&lt;/b&gt;. Experimental mode enables &lt;b&gt;alpha-level features&lt;/b&gt; that aren't ready for chill mode. Experimental features are listed below:</source>
         <translation>openpilot은 기본적으로 &lt;b&gt;안정 모드&lt;/b&gt;로 주행합니다. 실험 모드는 안정화되지 않은 &lt;b&gt;알파 수준의 기능&lt;/b&gt;을 활성화합니다. 실험 모드의 기능은 아래와 같습니다:</translation>
     </message>
     <message>
@@ -1103,7 +1235,7 @@ This may take up to a minute.</source>
         <translation>새로운 주행 시각화</translation>
     </message>
     <message>
-        <source>Experimental mode is currently unavailable on this car since the car&apos;s stock ACC is used for longitudinal control.</source>
+        <source>Experimental mode is currently unavailable on this car since the car's stock ACC is used for longitudinal control.</source>
         <translation>차량에 장착된 ACC로 가감속을 제어하기 때문에 현재 이 차량에서는 실험 모드를 사용할 수 없습니다.</translation>
     </message>
     <message>
@@ -1119,7 +1251,7 @@ This may take up to a minute.</source>
         <translation>경고: openpilot 가감속 제어 알파 기능으로 차량의 자동긴급제동(AEB)을 비활성화합니다.</translation>
     </message>
     <message>
-        <source>On this car, openpilot defaults to the car&apos;s built-in ACC instead of openpilot&apos;s longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
+        <source>On this car, openpilot defaults to the car's built-in ACC instead of openpilot's longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
         <translation>이 차량은 openpilot 가감속 제어 대신 기본적으로 차량의 ACC로 가감속을 제어합니다. openpilot의 가감속 제어로 전환하려면 이 기능을 활성화하세요. openpilot 가감속 제어 알파를 활성화하는 경우 실험 모드 활성화를 권장합니다.</translation>
     </message>
     <message>
@@ -1139,10 +1271,6 @@ This may take up to a minute.</source>
         <translation>주행 모드</translation>
     </message>
     <message>
-        <source>An alpha version of openpilot longitudinal control can be tested, along with Experimental mode, on non-release branches.</source>
-        <translation>openpilot 가감속 제어 알파 버전은 비 릴리즈 브랜치에서 실험 모드와 함께 테스트할 수 있습니다.</translation>
-    </message>
-    <message>
         <source>Enable the openpilot longitudinal control (alpha) toggle to allow Experimental mode.</source>
         <translation>실험 모드를 사용하려면 openpilot E2E 가감속 제어 (알파) 토글을 활성화하세요.</translation>
     </message>
@@ -1156,15 +1284,7 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>The driving visualization will transition to the road-facing wide-angle camera at low speeds to better show some turns. The Experimental mode logo will also be shown in the top right corner.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Always-On Driver Monitoring</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enable driver monitoring even when openpilot is not engaged.</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
 </context>
 <context>
@@ -1224,6 +1344,14 @@ This may take up to a minute.</source>
         <source>Training data will be pulled periodically while your device is on Wi-Fi</source>
         <translation>기기가 Wi-Fi에 연결되어 있는 동안 트레이닝 데이터를 주기적으로 전송합니다</translation>
     </message>
+    <message>
+        <source>Uploading disabled</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Toggle off the "Turn Off Data Uploads" toggle to re-enable uploads.</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
 </context>
 <context>
     <name>WifiUI</name>
@@ -1240,8 +1368,8 @@ This may take up to a minute.</source>
         <translation>삭제</translation>
     </message>
     <message>
-        <source>Forget Wi-Fi Network &quot;%1&quot;?</source>
-        <translation>Wi-Fi &quot;%1&quot;에 자동으로 연결하지 않겠습니까?</translation>
+        <source>Forget Wi-Fi Network "%1"?</source>
+        <translation>Wi-Fi "%1"에 자동으로 연결하지 않겠습니까?</translation>
     </message>
     <message>
         <source>Forget</source>

@@ -15,6 +15,10 @@
         <source>Reboot and Update</source>
         <translation>Redémarrer et mettre à jour</translation>
     </message>
+    <message>
+        <source>Disable Internet Check</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
 </context>
 <context>
     <name>AdvancedNetworking</name>
@@ -44,7 +48,7 @@
     </message>
     <message>
         <source>Enable Roaming</source>
-        <translation>Activer l&apos;itinérance</translation>
+        <translation>Activer l'itinérance</translation>
     </message>
     <message>
         <source>APN Setting</source>
@@ -52,7 +56,7 @@
     </message>
     <message>
         <source>Enter APN</source>
-        <translation>Entrer le nom du point d&apos;accès</translation>
+        <translation>Entrer le nom du point d'accès</translation>
     </message>
     <message>
         <source>leave blank for automatic configuration</source>
@@ -83,8 +87,28 @@
         <translation>Entrer le mot de passe</translation>
     </message>
     <message>
-        <source>for &quot;%1&quot;</source>
-        <translation>pour &quot;%1&quot;</translation>
+        <source>for "%1"</source>
+        <translation>pour "%1"</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation type="gpt-4.1-generated">Désactivé</translation>
+    </message>
+    <message>
+        <source>Always</source>
+        <translation type="gpt-4.1-generated">Toujours</translation>
+    </message>
+    <message>
+        <source>Only Onroad</source>
+        <translation type="gpt-4.1-generated">Uniquement en conduite</translation>
+    </message>
+    <message>
+        <source>Until Reboot</source>
+        <translation type="gpt-4.1-generated">Jusqu’au redémarrage</translation>
+    </message>
+    <message>
+        <source>Allow tethering with your data SIM and keep it active either while driving or continuously.</source>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
 </context>
 <context>
@@ -215,7 +239,7 @@
     </message>
     <message>
         <source>Review the rules, features, and limitations of openpilot</source>
-        <translation>Revoir les règles, fonctionnalités et limitations d&apos;openpilot</translation>
+        <translation>Revoir les règles, fonctionnalités et limitations d'openpilot</translation>
     </message>
     <message>
         <source>Are you sure you want to review the training guide?</source>
@@ -255,7 +279,7 @@
     </message>
     <message>
         <source>openpilot requires the device to be mounted within 4° left or right and within 5° up or 9° down. openpilot is continuously calibrating, resetting is rarely required.</source>
-        <translation>openpilot nécessite que l&apos;appareil soit monté à 4° à gauche ou à droite et à 5° vers le haut ou 9° vers le bas. openpilot se calibre en continu, la réinitialisation est rarement nécessaire.</translation>
+        <translation>openpilot nécessite que l'appareil soit monté à 4° à gauche ou à droite et à 5° vers le haut ou 9° vers le bas. openpilot se calibre en continu, la réinitialisation est rarement nécessaire.</translation>
     </message>
     <message>
         <source> Your device is pointed %1° %2 and %3° %4.</source>
@@ -295,15 +319,19 @@
     </message>
     <message>
         <source>Pair your device with comma connect (connect.comma.ai) and claim your comma prime offer.</source>
-        <translation>Associez votre appareil avec comma connect (connect.comma.ai) et profitez de l&apos;offre comma prime.</translation>
+        <translation>Associez votre appareil avec comma connect (connect.comma.ai) et profitez de l'offre comma prime.</translation>
     </message>
     <message>
         <source>Pair Device</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
         <source>PAIR</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A: ASSOCIER</translation>
+    </message>
+    <message>
+        <source>Pair your device with Konik connect (stable.konik.ai).</source>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
 </context>
 <context>
@@ -333,9 +361,13 @@
     <message numerus="yes">
         <source>Need at least %n character(s)!</source>
         <translation>
-            <numerusform>Besoin d&apos;au moins %n caractère !</numerusform>
-            <numerusform>Besoin d&apos;au moins %n caractères !</numerusform>
+            <numerusform>Besoin d'au moins %n caractère !</numerusform>
+            <numerusform>Besoin d'au moins %n caractères !</numerusform>
         </translation>
+    </message>
+    <message>
+        <source>Characters: %1/%2</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
 </context>
 <context>
@@ -367,8 +399,8 @@
         <translation>NAVIGATION</translation>
     </message>
     <message>
-        <source>Manage at connect.comma.ai</source>
-        <translation>Gérer sur connect.comma.ai</translation>
+        <source>Manage at %1</source>
+        <translation type="gpt-4.1-generated">Gérer à %1</translation>
     </message>
 </context>
 <context>
@@ -383,7 +415,7 @@
     </message>
     <message>
         <source>Waiting for route</source>
-        <translation>En attente d&apos;un trajet</translation>
+        <translation>En attente d'un trajet</translation>
     </message>
 </context>
 <context>
@@ -408,8 +440,8 @@
         <translation>Entrer le mot de passe</translation>
     </message>
     <message>
-        <source>for &quot;%1&quot;</source>
-        <translation>pour &quot;%1&quot;</translation>
+        <source>for "%1"</source>
+        <translation>pour "%1"</translation>
     </message>
     <message>
         <source>Wrong password</source>
@@ -420,15 +452,15 @@
     <name>OffroadAlert</name>
     <message>
         <source>Device temperature too high. System cooling down before starting. Current internal component temperature: %1</source>
-        <translation>Température de l&apos;appareil trop élevée. Le système doit refroidir avant de démarrer. Température actuelle de l&apos;appareil : %1</translation>
+        <translation>Température de l'appareil trop élevée. Le système doit refroidir avant de démarrer. Température actuelle de l'appareil : %1</translation>
     </message>
     <message>
-        <source>Immediately connect to the internet to check for updates. If you do not connect to the internet, openpilot won&apos;t engage in %1</source>
-        <translation>Connectez-vous immédiatement à internet pour vérifier les mises à jour. Si vous ne vous connectez pas à internet, openpilot ne s&apos;engagera pas dans %1</translation>
+        <source>Immediately connect to the internet to check for updates. If you do not connect to the internet, openpilot won't engage in %1</source>
+        <translation>Connectez-vous immédiatement à internet pour vérifier les mises à jour. Si vous ne vous connectez pas à internet, openpilot ne s'engagera pas dans %1</translation>
     </message>
     <message>
-        <source>Connect to internet to check for updates. openpilot won&apos;t automatically start until it connects to internet to check for updates.</source>
-        <translation>Connectez l&apos;appareil à internet pour vérifier les mises à jour. openpilot ne démarrera pas automatiquement tant qu&apos;il ne se connecte pas à internet pour vérifier les mises à jour.</translation>
+        <source>Connect to internet to check for updates. openpilot won't automatically start until it connects to internet to check for updates.</source>
+        <translation>Connectez l'appareil à internet pour vérifier les mises à jour. openpilot ne démarrera pas automatiquement tant qu'il ne se connecte pas à internet pour vérifier les mises à jour.</translation>
     </message>
     <message>
         <source>Unable to download updates
@@ -437,36 +469,36 @@
 %1</translation>
     </message>
     <message>
-        <source>Taking camera snapshots. System won&apos;t start until finished.</source>
-        <translation>Capture de clichés photo. Le système ne démarrera pas tant qu&apos;il n&apos;est pas terminé.</translation>
+        <source>Taking camera snapshots. System won't start until finished.</source>
+        <translation>Capture de clichés photo. Le système ne démarrera pas tant qu'il n'est pas terminé.</translation>
     </message>
     <message>
-        <source>An update to your device&apos;s operating system is downloading in the background. You will be prompted to update when it&apos;s ready to install.</source>
-        <translation>Une mise à jour du système d&apos;exploitation de votre appareil est en cours de téléchargement en arrière-plan. Vous serez invité à effectuer la mise à jour lorsqu&apos;elle sera prête à être installée.</translation>
+        <source>An update to your device's operating system is downloading in the background. You will be prompted to update when it's ready to install.</source>
+        <translation>Une mise à jour du système d'exploitation de votre appareil est en cours de téléchargement en arrière-plan. Vous serez invité à effectuer la mise à jour lorsqu'elle sera prête à être installée.</translation>
     </message>
     <message>
         <source>Device failed to register. It will not connect to or upload to comma.ai servers, and receives no support from comma.ai. If this is an official device, visit https://comma.ai/support.</source>
-        <translation>L&apos;appareil n&apos;a pas réussi à s&apos;enregistrer. Il ne se connectera pas aux serveurs de comma.ai, n&apos;enverra rien et ne recevra aucune assistance de comma.ai. S&apos;il s&apos;agit d&apos;un appareil officiel, visitez https://comma.ai/support.</translation>
+        <translation>L'appareil n'a pas réussi à s'enregistrer. Il ne se connectera pas aux serveurs de comma.ai, n'enverra rien et ne recevra aucune assistance de comma.ai. S'il s'agit d'un appareil officiel, visitez https://comma.ai/support.</translation>
     </message>
     <message>
         <source>NVMe drive not mounted.</source>
-        <translation>Le disque NVMe n&apos;est pas monté.</translation>
+        <translation>Le disque NVMe n'est pas monté.</translation>
     </message>
     <message>
         <source>Unsupported NVMe drive detected. Device may draw significantly more power and overheat due to the unsupported NVMe.</source>
-        <translation>Disque NVMe non supporté détecté. L&apos;appareil peut consommer beaucoup plus d&apos;énergie et surchauffer en raison du NVMe non supporté.</translation>
+        <translation>Disque NVMe non supporté détecté. L'appareil peut consommer beaucoup plus d'énergie et surchauffer en raison du NVMe non supporté.</translation>
     </message>
     <message>
         <source>openpilot was unable to identify your car. Your car is either unsupported or its ECUs are not recognized. Please submit a pull request to add the firmware versions to the proper vehicle. Need help? Join discord.comma.ai.</source>
-        <translation>openpilot n&apos;a pas pu identifier votre voiture. Votre voiture n&apos;est pas supportée ou ses ECUs ne sont pas reconnues. Veuillez soumettre un pull request pour ajouter les versions de firmware au véhicule approprié. Besoin d&apos;aide ? Rejoignez discord.comma.ai.</translation>
+        <translation>openpilot n'a pas pu identifier votre voiture. Votre voiture n'est pas supportée ou ses ECUs ne sont pas reconnues. Veuillez soumettre un pull request pour ajouter les versions de firmware au véhicule approprié. Besoin d'aide ? Rejoignez discord.comma.ai.</translation>
     </message>
     <message>
         <source>openpilot was unable to identify your car. Check integrity of cables and ensure all connections are secure, particularly that the comma power is fully inserted in the OBD-II port of the vehicle. Need help? Join discord.comma.ai.</source>
-        <translation>openpilot n&apos;a pas pu identifier votre voiture. Vérifiez l&apos;intégrité des câbles et assurez-vous que toutes les connexions sont correctes, en particulier l&apos;alimentation du comma est totalement insérée dans le port OBD-II du véhicule. Besoin d&apos;aide ? Rejoignez discord.comma.ai.</translation>
+        <translation>openpilot n'a pas pu identifier votre voiture. Vérifiez l'intégrité des câbles et assurez-vous que toutes les connexions sont correctes, en particulier l'alimentation du comma est totalement insérée dans le port OBD-II du véhicule. Besoin d'aide ? Rejoignez discord.comma.ai.</translation>
     </message>
     <message>
-        <source>openpilot detected a change in the device&apos;s mounting position. Ensure the device is fully seated in the mount and the mount is firmly secured to the windshield.</source>
-        <translation>openpilot a détecté un changement dans la position de montage de l&apos;appareil. Assurez-vous que l&apos;appareil est totalement inséré dans le support et que le support est fermement fixé au pare-brise.</translation>
+        <source>openpilot detected a change in the device's mounting position. Ensure the device is fully seated in the mount and the mount is firmly secured to the windshield.</source>
+        <translation>openpilot a détecté un changement dans la position de montage de l'appareil. Assurez-vous que l'appareil est totalement inséré dans le support et que le support est fermement fixé au pare-brise.</translation>
     </message>
 </context>
 <context>
@@ -488,42 +520,54 @@
     <name>OnroadAlerts</name>
     <message>
         <source>openpilot Unavailable</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A: openpilot indisponible</translation>
     </message>
     <message>
         <source>Waiting for controls to start</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">En attente du démarrage des commandes</translation>
     </message>
     <message>
         <source>TAKE CONTROL IMMEDIATELY</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A: PRENEZ LE CONTRÔLE IMMÉDIATEMENT</translation>
     </message>
     <message>
         <source>Controls Unresponsive</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
         <source>Reboot Device</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Redémarrer l’appareil</translation>
+    </message>
+    <message>
+        <source>openpilot crashed 💩</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>openpilot crashed</source>
+        <translation type="gpt-4.1-generated">Translation B: openpilot a cessé de fonctionner</translation>
+    </message>
+    <message>
+        <source>Please post the "Error Log" in the FrogPilot Discord!</source>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
 </context>
 <context>
     <name>PairingPopup</name>
     <message>
-        <source>Pair your device to your comma account</source>
-        <translation>Associez votre appareil à votre compte comma</translation>
+        <source>Click "add new device" and scan the QR code on the right</source>
+        <translation>Cliquez sur "ajouter un nouvel appareil" et scannez le code QR à droite</translation>
     </message>
     <message>
-        <source>Go to https://connect.comma.ai on your phone</source>
-        <translation>Allez sur https://connect.comma.ai sur votre téléphone</translation>
+        <source>Pair your device to your %1 account</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
-        <source>Click &quot;add new device&quot; and scan the QR code on the right</source>
-        <translation>Cliquez sur &quot;ajouter un nouvel appareil&quot; et scannez le code QR à droite</translation>
+        <source>Go to https://%1 on your phone</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
-        <source>Bookmark connect.comma.ai to your home screen to use it like an app</source>
-        <translation>Ajoutez connect.comma.ai à votre écran d&apos;accueil pour l&apos;utiliser comme une application</translation>
+        <source>Bookmark %1 to your home screen to use it like an app</source>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
 </context>
 <context>
@@ -589,10 +633,6 @@
         <source>Exit</source>
         <translation>Quitter</translation>
     </message>
-    <message>
-        <source>openpilot</source>
-        <translation>openpilot</translation>
-    </message>
     <message numerus="yes">
         <source>%n minute(s) ago</source>
         <translation>
@@ -632,7 +672,11 @@
     </message>
     <message>
         <source>now</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>FrogPilot</source>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
 </context>
 <context>
@@ -644,8 +688,8 @@
     <message>
         <source>Resetting device...
 This may take up to a minute.</source>
-        <translation>Réinitialisation de l&apos;appareil...
-Cela peut prendre jusqu&apos;à une minute.</translation>
+        <translation>Réinitialisation de l'appareil...
+Cela peut prendre jusqu'à une minute.</translation>
     </message>
     <message>
         <source>Are you sure you want to reset your device?</source>
@@ -673,15 +717,11 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     </message>
     <message>
         <source>System reset triggered. Press confirm to erase all content and settings. Press cancel to resume boot.</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
 </context>
 <context>
     <name>SettingsWindow</name>
-    <message>
-        <source>×</source>
-        <translation>×</translation>
-    </message>
     <message>
         <source>Device</source>
         <translation>Appareil</translation>
@@ -698,16 +738,48 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
         <source>Software</source>
         <translation>Logiciel</translation>
     </message>
+    <message>
+        <source>← Back</source>
+        <translation type="gpt-4.1-generated">← Retour</translation>
+    </message>
+    <message>
+        <source>FrogPilot</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Welcome to FrogPilot! Since you're new to FrogPilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Since you're fairly new to FrogPilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Since you're experienced with openpilot, the "Standard" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Since you're experienced with FrogPilot, the "Standard" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Since you're very experienced with FrogPilot, the "Advanced" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Welcome to FrogPilot! Since you're new to openpilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">Bienvenue sur FrogPilot ! Comme vous êtes nouveau sur openpilot, le préréglage "Minimal" a été appliqué, mais vous pouvez le modifier à tout moment via le bouton "Niveau de réglage" !</translation>
+    </message>
 </context>
 <context>
     <name>Setup</name>
     <message>
         <source>Something went wrong. Reboot the device.</source>
-        <translation>Un problème est survenu. Redémarrez l&apos;appareil.</translation>
+        <translation>Un problème est survenu. Redémarrez l'appareil.</translation>
     </message>
     <message>
         <source>Ensure the entered URL is valid, and the device’s internet connection is good.</source>
-        <translation>Assurez-vous que l&apos;URL saisie est valide et que la connexion internet de l&apos;appareil est bonne.</translation>
+        <translation>Assurez-vous que l'URL saisie est valide et que la connexion internet de l'appareil est bonne.</translation>
     </message>
     <message>
         <source>No custom software found at this URL.</source>
@@ -735,7 +807,7 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     </message>
     <message>
         <source>Before we get on the road, let’s finish installation and cover some details.</source>
-        <translation>Avant de prendre la route, terminons l&apos;installation et passons en revue quelques détails.</translation>
+        <translation>Avant de prendre la route, terminons l'installation et passons en revue quelques détails.</translation>
     </message>
     <message>
         <source>Connect to Wi-Fi</source>
@@ -747,7 +819,7 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     </message>
     <message>
         <source>Enter URL</source>
-        <translation>Entrer l&apos;URL</translation>
+        <translation>Entrer l'URL</translation>
     </message>
     <message>
         <source>for Custom Software</source>
@@ -759,7 +831,7 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     </message>
     <message>
         <source>Waiting for internet</source>
-        <translation>En attente d&apos;internet</translation>
+        <translation>En attente d'internet</translation>
     </message>
     <message>
         <source>Downloading...</source>
@@ -771,7 +843,7 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     </message>
     <message>
         <source>Reboot device</source>
-        <translation>Redémarrer l&apos;appareil</translation>
+        <translation>Redémarrer l'appareil</translation>
     </message>
     <message>
         <source>Start over</source>
@@ -783,30 +855,34 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     </message>
     <message>
         <source>Choose Software to Install</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A: Choisir le logiciel à installer</translation>
     </message>
     <message>
         <source>openpilot</source>
-        <translation type="unfinished">openpilot</translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
         <source>Custom Software</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
 </context>
 <context>
     <name>SetupWidget</name>
     <message>
         <source>Finish Setup</source>
-        <translation>Terminer l&apos;installation</translation>
+        <translation>Terminer l'installation</translation>
     </message>
     <message>
         <source>Pair your device with comma connect (connect.comma.ai) and claim your comma prime offer.</source>
-        <translation>Associez votre appareil avec comma connect (connect.comma.ai) et profitez de l&apos;offre comma prime.</translation>
+        <translation>Associez votre appareil avec comma connect (connect.comma.ai) et profitez de l'offre comma prime.</translation>
     </message>
     <message>
         <source>Pair device</source>
-        <translation>Associer l&apos;appareil</translation>
+        <translation>Associer l'appareil</translation>
+    </message>
+    <message>
+        <source>Pair your device with Konik connect (stable.konik.ai).</source>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
 </context>
 <context>
@@ -891,13 +967,33 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
         <source>5G</source>
         <translation>5G</translation>
     </message>
+    <message>
+        <source>GPU</source>
+        <translation type="gpt-4.1-generated">GPU</translation>
+    </message>
+    <message>
+        <source>CPU</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source> GB</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>MEMORY</source>
+        <translation type="gpt-4.1-generated">MÉMOIRE</translation>
+    </message>
+    <message>
+        <source>LEFT</source>
+        <translation type="gpt-4.1-generated">GAUCHE</translation>
+    </message>
+    <message>
+        <source>USED</source>
+        <translation type="gpt-4.1-generated">UTILISÉ</translation>
+    </message>
 </context>
 <context>
     <name>SoftwarePanel</name>
-    <message>
-        <source>Updates are only downloaded while the car is off.</source>
-        <translation>Les MàJ sont téléchargées uniquement si la voiture est éteinte.</translation>
-    </message>
     <message>
         <source>Current Version</source>
         <translation>Version actuelle</translation>
@@ -966,6 +1062,42 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
         <source>up to date, last checked %1</source>
         <translation>à jour, dernière vérification %1</translation>
     </message>
+    <message>
+        <source>Updates are only downloaded while the car is off or in park.</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
+    </message>
+    <message>
+        <source>Automatically Update FrogPilot</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Error Log</source>
+        <translation type="gpt-4.1-generated">Translation A: Journal des erreurs</translation>
+    </message>
+    <message>
+        <source>VIEW</source>
+        <translation type="gpt-4.1-generated">AFFICHER</translation>
+    </message>
+    <message>
+        <source>View the error log for openpilot crashes.</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Do you want to delete deep storage FrogPilot assets? This includes your toggle settings for quick reinstalls.</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
+    </message>
+    <message>
+        <source>Are you sure? This is 100% unrecoverable and if you reinstall FrogPilot you'll lose all your previous settings!</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>This branch must be downloaded before switching. Would you like to download it now?</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>FrogPilot will automatically update itself and it's assets when you're offroad and have an active internet connection.</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
+    </message>
 </context>
 <context>
     <name>SshControl</name>
@@ -975,7 +1107,7 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     </message>
     <message>
         <source>Warning: This grants SSH access to all public keys in your GitHub settings. Never enter a GitHub username other than your own. A comma employee will NEVER ask you to add their GitHub username.</source>
-        <translation>Attention : Ceci accorde l&apos;accès SSH à toutes les clés publiques de vos paramètres GitHub. N&apos;entrez jamais un nom d&apos;utilisateur GitHub autre que le vôtre. Un employé de comma ne vous demandera JAMAIS d&apos;ajouter son nom d&apos;utilisateur GitHub.</translation>
+        <translation>Attention : Ceci accorde l'accès SSH à toutes les clés publiques de vos paramètres GitHub. N'entrez jamais un nom d'utilisateur GitHub autre que le vôtre. Un employé de comma ne vous demandera JAMAIS d'ajouter son nom d'utilisateur GitHub.</translation>
     </message>
     <message>
         <source>ADD</source>
@@ -983,7 +1115,7 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     </message>
     <message>
         <source>Enter your GitHub username</source>
-        <translation>Entrez votre nom d&apos;utilisateur GitHub</translation>
+        <translation>Entrez votre nom d'utilisateur GitHub</translation>
     </message>
     <message>
         <source>LOADING</source>
@@ -994,16 +1126,16 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
         <translation>SUPPRIMER</translation>
     </message>
     <message>
-        <source>Username &apos;%1&apos; has no keys on GitHub</source>
-        <translation>L&apos;utilisateur &apos;%1&apos; n&apos;a pas de clés sur GitHub</translation>
+        <source>Username '%1' has no keys on GitHub</source>
+        <translation>L'utilisateur '%1' n'a pas de clés sur GitHub</translation>
     </message>
     <message>
         <source>Request timed out</source>
         <translation>Délai de la demande dépassé</translation>
     </message>
     <message>
-        <source>Username &apos;%1&apos; doesn&apos;t exist on GitHub</source>
-        <translation>L&apos;utilisateur &apos;%1&apos; n&apos;existe pas sur GitHub</translation>
+        <source>Username '%1' doesn't exist on GitHub</source>
+        <translation>L'utilisateur '%1' n'existe pas sur GitHub</translation>
     </message>
 </context>
 <context>
@@ -1040,7 +1172,7 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     </message>
     <message>
         <source>Use the openpilot system for adaptive cruise control and lane keep driver assistance. Your attention is required at all times to use this feature. Changing this setting takes effect when the car is powered off.</source>
-        <translation>Utilisez le système openpilot pour le régulateur de vitesse adaptatif et l&apos;assistance au maintien de voie. Votre attention est requise en permanence pour utiliser cette fonctionnalité. La modification de ce paramètre prend effet lorsque la voiture est éteinte.</translation>
+        <translation>Utilisez le système openpilot pour le régulateur de vitesse adaptatif et l'assistance au maintien de voie. Votre attention est requise en permanence pour utiliser cette fonctionnalité. La modification de ce paramètre prend effet lorsque la voiture est éteinte.</translation>
     </message>
     <message>
         <source>openpilot Longitudinal Control (Alpha)</source>
@@ -1048,11 +1180,11 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     </message>
     <message>
         <source>WARNING: openpilot longitudinal control is in alpha for this car and will disable Automatic Emergency Braking (AEB).</source>
-        <translation>ATTENTION : le contrôle longitudinal openpilot est en alpha pour cette voiture et désactivera le freinage d&apos;urgence automatique (AEB).</translation>
+        <translation>ATTENTION : le contrôle longitudinal openpilot est en alpha pour cette voiture et désactivera le freinage d'urgence automatique (AEB).</translation>
     </message>
     <message>
-        <source>On this car, openpilot defaults to the car&apos;s built-in ACC instead of openpilot&apos;s longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
-        <translation>Sur cette voiture, openpilot utilise par défaut le régulateur de vitesse adaptatif intégré à la voiture plutôt que le contrôle longitudinal d&apos;openpilot. Activez ceci pour passer au contrôle longitudinal openpilot. Il est recommandé d&apos;activer le mode expérimental lors de l&apos;activation du contrôle longitudinal openpilot alpha.</translation>
+        <source>On this car, openpilot defaults to the car's built-in ACC instead of openpilot's longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
+        <translation>Sur cette voiture, openpilot utilise par défaut le régulateur de vitesse adaptatif intégré à la voiture plutôt que le contrôle longitudinal d'openpilot. Activez ceci pour passer au contrôle longitudinal openpilot. Il est recommandé d'activer le mode expérimental lors de l'activation du contrôle longitudinal openpilot alpha.</translation>
     </message>
     <message>
         <source>Experimental Mode</source>
@@ -1060,11 +1192,11 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     </message>
     <message>
         <source>Disengage on Accelerator Pedal</source>
-        <translation>Désengager avec la pédale d&apos;accélérateur</translation>
+        <translation>Désengager avec la pédale d'accélérateur</translation>
     </message>
     <message>
         <source>When enabled, pressing the accelerator pedal will disengage openpilot.</source>
-        <translation>Lorsqu&apos;il est activé, appuyer sur la pédale d&apos;accélérateur désengagera openpilot.</translation>
+        <translation>Lorsqu'il est activé, appuyer sur la pédale d'accélérateur désengagera openpilot.</translation>
     </message>
     <message>
         <source>Enable Lane Departure Warnings</source>
@@ -1072,7 +1204,7 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     </message>
     <message>
         <source>Receive alerts to steer back into the lane when your vehicle drifts over a detected lane line without a turn signal activated while driving over 31 mph (50 km/h).</source>
-        <translation>Recevez des alertes pour revenir dans la voie lorsque votre véhicule dérive au-delà d&apos;une ligne de voie détectée sans clignotant activé en roulant à plus de 31 mph (50 km/h).</translation>
+        <translation>Recevez des alertes pour revenir dans la voie lorsque votre véhicule dérive au-delà d'une ligne de voie détectée sans clignotant activé en roulant à plus de 31 mph (50 km/h).</translation>
     </message>
     <message>
         <source>Record and Upload Driver Camera</source>
@@ -1080,7 +1212,7 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     </message>
     <message>
         <source>Upload data from the driver facing camera and help improve the driver monitoring algorithm.</source>
-        <translation>Publiez les données de la caméra orientée vers le conducteur et aidez à améliorer l&apos;algorithme de surveillance du conducteur.</translation>
+        <translation>Publiez les données de la caméra orientée vers le conducteur et aidez à améliorer l'algorithme de surveillance du conducteur.</translation>
     </message>
     <message>
         <source>Use Metric System</source>
@@ -1092,7 +1224,7 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     </message>
     <message>
         <source>Show ETA in 24h Format</source>
-        <translation>Afficher l&apos;heure d&apos;arrivée en format 24h</translation>
+        <translation>Afficher l'heure d'arrivée en format 24h</translation>
     </message>
     <message>
         <source>Use 24h format instead of am/pm</source>
@@ -1100,7 +1232,7 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     </message>
     <message>
         <source>Show Map on Left Side of UI</source>
-        <translation>Afficher la carte à gauche de l&apos;interface</translation>
+        <translation>Afficher la carte à gauche de l'interface</translation>
     </message>
     <message>
         <source>Show map on left side when in split screen view.</source>
@@ -1123,28 +1255,24 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
         <translation>Personnalité de conduite</translation>
     </message>
     <message>
-        <source>openpilot defaults to driving in &lt;b&gt;chill mode&lt;/b&gt;. Experimental mode enables &lt;b&gt;alpha-level features&lt;/b&gt; that aren&apos;t ready for chill mode. Experimental features are listed below:</source>
-        <translation>Par défaut, openpilot conduit en &lt;b&gt;mode détente&lt;/b&gt;. Le mode expérimental permet d&apos;activer des &lt;b&gt;fonctionnalités alpha&lt;/b&gt; qui ne sont pas prêtes pour le mode détente. Les fonctionnalités expérimentales sont listées ci-dessous :</translation>
+        <source>openpilot defaults to driving in &lt;b&gt;chill mode&lt;/b&gt;. Experimental mode enables &lt;b&gt;alpha-level features&lt;/b&gt; that aren't ready for chill mode. Experimental features are listed below:</source>
+        <translation>Par défaut, openpilot conduit en &lt;b&gt;mode détente&lt;/b&gt;. Le mode expérimental permet d'activer des &lt;b&gt;fonctionnalités alpha&lt;/b&gt; qui ne sont pas prêtes pour le mode détente. Les fonctionnalités expérimentales sont listées ci-dessous :</translation>
     </message>
     <message>
         <source>Let the driving model control the gas and brakes. openpilot will drive as it thinks a human would, including stopping for red lights and stop signs. Since the driving model decides the speed to drive, the set speed will only act as an upper bound. This is an alpha quality feature; mistakes should be expected.</source>
-        <translation>Laissez le modèle de conduite contrôler l&apos;accélérateur et les freins. openpilot conduira comme il pense qu&apos;un humain le ferait, y compris s&apos;arrêter aux feux rouges et aux panneaux stop. Comme le modèle de conduite décide de la vitesse à adopter, la vitesse définie ne servira que de limite supérieure. Cette fonctionnalité est de qualité alpha ; des erreurs sont à prévoir.</translation>
+        <translation>Laissez le modèle de conduite contrôler l'accélérateur et les freins. openpilot conduira comme il pense qu'un humain le ferait, y compris s'arrêter aux feux rouges et aux panneaux stop. Comme le modèle de conduite décide de la vitesse à adopter, la vitesse définie ne servira que de limite supérieure. Cette fonctionnalité est de qualité alpha ; des erreurs sont à prévoir.</translation>
     </message>
     <message>
         <source>New Driving Visualization</source>
         <translation>Nouvelle visualisation de la conduite</translation>
     </message>
     <message>
-        <source>Experimental mode is currently unavailable on this car since the car&apos;s stock ACC is used for longitudinal control.</source>
-        <translation>Le mode expérimental est actuellement indisponible pour cette voiture car le régulateur de vitesse adaptatif d&apos;origine est utilisé pour le contrôle longitudinal.</translation>
+        <source>Experimental mode is currently unavailable on this car since the car's stock ACC is used for longitudinal control.</source>
+        <translation>Le mode expérimental est actuellement indisponible pour cette voiture car le régulateur de vitesse adaptatif d'origine est utilisé pour le contrôle longitudinal.</translation>
     </message>
     <message>
         <source>openpilot longitudinal control may come in a future update.</source>
         <translation>Le contrôle longitudinal openpilot pourrait être disponible dans une future mise à jour.</translation>
-    </message>
-    <message>
-        <source>An alpha version of openpilot longitudinal control can be tested, along with Experimental mode, on non-release branches.</source>
-        <translation>Une version alpha du contrôle longitudinal openpilot peut être testée, avec le mode expérimental, sur des branches non publiées.</translation>
     </message>
     <message>
         <source>End-to-End Longitudinal Control</source>
@@ -1152,23 +1280,15 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     </message>
     <message>
         <source>Enable the openpilot longitudinal control (alpha) toggle to allow Experimental mode.</source>
-        <translation>Activer le contrôle longitudinal d&apos;openpilot (en alpha) pour autoriser le mode expérimental.</translation>
+        <translation>Activer le contrôle longitudinal d'openpilot (en alpha) pour autoriser le mode expérimental.</translation>
     </message>
     <message>
         <source>Standard is recommended. In aggressive mode, openpilot will follow lead cars closer and be more aggressive with the gas and brake. In relaxed mode openpilot will stay further away from lead cars. On supported cars, you can cycle through these personalities with your steering wheel distance button.</source>
-        <translation type="unfinished"></translation>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
         <source>The driving visualization will transition to the road-facing wide-angle camera at low speeds to better show some turns. The Experimental mode logo will also be shown in the top right corner.</source>
-        <translation>La visualisation de la conduite passera sur la caméra grand angle dirigée vers la route à faible vitesse afin de mieux montrer certains virages. Le logo du mode expérimental s&apos;affichera également dans le coin supérieur droit.</translation>
-    </message>
-    <message>
-        <source>Always-On Driver Monitoring</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Enable driver monitoring even when openpilot is not engaged.</source>
-        <translation type="unfinished"></translation>
+        <translation>La visualisation de la conduite passera sur la caméra grand angle dirigée vers la route à faible vitesse afin de mieux montrer certains virages. Le logo du mode expérimental s'affichera également dans le coin supérieur droit.</translation>
     </message>
 </context>
 <context>
@@ -1179,7 +1299,7 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     </message>
     <message>
         <source>An operating system update is required. Connect your device to Wi-Fi for the fastest update experience. The download size is approximately 1GB.</source>
-        <translation>Une mise à jour du système d&apos;exploitation est requise. Connectez votre appareil au Wi-Fi pour une mise à jour plus rapide. La taille du téléchargement est d&apos;environ 1 Go.</translation>
+        <translation>Une mise à jour du système d'exploitation est requise. Connectez votre appareil au Wi-Fi pour une mise à jour plus rapide. La taille du téléchargement est d'environ 1 Go.</translation>
     </message>
     <message>
         <source>Connect to Wi-Fi</source>
@@ -1226,7 +1346,15 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
     </message>
     <message>
         <source>Training data will be pulled periodically while your device is on Wi-Fi</source>
-        <translation>Les données d&apos;entraînement seront envoyées périodiquement lorsque votre appareil est connecté au réseau Wi-Fi</translation>
+        <translation>Les données d'entraînement seront envoyées périodiquement lorsque votre appareil est connecté au réseau Wi-Fi</translation>
+    </message>
+    <message>
+        <source>Uploading disabled</source>
+        <translation type="gpt-4.1-generated">Translation A: Téléversement désactivé</translation>
+    </message>
+    <message>
+        <source>Toggle off the "Turn Off Data Uploads" toggle to re-enable uploads.</source>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
 </context>
 <context>
@@ -1244,8 +1372,8 @@ Cela peut prendre jusqu&apos;à une minute.</translation>
         <translation>OUBLIER</translation>
     </message>
     <message>
-        <source>Forget Wi-Fi Network &quot;%1&quot;?</source>
-        <translation>Oublier le réseau Wi-Fi &quot;%1&quot; ?</translation>
+        <source>Forget Wi-Fi Network "%1"?</source>
+        <translation>Oublier le réseau Wi-Fi "%1" ?</translation>
     </message>
     <message>
         <source>Forget</source>

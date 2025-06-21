@@ -11,11 +11,13 @@ class Paths:
     return os.path.join(str(Path.home()), ".comma" + os.environ.get("OPENPILOT_PREFIX", ""))
 
   @staticmethod
-  def log_root() -> str:
+  def log_root(konik=False, raw=False) -> str:
     if os.environ.get('LOG_ROOT', False):
       return os.environ['LOG_ROOT']
     elif PC:
       return str(Path(Paths.comma_home()) / "media" / "0" / "realdata")
+    elif not raw and Path("/cache/use_konik").is_file() or konik:
+      return '/data/media/0/realdata_konik/'
     else:
       return '/data/media/0/realdata/'
 

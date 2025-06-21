@@ -15,6 +15,10 @@
         <source>Reboot and Update</source>
         <translation>重啟並更新</translation>
     </message>
+    <message>
+        <source>Disable Internet Check</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
 </context>
 <context>
     <name>AdvancedNetworking</name>
@@ -83,8 +87,28 @@
         <translation>輸入密碼</translation>
     </message>
     <message>
-        <source>for &quot;%1&quot;</source>
-        <translation>給 &quot;%1&quot;</translation>
+        <source>for "%1"</source>
+        <translation>給 "%1"</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Always</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Only Onroad</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Until Reboot</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Allow tethering with your data SIM and keep it active either while driving or continuously.</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
 </context>
 <context>
@@ -305,6 +329,10 @@
         <source>PAIR</source>
         <translation>配對</translation>
     </message>
+    <message>
+        <source>Pair your device with Konik connect (stable.konik.ai).</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
 </context>
 <context>
     <name>DriverViewWindow</name>
@@ -336,6 +364,10 @@
             <numerusform>需要至少 %n 個字元！</numerusform>
         </translation>
     </message>
+    <message>
+        <source>Characters: %1/%2</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
 </context>
 <context>
     <name>Installer</name>
@@ -366,8 +398,8 @@
         <translation>導航</translation>
     </message>
     <message>
-        <source>Manage at connect.comma.ai</source>
-        <translation>請在 connect.comma.ai 上管理</translation>
+        <source>Manage at %1</source>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
 </context>
 <context>
@@ -407,8 +439,8 @@
         <translation>輸入密碼</translation>
     </message>
     <message>
-        <source>for &quot;%1&quot;</source>
-        <translation>給 &quot;%1&quot;</translation>
+        <source>for "%1"</source>
+        <translation>給 "%1"</translation>
     </message>
     <message>
         <source>Wrong password</source>
@@ -418,11 +450,11 @@
 <context>
     <name>OffroadAlert</name>
     <message>
-        <source>Immediately connect to the internet to check for updates. If you do not connect to the internet, openpilot won&apos;t engage in %1</source>
+        <source>Immediately connect to the internet to check for updates. If you do not connect to the internet, openpilot won't engage in %1</source>
         <translation>請立即連接網路檢查更新。如果不連接網路，openpilot 將在 %1 後便無法使用</translation>
     </message>
     <message>
-        <source>Connect to internet to check for updates. openpilot won&apos;t automatically start until it connects to internet to check for updates.</source>
+        <source>Connect to internet to check for updates. openpilot won't automatically start until it connects to internet to check for updates.</source>
         <translation>請連接至網際網路以檢查更新。在連接至網際網路並完成更新檢查之前，openpilot 將不會自動啟動。</translation>
     </message>
     <message>
@@ -432,11 +464,11 @@
 %1</translation>
     </message>
     <message>
-        <source>Taking camera snapshots. System won&apos;t start until finished.</source>
+        <source>Taking camera snapshots. System won't start until finished.</source>
         <translation>正在使用相機拍攝中。在完成之前，系統將無法啟動。</translation>
     </message>
     <message>
-        <source>An update to your device&apos;s operating system is downloading in the background. You will be prompted to update when it&apos;s ready to install.</source>
+        <source>An update to your device's operating system is downloading in the background. You will be prompted to update when it's ready to install.</source>
         <translation>一個有關操作系統的更新正在後台下載中。當更新準備好安裝時，您將收到提示進行更新。</translation>
     </message>
     <message>
@@ -460,7 +492,7 @@
         <translation>openpilot 無法識別您的車輛。請檢查線路是否正確的安裝並確保所有的連接都牢固，特別是確保 comma power 完全插入車輛的 OBD-II 介面。需要幫助嗎？請加入 discord.comma.ai 。</translation>
     </message>
     <message>
-        <source>openpilot detected a change in the device&apos;s mounting position. Ensure the device is fully seated in the mount and the mount is firmly secured to the windshield.</source>
+        <source>openpilot detected a change in the device's mounting position. Ensure the device is fully seated in the mount and the mount is firmly secured to the windshield.</source>
         <translation>openpilot 偵測到裝置的安裝位置發生變化。請確保裝置完全安裝在支架上，並確保支架牢固地固定在擋風玻璃上。</translation>
     </message>
     <message>
@@ -505,24 +537,36 @@
         <source>Reboot Device</source>
         <translation>請重新啟裝置</translation>
     </message>
+    <message>
+        <source>openpilot crashed 💩</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>openpilot crashed</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
+    </message>
+    <message>
+        <source>Please post the "Error Log" in the FrogPilot Discord!</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
 </context>
 <context>
     <name>PairingPopup</name>
     <message>
-        <source>Pair your device to your comma account</source>
-        <translation>將裝置與您的 comma 帳號配對</translation>
+        <source>Click "add new device" and scan the QR code on the right</source>
+        <translation>點選 "add new device" 後掃描右邊的二維碼</translation>
     </message>
     <message>
-        <source>Go to https://connect.comma.ai on your phone</source>
-        <translation>用手機連至 https://connect.comma.ai</translation>
+        <source>Pair your device to your %1 account</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
     <message>
-        <source>Click &quot;add new device&quot; and scan the QR code on the right</source>
-        <translation>點選 &quot;add new device&quot; 後掃描右邊的二維碼</translation>
+        <source>Go to https://%1 on your phone</source>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
     <message>
-        <source>Bookmark connect.comma.ai to your home screen to use it like an app</source>
-        <translation>將 connect.comma.ai 加入您的主螢幕，以便像手機 App 一樣使用它</translation>
+        <source>Bookmark %1 to your home screen to use it like an app</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
     </message>
 </context>
 <context>
@@ -588,10 +632,6 @@
         <source>Exit</source>
         <translation>離開</translation>
     </message>
-    <message>
-        <source>openpilot</source>
-        <translation>openpilot</translation>
-    </message>
     <message numerus="yes">
         <source>%n minute(s) ago</source>
         <translation>
@@ -629,6 +669,10 @@
     <message>
         <source>now</source>
         <translation>現在</translation>
+    </message>
+    <message>
+        <source>FrogPilot</source>
+        <translation type="gpt-4.1-generated">A</translation>
     </message>
 </context>
 <context>
@@ -675,10 +719,6 @@ This may take up to a minute.</source>
 <context>
     <name>SettingsWindow</name>
     <message>
-        <source>×</source>
-        <translation>×</translation>
-    </message>
-    <message>
         <source>Device</source>
         <translation>裝置</translation>
     </message>
@@ -693,6 +733,38 @@ This may take up to a minute.</source>
     <message>
         <source>Software</source>
         <translation>軟體</translation>
+    </message>
+    <message>
+        <source>← Back</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>FrogPilot</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Welcome to FrogPilot! Since you're new to FrogPilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Since you're fairly new to FrogPilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Since you're experienced with openpilot, the "Standard" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Since you're experienced with FrogPilot, the "Standard" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Since you're very experienced with FrogPilot, the "Advanced" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Welcome to FrogPilot! Since you're new to openpilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4.1-generated">歡迎使用 FrogPilot！由於您是 openpilot 的新用戶，系統已套用「最小化」預設設定，但您隨時可以透過「調校等級」按鈕進行更改！</translation>
     </message>
 </context>
 <context>
@@ -804,6 +876,10 @@ This may take up to a minute.</source>
         <source>Pair device</source>
         <translation>配對裝置</translation>
     </message>
+    <message>
+        <source>Pair your device with Konik connect (stable.konik.ai).</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
 </context>
 <context>
     <name>Sidebar</name>
@@ -887,13 +963,33 @@ This may take up to a minute.</source>
         <source>5G</source>
         <translation>5G</translation>
     </message>
+    <message>
+        <source>GPU</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>CPU</source>
+        <translation type="gpt-4.1-generated">Translation B</translation>
+    </message>
+    <message>
+        <source> GB</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>MEMORY</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>LEFT</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>USED</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
 </context>
 <context>
     <name>SoftwarePanel</name>
-    <message>
-        <source>Updates are only downloaded while the car is off.</source>
-        <translation>系統更新只會在熄火時下載。</translation>
-    </message>
     <message>
         <source>Current Version</source>
         <translation>當前版本</translation>
@@ -962,6 +1058,42 @@ This may take up to a minute.</source>
         <source>never</source>
         <translation>從未更新</translation>
     </message>
+    <message>
+        <source>Updates are only downloaded while the car is off or in park.</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Automatically Update FrogPilot</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Error Log</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>VIEW</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>View the error log for openpilot crashes.</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Do you want to delete deep storage FrogPilot assets? This includes your toggle settings for quick reinstalls.</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>Are you sure? This is 100% unrecoverable and if you reinstall FrogPilot you'll lose all your previous settings!</source>
+        <translation type="gpt-4.1-generated">Translation A</translation>
+    </message>
+    <message>
+        <source>This branch must be downloaded before switching. Would you like to download it now?</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>FrogPilot will automatically update itself and it's assets when you're offroad and have an active internet connection.</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
 </context>
 <context>
     <name>SshControl</name>
@@ -990,16 +1122,16 @@ This may take up to a minute.</source>
         <translation>移除</translation>
     </message>
     <message>
-        <source>Username &apos;%1&apos; has no keys on GitHub</source>
-        <translation>GitHub 用戶 &apos;%1&apos; 沒有設定任何金鑰</translation>
+        <source>Username '%1' has no keys on GitHub</source>
+        <translation>GitHub 用戶 '%1' 沒有設定任何金鑰</translation>
     </message>
     <message>
         <source>Request timed out</source>
         <translation>請求超時</translation>
     </message>
     <message>
-        <source>Username &apos;%1&apos; doesn&apos;t exist on GitHub</source>
-        <translation>GitHub 用戶 &apos;%1&apos; 不存在</translation>
+        <source>Username '%1' doesn't exist on GitHub</source>
+        <translation>GitHub 用戶 '%1' 不存在</translation>
     </message>
 </context>
 <context>
@@ -1091,7 +1223,7 @@ This may take up to a minute.</source>
         <translation>實驗模式</translation>
     </message>
     <message>
-        <source>openpilot defaults to driving in &lt;b&gt;chill mode&lt;/b&gt;. Experimental mode enables &lt;b&gt;alpha-level features&lt;/b&gt; that aren&apos;t ready for chill mode. Experimental features are listed below:</source>
+        <source>openpilot defaults to driving in &lt;b&gt;chill mode&lt;/b&gt;. Experimental mode enables &lt;b&gt;alpha-level features&lt;/b&gt; that aren't ready for chill mode. Experimental features are listed below:</source>
         <translation>openpilot 預設以 &lt;b&gt;輕鬆模式&lt;/b&gt; 駕駛。    實驗模式啟用了尚未準備好進入輕鬆模式的 &lt;b&gt;alpha 級功能&lt;/b&gt;。實驗功能如下：</translation>
     </message>
     <message>
@@ -1103,7 +1235,7 @@ This may take up to a minute.</source>
         <translation>新的駕駛視覺介面</translation>
     </message>
     <message>
-        <source>Experimental mode is currently unavailable on this car since the car&apos;s stock ACC is used for longitudinal control.</source>
+        <source>Experimental mode is currently unavailable on this car since the car's stock ACC is used for longitudinal control.</source>
         <translation>因車輛使用內建ACC系統，無法在本車輛上啟動實驗模式。</translation>
     </message>
     <message>
@@ -1119,7 +1251,7 @@ This may take up to a minute.</source>
         <translation>警告：此車輛的 openpilot 縱向控制功能目前處於 Alpha 版本，使用此功能將會停用自動緊急煞車（AEB）功能。</translation>
     </message>
     <message>
-        <source>On this car, openpilot defaults to the car&apos;s built-in ACC instead of openpilot&apos;s longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
+        <source>On this car, openpilot defaults to the car's built-in ACC instead of openpilot's longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
         <translation>在這輛車上，openpilot 預設使用車輛內建的主動巡航控制（ACC），而非 openpilot 的縱向控制。啟用此項功能可切換至 openpilot 的縱向控制。當啟用 openpilot 縱向控制 Alpha 版本時，建議同時啟用實驗性模式（Experimental mode）。</translation>
     </message>
     <message>
@@ -1139,10 +1271,6 @@ This may take up to a minute.</source>
         <translation>駕駛風格</translation>
     </message>
     <message>
-        <source>An alpha version of openpilot longitudinal control can be tested, along with Experimental mode, on non-release branches.</source>
-        <translation>在正式 (release) 版以外的分支上可以測試 openpilot 縱向控制的 Alpha 版本以及實驗模式。</translation>
-    </message>
-    <message>
         <source>Enable the openpilot longitudinal control (alpha) toggle to allow Experimental mode.</source>
         <translation>啟用 openpilot 縱向控制（alpha）切換以允許實驗模式。</translation>
     </message>
@@ -1157,14 +1285,6 @@ This may take up to a minute.</source>
     <message>
         <source>The driving visualization will transition to the road-facing wide-angle camera at low speeds to better show some turns. The Experimental mode logo will also be shown in the top right corner.</source>
         <translation>在低速時，駕駛可視化將切換至道路朝向的廣角攝影機，以更好地顯示某些彎道。在右上角還會顯示「實驗模式」的標誌。</translation>
-    </message>
-    <message>
-        <source>Always-On Driver Monitoring</source>
-        <translation>駕駛監控常開</translation>
-    </message>
-    <message>
-        <source>Enable driver monitoring even when openpilot is not engaged.</source>
-        <translation>即使在openpilot未激活時也啟用駕駛監控。</translation>
     </message>
 </context>
 <context>
@@ -1224,6 +1344,14 @@ This may take up to a minute.</source>
         <source>Training data will be pulled periodically while your device is on Wi-Fi</source>
         <translation>訓練數據將定期經過 Wi-Fi 上傳</translation>
     </message>
+    <message>
+        <source>Uploading disabled</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
+    <message>
+        <source>Toggle off the "Turn Off Data Uploads" toggle to re-enable uploads.</source>
+        <translation type="gpt-4.1-generated">A</translation>
+    </message>
 </context>
 <context>
     <name>WifiUI</name>
@@ -1240,8 +1368,8 @@ This may take up to a minute.</source>
         <translation>清除</translation>
     </message>
     <message>
-        <source>Forget Wi-Fi Network &quot;%1&quot;?</source>
-        <translation>清除 Wi-Fi 網路 &quot;%1&quot;?</translation>
+        <source>Forget Wi-Fi Network "%1"?</source>
+        <translation>清除 Wi-Fi 網路 "%1"?</translation>
     </message>
     <message>
         <source>Forget</source>

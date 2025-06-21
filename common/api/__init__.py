@@ -5,7 +5,10 @@ from datetime import datetime, timedelta
 from openpilot.system.hardware.hw import Paths
 from openpilot.system.version import get_version
 
+from openpilot.frogpilot.common.frogpilot_utilities import use_konik_server
+
 API_HOST = os.getenv('API_HOST', 'https://api.commadotai.com')
+KONIK_API_HOST = os.getenv('API_HOST', 'https://api.konik.ai')
 
 class Api:
   def __init__(self, dongle_id):
@@ -43,4 +46,4 @@ def api_get(endpoint, method='GET', timeout=None, access_token=None, **params):
 
   headers['User-Agent'] = "openpilot-" + get_version()
 
-  return requests.request(method, API_HOST + "/" + endpoint, timeout=timeout, headers=headers, params=params)
+  return requests.request(method, (KONIK_API_HOST if use_konik_server() else API_HOST) + "/" + endpoint, timeout=timeout, headers=headers, params=params)
