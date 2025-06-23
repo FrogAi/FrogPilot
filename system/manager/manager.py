@@ -19,7 +19,7 @@ from openpilot.common.swaglog import cloudlog, add_file_handler
 from openpilot.system.version import get_build_metadata, terms_version, training_version
 
 from openpilot.frogpilot.common.frogpilot_functions import convert_params, frogpilot_boot_functions, setup_frogpilot, uninstall_frogpilot
-from openpilot.frogpilot.common.frogpilot_variables import frogpilot_default_params, get_frogpilot_toggles, params_memory
+from openpilot.frogpilot.common.frogpilot_variables import frogpilot_default_params, get_frogpilot_toggles, params_cache, params_memory
 
 
 def manager_init() -> None:
@@ -36,7 +36,6 @@ def manager_init() -> None:
 
   # FrogPilot variables
   setup_frogpilot(build_metadata)
-  params_cache = Params("/cache/params")
   convert_params(params_cache)
 
   default_params: list[tuple[str, str | bytes]] = [

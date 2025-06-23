@@ -268,6 +268,7 @@ void FrogPilotVehiclesPanel::showEvent(QShowEvent *event) {
   frogpilotToggleLevels = parent->frogpilotToggleLevels;
   hasExperimentalOpenpilotLongitudinal = parent->hasExperimentalOpenpilotLongitudinal;
   hasOpenpilotLongitudinal = parent->hasOpenpilotLongitudinal;
+  hasPedal = parent->hasPedal;
   hasSNG = parent->hasSNG;
   isC3 = parent->isC3;
   isGM = parent->isGM;
@@ -320,7 +321,7 @@ void FrogPilotVehiclesPanel::updateToggles() {
     }
 
     if (key == "SNGHack") {
-      setVisible &= !hasSNG;
+      setVisible &= !hasPedal && !hasSNG;
     }
 
     if (key == "TacoTuneHacks") {

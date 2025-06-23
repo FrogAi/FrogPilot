@@ -211,7 +211,7 @@ void FrogPilotSettingsWindow::updateVariables() {
     std::string carFingerprint = CP.getCarFingerprint();
     std::string carMake = CP.getCarName();
 
-    delayStock = CP.getSteerActuatorDelay();
+    friction = CP.getLateralTuning().getTorque().getFriction();
     hasAutoTune = (carMake == "hyundai" || carMake == "toyota") && CP.getLateralTuning().which() == cereal::CarParams::LateralTuning::TORQUE;
     hasBSM = CP.getEnableBsm();
     hasDashSpeedLimits = carMake == "ford" || carMake == "hyundai" || carMake == "toyota";
@@ -219,6 +219,7 @@ void FrogPilotSettingsWindow::updateVariables() {
     hasNNFFLog = nnffLogFileExists(QString::fromStdString(carFingerprint));
     hasOpenpilotLongitudinal = hasLongitudinalControl(CP);
     hasPCMCruise = CP.getPcmCruise();
+    hasPedal = CP.getEnableGasInterceptor();
     hasRadar = !CP.getRadarUnavailable();
     hasSNG = CP.getAutoResumeSng();
     isBolt = carFingerprint == "CHEVROLET_BOLT_CC" || carFingerprint == "CHEVROLET_BOLT_EUV";
@@ -231,50 +232,104 @@ void FrogPilotSettingsWindow::updateVariables() {
     isToyota = carMake == "toyota";
     isTSK = CP.getSecOcRequired();
     isVolt = carFingerprint == "CHEVROLET_VOLT";
-    frictionStock = CP.getLateralTuning().getTorque().getFriction();
-    kpStock = CP.getLateralTuning().getTorque().getKp();
-    latAccelStock = CP.getLateralTuning().getTorque().getLatAccelFactor();
-    steerRatioStock = CP.getSteerRatio();
+    latAccelFactor = CP.getLateralTuning().getTorque().getLatAccelFactor();
+    longitudinalActuatorDelay = CP.getLongitudinalActuatorDelay();
+    startAccel = CP.getStartAccel();
+    steerActuatorDelay = CP.getSteerActuatorDelay();
+    steerKp = CP.getLateralTuning().getTorque().getKp();
+    steerRatio = CP.getSteerRatio();
+    stopAccel = CP.getStopAccel();
+    stoppingDecelRate = CP.getStoppingDecelRate();
+    vEgoStarting = CP.getVEgoStarting();
+    vEgoStopping = CP.getVEgoStopping();
 
     float currentDelayStock = params.getFloat("SteerDelayStock");
     float currentFrictionStock = params.getFloat("SteerFrictionStock");
     float currentKPStock = params.getFloat("SteerKPStock");
     float currentLatAccelStock = params.getFloat("SteerLatAccelStock");
+    float currentLongDelayStock = params.getFloat("LongitudinalActuatorDelayStock");
+    float currentStartAccelStock = params.getFloat("StartAccelStock");
     float currentSteerRatioStock = params.getFloat("SteerRatioStock");
+    float currentStopAccelStock = params.getFloat("StopAccelStock");
+    float currentStoppingDecelRateStock = params.getFloat("StoppingDecelRateStock");
+    float currentVEgoStartingStock = params.getFloat("VEgoStartingStock");
+    float currentVEgoStoppingStock = params.getFloat("VEgoStoppingStock");
 
-    if (currentDelayStock != delayStock && delayStock != 0) {
+    if (currentDelayStock != steerActuatorDelay && steerActuatorDelay != 0) {
       if (params.getFloat("SteerDelay") == currentDelayStock || currentDelayStock == 0) {
-        params.putFloat("SteerDelay", delayStock);
+        params.putFloat("SteerDelay", steerActuatorDelay);
       }
-      params.putFloat("SteerDelayStock", delayStock);
+      params.putFloat("SteerDelayStock", steerActuatorDelay);
     }
 
-    if (currentFrictionStock != frictionStock && frictionStock != 0) {
+    if (currentFrictionStock != friction && friction != 0) {
       if (params.getFloat("SteerFriction") == currentFrictionStock || currentFrictionStock == 0) {
-        params.putFloat("SteerFriction", frictionStock);
+        params.putFloat("SteerFriction", friction);
       }
-      params.putFloat("SteerFrictionStock", frictionStock);
+      params.putFloat("SteerFrictionStock", friction);
     }
 
-    if (currentKPStock != kpStock && kpStock != 0) {
+    if (currentKPStock != steerKp && steerKp != 0) {
       if (params.getFloat("SteerKP") == currentKPStock || currentKPStock == 0) {
-        params.putFloat("SteerKP", kpStock);
+        params.putFloat("SteerKP", steerKp);
       }
-      params.putFloat("SteerKPStock", kpStock);
+      params.putFloat("SteerKPStock", steerKp);
     }
 
-    if (currentLatAccelStock != latAccelStock && latAccelStock != 0) {
+    if (currentLatAccelStock != latAccelFactor && latAccelFactor != 0) {
       if (params.getFloat("SteerLatAccel") == currentLatAccelStock || currentLatAccelStock == 0) {
-        params.putFloat("SteerLatAccel", latAccelStock);
+        params.putFloat("SteerLatAccel", latAccelFactor);
       }
-      params.putFloat("SteerLatAccelStock", latAccelStock);
+      params.putFloat("SteerLatAccelStock", latAccelFactor);
     }
 
-    if (currentSteerRatioStock != steerRatioStock && steerRatioStock != 0) {
-      if (params.getFloat("SteerRatio") == currentSteerRatioStock || currentSteerRatioStock == 0) {
-        params.putFloat("SteerRatio", steerRatioStock);
+    if (currentLongDelayStock != longitudinalActuatorDelay && longitudinalActuatorDelay != 0) {
+      if (params.getFloat("LongitudinalActuatorDelay") == currentLongDelayStock || currentLongDelayStock == 0) {
+        params.putFloat("LongitudinalActuatorDelay", longitudinalActuatorDelay);
       }
-      params.putFloat("SteerRatioStock", steerRatioStock);
+      params.putFloat("LongitudinalActuatorDelayStock", longitudinalActuatorDelay);
+    }
+
+    if (currentStartAccelStock != startAccel && startAccel != 0) {
+      if (params.getFloat("StartAccel") == currentStartAccelStock || currentStartAccelStock == 0) {
+        params.putFloat("StartAccel", startAccel);
+      }
+      params.putFloat("StartAccelStock", startAccel);
+    }
+
+    if (currentSteerRatioStock != steerRatio && steerRatio != 0) {
+      if (params.getFloat("SteerRatio") == currentSteerRatioStock || currentSteerRatioStock == 0) {
+        params.putFloat("SteerRatio", steerRatio);
+      }
+      params.putFloat("SteerRatioStock", steerRatio);
+    }
+
+    if (currentStopAccelStock != stopAccel && stopAccel != 0) {
+      if (params.getFloat("StopAccel") == currentStopAccelStock || currentStopAccelStock == 0) {
+        params.putFloat("StopAccel", stopAccel);
+      }
+      params.putFloat("StopAccelStock", stopAccel);
+    }
+
+    if (currentStoppingDecelRateStock != stoppingDecelRate && stoppingDecelRate != 0) {
+      if (params.getFloat("StoppingDecelRate") == currentStoppingDecelRateStock || currentStoppingDecelRateStock == 0) {
+        params.putFloat("StoppingDecelRate", stoppingDecelRate);
+      }
+      params.putFloat("StoppingDecelRateStock", stoppingDecelRate);
+    }
+
+    if (currentVEgoStartingStock != vEgoStarting && vEgoStarting != 0) {
+      if (params.getFloat("VEgoStarting") == currentVEgoStartingStock || currentVEgoStartingStock == 0) {
+        params.putFloat("VEgoStarting", vEgoStarting);
+      }
+      params.putFloat("VEgoStartingStock", vEgoStarting);
+    }
+
+    if (currentVEgoStoppingStock != vEgoStopping && vEgoStopping != 0) {
+      if (params.getFloat("VEgoStopping") == currentVEgoStoppingStock || currentVEgoStoppingStock == 0) {
+        params.putFloat("VEgoStopping", vEgoStopping);
+      }
+      params.putFloat("VEgoStoppingStock", vEgoStopping);
     }
   }
 

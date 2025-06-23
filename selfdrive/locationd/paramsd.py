@@ -229,7 +229,7 @@ def main():
       liveParameters = msg.liveParameters
       liveParameters.posenetValid = True
       liveParameters.sensorValid = sensors_valid
-      liveParameters.steerRatio = float(x[States.STEER_RATIO].item() if not frogpilot_toggles.use_custom_steer_ratio else frogpilot_toggles.steer_ratio)
+      liveParameters.steerRatio = float(x[States.STEER_RATIO].item() if not frogpilot_toggles.use_custom_steerRatio else frogpilot_toggles.steerRatio)
       liveParameters.stiffnessFactor = float(x[States.STIFFNESS].item())
       liveParameters.roll = roll
       liveParameters.angleOffsetAverageDeg = angle_offset_average

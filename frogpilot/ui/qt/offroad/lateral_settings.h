@@ -29,11 +29,11 @@ private:
   bool isTorqueCar;
   bool started;
 
-  float delayStock;
-  float frictionStock;
-  float latAccelStock;
-  float kpStock;
-  float steerRatioStock;
+  float friction;
+  float latAccelFactor;
+  float steerActuatorDelay;
+  float steerKp;
+  float steerRatio;
 
   int tuningLevel;
 

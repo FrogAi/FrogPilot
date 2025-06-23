@@ -109,6 +109,8 @@ class FrogPilotCard:
 
     self.force_coast &= not (carState.brakePressed or carState.gasPressed)
 
+    frogpilotCarState.distancePressed |= params_memory.get_bool("OnroadDistanceButtonPressed")
+
     if frogpilotCarState.distancePressed:
       self.gap_counter += 1
     elif not self.prev_distance_button:
