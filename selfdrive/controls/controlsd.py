@@ -34,7 +34,6 @@ from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
 from openpilot.system.hardware import HARDWARE
 
 from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles, params_memory
-from openpilot.frogpilot.controls.lib.frogpilot_acceleration import get_max_allowed_accel
 
 SOFT_DISABLE_TIME = 3  # seconds
 LDW_MIN_SPEED = 31 * CV.MPH_TO_MS
@@ -609,8 +608,8 @@ class Controls:
         self.LaC.update_live_torque_params(torque_params.latAccelFactorFiltered, torque_params.latAccelOffsetFiltered,
                                            torque_params.frictionCoefficientFiltered)
 
-      if self.sm.updated['liveDelay'] and (self.CI.use_nnff or self.CI.use_nnff_lite):
-        self.LaC.update_live_delay(self.sm['liveDelay'].lateralDelay)
+      if self.sm.updated['liveDelay'] and (self.frogpilot_toggles.nnff or self.frogpilot_toggles.nnff_lite):
+        self.LaC.nnff.update_live_delay(self.sm['liveDelay'].lateralDelay)
 
     long_plan = self.sm['longitudinalPlan']
     model_v2 = self.sm['modelV2']
@@ -648,9 +647,6 @@ class Controls:
     if not self.joystick_mode:
       # accel PID loop
       pid_accel_limits = self.CI.get_pid_accel_limits(self.CP, CS.vEgo, self.v_cruise_helper.v_cruise_kph * CV.KPH_TO_MS)
-      if self.frogpilot_toggles.sport_plus and (self.sm["frogpilotCarState"].sportGear or not self.frogpilot_toggles.map_acceleration):
-        pid_accel_limits = (pid_accel_limits[0], get_max_allowed_accel(CS.vEgo))
-
       if self.use_old_long:
         t_since_plan = (self.sm.frame - self.sm.recv_frame['longitudinalPlan']) * DT_CTRL
         actuators.accel = self.LoC.update_old_long(CC.longActive, CS, long_plan, pid_accel_limits, t_since_plan, self.frogpilot_toggles)
@@ -825,7 +821,7 @@ class Controls:
     if self.enabled:
       clear_event_types.add(ET.NO_ENTRY)
 
-    alerts = self.events.create_alerts(self.current_alert_types, [self.CP, CS, self.sm, self.is_metric, self.soft_disable_timer, self.frogpilot_toggles])
+    alerts = self.events.create_alerts(self.current_alert_types, [self.CP, CS, self.sm, self.is_metric, self.soft_disable_timer, self.params, self.frogpilot_toggles])
     self.AM.add_many(self.sm.frame, alerts)
     current_alert = self.AM.process_alerts(self.sm.frame, clear_event_types)
     if current_alert:

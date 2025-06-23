@@ -32,11 +32,19 @@ private:
 
   int tuningLevel;
 
+  float longitudinalActuatorDelay;
+  float startAccel;
+  float stopAccel;
+  float stoppingDecelRate;
+  float vEgoStarting;
+  float vEgoStopping;
+
   std::map<QString, AbstractControl*> toggles;
 
+  std::set<QString> advancedLongitudinalTuneKeys = {"LongitudinalActuatorDelay", "StartAccel", "StopAccel", "StoppingDecelRate", "VEgoStarting", "VEgoStopping"};
   std::set<QString> aggressivePersonalityKeys = {"AggressiveFollow", "AggressiveJerkAcceleration", "AggressiveJerkDeceleration", "AggressiveJerkDanger", "AggressiveJerkSpeed", "AggressiveJerkSpeedDecrease", "ResetAggressivePersonality"};
   std::set<QString> conditionalExperimentalKeys = {"CESpeed", "CESpeedLead", "CECurves", "CELead", "CEModelStopTime", "CENavigation", "CESignalSpeed", "ShowCEMStatus"};
-  std::set<QString> curveSpeedKeys = {"CurveDetectionMethod", "CurveSensitivity", "MTSCCurvatureCheck", "ShowCSCStatus", "TurnAggressiveness"};
+  std::set<QString> curveSpeedKeys = {"CalibratedLateralAcceleration", "CalibrationProgress", "ResetCurveData", "ShowCSCStatus"};
   std::set<QString> customDrivingPersonalityKeys = {"AggressivePersonalityProfile", "RelaxedPersonalityProfile", "StandardPersonalityProfile", "TrafficPersonalityProfile"};
   std::set<QString> longitudinalTuneKeys = {"AccelerationProfile", "DecelerationProfile", "HumanAcceleration", "HumanFollowing", "LeadDetectionThreshold", "MaxDesiredAcceleration", "TacoTune"};
   std::set<QString> qolKeys = {"CustomCruise", "CustomCruiseLong", "ForceStandstill", "ForceStops", "IncreasedStoppedDistance", "MapGears", "ReverseCruise", "SetSpeedOffset"};
@@ -50,9 +58,17 @@ private:
 
   std::set<QString> parentKeys;
 
-  FrogPilotButtonsControl *curveDetectionToggle;
+  FrogPilotParamValueControl *longitudinalActuatorDelayToggle;
+  FrogPilotParamValueControl *startAccelToggle;
+  FrogPilotParamValueControl *stopAccelToggle;
+  FrogPilotParamValueControl *stoppingDecelRateToggle;
+  FrogPilotParamValueControl *vEgoStartingToggle;
+  FrogPilotParamValueControl *vEgoStoppingToggle;
 
   FrogPilotSettingsWindow *parent;
+
+  LabelControl *calibratedLateralAccelerationLabel;
+  LabelControl *calibrationProgressLabel;
 
   QJsonObject frogpilotToggleLevels;
 

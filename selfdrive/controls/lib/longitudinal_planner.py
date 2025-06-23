@@ -15,6 +15,8 @@ from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import T_IDX
 from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX, V_CRUISE_UNSET, CONTROL_N, get_speed_error
 from openpilot.common.swaglog import cloudlog
 
+from openpilot.frogpilot.common.frogpilot_variables import MINIMUM_LATERAL_ACCELERATION
+
 LON_MPC_STEP = 0.2  # first step is 0.2s
 A_CRUISE_MIN = -1.2
 A_CRUISE_MAX_VALS = [1.6, 1.2, 0.8, 0.6]
@@ -44,23 +46,26 @@ def limit_accel_in_turns(v_ego, angle_steers, a_target, CP):
   # The lookup table for turns should also be updated if we do this
   a_total_max = interp(v_ego, _A_TOTAL_MAX_BP, _A_TOTAL_MAX_V)
   a_y = v_ego ** 2 * angle_steers * CV.DEG_TO_RAD / (CP.steerRatio * CP.wheelbase)
-  a_x_allowed = math.sqrt(max(a_total_max ** 2 - a_y ** 2, 0.))
+  if abs(a_y) > MINIMUM_LATERAL_ACCELERATION:
+    a_x_allowed = math.sqrt(max(a_total_max ** 2 - a_y ** 2, 0.))
+  else:
+    a_x_allowed = a_target[1]
 
   return [a_target[0], min(a_target[1], a_x_allowed)]
 
 
-def get_accel_from_plan_classic(CP, speeds, accels, vEgoStopping):
+def get_accel_from_plan_classic(CP, speeds, accels, longitudinalActuatorDelay, vEgoStopping):
   if len(speeds) == CONTROL_N:
     v_target_now = interp(DT_MDL, CONTROL_N_T_IDX, speeds)
     a_target_now = interp(DT_MDL, CONTROL_N_T_IDX, accels)
 
-    v_target = interp(CP.longitudinalActuatorDelay + DT_MDL, CONTROL_N_T_IDX, speeds)
+    v_target = interp(longitudinalActuatorDelay + DT_MDL, CONTROL_N_T_IDX, speeds)
     if v_target != v_target_now:
-      a_target = 2 * (v_target - v_target_now) / CP.longitudinalActuatorDelay - a_target_now
+      a_target = 2 * (v_target - v_target_now) / longitudinalActuatorDelay - a_target_now
     else:
       a_target = a_target_now
 
-    v_target_1sec = interp(CP.longitudinalActuatorDelay + DT_MDL + 1.0, CONTROL_N_T_IDX, speeds)
+    v_target_1sec = interp(longitudinalActuatorDelay + DT_MDL + 1.0, CONTROL_N_T_IDX, speeds)
   else:
     v_target = 0.0
     v_target_1sec = 0.0
@@ -157,7 +162,10 @@ class LongitudinalPlanner:
     if self.mpc.mode == 'acc':
       accel_limits = [sm['frogpilotPlan'].minAcceleration, sm['frogpilotPlan'].maxAcceleration]
       steer_angle_without_offset = sm['carState'].steeringAngleDeg - sm['liveParameters'].angleOffsetDeg
-      accel_limits_turns = limit_accel_in_turns(v_ego, steer_angle_without_offset, accel_limits, self.CP)
+      if sm['frogpilotPlan'].cscControllingSpeed:
+        accel_limits_turns = accel_limits
+      else:
+        accel_limits_turns = limit_accel_in_turns(v_ego, steer_angle_without_offset, accel_limits, self.CP)
     else:
       accel_limits = [ACCEL_MIN, ACCEL_MAX]
       accel_limits_turns = [ACCEL_MIN, ACCEL_MAX]
@@ -229,9 +237,9 @@ class LongitudinalPlanner:
     longitudinalPlan.fcw = self.fcw
 
     if classic_model:
-      a_target, should_stop = get_accel_from_plan_classic(self.CP, longitudinalPlan.speeds, longitudinalPlan.accels, vEgoStopping=frogpilot_toggles.vEgoStopping)
+      a_target, should_stop = get_accel_from_plan_classic(self.CP, longitudinalPlan.speeds, longitudinalPlan.accels, frogpilot_toggles.longitudinalActuatorDelay, frogpilot_toggles.vEgoStopping)
     else:
-      action_t = self.CP.longitudinalActuatorDelay + DT_MDL
+      action_t = frogpilot_toggles.longitudinalActuatorDelay + DT_MDL
       a_target, should_stop = get_accel_from_plan(longitudinalPlan.speeds, longitudinalPlan.accels,
                                                   action_t=action_t, vEgoStopping=frogpilot_toggles.vEgoStopping)
     longitudinalPlan.aTarget = float(a_target)

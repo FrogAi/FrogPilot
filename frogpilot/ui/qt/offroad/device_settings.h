@@ -26,7 +26,7 @@ private:
 
   std::map<QString, AbstractControl*> toggles;
 
-  std::set<QString> deviceManagementKeys = {"DeviceShutdown", "IncreaseThermalLimits", "LowVoltageShutdown", "NoLogging", "NoUploads", "OfflineMode", "UseKonikServer"};
+  std::set<QString> deviceManagementKeys = {"DeviceShutdown", "HigherBitrate", "IncreaseThermalLimits", "LowVoltageShutdown", "NoLogging", "NoUploads", "UseKonikServer"};
   std::set<QString> screenKeys = {"ScreenBrightness", "ScreenBrightnessOnroad", "ScreenRecorder", "ScreenTimeout", "ScreenTimeoutOnroad"};
 
   std::set<QString> parentKeys;
@@ -34,4 +34,6 @@ private:
   FrogPilotSettingsWindow *parent;
 
   QJsonObject frogpilotToggleLevels;
+
+  Params params;
 };

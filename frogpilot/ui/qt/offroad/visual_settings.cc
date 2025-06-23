@@ -484,7 +484,7 @@ void FrogPilotVisualsPanel::updateToggles() {
     }
 
     if (key == "ShowSpeedLimits") {
-      setVisible &= !params.getBool("SpeedLimitController");
+      setVisible &= !params.getBool("SpeedLimitController") || !hasOpenpilotLongitudinal;
     }
 
     if (key == "ShowStoppingPoint") {

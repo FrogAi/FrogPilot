@@ -98,10 +98,14 @@ def calculate_lane_width(lane, current_lane, road_edge=None):
 def calculate_road_curvature(modelData, v_ego):
   orientation_rate = np.array(modelData.orientationRate.z)
   velocity = np.array(modelData.velocity.x)
+  timebase = np.array(modelData.orientationRate.t)
 
-  max_pred_lat_acc = max(np.max(orientation_rate * velocity), np.min(orientation_rate * velocity), key=abs)
+  lateral_acceleration = orientation_rate * velocity
+  index = np.argmax(np.abs(lateral_acceleration))
+  predicted_lateral_acc = float(lateral_acceleration[index])
+  time_to_curve = float(timebase[index])
 
-  return float(max_pred_lat_acc / max(v_ego, 1)**2)
+  return predicted_lateral_acc / max(v_ego, 1)**2, max(time_to_curve, 1)
 
 def delete_file(path, report=True):
   path = Path(path)
@@ -216,6 +220,9 @@ def update_maps(now):
   params.put("LastMapsUpdate", todays_date)
 
 def update_openpilot():
+  if params.get("UpdaterState", encoding="utf-8") != "idle":
+    return
+
   subprocess.run(["pkill", "-SIGUSR1", "-f", "system.updated.updated"], check=False)
 
   while not params.get("UpdaterState", encoding="utf-8") == "checking...":

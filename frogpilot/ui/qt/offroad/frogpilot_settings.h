@@ -35,11 +35,17 @@ public:
   bool openpilotLongitudinalControlDisabled = false;
   bool tacoHacksAllowed = false;
 
-  float delayStock;
-  float frictionStock;
-  float kpStock;
-  float latAccelStock;
-  float steerRatioStock;
+  float friction;
+  float latAccelFactor;
+  float longitudinalActuatorDelay;
+  float startAccel;
+  float steerActuatorDelay;
+  float steerKp;
+  float steerRatio;
+  float stopAccel;
+  float stoppingDecelRate;
+  float vEgoStarting;
+  float vEgoStopping;
 
   int tuningLevel;
 

@@ -35,7 +35,7 @@ from pathlib import Path
 from typing import List
 from urllib.parse import quote
 
-from openpilot.common.params import ParamKeyType, Params
+from openpilot.common.params import ParamKeyType
 from openpilot.selfdrive.car.toyota.carcontroller import LOCK_CMD, UNLOCK_CMD
 from openpilot.system.hardware import HARDWARE, PC
 from openpilot.system.hardware.hw import Paths
@@ -44,7 +44,7 @@ from openpilot.system.loggerd.xattr_cache import getxattr
 from panda import Panda
 from tools.lib.route import SegmentName
 
-from openpilot.frogpilot.common.frogpilot_variables import ERROR_LOGS_PATH, EXCLUDED_KEYS, frogpilot_default_params, params, update_frogpilot_toggles
+from openpilot.frogpilot.common.frogpilot_variables import ERROR_LOGS_PATH, EXCLUDED_KEYS, frogpilot_default_params, params, params_cache, update_frogpilot_toggles
 
 XOR_KEY = "s8#pL3*Xj!aZ@dWq"
 
@@ -233,20 +233,20 @@ def get_nav_active():
     return False
 
 def get_amap_key():
-  token = Params("/cache/params").get("AMapKey1", encoding='utf8')
-  token2 = Params("/cache/params").get("AMapKey2", encoding='utf8')
+  token = params_cache.get("AMapKey1", encoding='utf8')
+  token2 = params_cache.get("AMapKey2", encoding='utf8')
   return (token.strip() if token else None, token2.strip() if token2 else None)
 
 def get_gmap_key():
-  token = Params("/cache/params").get("GMapKey", encoding='utf8')
+  token = params_cache.get("GMapKey", encoding='utf8')
   return token.strip() if token else None
 
 def get_public_token():
-  token = Params("/cache/params").get("MapboxPublicKey", encoding='utf8')
+  token = params_cache.get("MapboxPublicKey", encoding='utf8')
   return token.strip() if token and token.startswith("pk") else None
 
 def get_secret_token():
-  token = Params("/cache/params").get("MapboxSecretKey", encoding='utf8')
+  token = params_cache.get("MapboxSecretKey", encoding='utf8')
   return token.strip() if token and token.startswith("sk") else None
 
 def get_search_input():
@@ -381,7 +381,7 @@ def public_token_input(postvars):
     if "pk." not in token:
       return postvars
     else:
-        Params("/cache/params").put("MapboxPublicKey", token)
+        params_cache.put("MapboxPublicKey", token)
   return token
 
 def app_token_input(postvars):
@@ -392,7 +392,7 @@ def app_token_input(postvars):
     if "sk." not in token:
       return postvars
     else:
-        Params("/cache/params").put("MapboxSecretKey", token)
+        params_cache.put("MapboxSecretKey", token)
   return token
 
 def gmap_key_input(postvars):
@@ -400,7 +400,7 @@ def gmap_key_input(postvars):
     return postvars
   else:
     token = postvars.get("gmap_key_val").strip()
-    Params("/cache/params").put("GMapKey", token)
+    params_cache.put("GMapKey", token)
   return token
 
 def amap_key_input(postvars):
@@ -409,8 +409,8 @@ def amap_key_input(postvars):
   else:
     token = postvars.get("amap_key_val").strip()
     token2 = postvars.get("amap_key_val_2").strip()
-    Params("/cache/params").put("AMapKey1", token)
-    Params("/cache/params").put("AMapKey2", token2)
+    params_cache.put("AMapKey1", token)
+    params_cache.put("AMapKey2", token2)
   return token
 
 def gcj02towgs84(lng, lat):

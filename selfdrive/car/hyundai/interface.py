@@ -9,8 +9,6 @@ from openpilot.selfdrive.car import create_button_events, get_safety_config
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase
 from openpilot.selfdrive.car.disable_ecu import disable_ecu
 
-from openpilot.frogpilot.common.frogpilot_variables import params
-
 Ecu = car.CarParams.Ecu
 ButtonType = car.CarState.ButtonEvent.Type
 FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
@@ -24,7 +22,7 @@ BUTTONS_DICT = {Buttons.RES_ACCEL: ButtonType.accelCruise, Buttons.SET_DECEL: Bu
 class CarInterface(CarInterfaceBase):
   @staticmethod
   def _get_params(ret, candidate, fingerprint, car_fw, experimental_long, docs, frogpilot_toggles):
-    use_new_api = params.get_bool("NewLongAPI")
+    use_old_long = frogpilot_toggles.old_long_api
 
     ret.carName = "hyundai"
     ret.radarUnavailable = RADAR_START_ADDR not in fingerprint[1] or DBC[ret.carFingerprint]["radar"] is None
@@ -86,14 +84,14 @@ class CarInterface(CarInterfaceBase):
 
     # *** longitudinal control ***
     if candidate in CANFD_CAR:
-      if not use_new_api:
+      if use_old_long:
         ret.longitudinalTuning.deadzoneBP = [0.]
         ret.longitudinalTuning.deadzoneV = [0.]
         ret.longitudinalTuning.kpV = [0.1]
         ret.longitudinalTuning.kiV = [0.0]
       ret.experimentalLongitudinalAvailable = candidate not in (CANFD_UNSUPPORTED_LONGITUDINAL_CAR | CANFD_RADAR_SCC_CAR)
     else:
-      if not use_new_api:
+      if use_old_long:
         ret.longitudinalTuning.deadzoneBP = [0.]
         ret.longitudinalTuning.deadzoneV = [0.]
         ret.longitudinalTuning.kpV = [0.5]

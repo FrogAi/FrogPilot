@@ -18,7 +18,7 @@ from openpilot.selfdrive.navd.helpers import (Coordinate, coordinate_from_param,
                                     parse_banner_instructions)
 from openpilot.common.swaglog import cloudlog
 
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
+from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles, params_cache
 
 REROUTE_DISTANCE = 25
 MANEUVER_TRANSITION_THRESHOLD = 10
@@ -58,7 +58,7 @@ class RouteEngine:
       self.mapbox_token = os.environ["MAPBOX_TOKEN"]
       self.mapbox_host = "https://api.mapbox.com"
     else:
-      self.mapbox_token = Params("/cache/params").get("MapboxSecretKey", encoding='utf8')
+      self.mapbox_token = params_cache.get("MapboxSecretKey", encoding='utf8')
       self.mapbox_host = "https://api.mapbox.com"
 
     # FrogPilot variables

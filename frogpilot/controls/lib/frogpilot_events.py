@@ -82,7 +82,7 @@ class FrogPilotEvents:
     else:
       self.tracking_lead_distance = 0
 
-    if not self.nnff_played and self.startup_seen and sm["controlsState"].alertText1 == "" and len(self.events) == 0 and params.get("NNFFModelName", encoding="utf-8") is not None:
+    if not self.nnff_played and self.startup_seen and sm["controlsState"].alertText1 == "" and len(self.events) == 0 and params.get("NNFFModelName", encoding="utf-8") is not None and frogpilot_toggles.nnff:
       self.events.add(EventName.torqueNNLoad)
 
       self.nnff_played = True
