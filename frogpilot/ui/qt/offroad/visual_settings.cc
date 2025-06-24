@@ -258,6 +258,8 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     } else if (param == "PathWidth") {
       visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 10, tr(" feet"), std::map<float, QString>(), 0.1);
 
+    } else if (param == "IncreaseLeadInfo") {
+      visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 20, 80, tr(" px"), {}, 2);
     } else if (param == "NavigationUI") {
       FrogPilotManageControl *navigationUIToggle = new FrogPilotManageControl(param, title, desc, icon);
       QObject::connect(navigationUIToggle, &FrogPilotManageControl::manageButtonClicked, [visualsLayout, navigationUIPanel]() {
@@ -472,9 +474,9 @@ void FrogPilotVisualsPanel::updateToggles() {
       setVisible &= hasOpenpilotLongitudinal;
     }
 
-    if (key == "IncreaseLeadInfo") {
+    /*if (key == "IncreaseLeadInfo") {
       setVisible &= hasOpenpilotLongitudinal;
-    }
+    }*/
 
     if (key == "OnroadDistanceButton") {
       setVisible &= hasOpenpilotLongitudinal;
