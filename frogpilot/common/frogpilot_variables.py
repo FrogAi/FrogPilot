@@ -239,6 +239,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int]] = [
   ("LeadDepartingAlert", "0", 0),
   ("LeadDetectionThreshold", "35", 3),
   ("LeadInfo", "1", 2),
+  ("InceaseLeadInfo", "1", 2),
   ("LKASButtonControl", "5", 2),
   ("LockDoors", "1", 0),
   ("LockDoorsTimer", "0", 0),
