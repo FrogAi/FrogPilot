@@ -259,7 +259,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
       visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 10, tr(" feet"), std::map<float, QString>(), 0.1);
 
     } else if (param == "IncreaseLeadInfo") {
-      visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 20, 80, tr(" px"), {}, 2);
+      visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 35, 60, tr(" px"), {}, 2);
     } else if (param == "NavigationUI") {
       FrogPilotManageControl *navigationUIToggle = new FrogPilotManageControl(param, title, desc, icon);
       QObject::connect(navigationUIToggle, &FrogPilotManageControl::manageButtonClicked, [visualsLayout, navigationUIPanel]() {

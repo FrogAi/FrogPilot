@@ -516,7 +516,12 @@ void FrogPilotAnnotatedCameraWidget::paintLeadMetrics(QPainter &p, bool adjacent
   float leadDistance = lead_data.getDRel() + (adjacent ? fabs(lead_data.getYRel()) : 0);
   float leadSpeed = std::max(lead_data.getVLead(), 0.0f);
 
-  p.setFont(InterFont(40, QFont::Bold));
+  FrogPilotUIState &fs = *frogpilotUIState();
+  QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
+  textSize = frogpilot_toggles.value("IncreaseLeadInfo").toInt();
+
+
+  p.setFont(InterFont(textSize, QFont::Bold));
   p.setPen(QPen(whiteColor()));
 
   QString text;
