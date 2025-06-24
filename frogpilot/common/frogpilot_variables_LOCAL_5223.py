@@ -14,7 +14,6 @@ from openpilot.common.params import Params
 from openpilot.selfdrive.car import gen_empty_fingerprint
 from openpilot.selfdrive.car.car_helpers import interfaces
 from openpilot.selfdrive.car.gm.values import GMFlags
-from openpilot.selfdrive.car.interfaces import CarInterfaceBase
 from openpilot.selfdrive.car.mock.interface import CarInterface
 from openpilot.selfdrive.car.mock.values import CAR as MOCK
 from openpilot.selfdrive.controls.lib.desire_helper import LANE_CHANGE_SPEED_MIN
@@ -70,8 +69,8 @@ DEFAULT_MODEL = "national-public-radio"
 DEFAULT_MODEL_NAME = "National Public Radio 👀📡"
 DEFAULT_MODEL_VERSION = "v6"
 
-DEFAULT_TINYGRAD_MODEL = "liquid-crystal"
-DEFAULT_TINYGRAD_MODEL_NAME = "Liquid Crystal 👀📡"
+DEFAULT_TINYGRAD_MODEL = "kerrygold"
+DEFAULT_TINYGRAD_MODEL_NAME = "Kerrygold 👀📡"
 DEFAULT_TINYGRAD_MODEL_VERSION = "v7"
 
 EXCLUDED_KEYS = {
@@ -506,8 +505,8 @@ class FrogPilotVariables:
 
     msg_bytes = params.get("CarParams" if started else "CarParamsPersistent", block=started)
     if msg_bytes:
-      with car.CarParams.from_bytes(msg_bytes) as cp_reader:
-        CP = cp_reader.as_builder()
+      with car.CarParams.from_bytes(msg_bytes) as CP:
+        CP = CP
     else:
       CarInterface, _, _ = interfaces[MOCK.MOCK]
       CP = CarInterface.get_params(MOCK.MOCK, gen_empty_fingerprint(), [], False, toggle, False)
@@ -516,10 +515,6 @@ class FrogPilotVariables:
       safety_config = car.CarParams.SafetyConfig.new_message()
       safety_config.safetyModel = car.CarParams.SafetyModel.noOutput
       CP.safetyConfigs = [safety_config]
-
-    is_torque_car = CP.lateralTuning.which() == "torque"
-    if not is_torque_car:
-      CarInterfaceBase.configure_torque_tune(CP.carFingerprint, CP.lateralTuning)
 
     always_on_lateral_set = bool(CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
     car_make = CP.carName
@@ -531,7 +526,7 @@ class FrogPilotVariables:
     has_nnff = not comma_nnff_supported(car_model) and nnff_supported(car_model) and car_make != "honda"
     has_pedal = CP.enableGasInterceptor
     has_radar = not CP.radarUnavailable
-    has_sng = CP.autoResumeSng
+    is_torque_car = CP.lateralTuning.which() == "torque"
     latAccelFactor = CP.lateralTuning.torque.latAccelFactor
     longitudinalActuatorDelay = CP.longitudinalActuatorDelay
     openpilot_longitudinal = CP.openpilotLongitudinalControl
@@ -896,7 +891,7 @@ class FrogPilotVariables:
     toggle.screen_timeout = params.get_int("ScreenTimeout") if screen_management and tuning_level >= level["ScreenTimeout"] else default.get_int("ScreenTimeout")
     toggle.screen_timeout_onroad = params.get_int("ScreenTimeoutOnroad") if screen_management and tuning_level >= level["ScreenTimeoutOnroad"] else default.get_int("ScreenTimeoutOnroad")
 
-    toggle.sng_hack = openpilot_longitudinal and car_make == "toyota" and not has_pedal and not has_sng and (params.get_bool("SNGHack") if tuning_level >= level["SNGHack"] else default.get_bool("SNGHack"))
+    toggle.sng_hack = openpilot_longitudinal and car_make == "toyota" and not has_pedal and (params.get_bool("SNGHack") if tuning_level >= level["SNGHack"] else default.get_bool("SNGHack"))
 
     toggle.speed_limit_controller = openpilot_longitudinal and (params.get_bool("SpeedLimitController") if tuning_level >= level["SpeedLimitController"] else default.get_bool("SpeedLimitController"))
     toggle.force_mph_dashboard = toggle.speed_limit_controller and (params.get_bool("ForceMPHDashboard") if tuning_level >= level["ForceMPHDashboard"] else default.get_bool("ForceMPHDashboard"))

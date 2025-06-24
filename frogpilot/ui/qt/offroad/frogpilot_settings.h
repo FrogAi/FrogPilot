@@ -18,6 +18,7 @@ public:
   bool hasNNFFLog = true;
   bool hasOpenpilotLongitudinal = true;
   bool hasPCMCruise = false;
+  bool hasPedal = false;
   bool hasRadar = true;
   bool hasSNG = false;
   bool isBolt = false;

@@ -219,6 +219,7 @@ void FrogPilotSettingsWindow::updateVariables() {
     hasNNFFLog = nnffLogFileExists(QString::fromStdString(carFingerprint));
     hasOpenpilotLongitudinal = hasLongitudinalControl(CP);
     hasPCMCruise = CP.getPcmCruise();
+    hasPedal = CP.getEnableGasInterceptor();
     hasRadar = !CP.getRadarUnavailable();
     hasSNG = CP.getAutoResumeSng();
     isBolt = carFingerprint == "CHEVROLET_BOLT_CC" || carFingerprint == "CHEVROLET_BOLT_EUV";

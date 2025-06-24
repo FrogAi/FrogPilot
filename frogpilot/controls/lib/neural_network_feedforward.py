@@ -162,8 +162,6 @@ class NeuralNetworkFeedforward:
 
     self.use_steering_angle = self.lat_control_torque.torque_params.useSteeringAngle
 
-    lateral_delay = CP.steerActuatorDelay
-
     # Instantaneous lateral jerk changes very rapidly, making it not useful on its own,
     # however, we can "look ahead" to the future planned lateral jerk in order to gauge
     # whether the current desired lateral jerk will persist into the future, i.e.
@@ -180,7 +178,7 @@ class NeuralNetworkFeedforward:
     self.lat_jerk_friction_factor = 0.4
 
     # precompute time differences between ModelConstants.T_IDXS
-    self.desired_lat_jerk_time = lateral_delay + 0.3
+    self.lateral_delay = CP.steerActuatorDelay
     self.t_diffs = np.diff(ModelConstants.T_IDXS)
 
     self.pitch = FirstOrderFilter(0.0, 0.5, 0.01)
@@ -192,8 +190,7 @@ class NeuralNetworkFeedforward:
 
     # setup future time offsets
     self.future_times = [0.3, 0.6, 1.0, 1.5]  # seconds in the future
-    self.nn_time_offset = lateral_delay + 0.2
-    self.nn_future_times = [time + self.nn_time_offset for time in self.future_times]
+    self.nn_future_times = [time + self.lateral_delay for time in self.future_times]
 
     # setup past time offsets
     self.past_times = [-0.3, -0.2, -0.1]
@@ -204,10 +201,9 @@ class NeuralNetworkFeedforward:
     self.roll_deque = deque(maxlen=history_check_frames[0])
 
   def update_live_delay(self, lateral_delay):
-    self.desired_lat_jerk_time = lateral_delay + 0.3
+    self.lateral_delay = lateral_delay
 
-    nn_time_offset = lateral_delay + 0.2
-    self.nn_future_times = [time + nn_time_offset for time in self.future_times]
+    self.nn_future_times = [time + self.lateral_delay for time in self.future_times]
     self.past_future_len = len(self.past_times) + len(self.nn_future_times)
 
   def compute_nnff(self, CS, VM, actual_lateral_accel, desired_lateral_accel, gravity_adjusted_lateral_accel, lateral_accel_deadzone, llk, measurement, model_data, params, pid_log, roll_compensation, setpoint, frogpilot_toggles):
@@ -225,7 +221,7 @@ class NeuralNetworkFeedforward:
       friction_upper_idx = next((idxs for idxs, value in enumerate(ModelConstants.T_IDXS) if value > lookahead), 16)
 
       predicted_lateral_jerk = get_predicted_lateral_jerk(model_data.acceleration.y, self.t_diffs)
-      desired_lateral_jerk = (interp(self.desired_lat_jerk_time, ModelConstants.T_IDXS, model_data.acceleration.y) - desired_lateral_accel) / self.desired_lat_jerk_time
+      desired_lateral_jerk = (interp(self.lateral_delay, ModelConstants.T_IDXS, model_data.acceleration.y) - desired_lateral_accel) / self.lateral_delay
 
       lookahead_lateral_jerk = get_lookahead_value(predicted_lateral_jerk[LAT_PLAN_MIN_IDX:friction_upper_idx], desired_lateral_jerk)
 

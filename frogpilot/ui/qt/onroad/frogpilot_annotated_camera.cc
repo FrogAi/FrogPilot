@@ -395,9 +395,7 @@ void FrogPilotAnnotatedCameraWidget::paintCompass(QPainter &p, QJsonObject &frog
   const int baseRibbonWidth = qRound(360 * pixelsPerDegree);
 
   static QPixmap ribbonPixmap;
-
-  static bool initialized = false;
-  if (!initialized) {
+  if (!ribbonPixmap) {
     int ribbonHeight = compassWidget.height();
     int ribbonWidth = baseRibbonWidth * 2;
 
@@ -429,15 +427,15 @@ void FrogPilotAnnotatedCameraWidget::paintCompass(QPainter &p, QJsonObject &frog
         ribbonPainter.drawLine(x, ribbonHeight - notchHeight - 5, x, ribbonHeight);
       }
     }
-
-    initialized = true;
   }
 
   double rawBearing = QJsonDocument::fromJson(QString::fromStdString(params_memory.get("LastGPSPosition")).toUtf8()).object().value("bearing").toDouble(0.0);
+
   int bearing = qRound(fmod(rawBearing + 360.0, 360.0));
   int offset = qRound(bearing * pixelsPerDegree) % baseRibbonWidth;
-  int drawX = compassWidget.left() - offset;
+  int drawX = compassWidget.center().x() - offset;
 
+  p.drawPixmap(drawX - baseRibbonWidth, compassWidget.top() + 5, ribbonPixmap);
   p.drawPixmap(drawX, compassWidget.top() + 5, ribbonPixmap);
 
   int triangleSize = 40;

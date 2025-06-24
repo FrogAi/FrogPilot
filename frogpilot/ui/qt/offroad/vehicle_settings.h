@@ -22,6 +22,7 @@ private:
 
   bool hasExperimentalOpenpilotLongitudinal;
   bool hasOpenpilotLongitudinal;
+  bool hasPedal;
   bool hasSNG;
   bool isC3;
   bool isGM;
