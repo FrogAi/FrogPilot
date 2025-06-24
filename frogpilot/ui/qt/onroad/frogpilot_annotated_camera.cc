@@ -518,7 +518,7 @@ void FrogPilotAnnotatedCameraWidget::paintLeadMetrics(QPainter &p, bool adjacent
 
   FrogPilotUIState &fs = *frogpilotUIState();
   QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
-  textSize = frogpilot_toggles.value("IncreaseLeadInfo").toInt();
+  int textSize = frogpilot_toggles.value("IncreaseLeadInfo").toInt();
 
 
   p.setFont(InterFont(textSize, QFont::Bold));
