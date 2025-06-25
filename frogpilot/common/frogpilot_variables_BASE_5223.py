@@ -202,7 +202,6 @@ frogpilot_default_params: list[tuple[str, str | bytes, int]] = [
   ("LeadDepartingAlert", "0", 0),
   ("LeadDetectionThreshold", "35", 3),
   ("LeadInfo", "1", 2),
-  ("IncreaseLeadInfo", "35", 2),
   ("LKASButtonControl", "5", 2),
   ("LockDoors", "1", 0),
   ("LockDoorsTimer", "0", 0),
@@ -621,7 +620,6 @@ class FrogPilotVariables:
     toggle.show_fps = developer_metrics and (params.get_bool("FPSCounter") if tuning_level >= level["FPSCounter"] else default.get_bool("FPSCounter")) or toggle.debug_mode
     toggle.adjacent_path_metrics = (developer_metrics and params.get_bool("AdjacentPathMetrics") if tuning_level >= level["AdjacentPathMetrics"] else default.get_bool("AdjacentPathMetrics")) or toggle.debug_mode
     toggle.lead_metrics = (developer_metrics and params.get_bool("LeadInfo") if tuning_level >= level["LeadInfo"] else default.get_bool("LeadInfo")) or toggle.debug_mode
-    toggle.increase_lead_info = (developer_metrics and params.get_bool("IncreaseLeadInfo") if tuning_level >= level["IncreaseLeadInfo"] else default.get_bool("IncreaseLeadInfo")) or toggle.debug_mode
     toggle.numerical_temp = developer_metrics and (params.get_bool("NumericalTemp") if tuning_level >= level["NumericalTemp"] else default.get_bool("NumericalTemp")) or toggle.debug_mode
     toggle.fahrenheit = toggle.numerical_temp and (params.get_bool("Fahrenheit") if tuning_level >= level["Fahrenheit"] else default.get_bool("Fahrenheit")) and not toggle.debug_mode
     toggle.sidebar_metrics = developer_metrics and (params.get_bool("SidebarMetrics") if tuning_level >= level["SidebarMetrics"] else default.get_bool("SidebarMetrics")) or toggle.debug_mode

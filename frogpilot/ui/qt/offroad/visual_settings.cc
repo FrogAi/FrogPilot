@@ -55,6 +55,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     {"DeveloperMetrics", tr("Developer Metrics"), tr("Performance data, sensor readings, and system metrics for debugging and optimizing openpilot."), ""},
     {"BorderMetrics", tr("Border Metrics"), tr("Metrics displayed around the border of the driving screen.<br><br><b>Blind Spot</b>: Turn the border red when a vehicle is detected in a blind spot<br><b>Steering Torque</b>: Highlight the border green to red in accordance to the amount of steering torque being used<br><b>Turn Signal</b>: Flash the border yellow when a turn signal is active"), ""},
     {"LeadInfo", tr("Lead Info"), tr("Metrics displayed under vehicle markers listing their distance and current speed."), ""},
+    {"IncreaseLeadInfo", tr("Increase Lead Info"), tr("Metrics displayed under vehicle markers listing their distance and current speed."), ""},
     {"FPSCounter", tr("FPS Display"), tr("Display the <b>Frames Per Second (FPS)</b> at the bottom of the driving screen."), ""},
     {"NumericalTemp", tr("Numerical Temperature Gauge"), tr("Use numerical temperature readings instead of status labels in the sidebar."), ""},
     {"SidebarMetrics", tr("Sidebar"), tr("Display system information (<b>CPU</b>, <b>GPU</b>, <b>RAM usage</b>, <b>IP address</b>, <b>device storage</b>) in the sidebar."), ""},
@@ -257,6 +258,8 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     } else if (param == "PathWidth") {
       visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 10, tr(" feet"), std::map<float, QString>(), 0.1);
 
+    } else if (param == "IncreaseLeadInfo") {
+      visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 35, 60, tr(" px"), {}, 2);
     } else if (param == "NavigationUI") {
       FrogPilotManageControl *navigationUIToggle = new FrogPilotManageControl(param, title, desc, icon);
       QObject::connect(navigationUIToggle, &FrogPilotManageControl::manageButtonClicked, [visualsLayout, navigationUIPanel]() {
