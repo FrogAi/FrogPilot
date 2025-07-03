@@ -203,6 +203,8 @@ class Controls:
 
     self.event_names_to_clear = set()
 
+    self.last_blinker_speed = 0
+
   def set_initial_state(self):
     if REPLAY:
       controls_state = self.params.get("ReplayControlsState")
@@ -618,10 +620,18 @@ class Controls:
     CC = car.CarControl.new_message()
     CC.enabled = self.enabled
 
+    # Check if lateral should be paused for blinker delay
+    lat_paused_for_blinker_delay = False
+    if self.frogpilot_toggles.pause_lateral_below_signal and not (CS.leftBlinker or CS.rightBlinker):
+      time_since_blinker = (self.sm.frame - self.last_blinker_frame) * DT_CTRL
+      if time_since_blinker < self.frogpilot_toggles.pause_lateral_signal_delay and self.last_blinker_speed < self.frogpilot_toggles.pause_lateral_below_speed:
+        lat_paused_for_blinker_delay = True
+
     # Check which actuators can be enabled
     standstill = CS.vEgo <= max(self.CP.minSteerSpeed, MIN_LATERAL_CONTROL_SPEED) or CS.standstill
     CC.latActive = (self.active or self.sm['frogpilotCarState'].alwaysOnLateralEnabled) and not CS.steerFaultTemporary and not CS.steerFaultPermanent and \
-                   (not standstill or self.joystick_mode) and self.sm['frogpilotPlan'].lateralCheck and not self.sm['frogpilotCarState'].pauseLateral
+                   (not standstill or self.joystick_mode) and self.sm['frogpilotPlan'].lateralCheck and not self.sm['frogpilotCarState'].pauseLateral and \
+                   (not lat_paused_for_blinker_delay)
     CC.longActive = self.enabled and not self.events.contains(ET.OVERRIDE_LONGITUDINAL) and not self.sm['frogpilotCarState'].pauseLongitudinal and self.CP.openpilotLongitudinalControl
 
     actuators = CC.actuators
@@ -633,6 +643,8 @@ class Controls:
       CC.rightBlinker = model_v2.meta.laneChangeDirection == LaneChangeDirection.right
 
     if CS.leftBlinker or CS.rightBlinker:
+      if not (self.CS_prev.leftBlinker or self.CS_prev.rightBlinker):
+        self.last_blinker_speed = CS.vEgo  # Record speed at activation
       self.last_blinker_frame = self.sm.frame
 
     # State specific actions

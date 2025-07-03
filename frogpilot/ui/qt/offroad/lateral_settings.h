@@ -43,7 +43,7 @@ private:
   std::set<QString> aolKeys = {"AlwaysOnLateralLKAS", "AlwaysOnLateralMain", "PauseAOLOnBrake"};
   std::set<QString> laneChangeKeys = {"LaneChangeTime", "LaneDetectionWidth", "MinimumLaneChangeSpeed", "NudgelessLaneChange", "OneLaneChange"};
   std::set<QString> lateralTuneKeys = {"NNFF", "NNFFLite", "TurnDesires"};
-  std::set<QString> qolKeys = {"PauseLateralSpeed"};
+  std::set<QString> qolKeys = {"PauseLateralSpeed", "LateralResumeDelay"};
 
   std::set<QString> parentKeys;
 

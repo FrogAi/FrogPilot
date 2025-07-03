@@ -57,6 +57,7 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
 
     {"QOLLateral", tr("Quality of Life"), tr("Miscellaneous features to improve the steering experience."), "../../frogpilot/assets/toggle_icons/quality_of_life.png"},
     {"PauseLateralSpeed", tr("Pause Steering Below"), tr("Temporarily pause steering control below the set speed."), ""},
+    {"LateralResumeDelay", tr("Pause Steering Signal Delay"), tr("Delay (in seconds) before steering resumes after the turn signal goes off, if below the 'Pause Steering Below' speed. Helps give time to manually straighten the wheel before lateral control resumes."), ""},
 
     {"IgnoreMe", "Ignore Me", "This is simply used to fix the layout when the user opens the descriptions and the menu gets wonky. No idea why it happens, but I can't be asked to properly fix it so whatever. Sue me.", ""},
     {"IgnoreMe2", "Ignore Me", "This is simply used to fix the layout when the user opens the descriptions and the menu gets wonky. No idea why it happens, but I can't be asked to properly fix it so whatever. Sue me.", ""}
@@ -130,7 +131,8 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
       std::vector<QString> pauseLateralToggles{"PauseLateralOnSignal"};
       std::vector<QString> pauseLateralToggleNames{"Turn Signal Only"};
       lateralToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 0, 99, QString(), std::map<float, QString>(), 1, true, pauseLateralToggles, pauseLateralToggleNames, true);
-
+    } else if (param == "LateralResumeDelay") {
+          lateralToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 5, QString(), std::map<float, QString>(), 1 );
     } else {
       lateralToggle = new ParamControl(param, title, desc, icon);
     }

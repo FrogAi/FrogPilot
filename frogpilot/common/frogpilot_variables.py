@@ -251,6 +251,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int]] = [
   ("PathWidth", "6.1", 2),
   ("PauseAOLOnBrake", "0", 2),
   ("PauseLateralOnSignal", "0", 2),
+  ("LateralResumeDelay", "1", 2),
   ("PauseLateralSpeed", "0", 2),
   ("PedalsOnUI", "0", 2),
   ("PersonalizeOpenpilot", "1", 0),
@@ -802,6 +803,7 @@ class FrogPilotVariables:
     quality_of_life_lateral = params.get_bool("QOLLateral") if tuning_level >= level["QOLLateral"] else default.get_bool("QOLLateral")
     toggle.pause_lateral_below_speed = params.get_int("PauseLateralSpeed") * speed_conversion if quality_of_life_lateral and tuning_level >= level["PauseLateralSpeed"] else default.get_int("PauseLateralSpeed") * CV.MPH_TO_MS
     toggle.pause_lateral_below_signal = toggle.pause_lateral_below_speed != 0 and (params.get_bool("PauseLateralOnSignal") if tuning_level >= level["PauseLateralOnSignal"] else default.get_bool("PauseLateralOnSignal"))
+    toggle.pause_lateral_signal_delay = params.get_int("LateralResumeDelay") if tuning_level >= level["LateralResumeDelay"] else default.get_int("LateralResumeDelay")
 
     quality_of_life_longitudinal = params.get_bool("QOLLongitudinal") if tuning_level >= level["QOLLongitudinal"] else default.get_bool("QOLLongitudinal")
     toggle.custom_cruise_increase = params.get_int("CustomCruise") if quality_of_life_longitudinal and not pcm_cruise and tuning_level >= level["CustomCruise"] else default.get_int("CustomCruise")
