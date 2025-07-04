@@ -483,6 +483,7 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"SidebarMetrics", PERSISTENT},
     {"SignalMetrics", PERSISTENT},
     {"SignalToDownload", CLEAR_ON_MANAGER_START},
+    {"SizeOfLeadInfo", PERSISTENT},
     {"SLCConfirmation", PERSISTENT},
     {"SLCConfirmationHigher", PERSISTENT},
     {"SLCConfirmationLower", PERSISTENT},

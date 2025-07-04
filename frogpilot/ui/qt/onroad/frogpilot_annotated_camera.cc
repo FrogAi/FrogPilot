@@ -58,6 +58,8 @@ void FrogPilotAnnotatedCameraWidget::showEvent(QShowEvent *event) {
     speedConversionMetrics = MS_TO_MPH;
   }
 
+  sizeOfLeadInfo = frogpilot_toggles.value("size_of_lead_info").toInt();
+
   updateSignals();
 }
 
@@ -535,7 +537,7 @@ void FrogPilotAnnotatedCameraWidget::paintLeadMetrics(QPainter &p, bool adjacent
   float leadDistance = lead_data.getDRel() + (adjacent ? fabs(lead_data.getYRel()) : 0);
   float leadSpeed = std::max(lead_data.getVLead(), 0.0f);
 
-  p.setFont(InterFont(35, QFont::Bold));
+  p.setFont(InterFont(sizeOfLeadInfo, QFont::Bold));
   p.setPen(QPen(whiteColor()));
 
   QString text;

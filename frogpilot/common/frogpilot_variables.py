@@ -303,6 +303,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int]] = [
   ("Sidebar", "0", 0),
   ("SidebarMetrics", "1", 3),
   ("SignalMetrics", "0", 2),
+  ("SizeOfLeadInfo", "30", 2),
   ("SLCConfirmation", "0", 0),
   ("SLCConfirmationHigher", "0", 0),
   ("SLCConfirmationLower", "0", 0),
@@ -623,6 +624,7 @@ class FrogPilotVariables:
     toggle.numerical_temp = developer_metrics and (params.get_bool("NumericalTemp") if tuning_level >= level["NumericalTemp"] else default.get_bool("NumericalTemp")) or toggle.debug_mode
     toggle.fahrenheit = toggle.numerical_temp and (params.get_bool("Fahrenheit") if tuning_level >= level["Fahrenheit"] else default.get_bool("Fahrenheit")) and not toggle.debug_mode
     toggle.sidebar_metrics = developer_metrics and (params.get_bool("SidebarMetrics") if tuning_level >= level["SidebarMetrics"] else default.get_bool("SidebarMetrics")) or toggle.debug_mode
+    toggle.size_of_lead_info = params.get_int("SizeOfLeadInfo") if toggle.lead_metrics and tuning_level >= level["SizeOfLeadInfo"] else 0 if toggle.debug_mode else default.get_float("SizeOfLeadInfo")
     toggle.cpu_metrics = toggle.sidebar_metrics and (params.get_bool("ShowCPU") if tuning_level >= level["ShowCPU"] else default.get_bool("ShowCPU")) or toggle.debug_mode
     toggle.gpu_metrics = toggle.sidebar_metrics and (params.get_bool("ShowGPU") if tuning_level >= level["ShowGPU"] else default.get_bool("ShowGPU")) and not toggle.debug_mode
     toggle.ip_metrics = toggle.sidebar_metrics and (params.get_bool("ShowIP") if tuning_level >= level["ShowIP"] else default.get_bool("ShowIP"))

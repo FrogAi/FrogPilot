@@ -30,6 +30,7 @@ public:
   int alertHeight;
   int signMargin;
   int standstillDuration;
+  int sizeOfLeadInfo;
 
   float distanceConversion;
   float setSpeed;
