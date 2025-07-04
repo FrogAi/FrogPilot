@@ -57,7 +57,7 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
 
     {"QOLLateral", tr("Quality of Life"), tr("Miscellaneous features to improve the steering experience."), "../../frogpilot/assets/toggle_icons/quality_of_life.png"},
     {"PauseLateralSpeed", tr("Pause Steering Below"), tr("Temporarily pause steering control below the set speed."), ""},
-    {"LateralResumeDelay", tr("Pause Steering Signal Delay"), tr("Delay (in seconds) before steering resumes after the turn signal goes off, if below the 'Pause Steering Below' speed. Helps give time to manually straighten the wheel before lateral control resumes."), ""},
+    {"LateralResumeDelay", tr("Delay (in seconds) before lateral control resumes after the turn signal turns off, if the vehicle speed dropped below half of the 'Pause Steering Below' speed at any point while the turn signal was active. This helps give time to manually complete turns or slow-speed lane changes before steering control resumes."), ""},
 
     {"IgnoreMe", "Ignore Me", "This is simply used to fix the layout when the user opens the descriptions and the menu gets wonky. No idea why it happens, but I can't be asked to properly fix it so whatever. Sue me.", ""},
     {"IgnoreMe2", "Ignore Me", "This is simply used to fix the layout when the user opens the descriptions and the menu gets wonky. No idea why it happens, but I can't be asked to properly fix it so whatever. Sue me.", ""}

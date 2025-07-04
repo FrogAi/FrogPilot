@@ -163,6 +163,7 @@ class Controls:
     self.personality = self.read_personality_param()
     self.v_cruise_helper = VCruiseHelper(self.CP)
     self.recalibrating_seen = False
+    self.blinker_min_speed = 0
 
     self.can_log_mono_time = 0
 
@@ -202,8 +203,6 @@ class Controls:
     self.has_menu = self.CP.carName == "gm" and not (self.CP.flags & GMFlags.NO_CAMERA.value or self.CP.carFingerprint in CC_ONLY_CAR)
 
     self.event_names_to_clear = set()
-
-    self.last_blinker_speed = 0
 
   def set_initial_state(self):
     if REPLAY:
@@ -624,7 +623,7 @@ class Controls:
     lat_paused_for_blinker_delay = False
     if self.frogpilot_toggles.pause_lateral_below_signal and not (CS.leftBlinker or CS.rightBlinker):
       time_since_blinker = (self.sm.frame - self.last_blinker_frame) * DT_CTRL
-      if time_since_blinker < self.frogpilot_toggles.pause_lateral_signal_delay and self.last_blinker_speed < self.frogpilot_toggles.pause_lateral_below_speed:
+      if time_since_blinker < self.frogpilot_toggles.pause_lateral_signal_delay and self.blinker_min_speed < self.frogpilot_toggles.pause_lateral_below_speed/2:
         lat_paused_for_blinker_delay = True
 
     # Check which actuators can be enabled
@@ -644,7 +643,9 @@ class Controls:
 
     if CS.leftBlinker or CS.rightBlinker:
       if not (self.CS_prev.leftBlinker or self.CS_prev.rightBlinker):
-        self.last_blinker_speed = CS.vEgo  # Record speed at activation
+        self.blinker_min_speed = CS.vEgo  # Initialize
+      else:
+        self.blinker_min_speed = min(self.blinker_min_speed, CS.vEgo)
       self.last_blinker_frame = self.sm.frame
 
     # State specific actions
