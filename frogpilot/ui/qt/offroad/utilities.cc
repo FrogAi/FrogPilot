@@ -54,6 +54,11 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
 
   ButtonControl *reportIssueBtn = new ButtonControl(tr("Report a Bug or an Issue"), tr("REPORT"), tr("Let FrogsGoMoo know about an issue you're facing!"));
   QObject::connect(reportIssueBtn, &ButtonControl::clicked, [this]() {
+    if (!frogpilotUIState()->frogpilot_scene.online) {
+      ConfirmationDialog::alert(tr("Ensure your device has an internet connection before sending a report!"), this);
+      return;
+    }
+
     QStringList report_messages = {
       tr("I saw an alert that said \"openpilot crashed\""),
       tr("I'm noticing harsh acceleration"),

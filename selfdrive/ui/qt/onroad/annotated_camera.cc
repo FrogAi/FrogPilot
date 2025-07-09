@@ -85,10 +85,8 @@ void AnnotatedCameraWidget::updateState(const UIState &s, const FrogPilotUIState
   has_us_speed_limit = (nav_alive && speed_limit_sign == cereal::NavInstruction::SpeedLimitSign::MUTCD);
   has_us_speed_limit |= frogpilot_toggles.value("show_speed_limits").toBool() || frogpilot_toggles.value("speed_limit_controller").toBool();
   has_us_speed_limit &= !frogpilot_toggles.value("speed_limit_vienna").toBool();
-  has_us_speed_limit &= !frogpilot_toggles.value("hide_speed_limit").toBool();
   has_eu_speed_limit = (nav_alive && speed_limit_sign == cereal::NavInstruction::SpeedLimitSign::VIENNA);
   has_eu_speed_limit |= (frogpilot_toggles.value("show_speed_limits").toBool() || frogpilot_toggles.value("speed_limit_controller").toBool()) && frogpilot_toggles.value("speed_limit_vienna").toBool();
-  has_eu_speed_limit &= !frogpilot_toggles.value("hide_speed_limit").toBool();
   is_metric = s.scene.is_metric;
   speedUnit =  s.scene.is_metric ? tr("km/h") : tr("mph");
   hideBottomIcons = (cs.getAlertSize() != cereal::ControlsState::AlertSize::NONE);
@@ -192,7 +190,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
 
   const QRect sign_rect = set_speed_rect.adjusted(sign_margin, default_size.height(), -sign_margin, -sign_margin);
   // US/Canada (MUTCD style) sign
-  if (has_us_speed_limit) {
+  if (has_us_speed_limit && !frogpilot_toggles.value("hide_speed_limit").toBool()) {
     p.setPen(Qt::NoPen);
     p.setBrush(whiteColor());
     p.drawRoundedRect(sign_rect, 24, 24);
@@ -219,7 +217,7 @@ void AnnotatedCameraWidget::drawHud(QPainter &p, const cereal::FrogPilotPlan::Re
   }
 
   // EU (Vienna style) sign
-  if (has_eu_speed_limit) {
+  if (has_eu_speed_limit && !frogpilot_toggles.value("hide_speed_limit").toBool()) {
     p.setPen(Qt::NoPen);
     p.setBrush(whiteColor());
     p.drawEllipse(sign_rect);

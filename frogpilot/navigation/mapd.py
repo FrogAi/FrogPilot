@@ -63,24 +63,37 @@ def get_latest_version():
 
 def mapd_thread():
   while True:
-    if not os.path.exists(MAPD_PATH):
+    if not MAPD_PATH.exists():
       print(f"{MAPD_PATH} not found. Downloading...")
       download()
       continue
 
-    if not os.path.exists(VERSION_PATH):
+    if not VERSION_PATH.exists():
+      print(f"{VERSION_PATH} not found. Downloading mapd...")
       download()
       continue
 
     with open(VERSION_PATH) as version_file:
       if is_url_pingable("https://github.com") or is_url_pingable("https://gitlab.com"):
         if version_file.read().strip() != get_latest_version():
-          print("New mapd version available. Downloading...")
+          print("New mapd version available. Updating...")
           download()
           continue
 
-    process = subprocess.Popen(MAPD_PATH)
-    process.wait()
+    if not os.access(MAPD_PATH, os.X_OK):
+      print(f"{MAPD_PATH} is not executable. Fixing permissions...")
+      try:
+        os.chmod(MAPD_PATH, os.stat(MAPD_PATH).st_mode | stat.S_IEXEC)
+      except Exception as e:
+        print(f"Failed to set executable permissions on {MAPD_PATH}: {e}")
+        continue
+
+    try:
+      process = subprocess.Popen(str(MAPD_PATH))
+      process.wait()
+    except FileNotFoundError as e:
+      print(f"Subprocess failed: {e}")
+      download()
 
 def main():
   params_memory.put("MapdLogLevel", "disabled")

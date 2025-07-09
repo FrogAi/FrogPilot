@@ -37,7 +37,7 @@ def capture_exception(*args, **kwargs) -> None:
 
   phrases_to_check = [
     "already exists. To overwrite it, set 'overwrite' to True",
-    "setup_quectel failed after retry",
+    "failed after retry",
   ]
 
   if any(phrase in exc_text for phrase in phrases_to_check):
