@@ -87,6 +87,9 @@ class FrogPilotFollowing:
       braking_offset = float(np.clip(min(v_ego - v_lead, v_lead) - COMFORT_BRAKE, 1, distance_factor))
 
       if frogpilot_toggles.human_following:
-        far_lead_offset = max(lead_distance - (v_ego * self.t_follow) - STOP_DISTANCE, 0) if not self.following_lead else 0
+        if not self.following_lead and v_lead > CITY_SPEED_LIMIT:
+          far_lead_offset = max(lead_distance - (v_ego * self.t_follow) - STOP_DISTANCE, 0)
+        else:
+          far_lead_offset = 0
         self.t_follow /= braking_offset + far_lead_offset
       self.slower_lead = braking_offset > 1

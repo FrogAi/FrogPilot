@@ -5,6 +5,7 @@
 FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
   ButtonControl *deleteDrivingDataBtn = new ButtonControl(tr("Delete Driving Footage and Data"), tr("DELETE"), tr("Deletes all stored driving footage and data from your device. Ideal for maintaining privacy or for simply freeing up space."));
   QObject::connect(deleteDrivingDataBtn, &ButtonControl::clicked, [=]() {
+    QDir hdDataDir("/data/media/0/realdata_HD/");
     QDir konikDataDir("/data/media/0/realdata_konik/");
     QDir realDataDir("/data/media/0/realdata/");
 
@@ -15,7 +16,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
         deleteDrivingDataBtn->setEnabled(false);
         deleteDrivingDataBtn->setValue(tr("Deleting..."));
 
-        QList<QDir> footageDirs = {konikDataDir, realDataDir};
+        QList<QDir> footageDirs = {hdDataDir, konikDataDir, realDataDir};
         for (const QDir &footageDir : footageDirs) {
           if (!footageDir.exists()) {
             continue;
@@ -75,8 +76,15 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
     QDir recordingsDir("/data/media/screen_recordings");
     QStringList recordingsNames = recordingsDir.entryList(QDir::Files | QDir::NoDotAndDotDot);
 
+    QStringList mp4Recordings;
+    for (const QString &name : recordingsNames) {
+      if (name.endsWith(".mp4", Qt::CaseInsensitive)) {
+        mp4Recordings << name;
+      }
+    }
+
     if (id == 0) {
-      QString selection = MultiOptionDialog::getSelection(tr("Select a recording to delete"), recordingsNames, "", this);
+      QString selection = MultiOptionDialog::getSelection(tr("Select a recording to delete"), mp4Recordings, "", this);
       if (!selection.isEmpty()) {
         if (ConfirmationDialog::confirm(tr("Are you sure you want to delete this recording?"), tr("Delete"), this)) {
           std::thread([=]() {
@@ -134,7 +142,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
       }
 
     } else if (id == 2) {
-      QString selection = MultiOptionDialog::getSelection(tr("Select a recording to rename"), recordingsNames, "", this);
+      QString selection = MultiOptionDialog::getSelection(tr("Select a recording to rename"), mp4Recordings, "", this);
       if (!selection.isEmpty()) {
         QString newName = InputDialog::getText(tr("Enter a new name"), this, tr("Rename Recording")).trimmed().replace(" ", "_");
         if (!newName.isEmpty()) {
@@ -360,8 +368,6 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent) : FrogPi
             }
 
             QFile("/cache/on_backup").open(QIODevice::WriteOnly);
-
-            params.putBool("AutomaticUpdates", false);
 
             frogpilotBackupBtn->setValue(tr("Restored!"));
 

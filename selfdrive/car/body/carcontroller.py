@@ -16,7 +16,7 @@ MAX_TURN_INTEGRATOR = 0.1  # meters
 
 
 class CarController(CarControllerBase):
-  def __init__(self, dbc_name, CP, FPCP, VM):
+  def __init__(self, dbc_name, CP, VM):
     self.frame = 0
     self.packer = CANPacker(dbc_name)
 

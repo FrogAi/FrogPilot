@@ -11,7 +11,7 @@ from pathlib import Path
 
 from openpilot.frogpilot.assets.download_functions import GITLAB_URL, download_file, get_repository_url, handle_error, handle_request_error, verify_download
 from openpilot.frogpilot.common.frogpilot_utilities import delete_file, extract_zip
-from openpilot.frogpilot.common.frogpilot_variables import ACTIVE_THEME_PATH, RANDOM_EVENTS_PATH, THEME_SAVE_PATH, params, params_memory, update_frogpilot_toggles
+from openpilot.frogpilot.common.frogpilot_variables import ACTIVE_THEME_PATH, RANDOM_EVENTS_PATH, RESOURCES_REPO, THEME_SAVE_PATH, params, params_memory, update_frogpilot_toggles
 
 CANCEL_DOWNLOAD_PARAM = "CancelThemeDownload"
 DOWNLOAD_PROGRESS_PARAM = "ThemeDownloadProgress"
@@ -142,8 +142,10 @@ def update_theme_asset(asset_type, theme, holiday_theme):
 
   if holiday_theme != "stock":
     asset_location = HOLIDAY_THEME_PATH / holiday_theme / asset_type
-  elif theme in HOLIDAY_SLUGS or f"{theme}_week" in HOLIDAY_SLUGS:
+  elif theme in HOLIDAY_SLUGS:
     asset_location = HOLIDAY_THEME_PATH / theme / asset_type
+  elif f"{theme}_week" in HOLIDAY_SLUGS:
+    asset_location = HOLIDAY_THEME_PATH / f"{theme}_week" / asset_type
   else:
     asset_location = THEME_SAVE_PATH / "theme_packs" / theme / asset_type
 
@@ -179,8 +181,10 @@ def update_wheel_image(image, holiday_theme="stock", random_event=True):
     wheel_location = RANDOM_EVENTS_PATH / "steering_wheels"
   elif image == "stock":
     wheel_location = STOCKOP_THEME_PATH / "steering_wheel"
-  elif image in HOLIDAY_SLUGS or f"{image}_week" in HOLIDAY_SLUGS:
+  elif image in HOLIDAY_SLUGS:
     wheel_location = HOLIDAY_THEME_PATH / image / "steering_wheel"
+  elif f"{image}_week" in HOLIDAY_SLUGS:
+    wheel_location = HOLIDAY_THEME_PATH / f"{image}_week" / "steering_wheel"
   else:
     wheel_location = THEME_SAVE_PATH / "steering_wheels"
 
@@ -215,6 +219,9 @@ class ThemeManager:
     self.holiday_theme = "stock"
 
     self.previous_asset_mappings = {}
+
+    self.session = requests.Session()
+    self.session.headers.update({"User-Agent": "frogpilot-theme-downloader/1.0 (https://github.com/FrogAi/FrogPilot)"})
 
   @staticmethod
   def is_within_week_of(target_date, current_date):
@@ -284,8 +291,7 @@ class ThemeManager:
 
       self.theme_updated = True
 
-  @staticmethod
-  def handle_verification_failure(ext, theme_component, theme_name, theme_param, theme_path, download_path):
+  def handle_verification_failure(self, ext, theme_component, theme_name, theme_param, theme_path, download_path):
     if theme_component == "steering_wheels":
       download_link = f"{GITLAB_URL}/Steering-Wheels/{theme_name}"
     else:
@@ -296,14 +302,14 @@ class ThemeManager:
 
     theme_url = download_link + ext
     print(f"Downloading theme from GitLab: {theme_name}")
-    download_file(CANCEL_DOWNLOAD_PARAM, theme_path, DOWNLOAD_PROGRESS_PARAM, theme_url, theme_param, params_memory)
+    download_file(CANCEL_DOWNLOAD_PARAM, theme_path, DOWNLOAD_PROGRESS_PARAM, theme_url, theme_param, self.session)
 
     if params_memory.get_bool(CANCEL_DOWNLOAD_PARAM):
-      handle_error(None, "Download cancelled...", "Download cancelled...", theme_param, DOWNLOAD_PROGRESS_PARAM, params_memory)
+      handle_error(None, "Download cancelled...", "Download cancelled...", theme_param, DOWNLOAD_PROGRESS_PARAM)
       self.downloading_theme = False
       return
 
-    if verify_download(theme_path, theme_url):
+    if verify_download(theme_path, theme_url, self.session):
       print(f"Theme {theme_name} downloaded and verified successfully from GitLab!")
       if ext == ".zip":
         params_memory.put(DOWNLOAD_PROGRESS_PARAM, "Unpacking theme...")
@@ -316,9 +322,9 @@ class ThemeManager:
   def download_theme(self, theme_component, theme_name, theme_param):
     self.downloading_theme = True
 
-    repo_url = get_repository_url()
+    repo_url = get_repository_url(self.session)
     if not repo_url:
-      handle_error(None, "GitHub and GitLab are offline...", "Repository unavailable", theme_param, DOWNLOAD_PROGRESS_PARAM, params_memory)
+      handle_error(None, "GitHub and GitLab are offline...", "Repository unavailable", theme_param, DOWNLOAD_PROGRESS_PARAM)
       self.downloading_theme = False
       return
 
@@ -338,14 +344,14 @@ class ThemeManager:
 
       theme_url = download_link + ext
       print(f"Downloading theme from GitHub: {theme_name}")
-      download_file(CANCEL_DOWNLOAD_PARAM, theme_path, DOWNLOAD_PROGRESS_PARAM, theme_url, theme_param, params_memory)
+      download_file(CANCEL_DOWNLOAD_PARAM, theme_path, DOWNLOAD_PROGRESS_PARAM, theme_url, theme_param, self.session)
 
       if params_memory.get_bool(CANCEL_DOWNLOAD_PARAM):
-        handle_error(None, "Download cancelled...", "Download cancelled...", theme_param, DOWNLOAD_PROGRESS_PARAM, params_memory)
+        handle_error(None, "Download cancelled...", "Download cancelled...", theme_param, DOWNLOAD_PROGRESS_PARAM)
         self.downloading_theme = False
         return
 
-      if verify_download(theme_path, theme_url):
+      if verify_download(theme_path, theme_url, self.session):
         print(f"Theme {theme_name} downloaded and verified successfully from GitHub!")
         if ext == ".zip":
           params_memory.put(DOWNLOAD_PROGRESS_PARAM, "Unpacking theme...")
@@ -357,12 +363,10 @@ class ThemeManager:
         self.downloading_theme = False
         return
 
-    handle_error(download_path, "Download failed...", "Download failed...", theme_param, DOWNLOAD_PROGRESS_PARAM, params_memory)
+    handle_error(download_path, "Download failed...", "Download failed...", theme_param, DOWNLOAD_PROGRESS_PARAM)
     self.downloading_theme = False
 
-  @staticmethod
-  def fetch_assets(repo_url):
-    repo = "FrogAi/FrogPilot-Resources"
+  def fetch_assets(self, repo_url):
     branches = ["Distance-Icons", "Steering-Wheels", "Themes"]
 
     assets = {
@@ -373,15 +377,15 @@ class ThemeManager:
     try:
       for branch in branches:
         if "github" in repo_url:
-          api_url = f"https://api.github.com/repos/{repo}/git/trees/{branch}?recursive=1"
+          api_url = f"https://api.github.com/repos/{RESOURCES_REPO}/git/trees/{branch}?recursive=1"
         elif "gitlab" in repo_url:
-          api_url = f"https://gitlab.com/api/v4/projects/{repo.replace('/', '%2F')}/repository/tree?ref={branch}&recursive=true"
+          api_url = f"https://gitlab.com/api/v4/projects/{RESOURCES_REPO.replace('/', '%2F')}/repository/tree?ref={branch}&recursive=true"
         else:
           print(f"Unsupported repository URL: {repo_url}")
           return assets
 
         print(f"Fetching assets from branch '{branch}': {api_url}")
-        response = requests.get(api_url, timeout=10)
+        response = self.session.get(api_url, timeout=10)
         response.raise_for_status()
         content = response.json()
 
@@ -412,7 +416,7 @@ class ThemeManager:
 
       return {**assets, "themes": {k: list(v) for k, v in assets["themes"].items()}}
     except requests.exceptions.RequestException as error:
-      handle_request_error(f"Failed to fetch theme sizes from {'GitHub' if 'github' in repo_url else 'GitLab'}: {error}", None, None, None, None)
+      handle_request_error(f"Failed to fetch theme sizes from {'GitHub' if 'github' in repo_url else 'GitLab'}: {error}", None, None, None)
       return {}
 
   def update_theme_params(self, downloadable_colors, downloadable_distance_icons, downloadable_icons, downloadable_signals, downloadable_sounds, downloadable_wheels):
@@ -488,7 +492,7 @@ class ThemeManager:
     if self.downloading_theme:
       return
 
-    repo_url = get_repository_url()
+    repo_url = get_repository_url(self.session)
     if repo_url is None:
       print("GitHub and GitLab are offline...")
       return

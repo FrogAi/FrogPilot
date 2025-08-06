@@ -523,6 +523,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
               params.putInt("TuningLevel", 2);
             }
           }
+          updateTuningLevel();
         }
       }
 

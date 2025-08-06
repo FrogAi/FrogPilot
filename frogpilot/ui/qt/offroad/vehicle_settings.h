@@ -27,11 +27,11 @@ private:
   bool isC3;
   bool isGM;
   bool isHKG;
+  bool isHKGCanFd;
   bool isToyota;
   bool isVolt;
   bool openpilotLongitudinalControlDisabled;
   bool started;
-  bool tacoHacksAllowed;
 
   int tuningLevel;
 
@@ -51,6 +51,7 @@ private:
   QMap<QString, QString> carModels;
 
   ParamControl *disableOpenpilotLong;
+  ParamControl *forceFingerprint;
 
   Params params;
   Params params_default{"/dev/shm/params_default"};

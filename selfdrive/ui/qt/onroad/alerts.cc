@@ -37,13 +37,13 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started
            tr("Please post the \"Error Log\" in the FrogPilot Discord!"),
            "openpilotCrashedRandomEvent",
            cereal::ControlsState::AlertSize::MID,
-           cereal::ControlsState::AlertStatus::NORMAL};
+           cereal::ControlsState::AlertStatus::CRITICAL};
     } else {
       a = {tr("openpilot crashed"),
            tr("Please post the \"Error Log\" in the FrogPilot Discord!"),
            "openpilotCrashed",
            cereal::ControlsState::AlertSize::MID,
-           cereal::ControlsState::AlertStatus::NORMAL};
+           cereal::ControlsState::AlertStatus::CRITICAL};
     }
     return a;
   } else if (controls_frame >= started_frame) {  // Don't get old alert.
@@ -96,6 +96,7 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
     margin = 0;
     radius = 0;
   }
+  alertHeight -= margin;
   QRect r = QRect(0 + margin, height() - h + margin, width() - margin*2, h - margin*2);
 
   QPainter p(this);

@@ -7,7 +7,7 @@ from openpilot.selfdrive.car.interfaces import CarControllerBase
 
 
 class CarController(CarControllerBase):
-  def __init__(self, dbc_name, CP, FPCP, VM):
+  def __init__(self, dbc_name, CP, VM):
     self.CP = CP
     self.apply_steer_last = 0
     self.frame = 0
@@ -19,9 +19,6 @@ class CarController(CarControllerBase):
 
     self.packer = CANPacker(dbc_name)
     self.params = CarControllerParams(CP)
-
-    # FrogPilot variables
-    self.FPCP = FPCP
 
   def update(self, CC, CS, now_nanos, frogpilot_toggles):
     can_sends = []
@@ -35,12 +32,12 @@ class CarController(CarControllerBase):
       # ACC cancellation
       if CC.cruiseControl.cancel:
         self.last_button_frame = self.frame
-        can_sends.append(chryslercan.create_cruise_buttons(self.packer, self.CP, self.FPCP, CS.button_counter + 1, das_bus, cancel=True))
+        can_sends.append(chryslercan.create_cruise_buttons(self.packer, CS.button_counter + 1, das_bus, CS.button_message, cancel=True))
 
       # ACC resume from standstill
       elif CC.cruiseControl.resume:
         self.last_button_frame = self.frame
-        can_sends.append(chryslercan.create_cruise_buttons(self.packer, self.CP, self.FPCP, CS.button_counter + 1, das_bus, resume=True))
+        can_sends.append(chryslercan.create_cruise_buttons(self.packer, CS.button_counter + 1, das_bus, CS.button_message, resume=True))
 
     # HUD alerts
     if self.frame % 25 == 0:

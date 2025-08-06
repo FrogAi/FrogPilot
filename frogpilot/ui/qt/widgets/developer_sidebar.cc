@@ -35,8 +35,6 @@ void DeveloperSidebar::showEvent(QShowEvent *event) {
 }
 
 void DeveloperSidebar::updateTheme() {
-  update_theme(frogpilotUIState());
-
   FrogPilotUIState &fs = *frogpilotUIState();
   FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
   QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;

@@ -10,7 +10,7 @@ void FrogPilotNavigationPanel::createMapboxKeyControl(ButtonControl *&control, c
         key = prefix + key;
       }
       if (key.length() >= 80) {
-        params_cache.put(paramKey, key.toStdString());
+        params.put(paramKey, key.toStdString());
       } else {
         ConfirmationDialog::alert(tr("Inputted key is invalid or too short!"), this);
       }
@@ -18,14 +18,14 @@ void FrogPilotNavigationPanel::createMapboxKeyControl(ButtonControl *&control, c
       if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to remove your %1?").arg(label), this)) {
         control->setText(tr("ADD"));
 
-        params_cache.put(paramKey, "0");
-        params_cache.put(paramKey, "0");
+        params.put(paramKey, "0");
+        params.put(paramKey, "0");
 
         setupCompleted = false;
       }
     }
   });
-  control->setText(QString::fromStdString(params_cache.get(paramKey)).startsWith(prefix) ? tr("REMOVE") : tr("ADD"));
+  control->setText(QString::fromStdString(params.get(paramKey)).startsWith(prefix) ? tr("REMOVE") : tr("ADD"));
   list->addItem(control);
 }
 
@@ -34,7 +34,7 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
   addItem(primelessLayout);
 
   FrogPilotListWidget *settingsList = new FrogPilotListWidget(this);
-  ipLabel = new LabelControl(tr("Manage Your Settings At"), tr("Device Offline"));
+  ipLabel = new LabelControl(tr("Manage Your Settings At"), tr("Offline..."));
   settingsList->addItem(ipLabel);
 
   std::vector<QString> searchOptions{tr("MapBox"), tr("Amap"), tr("Google")};
@@ -50,6 +50,7 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
     googleKeyControl->setVisible(id == 2);
 
     params.putInt("SearchInput", id);
+
     update();
   });
   searchInput->setCheckedButton(params.getInt("SearchInput"));
@@ -61,7 +62,7 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
       QString key = InputDialog::getText(tr("Enter your Amap key"), this).trimmed();
 
       if (key.length() >= 39) {
-        params_cache.put("AMapKey1", key.toStdString());
+        params.put("AMapKey1", key.toStdString());
       } else {
         ConfirmationDialog::alert(tr("Inputted key is invalid or too short!"), this);
       }
@@ -69,12 +70,12 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
       if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to remove your Amap key?"), this)) {
         amapKeyControl1->setText(tr("ADD"));
 
-        params_cache.put("AMapKey1", "0");
-        params_cache.put("AMapKey1", "0");
+        params.put("AMapKey1", "0");
+        params.put("AMapKey1", "0");
       }
     }
   });
-  amapKeyControl1->setText(params_cache.get("AMapKey1").empty() ? tr("ADD") : tr("REMOVE"));
+  amapKeyControl1->setText(params.get("AMapKey1").empty() ? tr("ADD") : tr("REMOVE"));
   settingsList->addItem(amapKeyControl1);
 
   amapKeyControl2 = new ButtonControl(tr("Amap Key #2"), "", tr("Manage your Amap key."));
@@ -83,7 +84,7 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
       QString key = InputDialog::getText(tr("Enter your Amap key"), this).trimmed();
 
       if (key.length() >= 39) {
-        params_cache.put("AMapKey2", key.toStdString());
+        params.put("AMapKey2", key.toStdString());
       } else {
         ConfirmationDialog::alert(tr("Inputted key is invalid or too short!"), this);
       }
@@ -91,12 +92,12 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
       if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to remove your Amap key?"), this)) {
         amapKeyControl2->setText(tr("ADD"));
 
-        params_cache.put("AMapKey2", "0");
-        params_cache.put("AMapKey2", "0");
+        params.put("AMapKey2", "0");
+        params.put("AMapKey2", "0");
       }
     }
   });
-  amapKeyControl2->setText(params_cache.get("AMapKey2").empty() ? tr("ADD") : tr("REMOVE"));
+  amapKeyControl2->setText(params.get("AMapKey2").empty() ? tr("ADD") : tr("REMOVE"));
   settingsList->addItem(amapKeyControl2);
 
   googleKeyControl = new ButtonControl(tr("Google Maps Key"), "", tr("Manage your Google Maps key."));
@@ -105,7 +106,7 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
       QString key = InputDialog::getText(tr("Enter your Google Maps key"), this).trimmed();
 
       if (key.length() >= 25) {
-        params_cache.put("GMapKey", key.toStdString());
+        params.put("GMapKey", key.toStdString());
       } else {
         ConfirmationDialog::alert(tr("Inputted key is invalid or too short!"), this);
       }
@@ -113,12 +114,12 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
       if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to remove your Google Maps key?"), this)) {
         googleKeyControl->setText(tr("ADD"));
 
-        params_cache.put("GMapKey", "0");
-        params_cache.put("GMapKey", "0");
+        params.put("GMapKey", "0");
+        params.put("GMapKey", "0");
       }
     }
   });
-  googleKeyControl->setText(params_cache.get("GMapKey").empty() ? tr("ADD") : tr("REMOVE"));
+  googleKeyControl->setText(params.get("GMapKey").empty() ? tr("ADD") : tr("REMOVE"));
   settingsList->addItem(googleKeyControl);
 
   createMapboxKeyControl(publicMapboxKeyControl, tr("Public Mapbox Key"), "MapboxPublicKey", "pk.", settingsList);
@@ -134,23 +135,34 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
   });
   settingsList->addItem(setupButton);
 
-  std::vector<QString> filterButtonNames{tr("CANCEL"), tr("Update Speed Limits")};
+  std::vector<QString> filterButtonNames{tr("CANCEL"), tr("Manually Update Speed Limits")};
   updateSpeedLimitsToggle = new FrogPilotButtonControl("SpeedLimitFiller", tr("Speed Limit Filler"),
-                                                    tr("Automatically collect missing speed limits from your dashboard (if supported), <b>Mapbox</b>, and <b>Navigate-on-openpilot</b> while driving.<br><br>"
-                                                       "Tap <b>Update Speed Limits</b> at home (good Wi-Fi, 12V power) to process your recent drives.<br><br>"
-                                                       "Download the data from <b>Fleet Manager</b> → <b>Tools</b> → <b>Download Speed Limits</b>, then upload it to "
-                                                       "<b>SpeedLimitFiller.frogpilot.download</b> to review and submit.<br><br>"
-                                                       "For a full walkthrough, check the <b>#speed-limit-filler</b> channel in the <b>FrogPilot Discord</b>!"),
+                                                    tr("Automatically collect missing or incorrect speed limits from your dashboard (if supported), "
+                                                       "<b>Mapbox</b>, and <b>Navigate-on-openpilot</b> while driving.<br><br>"
+                                                       "When the car is turned off and connected to Wi-Fi, your speed limit data is automatically processed "
+                                                       "into a compiled file formatted for the tool located at <b>SpeedLimitFiller.frogpilot.download</b>.<br><br>"
+                                                       "You can grab the processed file from <b>The Pond</b> via the <b>Download Speed Limits</b> menu.<br><br>"
+                                                       "Want a more thorough walkthrough? Check out the <b>#speed-limit-filler</b> channel in the <b>FrogPilot Discord</b>!"),
                                                        "", filterButtonNames);
   QObject::connect(updateSpeedLimitsToggle, &FrogPilotButtonControl::buttonClicked, [this](int id) {
     if (id == 0) {
       if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to cancel the speed limit update process?"), this)) {
-        updateSpeedLimitsToggle->clearCheckedButtons(true);
+        updatingLimits = false;
 
-        updateSpeedLimitsToggle->setVisibleButton(0, false);
-        updateSpeedLimitsToggle->setVisibleButton(1, true);
+        updateSpeedLimitsToggle->setEnabledButton(0, false);
+        updateSpeedLimitsToggle->setValue(tr("Cancelled..."));
 
         params_memory.remove("UpdateSpeedLimits");
+
+        QTimer::singleShot(2500, [this]() {
+          updateSpeedLimitsToggle->clearCheckedButtons(true);
+          updateSpeedLimitsToggle->setEnabledButton(0, true);
+          updateSpeedLimitsToggle->setValue("");
+          updateSpeedLimitsToggle->setVisibleButton(0, false);
+          updateSpeedLimitsToggle->setVisibleButton(1, true);
+
+          params_memory.remove("UpdateSpeedLimitsStatus");
+        });
       }
     } else if (id == 1) {
       QJsonObject overpassRequests = QJsonDocument::fromJson(QString::fromStdString(params.get("OverpassRequests")).toUtf8()).object();
@@ -184,8 +196,10 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
       if (FrogPilotConfirmationDialog::yesorno(tr("This process will take awhile, so it's advised to start when you're done driving with a stable Wi-Fi connection. Do you wish to proceed?"), this)) {
         updatingLimits = true;
 
-        params_memory.putBool("UpdateSpeedLimits", true);
+        updateSpeedLimitsToggle->setValue("Calculating...");
+
         params_memory.put("UpdateSpeedLimitsStatus", "Calculating...");
+        params_memory.putBool("UpdateSpeedLimits", true);
       } else {
         updateSpeedLimitsToggle->setVisibleButton(0, false);
         updateSpeedLimitsToggle->setVisibleButton(1, true);
@@ -211,14 +225,19 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
 
 void FrogPilotNavigationPanel::showEvent(QShowEvent *event) {
   FrogPilotUIState &fs = *frogpilotUIState();
+  UIState &s = *uiState();
+
   FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
 
   QString ipAddress = fs.wifi->getIp4Address();
-  ipLabel->setText(ipAddress.isEmpty() ? tr("Device Offline") : QString("%1:8082").arg(ipAddress));
+  ipLabel->setText(ipAddress.isEmpty() ? tr("Offline...") : QString("%1:8082").arg(ipAddress));
 
   updateButtons();
 
   setupCompleted = mapboxPublicKeySet && mapboxSecretKeySet;
+  updatingLimits = !params_memory.get("UpdateSpeedLimitsStatus").empty() && QString::fromStdString(params_memory.get("UpdateSpeedLimitsStatus")) != "Completed!";
+
+  bool parked = !s.scene.started || fs.frogpilot_scene.parked || fs.frogpilot_toggles.value("frogs_go_moo").toBool();
 
   int searchInput = params.getInt("SearchInput");
 
@@ -227,8 +246,16 @@ void FrogPilotNavigationPanel::showEvent(QShowEvent *event) {
 
   googleKeyControl->setVisible(searchInput == 2);
 
-  updateSpeedLimitsToggle->setEnabledButton(0, frogpilot_scene.online && util::system_time_valid());
-  updateSpeedLimitsToggle->setVisible(parent->tuningLevel >= parent->frogpilotToggleLevels["SpeedLimitFiller"].toDouble());
+  updateSpeedLimitsToggle->setVisibleButton(0, updatingLimits);
+  updateSpeedLimitsToggle->setVisibleButton(1, !updatingLimits);
+
+  if (updatingLimits) {
+    updateSpeedLimitsToggle->setValue(QString::fromStdString(params_memory.get("UpdateSpeedLimitsStatus")));
+  } else {
+    updateSpeedLimitsToggle->setEnabledButton(1, frogpilot_scene.online && util::system_time_valid() && parked);
+    updateSpeedLimitsToggle->setValue(frogpilot_scene.online ? (parked ? "" : "Not parked") : tr("Offline..."));
+    updateSpeedLimitsToggle->setVisible(parent->tuningLevel >= parent->frogpilotToggleLevels["SpeedLimitFiller"].toDouble());
+  }
 }
 
 void FrogPilotNavigationPanel::hideEvent(QHideEvent *event) {
@@ -244,13 +271,13 @@ void FrogPilotNavigationPanel::mousePressEvent(QMouseEvent *event) {
 }
 
 void FrogPilotNavigationPanel::updateButtons() {
-  amapKeyControl1->setText(params_cache.get("AMapKey1").empty() ? tr("ADD") : tr("REMOVE"));
-  amapKeyControl2->setText(params_cache.get("AMapKey2").empty() ? tr("ADD") : tr("REMOVE"));
+  amapKeyControl1->setText(params.get("AMapKey1").empty() ? tr("ADD") : tr("REMOVE"));
+  amapKeyControl2->setText(params.get("AMapKey2").empty() ? tr("ADD") : tr("REMOVE"));
 
-  googleKeyControl->setText(params_cache.get("GMapKey").empty() ? tr("ADD") : tr("REMOVE"));
+  googleKeyControl->setText(params.get("GMapKey").empty() ? tr("ADD") : tr("REMOVE"));
 
-  mapboxPublicKeySet = QString::fromStdString(params_cache.get("MapboxPublicKey")).startsWith("pk");
-  mapboxSecretKeySet = QString::fromStdString(params_cache.get("MapboxSecretKey")).startsWith("sk");
+  mapboxPublicKeySet = QString::fromStdString(params.get("MapboxPublicKey")).startsWith("pk");
+  mapboxSecretKeySet = QString::fromStdString(params.get("MapboxSecretKey")).startsWith("sk");
 
   publicMapboxKeyControl->setText(mapboxPublicKeySet ? tr("REMOVE") : tr("ADD"));
   secretMapboxKeyControl->setText(mapboxSecretKeySet ? tr("REMOVE") : tr("ADD"));
@@ -264,19 +291,28 @@ void FrogPilotNavigationPanel::updateState(const UIState &s, const FrogPilotUISt
   updateButtons();
   updateStep();
 
-  updateSpeedLimitsToggle->setEnabledButton(0, fs.frogpilot_scene.online);
+  bool parked = !s.scene.started || fs.frogpilot_scene.parked || fs.frogpilot_toggles.value("frogs_go_moo").toBool();
 
   if (updatingLimits) {
-    if (params_memory.get("UpdateSpeedLimits").empty()) {
+    if (QString::fromStdString(params_memory.get("UpdateSpeedLimitsStatus")) == "Completed!") {
       updatingLimits = false;
 
-      updateSpeedLimitsToggle->clearCheckedButtons(true);
-      updateSpeedLimitsToggle->setValue("");
-      updateSpeedLimitsToggle->setVisibleButton(0, false);
-      updateSpeedLimitsToggle->setVisibleButton(1, true);
+      updateSpeedLimitsToggle->setValue(tr("Completed!"));
+
+      QTimer::singleShot(2500, [this]() {
+        updateSpeedLimitsToggle->clearCheckedButtons(true);
+        updateSpeedLimitsToggle->setValue("");
+        updateSpeedLimitsToggle->setVisibleButton(0, false);
+        updateSpeedLimitsToggle->setVisibleButton(1, true);
+
+        params_memory.remove("UpdateSpeedLimitsStatus");
+      });
     } else {
       updateSpeedLimitsToggle->setValue(QString::fromStdString(params_memory.get("UpdateSpeedLimitsStatus")));
     }
+  } else {
+    updateSpeedLimitsToggle->setEnabledButton(1, fs.frogpilot_scene.online && util::system_time_valid() && parked);
+    updateSpeedLimitsToggle->setValue(fs.frogpilot_scene.online ? (parked ? "" : "Not parked") : tr("Offline..."));
   }
 
   parent->keepScreenOn = primelessLayout->currentIndex() == 1 || updatingLimits;

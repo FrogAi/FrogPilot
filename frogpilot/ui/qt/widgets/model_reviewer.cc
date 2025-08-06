@@ -9,7 +9,7 @@ ModelReview::ModelReview(QWidget *parent) : QFrame(parent) {
   QVBoxLayout *ratingLayout = new QVBoxLayout();
   ratingLayout->setContentsMargins(50, 25, 50, 20);
 
-  questionLabel = addLabel(ratingLayout, "What would you rate that drive?", "question");
+  questionLabel = addLabel(ratingLayout, tr("How would you rate that drive?"), "question");
 
   QHBoxLayout *ratingButtonsLayout = new QHBoxLayout();
   QStringList emojis = {"🤩", "🙂", "🤔", "🙁", "🤕"};
@@ -23,7 +23,7 @@ ModelReview::ModelReview(QWidget *parent) : QFrame(parent) {
 
   ratingLayout->addLayout(ratingButtonsLayout);
 
-  blacklistButton = createButton("Blacklist this model", "blacklist_button", 0, 600, 100);
+  blacklistButton = createButton(tr("Blacklist this model"), "blacklist_button", 0, 600, 100);
   QObject::connect(blacklistButton, &QPushButton::clicked, this, &ModelReview::onBlacklistButtonClicked);
   ratingLayout->addWidget(blacklistButton, 0, Qt::AlignCenter);
 
@@ -34,16 +34,16 @@ ModelReview::ModelReview(QWidget *parent) : QFrame(parent) {
   QVBoxLayout *modelInfoLayout = new QVBoxLayout();
   modelInfoLayout->setContentsMargins(50, 25, 50, 20);
 
-  titleLabel = addLabel(modelInfoLayout, "The model used during that drive was:", "title");
+  titleLabel = addLabel(modelInfoLayout, tr("The model used during that drive was:"), "title");
   modelLabel = addLabel(modelInfoLayout, "", "model");
 
   modelInfoLayout->addItem(new QSpacerItem(20, 75, QSizePolicy::Minimum, QSizePolicy::Fixed));
 
   QVBoxLayout *bottomLayout = new QVBoxLayout();
-  modelScoreLabel = addLabel(bottomLayout, "Current Model Score: 0", "score");
-  modelRankLabel = addLabel(bottomLayout, "Current Model Rank: 0", "rank");
-  totalDrivesLabel = addLabel(bottomLayout, "Total Model Drives: 0", "drives");
-  totalOverallDrivesLabel = addLabel(bottomLayout, "Total Overall Model Drives: 0", "drives");
+  modelScoreLabel = addLabel(bottomLayout, tr("Current Model Score: 0"), "score");
+  modelRankLabel = addLabel(bottomLayout, tr("Current Model Rank: 0"), "rank");
+  totalDrivesLabel = addLabel(bottomLayout, tr("Total Model Drives: 0"), "drives");
+  totalOverallDrivesLabel = addLabel(bottomLayout, tr("Total Overall Model Drives: 0"), "drives");
   blacklistMessageLabel = addLabel(bottomLayout, "", "blacklist_message");
 
   modelInfoLayout->addLayout(bottomLayout);
@@ -138,11 +138,11 @@ void ModelReview::mousePressEvent(QMouseEvent *e) {
 }
 
 void ModelReview::updateLabel() {
-  totalDrivesLabel->setText(QString("Total Model Drives: %1").arg(totalDrives));
+  totalDrivesLabel->setText(QString(tr("Total Model Drives: %1")).arg(totalDrives));
   modelLabel->setText(currentModelFiltered);
-  modelRankLabel->setText(QString("Current Model Rank: %1").arg(getModelRank()));
-  modelScoreLabel->setText(QString("Current Model Score: %1").arg(finalRating));
-  totalOverallDrivesLabel->setText(QString("Total Overall Drives: %1").arg(totalOverallDrives));
+  modelRankLabel->setText(QString(tr("Current Model Rank: %1")).arg(getModelRank()));
+  modelScoreLabel->setText(QString(tr("Current Model Score: %1")).arg(finalRating));
+  totalOverallDrivesLabel->setText(QString(tr("Total Overall Drives: %1")).arg(totalOverallDrives));
 
   mainLayout->setCurrentIndex(1);
 
@@ -196,7 +196,7 @@ void ModelReview::onBlacklistButtonClicked() {
 
   params.put("ModelDrivesAndScores", QString(QJsonDocument(jsonObject).toJson(QJsonDocument::Compact)).toStdString());
 
-  blacklistMessageLabel->setText("Model successfully blacklisted!");
+  blacklistMessageLabel->setText(tr("Model successfully blacklisted!"));
   updateLabel();
 }
 

@@ -86,21 +86,13 @@ class BlockContext:
         ctx.child_count[s] += 1
         this_block_ctx += ctx.last_ctx(s)
 
-      # save the block ctx
-      ctx.block_ctxs[u] = _sort_ctx(this_block_ctx)
+      # save the block ctx. SINK never has anything
+      ctx.block_ctxs[u] = _sort_ctx(this_block_ctx) if u.op is not Ops.SINK else ()
 
       # RANGE/IF add to the next ctx
       # STORE/ASSIGN subtract from the next ctx
       if u.op in {Ops.RANGE, Ops.IF}: ctx.child_ctxs[u] = _sort_ctx(ctx.block_ctxs[u] + (u,))
-      elif u.op is Ops.STORE:
-        # ugh, deal with non-reduce locals. probably wrong
-        if any(x.op is Ops.DEFINE_LOCAL for x in u.src[0].toposort()):
-          idx_context, store_context = ctx.last_ctx(u.src[0]), ctx.last_ctx(u.src[1])
-          ctx.child_ctxs[u] = tuple([y for y in store_context if y not in idx_context and y.op is Ops.RANGE])
-        else: ctx.child_ctxs[u] = ()
-      elif u.op is Ops.ASSIGN:
-        assert u.src[0].op is Ops.DEFINE_ACC
-        ctx.child_ctxs[u] = tuple([y for y in ctx.last_ctx(u.src[1]) if y not in u.src[0].src[1:]])
+      elif u.op is Ops.STORE: ctx.child_ctxs[u] = tuple([y for y in ctx.block_ctxs[u] if y not in u.src])
     return ctx
 
 # ***** make blocks *****
@@ -216,7 +208,7 @@ def remove_blockend(x:UOp):
     parent_block = parent_blocks[0]
     assert len(parent_blocks) == parent_block.arg.cnt
     # range needs DEFINE_ACC to be before the range (never in DEFINE_ACC for if)
-    early_ops, late_ops = partition(x.arg.lst, lambda y: y.op is Ops.DEFINE_ACC and x.arg.end in y.src)
+    early_ops, late_ops = partition(x.arg.lst, lambda y: y.op is Ops.DEFINE_REG and x.arg.end in y.src)
     # NOTE: we have to add a barrier at the start if barrier is used in the range
     if x.op is Ops.BLOCKEND and any(y.op is Ops.BARRIER for y in late_ops) and late_ops[-1].op is Ops.ENDRANGE:
       late_ops = [UOp(Ops.BARRIER)] + late_ops

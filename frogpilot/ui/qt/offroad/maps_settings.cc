@@ -140,9 +140,14 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent) : FrogPi
 }
 
 void FrogPilotMapsPanel::showEvent(QShowEvent *event) {
+  FrogPilotUIState &fs = *frogpilotUIState();
+  UIState &s = *uiState();
+
   std::string mapsSelected = params.get("MapsSelected");
   hasMapsSelected = !QJsonDocument::fromJson(QByteArray::fromStdString(mapsSelected)).object().value("nations").toArray().isEmpty();
   hasMapsSelected |= !QJsonDocument::fromJson(QByteArray::fromStdString(mapsSelected)).object().value("states").toArray().isEmpty();
+
+  bool parked = !s.scene.started || fs.frogpilot_scene.parked || fs.frogpilot_toggles.value("frogs_go_moo").toBool();
 
   removeMapsButton->setVisible(mapsFolderPath.exists());
 
@@ -159,7 +164,8 @@ void FrogPilotMapsPanel::showEvent(QShowEvent *event) {
 
     updateDownloadLabels(osmDownloadProgress);
   } else {
-    downloadMapsButton->setEnabled(!cancellingDownload && hasMapsSelected && frogpilotUIState()->frogpilot_scene.online);
+    downloadMapsButton->setEnabled(!cancellingDownload && hasMapsSelected && fs.frogpilot_scene.online && parked);
+    downloadMapsButton->setValue(fs.frogpilot_scene.online ? (parked ? "" : "Not parked") : tr("Offline..."));
   }
 }
 
@@ -169,11 +175,14 @@ void FrogPilotMapsPanel::updateState(const UIState &s, const FrogPilotUIState &f
     return;
   }
 
-  downloadMapsButton->setEnabled(!cancellingDownload && hasMapsSelected && fs.frogpilot_scene.online);
+  bool parked = !s.scene.started || fs.frogpilot_scene.parked || fs.frogpilot_toggles.value("frogs_go_moo").toBool();
 
   std::string osmDownloadProgress = params.get("OSMDownloadProgress");
   if (!osmDownloadProgress.empty() && !cancellingDownload) {
     updateDownloadLabels(osmDownloadProgress);
+  } else {
+    downloadMapsButton->setEnabled(!cancellingDownload && hasMapsSelected && fs.frogpilot_scene.online && parked);
+    downloadMapsButton->setValue(fs.frogpilot_scene.online ? (parked ? "" : "Not parked") : tr("Offline..."));
   }
 
   parent->keepScreenOn = !osmDownloadProgress.empty();

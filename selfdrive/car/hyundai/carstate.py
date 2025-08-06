@@ -17,7 +17,6 @@ STANDSTILL_THRESHOLD = 12 * 0.03125 * CV.KPH_TO_MS
 
 
 # Traffic signals for Speed Limit Controller - Credit goes to Multikyd!
-@staticmethod
 def calculate_speed_limit(CP, FPCP, cp, cp_cam):
   if CP.carFingerprint in CANFD_CAR:
     if CP.flags & HyundaiFlags.CANFD_HDA2:
@@ -387,7 +386,7 @@ class CarState(CarStateBase):
       return CarState.get_cam_can_parser_canfd(CP, FPCP)
 
     messages = [
-      ("LKAS11", 100),
+      ("LKAS11", 100)
     ]
 
     if not CP.openpilotLongitudinalControl and CP.carFingerprint in CAMERA_SCC_CAR:

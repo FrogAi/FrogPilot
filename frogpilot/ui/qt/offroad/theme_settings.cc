@@ -1,22 +1,5 @@
 #include "frogpilot/ui/qt/offroad/theme_settings.h"
 
-QStringList getHolidaySchemes() {
-  return QStringList()
-         << "New Year's"
-         << "Valentine's Day"
-         << "St. Patrick's Day"
-         << "World Frog Day"
-         << "April Fools"
-         << "Easter"
-         << "May the Fourth"
-         << "Cinco de Mayo"
-         << "Stitch Day"
-         << "Fourth of July"
-         << "Halloween"
-         << "Thanksgiving"
-         << "Christmas";
-}
-
 void updateAssetParam(const QString &assetParam, Params &params, const QString &value, bool add) {
   QStringList assets = QString::fromStdString(params.get(assetParam.toStdString())).split(",", QString::SkipEmptyParts);
   if (add) {
@@ -60,6 +43,23 @@ void downloadThemeAsset(const QString &input, const std::string &paramKey, const
   params_memory.put(paramKey, output.toStdString());
 
   updateAssetParam(assetParam, params, input, false);
+}
+
+QStringList getHolidayThemes() {
+  return QStringList()
+         << "New Year's"
+         << "Valentine's Day"
+         << "St. Patrick's Day"
+         << "World Frog Day"
+         << "April Fools"
+         << "Easter"
+         << "May the Fourth"
+         << "Cinco de Mayo"
+         << "Stitch Day"
+         << "Fourth of July"
+         << "Halloween"
+         << "Thanksgiving"
+         << "Christmas";
 }
 
 QStringList getThemeList(const bool &randomThemes, const QDir &themePacksDirectory, const QString &subFolder, const QString &assetParam, Params &params) {
@@ -112,6 +112,7 @@ QString getThemeName(const std::string &paramKey, Params &params) {
 QString storeThemeName(const QString &input, const std::string &paramKey, Params &params) {
   QString output = input.toLower().remove("(").remove(")").remove("'").remove(".");
   output.replace(" ", input.contains("(") ? "-" : "_");
+
   params.put(paramKey, output.toStdString());
   return getThemeName(paramKey, params);
 }
@@ -133,13 +134,13 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
   themesLayout->addWidget(customThemesPanel);
 
   const std::vector<std::tuple<QString, QString, QString, QString>> themeToggles {
-    {"PersonalizeOpenpilot", tr("Custom Theme"), tr("The overall appearance of openpilot."), "../../frogpilot/assets/toggle_icons/frog.png"},
+    {"PersonalizeOpenpilot", tr("Custom Theme"), tr("The overall appearance of openpilot."), "../../frogpilot/assets/toggle_icons/icon_frog.png"},
     {"CustomColors", tr("Color Scheme"), tr("openpilot's color scheme.\n\nWant to submit your own color scheme? Share it in the \"custom-themes\" channel on the FrogPilot Discord!"), ""},
     {"CustomDistanceIcons", "Distance Button", "The distance button icons displayed in the driving screen.\n\nWant to submit your own icon pack? Share it in the \"custom-themes\" channel on the FrogPilot Discord!", ""},
     {"CustomIcons", tr("Icon Pack"), tr("openpilot's icon pack.\n\nWant to submit your own icons? Share them in the \"custom-themes\" channel on the FrogPilot Discord!"), ""},
     {"CustomSounds", tr("Sound Pack"), tr("openpilot's sound effects.\n\nWant to submit your own sounds? Share them in the \"custom-themes\" channel on the FrogPilot Discord!"), ""},
     {"WheelIcon", tr("Steering Wheel"), tr("The steering wheel icon in the top right of the driving screen."), ""},
-    {"CustomSignals", tr("Turn Signal Animation"), tr("Themed turn signal animations.\n\nWant to submit your own animations? Share them in the \"custom-themes\" channel on the FrogPilot Discord!"), ""},
+    {"CustomSignals", tr("Turn Signal"), tr("Themed turn signal animations.\n\nWant to submit your own animations? Share them in the \"custom-themes\" channel on the FrogPilot Discord!"), ""},
     {"DownloadStatusLabel", tr("Download Status"), "", ""},
 
     {"HolidayThemes", tr("Holiday Themes"), tr("Holiday-based visual themes for openpilot. Minor holidays last one day; major holidays (Christmas, Easter, Halloween, etc.) continue all week."), "../../frogpilot/assets/toggle_icons/icon_calendar.png"},
@@ -201,7 +202,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           }
         } else if (id == 2) {
           colorSchemes.append("Stock");
-          colorSchemes.append(getHolidaySchemes());
+          colorSchemes.append(getHolidayThemes());
           colorSchemes.sort();
 
           QString colorSchemeToSelect = MultiOptionDialog::getSelection(tr("Select a color scheme"), colorSchemes, getThemeName("CustomColors", params), this);
@@ -255,7 +256,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           }
         } else if (id == 2) {
           distanceIconPacks.append("Stock");
-          distanceIconPacks.append(getHolidaySchemes());
+          distanceIconPacks.append(getHolidayThemes());
           distanceIconPacks.sort();
 
           QString distanceIconPackToSelect = MultiOptionDialog::getSelection(tr("Select a distance icon pack"), distanceIconPacks, getThemeName("CustomDistanceIcons", params), this);
@@ -309,7 +310,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           }
         } else if (id == 2) {
           iconPacks.append("Stock");
-          iconPacks.append(getHolidaySchemes());
+          iconPacks.append(getHolidayThemes());
           iconPacks.sort();
 
           QString iconPackToSelect = MultiOptionDialog::getSelection(tr("Select an icon pack"), iconPacks, getThemeName("CustomIcons", params), this);
@@ -363,7 +364,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           }
         } else if (id == 2) {
           signalAnimations.append("None");
-          signalAnimations.append(getHolidaySchemes());
+          signalAnimations.append(getHolidayThemes());
           signalAnimations.sort();
 
           QString signalAnimationToSelect = MultiOptionDialog::getSelection(tr("Select a signal animation"), signalAnimations, getThemeName("CustomSignals", params), this);
@@ -417,7 +418,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
           }
         } else if (id == 2) {
           soundPacks.append("Stock");
-          soundPacks.append(getHolidaySchemes());
+          soundPacks.append(getHolidayThemes());
           soundPacks.sort();
 
           QString soundPackToSelect = MultiOptionDialog::getSelection(tr("Select a sound pack"), soundPacks, getThemeName("CustomSounds", params), this);
@@ -472,7 +473,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent) : Fr
         } else if (id == 2) {
           wheelIcons.append("None");
           wheelIcons.append("Stock");
-          wheelIcons.append(getHolidaySchemes());
+          wheelIcons.append(getHolidayThemes());
           wheelIcons.sort();
 
           QString steeringWheelToSelect = MultiOptionDialog::getSelection(tr("Select a steering wheel"), wheelIcons, getThemeName("WheelIcon", params), this);
@@ -746,7 +747,7 @@ void FrogPilotThemesPanel::updateToggles() {
       setVisible &= params.getBool("QOLVisuals") && params.getBool("OnroadDistanceButton");
     }
 
-    if (key == "RandomThemes") {
+    else if (key == "RandomThemes") {
       setVisible &= params.getBool("PersonalizeOpenpilot");
     }
 

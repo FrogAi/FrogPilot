@@ -85,7 +85,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     {"DynamicPathWidth", tr("Dynamic Path Width"), tr("Adjust the width of the driving path based on the current engagement state.<br><br><b>Fully engaged</b>: 100%<br><b>Always On Lateral</b>: 75%<br><b>Fully disengaged</b>: 50%"), ""},
     {"LaneLinesWidth", tr("Lane Lines Width"), tr("The thickness of the lane lines on the driving screen.<br><br><b>Default matches the <b>MUTCD</b> lane line width standard of 4 inches."), ""},
     {"PathEdgeWidth", tr("Path Edges Width"), tr("The width of the edges of the driving path that represent different driving modes and statuses.<br><br>Default is <b>20%</b> of the total path width.<br><br>Color Guide:<br><br>- <b>Blue</b>: Navigation<br>- <b>Light Blue</b>: Always On Lateral<br>- <b>Green</b>: Default<br>- <b>Orange</b>: Experimental Mode<br>- <b>Red</b>: Traffic Mode<br>- <b>Yellow</b>: Conditional Experimental Mode overridden"), ""},
-    {"PathWidth", tr("Path Width"), tr("The width of the driving path on the driving screen.<br><br>Default <b>(6.1 feet / 1.9 meters)</b> matches the width of a <b>2019 Lexus ES 350</b>."), ""},
+    {"PathWidth", tr("Path Width"), tr("The width of the driving path on the driving screen.<br><br>Default <b>(6.1 feet)</b> matches the width of a <b>2019 Lexus ES 350</b>."), ""},
     {"RoadEdgesWidth", tr("Road Edges Width"), tr("The thickness of the road edges on the driving screen.<br><br><b>Default matches half of the <b>MUTCD</b> lane line width standard of 4 inches."), ""},
     {"UnlimitedLength", tr("\"Unlimited\" Road UI"), tr("Extend the display of the driving path, lane lines, and road edges as far as the model can see."), ""},
 
@@ -97,7 +97,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     {"SLCMapboxFiller", tr("Show Speed Limits from Mapbox"), tr("Use <b>Mapbox</b> speed limit data when no other sources are available."), ""},
     {"UseVienna", tr("Use Vienna-Style Speed Signs"), tr("Force <b>Vienna-style (EU)</b> speed limit signs instead of <b>MUTCD (US)</b>."), ""},
 
-    {"QOLVisuals", tr("Quality of Life"), tr("Visual features to improve your overall openpilot experience."), "../../frogpilot/assets/toggle_icons/quality_of_life.png"},
+    {"QOLVisuals", tr("Quality of Life"), tr("Visual features to improve your overall openpilot experience."), "../../frogpilot/assets/toggle_icons/icon_quality_of_life.png"},
     {"CameraView", tr("Camera View"), tr("The active camera view display. This is purely a visual change and doesn't impact how openpilot drives!"), ""},
     {"DriverCamera", tr("Show Driver Camera When In Reverse"), tr("Display the driver camera feed when the vehicle is in reverse."), ""},
     {"StandbyMode", tr("Standby Mode"), tr("Turn the screen off when driving and automatically wake it up if engagement state changes or important alerts occur."), ""},
@@ -423,8 +423,8 @@ void FrogPilotVisualsPanel::updateMetric(bool metric, bool bootRun) {
       imperialSmallDistanceLabels[i] = i == 0 ? tr("Off") : i == 1 ? QString::number(i) + tr(" inch") : QString::number(i) + tr(" inches");
     }
 
-    for (int i = 0; i <= 3; ++i) {
-      metricDistanceLabels[i] = i == 0 ? tr("Off") : i == 1 ? QString::number(i) + tr(" meter") : QString::number(i) + tr(" meters");
+    for (float i = 0.0f; i <= 3.0f; i += 0.1f) {
+      metricDistanceLabels[i] = i == 0.0f ? tr("Off") : i == 1.0 ? QString::number(i) + tr(" meter") : QString::number(i, 'f', 1) + tr(" meters");
     }
 
     for (int i = 0; i <= 60; ++i) {
@@ -440,6 +440,7 @@ void FrogPilotVisualsPanel::updateMetric(bool metric, bool bootRun) {
 
   if (metric) {
     laneLinesWidthToggle->setDescription(tr("The thickness of the lane lines on the driving screen.<br><br><b>Default matches the <b>MUTCD</b> lane line width standard of 10 centimeters."));
+    pathWidthToggle->setDescription(tr("The width of the driving path on the driving screen.<br><br>Default <b>(1.9 meters)</b> matches the width of a <b>2019 Lexus ES 350</b>."));
     roadEdgesWidthToggle->setDescription(tr("The thickness of the road edges on the driving screen.<br><br><b>Default matches half of the <b>MUTCD</b> lane line width standard of 10 centimeters."));
 
     laneLinesWidthToggle->updateControl(0, 60, metricSmallDistanceLabels);
@@ -448,6 +449,7 @@ void FrogPilotVisualsPanel::updateMetric(bool metric, bool bootRun) {
     pathWidthToggle->updateControl(0, 3, metricDistanceLabels);
   } else {
     laneLinesWidthToggle->setDescription(tr("The thickness of the lane lines on the driving screen.<br><br><b>Default matches the <b>MUTCD</b> lane line width standard of 4 inches."));
+    pathWidthToggle->setDescription(tr("The width of the driving path on the driving screen.<br><br>Default <b>(6.1 feet)</b> matches the width of a <b>2019 Lexus ES 350</b>."));
     roadEdgesWidthToggle->setDescription(tr("The thickness of the road edges on the driving screen.<br><br><b>Default matches half of the <b>MUTCD</b> lane line width standard of 4 inches."));
 
     laneLinesWidthToggle->updateControl(0, 24, imperialSmallDistanceLabels);
@@ -475,45 +477,45 @@ void FrogPilotVisualsPanel::updateToggles() {
       setVisible &= hasOpenpilotLongitudinal;
     }
 
-    if (key == "AdjacentLeadsUI") {
+    else if (key == "AdjacentLeadsUI") {
       setVisible &= hasRadar && !(params.getBool("AdvancedCustomUI") && params.getBool("HideLeadMarker"));
     }
 
-    if (key == "BlindSpotPath") {
+    else if (key == "BlindSpotPath") {
       setVisible &= hasBSM;
     }
 
-    if (key == "HideLeadMarker") {
+    else if (key == "HideLeadMarker") {
       setVisible &= hasOpenpilotLongitudinal;
     }
 
-    if (key == "LeadInfo") {
+    else if (key == "LeadInfo") {
       setVisible &= hasOpenpilotLongitudinal;
     }
 
-    if (key == "OnroadDistanceButton") {
+    else if (key == "OnroadDistanceButton") {
       setVisible &= hasOpenpilotLongitudinal;
     }
 
-    if (key == "PedalsOnUI") {
+    else if (key == "PedalsOnUI") {
       setVisible &= hasOpenpilotLongitudinal;
     }
 
-    if (key == "RadarTracksUI") {
+    else if (key == "RadarTracksUI") {
       setVisible &= hasRadar;
     }
 
-    if (key == "ShowSpeedLimits") {
+    else if (key == "ShowSpeedLimits") {
       setVisible &= !params.getBool("SpeedLimitController") || !hasOpenpilotLongitudinal;
     }
 
-    if (key == "ShowStoppingPoint") {
+    else if (key == "ShowStoppingPoint") {
       setVisible &= hasOpenpilotLongitudinal;
     }
 
-    if (key == "SLCMapboxFiller") {
+    else if (key == "SLCMapboxFiller") {
       setVisible &= params.getBool("ShowSpeedLimits") && !(hasOpenpilotLongitudinal && params.getBool("SpeedLimitController"));
-      setVisible &= !params_cache.get("MapboxSecretKey").empty();
+      setVisible &= !params.get("MapboxSecretKey").empty();
     }
 
     toggle->setVisible(setVisible);

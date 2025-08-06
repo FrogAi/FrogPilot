@@ -43,6 +43,9 @@ class FrogPilotVCruise:
     v_cruise_cluster = max(sm["controlsState"].vCruiseCluster * CV.KPH_TO_MS, v_cruise)
     v_cruise_diff = v_cruise_cluster - v_cruise
 
+    v_ego_cluster = max(sm["carState"].vEgoCluster, v_ego)
+    v_ego_diff = v_ego_cluster - v_ego
+
     # Mike's extended lead linear braking
     if self.frogpilot_planner.lead_one.vLead < v_ego > CRUISING_SPEED and sm["controlsState"].enabled and self.frogpilot_planner.tracking_lead and frogpilot_toggles.human_following:
       if not self.frogpilot_planner.frogpilot_following.following_lead:
@@ -71,13 +74,13 @@ class FrogPilotVCruise:
     self.slc.frogpilot_toggles = frogpilot_toggles
 
     if frogpilot_toggles.speed_limit_controller:
-      self.slc.update_limits(sm["frogpilotCarState"].dashboardSpeedLimit, gps_position, sm["frogpilotNavigation"].navigationSpeedLimit, v_cruise, v_cruise_cluster, v_ego, sm)
-      self.slc.update_override(v_cruise, v_cruise_cluster, v_ego, sm)
+      self.slc.update_limits(sm["frogpilotCarState"].dashboardSpeedLimit, gps_position, sm["frogpilotNavigation"].navigationSpeedLimit, v_cruise, v_ego, sm)
+      self.slc.update_override(v_cruise, v_cruise_diff, v_ego, v_ego_diff, sm)
 
       self.slc_offset = self.slc.offset
       self.slc_target = self.slc.target
     elif frogpilot_toggles.show_speed_limits:
-      self.slc.update_limits(sm["frogpilotCarState"].dashboardSpeedLimit, gps_position, sm["frogpilotNavigation"].navigationSpeedLimit, v_cruise, v_cruise_cluster, v_ego, sm)
+      self.slc.update_limits(sm["frogpilotCarState"].dashboardSpeedLimit, gps_position, sm["frogpilotNavigation"].navigationSpeedLimit, v_cruise, v_ego, sm)
 
       self.slc_offset = 0
       self.slc_target = self.slc.target
@@ -110,7 +113,7 @@ class FrogPilotVCruise:
 
       targets = [self.braking_target, self.mtsc_target, self.vtsc_target, v_cruise]
       if frogpilot_toggles.speed_limit_controller:
-        targets.append(max(self.slc.overridden_speed, self.slc_target + self.slc_offset))
+        targets.append(max(self.slc.overridden_speed, self.slc_target + self.slc_offset) - v_ego_diff)
 
       v_cruise = min([target if target > CRUISING_SPEED else v_cruise for target in targets])
 

@@ -3,7 +3,6 @@ import os
 import numpy as np
 import tomllib
 from abc import abstractmethod, ABC
-from difflib import SequenceMatcher
 from enum import StrEnum
 from typing import Any, NamedTuple
 from collections.abc import Callable
@@ -13,6 +12,7 @@ from types import SimpleNamespace
 from cereal import car, custom
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.conversions import Conversions as CV
+from openpilot.common.params import Params
 from openpilot.common.simple_kalman import KF1D, get_kalman_gain
 from openpilot.common.numpy_fast import clip
 from openpilot.common.realtime import DT_CTRL
@@ -26,7 +26,8 @@ from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX, get_fri
 from openpilot.selfdrive.controls.lib.events import Events
 from openpilot.selfdrive.controls.lib.vehicle_model import VehicleModel
 
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles, params, params_memory
+def get_max_allowed_accel(v_ego):
+  return float(np.interp(v_ego, [0., 5., 20.], [4.0, 4.0, 2.0]))  # ISO 15622:2018
 
 ButtonType = car.CarState.ButtonEvent.Type
 FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
@@ -39,14 +40,9 @@ ACCEL_MAX = 2.0
 ACCEL_MIN = -3.5
 FRICTION_THRESHOLD = 0.3
 
-NEURAL_PARAMS_PATH = os.path.join(BASEDIR, 'selfdrive/car/torque_data/neural_ff_weights.json')
-TORQUE_NN_MODEL_PATH = os.path.join(BASEDIR, 'selfdrive/car/torque_data/lat_models')
 TORQUE_PARAMS_PATH = os.path.join(BASEDIR, 'selfdrive/car/torque_data/params.toml')
 TORQUE_OVERRIDE_PATH = os.path.join(BASEDIR, 'selfdrive/car/torque_data/override.toml')
 TORQUE_SUBSTITUTE_PATH = os.path.join(BASEDIR, 'selfdrive/car/torque_data/substitute.toml')
-
-# dict used to rename activation functions whose names aren't valid python identifiers
-ACTIVATION_FUNCTION_NAMES = {'σ': 'sigmoid'}
 
 GEAR_SHIFTER_MAP: dict[str, car.CarState.GearShifter] = {
   'P': GearShifter.park, 'PARK': GearShifter.park,
@@ -60,8 +56,6 @@ GEAR_SHIFTER_MAP: dict[str, car.CarState.GearShifter] = {
   'B': GearShifter.brake, 'BRAKE': GearShifter.brake,
 }
 
-def similarity(s1: str, s2: str) -> float:
-  return SequenceMatcher(None, s1, s2).ratio()
 
 class LatControlInputs(NamedTuple):
   lateral_acceleration: float
@@ -102,108 +96,6 @@ def get_torque_params():
 
   return torque_params
 
-# Twilsonco's Lateral Neural Network Feedforward
-class FluxModel:
-  def __init__(self, params_file, zero_bias=False):
-    with open(params_file, "r") as f:
-      params = json.load(f)
-
-    self.input_size = params["input_size"]
-    self.output_size = params["output_size"]
-    self.input_mean = np.array(params["input_mean"], dtype=np.float32).T
-    self.input_std = np.array(params["input_std"], dtype=np.float32).T
-    self.layers = []
-    self.friction_override = False
-
-    for layer_params in params["layers"]:
-      W = np.array(layer_params[next(key for key in layer_params.keys() if key.endswith('_W'))], dtype=np.float32).T
-      b = np.array(layer_params[next(key for key in layer_params.keys() if key.endswith('_b'))], dtype=np.float32).T
-      if zero_bias:
-        b = np.zeros_like(b)
-      activation = layer_params["activation"]
-      for k, v in ACTIVATION_FUNCTION_NAMES.items():
-        activation = activation.replace(k, v)
-      self.layers.append((W, b, activation))
-
-    self.validate_layers()
-    self.check_for_friction_override()
-
-  # Begin activation functions.
-  # These are called by name using the keys in the model json file
-  @staticmethod
-  def sigmoid(x):
-    return 1 / (1 + np.exp(-x))
-
-  @staticmethod
-  def identity(x):
-    return x
-  # End activation functions
-
-  def forward(self, x):
-    for W, b, activation in self.layers:
-      x = getattr(self, activation)(x.dot(W) + b)
-    return x
-
-  def evaluate(self, input_array):
-    in_len = len(input_array)
-    if in_len != self.input_size:
-      # If the input is length 2-4, then it's a simplified evaluation.
-      # In that case, need to add on zeros to fill out the input array to match the correct length.
-      if 2 <= in_len:
-        input_array = input_array + [0] * (self.input_size - in_len)
-      else:
-        raise ValueError(f"Input array length {len(input_array)} must be length 2 or greater")
-
-    input_array = np.array(input_array, dtype=np.float32)
-
-    # Rescale the input array using the input_mean and input_std
-    input_array = (input_array - self.input_mean) / self.input_std
-
-    output_array = self.forward(input_array)
-
-    return float(output_array[0, 0])
-
-  def validate_layers(self):
-    for W, b, activation in self.layers:
-      if not hasattr(self, activation):
-        raise ValueError(f"Unknown activation: {activation}")
-
-  def check_for_friction_override(self):
-    y = self.evaluate([10.0, 0.0, 0.2])
-    self.friction_override = (y < 0.1)
-
-def get_nn_model_path(car, eps_firmware) -> tuple[str | None, float]:
-  def check_nn_path(check_model):
-    model_path = None
-    max_similarity = -1.0
-    for f in os.listdir(TORQUE_NN_MODEL_PATH):
-      if f.endswith(".json"):
-        model = f.replace(".json", "").replace(f"{TORQUE_NN_MODEL_PATH}/", "")
-        similarity_score = similarity(model, check_model)
-        if similarity_score > max_similarity:
-          max_similarity = similarity_score
-          model_path = os.path.join(TORQUE_NN_MODEL_PATH, f)
-    return model_path, max_similarity
-
-  if len(eps_firmware) > 3:
-    eps_firmware = eps_firmware.replace("\\", "")
-    check_model = f"{car} {eps_firmware}"
-  else:
-    check_model = car
-  model_path, max_similarity = check_nn_path(check_model)
-  if car not in model_path or 0.0 <= max_similarity < 0.9:
-    check_model = car
-    model_path, max_similarity = check_nn_path(check_model)
-    if car not in model_path or 0.0 <= max_similarity < 0.9:
-      model_path = None
-  return model_path
-
-def get_nn_model(car, eps_firmware) -> tuple[FluxModel | None, float]:
-  model = get_nn_model_path(car, eps_firmware)
-  if model is not None:
-    model = FluxModel(model)
-  return model
-
 # generic car and radar interfaces
 
 class CarInterfaceBase(ABC):
@@ -227,32 +119,10 @@ class CarInterfaceBase(ABC):
     self.can_parsers = [self.cp, self.cp_cam, self.cp_adas, self.cp_body, self.cp_loopback]
 
     dbc_name = "" if self.cp is None else self.cp.dbc_name
-    self.CC: CarControllerBase = CarController(dbc_name, CP, FPCP, self.VM)
+    self.CC: CarControllerBase = CarController(dbc_name, CP, self.VM)
 
     # FrogPilot variables
-    frogpilot_toggles = get_frogpilot_toggles()
-
-    eps_firmware = str(next((fw.fwVersion for fw in CP.carFw if fw.ecu == "eps"), ""))
-
-    comma_nnff_supported = self.check_comma_nn_ff_support(CP.carFingerprint)
-    nnff_supported = self.initialize_lat_torque_nn(CP.carFingerprint, eps_firmware)
-
-    self.use_nnff = not comma_nnff_supported and nnff_supported and frogpilot_toggles.nnff
-    self.use_nnff_lite = not self.use_nnff and frogpilot_toggles.nnff_lite
-
     self.always_on_lateral_allowed = False
-
-  def get_ff_nn(self, x):
-    return self.lat_torque_nn_model.evaluate(x)
-
-  def check_comma_nn_ff_support(self, car):
-    with open(NEURAL_PARAMS_PATH, 'r') as file:
-      data = json.load(file)
-    return car in data
-
-  def initialize_lat_torque_nn(self, car, eps_firmware) -> bool:
-    self.lat_torque_nn_model = get_nn_model(car, eps_firmware)
-    return self.lat_torque_nn_model is not None
 
   def apply(self, c: car.CarControl, now_nanos: int, frogpilot_toggles) -> tuple[car.CarControl.Actuators, list[tuple[int, int, bytes, int]]]:
     return self.CC.update(c, self.CS, now_nanos, frogpilot_toggles)
@@ -269,7 +139,7 @@ class CarInterfaceBase(ABC):
     return cls.get_params(candidate, gen_empty_fingerprint(), list(), False, False, False)
 
   @classmethod
-  def get_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[car.CarParams.CarFw], experimental_long: bool, frogpilot_toggles: SimpleNamespace, docs: bool):
+  def get_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[car.CarParams.CarFw], experimental_long: bool, frogpilot_toggles: SimpleNamespace, params: Params, docs: bool):
     ret = CarInterfaceBase.get_std_params(candidate)
 
     platform = PLATFORMS[candidate]
@@ -284,14 +154,6 @@ class CarInterfaceBase(ABC):
 
     ret = cls._get_params(ret, candidate, fingerprint, car_fw, experimental_long, docs, frogpilot_toggles)
 
-    # Enable torque controller for all cars that do not use angle based steering
-    if ret.steerControlType != car.CarParams.SteerControlType.angle and params.get_bool("LateralTune") and params.get_bool("NNFF"):
-      CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
-      eps_firmware = str(next((fw.fwVersion for fw in car_fw if fw.ecu == "eps"), ""))
-      model = get_nn_model_path(candidate, eps_firmware)
-      if model is not None:
-        params.put("NNFFModelName", candidate.replace("_", " "))
-
     # Vehicle mass is published curb weight plus assumed payload such as a human driver; notCars have no assumed payload
     if not ret.notCar:
       ret.mass = ret.mass + STD_CARGO_KG
@@ -299,6 +161,10 @@ class CarInterfaceBase(ABC):
     # Set params dependent on values set by the car interface
     ret.rotationalInertia = scale_rot_inertia(ret.mass, ret.wheelbase)
     ret.tireStiffnessFront, ret.tireStiffnessRear = scale_tire_stiffness(ret.mass, ret.wheelbase, ret.centerToFront, ret.tireStiffnessFactor)
+
+    # Enable torque controller for all cars that do not use angle based steering
+    if ret.steerControlType != car.CarParams.SteerControlType.angle and params.get_bool("LateralTune") and (params.get_bool("NNFF") or params.get_bool("NNFFLite")):
+      CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
 
     return ret
 
@@ -344,7 +210,8 @@ class CarInterfaceBase(ABC):
   @staticmethod
   @abstractmethod
   def _get_params(ret: car.CarParams, candidate, fingerprint: dict[int, dict[int, int]],
-                  car_fw: list[car.CarParams.CarFw], experimental_long: bool, docs: bool):
+                  car_fw: list[car.CarParams.CarFw], experimental_long: bool, docs: bool,
+                  frogpilot_toggles: SimpleNamespace):
     raise NotImplementedError
 
   @staticmethod
@@ -411,7 +278,7 @@ class CarInterfaceBase(ABC):
     tune.torque.useSteeringAngle = use_steering_angle
     tune.torque.kp = 1.0
     tune.torque.kf = 1.0
-    tune.torque.ki = 0.1
+    tune.torque.ki = 0.3
     tune.torque.friction = params['FRICTION']
     tune.torque.latAccelFactor = params['LAT_ACCEL_FACTOR']
     tune.torque.latAccelOffset = 0.0
@@ -449,7 +316,7 @@ class CarInterfaceBase(ABC):
 
     # FrogPilot variables
     fp_ret.alwaysOnLateralAllowed = self.always_on_lateral_allowed
-    fp_ret.distancePressed = bool(self.CS.distance_button or params_memory.get_bool("OnroadDistanceButtonPressed"))
+    fp_ret.distancePressed = bool(self.CS.distance_button)
     fp_ret.ecoGear |= ret.gearShifter == GearShifter.eco
     fp_ret.sportGear |= ret.gearShifter == GearShifter.sport
 
@@ -674,7 +541,7 @@ SendCan = tuple[int, int, bytes, int]
 
 
 class CarControllerBase(ABC):
-  def __init__(self, dbc_name: str, CP, FPPC, VM):
+  def __init__(self, dbc_name: str, CP, VM):
     pass
 
   @abstractmethod

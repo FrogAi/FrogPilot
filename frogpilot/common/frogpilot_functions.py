@@ -5,7 +5,9 @@ import datetime
 import filecmp
 import glob
 import os
+import random
 import shutil
+import string
 import subprocess
 import tarfile
 import threading
@@ -22,9 +24,10 @@ from openpilot.frogpilot.assets.model_manager import ModelManager
 from openpilot.frogpilot.assets.theme_manager import HOLIDAY_THEME_PATH, ThemeManager
 from openpilot.frogpilot.common.frogpilot_utilities import delete_file, run_cmd, use_konik_server
 from openpilot.frogpilot.common.frogpilot_variables import (
-  ERROR_LOGS_PATH, EXCLUDED_KEYS, KONIK_LOGS_PATH, MODELS_PATH, SCREEN_RECORDINGS_PATH,
+  ERROR_LOGS_PATH, EXCLUDED_KEYS, HD_LOGS_PATH, KONIK_LOGS_PATH, MODELS_PATH, SCREEN_RECORDINGS_PATH,
   THEME_SAVE_PATH, FrogPilotVariables, frogpilot_default_params, get_frogpilot_toggles, params
 )
+from openpilot.frogpilot.system.frogpilot_stats import send_stats
 
 def backup_directory(backup, destination, success_message, fail_message, minimum_backup_size=0, compressed=False):
   in_progress_destination = destination.parent / (destination.name + "_in_progress")
@@ -146,6 +149,9 @@ def frogpilot_boot_functions(build_metadata, params_cache):
   elif params.get("DongleId", encoding="utf8") == params.get("KonikDongleId", encoding="utf8"):
     params.remove("DongleId")
 
+  if params.get("FrogPilotDongleId", encoding="utf8") == None:
+    params.put("FrogPilotDongleId", ''.join(random.choices(string.ascii_lowercase + string.digits, k=16)))
+
   def backup_thread():
     while not system_time_valid():
       print("Waiting for system time to become valid...")
@@ -154,10 +160,13 @@ def frogpilot_boot_functions(build_metadata, params_cache):
     backup_frogpilot(build_metadata)
     backup_toggles(params_cache)
 
+    send_stats()
+
   threading.Thread(target=backup_thread, daemon=True).start()
 
 def setup_frogpilot(build_metadata):
   ERROR_LOGS_PATH.mkdir(parents=True, exist_ok=True)
+  HD_LOGS_PATH.mkdir(parents=True, exist_ok=True)
   KONIK_LOGS_PATH.mkdir(parents=True, exist_ok=True)
   MODELS_PATH.mkdir(parents=True, exist_ok=True)
   SCREEN_RECORDINGS_PATH.mkdir(parents=True, exist_ok=True)
@@ -186,7 +195,7 @@ def setup_frogpilot(build_metadata):
   boot_logo_location = Path("/usr/comma/bg.jpg")
   frogpilot_boot_logo = Path(__file__).parents[1] / "assets/other_images/frogpilot_boot_logo.png"
   if not filecmp.cmp(frogpilot_boot_logo, boot_logo_location, shallow=False):
-    stock_mount_options = subprocess.run(["findmnt", "-no", "OPTIONS", "/"], capture_output=True, text=True).stdout.strip()
+    stock_mount_options = subprocess.run(["findmnt", "-no", "OPTIONS", "/"], capture_output=True, text=True, check=True).stdout.strip()
 
     run_cmd(["sudo", "mount", "-o", "remount,rw", "/"], "Successfully remounted / as read-write", "Failed to remount / as read-write")
     run_cmd(["sudo", "cp", frogpilot_boot_logo, boot_logo_location], "Successfully replaced boot logo", "Failed to replace boot logo")

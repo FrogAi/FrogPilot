@@ -33,6 +33,8 @@ MODEL_PATHS = {
   ModelRunner.THNEED: Path(__file__).parent / 'models/supercombo.thneed',
   ModelRunner.ONNX: Path(__file__).parent / 'models/supercombo.onnx'}
 
+METADATA_PATH = Path(__file__).parent / 'models/supercombo_metadata.pkl'
+
 class FrameMeta:
   frame_id: int = 0
   timestamp_sof: int = 0
@@ -133,6 +135,12 @@ class ModelState:
 
 
 def main(demo=False):
+  # FrogPilot variables
+  frogpilot_toggles = get_frogpilot_toggles()
+
+  model_name = frogpilot_toggles.model
+  model_version = frogpilot_toggles.model_version
+
   cloudlog.warning("modeld init")
 
   sentry.set_tag("daemon", PROCESS_NAME)
@@ -143,15 +151,6 @@ def main(demo=False):
   cloudlog.warning("setting up CL context")
   cl_context = CLContext()
   cloudlog.warning("CL context ready; loading model")
-
-  # FrogPilot variables
-  frogpilot_toggles = get_frogpilot_toggles()
-
-  model_name = frogpilot_toggles.model
-  model_version = frogpilot_toggles.model_version
-
-  planner_curves = frogpilot_toggles.planner_curvature_model
-
   model = ModelState(cl_context, model_name, model_version)
   cloudlog.warning("models loaded, modeld starting")
 
@@ -293,8 +292,7 @@ def main(demo=False):
       posenet_send = messaging.new_message('cameraOdometry')
       fill_model_msg(drivingdata_send, modelv2_send, model_output, v_ego, steer_delay,
                      publish_state, meta_main.frame_id, meta_extra.frame_id, frame_id,
-                     frame_drop_ratio, meta_main.timestamp_eof, model_execution_time, live_calib_seen,
-                     planner_curves)
+                     frame_drop_ratio, meta_main.timestamp_eof, model_execution_time, live_calib_seen)
 
       desire_state = modelv2_send.modelV2.meta.desireState
       l_lane_change_prob = desire_state[log.Desire.laneChangeLeft]

@@ -54,8 +54,5 @@ private:
 
   QString currentModel;
 
-  QStringList availableModels;
   QStringList availableModelNames;
-  QStringList deletableModels;
-  QStringList downloadableModels;
 };

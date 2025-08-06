@@ -9,7 +9,7 @@ VisualAlert = car.CarControl.HUDControl.VisualAlert
 
 
 class CarController(CarControllerBase):
-  def __init__(self, dbc_name, CP, FPCP, VM):
+  def __init__(self, dbc_name, CP, VM):
     self.CP = CP
     self.apply_steer_last = 0
     self.packer = CANPacker(dbc_name)

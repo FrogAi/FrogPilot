@@ -5,110 +5,106 @@
     <name>AbstractAlert</name>
     <message>
         <source>Close</source>
-        <translation type="gpt-4o-generated">Batton down the hatches</translation>
-    </message>
-    <message>
-        <source>Disable Internet Check</source>
-        <translation type="gpt-4o-generated">Disable the Sea o' Internet Check</translation>
+        <translation type="gpt-4o-generated">Shut</translation>
     </message>
     <message>
         <source>Snooze Update</source>
-        <translation type="gpt-4o-generated">Hit the Bunks, Update!</translation>
+        <translation type="gpt-4o-generated">Snooze Alert</translation>
     </message>
     <message>
         <source>Reboot and Update</source>
-        <translation type="gpt-4o-generated">Hoist Anchor and Set Course for Update</translation>
+        <translation type="gpt-4o-generated">Restart and Upgrade</translation>
     </message>
 </context>
 <context>
     <name>AdvancedNetworking</name>
     <message>
         <source>Back</source>
-        <translation type="gpt-4o-generated">Sail Aft</translation>
+        <translation type="gpt-4o-generated">Return</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="gpt-4o-generated">Aye, turn it off!</translation>
+        <translation type="gpt-4o-generated">Disabled</translation>
     </message>
     <message>
         <source>Always</source>
-        <translation type="gpt-4o-generated">Arrrways</translation>
+        <translation type="gpt-4o-generated">Always</translation>
     </message>
     <message>
         <source>Only Onroad</source>
-        <translation type="gpt-4o-generated">Fer the open seas only, matey</translation>
+        <translation type="gpt-4o-generated">Onroad Only</translation>
     </message>
     <message>
         <source>Until Reboot</source>
-        <translation type="gpt-4o-generated">'til She Sets Sail Again</translation>
+        <translation type="gpt-4o-generated">Until Restart</translation>
     </message>
     <message>
         <source>Enable Tethering</source>
-        <translation type="gpt-4o-generated">Hoist the Tethering Sails</translation>
+        <translation type="gpt-4o-generated">Activate Tethering</translation>
     </message>
     <message>
         <source>Allow tethering with your data SIM and keep it active either while driving or continuously.</source>
-        <translation type="gpt-4o-generated">Permit yer data SIM to share its treasures, keepin' it active whether ye be sailin' the seas or settin' anchor ashore.</translation>
+        <translation type="gpt-4o-generated">Enable tethering with your data SIM and keep it active while driving or continuously.</translation>
     </message>
     <message>
         <source>Tethering Password</source>
-        <translation type="gpt-4o-generated">Tetherin' Secret Code</translation>
+        <translation type="gpt-4o-generated">Password for Tethering</translation>
     </message>
     <message>
         <source>EDIT</source>
-        <translation type="gpt-4o-generated">Tweak Aye!</translation>
+        <translation type="gpt-4o-generated">MODIFY</translation>
     </message>
     <message>
         <source>Enter new tethering password</source>
-        <translation type="gpt-4o-generated">Set sail with a new tetherin' password, matey!</translation>
+        <translation type="gpt-4o-generated">Set a new tethering password</translation>
     </message>
     <message>
         <source>IP Address</source>
-        <translation type="gpt-4o-generated">IP Treasure Map</translation>
+        <translation type="gpt-4o-generated">IP Address</translation>
     </message>
     <message>
         <source>Enable Roaming</source>
-        <translation type="gpt-4o-generated">Hoist the Roamin' Sails</translation>
+        <translation type="gpt-4o-generated">Activate Roaming</translation>
     </message>
     <message>
         <source>APN Setting</source>
-        <translation type="gpt-4o-generated">APN Setting, Arrr!</translation>
+        <translation type="gpt-4o-generated">APN Configuration</translation>
     </message>
     <message>
         <source>Enter APN</source>
-        <translation type="gpt-4o-generated">Set sail with APN</translation>
+        <translation type="gpt-4o-generated">Input APN</translation>
     </message>
     <message>
         <source>leave blank for automatic configuration</source>
-        <translation type="gpt-4o-generated">leave this here chest empty for automatic configuration</translation>
+        <translation type="gpt-4o-generated">leave empty for automatic configuration</translation>
     </message>
     <message>
         <source>Cellular Metered</source>
-        <translation type="gpt-4o-generated">Cellular on a budget, savvy?</translation>
+        <translation type="gpt-4o-generated">Cellular Metered</translation>
     </message>
     <message>
         <source>Prevent large data uploads when on a metered connection</source>
-        <translation type="gpt-4o-generated">Keep yer data hoardin' shipshape, and avoid mighty uploads when sailin' with a metered connection.</translation>
+        <translation type="gpt-4o-generated">Avoid large data uploads on a metered connection, matey.</translation>
     </message>
     <message>
         <source>Hidden Network</source>
-        <translation type="gpt-4o-generated">Secret Cove o' Networks</translation>
+        <translation type="gpt-4o-generated">Secret Network</translation>
     </message>
     <message>
         <source>CONNECT</source>
-        <translation type="gpt-4o-generated">HOIST THE LINES</translation>
+        <translation type="gpt-4o-generated">LINK UP</translation>
     </message>
     <message>
         <source>Enter SSID</source>
-        <translation type="gpt-4o-generated">Hoist the SSID, matey!</translation>
+        <translation type="gpt-4o-generated">Input SSID</translation>
     </message>
     <message>
         <source>Enter password</source>
-        <translation type="gpt-4o-generated">Arr, enter ye secret code</translation>
+        <translation type="gpt-4o-generated">Enter yer password</translation>
     </message>
     <message>
         <source>for "%1"</source>
-        <translation type="gpt-4o-generated">fer "%1"</translation>
+        <translation type="gpt-4o-generated">for "%1"</translation>
     </message>
 </context>
 <context>
@@ -119,99 +115,150 @@
     </message>
     <message>
         <source>mph</source>
-        <translation type="gpt-4o-generated">knots</translation>
+        <translation type="gpt-4o-generated">mph</translation>
     </message>
     <message>
         <source>MAX</source>
-        <translation type="gpt-4o-generated">FULL SAIL AHEAD</translation>
+        <translation type="gpt-4o-generated">MAXIMUM</translation>
     </message>
     <message>
         <source>LIMIT</source>
-        <translation type="gpt-4o-generated">BOUNDARY</translation>
+        <translation type="gpt-4o-generated">BOUND</translation>
     </message>
     <message>
         <source>SPEED</source>
-        <translation type="gpt-4o-generated">VELOCITY, MATEY</translation>
-    </message>
-    <message>
-        <source>PENDING</source>
-        <translation type="gpt-4o-generated">Hangin' in the Breeze</translation>
-    </message>
-    <message>
-        <source>Vehicle in blind spot</source>
-        <translation type="gpt-4o-generated">Ship in yer blind spot</translation>
-    </message>
-    <message>
-        <source>m/s²</source>
-        <translation type="gpt-4o-generated">m/s²</translation>
-    </message>
-    <message>
-        <source>m/s</source>
-        <translation type="gpt-4o-generated">m/s</translation>
-    </message>
-    <message>
-        <source>ft/s²</source>
-        <translation type="gpt-4o-generated">ft/s²</translation>
+        <translation type="gpt-4o-generated">VELOCITY</translation>
     </message>
 </context>
 <context>
     <name>ConfirmationDialog</name>
     <message>
         <source>Ok</source>
-        <translation type="gpt-4o-generated">Aye, aye!</translation>
+        <translation type="gpt-4o-generated">Aye</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="gpt-4o-generated">Avast, belay that!</translation>
+        <translation type="gpt-4o-generated">Cancel</translation>
     </message>
 </context>
 <context>
     <name>DeclinePage</name>
     <message>
         <source>You must accept the Terms and Conditions in order to use openpilot.</source>
-        <translation type="gpt-4o-generated">Ye must agree to the Code o' Conduct to set sail with openpilot, matey.</translation>
+        <translation type="gpt-4o-generated">Ye must accept the Terms and Conditions to use openpilot, matey.</translation>
     </message>
     <message>
         <source>Back</source>
-        <translation type="gpt-4o-generated">Set sail back, matey!</translation>
+        <translation type="gpt-4o-generated">Return</translation>
     </message>
     <message>
         <source>Decline, uninstall %1</source>
-        <translation type="gpt-4o-generated">Nay, be removin' %1</translation>
+        <translation type="gpt-4o-generated">Uninstall %1, matey</translation>
     </message>
 </context>
 <context>
     <name>DestinationWidget</name>
     <message>
         <source>Home</source>
-        <translation type="gpt-4o-generated">Captain's Quarters</translation>
+        <translation type="gpt-4o-generated">Abode</translation>
     </message>
     <message>
         <source>Work</source>
-        <translation type="gpt-4o-generated">Hoist the sails!</translation>
+        <translation type="gpt-4o-generated">Labor</translation>
     </message>
     <message>
         <source>No destination set</source>
-        <translation type="gpt-4o-generated">No charted course yet, matey</translation>
+        <translation type="gpt-4o-generated">Destination not set</translation>
     </message>
     <message>
         <source>home</source>
-        <translation type="gpt-4o-generated">captain's quarters</translation>
+        <translation type="gpt-4o-generated">abode</translation>
     </message>
     <message>
         <source>work</source>
-        <translation type="gpt-4o-generated">duty</translation>
+        <translation type="gpt-4o-generated">labor</translation>
     </message>
     <message>
         <source>No %1 location set</source>
-        <translation type="gpt-4o-generated">Arrr, no %1 location be set, matey!</translation>
+        <translation type="gpt-4o-generated">No %1 location chosen</translation>
+    </message>
+</context>
+<context>
+    <name>DeveloperSidebar</name>
+    <message>
+        <source> m/s²</source>
+        <translation type="gpt-4o-generated">m/s²</translation>
+    </message>
+    <message>
+        <source> ft/s²</source>
+        <translation type="gpt-4o-generated">ft/s²</translation>
+    </message>
+    <message>
+        <source>ACCEL</source>
+        <translation type="gpt-4o-generated">ACCEL</translation>
+    </message>
+    <message>
+        <source>ACCEL JERK</source>
+        <translation type="gpt-4o-generated">ACCELERATION JERK</translation>
+    </message>
+    <message>
+        <source>ACT ACCEL</source>
+        <translation type="gpt-4o-generated">ACT ACCELERATE</translation>
+    </message>
+    <message>
+        <source>DANGER JERK</source>
+        <translation type="gpt-4o-generated">BEWARE, SCOUNDREL</translation>
+    </message>
+    <message>
+        <source>STEER DELAY</source>
+        <translation type="gpt-4o-generated">STEERING DELAY</translation>
+    </message>
+    <message>
+        <source>FRICTION</source>
+        <translation type="gpt-4o-generated">RESISTANCE</translation>
+    </message>
+    <message>
+        <source>LAT ACCEL</source>
+        <translation type="gpt-4o-generated">LAT ACCEL</translation>
+    </message>
+    <message>
+        <source>LATERAL %</source>
+        <translation type="gpt-4o-generated">LATERAL %</translation>
+    </message>
+    <message>
+        <source>LONG %</source>
+        <translation type="gpt-4o-generated">%1</translation>
+    </message>
+    <message>
+        <source>MAX ACCEL</source>
+        <translation type="gpt-4o-generated">MAXIMUM ACCELERATION</translation>
+    </message>
+    <message>
+        <source>SPEED JERK</source>
+        <translation type="gpt-4o-generated">RAPID JOLT</translation>
+    </message>
+    <message>
+        <source>STEER ANGLE</source>
+        <translation type="gpt-4o-generated">STEERING ANGLE</translation>
+    </message>
+    <message>
+        <source>STEER RATIO</source>
+        <translation type="gpt-4o-generated">STEERING RATIO</translation>
+    </message>
+    <message>
+        <source>STEER STIFF</source>
+        <translation type="gpt-4o-generated">STEER STRAIGHT</translation>
+    </message>
+    <message>
+        <source>TORQUE %</source>
+        <translation type="gpt-4o-generated">TORQUE %</translation>
     </message>
 </context>
 <context>
     <name>DevicePanel</name>
     <message>
         <source>Dongle ID</source>
-        <translation type="gpt-4o-generated">Treasure Map ID</translation>
+        <translation type="gpt-4o-generated">Dongle ID</translation>
     </message>
     <message>
         <source>N/A</source>
@@ -219,203 +266,242 @@
     </message>
     <message>
         <source>Serial</source>
-        <translation type="gpt-4o-generated">Parrot's Callin' Card</translation>
+        <translation type="gpt-4o-generated">Series</translation>
     </message>
     <message>
         <source>Pair Device</source>
-        <translation type="gpt-4o-generated">Bind Yer Device, Matey</translation>
+        <translation type="gpt-4o-generated">Connect Device</translation>
     </message>
     <message>
         <source>PAIR</source>
-        <translation type="gpt-4o-generated">BIND YERSELF</translation>
+        <translation type="gpt-4o-generated">DUO</translation>
+    </message>
+    <message>
+        <source>Pair your device with Konik connect (stable.konik.ai).</source>
+        <translation type="gpt-4o-generated">Connect your device with Konik Connect (stable.konik.ai).</translation>
     </message>
     <message>
         <source>Pair your device with comma connect (connect.comma.ai) and claim your comma prime offer.</source>
-        <translation type="gpt-4o-generated">Yarr matey, link yer gadget with comma connect (connect.comma.ai) and seize yer chance fer the comma prime booty!</translation>
+        <translation type="gpt-4o-generated">Link yer device with Comma Connect (connect.comma.ai) and claim yer Comma Prime offer, matey.</translation>
     </message>
     <message>
         <source>Driver Camera</source>
-        <translation type="gpt-4o-generated">Lookout Glass</translation>
+        <translation type="gpt-4o-generated">Camera for Drivers</translation>
     </message>
     <message>
         <source>PREVIEW</source>
-        <translation type="gpt-4o-generated">SCOUT'S PEEK</translation>
+        <translation type="gpt-4o-generated">PREVIEW</translation>
     </message>
     <message>
         <source>Preview the driver facing camera to ensure that driver monitoring has good visibility. (vehicle must be off)</source>
-        <translation type="gpt-4o-generated">Spy through the lookin' glass at the driver-facing camera to make sure it be keepin' a watchful eye with clear sight. (the vessel must be at rest)</translation>
+        <translation type="gpt-4o-generated">Check the driver-facing camera to ensure it has clear visibility for monitoring. (vehicle must be off)</translation>
     </message>
     <message>
         <source>Reset Calibration</source>
-        <translation type="gpt-4o-generated">Hoist the sails 'n reset calibration!</translation>
+        <translation type="gpt-4o-generated">Calibration Reset</translation>
     </message>
     <message>
         <source>RESET</source>
-        <translation type="gpt-4o-generated">Hoist the Colors: Reset</translation>
+        <translation type="gpt-4o-generated">RESET</translation>
     </message>
     <message>
         <source>Are you sure you want to reset calibration?</source>
-        <translation type="gpt-4o-generated">Ye be certain ye want to reset the calibration, matey?</translation>
+        <translation type="gpt-4o-generated">Are ye certain ye wish to reset calibration?</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="gpt-4o-generated">Set sail anew</translation>
+        <translation type="gpt-4o-generated">Restart</translation>
     </message>
     <message>
         <source>Review Training Guide</source>
-        <translation type="gpt-4o-generated">Peruse the Captain's Training Scroll</translation>
+        <translation type="gpt-4o-generated">Examine Training Guide</translation>
     </message>
     <message>
         <source>REVIEW</source>
-        <translation type="gpt-4o-generated">CAST YER EYE UPON THIS</translation>
+        <translation type="gpt-4o-generated">EVALUATION</translation>
     </message>
     <message>
         <source>Review the rules, features, and limitations of openpilot</source>
-        <translation type="gpt-4o-generated">Cast yer eyes on the code, features, and boundaries of this here openpilot!</translation>
+        <translation type="gpt-4o-generated">Examine the guidelines, features, and constraints of openpilot.</translation>
     </message>
     <message>
         <source>Are you sure you want to review the training guide?</source>
-        <translation type="gpt-4o-generated">Arrr ye certain ye wish to peruse the trainin' guide?</translation>
+        <translation type="gpt-4o-generated">Are ye certain ye wish to review the training guide?</translation>
     </message>
     <message>
         <source>Review</source>
-        <translation type="gpt-4o-generated">Take a Gander, Matey!</translation>
+        <translation type="gpt-4o-generated">Examine</translation>
     </message>
     <message>
         <source>Regulatory</source>
-        <translation type="gpt-4o-generated">Regulations</translation>
+        <translation type="gpt-4o-generated">Regulatory</translation>
     </message>
     <message>
         <source>VIEW</source>
-        <translation type="gpt-4o-generated">SPYGLASS VIEWING</translation>
+        <translation type="gpt-4o-generated">DISPLAY</translation>
     </message>
     <message>
         <source>Change Language</source>
-        <translation type="gpt-4o-generated">Swap Yer Lingo</translation>
+        <translation type="gpt-4o-generated">Switch Language</translation>
     </message>
     <message>
         <source>CHANGE</source>
-        <translation type="gpt-4o-generated">MAKE A SWITCH</translation>
+        <translation type="gpt-4o-generated">MODIFY</translation>
     </message>
     <message>
         <source>Select a language</source>
-        <translation type="gpt-4o-generated">Choose yer tongue, matey</translation>
+        <translation type="gpt-4o-generated">Choose a language</translation>
     </message>
     <message>
         <source>Reboot</source>
-        <translation type="gpt-4o-generated">Hoist the sails!</translation>
+        <translation type="gpt-4o-generated">Restart</translation>
     </message>
     <message>
         <source>Power Off</source>
-        <translation type="gpt-4o-generated">Shiver me timbers, Power Off</translation>
+        <translation type="gpt-4o-generated">Shut Down</translation>
     </message>
     <message>
         <source>openpilot requires the device to be mounted within 4° left or right and within 5° up or 9° down. openpilot is continuously calibrating, resetting is rarely required.</source>
-        <translation type="gpt-4o-generated">Arrr, openpilot be needin' the device to be mounted within 4° port or starboard and within 5° up or 9° down. openpilot be constantly adjustin' its course, so a reset be scarce the need.</translation>
+        <translation type="gpt-4o-generated">openpilot needs the device to be mounted within 4° to the left or right and within 5° up or 9° down. openpilot is always calibrating, so resetting is seldom needed.</translation>
     </message>
     <message>
         <source> Your device is pointed %1° %2 and %3° %4.</source>
-        <translation type="gpt-4o-generated">Yer device be aimed %1° %2 and %3° %4, matey.</translation>
+        <translation type="gpt-4o-generated">Your device is aimed %1° %2 and %3° %4.</translation>
     </message>
     <message>
         <source>down</source>
-        <translation type="gpt-4o-generated">belowdecks</translation>
+        <translation type="gpt-4o-generated">below</translation>
     </message>
     <message>
         <source>up</source>
-        <translation type="gpt-4o-generated">upwards, me hearties</translation>
+        <translation type="gpt-4o-generated">up</translation>
     </message>
     <message>
         <source>left</source>
-        <translation type="gpt-4o-generated">port side</translation>
+        <translation type="gpt-4o-generated">left</translation>
     </message>
     <message>
         <source>right</source>
-        <translation type="gpt-4o-generated">starboard</translation>
+        <translation type="gpt-4o-generated">correct</translation>
     </message>
     <message>
         <source>Are you sure you want to reboot?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye want to set sail on a reboot?</translation>
+        <translation type="gpt-4o-generated">Are ye certain ye wish to reboot?</translation>
     </message>
     <message>
         <source>Disengage to Reboot</source>
-        <translation type="gpt-4o-generated">Ye best be disengagin' to restart the ship!</translation>
+        <translation type="gpt-4o-generated">Disengage to Restart</translation>
     </message>
     <message>
         <source>Are you sure you want to power off?</source>
-        <translation type="gpt-4o-generated">Ye be certain ye wish to power down, matey?</translation>
+        <translation type="gpt-4o-generated">Are ye certain ye wish to power off?</translation>
     </message>
     <message>
         <source>Disengage to Power Off</source>
-        <translation type="gpt-4o-generated">Disengage to Power Down, me hearties!</translation>
+        <translation type="gpt-4o-generated">Disengage to Shut Down</translation>
     </message>
 </context>
 <context>
     <name>DriveStats</name>
-    <message>
-        <source>ALL TIME</source>
-        <translation type="gpt-4o-generated">ALL TIME, me hearties!</translation>
-    </message>
-    <message>
-        <source>PAST WEEK</source>
-        <translation type="gpt-4o-generated">YE PAST WEEK</translation>
-    </message>
     <message>
         <source>FROGPILOT</source>
         <translation type="gpt-4o-generated">FROGPILOT</translation>
     </message>
     <message>
         <source>Drives</source>
-        <translation type="gpt-4o-generated">Sails the Seas</translation>
+        <translation type="gpt-4o-generated">Drives</translation>
     </message>
     <message>
         <source>Hours</source>
-        <translation type="gpt-4o-generated">Hours o' the day</translation>
+        <translation type="gpt-4o-generated">Hours</translation>
     </message>
     <message>
         <source>KM</source>
-        <translation type="gpt-4o-generated">Nautical Miles</translation>
+        <translation type="gpt-4o-generated">KM</translation>
     </message>
     <message>
         <source>Miles</source>
-        <translation type="gpt-4o-generated">Nautical leagues</translation>
+        <translation type="gpt-4o-generated">Miles</translation>
     </message>
 </context>
 <context>
     <name>DriverViewWindow</name>
     <message>
         <source>camera starting</source>
-        <translation type="gpt-4o-generated">spyglass be sparkin' up</translation>
+        <translation type="gpt-4o-generated">Camera is starting</translation>
     </message>
 </context>
 <context>
     <name>ExperimentalModeButton</name>
     <message>
         <source>EXPERIMENTAL MODE ON</source>
-        <translation type="gpt-4o-generated">EXPERIMENTAL MODE AHOY</translation>
+        <translation type="gpt-4o-generated">EXPERIMENTAL MODE ACTIVE</translation>
     </message>
     <message>
         <source>CHILL MODE ON</source>
-        <translation type="gpt-4o-generated">CHILL MODE HOISTED</translation>
+        <translation type="gpt-4o-generated">CHILL MODE ACTIVATED</translation>
+    </message>
+</context>
+<context>
+    <name>FrogPilotAnnotatedCameraWidget</name>
+    <message>
+        <source> m/s²</source>
+        <translation type="gpt-4o-generated">m/s²</translation>
+    </message>
+    <message>
+        <source> meters</source>
+        <translation type="gpt-4o-generated">meters</translation>
+    </message>
+    <message>
+        <source> m/s</source>
+        <translation type="gpt-4o-generated">m/s</translation>
+    </message>
+    <message>
+        <source> km/h</source>
+        <translation type="gpt-4o-generated">km/h</translation>
+    </message>
+    <message>
+        <source> ft/s²</source>
+        <translation type="gpt-4o-generated">ft/s²</translation>
+    </message>
+    <message>
+        <source> feet</source>
+        <translation type="gpt-4o-generated">feet</translation>
+    </message>
+    <message>
+        <source> mph</source>
+        <translation type="gpt-4o-generated">mph</translation>
+    </message>
+    <message>
+        <source>Vehicle in blind spot</source>
+        <translation type="gpt-4o-generated">Car in blind spot</translation>
+    </message>
+    <message>
+        <source>PENDING</source>
+        <translation type="gpt-4o-generated">PENDING</translation>
+    </message>
+    <message>
+        <source>LIMIT</source>
+        <translation type="gpt-4o-generated">LIMIT</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotConfirmationDialog</name>
     <message>
         <source>Reboot required to take effect.</source>
-        <translation type="gpt-4o-generated">Aye, a restart be needed to set sail with the changes.</translation>
+        <translation type="gpt-4o-generated">A restart is needed to take effect.</translation>
     </message>
     <message>
         <source>Reboot Now</source>
-        <translation type="gpt-4o-generated">Set Sail Anew, Aye!</translation>
+        <translation type="gpt-4o-generated">Restart Now</translation>
     </message>
     <message>
         <source>Reboot Later</source>
-        <translation type="gpt-4o-generated">Restart at the next tide</translation>
+        <translation type="gpt-4o-generated">Restart Later</translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="gpt-4o-generated">Aye, indeed!</translation>
+        <translation type="gpt-4o-generated">Aye</translation>
     </message>
     <message>
         <source>No</source>
@@ -426,381 +512,433 @@
     <name>FrogPilotDataPanel</name>
     <message>
         <source>Delete Driving Footage and Data</source>
-        <translation type="gpt-4o-generated">Scuttle the Sailing Footage and Logs</translation>
+        <translation type="gpt-4o-generated">Erase Driving Footage and Data</translation>
     </message>
     <message>
         <source>DELETE</source>
-        <translation type="gpt-4o-generated">Scuttle</translation>
+        <translation type="gpt-4o-generated">REMOVE</translation>
     </message>
     <message>
-        <source>Permanently deletes all stored driving footage and data from your device. Ideal for maintaining privacy or freeing up space.</source>
-        <translation type="gpt-4o-generated">Permanently be sendin' all stored drivin' footage and data to Davy Jones' locker from yer device. Perfect fer guardin' yer secrets or clearin' some room.</translation>
+        <source>Deletes all stored driving footage and data from your device. Ideal for maintaining privacy or for simply freeing up space.</source>
+        <translation type="gpt-4o-generated">Erases all stored driving footage and data from your device. Perfect for safeguarding privacy or just freeing up space.</translation>
     </message>
     <message>
-        <source>Are you sure you want to permanently delete all of your driving footage and data?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye want to send all yer drivin' footage and data to Davy Jones' locker for good?</translation>
+        <source>Are you sure you want to delete all of your driving footage and data?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to delete all yer driving footage and data, matey?</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="gpt-4o-generated">Scuttle</translation>
+        <translation type="gpt-4o-generated">Remove</translation>
     </message>
     <message>
         <source>Deleting...</source>
-        <translation type="gpt-4o-generated">Savin' to Davy Jones' locker...</translation>
+        <translation type="gpt-4o-generated">Removing...</translation>
     </message>
     <message>
         <source>Deleted!</source>
-        <translation type="gpt-4o-generated">Aye, vanished into the briny deep!</translation>
+        <translation type="gpt-4o-generated">Removed!</translation>
+    </message>
+    <message>
+        <source>Delete Error Logs</source>
+        <translation type="gpt-4o-generated">Remove Error Logs</translation>
+    </message>
+    <message>
+        <source>Deletes all stored error logs from your device. Ideal for freeing up space.</source>
+        <translation type="gpt-4o-generated">Removes all saved error logs from your device. Perfect for freeing up space, matey.</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete all of the error logs?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to delete all the error logs?</translation>
     </message>
     <message>
         <source>Screen Recordings</source>
-        <translation type="gpt-4o-generated">Treasure Maps A' Recordin'</translation>
+        <translation type="gpt-4o-generated">Screen Captures</translation>
     </message>
     <message>
         <source>Manage your screen recordings.</source>
-        <translation type="gpt-4o-generated">Command yer screen recordings, matey!</translation>
+        <translation type="gpt-4o-generated">Organize your screen recordings.</translation>
     </message>
     <message>
         <source>DELETE ALL</source>
-        <translation type="gpt-4o-generated">Walk the plank with all!</translation>
+        <translation type="gpt-4o-generated">Erase everything</translation>
     </message>
     <message>
         <source>RENAME</source>
-        <translation type="gpt-4o-generated">Rename, ye scallywag!</translation>
+        <translation type="gpt-4o-generated">Change Name</translation>
     </message>
     <message>
         <source>Select a recording to delete</source>
-        <translation type="gpt-4o-generated">Choose a recording to send to Davy Jones' locker</translation>
+        <translation type="gpt-4o-generated">Choose a recording to delete</translation>
     </message>
     <message>
         <source>Are you sure you want to delete this recording?</source>
-        <translation type="gpt-4o-generated">Ye be certain ye wish to send this recording to Davy Jones' locker?</translation>
+        <translation type="gpt-4o-generated">Are ye certain ye want to delete this recording?</translation>
     </message>
     <message>
         <source>Are you sure you want to delete all screen recordings?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to send all screen recordings to Davy Jones' locker?</translation>
+        <translation type="gpt-4o-generated">Are ye certain ye want to delete all screen recordings?</translation>
     </message>
     <message>
         <source>Delete All</source>
-        <translation type="gpt-4o-generated">Scuttle the Lot</translation>
+        <translation type="gpt-4o-generated">Remove All</translation>
     </message>
     <message>
         <source>Select a recording to rename</source>
-        <translation type="gpt-4o-generated">Choose a recording to give a new moniker to, matey!</translation>
+        <translation type="gpt-4o-generated">Choose a recording to rename, matey.</translation>
     </message>
     <message>
         <source>Enter a new name</source>
-        <translation type="gpt-4o-generated">Hoist a fresh name, matey!</translation>
+        <translation type="gpt-4o-generated">Choose a new name</translation>
     </message>
     <message>
         <source>Rename Recording</source>
-        <translation type="gpt-4o-generated">Rename the Logbook</translation>
+        <translation type="gpt-4o-generated">Rename Audio</translation>
     </message>
     <message>
         <source>A recording with this name already exists. Please choose a different name.</source>
-        <translation type="gpt-4o-generated">Arrr, a recording by this name be already stowed in the ship's hold. Kindly select a new moniker, matey!</translation>
+        <translation type="gpt-4o-generated">A recording by this name already exists. Please select a different name.</translation>
     </message>
     <message>
         <source>Renaming...</source>
-        <translation type="gpt-4o-generated">Swabbin' a new name...</translation>
+        <translation type="gpt-4o-generated">Changing name...</translation>
     </message>
     <message>
         <source>Renamed!</source>
-        <translation type="gpt-4o-generated">Rechristened, matey!</translation>
+        <translation type="gpt-4o-generated">Name changed!</translation>
     </message>
     <message>
         <source>FrogPilot Backups</source>
-        <translation type="gpt-4o-generated">FrogPilot's Treasure Trove</translation>
+        <translation type="gpt-4o-generated">FrogPilot Reserves</translation>
     </message>
     <message>
         <source>Manage your FrogPilot backups.</source>
-        <translation type="gpt-4o-generated">Tend to yer FrogPilot treasure chests.</translation>
+        <translation type="gpt-4o-generated">Handle yer FrogPilot backups, matey.</translation>
     </message>
     <message>
         <source>BACKUP</source>
-        <translation type="gpt-4o-generated">BUCCANEER'S BACKUP</translation>
+        <translation type="gpt-4o-generated">BACKUP</translation>
     </message>
     <message>
         <source>RESTORE</source>
-        <translation type="gpt-4o-generated">BRING 'ER BACK</translation>
+        <translation type="gpt-4o-generated">RETURN</translation>
     </message>
     <message>
         <source>Name your backup</source>
-        <translation type="gpt-4o-generated">Give yer backup a name, matey!</translation>
+        <translation type="gpt-4o-generated">Give your backup a name</translation>
     </message>
     <message>
         <source>A backup with this name already exists. Please choose a different name.</source>
-        <translation type="gpt-4o-generated">Arrr, a treasure with this name be already stowed! Kindly pick a different moniker, matey.</translation>
+        <translation type="gpt-4o-generated">A backup with this name already exists, matey. Please choose a different name.</translation>
     </message>
     <message>
-        <source>Do you want to compress this backup? This will take an extra few minutes, but the final result will be significantly smaller and will run in the background.</source>
-        <translation type="gpt-4o-generated">Fancy compressin' this here backup, matey? It'll take a wee bit longer, but the end result'll be much smaller and it'll sail smoothly in the background.</translation>
+        <source>Do you want to compress this backup? This will take a few minutes, but the final result will be smaller and run in the background.</source>
+        <translation type="gpt-4o-generated">Would ye like to compress this backup, matey? It'll take a few minutes, but the final result will be smaller and run in the background.</translation>
     </message>
     <message>
         <source>Backing up...</source>
-        <translation type="gpt-4o-generated">Hoistin' the sails backward...</translation>
+        <translation type="gpt-4o-generated">Creating a backup...</translation>
     </message>
     <message>
         <source>Compressing...</source>
-        <translation type="gpt-4o-generated">Squeezin' the sails...</translation>
+        <translation type="gpt-4o-generated">Compressing, matey...</translation>
     </message>
     <message>
         <source>Backup created!</source>
-        <translation type="gpt-4o-generated">Aye, backup be ready, matey!</translation>
+        <translation type="gpt-4o-generated">Backup complete, matey!</translation>
     </message>
     <message>
         <source>Select a backup to delete</source>
-        <translation type="gpt-4o-generated">Pick a treasure chest to scuttle</translation>
+        <translation type="gpt-4o-generated">Choose a backup to remove</translation>
     </message>
     <message>
         <source>Are you sure you want to delete this backup?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to scuttle this backup?</translation>
+        <translation type="gpt-4o-generated">Are ye certain ye wish to delete this backup?</translation>
     </message>
     <message>
         <source>Are you sure you want to delete all FrogPilot backups?</source>
-        <translation type="gpt-4o-generated">Arrr ye certain ye wish to send all FrogPilot backups to Davy Jones' locker?</translation>
+        <translation type="gpt-4o-generated">Are ye certain ye wish to delete all FrogPilot backups?</translation>
     </message>
     <message>
         <source>Select a restore point</source>
-        <translation type="gpt-4o-generated">Choose yer restore point, matey!</translation>
+        <translation type="gpt-4o-generated">Choose a restore point</translation>
     </message>
     <message>
         <source>Are you sure you want to restore this version of FrogPilot?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to bring back this here version of FrogPilot?</translation>
+        <translation type="gpt-4o-generated">Are ye certain ye wish to restore this version of FrogPilot, matey?</translation>
     </message>
     <message>
         <source>Restore</source>
-        <translation type="gpt-4o-generated">Bring 'er back, matey!</translation>
+        <translation type="gpt-4o-generated">Reinstate</translation>
     </message>
     <message>
         <source>Restoring...</source>
-        <translation type="gpt-4o-generated">Bringin' 'er back 'round...</translation>
+        <translation type="gpt-4o-generated">Restoring...</translation>
     </message>
     <message>
         <source>Extracting...</source>
-        <translation type="gpt-4o-generated">Plunderin' treasure...</translation>
+        <translation type="gpt-4o-generated">Extracting data...</translation>
     </message>
     <message>
         <source>Restored!</source>
-        <translation type="gpt-4o-generated">Back to shipshape, matey!</translation>
+        <translation type="gpt-4o-generated">Restored, matey!</translation>
     </message>
     <message>
         <source>Rebooting...</source>
-        <translation type="gpt-4o-generated">Hoistin' the sails, matey...</translation>
+        <translation type="gpt-4o-generated">Restarting...</translation>
     </message>
     <message>
         <source>Toggle Backups</source>
-        <translation type="gpt-4o-generated">Hoist the Backups</translation>
+        <translation type="gpt-4o-generated">Switch Backups</translation>
     </message>
     <message>
         <source>Manage your toggle backups.</source>
-        <translation type="gpt-4o-generated">Keep a weather eye on yer toggle backups.</translation>
+        <translation type="gpt-4o-generated">Keep your toggle backups shipshape.</translation>
+    </message>
+    <message>
+        <source>Name your toggle backup</source>
+        <translation type="gpt-4o-generated">Name yer toggle backup, matey</translation>
+    </message>
+    <message>
+        <source>A toggle backup with this name already exists. Please choose a different name.</source>
+        <translation type="gpt-4o-generated">A backup with this name already exists, matey. Please choose another name.</translation>
+    </message>
+    <message>
+        <source>Select a toggle backup to delete</source>
+        <translation type="gpt-4o-generated">Choose a backup toggle to delete</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete this toggle backup?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to delete this toggle backup?</translation>
     </message>
     <message>
         <source>Are you sure you want to delete all toggle backups?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to send all toggle backups to Davy Jones' locker?</translation>
+        <translation type="gpt-4o-generated">Are ye certain ye want to delete all toggle backups?</translation>
+    </message>
+    <message>
+        <source>Select a toggle restore point</source>
+        <translation type="gpt-4o-generated">Choose a toggle restore point</translation>
     </message>
     <message>
         <source>Are you sure you want to restore this toggle backup?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to bring back this toggle backup from Davy Jones' locker?</translation>
+        <translation type="gpt-4o-generated">Are ye certain ye want to restore this toggle backup?</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotDevicePanel</name>
     <message>
         <source>Device Settings</source>
-        <translation type="gpt-4o-generated">Contraption Settings, Arr!</translation>
+        <translation type="gpt-4o-generated">Device Configurations</translation>
     </message>
     <message>
-        <source>Device behavior settings.</source>
-        <translation type="gpt-4o-generated">Device behavior shenanigans.</translation>
+        <source>Settings that control device behavior.</source>
+        <translation type="gpt-4o-generated">Settings that govern device behavior.</translation>
     </message>
     <message>
         <source>Battery Shutdown Threshold</source>
-        <translation type="gpt-4o-generated">Battery Shutdown Threshold, ye scallywag!</translation>
+        <translation type="gpt-4o-generated">Battery Shutdown Limit</translation>
     </message>
     <message>
-        <source>The battery level threshold used for automatically shutting down the device to protect the car's battery from excessive drain and potential damage.</source>
-        <translation type="gpt-4o-generated">The battery level line whar' we be usin' fer automatically shuttin' down the device, keepin' yer ship's battery safe from bein' overly drained and potential harm.</translation>
+        <source>Automatically shut down the device when the vehicle's battery voltage reaches the set threshold preventing excessive battery drain to protect the battery.</source>
+        <translation type="gpt-4o-generated">Automatically power down the device when the vehicle's battery voltage hits the set threshold, preventing excessive drain and safeguarding the battery.</translation>
     </message>
     <message>
         <source>Device Shutdown Timer</source>
-        <translation type="gpt-4o-generated">Device Be Silent Timer</translation>
+        <translation type="gpt-4o-generated">Device Power-Off Timer</translation>
     </message>
     <message>
-        <source>How long the device stays on after you go offroad.</source>
-        <translation type="gpt-4o-generated">How long the contraption remains lively after ye venture off the beaten path.</translation>
+        <source>How long the device stays on for after you go offroad.</source>
+        <translation type="gpt-4o-generated">How long the device remains on after you go offroad.</translation>
     </message>
     <message>
-        <source>Disable Internet Requirement</source>
-        <translation type="gpt-4o-generated">Set Sail Without the Internet</translation>
-    </message>
-    <message>
-        <source>Allow the device to work indefinitely without an internet connection.</source>
-        <translation type="gpt-4o-generated">Permit this contraption to sail the seas forevermore, even without a lick of internet.</translation>
-    </message>
-    <message>
-        <source>Increase Thermal Safety Limit</source>
-        <translation type="gpt-4o-generated">Boost Ye Thermal Safety Limit</translation>
-    </message>
-    <message>
-        <source>WARNING: This can cause premature wear or damage by running the device over comma's recommended temperature limits!</source>
-        <translation type="gpt-4o-generated">AVAST! This might cause early wear or damage by runnin' the device outside o' comma's recommended temperature limits!</translation>
-    </message>
-    <message>
-        <source>Allow the device to run at higher temperatures than comma recommends.</source>
-        <translation type="gpt-4o-generated">Permit this here contraption to sail through warmer seas than ol' comma suggests.</translation>
-    </message>
-    <message>
-        <source>Turn Off Data Logging</source>
-        <translation type="gpt-4o-generated">Cease Loggin' the Data</translation>
+        <source>Disable Data Logging</source>
+        <translation type="gpt-4o-generated">Turn Off Data Logging</translation>
     </message>
     <message>
         <source>WARNING: This will prevent your drives from being recorded and all data will be unobtainable!</source>
-        <translation type="gpt-4o-generated">AVAST! This be stoppin' yer voyages from bein' recorded, and all yer data will be lost to the depths!</translation>
+        <translation type="gpt-4o-generated">Beware, matey: This will stop your drives from being recorded, and all data will be lost!</translation>
     </message>
     <message>
         <source>Disable all data logging to improve privacy.</source>
-        <translation type="gpt-4o-generated">Turn off all data recordin' to boost yer privacy, matey.</translation>
+        <translation type="gpt-4o-generated">Turn off all data logging to boost privacy.</translation>
     </message>
     <message>
-        <source>Turn Off Data Uploads</source>
-        <translation type="gpt-4o-generated">Shiver me timbers, stop sendin' the data!</translation>
+        <source>Disable Data Uploads</source>
+        <translation type="gpt-4o-generated">Turn Off Data Uploads</translation>
     </message>
     <message>
-        <source>WARNING: This will prevent your drives from appearing on comma connect which may impact debugging and support!</source>
-        <translation type="gpt-4o-generated">AVAST! This be preventin' yer voyages from showin' up on comma connect, which might scuttle yer efforts fer debuggin' and support!</translation>
+        <source>WARNING: This will prevent your drives from appearing on &lt;b&gt;comma connect&lt;/b&gt; which may impact debugging and support!</source>
+        <translation type="gpt-4o-generated">WARNING: This will stop your drives from showing on &lt;b&gt;comma connect&lt;/b&gt;, which might affect debugging and support!</translation>
     </message>
     <message>
-        <source>Prevent the device from sending any data to comma's servers.</source>
-        <translation type="gpt-4o-generated">Keep this contraption from sendin' any messages to comma's servers, arrr!</translation>
+        <source>Prevent the device from sending any data to &lt;b&gt;comma&lt;/b&gt;'s servers.</source>
+        <translation type="gpt-4o-generated">Stop the device from sending any data to &lt;b&gt;comma&lt;/b&gt;'s servers.</translation>
     </message>
     <message>
-        <source>Use Konik.ai's Server Instead of Comma's</source>
-        <translation type="gpt-4o-generated">Hoist the sails and set course for Konik.ai's server, instead of Comma's!</translation>
+        <source>High Bitrate Recording</source>
+        <translation type="gpt-4o-generated">High Bitrate Capture</translation>
     </message>
     <message>
-        <source>Upload your driving data to "connect.konik.ai" instead of "connect.comma.ai".</source>
-        <translation type="gpt-4o-generated">Hoist yer drivin' logs to "connect.konik.ai" instead of "connect.comma.ai".</translation>
+        <source>Record driving footage at double the standard bitrate for improved video quality in driving logs.</source>
+        <translation type="gpt-4o-generated">Capture driving footage at twice the standard bitrate to enhance video quality in driving logs.</translation>
+    </message>
+    <message>
+        <source>Increase Thermal Safety Limit</source>
+        <translation type="gpt-4o-generated">Raise Thermal Safety Limit</translation>
+    </message>
+    <message>
+        <source>WARNING: This can damage your device by exceeding safe temperature limits!</source>
+        <translation type="gpt-4o-generated">Beware: This may harm your device by surpassing safe temperature limits!</translation>
+    </message>
+    <message>
+        <source>Allow the device to run hotter than comma recommended limit.</source>
+        <translation type="gpt-4o-generated">Permit the device to operate beyond the advised temperature limit.</translation>
+    </message>
+    <message>
+        <source>Use Konik's Server Instead of comma's</source>
+        <translation type="gpt-4o-generated">Use Konik's Server instead of Comma's</translation>
+    </message>
+    <message>
+        <source>Upload your driving data to &lt;b&gt;connect.konik.ai&lt;/b&gt; instead of &lt;b&gt;connect.comma.ai&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">Upload yer drivin' data to &lt;b&gt;connect.konik.ai&lt;/b&gt; instead of &lt;b&gt;connect.comma.ai&lt;/b&gt;.</translation>
     </message>
     <message>
         <source>Screen Settings</source>
-        <translation type="gpt-4o-generated">Chartin' the View</translation>
+        <translation type="gpt-4o-generated">Display Options</translation>
     </message>
     <message>
-        <source>Screen behavior settings.</source>
-        <translation type="gpt-4o-generated">Screen behavior settings, me heartie.</translation>
+        <source>Settings that control screen behavior.</source>
+        <translation type="gpt-4o-generated">Settings that manage screen behavior.</translation>
     </message>
     <message>
         <source>Screen Brightness (Offroad)</source>
-        <translation type="gpt-4o-generated">Lantern Glow (Offroad)</translation>
+        <translation type="gpt-4o-generated">Screen Brightness (Offroad Mode)</translation>
     </message>
     <message>
-        <source>The screen brightness while you're not driving.</source>
-        <translation type="gpt-4o-generated">The screen's glow when ye ain't at the helm.</translation>
+        <source>The screen brightness when not driving.</source>
+        <translation type="gpt-4o-generated">The screen brightness when not sailing.</translation>
     </message>
     <message>
         <source>Screen Brightness (Onroad)</source>
-        <translation type="gpt-4o-generated">Brilliance o' the Screen (Onroad)</translation>
+        <translation type="gpt-4o-generated">Screen Brightness (On the High Seas)</translation>
     </message>
     <message>
-        <source>The screen brightness while you're driving.</source>
-        <translation type="gpt-4o-generated">The glow o' the screen as ye sail the roads.</translation>
+        <source>The screen brightness while driving.</source>
+        <translation type="gpt-4o-generated">The screen brightness during driving.</translation>
     </message>
     <message>
         <source>Screen Recorder</source>
-        <translation type="gpt-4o-generated">Spyglass Recorder</translation>
+        <translation type="gpt-4o-generated">Screen Capture Tool</translation>
     </message>
     <message>
-        <source>Enable a button in the onroad UI to record the screen.</source>
-        <translation type="gpt-4o-generated">Hoist a button in the onroad UI to capture the screen, matey!</translation>
+        <source>Enable a button in the driving screen to record the screen.</source>
+        <translation type="gpt-4o-generated">Add a button on the driving screen to capture the screen.</translation>
     </message>
     <message>
         <source>Screen Timeout (Offroad)</source>
-        <translation type="gpt-4o-generated">Screen Timeout (Off the Plank)</translation>
+        <translation type="gpt-4o-generated">Screen Timeout (Offshore)</translation>
     </message>
     <message>
-        <source>How long it takes for the screen to turn off when you're not driving.</source>
-        <translation type="gpt-4o-generated">How long 'til the screen goes dark when ye be takin' a rest from the helm.</translation>
+        <source>How long it takes for the screen to turn off when not driving.</source>
+        <translation type="gpt-4o-generated">How long does it take for the screen to turn off when not driving?</translation>
     </message>
     <message>
         <source>Screen Timeout (Onroad)</source>
-        <translation type="gpt-4o-generated">Screen Slumber (Onroad)</translation>
+        <translation type="gpt-4o-generated">Screen Timeout (On the High Seas)</translation>
     </message>
     <message>
-        <source>How long it takes for the screen to turn off while you're driving.</source>
-        <translation type="gpt-4o-generated">How long before the screen be goin' dark while ye be sailin' the seas o' the road.</translation>
+        <source>How long it takes for the screen to turn off while driving.</source>
+        <translation type="gpt-4o-generated">How long does it take for the screen to turn off while driving?</translation>
     </message>
     <message>
         <source>5 mins</source>
-        <translation type="gpt-4o-generated">5 minutes, matey!</translation>
+        <translation type="gpt-4o-generated">5 min</translation>
     </message>
     <message>
         <source> mins</source>
-        <translation type="gpt-4o-generated">min'tes</translation>
+        <translation type="gpt-4o-generated">mins</translation>
     </message>
     <message>
         <source> hour</source>
-        <translation type="gpt-4o-generated">hourglass moment</translation>
+        <translation type="gpt-4o-generated">hour</translation>
     </message>
     <message>
         <source> hours</source>
-        <translation type="gpt-4o-generated">hours, me hearty</translation>
+        <translation type="gpt-4o-generated">hours</translation>
     </message>
     <message>
         <source>Only Disable While Onroad</source>
-        <translation type="gpt-4o-generated">Disable Only When Sailin' the High Seas</translation>
+        <translation type="gpt-4o-generated">Disable Only While Onroad</translation>
     </message>
     <message>
         <source> volts</source>
-        <translation type="gpt-4o-generated">volts, matey</translation>
+        <translation type="gpt-4o-generated">volts</translation>
     </message>
     <message>
         <source>Screen Off</source>
-        <translation type="gpt-4o-generated">Blacken the Sails</translation>
+        <translation type="gpt-4o-generated">Display Off</translation>
     </message>
     <message>
         <source>Auto</source>
-        <translation type="gpt-4o-generated">Aye, Auto</translation>
+        <translation type="gpt-4o-generated">Car</translation>
+    </message>
+    <message>
+        <source>Start Recording</source>
+        <translation type="gpt-4o-generated">Begin Recording</translation>
+    </message>
+    <message>
+        <source>Stop Recording</source>
+        <translation type="gpt-4o-generated">Cease Recording</translation>
     </message>
     <message>
         <source> seconds</source>
-        <translation type="gpt-4o-generated">seconds, arrr</translation>
+        <translation type="gpt-4o-generated">seconds</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotLateralPanel</name>
     <message>
         <source>Advanced Lateral Tuning</source>
-        <translation type="gpt-4o-generated">Savvy Lateral Tuning, matey!</translation>
+        <translation type="gpt-4o-generated">Expert Lateral Tuning</translation>
     </message>
     <message>
         <source>Advanced settings for fine-tuning openpilot's lateral controls.</source>
-        <translation type="gpt-4o-generated">Advanced settin's fer fine-tunin' openpilot's sideway steerin'.</translation>
+        <translation type="gpt-4o-generated">Advanced settings for fine-tuning openpilot's lateral controls, matey.</translation>
+    </message>
+    <message>
+        <source>Actuator Delay (Default: %1)</source>
+        <translation type="gpt-4o-generated">Actuator Delay (Default: %1)</translation>
+    </message>
+    <message>
+        <source>Actuator Delay</source>
+        <translation type="gpt-4o-generated">Actuator Lag</translation>
+    </message>
+    <message>
+        <source>How long the steering wheel takes to respond to commands. Higher values account for slower steering; lower values for quicker response.</source>
+        <translation type="gpt-4o-generated">The time it takes for the steering wheel to respond to commands. Higher values indicate slower steering, while lower values mean a quicker response.</translation>
     </message>
     <message>
         <source>Friction (Default: %1)</source>
-        <translation type="gpt-4o-generated">Grip o' the sea (Default: %1)</translation>
+        <translation type="gpt-4o-generated">Friction (Default: %1)</translation>
     </message>
     <message>
         <source>Friction</source>
-        <translation type="gpt-4o-generated">Ye ol' grip</translation>
+        <translation type="gpt-4o-generated">Resistance</translation>
     </message>
     <message>
         <source>Adjust steering resistance. Higher values feel more stable but heavier; lower values feel lighter but more sensitive.</source>
-        <translation type="gpt-4o-generated">Tweak the helm's resistance. Higher values keep yer ship steady but feel heavier; lower values make it feel light but more responsive to the touch.</translation>
+        <translation type="gpt-4o-generated">Tweak steering resistance. Higher values feel steadier but heavier; lower values feel lighter yet more sensitive.</translation>
     </message>
     <message>
         <source>Kp Factor (Default: %1)</source>
-        <translation type="gpt-4o-generated">Kp Factor (Default: %1), matey!</translation>
+        <translation type="gpt-4o-generated">Kp Factor (Default: %1)</translation>
     </message>
     <message>
         <source>Kp Factor</source>
-        <translation type="gpt-4o-generated">Kp Factor, matey!</translation>
+        <translation type="gpt-4o-generated">Kp Factor</translation>
     </message>
     <message>
-        <source>Adjust how aggressively openpilot corrects steering. Higher values respond faster but may feel jerky; lower values respond more smoothly but slower.</source>
-        <translation type="gpt-4o-generated">Tweak how keenly openpilot navigates the ship's wheel. Crank it up fer swifter responses, though it might be a tad choppy; lower it fer a smoother sail, though a mite slower.</translation>
+        <source>How aggressively openpilot corrects steering. Higher values respond faster but may feel jerky; lower values are smoother but slower.</source>
+        <translation type="gpt-4o-generated">How aggressively openpilot adjusts steering. Higher values respond faster but may feel jerky; lower values are smoother but slower.</translation>
     </message>
     <message>
         <source>Lateral Accel (Default: %1)</source>
@@ -808,1869 +946,2165 @@
     </message>
     <message>
         <source>Lateral Accel</source>
-        <translation type="gpt-4o-generated">Sideways Surge</translation>
+        <translation type="gpt-4o-generated">Lateral Accel</translation>
     </message>
     <message>
-        <source>Control how quickly openpilot can steer laterally. Higher values allow faster maneuvers but may feel unstable; lower values provide smoother, slower steering.</source>
-        <translation type="gpt-4o-generated">Take the helm o' how swiftly openpilot can steer sideways. Settin' higher speeds gives ye quicker maneuvers but might feel like a choppy sea; lower speeds offer a smoother, steadier course.</translation>
+        <source>How quickly openpilot makes lateral adjustments. Higher values allow sharper turns; lower values provide smoother steering.</source>
+        <translation type="gpt-4o-generated">How swiftly openpilot makes lateral adjustments. Higher values enable sharper turns, while lower values offer smoother steering.</translation>
     </message>
     <message>
         <source>Steer Ratio (Default: %1)</source>
-        <translation type="gpt-4o-generated">Steerin' Ratio (Default: %1)</translation>
+        <translation type="gpt-4o-generated">Steering Ratio (Default: %1)</translation>
     </message>
     <message>
         <source>Steer Ratio</source>
-        <translation type="gpt-4o-generated">Helmsman's Ratio</translation>
+        <translation type="gpt-4o-generated">Steering Ratio</translation>
     </message>
     <message>
-        <source>Adjust how much the wheel turns to steer. Higher values feel like a truck—stable at speed but sluggish in corners; lower values feel like a go-kart—quick but twitchy.</source>
-        <translation type="gpt-4o-generated">Tweak how much the wheel spins to helm yer vessel. Higher values make it feel like a mighty galleon—steady on the open seas but lumbering in the turns; lower values make it feel like a swift sloop—nimble but a bit squirrely.</translation>
+        <source>How much the steering wheel turns in response to commands. Higher values feel more stable; lower values feel quicker.</source>
+        <translation type="gpt-4o-generated">How much the steering wheel turns in response to commands. Higher values feel more stable, while lower values feel quicker.</translation>
     </message>
     <message>
         <source>Force Auto Tune On</source>
-        <translation type="gpt-4o-generated">Hoist the sails and set Auto Tune to Full Speed</translation>
+        <translation type="gpt-4o-generated">Enable Auto Tune</translation>
     </message>
     <message>
-        <source>Force-enable comma’s auto lateral tuning for unsupported vehicles.</source>
-        <translation type="gpt-4o-generated">Arr, force-enable comma’s auto lateral tunin' for ships that be flyin' under the radar.</translation>
+        <source>Force-enable comma’s auto lateral tuning.</source>
+        <translation type="gpt-4o-generated">Force-enable the comma's automatic lateral tuning.</translation>
     </message>
     <message>
         <source>Force Auto Tune Off</source>
-        <translation type="gpt-4o-generated">Force Auto Tune to be Shuttin' Down</translation>
+        <translation type="gpt-4o-generated">Disable Auto Tune</translation>
     </message>
     <message>
-        <source>Force-disable comma’s auto lateral tuning for supported vehicles.</source>
-        <translation type="gpt-4o-generated">By Davy Jones' locker, make ol' comma's auto lateral tuning walk the plank for them supported vessels.</translation>
+        <source>Force-disable comma’s auto lateral tuning.</source>
+        <translation type="gpt-4o-generated">Disable the comma's automatic lateral tuning.</translation>
     </message>
     <message>
         <source>Always on Lateral</source>
-        <translation type="gpt-4o-generated">Lateral Always Aye</translation>
+        <translation type="gpt-4o-generated">Forever on Lateral</translation>
     </message>
     <message>
-        <source>openpilot's steering control stays active even when the brake or gas pedals are pressed.
-
-Deactivation only occurs with the "Cruise Control" button.</source>
-        <translation type="gpt-4o-generated">Arr, openpilot's wheel wranglin' stays on even when ye be stompin' on the brake or gas pedals.
-
-Deactivation only sets sail with the "Cruise Control" button.</translation>
-    </message>
-    <message>
-        <source>Control With LKAS Button</source>
-        <translation type="gpt-4o-generated">Steer the Ship With LKAS Button</translation>
-    </message>
-    <message>
-        <source>Control the current state of "Always on Lateral" with the "LKAS" button.</source>
-        <translation type="gpt-4o-generated">Command the ship's course, set "Always on Lateral" with the "LKAS" button.</translation>
+        <source>openpilot's steering control stays active even when the brake or gas pedals are pressed.&lt;br&gt;&lt;br&gt;Deactivation only occurs with the &lt;b&gt;Cruise Control&lt;/b&gt; button.</source>
+        <translation type="gpt-4o-generated">openpilot's steering control remains active even when the brake or gas pedals are pressed.&lt;br&gt;&lt;br&gt;Deactivation only happens with the &lt;b&gt;Cruise Control&lt;/b&gt; button.</translation>
     </message>
     <message>
         <source>Enable With Cruise Control</source>
-        <translation type="gpt-4o-generated">Set Sail With Cruise Control</translation>
+        <translation type="gpt-4o-generated">Activate With Cruise Control</translation>
     </message>
     <message>
-        <source>Allow "Always on Lateral" to be active whenever "Cruise Control" is active, bypassing the need to enable openpilot first.</source>
-        <translation type="gpt-4o-generated">Permit the "Always on Lateral" to sail alongside "Cruise Control" whenever it's on, skipping the usual need to hoist openpilot first.</translation>
+        <source>Allow &lt;b&gt;Always on Lateral&lt;/b&gt; to be active whenever &lt;b&gt;Cruise Control&lt;/b&gt; is active, bypassing the need to enable openpilot first.</source>
+        <translation type="gpt-4o-generated">Enable &lt;b&gt;Always on Lateral&lt;/b&gt; to function whenever &lt;b&gt;Cruise Control&lt;/b&gt; is active, eliminating the need to activate openpilot first.</translation>
+    </message>
+    <message>
+        <source>Enable With LKAS Button</source>
+        <translation type="gpt-4o-generated">Activate with LKAS Button</translation>
+    </message>
+    <message>
+        <source>Allow &lt;b&gt;Always on Lateral&lt;/b&gt; to be active whenever &lt;b&gt;LKAS&lt;/b&gt; is active, bypassing the need to enable openpilot first.</source>
+        <translation type="gpt-4o-generated">Enable &lt;b&gt;Always on Lateral&lt;/b&gt; to function whenever &lt;b&gt;LKAS&lt;/b&gt; is active, skipping the requirement to activate openpilot first.</translation>
     </message>
     <message>
         <source>Pause on Brake Below</source>
-        <translation type="gpt-4o-generated">Hold Yer Horses When Brake's Below</translation>
+        <translation type="gpt-4o-generated">Halt on Brake Below</translation>
     </message>
     <message>
-        <source>Temporarily disable "Always on Lateral" below the configured speed when the brake is pressed.</source>
-        <translation type="gpt-4o-generated">Temporarily disable "Always on Lateral" below the set speed once ye be pressin' the brake.</translation>
+        <source>Temporarily pause &lt;b&gt;Always on Lateral&lt;/b&gt; below the set speed when braking.</source>
+        <translation type="gpt-4o-generated">Temporarily halt &lt;b&gt;Always on Lateral&lt;/b&gt; below the set speed when applying the brakes.</translation>
     </message>
     <message>
         <source>Lane Changes</source>
-        <translation type="gpt-4o-generated">Course Shifts</translation>
+        <translation type="gpt-4o-generated">Switching Lanes</translation>
     </message>
     <message>
-        <source>Customize how openpilot handles lane changes.</source>
-        <translation type="gpt-4o-generated">Tweak how openpilot sails the ship through lane changes, yarrr!</translation>
+        <source>Customize how openpilot performs lane changes.</source>
+        <translation type="gpt-4o-generated">Tailor how openpilot executes lane changes.</translation>
     </message>
     <message>
         <source>Automatic Lane Changes</source>
-        <translation type="gpt-4o-generated">Auto Course Shifts</translation>
+        <translation type="gpt-4o-generated">Auto Lane Changes</translation>
     </message>
     <message>
-        <source>Automatically initiate lane changes when the turn signal is active — no steering input required!</source>
-        <translation type="gpt-4o-generated">Set sail for lane changes automatically when the turn signal be active — no need to grab the wheel, matey!</translation>
+        <source>Change lanes automatically when the turn signal is on. No steering input needed!</source>
+        <translation type="gpt-4o-generated">Automatically change lanes when the turn signal's on. No steering input required, matey!</translation>
     </message>
     <message>
         <source>Lane Change Delay</source>
-        <translation type="gpt-4o-generated">Delay 'fore a Lane Change</translation>
+        <translation type="gpt-4o-generated">Delay in Changing Lanes</translation>
     </message>
     <message>
-        <source>Delay automatic lane changes by the configured time.</source>
-        <translation type="gpt-4o-generated">Hoist anchor on automatic lane changes by the set time.</translation>
-    </message>
-    <message>
-        <source>Lane Detection Width</source>
-        <translation type="gpt-4o-generated">Width o' the Lane Detection</translation>
-    </message>
-    <message>
-        <source>openpilot won't initiate a lane change into detected lanes narrower than this width.</source>
-        <translation type="gpt-4o-generated">openpilot be refusin' to change lanes into detected lanes narrower than this width.</translation>
+        <source>Delay automatic lane changes by the set amount of time.</source>
+        <translation type="gpt-4o-generated">Delay automatic lane changes by the specified time.</translation>
     </message>
     <message>
         <source>Minimum Lane Change Speed</source>
-        <translation type="gpt-4o-generated">Minimum Rate o' Sailin' the Lane</translation>
+        <translation type="gpt-4o-generated">Minimum Speed for Lane Change</translation>
     </message>
     <message>
         <source>Minimum speed required for openpilot to perform a lane change.</source>
-        <translation type="gpt-4o-generated">Ye need t' be sailin' at least this speed fer openpilot to pull off a lane switch.</translation>
+        <translation type="gpt-4o-generated">Minimum speed needed for openpilot to execute a lane change.</translation>
     </message>
     <message>
-        <source>Only One Lane Change Per Signal</source>
-        <translation type="gpt-4o-generated">One Course Tweak Per Signal, Matey!</translation>
+        <source>Minimum Lane Width</source>
+        <translation type="gpt-4o-generated">Minimum Lane Width</translation>
+    </message>
+    <message>
+        <source>openpilot won't initiate a lane change into a lane narrower than this width.</source>
+        <translation type="gpt-4o-generated">openpilot won't start a lane change into a lane narrower than this width, matey.</translation>
+    </message>
+    <message>
+        <source>One Lane Change Per Signal</source>
+        <translation type="gpt-4o-generated">One Lane Change Per Signal</translation>
     </message>
     <message>
         <source>Limit lane changes to one per turn signal activation.</source>
-        <translation type="gpt-4o-generated">Restrict yer lane swappin' to one per flick o' the turn signal lantern.</translation>
+        <translation type="gpt-4o-generated">Restrict lane changes to one per turn signal use.</translation>
     </message>
     <message>
         <source>Lateral Tuning</source>
-        <translation type="gpt-4o-generated">Sideways Tinkerin'</translation>
+        <translation type="gpt-4o-generated">Sideways Tuning</translation>
     </message>
     <message>
         <source>Settings for fine-tuning openpilot's lateral controls.</source>
-        <translation type="gpt-4o-generated">Adjustments fer perfectin' openpilot's side-to-side steerage.</translation>
+        <translation type="gpt-4o-generated">Settings for adjusting openpilot's lateral controls.</translation>
     </message>
     <message>
         <source>Force Turn Desires Below Lane Change Speed</source>
-        <translation type="gpt-4o-generated">Compel the Lusts Beneath the Speed of Switchin' Lanes</translation>
+        <translation type="gpt-4o-generated">Compel Turn Desires Below Lane Change Speed</translation>
     </message>
     <message>
         <source>Force turn desires below the minimum lane change speed to improve turning accuracy.</source>
-        <translation type="gpt-4o-generated">Encourage yer turnin' wishes below the minimum lane change speed to sharpen yer turnin' accuracy, matey!</translation>
+        <translation type="gpt-4o-generated">Force turn desires below the minimum lane change speed to enhance turning accuracy.</translation>
     </message>
     <message>
         <source>Neural Network Feedforward (NNFF)</source>
         <translation type="gpt-4o-generated">Neural Network Feedforward (NNFF)</translation>
     </message>
     <message>
-        <source>Use Twilsonco's "Neural Network FeedForward" for smoother steering, trained on past driving data from your car model.</source>
-        <translation type="gpt-4o-generated">Set yer sails with Twilsonco's "Neural Network FeedForward" for smoother steering, trained on past voyages from yer trusty carriage model.</translation>
+        <source>Use &lt;b&gt;Twilsonco’s&lt;/b&gt; &lt;b&gt;Neural Network FeedForward&lt;/b&gt; model for smoother, model-based steering trained on your vehicle's data.</source>
+        <translation type="gpt-4o-generated">Employ &lt;b&gt;Twilsonco’s&lt;/b&gt; &lt;b&gt;Neural Network FeedForward&lt;/b&gt; model for smoother, model-based steering, trained on your vehicle's data, matey.</translation>
     </message>
     <message>
         <source>Smooth Curve Handling</source>
-        <translation type="gpt-4o-generated">Smooth Sailing 'Round the Bends</translation>
+        <translation type="gpt-4o-generated">Smooth Curve Navigation</translation>
     </message>
     <message>
-        <source>Smoothen steering control during curves using Twilsonco's torque adjustments.</source>
-        <translation type="gpt-4o-generated">Smooth sailin' through curves with Twilsonco's torque trickery.</translation>
+        <source>Use &lt;b&gt;Twilsonco’s&lt;/b&gt; torque-based adjustments to smooth out steering during curves.</source>
+        <translation type="gpt-4o-generated">Apply &lt;b&gt;Twilsonco’s&lt;/b&gt; torque-based adjustments to smooth steering through curves.</translation>
     </message>
     <message>
-        <source>Quality of Life Improvements</source>
-        <translation type="gpt-4o-generated">Life Aboard the Ship Be Gettin' Better</translation>
+        <source>Quality of Life</source>
+        <translation type="gpt-4o-generated">Life's Quality</translation>
     </message>
     <message>
-        <source>Miscellaneous lateral control features to improve your overall openpilot experience.</source>
-        <translation type="gpt-4o-generated">Various lateral control features to enhance yer openpilot journey, matey!</translation>
+        <source>Miscellaneous features to improve the steering experience.</source>
+        <translation type="gpt-4o-generated">Various features to enhance the steering experience.</translation>
     </message>
     <message>
         <source>Pause Steering Below</source>
-        <translation type="gpt-4o-generated">Avast Steering Below</translation>
+        <translation type="gpt-4o-generated">Halt Steering Below</translation>
     </message>
     <message>
-        <source>Pause steering control when driving below the configured speed.</source>
-        <translation type="gpt-4o-generated">Pause the helm's grip when sailin' below the set speed.</translation>
+        <source>Temporarily pause steering control below the set speed.</source>
+        <translation type="gpt-4o-generated">Pause steering control temporarily when speed falls below the set limit.</translation>
     </message>
     <message>
         <source>Instant</source>
-        <translation type="gpt-4o-generated">Right away, matey!</translation>
+        <translation type="gpt-4o-generated">Swift</translation>
     </message>
     <message>
-        <source>Are you sure you want to completely reset your "Friction" values?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to fully reset yer "Friction" values, matey?</translation>
+        <source> second</source>
+        <translation type="gpt-4o-generated">second</translation>
     </message>
     <message>
-        <source>Are you sure you want to completely reset your "Kp Factor" values?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to hoist new sails and reset yer "Kp Factor" values completely?</translation>
+        <source> seconds</source>
+        <translation type="gpt-4o-generated">seconds</translation>
     </message>
     <message>
-        <source>Are you sure you want to completely reset your "Lateral Accel" values?</source>
-        <translation type="gpt-4o-generated">Arr ye certain ye wish to fully reset yer "Lateral Accel" values, matey?</translation>
+        <source>Turn Signal Only</source>
+        <translation type="gpt-4o-generated">Turn Signal Alone</translation>
     </message>
     <message>
-        <source>Are you sure you want to completely reset your "Steer Ratio" values?</source>
-        <translation type="gpt-4o-generated">Are ye certain ye wish to reset yer "Steer Ratio" values entirely?</translation>
+        <source>Are you sure you want to completely reset your &lt;b&gt;Actuator Delay&lt;/b&gt;?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye wish to fully reset yer &lt;b&gt;Actuator Delay&lt;/b&gt;?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset your &lt;b&gt;Friction&lt;/b&gt;?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye wish to fully reset yer &lt;b&gt;Friction&lt;/b&gt;?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset your &lt;b&gt;Kp Factor&lt;/b&gt;?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye wish to fully reset yer &lt;b&gt;Kp Factor&lt;/b&gt;?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset your &lt;b&gt;Lateral Accel&lt;/b&gt;?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye wish to fully reset yer &lt;b&gt;Lateral Accel&lt;/b&gt;?</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset your &lt;b&gt;Steer Ratio&lt;/b&gt;?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye wish to fully reset yer &lt;b&gt;Steer Ratio&lt;/b&gt;?</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="gpt-4o-generated">Arrr, Off</translation>
+        <translation type="gpt-4o-generated">Off</translation>
     </message>
     <message>
-        <source> meters</source>
-        <translation type="gpt-4o-generated">nautical meters</translation>
-    </message>
-    <message>
-        <source>km/h</source>
-        <translation type="gpt-4o-generated">km/h</translation>
+        <source> foot</source>
+        <translation type="gpt-4o-generated">foot</translation>
     </message>
     <message>
         <source> feet</source>
-        <translation type="gpt-4o-generated">booty-steppin' units</translation>
+        <translation type="gpt-4o-generated">feet</translation>
     </message>
     <message>
-        <source>mph</source>
-        <translation type="gpt-4o-generated">knots per hour</translation>
+        <source> mph</source>
+        <translation type="gpt-4o-generated">mph</translation>
+    </message>
+    <message>
+        <source> meter</source>
+        <translation type="gpt-4o-generated">gauge</translation>
+    </message>
+    <message>
+        <source> meters</source>
+        <translation type="gpt-4o-generated">metres</translation>
+    </message>
+    <message>
+        <source> km/h</source>
+        <translation type="gpt-4o-generated">km/h</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotLongitudinalPanel</name>
     <message>
-        <source>Conditional Experimental Mode</source>
-        <translation type="gpt-4o-generated">Conditional Experimental Voyage Mode</translation>
+        <source>Advanced Longitudinal Tuning</source>
+        <translation type="gpt-4o-generated">Advanced Longitudinal Adjustments</translation>
     </message>
     <message>
-        <source>Automatically switch to 'Experimental Mode' when specific conditions are met.</source>
-        <translation type="gpt-4o-generated">Set sail for 'Experimental Mode' automatically when the right conditions be met.</translation>
+        <source>Advanced settings for customizing how openpilot handles acceleration and braking.</source>
+        <translation type="gpt-4o-generated">Advanced settings for customizing how openpilot manages acceleration and braking.</translation>
+    </message>
+    <message>
+        <source>Actuator Delay (Default: %1)</source>
+        <translation type="gpt-4o-generated">Actuator Delay (Default: %1)</translation>
+    </message>
+    <message>
+        <source>Actuator Delay</source>
+        <translation type="gpt-4o-generated">Actuator Lag</translation>
+    </message>
+    <message>
+        <source>Delay before throttle or brake takes effect. Higher values smooth slow actuators but can feel laggy; lower values react quicker but may overshoot.</source>
+        <translation type="gpt-4o-generated">Delay before throttle or brake takes effect. Higher values smooth slow actuators but may feel laggy; lower values react quicker but might overshoot.</translation>
+    </message>
+    <message>
+        <source>Start Acceleration (Default: %1)</source>
+        <translation type="gpt-4o-generated">Begin Acceleration (Default: %1)</translation>
+    </message>
+    <message>
+        <source>Start Acceleration</source>
+        <translation type="gpt-4o-generated">Begin Acceleration</translation>
+    </message>
+    <message>
+        <source>Extra acceleration applied when pulling away from a stop. Increase for snappier launches at the cost of smoothness; decrease for gentler starts.</source>
+        <translation type="gpt-4o-generated">Additional acceleration is applied when pulling away from a stop. Increase it for snappier launches at the cost of smoothness, or decrease it for gentler starts.</translation>
+    </message>
+    <message>
+        <source>Start Speed (Default: %1)</source>
+        <translation type="gpt-4o-generated">Initial Speed (Default: %1)</translation>
+    </message>
+    <message>
+        <source>Start Speed</source>
+        <translation type="gpt-4o-generated">Begin Velocity</translation>
+    </message>
+    <message>
+        <source>Speed where openpilot begins to exit the stopped state. Higher values avoid creeping but may feel sluggish; lower values move sooner but risk creeping.</source>
+        <translation type="gpt-4o-generated">Speed at which openpilot exits the stopped state. Higher values prevent creeping but may feel sluggish; lower values move sooner but risk creeping.</translation>
+    </message>
+    <message>
+        <source>Stop Acceleration (Default: %1)</source>
+        <translation type="gpt-4o-generated">Halt Acceleration (Default: %1)</translation>
+    </message>
+    <message>
+        <source>Stop Acceleration</source>
+        <translation type="gpt-4o-generated">Halt Acceleration</translation>
+    </message>
+    <message>
+        <source>Brake force applied to hold the vehicle still. Larger values prevent creeping on hills but might jerk to a stop. Smaller values can feel smoother but may allow rolling.</source>
+        <translation type="gpt-4o-generated">Brake force applied to keep the vehicle steady. Larger values stop creeping on hills but might cause a sudden halt. Smaller values feel smoother but may permit rolling.</translation>
+    </message>
+    <message>
+        <source>Stopping Rate (Default: %1)</source>
+        <translation type="gpt-4o-generated">Default Stopping Rate: %1</translation>
+    </message>
+    <message>
+        <source>Stopping Rate</source>
+        <translation type="gpt-4o-generated">Rate of Stoppin'</translation>
+    </message>
+    <message>
+        <source>How quickly braking ramps up when stopping. Faster rates shorten stopping distance but can be harsh; slower rates are smoother but need more room.</source>
+        <translation type="gpt-4o-generated">How swiftly braking intensifies when halting. Faster rates reduce stopping distance but can be harsh; slower rates are smoother but require more space.</translation>
+    </message>
+    <message>
+        <source>Stop Speed (Default: %1)</source>
+        <translation type="gpt-4o-generated">Halt Speed (Default: %1)</translation>
+    </message>
+    <message>
+        <source>Stop Speed</source>
+        <translation type="gpt-4o-generated">Halt Speed</translation>
+    </message>
+    <message>
+        <source>Speed where openpilot beings to enter the stopped state. Higher values brake earlier for smoother stops but might stop too soon; lower values wait longer and can overshoot.</source>
+        <translation type="gpt-4o-generated">Speed at which openpilot starts entering the stopped state. Higher values brake earlier for smoother stops but might halt too soon; lower values delay and can overshoot.</translation>
+    </message>
+    <message>
+        <source>Conditional Experimental Mode</source>
+        <translation type="gpt-4o-generated">Experimental Mode: Conditional</translation>
+    </message>
+    <message>
+        <source>Automatically switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when set conditions are met.</source>
+        <translation type="gpt-4o-generated">Automatically switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when the set conditions are met.</translation>
     </message>
     <message>
         <source>Below</source>
-        <translation type="gpt-4o-generated">Below deck</translation>
+        <translation type="gpt-4o-generated">Underneath</translation>
     </message>
     <message>
-        <source>Triggers 'Experimental Mode' when driving below the set speed without a lead vehicle.</source>
-        <translation type="gpt-4o-generated">Hoists the sails on 'Experimental Mode' when ye be drivin' below the set speed with no lead vessel in sight.</translation>
+        <source>Switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when driving below this speed.</source>
+        <translation type="gpt-4o-generated">Switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when sailing below this speed.</translation>
     </message>
     <message>
         <source>Curve Detected Ahead</source>
-        <translation type="gpt-4o-generated">Aye, a Bend Lies Ahead</translation>
+        <translation type="gpt-4o-generated">Curve Spotted Ahead</translation>
     </message>
     <message>
-        <source>Triggers 'Experimental Mode' when a curve is detected in the road ahead.</source>
-        <translation type="gpt-4o-generated">Unfurls the sails of 'Experimental Mode' when a curve looms ahead on the horizon.</translation>
+        <source>Switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when a curve is detected ahead. Useful for letting the model choose the appropriate speed for the curve.</source>
+        <translation type="gpt-4o-generated">Activate &lt;b&gt;Experimental Mode&lt;/b&gt; when a curve is spotted ahead. Handy for allowing the model to select the right speed for the curve.</translation>
     </message>
     <message>
         <source>Lead Detected Ahead</source>
-        <translation type="gpt-4o-generated">Scallywag Spotted Ahead</translation>
+        <translation type="gpt-4o-generated">Lead Spotted Ahead</translation>
     </message>
     <message>
-        <source>Triggers 'Experimental Mode' when a slower or stopped vehicle is detected ahead.</source>
-        <translation type="gpt-4o-generated">Hoists the colors for 'Experimental Mode' when a sluggish or anchored vessel be spotted ahead.</translation>
+        <source>Switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when a slower or stopped vehicle is detected ahead. Can improve braking smoothness and reliability on some vehicles.</source>
+        <translation type="gpt-4o-generated">Activate &lt;b&gt;Experimental Mode&lt;/b&gt; when a slower or stopped vehicle is detected ahead. This can enhance braking smoothness and reliability on some vehicles.</translation>
     </message>
     <message>
         <source>Navigation Data</source>
-        <translation type="gpt-4o-generated">Nautical Charts</translation>
+        <translation type="gpt-4o-generated">Navigation Info</translation>
     </message>
     <message>
-        <source>Triggers 'Experimental Mode' based on navigation data, such as upcoming intersections or turns.</source>
-        <translation type="gpt-4o-generated">Hoists the sails of 'Experimental Mode' using navigation bearings, like oncoming crossroads or swerves.</translation>
+        <source>Switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when approaching intersections or turns on the active route while using &lt;b&gt;Navigate on openpilot (NOO)&lt;/b&gt;. Useful for letting the model choose the appropriate speed for upcoming navigation maneuvers.</source>
+        <translation type="gpt-4o-generated">Engage &lt;b&gt;Experimental Mode&lt;/b&gt; when nearing intersections or turns on the active route while using &lt;b&gt;Navigate on openpilot (NOO)&lt;/b&gt;. This helps the model select the right speed for upcoming navigation maneuvers.</translation>
     </message>
     <message>
         <source>openpilot Wants to Stop In</source>
-        <translation type="gpt-4o-generated">openpilot Be Eager to Drop Anchor</translation>
+        <translation type="gpt-4o-generated">openpilot Wishes to Halt</translation>
     </message>
     <message>
-        <source>Triggers 'Experimental Mode' when openpilot wants to stop such as for a stop sign or red light.</source>
-        <translation type="gpt-4o-generated">Hoists the 'Experimental Mode' flag when openpilot seeks to bring the vessel to a halt, like when spyin' a stop sign or a red lantern.</translation>
+        <source>Switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when openpilot wants to stop within the set amount of time. This is typically triggered by the driving model "detecting" a red light or stop sign.</source>
+        <translation type="gpt-4o-generated">Switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when openpilot aims to halt within the set time. This usually happens when the driving model "detects" a red light or stop sign.</translation>
     </message>
     <message>
         <source>Turn Signal Below</source>
-        <translation type="gpt-4o-generated">Signal Lantern Below, matey!</translation>
+        <translation type="gpt-4o-generated">Signal Below</translation>
     </message>
     <message>
-        <source>Triggers 'Experimental Mode' when using turn signals below the set speed.</source>
-        <translation type="gpt-4o-generated">Hoists the flag of 'Experimental Mode' when ye be usin' turn signals below the set speed.</translation>
+        <source>Switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when using a turn signal below the set speed. Useful for letting the model choose the appropriate speed for upcoming left or right turns.</source>
+        <translation type="gpt-4o-generated">Switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when using a turn signal below the set speed. Handy for letting the model select the right speed for upcoming left or right turns.</translation>
     </message>
     <message>
         <source>Status Widget</source>
-        <translation type="gpt-4o-generated">Status Parchment</translation>
+        <translation type="gpt-4o-generated">Status Display</translation>
     </message>
     <message>
-        <source>Show the current status in the onroad UI.</source>
-        <translation type="gpt-4o-generated">Reveal the current state o' affairs on the onroad UI, me heartie!</translation>
+        <source>Show the &lt;b&gt;Conditional Experimental Mode&lt;/b&gt; status on the driving screen.</source>
+        <translation type="gpt-4o-generated">Display the &lt;b&gt;Conditional Experimental Mode&lt;/b&gt; status on the driving screen.</translation>
     </message>
     <message>
-        <source>Curve Speed Control</source>
-        <translation type="gpt-4o-generated">Curved Paths Aye-Speed Management</translation>
-    </message>
-    <message>
-        <source>Automatically slow down for curves detected ahead or through the downloaded maps.</source>
-        <translation type="gpt-4o-generated">Hoist the sails and ease the speed when curves be spied ahead or found on the charts ye've downloaded.</translation>
-    </message>
-    <message>
-        <source>Curve Detection Method</source>
-        <translation type="gpt-4o-generated">Chartin' the Course Method</translation>
-    </message>
-    <message>
-        <source>Uses data from either the downloaded maps or the model to determine where curves are.</source>
-        <translation type="gpt-4o-generated">Yarr! It be usin' data from either the downloaded treasure maps or the trusty model to spy where them curves be hidin'.</translation>
-    </message>
-    <message>
-        <source>Curve Detection Failsafe</source>
-        <translation type="gpt-4o-generated">Curve Detection Failsafe, Arrr</translation>
-    </message>
-    <message>
-        <source>Triggers 'Curve Speed Control' only when a curve is detected with the model as well when using the 'Map Based' method.</source>
-        <translation type="gpt-4o-generated">Hoists the sails on 'Curve Speed Control' when the model spies a curve on the horizon, as well as when navigatin' with the 'Map Based' method.</translation>
-    </message>
-    <message>
-        <source>Curve Detection Sensitivity</source>
-        <translation type="gpt-4o-generated">Sensitivity o' Detectin' Curves</translation>
-    </message>
-    <message>
-        <source>Controls how sensitive openpilot is to detecting curves. Higher values trigger earlier responses at the risk of triggering too often, while lower values increase confidence at the risk of triggering too infrequently.</source>
-        <translation type="gpt-4o-generated">Arrr, this be settin' the sensitivity o' openpilot to spy out curves. Raise the value and ye'll get quicker responses, but beware, it might holler too often. Lower the value, and ye'll have more confidence, but it might not speak up when needed.</translation>
-    </message>
-    <message>
-        <source>Speed Aggressiveness</source>
-        <translation type="gpt-4o-generated">Speed Swagger, Matey!</translation>
-    </message>
-    <message>
-        <source>Controls how aggressive openpilot takes turns. Higher values result in faster turns, while lower values result in slower turns.</source>
-        <translation type="gpt-4o-generated">Manages how bold openpilot tackles the bends. Higher values mean swifter turns, while lower values mean more leisurely turns.</translation>
-    </message>
-    <message>
-        <source>Reset Curve Data</source>
-        <translation type="gpt-4o-generated">Hoist the Anchor on Curve Data</translation>
-    </message>
-    <message>
-        <source>Resets the data for the 'Smart' 'Curve Detection Method'.</source>
-        <translation type="gpt-4o-generated">Hoists the sails and resets the data fer the 'Smart' 'Curve Detection Method'.</translation>
-    </message>
-    <message>
-        <source>Hide Desired Speed Widget From UI</source>
-        <translation type="gpt-4o-generated">Stow Desired Speed Widget From Yer View</translation>
-    </message>
-    <message>
-        <source>Hides the desired speed widget from the onroad UI.</source>
-        <translation type="gpt-4o-generated">Stashes away the speedin' widget from the onroad UI, matey.</translation>
+        <source>Show &lt;b&gt;Curve Speed Control&lt;/b&gt;'s desired speed on the driving screen.</source>
+        <translation type="gpt-4o-generated">Display &lt;b&gt;Curve Speed Control&lt;/b&gt;'s target speed on the driving screen.</translation>
     </message>
     <message>
         <source>Customize Driving Personalities</source>
-        <translation type="gpt-4o-generated">Set Sail with Yer Driving Personalities</translation>
+        <translation type="gpt-4o-generated">Tailor Driving Personalities</translation>
     </message>
     <message>
-        <source>Customize the personality profiles to suit your driving style.</source>
-        <translation type="gpt-4o-generated">Tailor the personality profiles to match yer own swashbucklin' drivin' style.</translation>
+        <source>Customize the personality profiles to your driving style.</source>
+        <translation type="gpt-4o-generated">Tailor the personality profiles to match your driving style, matey.</translation>
     </message>
     <message>
         <source>Traffic Personality</source>
-        <translation type="gpt-4o-generated">Traffic Persona, ye swashbuckler!</translation>
+        <translation type="gpt-4o-generated">Traffic Persona</translation>
     </message>
     <message>
-        <source>Customizes the 'Traffic' personality profile, tailored for navigating through traffic.</source>
-        <translation type="gpt-4o-generated">Tailors the 'Traffic' persona, crafted for smooth sailin' through the hustle 'n bustle.</translation>
+        <source>Customize the &lt;b&gt;Traffic&lt;/b&gt; personality profile. Tailored for navigating through traffic.</source>
+        <translation type="gpt-4o-generated">Personalize the &lt;b&gt;Traffic&lt;/b&gt; personality profile. Designed for steering through traffic.</translation>
     </message>
     <message>
         <source>Following Distance</source>
-        <translation type="gpt-4o-generated">Following Distance, matey!</translation>
+        <translation type="gpt-4o-generated">Distance Between Vessels</translation>
     </message>
     <message>
-        <source>Controls the minimum following distance in 'Traffic' mode. openpilot will automatically dynamically between this value and the 'Aggressive' profile distance based on your current speed.</source>
-        <translation type="gpt-4o-generated">Steers the ship’s course fer the closest tailin’ distance in 'Traffic' mode. openpilot be automatically adjustin’ smartly between this here value and the 'Aggressive' profile distance based on yer current speed, savvy?</translation>
+        <source>The minimum following distance while in &lt;b&gt;Traffic Mode&lt;/b&gt;. openpilot will dynamically adjust between this value and the value in the &lt;b&gt;Aggressive&lt;/b&gt; profile based on your current speed.</source>
+        <translation type="gpt-4o-generated">The minimum following distance while in &lt;b&gt;Traffic Mode&lt;/b&gt; is dynamically adjusted by openpilot between this value and the one in the &lt;b&gt;Aggressive&lt;/b&gt; profile, depending on your current speed.</translation>
     </message>
     <message>
         <source>Acceleration Sensitivity</source>
-        <translation type="gpt-4o-generated">Sensitivity to Acceleration, Arrr!</translation>
+        <translation type="gpt-4o-generated">Acceleration Sensitivity, matey</translation>
     </message>
     <message>
-        <source>Controls how sensitive openpilot is to changes in acceleration in 'Traffic' mode. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
-        <translation type="gpt-4o-generated">Adjusts how keenly openpilot responds to shifts in acceleration when sailin' in 'Traffic' mode. Hoistin' the values makes for smoother and more gentle acceleration, while droppin' 'em allows for swifter, more sprightly changes that might feel a bit brisk.</translation>
+        <source>How sensitive openpilot is to changes in acceleration while in &lt;b&gt;Traffic Mode&lt;/b&gt;. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">How sensitive openpilot is to changes in acceleration while in &lt;b&gt;Traffic Mode&lt;/b&gt;. Higher values lead to smoother, more gradual acceleration, while lower values permit quicker, more responsive changes that might feel abrupt.</translation>
     </message>
     <message>
         <source>Deceleration Sensitivity</source>
-        <translation type="gpt-4o-generated">Ease o' Slowing Sensitivity</translation>
+        <translation type="gpt-4o-generated">Deceleration Sensitivity</translation>
     </message>
     <message>
-        <source>Controls how sensitive openpilot is to changes in deceleration in 'Traffic' mode. Higher values result in smoother, more gradual deceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
-        <translation type="gpt-4o-generated">Tweak this here sail to decide how sharp openpilot be actin' when slowin' down in 'Traffic' mode. Crank it up fer smoother, easy-goin' deceleration, or dial it down if ye fancy quick, snappy reactions that might jolt ye a bit.</translation>
+        <source>How sensitive openpilot is to changes in deceleration while in &lt;b&gt;Traffic Mode&lt;/b&gt;. Higher values result in smoother, more gradual deceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">How sensitive openpilot is to changes in deceleration while in &lt;b&gt;Traffic Mode&lt;/b&gt;. Higher values lead to smoother, more gradual deceleration, while lower values permit quicker, more responsive changes that might feel abrupt.</translation>
     </message>
     <message>
         <source>Safety Distance Sensitivity</source>
-        <translation type="gpt-4o-generated">Safety Distance Sensitivity --&gt; Safety Distance Sensitivity, matey!</translation>
+        <translation type="gpt-4o-generated">Sensitivity to Safety Distance</translation>
     </message>
     <message>
-        <source>Adjusts how cautious openpilot is around other vehicles or obstacles in 'Traffic' mode. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.</source>
-        <translation type="gpt-4o-generated">Tweak how wary the openpilot be when sailin' near other vessels or obstacles in 'Traffic' mode. Higher values stretch the followin' distances and put safety at the helm, leadin' to more cautious steerage, while lower values let ye sail closer but might trim the reaction time a bit.</translation>
+        <source>How cautious openpilot is around other vehicles or obstacles while in &lt;b&gt;Traffic Mode&lt;/b&gt;. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.</source>
+        <translation type="gpt-4o-generated">How cautious openpilot is around other vehicles or obstacles while in &lt;b&gt;Traffic Mode&lt;/b&gt;. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time, matey.</translation>
     </message>
     <message>
-        <source>Speed Increase Responsiveness</source>
-        <translation type="gpt-4o-generated">Boost Yer Speed Response</translation>
+        <source>Speed Decrease Response</source>
+        <translation type="gpt-4o-generated">Response to Reduced Speed</translation>
     </message>
     <message>
-        <source>Controls how quickly openpilot increases speed in 'Traffic' mode. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
-        <translation type="gpt-4o-generated">Steers the ship on how swiftly openpilot hoists the sails in 'Traffic' mode. Higher numbers make for a smoother, more gentle ride when pickin' up speed, while lower numbers let ye feel the wind in yer hair with quicker, more lively bursts, though it might be a bit jarring.</translation>
+        <source>How quickly openpilot decreases speed while in &lt;b&gt;Traffic Mode&lt;/b&gt;. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">How swiftly openpilot reduces speed in &lt;b&gt;Traffic Mode&lt;/b&gt;. Higher values guarantee smoother, more gradual speed adjustments when slowing down, while lower values permit quicker, more responsive changes that might feel abrupt.</translation>
     </message>
     <message>
-        <source>Speed Decrease Responsiveness</source>
-        <translation type="gpt-4o-generated">Speed Decrease Nimbleness, aye!</translation>
+        <source>Speed Increase Response</source>
+        <translation type="gpt-4o-generated">Response to Speed Increase</translation>
     </message>
     <message>
-        <source>Controls how quickly openpilot decreases speed in 'Traffic' mode. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
-        <translation type="gpt-4o-generated">Handles how swift 'n steady openpilot eases the sails in 'Traffic' mode. Higher values make for a gentler, smoother slowing down, while lower ones promise a quicker, snappier shift that might feel a tad sudden.</translation>
+        <source>How quickly openpilot increases speed while in &lt;b&gt;Traffic Mode&lt;/b&gt;. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">How swiftly openpilot boosts speed in &lt;b&gt;Traffic Mode&lt;/b&gt;. Higher values provide smoother, more gradual acceleration, while lower values permit quicker, more responsive changes that might feel abrupt.</translation>
     </message>
     <message>
         <source>Reset Settings</source>
-        <translation type="gpt-4o-generated">Hoist The Sails!</translation>
+        <translation type="gpt-4o-generated">Restore Settings</translation>
     </message>
     <message>
-        <source>Restores the 'Traffic Mode' settings to their default values.</source>
-        <translation type="gpt-4o-generated">Returns the 'Traffic Mode' settings to their original state, like a compass finding north.</translation>
+        <source>Reset &lt;b&gt;Traffic Mode&lt;/b&gt; settings to default values.</source>
+        <translation type="gpt-4o-generated">Restore &lt;b&gt;Traffic Mode&lt;/b&gt; settings to their default values.</translation>
     </message>
     <message>
         <source>Aggressive Personality</source>
-        <translation type="gpt-4o-generated">Feisty Disposition</translation>
+        <translation type="gpt-4o-generated">Bold Demeanor</translation>
     </message>
     <message>
-        <source>Customize the 'Aggressive' personality profile, designed for a more assertive driving style.</source>
-        <translation type="gpt-4o-generated">Tweak the 'Aggressive' personality profile, crafted fer a bold and daring sail on the roads.</translation>
+        <source>Customize the &lt;b&gt;Aggressive&lt;/b&gt; personality profile. Designed for a more assertive driving style.</source>
+        <translation type="gpt-4o-generated">Tailor the &lt;b&gt;Aggressive&lt;/b&gt; personality profile. Crafted for a bolder driving style.</translation>
     </message>
     <message>
-        <source>Sets the following distance for 'Aggressive' mode. This determines roughly how many seconds you'll follow behind the car ahead.
-
-Default: 1.25 seconds.</source>
-        <translation type="gpt-4o-generated">Sets the followin' distance fer 'Aggressive' mode. This decides 'bout how many seconds ye'll be tailin' the ship ahead.
-
-Default: 1.25 seconds.</translation>
+        <source>How many seconds openpilot will follow behind lead vehicles while using the &lt;b&gt;Aggressive&lt;/b&gt; personality profile.&lt;br&gt;&lt;br&gt;Default: 1.25 seconds.</source>
+        <translation type="gpt-4o-generated">How many seconds will openpilot trail behind lead vehicles when using the &lt;b&gt;Aggressive&lt;/b&gt; personality profile?&lt;br&gt;&lt;br&gt;Default: 1.25 seconds.</translation>
     </message>
     <message>
-        <source>Controls how sensitive openpilot is to changes in acceleration in 'Aggressive' mode. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.
-
-Default: 0.5.</source>
-        <translation type="gpt-4o-generated">Adjusts how keen openpilot be to shifts in acceleration when sailin' in 'Aggressive' mode. Raise the values for a smoother, more leisurely acceleration, while lowering 'em lets ye experience snappier, more lively changes which might feel a bit sudden.
-
-Default: 0.5.</translation>
+        <source>How sensitive openpilot is to changes in acceleration while using the &lt;b&gt;Aggressive&lt;/b&gt; personality profile. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">How sensitive openpilot be to shifts in acceleration when using the &lt;b&gt;Aggressive&lt;/b&gt; personality profile. Higher values lead to smoother, more gradual acceleration, while lower values permit quicker, more responsive changes that might feel abrupt.</translation>
     </message>
     <message>
-        <source>Controls how sensitive openpilot is to changes in deceleration in 'Aggressive' mode. Higher values result in smoother, more gradual deceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.
-
-Default: 0.5.</source>
-        <translation type="gpt-4o-generated">Guides how keenly openpilot reacts to changes in deceleration when sailin' in 'Aggressive' mode. Higher values lead to smoother, more leisurely deceleration, while lower values permit swifter, more spirited changes that might feel a bit sudden.
-
-Default: 0.5.</translation>
+        <source>How sensitive openpilot is to changes in deceleration while using the &lt;b&gt;Aggressive&lt;/b&gt; personality profile. Higher values result in smoother, more gradual deceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">How sensitive openpilot is to changes in deceleration when using the &lt;b&gt;Aggressive&lt;/b&gt; personality profile. Higher values lead to smoother, more gradual deceleration, while lower values permit quicker, more responsive changes that might feel abrupt.</translation>
     </message>
     <message>
-        <source>Adjusts how cautious openpilot is around other vehicles or obstacles in 'Aggressive' mode. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Tweak how wary openpilot be 'round other vessels or obstacles in 'Aggressive' mode. Raise the numbers fer greater distance 'n safety, makin' fer a more cautious journey, while lowerin' 'em lets ye sail closer but might trim down yer reaction time.
-
-Default: 1.0.</translation>
+        <source>How cautious openpilot is around other vehicles or obstacles while using the &lt;b&gt;Aggressive&lt;/b&gt; personality profile. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.</source>
+        <translation type="gpt-4o-generated">How cautious openpilot is around other vehicles or obstacles when using the &lt;b&gt;Aggressive&lt;/b&gt; personality profile. Higher values increase following distances and prioritize safety, resulting in more cautious driving. Lower values allow for closer following but may reduce reaction time.</translation>
     </message>
     <message>
-        <source>Controls how quickly openpilot increases speed in 'Aggressive' mode. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.
-
-Default: 0.5.</source>
-        <translation type="gpt-4o-generated">Arrr, this be the setting that guides how swiftly openpilot hoists the sails in 'Aggressive' mode. Higher values bring a smoother, more leisurely rise in speed when ye be acceleratin', while lower values make for quicker, more spirited changes that might feel a wee bit sudden.
-
-Default: 0.5.</translation>
+        <source>How quickly openpilot decreases speed while using the &lt;b&gt;Aggressive&lt;/b&gt; personality profile. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">How swiftly openpilot reduces speed with the &lt;b&gt;Aggressive&lt;/b&gt; personality profile. Higher values guarantee smoother, more gradual speed adjustments when slowing down, while lower values permit quicker, more responsive changes that might feel abrupt.</translation>
     </message>
     <message>
-        <source>Controls how quickly openpilot decreases speed in 'Aggressive' mode. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.
-
-Default: 0.5.</source>
-        <translation type="gpt-4o-generated">Steers how swiftly openpilot eases off the speed in 'Aggressive' mode. Higher values give ye a smoother, more gentle slowdown, while lower values let ye experience quicker, more lively changes that might feel a tad sudden.
-
-Default: 0.5.</translation>
+        <source>How quickly openpilot increases speed while using the &lt;b&gt;Aggressive&lt;/b&gt; personality profile. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">How swiftly openpilot boosts speed with the &lt;b&gt;Aggressive&lt;/b&gt; personality profile. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.</translation>
     </message>
     <message>
-        <source>Restores the 'Aggressive' settings to their default values.</source>
-        <translation type="gpt-4o-generated">Returns th' 'Aggressive' settings to their original state, savvy?</translation>
+        <source>Reset the &lt;b&gt;Aggressive&lt;/b&gt; personality profile settings to default values.</source>
+        <translation type="gpt-4o-generated">Restore the &lt;b&gt;Aggressive&lt;/b&gt; personality profile settings to their default values.</translation>
     </message>
     <message>
         <source>Standard Personality</source>
-        <translation type="gpt-4o-generated">Regular Ol' Matey</translation>
+        <translation type="gpt-4o-generated">Typical Character</translation>
     </message>
     <message>
-        <source>Customize the 'Standard' personality profile, optimized for balanced driving.</source>
-        <translation type="gpt-4o-generated">Set sail to customize the 'Standard' personality profile, crafted for smooth and balanced drivin'.</translation>
+        <source>Customize the &lt;b&gt;Standard&lt;/b&gt; personality profile. Designed for a balanced driving style.</source>
+        <translation type="gpt-4o-generated">Tailor the &lt;b&gt;Standard&lt;/b&gt; personality profile. Crafted for a balanced driving style.</translation>
     </message>
     <message>
-        <source>Set the following distance for 'Standard' mode. This determines roughly how many seconds you'll follow behind the car ahead.
-
-Default: 1.45 seconds.</source>
-        <translation type="gpt-4o-generated">Chart yer course for followin' distance in 'Standard' mode, matey. This be decidin' how many ticks o' the clock ye'll trail the vessel ahead.
-
-Default: 1.45 seconds.</translation>
+        <source>How many seconds openpilot will follow behind lead vehicles while using the &lt;b&gt;Standard&lt;/b&gt; personality profile.&lt;br&gt;&lt;br&gt;Default: 1.45 seconds.</source>
+        <translation type="gpt-4o-generated">How many seconds will openpilot trail behind lead vehicles when using the &lt;b&gt;Standard&lt;/b&gt; personality profile?&lt;br&gt;&lt;br&gt;Default: 1.45 seconds.</translation>
     </message>
     <message>
-        <source>Controls how sensitive openpilot is to changes in acceleration in 'Standard' mode. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Sets how sharp-eyed openpilot be in noticing changes in acceleration when sailin' in 'Standard' mode. Raise the stakes for a smoother, more leisurely pace, or lower 'em for a nimbler, swifter ride that might feel a bit sudden-like.
-
-Default: 1.0.</translation>
+        <source>How sensitive openpilot is to changes in acceleration while using the &lt;b&gt;Standard&lt;/b&gt; personality profile. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">How sensitive openpilot be to shifts in acceleration when using the &lt;b&gt;Standard&lt;/b&gt; personality profile. Higher values lead to smoother, more gradual acceleration, while lower values permit quicker, more responsive changes that might feel abrupt.</translation>
     </message>
     <message>
-        <source>Controls how sensitive openpilot is to changes in deceleration in 'Standard' mode. Higher values result in smoother braking, while lower values allow for quicker, more immediate braking that may feel abrupt.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Steers how keen openpilot be when it senses the ship's slowing down in 'Standard' mode. Hoist the values for a gentler, smoother halt, but drop 'em for a swifter, sharper stop that might feel a tad sudden.
-
-Default: 1.0.</translation>
+        <source>How sensitive openpilot is to changes in deceleration while using the &lt;b&gt;Standard&lt;/b&gt; personality profile. Higher values result in smoother, more gradual deceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">How sensitive openpilot be to changes in deceleration when using the &lt;b&gt;Standard&lt;/b&gt; personality profile. Higher values lead to smoother, more gradual deceleration, while lower values allow for quicker, more responsive changes that might feel abrupt.</translation>
     </message>
     <message>
-        <source>Adjusts how cautious openpilot is around other vehicles or obstacles in 'Standard' mode. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Tweak how wary openpilot be around other ships or obstacles when in 'Standard' mode. Higher values stretch the gap 'twixt ye and others, puttin' safety at the helm, leadin' to more cautious sailin'. Lower values let ye sail closer, but might trim down yer reaction time.
-
-Default: 1.0.</translation>
+        <source>How cautious openpilot is around other vehicles or obstacles while using the &lt;b&gt;Standard&lt;/b&gt; personality profile. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.</source>
+        <translation type="gpt-4o-generated">How cautious openpilot is around other vehicles or obstacles when using the &lt;b&gt;Standard&lt;/b&gt; personality profile. Higher values increase following distances and prioritize safety, resulting in more cautious driving. Lower values allow for closer following but may reduce reaction time.</translation>
     </message>
     <message>
-        <source>Controls how quickly openpilot increases speed in 'Standard' mode. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Manages how swiftly openpilot hoists the sails in 'Standard' mode. Higher numbers make fer smoother, more gradual speed changes when ye're picking up the pace, while lower ones give ye quicker, more lively spurts that might feel a wee bit sudden.
-
-Default: 1.0.</translation>
+        <source>How quickly openpilot decreases speed while using the &lt;b&gt;Standard&lt;/b&gt; personality profile. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">How swiftly openpilot reduces speed with the &lt;b&gt;Standard&lt;/b&gt; personality profile. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.</translation>
     </message>
     <message>
-        <source>Controls how quickly openpilot decreases speed in 'Standard' mode. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Steers how swiftly openpilot lowers the speed in 'Standard' mode. Higher values make the sailin' smoother and more gradual when easing off the throttle, while lower values let ye slow down quicker, with a touch of the abrupt.
-
-Default: 1.0.</translation>
+        <source>How quickly openpilot increases speed while using the &lt;b&gt;Standard&lt;/b&gt; personality profile. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">How swiftly openpilot boosts speed with the &lt;b&gt;Standard&lt;/b&gt; personality profile. Higher values provide smoother, more gradual acceleration, while lower values permit quicker, more responsive changes that might feel abrupt.</translation>
     </message>
     <message>
-        <source>Restores the 'Standard' settings to their default values.</source>
-        <translation type="gpt-4o-generated">Restores the 'Standard' settings to their original treasure map markings.</translation>
+        <source>Reset the &lt;b&gt;Standard&lt;/b&gt; personality profile settings to default values.</source>
+        <translation type="gpt-4o-generated">Restore the &lt;b&gt;Standard&lt;/b&gt; personality profile settings to their default values.</translation>
     </message>
     <message>
         <source>Relaxed Personality</source>
-        <translation type="gpt-4o-generated">Laid-Back Buccaneer</translation>
+        <translation type="gpt-4o-generated">Laid-back Disposition</translation>
     </message>
     <message>
-        <source>Customize the 'Relaxed' personality profile, ideal for a more laid-back driving style.</source>
-        <translation type="gpt-4o-generated">Tweak the 'Relaxed' personality profile, perfect for a more easygoing sailin' style.</translation>
+        <source>Customize the &lt;b&gt;Relaxed&lt;/b&gt; personality profile. Designed for a more laid-back driving style.</source>
+        <translation type="gpt-4o-generated">Tailor the &lt;b&gt;Relaxed&lt;/b&gt; personality profile. Crafted for a laid-back driving style, matey.</translation>
     </message>
     <message>
-        <source>Set the following distance for 'Relaxed' mode. This determines roughly how many seconds you'll follow behind the car ahead.
-
-Default: 1.75 seconds.</source>
-        <translation type="gpt-4o-generated">Set yer followin' distance fer 'Relaxed' mode. This'll be the rough count o' seconds ye trail behind the vessel ahead.
-
-Default: 1.75 seconds.</translation>
+        <source>How many seconds openpilot will follow behind lead vehicles while using the &lt;b&gt;Relaxed&lt;/b&gt; personality profile.&lt;br&gt;&lt;br&gt;Default: 1.75 seconds.</source>
+        <translation type="gpt-4o-generated">How many seconds will openpilot follow behind lead vehicles when using the &lt;b&gt;Relaxed&lt;/b&gt; personality profile?&lt;br&gt;&lt;br&gt;Default: 1.75 seconds.</translation>
     </message>
     <message>
-        <source>Controls how sensitive openpilot is to changes in acceleration in 'Relaxed' mode. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Steers how keenly openpilot responds to the call o' acceleration in 'Relaxed' mode. Set the compass higher for a smoother, more gentle push forward, while lower numbers unleash a quicker, more lively jolt that might catch ye by surprise.
-
-Default: 1.0.</translation>
+        <source>How sensitive openpilot is to changes in acceleration while using the &lt;b&gt;Relaxed&lt;/b&gt; personality profile. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">How sensitive openpilot be to shifts in acceleration when using the &lt;b&gt;Relaxed&lt;/b&gt; personality profile. Higher values lead to smoother, more gradual acceleration, while lower values permit quicker, more responsive changes that might feel abrupt.</translation>
     </message>
     <message>
-        <source>Controls how sensitive openpilot is to changes in deceleration in 'Relaxed' mode. Higher values result in smoother braking, while lower values allow for quicker, more immediate braking that may feel abrupt.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Adjusts how keen openpilot be to shifts in slowing down when sailin' in 'Relaxed' mode. Hoistin' the values leads to gentler stoppin', while droppin' 'em allows for swifter, more immediate halts that might feel sudden.
-
-Default: 1.0.</translation>
+        <source>How sensitive openpilot is to changes in deceleration while using the &lt;b&gt;Relaxed&lt;/b&gt; personality profile. Higher values result in smoother, more gradual deceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">How sensitive openpilot be to changes in deceleration when using the &lt;b&gt;Relaxed&lt;/b&gt; personality profile. Higher values lead to smoother, more gradual deceleration, while lower values allow for quicker, more responsive changes that may feel abrupt.</translation>
     </message>
     <message>
-        <source>Adjusts how cautious openpilot is around other vehicles or obstacles in 'Relaxed' mode. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Tweak how wary openpilot be 'round other ships or obstacles in 'Relaxed' mode. Higher values stretch the followin' distances and put safety first, makin' for more careful sailin', while lower values let ye close the gap but might shave off some reaction time.
-
-Default: 1.0.</translation>
+        <source>How cautious openpilot is around other vehicles or obstacles while using the &lt;b&gt;Relaxed&lt;/b&gt; personality profile. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time.</source>
+        <translation type="gpt-4o-generated">How cautious openpilot is around other vehicles or obstacles when using the &lt;b&gt;Relaxed&lt;/b&gt; personality profile. Higher values increase following distances and prioritize safety, resulting in more cautious driving. Lower values allow for closer following but may reduce reaction time.</translation>
     </message>
     <message>
-        <source>Controls how quickly openpilot increases speed in 'Relaxed' mode. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Guides how swiftly openpilot raises its speed in 'Relaxed' mode, it does. Higher numbers promise a smoother, gradual pace when ye be accelerating, while lower numbers allow for a faster, more spirited change that might feel a bit sudden.
-
-Default: 1.0.</translation>
+        <source>How quickly openpilot decreases speed while using the &lt;b&gt;Relaxed&lt;/b&gt; personality profile. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">How swiftly openpilot reduces speed with the &lt;b&gt;Relaxed&lt;/b&gt; personality profile. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.</translation>
     </message>
     <message>
-        <source>Controls how quickly openpilot decreases speed in 'Relaxed' mode. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt.
-
-Default: 1.0.</source>
-        <translation type="gpt-4o-generated">Manages how swiftly openpilot eases off the speed in 'Relaxed' mode, aye. Higher values mean ye'll sail smoother with more gentle changes when slowing down, while lower values offer brisker, more lively shifts that may feel sudden.
-
-Default: 1.0.</translation>
+        <source>How quickly openpilot increases speed while using the &lt;b&gt;Relaxed&lt;/b&gt; personality profile. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt.</source>
+        <translation type="gpt-4o-generated">How swiftly openpilot boosts speed with the &lt;b&gt;Relaxed&lt;/b&gt; personality profile. Higher values guarantee smoother, more gradual speed shifts when accelerating, while lower values permit quicker, more responsive changes that might feel abrupt.</translation>
     </message>
     <message>
-        <source>Restores the 'Relaxed' settings to their default values.</source>
-        <translation type="gpt-4o-generated">Hoists the 'Relaxed' settings back to their original treasure map.</translation>
-    </message>
-    <message>
-        <source>Experimental Mode Activation</source>
-        <translation type="gpt-4o-generated">Hoist the Sails of Experimentation!</translation>
-    </message>
-    <message>
-        <source>Toggle 'Experimental Mode' on/off using either the steering wheel buttons or screen.
-
-This overrides 'Conditional Experimental Mode'.</source>
-        <translation type="gpt-4o-generated">Ye can switch 'Experimental Mode' on or off usin' either the wheel buttons or the screen.
-
-This’ll override 'Conditional Experimental Mode'.</translation>
-    </message>
-    <message>
-        <source>Click the LKAS Button</source>
-        <translation type="gpt-4o-generated">Give the LKAS Button a hearty click, matey!</translation>
-    </message>
-    <message>
-        <source>Toggles 'Experimental Mode' by pressing the 'LKAS' button on the steering wheel.</source>
-        <translation type="gpt-4o-generated">Flip the switch to 'Experimental Mode' by givin' the 'LKAS' button on the helm a hearty press.</translation>
-    </message>
-    <message>
-        <source>Double-Tap the Screen</source>
-        <translation type="gpt-4o-generated">Give the screen a hearty double-tap, matey!</translation>
-    </message>
-    <message>
-        <source>Toggles 'Experimental Mode' by double-tapping the onroad UI within a 0.5 second period.</source>
-        <translation type="gpt-4o-generated">Enables 'Experimental Mode' by double-tappin' the onroad UI within a half-second.</translation>
-    </message>
-    <message>
-        <source>Long Press the Distance Button</source>
-        <translation type="gpt-4o-generated">Hold 'n' keep the Distance Button pressed, matey!</translation>
-    </message>
-    <message>
-        <source>Toggles 'Experimental Mode' by holding down the 'distance' button on the steering wheel for 0.5 seconds.</source>
-        <translation type="gpt-4o-generated">Engage yer 'Experimental Mode' by pressin' the 'distance' button on the helm for a count of 0.5 seconds, ye savvy?</translation>
+        <source>Reset the &lt;b&gt;Relaxed&lt;/b&gt; personality profile settings to default values.</source>
+        <translation type="gpt-4o-generated">Restore the &lt;b&gt;Relaxed&lt;/b&gt; personality profile settings to their default values.</translation>
     </message>
     <message>
         <source>Longitudinal Tuning</source>
-        <translation type="gpt-4o-generated">Longitudinal Tunin', Arr!</translation>
+        <translation type="gpt-4o-generated">Longitudinal Adjustment</translation>
     </message>
     <message>
         <source>Settings that control how openpilot manages speed and acceleration.</source>
-        <translation type="gpt-4o-generated">Arrr, these be the settings that steer how openpilot handles yer speed and acceleration.</translation>
+        <translation type="gpt-4o-generated">Settings that govern how openpilot handles speed and acceleration.</translation>
     </message>
     <message>
         <source>Acceleration Profile</source>
-        <translation type="gpt-4o-generated">Sailin' Speed Style</translation>
+        <translation type="gpt-4o-generated">Speed Increase Chart</translation>
     </message>
     <message>
-        <source>Enables either a sporty or eco-friendly acceleration rate. 'Sport+' aims to make openpilot accelerate as fast as possible.</source>
-        <translation type="gpt-4o-generated">Enables ye to choose betwixt a lively, spirited burst or a more earth-friendly pace. 'Sport+' be geared to make openpilot set sail as swift as the wind allows.</translation>
+        <source>Enable either a sporty or eco-friendly acceleration profile. &lt;b&gt;Sport+&lt;/b&gt; aims to make openpilot accelerate as fast as possible!</source>
+        <translation type="gpt-4o-generated">Enable either a sporty or eco-friendly acceleration profile. &lt;b&gt;Sport+&lt;/b&gt; aims to make openpilot accelerate at top speed!</translation>
     </message>
     <message>
         <source>Deceleration Profile</source>
-        <translation type="gpt-4o-generated">Sailin' Speed Slowdown Chart</translation>
+        <translation type="gpt-4o-generated">Deceleration Chart</translation>
     </message>
     <message>
-        <source>Enables either a sporty or eco-friendly deceleration rate.</source>
-        <translation type="gpt-4o-generated">Hoists the sails for a brisk or eco-mindful slowing rate, it does.</translation>
+        <source>Enable either a sporty or eco-friendly deceleration profile.</source>
+        <translation type="gpt-4o-generated">Enable either a sporty or eco-friendly slowing profile.</translation>
     </message>
     <message>
         <source>Human-Like Acceleration</source>
-        <translation type="gpt-4o-generated">Acceleration Like a True Buccaneer</translation>
+        <translation type="gpt-4o-generated">Human-Like Speed</translation>
     </message>
     <message>
-        <source>Uses the lead's acceleration rate when at a takeoff and ramps off the acceleration rate when approaching the maximum set speed for a more 'human-like' driving experience.</source>
-        <translation type="gpt-4o-generated">Harnesses the lead ship's acceleration speed when ye set sail, and eases off the power when closin' in on yer max speed to give a more 'human-like' voyage.</translation>
+        <source>Use the lead vehicle's acceleration rate when at a takeoff and ramp off the acceleration rate when approaching the maximum set speed for a more "human-like" driving experience.</source>
+        <translation type="gpt-4o-generated">Apply the lead vehicle's acceleration rate at takeoff, and ease off the acceleration as you near the maximum set speed for a more "human-like" driving experience.</translation>
     </message>
     <message>
         <source>Human-Like Approach Behind Leads</source>
-        <translation type="gpt-4o-generated">Sailin' Smooth Like a Matey Behind Fellow Sailors</translation>
+        <translation type="gpt-4o-generated">Human-Like Strategy Behind Leads</translation>
     </message>
     <message>
-        <source>Dynamically adjusts the following distance when approaching slower or stopped vehicles for a more 'human-like' driving experience.</source>
-        <translation type="gpt-4o-generated">Aye, she'll smartly tweak the followin' distance as we near slower or stopped vessels, givin' ye a sailin' feel more akin to a true buccaneer's savvy!</translation>
+        <source>Dynamically adjust the desired following distance when approaching slower or stopped vehicles for a more "human-like" driving experience.</source>
+        <translation type="gpt-4o-generated">Dynamically adjust the desired following distance when approaching slower or stopped vehicles for a more "human-like" driving experience, matey.</translation>
     </message>
     <message>
         <source>Lead Detection Confidence</source>
-        <translation type="gpt-4o-generated">Certainty in Spotting the Helm</translation>
+        <translation type="gpt-4o-generated">Confidence in Lead Detection</translation>
     </message>
     <message>
-        <source>Controls how sensitive openpilot is to detecting vehicles ahead. A lower value can help detect vehicles sooner and from farther away, but increases the chance openpilot mistakes other objects for vehicles.</source>
-        <translation type="gpt-4o-generated">Adjusts how sharp-eyed openpilot be in spotting ships ahead. A lower value might let openpilot catch sight of 'em sooner and from a greater distance, but it also raises the risk of mistakin' other objects for vessels.</translation>
+        <source>How sensitive openpilot is to detecting vehicles ahead. A lower value can help detect vehicles sooner and from farther away, but increases the chance openpilot mistakes other objects for vehicles.</source>
+        <translation type="gpt-4o-generated">How sensitive openpilot is to detecting vehicles ahead. A lower value can help spot vehicles sooner and from farther away, but it increases the chance openpilot mistakes other objects for vehicles.</translation>
     </message>
     <message>
         <source>Maximum Acceleration Rate</source>
-        <translation type="gpt-4o-generated">Top Acceleration Speed, Arrr!</translation>
+        <translation type="gpt-4o-generated">Maximum Acceleration Rate</translation>
     </message>
     <message>
-        <source>Sets a cap on how fast openpilot can accelerate.</source>
-        <translation type="gpt-4o-generated">Puts a limit on how swiftly openpilot can set sail!</translation>
+        <source>Set a cap on how fast openpilot can accelerate.</source>
+        <translation type="gpt-4o-generated">Limit how swiftly openpilot can accelerate.</translation>
     </message>
     <message>
-        <source>'Taco Bell Run' Turn Speed Hack</source>
-        <translation type="gpt-4o-generated">'Taco Bell Run' Turn Speed Boost, Arr!</translation>
+        <source>"Taco Bell Run" Turn Speed Hack</source>
+        <translation type="gpt-4o-generated">"Taco Bell Run" Quick Turn Hack</translation>
     </message>
     <message>
-        <source>Enable comma's speed hack they used to help handle left and right turns more precisely during their 2022 'Taco Bell' drive by reducing the maximum allowed speed and acceleration while turning.</source>
-        <translation type="gpt-4o-generated">Hoist the sails on comma's speed trick! It was crafted to help navigate left 'n right turns with the precision of a seasoned sea dog during their 2022 'Taco Bell' voyage. It trims the max speed 'n acceleration while turnin' fer smoother sailing.</translation>
+        <source>The turn speed hack from comma’s 2022 "Taco Bell Run" drive. Designed to slow down when taking left/right turns for smoother turns.</source>
+        <translation type="gpt-4o-generated">The turn speed hack from comma's 2022 "Taco Bell Run" drive is crafted to slow down when making left or right turns, ensuring smoother navigation.</translation>
     </message>
     <message>
-        <source>Quality of Life Improvements</source>
-        <translation type="gpt-4o-generated">Life Aboard Be Gettin' Better</translation>
+        <source>Quality of Life</source>
+        <translation type="gpt-4o-generated">Life's Quality</translation>
     </message>
     <message>
-        <source>Miscellaneous longitudinal focused features to improve your overall openpilot experience.</source>
-        <translation type="gpt-4o-generated">Various scallywag features focused on the long haul to enhance your grand openpilot voyage.</translation>
+        <source>Miscellaneous features to improve the acceleration and braking experience.</source>
+        <translation type="gpt-4o-generated">Various features to enhance the acceleration and braking experience.</translation>
     </message>
     <message>
-        <source>Cruise Increase</source>
-        <translation type="gpt-4o-generated">Hoist the Sails</translation>
+        <source>Cruise Interval</source>
+        <translation type="gpt-4o-generated">Voyage Interval</translation>
     </message>
     <message>
-        <source>Controls the interval used when increasing the cruise control speed.</source>
-        <translation type="gpt-4o-generated">Steers the gap used when raisin' the cruise control speed.</translation>
+        <source>The interval used when changing the cruise control speed.</source>
+        <translation type="gpt-4o-generated">The interval for adjusting the cruise control speed.</translation>
     </message>
     <message>
-        <source>Cruise Increase (Long Press)</source>
-        <translation type="gpt-4o-generated">Hoist the Sails (Long Press)</translation>
+        <source>Cruise Interval (Long Press)</source>
+        <translation type="gpt-4o-generated">Cruise Interval (Hold Press)</translation>
     </message>
     <message>
-        <source>Controls the interval used when increasing the cruise control speed while holding down the button for 0.5+ seconds.</source>
-        <translation type="gpt-4o-generated">Manages the time gap fer boostin' the cruise control speed whilst ye hold down the button fer 0.5+ seconds.</translation>
+        <source>The interval used when changing the cruise control speed while holding down the button for 0.5+ seconds.</source>
+        <translation type="gpt-4o-generated">The interval for adjusting the cruise control speed when holding the button for over 0.5 seconds.</translation>
     </message>
     <message>
         <source>Force Keep openpilot in the Standstill State</source>
-        <translation type="gpt-4o-generated">Command openpilot to stay anchored in the Standstill State, aye!</translation>
+        <translation type="gpt-4o-generated">Keep openpilot in the Standstill State</translation>
     </message>
     <message>
-        <source>Keeps openpilot in the 'standstill' state until the gas pedal or 'resume' button is pressed.</source>
-        <translation type="gpt-4o-generated">Keeps openpilot sailin' in the 'standstill' state till ye give the gas pedal a hearty press or tap the 'resume' button, matey.</translation>
+        <source>Keep openpilot in the standstill state until either the gas pedal or &lt;b&gt;resume&lt;/b&gt; button is pressed.</source>
+        <translation type="gpt-4o-generated">Keep openpilot in the standstill state until either the gas pedal or the &lt;b&gt;resume&lt;/b&gt; button is pressed, matey.</translation>
     </message>
     <message>
-        <source>Force Stop for 'Detected' Stop Lights/Signs</source>
-        <translation type="gpt-4o-generated">Force the Ship to Heave to for 'Detected' Stop Lights/Signs</translation>
+        <source>Force Stop for "Detected" Stop Lights/Signs</source>
+        <translation type="gpt-4o-generated">Force Halt for "Detected" Stop Lights/Signs</translation>
     </message>
     <message>
-        <source>Forces a stop whenever openpilot 'detects' a potential red light/stop sign to prevent it from running the red light/stop sign.</source>
-        <translation type="gpt-4o-generated">Commands the vessel to halt whenever openpilot 'spies' a potential red light or stop sign, ensuring it doesn't sail through the forbidden zone.</translation>
+        <source>Force a stop whenever openpilot &lt;b&gt;detects&lt;/b&gt; a potential red light/stop sign to prevent it from running the red light/stop sign.</source>
+        <translation type="gpt-4o-generated">Force a stop whenever openpilot &lt;b&gt;spots&lt;/b&gt; a potential red light/stop sign to prevent it from running the red light/stop sign.</translation>
     </message>
     <message>
         <source>Increase Stopped Distance</source>
-        <translation type="gpt-4o-generated">Widen Yer Haltin' Space</translation>
+        <translation type="gpt-4o-generated">Extend Stopped Distance</translation>
     </message>
     <message>
-        <source>Increases the distance to stop behind vehicles.</source>
-        <translation type="gpt-4o-generated">Widens the gap to drop anchor behind other ships.</translation>
+        <source>Increase the distance openpilot stops behind vehicles.</source>
+        <translation type="gpt-4o-generated">Extend the distance openpilot halts behind vehicles.</translation>
     </message>
     <message>
         <source>Set Speed Offset</source>
-        <translation type="gpt-4o-generated">Adjust Yer Speed Offset</translation>
+        <translation type="gpt-4o-generated">Adjust Speed Offset</translation>
     </message>
     <message>
-        <source>Controls how much higher or lower the set speed should be compared to your current set speed. For example, if you prefer to drive 5 mph above the speed limit, this setting will automatically add that difference when you adjust your set speed.</source>
-        <translation type="gpt-4o-generated">Steers how much faster or slower ye might want to sail compared to yer current set speed. Suppose ye fancy cruisin' 5 mph over the speed limit, this here setting will smartly add that difference when ye tweak yer set speed.</translation>
+        <source>How much higher or lower the set speed should be compared to your current set speed. For example, if you prefer to drive 5 mph above the speed limit, this setting will automatically add that difference when you adjust your set speed.</source>
+        <translation type="gpt-4o-generated">How much higher or lower should the set speed be compared to your current speed? For instance, if ye prefer to drive 5 mph above the speed limit, this setting will automatically add that difference when ye adjust your set speed.</translation>
     </message>
     <message>
         <source>Map Accel/Decel to Gears</source>
-        <translation type="gpt-4o-generated">Map Accel/Decel to Sails and Riggin'</translation>
+        <translation type="gpt-4o-generated">Map Accel/Decel to Gears, matey!</translation>
     </message>
     <message>
-        <source>Maps the acceleration and deceleration profiles to your car's 'Eco' or 'Sport' gear modes.</source>
-        <translation type="gpt-4o-generated">Charts the speedin' up and slowin' down patterns to yer vessel's 'Eco' or 'Sport' gear settings, aye!</translation>
+        <source>Map the acceleration and deceleration profiles to your car's &lt;b&gt;Eco&lt;/b&gt; or &lt;b&gt;Sport&lt;/b&gt; gear modes.</source>
+        <translation type="gpt-4o-generated">Align the acceleration and deceleration profiles with your car's &lt;b&gt;Eco&lt;/b&gt; or &lt;b&gt;Sport&lt;/b&gt; gear modes.</translation>
     </message>
     <message>
         <source>Reverse Cruise Increase</source>
-        <translation type="gpt-4o-generated">Reverse Cruise Boost Aye</translation>
+        <translation type="gpt-4o-generated">Reverse Cruise Hike</translation>
     </message>
     <message>
-        <source>Reverses the long press cruise increase feature to increase the max speed by 5 mph instead of 1 on short presses.</source>
-        <translation type="gpt-4o-generated">Changes the way long pressin' the cruise be workin' to increase the max speed by 5 mph instead of 1 on a wee quick press.</translation>
+        <source>Reverse the &lt;b&gt;long press&lt;/b&gt; cruise increase feature to increase the max speed by 5 instead of 1 on short presses.</source>
+        <translation type="gpt-4o-generated">Change the &lt;b&gt;long press&lt;/b&gt; cruise increase feature so that short presses boost the max speed by 5 instead of 1.</translation>
     </message>
     <message>
         <source>Speed Limit Controller</source>
-        <translation type="gpt-4o-generated">Speed Limit Captain</translation>
+        <translation type="gpt-4o-generated">Speed Limit Regulator</translation>
     </message>
     <message>
-        <source>Automatically adjust your max speed to match the speed limit using downloaded 'Open Street Maps' data, 'Navigate on openpilot', or your car's dashboard (Toyota/Lexus/HKG only).</source>
-        <translation type="gpt-4o-generated">Hoist yer sails and let the ship match its speed to the limit usin' 'Open Street Maps' data, the 'Navigate on openpilot' course, or yer trusty car's dashboard (Toyota/Lexus/HKG only). Arrr!</translation>
+        <source>Limit openpilot's maximum driving speed based on data from downloaded maps, &lt;b&gt;Mapbox&lt;/b&gt;, &lt;b&gt;Navigate on openpilot&lt;/b&gt;, or the dashboard (supported vehicles: &lt;b&gt;Ford&lt;/b&gt;, &lt;b&gt;Genesis&lt;/b&gt;, &lt;b&gt;Hyundai&lt;/b&gt;, &lt;b&gt;Kia&lt;/b&gt;, &lt;b&gt;Lexus&lt;/b&gt;, &lt;b&gt;Toyota&lt;/b&gt;).</source>
+        <translation type="gpt-4o-generated">Set openpilot's maximum driving speed using data from downloaded maps, &lt;b&gt;Mapbox&lt;/b&gt;, &lt;b&gt;Navigate on openpilot&lt;/b&gt;, or the dashboard for supported vehicles: &lt;b&gt;Ford&lt;/b&gt;, &lt;b&gt;Genesis&lt;/b&gt;, &lt;b&gt;Hyundai&lt;/b&gt;, &lt;b&gt;Kia&lt;/b&gt;, &lt;b&gt;Lexus&lt;/b&gt;, and &lt;b&gt;Toyota&lt;/b&gt;.</translation>
     </message>
     <message>
-        <source>Fallback Method</source>
-        <translation type="gpt-4o-generated">Back-up Scheme, Arrr!</translation>
+        <source>Fallback Speed</source>
+        <translation type="gpt-4o-generated">Fallback Velocity</translation>
     </message>
     <message>
-        <source>Controls what happens when no speed limit data is available.</source>
-        <translation type="gpt-4o-generated">Decides what befall when no speed limit details be on the horizon.</translation>
+        <source>The speed limit source when no speed limit data is available.</source>
+        <translation type="gpt-4o-generated">The default speed limit when no specific data is available.</translation>
     </message>
     <message>
-        <source>Override Method</source>
-        <translation type="gpt-4o-generated">Mutiny Method</translation>
+        <source>Override Speed</source>
+        <translation type="gpt-4o-generated">Increase Velocity</translation>
     </message>
     <message>
-        <source>Controls how the current speed limit is overriden.
-
-</source>
-        <translation type="gpt-4o-generated">Steers how ye be bendin' the current speed limit.</translation>
+        <source>The speed openpilot uses after manually exceeding the posted speed limit.&lt;br&gt;&lt;br&gt;&lt;b&gt;- Set With Gas Pedal&lt;/b&gt;: Uses the speed obtained while pressing the gas&lt;br&gt;&lt;b&gt;- Max Set Speed&lt;/b&gt;: Uses the cruise control set speed&lt;br&gt;&lt;br&gt;Overrides clear upon disengagement.</source>
+        <translation type="gpt-4o-generated">The speed openpilot adopts after manually surpassing the posted speed limit.&lt;br&gt;&lt;br&gt;&lt;b&gt;- Set With Gas Pedal&lt;/b&gt;: Uses the speed reached while pressing the gas&lt;br&gt;&lt;b&gt;- Max Set Speed&lt;/b&gt;: Uses the cruise control set speed&lt;br&gt;&lt;br&gt;Overrides clear upon disengagement.</translation>
     </message>
     <message>
-        <source>Miscellaneous 'Speed Limit Controller' focused features to improve your overall openpilot experience.</source>
-        <translation type="gpt-4o-generated">A motley collection o' 'Speed Limit Controller' focused features ta enhance yer openpilot voyage.</translation>
+        <source>Miscellaneous features to improve the &lt;b&gt;Speed Limit Controller&lt;/b&gt; experience.</source>
+        <translation type="gpt-4o-generated">Various features to enhance the &lt;b&gt;Speed Limit Controller&lt;/b&gt; experience.</translation>
     </message>
     <message>
         <source>Confirm New Speed Limits</source>
-        <translation type="gpt-4o-generated">Aye, Confirm New Speed Limits, Matey!</translation>
+        <translation type="gpt-4o-generated">Verify New Speed Limits</translation>
     </message>
     <message>
-        <source>Enables manual confirmations before using a new speed limit.</source>
-        <translation type="gpt-4o-generated">Allows ye to give the nod before set sail with a new speed limit.</translation>
+        <source>Require confirmation before applying new speed limits. To accept, use the flashing widget on the driving screen or press the &lt;b&gt;Cruise Increase&lt;/b&gt; button. To deny, press the &lt;b&gt;Cruise Decrease&lt;/b&gt; button or simply ignore the prompt for 30 seconds.</source>
+        <translation type="gpt-4o-generated">Require confirmation before setting new speed limits. To accept, use the flashing widget on the driving screen or press the &lt;b&gt;Cruise Increase&lt;/b&gt; button. To deny, press the &lt;b&gt;Cruise Decrease&lt;/b&gt; button or ignore the prompt for 30 seconds.</translation>
     </message>
     <message>
         <source>Force MPH Readings from Dashboard</source>
-        <translation type="gpt-4o-generated">Hoist the sails for MPH readings from the dashboard!</translation>
+        <translation type="gpt-4o-generated">Enforce MPH Readings from Dashboard</translation>
     </message>
     <message>
-        <source>Forces speed limit readings from the dashboard to MPH if it normally displays them in KPH.</source>
-        <translation type="gpt-4o-generated">Forces the speed limit readings on yer dashboard to be seen in MPH, even if they usually be shown in KPH.</translation>
+        <source>Force dashboard speed limit readings to be in mph.</source>
+        <translation type="gpt-4o-generated">Set the dashboard speed readings to display in mph, matey.</translation>
     </message>
     <message>
-        <source>Prepare for Higher Speed Limits</source>
-        <translation type="gpt-4o-generated">Ready yerself for Swifter Seas!</translation>
+        <source>Higher Limit Lookahead Time</source>
+        <translation type="gpt-4o-generated">Extended Limit Lookahead Time</translation>
     </message>
     <message>
-        <source>Sets a lookahead value to prepare for upcoming higher speed limits when using downloaded map data.</source>
-        <translation type="gpt-4o-generated">Charts a course for the horizon, readyin' for swifter seas when sailin' with yer downloaded map data.</translation>
+        <source>How far ahead openpilot anticipates upcoming higher speed limits from the downloaded map data.</source>
+        <translation type="gpt-4o-generated">How far in advance does openpilot anticipate upcoming higher speed limits from the downloaded map data?</translation>
     </message>
     <message>
-        <source>Prepare for Lower Speed Limits</source>
-        <translation type="gpt-4o-generated">Ready the sails for lower speed limits, matey!</translation>
+        <source>Lower Limit Lookahead Time</source>
+        <translation type="gpt-4o-generated">Minimum Lookahead Time</translation>
     </message>
     <message>
-        <source>Sets a lookahead value to prepare for upcoming lower speed limits when using downloaded map data.</source>
-        <translation type="gpt-4o-generated">Adjusts the lookout to brace for slower seas ahead, usin' the downloaded map data.</translation>
+        <source>How far ahead openpilot anticipates upcoming lower speed limits from the downloaded map data.</source>
+        <translation type="gpt-4o-generated">How far ahead does openpilot anticipate upcoming lower speed limits from the downloaded map data?</translation>
     </message>
     <message>
-        <source>Set Speed to Current Limit</source>
-        <translation type="gpt-4o-generated">Set Sail at the Current Limit</translation>
+        <source>Match Speed Limit on Engage</source>
+        <translation type="gpt-4o-generated">Match Speed Limit on Activation</translation>
     </message>
     <message>
-        <source>Sets your max speed to match the current speed limit when enabling openpilot.</source>
-        <translation type="gpt-4o-generated">Hoists yer max speed to match the current speed limit when ye set sail with openpilot.</translation>
+        <source>Automatically set cruise control speed to match the current speed limit when first enabling openpilot.</source>
+        <translation type="gpt-4o-generated">Automatically set cruise control speed to match the current speed limit when first enabling openpilot, matey.</translation>
     </message>
     <message>
-        <source>Speed Limit Filler</source>
-        <translation type="gpt-4o-generated">Speed Limit Filler, aye!</translation>
+        <source>Use Mapbox as Fallback</source>
+        <translation type="gpt-4o-generated">Use Mapbox as a Backup</translation>
     </message>
     <message>
-        <source>Uses speed limit data from your dashboard, 'Mapbox', and 'Navigate on Openpilot' to identify missing speed limits on 'OpenStreetMap'. The data can be downloaded via 'Fleet Manager' in the 'Tools' section and used at 'https://nerftool.glitch.me/' via the 'Load Custom Data' button.</source>
-        <translation type="gpt-4o-generated">Plunders speed limit data from yer dashboard, 'Mapbox', and 'Navigate on Openpilot' to spy out any missing speed limits on 'OpenStreetMap'. Ye can download the loot via 'Fleet Manager' in the 'Tools' section and make use of it at 'https://nerftool.glitch.me/' by clickin' the 'Load Custom Data' button.</translation>
+        <source>Use &lt;b&gt;Mapbox&lt;/b&gt; speed limit data when no other sources are available.</source>
+        <translation type="gpt-4o-generated">When no other sources are available, use &lt;b&gt;Mapbox&lt;/b&gt; speed limit data.</translation>
     </message>
     <message>
-        <source>Use Mapbox For Missing Speed Limits</source>
-        <translation type="gpt-4o-generated">Use Mapbox fer Missing Speed Limits, aye!</translation>
+        <source>Speed Limit Source Priority</source>
+        <translation type="gpt-4o-generated">Priority of Speed Limit Source</translation>
     </message>
     <message>
-        <source>Uses data from 'Mapbox' when all the current speed limit sources aren't currently providing a speed limit.</source>
-        <translation type="gpt-4o-generated">Relies on 'Mapbox' fer speed limit data when the usual sources be comin' up empty.</translation>
-    </message>
-    <message>
-        <source>Speed Limit Source Priority Order</source>
-        <translation type="gpt-4o-generated">Speed Limit Source Peckin' Order</translation>
-    </message>
-    <message>
-        <source>Sets the order of priority for speed limit data sources.</source>
-        <translation type="gpt-4o-generated">Arranges the peckin' order for where we get our speed limit info.</translation>
+        <source>Define the priority order for speed limit sources (&lt;b&gt;Dashboard&lt;/b&gt;, &lt;b&gt;Map Data&lt;/b&gt;, &lt;b&gt;Navigation&lt;/b&gt;). Higher-priority sources override lower ones when multiple limits are detected.</source>
+        <translation type="gpt-4o-generated">Establish the priority order for speed limit sources: &lt;b&gt;Dashboard&lt;/b&gt;, &lt;b&gt;Map Data&lt;/b&gt;, and &lt;b&gt;Navigation&lt;/b&gt;. Higher-priority sources take precedence over lower ones when multiple limits are identified.</translation>
     </message>
     <message>
         <source>Speed Limit Offsets</source>
-        <translation type="gpt-4o-generated">Speed Limit Adjustments, Arrr!</translation>
+        <translation type="gpt-4o-generated">Speed Limit Adjustments</translation>
     </message>
     <message>
-        <source>Set speed limit offsets to drive over the posted speed limit.</source>
-        <translation type="gpt-4o-generated">Adjust ye speed limit offsets t' sail a bit swifter than th' posted speed limit.</translation>
+        <source>Offsets relative to the posted speed limit for a more "human-like" driving experience.</source>
+        <translation type="gpt-4o-generated">Offsets relative to the posted speed limit for a more "human-like" driving adventure.</translation>
     </message>
     <message>
-        <source>Speed Limit Offset (0-34 mph)</source>
-        <translation type="gpt-4o-generated">Speed Limit Offset (0-34 mph)</translation>
+        <source>Speed Offset (0–24 mph)</source>
+        <translation type="gpt-4o-generated">Speed Offset (0–24 knots)</translation>
     </message>
     <message>
-        <source>Sets the speed limit offset for speeds between 0 and 34 mph.</source>
-        <translation type="gpt-4o-generated">Adjusts the speed limit offset for when ye be sailin' between 0 and 34 mph.</translation>
+        <source>Target speed offset applied for posted limits between 0 and 24 mph.</source>
+        <translation type="gpt-4o-generated">Target speed offset applied for posted limits from 0 to 24 mph.</translation>
     </message>
     <message>
-        <source>Speed Limit Offset (35-54 mph)</source>
-        <translation type="gpt-4o-generated">Speed Limit Offset (35-54 mph)</translation>
+        <source>Speed Offset (25–34 mph)</source>
+        <translation type="gpt-4o-generated">Speed Variation (25–34 mph)</translation>
     </message>
     <message>
-        <source>Sets the speed limit offset for speeds between 35 and 54 mph.</source>
-        <translation type="gpt-4o-generated">Sets the speed limit offset for speeds between 35 and 54 mph, aye!</translation>
+        <source>Target speed offset applied for posted limits between 25 and 34 mph.</source>
+        <translation type="gpt-4o-generated">Target speed offset applied for posted limits from 25 to 34 mph.</translation>
     </message>
     <message>
-        <source>Speed Limit Offset (55-64 mph)</source>
-        <translation type="gpt-4o-generated">Speed Limit Offset (55-64 mph)</translation>
+        <source>Speed Offset (35–44 mph)</source>
+        <translation type="gpt-4o-generated">Speed Adjustment (35–44 mph)</translation>
     </message>
     <message>
-        <source>Sets the speed limit offset for speeds between 55 and 64 mph.</source>
-        <translation type="gpt-4o-generated">Adjusts the speed limit offset fer when ye be sailin' between 55 and 64 mph.</translation>
+        <source>Target speed offset applied for posted limits between 35 and 44 mph.</source>
+        <translation type="gpt-4o-generated">Target speed offset set for posted limits from 35 to 44 mph.</translation>
     </message>
     <message>
-        <source>Speed Limit Offset (65-99 mph)</source>
-        <translation type="gpt-4o-generated">Speed Limit Offset (65-99 mph)</translation>
+        <source>Speed Offset (45–54 mph)</source>
+        <translation type="gpt-4o-generated">Speed Adjustment (45–54 mph)</translation>
     </message>
     <message>
-        <source>Sets the speed limit offset for speeds between 65 and 99 mph.</source>
-        <translation type="gpt-4o-generated">Adjusts the speed limit offset for when ye be sailin' between 65 and 99 mph.</translation>
+        <source>Target speed offset applied for posted limits between 45 and 54 mph.</source>
+        <translation type="gpt-4o-generated">Target speed offset applied for posted limits from 45 to 54 mph.</translation>
     </message>
     <message>
-        <source>Visuals</source>
-        <translation type="gpt-4o-generated">Sightings</translation>
+        <source>Speed Offset (55–64 mph)</source>
+        <translation type="gpt-4o-generated">Speed Offset (55–64 knots)</translation>
     </message>
     <message>
-        <source>Visual 'Speed Limit Controller' features to improve your overall openpilot experience.</source>
-        <translation type="gpt-4o-generated">Spyglass on the 'Speed Limit Controller' features to enhance yer openpilot voyage, matey.</translation>
+        <source>Target speed offset applied for posted limits between 55 and 64 mph.</source>
+        <translation type="gpt-4o-generated">Target speed offset applied for posted limits from 55 to 64 mph.</translation>
+    </message>
+    <message>
+        <source>Speed Offset (65–74 mph)</source>
+        <translation type="gpt-4o-generated">Speed Range (65–74 mph)</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 65 and 74 mph.</source>
+        <translation type="gpt-4o-generated">Target speed offset applied for posted limits from 65 to 74 mph.</translation>
+    </message>
+    <message>
+        <source>Speed Offset (75–99 mph)</source>
+        <translation type="gpt-4o-generated">Speed Range (75–99 mph)</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 75 and 99 mph.</source>
+        <translation type="gpt-4o-generated">Target speed offset set for posted limits from 75 to 99 mph.</translation>
+    </message>
+    <message>
+        <source>Visual Settings</source>
+        <translation type="gpt-4o-generated">Display Options</translation>
+    </message>
+    <message>
+        <source>Visual features to improve the &lt;b&gt;Speed Limit Controller&lt;/b&gt; experience.</source>
+        <translation type="gpt-4o-generated">Visual elements to enhance the &lt;b&gt;Speed Limit Controller&lt;/b&gt; experience.</translation>
     </message>
     <message>
         <source>Show Speed Limit Offset</source>
-        <translation type="gpt-4o-generated">Reveal Speed Limit Offset, ye scallywag!</translation>
+        <translation type="gpt-4o-generated">Display Speed Limit Offset</translation>
     </message>
     <message>
-        <source>Displays the speed limit offset separately in the onroad UI when using 'Speed Limit Controller'.</source>
-        <translation type="gpt-4o-generated">Shows ye speed limit offset on its own in the onroad UI when the 'Speed Limit Controller' be at the helm.</translation>
+        <source>Display the speed limit offset separately on the driving screen.</source>
+        <translation type="gpt-4o-generated">Show the speed limit offset separately on the driving screen, matey.</translation>
     </message>
     <message>
         <source>Show Speed Limit Sources</source>
-        <translation type="gpt-4o-generated">Reveal Speed Limit Sources, me hearties!</translation>
+        <translation type="gpt-4o-generated">Display Speed Limit Sources</translation>
     </message>
     <message>
-        <source>Displays the speed limit sources in the onroad UI when using 'Speed Limit Controller'.</source>
-        <translation type="gpt-4o-generated">Shows the speed limit sources in the onroad UI when sailin' with 'Speed Limit Controller'.</translation>
-    </message>
-    <message>
-        <source>RESET</source>
-        <translation type="gpt-4o-generated">AVAST</translation>
-    </message>
-    <message>
-        <source>mph</source>
-        <translation type="gpt-4o-generated">knots per hour</translation>
-    </message>
-    <message>
-        <source> With Lead</source>
-        <translation type="gpt-4o-generated">With th' Captain</translation>
-    </message>
-    <message>
-        <source>Switches to 'Experimental Mode' when driving below the set speed with a lead vehicle.</source>
-        <translation type="gpt-4o-generated">Hoists the sails to 'Experimental Mode' when ye be sailing below the set speed with a lead vessel ahead.</translation>
-    </message>
-    <message>
-        <source>With Lead</source>
-        <translation type="gpt-4o-generated">With the Captain Afore</translation>
-    </message>
-    <message>
-        <source>Slower Lead</source>
-        <translation type="gpt-4o-generated">Sluggard Ahead</translation>
-    </message>
-    <message>
-        <source>Stopped Lead</source>
-        <translation type="gpt-4o-generated">Lead Ship Be Still</translation>
-    </message>
-    <message>
-        <source>Intersections</source>
-        <translation type="gpt-4o-generated">Crossroads, me hearties</translation>
-    </message>
-    <message>
-        <source>Turns</source>
-        <translation type="gpt-4o-generated">Veers</translation>
-    </message>
-    <message>
-        <source>Off</source>
-        <translation type="gpt-4o-generated">Aye, Off</translation>
-    </message>
-    <message>
-        <source> second</source>
-        <translation type="gpt-4o-generated">sec'd</translation>
+        <source>Display the speed limit sources on the driving screen.</source>
+        <translation type="gpt-4o-generated">Show the speed limit sources on the driving screen, matey.</translation>
     </message>
     <message>
         <source> seconds</source>
-        <translation type="gpt-4o-generated">seconds, matey!</translation>
+        <translation type="gpt-4o-generated">seconds</translation>
     </message>
     <message>
-        <source>Map Based</source>
-        <translation type="gpt-4o-generated">Map Ahoy</translation>
+        <source> m/s²</source>
+        <translation type="gpt-4o-generated">m/s²</translation>
     </message>
     <message>
-        <source>Smart</source>
-        <translation type="gpt-4o-generated">Smarrrt</translation>
+        <source> mph</source>
+        <translation type="gpt-4o-generated">mph</translation>
     </message>
     <message>
-        <source>Vision</source>
-        <translation type="gpt-4o-generated">Spyglass View</translation>
+        <source>With Lead</source>
+        <translation type="gpt-4o-generated">With Lead</translation>
     </message>
     <message>
-        <source>The 'Map Based' option is only available when some 'Map Data' has been downloaded!</source>
-        <translation type="gpt-4o-generated">The 'Map Based' option be only available when some 'Map Data' has been downloaded, matey!</translation>
+        <source>Switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when driving below this speed with a lead.</source>
+        <translation type="gpt-4o-generated">Switch to &lt;b&gt;Experimental Mode&lt;/b&gt; when sailing below this speed with a lead.</translation>
     </message>
     <message>
-        <source>Are you sure you want to completely reset your curvature data?</source>
-        <translation type="gpt-4o-generated">Are ye certain ye wish to wipe yer curvature data clean as a whistle?</translation>
+        <source>Slower Lead</source>
+        <translation type="gpt-4o-generated">Reduced Lead</translation>
+    </message>
+    <message>
+        <source>Stopped Lead</source>
+        <translation type="gpt-4o-generated">Lead Halted</translation>
+    </message>
+    <message>
+        <source>Intersections</source>
+        <translation type="gpt-4o-generated">Crossroads</translation>
+    </message>
+    <message>
+        <source>Turns</source>
+        <translation type="gpt-4o-generated">Rotations</translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation type="gpt-4o-generated">Off</translation>
+    </message>
+    <message>
+        <source> second</source>
+        <translation type="gpt-4o-generated">second</translation>
+    </message>
+    <message>
+        <source>Only For Detected Lanes</source>
+        <translation type="gpt-4o-generated">For Detected Lanes Only</translation>
+    </message>
+    <message>
+        <source>RESET</source>
+        <translation type="gpt-4o-generated">RESET</translation>
     </message>
     <message>
         <source>Standard</source>
-        <translation type="gpt-4o-generated">Aye, Regular</translation>
+        <translation type="gpt-4o-generated">Regular</translation>
     </message>
     <message>
         <source>Eco</source>
-        <translation type="gpt-4o-generated">Sailin' Green</translation>
+        <translation type="gpt-4o-generated">Eco</translation>
     </message>
     <message>
         <source>Sport</source>
-        <translation type="gpt-4o-generated">Swashbuckle</translation>
+        <translation type="gpt-4o-generated">Athletics</translation>
     </message>
     <message>
         <source>Sport+</source>
-        <translation type="gpt-4o-generated">Sport+ Arrr!</translation>
+        <translation type="gpt-4o-generated">Sport+</translation>
     </message>
     <message>
         <source> feet</source>
-        <translation type="gpt-4o-generated">peds</translation>
+        <translation type="gpt-4o-generated">feet</translation>
     </message>
     <message>
         <source>Acceleration</source>
-        <translation type="gpt-4o-generated">Acceleration, matey</translation>
+        <translation type="gpt-4o-generated">Speeding up</translation>
     </message>
     <message>
         <source>Deceleration</source>
-        <translation type="gpt-4o-generated">Sailin' slower</translation>
+        <translation type="gpt-4o-generated">Slowing down</translation>
     </message>
     <message>
         <source>Set Speed</source>
-        <translation type="gpt-4o-generated">Hoist the Speed Sails</translation>
+        <translation type="gpt-4o-generated">Adjust Speed</translation>
     </message>
     <message>
         <source>Experimental Mode</source>
-        <translation type="gpt-4o-generated">Explorers' Mode</translation>
+        <translation type="gpt-4o-generated">Trial Mode</translation>
     </message>
     <message>
         <source>Previous Limit</source>
-        <translation type="gpt-4o-generated">Previous Limit, matey</translation>
+        <translation type="gpt-4o-generated">Earlier Limit</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="gpt-4o-generated">Nary a one</translation>
+        <translation type="gpt-4o-generated">None</translation>
     </message>
     <message>
         <source>Set With Gas Pedal</source>
-        <translation type="gpt-4o-generated">Set With Ye Gas Pedal</translation>
+        <translation type="gpt-4o-generated">Adjust with Throttle</translation>
     </message>
     <message>
         <source>Max Set Speed</source>
-        <translation type="gpt-4o-generated">Cap'n's Speed Limit</translation>
+        <translation type="gpt-4o-generated">Maximum Speed</translation>
     </message>
     <message>
         <source>SELECT</source>
-        <translation type="gpt-4o-generated">CHOOSE YER PICK</translation>
+        <translation type="gpt-4o-generated">CHOOSE</translation>
     </message>
     <message>
         <source>Dashboard</source>
-        <translation type="gpt-4o-generated">Captain's Log</translation>
+        <translation type="gpt-4o-generated">Control Panel</translation>
     </message>
     <message>
         <source>Map Data</source>
-        <translation type="gpt-4o-generated">Treasure Map Data</translation>
+        <translation type="gpt-4o-generated">Chart Data</translation>
     </message>
     <message>
         <source>Navigation</source>
-        <translation type="gpt-4o-generated">Chartin' the Course</translation>
+        <translation type="gpt-4o-generated">Steering</translation>
     </message>
     <message>
         <source>Highest</source>
-        <translation type="gpt-4o-generated">Top o' the Mast</translation>
+        <translation type="gpt-4o-generated">Top</translation>
     </message>
     <message>
         <source>Lowest</source>
-        <translation type="gpt-4o-generated">Low tide</translation>
+        <translation type="gpt-4o-generated">Minimum</translation>
     </message>
     <message>
         <source>Select your primary priority</source>
-        <translation type="gpt-4o-generated">Choose yer main concern, matey!</translation>
+        <translation type="gpt-4o-generated">Choose your main priority</translation>
     </message>
     <message>
         <source>Select your secondary priority</source>
-        <translation type="gpt-4o-generated">Choose yer secondary treasure pursuit, matey!</translation>
+        <translation type="gpt-4o-generated">Choose your secondary priority</translation>
     </message>
     <message>
         <source>Select your tertiary priority</source>
-        <translation type="gpt-4o-generated">Choose yer tertiary plunder priority, matey</translation>
+        <translation type="gpt-4o-generated">Choose your third priority</translation>
     </message>
     <message>
         <source>MANAGE</source>
-        <translation type="gpt-4o-generated">Commandeer</translation>
+        <translation type="gpt-4o-generated">CONTROL</translation>
     </message>
     <message>
         <source>Lower Limits</source>
-        <translation type="gpt-4o-generated">Bottom Boundaries, Arrr</translation>
+        <translation type="gpt-4o-generated">Minimum Boundaries</translation>
     </message>
     <message>
         <source>Higher Limits</source>
-        <translation type="gpt-4o-generated">Raise the Sails, Matey</translation>
+        <translation type="gpt-4o-generated">Increased Limits</translation>
     </message>
     <message>
-        <source>Are you sure you want to completely reset your settings for 'Traffic Mode'?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to cast all yer 'Traffic Mode' settings overboard and start anew?</translation>
+        <source>Are you sure you want to completely reset your settings for &lt;b&gt;Traffic Mode&lt;/b&gt;?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye wish to fully reset yer settings for &lt;b&gt;Traffic Mode&lt;/b&gt;?</translation>
     </message>
     <message>
-        <source>Are you sure you want to completely reset your settings for the 'Aggressive' personality?</source>
-        <translation type="gpt-4o-generated">Arrr ye certain ye wish to reset all yer settings fer the 'Aggressive' personality, matey?</translation>
+        <source>Are you sure you want to completely reset your settings for the &lt;b&gt;Aggressive&lt;/b&gt; personality?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to fully reset yer settings for the &lt;b&gt;Aggressive&lt;/b&gt; personality?</translation>
     </message>
     <message>
-        <source>Are you sure you want to completely reset your settings for the 'Standard' personality?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to swab the decks and reset all yer 'Standard' personality settings?</translation>
+        <source>Are you sure you want to completely reset your settings for the &lt;b&gt;Standard&lt;/b&gt; personality?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye wish to fully reset yer settings for the &lt;b&gt;Standard&lt;/b&gt; personality?</translation>
     </message>
     <message>
-        <source>Are you sure you want to completely reset your settings for the 'Relaxed' personality?</source>
-        <translation type="gpt-4o-generated">Arrr ye certain ye be wantin' to fully reset yer settings for the 'Relaxed' personality, matey?</translation>
+        <source>Are you sure you want to completely reset your settings for the &lt;b&gt;Relaxed&lt;/b&gt; personality?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to fully reset yer settings for the &lt;b&gt;Relaxed&lt;/b&gt; personality?</translation>
     </message>
     <message>
-        <source>Speed Limit Offset (0-34 km/h)</source>
-        <translation type="gpt-4o-generated">Speed Limit Offset (0-34 km/h)</translation>
+        <source> foot</source>
+        <translation type="gpt-4o-generated">foot</translation>
     </message>
     <message>
-        <source>Speed Limit Offset (35-54 km/h)</source>
-        <translation type="gpt-4o-generated">Speed Limit Offset (35-54 km/h)</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (55-64 km/h)</source>
-        <translation type="gpt-4o-generated">Speed Limit Offset: (55-64 km/h)</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (65-99 km/h)</source>
-        <translation type="gpt-4o-generated">Speed Limit Offset (65-99 km/h)</translation>
-    </message>
-    <message>
-        <source>Sets the speed limit offset for speeds between 0-34 km/h.</source>
-        <translation type="gpt-4o-generated">Adjusts the speed limit offset fer when yer sailin' between 0-34 km/h.</translation>
-    </message>
-    <message>
-        <source>Sets the speed limit offset for speeds between 35-54 km/h.</source>
-        <translation type="gpt-4o-generated">Adjusts the speed limit buffer for when ye be sailin' between 35-54 km/h.</translation>
-    </message>
-    <message>
-        <source>Sets the speed limit offset for speeds between 55-64 km/h.</source>
-        <translation type="gpt-4o-generated">Adjusts the speed limit offset fer when ye be sailin' at speeds 'twixt 55-64 km/h.</translation>
-    </message>
-    <message>
-        <source>Sets the speed limit offset for speeds between 65-99 km/h.</source>
-        <translation type="gpt-4o-generated">Sets the speed limit offset for speeds betwixt 65-99 km/h, matey.</translation>
-    </message>
-    <message>
-        <source>km/h</source>
-        <translation type="gpt-4o-generated">km/h</translation>
+        <source> meter</source>
+        <translation type="gpt-4o-generated">gauge</translation>
     </message>
     <message>
         <source> meters</source>
-        <translation type="gpt-4o-generated">nautical meters</translation>
+        <translation type="gpt-4o-generated">meters</translation>
     </message>
     <message>
-        <source>Sets the speed limit offset for speeds between 0-34 mph.</source>
-        <translation type="gpt-4o-generated">Adjusts the speed limit offset fer when ye be cruisin' between 0-34 mph.</translation>
+        <source> km/h</source>
+        <translation type="gpt-4o-generated">km/h</translation>
     </message>
     <message>
-        <source>Sets the speed limit offset for speeds between 35-54 mph.</source>
-        <translation type="gpt-4o-generated">Adjusts the speed limit offset fer sailing between 35-54 mph, aye.</translation>
+        <source>Speed Offset (0–29 km/h)</source>
+        <translation type="gpt-4o-generated">Speed Offset (0–29 km/h)</translation>
     </message>
     <message>
-        <source>Sets the speed limit offset for speeds between 55-64 mph.</source>
-        <translation type="gpt-4o-generated">Adjusts the speed limit offset fer when ye be sailin' between 55-64 mph.</translation>
+        <source>Speed Offset (30–49 km/h)</source>
+        <translation type="gpt-4o-generated">Speed Offset (30–49 km/h)</translation>
     </message>
     <message>
-        <source>Sets the speed limit offset for speeds between 65-99 mph.</source>
-        <translation type="gpt-4o-generated">Sets the speed limit offset fer when ye be sailin' between 65-99 mph.</translation>
+        <source>Speed Offset (50–59 km/h)</source>
+        <translation type="gpt-4o-generated">Speed Offset (50–59 knots)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (60–79 km/h)</source>
+        <translation type="gpt-4o-generated">Speed Variation (60–79 km/h)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (80–99 km/h)</source>
+        <translation type="gpt-4o-generated">Speed Adjustment (80–99 km/h)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (100–119 km/h)</source>
+        <translation type="gpt-4o-generated">Speed Offset (100–119 km/h)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (120–140 km/h)</source>
+        <translation type="gpt-4o-generated">Speed Range (120–140 km/h)</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 0 and 29 km/h.</source>
+        <translation type="gpt-4o-generated">Target speed offset applied for posted limits from 0 to 29 km/h.</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 30 and 49 km/h.</source>
+        <translation type="gpt-4o-generated">Target speed offset applied for posted limits from 30 to 49 km/h.</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 50 and 59 km/h.</source>
+        <translation type="gpt-4o-generated">Target speed offset applied for posted limits from 50 to 59 km/h.</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 60 and 79 km/h.</source>
+        <translation type="gpt-4o-generated">Target speed offset applied for posted limits from 60 to 79 km/h.</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 80 and 99 km/h.</source>
+        <translation type="gpt-4o-generated">Target speed offset applied for posted limits from 80 to 99 km/h.</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 100 and 119 km/h.</source>
+        <translation type="gpt-4o-generated">Target speed offset applied for posted limits from 100 to 119 km/h.</translation>
+    </message>
+    <message>
+        <source>Target speed offset applied for posted limits between 120 and 140 km/h.</source>
+        <translation type="gpt-4o-generated">Target speed offset applied for posted limits from 120 to 140 km/h.</translation>
+    </message>
+    <message>
+        <source>Curve Speed Control</source>
+        <translation type="gpt-4o-generated">Curve Speed Regulation</translation>
+    </message>
+    <message>
+        <source>Automatically slow down for upcoming curves using downloaded maps or the driving model.</source>
+        <translation type="gpt-4o-generated">Automatically reduce speed for approaching curves using downloaded maps or the driving model.</translation>
+    </message>
+    <message>
+        <source>Curve Detection Method</source>
+        <translation type="gpt-4o-generated">Curve Detection Technique</translation>
+    </message>
+    <message>
+        <source>How curves are detected. &lt;b&gt;Map-Based&lt;/b&gt; uses downloaded map data to identify curves and determine the appropriate speed in which to handle them at, while &lt;b&gt;Vision&lt;/b&gt; relies solely on the driving model.</source>
+        <translation type="gpt-4o-generated">How curves are detected. &lt;b&gt;Map-Based&lt;/b&gt; uses downloaded map data to spot curves and decide the right speed to navigate them, while &lt;b&gt;Vision&lt;/b&gt; depends entirely on the driving model.</translation>
+    </message>
+    <message>
+        <source>Curve Detection Failsafe</source>
+        <translation type="gpt-4o-generated">Curve Detection Backup</translation>
+    </message>
+    <message>
+        <source>Only trigger &lt;b&gt;Curve Speed Control&lt;/b&gt; if a curve is detected with the model while using the &lt;b&gt;Map-Based&lt;/b&gt; method. Useful to help prevent false positives.</source>
+        <translation type="gpt-4o-generated">Activate &lt;b&gt;Curve Speed Control&lt;/b&gt; only when the model detects a curve while employing the &lt;b&gt;Map-Based&lt;/b&gt; method. This helps avoid false positives.</translation>
+    </message>
+    <message>
+        <source>Curve Detection Sensitivity</source>
+        <translation type="gpt-4o-generated">Curve Detection Sensitivity</translation>
+    </message>
+    <message>
+        <source>How sensitive openpilot is when detecting curves. Higher values trigger earlier responses at the risk of triggering too often, while lower values increase confidence at the risk of triggering too infrequently.</source>
+        <translation type="gpt-4o-generated">How sensitive openpilot be when detecting curves. Higher values prompt earlier responses, risking frequent triggers, while lower values boost confidence, risking infrequent triggers.</translation>
+    </message>
+    <message>
+        <source>Curve Speed Aggressiveness</source>
+        <translation type="gpt-4o-generated">Curve Speed Intensity</translation>
+    </message>
+    <message>
+        <source>How aggressive openpilot is when navigating through curves. Higher values result in faster turns but may reduce comfort or stability, while lower values result in slower, smoother turns at the risk of being overly cautious.</source>
+        <translation type="gpt-4o-generated">How aggressive openpilot is when steering through curves. Higher values lead to faster turns, possibly sacrificing comfort or stability, while lower values ensure slower, smoother turns, potentially being too cautious.</translation>
+    </message>
+    <message>
+        <source>Map Based</source>
+        <translation type="gpt-4o-generated">Map-Based</translation>
+    </message>
+    <message>
+        <source>Vision</source>
+        <translation type="gpt-4o-generated">Sight</translation>
+    </message>
+    <message>
+        <source>The &lt;b&gt;Map Based&lt;/b&gt; option is only available when some &lt;b&gt;Map Data&lt;/b&gt; has been downloaded!</source>
+        <translation type="gpt-4o-generated">The &lt;b&gt;Map Based&lt;/b&gt; option is available only when some &lt;b&gt;Map Data&lt;/b&gt; has been downloaded!</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotManageControl</name>
     <message>
         <source>MANAGE</source>
-        <translation type="gpt-4o-generated">CAP'N'S ORDERS</translation>
+        <translation type="gpt-4o-generated">Oversee</translation>
+    </message>
+</context>
+<context>
+    <name>FrogPilotMapsPanel</name>
+    <message>
+        <source>Manually</source>
+        <translation type="gpt-4o-generated">By hand</translation>
+    </message>
+    <message>
+        <source>Weekly</source>
+        <translation type="gpt-4o-generated">Weekly</translation>
+    </message>
+    <message>
+        <source>Monthly</source>
+        <translation type="gpt-4o-generated">Monthly</translation>
+    </message>
+    <message>
+        <source>Automatically Update Maps</source>
+        <translation type="gpt-4o-generated">Auto-Update Maps</translation>
+    </message>
+    <message>
+        <source>The frequency at which maps sync with the latest OpenStreetMap (OSM) changes. Weekly updates occur every Sunday, and monthly updates occur on the 1st.</source>
+        <translation type="gpt-4o-generated">Maps sync with the latest OpenStreetMap (OSM) changes at these intervals: weekly updates happen every Sunday, and monthly updates take place on the 1st.</translation>
+    </message>
+    <message>
+        <source>Data Sources</source>
+        <translation type="gpt-4o-generated">Sources of Data</translation>
+    </message>
+    <message>
+        <source>Select map data sources to use with "Curve Speed Control" and "Speed Limit Controller".</source>
+        <translation type="gpt-4o-generated">Choose map data sources for "Curve Speed Control" and "Speed Limit Controller".</translation>
+    </message>
+    <message>
+        <source>COUNTRIES</source>
+        <translation type="gpt-4o-generated">NATIONS</translation>
+    </message>
+    <message>
+        <source>STATES</source>
+        <translation type="gpt-4o-generated">STATES</translation>
+    </message>
+    <message>
+        <source>Download Maps</source>
+        <translation type="gpt-4o-generated">Get Maps</translation>
+    </message>
+    <message>
+        <source>DOWNLOAD</source>
+        <translation type="gpt-4o-generated">FETCH</translation>
+    </message>
+    <message>
+        <source>Download the selected maps to use with "Curve Speed Control" and "Speed Limit Controller".</source>
+        <translation type="gpt-4o-generated">Download the chosen maps to use with "Curve Speed Control" and "Speed Limit Controller".</translation>
+    </message>
+    <message>
+        <source>CANCEL</source>
+        <translation type="gpt-4o-generated">CANCEL</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to cancel the download?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to cancel the download, matey?</translation>
+    </message>
+    <message>
+        <source>Download Completion ETA</source>
+        <translation type="gpt-4o-generated">Estimated Time for Download Completion</translation>
+    </message>
+    <message>
+        <source>Download Progress</source>
+        <translation type="gpt-4o-generated">Download Status</translation>
+    </message>
+    <message>
+        <source>Download Time Elapsed</source>
+        <translation type="gpt-4o-generated">Time Elapsed for Download</translation>
+    </message>
+    <message>
+        <source>Maps Last Updated</source>
+        <translation type="gpt-4o-generated">Maps Recently Updated</translation>
+    </message>
+    <message>
+        <source>Maps Size</source>
+        <translation type="gpt-4o-generated">Map Dimensions</translation>
+    </message>
+    <message>
+        <source>Remove Maps</source>
+        <translation type="gpt-4o-generated">Delete Maps</translation>
+    </message>
+    <message>
+        <source>REMOVE</source>
+        <translation type="gpt-4o-generated">DELETE</translation>
+    </message>
+    <message>
+        <source>Remove downloaded maps to clear up storage space.</source>
+        <translation type="gpt-4o-generated">Delete downloaded maps to free up storage space.</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to delete all of your downloaded maps?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to delete all yer downloaded maps?</translation>
+    </message>
+    <message>
+        <source>Reset Map Downloader</source>
+        <translation type="gpt-4o-generated">Restart Map Downloader</translation>
+    </message>
+    <message>
+        <source>RESET</source>
+        <translation type="gpt-4o-generated">RESET</translation>
+    </message>
+    <message>
+        <source>Reset the map downloader. Use if you're running into issues with downloading maps.</source>
+        <translation type="gpt-4o-generated">Reset the map downloader if ye be havin' trouble with downloading maps, matey.</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to reset the map downloader? This will force a reboot once completed.</source>
+        <translation type="gpt-4o-generated">Are you certain you wish to reset the map downloader? This will trigger a reboot once finished.</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="gpt-4o-generated">Restart</translation>
+    </message>
+    <message>
+        <source>Resetting...</source>
+        <translation type="gpt-4o-generated">Restarting...</translation>
+    </message>
+    <message>
+        <source>Reset!</source>
+        <translation type="gpt-4o-generated">Restart!</translation>
+    </message>
+    <message>
+        <source>Rebooting...</source>
+        <translation type="gpt-4o-generated">Restarting...</translation>
+    </message>
+    <message>
+        <source>Africa</source>
+        <translation type="gpt-4o-generated">Africa</translation>
+    </message>
+    <message>
+        <source>Antarctica</source>
+        <translation type="gpt-4o-generated">Antarctica</translation>
+    </message>
+    <message>
+        <source>Asia</source>
+        <translation type="gpt-4o-generated">Asia</translation>
+    </message>
+    <message>
+        <source>Europe</source>
+        <translation type="gpt-4o-generated">Europe</translation>
+    </message>
+    <message>
+        <source>North America</source>
+        <translation type="gpt-4o-generated">North America, matey</translation>
+    </message>
+    <message>
+        <source>Oceania</source>
+        <translation type="gpt-4o-generated">Oceania</translation>
+    </message>
+    <message>
+        <source>South America</source>
+        <translation type="gpt-4o-generated">South America</translation>
+    </message>
+    <message>
+        <source>United States - Midwest</source>
+        <translation type="gpt-4o-generated">United States - Midwest</translation>
+    </message>
+    <message>
+        <source>United States - Northeast</source>
+        <translation type="gpt-4o-generated">Northeast United States</translation>
+    </message>
+    <message>
+        <source>United States - South</source>
+        <translation type="gpt-4o-generated">United States - South</translation>
+    </message>
+    <message>
+        <source>United States - West</source>
+        <translation type="gpt-4o-generated">United States - West</translation>
+    </message>
+    <message>
+        <source>United States - Territories</source>
+        <translation type="gpt-4o-generated">United States - Territories</translation>
+    </message>
+    <message>
+        <source>CANCELLED</source>
+        <translation type="gpt-4o-generated">CANCELLED</translation>
+    </message>
+    <message>
+        <source>Offline...</source>
+        <translation type="gpt-4o-generated">Disconnected...</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotModelPanel</name>
     <message>
-        <source>Automatically Update and Download Models</source>
-        <translation type="gpt-4o-generated">Hoist the sails 'n fetch the models with automatic updates!</translation>
+        <source>Automatically Download New Models</source>
+        <translation type="gpt-4o-generated">Automatically Fetch New Models</translation>
     </message>
     <message>
-        <source>Automatically downloads new models and updates existing ones if needed.</source>
-        <translation type="gpt-4o-generated">Hoists the sails to fetch new models and refreshes the old ones if the need arises, it does.</translation>
+        <source>Automatically download new driving models as they become available.</source>
+        <translation type="gpt-4o-generated">Automatically download new driving models when they become available.</translation>
+    </message>
+    <message>
+        <source>Delete Driving Models</source>
+        <translation type="gpt-4o-generated">Remove Driving Models</translation>
+    </message>
+    <message>
+        <source>Delete driving models from the device.</source>
+        <translation type="gpt-4o-generated">Remove the driving models from the device.</translation>
+    </message>
+    <message>
+        <source>Download Driving Models</source>
+        <translation type="gpt-4o-generated">Download Sailing Models</translation>
+    </message>
+    <message>
+        <source>Download driving models to the device.</source>
+        <translation type="gpt-4o-generated">Download driving models to yer device.</translation>
     </message>
     <message>
         <source>Model Randomizer</source>
-        <translation type="gpt-4o-generated">Model Swashbuckler</translation>
+        <translation type="gpt-4o-generated">Random Model Selector</translation>
     </message>
     <message>
-        <source>Randomly selects a model each drive and brings up a model review prompt at the end to help find your preferred model.</source>
-        <translation type="gpt-4o-generated">Picks a model at random each voyage and pops up a model review prompt at the end to help ye find yer favored model, it does.</translation>
+        <source>Driving models are chosen at random each drive and feedback prompts are used to find the model that best suits your needs.</source>
+        <translation type="gpt-4o-generated">Driving models are selected randomly for each drive, and feedback prompts help identify the model that best suits your needs.</translation>
     </message>
     <message>
         <source>Manage Model Blacklist</source>
-        <translation type="gpt-4o-generated">Manage Model Blacklist, ye scallywag</translation>
+        <translation type="gpt-4o-generated">Manage Model Blacklist, matey</translation>
     </message>
     <message>
-        <source>Manage the blacklisted models that aren't being used with 'Model Randomizer'.</source>
-        <translation type="gpt-4o-generated">Keep a weather eye on the blacklisted models not put to use with 'Model Randomizer'.</translation>
+        <source>Add or remove models from the &lt;b&gt;Model Randomizer&lt;/b&gt;'s blacklist list.</source>
+        <translation type="gpt-4o-generated">Add or remove models from the &lt;b&gt;Model Randomizer&lt;/b&gt;'s blacklist.</translation>
     </message>
     <message>
-        <source>Reset Model Scores</source>
-        <translation type="gpt-4o-generated">Hoist the sails on Model Scores anew!</translation>
+        <source>Manage Model Ratings</source>
+        <translation type="gpt-4o-generated">Oversee Model Ratings</translation>
     </message>
     <message>
-        <source>Clear the ratings you've given to the driving models.</source>
-        <translation type="gpt-4o-generated">Wipe the scores ye've bestowed upon the drivin' models.</translation>
+        <source>Reset or view the saved ratings for the driving models.</source>
+        <translation type="gpt-4o-generated">Reset or view the saved ratings for the driving models, matey.</translation>
     </message>
     <message>
-        <source>Review Model Scores</source>
-        <translation type="gpt-4o-generated">Review the Model Scores, matey!</translation>
+        <source>Select Driving Model</source>
+        <translation type="gpt-4o-generated">Choose Driving Model</translation>
     </message>
     <message>
-        <source>View the ratings you've assigned to the driving models.</source>
-        <translation type="gpt-4o-generated">Spyglass the ratings ye've bestowed upon the drivin' models, matey.</translation>
-    </message>
-    <message>
-        <source>Delete Model</source>
-        <translation type="gpt-4o-generated">Scuttle Model</translation>
-    </message>
-    <message>
-        <source>Delete driving models from your device.</source>
-        <translation type="gpt-4o-generated">Walk the plank with these drivin' models off yer device.</translation>
-    </message>
-    <message>
-        <source>Download Model</source>
-        <translation type="gpt-4o-generated">Hoist the Model Aboard</translation>
-    </message>
-    <message>
-        <source>Download new driving models.</source>
-        <translation type="gpt-4o-generated">Hoist the sails and fetch the new drivin' models!</translation>
-    </message>
-    <message>
-        <source>Select Model</source>
-        <translation type="gpt-4o-generated">Choose Yer Vessel</translation>
-    </message>
-    <message>
-        <source>Select your preferred driving model.</source>
-        <translation type="gpt-4o-generated">Choose yer favored seafarin' model.</translation>
-    </message>
-    <message>
-        <source>ADD</source>
-        <translation type="gpt-4o-generated">Hoist Anew</translation>
-    </message>
-    <message>
-        <source>REMOVE</source>
-        <translation type="gpt-4o-generated">Cast Away</translation>
-    </message>
-    <message>
-        <source>REMOVE ALL</source>
-        <translation type="gpt-4o-generated">PLUNDER THE LOT</translation>
-    </message>
-    <message>
-        <source>There are no more models to blacklist! The only available model is "%1"!</source>
-        <translation type="gpt-4o-generated">Arr, there be no more models to banish to Davy Jones' locker! The only one left standin' is "%1"!</translation>
-    </message>
-    <message>
-        <source>Select a model to add to the blacklist</source>
-        <translation type="gpt-4o-generated">Pick a model to be cast into the blacklist, matey</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to add the '%1' model to the blacklist?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to cast the '%1' model into the blacklist?</translation>
-    </message>
-    <message>
-        <source>Add</source>
-        <translation type="gpt-4o-generated">Add Aye</translation>
-    </message>
-    <message>
-        <source>Select a model to remove from the blacklist</source>
-        <translation type="gpt-4o-generated">Choose a shipmate model to cast off from the blacklist</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to remove the '%1' model from the blacklist?</source>
-        <translation type="gpt-4o-generated">Are ye certain ye wish to banish the '%1' model from the blacklist?</translation>
-    </message>
-    <message>
-        <source>Remove</source>
-        <translation type="gpt-4o-generated">Scuttle</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to remove all of your blacklisted models?</source>
-        <translation type="gpt-4o-generated">Ye certain ye wish to be rid of all yer blacklisted models, matey?</translation>
-    </message>
-    <message>
-        <source>RESET</source>
-        <translation type="gpt-4o-generated">Hoist the Colors!</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to reset all of your model drives and scores?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to reset all yer model drives and scores, matey?</translation>
-    </message>
-    <message>
-        <source>REVIEW</source>
-        <translation type="gpt-4o-generated">PERUSE YER FINDINGS</translation>
+        <source>Select the active driving model.</source>
+        <translation type="gpt-4o-generated">Choose the active driving model.</translation>
     </message>
     <message>
         <source>DELETE</source>
-        <translation type="gpt-4o-generated">Plunder and Scuttle</translation>
+        <translation type="gpt-4o-generated">Remove</translation>
     </message>
     <message>
         <source>DELETE ALL</source>
-        <translation type="gpt-4o-generated">Wipe the Deck Clean, Arrr!</translation>
+        <translation type="gpt-4o-generated">Remove everything.</translation>
     </message>
     <message>
         <source>Select a driving model to delete</source>
-        <translation type="gpt-4o-generated">Pick a drivin' model to send to Davy Jones' locker</translation>
+        <translation type="gpt-4o-generated">Choose a driving model to remove</translation>
     </message>
     <message>
-        <source>Are you sure you want to delete the '%1' model?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to send the '%1' model to Davy Jones' locker?</translation>
+        <source>Are you sure you want to delete the "%1" model?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to delete the "%1" model?</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="gpt-4o-generated">Scuttle it!</translation>
+        <translation type="gpt-4o-generated">Remove</translation>
     </message>
     <message>
         <source>Are you sure you want to delete all of your downloaded driving models?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to send all yer downloaded drivin' models to Davy Jones' locker?</translation>
+        <translation type="gpt-4o-generated">Are ye certain ye want to delete all yer downloaded driving models?</translation>
     </message>
     <message>
         <source>DOWNLOAD</source>
-        <translation type="gpt-4o-generated">HOIST THE SAILS AND FETCH</translation>
+        <translation type="gpt-4o-generated">Ahoy, DOWNLOAD</translation>
     </message>
     <message>
         <source>DOWNLOAD ALL</source>
-        <translation type="gpt-4o-generated">PILLAGE ALL FILES</translation>
+        <translation type="gpt-4o-generated">Download everything</translation>
     </message>
     <message>
         <source>Select a driving model to download</source>
-        <translation type="gpt-4o-generated">Choose yer drivin' model to download, matey!</translation>
+        <translation type="gpt-4o-generated">Choose a driving model to download</translation>
     </message>
     <message>
         <source>CANCEL</source>
-        <translation type="gpt-4o-generated">AVAST</translation>
+        <translation type="gpt-4o-generated">CANCEL</translation>
+    </message>
+    <message>
+        <source>ADD</source>
+        <translation type="gpt-4o-generated">ADD</translation>
+    </message>
+    <message>
+        <source>REMOVE</source>
+        <translation type="gpt-4o-generated">DELETE</translation>
+    </message>
+    <message>
+        <source>REMOVE ALL</source>
+        <translation type="gpt-4o-generated">DELETE ALL</translation>
+    </message>
+    <message>
+        <source>There are no more models to blacklist! The only available model is "%1"!</source>
+        <translation type="gpt-4o-generated">No more models to blacklist, matey! The only model available is "%1"!</translation>
+    </message>
+    <message>
+        <source>Select a model to add to the blacklist</source>
+        <translation type="gpt-4o-generated">Choose a model to add to the blacklist, matey.</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to add the "%1" model to the blacklist?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to add the "%1" model to the blacklist?</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation type="gpt-4o-generated">Include</translation>
+    </message>
+    <message>
+        <source>Select a model to remove from the blacklist</source>
+        <translation type="gpt-4o-generated">Choose a model to remove from the blacklist, matey.</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove the "%1" model from the blacklist?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to remove the "%1" model from the blacklist?</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="gpt-4o-generated">Delete</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove all of your blacklisted models?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to remove all yer blacklisted models?</translation>
+    </message>
+    <message>
+        <source>RESET</source>
+        <translation type="gpt-4o-generated">RESET</translation>
+    </message>
+    <message>
+        <source>VIEW</source>
+        <translation type="gpt-4o-generated">DISPLAY</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to reset all of your model drives and scores?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to reset all yer model drives and scores?</translation>
     </message>
     <message>
         <source>SELECT</source>
-        <translation type="gpt-4o-generated">PICK YER CHOICE</translation>
+        <translation type="gpt-4o-generated">SELECT</translation>
     </message>
     <message>
         <source>Select a model - 🗺️ = Navigation | 📡 = Radar | 👀 = VOACC</source>
-        <translation type="gpt-4o-generated">Choose yer vessel - 🗺️ = Navigation | 📡 = Radar | 👀 = VOACC</translation>
+        <translation type="gpt-4o-generated">Choose a model - 🗺️ = Navigation | 📡 = Radar | 👀 = VOACC</translation>
     </message>
     <message>
-        <source>The 'Model Randomizer' only works with downloaded models. Do you want to download all the driving models?</source>
-        <translation type="gpt-4o-generated">Arrr matey, the 'Model Randomizer' be workin' only with models ye've already downloaded. Be ye wishin' to download all the drivin' models?</translation>
+        <source>The "Model Randomizer" only works with downloaded models. Do you want to download all the driving models?</source>
+        <translation type="gpt-4o-generated">The "Model Randomizer" functions solely with downloaded models. Would you like to download all the driving models, matey?</translation>
+    </message>
+    <message>
+        <source>Offline...</source>
+        <translation type="gpt-4o-generated">Disconnected...</translation>
+    </message>
+</context>
+<context>
+    <name>FrogPilotNavigationPanel</name>
+    <message>
+        <source>Manage your %1.</source>
+        <translation type="gpt-4o-generated">Handle yer %1.</translation>
+    </message>
+    <message>
+        <source>ADD</source>
+        <translation type="gpt-4o-generated">Include</translation>
+    </message>
+    <message>
+        <source>Enter your %1</source>
+        <translation type="gpt-4o-generated">Input your %1</translation>
+    </message>
+    <message>
+        <source>Inputted key is invalid or too short!</source>
+        <translation type="gpt-4o-generated">The key ye entered is invalid or too short!</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove your %1?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to remove yer %1?</translation>
+    </message>
+    <message>
+        <source>REMOVE</source>
+        <translation type="gpt-4o-generated">DELETE</translation>
+    </message>
+    <message>
+        <source>Manage Your Settings At</source>
+        <translation type="gpt-4o-generated">Adjust Your Settings At</translation>
+    </message>
+    <message>
+        <source>MapBox</source>
+        <translation type="gpt-4o-generated">MapBox</translation>
+    </message>
+    <message>
+        <source>Amap</source>
+        <translation type="gpt-4o-generated">A map</translation>
+    </message>
+    <message>
+        <source>Google</source>
+        <translation type="gpt-4o-generated">Google</translation>
+    </message>
+    <message>
+        <source>Destination Search Provider</source>
+        <translation type="gpt-4o-generated">Destination Search Matey</translation>
+    </message>
+    <message>
+        <source>The search provider used for destination queries in "Navigate on Openpilot". Options include "MapBox" (recommended), "Amap", and "Google Maps".</source>
+        <translation type="gpt-4o-generated">The search provider for destination queries in "Navigate on Openpilot" includes options like "MapBox" (recommended), "Amap", and "Google Maps".</translation>
+    </message>
+    <message>
+        <source>Amap Key #1</source>
+        <translation type="gpt-4o-generated">Amap Key #1</translation>
+    </message>
+    <message>
+        <source>Manage your Amap key.</source>
+        <translation type="gpt-4o-generated">Manage yer Amap key, matey.</translation>
+    </message>
+    <message>
+        <source>Enter your Amap key</source>
+        <translation type="gpt-4o-generated">Input your Amap key, matey!</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove your Amap key?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to remove yer Amap key?</translation>
+    </message>
+    <message>
+        <source>Amap Key #2</source>
+        <translation type="gpt-4o-generated">Amap Key #2</translation>
+    </message>
+    <message>
+        <source>Google Maps Key</source>
+        <translation type="gpt-4o-generated">Google Maps Code</translation>
+    </message>
+    <message>
+        <source>Manage your Google Maps key.</source>
+        <translation type="gpt-4o-generated">Manage yer Google Maps key, matey.</translation>
+    </message>
+    <message>
+        <source>Enter your Google Maps key</source>
+        <translation type="gpt-4o-generated">Input your Google Maps key</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove your Google Maps key?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to remove yer Google Maps key?</translation>
+    </message>
+    <message>
+        <source>Public Mapbox Key</source>
+        <translation type="gpt-4o-generated">Mapbox Key for Public Use</translation>
+    </message>
+    <message>
+        <source>Secret Mapbox Key</source>
+        <translation type="gpt-4o-generated">Confidential Mapbox Key</translation>
+    </message>
+    <message>
+        <source>MapBox Setup Instructions</source>
+        <translation type="gpt-4o-generated">MapBox Setup Guide</translation>
+    </message>
+    <message>
+        <source>VIEW</source>
+        <translation type="gpt-4o-generated">DISPLAY</translation>
+    </message>
+    <message>
+        <source>View the instructions to set up "MapBox" for "Primeless Navigation".</source>
+        <translation type="gpt-4o-generated">Check the instructions to set up "MapBox" for "Primeless Navigation".</translation>
+    </message>
+    <message>
+        <source>CANCEL</source>
+        <translation type="gpt-4o-generated">CANCEL</translation>
+    </message>
+    <message>
+        <source>Manually Update Speed Limits</source>
+        <translation type="gpt-4o-generated">Manually Adjust Speed Limits</translation>
+    </message>
+    <message>
+        <source>Speed Limit Filler</source>
+        <translation type="gpt-4o-generated">Speed Limit Buffer</translation>
+    </message>
+    <message>
+        <source>Automatically collect missing or incorrect speed limits from your dashboard (if supported), &lt;b&gt;Mapbox&lt;/b&gt;, and &lt;b&gt;Navigate-on-openpilot&lt;/b&gt; while driving.&lt;br&gt;&lt;br&gt;When the car is turned off and connected to Wi-Fi, your speed limit data is automatically processed into a compiled file formatted for the tool located at &lt;b&gt;SpeedLimitFiller.frogpilot.download&lt;/b&gt;.&lt;br&gt;&lt;br&gt;You can grab the processed file from &lt;b&gt;The Pond&lt;/b&gt; via the &lt;b&gt;Download Speed Limits&lt;/b&gt; menu.&lt;br&gt;&lt;br&gt;Want a more thorough walkthrough? Check out the &lt;b&gt;#speed-limit-filler&lt;/b&gt; channel in the &lt;b&gt;FrogPilot Discord&lt;/b&gt;!</source>
+        <translation type="gpt-4o-generated">Automatically gather missing or incorrect speed limits from your dashboard (if supported), &lt;b&gt;Mapbox&lt;/b&gt;, and &lt;b&gt;Navigate-on-openpilot&lt;/b&gt; while driving.&lt;br&gt;&lt;br&gt;When the car is turned off and connected to Wi-Fi, your speed limit data is processed into a compiled file formatted for the tool at &lt;b&gt;SpeedLimitFiller.frogpilot.download&lt;/b&gt;.&lt;br&gt;&lt;br&gt;You can fetch the processed file from &lt;b&gt;The Pond&lt;/b&gt; via the &lt;b&gt;Download Speed Limits&lt;/b&gt; menu.&lt;br&gt;&lt;br&gt;Need a more detailed guide? Visit the &lt;b&gt;#speed-limit-filler&lt;/b&gt; channel in the &lt;b&gt;FrogPilot Discord&lt;/b&gt;!</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to cancel the speed limit update process?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye wish to cancel the speed limit update process?</translation>
+    </message>
+    <message>
+        <source>Cancelled...</source>
+        <translation type="gpt-4o-generated">Called off...</translation>
+    </message>
+    <message>
+        <source>You have reached the request limit.
+
+It will reset in %1 hours and %2 minutes.</source>
+        <translation type="gpt-4o-generated">Ye've hit the request limit, matey.
+
+It'll reset in %1 hours and %2 minutes.</translation>
+    </message>
+    <message>
+        <source>This process will take awhile, so it's advised to start when you're done driving with a stable Wi-Fi connection. Do you wish to proceed?</source>
+        <translation type="gpt-4o-generated">This process will take a while, so it's best to start when you're done driving and have a stable Wi-Fi connection. Do you wish to proceed, matey?</translation>
+    </message>
+    <message>
+        <source>Completed!</source>
+        <translation type="gpt-4o-generated">All done!</translation>
+    </message>
+    <message>
+        <source>Offline...</source>
+        <translation type="gpt-4o-generated">Disconnected...</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotSettingsWindow</name>
     <message>
         <source>MANAGE</source>
-        <translation type="gpt-4o-generated">COMMAND YER SHIP</translation>
+        <translation type="gpt-4o-generated">CONTROL</translation>
     </message>
     <message>
         <source>DRIVING MODEL</source>
-        <translation type="gpt-4o-generated">SEAFARIN' MODEL</translation>
+        <translation type="gpt-4o-generated">NAVIGATING MODEL</translation>
     </message>
     <message>
         <source>GAS / BRAKE</source>
-        <translation type="gpt-4o-generated">THROTTLE / ANCHOR</translation>
+        <translation type="gpt-4o-generated">THROTTLE / BRAKE</translation>
     </message>
     <message>
         <source>STEERING</source>
-        <translation type="gpt-4o-generated">STEERIN' WHEEL</translation>
+        <translation type="gpt-4o-generated">STEERING</translation>
     </message>
     <message>
         <source>MAP DATA</source>
-        <translation type="gpt-4o-generated">CHARTS 'N' MAPS DATA</translation>
+        <translation type="gpt-4o-generated">CHART DATA</translation>
     </message>
     <message>
         <source>NAVIGATION</source>
-        <translation type="gpt-4o-generated">CHARTIN' THE COURSE</translation>
+        <translation type="gpt-4o-generated">Steering</translation>
     </message>
     <message>
         <source>DATA</source>
-        <translation type="gpt-4o-generated">Treasure Map Data</translation>
+        <translation type="gpt-4o-generated">DATA</translation>
     </message>
     <message>
         <source>DEVICE CONTROLS</source>
-        <translation type="gpt-4o-generated">SHIP'S WHEEL SETTINGS</translation>
+        <translation type="gpt-4o-generated">DEVICE COMMANDS</translation>
     </message>
     <message>
         <source>UTILITIES</source>
-        <translation type="gpt-4o-generated">Ye Tools o' the Trade</translation>
+        <translation type="gpt-4o-generated">UTILITIES</translation>
     </message>
     <message>
         <source>APPEARANCE</source>
-        <translation type="gpt-4o-generated">APPEARIN'</translation>
+        <translation type="gpt-4o-generated">LOOK</translation>
     </message>
     <message>
         <source>THEME</source>
-        <translation type="gpt-4o-generated">THEME, ye scallywag!</translation>
+        <translation type="gpt-4o-generated">Ahoy, matey!</translation>
+    </message>
+    <message>
+        <source>VEHICLE SETTINGS</source>
+        <translation type="gpt-4o-generated">VEHICLE CONFIGURATION</translation>
+    </message>
+    <message>
+        <source>WHEEL CONTROLS</source>
+        <translation type="gpt-4o-generated">WHEEL COMMANDS</translation>
     </message>
     <message>
         <source>Alerts and Sounds</source>
-        <translation type="gpt-4o-generated">Ahoy! Alerts and Sounds</translation>
+        <translation type="gpt-4o-generated">Alerts and Chimes</translation>
     </message>
     <message>
-        <source>Manage FrogPilot's alerts and sounds.</source>
-        <translation type="gpt-4o-generated">Manage FrogPilot's alerts 'n sounds, ye scallywag.</translation>
+        <source>FrogPilot settings for alert volumes and custom notifications to stay informed about important driving events.</source>
+        <translation type="gpt-4o-generated">FrogPilot settings for alert volumes and custom notifications keep you informed about key driving events, matey.</translation>
     </message>
     <message>
         <source>Driving Controls</source>
-        <translation type="gpt-4o-generated">Helmsman's Commands</translation>
+        <translation type="gpt-4o-generated">Steering Controls</translation>
     </message>
     <message>
-        <source>Manage FrogPilot's features that affect acceleration, braking, and steering.</source>
-        <translation type="gpt-4o-generated">Commandeer FrogPilot's features that set the course fer acceleration, braking, and steerage.</translation>
+        <source>FrogPilot settings for acceleration, braking, and steering.</source>
+        <translation type="gpt-4o-generated">FrogPilot settings for acceleration, braking, and steering, matey.</translation>
     </message>
     <message>
         <source>Navigation</source>
-        <translation type="gpt-4o-generated">Chartin' the Course</translation>
+        <translation type="gpt-4o-generated">Course plotting</translation>
     </message>
     <message>
-        <source>Download map data that can be used with "Curve Speed Control" and "Speed Limit Controller" and set up "Navigate On openpilot (NOO)".</source>
-        <translation type="gpt-4o-generated">Hoist the map data that ye may use with the "Curve Speed Control" and "Speed Limit Controller", and rig "Navigate On openpilot (NOO)".</translation>
+        <source>Download map data for &lt;b&gt;Curve Speed Control&lt;/b&gt;, &lt;b&gt;Speed Limit Controller&lt;/b&gt;, and set up &lt;b&gt;Navigate on openpilot (NOO)&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">Download map data for &lt;b&gt;Curve Speed Control&lt;/b&gt; and &lt;b&gt;Speed Limit Controller&lt;/b&gt;, then set up &lt;b&gt;Navigate on openpilot (NOO)&lt;/b&gt;.</translation>
     </message>
     <message>
         <source>System Management</source>
-        <translation type="gpt-4o-generated">Ship's Command</translation>
+        <translation type="gpt-4o-generated">System Management</translation>
     </message>
     <message>
-        <source>Manage the device's internal settings along with other tools and utilities used to maintain and troubleshoot FrogPilot.</source>
-        <translation type="gpt-4o-generated">Tend to the device's inner workings, along with other trusty tools and utilities fer keepin' FrogPilot shipshape and fixin' any scallywag troubles.</translation>
+        <source>Data storage management, debugging tools, device settings, screen behavior settings, system backups, and utilities to maintain, optimize, and troubleshoot FrogPilot.</source>
+        <translation type="gpt-4o-generated">Data storage management, debugging tools, device settings, screen behavior settings, system backups, and utilities to maintain, optimize, and troubleshoot FrogPilot, matey.</translation>
     </message>
     <message>
         <source>Theme and Appearance</source>
-        <translation type="gpt-4o-generated">Theme and Appearance, me heartie!</translation>
+        <translation type="gpt-4o-generated">Theme and Look</translation>
     </message>
     <message>
-        <source>Manage openpilot's theme and onroad widgets.</source>
-        <translation type="gpt-4o-generated">Chart yer course for changin' openpilot's theme and onroad widgets, matey!</translation>
+        <source>FrogPilot settings for the current theme, driving-screen, and the overall user interface.</source>
+        <translation type="gpt-4o-generated">FrogPilot settings for the current theme, driving screen, and overall user interface.</translation>
     </message>
     <message>
         <source>Vehicle Controls</source>
-        <translation type="gpt-4o-generated">Ship's Helm</translation>
+        <translation type="gpt-4o-generated">Ship Controls</translation>
     </message>
     <message>
-        <source>Manage vehicle-specific settings.</source>
-        <translation type="gpt-4o-generated">Steer yer vessel's unique settings, ye savvy?</translation>
+        <source>Options unique to supported manufacturers and vehicle fingerprint management.</source>
+        <translation type="gpt-4o-generated">Exclusive options for supported manufacturers and vehicle fingerprint management.</translation>
     </message>
     <message>
         <source>Minimal</source>
-        <translation type="gpt-4o-generated">Barebones, matey!</translation>
+        <translation type="gpt-4o-generated">Bare minimum</translation>
     </message>
     <message>
         <source>Standard</source>
-        <translation type="gpt-4o-generated">Standard, me heartie</translation>
+        <translation type="gpt-4o-generated">Regular</translation>
     </message>
     <message>
         <source>Advanced</source>
-        <translation type="gpt-4o-generated">Swashbucklin' Expert</translation>
+        <translation type="gpt-4o-generated">Enhanced</translation>
     </message>
     <message>
         <source>Developer</source>
-        <translation type="gpt-4o-generated">Code Buccaneer</translation>
+        <translation type="gpt-4o-generated">Coder</translation>
     </message>
     <message>
         <source>Tuning Level</source>
-        <translation type="gpt-4o-generated">Trimmin' Level</translation>
+        <translation type="gpt-4o-generated">Adjustment Level</translation>
     </message>
     <message>
-        <source>Select a tuning level that suits your preferences:
+        <source>The visibility and complexity of tuning settings. Lower levels simplify the interface by hiding advanced options, while higher levels unlock detailed customization.
 
 Minimal - Ideal for those who prefer simplicity or ease of use
 Standard - Recommended for most users for a balanced experience
 Advanced - Unlocks fine-tuning controls for more experienced users
 Developer - Unlocks highly customizable settings for seasoned enthusiasts</source>
-        <translation type="gpt-4o-generated">Choose the tunin' level that fits yer fancy:
+        <translation type="gpt-4o-generated">The visibility and complexity of tuning settings vary. Lower levels simplify the interface by concealing advanced options, while higher levels reveal detailed customization.
 
-Minimal - Perfect fer those who fancy simplicity or ease o' use
-Standard - Suggested fer most sea-farers seekin' a balanced voyage
-Advanced - Opens up fine-tunin' controls fer the more seasoned sailors
-Developer - Grants access to highly customizable settings fer the seasoned swashbucklers</translation>
+Minimal - Perfect for those who favor simplicity or ease of use
+Standard - Suggested for most users for a balanced experience
+Advanced - Unlocks fine-tuning controls for more experienced users
+Developer - Unlocks highly customizable settings for seasoned enthusiasts</translation>
     </message>
     <message>
         <source>WARNING: This unlocks some potentially dangerous settings that can DRASTICALLY alter your driving experience!</source>
-        <translation type="gpt-4o-generated">AVAST! This be unlockin' some potentially perilous settings that can SWASHBUCKLIN'LY change yer drivin' experience!</translation>
-    </message>
-    <message>
-        <source>The "Developer" preset is only available for users with either over 100 hours on FrogPilot, or 250 hours with openpilot.</source>
-        <translation type="gpt-4o-generated">The "Developer" preset be offered only to them seasoned sailors with either over 100 hours on FrogPilot, or 250 hours with openpilot. Arrr!</translation>
+        <translation type="gpt-4o-generated">Beware: This unlocks settings that may drastically change your driving experience!</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotSoundsPanel</name>
     <message>
-        <source>Alert Volume Controller</source>
-        <translation type="gpt-4o-generated">Alert Volume Helm</translation>
+        <source>Alert Volume Control</source>
+        <translation type="gpt-4o-generated">Alert Volume Ahoy</translation>
     </message>
     <message>
-        <source>Control the volume level for each individual sound in openpilot.</source>
-        <translation type="gpt-4o-generated">Adjust the volume fer each sound in openpilot, matey.</translation>
+        <source>Adjust the volume for each alert in openpilot.</source>
+        <translation type="gpt-4o-generated">Set the volume for each alert in openpilot.</translation>
     </message>
     <message>
         <source>Disengage Volume</source>
-        <translation type="gpt-4o-generated">Quiet the Cannons Volume</translation>
+        <translation type="gpt-4o-generated">Mute Volume</translation>
     </message>
     <message>
-        <source>Related alerts:
-
-Adaptive Cruise Disabled
-Parking Brake Engaged
-Brake Pedal Pressed
-Speed too Low</source>
-        <translation type="gpt-4o-generated">Related alerts:
-
-Adaptive Cruise Be Disabled
-The Parking Brake Be Set
-Brake Pedal Be Pressed
-Speed Be too Low</translation>
+        <source>Adjust the volume for alerts like:&lt;br&gt;&lt;br&gt;&lt;b&gt;Adaptive Cruise Disabled&lt;/b&gt;&lt;br&gt;&lt;b&gt;Brake Pedal Pressed&lt;/b&gt;&lt;br&gt;&lt;b&gt;Parking Brake Engaged&lt;/b&gt;&lt;br&gt;&lt;b&gt;Speed too Low&lt;/b&gt;</source>
+        <translation type="gpt-4o-generated">Set the volume for alerts such as:&lt;br&gt;&lt;br&gt;&lt;b&gt;Adaptive Cruise Disabled&lt;/b&gt;&lt;br&gt;&lt;b&gt;Brake Pedal Pressed&lt;/b&gt;&lt;br&gt;&lt;b&gt;Parking Brake Engaged&lt;/b&gt;&lt;br&gt;&lt;b&gt;Speed too Low&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Engage Volume</source>
-        <translation type="gpt-4o-generated">Hoist the Volume</translation>
+        <translation type="gpt-4o-generated">Activate Volume</translation>
     </message>
     <message>
-        <source>Related alerts:
-
-NNFF Torque Controller loaded
-openpilot engaged</source>
-        <translation type="gpt-4o-generated">Related alerts:
-
-NNFF Torque Controller be loaded
-openpilot be engaged</translation>
+        <source>Adjust the volume for alerts like:&lt;br&gt;&lt;br&gt;&lt;b&gt;NNFF Torque Controller loaded&lt;/b&gt;&lt;br&gt;&lt;b&gt;openpilot engaged&lt;/b&gt;</source>
+        <translation type="gpt-4o-generated">Set the alert volume for messages such as:&lt;br&gt;&lt;br&gt;&lt;b&gt;NNFF Torque Controller loaded&lt;/b&gt;&lt;br&gt;&lt;b&gt;openpilot engaged&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Prompt Volume</source>
-        <translation type="gpt-4o-generated">Shanty Volume</translation>
+        <translation type="gpt-4o-generated">Request Volume</translation>
     </message>
     <message>
-        <source>Related alerts:
-
-Car Detected in Blindspot
-Speed too Low
-Steer Unavailable Below 'X'
-Take Control, Turn Exceeds Steering Limit</source>
-        <translation type="gpt-4o-generated">Related alerts:
-
-Ship Ahoy! Vessel Spied in Blindspot
-Speed be too Low
-Steerin' Unavailable Below 'X'
-Take the Helm, Turn Exceeds Steering Limit</translation>
+        <source>Adjust the volume for alerts like:&lt;br&gt;&lt;br&gt;&lt;b&gt;Car Detected in Blindspot&lt;/b&gt;&lt;br&gt;&lt;b&gt;Steer Unavailable Below "X"&lt;/b&gt;&lt;br&gt;&lt;b&gt;Speed too Low&lt;/b&gt;&lt;br&gt;&lt;b&gt;Take Control, Turn Exceeds Steering Limit&lt;/b&gt;</source>
+        <translation type="gpt-4o-generated">Set the alert volume for the following:&lt;br&gt;&lt;br&gt;&lt;b&gt;Car Detected in Blindspot&lt;/b&gt;&lt;br&gt;&lt;b&gt;Steer Unavailable Below "X"&lt;/b&gt;&lt;br&gt;&lt;b&gt;Speed too Low&lt;/b&gt;&lt;br&gt;&lt;b&gt;Take Control, Turn Exceeds Steering Limit&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Prompt Distracted Volume</source>
-        <translation type="gpt-4o-generated">Ahoy! Focus-Loss Volume</translation>
+        <translation type="gpt-4o-generated">Distracted Volume Alert</translation>
     </message>
     <message>
-        <source>Related alerts:
-
-Pay Attention, Driver Distracted
-Touch Steering Wheel, Driver Unresponsive</source>
-        <translation type="gpt-4o-generated">Related alerts:
-
-Keep yer eyes sharp, ye seem distracted
-Grab the helm, ye be unresponsive</translation>
+        <source>Adjust the volume for alerts like:&lt;br&gt;&lt;br&gt;&lt;b&gt;Pay Attention, Driver Distracted&lt;/b&gt;&lt;br&gt;&lt;b&gt;Touch Steering Wheel, Driver Unresponsive&lt;/b&gt;</source>
+        <translation type="gpt-4o-generated">Set the alert volume for messages such as:&lt;br&gt;&lt;br&gt;&lt;b&gt;Ahoy, Driver Distracted&lt;/b&gt;&lt;br&gt;&lt;b&gt;Touch Steering Wheel, Driver Unresponsive&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Refuse Volume</source>
-        <translation type="gpt-4o-generated">Scuttle Volume</translation>
+        <translation type="gpt-4o-generated">Waste Volume</translation>
     </message>
     <message>
-        <source>Related alerts:
-
-openpilot Unavailable</source>
-        <translation type="gpt-4o-generated">Related alerts:
-
-openpilot Be Out o' Commission</translation>
+        <source>Adjust the volume for alerts like:&lt;br&gt;&lt;br&gt;&lt;b&gt;openpilot Unavailable&lt;/b&gt;</source>
+        <translation type="gpt-4o-generated">Set the volume for alerts such as:&lt;br&gt;&lt;br&gt;&lt;b&gt;openpilot Unavailable&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Warning Soft Volume</source>
-        <translation type="gpt-4o-generated">Beware, gentle volume ahead!</translation>
+        <translation type="gpt-4o-generated">Soft Volume Warning</translation>
     </message>
     <message>
-        <source>Related alerts:
-
-BRAKE!, Risk of Collision
-TAKE CONTROL IMMEDIATELY</source>
-        <translation type="gpt-4o-generated">Related alerts:
-
-AVAST THERE!, Collision Be Afoot
-GRAB THE WHEEL, LICKETY-SPLIT</translation>
+        <source>Adjust the volume for alerts like:&lt;br&gt;&lt;br&gt;&lt;b&gt;BRAKE!, Risk of Collision&lt;/b&gt;&lt;br&gt;&lt;b&gt;TAKE CONTROL IMMEDIATELY&lt;/b&gt;</source>
+        <translation type="gpt-4o-generated">Set the alert volume for messages such as:&lt;br&gt;&lt;br&gt;&lt;b&gt;BRAKE!, Risk of Collision&lt;/b&gt;&lt;br&gt;&lt;b&gt;TAKE CONTROL IMMEDIATELY&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Warning Immediate Volume</source>
-        <translation type="gpt-4o-generated">Avast! Immediate Volume Warning</translation>
+        <translation type="gpt-4o-generated">Immediate Volume Alert</translation>
     </message>
     <message>
-        <source>Related alerts:
-
-DISENGAGE IMMEDIATELY, Driver Distracted
-DISENGAGE IMMEDIATELY, Driver Unresponsive</source>
-        <translation type="gpt-4o-generated">Related alerts:
-
-ABANDON SHIP NOW, Matey Distracted
-ABANDON SHIP NOW, Matey Unresponsive</translation>
+        <source>Adjust the volume for alerts like:&lt;br&gt;&lt;br&gt;&lt;b&gt;DISENGAGE IMMEDIATELY, Driver Distracted&lt;/b&gt;&lt;br&gt;&lt;b&gt;DISENGAGE IMMEDIATELY, Driver Unresponsive&lt;/b&gt;</source>
+        <translation type="gpt-4o-generated">Set the alert volume for messages such as:&lt;br&gt;&lt;br&gt;&lt;b&gt;DISENGAGE IMMEDIATELY, Driver Distracted&lt;/b&gt;&lt;br&gt;&lt;b&gt;DISENGAGE IMMEDIATELY, Driver Unresponsive&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>Custom Alerts</source>
-        <translation type="gpt-4o-generated">Customary Warnings</translation>
+        <source>FrogPilot Alerts</source>
+        <translation type="gpt-4o-generated">FrogPilot Notices</translation>
     </message>
     <message>
-        <source>Custom alerts for openpilot events.</source>
-        <translation type="gpt-4o-generated">Custom alerts fer openpilot happenings, arrr!</translation>
+        <source>FrogPilot alerts for various events in openpilot.</source>
+        <translation type="gpt-4o-generated">FrogPilot signals for different events in openpilot.</translation>
     </message>
     <message>
         <source>Goat Scream Steering Saturated Alert</source>
-        <translation type="gpt-4o-generated">Arrr, the Wheel's Overloaded, Matey! 🐐</translation>
+        <translation type="gpt-4o-generated">Goat Scream Steering Overloaded Alert</translation>
     </message>
     <message>
-        <source>Enables the famed 'Goat Scream' that has brought both joy and anger to FrogPilot users all around the world!</source>
-        <translation type="gpt-4o-generated">Unleash the legendary 'Goat Scream' that’s stirred laughter and vexation among FrogPilot shipmates across the seven seas!</translation>
+        <source>The infamous "Goat Scream" that has brought both joy and anger to FrogPilot users all around the world!</source>
+        <translation type="gpt-4o-generated">The notorious "Goat Scream" has sparked both joy and ire among FrogPilot users worldwide!</translation>
     </message>
     <message>
         <source>Green Light Alert</source>
-        <translation type="gpt-4o-generated">Aye, the Green Light Be On!</translation>
+        <translation type="gpt-4o-generated">Green Light Signal</translation>
     </message>
     <message>
-        <source>Plays an alert when a traffic light changes from red to green.</source>
-        <translation type="gpt-4o-generated">Sounds the call of adventure when a traffic light shifts from red to green, aye!</translation>
+        <source>Get an alert when the traffic light changes from red to green.</source>
+        <translation type="gpt-4o-generated">Receive an alert when the traffic light shifts from red to green.</translation>
     </message>
     <message>
         <source>Lead Departing Alert</source>
-        <translation type="gpt-4o-generated">Ye Vessel Be Driftin' Alert</translation>
+        <translation type="gpt-4o-generated">Departing Alert, Matey</translation>
     </message>
     <message>
-        <source>Plays an alert when the lead vehicle starts starts to depart when at a standstill.</source>
-        <translation type="gpt-4o-generated">Fires a signal when the lead vessel begins to set sail from a standstill.</translation>
+        <source>Get an alert when the lead vehicle begins to depart from a standstill.</source>
+        <translation type="gpt-4o-generated">Receive a signal when the lead vehicle starts moving from a stop.</translation>
     </message>
     <message>
-        <source>Loud Blindspot Alert</source>
-        <translation type="gpt-4o-generated">Raucous Blindspot Hail</translation>
+        <source>Loud "Car Detected in Blindspot" Alert</source>
+        <translation type="gpt-4o-generated">"Car Spotted in Blindspot" Alert</translation>
     </message>
     <message>
-        <source>Plays a louder alert for when a vehicle is detected in the blindspot when attempting to change lanes.</source>
-        <translation type="gpt-4o-generated">Blasts a heartier alert when a vessel lurks in yer blindspot as ye try to change lanes, matey.</translation>
+        <source>A louder alert for when a vehicle is detected in the blindspot when attempting to change lanes.</source>
+        <translation type="gpt-4o-generated">A louder alert for when a vehicle is detected in the blindspot while trying to change lanes, matey.</translation>
     </message>
     <message>
         <source>Speed Limit Changed Alert</source>
-        <translation type="gpt-4o-generated">Ahoy! Speed Limit Be Shiftin' Alert</translation>
+        <translation type="gpt-4o-generated">Speed Limit Change Alert</translation>
     </message>
     <message>
-        <source>Plays an alert when the speed limit changes.</source>
-        <translation type="gpt-4o-generated">Sounds an alert when the speed limit shifts, aye!</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation type="gpt-4o-generated">Auto, matey!</translation>
+        <source>Get an alert when the speed limit changes.</source>
+        <translation type="gpt-4o-generated">Receive an alert when the speed limit shifts.</translation>
     </message>
     <message>
         <source>Muted</source>
-        <translation type="gpt-4o-generated">Silenced, me heartie!</translation>
+        <translation type="gpt-4o-generated">Silenced</translation>
     </message>
     <message>
-        <source>Your car needs to be off before testing sounds.</source>
-        <translation type="gpt-4o-generated">Ye vessel must be at rest before ye test the sounds.</translation>
+        <source>Auto</source>
+        <translation type="gpt-4o-generated">Auto</translation>
+    </message>
+    <message>
+        <source>Test</source>
+        <translation type="gpt-4o-generated">Trial</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotThemesPanel</name>
     <message>
         <source>Custom Theme</source>
-        <translation type="gpt-4o-generated">Me Own Theme</translation>
+        <translation type="gpt-4o-generated">Personalized Theme</translation>
     </message>
     <message>
-        <source>Custom openpilot themes.</source>
-        <translation type="gpt-4o-generated">Custom openpilot themes, matey!</translation>
+        <source>The overall appearance of openpilot.</source>
+        <translation type="gpt-4o-generated">The general look of openpilot.</translation>
     </message>
     <message>
         <source>Color Scheme</source>
-        <translation type="gpt-4o-generated">Color Palette, me hearty!</translation>
+        <translation type="gpt-4o-generated">Color Palette</translation>
     </message>
     <message>
-        <source>Changes out openpilot's color scheme.
+        <source>openpilot's color scheme.
 
-Want to submit your own color scheme? Share it in the 'custom-themes' channel on the FrogPilot Discord!</source>
-        <translation type="gpt-4o-generated">Swaps the colors o' openpilot's wardrobe.
+Want to submit your own color scheme? Share it in the "custom-themes" channel on the FrogPilot Discord!</source>
+        <translation type="gpt-4o-generated">openpilot's color scheme.
 
-Ye got a color scheme ye fancy? Hoist it in the 'custom-themes' channel on the FrogPilot Discord!</translation>
+Wish to submit your own color scheme? Share it in the "custom-themes" channel on the FrogPilot Discord, matey!</translation>
     </message>
     <message>
         <source>Icon Pack</source>
-        <translation type="gpt-4o-generated">Treasure Icons</translation>
+        <translation type="gpt-4o-generated">Icon Collection</translation>
     </message>
     <message>
-        <source>Changes out openpilot's icon pack.
+        <source>openpilot's icon pack.
 
-Want to submit your own icons? Share them in the 'custom-themes' channel on the FrogPilot Discord!</source>
-        <translation type="gpt-4o-generated">Switches out openpilot's icon pack.
+Want to submit your own icons? Share them in the "custom-themes" channel on the FrogPilot Discord!</source>
+        <translation type="gpt-4o-generated">openpilot's icon pack.
 
-Got a hankerin' to share your own icons? Drop 'em in the 'custom-themes' channel on the FrogPilot Discord!</translation>
+Got icons to share? Post them in the "custom-themes" channel on the FrogPilot Discord!</translation>
     </message>
     <message>
         <source>Sound Pack</source>
-        <translation type="gpt-4o-generated">Sound Chest</translation>
+        <translation type="gpt-4o-generated">Sound Bundle</translation>
     </message>
     <message>
-        <source>Changes out openpilot's sound effects.
+        <source>openpilot's sound effects.
 
-Want to submit your own sounds? Share them in the 'custom-themes' channel on the FrogPilot Discord!</source>
-        <translation type="gpt-4o-generated">Swaps out openpilot's tunes.
+Want to submit your own sounds? Share them in the "custom-themes" channel on the FrogPilot Discord!</source>
+        <translation type="gpt-4o-generated">Sound effects for openpilot.
 
-Fancy sharin' yer own jingles? Post 'em in the 'custom-themes' channel over on the FrogPilot Discord!</translation>
+Got your own sounds to share? Post them in the "custom-themes" channel on the FrogPilot Discord, matey!</translation>
     </message>
     <message>
         <source>Steering Wheel</source>
-        <translation type="gpt-4o-generated">Helm</translation>
+        <translation type="gpt-4o-generated">Ship's Wheel</translation>
     </message>
     <message>
-        <source>Enables a custom steering wheel icon in the top right of the screen.</source>
-        <translation type="gpt-4o-generated">Hoists a custom helm icon to the upper starboard corner of the screen.</translation>
+        <source>The steering wheel icon in the top right of the driving screen.</source>
+        <translation type="gpt-4o-generated">The steering wheel icon is located in the top right corner of the driving screen.</translation>
     </message>
     <message>
-        <source>Turn Signal Animation</source>
-        <translation type="gpt-4o-generated">Signal Lantern Swirl</translation>
-    </message>
-    <message>
-        <source>Enables themed turn signal animations.
+        <source>Themed turn signal animations.
 
-Want to submit your own animations? Share them in the 'custom-themes' channel on the FrogPilot Discord!</source>
-        <translation type="gpt-4o-generated">Hoist the Jolly Roger and set sail with themed turn signal animations!
+Want to submit your own animations? Share them in the "custom-themes" channel on the FrogPilot Discord!</source>
+        <translation type="gpt-4o-generated">Themed turn signal animations.
 
-Got a treasure trove of your own animations? Cast 'em into the 'custom-themes' channel on the FrogPilot Discord and share the booty!</translation>
+Wish to submit your own animations? Share them in the "custom-themes" channel on the FrogPilot Discord, matey!</translation>
     </message>
     <message>
         <source>Download Status</source>
-        <translation type="gpt-4o-generated">Plunderin' Progress</translation>
+        <translation type="gpt-4o-generated">Status: Download</translation>
     </message>
     <message>
         <source>Holiday Themes</source>
-        <translation type="gpt-4o-generated">Festive Themes, Arrr!</translation>
+        <translation type="gpt-4o-generated">Festive Themes</translation>
     </message>
     <message>
-        <source>Changes the openpilot theme based on the current holiday. Minor holidays last one day, while major holidays (Easter, Christmas, Halloween, etc.) last the entire week.</source>
-        <translation type="gpt-4o-generated">Hoists the openpilot colors to match the current festivity. Minor holidays make a one-day cameo, while the grand celebrations (Easter, Christmas, Halloween, etc.) grace the whole week.</translation>
+        <source>Holiday-based visual themes for openpilot. Minor holidays last one day; major holidays (Christmas, Easter, Halloween, etc.) continue all week.</source>
+        <translation type="gpt-4o-generated">Visual themes for openpilot based on holidays: Minor holidays last a day, while major ones (Christmas, Easter, Halloween, etc.) span the entire week.</translation>
     </message>
     <message>
         <source>Rainbow Path</source>
-        <translation type="gpt-4o-generated">Rainbow Trail, matey!</translation>
+        <translation type="gpt-4o-generated">Rainbow Trail</translation>
     </message>
     <message>
-        <source>Swap out the path in the onroad UI for a Mario Kart inspired 'Rainbow Path'.</source>
-        <translation type="gpt-4o-generated">Trade out the course in the onroad UI for a Mario Kart flavored 'Rainbow Path'. Yarrr!</translation>
+        <source>The path on the driving screen turns into a Mario Kart inspired "Rainbow Path".</source>
+        <translation type="gpt-4o-generated">The path on the driving screen transforms into a Mario Kart-inspired "Rainbow Path".</translation>
     </message>
     <message>
         <source>Random Events</source>
-        <translation type="gpt-4o-generated">Unpredictable Adventures</translation>
+        <translation type="gpt-4o-generated">Unexpected Occurrences</translation>
     </message>
     <message>
-        <source>Enables random cosmetic events that happen during certain driving conditions. These events are purely for fun and don't affect driving controls!</source>
-        <translation type="gpt-4o-generated">Hoist the sails for random bits o' fun that pop up during certain conditions on the high seas of drivin'. These shenanigans be all in good fun and won't meddle with yer navigational prowess!</translation>
+        <source>Random cosmetic events that trigger after certain driving conditions. These events are purely for fun and don't affect driving controls!</source>
+        <translation type="gpt-4o-generated">Random cosmetic events trigger after specific driving conditions. These are just for fun, matey, and don't affect driving controls!</translation>
+    </message>
+    <message>
+        <source>Random Themes</source>
+        <translation type="gpt-4o-generated">Assorted Themes</translation>
+    </message>
+    <message>
+        <source>Cycles through your downloaded themes randomly on each boot, giving every theme in your collection a chance to shine!</source>
+        <translation type="gpt-4o-generated">Rotates through your downloaded themes randomly at each boot, giving every theme in your collection a chance to shine!</translation>
     </message>
     <message>
         <source>Startup Alert</source>
-        <translation type="gpt-4o-generated">Set Sail Signal</translation>
+        <translation type="gpt-4o-generated">Startup Ahoy</translation>
     </message>
     <message>
-        <source>Controls the text of the 'Startup' alert message that appears when you start the drive.</source>
-        <translation type="gpt-4o-generated">Commands the words of the 'Startup' signal that pops up when ye set sail on yer journey.</translation>
+        <source>The text of the "Startup Alert" message that appears at the beginning of a drive.</source>
+        <translation type="gpt-4o-generated">The "Startup Alert" message text that appears when a drive begins.</translation>
     </message>
     <message>
         <source>DELETE</source>
-        <translation type="gpt-4o-generated">Scuttle</translation>
+        <translation type="gpt-4o-generated">Remove</translation>
     </message>
     <message>
         <source>DOWNLOAD</source>
-        <translation type="gpt-4o-generated">Hoist the Files</translation>
+        <translation type="gpt-4o-generated">FETCH</translation>
     </message>
     <message>
         <source>SELECT</source>
-        <translation type="gpt-4o-generated">PLUNDER</translation>
+        <translation type="gpt-4o-generated">SELECT</translation>
     </message>
     <message>
         <source>Select a color scheme to delete</source>
-        <translation type="gpt-4o-generated">Choose a color scheme to send to Davy Jones' locker</translation>
+        <translation type="gpt-4o-generated">Choose a color scheme to remove</translation>
     </message>
     <message>
-        <source>Are you sure you want to delete the '%1' color scheme?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to cast the '%1' color scheme overboard?</translation>
+        <source>Are you sure you want to delete the "%1" color scheme?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to delete the "%1" color scheme?</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="gpt-4o-generated">Walk the plank</translation>
+        <translation type="gpt-4o-generated">Remove</translation>
     </message>
     <message>
         <source>Select a color scheme to download</source>
-        <translation type="gpt-4o-generated">Choose a color scheme to plunder and download</translation>
+        <translation type="gpt-4o-generated">Choose a color scheme to download</translation>
     </message>
     <message>
         <source>Select a color scheme</source>
-        <translation type="gpt-4o-generated">Pick yer color scheme, matey!</translation>
+        <translation type="gpt-4o-generated">Choose a color palette</translation>
     </message>
     <message>
         <source>Select a distance icon pack to delete</source>
-        <translation type="gpt-4o-generated">Choose a distance icon pack to send to Davy Jones' locker</translation>
+        <translation type="gpt-4o-generated">Choose a distance icon pack to remove</translation>
     </message>
     <message>
-        <source>Are you sure you want to delete the '%1' distance icon pack?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to send the '%1' distance icon pack to Davy Jones' locker?</translation>
+        <source>Are you sure you want to delete the "%1" distance icon pack?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to delete the "%1" distance icon pack?</translation>
     </message>
     <message>
         <source>Select a distance icon pack to download</source>
-        <translation type="gpt-4o-generated">Choose a distance icon pack to hoist aboard</translation>
+        <translation type="gpt-4o-generated">Choose a distance icon pack to download, matey!</translation>
     </message>
     <message>
         <source>Select a distance icon pack</source>
-        <translation type="gpt-4o-generated">Choose yer distance icon collection, matey!</translation>
+        <translation type="gpt-4o-generated">Choose a distance icon set</translation>
     </message>
     <message>
         <source>Select an icon pack to delete</source>
-        <translation type="gpt-4o-generated">Choose an icon pack to cast overboard</translation>
+        <translation type="gpt-4o-generated">Choose an icon pack to remove</translation>
     </message>
     <message>
-        <source>Are you sure you want to delete the '%1' icon pack?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to cast the '%1' icon pack overboard?</translation>
+        <source>Are you sure you want to delete the "%1" icon pack?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to delete the "%1" icon pack?</translation>
     </message>
     <message>
         <source>Select an icon pack to download</source>
-        <translation type="gpt-4o-generated">Choose yer icon pack to plunder 'n download</translation>
+        <translation type="gpt-4o-generated">Choose an icon pack to download, matey!</translation>
     </message>
     <message>
         <source>Select an icon pack</source>
-        <translation type="gpt-4o-generated">Choose yer icon pack, matey!</translation>
+        <translation type="gpt-4o-generated">Choose an icon pack, matey!</translation>
     </message>
     <message>
         <source>Select a signal animation to delete</source>
-        <translation type="gpt-4o-generated">Choose a signal animation to scuttle</translation>
+        <translation type="gpt-4o-generated">Choose a signal animation to remove</translation>
     </message>
     <message>
-        <source>Are you sure you want to delete the '%1' signal animation?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to send the '%1' signal animation to Davy Jones' locker?</translation>
+        <source>Are you sure you want to delete the "%1" signal animation?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to delete the "%1" signal animation?</translation>
     </message>
     <message>
         <source>Select a signal animation to download</source>
-        <translation type="gpt-4o-generated">Choose a signal animation to plunder</translation>
+        <translation type="gpt-4o-generated">Choose a signal animation to download</translation>
     </message>
     <message>
         <source>Select a signal animation</source>
-        <translation type="gpt-4o-generated">Choose yer signal animation, matey!</translation>
+        <translation type="gpt-4o-generated">Choose a signal animation</translation>
     </message>
     <message>
         <source>Select a sound pack to delete</source>
-        <translation type="gpt-4o-generated">Choose a sound pack to send to Davy Jones' locker</translation>
+        <translation type="gpt-4o-generated">Choose a sound pack to remove</translation>
     </message>
     <message>
-        <source>Are you sure you want to delete the '%1' sound pack?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to send the '%1' sound pack to Davy Jones' locker?</translation>
+        <source>Are you sure you want to delete the "%1" sound pack?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to delete the "%1" sound pack?</translation>
     </message>
     <message>
         <source>Select a sound pack to download</source>
-        <translation type="gpt-4o-generated">Choose a sound pack to be plundered!</translation>
+        <translation type="gpt-4o-generated">Choose a sound pack to download</translation>
     </message>
     <message>
         <source>Select a sound pack</source>
-        <translation type="gpt-4o-generated">Choose yer sound pack, matey!</translation>
+        <translation type="gpt-4o-generated">Choose a sound pack</translation>
     </message>
     <message>
         <source>Select a steering wheel to delete</source>
-        <translation type="gpt-4o-generated">Choose a helm to cast off</translation>
+        <translation type="gpt-4o-generated">Choose a steering wheel to remove</translation>
     </message>
     <message>
-        <source>Are you sure you want to delete the '%1' steering wheel?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to remove the '%1' helm?</translation>
+        <source>Are you sure you want to delete the "%1" steering wheel?</source>
+        <translation type="gpt-4o-generated">Are ye sure ye want to delete the "%1" steering wheel?</translation>
     </message>
     <message>
         <source>Select a steering wheel to download</source>
-        <translation type="gpt-4o-generated">Choose ye a helm to download, matey!</translation>
+        <translation type="gpt-4o-generated">Choose a steering wheel to download</translation>
     </message>
     <message>
         <source>Select a steering wheel</source>
-        <translation type="gpt-4o-generated">Choose yer ship's wheel, matey!</translation>
+        <translation type="gpt-4o-generated">Choose a helm</translation>
     </message>
     <message>
         <source>STOCK</source>
-        <translation type="gpt-4o-generated">Treasure Hoard</translation>
+        <translation type="gpt-4o-generated">SUPPLY</translation>
     </message>
     <message>
         <source>FROGPILOT</source>
@@ -2678,1004 +3112,1314 @@ Got a treasure trove of your own animations? Cast 'em into the 'custom-themes' c
     </message>
     <message>
         <source>CUSTOM</source>
-        <translation type="gpt-4o-generated">Yarrr, Custom!</translation>
+        <translation type="gpt-4o-generated">CUSTOM</translation>
     </message>
     <message>
         <source>CLEAR</source>
-        <translation type="gpt-4o-generated">SCRUB THE DECK</translation>
+        <translation type="gpt-4o-generated">CLEAR</translation>
     </message>
     <message>
         <source>Enter the text for the top half</source>
-        <translation type="gpt-4o-generated">Scrawl yer message fer the upper deck</translation>
+        <translation type="gpt-4o-generated">Input the text for the upper half</translation>
     </message>
     <message>
         <source>Characters: 0/%1</source>
-        <translation type="gpt-4o-generated">Characters: 0 outta %1, matey!</translation>
+        <translation type="gpt-4o-generated">Characters: 0/%1</translation>
     </message>
     <message>
         <source>Enter the text for the bottom half</source>
-        <translation type="gpt-4o-generated">Scrawl the words fer the lower half, matey!</translation>
+        <translation type="gpt-4o-generated">Input the text for the lower half</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to completely reset your startup message?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye wish to fully reset yer startup message?</translation>
+    </message>
+    <message>
+        <source>"Random Themes" only works with downloaded themes, so make sure you download the themes you want it to use!</source>
+        <translation type="gpt-4o-generated">"Random Themes" functions only with downloaded themes, so be sure to download the ones you want it to use, matey!</translation>
     </message>
     <message>
         <source>CANCEL</source>
-        <translation type="gpt-4o-generated">AVAST</translation>
+        <translation type="gpt-4o-generated">CANCEL</translation>
+    </message>
+    <message>
+        <source>Turn Signal</source>
+        <translation type="gpt-4o-generated">Signal Light</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotUtilitiesPanel</name>
     <message>
         <source>Debug Mode</source>
-        <translation type="gpt-4o-generated">Parley Mode</translation>
+        <translation type="gpt-4o-generated">Debug Mode</translation>
     </message>
     <message>
         <source>Debug FrogPilot during the next drive by utilizing all of FrogPilot's developer metrics for either bug reporting, or self-debugging.</source>
-        <translation type="gpt-4o-generated">Set sail with Debug FrogPilot on yer next voyage, makin' use of all of FrogPilot's developer metrics for catchin' bugs or self-troubleshootin'. Arrr!</translation>
+        <translation type="gpt-4o-generated">Use FrogPilot's developer metrics to debug during the next drive, whether for bug reporting or self-debugging.</translation>
     </message>
     <message>
         <source>Flash Panda</source>
-        <translation type="gpt-4o-generated">Set Sail the Panda</translation>
+        <translation type="gpt-4o-generated">Swift Panda</translation>
     </message>
     <message>
         <source>FLASH</source>
-        <translation type="gpt-4o-generated">BURST</translation>
+        <translation type="gpt-4o-generated">FLASH</translation>
     </message>
     <message>
-        <source>Flashes the Panda's firmware. Use if you're running into issues with the Panda.</source>
-        <translation type="gpt-4o-generated">Hoist the colors and flash the Panda’s firmware! Aye, use this if ye be runnin' into troubles with the Panda.</translation>
+        <source>Flash the Panda's firmware. Use if you're running into issues with the Panda.</source>
+        <translation type="gpt-4o-generated">Update the Panda's firmware. Use this if you're having trouble with the Panda.</translation>
     </message>
     <message>
         <source>Are you sure you want to flash the Panda?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to flash the Panda?</translation>
+        <translation type="gpt-4o-generated">Are ye certain ye want to flash the Panda?</translation>
     </message>
     <message>
         <source>Flash</source>
-        <translation type="gpt-4o-generated">Blimey, Flash!</translation>
+        <translation type="gpt-4o-generated">Quick as a flash</translation>
     </message>
     <message>
         <source>Flashing...</source>
-        <translation type="gpt-4o-generated">Blinkin'...</translation>
+        <translation type="gpt-4o-generated">Blinking...</translation>
     </message>
     <message>
         <source>Flashed!</source>
-        <translation type="gpt-4o-generated">Blimey!</translation>
+        <translation type="gpt-4o-generated">Exposed!</translation>
     </message>
     <message>
         <source>Rebooting...</source>
-        <translation type="gpt-4o-generated">Hoistin' the sails fer a fresh start...</translation>
+        <translation type="gpt-4o-generated">Restarting...</translation>
     </message>
     <message>
         <source>Force Started State</source>
-        <translation type="gpt-4o-generated">Forced Into Action Aye</translation>
+        <translation type="gpt-4o-generated">State of Forced Start</translation>
     </message>
     <message>
         <source>Force openpilot either offroad or onroad.</source>
-        <translation type="gpt-4o-generated">Command openpilot to set sail either offroad or onroad.</translation>
+        <translation type="gpt-4o-generated">Force openpilot to operate either off-road or on-road.</translation>
     </message>
     <message>
         <source>OFFROAD</source>
-        <translation type="gpt-4o-generated">NO SAILIN'</translation>
+        <translation type="gpt-4o-generated">OFFROAD</translation>
     </message>
     <message>
         <source>ONROAD</source>
-        <translation type="gpt-4o-generated">Aye, Set Sail!</translation>
+        <translation type="gpt-4o-generated">ONROAD</translation>
     </message>
     <message>
         <source>OFF</source>
-        <translation type="gpt-4o-generated">Aye, she's off!</translation>
+        <translation type="gpt-4o-generated">OFF</translation>
     </message>
     <message>
         <source>Report a Bug or an Issue</source>
-        <translation type="gpt-4o-generated">Send a Message in a Bottle 'bout a Bug or Trouble</translation>
+        <translation type="gpt-4o-generated">Report a Bug or an Issue</translation>
     </message>
     <message>
         <source>REPORT</source>
-        <translation type="gpt-4o-generated">SHIP'S LOG</translation>
+        <translation type="gpt-4o-generated">LOG</translation>
     </message>
     <message>
-        <source>Let "FrogsGoMoo" know about an issue you're facing.</source>
-        <translation type="gpt-4o-generated">Inform "FrogsGoMoo" 'bout the trouble ye be encounterin'.</translation>
+        <source>Let FrogsGoMoo know about an issue you're facing!</source>
+        <translation type="gpt-4o-generated">Inform FrogsGoMoo of a problem you're encountering!</translation>
+    </message>
+    <message>
+        <source>Ensure your device has an internet connection before sending a report!</source>
+        <translation type="gpt-4o-generated">Make sure your device is connected to the internet before sending a report, matey!</translation>
+    </message>
+    <message>
+        <source>I saw an alert that said "openpilot crashed"</source>
+        <translation type="gpt-4o-generated">I spotted an alert saying "openpilot crashed"</translation>
     </message>
     <message>
         <source>What's going on?</source>
-        <translation type="gpt-4o-generated">What be happenin', matey?</translation>
+        <translation type="gpt-4o-generated">What's happening?</translation>
     </message>
     <message>
         <source>Please describe what's happening</source>
-        <translation type="gpt-4o-generated">Arr, could ye kindly tell me what's goin' on?</translation>
+        <translation type="gpt-4o-generated">Kindly explain what's occurring</translation>
     </message>
     <message>
         <source>Send Report</source>
-        <translation type="gpt-4o-generated">Send a Message in a Bottle</translation>
+        <translation type="gpt-4o-generated">Dispatch Report</translation>
     </message>
     <message>
         <source>What's your Discord username?</source>
-        <translation type="gpt-4o-generated">What be the moniker ye use in the Discord seas?</translation>
+        <translation type="gpt-4o-generated">What be your Discord username, matey?</translation>
     </message>
     <message>
         <source>Your report has been submitted. Thanks for letting us know!</source>
-        <translation type="gpt-4o-generated">Yer report's been sent to the captain's log. Thanks fer keepin' us in the loop, matey!</translation>
+        <translation type="gpt-4o-generated">Your report's been submitted. Thanks for informing us, matey!</translation>
     </message>
     <message>
         <source>Reset Toggles to Default</source>
-        <translation type="gpt-4o-generated">Set 'em Toggles Back to Default, Matey!</translation>
+        <translation type="gpt-4o-generated">Restore Toggles to Default</translation>
     </message>
     <message>
         <source>RESET</source>
-        <translation type="gpt-4o-generated">Hoist the Colors!</translation>
+        <translation type="gpt-4o-generated">RESET</translation>
     </message>
     <message>
-        <source>Reset your toggle settings back to their default settings.</source>
-        <translation type="gpt-4o-generated">Reset yer toggle settings back to their default state, aye!</translation>
+        <source>Reset all toggles to their default values.</source>
+        <translation type="gpt-4o-generated">Return all toggles to their default settings.</translation>
     </message>
     <message>
-        <source>Are you sure you want to completely reset all of your toggle settings?</source>
-        <translation type="gpt-4o-generated">Arr ye certain ye wish to reset all yer toggle settings to their original state?</translation>
+        <source>Are you sure you want to reset all toggles to their default values?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to reset all toggles to their default values?</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="gpt-4o-generated">Hoist the reset flag!</translation>
+        <translation type="gpt-4o-generated">Restart</translation>
     </message>
     <message>
         <source>Resetting...</source>
-        <translation type="gpt-4o-generated">Hoistin' the sails again...</translation>
+        <translation type="gpt-4o-generated">Restarting...</translation>
     </message>
     <message>
         <source>Reset!</source>
-        <translation type="gpt-4o-generated">Hoist the sails anew!</translation>
+        <translation type="gpt-4o-generated">Restart!</translation>
+    </message>
+    <message>
+        <source>Reset Toggles to Match Stock openpilot</source>
+        <translation type="gpt-4o-generated">Reset Toggles to Match Stock openpilot, matey</translation>
+    </message>
+    <message>
+        <source>Reset all toggles to match stock openpilot.</source>
+        <translation type="gpt-4o-generated">Restore all toggles to their default openpilot settings.</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to reset all toggles to match stock openpilot?</source>
+        <translation type="gpt-4o-generated">Are ye certain ye want to reset all toggles to match stock openpilot?</translation>
+    </message>
+    <message>
+        <source>Acceleration feels too harsh or jerky</source>
+        <translation type="gpt-4o-generated">The acceleration feels too harsh or abrupt.</translation>
+    </message>
+    <message>
+        <source>An alert confused me and I didn’t know what it meant</source>
+        <translation type="gpt-4o-generated">An alert baffled me, and I couldn't figure out what it meant.</translation>
+    </message>
+    <message>
+        <source>Braking is too sudden or uncomfortable</source>
+        <translation type="gpt-4o-generated">The braking feels too abrupt or uncomfortable.</translation>
+    </message>
+    <message>
+        <source>I’m not sure if this is normal or a bug:</source>
+        <translation type="gpt-4o-generated">I’m uncertain if this be normal or a bug:</translation>
+    </message>
+    <message>
+        <source>Lane changes don’t work properly or feel unsafe</source>
+        <translation type="gpt-4o-generated">Lane changes aren't working right or feel unsafe.</translation>
+    </message>
+    <message>
+        <source>My screen froze or got stuck on loading</source>
+        <translation type="gpt-4o-generated">Me screen froze or be stuck loading</translation>
+    </message>
+    <message>
+        <source>My steering wheel buttons aren’t working</source>
+        <translation type="gpt-4o-generated">The buttons on my steering wheel aren’t working.</translation>
+    </message>
+    <message>
+        <source>openpilot disengages when I don't expect it</source>
+        <translation type="gpt-4o-generated">openpilot disengages unexpectedly</translation>
+    </message>
+    <message>
+        <source>openpilot doesn’t resume after I stop</source>
+        <translation type="gpt-4o-generated">openpilot doesn't restart after I halt</translation>
+    </message>
+    <message>
+        <source>openpilot doesn't react to stopped vehicles ahead</source>
+        <translation type="gpt-4o-generated">openpilot doesn't respond to stopped vehicles ahead</translation>
+    </message>
+    <message>
+        <source>openpilot feels sluggish or slow to respond</source>
+        <translation type="gpt-4o-generated">openpilot seems sluggish or slow to respond</translation>
+    </message>
+    <message>
+        <source>Steering feels twitchy or unnatural</source>
+        <translation type="gpt-4o-generated">The steering feels twitchy or unnatural, matey.</translation>
+    </message>
+    <message>
+        <source>The car doesn’t follow curves well</source>
+        <translation type="gpt-4o-generated">The car doesn't handle curves well, matey.</translation>
+    </message>
+    <message>
+        <source>The car isn’t staying centered in its lane</source>
+        <translation type="gpt-4o-generated">The car isn't keeping centered in its lane, matey.</translation>
+    </message>
+    <message>
+        <source>The speed or display info looks wrong</source>
+        <translation type="gpt-4o-generated">The speed or display info seems off, matey.</translation>
+    </message>
+    <message>
+        <source>Something else (please describe)</source>
+        <translation type="gpt-4o-generated">Please specify something else.</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotVehiclesPanel</name>
     <message>
         <source>Select Make</source>
-        <translation type="gpt-4o-generated">Choose Yer Vessel</translation>
+        <translation type="gpt-4o-generated">Choose Brand</translation>
     </message>
     <message>
         <source>SELECT</source>
-        <translation type="gpt-4o-generated">PICK YER POISON</translation>
+        <translation type="gpt-4o-generated">CHOOSE</translation>
     </message>
     <message>
         <source>Select a Make</source>
-        <translation type="gpt-4o-generated">Choose a Ship's Brand, Matey</translation>
+        <translation type="gpt-4o-generated">Choose a Make</translation>
     </message>
     <message>
         <source>Select Model</source>
-        <translation type="gpt-4o-generated">Choose Yer Vessel</translation>
+        <translation type="gpt-4o-generated">Choose Model</translation>
     </message>
     <message>
         <source>Select a Model</source>
-        <translation type="gpt-4o-generated">Choose yer Vessel</translation>
+        <translation type="gpt-4o-generated">Choose a Model</translation>
     </message>
     <message>
         <source>Disable Automatic Fingerprint Detection</source>
-        <translation type="gpt-4o-generated">Disable ye Automatic Fingerprint Detection, matey!</translation>
+        <translation type="gpt-4o-generated">Turn Off Automatic Fingerprint Detection</translation>
     </message>
     <message>
         <source>Forces the selected fingerprint and prevents it from ever changing.</source>
-        <translation type="gpt-4o-generated">Locks in the chosen fingerprint, makin' sure it never changes, savvy?</translation>
+        <translation type="gpt-4o-generated">Locks the chosen fingerprint, ensuring it never changes.</translation>
     </message>
     <message>
         <source>Disable openpilot Longitudinal Control</source>
-        <translation type="gpt-4o-generated">Shiver me timbers, turn off openpilot's Longitudinal Control</translation>
+        <translation type="gpt-4o-generated">Disable openpilot's Longitudinal Control</translation>
     </message>
     <message>
         <source>Disables openpilot longitudinal control and uses the car's stock ACC instead.</source>
-        <translation type="gpt-4o-generated">Hoists the sails on openpilot's forward management and lets yer trusty vessel's own ACC take the helm instead.</translation>
+        <translation type="gpt-4o-generated">Disables openpilot's longitudinal control and uses the car's stock ACC instead, matey.</translation>
     </message>
     <message>
         <source>Are you sure you want to completely disable openpilot longitudinal control?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to utterly disable openpilot's ability to steer the course?</translation>
+        <translation type="gpt-4o-generated">Are ye certain ye wish to fully disable openpilot's longitudinal control?</translation>
     </message>
     <message>
-        <source>General Motors Toggles</source>
-        <translation type="gpt-4o-generated">General Motors Switches, Arrr!</translation>
+        <source>General Motors Settings</source>
+        <translation type="gpt-4o-generated">General Motors Configurations</translation>
     </message>
     <message>
-        <source>Toggles catered towards "General Motors" vehicles.</source>
-        <translation type="gpt-4o-generated">Levers set fer "General Motors" vessels.</translation>
+        <source>Settings specific to &lt;b&gt;General Motors&lt;/b&gt; vehicles.</source>
+        <translation type="gpt-4o-generated">Settings tailored for &lt;b&gt;General Motors&lt;/b&gt; vehicles.</translation>
     </message>
     <message>
-        <source>FrogsGoMoo's Experimental Longitudinal Tune</source>
-        <translation type="gpt-4o-generated">FrogsGoMoo's Experimental Longitudinal Tune, Arrr</translation>
+        <source>FrogsGoMoo's Experimental Tune</source>
+        <translation type="gpt-4o-generated">FrogsGoMoo's Experimental Melody</translation>
     </message>
     <message>
-        <source>FrogsGoMoo's experimental GM longitudinal tune that aims to smoothen out stopping and takeoff control based on nothing but guesswork. Use at your own risk!</source>
-        <translation type="gpt-4o-generated">FrogsGoMoo's experimental GM longitudinal tune, crafted to make yer stopping and takeoff as smooth as a sea breeze, all based on naught but wild guesses. Use at yer own peril, matey!</translation>
+        <source>&lt;b&gt;FrogsGoMoo's&lt;/b&gt; experimental &lt;b&gt;General Motors&lt;/b&gt; tune that aims to smoothen out stopping and takeoff control based on nothing but guesswork. Use at your own risk!</source>
+        <translation type="gpt-4o-generated">&lt;b&gt;FrogsGoMoo's&lt;/b&gt; experimental &lt;b&gt;General Motors&lt;/b&gt; tune seeks to refine stopping and takeoff control, relying solely on guesswork. Use at your own risk, matey!</translation>
     </message>
     <message>
-        <source>Smoothen Pedal Response While Going Downhill/Uphill</source>
-        <translation type="gpt-4o-generated">Soften the Pedal's Touch While Sailin' Downhill or Up the Incline, Arrr!</translation>
+        <source>Smooth Pedal Response on Hills</source>
+        <translation type="gpt-4o-generated">Smooth Pedal Response on Inclines</translation>
     </message>
     <message>
-        <source>Smoothen the gas and brake response when driving downhill or uphill.</source>
-        <translation type="gpt-4o-generated">Smooth out the sails o' the gas and brake when ye be journeyin' down or up the swells.</translation>
+        <source>Smoothen the acceleration and braking when driving uphill or downhill.</source>
+        <translation type="gpt-4o-generated">Smooth the acceleration and braking when driving uphill or downhill.</translation>
     </message>
     <message>
         <source>Stop and Go Hack</source>
-        <translation type="gpt-4o-generated">Heave to and Set Sail Hack</translation>
+        <translation type="gpt-4o-generated">Pause and Proceed Trick</translation>
     </message>
     <message>
-        <source>Force stop and go for the "2017 Chevy Volt".</source>
-        <translation type="gpt-4o-generated">Halt 'n heave ahead fer the "2017 Chevy Volt".</translation>
+        <source>Force stop and go on the &lt;b&gt;2017 Chevy Volt&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">Halt and proceed on the &lt;b&gt;2017 Chevy Volt&lt;/b&gt;.</translation>
     </message>
     <message>
-        <source>Hyundai/Kia/Genesis Toggles</source>
-        <translation type="gpt-4o-generated">Hyundai/Kia/Genesis Switches, arrr!</translation>
+        <source>Hyundai/Kia/Genesis Settings</source>
+        <translation type="gpt-4o-generated">Hyundai/Kia/Genesis Configurations</translation>
     </message>
     <message>
-        <source>Toggles catered towards "Hyundai/Kia/Genesis" vehicles.</source>
-        <translation type="gpt-4o-generated">Switches fer yer "Hyundai/Kia/Genesis" vessels.</translation>
+        <source>Settings specific to &lt;b&gt;Hyundai&lt;/b&gt;, &lt;b&gt;Kia&lt;/b&gt;, and &lt;b&gt;Genesis&lt;/b&gt; vehicles.</source>
+        <translation type="gpt-4o-generated">Settings tailored for &lt;b&gt;Hyundai&lt;/b&gt;, &lt;b&gt;Kia&lt;/b&gt;, and &lt;b&gt;Genesis&lt;/b&gt; vehicles.</translation>
     </message>
     <message>
         <source>comma's New Longitudinal API</source>
-        <translation type="gpt-4o-generated">comma's New Longitudinal API, aye!</translation>
+        <translation type="gpt-4o-generated">Comma's New Longitudinal API</translation>
     </message>
     <message>
-        <source>comma's new longitudinal control system that has shown great improvement with acceleration and braking, but has issues on some Hyundai/Kia/Genesis vehicles.</source>
-        <translation type="gpt-4o-generated">Arrr, comma's fresh navigation system be showin' mighty improvement with speedin' up and slowin' down, but it be havin' a few hiccups on some Hyundai/Kia/Genesis vessels.</translation>
+        <source>comma's new longitudinal control system that has shown great improvement with acceleration and braking, but has issues on some &lt;b&gt;Hyundai&lt;/b&gt;/&lt;b&gt;Kia&lt;/b&gt;/&lt;b&gt;Genesis&lt;/b&gt; vehicles.</source>
+        <translation type="gpt-4o-generated">Comma's new longitudinal control system has shown great improvement in acceleration and braking, yet it encounters issues on some &lt;b&gt;Hyundai&lt;/b&gt;/&lt;b&gt;Kia&lt;/b&gt;/&lt;b&gt;Genesis&lt;/b&gt; vehicles.</translation>
     </message>
     <message>
-        <source>"Taco Bell Run" Turn Torque Hack</source>
-        <translation type="gpt-4o-generated">"Taco Bell Voyage" Turn Torque Hack</translation>
+        <source>"Taco Bell Run" Torque Hack</source>
+        <translation type="gpt-4o-generated">"Taco Bell Run" Torque Trick</translation>
     </message>
     <message>
-        <source>comma's steering torque hack they used to help handle left and right turns more precisely during their 2022 "Taco Bell" drive by increasing the allowed torque at low speeds.</source>
-        <translation type="gpt-4o-generated">comma's steering torque hack, aye, it be the clever trick they used to help navigate port and starboard turns with greater precision during their 2022 "Taco Bell" voyage, by crankin' up the allowed torque at lower speeds.</translation>
+        <source>The torque hack from comma’s 2022 "Taco Bell Run" drive. Designed to improve turning at low speeds by increasing the allowed steering torque.</source>
+        <translation type="gpt-4o-generated">The torque hack from comma's 2022 "Taco Bell Run" drive. Crafted to enhance turning at low speeds by boosting the permitted steering torque.</translation>
     </message>
     <message>
-        <source>Toyota/Lexus Toggles</source>
-        <translation type="gpt-4o-generated">Toyota/Lexus Knobs 'n Levers</translation>
+        <source>Toyota/Lexus Settings</source>
+        <translation type="gpt-4o-generated">Toyota/Lexus Configurations</translation>
     </message>
     <message>
-        <source>Toggles catered towards "Toyota/Lexus" vehicles.</source>
-        <translation type="gpt-4o-generated">Levers fit fer the likes of "Toyota/Lexus" vessels.</translation>
+        <source>Settings specific to &lt;b&gt;Toyota&lt;/b&gt; and &lt;b&gt;Lexus&lt;/b&gt; vehicles.</source>
+        <translation type="gpt-4o-generated">Settings tailored for &lt;b&gt;Toyota&lt;/b&gt; and &lt;b&gt;Lexus&lt;/b&gt; vehicles.</translation>
     </message>
     <message>
         <source>Automatically Lock/Unlock Doors</source>
-        <translation type="gpt-4o-generated">Hoist the sails fer Automatic Door Lockin'/Unlockin'!</translation>
+        <translation type="gpt-4o-generated">Auto Lock/Unlock Doors</translation>
     </message>
     <message>
-        <source>Automatically lock the doors when shifting into drive and unlocks them when shifting into park.</source>
-        <translation type="gpt-4o-generated">Auto-lock the hatches when ye set sail 'n unlock 'em when ye drop anchor.</translation>
+        <source>Automatically lock the doors when shifting into drive and unlock them when shifting into park.</source>
+        <translation type="gpt-4o-generated">Automatically lock the doors when shifting into drive, and unlock them when shifting into park, matey.</translation>
     </message>
     <message>
         <source>Cluster Speed Offset</source>
-        <translation type="gpt-4o-generated">Compass Speed Adjustments, matey!</translation>
+        <translation type="gpt-4o-generated">Cluster Velocity Offset</translation>
     </message>
     <message>
-        <source>The cluster offset openpilot uses to try and match the speed displayed on the dash.</source>
-        <translation type="gpt-4o-generated">The cluster offset openpilot be usin' to try and match the speed shown on the ship's dashboard.</translation>
+        <source>The cluster speed offset used by openpilot to match the speed displayed on the dash.</source>
+        <translation type="gpt-4o-generated">Openpilot uses the cluster speed offset to align with the speed shown on the dash.</translation>
     </message>
     <message>
         <source>FrogsGoMoo's Personal Tweaks</source>
-        <translation type="gpt-4o-generated">FrogsGoMoo's Own Jolly Adjustments</translation>
+        <translation type="gpt-4o-generated">FrogsGoMoo's Custom Adjustments</translation>
     </message>
     <message>
-        <source>FrogsGoMoo's personal tweaks aimed to provide quicker acceleration and smoother braking.</source>
-        <translation type="gpt-4o-generated">FrogsGoMoo's personal tweaks be aimed at givin' ye a swifter boost an' a gentler slowin'.</translation>
+        <source>&lt;b&gt;FrogsGoMoo's&lt;/b&gt; personal tweaks for quicker acceleration and smoother braking.</source>
+        <translation type="gpt-4o-generated">&lt;b&gt;FrogsGoMoo's&lt;/b&gt; custom adjustments for faster acceleration and smoother braking.</translation>
     </message>
     <message>
         <source>Lock Doors On Ignition Off After</source>
-        <translation type="gpt-4o-generated">Latch the Hatch When the Fire Be Out After</translation>
+        <translation type="gpt-4o-generated">Lock Doors When Ignition Is Off After</translation>
     </message>
     <message>
         <source>Automatically lock the doors after the car's ignition has been turned off and no one is detected in either of the front seats.</source>
-        <translation type="gpt-4o-generated">Lock the ol' hatches once the car's heart be silenced and no soul be spotted in the front seats.</translation>
+        <translation type="gpt-4o-generated">Automatically lock the doors once the car's ignition is off and no one is detected in the front seats.</translation>
     </message>
     <message>
-        <source>Force stop and go for "Toyota/Lexus" vehicles without stock stop and go functionality.</source>
-        <translation type="gpt-4o-generated">Force the ship to halt and sail again for "Toyota/Lexus" vessels that lack the original stop and go magic.</translation>
+        <source>Force stop and go on &lt;b&gt;Toyota&lt;/b&gt;/&lt;b&gt;Lexus&lt;/b&gt; vehicles without stock stop and go functionality.</source>
+        <translation type="gpt-4o-generated">Force halt and proceed on &lt;b&gt;Toyota&lt;/b&gt;/&lt;b&gt;Lexus&lt;/b&gt; vehicles lacking stock stop-and-go functionality.</translation>
     </message>
     <message>
         <source>MANAGE</source>
-        <translation type="gpt-4o-generated">COMMAND YER CREW</translation>
+        <translation type="gpt-4o-generated">Oversee</translation>
     </message>
     <message>
         <source>Lock</source>
-        <translation type="gpt-4o-generated">Batton down the hatches</translation>
+        <translation type="gpt-4o-generated">Secure</translation>
     </message>
     <message>
         <source>Unlock</source>
-        <translation type="gpt-4o-generated">Set sail!</translation>
+        <translation type="gpt-4o-generated">Open sesame</translation>
     </message>
     <message>
         <source>Never</source>
-        <translation type="gpt-4o-generated">Ne'er</translation>
+        <translation type="gpt-4o-generated">Never</translation>
+    </message>
+    <message>
+        <source> seconds</source>
+        <translation type="gpt-4o-generated">seconds</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>
     <message>
-        <source>Accessibility</source>
-        <translation type="gpt-4o-generated">Accessibility (Open the hatch fer all!)</translation>
-    </message>
-    <message>
-        <source>Visual features to improve your overall openpilot experience.</source>
-        <translation type="gpt-4o-generated">Visual treasures to enhance yer overall openpilot adventure.</translation>
-    </message>
-    <message>
-        <source>Camera View</source>
-        <translation type="gpt-4o-generated">Spyglass Gaze</translation>
-    </message>
-    <message>
-        <source>Changes the camera view display. This is purely a visual change and doesn't impact how openpilot drives.</source>
-        <translation type="gpt-4o-generated">Swaps the spyglass view, it does. Just a sightly tweak, nothin' that alters how openpilot sails the seas.</translation>
-    </message>
-    <message>
-        <source>On Screen Personality Button</source>
-        <translation type="gpt-4o-generated">On Screen Scallywag Button</translation>
-    </message>
-    <message>
-        <source>Displays the current driving personality on the screen. Tap to switch personalities, or long press for 2.5 seconds to activate 'Traffic' mode.</source>
-        <translation type="gpt-4o-generated">Arrr, shows ye the drivin' style on the screen it does. Give it a tap to change yer personality, or hold it down for 2.5 seconds to set sail in 'Traffic' mode.</translation>
-    </message>
-    <message>
-        <source>Show Driver Camera When In Reverse</source>
-        <translation type="gpt-4o-generated">Reveal the Lookout Glass When Backin' Up</translation>
-    </message>
-    <message>
-        <source>Displays the driver camera feed when the vehicle is in reverse.</source>
-        <translation type="gpt-4o-generated">Shows ye the captain's-eye view when ye be sailin' astern.</translation>
-    </message>
-    <message>
-        <source>Standby Mode</source>
-        <translation type="gpt-4o-generated">Idle Seas Mode</translation>
-    </message>
-    <message>
-        <source>Turns the screen off when driving and automatically wakes it up if engagement state changes or important alerts occur.</source>
-        <translation type="gpt-4o-generated">Darkens the lantern when ye be sailin', and it springs to life if the ship's course changes or urgent signals arise.</translation>
-    </message>
-    <message>
-        <source>Stopped Timer</source>
-        <translation type="gpt-4o-generated">Timer Be Stilled</translation>
-    </message>
-    <message>
-        <source>Activates a timer when stopped to indicate how long the vehicle has been stopped for.</source>
-        <translation type="gpt-4o-generated">Hoists the hourglass when ye be anchored, showin' how long the vessel's been at a standstill, it does.</translation>
-    </message>
-    <message>
         <source>Advanced UI Controls</source>
-        <translation type="gpt-4o-generated">Swashbucklin' UI Controls</translation>
+        <translation type="gpt-4o-generated">Advanced UI Elements</translation>
     </message>
     <message>
-        <source>Advanced features to fine tune your personalized UI.</source>
-        <translation type="gpt-4o-generated">Fancy bits to tweak yer custom UI, matey.</translation>
+        <source>Advanced settings for fine-tuning openpilot's driving screen.</source>
+        <translation type="gpt-4o-generated">Advanced options for fine-tuning openpilot's driving display.</translation>
     </message>
     <message>
         <source>Hide Current Speed</source>
-        <translation type="gpt-4o-generated">Swab Away Current Speed</translation>
+        <translation type="gpt-4o-generated">Conceal Current Speed</translation>
     </message>
     <message>
-        <source>Hides the current speed.</source>
-        <translation type="gpt-4o-generated">Hides the current speed, it does. Yarrr!</translation>
+        <source>Hide the current speed from the driving screen.</source>
+        <translation type="gpt-4o-generated">Conceal the current speed from the driving screen, matey.</translation>
     </message>
     <message>
         <source>Hide Lead Marker</source>
-        <translation type="gpt-4o-generated">Stow Away Lead Marker</translation>
+        <translation type="gpt-4o-generated">Conceal Lead Marker</translation>
     </message>
     <message>
-        <source>Hides the marker for the vehicle ahead.</source>
-        <translation type="gpt-4o-generated">Stashes away the marker fer the vessel in front.</translation>
+        <source>Hide the marker for lead vehicles from the driving screen.</source>
+        <translation type="gpt-4o-generated">Remove the marker for lead vehicles from the driving screen.</translation>
     </message>
     <message>
-        <source>Hide Map Icon</source>
-        <translation type="gpt-4o-generated">Stow Map Emblem</translation>
+        <source>Hide Map Settings Button</source>
+        <translation type="gpt-4o-generated">Conceal Map Settings Button</translation>
     </message>
     <message>
-        <source>Hides the map icon.</source>
-        <translation type="gpt-4o-generated">Stows away the map icon, it does. Yarrr!</translation>
+        <source>Hide the map settings button from the driving screen.</source>
+        <translation type="gpt-4o-generated">Conceal the map settings button on the driving screen.</translation>
     </message>
     <message>
         <source>Hide Max Speed</source>
-        <translation type="gpt-4o-generated">Stow Away Max Speed</translation>
+        <translation type="gpt-4o-generated">Conceal Max Speed</translation>
     </message>
     <message>
-        <source>Hides the max speed.</source>
-        <translation type="gpt-4o-generated">Stows away the max speed.</translation>
+        <source>Hide the max speed from the driving screen.</source>
+        <translation type="gpt-4o-generated">Conceal the max speed from the driving screen, matey.</translation>
     </message>
     <message>
         <source>Hide Non-Critical Alerts</source>
-        <translation type="gpt-4o-generated">Stow Away Non-Critical Alerts, Arr!</translation>
+        <translation type="gpt-4o-generated">Conceal Non-Critical Alerts</translation>
     </message>
     <message>
-        <source>Hides non-critical alerts.</source>
-        <translation type="gpt-4o-generated">Stows away the non-critical alerts, matey.</translation>
+        <source>Hide non-critical alerts from the driving screen.</source>
+        <translation type="gpt-4o-generated">Conceal non-critical alerts from the driving display.</translation>
     </message>
     <message>
         <source>Hide Speed Limits</source>
-        <translation type="gpt-4o-generated">Stow Away Speed Limits</translation>
+        <translation type="gpt-4o-generated">Conceal Speed Limits</translation>
     </message>
     <message>
-        <source>Hides the speed limits.</source>
-        <translation type="gpt-4o-generated">Stashes away th' speed limits.</translation>
+        <source>Hide the speed limits from the driving screen.</source>
+        <translation type="gpt-4o-generated">Remove the speed limits from the driving screen, matey.</translation>
     </message>
     <message>
         <source>Use Wheel Speed</source>
-        <translation type="gpt-4o-generated">Hoist the Wheel Speed</translation>
+        <translation type="gpt-4o-generated">Deploy Wheel Speed</translation>
     </message>
     <message>
-        <source>Uses the wheel speed instead of the cluster speed. This is purely a visual change and doesn't impact how openpilot drives.</source>
-        <translation type="gpt-4o-generated">Relies on the wheel speed 'stead of the cluster speed. This be merely a visual tweak and won’t alter how openpilot sails the ship.</translation>
+        <source>Use the vehicle's wheel speed instead of the cluster speed. This is purely a visual change and doesn't impact how openpilot drives.</source>
+        <translation type="gpt-4o-generated">Use the vehicle's wheel speed instead of the cluster speed. This be a visual change only and doesn't affect how openpilot drives.</translation>
     </message>
     <message>
         <source>Developer UI</source>
-        <translation type="gpt-4o-generated">Buccaneer UI</translation>
+        <translation type="gpt-4o-generated">Developer Interface</translation>
     </message>
     <message>
-        <source>Show detailed information about openpilot's internal operations.</source>
-        <translation type="gpt-4o-generated">Unveil the treasure map of openpilot's workings, with all the intricate details.</translation>
-    </message>
-    <message>
-        <source>Developer Metrics</source>
-        <translation type="gpt-4o-generated">Scallywag Metrics</translation>
-    </message>
-    <message>
-        <source>Border Metrics</source>
-        <translation type="gpt-4o-generated">Boundaries Markerings</translation>
-    </message>
-    <message>
-        <source>Displays performance metrics around the edge of the screen while driving.</source>
-        <translation type="gpt-4o-generated">Shows ye how the ship's performin' 'round the edges o' the screen while ye be sailin'.</translation>
-    </message>
-    <message>
-        <source>FPS Display</source>
-        <translation type="gpt-4o-generated">Spyglass View</translation>
-    </message>
-    <message>
-        <source>Displays the 'Frames Per Second' (FPS) at the bottom of the screen while driving.</source>
-        <translation type="gpt-4o-generated">Shows the 'Frames Per Second' (FPS) at the bottom of the screen while ye be sailin' the high seas o' the road.</translation>
-    </message>
-    <message>
-        <source>Lateral Metrics</source>
-        <translation type="gpt-4o-generated">Lateral Bearings</translation>
-    </message>
-    <message>
-        <source>Displays metrics related to steering control at the top of the screen while driving.</source>
-        <translation type="gpt-4o-generated">Arr, it shows ye the details o' steerage control up at the top o' the screen while ye're sailin' the roads.</translation>
-    </message>
-    <message>
-        <source>Longitudinal Metrics</source>
-        <translation type="gpt-4o-generated">Fore 'n' Aft Metrics</translation>
-    </message>
-    <message>
-        <source>Displays metrics related to acceleration, speed, and desired following distance at the top of the screen while driving.</source>
-        <translation type="gpt-4o-generated">Hoist the sails and chart a course, fer ye shall see the metrics of acceleration, speed, and yer preferred followin' distance proudly displayed atop the screen as ye sail the roads.</translation>
-    </message>
-    <message>
-        <source>Numerical Temperature Gauge</source>
-        <translation type="gpt-4o-generated">Numerical Temperature Spyglass</translation>
-    </message>
-    <message>
-        <source>Shows exact temperature readings instead of status labels like 'GOOD', 'OK', or 'HIGH' in the sidebar.</source>
-        <translation type="gpt-4o-generated">Displays precise temperature readin's instead o' status labels like 'GOOD', 'OK', or 'HIGH' in the sidebar, matey.</translation>
-    </message>
-    <message>
-        <source>Sidebar</source>
-        <translation type="gpt-4o-generated">Side o' the Ship</translation>
-    </message>
-    <message>
-        <source>Displays system information like CPU, GPU, RAM usage, IP address, and storage space in the sidebar.</source>
-        <translation type="gpt-4o-generated">Shows ye the ship's systems like CPU, GPU, RAM be usin', IP address, and how much storage space be left in the sidebar.</translation>
-    </message>
-    <message>
-        <source>Use International System of Units</source>
-        <translation type="gpt-4o-generated">Hoist the sails 'n set course fer the International System of Units!</translation>
-    </message>
-    <message>
-        <source>Displays measurements using the 'International System of Units' (SI).</source>
-        <translation type="gpt-4o-generated">Shows ye measurements usin' the 'International System of Units' (SI).</translation>
-    </message>
-    <message>
-        <source>Developer Widgets</source>
-        <translation type="gpt-4o-generated">Scallywag Gadgets</translation>
-    </message>
-    <message>
-        <source>Adjacent Leads Tracking</source>
-        <translation type="gpt-4o-generated">Tracking Nearby Ships</translation>
-    </message>
-    <message>
-        <source>Show adjacent leads being detected by the car's radar.</source>
-        <translation type="gpt-4o-generated">Reveal nearby ships spied by the car's radar, arrr!</translation>
-    </message>
-    <message>
-        <source>Model Stopping Point</source>
-        <translation type="gpt-4o-generated">Port o' Call for the Model</translation>
-    </message>
-    <message>
-        <source>Displays an image on the screen where openpilot is wanting to stop.</source>
-        <translation type="gpt-4o-generated">Shows a picture on the screen where openpilot be lookin' to drop anchor.</translation>
-    </message>
-    <message>
-        <source>Radar Tracks</source>
-        <translation type="gpt-4o-generated">Spyglass Trails</translation>
-    </message>
-    <message>
-        <source>Show all of the radar points being tracked by the car's radar.</source>
-        <translation type="gpt-4o-generated">Reveal the entire bounty of radar points bein' tracked by the ship's radar. Yarrr!</translation>
-    </message>
-    <message>
-        <source>Model UI</source>
-        <translation type="gpt-4o-generated">Modelin' Interface, Arr!</translation>
-    </message>
-    <message>
-        <source>Customize the model visualizations on the screen.</source>
-        <translation type="gpt-4o-generated">Tweak the model sights on the screen, matey!</translation>
-    </message>
-    <message>
-        <source>Dynamic Path Width</source>
-        <translation type="gpt-4o-generated">Dynamic Path Width, yarrr</translation>
-    </message>
-    <message>
-        <source>Automatically adjusts the width of the driving path display based on the current engagement state:
-
-Fully engaged = 100%
-Always On Lateral Active = 75%
-Fully disengaged = 50%</source>
-        <translation type="gpt-4o-generated">Automatically trims the width o' the drivin' path display based on the current engagement state:
-
-Fully engaged = 100%
-Always On Lateral Active = 75%
-Fully disengaged = 50%</translation>
-    </message>
-    <message>
-        <source>Lane Lines Width</source>
-        <translation type="gpt-4o-generated">Width o' the Lane Lines</translation>
-    </message>
-    <message>
-        <source>Controls the thickness the lane lines appear on the display.
-
-Default matches the MUTCD standard of 4 inches.</source>
-        <translation type="gpt-4o-generated">Adjusts how bold the lane marks be showin' up on the screen. Arrr, the default be set to the MUTCD standard of 4 inches.</translation>
-    </message>
-    <message>
-        <source>Path Edges Width</source>
-        <translation type="gpt-4o-generated">Width o' the Path Edges</translation>
-    </message>
-    <message>
-        <source>Controls the width of the edges of the driving path to represent different modes and statuses.
-
-Default is 20% of the total path width.
-
-Color Guide:
-
-- Blue: Navigation
-- Light Blue: 'Always On Lateral'
-- Green: Default
-- Orange: 'Experimental Mode'
-- Red: 'Traffic Mode'
-- Yellow: 'Conditional Experimental Mode' Overridden</source>
-        <translation type="gpt-4o-generated">Takes the helm o' how wide the edges o' the drivin' path be, showin' different modes and statuses.
-
-The default be 20% o' the total path width.
-
-Color Compass:
-
-- Blue: Navigation
-- Light Blue: 'Always On Lateral'
-- Green: Default
-- Orange: 'Experimental Mode'
-- Red: 'Traffic Mode'
-- Yellow: 'Conditional Experimental Mode' Overridden</translation>
-    </message>
-    <message>
-        <source>Path Width</source>
-        <translation type="gpt-4o-generated">Course Span</translation>
-    </message>
-    <message>
-        <source>Controls how wide the driving path appears on your screen.
-
-Default (6.1 feet / 1.9 meters) matches the width of a 2019 Lexus ES 350.</source>
-        <translation type="gpt-4o-generated">Adjusts how broad the drivin' path be lookin' on yer screen.
-
-Default (6.1 feet / 1.9 meters) matches the width of a 2019 Lexus ES 350.</translation>
-    </message>
-    <message>
-        <source>Road Edges Width</source>
-        <translation type="gpt-4o-generated">Width o' the Road Edges</translation>
-    </message>
-    <message>
-        <source>Controls how thick the road edges appear on the display.
-
-Default matches half of the MUTCD standard lane line width of 4 inches.</source>
-        <translation type="gpt-4o-generated">Adjusts how bold the road edges show on the map screen.
-
-Default sets 'em to half the MUTCD standard lane line width of 4 inches. Yarrr!</translation>
-    </message>
-    <message>
-        <source>'Unlimited' Road UI</source>
-        <translation type="gpt-4o-generated">'No Limits' Road UI</translation>
-    </message>
-    <message>
-        <source>Extends the display of the path, lane lines, and road edges as far as the model can see.</source>
-        <translation type="gpt-4o-generated">Expands the view o' the course, lane markings, and road edges as far as the model's keen eye can spy.</translation>
-    </message>
-    <message>
-        <source>Navigation Widgets</source>
-        <translation type="gpt-4o-generated">Nautical Gizmos</translation>
-    </message>
-    <message>
-        <source>Wwidgets focused around navigation.</source>
-        <translation type="gpt-4o-generated">Wwidgets focused 'round navigatin'.</translation>
-    </message>
-    <message>
-        <source>Larger Map Display</source>
-        <translation type="gpt-4o-generated">Bigger Treasure Map View</translation>
-    </message>
-    <message>
-        <source>Increases the size of the map for easier navigation readings.</source>
-        <translation type="gpt-4o-generated">Hoist the sails! Expands the map fer smoother navigation readings, aye!</translation>
-    </message>
-    <message>
-        <source>Map Style</source>
-        <translation type="gpt-4o-generated">Chart Lookin'</translation>
-    </message>
-    <message>
-        <source>Swaps out the stock map style for community created ones.</source>
-        <translation type="gpt-4o-generated">Trades the standard map style fer those crafted by the crew, aye!</translation>
-    </message>
-    <message>
-        <source>Road Name</source>
-        <translation type="gpt-4o-generated">Name o' the Road</translation>
-    </message>
-    <message>
-        <source>Displays the current road name at the bottom of the screen using data from 'OpenStreetMap'.</source>
-        <translation type="gpt-4o-generated">Shows the current road name at the bottom of the screen usin' data from 'OpenStreetMap', me hearties.</translation>
-    </message>
-    <message>
-        <source>Show Speed Limits</source>
-        <translation type="gpt-4o-generated">Display the Speed Limits, Matey</translation>
-    </message>
-    <message>
-        <source>Displays the currently detected speed limit in the top left corner of the onroad UI. Uses data from your car's dashboard (if supported) and data from 'OpenStreetMaps'.</source>
-        <translation type="gpt-4o-generated">Shows ye the speed limit this moment detected in the top left corner of the onroad UI. Plunders data from yer vessel's dashboard (if supported) and treasure maps from 'OpenStreetMaps'.</translation>
-    </message>
-    <message>
-        <source>Use Vienna-Style Speed Signs</source>
-        <translation type="gpt-4o-generated">Hoist the Vienna-Style Speed Signs, matey!</translation>
-    </message>
-    <message>
-        <source>Forces Vienna-style (EU) speed limit signs instead of MUTCD (US).</source>
-        <translation type="gpt-4o-generated">Hoists the colors for Vienna-style (EU) speed limit signs instead o' the MUTCD (US), aye!</translation>
-    </message>
-    <message>
-        <source>Onroad Screen Widgets</source>
-        <translation type="gpt-4o-generated">Onroad Screen Trinkets</translation>
-    </message>
-    <message>
-        <source>Custom FrogPilot widgets used in the onroad user interface.</source>
-        <translation type="gpt-4o-generated">Custom FrogPilot widgets be sailin' through the onroad user interface.</translation>
-    </message>
-    <message>
-        <source>Acceleration Path</source>
-        <translation type="gpt-4o-generated">Speedin' Course</translation>
-    </message>
-    <message>
-        <source>Projects a path based on openpilot's current desired acceleration or deceleration.</source>
-        <translation type="gpt-4o-generated">Charts a course based on openpilot's current desire to speed up or slow down, aye.</translation>
-    </message>
-    <message>
-        <source>Adjacent Lanes</source>
-        <translation type="gpt-4o-generated">Neighborin' Lanes</translation>
-    </message>
-    <message>
-        <source>Projects paths for the adjascent lanes.</source>
-        <translation type="gpt-4o-generated">Charts the courses fer the nearby lanes, arrr!</translation>
-    </message>
-    <message>
-        <source>Blind Spot Path</source>
-        <translation type="gpt-4o-generated">Blind Spot Trail, Arrr</translation>
-    </message>
-    <message>
-        <source>Projects a red path when vehicles are detected in the blind spot for the respective lane.</source>
-        <translation type="gpt-4o-generated">Marks a crimson course when vessels be spied lurkin' in the blind spot o' the respective lane.</translation>
-    </message>
-    <message>
-        <source>Compass</source>
-        <translation type="gpt-4o-generated">Spyglass Compass</translation>
-    </message>
-    <message>
-        <source>Displays a compass to show the current driving direction.</source>
-        <translation type="gpt-4o-generated">Hoists a trusty compass to reveal the current course yer ship be sailin'.</translation>
-    </message>
-    <message>
-        <source>Gas / Brake Pedal Indicators</source>
-        <translation type="gpt-4o-generated">Gas / Brake Pedal Signs, Arrr!</translation>
-    </message>
-    <message>
-        <source>Displays pedal indicators to indicate when either of the pedals are currently being used.</source>
-        <translation type="gpt-4o-generated">Shows ye pedal markers to signal when one o' the pedals be in use.</translation>
-    </message>
-    <message>
-        <source>Rotating Steering Wheel</source>
-        <translation type="gpt-4o-generated">Spinnin' the Helm</translation>
-    </message>
-    <message>
-        <source>Rotates the steering wheel in the onroad UI rotates along with your steering wheel movements.</source>
-        <translation type="gpt-4o-generated">The wheel o' fortune on the onroad UI spins in tandem with yer own steering wheel maneuvers.</translation>
-    </message>
-    <message>
-        <source>Auto</source>
-        <translation type="gpt-4o-generated">Auto, me hearty!</translation>
-    </message>
-    <message>
-        <source>Driver</source>
-        <translation type="gpt-4o-generated">Helmsman</translation>
-    </message>
-    <message>
-        <source>Standard</source>
-        <translation type="gpt-4o-generated">Standard Issue, Aye!</translation>
-    </message>
-    <message>
-        <source>Wide</source>
-        <translation type="gpt-4o-generated">Broadside</translation>
-    </message>
-    <message>
-        <source>MANAGE</source>
-        <translation type="gpt-4o-generated">COMMAND YER FLEET</translation>
-    </message>
-    <message>
-        <source>Blind Spot</source>
-        <translation type="gpt-4o-generated">Blindin' Spot</translation>
-    </message>
-    <message>
-        <source>Steering Torque</source>
-        <translation type="gpt-4o-generated">Helm Torque</translation>
-    </message>
-    <message>
-        <source>Turn Signal</source>
-        <translation type="gpt-4o-generated">Signal o' the Turn</translation>
+        <source>Detailed information about openpilot's internal operations.</source>
+        <translation type="gpt-4o-generated">In-depth details on openpilot's internal workings.</translation>
     </message>
     <message>
         <source>Adjacent Path Metrics</source>
-        <translation type="gpt-4o-generated">Nearby Course Metrics, matey</translation>
+        <translation type="gpt-4o-generated">Nearby Path Metrics</translation>
     </message>
     <message>
-        <source>Auto Tune</source>
-        <translation type="gpt-4o-generated">Auto Tune, me heartie</translation>
+        <source>Metrics displayed on top of the adjacent lanes measuring their current width.</source>
+        <translation type="gpt-4o-generated">Metrics appear above the adjacent lanes, showing their current width.</translation>
+    </message>
+    <message>
+        <source>Developer Metrics</source>
+        <translation type="gpt-4o-generated">Developer Stats</translation>
+    </message>
+    <message>
+        <source>Performance data, sensor readings, and system metrics for debugging and optimizing openpilot.</source>
+        <translation type="gpt-4o-generated">Performance data, sensor readings, and system metrics for debugging and optimizing openpilot, matey.</translation>
+    </message>
+    <message>
+        <source>Border Metrics</source>
+        <translation type="gpt-4o-generated">Boundary Metrics</translation>
+    </message>
+    <message>
+        <source>Metrics displayed around the border of the driving screen.&lt;br&gt;&lt;br&gt;&lt;b&gt;Blind Spot&lt;/b&gt;: Turn the border red when a vehicle is detected in a blind spot&lt;br&gt;&lt;b&gt;Steering Torque&lt;/b&gt;: Highlight the border green to red in accordance to the amount of steering torque being used&lt;br&gt;&lt;b&gt;Turn Signal&lt;/b&gt;: Flash the border yellow when a turn signal is active</source>
+        <translation type="gpt-4o-generated">Metrics appear around the edge of the driving screen.&lt;br&gt;&lt;br&gt;&lt;b&gt;Blind Spot&lt;/b&gt;: Turn the edge red when a vehicle is detected in a blind spot&lt;br&gt;&lt;b&gt;Steering Torque&lt;/b&gt;: Highlight the edge from green to red based on the steering torque used&lt;br&gt;&lt;b&gt;Turn Signal&lt;/b&gt;: Flash the edge yellow when a turn signal is active</translation>
     </message>
     <message>
         <source>Lead Info</source>
-        <translation type="gpt-4o-generated">Captain's Log</translation>
+        <translation type="gpt-4o-generated">Lead Details</translation>
     </message>
     <message>
-        <source>Jerk Values</source>
-        <translation type="gpt-4o-generated">Jerk Values, ye scallywag!</translation>
+        <source>Metrics displayed under vehicle markers listing their distance and current speed.</source>
+        <translation type="gpt-4o-generated">Metrics shown beneath vehicle markers indicate their distance and speed.</translation>
+    </message>
+    <message>
+        <source>FPS Display</source>
+        <translation type="gpt-4o-generated">FPS Indicator</translation>
+    </message>
+    <message>
+        <source>Display the &lt;b&gt;Frames Per Second (FPS)&lt;/b&gt; at the bottom of the driving screen.</source>
+        <translation type="gpt-4o-generated">Show the &lt;b&gt;Frames Per Second (FPS)&lt;/b&gt; at the bottom of the driving screen, matey.</translation>
+    </message>
+    <message>
+        <source>Numerical Temperature Gauge</source>
+        <translation type="gpt-4o-generated">Temperature Gauge</translation>
+    </message>
+    <message>
+        <source>Use numerical temperature readings instead of status labels in the sidebar.</source>
+        <translation type="gpt-4o-generated">Replace status labels in the sidebar with numerical temperature readings.</translation>
+    </message>
+    <message>
+        <source>Sidebar Metrics</source>
+        <translation type="gpt-4o-generated">Sidebar Stats</translation>
+    </message>
+    <message>
+        <source>Display system information (&lt;b&gt;CPU&lt;/b&gt;, &lt;b&gt;GPU&lt;/b&gt;, &lt;b&gt;RAM usage&lt;/b&gt;, &lt;b&gt;IP address&lt;/b&gt;, &lt;b&gt;device storage&lt;/b&gt;) in the sidebar.</source>
+        <translation type="gpt-4o-generated">Show system details (&lt;b&gt;CPU&lt;/b&gt;, &lt;b&gt;GPU&lt;/b&gt;, &lt;b&gt;RAM usage&lt;/b&gt;, &lt;b&gt;IP address&lt;/b&gt;, &lt;b&gt;device storage&lt;/b&gt;) in the sidebar, matey.</translation>
+    </message>
+    <message>
+        <source>Use International System of Units</source>
+        <translation type="gpt-4o-generated">Utilize the International System of Units</translation>
+    </message>
+    <message>
+        <source>Display measurements using the &lt;b&gt;International System of Units (SI)&lt;/b&gt; standard.</source>
+        <translation type="gpt-4o-generated">Show measurements using the &lt;b&gt;International System of Units (SI)&lt;/b&gt; standard.</translation>
+    </message>
+    <message>
+        <source>Developer Sidebar</source>
+        <translation type="gpt-4o-generated">Developer's Quarters</translation>
+    </message>
+    <message>
+        <source>Display debugging info and metrics in a dedicated sidebar on the right side of the screen.</source>
+        <translation type="gpt-4o-generated">Show debugging info and metrics in a dedicated sidebar on the starboard side of the screen.</translation>
+    </message>
+    <message>
+        <source>Metric #1</source>
+        <translation type="gpt-4o-generated">Metric #1</translation>
+    </message>
+    <message>
+        <source>Metric to display in the first metric in the "Developer Sidebar".</source>
+        <translation type="gpt-4o-generated">Metric to show as the first metric in the "Developer Sidebar".</translation>
+    </message>
+    <message>
+        <source>Metric #2</source>
+        <translation type="gpt-4o-generated">Metric #2</translation>
+    </message>
+    <message>
+        <source>Metric to display in the second metric in the "Developer Sidebar".</source>
+        <translation type="gpt-4o-generated">Metric to show as the second metric in the "Developer Sidebar".</translation>
+    </message>
+    <message>
+        <source>Metric #3</source>
+        <translation type="gpt-4o-generated">Metric #3</translation>
+    </message>
+    <message>
+        <source>Metric to display in the third metric in the "Developer Sidebar".</source>
+        <translation type="gpt-4o-generated">Metric to show as the third metric in the "Developer Sidebar".</translation>
+    </message>
+    <message>
+        <source>Metric #4</source>
+        <translation type="gpt-4o-generated">Metric #4</translation>
+    </message>
+    <message>
+        <source>Metric to display in the fourth metric in the "Developer Sidebar".</source>
+        <translation type="gpt-4o-generated">Metric to show as the fourth metric in the "Developer Sidebar".</translation>
+    </message>
+    <message>
+        <source>Metric #5</source>
+        <translation type="gpt-4o-generated">Metric #5</translation>
+    </message>
+    <message>
+        <source>Metric to display in the fifth metric in the "Developer Sidebar".</source>
+        <translation type="gpt-4o-generated">Metric to show as the fifth metric in the "Developer Sidebar".</translation>
+    </message>
+    <message>
+        <source>Metric #6</source>
+        <translation type="gpt-4o-generated">Metric #6</translation>
+    </message>
+    <message>
+        <source>Metric to display in the sixth metric in the "Developer Sidebar".</source>
+        <translation type="gpt-4o-generated">Metric to show as the sixth metric in the "Developer Sidebar".</translation>
+    </message>
+    <message>
+        <source>Metric #7</source>
+        <translation type="gpt-4o-generated">Metric #7</translation>
+    </message>
+    <message>
+        <source>Metric to display in the seventh metric in the "Developer Sidebar".</source>
+        <translation type="gpt-4o-generated">Metric to show as the seventh metric in the "Developer Sidebar".</translation>
+    </message>
+    <message>
+        <source>Developer Widgets</source>
+        <translation type="gpt-4o-generated">Developer Tools</translation>
+    </message>
+    <message>
+        <source>Overlays displaying debugging visuals, internal states, and model predictions on the driving screen.</source>
+        <translation type="gpt-4o-generated">Overlays show debugging visuals, internal states, and model predictions on the driving screen.</translation>
+    </message>
+    <message>
+        <source>Adjacent Leads Tracking</source>
+        <translation type="gpt-4o-generated">Tracking Adjacent Leads</translation>
+    </message>
+    <message>
+        <source>Adjacent leads detected by the car's radar to the left and right of the current driving path.</source>
+        <translation type="gpt-4o-generated">The car's radar has detected adjacent leads to the left and right of the current driving path.</translation>
+    </message>
+    <message>
+        <source>Model Stopping Point</source>
+        <translation type="gpt-4o-generated">Model Termination Point</translation>
+    </message>
+    <message>
+        <source>Display an image on the screen where openpilot is wanting to stop.</source>
+        <translation type="gpt-4o-generated">Show an image on the screen where openpilot intends to halt.</translation>
+    </message>
+    <message>
+        <source>Radar Tracks</source>
+        <translation type="gpt-4o-generated">Radar Logs</translation>
+    </message>
+    <message>
+        <source>Display all of the radar points produced by the car's radar.</source>
+        <translation type="gpt-4o-generated">Show all radar points generated by the car's radar.</translation>
+    </message>
+    <message>
+        <source>Driving Screen Widgets</source>
+        <translation type="gpt-4o-generated">Widgets for Driving</translation>
+    </message>
+    <message>
+        <source>Custom FrogPilot widgets for the driving screen.</source>
+        <translation type="gpt-4o-generated">Custom FrogPilot widgets for the navigation screen.</translation>
+    </message>
+    <message>
+        <source>Acceleration Path</source>
+        <translation type="gpt-4o-generated">Speed Course</translation>
+    </message>
+    <message>
+        <source>Colorize the driving path based on openpilot's current desired acceleration and deceleration rate.</source>
+        <translation type="gpt-4o-generated">Color the driving path based on openpilot's current desired acceleration and deceleration rate.</translation>
+    </message>
+    <message>
+        <source>Adjacent Lanes</source>
+        <translation type="gpt-4o-generated">Neighboring Lanes</translation>
+    </message>
+    <message>
+        <source>Driving paths for the left and right adjacent lanes.</source>
+        <translation type="gpt-4o-generated">Driving routes for the left and right neighboring lanes.</translation>
+    </message>
+    <message>
+        <source>Blind Spot Path</source>
+        <translation type="gpt-4o-generated">Blind Spot Route</translation>
+    </message>
+    <message>
+        <source>Display a red driving path for detected vehicles in the corresponding lane's blind spot.</source>
+        <translation type="gpt-4o-generated">Show a red path for vehicles detected in the blind spot of the corresponding lane.</translation>
+    </message>
+    <message>
+        <source>Compass</source>
+        <translation type="gpt-4o-generated">Navigational tool</translation>
+    </message>
+    <message>
+        <source>A compass to show the current driving direction.</source>
+        <translation type="gpt-4o-generated">A compass to display the current sailing direction.</translation>
+    </message>
+    <message>
+        <source>Driving Personality Button</source>
+        <translation type="gpt-4o-generated">Driving Persona Button</translation>
+    </message>
+    <message>
+        <source>Display the current driving personality on the screen. Tap to switch personalities, or long press for 0.5 seconds to change the current state of &lt;b&gt;Experimental Mode&lt;/b&gt;, or 2.5 seconds for &lt;b&gt;Traffic Mode&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">Show the current driving personality on the screen. Tap to switch personalities, or press for 0.5 seconds to toggle &lt;b&gt;Experimental Mode&lt;/b&gt;, or 2.5 seconds for &lt;b&gt;Traffic Mode&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Gas / Brake Pedal Indicators</source>
+        <translation type="gpt-4o-generated">Gas / Brake Pedal Markers</translation>
+    </message>
+    <message>
+        <source>Pedals to indicate when either of the pedals are currently being used.&lt;br&gt;&lt;br&gt;&lt;b&gt;Dynamic&lt;/b&gt;: The pedals change in opacity in accordance to how much openpilot is accelerating or decelerating&lt;br&gt;&lt;b&gt;Static&lt;/b&gt;: The pedals are displayed with full opacity when active, and dimmed when not in use</source>
+        <translation type="gpt-4o-generated">Pedals show when either is in use.&lt;br&gt;&lt;br&gt;&lt;b&gt;Dynamic&lt;/b&gt;: The pedals adjust opacity based on how much openpilot accelerates or decelerates.&lt;br&gt;&lt;b&gt;Static&lt;/b&gt;: The pedals appear fully opaque when active and dim when not in use.</translation>
+    </message>
+    <message>
+        <source>Rotating Steering Wheel</source>
+        <translation type="gpt-4o-generated">Spinning Helm</translation>
+    </message>
+    <message>
+        <source>Rotate the steering wheel alongside the vehicle's physical steering wheel.</source>
+        <translation type="gpt-4o-generated">Turn the helm in sync with the vehicle's actual steering wheel.</translation>
+    </message>
+    <message>
+        <source>Model UI</source>
+        <translation type="gpt-4o-generated">Design Interface</translation>
+    </message>
+    <message>
+        <source>Model visualizations on the driving screen for the driving path, lane lines, path edges, and road edges.</source>
+        <translation type="gpt-4o-generated">Display visualizations on the driving screen for the driving path, lane lines, path edges, and road edges.</translation>
+    </message>
+    <message>
+        <source>Dynamic Path Width</source>
+        <translation type="gpt-4o-generated">Dynamic Course Width</translation>
+    </message>
+    <message>
+        <source>Adjust the width of the driving path based on the current engagement state.&lt;br&gt;&lt;br&gt;&lt;b&gt;Fully engaged&lt;/b&gt;: 100%&lt;br&gt;&lt;b&gt;Always On Lateral&lt;/b&gt;: 75%&lt;br&gt;&lt;b&gt;Fully disengaged&lt;/b&gt;: 50%</source>
+        <translation type="gpt-4o-generated">Modify the width of the driving path according to the current engagement state.&lt;br&gt;&lt;br&gt;&lt;b&gt;Fully engaged&lt;/b&gt;: 100%&lt;br&gt;&lt;b&gt;Always On Lateral&lt;/b&gt;: 75%&lt;br&gt;&lt;b&gt;Fully disengaged&lt;/b&gt;: 50%</translation>
+    </message>
+    <message>
+        <source>Lane Lines Width</source>
+        <translation type="gpt-4o-generated">Width of Lane Lines</translation>
+    </message>
+    <message>
+        <source>The thickness of the lane lines on the driving screen.&lt;br&gt;&lt;br&gt;&lt;b&gt;Default matches the &lt;b&gt;MUTCD&lt;/b&gt; lane line width standard of 4 inches.</source>
+        <translation type="gpt-4o-generated">The thickness of the lane lines on the driving screen.&lt;br&gt;&lt;br&gt;&lt;b&gt;Default matches the &lt;b&gt;MUTCD&lt;/b&gt; lane line width standard of 4 inches, matey.</translation>
+    </message>
+    <message>
+        <source>Path Edges Width</source>
+        <translation type="gpt-4o-generated">Path Edges' Width</translation>
+    </message>
+    <message>
+        <source>The width of the edges of the driving path that represent different driving modes and statuses.&lt;br&gt;&lt;br&gt;Default is &lt;b&gt;20%&lt;/b&gt; of the total path width.&lt;br&gt;&lt;br&gt;Color Guide:&lt;br&gt;&lt;br&gt;- &lt;b&gt;Blue&lt;/b&gt;: Navigation&lt;br&gt;- &lt;b&gt;Light Blue&lt;/b&gt;: Always On Lateral&lt;br&gt;- &lt;b&gt;Green&lt;/b&gt;: Default&lt;br&gt;- &lt;b&gt;Orange&lt;/b&gt;: Experimental Mode&lt;br&gt;- &lt;b&gt;Red&lt;/b&gt;: Traffic Mode&lt;br&gt;- &lt;b&gt;Yellow&lt;/b&gt;: Conditional Experimental Mode overridden</source>
+        <translation type="gpt-4o-generated">The width of the driving path edges indicates various driving modes and statuses.&lt;br&gt;&lt;br&gt;The default is &lt;b&gt;20%&lt;/b&gt; of the total path width.&lt;br&gt;&lt;br&gt;Color Guide:&lt;br&gt;&lt;br&gt;- &lt;b&gt;Blue&lt;/b&gt;: Navigation&lt;br&gt;- &lt;b&gt;Light Blue&lt;/b&gt;: Always On Lateral&lt;br&gt;- &lt;b&gt;Green&lt;/b&gt;: Default&lt;br&gt;- &lt;b&gt;Orange&lt;/b&gt;: Experimental Mode&lt;br&gt;- &lt;b&gt;Red&lt;/b&gt;: Traffic Mode&lt;br&gt;- &lt;b&gt;Yellow&lt;/b&gt;: Conditional Experimental Mode overridden</translation>
+    </message>
+    <message>
+        <source>Path Width</source>
+        <translation type="gpt-4o-generated">Path Width</translation>
+    </message>
+    <message>
+        <source>The width of the driving path on the driving screen.&lt;br&gt;&lt;br&gt;Default &lt;b&gt;(6.1 feet)&lt;/b&gt; matches the width of a &lt;b&gt;2019 Lexus ES 350&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">The width of the driving path on the driving screen.&lt;br&gt;&lt;br&gt;Default &lt;b&gt;(6.1 feet)&lt;/b&gt; matches the width of a &lt;b&gt;2019 Lexus ES 350&lt;/b&gt;, matey.</translation>
+    </message>
+    <message>
+        <source>Road Edges Width</source>
+        <translation type="gpt-4o-generated">Width of Road Edges</translation>
+    </message>
+    <message>
+        <source>The thickness of the road edges on the driving screen.&lt;br&gt;&lt;br&gt;&lt;b&gt;Default matches half of the &lt;b&gt;MUTCD&lt;/b&gt; lane line width standard of 4 inches.</source>
+        <translation type="gpt-4o-generated">The thickness of the road edges on the driving screen.&lt;br&gt;&lt;br&gt;&lt;b&gt;By default, it matches half of the &lt;b&gt;MUTCD&lt;/b&gt; lane line width standard of 4 inches.</translation>
+    </message>
+    <message>
+        <source>"Unlimited" Road UI</source>
+        <translation type="gpt-4o-generated">"Boundless" Road UI</translation>
+    </message>
+    <message>
+        <source>Extend the display of the driving path, lane lines, and road edges as far as the model can see.</source>
+        <translation type="gpt-4o-generated">Expand the display of the driving path, lane lines, and road edges as far as the model can perceive.</translation>
+    </message>
+    <message>
+        <source>Navigation Widgets</source>
+        <translation type="gpt-4o-generated">Navigation Tools</translation>
+    </message>
+    <message>
+        <source>Map style tweaks, speed limits, and other navigation related widgets.</source>
+        <translation type="gpt-4o-generated">Map style adjustments, speed limits, and other navigation-related widgets.</translation>
+    </message>
+    <message>
+        <source>Larger Map Display</source>
+        <translation type="gpt-4o-generated">Expanded Map View</translation>
+    </message>
+    <message>
+        <source>Increase the size of the map for easier navigation readings.</source>
+        <translation type="gpt-4o-generated">Enlarge the map for easier navigation readings, matey.</translation>
+    </message>
+    <message>
+        <source>Map Style</source>
+        <translation type="gpt-4o-generated">Map Design</translation>
+    </message>
+    <message>
+        <source>The map style used for &lt;b&gt;Navigate on openpilot (NOO)&lt;/b&gt;:&lt;br&gt;&lt;br&gt;&lt;b&gt;Stock&lt;/b&gt;: Default comma.ai style&lt;br&gt;&lt;b&gt;Mapbox Streets&lt;/b&gt;: Standard street-focused view&lt;br&gt;&lt;b&gt;Mapbox Outdoors&lt;/b&gt;: Emphasizes outdoor and terrain features&lt;br&gt;&lt;b&gt;Mapbox Light&lt;/b&gt;: Minimalist, bright theme&lt;br&gt;&lt;b&gt;Mapbox Dark&lt;/b&gt;: Minimalist, dark theme&lt;br&gt;&lt;b&gt;Mapbox Navigation Day&lt;/b&gt;: Optimized for daytime navigation&lt;br&gt;&lt;b&gt;Mapbox Navigation Night&lt;/b&gt;: Optimized for nighttime navigation&lt;br&gt;&lt;b&gt;Mapbox Satellite&lt;/b&gt;: Satellite imagery only&lt;br&gt;&lt;b&gt;Mapbox Satellite Streets&lt;/b&gt;: Hybrid satellite imagery with street labels&lt;br&gt;&lt;b&gt;Mapbox Traffic Night&lt;/b&gt;: Dark theme emphasizing traffic conditions&lt;br&gt;&lt;b&gt;mike854's (Satellite hybrid)&lt;/b&gt;: Customized hybrid satellite view</source>
+        <translation type="gpt-4o-generated">The map style used for &lt;b&gt;Navigate on openpilot (NOO)&lt;/b&gt;:&lt;br&gt;&lt;br&gt;&lt;b&gt;Stock&lt;/b&gt;: Default comma.ai style&lt;br&gt;&lt;b&gt;Mapbox Streets&lt;/b&gt;: Standard street-focused view&lt;br&gt;&lt;b&gt;Mapbox Outdoors&lt;/b&gt;: Highlights outdoor and terrain features&lt;br&gt;&lt;b&gt;Mapbox Light&lt;/b&gt;: Minimalist, bright theme&lt;br&gt;&lt;b&gt;Mapbox Dark&lt;/b&gt;: Minimalist, dark theme&lt;br&gt;&lt;b&gt;Mapbox Navigation Day&lt;/b&gt;: Optimized for daytime navigation&lt;br&gt;&lt;b&gt;Mapbox Navigation Night&lt;/b&gt;: Optimized for nighttime navigation&lt;br&gt;&lt;b&gt;Mapbox Satellite&lt;/b&gt;: Satellite imagery only&lt;br&gt;&lt;b&gt;Mapbox Satellite Streets&lt;/b&gt;: Hybrid satellite imagery with street labels&lt;br&gt;&lt;b&gt;Mapbox Traffic Night&lt;/b&gt;: Dark theme emphasizing traffic conditions&lt;br&gt;&lt;b&gt;mike854's (Satellite hybrid)&lt;/b&gt;: Customized hybrid satellite view</translation>
+    </message>
+    <message>
+        <source>Road Name</source>
+        <translation type="gpt-4o-generated">Street Name</translation>
+    </message>
+    <message>
+        <source>Display the road name at the bottom of the driving screen using data from &lt;b&gt;OpenStreetMap&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">Show the road name at the bottom of the driving screen using data from &lt;b&gt;OpenStreetMap&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Show Speed Limits</source>
+        <translation type="gpt-4o-generated">Display Speed Limits</translation>
+    </message>
+    <message>
+        <source>Display speed limits in the top left corner of the driving screen. Uses data from your car's dashboard (if supported) and data from &lt;b&gt;OpenStreetMaps&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">Show speed limits in the top left corner of the driving screen. It uses data from your car's dashboard (if supported) and from &lt;b&gt;OpenStreetMaps&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Show Speed Limits from Mapbox</source>
+        <translation type="gpt-4o-generated">Display Speed Limits from Mapbox</translation>
+    </message>
+    <message>
+        <source>Use &lt;b&gt;Mapbox&lt;/b&gt; speed limit data when no other sources are available.</source>
+        <translation type="gpt-4o-generated">When no other sources are available, use &lt;b&gt;Mapbox&lt;/b&gt; speed limit data.</translation>
+    </message>
+    <message>
+        <source>Use Vienna-Style Speed Signs</source>
+        <translation type="gpt-4o-generated">Employ Vienna-Style Speed Signs</translation>
+    </message>
+    <message>
+        <source>Force &lt;b&gt;Vienna-style (EU)&lt;/b&gt; speed limit signs instead of &lt;b&gt;MUTCD (US)&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">Mandate &lt;b&gt;Vienna-style (EU)&lt;/b&gt; speed limit signs in place of &lt;b&gt;MUTCD (US)&lt;/b&gt;.</translation>
+    </message>
+    <message>
+        <source>Quality of Life</source>
+        <translation type="gpt-4o-generated">Life's Quality</translation>
+    </message>
+    <message>
+        <source>Visual features to improve your overall openpilot experience.</source>
+        <translation type="gpt-4o-generated">Visual elements to enhance your openpilot experience.</translation>
+    </message>
+    <message>
+        <source>Camera View</source>
+        <translation type="gpt-4o-generated">Camera Perspective</translation>
+    </message>
+    <message>
+        <source>The active camera view display. This is purely a visual change and doesn't impact how openpilot drives!</source>
+        <translation type="gpt-4o-generated">The active camera view be displayed. This is purely a visual change and doesn't affect how openpilot sails!</translation>
+    </message>
+    <message>
+        <source>Show Driver Camera When In Reverse</source>
+        <translation type="gpt-4o-generated">Display Rear Camera When Reversing</translation>
+    </message>
+    <message>
+        <source>Display the driver camera feed when the vehicle is in reverse.</source>
+        <translation type="gpt-4o-generated">Show the driver camera feed when the vehicle is in reverse.</translation>
+    </message>
+    <message>
+        <source>Standby Mode</source>
+        <translation type="gpt-4o-generated">Standby Mode</translation>
+    </message>
+    <message>
+        <source>Turn the screen off when driving and automatically wake it up if engagement state changes or important alerts occur.</source>
+        <translation type="gpt-4o-generated">Turn off the screen while driving, and automatically wake it if the engagement state changes or important alerts arise.</translation>
+    </message>
+    <message>
+        <source>Stopped Timer</source>
+        <translation type="gpt-4o-generated">Timer Halted</translation>
+    </message>
+    <message>
+        <source>Replace the current speed with a timer when stopped to indicate how long the vehicle has been stopped for.</source>
+        <translation type="gpt-4o-generated">Swap the current speed with a timer when halted to show how long the vehicle has been stationary.</translation>
+    </message>
+    <message>
+        <source>Blind Spot</source>
+        <translation type="gpt-4o-generated">Blind Spot</translation>
+    </message>
+    <message>
+        <source>Steering Torque</source>
+        <translation type="gpt-4o-generated">Steering Force</translation>
+    </message>
+    <message>
+        <source>Turn Signal</source>
+        <translation type="gpt-4o-generated">Signal Light</translation>
     </message>
     <message>
         <source>Fahrenheit</source>
-        <translation type="gpt-4o-generated">Fahrenheit, matey!</translation>
+        <translation type="gpt-4o-generated">Fahrenheit</translation>
     </message>
     <message>
         <source>CPU</source>
-        <translation type="gpt-4o-generated">Cap'n Processing Unit</translation>
+        <translation type="gpt-4o-generated">Processor</translation>
     </message>
     <message>
         <source>GPU</source>
-        <translation type="gpt-4o-generated">Graphics Parlay Unit</translation>
+        <translation type="gpt-4o-generated">Graphics card</translation>
     </message>
     <message>
         <source>IP</source>
-        <translation type="gpt-4o-generated">IP Address</translation>
+        <translation type="gpt-4o-generated">IP</translation>
     </message>
     <message>
         <source>RAM</source>
-        <translation type="gpt-4o-generated">Memory o' the Sea</translation>
+        <translation type="gpt-4o-generated">RAM</translation>
     </message>
     <message>
         <source>SSD Left</source>
-        <translation type="gpt-4o-generated">Booty Space Left</translation>
+        <translation type="gpt-4o-generated">SSD Remaining</translation>
     </message>
     <message>
         <source>SSD Used</source>
-        <translation type="gpt-4o-generated">Treasure Chest Used</translation>
+        <translation type="gpt-4o-generated">SSD Utilized</translation>
     </message>
     <message>
-        <source>Show Distance</source>
-        <translation type="gpt-4o-generated">Reveal the Distance, matey!</translation>
+        <source>None</source>
+        <translation type="gpt-4o-generated">None</translation>
     </message>
     <message>
-        <source> inches</source>
-        <translation type="gpt-4o-generated">inches, me hearties</translation>
+        <source>Acceleration: Current</source>
+        <translation type="gpt-4o-generated">Current Acceleration</translation>
     </message>
     <message>
-        <source>%</source>
-        <translation type="gpt-4o-generated">%</translation>
+        <source>Acceleration: Max</source>
+        <translation type="gpt-4o-generated">Acceleration: Maximum</translation>
     </message>
     <message>
-        <source> feet</source>
-        <translation type="gpt-4o-generated">footsteps</translation>
+        <source>Auto Tune: Actuator Delay</source>
+        <translation type="gpt-4o-generated">Auto Tune: Actuator Lag</translation>
     </message>
     <message>
-        <source>Full Map</source>
-        <translation type="gpt-4o-generated">Complete Map, me hearty!</translation>
+        <source>Auto Tune: Friction</source>
+        <translation type="gpt-4o-generated">Auto Tune: Resistance</translation>
     </message>
     <message>
-        <source>Stock</source>
-        <translation type="gpt-4o-generated">Treasure Holdin's</translation>
+        <source>Auto Tune: Lateral Acceleration</source>
+        <translation type="gpt-4o-generated">Auto Tune: Sideways Acceleration</translation>
     </message>
     <message>
-        <source>Mapbox Streets</source>
-        <translation type="gpt-4o-generated">Mapbox Streets, matey!</translation>
+        <source>Auto Tune: Steer Ratio</source>
+        <translation type="gpt-4o-generated">Auto Tune: Steering Ratio</translation>
     </message>
     <message>
-        <source>Mapbox Outdoors</source>
-        <translation type="gpt-4o-generated">Mapbox High Seas Adventure</translation>
+        <source>Auto Tune: Stiffness Factor</source>
+        <translation type="gpt-4o-generated">Auto Tune: Rigidity Factor</translation>
     </message>
     <message>
-        <source>Mapbox Light</source>
-        <translation type="gpt-4o-generated">Mapbox Lantern</translation>
+        <source>Engagement %: Lateral</source>
+        <translation type="gpt-4o-generated">Engagement %: Sideways</translation>
     </message>
     <message>
-        <source>Mapbox Dark</source>
-        <translation type="gpt-4o-generated">Mapbox Dark, matey!</translation>
+        <source>Engagement %: Longitudinal</source>
+        <translation type="gpt-4o-generated">Engagement %: Over time</translation>
     </message>
     <message>
-        <source>Mapbox Satellite</source>
-        <translation type="gpt-4o-generated">Mapbox Spyglass o' the Seas</translation>
+        <source>Lateral Control: Steering Angle</source>
+        <translation type="gpt-4o-generated">Steering Angle: Lateral Control</translation>
     </message>
     <message>
-        <source>Mapbox Satellite Streets</source>
-        <translation type="gpt-4o-generated">Mapbox's Fair Waters 'n Streets</translation>
+        <source>Lateral Control: Torque % Used</source>
+        <translation type="gpt-4o-generated">Lateral Control: Torque % Utilized</translation>
     </message>
     <message>
-        <source>Mapbox Navigation Day</source>
-        <translation type="gpt-4o-generated">Mapbox Navigation Day, me hearties!</translation>
+        <source>Longitudinal Control: Actuator Acceleration Output</source>
+        <translation type="gpt-4o-generated">Longitudinal Control: Actuator Acceleration Ahoy!</translation>
     </message>
     <message>
-        <source>Mapbox Navigation Night</source>
-        <translation type="gpt-4o-generated">Mapbox Navigation by the Moonlit Seas</translation>
+        <source>Longitudinal MPC Jerk: Acceleration</source>
+        <translation type="gpt-4o-generated">Longitudinal MPC Jerk: Acceleration, matey</translation>
     </message>
     <message>
-        <source>Mapbox Traffic Night</source>
-        <translation type="gpt-4o-generated">Mapbox Traffic by Nightfall</translation>
+        <source>Longitudinal MPC Jerk: Danger Zone</source>
+        <translation type="gpt-4o-generated">Longitudinal MPC Jerk: Risky Waters</translation>
     </message>
     <message>
-        <source>mike854's (Satellite hybrid)</source>
-        <translation type="gpt-4o-generated">mike854's (Satellite hybrid)</translation>
+        <source>Longitudinal MPC Jerk: Speed Control</source>
+        <translation type="gpt-4o-generated">Longitudinal MPC Jerk: Velocity Control</translation>
     </message>
     <message>
         <source>SELECT</source>
-        <translation type="gpt-4o-generated">CHOOSE YARR</translation>
+        <translation type="gpt-4o-generated">SELECT</translation>
     </message>
     <message>
-        <source>Select a map style</source>
-        <translation type="gpt-4o-generated">Choose yer map style, matey!</translation>
+        <source>Select a metric to display</source>
+        <translation type="gpt-4o-generated">Choose a metric to show</translation>
+    </message>
+    <message>
+        <source>Show Distance</source>
+        <translation type="gpt-4o-generated">Display Distance</translation>
     </message>
     <message>
         <source>Dynamic</source>
-        <translation type="gpt-4o-generated">Lively as a sea breeze</translation>
+        <translation type="gpt-4o-generated">Lively</translation>
     </message>
     <message>
         <source>Static</source>
-        <translation type="gpt-4o-generated">Anchored</translation>
+        <translation type="gpt-4o-generated">Unchanging</translation>
     </message>
     <message>
-        <source>Adjust how thick the lane lines appear on the display.
-
-Default matches the Vienna standard of 10 centimeters.</source>
-        <translation type="gpt-4o-generated">Tweak how bold the lane lines be on the display.
-
-Default follows the Vienna code of 10 centimeters.</translation>
+        <source> inches</source>
+        <translation type="gpt-4o-generated">inches</translation>
     </message>
     <message>
-        <source>Adjust how thick the road edges appear on the display.
-
-Default matches half of the Vienna standard of 10 centimeters.</source>
-        <translation type="gpt-4o-generated">Tweak how bold the road edges be lookin' on the display.
-
-Default be matchin' half of the Vienna standard of 10 centimeters.</translation>
+        <source>Off</source>
+        <translation type="gpt-4o-generated">Off</translation>
     </message>
     <message>
-        <source> centimeters</source>
-        <translation type="gpt-4o-generated">centimeters, me hearty</translation>
+        <source> feet</source>
+        <translation type="gpt-4o-generated">feet</translation>
+    </message>
+    <message>
+        <source>Full Map</source>
+        <translation type="gpt-4o-generated">Complete Chart</translation>
+    </message>
+    <message>
+        <source>Stock openpilot</source>
+        <translation type="gpt-4o-generated">Standard openpilot</translation>
+    </message>
+    <message>
+        <source>FrogsGoMoo's Personalized Style</source>
+        <translation type="gpt-4o-generated">FrogsGoMoo's Custom Style</translation>
+    </message>
+    <message>
+        <source>Mapbox Streets</source>
+        <translation type="gpt-4o-generated">Mapbox Streets</translation>
+    </message>
+    <message>
+        <source>Mapbox Outdoors</source>
+        <translation type="gpt-4o-generated">Mapbox Outdoors</translation>
+    </message>
+    <message>
+        <source>Mapbox Light</source>
+        <translation type="gpt-4o-generated">Mapbox Light</translation>
+    </message>
+    <message>
+        <source>Mapbox Dark</source>
+        <translation type="gpt-4o-generated">Mapbox Night</translation>
+    </message>
+    <message>
+        <source>Mapbox Navigation Day</source>
+        <translation type="gpt-4o-generated">Mapbox Navigation Day, matey!</translation>
+    </message>
+    <message>
+        <source>Mapbox Navigation Night</source>
+        <translation type="gpt-4o-generated">Mapbox Navigation Evening</translation>
+    </message>
+    <message>
+        <source>Mapbox Satellite</source>
+        <translation type="gpt-4o-generated">Mapbox Satellite</translation>
+    </message>
+    <message>
+        <source>Mapbox Satellite Streets</source>
+        <translation type="gpt-4o-generated">Mapbox Satellite Streets</translation>
+    </message>
+    <message>
+        <source>Mapbox Traffic Night</source>
+        <translation type="gpt-4o-generated">Mapbox Traffic After Dark</translation>
+    </message>
+    <message>
+        <source>Mike's Personalized Style</source>
+        <translation type="gpt-4o-generated">Mike's Custom Style</translation>
+    </message>
+    <message>
+        <source>Select a map style</source>
+        <translation type="gpt-4o-generated">Choose a map style</translation>
+    </message>
+    <message>
+        <source>Auto</source>
+        <translation type="gpt-4o-generated">Car</translation>
+    </message>
+    <message>
+        <source>Driver</source>
+        <translation type="gpt-4o-generated">Operator</translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation type="gpt-4o-generated">Regular</translation>
+    </message>
+    <message>
+        <source>Wide</source>
+        <translation type="gpt-4o-generated">Broad</translation>
+    </message>
+    <message>
+        <source> foot</source>
+        <translation type="gpt-4o-generated">foot</translation>
+    </message>
+    <message>
+        <source> inch</source>
+        <translation type="gpt-4o-generated">inch</translation>
+    </message>
+    <message>
+        <source> meter</source>
+        <translation type="gpt-4o-generated">meter</translation>
     </message>
     <message>
         <source> meters</source>
-        <translation type="gpt-4o-generated">nautical meters</translation>
+        <translation type="gpt-4o-generated">metres</translation>
     </message>
     <message>
-        <source>Adjust how thick the lane lines appear on the display.
-
-Default matches the MUTCD standard of 4 inches.</source>
-        <translation type="gpt-4o-generated">Tweak how bold the lane lines be on the display, matey.
-
-Default sails true to the MUTCD standard of 4 inches.</translation>
+        <source> centimeter</source>
+        <translation type="gpt-4o-generated">cm</translation>
     </message>
     <message>
-        <source>Adjust how thick the road edges appear on the display.
-
-Default matches half of the MUTCD standard of 4 inches.</source>
-        <translation type="gpt-4o-generated">Tweak the boldness o' the road edges fer yer displayin' pleasure.
-
-The default be akin to half the MUTCD standard o' 4 inches.</translation>
+        <source> centimeters</source>
+        <translation type="gpt-4o-generated">cm</translation>
+    </message>
+    <message>
+        <source>The thickness of the lane lines on the driving screen.&lt;br&gt;&lt;br&gt;&lt;b&gt;Default matches the &lt;b&gt;MUTCD&lt;/b&gt; lane line width standard of 10 centimeters.</source>
+        <translation type="gpt-4o-generated">The thickness of the lane lines on the driving screen.&lt;br&gt;&lt;br&gt;&lt;b&gt;Default matches the &lt;b&gt;MUTCD&lt;/b&gt; lane line width standard of 10 centimeters, matey.</translation>
+    </message>
+    <message>
+        <source>The width of the driving path on the driving screen.&lt;br&gt;&lt;br&gt;Default &lt;b&gt;(1.9 meters)&lt;/b&gt; matches the width of a &lt;b&gt;2019 Lexus ES 350&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">The width of the driving path on the driving screen.&lt;br&gt;&lt;br&gt;Default &lt;b&gt;(1.9 meters)&lt;/b&gt; matches the width of a &lt;b&gt;2019 Lexus ES 350&lt;/b&gt;, matey.</translation>
+    </message>
+    <message>
+        <source>The thickness of the road edges on the driving screen.&lt;br&gt;&lt;br&gt;&lt;b&gt;Default matches half of the &lt;b&gt;MUTCD&lt;/b&gt; lane line width standard of 10 centimeters.</source>
+        <translation type="gpt-4o-generated">The thickness of the road edges on the driving screen.&lt;br&gt;&lt;br&gt;&lt;b&gt;By default, it matches half of the &lt;b&gt;MUTCD&lt;/b&gt; lane line width standard of 10 centimeters.</translation>
+    </message>
+</context>
+<context>
+    <name>FrogPilotWheelPanel</name>
+    <message>
+        <source>Distance Button</source>
+        <translation type="gpt-4o-generated">Distance Switch</translation>
+    </message>
+    <message>
+        <source>The action for a short press of the &lt;b&gt;Distance&lt;/b&gt; button.</source>
+        <translation type="gpt-4o-generated">The action for a brief press of the &lt;b&gt;Distance&lt;/b&gt; button.</translation>
+    </message>
+    <message>
+        <source>Distance Button (Long Press)</source>
+        <translation type="gpt-4o-generated">Distance Button (Hold Press)</translation>
+    </message>
+    <message>
+        <source>The action for a 0.5+ second press of the &lt;b&gt;Distance&lt;/b&gt; button.</source>
+        <translation type="gpt-4o-generated">The action triggered by a 0.5+ second press of the &lt;b&gt;Distance&lt;/b&gt; button.</translation>
+    </message>
+    <message>
+        <source>Distance Button (Very Long Press)</source>
+        <translation type="gpt-4o-generated">Distance Button (Extended Press)</translation>
+    </message>
+    <message>
+        <source>The action for a 2.5+ second press of the &lt;b&gt;Distance&lt;/b&gt; button.</source>
+        <translation type="gpt-4o-generated">The action for pressing the &lt;b&gt;Distance&lt;/b&gt; button for over 2.5 seconds.</translation>
+    </message>
+    <message>
+        <source>LKAS Button</source>
+        <translation type="gpt-4o-generated">LKAS Switch</translation>
+    </message>
+    <message>
+        <source>The action for pressing the &lt;b&gt;LKAS&lt;/b&gt; button.</source>
+        <translation type="gpt-4o-generated">Press the &lt;b&gt;LKAS&lt;/b&gt; button, matey.</translation>
+    </message>
+    <message>
+        <source>Nothing</source>
+        <translation type="gpt-4o-generated">Nothing</translation>
+    </message>
+    <message>
+        <source>Pause Lateral</source>
+        <translation type="gpt-4o-generated">Hold Lateral</translation>
+    </message>
+    <message>
+        <source>Change "Personality Profile"</source>
+        <translation type="gpt-4o-generated">Character Chart</translation>
+    </message>
+    <message>
+        <source>Force openpilot to Coast</source>
+        <translation type="gpt-4o-generated">Make openpilot coast</translation>
+    </message>
+    <message>
+        <source>Pause Longitudinal</source>
+        <translation type="gpt-4o-generated">Halt Longitudinal</translation>
+    </message>
+    <message>
+        <source>Toggle "Experimental Mode" On/Off</source>
+        <translation type="gpt-4o-generated">Switch "Experimental Mode" On/Off</translation>
+    </message>
+    <message>
+        <source>Toggle "Traffic Mode" On/Off</source>
+        <translation type="gpt-4o-generated">Switch "Traffic Mode" On/Off</translation>
+    </message>
+    <message>
+        <source>SELECT</source>
+        <translation type="gpt-4o-generated">SELECT</translation>
+    </message>
+    <message>
+        <source>Select a function to assign to this button</source>
+        <translation type="gpt-4o-generated">Choose a function to assign to this button, matey</translation>
     </message>
 </context>
 <context>
     <name>InputDialog</name>
     <message>
         <source>Cancel</source>
-        <translation type="gpt-4o-generated">Avast! Belay that!</translation>
+        <translation type="gpt-4o-generated">Cancel</translation>
     </message>
     <message numerus="yes">
         <source>Need at least %n character(s)!</source>
-        <translation><numerusform>Ye be needin' at least %n character(s)!</numerusform></translation></message>
+        <translation type="gpt-4o-generated">
+            <numerusform>At least %n character required!</numerusform>
+            <numerusform>At least %n characters required!</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Characters: %1/%2</source>
-        <translation type="gpt-4o-generated">Scrawlings: %1/%2</translation>
+        <translation type="gpt-4o-generated">Characters: %1 of %2</translation>
     </message>
 </context>
 <context>
     <name>Installer</name>
     <message>
         <source>Installing...</source>
-        <translation type="gpt-4o-generated">Hoistin' the sails...</translation>
+        <translation type="gpt-4o-generated">Installing, matey...</translation>
     </message>
 </context>
 <context>
     <name>MapETA</name>
     <message>
         <source>eta</source>
-        <translation type="gpt-4o-generated">Estimated Time t' Arrival</translation>
+        <translation type="gpt-4o-generated">ETA</translation>
     </message>
     <message>
         <source>min</source>
-        <translation type="gpt-4o-generated">min'te</translation>
+        <translation type="gpt-4o-generated">min</translation>
     </message>
     <message>
         <source>hr</source>
-        <translation type="gpt-4o-generated">hr, me hearty!</translation>
+        <translation type="gpt-4o-generated">hr</translation>
     </message>
 </context>
 <context>
     <name>MapSettings</name>
     <message>
         <source>NAVIGATION</source>
-        <translation type="gpt-4o-generated">SAILIN' CHARTS</translation>
-    </message>
-    <message>
-        <source>Manage at connect.comma.ai</source>
-        <translation type="gpt-4o-generated">Command yer ship at connect.comma.ai</translation>
+        <translation type="gpt-4o-generated">Steering</translation>
     </message>
     <message>
         <source>Manage at %1</source>
-        <translation type="gpt-4o-generated">Steer the ship at %1</translation>
+        <translation type="gpt-4o-generated">Handle at %1</translation>
     </message>
 </context>
 <context>
     <name>MapWindow</name>
     <message>
         <source>Map Loading</source>
-        <translation type="gpt-4o-generated">Chart Hoistin'</translation>
+        <translation type="gpt-4o-generated">Loading the Map</translation>
     </message>
     <message>
         <source>Waiting for GPS</source>
-        <translation type="gpt-4o-generated">Awaitin' the call o' the GPS seas</translation>
+        <translation type="gpt-4o-generated">Awaiting GPS</translation>
     </message>
     <message>
         <source>Waiting for route</source>
-        <translation type="gpt-4o-generated">Awaitin' the charted course, me hearty!</translation>
+        <translation type="gpt-4o-generated">Awaiting course</translation>
+    </message>
+</context>
+<context>
+    <name>ModelReview</name>
+    <message>
+        <source>How would you rate that drive?</source>
+        <translation type="gpt-4o-generated">How would ye rate that drive, matey?</translation>
+    </message>
+    <message>
+        <source>Blacklist this model</source>
+        <translation type="gpt-4o-generated">Add this model to the blacklist.</translation>
+    </message>
+    <message>
+        <source>The model used during that drive was:</source>
+        <translation type="gpt-4o-generated">The model employed during that voyage was:</translation>
+    </message>
+    <message>
+        <source>Current Model Score: 0</source>
+        <translation type="gpt-4o-generated">Current Model Score: 0</translation>
+    </message>
+    <message>
+        <source>Current Model Rank: 0</source>
+        <translation type="gpt-4o-generated">Current Model Rank: 0</translation>
+    </message>
+    <message>
+        <source>Total Model Drives: 0</source>
+        <translation type="gpt-4o-generated">Total Model Drives: None</translation>
+    </message>
+    <message>
+        <source>Total Overall Model Drives: 0</source>
+        <translation type="gpt-4o-generated">Total Model Drives Overall: 0</translation>
+    </message>
+    <message>
+        <source>Total Model Drives: %1</source>
+        <translation type="gpt-4o-generated">Total Model Drives: %1</translation>
+    </message>
+    <message>
+        <source>Current Model Rank: %1</source>
+        <translation type="gpt-4o-generated">Current Model Rank: %1</translation>
+    </message>
+    <message>
+        <source>Current Model Score: %1</source>
+        <translation type="gpt-4o-generated">Current Model Score: %1</translation>
+    </message>
+    <message>
+        <source>Total Overall Drives: %1</source>
+        <translation type="gpt-4o-generated">Total Drives Overall: %1</translation>
+    </message>
+    <message>
+        <source>Model successfully blacklisted!</source>
+        <translation type="gpt-4o-generated">Model blacklisted successfully!</translation>
     </message>
 </context>
 <context>
     <name>MultiOptionDialog</name>
     <message>
         <source>Select</source>
-        <translation type="gpt-4o-generated">Set Yer Course</translation>
+        <translation type="gpt-4o-generated">Choose</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="gpt-4o-generated">Abandon Ship</translation>
+        <translation type="gpt-4o-generated">Cancel</translation>
     </message>
 </context>
 <context>
     <name>Networking</name>
     <message>
         <source>Advanced</source>
-        <translation type="gpt-4o-generated">Advanced, matey!</translation>
+        <translation type="gpt-4o-generated">Enhanced</translation>
     </message>
     <message>
         <source>Enter password</source>
-        <translation type="gpt-4o-generated">Type yer secret code, matey!</translation>
+        <translation type="gpt-4o-generated">Enter yer password, matey</translation>
     </message>
     <message>
         <source>for "%1"</source>
@@ -3683,192 +4427,189 @@ The default be akin to half the MUTCD standard o' 4 inches.</translation>
     </message>
     <message>
         <source>Wrong password</source>
-        <translation type="gpt-4o-generated">Arrr, the password be amiss!</translation>
+        <translation type="gpt-4o-generated">Incorrect password</translation>
     </message>
 </context>
 <context>
     <name>OffroadAlert</name>
     <message>
         <source>Device temperature too high. System cooling down before starting. Current internal component temperature: %1</source>
-        <translation type="gpt-4o-generated">Arrr, the device be runnin' hot as a cannonball in midsummer! The system be takin' a breather to cool down before settin' sail. Current temperature of them thar internal gizmos: %1</translation>
+        <translation type="gpt-4o-generated">Device temperature too high. System cooling down before starting. Current internal component temperature: %1</translation>
     </message>
     <message>
         <source>Immediately connect to the internet to check for updates. If you do not connect to the internet, openpilot won't engage in %1</source>
-        <translation type="gpt-4o-generated">Hoist the sails and swiftly connect to the vast seas of the internet to seek out updates. Be warned, matey, if ye don't set course for the internet waters, openpilot won't be joinin' the voyage in %1.</translation>
+        <translation type="gpt-4o-generated">Connect to the internet right away to check for updates. If ye don't connect, openpilot won't engage in %1.</translation>
     </message>
     <message>
         <source>Connect to internet to check for updates. openpilot won't automatically start until it connects to internet to check for updates.</source>
-        <translation type="gpt-4o-generated">Set sail on th' internet seas to fetch th' latest updates. openpilot be waitin' at port 'til it catches ahold of them updates.</translation>
+        <translation type="gpt-4o-generated">Connect to the internet to check for updates. openpilot won't start automatically until it connects to the internet to check for updates.</translation>
     </message>
     <message>
         <source>Unable to download updates
 %1</source>
-        <translation type="gpt-4o-generated">Arrr, can't be fetching updates %1</translation>
+        <translation type="gpt-4o-generated">Can't download updates
+%1</translation>
     </message>
     <message>
         <source>Taking camera snapshots. System won't start until finished.</source>
-        <translation type="gpt-4o-generated">Snappin' camera shots. The system be layin' anchor 'til it be done.</translation>
+        <translation type="gpt-4o-generated">Capturing camera snapshots. System won't begin until complete.</translation>
     </message>
     <message>
         <source>An update to your device's operating system is downloading in the background. You will be prompted to update when it's ready to install.</source>
-        <translation type="gpt-4o-generated">Arrr matey, an update be downloadin' to yer device's operating system in the background. Ye'll get a nudge to update when it's primed for installin'.</translation>
+        <translation type="gpt-4o-generated">An update to your device's operating system be downloading in the background. Ye'll be prompted to update when it's ready to install.</translation>
     </message>
     <message>
         <source>Device failed to register. It will not connect to or upload to comma.ai servers, and receives no support from comma.ai. If this is an official device, visit https://comma.ai/support.</source>
-        <translation type="gpt-4o-generated">Arrr, the device's registration be a bust! It won't be connectin' to or uploadin' to the comma.ai servers, nor be gettin' any support from comma.ai. If this be an official contraption, set yer course to https://comma.ai/support.</translation>
+        <translation type="gpt-4o-generated">Device failed to register. It won't connect to or upload to comma.ai servers, and receives no support from comma.ai. If this is an official device, visit https://comma.ai/support.</translation>
     </message>
     <message>
         <source>NVMe drive not mounted.</source>
-        <translation type="gpt-4o-generated">Arr, the NVMe drive be not hoisted aboard!</translation>
+        <translation type="gpt-4o-generated">NVMe drive not attached.</translation>
     </message>
     <message>
         <source>Unsupported NVMe drive detected. Device may draw significantly more power and overheat due to the unsupported NVMe.</source>
-        <translation type="gpt-4o-generated">Arrr, an unsupported NVMe drive be detected! This device might be thirstin' for more power and could run hotter than a cannon's fuse due to the unsupported NVMe.</translation>
+        <translation type="gpt-4o-generated">Unsupported NVMe drive detected. The device might draw much more power and overheat because of the unsupported NVMe.</translation>
     </message>
     <message>
         <source>openpilot was unable to identify your car. Your car is either unsupported or its ECUs are not recognized. Please submit a pull request to add the firmware versions to the proper vehicle. Need help? Join discord.comma.ai.</source>
-        <translation type="gpt-4o-generated">Arrr, openpilot be unable to spy yer ship. Yer car be either sailin' unsupported waters or its ECUs be unrecognized. Kindly submit a pull request to chart the firmware versions to the right vessel. Need a hand? Join discord.comma.ai for some hearty assistance.</translation>
+        <translation type="gpt-4o-generated">openpilot couldn't identify your car, matey. Either it's unsupported or its ECUs aren't recognized. Submit a pull request to add the firmware versions to the correct vehicle. Need help? Join discord.comma.ai.</translation>
     </message>
     <message>
         <source>openpilot was unable to identify your car. Check integrity of cables and ensure all connections are secure, particularly that the comma power is fully inserted in the OBD-II port of the vehicle. Need help? Join discord.comma.ai.</source>
-        <translation type="gpt-4o-generated">Arrr, openpilot be havin' a bit o' trouble pinpointin' yer trusty vessel. Make sure yer cables be shipshape and all connections be locked tight, especially that the comma power be seated snugly in the OBD-II port o' the vehicle. Need a hand? Sail on over to discord.comma.ai fer a spot o' help.</translation>
+        <translation type="gpt-4o-generated">openpilot couldn't identify your car. Check cable integrity and ensure all connections are secure, especially that the comma power is fully inserted in the OBD-II port of the vehicle. Need help? Visit discord.comma.ai.</translation>
     </message>
     <message>
         <source>openpilot detected a change in the device's mounting position. Ensure the device is fully seated in the mount and the mount is firmly secured to the windshield.</source>
-        <translation type="gpt-4o-generated">Arrr, openpilot be spyin' a shift in where the device be perched. Make sure the device be sittin' snug in its mount, and the mount be holdin' fast to the windshield like a barnacle to a ship's hull.</translation>
+        <translation type="gpt-4o-generated">openpilot noticed a shift in the device's mounting position. Make sure the device is properly seated in the mount and that the mount is securely attached to the windshield.</translation>
     </message>
 </context>
 <context>
     <name>OffroadHome</name>
     <message>
         <source>UPDATE</source>
-        <translation type="gpt-4o-generated">Hoist the Sails!</translation>
+        <translation type="gpt-4o-generated">REFRESH</translation>
     </message>
     <message>
         <source> ALERTS</source>
-        <translation type="gpt-4o-generated">Ahoy, Warnings!</translation>
+        <translation type="gpt-4o-generated">ALERTS</translation>
     </message>
     <message>
         <source> ALERT</source>
-        <translation type="gpt-4o-generated">Ahoy!</translation>
+        <translation type="gpt-4o-generated">ALERT</translation>
     </message>
 </context>
 <context>
     <name>OnroadAlerts</name>
     <message>
         <source>openpilot crashed 💩</source>
-        <translation type="gpt-4o-generated">openpilot be takin' a dive 💩</translation>
+        <translation type="gpt-4o-generated">openpilot failed 💩</translation>
     </message>
     <message>
-        <source>Please post the 'Error Log' in the FrogPilot Discord!</source>
-        <translation type="gpt-4o-generated">Kindly be sharin' the 'Error Log' in the FrogPilot Discord, matey! 🏴‍☠️</translation>
+        <source>Please post the "Error Log" in the FrogPilot Discord!</source>
+        <translation type="gpt-4o-generated">Kindly share the "Error Log" in the FrogPilot Discord, matey!</translation>
     </message>
     <message>
         <source>openpilot crashed</source>
-        <translation type="gpt-4o-generated">openpilot be takin' a dive, it did!</translation>
+        <translation type="gpt-4o-generated">openpilot failed</translation>
     </message>
     <message>
         <source>openpilot Unavailable</source>
-        <translation type="gpt-4o-generated">openpilot Be Temporarily Out o' Service</translation>
+        <translation type="gpt-4o-generated">openpilot Not Available</translation>
     </message>
     <message>
         <source>Waiting for controls to start</source>
-        <translation type="gpt-4o-generated">Awaitin' the helm to be ready for action</translation>
+        <translation type="gpt-4o-generated">Awaiting controls to begin</translation>
     </message>
     <message>
         <source>TAKE CONTROL IMMEDIATELY</source>
-        <translation type="gpt-4o-generated">GRAB THE WHEEL, MATEY, NOW!</translation>
+        <translation type="gpt-4o-generated">SEIZE CONTROL NOW</translation>
     </message>
     <message>
         <source>Controls Unresponsive</source>
-        <translation type="gpt-4o-generated">Controls Be as Stubborn as a Barnacle</translation>
+        <translation type="gpt-4o-generated">Controls Not Responding</translation>
     </message>
     <message>
         <source>Reboot Device</source>
-        <translation type="gpt-4o-generated">Hoist the sails 'n restart the device</translation>
+        <translation type="gpt-4o-generated">Restart Device</translation>
     </message>
 </context>
 <context>
     <name>PairingPopup</name>
     <message>
-        <source>Pair your device to your Konik.ai account</source>
-        <translation type="gpt-4o-generated">Aye, link yer device to yer Konik.ai account, matey!</translation>
+        <source>Pair your device to your %1 account</source>
+        <translation type="gpt-4o-generated">Connect your device to your %1 account</translation>
     </message>
     <message>
-        <source>Pair your device to your comma account</source>
-        <translation type="gpt-4o-generated">Link yer device t' yer comma account, matey!</translation>
-    </message>
-    <message>
-        <source>Go to %1 on your phone</source>
-        <translation type="gpt-4o-generated">Sail on over to %1 on yer trusty device</translation>
+        <source>Go to https://%1 on your phone</source>
+        <translation type="gpt-4o-generated">Visit https://%1 on your phone, matey.</translation>
     </message>
     <message>
         <source>Click "add new device" and scan the QR code on the right</source>
-        <translation type="gpt-4o-generated">Give the ol' "add new device" button a hearty click, and then scan the QR code off to starboard.</translation>
+        <translation type="gpt-4o-generated">Click "add new device" and scan the QR code to starboard.</translation>
     </message>
     <message>
         <source>Bookmark %1 to your home screen to use it like an app</source>
-        <translation type="gpt-4o-generated">Pin %1 to yer home screen, savvy, and use it like an app!</translation>
+        <translation type="gpt-4o-generated">Add %1 to your home screen to use it like an app.</translation>
     </message>
 </context>
 <context>
     <name>ParamControl</name>
     <message>
         <source>Enable</source>
-        <translation type="gpt-4o-generated">Hoist the sails</translation>
+        <translation type="gpt-4o-generated">Activate</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="gpt-4o-generated">Abandon Ship</translation>
+        <translation type="gpt-4o-generated">Cancel</translation>
     </message>
 </context>
 <context>
     <name>PrimeAdWidget</name>
     <message>
         <source>Upgrade Now</source>
-        <translation type="gpt-4o-generated">Hoist the sails 'n upgrade!</translation>
+        <translation type="gpt-4o-generated">Upgrade Today</translation>
     </message>
     <message>
         <source>Become a comma prime member at connect.comma.ai</source>
-        <translation type="gpt-4o-generated">Join the crew as a comma prime matey at connect.comma.ai</translation>
+        <translation type="gpt-4o-generated">Join as a comma prime member at connect.comma.ai</translation>
     </message>
     <message>
         <source>PRIME FEATURES:</source>
-        <translation type="gpt-4o-generated">TREASURED FEATURES:</translation>
+        <translation type="gpt-4o-generated">KEY FEATURES:</translation>
     </message>
     <message>
         <source>Remote access</source>
-        <translation type="gpt-4o-generated">Remote plunderin' access</translation>
+        <translation type="gpt-4o-generated">Remote entry</translation>
     </message>
     <message>
         <source>24/7 LTE connectivity</source>
-        <translation type="gpt-4o-generated">24/7 LTE connectivity, arrr!</translation>
+        <translation type="gpt-4o-generated">Round-the-clock LTE connectivity</translation>
     </message>
     <message>
         <source>1 year of drive storage</source>
-        <translation type="gpt-4o-generated">1 year o' sailin' logs stored, aye</translation>
+        <translation type="gpt-4o-generated">1 year of storage space for yer drive</translation>
     </message>
     <message>
         <source>Turn-by-turn navigation</source>
-        <translation type="gpt-4o-generated">Course by course guidance</translation>
+        <translation type="gpt-4o-generated">Step-by-step navigation</translation>
     </message>
 </context>
 <context>
     <name>PrimeUserWidget</name>
     <message>
         <source>✓ SUBSCRIBED</source>
-        <translation type="gpt-4o-generated">✓ Yarr be Subscribed!</translation>
+        <translation type="gpt-4o-generated">✓ SUBSCRIBED</translation>
     </message>
     <message>
         <source>comma prime</source>
-        <translation type="gpt-4o-generated">comarr prime</translation>
+        <translation type="gpt-4o-generated">comma prime</translation>
     </message>
 </context>
 <context>
     <name>QObject</name>
     <message>
         <source>km</source>
-        <translation type="gpt-4o-generated">nautical mile (km)</translation>
+        <translation type="gpt-4o-generated">km</translation>
     </message>
     <message>
         <source>m</source>
@@ -3876,313 +4617,344 @@ The default be akin to half the MUTCD standard o' 4 inches.</translation>
     </message>
     <message>
         <source>mi</source>
-        <translation type="gpt-4o-generated">Ahoy, matey!</translation>
+        <translation type="gpt-4o-generated">mi</translation>
     </message>
     <message>
         <source>ft</source>
-        <translation type="gpt-4o-generated">ft (ye measurement o' feet, matey!)</translation>
-    </message>
-    <message>
-        <source>Reboot</source>
-        <translation type="gpt-4o-generated">Hoist the sails again</translation>
+        <translation type="gpt-4o-generated">ft</translation>
     </message>
     <message>
         <source>Exit</source>
-        <translation type="gpt-4o-generated">Abandon Ship</translation>
+        <translation type="gpt-4o-generated">Depart</translation>
     </message>
     <message>
         <source>FrogPilot</source>
-        <translation type="gpt-4o-generated">FrogPilot, aye!</translation>
+        <translation type="gpt-4o-generated">FrogNavigator</translation>
     </message>
     <message>
         <source>now</source>
-        <translation type="gpt-4o-generated">now, matey</translation>
+        <translation type="gpt-4o-generated">currently</translation>
     </message>
     <message numerus="yes">
         <source>%n minute(s) ago</source>
-        <translation><numerusform>%n minute(s) past</numerusform></translation></message>
+        <translation type="gpt-4o-generated">
+            <numerusform>%n minute past</numerusform>
+            <numerusform>%n minutes past</numerusform>
+        </translation>
+    </message>
     <message numerus="yes">
         <source>%n hour(s) ago</source>
-        <translation><numerusform>%n hour(s) past</numerusform></translation></message>
+        <translation type="gpt-4o-generated">
+            <numerusform>%n hour past</numerusform>
+            <numerusform>%n hours past</numerusform>
+        </translation>
+    </message>
     <message numerus="yes">
         <source>%n day(s) ago</source>
-        <translation><numerusform>%n day(s) past</numerusform></translation></message>
+        <translation type="gpt-4o-generated">
+            <numerusform>%n day past</numerusform>
+            <numerusform>%n days past</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Restore</source>
+        <translation type="gpt-4o-generated">Reinstate</translation>
+    </message>
 </context>
 <context>
     <name>Reset</name>
     <message>
         <source>Reset failed. Reboot to try again.</source>
-        <translation type="gpt-4o-generated">Arr, the reset be a bust! Give it a restart and have another go, matey.</translation>
+        <translation type="gpt-4o-generated">Reset failed. Restart to try again.</translation>
     </message>
     <message>
         <source>Resetting device...
 This may take up to a minute.</source>
-        <translation type="gpt-4o-generated">Swabbin' the gizmo's deck...
+        <translation type="gpt-4o-generated">Resetting device...
 This might take up to a minute, matey.</translation>
     </message>
     <message>
         <source>Are you sure you want to reset your device?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish t'reset yer device, matey?</translation>
+        <translation type="gpt-4o-generated">Are ye certain ye wish to reset yer device?</translation>
     </message>
     <message>
         <source>System Reset</source>
-        <translation type="gpt-4o-generated">Hoist the Jolly Roger and start afresh!</translation>
+        <translation type="gpt-4o-generated">System Reboot</translation>
     </message>
     <message>
         <source>System reset triggered. Press confirm to erase all content and settings. Press cancel to resume boot.</source>
-        <translation type="gpt-4o-generated">Aye, matey! A system reset be triggered. Press confirm to send all content and settings to Davy Jones' locker. Press cancel to continue sailin' yer course.</translation>
+        <translation type="gpt-4o-generated">System reset triggered. Press confirm to erase all content and settings. Press cancel to resume boot, matey.</translation>
     </message>
     <message>
         <source>Cancel</source>
-        <translation type="gpt-4o-generated">Abandon Ship</translation>
+        <translation type="gpt-4o-generated">Cancel</translation>
     </message>
     <message>
         <source>Reboot</source>
-        <translation type="gpt-4o-generated">Set Sail Anew</translation>
+        <translation type="gpt-4o-generated">Restart</translation>
     </message>
     <message>
         <source>Confirm</source>
-        <translation type="gpt-4o-generated">Aye, confirm!</translation>
+        <translation type="gpt-4o-generated">Aye, confirm.</translation>
     </message>
     <message>
         <source>Unable to mount data partition. Partition may be corrupted. Press confirm to erase and reset your device.</source>
-        <translation type="gpt-4o-generated">Arrr, can't be settin' sail on that data partition. It be lookin' like it's taken a hit. Press confirm to erase 'n start anew on yer device.</translation>
+        <translation type="gpt-4o-generated">Can't mount data partition. It might be corrupted. Press confirm to erase and reset your device.</translation>
+    </message>
+</context>
+<context>
+    <name>ScreenRecorder</name>
+    <message>
+        <source>RECORDING</source>
+        <translation type="gpt-4o-generated">RECORDING</translation>
+    </message>
+    <message>
+        <source>RECORD</source>
+        <translation type="gpt-4o-generated">LOG</translation>
     </message>
 </context>
 <context>
     <name>SettingsWindow</name>
     <message>
         <source>← Back</source>
-        <translation type="gpt-4o-generated">← Set Sail Aft</translation>
+        <translation type="gpt-4o-generated">← Return</translation>
     </message>
     <message>
         <source>Device</source>
-        <translation type="gpt-4o-generated">Contraption</translation>
+        <translation type="gpt-4o-generated">Gadget</translation>
     </message>
     <message>
         <source>Network</source>
-        <translation type="gpt-4o-generated">Net o' Connections</translation>
+        <translation type="gpt-4o-generated">Network</translation>
     </message>
     <message>
         <source>Toggles</source>
-        <translation type="gpt-4o-generated">Switches, me hearties!</translation>
+        <translation type="gpt-4o-generated">Switches</translation>
     </message>
     <message>
         <source>Software</source>
-        <translation type="gpt-4o-generated">Sea-farin' Code</translation>
+        <translation type="gpt-4o-generated">Program</translation>
     </message>
     <message>
         <source>FrogPilot</source>
-        <translation type="gpt-4o-generated">FrogPilot (Aye, still the same in pirate talk. Arrr!)</translation>
+        <translation type="gpt-4o-generated">FrogNavigator</translation>
     </message>
     <message>
-        <source>Welcome to FrogPilot! Since you're new to FrogPilot, the 'Minimal' toggle preset has been applied, but you can change this at any time via the 'Tuning Level' button!</source>
-        <translation type="gpt-4o-generated">Ahoy, matey! Welcome aboard FrogPilot's grand vessel! Since ye be fresh to these waters, the 'Minimal' toggle preset be hoisted for ye, but worry not — ye can adjust the sails at any time with the 'Tuning Level' button!</translation>
+        <source>Welcome to FrogPilot! Since you're new to openpilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4o-generated">Ahoy, welcome to FrogPilot! As you're new to openpilot, the "Minimal" toggle preset is set, but you can adjust this anytime using the "Tuning Level" button!</translation>
     </message>
     <message>
-        <source>Since you're fairly new to FrogPilot, the 'Minimal' toggle preset has been applied, but you can change this at any time via the 'Tuning Level' button!</source>
-        <translation type="gpt-4o-generated">Arr, since ye be fresh aboard FrogPilot, we've set sail with the 'Minimal' toggle preset for ye. But worry not, ye can chart yer own course any time with the 'Tuning Level' button!</translation>
+        <source>Welcome to FrogPilot! Since you're new to FrogPilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4o-generated">Ahoy, welcome aboard FrogPilot! As a new matey, the "Minimal" toggle preset is set for ye, but fear not—you can adjust it anytime using the "Tuning Level" button!</translation>
     </message>
     <message>
-        <source>Since you're experienced with openpilot, the 'Standard' toggle preset has been applied, but you can change this at any time via the 'Tuning Level' button!</source>
-        <translation type="gpt-4o-generated">Arr, since ye be well-versed with openpilot, the 'Standard' toggle preset be hoisted, but ye can alter this any moment by the 'Tuning Level' button!</translation>
+        <source>Since you're fairly new to FrogPilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4o-generated">As you're new to FrogPilot, the "Minimal" toggle preset is applied, but you can change it anytime using the "Tuning Level" button!</translation>
     </message>
     <message>
-        <source>Since you're experienced with FrogPilot, the 'Standard' toggle preset has been applied, but you can change this at any time via the 'Tuning Level' button!</source>
-        <translation type="gpt-4o-generated">Since ye've sailed with FrogPilot before, the 'Standard' toggle preset be set, but ye can change this any time with the 'Tuning Level' button, savvy?</translation>
+        <source>Since you're experienced with openpilot, the "Standard" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4o-generated">As you're familiar with openpilot, the "Standard" toggle preset is set, but you can adjust it anytime using the "Tuning Level" button!</translation>
     </message>
     <message>
-        <source>Since you're very experienced with FrogPilot, the 'Advanced' toggle preset has been applied, but you can change this at any time via the 'Tuning Level' button!</source>
-        <translation type="gpt-4o-generated">Since ye're a seasoned shipmate with FrogPilot, the 'Advanced' toggle preset's been pinned to the mast, but ye can switch it up any time with the 'Tuning Level' button! Arr!</translation>
+        <source>Since you're experienced with FrogPilot, the "Standard" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4o-generated">As you're familiar with FrogPilot, the "Standard" toggle preset is set, but you can adjust it anytime using the "Tuning Level" button!</translation>
+    </message>
+    <message>
+        <source>Since you're very experienced with FrogPilot, the "Advanced" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
+        <translation type="gpt-4o-generated">Given your expertise with FrogPilot, the "Advanced" toggle preset is now active. However, you can adjust this anytime using the "Tuning Level" button, matey!</translation>
     </message>
 </context>
 <context>
     <name>Setup</name>
     <message>
         <source>Something went wrong. Reboot the device.</source>
-        <translation type="gpt-4o-generated">Arr, somethin' be amiss! Give the device a good ol' restart, matey.</translation>
+        <translation type="gpt-4o-generated">Ahoy, something went awry. Reboot the device, matey.</translation>
     </message>
     <message>
         <source>Ensure the entered URL is valid, and the device’s internet connection is good.</source>
-        <translation type="gpt-4o-generated">Make sure that scallywag of a URL be shipshape and the device be havin' a fine internet connection, matey!</translation>
+        <translation type="gpt-4o-generated">Verify the URL ye entered is valid, and check that the device's internet connection is strong.</translation>
     </message>
     <message>
         <source>No custom software found at this URL.</source>
-        <translation type="gpt-4o-generated">Arrr, there be no custom code at this URL, matey!</translation>
+        <translation type="gpt-4o-generated">No custom software be found at this URL, matey.</translation>
     </message>
     <message>
         <source>WARNING: Low Voltage</source>
-        <translation type="gpt-4o-generated">YARR! Be wary: Voltage runnin' low!</translation>
+        <translation type="gpt-4o-generated">Ahoy! Voltage Be Low</translation>
     </message>
     <message>
         <source>Power your device in a car with a harness or proceed at your own risk.</source>
-        <translation type="gpt-4o-generated">Power yer device in yer trusty vessel with a harness or sail on at yer own peril.</translation>
+        <translation type="gpt-4o-generated">Power your device in a car with a harness, or continue at your own risk, matey.</translation>
     </message>
     <message>
         <source>Power off</source>
-        <translation type="gpt-4o-generated">Shut 'er down, matey!</translation>
+        <translation type="gpt-4o-generated">Shut down</translation>
     </message>
     <message>
         <source>Continue</source>
-        <translation type="gpt-4o-generated">Set Sail</translation>
+        <translation type="gpt-4o-generated">Proceed</translation>
     </message>
     <message>
         <source>Getting Started</source>
-        <translation type="gpt-4o-generated">Hoist the Sails</translation>
+        <translation type="gpt-4o-generated">Setting Sail</translation>
     </message>
     <message>
         <source>Before we get on the road, let’s finish installation and cover some details.</source>
-        <translation type="gpt-4o-generated">Afore we set sail on the open road, let’s wrap up the installation and go over some details.</translation>
+        <translation type="gpt-4o-generated">Before we hit the road, let’s complete the installation and go over some details.</translation>
     </message>
     <message>
         <source>Connect to Wi-Fi</source>
-        <translation type="gpt-4o-generated">Hoist the sails to Wi-Fi</translation>
+        <translation type="gpt-4o-generated">Join the Wi-Fi network</translation>
     </message>
     <message>
         <source>Back</source>
-        <translation type="gpt-4o-generated">Returnin' to Port</translation>
+        <translation type="gpt-4o-generated">Return</translation>
     </message>
     <message>
         <source>Continue without Wi-Fi</source>
-        <translation type="gpt-4o-generated">Sail onward without Wi-Fi</translation>
+        <translation type="gpt-4o-generated">Proceed without Wi-Fi</translation>
     </message>
     <message>
         <source>Waiting for internet</source>
-        <translation type="gpt-4o-generated">Awaitin' the arrival o' the internet seas</translation>
+        <translation type="gpt-4o-generated">Awaiting internet</translation>
     </message>
     <message>
         <source>Choose Software to Install</source>
-        <translation type="gpt-4o-generated">Select ye Software to Install, matey!</translation>
+        <translation type="gpt-4o-generated">Select Software to Install</translation>
     </message>
     <message>
         <source>openpilot</source>
-        <translation type="gpt-4o-generated">openpilot, yarrr!</translation>
+        <translation type="gpt-4o-generated">openpilot</translation>
     </message>
     <message>
         <source>Custom Software</source>
-        <translation type="gpt-4o-generated">Custom Code, Yarrr!</translation>
+        <translation type="gpt-4o-generated">Bespoke Software</translation>
     </message>
     <message>
         <source>Enter URL</source>
-        <translation type="gpt-4o-generated">Chart Yer Course URL</translation>
+        <translation type="gpt-4o-generated">Input URL</translation>
     </message>
     <message>
         <source>for Custom Software</source>
-        <translation type="gpt-4o-generated">fer Yer Own Custom Software</translation>
+        <translation type="gpt-4o-generated">for Tailored Software</translation>
     </message>
     <message>
         <source>Downloading...</source>
-        <translation type="gpt-4o-generated">Haulin' in the booty...</translation>
+        <translation type="gpt-4o-generated">Downloadin', matey...</translation>
     </message>
     <message>
         <source>Download Failed</source>
-        <translation type="gpt-4o-generated">Failed to Plunder</translation>
+        <translation type="gpt-4o-generated">Download Unsuccessful</translation>
     </message>
     <message>
         <source>Reboot device</source>
-        <translation type="gpt-4o-generated">Hoist the sails and restart the contraption!</translation>
+        <translation type="gpt-4o-generated">Restart device</translation>
     </message>
     <message>
         <source>Start over</source>
-        <translation type="gpt-4o-generated">Hoist the sails and begin anew!</translation>
+        <translation type="gpt-4o-generated">Begin anew</translation>
     </message>
     <message>
         <source>Select a language</source>
-        <translation type="gpt-4o-generated">Choose ye tongue</translation>
+        <translation type="gpt-4o-generated">Choose a tongue, matey!</translation>
     </message>
 </context>
 <context>
     <name>SetupWidget</name>
     <message>
         <source>Finish Setup</source>
-        <translation type="gpt-4o-generated">Complete th' Setup, matey!</translation>
+        <translation type="gpt-4o-generated">Complete Setup</translation>
+    </message>
+    <message>
+        <source>Pair your device with Konik connect (stable.konik.ai).</source>
+        <translation type="gpt-4o-generated">Link your device with Konik connect (stable.konik.ai).</translation>
     </message>
     <message>
         <source>Pair your device with comma connect (connect.comma.ai) and claim your comma prime offer.</source>
-        <translation type="gpt-4o-generated">Set sail and pair yer device with comma connect (connect.comma.ai) to claim yer offer for comma prime, matey!</translation>
+        <translation type="gpt-4o-generated">Pair yer device with Comma Connect (connect.comma.ai) and claim yer Comma Prime offer.</translation>
     </message>
     <message>
         <source>Pair device</source>
-        <translation type="gpt-4o-generated">Pair yer device, matey!</translation>
+        <translation type="gpt-4o-generated">Connect device</translation>
     </message>
 </context>
 <context>
     <name>Sidebar</name>
     <message>
         <source>CONNECT</source>
-        <translation type="gpt-4o-generated">HOIST THE ANCHOR</translation>
+        <translation type="gpt-4o-generated">LINK</translation>
     </message>
     <message>
         <source>OFFLINE</source>
-        <translation type="gpt-4o-generated">Adrift</translation>
+        <translation type="gpt-4o-generated">OFFLINE</translation>
     </message>
     <message>
         <source>ONLINE</source>
-        <translation type="gpt-4o-generated">ABOARD THE DIGITAL SEA</translation>
+        <translation type="gpt-4o-generated">ONLINE</translation>
     </message>
     <message>
         <source>ERROR</source>
-        <translation type="gpt-4o-generated">Arrr, a bit o' trouble has surfaced!</translation>
+        <translation type="gpt-4o-generated">ERROR</translation>
     </message>
     <message>
         <source>TEMP</source>
-        <translation type="gpt-4o-generated">TEMP (as in "Ye Current Weather Map")</translation>
+        <translation type="gpt-4o-generated">TEMP</translation>
     </message>
     <message>
         <source>HIGH</source>
-        <translation type="gpt-4o-generated">Mighty High</translation>
+        <translation type="gpt-4o-generated">ELEVATED</translation>
     </message>
     <message>
         <source>GOOD</source>
-        <translation type="gpt-4o-generated">Aye, that's grand!</translation>
+        <translation type="gpt-4o-generated">GOOD</translation>
     </message>
     <message>
         <source>OK</source>
-        <translation type="gpt-4o-generated">Aye Aye!</translation>
+        <translation type="gpt-4o-generated">Aye</translation>
     </message>
     <message>
         <source>VEHICLE</source>
-        <translation type="gpt-4o-generated">VESSEL</translation>
+        <translation type="gpt-4o-generated">VEHICLE</translation>
     </message>
     <message>
         <source>NO</source>
-        <translation type="gpt-4o-generated">Nay</translation>
+        <translation type="gpt-4o-generated">NO</translation>
     </message>
     <message>
         <source>PANDA</source>
-        <translation type="gpt-4o-generated">PANDA, matey! Arrr!</translation>
+        <translation type="gpt-4o-generated">PIRATE</translation>
     </message>
     <message>
         <source>GPS</source>
-        <translation type="gpt-4o-generated">Compass o' the Skies</translation>
+        <translation type="gpt-4o-generated">GPS</translation>
     </message>
     <message>
         <source>SEARCH</source>
-        <translation type="gpt-4o-generated">SCOUT ABOUT</translation>
+        <translation type="gpt-4o-generated">Seek</translation>
     </message>
     <message>
         <source>GPU</source>
-        <translation type="gpt-4o-generated">GPU</translation>
+        <translation type="gpt-4o-generated">Graphics card</translation>
     </message>
     <message>
         <source>CPU</source>
-        <translation type="gpt-4o-generated">Cap'n Processing Unit</translation>
+        <translation type="gpt-4o-generated">Processor</translation>
     </message>
     <message>
         <source> GB</source>
-        <translation type="gpt-4o-generated">Great Britain, me hearty! 🍁</translation>
+        <translation type="gpt-4o-generated">GB</translation>
     </message>
     <message>
         <source>MEMORY</source>
-        <translation type="gpt-4o-generated">Treasure Chest o' Memories</translation>
+        <translation type="gpt-4o-generated">RECOLLECTION</translation>
     </message>
     <message>
         <source>LEFT</source>
-        <translation type="gpt-4o-generated">PORTSIDE</translation>
+        <translation type="gpt-4o-generated">PORT</translation>
     </message>
     <message>
         <source>USED</source>
-        <translation type="gpt-4o-generated">USED (Plundered and put to good use, aye!)</translation>
+        <translation type="gpt-4o-generated">PRE-OWNED</translation>
     </message>
     <message>
         <source>--</source>
@@ -4190,11 +4962,11 @@ This might take up to a minute, matey.</translation>
     </message>
     <message>
         <source>Wi-Fi</source>
-        <translation type="gpt-4o-generated">Wi-Fi, matey</translation>
+        <translation type="gpt-4o-generated">Wi-Fi</translation>
     </message>
     <message>
         <source>ETH</source>
-        <translation type="gpt-4o-generated">ETH</translation>
+        <translation type="gpt-4o-generated">Ethereum</translation>
     </message>
     <message>
         <source>2G</source>
@@ -4210,42 +4982,42 @@ This might take up to a minute, matey.</translation>
     </message>
     <message>
         <source>5G</source>
-        <translation type="gpt-4o-generated">5G</translation>
+        <translation type="gpt-4o-generated">5G technology</translation>
     </message>
 </context>
 <context>
     <name>SoftwarePanel</name>
     <message>
         <source>Updates are only downloaded while the car is off or in park.</source>
-        <translation type="gpt-4o-generated">Arrr, updates be only downloaded when the ship be at rest or safely anchored in park.</translation>
+        <translation type="gpt-4o-generated">Updates download only when the car is off or in park.</translation>
     </message>
     <message>
         <source>Current Version</source>
-        <translation type="gpt-4o-generated">Current Edition, aye!</translation>
+        <translation type="gpt-4o-generated">Present Version</translation>
     </message>
     <message>
         <source>Automatically Update FrogPilot</source>
-        <translation type="gpt-4o-generated">Hoist th' sails for FrogPilot Auto-Updates!</translation>
+        <translation type="gpt-4o-generated">Auto-Update FrogPilot</translation>
     </message>
     <message>
-        <source>FrogPilot will automatically update itself and it's assets when you're offroad and connected to Wi-Fi.</source>
-        <translation type="gpt-4o-generated">FrogPilot be takin' care o' the updates fer itself and its treasures when ye be off the main sea lanes and hittin' the Wi-Fi waters.</translation>
+        <source>FrogPilot will automatically update itself and it's assets when you're offroad and have an active internet connection.</source>
+        <translation type="gpt-4o-generated">FrogPilot will automatically update itself and its assets when you're offroad and have an active internet connection.</translation>
     </message>
     <message>
         <source>Download</source>
-        <translation type="gpt-4o-generated">Plunder Aboard</translation>
+        <translation type="gpt-4o-generated">Ahoy, download</translation>
     </message>
     <message>
         <source>CHECK</source>
-        <translation type="gpt-4o-generated">AVAST</translation>
+        <translation type="gpt-4o-generated">VERIFY</translation>
     </message>
     <message>
         <source>Install Update</source>
-        <translation type="gpt-4o-generated">Hoist the Update Sails</translation>
+        <translation type="gpt-4o-generated">Install the Update</translation>
     </message>
     <message>
         <source>INSTALL</source>
-        <translation type="gpt-4o-generated">Hoist the Sails!</translation>
+        <translation type="gpt-4o-generated">SETUP</translation>
     </message>
     <message>
         <source>Target Branch</source>
@@ -4253,348 +5025,352 @@ This might take up to a minute, matey.</translation>
     </message>
     <message>
         <source>SELECT</source>
-        <translation type="gpt-4o-generated">PICK YER POISON</translation>
+        <translation type="gpt-4o-generated">SELECT</translation>
     </message>
     <message>
         <source>Select a branch</source>
-        <translation type="gpt-4o-generated">Set yer course fer a branch</translation>
+        <translation type="gpt-4o-generated">Choose a branch</translation>
+    </message>
+    <message>
+        <source>This branch must be downloaded before switching. Would you like to download it now?</source>
+        <translation type="gpt-4o-generated">Ye must download this branch before switching. Would ye like to download it now?</translation>
     </message>
     <message>
         <source>Uninstall %1</source>
-        <translation type="gpt-4o-generated">Uninstall %1, ye scallywag!</translation>
+        <translation type="gpt-4o-generated">Remove %1</translation>
     </message>
     <message>
         <source>UNINSTALL</source>
-        <translation type="gpt-4o-generated">Walk the Plank</translation>
+        <translation type="gpt-4o-generated">Remove</translation>
     </message>
     <message>
         <source>Are you sure you want to uninstall?</source>
-        <translation type="gpt-4o-generated">Be ye certain ye wish to cast this overboard?</translation>
+        <translation type="gpt-4o-generated">Are ye certain ye wish to uninstall?</translation>
     </message>
     <message>
         <source>Uninstall</source>
-        <translation type="gpt-4o-generated">Walk the Plank</translation>
+        <translation type="gpt-4o-generated">Remove</translation>
     </message>
     <message>
         <source>Do you want to delete deep storage FrogPilot assets? This includes your toggle settings for quick reinstalls.</source>
-        <translation type="gpt-4o-generated">Arr matey, be ye wantin' to toss deep storage FrogPilot treasures overboard? This be includin' yer toggle settings fer swift reinstall voyages.</translation>
+        <translation type="gpt-4o-generated">Do ye wish to delete deep storage FrogPilot assets, matey? This includes yer toggle settings for swift reinstalls.</translation>
     </message>
     <message>
         <source>Are you sure? This is 100% unrecoverable and if you reinstall FrogPilot you'll lose all your previous settings!</source>
-        <translation type="gpt-4o-generated">Be ye certain, matey? This be a one-way voyage, and if ye hoist the colors with FrogPilot again, all yer old settings will be sent to Davy Jones' locker!</translation>
+        <translation type="gpt-4o-generated">Are ye certain? This be 100% unrecoverable, and if ye reinstall FrogPilot, ye'll lose all yer previous settings!</translation>
     </message>
     <message>
         <source>Error Log</source>
-        <translation type="gpt-4o-generated">Captain's Log o' Errors</translation>
+        <translation type="gpt-4o-generated">Error Log</translation>
     </message>
     <message>
         <source>VIEW</source>
-        <translation type="gpt-4o-generated">Gaze Upon</translation>
+        <translation type="gpt-4o-generated">VIEW</translation>
     </message>
     <message>
         <source>View the error log for openpilot crashes.</source>
-        <translation type="gpt-4o-generated">Peruse the error log fer any openpilot mishaps, matey.</translation>
+        <translation type="gpt-4o-generated">Check the error log for openpilot crashes.</translation>
     </message>
     <message>
         <source>failed to check for update</source>
-        <translation type="gpt-4o-generated">Couldn't be findin' any updates, matey!</translation>
+        <translation type="gpt-4o-generated">Unable to check for update</translation>
     </message>
     <message>
         <source>DOWNLOAD</source>
-        <translation type="gpt-4o-generated">PLUNDER AN' DOWNLOAD</translation>
+        <translation type="gpt-4o-generated">Download</translation>
     </message>
     <message>
         <source>update available</source>
-        <translation type="gpt-4o-generated">new charts on the horizon</translation>
+        <translation type="gpt-4o-generated">Update ready, matey!</translation>
     </message>
     <message>
         <source>never</source>
-        <translation type="gpt-4o-generated">ne'er</translation>
+        <translation type="gpt-4o-generated">not once</translation>
     </message>
     <message>
         <source>up to date, last checked %1</source>
-        <translation type="gpt-4o-generated">shipshape, last checked %1</translation>
+        <translation type="gpt-4o-generated">Current as of %1</translation>
     </message>
 </context>
 <context>
     <name>SshControl</name>
     <message>
         <source>SSH Keys</source>
-        <translation type="gpt-4o-generated">Keys to the Pirate's Secret Lair</translation>
+        <translation type="gpt-4o-generated">SSH Keys</translation>
     </message>
     <message>
         <source>Warning: This grants SSH access to all public keys in your GitHub settings. Never enter a GitHub username other than your own. A comma employee will NEVER ask you to add their GitHub username.</source>
-        <translation type="gpt-4o-generated">Warning: This be grantin' SSH access to all public keys in yer GitHub settings. Ne'er be enterin' a GitHub username other than yer own. A comma crew member will NEVER ask ye to add their GitHub username.</translation>
+        <translation type="gpt-4o-generated">Warning: This grants SSH access to all public keys in your GitHub settings. Never enter a GitHub username other than your own, matey. A comma employee will NEVER ask you to add their GitHub username.</translation>
     </message>
     <message>
         <source>ADD</source>
-        <translation type="gpt-4o-generated">Add 'er up, matey!</translation>
+        <translation type="gpt-4o-generated">ADD</translation>
     </message>
     <message>
         <source>Enter your GitHub username</source>
-        <translation type="gpt-4o-generated">Hoist yer sails and enter yer GitHub username, matey!</translation>
+        <translation type="gpt-4o-generated">Enter yer GitHub username, matey</translation>
     </message>
     <message>
         <source>LOADING</source>
-        <translation type="gpt-4o-generated">Hoistin' the sails...</translation>
+        <translation type="gpt-4o-generated">LOADING</translation>
     </message>
     <message>
         <source>REMOVE</source>
-        <translation type="gpt-4o-generated">Scuttle</translation>
+        <translation type="gpt-4o-generated">DELETE</translation>
     </message>
     <message>
         <source>Username '%1' has no keys on GitHub</source>
-        <translation type="gpt-4o-generated">Arrr, the username '%1' be lackin' any keys on GitHub!</translation>
+        <translation type="gpt-4o-generated">The username '%1' has no keys on GitHub, matey.</translation>
     </message>
     <message>
         <source>Request timed out</source>
-        <translation type="gpt-4o-generated">Arrr, the request be takin' too long!</translation>
+        <translation type="gpt-4o-generated">The request has timed out.</translation>
     </message>
     <message>
         <source>Username '%1' doesn't exist on GitHub</source>
-        <translation type="gpt-4o-generated">Arrr, the username '%1' be not sailin' the seas of GitHub, matey!</translation>
+        <translation type="gpt-4o-generated">The username '%1' be nonexistent on GitHub, matey.</translation>
     </message>
 </context>
 <context>
     <name>SshToggle</name>
     <message>
         <source>Enable SSH</source>
-        <translation type="gpt-4o-generated">Hoist the colors fer SSH</translation>
+        <translation type="gpt-4o-generated">Activate SSH</translation>
     </message>
 </context>
 <context>
     <name>TermsPage</name>
     <message>
         <source>Terms &amp; Conditions</source>
-        <translation type="gpt-4o-generated">Parley &amp; Code o' Conduct</translation>
+        <translation type="gpt-4o-generated">Terms &amp; Conditions</translation>
     </message>
     <message>
         <source>Decline</source>
-        <translation type="gpt-4o-generated">Pass it by, matey!</translation>
+        <translation type="gpt-4o-generated">Refuse</translation>
     </message>
     <message>
         <source>Scroll to accept</source>
-        <translation type="gpt-4o-generated">Hoist the sails to accept</translation>
+        <translation type="gpt-4o-generated">Scroll to agree</translation>
     </message>
     <message>
         <source>Agree</source>
-        <translation type="gpt-4o-generated">Aye, I be in agreement!</translation>
+        <translation type="gpt-4o-generated">Aye</translation>
     </message>
 </context>
 <context>
     <name>TogglesPanel</name>
     <message>
         <source>Enable openpilot</source>
-        <translation type="gpt-4o-generated">Hoist the sails on openpilot</translation>
+        <translation type="gpt-4o-generated">Activate openpilot</translation>
     </message>
     <message>
         <source>Use the openpilot system for adaptive cruise control and lane keep driver assistance. Your attention is required at all times to use this feature. Changing this setting takes effect when the car is powered off.</source>
-        <translation type="gpt-4o-generated">Hoist the sails and let openpilot guide ye ship with adaptive cruise control and lane keep assistance. Keep yer eyes sharp and attention steady, for this feature needs yer vigilance. Aye, any changes ye make here will take hold after ye power down the vessel.</translation>
+        <translation type="gpt-4o-generated">Use the openpilot system for adaptive cruise control and lane-keeping assistance. Your attention is needed at all times to use this feature. Changing this setting takes effect when the car is powered off.</translation>
     </message>
     <message>
         <source>openpilot Longitudinal Control (Alpha)</source>
-        <translation type="gpt-4o-generated">openpilot Longitudinal Command (Alpha) — Arrr!</translation>
+        <translation type="gpt-4o-generated">openpilot Longitudinal Control (Alpha)</translation>
     </message>
     <message>
         <source>WARNING: openpilot longitudinal control is in alpha for this car and will disable Automatic Emergency Braking (AEB).</source>
-        <translation type="gpt-4o-generated">YARRRNING: openpilot's long-range helm control be in its early days for this vessel and will be takin' out Automatic Emergency Brakin' (AEB).</translation>
+        <translation type="gpt-4o-generated">WARNING: openpilot's longitudinal control is in alpha for this car and will disable Automatic Emergency Braking (AEB).</translation>
     </message>
     <message>
         <source>On this car, openpilot defaults to the car's built-in ACC instead of openpilot's longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
-        <translation type="gpt-4o-generated">On this ship, openpilot be usin' the car's built-in ACC by default instead of openpilot's own long-range helm. Hoist this option to switch to openpilot's long-range helm. Settin' sail in Experimental mode be recommended when ye be usin' openpilot's long-range helm alpha.</translation>
+        <translation type="gpt-4o-generated">On this car, openpilot defaults to the car's built-in ACC instead of openpilot's longitudinal control. Enable this to switch to openpilot's longitudinal control. Enabling Experimental mode is recommended when activating openpilot longitudinal control alpha.</translation>
     </message>
     <message>
         <source>Experimental Mode</source>
-        <translation type="gpt-4o-generated">Swashbucklin' Mode</translation>
+        <translation type="gpt-4o-generated">Trial Mode</translation>
     </message>
     <message>
         <source>Disengage on Accelerator Pedal</source>
-        <translation type="gpt-4o-generated">Disengage when ye press th' Accelerator Pedal</translation>
+        <translation type="gpt-4o-generated">Release the Accelerator Pedal</translation>
     </message>
     <message>
         <source>When enabled, pressing the accelerator pedal will disengage openpilot.</source>
-        <translation type="gpt-4o-generated">When ye be activatin' it, givin' the gas pedal a nudge will make openpilot take a breather.</translation>
+        <translation type="gpt-4o-generated">When enabled, pressing the accelerator pedal will deactivate openpilot.</translation>
     </message>
     <message>
         <source>Enable Lane Departure Warnings</source>
-        <translation type="gpt-4o-generated">Hoist the Signal for Strayin' Off Course Warnings</translation>
+        <translation type="gpt-4o-generated">Activate Lane Departure Warnings</translation>
     </message>
     <message>
         <source>Receive alerts to steer back into the lane when your vehicle drifts over a detected lane line without a turn signal activated while driving over 31 mph (50 km/h).</source>
-        <translation type="gpt-4o-generated">Ye be gettin' alerts to steer back to yer course when yer vessel strays over a marked lane line without signalin' a turn, while sailin' over 31 mph (50 km/h).</translation>
+        <translation type="gpt-4o-generated">Get alerts to steer back into the lane if your vehicle drifts over a detected lane line without a turn signal while driving over 31 mph (50 km/h).</translation>
     </message>
     <message>
         <source>Record and Upload Driver Camera</source>
-        <translation type="gpt-4o-generated">Capture and Send Ye Spyglass Image</translation>
+        <translation type="gpt-4o-generated">Capture and Upload Driver Camera</translation>
     </message>
     <message>
         <source>Upload data from the driver facing camera and help improve the driver monitoring algorithm.</source>
-        <translation type="gpt-4o-generated">Hoist the data from the driver facing camera and lend a hand in fine-tunin' the driver monitoring algorithm, ye savvy?</translation>
+        <translation type="gpt-4o-generated">Upload data from the driver-facing camera to enhance the driver monitoring algorithm, matey.</translation>
     </message>
     <message>
         <source>Use Metric System</source>
-        <translation type="gpt-4o-generated">Use Metric System, ye scallywag!</translation>
+        <translation type="gpt-4o-generated">Adopt the Metric System</translation>
     </message>
     <message>
         <source>Display speed in km/h instead of mph.</source>
-        <translation type="gpt-4o-generated">Show speed in km/h 'stead of mph, matey.</translation>
+        <translation type="gpt-4o-generated">Show speed in km/h instead of mph.</translation>
     </message>
     <message>
         <source>Show ETA in 24h Format</source>
-        <translation type="gpt-4o-generated">Display ETA in 24h Tale</translation>
+        <translation type="gpt-4o-generated">Display ETA in 24h Format</translation>
     </message>
     <message>
         <source>Use 24h format instead of am/pm</source>
-        <translation type="gpt-4o-generated">Hoist the sails with the 24h format, not that am/pm rigmarole.</translation>
+        <translation type="gpt-4o-generated">Use the 24-hour format instead of am/pm.</translation>
     </message>
     <message>
         <source>Show Map on Left Side of UI</source>
-        <translation type="gpt-4o-generated">Hoist the Map to the Port Side of the UI</translation>
+        <translation type="gpt-4o-generated">Display Map on Left Side of UI</translation>
     </message>
     <message>
         <source>Show map on left side when in split screen view.</source>
-        <translation type="gpt-4o-generated">Hoist the map to the port side when in split screen view, aye!</translation>
+        <translation type="gpt-4o-generated">Display the map on the left side when in split screen view.</translation>
     </message>
     <message>
         <source>Aggressive</source>
-        <translation type="gpt-4o-generated">Jolly and bold</translation>
+        <translation type="gpt-4o-generated">Fierce</translation>
     </message>
     <message>
         <source>Standard</source>
-        <translation type="gpt-4o-generated">Standard Aye</translation>
+        <translation type="gpt-4o-generated">Regular</translation>
     </message>
     <message>
         <source>Relaxed</source>
-        <translation type="gpt-4o-generated">Laid-back, matey</translation>
+        <translation type="gpt-4o-generated">At ease</translation>
     </message>
     <message>
         <source>Driving Personality</source>
-        <translation type="gpt-4o-generated">Sailing Style</translation>
+        <translation type="gpt-4o-generated">Driving Persona</translation>
     </message>
     <message>
         <source>Standard is recommended. In aggressive mode, openpilot will follow lead cars closer and be more aggressive with the gas and brake. In relaxed mode openpilot will stay further away from lead cars. On supported cars, you can cycle through these personalities with your steering wheel distance button.</source>
-        <translation type="gpt-4o-generated">Standard is the way to go, me hearty. In aggressive mode, openpilot will tail those lead cars like a hound on a scent and be more bold with the gas and brake. In relaxed mode, openpilot will give lead cars a wide berth. On supported vessels, ye can switch between these personalities with your steering wheel distance button.</translation>
+        <translation type="gpt-4o-generated">Standard is recommended. In aggressive mode, openpilot follows lead cars more closely and is more assertive with the gas and brake. In relaxed mode, openpilot keeps a greater distance from lead cars. On supported vehicles, you can switch between these modes using your steering wheel distance button.</translation>
     </message>
     <message>
         <source>openpilot defaults to driving in &lt;b&gt;chill mode&lt;/b&gt;. Experimental mode enables &lt;b&gt;alpha-level features&lt;/b&gt; that aren't ready for chill mode. Experimental features are listed below:</source>
-        <translation type="gpt-4o-generated">openpilot be sailin' in &lt;b&gt;chill mode&lt;/b&gt; by default. Experimental mode unlocks &lt;b&gt;alpha-level treasures&lt;/b&gt; that ain't quite shipshape for chill mode yet. Below be the list of these experimental features:</translation>
+        <translation type="gpt-4o-generated">openpilot defaults to driving in &lt;b&gt;chill mode&lt;/b&gt;. Experimental mode unlocks &lt;b&gt;alpha-level features&lt;/b&gt; not yet suited for chill mode. The experimental features are listed below:</translation>
     </message>
     <message>
         <source>End-to-End Longitudinal Control</source>
-        <translation type="gpt-4o-generated">End-to-End Longitudinal Command</translation>
+        <translation type="gpt-4o-generated">Complete Longitudinal Control</translation>
     </message>
     <message>
         <source>Let the driving model control the gas and brakes. openpilot will drive as it thinks a human would, including stopping for red lights and stop signs. Since the driving model decides the speed to drive, the set speed will only act as an upper bound. This is an alpha quality feature; mistakes should be expected.</source>
-        <translation type="gpt-4o-generated">Let the drivin' model take the helm o' the gas and brakes. openpilot will sail the roads like it reckons a savvy sailor would, stoppin' fer red lights and stop signs along the way. As the drivin' model charts the speed, the set speed be merely the top limit. This be an alpha quality feature; a few barnacles 'ere and there should be expected.</translation>
+        <translation type="gpt-4o-generated">Let the driving model handle the gas and brakes. openpilot will steer as it believes a human would, stopping for red lights and stop signs. Since the model determines the speed, the set speed serves only as an upper limit. This is an alpha quality feature; expect some mistakes, matey.</translation>
     </message>
     <message>
         <source>New Driving Visualization</source>
-        <translation type="gpt-4o-generated">New Sailing Visualization, matey!</translation>
+        <translation type="gpt-4o-generated">New Driving Display</translation>
     </message>
     <message>
         <source>The driving visualization will transition to the road-facing wide-angle camera at low speeds to better show some turns. The Experimental mode logo will also be shown in the top right corner.</source>
-        <translation type="gpt-4o-generated">The drivin' visualization be switchin' to the road-facin' wide-angle spyglass at low speeds, givin' a clearer view o' them twisty turns. Ye'll spy the Experimental mode emblem appearin' in the top right corner, too.</translation>
+        <translation type="gpt-4o-generated">The driving visualization will switch to the road-facing wide-angle camera at low speeds to better display certain turns. The Experimental mode logo will appear in the top right corner.</translation>
     </message>
     <message>
         <source>Experimental mode is currently unavailable on this car since the car's stock ACC is used for longitudinal control.</source>
-        <translation type="gpt-4o-generated">Arrr, ye Experimental mode be unavailable on this vessel, as the ship's own ACC handles the long haul control, savvy?</translation>
+        <translation type="gpt-4o-generated">Experimental mode be unavailable on this car, as the stock ACC handles longitudinal control.</translation>
     </message>
     <message>
         <source>openpilot longitudinal control may come in a future update.</source>
-        <translation type="gpt-4o-generated">openpilot's long-haul helm might be sailin' in on a future tide.</translation>
+        <translation type="gpt-4o-generated">openpilot's longitudinal control might arrive in a future update.</translation>
     </message>
     <message>
         <source>Enable the openpilot longitudinal control (alpha) toggle to allow Experimental mode.</source>
-        <translation type="gpt-4o-generated">Hoist the openpilot longitudinal control (alpha) toggle to unleash Experimental mode, matey!</translation>
+        <translation type="gpt-4o-generated">Activate the openpilot longitudinal control (alpha) toggle to enable Experimental mode.</translation>
     </message>
 </context>
 <context>
     <name>Updater</name>
     <message>
         <source>Update Required</source>
-        <translation type="gpt-4o-generated">Time to hoist the update sails!</translation>
+        <translation type="gpt-4o-generated">Update Needed</translation>
     </message>
     <message>
         <source>An operating system update is required. Connect your device to Wi-Fi for the fastest update experience. The download size is approximately 1GB.</source>
-        <translation type="gpt-4o-generated">Ye be needin' to hoist the sails on yer operatin' system with an update. Connect yer device to Wi-Fi for a swift journey through the update seas. The download be weighin' in at about 1GB.</translation>
+        <translation type="gpt-4o-generated">An operating system update be needed. Connect your device to Wi-Fi for the fastest update experience. The download size is about 1GB.</translation>
     </message>
     <message>
         <source>Connect to Wi-Fi</source>
-        <translation type="gpt-4o-generated">Hoist the Wi-Fi sails!</translation>
+        <translation type="gpt-4o-generated">Join the Wi-Fi network</translation>
     </message>
     <message>
         <source>Install</source>
-        <translation type="gpt-4o-generated">Hoist Aboard</translation>
+        <translation type="gpt-4o-generated">Set up</translation>
     </message>
     <message>
         <source>Back</source>
-        <translation type="gpt-4o-generated">Return to Port</translation>
+        <translation type="gpt-4o-generated">Return</translation>
     </message>
     <message>
         <source>Loading...</source>
-        <translation type="gpt-4o-generated">Hoistin' the sails...</translation>
+        <translation type="gpt-4o-generated">Loading, matey...</translation>
     </message>
     <message>
         <source>Reboot</source>
-        <translation type="gpt-4o-generated">Set sail again!</translation>
+        <translation type="gpt-4o-generated">Restart</translation>
     </message>
     <message>
         <source>Update failed</source>
-        <translation type="gpt-4o-generated">The update be sunk, matey!</translation>
+        <translation type="gpt-4o-generated">Update unsuccessful</translation>
     </message>
 </context>
 <context>
     <name>WiFiPromptWidget</name>
     <message>
         <source>Setup Wi-Fi</source>
-        <translation type="gpt-4o-generated">Rig the Wi-Fi sails</translation>
+        <translation type="gpt-4o-generated">Set up Wi-Fi</translation>
     </message>
     <message>
         <source>Connect to Wi-Fi to upload driving data and help improve openpilot</source>
-        <translation type="gpt-4o-generated">Hoist yer sails to Wi-Fi and send yer drivin' tales to help make openpilot even better, aye!</translation>
+        <translation type="gpt-4o-generated">Connect to Wi-Fi to upload driving data and help enhance openpilot, matey!</translation>
     </message>
     <message>
         <source>Open Settings</source>
-        <translation type="gpt-4o-generated">Hoist the Options Sails</translation>
+        <translation type="gpt-4o-generated">Access Settings</translation>
     </message>
     <message>
         <source>Ready to upload</source>
-        <translation type="gpt-4o-generated">Hoist the sails, ready to upload!</translation>
+        <translation type="gpt-4o-generated">Prepared to upload</translation>
     </message>
     <message>
         <source>Training data will be pulled periodically while your device is on Wi-Fi</source>
-        <translation type="gpt-4o-generated">The ship's logs will be fetched from time to time when ye device is sailin' on the Wi-Fi seas.</translation>
+        <translation type="gpt-4o-generated">Training data will be fetched regularly when your device is on Wi-Fi.</translation>
     </message>
     <message>
         <source>Uploading disabled</source>
-        <translation type="gpt-4o-generated">Arrr, ye can't be uploadin' now!</translation>
+        <translation type="gpt-4o-generated">Upload disabled</translation>
     </message>
     <message>
-        <source>Toggle off the 'Turn Off Data Uploads' toggle to re-enable uploads.</source>
-        <translation type="gpt-4o-generated">Switch off the 'Turn Off Data Uploads' toggle to hoist the sails on uploads again.</translation>
+        <source>Toggle off the "Turn Off Data Uploads" toggle to re-enable uploads.</source>
+        <translation type="gpt-4o-generated">Switch off the "Turn Off Data Uploads" toggle to re-enable uploads.</translation>
     </message>
 </context>
 <context>
     <name>WifiUI</name>
     <message>
         <source>Scanning for networks...</source>
-        <translation type="gpt-4o-generated">Setting me spyglass on networks...</translation>
+        <translation type="gpt-4o-generated">Scanning for networks, matey...</translation>
     </message>
     <message>
         <source>CONNECTING...</source>
-        <translation type="gpt-4o-generated">Hoistin' the sails...</translation>
+        <translation type="gpt-4o-generated">ESTABLISHING CONNECTION...</translation>
     </message>
     <message>
         <source>FORGET</source>
-        <translation type="gpt-4o-generated">FORGET, ye scallywag</translation>
+        <translation type="gpt-4o-generated">Forget</translation>
     </message>
     <message>
         <source>Forget Wi-Fi Network "%1"?</source>
-        <translation type="gpt-4o-generated">Be ye wantin' to cast aside the Wi-Fi Network "%1"?</translation>
+        <translation type="gpt-4o-generated">Forget Wi-Fi Network "%1", matey?</translation>
     </message>
     <message>
         <source>Forget</source>
-        <translation type="gpt-4o-generated">Cast Aside</translation>
+        <translation type="gpt-4o-generated">Overlook</translation>
     </message>
 </context>
 </TS>

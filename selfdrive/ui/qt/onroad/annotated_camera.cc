@@ -559,7 +559,7 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
     painter.endNativePainting();
   }
 
-  painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
+  painter.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
   painter.setPen(Qt::NoPen);
 
   if (s->scene.world_objects_visible) {

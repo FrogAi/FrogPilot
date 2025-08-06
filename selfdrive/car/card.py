@@ -113,7 +113,9 @@ class Car:
       self.CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL
       self.CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.DISABLE_DISENGAGE_ON_GAS
 
-    self.params.put("FrogPilotCarParamsPersistent", FPCP.to_bytes())
+    fpcp_bytes = FPCP.to_bytes()
+    self.params.put("FrogPilotCarParams", fpcp_bytes)
+    self.params.put_nonblocking("FrogPilotCarParamsPersistent", fpcp_bytes)
 
     # Write CarParams for controls and radard
     cp_bytes = self.CP.to_bytes()

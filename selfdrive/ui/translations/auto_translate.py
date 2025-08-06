@@ -16,46 +16,41 @@ OPENAI_MODEL = "gpt-4o"
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 BASE_FUN_PROMPT_TEMPLATE = """
-You are a meticulous text stylist. Your task is to rewrite English text while following these strict rules:
+Role: expert English copy-editor.
 
-1.  **Clarity is Paramount**: The absolute highest priority is preserving the original meaning. The rewritten text MUST be perfectly and instantly understandable to an English speaker. If a choice exists between style and clarity, ALWAYS choose clarity.
-2.  **Conserve Length**: The rewritten text must be very close in character count to the original. Do not add unnecessary words, sentences, or flavor text that significantly increase the length. Be concise.
-3.  **Preserve Technical Elements**: NEVER translate or alter the following items. They must be kept exactly as they appear in the source text, verbatim:
-    * Placeholders (e.g., %1, %n, {{variable}})
-    * HTML/XML tags (e.g., `<div>`, `<br/>`, `<a>`)
-    * Measurement units and labels (e.g., `10px`, `2.5rem`, `5kg`, `100%`)
-    * File paths and URLs (e.g., `/path/to/file.png`, `https://example.com`)
-    * Code snippets, variable names, or technical jargon.
-    * All original punctuation and capitalization.
+Restyle the user’s English text while obeying every rule below, then output **only** the rewritten text—no quotes, labels, or commentary.
 
-With these strict rules in mind, subtly apply the following theme:
-{theme_instructions}
+1. **Meaning First** – Convey the identical idea. If style ever harms clarity, choose clarity.
+2. **Near-Constant Length** – Keep character count within ±5 % of the source; never pad or trim aggressively.
+3. **Hands Off** – Copy these exactly: placeholders (%1, %n, {{variable}}), HTML/XML tags (<div>), units (10px, 5 kg, 100 %), file paths, URLs, code, variable names, punctuation, capitalisation, line breaks.
+
+If (and only if) it costs **zero** clarity and stays inside the length band, weave in the theme below.
+
+Theme: {theme_instructions}
 """
 
 FUN_THEME_INSTRUCTIONS = {
-  "frog": "Apply a 'frog' theme. You may use words like 'ribbit' or 'hop to it', but ONLY if it can be done without adding length or sacrificing clarity.",
-  "pirate": "Apply a 'pirate' theme. You may use phrases like 'Ahoy, matey' or 'shiver me timbers', but ONLY if it can be done without adding length or sacrificing clarity.",
-  "duck": "Apply a 'duck' theme. You may use words like 'quack' or 'waddle on over', but ONLY if it can be done without adding length or sacrificing clarity."
+  "frog": "Light frog flavour—use ‘ribbit’, ‘hop’, etc. only when they replace text of equal or shorter length and do not harm clarity.",
+  "pirate": "Light pirate flavour—use ‘Ahoy’, ‘matey’, etc. only when they replace text of equal or shorter length and do not harm clarity.",
+  "duck": "Light duck flavour—use ‘quack’, ‘waddle’, etc. only when they replace text of equal or shorter length and do not harm clarity."
 }
 
-OPENAI_PROMPT = "You are a meticulous professional translator. " \
-                "Translate everything the user sends from English into {language}. " \
-                "Requirements:\n" \
-                "• Output *only* the translated string—no quotes, no labels, no commentary.\n" \
-                "• Preserve placeholders (e.g. %1, %n, {{variable}}), HTML/XML tags, line-breaks, " \
-                "capitalisation, and punctuation exactly as they appear.\n" \
-                "• If the text is already in {language}, or is code/file-paths/URLs that should not be " \
-                "translated, repeat it verbatim.\n" \
-                "• Never add additional context or explanations.\n"
+OPENAI_PROMPT = "You are a meticulous professional translator.\n\n" \
+                "Translate the user’s input from English into {language}.\n\n" \
+                "Guidelines:\n" \
+                "• Return **only** the translated text—no quotes, labels, or commentary.\n" \
+                "• Preserve placeholders (%1, %n, {{variable}}), HTML/XML tags, line breaks, " \
+                "capitalisation, punctuation, units, file paths, URLs, and code exactly as they appear.\n" \
+                "• If the input is already in {language}, or consists solely of elements that must remain unchanged, output it unchanged.\n" \
+                "• Never add explanations or extra content.\n" \
 
-OPENAI_EVAL_PROMPT = "You are an expert bilingual reviewer (English ↔ {language}). " \
-                     "You will be given:\n" \
-                     "Source text (English), Translation A, Translation B.\n" \
-                     "Select the translation that is *more accurate, natural, and faithful* to the source, " \
-                     "while preserving placeholders, HTML tags, and punctuation.\n" \
-                     "Your response MUST contain *only* the chosen translation string. " \
-                     "DO NOT include labels like 'Translation A:' or any other commentary.\n" \
-                     "If both are equally good, return Translation A.\n"
+OPENAI_EVAL_PROMPT = "You are an expert bilingual reviewer (English ↔ {language}).\n\n" \
+                     "Input:\n" \
+                     "1. Source text (English)\n" \
+                     "2. Translation A\n" \
+                     "3. Translation B\n\n" \
+                     "Task: Choose the translation that is more accurate, natural, and faithful to the source **while perfectly preserving** all placeholders, tags, punctuation, capitalisation, and line breaks.\n\n" \
+                     "Output: Return **only** the full text of the better translation, with no additional characters or labels. If they are equally good, return Translation A.\n"
 
 def get_language_files(languages: list[str] = None) -> dict[str, pathlib.Path]:
   files = {}

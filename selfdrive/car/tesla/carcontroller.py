@@ -7,7 +7,7 @@ from openpilot.selfdrive.car.tesla.values import DBC, CANBUS, CarControllerParam
 
 
 class CarController(CarControllerBase):
-  def __init__(self, dbc_name, CP, FPCP, VM):
+  def __init__(self, dbc_name, CP, VM):
     self.CP = CP
     self.frame = 0
     self.apply_angle_last = 0

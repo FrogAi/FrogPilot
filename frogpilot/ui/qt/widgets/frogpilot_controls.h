@@ -105,7 +105,7 @@ class FrogPilotButtonControl : public ParamControl {
   Q_OBJECT
 public:
   FrogPilotButtonControl(const QString &param, const QString &title, const QString &desc, const QString &icon,
-                         const std::vector<QString> &button_texts,
+                         const std::vector<QString> &button_texts, bool checkable = false,
                          bool exclusive = false, int minimum_button_width = 225) : ParamControl(param, title, desc, icon) {
     key = param.toStdString();
 
@@ -113,7 +113,7 @@ public:
     button_group->setExclusive(exclusive);
     for (int i = 0; i < button_texts.size(); i++) {
       QPushButton *button = new QPushButton(button_texts[i], this);
-      button->setCheckable(true);
+      button->setCheckable(checkable);
       button->setStyleSheet(buttonStyle);
       button->setMinimumWidth(minimum_button_width);
       hlayout->addWidget(button);
@@ -279,7 +279,7 @@ public:
   FrogPilotButtonToggleControl(const QString &param, const QString &title, const QString &desc, const QString &icon,
                                const std::vector<QString> &button_params, const std::vector<QString> &button_texts,
                                bool exclusive = false, int minimum_button_width = 225)
-    : FrogPilotButtonControl(param, title, desc, icon, button_texts, exclusive, minimum_button_width), button_params(button_params) {
+    : FrogPilotButtonControl(param, title, desc, icon, button_texts, true, exclusive, minimum_button_width), button_params(button_params) {
 
     for (int i = 0; i < button_texts.size(); i++) {
       button_group->buttons()[i]->setChecked(params.getBool(button_params[i].toStdString()));
@@ -347,7 +347,7 @@ class FrogPilotParamValueControl : public AbstractControl {
 public:
   FrogPilotParamValueControl(const QString &param, const QString &title, const QString &desc, const QString &icon,
                              float min_value, float max_value, const QString &label, const std::map<float, QString> &value_labels = {},
-                             float interval = 1.0f, bool fast_increase = false, bool compact_size = false)
+                             float interval = 1.0f, bool fast_increase = false, int label_width = 350)
                              : AbstractControl(title, desc, icon),
                                fast_increase(fast_increase), interval(interval), label(label), min_value(min_value), max_value(max_value), value_labels(value_labels) {
     factor = std::pow(10, std::ceil(-std::log10(interval)));
@@ -358,7 +358,7 @@ public:
 
     value_label = new QLabel(this);
     value_label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    value_label->setFixedSize(compact_size ? QSize(175, 100) : QSize(350, 100));
+    value_label->setFixedSize(QSize(label_width, 100));
     value_label->setStyleSheet("QLabel {color: #E0E879;}");
 
     hlayout->addWidget(value_label);
@@ -531,7 +531,7 @@ public:
                                    float min_value, float max_value, const QString &label, const std::map<float, QString> &value_labels,
                                    float interval, bool fast_increase, const std::vector<QString> &button_params, const std::vector<QString> &button_texts,
                                    bool left_button = false, bool checkable = true, int minimum_button_width = 225)
-                                   : FrogPilotParamValueControl(param, title, desc, icon, min_value, max_value, label, value_labels, interval, fast_increase, true),
+                                   : FrogPilotParamValueControl(param, title, desc, icon, min_value, max_value, label, value_labels, interval, fast_increase, 200),
                                      button_params(button_params), checkable(checkable) {
     button_group = new QButtonGroup(this);
     button_group->setExclusive(false);

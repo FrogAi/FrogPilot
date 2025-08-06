@@ -16,7 +16,7 @@
 bool nnffLogFileExists(const QString &carFingerprint) {
   static QStringList files;
   if (files.isEmpty()) {
-    QFileInfoList fileInfoList = QDir(QStringLiteral("../car/torque_data/lat_models")).entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
+    QFileInfoList fileInfoList = QDir(QStringLiteral("../../frogpilot/assets/nnff_models")).entryInfoList(QDir::Files | QDir::NoDotAndDotDot);
     for (const QFileInfo &fileInfo : fileInfoList) {
       files.append(fileInfo.completeBaseName());
     }
@@ -131,14 +131,14 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
   frogpilotLayout->addWidget(list);
 
   std::vector<QString> togglePresets{tr("Minimal"), tr("Standard"), tr("Advanced"), tr("Developer")};
-  FrogPilotButtonsControl *togglePreset = new FrogPilotButtonsControl(tr("Tuning Level"),
-                                          tr("The visibility and complexity of tuning settings. Lower levels simplify the interface by hiding advanced options, while higher levels unlock detailed customization.\n\n"
-                                          "Minimal - Ideal for those who prefer simplicity or ease of use\n"
-                                          "Standard - Recommended for most users for a balanced experience\n"
-                                          "Advanced - Unlocks fine-tuning controls for more experienced users\n"
-                                          "Developer - Unlocks highly customizable settings for seasoned enthusiasts"),
-                                          "../../frogpilot/assets/toggle_icons/icon_customization.png",
-                                          togglePresets, true);
+  togglePreset = new FrogPilotButtonsControl(tr("Tuning Level"),
+                                             tr("The visibility and complexity of tuning settings. Lower levels simplify the interface by hiding advanced options, while higher levels unlock detailed customization.\n\n"
+                                             "Minimal - Ideal for those who prefer simplicity or ease of use\n"
+                                             "Standard - Recommended for most users for a balanced experience\n"
+                                             "Advanced - Unlocks fine-tuning controls for more experienced users\n"
+                                             "Developer - Unlocks highly customizable settings for seasoned enthusiasts"),
+                                             "../../frogpilot/assets/toggle_icons/icon_customization.png",
+                                             togglePresets, true);
   QObject::connect(togglePreset, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
     tuningLevel = id;
 
@@ -159,6 +159,7 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
   QObject::connect(parent, &SettingsWindow::closeSubPanel, this, &FrogPilotSettingsWindow::closeSubPanel);
   QObject::connect(parent, &SettingsWindow::closeSubSubPanel, this, &FrogPilotSettingsWindow::closeSubSubPanel);
   QObject::connect(parent, &SettingsWindow::updateMetric, this, &FrogPilotSettingsWindow::updateMetric);
+  QObject::connect(parent, &SettingsWindow::updateTuningLevel, this, &FrogPilotSettingsWindow::updateTuningLevel);
   QObject::connect(uiState(), &UIState::offroadTransition, this, &FrogPilotSettingsWindow::updateVariables);
   QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotSettingsWindow::updateState);
 
@@ -167,6 +168,13 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
 
   closeSubPanel();
   updateMetric(params.getBool("IsMetric"), true);
+  updateVariables();
+}
+
+void FrogPilotSettingsWindow::updateTuningLevel() {
+  tuningLevel = params.getInt("TuningLevel");
+  togglePreset->setCheckedButton(params.getInt("TuningLevel"));
+
   updateVariables();
 }
 
@@ -211,6 +219,7 @@ void FrogPilotSettingsWindow::updateVariables() {
     hasPedal = CP.getEnableGasInterceptor();
     hasRadar = !CP.getRadarUnavailable();
     hasSNG = CP.getAutoResumeSng();
+    isAngleCar = CP.getSteerControlType() == cereal::CarParams::SteerControlType::ANGLE;
     isBolt = carFingerprint == "CHEVROLET_BOLT_CC" || carFingerprint == "CHEVROLET_BOLT_EUV";
     isGM = carMake == "gm";
     isHKG = carMake == "hyundai";
@@ -221,15 +230,27 @@ void FrogPilotSettingsWindow::updateVariables() {
     isTSK = CP.getSecOcRequired();
     isVolt = carFingerprint == "CHEVROLET_VOLT";
     latAccelFactor = CP.getLateralTuning().getTorque().getLatAccelFactor();
+    longitudinalActuatorDelay = CP.getLongitudinalActuatorDelay();
+    startAccel = CP.getStartAccel();
     steerActuatorDelay = CP.getSteerActuatorDelay();
     steerKp = CP.getLateralTuning().getTorque().getKp();
     steerRatio = CP.getSteerRatio();
+    stopAccel = CP.getStopAccel();
+    stoppingDecelRate = CP.getStoppingDecelRate();
+    vEgoStarting = CP.getVEgoStarting();
+    vEgoStopping = CP.getVEgoStopping();
 
     float currentDelayStock = params.getFloat("SteerDelayStock");
     float currentFrictionStock = params.getFloat("SteerFrictionStock");
     float currentKPStock = params.getFloat("SteerKPStock");
     float currentLatAccelStock = params.getFloat("SteerLatAccelStock");
+    float currentLongDelayStock = params.getFloat("LongitudinalActuatorDelayStock");
+    float currentStartAccelStock = params.getFloat("StartAccelStock");
     float currentSteerRatioStock = params.getFloat("SteerRatioStock");
+    float currentStopAccelStock = params.getFloat("StopAccelStock");
+    float currentStoppingDecelRateStock = params.getFloat("StoppingDecelRateStock");
+    float currentVEgoStartingStock = params.getFloat("VEgoStartingStock");
+    float currentVEgoStoppingStock = params.getFloat("VEgoStoppingStock");
 
     if (currentDelayStock != steerActuatorDelay && steerActuatorDelay != 0) {
       if (params.getFloat("SteerDelay") == currentDelayStock || currentDelayStock == 0) {
@@ -259,11 +280,53 @@ void FrogPilotSettingsWindow::updateVariables() {
       params.putFloat("SteerLatAccelStock", latAccelFactor);
     }
 
+    if (currentLongDelayStock != longitudinalActuatorDelay && longitudinalActuatorDelay != 0) {
+      if (params.getFloat("LongitudinalActuatorDelay") == currentLongDelayStock || currentLongDelayStock == 0) {
+        params.putFloat("LongitudinalActuatorDelay", longitudinalActuatorDelay);
+      }
+      params.putFloat("LongitudinalActuatorDelayStock", longitudinalActuatorDelay);
+    }
+
+    if (currentStartAccelStock != startAccel && startAccel != 0) {
+      if (params.getFloat("StartAccel") == currentStartAccelStock || currentStartAccelStock == 0) {
+        params.putFloat("StartAccel", startAccel);
+      }
+      params.putFloat("StartAccelStock", startAccel);
+    }
+
     if (currentSteerRatioStock != steerRatio && steerRatio != 0) {
       if (params.getFloat("SteerRatio") == currentSteerRatioStock || currentSteerRatioStock == 0) {
         params.putFloat("SteerRatio", steerRatio);
       }
       params.putFloat("SteerRatioStock", steerRatio);
+    }
+
+    if (currentStopAccelStock != stopAccel && stopAccel != 0) {
+      if (params.getFloat("StopAccel") == currentStopAccelStock || currentStopAccelStock == 0) {
+        params.putFloat("StopAccel", stopAccel);
+      }
+      params.putFloat("StopAccelStock", stopAccel);
+    }
+
+    if (currentStoppingDecelRateStock != stoppingDecelRate && stoppingDecelRate != 0) {
+      if (params.getFloat("StoppingDecelRate") == currentStoppingDecelRateStock || currentStoppingDecelRateStock == 0) {
+        params.putFloat("StoppingDecelRate", stoppingDecelRate);
+      }
+      params.putFloat("StoppingDecelRateStock", stoppingDecelRate);
+    }
+
+    if (currentVEgoStartingStock != vEgoStarting && vEgoStarting != 0) {
+      if (params.getFloat("VEgoStarting") == currentVEgoStartingStock || currentVEgoStartingStock == 0) {
+        params.putFloat("VEgoStarting", vEgoStarting);
+      }
+      params.putFloat("VEgoStartingStock", vEgoStarting);
+    }
+
+    if (currentVEgoStoppingStock != vEgoStopping && vEgoStopping != 0) {
+      if (params.getFloat("VEgoStopping") == currentVEgoStoppingStock || currentVEgoStoppingStock == 0) {
+        params.putFloat("VEgoStopping", vEgoStopping);
+      }
+      params.putFloat("VEgoStoppingStock", vEgoStopping);
     }
   }
 
@@ -274,7 +337,6 @@ void FrogPilotSettingsWindow::updateVariables() {
     cereal::FrogPilotCarParams::Reader FPCP = fpcmsg.getRoot<cereal::FrogPilotCarParams>();
 
     openpilotLongitudinalControlDisabled = FPCP.getOpenpilotLongitudinalControlDisabled();
-    tacoHacksAllowed = isHKGCanFd && !FPCP.getIsHDA2();
   }
 
   isC3 = util::read_file("/sys/firmware/devicetree/base/model").find("tici") != std::string::npos;

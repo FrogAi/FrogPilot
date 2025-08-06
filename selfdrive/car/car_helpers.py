@@ -12,6 +12,7 @@ from openpilot.selfdrive.car.mock.values import CAR as MOCK
 from openpilot.common.swaglog import cloudlog
 import cereal.messaging as messaging
 from openpilot.selfdrive.car import gen_empty_fingerprint
+from openpilot.system.version import get_build_metadata
 
 FRAME_FINGERPRINT = 100  # 1s
 
@@ -202,7 +203,7 @@ def get_car(logcan, sendcan, experimental_long_allowed, params, num_pandas=1, fr
     candidate = "MOCK"
 
   CarInterface, _, _ = interfaces[candidate]
-  CP = CarInterface.get_params(candidate, fingerprints, car_fw, experimental_long_allowed, frogpilot_toggles, docs=False)
+  CP = CarInterface.get_params(candidate, fingerprints, car_fw, experimental_long_allowed, frogpilot_toggles, params, docs=False)
   FPCP = CarInterface.get_frogpilot_params(candidate, car_fw, fingerprints, frogpilot_toggles)
   CP.carVin = vin
   CP.carFw = car_fw

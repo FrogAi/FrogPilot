@@ -15,10 +15,6 @@
         <source>Reboot and Update</source>
         <translation>업데이트 및 재부팅</translation>
     </message>
-    <message>
-        <source>Disable Internet Check</source>
-        <translation type="gpt-4o-generated">인터넷 확인 비활성화</translation>
-    </message>
 </context>
 <context>
     <name>AdvancedNetworking</name>
@@ -890,12 +886,12 @@
         <translation type="gpt-4o-generated">초</translation>
     </message>
     <message>
-        <source>Disable Internet Requirement</source>
-        <translation type="gpt-4o-generated">인터넷 요구 사항 비활성화</translation>
+        <source>High Bitrate Recording</source>
+        <translation type="gpt-4o-generated">고비트레이트 녹음</translation>
     </message>
     <message>
-        <source>Allow the device to work indefinitely without an internet connection.</source>
-        <translation type="gpt-4o-generated">장치가 인터넷 연결 없이 무기한 작동하도록 허용하십시오.</translation>
+        <source>Record driving footage at double the standard bitrate for improved video quality in driving logs.</source>
+        <translation type="gpt-4o-generated">운전 기록에서 향상된 비디오 품질을 위해 표준 비트레이트의 두 배로 운전 영상을 기록하십시오.</translation>
     </message>
 </context>
 <context>
@@ -1171,6 +1167,10 @@
     <message>
         <source> km/h</source>
         <translation type="gpt-4o-generated">km/h</translation>
+    </message>
+    <message>
+        <source>Turn Signal Only</source>
+        <translation type="gpt-4o-generated">방향 지시등 전용</translation>
     </message>
 </context>
 <context>
@@ -1652,56 +1652,28 @@
         <translation type="gpt-4o-generated">게시된 제한 속도에 대한 오프셋은 보다 "인간적인" 운전 경험을 제공합니다.</translation>
     </message>
     <message>
-        <source>Speed Limit Offset (0–24 mph)</source>
-        <translation type="gpt-4o-generated">속도 제한 오프셋 (0–24 mph)</translation>
-    </message>
-    <message>
         <source>Target speed offset applied for posted limits between 0 and 24 mph.</source>
         <translation type="gpt-4o-generated">0에서 24mph 사이의 게시된 제한 속도에 적용된 목표 속도 오프셋.</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (25–34 mph)</source>
-        <translation type="gpt-4o-generated">속도 제한 오프셋 (25–34 mph)</translation>
     </message>
     <message>
         <source>Target speed offset applied for posted limits between 25 and 34 mph.</source>
         <translation type="gpt-4o-generated">25mph에서 34mph 사이의 게시된 제한 속도에 대해 목표 속도 오프셋이 적용됩니다.</translation>
     </message>
     <message>
-        <source>Speed Limit Offset (35–44 mph)</source>
-        <translation type="gpt-4o-generated">속도 제한 오프셋 (35–44 mph)</translation>
-    </message>
-    <message>
         <source>Target speed offset applied for posted limits between 35 and 44 mph.</source>
         <translation type="gpt-4o-generated">35mph에서 44mph 사이의 게시된 제한 속도에 대해 목표 속도 오프셋이 적용됩니다.</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (45–54 mph)</source>
-        <translation type="gpt-4o-generated">속도 제한 오프셋 (45–54 mph)</translation>
     </message>
     <message>
         <source>Target speed offset applied for posted limits between 45 and 54 mph.</source>
         <translation type="gpt-4o-generated">45mph에서 54mph 사이의 게시된 제한 속도에 대해 목표 속도 오프셋이 적용됩니다.</translation>
     </message>
     <message>
-        <source>Speed Limit Offset (55–64 mph)</source>
-        <translation type="gpt-4o-generated">속도 제한 오프셋 (55–64 mph)</translation>
-    </message>
-    <message>
         <source>Target speed offset applied for posted limits between 55 and 64 mph.</source>
         <translation type="gpt-4o-generated">55mph에서 64mph 사이의 게시된 제한 속도에 대해 목표 속도 오프셋이 적용됩니다.</translation>
     </message>
     <message>
-        <source>Speed Limit Offset (65–74 mph)</source>
-        <translation type="gpt-4o-generated">속도 제한 오프셋 (65–74 mph)</translation>
-    </message>
-    <message>
         <source>Target speed offset applied for posted limits between 65 and 74 mph.</source>
         <translation type="gpt-4o-generated">65mph에서 74mph 사이의 게시된 제한 속도에 대해 목표 속도 오프셋이 적용됩니다.</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (75–99 mph)</source>
-        <translation type="gpt-4o-generated">속도 제한 오프셋 (75–99 mph)</translation>
     </message>
     <message>
         <source>Target speed offset applied for posted limits between 75 and 99 mph.</source>
@@ -1912,34 +1884,6 @@
         <translation type="gpt-4o-generated">km/h</translation>
     </message>
     <message>
-        <source>Speed Limit Offset (0–29 km/h)</source>
-        <translation type="gpt-4o-generated">속도 제한 오프셋 (0–29 km/h)</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (30–49 km/h)</source>
-        <translation type="gpt-4o-generated">속도 제한 오프셋 (30–49 km/h)</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (50–59 km/h)</source>
-        <translation type="gpt-4o-generated">속도 제한 오프셋 (50–59 km/h)</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (60–79 km/h)</source>
-        <translation type="gpt-4o-generated">속도 제한 오프셋 (60–79 km/h)</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (80–99 km/h)</source>
-        <translation type="gpt-4o-generated">속도 제한 오프셋 (80–99 km/h)</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (100–119 km/h)</source>
-        <translation type="gpt-4o-generated">속도 제한 오프셋 (100–119 km/h)</translation>
-    </message>
-    <message>
-        <source>Speed Limit Offset (120–140 km/h)</source>
-        <translation type="gpt-4o-generated">속도 제한 오프셋 (120–140 km/h)</translation>
-    </message>
-    <message>
         <source>Target speed offset applied for posted limits between 0 and 29 km/h.</source>
         <translation type="gpt-4o-generated">게시된 제한 속도가 0에서 29 km/h 사이일 때 목표 속도 오프셋이 적용됩니다.</translation>
     </message>
@@ -1968,12 +1912,152 @@
         <translation type="gpt-4o-generated">120에서 140km/h 사이의 게시된 제한 속도에 대해 목표 속도 오프셋이 적용됩니다.</translation>
     </message>
     <message>
+        <source>Advanced Longitudinal Tuning</source>
+        <translation type="gpt-4o-generated">고급 종단 조정</translation>
+    </message>
+    <message>
+        <source>Advanced settings for customizing how openpilot handles acceleration and braking.</source>
+        <translation type="gpt-4o-generated">openpilot이 가속 및 제동을 처리하는 방식을 사용자 정의하는 고급 설정.</translation>
+    </message>
+    <message>
+        <source>Actuator Delay (Default: %1)</source>
+        <translation type="gpt-4o-generated">액추에이터 지연 (기본값: %1)</translation>
+    </message>
+    <message>
+        <source>Actuator Delay</source>
+        <translation type="gpt-4o-generated">액추에이터 지연</translation>
+    </message>
+    <message>
+        <source>Delay before throttle or brake takes effect. Higher values smooth slow actuators but can feel laggy; lower values react quicker but may overshoot.</source>
+        <translation type="gpt-4o-generated">스로틀 또는 브레이크가 작동하기 전의 지연. 높은 값은 느린 액추에이터를 부드럽게 하지만 지연이 느껴질 수 있으며, 낮은 값은 더 빠르게 반응하지만 과도하게 작동할 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>Start Acceleration (Default: %1)</source>
+        <translation type="gpt-4o-generated">가속 시작 (기본값: %1)</translation>
+    </message>
+    <message>
+        <source>Start Acceleration</source>
+        <translation type="gpt-4o-generated">가속 시작</translation>
+    </message>
+    <message>
+        <source>Extra acceleration applied when pulling away from a stop. Increase for snappier launches at the cost of smoothness; decrease for gentler starts.</source>
+        <translation type="gpt-4o-generated">정지 상태에서 출발할 때 추가 가속이 적용됩니다. 부드러움을 희생하고 더 빠른 출발을 원할 경우 증가시키고, 부드러운 출발을 원할 경우 감소시킵니다.</translation>
+    </message>
+    <message>
+        <source>Start Speed (Default: %1)</source>
+        <translation type="gpt-4o-generated">시작 속도 (기본값: %1)</translation>
+    </message>
+    <message>
+        <source>Start Speed</source>
+        <translation type="gpt-4o-generated">시작 속도</translation>
+    </message>
+    <message>
+        <source>Speed where openpilot begins to exit the stopped state. Higher values avoid creeping but may feel sluggish; lower values move sooner but risk creeping.</source>
+        <translation type="gpt-4o-generated">openpilot이 정지 상태에서 벗어나기 시작하는 속도입니다. 높은 값은 크리핑을 피하지만 느리게 느껴질 수 있으며, 낮은 값은 더 빨리 움직이지만 크리핑 위험이 있습니다.</translation>
+    </message>
+    <message>
+        <source>Stop Acceleration (Default: %1)</source>
+        <translation type="gpt-4o-generated">가속 중지 (기본값: %1)</translation>
+    </message>
+    <message>
+        <source>Stop Acceleration</source>
+        <translation type="gpt-4o-generated">가속 중지</translation>
+    </message>
+    <message>
+        <source>Brake force applied to hold the vehicle still. Larger values prevent creeping on hills but might jerk to a stop. Smaller values can feel smoother but may allow rolling.</source>
+        <translation type="gpt-4o-generated">차량을 정지 상태로 유지하기 위해 적용된 제동력. 더 큰 값은 언덕에서의 크리핑을 방지하지만 갑작스럽게 멈출 수 있습니다. 더 작은 값은 부드럽게 느껴질 수 있지만 구를 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>Stopping Rate (Default: %1)</source>
+        <translation type="gpt-4o-generated">정지 비율 (기본값: %1)</translation>
+    </message>
+    <message>
+        <source>Stopping Rate</source>
+        <translation type="gpt-4o-generated">정지율</translation>
+    </message>
+    <message>
+        <source>How quickly braking ramps up when stopping. Faster rates shorten stopping distance but can be harsh; slower rates are smoother but need more room.</source>
+        <translation type="gpt-4o-generated">정지할 때 제동이 얼마나 빨리 증가하는지. 더 빠른 속도는 정지 거리를 단축하지만 거칠 수 있으며, 더 느린 속도는 부드럽지만 더 많은 공간이 필요합니다.</translation>
+    </message>
+    <message>
+        <source>Stop Speed (Default: %1)</source>
+        <translation type="gpt-4o-generated">정지 속도 (기본값: %1)</translation>
+    </message>
+    <message>
+        <source>Stop Speed</source>
+        <translation type="gpt-4o-generated">속도 중지</translation>
+    </message>
+    <message>
+        <source>Speed where openpilot beings to enter the stopped state. Higher values brake earlier for smoother stops but might stop too soon; lower values wait longer and can overshoot.</source>
+        <translation type="gpt-4o-generated">openpilot이 정지 상태로 들어가기 시작하는 속도입니다. 높은 값은 더 부드러운 정지를 위해 더 일찍 브레이크를 밟지만 너무 일찍 멈출 수 있습니다. 낮은 값은 더 오래 기다리며 초과할 수 있습니다.</translation>
+    </message>
+    <message>
+        <source>Speed Offset (0–24 mph)</source>
+        <translation type="gpt-4o-generated">속도 오프셋 (0–24 mph)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (25–34 mph)</source>
+        <translation type="gpt-4o-generated">속도 오프셋 (25–34 mph)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (35–44 mph)</source>
+        <translation type="gpt-4o-generated">속도 오프셋 (35–44 mph)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (45–54 mph)</source>
+        <translation type="gpt-4o-generated">속도 오프셋 (45–54 mph)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (55–64 mph)</source>
+        <translation type="gpt-4o-generated">속도 오프셋 (55–64 mph)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (65–74 mph)</source>
+        <translation type="gpt-4o-generated">속도 오프셋 (65–74 mph)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (75–99 mph)</source>
+        <translation type="gpt-4o-generated">속도 오프셋 (75–99 mph)</translation>
+    </message>
+    <message>
+        <source>Only For Detected Lanes</source>
+        <translation type="gpt-4o-generated">감지된 차선에만 해당</translation>
+    </message>
+    <message>
+        <source>Speed Offset (0–29 km/h)</source>
+        <translation type="gpt-4o-generated">속도 오프셋 (0–29 km/h)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (30–49 km/h)</source>
+        <translation type="gpt-4o-generated">속도 오프셋 (30–49 km/h)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (50–59 km/h)</source>
+        <translation type="gpt-4o-generated">속도 오프셋 (50–59 km/h)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (60–79 km/h)</source>
+        <translation type="gpt-4o-generated">속도 오프셋 (60–79 km/h)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (80–99 km/h)</source>
+        <translation type="gpt-4o-generated">속도 오프셋 (80–99 km/h)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (100–119 km/h)</source>
+        <translation type="gpt-4o-generated">속도 오프셋 (100–119 km/h)</translation>
+    </message>
+    <message>
+        <source>Speed Offset (120–140 km/h)</source>
+        <translation type="gpt-4o-generated">속도 오프셋 (120–140 km/h)</translation>
+    </message>
+    <message>
         <source>Curve Speed Control</source>
         <translation type="gpt-4o-generated">곡선 속도 제어</translation>
     </message>
     <message>
         <source>Automatically slow down for upcoming curves using downloaded maps or the driving model.</source>
-        <translation type="gpt-4o-generated">다운로드된 지도 또는 주행 모델을 사용하여 다가오는 커브에 자동으로 속도를 줄입니다.</translation>
+        <translation type="gpt-4o-generated">다운로드된 지도나 주행 모델을 사용하여 다가오는 커브에 자동으로 속도를 줄입니다.</translation>
     </message>
     <message>
         <source>Curve Detection Method</source>
@@ -1981,15 +2065,15 @@
     </message>
     <message>
         <source>How curves are detected. &lt;b&gt;Map-Based&lt;/b&gt; uses downloaded map data to identify curves and determine the appropriate speed in which to handle them at, while &lt;b&gt;Vision&lt;/b&gt; relies solely on the driving model.</source>
-        <translation type="gpt-4o-generated">곡선이 감지되는 방법. &lt;b&gt;지도 기반&lt;/b&gt;은 다운로드된 지도 데이터를 사용하여 곡선을 식별하고 이를 처리하기 위한 적절한 속도를 결정하는 반면, &lt;b&gt;비전&lt;/b&gt;은 오직 주행 모델에만 의존합니다.</translation>
+        <translation type="gpt-4o-generated">곡선이 감지되는 방법. &lt;b&gt;지도 기반&lt;/b&gt;은 다운로드된 지도 데이터를 사용하여 곡선을 식별하고 이를 처리하기 위한 적절한 속도를 결정하는 반면, &lt;b&gt;비전&lt;/b&gt;은 오로지 주행 모델에 의존합니다.</translation>
     </message>
     <message>
         <source>Curve Detection Failsafe</source>
-        <translation type="gpt-4o-generated">곡선 감지 페일세이프</translation>
+        <translation type="gpt-4o-generated">곡선 감지 안전장치</translation>
     </message>
     <message>
         <source>Only trigger &lt;b&gt;Curve Speed Control&lt;/b&gt; if a curve is detected with the model while using the &lt;b&gt;Map-Based&lt;/b&gt; method. Useful to help prevent false positives.</source>
-        <translation type="gpt-4o-generated">곡선이 &lt;b&gt;지도 기반&lt;/b&gt; 방법을 사용할 때 모델로 감지된 경우에만 &lt;b&gt;곡선 속도 제어&lt;/b&gt;를 트리거합니다. 오탐 방지에 유용합니다.</translation>
+        <translation type="gpt-4o-generated">&lt;b&gt;Map-Based&lt;/b&gt; 방법을 사용할 때 모델로 곡선이 감지된 경우에만 &lt;b&gt;Curve Speed Control&lt;/b&gt;을 트리거하십시오. 오탐 방지에 유용합니다.</translation>
     </message>
     <message>
         <source>Curve Detection Sensitivity</source>
@@ -1997,7 +2081,7 @@
     </message>
     <message>
         <source>How sensitive openpilot is when detecting curves. Higher values trigger earlier responses at the risk of triggering too often, while lower values increase confidence at the risk of triggering too infrequently.</source>
-        <translation type="gpt-4o-generated">openpilot이 곡선을 감지할 때의 민감도. 높은 값은 너무 자주 트리거될 위험이 있지만 더 빠른 반응을 유발하며, 낮은 값은 너무 드물게 트리거될 위험이 있지만 신뢰도를 높입니다.</translation>
+        <translation type="gpt-4o-generated">openpilot이 곡선을 감지할 때의 민감도. 값이 높을수록 더 자주 트리거될 위험이 있지만 더 빠른 반응을 유도하며, 값이 낮을수록 트리거 빈도가 줄어드는 위험이 있지만 신뢰도가 높아집니다.</translation>
     </message>
     <message>
         <source>Curve Speed Aggressiveness</source>
@@ -2205,6 +2289,10 @@
         <source>CANCELLED</source>
         <translation type="gpt-4o-generated">취소됨</translation>
     </message>
+    <message>
+        <source>Offline...</source>
+        <translation type="gpt-4o-generated">오프라인...</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotModelPanel</name>
@@ -2372,6 +2460,10 @@
         <source>The "Model Randomizer" only works with downloaded models. Do you want to download all the driving models?</source>
         <translation type="gpt-4o-generated">"모델 랜덤화기"는 다운로드된 모델에서만 작동합니다. 모든 운전 모델을 다운로드하시겠습니까?</translation>
     </message>
+    <message>
+        <source>Offline...</source>
+        <translation type="gpt-4o-generated">오프라인...</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotNavigationPanel</name>
@@ -2402,10 +2494,6 @@
     <message>
         <source>Manage Your Settings At</source>
         <translation type="gpt-4o-generated">설정을 관리하세요.</translation>
-    </message>
-    <message>
-        <source>Device Offline</source>
-        <translation type="gpt-4o-generated">장치 오프라인</translation>
     </message>
     <message>
         <source>MapBox</source>
@@ -2488,16 +2576,8 @@
         <translation type="gpt-4o-generated">취소</translation>
     </message>
     <message>
-        <source>Update Speed Limits</source>
-        <translation type="gpt-4o-generated">속도 제한 업데이트</translation>
-    </message>
-    <message>
         <source>Speed Limit Filler</source>
         <translation type="gpt-4o-generated">속도 제한 필러</translation>
-    </message>
-    <message>
-        <source>Automatically collect missing speed limits from your dashboard (if supported), &lt;b&gt;Mapbox&lt;/b&gt;, and &lt;b&gt;Navigate-on-openpilot&lt;/b&gt; while driving.&lt;br&gt;&lt;br&gt;Tap &lt;b&gt;Update Speed Limits&lt;/b&gt; at home (good Wi-Fi, 12V power) to process your recent drives.&lt;br&gt;&lt;br&gt;Download the data from &lt;b&gt;Fleet Manager&lt;/b&gt; → &lt;b&gt;Tools&lt;/b&gt; → &lt;b&gt;Download Speed Limits&lt;/b&gt;, then upload it to &lt;b&gt;SpeedLimitFiller.frogpilot.download&lt;/b&gt; to review and submit.&lt;br&gt;&lt;br&gt;For a full walkthrough, check the &lt;b&gt;#speed-limit-filler&lt;/b&gt; channel in the &lt;b&gt;FrogPilot Discord&lt;/b&gt;!</source>
-        <translation type="gpt-4o-generated">자동으로 대시보드(지원되는 경우), &lt;b&gt;Mapbox&lt;/b&gt;, 및 &lt;b&gt;Navigate-on-openpilot&lt;/b&gt;에서 누락된 속도 제한을 수집합니다.&lt;br&gt;&lt;br&gt;최근 주행 기록을 처리하려면 집에서(좋은 Wi-Fi, 12V 전원) &lt;b&gt;속도 제한 업데이트&lt;/b&gt;를 탭하세요.&lt;br&gt;&lt;br&gt;&lt;b&gt;Fleet Manager&lt;/b&gt; → &lt;b&gt;Tools&lt;/b&gt; → &lt;b&gt;Download Speed Limits&lt;/b&gt;에서 데이터를 다운로드한 후 &lt;b&gt;SpeedLimitFiller.frogpilot.download&lt;/b&gt;에 업로드하여 검토 및 제출하세요.&lt;br&gt;&lt;br&gt;전체 안내를 보려면 &lt;b&gt;FrogPilot Discord&lt;/b&gt;의 &lt;b&gt;#speed-limit-filler&lt;/b&gt; 채널을 확인하세요!</translation>
     </message>
     <message>
         <source>Are you sure you want to cancel the speed limit update process?</source>
@@ -2514,6 +2594,26 @@ It will reset in %1 hours and %2 minutes.</source>
     <message>
         <source>This process will take awhile, so it's advised to start when you're done driving with a stable Wi-Fi connection. Do you wish to proceed?</source>
         <translation type="gpt-4o-generated">이 과정은 시간이 좀 걸리므로 운전을 마치고 안정적인 Wi-Fi 연결이 있을 때 시작하는 것이 좋습니다. 계속하시겠습니까?</translation>
+    </message>
+    <message>
+        <source>Manually Update Speed Limits</source>
+        <translation type="gpt-4o-generated">속도 제한 수동 업데이트</translation>
+    </message>
+    <message>
+        <source>Automatically collect missing or incorrect speed limits from your dashboard (if supported), &lt;b&gt;Mapbox&lt;/b&gt;, and &lt;b&gt;Navigate-on-openpilot&lt;/b&gt; while driving.&lt;br&gt;&lt;br&gt;When the car is turned off and connected to Wi-Fi, your speed limit data is automatically processed into a compiled file formatted for the tool located at &lt;b&gt;SpeedLimitFiller.frogpilot.download&lt;/b&gt;.&lt;br&gt;&lt;br&gt;You can grab the processed file from &lt;b&gt;The Pond&lt;/b&gt; via the &lt;b&gt;Download Speed Limits&lt;/b&gt; menu.&lt;br&gt;&lt;br&gt;Want a more thorough walkthrough? Check out the &lt;b&gt;#speed-limit-filler&lt;/b&gt; channel in the &lt;b&gt;FrogPilot Discord&lt;/b&gt;!</source>
+        <translation type="gpt-4o-generated">자동으로 대시보드(지원되는 경우), &lt;b&gt;Mapbox&lt;/b&gt;, 및 &lt;b&gt;Navigate-on-openpilot&lt;/b&gt;에서 누락되거나 잘못된 속도 제한을 수집합니다.&lt;br&gt;&lt;br&gt;차량이 꺼지고 Wi-Fi에 연결되면 속도 제한 데이터가 자동으로 처리되어 &lt;b&gt;SpeedLimitFiller.frogpilot.download&lt;/b&gt;에 위치한 도구에 맞게 포맷된 파일로 컴파일됩니다.&lt;br&gt;&lt;br&gt;처리된 파일은 &lt;b&gt;The Pond&lt;/b&gt;에서 &lt;b&gt;Download Speed Limits&lt;/b&gt; 메뉴를 통해 다운로드할 수 있습니다.&lt;br&gt;&lt;br&gt;더 자세한 안내가 필요하신가요? &lt;b&gt;FrogPilot Discord&lt;/b&gt;의 &lt;b&gt;#speed-limit-filler&lt;/b&gt; 채널을 확인해 보세요!</translation>
+    </message>
+    <message>
+        <source>Cancelled...</source>
+        <translation type="gpt-4o-generated">취소됨...</translation>
+    </message>
+    <message>
+        <source>Completed!</source>
+        <translation type="gpt-4o-generated">완료되었습니다!</translation>
+    </message>
+    <message>
+        <source>Offline...</source>
+        <translation type="gpt-4o-generated">오프라인...</translation>
     </message>
 </context>
 <context>
@@ -2774,6 +2874,10 @@ Developer - Unlocks highly customizable settings for seasoned enthusiasts</sourc
         <source>Auto</source>
         <translation type="gpt-4o-generated">자동</translation>
     </message>
+    <message>
+        <source>Test</source>
+        <translation type="gpt-4o-generated">테스트</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotThemesPanel</name>
@@ -2826,10 +2930,6 @@ Want to submit your own sounds? Share them in the "custom-themes" channel on the
     <message>
         <source>The steering wheel icon in the top right of the driving screen.</source>
         <translation type="gpt-4o-generated">운전 화면의 오른쪽 상단에 있는 핸들 아이콘.</translation>
-    </message>
-    <message>
-        <source>Turn Signal Animation</source>
-        <translation type="gpt-4o-generated">턴 시그널 애니메이션</translation>
     </message>
     <message>
         <source>Themed turn signal animations.
@@ -3035,6 +3135,10 @@ Want to submit your own animations? Share them in the "custom-themes" channel on
         <source>Are you sure you want to completely reset your startup message?</source>
         <translation type="gpt-4o-generated">시작 메시지를 완전히 재설정하시겠습니까?</translation>
     </message>
+    <message>
+        <source>Turn Signal</source>
+        <translation type="gpt-4o-generated">방향 지시등</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotUtilitiesPanel</name>
@@ -3115,26 +3219,6 @@ Want to submit your own animations? Share them in the "custom-themes" channel on
         <translation type="gpt-4o-generated">"openpilot crashed"라는 경고를 보았습니다.</translation>
     </message>
     <message>
-        <source>I'm noticing harsh acceleration</source>
-        <translation type="gpt-4o-generated">가속이 심하게 느껴져요.</translation>
-    </message>
-    <message>
-        <source>I'm noticing harsh braking</source>
-        <translation type="gpt-4o-generated">급제동이 눈에 띕니다.</translation>
-    </message>
-    <message>
-        <source>I'm noticing unusual steering</source>
-        <translation type="gpt-4o-generated">이상한 조향이 눈에 띕니다.</translation>
-    </message>
-    <message>
-        <source>My car isn't staying in its lane</source>
-        <translation type="gpt-4o-generated">내 차가 차선을 유지하지 못하고 있어</translation>
-    </message>
-    <message>
-        <source>Something else</source>
-        <translation type="gpt-4o-generated">다른 것</translation>
-    </message>
-    <message>
         <source>What's going on?</source>
         <translation type="gpt-4o-generated">무슨 일이야?</translation>
     </message>
@@ -3197,6 +3281,70 @@ Want to submit your own animations? Share them in the "custom-themes" channel on
     <message>
         <source>Ensure your device has an internet connection before sending a report!</source>
         <translation type="gpt-4o-generated">보고서를 보내기 전에 기기가 인터넷에 연결되어 있는지 확인하세요!</translation>
+    </message>
+    <message>
+        <source>Acceleration feels too harsh or jerky</source>
+        <translation type="gpt-4o-generated">가속이 너무 거칠거나 덜컥거리는 느낌이 든다.</translation>
+    </message>
+    <message>
+        <source>An alert confused me and I didn’t know what it meant</source>
+        <translation type="gpt-4o-generated">경고가 저를 혼란스럽게 했고, 그것이 무슨 뜻인지 몰랐습니다.</translation>
+    </message>
+    <message>
+        <source>Braking is too sudden or uncomfortable</source>
+        <translation type="gpt-4o-generated">제동이 너무 갑작스럽거나 불편합니다.</translation>
+    </message>
+    <message>
+        <source>I’m not sure if this is normal or a bug:</source>
+        <translation type="gpt-4o-generated">이것이 정상인지 버그인지 확신이 서지 않습니다:</translation>
+    </message>
+    <message>
+        <source>Lane changes don’t work properly or feel unsafe</source>
+        <translation type="gpt-4o-generated">차선 변경이 제대로 작동하지 않거나 안전하지 않게 느껴집니다.</translation>
+    </message>
+    <message>
+        <source>My screen froze or got stuck on loading</source>
+        <translation type="gpt-4o-generated">화면이 멈추거나 로딩 중에 멈췄습니다.</translation>
+    </message>
+    <message>
+        <source>My steering wheel buttons aren’t working</source>
+        <translation type="gpt-4o-generated">내 핸들 버튼이 작동하지 않아요</translation>
+    </message>
+    <message>
+        <source>openpilot disengages when I don't expect it</source>
+        <translation type="gpt-4o-generated">openpilot는 예상치 못한 상황에서 해제됩니다.</translation>
+    </message>
+    <message>
+        <source>openpilot doesn’t resume after I stop</source>
+        <translation type="gpt-4o-generated">openpilot는 제가 멈춘 후 다시 시작되지 않습니다.</translation>
+    </message>
+    <message>
+        <source>openpilot doesn't react to stopped vehicles ahead</source>
+        <translation type="gpt-4o-generated">openpilot는 앞에 정차한 차량에 반응하지 않습니다.</translation>
+    </message>
+    <message>
+        <source>openpilot feels sluggish or slow to respond</source>
+        <translation type="gpt-4o-generated">openpilot가 느리거나 반응이 느리게 느껴집니다.</translation>
+    </message>
+    <message>
+        <source>Steering feels twitchy or unnatural</source>
+        <translation type="gpt-4o-generated">조향이 불안정하거나 부자연스럽게 느껴진다.</translation>
+    </message>
+    <message>
+        <source>The car doesn’t follow curves well</source>
+        <translation type="gpt-4o-generated">차가 곡선을 잘 따르지 않습니다.</translation>
+    </message>
+    <message>
+        <source>The car isn’t staying centered in its lane</source>
+        <translation type="gpt-4o-generated">차가 차선 중앙에 머물지 않습니다.</translation>
+    </message>
+    <message>
+        <source>The speed or display info looks wrong</source>
+        <translation type="gpt-4o-generated">속도 또는 디스플레이 정보가 잘못된 것 같습니다.</translation>
+    </message>
+    <message>
+        <source>Something else (please describe)</source>
+        <translation type="gpt-4o-generated">다른 것 (설명해 주세요)</translation>
     </message>
 </context>
 <context>
@@ -3693,10 +3841,6 @@ Want to submit your own animations? Share them in the "custom-themes" channel on
         <translation type="gpt-4o-generated">경로 너비</translation>
     </message>
     <message>
-        <source>The width of the driving path on the driving screen.&lt;br&gt;&lt;br&gt;Default &lt;b&gt;(6.1 feet / 1.9 meters)&lt;/b&gt; matches the width of a &lt;b&gt;2019 Lexus ES 350&lt;/b&gt;.</source>
-        <translation type="gpt-4o-generated">운전 화면의 주행 경로 너비.&lt;br&gt;&lt;br&gt;기본값 &lt;b&gt;(6.1 피트 / 1.9 미터)&lt;/b&gt;는 &lt;b&gt;2019 Lexus ES 350&lt;/b&gt;의 너비와 일치합니다.</translation>
-    </message>
-    <message>
         <source>Road Edges Width</source>
         <translation type="gpt-4o-generated">도로 가장자리 너비</translation>
     </message>
@@ -4052,6 +4196,14 @@ Want to submit your own animations? Share them in the "custom-themes" channel on
         <source>Sidebar Metrics</source>
         <translation type="gpt-4o-generated">사이드바 메트릭스</translation>
     </message>
+    <message>
+        <source>The width of the driving path on the driving screen.&lt;br&gt;&lt;br&gt;Default &lt;b&gt;(6.1 feet)&lt;/b&gt; matches the width of a &lt;b&gt;2019 Lexus ES 350&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">운전 화면의 주행 경로 너비.&lt;br&gt;&lt;br&gt;기본값 &lt;b&gt;(6.1피트)&lt;/b&gt;는 &lt;b&gt;2019 Lexus ES 350&lt;/b&gt;의 너비와 일치합니다.</translation>
+    </message>
+    <message>
+        <source>The width of the driving path on the driving screen.&lt;br&gt;&lt;br&gt;Default &lt;b&gt;(1.9 meters)&lt;/b&gt; matches the width of a &lt;b&gt;2019 Lexus ES 350&lt;/b&gt;.</source>
+        <translation type="gpt-4o-generated">운전 화면의 주행 경로 너비.&lt;br&gt;&lt;br&gt;기본값 &lt;b&gt;(1.9미터)&lt;/b&gt;는 &lt;b&gt;2019 Lexus ES 350&lt;/b&gt;의 너비와 일치합니다.</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotWheelPanel</name>
@@ -4187,6 +4339,57 @@ Want to submit your own animations? Share them in the "custom-themes" channel on
     <message>
         <source>Waiting for route</source>
         <translation>경로를 기다리는 중</translation>
+    </message>
+</context>
+<context>
+    <name>ModelReview</name>
+    <message>
+        <source>How would you rate that drive?</source>
+        <translation type="gpt-4o-generated">그 드라이브를 어떻게 평가하시겠습니까?</translation>
+    </message>
+    <message>
+        <source>Blacklist this model</source>
+        <translation type="gpt-4o-generated">이 모델을 블랙리스트에 추가하십시오.</translation>
+    </message>
+    <message>
+        <source>The model used during that drive was:</source>
+        <translation type="gpt-4o-generated">그 드라이브 동안 사용된 모델은:</translation>
+    </message>
+    <message>
+        <source>Current Model Score: 0</source>
+        <translation type="gpt-4o-generated">현재 모델 점수: 0</translation>
+    </message>
+    <message>
+        <source>Current Model Rank: 0</source>
+        <translation type="gpt-4o-generated">Current Model Rank: 0</translation>
+    </message>
+    <message>
+        <source>Total Model Drives: 0</source>
+        <translation type="gpt-4o-generated">총 모델 드라이브: 0</translation>
+    </message>
+    <message>
+        <source>Total Overall Model Drives: 0</source>
+        <translation type="gpt-4o-generated">전체 모델 드라이브 총계: 0</translation>
+    </message>
+    <message>
+        <source>Total Model Drives: %1</source>
+        <translation type="gpt-4o-generated">총 모델 드라이브: %1</translation>
+    </message>
+    <message>
+        <source>Current Model Rank: %1</source>
+        <translation type="gpt-4o-generated">현재 모델 순위: %1</translation>
+    </message>
+    <message>
+        <source>Current Model Score: %1</source>
+        <translation type="gpt-4o-generated">현재 모델 점수: %1</translation>
+    </message>
+    <message>
+        <source>Total Overall Drives: %1</source>
+        <translation type="gpt-4o-generated">전체 드라이브 총계: %1</translation>
+    </message>
+    <message>
+        <source>Model successfully blacklisted!</source>
+        <translation type="gpt-4o-generated">모델이 성공적으로 블랙리스트에 추가되었습니다!</translation>
     </message>
 </context>
 <context>
@@ -4397,10 +4600,6 @@ Want to submit your own animations? Share them in the "custom-themes" channel on
 <context>
     <name>QObject</name>
     <message>
-        <source>Reboot</source>
-        <translation>재부팅</translation>
-    </message>
-    <message>
         <source>Exit</source>
         <translation>종료</translation>
     </message>
@@ -4445,6 +4644,10 @@ Want to submit your own animations? Share them in the "custom-themes" channel on
     <message>
         <source>FrogPilot</source>
         <translation type="gpt-4o-generated">개구리 파일럿</translation>
+    </message>
+    <message>
+        <source>Restore</source>
+        <translation type="gpt-4o-generated">복원</translation>
     </message>
 </context>
 <context>

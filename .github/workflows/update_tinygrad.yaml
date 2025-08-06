@@ -1,0 +1,59 @@
+name: Update Tinygrad
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update_tinygrad:
+    name: Update Tinygrad
+    runs-on:
+      - self-hosted
+      - c3x
+
+    steps:
+      - name: Get version
+        id: get_version
+        run: |
+          VERSION=$(grep -oP '^VERSION\s*=\s*"\K[^"]+' /data/openpilot/frogpilot/assets/model_manager.py)
+          echo "VERSION=$VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Clone GitLab repo
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+        run: |
+          mkdir -p /data/tmp/frogpilot_tinygrad
+          cd /data/tmp/frogpilot_tinygrad
+          git clone --depth 1 --branch Tinygrad https://oauth2:${GITLAB_TOKEN}@gitlab.com/FrogAi/FrogPilot-Resources.git
+
+      - name: Create Tinygrad Archive
+        run: |
+          cd /data/openpilot
+
+          ARCHIVE_NAME="Tinygrad_${{ steps.get_version.outputs.version }}.tar.gz"
+
+          tar -czf "/data/tmp/frogpilot_tinygrad/FrogPilot-Resources/$ARCHIVE_NAME" \
+            --exclude="*.a" \
+            --exclude="*.cc" \
+            --exclude="*.h" \
+            --exclude="*.o" \
+            --exclude="*.onnx" \
+            --exclude="*.pkl" \
+            --exclude="*__pycache__*" \
+            --exclude="*tests*" \
+            frogpilot/tinygrad_modeld tinygrad tinygrad_repo
+
+      - name: Push updated Tinygrad
+        run: |
+          cd /data/tmp/frogpilot_tinygrad/FrogPilot-Resources
+
+          git config user.name "James"
+          git config user.email "91348155+FrogAi@users.noreply.github.com"
+
+          git add Tinygrad_*.tar.gz
+          git commit -m "Updated Tinygrad: ${{ steps.get_version.outputs.version }}"
+          git push origin Tinygrad
+
+      - name: Cleanup temporary files
+        run: |
+          rm -rf /data/tmp/frogpilot_tinygrad

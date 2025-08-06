@@ -64,7 +64,7 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent) : Fr
       for (int i = 0; i <= 101; ++i) {
         volumeLabels[i] = i == 0 ? tr("Muted") : i == 101 ? tr("Auto") : QString::number(i) + "%";
       }
-      std::vector<QString> alertButton{"Test"};
+      std::vector<QString> alertButton{tr("Test")};
       if (param == "WarningImmediateVolume" || param == "WarningSoftVolume") {
         soundsToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 25, 101, QString(), volumeLabels, 1, true, {}, alertButton, false, false);
       } else {
@@ -176,7 +176,7 @@ void FrogPilotSoundsPanel::updateToggles() {
       setVisible &= hasBSM;
     }
 
-    if (key == "SpeedLimitChangedAlert") {
+    else if (key == "SpeedLimitChangedAlert") {
       setVisible &= params.getBool("ShowSpeedLimits") || (hasOpenpilotLongitudinal && params.getBool("SpeedLimitController"));
     }
 

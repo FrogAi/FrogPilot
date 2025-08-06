@@ -41,7 +41,6 @@ private:
   LabelControl *ipLabel;
 
   Params params;
-  Params params_cache{"/cache/params"};
   Params params_memory{"/dev/shm/params"};
 
   QLabel *imageLabel;
