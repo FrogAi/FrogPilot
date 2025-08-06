@@ -394,6 +394,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("StandardJerkSpeedDecrease", "100", 3, "100"),
   ("StandardPersonalityProfile", "1", 2, "0"),
   ("StandbyMode", "0", 2, "0"),
+  ("StandbyModeOnlyWhenDisengaged", "0", 2, "0"),
   ("StartAccel", "", 3, ""),
   ("StartAccelStock", "", 3, ""),
   ("StaticPedalsOnUI", "0", 2, "0"),
@@ -911,6 +912,7 @@ class FrogPilotVariables:
     toggle.driver_camera_in_reverse = quality_of_life_visuals and (params.get_bool("DriverCamera") if tuning_level >= level["DriverCamera"] else default.get_bool("DriverCamera"))
     toggle.onroad_distance_button = openpilot_longitudinal and (quality_of_life_visuals and (params.get_bool("OnroadDistanceButton") if tuning_level >= level["OnroadDistanceButton"] else default.get_bool("OnroadDistanceButton")) or toggle.debug_mode)
     toggle.standby_mode = quality_of_life_visuals and (params.get_bool("StandbyMode") if tuning_level >= level["StandbyMode"] else default.get_bool("StandbyMode"))
+    toggle.standby_mode_only_when_disengaged = toggle.standby_mode and (params.get_bool("StandbyModeOnlyWhenDisengaged") if tuning_level >= level["StandbyModeOnlyWhenDisengaged"] else default.get_bool("StandbyModeOnlyWhenDisengaged"))
     toggle.stopped_timer = quality_of_life_visuals and (params.get_bool("StoppedTimer") if tuning_level >= level["StoppedTimer"] else default.get_bool("StoppedTimer"))
 
     toggle.rainbow_path = params.get_bool("RainbowPath") if tuning_level >= level["RainbowPath"] else default.get_bool("RainbowPath")

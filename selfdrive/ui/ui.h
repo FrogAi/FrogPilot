@@ -186,6 +186,7 @@ private:
   void updateBrightness(const UIState &s, const FrogPilotUIState &fs);
   void updateWakefulness(const UIState &s, const FrogPilotUIState &fs);
   void setAwake(bool on);
+  bool isStandbyModeEnabled(const UIState &s, const FrogPilotUIState &fs);
 
 signals:
   void displayPowerChanged(bool on);

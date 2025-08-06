@@ -101,6 +101,7 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
     {"CameraView", tr("Camera View"), tr("The active camera view display. This is purely a visual change and doesn't impact how openpilot drives!"), ""},
     {"DriverCamera", tr("Show Driver Camera When In Reverse"), tr("Display the driver camera feed when the vehicle is in reverse."), ""},
     {"StandbyMode", tr("Standby Mode"), tr("Turn the screen off when driving and automatically wake it up if engagement state changes or important alerts occur."), ""},
+    {"StandbyModeOnlyWhenDisengaged", tr("Only When Disengaged"), tr("Only allow the screen to sleep when openpilot is disengaged."), ""},
     {"StoppedTimer", tr("Stopped Timer"), tr("Replace the current speed with a timer when stopped to indicate how long the vehicle has been stopped for."), ""}
   };
 
@@ -322,6 +323,10 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent) : 
       std::vector<QString> cameraOptions{tr("Auto"), tr("Driver"), tr("Standard"), tr("Wide")};
       ButtonParamControl *cameraSelection = new ButtonParamControl(param, title, desc, icon, cameraOptions);
       visualToggle = cameraSelection;
+    } else if (param == "StandbyMode") {
+      std::vector<QString> standbyToggles{"StandbyModeOnlyWhenDisengaged"};
+      std::vector<QString> standbyToggleNames{tr("Only When Disengaged")};
+      visualToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, standbyToggles, standbyToggleNames);
 
     } else {
       visualToggle = new ParamControl(param, title, desc, icon);

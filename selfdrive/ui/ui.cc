@@ -424,7 +424,7 @@ void Device::updateBrightness(const UIState &s, const FrogPilotUIState &fs) {
     brightness = 0;
   } else if (s.scene.started && frogpilot_toggles.value("force_onroad").toBool()) {
     brightness = 100;
-  } else if (s.scene.started && frogpilot_toggles.value("standby_mode").toBool() && !frogpilot_scene.wake_up_screen && interactive_timeout == 0) {
+  } else if (s.scene.started && isStandbyModeEnabled(s, fs) && !frogpilot_scene.wake_up_screen && interactive_timeout == 0) {
     brightness = 0;
   } else if (s.scene.started && frogpilot_toggles.value("screen_brightness_onroad").toInt() != 101) {
     brightness = interactive_timeout > 0 ? fmax(5, frogpilot_toggles.value("screen_brightness_onroad").toInt()) : frogpilot_toggles.value("screen_brightness_onroad").toInt();
@@ -447,14 +447,14 @@ void Device::updateWakefulness(const UIState &s, const FrogPilotUIState &fs) {
   bool ignition_state_changed = s.scene.ignition != ignition_on;
   ignition_on = s.scene.ignition;
 
-  if (ignition_on && frogpilot_toggles.value("standby_mode").toBool()) {
+  if (ignition_on && isStandbyModeEnabled(s, fs)) {
     if (frogpilot_scene.wake_up_screen) {
       resetInteractiveTimeout(frogpilot_toggles.value("screen_timeout").toInt(), frogpilot_toggles.value("screen_timeout_onroad").toInt());
     }
   }
 
   if (ignition_state_changed) {
-    if (ignition_on && frogpilot_toggles.value("screen_brightness_onroad").toInt() == 0 && !frogpilot_toggles.value("standby_mode").toBool()) {
+    if (ignition_on && frogpilot_toggles.value("screen_brightness_onroad").toInt() == 0 && !isStandbyModeEnabled(s, fs)) {
       resetInteractiveTimeout(0, 0);
     } else {
       resetInteractiveTimeout(frogpilot_toggles.value("screen_timeout").toInt(), frogpilot_toggles.value("screen_timeout_onroad").toInt());
@@ -469,6 +469,13 @@ void Device::updateWakefulness(const UIState &s, const FrogPilotUIState &fs) {
 UIState *uiState() {
   static UIState ui_state;
   return &ui_state;
+}
+
+bool Device::isStandbyModeEnabled(const UIState &s, const FrogPilotUIState &fs) {
+  const QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
+  return frogpilot_toggles.value("standby_mode").toBool() &&
+         (!frogpilot_toggles.value("standby_mode_only_when_disengaged").toBool() ||
+          s.status == STATUS_DISENGAGED);
 }
 
 Device *device() {
