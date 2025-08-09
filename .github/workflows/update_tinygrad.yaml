@@ -36,7 +36,6 @@ jobs:
             --exclude="*.h" \
             --exclude="*.o" \
             --exclude="*.onnx" \
-            --exclude="*.pkl" \
             --exclude="*__pycache__*" \
             --exclude="*tests*" \
             frogpilot/tinygrad_modeld tinygrad tinygrad_repo
