@@ -10,6 +10,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
 
   longitudinalLayout->addWidget(longitudinalPanel);
 
+  FrogPilotListWidget *advancedLongitudinalTuneList = new FrogPilotListWidget(this);
   FrogPilotListWidget *aggressivePersonalityList = new FrogPilotListWidget(this);
   FrogPilotListWidget *conditionalExperimentalList = new FrogPilotListWidget(this);
   FrogPilotListWidget *curveSpeedList = new FrogPilotListWidget(this);
@@ -24,6 +25,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
   FrogPilotListWidget *standardPersonalityList = new FrogPilotListWidget(this);
   FrogPilotListWidget *trafficPersonalityList = new FrogPilotListWidget(this);
 
+  ScrollView *advancedLongitudinalTunePanel = new ScrollView(advancedLongitudinalTuneList, this);
   ScrollView *aggressivePersonalityPanel = new ScrollView(aggressivePersonalityList, this);
   ScrollView *conditionalExperimentalPanel = new ScrollView(conditionalExperimentalList, this);
   ScrollView *curveSpeedPanel = new ScrollView(curveSpeedList, this);
@@ -38,6 +40,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
   ScrollView *standardPersonalityPanel = new ScrollView(standardPersonalityList, this);
   ScrollView *trafficPersonalityPanel = new ScrollView(trafficPersonalityList, this);
 
+  longitudinalLayout->addWidget(advancedLongitudinalTunePanel);
   longitudinalLayout->addWidget(aggressivePersonalityPanel);
   longitudinalLayout->addWidget(conditionalExperimentalPanel);
   longitudinalLayout->addWidget(curveSpeedPanel);
@@ -53,6 +56,14 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
   longitudinalLayout->addWidget(trafficPersonalityPanel);
 
   const std::vector<std::tuple<QString, QString, QString, QString>> longitudinalToggles {
+    {"AdvancedLongitudinalTune", tr("Advanced Longitudinal Tuning"), tr("Advanced settings for customizing how openpilot handles acceleration and braking."), "../../frogpilot/assets/toggle_icons/icon_advanced_longitudinal_tune.png"},
+    {"LongitudinalActuatorDelay", longitudinalActuatorDelay != 0 ? QString(tr("Actuator Delay (Default: %1)")).arg(QString::number(longitudinalActuatorDelay, 'f', 2)) : tr("Actuator Delay"), tr("Delay before throttle or brake takes effect. Higher values smooth slow actuators but can feel laggy; lower values react quicker but may overshoot."), ""},
+    {"StartAccel", startAccel != 0 ? QString(tr("Start Acceleration (Default: %1)")).arg(QString::number(startAccel, 'f', 2)) : tr("Start Acceleration"), tr("Extra acceleration applied when pulling away from a stop. Increase for snappier launches at the cost of smoothness; decrease for gentler starts."), ""},
+    {"VEgoStarting", vEgoStarting != 0 ? QString(tr("Start Speed (Default: %1)")).arg(QString::number(vEgoStarting, 'f', 2)) : tr("Start Speed"), tr("Speed where openpilot begins to exit the stopped state. Higher values avoid creeping but may feel sluggish; lower values move sooner but risk creeping."), ""},
+    {"StopAccel", stopAccel != 0 ? QString(tr("Stop Acceleration (Default: %1)")).arg(QString::number(stopAccel, 'f', 2)) : tr("Stop Acceleration"), tr("Brake force applied to hold the vehicle still. Larger values prevent creeping on hills but might jerk to a stop. Smaller values can feel smoother but may allow rolling."), ""},
+    {"StoppingDecelRate", stoppingDecelRate != 0 ? QString(tr("Stopping Rate (Default: %1)")).arg(QString::number(stoppingDecelRate, 'f', 2)) : tr("Stopping Rate"), tr("How quickly braking ramps up when stopping. Faster rates shorten stopping distance but can be harsh; slower rates are smoother but need more room."), ""},
+    {"VEgoStopping", vEgoStopping != 0 ? QString(tr("Stop Speed (Default: %1)")).arg(QString::number(vEgoStopping, 'f', 2)) : tr("Stop Speed"), tr("Speed where openpilot beings to enter the stopped state. Higher values brake earlier for smoother stops but might stop too soon; lower values wait longer and can overshoot."), ""},
+
     {"ConditionalExperimental", tr("Conditional Experimental Mode"), tr("Automatically switch to <b>Experimental Mode</b> when set conditions are met."), "../../frogpilot/assets/toggle_icons/icon_conditional.png"},
     {"CESpeed", tr("Below"), tr("Switch to <b>Experimental Mode</b> when driving below this speed."), ""},
     {"CECurves", tr("Curve Detected Ahead"), tr("Switch to <b>Experimental Mode</b> when a curve is detected ahead. Useful for letting the model choose the appropriate speed for the curve."), ""},
@@ -116,7 +127,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     {"MaxDesiredAcceleration", tr("Maximum Acceleration Rate"), tr("Set a cap on how fast openpilot can accelerate."), ""},
     {"TacoTune", tr("\"Taco Bell Run\" Turn Speed Hack"), tr("The turn speed hack from comma’s 2022 \"Taco Bell Run\" drive. Designed to slow down when taking left/right turns for smoother turns."), ""},
 
-    {"QOLLongitudinal", tr("Quality of Life"), tr("Miscellaneous features to improve the acceleration and braking experience."), "../../frogpilot/assets/toggle_icons/quality_of_life.png"},
+    {"QOLLongitudinal", tr("Quality of Life"), tr("Miscellaneous features to improve the acceleration and braking experience."), "../../frogpilot/assets/toggle_icons/icon_quality_of_life.png"},
     {"CustomCruise", tr("Cruise Interval"), tr("The interval used when changing the cruise control speed."), ""},
     {"CustomCruiseLong", tr("Cruise Interval (Long Press)"), tr("The interval used when changing the cruise control speed while holding down the button for 0.5+ seconds."), ""},
     {"ForceStandstill", tr("Force Keep openpilot in the Standstill State"), tr("Keep openpilot in the standstill state until either the gas pedal or <b>resume</b> button is pressed."), ""},
@@ -138,13 +149,13 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     {"SLCMapboxFiller", tr("Use Mapbox as Fallback"), tr("Use <b>Mapbox</b> speed limit data when no other sources are available."), ""},
     {"SLCPriority", tr("Speed Limit Source Priority"), tr("Define the priority order for speed limit sources (<b>Dashboard</b>, <b>Map Data</b>, <b>Navigation</b>). Higher-priority sources override lower ones when multiple limits are detected."), ""},
     {"SLCOffsets", tr("Speed Limit Offsets"), tr("Offsets relative to the posted speed limit for a more \"human-like\" driving experience."), ""},
-    {"Offset1", tr("Speed Limit Offset (0–24 mph)"), tr("Target speed offset applied for posted limits between 0 and 24 mph."), ""},
-    {"Offset2", tr("Speed Limit Offset (25–34 mph)"), tr("Target speed offset applied for posted limits between 25 and 34 mph."), ""},
-    {"Offset3", tr("Speed Limit Offset (35–44 mph)"), tr("Target speed offset applied for posted limits between 35 and 44 mph."), ""},
-    {"Offset4", tr("Speed Limit Offset (45–54 mph)"), tr("Target speed offset applied for posted limits between 45 and 54 mph."), ""},
-    {"Offset5", tr("Speed Limit Offset (55–64 mph)"), tr("Target speed offset applied for posted limits between 55 and 64 mph."), ""},
-    {"Offset6", tr("Speed Limit Offset (65–74 mph)"), tr("Target speed offset applied for posted limits between 65 and 74 mph."), ""},
-    {"Offset7", tr("Speed Limit Offset (75–99 mph)"), tr("Target speed offset applied for posted limits between 75 and 99 mph."), ""},
+    {"Offset1", tr("Speed Offset (0–24 mph)"), tr("Target speed offset applied for posted limits between 0 and 24 mph."), ""},
+    {"Offset2", tr("Speed Offset (25–34 mph)"), tr("Target speed offset applied for posted limits between 25 and 34 mph."), ""},
+    {"Offset3", tr("Speed Offset (35–44 mph)"), tr("Target speed offset applied for posted limits between 35 and 44 mph."), ""},
+    {"Offset4", tr("Speed Offset (45–54 mph)"), tr("Target speed offset applied for posted limits between 45 and 54 mph."), ""},
+    {"Offset5", tr("Speed Offset (55–64 mph)"), tr("Target speed offset applied for posted limits between 55 and 64 mph."), ""},
+    {"Offset6", tr("Speed Offset (65–74 mph)"), tr("Target speed offset applied for posted limits between 65 and 74 mph."), ""},
+    {"Offset7", tr("Speed Offset (75–99 mph)"), tr("Target speed offset applied for posted limits between 75 and 99 mph."), ""},
     {"SLCVisuals", tr("Visual Settings"), tr("Visual features to improve the <b>Speed Limit Controller</b> experience."), ""},
     {"ShowSLCOffset", tr("Show Speed Limit Offset"), tr("Display the speed limit offset separately on the driving screen."), ""},
     {"SpeedLimitSources", tr("Show Speed Limit Sources"), tr("Display the speed limit sources on the driving screen."), ""}
@@ -153,15 +164,40 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
   for (const auto &[param, title, desc, icon] : longitudinalToggles) {
     AbstractControl *longitudinalToggle;
 
-    if (param == "ConditionalExperimental") {
+    if (param == "AdvancedLongitudinalTune") {
+      FrogPilotManageControl *advancedLongitudinalTuneToggle = new FrogPilotManageControl(param, title, desc, icon);
+      QObject::connect(advancedLongitudinalTuneToggle, &FrogPilotManageControl::manageButtonClicked, [longitudinalLayout, advancedLongitudinalTunePanel]() {
+        longitudinalLayout->setCurrentWidget(advancedLongitudinalTunePanel);
+      });
+      longitudinalToggle = advancedLongitudinalTuneToggle;
+    } else if (param == "LongitudinalActuatorDelay") {
+      longitudinalActuatorDelayToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 1, tr(" seconds"), std::map<float, QString>(), 0.01);
+      longitudinalToggle = longitudinalActuatorDelayToggle;
+    } else if (param == "StartAccel") {
+      startAccelToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 4, tr(" m/s²"), std::map<float, QString>(), 0.01, true);
+      longitudinalToggle = startAccelToggle;
+    } else if (param == "VEgoStarting") {
+      vEgoStartingToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.01, 1, tr(" m/s²"), std::map<float, QString>(), 0.01);
+      longitudinalToggle = vEgoStartingToggle;
+    } else if (param == "StopAccel") {
+      stopAccelToggle = new FrogPilotParamValueControl(param, title, desc, icon, -4, 0, tr(" m/s²"), std::map<float, QString>(), 0.01, true);
+      longitudinalToggle = stopAccelToggle;
+    } else if (param == "StoppingDecelRate") {
+      stoppingDecelRateToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.001, 1, tr(" m/s²"), std::map<float, QString>(), 0.001, true);
+      longitudinalToggle = stoppingDecelRateToggle;
+    } else if (param == "VEgoStopping") {
+      vEgoStoppingToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.01, 1, tr(" m/s²"), std::map<float, QString>(), 0.01);
+      longitudinalToggle = vEgoStoppingToggle;
+
+    } else if (param == "ConditionalExperimental") {
       FrogPilotManageControl *conditionalExperimentalToggle = new FrogPilotManageControl(param, title, desc, icon);
       QObject::connect(conditionalExperimentalToggle, &FrogPilotManageControl::manageButtonClicked, [longitudinalLayout, conditionalExperimentalPanel]() {
         longitudinalLayout->setCurrentWidget(conditionalExperimentalPanel);
       });
       longitudinalToggle = conditionalExperimentalToggle;
     } else if (param == "CESpeed") {
-      FrogPilotParamValueControl *CESpeed = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr(" mph"), std::map<float, QString>(), 1, true, true);
-      FrogPilotParamValueControl *CESpeedLead = new FrogPilotParamValueControl("CESpeedLead", tr("With Lead"), tr("Switch to <b>Experimental Mode</b> when driving below this speed with a lead."), icon, 0, 99, tr(" mph"), std::map<float, QString>(), 1, true, true);
+      FrogPilotParamValueControl *CESpeed = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr(" mph"), std::map<float, QString>(), 1, true, 175);
+      FrogPilotParamValueControl *CESpeedLead = new FrogPilotParamValueControl("CESpeedLead", tr("With Lead"), tr("Switch to <b>Experimental Mode</b> when driving below this speed with a lead."), icon, 0, 99, tr(" mph"), std::map<float, QString>(), 1, true, 175);
       FrogPilotDualParamValueControl *conditionalSpeeds = new FrogPilotDualParamValueControl(CESpeed, CESpeedLead);
       longitudinalToggle = reinterpret_cast<AbstractControl*>(conditionalSpeeds);
     } else if (param == "CECurves") {
@@ -181,10 +217,10 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       for (int i = 0; i <= 10; ++i) {
         stopTimeLabels[i] = i == 0 ? tr("Off") : i == 1 ? QString::number(i) + tr(" second") : QString::number(i) + tr(" seconds");
       }
-      longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 10, QString(), stopTimeLabels);
+      longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 9, QString(), stopTimeLabels);
     } else if (param == "CESignalSpeed") {
       std::vector<QString> ceSignalToggles{"CESignalLaneDetection"};
-      std::vector<QString> ceSignalToggleNames{"Only For Detected Lanes"};
+      std::vector<QString> ceSignalToggleNames{tr("Only For Detected Lanes")};
       longitudinalToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 0, 99, tr(" mph"), std::map<float, QString>(), 1.0, true, ceSignalToggles, ceSignalToggleNames, true);
 
     } else if (param == "CurveSpeedControl") {
@@ -438,7 +474,9 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
 
     toggles[param] = longitudinalToggle;
 
-    if (aggressivePersonalityKeys.find(param) != aggressivePersonalityKeys.end()) {
+    if (advancedLongitudinalTuneKeys.find(param) != advancedLongitudinalTuneKeys.end()) {
+      advancedLongitudinalTuneList->addItem(longitudinalToggle);
+    } else if (aggressivePersonalityKeys.find(param) != aggressivePersonalityKeys.end()) {
       aggressivePersonalityList->addItem(longitudinalToggle);
     } else if (conditionalExperimentalKeys.find(param) != conditionalExperimentalKeys.end()) {
       conditionalExperimentalList->addItem(longitudinalToggle);
@@ -477,6 +515,11 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     QObject::connect(longitudinalToggle, &AbstractControl::showDescriptionEvent, [this]() {
       update();
     });
+  }
+
+  std::set<QString> forceUpdateKeys = {"HumanAcceleration", "LongitudinalTune"};
+  for (const QString &key : forceUpdateKeys) {
+    QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, this, &FrogPilotLongitudinalPanel::updateToggles);
   }
 
   FrogPilotParamValueControl *trafficFollowToggle = static_cast<FrogPilotParamValueControl*>(toggles["TrafficFollow"]);
@@ -602,7 +645,20 @@ void FrogPilotLongitudinalPanel::showEvent(QShowEvent *event) {
   isHKGCanFd = parent->isHKGCanFd;
   isToyota = parent->isToyota;
   isTSK = parent->isTSK;
+  longitudinalActuatorDelay = parent->longitudinalActuatorDelay;
+  startAccel = parent->startAccel;
+  stopAccel = parent->stopAccel;
+  stoppingDecelRate = parent->stoppingDecelRate;
   tuningLevel = parent->tuningLevel;
+  vEgoStarting = parent->vEgoStarting;
+  vEgoStopping = parent->vEgoStopping;
+
+  longitudinalActuatorDelayToggle->setTitle(QString(tr("Actuator Delay (Default: %1)")).arg(QString::number(longitudinalActuatorDelay, 'f', 2)));
+  startAccelToggle->setTitle(QString(tr("Start Acceleration (Default: %1)")).arg(QString::number(startAccel, 'f', 2)));
+  stopAccelToggle->setTitle(QString(tr("Stop Acceleration (Default: %1)")).arg(QString::number(stopAccel, 'f', 2)));
+  stoppingDecelRateToggle->setTitle(QString(tr("Stopping Rate (Default: %1)")).arg(QString::number(stoppingDecelRate, 'f', 2)));
+  vEgoStartingToggle->setTitle(QString(tr("Start Speed (Default: %1)")).arg(QString::number(vEgoStarting, 'f', 2)));
+  vEgoStoppingToggle->setTitle(QString(tr("Stop Speed (Default: %1)")).arg(QString::number(vEgoStopping, 'f', 2)));
 
   updateToggles();
 }
@@ -672,13 +728,13 @@ void FrogPilotLongitudinalPanel::updateMetric(bool metric, bool bootRun) {
   FrogPilotParamValueControl *setSpeedOffsetToggle = static_cast<FrogPilotParamValueControl*>(toggles["SetSpeedOffset"]);
 
   if (metric) {
-    offset1Toggle->setTitle(tr("Speed Limit Offset (0–29 km/h)"));
-    offset2Toggle->setTitle(tr("Speed Limit Offset (30–49 km/h)"));
-    offset3Toggle->setTitle(tr("Speed Limit Offset (50–59 km/h)"));
-    offset4Toggle->setTitle(tr("Speed Limit Offset (60–79 km/h)"));
-    offset5Toggle->setTitle(tr("Speed Limit Offset (80–99 km/h)"));
-    offset6Toggle->setTitle(tr("Speed Limit Offset (100–119 km/h)"));
-    offset7Toggle->setTitle(tr("Speed Limit Offset (120–140 km/h)"));
+    offset1Toggle->setTitle(tr("Speed Offset (0–29 km/h)"));
+    offset2Toggle->setTitle(tr("Speed Offset (30–49 km/h)"));
+    offset3Toggle->setTitle(tr("Speed Offset (50–59 km/h)"));
+    offset4Toggle->setTitle(tr("Speed Offset (60–79 km/h)"));
+    offset5Toggle->setTitle(tr("Speed Offset (80–99 km/h)"));
+    offset6Toggle->setTitle(tr("Speed Offset (100–119 km/h)"));
+    offset7Toggle->setTitle(tr("Speed Offset (120–140 km/h)"));
 
     offset1Toggle->setDescription(tr("Target speed offset applied for posted limits between 0 and 29 km/h."));
     offset2Toggle->setDescription(tr("Target speed offset applied for posted limits between 30 and 49 km/h."));
@@ -703,13 +759,13 @@ void FrogPilotLongitudinalPanel::updateMetric(bool metric, bool bootRun) {
     offset7Toggle->updateControl(-150, 150, metricSpeedLabels);
     setSpeedOffsetToggle->updateControl(-150, 150, metricSpeedLabels);
   } else {
-    offset1Toggle->setTitle(tr("Speed Limit Offset (0–24 mph)"));
-    offset2Toggle->setTitle(tr("Speed Limit Offset (25–34 mph)"));
-    offset3Toggle->setTitle(tr("Speed Limit Offset (35–44 mph)"));
-    offset4Toggle->setTitle(tr("Speed Limit Offset (45–54 mph)"));
-    offset5Toggle->setTitle(tr("Speed Limit Offset (55–64 mph)"));
-    offset6Toggle->setTitle(tr("Speed Limit Offset (65–74 mph)"));
-    offset7Toggle->setTitle(tr("Speed Limit Offset (75–99 mph)"));
+    offset1Toggle->setTitle(tr("Speed Offset (0–24 mph)"));
+    offset2Toggle->setTitle(tr("Speed Offset (25–34 mph)"));
+    offset3Toggle->setTitle(tr("Speed Offset (35–44 mph)"));
+    offset4Toggle->setTitle(tr("Speed Offset (45–54 mph)"));
+    offset5Toggle->setTitle(tr("Speed Offset (55–64 mph)"));
+    offset6Toggle->setTitle(tr("Speed Offset (65–74 mph)"));
+    offset7Toggle->setTitle(tr("Speed Offset (75–99 mph)"));
 
     offset1Toggle->setDescription(tr("Target speed offset applied for posted limits between 0 and 24 mph."));
     offset2Toggle->setDescription(tr("Target speed offset applied for posted limits between 25 and 34 mph."));
@@ -758,31 +814,42 @@ void FrogPilotLongitudinalPanel::updateToggles() {
       setVisible &= !hasPCMCruise;
     }
 
-    if (key == "ForceMPHDashboard") {
+    else if (key == "ForceMPHDashboard") {
       setVisible &= isToyota;
     }
 
-    if (key == "MapGears") {
+    else if (key == "MapGears") {
       setVisible &= isGM || isHKGCanFd || isToyota;
       setVisible &= !isTSK;
     }
 
-    if (key == "MTSCCurvatureCheck") {
+    else if (key == "MTSCCurvatureCheck") {
       setVisible &= params.getBool("MapTurnControl");
     }
 
-    if (key == "ReverseCruise") {
+    else if (key == "ReverseCruise") {
       setVisible &= isToyota;
     }
 
-    if (key == "SLCMapboxFiller") {
-      setVisible &= !params_cache.get("MapboxSecretKey").empty();
+    else if (key == "SLCMapboxFiller") {
+      setVisible &= !params.get("MapboxSecretKey").empty();
+    }
+
+    else if (key == "StartAccel") {
+      setVisible &= !(params.getBool("LongitudinalTune") && params.getBool("HumanAcceleration"));
+    }
+
+    else if (key == "StoppingDecelRate" || key == "VEgoStarting" || key == "VEgoStopping") {
+      setVisible &= !isGM || !params.getBool("ExperimentalGMTune");
+      setVisible &= !isToyota || !params.getBool("FrogsGoMoosTweak");
     }
 
     toggle->setVisible(setVisible);
 
     if (setVisible) {
-      if (aggressivePersonalityKeys.find(key) != aggressivePersonalityKeys.end()) {
+      if (advancedLongitudinalTuneKeys.find(key) != advancedLongitudinalTuneKeys.end()) {
+        toggles["AdvancedLongitudinalTune"]->setVisible(true);
+      } else if (aggressivePersonalityKeys.find(key) != aggressivePersonalityKeys.end()) {
         toggles["AggressivePersonalityProfile"]->setVisible(true);
       } else if (conditionalExperimentalKeys.find(key) != conditionalExperimentalKeys.end()) {
         toggles["ConditionalExperimental"]->setVisible(true);

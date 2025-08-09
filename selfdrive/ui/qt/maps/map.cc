@@ -154,6 +154,8 @@ void MapWindow::initLayers() {
     m_map->setPaintProperty("buildingsLayer", "fill-extrusion-base", fillExtrusionBase);
     m_map->setLayoutProperty("buildingsLayer", "visibility", "visible");
   }
+
+  updateFavoritesMarkers();
 }
 
 void MapWindow::updateState(const UIState &s) {
@@ -294,6 +296,8 @@ void MapWindow::updateState(const UIState &s) {
     updateDestinationMarker();
   }
 
+  // FrogPilot variables
+
   // Credit to jakethesnake420
   if (loaded_once && (sm.rcv_frame("uiPlan") != model_rcv_frame)) {
     auto locationd_location = sm["liveLocationKalman"].getLiveLocationKalman();
@@ -306,9 +310,37 @@ void MapWindow::updateState(const UIState &s) {
     model_rcv_frame = sm.rcv_frame("uiPlan");
   }
 
-  // Map Styling - Credit goes to OPKR!
-  int map_style = frogpilotUIState()->frogpilot_toggles.value("map_style").toInt();
+  if (!m_map->layerExists("favoritesPinLayer")) {
+    m_map->addImage("favorite_marker", QImage("../assets/navigation/icon_favorite.svg"));
+    m_map->addLayer("favoritesPinLayer", QVariantMap{{"type", "symbol"}, {"source", "favoritesPinSource"}});
+    m_map->setLayoutProperty("favoritesPinLayer", "icon-allow-overlap", true);
+    m_map->setLayoutProperty("favoritesPinLayer", "icon-anchor", "center");
+    m_map->setLayoutProperty("favoritesPinLayer", "icon-image", "favorite_marker");
+    m_map->setLayoutProperty("favoritesPinLayer", "icon-size", 0.25);
+  }
 
+  if (!m_map->layerExists("homePinLayer")) {
+    m_map->addImage("home_marker", QImage("../assets/navigation/icon_home.svg"));
+    m_map->addLayer("homePinLayer", QVariantMap{{"type", "symbol"}, {"source", "homePinSource"}});
+    m_map->setLayoutProperty("homePinLayer", "icon-allow-overlap",  true);
+    m_map->setLayoutProperty("homePinLayer", "icon-anchor", "center");
+    m_map->setLayoutProperty("homePinLayer", "icon-image", "home_marker");
+    m_map->setLayoutProperty("homePinLayer", "icon-size", 0.25);
+  }
+
+  if (!m_map->layerExists("workPinLayer")) {
+    m_map->addImage("work_marker", QImage("../assets/navigation/icon_work.svg"));
+    m_map->addLayer("workPinLayer", QVariantMap{{"type", "symbol"}, {"source", "workPinSource"}});
+    m_map->setLayoutProperty("workPinLayer", "icon-allow-overlap", true);
+    m_map->setLayoutProperty("workPinLayer", "icon-anchor", "center");
+    m_map->setLayoutProperty("workPinLayer", "icon-image", "work_marker");
+    m_map->setLayoutProperty("workPinLayer", "icon-size", 0.25);
+  }
+
+  // Map Styling - Credit goes to OPKR!
+  static int previous_map_style = 0;
+
+  int map_style = frogpilotUIState()->frogpilot_toggles.value("map_style").toInt();
   if (map_style != previous_map_style) {
     std::array<std::string, 12> styleUrls = {
       "mapbox://styles/commaai/clkqztk0f00ou01qyhsa5bzpj",     // Stock openpilot
@@ -327,7 +359,6 @@ void MapWindow::updateState(const UIState &s) {
 
     m_map->setStyleUrl(QString::fromStdString(styleUrls[map_style]));
   }
-
   previous_map_style = map_style;
 }
 
@@ -482,5 +513,96 @@ void MapWindow::updateDestinationMarker() {
     m_map->setPaintProperty("pinLayer", "visibility", "visible");
   } else {
     m_map->setPaintProperty("pinLayer", "visibility", "none");
+  }
+}
+
+// FrogPilot functions
+void MapWindow::updateFavoritesMarkers() {
+  std::string favorites_param = Params().get("FavoriteDestinations");
+  if (favorites_param.empty()) {
+    m_map->setLayoutProperty("favoritesPinLayer", "visibility", "none");
+    m_map->setLayoutProperty("homePinLayer", "visibility", "none");
+    m_map->setLayoutProperty("workPinLayer", "visibility", "none");
+    return;
+  }
+
+  QJsonDocument doc = QJsonDocument::fromJson(QByteArray::fromStdString(favorites_param));
+  if (!doc.isArray()) {
+    m_map->setLayoutProperty("favoritesPinLayer", "visibility", "none");
+    m_map->setLayoutProperty("homePinLayer", "visibility", "none");
+    m_map->setLayoutProperty("workPinLayer", "visibility", "none");
+    return;
+  }
+
+  QJsonArray favorites = doc.array();
+
+  QVariantList favorite_features;
+  std::optional<QMapLibre::Coordinate> home_coordinates;
+  std::optional<QMapLibre::Coordinate> work_coordinates;
+
+  for (const QJsonValue &value : favorites) {
+    QJsonObject favorite = value.toObject();
+    if (favorite.contains("latitude") && favorite.contains("longitude")) {
+      double latitude = favorite["latitude"].toDouble();
+      double longitude = favorite["longitude"].toDouble();
+
+      if (favorite.contains("is_home") && favorite["is_home"].toBool()) {
+        home_coordinates = QMapLibre::Coordinate(latitude, longitude);
+      } else if (favorite.contains("is_work") && favorite["is_work"].toBool()) {
+        work_coordinates = QMapLibre::Coordinate(latitude, longitude);
+      } else {
+        QVariantMap feature;
+        feature["type"] = "Feature";
+
+        QVariantMap geometry;
+        geometry["type"] = "Point";
+        geometry["coordinates"] = QVariantList{ longitude, latitude };
+        feature["geometry"] = geometry;
+
+        QVariantMap properties;
+        if (favorite.contains("name")) {
+          properties["name"] = favorite["name"].toString();
+        }
+        if (favorite.contains("routeId")) {
+          properties["routeId"] = favorite["routeId"].toString();
+        }
+        feature["properties"] = properties;
+
+        favorite_features.append(feature);
+      }
+    }
+  }
+
+  if (favorite_features.isEmpty()) {
+    m_map->setLayoutProperty("favoritesPinLayer", "visibility", "none");
+  } else {
+    QVariantMap feature_collection;
+    feature_collection["type"] = "FeatureCollection";
+    feature_collection["features"] = favorite_features;
+
+    QJsonDocument geojson_doc = QJsonDocument::fromVariant(feature_collection);
+    QByteArray geojson_bytes = geojson_doc.toJson(QJsonDocument::Compact);
+
+    QVariantMap source;
+    source["type"] = "geojson";
+    source["data"] = geojson_bytes;
+    m_map->updateSource("favoritesPinSource", source);
+    m_map->setLayoutProperty("favoritesPinLayer", "visibility", "visible");
+  }
+
+  if (home_coordinates.has_value()) {
+    QMapLibre::Feature feature(QMapLibre::Feature::PointType, coordinate_to_collection(*home_coordinates), QVariantMap(), QVariantMap());
+    m_map->updateSource("homePinSource", QVariantMap{{"type", "geojson"}, {"data", QVariant::fromValue<QMapLibre::Feature>(feature)}});
+    m_map->setLayoutProperty("homePinLayer", "visibility", "visible");
+  } else {
+    m_map->setLayoutProperty("homePinLayer", "visibility", "none");
+  }
+
+  if (work_coordinates.has_value()) {
+    QMapLibre::Feature feature(QMapLibre::Feature::PointType, coordinate_to_collection(*work_coordinates), QVariantMap(), QVariantMap());
+    m_map->updateSource("workPinSource", QVariantMap{{"type", "geojson"}, {"data", QVariant::fromValue<QMapLibre::Feature>(feature)}});
+    m_map->setLayoutProperty("workPinLayer", "visibility", "visible");
+  } else {
+    m_map->setLayoutProperty("workPinLayer", "visibility", "none");
   }
 }

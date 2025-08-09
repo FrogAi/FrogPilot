@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import hashlib
 import json
 import math
 import os
@@ -18,7 +19,7 @@ from openpilot.selfdrive.navd.helpers import (Coordinate, coordinate_from_param,
                                     parse_banner_instructions)
 from openpilot.common.swaglog import cloudlog
 
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles, params_cache
+from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
 
 REROUTE_DISTANCE = 25
 MANEUVER_TRANSITION_THRESHOLD = 10
@@ -58,7 +59,7 @@ class RouteEngine:
       self.mapbox_token = os.environ["MAPBOX_TOKEN"]
       self.mapbox_host = "https://api.mapbox.com"
     else:
-      self.mapbox_token = params_cache.get("MapboxSecretKey", encoding='utf8')
+      self.mapbox_token = self.params.get("MapboxSecretKey", encoding='utf8')
       self.mapbox_host = "https://api.mapbox.com"
 
     # FrogPilot variables
@@ -150,7 +151,7 @@ class RouteEngine:
       'overview': 'full',
       'steps': 'true',
       'banner_instructions': 'true',
-      'alternatives': 'false',
+      'alternatives': 'true',
       'language': lang,
     }
 
@@ -179,6 +180,7 @@ class RouteEngine:
 
       r = resp.json()
       r1 = resp.json()
+      chosen_route = r['routes'][0]
 
       # Function to remove specified keys recursively unnessary for display
       def remove_keys(obj, keys_to_remove):
@@ -199,6 +201,18 @@ class RouteEngine:
         nav_destination_json = self.params.get('NavDestination')
 
         try:
+          route_hash = json.loads(nav_destination_json).get('routeHash')
+        except Exception:
+          route_hash = None
+
+        if route_hash:
+          for cand in r['routes']:
+            flat = ','.join(str(coordinate) for pair in cand['geometry']['coordinates'] for coordinate in pair)
+            if hashlib.sha1(flat.encode()).hexdigest() == route_hash:
+              chosen_route = cand
+              break
+
+        try:
           nav_destination_data = json.loads(nav_destination_json)
           place_name = nav_destination_data.get('place_name', 'Default Place Name')
           first_route['Destination'] = place_name
@@ -215,7 +229,7 @@ class RouteEngine:
         json.dump(self.r3, json_file, indent=4)
 
       if len(r['routes']):
-        self.route = r['routes'][0]['legs'][0]['steps']
+        self.route = chosen_route['legs'][0]['steps']
         self.route_geometry = []
 
         # Iterate through the steps in self.route to find "stop_sign" and "traffic_light"
@@ -230,7 +244,7 @@ class RouteEngine:
                 self.stop_coord.append(Coordinate.from_mapbox_tuple(intersection["location"]))
 
         maxspeed_idx = 0
-        maxspeeds = r['routes'][0]['legs'][0]['annotation']['maxspeed']
+        maxspeeds = chosen_route['legs'][0]['annotation']['maxspeed']
 
         # Convert coordinates
         for step in self.route:

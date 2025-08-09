@@ -44,6 +44,7 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
       params_memory.putBool("ForceOnroad", true);
 
       params.put("CarParams", params.get("CarParamsPersistent"));
+      params.put("FrogPilotCarParams", params.get("FrogPilotCarParamsPersistent"));
 
       updateFrogPilotToggles();
 
@@ -52,6 +53,7 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
       }
 
       params.put("CarParams", params.get("CarParamsPersistent"));
+      params.put("FrogPilotCarParams", params.get("FrogPilotCarParamsPersistent"));
     } else if (id == 2) {
       params_memory.putBool("ForceOffroad", false);
       params_memory.putBool("ForceOnroad", false);
@@ -69,23 +71,52 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
       return;
     }
 
-    QStringList report_messages = {
-      tr("I saw an alert that said \"openpilot crashed\""),
-      tr("I'm noticing harsh acceleration"),
-      tr("I'm noticing harsh braking"),
-      tr("I'm noticing unusual steering"),
-      tr("My car isn't staying in its lane"),
-      tr("Something else")
+    QStringList report_messages;
+    QString crash_report = tr("I saw an alert that said \"openpilot crashed\"");
+    if (QFile::exists("/data/error_logs/error.txt")) {
+      report_messages << crash_report;
+    }
+    QStringList additional_issues = {
+      tr("Acceleration feels too harsh or jerky"),
+      tr("An alert confused me and I didn’t know what it meant"),
+      tr("Braking is too sudden or uncomfortable"),
+      tr("I’m not sure if this is normal or a bug:"),
+      tr("Lane changes don’t work properly or feel unsafe"),
+      tr("My screen froze or got stuck on loading"),
+      tr("My steering wheel buttons aren’t working"),
+      tr("openpilot disengages when I don't expect it"),
+      tr("openpilot doesn’t resume after I stop"),
+      tr("openpilot doesn't react to stopped vehicles ahead"),
+      tr("openpilot feels sluggish or slow to respond"),
+      tr("Steering feels twitchy or unnatural"),
+      tr("The car doesn’t follow curves well"),
+      tr("The car isn’t staying centered in its lane"),
+      tr("The speed or display info looks wrong"),
+      tr("Something else (please describe)")
     };
+    report_messages.append(additional_issues);
+
+    QMap<QString, bool> needs_extra_input;
+    for (const QString &issue : report_messages) {
+      if (issue.contains("confused") ||
+          issue.contains("crashed") ||
+          issue.contains("not sure") ||
+          issue.contains("Something else")) {
+        needs_extra_input[issue] = true;
+      }
+    }
 
     QString selected_issue = MultiOptionDialog::getSelection(tr("What's going on?"), report_messages, "", this);
     if (selected_issue.isEmpty()) {
       return;
-    } else if (selected_issue == "Something else") {
-      selected_issue = InputDialog::getText(tr("Please describe what's happening"), this, tr("Send Report"), false, 10, "", 100).trimmed();
-      if (selected_issue.isEmpty()) {
+    }
+
+    if (needs_extra_input.value(selected_issue, false)) {
+      QString extra_input = InputDialog::getText(tr("Please describe what's happening"), this, tr("Send Report"), false, 10, "", 300).trimmed();
+      if (extra_input.isEmpty()) {
         return;
       }
+      selected_issue += " — " + extra_input;
     }
 
     QJsonObject reportData;
@@ -98,7 +129,7 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
     ConfirmationDialog::alert(tr("Your report has been submitted. Thanks for letting us know!"), this);
   });
   addItem(reportIssueBtn);
-  reportIssueBtn->setVisible(params.get("GitRemote") == "https://github.com/FrogAi/openpilot.git");
+  reportIssueBtn->setVisible(QString::fromStdString(params.get("GitRemote")).toLower() == "https://github.com/frogai/openpilot.git");
 
   ButtonControl *resetTogglesBtn = new ButtonControl(tr("Reset Toggles to Default"), tr("RESET"), tr("Reset all toggles to their default values."));
   QObject::connect(resetTogglesBtn, &ButtonControl::clicked, [this, parent, resetTogglesBtn]() {

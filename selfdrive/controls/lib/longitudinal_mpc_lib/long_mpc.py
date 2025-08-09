@@ -305,7 +305,7 @@ class LongitudinalMpc:
     elif self.mode == 'blended':
       a_change_cost = 40.0 if prev_accel_constraint else 0
       cost_weights = [0., 0.1, 0.2, 5.0, a_change_cost, 1.0]
-      constraint_cost_weights = [LIMIT_COST, LIMIT_COST, LIMIT_COST, 50.0]
+      constraint_cost_weights = [LIMIT_COST, LIMIT_COST, LIMIT_COST, danger_jerk]
     else:
       raise NotImplementedError(f'Planner mode {self.mode} not recognized in planner cost set')
     self.set_cost_weights(cost_weights, constraint_cost_weights)
@@ -326,9 +326,9 @@ class LongitudinalMpc:
     lead_xv = np.column_stack((x_lead_traj, v_lead_traj))
     return lead_xv
 
-  def process_lead(self, lead):
+  def process_lead(self, lead, tracking_lead=True):
     v_ego = self.x0[1]
-    if lead is not None and lead.status:
+    if lead is not None and lead.status and tracking_lead:
       x_lead = lead.dRel
       v_lead = lead.vLead
       a_lead = lead.aLeadK
@@ -355,11 +355,11 @@ class LongitudinalMpc:
     self.cruise_min_a = min_a
     self.max_a = max_a
 
-  def update(self, lead_one, lead_two, v_cruise, x, v, a, j, t_follow, trafficMode, personality=log.LongitudinalPersonality.standard):
+  def update(self, lead_one, lead_two, v_cruise, x, v, a, j, t_follow, tracking_lead, personality=log.LongitudinalPersonality.standard):
     v_ego = self.x0[1]
-    self.status = lead_one.status or lead_two.status
+    self.status = lead_one.status and tracking_lead or lead_two.status
 
-    lead_xv_0 = self.process_lead(lead_one)
+    lead_xv_0 = self.process_lead(lead_one, tracking_lead)
     lead_xv_1 = self.process_lead(lead_two)
 
     # To estimate a safe distance from a moving lead, we calculate how much stopping

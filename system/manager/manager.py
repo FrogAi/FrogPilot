@@ -56,7 +56,7 @@ def manager_init() -> None:
   # set unset params
   reset_toggles = params.get_bool("DoToggleReset")
   reset_toggles_stock = params.get_bool("DoToggleResetStock")
-  for k, v in default_params + [(k, v) for k, v, _, stock in frogpilot_default_params]:
+  for k, v, stock in [(k, v, v) for k, v in default_params] + [(k, v, stock) for k, v, _, stock in frogpilot_default_params]:
     if params.get(k) is None or reset_toggles or reset_toggles_stock:
       if params_cache.get(k) is None or reset_toggles or reset_toggles_stock:
         params.put(k, v if not reset_toggles_stock else stock)

@@ -29,7 +29,7 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
     {"DeviceShutdown", tr("Device Shutdown Timer"), tr("How long the device stays on for after you go offroad."), ""},
     {"NoLogging", tr("Disable Data Logging"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This will prevent your drives from being recorded and all data will be unobtainable!")).arg(tr("Disable all data logging to improve privacy.")), ""},
     {"NoUploads", tr("Disable Data Uploads"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This will prevent your drives from appearing on <b>comma connect</b> which may impact debugging and support!")).arg(tr("Prevent the device from sending any data to <b>comma</b>'s servers.")), ""},
-    {"OfflineMode", tr("Disable Internet Requirement"), tr("Allow the device to work indefinitely without an internet connection."), ""},
+    {"HigherBitrate", tr("High Bitrate Recording"), tr("Record driving footage at double the standard bitrate for improved video quality in driving logs."), ""},
     {"IncreaseThermalLimits", tr("Increase Thermal Safety Limit"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This can damage your device by exceeding safe temperature limits!")).arg(tr("Allow the device to run hotter than comma recommended limit.")), ""},
     {"UseKonikServer", tr("Use Konik's Server Instead of comma's"), tr("Upload your driving data to <b>connect.konik.ai</b> instead of <b>connect.comma.ai</b>."), ""},
 
@@ -84,7 +84,7 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
       deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, minBrightness, 101, QString(), brightnessLabels, 1, true);
     } else if (param == "ScreenRecorder") {
       std::vector<QString> recorderButtonNames{tr("Start Recording"), tr("Stop Recording")};
-      FrogPilotButtonControl *recorderToggle = new FrogPilotButtonControl(param, title, desc, icon, recorderButtonNames);
+      FrogPilotButtonControl *recorderToggle = new FrogPilotButtonControl(param, title, desc, icon, recorderButtonNames, true);
       QObject::connect(recorderToggle, &FrogPilotButtonControl::buttonClicked, [recorderToggle, screenRecorder](int id) {
         if (id == 0) {
           recorderToggle->setCheckedButton(1);
@@ -148,11 +148,19 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
     });
   }
 
-  std::set<QString> rebootKeys = {"UseKonikServer"};
+  std::set<QString> forceUpdateKeys = {"NoUploads"};
+  for (const QString &key : forceUpdateKeys) {
+    QObject::connect(static_cast<FrogPilotButtonToggleControl*>(toggles[key]), &FrogPilotButtonToggleControl::buttonClicked, this, &FrogPilotDevicePanel::updateToggles);
+    QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, this, &FrogPilotDevicePanel::updateToggles);
+  }
+
+  std::set<QString> rebootKeys = {"HigherBitrate", "UseKonikServer"};
   for (const QString &key : rebootKeys) {
     QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, [this, key](bool state) {
       QString filePath;
-      if (key == "UseKonikServer") {
+      if (key == "HigherBitrate") {
+        filePath = "/cache/use_HD";
+      } else if (key == "UseKonikServer") {
         filePath = "/cache/use_konik";
       }
 
@@ -209,7 +217,11 @@ void FrogPilotDevicePanel::updateToggles() {
 
     bool setVisible = tuningLevel >= frogpilotToggleLevels[key].toDouble();
 
-    if (key == "UseKonikServer" && QFile("/data/not_vetted").exists()) {
+    if (key == "HigherBitrate") {
+      setVisible &= params.getBool("DeviceManagement") && params.getBool("NoUploads") && !params.getBool("DisableOnroadUploads");
+    }
+
+    else if (key == "UseKonikServer" && QFile("/data/not_vetted").exists()) {
       static_cast<ToggleControl*>(toggle)->forceOn(true);
     }
 

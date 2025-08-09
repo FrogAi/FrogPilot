@@ -1,5 +1,5 @@
 from cereal import car
-from openpilot.selfdrive.car.chrysler.values import RAM_CARS, ChryslerFlags, ChryslerFrogPilotFlags
+from openpilot.selfdrive.car.chrysler.values import RAM_CARS
 
 GearShifter = car.CarState.GearShifter
 VisualAlert = car.CarControl.HUDControl.VisualAlert
@@ -63,11 +63,10 @@ def create_lkas_command(packer, CP, apply_steer, lkas_control_bit):
   return packer.make_can_msg("LKAS_COMMAND", 0, values)
 
 
-def create_cruise_buttons(packer, CP, FPCP, frame, bus, cancel=False, resume=False):
+def create_cruise_buttons(packer, frame, bus, button_message, cancel=False, resume=False):
   values = {
     "ACC_Cancel": cancel,
     "ACC_Resume": resume,
     "COUNTER": frame % 0x10,
   }
-  button_message = "CRUISE_BUTTONS_ALT" if FPCP.fpFlags & ChryslerFrogPilotFlags.RAM_HD_ALT_BUTTONS else "CRUISE_BUTTONS"
   return packer.make_can_msg(button_message, bus, values)

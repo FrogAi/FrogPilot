@@ -24,6 +24,7 @@ private:
   bool hasAutoTune;
   bool hasNNFFLog;
   bool hasOpenpilotLongitudinal;
+  bool isAngleCar;
   bool isHKGCanFd;
   bool isTorqueCar;
   bool started;

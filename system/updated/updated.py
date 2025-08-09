@@ -338,8 +338,7 @@ class Updater:
       set_offroad_alert(alert, False)
 
     now = datetime.datetime.utcnow()
-    if frogpilot_toggles.offline_mode:
-      last_update = now
+    last_update = now
     dt = now - last_update
     build_metadata = get_build_metadata()
     if failed_count > 15 and exception is not None and self.has_internet:
@@ -467,6 +466,9 @@ def main() -> None:
       frogpilot_toggles = get_frogpilot_toggles()
 
       manual_update_requested = params_memory.get_bool("ManualUpdateInitiated")
+
+      wait_helper.sleep(1)
+
       params_memory.remove("ManualUpdateInitiated")
 
       # Attempt an update

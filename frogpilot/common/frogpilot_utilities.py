@@ -16,7 +16,8 @@ import openpilot.system.sentry as sentry
 from functools import cache
 from pathlib import Path
 
-from cereal import log
+from cereal import log, messaging
+from opendbc.can.parser import CANParser
 from openpilot.common.realtime import DT_DMON, DT_HW
 from openpilot.selfdrive.car.toyota.carcontroller import LOCK_CMD
 from openpilot.system.hardware import HARDWARE
@@ -48,10 +49,10 @@ def run_thread_with_lock(name, target, args=(), report=True):
           print(f"HTTP error: {error}")
         except subprocess.CalledProcessError as error:
           print(f"CalledProcessError in thread '{name}': {error}")
-        except Exception as error:
-          print(f"Error in thread '{name}': {error}")
+        except Exception as exception:
+          print(f"Error in thread '{name}': {exception}")
           if report:
-            sentry.capture_exception(error)
+            sentry.capture_exception(exception)
       thread = threading.Thread(target=wrapped_target, args=args, daemon=True)
       thread.start()
       running_threads[name] = thread
@@ -67,11 +68,11 @@ def calculate_bearing_offset(latitude, longitude, current_bearing, distance):
   new_longitude = lon_rad + math.atan2(math.sin(bearing) * math.sin(delta) * math.cos(lat_rad),  math.cos(delta) - math.sin(lat_rad) * math.sin(new_latitude))
   return math.degrees(new_latitude), math.degrees(new_longitude)
 
-def calculate_distance_to_point(ax, ay, bx, by):
-  delta_x = (bx - ax) / 2
-  delta_y = (by - ay) / 2
+def calculate_distance_to_point(lat1, lon1, lat2, lon2):
+  delta_lat = lat2 - lat1
+  delta_lon = lon2 - lon1
 
-  a = (math.sin(delta_x)**2) + math.cos(ax) * math.cos(bx) * (math.sin(delta_y)**2)
+  a = (math.sin(delta_lat / 2) ** 2) + math.cos(lat1) * math.cos(lat2) * (math.sin(delta_lon / 2) ** 2)
   c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
   return EARTH_RADIUS * c
@@ -119,6 +120,7 @@ def extract_zip(zip_file, extract_path):
 
   with zipfile.ZipFile(zip_file, "r") as zip_ref:
     zip_ref.extractall(extract_path)
+
   zip_file.unlink()
   print(f"Extraction completed: {zip_file} has been removed")
 
@@ -129,43 +131,56 @@ def flash_panda():
       panda.reset(enter_bootstub=True)
       panda.flash()
       panda.close()
-    except Exception as error:
-      print(f"Error flashing Panda {serial}: {error}")
-      sentry.capture_exception(error)
+    except Exception as exception:
+      print(f"Error flashing Panda {serial}: {exception}")
+      sentry.capture_exception(exception)
 
   params_memory.remove("FlashPanda")
 
-def is_url_pingable(url, timeout=10):
+def get_lock_status(can_parser, can_sock):
+  can_msgs = messaging.drain_sock_raw(can_sock, wait_for_one=True)
+  can_parser.update_strings(can_msgs)
+  return can_parser.vl["DOOR_LOCKS"]["LOCK_STATUS"]
+
+def is_url_pingable(url):
+  headers = {"User-Agent": "frogpilot-ping-test/1.0 (https://github.com/FrogAi/FrogPilot)"}
   try:
-    headers = {"User-Agent": "Mozilla/5.0"}
-    response = requests.get(url, headers=headers, timeout=timeout)
-    return response.status_code < 400
-  except requests.ConnectionError:
-    print(f"ConnectionError while pinging {url}")
-  except requests.HTTPError:
-    print(f"HTTPError while fetching from {url}")
-  except requests.RequestException:
-    print(f"RequestException while pinging {url}")
-  except requests.Timeout:
-    print(f"Timeout while pinging {url}")
-  except Exception as error:
-    sentry.capture_exception(error)
-    print(f"Unexpected error while pinging {url}: {error}")
-  return False
+    response = requests.head(url, headers=headers, timeout=10, allow_redirects=True)
+    response.raise_for_status()
+    return True
+  except requests.RequestException as exception:
+    print(f"Network/HTTP error for {url}: {exception}")
+    return False
+  except Exception as exception:
+    print(f"An unexpected error occurred while checking {url}: {exception}")
+    sentry.capture_exception(exception)
+    return False
 
 def lock_doors(lock_doors_timer, sm):
-  wait_for_no_driver(sm, lock_doors_timer)
+  wait_for_no_driver(sm, door_checks=True, time_threshold=lock_doors_timer)
 
-  if not any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown):
-    for _ in range(3):
-      with Panda() as panda:
-        panda.set_safety_mode(panda.SAFETY_TOYOTA)
-        panda.can_send(0x750, LOCK_CMD, 0)
-        panda.send_heartbeat()
+  can_parser = CANParser("toyota_nodsu_pt_generated", [("DOOR_LOCKS", 3)], bus=0)
+  can_sock = messaging.sub_sock("can", timeout=100)
 
-def run_cmd(cmd, success_message, fail_message, report=True):
+  while True:
+    sm.update()
+
+    if any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown):
+      break
+
+    with Panda(disable_checks=True) as panda:
+      panda.set_safety_mode(panda.SAFETY_TOYOTA)
+      panda.can_send(0x750, LOCK_CMD, 0)
+
+    time.sleep(1)
+
+    lock_status = get_lock_status(can_parser, can_sock)
+    if lock_status == 0:
+      break
+
+def run_cmd(cmd, success_message, fail_message, report=True, env=None):
   try:
-    subprocess.run(cmd, capture_output=True, text=True, check=True)
+    subprocess.run(cmd, capture_output=True, check=True, env=env, text=True)
     print(success_message)
   except subprocess.CalledProcessError as error:
     print(f"Command failed with return code {error.returncode}")
@@ -173,11 +188,11 @@ def run_cmd(cmd, success_message, fail_message, report=True):
       print(f"Error Output: {error.stderr.strip()}")
     if report:
       sentry.capture_exception(error)
-  except Exception as error:
-    print(f"Unexpected error occurred: {error}")
+  except Exception as exception:
+    print(f"Unexpected error occurred: {exception}")
     print(fail_message)
     if report:
-      sentry.capture_exception(error)
+      sentry.capture_exception(exception)
 
 def update_maps(now):
   while not MAPD_PATH.exists():
@@ -217,33 +232,43 @@ def update_maps(now):
   params.put("LastMapsUpdate", todays_date)
 
 def update_openpilot():
-  while params_memory.get_bool("UpdateSpeedLimits"):
+  def update_available():
+    subprocess.run(["pkill", "-SIGUSR1", "-f", "system.updated.updated"], check=False)
+
+    while params.get("UpdaterState", encoding="utf-8") != "checking...":
+      time.sleep(1)
+
+    while params.get("UpdaterState", encoding="utf-8") == "checking...":
+      time.sleep(1)
+
+    if not params.get_bool("UpdaterFetchAvailable"):
+      return False
+
+    while params.get("UpdaterState", encoding="utf-8") != "idle":
+      time.sleep(60)
+
+    subprocess.run(["pkill", "-SIGHUP", "-f", "system.updated.updated"], check=False)
+
+    while not params.get_bool("UpdateAvailable"):
+      time.sleep(60)
+
+    return True
+
+  while params_memory.get_bool("DownloadAllModels") or params_memory.get("ModelToDownload") or params_memory.get_bool("UpdateSpeedLimits"):
     time.sleep(60)
 
   if params.get("UpdaterState", encoding="utf-8") != "idle":
     return
 
-  subprocess.run(["pkill", "-SIGUSR1", "-f", "system.updated.updated"], check=False)
-
-  while params.get("UpdaterState", encoding="utf-8") != "checking...":
-    time.sleep(DT_HW)
-
-  while params.get("UpdaterState", encoding="utf-8") == "checking...":
-    time.sleep(DT_HW)
-
-  if not params.get_bool("UpdaterFetchAvailable"):
+  if not update_available():
     return
-
-  while params.get("UpdaterState", encoding="utf-8") != "idle":
-    time.sleep(DT_HW)
-
-  subprocess.run(["pkill", "-SIGHUP", "-f", "system.updated.updated"], check=False)
-
-  while not params.get_bool("UpdateAvailable"):
-    time.sleep(DT_HW)
 
   while running_threads.get("lock_doors", threading.Thread()).is_alive() or params_memory.get_bool("IsOnroad"):
     time.sleep(60)
+
+  while True:
+    if not update_available():
+      break
 
   HARDWARE.reboot()
 
@@ -251,37 +276,48 @@ def update_openpilot():
 def use_konik_server():
   return KONIK_PATH.is_file()
 
-def wait_for_no_driver(sm, time_threshold=60):
+def wait_for_no_driver(sm, door_checks=False, time_threshold=60):
+  can_parser = CANParser("toyota_nodsu_pt_generated", [("BODY_CONTROL_STATE", 3)], bus=0)
+  can_sock = messaging.sub_sock("can", timeout=100)
+
   while sm["deviceState"].screenBrightnessPercent != 0 or any(proc.name == "dmonitoringd" and proc.running for proc in sm["managerState"].processes):
+    sm.update()
+
     if any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown):
       return
 
     time.sleep(DT_HW)
 
-    sm.update()
-
   params.put_bool("IsDriverViewEnabled", True)
 
   while not any(proc.name == "dmonitoringd" and proc.running for proc in sm["managerState"].processes):
-    time.sleep(DT_HW)
-
     sm.update()
+
+    time.sleep(DT_HW)
 
   start_time = time.monotonic()
   while True:
+    sm.update()
+
     elapsed_time = time.monotonic() - start_time
     if elapsed_time >= time_threshold:
       break
 
     if any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown):
-      params.remove("IsDriverViewEnabled")
-      return
+      break
 
     if sm["driverMonitoringState"].faceDetected or not sm.alive["driverMonitoringState"]:
       start_time = time.monotonic()
 
-    time.sleep(DT_DMON)
+    if door_checks:
+      can_msgs = messaging.drain_sock_raw(can_sock, wait_for_one=True)
+      can_parser.update_strings(can_msgs)
 
-    sm.update()
+      door_open = any([can_parser.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_FL"], can_parser.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_FR"],
+                       can_parser.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_RL"], can_parser.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_RR"]])
+      if door_open:
+        start_time = time.monotonic()
+
+    time.sleep(DT_DMON)
 
   params.remove("IsDriverViewEnabled")

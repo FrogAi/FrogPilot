@@ -8,8 +8,7 @@ FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(QWidget *parent) 
   brakePedalImg = loadPixmap("../../frogpilot/assets/other_images/brake_pedal.png", {btn_size, btn_size});
   chillModeIcon = loadPixmap("../../frogpilot/assets/other_images/chill_mode_icon.png", {btn_size / 2, btn_size / 2});
   curveIcon = loadPixmap("../../frogpilot/assets/other_images/curve_icon.png", {btn_size / 2, btn_size / 2});
-  curveSpeedLeftIcon = loadPixmap("../../frogpilot/assets/other_images/curve_speed_left.png", {btn_size, btn_size});
-  curveSpeedRightIcon = curveSpeedLeftIcon.transformed(QTransform().scale(-1, 1));
+  curveSpeedIcon = loadPixmap("../../frogpilot/assets/other_images/curve_speed_left.png", {btn_size, btn_size});
   dashboardIcon = loadPixmap("../../frogpilot/assets/other_images/dashboard_icon.png", {btn_size / 2, btn_size / 2});
   experimentalModeIcon = loadPixmap("../assets/img_experimental.svg", {btn_size / 2, btn_size / 2});
   gasPedalImg = loadPixmap("../../frogpilot/assets/other_images/gas_pedal.png", {btn_size, btn_size});
@@ -33,8 +32,6 @@ FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(QWidget *parent) 
 }
 
 void FrogPilotAnnotatedCameraWidget::showEvent(QShowEvent *event) {
-  update_theme(frogpilotUIState());
-
   FrogPilotUIState &fs = *frogpilotUIState();
   QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
   UIState &s = *uiState();
@@ -83,18 +80,16 @@ void FrogPilotAnnotatedCameraWidget::updateSignals() {
       for (int i = 0; i < frameCount; ++i) {
         movie.jumpToFrame(i);
 
-        QPixmap frame = movie.currentPixmap().copy();
+        QImage image = movie.currentPixmap().toImage().convertToFormat(QImage::Format_Indexed8);
+
+        QPixmap frame = QPixmap::fromImage(image);
         signalImages.append(frame);
-        signalImages.append(frame.transformed(QTransform().scale(-1, 1)));
       }
 
       movie.stop();
     } else if (fileName.endsWith(".png", Qt::CaseInsensitive)) {
       QVector<QPixmap> &targetList = fileName.contains("blindspot", Qt::CaseInsensitive) ? blindspotImages : signalImages;
-
-      QPixmap pixmap(filePath);
-      targetList.append(pixmap);
-      targetList.append(pixmap.transformed(QTransform().scale(-1, 1)));
+      targetList.append(QPixmap::fromImage(QImage(filePath).convertToFormat(QImage::Format_Indexed8)));
     } else {
       QStringList parts = fileName.split('_');
       if (parts.size() == 2) {
@@ -108,7 +103,7 @@ void FrogPilotAnnotatedCameraWidget::updateSignals() {
     QPixmap &firstImage = signalImages.front();
     signalHeight = firstImage.height();
     signalWidth = firstImage.width();
-    totalFrames = signalImages.size() / 2;
+    totalFrames = signalImages.size();
 
     if (isGif && signalStyle == "traditional") {
       signalMovement = (width() + (signalWidth * 2)) / totalFrames;
@@ -176,7 +171,7 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
     paintCompass(p, frogpilot_toggles);
   }
 
-  if (!frogpilot_scene.map_open && !frogpilotPlan.getSpeedLimitChanged() && isCruiseSet && frogpilot_toggles.value("csc_status").toBool()) {
+  if (!frogpilot_scene.map_open && !frogpilotPlan.getSpeedLimitChanged() && !(signalStyle == "static" && carState.getLeftBlinker()) && frogpilot_toggles.value("csc_status").toBool()) {
     paintCurveSpeedControl(p, frogpilotPlan, frogpilot_toggles);
   }
 
@@ -471,7 +466,7 @@ void FrogPilotAnnotatedCameraWidget::paintCurveSpeedControl(QPainter &p, const c
   };
 
   QRect curveSpeedRect(QPoint(setSpeedRect.right() + UI_BORDER_SIZE, setSpeedRect.top()), QSize(defaultSize.width() * 1.25, defaultSize.width() * 1.25));
-  QPixmap scaledCurveSpeedIcon = (frogpilotPlan.getRoadCurvature() < 0 ? curveSpeedLeftIcon : curveSpeedRightIcon).scaled(curveSpeedRect.size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+  QPixmap scaledCurveSpeedIcon = (frogpilotPlan.getRoadCurvature() < 0 ? curveSpeedIcon : curveSpeedIcon.transformed(QTransform().scale(-1, 1))).scaled(curveSpeedRect.size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
   p.setOpacity(1.0);
 
@@ -755,6 +750,8 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
     return;
   }
 
+  alertHeight = std::max(50, alertHeight);
+
   p.save();
 
   QFont font = InterFont(40, QFont::DemiBold);
@@ -906,31 +903,32 @@ void FrogPilotAnnotatedCameraWidget::paintStoppingPoint(QPainter &p, UIScene &sc
 void FrogPilotAnnotatedCameraWidget::paintTurnSignals(QPainter &p, const cereal::CarState::Reader &carState) {
   p.save();
 
-  bool blindspotActive = carState.getLeftBlinker() ? carState.getLeftBlindspot() : carState.getRightBlindspot();
+  bool leftBlinker = carState.getLeftBlinker();
+  bool blindspotActive = leftBlinker ? carState.getLeftBlindspot() : carState.getRightBlindspot();
 
   if (signalStyle == "static") {
-    int signalXPosition = carState.getLeftBlinker() ? (rect().center().x() * 0.75) - signalWidth : rect().center().x() * 1.25;
+    int signalXPosition = leftBlinker ? (rect().center().x() * 0.75) - signalWidth : rect().center().x() * 1.25;
     int signalYPosition = signalHeight / 2;
 
     if (blindspotActive && !blindspotImages.empty()) {
-      p.drawPixmap(signalXPosition, signalYPosition, signalWidth, signalHeight, blindspotImages[carState.getLeftBlinker() ? 0 : 1]);
+      p.drawPixmap(signalXPosition, signalYPosition, signalWidth, signalHeight, blindspotImages[0].transformed(QTransform().scale(leftBlinker ? 1 : -1, 1)));
     } else {
-      p.drawPixmap(signalXPosition, signalYPosition, signalWidth, signalHeight, signalImages[2 * animationFrameIndex + (carState.getLeftBlinker() ? 0 : 1)]);
+      p.drawPixmap(signalXPosition, signalYPosition, signalWidth, signalHeight, signalImages[animationFrameIndex].transformed(QTransform().scale(leftBlinker ? 1 : -1, 1)));
     }
   } else {
     int signalXPosition;
     if (signalStyle == "traditional_gif") {
-      signalXPosition = carState.getLeftBlinker() ? width() - (animationFrameIndex * signalMovement) + signalWidth : (animationFrameIndex * signalMovement) - signalWidth;
+      signalXPosition = leftBlinker ? width() - (animationFrameIndex * signalMovement) + signalWidth : (animationFrameIndex * signalMovement) - signalWidth;
     } else {
-      signalXPosition = carState.getLeftBlinker() ? width() - ((animationFrameIndex + 1) * signalWidth) : animationFrameIndex * signalWidth;
+      signalXPosition = leftBlinker ? width() - ((animationFrameIndex + 1) * signalWidth) : animationFrameIndex * signalWidth;
     }
 
     int signalYPosition = height() - signalHeight - alertHeight;
 
     if (blindspotActive && !blindspotImages.empty()) {
-      p.drawPixmap(carState.getLeftBlinker() ? width() - signalWidth : 0, signalYPosition, signalWidth, signalHeight, blindspotImages[carState.getLeftBlinker() ? 0 : 1]);
+      p.drawPixmap(leftBlinker ? width() - signalWidth : 0, signalYPosition, signalWidth, signalHeight, blindspotImages[0].transformed(QTransform().scale(leftBlinker ? 1 : -1, 1)));
     } else {
-      p.drawPixmap(signalXPosition, signalYPosition, signalWidth, signalHeight, signalImages[2 * animationFrameIndex + (carState.getLeftBlinker() ? 0 : 1)]);
+      p.drawPixmap(signalXPosition, signalYPosition, signalWidth, signalHeight, signalImages[animationFrameIndex].transformed(QTransform().scale(leftBlinker ? 1 : -1, 1)));
     }
   }
 

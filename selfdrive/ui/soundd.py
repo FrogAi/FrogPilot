@@ -54,7 +54,6 @@ sound_list: dict[int, tuple[str, int | None, float]] = {
   AudibleAlert.mail: ("mail.wav", 1, MAX_VOLUME),
   AudibleAlert.nessie: ("nessie.wav", 1, MAX_VOLUME),
   AudibleAlert.noice: ("noice.wav", 1, MAX_VOLUME),
-  AudibleAlert.promptRepeat: ("prompt_repeat.wav", None, MAX_VOLUME),
   AudibleAlert.startup: ("startup.wav", 1, MAX_VOLUME),
   AudibleAlert.thisIsFine: ("this_is_fine.wav", 1, MAX_VOLUME),
   AudibleAlert.uwu: ("uwu.wav", 1, MAX_VOLUME),
@@ -204,22 +203,16 @@ class Soundd:
         if sm.updated['microphone'] and self.current_alert == AudibleAlert.none: # only update volume filter when not playing alert
           self.spl_filter_weighted.update(sm["microphone"].soundPressureWeightedDb)
 
-          if self.frogpilot_toggles.alert_volume_control:
+          if self.frogpilot_toggles.alert_volume_controller:
             self.auto_volume = self.calculate_volume(float(self.spl_filter_weighted.x))
             self.current_volume = 0.0
           else:
             self.current_volume = self.calculate_volume(float(self.spl_filter_weighted.x))
 
-        elif self.frogpilot_toggles.alert_volume_control and self.current_alert in self.volume_map:
-          self.current_volume = self.volume_map[self.current_alert] / 100.0
+        elif self.frogpilot_toggles.alert_volume_controller and self.current_alert in self.volume_map:
+          self.current_volume = self.volume_map[self.current_alert]
           if self.current_volume == 1.01:
-            if self.current_alert == AudibleAlert.startup:
-              self.current_volume = MAX_VOLUME
-            else:
-              self.current_volume = self.auto_volume
-
-        elif self.current_alert == AudibleAlert.startup:
-          self.current_volume = MAX_VOLUME
+            self.current_volume = self.auto_volume
 
         self.get_audible_alert(sm)
 
@@ -233,29 +226,33 @@ class Soundd:
 
           self.update_frogpilot_sounds()
 
-        if self.restart_stream:
-          stream.close()
-          stream = self.get_stream(sd)
-          stream.start()
+          if self.restart_stream:
+            stream.close()
+            stream = self.get_stream(sd)
+            stream.start()
 
-          self.restart_stream = False
+            self.restart_stream = False
 
   def update_frogpilot_sounds(self):
     self.volume_map = {
-      AudibleAlert.engage: self.frogpilot_toggles.engage_volume,
-      AudibleAlert.disengage: self.frogpilot_toggles.disengage_volume,
-      AudibleAlert.refuse: self.frogpilot_toggles.refuse_volume,
+      AudibleAlert.engage: self.frogpilot_toggles.engage_volume / 100.0,
+      AudibleAlert.disengage: self.frogpilot_toggles.disengage_volume / 100.0,
+      AudibleAlert.refuse: self.frogpilot_toggles.refuse_volume / 100.0,
 
-      AudibleAlert.prompt: self.frogpilot_toggles.prompt_volume,
-      AudibleAlert.promptRepeat: self.frogpilot_toggles.prompt_volume,
-      AudibleAlert.promptDistracted: self.frogpilot_toggles.promptDistracted_volume,
+      AudibleAlert.prompt: self.frogpilot_toggles.prompt_volume / 100.0,
+      AudibleAlert.promptRepeat: self.frogpilot_toggles.prompt_volume / 100.0,
+      AudibleAlert.promptDistracted: self.frogpilot_toggles.promptDistracted_volume / 100.0,
 
-      AudibleAlert.warningSoft: self.frogpilot_toggles.warningSoft_volume,
-      AudibleAlert.warningImmediate: self.frogpilot_toggles.warningImmediate_volume,
+      AudibleAlert.warningSoft: self.frogpilot_toggles.warningSoft_volume / 100.0,
+      AudibleAlert.warningImmediate: self.frogpilot_toggles.warningImmediate_volume / 100.0,
 
-      AudibleAlert.goat: self.frogpilot_toggles.prompt_volume,
-      AudibleAlert.startup: self.frogpilot_toggles.engage_volume,
+      AudibleAlert.goat: self.frogpilot_toggles.prompt_volume / 100.0,
+      AudibleAlert.startup: self.frogpilot_toggles.engage_volume / 100.0
     }
+
+    for sound in sound_list:
+      if sound not in self.volume_map:
+        self.volume_map[sound] = 1.01
 
     if self.frogpilot_toggles.sound_pack != "stock":
       self.sound_directory = ACTIVE_THEME_PATH / "sounds"
@@ -264,9 +261,7 @@ class Soundd:
 
     if self.frogpilot_toggles.sound_pack != self.previous_sound_pack:
       self.load_sounds()
-
       self.previous_sound_pack = self.frogpilot_toggles.sound_pack
-
       self.restart_stream = True
 
 def main():

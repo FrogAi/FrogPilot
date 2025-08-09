@@ -96,6 +96,14 @@ class TestDType(unittest.TestCase):
      get_available_cast_dtypes(self.DTYPE)
     ))
 
+  @unittest.skipIf(Device.DEFAULT == "PYTHON", "skip for now")
+  @unittest.skipIf(getenv("PTX"), "skip for now")
+  def test_uint_overflow(self):
+    if not dtypes.is_unsigned(self.DTYPE): raise unittest.SkipTest("only for unsigned")
+    v = dtypes.max(self.DTYPE)
+    _test_to_np(Tensor(v, dtype=self.DTYPE)+2, _to_np_dtype(self.DTYPE), np.array(v, dtype=_to_np_dtype(self.DTYPE))+2)
+    _test_to_np(Tensor(v, dtype=self.DTYPE)*2, _to_np_dtype(self.DTYPE), np.array(v, dtype=_to_np_dtype(self.DTYPE))*2)
+
   def test_dtypes_fields(self):
     fields = dtypes.fields()
     self.assertIn("float", fields)
@@ -442,6 +450,14 @@ class TestToDtype(unittest.TestCase):
     res = to_dtype(dtype)
     self.assertIsInstance(res, DType)
     self.assertEqual(res, dtypes.int32)
+
+@unittest.skipUnless(is_dtype_supported(dtypes.bfloat16), f"no bfloat16 on {Device.DEFAULT}")
+class TestOpsBFloat16(unittest.TestCase):
+  def test_cast(self):
+    # TODO: helper_test_op breaks in unrelated part
+    # TODO: wrong output with GPU=1 / PYTHON=1 on mac
+    data = [60000.0, 70000.0, 80000.0]
+    np.testing.assert_allclose(Tensor(data).cast("bfloat16").numpy(), torch.tensor(data).type(torch.bfloat16).float().numpy())
 
 if __name__ == '__main__':
   unittest.main()

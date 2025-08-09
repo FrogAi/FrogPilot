@@ -1,0 +1,77 @@
+.toggle-control-button {
+  background-color: var(--input-bg);
+  border: none;
+  border-radius: var(--border-radius-lg);
+  color: var(--text-color);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-demi-bold);
+  padding: var(--border-radius-xl);
+  text-align: center;
+  text-decoration: none;
+  transition: background-color var(--transition-fast), box-shadow var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+  width: 100%;
+}
+
+.toggle-control-button:hover {
+  box-shadow: var(--shadow-md);
+  color: var(--secondary-fg);
+  transform: var(--hover-scale-sm);
+}
+
+.toggle-control-button + .toggle-control-button {
+  margin-top: var(--padding-sm);
+}
+
+.toggle-control-text {
+  color: var(--text-color);
+  text-align: center;
+}
+
+.toggle-control-title {
+  background-color: var(--input-bg);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  color: var(--text-color);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  padding: var(--padding-sm);
+  text-align: center;
+  width: 100%;
+}
+
+.toggle-control-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.toggle-control-widget {
+  align-items: center;
+  background-color: var(--secondary-bg);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  color: var(--main-fg);
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--padding-xl);
+  max-width: var(--width-lg);
+  padding: var(--padding-lg);
+  transform-origin: top center;
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.toggle-control-widget:hover {
+  box-shadow: var(--shadow-md);
+  transform: var(--hover-scale-sm);
+}
+
+@media only screen and (max-width: 768px) and (orientation: portrait) {
+  .toggle-control-wrapper {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .toggle-control-widget {
+    margin-left: 0 !important;
+    margin-top: 1.5rem;
+  }
+}

@@ -29,7 +29,7 @@ on:
         default: ""
         type: string
       update_translations:
-        description: "Update missing translations"
+        description: "Update missing/outdated translations"
         required: false
         default: "false"
         type: boolean
@@ -72,8 +72,8 @@ jobs:
     steps:
       - name: Configure Git Identity
         run: |
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --global user.name "James"
+          git config --global user.email "91348155+FrogAi@users.noreply.github.com"
 
       - name: Checkout Required Files
         uses: actions/checkout@v4
@@ -102,7 +102,9 @@ jobs:
         run: python selfdrive/ui/update_translations.py --vanish
 
       - name: Update Missing Translations
+        continue-on-error: true
         run: python selfdrive/ui/translations/auto_translate.py --all-files
+        timeout-minutes: 300
 
       - name: Vet Existing Translations
         if: github.event.inputs.vet_existing_translations == 'true'
@@ -137,8 +139,8 @@ jobs:
         run: |
           git config --global http.postBuffer 104857600
 
-          git config --global user.name "${{ github.actor }}"
-          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+          git config --global user.name "James"
+          git config --global user.email "91348155+FrogAi@users.noreply.github.com"
 
       - name: Update Repository
         run: |
@@ -214,6 +216,7 @@ jobs:
               -name 'schedule_update.yaml' -o \
               -name 'update_pr_branch.yaml' -o \
               -name 'update_release_branch.yaml' \
+              -name 'update_tinygrad.yaml' \
             \) \
           \) -exec rm -rf {} +
 

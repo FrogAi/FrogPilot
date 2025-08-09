@@ -111,7 +111,7 @@ class VCruiseHelper:
     if not self.button_change_states[button_type]["enabled"]:
       return
 
-    v_cruise_delta_interval = frogpilot_toggles.custom_cruise_increase_long if long_press else frogpilot_toggles.custom_cruise_increase
+    v_cruise_delta_interval = frogpilot_toggles.cruise_increase_long if long_press else frogpilot_toggles.cruise_increase
     v_cruise_delta = v_cruise_delta * v_cruise_delta_interval
     if v_cruise_delta_interval % 5 == 0 and self.v_cruise_kph % v_cruise_delta != 0:  # partial interval
       self.v_cruise_kph = CRUISE_NEAREST_FUNC[button_type](self.v_cruise_kph / v_cruise_delta) * v_cruise_delta
@@ -183,9 +183,7 @@ def smooth_value(val, prev_val, tau, dt=DT_MDL):
   alpha = 1 - np.exp(-dt/tau) if tau > 0 else 1
   return alpha * val + (1 - alpha) * prev_val
 
-def clip_curvature(v_ego, prev_curvature, new_curvature, planner_curves):
-  if planner_curves:
-    new_curvature = clip(new_curvature, -MAX_CURVATURE, MAX_CURVATURE)
+def clip_curvature(v_ego, prev_curvature, new_curvature):
   v_ego = max(MIN_SPEED, v_ego)
   max_curvature_rate = MAX_LATERAL_JERK / (v_ego**2) # inexact calculation, check https://github.com/commaai/openpilot/pull/24755
   safe_desired_curvature = clip(new_curvature,

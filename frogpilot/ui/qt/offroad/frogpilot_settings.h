@@ -21,6 +21,7 @@ public:
   bool hasPedal = false;
   bool hasRadar = true;
   bool hasSNG = false;
+  bool isAngleCar = false;
   bool isBolt = false;
   bool isC3 = false;
   bool isGM = true;
@@ -33,13 +34,18 @@ public:
   bool isVolt = true;
   bool keepScreenOn = false;
   bool openpilotLongitudinalControlDisabled = false;
-  bool tacoHacksAllowed = false;
 
   float friction;
   float latAccelFactor;
+  float longitudinalActuatorDelay;
+  float startAccel;
   float steerActuatorDelay;
   float steerKp;
   float steerRatio;
+  float stopAccel;
+  float stoppingDecelRate;
+  float vEgoStarting;
+  float vEgoStopping;
 
   int tuningLevel;
 
@@ -58,11 +64,13 @@ private:
   void createPanelButtons(FrogPilotListWidget *list);
   void hideEvent(QHideEvent *event) override;
   void updateState();
+  void updateTuningLevel();
 
   bool panelOpen;
 
   FrogPilotButtonsControl *drivingPanelButtons;
   FrogPilotButtonsControl *systemPanelButtons;
+  FrogPilotButtonsControl *togglePreset;
   FrogPilotButtonsControl *vehiclePanelButtons;
 
   Params params;

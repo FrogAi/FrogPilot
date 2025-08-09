@@ -64,8 +64,6 @@ class FrogPilotAcceleration:
         self.max_accel = get_max_accel(v_ego)
 
     if frogpilot_toggles.human_acceleration:
-      if self.frogpilot_planner.frogpilot_following.following_lead and not sm["frogpilotCarState"].trafficModeEnabled:
-        self.max_accel = float(np.clip(self.frogpilot_planner.lead_one.aLeadK, self.max_accel, get_max_allowed_accel(v_ego)))
       self.max_accel = min(get_max_accel_low_speeds(self.max_accel, self.frogpilot_planner.v_cruise), self.max_accel)
       self.max_accel = min(get_max_accel_ramp_off(self.max_accel, self.frogpilot_planner.v_cruise, v_ego), self.max_accel)
 

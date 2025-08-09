@@ -27,7 +27,7 @@ namespace Path {
     if (const char *env = getenv("LOG_ROOT")) {
       return env;
     }
-    return Hardware::PC() ? Path::comma_home() + "/media/0/realdata" : std::filesystem::exists("/cache/use_konik") ? "/data/media/0/realdata_konik/" : "/data/media/0/realdata";
+    return Hardware::PC() ? Path::comma_home() + "/media/0/realdata" : std::filesystem::exists("/cache/use_HD") ? "/data/media/0/realdata_HD/" : std::filesystem::exists("/cache/use_konik") ? "/data/media/0/realdata_konik/" : "/data/media/0/realdata";
   }
 
   inline std::string params() {

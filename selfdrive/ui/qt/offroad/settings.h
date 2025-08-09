@@ -39,6 +39,7 @@ signals:
   void closeSubPanel();
   void closeSubSubPanel();
   void updateMetric(bool metric, bool bootRun=false);
+  void updateTuningLevel();
 
 private:
   QPushButton *sidebar_alert_widget;

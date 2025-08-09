@@ -11,7 +11,6 @@ TransmissionType = car.CarParams.TransmissionType
 
 
 # Traffic signals for Speed Limit Controller
-@staticmethod
 def calculate_speed_limit(cp_cam):
   speed_limit_unit = cp_cam.vl["Traffic_RecognitnData"]["TsrVlUnitMsgTxt_D_Rq"]
   speed_limit_value = cp_cam.vl["Traffic_RecognitnData"]["TsrVLim1MsgTxt_D_Rq"]

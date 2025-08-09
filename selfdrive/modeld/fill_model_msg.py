@@ -69,7 +69,7 @@ def fill_model_msg(base_msg: capnp._DynamicStructBuilder, extended_msg: capnp._D
                    net_output_data: dict[str, np.ndarray], v_ego: float, delay: float,
                    publish_state: PublishState, vipc_frame_id: int, vipc_frame_id_extra: int,
                    frame_id: int, frame_drop: float, timestamp_eof: int, model_execution_time: float,
-                   valid: bool, planner_curves: bool) -> None:
+                   valid: bool) -> None:
   frame_age = frame_id - vipc_frame_id if frame_id > vipc_frame_id else 0
   frame_drop_perc = frame_drop * 100
   extended_msg.valid = valid
@@ -85,7 +85,7 @@ def fill_model_msg(base_msg: capnp._DynamicStructBuilder, extended_msg: capnp._D
   driving_model_data.modelExecutionTime = model_execution_time
 
   action = driving_model_data.action
-  action.desiredCurvature = desired_curv if planner_curves else float(net_output_data['desired_curvature'][0,0])
+  action.desiredCurvature = desired_curv
 
   modelV2 = extended_msg.modelV2
   modelV2.frameId = vipc_frame_id
@@ -120,7 +120,7 @@ def fill_model_msg(base_msg: capnp._DynamicStructBuilder, extended_msg: capnp._D
 
   # lateral planning
   action = modelV2.action
-  action.desiredCurvature = desired_curv if planner_curves else float(net_output_data['desired_curvature'][0,0])
+  action.desiredCurvature = desired_curv
 
   # times at X_IDXS according to model plan
   PLAN_T_IDXS = [np.nan] * ModelConstants.IDX_N

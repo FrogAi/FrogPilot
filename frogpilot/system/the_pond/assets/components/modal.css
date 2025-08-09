@@ -1,0 +1,107 @@
+.modal {
+  background-color: var(--secondary-bg);
+  border: 1px solid var(--sidebar-border-color);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-md);
+  color: var(--text-color);
+  max-width: var(--width-lg);
+  padding: var(--padding-sm);
+  text-align: center;
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+  width: 90%;
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--gap-sm);
+  justify-content: center;
+}
+
+.modal-actions .btn {
+  background-color: var(--main-fg);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  color: var(--text-color);
+  cursor: pointer;
+  font-weight: var(--font-weight-demi-bold);
+  padding: var(--padding-sm) var(--padding-base);
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.modal-actions .btn.btn-danger {
+  background-color: var(--danger-bg);
+  color: var(--text-on-surface);
+}
+
+.modal-actions .btn.btn-danger:hover {
+  background-color: var(--danger-hover-bg);
+  transform: var(--hover-scale-base);
+}
+
+.modal-actions .btn.btn-primary {
+  background-color: var(--color-confirm);
+  color: var(--text-on-surface);
+}
+
+.modal-actions .btn.btn-primary:hover {
+  background-color: var(--color-confirm-hover);
+  transform: var(--hover-scale-base);
+}
+
+.modal-actions .btn:hover {
+  background-color: var(--success-hover-bg);
+  transform: var(--hover-scale-base);
+}
+
+.modal-body {
+  color: var(--text-base);
+  font-size: var(--font-size-base);
+  margin-bottom: 20px;
+}
+
+.modal-body strong {
+  color: var(--text-color);
+}
+
+.modal-header {
+  background-color: var(--sidebar-active-bg);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  color: var(--text-color);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--font-size-base);
+  padding: var(--padding-sm);
+  text-align: center;
+}
+
+.modal-input {
+  background-color: var(--secondary-bg);
+  border: 1px solid var(--sidebar-border-color);
+  border-radius: var(--border-radius-sm);
+  box-sizing: border-box;
+  color: var(--text-color);
+  font-size: var(--font-size-base);
+  padding: var(--padding-sm) var(--padding-base);
+  width: 100%;
+}
+
+.modal-overlay {
+  align-items: flex-start;
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  left: 0;
+  padding-left: 137px;
+  padding-top: 5vh;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: var(--z-tooltip);
+}
+
+@media only screen and (max-width: 768px) and (orientation: portrait) {
+  .modal-overlay {
+    padding-left: 0px;
+  }
+}

@@ -52,7 +52,6 @@ private:
   FrogPilotSettingsWindow *parent;
 
   Params params;
-  Params params_cache{"/cache/params"};
 
   QJsonObject frogpilotToggleLevels;
 };

@@ -113,13 +113,13 @@ class LongControl:
 
     elif self.long_control_state == LongCtrlState.stopping:
       output_accel = self.last_output_accel
-      if output_accel > self.CP.stopAccel:
+      if output_accel > frogpilot_toggles.stopAccel:
         output_accel = min(output_accel, 0.0)
         output_accel -= frogpilot_toggles.stoppingDecelRate * DT_CTRL
       self.reset()
 
     elif self.long_control_state == LongCtrlState.starting:
-      output_accel = (a_target if frogpilot_toggles.human_acceleration else self.CP.startAccel)
+      output_accel = (a_target if frogpilot_toggles.human_acceleration else frogpilot_toggles.startAccel)
       self.reset()
 
     else:  # LongCtrlState.pid
@@ -143,10 +143,10 @@ class LongControl:
       v_target_now = interp(t_since_plan, CONTROL_N_T_IDX, speeds)
       a_target_now = interp(t_since_plan, CONTROL_N_T_IDX, long_plan.accels)
 
-      v_target = interp(self.CP.longitudinalActuatorDelay + t_since_plan, CONTROL_N_T_IDX, speeds)
-      a_target = 2 * (v_target - v_target_now) / self.CP.longitudinalActuatorDelay - a_target_now
+      v_target = interp(frogpilot_toggles.longitudinalActuatorDelay + t_since_plan, CONTROL_N_T_IDX, speeds)
+      a_target = 2 * (v_target - v_target_now) / frogpilot_toggles.longitudinalActuatorDelay - a_target_now
 
-      v_target_1sec = interp(self.CP.longitudinalActuatorDelay + t_since_plan + 1.0, CONTROL_N_T_IDX, speeds)
+      v_target_1sec = interp(frogpilot_toggles.longitudinalActuatorDelay + t_since_plan + 1.0, CONTROL_N_T_IDX, speeds)
     else:
       v_target = 0.0
       v_target_now = 0.0
@@ -166,13 +166,13 @@ class LongControl:
       output_accel = 0.
 
     elif self.long_control_state == LongCtrlState.stopping:
-      if output_accel > self.CP.stopAccel:
+      if output_accel > frogpilot_toggles.stopAccel:
         output_accel = min(output_accel, 0.0)
         output_accel -= frogpilot_toggles.stoppingDecelRate * DT_CTRL
       self.reset_old_long(CS.vEgo)
 
     elif self.long_control_state == LongCtrlState.starting:
-      output_accel = self.CP.startAccel
+      output_accel = frogpilot_toggles.startAccel
       self.reset_old_long(CS.vEgo)
 
     elif self.long_control_state == LongCtrlState.pid:

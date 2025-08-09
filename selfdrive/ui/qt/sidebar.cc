@@ -40,8 +40,6 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
 }
 
 void Sidebar::updateTheme() {
-  update_theme(frogpilotUIState());
-
   FrogPilotUIState &fs = *frogpilotUIState();
   FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
   QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;

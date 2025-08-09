@@ -16,6 +16,9 @@ void OnroadAlerts::updateState(const UIState &s, const FrogPilotUIState &fs) {
       update();
     }
   }
+
+  // FrogPilot variables
+  sidebarsOpen = fs.frogpilot_scene.sidebars_open;
 }
 
 void OnroadAlerts::clear() {
@@ -30,20 +33,20 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started
   const uint64_t controls_frame = sm.rcv_frame("controlsState");
 
   Alert a = {};
-  const QString crash_log_path = "/data/error_logs/error.txt";
+  static QString crash_log_path = "/data/error_logs/error.txt";
   if (QFile::exists(crash_log_path)) {
     if (frogpilot_toggles.value("random_events").toBool()) {
       a = {tr("openpilot crashed 💩"),
            tr("Please post the \"Error Log\" in the FrogPilot Discord!"),
            "openpilotCrashedRandomEvent",
            cereal::ControlsState::AlertSize::MID,
-           cereal::ControlsState::AlertStatus::NORMAL};
+           cereal::ControlsState::AlertStatus::CRITICAL};
     } else {
       a = {tr("openpilot crashed"),
            tr("Please post the \"Error Log\" in the FrogPilot Discord!"),
            "openpilotCrashed",
            cereal::ControlsState::AlertSize::MID,
-           cereal::ControlsState::AlertStatus::NORMAL};
+           cereal::ControlsState::AlertStatus::CRITICAL};
     }
     return a;
   } else if (controls_frame >= started_frame) {  // Don't get old alert.
@@ -96,6 +99,7 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
     margin = 0;
     radius = 0;
   }
+  alertHeight -= margin;
   QRect r = QRect(0 + margin, height() - h + margin, width() - margin*2, h - margin*2);
 
   QPainter p(this);
@@ -120,12 +124,12 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
   p.setPen(QColor(0xff, 0xff, 0xff));
   p.setRenderHint(QPainter::TextAntialiasing);
   if (alert.size == cereal::ControlsState::AlertSize::SMALL) {
-    p.setFont(InterFont(74, QFont::DemiBold));
+    p.setFont(InterFont(sidebarsOpen ? 64 : 74, QFont::DemiBold));
     p.drawText(r, Qt::AlignCenter, alert.text1);
   } else if (alert.size == cereal::ControlsState::AlertSize::MID) {
-    p.setFont(InterFont(88, QFont::Bold));
+    p.setFont(InterFont(sidebarsOpen ? 78 : 88, QFont::Bold));
     p.drawText(QRect(0, c.y() - 125, width(), 150), Qt::AlignHCenter | Qt::AlignTop, alert.text1);
-    p.setFont(InterFont(66));
+    p.setFont(InterFont(sidebarsOpen ? 56 : 66));
     p.drawText(QRect(0, c.y() + 21, width(), 90), Qt::AlignHCenter, alert.text2);
   } else if (alert.size == cereal::ControlsState::AlertSize::FULL) {
     bool l = alert.text1.length() > 15;

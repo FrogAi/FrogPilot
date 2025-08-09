@@ -10,6 +10,4 @@ public:
 
 private:
   FrogPilotSettingsWindow *parent;
-
-  Params params;
 };
