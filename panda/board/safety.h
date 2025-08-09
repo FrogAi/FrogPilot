@@ -275,7 +275,7 @@ void generic_rx_checks(bool stock_ecu_detected) {
   regen_braking_prev = regen_braking;
 
   // check if stock ECU is on bus broken by car harness
-  if ((safety_mode_cnt > RELAY_TRNS_TIMEOUT) && stock_ecu_detected) {
+  if ((safety_mode_cnt > RELAY_TRNS_TIMEOUT) && stock_ecu_detected && !gm_skip_relay_check) {
     relay_malfunction_set();
   }
 }
@@ -327,6 +327,8 @@ int set_safety_hooks(uint16_t mode, uint16_t param) {
   // reset state set by safety mode
   safety_mode_cnt = 0U;
   relay_malfunction = false;
+  enable_gas_interceptor = false;
+  gas_interceptor_prev = 0;
   gas_pressed = false;
   gas_pressed_prev = false;
   brake_pressed = false;
@@ -539,6 +541,10 @@ bool longitudinal_brake_checks(int desired_brake, const LongitudinalLimits limit
   violation |= !get_longitudinal_allowed() && (desired_brake != 0);
   violation |= desired_brake > limits.max_brake;
   return violation;
+}
+
+bool longitudinal_interceptor_checks(const CANPacket_t *to_send) {
+  return (!get_longitudinal_allowed() || brake_pressed_prev) && (GET_BYTE(to_send, 0) || GET_BYTE(to_send, 1));
 }
 
 // Safety checks for torque-based steering commands
