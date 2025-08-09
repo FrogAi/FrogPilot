@@ -1,12 +1,13 @@
 import random
-from tqdm import tqdm
 from extra.optimization.helpers import load_worlds, ast_str_to_lin
-from tinygrad.features.search import actions
-from tinygrad.codegen.linearizer import Linearizer
+from tinygrad.engine.search import actions
+from tinygrad.codegen.kernel import Kernel
+from tinygrad.codegen.heuristic import hand_coded_optimizations
+from tinygrad.helpers import tqdm
 
 tactions = set()
 def test_rebuild(lin):
-  linr = Linearizer(lin.ast)
+  linr = Kernel(lin.ast)
   for o in lin.applied_opts:
     assert o in actions, f"{o} is not in actions"
     tactions.add(o)
@@ -23,12 +24,8 @@ if __name__ == "__main__":
   for ast_str in tqdm(ast_strs):
     lin = ast_str_to_lin(ast_str)
     #if not lin.apply_tensor_cores():
-    lin.hand_coded_optimizations()
+    lin.apply_opts(hand_coded_optimizations(lin))
     test_rebuild(lin)
-    # confirm linearize can be called twice
-    uops1 = lin.linearize().uops
-    uops2 = lin.linearize().uops
-    assert tuple(uops1) == tuple(uops2), f"uops mismatch {lin.colored_shape()}"
 
   print(len(tactions), len(actions))
   print(sorted(list(tactions)))

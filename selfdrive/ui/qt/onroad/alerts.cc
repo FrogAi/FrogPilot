@@ -5,30 +5,53 @@
 
 #include "selfdrive/ui/qt/util.h"
 
-void OnroadAlerts::updateState(const UIState &s) {
-  Alert a = getAlert(*(s.sm), s.scene.started_frame);
+void OnroadAlerts::updateState(const UIState &s, const FrogPilotUIState &fs) {
+  Alert a = getAlert(*(s.sm), s.scene.started_frame, fs.frogpilot_toggles);
   if (!alert.equal(a)) {
-    alert = a;
-    update();
+    if (alert.status == cereal::ControlsState::AlertStatus::NORMAL && fs.frogpilot_toggles.value("hide_alerts").toBool()) {
+      clear();
+    } else {
+      alert = a;
+
+      update();
+    }
   }
 }
 
 void OnroadAlerts::clear() {
+  alertHeight = 0;
+
   alert = {};
   update();
 }
 
-OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started_frame) {
+OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started_frame, QJsonObject &frogpilot_toggles) {
   const cereal::ControlsState::Reader &cs = sm["controlsState"].getControlsState();
   const uint64_t controls_frame = sm.rcv_frame("controlsState");
 
   Alert a = {};
-  if (controls_frame >= started_frame) {  // Don't get old alert.
+  const QString crash_log_path = "/data/error_logs/error.txt";
+  if (QFile::exists(crash_log_path)) {
+    if (frogpilot_toggles.value("random_events").toBool()) {
+      a = {tr("openpilot crashed 💩"),
+           tr("Please post the \"Error Log\" in the FrogPilot Discord!"),
+           "openpilotCrashedRandomEvent",
+           cereal::ControlsState::AlertSize::MID,
+           cereal::ControlsState::AlertStatus::NORMAL};
+    } else {
+      a = {tr("openpilot crashed"),
+           tr("Please post the \"Error Log\" in the FrogPilot Discord!"),
+           "openpilotCrashed",
+           cereal::ControlsState::AlertSize::MID,
+           cereal::ControlsState::AlertStatus::NORMAL};
+    }
+    return a;
+  } else if (controls_frame >= started_frame) {  // Don't get old alert.
     a = {cs.getAlertText1().cStr(), cs.getAlertText2().cStr(),
          cs.getAlertType().cStr(), cs.getAlertSize(), cs.getAlertStatus()};
   }
 
-  if (!sm.updated("controlsState") && (sm.frame - started_frame) > 5 * UI_FREQ) {
+  if (!sm.updated("controlsState") && (sm.frame - started_frame) > 5 * UI_FREQ && !frogpilot_toggles.value("force_onroad").toBool()) {
     const int CONTROLS_TIMEOUT = 5;
     const int controls_missing = (nanos_since_boot() - sm.rcv_time("controlsState")) / 1e9;
 
@@ -56,6 +79,7 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started
 
 void OnroadAlerts::paintEvent(QPaintEvent *event) {
   if (alert.size == cereal::ControlsState::AlertSize::NONE) {
+    alertHeight = 0;
     return;
   }
   static std::map<cereal::ControlsState::AlertSize, const int> alert_heights = {
@@ -63,7 +87,8 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
     {cereal::ControlsState::AlertSize::MID, 420},
     {cereal::ControlsState::AlertSize::FULL, height()},
   };
-  int h = alert_heights[alert.size];
+  alertHeight = alert_heights[alert.size];
+  int h = alertHeight;
 
   int margin = 40;
   int radius = 30;

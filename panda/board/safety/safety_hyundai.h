@@ -25,6 +25,11 @@ const LongitudinalLimits HYUNDAI_LONG_LIMITS = {
   .min_accel = -350,  // 1/100 m/s2
 };
 
+const LongitudinalLimits HYUNDAI_LONG_LIMITS_SPORT = {
+  .max_accel = 400,   // 1/100 m/s2
+  .min_accel = -350,  // 1/100 m/s2
+};
+
 const CanMsg HYUNDAI_TX_MSGS[] = {
   {0x340, 0, 8}, // LKAS11 Bus 0
   {0x4F1, 0, 4}, // CLU11 Bus 0
@@ -175,6 +180,12 @@ static void hyundai_rx_hook(const CANPacket_t *to_push) {
       update_sample(&torque_driver, torque_driver_new);
     }
 
+    bool lkas_button = false;
+    if (addr == 0x391) {
+      lkas_button = GET_BIT(to_push, 4U);
+      hyundai_lkas_button_check(lkas_button);
+    }
+
     // ACC steering wheel buttons
     if (addr == 0x4F1) {
       int cruise_button = GET_BYTE(to_push, 0) & 0x7U;
@@ -215,6 +226,8 @@ static void hyundai_rx_hook(const CANPacket_t *to_push) {
 }
 
 static bool hyundai_tx_hook(const CANPacket_t *to_send) {
+  sport_mode = alternative_experience & ALT_EXP_RAISE_LONGITUDINAL_LIMITS_TO_ISO_MAX;
+
   bool tx = true;
   int addr = GET_ADDR(to_send);
 
@@ -239,8 +252,13 @@ static bool hyundai_tx_hook(const CANPacket_t *to_send) {
 
     bool violation = false;
 
-    violation |= longitudinal_accel_checks(desired_accel_raw, HYUNDAI_LONG_LIMITS);
-    violation |= longitudinal_accel_checks(desired_accel_val, HYUNDAI_LONG_LIMITS);
+    if (sport_mode) {
+      violation |= longitudinal_accel_checks(desired_accel_raw, HYUNDAI_LONG_LIMITS_SPORT);
+      violation |= longitudinal_accel_checks(desired_accel_val, HYUNDAI_LONG_LIMITS_SPORT);
+    } else {
+      violation |= longitudinal_accel_checks(desired_accel_raw, HYUNDAI_LONG_LIMITS);
+      violation |= longitudinal_accel_checks(desired_accel_val, HYUNDAI_LONG_LIMITS);
+    }
     violation |= (aeb_decel_cmd != 0);
     violation |= aeb_req;
 

@@ -7,7 +7,7 @@ from openpilot.selfdrive.car.tesla.values import DBC, CANBUS, CarControllerParam
 
 
 class CarController(CarControllerBase):
-  def __init__(self, dbc_name, CP, VM):
+  def __init__(self, dbc_name, CP, FPCP, VM):
     self.CP = CP
     self.frame = 0
     self.apply_angle_last = 0
@@ -15,7 +15,7 @@ class CarController(CarControllerBase):
     self.pt_packer = CANPacker(DBC[CP.carFingerprint]['pt'])
     self.tesla_can = TeslaCAN(self.packer, self.pt_packer)
 
-  def update(self, CC, CS, now_nanos):
+  def update(self, CC, CS, now_nanos, frogpilot_toggles):
     actuators = CC.actuators
     pcm_cancel_cmd = CC.cruiseControl.cancel
 

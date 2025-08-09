@@ -1,0 +1,267 @@
+name: Compile FrogPilot
+
+on:
+  workflow_dispatch:
+    inputs:
+      not_vetted:
+        description: "This branch is not vetted"
+        required: false
+        default: "false"
+        type: boolean
+      publish_frogpilot:
+        description: "Push to FrogPilot"
+        required: false
+        default: "false"
+        type: boolean
+      publish_staging:
+        description: "Push to FrogPilot-Staging"
+        required: false
+        default: "false"
+        type: boolean
+      publish_testing:
+        description: "Push to FrogPilot-Testing"
+        required: false
+        default: "false"
+        type: boolean
+      publish_custom_branch:
+        description: "Push to custom branch:"
+        required: false
+        default: ""
+        type: string
+      update_translations:
+        description: "Update missing translations"
+        required: false
+        default: "false"
+        type: boolean
+      vet_existing_translations:
+        description: "Vet existing translations"
+        required: false
+        default: "false"
+        type: boolean
+
+env:
+  BASEDIR: "${{ github.workspace }}"
+  BUILD_DIR: /data/openpilot
+  OPENAI_API_KEY: "${{ secrets.OPENAI_API_KEY }}"
+
+jobs:
+  get_branch:
+    runs-on: [self-hosted, c3x]
+    outputs:
+      branch: ${{ steps.get_branch.outputs.branch }}
+      python_version: ${{ steps.get_python_version.outputs.python_version }}
+    steps:
+      - name: Determine Current Branch on Runner
+        id: get_branch
+        run: |
+          cd $BUILD_DIR
+
+          BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+
+      - name: Get Python Version from Runner
+        id: get_python_version
+        run: |
+          PYTHON_VERSION=$(tr -d '[:space:]' < "$BUILD_DIR/.python-version")
+          echo "python_version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
+
+  translate:
+    if: inputs.update_translations
+    needs: get_branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure Git Identity
+        run: |
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Checkout Required Files
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.get_branch.outputs.branch }}
+          sparse-checkout: |
+            frogpilot/ui/
+            selfdrive/controls/lib/alerts_offroad.json
+            selfdrive/ui/
+            selfdrive/ui/update_translations.py
+            selfdrive/ui/translations/
+            selfdrive/ui/translations/auto_translate.py
+
+      - name: Set Up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "${{ needs.get_branch.outputs.python_version }}"
+
+      - name: Install Dependencies
+        run: pip install requests
+
+      - name: Install Qt5 Tools
+        run: sudo apt update && sudo apt install -y qttools5-dev-tools
+
+      - name: Update Translations
+        run: python selfdrive/ui/update_translations.py --vanish
+
+      - name: Update Missing Translations
+        run: python selfdrive/ui/translations/auto_translate.py --all-files
+
+      - name: Vet Existing Translations
+        if: github.event.inputs.vet_existing_translations == 'true'
+        run: python selfdrive/ui/translations/auto_translate.py --all-files --vet-translations
+
+      - name: Commit and Push Translation Updates
+        run: |
+          if git diff --quiet selfdrive/ui/translations/*.ts; then
+            echo "No translation updates detected."
+            exit 0
+          fi
+
+          git fetch --unshallow origin ${{ needs.get_branch.outputs.branch }}
+          git checkout ${{ needs.get_branch.outputs.branch }}
+          git add selfdrive/ui/translations/*.ts
+          git commit --amend --no-edit
+          git push --force origin ${{ needs.get_branch.outputs.branch }}
+
+  build_and_push:
+    needs:
+      - get_branch
+      - translate
+    if: always()
+    runs-on: [self-hosted, c3x]
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: ${{ env.BUILD_DIR }}
+    steps:
+      - name: Configure Git Identity
+        run: |
+          git config --global http.postBuffer 104857600
+
+          git config --global user.name "${{ github.actor }}"
+          git config --global user.email "${{ github.actor }}@users.noreply.github.com"
+
+      - name: Update Repository
+        run: |
+          git remote set-url origin https://${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/FrogAi/FrogPilot.git
+
+          if [ "${{ github.event.inputs.update_translations }}" = "true" ]; then
+            git fetch origin ${{ needs.get_branch.outputs.branch }}
+            git reset --hard FETCH_HEAD
+          fi
+
+      - name: Take Ownership of Build
+        run: |
+          sudo chown -R $(whoami):$(whoami) .
+
+      - name: Finalize Build
+        run: |
+          rm -f .clang-tidy
+          rm -f .dockerignore
+          rm -f .editorconfig
+          rm -f .gitattributes
+          rm -f .gitmodules
+          rm -f .lfsconfig
+          rm -f .overlay_init
+          rm -f .pre-commit-config.yaml
+          rm -f .sconsign.dblite
+          rm -f codecov.yml
+          rm -f conftest.py
+          rm -f poetry.lock
+          rm -f pyproject.toml
+          rm -f teleoprtc
+          rm -f Dockerfile.openpilot
+          rm -f Dockerfile.openpilot_base
+          rm -f Jenkinsfile
+
+          rm -f panda/board/obj/.placeholder
+          rm -f panda/board/obj/bootstub.panda.elf
+          rm -f panda/board/obj/bootstub.panda_h7.elf
+          rm -f panda/board/obj/panda.bin
+          rm -f panda/board/obj/panda.elf
+          rm -f panda/board/obj/panda_h7.bin
+          rm -f panda/board/obj/panda_h7.elf
+          rm -f panda/board/obj/version
+
+          find . -name '*.a' -delete
+          find . -name '*.cc' -delete
+          find . -name '*.o' -delete
+          find . -name '*.onnx' -delete
+          find . -name '*.os' -delete
+          find . -name '*.pyc' -delete
+          find . -name 'moc_*' -delete
+
+          find . -name '*.h' | while read -r header; do
+            if [[ "$header" != *"common/version.h" && "$header" != *"system/camerad/sensors/"* ]]; then
+              rm -f "$header"
+            fi
+          done
+
+          rm -rf .devcontainer/
+          rm -rf .vscode/
+          rm -rf body/
+          rm -rf opendbc/generator/
+          rm -rf release/
+          rm -rf scripts/
+          rm -rf site_scons/
+          rm -rf teleoprtc_repo/
+
+          find .github -mindepth 1 -maxdepth 1 ! -name 'workflows' -exec rm -rf {} +
+
+          find .github/workflows -mindepth 1 ! \( \
+            -type f \( \
+              -name 'compile_frogpilot.yaml' -o \
+              -name 'review_pull_request.yaml' -o \
+              -name 'schedule_update.yaml' -o \
+              -name 'update_pr_branch.yaml' -o \
+              -name 'update_release_branch.yaml' \
+            \) \
+          \) -exec rm -rf {} +
+
+          find panda/board/jungle -type f ! -name '__init__.py' -delete
+          find panda/board/jungle -type d -empty -delete
+
+          find third_party/ -name '*x86*' -exec rm -rf {} +
+          find third_party/ -name '*Darwin*' -exec rm -rf {} +
+
+          find tools/ -mindepth 1 -maxdepth 1 ! \( -name '__init__.py' -o -name 'bodyteleop' -o -name 'lib' -o -name 'scripts' \) -exec rm -rf {} +
+
+          find . -name 'SConstruct' -delete
+          find . -name 'SConscript' -delete
+
+          find . -type d \( -iname "debug" -o -iname "test" -o -iname "tests" \) -exec rm -rf {} +
+          find . -type d -empty ! -path "./.git*" -delete
+          find . -type d -name '__pycache__' -exec rm -rf {} +
+          find . -type f -regex '.*matlab.*\.md' -delete
+
+          touch prebuilt
+
+          if [ "${{ github.event.inputs.not_vetted }}" = "true" ]; then
+            touch not_vetted
+          fi
+
+      - name: Add the update_date file
+        if: github.event.inputs.publish_staging == 'true'
+        run: |
+          curl -fLsS https://raw.githubusercontent.com/FrogAi/FrogPilot/FrogPilot-Staging/.github/update_date -o .github/update_date || echo "No update_date found, skipping."
+
+      - name: Commit Build
+        run: |
+          git add -f .
+          git commit -m "Compile FrogPilot"
+          git push --force origin HEAD
+
+          if [ "${{ github.event.inputs.publish_frogpilot }}" = "true" ]; then
+            git push --force origin HEAD:"FrogPilot"
+          fi
+
+          if [ "${{ github.event.inputs.publish_staging }}" = "true" ]; then
+            git push --force origin HEAD:"FrogPilot-Staging"
+          fi
+
+          if [ "${{ github.event.inputs.publish_testing }}" = "true" ]; then
+            git push --force origin HEAD:"FrogPilot-Testing"
+          fi
+
+          if [ -n "${{ github.event.inputs.publish_custom_branch }}" ]; then
+            git push --force origin HEAD:"${{ github.event.inputs.publish_custom_branch }}"
+          fi
