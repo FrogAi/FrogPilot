@@ -89,7 +89,7 @@ void FrogPilotAnnotatedCameraWidget::updateSignals() {
       movie.stop();
     } else if (fileName.endsWith(".png", Qt::CaseInsensitive)) {
       QVector<QPixmap> &targetList = fileName.contains("blindspot", Qt::CaseInsensitive) ? blindspotImages : signalImages;
-      targetList.append(QPixmap(filePath));
+      targetList.append(QPixmap::fromImage(QImage(filePath).convertToFormat(QImage::Format_Indexed8)));
     } else {
       QStringList parts = fileName.split('_');
       if (parts.size() == 2) {

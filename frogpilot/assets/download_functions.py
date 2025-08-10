@@ -43,7 +43,7 @@ def download_file(cancel_param, destination, progress_param, url, download_param
     with session.get(url, stream=True, timeout=10) as response:
       response.raise_for_status()
 
-      with tempfile.NamedTemporaryFile(dir=destination.parent, delete=False) as temp_file:
+      with tempfile.NamedTemporaryFile(delete=False, dir=destination.parent) as temp_file:
         temp_file_path = Path(temp_file.name)
 
         downloaded_size = 0

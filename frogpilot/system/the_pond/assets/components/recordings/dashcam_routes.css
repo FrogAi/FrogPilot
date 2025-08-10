@@ -216,6 +216,34 @@
   opacity: var(--disabled-opacity);
 }
 
+.btn-cancel,
+.btn-del {
+  border: none;
+  border-radius: var(--border-radius-sm);
+  padding: var(--padding-sm) var(--padding-base);
+  font-weight: var(--font-weight-demi-bold);
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+  cursor: pointer;
+}
+
+.btn-cancel {
+  background-color: var(--main-fg);
+  color: var(--text-on-surface);
+}
+.btn-del {
+  background-color: var(--danger-bg);
+  color: var(--text-on-surface);
+}
+
+.btn-cancel:hover {
+  background-color: var(--main-fg);
+  transform: var(--hover-scale-sm);
+}
+.btn-del:hover {
+  background-color: var(--danger-hover-bg);
+  transform: var(--hover-scale-sm);
+}
+
 @media only screen and (max-width: 768px) and (orientation: portrait) {
   .media-player-content {
     width: 90%;

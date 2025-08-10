@@ -2073,7 +2073,7 @@
     </message>
     <message>
         <source>Only trigger &lt;b&gt;Curve Speed Control&lt;/b&gt; if a curve is detected with the model while using the &lt;b&gt;Map-Based&lt;/b&gt; method. Useful to help prevent false positives.</source>
-        <translation type="gpt-4o-generated">Nur &lt;b&gt;Kurvengeschwindigkeitsregelung&lt;/b&gt; auslösen, wenn eine Kurve mit dem Modell erkannt wird, während die &lt;b&gt;Kartenbasierte&lt;/b&gt; Methode verwendet wird. Nützlich, um Fehlalarme zu vermeiden.</translation>
+        <translation type="gpt-4o-generated">&lt;b&gt;Kurvengeschwindigkeitsregelung&lt;/b&gt; nur auslösen, wenn eine Kurve mit dem Modell erkannt wird, während die &lt;b&gt;kartenbasierte&lt;/b&gt; Methode verwendet wird. Nützlich, um Fehlalarme zu vermeiden.</translation>
     </message>
     <message>
         <source>Curve Detection Sensitivity</source>
@@ -2089,7 +2089,7 @@
     </message>
     <message>
         <source>How aggressive openpilot is when navigating through curves. Higher values result in faster turns but may reduce comfort or stability, while lower values result in slower, smoother turns at the risk of being overly cautious.</source>
-        <translation type="gpt-4o-generated">Wie aggressiv openpilot beim Navigieren durch Kurven ist. Höhere Werte führen zu schnelleren Kurven, können jedoch den Komfort oder die Stabilität verringern, während niedrigere Werte zu langsameren, sanfteren Kurven führen, mit dem Risiko, zu vorsichtig zu sein.</translation>
+        <translation type="gpt-4o-generated">Wie aggressiv openpilot beim Navigieren durch Kurven ist. Höhere Werte führen zu schnelleren Kurven, können jedoch Komfort oder Stabilität verringern, während niedrigere Werte zu langsameren, sanfteren Kurven führen, mit dem Risiko, zu vorsichtig zu sein.</translation>
     </message>
     <message>
         <source>Map Based</source>

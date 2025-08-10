@@ -22,14 +22,24 @@ GITLAB_VERSION_URL = f"https://gitlab.com/{RESOURCES_REPO}/-/raw/Versions/mapd_v
 VERSION_PATH = Path("/data/media/0/osm/mapd_version")
 
 def cleanup_temp_files():
-  for file in MAPD_PATH.parent.glob("mapd*"):
-    if file == MAPD_PATH or file == VERSION_PATH:
-      continue
-    if file.is_file():
-      try:
-        file.unlink()
-      except Exception as exception:
-        print(f"Failed to delete leftover file {file}: {exception}")
+  parent = MAPD_PATH.parent
+  try:
+    if not parent.exists() or not parent.is_dir():
+      return
+  except OSError as e:
+    print(f"Skipping cleanup; cannot access {parent}: {e}")
+    return
+  try:
+    for file in parent.glob("mapd*"):
+      if file == MAPD_PATH or file == VERSION_PATH:
+        continue
+      if file.is_file():
+        try:
+          file.unlink()
+        except Exception as exception:
+          print(f"Failed to delete leftover file {file}: {exception}")
+  except OSError as exception:
+    print(f"Skipping cleanup in {parent} due to I/O error: {exception}")
 
 def download():
   Path(MAPD_PATH).parent.mkdir(parents=True, exist_ok=True)
@@ -38,12 +48,10 @@ def download():
     time.sleep(60)
 
   latest_version = get_latest_version()
-
   urls = [
     f"https://github.com/pfeiferj/openpilot-mapd/releases/download/{latest_version}/mapd",
     f"https://gitlab.com/{RESOURCES_REPO}/-/raw/Mapd/{latest_version}"
   ]
-
   for url in urls:
     try:
       with urllib.request.urlopen(url) as response:
@@ -114,7 +122,12 @@ def update_mapd():
 
 def mapd_thread():
   while True:
-    cleanup_temp_files()
+    try:
+      cleanup_temp_files()
+    except OSError as exception:
+      print(f"Cleanup errored: {exception}")
+      time.sleep(5)
+      continue
 
     while not update_mapd():
       time.sleep(60)

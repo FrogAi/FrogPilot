@@ -32,14 +32,16 @@ void loadImage(const QString &basePath, QPixmap &pixmap, QSharedPointer<QMovie> 
   if (gifFile.exists()) {
     QSharedPointer<QMovie> gif(new QMovie(gifFile.filePath()));
     if (!gif->isValid()) {
-      pixmap = loadPixmap(basePath + ".png", size, aspectRatioMode);
+      QImage image(basePath + ".png");
+      image = image.convertToFormat(QImage::Format_Indexed8);
+      pixmap = QPixmap::fromImage(image).scaled(size, aspectRatioMode, Qt::SmoothTransformation);
       return;
     }
 
     gif->setCacheMode(QMovie::CacheAll);
     gif->setScaledSize(size);
 
-    QObject::connect(gif.data(), &QMovie::frameChanged, parent, [parent](int) {parent->update();}, Qt::UniqueConnection);
+    QObject::connect(gif.data(), &QMovie::frameChanged, parent, [parent](int) { parent->update(); }, Qt::UniqueConnection);
 
     gif->start();
 
@@ -47,7 +49,9 @@ void loadImage(const QString &basePath, QPixmap &pixmap, QSharedPointer<QMovie> 
 
     pixmap = QPixmap();
   } else {
-    pixmap = loadPixmap(basePath + ".png", size, aspectRatioMode);
+    QImage image(basePath + ".png");
+    image = image.convertToFormat(QImage::Format_Indexed8);
+    pixmap = QPixmap::fromImage(image).scaled(size, aspectRatioMode, Qt::SmoothTransformation);
   }
 
   parent->update();

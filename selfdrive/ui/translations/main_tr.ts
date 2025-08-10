@@ -2069,7 +2069,7 @@
     </message>
     <message>
         <source>Curve Detection Failsafe</source>
-        <translation type="gpt-4o-generated">Eğri Tespit Emniyeti</translation>
+        <translation type="gpt-4o-generated">Eğri Algılama Emniyeti</translation>
     </message>
     <message>
         <source>Only trigger &lt;b&gt;Curve Speed Control&lt;/b&gt; if a curve is detected with the model while using the &lt;b&gt;Map-Based&lt;/b&gt; method. Useful to help prevent false positives.</source>
@@ -2081,7 +2081,7 @@
     </message>
     <message>
         <source>How sensitive openpilot is when detecting curves. Higher values trigger earlier responses at the risk of triggering too often, while lower values increase confidence at the risk of triggering too infrequently.</source>
-        <translation type="gpt-4o-generated">openpilot'ın virajları algılarken ne kadar hassas olduğu. Daha yüksek değerler, daha sık tetikleme riskiyle birlikte daha erken tepkiler tetiklerken, daha düşük değerler, daha az sıklıkla tetikleme riskiyle birlikte güveni artırır.</translation>
+        <translation type="gpt-4o-generated">openpilot'ın virajları algılarken ne kadar hassas olduğu. Daha yüksek değerler, daha sık tetikleme riskiyle birlikte daha erken tepkiler tetiklerken, daha düşük değerler, daha az sıklıkta tetikleme riskiyle birlikte güveni artırır.</translation>
     </message>
     <message>
         <source>Curve Speed Aggressiveness</source>
@@ -2089,7 +2089,7 @@
     </message>
     <message>
         <source>How aggressive openpilot is when navigating through curves. Higher values result in faster turns but may reduce comfort or stability, while lower values result in slower, smoother turns at the risk of being overly cautious.</source>
-        <translation type="gpt-4o-generated">openpilot'ın virajlarda ne kadar agresif olduğu. Daha yüksek değerler, daha hızlı dönüşler sağlar ancak konfor veya stabiliteyi azaltabilir, daha düşük değerler ise daha yavaş, daha yumuşak dönüşler sağlar ancak aşırı temkinli olma riski taşır.</translation>
+        <translation type="gpt-4o-generated">openpilot'ın virajlarda ne kadar agresif olduğu. Daha yüksek değerler, daha hızlı dönüşler sağlar ancak konfor veya kararlılığı azaltabilirken, daha düşük değerler daha yavaş, daha yumuşak dönüşler sağlar ancak aşırı temkinli olma riski taşır.</translation>
     </message>
     <message>
         <source>Map Based</source>

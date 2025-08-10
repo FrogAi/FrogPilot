@@ -2065,7 +2065,7 @@
     </message>
     <message>
         <source>How curves are detected. &lt;b&gt;Map-Based&lt;/b&gt; uses downloaded map data to identify curves and determine the appropriate speed in which to handle them at, while &lt;b&gt;Vision&lt;/b&gt; relies solely on the driving model.</source>
-        <translation type="gpt-4o-generated">How curves are detected. &lt;b&gt;Map-Based&lt;/b&gt; uses downloaded map data to identify curves and determine the suitable speed to navigate them, while &lt;b&gt;Vision&lt;/b&gt; relies solely on the driving model.</translation>
+        <translation type="gpt-4o-generated">How curves are detected. &lt;b&gt;Map-Based&lt;/b&gt; uses downloaded map data to identify curves and determine the appropriate speed to navigate them, while &lt;b&gt;Vision&lt;/b&gt; relies solely on the driving model.</translation>
     </message>
     <message>
         <source>Curve Detection Failsafe</source>
@@ -2073,11 +2073,11 @@
     </message>
     <message>
         <source>Only trigger &lt;b&gt;Curve Speed Control&lt;/b&gt; if a curve is detected with the model while using the &lt;b&gt;Map-Based&lt;/b&gt; method. Useful to help prevent false positives.</source>
-        <translation type="gpt-4o-generated">Activate &lt;b&gt;Curve Speed Control&lt;/b&gt; only when the model detects a curve while employing the &lt;b&gt;Map-Based&lt;/b&gt; method. This helps avoid false positives.</translation>
+        <translation type="gpt-4o-generated">Activate &lt;b&gt;Curve Speed Control&lt;/b&gt; only when the model detects a curve using the &lt;b&gt;Map-Based&lt;/b&gt; method. This helps prevent false positives.</translation>
     </message>
     <message>
         <source>Curve Detection Sensitivity</source>
-        <translation type="gpt-4o-generated">Curve Detection Ribbit</translation>
+        <translation type="gpt-4o-generated">Curve Detection Precision</translation>
     </message>
     <message>
         <source>How sensitive openpilot is when detecting curves. Higher values trigger earlier responses at the risk of triggering too often, while lower values increase confidence at the risk of triggering too infrequently.</source>
@@ -2089,11 +2089,11 @@
     </message>
     <message>
         <source>How aggressive openpilot is when navigating through curves. Higher values result in faster turns but may reduce comfort or stability, while lower values result in slower, smoother turns at the risk of being overly cautious.</source>
-        <translation type="gpt-4o-generated">How aggressive openpilot is when navigating curves. Higher values lead to quicker turns but may reduce comfort or stability, while lower values result in slower, smoother turns, risking excessive caution.</translation>
+        <translation type="gpt-4o-generated">How aggressive openpilot is when navigating curves. Higher values lead to quicker turns but might reduce comfort or stability, while lower values result in slower, smoother turns, risking being overly cautious.</translation>
     </message>
     <message>
         <source>Map Based</source>
-        <translation type="gpt-4o-generated">Map Focused</translation>
+        <translation type="gpt-4o-generated">Map-Centric</translation>
     </message>
     <message>
         <source>Vision</source>

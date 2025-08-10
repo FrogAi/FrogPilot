@@ -2073,7 +2073,7 @@
     </message>
     <message>
         <source>Only trigger &lt;b&gt;Curve Speed Control&lt;/b&gt; if a curve is detected with the model while using the &lt;b&gt;Map-Based&lt;/b&gt; method. Useful to help prevent false positives.</source>
-        <translation type="gpt-4o-generated">Déclencher &lt;b&gt;Curve Speed Control&lt;/b&gt; uniquement si une courbe est détectée avec le modèle lors de l'utilisation de la méthode &lt;b&gt;Map-Based&lt;/b&gt;. Utile pour aider à prévenir les faux positifs.</translation>
+        <translation type="gpt-4o-generated">Ne déclenchez le &lt;b&gt;contrôle de vitesse en courbe&lt;/b&gt; que si une courbe est détectée avec le modèle lors de l'utilisation de la méthode &lt;b&gt;basée sur la carte&lt;/b&gt;. Utile pour aider à prévenir les faux positifs.</translation>
     </message>
     <message>
         <source>Curve Detection Sensitivity</source>
@@ -2081,7 +2081,7 @@
     </message>
     <message>
         <source>How sensitive openpilot is when detecting curves. Higher values trigger earlier responses at the risk of triggering too often, while lower values increase confidence at the risk of triggering too infrequently.</source>
-        <translation type="gpt-4o-generated">La sensibilité d'openpilot lors de la détection des courbes. Des valeurs plus élevées déclenchent des réponses plus tôt au risque de déclenchements trop fréquents, tandis que des valeurs plus basses augmentent la confiance au risque de déclenchements trop rares.</translation>
+        <translation type="gpt-4o-generated">La sensibilité d'openpilot lors de la détection des courbes. Des valeurs plus élevées déclenchent des réponses plus précoces au risque de déclenchements trop fréquents, tandis que des valeurs plus basses augmentent la confiance au risque de déclenchements trop rares.</translation>
     </message>
     <message>
         <source>Curve Speed Aggressiveness</source>
@@ -2089,7 +2089,7 @@
     </message>
     <message>
         <source>How aggressive openpilot is when navigating through curves. Higher values result in faster turns but may reduce comfort or stability, while lower values result in slower, smoother turns at the risk of being overly cautious.</source>
-        <translation type="gpt-4o-generated">Niveau d'agressivité d'openpilot lors de la navigation dans les virages. Des valeurs plus élevées entraînent des virages plus rapides mais peuvent réduire le confort ou la stabilité, tandis que des valeurs plus basses entraînent des virages plus lents et plus doux au risque d'être trop prudents.</translation>
+        <translation type="gpt-4o-generated">Le niveau d'agressivité d'openpilot lors de la navigation dans les virages. Des valeurs plus élevées entraînent des virages plus rapides mais peuvent réduire le confort ou la stabilité, tandis que des valeurs plus basses entraînent des virages plus lents et plus fluides au risque d'être trop prudents.</translation>
     </message>
     <message>
         <source>Map Based</source>
@@ -2101,7 +2101,7 @@
     </message>
     <message>
         <source>The &lt;b&gt;Map Based&lt;/b&gt; option is only available when some &lt;b&gt;Map Data&lt;/b&gt; has been downloaded!</source>
-        <translation type="gpt-4o-generated">L'option &lt;b&gt;Basée sur la carte&lt;/b&gt; n'est disponible que lorsque des &lt;b&gt;Données de carte&lt;/b&gt; ont été téléchargées !</translation>
+        <translation type="gpt-4o-generated">L'option &lt;b&gt;Basée sur la carte&lt;/b&gt; est uniquement disponible lorsque des &lt;b&gt;Données de carte&lt;/b&gt; ont été téléchargées !</translation>
     </message>
 </context>
 <context>

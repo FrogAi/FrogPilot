@@ -76,8 +76,8 @@ DEFAULT_MODEL = "national-public-radio"
 DEFAULT_MODEL_NAME = "National Public Radio 👀📡"
 DEFAULT_MODEL_VERSION = "v6"
 
-DEFAULT_TINYGRAD_MODEL = "tomb-raider"
-DEFAULT_TINYGRAD_MODEL_NAME = "Tomb Raider 👀📡"
+DEFAULT_TINYGRAD_MODEL = "space-lab"
+DEFAULT_TINYGRAD_MODEL_NAME = "Space Lab 👀📡"
 DEFAULT_TINYGRAD_MODEL_VERSION = "v7"
 
 BUTTON_FUNCTIONS = {
@@ -231,6 +231,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("ForceStops", "0", 2, "0"),
   ("FPSCounter", "1", 3, "0"),
   ("FrogPilotDongleId", "", 0, ""),
+  ("FrogPilotStats", "", 0, ""),
   ("FrogsGoMoosTweak", "1", 2, "0"),
   ("FullMap", "0", 2, "0"),
   ("GasRegenCmd", "1", 2, "0"),
@@ -469,7 +470,7 @@ class FrogPilotVariables:
     toggle = self.frogpilot_toggles
 
     toggle.frogs_go_moo = Path("/persist/frogsgomoo.py").is_file()
-    toggle.block_user = (self.development_branch or self.vetting_branch) and not toggle.frogs_go_moo
+    toggle.block_user = (self.development_branch or short_branch == "MAKE-PRS-HERE" or self.vetting_branch) and not toggle.frogs_go_moo
 
     tuning_level = params.get_int("TuningLevel") if params.get_bool("TuningLevelConfirmed") else 3
 
@@ -531,7 +532,7 @@ class FrogPilotVariables:
         CP = cp_reader.as_builder()
     else:
       CarInterface, _, _ = interfaces[MOCK.MOCK]
-      CP = CarInterface.get_params(MOCK.MOCK, gen_empty_fingerprint(), [], False, toggle, False)
+      CP = CarInterface.get_params(MOCK.MOCK, gen_empty_fingerprint(), [], False, toggle, params, False)
       CarInterface.configure_torque_tune(MOCK.MOCK, CP.lateralTuning)
 
       safety_config = car.CarParams.SafetyConfig.new_message()
@@ -789,13 +790,13 @@ class FrogPilotVariables:
     toggle.holiday_themes = params.get_bool("HolidayThemes") if tuning_level >= level["HolidayThemes"] else default.get_bool("HolidayThemes")
     toggle.current_holiday_theme = holiday_theme if toggle.holiday_themes else "stock"
 
-    lane_change_customizations = params.get_bool("LaneChangeCustomizations") if tuning_level >= level["LaneChangeCustomizations"] else default.get_bool("LaneChangeCustomizations")
-    toggle.lane_change_delay = params.get_float("LaneChangeTime") if lane_change_customizations and tuning_level >= level["LaneChangeTime"] else default.get_float("LaneChangeTime")
-    toggle.lane_detection_width = params.get_float("LaneDetectionWidth") * distance_conversion if lane_change_customizations and tuning_level >= level["LaneDetectionWidth"] else default.get_float("LaneDetectionWidth") * CV.FOOT_TO_METER
+    toggle.lane_changes = params.get_bool("LaneChangeCustomizations") if tuning_level >= level["LaneChangeCustomizations"] else default.get_bool("LaneChangeCustomizations")
+    toggle.lane_change_delay = params.get_float("LaneChangeTime") if toggle.lane_changes and tuning_level >= level["LaneChangeTime"] else default.get_float("LaneChangeTime")
+    toggle.lane_detection_width = params.get_float("LaneDetectionWidth") * distance_conversion if toggle.lane_changes and tuning_level >= level["LaneDetectionWidth"] else default.get_float("LaneDetectionWidth") * CV.FOOT_TO_METER
     toggle.lane_detection = toggle.lane_detection_width > 0
-    toggle.minimum_lane_change_speed = params.get_float("MinimumLaneChangeSpeed") * speed_conversion if lane_change_customizations and tuning_level >= level["MinimumLaneChangeSpeed"] else default.get_float("MinimumLaneChangeSpeed") * CV.MPH_TO_MS
-    toggle.nudgeless = lane_change_customizations and (params.get_bool("NudgelessLaneChange") if tuning_level >= level["NudgelessLaneChange"] else default.get_bool("NudgelessLaneChange"))
-    toggle.one_lane_change = lane_change_customizations and (params.get_bool("OneLaneChange") if tuning_level >= level["OneLaneChange"] else default.get_bool("OneLaneChange"))
+    toggle.minimum_lane_change_speed = params.get_float("MinimumLaneChangeSpeed") * speed_conversion if toggle.lane_changes and tuning_level >= level["MinimumLaneChangeSpeed"] else default.get_float("MinimumLaneChangeSpeed") * CV.MPH_TO_MS
+    toggle.nudgeless = toggle.lane_changes and (params.get_bool("NudgelessLaneChange") if tuning_level >= level["NudgelessLaneChange"] else default.get_bool("NudgelessLaneChange"))
+    toggle.one_lane_change = toggle.lane_changes and (params.get_bool("OneLaneChange") if tuning_level >= level["OneLaneChange"] else default.get_bool("OneLaneChange"))
 
     lateral_tuning = params.get_bool("LateralTune") if tuning_level >= level["LateralTune"] else default.get_bool("LateralTune")
     toggle.nnff = lateral_tuning and has_nnff and not is_angle_car and (params.get_bool("NNFF") if tuning_level >= level["NNFF"] else default.get_bool("NNFF"))
@@ -857,7 +858,7 @@ class FrogPilotVariables:
       toggle.model_version = DEFAULT_CLASSIC_MODEL_VERSION
     toggle.classic_model = toggle.model_version in {"v1", "v2", "v3", "v4"}
     toggle.tinygrad_model = toggle.model_version in {"v7"}
-    toggle.tomb_raider = toggle.model == "tomb-raider"
+    toggle.tomb_raider = toggle.model == "space-lab"
 
     toggle.model_ui = params.get_bool("ModelUI") if tuning_level >= level["ModelUI"] else default.get_bool("ModelUI")
     toggle.dynamic_path_width = toggle.model_ui and (params.get_bool("DynamicPathWidth") if tuning_level >= level["DynamicPathWidth"] else default.get_bool("DynamicPathWidth"))

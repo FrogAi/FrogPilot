@@ -2081,7 +2081,7 @@
     </message>
     <message>
         <source>How sensitive openpilot is when detecting curves. Higher values trigger earlier responses at the risk of triggering too often, while lower values increase confidence at the risk of triggering too infrequently.</source>
-        <translation type="gpt-4o-generated">How sensitive openpilot be when detecting curves. Higher values prompt earlier responses, risking frequent triggers, while lower values boost confidence, risking infrequent triggers.</translation>
+        <translation type="gpt-4o-generated">How sensitive openpilot be when detectin' curves. Higher values trigger earlier responses, but may trigger too often, while lower values boost confidence, riskin' less frequent triggers.</translation>
     </message>
     <message>
         <source>Curve Speed Aggressiveness</source>
@@ -2089,7 +2089,7 @@
     </message>
     <message>
         <source>How aggressive openpilot is when navigating through curves. Higher values result in faster turns but may reduce comfort or stability, while lower values result in slower, smoother turns at the risk of being overly cautious.</source>
-        <translation type="gpt-4o-generated">How aggressive openpilot is when steering through curves. Higher values lead to faster turns, possibly sacrificing comfort or stability, while lower values ensure slower, smoother turns, potentially being too cautious.</translation>
+        <translation type="gpt-4o-generated">How aggressive openpilot is when steering through curves. Higher values lead to faster turns but might reduce comfort or stability, while lower values lead to slower, smoother turns, risking being overly cautious.</translation>
     </message>
     <message>
         <source>Map Based</source>

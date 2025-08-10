@@ -2065,11 +2065,11 @@
     </message>
     <message>
         <source>How curves are detected. &lt;b&gt;Map-Based&lt;/b&gt; uses downloaded map data to identify curves and determine the appropriate speed in which to handle them at, while &lt;b&gt;Vision&lt;/b&gt; relies solely on the driving model.</source>
-        <translation type="gpt-4o-generated">Como curvas são detectadas. &lt;b&gt;Baseado em Mapa&lt;/b&gt; utiliza dados de mapa baixados para identificar curvas e determinar a velocidade apropriada para lidar com elas, enquanto &lt;b&gt;Visão&lt;/b&gt; depende exclusivamente do modelo de condução.</translation>
+        <translation type="gpt-4o-generated">Como curvas são detectadas. &lt;b&gt;Baseado em Mapa&lt;/b&gt; usa dados de mapa baixados para identificar curvas e determinar a velocidade apropriada para lidar com elas, enquanto &lt;b&gt;Visão&lt;/b&gt; depende exclusivamente do modelo de condução.</translation>
     </message>
     <message>
         <source>Curve Detection Failsafe</source>
-        <translation type="gpt-4o-generated">Falha na Detecção de Curva</translation>
+        <translation type="gpt-4o-generated">Falha de Segurança na Detecção de Curvas</translation>
     </message>
     <message>
         <source>Only trigger &lt;b&gt;Curve Speed Control&lt;/b&gt; if a curve is detected with the model while using the &lt;b&gt;Map-Based&lt;/b&gt; method. Useful to help prevent false positives.</source>
@@ -2081,7 +2081,7 @@
     </message>
     <message>
         <source>How sensitive openpilot is when detecting curves. Higher values trigger earlier responses at the risk of triggering too often, while lower values increase confidence at the risk of triggering too infrequently.</source>
-        <translation type="gpt-4o-generated">Quão sensível o openpilot é ao detectar curvas. Valores mais altos acionam respostas mais cedo, com o risco de acionar com muita frequência, enquanto valores mais baixos aumentam a confiança com o risco de acionar com pouca frequência.</translation>
+        <translation type="gpt-4o-generated">Quão sensível o openpilot é ao detectar curvas. Valores mais altos acionam respostas mais cedo, com o risco de acionar com muita frequência, enquanto valores mais baixos aumentam a confiança, com o risco de acionar com pouca frequência.</translation>
     </message>
     <message>
         <source>Curve Speed Aggressiveness</source>

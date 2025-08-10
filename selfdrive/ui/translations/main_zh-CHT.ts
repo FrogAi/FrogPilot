@@ -2065,7 +2065,7 @@
     </message>
     <message>
         <source>How curves are detected. &lt;b&gt;Map-Based&lt;/b&gt; uses downloaded map data to identify curves and determine the appropriate speed in which to handle them at, while &lt;b&gt;Vision&lt;/b&gt; relies solely on the driving model.</source>
-        <translation type="gpt-4o-generated">如何檢測曲線。&lt;b&gt;基於地圖&lt;/b&gt;使用下載的地圖數據來識別曲線並確定處理它們的適當速度，而&lt;b&gt;視覺&lt;/b&gt;則完全依賴於駕駛模型。</translation>
+        <translation type="gpt-4o-generated">如何檢測曲線。&lt;b&gt;基於地圖&lt;/b&gt;使用下載的地圖數據來識別曲線並確定適當的處理速度，而&lt;b&gt;視覺&lt;/b&gt;則完全依賴於駕駛模型。</translation>
     </message>
     <message>
         <source>Curve Detection Failsafe</source>
@@ -2081,7 +2081,7 @@
     </message>
     <message>
         <source>How sensitive openpilot is when detecting curves. Higher values trigger earlier responses at the risk of triggering too often, while lower values increase confidence at the risk of triggering too infrequently.</source>
-        <translation type="gpt-4o-generated">openpilot 在檢測曲線時的靈敏度。較高的值會在更早的時候觸發反應，但有可能過於頻繁觸發，而較低的值則會增加信心，但有可能觸發過於不頻繁。</translation>
+        <translation type="gpt-4o-generated">openpilot 在偵測彎道時的敏感度。較高的值會在風險過於頻繁觸發的情況下提前響應，而較低的值則會在風險過於不頻繁觸發的情況下增加信心。</translation>
     </message>
     <message>
         <source>Curve Speed Aggressiveness</source>
@@ -2089,11 +2089,11 @@
     </message>
     <message>
         <source>How aggressive openpilot is when navigating through curves. Higher values result in faster turns but may reduce comfort or stability, while lower values result in slower, smoother turns at the risk of being overly cautious.</source>
-        <translation type="gpt-4o-generated">openpilot 在通過彎道時的激進程度。較高的值會導致更快的轉彎，但可能會降低舒適性或穩定性，而較低的值會導致轉彎速度較慢、更平穩，但可能過於謹慎。</translation>
+        <translation type="gpt-4o-generated">openpilot 在通過彎道時的激進程度。較高的值會導致更快的轉彎，但可能會降低舒適性或穩定性，而較低的值則會導致轉彎速度較慢、更平穩，但可能過於謹慎。</translation>
     </message>
     <message>
         <source>Map Based</source>
-        <translation type="gpt-4o-generated">地圖為基礎</translation>
+        <translation type="gpt-4o-generated">基於地圖</translation>
     </message>
     <message>
         <source>Vision</source>

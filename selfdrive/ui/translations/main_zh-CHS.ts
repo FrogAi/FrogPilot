@@ -2069,7 +2069,7 @@
     </message>
     <message>
         <source>Curve Detection Failsafe</source>
-        <translation type="gpt-4o-generated">曲线检测故障保护</translation>
+        <translation type="gpt-4o-generated">曲线检测失效保护</translation>
     </message>
     <message>
         <source>Only trigger &lt;b&gt;Curve Speed Control&lt;/b&gt; if a curve is detected with the model while using the &lt;b&gt;Map-Based&lt;/b&gt; method. Useful to help prevent false positives.</source>
@@ -2081,7 +2081,7 @@
     </message>
     <message>
         <source>How sensitive openpilot is when detecting curves. Higher values trigger earlier responses at the risk of triggering too often, while lower values increase confidence at the risk of triggering too infrequently.</source>
-        <translation type="gpt-4o-generated">openpilot在检测曲线时的敏感度。较高的值会在更早的时间触发响应，但可能会过于频繁触发，而较低的值会增加信心，但可能触发过于不频繁。</translation>
+        <translation type="gpt-4o-generated">openpilot在检测曲线时的敏感度。较高的值会在更早响应的同时增加过于频繁触发的风险，而较低的值会在增加信心的同时增加触发过于不频繁的风险。</translation>
     </message>
     <message>
         <source>Curve Speed Aggressiveness</source>
@@ -2089,7 +2089,7 @@
     </message>
     <message>
         <source>How aggressive openpilot is when navigating through curves. Higher values result in faster turns but may reduce comfort or stability, while lower values result in slower, smoother turns at the risk of being overly cautious.</source>
-        <translation type="gpt-4o-generated">openpilot在通过曲线时的激进程度。较高的值会导致转弯速度更快，但可能会降低舒适性或稳定性，而较低的值会导致转弯速度较慢、更平稳，但可能过于谨慎。</translation>
+        <translation type="gpt-4o-generated">openpilot在通过弯道时的激进程度。较高的值会导致更快的转弯，但可能会降低舒适性或稳定性，而较低的值会导致转弯较慢、较平稳，但可能过于谨慎。</translation>
     </message>
     <message>
         <source>Map Based</source>

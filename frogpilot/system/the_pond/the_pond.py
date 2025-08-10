@@ -299,25 +299,20 @@ def setup(app):
 
   @app.route("/api/routes/delete_all", methods=["DELETE"])
   def delete_all_routes():
-    def generate():
-      route_names = set()
+    route_names = set()
+    for footage_path in FOOTAGE_PATHS:
+      if os.path.exists(footage_path):
+        for segment in os.listdir(footage_path):
+          route_names.add(segment.split("--")[0])
+
+    for route_name in sorted(list(route_names)):
       for footage_path in FOOTAGE_PATHS:
         if os.path.exists(footage_path):
           for segment in os.listdir(footage_path):
-            route_names.add(segment.split("--")[0])
+            if segment.startswith(route_name):
+              delete_file(os.path.join(footage_path, segment))
 
-      for route_name in sorted(list(route_names)):
-        for footage_path in FOOTAGE_PATHS:
-          if os.path.exists(footage_path):
-            for segment in os.listdir(footage_path):
-              if segment.startswith(route_name):
-                delete_file(os.path.join(footage_path, segment))
-
-        yield f"data: {json.dumps({'deleted_route': route_name})}\\n\\n"
-        time.sleep(0.1)
-
-      yield f"data: {json.dumps({'status': 'complete'})}\\n\\n"
-    return Response(generate(), mimetype="text/event-stream")
+    return {"message": "All routes deleted!"}, 200
 
   @app.route("/api/routes/<name>/preserve", methods=["POST"])
   def preserve_route(name):
@@ -469,22 +464,14 @@ def setup(app):
 
   @app.route("/api/screen_recordings/delete_all", methods=["DELETE"])
   def delete_all_screen_recordings():
-    def generate():
-      files_to_delete = [f for f in os.listdir(SCREEN_RECORDINGS_PATH) if f.endswith(".mp4")]
-      for filename in files_to_delete:
-        delete_file(os.path.join(SCREEN_RECORDINGS_PATH, filename))
-        for ext in (".png", ".gif"):
-          thumb = os.path.join(SCREEN_RECORDINGS_PATH, filename.replace(".mp4", ext))
-          if os.path.exists(thumb):
-            delete_file(thumb)
-
-        yield f"data: {json.dumps({'deleted_recording': filename})}\\n\\n"
-
-        time.sleep(0.1)
-
-      yield f"data: {json.dumps({'status': 'complete'})}\\n\\n"
-
-    return Response(generate(), mimetype="text/event-stream")
+    files_to_delete = [f for f in os.listdir(SCREEN_RECORDINGS_PATH) if f.endswith(".mp4")]
+    for filename in files_to_delete:
+      delete_file(os.path.join(SCREEN_RECORDINGS_PATH, filename))
+      for ext in (".png", ".gif"):
+        thumb = os.path.join(SCREEN_RECORDINGS_PATH, filename.replace(".mp4", ext))
+        if os.path.exists(thumb):
+          delete_file(thumb)
+    return {"message": "All screen recordings deleted!"}, 200
 
   @app.route("/api/screen_recordings/download/<path:filename>", methods=["GET"])
   def download_screen_recording(filename):

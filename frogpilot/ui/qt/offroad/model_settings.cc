@@ -46,7 +46,7 @@ FrogPilotModelPanel::FrogPilotModelPanel(FrogPilotSettingsWindow *parent) : Frog
         }
         deletableModels.removeAll(processModelName(currentModel));
         deletableModels.removeAll(modelFileToNameMapProcessed.value(QString::fromStdString(params_default.get("Model"))));
-        deletableModels.removeAll("Tomb Raider");
+        deletableModels.removeAll("Space Lab");
         noModelsDownloaded = deletableModels.isEmpty();
 
         if (id == 0) {
@@ -97,7 +97,7 @@ FrogPilotModelPanel::FrogPilotModelPanel(FrogPilotSettingsWindow *parent) : Frog
                 downloadableModels.removeAll(modelName);
               }
             }
-            downloadableModels.removeAll("Tomb Raider 👀📡");
+            downloadableModels.removeAll("Space Lab 👀📡");
             allModelsDownloaded = downloadableModels.isEmpty();
 
             QString modelToDownload = MultiOptionDialog::getSelection(tr("Select a driving model to download"), downloadableModels, "", this);
@@ -215,7 +215,7 @@ FrogPilotModelPanel::FrogPilotModelPanel(FrogPilotSettingsWindow *parent) : Frog
             selectableModels.append(modelName);
           }
         }
-        selectableModels.append(modelFileToNameMap.value("tomb-raider"));
+        selectableModels.append(modelFileToNameMap.value("space-lab"));
         selectableModels.sort();
         selectableModels.prepend(modelFileToNameMap.value(QString::fromStdString(params_default.get("Model"))));
 
@@ -307,8 +307,8 @@ void FrogPilotModelPanel::showEvent(QShowEvent *event) {
     modelFileToNameMap.insert(availableModels[i], availableModelNames[i]);
     modelFileToNameMapProcessed.insert(availableModels[i], processModelName(availableModelNames[i]));
   }
-  modelFileToNameMap.insert("tomb-raider", "Tomb Raider 👀📡");
-  modelFileToNameMapProcessed.insert("tomb-raider", "Tomb Raider");
+  modelFileToNameMap.insert("space-lab", "Space Lab 👀📡");
+  modelFileToNameMapProcessed.insert("space-lab", "Space Lab");
 
   QStringList downloadableModels = availableModelNames;
   for (const QString &modelKey : modelFileToNameMap.keys()) {

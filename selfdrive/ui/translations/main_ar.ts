@@ -2057,11 +2057,11 @@
     </message>
     <message>
         <source>Automatically slow down for upcoming curves using downloaded maps or the driving model.</source>
-        <translation type="gpt-4o-generated">التباطؤ تلقائيًا للمنحنيات القادمة باستخدام الخرائط المحملة أو نموذج القيادة.</translation>
+        <translation type="gpt-4o-generated">استخدم الخرائط المحملة أو نموذج القيادة لتقليل السرعة تلقائيًا عند الاقتراب من المنحنيات.</translation>
     </message>
     <message>
         <source>Curve Detection Method</source>
-        <translation type="gpt-4o-generated">طريقة كشف المنحنى</translation>
+        <translation type="gpt-4o-generated">طريقة اكتشاف المنحنيات</translation>
     </message>
     <message>
         <source>How curves are detected. &lt;b&gt;Map-Based&lt;/b&gt; uses downloaded map data to identify curves and determine the appropriate speed in which to handle them at, while &lt;b&gt;Vision&lt;/b&gt; relies solely on the driving model.</source>
@@ -2073,15 +2073,15 @@
     </message>
     <message>
         <source>Only trigger &lt;b&gt;Curve Speed Control&lt;/b&gt; if a curve is detected with the model while using the &lt;b&gt;Map-Based&lt;/b&gt; method. Useful to help prevent false positives.</source>
-        <translation type="gpt-4o-generated">قم بتفعيل &lt;b&gt;التحكم في سرعة المنحنى&lt;/b&gt; فقط إذا تم اكتشاف منحنى باستخدام النموذج أثناء استخدام طريقة &lt;b&gt;المعتمدة على الخريطة&lt;/b&gt;. مفيد للمساعدة في منع الإيجابيات الكاذبة.</translation>
+        <translation type="gpt-4o-generated">قم بتفعيل &lt;b&gt;التحكم في سرعة المنحنى&lt;/b&gt; فقط إذا تم اكتشاف منحنى باستخدام النموذج أثناء استخدام طريقة &lt;b&gt;المستندة إلى الخريطة&lt;/b&gt;. مفيد للمساعدة في منع الإيجابيات الكاذبة.</translation>
     </message>
     <message>
         <source>Curve Detection Sensitivity</source>
-        <translation type="gpt-4o-generated">حساسية اكتشاف المنحنى</translation>
+        <translation type="gpt-4o-generated">حساسية اكتشاف المنحنيات</translation>
     </message>
     <message>
         <source>How sensitive openpilot is when detecting curves. Higher values trigger earlier responses at the risk of triggering too often, while lower values increase confidence at the risk of triggering too infrequently.</source>
-        <translation type="gpt-4o-generated">مدى حساسية openpilot عند اكتشاف المنحنيات. القيم الأعلى تؤدي إلى استجابات مبكرة مع خطر التفعيل بشكل متكرر، بينما القيم الأدنى تزيد الثقة مع خطر التفعيل بشكل غير متكرر.</translation>
+        <translation type="gpt-4o-generated">مدى حساسية openpilot عند اكتشاف المنحنيات. القيم الأعلى تؤدي إلى استجابات مبكرة مع خطر التفعيل بشكل متكرر، بينما القيم الأقل تزيد الثقة مع خطر التفعيل بشكل غير متكرر.</translation>
     </message>
     <message>
         <source>Curve Speed Aggressiveness</source>
@@ -2101,7 +2101,7 @@
     </message>
     <message>
         <source>The &lt;b&gt;Map Based&lt;/b&gt; option is only available when some &lt;b&gt;Map Data&lt;/b&gt; has been downloaded!</source>
-        <translation type="gpt-4o-generated">خيار &lt;b&gt;المستند إلى الخريطة&lt;/b&gt; متاح فقط عندما يتم تنزيل بعض &lt;b&gt;بيانات الخريطة&lt;/b&gt;!</translation>
+        <translation type="gpt-4o-generated">خيار &lt;b&gt;المستند إلى الخريطة&lt;/b&gt; متاح فقط عند تنزيل بعض &lt;b&gt;بيانات الخريطة&lt;/b&gt;!</translation>
     </message>
 </context>
 <context>

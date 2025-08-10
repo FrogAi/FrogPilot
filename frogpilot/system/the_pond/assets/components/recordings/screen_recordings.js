@@ -21,15 +21,15 @@ function getOrdinalSuffix(n) {
 
 function formatScreenRecordingDate(dateString) {
   const date = new Date(dateString);
-  const month = date.toLocaleString('en-US', { month: 'long' });
+  const month = date.toLocaleString("en-US", { month: "long" });
   const day = date.getDate();
   const year = date.getFullYear();
   let hour = date.getHours();
   const minute = date.getMinutes();
-  const ampm = hour >= 12 ? 'pm' : 'am';
+  const ampm = hour >= 12 ? "pm" : "am";
   hour = hour % 12;
   hour = hour ? hour : 12;
-  const minuteStr = minute < 10 ? '0' + minute : minute;
+  const minuteStr = minute < 10 ? "0" + minute : minute;
   return `${month} ${day}${getOrdinalSuffix(day)}, ${year} - ${hour}:${minuteStr}${ampm}`;
 }
 
@@ -41,18 +41,18 @@ async function fetchRecordings() {
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-    let buffer = '';
+    let buffer = "";
 
     while (true) {
       const { value, done } = await reader.read();
       if (done) break;
 
       buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n\n');
+      const lines = buffer.split("\n\n");
       buffer = lines.pop();
 
       for (const line of lines) {
-        if (line.startsWith('data: ')) {
+        if (line.startsWith("data: ")) {
           try {
             const data = JSON.parse(line.substring(6));
             if (data.progress !== undefined && data.total !== undefined) {
@@ -130,7 +130,7 @@ async function renameFile(rec) {
         recordingToUpdate.png = `/screen_recordings/${val}.png`
       }
 
-      const overlayTitleSpan = overlay.querySelector('.media-player-title span');
+      const overlayTitleSpan = overlay.querySelector(".media-player-title span");
       if (overlayTitleSpan) {
         overlayTitleSpan.textContent = val.replace(/_/g, " ");
       }
@@ -188,7 +188,7 @@ function openOverlay(rec) {
   overlay.querySelector(".action-rename-icon").onclick = () => renameFile(rec)
   overlay.querySelector(".action-delete").onclick = () => confirmDeleteFile(rec)
   overlay.querySelector(".action-download").onclick = () => {
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = `/api/screen_recordings/download/${rec.filename}`;
     link.download = rec.filename;
     document.body.appendChild(link);
@@ -206,43 +206,17 @@ function closeOverlay() {
 }
 
 async function deleteAllRecordings() {
-  state.showDeleteAllModal = false;
-  state.isDeletingAll = true;
-
+  state.showDeleteAllModal = false
+  state.isDeletingAll = true
   try {
-    const response = await fetch('/api/screen_recordings/delete_all', { method: 'DELETE' });
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value);
-      const lines = chunk.split('\n\n');
-
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          try {
-            const data = JSON.parse(line.substring(6));
-            if (data.deleted_recording) {
-              state.recordings = state.recordings.filter(rec => rec.filename !== data.deleted_recording);
-            }
-            if (data.status === 'complete') {
-              showSnackbar("All screen recordings deleted!");
-              break;
-            }
-          } catch (e) {
-            console.error("Failed to parse JSON:", e);
-          }
-        }
-      }
-    }
-  } catch (_) {
-    showSnackbar("An error occurred while deleting all screen recordings...", "error");
+    const res = await fetch("/api/screen_recordings/delete_all", { method: "DELETE" })
+    if (!res.ok) throw new Error()
+    await refresh()
+    showSnackbar("All screen recordings deleted!")
+  } catch {
+    showSnackbar("An error occurred while deleting all screen recordings...", "error")
   } finally {
-    state.isDeletingAll = false;
-    refresh();
+    state.isDeletingAll = false
   }
 }
 
@@ -263,7 +237,7 @@ export function ScreenRecordings() {
           if (state.recordings.length === 0 && !state.loading) {
             return html`<p class="screen-recordings-message">No screen recordings found...</p>`
           }
-          return ''
+          return ""
         }}
 
         <div class="screen-recordings-grid">
@@ -276,28 +250,28 @@ export function ScreenRecordings() {
                   if (state.selectedRecording) return;
 
                   const card = e.currentTarget;
-                  const gif = card.querySelector('.recording-preview-gif');
-                  const png = card.querySelector('.recording-preview-png');
+                  const gif = card.querySelector(".recording-preview-gif");
+                  const png = card.querySelector(".recording-preview-png");
 
                   if (card.dataset.gifLoaded) {
-                    png.style.display = 'none';
-                    gif.style.display = 'block';
+                    png.style.display = "none";
+                    gif.style.display = "block";
                     return;
                   }
 
-                  card.dataset.loadingGif = 'true';
+                  card.dataset.loadingGif = "true";
                   const preloader = new Image();
                   preloader.onload = () => {
-                    if (card.dataset.loadingGif === 'true') {
+                    if (card.dataset.loadingGif === "true") {
                         gif.src = preloader.src;
-                        png.style.display = 'none';
-                        gif.style.display = 'block';
+                        png.style.display = "none";
+                        gif.style.display = "block";
                         card.dataset.gifLoaded = true;
                     }
                     delete card.dataset.loadingGif;
                   };
                   preloader.onerror = () => {
-                    console.error('Failed to load preview GIF:', preloader.src);
+                    console.error("Failed to load preview GIF:", preloader.src);
                     delete card.dataset.loadingGif;
                   };
 
@@ -305,9 +279,9 @@ export function ScreenRecordings() {
                 }}"
                 @mouseleave="${e => {
                   const card = e.currentTarget;
-                  card.querySelector('.recording-preview-png').style.display = 'block';
-                  card.querySelector('.recording-preview-gif').style.display = 'none';
-                  if (card.dataset.loadingGif === 'true') {
+                  card.querySelector(".recording-preview-png").style.display = "block";
+                  card.querySelector(".recording-preview-gif").style.display = "none";
+                  if (card.dataset.loadingGif === "true") {
                       delete card.dataset.loadingGif;
                   }
                 }}"
@@ -334,7 +308,7 @@ export function ScreenRecordings() {
               </button>
             `
           }
-          return ''
+          return ""
         }}
       </div>
       ${() => state.showDeleteModal ? Modal({

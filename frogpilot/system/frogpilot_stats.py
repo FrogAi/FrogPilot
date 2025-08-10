@@ -10,6 +10,7 @@ import urllib.request
 
 from collections import Counter
 from datetime import datetime, timezone
+from urllib3.exceptions import ConnectTimeoutError, NewConnectionError, ReadTimeoutError
 
 import openpilot.system.sentry as sentry
 
@@ -47,7 +48,8 @@ def get_city_center(latitude, longitude):
         else:
           sentry.capture_exception(Exception(f"City lookup returned no results for {city}, {country_code}"))
       except Exception as city_error:
-        sentry.capture_exception(city_error)
+        if not isinstance(city_error, (ConnectTimeoutError, NewConnectionError, ReadTimeoutError, TimeoutError, socket.gaierror, socket.timeout)):
+          sentry.capture_exception(city_error)
 
     print(f"Falling back to fuzzed GPS for {latitude}, {longitude}")
     return (
@@ -99,7 +101,11 @@ def send_stats():
   token = os.environ.get("STATS_TOKEN", "")
   url = os.environ.get("STATS_URL", "")
 
+  frogpilot_stats = json.loads(params.get("FrogPilotStats") or "{}")
+
   location = json.loads(params.get("LastGPSPosition") or "{}")
+  if not (location.get("latitude") and location.get("longitude")):
+    return
   original_latitude = location.get("latitude")
   original_longitude = location.get("longitude")
   latitude, longitude, city, state, country = get_city_center(original_latitude, original_longitude)
@@ -134,6 +140,10 @@ def send_stats():
     .field("longitude", longitude)
     .field("state", state)
     .field("theme", selected_theme.title())
+    .field("total_aol_seconds", float(frogpilot_stats.get("TotalAOLTime", 0)))
+    .field("total_lateral_seconds", float(frogpilot_stats.get("TotalLateralTime", 0)))
+    .field("total_longitudinal_seconds", float(frogpilot_stats.get("TotalLongitudinalTime", 0)))
+    .field("total_tracked_seconds", float(frogpilot_stats.get("TotalTrackedTime", 0)))
 
     .tag("branch", get_build_metadata().channel)
     .tag("dongle_id", params.get("FrogPilotDongleId", encoding="utf-8"))
@@ -145,5 +155,6 @@ def send_stats():
     InfluxDBClient(org=org_ID, token=token, url=url).write_api(write_options=SYNCHRONOUS).write(bucket=bucket, org=org_ID, record=point)
     print("Successfully sent FrogPilot stats!")
   except Exception as exception:
-    sentry.capture_exception(exception)
+    if not isinstance(city_error, (ConnectTimeoutError, NewConnectionError, ReadTimeoutError, TimeoutError, socket.gaierror, socket.timeout)):
+      sentry.capture_exception(exception)
     print(f"Failed to send FrogPilot stats: {exception}")

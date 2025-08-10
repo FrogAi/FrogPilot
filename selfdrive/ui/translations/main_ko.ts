@@ -2065,7 +2065,7 @@
     </message>
     <message>
         <source>How curves are detected. &lt;b&gt;Map-Based&lt;/b&gt; uses downloaded map data to identify curves and determine the appropriate speed in which to handle them at, while &lt;b&gt;Vision&lt;/b&gt; relies solely on the driving model.</source>
-        <translation type="gpt-4o-generated">곡선이 감지되는 방법. &lt;b&gt;지도 기반&lt;/b&gt;은 다운로드된 지도 데이터를 사용하여 곡선을 식별하고 이를 처리하기 위한 적절한 속도를 결정하는 반면, &lt;b&gt;비전&lt;/b&gt;은 오로지 주행 모델에 의존합니다.</translation>
+        <translation type="gpt-4o-generated">곡선이 감지되는 방법. &lt;b&gt;지도 기반&lt;/b&gt;은 다운로드된 지도 데이터를 사용하여 곡선을 식별하고 이를 처리할 적절한 속도를 결정하는 반면, &lt;b&gt;비전&lt;/b&gt;은 오직 주행 모델에만 의존합니다.</translation>
     </message>
     <message>
         <source>Curve Detection Failsafe</source>
@@ -2081,7 +2081,7 @@
     </message>
     <message>
         <source>How sensitive openpilot is when detecting curves. Higher values trigger earlier responses at the risk of triggering too often, while lower values increase confidence at the risk of triggering too infrequently.</source>
-        <translation type="gpt-4o-generated">openpilot이 곡선을 감지할 때의 민감도. 값이 높을수록 더 자주 트리거될 위험이 있지만 더 빠른 반응을 유도하며, 값이 낮을수록 트리거 빈도가 줄어드는 위험이 있지만 신뢰도가 높아집니다.</translation>
+        <translation type="gpt-4o-generated">openpilot이 곡선을 감지할 때 얼마나 민감한지. 높은 값은 너무 자주 트리거될 위험이 있는 반면, 낮은 값은 너무 드물게 트리거될 위험이 있는 자신감을 증가시킵니다.</translation>
     </message>
     <message>
         <source>Curve Speed Aggressiveness</source>
@@ -2089,7 +2089,7 @@
     </message>
     <message>
         <source>How aggressive openpilot is when navigating through curves. Higher values result in faster turns but may reduce comfort or stability, while lower values result in slower, smoother turns at the risk of being overly cautious.</source>
-        <translation type="gpt-4o-generated">openpilot이 곡선을 탐색할 때 얼마나 공격적인지. 높은 값은 더 빠른 회전을 유도하지만 편안함이나 안정성을 감소시킬 수 있으며, 낮은 값은 더 느리고 부드러운 회전을 유도하지만 지나치게 신중할 위험이 있습니다.</translation>
+        <translation type="gpt-4o-generated">openpilot이 곡선을 탐색할 때 얼마나 공격적인지. 값이 높을수록 빠른 회전이 가능하지만 편안함이나 안정성이 감소할 수 있으며, 값이 낮을수록 더 느리고 부드러운 회전이 가능하지만 지나치게 신중할 위험이 있습니다.</translation>
     </message>
     <message>
         <source>Map Based</source>

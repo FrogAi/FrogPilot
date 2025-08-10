@@ -39,18 +39,18 @@ async function fetchRoutes() {
 
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
-    let buffer = '';
+    let buffer = "";
 
     while (true) {
       const { value, done } = await reader.read();
       if (done) break;
 
       buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n\n');
+      const lines = buffer.split("\n\n");
       buffer = lines.pop();
 
       for (const line of lines) {
-        if (line.startsWith('data: ')) {
+        if (line.startsWith("data: ")) {
           try {
             const data = JSON.parse(line.substring(6));
             if (data.progress !== undefined && data.total !== undefined) {
@@ -100,20 +100,23 @@ function closeDialog(o) {
 }
 
 async function deleteRoute(route) {
-  const dlg = openDialog(`    <div class="dialog-box">
+  const dlg = openDialog(`
+    <div class="dialog-box">
       <p>Delete “${route.timestamp}”?</p>
       <div class="dialog-buttons">
-        <button class="btn-cancel">Cancel</button>
-        <button class="btn-del">Delete</button>
+        <button class="btn btn-cancel" ...>Cancel</button>
+        <button class="btn btn-danger btn-del" ...>Delete</button>
       </div>
-    </div>`);
+    </div>`)
   dlg.querySelector(".btn-cancel").onclick = () => closeDialog(dlg)
   dlg.querySelector(".btn-del").onclick = async () => {
     const res = await fetch(`/api/routes/${route.name}`, { method: "DELETE" })
     if (res.ok) {
+      state.routes = state.routes.filter(r => r.name !== route.name)
       closeDialog(dlg)
       closeOverlay()
       refresh()
+      showSnackbar("Route deleted!")
     } else {
       showSnackbar("Delete failed...", "error")
     }
@@ -122,8 +125,8 @@ async function deleteRoute(route) {
 
 async function resetRouteName(route, dlg) {
     const res = await fetch(`/api/routes/reset_name`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name: route.name })
     });
     if (res.ok) {
@@ -134,7 +137,7 @@ async function resetRouteName(route, dlg) {
         routeInList.timestamp = formatRouteDate(timestamp);
       }
       route.timestamp = formatRouteDate(timestamp);
-      const overlayTitleSpan = overlay.querySelector('.media-player-title span');
+      const overlayTitleSpan = overlay.querySelector(".media-player-title span");
       if (overlayTitleSpan) {
         overlayTitleSpan.textContent = formatRouteDate(timestamp);
       }
@@ -161,8 +164,8 @@ async function renameRoute(route) {
     const newName = dlg.querySelector(".rn-input").value.trim();
     if (!newName) return;
     const res = await fetch(`/api/routes/rename`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ old: route.name, new: newName })
     });
     if (res.ok) {
@@ -172,7 +175,7 @@ async function renameRoute(route) {
         routeInList.timestamp = newName;
       }
       route.timestamp = newName;
-      const overlayTitleSpan = overlay.querySelector('.media-player-title span');
+      const overlayTitleSpan = overlay.querySelector(".media-player-title span");
       if (overlayTitleSpan) {
         overlayTitleSpan.textContent = newName;
       }
@@ -223,7 +226,7 @@ async function openOverlay(route) {
   let selectedCamera = "forward";
 
   downloadButton.onclick = () => {
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     const videoPath = `/video/${route.name}--${current}?camera=${selectedCamera}`;
     link.href = videoPath;
     link.download = `${route.timestamp}-${selectedCamera}.mp4`;
@@ -256,7 +259,7 @@ async function openOverlay(route) {
   vid.addEventListener("ended", () => {
     current++;
     if (current < segments.length) {
-      const videoPath = segments[current].includes('?') ? `${segments[current]}&camera=${selectedCamera}` : `${segments[current]}?camera=${selectedCamera}`
+      const videoPath = segments[current].includes("?") ? `${segments[current]}&camera=${selectedCamera}` : `${segments[current]}?camera=${selectedCamera}`
       vid.src = videoPath;
       vid.load();
       vid.play();
@@ -268,7 +271,7 @@ async function openOverlay(route) {
       overlay.querySelectorAll(".camera-button").forEach(btn => btn.classList.remove("active"));
       e.target.classList.add("active");
       selectedCamera = e.target.dataset.camera;
-      const videoPath = segments[current].includes('?') ? `${segments[current]}&camera=${selectedCamera}` : `${segments[current]}?camera=${selectedCamera}`
+      const videoPath = segments[current].includes("?") ? `${segments[current]}&camera=${selectedCamera}` : `${segments[current]}?camera=${selectedCamera}`
       vid.src = videoPath;
       vid.load();
       vid.play();
@@ -301,42 +304,17 @@ async function togglePreserved(route, e) {
 }
 
 async function deleteAllRoutes() {
-  state.showDeleteAllModal = false;
-  state.isDeletingAll = true;
-
+  state.showDeleteAllModal = false
+  state.isDeletingAll = true
   try {
-    const response = await fetch('/api/routes/delete_all', { method: 'DELETE' });
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value);
-      const lines = chunk.split('\n\n');
-
-      for (const line of lines) {
-        if (line.startsWith('data: ')) {
-          try {
-            const data = JSON.parse(line.substring(6));
-            if (data.deleted_route) {
-              state.routes = state.routes.filter(route => route.name !== data.deleted_route);
-            }
-            if (data.status === 'complete') {
-              showSnackbar("All routes deleted!");
-              break;
-            }
-          } catch (e) {
-            console.error("Failed to parse JSON:", e);
-          }
-        }
-      }
-    }
-  } catch (_) {
-    showSnackbar("An error occurred while deleting all routes...", "error");
+    const res = await fetch("/api/routes/delete_all", { method: "DELETE" })
+    if (!res.ok) throw new Error()
+    await refresh()
+    showSnackbar("All routes deleted!")
+  } catch {
+    showSnackbar("An error occurred while deleting all routes...", "error")
   } finally {
-    state.isDeletingAll = false;
+    state.isDeletingAll = false
   }
 }
 
@@ -387,28 +365,28 @@ export function RouteRecordings() {
                       if (state.selectedRoute) return;
 
                       const card = e.currentTarget;
-                      const gif = card.querySelector('.recording-preview-gif');
-                      const png = card.querySelector('.recording-preview-png');
+                      const gif = card.querySelector(".recording-preview-gif");
+                      const png = card.querySelector(".recording-preview-png");
 
                       if (card.dataset.gifLoaded) {
-                        png.style.display = 'none';
-                        gif.style.display = 'block';
+                        png.style.display = "none";
+                        gif.style.display = "block";
                         return;
                       }
 
-                      card.dataset.loadingGif = 'true';
+                      card.dataset.loadingGif = "true";
                       const preloader = new Image();
                       preloader.onload = () => {
-                        if (card.dataset.loadingGif === 'true') {
+                        if (card.dataset.loadingGif === "true") {
                           gif.src = preloader.src;
-                          png.style.display = 'none';
-                          gif.style.display = 'block';
+                          png.style.display = "none";
+                          gif.style.display = "block";
                           card.dataset.gifLoaded = true;
                         }
                         delete card.dataset.loadingGif;
                       };
                       preloader.onerror = () => {
-                        console.error('Failed to load preview GIF:', preloader.src);
+                        console.error("Failed to load preview GIF:", preloader.src);
                         delete card.dataset.loadingGif;
                       };
 
@@ -416,9 +394,9 @@ export function RouteRecordings() {
                     }}"
                     @mouseleave="${e => {
                       const card = e.currentTarget;
-                      card.querySelector('.recording-preview-png').style.display = 'block';
-                      card.querySelector('.recording-preview-gif').style.display = 'none';
-                      if (card.dataset.loadingGif === 'true') {
+                      card.querySelector(".recording-preview-png").style.display = "block";
+                      card.querySelector(".recording-preview-gif").style.display = "none";
+                      if (card.dataset.loadingGif === "true") {
                         delete card.dataset.loadingGif;
                       }
                     }}"
@@ -460,7 +438,7 @@ export function RouteRecordings() {
               </button>
             `;
           }
-          return '';
+          return "";
         }}
       </div>
       ${() => state.showDeleteAllModal ? Modal({

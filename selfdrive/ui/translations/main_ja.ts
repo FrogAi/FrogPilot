@@ -2057,7 +2057,7 @@
     </message>
     <message>
         <source>Automatically slow down for upcoming curves using downloaded maps or the driving model.</source>
-        <translation type="gpt-4o-generated">ダウンロードした地図や運転モデルを使用して、これからのカーブに備えて自動的に減速します。</translation>
+        <translation type="gpt-4o-generated">ダウンロードした地図や運転モデルを使用して、これからのカーブに自動的に減速します。</translation>
     </message>
     <message>
         <source>Curve Detection Method</source>
@@ -2065,7 +2065,7 @@
     </message>
     <message>
         <source>How curves are detected. &lt;b&gt;Map-Based&lt;/b&gt; uses downloaded map data to identify curves and determine the appropriate speed in which to handle them at, while &lt;b&gt;Vision&lt;/b&gt; relies solely on the driving model.</source>
-        <translation type="gpt-4o-generated">カーブの検出方法。&lt;b&gt;地図ベース&lt;/b&gt;はダウンロードされた地図データを使用してカーブを特定し、それに対処するための適切な速度を決定します。一方、&lt;b&gt;ビジョン&lt;/b&gt;は運転モデルのみに依存します。</translation>
+        <translation type="gpt-4o-generated">カーブの検出方法。&lt;b&gt;マップベース&lt;/b&gt;はダウンロードされた地図データを使用してカーブを識別し、それに対処するための適切な速度を決定します。一方、&lt;b&gt;ビジョン&lt;/b&gt;は運転モデルのみに依存します。</translation>
     </message>
     <message>
         <source>Curve Detection Failsafe</source>
@@ -2073,7 +2073,7 @@
     </message>
     <message>
         <source>Only trigger &lt;b&gt;Curve Speed Control&lt;/b&gt; if a curve is detected with the model while using the &lt;b&gt;Map-Based&lt;/b&gt; method. Useful to help prevent false positives.</source>
-        <translation type="gpt-4o-generated">カーブがモデルで検出された場合にのみ、&lt;b&gt;マップベース&lt;/b&gt;の方法を使用して&lt;b&gt;カーブ速度制御&lt;/b&gt;をトリガーします。誤検知を防ぐのに役立ちます。</translation>
+        <translation type="gpt-4o-generated">&lt;b&gt;マップベース&lt;/b&gt;の方法を使用している間にモデルでカーブが検出された場合にのみ、&lt;b&gt;カーブ速度制御&lt;/b&gt;をトリガーします。誤検知を防ぐのに役立ちます。</translation>
     </message>
     <message>
         <source>Curve Detection Sensitivity</source>
@@ -2081,7 +2081,7 @@
     </message>
     <message>
         <source>How sensitive openpilot is when detecting curves. Higher values trigger earlier responses at the risk of triggering too often, while lower values increase confidence at the risk of triggering too infrequently.</source>
-        <translation type="gpt-4o-generated">openpilotがカーブを検出する際の感度。高い値は、頻繁にトリガーされるリスクがある一方で、早期の反応を引き起こし、低い値は、トリガーがあまりにも少なくなるリスクがある一方で、信頼性を高めます。</translation>
+        <translation type="gpt-4o-generated">openpilotがカーブを検出する際の感度。高い値は、頻繁にトリガーされるリスクがある一方で、早期の反応を引き起こし、低い値は、トリガーがあまりにも少ないリスクがある一方で、信頼性を高めます。</translation>
     </message>
     <message>
         <source>Curve Speed Aggressiveness</source>
@@ -2089,11 +2089,11 @@
     </message>
     <message>
         <source>How aggressive openpilot is when navigating through curves. Higher values result in faster turns but may reduce comfort or stability, while lower values result in slower, smoother turns at the risk of being overly cautious.</source>
-        <translation type="gpt-4o-generated">openpilotがカーブを通過する際の攻撃性。値が高いほど速いターンが可能になりますが、快適性や安定性が低下する可能性があります。一方、値が低いと、より慎重になりすぎるリスクがあるものの、より遅く滑らかなターンになります。</translation>
+        <translation type="gpt-4o-generated">openpilotがカーブを通過する際の攻撃性。値が高いほど速いターンが可能になるが、快適性や安定性が低下する可能性があり、値が低いほど遅く滑らかなターンになるが、過度に慎重になるリスクがある。</translation>
     </message>
     <message>
         <source>Map Based</source>
-        <translation type="gpt-4o-generated">マップベース</translation>
+        <translation type="gpt-4o-generated">地図ベース</translation>
     </message>
     <message>
         <source>Vision</source>

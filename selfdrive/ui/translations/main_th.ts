@@ -2065,7 +2065,7 @@
     </message>
     <message>
         <source>How curves are detected. &lt;b&gt;Map-Based&lt;/b&gt; uses downloaded map data to identify curves and determine the appropriate speed in which to handle them at, while &lt;b&gt;Vision&lt;/b&gt; relies solely on the driving model.</source>
-        <translation type="gpt-4o-generated">วิธีการตรวจจับโค้ง &lt;b&gt;Map-Based&lt;/b&gt; ใช้ข้อมูลแผนที่ที่ดาวน์โหลดมาเพื่อระบุโค้งและกำหนดความเร็วที่เหมาะสมในการจัดการกับโค้งเหล่านั้น ในขณะที่ &lt;b&gt;Vision&lt;/b&gt; พึ่งพาเฉพาะโมเดลการขับขี่เท่านั้น</translation>
+        <translation type="gpt-4o-generated">วิธีการตรวจจับโค้ง &lt;b&gt;แบบใช้แผนที่&lt;/b&gt; ใช้ข้อมูลแผนที่ที่ดาวน์โหลดมาเพื่อระบุโค้งและกำหนดความเร็วที่เหมาะสมในการจัดการกับโค้งเหล่านั้น ในขณะที่ &lt;b&gt;แบบใช้การมองเห็น&lt;/b&gt; พึ่งพาเฉพาะโมเดลการขับขี่เท่านั้น</translation>
     </message>
     <message>
         <source>Curve Detection Failsafe</source>
@@ -2085,15 +2085,15 @@
     </message>
     <message>
         <source>Curve Speed Aggressiveness</source>
-        <translation type="gpt-4o-generated">ความก้าวร้าวของความเร็วในโค้ง</translation>
+        <translation type="gpt-4o-generated">ความก้าวร้าวของความเร็วโค้ง</translation>
     </message>
     <message>
         <source>How aggressive openpilot is when navigating through curves. Higher values result in faster turns but may reduce comfort or stability, while lower values result in slower, smoother turns at the risk of being overly cautious.</source>
-        <translation type="gpt-4o-generated">ความก้าวร้าวของ openpilot เมื่อขับผ่านโค้ง ค่าที่สูงขึ้นจะทำให้เลี้ยวได้เร็วขึ้นแต่ก็อาจลดความสบายหรือความเสถียร ในขณะที่ค่าที่ต่ำกว่าจะทำให้เลี้ยวได้ช้าลงและนุ่มนวลขึ้นแต่เสี่ยงต่อการระมัดระวังเกินไป</translation>
+        <translation type="gpt-4o-generated">ความก้าวร้าวของ openpilot เมื่อขับผ่านโค้ง ค่าที่สูงขึ้นจะทำให้เลี้ยวได้เร็วขึ้นแต่ก็อาจลดความสะดวกสบายหรือความเสถียร ในขณะที่ค่าที่ต่ำกว่าจะทำให้เลี้ยวได้ช้าลงและนุ่มนวลขึ้นแต่มีความเสี่ยงที่จะระมัดระวังเกินไป</translation>
     </message>
     <message>
         <source>Map Based</source>
-        <translation type="gpt-4o-generated">แผนที่เป็นพื้นฐาน</translation>
+        <translation type="gpt-4o-generated">ใช้แผนที่เป็นพื้นฐาน</translation>
     </message>
     <message>
         <source>Vision</source>
