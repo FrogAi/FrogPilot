@@ -20,6 +20,7 @@ from openpilot.selfdrive.car import apply_hysteresis, gen_empty_fingerprint, sca
 from openpilot.selfdrive.car.chrysler.values import CAR as ChryslerCAR, ChryslerFrogPilotFlags
 from openpilot.selfdrive.car.hyundai.hyundaicanfd import CanBus
 from openpilot.selfdrive.car.hyundai.values import CAR as HyundaiCAR, CANFD_CAR, HyundaiFrogPilotFlags
+from openpilot.selfdrive.car.mock.values import CAR as MockCAR
 from openpilot.selfdrive.car.toyota.values import CAR as ToyotaCAR, ToyotaFrogPilotFlags
 from openpilot.selfdrive.car.values import PLATFORMS
 from openpilot.selfdrive.controls.lib.drive_helpers import V_CRUISE_MAX, get_friction
@@ -169,41 +170,42 @@ class CarInterfaceBase(ABC):
     return ret
 
   @classmethod
-  def get_frogpilot_params(cls, candidate: str, car_fw: list[car.CarParams.CarFw], fingerprint: dict[int, dict[int, int]], frogpilot_toggles: SimpleNamespace):
+  def get_frogpilot_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[car.CarParams.CarFw], frogpilot_toggles: SimpleNamespace):
     fp_ret = custom.FrogPilotCarParams.new_message()
 
     platform = PLATFORMS[candidate]
     fp_ret.fpFlags |= int(platform.config.flags)
 
-    if platform in ChryslerCAR:
-      if candidate == ChryslerCAR.RAM_HD_5TH_GEN:
-        if 570 not in fingerprint[0]:
-          fp_ret.fpFlags |= ChryslerFrogPilotFlags.RAM_HD_ALT_BUTTONS.value
+    if platform not in MockCAR:
+      if platform in ChryslerCAR:
+        if candidate == ChryslerCAR.RAM_HD_5TH_GEN:
+          if 570 not in fingerprint[0]:
+            fp_ret.fpFlags |= ChryslerFrogPilotFlags.RAM_HD_ALT_BUTTONS.value
 
-    elif platform in HyundaiCAR:
-      if candidate in CANFD_CAR:
-        hda2 = Ecu.adas in [fw.ecu for fw in car_fw]
+      elif platform in HyundaiCAR:
+        if candidate in CANFD_CAR:
+          hda2 = Ecu.adas in [fw.ecu for fw in car_fw]
 
-        if 0x1fa in fingerprint[CanBus(None, hda2, fingerprint).ECAN]:
-          fp_ret.fpFlags |= HyundaiFrogPilotFlags.NAV_MSG.value
+          if 0x1fa in fingerprint[CanBus(None, hda2, fingerprint).ECAN]:
+            fp_ret.fpFlags |= HyundaiFrogPilotFlags.NAV_MSG.value
 
-        fp_ret.isHDA2 = hda2
-      else:
-        if 0x391 in fingerprint[0]:
-          fp_ret.fpFlags |= HyundaiFrogPilotFlags.CAN_LFA_BTN.value
+          fp_ret.isHDA2 = hda2
+        else:
+          if 0x391 in fingerprint[0]:
+            fp_ret.fpFlags |= HyundaiFrogPilotFlags.CAN_LFA_BTN.value
 
-        if 0x53E in fingerprint[2]:
-          fp_ret.fpFlags |= HyundaiFrogPilotFlags.LKAS12.value
+          if 0x53E in fingerprint[2]:
+            fp_ret.fpFlags |= HyundaiFrogPilotFlags.LKAS12.value
 
-        if 0x544 in fingerprint[0]:
-          fp_ret.fpFlags |= HyundaiFrogPilotFlags.NAV_MSG.value
+          if 0x544 in fingerprint[0]:
+            fp_ret.fpFlags |= HyundaiFrogPilotFlags.NAV_MSG.value
 
-    elif platform in ToyotaCAR:
-      if candidate == ToyotaCAR.TOYOTA_PRIUS:
-        if 0x23 in fingerprint[0]:
-          fp_ret.fpFlags |= ToyotaFrogPilotFlags.ZSS.value
+      elif platform in ToyotaCAR:
+        if candidate == ToyotaCAR.TOYOTA_PRIUS:
+          if 0x23 in fingerprint[0]:
+            fp_ret.fpFlags |= ToyotaFrogPilotFlags.ZSS.value
 
-    fp_ret.openpilotLongitudinalControlDisabled = frogpilot_toggles.disable_openpilot_long
+      fp_ret.openpilotLongitudinalControlDisabled = frogpilot_toggles.disable_openpilot_long
 
     return fp_ret
 

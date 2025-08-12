@@ -41,6 +41,7 @@ class MapSpeedLogger:
     self.overpass_requests.setdefault("total_requests", 0)
 
     self.session = requests.Session()
+    self.session.headers.update({"Accept-Language": "en"})
     self.session.headers.update({"User-Agent": "frogpilot-map-speed-logger/1.0 (https://github.com/FrogAi/FrogPilot)"})
 
     self.sm = messaging.SubMaster(["deviceState", "frogpilotCarState", "frogpilotNavigation", "frogpilotPlan", "liveLocationKalman", "modelV2"])

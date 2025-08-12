@@ -34,6 +34,7 @@ class ModelManager:
     self.model_sizes_path = MODELS_PATH / "model_sizes.json"
 
     self.session = requests.Session()
+    self.session.headers.update({"Accept-Language": "en"})
     self.session.headers.update({"User-Agent": "frogpilot-model-downloader/1.0 (https://github.com/FrogAi/FrogPilot)"})
 
   def check_models(self, boot_run, repo_url):

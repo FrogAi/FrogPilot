@@ -83,7 +83,7 @@ async function setSpecial(favorite, type, state, loadFavoritesAlphabetically) {
         message = "Work location set!";
       }
     }
-    const body = { routeId: favorite.routeId };
+    const body = { routeId: favorite.routeId, id: favorite.id };
     if (newIsHome !== null) body.is_home = newIsHome;
     if (newIsWork !== null) body.is_work = newIsWork;
     await fetch("/api/navigation/favorite/rename", {
@@ -217,7 +217,7 @@ export function NavDestination() {
             highlightRoute(map, routes, routeId);
           },
           state.isMetric,
-          () => state.selectedRoute.routeId
+          () => state.selectedRoute?.routeId ?? null
         );
 
         if (resume && map) {
@@ -382,12 +382,12 @@ export function NavDestination() {
 
   async function removeFavorite() {
     if (!state.favoriteToRemove) return;
-    const { name, latitude, longitude, routeId } = state.favoriteToRemove;
+    const { id, name, latitude, longitude, routeId } = state.favoriteToRemove;
     try {
       await fetch("/api/navigation/favorite", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, latitude, longitude, routeId })
+        body: JSON.stringify({ id, name, latitude, longitude, routeId })
       });
       await loadFavoritesAlphabetically();
       showSnackbar("Favorite removed!");

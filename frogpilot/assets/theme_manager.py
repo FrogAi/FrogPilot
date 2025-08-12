@@ -221,6 +221,7 @@ class ThemeManager:
     self.previous_asset_mappings = {}
 
     self.session = requests.Session()
+    self.session.headers.update({"Accept-Language": "en"})
     self.session.headers.update({"User-Agent": "frogpilot-theme-downloader/1.0 (https://github.com/FrogAi/FrogPilot)"})
 
   @staticmethod

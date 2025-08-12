@@ -7,6 +7,7 @@ from pathlib import Path
 from werkzeug.utils import secure_filename
 
 import errno
+import hashlib
 import json
 import os
 import re
@@ -162,10 +163,22 @@ def setup(app):
 
   @app.route("/api/navigation/favorite", methods=["DELETE"])
   def remove_favorite_destination():
-    to_remove = request.json
+    to_remove = request.json or {}
 
     existing = json.loads(params.get("FavoriteDestinations", encoding="utf8") or "[]")
-    favorites = [favorite for favorite in existing if favorite.get("routeId") != to_remove.get("routeId")]
+    fid = to_remove.get("id")
+    if fid:
+      favorites = [f for f in existing if f.get("id") != fid]
+    else:
+      favorites = [
+        f for f in existing
+        if not (
+          f.get("routeId") == to_remove.get("routeId") and
+          f.get("latitude") == to_remove.get("latitude") and
+          f.get("longitude") == to_remove.get("longitude") and
+          f.get("name") == to_remove.get("name")
+        )
+      ]
 
     params.put("FavoriteDestinations", json.dumps(favorites))
     return jsonify(message="Destination removed from favorites!")
@@ -173,29 +186,42 @@ def setup(app):
   @app.route("/api/navigation/favorite", methods=["GET"])
   def list_favorite_destinations():
     favorites = json.loads(params.get("FavoriteDestinations", encoding="utf8") or "[]")
+    changed = False
+    for f in favorites:
+      if "id" not in f:
+        raw = f"{f.get('longitude')},{f.get('latitude')}|{f.get('routeId') or ''}|{f.get('name') or ''}"
+        f["id"] = hashlib.sha1(raw.encode()).hexdigest()
+        changed = True
+    if changed:
+      params.put("FavoriteDestinations", json.dumps(favorites))
     return jsonify(favorites=favorites)
 
   @app.route("/api/navigation/favorite", methods=["POST"])
   def add_favorite_destination():
-    new_favorites = request.json
+    new_fav = request.json or {}
+
+    if "id" not in new_fav:
+      raw = f"{new_fav.get('longitude')},{new_fav.get('latitude')}|{new_fav.get('routeId') or ''}|{new_fav.get('name') or ''}"
+      new_fav["id"] = hashlib.sha1(raw.encode()).hexdigest()
 
     existing = json.loads(params.get("FavoriteDestinations", encoding="utf8") or "[]")
-    if new_favorites not in existing:
-      existing.append(new_favorites)
+    if not any(f.get("id") == new_fav["id"] for f in existing):
+      existing.append(new_fav)
 
     params.put("FavoriteDestinations", json.dumps(existing))
     return {"message": "Destination added to favorites!"}
 
   @app.route("/api/navigation/favorite/rename", methods=["POST"])
   def rename_favorite_destination():
-    data = request.json
+    data = request.json or {}
+    fid = data.get("id")
     route_id_to_rename = data.get("routeId")
     new_name = data.get("name")
     is_home = data.get("is_home")
     is_work = data.get("is_work")
 
-    if not route_id_to_rename:
-      return jsonify({"error": "Missing routeId"}), 400
+    if not fid and not route_id_to_rename:
+      return jsonify({"error": "Missing id or routeId"}), 400
 
     existing_favorites = json.loads(params.get("FavoriteDestinations", encoding="utf8") or "[]")
 
@@ -208,7 +234,7 @@ def setup(app):
 
     found = False
     for favorite in existing_favorites:
-      if favorite.get("routeId") == route_id_to_rename:
+      if (fid and favorite.get("id") == fid) or (not fid and favorite.get("routeId") == route_id_to_rename):
         if new_name:
           favorite["name"] = new_name
 

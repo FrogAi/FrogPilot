@@ -49,6 +49,7 @@ class SpeedLimitController:
     self.previous_target = params.get_float("PreviousSpeedLimit")
 
     self.session = requests.Session()
+    self.session.headers.update({"Accept-Language": "en"})
     self.session.headers.update({"User-Agent": "frogpilot-mapbox-speed-limit-retriever/1.0 (https://github.com/FrogAi/FrogPilot)"})
 
   @property

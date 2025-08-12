@@ -31,7 +31,7 @@ def report_tombstone(fn: str, message: str, contents: str) -> None:
     sentry_sdk.flush()
 
 
-def capture_exception(*args, **kwargs) -> None:
+def capture_exception(*args, crash_log=True, **kwargs) -> None:
   exc_text = traceback.format_exc()
 
   phrases_to_check = [
@@ -42,7 +42,7 @@ def capture_exception(*args, **kwargs) -> None:
   if any(phrase in exc_text for phrase in phrases_to_check):
     return
 
-  save_exception(exc_text)
+  save_exception(exc_text, crash_log)
   cloudlog.error("crash", exc_info=kwargs.get('exc_info', 1))
 
   try:
@@ -70,14 +70,14 @@ def set_tag(key: str, value: str) -> None:
   sentry_sdk.set_tag(key, value)
 
 
-def save_exception(exc_text: str) -> None:
+def save_exception(exc_text: str, crash_log) -> None:
   files = [
     ERROR_LOGS_PATH / datetime.now().astimezone().strftime("%Y-%m-%d--%H-%M-%S.log"),
     ERROR_LOGS_PATH / "error.txt"
   ]
 
   for file_path in files:
-    if file_path.name == "error.txt":
+    if file_path.name == "error.txt" and crash_log:
       lines = exc_text.splitlines()[-10:]
       file_path.write_text("\n".join(lines))
     else:

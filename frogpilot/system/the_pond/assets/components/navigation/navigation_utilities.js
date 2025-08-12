@@ -50,12 +50,17 @@ function addRouteLayers(map, sourceId, layerId, clickLayerId, route) {
   });
 }
 
+function safeGetId(fn) {
+  try { return fn?.() ?? null } catch { return null }
+}
+
 function handleRouteEvents(map, clickLayerId, onRouteSelect, routes, useMetric, feature, getSelectedRouteId) {
   const layerId = clickLayerId.replace('click', 'line');
   const showTooltip = (e) => {
     map.getCanvas().style.cursor = 'pointer';
     map.setPaintProperty(layerId, 'line-width', 5);
     map.setPaintProperty(layerId, 'line-opacity', 1);
+    document.querySelectorAll('.mapboxgl-popup.route-tooltip').forEach(p => p.remove());
     const props = feature.properties;
     const duration = useMetric ? formatSecondsToHuman(props.duration) : formatSecondsToAmerican(props.duration);
     const distance = useMetric ? formatMetersToHuman(props.distance, true) : formatMetersToMiles(props.distance);
@@ -91,7 +96,8 @@ function handleRouteEvents(map, clickLayerId, onRouteSelect, routes, useMetric, 
   map.on('mouseenter', clickLayerId, showTooltip);
   map.on('mouseleave', clickLayerId, () => {
     map.getCanvas().style.cursor = '';
-    highlightRoute(map, routes, getSelectedRouteId());
+    const id = safeGetId(getSelectedRouteId);
+    highlightRoute(map, routes, id);
     document.querySelectorAll('.mapboxgl-popup').forEach(p => p.remove());
   });
 }
@@ -116,8 +122,10 @@ export function addRouteToMap(map, routes, start, dest, onRouteSelect, useMetric
     addRouteLayers(map, sourceId, layerId, clickLayerId, route);
     handleRouteEvents(map, clickLayerId, onRouteSelect, routes, useMetric, feature, getSelectedRouteId);
   });
+
   map.once('idle', () => {
-    highlightRoute(map, routes, getSelectedRouteId());
+    const id = safeGetId(getSelectedRouteId);
+    highlightRoute(map, routes, id);
   });
 
   map.on('click', (e) => {

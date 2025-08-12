@@ -1,12 +1,10 @@
 import json
 import os
 import random
+import requests
 import socket
 import subprocess
 import sys
-import urllib.error
-import urllib.parse
-import urllib.request
 
 from collections import Counter
 from datetime import datetime, timezone
@@ -20,55 +18,87 @@ from openpilot.system.version import get_build_metadata
 from openpilot.frogpilot.common.frogpilot_utilities import run_cmd
 from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles, params, params_tracking
 
+BASE_URL = "https://nominatim.openstreetmap.org"
+MINIMUM_POPULATION = 100_000
+
 def get_city_center(latitude, longitude):
   try:
-    url = f"https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat={latitude}&lon={longitude}&addressdetails=1"
-    request = urllib.request.Request(url, headers={"User-Agent": "frogpilot-city-center-checker/1.0 (https://github.com/FrogAi/FrogPilot)"})
-    with urllib.request.urlopen(request, timeout=10) as response:
-      location_data = json.load(response)
+    with requests.Session() as session:
+      session.headers.update({"Accept-Language": "en"})
+      session.headers.update({"User-Agent": "frogpilot-city-center-checker/1.0 (https://github.com/FrogAi/FrogPilot)"})
 
-    address = location_data.get("address", {})
-    city = address.get("city") or address.get("hamlet") or address.get("town") or address.get("village", "Unknown")
-    country = address.get("country", "United States")
-    country_code = address.get("country_code", "US").upper()
-    state = address.get("state", "N/A") if country_code == "US" else "N/A"
+      response = session.get(f"{BASE_URL}/reverse", params={"addressdetails": 1, "extratags": 0, "format": "jsonv2", "lat": latitude, "lon": longitude, "namedetails": 0, "zoom": 14}, timeout=10)
+      response.raise_for_status()
+      data = response.json() or {}
 
-    if city:
-      try:
-        city_query = f"https://nominatim.openstreetmap.org/search?city={urllib.parse.quote(city)}&country={country_code}&format=json&limit=1"
-        city_request = urllib.request.Request(city_query, headers={"User-Agent": "frogpilot-city-center-checker/1.0 (https://github.com/FrogAi/FrogPilot)"})
-        with urllib.request.urlopen(city_request, timeout=10) as city_response:
-          city_data = json.load(city_response)
+      address = data.get("address") or {}
+      city_name = address.get("city") or address.get("hamlet") or address.get("town") or address.get("village")
+      country_code = (address.get("country_code") or "").lower()
+      country_name = address.get("country") or "N/A"
+      state_name = address.get("province") or address.get("region") or address.get("state") or address.get("state_district") or "N/A"
 
-        if city_data:
-          center_lat = float(city_data[0]["lat"])
-          center_lon = float(city_data[0]["lon"])
-          print(f"Using city center for {city}, {state}, {country} → ({center_lat}, {center_lon})")
-          return center_lat, center_lon, city, state, country
-        else:
-          sentry.capture_exception(Exception(f"City lookup returned no results for {city}, {country_code}"))
-      except Exception as city_error:
-        if not isinstance(city_error, (ConnectTimeoutError, NewConnectionError, ReadTimeoutError, TimeoutError, socket.gaierror, socket.timeout)):
-          sentry.capture_exception(city_error)
+      if city_name:
+        response = session.get(f"{BASE_URL}/search", params={"addressdetails": 1, "extratags": 1, "format": "jsonv2", "limit": 1, "q": f"{city_name}, {state_name}, {country_name}"}, timeout=10)
+        response.raise_for_status()
+        data = response.json() or []
 
-    print(f"Falling back to fuzzed GPS for {latitude}, {longitude}")
-    return (
-      round(latitude + random.uniform(-0.1, 0.1), 6),
-      round(longitude + random.uniform(-0.1, 0.1), 6),
-      "Unknown",
-      "N/A",
-      "Unknown"
-    )
+        if data:
+          tags = data[0]
+          population = (tags.get("extratags") or {}).get("population")
 
-  except (urllib.error.URLError, urllib.error.HTTPError, socket.gaierror, socket.timeout, TimeoutError, Exception) as error:
-    print(f"Falling back due to geocoding error: {error}")
-    return (
-      round(latitude + random.uniform(-0.1, 0.1), 6),
-      round(longitude + random.uniform(-0.1, 0.1), 6),
-      "Unknown",
-      "N/A",
-      "Unknown"
-    )
+          population_value = None
+          if population is not None:
+            try:
+              population_value = int(str(population).replace(",", "").split(";")[0].strip())
+            except Exception:
+              population_value = None
+
+          if population_value is not None and population_value >= MINIMUM_POPULATION:
+            latitude_value = float(tags["lat"])
+            longitude_value = float(tags["lon"])
+
+            resolved_address = tags.get("address") or {}
+            city_label = resolved_address.get("city") or resolved_address.get("town") or city_name
+
+            return latitude_value, longitude_value, city_label, state_name, country_name
+
+      query = f"{state_name}, United States" if country_code == "us" else f"capital of {state_name}, {country_name}"
+      response = session.get(f"{BASE_URL}/search", params={"addressdetails": 1, "extratags": 1, "format": "jsonv2", "limit": 5, "q": query}, timeout=10)
+      response.raise_for_status()
+      candidates = response.json() or []
+
+      chosen_candidate = None
+      for candidate in candidates:
+        address = candidate.get("address") or {}
+        capital = (candidate.get("extratags") or {}).get("capital")
+        country = address.get("country")
+        state = address.get("province") or address.get("region") or address.get("state") or address.get("state_district")
+
+        if (state == state_name or state_name == "N/A") and country == country_name and (capital in ("administrative", "state", "yes") or address.get("city") or address.get("town")):
+          chosen_candidate = candidate
+          break
+
+      if not chosen_candidate and candidates:
+        chosen_candidate = candidates[0]
+
+      if chosen_candidate:
+        latitude_value = float(chosen_candidate["lat"])
+        longitude_value = float(chosen_candidate["lon"])
+
+        chosen_address = chosen_candidate.get("address") or {}
+        city_label = chosen_address.get("city") or chosen_address.get("town") or (chosen_candidate.get("display_name") or "").split(",")[0]
+
+        return latitude_value, longitude_value, city_label, state_name, country_name
+
+      print(f"Falling back to (0, 0) for {latitude}, {longitude}")
+      return float(0.0), float(0.0), "N/A", "N/A", "N/A"
+
+  except Exception as exception:
+    if not isinstance(exception, (ConnectTimeoutError, NewConnectionError, ReadTimeoutError, TimeoutError, socket.gaierror, socket.timeout)):
+      sentry.capture_exception(exception, crash_log=False)
+
+    print(f"Falling back to (0, 0) for {latitude}, {longitude}")
+    return float(0.0), float(0.0), "N/A", "N/A", "N/A"
 
 def install_influxdb_client():
   try:
@@ -93,7 +123,7 @@ def send_stats():
 
   install_influxdb_client()
 
-  from influxdb_client import InfluxDBClient, Point, WriteOptions
+  from influxdb_client import InfluxDBClient, Point
   from influxdb_client.client.write_api import SYNCHRONOUS
 
   bucket = os.environ.get("STATS_BUCKET", "")
@@ -134,8 +164,11 @@ def send_stats():
     .field("frogpilot_drives", params_tracking.get_int("FrogPilotDrives"))
     .field("frogpilot_hours", params_tracking.get_int("FrogPilotMinutes") / 60)
     .field("frogpilot_miles", params_tracking.get_int("FrogPilotKilometers") * CV.KPH_TO_MPH)
+    .field("has_cc_long", frogpilot_toggles.has_cc_long)
+    .field("has_openpilot_longitudinal", frogpilot_toggles.openpilot_longitudinal)
     .field("has_pedal", frogpilot_toggles.has_pedal)
     .field("has_sdsu", frogpilot_toggles.has_sdsu)
+    .field("has_zss", frogpilot_toggles.has_zss)
     .field("latitude", latitude)
     .field("longitude", longitude)
     .field("state", state)
@@ -144,6 +177,7 @@ def send_stats():
     .field("total_lateral_seconds", float(frogpilot_stats.get("TotalLateralTime", 0)))
     .field("total_longitudinal_seconds", float(frogpilot_stats.get("TotalLongitudinalTime", 0)))
     .field("total_tracked_seconds", float(frogpilot_stats.get("TotalTrackedTime", 0)))
+    .field("using_stock_acc", not (frogpilot_toggles.has_cc_long or frogpilot_toggles.openpilot_longitudinal))
 
     .tag("branch", get_build_metadata().channel)
     .tag("dongle_id", params.get("FrogPilotDongleId", encoding="utf-8"))
@@ -155,6 +189,6 @@ def send_stats():
     InfluxDBClient(org=org_ID, token=token, url=url).write_api(write_options=SYNCHRONOUS).write(bucket=bucket, org=org_ID, record=point)
     print("Successfully sent FrogPilot stats!")
   except Exception as exception:
-    if not isinstance(city_error, (ConnectTimeoutError, NewConnectionError, ReadTimeoutError, TimeoutError, socket.gaierror, socket.timeout)):
-      sentry.capture_exception(exception)
+    if not isinstance(exception, (ConnectTimeoutError, NewConnectionError, ReadTimeoutError, TimeoutError, socket.gaierror, socket.timeout)):
+      sentry.capture_exception(exception, crash_log=False)
     print(f"Failed to send FrogPilot stats: {exception}")
