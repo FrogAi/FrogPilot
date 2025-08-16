@@ -6,9 +6,7 @@ on:
 jobs:
   update_tinygrad:
     name: Update Tinygrad
-    runs-on:
-      - self-hosted
-      - c3x
+    runs-on: [self-hosted, c3x]
 
     steps:
       - name: Get version

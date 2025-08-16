@@ -257,7 +257,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("IsMetric", "0", 0, "0"),
   ("KonikDongleId", "", 0, ""),
   ("KonikMinutes", "0", 0, "0"),
-  ("LaneChangeCustomizations", "0", 0, "0"),
+  ("LaneChangeCustomizations", "1", 0, "1"),
   ("LaneChangeTime", "2.0", 0, "0"),
   ("LaneDetectionWidth", "0", 2, "0"),
   ("LaneLinesWidth", "4", 2, "2"),

@@ -210,16 +210,10 @@ class Soundd:
           else:
             self.current_volume = self.calculate_volume(float(self.spl_filter_weighted.x))
 
-        elif self.frogpilot_toggles.alert_volume_controller:
-          if self.current_alert in self.volume_map:
-            self.current_volume = self.volume_map[self.current_alert]
-            if self.current_volume == 1.01:
-              self.current_volume = self.auto_volume
-          else:
+        elif self.frogpilot_toggles.alert_volume_controller and self.current_alert in self.volume_map:
+          self.current_volume = self.volume_map[self.current_alert]
+          if self.current_volume == 1.01:
             self.current_volume = self.auto_volume
-
-        elif self.current_alert == AudibleAlert.startup:
-          self.current_volume = MAX_VOLUME
 
         self.get_audible_alert(sm)
 

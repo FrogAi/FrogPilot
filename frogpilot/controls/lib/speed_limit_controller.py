@@ -20,8 +20,6 @@ FREE_MAPBOX_REQUESTS = 100_000
 
 class SpeedLimitController:
   def __init__(self):
-    self.executor = ThreadPoolExecutor(max_workers=1)
-
     self.calling_mapbox = False
     self.override_slc = False
 
@@ -47,6 +45,8 @@ class SpeedLimitController:
     self.mapbox_token = params.get("MapboxSecretKey", encoding="utf8")
 
     self.previous_target = params.get_float("PreviousSpeedLimit")
+
+    self.executor = ThreadPoolExecutor(max_workers=1)
 
     self.session = requests.Session()
     self.session.headers.update({"Accept-Language": "en"})

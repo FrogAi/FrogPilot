@@ -2,15 +2,11 @@ import json
 import os
 import random
 import requests
-import socket
 import subprocess
 import sys
 
 from collections import Counter
 from datetime import datetime, timezone
-from urllib3.exceptions import ConnectTimeoutError, NewConnectionError, ReadTimeoutError
-
-import openpilot.system.sentry as sentry
 
 from openpilot.common.conversions import Conversions as CV
 from openpilot.system.version import get_build_metadata
@@ -62,7 +58,7 @@ def get_city_center(latitude, longitude):
 
             return latitude_value, longitude_value, city_label, state_name, country_name
 
-      query = f"{state_name}, United States" if country_code == "us" else f"capital of {state_name}, {country_name}"
+      query = f"{state_name} state capital" if country_code == "us" else f"capital of {state_name}, {country_name}"
       response = session.get(f"{BASE_URL}/search", params={"addressdetails": 1, "extratags": 1, "format": "jsonv2", "limit": 5, "q": query}, timeout=10)
       response.raise_for_status()
       candidates = response.json() or []
@@ -94,9 +90,6 @@ def get_city_center(latitude, longitude):
       return float(0.0), float(0.0), "N/A", "N/A", "N/A"
 
   except Exception as exception:
-    if not isinstance(exception, (ConnectTimeoutError, NewConnectionError, ReadTimeoutError, TimeoutError, socket.gaierror, socket.timeout)):
-      sentry.capture_exception(exception, crash_log=False)
-
     print(f"Falling back to (0, 0) for {latitude}, {longitude}")
     return float(0.0), float(0.0), "N/A", "N/A", "N/A"
 
@@ -189,6 +182,4 @@ def send_stats():
     InfluxDBClient(org=org_ID, token=token, url=url).write_api(write_options=SYNCHRONOUS).write(bucket=bucket, org=org_ID, record=point)
     print("Successfully sent FrogPilot stats!")
   except Exception as exception:
-    if not isinstance(exception, (ConnectTimeoutError, NewConnectionError, ReadTimeoutError, TimeoutError, socket.gaierror, socket.timeout)):
-      sentry.capture_exception(exception, crash_log=False)
     print(f"Failed to send FrogPilot stats: {exception}")

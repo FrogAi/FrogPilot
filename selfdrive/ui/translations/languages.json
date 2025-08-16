@@ -1,5 +1,6 @@
 {
   "English": "main_en",
+  "Caveman": "main_caveman",
   "Deutsch": "main_de",
   "Duck": "main_duck",
   "Français": "main_fr",
@@ -7,6 +8,7 @@
   "Pirate": "main_pirate",
   "Português": "main_pt-BR",
   "Español": "main_es",
+  "Shakespearean": "main_shakespearean",
   "Türkçe": "main_tr",
   "العربية": "main_ar",
   "ไทย": "main_th",

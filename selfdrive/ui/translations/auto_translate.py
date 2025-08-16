@@ -12,45 +12,86 @@ import requests
 TRANSLATIONS_DIR = pathlib.Path(__file__).resolve().parent
 TRANSLATIONS_LANGUAGES = TRANSLATIONS_DIR / "languages.json"
 
-OPENAI_MODEL = "gpt-4o"
+OPENAI_MODEL = "gpt-5"
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
-BASE_FUN_PROMPT_TEMPLATE = """
-Role: expert English copy-editor.
+FUN_LANG_KEYS = {"caveman", "duck", "frog", "pirate", "shakespearean"}
 
-Restyle the user’s English text while obeying every rule below, then output **only** the rewritten text—no quotes, labels, or commentary.
+FUN_PROMPT_TEMPLATE = """
+You are a safety-critical UI style transformer for an openpilot fork. Rewrite the user's message (an English source string) into the style '{language}'
+while preserving the original meaning, readability, and all functional elements. Output ONLY the transformed text, with no quotes or extra words.
 
-1. **Meaning First** – Convey the identical idea. If style ever harms clarity, choose clarity.
-2. **Near-Constant Length** – Keep character count within ±5 % of the source; never pad or trim aggressively.
-3. **Hands Off** – Copy these exactly: placeholders (%1, %n, {{variable}}), HTML/XML tags (<div>), units (10px, 5 kg, 100 %), file paths, URLs, code, variable names, punctuation, capitalisation, line breaks.
+Hard requirements:
+1) Preserve placeholders, variables, and markup exactly as written: {{name}}, {{0}}, {{icu}}, %1, %n, %(speed)d, $SPEED, <b>…</b>, <a href="…">…</a>, etc.
+2) Keep all non-translatable tokens unchanged: product/brand names (e.g., openpilot, ACC), file paths, error codes, part numbers.
+3) Do not add, remove, or reorder placeholders. If grammar absolutely requires reordering, keep all placeholders intact and still produce a correct sentence; prefer wordings that avoid reordering.
+4) Do not convert units or numbers (e.g., mph↔km/h). Translate unit labels only if standard in the style and not part of a preserved token.
+5) Maintain the same warning/priority level and imperative tone. Never soften or intensify safety messages (“Do not…”, “Warning”, “Critical”).
+6) Preserve hotkeys/accelerators if present (e.g., &F, _O). If the exact letter is impossible, pick the nearest mnemonic but keep the marker.
+7) Follow normal punctuation and casing rules while respecting all technical tokens.
+8) If ICU MessageFormat/plural/select syntax is present, keep the structure and variable names unchanged and rewrite only the human-readable text.
+9) Keep the output as concise as the source. Do not append notes, explanations, or metadata.
 
-If (and only if) it costs **zero** clarity and stays inside the length band, weave in the theme below.
+If the source is ambiguous or cannot be safely adapted to the style without risking meaning loss, choose the safest literal rendering that preserves meaning.
+If you cannot adapt it safely, return the source text unchanged.
 
-Theme: {theme_instructions}
+Your entire reply must be a single line containing only the final rewritten text.
 """
 
-FUN_THEME_INSTRUCTIONS = {
-  "frog": "Light frog flavour—use ‘ribbit’, ‘hop’, etc. only when they replace text of equal or shorter length and do not harm clarity.",
-  "pirate": "Light pirate flavour—use ‘Ahoy’, ‘matey’, etc. only when they replace text of equal or shorter length and do not harm clarity.",
-  "duck": "Light duck flavour—use ‘quack’, ‘waddle’, etc. only when they replace text of equal or shorter length and do not harm clarity."
-}
+OPENAI_PROMPT = """
+You are a safety-critical UI translator for an openpilot fork. Translate the user's message (an English source string) into the locale '{language}'. Output ONLY the translated text, with no quotes or extra words.
 
-OPENAI_PROMPT = "You are a meticulous professional translator.\n\n" \
-                "Translate the user’s input from English into {language}.\n\n" \
-                "Guidelines:\n" \
-                "• Return **only** the translated text—no quotes, labels, or commentary.\n" \
-                "• Preserve placeholders (%1, %n, {{variable}}), HTML/XML tags, line breaks, " \
-                "capitalisation, punctuation, units, file paths, URLs, and code exactly as they appear.\n" \
-                "• If the input is already in {language}, or consists solely of elements that must remain unchanged, output it unchanged.\n" \
-                "• Never add explanations or extra content.\n" \
+Hard requirements:
+1) Preserve placeholders, variables, and markup exactly as written: {{name}}, {{0}}, {{icu}}, %1, %n, %(speed)d, $SPEED, <b>…</b>, <a href="…">…</a>, etc.
+2) Keep all non-translatable tokens unchanged: product/brand names (e.g., openpilot, ACC), file paths, error codes, part numbers.
+3) Do not add, remove, or reorder placeholders. If grammar absolutely requires reordering, keep all placeholders intact and still produce a correct sentence; prefer wordings that avoid reordering.
+4) Do not convert units or numbers (e.g., mph↔km/h). Translate unit labels only if standard in the target locale and not part of a preserved token.
+5) Maintain the same warning/priority level and imperative tone. Never soften or intensify safety messages (“Do not…”, “Warning”, “Critical”).
+6) Preserve hotkeys/accelerators if present (e.g., &F, _O). If the exact letter is impossible, pick the nearest mnemonic but keep the marker.
+7) Follow target-locale punctuation and casing norms while respecting all technical tokens.
+8) If ICU MessageFormat/plural/select syntax is present, keep the structure and variable names unchanged and translate only the human-readable text.
+9) Keep the translation as concise as the source. Do not append notes, explanations, or metadata.
 
-OPENAI_EVAL_PROMPT = "You are an expert bilingual reviewer (English ↔ {language}).\n\n" \
-                     "Input:\n" \
-                     "1. Source text (English)\n" \
-                     "2. Translation A\n" \
-                     "3. Translation B\n\n" \
-                     "Task: Choose the translation that is more accurate, natural, and faithful to the source **while perfectly preserving** all placeholders, tags, punctuation, capitalisation, and line breaks.\n\n" \
-                     "Output: Return **only** the full text of the better translation, with no additional characters or labels. If they are equally good, return Translation A.\n"
+If the source is ambiguous or untranslatable without more context, choose the safest literal rendering that preserves meaning. If you cannot translate without risking meaning loss, return the source text unchanged.
+
+Your entire reply must be a single line containing only the final translation.
+"""
+
+OPENAI_EVAL_PROMPT = """
+You are a safety-critical reviewer for UI translations for an openpilot fork. Your job is to compare two candidate translations (A and B) of an English source string and select the safest, most accurate option in the locale '{language}'.
+
+Output rules:
+- Return ONLY one line containing exactly one of these: the full text of Translation A, or the full text of Translation B, or the exact Source string.
+- Do not include quotes, labels, explanations, or whitespace beyond the chosen text.
+
+Decision criteria (apply in order):
+1) Hard correctness checks vs the Source:
+   - All placeholders/variables/markup from the Source must be preserved verbatim and remain valid: {{name}}, {{0}}, {{icu}}, %1, %n, %(speed)d, $SPEED, <b>…</b>, <a href="…">…</a>, &amp;, etc.
+   - Numbers and units must match; no unit conversion (mph↔km/h) and no number changes.
+   - Non-translatable tokens present in Source must remain unchanged (e.g., openpilot, ACC, file paths, error codes, part numbers).
+   - Hotkeys/accelerators such as &F or _O must be preserved with a sensible mnemonic letter in the target language; the marker must remain.
+   - ICU MessageFormat/plural/select syntax must keep the same structure and variable names; translate only human-readable text.
+   If only one candidate passes all hard checks, select it. If both fail, return the exact Source string.
+
+2) Meaning, tone, and severity:
+   - Preserve the precise meaning and intent; do not add, omit, soften, or intensify warnings/errors/imperatives.
+   - Keep safety language direct and unambiguous.
+   If only one candidate preserves meaning/tone precisely, select it.
+
+3) Target-language quality:
+   - Must be written in the target locale '{language}', idiomatic, grammatically correct, and concise while retaining meaning.
+   - Follow locale-appropriate punctuation, spacing, and capitalization, without altering required technical tokens.
+   Prefer the candidate that best satisfies these.
+
+4) Tie-breakers (when both are acceptable and equally accurate):
+   - Prefer the one closer in length to the Source and more readable on small UI.
+   - Prefer consistent terminology with common automotive/HMI usage in the target locale.
+   - Prefer minimal reordering of placeholders if both are valid.
+
+Remember:
+- Never fabricate or “improve” content. Choose A or B, or fall back to the Source if both are unsafe.
+- Your reply must be exactly the chosen string with no commentary.
+"""
 
 def get_language_files(languages: list[str] = None) -> dict[str, pathlib.Path]:
   files = {}
@@ -69,82 +110,72 @@ def get_language_files(languages: list[str] = None) -> dict[str, pathlib.Path]:
 
 
 def evaluate_translation(source: str, old: str, new: str, language: str) -> str:
-  response = requests.post(
-    "https://api.openai.com/v1/chat/completions",
-    json={
-      "model": OPENAI_MODEL,
-      "messages": [
-        {
-          "role": "system",
-          "content": OPENAI_EVAL_PROMPT.format(language=language),
-        },
-        {
-          "role": "user",
-          "content": (
-            f"Source: {source}\n\n"
-            f"Translation A: {old}\n\n"
-            f"Translation B: {new}"
-          ),
-        },
-      ],
-      "temperature": 0.0,
-      "max_tokens": 1024,
-      "top_p": 1,
-    },
-    headers={
-      "Authorization": f"Bearer {OPENAI_API_KEY}",
-      "Content-Type": "application/json",
-    },
-  )
+  try:
+    response = requests.post(
+      "https://api.openai.com/v1/chat/completions",
+      json={
+        "model": OPENAI_MODEL,
+        "messages": [
+          {"role": "system", "content": OPENAI_EVAL_PROMPT.format(language=language)},
+          {"role": "user", "content": f"Source: {source}\n\nTranslation A: {old}\n\nTranslation B: {new}"},
+        ],
+        "max_completion_tokens": 2048,
+        "reasoning_effort": "minimal",
+        "verbosity": "low",
+      },
+      headers={
+        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "Content-Type": "application/json",
+      },
+      timeout=(10, 60)
+    )
 
-  if 400 <= response.status_code < 600:
-    raise requests.HTTPError(f'Error {response.status_code}: {response.json()}', response=response)
+    if 400 <= response.status_code < 600:
+      raise requests.HTTPError(f'Error {response.status_code}: {response.text}', response=response)
 
-  data = response.json()
-
-  return cast(str, data["choices"][0]["message"]["content"])
+    data = response.json()
+    return cast(str, data["choices"][0]["message"]["content"])
+  except Exception as e:
+    print(f"Evaluation failed for '{source[:40]}...': {e}")
+    return old
 
 
 def translate_phrase(text: str, language: str) -> str:
-  theme_instructions = FUN_THEME_INSTRUCTIONS.get(language.lower())
-
-  prompt = ""
-  if theme_instructions:
-    prompt = BASE_FUN_PROMPT_TEMPLATE.format(theme_instructions=theme_instructions)
+  lang_key = language.strip().lower()
+  if lang_key in FUN_LANG_KEYS:
+    prompt = FUN_PROMPT_TEMPLATE.format(language=lang_key)
   else:
     prompt = OPENAI_PROMPT.format(language=language)
 
-  response = requests.post(
-    "https://api.openai.com/v1/chat/completions",
-    json={
-      "model": OPENAI_MODEL,
-      "messages": [
-        {
-          "role": "system",
-          "content": prompt,
-        },
-        {
-          "role": "user",
-          "content": text,
-        },
-      ],
-      "temperature": 0.1,
-      "max_tokens": 1024,
-      "top_p": 1,
-    },
-    headers={
-      "Authorization": f"Bearer {OPENAI_API_KEY}",
-      "Content-Type": "application/json",
-    },
-  )
+  try:
+    response = requests.post(
+      "https://api.openai.com/v1/chat/completions",
+      json={
+        "model": OPENAI_MODEL,
+        "messages": [
+          {"role": "system", "content": prompt},
+          {"role": "user", "content": text},
+        ],
+        "max_completion_tokens": 2048,
+        "reasoning_effort": "minimal",
+        "verbosity": "low",
+      },
+      headers={
+        "Authorization": f"Bearer {OPENAI_API_KEY}",
+        "Content-Type": "application/json",
+      },
+      timeout=(10, 60)
+    )
 
-  if 400 <= response.status_code < 600:
-    print(f'Error {response.status_code}: {response.text}')
+    if 400 <= response.status_code < 600:
+      print(f'Error {response.status_code}: {response.text}')
+      return ""
+
+    data = response.json()
+    return cast(str, data["choices"][0]["message"]["content"])
+  except Exception as e:
+    print(f"Translation failed for '{text[:40]}...': {e}")
     return ""
-
-  data = response.json()
-
-  return cast(str, data["choices"][0]["message"]["content"])
 
 
 def translate_file(path: pathlib.Path, language: str, all_: bool, vet_translations: bool) -> None:

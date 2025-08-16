@@ -44,6 +44,7 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
       params_memory.putBool("ForceOnroad", true);
 
       params.put("CarParams", params.get("CarParamsPersistent"));
+      params.put("FrogPilotCarParams", params.get("FrogPilotCarParamsPersistent"));
 
       updateFrogPilotToggles();
 
@@ -52,6 +53,7 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
       }
 
       params.put("CarParams", params.get("CarParamsPersistent"));
+      params.put("FrogPilotCarParams", params.get("FrogPilotCarParamsPersistent"));
     } else if (id == 2) {
       params_memory.putBool("ForceOffroad", false);
       params_memory.putBool("ForceOnroad", false);

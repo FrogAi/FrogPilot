@@ -65,6 +65,8 @@ private:
   std::vector<DestinationWidget *> widgets;
 
   // FrogPilot variables
+  Params params;
+
   QLabel *subtitle;
 
 signals:
