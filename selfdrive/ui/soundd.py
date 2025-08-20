@@ -54,7 +54,6 @@ sound_list: dict[int, tuple[str, int | None, float]] = {
   AudibleAlert.mail: ("mail.wav", 1, MAX_VOLUME),
   AudibleAlert.nessie: ("nessie.wav", 1, MAX_VOLUME),
   AudibleAlert.noice: ("noice.wav", 1, MAX_VOLUME),
-  AudibleAlert.promptRepeat: ("prompt_repeat.wav", None, MAX_VOLUME),
   AudibleAlert.startup: ("startup.wav", 1, MAX_VOLUME),
   AudibleAlert.thisIsFine: ("this_is_fine.wav", 1, MAX_VOLUME),
   AudibleAlert.uwu: ("uwu.wav", 1, MAX_VOLUME),
@@ -248,8 +247,12 @@ class Soundd:
       AudibleAlert.warningImmediate: self.frogpilot_toggles.warningImmediate_volume / 100.0,
 
       AudibleAlert.goat: self.frogpilot_toggles.prompt_volume / 100.0,
-      AudibleAlert.startup: self.frogpilot_toggles.engage_volume / 100.0,
+      AudibleAlert.startup: self.frogpilot_toggles.engage_volume / 100.0
     }
+
+    for sound in sound_list:
+      if sound not in self.volume_map:
+        self.volume_map[sound] = 1.01
 
     if self.frogpilot_toggles.sound_pack != "stock":
       self.sound_directory = ACTIVE_THEME_PATH / "sounds"

@@ -295,7 +295,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("NavigationUI", "1", 1, "0"),
   ("NavSettingLeftSide", "0", 0, "0"),
   ("NavSettingTime24h", "0", 0, "0"),
-  ("NewLongAPI", "0", 2, "1"),
+  ("NewLongAPI", "1", 2, "1"),
   ("NNFF", "1", 2, "0"),
   ("NNFFLite", "1", 2, "0"),
   ("NoLogging", "0", 2, "0"),
@@ -549,7 +549,7 @@ class FrogPilotVariables:
 
     is_torque_car = CP.lateralTuning.which() == "torque"
     if not is_torque_car:
-      CarInterfaceBase.configure_torque_tune(CP.carFingerprint, CP.lateralTuning)
+      CarInterfaceBase.configure_torque_tune("MOCK", CP.lateralTuning)
 
     always_on_lateral_set = bool(CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
     toggle.car_make = CP.carName
@@ -558,13 +558,13 @@ class FrogPilotVariables:
     friction = CP.lateralTuning.torque.friction
     has_auto_tune = toggle.car_make in {"hyundai", "toyota"} and CP.lateralTuning.which() == "torque"
     has_bsm = CP.enableBsm
-    toggle.has_cc_long = bool(CP.flags & GMFlags.CC_LONG.value)
+    toggle.has_cc_long = toggle.car_make == "gm" and bool(CP.flags & GMFlags.CC_LONG.value)
     has_nnff = not comma_nnff_supported(toggle.car_model) and nnff_supported(toggle.car_model)
     toggle.has_pedal = CP.enableGasInterceptor
     has_radar = not CP.radarUnavailable
-    toggle.has_sdsu = bool(CP.flags & ToyotaFlags.SMART_DSU.value)
+    toggle.has_sdsu = toggle.car_make == "toyota" and bool(CP.flags & ToyotaFlags.SMART_DSU.value)
     has_sng = CP.autoResumeSng
-    toggle.has_zss = bool(FPCP.fpFlags & ToyotaFrogPilotFlags.ZSS.value)
+    toggle.has_zss = toggle.car_make == "toyota" and bool(FPCP.fpFlags & ToyotaFrogPilotFlags.ZSS.value)
     is_angle_car = CP.steerControlType == car.CarParams.SteerControlType.angle
     latAccelFactor = CP.lateralTuning.torque.latAccelFactor
     longitudinalActuatorDelay = CP.longitudinalActuatorDelay
@@ -577,7 +577,7 @@ class FrogPilotVariables:
     steerKp = CP.lateralTuning.torque.kp
     steerRatio = CP.steerRatio
     toggle.stoppingDecelRate = CP.stoppingDecelRate
-    taco_hacks_allowed = toggle.car_make == "hyundai" and CP.safetyConfigs[0].safetyModel == SafetyModel.hyundaiCanfd
+    taco_hacks_allowed = CP.safetyConfigs[0].safetyModel == SafetyModel.hyundaiCanfd
     toggle.use_lkas_for_aol = not toggle.openpilot_longitudinal and CP.safetyConfigs[0].safetyModel == SafetyModel.hyundaiCanfd
     toggle.vEgoStarting = CP.vEgoStarting
     toggle.vEgoStopping = CP.vEgoStopping

@@ -89,6 +89,8 @@ void HomeWindow::updateState(const UIState &s, const FrogPilotUIState &fs) {
       }
 
       developer_sidebar->setVisible(fs.frogpilot_toggles.value("developer_sidebar").toBool());
+
+      frogpilotUIState()->frogpilot_scene.sidebars_open = developer_sidebar->isVisible() && sidebar->isVisible();
     }
   }
 }

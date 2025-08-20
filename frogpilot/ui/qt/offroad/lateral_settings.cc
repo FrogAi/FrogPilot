@@ -175,9 +175,11 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent) : 
           if (FrogPilotConfirmationDialog::toggleReboot(this)) {
             Hardware::reboot();
           }
-        } else if ((key == "NNFF" || key == "NNFFLite") && !isTorqueCar && state) {
-          if (FrogPilotConfirmationDialog::toggleReboot(this)) {
-            Hardware::reboot();
+        } else if (key == "NNFF" || key == "NNFFLite") {
+          if (!isTorqueCar) {
+            if (FrogPilotConfirmationDialog::toggleReboot(this)) {
+              Hardware::reboot();
+            }
           }
         } else if (key != "AlwaysOnLateral") {
           if (FrogPilotConfirmationDialog::toggleReboot(this)) {

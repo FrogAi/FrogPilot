@@ -42,4 +42,7 @@ protected:
 
   QColor bg;
   Alert alert = {};
+
+  // FrogPilot variables
+  bool sidebarsOpen;
 };
