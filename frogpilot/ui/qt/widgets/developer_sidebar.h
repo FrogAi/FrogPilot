@@ -40,4 +40,5 @@ private:
   ItemStatus steerRatioStatus;
   ItemStatus stiffnessFactorStatus;
   ItemStatus torqueStatus;
+  ItemStatus modelNameStatus;
 };

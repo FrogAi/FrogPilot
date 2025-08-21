@@ -14,10 +14,19 @@ void DeveloperSidebar::drawMetric(QPainter &p, const QPair<QString, QString> &la
   p.setPen(pen);
   p.setBrush(Qt::NoBrush);
   p.drawRoundedRect(rect, 20, 20);
-
   p.setPen(QColor(0xff, 0xff, 0xff));
+
   p.setFont(InterFont(35, QFont::DemiBold));
-  p.drawText(rect.adjusted(0, 0, -22, 0), Qt::AlignCenter, label.first + "\n" + label.second);
+  QString text = label.second.isEmpty()
+                 ? label.first                      // use whole box for first string
+                 : (label.first + "\n" + label.second);
+
+  int flags = Qt::AlignHCenter | Qt::AlignVCenter;
+  if (label.second.isEmpty()) {
+    flags |= Qt::TextWordWrap;                        // enable wrapping for single-line metrics
+}
+
+p.drawText(rect.adjusted(8, 8, -22, -8), flags, text);
 }
 
 DeveloperSidebar::DeveloperSidebar(QWidget *parent) : QFrame(parent) {
@@ -130,6 +139,14 @@ void DeveloperSidebar::updateState(const UIState &s, const FrogPilotUIState &fs)
   stiffnessFactorStatus = ItemStatus(QPair<QString, QString>(tr("STEER STIFF"), QString::number(liveParameters.getStiffnessFactor(), 'f', 5)), metricColor);
   torqueStatus = ItemStatus(QPair<QString, QString>(tr("TORQUE %"), torqueLabel), metricColor);
 
+  //get model name and cleanup for display
+  QString rawName = fs.frogpilot_toggles.value("model_name").toString();
+  QString cleanName = rawName;
+  cleanName.remove(QRegExp("\\(.*\\)"));
+  cleanName.remove(QRegExp("[^A-Za-z0-9\\s\\-\\.:]")); // Remove emojis/symbols (keep only letters, numbers, spaces, dashes, dots, colons)
+  cleanName = cleanName.trimmed();
+  modelNameStatus = ItemStatus(QPair<QString, QString>(cleanName, ""), metricColor);
+
   update();
 }
 
@@ -156,6 +173,7 @@ void DeveloperSidebar::paintEvent(QPaintEvent *event) {
   metricMap.insert(13, &accelerationJerkStatus);
   metricMap.insert(14, &dangerJerkStatus);
   metricMap.insert(15, &speedJerkStatus);
+  metricMap.insert(16, &modelNameStatus);
 
   int count = 0;
   for (size_t i = 0; i < metricAssignments.size(); ++i) {
