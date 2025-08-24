@@ -163,8 +163,8 @@ class CarInterfaceBase(ABC):
     ret.rotationalInertia = scale_rot_inertia(ret.mass, ret.wheelbase)
     ret.tireStiffnessFront, ret.tireStiffnessRear = scale_tire_stiffness(ret.mass, ret.wheelbase, ret.centerToFront, ret.tireStiffnessFactor)
 
-    # Enable torque controller for all cars that do not use angle based steering
-    if ret.steerControlType != car.CarParams.SteerControlType.angle and params.get_bool("LateralTune") and (params.get_bool("NNFF") or params.get_bool("NNFFLite")):
+    # Enable torque controller for all cars that do not use angle based steering and where torque controller is not already active
+    if ret.steerControlType != car.CarParams.SteerControlType.angle and params.get_bool("LateralTune") and (params.get_bool("NNFF") or params.get_bool("NNFFLite")) and ret.lateralTuning.which() != "torque":
       CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
 
     return ret
