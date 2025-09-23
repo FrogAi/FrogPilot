@@ -1,6 +1,7 @@
 from cereal import car, log
 import cereal.messaging as messaging
 from opendbc.car import DT_CTRL, structs
+from opendbc.car.chrysler.values import RAM_DT
 from opendbc.car.gm.values import GMFlags
 from opendbc.car.interfaces import MAX_CTRL_SPEED
 
@@ -58,10 +59,16 @@ class CarSpecificEvents:
       events = self.create_common_events(CS, CS_prev, extra_gears=extra_gears)
 
       # Low speed steer alert hysteresis logic
-      if self.CP.minSteerSpeed > 0. and CS.vEgo < (self.CP.minSteerSpeed + 0.5):
-        self.low_speed_alert = True
-      elif CS.vEgo > (self.CP.minSteerSpeed + 1.):
-        self.low_speed_alert = False
+      if self.CP.carFingerprint in RAM_DT:
+        if CS.vEgo >= self.CP.minEnableSpeed:
+          self.low_speed_alert = False
+        if (self.CP.minEnableSpeed >= 14.5) and (CS.gearShifter != GearShifter.drive):
+          self.low_speed_alert = True
+      else:
+        if self.CP.minSteerSpeed > 0. and CS.vEgo < (self.CP.minSteerSpeed + 0.5):
+          self.low_speed_alert = True
+        elif CS.vEgo > (self.CP.minSteerSpeed + 1.):
+          self.low_speed_alert = False
       if self.low_speed_alert:
         events.add(EventName.belowSteerSpeed)
 

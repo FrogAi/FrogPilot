@@ -7,6 +7,7 @@ from collections.abc import Callable
 
 from cereal import log, car
 import cereal.messaging as messaging
+from opendbc.car.chrysler.values import RAM_DT
 from openpilot.common.constants import CV
 from openpilot.common.git import get_short_branch
 from openpilot.common.realtime import DT_CTRL
@@ -247,8 +248,13 @@ def below_engage_speed_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.
 
 
 def below_steer_speed_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality) -> Alert:
+  if CP.carFingerprint in RAM_DT:
+    min_steer_speed = CP.minEnableSpeed
+  else:
+    min_steer_speed = CP.minSteerSpeed
+
   return Alert(
-    f"Steer Assist Unavailable Below {get_display_speed(CP.minSteerSpeed, metric)}",
+    f"Steer Assist Unavailable Below {get_display_speed(min_steer_speed, metric)}",
     "",
     AlertStatus.userPrompt, AlertSize.small,
     Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 0.4)
