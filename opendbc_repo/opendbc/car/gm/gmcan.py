@@ -1,5 +1,7 @@
+from opendbc.car import DT_CTRL
 from opendbc.car.can_definitions import CanData
-from opendbc.car.gm.values import CAR
+from opendbc.car.common.conversions import Conversions as CV
+from opendbc.car.gm.values import CAR, CanBus, CruiseButtons
 
 
 def create_buttons(packer, bus, idx, button):
@@ -169,3 +171,39 @@ def create_lka_icon_command(bus, active, critical, steer):
   else:
     dat = b"\x00\x00\x00"
   return CanData(0x104c006c, dat, bus)
+
+
+# OPGM variables
+def create_gm_cc_spam_command(packer, controller, CS, actuators):
+  _CV = CV.MS_TO_MPH
+  RATE_UP_MAX = 0.2
+  RATE_DOWN_MAX = 0.2
+
+  accel = actuators.accel * _CV  # m/s/s to mph/s
+  speed_setpoint = int(round(CS.out.cruiseState.speed * _CV))
+
+  button = CruiseButtons.INIT
+  if speed_setpoint == CS.CP.minEnableSpeed and accel < -1:
+    button = CruiseButtons.CANCEL
+    rate = 0.04
+  elif accel < 0:
+    button = CruiseButtons.DECEL_SET
+    if speed_setpoint > (CS.out.vEgo * _CV) + 3.0:  # If accel is changing directions, bring set speed to current speed as fast as possible
+      rate = RATE_DOWN_MAX
+    else:
+      rate = max(-1 / accel, RATE_DOWN_MAX)
+  elif accel > 0:
+    button = CruiseButtons.RES_ACCEL
+    if speed_setpoint < (CS.out.vEgo * _CV) - 3.0:
+      rate = RATE_UP_MAX
+    else:
+      rate = max(1 / accel, RATE_UP_MAX)
+  else:
+    rate = float('inf')
+
+  if (button != CruiseButtons.INIT) and ((controller.frame - controller.last_button_frame) * DT_CTRL > rate):
+    controller.last_button_frame = controller.frame
+    idx = (CS.buttons_counter + 1) % 4  # Need to predict the next idx for '22-23 EUV
+    return [create_buttons(packer, CanBus.POWERTRAIN, idx, button)]
+  else:
+    return []
