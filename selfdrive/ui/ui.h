@@ -16,6 +16,8 @@
 #include "common/timing.h"
 #include "system/hardware/hw.h"
 
+#include "frogpilot/ui/frogpilot_ui.h"
+
 const int UI_BORDER_SIZE = 30;
 const int UI_HEADER_HEIGHT = 420;
 
@@ -50,6 +52,13 @@ typedef enum UIStatus {
   STATUS_DISENGAGED,
   STATUS_OVERRIDE,
   STATUS_ENGAGED,
+
+  // FrogPilot statuses
+  STATUS_ALWAYS_ON_LATERAL_ACTIVE,
+  STATUS_CONDITIONAL_OVERRIDDEN,
+  STATUS_EXPERIMENTAL_MODE_ENABLED,
+  STATUS_NAVIGATION_ACTIVE,
+  STATUS_TRAFFIC_MODE_ENABLED,
 } UIStatus;
 
 enum PrimeType {
@@ -67,6 +76,13 @@ const QColor bg_colors [] = {
   [STATUS_DISENGAGED] = QColor(0x17, 0x33, 0x49, 0xc8),
   [STATUS_OVERRIDE] = QColor(0x91, 0x9b, 0x95, 0xf1),
   [STATUS_ENGAGED] = QColor(0x17, 0x86, 0x44, 0xf1),
+
+  // FrogPilot colors
+  [STATUS_ALWAYS_ON_LATERAL_ACTIVE] = QColor(0x0a, 0xba, 0xb5, 0xf1),
+  [STATUS_CONDITIONAL_OVERRIDDEN] = QColor(0xff, 0xff, 0x00, 0xf1),
+  [STATUS_EXPERIMENTAL_MODE_ENABLED] = QColor(0xda, 0x6f, 0x25, 0xf1),
+  [STATUS_NAVIGATION_ACTIVE] = QColor(0x31, 0xa1, 0xee, 0xf1),
+  [STATUS_TRAFFIC_MODE_ENABLED] = QColor(0xc9, 0x22, 0x31, 0xf1),
 };
 
 
@@ -86,7 +102,7 @@ typedef struct UIScene {
   QPolygonF road_edge_vertices[2];
 
   // lead
-  QPointF lead_vertices[2];
+  QPointF lead_vertices[4];
 
   // DMoji state
   float driver_pose_vals[3];
@@ -95,6 +111,7 @@ typedef struct UIScene {
   float driver_pose_coss[3];
   vec3 face_kpts_draw[std::size(default_face_kpts_3d)];
 
+  bool navigate_on_openpilot = false;
   cereal::LongitudinalPersonality personality;
 
   float light_sensor = -1;
@@ -108,7 +125,7 @@ class UIState : public QObject {
 
 public:
   UIState(QObject* parent = 0);
-  void updateStatus();
+  void updateStatus(FrogPilotUIState *fs);
   inline bool engaged() const {
     return scene.started && (*sm)["controlsState"].getControlsState().getEnabled();
   }
@@ -129,7 +146,7 @@ public:
   QTransform car_space_transform;
 
 signals:
-  void uiUpdate(const UIState &s);
+  void uiUpdate(const UIState &s, const FrogPilotUIState &fs);
   void offroadTransition(bool offroad);
   void primeChanged(bool prime);
   void primeTypeChanged(PrimeType prime_type);
@@ -166,8 +183,8 @@ private:
   FirstOrderFilter brightness_filter;
   QFuture<void> brightness_future;
 
-  void updateBrightness(const UIState &s);
-  void updateWakefulness(const UIState &s);
+  void updateBrightness(const UIState &s, const FrogPilotUIState &fs);
+  void updateWakefulness(const UIState &s, const FrogPilotUIState &fs);
   void setAwake(bool on);
 
 signals:
@@ -175,18 +192,22 @@ signals:
   void interactiveTimeout();
 
 public slots:
-  void resetInteractiveTimeout(int timeout = -1);
-  void update(const UIState &s);
+  void resetInteractiveTimeout(int timeout = -1, int timeout_onroad = -1);
+  void update(const UIState &s, const FrogPilotUIState &fs);
 };
 
 Device *device();
 
 void ui_update_params(UIState *s);
 int get_path_length_idx(const cereal::XYZTData::Reader &line, const float path_height);
-void update_model(UIState *s,
+void update_model(UIState *s, FrogPilotUIState *fs,
                   const cereal::ModelDataV2::Reader &model,
-                  const cereal::UiPlan::Reader &plan);
+                  const cereal::UiPlan::Reader &plan,
+                  const QJsonObject &frogpilot_toggles);
 void update_dmonitoring(UIState *s, const cereal::DriverStateV2::Reader &driverstate, float dm_fade_state, bool is_rhd);
 void update_leads(UIState *s, const cereal::RadarState::Reader &radar_state, const cereal::XYZTData::Reader &line);
 void update_line_data(const UIState *s, const cereal::XYZTData::Reader &line,
                       float y_off, float z_off, QPolygonF *pvd, int max_idx, bool allow_invert);
+
+// FrogPilot variables
+void update_radar_tracks(capnp::List<cereal::LiveTracks>::Reader &tracks_msg, cereal::XYZTData::Reader line, const UIState &s, const SubMaster &sm);

@@ -132,6 +132,14 @@ public:
     toggle.update();
   }
 
+  // FrogPilot variables
+  void forceOn(bool force) {
+    toggle.setEnabled(!force);
+    if (force && !toggle.on) {
+     toggle.togglePosition();
+    }
+  }
+
 signals:
   void toggleFlipped(bool state);
 

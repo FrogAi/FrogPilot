@@ -222,6 +222,16 @@ FW_VERSIONS = {
       b'39990-TGH-J530\x00\x00',
       b'39990-TGL-E130\x00\x00',
       b'39990-TGN-E120\x00\x00',
+      # Modded EPS Bosch Civic fw list
+      b'39990-TBA,C020\x00\x00',
+      b'39990-TBA,C120\x00\x00',
+      b'39990-TEA,T820\x00\x00',
+      b'39990-TEZ,T020\x00\x00',
+      b'39990-TGG,A020\x00\x00',
+      b'39990-TGG,A120\x00\x00',
+      b'39990-TGG,J510\x00\x00',
+      b'39990-TGL,E130\x00\x00',
+      b'39990-TGN,E120\x00\x00',
     ],
     (Ecu.srs, 0x18da53f1, None): [
       b'77959-TBA-A060\x00\x00',
@@ -856,6 +866,8 @@ FW_VERSIONS = {
       b'39990-T24-T120\x00\x00',
       b'39990-T39-A130\x00\x00',
       b'39990-T43-J020\x00\x00',
+      b'39990-T56-A040\x00\x00',
+      b'39990-T50-J030\x00\x00',
     ],
     (Ecu.gateway, 0x18daeff1, None): [
       b'38897-T20-A020\x00\x00',
@@ -864,6 +876,8 @@ FW_VERSIONS = {
       b'38897-T20-A510\x00\x00',
       b'38897-T21-A010\x00\x00',
       b'38897-T24-Z120\x00\x00',
+      b'38897-T61-A320\x00\x00',
+      b'38897-T50-E310\x00\x00',
     ],
     (Ecu.srs, 0x18da53f1, None): [
       b'77959-T20-A970\x00\x00',
@@ -871,6 +885,9 @@ FW_VERSIONS = {
       b'77959-T20-M820\x00\x00',
       b'77959-T47-A940\x00\x00',
       b'77959-T47-A950\x00\x00',
+      b'77959-T61-A920\x00\x00',
+      b'77959-T50-G930\x00\x00',
+      b'77959-T65-A920\x00\x00',
     ],
     (Ecu.fwdRadar, 0x18dab0f1, None): [
       b'36161-T20-A060\x00\x00',
@@ -878,11 +895,16 @@ FW_VERSIONS = {
       b'36161-T20-A080\x00\x00',
       b'36161-T24-T070\x00\x00',
       b'36161-T47-A070\x00\x00',
+      b'8S102-T56-A060\x00\x00',
+      b'8S102-T50-EA10\x00\x00',
+      b'8S102-T64-A040\x00\x00',
     ],
     (Ecu.vsa, 0x18da28f1, None): [
       b'57114-T20-AB40\x00\x00',
       b'57114-T24-TB30\x00\x00',
       b'57114-T43-JB30\x00\x00',
+      b'57114-T61-AJ30\x00\x00',
+      b'57114-T50-JC20\x00\x00',
     ],
     (Ecu.transmission, 0x18da1ef1, None): [
       b'28101-65D-A020\x00\x00',
@@ -890,6 +912,31 @@ FW_VERSIONS = {
       b'28101-65H-A020\x00\x00',
       b'28101-65H-A120\x00\x00',
       b'28101-65J-N010\x00\x00',
+    ],
+  },
+  CAR.HONDA_CLARITY: {
+    (Ecu.shiftByWire, 0x18da0bf1, None): [
+      b'54008-TRW-A910\x00\x00',
+    ],
+    (Ecu.vsa, 0x18da28f1, None): [
+      b'57114-TRW-A010\x00\x00',
+      b'57114-TRW-A020\x00\x00',
+    ],
+    (Ecu.eps, 0x18da30f1, None): [
+      b'39990-TRW-A020\x00\x00',
+      b'39990-TRW,A020\x00\x00',  # modified firmware
+      b'39990,TRW,A020\x00\x00',  # extra modified firmware
+    ],
+    (Ecu.srs, 0x18da53f1, None): [
+      b'77959-TRW-A210\x00\x00',
+      b'77959-TRW-A220\x00\x00',
+    ],
+    (Ecu.gateway, 0x18daeff1, None): [
+      b'38897-TRW-A010\x00\x00',
+    ],
+    (Ecu.combinationMeter, 0x18da60f1, None): [
+      b'78109-TRW-A020\x00\x00',
+      b'78109-TRW-A030\x00\x00',
     ],
   },
 }

@@ -1,0 +1,34 @@
+name: Review Pull Request
+
+on:
+  pull_request_target:
+    types: [opened, reopened]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+jobs:
+  pr_check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Exit If PR Opened by FrogAi
+        if: ${{ github.actor == 'FrogAi' }}
+        run: |
+          echo PR opened or reopened by FrogAi. No action needed.
+          exit 0
+
+      - name: Close PR for Invalid Target Branch
+        if: ${{ github.base_ref != 'MAKE-PRS-HERE' }}
+        run: |
+          gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
+            -f body="Please submit your pull request to the \"MAKE-PRS-HERE\" branch."
+
+          gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }} \
+            -X PATCH \
+            -f state="closed"
+
+      - name: Acknowledge PR for Valid Target Branch
+        if: ${{ github.base_ref == 'MAKE-PRS-HERE' }}
+        run: |
+          gh api repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
+            -f body="Thank you for your PR! If you're not already in the FrogPilot Discord, [feel free to join](https://discord.FrogPilot.download) and let me know you've opened a PR!"

@@ -100,6 +100,14 @@ static void tesla_rx_hook(const CANPacket_t *to_push) {
     if(addr == (tesla_powertrain ? 0x256 : 0x368)) {
       // Cruise state
       int cruise_state = (GET_BYTE(to_push, 1) >> 4);
+
+      acc_main_on = (cruise_state == 1) ||  // STANDBY
+        (cruise_state == 2) ||  // ENABLED
+        (cruise_state == 3) ||  // STANDSTILL
+        (cruise_state == 4) ||  // OVERRIDE
+        (cruise_state == 6) ||  // PRE_FAULT
+        (cruise_state == 7);    // PRE_CANCEL
+
       bool cruise_engaged = (cruise_state == 2) ||  // ENABLED
                             (cruise_state == 3) ||  // STANDSTILL
                             (cruise_state == 4) ||  // OVERRIDE

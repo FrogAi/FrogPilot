@@ -1,19 +1,19 @@
-import os
-import math
+import glob
+import sys
 import json
-from extra.utils import OSX
 import numpy as np
 from PIL import Image
-import pathlib
+from pathlib import Path
 import boto3, botocore
-from extra.utils import download_file
-from tqdm import tqdm
+from tinygrad import Tensor, dtypes
+from tinygrad.helpers import fetch, tqdm, getenv
 import pandas as pd
 import concurrent.futures
 
-BASEDIR = pathlib.Path(__file__).parent / "open-images-v6-mlperf"
+BASEDIR = Path(__file__).parent / "open-images-v6-mlperf"
 BUCKET_NAME = "open-images-dataset"
-BBOX_ANNOTATIONS_URL = "https://storage.googleapis.com/openimages/v5/validation-annotations-bbox.csv"
+TRAIN_BBOX_ANNOTATIONS_URL = "https://storage.googleapis.com/openimages/v6/oidv6-train-annotations-bbox.csv"
+VALIDATION_BBOX_ANNOTATIONS_URL = "https://storage.googleapis.com/openimages/v5/validation-annotations-bbox.csv"
 MAP_CLASSES_URL = "https://storage.googleapis.com/openimages/v5/class-descriptions-boxable.csv"
 MLPERF_CLASSES = ['Airplane', 'Antelope', 'Apple', 'Backpack', 'Balloon', 'Banana',
   'Barrel', 'Baseball bat', 'Baseball glove', 'Bee', 'Beer', 'Bench', 'Bicycle',
@@ -55,28 +55,30 @@ MLPERF_CLASSES = ['Airplane', 'Antelope', 'Apple', 'Backpack', 'Balloon', 'Banan
   'Zebra', 'Zucchini',
 ]
 
-def openimages():
-  ann_file = BASEDIR / "validation/labels/openimages-mlperf.json"
-  if not ann_file.is_file():
-    fetch_openimages(ann_file)
-  return ann_file
+
+def openimages(base_dir:Path, subset:str, ann_file:Path):
+  valid_subsets = ['train', 'validation']
+  if subset not in valid_subsets:
+    raise ValueError(f"{subset=} must be one of {valid_subsets}")
+
+  fetch_openimages(ann_file, base_dir, subset)
 
 # this slows down the conversion a lot!
 # maybe use https://raw.githubusercontent.com/scardine/image_size/master/get_image_size.py
 def extract_dims(path): return Image.open(path).size[::-1]
 
-def export_to_coco(class_map, annotations, image_list, dataset_path, output_path, classes=MLPERF_CLASSES):
+def export_to_coco(class_map, annotations, image_list, dataset_path, output_path, subset, classes=MLPERF_CLASSES):
   output_path.parent.mkdir(parents=True, exist_ok=True)
   cats = [{"id": i, "name": c, "supercategory": None} for i, c in enumerate(classes)]
   categories_map = pd.DataFrame([(i, c) for i, c in enumerate(classes)], columns=["category_id", "category_name"])
   class_map = class_map.merge(categories_map, left_on="DisplayName", right_on="category_name", how="inner")
-  annotations = annotations[np.isin(annotations["ImageID"], image_list)]
+  annotations = annotations[annotations["ImageID"].isin(image_list)]
   annotations = annotations.merge(class_map, on="LabelName", how="inner")
   annotations["image_id"] = pd.factorize(annotations["ImageID"].tolist())[0]
   annotations[["height", "width"]] = annotations.apply(lambda x: extract_dims(dataset_path / f"{x['ImageID']}.jpg"), axis=1, result_type="expand")
 
   # Images
-  imgs = [{"id": int(id + 1), "file_name": f"{image_id}.jpg", "height": row["height"], "width": row["width"], "license": None, "coco_url": None}
+  imgs = [{"id": int(id + 1), "file_name": f"{image_id}.jpg", "height": row["height"], "width": row["width"], "subset": subset, "license": None, "coco_url": None}
     for (id, image_id), row in (annotations.groupby(["image_id", "ImageID"]).first().iterrows())
   ]
 
@@ -96,49 +98,50 @@ def export_to_coco(class_map, annotations, image_list, dataset_path, output_path
     json.dump(coco_annotations, fp)
 
 def get_image_list(class_map, annotations, classes=MLPERF_CLASSES):
-  labels = class_map[np.isin(class_map["DisplayName"], classes)]["LabelName"]
-  image_ids = annotations[np.isin(annotations["LabelName"], labels)]["ImageID"].unique()
+  labels = class_map[class_map["DisplayName"].isin(classes)]["LabelName"]
+  image_ids = annotations[annotations["LabelName"].isin(labels)]["ImageID"].unique()
   return image_ids
 
-def download_image(bucket, image_id, data_dir):
+def download_image(bucket, subset, image_id, data_dir):
   try:
-    bucket.download_file(f"validation/{image_id}.jpg", f"{data_dir}/{image_id}.jpg")
+    bucket.download_file(f"{subset}/{image_id}.jpg", f"{data_dir}/{image_id}.jpg")
   except botocore.exceptions.ClientError as exception:
     sys.exit(f"ERROR when downloading image `validation/{image_id}`: {str(exception)}")
 
-def fetch_openimages(output_fn):
+def fetch_openimages(output_fn:str, base_dir:Path, subset:str):
   bucket = boto3.resource("s3", config=botocore.config.Config(signature_version=botocore.UNSIGNED)).Bucket(BUCKET_NAME)
 
-  annotations_dir, data_dir = BASEDIR / "annotations", BASEDIR / "validation/data"
+  annotations_dir, data_dir = base_dir / "annotations", base_dir / f"{subset}/data"
   annotations_dir.mkdir(parents=True, exist_ok=True)
   data_dir.mkdir(parents=True, exist_ok=True)
 
-  annotations_fn = annotations_dir / BBOX_ANNOTATIONS_URL.split('/')[-1]
-  download_file(BBOX_ANNOTATIONS_URL, annotations_fn)
+  if subset == "train":
+    annotations_fn = annotations_dir / TRAIN_BBOX_ANNOTATIONS_URL.split('/')[-1]
+    fetch(TRAIN_BBOX_ANNOTATIONS_URL, annotations_fn)
+  else:  # subset == validation
+    annotations_fn = annotations_dir / VALIDATION_BBOX_ANNOTATIONS_URL.split('/')[-1]
+    fetch(VALIDATION_BBOX_ANNOTATIONS_URL, annotations_fn)
+
   annotations = pd.read_csv(annotations_fn)
 
   classmap_fn = annotations_dir / MAP_CLASSES_URL.split('/')[-1]
-  download_file(MAP_CLASSES_URL, classmap_fn)
+  fetch(MAP_CLASSES_URL, classmap_fn)
   class_map = pd.read_csv(classmap_fn, names=["LabelName", "DisplayName"])
 
   image_list = get_image_list(class_map, annotations)
 
   with concurrent.futures.ThreadPoolExecutor() as executor:
-    futures = [executor.submit(download_image, bucket, image_id, data_dir) for image_id in image_list]
+    futures = [executor.submit(download_image, bucket, subset, image_id, data_dir) for image_id in image_list]
     for future in (t := tqdm(concurrent.futures.as_completed(futures), total=len(image_list))):
       t.set_description(f"Downloading images")
       future.result()
 
   print("Converting annotations to COCO format...")
-  export_to_coco(class_map, annotations, image_list, data_dir, output_fn)
+  export_to_coco(class_map, annotations, image_list, data_dir, output_fn, subset)
 
-def image_load(fn):
-  img_folder = BASEDIR / "validation/data"
-  img = Image.open(img_folder / fn).convert('RGB')
-  import torchvision.transforms.functional as F
-  ret = F.resize(img, size=(800, 800))
-  ret = np.array(ret)
-  return ret, img.size[::-1]
+def image_load(base_dir, subset, fn):
+  img_folder = base_dir / f"{subset}/data"
+  return Image.open(img_folder / fn).convert('RGB')
 
 def prepare_target(annotations, img_id, img_size):
   boxes = [annot["bbox"] for annot in annotations]
@@ -153,13 +156,54 @@ def prepare_target(annotations, img_id, img_size):
   classes = classes[keep]
   return {"boxes": boxes, "labels": classes, "image_id": img_id, "image_size": img_size}
 
-def iterate(coco, bs=8):
-  image_ids = sorted(coco.imgs.keys())
-  for i in range(0, len(image_ids), bs):
-    X, targets  = [], []
-    for img_id in image_ids[i:i+bs]:
-      x, original_size = image_load(coco.loadImgs(img_id)[0]["file_name"])
-      X.append(x)
-      annotations = coco.loadAnns(coco.getAnnIds(img_id))
-      targets.append(prepare_target(annotations, img_id, original_size))
-    yield np.array(X), targets
+def download_dataset(base_dir:Path, subset:str) -> Path:
+  if (ann_file:=base_dir / f"{subset}/labels/openimages-mlperf.json").is_file(): print(f"{subset} dataset is already available")
+  else:
+    print(f"Downloading {subset} dataset...")
+    openimages(base_dir, subset, ann_file)
+    print("Done")
+
+  return ann_file
+
+def random_horizontal_flip(img, tgt, prob=0.5):
+  import torch
+  import torchvision.transforms.functional as F
+  if torch.rand(1) < prob:
+    w = img.size[0]
+    img = F.hflip(img)
+    tgt["boxes"][:, [0, 2]] = w - tgt["boxes"][:, [2, 0]]
+  return img, tgt
+
+def resize(img:Image, tgt:dict[str, np.ndarray|tuple]|None=None, size:tuple[int, int]=(800, 800)) -> tuple[np.ndarray, np.ndarray, tuple]|tuple[np.ndarray, tuple]:
+  import torchvision.transforms.functional as F
+  img_size = img.size[::-1]
+  img = F.resize(img, size=size)
+  img = np.array(img)
+
+  if tgt is not None:
+    ratios = [s / s_orig for s, s_orig in zip(size, img_size)]
+    ratio_h, ratio_w = ratios
+    x_min, y_min, x_max, y_max = [tgt["boxes"][:, i] for i in range(tgt["boxes"].shape[-1])]
+    x_min = x_min * ratio_w
+    x_max = x_max * ratio_w
+    y_min = y_min * ratio_h
+    y_max = y_max * ratio_h
+
+    tgt["boxes"] = np.stack([x_min, y_min, x_max, y_max], axis=1)
+    return img, tgt, img_size
+
+  return img, img_size
+
+def normalize(img:Tensor, device:list[str]|None = None):
+  mean = Tensor([0.485, 0.456, 0.406], device=device, dtype=dtypes.float32).reshape(1, -1, 1, 1)
+  std = Tensor([0.229, 0.224, 0.225], device=device, dtype=dtypes.float32).reshape(1, -1, 1, 1)
+  img = ((img.permute([0, 3, 1, 2]) / 255.0) - mean) / std
+  return img.cast(dtypes.default_float)
+
+def get_dataset_count(base_dir:Path, val:bool) -> int:
+  if not (files:=glob.glob(p:=str(base_dir / f"{'validation' if val else 'train'}/data/*.jpg"))): raise FileNotFoundError(f"No files in {p}")
+  return len(files)
+
+if __name__ == "__main__":
+  download_dataset(base_dir:=getenv("BASEDIR", BASEDIR), "train")
+  download_dataset(base_dir, "validation")
