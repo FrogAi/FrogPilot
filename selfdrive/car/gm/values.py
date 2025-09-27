@@ -198,15 +198,15 @@ class CAR(Platforms):
     CHEVROLET_SUBURBAN.specs,
   )
   GMC_YUKON_CC = GMPlatformConfig(
-    [GMCarDocs("GMC Yukon No ACC")],
+    [GMCarDocs("GMC Yukon - No-ACC")],
     CarSpecs(mass=2541, wheelbase=2.95, steerRatio=16.3, centerToFrontRatio=0.4),
   )
   CADILLAC_CT6_CC = GMPlatformConfig(
-    [GMCarDocs("Cadillac CT6 No ACC")],
+    [GMCarDocs("Cadillac CT6 - No-ACC")],
     CarSpecs(mass=2358, wheelbase=3.11, steerRatio=17.7, centerToFrontRatio=0.4),
   )
   CHEVROLET_TRAILBLAZER_CC = GMPlatformConfig(
-    [GMCarDocs("Chevrolet Trailblazer 2021-22")],
+    [GMCarDocs("Chevrolet Trailblazer 2021-22 - No-ACC")],
     CHEVROLET_TRAILBLAZER.specs,
   )
   CADILLAC_XT4 = GMPlatformConfig(
@@ -214,7 +214,7 @@ class CAR(Platforms):
     CarSpecs(mass=1660, wheelbase=2.78, steerRatio=14.4, centerToFrontRatio=0.4),
   )
   CADILLAC_XT5_CC = GMPlatformConfig(
-    [GMCarDocs("Cadillac XT5 No ACC")],
+    [GMCarDocs("Cadillac XT5 - No-ACC")],
     CarSpecs(mass=1810, wheelbase=2.86, steerRatio=16.34, centerToFrontRatio=0.5),
   )
   CHEVROLET_TRAVERSE = GMPlatformConfig(
@@ -224,6 +224,14 @@ class CAR(Platforms):
   BUICK_BABYENCLAVE = GMPlatformConfig(
     [GMCarDocs("Buick Baby Enclave 2020-23", "Driver Assist Package")],
     CarSpecs(mass=2050, wheelbase=2.86, steerRatio=16.0, centerToFrontRatio=0.5),
+  )
+  CHEVROLET_MALIBU_CC = GMPlatformConfig(
+    [GMCarDocs("Chevrolet Malibu 2023 - No-ACC")],
+    CarSpecs(mass=1450, wheelbase=2.8, steerRatio=15.8, centerToFrontRatio=0.4),
+  )
+  CHEVROLET_TRAX = GMPlatformConfig(
+    [GMCarDocs("Chevrolet TRAX 2024")],
+    CarSpecs(mass=1365, wheelbase=2.7, steerRatio=16.4, centerToFrontRatio=0.4),
   )
 
 
@@ -306,15 +314,15 @@ FW_QUERY_CONFIG = FwQueryConfig(
 )
 
 EV_CAR = {CAR.CHEVROLET_VOLT, CAR.CHEVROLET_BOLT_EUV, CAR.CHEVROLET_VOLT_CC, CAR.CHEVROLET_BOLT_CC}
-CC_ONLY_CAR = {CAR.CHEVROLET_VOLT_CC, CAR.CHEVROLET_BOLT_CC, CAR.CHEVROLET_EQUINOX_CC, CAR.CHEVROLET_SUBURBAN_CC, CAR.GMC_YUKON_CC, CAR.CADILLAC_CT6_CC, CAR.CHEVROLET_TRAILBLAZER_CC, CAR.CADILLAC_XT5_CC}
+CC_ONLY_CAR = {CAR.CHEVROLET_VOLT_CC, CAR.CHEVROLET_BOLT_CC, CAR.CHEVROLET_EQUINOX_CC, CAR.CHEVROLET_SUBURBAN_CC, CAR.GMC_YUKON_CC, CAR.CADILLAC_CT6_CC, CAR.CHEVROLET_TRAILBLAZER_CC, CAR.CADILLAC_XT5_CC, CAR.CHEVROLET_MALIBU_CC}
 # CC_ONLY_CAR = set(c for c in CAR if str(c).endswith('_CC'))
 
 # We're integrated at the Safety Data Gateway Module on these cars
 SDGM_CAR = {CAR.CADILLAC_XT4, CAR.CHEVROLET_TRAVERSE, CAR.BUICK_BABYENCLAVE}
 
 # We're integrated at the camera with VOACC on these cars (instead of ASCM w/ OBD-II harness)
-CAMERA_ACC_CAR = {CAR.CHEVROLET_BOLT_EUV, CAR.CHEVROLET_SILVERADO, CAR.CHEVROLET_EQUINOX, CAR.CHEVROLET_TRAILBLAZER}
-CAMERA_ACC_CAR.update({CAR.CHEVROLET_VOLT_CC, CAR.CHEVROLET_BOLT_CC, CAR.CHEVROLET_EQUINOX_CC, CAR.GMC_YUKON_CC, CAR.CADILLAC_CT6_CC, CAR.CHEVROLET_TRAILBLAZER_CC, CAR.CADILLAC_XT5_CC})
+CAMERA_ACC_CAR = {CAR.CHEVROLET_BOLT_EUV, CAR.CHEVROLET_SILVERADO, CAR.CHEVROLET_EQUINOX, CAR.CHEVROLET_TRAILBLAZER, CAR.CHEVROLET_TRAX}
+CAMERA_ACC_CAR.update({CAR.CHEVROLET_VOLT_CC, CAR.CHEVROLET_BOLT_CC, CAR.CHEVROLET_EQUINOX_CC, CAR.GMC_YUKON_CC, CAR.CADILLAC_CT6_CC, CAR.CHEVROLET_TRAILBLAZER_CC, CAR.CADILLAC_XT5_CC, CAR.CHEVROLET_MALIBU_CC})
 # CAMERA_ACC_CAR.update(CC_ONLY_CAR)
 
 STEER_THRESHOLD = 1.0

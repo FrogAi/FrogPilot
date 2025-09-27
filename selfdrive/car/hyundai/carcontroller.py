@@ -57,13 +57,15 @@ class CarController(CarControllerBase):
     self.car_fingerprint = CP.carFingerprint
     self.last_button_frame = 0
 
-  def update(self, CC, CS, now_nanos):
+  def update(self, CC, CS, now_nanos, frogpilot_toggles):
     actuators = CC.actuators
     hud_control = CC.hudControl
 
     # steering torque
+    self.params = CarControllerParams(self.CP, CS.out.vEgoRaw, frogpilot_toggles)
     new_steer = int(round(actuators.steer * self.params.STEER_MAX))
     apply_steer = apply_driver_steer_torque_limits(new_steer, self.apply_steer_last, CS.out.steeringTorque, self.params)
+    apply_steer = clip(apply_steer, -self.params.STEER_MAX, self.params.STEER_MAX)
 
     # >90 degree steering fault prevention
     self.angle_limit_counter, apply_steer_req = common_fault_avoidance(abs(CS.out.steeringAngleDeg) >= MAX_ANGLE, CC.latActive,
@@ -118,7 +120,7 @@ class CarController(CarControllerBase):
 
       # LFA and HDA icons
       if self.frame % 5 == 0 and (not hda2 or hda2_long):
-        can_sends.append(hyundaicanfd.create_lfahda_cluster(self.packer, self.CAN, CC.enabled))
+        can_sends.append(hyundaicanfd.create_lfahda_cluster(self.packer, self.CAN, CC.enabled, CC.latActive))
 
       # blinkers
       if hda2 and self.CP.flags & HyundaiFlags.ENABLE_BLINKERS:
@@ -149,11 +151,11 @@ class CarController(CarControllerBase):
         use_fca = self.CP.flags & HyundaiFlags.USE_FCA.value
         can_sends.extend(hyundaican.create_acc_commands(self.packer, CC.enabled, accel, jerk, int(self.frame / 2),
                                                         hud_control, set_speed_in_units, stopping,
-                                                        CC.cruiseControl.override, use_fca))
+                                                        CC.cruiseControl.override, use_fca, CS.out.cruiseState.available))
 
       # 20 Hz LFA MFA message
       if self.frame % 5 == 0 and self.CP.flags & HyundaiFlags.SEND_LFA.value:
-        can_sends.append(hyundaican.create_lfahda_mfc(self.packer, CC.enabled))
+        can_sends.append(hyundaican.create_lfahda_mfc(self.packer, CC.enabled, CC.latActive))
 
       # 5 Hz ACC options
       if self.frame % 20 == 0 and self.CP.openpilotLongitudinalControl:

@@ -9,8 +9,21 @@ class OnroadAlerts : public QWidget {
 
 public:
   OnroadAlerts(QWidget *parent = 0) : QWidget(parent) {}
-  void updateState(const UIState &s);
+  void updateState(const UIState &s, const FrogPilotUIState &fs);
   void clear();
+
+  // FrogPilot variables
+  bool displayFerg;
+  bool enableFerg;
+
+  int alertHeight;
+
+  const QMap<cereal::FrogPilotControlsState::AlertStatus, QColor> frogpilot_alert_colors = {
+    {cereal::FrogPilotControlsState::AlertStatus::NORMAL, QColor(0x15, 0x15, 0x15, 0xf1)},
+    {cereal::FrogPilotControlsState::AlertStatus::USER_PROMPT, QColor(0xDA, 0x6F, 0x25, 0xf1)},
+    {cereal::FrogPilotControlsState::AlertStatus::CRITICAL, QColor(0xC9, 0x22, 0x31, 0xf1)},
+    {cereal::FrogPilotControlsState::AlertStatus::FROGPILOT, QColor(0x17, 0x86, 0x44, 0xf1)},
+  };
 
 protected:
   struct Alert {
@@ -32,8 +45,13 @@ protected:
   };
 
   void paintEvent(QPaintEvent*) override;
-  OnroadAlerts::Alert getAlert(const SubMaster &sm, uint64_t started_frame);
+  OnroadAlerts::Alert getAlert(const SubMaster &sm, const SubMaster &fpsm, uint64_t started_frame, QJsonObject &frogpilot_toggles);
 
   QColor bg;
   Alert alert = {};
+
+  // FrogPilot variables
+  bool sidebarsOpen;
+
+  QPixmap ferg = loadPixmap("../../frogpilot/assets/random_events/icons/ferg.png", {1080, 720});
 };

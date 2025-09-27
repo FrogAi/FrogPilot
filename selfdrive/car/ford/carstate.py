@@ -1,4 +1,4 @@
-from cereal import car
+from cereal import car, custom
 from opendbc.can.can_define import CANDefine
 from opendbc.can.parser import CANParser
 from openpilot.common.conversions import Conversions as CV
@@ -10,9 +10,22 @@ GearShifter = car.CarState.GearShifter
 TransmissionType = car.CarParams.TransmissionType
 
 
+# Traffic signals for Speed Limit Controller
+def calculate_speed_limit(cp_cam):
+  speed_limit_unit = cp_cam.vl["Traffic_RecognitnData"]["TsrVlUnitMsgTxt_D_Rq"]
+  speed_limit_value = cp_cam.vl["Traffic_RecognitnData"]["TsrVLim1MsgTxt_D_Rq"]
+
+  if speed_limit_unit == 1:
+    return speed_limit_value * CV.KPH_TO_MS
+  elif speed_limit_unit == 2:
+    return speed_limit_value * CV.MPH_TO_MS
+  else:
+    return 0
+
+
 class CarState(CarStateBase):
-  def __init__(self, CP):
-    super().__init__(CP)
+  def __init__(self, CP, FPCP):
+    super().__init__(CP, FPCP)
     can_define = CANDefine(DBC[CP.carFingerprint]["pt"])
     if CP.transmissionType == TransmissionType.automatic:
       self.shifter_values = can_define.dv["Gear_Shift_by_Wire_FD1"]["TrnRng_D_RqGsm"]
@@ -22,8 +35,9 @@ class CarState(CarStateBase):
     self.prev_distance_button = 0
     self.distance_button = 0
 
-  def update(self, cp, cp_cam):
+  def update(self, cp, cp_cam, frogpilot_toggles):
     ret = car.CarState.new_message()
+    fp_ret = custom.FrogPilotCarState.new_message()
 
     # Occasionally on startup, the ABS module recalibrates the steering pinion offset, so we need to block engagement
     # The vehicle usually recovers out of this state within a minute of normal driving
@@ -107,10 +121,17 @@ class CarState(CarStateBase):
     self.acc_tja_status_stock_values = cp_cam.vl["ACCDATA_3"]
     self.lkas_status_stock_values = cp_cam.vl["IPMA_Data"]
 
-    return ret
+    # FrogPilot CarState functions
+    if self.CP.flags & FordFlags.CANFD:
+      fp_ret.dashboardSpeedLimit = calculate_speed_limit(cp_cam)
+
+    self.lkas_previously_enabled = self.lkas_enabled
+    self.lkas_enabled = ret.genericToggle
+
+    return ret, fp_ret
 
   @staticmethod
-  def get_can_parser(CP):
+  def get_can_parser(CP, FPCP):
     messages = [
       # sig_address, frequency
       ("VehicleOperatingModes", 100),
@@ -156,7 +177,7 @@ class CarState(CarStateBase):
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, CanBus(CP).main)
 
   @staticmethod
-  def get_cam_can_parser(CP):
+  def get_cam_can_parser(CP, FPCP):
     messages = [
       # sig_address, frequency
       ("ACCDATA", 50),
@@ -164,6 +185,11 @@ class CarState(CarStateBase):
       ("ACCDATA_3", 5),
       ("IPMA_Data", 1),
     ]
+
+    if CP.flags & FordFlags.CANFD:
+      messages += [
+        ("Traffic_RecognitnData", 1),
+      ]
 
     if CP.enableBsm and CP.flags & FordFlags.CANFD:
       messages += [

@@ -1,117 +1,124 @@
-import time
+import time, math
+start = time.perf_counter()
 from pathlib import Path
 import numpy as np
-from tinygrad.tensor import Tensor
-from tinygrad.jit import TinyJit
-from tinygrad.helpers import getenv, dtypes, GlobalCounters
-from examples.mlperf import helpers
+from tinygrad import Tensor, Device, dtypes, GlobalCounters, TinyJit
+from tinygrad.nn.state import get_parameters, load_state_dict, safe_load
+from tinygrad.helpers import getenv
+from extra.bench_log import BenchEvent, WallTimeEvent
+def tlog(x): print(f"{x:25s}  @ {time.perf_counter()-start:5.2f}s")
 
 def eval_resnet():
-  # Resnet50-v1.5
-  from tinygrad.jit import TinyJit
-  from models.resnet import ResNet50
-  mdl = ResNet50()
-  mdl.load_from_pretrained()
+  with WallTimeEvent(BenchEvent.FULL):
+    # Resnet50-v1.5
+    from extra.models.resnet import ResNet50
+    tlog("imports")
+    GPUS = [f'{Device.DEFAULT}:{i}' for i in range(getenv("GPUS", 6))]
+    for x in GPUS: Device[x]
+    tlog("got devices")    # NOTE: this is faster with rocm-smi running
 
-  input_mean = Tensor([0.485, 0.456, 0.406]).reshape(1, -1, 1, 1)
-  input_std = Tensor([0.229, 0.224, 0.225]).reshape(1, -1, 1, 1)
-  def input_fixup(x):
-    x = x.permute([0,3,1,2]).cast(dtypes.float32) / 255.0
-    x -= input_mean
-    x /= input_std
-    return x
+    class ResnetRunner:
+      def __init__(self, device=None):
+        self.mdl = ResNet50()
+        for x in get_parameters(self.mdl) if device else []: x.to_(device)
+        if (fn:=getenv("RESNET_MODEL", "")): load_state_dict(self.mdl, safe_load(fn))
+        else: self.mdl.load_from_pretrained()
+        self.input_mean = Tensor([0.485, 0.456, 0.406], device=device).reshape(1, -1, 1, 1)
+        self.input_std = Tensor([0.229, 0.224, 0.225], device=device).reshape(1, -1, 1, 1)
+      def __call__(self, x:Tensor) -> Tensor:
+        x = x.permute([0,3,1,2]).cast(dtypes.float32) / 255.0
+        x -= self.input_mean
+        x /= self.input_std
+        return self.mdl(x).log_softmax().argmax(axis=1).realize()
 
-  mdlrun = lambda x: mdl(input_fixup(x)).realize()
-  mdljit = TinyJit(mdlrun)
+    mdl = TinyJit(ResnetRunner(GPUS))
+    tlog("loaded models")
 
-  # evaluation on the mlperf classes of the validation set from imagenet
-  from extra.datasets.imagenet import iterate
-  from extra.helpers import cross_process
-
-  BS = 64
-  n,d = 0,0
-  st = time.perf_counter()
-  iterator = cross_process(lambda: iterate(BS))
-  x,ny = next(iterator)
-  dat = Tensor(x)
-  while dat is not None:
-    y = ny
-    GlobalCounters.reset()
-    mt = time.perf_counter()
-    outs = mdlrun(dat) if dat.shape[0] != BS else mdljit(dat)
-    try:
-      x,ny = next(iterator)
-      dat = Tensor(x)
-    except StopIteration:
-      dat = None
-    t = outs.argmax(axis=1).numpy()
-    et = time.perf_counter()
-    n += (t==y).sum()
-    d += len(t)
-    print(f"****** {n}/{d}  {n*100.0/d:.2f}% -- {(mt-st)*1000:.2f} ms loading data, {(et-mt)*1000:7.2f} ms to run model. {len(t)/(et-mt):.2f} examples/sec. {GlobalCounters.global_ops*1e-12/(et-mt):.2f} TFLOPS")
+    # evaluation on the mlperf classes of the validation set from imagenet
+    from examples.mlperf.dataloader import batch_load_resnet
+    iterator = batch_load_resnet(getenv("BS", 128*6), val=getenv("VAL", 1), shuffle=False, pad_first_batch=True)
+    def data_get():
+      x,y,cookie = next(iterator)
+      return x.shard(GPUS, axis=0).realize(), y, cookie
+    n,d = 0,0
+    proc = data_get()
+    tlog("loaded initial data")
     st = time.perf_counter()
+    while proc is not None:
+      GlobalCounters.reset()
+      proc = (mdl(proc[0]), proc[1], proc[2])  # this frees the images
+      run = time.perf_counter()
+      # load the next data here
+      try: next_proc = data_get()
+      except StopIteration: next_proc = None
+      nd = time.perf_counter()
+      y = np.array(proc[1])
+      proc = (proc[0].numpy() == y) & (y != -1)  # this realizes the models and frees the cookies
+      n += proc.sum()
+      d += (y != -1).sum()
+      et = time.perf_counter()
+      tlog(f"****** {n:5d}/{d:5d}  {n*100.0/d:.2f}% -- {(run-st)*1000:7.2f} ms to enqueue, {(et-run)*1000:7.2f} ms to realize ({(nd-run)*1000:7.2f} ms fetching). {(len(proc))/(et-st):8.2f} examples/sec. {GlobalCounters.global_ops*1e-12/(et-st):5.2f} TFLOPS")
+      st = et
+      proc, next_proc = next_proc, None
+    tlog("done")
 
 def eval_unet3d():
   # UNet3D
-  from models.unet3d import UNet3D
-  from extra.datasets.kits19 import iterate, sliding_window_inference
-  from examples.mlperf.metrics import get_dice_score
+  from extra.models.unet3d import UNet3D
+  from extra.datasets.kits19 import iterate, sliding_window_inference, get_val_files
+  from examples.mlperf.metrics import dice_score
   mdl = UNet3D()
   mdl.load_from_pretrained()
   s = 0
   st = time.perf_counter()
-  for i, (image, label) in enumerate(iterate(), start=1):
+  for i, (image, label) in enumerate(iterate(get_val_files()), start=1):
     mt = time.perf_counter()
     pred, label = sliding_window_inference(mdl, image, label)
     et = time.perf_counter()
     print(f"{(mt-st)*1000:.2f} ms loading data, {(et-mt)*1000:.2f} ms to run model")
-    s += get_dice_score(pred, label).mean()
+    s += dice_score(Tensor(pred), Tensor(label)).mean().item()
     print(f"****** {s:.2f}/{i}  {s/i:.5f} Mean DICE score")
     st = time.perf_counter()
 
 def eval_retinanet():
   # RetinaNet with ResNeXt50_32X4D
-  from models.resnet import ResNeXt50_32X4D
-  from models.retinanet import RetinaNet
-  mdl = RetinaNet(ResNeXt50_32X4D())
-  mdl.load_from_pretrained()
-
-  input_mean = Tensor([0.485, 0.456, 0.406]).reshape(1, -1, 1, 1)
-  input_std = Tensor([0.229, 0.224, 0.225]).reshape(1, -1, 1, 1)
-  def input_fixup(x):
-    x = x.permute([0,3,1,2]) / 255.0
-    x -= input_mean
-    x /= input_std
-    return x
-
-  from extra.datasets.openimages import openimages, iterate
+  from examples.mlperf.dataloader import batch_load_retinanet
+  from extra.datasets.openimages import normalize, download_dataset, BASEDIR
+  from extra.models.resnet import ResNeXt50_32X4D
+  from extra.models.retinanet import RetinaNet
   from pycocotools.coco import COCO
   from pycocotools.cocoeval import COCOeval
   from contextlib import redirect_stdout
-  coco = COCO(openimages())
+  tlog("imports")
+
+  mdl = RetinaNet(ResNeXt50_32X4D())
+  mdl.load_from_pretrained()
+  tlog("loaded models")
+
+  coco = COCO(download_dataset(base_dir:=getenv("BASEDIR", BASEDIR), 'validation'))
   coco_eval = COCOeval(coco, iouType="bbox")
   coco_evalimgs, evaluated_imgs, ncats, narea = [], [], len(coco_eval.params.catIds), len(coco_eval.params.areaRng)
+  tlog("loaded dataset")
 
-  from tinygrad.jit import TinyJit
-  mdlrun = TinyJit(lambda x: mdl(input_fixup(x)).realize())
-
-  n, bs = 0, 8
+  iterator = batch_load_retinanet(coco, True, Path(base_dir), getenv("BS", 8), shuffle=False)
+  def data_get():
+    x, img_ids, img_sizes, cookie = next(iterator)
+    return x.to(Device.DEFAULT).realize(), img_ids, img_sizes, cookie
+  n = 0
+  proc = data_get()
+  tlog("loaded initial data")
   st = time.perf_counter()
-  for x, targets in iterate(coco, bs):
-    dat = Tensor(x.astype(np.float32))
-    mt = time.perf_counter()
-    if dat.shape[0] == bs:
-      outs = mdlrun(dat).numpy()
-    else:
-      mdlrun.jit_cache = None
-      outs =  mdl(input_fixup(dat)).numpy()
-    et = time.perf_counter()
-    predictions = mdl.postprocess_detections(outs, input_size=dat.shape[1:3], orig_image_sizes=[t["image_size"] for t in targets])
-    ext = time.perf_counter()
-    n += len(targets)
-    print(f"[{n}/{len(coco.imgs)}] == {(mt-st)*1000:.2f} ms loading data, {(et-mt)*1000:.2f} ms to run model, {(ext-et)*1000:.2f} ms for postprocessing")
-    img_ids = [t["image_id"] for t in targets]
-    coco_results  = [{"image_id": targets[i]["image_id"], "category_id": label, "bbox": box, "score": score}
+  while proc is not None:
+    GlobalCounters.reset()
+    proc = (mdl(normalize(proc[0])), proc[1], proc[2], proc[3])
+    run = time.perf_counter()
+    # load the next data here
+    try: next_proc = data_get()
+    except StopIteration: next_proc = None
+    nd = time.perf_counter()
+    predictions, img_ids = mdl.postprocess_detections(proc[0].numpy(), orig_image_sizes=proc[2]), proc[1]
+    pd = time.perf_counter()
+    coco_results  = [{"image_id": img_ids[i], "category_id": label, "bbox": box.tolist(), "score": score}
       for i, prediction in enumerate(predictions) for box, score, label in zip(*prediction.values())]
     with redirect_stdout(None):
       coco_eval.cocoDt = coco.loadRes(coco_results)
@@ -119,17 +126,22 @@ def eval_retinanet():
       coco_eval.evaluate()
     evaluated_imgs.extend(img_ids)
     coco_evalimgs.append(np.array(coco_eval.evalImgs).reshape(ncats, narea, len(img_ids)))
-    st = time.perf_counter()
+    n += len(proc[0])
+    et = time.perf_counter()
+    tlog(f"****** {(run-st)*1000:7.2f} ms to enqueue, {(et-run)*1000:7.2f} ms to realize ({(nd-run)*1000:7.2f} ms fetching, {(pd-run)*1000:4.2f} ms postprocess_detections). {(len(proc))/(et-st):8.2f} examples/sec. {GlobalCounters.global_ops*1e-12/(et-st):5.2f} TFLOPS")
+    st = et
+    proc, next_proc = next_proc, None
 
   coco_eval.params.imgIds = evaluated_imgs
   coco_eval._paramsEval.imgIds = evaluated_imgs
   coco_eval.evalImgs = list(np.concatenate(coco_evalimgs, -1).flatten())
   coco_eval.accumulate()
   coco_eval.summarize()
+  tlog("done")
 
 def eval_rnnt():
   # RNN-T
-  from models.rnnt import RNNT
+  from extra.models.rnnt import RNNT
   mdl = RNNT()
   mdl.load_from_pretrained()
 
@@ -158,7 +170,7 @@ def eval_rnnt():
 
 def eval_bert():
   # Bert-QA
-  from models.bert import BertForQuestionAnswering
+  from extra.models.bert import BertForQuestionAnswering
   mdl = BertForQuestionAnswering()
   mdl.load_from_pretrained()
 
@@ -171,7 +183,7 @@ def eval_bert():
   from examples.mlperf.metrics import f1_score
   from transformers import BertTokenizer
 
-  tokenizer = BertTokenizer(str(Path(__file__).parents[2] / "weights/bert_vocab.txt"))
+  tokenizer = BertTokenizer(str(Path(__file__).parents[2] / "extra/weights/bert_vocab.txt"))
 
   c = 0
   f1 = 0.0
@@ -194,8 +206,8 @@ def eval_bert():
 
 def eval_mrcnn():
   from tqdm import tqdm
-  from models.mask_rcnn import MaskRCNN
-  from models.resnet import ResNet
+  from extra.models.mask_rcnn import MaskRCNN
+  from extra.models.resnet import ResNet
   from extra.datasets.coco import BASEDIR, images, convert_prediction_to_coco_bbox, convert_prediction_to_coco_mask, accumulate_predictions_for_coco, evaluate_predictions_on_coco, iterate
   from examples.mask_rcnn import compute_prediction_batched, Image
   mdl = MaskRCNN(ResNet(50, num_classes=None, stride_in_1x1=True))
@@ -229,10 +241,55 @@ def eval_mrcnn():
   evaluate_predictions_on_coco(bbox_output, iou_type='bbox')
   evaluate_predictions_on_coco(mask_output, iou_type='segm')
 
+def eval_llama3():
+  from extra.models.llama import Transformer
+  from examples.llama3 import MODEL_PARAMS, load, convert_from_huggingface
+  from tinygrad.helpers import tqdm
+
+  BASEDIR = Path(getenv("BASEDIR", "/raid/datasets/c4/"))
+  BS = getenv("BS", 4)
+  SMALL = getenv("SMALL", 0)
+  SEQLEN = getenv("SEQLEN", 8192)
+  MODEL_PATH = Path(getenv("MODEL_PATH", "/raid/weights/llama31_8b/"))
+
+  params = MODEL_PARAMS[getenv("LLAMA3_SIZE", "8B")]["args"]
+  params = params | {"vocab_size": 32000} if not SMALL else params
+  if (llama_layers:=getenv("LLAMA_LAYERS")) != 0: params['n_layers'] = llama_layers
+  model = Transformer(**params, max_context=SEQLEN, jit=False, disable_kv_cache=True)
+
+  # load weights
+  weights = load(str(MODEL_PATH / "model.safetensors.index.json"))
+  if "model.embed_tokens.weight" in weights:
+    print("converting from huggingface format")
+    weights = convert_from_huggingface(weights, params["n_layers"], params["n_heads"], params["n_kv_heads"])
+
+  load_state_dict(model, weights, strict=False, consume=True)
+
+  @TinyJit
+  def eval_step(model, tokens):
+    logits:Tensor = model(tokens[:, :-1], start_pos=0, temperature=math.nan)
+    loss = logits.sparse_categorical_crossentropy(tokens[:, 1:])
+    return loss.flatten().float()
+
+  if SMALL:
+    from examples.mlperf.dataloader import batch_load_llama3_small
+    iter = batch_load_llama3_small(BS, 5760, SEQLEN, BASEDIR, val=True)
+  else:
+    from examples.mlperf.dataloader import batch_load_llama3
+    iter = batch_load_llama3(BS, 5760, SEQLEN, BASEDIR, val=True)
+
+  losses = []
+  for tokens in tqdm(iter, total=5760//BS):
+    GlobalCounters.reset()
+    losses += eval_step(model, tokens).tolist()
+    tqdm.write(f"loss: {np.mean(losses)}")
+
+  log_perplexity = np.mean(losses)
+  print(f"Log Perplexity: {log_perplexity}")
+
 if __name__ == "__main__":
   # inference only
   Tensor.training = False
-  Tensor.no_grad = True
 
   models = getenv("MODEL", "resnet,retinanet,unet3d,rnnt,bert,mrcnn").split(",")
   for m in models:

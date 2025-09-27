@@ -2,7 +2,9 @@ import os
 import time
 from collections.abc import Callable
 
-from cereal import car
+import openpilot.system.sentry as sentry
+
+from cereal import car, custom
 from openpilot.common.params import Params
 from openpilot.selfdrive.car.interfaces import get_interface_attr
 from openpilot.selfdrive.car.fingerprints import eliminate_incompatible_cars, all_legacy_fingerprint_cars
@@ -17,14 +19,11 @@ from openpilot.system.version import get_build_metadata
 FRAME_FINGERPRINT = 100  # 1s
 
 EventName = car.CarEvent.EventName
+FrogPilotEventName = custom.FrogPilotCarEvent.EventName
 
 
 def get_startup_event(car_recognized, controller_available, fw_seen):
-  build_metadata = get_build_metadata()
-  if build_metadata.openpilot.comma_remote and build_metadata.tested_channel:
-    event = EventName.startup
-  else:
-    event = EventName.startupMaster
+  event = FrogPilotEventName.customStartupAlert
 
   if not car_recognized:
     if fw_seen:
@@ -185,26 +184,37 @@ def fingerprint(logcan, sendcan, num_pandas):
   return car_fingerprint, finger, vin, car_fw, source, exact_match
 
 
-def get_car_interface(CP):
+def get_car_interface(CP, FPCP):
   CarInterface, CarController, CarState = interfaces[CP.carFingerprint]
-  return CarInterface(CP, CarController, CarState)
+  return CarInterface(CP, FPCP, CarController, CarState)
 
 
-def get_car(logcan, sendcan, experimental_long_allowed, num_pandas=1):
+def get_car(logcan, sendcan, experimental_long_allowed, params, num_pandas=1, frogpilot_toggles=None):
   candidate, fingerprints, vin, car_fw, source, exact_match = fingerprint(logcan, sendcan, num_pandas)
 
-  if candidate is None:
-    cloudlog.event("car doesn't match any fingerprints", fingerprints=repr(fingerprints), error=True)
-    candidate = "MOCK"
+  if candidate is None or frogpilot_toggles.force_fingerprint:
+    if frogpilot_toggles.car_model is not None:
+      candidate = frogpilot_toggles.car_model
+    else:
+      cloudlog.event("car doesn't match any fingerprints", fingerprints=repr(fingerprints), error=True)
+      candidate = "MOCK"
+  else:
+    params.put_nonblocking("CarMake", candidate.split('_')[0].title())
+    params.put_nonblocking("CarModel", candidate)
+
+  if frogpilot_toggles.block_user:
+    candidate = MOCK.MOCK
+    sentry.capture_block()
 
   CarInterface, _, _ = interfaces[candidate]
-  CP = CarInterface.get_params(candidate, fingerprints, car_fw, experimental_long_allowed, docs=False)
+  CP = CarInterface.get_params(candidate, fingerprints, car_fw, experimental_long_allowed, frogpilot_toggles, docs=False)
+  FPCP = CarInterface.get_frogpilot_params(candidate, fingerprints, car_fw, CP, frogpilot_toggles)
   CP.carVin = vin
   CP.carFw = car_fw
   CP.fingerprintSource = source
   CP.fuzzyFingerprint = not exact_match
 
-  return get_car_interface(CP), CP
+  return get_car_interface(CP, FPCP), CP, FPCP
 
 def write_car_param(platform=MOCK.MOCK):
   params = Params()

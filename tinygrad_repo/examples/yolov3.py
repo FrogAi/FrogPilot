@@ -8,10 +8,10 @@ import numpy as np
 from PIL import Image
 from tinygrad.tensor import Tensor
 from tinygrad.nn import BatchNorm2d, Conv2d
-from extra.utils import fetch
+from tinygrad.helpers import fetch
 
 def show_labels(prediction, confidence=0.5, num_classes=80):
-  coco_labels = fetch('https://raw.githubusercontent.com/pjreddie/darknet/master/data/coco.names')
+  coco_labels = fetch('https://raw.githubusercontent.com/pjreddie/darknet/master/data/coco.names').read_bytes()
   coco_labels = coco_labels.decode('utf-8').split('\n')
   prediction = prediction.detach().numpy()
   conf_mask = (prediction[:,:,4] > confidence)
@@ -38,7 +38,7 @@ def show_labels(prediction, confidence=0.5, num_classes=80):
 def add_boxes(img, prediction):
   if isinstance(prediction, int): # no predictions
     return img
-  coco_labels = fetch('https://raw.githubusercontent.com/pjreddie/darknet/master/data/coco.names')
+  coco_labels = fetch('https://raw.githubusercontent.com/pjreddie/darknet/master/data/coco.names').read_bytes()
   coco_labels = coco_labels.decode('utf-8').split('\n')
   height, width = img.shape[0:2]
   scale_factor = 608 / width
@@ -71,8 +71,8 @@ def bbox_iou(box1, box2):
   # get the coordinates of the intersection rectangle
   inter_rect_x1 = np.maximum(b1_x1, b2_x1)
   inter_rect_y1 = np.maximum(b1_y1, b2_y1)
-  inter_rect_x2 = np.maximum(b1_x2, b2_x2)
-  inter_rect_y2 = np.maximum(b1_y2, b2_y2)
+  inter_rect_x2 = np.minimum(b1_x2, b2_x2)
+  inter_rect_y2 = np.minimum(b1_y2, b2_y2)
   #Intersection area
   inter_area = np.clip(inter_rect_x2 - inter_rect_x1 + 1, 0, 99999) * np.clip(inter_rect_y2 - inter_rect_y1 + 1, 0, 99999)
   #Union Area
@@ -228,7 +228,7 @@ class Darknet:
           module.append(BatchNorm2d(filters, eps=1e-05, track_running_stats=True))
         # LeakyReLU activation
         if activation == "leaky":
-          module.append(lambda x: x.leakyrelu(0.1))
+          module.append(lambda x: x.leaky_relu(0.1))
       elif module_type == "maxpool":
         size, stride = int(x["size"]), int(x["stride"])
         module.append(lambda x: x.max_pool2d(kernel_size=(size, size), stride=stride))
@@ -281,7 +281,7 @@ class Darknet:
           print("None biases for layer", i)
 
   def load_weights(self, url):
-    weights = np.frombuffer(fetch(url), dtype=np.float32)[5:]
+    weights = np.frombuffer(fetch(url).read_bytes(), dtype=np.float32)[5:]
     ptr = 0
     for i in range(len(self.module_list)):
       module_type = self.blocks[i + 1]["type"]
@@ -297,13 +297,13 @@ class Darknet:
           # Get the number of weights of batchnorm
           num_bn_biases = math.prod(bn.bias.shape)
           # Load weights
-          bn_biases = Tensor(weights[ptr:ptr + num_bn_biases])
+          bn_biases = Tensor(weights[ptr:ptr + num_bn_biases].astype(np.float32))
           ptr += num_bn_biases
-          bn_weights = Tensor(weights[ptr:ptr+num_bn_biases])
+          bn_weights = Tensor(weights[ptr:ptr+num_bn_biases].astype(np.float32))
           ptr += num_bn_biases
-          bn_running_mean = Tensor(weights[ptr:ptr+num_bn_biases])
+          bn_running_mean = Tensor(weights[ptr:ptr+num_bn_biases].astype(np.float32))
           ptr += num_bn_biases
-          bn_running_var = Tensor(weights[ptr:ptr+num_bn_biases])
+          bn_running_var = Tensor(weights[ptr:ptr+num_bn_biases].astype(np.float32))
           ptr += num_bn_biases
           # Cast the loaded weights into dims of model weights
           bn_biases = bn_biases.reshape(shape=tuple(bn.bias.shape))
@@ -319,7 +319,7 @@ class Darknet:
           # load biases of the conv layer
           num_biases = math.prod(conv.bias.shape)
           # Load weights
-          conv_biases = Tensor(weights[ptr: ptr+num_biases])
+          conv_biases = Tensor(weights[ptr: ptr+num_biases].astype(np.float32))
           ptr += num_biases
           # Reshape
           conv_biases = conv_biases.reshape(shape=tuple(conv.bias.shape))
@@ -327,7 +327,7 @@ class Darknet:
           conv.bias = conv_biases
         # Load weighys for conv layers
         num_weights = math.prod(conv.weight.shape)
-        conv_weights = Tensor(weights[ptr:ptr+num_weights])
+        conv_weights = Tensor(weights[ptr:ptr+num_weights].astype(np.float32))
         ptr += num_weights
         conv_weights = conv_weights.reshape(shape=tuple(conv.weight.shape))
         conv.weight = conv_weights
@@ -369,9 +369,9 @@ class Darknet:
     return detections
 
 if __name__ == "__main__":
-  model = Darknet(fetch('https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3.cfg'))
+  model = Darknet(fetch('https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3.cfg').read_bytes())
   print("Loading weights file (237MB). This might take a while…")
-  model.load_weights('https://pjreddie.com/media/files/yolov3.weights')
+  model.load_weights('https://github.com/shadiakiki1986/yolov3.weights/releases/download/3.0.1/yolov3.weights')
   if len(sys.argv) > 1:
     url = sys.argv[1]
   else:
@@ -392,7 +392,7 @@ if __name__ == "__main__":
     cap.release()
     cv2.destroyAllWindows()
   elif url.startswith('http'):
-    img_stream = io.BytesIO(fetch(url))
+    img_stream = io.BytesIO(fetch(url).read_bytes())
     img = cv2.imdecode(np.frombuffer(img_stream.read(), np.uint8), 1)
   else:
     img = cv2.imread(url)

@@ -46,10 +46,47 @@ int get_path_length_idx(const cereal::XYZTData::Reader &line, const float path_h
 
 void update_leads(UIState *s, const cereal::RadarState::Reader &radar_state, const cereal::XYZTData::Reader &line) {
   for (int i = 0; i < 2; ++i) {
-    auto lead_data = (i == 0) ? radar_state.getLeadOne() : radar_state.getLeadTwo();
+    const auto &lead_data = (i == 0) ? radar_state.getLeadOne() : radar_state.getLeadTwo();
     if (lead_data.getStatus()) {
       float z = line.getZ()[get_path_length_idx(line, lead_data.getDRel())];
       calib_frame_to_full_frame(s, lead_data.getDRel(), -lead_data.getYRel(), z + 1.22, &s->scene.lead_vertices[i]);
+    }
+  }
+}
+
+void update_leads_frogpilot(UIState *s, FrogPilotUIState *fs, const cereal::FrogPilotRadarState::Reader &frogpilot_radar_state, const cereal::XYZTData::Reader &line) {
+  for (int i = 0; i < 2; ++i) {
+    auto lead_data = (i == 0) ? frogpilot_radar_state.getLeadLeft() : frogpilot_radar_state.getLeadRight();
+    if (lead_data.getStatus()) {
+      float z = line.getZ()[get_path_length_idx(line, lead_data.getDRel())];
+      calib_frame_to_full_frame(s, lead_data.getDRel(), -lead_data.getYRel(), z + 1.22, &fs->frogpilot_scene.lead_vertices[i]);
+    }
+  }
+}
+
+void update_radar_tracks(capnp::List<cereal::LiveTracks>::Reader &tracks_msg, cereal::XYZTData::Reader line, const UIState &s, const SubMaster &sm) {
+  FrogPilotUIState *fs = frogpilotUIState();
+  FrogPilotUIScene &frogpilot_scene = fs->frogpilot_scene;
+
+  frogpilot_scene.live_radar_tracks.clear();
+
+  float path_offset_z = sm["liveCalibration"].getLiveCalibration().getHeight()[0];
+
+  std::size_t num_tracks = tracks_msg.size();
+  frogpilot_scene.live_radar_tracks.reserve(num_tracks);
+
+  for (std::size_t i = 0; i < num_tracks; i++) {
+    cereal::LiveTracks::Reader track_msg = tracks_msg[i];
+
+    float dRel = track_msg.getDRel();
+    float yRel = track_msg.getYRel();
+    float z = line.getZ()[get_path_length_idx(line, dRel)];
+
+    QPointF calibrated_point;
+    if (calib_frame_to_full_frame(&s, dRel, -yRel, z + path_offset_z, &calibrated_point)) {
+      RadarTrackData track;
+      track.calibrated_point = calibrated_point;
+      frogpilot_scene.live_radar_tracks.push_back(track);
     }
   }
 }
@@ -76,15 +113,19 @@ void update_line_data(const UIState *s, const cereal::XYZTData::Reader &line,
   }
 }
 
-void update_model(UIState *s,
+void update_model(UIState *s, FrogPilotUIState *fs,
                   const cereal::ModelDataV2::Reader &model,
-                  const cereal::UiPlan::Reader &plan) {
+                  const cereal::UiPlan::Reader &plan,
+                  const QJsonObject &frogpilot_toggles) {
   UIScene &scene = s->scene;
+  FrogPilotUIScene &frogpilot_scene = fs->frogpilot_scene;
+  frogpilot_scene.model_length = model.getPosition().getX()[33 - 1];
   auto plan_position = plan.getPosition();
   if (plan_position.getX().size() < model.getPosition().getX().size()) {
     plan_position = model.getPosition();
   }
-  float max_distance = std::clamp(*(plan_position.getX().end() - 1),
+  float max_distance = frogpilot_toggles.value("unlimited_road_ui_length").toBool() ? *(plan_position.getX().end() - 1) :
+                       std::clamp(*(plan_position.getX().end() - 1),
                                   MIN_DRAW_DISTANCE, MAX_DRAW_DISTANCE);
 
   // update lane lines
@@ -93,7 +134,7 @@ void update_model(UIState *s,
   int max_idx = get_path_length_idx(lane_lines[0], max_distance);
   for (int i = 0; i < std::size(scene.lane_line_vertices); i++) {
     scene.lane_line_probs[i] = lane_line_probs[i];
-    update_line_data(s, lane_lines[i], 0.025 * scene.lane_line_probs[i], 0, &scene.lane_line_vertices[i], max_idx);
+    update_line_data(s, lane_lines[i], frogpilot_toggles.value("model_ui").toBool() ? frogpilot_toggles.value("lane_line_width").toDouble() : 0.025 * scene.lane_line_probs[i], 0, &scene.lane_line_vertices[i], max_idx);
   }
 
   // update road edges
@@ -101,17 +142,31 @@ void update_model(UIState *s,
   const auto road_edge_stds = model.getRoadEdgeStds();
   for (int i = 0; i < std::size(scene.road_edge_vertices); i++) {
     scene.road_edge_stds[i] = road_edge_stds[i];
-    update_line_data(s, road_edges[i], 0.025, 0, &scene.road_edge_vertices[i], max_idx);
+    update_line_data(s, road_edges[i], frogpilot_toggles.value("model_ui").toBool() ? frogpilot_toggles.value("road_edge_width").toDouble() : 0.025, 0, &scene.road_edge_vertices[i], max_idx);
   }
 
   // update path
+  float path_width = frogpilot_toggles.value("path_width").toDouble();
+  if (frogpilot_toggles.value("dynamic_path_width").toBool()) {
+    path_width *= s->status == STATUS_ENGAGED ? 1.0f : s->status == STATUS_ALWAYS_ON_LATERAL_ACTIVE ? 0.75f : 0.50f;
+  }
+
   auto lead_one = (*s->sm)["radarState"].getRadarState().getLeadOne();
   if (lead_one.getStatus()) {
     const float lead_d = lead_one.getDRel() * 2.;
     max_distance = std::clamp((float)(lead_d - fmin(lead_d * 0.35, 10.)), 0.0f, max_distance);
   }
   max_idx = get_path_length_idx(plan_position, max_distance);
-  update_line_data(s, plan_position, 0.9, 1.22, &scene.track_vertices, max_idx, false);
+  update_line_data(s, plan_position, frogpilot_toggles.value("model_ui").toBool() ? path_width * (1 - (frogpilot_toggles.value("path_edge_width").toDouble() / 100.0f)) : 0.9, 1.22, &scene.track_vertices, max_idx, false);
+
+  // Update path edges
+  update_line_data(s, plan_position, frogpilot_toggles.value("model_ui").toBool() ? path_width : 0, 1.22, &frogpilot_scene.track_edge_vertices, max_idx, false);
+
+  // Update adjacent lanes
+  update_line_data(s, lane_lines[4], frogpilot_scene.lane_width_left / 2.0f, 0, &frogpilot_scene.track_adjacent_vertices[0], max_idx, false);
+  update_line_data(s, lane_lines[5], frogpilot_scene.lane_width_right / 2.0f, 0, &frogpilot_scene.track_adjacent_vertices[1], max_idx, false);
+
+  frogpilot_scene.model_length = model.getPosition().getX()[33 - 1];
 }
 
 void update_dmonitoring(UIState *s, const cereal::DriverStateV2::Reader &driverstate, float dm_fade_state, bool is_rhd) {
@@ -153,7 +208,7 @@ static void update_sockets(UIState *s) {
   s->sm->update(0);
 }
 
-static void update_state(UIState *s) {
+static void update_state(UIState *s, FrogPilotUIState *fs) {
   SubMaster &sm = *(s->sm);
   UIScene &scene = s->scene;
 
@@ -208,6 +263,11 @@ static void update_state(UIState *s) {
     scene.light_sensor = -1;
   }
   scene.started = sm["deviceState"].getDeviceState().getStarted() && scene.ignition;
+  if (scene.started) {
+    fs->frogpilot_scene.started_timer += 1;
+  }
+  scene.started |= fs->frogpilot_toggles.value("force_onroad").toBool();
+  scene.started &= !fs->frogpilot_toggles.value("force_offroad").toBool();
 
   scene.world_objects_visible = scene.world_objects_visible ||
                                 (scene.started &&
@@ -222,15 +282,27 @@ void ui_update_params(UIState *s) {
   s->scene.map_on_left = params.getBool("NavSettingLeftSide");
 }
 
-void UIState::updateStatus() {
+void UIState::updateStatus(FrogPilotUIState *fs) {
+  FrogPilotUIScene &frogpilot_scene = fs->frogpilot_scene;
+  QJsonObject &frogpilot_toggles = fs->frogpilot_toggles;
+
   if (scene.started && sm->updated("controlsState")) {
     auto controls_state = (*sm)["controlsState"].getControlsState();
     auto state = controls_state.getState();
+
+    const UIStatus previous_status = status;
+
     if (state == cereal::ControlsState::OpenpilotState::PRE_ENABLED || state == cereal::ControlsState::OpenpilotState::OVERRIDING) {
       status = STATUS_OVERRIDE;
+    } else if (frogpilot_scene.always_on_lateral_active) {
+      status = STATUS_ALWAYS_ON_LATERAL_ACTIVE;
+    } else if (frogpilot_scene.traffic_mode_enabled && controls_state.getEnabled()) {
+      status = STATUS_TRAFFIC_MODE_ENABLED;
     } else {
       status = controls_state.getEnabled() ? STATUS_ENGAGED : STATUS_DISENGAGED;
     }
+
+    fs->frogpilot_scene.wake_up_screen = controls_state.getAlertStatus() != cereal::ControlsState::AlertStatus::NORMAL || (status != previous_status && status != STATUS_OVERRIDE);
   }
 
   // Handle onroad/offroad transition
@@ -238,10 +310,18 @@ void UIState::updateStatus() {
     if (scene.started) {
       status = STATUS_DISENGAGED;
       scene.started_frame = sm->frame;
+    } else if (frogpilot_scene.started_timer > 15*60*UI_FREQ && frogpilot_toggles.value("model_randomizer").toBool()) {
+      emit fs->reviewModel();
     }
     started_prev = scene.started;
     scene.world_objects_visible = false;
     emit offroadTransition(!scene.started);
+
+    fs->frogpilot_scene.started_timer = 0;
+
+    if (frogpilot_toggles.value("tethering_config").toInt() == 2) {
+      fs->wifi->setTetheringEnabled(scene.started);
+    }
   }
 }
 
@@ -267,13 +347,24 @@ UIState::UIState(QObject *parent) : QObject(parent) {
 
 void UIState::update() {
   update_sockets(this);
-  update_state(this);
-  updateStatus();
+  update_state(this, frogpilotUIState());
+  updateStatus(frogpilotUIState());
 
   if (sm->frame % UI_FREQ == 0) {
     watchdog_kick(nanos_since_boot());
   }
-  emit uiUpdate(*this);
+  emit uiUpdate(*this, *frogpilotUIState());
+
+  // Update the FrogPilot UI
+  FrogPilotUIState *fs = frogpilotUIState();
+  FrogPilotUIScene &frogpilot_scene = fs->frogpilot_scene;
+  QJsonObject &frogpilot_toggles = fs->frogpilot_toggles;
+
+  fs->update();
+
+  if (frogpilot_scene.downloading_update || frogpilot_scene.frogpilot_panel_active) {
+    device()->resetInteractiveTimeout(frogpilot_toggles.value("screen_timeout").toInt(), frogpilot_toggles.value("screen_timeout_onroad").toInt());
+  }
 }
 
 void UIState::setPrimeType(PrimeType type) {
@@ -298,9 +389,9 @@ Device::Device(QObject *parent) : brightness_filter(BACKLIGHT_OFFROAD, BACKLIGHT
   QObject::connect(uiState(), &UIState::uiUpdate, this, &Device::update);
 }
 
-void Device::update(const UIState &s) {
-  updateBrightness(s);
-  updateWakefulness(s);
+void Device::update(const UIState &s, const FrogPilotUIState &fs) {
+  updateBrightness(s, fs);
+  updateWakefulness(s, fs);
 }
 
 void Device::setAwake(bool on) {
@@ -312,16 +403,19 @@ void Device::setAwake(bool on) {
   }
 }
 
-void Device::resetInteractiveTimeout(int timeout) {
+void Device::resetInteractiveTimeout(int timeout, int timeout_onroad) {
   if (timeout == -1) {
     timeout = (ignition_on ? 10 : 30);
   }
   interactive_timeout = timeout * UI_FREQ;
 }
 
-void Device::updateBrightness(const UIState &s) {
+void Device::updateBrightness(const UIState &s, const FrogPilotUIState &fs) {
+  const FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
+  const QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
+
   float clipped_brightness = offroad_brightness;
-  if (s.scene.started && s.scene.light_sensor > 0) {
+  if (s.scene.started && s.scene.light_sensor >= 0) {
     clipped_brightness = s.scene.light_sensor;
 
     // CIE 1931 - https://www.photonstophotos.net/GeneralTopics/Exposure/Psychometric_Lightness_and_Gamma.htm
@@ -338,6 +432,14 @@ void Device::updateBrightness(const UIState &s) {
   int brightness = brightness_filter.update(clipped_brightness);
   if (!awake) {
     brightness = 0;
+  } else if (s.scene.started && frogpilot_toggles.value("force_onroad").toBool()) {
+    brightness = 100;
+  } else if (s.scene.started && frogpilot_toggles.value("standby_mode").toBool() && !frogpilot_scene.wake_up_screen && interactive_timeout == 0) {
+    brightness = 0;
+  } else if (s.scene.started && frogpilot_toggles.value("screen_brightness_onroad").toInt() != 101) {
+    brightness = interactive_timeout > 0 ? fmax(5, frogpilot_toggles.value("screen_brightness_onroad").toInt()) : frogpilot_toggles.value("screen_brightness_onroad").toInt();
+  } else if (frogpilot_toggles.value("screen_brightness").toInt() != 101) {
+    brightness = frogpilot_toggles.value("screen_brightness").toInt();
   }
 
   if (brightness != last_brightness) {
@@ -348,17 +450,30 @@ void Device::updateBrightness(const UIState &s) {
   }
 }
 
-void Device::updateWakefulness(const UIState &s) {
-  bool ignition_just_turned_off = !s.scene.ignition && ignition_on;
+void Device::updateWakefulness(const UIState &s, const FrogPilotUIState &fs) {
+  const FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
+  const QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
+
+  bool ignition_state_changed = s.scene.ignition != ignition_on;
   ignition_on = s.scene.ignition;
 
-  if (ignition_just_turned_off) {
-    resetInteractiveTimeout();
+  if (ignition_on && frogpilot_toggles.value("standby_mode").toBool()) {
+    if (frogpilot_scene.wake_up_screen) {
+      resetInteractiveTimeout(frogpilot_toggles.value("screen_timeout").toInt(), frogpilot_toggles.value("screen_timeout_onroad").toInt());
+    }
+  }
+
+  if (ignition_state_changed) {
+    if (ignition_on && frogpilot_toggles.value("screen_brightness_onroad").toInt() == 0 && !frogpilot_toggles.value("standby_mode").toBool()) {
+      resetInteractiveTimeout(0, 0);
+    } else {
+      resetInteractiveTimeout(frogpilot_toggles.value("screen_timeout").toInt(), frogpilot_toggles.value("screen_timeout_onroad").toInt());
+    }
   } else if (interactive_timeout > 0 && --interactive_timeout == 0) {
     emit interactiveTimeout();
   }
 
-  setAwake(s.scene.ignition || interactive_timeout > 0);
+  setAwake(s.scene.started || interactive_timeout > 0);
 }
 
 UIState *uiState() {

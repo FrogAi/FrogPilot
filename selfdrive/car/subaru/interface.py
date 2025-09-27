@@ -1,15 +1,16 @@
-from cereal import car
+from cereal import car, custom
 from panda import Panda
-from openpilot.selfdrive.car import get_safety_config
+from openpilot.selfdrive.car import create_button_events, get_safety_config
 from openpilot.selfdrive.car.disable_ecu import disable_ecu
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase
 from openpilot.selfdrive.car.subaru.values import CAR, GLOBAL_ES_ADDR, SubaruFlags
 
+FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
 
 class CarInterface(CarInterfaceBase):
 
   @staticmethod
-  def _get_params(ret, candidate: CAR, fingerprint, car_fw, experimental_long, docs):
+  def _get_params(ret, candidate: CAR, fingerprint, car_fw, experimental_long, docs, frogpilot_toggles):
     ret.carName = "subaru"
     ret.radarUnavailable = True
     # for HYBRID CARS to be upstreamed, we need:
@@ -50,9 +51,9 @@ class CarInterface(CarInterfaceBase):
     elif candidate == CAR.SUBARU_IMPREZA:
       ret.steerActuatorDelay = 0.4  # end-to-end angle controller
       ret.lateralTuning.init('pid')
-      ret.lateralTuning.pid.kf = 0.00005
+      ret.lateralTuning.pid.kf = 0.00003333
       ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0., 20.], [0., 20.]]
-      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.2, 0.3], [0.02, 0.03]]
+      ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.133, 0.2], [0.0133, 0.02]]
 
     elif candidate == CAR.SUBARU_IMPREZA_2020:
       ret.lateralTuning.init('pid')
@@ -97,13 +98,17 @@ class CarInterface(CarInterfaceBase):
     return ret
 
   # returns a car.CarState
-  def _update(self, c):
+  def _update(self, c, frogpilot_toggles):
 
-    ret = self.CS.update(self.cp, self.cp_cam, self.cp_body)
+    ret, fp_ret = self.CS.update(self.cp, self.cp_cam, self.cp_body, frogpilot_toggles)
+
+    ret.buttonEvents = [
+      *create_button_events(self.CS.lkas_enabled, self.CS.lkas_previously_enabled, {1: FrogPilotButtonType.lkas}),
+    ]
 
     ret.events = self.create_common_events(ret).to_msg()
 
-    return ret
+    return ret, fp_ret
 
   @staticmethod
   def init(CP, logcan, sendcan):

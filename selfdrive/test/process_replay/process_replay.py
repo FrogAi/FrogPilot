@@ -30,6 +30,8 @@ from openpilot.selfdrive.test.process_replay.capture import ProcessOutputCapture
 from openpilot.tools.lib.logreader import LogIterable
 from openpilot.tools.lib.framereader import BaseFrameReader
 
+from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
+
 # Numpy gives different results based on CPU features after version 19
 NUMPY_TOLERANCE = 1e-7
 PROC_REPLAY_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -355,7 +357,7 @@ def get_car_params_callback(rc, pm, msgs, fingerprint):
 
     for m in canmsgs[:300]:
       can.send(m.as_builder().to_bytes())
-    _, CP = get_car(can, sendcan, Params().get_bool("ExperimentalLongitudinalEnabled"))
+    _, CP = get_car(can, sendcan, Params().get_bool("ExperimentalLongitudinalEnabled"), get_frogpilot_toggles())
 
     if not params.get_bool("DisengageOnAccelerator"):
       CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.DISABLE_DISENGAGE_ON_GAS
@@ -565,7 +567,7 @@ CONFIGS = [
   ProcessConfig(
     proc_name="modeld",
     pubs=["deviceState", "roadCameraState", "wideRoadCameraState", "liveCalibration", "driverMonitoringState"],
-    subs=["modelV2", "cameraOdometry"],
+    subs=["modelV2", "drivingModelData", "cameraOdometry"],
     ignore=["logMonoTime", "modelV2.frameDropPerc", "modelV2.modelExecutionTime"],
     should_recv_callback=ModeldCameraSyncRcvCallback(),
     tolerance=NUMPY_TOLERANCE,

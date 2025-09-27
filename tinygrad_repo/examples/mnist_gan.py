@@ -1,11 +1,10 @@
 from pathlib import Path
 import numpy as np
-from tqdm import trange
 import torch
 from torchvision.utils import make_grid, save_image
 from tinygrad.nn.state import get_parameters
 from tinygrad.tensor import Tensor
-from tinygrad.helpers import getenv
+from tinygrad.helpers import trange
 from tinygrad.nn import optim
 from extra.datasets import fetch_mnist
 
@@ -17,9 +16,9 @@ class LinearGen:
     self.l4 = Tensor.scaled_uniform(1024, 784)
 
   def forward(self, x):
-    x = x.dot(self.l1).leakyrelu(0.2)
-    x = x.dot(self.l2).leakyrelu(0.2)
-    x = x.dot(self.l3).leakyrelu(0.2)
+    x = x.dot(self.l1).leaky_relu(0.2)
+    x = x.dot(self.l2).leaky_relu(0.2)
+    x = x.dot(self.l3).leaky_relu(0.2)
     x = x.dot(self.l4).tanh()
     return x
 
@@ -32,9 +31,9 @@ class LinearDisc:
 
   def forward(self, x):
     # balance the discriminator inputs with const bias (.add(1))
-    x = x.dot(self.l1).add(1).leakyrelu(0.2).dropout(0.3)
-    x = x.dot(self.l2).leakyrelu(0.2).dropout(0.3)
-    x = x.dot(self.l3).leakyrelu(0.2).dropout(0.3)
+    x = x.dot(self.l1).add(1).leaky_relu(0.2).dropout(0.3)
+    x = x.dot(self.l2).leaky_relu(0.2).dropout(0.3)
+    x = x.dot(self.l3).leaky_relu(0.2).dropout(0.3)
     x = x.dot(self.l4).log_softmax()
     return x
 
@@ -88,6 +87,7 @@ if __name__ == "__main__":
   optim_g = optim.Adam(get_parameters(generator),lr=0.0002, b1=0.5)  # 0.0002 for equilibrium!
   optim_d = optim.Adam(get_parameters(discriminator),lr=0.0002, b1=0.5)
   # training loop
+  Tensor.training = True
   for epoch in (t := trange(epochs)):
     loss_g, loss_d = 0.0, 0.0
     for _ in range(n_steps):

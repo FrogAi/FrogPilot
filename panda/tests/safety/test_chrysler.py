@@ -72,6 +72,12 @@ class TestChryslerSafety(common.PandaCarSafetyTest, common.MotorTorqueSteeringSa
       self.assertFalse(self._tx(self._button_msg(cancel=True, resume=True)))
       self.assertFalse(self._tx(self._button_msg(cancel=False, resume=False)))
 
+  # FrogPilot tests
+  def _toggle_aol(self, toggle_on):
+    # DAS_3, bit 20 is ACC_AVAILABLE
+    values = {"ACC_AVAILABLE": 1 if toggle_on else 0}
+    return self.packer.make_can_msg_panda("DAS_3", self.DAS_BUS, values)
+
 
 class TestChryslerRamDTSafety(TestChryslerSafety):
   TX_MSGS = [[0xB1, 2], [0xA6, 0], [0xFA, 0]]

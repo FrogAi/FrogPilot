@@ -1,7 +1,7 @@
 #include "safety_hyundai_common.h"
 
 const SteeringLimits HYUNDAI_CANFD_STEERING_LIMITS = {
-  .max_steer = 270,
+  .max_steer = 330,
   .max_rt_delta = 112,
   .max_rt_interval = 250000,
   .max_rate_up = 2,
@@ -129,9 +129,13 @@ RxCheck hyundai_canfd_hda2_long_rx_checks[] = {
 
 const int HYUNDAI_PARAM_CANFD_ALT_BUTTONS = 32;
 const int HYUNDAI_PARAM_CANFD_HDA2_ALT_STEERING = 128;
+const int HYUNDAI_PARAM_CANFD_TACO_TUNE_HACK = 512;
 bool hyundai_canfd_alt_buttons = false;
 bool hyundai_canfd_hda2_alt_steering = false;
+bool hyundai_canfd_taco_tune_hack = false;
 
+float hyundai_canfd_front_left_vego = 0.;
+float hyundai_canfd_rear_right_vego = 0.;
 
 int hyundai_canfd_hda2_get_lkas_addr(void) {
   return hyundai_canfd_hda2_alt_steering ? 0x110 : 0x50;
@@ -172,14 +176,18 @@ static void hyundai_canfd_rx_hook(const CANPacket_t *to_push) {
     if (addr == button_addr) {
       bool main_button = false;
       int cruise_button = 0;
+      bool lkas_button = false;
       if (addr == 0x1cf) {
         cruise_button = GET_BYTE(to_push, 2) & 0x7U;
         main_button = GET_BIT(to_push, 19U);
+        lkas_button = GET_BIT(to_push, 23U);
       } else {
         cruise_button = (GET_BYTE(to_push, 4) >> 4) & 0x7U;
         main_button = GET_BIT(to_push, 34U);
+        lkas_button = GET_BIT(to_push, 39U);
       }
       hyundai_common_cruise_buttons_check(cruise_button, main_button);
+      hyundai_lkas_button_check(lkas_button);
     }
 
     // gas press, different for EV, hybrid, and ICE models
@@ -201,6 +209,8 @@ static void hyundai_canfd_rx_hook(const CANPacket_t *to_push) {
     if (addr == 0xa0) {
       uint32_t front_left_speed = GET_BYTES(to_push, 8, 2);
       uint32_t rear_right_speed = GET_BYTES(to_push, 14, 2);
+      hyundai_canfd_front_left_vego = (float)front_left_speed * 0.277778f * 0.03125f;
+      hyundai_canfd_rear_right_vego = (float)rear_right_speed * 0.277778f * 0.03125f;
       vehicle_moving = (front_left_speed > HYUNDAI_STANDSTILL_THRSLD) || (rear_right_speed > HYUNDAI_STANDSTILL_THRSLD);
     }
   }
@@ -237,8 +247,45 @@ static bool hyundai_canfd_tx_hook(const CANPacket_t *to_send) {
     int desired_torque = (((GET_BYTE(to_send, 6) & 0xFU) << 7U) | (GET_BYTE(to_send, 5) >> 1U)) - 1024U;
     bool steer_req = GET_BIT(to_send, 52U);
 
-    if (steer_torque_cmd_checks(desired_torque, steer_req, HYUNDAI_CANFD_STEERING_LIMITS)) {
-      tx = false;
+    // 2m/s margin
+    if ((hyundai_canfd_front_left_vego < (11.f + 2.f) && hyundai_canfd_rear_right_vego < (11.f + 2.f)) && hyundai_canfd_taco_tune_hack) {
+      bool aol_active = (alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL) && lkas_on;
+
+      bool violation = false;
+      uint32_t ts = microsecond_timer_get();
+
+      if (controls_allowed || aol_active) {
+        // *** global torque limit check ***
+        violation |= max_limit_check(desired_torque, 384, -384);
+
+        // ready to blend in limits
+        desired_torque_last = MAX(-330, MIN(desired_torque, 330));
+        rt_torque_last = desired_torque;
+        ts_torque_check_last = ts;
+      }
+
+      // no torque if controls is not allowed
+      if (!(controls_allowed || aol_active) && (desired_torque != 0)) {
+        violation = true;
+      }
+
+      // reset to 0 if either controls is not allowed or there's a violation
+      if (violation || !(controls_allowed || aol_active)) {
+        valid_steer_req_count = 0;
+        invalid_steer_req_count = 0;
+        desired_torque_last = 0;
+        rt_torque_last = 0;
+        ts_torque_check_last = ts;
+        ts_steer_req_mismatch_last = ts;
+      }
+
+      if (violation) {
+        tx = 0;
+      }
+    } else {
+      if (steer_torque_cmd_checks(desired_torque, steer_req, HYUNDAI_CANFD_STEERING_LIMITS)) {
+        tx = false;
+      }
     }
   }
 
@@ -319,6 +366,7 @@ static safety_config hyundai_canfd_init(uint16_t param) {
   gen_crc_lookup_table_16(0x1021, hyundai_canfd_crc_lut);
   hyundai_canfd_alt_buttons = GET_FLAG(param, HYUNDAI_PARAM_CANFD_ALT_BUTTONS);
   hyundai_canfd_hda2_alt_steering = GET_FLAG(param, HYUNDAI_PARAM_CANFD_HDA2_ALT_STEERING);
+  hyundai_canfd_taco_tune_hack = GET_FLAG(param, HYUNDAI_PARAM_CANFD_TACO_TUNE_HACK);
 
   // no long for radar-SCC HDA1 yet
   if (!hyundai_canfd_hda2 && !hyundai_camera_scc) {

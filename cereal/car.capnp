@@ -84,6 +84,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     startup @75;
     startupNoCar @76;
     startupNoControl @77;
+    startupNoSecOcKey @121;
     startupMaster @78;
     startupNoFw @104;
     fcw @79;
@@ -116,9 +117,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     paramsdTemporaryError @50;
     paramsdPermanentError @119;
     actuatorsApiUnavailable @120;
-
-    # FrogPilot Events
-    pedalInterceptorNoBrake @134;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
@@ -507,6 +505,9 @@ struct CarParams {
 
   wheelSpeedFactor @63 :Float32; # Multiplier on wheels speeds to computer actual speeds
 
+  secOcRequired @74 :Bool;  # Car requires SecOC message authentication to operate
+  secOcKeyAvailable @75 :Bool;  # Stored SecOC key loaded from params
+
   struct SafetyConfig {
     safetyModel @0 :SafetyModel;
     safetyParam @3 :UInt16;
@@ -531,6 +532,7 @@ struct CarParams {
     useSteeringAngle @0 :Bool;
     kp @1 :Float32;
     ki @2 :Float32;
+    kd @8 : Float32;
     friction @3 :Float32;
     kf @4 :Float32;
     steeringAngleDeadzoneDeg @5 :Float32;
@@ -544,8 +546,8 @@ struct CarParams {
     kiBP @2 :List(Float32);
     kiV @3 :List(Float32);
     kf @6 :Float32;
-    deadzoneBPDEPRECATED @4 :List(Float32);
-    deadzoneVDEPRECATED @5 :List(Float32);
+    deadzoneBP @4 :List(Float32);
+    deadzoneV @5 :List(Float32);
   }
 
   struct LateralINDITuning {

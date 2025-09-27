@@ -1,0 +1,79 @@
+name: Update Tinygrad
+
+on:
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: "Select the runner"
+        required: true
+        default: "c3"
+        type: choice
+        options:
+          - c3
+          - c3x
+
+jobs:
+  update_tinygrad:
+    name: Update Tinygrad
+    runs-on:
+      - self-hosted
+      - ${{ github.event.inputs.runner }}
+
+    steps:
+      - name: Get version
+        id: get_version
+        run: |
+          VERSION=$(grep -oP '^VERSION\s*=\s*"\K[^"]+' /data/openpilot/frogpilot/assets/model_manager.py)
+          echo "VERSION=$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Clone GitLab repo
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+        run: |
+          rm -rf /data/tmp/frogpilot_tinygrad
+          mkdir -p /data/tmp/frogpilot_tinygrad
+          cd /data/tmp/frogpilot_tinygrad
+
+          git clone --depth 1 --branch Tinygrad "https://oauth2:${GITLAB_TOKEN}@gitlab.com/FrogAi/FrogPilot-Resources.git"
+
+      - name: Create Tinygrad Archive
+        run: |
+          set -euo pipefail
+          cd /data/openpilot
+
+          ARCHIVE_DIR="/data/tmp/frogpilot_tinygrad/FrogPilot-Resources"
+          ARCHIVE_NAME="Tinygrad_${{ steps.get_version.outputs.version }}.tar.gz"
+
+          TMPDIR="$(mktemp -d)"
+          touch "$TMPDIR/SConscript"
+
+          tar -czf "$ARCHIVE_NAME" \
+            --exclude="*.a" \
+            --exclude="*.o" \
+            --exclude="*.onnx" \
+            --exclude="*__pycache__*" \
+            --exclude="*tests*" \
+            --exclude="frogpilot/tinygrad_modeld/SConscript" \
+            frogpilot/tinygrad_modeld tinygrad_repo \
+            -C "$TMPDIR" \
+            --transform 's|^SConscript$|frogpilot/tinygrad_modeld/SConscript|' \
+            SConscript
+
+          mv "$ARCHIVE_NAME" "$ARCHIVE_DIR/"
+          rm -rf "$TMPDIR"
+
+      - name: Push updated Tinygrad
+        run: |
+          cd /data/tmp/frogpilot_tinygrad/FrogPilot-Resources
+
+          git config user.name "James"
+          git config user.email "91348155+FrogAi@users.noreply.github.com"
+
+          git add Tinygrad_*.tar.gz
+          git commit -m "Updated Tinygrad: ${{ steps.get_version.outputs.version }}" || echo "No changes to commit"
+          git push origin Tinygrad
+
+      - name: Cleanup temporary files
+        run: |
+          rm -rf /data/tmp/frogpilot_tinygrad
