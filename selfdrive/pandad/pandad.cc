@@ -119,6 +119,13 @@ bool safety_setter_thread(std::vector<Panda *> pandas) {
   cereal::CarParams::SafetyModel safety_model;
   uint16_t safety_param;
 
+  std::string fp_params = p.get("FrogPilotCarParams");
+  AlignedBuffer fp_aligned_buf;
+  std::unique_ptr<capnp::FlatArrayMessageReader> fp_msg;
+  if (fp_params.size() > 0) {
+    fp_msg.reset(new capnp::FlatArrayMessageReader(fp_aligned_buf.align(fp_params.data(), fp_params.size())));
+  }
+
   auto safety_configs = car_params.getSafetyConfigs();
   uint16_t alternative_experience = car_params.getAlternativeExperience();
   for (uint32_t i = 0; i < pandas.size(); i++) {
@@ -131,6 +138,14 @@ bool safety_setter_thread(std::vector<Panda *> pandas) {
       // If no safety mode is specified, default to silent
       safety_model = cereal::CarParams::SafetyModel::SILENT;
       safety_param = 0U;
+    }
+
+    if (fp_msg) {
+      auto fp_root = fp_msg->getRoot<cereal::FrogPilotCarParams>();
+      auto fp_safety_configs = fp_root.getSafetyConfigs();
+      if (fp_safety_configs.size() > i) {
+        safety_param |= fp_safety_configs[i].getSafetyParam();
+      }
     }
 
     LOGW("panda %d: setting safety model: %d, param: %d, alternative experience: %d", i, (int)safety_model, safety_param, alternative_experience);

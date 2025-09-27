@@ -35,6 +35,8 @@ static void update_state(FrogPilotUIState *fs) {
       update_theme(fs);
 
       emit fs->themeUpdated();
+
+      fs->params_memory.remove("UseActiveTheme");
     }
     if (frogpilotPlan.getTogglesUpdated()) {
       frogpilot_scene.frogpilot_toggles = QJsonDocument::fromJson(fs->params_memory.get("FrogPilotToggles").c_str()).object();
@@ -62,9 +64,9 @@ void update_theme(FrogPilotUIState *fs) {
 
 FrogPilotUIState::FrogPilotUIState(QObject *parent) : QObject(parent) {
   sm = std::make_unique<SubMaster, const std::initializer_list<const char *>>({
-    "carControl", "carState", "controlsState", "deviceState", "frogpilotCarState", "frogpilotDeviceState",
-    "frogpilotNavigation", "frogpilotPlan", "liveDelay", "liveParameters", "liveTorqueParameters", "liveTracks",
-    "navInstruction"
+    "carControl", "carState", "controlsState", "deviceState", "frogpilotCarState", "frogpilotControlsState",
+    "frogpilotDeviceState", "frogpilotNavigation", "frogpilotPlan", "frogpilotRadarState", "liveDelay",
+    "liveParameters", "liveTorqueParameters", "liveTracks", "navInstruction"
   });
 
   wifi = new WifiManager(this);

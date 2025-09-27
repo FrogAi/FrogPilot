@@ -2,18 +2,21 @@ import json
 import os
 import random
 import requests
-import subprocess
 import sys
+
+sys.path.append(os.path.join(os.path.dirname(__file__), "..", "third_party"))
 
 from collections import Counter
 from datetime import datetime, timezone
+from influxdb_client import InfluxDBClient, Point
+from influxdb_client.client.write_api import SYNCHRONOUS
 
 from openpilot.common.conversions import Conversions as CV
 from openpilot.system.hardware import HARDWARE
 from openpilot.system.version import get_build_metadata
 
-from openpilot.frogpilot.common.frogpilot_utilities import run_cmd
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles, params, params_tracking
+from openpilot.frogpilot.common.frogpilot_utilities import clean_model_name, run_cmd
+from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles, params
 
 BASE_URL = "https://nominatim.openstreetmap.org"
 MINIMUM_POPULATION = 100_000
@@ -94,23 +97,11 @@ def get_city_center(latitude, longitude):
     print(f"Falling back to (0, 0) for {latitude}, {longitude}")
     return float(0.0), float(0.0), "N/A", "N/A", "N/A"
 
-def install_influxdb_client():
-  try:
-    import influxdb_client
-    import influxdb_client.client.write_api
-  except ModuleNotFoundError:
-    print("influxdb-client not found. Attempting installation...")
-    stock_mount_options = subprocess.run(["findmnt", "-no", "OPTIONS", "/"], capture_output=True, text=True, check=True).stdout.strip()
-
-    run_cmd(["sudo", "mount", "-o", "remount,rw", "/"], "Successfully remounted / as read-write", "Failed to remount / as read-write", report=False)
-    run_cmd(["sudo", sys.executable, "-m", "pip", "install", "influxdb-client"], "Successfully installed influxdb-client", "Failed to install influxdb-client", report=False)
-    run_cmd(["sudo", "mount", "-o", f"remount,{stock_mount_options}", "/"], "Successfully restored stock mount options", "Failed to restore stock mount options", report=False)
-
 def is_up_to_date(build_metadata):
-  remote_commit = subprocess.check_output(["git", "ls-remote", "origin", build_metadata.channel], text=True, stderr=subprocess.DEVNULL).strip()
+  remote_commit = run_cmd(["git", "ls-remote", "origin", build_metadata.channel], f"Fetched remote commit", "Failed to fetch remote commit", report=False)
 
   if remote_commit:
-    return build_metadata.openpilot.git_commit == remote_commit.split()[0]
+    return build_metadata.openpilot.git_commit == remote_commit.strip().split()[0]
 
   return True
 
@@ -124,11 +115,6 @@ def send_stats():
 
     if frogpilot_toggles.car_make == "mock":
       return
-
-    install_influxdb_client()
-
-    from influxdb_client import InfluxDBClient, Point
-    from influxdb_client.client.write_api import SYNCHRONOUS
 
     bucket = os.environ.get("STATS_BUCKET", "")
     org_ID = os.environ.get("STATS_ORG_ID", "")
@@ -159,16 +145,18 @@ def send_stats():
     selected_theme = random.choice([item for item, count in most_common if count == max_count]).replace("-user_created", "").replace("_", " ")
 
     point = (Point("user_stats")
+      .field("blocked_user", frogpilot_toggles.block_user)
       .field("car_make", "GM" if frogpilot_toggles.car_make == "gm" else frogpilot_toggles.car_make.title())
       .field("car_model", frogpilot_toggles.car_model)
       .field("city", city)
       .field("country", country)
+      .field("current_months_kilometers", int(frogpilot_stats.get("CurrentMonthsKilometers", 0)))
       .field("device", HARDWARE.get_device_type())
-      .field("driving_model", frogpilot_toggles.model_name.replace("🗺️", "").replace("📡", "").replace("👀", "").replace("(Default)", "").strip())
+      .field("driving_model", clean_model_name(frogpilot_toggles.model_name))
       .field("event", 1)
-      .field("frogpilot_drives", params_tracking.get_int("FrogPilotDrives"))
-      .field("frogpilot_hours", params_tracking.get_int("FrogPilotMinutes") / 60)
-      .field("frogpilot_miles", params_tracking.get_int("FrogPilotKilometers") * CV.KPH_TO_MPH)
+      .field("frogpilot_drives", int(frogpilot_stats.get("FrogPilotDrives", 0)))
+      .field("frogpilot_hours", float(frogpilot_stats.get("FrogPilotSeconds", 0)) / (60 * 60))
+      .field("frogpilot_miles", float(frogpilot_stats.get("FrogPilotMeters", 0)) * CV.METER_TO_MILE)
       .field("goat_scream", frogpilot_toggles.goat_scream_alert)
       .field("has_cc_long", frogpilot_toggles.has_cc_long)
       .field("has_openpilot_longitudinal", frogpilot_toggles.openpilot_longitudinal)
@@ -181,10 +169,10 @@ def send_stats():
       .field("random_events", frogpilot_toggles.random_events)
       .field("state", state)
       .field("theme", selected_theme.title())
-      .field("total_aol_seconds", float(frogpilot_stats.get("TotalAOLTime", 0)))
-      .field("total_lateral_seconds", float(frogpilot_stats.get("TotalLateralTime", 0)))
-      .field("total_longitudinal_seconds", float(frogpilot_stats.get("TotalLongitudinalTime", 0)))
-      .field("total_tracked_seconds", float(frogpilot_stats.get("TotalTrackedTime", 0)))
+      .field("total_aol_seconds", float(frogpilot_stats.get("AOLTime", 0)))
+      .field("total_lateral_seconds", float(frogpilot_stats.get("LateralTime", 0)))
+      .field("total_longitudinal_seconds", float(frogpilot_stats.get("LongitudinalTime", 0)))
+      .field("total_tracked_seconds", float(frogpilot_stats.get("TrackedTime", 0)))
       .field("tuning_level", params.get_int("TuningLevel") + 1 if params.get_bool("TuningLevelConfirmed") else 0)
       .field("up_to_date", is_up_to_date(build_metadata))
       .field("using_stock_acc", not (frogpilot_toggles.has_cc_long or frogpilot_toggles.openpilot_longitudinal))

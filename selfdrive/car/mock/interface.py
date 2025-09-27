@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from cereal import car, custom
 import cereal.messaging as messaging
+from openpilot.selfdrive.car import get_safety_config
 from openpilot.selfdrive.car.interfaces import CarInterfaceBase
 
 # mocked car interface for dashcam mode
@@ -19,6 +20,7 @@ class CarInterface(CarInterfaceBase):
     ret.centerToFront = ret.wheelbase * 0.5
     ret.steerRatio = 13.
     ret.dashcamOnly = True
+    ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.noOutput)]
     return ret
 
   def _update(self, c, frogpilot_toggles):

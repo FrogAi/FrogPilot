@@ -2,6 +2,15 @@
 #include "frogpilot/ui/qt/offroad/device_settings.h"
 
 FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
+  QJsonObject shownDescriptions = QJsonDocument::fromJson(QString::fromStdString(params.get("ShownToggleDescriptions")).toUtf8()).object();
+  QString className = this->metaObject()->className();
+
+  if (!shownDescriptions.value(className).toBool(false)) {
+    forceOpenDescriptions = true;
+    shownDescriptions.insert(className, true);
+    params.put("ShownToggleDescriptions", QJsonDocument(shownDescriptions).toJson(QJsonDocument::Compact).toStdString());
+  }
+
   ScreenRecorder *screenRecorder = new ScreenRecorder(this);
   screenRecorder->setVisible(false);
 
@@ -24,21 +33,22 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
   deviceLayout->addWidget(screenPanel);
 
   const std::vector<std::tuple<QString, QString, QString, QString>> deviceToggles {
-    {"DeviceManagement", tr("Device Settings"), tr("Settings that control device behavior."), "../../frogpilot/assets/toggle_icons/icon_device.png"},
-    {"LowVoltageShutdown", tr("Battery Shutdown Threshold"), tr("Automatically shut down the device when the vehicle's battery voltage reaches the set threshold preventing excessive battery drain to protect the battery."), ""},
-    {"DeviceShutdown", tr("Device Shutdown Timer"), tr("How long the device stays on for after you go offroad."), ""},
-    {"NoLogging", tr("Disable Data Logging"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This will prevent your drives from being recorded and all data will be unobtainable!")).arg(tr("Disable all data logging to improve privacy.")), ""},
-    {"NoUploads", tr("Disable Data Uploads"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This will prevent your drives from appearing on <b>comma connect</b> which may impact debugging and support!")).arg(tr("Prevent the device from sending any data to <b>comma</b>'s servers.")), ""},
-    {"HigherBitrate", tr("High Bitrate Recording"), tr("Record driving footage at double the standard bitrate for improved video quality in driving logs."), ""},
-    {"IncreaseThermalLimits", tr("Increase Thermal Safety Limit"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This can damage your device by exceeding safe temperature limits!")).arg(tr("Allow the device to run hotter than comma recommended limit.")), ""},
-    {"UseKonikServer", tr("Use Konik's Server Instead of comma's"), tr("Upload your driving data to <b>connect.konik.ai</b> instead of <b>connect.comma.ai</b>."), ""},
+    {"DeviceManagement", tr("Device Settings"), tr("<b>Settings that control how the device runs, powers off, and manages driving data.</b>"), "../../frogpilot/assets/toggle_icons/icon_device.png"},
+    {"DeviceShutdown", tr("Device Shutdown Timer"), tr("<b>Keep the device on for the set amount of time after a drive</b> before it shuts down automatically."), ""},
+    {"NoLogging", tr("Disable Logging"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This will prevent your drives from being recorded and all data will be unobtainable!")).arg(tr("<b>Prevent the device from saving driving data.</b>")), ""},
+    {"NoUploads", tr("Disable Uploads"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: This will prevent your drives from being uploaded to <b>comma connect</b> which will impact debugging and official support from comma!")).arg(tr("<b>Prevent the device from uploading driving data.</b>")), ""},
+    {"HigherBitrate", tr("High-Quality Recording"), tr("<b>Save drive footage in higher video quality.</b>"), ""},
+    {"LowVoltageShutdown", tr("Low-Voltage Cutoff"), tr("<b>While parked, if the battery voltage falls below the set level, the device shuts down</b> to prevent excessive battery drain."), ""},
+    {"IncreaseThermalLimits", tr("Raise Temperature Limits"), QString("<b>%1</b><br><br>%2").arg(tr("WARNING: Running at higher temperatures may damage your device!")).arg(tr("<b>Allow the device to run at higher temperatures</b> before throttling or shutting down. Use only if you understand the risks!")), ""},
+    {"UseKonikServer", tr("Use Konik Server"), tr("<b>Upload driving data to \"connect.konik.ai\" instead of \"connect.comma.ai\".</b>"), ""},
 
-    {"ScreenManagement", tr("Screen Settings"), tr("Settings that control screen behavior."), "../../frogpilot/assets/toggle_icons/icon_light.png"},
-    {"ScreenBrightness", tr("Screen Brightness (Offroad)"), tr("The screen brightness when not driving."), ""},
-    {"ScreenBrightnessOnroad", tr("Screen Brightness (Onroad)"), tr("The screen brightness while driving."), ""},
-    {"ScreenRecorder", tr("Screen Recorder"), tr("Enable a button in the driving screen to record the screen."), ""},
-    {"ScreenTimeout", tr("Screen Timeout (Offroad)"), tr("How long it takes for the screen to turn off when not driving."), ""},
-    {"ScreenTimeoutOnroad", tr("Screen Timeout (Onroad)"), tr("How long it takes for the screen to turn off while driving."), ""},
+    {"ScreenManagement", tr("Screen Settings"), tr("<b>Settings that control screen brightness, screen recording, and timeout duration.</b>"), "../../frogpilot/assets/toggle_icons/icon_light.png"},
+    {"ScreenBrightness", tr("Screen Brightness (Offroad)"), tr("<b>The screen brightness while not driving.</b>"), ""},
+    {"ScreenBrightnessOnroad", tr("Screen Brightness (Onroad)"), tr("<b>The screen brightness while driving.</b>"), ""},
+    {"ScreenRecorder", tr("Screen Recorder"), tr("<b>Add a button to the driving screen to record the display.</b>"), ""},
+    {"ScreenTimeout", tr("Screen Timeout (Offroad)"), tr("<b>How long the screen stays on after being tapped while not driving.</b>"), ""},
+    {"ScreenTimeoutOnroad", tr("Screen Timeout (Onroad)"), tr("<b>How long the screen stays on after being tapped while driving.</b>"), ""},
+    {"StandbyMode", tr("Standby Mode"), tr("<b>Turn the screen off while driving and automatically wake it up for alerts or engagement state changes.</b>"), ""},
 
     {"IgnoreMe", "Ignore Me", "This is simply used to fix the layout when the user opens the descriptions and the menu gets wonky. No idea why it happens, but I can't be asked to properly fix it so whatever. Sue me.", ""},
     {"IgnoreMe2", "Ignore Me", "This is simply used to fix the layout when the user opens the descriptions and the menu gets wonky. No idea why it happens, but I can't be asked to properly fix it so whatever. Sue me.", ""},
@@ -64,7 +74,7 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
       deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 33, QString(), shutdownLabels, 1, true);
     } else if (param == "NoUploads") {
       std::vector<QString> uploadsToggles{"DisableOnroadUploads"};
-      std::vector<QString> uploadsToggleNames{tr("Only Disable While Onroad")};
+      std::vector<QString> uploadsToggleNames{tr("Disable Onroad Only")};
       deviceToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, uploadsToggles, uploadsToggleNames);
     } else if (param == "LowVoltageShutdown") {
       deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, 11.8, 12.5, tr(" volts"), std::map<float, QString>(), 0.1);
@@ -113,9 +123,9 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
 
     toggles[param] = deviceToggle;
 
-    if (deviceManagementKeys.find(param) != deviceManagementKeys.end()) {
+    if (deviceManagementKeys.contains(param)) {
       deviceManagementList->addItem(deviceToggle);
-    } else if (screenKeys.find(param) != screenKeys.end()) {
+    } else if (screenKeys.contains(param)) {
       screenList->addItem(deviceToggle);
     } else {
       deviceList->addItem(deviceToggle);
@@ -124,9 +134,15 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
     }
 
     if (FrogPilotManageControl *frogPilotManageToggle = qobject_cast<FrogPilotManageControl*>(deviceToggle)) {
-      QObject::connect(frogPilotManageToggle, &FrogPilotManageControl::manageButtonClicked, this, &FrogPilotDevicePanel::openSubPanel);
+      QObject::connect(frogPilotManageToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
+        emit openSubPanel();
+        openDescriptions(forceOpenDescriptions, toggles);
+      });
     }
 
+    QObject::connect(deviceToggle, &AbstractControl::hideDescriptionEvent, [this]() {
+      update();
+    });
     QObject::connect(deviceToggle, &AbstractControl::showDescriptionEvent, [this]() {
       update();
     });
@@ -136,10 +152,10 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
   static_cast<ParamControl*>(toggles["NoLogging"])->setConfirmation(true, false);
   static_cast<ParamControl*>(toggles["NoUploads"])->setConfirmation(true, false);
 
-  std::set<QString> brightnessKeys = {"ScreenBrightness", "ScreenBrightnessOnroad"};
+  QSet<QString> brightnessKeys = {"ScreenBrightness", "ScreenBrightnessOnroad"};
   for (const QString &key : brightnessKeys) {
     FrogPilotParamValueControl *paramControl = static_cast<FrogPilotParamValueControl*>(toggles[key]);
-    QObject::connect(paramControl, &FrogPilotParamValueControl::valueChanged, [this, key](int value) {
+    QObject::connect(paramControl, &FrogPilotParamValueControl::valueChanged, [key, this](int value) {
       if (!started && key == "ScreenBrightness") {
         Hardware::set_brightness(value);
       } else if (started && key == "ScreenBrightnessOnroad") {
@@ -148,15 +164,15 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
     });
   }
 
-  std::set<QString> forceUpdateKeys = {"NoUploads"};
+  QSet<QString> forceUpdateKeys = {"NoUploads"};
   for (const QString &key : forceUpdateKeys) {
     QObject::connect(static_cast<FrogPilotButtonToggleControl*>(toggles[key]), &FrogPilotButtonToggleControl::buttonClicked, this, &FrogPilotDevicePanel::updateToggles);
     QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, this, &FrogPilotDevicePanel::updateToggles);
   }
 
-  std::set<QString> rebootKeys = {"HigherBitrate", "UseKonikServer"};
+  QSet<QString> rebootKeys = {"HigherBitrate", "UseKonikServer"};
   for (const QString &key : rebootKeys) {
-    QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, [this, key](bool state) {
+    QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, [key, this](bool state) {
       QString filePath;
       if (key == "HigherBitrate") {
         filePath = "/cache/use_HD";
@@ -184,7 +200,12 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent) : Fr
     });
   }
 
-  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [deviceLayout, devicePanel] {deviceLayout->setCurrentWidget(devicePanel);});
+  openDescriptions(forceOpenDescriptions, toggles);
+
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [deviceLayout, devicePanel, this] {
+    openDescriptions(forceOpenDescriptions, toggles);
+    deviceLayout->setCurrentWidget(devicePanel);
+  });
   QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotDevicePanel::updateState);
 }
 
@@ -205,13 +226,13 @@ void FrogPilotDevicePanel::updateState(const UIState &s) {
 
 void FrogPilotDevicePanel::updateToggles() {
   for (auto &[key, toggle] : toggles) {
-    if (parentKeys.find(key) != parentKeys.end()) {
+    if (parentKeys.contains(key)) {
       toggle->setVisible(false);
     }
   }
 
   for (auto &[key, toggle] : toggles) {
-    if (parentKeys.find(key) != parentKeys.end()) {
+    if (parentKeys.contains(key)) {
       continue;
     }
 
@@ -228,13 +249,15 @@ void FrogPilotDevicePanel::updateToggles() {
     toggle->setVisible(setVisible);
 
     if (setVisible) {
-      if (deviceManagementKeys.find(key) != deviceManagementKeys.end()) {
+      if (deviceManagementKeys.contains(key)) {
         toggles["DeviceManagement"]->setVisible(true);
-      } else if (screenKeys.find(key) != screenKeys.end()) {
+      } else if (screenKeys.contains(key)) {
         toggles["ScreenManagement"]->setVisible(true);
       }
     }
   }
+
+  openDescriptions(forceOpenDescriptions, toggles);
 
   update();
 }

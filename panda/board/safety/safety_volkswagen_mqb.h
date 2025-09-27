@@ -20,12 +20,6 @@ const LongitudinalLimits VOLKSWAGEN_MQB_LONG_LIMITS = {
   .inactive_accel = 3010,  // VW sends one increment above the max range when inactive
 };
 
-const LongitudinalLimits VOLKSWAGEN_MQB_LONG_LIMITS_SPORT = {
-  .max_accel = 4000,
-  .min_accel = -3500,
-  .inactive_accel = 3010,  // VW sends one increment above the max range when inactive
-};
-
 #define MSG_ESP_19      0x0B2   // RX from ABS, for wheel speeds
 #define MSG_LH_EPS_03   0x09F   // RX from EPS, for driver steering torque
 #define MSG_ESP_05      0x106   // RX from ABS, for brake switch state
@@ -203,8 +197,6 @@ static void volkswagen_mqb_rx_hook(const CANPacket_t *to_push) {
 }
 
 static bool volkswagen_mqb_tx_hook(const CANPacket_t *to_send) {
-  sport_mode = alternative_experience & ALT_EXP_RAISE_LONGITUDINAL_LIMITS_TO_ISO_MAX;
-
   int addr = GET_ADDR(to_send);
   bool tx = true;
 
@@ -242,13 +234,7 @@ static bool volkswagen_mqb_tx_hook(const CANPacket_t *to_send) {
       desired_accel = (((GET_BYTE(to_send, 7) << 3) | ((GET_BYTE(to_send, 6) & 0xE0U) >> 5)) * 5U) - 7220U;
     }
 
-    if (sport_mode) {
-      if (desired_accel != 0) {
-        violation |= longitudinal_accel_checks(desired_accel, VOLKSWAGEN_MQB_LONG_LIMITS_SPORT);
-      }
-    } else {
-      violation |= longitudinal_accel_checks(desired_accel, VOLKSWAGEN_MQB_LONG_LIMITS);
-    }
+    violation |= longitudinal_accel_checks(desired_accel, VOLKSWAGEN_MQB_LONG_LIMITS);
 
     if (violation) {
       tx = false;

@@ -6,6 +6,7 @@ from io import BytesIO
 from pathlib import Path
 from werkzeug.utils import secure_filename
 
+import base64
 import errno
 import hashlib
 import json
@@ -13,6 +14,7 @@ import os
 import re
 import requests
 import secrets
+import shutil
 import signal
 import subprocess
 import time
@@ -28,10 +30,17 @@ from openpilot.system.loggerd.deleter import PRESERVE_ATTR_NAME, PRESERVE_ATTR_V
 from openpilot.system.version import get_build_metadata
 from panda import Panda
 
-from openpilot.frogpilot.common.frogpilot_utilities import delete_file, get_lock_status, run_cmd
-from openpilot.frogpilot.common.frogpilot_variables import ERROR_LOGS_PATH, EXCLUDED_KEYS, SCREEN_RECORDINGS_PATH,\
-                                                           frogpilot_default_params, params, update_frogpilot_toggles
+from openpilot.frogpilot.assets.theme_manager import HOLIDAY_THEME_PATH, THEME_COMPONENT_PARAMS
+from openpilot.frogpilot.common.frogpilot_utilities import delete_file, get_lock_status, run_cmd, extract_tar
+from openpilot.frogpilot.common.frogpilot_variables import ACTIVE_THEME_PATH, ERROR_LOGS_PATH, EXCLUDED_KEYS, RESOURCES_REPO, SCREEN_RECORDINGS_PATH, THEME_SAVE_PATH,\
+                                                           frogpilot_default_params, params, params_memory, update_frogpilot_toggles
 from openpilot.frogpilot.system.the_pond import utilities
+
+DISCORD_WEBHOOK_URL = os.getenv("DISCORD_WEBHOOK_URL")
+
+GITLAB_API = "https://gitlab.com/api/v4"
+GITLAB_SUBMISSIONS_PROJECT_ID = "71992109"
+GITLAB_TOKEN = os.environ.get("GITLAB_TOKEN", "")
 
 FOOTAGE_PATHS = [
   Paths.log_root(HD=True, raw=True),
@@ -71,7 +80,8 @@ def setup(app):
 
     while True:
       with Panda(disable_checks=True) as panda:
-        panda.set_safety_mode(panda.SAFETY_TOYOTA)
+        if not params.get_bool("IsOnroad"):
+          panda.set_safety_mode(panda.SAFETY_TOYOTA)
         panda.can_send(0x750, LOCK_CMD, 0)
 
       time.sleep(1)
@@ -89,7 +99,8 @@ def setup(app):
 
     while True:
       with Panda(disable_checks=True) as panda:
-        panda.set_safety_mode(panda.SAFETY_TOYOTA)
+        if not params.get_bool("IsOnroad"):
+          panda.set_safety_mode(panda.SAFETY_TOYOTA)
         panda.can_send(0x750, UNLOCK_CMD, 0)
 
       time.sleep(1)
@@ -293,6 +304,10 @@ def setup(app):
   def get_param():
     return params.get(request.args.get("key")) or "", 200
 
+  @app.route("/api/params_memory", methods=["GET"])
+  def get_param_memory():
+    return params_memory.get(request.args.get("key")) or "", 200
+
   @app.route("/api/routes", methods=["GET"])
   def list_routes():
     def generate():
@@ -306,6 +321,27 @@ def setup(app):
           try:
             result = future.result()
             yield f"data: {json.dumps({'routes': [result]})}\n\n"
+
+            path, name = futures[future]
+            segments = utilities.get_segments_in_route(name, path)
+            if segments:
+              for camera, cam_file in {
+                "forward": "fcamera.hevc",
+                "wide": "ecamera.hevc",
+                "driver": "dcamera.hevc"
+              }.items():
+                input_files = [
+                  os.path.join(path, seg, cam_file)
+                  for seg in segments
+                  if os.path.exists(os.path.join(path, seg, cam_file))
+                ]
+                if input_files:
+                  executor.submit(
+                    utilities.ffmpeg_concat_segments_to_mp4,
+                    input_files,
+                    f"{name}-{camera}"
+                  )
+
           except Exception as exception:
             print(f"Error processing route: {exception}")
           yield f"data: {json.dumps({'progress': processed, 'total': total})}\n\n"
@@ -368,6 +404,32 @@ def setup(app):
       if PRESERVE_ATTR_NAME in os.listxattr(route_path):
         os.removexattr(route_path, PRESERVE_ATTR_NAME)
         return {"message": "Route unpreserved!"}, 200
+    return {"error": "Route not found"}, 404
+
+  @app.route("/video/<name>/combined", methods=["GET"])
+  def get_combined_route_video(name):
+    camera = request.args.get("camera", "forward")
+    for footage_path in FOOTAGE_PATHS:
+      segments = utilities.get_segments_in_route(name, footage_path)
+      if segments:
+        cam_file = {
+          "forward": "fcamera.hevc",
+          "wide": "ecamera.hevc",
+          "driver": "dcamera.hevc",
+        }.get(camera, "fcamera.hevc")
+
+        input_files = [
+          os.path.join(footage_path, seg, cam_file)
+          for seg in segments
+          if os.path.exists(os.path.join(footage_path, seg, cam_file))
+        ]
+
+        if not input_files:
+          return {"error": "No video files found"}, 404
+
+        mp4_file = utilities.ffmpeg_concat_segments_to_mp4(input_files, cache_key=f"{name}-{camera}")
+        return send_file(mp4_file, mimetype="video/mp4")
+
     return {"error": "Route not found"}, 404
 
   @app.route("/api/routes/<name>", methods=["GET"])
@@ -652,7 +714,9 @@ def setup(app):
     os.makedirs(state, exist_ok=True)
 
     run_cmd(["curl", "-fsSL", tgz_url, "-o", tgz_path], "Downloaded Tailscale archive.", "Failed to download Tailscale archive.")
-    run_cmd(["tar", "xzf", tgz_path, "-C", base], "Extracted Tailscale archive.", "Failed to extract Tailscale archive.")
+
+    extract_tar(tgz_path, base)
+
     run_cmd(["cp", f"{bin_dir}/tailscale", f"{base}/tailscale"], "Copied tailscale binary.", "Failed to copy tailscale binary.")
     run_cmd(["cp", f"{bin_dir}/tailscaled", f"{base}/tailscaled"], "Copied tailscaled binary.", "Failed to copy tailscaled binary.")
     run_cmd(["chmod", "+x", f"{base}/tailscale", f"{base}/tailscaled"], "Made binaries executable.", "Failed to chmod binaries.")
@@ -739,6 +803,591 @@ def setup(app):
       run_cmd(["sudo", "rm", "-rf", base], "Removed tailscale dir.", "Failed to remove tailscale dir.")
 
     return jsonify({"message": "Tailscale uninstalled!"}), 200
+
+  @app.route("/api/themes", methods=["POST"])
+  def save_theme_route():
+    theme_path, error = utilities.create_theme(request.form, request.files)
+    if error:
+      return jsonify({"message": error}), 400
+    return jsonify({"message": f'Theme "{request.form.get("themeName")}" saved!'}), 200
+
+  @app.route("/api/themes/download_asset", methods=["POST"])
+  def start_download_asset():
+    data = request.get_json() or {}
+    raw_component = (data.get("component") or "").strip()
+    display_name = (data.get("name") or "").strip()
+    if not raw_component or not display_name:
+      return jsonify({"error": "Missing component or name"}), 400
+
+    component = "steering_wheels" if raw_component == "steering_wheel" else ("signals" if raw_component == "turn_signals" else raw_component)
+    mem_key = THEME_COMPONENT_PARAMS.get(component)
+    if not mem_key:
+      return jsonify({"error": "Unknown component"}), 400
+
+    slug = display_name.lower().replace("(", "").replace(")", "").replace(" ", "_")
+
+    params_memory.put(mem_key, slug)
+    params_memory.put("ThemeDownloadProgress", "Downloading...")
+
+    return jsonify({"message": "Download started", "component": component, "param": mem_key, "slug": slug}), 200
+
+  @app.route("/api/themes/apply", methods=["POST"])
+  def apply_theme():
+    form_data = request.form.to_dict(flat=True)
+    files = request.files
+
+    if not form_data.get("themeName"):
+      form_data["themeName"] = f"tmp_{secrets.token_hex(8)}"
+
+    temp_path, error = utilities.create_theme(form_data, files, temporary=True)
+    if error:
+      return {"error": error}, 400
+
+    save_checklist = json.loads(form_data.get("saveChecklist", "{}"))
+
+    if save_checklist.get("colors"):
+      asset_location = temp_path / "colors"
+      save_location = ACTIVE_THEME_PATH / "colors"
+      if save_location.exists() or save_location.is_symlink():
+        delete_file(save_location)
+      if asset_location.exists():
+        save_location.parent.mkdir(parents=True, exist_ok=True)
+        save_location.symlink_to(asset_location, target_is_directory=True)
+
+    if save_checklist.get("distance_icons"):
+      asset_location = temp_path / "distance_icons"
+      save_location = ACTIVE_THEME_PATH / "distance_icons"
+      if save_location.exists() or save_location.is_symlink():
+        delete_file(save_location)
+      if asset_location.exists():
+        save_location.parent.mkdir(parents=True, exist_ok=True)
+        save_location.symlink_to(asset_location, target_is_directory=True)
+
+    if save_checklist.get("icons"):
+      asset_location = temp_path / "icons"
+      save_location = ACTIVE_THEME_PATH / "icons"
+      if save_location.exists() or save_location.is_symlink():
+        delete_file(save_location)
+      if asset_location.exists():
+        save_location.parent.mkdir(parents=True, exist_ok=True)
+        save_location.symlink_to(asset_location, target_is_directory=True)
+
+    if save_checklist.get("sounds"):
+      asset_location = temp_path / "sounds"
+      save_location = ACTIVE_THEME_PATH / "sounds"
+      if save_location.exists() or save_location.is_symlink():
+        delete_file(save_location)
+      if asset_location.exists():
+        save_location.parent.mkdir(parents=True, exist_ok=True)
+        save_location.symlink_to(asset_location, target_is_directory=True)
+
+    if save_checklist.get("turn_signals"):
+      asset_location = temp_path / "signals"
+      save_location = ACTIVE_THEME_PATH / "signals"
+      if save_location.exists() or save_location.is_symlink():
+        delete_file(save_location)
+      if asset_location.exists():
+        save_location.parent.mkdir(parents=True, exist_ok=True)
+        save_location.symlink_to(asset_location, target_is_directory=True)
+
+    wheel_location = temp_path / "WheelIcon"
+    wheel_save_location = ACTIVE_THEME_PATH / "steering_wheel"
+    if wheel_location.exists():
+      if wheel_save_location.exists():
+        delete_file(wheel_save_location)
+
+      wheel_save_location.mkdir(parents=True, exist_ok=True)
+      for file in wheel_location.iterdir():
+        destination_file = wheel_save_location / file.name
+        delete_file(destination_file)
+        destination_file.symlink_to(file)
+
+    params.put_bool("PersonalizeOpenpilot", True)
+    params_memory.put_bool("UseActiveTheme", True)
+
+    update_frogpilot_toggles()
+    return {"message": "Theme applied successfully!"}, 200
+
+  @app.route("/api/themes/asset/<path:theme>/<path:asset_path>")
+  def get_theme_asset(theme, asset_path):
+    theme_type = request.args.get("type", "")
+
+    if theme_type == "active" or theme == "__active__":
+      file_path = ACTIVE_THEME_PATH / asset_path
+    elif asset_path.startswith("steering_wheels/"):
+      file_path = THEME_SAVE_PATH / asset_path
+    elif asset_path.startswith("steering_wheel/") and "holiday" in theme_type:
+      file_path = HOLIDAY_THEME_PATH / theme / asset_path
+    else:
+      base_dir = HOLIDAY_THEME_PATH / theme if "holiday" in theme_type else THEME_SAVE_PATH / "theme_packs" / theme
+      file_path = base_dir / asset_path
+
+    if not file_path.exists():
+      return "File not found", 404
+
+    return send_file(file_path, as_attachment=False)
+
+  @app.route("/api/themes/delete/<path:theme_path_str>", methods=["DELETE"])
+  def delete_theme(theme_path_str):
+    theme_type = request.args.get("type", "user")
+    component = (request.args.get("component") or "").strip()
+
+    if theme_type == "holiday":
+      return jsonify({"message": "Cannot delete holiday themes."}), 403
+
+    if theme_type == "steering_wheel":
+      wheel_path = THEME_SAVE_PATH / "steering_wheels" / theme_path_str
+      if wheel_path.exists():
+        delete_file(wheel_path)
+        return jsonify({"message": f'Steering wheel "{utilities.normalize_theme_name(wheel_path.stem)}" deleted!'}), 200
+      return jsonify({"message": "Steering wheel not found..."}), 404
+
+    theme_path = THEME_SAVE_PATH / "theme_packs" / theme_path_str
+    if not theme_path.is_dir():
+      return jsonify({"message": "Theme not found..."}), 404
+
+    if component:
+      allowed = {"colors", "distance_icons", "icons", "sounds", "signals"}
+      if component not in allowed:
+        return jsonify({"message": "Unknown component..."}), 400
+
+      target = theme_path / component
+      if not target.exists():
+        return jsonify({"message": f'Component "{component}" not found in theme...'}), 404
+
+      delete_file(target)
+
+      return jsonify({"message": f'Removed {component.replace("_", " ")} from "{utilities.normalize_theme_name(theme_path.name)}"!'}), 200
+
+    delete_file(theme_path)
+    return jsonify({"message": f'Theme "{utilities.normalize_theme_name(theme_path.name)}" deleted!'}), 200
+
+  @app.route("/api/themes/default", methods=["GET"])
+  def get_default_theme():
+    theme_data = {
+      "colors": {},
+      "images": {},
+      "sounds": {},
+      "turnSignalLength": 100,
+      "turnSignalType": "Single Image",
+      "sequentialImages": [],
+      "theme_names": {}
+    }
+
+    if not params.get_bool("PersonalizeOpenpilot"):
+      theme_data["theme_names"] = {
+        "colors": "Stock",
+        "distanceIcons": "Stock",
+        "icons": "Stock",
+        "sounds": "Stock",
+        "turnSignals": "Stock",
+        "steeringWheel": "Stock"
+      }
+    else:
+      theme_param_map = {
+        "CustomColors": "colors",
+        "CustomDistanceIcons": "distanceIcons",
+        "CustomIcons": "icons",
+        "CustomSounds": "sounds",
+        "CustomSignals": "turnSignals",
+        "WheelIcon": "steeringWheel"
+      }
+      for param, theme_key in theme_param_map.items():
+        param_value = params.get(param, encoding="utf-8")
+        if param_value:
+          theme_data["theme_names"][theme_key] = utilities.normalize_theme_name(param_value)
+
+    colors_path = ACTIVE_THEME_PATH / "colors" / "colors.json"
+    if colors_path.exists():
+      with open(colors_path, "r") as f:
+        theme_data["colors"] = json.load(f)
+
+    signals_dir = ACTIVE_THEME_PATH / "signals"
+    if signals_dir.exists():
+      sequential_files = sorted([f.name for f in signals_dir.glob("turn_signal_*.png") if "blindspot" not in f.name.lower()])
+      if sequential_files:
+        theme_data["sequentialImages"] = sequential_files
+        theme_data["turnSignalType"] = "Sequential"
+
+      theme_data["turnSignalStyle"] = "Traditional"
+      theme_data["turnSignalLength"] = 100
+
+      for file in os.listdir(signals_dir):
+        if not any(file.endswith(ext) for ext in [".png", ".gif", ".jpg", ".jpeg"]):
+          parts = file.split("_")
+          if len(parts) == 2:
+            theme_data["turnSignalStyle"] = parts[0].capitalize()
+            try:
+              theme_data["turnSignalLength"] = int(parts[1])
+            except ValueError:
+              pass
+          break
+
+      exts = [".png", ".gif", ".jpg", ".jpeg"]
+      for ext in exts:
+        p = signals_dir / f"turn_signal{ext}"
+        if p.exists():
+          theme_data["images"]["turnSignal"] = f"turn_signal{ext}"
+          break
+      for ext in exts:
+        p = signals_dir / f"turn_signal_blindspot{ext}"
+        if p.exists():
+          theme_data["images"]["turnSignalBlindspot"] = f"turn_signal_blindspot{ext}"
+          break
+
+    icons_path = ACTIVE_THEME_PATH / "icons"
+    if icons_path.exists() and icons_path.is_dir():
+      for file in os.listdir(icons_path):
+        if Path(file).stem == "button_settings":
+          theme_data["images"]["settingsButton"] = file
+        elif Path(file).stem == "button_home":
+          theme_data["images"]["homeButton"] = file
+
+    wheel_path = ACTIVE_THEME_PATH / "steering_wheel"
+    if wheel_path.exists() and wheel_path.is_dir():
+      wheel_files = list(wheel_path.glob("wheel.*"))
+      if wheel_files:
+        theme_data["images"]["steeringWheel"] = wheel_files[0].name
+
+    distance_icons_path = ACTIVE_THEME_PATH / "distance_icons"
+    if distance_icons_path.exists() and distance_icons_path.is_dir():
+      theme_data["images"]["distanceIcons"] = {}
+      for file in os.listdir(distance_icons_path):
+        key = Path(file).stem
+        if key in ["traffic", "aggressive", "standard", "relaxed"]:
+          theme_data["images"]["distanceIcons"][key] = file
+
+    sounds_path = ACTIVE_THEME_PATH / "sounds"
+    if sounds_path.exists() and sounds_path.is_dir():
+      valid_sound_keys = ["engage", "disengage", "prompt", "startup"]
+      for file in os.listdir(sounds_path):
+        stem = Path(file).stem
+        if stem in valid_sound_keys:
+          theme_data["sounds"][stem] = file
+
+    return jsonify(theme_data)
+
+  @app.route("/api/themes/download", methods=["POST"])
+  def download_theme_route():
+    theme_path, error = utilities.create_theme(request.form, request.files, temporary=True)
+    if error:
+      return jsonify({"message": error}), 400
+
+    sane_theme_name = utilities.normalize_theme_name(request.form.get("themeName"), for_path=True)
+
+    archive_path = shutil.make_archive(str(theme_path.parent / sane_theme_name), "zip", theme_path.parent, sane_theme_name)
+
+    memory_file = BytesIO()
+    with open(archive_path, "rb") as f:
+      memory_file.write(f.read())
+    memory_file.seek(0)
+
+    delete_file(theme_path.parent)
+
+    return send_file(memory_file, download_name=f'{sane_theme_name}.zip', as_attachment=True)
+
+  @app.route("/api/themes/list", methods=["GET"])
+  def list_themes():
+    all_themes = []
+    themes_path = THEME_SAVE_PATH / "theme_packs"
+
+    if themes_path.exists():
+      for theme_dir in themes_path.iterdir():
+        if theme_dir.is_dir():
+          is_user_created = "-user_created" in theme_dir.name
+          components = utilities.check_theme_components(theme_dir)
+          all_themes.append({
+            "name": utilities.normalize_theme_name(theme_dir.name),
+            "path": theme_dir.name,
+            "type": "user" if is_user_created else "standard",
+            "is_user_created": is_user_created,
+            **components
+          })
+
+    if HOLIDAY_THEME_PATH.exists():
+      for theme_dir in HOLIDAY_THEME_PATH.iterdir():
+        if theme_dir.is_dir():
+          components = utilities.check_theme_components(theme_dir)
+          all_themes.append({
+            "name": utilities.normalize_theme_name(theme_dir.name),
+            "path": theme_dir.name,
+            "type": "holiday",
+            "is_user_created": False,
+            **components
+          })
+
+    wheels_path = THEME_SAVE_PATH / "steering_wheels"
+    if wheels_path.exists():
+      for wheel_file in wheels_path.iterdir():
+        all_themes.append({
+          "name": utilities.normalize_theme_name(wheel_file.stem),
+          "path": wheel_file.name,
+          "type": "steering_wheel",
+          "is_user_created": "-user_created" in wheel_file.name,
+          "hasSteeringWheel": True,
+        })
+
+    return jsonify({"themes": sorted(all_themes, key=lambda x: x['name'])})
+
+  @app.route("/api/themes/load/<path:theme_path>")
+  def load_theme(theme_path):
+    theme_type = request.args.get("type", "")
+    theme_dir = HOLIDAY_THEME_PATH / theme_path if "holiday" in theme_type else THEME_SAVE_PATH / "theme_packs" / theme_path
+
+    response_data = {
+      "colors": None,
+      "images": {},
+      "sounds": {},
+      "sequentialImages": [],
+      "turnSignalType": "Single Image",
+      "turnSignalStyle": "Static",
+      "turnSignalLength": 100
+    }
+
+    colors_file = theme_dir / "colors" / "colors.json"
+    if colors_file.exists():
+      with open(colors_file) as f:
+        response_data["colors"] = json.load(f)
+
+    icons_dir = theme_dir / "icons"
+    if icons_dir.exists():
+      if (icons_dir / "button_home.gif").exists():
+        response_data["images"]["homeButton"] = {
+          "filename": "button_home.gif",
+          "path": "icons/button_home.gif"
+        }
+      if (icons_dir / "button_settings.png").exists():
+        response_data["images"]["settingsButton"] = {
+          "filename": "button_settings.png",
+          "path": "icons/button_settings.png"
+        }
+
+    distance_dir = theme_dir / "distance_icons"
+    if distance_dir.exists():
+      response_data["images"]["distanceIcons"] = {}
+      exts = [".png", ".gif", ".jpg", ".jpeg"]
+      for name in ["aggressive", "relaxed", "standard", "traffic"]:
+        for ext in exts:
+          p = distance_dir / f"{name}{ext}"
+          if p.exists():
+            response_data["images"]["distanceIcons"][name] = {
+              "filename": f"{name}{ext}",
+              "path": f"distance_icons/{name}{ext}"
+            }
+            break
+
+    signals_dir = theme_dir / "signals"
+    if signals_dir.exists():
+      sequential_files = sorted([f.name for f in signals_dir.glob("turn_signal_*.png") if "blindspot" not in f.name.lower()])
+      if sequential_files:
+        response_data["sequentialImages"] = sequential_files
+        response_data["turnSignalType"] = "Sequential"
+
+      response_data["turnSignalStyle"] = "Traditional"
+      response_data["turnSignalLength"] = 100
+
+      for file in os.listdir(signals_dir):
+        if not any(file.endswith(ext) for ext in [".png", ".gif", ".jpg", ".jpeg"]):
+          parts = file.split("_")
+          if len(parts) == 2:
+            response_data["turnSignalStyle"] = parts[0].capitalize()
+            try:
+              response_data["turnSignalLength"] = int(parts[1])
+            except ValueError:
+              pass
+            break
+
+      exts = [".png", ".gif", ".jpg", ".jpeg"]
+      for ext in exts:
+        p = signals_dir / f"turn_signal{ext}"
+        if p.exists():
+          response_data["images"]["turnSignal"] = {
+            "filename": f"turn_signal{ext}",
+            "path": f"signals/turn_signal{ext}",
+          }
+          break
+      for ext in exts:
+        p = signals_dir / f"turn_signal_blindspot{ext}"
+        if p.exists():
+          response_data["images"]["turnSignalBlindspot"] = {
+            "filename": f"turn_signal_blindspot{ext}",
+            "path": f"signals/turn_signal_blindspot{ext}",
+          }
+          break
+
+    sounds_dir = theme_dir / "sounds"
+    if sounds_dir.exists():
+      for name in ["engage", "disengage", "startup", "prompt"]:
+        file_path = sounds_dir / f"{name}.wav"
+        if file_path.exists():
+          response_data["sounds"][name] = {
+            "filename": f"{name}.wav",
+            "path": f"sounds/{name}.wav"
+          }
+
+    steering_wheel_path = None
+    if "holiday" in theme_type:
+      steering_dir = theme_dir / "steering_wheel"
+      if steering_dir.exists() and steering_dir.is_dir():
+        for file in steering_dir.iterdir():
+          if file.is_file() and file.suffix.lower() in [".png", ".jpg", ".jpeg", ".gif"]:
+            steering_wheel_path = f"steering_wheel/{file.name}"
+            break
+    else:
+      steering_wheels_dir = THEME_SAVE_PATH / "steering_wheels"
+      if steering_wheels_dir.exists():
+        for file in steering_wheels_dir.iterdir():
+          if file.is_file() and file.stem.lower() == theme_path.lower() and file.suffix.lower() in [".png", ".jpg", ".jpeg", ".gif"]:
+            steering_wheel_path = f"steering_wheels/{file.name}"
+            break
+
+    if steering_wheel_path:
+      response_data["images"]["steeringWheel"] = {
+        "filename": steering_wheel_path.split("/")[-1],
+        "path": steering_wheel_path
+      }
+
+    return jsonify(response_data)
+
+  @app.route("/api/themes/submit", methods=["POST"])
+  def submit_theme():
+    if not GITLAB_TOKEN:
+      return jsonify({"error": "Missing GitLab token"}), 500
+
+    try:
+      theme_name = request.form.get("themeName")
+      if not theme_name:
+        return jsonify({"error": "Missing theme name"}), 400
+
+      discord_username = request.form.get("discordUsername") or "Unknown"
+
+      theme_path, error = utilities.create_theme(request.form, request.files, temporary=True)
+      if error:
+        return jsonify({"message": error}), 400
+
+      safe_theme_name = utilities.normalize_theme_name(theme_name, for_path=True)
+      combined_name = f"{safe_theme_name}~{discord_username}"
+      timestamp = int(time.time())
+
+      def gitlab_post(project_id, endpoint, payload):
+        url = f"{GITLAB_API}/projects/{project_id}/{endpoint}"
+        resp = requests.post(url, headers={"PRIVATE-TOKEN": GITLAB_TOKEN}, json=payload)
+        if resp.status_code not in (200, 201):
+          raise RuntimeError(f"GitLab API error {resp.status_code}: {resp.text}")
+        return resp.json()
+
+      def encode_file_base64(path):
+        with open(path, "rb") as f:
+          return base64.b64encode(f.read()).decode("utf-8")
+
+      def send_discord_notification(username, theme_name, asset_types):
+        if not DISCORD_WEBHOOK_URL:
+          return
+
+        message = (
+          f"🎨 **New Theme Submission**\n"
+          f"User: `{username}`\n"
+          f"Theme: `{theme_name}`\n"
+          f"Assets: {', '.join(asset_types)}\n"
+          f"[View Submissions Repo](https://gitlab.com/{RESOURCES_REPO}-Submissions)\n"
+          f"<@263565721336807424>"
+        )
+        payload = {"content": message}
+        try:
+          resp = requests.post(DISCORD_WEBHOOK_URL, json=payload)
+          if resp.status_code not in (200, 204):
+            print(f"Discord notification failed: {resp.status_code} {resp.text}")
+        except Exception as exception:
+          print(f"Error sending Discord message: {exception}")
+
+      asset_types = []
+      submission_urls = {}
+
+      distance_icons_path = theme_path / "distance_icons"
+      if distance_icons_path.exists() and any(distance_icons_path.iterdir()):
+        zip_path = shutil.make_archive(str(distance_icons_path), "zip", distance_icons_path)
+        encoded = encode_file_base64(zip_path)
+        file_name = f"{combined_name}.zip"
+        actions = [
+          {
+            "action": "create",
+            "file_path": file_name,
+            "content": encoded,
+            "encoding": "base64"
+          }
+        ]
+        commit_payload = {
+          "branch": "Distance-Icons",
+          "commit_message": f"Added Distance Icons: {combined_name}",
+          "actions": actions
+        }
+        gitlab_post(GITLAB_SUBMISSIONS_PROJECT_ID, "repository/commits", commit_payload)
+        asset_types.append("Distance Icons")
+        submission_urls["distance_icons"] = f"https://gitlab.com/{RESOURCES_REPO}-Submissions/-/tree/Distance-Icons"
+
+      theme_actions = []
+      for folder in ["colors", "icons", "signals", "sounds"]:
+        folder_path = theme_path / folder
+        if folder_path.exists() and any(folder_path.iterdir()):
+          zip_path = shutil.make_archive(str(folder_path), "zip", folder_path)
+          encoded = encode_file_base64(zip_path)
+          file_path = f"{combined_name}/{folder}.zip"
+          theme_actions.append({
+            "action": "create",
+            "file_path": file_path,
+            "content": encoded,
+            "encoding": "base64"
+          })
+
+      if theme_actions:
+        commit_payload = {
+          "branch": "Themes",
+          "commit_message": f"Added Theme: {combined_name}",
+          "actions": theme_actions
+        }
+        gitlab_post(GITLAB_SUBMISSIONS_PROJECT_ID, "repository/commits", commit_payload)
+        asset_types.append("Theme")
+        submission_urls["theme"] = f"https://gitlab.com/{RESOURCES_REPO}-Submissions/-/tree/Themes"
+
+      wheel_file = request.files.get("steeringWheel")
+      if wheel_file and wheel_file.filename:
+        suffix = Path(wheel_file.filename).suffix
+        file_name = f"{combined_name}{suffix}"
+        wheel_file.seek(0)
+        encoded_wheel = base64.b64encode(wheel_file.read()).decode("utf-8")
+        actions = [
+          {
+            "action": "create",
+            "file_path": file_name,
+            "content": encoded_wheel,
+            "encoding": "base64"
+          }
+        ]
+        commit_payload = {
+          "branch": "Steering-Wheels",
+          "commit_message": f"Added Steering Wheel: {combined_name}",
+          "actions": actions
+        }
+        gitlab_post(GITLAB_SUBMISSIONS_PROJECT_ID, "repository/commits", commit_payload)
+        asset_types.append("Steering Wheel")
+        submission_urls["steering_wheel"] = f"https://gitlab.com/{RESOURCES_REPO}-Submissions/-/tree/Steering-Wheels"
+
+      if not submission_urls:
+        return jsonify({"error": "No valid theme data or steering wheel file provided"}), 400
+
+      send_discord_notification(discord_username, theme_name, asset_types)
+
+      return jsonify({
+        "message": "Submission successful!",
+        "branches": submission_urls
+      }), 200
+
+    except Exception as exception:
+      return jsonify({"error": str(exception)}), 500
+
+    finally:
+      if "theme_path" in locals() and theme_path.parent.exists():
+        delete_file(theme_path.parent)
 
   @app.route("/api/tmux_log/capture", methods=["POST"])
   def capture_tmux_log_route():
@@ -924,15 +1573,64 @@ def setup(app):
   def get_video(path):
     camera = request.args.get("camera")
     filename = {"driver": "dcamera.hevc", "wide": "ecamera.hevc"}.get(camera, "fcamera.hevc")
-
     for footage_path in FOOTAGE_PATHS:
       filepath = f"{footage_path}{path}/{filename}"
       if os.path.exists(filepath):
-        process = utilities.ffmpeg_mp4_wrap_process_builder(filepath)
-        return Response(process.stdout.read(), status=200, mimetype="video/mp4")
+        file_handle = utilities.ffmpeg_mp4_wrap_process_builder(filepath)
 
+        file_handle.seek(0, 2)
+        file_size = file_handle.tell()
+        file_handle.seek(0)
+
+        range_header = request.headers.get('Range', None)
+        if range_header:
+          byte_start = 0
+          byte_end = file_size - 1
+
+          if range_header.startswith('bytes='):
+            range_spec = range_header[6:]
+            if '-' in range_spec:
+              start, end = range_spec.split('-', 1)
+              if start:
+                byte_start = max(0, int(start))
+              if end:
+                byte_end = min(file_size - 1, int(end))
+
+          if byte_start >= file_size:
+            file_handle.close()
+            return Response("Requested Range Not Satisfiable", 416)
+
+          byte_end = max(byte_start, byte_end)
+
+          file_handle.seek(byte_start)
+          read_length = byte_end - byte_start + 1
+          data = file_handle.read(read_length)
+
+          response = Response(
+            data,
+            206,
+            headers={
+              'Content-Range': f'bytes {byte_start}-{byte_end}/{file_size}',
+              'Accept-Ranges': 'bytes',
+              'Content-Length': str(len(data)),
+              'Content-Type': 'video/mp4'
+            }
+          )
+        else:
+          data = file_handle.read()
+          response = Response(
+            data,
+            200,
+            headers={
+              'Accept-Ranges': 'bytes',
+              'Content-Length': str(file_size),
+              'Content-Type': 'video/mp4'
+            }
+          )
+
+        file_handle.close()
+        return response
     return {"error": "Video not found"}, 404
-
 
 def main():
   app = Flask(__name__, static_folder="assets", static_url_path="/assets")

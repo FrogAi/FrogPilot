@@ -1,7 +1,5 @@
 #pragma once
 
-#include <set>
-
 #include "frogpilot/ui/qt/offroad/frogpilot_settings.h"
 
 class FrogPilotLateralPanel : public FrogPilotListWidget {
@@ -21,6 +19,7 @@ private:
   void updateState(const UIState &s);
   void updateToggles();
 
+  bool forceOpenDescriptions;
   bool hasAutoTune;
   bool hasNNFFLog;
   bool hasOpenpilotLongitudinal;
@@ -39,13 +38,13 @@ private:
 
   std::map<QString, AbstractControl*> toggles;
 
-  std::set<QString> advancedLateralTuneKeys = {"ForceAutoTune", "ForceAutoTuneOff", "SteerDelay", "SteerFriction", "SteerLatAccel", "SteerKP", "SteerRatio"};
-  std::set<QString> aolKeys = {"AlwaysOnLateralLKAS", "AlwaysOnLateralMain", "PauseAOLOnBrake"};
-  std::set<QString> laneChangeKeys = {"LaneChangeTime", "LaneDetectionWidth", "MinimumLaneChangeSpeed", "NudgelessLaneChange", "OneLaneChange"};
-  std::set<QString> lateralTuneKeys = {"NNFF", "NNFFLite", "TurnDesires"};
-  std::set<QString> qolKeys = {"PauseLateralSpeed"};
+  QSet<QString> advancedLateralTuneKeys = {"ForceAutoTune", "ForceAutoTuneOff", "ForceTorqueController", "SteerDelay", "SteerFriction", "SteerLatAccel", "SteerKP", "SteerRatio"};
+  QSet<QString> aolKeys = {"AlwaysOnLateralLKAS", "AlwaysOnLateralMain", "PauseAOLOnBrake"};
+  QSet<QString> laneChangeKeys = {"LaneChangeTime", "LaneDetectionWidth", "MinimumLaneChangeSpeed", "NudgelessLaneChange", "OneLaneChange"};
+  QSet<QString> lateralTuneKeys = {"NNFF", "NNFFLite", "TurnDesires"};
+  QSet<QString> qolKeys = {"PauseLateralSpeed"};
 
-  std::set<QString> parentKeys;
+  QSet<QString> parentKeys;
 
   FrogPilotParamValueButtonControl *steerDelayToggle;
   FrogPilotParamValueButtonControl *steerFrictionToggle;

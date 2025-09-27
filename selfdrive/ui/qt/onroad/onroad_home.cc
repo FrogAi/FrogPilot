@@ -103,7 +103,7 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
 #ifdef ENABLE_MAPS
   if (map != nullptr) {
     bool sidebarVisible = geometry().x() > 0;
-    bool show_map = !sidebarVisible;
+    bool show_map = !sidebarVisible && !frogpilot_toggles.value("hide_map").toBool();
     map->setVisible(show_map && !map->isVisible());
     if (map->isVisible() && frogpilot_toggles.value("full_map").toBool()) {
       nvg->frogpilot_nvg->bigMapOpen = false;
@@ -135,6 +135,13 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
 }
 
 void OnroadWindow::createMapWidget() {
+  FrogPilotUIState &fs = *frogpilotUIState();
+  QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
+
+  if (frogpilot_toggles.value("hide_map").toBool()) {
+    return;
+  }
+
 #ifdef ENABLE_MAPS
   auto m = new MapPanel(get_mapbox_settings());
   map = m;
@@ -158,6 +165,11 @@ void OnroadWindow::offroadTransition(bool offroad) {
   }
 #endif
   alerts->clear();
+  if (!offroad) {
+    alerts->enableFerg = util::random_int(0, 1) == 1;
+  } else {
+    alerts->displayFerg = false;
+  }
 }
 
 void OnroadWindow::primeChanged(bool prime) {

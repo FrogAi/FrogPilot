@@ -7,11 +7,9 @@ import numpy as np
 import requests
 
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime
 
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.realtime import DT_MDL
-from openpilot.common.time import system_time_valid
 
 from openpilot.frogpilot.common.frogpilot_utilities import calculate_bearing_offset, calculate_distance_to_point, is_url_pingable
 from openpilot.frogpilot.common.frogpilot_variables import params, params_memory
@@ -37,7 +35,6 @@ class SpeedLimitController:
     self.source = "None"
 
     self.mapbox_requests = json.loads(params.get("MapBoxRequests") or "{}")
-    self.mapbox_requests.setdefault("month", datetime.now().month)
     self.mapbox_requests.setdefault("total_requests", 0)
     self.mapbox_requests.setdefault("max_requests", FREE_MAPBOX_REQUESTS - (28 * 100))
 
@@ -80,7 +77,7 @@ class SpeedLimitController:
       ]
     return next((offset for low, high, offset in offset_map if low < self.target < high), 0)
 
-  def get_mapbox_speed_limit(self, gps_position, v_ego, sm):
+  def get_mapbox_speed_limit(self, gps_position, now, time_validated, v_ego, sm):
     if not gps_position or not self.mapbox_token or (sm["carState"].steeringAngleDeg - sm["liveParameters"].angleOffsetDeg) >= 45:
       self.mapbox_limit = 0
       self.segment_distance = 0
@@ -107,13 +104,13 @@ class SpeedLimitController:
           self.segment_distance = 1000
           return None
 
-        if system_time_valid():
-          current_month = datetime.now().month
+        if time_validated:
+          current_month = now.month
           if current_month != self.mapbox_requests.get("month"):
             self.mapbox_requests.update({
               "month": current_month,
               "total_requests": 0,
-              "max_requests": FREE_MAPBOX_REQUESTS - calendar.monthrange(datetime.now().year, current_month)[1] * 100,
+              "max_requests": FREE_MAPBOX_REQUESTS - calendar.monthrange(now.year, current_month)[1] * 100,
             })
 
         self.mapbox_requests["total_requests"] += 1
@@ -204,7 +201,7 @@ class SpeedLimitController:
   def handle_limit_change(self, desired_source, desired_target, sm):
     self.speed_limit_changed_timer += DT_MDL
 
-    speed_limit_accepted = (sm["frogpilotCarState"].accelPressed and not sm["carControl"].cruiseControl.override) or params_memory.get_bool("SpeedLimitAccepted")
+    speed_limit_accepted = (sm["frogpilotCarState"].accelPressed and sm["carControl"].longActive) or params_memory.get_bool("SpeedLimitAccepted")
     speed_limit_denied = sm["frogpilotCarState"].decelPressed or (self.speed_limit_changed_timer >= 30)
 
     if speed_limit_accepted:
@@ -241,7 +238,7 @@ class SpeedLimitController:
 
       params.put_float_nonblocking("PreviousSpeedLimit", self.target)
 
-  def update_limits(self, dashboard_speed_limit, gps_position, navigation_speed_limit, v_cruise, v_ego, sm):
+  def update_limits(self, dashboard_speed_limit, gps_position, navigation_speed_limit, now, time_validated, v_cruise, v_ego, sm):
     self.update_map_speed_limit(gps_position, v_ego)
 
     limits = {
@@ -279,7 +276,7 @@ class SpeedLimitController:
 
     if desired_target == 0 or self.target == 0:
       if self.mapbox_requests["total_requests"] < self.mapbox_requests["max_requests"] and self.frogpilot_toggles.slc_mapbox_filler:
-        self.get_mapbox_speed_limit(gps_position, v_ego, sm)
+        self.get_mapbox_speed_limit(gps_position, now, time_validated, v_ego, sm)
 
         if self.mapbox_limit >= 1:
           desired_source = "Mapbox"
@@ -306,23 +303,6 @@ class SpeedLimitController:
     else:
       self.speed_limit_changed_timer = 0
       self.unconfirmed_speed_limit = 0
-
-  def update_override(self, v_cruise, v_cruise_diff, v_ego, v_ego_diff, sm):
-    self.override_slc = self.overridden_speed > self.target + self.offset > 0
-    self.override_slc |= sm["carState"].gasPressed and v_ego > self.target + self.offset > 0
-    self.override_slc &= sm["controlsState"].enabled
-
-    if self.override_slc:
-      if self.frogpilot_toggles.speed_limit_controller_override_manual:
-        if sm["carState"].gasPressed:
-          self.overridden_speed = max(v_ego + v_ego_diff, self.overridden_speed)
-        self.overridden_speed = float(np.clip(self.overridden_speed, self.target + self.offset, v_cruise + v_cruise_diff))
-      elif self.frogpilot_toggles.speed_limit_controller_override_set_speed:
-        self.overridden_speed = v_cruise + v_cruise_diff
-
-      self.source = "None"
-    else:
-      self.overridden_speed = 0
 
   def update_map_speed_limit(self, gps_position, v_ego):
     if not gps_position:
@@ -351,3 +331,20 @@ class SpeedLimitController:
 
       if distance_to_upcoming < max_lookahead:
         self.map_speed_limit = self.next_speed_limit
+
+  def update_override(self, v_cruise, v_cruise_diff, v_ego, v_ego_diff, sm):
+    self.override_slc = self.overridden_speed > self.target + self.offset > 0
+    self.override_slc |= sm["carState"].gasPressed and v_ego > self.target + self.offset > 0
+    self.override_slc &= sm["controlsState"].enabled
+
+    if self.override_slc:
+      if self.frogpilot_toggles.speed_limit_controller_override_manual:
+        if sm["carState"].gasPressed:
+          self.overridden_speed = max(v_ego + v_ego_diff, self.overridden_speed)
+        self.overridden_speed = float(np.clip(self.overridden_speed, self.target + self.offset, v_cruise + v_cruise_diff))
+      elif self.frogpilot_toggles.speed_limit_controller_override_set_speed:
+        self.overridden_speed = v_cruise + v_cruise_diff
+
+      self.source = "None"
+    else:
+      self.overridden_speed = 0

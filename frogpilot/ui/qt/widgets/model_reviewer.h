@@ -2,11 +2,11 @@
 
 #include "selfdrive/ui/ui.h"
 
-class ModelReview : public QFrame {
+class FrogPilotModelReview : public QFrame {
   Q_OBJECT
 
 public:
-  explicit ModelReview(QWidget *parent = nullptr);
+  explicit FrogPilotModelReview(QWidget *parent = nullptr);
 
 signals:
   void driveRated();
@@ -22,37 +22,33 @@ private slots:
 private:
   int getModelRank();
 
-  QLabel *addLabel(QVBoxLayout *layout, const QString &text, const QString &type);
-
-  QPushButton *createButton(const QString &text, const QString &type, int rating, int width, int height);
-
-  void checkBlacklistButtonVisibility();
   void updateLabel();
-
-  QStackedLayout *mainLayout;
-
-  QLabel *blacklistMessageLabel;
-  QLabel *modelLabel;
-  QLabel *modelRankLabel;
-  QLabel *modelScoreLabel;
-  QLabel *questionLabel;
-  QLabel *titleLabel;
-  QLabel *totalDrivesLabel;
-  QLabel *totalOverallDrivesLabel;
-
-  QPushButton *blacklistButton;
-
-  Params params;
-  Params params_memory{"/dev/shm/params"};
-
-  QString currentModel;
-  QString currentModelFiltered;
-
-  QStringList blacklistedModels;
 
   bool modelRated;
 
   int finalRating;
   int totalDrives;
   int totalOverallDrives;
+
+  Params params;
+
+  QJsonObject currentModelData;
+  QJsonObject modelDrivesAndScores;
+
+  QLabel *blacklistMessageLabel;
+  QLabel *modelLabel;
+  QLabel *modelRankLabel;
+  QLabel *modelRatingLabel;
+  QLabel *totalDrivesLabel;
+  QLabel *totalOverallDrivesLabel;
+
+  QPushButton *blacklistButton;
+
+  QStackedLayout *mainLayout;
+
+  QString currentModel;
+  QString currentModelFiltered;
+
+  QStringList availableModelNames;
+  QStringList blacklistedModels;
 };

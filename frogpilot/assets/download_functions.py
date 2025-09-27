@@ -30,7 +30,7 @@ def check_github_rate_limit(session):
     print(f"Error checking GitHub rate limit: {exception}")
     return False
 
-def download_file(cancel_param, destination, progress_param, url, download_param, session, files=1, file_number=1):
+def download_file(cancel_param, destination, progress_param, url, download_param, session, offset_bytes=0, total_bytes=0):
   try:
     destination.parent.mkdir(parents=True, exist_ok=True)
 
@@ -57,8 +57,10 @@ def download_file(cancel_param, destination, progress_param, url, download_param
             temp_file.write(chunk)
             downloaded_size += len(chunk)
 
-            file_progress = downloaded_size / total_size
-            overall_progress = ((file_number - 1) + file_progress) / files * 100
+            if total_bytes:
+              overall_progress = (offset_bytes + downloaded_size) / total_bytes * 100
+            else:
+              overall_progress = downloaded_size / total_size * 100
 
             if overall_progress != 100:
               params_memory.put(progress_param, f"{overall_progress:.0f}%")
@@ -98,10 +100,10 @@ def handle_error(destination, error_message, error, download_param, progress_par
 
 def handle_request_error(error, destination, download_param, progress_param):
   error_map = {
-    requests.ConnectionError: "Connection dropped",
-    requests.HTTPError: lambda error: f"Server error ({error.response.status_code})" if error.response else "Server error",
-    requests.RequestException: "Network request error. Check connection",
-    requests.Timeout: "Download timed out"
+    requests.exceptions.ConnectionError: "Connection dropped",
+    requests.exceptions.HTTPError: lambda error: f"Server error ({error.response.status_code})" if error and getattr(error, "response", None) else "Server error",
+    requests.exceptions.RequestException: "Network request error. Check connection",
+    requests.exceptions.Timeout: "Download timed out",
   }
 
   error_message = error_map.get(type(error), "Unexpected error")

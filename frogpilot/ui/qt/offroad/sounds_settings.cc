@@ -1,8 +1,8 @@
 #include "frogpilot/ui/qt/offroad/sounds_settings.h"
 
 void playSound(const QString &alert, int volume) {
-  QString stockPath = "/data/openpilot/selfdrive/assets/sounds/" + alert + ".wav";
-  QString themePath = "/data/openpilot/frogpilot/assets/active_theme/sounds/" + alert + ".wav";
+  QString stockPath = "../../selfdrive/assets/sounds/" + alert + ".wav";
+  QString themePath = "../../frogpilot/assets/active_theme/sounds/" + alert + ".wav";
 
   QString filePath = QFile::exists(themePath) ? themePath : stockPath;
 
@@ -14,6 +14,15 @@ void playSound(const QString &alert, int volume) {
 }
 
 FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
+  QJsonObject shownDescriptions = QJsonDocument::fromJson(QString::fromStdString(params.get("ShownToggleDescriptions")).toUtf8()).object();
+  QString className = this->metaObject()->className();
+
+  if (!shownDescriptions.value(className).toBool(false)) {
+    forceOpenDescriptions = true;
+    shownDescriptions.insert(className, true);
+    params.put("ShownToggleDescriptions", QJsonDocument(shownDescriptions).toJson(QJsonDocument::Compact).toStdString());
+  }
+
   QStackedLayout *soundsLayout = new QStackedLayout();
   addItem(soundsLayout);
 
@@ -33,21 +42,21 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent) : Fr
   soundsLayout->addWidget(customAlertsPanel);
 
   const std::vector<std::tuple<QString, QString, QString, QString>> soundsToggles {
-    {"AlertVolumeControl", tr("Alert Volume Control"), tr("Adjust the volume for each alert in openpilot."), "../../frogpilot/assets/toggle_icons/icon_mute.png"},
-    {"DisengageVolume", tr("Disengage Volume"), tr("Adjust the volume for alerts like:<br><br><b>Adaptive Cruise Disabled</b><br><b>Brake Pedal Pressed</b><br><b>Parking Brake Engaged</b><br><b>Speed too Low</b>"), ""},
-    {"EngageVolume", tr("Engage Volume"), tr("Adjust the volume for alerts like:<br><br><b>NNFF Torque Controller loaded</b><br><b>openpilot engaged</b>"), ""},
-    {"PromptVolume", tr("Prompt Volume"), tr("Adjust the volume for alerts like:<br><br><b>Car Detected in Blindspot</b><br><b>Steer Unavailable Below \"X\"</b><br><b>Speed too Low</b><br><b>Take Control, Turn Exceeds Steering Limit</b>"), ""},
-    {"PromptDistractedVolume", tr("Prompt Distracted Volume"), tr("Adjust the volume for alerts like:<br><br><b>Pay Attention, Driver Distracted</b><br><b>Touch Steering Wheel, Driver Unresponsive</b>"), ""},
-    {"RefuseVolume", tr("Refuse Volume"), tr("Adjust the volume for alerts like:<br><br><b>openpilot Unavailable</b>"), ""},
-    {"WarningSoftVolume", tr("Warning Soft Volume"), tr("Adjust the volume for alerts like:<br><br><b>BRAKE!, Risk of Collision</b><br><b>TAKE CONTROL IMMEDIATELY</b>"), ""},
-    {"WarningImmediateVolume", tr("Warning Immediate Volume"), tr("Adjust the volume for alerts like:<br><br><b>DISENGAGE IMMEDIATELY, Driver Distracted</b><br><b>DISENGAGE IMMEDIATELY, Driver Unresponsive</b>"), ""},
+    {"AlertVolumeControl", tr("Alert Volume Controller"), tr("<b>Set how loud each type of openpilot alert is</b> to keep routine prompts from becoming distracting."), "../../frogpilot/assets/toggle_icons/icon_mute.png"},
+    {"DisengageVolume", tr("Disengage Volume"), tr("<b>Set the volume for alerts when openpilot disengages.</b><br><br>Examples include: \"Cruise Fault: Restart the Car\", \"Parking Brake Engaged\", \"Pedal Pressed\"."), ""},
+    {"EngageVolume", tr("Engage Volume"), tr("<b>Set the volume for the chime when openpilot engages</b>, such as after pressing the \"RESUME\" or \"SET\" steering wheel buttons."), ""},
+    {"PromptVolume", tr("Prompt Volume"), tr("<b>Set the volume for prompts that need attention.</b><br><br>Examples include: \"Car Detected in Blindspot\", \"Steering Temporarily Unavailable\", \"Turn Exceeds Steering Limit\"."), ""},
+    {"PromptDistractedVolume", tr("Prompt Distracted Volume"), tr("<b>Set the volume for prompts when openpilot detects driver distraction or unresponsiveness.</b><br><br>Examples include: \"Pay Attention\", \"Touch Steering Wheel\"."), ""},
+    {"RefuseVolume", tr("Refuse Volume"), tr("<b>Set the volume for alerts when openpilot refuses to engage.</b><br><br>Examples include: \"Brake Hold Active\", \"Door Open\", \"Seatbelt Unlatched\"."), ""},
+    {"WarningSoftVolume", tr("Warning Soft Volume"), tr("<b>Set the volume for softer warnings about potential risks.</b><br><br>Examples include: \"BRAKE! Risk of Collision\", \"Steering Temporarily Unavailable\"."), ""},
+    {"WarningImmediateVolume", tr("Warning Immediate Volume"), tr("<b>Set the volume for the loudest warnings that require urgent attention.</b><br><br>Examples include: \"DISENGAGE IMMEDIATELY — Driver Distracted\", \"DISENGAGE IMMEDIATELY — Driver Unresponsive\"."), ""},
 
-    {"CustomAlerts", tr("FrogPilot Alerts"), tr("FrogPilot alerts for various events in openpilot."), "../../frogpilot/assets/toggle_icons/icon_green_light.png"},
-    {"GoatScream", tr("Goat Scream Steering Saturated Alert"), tr("The infamous \"Goat Scream\" that has brought both joy and anger to FrogPilot users all around the world!"), ""},
-    {"GreenLightAlert", tr("Green Light Alert"), tr("Get an alert when the traffic light changes from red to green."), ""},
-    {"LeadDepartingAlert", tr("Lead Departing Alert"), tr("Get an alert when the lead vehicle begins to depart from a standstill."), ""},
-    {"LoudBlindspotAlert", tr("Loud \"Car Detected in Blindspot\" Alert"), tr("A louder alert for when a vehicle is detected in the blindspot when attempting to change lanes."), ""},
-    {"SpeedLimitChangedAlert", tr("Speed Limit Changed Alert"), tr("Get an alert when the speed limit changes."), ""}
+    {"CustomAlerts", tr("FrogPilot Alerts"), tr("<b>Optional FrogPilot alerts</b> that highlight driving events in a more noticeable way."), "../../frogpilot/assets/toggle_icons/icon_green_light.png"},
+    {"GoatScream", tr("Goat Scream"), tr("<b>Play the infamous \"Goat Scream\" when the steering controller reaches its limit.</b> Based on the \"Turn Exceeds Steering Limit\" event."), ""},
+    {"GreenLightAlert", tr("Green Light Alert"), tr("<b>Play an alert when the model predicts a red light has turned green.</b><br><br><i><b>Disclaimer</b>: openpilot does not explicitly detect traffic lights. This alert is based on end-to-end model predictions from camera input and may trigger even when the light has not changed.</i>"), ""},
+    {"LeadDepartingAlert", tr("Lead Departing Alert"), tr("<b>Play an alert when the lead vehicle departs from a stop.</b>"), ""},
+    {"LoudBlindspotAlert", tr("Loud \"Car Detected in Blindspot\" Alert"), tr("<b>Play a louder alert if a vehicle is in the blind spot when attempting to change lanes.</b> Based on the \"Car Detected in Blindspot\" event."), ""},
+    {"SpeedLimitChangedAlert", tr("Speed Limit Changed Alert"), tr("<b>Play an alert when the posted speed limit changes.</b>"), ""}
   };
 
   for (const auto &[param, title, desc, icon] : soundsToggles) {
@@ -59,7 +68,7 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent) : Fr
         soundsLayout->setCurrentWidget(alertVolumeControlPanel);
       });
       soundsToggle = alertVolumeControlToggle;
-    } else if (alertVolumeControlKeys.find(param) != alertVolumeControlKeys.end()) {
+    } else if (alertVolumeControlKeys.contains(param)) {
       std::map<float, QString> volumeLabels;
       for (int i = 0; i <= 101; ++i) {
         volumeLabels[i] = i == 0 ? tr("Muted") : i == 101 ? tr("Auto") : QString::number(i) + "%";
@@ -84,9 +93,9 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent) : Fr
 
     toggles[param] = soundsToggle;
 
-    if (alertVolumeControlKeys.find(param) != alertVolumeControlKeys.end()) {
+    if (alertVolumeControlKeys.contains(param)) {
       alertVolumeControlList->addItem(soundsToggle);
-    } else if (customAlertsKeys.find(param) != customAlertsKeys.end()) {
+    } else if (customAlertsKeys.contains(param)) {
       customAlertsList->addItem(soundsToggle);
     } else {
       soundsList->addItem(soundsToggle);
@@ -95,9 +104,15 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent) : Fr
     }
 
     if (FrogPilotManageControl *frogPilotManageToggle = qobject_cast<FrogPilotManageControl*>(soundsToggle)) {
-      QObject::connect(frogPilotManageToggle, &FrogPilotManageControl::manageButtonClicked, this, &FrogPilotSoundsPanel::openSubPanel);
+      QObject::connect(frogPilotManageToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
+        emit openSubPanel();
+        openDescriptions(forceOpenDescriptions, toggles);
+      });
     }
 
+    QObject::connect(soundsToggle, &AbstractControl::hideDescriptionEvent, [this]() {
+      update();
+    });
     QObject::connect(soundsToggle, &AbstractControl::showDescriptionEvent, [this]() {
       update();
     });
@@ -105,7 +120,7 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent) : Fr
 
   for (const QString &key : alertVolumeControlKeys) {
     FrogPilotParamValueButtonControl *toggle = static_cast<FrogPilotParamValueButtonControl*>(toggles[key]);
-    QObject::connect(toggle, &FrogPilotParamValueButtonControl::buttonClicked, [this, key, toggle]() {
+    QObject::connect(toggle, &FrogPilotParamValueButtonControl::buttonClicked, [key, toggle, this]() {
       toggle->updateParam();
 
       updateFrogPilotToggles();
@@ -130,15 +145,26 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent) : Fr
       if (started) {
         params_memory.put("TestAlert", camelCaseAlert.toStdString());
       } else {
-        std::thread([this, key, snakeCaseAlert]() {
+        std::thread([key, snakeCaseAlert, this]() {
           playSound(snakeCaseAlert, params.getInt(key.toStdString()));
         }).detach();
       }
     });
   }
 
-  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [soundsLayout, soundsPanel] {soundsLayout->setCurrentWidget(soundsPanel);});
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [soundsLayout, soundsPanel, this] {
+    openDescriptions(forceOpenDescriptions, toggles);
+    soundsLayout->setCurrentWidget(soundsPanel);
+  });
   QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotSoundsPanel::updateState);
+
+  for (auto &[key, toggle] : toggles) {
+    if (alertVolumeControlKeys.contains(key)) {
+      toggle->setVisible(true);
+    }
+  }
+
+  updateToggles();
 }
 
 void FrogPilotSoundsPanel::showEvent(QShowEvent *event) {
@@ -160,13 +186,13 @@ void FrogPilotSoundsPanel::updateState(const UIState &s) {
 
 void FrogPilotSoundsPanel::updateToggles() {
   for (auto &[key, toggle] : toggles) {
-    if (parentKeys.find(key) != parentKeys.end()) {
+    if (parentKeys.contains(key)) {
       toggle->setVisible(false);
     }
   }
 
   for (auto &[key, toggle] : toggles) {
-    if (parentKeys.find(key) != parentKeys.end()) {
+    if (parentKeys.contains(key)) {
       continue;
     }
 
@@ -183,13 +209,15 @@ void FrogPilotSoundsPanel::updateToggles() {
     toggle->setVisible(setVisible);
 
     if (setVisible) {
-      if (alertVolumeControlKeys.find(key) != alertVolumeControlKeys.end()) {
+      if (alertVolumeControlKeys.contains(key)) {
         toggles["AlertVolumeControl"]->setVisible(true);
-      } else if (customAlertsKeys.find(key) != customAlertsKeys.end()) {
+      } else if (customAlertsKeys.contains(key)) {
         toggles["CustomAlerts"]->setVisible(true);
       }
     }
   }
+
+  openDescriptions(forceOpenDescriptions, toggles);
 
   update();
 }

@@ -7,7 +7,6 @@ from enum import Enum
 from sentry_sdk.integrations.threading import ThreadingIntegration
 
 from openpilot.common.params import Params
-from openpilot.system.athena.registration import is_registered_device
 from openpilot.system.hardware import HARDWARE, PC
 from openpilot.common.swaglog import cloudlog
 from openpilot.system.version import get_build_metadata, get_version
@@ -28,6 +27,12 @@ def report_tombstone(fn: str, message: str, contents: str) -> None:
     scope.set_extra("tombstone_fn", fn)
     scope.set_extra("tombstone", contents)
     sentry_sdk.capture_message(message=message)
+    sentry_sdk.flush()
+
+
+def capture_block():
+  with sentry_sdk.push_scope() as scope:
+    sentry_sdk.capture_message("Blocked user from using the development branch", level='info')
     sentry_sdk.flush()
 
 

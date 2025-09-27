@@ -191,13 +191,13 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
 #endif
     left_widget->addWidget(new DriveStats);
 
-    ModelReview *modelReview = new ModelReview(this);
+    FrogPilotModelReview *modelReview = new FrogPilotModelReview(this);
     left_widget->addWidget(modelReview);
 
     left_widget->setStyleSheet("border-radius: 10px;");
     left_widget->setCurrentIndex(1);
 
-    connect(modelReview, &ModelReview::driveRated, [=]() {
+    connect(modelReview, &FrogPilotModelReview::driveRated, [=]() {
       left_widget->setCurrentIndex(1);
     });
     connect(frogpilotUIState(), &FrogPilotUIState::reviewModel, [=]() {

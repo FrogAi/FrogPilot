@@ -335,12 +335,6 @@ enum LaneChangeDirection {
   right @2;
 }
 
-enum TurnDirection {
-  none @0;
-  turnLeft @1;
-  turnRight @2;
-}
-
 struct CanData {
   address @0 :UInt32;
   busTime @1 :UInt16;
@@ -618,8 +612,6 @@ struct RadarState @0x9a185389d6fdd05f {
 
   leadOne @3 :LeadData;
   leadTwo @4 :LeadData;
-  leadLeft @13 :LeadData;
-  leadRight @14 :LeadData;
   cumLagMs @5 :Float32;
 
   struct LeadData {
@@ -638,7 +630,6 @@ struct RadarState @0x9a185389d6fdd05f {
     modelProb @13 :Float32;
     radar @14 :Bool;
     radarTrackId @15 :Int32 = -1;
-    farLead @16 :Bool;
 
     aLeadDEPRECATED @5 :Float32;
   }
@@ -754,7 +745,6 @@ struct ControlsState @0x97ff69c53601abf1 {
     normal @0;       # low priority alert for user's convenience
     userPrompt @1;   # mid priority alert that might require user intervention
     critical @2;     # high priority alert that needs immediate user intervention
-    frogpilot @3;    # FrogPilot startup alert
   }
 
   enum AlertSize {
@@ -805,7 +795,6 @@ struct ControlsState @0x97ff69c53601abf1 {
     saturated @7 :Bool;
     actualLateralAccel @9 :Float32;
     desiredLateralAccel @10 :Float32;
-    nnLog @11 :List(Float32);
    }
 
   struct LateralLQRState {
@@ -908,7 +897,6 @@ struct DrivingModelData {
   struct MetaData {
     laneChangeState @0 :LaneChangeState;
     laneChangeDirection @1 :LaneChangeDirection;
-    turnDirection @2 :TurnDirection;
   }
 }
 
@@ -1002,7 +990,6 @@ struct ModelDataV2 {
     hardBrakePredicted @7 :Bool;
     laneChangeState @8 :LaneChangeState;
     laneChangeDirection @9 :LaneChangeDirection;
-    turnDirection @10 :TurnDirection;
 
 
     # deprecated
@@ -2418,16 +2405,16 @@ struct Event {
     customReservedRawData2 @126 :Data;
 
     # *********** Custom: reserved for forks ***********
-    frogpilotCarParams @107 :Custom.FrogPilotCarParams;
-    frogpilotCarState @108 :Custom.FrogPilotCarState;
-    frogpilotDeviceState @109 :Custom.FrogPilotDeviceState;
-    frogpilotNavigation @110 :Custom.FrogPilotNavigation;
-    frogpilotPlan @111 :Custom.FrogPilotPlan;
-    customReserved5 @112 :Custom.CustomReserved5;
-    customReserved6 @113 :Custom.CustomReserved6;
-    customReserved7 @114 :Custom.CustomReserved7;
-    customReserved8 @115 :Custom.CustomReserved8;
-    customReserved9 @116 :Custom.CustomReserved9;
+    frogpilotCarControl @107 :Custom.FrogPilotCarControl;
+    frogpilotCarParams @108 :Custom.FrogPilotCarParams;
+    frogpilotCarState @109 :Custom.FrogPilotCarState;
+    frogpilotControlsState @110 :Custom.FrogPilotControlsState;
+    frogpilotDeviceState @111 :Custom.FrogPilotDeviceState;
+    frogpilotModelV2 @112 :Custom.FrogPilotModelDataV2;
+    frogpilotNavigation @113 :Custom.FrogPilotNavigation;
+    frogpilotOnroadEvents @114: List(Custom.FrogPilotCarEvent);
+    frogpilotPlan @115 :Custom.FrogPilotPlan;
+    frogpilotRadarState @116 :Custom.FrogPilotRadarState;
 
     # *********** legacy + deprecated ***********
     model @9 :Legacy.ModelData; # TODO: rename modelV2 and mark this as deprecated

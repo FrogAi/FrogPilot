@@ -14,7 +14,6 @@ import numpy as np
 import cereal.messaging as messaging
 from cereal import car, log
 from pathlib import Path
-from setproctitle import setproctitle
 from cereal.messaging import PubMaster, SubMaster
 from msgq.visionipc import VisionIpcClient, VisionStreamType, VisionBuf
 from openpilot.common.swaglog import cloudlog
@@ -23,7 +22,6 @@ from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.realtime import config_realtime_process, DT_MDL
 from openpilot.common.transformations.camera import DEVICE_CAMERAS
 from openpilot.common.transformations.model import get_warp_matrix
-from openpilot.system import sentry
 from openpilot.selfdrive.car.car_helpers import get_demo_car_params
 from openpilot.selfdrive.controls.lib.desire_helper import DesireHelper
 from openpilot.selfdrive.controls.lib.drive_helpers import get_accel_from_plan, smooth_value, get_curvature_from_plan
@@ -85,6 +83,64 @@ class FrameMeta:
     if vipc is not None:
       self.frame_id, self.timestamp_sof, self.timestamp_eof = vipc.frame_id, vipc.timestamp_sof, vipc.timestamp_eof
 
+class InputQueues:
+  def __init__ (self, model_fps, env_fps, n_frames_input):
+    assert env_fps % model_fps == 0
+    assert env_fps >= model_fps
+    self.model_fps = model_fps
+    self.env_fps = env_fps
+    self.n_frames_input = n_frames_input
+
+    self.dtypes = {}
+    self.shapes = {}
+    self.q = {}
+
+  def update_dtypes_and_shapes(self, input_dtypes, input_shapes) -> None:
+    self.dtypes.update(input_dtypes)
+    if self.env_fps == self.model_fps:
+      self.shapes.update(input_shapes)
+    else:
+      for k in input_shapes:
+        shape = list(input_shapes[k])
+        if 'img' in k:
+          n_channels = shape[1] // self.n_frames_input
+          shape[1] = (self.env_fps // self.model_fps + (self.n_frames_input - 1)) * n_channels
+        else:
+          shape[1] = (self.env_fps // self.model_fps) * shape[1]
+        self.shapes[k] = tuple(shape)
+
+  def reset(self) -> None:
+    self.q = {k: np.zeros(self.shapes[k], dtype=self.dtypes[k]) for k in self.dtypes.keys()}
+
+  def enqueue(self, inputs:dict[str, np.ndarray]) -> None:
+    for k in inputs.keys():
+      if inputs[k].dtype != self.dtypes[k]:
+        raise ValueError(f'supplied input <{k}({inputs[k].dtype})> has wrong dtype, expected {self.dtypes[k]}')
+      input_shape = list(self.shapes[k])
+      input_shape[1] = -1
+      single_input = inputs[k].reshape(tuple(input_shape))
+      sz = single_input.shape[1]
+      self.q[k][:,:-sz] = self.q[k][:,sz:]
+      self.q[k][:,-sz:] = single_input
+
+  def get(self, *names) -> dict[str, np.ndarray]:
+    if self.env_fps == self.model_fps:
+      return {k: self.q[k] for k in names}
+    else:
+      out = {}
+      for k in names:
+        shape = self.shapes[k]
+        if 'img' in k:
+          n_channels = shape[1] // (self.env_fps // self.model_fps + (self.n_frames_input - 1))
+          out[k] = np.concatenate([self.q[k][:, s:s+n_channels] for s in np.linspace(0, shape[1] - n_channels, self.n_frames_input, dtype=int)], axis=1)
+        elif 'pulse' in k:
+          # any pulse within interval counts
+          out[k] = self.q[k].reshape((shape[0], shape[1] * self.model_fps // self.env_fps, self.env_fps // self.model_fps, -1)).max(axis=2)
+        else:
+          idxs = np.arange(-1, -shape[1], -self.env_fps // self.model_fps)[::-1]
+          out[k] = self.q[k][:, idxs]
+      return out
+
 class ModelState:
   frames: dict[str, DrivingModelFrame]
   inputs: dict[str, np.ndarray]
@@ -105,22 +161,21 @@ class ModelState:
       self.policy_output_slices = policy_metadata['output_slices']
       policy_output_size = policy_metadata['output_shapes']['outputs'][1]
 
-    self.frames = {name: DrivingModelFrame(context, ModelConstants.TEMPORAL_SKIP) for name in self.vision_input_names}
+    self.desire_type = 'desire_pulse' if 'desire_pulse' in self.policy_input_shapes else 'desire'
+    self.use_lateral_control_params = 'lateral_control_params' in self.policy_input_shapes
+
+    self.frames = {name: DrivingModelFrame(context, ModelConstants.MODEL_RUN_FREQ//ModelConstants.MODEL_CONTEXT_FREQ) for name in self.vision_input_names}
     self.prev_desire = np.zeros(ModelConstants.DESIRE_LEN, dtype=np.float32)
 
-    self.full_features_buffer = np.zeros((1, ModelConstants.FULL_HISTORY_BUFFER_LEN,  ModelConstants.FEATURE_LEN), dtype=np.float32)
-    self.full_desire = np.zeros((1, ModelConstants.FULL_HISTORY_BUFFER_LEN, ModelConstants.DESIRE_LEN), dtype=np.float32)
     self.full_prev_desired_curv = np.zeros((1, ModelConstants.FULL_HISTORY_BUFFER_LEN, ModelConstants.PREV_DESIRED_CURV_LEN), dtype=np.float32)
-    self.temporal_idxs = slice(-1-(ModelConstants.TEMPORAL_SKIP*(ModelConstants.INPUT_HISTORY_BUFFER_LEN-1)), None, ModelConstants.TEMPORAL_SKIP)
+    self.temporal_idxs = slice(-1-(ModelConstants.TEMPORAL_SKIP*(ModelConstants.FULL_HISTORY_BUFFER_LEN-1)), None, ModelConstants.TEMPORAL_SKIP)
 
     # policy inputs
-    self.numpy_inputs = {
-      'desire': np.zeros((1, ModelConstants.INPUT_HISTORY_BUFFER_LEN, ModelConstants.DESIRE_LEN), dtype=np.float32),
-      'traffic_convention': np.zeros((1, ModelConstants.TRAFFIC_CONVENTION_LEN), dtype=np.float32),
-      'lateral_control_params': np.zeros((1, ModelConstants.LATERAL_CONTROL_PARAMS_LEN), dtype=np.float32),
-      'prev_desired_curv': np.zeros((1, ModelConstants.INPUT_HISTORY_BUFFER_LEN, ModelConstants.PREV_DESIRED_CURV_LEN), dtype=np.float32),
-      'features_buffer': np.zeros((1, ModelConstants.INPUT_HISTORY_BUFFER_LEN,  ModelConstants.FEATURE_LEN), dtype=np.float32),
-    }
+    self.numpy_inputs = {k: np.zeros(self.policy_input_shapes[k], dtype=np.float32) for k in self.policy_input_shapes}
+    self.full_input_queues = InputQueues(ModelConstants.MODEL_CONTEXT_FREQ, ModelConstants.MODEL_RUN_FREQ, ModelConstants.N_FRAMES)
+    for k in [self.desire_type, 'features_buffer']:
+      self.full_input_queues.update_dtypes_and_shapes({k: self.numpy_inputs[k].dtype}, {k: self.numpy_inputs[k].shape})
+    self.full_input_queues.reset()
 
     # img buffers are managed in openCL transform code
     self.vision_inputs: dict[str, Tensor] = {}
@@ -142,16 +197,12 @@ class ModelState:
   def run(self, bufs: dict[str, VisionBuf], transforms: dict[str, np.ndarray],
                 inputs: dict[str, np.ndarray], prepare_only: bool) -> dict[str, np.ndarray] | None:
     # Model decides when action is completed, so desire input is just a pulse triggered on rising edge
-    inputs['desire'][0] = 0
-    new_desire = np.where(inputs['desire'] - self.prev_desire > .99, inputs['desire'], 0)
-    self.prev_desire[:] = inputs['desire']
+    inputs[self.desire_type][0] = 0
+    new_desire = np.where(inputs[self.desire_type] - self.prev_desire > .99, inputs[self.desire_type], 0)
+    self.prev_desire[:] = inputs[self.desire_type]
 
-    self.full_desire[0,:-1] = self.full_desire[0,1:]
-    self.full_desire[0,-1] = new_desire
-    self.numpy_inputs['desire'][:] = self.full_desire.reshape((1,ModelConstants.INPUT_HISTORY_BUFFER_LEN,ModelConstants.TEMPORAL_SKIP,-1)).max(axis=2)
-
-    self.numpy_inputs['traffic_convention'][:] = inputs['traffic_convention']
-    self.numpy_inputs['lateral_control_params'][:] = inputs['lateral_control_params']
+    if self.use_lateral_control_params:
+      self.numpy_inputs['lateral_control_params'][:] = inputs['lateral_control_params']
     imgs_cl = {name: self.frames[name].prepare(bufs[name], transforms[name].flatten()) for name in self.vision_input_names}
 
     if TICI and not USBGPU:
@@ -167,20 +218,22 @@ class ModelState:
     if prepare_only:
       return None
 
-    self.vision_output = self.vision_run(**self.vision_inputs).numpy().flatten()
+    self.vision_output = self.vision_run(**self.vision_inputs).contiguous().realize().uop.base.buffer.numpy()
     vision_outputs_dict = self.parser.parse_vision_outputs(self.slice_outputs(self.vision_output, self.vision_output_slices))
 
-    self.full_features_buffer[0,:-1] = self.full_features_buffer[0,1:]
-    self.full_features_buffer[0,-1] = vision_outputs_dict['hidden_state'][0, :]
-    self.numpy_inputs['features_buffer'][:] = self.full_features_buffer[0, self.temporal_idxs]
+    self.full_input_queues.enqueue({'features_buffer': vision_outputs_dict['hidden_state'], self.desire_type: new_desire})
+    for k in [self.desire_type, 'features_buffer']:
+      self.numpy_inputs[k][:] = self.full_input_queues.get(k)[k]
+    self.numpy_inputs['traffic_convention'][:] = inputs['traffic_convention']
 
-    self.policy_output = self.policy_run(**self.policy_inputs).numpy().flatten()
+    self.policy_output = self.policy_run(**self.policy_inputs).contiguous().realize().uop.base.buffer.numpy()
     policy_outputs_dict = self.parser.parse_policy_outputs(self.slice_outputs(self.policy_output, self.policy_output_slices))
 
-    # TODO model only uses last value now
-    self.full_prev_desired_curv[0,:-1] = self.full_prev_desired_curv[0,1:]
-    self.full_prev_desired_curv[0,-1,:] = policy_outputs_dict['desired_curvature'][0, :]
-    self.numpy_inputs['prev_desired_curv'][:] = 0*self.full_prev_desired_curv[0, self.temporal_idxs]
+    if self.use_lateral_control_params:
+      # TODO model only uses last value now
+      self.full_prev_desired_curv[0,:-1] = self.full_prev_desired_curv[0,1:]
+      self.full_prev_desired_curv[0,-1,:] = policy_outputs_dict['desired_curvature'][0, :]
+      self.numpy_inputs['prev_desired_curv'][:] = 0*self.full_prev_desired_curv[0, self.temporal_idxs]
 
     combined_outputs_dict = {**vision_outputs_dict, **policy_outputs_dict}
     if SEND_RAW_PRED:
@@ -194,13 +247,11 @@ def main(demo=False):
   frogpilot_toggles = get_frogpilot_toggles()
 
   model_name = frogpilot_toggles.model
-  use_curvature_from_plan = frogpilot_toggles.model_version not in {"v7", "v8"}
+  model_version = frogpilot_toggles.model_version
+  use_curvature_from_plan = frogpilot_toggles.model_version != "v7"
 
   cloudlog.warning("tinygrad_modeld init")
 
-  sentry.set_tag("daemon", PROCESS_NAME)
-  cloudlog.bind(daemon=PROCESS_NAME)
-  setproctitle(PROCESS_NAME)
   if not USBGPU:
     # USB GPU currently saturates a core so can't do this yet,
     # also need to move the aux USB interrupts for good timings
@@ -211,7 +262,7 @@ def main(demo=False):
   cl_context = CLContext()
   cloudlog.warning("CL context ready; loading model")
   model = ModelState(cl_context, model_name)
-  cloudlog.warning(f"models loaded in {time.monotonic() - st:.1f}s, modeld starting")
+  cloudlog.warning(f"models loaded in {time.monotonic() - st:.1f}s, tinygrad_modeld starting")
 
   # visionipc clients
   while True:
@@ -237,14 +288,14 @@ def main(demo=False):
     cloudlog.warning(f"connected extra cam with buffer size: {vipc_client_extra.buffer_len} ({vipc_client_extra.width} x {vipc_client_extra.height})")
 
   # messaging
-  pm = PubMaster(["modelV2", "drivingModelData", "cameraOdometry"])
+  pm = PubMaster(["modelV2", "drivingModelData", "cameraOdometry", "frogpilotModelV2"])
   sm = SubMaster(["deviceState", "carState", "roadCameraState", "liveCalibration", "driverMonitoringState", "carControl", "liveDelay", "frogpilotPlan"])
 
   publish_state = PublishState()
   params = Params()
 
   # setup filter to track dropped frames
-  frame_dropped_filter = FirstOrderFilter(0., 10., 1. / ModelConstants.MODEL_FREQ)
+  frame_dropped_filter = FirstOrderFilter(0., 10., 1. / ModelConstants.MODEL_RUN_FREQ)
   frame_id = 0
   last_vipc_frame_id = 0
   run_count = 0
@@ -341,9 +392,9 @@ def main(demo=False):
     bufs = {name: buf_extra if 'big' in name else buf_main for name in model.vision_input_names}
     transforms = {name: model_transform_extra if 'big' in name else model_transform_main for name in model.vision_input_names}
     inputs:dict[str, np.ndarray] = {
-      'desire': vec_desire,
+      model.desire_type: vec_desire,
       'traffic_convention': traffic_convention,
-      'lateral_control_params': lateral_control_params,
+      **({'lateral_control_params': lateral_control_params} if model.use_lateral_control_params else {}),
     }
 
     mt1 = time.perf_counter()
@@ -353,6 +404,7 @@ def main(demo=False):
 
     if model_output is not None:
       modelv2_send = messaging.new_message('modelV2')
+      frogpilot_modelv2_send = messaging.new_message('frogpilotModelV2')
       drivingdata_send = messaging.new_message('drivingModelData')
       posenet_send = messaging.new_message('cameraOdometry')
 
@@ -369,12 +421,13 @@ def main(demo=False):
       DH.update(sm['carState'], sm['carControl'].latActive, lane_change_prob, sm['frogpilotPlan'], frogpilot_toggles)
       modelv2_send.modelV2.meta.laneChangeState = DH.lane_change_state
       modelv2_send.modelV2.meta.laneChangeDirection = DH.lane_change_direction
-      modelv2_send.modelV2.meta.turnDirection = DH.turn_direction
+      frogpilot_modelv2_send.frogpilotModelV2.turnDirection = DH.turn_direction
       drivingdata_send.drivingModelData.meta.laneChangeState = DH.lane_change_state
       drivingdata_send.drivingModelData.meta.laneChangeDirection = DH.lane_change_direction
 
       fill_pose_msg(posenet_send, model_output, meta_main.frame_id, vipc_dropped_frames, meta_main.timestamp_eof, live_calib_seen)
       pm.send('modelV2', modelv2_send)
+      pm.send('frogpilotModelV2', frogpilot_modelv2_send)
       pm.send('drivingModelData', drivingdata_send)
       pm.send('cameraOdometry', posenet_send)
     last_vipc_frame_id = meta_main.frame_id
@@ -391,7 +444,4 @@ if __name__ == "__main__":
     args = parser.parse_args()
     main(demo=args.demo)
   except KeyboardInterrupt:
-    cloudlog.warning(f"child {PROCESS_NAME} got SIGINT")
-  except Exception:
-    sentry.capture_exception()
-    raise
+    cloudlog.warning("got SIGINT")

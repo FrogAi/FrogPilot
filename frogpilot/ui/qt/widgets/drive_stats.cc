@@ -1,5 +1,4 @@
 #include "selfdrive/ui/qt/request_repeater.h"
-#include "selfdrive/ui/qt/util.h"
 
 #include "frogpilot/ui/qt/widgets/drive_stats.h"
 
@@ -10,8 +9,8 @@ static QLabel *newLabel(const QString &text, const QString &type) {
 }
 
 DriveStats::DriveStats(QWidget *parent) : QFrame(parent) {
+  isMetric = params.getBool("IsMetric");
   konik = useKonikServer();
-  metric = params.getBool("IsMetric");
 
   QVBoxLayout *main_layout = new QVBoxLayout(this);
   main_layout->setContentsMargins(50, 25, 50, 20);
@@ -33,11 +32,17 @@ DriveStats::DriveStats(QWidget *parent) : QFrame(parent) {
       border-radius: 10px;
     }
 
-    QLabel[type="title"] { font-size: 50px; font-weight: 500; }
     QLabel[type="frogpilot_title"] { font-size: 50px; font-weight: 500; color: #178643; }
     QLabel[type="number"] { font-size: 65px; font-weight: 400; }
+    QLabel[type="title"] { font-size: 50px; font-weight: 500; }
     QLabel[type="unit"] { font-size: 50px; font-weight: 300; color: #A0A0A0; }
   )");
+}
+
+void DriveStats::showEvent(QShowEvent *event) {
+  isMetric = params.getBool("IsMetric");
+
+  updateStats();
 }
 
 void DriveStats::addStatsLayouts(const QString &title, StatsLabels &labels, bool FrogPilot) {
@@ -54,37 +59,12 @@ void DriveStats::addStatsLayouts(const QString &title, StatsLabels &labels, bool
   grid_layout->addWidget(labels.hours = newLabel("0", "number"), row, 2, Qt::AlignLeft);
 
   grid_layout->addWidget(newLabel(tr("Drives"), "unit"), row + 1, 0, Qt::AlignLeft);
-  grid_layout->addWidget(labels.distance_unit = newLabel(getDistanceUnit(), "unit"), row + 1, 1, Qt::AlignLeft);
+  grid_layout->addWidget(labels.distance_unit = newLabel(isMetric ? tr("KM") : tr("Miles"), "unit"), row + 1, 1, Qt::AlignLeft);
   grid_layout->addWidget(newLabel(tr("Hours"), "unit"), row + 1, 2, Qt::AlignLeft);
 
   QVBoxLayout *main_layout = static_cast<QVBoxLayout *>(layout());
   main_layout->addLayout(grid_layout);
   main_layout->addStretch(1);
-}
-
-void DriveStats::updateStatsForLabel(const QJsonObject &obj, StatsLabels &labels) {
-  labels.routes->setText(QString::number((int)obj["routes"].toDouble()));
-  labels.distance->setText(QString::number(int(obj["distance"].toDouble() * (metric ? MILE_TO_KM : 1))));
-  labels.distance_unit->setText(getDistanceUnit());
-  labels.hours->setText(QString::number((int)(obj["minutes"].toDouble() / 60)));
-}
-
-void DriveStats::updateFrogPilotStats(const QJsonObject &obj, StatsLabels &labels) {
-  labels.routes->setText(QString::number(paramsTracking.getInt("FrogPilotDrives")));
-  labels.distance->setText(QString::number(int(paramsTracking.getFloat("FrogPilotKilometers") * (metric ? 1 : KM_TO_MILE))));
-  labels.distance_unit->setText(getDistanceUnit());
-  labels.hours->setText(QString::number(int(paramsTracking.getFloat("FrogPilotMinutes") / 60)));
-}
-
-void DriveStats::updateStats() {
-  QJsonObject json = stats.object();
-
-  updateFrogPilotStats(json["frogpilot"].toObject(), frogPilot);
-  updateStatsForLabel(json["all"].toObject(), all);
-  updateStatsForLabel(json["week"].toObject(), week);
-
-  int all_time_minutes = (int)(json["all"].toObject()["minutes"].toDouble());
-  params.put(konik ? "KonikMinutes" : "openpilotMinutes", QString::number(all_time_minutes).toStdString());
 }
 
 void DriveStats::parseResponse(const QString &response, bool success) {
@@ -101,8 +81,28 @@ void DriveStats::parseResponse(const QString &response, bool success) {
   updateStats();
 }
 
-void DriveStats::showEvent(QShowEvent *event) {
-  metric = params.getBool("IsMetric");
+void DriveStats::updateStatsForLabel(const QJsonObject &obj, StatsLabels &labels) {
+  labels.distance->setText(QString::number(int(obj["distance"].toDouble() * (isMetric ? MILE_TO_KM : 1))));
+  labels.distance_unit->setText(isMetric ? tr("KM") : tr("Miles"));
+  labels.hours->setText(QString::number((int)(obj["minutes"].toDouble() / 60)));
+  labels.routes->setText(QString::number((int)obj["routes"].toDouble()));
+}
 
-  updateStats();
+void DriveStats::updateFrogPilotStatsForLabel(StatsLabels &labels) {
+  QJsonObject frogpilot_stats = QJsonDocument::fromJson(QString::fromStdString(params.get("FrogPilotStats")).toUtf8()).object();
+
+  labels.distance->setText(QString::number(int(frogpilot_stats.value("FrogPilotMeters").toDouble() * (isMetric ? 0.001 : METER_TO_MILE))));
+  labels.distance_unit->setText(isMetric ? tr("KM") : tr("Miles"));
+  labels.hours->setText(QString::number(int(frogpilot_stats.value("FrogPilotSeconds").toDouble() / (60 * 60))));
+  labels.routes->setText(QString::number(frogpilot_stats.value("FrogPilotDrives").toInt()));
+}
+
+void DriveStats::updateStats() {
+  QJsonObject json = stats.object();
+
+  updateStatsForLabel(json["all"].toObject(), all);
+  updateStatsForLabel(json["week"].toObject(), week);
+  updateFrogPilotStatsForLabel(frogPilot);
+
+  params.put(konik ? "KonikMinutes" : "openpilotMinutes", QString::number((int)(json["all"].toObject()["minutes"].toDouble())).toStdString());
 }

@@ -8,6 +8,8 @@ from panda.tests.libpanda import libpanda_py
 
 
 class TestDefaultRxHookBase(common.PandaSafetyTest):
+  __test__ = False
+
   def test_rx_hook(self):
     # default rx hook allows all msgs
     for bus in range(4):

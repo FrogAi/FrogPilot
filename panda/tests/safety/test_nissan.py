@@ -78,6 +78,12 @@ class TestNissanSafety(common.PandaCarSafetyTest, common.AngleSteeringSafetyTest
         tx = self._tx(self._acc_button_cmd(**args))
         self.assertEqual(tx, should_tx)
 
+  # FrogPilot tests
+  def _toggle_aol(self, toggle_on):
+    # PRO_PILOT, CRUISE_ON is the main on button for X-Trail/Rogue/Altima
+    values = {"CRUISE_ON": 1 if toggle_on else 0}
+    return self.packer.make_can_msg_panda("PRO_PILOT", 2, values)
+
 
 class TestNissanSafetyAltEpsBus(TestNissanSafety):
   """Altima uses different buses"""
@@ -111,6 +117,12 @@ class TestNissanLeafSafety(TestNissanSafety):
   # TODO: leaf should use its own safety param
   def test_acc_buttons(self):
     pass
+
+  # FrogPilot tests
+  def _toggle_aol(self, toggle_on):
+    # CRUISE_THROTTLE, CRUISE_AVAILABLE is the main on button for Leaf
+    values = {"CRUISE_AVAILABLE": 1 if toggle_on else 0}
+    return self.packer.make_can_msg_panda("CRUISE_THROTTLE", 0, values)
 
 
 if __name__ == "__main__":

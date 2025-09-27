@@ -10,7 +10,7 @@ class ConditionalExperimentalMode:
 
     self.curvature_filter = FirstOrderFilter(0, 1, DT_MDL)
     self.slow_lead_filter = FirstOrderFilter(0, 1, DT_MDL)
-    self.stop_light_filter = FirstOrderFilter(0, 1, DT_MDL)
+    self.stop_light_filter = FirstOrderFilter(0, 0.5, DT_MDL)
 
     self.curve_detected = False
     self.experimental_mode = False
@@ -24,7 +24,9 @@ class ConditionalExperimentalMode:
 
     if self.status_value not in {1, 2} and not sm["carState"].standstill:
       self.update_conditions(v_ego, sm, frogpilot_toggles)
+
       self.experimental_mode = self.check_conditions(v_ego, sm, frogpilot_toggles)
+
       params_memory.put_int("CEStatus", self.status_value if self.experimental_mode else 0)
     else:
       self.experimental_mode = self.status_value == 2 or sm["carState"].standstill and self.experimental_mode and self.frogpilot_planner.model_stopped
@@ -92,7 +94,7 @@ class ConditionalExperimentalMode:
       model_stopping = self.frogpilot_planner.model_length < v_ego * model_time
 
       self.stop_light_filter.update(self.frogpilot_planner.model_stopped or model_stopping)
-      self.stop_light_detected = self.stop_light_filter.x >= THRESHOLD**2 and not self.frogpilot_planner.tracking_lead
+      self.stop_light_detected = self.stop_light_filter.x >= THRESHOLD and not self.frogpilot_planner.tracking_lead
     else:
       self.stop_light_filter.x = 0
       self.stop_light_detected = False

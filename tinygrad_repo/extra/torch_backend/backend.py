@@ -128,6 +128,12 @@ def _linalg_eigh(self, UPLO: str = 'U'):
   w, v = torch.linalg.eigh(self.cpu(), UPLO=UPLO)
   return w.tiny(), v.tiny()
 
+@torch.library.impl("aten::_linalg_det", "privateuseone")
+# TODO: move to tinygrad
+def _linalg_det(self: torch.Tensor):
+  result = aten._linalg_det(self.cpu())
+  return result[0].tiny(), result[1].tiny(), result[2].tiny()
+
 def upsample_backward(grad_out, output_size, input_size, *args, f=None): return f(grad_out.cpu(), output_size, input_size, *args).tiny()
 
 for i in [
@@ -217,15 +223,18 @@ def max_unpool2d(self:torch.Tensor, indices:torch.Tensor, output_size):
 
 @torch.library.impl("aten::arange", "privateuseone")
 def arange(end, dtype=None, device=None, pin_memory=None):
-  return wrap(Tensor.arange(0, end, dtype=_from_torch_dtype(dtype or torch.get_default_dtype())))
+  has_float = isinstance(end, float)
+  return wrap(Tensor.arange(0, end, dtype=_from_torch_dtype(dtype or (torch.get_default_dtype() if has_float else torch.int64))))
 
 @torch.library.impl("aten::arange.start", "privateuseone")
 def arange_start(start, end, dtype=None, device=None, pin_memory=None):
-  return wrap(Tensor.arange(start, end, dtype=_from_torch_dtype(dtype or torch.get_default_dtype())))
+  has_float = any(isinstance(x, float) for x in (start, end))
+  return wrap(Tensor.arange(start, end, dtype=_from_torch_dtype(dtype or (torch.get_default_dtype() if has_float else torch.int64))))
 
 @torch.library.impl("aten::arange.start_step", "privateuseone")
 def arange_start_step(start, end, step, dtype=None, device=None, pin_memory=None):
-  return wrap(Tensor.arange(start, end, step, dtype=_from_torch_dtype(dtype or torch.get_default_dtype())))
+  has_float = any(isinstance(x, float) for x in (start, end, step))
+  return wrap(Tensor.arange(start, end, step, dtype=_from_torch_dtype(dtype or (torch.get_default_dtype() if has_float else torch.int64))))
 
 @torch.library.impl("aten::convolution_overrideable", "privateuseone")
 def convolution_overrideable(input, weight, bias, stride, padding, dilation, transposed, output_padding, groups):
@@ -362,6 +371,7 @@ from torch._decomp import get_decompositions
 decomps = [
   aten.native_batch_norm, aten.native_batch_norm_backward,
   aten.native_layer_norm_backward,
+  aten.linalg_cross,
   aten.addmm,
   aten.addcmul,
   aten.addcdiv,
@@ -371,6 +381,7 @@ decomps = [
   aten.elu,  # elu has a scale + input_scale param
   aten.elu_backward,
   aten.softplus,
+  aten.logaddexp,
   aten.threshold,
   aten.nll_loss_forward,
   aten.nll_loss_backward,

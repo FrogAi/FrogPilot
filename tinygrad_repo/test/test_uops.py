@@ -14,7 +14,7 @@ from tinygrad.engine.realize import CompiledRunner, get_program
 from tinygrad.codegen import full_rewrite
 from tinygrad.uop.symbolic import sym
 from tinygrad.device import is_dtype_supported
-from tinygrad.opt.kernel import Opt, OptOps
+from tinygrad.codegen.opt.kernel import Opt, OptOps
 
 def to_uops_list(u:list[UOp], opts=None, skip_check=False) -> list[UOp]: return full_rewrite(UOp.sink(*u), opts)
 
@@ -22,7 +22,7 @@ def _uops_to_prg(uops_list):
   uops = full_rewrite(ast:=UOp.sink(*uops_list), opts=Device[Device.DEFAULT].renderer)
   src = Device[Device.DEFAULT].renderer.render(uops)
   has_local = Device[Device.DEFAULT].renderer.has_local
-  return CompiledRunner(ProgramSpec("test", src, Device.DEFAULT, ast, uops=uops,
+  return CompiledRunner(ProgramSpec(uops[-1].arg.name if uops[-1].arg is not None else "test", src, Device.DEFAULT, ast, uops=uops,
                                 global_size=[1,1,1] if has_local else None, local_size=[1,1,1] if has_local else None))
 
 def uop(uops:list[UOp], uop:Ops, dtype:Optional[DType], src:tuple[UOp, ...], arg:Any=None) -> UOp:
@@ -176,6 +176,31 @@ class TestBoolUOps(TestUOps):
   def test_cmpne_bool(self): self._test_bop_bool_fxn(Ops.CMPNE, lambda a,b: a != b)
   def test_cmplt_bool(self): self._test_bop_bool_fxn(Ops.CMPLT, lambda a,b: a < b)
   def test_where_bool(self): self._test_top_bool_fxn(Ops.WHERE, lambda a,b,c: b if a else c)
+
+class TestSafeCast(TestUOps):
+  def test_cast_folds(self):
+    a = UOp.variable("a", 1, 10, dtype=dtypes.int32)
+    self.assertEqual(a.cast(dtypes.int64).cast(dtypes.int32).simplify(), a)
+    self.assertEqual(a.cast(dtypes.double).cast(dtypes.int32).simplify(), a)
+    a = UOp.variable("a", 1, 10, dtype=dtypes.uint8)
+    self.assertEqual(a.cast(dtypes.int64).cast(dtypes.uint8).simplify(), a)
+    self.assertEqual(a.cast(dtypes.uint32).cast(dtypes.uint8).simplify(), a)
+
+  def test_remove_intermediate_cast(self):
+    a = UOp.variable("a", 0., 100., dtype=dtypes.half)
+    self.assertEqual(a.cast(dtypes.double).cast(dtypes.float).simplify(), a.cast(dtypes.float))
+    a = UOp.variable("a", 1, 10, dtype=dtypes.int32)
+    # TODO: double preserves certain int dtypes
+    self.assertEqual(a.cast(dtypes.double).cast(dtypes.float).simplify(), a.cast(dtypes.float))
+    self.assertEqual(a.cast(dtypes.int64).cast(dtypes.int16).simplify(), a.cast(dtypes.int16))
+    a = UOp.variable("a", 1, 10, dtype=dtypes.uint8)
+    self.assertEqual(a.cast(dtypes.int64).cast(dtypes.int32).simplify(), a.cast(dtypes.int32))
+
+  def test_safe_cast_using_bounds(self):
+    a = UOp.variable("a", 1, 10, dtype=dtypes.uint64)
+    self.assertEqual(a.cast(dtypes.int16).cast(dtypes.int).simplify(), a.cast(dtypes.int))
+    a = UOp.variable("a", -10, 10, dtype=dtypes.int32)
+    self.assertEqual(a.cast(dtypes.int8).cast(dtypes.int64).simplify(), a.cast(dtypes.int64))
 
 class TestExecALU(TestUOps):
   def test_sqrt(self):
@@ -402,6 +427,14 @@ class TestAssembly(unittest.TestCase):
     self.assertIn(Ops.SHR, ops)
     self.assertNotIn(Ops.IDIV, ops)
 
+  def test_fast_idiv_remove_powers_of_two(self):
+    ridx = UOp.range(2**20, 0)
+    uops = to_uops_list([ridx//(7*64)], opts=Device[Device.DEFAULT].renderer)
+    ops = [x.op for x in uops]
+    # this requires shifting out the powers of two before doing fast_idiv
+    # (((ridx0>>6)*18725)>>17) instead of (int)((((long)(ridx0)*1198373)>>29))
+    self.assertNotIn(Ops.CAST, ops)
+
   def test_mulacc_unrolled(self):
     # test that     acc = acc + a0*b0 + a1*b1 + a2*b2 + a3*b3
     # is not        acc = acc + (a0*b0 + a1*b1 + a2*b2 + a3*b3)
@@ -414,6 +447,17 @@ class TestAssembly(unittest.TestCase):
     program = get_program(ast, Device[Device.DEFAULT].renderer)
     uops = program.uops
     self.assertEqual(len([x.op for x in uops if x.op is Ops.MULACC]), 4)
+
+  def test_use_cmpeq(self):
+    g = UOp(Ops.DEFINE_GLOBAL, dtypes.uint32.ptr(), (), 0)
+    c = UOp(Ops.CONST, dtypes.uint, (), 7)
+    l = UOp(Ops.LOAD, dtypes.uint, (g.index(c),))
+    comp = l.ne(c).ne(True)
+    uops = to_uops_list([comp], opts=Device[Device.DEFAULT].renderer)
+    Device[Device.DEFAULT].renderer.render(uops)
+    ops = [x.op for x in uops]
+    self.assertIn(Ops.CMPEQ, ops)
+    self.assertNotIn(Ops.CMPNE, ops)
 
 class TestUOpMethod(unittest.TestCase):
   @unittest.skip("uops lt no longer ordered")
@@ -428,7 +472,7 @@ class TestUOpMethod(unittest.TestCase):
   def test_uop_variables(self):
     a = UOp.variable("a", 1, 10)
     uop_var = Tensor(a.bind(1))
-    st_var = Tensor.empty((2, 1)).reshape((2, a.bind(1)))
+    st_var = Tensor.empty((2, 10))[:, :a.bind(1)]
     _, var_vals = (uop_var+st_var).schedule_with_vars()
     self.assertEqual(len(var_vals), 1)
     self.assertEqual(list(var_vals)[0], a)
@@ -507,19 +551,6 @@ class TestShapeSpec(unittest.TestCase):
     self.assertEqual(a.st, ShapeTracker.from_shape(()))
     a = Tensor.ones((4, 4)).uop
     self.assertEqual(a.st, ShapeTracker.from_shape(()).reshape((1,1)).expand((4,4)))
-
-  def test_padded_const(self):
-    a = Tensor.ones((1, 1)).pad(((1, 1), (1, 1)))
-    ast = a.contiguous().schedule()[0].ast
-    valid_pattern = UPat(Ops.WHERE, src=(UPat(Ops.VALID), UPat.cvar(), UPat.cvar()))
-    valid_ternary = [x for x in ast.toposort() if valid_pattern.match(x, {})][0]
-    # the WHERE outputs a contiguous (3, 3)
-    self.assertEqual(valid_ternary.st, ShapeTracker.from_shape((3, 3)))
-    valid, x, y = valid_ternary.src
-    # very notably, only the first source is padded
-    self.assertIsNotNone(valid.st.views[-1].mask)
-    assert x.st.views[-1].mask is y.st.views[-1].mask is None
-    assert all(s.shape == (3, 3) for s in valid_ternary.src)
 
   # NOTE: CONST ShapeTracker comes from its source
   def test_scalar_const(self):

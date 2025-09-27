@@ -65,6 +65,7 @@ public slots:
   }
 
 signals:
+  void hideDescriptionEvent();
   void showDescriptionEvent();
 
 protected:

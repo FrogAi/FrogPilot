@@ -12,6 +12,7 @@ import { ScreenRecordings } from "/assets/components/recordings/screen_recording
 import { Sidebar } from "/assets/components/sidebar.js"
 import { SpeedLimits } from "/assets/components/tools/speed_limits.js"
 import { TailscaleControl } from "/assets/components/tailscale/tailscale.js"
+import { ThemeMaker } from "/assets/components/tools/theme_maker.js"
 import { TmuxLog } from "/assets/components/tools/tmux.js"
 import { ToggleControl } from "/assets/components/tools/toggles.js"
 import { TSKManager } from "/assets/components/tools/tsk_manager.js"
@@ -39,6 +40,7 @@ function Root() {
     createRoute("settings", "/settings/:section/:subsection?", SettingsView),
     createRoute("speed_limits", "/download_speed_limits", SpeedLimits),
     createRoute("tailscale", "/manage_tailscale", TailscaleControl),
+    createRoute("thememaker", "/theme_maker", ThemeMaker),
     createRoute("tmux", "/manage_tmux", TmuxLog),
     createRoute("toggles", "/manage_toggles", ToggleControl),
     createRoute("tsk_manager", "/tsk_manager", TSKManager),

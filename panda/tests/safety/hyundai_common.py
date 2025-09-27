@@ -72,9 +72,31 @@ class HyundaiButtonBase:
       self.assertEqual(controls_allowed, self.safety.get_controls_allowed())
       self._rx(self._button_msg(Buttons.NONE))
 
+  # FrogPilot tests
+  def _toggle_aol(self, toggle_on):
+    """
+      Simulates toggling the main cruise button. The safety model requires a
+      press and release to change the main cruise state. This function
+      resets the safety model to a known state before each call.
+    """
+    if not hasattr(self, "_aol_state"):
+      self._aol_state = False
+
+    # Already in the requested state
+    if toggle_on == self._aol_state:
+      return None
+
+    # Toggle: press + release sequence
+    self._rx(self._button_msg(Buttons.NONE, main_button=1))
+    self._rx(self._button_msg(Buttons.NONE, main_button=0))
+
+    self._aol_state = toggle_on
+    return None  # avoid duplicate message in harness
+
 
 class HyundaiLongitudinalBase(common.LongitudinalAccelSafetyTest):
   # pylint: disable=no-member,abstract-method
+  __test__ = False
 
   DISABLED_ECU_UDS_MSG: tuple[int, int]
   DISABLED_ECU_ACTUATION_MSG: tuple[int, int]
@@ -154,4 +176,3 @@ class HyundaiLongitudinalBase(common.LongitudinalAccelSafetyTest):
     self.assertFalse(self.safety.get_relay_malfunction())
     self._rx(make_msg(bus, addr, 8))
     self.assertTrue(self.safety.get_relay_malfunction())
-

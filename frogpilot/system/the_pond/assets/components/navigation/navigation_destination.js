@@ -782,7 +782,7 @@ function NavigationDestination({
       if (fav) {
         removeFavorite(fav);
       } else {
-        showSnackbar("Couldn’t find favorite entry…");
+        showSnackbar("Couldn't find favorite entry…");
       }
     } else {
       await favoriteDestination();

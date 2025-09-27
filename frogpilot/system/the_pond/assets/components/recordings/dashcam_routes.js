@@ -227,7 +227,7 @@ async function openOverlay(route) {
 
   downloadButton.onclick = () => {
     const link = document.createElement("a");
-    const videoPath = `/video/${route.name}--${current}?camera=${selectedCamera}`;
+    const videoPath = `/video/${route.name}/combined?camera=${selectedCamera}`;
     link.href = videoPath;
     link.download = `${route.timestamp}-${selectedCamera}.mp4`;
     document.body.appendChild(link);
@@ -251,8 +251,7 @@ async function openOverlay(route) {
       vid.load();
       vid.play();
     } catch (error) {
-      showSnackbar("Error: Could not load all route segments.", "error");
-      segments = [`/video/${route.name}--0`];
+      showSnackbar("Error: Could not load combined route video.", "error");
     }
   })();
 
@@ -271,8 +270,7 @@ async function openOverlay(route) {
       overlay.querySelectorAll(".camera-button").forEach(btn => btn.classList.remove("active"));
       e.target.classList.add("active");
       selectedCamera = e.target.dataset.camera;
-      const videoPath = segments[current].includes("?") ? `${segments[current]}&camera=${selectedCamera}` : `${segments[current]}?camera=${selectedCamera}`
-      vid.src = videoPath;
+      vid.src = segments[current].includes("?") ? `${segments[current]}&camera=${selectedCamera}` : `${segments[current]}?camera=${selectedCamera}`;
       vid.load();
       vid.play();
     });

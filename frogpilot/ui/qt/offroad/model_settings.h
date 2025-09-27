@@ -25,18 +25,22 @@ private:
   bool allModelsDownloading;
   bool cancellingDownload;
   bool finalizingDownload;
+  bool forceOpenDescriptions;
   bool modelDownloading;
   bool noModelsDownloaded;
   bool started;
+  bool tinygradUpdate;
+  bool updatingTinygrad;
 
   int tuningLevel;
 
   std::map<QString, AbstractControl*> toggles;
 
-  ButtonControl *selectModelBtn;
+  ButtonControl *selectModelButton;
 
-  FrogPilotButtonsControl *deleteModelBtn;
-  FrogPilotButtonsControl *downloadModelBtn;
+  FrogPilotButtonsControl *deleteModelButton;
+  FrogPilotButtonsControl *downloadModelButton;
+  FrogPilotButtonsControl *updateTinygradButton;
 
   FrogPilotSettingsWindow *parent;
 

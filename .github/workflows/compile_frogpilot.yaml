@@ -3,6 +3,14 @@ name: Compile FrogPilot
 on:
   workflow_dispatch:
     inputs:
+      runner:
+        description: "Select the runner"
+        required: true
+        default: "c3"
+        type: choice
+        options:
+          - c3
+          - c3x
       not_vetted:
         description: "This branch is not vetted"
         required: false
@@ -46,7 +54,9 @@ env:
 
 jobs:
   get_branch:
-    runs-on: [self-hosted, c3x]
+    runs-on:
+      - self-hosted
+      - ${{ github.event.inputs.runner }}
     outputs:
       branch: ${{ steps.get_branch.outputs.branch }}
       python_version: ${{ steps.get_python_version.outputs.python_version }}
@@ -108,7 +118,9 @@ jobs:
 
       - name: Vet Existing Translations
         if: github.event.inputs.vet_existing_translations == 'true'
+        continue-on-error: true
         run: python selfdrive/ui/translations/auto_translate.py --all-files --vet-translations
+        timeout-minutes: 300
 
       - name: Commit and Push Translation Updates
         run: |
@@ -128,7 +140,9 @@ jobs:
       - get_branch
       - translate
     if: always()
-    runs-on: [self-hosted, c3x]
+    runs-on:
+      - self-hosted
+      - ${{ github.event.inputs.runner }}
     permissions:
       contents: write
     defaults:
@@ -185,18 +199,11 @@ jobs:
           rm -f panda/board/obj/version
 
           find . -name '*.a' -delete
-          find . -name '*.cc' -delete
           find . -name '*.o' -delete
           find . -name '*.onnx' -delete
           find . -name '*.os' -delete
           find . -name '*.pyc' -delete
           find . -name 'moc_*' -delete
-
-          find . -name '*.h' | while read -r header; do
-            if [[ "$header" != *"common/version.h" && "$header" != *"system/camerad/sensors/"* ]]; then
-              rm -f "$header"
-            fi
-          done
 
           rm -rf .devcontainer/
           rm -rf .vscode/
@@ -215,7 +222,7 @@ jobs:
               -name 'review_pull_request.yaml' -o \
               -name 'schedule_update.yaml' -o \
               -name 'update_pr_branch.yaml' -o \
-              -name 'update_release_branch.yaml' \
+              -name 'update_release_branch.yaml' -o \
               -name 'update_tinygrad.yaml' \
             \) \
           \) -exec rm -rf {} +

@@ -37,11 +37,6 @@ const LongitudinalLimits TOYOTA_LONG_LIMITS = {
   .min_accel = -3500,  // -3.5 m/s2
 };
 
-const LongitudinalLimits TOYOTA_LONG_LIMITS_SPORT = {
-  .max_accel = 4000,   // 4.0 m/s2
-  .min_accel = -3500,  // -3.5 m/s2
-};
-
 // panda interceptor threshold needs to be equivalent to openpilot threshold to avoid controls mismatches
 // If thresholds are mismatched then it is possible for panda to see the gas fall and rise while openpilot is in the pre-enabled state
 // Threshold calculated from DBC gains: round((((15 + 75.555) / 0.159375) + ((15 + 151.111) / 0.159375)) / 2) = 805
@@ -289,8 +284,6 @@ static void toyota_rx_hook(const CANPacket_t *to_push) {
 }
 
 static bool toyota_tx_hook(const CANPacket_t *to_send) {
-  sport_mode = alternative_experience & ALT_EXP_RAISE_LONGITUDINAL_LIMITS_TO_ISO_MAX;
-
   bool tx = true;
   int addr = GET_ADDR(to_send);
   int bus = GET_BUS(to_send);
@@ -315,11 +308,7 @@ static bool toyota_tx_hook(const CANPacket_t *to_send) {
         // SecOC cars move accel to 0x183. Only allow inactive accel on 0x343 to match stock behavior
         violation = desired_accel != TOYOTA_LONG_LIMITS.inactive_accel;
       } else {
-        if (sport_mode) {
-          violation |= longitudinal_accel_checks(desired_accel, TOYOTA_LONG_LIMITS_SPORT);
-        } else {
-          violation |= longitudinal_accel_checks(desired_accel, TOYOTA_LONG_LIMITS);
-        }
+        violation |= longitudinal_accel_checks(desired_accel, TOYOTA_LONG_LIMITS);
       }
 
       // only ACC messages that cancel are allowed when openpilot is not controlling longitudinal
@@ -343,11 +332,7 @@ static bool toyota_tx_hook(const CANPacket_t *to_send) {
       desired_accel = to_signed(desired_accel, 16);
 
       bool violation = false;
-      if (sport_mode) {
-        violation |= longitudinal_accel_checks(desired_accel, TOYOTA_LONG_LIMITS_SPORT);
-      } else {
-        violation |= longitudinal_accel_checks(desired_accel, TOYOTA_LONG_LIMITS);
-      }
+      violation |= longitudinal_accel_checks(desired_accel, TOYOTA_LONG_LIMITS);
 
       if (violation) {
         tx = false;

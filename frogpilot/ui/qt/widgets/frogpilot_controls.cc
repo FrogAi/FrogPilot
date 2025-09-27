@@ -24,48 +24,54 @@ bool useKonikServer() {
 void loadGif(const QString &gifPath, QSharedPointer<QMovie> &movie, const QSize &size, QWidget *parent) {
   if (!movie.isNull()) {
     QObject::disconnect(movie.data(), nullptr, parent, nullptr);
+
     movie->stop();
     movie.clear();
   }
 
-  QFileInfo gifFile(gifPath);
-  if (!gifFile.exists()) {
-    return;
+  if (QFileInfo::exists(gifPath)) {
+    QSharedPointer<QMovie> gif(QSharedPointer<QMovie>::create(gifPath, QByteArray(), parent));
+    gif->setCacheMode(QMovie::CacheAll);
+    gif->setScaledSize(size);
+
+    QObject::connect(gif.data(), &QMovie::frameChanged, parent, [parent](int) { parent->update(); }, Qt::UniqueConnection);
+
+    gif->start();
+
+    movie = gif;
   }
-
-  QSharedPointer<QMovie> gif(new QMovie(gifFile.filePath(), QByteArray(), parent));
-  if (!gif->isValid()) {
-    return;
-  }
-
-  gif->setCacheMode(QMovie::CacheAll);
-  gif->setScaledSize(size);
-
-  QObject::connect(gif.data(), &QMovie::frameChanged, parent, [parent](int){ parent->update(); }, Qt::UniqueConnection);
-
-  gif->start();
-
-  movie = gif;
 
   parent->update();
 }
 
 void loadImage(const QString &basePath, QPixmap &pixmap, QSharedPointer<QMovie> &movie, const QSize &size, QWidget *parent, Qt::AspectRatioMode aspectRatioMode) {
-  QFileInfo gifFile(basePath + ".gif");
-  if (gifFile.exists()) {
-    loadGif(gifFile.filePath(), movie, size, parent);
+  QString gifPath = basePath + ".gif";
+  if (QFileInfo::exists(gifPath)) {
+    loadGif(gifPath, movie, size, parent);
 
+    parent->update();
+  } else {
     if (!movie.isNull()) {
-      pixmap = QPixmap();
-      return;
+      QObject::disconnect(movie.data(), nullptr, parent, nullptr);
+
+      movie->stop();
+      movie.clear();
+    }
+
+    pixmap = QPixmap(basePath + ".png").scaled(size, aspectRatioMode, Qt::SmoothTransformation);
+
+    parent->update();
+  }
+}
+
+void openDescriptions(bool forceOpenDescriptions, std::map<QString, AbstractControl*> toggles) {
+  if (forceOpenDescriptions) {
+    for (auto &[key, toggle] : toggles) {
+      if (key != "CESpeed") {
+        toggle->showDescription();
+      }
     }
   }
-
-  QImage image(basePath + ".png");
-  image = image.convertToFormat(QImage::Format_Indexed8);
-  pixmap = QPixmap::fromImage(image).scaled(size, aspectRatioMode, Qt::SmoothTransformation);
-
-  parent->update();
 }
 
 void updateFrogPilotToggles() {

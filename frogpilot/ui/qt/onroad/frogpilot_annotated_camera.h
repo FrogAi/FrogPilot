@@ -1,5 +1,8 @@
 #pragma once
 
+#include <QJsonDocument>
+#include <QJsonObject>
+
 #include "selfdrive/ui/qt/onroad/buttons.h"
 #include "selfdrive/ui/qt/widgets/cameraview.h"
 
@@ -28,6 +31,7 @@ public:
   bool viennaSpeedLimit;
 
   int alertHeight;
+  int frogHopCount;
   int signMargin;
   int standstillDuration;
 
@@ -61,15 +65,16 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
-  void paintCEMStatus(QPainter &p, FrogPilotUIScene &frogpilot_scene, SubMaster &sm);
+  void paintCEMStatus(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan, FrogPilotUIScene &frogpilot_scene, SubMaster &sm);
   void paintCompass(QPainter &p, QJsonObject &frogpilot_toggles);
-  void paintCurveSpeedControl(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan, QJsonObject &frogpilot_toggles);
+  void paintCurveSpeedControl(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan);
   void paintLateralPaused(QPainter &p, FrogPilotUIScene &frogpilot_scene);
   void paintLongitudinalPaused(QPainter &p, FrogPilotUIScene &frogpilot_scene);
   void paintPedalIcons(QPainter &p, const cereal::CarState::Reader &carState, const cereal::FrogPilotCarState::Reader &frogpilotCarState, FrogPilotUIScene &frogpilot_scene, QJsonObject &frogpilot_toggles);
   void paintPendingSpeedLimit(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan);
   void paintRadarTracks(QPainter &p, const cereal::ModelDataV2::Reader &model, UIState &s, FrogPilotUIScene &frogpilot_scene, SubMaster &sm, SubMaster &fpsm);
   void paintRoadName(QPainter &p);
+  void paintSmartControllerTraining(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan);
   void paintSpeedLimitSources(QPainter &p, const cereal::FrogPilotCarState::Reader &frogpilotCarState, const cereal::FrogPilotNavigation::Reader &frogpilotNavigation, const cereal::FrogPilotPlan::Reader &frogpilotPlan);
   void paintStandstillTimer(QPainter &p);
   void paintStoppingPoint(QPainter &p, UIScene &scene, FrogPilotUIScene &frogpilot_scene, QJsonObject &frogpilot_toggles);
@@ -83,6 +88,7 @@ private:
   int signalWidth;
   int totalFrames;
 
+  Params params;
   Params params_memory{"/dev/shm/params"};
 
   QColor blackColor(int alpha = 255) { return QColor(0, 0, 0, alpha); }
@@ -90,18 +96,14 @@ private:
   QColor redColor(int alpha = 255) { return QColor(201, 34, 49, alpha); }
   QColor whiteColor(int alpha = 255) { return QColor(255, 255, 255, alpha); }
 
+  QElapsedTimer glowTimer;
   QElapsedTimer pendingLimitTimer;
   QElapsedTimer standstillTimer;
 
   QPixmap brakePedalImg;
-  QPixmap chillModeIcon;
-  QPixmap curveIcon;
   QPixmap curveSpeedIcon;
   QPixmap dashboardIcon;
-  QPixmap experimentalModeIcon;
   QPixmap gasPedalImg;
-  QPixmap leadIcon;
-  QPixmap lightIcon;
   QPixmap mapDataIcon;
   QPixmap navigationIcon;
   QPixmap nextMapsIcon;
@@ -111,10 +113,18 @@ private:
   QPixmap turnIcon;
 
   QPoint cemStatusPosition;
+  QPoint compassPosition;
   QPoint lateralPausedPosition;
 
-  QString mtscSpeedStr;
-  QString vtscSpeedStr;
+  QSharedPointer<QMovie> cemCurveIcon;
+  QSharedPointer<QMovie> cemLeadIcon;
+  QSharedPointer<QMovie> cemSpeedIcon;
+  QSharedPointer<QMovie> cemStopIcon;
+  QSharedPointer<QMovie> cemTurnIcon;
+  QSharedPointer<QMovie> chillModeIcon;
+  QSharedPointer<QMovie> experimentalModeIcon;
+
+  QString cscSpeedStr;
 
   QTimer *animationTimer;
 

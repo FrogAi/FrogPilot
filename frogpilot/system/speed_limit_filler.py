@@ -7,8 +7,6 @@ import time
 from collections import OrderedDict, deque
 from datetime import datetime, timedelta, timezone
 
-import openpilot.system.sentry as sentry
-
 from cereal import log, messaging
 
 from openpilot.frogpilot.common.frogpilot_utilities import calculate_distance_to_point, calculate_lane_width, is_url_pingable
@@ -126,7 +124,7 @@ class MapSpeedLogger:
       if self.should_stop_processing:
         return False
 
-      time.sleep(10)
+      time.sleep(5)
     return True
 
   def fetch_from_overpass(self, latitude, longitude):
@@ -379,35 +377,29 @@ def main():
   previously_started = False
 
   while True:
-    try:
-      logger.sm.update()
+    logger.sm.update()
 
-      if logger.sm["deviceState"].started:
-        logger.log_speed_limit()
+    if logger.sm["deviceState"].started:
+      logger.log_speed_limit()
 
-        previously_started = True
-      elif previously_started:
-        existing_dataset = json.loads(params.get("SpeedLimits") or "[]")
-        existing_dataset.extend(logger.dataset_additions)
+      previously_started = True
+    elif previously_started:
+      existing_dataset = json.loads(params.get("SpeedLimits") or "[]")
+      existing_dataset.extend(logger.dataset_additions)
 
-        new_dataset = logger.cleanup_dataset(existing_dataset)
-        params.put("SpeedLimits", json.dumps(list(new_dataset)))
+      new_dataset = logger.cleanup_dataset(existing_dataset)
+      params.put("SpeedLimits", json.dumps(list(new_dataset)))
 
-        if logger.sm["deviceState"].networkType in (NetworkType.ethernet, NetworkType.wifi):
-          params_memory.put_bool("UpdateSpeedLimits", True)
+      if logger.sm["deviceState"].networkType in (NetworkType.ethernet, NetworkType.wifi):
+        params_memory.put_bool("UpdateSpeedLimits", True)
 
-        logger.dataset_additions.clear()
+      logger.dataset_additions.clear()
 
-        previously_started = False
-      elif params_memory.get_bool("UpdateSpeedLimits"):
-        logger.process_speed_limits()
-      else:
-        time.sleep(5)
-
-    except Exception as exception:
-      print(f"Error in speed_limit_filler: {exception}")
-      sentry.capture_exception(exception)
-      time.sleep(1)
+      previously_started = False
+    elif params_memory.get_bool("UpdateSpeedLimits"):
+      logger.process_speed_limits()
+    else:
+      time.sleep(5)
 
 if __name__ == "__main__":
   main()

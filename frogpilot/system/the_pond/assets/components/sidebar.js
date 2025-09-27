@@ -21,6 +21,7 @@ const MenuItems = {
     { name: "Download Speed Limits", link: "/download_speed_limits", icon: "bi-download" },
     { name: "Error Logs", link: "/manage_error_logs", icon: "bi-exclamation-triangle" },
     { name: "Lock/Unlock Doors", link: "/lock_or_unlock_doors", icon: "bi-door-closed" },
+    { name: "Theme Maker", link: "/theme_maker", icon: "bi-palette-fill" },
     { name: "Tmux Log", link: "/manage_tmux", icon: "bi-terminal" },
     { name: "Toggles", link: "/manage_toggles", icon: "bi-toggle-on" },
     { name: "Toyota Security Keys", link: "/tsk_manager", icon: "bi-key-fill" },

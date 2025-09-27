@@ -1,7 +1,5 @@
 #pragma once
 
-#include <set>
-
 #include "frogpilot/ui/qt/offroad/frogpilot_settings.h"
 
 class FrogPilotDevicePanel : public FrogPilotListWidget {
@@ -20,16 +18,17 @@ private:
   void updateState(const UIState &s);
   void updateToggles();
 
+  bool forceOpenDescriptions;
   bool started;
 
   int tuningLevel;
 
   std::map<QString, AbstractControl*> toggles;
 
-  std::set<QString> deviceManagementKeys = {"DeviceShutdown", "HigherBitrate", "IncreaseThermalLimits", "LowVoltageShutdown", "NoLogging", "NoUploads", "UseKonikServer"};
-  std::set<QString> screenKeys = {"ScreenBrightness", "ScreenBrightnessOnroad", "ScreenRecorder", "ScreenTimeout", "ScreenTimeoutOnroad"};
+  QSet<QString> deviceManagementKeys = {"DeviceShutdown", "HigherBitrate", "IncreaseThermalLimits", "LowVoltageShutdown", "NoLogging", "NoUploads", "UseKonikServer"};
+  QSet<QString> screenKeys = {"ScreenBrightness", "ScreenBrightnessOnroad", "ScreenRecorder", "ScreenTimeout", "ScreenTimeoutOnroad", "StandbyMode"};
 
-  std::set<QString> parentKeys;
+  QSet<QString> parentKeys;
 
   FrogPilotSettingsWindow *parent;
 

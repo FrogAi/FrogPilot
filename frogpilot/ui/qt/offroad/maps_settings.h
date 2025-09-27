@@ -22,11 +22,16 @@ private:
   void updateState(const UIState &s, const FrogPilotUIState &fs);
 
   bool cancellingDownload;
+  bool forceOpenDescriptions;
   bool hasMapsSelected;
 
   ButtonControl *downloadMapsButton;
   ButtonControl *removeMapsButton;
-  ButtonControl *resetMapdBtn;
+  ButtonControl *resetMapdButton;
+
+  ButtonParamControl *preferredSchedule;
+
+  FrogPilotButtonsControl *selectMaps;
 
   FrogPilotSettingsWindow *parent;
 

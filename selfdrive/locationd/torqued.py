@@ -3,7 +3,7 @@ import numpy as np
 from collections import deque, defaultdict
 
 import cereal.messaging as messaging
-from cereal import car, log
+from cereal import car, custom, log
 from openpilot.common.params import Params
 from openpilot.common.realtime import config_realtime_process, DT_MDL
 from openpilot.common.filter_simple import FirstOrderFilter
@@ -52,7 +52,7 @@ class TorqueBuckets(PointBuckets):
 
 
 class TorqueEstimator(ParameterEstimator):
-  def __init__(self, CP, decimated=False):
+  def __init__(self, CP, FPCP, decimated=False):
     self.hist_len = int(HISTORY / DT_MDL)
     self.lag = 0.0
     if decimated:
@@ -72,11 +72,11 @@ class TorqueEstimator(ParameterEstimator):
     self.offline_friction = 0.0
     self.offline_latAccelFactor = 0.0
     self.resets = 0.0
-    self.use_params = CP.carName in ALLOWED_CARS and CP.lateralTuning.which() == 'torque'
+    self.use_params = CP.carName in ALLOWED_CARS and FPCP.lateralTuning.which() == 'torque'
 
-    if CP.lateralTuning.which() == 'torque':
-      self.offline_friction = CP.lateralTuning.torque.friction
-      self.offline_latAccelFactor = CP.lateralTuning.torque.latAccelFactor
+    if FPCP.lateralTuning.which() == 'torque':
+      self.offline_friction = FPCP.lateralTuning.torque.friction
+      self.offline_latAccelFactor = FPCP.lateralTuning.torque.latAccelFactor
 
     self.reset()
 
@@ -102,7 +102,7 @@ class TorqueEstimator(ParameterEstimator):
           cache_ltp = log_evt.liveTorqueParameters
         with car.CarParams.from_bytes(params_cache) as msg:
           cache_CP = msg
-        if self.get_restore_key(cache_CP, cache_ltp.version) == self.get_restore_key(CP, VERSION):
+        if self.get_restore_key(cache_CP, FPCP, cache_ltp.version) == self.get_restore_key(CP, FPCP, VERSION):
           if cache_ltp.liveValid:
             initial_params = {
               'latAccelFactor': cache_ltp.latAccelFactorFiltered,
@@ -121,12 +121,12 @@ class TorqueEstimator(ParameterEstimator):
     for param in initial_params:
       self.filtered_params[param] = FirstOrderFilter(initial_params[param], self.decay, DT_MDL)
 
-  def get_restore_key(self, CP, version):
+  def get_restore_key(self, CP, FPCP, version):
     a, b = None, None
-    if CP.lateralTuning.which() == 'torque':
-      a = CP.lateralTuning.torque.friction
-      b = CP.lateralTuning.torque.latAccelFactor
-    return (CP.carFingerprint, CP.lateralTuning.which(), a, b, version)
+    if FPCP.lateralTuning.which() == 'torque':
+      a = FPCP.lateralTuning.torque.friction
+      b = FPCP.lateralTuning.torque.latAccelFactor
+    return (CP.carFingerprint, FPCP.lateralTuning.which(), a, b, version)
 
   def reset(self):
     self.resets += 1.0
@@ -227,14 +227,14 @@ def main(demo=False):
   sm = messaging.SubMaster(['carControl', 'carOutput', 'carState', 'liveLocationKalman', 'liveDelay', 'frogpilotPlan'], poll='liveLocationKalman')
 
   params = Params()
-  with car.CarParams.from_bytes(params.get("CarParams", block=True)) as CP:
-    estimator = TorqueEstimator(CP)
+  with car.CarParams.from_bytes(params.get("CarParams", block=True)) as CP, custom.FrogPilotCarParams.from_bytes(params.get("FrogPilotCarParams", block=True)) as FPCP:
+    estimator = TorqueEstimator(CP, FPCP)
 
   # FrogPilot variables
   frogpilot_toggles = get_frogpilot_toggles()
 
   if not frogpilot_toggles.liveValid:
-    estimator = TorqueEstimator(CP, decimated=True)
+    estimator = TorqueEstimator(CP, FPCP, decimated=True)
 
   while True:
     sm.update()

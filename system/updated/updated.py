@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import gc
 import os
 import re
 import datetime
@@ -60,9 +59,7 @@ class WaitTimeHelper:
     self.user_request = UserRequest.CHECK
     self.ready_event.set()
 
-  def sleep(self, t: float, has_internet: bool = False) -> None:
-    if not has_internet:
-      gc.collect()
+  def sleep(self, t: float) -> None:
     self.ready_event.wait(timeout=t)
 
 def write_time_to_param(params, param) -> None:
@@ -183,14 +180,9 @@ def init_overlay() -> None:
   cloudlog.info(f"git diff output:\n{git_diff}")
 
 
-def finalize_update(manual_update_requested, params, frogpilot_toggles) -> None:
+def finalize_update(params) -> None:
   """Take the current OverlayFS merged view and finalize a copy outside of
   OverlayFS, ready to be swapped-in at BASEDIR. Copy using shutil.copytree"""
-
-  while params_memory.get_bool("IsOnroad") and not manual_update_requested and not frogpilot_toggles.frogs_go_moo:
-    time.sleep(5)
-
-  params.put("UpdaterState", "finalizing update...")
 
   # Remove the update ready flag and any old updates
   cloudlog.info("creating finalized version of the overlay")
@@ -204,14 +196,15 @@ def finalize_update(manual_update_requested, params, frogpilot_toggles) -> None:
   run(["git", "reset", "--hard"], FINALIZED)
   run(["git", "submodule", "foreach", "--recursive", "git", "reset", "--hard"], FINALIZED)
 
-  cloudlog.info("Starting git cleanup in finalized update")
-  t = time.monotonic()
-  try:
-    run(["git", "gc"], FINALIZED)
-    run(["git", "lfs", "prune"], FINALIZED)
-    cloudlog.event("Done git cleanup", duration=time.monotonic() - t)
-  except subprocess.CalledProcessError:
-    cloudlog.exception(f"Failed git cleanup, took {time.monotonic() - t:.3f} s")
+  if params.get_bool("IsOffroad"):
+    cloudlog.info("Starting git cleanup in finalized update")
+    t = time.monotonic()
+    try:
+      run(["git", "gc"], FINALIZED)
+      run(["git", "lfs", "prune"], FINALIZED)
+      cloudlog.event("Done git cleanup", duration=time.monotonic() - t)
+    except subprocess.CalledProcessError:
+      cloudlog.exception(f"Failed git cleanup, took {time.monotonic() - t:.3f} s")
 
   if os.path.isfile(BACKUP_PATH):
     os.remove(BACKUP_PATH)
@@ -285,7 +278,7 @@ class Updater:
   def get_commit_hash(self, path: str = OVERLAY_MERGED) -> str:
     return run(["git", "rev-parse", "HEAD"], path).rstrip()
 
-  def set_params(self, update_success: bool, failed_count: int, exception: str | None, frogpilot_toggles: None) -> None:
+  def set_params(self, update_success: bool, failed_count: int, exception: str | None) -> None:
     self.params.put("UpdateFailedCount", str(failed_count))
     self.params.put("UpdaterTargetBranch", self.target_branch)
 
@@ -384,7 +377,7 @@ class Updater:
     else:
       cloudlog.info(f"up to date on {cur_branch} ({str(cur_commit)[:7]})")
 
-  def fetch_update(self, manual_update_requested, frogpilot_toggles) -> None:
+  def fetch_update(self) -> None:
     cloudlog.info("attempting git fetch inside staging overlay")
 
     self.params.put("UpdaterState", "downloading...")
@@ -416,13 +409,11 @@ class Updater:
       handle_agnos_update()
 
     # Create the finalized, ready-to-swap update
-    if params_memory.get_bool("IsOnroad") and not manual_update_requested and not frogpilot_toggles.frogs_go_moo:
-      self.params.put("UpdaterState", "waiting for vehicle to go offroad...")
-    finalize_update(manual_update_requested, self.params, frogpilot_toggles)
+    self.params.put("UpdaterState", "finalizing update...")
+    finalize_update(self.params)
     cloudlog.info("finalize success!")
 
-    # Format "Updated" to Phoenix time zone
-    self.params.put("Updated", datetime.datetime.now().astimezone(ZoneInfo('America/Phoenix')).strftime("%B %d, %Y - %I:%M%p").encode('utf8'))
+    self.params.put("Updated", datetime.datetime.now().astimezone(ZoneInfo('America/Phoenix')).strftime("%B %d, %Y - %I:%M%p"))
 
 def main() -> None:
   params = Params()
@@ -456,9 +447,9 @@ def main() -> None:
     first_run = True
 
     # FrogPilot variables
-    frogpilot_toggles = get_frogpilot_toggles()
-
     install_date_set = params.get("InstallDate", encoding='utf-8') is not None and params.get("Updated", encoding='utf-8') is not None
+
+    frogpilot_toggles = get_frogpilot_toggles()
 
     while True:
       wait_helper.ready_event.clear()
@@ -466,9 +457,6 @@ def main() -> None:
       frogpilot_toggles = get_frogpilot_toggles()
 
       manual_update_requested = params_memory.get_bool("ManualUpdateInitiated")
-
-      wait_helper.sleep(1)
-
       params_memory.remove("ManualUpdateInitiated")
 
       # Attempt an update
@@ -478,7 +466,7 @@ def main() -> None:
         init_overlay()
 
         # ensure we have some params written soon after startup
-        updater.set_params(False, update_failed_count, exception, frogpilot_toggles)
+        updater.set_params(False, update_failed_count, exception)
 
         if not system_time_valid() or first_run:
           first_run = False
@@ -487,7 +475,7 @@ def main() -> None:
 
         # Format "InstallDate" to Phoenix time zone
         if not install_date_set:
-          params.put("InstallDate", datetime.datetime.now().astimezone(ZoneInfo('America/Phoenix')).strftime("%B %d, %Y - %I:%M%p").encode('utf8'))
+          params.put("InstallDate", datetime.datetime.now().astimezone(ZoneInfo('America/Phoenix')).strftime("%B %d, %Y - %I:%M%p"))
           install_date_set = True
 
         update_failed_count += 1
@@ -506,7 +494,7 @@ def main() -> None:
           elif wait_helper.user_request == UserRequest.CHECK:
             cloudlog.info("skipping fetch, only checking")
           else:
-            updater.fetch_update(manual_update_requested, frogpilot_toggles)
+            updater.fetch_update()
             write_time_to_param(params, "UpdaterLastFetchTime")
         update_failed_count = 0
       except subprocess.CalledProcessError as e:
@@ -526,13 +514,20 @@ def main() -> None:
       try:
         params.put("UpdaterState", "idle")
         update_successful = (update_failed_count == 0)
-        updater.set_params(update_successful, update_failed_count, exception, frogpilot_toggles)
+        updater.set_params(update_successful, update_failed_count, exception)
       except Exception:
         cloudlog.exception("uncaught updated exception while setting params, shouldn't happen")
 
       # infrequent attempts if we successfully updated recently
       wait_helper.user_request = UserRequest.NONE
-      wait_helper.sleep(5*60 if update_failed_count > 0 and updater.has_internet else 1.5*60*60, updater.has_internet)
+      if not frogpilot_toggles.automatic_updates:
+        delay = 60 * 60 * 24 * 365 * 100
+      else:
+        if update_failed_count > 0 and updater.has_internet:
+          delay = 5 * 60
+        else:
+          delay = 1.5 * 60 * 60
+      wait_helper.sleep(delay)
 
 
 if __name__ == "__main__":
