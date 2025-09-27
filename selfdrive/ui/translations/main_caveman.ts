@@ -2878,7 +2878,7 @@ Developer - Many custom setting for seasoned enthusiast</translation>
     </message>
     <message>
         <source>FrogPilot Alerts</source>
-        <translation type="gpt-5-generated" />
+        <translation type="gpt-5-generated"></translation>
     </message>
     <message>
         <source>&lt;b&gt;Optional FrogPilot alerts&lt;/b&gt; that highlight driving events in a more noticeable way.</source>
