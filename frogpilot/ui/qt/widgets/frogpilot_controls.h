@@ -11,6 +11,7 @@ bool useKonikServer();
 
 void loadGif(const QString &gifPath, QSharedPointer<QMovie> &movie, const QSize &size, QWidget *parent);
 void loadImage(const QString &basePath, QPixmap &pixmap, QSharedPointer<QMovie> &movie, const QSize &size, QWidget *parent, Qt::AspectRatioMode aspectRatioMode = Qt::KeepAspectRatio);
+void openDescriptions(bool forceOpenDescriptions, std::map<QString, AbstractControl*> toggles);
 void updateFrogPilotToggles();
 
 QColor loadThemeColors(const QString &colorKey, bool clearCache = false);
@@ -369,17 +370,17 @@ public:
     QObject::connect(&decrement_button, &QPushButton::pressed, this, &FrogPilotParamValueControl::decrementPressed);
     QObject::connect(&increment_button, &QPushButton::pressed, this, &FrogPilotParamValueControl::incrementPressed);
 
-    QObject::connect(&decrement_button, &QPushButton::released, this, [this]() {
+    QObject::connect(&decrement_button, &QPushButton::released, [this]() {
       decrement_repeating_timer.start(decrement_button.autoRepeatInterval());
     });
-    QObject::connect(&increment_button, &QPushButton::released, this, [this]() {
+    QObject::connect(&increment_button, &QPushButton::released, [this]() {
       increment_repeating_timer.start(increment_button.autoRepeatInterval());
     });
 
-    QObject::connect(&decrement_repeating_timer, &QTimer::timeout, this, [this]() {
+    QObject::connect(&decrement_repeating_timer, &QTimer::timeout, [this]() {
       decrement_repeating = false;
     });
-    QObject::connect(&increment_repeating_timer, &QTimer::timeout, this, [this]() {
+    QObject::connect(&increment_repeating_timer, &QTimer::timeout, [this]() {
       increment_repeating = false;
     });
   }
@@ -442,6 +443,9 @@ public:
     button.setAutoRepeatInterval(150);
     button.setFixedSize(150, 100);
     button.setStyleSheet(buttonStyle);
+    if (text == "+" || text == "-") {
+      button.setStyleSheet(button.styleSheet() + " QPushButton { font-size: 50px; }");
+    }
     button.setText(text);
   }
 

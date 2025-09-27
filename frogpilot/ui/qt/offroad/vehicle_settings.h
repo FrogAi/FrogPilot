@@ -1,7 +1,5 @@
 #pragma once
 
-#include <set>
-
 #include "frogpilot/ui/qt/offroad/frogpilot_settings.h"
 
 class FrogPilotVehiclesPanel : public FrogPilotListWidget {
@@ -20,6 +18,7 @@ private:
   void updateState(const UIState &s);
   void updateToggles();
 
+  bool forceOpenDescriptions;
   bool hasExperimentalOpenpilotLongitudinal;
   bool hasOpenpilotLongitudinal;
   bool hasPedal;
@@ -37,22 +36,23 @@ private:
 
   std::map<QString, AbstractControl*> toggles;
 
-  std::set<QString> gmKeys = {"ExperimentalGMTune", "LongPitch", "VoltSNG"};
-  std::set<QString> hkgKeys = {"NewLongAPI", "TacoTuneHacks"};
-  std::set<QString> longitudinalKeys = {"ExperimentalGMTune", "FrogsGoMoosTweak", "LongPitch", "NewLongAPI", "SNGHack", "VoltSNG"};
-  std::set<QString> toyotaKeys = {"ClusterOffset", "FrogsGoMoosTweak", "LockDoorsTimer", "SNGHack", "ToyotaDoors"};
+  QSet<QString> gmKeys = {"ExperimentalGMTune", "LongPitch", "VoltSNG"};
+  QSet<QString> hkgKeys = {"NewLongAPI", "TacoTuneHacks"};
+  QSet<QString> longitudinalKeys = {"ExperimentalGMTune", "FrogsGoMoosTweak", "LongPitch", "NewLongAPI", "SNGHack", "VoltSNG"};
+  QSet<QString> toyotaKeys = {"ClusterOffset", "FrogsGoMoosTweak", "LockDoorsTimer", "SNGHack", "ToyotaDoors"};
+  QSet<QString> vehicleInfoKeys = {"BlindSpotSupport", "HardwareDetected", "OpenpilotLongitudinal", "PedalSupport", "RadarSupport", "SDSUSupport", "SNGSupport"};
 
-  std::set<QString> parentKeys;
+  QSet<QString> parentKeys;
 
   FrogPilotSettingsWindow *parent;
-
-  QJsonObject frogpilotToggleLevels;
-
-  QMap<QString, QString> carModels;
 
   ParamControl *disableOpenpilotLong;
   ParamControl *forceFingerprint;
 
   Params params;
   Params params_default{"/dev/shm/params_default"};
+
+  QJsonObject frogpilotToggleLevels;
+
+  QMap<QString, QString> carModels;
 };

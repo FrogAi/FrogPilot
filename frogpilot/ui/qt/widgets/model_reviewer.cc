@@ -1,31 +1,125 @@
-#include <QJsonDocument>
-#include <QJsonObject>
-
 #include "frogpilot/ui/qt/widgets/model_reviewer.h"
 
-ModelReview::ModelReview(QWidget *parent) : QFrame(parent) {
+static QLabel *addLabel(QWidget *parent, QVBoxLayout *layout, const QString &text, int fontSize=50) {
+  QLabel *label = new QLabel(text, parent);
+  label->setAlignment(Qt::AlignCenter);
+  label->setStyleSheet(QString(R"(
+    QLabel {
+      color: #FFFFFF;
+      font-size: %2px;
+      font-weight: bold;
+    }
+  )").arg(fontSize));
+  layout->addWidget(label);
+  return label;
+}
+
+static QLabel *addTitleLabel(QWidget *parent, QVBoxLayout *layout, const QString &text) {
+  QLabel *label = new QLabel(text, parent);
+  label->setAlignment(Qt::AlignCenter);
+  label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+  label->setStyleSheet(R"(
+    QLabel {
+      background-color: #444444;
+      border-radius: 12px;
+      color: #FFFFFF;
+      font-size: 50px;
+      font-weight: bold;
+      padding: 12px 28px;
+    }
+  )");
+  label->setMaximumHeight(label->sizeHint().height());
+  layout->addWidget(label);
+  layout->addSpacing(10);
+  return label;
+}
+
+static QPushButton *createButton(QWidget *parent, const QString &text, const QString &name, int rating, int width, int height) {
+  QPushButton *button = new QPushButton(text, parent);
+  button->setFixedSize(width, height);
+  button->setObjectName(name);
+  button->setProperty("rating", rating);
+  return button;
+}
+
+static QWidget *createStatBox(const QString &title, QLabel **valueLabel, QWidget *parent) {
+  QWidget *box = new QWidget(parent);
+
+  QVBoxLayout *layout = new QVBoxLayout(box);
+  layout->setAlignment(Qt::AlignCenter);
+  layout->setContentsMargins(8, 8, 8, 8);
+  layout->setSpacing(10);
+
+  QLabel *statTitleLabel = new QLabel(title, box);
+  statTitleLabel->setAlignment(Qt::AlignCenter);
+  statTitleLabel->setStyleSheet(R"(
+    QLabel {
+      color: #AAAAAA;
+      font-size: 40px;
+      font-weight: 600;
+    }
+  )");
+  layout->addWidget(statTitleLabel);
+
+  QLabel *value = new QLabel("-", box);
+  value->setAlignment(Qt::AlignCenter);
+  value->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+  value->setStyleSheet(R"(
+    QLabel {
+      color: #FFFFFF;
+      font-size: 75px;
+      font-weight: bold;
+    }
+  )");
+  *valueLabel = value;
+  layout->addWidget(value);
+
+  return box;
+}
+
+FrogPilotModelReview::FrogPilotModelReview(QWidget *parent) : QFrame(parent) {
   mainLayout = new QStackedLayout(this);
 
   QVBoxLayout *ratingLayout = new QVBoxLayout();
-  ratingLayout->setContentsMargins(50, 25, 50, 20);
+  ratingLayout->setContentsMargins(50, 25, 50, 25);
 
-  questionLabel = addLabel(ratingLayout, tr("How would you rate that drive?"), "question");
+  addTitleLabel(this, ratingLayout, tr("Drive Rating Selection"));
+  ratingLayout->addStretch(1);
 
-  QHBoxLayout *ratingButtonsLayout = new QHBoxLayout();
-  QStringList emojis = {"🤩", "🙂", "🤔", "🙁", "🤕"};
-  QList<int> scores = {100, 80, 60, 40, 20};
+  QVBoxLayout *ratingGroup = new QVBoxLayout();
+  ratingGroup->setAlignment(Qt::AlignCenter);
+  addLabel(this, ratingGroup, tr("How would you rate that drive?"));
 
-  for (int i = 0; i < emojis.size(); ++i) {
-    QPushButton *ratingButton = createButton(emojis[i], "rating_button", scores[i], 150, 150);
-    ratingButtonsLayout->addWidget(ratingButton);
-    QObject::connect(ratingButton, &QPushButton::clicked, this, &ModelReview::onRatingButtonClicked);
+  QHBoxLayout *row = new QHBoxLayout();
+  row->setSpacing(25);
+
+  QList<QPair<QString, int>> ratings{
+    {QStringLiteral("🤩"), 100},
+    {QStringLiteral("🙂"), 80},
+    {QStringLiteral("🤔"), 60},
+    {QStringLiteral("🙁"), 40},
+    {QStringLiteral("🤕"), 20}
+  };
+
+  for (const QPair<QString, int> &rating : ratings) {
+    QPushButton *button = createButton(this, rating.first, "ratingButton", rating.second, 150, 150);
+    QObject::connect(button, &QPushButton::clicked, this, &FrogPilotModelReview::onRatingButtonClicked);
+    row->addWidget(button);
   }
 
-  ratingLayout->addLayout(ratingButtonsLayout);
+  ratingGroup->addLayout(row);
+  ratingLayout->addLayout(ratingGroup);
+  ratingLayout->addStretch(1);
 
-  blacklistButton = createButton(tr("Blacklist this model"), "blacklist_button", 0, 600, 100);
-  QObject::connect(blacklistButton, &QPushButton::clicked, this, &ModelReview::onBlacklistButtonClicked);
-  ratingLayout->addWidget(blacklistButton, 0, Qt::AlignCenter);
+  QVBoxLayout *blacklistGroup = new QVBoxLayout();
+  blacklistGroup->setAlignment(Qt::AlignCenter);
+  addLabel(this, blacklistGroup, tr("Blacklist this model to remove it from rotation"), 40);
+
+  blacklistButton = createButton(this, tr("Blacklist Model"), "blacklistButton", 0, 600, 100);
+  QObject::connect(blacklistButton, &QPushButton::clicked, this, &FrogPilotModelReview::onBlacklistButtonClicked);
+  blacklistGroup->addWidget(blacklistButton, 0, Qt::AlignCenter);
+
+  ratingLayout->addLayout(blacklistGroup);
 
   QWidget *ratingWidget = new QWidget(this);
   ratingWidget->setLayout(ratingLayout);
@@ -34,17 +128,40 @@ ModelReview::ModelReview(QWidget *parent) : QFrame(parent) {
   QVBoxLayout *modelInfoLayout = new QVBoxLayout();
   modelInfoLayout->setContentsMargins(50, 25, 50, 20);
 
-  titleLabel = addLabel(modelInfoLayout, tr("The model used during that drive was:"), "title");
-  modelLabel = addLabel(modelInfoLayout, "", "model");
+  addLabel(this, modelInfoLayout, tr("Model used during that drive:"));
 
-  modelInfoLayout->addItem(new QSpacerItem(20, 75, QSizePolicy::Minimum, QSizePolicy::Fixed));
+  modelLabel = new QLabel("", this);
+  modelLabel->setAlignment(Qt::AlignCenter);
+  modelLabel->setStyleSheet(R"(
+    QLabel {
+      background-color: #444444;
+      border-radius: 12px;
+      color: #FFFFFF;
+      font-size: 65px;
+      font-weight: bold;
+      padding: 12px 24px;
+    }
+  )");
+  modelInfoLayout->addWidget(modelLabel);
+
+  modelInfoLayout->addSpacing(50);
 
   QVBoxLayout *bottomLayout = new QVBoxLayout();
-  modelScoreLabel = addLabel(bottomLayout, tr("Current Model Score: 0"), "score");
-  modelRankLabel = addLabel(bottomLayout, tr("Current Model Rank: 0"), "rank");
-  totalDrivesLabel = addLabel(bottomLayout, tr("Total Model Drives: 0"), "drives");
-  totalOverallDrivesLabel = addLabel(bottomLayout, tr("Total Overall Model Drives: 0"), "drives");
-  blacklistMessageLabel = addLabel(bottomLayout, "", "blacklist_message");
+  bottomLayout->addWidget(createStatBox(tr("Model Rank"), &modelRankLabel, this));
+  bottomLayout->addWidget(createStatBox(tr("Model Rating"), &modelRatingLabel, this));
+  bottomLayout->addWidget(createStatBox(tr("Model Drives"), &totalDrivesLabel, this));
+  bottomLayout->addWidget(createStatBox(tr("Total Drives"), &totalOverallDrivesLabel, this));
+
+  blacklistMessageLabel = new QLabel("", this);
+  blacklistMessageLabel->setAlignment(Qt::AlignCenter);
+  blacklistMessageLabel->setStyleSheet(R"(
+    QLabel {
+      color: #C92231;
+      font-size: 50px;
+      font-weight: bold;
+    }
+  )");
+  bottomLayout->addWidget(blacklistMessageLabel);
 
   modelInfoLayout->addLayout(bottomLayout);
 
@@ -53,192 +170,143 @@ ModelReview::ModelReview(QWidget *parent) : QFrame(parent) {
   mainLayout->addWidget(modelInfoWidget);
 
   setStyleSheet(R"(
-    ModelReview {
+    FrogPilotModelReview {
       background-color: #333333;
-      border-radius: 5px;
     }
-    QLabel[type="drives"], QLabel[type="question"], QLabel[type="rank"], QLabel[type="score"], QLabel[type="title"] {
-      font-size: 50px;
-      font-weight: semi-bold;
-      color: #FFFFFF;
-    }
-    QLabel[type="model"] {
-      font-size: 75px;
-      font-weight: bold;
-      color: #FFFFFF;
-    }
-    QLabel[type="blacklist_message"] {
-      font-size: 40px;
-      font-weight: bold;
+    QPushButton#blacklistButton {
+      background-color: #444444;
+      border-radius: 12px;
       color: #C92231;
-    }
-    QPushButton[type="rating_button"] {
-      font-size: 75px;
+      font-size: 45px;
       font-weight: bold;
-      padding: 10px;
+      padding: 12px 24px;
+    }
+    QPushButton#ratingButton {
+      background-color: #444444;
+      border-radius: 12px;
       color: #FFFFFF;
-      background-color: #555555;
-      border: 2px solid #FFFFFF;
-      border-radius: 5px;
-    }
-    QPushButton[type="rating_button"]:hover {
-      background-color: #777777;
-    }
-    QPushButton[type="blacklist_button"] {
-      font-size: 50px;
+      font-size: 100px;
       font-weight: bold;
-      padding: 10px;
-      color: #C92231;
-      background-color: #000000;
-      border: 2px solid #FFFFFF;
-      border-radius: 5px;
+      padding: 12px 24px;
+    }
+    QPushButton#ratingButton:hover {
+      background-color: #666666;
     }
   )");
-}
 
-QLabel *ModelReview::addLabel(QVBoxLayout *layout, const QString &text, const QString &type) {
-  QLabel *label = new QLabel(text, this);
-  label->setProperty("type", type);
-  label->setAlignment(Qt::AlignCenter);
-  layout->addWidget(label);
-  return label;
-}
-
-QPushButton *ModelReview::createButton(const QString &text, const QString &type, int rating, int width, int height) {
-  QPushButton *button = new QPushButton(text, this);
-  button->setProperty("type", type);
-  button->setProperty("rating", rating);
-  button->setFixedSize(width, height);
-  return button;
-}
-
-void ModelReview::showEvent(QShowEvent *event) {
-  QStringList availableModels = QString::fromStdString(params.get("AvailableModels")).split(",");
-  QStringList availableModelNames = QString::fromStdString(params.get("AvailableModelNames")).split(",");
-
-  QMap<QString, QString> modelFileToNameMap;
-  for (int i = 0; i < qMin(availableModels.size(), availableModelNames.size()); ++i) {
-    modelFileToNameMap.insert(availableModels[i], processModelName(availableModelNames[i]));
-  }
-
-  currentModel = frogpilotUIState()->frogpilot_toggles.value("model").toString();
-  currentModelFiltered = modelFileToNameMap.value(currentModel);
-
-  mainLayout->setCurrentIndex(modelRated ? 1 : 0);
-
-  checkBlacklistButtonVisibility();
-}
-
-void ModelReview::mousePressEvent(QMouseEvent *e) {
-  if (mainLayout->currentIndex() != 1) {
-    return;
-  }
-
-  emit driveRated();
-}
-
-void ModelReview::updateLabel() {
-  totalDrivesLabel->setText(QString(tr("Total Model Drives: %1")).arg(totalDrives));
-  modelLabel->setText(currentModelFiltered);
-  modelRankLabel->setText(QString(tr("Current Model Rank: %1")).arg(getModelRank()));
-  modelScoreLabel->setText(QString(tr("Current Model Score: %1")).arg(finalRating));
-  totalOverallDrivesLabel->setText(QString(tr("Total Overall Drives: %1")).arg(totalOverallDrives));
-
-  mainLayout->setCurrentIndex(1);
-
-  QTimer::singleShot(30000, [this]() {
-    emit driveRated();
-    modelRated = false;
+  QObject::connect(device(), &Device::interactiveTimeout, [this]() {
+    if (isVisible()) {
+      emit driveRated();
+      modelRated = false;
+    }
+  });
+  QObject::connect(uiState(), &UIState::offroadTransition, [this](bool offroad) {
+    if (!offroad) {
+      emit driveRated();
+      modelRated = false;
+    }
   });
 }
 
-void ModelReview::onRatingButtonClicked() {
-  int newRating = qobject_cast<QPushButton*>(sender())->property("rating").toInt();
-
-  QString jsonString = QString::fromStdString(params.get("ModelDrivesAndScores"));
-  QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonString.toUtf8());
-  QJsonObject jsonObject = jsonDoc.isObject() ? jsonDoc.object() : QJsonObject();
-
-  QJsonObject modelData = jsonObject.value(currentModelFiltered).toObject();
-  int modelDrives = modelData.value("Drives").toInt();
-  int modelScore = modelData.value("Score").toInt();
-
-  totalDrives = modelDrives + 1;
-  finalRating = ((modelScore * modelDrives) + newRating) / totalDrives;
-
-  modelData["Drives"] = totalDrives;
-  modelData["Score"] = finalRating;
-  jsonObject[currentModelFiltered] = modelData;
-
-  params.put("ModelDrivesAndScores", QString(QJsonDocument(jsonObject).toJson(QJsonDocument::Compact)).toStdString());
-
-  modelRated = true;
-  updateLabel();
+void FrogPilotModelReview::mousePressEvent(QMouseEvent *e) {
+  if (mainLayout->currentIndex() == 1) {
+    emit driveRated();
+  }
 }
 
-void ModelReview::onBlacklistButtonClicked() {
-  QString jsonString = QString::fromStdString(params.get("ModelDrivesAndScores"));
-  QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonString.toUtf8());
-  QJsonObject jsonObject = jsonDoc.isObject() ? jsonDoc.object() : QJsonObject();
+void FrogPilotModelReview::showEvent(QShowEvent *event) {
+  QStringList availableModels = QString::fromStdString(params.get("AvailableModels")).split(",", QString::SkipEmptyParts);
+  availableModelNames = QString::fromStdString(params.get("AvailableModelNames")).split(",", QString::SkipEmptyParts);
+  blacklistedModels = QString::fromStdString(params.get("BlacklistedModels")).split(",", QString::SkipEmptyParts);
 
-  QJsonObject modelData = jsonObject.value(currentModelFiltered).toObject();
-  int modelDrives = modelData.value("Drives").toInt();
+  blacklistButton->setVisible(!(QSet<QString>::fromList(availableModels) - QSet<QString>::fromList(blacklistedModels)).isEmpty());
 
-  totalDrives = modelDrives + 1;
-  modelData["Drives"] = totalDrives;
-  modelData["Score"] = 0;
-  jsonObject[currentModelFiltered] = modelData;
+  QMap<QString, QString> modelMap;
+  for (int i = 0; i < qMin(availableModels.size(), availableModelNames.size()); ++i) {
+    modelMap.insert(availableModels[i], processModelName(availableModelNames[i]));
+  }
+  currentModel = frogpilotUIState()->frogpilot_toggles.value("model").toString();
+  currentModelFiltered = modelMap.value(currentModel);
+
+  modelDrivesAndScores = QJsonDocument::fromJson(QString::fromStdString(params.get("ModelDrivesAndScores")).toUtf8()).object();
+  currentModelData = modelDrivesAndScores.value(currentModelFiltered).toObject();
+
+  mainLayout->setCurrentIndex(modelRated ? 1 : 0);
+}
+
+int FrogPilotModelReview::getModelRank() {
+  QList<QPair<QString, int>> modelRatings;
+  totalOverallDrives = 0;
+
+  for (const QString &model : availableModelNames) {
+    QString processedModel = processModelName(model);
+
+    QJsonObject modelData = modelDrivesAndScores.value(processedModel).toObject();
+    int modelDrives = modelData.value("Drives").toInt();
+    int modelRating = modelData.value("Score").toInt();
+    totalOverallDrives += modelDrives;
+
+    if (modelRating > 0) {
+      modelRatings.append(qMakePair(processedModel, modelRating));
+    }
+  }
+
+  std::sort(modelRatings.begin(), modelRatings.end(), [](const QPair<QString, int> &a, const QPair<QString, int> &b) {
+    if (a.second == b.second) {
+      return a.first < b.first;
+    }
+    return a.second > b.second;
+  });
+  for (int i = 0; i < modelRatings.size(); ++i) {
+    if (modelRatings[i].first == currentModelFiltered) {
+      return i + 1;
+    }
+  }
+  return modelRatings.size();
+}
+
+void FrogPilotModelReview::onBlacklistButtonClicked() {
+  totalDrives = currentModelData.value("Drives").toInt() + 1;
+  currentModelData["Drives"] = totalDrives;
+  currentModelData["Score"] = 0;
+  modelDrivesAndScores[currentModelFiltered] = currentModelData;
 
   if (!blacklistedModels.contains(currentModel)) {
     blacklistedModels.append(currentModel);
     params.put("BlacklistedModels", blacklistedModels.join(",").toStdString());
   }
 
-  params.put("ModelDrivesAndScores", QString(QJsonDocument(jsonObject).toJson(QJsonDocument::Compact)).toStdString());
+  params.put("ModelDrivesAndScores", QJsonDocument(modelDrivesAndScores).toJson(QJsonDocument::Compact).toStdString());
 
   blacklistMessageLabel->setText(tr("Model successfully blacklisted!"));
+
   updateLabel();
 }
 
-void ModelReview::checkBlacklistButtonVisibility() {
-  QStringList availableModels = QString::fromStdString(params.get("AvailableModels")).split(",");
-  blacklistedModels = QString::fromStdString(params.get("BlacklistedModels")).split(",", QString::SkipEmptyParts);
+void FrogPilotModelReview::onRatingButtonClicked() {
+  int modelDrives = currentModelData.value("Drives").toInt();
+  int modelRating = currentModelData.value("Score").toInt();
 
-  blacklistButton->setVisible(availableModels.size() > blacklistedModels.size());
+  totalDrives = modelDrives + 1;
+  finalRating = ((modelRating * modelDrives) + sender()->property("rating").toInt()) / totalDrives;
+
+  currentModelData["Drives"] = totalDrives;
+  currentModelData["Score"] = finalRating;
+  modelDrivesAndScores[currentModelFiltered] = currentModelData;
+
+  params.put("ModelDrivesAndScores", QJsonDocument(modelDrivesAndScores).toJson(QJsonDocument::Compact).toStdString());
+
+  modelRated = true;
+
+  updateLabel();
 }
 
-int ModelReview::getModelRank() {
-  QString jsonString = QString::fromStdString(params.get("ModelDrivesAndScores"));
-  QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonString.toUtf8());
-  QJsonObject jsonObject = jsonDoc.isObject() ? jsonDoc.object() : QJsonObject();
+void FrogPilotModelReview::updateLabel() {
+  modelLabel->setText(currentModelFiltered);
+  modelRankLabel->setText(tr("#%1").arg(getModelRank()));
+  modelRatingLabel->setText(tr("%1%").arg(finalRating));
+  totalDrivesLabel->setText(tr("%1 %2").arg(totalDrives).arg(totalDrives == 1 ? tr("Drive") : tr("Drives")));
+  totalOverallDrivesLabel->setText(tr("%1 Total %2").arg(totalOverallDrives).arg(totalOverallDrives == 1 ? tr("Drive") : tr("Drives")));
 
-  QList<QPair<QString, int>> modelScores;
-  totalOverallDrives = 0;
-
-  QStringList availableModels = QString::fromStdString(params.get("AvailableModelNames")).split(",");
-  for (const QString &model : availableModels) {
-    QString processedModel = processModelName(model);
-    QJsonObject modelData = jsonObject.value(processedModel).toObject();
-
-    int modelDrives = modelData.value("Drives").toInt();
-    int modelScore = modelData.value("Score").toInt();
-
-    totalOverallDrives += modelDrives;
-
-    if (modelScore > 0) {
-      modelScores.append(qMakePair(processedModel, modelScore));
-    }
-  }
-
-  std::sort(modelScores.begin(), modelScores.end(), [](QPair<QString, int> &a, QPair<QString, int> &b) {
-    return a.second > b.second;
-  });
-
-  for (int i = 0; i < modelScores.size(); ++i) {
-    if (modelScores[i].first == currentModelFiltered) {
-      return i + 1;
-    }
-  }
-
-  return 1;
+  mainLayout->setCurrentIndex(1);
 }

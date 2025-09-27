@@ -485,7 +485,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
         bool tuningLevelConfirmed = params.getBool("TuningLevelConfirmed");
 
         if (!tuningLevelConfirmed) {
-          int frogpilotHours = paramsTracking.getInt("FrogPilotMinutes") / 60;
+          int frogpilotHours = QJsonDocument::fromJson(QString::fromStdString(params.get("FrogPilotStats")).toUtf8()).object().value("FrogPilotSeconds").toInt() / (60 * 60);
           int openpilotHours = params.getInt("KonikMinutes") / 60 + params.getInt("openpilotMinutes") / 60;
 
           if (frogpilotHours < 1 && openpilotHours < 100) {

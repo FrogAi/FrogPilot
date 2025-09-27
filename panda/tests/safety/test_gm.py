@@ -140,6 +140,12 @@ class TestGmSafetyBase(common.PandaCarSafetyTest, common.DriverTorqueSteeringSaf
     values = {"ACCButtons": buttons}
     return self.packer.make_can_msg_panda("ASCMSteeringButton", self.BUTTONS_BUS, values)
 
+  # FrogPilot tests
+  def _toggle_aol(self, toggle_on):
+    # ECMEngineStatus, bit 29 is CruiseMainOn
+    values = {"CruiseMainOn": 1 if toggle_on else 0}
+    return self.packer.make_can_msg_panda("ECMEngineStatus", 0, values)
+
 
 class TestGmAscmSafety(GmLongitudinalBase, TestGmSafetyBase):
   TX_MSGS = [[0x180, 0], [0x409, 0], [0x40A, 0], [0x2CB, 0], [0x370, 0],  # pt bus

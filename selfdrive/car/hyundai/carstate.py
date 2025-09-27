@@ -23,14 +23,12 @@ def calculate_speed_limit(CP, FPCP, cp, cp_cam):
       speed_limit_bus = cp
     else:
       speed_limit_bus = cp_cam
-
     speed_limit = speed_limit_bus.vl["CLUSTER_SPEED_LIMIT"]["SPEED_LIMIT_1"]
   else:
     if FPCP.fpFlags & HyundaiFrogPilotFlags.LKAS12:
       speed_limit = cp_cam.vl["LKAS12"]["CF_Lkas_TsrSpeed_Display_Clu"]
     else:
       speed_limit = 0
-
     if speed_limit in (0, 255) and FPCP.fpFlags & HyundaiFrogPilotFlags.NAV_MSG:
       speed_limit = cp.vl["Navi_HU"]["SpeedLim_Nav_Clu"]
 

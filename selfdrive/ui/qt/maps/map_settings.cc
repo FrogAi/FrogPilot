@@ -389,18 +389,36 @@ void NavManager::parseLocationsResponse(const QString &response, bool success) {
   if (!success || response == prev_response) return;
 
   prev_response = response;
-  QJsonDocument doc = QJsonDocument::fromJson(response.trimmed().toUtf8());
-  if (doc.isNull()) {
+  QString trimmed = response.trimmed();
+
+  if (trimmed.isEmpty() || trimmed == "null") {
+    locations = QJsonArray();
+    emit updated();
+    return;
+  }
+
+  QJsonParseError parse_error;
+  QJsonDocument doc = QJsonDocument::fromJson(trimmed.toUtf8(), &parse_error);
+  if (parse_error.error != QJsonParseError::NoError) {
     qWarning() << "JSON Parse failed on navigation locations" << response;
     return;
   }
 
-  // set last activity time.
-  auto remote_locations = doc.array();
+  QJsonArray remote_locations;
+  if (doc.isArray()) {
+    remote_locations = doc.array();
+  } else if (doc.isObject() && doc.object().value("locations").isArray()) {
+    remote_locations = doc.object().value("locations").toArray();
+  } else {
+    locations = QJsonArray();
+    emit updated();
+    return;
+  }
+
   for (QJsonValueRef loc : remote_locations) {
-    auto obj = loc.toObject();
-    auto serverTime = convertTimestampToEpoch(obj["modified"].toString());
-    obj.insert("time", qMax(serverTime, getLastActivity(obj)));
+    QJsonObject obj = loc.toObject();
+    qint64 server_time = convertTimestampToEpoch(obj.value("modified").toString());
+    obj.insert("time", qMax(server_time, getLastActivity(obj)));
     loc = obj;
   }
 

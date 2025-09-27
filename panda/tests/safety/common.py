@@ -339,6 +339,42 @@ class TorqueSteeringSafetyTestBase(PandaSafetyTestBase, abc.ABC):
     for _ in range(10):
       self.assertFalse(self._tx(self._torque_cmd_msg(self.MAX_TORQUE, 1)))
 
+  # FrogPilot tests
+  def _toggle_aol(self, toggle_on):
+    """Toggles "Always On Lateral" On/Off"""
+    pass
+
+  def test_always_on_lateral(self):
+    if self._toggle_aol(True) is None:
+      raise unittest.SkipTest("AOL message not implemented for this safety mode")
+
+    self.safety.set_controls_allowed(False)
+
+    torque_cmd = self.MAX_RATE_UP  # Use the max rate
+
+    # Without alt exp, make sure steering is blocked
+    self.safety.set_alternative_experience(0)
+    self._set_prev_torque(0)
+    self.assertFalse(self._tx(self._torque_cmd_msg(torque_cmd)))
+
+    # With alt exp, but without main on, steering should be blocked
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self._rx(self._toggle_aol(False))
+    self._set_prev_torque(0)
+    self.assertFalse(self._tx(self._torque_cmd_msg(torque_cmd)))
+    self.assertFalse(self.safety.get_longitudinal_allowed())
+
+    # With alt exp and main on, steering should be allowed
+    self._rx(self._toggle_aol(True))
+    self._set_prev_torque(0)
+    self.assertTrue(self._tx(self._torque_cmd_msg(torque_cmd)))
+    self.assertFalse(self.safety.get_longitudinal_allowed())
+
+    # Turn off main, steering should be blocked again
+    self._rx(self._toggle_aol(False))
+    self.safety.set_desired_torque_last(torque_cmd)
+    self.assertFalse(self._tx(self._torque_cmd_msg(torque_cmd)))
+
 
 class SteerRequestCutSafetyTest(TorqueSteeringSafetyTestBase, abc.ABC):
 
@@ -768,6 +804,44 @@ class AngleSteeringSafetyTest(PandaSafetyTestBase):
             # controls_allowed is checked if actuation bit is 1, else the angle must be close to meas (inactive)
             should_tx = controls_allowed if steer_control_enabled else angle_cmd == angle_meas
             self.assertEqual(should_tx, self._tx(self._angle_cmd_msg(angle_cmd, steer_control_enabled)))
+
+  # FrogPilot tests
+  def _toggle_aol(self, toggle_on):
+    """Toggles "Always On Lateral" on/off"""
+    pass
+
+  def test_always_on_lateral(self):
+    if self._toggle_aol(True) is None:
+      raise unittest.SkipTest("AOL message not implemented for this safety mode")
+
+    self.safety.set_controls_allowed(False)
+
+    self._reset_angle_measurement(0)
+    self._reset_speed_measurement(1)
+    angle_cmd = self.ANGLE_RATE_UP[0] / 2.0  # Use half of the max angle rate
+
+    # Without alt exp, make sure steering is blocked
+    self.safety.set_alternative_experience(0)
+    self._set_prev_desired_angle(0)
+    self.assertFalse(self._tx(self._angle_cmd_msg(angle=angle_cmd, enabled=True)))
+
+    # With alt exp, but without main on, steering should be blocked
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self._rx(self._toggle_aol(False))
+    self._set_prev_desired_angle(0)
+    self.assertFalse(self._tx(self._angle_cmd_msg(angle=angle_cmd, enabled=True)))
+    self.assertFalse(self.safety.get_longitudinal_allowed())
+
+    # With alt exp and main on, steering should be allowed
+    self._rx(self._toggle_aol(True))
+    self._set_prev_desired_angle(0)
+    self.assertTrue(self._tx(self._angle_cmd_msg(angle=angle_cmd, enabled=True)))
+    self.assertFalse(self.safety.get_longitudinal_allowed())
+
+    # Turn off main, steering should be blocked again
+    self._rx(self._toggle_aol(False))
+    self._set_prev_desired_angle(angle_cmd)
+    self.assertFalse(self._tx(self._angle_cmd_msg(angle=angle_cmd, enabled=True)))
 
 
 class PandaSafetyTest(PandaSafetyTestBase):

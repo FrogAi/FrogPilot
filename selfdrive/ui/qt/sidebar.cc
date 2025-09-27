@@ -57,7 +57,7 @@ void Sidebar::updateTheme() {
   sidebar_color2 = frogpilot_scene.use_stock_colors ? good_color : frogpilot_scene.sidebar_color2;
   sidebar_color3 = frogpilot_scene.use_stock_colors ? good_color : frogpilot_scene.sidebar_color3;
 
-  if (util::random_int(0, 100) == 100 && frogpilot_toggles.value("random_events").toBool()) {
+  if (util::random_int(0, 100) == 69 && frogpilot_toggles.value("random_events").toBool()) {
     loadImage("../../frogpilot/assets/random_events/icons/button_home", home_img, home_gif, home_btn.size(), this);
   } else {
     loadImage("../../frogpilot/assets/active_theme/icons/button_home", home_img, home_gif, home_btn.size(), this);

@@ -44,6 +44,10 @@ static void nissan_rx_hook(const CANPacket_t *to_push) {
   int bus = GET_BUS(to_push);
   int addr = GET_ADDR(to_push);
 
+  if (addr == 0x1b6) {
+    acc_main_on = GET_BIT(to_push, 36U);
+  }
+
   if (bus == (nissan_alt_eps ? 1 : 0)) {
     if (addr == 0x2) {
       // Current steering angle
@@ -62,10 +66,6 @@ static void nissan_rx_hook(const CANPacket_t *to_push) {
       uint16_t left_rear = (GET_BYTE(to_push, 2) << 8) | (GET_BYTE(to_push, 3));
       vehicle_moving = (right_rear | left_rear) != 0U;
       UPDATE_VEHICLE_SPEED((right_rear + left_rear) / 2.0 * 0.005 / 3.6);
-    }
-
-    if (addr == 0x1b6) {
-      acc_main_on = GET_BIT(to_push, 36U);
     }
 
     // X-Trail 0x15c, Leaf 0x239

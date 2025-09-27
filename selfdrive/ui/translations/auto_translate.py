@@ -5,7 +5,10 @@ import json
 import os
 import pathlib
 import xml.etree.ElementTree as ET
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from requests.adapters import HTTPAdapter
 from typing import cast
+from urllib3.util.retry import Retry
 
 import requests
 
@@ -18,35 +21,43 @@ OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 FUN_LANG_KEYS = {"caveman", "duck", "frog", "pirate", "shakespearean"}
 
 FUN_PROMPT_TEMPLATE = """
-You are a safety-critical UI style transformer for an openpilot fork. Rewrite the user's message (an English source string) into the style '{language}'
-while preserving the original meaning, readability, and all functional elements. Output ONLY the transformed text, with no quotes or extra words.
+You are a playful *style translator* for openpilot. Translate the following message (an English source string) into the style '{language}'. Output ONLY the translated text, with no quotes or extra words.
+
+Output rules:
+- Input: one English UI string from a Qt .ts file.
+- Style key: {language}.
+- Output: a fun, stylized rewrite that keeps technical structure intact.
 
 Hard requirements:
 1) Preserve placeholders, variables, and markup exactly as written: {{name}}, {{0}}, {{icu}}, %1, %n, %(speed)d, $SPEED, <b>…</b>, <a href="…">…</a>, etc.
 2) Keep all non-translatable tokens unchanged: product/brand names (e.g., openpilot, ACC), file paths, error codes, part numbers.
 3) Do not add, remove, or reorder placeholders. If grammar absolutely requires reordering, keep all placeholders intact and still produce a correct sentence; prefer wordings that avoid reordering.
 4) Do not convert units or numbers (e.g., mph↔km/h). Translate unit labels only if standard in the style and not part of a preserved token.
-5) Maintain the same warning/priority level and imperative tone. Never soften or intensify safety messages (“Do not…”, “Warning”, “Critical”).
+5) Maintain the same warning/priority level and imperative tone. Never soften or intensify safety messages ("Do not…", "Warning", "Critical").
 6) Preserve hotkeys/accelerators if present (e.g., &F, _O). If the exact letter is impossible, pick the nearest mnemonic but keep the marker.
-7) Follow normal punctuation and casing rules while respecting all technical tokens.
+7) Follow style punctuation and casing norms while respecting all technical tokens.
 8) If ICU MessageFormat/plural/select syntax is present, keep the structure and variable names unchanged and rewrite only the human-readable text.
 9) Keep the output as concise as the source. Do not append notes, explanations, or metadata.
 
-If the source is ambiguous or cannot be safely adapted to the style without risking meaning loss, choose the safest literal rendering that preserves meaning.
-If you cannot adapt it safely, return the source text unchanged.
+Style Hints:
+- caveman: Short, blunt sentences. Simple words. Little grammar. Example: "Me want food. You come now."
+- duck: Quacky interjections, waddling rhythm, silly tone. Example: "Quack! What you mean? Waddle-waddle, quack!"
+- frog: Croaky, ribbit-filled speech, jumpy tone. Example: "Ribbit! I hop to help you. Croak, ribbit!"
+- pirate: Rough, nautical slang, dropped consonants, lots of "Arr!" Example: "Arr, ye scallywag! Hoist the sails 'n fetch me rum!"
+- shakespearean: Flowery, old-fashioned English, thee/thou, dramatic flair. Example: "Prithee, good sir, thou dost jest most cruelly!"
 
-Your entire reply must be a single line containing only the final rewritten text.
+Keep length close to source; avoid bloat. Respond with the styled string only.
 """
 
 OPENAI_PROMPT = """
-You are a safety-critical UI translator for an openpilot fork. Translate the user's message (an English source string) into the locale '{language}'. Output ONLY the translated text, with no quotes or extra words.
+You are a safety-critical UI translator for openpilot. Translate the following message (an English source string) into the locale '{language}'. Output ONLY the translated text, with no quotes or extra words.
 
 Hard requirements:
 1) Preserve placeholders, variables, and markup exactly as written: {{name}}, {{0}}, {{icu}}, %1, %n, %(speed)d, $SPEED, <b>…</b>, <a href="…">…</a>, etc.
 2) Keep all non-translatable tokens unchanged: product/brand names (e.g., openpilot, ACC), file paths, error codes, part numbers.
 3) Do not add, remove, or reorder placeholders. If grammar absolutely requires reordering, keep all placeholders intact and still produce a correct sentence; prefer wordings that avoid reordering.
 4) Do not convert units or numbers (e.g., mph↔km/h). Translate unit labels only if standard in the target locale and not part of a preserved token.
-5) Maintain the same warning/priority level and imperative tone. Never soften or intensify safety messages (“Do not…”, “Warning”, “Critical”).
+5) Maintain the same warning/priority level and imperative tone. Never soften or intensify safety messages ("Do not…", "Warning", "Critical").
 6) Preserve hotkeys/accelerators if present (e.g., &F, _O). If the exact letter is impossible, pick the nearest mnemonic but keep the marker.
 7) Follow target-locale punctuation and casing norms while respecting all technical tokens.
 8) If ICU MessageFormat/plural/select syntax is present, keep the structure and variable names unchanged and translate only the human-readable text.
@@ -58,7 +69,7 @@ Your entire reply must be a single line containing only the final translation.
 """
 
 OPENAI_EVAL_PROMPT = """
-You are a safety-critical reviewer for UI translations for an openpilot fork. Your job is to compare two candidate translations (A and B) of an English source string and select the safest, most accurate option in the locale '{language}'.
+You are a safety-critical reviewer for UI translations for openpilot. Your job is to compare two candidate translations (A and B) of an English source string and select the safest, most accurate option in the locale '{language}'.
 
 Output rules:
 - Return ONLY one line containing exactly one of these: the full text of Translation A, or the full text of Translation B, or the exact Source string.
@@ -89,9 +100,28 @@ Decision criteria (apply in order):
    - Prefer minimal reordering of placeholders if both are valid.
 
 Remember:
-- Never fabricate or “improve” content. Choose A or B, or fall back to the Source if both are unsafe.
+- Never fabricate or "improve" content. Choose A or B, or fall back to the Source if both are unsafe.
 - Your reply must be exactly the chosen string with no commentary.
 """
+
+SESSION = requests.Session()
+
+def configure_session():
+  if OPENAI_API_KEY:
+    SESSION.headers.update({
+      "Authorization": f"Bearer {OPENAI_API_KEY}",
+      "Content-Type": "application/json"
+    })
+  retry = Retry(
+    total=10,
+    backoff_factor=1,
+    status_forcelist=[429, 500, 502, 503, 504],
+    allowed_methods=frozenset(["POST"])
+  )
+  adapter = HTTPAdapter(pool_connections=100, pool_maxsize=100, max_retries=retry)
+  SESSION.mount("https://", adapter)
+  SESSION.mount("http://", adapter)
+
 
 def get_language_files(languages: list[str] = None) -> dict[str, pathlib.Path]:
   files = {}
@@ -111,7 +141,7 @@ def get_language_files(languages: list[str] = None) -> dict[str, pathlib.Path]:
 
 def evaluate_translation(source: str, old: str, new: str, language: str) -> str:
   try:
-    response = requests.post(
+    response = SESSION.post(
       "https://api.openai.com/v1/chat/completions",
       json={
         "model": OPENAI_MODEL,
@@ -120,12 +150,8 @@ def evaluate_translation(source: str, old: str, new: str, language: str) -> str:
           {"role": "user", "content": f"Source: {source}\n\nTranslation A: {old}\n\nTranslation B: {new}"},
         ],
         "max_completion_tokens": 2048,
-        "reasoning_effort": "minimal",
+        "reasoning_effort": "medium",
         "verbosity": "low",
-      },
-      headers={
-        "Authorization": f"Bearer {OPENAI_API_KEY}",
-        "Content-Type": "application/json",
       },
       timeout=(10, 60)
     )
@@ -148,7 +174,7 @@ def translate_phrase(text: str, language: str) -> str:
     prompt = OPENAI_PROMPT.format(language=language)
 
   try:
-    response = requests.post(
+    response = SESSION.post(
       "https://api.openai.com/v1/chat/completions",
       json={
         "model": OPENAI_MODEL,
@@ -159,10 +185,6 @@ def translate_phrase(text: str, language: str) -> str:
         "max_completion_tokens": 2048,
         "reasoning_effort": "minimal",
         "verbosity": "low",
-      },
-      headers={
-        "Authorization": f"Bearer {OPENAI_API_KEY}",
-        "Content-Type": "application/json",
       },
       timeout=(10, 60)
     )
@@ -180,7 +202,6 @@ def translate_phrase(text: str, language: str) -> str:
 
 def translate_file(path: pathlib.Path, language: str, all_: bool, vet_translations: bool) -> None:
   tree = ET.parse(path)
-
   root = tree.getroot()
 
   for context in root.findall("./context"):
@@ -189,6 +210,8 @@ def translate_file(path: pathlib.Path, language: str, all_: bool, vet_translatio
       raise ValueError("name not found")
 
     print(f"Context: {name.text}")
+
+    work_items = []
 
     for message in context.findall("./message"):
       source = message.find("source")
@@ -210,24 +233,54 @@ def translate_file(path: pathlib.Path, language: str, all_: bool, vet_translatio
             continue
 
       text = cast(str, source.text)
+      numerus = (message.attrib.get("numerus") == "yes") or ("%n" in text)
+      old_translation = translation.text or ""
+
+      work_items.append((message, translation, text, numerus, old_translation))
+
+    if not work_items:
+      continue
+
+    def worker(item):
+      message, translation, text, numerus, old_translation = item
       llm_translation = translate_phrase(text, language)
 
-      print(f"Source: {text}\n" +
-            f"Current translation: {translation.text}\n" +
-            f"LLM translation: {llm_translation}")
-
       if vet_translations:
-        old_translation = translation.text or ""
-        print(f"Comparison:\n" +
-              f"Current translation: {old_translation}\n" +
-              f"New translation: {llm_translation}")
-
         best = evaluate_translation(text, old_translation, llm_translation, language)
-        print(f"Chosen translation: {best}")
-        translation.text = best
+        return (message, translation, text, numerus, best, True)
+      else:
+        return (message, translation, text, numerus, llm_translation, False)
+
+    results = []
+    with ThreadPoolExecutor(max_workers=100) as executor:
+      future_map = {executor.submit(worker, item): item for item in work_items}
+      for future in as_completed(future_map):
+        try:
+          results.append(future.result())
+        except Exception as e:
+          item = future_map[future]
+          print(f"Task failed for '{item[2][:40]}...': {e}")
+
+    for message, translation, text, numerus, chosen_translation, was_vetted in results:
+      print(f"Source: {text}\nCurrent translation: {translation.text}\nLLM translation: {chosen_translation}")
+
+      if was_vetted:
+        print(f"Chosen translation: {chosen_translation}")
+        translation.text = chosen_translation
       else:
         translation.set("type", f"{OPENAI_MODEL}-generated")
-        translation.text = llm_translation
+
+        if numerus:
+          translations = chosen_translation or (translation.text or text)
+          for child in list(translation):
+            translation.remove(child)
+
+          translation.text = None
+
+          ET.SubElement(translation, "numerusform").text = translations
+          ET.SubElement(translation, "numerusform").text = translations
+        else:
+          translation.text = chosen_translation
 
   with path.open("w", encoding="utf-8") as fp:
     fp.write('<?xml version="1.0" encoding="utf-8"?>\n' +
@@ -251,6 +304,8 @@ def main():
     print("OpenAI API key is missing. (Hint: use `export OPENAI_API_KEY=YOUR-KEY` before you run the script).\n" +
           "If you don't have one go to: https://beta.openai.com/account/api-keys.")
     exit(1)
+
+  configure_session()
 
   files = get_language_files(None if args.all_files else args.file)
 

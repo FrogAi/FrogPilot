@@ -5,7 +5,7 @@ import json
 import numpy as np
 
 import cereal.messaging as messaging
-from cereal import car
+from cereal import car, custom
 from cereal import log
 from openpilot.common.params import Params
 from openpilot.common.realtime import config_realtime_process, DT_MDL
@@ -187,6 +187,9 @@ def main():
   # FrogPilot variables
   frogpilot_toggles = get_frogpilot_toggles()
 
+  with custom.FrogPilotCarParams.from_bytes(params_reader.get("FrogPilotCarParams", block=True)) as msg:
+    FPCP = msg
+
   while True:
     sm.update()
     if sm.all_checks():
@@ -237,7 +240,7 @@ def main():
         0.2 <= liveParameters.stiffnessFactor <= 5.0,
         min_sr <= liveParameters.steerRatio <= max_sr,
       ))
-      if CP.carFingerprint == "RAM_HD" or CP.carName == "subaru" and CP.lateralTuning.which() == "torque":
+      if CP.carFingerprint == "RAM_HD" or CP.carName == "subaru" and FPCP.lateralTuning.which() == "torque":
         liveParameters.valid = True
       liveParameters.steerRatioStd = float(P[States.STEER_RATIO].item())
       liveParameters.stiffnessFactorStd = float(P[States.STIFFNESS].item())

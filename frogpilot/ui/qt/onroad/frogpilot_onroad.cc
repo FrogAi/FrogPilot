@@ -83,9 +83,8 @@ void FrogPilotOnroadWindow::paintFPS(QPainter &p, const QRect &rect) {
   totalFPS += fps;
 
   while (!fpsHistory.isEmpty() && now - fpsHistory.first().first > 60000) {
-    fpsHistory.removeFirst();
-
     totalFPS -= fpsHistory.first().second;
+    fpsHistory.removeFirst();
   }
 
   double avgFPS = fpsHistory.isEmpty() ? 0.0 : totalFPS / fpsHistory.size();

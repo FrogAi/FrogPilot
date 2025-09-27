@@ -16,6 +16,7 @@ protected:
 private:
   void updateToggles();
 
+  bool forceOpenDescriptions;
   bool hasOpenpilotLongitudinal;
   bool isSubaru;
 

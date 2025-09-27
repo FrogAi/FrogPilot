@@ -9,20 +9,21 @@ public:
   explicit FrogPilotNavigationPanel(FrogPilotSettingsWindow *parent);
 
 signals:
-  void closeSubSubPanel();
-  void openSubSubPanel();
+  void closeSubPanel();
+  void openSubPanel();
 
 protected:
   void hideEvent(QHideEvent *event);
   void showEvent(QShowEvent *event) override;
 
 private:
-  void createMapboxKeyControl(ButtonControl *&control, const QString &label, const std::string &paramKey, const QString &prefix, FrogPilotListWidget *list);
+  void createKeyControl(ButtonControl *&control, const QString &label, const std::string &paramKey, const QString &prefix, const int &minLength, FrogPilotListWidget *list);
   void mousePressEvent(QMouseEvent *event);
   void updateButtons();
   void updateState(const UIState &s, const FrogPilotUIState &fs);
   void updateStep();
 
+  bool forceOpenDescriptions;
   bool mapboxPublicKeySet;
   bool mapboxSecretKeySet;
   bool setupCompleted;
@@ -30,17 +31,20 @@ private:
 
   ButtonControl *amapKeyControl1;
   ButtonControl *amapKeyControl2;
-  ButtonControl *googleKeyControl;
   ButtonControl *publicMapboxKeyControl;
   ButtonControl *secretMapboxKeyControl;
+  ButtonControl *setupButton;
 
   FrogPilotButtonControl *updateSpeedLimitsToggle;
+
+  FrogPilotButtonsControl *searchInput;
 
   FrogPilotSettingsWindow *parent;
 
   LabelControl *ipLabel;
 
   Params params;
+  Params params_cache{"/cache/params"};
   Params params_memory{"/dev/shm/params"};
 
   QLabel *imageLabel;

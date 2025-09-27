@@ -1,7 +1,5 @@
 #pragma once
 
-#include <set>
-
 #include "frogpilot/ui/qt/offroad/frogpilot_settings.h"
 
 class FrogPilotThemesPanel : public FrogPilotListWidget {
@@ -26,6 +24,7 @@ private:
   bool distanceIconDownloading;
   bool distanceIconsDownloaded;
   bool finalizingDownload;
+  bool forceOpenDescriptions;
   bool iconDownloading;
   bool iconsDownloaded;
   bool randomThemes;
@@ -41,16 +40,16 @@ private:
 
   std::map<QString, AbstractControl*> toggles;
 
-  std::set<QString> customThemeKeys = {"CustomColors", "CustomDistanceIcons", "CustomIcons", "CustomSignals", "CustomSounds", "DownloadStatusLabel", "WheelIcon"};
+  QSet<QString> customThemeKeys = {"CustomColors", "CustomDistanceIcons", "CustomIcons", "CustomSignals", "CustomSounds", "DownloadStatusLabel", "WheelIcon"};
 
-  std::set<QString> parentKeys;
+  QSet<QString> parentKeys;
 
-  FrogPilotButtonsControl *manageCustomColorsBtn;
-  FrogPilotButtonsControl *manageCustomIconsBtn;
-  FrogPilotButtonsControl *manageCustomSignalsBtn;
-  FrogPilotButtonsControl *manageCustomSoundsBtn;
-  FrogPilotButtonsControl *manageDistanceIconsBtn;
-  FrogPilotButtonsControl *manageWheelIconsBtn;
+  FrogPilotButtonsControl *manageCustomColorsButton;
+  FrogPilotButtonsControl *manageCustomIconsButton;
+  FrogPilotButtonsControl *manageCustomSignalsButton;
+  FrogPilotButtonsControl *manageCustomSoundsButton;
+  FrogPilotButtonsControl *manageDistanceIconsButton;
+  FrogPilotButtonsControl *manageWheelIconsButton;
 
   FrogPilotSettingsWindow *parent;
 

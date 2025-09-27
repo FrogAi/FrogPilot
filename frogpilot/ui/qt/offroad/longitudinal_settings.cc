@@ -1,6 +1,15 @@
 #include "frogpilot/ui/qt/offroad/longitudinal_settings.h"
 
 FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
+  QJsonObject shownDescriptions = QJsonDocument::fromJson(QString::fromStdString(params.get("ShownToggleDescriptions")).toUtf8()).object();
+  QString className = this->metaObject()->className();
+
+  if (!shownDescriptions.value(className).toBool(false)) {
+    forceOpenDescriptions = true;
+    shownDescriptions.insert(className, true);
+    params.put("ShownToggleDescriptions", QJsonDocument(shownDescriptions).toJson(QJsonDocument::Compact).toStdString());
+  }
+
   QStackedLayout *longitudinalLayout = new QStackedLayout();
   addItem(longitudinalLayout);
 
@@ -56,109 +65,113 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
   longitudinalLayout->addWidget(trafficPersonalityPanel);
 
   const std::vector<std::tuple<QString, QString, QString, QString>> longitudinalToggles {
-    {"AdvancedLongitudinalTune", tr("Advanced Longitudinal Tuning"), tr("Advanced settings for customizing how openpilot handles acceleration and braking."), "../../frogpilot/assets/toggle_icons/icon_advanced_longitudinal_tune.png"},
-    {"LongitudinalActuatorDelay", longitudinalActuatorDelay != 0 ? QString(tr("Actuator Delay (Default: %1)")).arg(QString::number(longitudinalActuatorDelay, 'f', 2)) : tr("Actuator Delay"), tr("Delay before throttle or brake takes effect. Higher values smooth slow actuators but can feel laggy; lower values react quicker but may overshoot."), ""},
-    {"StartAccel", startAccel != 0 ? QString(tr("Start Acceleration (Default: %1)")).arg(QString::number(startAccel, 'f', 2)) : tr("Start Acceleration"), tr("Extra acceleration applied when pulling away from a stop. Increase for snappier launches at the cost of smoothness; decrease for gentler starts."), ""},
-    {"VEgoStarting", vEgoStarting != 0 ? QString(tr("Start Speed (Default: %1)")).arg(QString::number(vEgoStarting, 'f', 2)) : tr("Start Speed"), tr("Speed where openpilot begins to exit the stopped state. Higher values avoid creeping but may feel sluggish; lower values move sooner but risk creeping."), ""},
-    {"StopAccel", stopAccel != 0 ? QString(tr("Stop Acceleration (Default: %1)")).arg(QString::number(stopAccel, 'f', 2)) : tr("Stop Acceleration"), tr("Brake force applied to hold the vehicle still. Larger values prevent creeping on hills but might jerk to a stop. Smaller values can feel smoother but may allow rolling."), ""},
-    {"StoppingDecelRate", stoppingDecelRate != 0 ? QString(tr("Stopping Rate (Default: %1)")).arg(QString::number(stoppingDecelRate, 'f', 2)) : tr("Stopping Rate"), tr("How quickly braking ramps up when stopping. Faster rates shorten stopping distance but can be harsh; slower rates are smoother but need more room."), ""},
-    {"VEgoStopping", vEgoStopping != 0 ? QString(tr("Stop Speed (Default: %1)")).arg(QString::number(vEgoStopping, 'f', 2)) : tr("Stop Speed"), tr("Speed where openpilot beings to enter the stopped state. Higher values brake earlier for smoother stops but might stop too soon; lower values wait longer and can overshoot."), ""},
+    {"AdvancedLongitudinalTune", tr("Advanced Longitudinal Tuning"), tr("<b>Advanced acceleration and braking control changes</b> to fine-tune how openpilot drives."), "../../frogpilot/assets/toggle_icons/icon_advanced_longitudinal_tune.png"},
+    {"LongitudinalActuatorDelay", longitudinalActuatorDelay != 0 ? QString(tr("Actuator Delay (Default: %1)")).arg(QString::number(longitudinalActuatorDelay, 'f', 2)) : tr("Actuator Delay"), tr("<b>The time between openpilot's throttle or brake command and the vehicle's response.</b> Increase if the vehicle feels slow to react; decrease if it feels too eager or overshoots."), ""},
+    {"StartAccel", startAccel != 0 ? QString(tr("Start Acceleration (Default: %1)")).arg(QString::number(startAccel, 'f', 2)) : tr("Start Acceleration"), tr("<b>Extra acceleration applied when starting from a stop.</b> Increase for quicker takeoffs; decrease for smoother, gentler starts."), ""},
+    {"VEgoStarting", vEgoStarting != 0 ? QString(tr("Start Speed (Default: %1)")).arg(QString::number(vEgoStarting, 'f', 2)) : tr("Start Speed"), tr("<b>The speed at which openpilot exits the stopped state.</b> Increase to reduce creeping; decrease to move sooner after stopping."), ""},
+    {"StopAccel", stopAccel != 0 ? QString(tr("Stop Acceleration (Default: %1)")).arg(QString::number(stopAccel, 'f', 2)) : tr("Stop Acceleration"), tr("<b>Brake force applied to hold the vehicle at a standstill.</b> Increase to prevent rolling on hills; decrease for smoother, softer stops."), ""},
+    {"StoppingDecelRate", stoppingDecelRate != 0 ? QString(tr("Stopping Rate (Default: %1)")).arg(QString::number(stoppingDecelRate, 'f', 2)) : tr("Stopping Rate"), tr("<b>How quickly braking ramps up when stopping.</b> Increase for shorter, firmer stops; decrease for smoother, longer stops."), ""},
+    {"VEgoStopping", vEgoStopping != 0 ? QString(tr("Stop Speed (Default: %1)")).arg(QString::number(vEgoStopping, 'f', 2)) : tr("Stop Speed"), tr("<b>The speed at which openpilot considers the vehicle stopped.</b> Increase to brake earlier and stop smoothly; decrease to wait longer but risk overshooting."), ""},
 
-    {"ConditionalExperimental", tr("Conditional Experimental Mode"), tr("Automatically switch to <b>Experimental Mode</b> when set conditions are met."), "../../frogpilot/assets/toggle_icons/icon_conditional.png"},
-    {"CESpeed", tr("Below"), tr("Switch to <b>Experimental Mode</b> when driving below this speed."), ""},
-    {"CECurves", tr("Curve Detected Ahead"), tr("Switch to <b>Experimental Mode</b> when a curve is detected ahead. Useful for letting the model choose the appropriate speed for the curve."), ""},
-    {"CELead", tr("Lead Detected Ahead"), tr("Switch to <b>Experimental Mode</b> when a slower or stopped vehicle is detected ahead. Can improve braking smoothness and reliability on some vehicles."), ""},
-    {"CENavigation", tr("Navigation Data"), tr("Switch to <b>Experimental Mode</b> when approaching intersections or turns on the active route while using <b>Navigate on openpilot (NOO)</b>. Useful for letting the model choose the appropriate speed for upcoming navigation maneuvers."), ""},
-    {"CEModelStopTime", tr("openpilot Wants to Stop In"), tr("Switch to <b>Experimental Mode</b> when openpilot wants to stop within the set amount of time. This is typically triggered by the driving model \"detecting\" a red light or stop sign."), ""},
-    {"CESignalSpeed", tr("Turn Signal Below"), tr("Switch to <b>Experimental Mode</b> when using a turn signal below the set speed. Useful for letting the model choose the appropriate speed for upcoming left or right turns."), ""},
-    {"ShowCEMStatus", tr("Status Widget"), tr("Show the <b>Conditional Experimental Mode</b> status on the driving screen."), ""},
+    {"ConditionalExperimental", tr("Conditional Experimental Mode"), tr("<b>Automatically switch to \"Experimental Mode\" when set conditions are met.</b> Allows the model to handle challenging situations with smarter decision making."), "../../frogpilot/assets/toggle_icons/icon_conditional.png"},
+    {"CESpeed", tr("Below"), tr("<b>Switch to \"Experimental Mode\" when driving below this speed without a lead</b> to help openpilot handle low-speed situations more smoothly."), ""},
+    {"CECurves", tr("Curve Detected Ahead"), tr("<b>Switch to \"Experimental Mode\" when a curve is detected</b> to allow the model to set an appropriate speed for the curve."), ""},
+    {"CELead", tr("Lead Detected Ahead"), tr("<b>Switch to \"Experimental Mode\" when a slower or stopped vehicle is detected.</b> Can make braking smoother and more reliable on some vehicles."), ""},
+    {"CENavigation", tr("Navigation-Based"), tr("<b>Switch to \"Experimental Mode\" when approaching intersections or turns on the active route</b> while using \"Navigate on openpilot\" (NOO) to allow the model to set an appropriate speed for upcoming maneuvers."), ""},
+    {"CEModelStopTime", tr("Predicted Stop In"), tr("<b>Switch to \"Experimental Mode\" when openpilot predicts a stop within the set time.</b> This is usually triggered when the model \"sees\" a red light or stop sign ahead.<br><br><i><b>Disclaimer</b>: openpilot does not explicitly detect traffic lights or stop signs. In \"Experimental Mode\", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason.</i>"), ""},
+    {"CESignalSpeed", tr("Turn Signal Below"), tr("<b>Switch to \"Experimental Mode\" when using a turn signal below the set speed</b> to allow the model to choose an appropriate speed for smoother left and right turns."), ""},
+    {"ShowCEMStatus", tr("Status Widget"), tr("<b>Show which condition triggered \"Experimental Mode\"</b> on the driving screen."), ""},
 
-    {"CurveSpeedControl", tr("Curve Speed Control"), tr("Automatically slow down for upcoming curves using downloaded maps or the driving model."), "../../frogpilot/assets/toggle_icons/icon_speed_map.png"},
-    {"CurveDetectionMethod", tr("Curve Detection Method"), tr("How curves are detected. <b>Map-Based</b> uses downloaded map data to identify curves and determine the appropriate speed in which to handle them at, while <b>Vision</b> relies solely on the driving model."), ""},
-    {"MTSCCurvatureCheck", tr("Curve Detection Failsafe"), tr("Only trigger <b>Curve Speed Control</b> if a curve is detected with the model while using the <b>Map-Based</b> method. Useful to help prevent false positives."), ""},
-    {"CurveSensitivity", tr("Curve Detection Sensitivity"), tr("How sensitive openpilot is when detecting curves. Higher values trigger earlier responses at the risk of triggering too often, while lower values increase confidence at the risk of triggering too infrequently."), ""},
-    {"TurnAggressiveness", tr("Curve Speed Aggressiveness"), tr("How aggressive openpilot is when navigating through curves. Higher values result in faster turns but may reduce comfort or stability, while lower values result in slower, smoother turns at the risk of being overly cautious."), ""},
-    {"ShowCSCStatus", tr("Status Widget"), tr("Show <b>Curve Speed Control</b>'s desired speed on the driving screen."), ""},
+    {"CurveSpeedController", tr("Curve Speed Controller"), tr("<b>Automatically slow down for upcoming curves</b> using data learned from your driving style, adapting to curves as you would."), "../../frogpilot/assets/toggle_icons/icon_speed_map.png"},
+    {"CalibratedLateralAcceleration", tr("Calibrated Lateral Acceleration"), tr("<b>The learned lateral acceleration from collected driving data.</b> This sets how fast openpilot will take curves. Higher values allow faster cornering; lower values slow the vehicle for gentler turns."), ""},
+    {"CalibrationProgress", tr("Calibration Progress"), tr("<b>How much curve data has been collected.</b> This is a progress meter; it is normal for the value to stay low and rarely reach 100%."), ""},
+    {"ResetCurveData", tr("Reset Curve Data"), tr("<b>Reset collected user data for \"Curve Speed Controller\".</b>"), ""},
+    {"ShowCSCStatus", tr("Status Widget"), tr("<b>Show the \"Curve Speed Controller\" target speed on the driving screen.</b>"), ""},
 
-    {"CustomPersonalities", tr("Customize Driving Personalities"), tr("Customize the personality profiles to your driving style."), "../../frogpilot/assets/toggle_icons/icon_personality.png"},
+    {"CustomPersonalities", tr("Driving Personalities"), tr("<b>Customize the \"Driving Personalities\"</b> to better match your driving style."), "../../frogpilot/assets/toggle_icons/icon_personality.png"},
 
-    {"TrafficPersonalityProfile", tr("Traffic Personality"), tr("Customize the <b>Traffic</b> personality profile. Tailored for navigating through traffic."), "../../frogpilot/assets/stock_theme/distance_icons/traffic.png"},
-    {"TrafficFollow", tr("Following Distance"), tr("The minimum following distance while in <b>Traffic Mode</b>. openpilot will dynamically adjust between this value and the value in the <b>Aggressive</b> profile based on your current speed."), ""},
-    {"TrafficJerkAcceleration", tr("Acceleration Sensitivity"), tr("How sensitive openpilot is to changes in acceleration while in <b>Traffic Mode</b>. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt."), ""},
-    {"TrafficJerkDeceleration", tr("Deceleration Sensitivity"), tr("How sensitive openpilot is to changes in deceleration while in <b>Traffic Mode</b>. Higher values result in smoother, more gradual deceleration, while lower values allow for quicker, more responsive changes that may feel abrupt."), ""},
-    {"TrafficJerkDanger", tr("Safety Distance Sensitivity"), tr("How cautious openpilot is around other vehicles or obstacles while in <b>Traffic Mode</b>. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time."), ""},
-    {"TrafficJerkSpeedDecrease", tr("Speed Decrease Response"), tr("How quickly openpilot decreases speed while in <b>Traffic Mode</b>. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt."), ""},
-    {"TrafficJerkSpeed", tr("Speed Increase Response"), tr("How quickly openpilot increases speed while in <b>Traffic Mode</b>. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt."), ""},
-    {"ResetTrafficPersonality", tr("Reset Settings"), tr("Reset <b>Traffic Mode</b> settings to default values."), ""},
+    {"TrafficPersonalityProfile", tr("Traffic Mode"), tr("<b>Customize the \"Traffic Mode\" personality profile.</b> Designed for stop-and-go driving."), "../../frogpilot/assets/stock_theme/distance_icons/traffic.png"},
+    {"TrafficFollow", tr("Following Distance"), tr("<b>The minimum following distance to the lead vehicle in \"Traffic Mode\".</b> openpilot blends between this value and the \"Aggressive\" profile as speed increases. Increase for more space; decrease for tighter gaps."), ""},
+    {"TrafficJerkAcceleration", tr("Acceleration Smoothness"), tr("<b>How smoothly openpilot accelerates in \"Traffic Mode\".</b> Increase for gentler starts; decrease for faster but more abrupt takeoffs."), ""},
+    {"TrafficJerkDeceleration", tr("Braking Smoothness"), tr("<b>How smoothly openpilot brakes in \"Traffic Mode\".</b> Increase for gentler stops; decrease for quicker but sharper braking."), ""},
+    {"TrafficJerkDanger", tr("Safety Gap Bias"), tr("<b>How much extra space openpilot keeps from the vehicle ahead in \"Traffic Mode\".</b> Increase for larger gaps and more cautious following; decrease for tighter gaps and closer following."), ""},
+    {"TrafficJerkSpeedDecrease", tr("Slowdown Response"), tr("<b>How smoothly openpilot slows down in \"Traffic Mode\".</b> Increase for more gradual deceleration; decrease for faster but sharper slowdowns."), ""},
+    {"TrafficJerkSpeed", tr("Speed-Up Response"), tr("<b>How smoothly openpilot speeds up in \"Traffic Mode\".</b> Increase for more gradual acceleration; decrease for quicker but more jolting acceleration."), ""},
+    {"ResetTrafficPersonality", tr("Reset to Defaults"), tr("<b>Reset \"Traffic Mode\" settings to defaults.</b>"), ""},
 
-    {"AggressivePersonalityProfile", tr("Aggressive Personality"), tr("Customize the <b>Aggressive</b> personality profile. Designed for a more assertive driving style."), "../../frogpilot/assets/stock_theme/distance_icons/aggressive.png"},
-    {"AggressiveFollow", tr("Following Distance"), tr("How many seconds openpilot will follow behind lead vehicles while using the <b>Aggressive</b> personality profile.<br><br>Default: 1.25 seconds."), ""},
-    {"AggressiveJerkAcceleration", tr("Acceleration Sensitivity"), tr("How sensitive openpilot is to changes in acceleration while using the <b>Aggressive</b> personality profile. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt."), ""},
-    {"AggressiveJerkDeceleration", tr("Deceleration Sensitivity"), tr("How sensitive openpilot is to changes in deceleration while using the <b>Aggressive</b> personality profile. Higher values result in smoother, more gradual deceleration, while lower values allow for quicker, more responsive changes that may feel abrupt."), ""},
-    {"AggressiveJerkDanger", tr("Safety Distance Sensitivity"), tr("How cautious openpilot is around other vehicles or obstacles while using the <b>Aggressive</b> personality profile. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time."), ""},
-    {"AggressiveJerkSpeedDecrease", tr("Speed Decrease Response"), tr("How quickly openpilot decreases speed while using the <b>Aggressive</b> personality profile. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt."), ""},
-    {"AggressiveJerkSpeed", tr("Speed Increase Response"), tr("How quickly openpilot increases speed while using the <b>Aggressive</b> personality profile. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt."), ""},
-    {"ResetAggressivePersonality", tr("Reset Settings"), tr("Reset the <b>Aggressive</b> personality profile settings to default values."), ""},
+    {"AggressivePersonalityProfile", tr("Aggressive"), tr("<b>Customize the \"Aggressive\" personality profile.</b> Designed for assertive driving with tighter gaps."), "../../frogpilot/assets/stock_theme/distance_icons/aggressive.png"},
+    {"AggressiveFollow", tr("Following Distance"), tr("<b>How many seconds openpilot follows behind lead vehicles when using the \"Aggressive\" profile.</b> Increase for more space; decrease for tighter gaps.<br><br>Default: 1.25 seconds."), ""},
+    {"AggressiveJerkAcceleration", tr("Acceleration Smoothness"), tr("<b>How smoothly openpilot accelerates with the \"Aggressive\" profile.</b> Increase for gentler starts; decrease for faster but more abrupt takeoffs."), ""},
+    {"AggressiveJerkDeceleration", tr("Braking Smoothness"), tr("<b>How smoothly openpilot brakes with the \"Aggressive\" profile.</b> Increase for gentler stops; decrease for quicker but sharper braking."), ""},
+    {"AggressiveJerkDanger", tr("Safety Gap Bias"), tr("<b>How much extra space openpilot keeps from the vehicle ahead with the \"Aggressive\" profile.</b> Increase for larger gaps and more cautious following; decrease for tighter gaps and closer following."), ""},
+    {"AggressiveJerkSpeedDecrease", tr("Slowdown Response"), tr("<b>How smoothly openpilot slows down with the \"Aggressive\" profile.</b> Increase for more gradual deceleration; decrease for faster but sharper slowdowns."), ""},
+    {"AggressiveJerkSpeed", tr("Speed-Up Response"), tr("<b>How smoothly openpilot speeds up with the \"Aggressive\" profile.</b> Increase for more gradual acceleration; decrease for quicker but more jolting acceleration."), ""},
+    {"ResetAggressivePersonality", tr("Reset to Defaults"), tr("<b>Reset the \"Aggressive\" profile to defaults.</b>"), ""},
 
-    {"StandardPersonalityProfile", tr("Standard Personality"), tr("Customize the <b>Standard</b> personality profile. Designed for a balanced driving style."), "../../frogpilot/assets/stock_theme/distance_icons/standard.png"},
-    {"StandardFollow", tr("Following Distance"), tr("How many seconds openpilot will follow behind lead vehicles while using the <b>Standard</b> personality profile.<br><br>Default: 1.45 seconds."), ""},
-    {"StandardJerkAcceleration", tr("Acceleration Sensitivity"), tr("How sensitive openpilot is to changes in acceleration while using the <b>Standard</b> personality profile. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt."), ""},
-    {"StandardJerkDeceleration", tr("Deceleration Sensitivity"), tr("How sensitive openpilot is to changes in deceleration while using the <b>Standard</b> personality profile. Higher values result in smoother, more gradual deceleration, while lower values allow for quicker, more responsive changes that may feel abrupt."), ""},
-    {"StandardJerkDanger", tr("Safety Distance Sensitivity"), tr("How cautious openpilot is around other vehicles or obstacles while using the <b>Standard</b> personality profile. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time."), ""},
-    {"StandardJerkSpeedDecrease", tr("Speed Decrease Response"), tr("How quickly openpilot decreases speed while using the <b>Standard</b> personality profile. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt."), ""},
-    {"StandardJerkSpeed", tr("Speed Increase Response"), tr("How quickly openpilot increases speed while using the <b>Standard</b> personality profile. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt."), ""},
-    {"ResetStandardPersonality", tr("Reset Settings"), tr("Reset the <b>Standard</b> personality profile settings to default values."), ""},
+    {"StandardPersonalityProfile", tr("Standard"), tr("<b>Customize the \"Standard\" personality profile.</b> Designed for balanced driving with moderate gaps."), "../../frogpilot/assets/stock_theme/distance_icons/standard.png"},
+    {"StandardFollow", tr("Following Distance"), tr("<b>How many seconds openpilot follows behind lead vehicles when using the \"Standard\" profile.</b> Increase for more space; decrease for tighter gaps.<br><br>Default: 1.45 seconds."), ""},
+    {"StandardJerkAcceleration", tr("Acceleration Smoothness"), tr("<b>How smoothly openpilot accelerates with the \"Standard\" profile.</b> Increase for gentler starts; decrease for faster but more abrupt takeoffs."), ""},
+    {"StandardJerkDeceleration", tr("Braking Smoothness"), tr("<b>How smoothly openpilot brakes with the \"Standard\" profile.</b> Increase for gentler stops; decrease for quicker but sharper braking."), ""},
+    {"StandardJerkDanger", tr("Safety Gap Bias"), tr("<b>How much extra space openpilot keeps from the vehicle ahead with the \"Standard\" profile.</b> Increase for larger gaps and more cautious following; decrease for tighter gaps and closer following."), ""},
+    {"StandardJerkSpeedDecrease", tr("Slowdown Response"), tr("<b>How smoothly openpilot slows down with the \"Standard\" profile.</b> Increase for more gradual deceleration; decrease for faster but sharper slowdowns."), ""},
+    {"StandardJerkSpeed", tr("Speed-Up Response"), tr("<b>How smoothly openpilot speeds up with the \"Standard\" profile.</b> Increase for more gradual acceleration; decrease for quicker but more jolting acceleration."), ""},
+    {"ResetStandardPersonality", tr("Reset to Defaults"), tr("<b>Reset the \"Standard\" profile to defaults.</b>"), ""},
 
-    {"RelaxedPersonalityProfile", tr("Relaxed Personality"), tr("Customize the <b>Relaxed</b> personality profile. Designed for a more laid-back driving style."), "../../frogpilot/assets/stock_theme/distance_icons/relaxed.png"},
-    {"RelaxedFollow", tr("Following Distance"), tr("How many seconds openpilot will follow behind lead vehicles while using the <b>Relaxed</b> personality profile.<br><br>Default: 1.75 seconds."), ""},
-    {"RelaxedJerkAcceleration", tr("Acceleration Sensitivity"), tr("How sensitive openpilot is to changes in acceleration while using the <b>Relaxed</b> personality profile. Higher values result in smoother, more gradual acceleration, while lower values allow for quicker, more responsive changes that may feel abrupt."), ""},
-    {"RelaxedJerkDeceleration", tr("Deceleration Sensitivity"), tr("How sensitive openpilot is to changes in deceleration while using the <b>Relaxed</b> personality profile. Higher values result in smoother, more gradual deceleration, while lower values allow for quicker, more responsive changes that may feel abrupt."), ""},
-    {"RelaxedJerkDanger", tr("Safety Distance Sensitivity"), tr("How cautious openpilot is around other vehicles or obstacles while using the <b>Relaxed</b> personality profile. Higher values increase following distances and prioritize safety, leading to more cautious driving, while lower values allow for closer following but may reduce reaction time."), ""},
-    {"RelaxedJerkSpeedDecrease", tr("Speed Decrease Response"), tr("How quickly openpilot decreases speed while using the <b>Relaxed</b> personality profile. Higher values ensure smoother, more gradual speed changes when slowing down, while lower values allow for quicker, more responsive changes that may feel abrupt."), ""},
-    {"RelaxedJerkSpeed", tr("Speed Increase Response"), tr("How quickly openpilot increases speed while using the <b>Relaxed</b> personality profile. Higher values ensure smoother, more gradual speed changes when accelerating, while lower values allow for quicker, more responsive changes that may feel abrupt."), ""},
-    {"ResetRelaxedPersonality", tr("Reset Settings"), tr("Reset the <b>Relaxed</b> personality profile settings to default values."), ""},
+    {"RelaxedPersonalityProfile", tr("Relaxed"), tr("<b>Customize the \"Relaxed\" personality profile.</b> Designed for smoother, more comfortable driving with larger gaps."), "../../frogpilot/assets/stock_theme/distance_icons/relaxed.png"},
+    {"RelaxedFollow", tr("Following Distance"), tr("<b>How many seconds openpilot follows behind lead vehicles when using the \"Relaxed\" profile.</b> Increase for more space; decrease for tighter gaps.<br><br>Default: 1.75 seconds."), ""},
+    {"RelaxedJerkAcceleration", tr("Acceleration Smoothness"), tr("<b>How smoothly openpilot accelerates with the \"Relaxed\" profile.</b> Increase for gentler starts; decrease for faster but more abrupt takeoffs."), ""},
+    {"RelaxedJerkDeceleration", tr("Braking Smoothness"), tr("<b>How smoothly openpilot brakes with the \"Relaxed\" profile.</b> Increase for gentler stops; decrease for quicker but sharper braking."), ""},
+    {"RelaxedJerkDanger", tr("Safety Gap Bias"), tr("<b>How much extra space openpilot keeps from the vehicle ahead with the \"Relaxed\" profile.</b> Increase for larger gaps and more cautious following; decrease for tighter gaps and closer following."), ""},
+    {"RelaxedJerkSpeedDecrease", tr("Slowdown Response"), tr("<b>How smoothly openpilot slows down with the \"Relaxed\" profile.</b> Increase for more gradual deceleration; decrease for faster but sharper slowdowns."), ""},
+    {"RelaxedJerkSpeed", tr("Speed-Up Response"), tr("<b>How smoothly openpilot speeds up with the \"Relaxed\" profile.</b> Increase for more gradual acceleration; decrease for quicker but more jolting acceleration."), ""},
+    {"ResetRelaxedPersonality", tr("Reset to Defaults"), tr("<b>Reset the \"Relaxed\" profile to defaults.</b>"), ""},
 
-    {"LongitudinalTune", tr("Longitudinal Tuning"), tr("Settings that control how openpilot manages speed and acceleration."), "../../frogpilot/assets/toggle_icons/icon_longitudinal_tune.png"},
-    {"AccelerationProfile", tr("Acceleration Profile"), tr("Enable either a sporty or eco-friendly acceleration profile. <b>Sport+</b> aims to make openpilot accelerate as fast as possible!"), ""},
-    {"DecelerationProfile", tr("Deceleration Profile"), tr("Enable either a sporty or eco-friendly deceleration profile."), ""},
-    {"HumanAcceleration", tr("Human-Like Acceleration"), tr("Use the lead vehicle's acceleration rate when at a takeoff and ramp off the acceleration rate when approaching the maximum set speed for a more \"human-like\" driving experience."), ""},
-    {"HumanFollowing", tr("Human-Like Approach Behind Leads"), tr("Dynamically adjust the desired following distance when approaching slower or stopped vehicles for a more \"human-like\" driving experience."), ""},
-    {"LeadDetectionThreshold", tr("Lead Detection Confidence"), tr("How sensitive openpilot is to detecting vehicles ahead. A lower value can help detect vehicles sooner and from farther away, but increases the chance openpilot mistakes other objects for vehicles."), ""},
-    {"MaxDesiredAcceleration", tr("Maximum Acceleration Rate"), tr("Set a cap on how fast openpilot can accelerate."), ""},
-    {"TacoTune", tr("\"Taco Bell Run\" Turn Speed Hack"), tr("The turn speed hack from comma’s 2022 \"Taco Bell Run\" drive. Designed to slow down when taking left/right turns for smoother turns."), ""},
+    {"LongitudinalTune", tr("Longitudinal Tuning"), tr("<b>Acceleration and braking control changes</b> to fine-tune how openpilot drives."), "../../frogpilot/assets/toggle_icons/icon_longitudinal_tune.png"},
+    {"AccelerationProfile", tr("Acceleration Profile"), tr("<b>How quickly openpilot speeds up.</b> \"Eco\" is gentle and efficient, \"Sport\" is firmer and more responsive, and \"Sport+\" accelerates at the maximum rate allowed."), ""},
+    {"DecelerationProfile", tr("Deceleration Profile"), tr("<b>How firmly openpilot slows down.</b> \"Eco\" favors coasting, \"Sport\" applies stronger braking."), ""},
+    {"HumanAcceleration", tr("Human-Like Acceleration"), tr("<b>Acceleration that mimics human behavior</b> by easing the throttle at low speeds and adding extra power when taking off from a stop."), ""},
+    {"HumanFollowing", tr("Human-Like Following"), tr("<b>Following behavior that mimics human drivers</b> by closing gaps behind faster vehicles for quicker takeoffs and dynamically adjusting the desired following distance for gentler, more efficient braking."), ""},
+    {"LeadDetectionThreshold", tr("Lead Detection Sensitivity"), tr("<b>How sensitive openpilot is to detecting vehicles.</b> Higher sensitivity allows quicker detection at longer distances but may react to non-vehicle objects; lower sensitivity is more conservative and reduces false detections."), ""},
+    {"MaxDesiredAcceleration", tr("Maximum Acceleration"), tr("<b>Limit the strongest acceleration</b> openpilot can command."), ""},
+    {"TacoTune", tr("\"Taco Bell Run\" Turn Speed Hack"), tr("<b>The turn-speed hack from comma's 2022 \"Taco Bell Run\".</b> Designed to slow down for left and right turns."), ""},
 
-    {"QOLLongitudinal", tr("Quality of Life"), tr("Miscellaneous features to improve the acceleration and braking experience."), "../../frogpilot/assets/toggle_icons/icon_quality_of_life.png"},
-    {"CustomCruise", tr("Cruise Interval"), tr("The interval used when changing the cruise control speed."), ""},
-    {"CustomCruiseLong", tr("Cruise Interval (Long Press)"), tr("The interval used when changing the cruise control speed while holding down the button for 0.5+ seconds."), ""},
-    {"ForceStandstill", tr("Force Keep openpilot in the Standstill State"), tr("Keep openpilot in the standstill state until either the gas pedal or <b>resume</b> button is pressed."), ""},
-    {"ForceStops", tr("Force Stop for \"Detected\" Stop Lights/Signs"), tr("Force a stop whenever openpilot <b>detects</b> a potential red light/stop sign to prevent it from running the red light/stop sign."), ""},
-    {"IncreasedStoppedDistance", tr("Increase Stopped Distance"), tr("Increase the distance openpilot stops behind vehicles."), ""},
-    {"SetSpeedOffset", tr("Set Speed Offset"), tr("How much higher or lower the set speed should be compared to your current set speed. For example, if you prefer to drive 5 mph above the speed limit, this setting will automatically add that difference when you adjust your set speed."), ""},
-    {"MapGears", tr("Map Accel/Decel to Gears"), tr("Map the acceleration and deceleration profiles to your car's <b>Eco</b> or <b>Sport</b> gear modes."), ""},
-    {"ReverseCruise", tr("Reverse Cruise Increase"), tr("Reverse the <b>long press</b> cruise increase feature to increase the max speed by 5 instead of 1 on short presses."), ""},
+    {"QOLLongitudinal", tr("Quality of Life"), tr("<b>Miscellaneous acceleration and braking control changes</b> to fine-tune how openpilot drives."), "../../frogpilot/assets/toggle_icons/icon_quality_of_life.png"},
+    {"CustomCruise", tr("Cruise Interval"), tr("<b>How much the set speed increases or decreases</b> for each + or – cruise control button press."), ""},
+    {"CustomCruiseLong", tr("Cruise Interval (Hold)"), tr("<b>How much the set speed increases or decreases while holding the + or – cruise control buttons.</b>"), ""},
+    {"ForceStops", tr("Force Stop at \"Detected\" Stop Lights/Signs"), tr("<b>Force openpilot to stop whenever the driving model \"detects\" a red light or stop sign.</b><br><br><i><b>Disclaimer</b>: openpilot does not explicitly detect traffic lights or stop signs. In \"Experimental Mode\", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason.</i>"), ""},
+    {"IncreasedStoppedDistance", tr("Increase Stopped Distance by:"), tr("<b>Add extra space when stopped behind vehicles.</b> Increase for more room; decrease for shorter gaps."), ""},
+    {"MapGears", tr("Map Accel/Decel to Gears"), tr("<b>Map the Acceleration or Deceleration profiles to the vehicle's \"Eco\" and \"Sport\" gear modes.</b>"), ""},
+    {"SetSpeedOffset", tr("Offset Set Speed by:"), tr("<b>Increase the set speed by the chosen offset.</b> For example, set +5 if you usually drive 5 over the limit."), ""},
+    {"ReverseCruise", tr("Reverse Cruise Increase"), tr("<b>Reverse the cruise control button behavior</b> so a short press increases the set speed by 5 instead of 1."), ""},
 
-    {"SpeedLimitController", tr("Speed Limit Controller"), tr("Limit openpilot's maximum driving speed based on data from downloaded maps, <b>Mapbox</b>, <b>Navigate on openpilot</b>, or the dashboard (supported vehicles: <b>Ford</b>, <b>Genesis</b>, <b>Hyundai</b>, <b>Kia</b>, <b>Lexus</b>, <b>Toyota</b>)."), "../assets/offroad/icon_speed_limit.png"},
-    {"SLCFallback", tr("Fallback Speed"), tr("The speed limit source when no speed limit data is available."), ""},
-    {"SLCOverride", tr("Override Speed"), tr("The speed openpilot uses after manually exceeding the posted speed limit.<br><br><b>- Set With Gas Pedal</b>: Uses the speed obtained while pressing the gas<br><b>- Max Set Speed</b>: Uses the cruise control set speed<br><br>Overrides clear upon disengagement."), ""},
-    {"SLCQOL", tr("Quality of Life"), tr("Miscellaneous features to improve the <b>Speed Limit Controller</b> experience."), ""},
-    {"SLCConfirmation", tr("Confirm New Speed Limits"), tr("Require confirmation before applying new speed limits. To accept, use the flashing widget on the driving screen or press the <b>Cruise Increase</b> button. To deny, press the <b>Cruise Decrease</b> button or simply ignore the prompt for 30 seconds."), ""},
-    {"ForceMPHDashboard", tr("Force MPH Readings from Dashboard"), tr("Force dashboard speed limit readings to be in mph."), ""},
-    {"SLCLookaheadHigher", tr("Higher Limit Lookahead Time"), tr("How far ahead openpilot anticipates upcoming higher speed limits from the downloaded map data."), ""},
-    {"SLCLookaheadLower", tr("Lower Limit Lookahead Time"), tr("How far ahead openpilot anticipates upcoming lower speed limits from the downloaded map data."), ""},
-    {"SetSpeedLimit", tr("Match Speed Limit on Engage"), tr("Automatically set cruise control speed to match the current speed limit when first enabling openpilot."), ""},
-    {"SLCMapboxFiller", tr("Use Mapbox as Fallback"), tr("Use <b>Mapbox</b> speed limit data when no other sources are available."), ""},
-    {"SLCPriority", tr("Speed Limit Source Priority"), tr("Define the priority order for speed limit sources (<b>Dashboard</b>, <b>Map Data</b>, <b>Navigation</b>). Higher-priority sources override lower ones when multiple limits are detected."), ""},
-    {"SLCOffsets", tr("Speed Limit Offsets"), tr("Offsets relative to the posted speed limit for a more \"human-like\" driving experience."), ""},
-    {"Offset1", tr("Speed Offset (0–24 mph)"), tr("Target speed offset applied for posted limits between 0 and 24 mph."), ""},
-    {"Offset2", tr("Speed Offset (25–34 mph)"), tr("Target speed offset applied for posted limits between 25 and 34 mph."), ""},
-    {"Offset3", tr("Speed Offset (35–44 mph)"), tr("Target speed offset applied for posted limits between 35 and 44 mph."), ""},
-    {"Offset4", tr("Speed Offset (45–54 mph)"), tr("Target speed offset applied for posted limits between 45 and 54 mph."), ""},
-    {"Offset5", tr("Speed Offset (55–64 mph)"), tr("Target speed offset applied for posted limits between 55 and 64 mph."), ""},
-    {"Offset6", tr("Speed Offset (65–74 mph)"), tr("Target speed offset applied for posted limits between 65 and 74 mph."), ""},
-    {"Offset7", tr("Speed Offset (75–99 mph)"), tr("Target speed offset applied for posted limits between 75 and 99 mph."), ""},
-    {"SLCVisuals", tr("Visual Settings"), tr("Visual features to improve the <b>Speed Limit Controller</b> experience."), ""},
-    {"ShowSLCOffset", tr("Show Speed Limit Offset"), tr("Display the speed limit offset separately on the driving screen."), ""},
-    {"SpeedLimitSources", tr("Show Speed Limit Sources"), tr("Display the speed limit sources on the driving screen."), ""}
+    {"SnowOffsets", tr("Snow"), tr("<b>Driving adjustments for snowy conditions.</b>"), ""},
+    {"IncreaseFollowingSnow", tr("Increase Following Distance by:"), tr("<b>Add extra space behind lead vehicles in snow.</b> Increase for more space; decrease for tighter gaps."), ""},
+    {"IncreasedStoppedDistanceSnow", tr("Increase Stopped Distance by:"), tr("<b>Add extra buffer when stopped behind vehicles in snow.</b> Increase for more room; decrease for shorter gaps."), ""},
+    {"ReduceAccelerationSnow", tr("Reduce Acceleration by:"), tr("<b>Lower the maximum acceleration in snow.</b> Increase for softer takeoffs; decrease for quicker but less stable takeoffs."), ""},
+    {"ReduceLateralAccelerationSnow", tr("Reduce Speed in Curves by:"), tr("<b>Lower the desired speed while driving through curves in snow.</b> Increase for safer, gentler turns; decrease for more aggressive driving in curves."), ""},
+
+    {"SpeedLimitController", tr("Speed Limit Controller"), tr("<b>Limit openpilot's maximum driving speed to the current speed limit</b> obtained from downloaded maps, Mapbox, Navigate on openpilot, or the dashboard for supported vehicles (Ford, Genesis, Hyundai, Kia, Lexus, Toyota)."), "../assets/offroad/icon_speed_limit.png"},
+    {"SLCFallback", tr("Fallback Speed"), tr("<b>The speed used by \"Speed Limit Controller\" when no speed limit is found.</b><br><br>- <b>Set Speed</b>: Use the cruise set speed<br>- <b>Experimental Mode</b>: Estimate the limit using the driving model<br>- <b>Previous Limit</b>: Keep using the last confirmed limit"), ""},
+    {"SLCOverride", tr("Override Speed"), tr("<b>The speed used by \"Speed Limit Controller\" after you manually drive faster than the posted limit.</b><br><br>- <b>Set with Gas Pedal</b>: Use the highest speed reached while pressing the gas<br>- <b>Max Set Speed</b>: Use the cruise set speed<br><br>Overrides clear when openpilot disengages."), ""},
+    {"SLCQOL", tr("Quality of Life"), tr("<b>Miscellaneous \"Speed Limit Controller\" changes</b> to fine-tune how openpilot drives."), ""},
+    {"SLCConfirmation", tr("Confirm New Speed Limits"), tr("<b>Ask before changing to a new speed limit.</b> To accept, tap the flashing on-screen widget or press the Cruise Increase button. To deny, press the Cruise Decrease button or ignore the prompt for 30 seconds."), ""},
+    {"ForceMPHDashboard", tr("Force MPH from Dashboard"), tr("<b>Always read dashboard speed limit signs in mph.</b> Turn this on if the cluster shows mph but the limit is interpreted as km/h."), ""},
+    {"SLCLookaheadHigher", tr("Higher Limit Lookahead Time"), tr("<b>How far ahead openpilot anticipates upcoming higher speed limits</b> from downloaded map data."), ""},
+    {"SLCLookaheadLower", tr("Lower Limit Lookahead Time"), tr("<b>How far ahead openpilot anticipates upcoming lower speed limits</b> from downloaded map data."), ""},
+    {"SetSpeedLimit", tr("Match Speed Limit on Engage"), tr("<b>When openpilot is first enabled, automatically set the max speed to the current posted limit.</b>"), ""},
+    {"SLCMapboxFiller", tr("Use Mapbox as Fallback"), tr("<b>Use Mapbox speed-limit data when no other source is available.</b>"), ""},
+    {"SLCPriority", tr("Speed Limit Source Priority"), tr("<b>The source order for speed limits</b> when more than one is available."), ""},
+    {"SLCOffsets", tr("Speed Limit Offsets"), tr("<b>Add an offset to the posted speed limit</b> to better match your driving style."), ""},
+    {"Offset1", tr("Speed Offset (0–24 mph)"), tr("<b>How much to offset posted speed-limits</b> between 0 and 24 mph."), ""},
+    {"Offset2", tr("Speed Offset (25–34 mph)"), tr("<b>How much to offset posted speed-limits</b> between 25 and 34 mph."), ""},
+    {"Offset3", tr("Speed Offset (35–44 mph)"), tr("<b>How much to offset posted speed-limits</b> between 35 and 44 mph."), ""},
+    {"Offset4", tr("Speed Offset (45–54 mph)"), tr("<b>How much to offset posted speed-limits</b> between 45 and 54 mph."), ""},
+    {"Offset5", tr("Speed Offset (55–64 mph)"), tr("<b>How much to offset posted speed-limits</b> between 55 and 64 mph."), ""},
+    {"Offset6", tr("Speed Offset (65–74 mph)"), tr("<b>How much to offset posted speed-limits</b> between 65 and 74 mph."), ""},
+    {"Offset7", tr("Speed Offset (75–99 mph)"), tr("<b>How much to offset posted speed-limits</b> between 75 and 99 mph."), ""},
+    {"SLCVisuals", tr("Visual Settings"), tr("<b>Visual \"Speed Limit Controller\" changes</b> to fine-tune how the driving screen looks."), ""},
+    {"ShowSLCOffset", tr("Show Speed Limit Offset"), tr("<b>Show the current offset from the posted limit</b> on the driving screen."), ""},
+    {"SpeedLimitSources", tr("Show Speed Limit Sources"), tr("<b>Display the speed-limit sources and their current values</b> on the driving screen."), ""}
   };
 
   for (const auto &[param, title, desc, icon] : longitudinalToggles) {
@@ -197,7 +210,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       longitudinalToggle = conditionalExperimentalToggle;
     } else if (param == "CESpeed") {
       FrogPilotParamValueControl *CESpeed = new FrogPilotParamValueControl(param, title, desc, icon, 0, 99, tr(" mph"), std::map<float, QString>(), 1, true, 175);
-      FrogPilotParamValueControl *CESpeedLead = new FrogPilotParamValueControl("CESpeedLead", tr("With Lead"), tr("Switch to <b>Experimental Mode</b> when driving below this speed with a lead."), icon, 0, 99, tr(" mph"), std::map<float, QString>(), 1, true, 175);
+      FrogPilotParamValueControl *CESpeedLead = new FrogPilotParamValueControl("CESpeedLead", tr("With Lead"), tr("<b>Switch to \"Experimental Mode\" when driving below this speed with a lead</b> to help openpilot handle low-speed situations more smoothly."), icon, 0, 99, tr(" mph"), std::map<float, QString>(), 1, true, 175);
       FrogPilotDualParamValueControl *conditionalSpeeds = new FrogPilotDualParamValueControl(CESpeed, CESpeedLead);
       longitudinalToggle = reinterpret_cast<AbstractControl*>(conditionalSpeeds);
     } else if (param == "CECurves") {
@@ -220,39 +233,38 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 9, QString(), stopTimeLabels);
     } else if (param == "CESignalSpeed") {
       std::vector<QString> ceSignalToggles{"CESignalLaneDetection"};
-      std::vector<QString> ceSignalToggleNames{tr("Only For Detected Lanes")};
+      std::vector<QString> ceSignalToggleNames{tr("Not For Detected Lanes")};
       longitudinalToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 0, 99, tr(" mph"), std::map<float, QString>(), 1.0, true, ceSignalToggles, ceSignalToggleNames, true);
 
-    } else if (param == "CurveSpeedControl") {
+    } else if (param == "CurveSpeedController") {
       FrogPilotManageControl *curveControlToggle = new FrogPilotManageControl(param, title, desc, icon);
-      QObject::connect(curveControlToggle, &FrogPilotManageControl::manageButtonClicked, [this, longitudinalLayout, curveSpeedPanel]() {
-        curveDetectionToggle->setEnabledButtons(0, QDir("/data/media/0/osm/offline").exists());
-
+      QObject::connect(curveControlToggle, &FrogPilotManageControl::manageButtonClicked, [longitudinalLayout, curveSpeedPanel]() {
         longitudinalLayout->setCurrentWidget(curveSpeedPanel);
       });
       longitudinalToggle = curveControlToggle;
-    } else if (param == "CurveDetectionMethod") {
-      std::vector<QString> curveDetectionToggles{"MapTurnControl", "VisionTurnControl"};
-      std::vector<QString> curveDetectionToggleNames{tr("Map Based"), tr("Vision")};
-      curveDetectionToggle = new FrogPilotButtonsControl(title, desc, icon, curveDetectionToggleNames, true, false);
-      for (int i = 0; i < curveDetectionToggles.size(); ++i) {
-        if (params.getBool(curveDetectionToggles[i].toStdString())) {
-          curveDetectionToggle->setCheckedButton(i);
-        }
-      }
-      QObject::connect(curveDetectionToggle, &FrogPilotButtonsControl::buttonClicked, [this, curveDetectionToggles](int id) {
-        params.putBool(curveDetectionToggles[id].toStdString(), !params.getBool(curveDetectionToggles[id].toStdString()));
+    } else if (param == "CalibrationProgress") {
+      calibrationProgressLabel = new LabelControl(title, QString::number(params.getFloat("CalibrationProgress"), 'f', 2) + "%", desc);
+      longitudinalToggle = calibrationProgressLabel;
+    } else if (param == "CalibratedLateralAcceleration") {
+      calibratedLateralAccelerationLabel = new LabelControl(title, QString::number(params.getFloat("CalibratedLateralAcceleration"), 'f', 2) + tr(" m/s²"), desc);
+      longitudinalToggle = calibratedLateralAccelerationLabel;
+    } else if (param == "ResetCurveData") {
+      ButtonControl *resetCurveDataButton = new ButtonControl(title, tr("RESET"), desc);
+      QObject::connect(resetCurveDataButton, &ButtonControl::clicked, [this]() {
+        if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset your curvature data?"), this)) {
+          params.putFloat("CalibratedLateralAcceleration", 2.00);
+          params.remove("CalibrationProgress");
+          params.remove("CurvatureData");
 
-        updateToggles();
-      });
-      QObject::connect(curveDetectionToggle, &FrogPilotButtonsControl::disabledButtonClicked, [this](int id) {
-        if (id == 0) {
-          ConfirmationDialog::alert(tr("The <b>Map Based</b> option is only available when some <b>Map Data</b> has been downloaded!"), this);
+          params_cache.putFloat("CalibratedLateralAcceleration", 2.00);
+          params_cache.remove("CalibrationProgress");
+          params_cache.remove("CurvatureData");
+
+          calibratedLateralAccelerationLabel->setText(QString::number(2.00, 'f', 2) + tr(" m/s²"));
+          calibrationProgressLabel->setText(QString::number(0.00, 'f', 2) + "%");
         }
       });
-      longitudinalToggle = curveDetectionToggle;
-    } else if (param == "CurveSensitivity" || param == "TurnAggressiveness") {
-      longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 200, "%");
+      longitudinalToggle = resetCurveDataButton;
 
     } else if (param == "CustomPersonalities") {
       FrogPilotManageControl *customPersonalitiesToggle = new FrogPilotManageControl(param, title, desc, icon);
@@ -261,11 +273,11 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       });
       longitudinalToggle = customPersonalitiesToggle;
     } else if (param == "ResetTrafficPersonality" || param == "ResetAggressivePersonality" || param == "ResetStandardPersonality" || param == "ResetRelaxedPersonality") {
-      ButtonControl *resetBtn = new ButtonControl(title, tr("RESET"), desc);
-      longitudinalToggle = resetBtn;
+      ButtonControl *resetButton = new ButtonControl(title, tr("RESET"), desc);
+      longitudinalToggle = resetButton;
     } else if (param == "TrafficPersonalityProfile") {
       FrogPilotManageControl *trafficPersonalityToggle = new FrogPilotManageControl(param, title, desc, icon);
-      QObject::connect(trafficPersonalityToggle, &FrogPilotManageControl::manageButtonClicked, [this, longitudinalLayout, trafficPersonalityPanel]() {
+      QObject::connect(trafficPersonalityToggle, &FrogPilotManageControl::manageButtonClicked, [longitudinalLayout, trafficPersonalityPanel, this]() {
         openSubSubPanel();
 
         longitudinalLayout->setCurrentWidget(trafficPersonalityPanel);
@@ -275,7 +287,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       longitudinalToggle = trafficPersonalityToggle;
     } else if (param == "AggressivePersonalityProfile") {
       FrogPilotManageControl *aggressivePersonalityToggle = new FrogPilotManageControl(param, title, desc, icon);
-      QObject::connect(aggressivePersonalityToggle, &FrogPilotManageControl::manageButtonClicked, [this, longitudinalLayout, aggressivePersonalityPanel]() {
+      QObject::connect(aggressivePersonalityToggle, &FrogPilotManageControl::manageButtonClicked, [longitudinalLayout, aggressivePersonalityPanel, this]() {
         openSubSubPanel();
 
         longitudinalLayout->setCurrentWidget(aggressivePersonalityPanel);
@@ -285,7 +297,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       longitudinalToggle = aggressivePersonalityToggle;
     } else if (param == "StandardPersonalityProfile") {
       FrogPilotManageControl *standardPersonalityToggle = new FrogPilotManageControl(param, title, desc, icon);
-      QObject::connect(standardPersonalityToggle, &FrogPilotManageControl::manageButtonClicked, [this, longitudinalLayout, standardPersonalityPanel]() {
+      QObject::connect(standardPersonalityToggle, &FrogPilotManageControl::manageButtonClicked, [longitudinalLayout, standardPersonalityPanel, this]() {
         openSubSubPanel();
 
         longitudinalLayout->setCurrentWidget(standardPersonalityPanel);
@@ -295,7 +307,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       longitudinalToggle = standardPersonalityToggle;
     } else if (param == "RelaxedPersonalityProfile") {
       FrogPilotManageControl *relaxedPersonalityToggle = new FrogPilotManageControl(param, title, desc, icon);
-      QObject::connect(relaxedPersonalityToggle, &FrogPilotManageControl::manageButtonClicked, [this, longitudinalLayout, relaxedPersonalityPanel]() {
+      QObject::connect(relaxedPersonalityToggle, &FrogPilotManageControl::manageButtonClicked, [longitudinalLayout, relaxedPersonalityPanel, this]() {
         openSubSubPanel();
 
         longitudinalLayout->setCurrentWidget(relaxedPersonalityPanel);
@@ -303,19 +315,16 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
         customPersonalityOpen = true;
       });
       longitudinalToggle = relaxedPersonalityToggle;
-    } else if (aggressivePersonalityKeys.find(param) != aggressivePersonalityKeys.end() ||
-               standardPersonalityKeys.find(param) != standardPersonalityKeys.end() ||
-               relaxedPersonalityKeys.find(param) != relaxedPersonalityKeys.end() ||
-               trafficPersonalityKeys.find(param) != trafficPersonalityKeys.end()) {
+    } else if (aggressivePersonalityKeys.contains(param) || standardPersonalityKeys.contains(param) || relaxedPersonalityKeys.contains(param) || trafficPersonalityKeys.contains(param)) {
       if (param == "TrafficFollow" || param == "AggressiveFollow" || param == "StandardFollow" || param == "RelaxedFollow") {
         std::map<float, QString> followTimeLabels;
-        for (float i = 0; i <= 5; i += 0.01) {
+        for (float i = 0; i <= 3; i += 0.01) {
           followTimeLabels[i] = std::lround(i / 0.01) == 1 / 0.01 ? QString::number(i, 'f', 2) + tr(" second") : QString::number(i, 'f', 2) + tr(" seconds");
         }
         if (param == "TrafficFollow") {
-          longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.5, 5, QString(), followTimeLabels, 0.01, true);
+          longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.5, 3, QString(), followTimeLabels, 0.01, true);
         } else {
-          longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 5, QString(), followTimeLabels, 0.01, true);
+          longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 1, 3, QString(), followTimeLabels, 0.01, true);
         }
       } else {
         longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 25, 200, "%");
@@ -430,27 +439,27 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
 
       longitudinalToggle = slcPriorityButton;
     } else if (param == "SLCOffsets") {
-      ButtonControl *manageSLCOffsetsBtn = new ButtonControl(title, tr("MANAGE"), desc);
-      QObject::connect(manageSLCOffsetsBtn, &ButtonControl::clicked, [this, longitudinalLayout, speedLimitControllerOffsetsPanel]() {
+      ButtonControl *manageSLCOffsetsButton = new ButtonControl(title, tr("MANAGE"), desc);
+      QObject::connect(manageSLCOffsetsButton, &ButtonControl::clicked, [longitudinalLayout, speedLimitControllerOffsetsPanel, this]() {
         openSubSubPanel();
 
         longitudinalLayout->setCurrentWidget(speedLimitControllerOffsetsPanel);
 
         slcOpen = true;
       });
-      longitudinalToggle = manageSLCOffsetsBtn;
-    } else if (speedLimitControllerOffsetsKeys.find(param) != speedLimitControllerOffsetsKeys.end()) {
+      longitudinalToggle = manageSLCOffsetsButton;
+    } else if (speedLimitControllerOffsetsKeys.contains(param)) {
       longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, -99, 99, tr(" mph"));
     } else if (param == "SLCQOL") {
-      ButtonControl *manageSLCQOLBtn = new ButtonControl(title, tr("MANAGE"), desc);
-      QObject::connect(manageSLCQOLBtn, &ButtonControl::clicked, [this, longitudinalLayout, speedLimitControllerQOLPanel]() {
+      ButtonControl *manageSLCQOLButton = new ButtonControl(title, tr("MANAGE"), desc);
+      QObject::connect(manageSLCQOLButton, &ButtonControl::clicked, [longitudinalLayout, speedLimitControllerQOLPanel, this]() {
         openSubSubPanel();
 
         longitudinalLayout->setCurrentWidget(speedLimitControllerQOLPanel);
 
         slcOpen = true;
       });
-      longitudinalToggle = manageSLCQOLBtn;
+      longitudinalToggle = manageSLCQOLButton;
     } else if (param == "SLCConfirmation") {
       std::vector<QString> confirmationToggles{"SLCConfirmationLower", "SLCConfirmationHigher"};
       std::vector<QString> confirmationToggleNames{tr("Lower Limits"), tr("Higher Limits")};
@@ -458,15 +467,15 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     } else if (param == "SLCLookaheadHigher" || param == "SLCLookaheadLower") {
       longitudinalToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 30, tr(" seconds"));
     } else if (param == "SLCVisuals") {
-      ButtonControl *manageSLCVisualsBtn = new ButtonControl(title, tr("MANAGE"), desc);
-      QObject::connect(manageSLCVisualsBtn, &ButtonControl::clicked, [this, longitudinalLayout, speedLimitControllerVisualPanel]() {
+      ButtonControl *manageSLCVisualsButton = new ButtonControl(title, tr("MANAGE"), desc);
+      QObject::connect(manageSLCVisualsButton, &ButtonControl::clicked, [longitudinalLayout, speedLimitControllerVisualPanel, this]() {
         openSubSubPanel();
 
         longitudinalLayout->setCurrentWidget(speedLimitControllerVisualPanel);
 
         slcOpen = true;
       });
-      longitudinalToggle = manageSLCVisualsBtn;
+      longitudinalToggle = manageSLCVisualsButton;
 
     } else {
       longitudinalToggle = new ParamControl(param, title, desc, icon);
@@ -474,33 +483,33 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
 
     toggles[param] = longitudinalToggle;
 
-    if (advancedLongitudinalTuneKeys.find(param) != advancedLongitudinalTuneKeys.end()) {
+    if (advancedLongitudinalTuneKeys.contains(param)) {
       advancedLongitudinalTuneList->addItem(longitudinalToggle);
-    } else if (aggressivePersonalityKeys.find(param) != aggressivePersonalityKeys.end()) {
+    } else if (aggressivePersonalityKeys.contains(param)) {
       aggressivePersonalityList->addItem(longitudinalToggle);
-    } else if (conditionalExperimentalKeys.find(param) != conditionalExperimentalKeys.end()) {
+    } else if (conditionalExperimentalKeys.contains(param)) {
       conditionalExperimentalList->addItem(longitudinalToggle);
-    } else if (curveSpeedKeys.find(param) != curveSpeedKeys.end()) {
+    } else if (curveSpeedKeys.contains(param)) {
       curveSpeedList->addItem(longitudinalToggle);
-    } else if (customDrivingPersonalityKeys.find(param) != customDrivingPersonalityKeys.end()) {
+    } else if (customDrivingPersonalityKeys.contains(param)) {
       customDrivingPersonalityList->addItem(longitudinalToggle);
-    } else if (longitudinalTuneKeys.find(param) != longitudinalTuneKeys.end()) {
+    } else if (longitudinalTuneKeys.contains(param)) {
       longitudinalTuneList->addItem(longitudinalToggle);
-    } else if (qolKeys.find(param) != qolKeys.end()) {
+    } else if (qolKeys.contains(param)) {
       qolList->addItem(longitudinalToggle);
-    } else if (relaxedPersonalityKeys.find(param) != relaxedPersonalityKeys.end()) {
+    } else if (relaxedPersonalityKeys.contains(param)) {
       relaxedPersonalityList->addItem(longitudinalToggle);
-    } else if (speedLimitControllerKeys.find(param) != speedLimitControllerKeys.end()) {
+    } else if (speedLimitControllerKeys.contains(param)) {
       speedLimitControllerList->addItem(longitudinalToggle);
-    } else if (speedLimitControllerOffsetsKeys.find(param) != speedLimitControllerOffsetsKeys.end()) {
+    } else if (speedLimitControllerOffsetsKeys.contains(param)) {
       speedLimitControllerOffsetsList->addItem(longitudinalToggle);
-    } else if (speedLimitControllerQOLKeys.find(param) != speedLimitControllerQOLKeys.end()) {
+    } else if (speedLimitControllerQOLKeys.contains(param)) {
       speedLimitControllerQOLList->addItem(longitudinalToggle);
-    } else if (speedLimitControllerVisualKeys.find(param) != speedLimitControllerVisualKeys.end()) {
+    } else if (speedLimitControllerVisualKeys.contains(param)) {
       speedLimitControllerVisualList->addItem(longitudinalToggle);
-    } else if (standardPersonalityKeys.find(param) != standardPersonalityKeys.end()) {
+    } else if (standardPersonalityKeys.contains(param)) {
       standardPersonalityList->addItem(longitudinalToggle);
-    } else if (trafficPersonalityKeys.find(param) != trafficPersonalityKeys.end()) {
+    } else if (trafficPersonalityKeys.contains(param)) {
       trafficPersonalityList->addItem(longitudinalToggle);
     } else {
       longitudinalList->addItem(longitudinalToggle);
@@ -509,15 +518,21 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     }
 
     if (FrogPilotManageControl *frogPilotManageToggle = qobject_cast<FrogPilotManageControl*>(longitudinalToggle)) {
-      QObject::connect(frogPilotManageToggle, &FrogPilotManageControl::manageButtonClicked, this, &FrogPilotLongitudinalPanel::openSubPanel);
+      QObject::connect(frogPilotManageToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
+        emit openSubPanel();
+        openDescriptions(forceOpenDescriptions, toggles);
+      });
     }
 
+    QObject::connect(longitudinalToggle, &AbstractControl::hideDescriptionEvent, [this]() {
+      update();
+    });
     QObject::connect(longitudinalToggle, &AbstractControl::showDescriptionEvent, [this]() {
       update();
     });
   }
 
-  std::set<QString> forceUpdateKeys = {"HumanAcceleration", "LongitudinalTune"};
+  QSet<QString> forceUpdateKeys = {"HumanAcceleration", "LongitudinalTune"};
   for (const QString &key : forceUpdateKeys) {
     QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, this, &FrogPilotLongitudinalPanel::updateToggles);
   }
@@ -529,7 +544,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
   FrogPilotParamValueControl *trafficSpeedToggle = static_cast<FrogPilotParamValueControl*>(toggles["TrafficJerkSpeed"]);
   FrogPilotParamValueControl *trafficSpeedDecreaseToggle = static_cast<FrogPilotParamValueControl*>(toggles["TrafficJerkSpeedDecrease"]);
   FrogPilotButtonsControl *trafficResetButton = static_cast<FrogPilotButtonsControl*>(toggles["ResetTrafficPersonality"]);
-  QObject::connect(trafficResetButton, &FrogPilotButtonsControl::buttonClicked, this, [=]() {
+  QObject::connect(trafficResetButton, &FrogPilotButtonsControl::buttonClicked, [=]() {
     if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset your settings for <b>Traffic Mode</b>?"), this)) {
       params.putFloat("TrafficFollow", params_default.getFloat("TrafficFollow"));
       params.putFloat("TrafficJerkAcceleration", params_default.getFloat("TrafficJerkAcceleration"));
@@ -554,7 +569,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
   FrogPilotParamValueControl *aggressiveSpeedToggle = static_cast<FrogPilotParamValueControl*>(toggles["AggressiveJerkSpeed"]);
   FrogPilotParamValueControl *aggressiveSpeedDecreaseToggle = static_cast<FrogPilotParamValueControl*>(toggles["AggressiveJerkSpeedDecrease"]);
   FrogPilotButtonsControl *aggressiveResetButton = static_cast<FrogPilotButtonsControl*>(toggles["ResetAggressivePersonality"]);
-  QObject::connect(aggressiveResetButton, &FrogPilotButtonsControl::buttonClicked, this, [=]() {
+  QObject::connect(aggressiveResetButton, &FrogPilotButtonsControl::buttonClicked, [=]() {
     if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset your settings for the <b>Aggressive</b> personality?"), this)) {
       params.putFloat("AggressiveFollow", params_default.getFloat("AggressiveFollow"));
       params.putFloat("AggressiveJerkAcceleration", params_default.getFloat("AggressiveJerkAcceleration"));
@@ -579,7 +594,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
   FrogPilotParamValueControl *standardSpeedToggle = static_cast<FrogPilotParamValueControl*>(toggles["StandardJerkSpeed"]);
   FrogPilotParamValueControl *standardSpeedDecreaseToggle = static_cast<FrogPilotParamValueControl*>(toggles["StandardJerkSpeedDecrease"]);
   FrogPilotButtonsControl *standardResetButton = static_cast<FrogPilotButtonsControl*>(toggles["ResetStandardPersonality"]);
-  QObject::connect(standardResetButton, &FrogPilotButtonsControl::buttonClicked, this, [=]() {
+  QObject::connect(standardResetButton, &FrogPilotButtonsControl::buttonClicked, [=]() {
     if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset your settings for the <b>Standard</b> personality?"), this)) {
       params.putFloat("StandardFollow", params_default.getFloat("StandardFollow"));
       params.putFloat("StandardJerkAcceleration", params_default.getFloat("StandardJerkAcceleration"));
@@ -604,7 +619,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
   FrogPilotParamValueControl *relaxedSpeedToggle = static_cast<FrogPilotParamValueControl*>(toggles["RelaxedJerkSpeed"]);
   FrogPilotParamValueControl *relaxedSpeedDecreaseToggle = static_cast<FrogPilotParamValueControl*>(toggles["RelaxedJerkSpeedDecrease"]);
   FrogPilotButtonsControl *relaxedResetButton = static_cast<FrogPilotButtonsControl*>(toggles["ResetRelaxedPersonality"]);
-  QObject::connect(relaxedResetButton, &FrogPilotButtonsControl::buttonClicked, this, [=]() {
+  QObject::connect(relaxedResetButton, &FrogPilotButtonsControl::buttonClicked, [=]() {
     if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset your settings for the <b>Relaxed</b> personality?"), this)) {
       params.putFloat("RelaxedFollow", params_default.getFloat("RelaxedFollow"));
       params.putFloat("RelaxedJerkAcceleration", params_default.getFloat("RelaxedJerkAcceleration"));
@@ -622,8 +637,15 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     }
   });
 
-  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [longitudinalLayout, longitudinalPanel] {longitudinalLayout->setCurrentWidget(longitudinalPanel);});
-  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubSubPanel, [this, longitudinalLayout, customDrivingPersonalityPanel, speedLimitControllerPanel]() {
+  openDescriptions(forceOpenDescriptions, toggles);
+
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [longitudinalLayout, longitudinalPanel, this] {
+    openDescriptions(forceOpenDescriptions, toggles);
+    longitudinalLayout->setCurrentWidget(longitudinalPanel);
+  });
+  QObject::connect(parent, &FrogPilotSettingsWindow::closeSubSubPanel, [longitudinalLayout, customDrivingPersonalityPanel, speedLimitControllerPanel, this]() {
+    openDescriptions(forceOpenDescriptions, toggles);
+
     if (customPersonalityOpen) {
       longitudinalLayout->setCurrentWidget(customDrivingPersonalityPanel);
 
@@ -652,6 +674,9 @@ void FrogPilotLongitudinalPanel::showEvent(QShowEvent *event) {
   tuningLevel = parent->tuningLevel;
   vEgoStarting = parent->vEgoStarting;
   vEgoStopping = parent->vEgoStopping;
+
+  calibratedLateralAccelerationLabel->setText(QString::number(params.getFloat("CalibratedLateralAcceleration"), 'f', 2) + tr(" m/s²"));
+  calibrationProgressLabel->setText(QString::number(params.getFloat("CalibrationProgress"), 'f', 2) + "%");
 
   longitudinalActuatorDelayToggle->setTitle(QString(tr("Actuator Delay (Default: %1)")).arg(QString::number(longitudinalActuatorDelay, 'f', 2)));
   startAccelToggle->setTitle(QString(tr("Start Acceleration (Default: %1)")).arg(QString::number(startAccel, 'f', 2)));
@@ -736,13 +761,13 @@ void FrogPilotLongitudinalPanel::updateMetric(bool metric, bool bootRun) {
     offset6Toggle->setTitle(tr("Speed Offset (100–119 km/h)"));
     offset7Toggle->setTitle(tr("Speed Offset (120–140 km/h)"));
 
-    offset1Toggle->setDescription(tr("Target speed offset applied for posted limits between 0 and 29 km/h."));
-    offset2Toggle->setDescription(tr("Target speed offset applied for posted limits between 30 and 49 km/h."));
-    offset3Toggle->setDescription(tr("Target speed offset applied for posted limits between 50 and 59 km/h."));
-    offset4Toggle->setDescription(tr("Target speed offset applied for posted limits between 60 and 79 km/h."));
-    offset5Toggle->setDescription(tr("Target speed offset applied for posted limits between 80 and 99 km/h."));
-    offset6Toggle->setDescription(tr("Target speed offset applied for posted limits between 100 and 119 km/h."));
-    offset7Toggle->setDescription(tr("Target speed offset applied for posted limits between 120 and 140 km/h."));
+    offset1Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 0 and 24 mph."));
+    offset2Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 25 and 34 mph."));
+    offset3Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 35 and 44 mph."));
+    offset4Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 45 and 54 mph."));
+    offset5Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 55 and 64 mph."));
+    offset6Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 65 and 74 mph."));
+    offset7Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 75 and 99 mph."));
 
     increasedStoppedDistanceToggle->updateControl(0, 3, metricDistanceLabels);
 
@@ -767,13 +792,13 @@ void FrogPilotLongitudinalPanel::updateMetric(bool metric, bool bootRun) {
     offset6Toggle->setTitle(tr("Speed Offset (65–74 mph)"));
     offset7Toggle->setTitle(tr("Speed Offset (75–99 mph)"));
 
-    offset1Toggle->setDescription(tr("Target speed offset applied for posted limits between 0 and 24 mph."));
-    offset2Toggle->setDescription(tr("Target speed offset applied for posted limits between 25 and 34 mph."));
-    offset3Toggle->setDescription(tr("Target speed offset applied for posted limits between 35 and 44 mph."));
-    offset4Toggle->setDescription(tr("Target speed offset applied for posted limits between 45 and 54 mph."));
-    offset5Toggle->setDescription(tr("Target speed offset applied for posted limits between 55 and 64 mph."));
-    offset6Toggle->setDescription(tr("Target speed offset applied for posted limits between 65 and 74 mph."));
-    offset7Toggle->setDescription(tr("Target speed offset applied for posted limits between 75 and 99 mph."));
+    offset1Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 0 and 24 mph."));
+    offset2Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 25 and 34 mph."));
+    offset3Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 35 and 44 mph."));
+    offset4Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 45 and 54 mph."));
+    offset5Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 55 and 64 mph."));
+    offset6Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 65 and 74 mph."));
+    offset7Toggle->setDescription(tr("<b>How much to offset posted speed-limits</b> between 75 and 99 mph."));
 
     increasedStoppedDistanceToggle->updateControl(0, 10, imperialDistanceLabels);
 
@@ -794,21 +819,17 @@ void FrogPilotLongitudinalPanel::updateMetric(bool metric, bool bootRun) {
 
 void FrogPilotLongitudinalPanel::updateToggles() {
   for (auto &[key, toggle] : toggles) {
-    if (parentKeys.find(key) != parentKeys.end()) {
+    if (parentKeys.contains(key)) {
       toggle->setVisible(false);
     }
   }
 
   for (auto &[key, toggle] : toggles) {
-    if (parentKeys.find(key) != parentKeys.end()) {
+    if (parentKeys.contains(key)) {
       continue;
     }
 
     bool setVisible = tuningLevel >= frogpilotToggleLevels[key].toDouble();
-
-    if (key == "CurveSensitivity" || key == "TurnAggressiveness") {
-      setVisible &= params.getBool("MapTurnControl") || params.getBool("VisionTurnControl");
-    }
 
     if (key == "CustomCruise" || key == "CustomCruiseLong" || key == "SetSpeedLimit" || key == "SetSpeedOffset") {
       setVisible &= !hasPCMCruise;
@@ -821,10 +842,6 @@ void FrogPilotLongitudinalPanel::updateToggles() {
     else if (key == "MapGears") {
       setVisible &= isGM || isHKGCanFd || isToyota;
       setVisible &= !isTSK;
-    }
-
-    else if (key == "MTSCCurvatureCheck") {
-      setVisible &= params.getBool("MapTurnControl");
     }
 
     else if (key == "ReverseCruise") {
@@ -847,37 +864,39 @@ void FrogPilotLongitudinalPanel::updateToggles() {
     toggle->setVisible(setVisible);
 
     if (setVisible) {
-      if (advancedLongitudinalTuneKeys.find(key) != advancedLongitudinalTuneKeys.end()) {
+      if (advancedLongitudinalTuneKeys.contains(key)) {
         toggles["AdvancedLongitudinalTune"]->setVisible(true);
-      } else if (aggressivePersonalityKeys.find(key) != aggressivePersonalityKeys.end()) {
+      } else if (aggressivePersonalityKeys.contains(key)) {
         toggles["AggressivePersonalityProfile"]->setVisible(true);
-      } else if (conditionalExperimentalKeys.find(key) != conditionalExperimentalKeys.end()) {
+      } else if (conditionalExperimentalKeys.contains(key)) {
         toggles["ConditionalExperimental"]->setVisible(true);
-      } else if (curveSpeedKeys.find(key) != curveSpeedKeys.end()) {
-        toggles["CurveSpeedControl"]->setVisible(true);
-      } else if (customDrivingPersonalityKeys.find(key) != customDrivingPersonalityKeys.end()) {
+      } else if (curveSpeedKeys.contains(key)) {
+        toggles["CurveSpeedController"]->setVisible(true);
+      } else if (customDrivingPersonalityKeys.contains(key)) {
         toggles["CustomPersonalities"]->setVisible(true);
-      } else if (longitudinalTuneKeys.find(key) != longitudinalTuneKeys.end()) {
+      } else if (longitudinalTuneKeys.contains(key)) {
         toggles["LongitudinalTune"]->setVisible(true);
-      } else if (qolKeys.find(key) != qolKeys.end()) {
+      } else if (qolKeys.contains(key)) {
         toggles["QOLLongitudinal"]->setVisible(true);
-      } else if (relaxedPersonalityKeys.find(key) != relaxedPersonalityKeys.end()) {
+      } else if (relaxedPersonalityKeys.contains(key)) {
         toggles["RelaxedPersonalityProfile"]->setVisible(true);
-      } else if (speedLimitControllerKeys.find(key) != speedLimitControllerKeys.end()) {
+      } else if (speedLimitControllerKeys.contains(key)) {
         toggles["SpeedLimitController"]->setVisible(true);
-      } else if (speedLimitControllerOffsetsKeys.find(key) != speedLimitControllerOffsetsKeys.end()) {
+      } else if (speedLimitControllerOffsetsKeys.contains(key)) {
         toggles["SLCOffsets"]->setVisible(true);
-      } else if (speedLimitControllerQOLKeys.find(key) != speedLimitControllerQOLKeys.end()) {
+      } else if (speedLimitControllerQOLKeys.contains(key)) {
         toggles["SLCQOL"]->setVisible(true);
-      } else if (speedLimitControllerVisualKeys.find(key) != speedLimitControllerVisualKeys.end()) {
+      } else if (speedLimitControllerVisualKeys.contains(key)) {
         toggles["SLCVisuals"]->setVisible(true);
-      } else if (standardPersonalityKeys.find(key) != standardPersonalityKeys.end()) {
+      } else if (standardPersonalityKeys.contains(key)) {
         toggles["StandardPersonalityProfile"]->setVisible(true);
-      } else if (trafficPersonalityKeys.find(key) != trafficPersonalityKeys.end()) {
+      } else if (trafficPersonalityKeys.contains(key)) {
         toggles["TrafficPersonalityProfile"]->setVisible(true);
       }
     }
   }
+
+  openDescriptions(forceOpenDescriptions, toggles);
 
   update();
 }

@@ -2,6 +2,13 @@
 
 #include "selfdrive/ui/ui.h"
 
+struct StatsLabels {
+  QLabel *distance;
+  QLabel *distance_unit;
+  QLabel *hours;
+  QLabel *routes;
+};
+
 class DriveStats : public QFrame {
   Q_OBJECT
 
@@ -9,30 +16,22 @@ public:
   explicit DriveStats(QWidget *parent = 0);
 
 private:
-  inline QString getDistanceUnit() const { return metric ? tr("KM") : tr("Miles"); }
-
-  struct StatsLabels {
-    QLabel *routes;
-    QLabel *distance;
-    QLabel *distance_unit;
-    QLabel *hours;
-  };
-
   void addStatsLayouts(const QString &title, StatsLabels &labels, bool FrogPilot = false);
   void showEvent(QShowEvent *event) override;
   void updateStats();
   void updateStatsForLabel(const QJsonObject &obj, StatsLabels &labels);
-  void updateFrogPilotStats(const QJsonObject &obj, StatsLabels &labels);
+  void updateFrogPilotStatsForLabel(StatsLabels &labels);
+
+  bool isMetric;
+  bool konik;
 
   Params params;
-  Params paramsTracking{"/cache/tracking"};
-
-  bool konik;
-  bool metric;
 
   QJsonDocument stats;
 
-  StatsLabels all, week, frogPilot;
+  StatsLabels all;
+  StatsLabels frogPilot;
+  StatsLabels week;
 
 private slots:
   void parseResponse(const QString &response, bool success);

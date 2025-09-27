@@ -2,6 +2,7 @@
 # Twilsonco's Lateral Neural Network Feedforward
 from collections import deque
 from difflib import SequenceMatcher
+from typing import NamedTuple
 
 import json
 import math
@@ -10,11 +11,10 @@ import os
 
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.numpy_fast import interp
-from openpilot.selfdrive.car.interfaces import LatControlInputs
 from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N
 from openpilot.selfdrive.modeld.constants import ModelConstants
 
-from openpilot.frogpilot.common.frogpilot_variables import TORQUE_NN_MODEL_PATH, get_nnff_model_files, params
+from openpilot.frogpilot.common.frogpilot_variables import NNFF_MODELS_PATH, get_nnff_model_files, params
 
 # At higher speeds (25+mph) we can assume:
 # Lateral acceleration achieved by a specific car correlates to
@@ -121,7 +121,7 @@ def get_nn_model_path(car, eps_firmware) -> str | None:
       return None, 0.0
 
     best = max(candidates, key=lambda model: similarity(model, query))
-    return os.path.join(TORQUE_NN_MODEL_PATH, f"{best}.json"), similarity(best, query)
+    return os.path.join(NNFF_MODELS_PATH, f"{best}.json"), similarity(best, query)
 
   def find_valid_model(*queries):
     for query in queries:
@@ -152,13 +152,19 @@ def sign(x):
 def similarity(s1: str, s2: str) -> float:
   return SequenceMatcher(None, s1, s2).ratio()
 
+class LatControlInputs(NamedTuple):
+  lateral_acceleration: float
+  roll_compensation: float
+  vego: float
+  aego: float
+
 class NeuralNetworkFeedforward:
-  def __init__(self, CP, CI, LatControlTorque):
+  def __init__(self, CP, LatControlTorque):
     self.lat_control_torque = LatControlTorque
 
     self.lat_torque_nn_model = get_nn_model(CP.carFingerprint, str(next((fw.fwVersion for fw in CP.carFw if fw.ecu == "eps"), "")).replace("\\", ""))
 
-    self.torque_from_lateral_accel = CI.torque_from_lateral_accel()
+    self.torque_from_lateral_accel = self.lat_control_torque.torque_from_lateral_accel
 
     self.use_steering_angle = self.lat_control_torque.torque_params.useSteeringAngle
 
@@ -199,8 +205,6 @@ class NeuralNetworkFeedforward:
     self.lateral_accel_desired_deque = deque(maxlen=history_check_frames[0])
     self.past_future_len = len(self.past_times) + len(self.nn_future_times)
     self.roll_deque = deque(maxlen=history_check_frames[0])
-
-    self.nnLog = []
 
   def update_live_delay(self, lateral_delay):
     self.lateral_delay = lateral_delay
@@ -285,25 +289,15 @@ class NeuralNetworkFeedforward:
 
       # apply friction override for cars with low NN friction response
       if self.nn_friction_override:
-        pid_log.error += self.torque_from_lateral_accel(LatControlInputs(0.0, 0.0, CS.vEgo, CS.aEgo), self.lat_control_torque.torque_params,
-                                                        friction_input, lateral_accel_deadzone, friction_compensation=True, gravity_adjusted=False)
-
-      self.nnLog = nn_input + nnff_setpoint_input + nnff_measurement_input
+        pid_log.error += self.torque_from_lateral_accel(0.0, self.lat_control_torque.torque_params)
     else:
-      torque_from_setpoint = self.torque_from_lateral_accel(LatControlInputs(setpoint, roll_compensation, CS.vEgo, CS.aEgo), self.lat_control_torque.torque_params,
-                                                            lateral_jerk_setpoint, lateral_accel_deadzone, friction_compensation=True, gravity_adjusted=False)
+      torque_from_measurement = self.torque_from_lateral_accel(measurement, self.lat_control_torque.torque_params)
+      torque_from_setpoint = self.torque_from_lateral_accel(setpoint, self.lat_control_torque.torque_params)
 
-      torque_from_measurement = self.torque_from_lateral_accel(LatControlInputs(measurement, roll_compensation, CS.vEgo, CS.aEgo), self.lat_control_torque.torque_params,
-                                                               lateral_jerk_measurement, lateral_accel_deadzone, friction_compensation=True, gravity_adjusted=False)
-
-      pid_log.error = torque_from_setpoint - torque_from_measurement
+      pid_log.error = float(torque_from_setpoint - torque_from_measurement)
 
       error = desired_lateral_accel - actual_lateral_accel
       friction_input = self.lat_accel_friction_factor * error + self.lat_jerk_friction_factor * lookahead_lateral_jerk
-      ff = self.torque_from_lateral_accel(LatControlInputs(gravity_adjusted_lateral_accel, roll_compensation, CS.vEgo, CS.aEgo), self.lat_control_torque.torque_params,
-                                          friction_input, lateral_accel_deadzone, friction_compensation=True,
-                                          gravity_adjusted=True)
+      ff = self.torque_from_lateral_accel(gravity_adjusted_lateral_accel, self.lat_control_torque.torque_params)
 
-      self.nnLog = []
-
-    return torque_from_setpoint, torque_from_measurement, pid_log, ff
+    return pid_log, ff

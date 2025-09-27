@@ -135,7 +135,7 @@ class TestTorchBackend(unittest.TestCase):
     print(c.cpu())
 
   def test_maxpool2d_backward(self):
-    x = torch.arange(3*3, device=device).reshape(1, 1, 3, 3).requires_grad_(True)
+    x = torch.arange(3*3, dtype=torch.float32, device=device).reshape(1, 1, 3, 3).requires_grad_(True)
     torch.nn.functional.max_pool2d(x, kernel_size=2, stride=1).sum().backward()
     np.testing.assert_equal(x.grad.squeeze().cpu().numpy(), [[0, 0, 0], [0, 1, 1], [0, 1, 1]])
 
@@ -197,6 +197,17 @@ class TestTorchBackend(unittest.TestCase):
     np.testing.assert_equal(w.cpu().numpy(), [-1, 3])
     recon = (v @ torch.diag(w) @ v.T).cpu().numpy()
     np.testing.assert_allclose(recon, a.cpu().numpy(), atol=1e-6)
+
+  def test_linalg_det(self):
+    a = torch.diag(torch.tensor([1,2,3,4,5], dtype = torch.float32, device=device))
+    b = torch.linalg.det(a)
+    np.testing.assert_equal(b.cpu().numpy(), 120.0)
+
+  def test_linalg_cross(self):
+    a = torch.tensor([[1, 0, 0], [0, 1, 0]], dtype=torch.float32, device=device)
+    b = torch.tensor([[0, 0, 1]], dtype=torch.float32, device=device)
+    cross = torch.linalg.cross(a, b)
+    np.testing.assert_equal(cross.cpu().numpy(), np.array([[0, -1, 0], [1, 0, 0]], dtype=np.float32))
 
   def test_scalar_assign(self):
     a = torch.tensor([1, 2, 3], device=device)

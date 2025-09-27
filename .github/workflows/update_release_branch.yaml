@@ -69,21 +69,25 @@ jobs:
       - name: Update README Date and Remove update file
         run: |
           DAY=$(TZ="${{ env.TZ }}" date +'%d' | sed 's/^0//')
+
           case "$DAY" in
             1|21|31) SUFFIX="st" ;;
-            2|22) SUFFIX="nd" ;;
-            3|23) SUFFIX="rd" ;;
-            *) SUFFIX="th" ;;
+            2|22)    SUFFIX="nd" ;;
+            3|23)    SUFFIX="rd" ;;
+            *)       SUFFIX="th" ;;
           esac
+
           MONTH=$(TZ="${{ env.TZ }}" date +'%B')
           YEAR=$(TZ="${{ env.TZ }}" date +'%Y')
-          NEW_DATE="**${MONTH} ${DAY}${SUFFIX}, ${YEAR}**"
 
-          sed -i "/FrogPilot was last updated on:/ { N; N; s/\(\n\)\n.*$/\1\n${NEW_DATE}/; }" README.md
+          DATE="${MONTH} ${DAY}${SUFFIX}, ${YEAR}"
+          DATE_ESCAPED=$(printf '%s' "$DATE" | sed -E 's/ /%20/g; s/,/%2C/g')
+
+          sed -i -E "s|(Last%20Updated-)[^-)]*|\1${DATE_ESCAPED}|g" README.md
 
           git add README.md
           git rm -f "${{ env.UPDATE_FILE }}"
-          git commit -m "Updated README date to ${NEW_DATE}"
+          git commit -m "Updated README date to ${DATE}"
 
       - name: Squash Commits
         run: |

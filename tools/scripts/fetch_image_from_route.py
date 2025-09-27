@@ -26,7 +26,7 @@ segment = int(sys.argv[2])
 frame = int(sys.argv[3])
 camera = cameras[sys.argv[4]] if len(sys.argv) > 4 and sys.argv[4] in cameras else "cameras"
 
-url = f'https://{'api.konik.ai' if use_konik_server() else 'commadotai.com'}/v1/route/{route}/files'
+url = f'https://api.{"konik.ai" if use_konik_server() else "commadotai.com"}/v1/route/{route}/files'
 r = requests.get(url, headers={"Authorization": f"JWT {jwt}"}, timeout=10)
 assert r.status_code == 200
 print("got api response")

@@ -11,6 +11,9 @@ public:
 
   void updateVariables();
 
+  bool canUsePedal = false;
+  bool canUseSDSU = false;
+  bool forceOpenDescriptions = false;
   bool hasAutoTune = true;
   bool hasBSM = true;
   bool hasDashSpeedLimits = true;
@@ -20,7 +23,9 @@ public:
   bool hasPCMCruise = false;
   bool hasPedal = false;
   bool hasRadar = true;
+  bool hasSDSU = false;
   bool hasSNG = false;
+  bool hasZSS = false;
   bool isAngleCar = false;
   bool isBolt = false;
   bool isC3 = false;
@@ -63,19 +68,24 @@ private:
   void closePanel();
   void createPanelButtons(FrogPilotListWidget *list);
   void hideEvent(QHideEvent *event) override;
+  void showEvent(QShowEvent *event) override;
   void updateState();
   void updateTuningLevel();
 
   bool panelOpen;
 
+  std::string carMake;
+
   FrogPilotButtonsControl *drivingPanelButtons;
+  FrogPilotButtonsControl *navigationPanelButtons;
+  FrogPilotButtonsControl *soundPanelButtons;
   FrogPilotButtonsControl *systemPanelButtons;
+  FrogPilotButtonsControl *themePanelButtons;
   FrogPilotButtonsControl *togglePreset;
   FrogPilotButtonsControl *vehiclePanelButtons;
 
   Params params;
   Params params_memory{"/dev/shm/params"};
-  Params params_tracking{"/cache/tracking"};
 
   QStackedLayout *mainLayout;
 

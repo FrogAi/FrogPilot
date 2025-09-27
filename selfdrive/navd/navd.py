@@ -63,8 +63,6 @@ class RouteEngine:
       self.mapbox_host = "https://api.mapbox.com"
 
     # FrogPilot variables
-    self.frogpilot_toggles = get_frogpilot_toggles()
-
     self.approaching_intersection = False
     self.approaching_turn = False
 
@@ -72,6 +70,8 @@ class RouteEngine:
 
     self.stop_coord = []
     self.stop_signal = []
+
+    self.frogpilot_toggles = get_frogpilot_toggles()
 
   def update(self):
     self.sm.update(0)

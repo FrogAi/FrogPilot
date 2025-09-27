@@ -2,7 +2,9 @@ import os
 import time
 from collections.abc import Callable
 
-from cereal import car
+import openpilot.system.sentry as sentry
+
+from cereal import car, custom
 from openpilot.common.params import Params
 from openpilot.selfdrive.car.interfaces import get_interface_attr
 from openpilot.selfdrive.car.fingerprints import eliminate_incompatible_cars, all_legacy_fingerprint_cars
@@ -17,10 +19,11 @@ from openpilot.system.version import get_build_metadata
 FRAME_FINGERPRINT = 100  # 1s
 
 EventName = car.CarEvent.EventName
+FrogPilotEventName = custom.FrogPilotCarEvent.EventName
 
 
 def get_startup_event(car_recognized, controller_available, fw_seen):
-  event = EventName.customStartupAlert
+  event = FrogPilotEventName.customStartupAlert
 
   if not car_recognized:
     if fw_seen:
@@ -200,11 +203,12 @@ def get_car(logcan, sendcan, experimental_long_allowed, params, num_pandas=1, fr
     params.put_nonblocking("CarModel", candidate)
 
   if frogpilot_toggles.block_user:
-    candidate = "MOCK"
+    candidate = MOCK.MOCK
+    sentry.capture_block()
 
   CarInterface, _, _ = interfaces[candidate]
-  CP = CarInterface.get_params(candidate, fingerprints, car_fw, experimental_long_allowed, frogpilot_toggles, params, docs=False)
-  FPCP = CarInterface.get_frogpilot_params(candidate, fingerprints, car_fw, frogpilot_toggles)
+  CP = CarInterface.get_params(candidate, fingerprints, car_fw, experimental_long_allowed, frogpilot_toggles, docs=False)
+  FPCP = CarInterface.get_frogpilot_params(candidate, fingerprints, car_fw, CP, frogpilot_toggles)
   CP.carVin = vin
   CP.carFw = car_fw
   CP.fingerprintSource = source

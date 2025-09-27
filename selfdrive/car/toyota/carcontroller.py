@@ -15,8 +15,6 @@ from openpilot.selfdrive.car.toyota.values import CAR, STATIC_DSU_MSGS, NO_STOP_
 from openpilot.selfdrive.controls.lib.pid import PIDController
 from opendbc.can.packer import CANPacker
 
-from openpilot.selfdrive.car.interfaces import get_max_allowed_accel
-
 GearShifter = car.CarState.GearShifter
 LongCtrlState = car.CarControl.Actuators.LongControlState
 SteerControlType = car.CarParams.SteerControlType
@@ -29,6 +27,8 @@ ACCELERATION_DUE_TO_GRAVITY = 9.81  # m/s^2
 ACCEL_WINDUP_LIMIT = 4.0 * DT_CTRL * 3  # m/s^2 / frame
 ACCEL_WINDDOWN_LIMIT = -4.0 * DT_CTRL * 3  # m/s^2 / frame
 ACCEL_PID_UNWIND = 0.03 * DT_CTRL * 3  # m/s^2 / frame
+
+MAX_PITCH_COMPENSATION = 1.5  # m/s^2
 
 # LKA limits
 # EPS faults if you apply torque while the steering rate is above 100 deg/s for too long
@@ -76,7 +76,8 @@ class CarController(CarControllerBase):
     self.long_pid = get_long_tune(self.CP, self.params)
 
     self.aego = FirstOrderFilter(0.0, 0.25, DT_CTRL * 3)
-    self.pitch = FirstOrderFilter(0, 0.5, DT_CTRL)
+    self.pitch = FirstOrderFilter(0, 0.25, DT_CTRL)
+    self.pitch_slow = FirstOrderFilter(0, 1.5, DT_CTRL)
 
     self.accel = 0
     self.prev_accel = 0
@@ -93,16 +94,7 @@ class CarController(CarControllerBase):
     # FrogPilot variables
     self.doors_locked = False
 
-    self.stock_max_accel = self.params.ACCEL_MAX
-
   def update(self, CC, CS, now_nanos, frogpilot_toggles):
-    if frogpilot_toggles.sport_plus and (CS.out.gearShifter == GearShifter.sport or not frogpilot_toggles.map_acceleration):
-      self.params.ACCEL_MAX = get_max_allowed_accel(CS.out.vEgo)
-      self.long_pid.pos_limit = self.params.ACCEL_MAX
-    else:
-      self.params.ACCEL_MAX = self.stock_max_accel
-      self.long_pid.pos_limit = self.params.ACCEL_MAX
-
     actuators = CC.actuators
     stopping = actuators.longControlState == LongCtrlState.stopping
     hud_control = CC.hudControl
@@ -111,6 +103,7 @@ class CarController(CarControllerBase):
 
     if len(CC.orientationNED) == 3:
       self.pitch.update(CC.orientationNED[1])
+      self.pitch_slow.update(CC.orientationNED[1])
 
     # *** control msgs ***
     can_sends = []
@@ -276,6 +269,15 @@ class CarController(CarControllerBase):
           self.long_pid.i -= ACCEL_PID_UNWIND * float(np.sign(self.long_pid.i))
 
           error_future = pcm_accel_cmd - a_ego_future
+
+          if not stopping:
+            # Toyota's PCM slowly responds to changes in pitch. On change, we amplify our
+            # acceleration request to compensate for the undershoot and following overshoot
+            high_pass_pitch = self.pitch.x - self.pitch_slow.x
+            pitch_compensation = float(np.clip(math.sin(high_pass_pitch) * ACCELERATION_DUE_TO_GRAVITY,
+                                               -MAX_PITCH_COMPENSATION, MAX_PITCH_COMPENSATION))
+            pcm_accel_cmd += pitch_compensation
+
           pcm_accel_cmd = self.long_pid.update(error_future,
                                                speed=CS.out.vEgo,
                                                feedforward=pcm_accel_cmd,
@@ -355,7 +357,7 @@ class CarController(CarControllerBase):
     new_actuators.steer = apply_steer / self.params.STEER_MAX
     new_actuators.steerOutputCan = apply_steer
     new_actuators.steeringAngleDeg = self.last_angle
-    new_actuators.accel = self.accel
+    new_actuators.accel = float(self.accel)
 
     # FrogPilot Toyota carcontroller functions
     if not self.doors_locked and CS.out.gearShifter != PARK:

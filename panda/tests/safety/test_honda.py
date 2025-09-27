@@ -250,6 +250,13 @@ class HondaBase(common.PandaCarSafetyTest):
     self.assertTrue(self._tx(self._send_steer_msg(0x0000)))
     self.assertFalse(self._tx(self._send_steer_msg(0x1000)))
 
+  # FrogPilot tests
+  def _toggle_aol(self, toggle_on):
+    # SCM_FEEDBACK, bit 28 is MAIN_ON
+    values = {"MAIN_ON": 1 if toggle_on else 0, "COUNTER": self.cnt_acc_state % 4}
+    self.__class__.cnt_acc_state += 1
+    return self.packer.make_can_msg_panda("SCM_FEEDBACK", self.PT_BUS, values)
+
 
 # ********************* Honda Nidec **********************
 
