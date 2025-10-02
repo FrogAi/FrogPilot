@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
+import os
 import re
+import shutil
 import sys
 import pyray as rl
 from openpilot.system.hardware import HARDWARE, PC
@@ -17,6 +19,18 @@ BUTTON_SIZE = rl.Vector2(310, 160)
 
 DEMO_TEXT = """This is a sample text that will be wrapped and scrolled if necessary.
             The text is long enough to demonstrate scrolling and word wrapping.""" * 30
+
+
+def run_restore():
+  try:
+    shutil.rmtree('/data/openpilot', ignore_errors=True)
+    os.rename('/data/safe_staging/old_openpilot', '/data/openpilot')
+    with open('/cache/on_backup', 'w'):
+      pass
+  except Exception as e:
+    print(f"Error during restore: {e}")
+
+  HARDWARE.reboot()
 
 
 def wrap_text(text, font_size, max_width):
@@ -67,12 +81,12 @@ class TextWindow(Widget):
     rl.end_scissor_mode()
 
     button_bounds = rl.Rectangle(rect.width - MARGIN - BUTTON_SIZE.x - SPACING, rect.height - MARGIN - BUTTON_SIZE.y, BUTTON_SIZE.x, BUTTON_SIZE.y)
-    ret = gui_button(button_bounds, "Exit" if PC else "Reboot", button_style=ButtonStyle.TRANSPARENT)
+    ret = gui_button(button_bounds, "Exit" if PC else "Restore", button_style=ButtonStyle.TRANSPARENT)
     if ret:
       if PC:
         gui_app.request_close()
       else:
-        HARDWARE.reboot()
+        run_restore()
     return ret
 
 

@@ -21,7 +21,7 @@ from openpilot.selfdrive.selfdrived.alertmanager import set_offroad_alert
 from openpilot.system.hardware import AGNOS, HARDWARE
 from openpilot.system.version import get_build_metadata
 
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
+from openpilot.frogpilot.common.frogpilot_variables import BACKUP_PATH, get_frogpilot_toggles
 
 LOCK_FILE = os.getenv("UPDATER_LOCK_FILE", "/tmp/safe_staging_overlay.lock")
 STAGING_ROOT = os.getenv("UPDATER_STAGING_ROOT", "/data/safe_staging")
@@ -201,6 +201,9 @@ def finalize_update(params) -> None:
       cloudlog.event("Done git cleanup", duration=time.monotonic() - t)
     except subprocess.CalledProcessError:
       cloudlog.exception(f"Failed git cleanup, took {time.monotonic() - t:.3f} s")
+
+  if os.path.isfile(BACKUP_PATH):
+    os.remove(BACKUP_PATH)
 
   set_consistent_flag(True)
   cloudlog.info("done finalizing overlay")
