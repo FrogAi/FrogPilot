@@ -1,0 +1,131 @@
+name: Update FrogPilot Branch
+
+on:
+  schedule:
+    - cron: "0 18 * * 6"
+
+env:
+  GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+  BRANCH_FROGPILOT: FrogPilot
+  BRANCH_PREVIOUS: FrogPilot-Previous
+  BRANCH_STAGING: FrogPilot-Staging
+
+  TZ: America/Phoenix
+
+  UPDATE_FILE: .github/update_date
+
+jobs:
+  check_update:
+    runs-on: ubuntu-latest
+    outputs:
+      update_due: ${{ steps.check_update.outputs.update_due }}
+      scheduled_date: ${{ steps.check_update.outputs.scheduled_date }}
+    steps:
+      - name: Download the "update_date" File
+        id: download_update
+        run: |
+          curl -fLsS "https://raw.githubusercontent.com/FrogAi/FrogPilot/${{ env.BRANCH_STAGING }}/${{ env.UPDATE_FILE }}" -o update_date || touch update_date_missing
+
+      - name: Check If Update Is Due
+        id: check_update
+        run: |
+          if [ -f update_date_missing ]; then
+            echo "update_due=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          SCHEDULED_DATE=$(cat update_date)
+          CURRENT_DATE=$(TZ="${{ env.TZ }}" date +%F)
+
+          if [ "$SCHEDULED_DATE" != "$CURRENT_DATE" ]; then
+            echo "update_due=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "update_due=true" >> "$GITHUB_OUTPUT"
+          echo "scheduled_date=$SCHEDULED_DATE" >> "$GITHUB_OUTPUT"
+
+  update_branch:
+    needs: check_update
+    if: ${{ needs.check_update.outputs.update_due == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure Git Identity
+        run: |
+          git config --global user.name "James"
+          git config --global user.email "91348155+FrogAi@users.noreply.github.com"
+
+      - name: Checkout ${{ env.BRANCH_STAGING }}
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: ${{ env.BRANCH_STAGING }}
+
+      - name: Authenticate with GITHUB_TOKEN
+        run: |
+          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}
+
+      - name: Update README Date and Remove update file
+        run: |
+          DAY=$(TZ="${{ env.TZ }}" date +'%d' | sed 's/^0//')
+
+          case "$DAY" in
+            1|21|31) SUFFIX="st" ;;
+            2|22)    SUFFIX="nd" ;;
+            3|23)    SUFFIX="rd" ;;
+            *)       SUFFIX="th" ;;
+          esac
+
+          MONTH=$(TZ="${{ env.TZ }}" date +'%B')
+          YEAR=$(TZ="${{ env.TZ }}" date +'%Y')
+
+          DATE="${MONTH} ${DAY}${SUFFIX}, ${YEAR}"
+          DATE_ESCAPED=$(printf '%s' "$DATE" | sed -E 's/ /%20/g; s/,/%2C/g')
+
+          sed -i -E "s|(Last%20Updated-)[^-)]*|\1${DATE_ESCAPED}|g" README.md
+
+          git add README.md
+          git rm -f "${{ env.UPDATE_FILE }}"
+          git commit -m "Updated README date to ${DATE}"
+
+      - name: Squash Commits
+        run: |
+          COMMIT_MSG=$(git log -1 --pretty=%B HEAD~1)
+
+          git reset --soft HEAD~2
+          git commit -m "$COMMIT_MSG"
+
+      - name: Rewrite Commit Dates to Noon ${{ env.TZ }}
+        run: |
+          COMMIT_DATETIME="${{ needs.check_update.outputs.scheduled_date }} 12:00"
+          COMMIT_PHX=$(TZ="${{ env.TZ }}" date -d "$COMMIT_DATETIME" +"%Y-%m-%dT%H:%M:%S %z")
+
+          git filter-branch --env-filter "export GIT_AUTHOR_DATE='$COMMIT_PHX'; export GIT_COMMITTER_DATE='$COMMIT_PHX'" "${{ env.BRANCH_STAGING }}"
+
+      - name: Fetch ${{ env.BRANCH_PREVIOUS }} and ${{ env.BRANCH_FROGPILOT }}
+        run: |
+          git fetch origin ${{ env.BRANCH_PREVIOUS }} ${{ env.BRANCH_FROGPILOT }}
+
+      - name: Wait Until Noon ${{ env.TZ }}
+        run: |
+          NOW=$(TZ="${{ env.TZ }}" date +%s)
+          TARGET=$(TZ="${{ env.TZ }}" date -d "12:00" +%s)
+
+          [ "$NOW" -lt "$TARGET" ] && sleep $((TARGET - NOW))
+
+      - name: Push ${{ env.BRANCH_STAGING }}
+        run: |
+          git push origin "${{ env.BRANCH_STAGING }}" --force
+
+      - name: Reset ${{ env.BRANCH_PREVIOUS }} to Match ${{ env.BRANCH_FROGPILOT }}
+        run: |
+          git switch "${{ env.BRANCH_PREVIOUS }}"
+          git reset --hard "origin/${{ env.BRANCH_FROGPILOT }}"
+          git push origin "${{ env.BRANCH_PREVIOUS }}" --force
+
+      - name: Reset ${{ env.BRANCH_FROGPILOT }} to Match ${{ env.BRANCH_STAGING }}
+        run: |
+          git switch "${{ env.BRANCH_FROGPILOT }}"
+          git reset --hard "origin/${{ env.BRANCH_STAGING }}"
+          git push origin "${{ env.BRANCH_FROGPILOT }}" --force
