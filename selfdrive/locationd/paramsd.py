@@ -193,7 +193,7 @@ class VehicleParamsLearner:
       liveParameters.debugFilterState.std = P.tolist()
 
     # FrogPilot variables
-    if self.CP.carFingerprint == "RAM_HD":
+    if self.CP.carFingerprint == "RAM_HD" or self.CP.brand == "subaru" and self.CP.lateralTuning.which() == "torque":
       liveParameters.valid = True
 
     return msg
