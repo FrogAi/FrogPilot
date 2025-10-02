@@ -26,6 +26,9 @@ class CarControllerParams:
     elif CP.carFingerprint == CAR.SUBARU_IMPREZA_2020:
       self.STEER_DELTA_UP = 35
       self.STEER_MAX = 1439
+    # FrogPilot variables
+    elif CP.carFingerprint == CAR.SUBARU_IMPREZA:
+      self.STEER_MAX = 3071
     else:
       self.STEER_MAX = 2047
 

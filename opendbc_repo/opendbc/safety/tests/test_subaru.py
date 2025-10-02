@@ -166,7 +166,7 @@ class TestSubaruLongitudinalSafetyBase(TestSubaruSafetyBase, common.Longitudinal
 class TestSubaruTorqueSafetyBase(TestSubaruSafetyBase, common.DriverTorqueSteeringSafetyTest, common.SteerRequestCutSafetyTest):
   MAX_RATE_UP = 50
   MAX_RATE_DOWN = 70
-  MAX_TORQUE_LOOKUP = [0], [2047]
+  MAX_TORQUE_LOOKUP = [0], [3071]
 
   # Safety around steering req bit
   MIN_VALID_STEERING_FRAMES = 7
