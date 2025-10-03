@@ -14,6 +14,7 @@ from opendbc.car.mock.values import CAR as MOCK
 from opendbc.car.toyota.values import ToyotaFrogPilotFlags
 from opendbc.car.values import BRANDS
 from opendbc.car.vin import get_vin, is_valid_vin, VIN_UNKNOWN
+from openpilot.common.params import Params
 
 FRAME_FINGERPRINT = 100  # 1s
 
@@ -156,12 +157,18 @@ def fingerprint(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_mu
 
 
 def get_car(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_multiplexing: ObdCallback, alpha_long_allowed: bool,
-            is_release: bool, num_pandas: int = 1, cached_params: CarParamsT | None = None, frogpilot_toggles: SimpleNamespace = None):
+            is_release: bool, params: Params, num_pandas: int = 1, cached_params: CarParamsT | None = None, frogpilot_toggles: SimpleNamespace = None):
   candidate, fingerprints, vin, car_fw, source, exact_match = fingerprint(can_recv, can_send, set_obd_multiplexing, num_pandas, cached_params)
 
-  if candidate is None:
-    carlog.error({"event": "car doesn't match any fingerprints", "fingerprints": repr(fingerprints)})
-    candidate = "MOCK"
+  if candidate is None or frogpilot_toggles.force_fingerprint:
+    if frogpilot_toggles.car_model is not None:
+      candidate = frogpilot_toggles.car_model
+    else:
+      carlog.error({"event": "car doesn't match any fingerprints", "fingerprints": repr(fingerprints)})
+      candidate = "MOCK"
+  else:
+    params.put_nonblocking("CarMake", candidate.split('_')[0].title())
+    params.put_nonblocking("CarModel", candidate)
 
   if frogpilot_toggles.block_user:
     candidate = MOCK.MOCK
