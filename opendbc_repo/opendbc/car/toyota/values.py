@@ -85,6 +85,7 @@ class ToyotaFlags(IntFlag):
 # FrogPilot variables
 class ToyotaFrogPilotFlags(IntFlag):
   RADAR_CAN_FILTER = 1
+  SMART_DSU = 2
 
 
 def dbc_dict(pt, radar):

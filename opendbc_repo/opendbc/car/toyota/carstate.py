@@ -55,6 +55,7 @@ class CarState(CarStateBase):
 
     # FrogPilot variables
     self.has_can_filter = self.FPCP.flags & ToyotaFrogPilotFlags.RADAR_CAN_FILTER
+    self.has_SDSU = self.FPCP.flags & ToyotaFrogPilotFlags.SMART_DSU
 
   def update(self, can_parsers, frogpilot_toggles) -> structs.CarState:
     cp = can_parsers[Bus.pt]
@@ -154,7 +155,8 @@ class CarState(CarStateBase):
       ret.cruiseState.speedCluster = cluster_set_speed * conversion_factor
 
     if self.CP.carFingerprint in TSS2_CAR and not self.CP.flags & ToyotaFlags.DISABLE_RADAR.value:
-      self.acc_type = cp_acc.vl["ACC_CONTROL"]["ACC_TYPE"]
+      if not self.has_SDSU:
+        self.acc_type = cp_acc.vl["ACC_CONTROL"]["ACC_TYPE"]
       ret.stockFcw = bool(cp_acc.vl["PCS_HUD"]["FCW"])
 
     # some TSS2 cars have low speed lockout permanently set, so ignore on those cars
@@ -197,10 +199,13 @@ class CarState(CarStateBase):
         buttonEvents.extend(create_button_events(1, 0, {1: ButtonType.lkas}) +
                             create_button_events(0, 1, {1: ButtonType.lkas}))
 
-      if self.CP.carFingerprint not in RADAR_ACC_CAR:
+      if self.CP.carFingerprint not in RADAR_ACC_CAR or (self.has_SDSU and not self.has_can_filter):
         # distance button is wired to the ACC module (camera or radar)
         prev_distance_button = self.distance_button
-        self.distance_button = cp_acc.vl["ACC_CONTROL"]["DISTANCE"]
+        if self.has_SDSU:
+          self.distance_button = cp.vl["SDSU"]["FD_BUTTON"]
+        else:
+          self.distance_button = cp_acc.vl["ACC_CONTROL"]["DISTANCE"]
 
         buttonEvents += create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
     ret.buttonEvents = buttonEvents
