@@ -1155,6 +1155,109 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       AlertStatus.userPrompt, AlertSize.mid,
       Priority.HIGH, VisualAlert.wrongGear, AudibleAlert.promptRepeat, 4.),
   },
+
+  # Random Events
+  FrogPilotEventName.accel30: {
+    ET.WARNING: Alert(
+      "UwU u went a bit fast there!",
+      "(⁄ ⁄•⁄ω⁄•⁄ ⁄)",
+      FrogPilotAlertStatus.frogpilot, AlertSize.mid,
+      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.uwu, 4.),
+  },
+
+  FrogPilotEventName.accel35: {
+    ET.WARNING: Alert(
+      "I ain't giving you no tree-fiddy",
+      "You damn Loch Ness Monsta!",
+      FrogPilotAlertStatus.frogpilot, AlertSize.mid,
+      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.nessie, 4.),
+  },
+
+  FrogPilotEventName.accel40: {
+    ET.WARNING: Alert(
+      "Great Scott!",
+      "🚗💨",
+      FrogPilotAlertStatus.frogpilot, AlertSize.mid,
+      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.doc, 4.),
+  },
+
+  FrogPilotEventName.dejaVuCurve: {
+    ET.PERMANENT: Alert(
+      "♬♪ Deja vu! ᕕ(⌐■_■)ᕗ ♪♬",
+      "🏎️",
+      FrogPilotAlertStatus.frogpilot, AlertSize.mid,
+      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.dejaVu, 4.),
+  },
+
+  FrogPilotEventName.firefoxSteerSaturated: {
+    ET.WARNING: Alert(
+      "IE Has Stopped Responding...",
+      "Turn Exceeds Steering Limit",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.LOW, VisualAlert.steerRequired, FrogPilotAudibleAlert.firefox, 4.),
+  },
+
+  FrogPilotEventName.hal9000: {
+    ET.WARNING: Alert(
+      "I'm sorry Dave",
+      "I'm afraid I can't do that...",
+      AlertStatus.normal, AlertSize.mid,
+      Priority.HIGH, VisualAlert.none, FrogPilotAudibleAlert.hal9000, 4.),
+  },
+
+  FrogPilotEventName.openpilotCrashedRandomEvent: {
+    ET.IMMEDIATE_DISABLE: Alert(
+      "openpilot crashed 💩",
+      "Please post the 'Error Log' in the FrogPilot Discord!",
+      AlertStatus.normal, AlertSize.mid,
+      Priority.HIGHEST, VisualAlert.none, FrogPilotAudibleAlert.fart, 10.),
+
+    ET.NO_ENTRY: Alert(
+      "openpilot crashed 💩",
+      "Please post the 'Error Log' in the FrogPilot Discord!",
+      AlertStatus.normal, AlertSize.mid,
+      Priority.HIGHEST, VisualAlert.none, FrogPilotAudibleAlert.fart, 10.),
+  },
+
+  FrogPilotEventName.thisIsFineSteerSaturated: {
+    ET.WARNING: Alert(
+      "This is fine ☕",
+      "Turn Exceeds Steering Limit",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.LOW, VisualAlert.steerRequired, FrogPilotAudibleAlert.thisIsFine, 2.),
+  },
+
+  FrogPilotEventName.toBeContinued: {
+    ET.PERMANENT: Alert(
+      "To be continued...",
+      "⬅️",
+      FrogPilotAlertStatus.frogpilot, AlertSize.mid,
+      Priority.MID, VisualAlert.none, FrogPilotAudibleAlert.continued, 7.),
+  },
+
+  FrogPilotEventName.vCruise69: {
+    ET.WARNING: Alert(
+      "Lol 69",
+      "",
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.noice, 2.),
+  },
+
+  FrogPilotEventName.yourFrogTriedToKillMe: {
+    ET.PERMANENT: Alert(
+      "Your Frog tried to kill me...",
+      "👺",
+      FrogPilotAlertStatus.frogpilot, AlertSize.mid,
+      Priority.MID, VisualAlert.none, FrogPilotAudibleAlert.angry, 5.),
+  },
+
+  FrogPilotEventName.youveGotMail: {
+    ET.WARNING: Alert(
+      "You've got mail! 📧",
+      "",
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.LOW, VisualAlert.none, FrogPilotAudibleAlert.mail, 3.),
+  },
 }
 
 
