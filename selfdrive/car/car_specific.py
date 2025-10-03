@@ -81,7 +81,7 @@ class CarSpecificEvents:
             # non loud alert if cruise disables below 25mph as expected (+ a little margin)
             events.add(EventName.speedTooLow)
           else:
-            events.add(EventName.cruiseDisabled)
+            events.add(EventName.buttonCancel)
       if self.CP.minEnableSpeed > 0 and CS.vEgo < 0.001:
         events.add(EventName.manualRestart)
 

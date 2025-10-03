@@ -198,6 +198,9 @@ class CarInterfaceBase(ABC):
       elif platform in HondaCAR:
         fp_ret.canUsePedal = candidate not in HONDA_BOSCH
 
+        if candidate == HondaCAR.HONDA_CLARITY:
+          fp_ret.safetyConfigs[0].safetyParam |= FrogPilotHondaSafetyFlags.CLARITY
+
         if CP.enableGasInterceptorDEPRECATED and candidate not in HONDA_BOSCH:
           fp_ret.safetyConfigs[0].safetyParam |= FrogPilotHondaSafetyFlags.GAS_INTERCEPTOR
 

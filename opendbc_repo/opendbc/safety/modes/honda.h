@@ -39,6 +39,8 @@ typedef enum {HONDA_NIDEC, HONDA_BOSCH} HondaHw;
 static HondaHw honda_hw = HONDA_NIDEC;
 
 // FrogPilot variables
+static bool honda_clarity_brake_msg = false;
+
 // panda interceptor threshold needs to be equivalent to openpilot threshold to avoid controls mismatches
 // If thresholds are mismatched then it is possible for panda to see the gas fall and rise while openpilot is in the pre-enabled state
 // Threshold calculated from DBC gains: round(((83.3 / 0.253984064) + (83.3 / 0.126992032)) / 2) = 492
@@ -176,6 +178,11 @@ static void honda_rx_hook(const CANPacket_t *msg) {
       } else {
         // Leave Honda forward brake as is
       }
+
+      // FrogPilot variables
+      if (honda_clarity_brake_msg) {
+        honda_stock_brake = (msg->data[6] << 2) + ((msg->data[7] >> 6) & 0x3U);
+      }
     }
   }
 
@@ -230,6 +237,11 @@ static bool honda_tx_hook(const CANPacket_t *msg) {
     }
     if (honda_fwd_brake) {
       tx = false;
+    }
+
+    // FrogPilot variables
+    if (honda_clarity_brake_msg) {
+      honda_brake = (msg->data[6] << 2) + ((msg->data[7] >> 6) & 0x3U);
     }
   }
 
@@ -331,9 +343,11 @@ static safety_config honda_nidec_init(uint16_t param) {
   static CanMsg HONDA_N_INTERCEPTOR_TX_MSGS[] = {{0xE4, 0, 5, .check_relay = true}, {0x194, 0, 4, .check_relay = true}, {0x1FA, 0, 8, .check_relay = false},
                                                  {0x200, 0, 6, .check_relay = true}, {0x30C, 0, 8, .check_relay = true}, {0x33D, 0, 5, .check_relay = true}};
 
+  const uint16_t HONDA_PARAM_CLARITY = 16;
   const uint16_t HONDA_PARAM_GAS_INTERCEPTOR = 32;
 
   enable_gas_interceptor = GET_FLAG(param, HONDA_PARAM_GAS_INTERCEPTOR);
+  honda_clarity_brake_msg = GET_FLAG(param, HONDA_PARAM_CLARITY);
 
   if (enable_nidec_alt) {
     // For Nidecs with main on signal on an alternate msg (missing 0x326)
