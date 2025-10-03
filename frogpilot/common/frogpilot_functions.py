@@ -23,7 +23,7 @@ from openpilot.frogpilot.assets.theme_manager import ThemeManager
 from openpilot.frogpilot.common.frogpilot_utilities import delete_file, run_cmd, use_konik_server
 from openpilot.frogpilot.common.frogpilot_variables import (
   DEFAULT_MODEL, ERROR_LOGS_PATH, EXCLUDED_KEYS, HD_LOGS_PATH, KONIK_LOGS_PATH, MODELS_PATH,
-  THEME_SAVE_PATH, FrogPilotVariables, get_frogpilot_toggles
+  SCREEN_RECORDINGS_PATH, THEME_SAVE_PATH, FrogPilotVariables, get_frogpilot_toggles
 )
 from openpilot.frogpilot.system.frogpilot_stats import send_stats
 
@@ -174,6 +174,7 @@ def install_frogpilot(build_metadata, params):
     HD_LOGS_PATH,
     KONIK_LOGS_PATH,
     MODELS_PATH,
+    SCREEN_RECORDINGS_PATH,
     THEME_SAVE_PATH
   ]
   for path in paths:
