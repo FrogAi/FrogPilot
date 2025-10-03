@@ -217,6 +217,8 @@ class CarInterfaceBase(ABC):
         if CP.enableGasInterceptorDEPRECATED:
           fp_ret.safetyConfigs[0].safetyParam |= ToyotaFrogPilotSafetyFlags.GAS_INTERCEPTOR
 
+      fp_ret.openpilotLongitudinalControlDisabled = frogpilot_toggles.disable_openpilot_long
+
     return fp_ret
 
   @staticmethod

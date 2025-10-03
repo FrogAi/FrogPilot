@@ -24,7 +24,7 @@ class CarInterface(CarInterfaceBase):
 
     ret.alphaLongitudinalAvailable = True
     if alpha_long:
-      ret.openpilotLongitudinalControl = True
+      ret.openpilotLongitudinalControl = not frogpilot_toggles.disable_openpilot_long
       ret.safetyConfigs[0].safetyParam |= TeslaSafetyFlags.LONG_CONTROL.value
 
       ret.vEgoStopping = 0.1

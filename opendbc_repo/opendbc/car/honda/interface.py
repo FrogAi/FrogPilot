@@ -56,7 +56,7 @@ class CarInterface(CarInterfaceBase):
     else:
       ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.hondaNidec)]
       ret.enableGasInterceptorDEPRECATED = 0x201 in fingerprint[CAN.pt]
-      ret.openpilotLongitudinalControl = True
+      ret.openpilotLongitudinalControl = not frogpilot_toggles.disable_openpilot_long
 
       ret.pcmCruise = not ret.enableGasInterceptorDEPRECATED
 

@@ -24,7 +24,7 @@ class CarInterface(CarInterfaceBase):
     ret.wheelSpeedFactor = SPEED_FROM_RPM
 
     ret.radarUnavailable = True
-    ret.openpilotLongitudinalControl = True
+    ret.openpilotLongitudinalControl = not frogpilot_toggles.disable_openpilot_long
     ret.steerControlType = structs.CarParams.SteerControlType.angle
 
     return ret

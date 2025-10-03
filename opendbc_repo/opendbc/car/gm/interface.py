@@ -125,7 +125,7 @@ class CarInterface(CarInterfaceBase):
 
       if alpha_long:
         ret.pcmCruise = False
-        ret.openpilotLongitudinalControl = True
+        ret.openpilotLongitudinalControl = not frogpilot_toggles.disable_openpilot_long
         ret.safetyConfigs[0].safetyParam |= GMSafetyFlags.HW_CAM_LONG.value
 
       if candidate in ALT_ACCS:
@@ -134,7 +134,7 @@ class CarInterface(CarInterfaceBase):
         ret.minEnableSpeed = -1.  # engage speed is decided by PCM
 
     else:  # ASCM, OBD-II harness
-      ret.openpilotLongitudinalControl = True
+      ret.openpilotLongitudinalControl = not frogpilot_toggles.disable_openpilot_long
       ret.networkLocation = NetworkLocation.gateway
       # LRR messages can take up to a few seconds to start sending after ignition, check camera data as well which starts earlier
       ret.radarUnavailable = RADAR_HEADER_MSG not in fingerprint[CanBus.OBSTACLE] and CAMERA_DATA_HEADER_MSG not in fingerprint[CanBus.OBSTACLE] and not docs
@@ -252,14 +252,14 @@ class CarInterface(CarInterfaceBase):
       ret.safetyConfigs[0].safetyParam |= GMSafetyFlags.HW_CAM.value
       ret.minEnableSpeed = -1
       ret.pcmCruise = False
-      ret.openpilotLongitudinalControl = True
+      ret.openpilotLongitudinalControl = not frogpilot_toggles.disable_openpilot_long
       ret.autoResumeSng = True
 
     elif candidate in CC_ONLY_CAR:
       ret.alphaLongitudinalAvailable = True
       ret.safetyConfigs[0].safetyParam |= GMSafetyFlags.FLAG_GM_CC_LONG.value
       if alpha_long:
-        ret.openpilotLongitudinalControl = True
+        ret.openpilotLongitudinalControl = not frogpilot_toggles.disable_openpilot_long
         ret.flags |= GMFlags.CC_LONG.value
       ret.radarUnavailable = True
       ret.minEnableSpeed = 24 * CV.MPH_TO_MS
