@@ -128,6 +128,7 @@ class FrogPilotVariables:
     toggle = self.frogpilot_toggles
 
     toggle.frogs_go_moo = Path("/persist/frogsgomoo.py").is_file()
+    toggle.block_user = (self.development_branch or short_branch == "MAKE-PRS-HERE" or self.vetting_branch) and not toggle.frogs_go_moo
 
   def update(self, holiday_theme, started):
     default = self.default_values

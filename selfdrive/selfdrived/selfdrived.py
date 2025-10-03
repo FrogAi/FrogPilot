@@ -4,6 +4,7 @@ import time
 import threading
 
 import cereal.messaging as messaging
+import openpilot.system.sentry as sentry
 
 from cereal import car, custom, log
 from msgq.visionipc import VisionIpcClient, VisionStreamType
@@ -163,6 +164,10 @@ class SelfdriveD:
     self.frogpilot_events_prev = []
 
     self.FPCP = messaging.log_from_bytes(self.params.get("FrogPilotCarParams", block=True), custom.FrogPilotCarParams)
+
+    if self.frogpilot_toggles.block_user:
+      self.startup_event = FrogPilotEventName.blockUser
+      sentry.capture_block()
 
   def contains_event_type(self, *event_types):
     return any(self.events.contains(event_type) or self.frogpilot_events.contains(event_type) for event_type in event_types)
