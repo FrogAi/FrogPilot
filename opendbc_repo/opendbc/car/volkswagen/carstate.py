@@ -145,6 +145,8 @@ class CarState(CarStateBase):
     # FrogPilot variables
     fp_ret = custom.FrogPilotCarState.new_message()
 
+    fp_ret.brakeLights = bool(pt_cp.vl["ESP_05"]['ESP_Status_Bremsdruck'])
+
     return ret, fp_ret
 
   def update_pq(self, pt_cp, cam_cp, ext_cp) -> structs.CarState:
@@ -239,6 +241,8 @@ class CarState(CarStateBase):
 
     # FrogPilot variables
     fp_ret = custom.FrogPilotCarState.new_message()
+
+    fp_ret.brakeLights = bool(pt_cp.vl["Motor_2"]['Bremstestschalter'])
 
     return ret, fp_ret
 

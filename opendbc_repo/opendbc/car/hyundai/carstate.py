@@ -209,6 +209,8 @@ class CarState(CarStateBase):
     # FrogPilot variables
     fp_ret = custom.FrogPilotCarState.new_message()
 
+    fp_ret.brakeLights = bool(cp.vl["TCS13"]["BrakeLight"])
+
     return ret, fp_ret
 
   def update_canfd(self, can_parsers) -> structs.CarState:
@@ -302,6 +304,8 @@ class CarState(CarStateBase):
 
     # FrogPilot variables
     fp_ret = custom.FrogPilotCarState.new_message()
+
+    fp_ret.brakeLights = bool(cp.vl["TCS"]["DriverBraking"])
 
     drive_mode = cp.vl["DRIVE_MODE"]["DRIVE_MODE2"]
     if drive_mode != 0 and drive_mode != self.drive_mode:

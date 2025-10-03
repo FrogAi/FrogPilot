@@ -127,6 +127,9 @@ class CarState(CarStateBase):
     # FrogPilot variables
     fp_ret = custom.FrogPilotCarState.new_message()
 
+    if not self.CP.flags & SubaruFlags.PREGLOBAL:
+      fp_ret.brakeLights = bool(cp_cam.vl["ES_DashStatus"]["Brake_Lights"])
+
     return ret, fp_ret
 
   @staticmethod

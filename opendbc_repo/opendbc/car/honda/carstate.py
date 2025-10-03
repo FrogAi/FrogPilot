@@ -213,6 +213,11 @@ class CarState(CarStateBase):
     # FrogPilot variables
     fp_ret = custom.FrogPilotCarState.new_message()
 
+    is_bosch_with_brake_signal = (self.CP.flags & HondaFlags.BOSCH) and not (self.CP.flags & HondaFlags.BOSCH_RADARLESS)
+    is_nidec_with_brake_signal = (self.CP.flags & HondaFlags.NIDEC) and not (self.CP.flags & HondaFlags.NIDEC_ALT_SCM_MESSAGES)
+    if is_bosch_with_brake_signal or is_nidec_with_brake_signal:
+      fp_ret.brakeLights = bool(cp.vl["ACC_CONTROL"]['BRAKE_LIGHTS'] != 0 or ret.brake > 0.4) if not self.CP.openpilotLongitudinalControl else bool(ret.brake > 0.4)
+
     return ret, fp_ret
 
   def get_can_parsers(self, CP):
