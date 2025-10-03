@@ -19,7 +19,7 @@ from openpilot.common.params import Params
 from openpilot.common.realtime import DT_HW
 from openpilot.selfdrive.selfdrived.alertmanager import set_offroad_alert
 from openpilot.system.hardware import HARDWARE, TICI, AGNOS, PC
-from openpilot.system.loggerd.config import get_available_percent
+from openpilot.system.loggerd.config import get_available_bytes, get_available_percent, get_used_bytes
 from openpilot.system.statsd import statlog
 from openpilot.common.swaglog import cloudlog
 from openpilot.system.hardware.power_monitoring import PowerMonitoring
@@ -427,6 +427,9 @@ def hardware_thread(end_event, hw_queue) -> None:
 
     # FrogPilot variables
     fpmsg = messaging.new_message('frogpilotDeviceState')
+
+    fpmsg.frogpilotDeviceState.freeSpace = round(get_available_bytes(default=32.0 * (2 ** 30)) / (2 ** 30))
+    fpmsg.frogpilotDeviceState.usedSpace = round(get_used_bytes(default=0.0) / (2 ** 30))
 
     pm.send("frogpilotDeviceState", fpmsg)
 
