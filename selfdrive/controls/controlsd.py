@@ -75,6 +75,9 @@ class Controls:
       self.calibrated_pose = self.pose_calibrator.build_calibrated_pose(device_pose)
 
     # FrogPilot variables
+    if hasattr(self.LaC, "pid"):
+      self.LaC.pid._k_p = self.frogpilot_toggles.steerKp
+
     if self.sm['frogpilotPlan'].togglesUpdated:
       self.frogpilot_toggles = get_frogpilot_toggles()
 

@@ -166,7 +166,7 @@ class VehicleParamsLearner:
     liveParameters = msg.liveParameters
     liveParameters.posenetValid = True
     liveParameters.sensorValid = sensors_valid
-    liveParameters.steerRatio = float(x[States.STEER_RATIO].item())
+    liveParameters.steerRatio = float(x[States.STEER_RATIO].item() if not self.frogpilot_toggles.use_custom_steerRatio else self.frogpilot_toggles.steerRatio)
     liveParameters.stiffnessFactor = float(x[States.STIFFNESS].item())
     liveParameters.roll = float(self.roll)
     liveParameters.angleOffsetAverageDeg = float(self.avg_angle_offset)

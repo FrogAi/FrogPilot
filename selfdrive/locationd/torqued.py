@@ -231,9 +231,9 @@ class TorqueEstimator(ParameterEstimator):
     if with_points:
       liveTorqueParameters.points = self.filtered_points.get_points()[:, [0, 2]].tolist()
 
-    liveTorqueParameters.latAccelFactorFiltered = float(self.filtered_params['latAccelFactor'].x)
+    liveTorqueParameters.latAccelFactorFiltered = float(self.filtered_params['latAccelFactor'].x if not self.frogpilot_toggles.use_custom_latAccelFactor else self.frogpilot_toggles.latAccelFactor)
     liveTorqueParameters.latAccelOffsetFiltered = float(self.filtered_params['latAccelOffset'].x)
-    liveTorqueParameters.frictionCoefficientFiltered = float(self.filtered_params['frictionCoefficient'].x)
+    liveTorqueParameters.frictionCoefficientFiltered = float(self.filtered_params['frictionCoefficient'].x if not self.frogpilot_toggles.use_custom_friction else self.frogpilot_toggles.friction)
     liveTorqueParameters.totalBucketPoints = len(self.filtered_points)
     liveTorqueParameters.calPerc = self.filtered_points.get_valid_percent()
     liveTorqueParameters.decay = self.decay
