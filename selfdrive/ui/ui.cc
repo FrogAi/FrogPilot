@@ -60,6 +60,9 @@ static void update_state(UIState *s, FrogPilotUIState *fs) {
     scene.light_sensor = -1;
   }
   scene.started = sm["deviceState"].getDeviceState().getStarted() && scene.ignition;
+  if (scene.started) {
+    fs->frogpilot_scene.started_timer += 1;
+  }
   scene.started |= fs->frogpilot_toggles.value("force_onroad").toBool();
   scene.started &= !fs->frogpilot_toggles.value("force_offroad").toBool();
 
@@ -99,9 +102,13 @@ void UIState::updateStatus(FrogPilotUIState *fs) {
     if (scene.started) {
       status = STATUS_DISENGAGED;
       scene.started_frame = sm->frame;
+    } else if (frogpilot_scene.started_timer > 15*60*UI_FREQ && frogpilot_toggles.value("model_randomizer").toBool()) {
+      emit fs->reviewModel();
     }
     started_prev = scene.started;
     emit offroadTransition(!scene.started);
+
+    fs->frogpilot_scene.started_timer = 0;
   }
 }
 
