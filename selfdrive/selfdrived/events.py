@@ -410,6 +410,30 @@ def forcing_stop_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMas
     Priority.MID, VisualAlert.none, AudibleAlert.prompt, 1.)
 
 
+def holiday_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, frogpilot_toggles: SimpleNamespace) -> Alert:
+  holiday_messages = {
+    "new_years": "Happy New Year! 🎉",
+    "valentines": "Happy Valentine's Day! ❤️",
+    "st_patricks": "Happy St. Patrick's Day! 🍀",
+    "world_frog_day": "Happy World Frog Day! 🐸",
+    "april_fools": "Happy April Fool's Day! 🤡",
+    "easter_week": "Happy Easter! 🐰",
+    "may_the_fourth": "May the 4th be with you! 🚀",
+    "cinco_de_mayo": "¡Feliz Cinco de Mayo! 🌮",
+    "stitch_day": "Happy Stitch Day! 💙",
+    "fourth_of_july": "Happy Fourth of July! 🎆",
+    "halloween_week": "Happy Halloween! 🎃",
+    "thanksgiving_week": "Happy Thanksgiving! 🦃",
+    "christmas_week": "Merry Christmas! 🎄",
+  }
+
+  return Alert(
+    holiday_messages.get(frogpilot_toggles.current_holiday_theme),
+    "",
+    AlertStatus.normal, AlertSize.small,
+    Priority.LOWEST, VisualAlert.none, FrogPilotAudibleAlert.startup, 5.)
+
+
 
 EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   # ********** events with no alerts **********
@@ -1073,6 +1097,10 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
       Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
+  FrogPilotEventName.holidayActive: {
+    ET.PERMANENT: holiday_alert,
   },
 
   FrogPilotEventName.openpilotCrashed: {

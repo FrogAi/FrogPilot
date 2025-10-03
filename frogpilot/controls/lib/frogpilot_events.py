@@ -44,6 +44,9 @@ class FrogPilotEvents:
     else:
       self.stopped_for_light = False
 
+    if "holidayActive" not in self.played_events and self.startup_seen and alerts_empty and frogpilot_toggles.current_holiday_theme != "stock" and len(self.events) == 0:
+      self.events.add(FrogPilotEventName.holidayActive)
+
     if self.error_log.is_file():
       if frogpilot_toggles.random_events:
         self.events.add(FrogPilotEventName.openpilotCrashedRandomEvent)
