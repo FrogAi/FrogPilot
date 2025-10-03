@@ -4,6 +4,7 @@ from openpilot.common.realtime import DT_MDL
 
 LaneChangeState = log.LaneChangeState
 LaneChangeDirection = log.LaneChangeDirection
+TurnDirection = log.Desire
 
 LANE_CHANGE_SPEED_MIN = 20 * CV.MPH_TO_MS
 LANE_CHANGE_TIME_MAX = 10.
@@ -27,6 +28,13 @@ DESIRES = {
     LaneChangeState.laneChangeStarting: log.Desire.laneChangeRight,
     LaneChangeState.laneChangeFinishing: log.Desire.laneChangeRight,
   },
+}
+
+# FrogPilot variables
+TURN_DESIRES = {
+  TurnDirection.none: log.Desire.none,
+  TurnDirection.turnLeft: log.Desire.turnLeft,
+  TurnDirection.turnRight: log.Desire.turnRight,
 }
 
 
@@ -121,7 +129,12 @@ class DesireHelper:
     self.lane_change_completed &= one_blinker
     self.prev_one_blinker = one_blinker
 
-    self.desire = DESIRES[self.lane_change_direction][self.lane_change_state]
+    if one_blinker and below_lane_change_speed and not carstate.standstill and frogpilot_toggles.use_turn_desires:
+      self.turn_direction = TurnDirection.turnLeft if carstate.leftBlinker else TurnDirection.turnRight
+      self.desire = TURN_DESIRES[self.turn_direction]
+    else:
+      self.turn_direction = TurnDirection.none
+      self.desire = DESIRES[self.lane_change_direction][self.lane_change_state]
 
     # Send keep pulse once per second during LaneChangeStart.preLaneChange
     if self.lane_change_state in (LaneChangeState.off, LaneChangeState.laneChangeStarting):
