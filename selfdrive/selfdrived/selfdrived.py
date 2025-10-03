@@ -165,6 +165,9 @@ class SelfdriveD:
 
     self.frogpilot_events_prev = []
 
+    self.event_names_to_clear = set()
+    self.played_events = set()
+
     self.FPCP = messaging.log_from_bytes(self.params.get("FrogPilotCarParams", block=True), custom.FrogPilotCarParams)
 
     if self.frogpilot_toggles.block_user:
@@ -455,6 +458,29 @@ class SelfdriveD:
 
     # FrogPilot variables
     self.frogpilot_events.add_from_msg(self.sm['frogpilotPlan'].frogpilotEvents)
+
+    event_names = self.events.names
+
+    if EventName.belowSteerSpeed in event_names:
+      self.played_events.add(EventName.belowSteerSpeed)
+
+    if EventName.resumeRequired in event_names:
+      self.played_events.add(EventName.resumeRequired)
+
+    if EventName.steerTempUnavailableSilent in event_names:
+      self.played_events.add(EventName.steerTempUnavailableSilent)
+
+    if EventName.belowSteerSpeed in self.played_events and CS.vEgo >= self.CP.minSteerSpeed:
+      self.event_names_to_clear.add(EventName.belowSteerSpeed)
+
+    if EventName.resumeRequired in self.played_events and not CS.cruiseState.standstill and not self.CP.autoResumeSng:
+      self.event_names_to_clear.add(EventName.resumeRequired)
+
+    if EventName.steerTempUnavailableSilent in self.played_events and not CS.steerFaultTemporary:
+      self.event_names_to_clear.add(EventName.steerTempUnavailableSilent)
+
+    if self.event_names_to_clear:
+      self.events.events = [event for event in self.events.events if event not in self.event_names_to_clear]
 
     self.experimental_mode |= self.sm['frogpilotPlan'].experimentalMode
 
