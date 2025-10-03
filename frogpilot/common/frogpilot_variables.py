@@ -400,6 +400,11 @@ class FrogPilotVariables:
 
     toggle.force_fingerprint = (self.params.get_bool("ForceFingerprint") if tuning_level >= level["ForceFingerprint"] else default["ForceFingerprint"]) and toggle.car_model is not None
 
+    toggle.frogsgomoo_tweak = toggle.openpilot_longitudinal and toggle.car_make == "toyota" and (self.params.get_bool("FrogsGoMoosTweak") if tuning_level >= level["FrogsGoMoosTweak"] else default["FrogsGoMoosTweak"])
+    toggle.stoppingDecelRate = 0.01 if toggle.frogsgomoo_tweak else toggle.stoppingDecelRate
+    toggle.vEgoStarting = 0.1 if toggle.frogsgomoo_tweak else toggle.vEgoStarting
+    toggle.vEgoStopping = 0.5 if toggle.frogsgomoo_tweak else toggle.vEgoStopping
+
     toggle.holiday_themes = self.params.get_bool("HolidayThemes") if tuning_level >= level["HolidayThemes"] else default["HolidayThemes"]
     toggle.current_holiday_theme = holiday_theme if toggle.holiday_themes else "stock"
 
