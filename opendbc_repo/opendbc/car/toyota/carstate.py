@@ -53,6 +53,9 @@ class CarState(CarStateBase):
     self.gvc = 0.0
     self.secoc_synchronization = None
 
+    # FrogPilot variables
+    self.has_can_filter = self.FPCP.flags & ToyotaFrogPilotFlags.RADAR_CAN_FILTER
+
   def update(self, can_parsers, frogpilot_toggles) -> structs.CarState:
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
