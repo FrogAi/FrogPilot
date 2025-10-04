@@ -71,6 +71,9 @@ private:
   DriverViewWindow *driver_view;
   QStackedLayout *slayout;
 
+  // FrogPilot variables
+  Params params;
+
 private slots:
   void updateState(const UIState &s, const FrogPilotUIState &fs);
 };

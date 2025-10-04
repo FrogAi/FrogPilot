@@ -62,7 +62,7 @@ void HomeWindow::updateState(const UIState &s, const FrogPilotUIState &fs) {
 
 void HomeWindow::offroadTransition(bool offroad) {
   body->setEnabled(false);
-  sidebar->setVisible(offroad || frogpilotUIState()->frogpilot_toggles.value("debug_mode").toBool());
+  sidebar->setVisible(offroad || params.getBool("Sidebar") || frogpilotUIState()->frogpilot_toggles.value("debug_mode").toBool());
   if (offroad) {
     slayout->setCurrentWidget(home);
   } else {
@@ -84,6 +84,7 @@ void HomeWindow::mousePressEvent(QMouseEvent* e) {
   // Handle sidebar collapsing
   if ((onroad->isVisible() || body->isVisible()) && (!sidebar->isVisible() || e->x() > sidebar->width())) {
     sidebar->setVisible(!sidebar->isVisible());
+    params.putBool("Sidebar", sidebar->isVisible());
   }
 }
 
