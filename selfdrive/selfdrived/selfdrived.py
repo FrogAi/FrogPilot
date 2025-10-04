@@ -439,7 +439,7 @@ class SelfdriveD:
 
     # Decrement personality on distance button press
     if self.CP.openpilotLongitudinalControl:
-      distance_pressed = False
+      distance_pressed = self.params_memory.get_bool("OnroadDistanceButtonPressed")
 
       if self.frogpilot_toggles.personality_profile_via_distance:
         distance_pressed |= any(not be.pressed and be.type == ButtonType.gapAdjustCruise for be in CS.buttonEvents)
