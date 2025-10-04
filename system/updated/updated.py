@@ -407,6 +407,8 @@ class Updater:
     finalize_update()
     cloudlog.info("finalize success!")
 
+    # FrogPilot variables
+    self.params.put("Updated", datetime.datetime.now().strftime("%B %d, %Y - %I:%M%p"))
 
 def main() -> None:
   params = Params()
@@ -430,10 +432,6 @@ def main() -> None:
     if Path(os.path.join(STAGING_ROOT, "old_openpilot")).is_dir():
       cloudlog.event("update installed")
 
-    if not params.get("InstallDate"):
-      t = datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
-      params.put("InstallDate", t)
-
     updater = Updater()
     update_failed_count = 0 # TODO: Load from param?
     wait_helper = WaitTimeHelper()
@@ -449,6 +447,8 @@ def main() -> None:
 
     # FrogPilot variables
     params_memory = Params(memory=True)
+
+    install_date_set = params.get("InstallDate") is not None
 
     while True:
       wait_helper.ready_event.clear()
@@ -466,6 +466,11 @@ def main() -> None:
           first_run = False
           wait_helper.sleep(60)
           continue
+
+        # FrogPilot variables
+        if not install_date_set:
+          params.put("InstallDate", datetime.datetime.now().strftime("%B %d, %Y - %I:%M%p"))
+          install_date_set = True
 
         update_failed_count += 1
 
