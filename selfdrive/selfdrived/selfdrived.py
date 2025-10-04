@@ -462,6 +462,8 @@ class SelfdriveD:
         distance_pressed |= self.sm['frogpilotCarState'].distanceLongPressed
       if self.frogpilot_toggles.personality_profile_via_distance_very_long:
         distance_pressed |= self.sm['frogpilotCarState'].distanceVeryLongPressed
+      if self.frogpilot_toggles.personality_profile_via_lkas:
+        distance_pressed |= any(be.pressed and be.type == ButtonType.lkas for be in CS.buttonEvents)
 
       if not distance_pressed and self.distance_pressed_previously:
         if self.display_timer > 0 or not self.has_menu:
