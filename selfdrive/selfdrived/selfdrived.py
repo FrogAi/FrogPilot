@@ -10,6 +10,7 @@ from cereal import car, custom, log
 from msgq.visionipc import VisionIpcClient, VisionStreamType
 
 
+from opendbc.car.gm.values import CC_ONLY_CAR, GMFlags
 from openpilot.common.params import Params
 from openpilot.common.realtime import config_realtime_process, Priority, Ratekeeper, DT_CTRL
 from openpilot.common.swaglog import cloudlog
@@ -25,7 +26,7 @@ from openpilot.selfdrive.selfdrived.alertmanager import AlertManager, set_offroa
 from openpilot.system.hardware import HARDWARE
 from openpilot.system.version import get_build_metadata
 
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
+from openpilot.frogpilot.common.frogpilot_variables import DISPLAY_MENU_TIMER, get_frogpilot_toggles
 
 REPLAY = "REPLAY" in os.environ
 SIMULATION = "SIMULATION" in os.environ
@@ -163,12 +164,16 @@ class SelfdriveD:
 
     self.distance_pressed_previously = False
 
+    self.display_timer = 0
+
     self.frogpilot_events_prev = []
 
     self.event_names_to_clear = set()
     self.played_events = set()
 
     self.FPCP = messaging.log_from_bytes(self.params.get("FrogPilotCarParams", block=True), custom.FrogPilotCarParams)
+
+    self.has_menu = self.CP.brand == "gm" and not (self.CP.flags & GMFlags.NO_CAMERA.value or self.CP.carFingerprint in CC_ONLY_CAR)
 
     if self.frogpilot_toggles.block_user:
       self.startup_event = FrogPilotEventName.blockUser
@@ -450,11 +455,14 @@ class SelfdriveD:
         distance_pressed |= self.sm['frogpilotCarState'].distanceVeryLongPressed
 
       if not distance_pressed and self.distance_pressed_previously:
-        self.personality = (self.personality - 1) % 3
-        self.params.put_nonblocking('LongitudinalPersonality', self.personality)
-        self.events.add(EventName.personalityChanged)
+        if self.display_timer > 0 or not self.has_menu:
+          self.personality = (self.personality - 1) % 3
+          self.params.put_nonblocking('LongitudinalPersonality', self.personality)
+        self.display_timer = DISPLAY_MENU_TIMER
 
       self.distance_pressed_previously = distance_pressed
+
+      self.display_timer -= 1
 
     # FrogPilot variables
     self.frogpilot_events.add_from_msg(self.sm['frogpilotPlan'].frogpilotEvents)
