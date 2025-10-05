@@ -203,8 +203,6 @@ void OffroadHome::hideEvent(QHideEvent *event) {
 }
 
 void OffroadHome::refresh() {
-  version->setText(getBrand() + " " +  QString::fromStdString(params.get("UpdaterCurrentDescription")));
-
   bool updateAvailable = update_widget->refresh();
   int alerts = alerts_widget->refresh();
 
@@ -224,4 +222,10 @@ void OffroadHome::refresh() {
   if (alerts) {
     alert_notif->setText(QString::number(alerts) + (alerts > 1 ? tr(" ALERTS") : tr(" ALERT")));
   }
+
+  // FrogPilot variables
+  date->setText(QLocale(uiState()->language.mid(5)).toString(QDateTime::currentDateTime(), "dddd, MMMM d"));
+  date->setVisible(util::system_time_valid());
+
+  version->setText(getBrand() + " v" + getVersion().left(14).trimmed());
 }
