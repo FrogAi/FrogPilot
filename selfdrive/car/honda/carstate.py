@@ -80,6 +80,7 @@ def get_can_messages(CP, gearbox_msg):
     messages.append(("CRUISE_FAULT_STATUS", 50))
   elif CP.carFingerprint == CAR.HONDA_CLARITY:
     messages.append(("BRAKE_ERROR", 100)),
+    messages.append(("BRAKE_HOLD", 25)),
   elif CP.openpilotLongitudinalControl:
     messages.append(("STANDSTILL", 50))
 
@@ -189,7 +190,10 @@ class CarState(CarStateBase):
 
     ret.leftBlinker, ret.rightBlinker = self.update_blinker_from_stalk(
       250, cp.vl["SCM_FEEDBACK"]["LEFT_BLINKER"], cp.vl["SCM_FEEDBACK"]["RIGHT_BLINKER"])
-    ret.brakeHoldActive = cp.vl["VSA_STATUS"]["BRAKE_HOLD_ACTIVE"] == 1
+    if self.CP.carFingerprint == CAR.HONDA_CLARITY and not self.CP.enableGasInterceptor:
+      ret.brakeHoldActive = cp.vl["BRAKE_HOLD"]["BRAKE_HOLD_ACTIVE"] == 1
+    else:
+      ret.brakeHoldActive = cp.vl["VSA_STATUS"]["BRAKE_HOLD_ACTIVE"] == 1
 
     # TODO: set for all cars
     if self.CP.carFingerprint in (HONDA_BOSCH | {CAR.HONDA_CIVIC, CAR.HONDA_CLARITY, CAR.HONDA_ODYSSEY, CAR.HONDA_ODYSSEY_CHN}):
