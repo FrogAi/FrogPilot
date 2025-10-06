@@ -228,5 +228,117 @@ class TestGmCameraLongitudinalEVSafety(TestGmCameraLongitudinalSafety, TestGmEVS
   pass
 
 
+# OPGM variables
+def interceptor_msg(gas, addr):
+  to_send = common.make_msg(0, addr, 6)
+  to_send[0].data[0] = (gas & 0xFF00) >> 8
+  to_send[0].data[1] = gas & 0xFF
+  to_send[0].data[2] = (gas & 0xFF00) >> 8
+  to_send[0].data[3] = gas & 0xFF
+  return to_send
+
+
+class TestGmInterceptorSafety(common.GasInterceptorSafetyTest, TestGmCameraSafety, TestGmEVSafetyBase):
+  INTERCEPTOR_THRESHOLD = 550
+
+  def setUp(self):
+    self.packer = CANPackerPanda("gm_global_a_powertrain_generated")
+    self.packer_chassis = CANPackerPanda("gm_global_a_chassis")
+    self.safety = libsafety_py.libsafety
+    self.safety.set_safety_hooks(
+      CarParams.SafetyModel.gm,
+      GMSafetyFlags.HW_CAM | GMSafetyFlags.FLAG_GM_NO_ACC | GMSafetyFlags.FLAG_GM_PEDAL_LONG | GMSafetyFlags.FLAG_GM_GAS_INTERCEPTOR | self.EXTRA_SAFETY_PARAM)
+    self.safety.init_tests()
+
+  def test_pcm_sets_cruise_engaged(self):
+    for enabled in [True, False]:
+      self._rx(self._pcm_status_msg(enabled))
+      self.assertEqual(enabled, self.safety.get_cruise_engaged_prev())
+
+  def test_no_pcm_enable(self):
+    self.safety.set_controls_allowed(False)
+    self.assertFalse(self.safety.get_controls_allowed())
+    self._rx(self._pcm_status_msg(True))
+    self.assertFalse(self.safety.get_controls_allowed())
+    self.assertTrue(self.safety.get_cruise_engaged_prev())
+
+  def test_no_response_to_acc_pcm_message(self):
+    for enable in [True, False]:
+      self.safety.set_controls_allowed(enable)
+      self._rx(self.packer.make_can_msg_panda("AcceleratorPedal2", 0, {"CruiseState": True}))
+      self.assertEqual(enable, self.safety.get_controls_allowed())
+      self._rx(self.packer.make_can_msg_panda("AcceleratorPedal2", 0, {"CruiseState": False}))
+      self.assertEqual(enable, self.safety.get_controls_allowed())
+
+  def test_buttons(self):
+    # Only CANCEL button is allowed while cruise is enabled
+    self.safety.set_controls_allowed(False)
+    for btn in range(8):
+      self.assertFalse(self._tx(self._button_msg(btn)))
+
+    self.safety.set_controls_allowed(True)
+    for btn in range(8):
+      self.assertFalse(self._tx(self._button_msg(btn)))
+
+    self.safety.set_controls_allowed(True)
+    for enabled in (True, False):
+      self._rx(self._pcm_status_msg(enabled))
+      self.assertEqual(enabled, self._tx(self._button_msg(Buttons.CANCEL)))
+      self.assertTrue(self.safety.get_controls_allowed())
+
+  def test_fwd_hook(self):
+    pass
+
+  def test_disable_control_allowed_from_cruise(self):
+    pass
+
+  def test_enable_control_allowed_from_cruise(self):
+    pass
+
+  def _interceptor_gas_cmd(self, gas):
+    return interceptor_msg(gas, 0x200)
+
+  def _interceptor_user_gas(self, gas):
+    return interceptor_msg(gas, 0x201)
+
+  def _pcm_status_msg(self, enable):
+    values = {"CruiseActive": enable}
+    return self.packer.make_can_msg_panda("ECMCruiseControl", 0, values)
+
+
+class TestGmCcLongitudinalSafety(TestGmCameraSafety):
+  TX_MSGS = [[0x180, 0], [0x1E1, 0], [0x184, 2]]
+  FWD_BLACKLISTED_ADDRS = {2: [0x180], 0: [0x184]}  # block LKAS message and PSCMStatus
+  BUTTONS_BUS = 0  # tx only
+
+  def setUp(self):
+    self.packer = CANPackerPanda("gm_global_a_powertrain_generated")
+    self.packer_chassis = CANPackerPanda("gm_global_a_chassis")
+    self.safety = libsafety_py.libsafety
+    self.safety.set_safety_hooks(CarParams.SafetyModel.gm, GMSafetyFlags.HW_CAM | GMSafetyFlags.FLAG_GM_NO_ACC | GMSafetyFlags.FLAG_GM_CC_LONG)
+    self.safety.init_tests()
+
+  def _pcm_status_msg(self, enable):
+    values = {"CruiseActive": enable}
+    return self.packer.make_can_msg_panda("ECMCruiseControl", 0, values)
+
+  def test_fwd_hook(self):
+    pass
+
+  def test_buttons(self):
+    self.safety.set_controls_allowed(0)
+    for btn in range(8):
+      self.assertFalse(self._tx(self._button_msg(btn)))
+
+    self.safety.set_controls_allowed(1)
+    for btn in range(8):
+      self.assertFalse(self._tx(self._button_msg(btn)))
+
+    for enabled in (True, False):
+      for btn in (Buttons.RES_ACCEL, Buttons.DECEL_SET, Buttons.CANCEL):
+        self._rx(self._pcm_status_msg(enabled))
+        self.assertEqual(enabled, self._tx(self._button_msg(btn)))
+
+
 if __name__ == "__main__":
   unittest.main()

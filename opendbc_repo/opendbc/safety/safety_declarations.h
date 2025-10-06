@@ -247,6 +247,9 @@ void speed_mismatch_check(const float speed_2);
 
 void safety_tick(const safety_config *safety_config);
 
+// OPGM variables
+bool longitudinal_interceptor_checks(const CANPacket_t *to_send);
+
 // This can be set by the safety hooks
 extern bool controls_allowed;
 extern bool relay_malfunction;
@@ -284,6 +287,9 @@ extern uint32_t rt_angle_msgs;
 extern uint32_t ts_angle_check_last;
 extern int desired_angle_last;
 extern struct sample_t angle_meas;         // last 6 steer angles/curvatures
+
+// OPGM variables
+extern bool enable_gas_interceptor;
 
 // Alt experiences can be set with a USB command
 // It enables features that allow alternative experiences, like not disengaging on gas press

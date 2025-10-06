@@ -36,7 +36,7 @@ class CarControllerParams:
     # Gas/brake lookups
     self.MAX_BRAKE = 400  # ~ -4.0 m/s^2 with regen
 
-    if CP.carFingerprint in (CAMERA_ACC_CAR | SDGM_CAR):
+    if CP.carFingerprint in (CAMERA_ACC_CAR | SDGM_CAR) and CP.carFingerprint not in CC_ONLY_CAR:
       self.MAX_GAS = 1346.0
       self.MAX_ACC_REGEN = -540.0
       self.INACTIVE_REGEN = -500.0
@@ -63,6 +63,12 @@ class GMSafetyFlags(IntFlag):
   HW_CAM = 1
   HW_CAM_LONG = 2
   EV = 4
+
+  # OPGM variables
+  FLAG_GM_CC_LONG = 8
+  FLAG_GM_GAS_INTERCEPTOR = 16
+  FLAG_GM_NO_ACC = 32
+  FLAG_GM_PEDAL_LONG = 64
 
 
 class Footnote(Enum):
@@ -121,7 +127,7 @@ class CAR(Platforms):
   )
   CHEVROLET_VOLT = GMASCMPlatformConfig(
     [GMCarDocs("Chevrolet Volt 2017-18", min_enable_speed=0, video="https://youtu.be/QeMCN_4TFfQ")],
-    GMCarSpecs(mass=1607, wheelbase=2.69, steerRatio=17.7, centerToFrontRatio=0.45, tireStiffnessFactor=0.469),
+    GMCarSpecs(mass=1607, wheelbase=2.69, steerRatio=17.7, centerToFrontRatio=0.45, tireStiffnessFactor=0.469, minEnableSpeed=-1),
   )
   CADILLAC_ATS = GMASCMPlatformConfig(
     [GMCarDocs("Cadillac ATS Premium Performance 2018")],
@@ -193,6 +199,52 @@ class CAR(Platforms):
     [GMCarDocs("GMC Yukon 2019-20", "Adaptive Cruise Control (ACC) & LKAS")],
     GMCarSpecs(mass=2490, wheelbase=2.94, steerRatio=17.3, centerToFrontRatio=0.5, tireStiffnessFactor=1.0),
   )
+  # OPGM variables
+  # Separate car def is required when there is no ASCM
+  # (for now) unless there is a way to detect it when it has been unplugged...
+  # CHEVROLET_VOLT_CC = GMPlatformConfig(
+  #   [GMCarDocs("Chevrolet Volt LT 2017-18")],
+  #   CHEVROLET_VOLT.specs,
+  # )
+  CADILLAC_CT6_CC = GMPlatformConfig(
+    [GMCarDocs("Cadillac CT6 2018 (NO ACC)")],
+    CarSpecs(mass=2358, wheelbase=3.11, steerRatio=17.7, centerToFrontRatio=0.4),
+  )
+  CADILLAC_XT5_CC = GMPlatformConfig(
+    [GMCarDocs("Cadillac XT5 2018 (NO ACC)")],
+    CarSpecs(mass=1810, wheelbase=2.86, steerRatio=16.34, centerToFrontRatio=0.5),
+  )
+  CHEVROLET_BOLT_2017 = GMPlatformConfig(
+    [GMCarDocs("Chevrolet Bolt EV 2017")],
+    CHEVROLET_BOLT_EUV.specs,
+  )
+  CHEVROLET_BOLT_2018 = GMPlatformConfig(
+    [GMCarDocs("Chevrolet Bolt EV 2018-21")],
+    CHEVROLET_BOLT_EUV.specs,
+  )
+  CHEVROLET_BOLT_CC = GMPlatformConfig(
+    [
+      GMCarDocs("Chevrolet Bolt EUV LT 2022-23"),
+      GMCarDocs("Chevrolet Bolt EV LT 2022-23"),
+    ],
+    CHEVROLET_BOLT_EUV.specs,
+  )
+  CHEVROLET_EQUINOX_CC = GMPlatformConfig(
+    [GMCarDocs("Chevrolet Equinox 2019-22 (NO ACC)")],
+    CHEVROLET_EQUINOX.specs,
+  )
+  CHEVROLET_MALIBU_CC = GMPlatformConfig(
+    [GMCarDocs("Chevrolet Malibu 2018 (NO ACC)")],
+    CarSpecs(mass=1450, wheelbase=2.8, steerRatio=15.8, centerToFrontRatio=0.4),
+  )
+  CHEVROLET_SUBURBAN_CC = GMPlatformConfig(
+    [GMCarDocs("Chevrolet Suburban 2016-20")],
+    CarSpecs(mass=2731, wheelbase=3.302, steerRatio=17.3, centerToFrontRatio=0.49),
+  )
+  CHEVROLET_TRAILBLAZER_CC = GMPlatformConfig(
+    [GMCarDocs("Chevrolet Trailblazer 2021-22 (NO ACC)")],
+    CHEVROLET_TRAILBLAZER.specs,
+  )
 
 
 class CruiseButtons:
@@ -218,6 +270,12 @@ class CanBus:
   CHASSIS = 2
   LOOPBACK = 128
   DROPPED = 192
+
+
+# OPGM variables
+class GMFlags(IntFlag):
+  PEDAL_LONG = 1
+  CC_LONG = 2
 
 
 # In a Data Module, an identifier is a string used to recognize an object,
@@ -282,5 +340,13 @@ ALT_ACCS = {CAR.GMC_YUKON}
 SDGM_CAR = {CAR.CADILLAC_XT4, CAR.CHEVROLET_VOLT_2019, CAR.CHEVROLET_TRAVERSE}
 
 STEER_THRESHOLD = 1.0
+
+# OPGM variables
+CC_ONLY_CAR = {CAR.CHEVROLET_BOLT_2017, CAR.CHEVROLET_BOLT_2018, CAR.CHEVROLET_BOLT_CC, CAR.CHEVROLET_EQUINOX_CC,
+               CAR.CHEVROLET_SUBURBAN_CC, CAR.CADILLAC_CT6_CC, CAR.CHEVROLET_TRAILBLAZER_CC, CAR.CHEVROLET_MALIBU_CC,
+               CAR.CADILLAC_XT5_CC}
+CAMERA_ACC_CAR.update(CC_ONLY_CAR)
+
+EV_CAR.update(CAR.CHEVROLET_VOLT, CAR.CHEVROLET_VOLT_2019, CAR.CHEVROLET_BOLT_EUV)
 
 DBC = CAR.create_dbc_map()

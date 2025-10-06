@@ -1,5 +1,9 @@
+from typing import Literal
+
+from opendbc.car import DT_CTRL
 from opendbc.car.can_definitions import CanData
-from opendbc.car.gm.values import CAR
+from opendbc.car.common.conversions import Conversions as CV
+from opendbc.car.gm.values import CAR, CanBus, CruiseButtons
 
 
 def create_buttons(packer, bus, idx, button):
@@ -169,3 +173,80 @@ def create_lka_icon_command(bus, active, critical, steer):
   else:
     dat = b"\x00\x00\x00"
   return CanData(0x104c006c, dat, bus)
+
+
+# OPGM variables
+def _create_gm_cc_spam_command_accel(controller, CS, actuators):
+  # if controller.params_.get_bool("IsMetric"):
+  #   _CV = CV.MS_TO_KPH
+  #   RATE_UP_MAX = 0.04
+  #   RATE_DOWN_MAX = 0.04
+  # else:
+  _CV = CV.MS_TO_MPH
+  RATE_UP_MAX = 0.2
+  RATE_DOWN_MAX = 0.2
+
+  accel = actuators.accel * _CV  # m/s/s to mph/s
+  speed_setpoint = int(round(CS.out.cruiseState.speed * _CV))
+
+  button = CruiseButtons.INIT
+  if speed_setpoint == CS.CP.minEnableSpeed and accel < -1:
+    button = CruiseButtons.CANCEL
+    controller.apply_speed = 0
+    rate = 0.04
+  elif accel < 0:
+    button = CruiseButtons.DECEL_SET
+    if speed_setpoint > (CS.out.vEgo * _CV) + 3.0:  # If accel is changing directions, bring set speed to current speed as fast as possible
+      rate = RATE_DOWN_MAX
+    else:
+      rate = max(-1 / accel, RATE_DOWN_MAX)
+    controller.apply_speed = (speed_setpoint - 1) / _CV
+  elif accel > 0:
+    button = CruiseButtons.RES_ACCEL
+    if speed_setpoint < (CS.out.vEgo * _CV) - 3.0:
+      rate = RATE_UP_MAX
+    else:
+      rate = max(1 / accel, RATE_UP_MAX)
+    controller.apply_speed = (speed_setpoint + 1) / _CV
+  else:
+    controller.apply_speed = speed_setpoint / _CV
+    rate = float('inf')
+
+  return button, rate
+
+
+def _create_gm_cc_spam_command_velocity(controller, CS, actuators):
+  _CV = CV.MS_TO_MPH
+  speed_desired = int(round(actuators.speed * _CV))
+  speed_setpoint = int(round(CS.out.cruiseState.speed * _CV))
+
+  if speed_desired > speed_setpoint:
+    button = CruiseButtons.RES_ACCEL
+    controller.apply_speed = (speed_setpoint + 1) / _CV
+  elif speed_desired < speed_setpoint:
+    button = CruiseButtons.DECEL_SET
+    controller.apply_speed = (speed_setpoint - 1) / _CV
+  else:
+    button = CruiseButtons.INIT
+    controller.apply_speed = speed_setpoint / _CV
+
+  return button
+
+
+def create_gm_cc_spam_command(packer, controller, CS, actuators, mode: Literal["velocity", "accel"] = "accel"):
+  if mode == "velocity":
+    button = _create_gm_cc_spam_command_velocity(controller, CS, actuators)
+    rate = 0.04
+  elif mode == "accel":
+    button, rate = _create_gm_cc_spam_command_accel(controller, CS, actuators)
+  else:
+    raise ValueError("Invalid mode. Use 'velocity' or 'accel'.")
+
+  # Check rlogs closely - our message shouldn't show up on the pt bus for us
+  # Or bus 2, since we're forwarding... but I think it does
+  if (button != CruiseButtons.INIT) and ((controller.frame - controller.last_button_frame) * DT_CTRL > rate):
+    controller.last_button_frame = controller.frame
+    idx = (CS.buttons_counter + 1) % 4  # Need to predict the next idx for '22-23 EUV
+    return [create_buttons(packer, CanBus.POWERTRAIN, idx, button)]
+  else:
+    return []

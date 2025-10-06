@@ -91,6 +91,9 @@ uint16_t current_safety_param = 0;
 static const safety_hooks *current_hooks = &nooutput_hooks;
 safety_config current_safety_config;
 
+// OPGM variables
+bool enable_gas_interceptor = false;
+
 static void generic_rx_checks(void);
 static void stock_ecu_check(bool stock_ecu_detected);
 
@@ -483,6 +486,10 @@ int set_safety_hooks(uint16_t mode, uint16_t param) {
       current_safety_config.rx_checks[j].status = (RxStatus){0};
     }
   }
+
+  // OPGM variables
+  enable_gas_interceptor = false;
+
   return set_status;
 }
 

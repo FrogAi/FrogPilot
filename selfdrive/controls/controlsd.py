@@ -124,6 +124,11 @@ class Controls:
                                                        curvature_limited)  # TODO what if not available
     actuators.torque = float(steer)
     actuators.steeringAngleDeg = float(steeringAngleDeg)
+
+    # OPGM variables
+    if len(long_plan.speeds):
+      actuators.speed = long_plan.speeds[-1]
+
     # Ensure no NaNs/Infs
     for p in ACTUATOR_FIELDS:
       attr = getattr(actuators, p)
