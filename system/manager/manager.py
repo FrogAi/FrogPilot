@@ -20,6 +20,8 @@ from openpilot.common.swaglog import cloudlog, add_file_handler
 from openpilot.system.version import get_build_metadata, terms_version, training_version
 from openpilot.system.hardware.hw import Paths
 
+from openpilot.frogpilot.common.frogpilot_functions import install_frogpilot, uninstall_frogpilot
+
 
 def manager_init() -> None:
   save_bootlog()
@@ -91,6 +93,9 @@ def manager_init() -> None:
   # preimport all processes
   for p in managed_processes.values():
     p.prepare()
+
+  # FrogPilot variables
+  install_frogpilot(build_metadata, params)
 
 
 def manager_cleanup() -> None:
@@ -200,7 +205,7 @@ def main() -> None:
   params = Params()
   if params.get_bool("DoUninstall"):
     cloudlog.warning("uninstalling")
-    HARDWARE.uninstall()
+    uninstall_frogpilot()
   elif params.get_bool("DoReboot"):
     cloudlog.warning("reboot")
     HARDWARE.reboot()
