@@ -57,6 +57,9 @@ class VehicleParamsLearner:
 
     self.reset(None)
 
+    # FrogPilot variables
+    self.CP = CP
+
   def reset(self, t: float | None):
     self.kf.init_state(self.x_initial, covs=self.P_initial, filter_time=t)
 
@@ -186,6 +189,10 @@ class VehicleParamsLearner:
       liveParameters.debugFilterState = log.LiveParametersData.FilterState.new_message()
       liveParameters.debugFilterState.value = x.tolist()
       liveParameters.debugFilterState.std = P.tolist()
+
+    # FrogPilot variables
+    if self.CP.carFingerprint == "RAM_HD":
+      liveParameters.valid = True
 
     return msg
 

@@ -11,6 +11,9 @@ typedef struct {
   const unsigned int DAS_6;
   const unsigned int LKAS_COMMAND;
   const unsigned int CRUISE_BUTTONS;
+
+  // RealFast variables
+  const unsigned int CRUISE_BUTTONS_ALT;
 } ChryslerAddrs;
 
 typedef enum {
@@ -145,7 +148,7 @@ static bool chrysler_tx_hook(const CANPacket_t *msg) {
   }
 
   // FORCE CANCEL: only the cancel button press is allowed
-  if (msg->addr == chrysler_addrs->CRUISE_BUTTONS) {
+  if (msg->addr == chrysler_addrs->CRUISE_BUTTONS || msg->addr == chrysler_addrs->CRUISE_BUTTONS_ALT) {
     const bool is_cancel = msg->data[0] == 1U;
     const bool is_resume = msg->data[0] == 0x10U;
     const bool allowed = is_cancel || (is_resume && controls_allowed);
@@ -171,6 +174,9 @@ static safety_config chrysler_init(uint16_t param) {
     .DAS_6            = 0x2A6,  // LKAS HUD and auto headlight control from DASM
     .LKAS_COMMAND     = 0x292,  // LKAS controls from DASM
     .CRUISE_BUTTONS   = 0x23B,  // Cruise control buttons
+
+    // RealFast variables
+    .CRUISE_BUTTONS_ALT = 0x23B,  // Cruise control buttons
   };
 
   // CAN messages for the 5th gen RAM DT platform
@@ -183,6 +189,9 @@ static safety_config chrysler_init(uint16_t param) {
     .DAS_6            = 0xFA,   // LKAS HUD and auto headlight control from DASM
     .LKAS_COMMAND     = 0xA6,   // LKAS controls from DASM
     .CRUISE_BUTTONS   = 0xB1,   // Cruise control buttons
+
+    // RealFast variables
+    .CRUISE_BUTTONS_ALT = 0xB1,   // Cruise control buttons
   };
 
   static RxCheck chrysler_ram_dt_rx_checks[] = {
@@ -206,12 +215,18 @@ static safety_config chrysler_init(uint16_t param) {
     {CHRYSLER_ADDRS.CRUISE_BUTTONS, 0, 3, .check_relay = false},
     {CHRYSLER_ADDRS.LKAS_COMMAND, 0, 6, .check_relay = true},
     {CHRYSLER_ADDRS.DAS_6, 0, 8, .check_relay = true},
+
+    // RealFast variables
+    {CHRYSLER_ADDRS.CRUISE_BUTTONS_ALT, 2, 3, .check_relay = false},
   };
 
   static const CanMsg CHRYSLER_RAM_DT_TX_MSGS[] = {
     {CHRYSLER_RAM_DT_ADDRS.CRUISE_BUTTONS, 2, 3, .check_relay = false},
     {CHRYSLER_RAM_DT_ADDRS.LKAS_COMMAND, 0, 8, .check_relay = true},
     {CHRYSLER_RAM_DT_ADDRS.DAS_6, 0, 8, .check_relay = true},
+
+    // RealFast variables
+    {CHRYSLER_RAM_DT_ADDRS.CRUISE_BUTTONS_ALT, 2, 3, .check_relay = false},
   };
 
 #ifdef ALLOW_DEBUG
@@ -225,6 +240,9 @@ static safety_config chrysler_init(uint16_t param) {
     .DAS_6            = 0x275,  // LKAS HUD and auto headlight control from DASM
     .LKAS_COMMAND     = 0x276,  // LKAS controls from DASM
     .CRUISE_BUTTONS   = 0x23A,  // Cruise control buttons
+
+    // RealFast variables
+    .CRUISE_BUTTONS_ALT = 0x23B,  // Cruise control buttons
   };
 
   static RxCheck chrysler_ram_hd_rx_checks[] = {
@@ -239,6 +257,9 @@ static safety_config chrysler_init(uint16_t param) {
     {CHRYSLER_RAM_HD_ADDRS.CRUISE_BUTTONS, 2, 3, .check_relay = false},
     {CHRYSLER_RAM_HD_ADDRS.LKAS_COMMAND, 0, 8, .check_relay = true},
     {CHRYSLER_RAM_HD_ADDRS.DAS_6, 0, 8, .check_relay = true},
+
+    // RealFast variables
+    {CHRYSLER_RAM_HD_ADDRS.CRUISE_BUTTONS_ALT, 2, 3, .check_relay = false},
   };
 
   const uint32_t CHRYSLER_PARAM_RAM_HD = 2U;  // set for Ram HD platform
