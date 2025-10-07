@@ -20,6 +20,8 @@ public:
   std::unique_ptr<SubMaster> sm;
 
   FrogPilotUIScene frogpilot_scene;
+
+  Params params_memory{"", false, true};
 };
 
 FrogPilotUIState *frogpilotUIState();

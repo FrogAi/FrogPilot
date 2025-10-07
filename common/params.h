@@ -35,11 +35,16 @@ struct ParamKeyAttributes {
   uint32_t flags;
   ParamKeyType type;
   std::optional<std::string> default_value = std::nullopt;
+
+  // FrogPilot variables
+  std::optional<std::string> stock_value = std::nullopt;
+
+  int tuning_level = 0;
 };
 
 class Params {
 public:
-  explicit Params(const std::string &path = {});
+  explicit Params(const std::string &path = {}, bool cache = false, bool memory = false);
   ~Params();
   // Not copyable.
   Params(const Params&) = delete;
@@ -77,6 +82,34 @@ public:
   inline void putBoolNonBlocking(const std::string &key, bool val) {
     putNonBlocking(key, val ? "1" : "0");
   }
+
+  // FrogPilot variables
+  inline int getInt(const std::string &key, bool block = false) {
+    std::string value = get(key, block);
+    return value.empty() ? 0 : std::stoi(value);
+  }
+  inline float getFloat(const std::string &key, bool block = false) {
+    std::string value = get(key, block);
+    return value.empty() ? 0.0 : std::stof(value);
+  }
+
+  inline int putInt(const std::string &key, int val) {
+    return put(key.c_str(), std::to_string(val).c_str(), std::to_string(val).size());
+  }
+  inline int putFloat(const std::string &key, float val) {
+    return put(key.c_str(), std::to_string(val).c_str(), std::to_string(val).size());
+  }
+
+  inline void putIntNonBlocking(const std::string &key, int val) {
+    putNonBlocking(key, std::to_string(val));
+  }
+  inline void putFloatNonBlocking(const std::string &key, float val) {
+    putNonBlocking(key, std::to_string(val));
+  }
+
+  int getTuningLevel(const std::string &key);
+
+  std::optional<std::string> getStockValue(const std::string &key);
 
 private:
   void asyncWriteThread();

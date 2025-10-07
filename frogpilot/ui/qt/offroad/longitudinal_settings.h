@@ -65,7 +65,7 @@ private:
   QJsonObject frogpilotToggleLevels;
 
   Params params;
-  Params params_cache("", false, true);
+  Params params_cache{"", true};
   Params params_default{"/dev/shm/params_default"};
-  Params params_memory("", true, false);
+  Params params_memory{"", false, true};
 };

@@ -91,9 +91,17 @@ private:
 } // namespace
 
 
-Params::Params(const std::string &path) {
+Params::Params(const std::string &path, bool cache, bool memory) {
   params_prefix = "/" + util::getenv("OPENPILOT_PREFIX", "d");
-  params_path = ensure_params_path(params_prefix, path);
+  std::string p;
+  if (cache) {
+    p = "/cache/params";
+  } else if (memory) {
+    p = "/dev/shm/params";
+  } else {
+    p = path;
+  }
+  params_path = ensure_params_path(params_prefix, p);
 }
 
 Params::~Params() {
@@ -239,4 +247,13 @@ void Params::asyncWriteThread() {
     // Params::put is Thread-Safe
     put(p.first, p.second);
   }
+}
+
+// FrogPilot variables
+int Params::getTuningLevel(const std::string &key) {
+  return keys.at(key).tuning_level;
+}
+
+std::optional<std::string> Params::getStockValue(const std::string &key) {
+  return keys.at(key).stock_value;
 }
