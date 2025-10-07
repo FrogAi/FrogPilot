@@ -185,6 +185,8 @@ class CarState(CarStateBase):
     # FrogPilot variables
     fp_ret = custom.FrogPilotCarState.new_message()
 
+    fp_ret.sportGear = pt_cp.vl["SportMode"]["SportMode"] == 1
+
     return ret, fp_ret
 
   @staticmethod
