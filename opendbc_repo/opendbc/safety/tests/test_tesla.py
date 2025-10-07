@@ -352,6 +352,12 @@ class TestTeslaSafetyBase(common.PandaCarSafetyTest, common.AngleSteeringSafetyT
         # Recover
         self.assertTrue(self._tx(self._angle_cmd_msg(0, True)))
 
+  # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    # DI_state, DI_cruiseState is the cruise state, 1 is standby
+    values = {"DI_cruiseState": 1 if toggle_on else 0}
+    return self.packer.make_can_msg_panda("DI_state", 0, values)
+
 
 class TestTeslaStockSafety(TestTeslaSafetyBase):
 

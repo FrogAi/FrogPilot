@@ -268,6 +268,12 @@ extern bool acc_main_on; // referred to as "ACC off" in ISO 15622:2018
 extern int cruise_button_prev;
 extern bool safety_rx_checks_invalid;
 
+// FrogPilot variables
+extern bool aol_allowed;
+extern bool cruise_main_prev;
+extern bool lkas_on;
+extern bool lkas_prev;
+
 // for safety modes with torque steering control
 extern int desired_torque_last;       // last desired steer torque
 extern int rt_torque_last;            // last desired torque for real time check
@@ -308,6 +314,9 @@ extern bool enable_gas_interceptor;
 
 // This flag allows AEB to be commanded from openpilot.
 #define ALT_EXP_ALLOW_AEB 16
+
+// Always on Lateral
+#define ALT_EXP_ALWAYS_ON_LATERAL 32
 
 extern int alternative_experience;
 

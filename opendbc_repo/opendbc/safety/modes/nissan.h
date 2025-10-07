@@ -32,6 +32,9 @@ static void nissan_rx_hook(const CANPacket_t *msg) {
         gas_pressed = ((msg->data[5] << 2) | ((msg->data[6] >> 6) & 0x3U)) > 3U;
       } else {
         gas_pressed = msg->data[0] > 3U;
+
+        // FrogPilot variables
+        acc_main_on = GET_BIT(msg, 17U);
       }
     }
 
@@ -49,6 +52,11 @@ static void nissan_rx_hook(const CANPacket_t *msg) {
   if ((msg->addr == 0x30fU) && (msg->bus == (nissan_alt_eps ? 1U : 2U))) {
     bool cruise_engaged = (msg->data[0] >> 3) & 1U;
     pcm_cruise_check(cruise_engaged);
+  }
+
+  // FrogPilot variables
+  if (msg->addr == 0x1b6) {
+    acc_main_on = GET_BIT(msg, 36U);
   }
 }
 

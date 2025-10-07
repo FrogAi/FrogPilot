@@ -537,7 +537,7 @@ class SelfdriveD:
     CS = self.data_sample()
     self.update_events(CS)
     if not self.CP.passive and self.initialized:
-      self.enabled, self.active = self.state_machine.update(self.events, self.frogpilot_events)
+      self.enabled, self.active = self.state_machine.update(self.events, self.frogpilot_events, self.sm['frogpilotCarState'].alwaysOnLateralEnabled)
     self.update_alerts(CS)
 
     self.publish_selfdriveState(CS)

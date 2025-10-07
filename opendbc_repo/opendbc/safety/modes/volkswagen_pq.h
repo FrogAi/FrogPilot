@@ -131,6 +131,11 @@ static void volkswagen_pq_rx_hook(const CANPacket_t *msg) {
         bool cruise_engaged = (acc_status == 1) || (acc_status == 2);
         pcm_cruise_check(cruise_engaged);
       }
+
+      // FrogPilot variables
+      if (msg->addr == MSG_MOTOR_5) {
+        acc_main_on = GET_BIT(msg, 50U);
+      }
     }
 
     // Signal: Motor_3.Fahrpedal_Rohsignal

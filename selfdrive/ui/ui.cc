@@ -80,6 +80,8 @@ void UIState::updateStatus(FrogPilotUIState *fs) {
     auto state = ss.getState();
     if (state == cereal::SelfdriveState::OpenpilotState::PRE_ENABLED || state == cereal::SelfdriveState::OpenpilotState::OVERRIDING) {
       status = STATUS_OVERRIDE;
+    } else if (frogpilot_scene.always_on_lateral_active) {
+      status = STATUS_ALWAYS_ON_LATERAL_ACTIVE;
     } else {
       status = ss.getEnabled() ? STATUS_ENGAGED : STATUS_DISENGAGED;
     }

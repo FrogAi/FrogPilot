@@ -131,6 +131,8 @@ class CarInterfaceBase(ABC):
     # FrogPilot variables
     self.FPCP = FPCP
 
+    self.always_on_lateral_allowed = False
+
   def apply(self, c: structs.CarControl, now_nanos: int | None = None, frogpilot_toggles: SimpleNamespace = None) -> tuple[structs.CarControl.Actuators, list[CanData]]:
     if now_nanos is None:
       now_nanos = int(time.monotonic() * 1e9)
@@ -316,6 +318,11 @@ class CarInterfaceBase(ABC):
     self.CS.out = ret
 
     # FrogPilot variables
+    for b in ret.buttonEvents:
+      if b.type == ButtonType.lkas and b.pressed:
+        self.always_on_lateral_allowed = not self.always_on_lateral_allowed
+
+    fp_ret.alwaysOnLateralAllowed = self.always_on_lateral_allowed
     fp_ret.ecoGear |= ret.gearShifter == GearShifter.eco
     fp_ret.sportGear |= ret.gearShifter == GearShifter.sport
 

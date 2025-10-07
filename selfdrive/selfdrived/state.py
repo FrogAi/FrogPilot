@@ -14,7 +14,7 @@ class StateMachine:
     self.state = State.disabled
     self.soft_disable_timer = 0
 
-  def update(self, events: Events, frogpilot_events: Events):
+  def update(self, events: Events, frogpilot_events: Events, alwaysOnLateralEnabled: bool):
     # FrogPilot variables
     check_event = lambda event_type: events.contains(event_type) or frogpilot_events.contains(event_type)
 
@@ -95,6 +95,6 @@ class StateMachine:
     # Check if openpilot is engaged and actuators are enabled
     enabled = self.state in ENABLED_STATES
     active = self.state in ACTIVE_STATES
-    if active:
+    if active or alwaysOnLateralEnabled:
       self.current_alert_types.append(ET.WARNING)
     return enabled, active

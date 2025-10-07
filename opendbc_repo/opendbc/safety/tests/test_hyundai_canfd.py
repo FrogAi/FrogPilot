@@ -81,6 +81,28 @@ class TestHyundaiCanfdBase(HyundaiButtonBase, common.PandaCarSafetyTest, common.
     }
     return self.packer.make_can_msg_panda("CRUISE_BUTTONS", bus, values)
 
+  # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    if not hasattr(self, "_aol_state"):
+      self._aol_state = False
+
+    # Already in the requested state
+    if toggle_on == self._aol_state:
+      return None
+
+    # Simulate button press + release
+    values = {
+      "CRUISE_BUTTONS": 0,
+      "ADAPTIVE_CRUISE_MAIN_BTN": 0,
+      "LFA_BTN": 1,
+      "COUNTER": 0,
+    }
+    self._rx(self.packer.make_can_msg_panda("CRUISE_BUTTONS", self.PT_BUS, values))
+    self._rx(self.packer.make_can_msg_panda("CRUISE_BUTTONS", self.PT_BUS, {**values, "LFA_BTN": 0}))
+
+    self._aol_state = toggle_on
+    return None  # avoid duplicate message in harness
+
 
 class TestHyundaiCanfdLFASteeringBase(TestHyundaiCanfdBase):
 
@@ -149,6 +171,28 @@ class TestHyundaiCanfdLFASteeringAltButtonsBase(TestHyundaiCanfdLFASteeringBase)
       self.assertTrue(self._tx(self._acc_cancel_msg(True)))
       self.assertFalse(self._tx(self._acc_cancel_msg(True, accel=1)))
       self.assertFalse(self._tx(self._acc_cancel_msg(False)))
+
+  # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    if not hasattr(self, "_aol_state"):
+      self._aol_state = False
+
+    # Already in the requested state
+    if toggle_on == self._aol_state:
+      return None
+
+    # Simulate button press + release
+    values = {
+      "CRUISE_BUTTONS_ALT": 0,
+      "ADAPTIVE_CRUISE_MAIN_BTN": 0,
+      "LFA_BTN": 1,
+      "COUNTER": 0,
+    }
+    self._rx(self.packer.make_can_msg_panda("CRUISE_BUTTONS_ALT", self.PT_BUS, values))
+    self._rx(self.packer.make_can_msg_panda("CRUISE_BUTTONS_ALT", self.PT_BUS, {**values, "LFA_BTN": 0}))
+
+    self._aol_state = toggle_on
+    return None  # avoid duplicate message in harness
 
 
 @parameterized_class(ALL_GAS_EV_HYBRID_COMBOS)

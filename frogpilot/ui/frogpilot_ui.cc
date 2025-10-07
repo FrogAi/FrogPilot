@@ -16,6 +16,7 @@ static void update_state(FrogPilotUIState *fs) {
   }
   if (sm.updated("frogpilotCarState")) {
     const cereal::FrogPilotCarState::Reader &frogpilotCarState = sm["frogpilotCarState"].getFrogpilotCarState();
+    frogpilot_scene.always_on_lateral_active = !frogpilot_scene.enabled && frogpilotCarState.getAlwaysOnLateralEnabled();
   }
   if (sm.updated("frogpilotPlan")) {
     const cereal::FrogPilotPlan::Reader &frogpilotPlan = sm["frogpilotPlan"].getFrogpilotPlan();
