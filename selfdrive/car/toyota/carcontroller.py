@@ -1,5 +1,5 @@
 import math
-import numpy as np
+from numpy import sign
 
 from cereal import car
 from openpilot.common.filter_simple import FirstOrderFilter
@@ -259,14 +259,14 @@ class CarController(CarControllerBase):
         j_ego = (self.aego.x - prev_aego) / (DT_CTRL * 3)
 
         if frogpilot_toggles.frogsgomoo_tweak:
-          future_t = float(np.interp(CS.out.vEgo, [2., 5.], [0.35, 1.0]))
+          future_t = float(interp(CS.out.vEgo, [2., 5.], [0.35, 1.0]))
         else:
-          future_t = float(np.interp(CS.out.vEgo, [2., 5.], [0.25, 0.5]))
+          future_t = float(interp(CS.out.vEgo, [2., 5.], [0.25, 0.5]))
         a_ego_future = a_ego_blended + j_ego * future_t
 
         if CC.longActive:
           # constantly slowly unwind integral to recover from large temporary errors
-          self.long_pid.i -= ACCEL_PID_UNWIND * float(np.sign(self.long_pid.i))
+          self.long_pid.i -= ACCEL_PID_UNWIND * float(sign(self.long_pid.i))
 
           error_future = pcm_accel_cmd - a_ego_future
 
@@ -274,7 +274,7 @@ class CarController(CarControllerBase):
             # Toyota's PCM slowly responds to changes in pitch. On change, we amplify our
             # acceleration request to compensate for the undershoot and following overshoot
             high_pass_pitch = self.pitch.x - self.pitch_slow.x
-            pitch_compensation = float(np.clip(math.sin(high_pass_pitch) * ACCELERATION_DUE_TO_GRAVITY,
+            pitch_compensation = float(clip(math.sin(high_pass_pitch) * ACCELERATION_DUE_TO_GRAVITY,
                                                -MAX_PITCH_COMPENSATION, MAX_PITCH_COMPENSATION))
             pcm_accel_cmd += pitch_compensation
 
