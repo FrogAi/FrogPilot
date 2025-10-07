@@ -1,4 +1,4 @@
-import numpy as np
+from openpilot.common.numpy_fast import clip, interp
 from numbers import Number
 
 class PIDController:
@@ -23,15 +23,15 @@ class PIDController:
 
   @property
   def k_p(self):
-    return np.interp(self.speed, self._k_p[0], self._k_p[1])
+    return interp(self.speed, self._k_p[0], self._k_p[1])
 
   @property
   def k_i(self):
-    return np.interp(self.speed, self._k_i[0], self._k_i[1])
+    return interp(self.speed, self._k_i[0], self._k_i[1])
 
   @property
   def k_d(self):
-    return np.interp(self.speed, self._k_d[0], self._k_d[1])
+    return interp(self.speed, self._k_d[0], self._k_d[1])
 
   def reset(self):
     self.p = 0.0
@@ -57,8 +57,8 @@ class PIDController:
       test_control = self.p + i + self.d + self.f
       i_upperbound = self.i if test_control > self.pos_limit else self.pos_limit
       i_lowerbound = self.i if test_control < self.neg_limit else self.neg_limit
-      self.i = np.clip(i, i_lowerbound, i_upperbound)
+      self.i = clip(i, i_lowerbound, i_upperbound)
 
     control = self.p + self.i + self.d + self.f
-    self.control = np.clip(control, self.neg_limit, self.pos_limit)
+    self.control = clip(control, self.neg_limit, self.pos_limit)
     return self.control

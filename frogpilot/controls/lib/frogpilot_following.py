@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import numpy as np
+from openpilot.common.numpy_fast import clip, interp
 
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import COMFORT_BRAKE, STOP_DISTANCE, desired_follow_distance, get_jerk_factor, get_T_FOLLOW
 
@@ -23,14 +23,14 @@ class FrogPilotFollowing:
   def update(self, v_ego, sm, frogpilot_toggles):
     if sm["controlsState"].enabled and sm["frogpilotCarState"].trafficModeEnabled:
       if sm["carState"].aEgo >= 0:
-        self.base_acceleration_jerk = float(np.interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_acceleration))
-        self.base_speed_jerk = float(np.interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_speed))
+        self.base_acceleration_jerk = float(interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_acceleration))
+        self.base_speed_jerk = float(interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_speed))
       else:
-        self.base_acceleration_jerk = float(np.interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_deceleration))
-        self.base_speed_jerk = float(np.interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_speed_decrease))
+        self.base_acceleration_jerk = float(interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_deceleration))
+        self.base_speed_jerk = float(interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_speed_decrease))
 
-      self.base_danger_jerk = float(np.interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_danger))
-      self.t_follow = float(np.interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_follow))
+      self.base_danger_jerk = float(interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_danger))
+      self.t_follow = float(interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_follow))
     elif sm["controlsState"].enabled:
       if sm["carState"].aEgo >= 0:
         self.base_acceleration_jerk, self.base_danger_jerk, self.base_speed_jerk = get_jerk_factor(
@@ -75,7 +75,7 @@ class FrogPilotFollowing:
     # Offset by FrogAi for FrogPilot for a more natural approach to a faster lead
     if frogpilot_toggles.human_following and v_lead > v_ego:
       distance_factor = max(lead_distance - (v_ego * self.t_follow), 1)
-      accelerating_offset = float(np.clip(STOP_DISTANCE - v_ego, 1, distance_factor))
+      accelerating_offset = float(clip(STOP_DISTANCE - v_ego, 1, distance_factor))
 
       self.acceleration_jerk /= accelerating_offset
       self.speed_jerk /= accelerating_offset
@@ -84,7 +84,7 @@ class FrogPilotFollowing:
     # Offset by FrogAi for FrogPilot for a more natural approach to a slower lead
     if (frogpilot_toggles.conditional_slower_lead or frogpilot_toggles.human_following) and v_lead < v_ego:
       distance_factor = max(lead_distance - (v_lead * self.t_follow), 1)
-      braking_offset = float(np.clip(min(v_ego - v_lead, v_lead) - COMFORT_BRAKE, 1, distance_factor))
+      braking_offset = float(clip(min(v_ego - v_lead, v_lead) - COMFORT_BRAKE, 1, distance_factor))
 
       if frogpilot_toggles.human_following:
         if not self.following_lead and v_lead > CITY_SPEED_LIMIT:
