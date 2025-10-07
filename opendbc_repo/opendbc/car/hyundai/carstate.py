@@ -310,6 +310,8 @@ class CarState(CarStateBase):
     fp_ret.ecoGear = self.drive_mode == 2
     fp_ret.sportGear = self.drive_mode == 3
 
+    self.params = CarControllerParams(self.CP, ret.vEgoRaw, frogpilot_toggles)
+
     return ret, fp_ret
 
   def get_can_parsers_canfd(self, CP):

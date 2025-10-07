@@ -207,6 +207,9 @@ class CarInterfaceBase(ABC):
 
           fp_ret.isHDA2 = hda2
 
+          if frogpilot_toggles.taco_tune_hack:
+            fp_ret.safetyConfigs[0].safetyParam |= HyundaiFrogPilotSafetyFlags.TACO_TUNE_HACK
+
       elif platform in ToyotaCAR:
         fp_ret.canUsePedal = not CP.autoResumeSng
         fp_ret.canUseSDSU = not CP.enableDsu and candidate not in UNSUPPORTED_DSU_CAR and candidate not in TSS2_CAR
