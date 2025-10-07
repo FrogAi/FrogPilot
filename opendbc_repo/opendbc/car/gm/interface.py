@@ -278,4 +278,8 @@ class CarInterface(CarInterfaceBase):
     if candidate in CC_ONLY_CAR:
       ret.safetyConfigs[0].safetyParam |= GMSafetyFlags.FLAG_GM_NO_ACC.value
 
+    # FrogPilot variables
+    elif candidate == CAR.CHEVROLET_TRAX:
+      CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
+
     return ret
