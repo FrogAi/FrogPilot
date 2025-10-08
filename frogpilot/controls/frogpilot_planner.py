@@ -17,6 +17,7 @@ from openpilot.frogpilot.controls.lib.frogpilot_acceleration import FrogPilotAcc
 from openpilot.frogpilot.controls.lib.frogpilot_events import FrogPilotEvents
 from openpilot.frogpilot.controls.lib.frogpilot_following import FrogPilotFollowing
 from openpilot.frogpilot.controls.lib.frogpilot_vcruise import FrogPilotVCruise
+from openpilot.frogpilot.controls.lib.weather_checker import WeatherChecker
 
 class FrogPilotPlanner:
   def __init__(self, error_log, ThemeManager, params):
@@ -25,6 +26,7 @@ class FrogPilotPlanner:
     self.frogpilot_events = FrogPilotEvents(self, error_log, ThemeManager)
     self.frogpilot_following = FrogPilotFollowing(self)
     self.frogpilot_vcruise = FrogPilotVCruise(self, params)
+    self.frogpilot_weather = WeatherChecker()
 
     self.driving_in_curve = False
     self.lateral_check = False
@@ -114,6 +116,11 @@ class FrogPilotPlanner:
 
     self.v_cruise = self.frogpilot_vcruise.update(gps_position, long_control_active, now, time_validated, v_cruise, v_ego, params, params_memory, sm, frogpilot_toggles)
 
+    if gps_position and time_validated and frogpilot_toggles.weather_presets:
+      self.frogpilot_weather.update_weather(gps_position, now, frogpilot_toggles)
+    else:
+      self.frogpilot_weather.weather_id = 0
+
   def update_lead_status(self):
     following_lead = self.lead_one.status
     following_lead &= self.lead_one.dRel < self.model_length + STOP_DISTANCE
@@ -148,6 +155,8 @@ class FrogPilotPlanner:
       frogpilotPlan.increasedStoppedDistance = 0
     else:
       frogpilotPlan.increasedStoppedDistance = frogpilot_toggles.increase_stopped_distance
+    if self.frogpilot_weather.weather_id != 0:
+      frogpilotPlan.increasedStoppedDistance += self.frogpilot_weather.increase_stopped_distance
 
     frogpilotPlan.laneWidthLeft = self.lane_width_left
     frogpilotPlan.laneWidthRight = self.lane_width_right
@@ -176,5 +185,8 @@ class FrogPilotPlanner:
     frogpilotPlan.togglesUpdated = toggles_updated
 
     frogpilotPlan.vCruise = self.v_cruise
+
+    frogpilotPlan.weatherDaytime = self.frogpilot_weather.is_daytime
+    frogpilotPlan.weatherId = self.frogpilot_weather.weather_id
 
     pm.send("frogpilotPlan", frogpilot_plan_send)
