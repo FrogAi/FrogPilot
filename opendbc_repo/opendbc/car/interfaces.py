@@ -332,6 +332,7 @@ class CarInterfaceBase(ABC):
         self.always_on_lateral_allowed = not self.always_on_lateral_allowed
 
     fp_ret.alwaysOnLateralAllowed = self.always_on_lateral_allowed
+    fp_ret.distancePressed = bool(self.CS.distance_button)
     fp_ret.ecoGear |= ret.gearShifter == GearShifter.eco
     fp_ret.sportGear |= ret.gearShifter == GearShifter.sport
 
