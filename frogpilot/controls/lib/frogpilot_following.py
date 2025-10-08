@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 import numpy as np
 
-from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import get_jerk_factor, get_T_FOLLOW
+from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import COMFORT_BRAKE, STOP_DISTANCE, get_jerk_factor, get_T_FOLLOW
+
+from openpilot.frogpilot.common.frogpilot_variables import CITY_SPEED_LIMIT
 
 class FrogPilotFollowing:
   def __init__(self, FrogPilotPlanner):
     self.frogpilot_planner = FrogPilotPlanner
 
     self.following_lead = False
+    self.slower_lead = False
 
     self.acceleration_jerk = 0
     self.danger_jerk = 0
@@ -53,3 +56,24 @@ class FrogPilotFollowing:
       self.update_follow_values(self.frogpilot_planner.lead_one.dRel, v_ego, self.frogpilot_planner.lead_one.vLead, frogpilot_toggles)
 
   def update_follow_values(self, lead_distance, v_ego, v_lead, frogpilot_toggles):
+    # Offset by FrogAi for FrogPilot for a more natural approach to a faster lead
+    if frogpilot_toggles.human_following and v_lead > v_ego:
+      distance_factor = max(lead_distance - (v_ego * self.t_follow), 1)
+      accelerating_offset = float(np.clip(STOP_DISTANCE - v_ego, 1, distance_factor))
+
+      self.acceleration_jerk /= accelerating_offset
+      self.speed_jerk /= accelerating_offset
+      self.t_follow /= accelerating_offset
+
+    # Offset by FrogAi for FrogPilot for a more natural approach to a slower lead
+    if (frogpilot_toggles.conditional_slower_lead or frogpilot_toggles.human_following) and v_lead < v_ego:
+      distance_factor = max(lead_distance - (v_lead * self.t_follow), 1)
+      braking_offset = float(np.clip(min(v_ego - v_lead, v_lead) - COMFORT_BRAKE, 1, distance_factor))
+
+      if frogpilot_toggles.human_following:
+        if not self.following_lead and v_lead > CITY_SPEED_LIMIT:
+          far_lead_offset = max(lead_distance - (v_ego * self.t_follow) - STOP_DISTANCE, 0)
+        else:
+          far_lead_offset = 0
+        self.t_follow /= braking_offset + far_lead_offset
+      self.slower_lead = braking_offset > 1
