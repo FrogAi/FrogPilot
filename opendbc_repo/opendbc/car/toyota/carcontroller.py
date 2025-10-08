@@ -33,6 +33,13 @@ MAX_STEER_RATE_FRAMES = 18  # tx control frames needed before torque can be cut
 # EPS allows user torque above threshold for 50 frames before permanently faulting
 MAX_USER_TORQUE = 500
 
+# FrogPilot variables
+# Lock / unlock door commands - Credit goes to AlexandreSato!
+LOCK_CMD = b"\x40\x05\x30\x11\x00\x80\x00\x00"
+UNLOCK_CMD = b"\x40\x05\x30\x11\x00\x40\x00\x00"
+
+PARK = structs.CarState.GearShifter.park
+
 
 def get_long_tune(CP, params):
   if CP.carFingerprint in TSS2_CAR:
@@ -74,6 +81,9 @@ class CarController(CarControllerBase):
     self.secoc_lka_message_counter = 0
     self.secoc_lta_message_counter = 0
     self.secoc_prev_reset_counter = 0
+
+    # FrogPilot variables
+    self.doors_locked = False
 
   def update(self, CC, CS, now_nanos, frogpilot_toggles):
     actuators = CC.actuators
@@ -293,6 +303,15 @@ class CarController(CarControllerBase):
     self.frame += 1
 
     # FrogPilot variables
+    if not self.doors_locked and CS.out.gearShifter != PARK:
+      if frogpilot_toggles.lock_doors:
+        can_sends.append(make_can_msg(0x750, LOCK_CMD, 0))
+      self.doors_locked = True
+    elif self.doors_locked and CS.out.gearShifter == PARK:
+      if frogpilot_toggles.unlock_doors:
+        can_sends.append(make_can_msg(0x750, UNLOCK_CMD, 0))
+      self.doors_locked = False
+
     if self.CP.enableGasInterceptorDEPRECATED and CC.longActive:
       MAX_INTERCEPTOR_GAS = 0.5
       # RAV4 has very sensitive gas pedal

@@ -5,6 +5,7 @@
 // Stock longitudinal
 #define TOYOTA_BASE_TX_MSGS \
   {0x191, 0, 8, .check_relay = true}, {0x412, 0, 8, .check_relay = true}, {0x1D2, 0, 8, .check_relay = false},  /* LKAS + LTA + PCM cancel cmd */  \
+  {0x750, 0, 8, .check_relay = false},  /* white list 0x750 for Enhanced Diagnostic Request */  \
 
 #define TOYOTA_COMMON_TX_MSGS \
   TOYOTA_BASE_TX_MSGS \
@@ -349,7 +350,9 @@ static bool toyota_tx_hook(const CANPacket_t *msg) {
   if (msg->addr == 0x750U) {
     // this address is sub-addressed. only allow tester present to radar (0xF)
     bool invalid_uds_msg = (GET_BYTES(msg, 0, 4) != 0x003E020FU) || (GET_BYTES(msg, 4, 4) != 0x0U);
-    if (invalid_uds_msg) {
+    // AleSato added some more hack'sss
+    bool valid_uds_msgs = (GET_BYTES(msg, 0, 4) == 0x11300540U);  // automatic door locking and unlocking
+    if (invalid_uds_msg && !valid_uds_msgs) {
       tx = 0;
     }
   }
