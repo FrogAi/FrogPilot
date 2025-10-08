@@ -13,6 +13,7 @@ import openpilot.system.sentry as sentry
 running_threads = {}
 
 locks = {
+  "backup_toggles": threading.Lock(),
   "update_checks": threading.Lock(),
 }
 
