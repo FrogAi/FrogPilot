@@ -130,6 +130,26 @@ class FrogPilotVariables:
     toggle.frogs_go_moo = Path("/persist/frogsgomoo.py").is_file()
     toggle.block_user = (self.development_branch or short_branch == "MAKE-PRS-HERE" or self.vetting_branch) and not toggle.frogs_go_moo
 
+    tuning_level = self.params.get("TuningLevel") if self.params.get_bool("TuningLevelConfirmed") else 3
+
+    device_management = self.params.get_bool("DeviceManagement") if tuning_level >= level["DeviceManagement"] else default["DeviceManagement"]
+
+    toggle.use_higher_bitrate = device_management
+    toggle.use_higher_bitrate &= self.params.get_bool("HigherBitrate") if tuning_level >= level["HigherBitrate"] else default["HigherBitrate"]
+    toggle.use_higher_bitrate &= self.params.get_bool("NoUploads") if tuning_level >= level["NoUploads"] else default["NoUploads"]
+    toggle.use_higher_bitrate &= not (self.params.get_bool("DisableOnroadUploads") if tuning_level >= level["DisableOnroadUploads"] else default["DisableOnroadUploads"])
+    toggle.use_higher_bitrate &= not self.vetting_branch
+    toggle.use_higher_bitrate |= self.development_branch
+
+    if not HD_PATH.is_file() and toggle.use_higher_bitrate:
+      HD_PATH.touch()
+
+      HARDWARE.reboot()
+    elif HD_PATH.is_file() and not toggle.use_higher_bitrate:
+      HD_PATH.unlink()
+
+      HARDWARE.reboot()
+
   def update(self, holiday_theme, started):
     default = self.default_values
     level = self.tuning_levels

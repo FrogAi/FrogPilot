@@ -17,6 +17,8 @@ class Paths:
       return os.environ['LOG_ROOT']
     elif PC:
       return str(Path(Paths.comma_home()) / "media" / "0" / "realdata")
+    elif Path("/cache/use_HD").is_file():
+      return '/data/media/0/realdata_HD/'
     else:
       return '/data/media/0/realdata/'
 
