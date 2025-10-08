@@ -96,6 +96,10 @@ class FrogPilotPlanner:
 
     self.lateral_acceleration = v_ego**2 * (sm["carState"].steeringAngleDeg - sm["liveParameters"].angleOffsetDeg) * CV.DEG_TO_RAD / (self.CP.steerRatio * self.CP.wheelbase)
 
+    self.lateral_check = v_ego >= frogpilot_toggles.pause_lateral_below_speed
+    self.lateral_check |= not (sm["carState"].leftBlinker or sm["carState"].rightBlinker) and frogpilot_toggles.pause_lateral_below_signal
+    self.lateral_check |= sm["carState"].standstill
+
     self.model_length = sm["modelV2"].position.x[-1]
 
     self.model_stopped = self.model_length < CRUISING_SPEED * PLANNER_TIME
