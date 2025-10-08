@@ -1,0 +1,180 @@
+.error-logs-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+#errorLogs {
+  max-width: calc(100% - var(--padding-xl));
+  width: 100%;
+}
+
+#errorLogs > div {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--padding-xl);
+  overflow: hidden;
+}
+
+#errorLogs .fileEntry {
+  border: none;
+  display: flex;
+  justify-content: center;
+  padding: var(--padding-sm) var(--border-radius-xl);
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+#errorLogs .fileEntry:hover {
+  background-color: var(--sidebar-active-bg);
+  box-shadow: var(--shadow-md);
+  transform: var(--hover-scale-sm);
+}
+
+#errorLogs #fileList {
+  color: var(--text-color);
+  margin-bottom: var(--border-radius-xl);
+  overflow-y: auto;
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+#errorLogs #fileList,
+#errorLogs #fileViewer {
+  background-color: var(--sidebar-bg);
+  border: none;
+  border-radius: var(--border-radius-lg);
+  max-width: calc(100% - var(--padding-xl));
+  scrollbar-color: var(--thumb-color) var(--track-color);
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+  padding: var(--padding-base);
+  width: 100%;
+}
+
+#errorLogs #fileList:hover,
+#errorLogs #fileViewer:hover {
+  box-shadow: var(--shadow-md);
+  transform: var(--hover-scale-sm);
+}
+
+#errorLogs #fileViewer {
+  scrollbar-width: auto;
+}
+
+#errorLogs #fileViewer > div {
+  display: flex;
+  justify-content: space-between;
+}
+
+#errorLogs #fileViewer a {
+  color: inherit;
+  text-decoration: none;
+}
+
+#errorLogs #fileViewer button {
+  background-color: transparent;
+  border: none;
+  border-radius: 50%;
+  color: var(--secondary-fg);
+  height: calc(3 * var(--border-width-thick));
+  padding: var(--padding-sm);
+  transition:
+    background-color var(--transition-base),
+    box-shadow var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
+  width: calc(3 * var(--border-width-thick));
+}
+
+#errorLogs #fileViewer button:hover {
+  transform: var(--hover-scale-sm);
+}
+
+#errorLogs #fileViewer pre {
+  color: var(--main-fg);
+  font-family: var(--font-mono);
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin-top: var(--padding-sm);
+}
+
+#errorLogs p {
+  margin: 0;
+  padding: 0;
+}
+
+.time-since {
+  display: none;
+}
+
+@media only screen and (min-width: 769px) {
+  .error-logs-wrapper {
+    margin: 0 auto;
+    width: 50%;
+  }
+
+  #errorLogs .fileEntry {
+    justify-content: space-between;
+  }
+
+  .time-since {
+    display: block;
+  }
+}
+
+.error-logs-wrapper #errorLogs #fileList {
+  background-color: var(--sidebar-bg);
+  border-radius: var(--border-radius-lg);
+  margin-left: 0;
+  max-width: calc(100% - var(--padding-xl));
+  overflow-y: auto;
+  padding: var(--padding-base);
+  scrollbar-color: var(--thumb-color) var(--track-color);
+  scrollbar-width: auto;
+  width: 100%;
+}
+
+.error-logs-wrapper #errorLogs #fileList .fileEntry {
+  cursor: pointer;
+  display: flex;
+  padding: var(--padding-sm) var(--padding-base);
+}
+
+.error-logs-wrapper #errorLogs #fileList .fileEntry:not(:last-child) {
+  border-bottom: 1px solid var(--sidebar-border-color);
+}
+
+.error-logs-wrapper #errorLogs #fileList .fileEntry:hover {
+  background-color: var(--sidebar-active-bg);
+}
+
+.error-logs-wrapper #errorLogs #fileList .fileEntry.header {
+  background-color: var(--secondary-bg);
+  cursor: default;
+  font-weight: bold;
+}
+
+.delete-all-button {
+  background-color: var(--danger-bg);
+  border: none;
+  border-radius: var(--border-radius-lg);
+  color: var(--text-color);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-demi-bold);
+  margin-top: var(--margin-sm);
+  padding: var(--padding-sm) var(--padding-base);
+  text-align: center;
+  transition:
+    background-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+  width: auto;
+}
+
+.delete-all-button:hover {
+  background-color: var(--danger-hover-bg);
+  box-shadow: var(--shadow-md);
+  transform: var(--hover-scale-sm);
+}
+
+.delete-all-button[disabled] {
+  cursor: not-allowed;
+  opacity: var(--disabled-opacity);
+}

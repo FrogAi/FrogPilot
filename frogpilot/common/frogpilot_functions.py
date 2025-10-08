@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import datetime
 import filecmp
+import glob
 import random
 import shutil
 import string
@@ -23,7 +24,7 @@ from openpilot.frogpilot.assets.theme_manager import ThemeManager
 from openpilot.frogpilot.common.frogpilot_utilities import delete_file, run_cmd, use_konik_server
 from openpilot.frogpilot.common.frogpilot_variables import (
   DEFAULT_MODEL, ERROR_LOGS_PATH, EXCLUDED_KEYS, HD_LOGS_PATH, KONIK_LOGS_PATH, MODELS_PATH,
-  SCREEN_RECORDINGS_PATH, THEME_SAVE_PATH, FrogPilotVariables, get_frogpilot_toggles
+  SCREEN_RECORDINGS_PATH, THEME_SAVE_PATH, VIDEO_CACHE_PATH, FrogPilotVariables, get_frogpilot_toggles
 )
 from openpilot.frogpilot.system.frogpilot_stats import send_stats
 
@@ -139,6 +140,10 @@ def frogpilot_boot_functions(build_metadata, params, params_cache):
   FrogPilotVariables().update(holiday_theme="stock", started=False)
   ModelManager(params, params_memory, boot_run=True)
   ThemeManager(params, params_memory, boot_run=True).update_active_theme(time_validated=system_time_valid(), frogpilot_toggles=get_frogpilot_toggles(), boot_run=True)
+
+  if VIDEO_CACHE_PATH.exists():
+    for video in VIDEO_CACHE_PATH.glob("*.mp4"):
+      delete_file(video)
 
   if use_konik_server():
     if params.get("KonikDongleId") != None:
