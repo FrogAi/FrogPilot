@@ -52,6 +52,8 @@ class FrogPilotAcceleration:
 
     if self.frogpilot_planner.tracking_lead:
       self.min_accel = ACCEL_MIN
+    elif sm["frogpilotCarState"].forceCoast:
+      self.min_accel = A_CRUISE_MIN_ECO
     elif frogpilot_toggles.map_deceleration and (eco_gear or sport_gear):
       if eco_gear:
         self.min_accel = A_CRUISE_MIN_ECO
