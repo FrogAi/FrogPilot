@@ -123,6 +123,9 @@ class FrogPilotPlanner:
 
     frogpilotPlan.experimentalMode = self.frogpilot_cem.experimental_mode
 
+    frogpilotPlan.forcingStop = self.frogpilot_vcruise.forcing_stop
+    frogpilotPlan.forcingStopLength = self.frogpilot_vcruise.tracked_model_length
+
     frogpilotPlan.frogpilotEvents = self.frogpilot_events.events.to_msg()
 
     frogpilotPlan.lateralCheck = self.lateral_check
