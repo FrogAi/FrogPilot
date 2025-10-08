@@ -24,6 +24,19 @@ TEMP_STEER_FAULTS = (0, 9, 11, 21, 25)
 PERM_STEER_FAULTS = (3, 17)
 
 
+# Traffic signals for Speed Limit Controller - Credit goes to the DragonPilot team!
+def calculate_speed_limit(cp_cam, frogpilot_toggles):
+  speed_limit_unit = cp_cam.vl["RSA1"]["TSGN1"]
+  speed_limit_value = cp_cam.vl["RSA1"]["SPDVAL1"]
+
+  if speed_limit_unit == 1 and not frogpilot_toggles.force_mph_dashboard:
+    return speed_limit_value * CV.KPH_TO_MS
+  elif speed_limit_unit == 36 or frogpilot_toggles.force_mph_dashboard:
+    return speed_limit_value * CV.MPH_TO_MS
+  else:
+    return 0
+
+
 class CarState(CarStateBase):
   def __init__(self, CP, FPCP):
     super().__init__(CP, FPCP)
@@ -214,6 +227,11 @@ class CarState(CarStateBase):
     fp_ret = custom.FrogPilotCarState.new_message()
 
     fp_ret.brakeLights = bool(cp.vl["ESP_CONTROL"]["BRAKE_LIGHTS_ACC"])
+
+    buttonEvents += create_button_events(self.pcm_acc_status == 9, False, {1: ButtonType.accelCruise}),
+    buttonEvents += create_button_events(self.pcm_acc_status == 10, False, {1: ButtonType.decelCruise}),
+
+    fp_ret.dashboardSpeedLimit = calculate_speed_limit(cp_cam, frogpilot_toggles)
 
     if not self.CP.flags & ToyotaFlags.SECOC.value:
       fp_ret.ecoGear = cp.vl["GEAR_PACKET"]["ECON_ON"] == 1

@@ -70,6 +70,9 @@ def allow_logging(started: bool, params: Params, CP: car.CarParams, frogpilot_to
 def allow_uploads(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
   return not frogpilot_toggles.no_uploads or frogpilot_toggles.no_onroad_uploads
 
+def run_speed_limit_filler(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
+  return frogpilot_toggles.speed_limit_filler
+
 procs = [
   DaemonProcess("manage_athenad", "system.athena.manage_athenad", "AthenadPid"),
 
@@ -127,6 +130,7 @@ procs = [
   # FrogPilot variables
   PythonProcess("frogpilot_process", "frogpilot.frogpilot_process", always_run),
   PythonProcess("mapd", "frogpilot.navigation.mapd", always_run),
+  PythonProcess("speed_limit_filler", "frogpilot.system.speed_limit_filler", run_speed_limit_filler),
 ]
 
 managed_processes = {p.name: p for p in procs}

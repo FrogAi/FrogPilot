@@ -5,6 +5,7 @@ from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import COMFO
 
 from openpilot.frogpilot.common.frogpilot_variables import CRUISING_SPEED, PLANNER_TIME
 from openpilot.frogpilot.controls.lib.curve_speed_controller import CurveSpeedController
+from openpilot.frogpilot.controls.lib.speed_limit_controller import SpeedLimitController
 
 OVERRIDE_FORCE_STOP_TIMER = 10
 
@@ -13,6 +14,7 @@ class FrogPilotVCruise:
     self.frogpilot_planner = FrogPilotPlanner
 
     self.csc = CurveSpeedController(self, params)
+    self.slc = SpeedLimitController(params)
 
     self.forcing_stop = False
     self.override_force_stop = False
@@ -68,6 +70,24 @@ class FrogPilotVCruise:
     else:
       self.braking_target = v_cruise
 
+    # Pfeiferj's Speed Limit Controller
+    self.slc.frogpilot_toggles = frogpilot_toggles
+
+    if frogpilot_toggles.speed_limit_controller:
+      self.slc.update_limits(sm["frogpilotCarState"].dashboardSpeedLimit, gps_position, now, time_validated, v_cruise, v_ego, params, params_memory, sm)
+      self.slc.update_override(v_cruise, v_cruise_diff, v_ego, v_ego_diff, sm)
+
+      self.slc_offset = self.slc.offset
+      self.slc_target = self.slc.target
+    elif frogpilot_toggles.show_speed_limits:
+      self.slc.update_limits(sm["frogpilotCarState"].dashboardSpeedLimit, gps_position, now, time_validated, v_cruise, v_ego, params, params_memory, sm)
+
+      self.slc_offset = 0
+      self.slc_target = self.slc.target
+    else:
+      self.slc_offset = 0
+      self.slc_target = 0
+
     if force_stop_enabled and not self.override_force_stop:
       self.forcing_stop |= not sm["carState"].standstill
 
@@ -80,6 +100,8 @@ class FrogPilotVCruise:
       self.tracked_model_length = self.frogpilot_planner.model_length
 
       targets = [self.braking_target, self.csc_target, v_cruise]
+      if frogpilot_toggles.speed_limit_controller:
+        targets.append(max(self.slc.overridden_speed, self.slc_target + self.slc_offset) - v_ego_diff)
 
       v_cruise = min([target if target > CRUISING_SPEED else v_cruise for target in targets])
 

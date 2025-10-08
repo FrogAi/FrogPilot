@@ -22,6 +22,8 @@ class FrogPilotCard:
     self.long_press_threshold = CRUISE_LONG_PRESS * (1.5 if CP.brand == "gm" else 1)
     self.very_long_press_threshold = CRUISE_LONG_PRESS * 5
 
+    self.accel_pressed = False
+    self.decel_pressed = False
     self.force_coast = False
     self.pause_lateral = False
     self.pause_longitudinal = False
@@ -87,6 +89,12 @@ class FrogPilotCard:
     self.always_on_lateral_enabled &= not (carState.brakePressed and carState.vEgo < frogpilot_toggles.always_on_lateral_pause_speed or carState.standstill)
     self.always_on_lateral_enabled &= not any(event.immediateDisable for events in (sm["onroadEvents"], sm["frogpilotOnroadEvents"]) for event in events if event.name != EventName.speedTooLow) or frogpilot_toggles.frogs_go_moo
 
+    if sm.updated["frogpilotPlan"] or any(be.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for be in carState.buttonEvents):
+      self.accel_pressed = any(be.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for be in carState.buttonEvents)
+
+    if sm.updated["frogpilotPlan"] or any(be.type in (ButtonType.decelCruise, ButtonType.setCruise) for be in carState.buttonEvents):
+      self.decel_pressed = any(be.type == ButtonType.decelCruise for be in carState.buttonEvents)
+
     self.force_coast &= not (carState.brakePressed or carState.gasPressed)
 
     frogpilotCarState.distancePressed |= params_memory.get_bool("OnroadDistanceButtonPressed")
@@ -110,7 +118,9 @@ class FrogPilotCard:
 
     self.prev_distance_button = frogpilotCarState.distancePressed
 
+    frogpilotCarState.accelPressed = self.accel_pressed
     frogpilotCarState.alwaysOnLateralEnabled = self.always_on_lateral_enabled
+    frogpilotCarState.decelPressed = self.decel_pressed
     frogpilotCarState.distanceLongPressed = self.very_long_press_threshold > self.gap_counter >= self.long_press_threshold
     frogpilotCarState.distanceVeryLongPressed = self.gap_counter >= self.very_long_press_threshold
     frogpilotCarState.forceCoast = self.force_coast

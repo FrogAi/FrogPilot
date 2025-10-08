@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import io
 import json
+import math
 import numpy as np
 import requests
 import subprocess
@@ -21,7 +22,7 @@ from openpilot.common.realtime import DT_DMON, DT_HW
 from openpilot.system.hardware import HARDWARE
 from panda import Panda
 
-from openpilot.frogpilot.common.frogpilot_variables import DISCORD_WEBHOOK_URL_REPORT, ERROR_LOGS_PATH, KONIK_PATH, MAPD_PATH, MAPS_PATH
+from openpilot.frogpilot.common.frogpilot_variables import DISCORD_WEBHOOK_URL_REPORT, EARTH_RADIUS, ERROR_LOGS_PATH, KONIK_PATH, MAPD_PATH, MAPS_PATH
 
 running_threads = {}
 
@@ -52,6 +53,28 @@ def run_thread_with_lock(name, target, args=(), report=True):
       thread = threading.Thread(target=wrapped_target, args=args, daemon=True)
       thread.start()
       running_threads[name] = thread
+
+
+def calculate_bearing_offset(latitude, longitude, current_bearing, distance):
+  bearing = math.radians(current_bearing)
+  lat_rad = math.radians(latitude)
+  lon_rad = math.radians(longitude)
+
+  delta = distance / EARTH_RADIUS
+
+  new_latitude = math.asin(math.sin(lat_rad) * math.cos(delta) + math.cos(lat_rad) * math.sin(delta) * math.cos(bearing))
+  new_longitude = lon_rad + math.atan2(math.sin(bearing) * math.sin(delta) * math.cos(lat_rad),  math.cos(delta) - math.sin(lat_rad) * math.sin(new_latitude))
+  return math.degrees(new_latitude), math.degrees(new_longitude)
+
+
+def calculate_distance_to_point(lat1, lon1, lat2, lon2):
+  delta_lat = lat2 - lat1
+  delta_lon = lon2 - lon1
+
+  a = (math.sin(delta_lat / 2) ** 2) + math.cos(lat1) * math.cos(lat2) * (math.sin(delta_lon / 2) ** 2)
+  c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+  return EARTH_RADIUS * c
 
 
 def calculate_lane_width(lane, current_lane, road_edge=None):

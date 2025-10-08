@@ -22,6 +22,28 @@ BUTTONS_DICT = {Buttons.RES_ACCEL: ButtonType.accelCruise, Buttons.SET_DECEL: Bu
                 Buttons.GAP_DIST: ButtonType.gapAdjustCruise, Buttons.CANCEL: ButtonType.cancel}
 
 
+# Traffic signals for Speed Limit Controller - Credit goes to Multikyd!
+def calculate_speed_limit(CP, FPCP, cp, cp_cam):
+  if CP.carFingerprint in CANFD_CAR:
+    if CP.flags & HyundaiFlags.CANFD_HDA2:
+      speed_limit_bus = cp
+    else:
+      speed_limit_bus = cp_cam
+    speed_limit = speed_limit_bus.vl["CLUSTER_SPEED_LIMIT"]["SPEED_LIMIT_1"]
+  else:
+    if FPCP.flags & HyundaiFrogPilotFlags.LKAS12:
+      speed_limit = cp_cam.vl["LKAS12"]["CF_Lkas_TsrSpeed_Display_Clu"]
+    else:
+      speed_limit = 0
+    if speed_limit in (0, 255) and FPCP.flags & HyundaiFrogPilotFlags.NAV_MSG:
+      speed_limit = cp.vl["Navi_HU"]["SpeedLim_Nav_Clu"]
+
+  if speed_limit not in (0, 255):
+    return speed_limit
+  else:
+    return 0
+
+
 class CarState(CarStateBase):
   def __init__(self, CP, FPCP):
     super().__init__(CP, FPCP)
@@ -211,6 +233,9 @@ class CarState(CarStateBase):
 
     fp_ret.brakeLights = bool(cp.vl["TCS13"]["BrakeLight"])
 
+    if self.FPCP.flags & HyundaiFrogPilotFlags.LKAS12 or self.FPCP.flags & HyundaiFrogPilotFlags.NAV_MSG:
+      fp_ret.dashboardSpeedLimit = calculate_speed_limit(self.CP, self.FPCP, cp, cp_cam) * speed_conv
+
     return ret, fp_ret
 
   def update_canfd(self, can_parsers) -> structs.CarState:
@@ -306,6 +331,9 @@ class CarState(CarStateBase):
     fp_ret = custom.FrogPilotCarState.new_message()
 
     fp_ret.brakeLights = bool(cp.vl["TCS"]["DriverBraking"])
+
+    if self.FPCP.flags & HyundaiFrogPilotFlags.NAV_MSG:
+      fp_ret.dashboardSpeedLimit = calculate_speed_limit(self.CP, self.FPCP, cp, cp_cam) * speed_factor
 
     drive_mode = cp.vl["DRIVE_MODE"]["DRIVE_MODE2"]
     if drive_mode != 0 and drive_mode != self.drive_mode:

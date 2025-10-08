@@ -140,6 +140,8 @@ class HyundaiFlags(IntFlag):
 
 # FrogPilot variables
 class HyundaiFrogPilotFlags(IntFlag):
+  LKAS12 = 1
+  NAV_MSG = 2
 
 
 class Footnote(Enum):

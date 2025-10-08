@@ -208,10 +208,19 @@ class CarInterfaceBase(ABC):
         if candidate in CANFD_CAR:
           hda2 = Ecu.adas in [fw.ecu for fw in car_fw]
 
+          if 0x1fa in fingerprint[CanBus(None, hda2, fingerprint).ECAN]:
+            fp_ret.flags |= HyundaiFrogPilotFlags.NAV_MSG.value
+
           fp_ret.isHDA2 = hda2
 
           if frogpilot_toggles.taco_tune_hack:
             fp_ret.safetyConfigs[0].safetyParam |= HyundaiFrogPilotSafetyFlags.TACO_TUNE_HACK
+        else:
+          if 0x53E in fingerprint[2]:
+            fp_ret.flags |= HyundaiFrogPilotFlags.LKAS12.value
+
+          if 0x544 in fingerprint[0]:
+            fp_ret.flags |= HyundaiFrogPilotFlags.NAV_MSG.value
 
       elif platform in ToyotaCAR:
         fp_ret.canUsePedal = not CP.autoResumeSng

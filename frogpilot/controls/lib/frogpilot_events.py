@@ -179,6 +179,9 @@ class FrogPilotEvents:
 
       self.always_on_lateral_enabled_previously = sm["frogpilotCarState"].alwaysOnLateralEnabled
 
+    if frogpilot_toggles.speed_limit_changed_alert and self.frogpilot_planner.frogpilot_vcruise.slc.speed_limit_changed_timer == DT_MDL:
+      self.events.add(FrogPilotEventName.speedLimitChanged)
+
     self.startup_seen |= sm["frogpilotSelfdriveState"].alertText1 == frogpilot_toggles.startup_alert_top and sm["frogpilotSelfdriveState"].alertText2 == frogpilot_toggles.startup_alert_bottom
 
     self.played_events.update(FROGPILOT_EVENT_NAME[event] for event in self.events.names)
