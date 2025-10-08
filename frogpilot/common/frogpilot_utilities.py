@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import json
+import numpy as np
 import requests
 import subprocess
 import tarfile
@@ -42,6 +43,25 @@ def run_thread_with_lock(name, target, args=(), report=True):
       thread = threading.Thread(target=wrapped_target, args=args, daemon=True)
       thread.start()
       running_threads[name] = thread
+
+
+def calculate_lane_width(lane, current_lane, road_edge=None):
+  current_x = np.asarray(current_lane.x)
+  current_y = np.asarray(current_lane.y)
+
+  lane_y_interp = np.interp(current_x, np.asarray(lane.x), np.asarray(lane.y))
+  distance_to_lane = np.mean(np.abs(current_y - lane_y_interp))
+
+  if road_edge is None:
+    return float(distance_to_lane)
+
+  road_edge_y_interp = np.interp(current_x, np.asarray(road_edge.x), np.asarray(road_edge.y))
+  distance_to_road_edge = np.mean(np.abs(current_y - road_edge_y_interp))
+
+  if distance_to_road_edge < distance_to_lane:
+    return 0.0
+
+  return float(distance_to_lane)
 
 
 # Credit goes to Pfeiferj!

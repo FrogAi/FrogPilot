@@ -20,6 +20,8 @@ static void update_state(FrogPilotUIState *fs) {
   }
   if (sm.updated("frogpilotPlan")) {
     const cereal::FrogPilotPlan::Reader &frogpilotPlan = sm["frogpilotPlan"].getFrogpilotPlan();
+    frogpilot_scene.lane_width_left = frogpilotPlan.getLaneWidthLeft();
+    frogpilot_scene.lane_width_right = frogpilotPlan.getLaneWidthRight();
     if (frogpilotPlan.getThemeUpdated()) {
       frogpilot_scene.frogpilot_toggles = QJsonDocument::fromJson(fs->params_memory.get("FrogPilotToggles").c_str()).object();
 
