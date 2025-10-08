@@ -23,7 +23,7 @@ def is_registered_device() -> bool:
   return dongle not in (None, UNREGISTERED_DONGLE_ID)
 
 
-def register(show_spinner=False) -> str | None:
+def register(show_spinner=False, register_konik=False) -> str | None:
   """
   All devices built since March 2024 come with all
   info stored in /persist/. This is kept around
@@ -42,10 +42,10 @@ def register(show_spinner=False) -> str | None:
       dongle_id = f.read().strip()
 
   pubkey = Path(Paths.persist_root()+"/comma/id_rsa.pub")
-  if not pubkey.is_file():
+  if not pubkey.is_file() and not register_konik:
     dongle_id = UNREGISTERED_DONGLE_ID
     cloudlog.warning(f"missing public key: {pubkey}")
-  elif dongle_id is None:
+  elif dongle_id is None or register_konik:
     if show_spinner:
       spinner = Spinner()
       spinner.update("registering device")
@@ -97,8 +97,9 @@ def register(show_spinner=False) -> str | None:
     if show_spinner:
       spinner.close()
 
-  if dongle_id:
+  if not register_konik and dongle_id != params.get("KonikDongleId"):
     params.put("DongleId", dongle_id)
+    params.put("StockDongleId", dongle_id)
     set_offroad_alert("Offroad_UnregisteredHardware", (dongle_id == UNREGISTERED_DONGLE_ID) and not PC)
   return dongle_id
 

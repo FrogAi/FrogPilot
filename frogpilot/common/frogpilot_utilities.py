@@ -7,6 +7,7 @@ import threading
 import time
 import zipfile
 
+from functools import cache
 from pathlib import Path
 
 import openpilot.system.sentry as sentry
@@ -14,6 +15,8 @@ import openpilot.system.sentry as sentry
 from cereal import log, messaging
 from openpilot.common.realtime import DT_DMON, DT_HW
 from openpilot.system.hardware import HARDWARE
+
+from openpilot.frogpilot.common.frogpilot_variables import KONIK_PATH
 
 running_threads = {}
 
@@ -190,6 +193,11 @@ def update_openpilot(params, params_memory):
       break
 
   HARDWARE.reboot()
+
+
+@cache
+def use_konik_server():
+  return KONIK_PATH.is_file()
 
 
 def wait_for_no_driver(params, sm, time_threshold=60):

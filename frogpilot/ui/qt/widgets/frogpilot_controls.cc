@@ -12,6 +12,10 @@ bool FrogPilotConfirmationDialog::yesorno(const QString &prompt_text, QWidget *p
   return d.exec();
 }
 
+bool useKonikServer() {
+  static bool use_konik = QFile::exists("/cache/use_konik");
+  return use_konik;
+
 void openDescriptions(bool forceOpenDescriptions, std::map<QString, AbstractControl*> toggles) {
   if (forceOpenDescriptions) {
     for (auto &[key, toggle] : toggles) {

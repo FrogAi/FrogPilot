@@ -19,6 +19,8 @@ class Paths:
       return str(Path(Paths.comma_home()) / "media" / "0" / "realdata")
     elif Path("/cache/use_HD").is_file():
       return '/data/media/0/realdata_HD/'
+    elif Path("/cache/use_konik").is_file():
+      return '/data/media/0/realdata_konik/'
     else:
       return '/data/media/0/realdata/'
 

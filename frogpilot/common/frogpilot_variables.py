@@ -150,6 +150,19 @@ class FrogPilotVariables:
 
       HARDWARE.reboot()
 
+    toggle.use_konik_server = device_management
+    toggle.use_konik_server &= self.params.get_bool("UseKonikServer") if tuning_level >= level["UseKonikServer"] else default["UseKonikServer"]
+    toggle.use_konik_server |= Path("/data/openpilot/not_vetted").is_file()
+
+    if not KONIK_PATH.is_file() and toggle.use_konik_server:
+      KONIK_PATH.touch()
+
+      HARDWARE.reboot()
+    elif KONIK_PATH.is_file() and not toggle.use_konik_server:
+      KONIK_PATH.unlink()
+
+      HARDWARE.reboot()
+
   def update(self, holiday_theme, started):
     default = self.default_values
     level = self.tuning_levels
