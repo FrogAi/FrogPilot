@@ -1,5 +1,5 @@
 import math
-import numpy as np
+from openpilot.common.numpy_fast import interp
 from collections import deque
 
 from cereal import log
@@ -75,7 +75,7 @@ class LatControlTorque(LatControl):
       measurement_rate = self.measurement_rate_filter.update((measurement - self.previous_measurement) / self.dt)
       self.previous_measurement = measurement
 
-      low_speed_factor = (np.interp(CS.vEgo, LOW_SPEED_X, LOW_SPEED_Y) / max(CS.vEgo, MIN_SPEED)) ** 2
+      low_speed_factor = (interp(CS.vEgo, LOW_SPEED_X, LOW_SPEED_Y) / max(CS.vEgo, MIN_SPEED)) ** 2
       setpoint = lat_delay * desired_lateral_jerk + expected_lateral_accel
       error = setpoint - measurement
       error_lsf = error + low_speed_factor / self.torque_params.kp * error
