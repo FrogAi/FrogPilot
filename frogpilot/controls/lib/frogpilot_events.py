@@ -13,6 +13,8 @@ class FrogPilotEvents:
 
     self.played_events = set()
 
+    self.error_log = error_log
+
   def update(self, v_cruise, sm, frogpilot_toggles):
     self.event_names = {event.name for event in sm["onroadEvents"]}
     self.frogpilot_event_names = {event.name for event in sm["frogpilotOnroadEvents"]}
@@ -27,6 +29,12 @@ class FrogPilotEvents:
       self.max_acceleration = max(acceleration, self.max_acceleration)
     else:
       self.max_acceleration = 0
+
+    if self.error_log.is_file():
+      if frogpilot_toggles.random_events:
+        self.events.add(FrogPilotEventName.openpilotCrashedRandomEvent)
+      else:
+        self.events.add(FrogPilotEventName.openpilotCrashed)
 
     self.startup_seen |= sm["frogpilotSelfdriveState"].alertText1 == frogpilot_toggles.startup_alert_top and sm["frogpilotSelfdriveState"].alertText2 == frogpilot_toggles.startup_alert_bottom
 

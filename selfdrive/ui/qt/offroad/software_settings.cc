@@ -106,6 +106,14 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   });
   addItem(uninstallBtn);
 
+  // error log button
+  auto errorLogBtn = new ButtonControl(tr("Error Log"), tr("VIEW"), tr("View the error log for openpilot crashes."));
+  connect(errorLogBtn, &ButtonControl::clicked, [=]() {
+    std::string txt = util::read_file("/data/error_logs/error.txt");
+    ConfirmationDialog::rich(QString::fromStdString(txt), this);
+  });
+  addItem(errorLogBtn);
+
   fs_watch = new ParamWatcher(this);
   QObject::connect(fs_watch, &ParamWatcher::paramChanged, [=](const QString &param_name, const QString &param_value) {
     updateLabels();

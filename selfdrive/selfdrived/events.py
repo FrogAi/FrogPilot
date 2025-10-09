@@ -1044,6 +1044,20 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.PERMANENT: custom_startup_alert,
   },
 
+  FrogPilotEventName.openpilotCrashed: {
+    ET.IMMEDIATE_DISABLE: Alert(
+      "openpilot crashed",
+      "Please post the 'Error Log' in the FrogPilot Discord!",
+      AlertStatus.critical, AlertSize.mid,
+      Priority.HIGHEST, VisualAlert.none, AudibleAlert.prompt, .1),
+
+    ET.NO_ENTRY: Alert(
+      "openpilot crashed",
+      "Please post the 'Error Log' in the FrogPilot Discord!",
+      AlertStatus.critical, AlertSize.mid,
+      Priority.HIGHEST, VisualAlert.none, AudibleAlert.prompt, .1),
+  },
+
   FrogPilotEventName.pedalInterceptorNoBrake: {
     ET.WARNING: Alert(
       "Braking Unavailable",
