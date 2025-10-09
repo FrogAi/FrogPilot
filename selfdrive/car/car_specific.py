@@ -90,7 +90,7 @@ class CarSpecificEvents:
       events = self.create_common_events(CS, CS_prev, extra_gears=[GearShifter.sport])
 
       if self.CP.openpilotLongitudinalControl:
-        if CS.cruiseState.standstill and not CS.brakePressed:
+        if CS.cruiseState.standstill and not CS.brakePressed and not self.CP.enableGasInterceptorDEPRECATED:
           events.add(EventName.resumeRequired)
         if CS.vEgo < self.CP.minEnableSpeed:
           events.add(EventName.belowEngageSpeed)

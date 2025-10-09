@@ -17,6 +17,9 @@
 #define HONDA_ALT_BRAKE_ADDR_CHECK(pt_bus)                                                                                              \
   {.msg = {{0x1BE, (pt_bus), 3, 50U, .max_counter = 3U, .ignore_quality_flag = true}, { 0 }, { 0 }}},  /* BRAKE_MODULE */  \
 
+// FrogPilot variables
+#define HONDA_GET_INTERCEPTOR(msg) (((msg->data[0] << 8) + msg->data[1] + (msg->data[2] << 8) + msg->data[3]) / 2U)  // avg between 2 tracks
+
 enum {
   HONDA_BTN_NONE = 0,
   HONDA_BTN_MAIN = 1,
@@ -34,6 +37,12 @@ static bool honda_bosch_radarless = false;
 static bool honda_bosch_canfd = false;
 typedef enum {HONDA_NIDEC, HONDA_BOSCH} HondaHw;
 static HondaHw honda_hw = HONDA_NIDEC;
+
+// FrogPilot variables
+// panda interceptor threshold needs to be equivalent to openpilot threshold to avoid controls mismatches
+// If thresholds are mismatched then it is possible for panda to see the gas fall and rise while openpilot is in the pre-enabled state
+// Threshold calculated from DBC gains: round(((83.3 / 0.253984064) + (83.3 / 0.126992032)) / 2) = 492
+const int HONDA_GAS_INTERCEPTOR_THRESHOLD = 492;
 
 
 static unsigned int honda_get_pt_bus(void) {
@@ -63,12 +72,19 @@ static uint32_t honda_compute_checksum(const CANPacket_t *msg) {
 }
 
 static uint8_t honda_get_counter(const CANPacket_t *msg) {
-  int counter_byte = GET_LEN(msg) - 1U;
-  return (msg->data[counter_byte] >> 4U) & 0x3U;
+  uint8_t cnt = 0U;
+  if (msg->addr == 0x201U) {
+    // Signal: COUNTER_PEDAL
+    cnt = msg->data[4] & 0x0FU;
+  } else {
+    int counter_byte = GET_LEN(msg) - 1U;
+    cnt = (msg->data[counter_byte] >> 4U) & 0x3U;
+  }
+  return cnt;
 }
 
 static void honda_rx_hook(const CANPacket_t *msg) {
-  const bool pcm_cruise = ((honda_hw == HONDA_BOSCH) && !honda_bosch_long) || (honda_hw == HONDA_NIDEC);
+  const bool pcm_cruise = ((honda_hw == HONDA_BOSCH) && !honda_bosch_long) || ((honda_hw == HONDA_NIDEC) && !enable_gas_interceptor);
   unsigned int pt_bus = honda_get_pt_bus();
 
   // sample speed
@@ -139,8 +155,10 @@ static void honda_rx_hook(const CANPacket_t *msg) {
     }
   }
 
-  if (msg->addr == 0x17CU) {
-    gas_pressed = msg->data[0] != 0U;
+  if (!enable_gas_interceptor) {
+    if (msg->addr == 0x17CU) {
+      gas_pressed = msg->data[0] != 0U;
+    }
   }
 
   // disable stock Honda AEB in alternative experience
@@ -159,6 +177,13 @@ static void honda_rx_hook(const CANPacket_t *msg) {
         // Leave Honda forward brake as is
       }
     }
+  }
+
+  // FrogPilot variables
+  // length check because bosch hardware also uses this id (0x201 w/ len = 8)
+  if ((msg->addr == 0x201U) && (GET_LEN(msg) == 6) && enable_gas_interceptor) {
+    int gas_interceptor = HONDA_GET_INTERCEPTOR(msg);
+    gas_pressed = gas_interceptor > HONDA_GAS_INTERCEPTOR_THRESHOLD;
   }
 }
 
@@ -269,6 +294,14 @@ static bool honda_tx_hook(const CANPacket_t *msg) {
     }
   }
 
+  // FrogPilot variables
+  // GAS: safety check (interceptor)
+  if (msg->addr == 0x200) {
+    if (longitudinal_interceptor_checks(msg)) {
+      tx = false;
+    }
+  }
+
   return tx;
 }
 
@@ -294,6 +327,14 @@ static safety_config honda_nidec_init(uint16_t param) {
 
   bool enable_nidec_alt = GET_FLAG(param, HONDA_PARAM_NIDEC_ALT);
 
+  // FrogPilot variables
+  static CanMsg HONDA_N_INTERCEPTOR_TX_MSGS[] = {{0xE4, 0, 5, .check_relay = true}, {0x194, 0, 4, .check_relay = true}, {0x1FA, 0, 8, .check_relay = false},
+                                                 {0x200, 0, 6, .check_relay = true}, {0x30C, 0, 8, .check_relay = true}, {0x33D, 0, 5, .check_relay = true}};
+
+  const uint16_t HONDA_PARAM_GAS_INTERCEPTOR = 32;
+
+  enable_gas_interceptor = GET_FLAG(param, HONDA_PARAM_GAS_INTERCEPTOR);
+
   if (enable_nidec_alt) {
     // For Nidecs with main on signal on an alternate msg (missing 0x326)
     static RxCheck honda_nidec_alt_rx_checks[] = {
@@ -301,7 +342,17 @@ static safety_config honda_nidec_init(uint16_t param) {
       {.msg = {{0x1FA, 2, 8, 50U, .max_counter = 3U, .ignore_quality_flag = true}, { 0 }, { 0 }}},  // BRAKE_COMMAND
     };
 
-    SET_RX_CHECKS(honda_nidec_alt_rx_checks, ret);
+    // FrogPilot variables
+    static RxCheck honda_nidec_alt_interceptor_rx_checks[] = {
+      HONDA_COMMON_NO_SCM_FEEDBACK_RX_CHECKS(0)
+      {.msg = {{0x201, 0, 6, 50U, .max_counter = 15U, .ignore_quality_flag = true}, { 0 }, { 0 }}}, // GAS_INTERCEPTOR
+    };
+
+    if (enable_gas_interceptor) {
+      SET_RX_CHECKS(honda_nidec_alt_interceptor_rx_checks, ret);
+    } else {
+      SET_RX_CHECKS(honda_nidec_alt_rx_checks, ret);
+    }
   } else {
     // Nidec includes BRAKE_COMMAND
     static RxCheck honda_nidec_common_rx_checks[] = {
@@ -309,10 +360,24 @@ static safety_config honda_nidec_init(uint16_t param) {
       {.msg = {{0x1FA, 2, 8, 50U, .max_counter = 3U, .ignore_quality_flag = true}, { 0 }, { 0 }}},  // BRAKE_COMMAND
     };
 
-    SET_RX_CHECKS(honda_nidec_common_rx_checks, ret);
+    // FrogPilot variables
+    static RxCheck honda_nidec_common_interceptor_rx_checks[] = {
+      HONDA_COMMON_RX_CHECKS(0)
+      {.msg = {{0x201, 0, 6, 50U, .max_counter = 15U, .ignore_quality_flag = true}, { 0 }, { 0 }}}, // GAS_INTERCEPTOR
+    };
+
+    if (enable_gas_interceptor) {
+      SET_RX_CHECKS(honda_nidec_common_interceptor_rx_checks, ret);
+    } else {
+      SET_RX_CHECKS(honda_nidec_common_rx_checks, ret);
+    }
   }
 
-  SET_TX_MSGS(HONDA_N_TX_MSGS, ret);
+  if (enable_gas_interceptor) {
+    SET_TX_MSGS(HONDA_N_INTERCEPTOR_TX_MSGS, ret);
+  } else {
+    SET_TX_MSGS(HONDA_N_TX_MSGS, ret);
+  }
 
   return ret;
 }

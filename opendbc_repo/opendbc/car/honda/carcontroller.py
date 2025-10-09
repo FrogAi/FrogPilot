@@ -2,7 +2,7 @@ import numpy as np
 from collections import namedtuple
 
 from opendbc.can import CANPacker
-from opendbc.car import Bus, DT_CTRL, rate_limit, make_tester_present_msg, structs
+from opendbc.car import Bus, DT_CTRL, create_gas_interceptor_command, rate_limit, make_tester_present_msg, structs
 from opendbc.car.honda import hondacan
 from opendbc.car.honda.values import CruiseButtons, VISUAL_HUD, HONDA_BOSCH, HONDA_BOSCH_CANFD, HONDA_BOSCH_RADARLESS, \
                                      HONDA_NIDEC_ALT_PCM_ACCEL, CarControllerParams
@@ -173,7 +173,7 @@ class CarController(CarControllerBase):
                     0.5]
     # The Honda ODYSSEY seems to have different PCM_ACCEL
     # msgs, is it other cars too?
-    if not CC.longActive:
+    if self.CP.enableGasInterceptorDEPRECATED or not CC.longActive:
       pcm_speed = 0.0
       pcm_accel = int(0.0)
     elif self.CP.carFingerprint in HONDA_NIDEC_ALT_PCM_ACCEL:
@@ -225,6 +225,20 @@ class CarController(CarControllerBase):
           self.apply_brake_last = apply_brake
           self.brake = apply_brake / self.params.NIDEC_BRAKE_MAX
 
+          # FrogPilot variables
+          if self.CP.enableGasInterceptorDEPRECATED:
+            # way too aggressive at low speed without this
+            gas_mult = interp(CS.out.vEgo, [0., 10.], [0.4, 1.0])
+            # send exactly zero if apply_gas is zero. Interceptor will send the max between read value and apply_gas.
+            # This prevents unexpected pedal range rescaling
+            # Sending non-zero gas when OP is not enabled will cause the PCM not to respond to throttle as expected
+            # when you do enable.
+            if CC.longActive:
+              self.gas = clip(gas_mult * (gas - brake + wind_brake * 3 / 4), 0., 1.)
+            else:
+              self.gas = 0.0
+            can_sends.append(create_gas_interceptor_command(self.packer, self.gas, self.frame // 2))
+
     # Send dashboard UI commands.
     # On Nidec, this controls longitudinal positive acceleration
     if self.frame % 10 == 0:
@@ -234,7 +248,8 @@ class CarController(CarControllerBase):
 
       if self.CP.openpilotLongitudinalControl and self.CP.carFingerprint not in HONDA_BOSCH:
         self.speed = pcm_speed
-        self.gas = pcm_accel / self.params.NIDEC_GAS_MAX
+        if not self.CP.enableGasInterceptorDEPRECATED:
+          self.gas = pcm_accel / self.params.NIDEC_GAS_MAX
 
     new_actuators = actuators.as_builder()
     new_actuators.speed = self.speed

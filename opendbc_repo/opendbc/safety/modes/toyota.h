@@ -53,11 +53,17 @@
   {.msg = {{0x116, 0, 8, 42U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  \
   {.msg = {{0x101, 0, 8, 50U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  \
 
+// FrogPilot variables
+#define TOYOTA_GET_INTERCEPTOR(msg) (((((msg)->data[0] << 8) + (msg)->data[1]) + (((msg)->data[2] << 8) + (msg)->data[3])) / 2U)  // avg between 2 tracks
+
 static bool toyota_secoc = false;
 static bool toyota_alt_brake = false;
 static bool toyota_stock_longitudinal = false;
 static bool toyota_lta = false;
 static int toyota_dbc_eps_torque_factor = 100;   // conversion factor for STEER_TORQUE_EPS in %: see dbc file
+
+// FrogPilot variables
+const int TOYOTA_GAS_INTERCEPTOR_THRSLD = 805;
 
 static uint32_t toyota_compute_checksum(const CANPacket_t *msg) {
   int len = GET_LEN(msg);
@@ -133,7 +139,9 @@ static void toyota_rx_hook(const CANPacket_t *msg) {
       if (msg->addr == 0x1D2U) {
         bool cruise_engaged = GET_BIT(msg, 5U);  // PCM_CRUISE.CRUISE_ACTIVE
         pcm_cruise_check(cruise_engaged);
-        gas_pressed = !GET_BIT(msg, 4U);  // PCM_CRUISE.GAS_RELEASED
+        if (!enable_gas_interceptor) {
+          gas_pressed = !GET_BIT(msg, 4U);  // PCM_CRUISE.GAS_RELEASED
+        }
       }
       if (!toyota_alt_brake && (msg->addr == 0x226U)) {
         brake_pressed = GET_BIT(msg, 37U);  // BRAKE_MODULE.BRAKE_PRESSED (toyota_nodsu_pt_generated.dbc)
@@ -160,6 +168,13 @@ static void toyota_rx_hook(const CANPacket_t *msg) {
     // FrogPilot variables
     if (msg->addr == 0x1D3) {
       acc_main_on = GET_BIT(msg, 15U);
+    }
+
+    // FrogPilot variables
+    // sample gas interceptor
+    if ((msg->addr == 0x201) && enable_gas_interceptor) {
+      int gas_interceptor = TOYOTA_GET_INTERCEPTOR(msg);
+      gas_pressed = gas_interceptor > TOYOTA_GAS_INTERCEPTOR_THRSLD;
     }
   }
 }
@@ -320,6 +335,14 @@ static bool toyota_tx_hook(const CANPacket_t *msg) {
         }
       }
     }
+
+    // FrogPilot variables
+    // GAS PEDAL: safety check
+    if (msg->addr == 0x200) {
+      if (longitudinal_interceptor_checks(msg)) {
+        tx = false;
+      }
+    }
   }
 
   // UDS: Only tester present ("\x0F\x02\x3E\x00\x00\x00\x00\x00") allowed on diagnostics address
@@ -345,6 +368,12 @@ static safety_config toyota_init(uint16_t param) {
 
   static const CanMsg TOYOTA_LONG_TX_MSGS[] = {
     TOYOTA_COMMON_LONG_TX_MSGS
+  };
+
+  // FrogPilot variables
+  static const CanMsg TOYOTA_INTERCEPTOR_TX_MSGS[] = {
+    TOYOTA_COMMON_LONG_TX_MSGS
+    {0x200, 0, 6, .check_relay = true},  // gas interceptor
   };
 
   // safety param flags
@@ -373,7 +402,11 @@ static safety_config toyota_init(uint16_t param) {
       SET_TX_MSGS(TOYOTA_TX_MSGS, ret);
     }
   } else {
-    SET_TX_MSGS(TOYOTA_LONG_TX_MSGS, ret);
+    if (enable_gas_interceptor) {
+      SET_TX_MSGS(TOYOTA_INTERCEPTOR_TX_MSGS, ret);
+    } else {
+      SET_TX_MSGS(TOYOTA_LONG_TX_MSGS, ret);
+    }
   }
 
   if (toyota_secoc) {
@@ -382,6 +415,14 @@ static safety_config toyota_init(uint16_t param) {
     };
 
     SET_RX_CHECKS(toyota_secoc_rx_checks, ret);
+  // FrogPilot variables
+  } else if (enable_gas_interceptor) {
+    RxCheck toyota_interceptor_rx_checks[] = {
+      TOYOTA_COMMON_RX_CHECKS(toyota_lta)
+      {.msg = {{0x201, 0, 6, .ignore_checksum = true, .max_counter = 15U, .frequency = 50U}, { 0 }, { 0 }}},
+    };
+
+    SET_RX_CHECKS(toyota_interceptor_rx_checks, ret);
   } else if (toyota_lta) {
     // Check the quality flag for angle measurement when using LTA, since it's not set on TSS-P cars
     static RxCheck toyota_lta_rx_checks[] = {
@@ -404,7 +445,24 @@ static safety_config toyota_init(uint16_t param) {
     }
   }
 
+  // FrogPilot variables
+  const uint32_t TOYOTA_PARAM_GAS_INTERCEPTOR = 16UL << TOYOTA_PARAM_OFFSET;
+
+  enable_gas_interceptor = !toyota_stock_longitudinal && GET_FLAG(param, TOYOTA_PARAM_GAS_INTERCEPTOR);
+
   return ret;
+}
+
+// FrogPilot variables
+static uint8_t toyota_get_counter(const CANPacket_t *to_push) {
+  int addr = GET_ADDR(to_push);
+
+  uint8_t cnt = 0U;
+  if (addr == 0x201) {
+    // Signal: COUNTER_PEDAL
+    cnt = to_push->data[4] & 0x0FU;
+  }
+  return cnt;
 }
 
 const safety_hooks toyota_hooks = {
@@ -414,4 +472,7 @@ const safety_hooks toyota_hooks = {
   .get_checksum = toyota_get_checksum,
   .compute_checksum = toyota_compute_checksum,
   .get_quality_flag_valid = toyota_get_quality_flag_valid,
+
+  // FrogPilot variables
+  .get_counter = toyota_get_counter,
 };

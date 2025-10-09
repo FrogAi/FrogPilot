@@ -198,6 +198,9 @@ class CarInterfaceBase(ABC):
       elif platform in HondaCAR:
         fp_ret.canUsePedal = candidate not in HONDA_BOSCH
 
+        if CP.enableGasInterceptorDEPRECATED and candidate not in HONDA_BOSCH:
+          fp_ret.safetyConfigs[0].safetyParam |= FrogPilotHondaSafetyFlags.GAS_INTERCEPTOR
+
       elif platform in HyundaiCAR:
         if candidate in CANFD_CAR:
           hda2 = Ecu.adas in [fw.ecu for fw in car_fw]
@@ -207,6 +210,9 @@ class CarInterfaceBase(ABC):
       elif platform in ToyotaCAR:
         fp_ret.canUsePedal = not CP.autoResumeSng
         fp_ret.canUseSDSU = not CP.enableDsu and candidate not in UNSUPPORTED_DSU_CAR and candidate not in TSS2_CAR
+
+        if CP.enableGasInterceptorDEPRECATED:
+          fp_ret.safetyConfigs[0].safetyParam |= ToyotaFrogPilotSafetyFlags.GAS_INTERCEPTOR
 
     return fp_ret
 

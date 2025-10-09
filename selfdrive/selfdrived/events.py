@@ -1040,6 +1040,14 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   FrogPilotEventName.customStartupAlert: {
     ET.PERMANENT: custom_startup_alert,
   },
+
+  FrogPilotEventName.pedalInterceptorNoBrake: {
+    ET.WARNING: Alert(
+      "Braking Unavailable",
+      "Shift to L",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.HIGH, VisualAlert.wrongGear, AudibleAlert.promptRepeat, 4.),
+  },
 }
 
 

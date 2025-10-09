@@ -59,6 +59,7 @@ class ToyotaSafetyFlags(IntFlag):
 
 
 class ToyotaFrogPilotSafetyFlags(IntFlag):
+  GAS_INTERCEPTOR = (16 << 8)
 
 
 class ToyotaFlags(IntFlag):

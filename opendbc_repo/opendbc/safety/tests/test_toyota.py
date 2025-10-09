@@ -16,6 +16,7 @@ TOYOTA_COMMON_LONG_TX_MSGS = [[0x283, 0], [0x2E6, 0], [0x2E7, 0], [0x33E, 0], [0
                               [0x128, 1], [0x141, 1], [0x160, 1], [0x161, 1], [0x470, 1],  # DSU bus 1
                               [0x411, 0],  # PCS_HUD
                               [0x750, 0]]  # radar diagnostic address
+GAS_INTERCEPTOR_TX_MSGS = [[0x200, 0]]
 
 
 class TestToyotaSafetyBase(common.PandaCarSafetyTest, common.LongitudinalAccelSafetyTest):
@@ -347,6 +348,45 @@ class TestToyotaSecOcSafety(TestToyotaStockLongitudinalBase):
 
       should_tx = not req and not req2 and angle == 0
       self.assertEqual(should_tx, self._tx(self._lta_2_msg(req, req2, angle)), f"{req=} {req2=} {angle=}")
+
+
+# FrogPilot variables
+class TestToyotaSafetyGasInterceptorBase(common.GasInterceptorSafetyTest, TestToyotaSafetyBase):
+
+  TX_MSGS = TOYOTA_COMMON_TX_MSGS + TOYOTA_COMMON_LONG_TX_MSGS + GAS_INTERCEPTOR_TX_MSGS
+  INTERCEPTOR_THRESHOLD = 805
+
+  def setUp(self):
+    super().setUp()
+    self.safety.set_safety_hooks(Panda.SAFETY_TOYOTA, self.safety.get_current_safety_param() |
+                                 Panda.FLAG_TOYOTA_GAS_INTERCEPTOR)
+    self.safety.init_tests()
+
+  def test_stock_longitudinal(self):
+    # If stock longitudinal is set, the gas interceptor safety param should not be respected
+    self.safety.set_safety_hooks(Panda.SAFETY_TOYOTA, self.safety.get_current_safety_param() |
+                                 Panda.FLAG_TOYOTA_STOCK_LONGITUDINAL)
+    self.safety.init_tests()
+
+    # Spot check a few gas interceptor tests: (1) reading interceptor,
+    # (2) behavior around interceptor, and (3) txing interceptor msgs
+    for test in (self.test_prev_gas_interceptor, self.test_disengage_on_gas_interceptor,
+                 self.test_gas_interceptor_safety_check):
+      with self.subTest(test=test.__name__):
+        with self.assertRaises(AssertionError):
+          test()
+
+
+class TestToyotaSafetyTorqueGasInterceptor(TestToyotaSafetyGasInterceptorBase, TestToyotaSafetyTorque):
+  pass
+
+
+class TestToyotaSafetyAngleGasInterceptor(TestToyotaSafetyGasInterceptorBase, TestToyotaSafetyAngle):
+  pass
+
+
+class TestToyotaAltBrakeSafetyGasInterceptor(TestToyotaSafetyGasInterceptorBase, TestToyotaAltBrakeSafety):
+  pass
 
 
 if __name__ == "__main__":
