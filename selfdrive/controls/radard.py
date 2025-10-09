@@ -13,7 +13,7 @@ from openpilot.common.realtime import DT_MDL, Priority, config_realtime_process
 from openpilot.common.swaglog import cloudlog
 from openpilot.common.simple_kalman import KF1D
 
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
+from openpilot.frogpilot.common.frogpilot_variables import THRESHOLD, get_frogpilot_toggles
 
 
 # Default lead acceleration decay set to 50% at 1s
@@ -66,6 +66,8 @@ class Track:
     self.leadRight = False
 
     self.leadTrackID = 0
+
+    self.radarfulFilter = FirstOrderFilter(0, 0.5, self.K_A[0][1])
 
   def update(self, d_rel: float, y_rel: float, v_rel: float, v_lead: float, measured: float):
     # relative values, copy
@@ -135,6 +137,20 @@ class Track:
       return self.leadLeft
     else:
       return self.leadRight
+
+  def potential_far_lead(self, standstill: bool, model_data: capnp._DynamicStructReader):
+    if standstill or self.vLead < 1 or abs(self.yRel) > 1:
+      return False
+
+    left_lane = interp(self.dRel, model_data.laneLines[1].x, model_data.laneLines[1].y)
+    right_lane = interp(self.dRel, model_data.laneLines[2].x, model_data.laneLines[2].y)
+
+    if left_lane < -self.yRel < right_lane:
+      self.radarfulFilter.update(1)
+      return True
+    else:
+      self.radarfulFilter.update(0)
+      return False
 
 
 def laplacian_pdf(x: float, mu: float, b: float):
@@ -207,6 +223,12 @@ def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capn
       # Only choose new track if it is actually closer than the previous one
       if (not lead_dict['status']) or (closest_track.dRel < lead_dict['dRel']):
         lead_dict = closest_track.get_RadarState()
+
+  if not lead_dict['status'] and len(tracks) > 0:
+    far_lead_tracks = [c for c in tracks.values() if c.potential_far_lead(standstill, model_data) and c.radarfulFilter.x >= THRESHOLD]
+    if len(far_lead_tracks) > 0:
+      closest_track = min(far_lead_tracks, key=lambda c: c.dRel)
+      lead_dict = closest_track.get_RadarState()
 
   # FrogPilot variables
   for track in tracks.values():
