@@ -26,11 +26,14 @@ running_threads = {}
 
 locks = {
   "backup_toggles": threading.Lock(),
+  "download_all_models": threading.Lock(),
+  "download_model": threading.Lock(),
   "download_theme": threading.Lock(),
   "flash_panda": threading.Lock(),
   "lock_doors": threading.Lock(),
   "update_checks": threading.Lock(),
   "update_openpilot": threading.Lock(),
+  "update_tinygrad": threading.Lock()
 }
 
 
