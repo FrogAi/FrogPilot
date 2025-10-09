@@ -248,6 +248,9 @@ def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capn
   for track in tracks.values():
     track.leadTrackID = lead_dict.get('radarTrackId', -1)
 
+  if 'dRel' in lead_dict:
+    lead_dict['dRel'] -= frogpilot_plan.increasedStoppedDistance
+
   return lead_dict
 
 
