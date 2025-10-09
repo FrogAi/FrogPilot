@@ -175,6 +175,9 @@ def get_car(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_multip
   # FrogPilot variables
   FPCP: FrogPilotCarParams = CarInterface.get_frogpilot_params(candidate, fingerprints, car_fw, CP, frogpilot_toggles)
 
+  if FPCP.lateralTuning.which() == "torque":
+    CP.lateralTuning = FPCP.lateralTuning
+
   return interfaces[CP.carFingerprint](CP, FPCP)
 
 
