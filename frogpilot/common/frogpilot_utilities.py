@@ -20,6 +20,7 @@ running_threads = {}
 locks = {
   "backup_toggles": threading.Lock(),
   "download_theme": threading.Lock(),
+  "flash_panda": threading.Lock(),
   "update_checks": threading.Lock(),
   "update_openpilot": threading.Lock(),
 }
@@ -96,6 +97,20 @@ def extract_zip(zip_file, extract_path):
 
   zip_file.unlink()
   print(f"Extraction completed: {zip_file} has been removed")
+
+
+def flash_panda(params_memory):
+  for serial in Panda.list():
+    try:
+      panda = Panda(serial)
+      panda.reset(enter_bootstub=True)
+      panda.flash()
+      panda.close()
+    except Exception as exception:
+      print(f"Error flashing Panda {serial}: {exception}")
+      sentry.capture_exception(exception)
+
+  params_memory.remove("FlashPanda")
 
 
 def is_url_pingable(url):
