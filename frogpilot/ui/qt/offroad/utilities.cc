@@ -76,6 +76,74 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
   }
   addItem(forceStartedButton);
 
+  ButtonControl *reportIssueButton = new ButtonControl(tr("Report a Bug or an Issue"), tr("REPORT"), tr("<b>Send a bug report</b> so we can help fix the problem!"));
+  QObject::connect(reportIssueButton, &ButtonControl::clicked, [this]() {
+    if (!frogpilotUIState()->frogpilot_scene.online) {
+      ConfirmationDialog::alert(tr("Please connect to the internet before sending a report!"), this);
+      return;
+    }
+
+    QStringList report_messages;
+    QString crash_report = tr("I saw an alert that said \"openpilot crashed\"");
+    if (QFile::exists("/data/error_logs/error.txt")) {
+      report_messages << crash_report;
+    }
+    QStringList additional_issues = {
+      tr("Acceleration feels harsh or jerky"),
+      tr("An alert was unclear and I didn't know what it meant"),
+      tr("Braking is too sudden or uncomfortable"),
+      tr("I'm not sure if this is normal or a bug:"),
+      tr("My screen froze or is stuck loading something"),
+      tr("My steering wheel buttons aren't working"),
+      tr("openpilot disengages when I don't expect it"),
+      tr("openpilot doesn't react to stopped vehicles ahead"),
+      tr("openpilot doesn't resume from a stop"),
+      tr("openpilot feels sluggish or slow to respond"),
+      tr("Steering feels twitchy or unnatural"),
+      tr("The car doesn't follow curves well"),
+      tr("The car isn't staying centered in its lane"),
+      tr("Something else (please describe)")
+    };
+    report_messages.append(additional_issues);
+
+    QMap<QString, bool> needs_extra_input;
+    for (const QString &issue : report_messages) {
+      if (issue.contains("confused") ||
+          issue.contains("crashed") ||
+          issue.contains("not sure") ||
+          issue.contains("Something else")) {
+        needs_extra_input[issue] = true;
+      }
+    }
+
+    QString selected_issue = MultiOptionDialog::getSelection(tr("What's going on?"), report_messages, "", this);
+    if (selected_issue.isEmpty()) {
+      return;
+    }
+
+    if (needs_extra_input.value(selected_issue, false)) {
+      QString extra_input = InputDialog::getText(tr("Please describe what's happening"), this, tr("Send Report"), false, 10, "", 300).trimmed();
+      if (extra_input.isEmpty()) {
+        return;
+      }
+      selected_issue += " — " + extra_input;
+    }
+
+    QJsonObject reportData;
+    reportData["Issue"] = selected_issue;
+    reportData["DiscordUser"] = InputDialog::getText(tr("What's your Discord username?"), this, tr("Send Report"), false, -1, QString::fromStdString(params.get("DiscordUsername"))).trimmed();
+
+    params.putNonBlocking("DiscordUsername", reportData["DiscordUser"].toString().toStdString());
+    params_memory.put("IssueReported", QJsonDocument(reportData).toJson(QJsonDocument::Compact).toStdString());
+
+    ConfirmationDialog::alert(tr("Report Sent! Thanks for letting us know!"), this);
+  });
+  if (forceOpenDescriptions) {
+    reportIssueButton->showDescription();
+  }
+  addItem(reportIssueButton);
+  reportIssueButton->setVisible(QString::fromStdString(params.get("GitRemote")).toLower() == "https://github.com/frogai/openpilot.git");
+
   ButtonControl *resetTogglesButton = new ButtonControl(tr("Reset Toggles to Default"), tr("RESET"), tr("<b>Reset all toggles to their default values.</b>"));
   QObject::connect(resetTogglesButton, &ButtonControl::clicked, [parent, resetTogglesButton, this]() {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to reset all toggles to their default values?"), tr("Reset"), this)) {

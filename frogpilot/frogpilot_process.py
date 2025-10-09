@@ -11,7 +11,7 @@ from openpilot.common.time_helpers import system_time_valid
 from openpilot.frogpilot.assets.model_manager import MODEL_DOWNLOAD_ALL_PARAM, MODEL_DOWNLOAD_PARAM, ModelManager
 from openpilot.frogpilot.assets.theme_manager import THEME_COMPONENT_PARAMS, ThemeManager
 from openpilot.frogpilot.common.frogpilot_functions import backup_toggles
-from openpilot.frogpilot.common.frogpilot_utilities import flash_panda, is_url_pingable, lock_doors, run_thread_with_lock, update_maps, update_openpilot
+from openpilot.frogpilot.common.frogpilot_utilities import capture_report, flash_panda, is_url_pingable, lock_doors, run_thread_with_lock, update_maps, update_openpilot
 from openpilot.frogpilot.common.frogpilot_variables import ERROR_LOGS_PATH, FrogPilotVariables
 from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.frogpilot.controls.lib.frogpilot_tracking import FrogPilotTracking
@@ -31,6 +31,11 @@ def assets_checks(model_manager, theme_manager, params_memory, frogpilot_toggles
     model_to_download = params_memory.get(MODEL_DOWNLOAD_PARAM)
     if model_to_download:
       run_thread_with_lock("download_model", model_manager.download_model, (model_to_download,))
+
+  report_data = params_memory.get("IssueReported")
+  if report_data:
+    capture_report(report_data["DiscordUser"], report_data["Issue"], vars(frogpilot_toggles))
+    params_memory.remove("IssueReported")
 
   for asset_type, asset_param in THEME_COMPONENT_PARAMS.items():
     asset_to_download = params_memory.get(asset_param)

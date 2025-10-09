@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import io
 import json
 import numpy as np
 import requests
@@ -20,7 +21,7 @@ from openpilot.common.realtime import DT_DMON, DT_HW
 from openpilot.system.hardware import HARDWARE
 from panda import Panda
 
-from openpilot.frogpilot.common.frogpilot_variables import KONIK_PATH, MAPD_PATH, MAPS_PATH
+from openpilot.frogpilot.common.frogpilot_variables import DISCORD_WEBHOOK_URL_REPORT, ERROR_LOGS_PATH, KONIK_PATH, MAPD_PATH, MAPS_PATH
 
 running_threads = {}
 
@@ -84,6 +85,47 @@ def calculate_road_curvature(modelData, v_ego):
   time_to_curve = float(timebase[index])
 
   return predicted_lateral_acc / max(v_ego, 1)**2, max(time_to_curve, 1)
+
+
+def capture_report(discord_user, report, frogpilot_toggles):
+  if not DISCORD_WEBHOOK_URL_REPORT:
+    return
+
+  error_file_path = ERROR_LOGS_PATH / "error.txt"
+  error_content = "No error log found."
+  if error_file_path.exists():
+    error_content = error_file_path.read_text()[:1000]
+
+  toggles_bytes = io.BytesIO(json.dumps(frogpilot_toggles, indent=2).encode("utf-8"))
+
+  message = (
+    f"**🚨 New Error Report**\n\n"
+    f"**User:** `{discord_user}`\n\n"
+    f"**Report:**\n"
+    f"```{report}```\n"
+    f"**Error Log:**\n"
+    f"```{error_content}```\n"
+    f"**Toggle Settings:**\n"
+  )
+
+  try:
+    resp = requests.post(
+      DISCORD_WEBHOOK_URL_REPORT,
+      data={"content": message},
+      files={"file": ("frogpilot_toggles.json", toggles_bytes, "application/json")}
+    )
+    if resp.status_code not in (200, 204):
+      print(f"Discord notification failed: {resp.status_code} {resp.text}")
+      return
+
+    mention_resp = requests.post(
+      DISCORD_WEBHOOK_URL_REPORT,
+      json={"content": "<@&1198482895342411846>"}
+    )
+    if mention_resp.status_code not in (200, 204):
+      print(f"Discord mention failed: {mention_resp.status_code} {mention_resp.text}")
+  except Exception as exception:
+    print(f"Error sending Discord message: {exception}")
 
 
 def clean_model_name(name):
