@@ -67,6 +67,9 @@ public slots:
 signals:
   void showDescriptionEvent();
 
+  // FrogPilot variables
+  void hideDescriptionEvent();
+
 protected:
   AbstractControl(const QString &title, const QString &desc = "", const QString &icon = "", QWidget *parent = nullptr);
   void hideEvent(QHideEvent *e) override;
@@ -130,6 +133,14 @@ public:
   void setEnabled(bool enabled) {
     toggle.setEnabled(enabled);
     toggle.update();
+  }
+
+  // FrogPilot variables
+  void forceOn(bool force) {
+    toggle.setEnabled(!force);
+    if (force && !toggle.on) {
+     toggle.togglePosition();
+    }
   }
 
 signals:

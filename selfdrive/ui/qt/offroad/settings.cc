@@ -16,6 +16,8 @@
 #include "selfdrive/ui/qt/offroad/developer_panel.h"
 #include "selfdrive/ui/qt/offroad/firehose.h"
 
+#include "frogpilot/ui/qt/offroad/frogpilot_settings.h"
+
 TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
   // param, title, desc, icon, restart needed
   std::vector<std::tuple<QString, QString, QString, QString, bool>> toggle_defs{
@@ -119,6 +121,11 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
   // Toggles with confirmation dialogs
   toggles["ExperimentalMode"]->setActiveIcon("../assets/icons/experimental.svg");
   toggles["ExperimentalMode"]->setConfirmation(true, true);
+
+  // FrogPilot variables
+  connect(toggles["IsMetric"], &ToggleControl::toggleFlipped, [=](bool isMetric) {
+    updateMetric(isMetric);
+  });
 }
 
 void TogglesPanel::updateState(const UIState &s) {
@@ -201,6 +208,18 @@ void TogglesPanel::updateToggles() {
   } else {
     experimental_mode_toggle->setDescription(e2e_description);
   }
+
+  // FrogPilot variables
+  FrogPilotUIState &fs = *frogpilotUIState();
+  QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
+
+  auto disengage_on_accelerator_toggle = toggles["DisengageOnAccelerator"];
+  disengage_on_accelerator_toggle->setVisible(!frogpilot_toggles.value("always_on_lateral").toBool());
+  auto driver_camera_toggle = toggles["RecordFront"];
+  driver_camera_toggle->setVisible(!frogpilot_toggles.value("no_logging").toBool());
+  experimental_mode_toggle->setVisible(!frogpilot_toggles.value("conditional_experimental_mode").toBool());
+  auto record_audio_toggle = toggles["RecordAudio"];
+  record_audio_toggle->setVisible(!frogpilot_toggles.value("no_logging").toBool());
 }
 
 DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
@@ -406,6 +425,18 @@ void SettingsWindow::showEvent(QShowEvent *event) {
   setCurrentPanel(0);
 }
 
+void SettingsWindow::hideEvent(QHideEvent *event) {
+  closePanel();
+  closeSubPanel();
+
+  panelOpen = false;
+  subPanelOpen = false;
+  subSubPanelOpen = false;
+  subSubSubPanelOpen = false;
+
+  updateFrogPilotToggles();
+}
+
 void SettingsWindow::setCurrentPanel(int index, const QString &param) {
   if (!param.isEmpty()) {
     // Check if param ends with "Panel" to determine if it's a panel name
@@ -454,7 +485,23 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   close_btn->setFixedSize(200, 200);
   sidebar_layout->addSpacing(45);
   sidebar_layout->addWidget(close_btn, 0, Qt::AlignCenter);
-  QObject::connect(close_btn, &QPushButton::clicked, this, &SettingsWindow::closeSettings);
+  QObject::connect(close_btn, &QPushButton::clicked, [this]() {
+    if (subSubSubPanelOpen) {
+      closeSubSubSubPanel();
+      subSubSubPanelOpen = false;
+    } else if (subSubPanelOpen) {
+      closeSubSubPanel();
+      subSubPanelOpen = false;
+    } else if (subPanelOpen) {
+      closeSubPanel();
+      subPanelOpen = false;
+    } else if (panelOpen) {
+      closePanel();
+      panelOpen = false;
+    } else {
+      closeSettings();
+    }
+  });
 
   // setup panels
   DevicePanel *device = new DevicePanel(this);
@@ -468,13 +515,22 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   auto networking = new Networking(this);
   QObject::connect(uiState()->prime_state, &PrimeState::changed, networking, &Networking::setPrimeType);
 
+  // FrogPilot variables
+  QObject::connect(toggles, &TogglesPanel::updateMetric, this, &SettingsWindow::updateMetric);
+
+  FrogPilotSettingsWindow *frogpilotSettingsWindow = new FrogPilotSettingsWindow(this);
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openPanel, [this]() {panelOpen=true;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubPanel, [this]() {subPanelOpen=true;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubSubPanel, [this]() {subSubPanelOpen=true;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubSubSubPanel, [this]() {subSubSubPanelOpen=true;});
+
   QList<QPair<QString, QWidget *>> panels = {
     {tr("Device"), device},
     {tr("Network"), networking},
     {tr("Toggles"), toggles},
     {tr("Software"), new SoftwarePanel(this)},
-    {tr("Firehose"), new FirehosePanel(this)},
     {tr("Developer"), new DeveloperPanel(this)},
+    {tr("FrogPilot"), frogpilotSettingsWindow},
   };
 
   nav_btns = new QButtonGroup(this);
@@ -508,6 +564,68 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     panel_widget->addWidget(panel_frame);
 
     QObject::connect(btn, &QPushButton::clicked, [=, w = panel_frame]() {
+      if (w->widget() == frogpilotSettingsWindow) {
+        bool tuningLevelConfirmed = params.getBool("TuningLevelConfirmed");
+
+        if (!tuningLevelConfirmed) {
+          int frogpilotHours = QJsonDocument::fromJson(QString::fromStdString(params.get("FrogPilotStats")).toUtf8()).object().value("FrogPilotSeconds").toInt() / (60 * 60);
+          int openpilotHours = params.getInt("KonikMinutes") / 60 + params.getInt("openpilotMinutes") / 60;
+
+          if (frogpilotHours < 1 && openpilotHours < 100) {
+            if (openpilotHours < 10) {
+              if (ConfirmationDialog::alert(tr("Welcome to FrogPilot! Since you're new to openpilot, the \"Minimal\" toggle preset has been applied, but you can change this at any time via the \"Tuning Level\" button!"), this, true)) {
+                params.putBool("TuningLevelConfirmed", true);
+                params.putInt("TuningLevel", 0);
+              }
+            } else {
+              if (ConfirmationDialog::alert(tr("Welcome to FrogPilot! Since you're new to FrogPilot, the \"Minimal\" toggle preset has been applied, but you can change this at any time via the \"Tuning Level\" button!"), this, true)) {
+                params.putBool("TuningLevelConfirmed", true);
+                params.putInt("TuningLevel", 0);
+              }
+            }
+          } else if (frogpilotHours < 50 && openpilotHours < 100) {
+            if (ConfirmationDialog::alert(tr("Since you're fairly new to FrogPilot, the \"Minimal\" toggle preset has been applied, but you can change this at any time via the \"Tuning Level\" button!"), this, true)) {
+              params.putBool("TuningLevelConfirmed", true);
+              params.putInt("TuningLevel", 0);
+            }
+          } else if (frogpilotHours < 100) {
+            if (openpilotHours >= 100) {
+              if (ConfirmationDialog::alert(tr("Since you're experienced with openpilot, the \"Standard\" toggle preset has been applied, but you can change this at any time via the \"Tuning Level\" button!"), this, true)) {
+                params.putBool("TuningLevelConfirmed", true);
+                params.putInt("TuningLevel", 1);
+              }
+            } else {
+              if (ConfirmationDialog::alert(tr("Since you're experienced with FrogPilot, the \"Standard\" toggle preset has been applied, but you can change this at any time via the \"Tuning Level\" button!"), this, true)) {
+                params.putBool("TuningLevelConfirmed", true);
+                params.putInt("TuningLevel", 1);
+              }
+            }
+          } else if (frogpilotHours >= 100) {
+            if (ConfirmationDialog::alert(tr("Since you're very experienced with FrogPilot, the \"Advanced\" toggle preset has been applied, but you can change this at any time via the \"Tuning Level\" button!"), this, true)) {
+              params.putBool("TuningLevelConfirmed", true);
+              params.putInt("TuningLevel", 2);
+            }
+          }
+          updateTuningLevel();
+        }
+      }
+
+      if (panelOpen) {
+        closePanel();
+        panelOpen = false;
+      }
+      if (subPanelOpen) {
+        closeSubPanel();
+        subPanelOpen = false;
+      }
+      if (subSubPanelOpen) {
+        closeSubSubPanel();
+        subSubPanelOpen = false;
+      }
+      if (subSubSubPanelOpen) {
+        closeSubSubSubPanel();
+        subSubSubPanelOpen = false;
+      }
       btn->setChecked(true);
       panel_widget->setCurrentWidget(w);
     });

@@ -21,6 +21,9 @@ widgets_src = ["qt/widgets/input.cc", "qt/widgets/wifi.cc", "qt/prime_state.cc",
                "qt/widgets/scrollview.cc", "qt/widgets/cameraview.cc", "#third_party/qrcode/QrCode.cc",
                "qt/request_repeater.cc", "qt/qt_window.cc", "qt/network/networking.cc", "qt/network/wifi_manager.cc"]
 
+frogpilot_widgets_src = ["../../frogpilot/ui/qt/widgets/frogpilot_controls.cc"]
+widgets_src += frogpilot_widgets_src
+
 widgets = qt_env.Library("qt_widgets", widgets_src, LIBS=base_libs)
 Export('widgets')
 qt_libs = [widgets, qt_util] + base_libs
@@ -31,6 +34,17 @@ qt_src = ["main.cc", "ui.cc", "qt/sidebar.cc", "qt/body.cc",
           "qt/offroad/driverview.cc", "qt/offroad/experimental_mode.cc", "qt/offroad/firehose.cc",
           "qt/onroad/onroad_home.cc", "qt/onroad/annotated_camera.cc", "qt/onroad/model.cc",
           "qt/onroad/buttons.cc", "qt/onroad/alerts.cc", "qt/onroad/driver_monitoring.cc", "qt/onroad/hud.cc"]
+
+frogpilot_src = ["../../frogpilot/ui/frogpilot_ui.cc", "../../frogpilot/ui/qt/offroad/data_settings.cc",
+                 "../../frogpilot/ui/qt/offroad/device_settings.cc", "../../frogpilot/ui/qt/offroad/frogpilot_settings.cc",
+                 "../../frogpilot/ui/qt/offroad/lateral_settings.cc", "../../frogpilot/ui/qt/offroad/longitudinal_settings.cc",
+                 "../../frogpilot/ui/qt/offroad/maps_settings.cc", "../../frogpilot/ui/qt/offroad/model_settings.cc",
+                 "../../frogpilot/ui/qt/offroad/navigation_settings.cc", "../../frogpilot/ui/qt/offroad/sounds_settings.cc",
+                 "../../frogpilot/ui/qt/offroad/theme_settings.cc", "../../frogpilot/ui/qt/offroad/utilities.cc",
+                 "../../frogpilot/ui/qt/offroad/vehicle_settings.cc", "../../frogpilot/ui/qt/offroad/visual_settings.cc",
+                 "../../frogpilot/ui/qt/offroad/wheel_settings.cc",
+                 "../../frogpilot/ui/qt/widgets/navigation_functions.cc"]
+qt_src += frogpilot_src
 
 # build translation files
 with open(File("translations/languages.json").abspath) as f:

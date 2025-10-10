@@ -111,6 +111,9 @@ void SoftwarePanel::updateLabels() {
   fs_watch->addParam("UpdateAvailable");
 
   if (!isVisible()) {
+    // FrogPilot variables
+    frogpilot_scene.downloading_update = false;
+
     return;
   }
 
@@ -124,6 +127,9 @@ void SoftwarePanel::updateLabels() {
   if (updater_state != "idle") {
     downloadBtn->setEnabled(false);
     downloadBtn->setValue(updater_state);
+
+    // FrogPilot variables
+    frogpilot_scene.downloading_update = true;
   } else {
     if (failed) {
       downloadBtn->setText(tr("CHECK"));
@@ -141,6 +147,9 @@ void SoftwarePanel::updateLabels() {
       downloadBtn->setValue(tr("up to date, last checked %1").arg(lastUpdate));
     }
     downloadBtn->setEnabled(true);
+
+    // FrogPilot variables
+    frogpilot_scene.downloading_update = false;
   }
   targetBranchBtn->setValue(QString::fromStdString(params.get("UpdaterTargetBranch")));
 

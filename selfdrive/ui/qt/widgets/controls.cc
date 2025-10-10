@@ -49,7 +49,12 @@ AbstractControl::AbstractControl(const QString &title, const QString &desc, cons
     }
 
     if (!description->text().isEmpty()) {
-      description->setVisible(!description->isVisible());
+      if (description->isVisible()) {
+        emit hideDescriptionEvent();
+        description->setVisible(false);
+      } else {
+        description->setVisible(true);
+      }
     }
   });
 
