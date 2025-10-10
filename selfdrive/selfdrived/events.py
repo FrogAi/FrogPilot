@@ -5,7 +5,7 @@ import os
 from enum import IntEnum
 from collections.abc import Callable
 
-from cereal import log, car
+from cereal import log, car, custom
 import cereal.messaging as messaging
 from openpilot.common.constants import CV
 from openpilot.common.git import get_short_branch
@@ -19,6 +19,11 @@ AlertStatus = log.SelfdriveState.AlertStatus
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 AudibleAlert = car.CarControl.HUDControl.AudibleAlert
 EventName = log.OnroadEvent.EventName
+
+# FrogPilot variables
+FrogPilotAlertStatus = custom.FrogPilotSelfdriveState.AlertStatus
+FrogPilotAudibleAlert = custom.FrogPilotCarControl.HUDControl.AudibleAlert
+FrogPilotEventName = custom.FrogPilotOnroadEvent.EventName
 
 
 # Alert priorities
@@ -47,13 +52,17 @@ class ET:
 
 # get event name from enum
 EVENT_NAME = {v: k for k, v in EventName.schema.enumerants.items()}
+FROGPILOT_EVENT_NAME = {v: k for k, v in FrogPilotEventName.schema.enumerants.items()}
 
 
 class Events:
-  def __init__(self):
+  def __init__(self, frogpilot=False):
     self.events: list[int] = []
     self.static_events: list[int] = []
-    self.event_counters = dict.fromkeys(EVENTS.keys(), 0)
+    self.event_counters = dict.fromkeys((FROGPILOT_EVENTS if frogpilot else EVENTS).keys(), 0)
+
+    # FrogPilot variables
+    self.frogpilot = frogpilot
 
   @property
   def names(self) -> list[int]:
@@ -72,7 +81,7 @@ class Events:
     self.events = self.static_events.copy()
 
   def contains(self, event_type: str) -> bool:
-    return any(event_type in EVENTS.get(e, {}) for e in self.events)
+    return any(event_type in (FROGPILOT_EVENTS if self.frogpilot else EVENTS).get(e, {}) for e in self.events)
 
   def create_alerts(self, event_types: list[str], callback_args=None):
     if callback_args is None:
@@ -80,15 +89,15 @@ class Events:
 
     ret = []
     for e in self.events:
-      types = EVENTS[e].keys()
+      types = (FROGPILOT_EVENTS if self.frogpilot else EVENTS)[e].keys()
       for et in event_types:
         if et in types:
-          alert = EVENTS[e][et]
+          alert = (FROGPILOT_EVENTS if self.frogpilot else EVENTS)[e][et]
           if not isinstance(alert, Alert):
             alert = alert(*callback_args)
 
           if DT_CTRL * (self.event_counters[e] + 1) >= alert.creation_delay:
-            alert.alert_type = f"{EVENT_NAME[e]}/{et}"
+            alert.alert_type = f"{(FROGPILOT_EVENT_NAME if self.frogpilot else EVENT_NAME)[e]}/{et}"
             alert.event_type = et
             ret.append(alert)
     return ret
@@ -100,9 +109,9 @@ class Events:
   def to_msg(self):
     ret = []
     for event_name in self.events:
-      event = log.OnroadEvent.new_message()
+      event = (custom.FrogPilotOnroadEvent if self.frogpilot else log.OnroadEvent).new_message()
       event.name = event_name
-      for event_type in EVENTS.get(event_name, {}):
+      for event_type in (FROGPILOT_EVENTS if self.frogpilot else EVENTS).get(event_name, {}):
         setattr(event, event_type, True)
       ret.append(event)
     return ret

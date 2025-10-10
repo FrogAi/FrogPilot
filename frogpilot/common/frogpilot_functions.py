@@ -8,6 +8,10 @@ from openpilot.system.hardware import HARDWARE
 
 from openpilot.frogpilot.common.frogpilot_utilities import run_cmd
 
+def frogpilot_boot_functions(build_metadata, params, params_cache):
+  params_memory = Params(memory=True)
+
+
 def install_frogpilot(build_metadata, params):
   paths = [
   ]

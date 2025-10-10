@@ -5,7 +5,7 @@ from collections import deque
 from typing import Any
 
 import capnp
-from cereal import messaging, log, car
+from cereal import messaging, log, car, custom
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.params import Params
 from openpilot.common.realtime import DT_MDL, Priority, config_realtime_process
@@ -115,7 +115,7 @@ def laplacian_pdf(x: float, mu: float, b: float):
   return math.exp(-abs(x-mu)/b)
 
 
-def match_vision_to_track(v_ego: float, lead: capnp._DynamicStructReader, tracks: dict[int, Track]):
+def match_vision_to_track(v_ego: float, lead: capnp._DynamicStructReader, model_data: capnp._DynamicStructReader, tracks: dict[int, Track]):
   offset_vision_dist = lead.x[0] - RADAR_TO_CAMERA
 
   def prob(c):
@@ -157,10 +157,12 @@ def get_RadarState_from_vision(lead_msg: capnp._DynamicStructReader, v_ego: floa
 
 
 def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capnp._DynamicStructReader,
-             model_v_ego: float, low_speed_override: bool = True) -> dict[str, Any]:
+             model_v_ego: float, model_data: capnp._DynamicStructReader, standstill: bool,
+             frogpilot_plan: capnp._DynamicStructReader,
+             low_speed_override: bool = True) -> dict[str, Any]:
   # Determine leads, this is where the essential logic happens
   if len(tracks) > 0 and ready and lead_msg.prob > .5:
-    track = match_vision_to_track(v_ego, lead_msg, tracks)
+    track = match_vision_to_track(v_ego, lead_msg, model_data, tracks)
   else:
     track = None
 
@@ -197,6 +199,9 @@ class RadarD:
     self.radar_state_valid = False
 
     self.ready = False
+
+    # FrogPilot variables
+    self.frogpilot_radar_state = custom.FrogPilotRadarState.new_message()
 
   def update(self, sm: messaging.SubMaster, rr: car.RadarData):
     self.ready = sm.seen['modelV2']
@@ -239,8 +244,8 @@ class RadarD:
       model_v_ego = self.v_ego
     leads_v3 = sm['modelV2'].leadsV3
     if len(leads_v3) > 1:
-      self.radar_state.leadOne = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[0], model_v_ego, low_speed_override=True)
-      self.radar_state.leadTwo = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[1], model_v_ego, low_speed_override=False)
+      self.radar_state.leadOne = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[0], model_v_ego, sm['modelV2'], sm['carState'].standstill, sm['frogpilotPlan'], low_speed_override=True)
+      self.radar_state.leadTwo = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[1], model_v_ego, sm['modelV2'], sm['carState'].standstill, sm['frogpilotPlan'], low_speed_override=False)
 
   def publish(self, pm: messaging.PubMaster):
     assert self.radar_state is not None
@@ -249,6 +254,12 @@ class RadarD:
     radar_msg.valid = self.radar_state_valid
     radar_msg.radarState = self.radar_state
     pm.send("radarState", radar_msg)
+
+    # FrogPilot variables
+    frogpilot_radar_msg = messaging.new_message("frogpilotRadarState")
+    frogpilot_radar_msg.valid = self.radar_state_valid
+    frogpilot_radar_msg.frogpilotRadarState = self.frogpilot_radar_state
+    pm.send("frogpilotRadarState", frogpilot_radar_msg)
 
 
 # fuses camera and radar data for best lead detection
@@ -265,6 +276,10 @@ def main() -> None:
   pm = messaging.PubMaster(['radarState'])
 
   RD = RadarD(CP.radarDelay)
+
+  # FrogPilot variables
+  sm = sm.extend(['frogpilotPlan'])
+  pm = pm.extend(['frogpilotRadarState'])
 
   while 1:
     sm.update()

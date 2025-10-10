@@ -57,6 +57,9 @@ class HondaSafetyFlags(IntFlag):
   BOSCH_CANFD = 16
 
 
+class HondaFrogPilotSafetyFlags(IntFlag):
+
+
 class HondaFlags(IntFlag):
   # Detected flags
   # Bosch models with alternate set of LKAS_HUD messages

@@ -95,6 +95,17 @@ _services: dict[str, tuple] = {
   "customReservedRawData0": (True, 0.),
   "customReservedRawData1": (True, 0.),
   "customReservedRawData2": (True, 0.),
+
+  # FrogPilot variables
+  "frogpilotCarControl": (True, 100., 10),
+  "frogpilotCarParams": (True, 0.02, 1),
+  "frogpilotCarState": (True, 100., 10),
+  "frogpilotDeviceState": (True, 2., 1),
+  "frogpilotModelV2": (True, 20.),
+  "frogpilotOnroadEvents": (True, 1., 1),
+  "frogpilotPlan": (True, 20., 10),
+  "frogpilotRadarState": (True, 20., 5),
+  "frogpilotSelfdriveState": (True, 100., 10),
 }
 SERVICE_LIST = {name: Service(*vals) for
                 idx, (name, vals) in enumerate(_services.items())}

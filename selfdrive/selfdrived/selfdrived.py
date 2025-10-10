@@ -5,7 +5,7 @@ import threading
 
 import cereal.messaging as messaging
 
-from cereal import car, log
+from cereal import car, custom, log
 from msgq.visionipc import VisionIpcClient, VisionStreamType
 
 
@@ -38,6 +38,9 @@ LaneChangeDirection = log.LaneChangeDirection
 EventName = log.OnroadEvent.EventName
 ButtonType = car.CarState.ButtonEvent.Type
 SafetyModel = car.CarParams.SafetyModel
+
+# FrogPilot variables
+FrogPilotEventName = custom.FrogPilotOnroadEvent.EventName
 
 IGNORED_SAFETY_MODES = (SafetyModel.silent, SafetyModel.noOutput)
 
@@ -144,10 +147,25 @@ class SelfdriveD:
     elif self.CP.passive:
       self.events.add(EventName.dashcamMode, static=True)
 
+    # FrogPilot variables
+    self.sm = self.sm.extend(['frogpilotCarState', 'frogpilotPlan'])
+    self.pm = self.pm.extend(['frogpilotOnroadEvents'])
+
+    self.frogpilot_AM = AlertManager()
+    self.frogpilot_events = Events(frogpilot=True)
+
+    self.frogpilot_events_prev = []
+
+    self.FPCP = messaging.log_from_bytes(self.params.get("FrogPilotCarParams", block=True), custom.FrogPilotCarParams)
+
+  def contains_event_type(self, *event_types):
+    return any(self.events.contains(event_type) or self.frogpilot_events.contains(event_type) for event_type in event_types)
+
   def update_events(self, CS):
     """Compute onroadEvents from carState"""
 
     self.events.clear()
+    self.frogpilot_events.clear()
 
     if self.sm['controlsState'].lateralControlState.which() == 'debugState':
       self.events.add(EventName.joystickDebug)
@@ -276,8 +294,12 @@ class SelfdriveD:
     for i, pandaState in enumerate(self.sm['pandaStates']):
       # All pandas must match the list of safetyConfigs, and if outside this list, must be silent or noOutput
       if i < len(self.CP.safetyConfigs):
+        expected_param = self.CP.safetyConfigs[i].safetyParam
+        if i < len(self.FPCP.safetyConfigs):
+          expected_param |= self.FPCP.safetyConfigs[i].safetyParam
+
         safety_mismatch = pandaState.safetyModel != self.CP.safetyConfigs[i].safetyModel or \
-                          pandaState.safetyParam != self.CP.safetyConfigs[i].safetyParam or \
+                          pandaState.safetyParam != expected_param or \
                           pandaState.alternativeExperience != self.CP.alternativeExperience
       else:
         safety_mismatch = pandaState.safetyModel not in IGNORED_SAFETY_MODES
@@ -323,7 +345,7 @@ class SelfdriveD:
       self.events.add(EventName.canError)
 
     # generic catch-all. ideally, a more specific event should be added above instead
-    has_disable_events = self.events.contains(ET.NO_ENTRY) and (self.events.contains(ET.SOFT_DISABLE) or self.events.contains(ET.IMMEDIATE_DISABLE))
+    has_disable_events = self.contains_event_type(ET.NO_ENTRY) and (self.contains_event_type(ET.SOFT_DISABLE) or self.contains_event_type(ET.IMMEDIATE_DISABLE))
     no_system_errors = (not has_disable_events) or (len(self.events) == num_events)
     if not self.sm.all_checks() and no_system_errors:
       if not self.sm.all_alive():
@@ -406,6 +428,9 @@ class SelfdriveD:
         self.params.put_nonblocking('LongitudinalPersonality', self.personality)
         self.events.add(EventName.personalityChanged)
 
+    # FrogPilot variables
+    self.frogpilot_events.add_from_msg(self.sm['frogpilotPlan'].frogpilotEvents)
+
   def data_sample(self):
     _car_state = messaging.recv_one(self.car_state_sock)
     CS = _car_state.carState if _car_state else self.CS_prev
@@ -474,7 +499,7 @@ class SelfdriveD:
     ss.enabled = self.enabled
     ss.active = self.active
     ss.state = self.state_machine.state
-    ss.engageable = not self.events.contains(ET.NO_ENTRY)
+    ss.engageable = not self.contains_event_type(ET.NO_ENTRY)
     ss.experimentalMode = self.experimental_mode
     ss.personality = self.personality
 
@@ -489,18 +514,24 @@ class SelfdriveD:
     self.pm.send('selfdriveState', ss_msg)
 
     # onroadEvents - logged every second or on change
-    if (self.sm.frame % int(1. / DT_CTRL) == 0) or (self.events.names != self.events_prev):
+    if (self.sm.frame % int(1. / DT_CTRL) == 0) or (self.events.names != self.events_prev) or (self.frogpilot_events.names != self.frogpilot_events_prev):
       ce_send = messaging.new_message('onroadEvents', len(self.events))
       ce_send.valid = True
       ce_send.onroadEvents = self.events.to_msg()
       self.pm.send('onroadEvents', ce_send)
+
+      fpce_send = messaging.new_message('frogpilotOnroadEvents', len(self.frogpilot_events))
+      fpce_send.valid = True
+      fpce_send.frogpilotOnroadEvents = self.frogpilot_events.to_msg()
+      self.pm.send('frogpilotOnroadEvents', fpce_send)
     self.events_prev = self.events.names.copy()
+    self.frogpilot_events_prev = self.frogpilot_events.names.copy()
 
   def step(self):
     CS = self.data_sample()
     self.update_events(CS)
     if not self.CP.passive and self.initialized:
-      self.enabled, self.active = self.state_machine.update(self.events)
+      self.enabled, self.active = self.state_machine.update(self.events, self.frogpilot_events)
     self.update_alerts(CS)
 
     self.publish_selfdriveState(CS)

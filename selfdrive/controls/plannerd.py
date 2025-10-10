@@ -22,6 +22,9 @@ def main():
   sm = messaging.SubMaster(['carControl', 'carState', 'controlsState', 'liveParameters', 'radarState', 'modelV2', 'selfdriveState'],
                            poll='modelV2')
 
+  # FrogPilot variables
+  sm = sm.extend(['frogpilotPlan'])
+
   while True:
     sm.update()
     if sm.updated['modelV2']:

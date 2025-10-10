@@ -48,7 +48,7 @@ void HomeWindow::showSidebar(bool show) {
   sidebar->setVisible(show);
 }
 
-void HomeWindow::updateState(const UIState &s) {
+void HomeWindow::updateState(const UIState &s, const FrogPilotUIState &fs) {
   const SubMaster &sm = *(s.sm);
 
   // switch to the generic robot UI

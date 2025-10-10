@@ -107,9 +107,17 @@ void SoftwarePanel::showEvent(QShowEvent *event) {
   installBtn->setEnabled(true);
 
   updateLabels();
+
+  // FrogPilot variables
+  FrogPilotUIState &fs = *frogpilotUIState();
+  FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
 }
 
 void SoftwarePanel::updateLabels() {
+  // FrogPilot variables
+  FrogPilotUIState &fs = *frogpilotUIState();
+  FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
+
   // add these back in case the files got removed
   fs_watch->addParam("LastUpdateTime");
   fs_watch->addParam("UpdateFailedCount");

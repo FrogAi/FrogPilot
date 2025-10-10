@@ -1,6 +1,7 @@
 import os
 import time
 
+from cereal import custom
 from opendbc.car import gen_empty_fingerprint
 from opendbc.car.can_definitions import CanRecvCallable, CanSendCallable
 from opendbc.car.carlog import carlog
@@ -12,6 +13,9 @@ from opendbc.car.values import BRANDS
 from opendbc.car.vin import get_vin, is_valid_vin, VIN_UNKNOWN
 
 FRAME_FINGERPRINT = 100  # 1s
+
+# FrogPilot variables
+FrogPilotCarParams = custom.FrogPilotCarParams
 
 
 def load_interfaces(brand_names):
@@ -163,7 +167,10 @@ def get_car(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_multip
   CP.fingerprintSource = source
   CP.fuzzyFingerprint = not exact_match
 
-  return interfaces[CP.carFingerprint](CP)
+  # FrogPilot variables
+  FPCP: FrogPilotCarParams = CarInterface.get_frogpilot_params(candidate, fingerprints, car_fw, CP, frogpilot_toggles)
+
+  return interfaces[CP.carFingerprint](CP, FPCP)
 
 
 def get_demo_car_params():

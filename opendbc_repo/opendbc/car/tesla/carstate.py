@@ -1,4 +1,5 @@
 import copy
+from cereal import custom
 from opendbc.can import CANDefine, CANParser
 from opendbc.car import Bus, structs
 from opendbc.car.common.conversions import Conversions as CV
@@ -9,8 +10,8 @@ ButtonType = structs.CarState.ButtonEvent.Type
 
 
 class CarState(CarStateBase):
-  def __init__(self, CP):
-    super().__init__(CP)
+  def __init__(self, CP, FPCP):
+    super().__init__(CP, FPCP)
     self.can_define = CANDefine(DBC[CP.carFingerprint][Bus.party])
     self.shifter_values = self.can_define.dv["DI_systemStatus"]["DI_gear"]
 
@@ -117,7 +118,10 @@ class CarState(CarStateBase):
     # Messages needed by carcontroller
     self.das_control = copy.copy(cp_ap_party.vl["DAS_control"])
 
-    return ret
+    # FrogPilot variables
+    fp_ret = custom.FrogPilotCarState.new_message()
+
+    return ret, fp_ret
 
   @staticmethod
   def get_can_parsers(CP):

@@ -98,8 +98,7 @@ class LongitudinalPlanner:
       accel_coast = ACCEL_MAX
 
     v_ego = sm['carState'].vEgo
-    v_cruise_kph = min(sm['carState'].vCruise, V_CRUISE_MAX)
-    v_cruise = v_cruise_kph * CV.KPH_TO_MS
+    v_cruise = sm['frogpilotPlan'].vCruise
     v_cruise_initialized = sm['carState'].vCruise != V_CRUISE_UNSET
 
     long_control_off = sm['controlsState'].longControlState == LongCtrlState.off
@@ -139,9 +138,9 @@ class LongitudinalPlanner:
     if force_slow_decel:
       v_cruise = 0.0
 
-    self.mpc.set_weights(prev_accel_constraint, personality=sm['selfdriveState'].personality)
+    self.mpc.set_weights(sm['frogpilotPlan'].accelerationJerk, sm['frogpilotPlan'].dangerJerk, sm['frogpilotPlan'].speedJerk, prev_accel_constraint, personality=sm['selfdriveState'].personality)
     self.mpc.set_cur_state(self.v_desired_filter.x, self.a_desired)
-    self.mpc.update(sm['radarState'], v_cruise, x, v, a, j, personality=sm['selfdriveState'].personality)
+    self.mpc.update(sm['radarState'], v_cruise, x, v, a, j, sm['frogpilotPlan'].tFollow, personality=sm['selfdriveState'].personality)
 
     self.v_desired_trajectory = np.interp(CONTROL_N_T_IDX, T_IDXS_MPC, self.mpc.v_solution)
     self.a_desired_trajectory = np.interp(CONTROL_N_T_IDX, T_IDXS_MPC, self.mpc.a_solution)

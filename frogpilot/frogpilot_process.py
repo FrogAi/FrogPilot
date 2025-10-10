@@ -1,0 +1,90 @@
+#!/usr/bin/env python3
+import datetime
+import time
+
+from cereal import messaging
+from openpilot.common.params import Params
+from openpilot.common.realtime import DT_MDL, Priority, Ratekeeper, config_realtime_process
+from openpilot.common.time_helpers import system_time_valid
+
+from openpilot.frogpilot.common.frogpilot_utilities import is_url_pingable, run_thread_with_lock
+from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
+
+ASSET_CHECK_RATE = (1 / DT_MDL)
+
+def assets_checks(model_manager, theme_manager, params_memory, frogpilot_toggles):
+
+def update_checks(model_manager, now, theme_manager, params, params_memory, frogpilot_toggles, boot_run=False):
+  while not (is_url_pingable("https://github.com") or is_url_pingable("https://gitlab.com")):
+    time.sleep(60)
+
+  time.sleep(1)
+
+def frogpilot_thread():
+  rate_keeper = Ratekeeper(1 / DT_MDL, None)
+
+  config_realtime_process(5, Priority.CTRL_LOW)
+
+  params = Params()
+  params_cache = Params(cache=True)
+  params_memory = Params(memory=True)
+
+  pm = messaging.PubMaster(["frogpilotPlan"])
+  sm = messaging.SubMaster(["carControl", "carState", "controlsState", "deviceState", "driverMonitoringState",
+                            "gpsLocation", "gpsLocationExternal", "liveParameters", "managerState", "modelV2",
+                            "onroadEvents", "pandaStates", "radarState", "selfdriveState", "frogpilotCarState",
+                            "frogpilotSelfdriveState", "frogpilotModelV2", "frogpilotOnroadEvents"],
+                            poll="modelV2")
+
+  run_update_checks = False
+  started_previously = False
+  time_validated = False
+
+  while True:
+    sm.update()
+
+    now = datetime.datetime.now(datetime.timezone.utc)
+
+    started = sm["deviceState"].started
+
+    if not started and started_previously:
+      run_update_checks = True
+
+    elif started and not started_previously:
+      frogpilot_planner = FrogPilotPlanner(error_log, theme_manager, params)
+
+    if started and sm.updated["modelV2"]:
+      frogpilot_planner.update(now, time_validated, params, params_memory, sm, frogpilot_toggles)
+      frogpilot_planner.publish(theme_manager.theme_updated, toggles_updated, params_memory, sm, pm, frogpilot_toggles)
+    elif not started:
+      frogpilot_plan_send = messaging.new_message("frogpilotPlan")
+      frogpilot_plan_send.frogpilotPlan.themeUpdated = theme_manager.theme_updated or params_memory.get_bool("UseActiveTheme")
+      frogpilot_plan_send.frogpilotPlan.togglesUpdated = toggles_updated
+      pm.send("frogpilotPlan", frogpilot_plan_send)
+
+    started_previously = started
+
+    if rate_keeper.frame % ASSET_CHECK_RATE == 0:
+      assets_checks(model_manager, theme_manager, params_memory, frogpilot_toggles)
+
+    run_update_checks |= now.second == 0 and (now.minute % 60 == 0 or (now.minute % 5 == 0 and frogpilot_toggles.frogs_go_moo))
+    run_update_checks &= time_validated
+
+    if run_update_checks:
+      run_thread_with_lock("update_checks", update_checks, (model_manager, now, theme_manager, params, params_memory, frogpilot_toggles))
+
+      run_update_checks = False
+    elif not time_validated:
+      time_validated = system_time_valid()
+      if not time_validated:
+        continue
+
+      run_thread_with_lock("update_checks", update_checks, (model_manager, now, theme_manager, params, params_memory, frogpilot_toggles, True))
+
+    rate_keeper.keep_time()
+
+def main():
+  frogpilot_thread()
+
+if __name__ == "__main__":
+  main()

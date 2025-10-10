@@ -1,4 +1,5 @@
 import copy
+from cereal import custom
 from opendbc.can import CANDefine, CANParser
 from opendbc.car import Bus, structs
 from opendbc.car.common.conversions import Conversions as CV
@@ -8,8 +9,8 @@ from opendbc.car import CanSignalRateCalculator
 
 
 class CarState(CarStateBase):
-  def __init__(self, CP):
-    super().__init__(CP)
+  def __init__(self, CP, FPCP):
+    super().__init__(CP, FPCP)
     can_define = CANDefine(DBC[CP.carFingerprint][Bus.pt])
     self.shifter_values = can_define.dv["Transmission"]["Gear"]
 
@@ -123,7 +124,10 @@ class CarState(CarStateBase):
     if self.CP.flags & SubaruFlags.SEND_INFOTAINMENT:
       self.es_infotainment_msg = copy.copy(cp_cam.vl["ES_Infotainment"])
 
-    return ret
+    # FrogPilot variables
+    fp_ret = custom.FrogPilotCarState.new_message()
+
+    return ret, fp_ret
 
   @staticmethod
   def get_can_parsers(CP):

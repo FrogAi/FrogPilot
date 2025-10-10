@@ -1,4 +1,5 @@
 import copy
+from cereal import custom
 from opendbc.can import CANParser
 from opendbc.car import Bus, structs
 from opendbc.car.interfaces import CarStateBase
@@ -9,8 +10,8 @@ GearShifter = structs.CarState.GearShifter
 
 
 class CarState(CarStateBase):
-  def __init__(self, CP):
-    super().__init__(CP)
+  def __init__(self, CP, FPCP):
+    super().__init__(CP, FPCP)
     self.last_speed = 30
 
     self.acm_lka_hba_cmd = None
@@ -89,7 +90,10 @@ class CarState(CarStateBase):
     self.sccm_wheel_touch = copy.copy(cp.vl["SCCM_WheelTouch"])
     self.vdm_adas_status = copy.copy(cp.vl["VDM_AdasSts"])
 
-    return ret
+    # FrogPilot variables
+    fp_ret = custom.FrogPilotCarState.new_message()
+
+    return ret, fp_ret
 
   @staticmethod
   def get_can_parsers(CP):

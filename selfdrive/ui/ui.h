@@ -15,6 +15,8 @@
 #include "system/hardware/hw.h"
 #include "selfdrive/ui/qt/prime_state.h"
 
+#include "frogpilot/ui/frogpilot_ui.h"
+
 const int UI_BORDER_SIZE = 30;
 const int UI_HEADER_HEIGHT = 420;
 
@@ -42,12 +44,18 @@ typedef enum UIStatus {
   STATUS_DISENGAGED,
   STATUS_OVERRIDE,
   STATUS_ENGAGED,
+
+  // FrogPilot variables
+  STATUS_EXPERIMENTAL_MODE_ENABLED,
 } UIStatus;
 
 const QColor bg_colors [] = {
   [STATUS_DISENGAGED] = QColor(0x17, 0x33, 0x49, 0xc8),
   [STATUS_OVERRIDE] = QColor(0x91, 0x9b, 0x95, 0xf1),
   [STATUS_ENGAGED] = QColor(0x17, 0x86, 0x44, 0xf1),
+
+  // FrogPilot variables
+  [STATUS_EXPERIMENTAL_MODE_ENABLED] = QColor(0xda, 0x6f, 0x25, 0xf1),
 };
 
 typedef struct UIScene {
@@ -67,7 +75,7 @@ class UIState : public QObject {
 
 public:
   UIState(QObject* parent = 0);
-  void updateStatus();
+  void updateStatus(FrogPilotUIState *fs);
   inline bool engaged() const {
     return scene.started && (*sm)["selfdriveState"].getSelfdriveState().getEnabled();
   }
@@ -79,7 +87,7 @@ public:
   PrimeState *prime_state;
 
 signals:
-  void uiUpdate(const UIState &s);
+  void uiUpdate(const UIState &s, const FrogPilotUIState &fs);
   void offroadTransition(bool offroad);
   void engagedChanged(bool engaged);
 
@@ -115,8 +123,8 @@ private:
   FirstOrderFilter brightness_filter;
   QFuture<void> brightness_future;
 
-  void updateBrightness(const UIState &s);
-  void updateWakefulness(const UIState &s);
+  void updateBrightness(const UIState &s, const FrogPilotUIState &fs);
+  void updateWakefulness(const UIState &s, const FrogPilotUIState &fs);
   void setAwake(bool on);
 
 signals:
@@ -125,7 +133,7 @@ signals:
 
 public slots:
   void resetInteractiveTimeout(int timeout = -1);
-  void update(const UIState &s);
+  void update(const UIState &s, const FrogPilotUIState &fs);
 };
 
 Device *device();

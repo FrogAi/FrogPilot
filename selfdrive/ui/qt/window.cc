@@ -79,6 +79,10 @@ void MainWindow::closeSettings() {
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
+  // FrogPilot variables
+  FrogPilotUIState &fs = *frogpilotUIState();
+  FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
+
   bool ignore = false;
   switch (event->type()) {
     case QEvent::TouchBegin:

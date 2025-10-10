@@ -58,6 +58,9 @@ class ToyotaSafetyFlags(IntFlag):
   SECOC = (8 << 8)
 
 
+class ToyotaFrogPilotSafetyFlags(IntFlag):
+
+
 class ToyotaFlags(IntFlag):
   # Detected flags
   HYBRID = 1
@@ -76,6 +79,10 @@ class ToyotaFlags(IntFlag):
   # these cars can utilize 2.0 m/s^2
   RAISED_ACCEL_LIMIT = 1024
   SECOC = 2048
+
+
+# FrogPilot variables
+class ToyotaFrogPilotFlags(IntFlag):
 
 
 def dbc_dict(pt, radar):

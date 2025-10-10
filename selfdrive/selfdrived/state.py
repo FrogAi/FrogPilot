@@ -14,7 +14,10 @@ class StateMachine:
     self.state = State.disabled
     self.soft_disable_timer = 0
 
-  def update(self, events: Events):
+  def update(self, events: Events, frogpilot_events: Events):
+    # FrogPilot variables
+    check_event = lambda event_type: events.contains(event_type) or frogpilot_events.contains(event_type)
+
     # decrement the soft disable timer at every step, as it's reset on
     # entrance in SOFT_DISABLING state
     self.soft_disable_timer = max(0, self.soft_disable_timer - 1)
@@ -24,29 +27,29 @@ class StateMachine:
     # ENABLED, SOFT DISABLING, PRE ENABLING, OVERRIDING
     if self.state != State.disabled:
       # user and immediate disable always have priority in a non-disabled state
-      if events.contains(ET.USER_DISABLE):
+      if check_event(ET.USER_DISABLE):
         self.state = State.disabled
         self.current_alert_types.append(ET.USER_DISABLE)
 
-      elif events.contains(ET.IMMEDIATE_DISABLE):
+      elif check_event(ET.IMMEDIATE_DISABLE):
         self.state = State.disabled
         self.current_alert_types.append(ET.IMMEDIATE_DISABLE)
 
       else:
         # ENABLED
         if self.state == State.enabled:
-          if events.contains(ET.SOFT_DISABLE):
+          if check_event(ET.SOFT_DISABLE):
             self.state = State.softDisabling
             self.soft_disable_timer = int(SOFT_DISABLE_TIME / DT_CTRL)
             self.current_alert_types.append(ET.SOFT_DISABLE)
 
-          elif events.contains(ET.OVERRIDE_LATERAL) or events.contains(ET.OVERRIDE_LONGITUDINAL):
+          elif check_event(ET.OVERRIDE_LATERAL) or check_event(ET.OVERRIDE_LONGITUDINAL):
             self.state = State.overriding
             self.current_alert_types += [ET.OVERRIDE_LATERAL, ET.OVERRIDE_LONGITUDINAL]
 
         # SOFT DISABLING
         elif self.state == State.softDisabling:
-          if not events.contains(ET.SOFT_DISABLE):
+          if not check_event(ET.SOFT_DISABLE):
             # no more soft disabling condition, so go back to ENABLED
             self.state = State.enabled
 
@@ -58,32 +61,32 @@ class StateMachine:
 
         # PRE ENABLING
         elif self.state == State.preEnabled:
-          if not events.contains(ET.PRE_ENABLE):
+          if not check_event(ET.PRE_ENABLE):
             self.state = State.enabled
           else:
             self.current_alert_types.append(ET.PRE_ENABLE)
 
         # OVERRIDING
         elif self.state == State.overriding:
-          if events.contains(ET.SOFT_DISABLE):
+          if check_event(ET.SOFT_DISABLE):
             self.state = State.softDisabling
             self.soft_disable_timer = int(SOFT_DISABLE_TIME / DT_CTRL)
             self.current_alert_types.append(ET.SOFT_DISABLE)
-          elif not (events.contains(ET.OVERRIDE_LATERAL) or events.contains(ET.OVERRIDE_LONGITUDINAL)):
+          elif not (check_event(ET.OVERRIDE_LATERAL) or check_event(ET.OVERRIDE_LONGITUDINAL)):
             self.state = State.enabled
           else:
             self.current_alert_types += [ET.OVERRIDE_LATERAL, ET.OVERRIDE_LONGITUDINAL]
 
     # DISABLED
     elif self.state == State.disabled:
-      if events.contains(ET.ENABLE):
-        if events.contains(ET.NO_ENTRY):
+      if check_event(ET.ENABLE):
+        if check_event(ET.NO_ENTRY):
           self.current_alert_types.append(ET.NO_ENTRY)
 
         else:
-          if events.contains(ET.PRE_ENABLE):
+          if check_event(ET.PRE_ENABLE):
             self.state = State.preEnabled
-          elif events.contains(ET.OVERRIDE_LATERAL) or events.contains(ET.OVERRIDE_LONGITUDINAL):
+          elif check_event(ET.OVERRIDE_LATERAL) or check_event(ET.OVERRIDE_LONGITUDINAL):
             self.state = State.overriding
           else:
             self.state = State.enabled
@@ -95,4 +98,3 @@ class StateMachine:
     if active:
       self.current_alert_types.append(ET.WARNING)
     return enabled, active
-

@@ -248,6 +248,9 @@ def main(demo=False):
   params = Params()
   estimator = TorqueEstimator(messaging.log_from_bytes(params.get("CarParams", block=True), car.CarParams))
 
+  # FrogPilot variables
+  sm = sm.extend(['frogpilotPlan'])
+
   while True:
     sm.update()
     if sm.all_checks():

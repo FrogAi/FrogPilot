@@ -374,6 +374,9 @@ def main():
     lag, valid_blocks = initial_lag_params
     lag_learner.reset(lag, valid_blocks)
 
+  # FrogPilot variables
+  sm = sm.extend(['frogpilotPlan'])
+
   while True:
     sm.update()
     if sm.all_checks():

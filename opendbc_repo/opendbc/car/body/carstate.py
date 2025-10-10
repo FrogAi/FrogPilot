@@ -1,3 +1,4 @@
+from cereal import custom
 from opendbc.can import CANParser
 from opendbc.car import Bus, structs
 from opendbc.car.interfaces import CarStateBase
@@ -28,7 +29,10 @@ class CarState(CarStateBase):
     ret.cruiseState.enabled = True
     ret.cruiseState.available = True
 
-    return ret
+    # FrogPilot variables
+    fp_ret = custom.FrogPilotCarState.new_message()
+
+    return ret, fp_ret
 
   @staticmethod
   def get_can_parsers(CP):

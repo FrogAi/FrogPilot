@@ -2,11 +2,12 @@ from collections import deque
 import copy
 import math
 
+from cereal import custom
 from opendbc.can import CANDefine, CANParser
 from opendbc.car import Bus, create_button_events, structs
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.hyundai.hyundaicanfd import CanBus
-from opendbc.car.hyundai.values import HyundaiFlags, CAR, DBC, Buttons, CarControllerParams
+from opendbc.car.hyundai.values import HyundaiFlags, HyundaiFrogPilotFlags, CAR, DBC, Buttons, CarControllerParams
 from opendbc.car.interfaces import CarStateBase
 
 ButtonType = structs.CarState.ButtonEvent.Type
@@ -22,8 +23,8 @@ BUTTONS_DICT = {Buttons.RES_ACCEL: ButtonType.accelCruise, Buttons.SET_DECEL: Bu
 
 
 class CarState(CarStateBase):
-  def __init__(self, CP):
-    super().__init__(CP)
+  def __init__(self, CP, FPCP):
+    super().__init__(CP, FPCP)
     can_define = CANDefine(DBC[CP.carFingerprint][Bus.pt])
 
     self.cruise_buttons: deque = deque([Buttons.NONE] * PREV_BUTTON_SAMPLES, maxlen=PREV_BUTTON_SAMPLES)
@@ -202,7 +203,10 @@ class CarState(CarStateBase):
       self.low_speed_alert = False
     ret.lowSpeedAlert = self.low_speed_alert
 
-    return ret
+    # FrogPilot variables
+    fp_ret = custom.FrogPilotCarState.new_message()
+
+    return ret, fp_ret
 
   def update_canfd(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
@@ -293,7 +297,10 @@ class CarState(CarStateBase):
 
     ret.blockPcmEnable = not self.recent_button_interaction()
 
-    return ret
+    # FrogPilot variables
+    fp_ret = custom.FrogPilotCarState.new_message()
+
+    return ret, fp_ret
 
   def get_can_parsers_canfd(self, CP):
     msgs = []
