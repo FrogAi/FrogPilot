@@ -134,6 +134,8 @@ class FrogPilotPlanner:
 
     frogpilotPlan.roadCurvature = self.road_curvature
 
+    frogpilotPlan.themeUpdated = theme_updated or params_memory.get_bool("UseActiveTheme")
+
     frogpilotPlan.togglesUpdated = toggles_updated
 
     frogpilotPlan.vCruise = self.v_cruise

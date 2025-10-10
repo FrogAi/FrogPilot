@@ -16,6 +16,7 @@ running_threads = {}
 
 locks = {
   "backup_toggles": threading.Lock(),
+  "download_theme": threading.Lock(),
   "update_checks": threading.Lock(),
   "update_openpilot": threading.Lock(),
 }

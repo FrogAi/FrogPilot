@@ -8,8 +8,17 @@ struct FrogPilotUIScene {
   bool frogpilot_panel_active;
   bool online;
   bool parked;
+  bool use_stock_colors;
 
   int conditional_status;
+
+  QColor lane_lines_color;
+  QColor lead_marker_color;
+  QColor path_color;
+  QColor path_edges_color;
+  QColor sidebar_color1;
+  QColor sidebar_color2;
+  QColor sidebar_color3;
 };
 
 class FrogPilotUIState : public QObject {
@@ -30,3 +39,5 @@ public:
 };
 
 FrogPilotUIState *frogpilotUIState();
+
+void update_theme(FrogPilotUIState *fs);

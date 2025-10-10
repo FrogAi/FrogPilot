@@ -4,6 +4,8 @@ import time
 import wave
 
 
+from pathlib import Path
+
 from cereal import car, custom, messaging
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.filter_simple import FirstOrderFilter
@@ -14,7 +16,7 @@ from openpilot.common.swaglog import cloudlog
 
 from openpilot.system import micd
 
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
+from openpilot.frogpilot.common.frogpilot_variables import ACTIVE_THEME_PATH, get_frogpilot_toggles
 
 SAMPLE_RATE = 48000
 SAMPLE_BUFFER = 4096 # (approx 100ms)
@@ -61,8 +63,6 @@ def check_selfdrive_timeout_alert(sm):
 
 class Soundd:
   def __init__(self):
-    self.load_sounds()
-
     self.current_alert = AudibleAlert.none
     self.current_volume = MIN_VOLUME
     self.current_sound_frame = 0
@@ -78,6 +78,8 @@ class Soundd:
 
     self.auto_volume = 0
 
+    self.previous_sound_pack = None
+
     self.update_frogpilot_sounds()
 
   def load_sounds(self):
@@ -87,13 +89,21 @@ class Soundd:
     for sound in sound_list:
       filename, play_count, volume = sound_list[sound]
 
-      with wave.open(BASEDIR + "/selfdrive/assets/sounds/" + filename, 'r') as wavefile:
-        assert wavefile.getnchannels() == 1
-        assert wavefile.getsampwidth() == 2
-        assert wavefile.getframerate() == SAMPLE_RATE
+      sounds_path = self.sound_directory / filename
 
-        length = wavefile.getnframes()
-        self.loaded_sounds[sound] = np.frombuffer(wavefile.readframes(length), dtype=np.int16).astype(np.float32) / (2**16/2)
+      if sounds_path.exists():
+        wavefile = wave.open(str(sounds_path), 'r')
+      else:
+        if filename == "startup.wav":
+          filename = "engage.wav"
+        wavefile = wave.open(BASEDIR + "/selfdrive/assets/sounds/" + filename, 'r')
+
+      assert wavefile.getnchannels() == 1
+      assert wavefile.getsampwidth() == 2
+      assert wavefile.getframerate() == SAMPLE_RATE
+
+      length = wavefile.getnframes()
+      self.loaded_sounds[sound] = np.frombuffer(wavefile.readframes(length), dtype=np.int16).astype(np.float32) / (2**16/2)
 
   def get_sound_data(self, frames): # get "frames" worth of data from the current alert sound, looping when required
 
@@ -197,9 +207,9 @@ class Soundd:
         if sm['frogpilotPlan'].togglesUpdated:
           self.frogpilot_toggles = get_frogpilot_toggles()
 
-          self.update_frogpilot_sounds()
+          self.update_frogpilot_sounds(stream)
 
-  def update_frogpilot_sounds(self):
+  def update_frogpilot_sounds(self, stream=None):
     self.volume_map = {
       AudibleAlert.engage: self.frogpilot_toggles.engage_volume / 100.0,
       AudibleAlert.disengage: self.frogpilot_toggles.disengage_volume / 100.0,
@@ -219,6 +229,21 @@ class Soundd:
     for sound in sound_list:
       if sound not in self.volume_map:
         self.volume_map[sound] = 1.01
+
+    if self.frogpilot_toggles.sound_pack != "stock":
+      self.sound_directory = ACTIVE_THEME_PATH / "sounds"
+    else:
+      self.sound_directory = Path(BASEDIR) / "selfdrive" / "assets" / "sounds"
+
+    if self.frogpilot_toggles.sound_pack != self.previous_sound_pack:
+      self.load_sounds()
+
+      self.previous_sound_pack = self.frogpilot_toggles.sound_pack
+
+      if stream is not None:
+        stream.close()
+        stream = self.get_stream(sd)
+        stream.start()
 
 
 def main():
