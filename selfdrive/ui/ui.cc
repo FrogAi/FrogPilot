@@ -91,6 +91,8 @@ void UIState::updateStatus(FrogPilotUIState *fs) {
       status = STATUS_OVERRIDE;
     } else if (frogpilot_scene.always_on_lateral_active) {
       status = STATUS_ALWAYS_ON_LATERAL_ACTIVE;
+    } else if (frogpilot_scene.traffic_mode_enabled && ss.getEnabled()) {
+      status = STATUS_TRAFFIC_MODE_ENABLED;
     } else {
       status = ss.getEnabled() ? STATUS_ENGAGED : STATUS_DISENGAGED;
     }

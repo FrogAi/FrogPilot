@@ -11,6 +11,7 @@ struct FrogPilotUIScene {
   bool online;
   bool parked;
   bool reverse;
+  bool traffic_mode_enabled;
   bool use_stock_colors;
 
   float lane_width_left;

@@ -18,6 +18,7 @@ class FrogPilotEvents:
     self.events = Events(frogpilot=True)
 
     self.always_on_lateral_enabled_previously = False
+    self.previous_traffic_mode = False
     self.random_event_playing = False
     self.startup_seen = False
     self.stopped_for_light = False
@@ -183,5 +184,13 @@ class FrogPilotEvents:
       self.events.add(FrogPilotEventName.speedLimitChanged)
 
     self.startup_seen |= sm["frogpilotSelfdriveState"].alertText1 == frogpilot_toggles.startup_alert_top and sm["frogpilotSelfdriveState"].alertText2 == frogpilot_toggles.startup_alert_bottom
+
+    if sm["frogpilotCarState"].trafficModeEnabled != self.previous_traffic_mode:
+      if self.previous_traffic_mode:
+        self.events.add(FrogPilotEventName.trafficModeInactive)
+      else:
+        self.events.add(FrogPilotEventName.trafficModeActive)
+
+      self.previous_traffic_mode = sm["frogpilotCarState"].trafficModeEnabled
 
     self.played_events.update(FROGPILOT_EVENT_NAME[event] for event in self.events.names)

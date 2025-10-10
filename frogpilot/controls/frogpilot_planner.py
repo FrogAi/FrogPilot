@@ -144,7 +144,10 @@ class FrogPilotPlanner:
 
     frogpilotPlan.frogpilotEvents = self.frogpilot_events.events.to_msg()
 
-    frogpilotPlan.increasedStoppedDistance = frogpilot_toggles.increase_stopped_distance
+    if sm["frogpilotCarState"].trafficModeEnabled:
+      frogpilotPlan.increasedStoppedDistance = 0
+    else:
+      frogpilotPlan.increasedStoppedDistance = frogpilot_toggles.increase_stopped_distance
 
     frogpilotPlan.laneWidthLeft = self.lane_width_left
     frogpilotPlan.laneWidthRight = self.lane_width_right

@@ -28,6 +28,7 @@ class FrogPilotCard:
     self.pause_lateral = False
     self.pause_longitudinal = False
     self.prev_distance_button = False
+    self.traffic_mode_enabled = False
 
     self.gap_counter = 0
 
@@ -40,6 +41,8 @@ class FrogPilotCard:
       self.pause_lateral = not self.pause_lateral
     elif frogpilot_toggles.pause_longitudinal_via_distance:
       self.pause_longitudinal = not self.pause_longitudinal
+    elif frogpilot_toggles.traffic_mode_via_distance and sm["carControl"].longActive:
+      self.traffic_mode_enabled = not self.traffic_mode_enabled
 
   def update_distance_button_long(self, sm, frogpilot_toggles):
     if frogpilot_toggles.experimental_mode_via_distance_long and sm["carControl"].longActive:
@@ -50,6 +53,8 @@ class FrogPilotCard:
       self.pause_lateral = not self.pause_lateral
     elif frogpilot_toggles.pause_longitudinal_via_distance_long:
       self.pause_longitudinal = not self.pause_longitudinal
+    elif frogpilot_toggles.traffic_mode_via_distance_long and sm["carControl"].longActive:
+      self.traffic_mode_enabled = not self.traffic_mode_enabled
 
   def update_distance_button_very_long(self, sm, frogpilot_toggles):
     self.update_distance_button_long(sm)
@@ -62,6 +67,8 @@ class FrogPilotCard:
       self.pause_lateral = not self.pause_lateral
     elif frogpilot_toggles.pause_longitudinal_via_distance_very_long:
       self.pause_longitudinal = not self.pause_longitudinal
+    elif frogpilot_toggles.traffic_mode_via_distance_very_long and sm["carControl"].longActive:
+      self.traffic_mode_enabled = not self.traffic_mode_enabled
 
   def update_lkas_button(self, sm, frogpilot_toggles):
     if frogpilot_toggles.experimental_mode_via_lkas and sm["carControl"].longActive:
@@ -72,6 +79,8 @@ class FrogPilotCard:
       self.pause_lateral = not self.pause_lateral
     elif frogpilot_toggles.pause_longitudinal_via_lkas:
       self.pause_longitudinal = not self.pause_longitudinal
+    elif frogpilot_toggles.traffic_mode_via_lkas and sm["carControl"].longActive:
+      self.traffic_mode_enabled = not self.traffic_mode_enabled
 
   def update(self, carState, frogpilotCarState, sm, frogpilot_toggles):
     self.always_on_lateral_enabled = frogpilot_toggles.always_on_lateral_set
@@ -126,5 +135,6 @@ class FrogPilotCard:
     frogpilotCarState.forceCoast = self.force_coast
     frogpilotCarState.pauseLateral = self.pause_lateral
     frogpilotCarState.pauseLongitudinal = self.pause_longitudinal
+    frogpilotCarState.trafficModeEnabled = self.traffic_mode_enabled
 
     return frogpilotCarState

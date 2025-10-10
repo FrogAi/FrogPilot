@@ -5,6 +5,8 @@ from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import COMFO
 
 from openpilot.frogpilot.common.frogpilot_variables import CITY_SPEED_LIMIT
 
+TRAFFIC_MODE_BP = [0., CITY_SPEED_LIMIT]
+
 class FrogPilotFollowing:
   def __init__(self, FrogPilotPlanner):
     self.frogpilot_planner = FrogPilotPlanner
@@ -19,7 +21,17 @@ class FrogPilotFollowing:
     self.t_follow = 0
 
   def update(self, long_control_active, v_ego, sm, frogpilot_toggles):
-    if long_control_active:
+    if sm["frogpilotCarState"].trafficModeEnabled:
+      if sm["carState"].aEgo >= 0:
+        self.base_acceleration_jerk = float(np.interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_acceleration))
+        self.base_speed_jerk = float(np.interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_speed))
+      else:
+        self.base_acceleration_jerk = float(np.interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_deceleration))
+        self.base_speed_jerk = float(np.interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_speed_decrease))
+
+      self.base_danger_jerk = float(np.interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_jerk_danger))
+      self.t_follow = float(np.interp(v_ego, TRAFFIC_MODE_BP, frogpilot_toggles.traffic_mode_follow))
+    elif long_control_active:
       if sm["carState"].aEgo >= 0:
         self.base_acceleration_jerk, self.base_danger_jerk, self.base_speed_jerk = get_jerk_factor(
           frogpilot_toggles.aggressive_jerk_acceleration, frogpilot_toggles.aggressive_jerk_danger, frogpilot_toggles.aggressive_jerk_speed,
