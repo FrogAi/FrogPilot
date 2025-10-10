@@ -31,7 +31,7 @@ class CarState(CarStateBase):
     self.autopark_prev = autopark_now
     self.cruise_enabled_prev = cruise_enabled
 
-  def update(self, can_parsers) -> structs.CarState:
+  def update(self, can_parsers, frogpilot_toggles) -> structs.CarState:
     cp_party = can_parsers[Bus.party]
     cp_ap_party = can_parsers[Bus.ap_party]
     ret = structs.CarState()

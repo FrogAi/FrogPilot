@@ -21,7 +21,7 @@ class CarState(CarStateBase):
 
     self.distance_button = 0
 
-  def update(self, can_parsers) -> structs.CarState:
+  def update(self, can_parsers, frogpilot_toggles) -> structs.CarState:
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
 

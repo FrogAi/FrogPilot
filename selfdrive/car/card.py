@@ -21,6 +21,7 @@ from openpilot.selfdrive.pandad import can_capnp_to_list, can_list_to_can_capnp
 from openpilot.selfdrive.car.cruise import VCruiseHelper
 from openpilot.selfdrive.car.car_specific import MockCarState
 
+from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles, update_frogpilot_toggles
 from openpilot.frogpilot.controls.frogpilot_card import FrogPilotCard
 
 REPLAY = "REPLAY" in os.environ
@@ -104,7 +105,7 @@ class Car:
         with car.CarParams.from_bytes(cached_params_raw) as _cached_params:
           cached_params = _cached_params
 
-      self.CI = get_car(*self.can_callbacks, obd_callback(self.params), alpha_long_allowed, is_release, num_pandas, cached_params)
+      self.CI = get_car(*self.can_callbacks, obd_callback(self.params), alpha_long_allowed, is_release, num_pandas, cached_params, get_frogpilot_toggles())
       self.RI = interfaces[self.CI.CP.carFingerprint].RadarInterface(self.CI.CP)
       self.CP = self.CI.CP
 
@@ -173,9 +174,13 @@ class Car:
     self.sm = self.sm.extend(['frogpilotOnroadEvents', 'frogpilotPlan', 'liveCalibration'])
     self.pm = self.pm.extend(['frogpilotCarState'])
 
+    self.frogpilot_toggles = get_frogpilot_toggles()
+
     fpcp_bytes = self.FPCP.to_bytes()
     self.params.put("FrogPilotCarParams", fpcp_bytes)
     self.params.put_nonblocking("FrogPilotCarParamsPersistent", fpcp_bytes)
+
+    update_frogpilot_toggles()
 
   def state_update(self) -> tuple[car.CarState, structs.RadarDataT | None]:
     """carState update loop, driven by can"""
@@ -184,7 +189,7 @@ class Car:
     can_list = can_capnp_to_list(can_strs)
 
     # Update carState from CAN
-    CS, FPCS = self.CI.update(can_list)
+    CS, FPCS = self.CI.update(can_list, self.frogpilot_toggles)
     if self.CP.brand == 'mock':
       CS, FPCS = self.mock_carstate.update(CS)
 
@@ -202,10 +207,10 @@ class Car:
     if can_rcv_valid and REPLAY:
       self.can_log_mono_time = messaging.log_from_bytes(can_strs[0]).logMonoTime
 
-    self.v_cruise_helper.update_v_cruise(CS, self.sm['carControl'].enabled, self.is_metric)
+    self.v_cruise_helper.update_v_cruise(CS, self.sm['carControl'].enabled, self.is_metric, self.frogpilot_toggles)
     if self.sm['carControl'].enabled and not self.CC_prev.enabled:
       # Use CarState w/ buttons from the step selfdrived enables on
-      self.v_cruise_helper.initialize_v_cruise(self.CS_prev, self.experimental_mode, self.resume_prev_button)
+      self.v_cruise_helper.initialize_v_cruise(self.CS_prev, self.experimental_mode, self.resume_prev_button, self.frogpilot_toggles)
 
     # TODO: mirror the carState.cruiseState struct?
     CS.vCruise = float(self.v_cruise_helper.v_cruise_kph)
@@ -218,7 +223,7 @@ class Car:
       self.resume_prev_button = False
 
     # FrogPilot variables
-    FPCS = self.frogpilot_card.update(CS, FPCS, self.sm)
+    FPCS = self.frogpilot_card.update(CS, FPCS, self.sm, self.frogpilot_toggles)
 
     return CS, RD, FPCS
 
@@ -271,7 +276,7 @@ class Car:
     if self.sm.all_alive(['carControl']):
       # send car controls over can
       now_nanos = self.can_log_mono_time if REPLAY else int(time.monotonic() * 1e9)
-      self.last_actuators_output, can_sends = self.CI.apply(CC, now_nanos)
+      self.last_actuators_output, can_sends = self.CI.apply(CC, now_nanos, self.frogpilot_toggles)
       self.pm.send('sendcan', can_list_to_can_capnp(can_sends, msgtype='sendcan', valid=CS.canValid))
 
       self.CC_prev = CC
@@ -306,6 +311,10 @@ class Car:
     finally:
       e.set()
       t.join()
+
+      # FrogPilot variables
+      if self.sm['frogpilotPlan'].togglesUpdated:
+        self.frogpilot_toggles = get_frogpilot_toggles()
 
 
 def main():

@@ -24,6 +24,8 @@ from openpilot.selfdrive.selfdrived.alertmanager import AlertManager, set_offroa
 from openpilot.system.hardware import HARDWARE
 from openpilot.system.version import get_build_metadata
 
+from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
+
 REPLAY = "REPLAY" in os.environ
 SIMULATION = "SIMULATION" in os.environ
 TESTING_CLOSET = "TESTING_CLOSET" in os.environ
@@ -151,8 +153,12 @@ class SelfdriveD:
     self.sm = self.sm.extend(['frogpilotCarState', 'frogpilotPlan'])
     self.pm = self.pm.extend(['frogpilotOnroadEvents'])
 
+    self.params_memory = Params(memory=True)
+
     self.frogpilot_AM = AlertManager()
     self.frogpilot_events = Events(frogpilot=True)
+
+    self.frogpilot_toggles = get_frogpilot_toggles()
 
     self.frogpilot_events_prev = []
 
@@ -537,6 +543,10 @@ class SelfdriveD:
     self.publish_selfdriveState(CS)
 
     self.CS_prev = CS
+
+    # FrogPilot variables
+    if self.sm['frogpilotPlan'].togglesUpdated:
+      self.frogpilot_toggles = get_frogpilot_toggles()
 
   def params_thread(self, evt):
     while not evt.is_set():

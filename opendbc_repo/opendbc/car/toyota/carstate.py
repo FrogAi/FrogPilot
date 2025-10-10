@@ -53,7 +53,7 @@ class CarState(CarStateBase):
     self.gvc = 0.0
     self.secoc_synchronization = None
 
-  def update(self, can_parsers) -> structs.CarState:
+  def update(self, can_parsers, frogpilot_toggles) -> structs.CarState:
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
 

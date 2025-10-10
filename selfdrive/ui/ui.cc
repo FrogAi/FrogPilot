@@ -73,6 +73,7 @@ void ui_update_params(UIState *s) {
 void UIState::updateStatus(FrogPilotUIState *fs) {
   // FrogPilot variables
   FrogPilotUIScene &frogpilot_scene = fs->frogpilot_scene;
+  QJsonObject &frogpilot_toggles = fs->frogpilot_toggles;
 
   if (scene.started && sm->updated("selfdriveState")) {
     auto ss = (*sm)["selfdriveState"].getSelfdriveState();
@@ -128,6 +129,7 @@ void UIState::update() {
   // FrogPilot variables
   FrogPilotUIState *fs = frogpilotUIState();
   FrogPilotUIScene &frogpilot_scene = fs->frogpilot_scene;
+  QJsonObject &frogpilot_toggles = fs->frogpilot_toggles;
 
   if (frogpilot_scene.downloading_update || frogpilot_scene.frogpilot_panel_active) {
     device()->resetInteractiveTimeout(frogpilot_toggles.value("screen_timeout").toInt(), frogpilot_toggles.value("screen_timeout_onroad").toInt());
@@ -167,6 +169,7 @@ void Device::resetInteractiveTimeout(int timeout) {
 void Device::updateBrightness(const UIState &s, const FrogPilotUIState &fs) {
   // FrogPilot variables
   const FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
+  const QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
 
   float clipped_brightness = offroad_brightness;
   if (s.scene.started && s.scene.light_sensor >= 0) {
@@ -199,6 +202,7 @@ void Device::updateBrightness(const UIState &s, const FrogPilotUIState &fs) {
 void Device::updateWakefulness(const UIState &s, const FrogPilotUIState &fs) {
   // FrogPilot variables
   const FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
+  const QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
 
   bool ignition_just_turned_off = !s.scene.ignition && ignition_on;
   ignition_on = s.scene.ignition;

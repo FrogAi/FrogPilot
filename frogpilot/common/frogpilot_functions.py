@@ -12,10 +12,15 @@ from openpilot.common.time_helpers import system_time_valid
 from openpilot.system.hardware import HARDWARE
 
 from openpilot.frogpilot.common.frogpilot_utilities import run_cmd
+from openpilot.frogpilot.common.frogpilot_variables import (
+  FrogPilotVariables, get_frogpilot_toggles
+)
 from openpilot.frogpilot.system.frogpilot_stats import send_stats
 
 def frogpilot_boot_functions(build_metadata, params, params_cache):
   params_memory = Params(memory=True)
+
+  FrogPilotVariables().update(holiday_theme="stock", started=False)
 
   if params.get("FrogPilotDongleId") == None:
     params.put("FrogPilotDongleId", ''.join(random.choices(string.ascii_lowercase + string.digits, k=16)))

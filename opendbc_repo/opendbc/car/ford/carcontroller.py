@@ -75,7 +75,7 @@ class CarController(CarControllerBase):
     self.lead_distance_bars_last = None
     self.distance_bar_frame = 0
 
-  def update(self, CC, CS, now_nanos):
+  def update(self, CC, CS, now_nanos, frogpilot_toggles):
     can_sends = []
 
     actuators = CC.actuators

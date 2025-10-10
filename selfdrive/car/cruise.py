@@ -1,6 +1,8 @@
 import math
 import numpy as np
 
+from types import SimpleNamespace
+
 from cereal import car
 from opendbc.car.gm.values import CC_ONLY_CAR, GMFlags
 from openpilot.common.constants import CV
@@ -45,13 +47,13 @@ class VCruiseHelper:
   def v_cruise_initialized(self):
     return self.v_cruise_kph != V_CRUISE_UNSET
 
-  def update_v_cruise(self, CS, enabled, is_metric):
+  def update_v_cruise(self, CS, enabled, is_metric, frogpilot_toggles):
     self.v_cruise_kph_last = self.v_cruise_kph
 
     if CS.cruiseState.available:
       if self.gm_cc_only or not self.CP.pcmCruise:
         # if stock cruise is completely disabled, then we can use our own set speed logic
-        self._update_v_cruise_non_pcm(CS, enabled, is_metric)
+        self._update_v_cruise_non_pcm(CS, enabled, is_metric, frogpilot_toggles)
         self.v_cruise_cluster_kph = self.v_cruise_kph
         self.update_button_timers(CS, enabled)
       else:
@@ -67,7 +69,7 @@ class VCruiseHelper:
       self.v_cruise_kph = V_CRUISE_UNSET
       self.v_cruise_cluster_kph = V_CRUISE_UNSET
 
-  def _update_v_cruise_non_pcm(self, CS, enabled, is_metric):
+  def _update_v_cruise_non_pcm(self, CS, enabled, is_metric, frogpilot_toggles):
     # handle button presses. TODO: this should be in state_control, but a decelCruise press
     # would have the effect of both enabling and changing speed is checked after the state transition
     if not enabled:
@@ -127,7 +129,7 @@ class VCruiseHelper:
         self.button_timers[b.type.raw] = 1 if b.pressed else 0
         self.button_change_states[b.type.raw] = {"standstill": CS.cruiseState.standstill, "enabled": enabled}
 
-  def initialize_v_cruise(self, CS, experimental_mode: bool, resume_prev_button: bool) -> None:
+  def initialize_v_cruise(self, CS, experimental_mode: bool, resume_prev_button: bool, frogpilot_toggles: SimpleNamespace) -> None:
     # initializing is handled by the PCM
     if self.CP.pcmCruise and not self.gm_cc_only:
       return

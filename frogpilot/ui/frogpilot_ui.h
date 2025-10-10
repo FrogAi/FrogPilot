@@ -22,6 +22,8 @@ public:
   FrogPilotUIScene frogpilot_scene;
 
   Params params_memory{"", false, true};
+
+  QJsonObject &frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
 };
 
 FrogPilotUIState *frogpilotUIState();

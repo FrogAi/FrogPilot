@@ -16,7 +16,7 @@ class CarState(CarStateBase):
 
     self.angle_rate_calulator = CanSignalRateCalculator(50)
 
-  def update(self, can_parsers) -> structs.CarState:
+  def update(self, can_parsers, frogpilot_toggles) -> structs.CarState:
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
     cp_alt = can_parsers[Bus.alt]

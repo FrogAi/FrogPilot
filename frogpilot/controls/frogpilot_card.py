@@ -2,5 +2,5 @@
 class FrogPilotCard:
   def __init__(self, CP):
 
-  def update(self, carState, frogpilotCarState, sm):
+  def update(self, carState, frogpilotCarState, sm, frogpilot_toggles):
     return frogpilotCarState

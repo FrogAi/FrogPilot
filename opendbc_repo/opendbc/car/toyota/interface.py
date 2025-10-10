@@ -21,7 +21,7 @@ class CarInterface(CarInterfaceBase):
     return CarControllerParams(CP).ACCEL_MIN, CarControllerParams(CP).ACCEL_MAX
 
   @staticmethod
-  def _get_params(ret: structs.CarParams, candidate, fingerprint, car_fw, alpha_long, is_release, docs) -> structs.CarParams:
+  def _get_params(ret: structs.CarParams, candidate, fingerprint, car_fw, alpha_long, is_release, docs, frogpilot_toggles) -> structs.CarParams:
     ret.brand = "toyota"
     ret.safetyConfigs = [get_safety_config(structs.CarParams.SafetyModel.toyota)]
     ret.safetyConfigs[0].safetyParam = EPS_SCALE[candidate]

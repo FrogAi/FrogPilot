@@ -90,6 +90,8 @@ class FrogPilotPlanner:
 
     frogpilotPlan.lateralCheck = self.lateral_check
 
+    frogpilotPlan.togglesUpdated = toggles_updated
+
     frogpilotPlan.vCruise = self.v_cruise
 
     pm.send("frogpilotPlan", frogpilot_plan_send)

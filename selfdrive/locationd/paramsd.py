@@ -12,6 +12,8 @@ from openpilot.selfdrive.locationd.models.constants import GENERATED_DIR
 from openpilot.selfdrive.locationd.helpers import PoseCalibrator, Pose
 from openpilot.common.swaglog import cloudlog
 
+from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
+
 MAX_ANGLE_OFFSET_DELTA = 20 * DT_MDL  # Max 20 deg/s
 ROLL_MAX_DELTA = np.radians(20.0) * DT_MDL  # 20deg in 1 second is well within curvature limits
 ROLL_MIN, ROLL_MAX = np.radians(-10), np.radians(10)
@@ -286,6 +288,8 @@ def main():
   # FrogPilot variables
   sm = sm.extend(['frogpilotPlan'])
 
+  learner.frogpilot_toggles = get_frogpilot_toggles()
+
   while True:
     sm.update()
     if sm.all_checks():
@@ -302,6 +306,10 @@ def main():
         params.put_nonblocking("LiveParametersV2", msg_dat)
 
       pm.send('liveParameters', msg_dat)
+
+    # FrogPilot variables
+    if sm['frogpilotPlan'].togglesUpdated:
+      learner.frogpilot_toggles = get_frogpilot_toggles()
 
 
 if __name__ == "__main__":

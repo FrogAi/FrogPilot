@@ -19,6 +19,9 @@ static void update_state(FrogPilotUIState *fs) {
   }
   if (sm.updated("frogpilotPlan")) {
     const cereal::FrogPilotPlan::Reader &frogpilotPlan = sm["frogpilotPlan"].getFrogpilotPlan();
+    if (frogpilotPlan.getTogglesUpdated()) {
+      frogpilot_scene.frogpilot_toggles = QJsonDocument::fromJson(fs->params_memory.get("FrogPilotToggles").c_str()).object();
+    }
   }
   if (sm.updated("selfdriveState")) {
     const cereal::SelfdriveState::Reader &selfdriveState = sm["selfdriveState"].getSelfdriveState();
@@ -31,6 +34,8 @@ FrogPilotUIState::FrogPilotUIState(QObject *parent) : QObject(parent) {
     "frogpilotDeviceState", "frogpilotPlan", "frogpilotRadarState", "liveDelay",
     "liveParameters", "liveTorqueParameters", "liveTracks", "navInstruction", "selfdriveState"
   });
+
+  frogpilot_scene.frogpilot_toggles = QJsonDocument::fromJson(QString::fromStdString(params_memory.get("FrogPilotToggles", true)).toUtf8()).object();
 }
 
 FrogPilotUIState *frogpilotUIState() {

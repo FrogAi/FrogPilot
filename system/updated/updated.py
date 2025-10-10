@@ -21,6 +21,8 @@ from openpilot.selfdrive.selfdrived.alertmanager import set_offroad_alert
 from openpilot.system.hardware import AGNOS, HARDWARE
 from openpilot.system.version import get_build_metadata
 
+from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
+
 LOCK_FILE = os.getenv("UPDATER_LOCK_FILE", "/tmp/safe_staging_overlay.lock")
 STAGING_ROOT = os.getenv("UPDATER_STAGING_ROOT", "/data/safe_staging")
 
@@ -448,10 +450,15 @@ def main() -> None:
     # FrogPilot variables
     params_memory = Params(memory=True)
 
+    frogpilot_toggles = get_frogpilot_toggles()
+
     install_date_set = params.get("InstallDate") is not None
 
     while True:
       wait_helper.ready_event.clear()
+
+      # FrogPilot variables
+      frogpilot_toggles = get_frogpilot_toggles()
 
       # Attempt an update
       exception = None

@@ -82,6 +82,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
   // FrogPilot variables
   FrogPilotUIState &fs = *frogpilotUIState();
   FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
+  QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
 
   bool ignore = false;
   switch (event->type()) {

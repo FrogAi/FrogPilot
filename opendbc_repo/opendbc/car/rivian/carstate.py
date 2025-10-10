@@ -18,7 +18,7 @@ class CarState(CarStateBase):
     self.sccm_wheel_touch = None
     self.vdm_adas_status = None
 
-  def update(self, can_parsers) -> structs.CarState:
+  def update(self, can_parsers, frogpilot_toggles) -> structs.CarState:
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
     cp_adas = can_parsers[Bus.adas]

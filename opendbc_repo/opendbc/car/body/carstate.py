@@ -6,7 +6,7 @@ from opendbc.car.body.values import DBC
 
 
 class CarState(CarStateBase):
-  def update(self, can_parsers) -> structs.CarState:
+  def update(self, can_parsers, frogpilot_toggles) -> structs.CarState:
     cp = can_parsers[Bus.main]
     ret = structs.CarState()
 

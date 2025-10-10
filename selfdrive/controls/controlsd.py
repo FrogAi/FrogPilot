@@ -19,6 +19,8 @@ from openpilot.selfdrive.controls.lib.latcontrol_torque import LatControlTorque
 from openpilot.selfdrive.controls.lib.longcontrol import LongControl
 from openpilot.selfdrive.locationd.helpers import PoseCalibrator, Pose
 
+from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
+
 State = log.SelfdriveState.OpenpilotState
 LaneChangeState = log.LaneChangeState
 LaneChangeDirection = log.LaneChangeDirection
@@ -62,6 +64,8 @@ class Controls:
     self.sm = self.sm.extend(['frogpilotCarState', 'frogpilotPlan'])
     self.pm = self.pm.extend(['frogpilotSelfdriveState'])
 
+    self.frogpilot_toggles = get_frogpilot_toggles()
+
   def update(self):
     self.sm.update(15)
     if self.sm.updated["liveCalibration"]:
@@ -69,6 +73,10 @@ class Controls:
     if self.sm.updated["livePose"]:
       device_pose = Pose.from_live_pose(self.sm['livePose'])
       self.calibrated_pose = self.pose_calibrator.build_calibrated_pose(device_pose)
+
+    # FrogPilot variables
+    if self.sm['frogpilotPlan'].togglesUpdated:
+      self.frogpilot_toggles = get_frogpilot_toggles()
 
   def state_control(self):
     CS = self.sm['carState']
@@ -116,7 +124,7 @@ class Controls:
 
     # accel PID loop
     pid_accel_limits = self.CI.get_pid_accel_limits(self.CP, CS.vEgo, CS.vCruise * CV.KPH_TO_MS)
-    actuators.accel = float(self.LoC.update(CC.longActive, CS, long_plan.aTarget, long_plan.shouldStop, pid_accel_limits))
+    actuators.accel = float(self.LoC.update(CC.longActive, CS, long_plan.aTarget, long_plan.shouldStop, pid_accel_limits, self.frogpilot_toggles))
 
     # Steering PID loop and lateral MPC
     # Reset desired curvature to current to avoid violating the limits on engage

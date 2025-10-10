@@ -9,6 +9,7 @@ from openpilot.common.realtime import DT_MDL, Priority, Ratekeeper, config_realt
 from openpilot.common.time_helpers import system_time_valid
 
 from openpilot.frogpilot.common.frogpilot_utilities import is_url_pingable, run_thread_with_lock
+from openpilot.frogpilot.common.frogpilot_variables import FrogPilotVariables
 from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.frogpilot.controls.lib.frogpilot_tracking import FrogPilotTracking
 from openpilot.frogpilot.system.frogpilot_stats import send_stats
@@ -32,6 +33,8 @@ def frogpilot_thread():
   params_cache = Params(cache=True)
   params_memory = Params(memory=True)
 
+  frogpilot_variables = FrogPilotVariables()
+
   pm = messaging.PubMaster(["frogpilotPlan"])
   sm = messaging.SubMaster(["carControl", "carState", "controlsState", "deviceState", "driverMonitoringState",
                             "gpsLocation", "gpsLocationExternal", "liveParameters", "managerState", "modelV2",
@@ -42,6 +45,11 @@ def frogpilot_thread():
   run_update_checks = False
   started_previously = False
   time_validated = False
+  toggles_updated = False
+
+  frogpilot_toggles = frogpilot_variables.frogpilot_toggles
+
+  toggles_last_updated = datetime.datetime.now(datetime.timezone.utc)
 
   while True:
     sm.update()
@@ -52,6 +60,9 @@ def frogpilot_thread():
 
     if not started and started_previously:
       run_update_checks = True
+
+      frogpilot_variables.update(theme_manager.holiday_theme, started)
+      frogpilot_toggles = frogpilot_variables.frogpilot_toggles
 
       if time_validated and is_url_pingable(os.environ.get("STATS_URL", "")):
         send_stats(params)
@@ -75,6 +86,14 @@ def frogpilot_thread():
 
     if rate_keeper.frame % ASSET_CHECK_RATE == 0:
       assets_checks(model_manager, theme_manager, params_memory, frogpilot_toggles)
+
+    if params_memory.get_bool("FrogPilotTogglesUpdated") or theme_manager.theme_updated:
+      frogpilot_variables.update(theme_manager.holiday_theme, started)
+      frogpilot_toggles = frogpilot_variables.frogpilot_toggles
+
+      toggles_last_updated = now
+
+    toggles_updated = (now - toggles_last_updated).total_seconds() <= 1
 
     run_update_checks |= now.second == 0 and (now.minute % 60 == 0 or (now.minute % 5 == 0 and frogpilot_toggles.frogs_go_moo))
     run_update_checks &= time_validated

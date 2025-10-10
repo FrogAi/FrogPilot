@@ -10,7 +10,7 @@ TransmissionType = structs.CarParams.TransmissionType
 
 
 class CarState(CarStateBase):
-  def update(self, can_parsers) -> structs.CarState:
+  def update(self, can_parsers, frogpilot_toggles) -> structs.CarState:
     cp = can_parsers[Bus.main]
     cp_adas = can_parsers[Bus.adas]
     cp_cam = can_parsers[Bus.cam]
