@@ -9,6 +9,7 @@ static void update_state(FrogPilotUIState *fs) {
   if (sm.updated("carState")) {
     const cereal::CarState::Reader &carState = sm["carState"].getCarState();
     frogpilot_scene.parked = carState.getGearShifter() == cereal::CarState::GearShifter::PARK;
+    frogpilot_scene.reverse = carState.getGearShifter() == cereal::CarState::GearShifter::REVERSE;
   }
   if (sm.updated("deviceState")) {
     const cereal::DeviceState::Reader &deviceState = sm["deviceState"].getDeviceState();
@@ -83,4 +84,5 @@ void FrogPilotUIState::update() {
   update_state(this);
 
   frogpilot_scene.conditional_status = frogpilot_scene.enabled ? params_memory.getInt("CEStatus") : 0;
+  frogpilot_scene.driver_camera_timer = frogpilot_scene.reverse && frogpilot_toggles.value("driver_camera_in_reverse").toBool() ? frogpilot_scene.driver_camera_timer + 1 : 0;
 }

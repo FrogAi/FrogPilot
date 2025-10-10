@@ -10,12 +10,14 @@ struct FrogPilotUIScene {
   bool frogpilot_panel_active;
   bool online;
   bool parked;
+  bool reverse;
   bool use_stock_colors;
 
   float lane_width_left;
   float lane_width_right;
 
   int conditional_status;
+  int driver_camera_timer;
   int model_length;
 
   QColor lane_lines_color;
