@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import datetime
+import os
 import time
 
 from cereal import messaging
@@ -9,6 +10,8 @@ from openpilot.common.time_helpers import system_time_valid
 
 from openpilot.frogpilot.common.frogpilot_utilities import is_url_pingable, run_thread_with_lock
 from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
+from openpilot.frogpilot.controls.lib.frogpilot_tracking import FrogPilotTracking
+from openpilot.frogpilot.system.frogpilot_stats import send_stats
 
 ASSET_CHECK_RATE = (1 / DT_MDL)
 
@@ -50,12 +53,18 @@ def frogpilot_thread():
     if not started and started_previously:
       run_update_checks = True
 
+      if time_validated and is_url_pingable(os.environ.get("STATS_URL", "")):
+        send_stats(params)
+
     elif started and not started_previously:
       frogpilot_planner = FrogPilotPlanner(error_log, theme_manager, params)
+      frogpilot_tracking = FrogPilotTracking(frogpilot_planner, params, frogpilot_toggles)
 
     if started and sm.updated["modelV2"]:
       frogpilot_planner.update(now, time_validated, params, params_memory, sm, frogpilot_toggles)
       frogpilot_planner.publish(theme_manager.theme_updated, toggles_updated, params_memory, sm, pm, frogpilot_toggles)
+
+      frogpilot_tracking.update(now, time_validated, params, sm, frogpilot_toggles)
     elif not started:
       frogpilot_plan_send = messaging.new_message("frogpilotPlan")
       frogpilot_plan_send.frogpilotPlan.themeUpdated = theme_manager.theme_updated or params_memory.get_bool("UseActiveTheme")

@@ -20,7 +20,7 @@ from openpilot.common.swaglog import cloudlog, add_file_handler
 from openpilot.system.version import get_build_metadata, terms_version, training_version
 from openpilot.system.hardware.hw import Paths
 
-from openpilot.frogpilot.common.frogpilot_functions import install_frogpilot, uninstall_frogpilot
+from openpilot.frogpilot.common.frogpilot_functions import frogpilot_boot_functions, install_frogpilot, uninstall_frogpilot
 
 
 def manager_init() -> None:
@@ -113,6 +113,7 @@ def manager_init() -> None:
 
   # FrogPilot variables
   install_frogpilot(build_metadata, params)
+  frogpilot_boot_functions(build_metadata, params, params_cache)
 
 
 def manager_cleanup() -> None:

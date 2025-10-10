@@ -32,6 +32,16 @@ def run_thread_with_lock(name, target, args=(), report=True):
       running_threads[name] = thread
 
 
+def clean_model_name(name):
+  return (
+    name.replace("🗺️", "")
+    .replace("📡", "")
+    .replace("👀", "")
+    .replace("(Default)", "")
+    .strip()
+  )
+
+
 def delete_file(path, print_error=True, report=True):
   path = Path(path)
   if path.is_file() or path.is_symlink():
