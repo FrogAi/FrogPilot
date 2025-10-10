@@ -135,6 +135,7 @@ class FrogPilotVariables:
     level = self.tuning_levels
     toggle = self.frogpilot_toggles
 
+    toggle.debug_mode = self.params.get_bool("DebugMode")
     toggle.force_offroad = self.params_memory.get_bool("ForceOffroad")
     toggle.force_onroad = self.params_memory.get_bool("ForceOnroad")
 
@@ -211,11 +212,11 @@ class FrogPilotVariables:
       self.params.remove("AlwaysOnLateralLKAS")
 
     advanced_custom_ui = self.params.get_bool("AdvancedCustomUI") if tuning_level >= level["AdvancedCustomUI"] else default["AdvancedCustomUI"]
-    toggle.hide_alerts = advanced_custom_ui and (self.params.get_bool("HideAlerts") if tuning_level >= level["HideAlerts"] else default["HideAlerts"])
-    toggle.hide_lead_marker = toggle.openpilot_longitudinal and (advanced_custom_ui and (self.params.get_bool("HideLeadMarker") if tuning_level >= level["HideLeadMarker"] else default["HideLeadMarker"]))
-    toggle.hide_max_speed = advanced_custom_ui and (self.params.get_bool("HideMaxSpeed") if tuning_level >= level["HideMaxSpeed"] else default["HideMaxSpeed"])
-    toggle.hide_speed = advanced_custom_ui and (self.params.get_bool("HideSpeed") if tuning_level >= level["HideSpeed"] else default["HideSpeed"])
-    toggle.hide_speed_limit = advanced_custom_ui and (self.params.get_bool("HideSpeedLimit") if tuning_level >= level["HideSpeedLimit"] else default["HideSpeedLimit"])
+    toggle.hide_alerts = advanced_custom_ui and (self.params.get_bool("HideAlerts") if tuning_level >= level["HideAlerts"] else default["HideAlerts"]) and not toggle.debug_mode
+    toggle.hide_lead_marker = toggle.openpilot_longitudinal and (advanced_custom_ui and (self.params.get_bool("HideLeadMarker") if tuning_level >= level["HideLeadMarker"] else default["HideLeadMarker"]) and not toggle.debug_mode)
+    toggle.hide_max_speed = advanced_custom_ui and (self.params.get_bool("HideMaxSpeed") if tuning_level >= level["HideMaxSpeed"] else default["HideMaxSpeed"]) and not toggle.debug_mode
+    toggle.hide_speed = advanced_custom_ui and (self.params.get_bool("HideSpeed") if tuning_level >= level["HideSpeed"] else default["HideSpeed"]) and not toggle.debug_mode
+    toggle.hide_speed_limit = advanced_custom_ui and (self.params.get_bool("HideSpeedLimit") if tuning_level >= level["HideSpeedLimit"] else default["HideSpeedLimit"]) and not toggle.debug_mode
     toggle.use_wheel_speed = advanced_custom_ui and (self.params.get_bool("WheelSpeed") if tuning_level >= level["WheelSpeed"] else default["WheelSpeed"])
 
     advanced_lateral_tuning = self.params.get_bool("AdvancedLateralTune") if tuning_level >= level["AdvancedLateralTune"] else default["AdvancedLateralTune"]
@@ -272,10 +273,10 @@ class FrogPilotVariables:
     toggle.conditional_model_stop_time = self.params.get("CEModelStopTime") if toggle.conditional_experimental_mode and tuning_level >= level["CEModelStopTime"] else default["CEModelStopTime"]
     toggle.conditional_signal = self.params.get("CESignalSpeed") * speed_conversion if toggle.conditional_experimental_mode and tuning_level >= level["CESignalSpeed"] else default["CESignalSpeed"] * CV.MPH_TO_MS
     toggle.conditional_signal_lane_detection = toggle.conditional_signal != 0 and (self.params.get_bool("CESignalLaneDetection") if tuning_level >= level["CESignalLaneDetection"] else default["CESignalLaneDetection"])
-    toggle.cem_status = toggle.conditional_experimental_mode and (self.params.get_bool("ShowCEMStatus") if tuning_level >= level["ShowCEMStatus"] else default["ShowCEMStatus"])
+    toggle.cem_status = toggle.conditional_experimental_mode and (self.params.get_bool("ShowCEMStatus") if tuning_level >= level["ShowCEMStatus"] else default["ShowCEMStatus"]) or toggle.debug_mode
 
     toggle.curve_speed_controller = toggle.openpilot_longitudinal and (self.params.get_bool("CurveSpeedController") if tuning_level >= level["CurveSpeedController"] else default["CurveSpeedController"])
-    toggle.csc_status = toggle.curve_speed_controller and (self.params.get_bool("ShowCSCStatus") if tuning_level >= level["ShowCSCStatus"] else default["ShowCSCStatus"])
+    toggle.csc_status = toggle.curve_speed_controller and (self.params.get_bool("ShowCSCStatus") if tuning_level >= level["ShowCSCStatus"] else default["ShowCSCStatus"]) or toggle.debug_mode
 
     toggle.custom_alerts = self.params.get_bool("CustomAlerts") if tuning_level >= level["CustomAlerts"] else default["CustomAlerts"]
     toggle.goat_scream_alert = toggle.custom_alerts and (self.params.get_bool("GoatScream") if tuning_level >= level["GoatScream"] else default["GoatScream"])
@@ -315,9 +316,9 @@ class FrogPilotVariables:
     toggle.traffic_mode_follow = [np.clip(self.params.get("TrafficFollow") if traffic_profile and tuning_level >= level["TrafficFollow"] else default["TrafficFollow"], 0.5, MAX_T_FOLLOW), toggle.aggressive_follow]
 
     custom_ui = self.params.get_bool("CustomUI") if tuning_level >= level["CustomUI"] else default["CustomUI"]
-    toggle.acceleration_path = toggle.openpilot_longitudinal and custom_ui and (self.params.get_bool("AccelerationPath") if tuning_level >= level["AccelerationPath"] else default["AccelerationPath"])
+    toggle.acceleration_path = toggle.openpilot_longitudinal and (custom_ui and (self.params.get_bool("AccelerationPath") if tuning_level >= level["AccelerationPath"] else default["AccelerationPath"]) or toggle.debug_mode)
     toggle.adjacent_paths = custom_ui and (self.params.get_bool("AdjacentPath") if tuning_level >= level["AdjacentPath"] else default["AdjacentPath"])
-    toggle.blind_spot_path = has_bsm and custom_ui and (self.params.get_bool("BlindSpotPath") if tuning_level >= level["BlindSpotPath"] else default["BlindSpotPath"])
+    toggle.blind_spot_path = has_bsm and (custom_ui and (self.params.get_bool("BlindSpotPath") if tuning_level >= level["BlindSpotPath"] else default["BlindSpotPath"]) or toggle.debug_mode)
     toggle.compass = custom_ui and (self.params.get_bool("Compass") if tuning_level >= level["Compass"] else default["Compass"])
     toggle.pedals_on_ui = toggle.openpilot_longitudinal and (custom_ui and (self.params.get_bool("PedalsOnUI") if tuning_level >= level["PedalsOnUI"] else default["PedalsOnUI"]))
     toggle.dynamic_pedals_on_ui = toggle.pedals_on_ui and (self.params.get_bool("DynamicPedalsOnUI") if tuning_level >= level["DynamicPedalsOnUI"] else default["DynamicPedalsOnUI"])
@@ -327,34 +328,34 @@ class FrogPilotVariables:
     toggle.developer_ui = self.params.get_bool("DeveloperUI") if tuning_level >= level["DeveloperUI"] else default["DeveloperUI"]
     developer_metrics = toggle.developer_ui and (self.params.get_bool("DeveloperMetrics") if tuning_level >= level["DeveloperMetrics"] else default["DeveloperMetrics"])
     border_metrics = developer_metrics and (self.params.get_bool("BorderMetrics") if tuning_level >= level["BorderMetrics"] else default["BorderMetrics"])
-    toggle.blind_spot_metrics = has_bsm and border_metrics and (self.params.get_bool("BlindSpotMetrics") if tuning_level >= level["BlindSpotMetrics"] else default["BlindSpotMetrics"])
-    toggle.signal_metrics = border_metrics and (self.params.get_bool("SignalMetrics") if tuning_level >= level["SignalMetrics"] else default["SignalMetrics"])
-    toggle.steering_metrics = border_metrics and (self.params.get_bool("ShowSteering") if tuning_level >= level["ShowSteering"] else default["ShowSteering"])
-    toggle.show_fps = developer_metrics and (self.params.get_bool("FPSCounter") if tuning_level >= level["FPSCounter"] else default["FPSCounter"])
-    toggle.adjacent_path_metrics = developer_metrics and (self.params.get_bool("AdjacentPathMetrics") if tuning_level >= level["AdjacentPathMetrics"] else default["AdjacentPathMetrics"])
-    toggle.lead_metrics = developer_metrics and (self.params.get_bool("LeadInfo") if tuning_level >= level["LeadInfo"] else default["LeadInfo"])
-    toggle.numerical_temp = developer_metrics and (self.params.get_bool("NumericalTemp") if tuning_level >= level["NumericalTemp"] else default["NumericalTemp"])
-    toggle.fahrenheit = toggle.numerical_temp and (self.params.get_bool("Fahrenheit") if tuning_level >= level["Fahrenheit"] else default["Fahrenheit"])
-    toggle.cpu_metrics = developer_metrics and (self.params.get_bool("ShowCPU") if tuning_level >= level["ShowCPU"] else default["ShowCPU"])
-    toggle.gpu_metrics = developer_metrics and (self.params.get_bool("ShowGPU") if tuning_level >= level["ShowGPU"] else default["ShowGPU"])
+    toggle.blind_spot_metrics = has_bsm and border_metrics and (self.params.get_bool("BlindSpotMetrics") if tuning_level >= level["BlindSpotMetrics"] else default["BlindSpotMetrics"]) or toggle.debug_mode
+    toggle.signal_metrics = border_metrics and (self.params.get_bool("SignalMetrics") if tuning_level >= level["SignalMetrics"] else default["SignalMetrics"]) or toggle.debug_mode
+    toggle.steering_metrics = border_metrics and (self.params.get_bool("ShowSteering") if tuning_level >= level["ShowSteering"] else default["ShowSteering"]) or toggle.debug_mode
+    toggle.show_fps = developer_metrics and (self.params.get_bool("FPSCounter") if tuning_level >= level["FPSCounter"] else default["FPSCounter"]) or toggle.debug_mode
+    toggle.adjacent_path_metrics = (developer_metrics and (self.params.get_bool("AdjacentPathMetrics") if tuning_level >= level["AdjacentPathMetrics"] else default["AdjacentPathMetrics"])) or toggle.debug_mode
+    toggle.lead_metrics = (developer_metrics and (self.params.get_bool("LeadInfo") if tuning_level >= level["LeadInfo"] else default["LeadInfo"])) or toggle.debug_mode
+    toggle.numerical_temp = developer_metrics and (self.params.get_bool("NumericalTemp") if tuning_level >= level["NumericalTemp"] else default["NumericalTemp"]) or toggle.debug_mode
+    toggle.fahrenheit = toggle.numerical_temp and (self.params.get_bool("Fahrenheit") if tuning_level >= level["Fahrenheit"] else default["Fahrenheit"]) and not toggle.debug_mode
+    toggle.cpu_metrics = developer_metrics and (self.params.get_bool("ShowCPU") if tuning_level >= level["ShowCPU"] else default["ShowCPU"]) or toggle.debug_mode
+    toggle.gpu_metrics = developer_metrics and (self.params.get_bool("ShowGPU") if tuning_level >= level["ShowGPU"] else default["ShowGPU"]) and not toggle.debug_mode
     toggle.ip_metrics = developer_metrics and (self.params.get_bool("ShowIP") if tuning_level >= level["ShowIP"] else default["ShowIP"])
-    toggle.memory_metrics = developer_metrics and (self.params.get_bool("ShowMemoryUsage") if tuning_level >= level["ShowMemoryUsage"] else default["ShowMemoryUsage"])
-    toggle.storage_left_metrics = developer_metrics and (self.params.get_bool("ShowStorageLeft") if tuning_level >= level["ShowStorageLeft"] else default["ShowStorageLeft"])
-    toggle.storage_used_metrics = developer_metrics and (self.params.get_bool("ShowStorageUsed") if tuning_level >= level["ShowStorageUsed"] else default["ShowStorageUsed"])
-    toggle.use_si_metrics = developer_metrics and (self.params.get_bool("UseSI") if tuning_level >= level["UseSI"] else default["UseSI"])
-    toggle.developer_sidebar = toggle.developer_ui and (self.params.get_bool("DeveloperSidebar") if tuning_level >= level["DeveloperSidebar"] else default["DeveloperSidebar"])
-    toggle.developer_sidebar_metric1 = self.params.get("DeveloperSidebarMetric1") if toggle.developer_sidebar and tuning_level >= level["DeveloperSidebarMetric1"] else default["DeveloperSidebarMetric1"]
-    toggle.developer_sidebar_metric2 = self.params.get("DeveloperSidebarMetric2") if toggle.developer_sidebar and tuning_level >= level["DeveloperSidebarMetric2"] else default["DeveloperSidebarMetric2"]
-    toggle.developer_sidebar_metric3 = self.params.get("DeveloperSidebarMetric3") if toggle.developer_sidebar and tuning_level >= level["DeveloperSidebarMetric3"] else default["DeveloperSidebarMetric3"]
-    toggle.developer_sidebar_metric4 = self.params.get("DeveloperSidebarMetric4") if toggle.developer_sidebar and tuning_level >= level["DeveloperSidebarMetric4"] else default["DeveloperSidebarMetric4"]
-    toggle.developer_sidebar_metric5 = self.params.get("DeveloperSidebarMetric5") if toggle.developer_sidebar and tuning_level >= level["DeveloperSidebarMetric5"] else default["DeveloperSidebarMetric5"]
-    toggle.developer_sidebar_metric6 = self.params.get("DeveloperSidebarMetric6") if toggle.developer_sidebar and tuning_level >= level["DeveloperSidebarMetric6"] else default["DeveloperSidebarMetric6"]
-    toggle.developer_sidebar_metric7 = self.params.get("DeveloperSidebarMetric7") if toggle.developer_sidebar and tuning_level >= level["DeveloperSidebarMetric7"] else default["DeveloperSidebarMetric7"]
+    toggle.memory_metrics = developer_metrics and (self.params.get_bool("ShowMemoryUsage") if tuning_level >= level["ShowMemoryUsage"] else default["ShowMemoryUsage"]) or toggle.debug_mode
+    toggle.storage_left_metrics = developer_metrics and (self.params.get_bool("ShowStorageLeft") if tuning_level >= level["ShowStorageLeft"] else default["ShowStorageLeft"]) and not toggle.debug_mode
+    toggle.storage_used_metrics = developer_metrics and (self.params.get_bool("ShowStorageUsed") if tuning_level >= level["ShowStorageUsed"] else default["ShowStorageUsed"]) and not toggle.debug_mode
+    toggle.use_si_metrics = developer_metrics and (self.params.get_bool("UseSI") if tuning_level >= level["UseSI"] else default["UseSI"]) or toggle.debug_mode
+    toggle.developer_sidebar = toggle.developer_ui and (self.params.get_bool("DeveloperSidebar") if tuning_level >= level["DeveloperSidebar"] else default["DeveloperSidebar"]) or toggle.debug_mode
+    toggle.developer_sidebar_metric1 = self.params.get("DeveloperSidebarMetric1") if toggle.developer_sidebar and tuning_level >= level["DeveloperSidebarMetric1"] else 1 if toggle.debug_mode else default["DeveloperSidebarMetric1"]
+    toggle.developer_sidebar_metric2 = self.params.get("DeveloperSidebarMetric2") if toggle.developer_sidebar and tuning_level >= level["DeveloperSidebarMetric2"] else 3 if toggle.debug_mode else default["DeveloperSidebarMetric2"]
+    toggle.developer_sidebar_metric3 = self.params.get("DeveloperSidebarMetric3") if toggle.developer_sidebar and tuning_level >= level["DeveloperSidebarMetric3"] else 4 if toggle.debug_mode else default["DeveloperSidebarMetric3"]
+    toggle.developer_sidebar_metric4 = self.params.get("DeveloperSidebarMetric4") if toggle.developer_sidebar and tuning_level >= level["DeveloperSidebarMetric4"] else 5 if toggle.debug_mode else default["DeveloperSidebarMetric4"]
+    toggle.developer_sidebar_metric5 = self.params.get("DeveloperSidebarMetric5") if toggle.developer_sidebar and tuning_level >= level["DeveloperSidebarMetric5"] else 6 if toggle.debug_mode else default["DeveloperSidebarMetric5"]
+    toggle.developer_sidebar_metric6 = self.params.get("DeveloperSidebarMetric6") if toggle.developer_sidebar and tuning_level >= level["DeveloperSidebarMetric6"] else 7 if toggle.debug_mode else default["DeveloperSidebarMetric6"]
+    toggle.developer_sidebar_metric7 = self.params.get("DeveloperSidebarMetric7") if toggle.developer_sidebar and tuning_level >= level["DeveloperSidebarMetric7"] else 11 if toggle.debug_mode else default["DeveloperSidebarMetric7"]
     developer_widgets = toggle.developer_ui and (self.params.get_bool("DeveloperWidgets") if tuning_level >= level["DeveloperWidgets"] else default["DeveloperWidgets"])
-    toggle.adjacent_lead_tracking = has_radar and developer_widgets and (self.params.get_bool("AdjacentLeadsUI") if tuning_level >= level["AdjacentLeadsUI"] else default["AdjacentLeadsUI"])
-    toggle.radar_tracks = has_radar and developer_widgets and (self.params.get_bool("RadarTracksUI") if tuning_level >= level["RadarTracksUI"] else default["RadarTracksUI"])
-    toggle.show_stopping_point = toggle.openpilot_longitudinal and developer_widgets and (self.params.get_bool("ShowStoppingPoint") if tuning_level >= level["ShowStoppingPoint"] else default["ShowStoppingPoint"])
-    toggle.show_stopping_point_metrics = toggle.show_stopping_point and (self.params.get_bool("ShowStoppingPointMetrics") if tuning_level >= level["ShowStoppingPointMetrics"] else default["ShowStoppingPointMetrics"])
+    toggle.adjacent_lead_tracking = has_radar and ((developer_widgets and (self.params.get_bool("AdjacentLeadsUI") if tuning_level >= level["AdjacentLeadsUI"] else default["AdjacentLeadsUI"])) or toggle.debug_mode)
+    toggle.radar_tracks = has_radar and ((developer_widgets and (self.params.get_bool("RadarTracksUI") if tuning_level >= level["RadarTracksUI"] else default["RadarTracksUI"])) or toggle.debug_mode)
+    toggle.show_stopping_point = toggle.openpilot_longitudinal and (developer_widgets and (self.params.get_bool("ShowStoppingPoint") if tuning_level >= level["ShowStoppingPoint"] else default["ShowStoppingPoint"]) or toggle.debug_mode)
+    toggle.show_stopping_point_metrics = toggle.show_stopping_point and ((self.params.get_bool("ShowStoppingPointMetrics") if tuning_level >= level["ShowStoppingPointMetrics"] else default["ShowStoppingPointMetrics"]) or toggle.debug_mode)
 
     device_management = self.params.get_bool("DeviceManagement") if tuning_level >= level["DeviceManagement"] else default["DeviceManagement"]
     device_shutdown_setting = self.params.get("DeviceShutdown") if device_management and tuning_level >= level["DeviceShutdown"] else default["DeviceShutdown"]
@@ -517,7 +518,7 @@ class FrogPilotVariables:
     quality_of_life_visuals = self.params.get_bool("QOLVisuals") if tuning_level >= level["QOLVisuals"] else default["QOLVisuals"]
     toggle.camera_view = self.params.get("CameraView") if quality_of_life_visuals and tuning_level >= level["CameraView"] else default["CameraView"]
     toggle.driver_camera_in_reverse = quality_of_life_visuals and (self.params.get_bool("DriverCamera") if tuning_level >= level["DriverCamera"] else default["DriverCamera"])
-    toggle.onroad_distance_button = toggle.openpilot_longitudinal and quality_of_life_visuals and (self.params.get_bool("OnroadDistanceButton") if tuning_level >= level["OnroadDistanceButton"] else default["OnroadDistanceButton"])
+    toggle.onroad_distance_button = toggle.openpilot_longitudinal and (quality_of_life_visuals and (self.params.get_bool("OnroadDistanceButton") if tuning_level >= level["OnroadDistanceButton"] else default["OnroadDistanceButton"]) or toggle.debug_mode)
     toggle.stopped_timer = quality_of_life_visuals and (self.params.get_bool("StoppedTimer") if tuning_level >= level["StoppedTimer"] else default["StoppedTimer"])
 
     toggle.rainbow_path = self.params.get_bool("RainbowPath") if tuning_level >= level["RainbowPath"] else default["RainbowPath"]
@@ -527,7 +528,7 @@ class FrogPilotVariables:
     screen_management = self.params.get_bool("ScreenManagement") if tuning_level >= level["ScreenManagement"] else default["ScreenManagement"]
     toggle.screen_brightness = self.params.get("ScreenBrightness") if screen_management and tuning_level >= level["ScreenBrightness"] else default["ScreenBrightness"]
     toggle.screen_brightness_onroad = self.params.get("ScreenBrightnessOnroad") if screen_management and tuning_level >= level["ScreenBrightnessOnroad"] else default["ScreenBrightnessOnroad"]
-    toggle.screen_recorder = screen_management and (self.params.get_bool("ScreenRecorder") if tuning_level >= level["ScreenRecorder"] else default["ScreenRecorder"])
+    toggle.screen_recorder = screen_management and (self.params.get_bool("ScreenRecorder") if tuning_level >= level["ScreenRecorder"] else default["ScreenRecorder"]) or toggle.debug_mode
     toggle.screen_timeout = self.params.get("ScreenTimeout") if screen_management and tuning_level >= level["ScreenTimeout"] else default["ScreenTimeout"]
     toggle.screen_timeout_onroad = self.params.get("ScreenTimeoutOnroad") if screen_management and tuning_level >= level["ScreenTimeoutOnroad"] else default["ScreenTimeoutOnroad"]
     toggle.standby_mode = screen_management and (self.params.get_bool("StandbyMode") if tuning_level >= level["StandbyMode"] else default["StandbyMode"])
@@ -539,7 +540,7 @@ class FrogPilotVariables:
     toggle.map_speed_lookahead_higher = self.params.get("SLCLookaheadHigher") if toggle.speed_limit_controller and tuning_level >= level["SLCLookaheadHigher"] else default["SLCLookaheadHigher"]
     toggle.map_speed_lookahead_lower = self.params.get("SLCLookaheadLower") if toggle.speed_limit_controller and tuning_level >= level["SLCLookaheadLower"] else default["SLCLookaheadLower"]
     toggle.set_speed_limit = toggle.speed_limit_controller and (self.params.get_bool("SetSpeedLimit") if tuning_level >= level["SetSpeedLimit"] else default["SetSpeedLimit"])
-    toggle.show_speed_limit_offset = toggle.speed_limit_controller and (self.params.get_bool("ShowSLCOffset") if tuning_level >= level["ShowSLCOffset"] else default["ShowSLCOffset"])
+    toggle.show_speed_limit_offset = toggle.speed_limit_controller and (self.params.get_bool("ShowSLCOffset") if tuning_level >= level["ShowSLCOffset"] else default["ShowSLCOffset"]) or toggle.debug_mode
     slc_fallback_method = self.params.get("SLCFallback") if toggle.speed_limit_controller and tuning_level >= level["SLCFallback"] else default["SLCFallback"]
     toggle.slc_fallback_experimental_mode = slc_fallback_method == 1
     toggle.slc_fallback_previous_speed_limit = slc_fallback_method == 2

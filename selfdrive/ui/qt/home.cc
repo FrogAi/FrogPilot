@@ -62,7 +62,7 @@ void HomeWindow::updateState(const UIState &s, const FrogPilotUIState &fs) {
 
 void HomeWindow::offroadTransition(bool offroad) {
   body->setEnabled(false);
-  sidebar->setVisible(offroad);
+  sidebar->setVisible(offroad || frogpilotUIState()->frogpilot_toggles.value("debug_mode").toBool());
   if (offroad) {
     slayout->setCurrentWidget(home);
   } else {
