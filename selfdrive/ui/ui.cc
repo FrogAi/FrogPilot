@@ -109,6 +109,10 @@ void UIState::updateStatus(FrogPilotUIState *fs) {
     emit offroadTransition(!scene.started);
 
     fs->frogpilot_scene.started_timer = 0;
+
+    if (frogpilot_toggles.value("tethering_config").toInt() == 2) {
+      fs->wifi->setTetheringEnabled(scene.started);
+    }
   }
 }
 

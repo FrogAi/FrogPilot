@@ -1,5 +1,7 @@
 #pragma once
 
+#include "selfdrive/ui/qt/network/wifi_manager.h"
+
 #include "frogpilot/ui/qt/widgets/frogpilot_controls.h"
 
 struct FrogPilotUIScene {
@@ -40,6 +42,8 @@ public:
   Params params_memory{"", false, true};
 
   QJsonObject &frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
+
+  WifiManager *wifi;
 };
 
 FrogPilotUIState *frogpilotUIState();
