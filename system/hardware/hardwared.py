@@ -353,6 +353,10 @@ def hardware_thread(end_event, hw_queue) -> None:
     if started_ts is None:
       should_start = should_start and all(startup_conditions.values())
 
+    # Handle force offroad/onroad
+    should_start |= frogpilot_toggles.force_onroad
+    should_start &= not frogpilot_toggles.force_offroad
+
     if should_start != should_start_prev or (count == 0):
       params.put_bool("IsEngaged", False)
       engaged_prev = False

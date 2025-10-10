@@ -527,7 +527,7 @@ class FrogPilotVariables:
 
     screen_management = self.params.get_bool("ScreenManagement") if tuning_level >= level["ScreenManagement"] else default["ScreenManagement"]
     toggle.screen_brightness = self.params.get("ScreenBrightness") if screen_management and tuning_level >= level["ScreenBrightness"] else default["ScreenBrightness"]
-    toggle.screen_brightness_onroad = self.params.get("ScreenBrightnessOnroad") if screen_management and tuning_level >= level["ScreenBrightnessOnroad"] else default["ScreenBrightnessOnroad"]
+    toggle.screen_brightness_onroad = self.params.get("ScreenBrightnessOnroad") if screen_management and not toggle.force_onroad and tuning_level >= level["ScreenBrightnessOnroad"] else default["ScreenBrightnessOnroad"]
     toggle.screen_recorder = screen_management and (self.params.get_bool("ScreenRecorder") if tuning_level >= level["ScreenRecorder"] else default["ScreenRecorder"]) or toggle.debug_mode
     toggle.screen_timeout = self.params.get("ScreenTimeout") if screen_management and tuning_level >= level["ScreenTimeout"] else default["ScreenTimeout"]
     toggle.screen_timeout_onroad = self.params.get("ScreenTimeoutOnroad") if screen_management and tuning_level >= level["ScreenTimeoutOnroad"] else default["ScreenTimeoutOnroad"]

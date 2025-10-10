@@ -60,6 +60,8 @@ static void update_state(UIState *s, FrogPilotUIState *fs) {
     scene.light_sensor = -1;
   }
   scene.started = sm["deviceState"].getDeviceState().getStarted() && scene.ignition;
+  scene.started |= fs->frogpilot_toggles.value("force_onroad").toBool();
+  scene.started &= !fs->frogpilot_toggles.value("force_offroad").toBool();
 
   auto params = Params();
   scene.recording_audio = params.getBool("RecordAudio") && scene.started;

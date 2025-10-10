@@ -164,7 +164,7 @@ def manager_thread() -> None:
 
     started = sm['deviceState'].started
 
-    if started and not started_prev:
+    if started and not started_prev and not frogpilot_toggles.force_onroad:
       params.clear_all(ParamKeyFlag.CLEAR_ON_ONROAD_TRANSITION)
 
       # FrogPilot variables
