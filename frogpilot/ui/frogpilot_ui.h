@@ -8,6 +8,8 @@ struct FrogPilotUIScene {
   bool frogpilot_panel_active;
   bool online;
   bool parked;
+
+  int conditional_status;
 };
 
 class FrogPilotUIState : public QObject {

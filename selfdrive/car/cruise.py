@@ -134,7 +134,7 @@ class VCruiseHelper:
     if self.CP.pcmCruise and not self.gm_cc_only:
       return
 
-    initial = V_CRUISE_INITIAL_EXPERIMENTAL_MODE if experimental_mode else V_CRUISE_INITIAL
+    initial = V_CRUISE_INITIAL_EXPERIMENTAL_MODE if experimental_mode and not frogpilot_toggles.conditional_experimental_mode else V_CRUISE_INITIAL
 
     if (any(b.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for b in CS.buttonEvents)
       and self.v_cruise_initialized or (self.gm_cc_only and resume_prev_button)):

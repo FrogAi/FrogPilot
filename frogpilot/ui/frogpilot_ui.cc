@@ -26,6 +26,7 @@ static void update_state(FrogPilotUIState *fs) {
   }
   if (sm.updated("selfdriveState")) {
     const cereal::SelfdriveState::Reader &selfdriveState = sm["selfdriveState"].getSelfdriveState();
+    frogpilot_scene.enabled = selfdriveState.getEnabled();
   }
 }
 
@@ -46,4 +47,6 @@ FrogPilotUIState *frogpilotUIState() {
 
 void FrogPilotUIState::update() {
   update_state(this);
+
+  frogpilot_scene.conditional_status = frogpilot_scene.enabled ? params_memory.getInt("CEStatus") : 0;
 }
