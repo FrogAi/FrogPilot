@@ -10,7 +10,7 @@ from openpilot.common.time_helpers import system_time_valid
 
 from openpilot.frogpilot.assets.theme_manager import THEME_COMPONENT_PARAMS, ThemeManager
 from openpilot.frogpilot.common.frogpilot_functions import backup_toggles
-from openpilot.frogpilot.common.frogpilot_utilities import flash_panda, is_url_pingable, run_thread_with_lock, update_openpilot
+from openpilot.frogpilot.common.frogpilot_utilities import flash_panda, is_url_pingable, lock_doors, run_thread_with_lock, update_openpilot
 from openpilot.frogpilot.common.frogpilot_variables import ERROR_LOGS_PATH, FrogPilotVariables
 from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.frogpilot.controls.lib.frogpilot_tracking import FrogPilotTracking
@@ -82,6 +82,9 @@ def frogpilot_thread():
 
       frogpilot_variables.update(theme_manager.holiday_theme, started)
       frogpilot_toggles = frogpilot_variables.frogpilot_toggles
+
+      if frogpilot_toggles.lock_doors_timer != 0:
+        run_thread_with_lock("lock_doors", lock_doors, (params, frogpilot_toggles.lock_doors_timer, sm), report=False)
 
       if frogpilot_toggles.random_themes:
         theme_manager.update_active_theme(time_validated, frogpilot_toggles, randomize_theme=True)

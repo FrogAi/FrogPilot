@@ -14,8 +14,11 @@ from pathlib import Path
 import openpilot.system.sentry as sentry
 
 from cereal import log, messaging
+from opendbc.can.parser import CANParser
+from opendbc.car.toyota.carcontroller import LOCK_CMD
 from openpilot.common.realtime import DT_DMON, DT_HW
 from openpilot.system.hardware import HARDWARE
+from panda import Panda
 
 from openpilot.frogpilot.common.frogpilot_variables import KONIK_PATH
 
@@ -25,6 +28,7 @@ locks = {
   "backup_toggles": threading.Lock(),
   "download_theme": threading.Lock(),
   "flash_panda": threading.Lock(),
+  "lock_doors": threading.Lock(),
   "update_checks": threading.Lock(),
   "update_openpilot": threading.Lock(),
 }
@@ -136,6 +140,12 @@ def flash_panda(params_memory):
   params_memory.remove("FlashPanda")
 
 
+def get_lock_status(can_parser, can_sock):
+  can_msgs = messaging.drain_sock_raw(can_sock, wait_for_one=True)
+  can_parser.update_strings(can_msgs)
+  return can_parser.vl["DOOR_LOCKS"]["LOCK_STATUS"]
+
+
 def is_url_pingable(url):
   headers = {"User-Agent": "frogpilot-ping-test/1.0 (https://github.com/FrogAi/FrogPilot)"}
   try:
@@ -156,6 +166,29 @@ def load_json_file(path):
     with open(path) as file:
       return json.load(file)
   return {}
+
+
+def lock_doors(params, lock_doors_timer, sm):
+  wait_for_no_driver(params, sm, door_checks=True, time_threshold=lock_doors_timer)
+
+  can_parser = CANParser("toyota_nodsu_pt_generated", [("DOOR_LOCKS", 3)], bus=0)
+  can_sock = messaging.sub_sock("can", timeout=100)
+
+  while True:
+    sm.update()
+
+    if any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown):
+      break
+
+    with Panda(disable_checks=True) as panda:
+      panda.set_safety_mode(panda.SAFETY_TOYOTA)
+      panda.can_send(0x750, LOCK_CMD, 0)
+
+    time.sleep(1)
+
+    lock_status = get_lock_status(can_parser, can_sock)
+    if lock_status == 0:
+      break
 
 
 def run_cmd(cmd, success_message, fail_message, report=True, env=None):
@@ -220,7 +253,10 @@ def use_konik_server():
   return KONIK_PATH.is_file()
 
 
-def wait_for_no_driver(params, sm, time_threshold=60):
+def wait_for_no_driver(params, sm, door_checks=False, time_threshold=60):
+  can_parser = CANParser("toyota_nodsu_pt_generated", [("BODY_CONTROL_STATE", 3)], bus=0)
+  can_sock = messaging.sub_sock("can", timeout=100)
+
   while sm["deviceState"].screenBrightnessPercent != 0 or any(proc.name == "dmonitoringd" and proc.running for proc in sm["managerState"].processes):
     sm.update()
 
@@ -249,6 +285,15 @@ def wait_for_no_driver(params, sm, time_threshold=60):
 
     if sm["driverMonitoringState"].faceDetected or not sm.alive["driverMonitoringState"]:
       start_time = time.monotonic()
+
+    if door_checks:
+      can_msgs = messaging.drain_sock_raw(can_sock, wait_for_one=True)
+      can_parser.update_strings(can_msgs)
+
+      door_open = any([can_parser.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_FL"], can_parser.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_FR"],
+                       can_parser.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_RL"], can_parser.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_RR"]])
+      if door_open:
+        start_time = time.monotonic()
 
     time.sleep(DT_DMON)
 
