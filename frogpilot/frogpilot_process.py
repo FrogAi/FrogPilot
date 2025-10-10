@@ -9,7 +9,7 @@ from openpilot.common.realtime import DT_MDL, Priority, Ratekeeper, config_realt
 from openpilot.common.time_helpers import system_time_valid
 
 from openpilot.frogpilot.common.frogpilot_functions import backup_toggles
-from openpilot.frogpilot.common.frogpilot_utilities import is_url_pingable, run_thread_with_lock
+from openpilot.frogpilot.common.frogpilot_utilities import is_url_pingable, run_thread_with_lock, update_openpilot
 from openpilot.frogpilot.common.frogpilot_variables import FrogPilotVariables
 from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.frogpilot.controls.lib.frogpilot_tracking import FrogPilotTracking
@@ -22,6 +22,9 @@ def assets_checks(model_manager, theme_manager, params_memory, frogpilot_toggles
 def update_checks(model_manager, now, theme_manager, params, params_memory, frogpilot_toggles, boot_run=False):
   while not (is_url_pingable("https://github.com") or is_url_pingable("https://gitlab.com")):
     time.sleep(60)
+
+  if frogpilot_toggles.automatic_updates:
+    run_thread_with_lock("update_openpilot", update_openpilot, (params, params_memory))
 
   time.sleep(1)
 
@@ -99,6 +102,7 @@ def frogpilot_thread():
 
     toggles_updated = (now - toggles_last_updated).total_seconds() <= 1
 
+    run_update_checks |= params_memory.get_bool("ManualUpdateInitiated")
     run_update_checks |= now.second == 0 and (now.minute % 60 == 0 or (now.minute % 5 == 0 and frogpilot_toggles.frogs_go_moo))
     run_update_checks &= time_validated
 

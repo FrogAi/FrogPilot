@@ -10,11 +10,14 @@ from pathlib import Path
 
 import openpilot.system.sentry as sentry
 
+from openpilot.system.hardware import HARDWARE
+
 running_threads = {}
 
 locks = {
   "backup_toggles": threading.Lock(),
   "update_checks": threading.Lock(),
+  "update_openpilot": threading.Lock(),
 }
 
 
@@ -115,3 +118,42 @@ def run_cmd(cmd, success_message, fail_message, report=True, env=None):
 def update_json_file(path, data):
   with open(path, "w") as file:
     json.dump(data, file, indent=2, sort_keys=True)
+
+
+def update_openpilot(params, params_memory):
+  def update_available():
+    run_cmd(["pkill", "-SIGUSR1", "-f", "system.updated.updated"], "Updater check signal sent", "Failed to send updater check signal", report=False)
+
+    while params.get("UpdaterState") != "checking...":
+      time.sleep(1)
+
+    while params.get("UpdaterState") == "checking...":
+      time.sleep(1)
+
+    if not params.get_bool("UpdaterFetchAvailable"):
+      return False
+
+    while params.get("UpdaterState") != "idle":
+      time.sleep(60)
+
+    run_cmd(["pkill", "-SIGHUP", "-f", "system.updated.updated"], "Updater refresh signal sent", "Failed to send updater refresh signal", report=False)
+
+    while not params.get_bool("UpdateAvailable"):
+      time.sleep(60)
+
+    return True
+
+  if params.get("UpdaterState") != "idle":
+    return
+
+  while params.get_bool("IsOnroad") or params_memory.get_bool("UpdateSpeedLimits") or running_threads.get("lock_doors", threading.Thread()).is_alive():
+    time.sleep(60)
+
+  if not update_available():
+    return
+
+  while True:
+    if not update_available():
+      break
+
+  HARDWARE.reboot()
