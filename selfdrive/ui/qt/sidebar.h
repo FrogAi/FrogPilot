@@ -4,6 +4,7 @@
 
 #include <QFrame>
 #include <QMap>
+#include <QMovie>
 
 #include "selfdrive/ui/ui.h"
 #include "selfdrive/ui/qt/network/networking.h"
@@ -20,6 +21,11 @@ class Sidebar : public QFrame {
   Q_PROPERTY(int netStrength MEMBER net_strength NOTIFY valueChanged);
   Q_PROPERTY(bool recordingAudio MEMBER recording_audio NOTIFY valueChanged);
 
+  // FrogPilot properties
+  Q_PROPERTY(ItemStatus chipStatus MEMBER chip_status NOTIFY valueChanged)
+  Q_PROPERTY(ItemStatus memoryStatus MEMBER memory_status NOTIFY valueChanged)
+  Q_PROPERTY(ItemStatus storageStatus MEMBER storage_status NOTIFY valueChanged)
+
 public:
   explicit Sidebar(QWidget* parent = 0);
 
@@ -29,7 +35,7 @@ signals:
 
 public slots:
   void offroadTransition(bool offroad);
-  void updateState(const UIState &s);
+  void updateState(const UIState &s, const FrogPilotUIState &fs);
 
 protected:
   void paintEvent(QPaintEvent *event) override;
@@ -60,7 +66,34 @@ protected:
   QString net_type;
   int net_strength = 0;
 
+  // FrogPilot variables
+  ItemStatus chip_status, memory_status, storage_status;
+
 private:
   std::unique_ptr<PubMaster> pm;
   Networking *networking = nullptr;
+
+  // FrogPilot variables
+  void showEvent(QShowEvent *event);
+  void updateTheme();
+
+  bool isCPU;
+  bool isDeveloperUI;
+  bool isFahrenheit;
+  bool isGPU;
+  bool isIP;
+  bool isMemoryUsage;
+  bool isNumericalTemp;
+  bool isStorageLeft;
+  bool isStorageUsed;
+
+  Params params;
+
+  QColor sidebar_color1;
+  QColor sidebar_color2;
+  QColor sidebar_color3;
+
+  QSharedPointer<QMovie> flag_gif;
+  QSharedPointer<QMovie> home_gif;
+  QSharedPointer<QMovie> settings_gif;
 };

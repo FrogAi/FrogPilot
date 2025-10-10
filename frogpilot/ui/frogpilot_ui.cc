@@ -10,6 +10,7 @@ static void update_state(FrogPilotUIState *fs) {
     const cereal::CarState::Reader &carState = sm["carState"].getCarState();
     frogpilot_scene.parked = carState.getGearShifter() == cereal::CarState::GearShifter::PARK;
     frogpilot_scene.reverse = carState.getGearShifter() == cereal::CarState::GearShifter::REVERSE;
+    frogpilot_scene.standstill = carState.getStandstill() && !frogpilot_scene.reverse;
   }
   if (sm.updated("deviceState")) {
     const cereal::DeviceState::Reader &deviceState = sm["deviceState"].getDeviceState();
@@ -29,6 +30,8 @@ static void update_state(FrogPilotUIState *fs) {
 
       update_theme(fs);
       emit fs->themeUpdated();
+
+      fs->params_memory.remove("UseActiveTheme");
     }
     if (frogpilotPlan.getTogglesUpdated()) {
       frogpilot_scene.frogpilot_toggles = QJsonDocument::fromJson(fs->params_memory.get("FrogPilotToggles").c_str()).object();

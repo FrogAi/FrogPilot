@@ -15,15 +15,6 @@ bool FrogPilotConfirmationDialog::yesorno(const QString &prompt_text, QWidget *p
 bool useKonikServer() {
   static bool use_konik = QFile::exists("/cache/use_konik");
   return use_konik;
-
-void openDescriptions(bool forceOpenDescriptions, std::map<QString, AbstractControl*> toggles) {
-  if (forceOpenDescriptions) {
-    for (auto &[key, toggle] : toggles) {
-      if (key != "CESpeed") {
-        toggle->showDescription();
-      }
-    }
-  }
 }
 
 void loadGif(const QString &gifPath, QSharedPointer<QMovie> &movie, const QSize &size, QWidget *parent) {
@@ -69,9 +60,49 @@ void loadImage(const QString &basePath, QPixmap &pixmap, QSharedPointer<QMovie> 
   }
 }
 
+void openDescriptions(bool forceOpenDescriptions, std::map<QString, AbstractControl*> toggles) {
+  if (forceOpenDescriptions) {
+    for (auto &[key, toggle] : toggles) {
+      if (key != "CESpeed") {
+        toggle->showDescription();
+      }
+    }
+  }
+}
+
 void updateFrogPilotToggles() {
   static Params params_memory{"/dev/shm/params"};
   params_memory.putBool("FrogPilotTogglesUpdated", true);
+}
+
+QColor loadThemeColors(const QString &colorKey, bool clearCache) {
+  static QJsonObject cachedColorData;
+
+  if (clearCache) {
+    QFile file("../../frogpilot/assets/active_theme/colors/colors.json");
+    if (file.open(QIODevice::ReadOnly)) {
+      cachedColorData = QJsonDocument::fromJson(file.readAll()).object();
+    } else {
+      cachedColorData = QJsonObject();
+      return QColor();
+    }
+
+    if (colorKey.isEmpty()) {
+      return QColor(255, 255, 255);
+    }
+  }
+
+  if (cachedColorData.isEmpty()) {
+    return QColor();
+  }
+
+  const QJsonObject colorObj = cachedColorData[colorKey].toObject();
+  return QColor(
+    colorObj.value("red").toInt(255),
+    colorObj.value("green").toInt(255),
+    colorObj.value("blue").toInt(255),
+    colorObj.value("alpha").toInt(255)
+  );
 }
 
 QString processModelName(const QString &modelName) {

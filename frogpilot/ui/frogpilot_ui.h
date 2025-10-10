@@ -7,12 +7,16 @@
 struct FrogPilotUIScene {
   bool always_on_lateral_active;
   bool downloading_update;
+  bool enabled;
   bool frogpilot_panel_active;
   bool online;
   bool parked;
   bool reverse;
+  bool sidebars_open;
+  bool standstill;
   bool traffic_mode_enabled;
   bool use_stock_colors;
+  bool wake_up_screen;
 
   float lane_width_left;
   float lane_width_right;
@@ -20,6 +24,7 @@ struct FrogPilotUIScene {
   int conditional_status;
   int driver_camera_timer;
   int model_length;
+  int started_timer;
 
   QColor lane_lines_color;
   QColor lead_marker_color;
@@ -28,6 +33,13 @@ struct FrogPilotUIScene {
   QColor sidebar_color1;
   QColor sidebar_color2;
   QColor sidebar_color3;
+
+  QJsonObject frogpilot_toggles;
+
+  QPointF lead_vertices[2];
+
+  QPolygonF track_adjacent_vertices[2];
+  QPolygonF track_edge_vertices;
 };
 
 class FrogPilotUIState : public QObject {
@@ -47,6 +59,10 @@ public:
   QJsonObject &frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
 
   WifiManager *wifi;
+
+signals:
+  void reviewModel();
+  void themeUpdated();
 };
 
 FrogPilotUIState *frogpilotUIState();
