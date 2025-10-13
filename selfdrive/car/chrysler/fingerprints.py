@@ -208,6 +208,7 @@ FW_VERSIONS = {
   },
   CAR.CHRYSLER_PACIFICA_2019_HYBRID: {
     (Ecu.combinationMeter, 0x742, None): [
+      b'68358439AE',
       b'68405292AC',
       b'68434956AC',
       b'68434956AD',
