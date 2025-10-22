@@ -43,6 +43,7 @@ bool subaru_pg_reversed_driver_torque = false;
 const uint16_t SUBARU_L_PARAM_SNG = 1024;
 bool subaru_l_sng = false;
 
+
 static void subaru_preglobal_rx_hook(const CANPacket_t *to_push) {
   const int bus = GET_BUS(to_push);
 
