@@ -11,6 +11,7 @@ from cereal import car, log
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
 from openpilot.selfdrive.car.gm.values import GMFlags
+from openpilot.selfdrive.car.subaru.values import GLOBAL_GEN2, HYBRID_CARS
 from openpilot.selfdrive.controls.lib.desire_helper import LANE_CHANGE_SPEED_MIN
 from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.system.hardware.power_monitoring import VBATT_PAUSE_CHARGING
@@ -329,7 +330,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int]] = [
   ("SteerRatio", "0", 3),
   ("SteerRatioStock", "0", 3),
   ("StoppedTimer", "0", 1),
-  ("SubaruManualParkingBrakeSNG", "0", 2),
+  ("SubaruSNG", "0", 2),
   ("TacoTune", "0", 2),
   ("TetheringEnabled", "0", 0),
   ("ToyotaDoors", "1", 0),
@@ -740,8 +741,6 @@ class FrogPilotVariables:
 
     toggle.sng_hack = openpilot_longitudinal and car_make == "toyota" and not has_pedal and (params.get_bool("SNGHack") if tuning_level >= level["SNGHack"] else default.get_bool("SNGHack"))
 
-    toggle.subaru_manual_parking_brake_sng = toggle.car_make == "subaru" and (params.get_bool("SubaruManualParkingBrakeSNG") if tuning_level >= level["SubaruManualParkingBrakeSNG"] else default.get_bool("SubaruManualParkingBrakeSNG"))
-
     toggle.speed_limit_controller = openpilot_longitudinal and (params.get_bool("SpeedLimitController") if tuning_level >= level["SpeedLimitController"] else default.get_bool("SpeedLimitController"))
     toggle.force_mph_dashboard = toggle.speed_limit_controller and (params.get_bool("ForceMPHDashboard") if tuning_level >= level["ForceMPHDashboard"] else default.get_bool("ForceMPHDashboard"))
     toggle.map_speed_lookahead_higher = params.get_int("SLCLookaheadHigher") if toggle.speed_limit_controller and tuning_level >= level["SLCLookaheadHigher"] else default.get_int("SLCLookaheadHigher")
@@ -771,6 +770,8 @@ class FrogPilotVariables:
 
     toggle.startup_alert_top = params.get("StartupMessageTop", encoding="utf-8") if tuning_level >= level["StartupMessageTop"] else default.get("StartupMessageTop", encoding="utf-8")
     toggle.startup_alert_bottom = params.get("StartupMessageBottom", encoding="utf-8") if tuning_level >= level["StartupMessageBottom"] else default.get("StartupMessageBottom", encoding="utf-8")
+
+    toggle.subaru_sng = toggle.car_make == "subaru" and toggle.car_model not in (GLOBAL_GEN2 | HYBRID_CARS) and (params.get_bool("SubaruSNG") if tuning_level >= level["SubaruSNG"] else default.get_bool("SubaruSNG"))
 
     toggle.tethering_config = params.get_int("TetheringEnabled")
 
