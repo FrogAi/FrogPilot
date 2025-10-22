@@ -72,12 +72,9 @@ class SubaruFlags(IntFlag):
   LKAS_ANGLE = 64
 
 
-class SubaruFlagsFP(IntFlag):
-  FP_SUBARU_SNG = 1
-
-
 GLOBAL_ES_ADDR = 0x787
 GEN2_ES_BUTTONS_DID = b'\x11\x30'
+
 
 class CanBus:
   main = 0
@@ -213,6 +210,7 @@ class CAR(Platforms):
     SUBARU_ASCENT.specs,
     flags=SubaruFlags.LKAS_ANGLE,
   )
+
 
 GLOBAL_GEN2 = {CAR.SUBARU_OUTBACK, CAR.SUBARU_OUTBACK_2023, CAR.SUBARU_LEGACY, CAR.SUBARU_ASCENT_2023}
 HYBRID_CARS = {CAR.SUBARU_CROSSTREK_HYBRID, CAR.SUBARU_FORESTER_HYBRID}
