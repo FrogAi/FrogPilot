@@ -22,8 +22,6 @@ class CarController(CarControllerBase):
     self.cruise_button_prev = 0
     self.steer_rate_counter = 0
 
-    self.params = Params()
-
     self.p = CarControllerParams(CP)
     self.packer = CANPacker(DBC[CP.carFingerprint]['pt'])
 
