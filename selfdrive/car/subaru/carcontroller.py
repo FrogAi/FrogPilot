@@ -172,38 +172,38 @@ class CarController(CarControllerBase):
     if self.CP.carFingerprint in PREGLOBAL_CARS:
       should_trigger_resume = CC.enabled
       should_trigger_resume &= CS.car_follow == 1
+      should_trigger_resume &= CS.close_distance > self.prev_close_distance
       should_trigger_resume &= CS.out.standstill
       should_trigger_resume &= _SNG_ACC_MIN_DIST < CS.close_distance < _SNG_ACC_MAX_DIST
-      should_trigger_resume &= CS.close_distance > self.prev_close_distance
-  
+
       if should_trigger_resume:
         self.sng_acc_resume = True
-  
     elif self.CP.carFingerprint not in (GLOBAL_GEN2 | HYBRID_CARS):
       if CS.out.standstill and self.prev_cruise_state == 1 and CS.cruise_state == 3 and CS.car_follow == 0:
         self.manual_hold = True
-  
+
       if not CS.out.standstill:
         self.manual_hold = False
-  
+
       should_trigger_resume = CC.enabled
-      should_trigger_resume &= not self.manual_hold
       should_trigger_resume &= CS.car_follow == 1
-      should_trigger_resume &= CS.cruise_state == 3
-      should_trigger_resume &= _SNG_ACC_MIN_DIST < CS.close_distance < _SNG_ACC_MAX_DIST
       should_trigger_resume &= CS.close_distance > self.prev_close_distance
-  
+      should_trigger_resume &= CS.cruise_state == 3
+      should_trigger_resume &= not self.manual_hold
+      should_trigger_resume &= _SNG_ACC_MIN_DIST < CS.close_distance < _SNG_ACC_MAX_DIST
+
       if should_trigger_resume:
         self.sng_acc_resume = True
-  
+
       if CC.enabled and CS.car_follow == 1 and CS.out.standstill and self.frame > self.standstill_start + 50:
         speed_cmd = True
-  
+
       if CS.out.standstill and not self.prev_standstill:
         self.standstill_start = self.frame
+
       self.prev_standstill = CS.out.standstill
       self.prev_cruise_state = CS.cruise_state
-  
+
     if self.sng_acc_resume:
       if self.sng_acc_resume_cnt < 5:
         throttle_cmd = True
@@ -211,6 +211,6 @@ class CarController(CarControllerBase):
       else:
         self.sng_acc_resume = False
         self.sng_acc_resume_cnt = -1
-  
+
     self.prev_close_distance = CS.close_distance
     return throttle_cmd, speed_cmd
