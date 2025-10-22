@@ -3,7 +3,7 @@ from opendbc.can.packer import CANPacker
 from openpilot.selfdrive.car import apply_driver_steer_torque_limits, common_fault_avoidance
 from openpilot.selfdrive.car.interfaces import CarControllerBase
 from openpilot.selfdrive.car.subaru import subarucan
-from openpilot.selfdrive.car.subaru.values import DBC, GLOBAL_ES_ADDR, GLOBAL_GEN2, PREGLOBAL_CARS, HYBRID_CARS, CanBus, CarControllerParams, SubaruFlags, SubaruFrogPilotFlags
+from openpilot.selfdrive.car.subaru.values import DBC, GLOBAL_ES_ADDR, GLOBAL_GEN2, HYBRID_CARS, PREGLOBAL_CARS, CanBus, CarControllerParams, SubaruFlags, SubaruFrogPilotFlags
 
 # FIXME: These limits aren't exact. The real limit is more than likely over a larger time period and
 # involves the total steering angle change rather than rate, but these limits work well for now
@@ -168,34 +168,32 @@ class CarController(CarControllerBase):
 
   # Stop and Go auto-resume thanks to martinl from subaru-community for the original implementation
   # and sunnyhaibin for improving upon that and maintaining it in SunnyPilot, which this was ported from.
-  def stop_and_go(self, CC, CS, throttle_cmd=False, speed_cmd=False):
-    if self.CP.carFingerprint in PREGLOBAL_CARS:
-      # Initiate the ACC resume sequence if conditions are met
-      if (CC.enabled                                          # ACC active
-        and CS.car_follow == 1                                # lead car
-        and CS.out.standstill                                 # must be standing still
-        and CS.close_distance > _SNG_ACC_MIN_DIST             # acc resume trigger low threshold
-        and CS.close_distance < _SNG_ACC_MAX_DIST             # acc resume trigger high threshold
-        and CS.close_distance > self.prev_close_distance):    # distance with lead car is increasing
-        self.sng_acc_resume = True
-    elif self.CP.carFingerprint not in (GLOBAL_GEN2 | HYBRID_CARS):
-      # Send brake message with non-zero speed in standstill to avoid non-EPB ACC disengage
-      if (CC.enabled                                        # ACC active
-        and CS.car_follow == 1                              # lead car
-        and CS.out.standstill
-        and self.frame > self.standstill_start + 50):       # standstill for >0.5 second
-        speed_cmd = True
-      if CS.out.standstill and not self.prev_standstill:
-        self.standstill_start = self.frame
-      self.prev_standstill = CS.out.standstill
-      self.prev_cruise_state = CS.cruise_state
-    if self.sng_acc_resume:
-      if self.sng_acc_resume_cnt < 5:
-        throttle_cmd = True
-        self.sng_acc_resume_cnt += 1
-      else:
-        self.sng_acc_resume = False
-        self.sng_acc_resume_cnt = -1
+def stop_and_go(self, CC, CS, throttle_cmd=False, speed_cmd=False):
+  if self.CP.carFingerprint in PREGLOBAL_CARS:
+    should_trigger_resume = CC.enabled
+    should_trigger_resume &= CS.car_follow == 1
+    should_trigger_resume &= CS.out.standstill
+    should_trigger_resume &= _SNG_ACC_MIN_DIST < CS.close_distance < _SNG_ACC_MAX_DIST
+    should_trigger_resume &= CS.close_distance > self.prev_close_distance
+
+    if should_trigger_resume:
+      self.sng_acc_resume = True
+  elif self.CP.carFingerprint not in (GLOBAL_GEN2 | HYBRID_CARS):
+    if CC.enabled and CS.car_follow == 1 and CS.out.standstill and self.frame > self.standstill_start + 50:
+      speed_cmd = True
+    if CS.out.standstill and not self.prev_standstill:
+      self.standstill_start = self.frame
+    self.prev_standstill = CS.out.standstill
+    self.prev_cruise_state = CS.cruise_state
+  if self.sng_acc_resume:
+    if self.sng_acc_resume_cnt < 5:
+      throttle_cmd = True
+      self.sng_acc_resume_cnt += 1
+    else:
+      self.sng_acc_resume = False
+      self.sng_acc_resume_cnt = -1
+  self.prev_close_distance = CS.close_distance
+  return throttle_cmd, speed_cmd
     self.prev_close_distance = CS.close_distance
 
     return throttle_cmd, speed_cmd
