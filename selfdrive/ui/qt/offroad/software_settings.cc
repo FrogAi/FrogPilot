@@ -67,9 +67,9 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
           branches.removeAt(i);
         }
       }
+      branches.removeAll("FrogPilot-Vetting");
+      branches.removeAll("MAKE-PRS-HERE");
     }
-    branches.removeAll("FrogPilot-Vetting");
-    branches.removeAll("MAKE-PRS-HERE");
     for (QString b : {current.c_str(), "devel-staging", "devel", "nightly", "master-ci", "master"}) {
       auto i = branches.indexOf(b);
       if (i >= 0) {
@@ -172,7 +172,18 @@ void SoftwarePanel::updateLabels() {
   bool failed = std::atoi(params.get("UpdateFailedCount").c_str()) > 0;
   if (updater_state != "idle") {
     downloadBtn->setEnabled(false);
-    downloadBtn->setValue(updater_state);
+    QString stateText = updater_state;
+    if (updater_state == "downloading...") {
+      stateText = tr("downloading…");
+    } else if (updater_state == "checking...") {
+      stateText = tr("checking…");
+    } else if (updater_state == "waiting for vehicle to go offroad...") {
+      stateText = tr("waiting for vehicle to go offroad...");
+    } else if (updater_state == "finalizing update...") {
+      stateText = tr("finalizing update...");
+    }
+
+    downloadBtn->setValue(stateText);
     frogpilot_scene.downloading_update = true;
   } else {
     frogpilot_scene.downloading_update = false;

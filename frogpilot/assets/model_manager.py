@@ -12,7 +12,10 @@ from urllib.parse import quote_plus
 from openpilot.common.basedir import BASEDIR
 from openpilot.frogpilot.assets.download_functions import GITLAB_URL, download_file, get_remote_file_size, get_repository_url, handle_error, handle_request_error, verify_download
 from openpilot.frogpilot.common.frogpilot_utilities import delete_file, extract_tar, load_json_file, update_json_file
-from openpilot.frogpilot.common.frogpilot_variables import DEFAULT_MODEL, MODELS_PATH, RESOURCES_REPO, TINYGRAD_FILES, params, params_default, params_memory, update_frogpilot_toggles
+from openpilot.frogpilot.common.frogpilot_variables import (
+  DEFAULT_MODEL, DEFAULT_MODEL_NAME, DEFAULT_MODEL_VERSION, MODELS_PATH, RESOURCES_REPO, TINYGRAD_FILES,
+  params, params_default, params_memory, update_frogpilot_toggles
+)
 
 VERSION = "v16"
 VERSION_PATH = MODELS_PATH / "model_version"
@@ -528,3 +531,13 @@ class ModelManager:
 
     VERSION_PATH.write_text(VERSION)
     print(f"Updated {VERSION_PATH} to {VERSION}")
+
+    if len(self.available_models) != len(self.available_model_names) or len(self.available_models) != len(self.model_versions):
+      print("Model lists are out of sync. Resetting parameters...")
+      self.available_models = DEFAULT_MODEL
+      self.available_model_names = DEFAULT_MODEL_NAME
+      self.model_versions = DEFAULT_MODEL_VERSION
+
+      params.put("AvailableModels", self.available_models)
+      params.put("AvailableModelNames", self.available_model_names)
+      params.put("ModelVersions", self.model_versions)

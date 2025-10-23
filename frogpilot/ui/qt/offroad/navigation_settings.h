@@ -31,8 +31,8 @@ private:
 
   ButtonControl *amapKeyControl1;
   ButtonControl *amapKeyControl2;
-  ButtonControl *publicMapboxKeyControl;
-  ButtonControl *secretMapboxKeyControl;
+  FrogPilotButtonsControl *publicMapboxKeyControl;
+  FrogPilotButtonsControl *secretMapboxKeyControl;
   ButtonControl *setupButton;
 
   FrogPilotButtonControl *updateSpeedLimitsToggle;
@@ -48,6 +48,8 @@ private:
   Params params_memory{"/dev/shm/params"};
 
   QLabel *imageLabel;
+
+  QNetworkAccessManager *networkManager;
 
   QStackedLayout *primelessLayout;
 };

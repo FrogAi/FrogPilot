@@ -63,7 +63,7 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent) : FrogPi
   QObject::connect(removeMapsButton, &ButtonControl::clicked, [this] {
     if (FrogPilotConfirmationDialog::yesorno(tr("Delete all downloaded maps?"), this)) {
       std::thread([this] {
-        mapsSize->setText("0 MB");
+        mapsSize->setText(tr("0 MB"));
 
         mapsFolderPath.removeRecursively();
       }).detach();
@@ -181,7 +181,7 @@ void FrogPilotMapsPanel::showEvent(QShowEvent *event) {
   std::string osmDownloadProgress = params.get("OSMDownloadProgress");
   if (!osmDownloadProgress.empty()) {
     downloadMapsButton->setText(tr("CANCEL"));
-    downloadStatus->setText("Calculating...");
+    downloadStatus->setText(tr("Calculating..."));
 
     downloadStatus->setVisible(true);
 
@@ -192,7 +192,7 @@ void FrogPilotMapsPanel::showEvent(QShowEvent *event) {
     updateDownloadLabels(osmDownloadProgress);
   } else {
     downloadMapsButton->setEnabled(!cancellingDownload && hasMapsSelected && fs.frogpilot_scene.online && parked);
-    downloadMapsButton->setValue(fs.frogpilot_scene.online ? (parked ? "" : "Not parked") : tr("Offline..."));
+    downloadMapsButton->setValue(fs.frogpilot_scene.online ? (parked ? "" : tr("Not parked")) : tr("Offline..."));
   }
 }
 
@@ -209,7 +209,7 @@ void FrogPilotMapsPanel::updateState(const UIState &s, const FrogPilotUIState &f
     updateDownloadLabels(osmDownloadProgress);
   } else {
     downloadMapsButton->setEnabled(!cancellingDownload && hasMapsSelected && fs.frogpilot_scene.online && parked);
-    downloadMapsButton->setValue(fs.frogpilot_scene.online ? (parked ? "" : "Not parked") : tr("Offline..."));
+    downloadMapsButton->setValue(fs.frogpilot_scene.online ? (parked ? "" : tr("Not parked")) : tr("Offline..."));
   }
 
   parent->keepScreenOn = !osmDownloadProgress.empty();
@@ -220,10 +220,10 @@ void FrogPilotMapsPanel::cancelDownload() {
 
   downloadMapsButton->setEnabled(false);
 
-  downloadETA->setText("Cancelling...");
-  downloadMapsButton->setText(tr("CANCELLED"));
-  downloadStatus->setText("Cancelling...");
-  downloadTimeElapsed->setText("Cancelling...");
+  downloadETA->setText(tr("Calculating..."));
+  downloadMapsButton->setText(tr("CANCEL"));
+  downloadStatus->setText(tr("Calculating..."));
+  downloadTimeElapsed->setText(tr("Calculating..."));
 
   params.remove("OSMDownloadProgress");
   params_memory.remove("OSMDownloadLocations");
@@ -250,10 +250,10 @@ void FrogPilotMapsPanel::cancelDownload() {
 }
 
 void FrogPilotMapsPanel::startDownload() {
-  downloadETA->setText("Calculating...");
+  downloadETA->setText(tr("Calculating..."));
   downloadMapsButton->setText(tr("CANCEL"));
-  downloadStatus->setText("Calculating...");
-  downloadTimeElapsed->setText("Calculating...");
+  downloadStatus->setText(tr("Calculating..."));
+  downloadTimeElapsed->setText(tr("Calculating..."));
 
   downloadETA->setVisible(true);
   downloadStatus->setVisible(true);

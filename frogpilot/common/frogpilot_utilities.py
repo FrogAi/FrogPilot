@@ -216,6 +216,8 @@ def is_url_pingable(url):
     if response.status_code in (405, 501):
       response = requests.get(url, headers=headers, timeout=10, allow_redirects=True, stream=True)
     return response.ok
+  except (requests.exceptions.ConnectionError, requests.exceptions.SSLError):
+    return False
   except requests.exceptions.RequestException as error:
     print(f"{error.__class__.__name__} while pinging {url}: {error}")
     return False
@@ -337,11 +339,11 @@ def update_openpilot():
   if params.get("UpdaterState", encoding="utf-8") != "idle":
     return
 
-  while params.get_bool("IsOnroad") or params_memory.get_bool("UpdateSpeedLimits") or running_threads.get("lock_doors", threading.Thread()).is_alive():
-    time.sleep(60)
-
   if not update_available():
     return
+
+  while params.get_bool("IsOnroad") or params_memory.get_bool("UpdateSpeedLimits") or running_threads.get("lock_doors", threading.Thread()).is_alive():
+    time.sleep(60)
 
   while True:
     if not update_available():

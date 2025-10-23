@@ -3,12 +3,12 @@ name: Update MAKE-PRS-HERE
 on:
   push:
     branches:
-      - FrogPilot-Staging
+      - FrogPilot-Testing
 
 env:
   GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-  SOURCE_BRANCH: FrogPilot-Staging
+  SOURCE_BRANCH: FrogPilot-Testing
   TARGET_BRANCH: MAKE-PRS-HERE
 
 jobs:

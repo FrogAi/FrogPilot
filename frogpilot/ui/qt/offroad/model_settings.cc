@@ -151,7 +151,7 @@ FrogPilotModelPanel::FrogPilotModelPanel(FrogPilotSettingsWindow *parent) : Frog
 
               downloadModelButton->setText(0, tr("CANCEL"));
 
-              downloadModelButton->setValue("Downloading...");
+              downloadModelButton->setValue(tr("Downloading..."));
 
               downloadModelButton->setVisibleButton(1, false);
 
@@ -169,7 +169,7 @@ FrogPilotModelPanel::FrogPilotModelPanel(FrogPilotSettingsWindow *parent) : Frog
 
             downloadModelButton->setText(1, tr("CANCEL"));
 
-            downloadModelButton->setValue("Downloading...");
+            downloadModelButton->setValue(tr("Downloading..."));
 
             downloadModelButton->setVisibleButton(0, false);
 
@@ -346,7 +346,7 @@ FrogPilotModelPanel::FrogPilotModelPanel(FrogPilotSettingsWindow *parent) : Frog
         params_memory.putBool("DownloadAllModels", true);
         params_memory.put("ModelDownloadProgress", "Downloading...");
 
-        downloadModelButton->setValue("Downloading...");
+        downloadModelButton->setValue(tr("Downloading..."));
 
         allModelsDownloading = true;
       }
@@ -422,7 +422,7 @@ void FrogPilotModelPanel::showEvent(QShowEvent *event) {
   downloadModelButton->setEnabledButtons(0, !allModelsDownloaded && !allModelsDownloading && !cancellingDownload && !updatingTinygrad && fs.frogpilot_scene.online && parked);
   downloadModelButton->setEnabledButtons(1, !allModelsDownloaded && !modelDownloading && !cancellingDownload && !updatingTinygrad && fs.frogpilot_scene.online && parked);
 
-  downloadModelButton->setValue(fs.frogpilot_scene.online ? (parked ? "" : "Not parked") : tr("Offline..."));
+  downloadModelButton->setValue(fs.frogpilot_scene.online ? (parked ? "" : tr("Not parked")) : tr("Offline..."));
 
   updateTinygradButton->setEnabled(!modelDownloading && !cancellingDownload && fs.frogpilot_scene.online && parked && tinygradUpdate);
   updateTinygradButton->setValue(tinygradUpdate ? tr("Update available!") : tr("Up to date!"));
@@ -443,8 +443,26 @@ void FrogPilotModelPanel::updateState(const UIState &s, const FrogPilotUIState &
     QString progress = QString::fromStdString(params_memory.get("ModelDownloadProgress"));
     bool downloadFailed = progress.contains(QRegularExpression("cancelled|exists|failed|missing|offline", QRegularExpression::CaseInsensitiveOption));
 
-    if (progress != "Downloading...") {
-      downloadModelButton->setValue(progress);
+     {
+      QString translatedProgress;
+      if (progress == "Downloading...") {
+        translatedProgress = tr("Downloading...");
+      } else if (progress == "Downloaded!") {
+        translatedProgress = tr("Downloaded!");
+      } else if (progress == "All models downloaded!") {
+        translatedProgress = tr("All models downloaded!");
+      } else if (progress.contains("cancelled", Qt::CaseInsensitive)) {
+        translatedProgress = tr("Download cancelled...");
+      } else if (progress.contains("failed", Qt::CaseInsensitive)) {
+        translatedProgress = tr("Download failed...");
+      } else if (progress.contains("offline", Qt::CaseInsensitive)) {
+        translatedProgress = tr("GitHub and GitLab are offline...");
+      } else if (progress == "Repository unavailable") {
+        translatedProgress = tr("Repository unavailable");
+      } else {
+        translatedProgress = progress;
+      }
+      downloadModelButton->setValue(translatedProgress);
     }
 
     if (progress == "All models downloaded!" || progress == "Downloaded!" && !allModelsDownloading || downloadFailed) {
@@ -473,15 +491,33 @@ void FrogPilotModelPanel::updateState(const UIState &s, const FrogPilotUIState &
       });
     }
   } else {
-    downloadModelButton->setValue(fs.frogpilot_scene.online ? (parked ? "" : "Not parked") : tr("Offline..."));
+    downloadModelButton->setValue(fs.frogpilot_scene.online ? (parked ? "" : tr("Not parked")) : tr("Offline..."));
   }
 
   if (updatingTinygrad) {
     QString progress = QString::fromStdString(params_memory.get("ModelDownloadProgress"));
     bool downloadFailed = progress.contains(QRegularExpression("cancelled|exists|failed|missing|offline", QRegularExpression::CaseInsensitiveOption));
 
-    if (progress != "Downloading...") {
-      updateTinygradButton->setValue(progress);
+    {
+      QString translatedProgress;
+      if (progress == "Downloading...") {
+        translatedProgress = tr("Downloading...");
+      } else if (progress == "Downloaded!") {
+        translatedProgress = tr("Downloaded!");
+      } else if (progress == "All models downloaded!") {
+        translatedProgress = tr("All models downloaded!");
+      } else if (progress.contains("cancelled", Qt::CaseInsensitive)) {
+        translatedProgress = tr("Download cancelled...");
+      } else if (progress.contains("failed", Qt::CaseInsensitive)) {
+        translatedProgress = tr("Download failed...");
+      } else if (progress.contains("offline", Qt::CaseInsensitive)) {
+        translatedProgress = tr("GitHub and GitLab are offline...");
+      } else if (progress == "Repository unavailable") {
+        translatedProgress = tr("Repository unavailable");
+      } else {
+        translatedProgress = progress;
+      }
+      updateTinygradButton->setValue(translatedProgress);
     }
 
     if (progress == "Updated!" && updatingTinygrad || downloadFailed) {
@@ -493,7 +529,7 @@ void FrogPilotModelPanel::updateState(const UIState &s, const FrogPilotUIState &
         if (modelDownloading) {
           downloadModelButton->setText(1, tr("CANCEL"));
 
-          downloadModelButton->setValue("Downloading...");
+          downloadModelButton->setValue(tr("Downloading..."));
 
           downloadModelButton->setVisibleButton(0, false);
         } else {

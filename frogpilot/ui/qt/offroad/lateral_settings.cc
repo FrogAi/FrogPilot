@@ -408,8 +408,7 @@ void FrogPilotLateralPanel::updateToggles() {
 
     else if (key == "SteerKP") {
       setVisible &= parent->steerKp != 0;
-      setVisible &= parent->hasAutoTune ? forcingAutoTuneOff : !forcingAutoTune;
-      setVisible &= parent->isTorqueCar || forcingTorqueController;
+      setVisible &= !parent->isAngleCar;
     }
 
     else if (key == "SteerLatAccel") {

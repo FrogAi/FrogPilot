@@ -14,11 +14,12 @@ from openpilot.common.numpy_fast import interp
 from openpilot.common.params import Params
 from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N
 from openpilot.selfdrive.controls.lib.latcontrol import LatControl
+from openpilot.selfdrive.controls.lib.latcontrol_torque import KD, KI, KP
 from openpilot.selfdrive.controls.lib.pid import PIDController
 from openpilot.selfdrive.controls.lib.vehicle_model import ACCELERATION_DUE_TO_GRAVITY
 from openpilot.selfdrive.modeld.constants import ModelConstants
 
-from openpilot.frogpilot.common.frogpilot_variables import NNFF_MODELS_PATH, get_nnff_model_files
+from openpilot.frogpilot.common.frogpilot_variables import NNFF_MODELS_PATH, get_nnff_model_files, get_nnff_substitutes
 
 # At higher speeds (25+mph) we can assume:
 # Lateral acceleration achieved by a specific car correlates to
@@ -32,7 +33,7 @@ from openpilot.frogpilot.common.frogpilot_variables import NNFF_MODELS_PATH, get
 # move it at all, this is compensated for too.
 
 # dict used to rename activation functions whose names aren't valid python identifiers
-ACTIVATION_FUNCTION_NAMES = {'σ': 'sigmoid'}
+ACTIVATION_FUNCTION_NAMES = {"σ": "sigmoid"}
 
 LOW_SPEED_X = [0, 10, 20, 30]
 LOW_SPEED_Y = [12, 3, 1, 0]
@@ -52,8 +53,8 @@ class FluxModel:
 
     self.layers = []
     for layer_params in params["layers"]:
-      bias_array = np.array(layer_params[next(key for key in layer_params.keys() if key.endswith('_b'))], dtype=np.float32).T
-      weight_array = np.array(layer_params[next(key for key in layer_params.keys() if key.endswith('_W'))], dtype=np.float32).T
+      bias_array = np.array(layer_params[next(key for key in layer_params.keys() if key.endswith("_b"))], dtype=np.float32).T
+      weight_array = np.array(layer_params[next(key for key in layer_params.keys() if key.endswith("_W"))], dtype=np.float32).T
 
       activation = layer_params["activation"]
       for name, replacement in ACTIVATION_FUNCTION_NAMES.items():
@@ -126,15 +127,27 @@ def get_nn_model_path(car, eps_firmware) -> str | None:
     best = max(candidates, key=lambda model: similarity(model, query))
     return os.path.join(NNFF_MODELS_PATH, f"{best}.json"), similarity(best, query)
 
-  def find_valid_model(*queries):
-    for query in queries:
+  def find_valid_model(*queries_with_candidates):
+    for query, candidate in queries_with_candidates:
       path, score = best_model_path(query)
-      if path and car in path and score >= 0.9:
+      if path and candidate in path and score >= 0.9:
         return path
     return None
 
-  query1 = f"{car} {eps_firmware}" if len(eps_firmware) > 3 else car
-  return find_valid_model(query1, car)
+  substitutes = get_nnff_substitutes()
+  sub_candidate = substitutes.get(car, car)
+
+  candidates_to_check = [car]
+  if car != sub_candidate:
+    candidates_to_check.append(sub_candidate)
+
+  queries = []
+  for candidate in candidates_to_check:
+    query_with_fw = f"{candidate} {eps_firmware}" if len(eps_firmware) > 3 else candidate
+    queries.append((query_with_fw, candidate))
+    queries.append((candidate, candidate))
+
+  return find_valid_model(*queries)
 
 def get_predicted_lateral_jerk(lat_accels, t_diffs):
   # compute finite difference between subsequent model_data.acceleration.y values
@@ -162,8 +175,8 @@ class LatControlNNFF(LatControl):
     self.nnff_loaded = self.lat_torque_nn_model is not None
 
     self.torque_params = CP.lateralTuning.torque
-    self.pid = PIDController(self.torque_params.kp, self.torque_params.ki,
-                             k_f=self.torque_params.kf, pos_limit=self.steer_max, neg_limit=-self.steer_max)
+    self.pid = PIDController(KP, KI, k_d=KD,
+                             pos_limit=self.steer_max, neg_limit=-self.steer_max)
     self.torque_from_lateral_accel = CI.torque_from_lateral_accel()
     self.use_steering_angle = self.torque_params.useSteeringAngle
     self.steering_angle_deadzone_deg = self.torque_params.steeringAngleDeadzoneDeg
@@ -336,7 +349,6 @@ class LatControlNNFF(LatControl):
         ff = self.torque_from_lateral_accel(gravity_adjusted_lateral_accel, self.torque_params)
 
       freeze_integrator = steer_limited_by_safety or CS.steeringPressed or CS.vEgo < 5
-      self.pid._k_p = frogpilot_toggles.steerKp
       output_torque = self.pid.update(pid_log.error,
                                       feedforward=ff,
                                       speed=CS.vEgo,

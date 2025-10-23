@@ -8,8 +8,16 @@ class FrogPilotDataPanel : public FrogPilotListWidget {
 public:
   explicit FrogPilotDataPanel(FrogPilotSettingsWindow *parent);
 
+signals:
+  void openSubPanel();
+
 private:
+  void updateStatsLabels(FrogPilotListWidget *labelsList);
+
+  bool isMetric;
+
   FrogPilotSettingsWindow *parent;
 
   Params params;
+  Params params_cache{"/cache/params"};
 };

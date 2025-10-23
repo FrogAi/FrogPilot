@@ -1,7 +1,13 @@
 #pragma once
 
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QNetworkRequest>
+
 #include "selfdrive/ui/qt/offroad/settings.h"
 #include "selfdrive/ui/qt/widgets/scrollview.h"
+
+class QNetworkAccessManager;
 
 class FrogPilotSettingsWindow : public QFrame {
   Q_OBJECT
@@ -32,6 +38,8 @@ public:
   bool isGM = true;
   bool isHKG = true;
   bool isHKGCanFd = true;
+  bool isHonda = true;
+  bool isHondaNidec = true;
   bool isSubaru = false;
   bool isTorqueCar = false;
   bool isToyota = true;
@@ -59,9 +67,11 @@ public:
 signals:
   void closeSubPanel();
   void closeSubSubPanel();
+  void closeSubSubSubPanel();
   void openPanel();
   void openSubPanel();
   void openSubSubPanel();
+  void openSubSubSubPanel();
   void updateMetric(bool metric, bool bootRun=false);
 
 private:

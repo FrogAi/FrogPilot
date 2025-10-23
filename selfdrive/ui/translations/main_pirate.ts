@@ -423,6 +423,22 @@
         <source>Miles</source>
         <translation type="gpt-5-generated">Leagues</translation>
     </message>
+    <message>
+        <source>ALL TIME (KONIK)</source>
+        <translation type="gpt-5-generated">ALL TIME (KONIK), ye scallywags</translation>
+    </message>
+    <message>
+        <source>ALL TIME</source>
+        <translation type="gpt-5-generated">ALL TIME, arr</translation>
+    </message>
+    <message>
+        <source>PAST WEEK (KONIK)</source>
+        <translation type="gpt-5-generated">PAST WEEK (KONIK), arr!</translation>
+    </message>
+    <message>
+        <source>PAST WEEK</source>
+        <translation type="gpt-5-generated">PAST WEEK</translation>
+    </message>
 </context>
 <context>
     <name>DriverViewWindow</name>
@@ -483,6 +499,30 @@
     <message>
         <source>LIMIT</source>
         <translation type="gpt-5-generated">LIMIT</translation>
+    </message>
+    <message>
+        <source>Desired: %1</source>
+        <translation type="gpt-5-generated">Desired: %1</translation>
+    </message>
+    <message>
+        <source>s</source>
+        <translation type="gpt-5-generated">s</translation>
+    </message>
+    <message>
+        <source>1 minute</source>
+        <translation type="gpt-5-generated">1 minute, ye scallywag</translation>
+    </message>
+    <message>
+        <source>%1 minutes</source>
+        <translation type="gpt-5-generated">%1 minutes Arr!</translation>
+    </message>
+    <message>
+        <source>1 second</source>
+        <translation type="gpt-5-generated">1 second, arr!</translation>
+    </message>
+    <message>
+        <source>%1 seconds</source>
+        <translation type="gpt-5-generated">%1 seconds</translation>
     </message>
 </context>
 <context>
@@ -694,6 +734,238 @@
         <source>Choose a backup to delete</source>
         <translation type="gpt-5-generated">Choose a backup t’ scuttle</translation>
     </message>
+    <message>
+        <source>FrogPilot Stats</source>
+        <translation type="gpt-5-generated">FrogPilot Plunderin’ Stats</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;View your collected FrogPilot stats.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Spy yer plundered FrogPilot stats, matey.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>RESET</source>
+        <translation type="gpt-5-generated">RESET</translation>
+    </message>
+    <message>
+        <source>VIEW</source>
+        <translation type="gpt-5-generated">VIEW</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to reset all of your FrogPilot stats?</source>
+        <translation type="gpt-5-generated">Be ye sure ye want t’ reset all yer FrogPilot stats? Arr!</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="gpt-5-generated">Set ta rights</translation>
+    </message>
+    <message>
+        <source>Total Emergency Brake Alerts</source>
+        <translation type="gpt-5-generated">Total Emergency Brake Alerts, arr!</translation>
+    </message>
+    <message>
+        <source>Time Using "Always On Lateral"</source>
+        <translation type="gpt-5-generated">Time Usin’ "Always On Lateral"</translation>
+    </message>
+    <message>
+        <source>Favorite Set Speed</source>
+        <translation type="gpt-5-generated">Favored Set Speed</translation>
+    </message>
+    <message>
+        <source>Total Disengagements</source>
+        <translation type="gpt-5-generated">Total Disengagements, arr</translation>
+    </message>
+    <message>
+        <source>Total Engagements</source>
+        <translation type="gpt-5-generated">Total Engage'ments Arr!</translation>
+    </message>
+    <message>
+        <source>Time Using "Experimental Mode"</source>
+        <translation type="gpt-5-generated">Time Usin’ "Experimental Mode"</translation>
+    </message>
+    <message>
+        <source>Total Frog Chirps</source>
+        <translation type="gpt-5-generated">Total Frog Chirps be count’d</translation>
+    </message>
+    <message>
+        <source>Total Frog Hops</source>
+        <translation type="gpt-5-generated">Total Frog Hops, ye scallywag</translation>
+    </message>
+    <message>
+        <source>Total Drives</source>
+        <translation type="gpt-5-generated">Total Voyages</translation>
+    </message>
+    <message>
+        <source>Total Distance Driven</source>
+        <translation type="gpt-5-generated">Total Distance Sailed</translation>
+    </message>
+    <message>
+        <source>Total Driving Time</source>
+        <translation type="gpt-5-generated">Total Sailin’ Time</translation>
+    </message>
+    <message>
+        <source>Total Frog Squeaks</source>
+        <translation type="gpt-5-generated">Total Frog Squeaks, arr</translation>
+    </message>
+    <message>
+        <source>Total Goat Screams</source>
+        <translation type="gpt-5-generated">Total Goat Screams, arr!</translation>
+    </message>
+    <message>
+        <source>Highest Acceleration Rate</source>
+        <translation type="gpt-5-generated">Highest Acceleration Rate, arr</translation>
+    </message>
+    <message>
+        <source>Time Using Lateral Control</source>
+        <translation type="gpt-5-generated">Time Usin’ Lateral Control</translation>
+    </message>
+    <message>
+        <source>Longest Distance Without an Override</source>
+        <translation type="gpt-5-generated">Longest Voyage Without a Mutiny Override</translation>
+    </message>
+    <message>
+        <source>Time Using Longitudinal Control</source>
+        <translation type="gpt-5-generated">Time Usin’ Longitudinal Control</translation>
+    </message>
+    <message>
+        <source>Driving Models:</source>
+        <translation type="gpt-5-generated">Sailin’ Models:</translation>
+    </message>
+    <message>
+        <source>Month</source>
+        <translation type="gpt-5-generated">Month, ye scurvy dog</translation>
+    </message>
+    <message>
+        <source>Total Overrides</source>
+        <translation type="gpt-5-generated">Total Overrides, arr</translation>
+    </message>
+    <message>
+        <source>Time Overriding openpilot</source>
+        <translation type="gpt-5-generated">Time Overridin’ openpilot</translation>
+    </message>
+    <message>
+        <source>Random Events:</source>
+        <translation type="gpt-5-generated">Random Happenin's:</translation>
+    </message>
+    <message>
+        <source>Time Stopped</source>
+        <translation type="gpt-5-generated">Time Be Stilled</translation>
+    </message>
+    <message>
+        <source>Time Spent at Stoplights</source>
+        <translation type="gpt-5-generated">Time Spent at Stoplights, arr</translation>
+    </message>
+    <message>
+        <source>Total Time Tracked</source>
+        <translation type="gpt-5-generated">Total Time Plundered</translation>
+    </message>
+    <message>
+        <source>UwUs</source>
+        <translation type="gpt-5-generated">UwUs, ye scallywags!</translation>
+    </message>
+    <message>
+        <source>Loch Ness Encounters</source>
+        <translation type="gpt-5-generated">Loch Ness Ruckuses</translation>
+    </message>
+    <message>
+        <source>Visits to 1955</source>
+        <translation type="gpt-5-generated">Visits t’ 1955</translation>
+    </message>
+    <message>
+        <source>Deja Vu Moments</source>
+        <translation type="gpt-5-generated">Deja Vu Moments, arr!</translation>
+    </message>
+    <message>
+        <source>Internet Explorer Weeeeeeees</source>
+        <translation type="gpt-5-generated">Internet Explorer Weeeeeeees, arr!</translation>
+    </message>
+    <message>
+        <source>HAL 9000 Denials</source>
+        <translation type="gpt-5-generated">HAL 9000 Refusals, arrr</translation>
+    </message>
+    <message>
+        <source>openpilot Crashes</source>
+        <translation type="gpt-5-generated">openpilot Be Sinkin’</translation>
+    </message>
+    <message>
+        <source>This Is Fine Moments</source>
+        <translation type="gpt-5-generated">This Be Fine Moments, aye</translation>
+    </message>
+    <message>
+        <source>To Be Continued Moments</source>
+        <translation type="gpt-5-generated">T’ Be Continued Moments</translation>
+    </message>
+    <message>
+        <source>Noices</source>
+        <translation type="gpt-5-generated">Noises</translation>
+    </message>
+    <message>
+        <source>Attempted Frog Murders</source>
+        <translation type="gpt-5-generated">Attempted Frog Murders, arr!</translation>
+    </message>
+    <message>
+        <source>Total Mail Received</source>
+        <translation type="gpt-5-generated">Total Mail Plundered</translation>
+    </message>
+    <message>
+        <source> kilometer</source>
+        <translation type="gpt-5-generated">kilometer</translation>
+    </message>
+    <message>
+        <source> kilometers</source>
+        <translation type="gpt-5-generated">kilometers, arr</translation>
+    </message>
+    <message>
+        <source> mile</source>
+        <translation type="gpt-5-generated"> mile</translation>
+    </message>
+    <message>
+        <source> miles</source>
+        <translation type="gpt-5-generated"> leagues</translation>
+    </message>
+    <message>
+        <source> day </source>
+        <translation type="gpt-5-generated"> day </translation>
+    </message>
+    <message>
+        <source> days </source>
+        <translation type="gpt-5-generated"> days </translation>
+    </message>
+    <message>
+        <source> hour </source>
+        <translation type="gpt-5-generated">hourrrrr</translation>
+    </message>
+    <message>
+        <source> hours </source>
+        <translation type="gpt-5-generated"> hours </translation>
+    </message>
+    <message>
+        <source> minute</source>
+        <translation type="gpt-5-generated"> minute</translation>
+    </message>
+    <message>
+        <source> minutes</source>
+        <translation type="gpt-5-generated"> minutes</translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation type="gpt-5-generated">knots/h</translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation type="gpt-5-generated">knots per hour</translation>
+    </message>
+    <message>
+        <source>m/s²</source>
+        <translation type="gpt-5-generated">m/s²</translation>
+    </message>
+    <message>
+        <source>Total </source>
+        <translation type="gpt-5-generated">Total booty</translation>
+    </message>
+    <message>
+        <source>% of </source>
+        <translation type="gpt-5-generated">% o’</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotDevicePanel</name>
@@ -872,6 +1144,125 @@
     <message>
         <source> seconds</source>
         <translation type="gpt-5-generated"> seconds</translation>
+    </message>
+</context>
+<context>
+    <name>FrogPilotDriveSummary</name>
+    <message>
+        <source>Random Events Summary</source>
+        <translation type="gpt-5-generated">Ledger o’ Random Happenin’s</translation>
+    </message>
+    <message>
+        <source>Drive Summary</source>
+        <translation type="gpt-5-generated">Voyage Summary</translation>
+    </message>
+    <message>
+        <source>UwUs</source>
+        <translation type="gpt-5-generated">UwUs</translation>
+    </message>
+    <message>
+        <source>Loch Ness Encounters</source>
+        <translation type="gpt-5-generated">Loch Ness Encounters, arr!</translation>
+    </message>
+    <message>
+        <source>Visits to 1955</source>
+        <translation type="gpt-5-generated">Visits t’ 1955</translation>
+    </message>
+    <message>
+        <source>Deja Vu Moments</source>
+        <translation type="gpt-5-generated">Deja Vu Moments, arr!</translation>
+    </message>
+    <message>
+        <source>Internet Explorer Weeeeeeees</source>
+        <translation type="gpt-5-generated">Internet Explorer Weeeeeeees, arr!</translation>
+    </message>
+    <message>
+        <source>HAL 9000 Denials</source>
+        <translation type="gpt-5-generated">HAL 9000 Refusals, arrr</translation>
+    </message>
+    <message>
+        <source>openpilot Crashes</source>
+        <translation type="gpt-5-generated">openpilot Wrecks</translation>
+    </message>
+    <message>
+        <source>This Is Fine Moments</source>
+        <translation type="gpt-5-generated">This Be Fine Moments, arr!</translation>
+    </message>
+    <message>
+        <source>To Be Continued Moments</source>
+        <translation type="gpt-5-generated">T’ Be Continued Moments</translation>
+    </message>
+    <message>
+        <source>Noices</source>
+        <translation type="gpt-5-generated">Noises</translation>
+    </message>
+    <message>
+        <source>Attempted Frog Murders</source>
+        <translation type="gpt-5-generated">Attempted Frog Murders, arr!</translation>
+    </message>
+    <message>
+        <source>Total Mail Received</source>
+        <translation type="gpt-5-generated">Total Mail Received, arr!</translation>
+    </message>
+    <message>
+        <source>% of Drive With openpilot Engaged</source>
+        <translation type="gpt-5-generated">% o’ Voyage With openpilot Engaged</translation>
+    </message>
+    <message>
+        <source>Drive Distance</source>
+        <translation type="gpt-5-generated">Sailin’ Distance</translation>
+    </message>
+    <message>
+        <source>Drive Time</source>
+        <translation type="gpt-5-generated">Sailin’ Time</translation>
+    </message>
+    <message>
+        <source>% of Drive In "Experimental Mode"</source>
+        <translation type="gpt-5-generated">% o’ Drive In "Experimental Mode"</translation>
+    </message>
+    <message>
+        <source>No Random Events Played!</source>
+        <translation type="gpt-5-generated">No Random Events be Played! Arr!</translation>
+    </message>
+    <message>
+        <source> kilometer</source>
+        <translation type="gpt-5-generated">kilometer</translation>
+    </message>
+    <message>
+        <source> kilometers</source>
+        <translation type="gpt-5-generated">kilometers</translation>
+    </message>
+    <message>
+        <source> mile</source>
+        <translation type="gpt-5-generated"> mile</translation>
+    </message>
+    <message>
+        <source> miles</source>
+        <translation type="gpt-5-generated"> leagues</translation>
+    </message>
+    <message>
+        <source> day </source>
+        <translation type="gpt-5-generated">day, aye</translation>
+    </message>
+    <message>
+        <source> days </source>
+        <translation type="gpt-5-generated"> days</translation>
+    </message>
+    <message>
+        <source> hour </source>
+        <translation type="gpt-5-generated"> hour </translation>
+    </message>
+    <message>
+        <source> hours </source>
+        <translation type="gpt-5-generated">hours ahoy</translation>
+    </message>
+    <message>
+        <source> minute</source>
+        <translation type="gpt-5-generated"> minute</translation>
+    </message>
+    <message>
+        <source> minutes</source>
+        <translation type="gpt-5-generated"> minutes</translation>
     </message>
 </context>
 <context>
@@ -1292,10 +1683,6 @@
         <translation type="gpt-5-generated">Foretold Stop In</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Switch to "Experimental Mode" when openpilot predicts a stop within the set time.&lt;/b&gt; This is usually triggered when the model "sees" a red light or stop sign ahead.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason.&lt;/i&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Hoist sails to "Experimental Mode" when openpilot spies a stop within the set time, arr!&lt;/b&gt; This be usually triggered when the model "sees" a red light or stop sign dead ahead, aye.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot don’t explicitly spot traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end drivin’ calls from the camera’s gaze, which means it may drop anchor even when there be no clear reason, yarrr.&lt;/i&gt;</translation>
-    </message>
-    <message>
         <source>Turn Signal Below</source>
         <translation type="gpt-5-generated">Turn Signal Be Below</translation>
     </message>
@@ -1616,10 +2003,6 @@
         <translation type="gpt-5-generated">Force Heave-To at "Detected" Stop Lanterns/Signs</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Force openpilot to stop whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason.&lt;/i&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Make openpilot heave to whenever the drivin’ model "spots" a red lantern or stop sign, arr.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot don’t be explicitly spyin’ traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end helm calls from the camera’s eye, meanin’ it may drop anchor even when there be no clear cause.&lt;/i&gt;</translation>
-    </message>
-    <message>
         <source>Increase Stopped Distance by:</source>
         <translation type="gpt-5-generated">Be increasin’ Stopped Distance by:</translation>
     </message>
@@ -1650,6 +2033,42 @@
     <message>
         <source>&lt;b&gt;Reverse the cruise control button behavior&lt;/b&gt; so a short press increases the set speed by 5 instead of 1.</source>
         <translation type="gpt-5-generated">&lt;b&gt;Flip th’ cruise control button’s ways&lt;/b&gt; so a quick tap boosts set speed by 5 ‘stead o’ 1.</translation>
+    </message>
+    <message>
+        <source>Increase Following Distance by:</source>
+        <translation type="gpt-5-generated">Boost Yer Followin’ Distance by:</translation>
+    </message>
+    <message>
+        <source>Reduce Acceleration by:</source>
+        <translation type="gpt-5-generated">Trim the throttle by:</translation>
+    </message>
+    <message>
+        <source>Reduce Speed in Curves by:</source>
+        <translation type="gpt-5-generated">Reef Yer Speed in Curves by:</translation>
+    </message>
+    <message>
+        <source>Snow</source>
+        <translation type="gpt-5-generated">Snowy seas</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Driving adjustments for snowy conditions.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Drivin’ tweaks fer snowy seas ashore.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra space behind lead vehicles in snow.&lt;/b&gt; Increase for more space; decrease for tighter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Add extra berth aft o’ lead vessels in snow.&lt;/b&gt; Increase fer more space; decrease fer tighter gaps.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra buffer when stopped behind vehicles in snow.&lt;/b&gt; Increase for more room; decrease for shorter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Be addin’ extra buffer when ye be stopped abaft other vessels in snow.&lt;/b&gt; Raise it fer more berth; lower it fer tighter gaps.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the maximum acceleration in snow.&lt;/b&gt; Increase for softer takeoffs; decrease for quicker but less stable takeoffs.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Reef the max shove in snow, matey.&lt;/b&gt; Raise it fer softer shove-offs; drop it fer quicker but less steady shove-offs.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the desired speed while driving through curves in snow.&lt;/b&gt; Increase for safer, gentler turns; decrease for more aggressive driving in curves.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Lower yer wished speed while sailin’ through curves in snow.&lt;/b&gt; Raise it fer safer, gentler turns; drop it fer more swashbucklin’, aggressive drivin’ in curves.</translation>
     </message>
     <message>
         <source>Speed Limit Controller</source>
@@ -2039,6 +2458,154 @@
         <source>&lt;b&gt;Following behavior that mimics human drivers&lt;/b&gt; by closing gaps behind faster vehicles for quicker takeoffs and dynamically adjusting the desired following distance for gentler, more efficient braking.</source>
         <translation type="gpt-5-generated">&lt;b&gt;Behavin’ like real hands at the wheel&lt;/b&gt; by closin’ gaps astern o’ swifter wagons fer quicker shove-offs, an’ smartly trimmin’ the wanted followin’ distance fer gentler, more shipshape brak’n.</translation>
     </message>
+    <message>
+        <source>Weather Condition Offsets</source>
+        <translation type="gpt-5-generated">Weather Condition Offsets, arr!</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Automatically adjust driving behavior based on real-time weather.&lt;/b&gt; Helps maintain comfort and safety in low visibility, rain, or snow.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Auto-trim yer drivin’ ways by the live weather, arr!&lt;/b&gt; Keeps yer comfort ’n safety in fog, rain, or snow, ye scallywag.</translation>
+    </message>
+    <message>
+        <source>Low Visibility</source>
+        <translation type="gpt-5-generated">Low Visibility, arr</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Driving adjustments for fog, haze, or other low-visibility conditions.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Steerin’ tweaks fer fog, haze, or other low-visibility seas.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra space behind lead vehicles in low visibility.&lt;/b&gt; Increase for more space; decrease for tighter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Add extra berth astern o’ lead vessels in foul visibility.&lt;/b&gt; Heave up fer more space; batten down fer tighter gaps.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra buffer when stopped behind vehicles in low visibility.&lt;/b&gt; Increase for more room; decrease for shorter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Add extra buffer when ye be stopped abaft other vessels in foul visibility.&lt;/b&gt; Raise it fer more berth; lower it fer shorter gaps.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the maximum acceleration in low visibility.&lt;/b&gt; Increase for softer takeoffs; decrease for quicker but less stable takeoffs.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Reef the max surge when the seas be foggy.&lt;/b&gt; Raise it fer softer shove-offs; drop it fer faster but wobblier shove-offs.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the desired speed while driving through curves in low visibility.&lt;/b&gt; Increase for safer, gentler turns; decrease for more aggressive driving in curves.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Reef the desired speed sail when ye be steer’n through bends in foul sight.&lt;/b&gt; Heave it up fer safer, gentler turns; haul it down fer more cutlass-swingin’ drivin’ in curves.</translation>
+    </message>
+    <message>
+        <source>Rain</source>
+        <translation type="gpt-5-generated">Squall</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Driving adjustments for rainy conditions.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Sailin’ tweaks fer squally roads.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra space behind lead vehicles in rain.&lt;/b&gt; Increase for more space; decrease for tighter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Add extra berth astern o’ lead vessels in squalls.&lt;/b&gt; Heave to fer more space; trim sail fer tighter gaps.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra buffer when stopped behind vehicles in rain.&lt;/b&gt; Increase for more room; decrease for shorter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Add extra buffer when ye be stopped abaft other vessels in the rain.&lt;/b&gt; Increase fer more berth; decrease fer tighter gaps.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the maximum acceleration in rain.&lt;/b&gt; Increase for softer takeoffs; decrease for quicker but less stable takeoffs.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Reef the max surge in a squall.&lt;/b&gt; Raise it fer gentler shove-offs; lower it fer swifter but shakier shove-offs.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the desired speed while driving through curves in rain.&lt;/b&gt; Increase for safer, gentler turns; decrease for more aggressive driving in curves.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Reef the desired speed when ye be sailin’ through bends in the rain.&lt;/b&gt; Raise it fer safer, gentler turns; drop it fer more swashbucklin’ drivin’ in curves.</translation>
+    </message>
+    <message>
+        <source>Rainstorms</source>
+        <translation type="gpt-5-generated">Tempests o’ rain</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Driving adjustments for rainstorms.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Helm tweaks fer squalls o’ rain.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra space behind lead vehicles in a rainstorm.&lt;/b&gt; Increase for more space; decrease for tighter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Add ye extra berth abaft the lead vessels in a squall.&lt;/b&gt; Increase fer more space; decrease fer tighter gaps.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra buffer when stopped behind vehicles in a rainstorm.&lt;/b&gt; Increase for more room; decrease for shorter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Add extra berth when ye be stopped abaft other vessels in a squall.&lt;/b&gt; Increase fer more room; decrease fer shorter gaps.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the maximum acceleration in a rainstorm.&lt;/b&gt; Increase for softer takeoffs; decrease for quicker but less stable takeoffs.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Reef the max acceleration when the heavens be pourin’.&lt;/b&gt; Raise it fer gentler shove-offs; lower it fer swifter but shakier shove-offs.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the desired speed while driving through curves in a rainstorm.&lt;/b&gt; Increase for safer, gentler turns; decrease for more aggressive driving in curves.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Reef the speed ye be wantin’ when ye sail through squalls ‘n bends.&lt;/b&gt; Heave it up fer safer, softer turns; haul it down fer more cutlass-swingin’ drivin’ in curves.</translation>
+    </message>
+    <message>
+        <source>Human-Like Lane Changes</source>
+        <translation type="gpt-5-generated">Human-Like Lane Swaps, arr!</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lane-change behavior that mimics human drivers&lt;/b&gt; by anticipating and tracking adjacent vehicles during lane changes.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Lane-change ways that be like human helmsmen&lt;/b&gt;, spyin’ and shadowin’ ships abeam while ye change lanes.</translation>
+    </message>
+    <message>
+        <source>"Detected" Stop Lights/Signs</source>
+        <translation type="gpt-5-generated">“Detected” Stop Lights/Signs</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch to "Experimental Mode" whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Hoist the sails fer "Experimental Mode" whenever the drivin’ model "detects" a red light or stop sign, arr!&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end drivin’ decisions from camera input, meanin’ it may drop anchor even when there be no clear reason, yar!&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch to "Experimental Mode" when openpilot predicts a stop within the set time.&lt;/b&gt; This is usually triggered when the model "sees" a red light or stop sign ahead.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Hoist "Experimental Mode" when openpilot spies a stop within the set time.&lt;/b&gt; This be usually triggered when the model "sees" a red light or stop sign off the bow.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot don’t explicitly sight traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end drivin’ decisions from camera input, meanin’ it may drop anchor even when there be no clear reason!&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Force openpilot to stop whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Make openpilot heave to whenever the drivin’ model “spots” a red lantern or stop sign, arrr.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot don’t be explicitly sightin’ traffic lights or stop signs. In “Experimental Mode”, openpilot makes end-to-end helm choices from the camera’s gaze, meanin’ it may drop anchor even when there be no clear cause!&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>Set Your Own Key</source>
+        <translation type="gpt-5-generated">Set Yer Own Key</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set your own "OpenWeatherMap" key to increase the weather update rate.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Personal keys grant 1,000 free calls per day, allowing for updates every minute. The default key is shared and only updates every 15 minutes.&lt;/i&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Hoist yer own "OpenWeatherMap" key to speed up th’ weather updates, matey.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Yer personal keys grant 1,000 free calls a day, lettin’ updates roll in every minute. The default key be shared ’n only updates every 15 minutes.&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>ADD</source>
+        <translation type="gpt-5-generated">ADD</translation>
+    </message>
+    <message>
+        <source>Enter your "OpenWeatherMap" key</source>
+        <translation type="gpt-5-generated">Enter yer "OpenWeatherMap" key, ye scallywag</translation>
+    </message>
+    <message>
+        <source>REMOVE</source>
+        <translation type="gpt-5-generated">REMOVE</translation>
+    </message>
+    <message>
+        <source>Invalid key!</source>
+        <translation type="gpt-5-generated">Arr, ye be usin’ an invalid key!</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove your key?</source>
+        <translation type="gpt-5-generated">Be ye sure ye want t’ cast off yer key?</translation>
+    </message>
+    <message>
+        <source>TEST</source>
+        <translation type="gpt-5-generated">ARR TEST</translation>
+    </message>
+    <message>
+        <source>Testing...</source>
+        <translation type="gpt-5-generated">Testin'... Arr...</translation>
+    </message>
+    <message>
+        <source>Key is valid!</source>
+        <translation type="gpt-5-generated">Arr, the key be valid!</translation>
+    </message>
+    <message>
+        <source>An error occurred: %1</source>
+        <translation type="gpt-5-generated">Arr, an error befall'd: %1</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotManageControl</name>
@@ -2226,8 +2793,16 @@
         <translation type="gpt-5-generated">Offline... Arr!</translation>
     </message>
     <message>
-        <source>CANCELLED</source>
-        <translation type="gpt-5-generated">SCUTTLED</translation>
+        <source>0 MB</source>
+        <translation type="gpt-5-generated">0 MB</translation>
+    </message>
+    <message>
+        <source>Calculating...</source>
+        <translation type="gpt-5-generated">Arr... reckonin'...</translation>
+    </message>
+    <message>
+        <source>Not parked</source>
+        <translation type="gpt-5-generated">Not be anchored</translation>
     </message>
 </context>
 <context>
@@ -2440,6 +3015,38 @@
         <source>Select a Model — 🗺️ = Navigation | 📡 = Radar | 👀 = VOACC</source>
         <translation type="gpt-5-generated">Pick a Model — 🗺️ = Navigation | 📡 = Radar | 👀 = VOACC</translation>
     </message>
+    <message>
+        <source>Downloading...</source>
+        <translation type="gpt-5-generated">Plunderin’ the download...</translation>
+    </message>
+    <message>
+        <source>Not parked</source>
+        <translation type="gpt-5-generated">Not be at anchor</translation>
+    </message>
+    <message>
+        <source>Downloaded!</source>
+        <translation type="gpt-5-generated">Plundered ‘n downloaded!</translation>
+    </message>
+    <message>
+        <source>All models downloaded!</source>
+        <translation type="gpt-5-generated">All models be plundered ‘n stowed!</translation>
+    </message>
+    <message>
+        <source>Download cancelled...</source>
+        <translation type="gpt-5-generated">Download be scuttled...</translation>
+    </message>
+    <message>
+        <source>Download failed...</source>
+        <translation type="gpt-5-generated">Download be sunk...</translation>
+    </message>
+    <message>
+        <source>GitHub and GitLab are offline...</source>
+        <translation type="gpt-5-generated">GitHub an’ GitLab be offline... Arr!</translation>
+    </message>
+    <message>
+        <source>Repository unavailable</source>
+        <translation type="gpt-5-generated">Treasure hold be unavailable</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotModelReview</name>
@@ -2625,6 +3232,57 @@ It’ll reset in %1 hours ‘n %2 minutes.</translation>
     <message>
         <source>Completed!</source>
         <translation type="gpt-5-generated">Arr, Completed!</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Manage your Public Mapbox Key.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Command yer Public Mapbox Key, ye scallywag.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>TEST</source>
+        <translation type="gpt-5-generated">TRIAL be yarrr!</translation>
+    </message>
+    <message>
+        <source>Remove your Public Mapbox Key?</source>
+        <translation type="gpt-5-generated">Be ye removin’ yer Public Mapbox Key?</translation>
+    </message>
+    <message>
+        <source>Enter your Public Mapbox Key</source>
+        <translation type="gpt-5-generated">Be enterin’ yer Public Mapbox Key, ye scallywag</translation>
+    </message>
+    <message>
+        <source>Testing...</source>
+        <translation type="gpt-5-generated">Testin'...</translation>
+    </message>
+    <message>
+        <source>Key is valid!</source>
+        <translation type="gpt-5-generated">Key be valid, arr!</translation>
+    </message>
+    <message>
+        <source>Key is invalid!</source>
+        <translation type="gpt-5-generated">The key be invalid, arr!</translation>
+    </message>
+    <message>
+        <source>An error occurred: %1</source>
+        <translation type="gpt-5-generated">Arr, an error befall’d: %1</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Manage your Secret Mapbox Key.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Command yer Secret Mapbox Key.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Remove your Secret Mapbox Key?</source>
+        <translation type="gpt-5-generated">Be ye removin’ yer Secret Mapbox Key?</translation>
+    </message>
+    <message>
+        <source>Enter your Secret Mapbox Key</source>
+        <translation type="gpt-5-generated">Be enterin’ yer Secret Mapbox Key, ye scallywag!</translation>
+    </message>
+</context>
+<context>
+    <name>FrogPilotOnroadWindow</name>
+    <message>
+        <source>FPS: %1 | Min: %2 | Max: %3 | Avg: %4</source>
+        <translation type="gpt-5-generated">FPS: %1 | Min: %2 | Max: %3 | Avg: %4, arr!</translation>
     </message>
 </context>
 <context>
@@ -3153,6 +3811,38 @@ Developer - Highly customizable riggin’s fer seasoned enthusiasts</translation
         <source>CANCEL</source>
         <translation type="gpt-5-generated">AVAST</translation>
     </message>
+    <message>
+        <source>Downloading...</source>
+        <translation type="gpt-5-generated">Plunderin’ the bytes...</translation>
+    </message>
+    <message>
+        <source>Idle</source>
+        <translation type="gpt-5-generated">Idle → Afloat</translation>
+    </message>
+    <message>
+        <source>Unpacking theme...</source>
+        <translation type="gpt-5-generated">Unpackin’ the theme, arr...</translation>
+    </message>
+    <message>
+        <source>Downloaded!</source>
+        <translation type="gpt-5-generated">Plunder be downloaded! Arr!</translation>
+    </message>
+    <message>
+        <source>Download cancelled...</source>
+        <translation type="gpt-5-generated">Download be scuttled...</translation>
+    </message>
+    <message>
+        <source>Download failed...</source>
+        <translation type="gpt-5-generated">Download be scuttled...</translation>
+    </message>
+    <message>
+        <source>Repository unavailable</source>
+        <translation type="gpt-5-generated">Treasure hold be unavailable</translation>
+    </message>
+    <message>
+        <source>GitHub and GitLab are offline...</source>
+        <translation type="gpt-5-generated">GitHub 'n GitLab be offline, arr...</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotUtilitiesPanel</name>
@@ -3594,6 +4284,54 @@ Developer - Highly customizable riggin’s fer seasoned enthusiasts</translation
     <message>
         <source>comma Pedal Support</source>
         <translation type="gpt-5-generated">comma Pedal Support, arrr</translation>
+    </message>
+    <message>
+        <source>Subaru Settings</source>
+        <translation type="gpt-5-generated">Subaru Settin's</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;FrogPilot features for Subaru vehicles.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;FrogPilot features fer Subaru vessels.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Stop and Go</source>
+        <translation type="gpt-5-generated">Heave-to and Get Goin’</translation>
+    </message>
+    <message>
+        <source>Stop and go for supported Subaru vehicles.</source>
+        <translation type="gpt-5-generated">Stop 'n go fer supported Subaru vessels.</translation>
+    </message>
+    <message>
+        <source>Acura/Honda Settings</source>
+        <translation type="gpt-5-generated">Acura/Honda Settin's</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;FrogPilot features for Acura and Honda vehicles.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;FrogPilot booty fer Acura an’ Honda vessels.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Gentle Following</source>
+        <translation type="gpt-5-generated">Gentle Followin’</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Reduces jerky acceleration and braking when following a lead vehicle.&lt;/b&gt; Ideal for stop-and-go traffic.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Tames the herky-jerky surge an’ brake when trailin’ a lead vessel.&lt;/b&gt; Ideal fer stop‑an’‑go traffic.</translation>
+    </message>
+    <message>
+        <source>Increased Braking Force</source>
+        <translation type="gpt-5-generated">Boosted Brakin’ Force</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Increases the maximum braking force for improved stopping performance.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Boosts th’ max breakin’ force fer sharper stoppin’ prowess, arr!&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Responsive Pedal at Low Speeds</source>
+        <translation type="gpt-5-generated">Quick-Twitch Pedal at Low Speeds</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Improves acceleration from a standstill for a more responsive throttle feel in city driving.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Gives ye a quicker shove off th’ line fer a snappier throttle feel in city sailin’.&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -4684,6 +5422,42 @@ Developer - Highly customizable riggin’s fer seasoned enthusiasts</translation
             <numerusform>%n day(s) ago</numerusform>
         </translation>
     </message>
+    <message>
+        <source>0 MB</source>
+        <translation type="gpt-5-generated">0 MB</translation>
+    </message>
+    <message>
+        <source> GB</source>
+        <translation type="gpt-5-generated">GB</translation>
+    </message>
+    <message>
+        <source> MB</source>
+        <translation type="gpt-5-generated"> MB</translation>
+    </message>
+    <message>
+        <source> hour </source>
+        <translation type="gpt-5-generated">hourglass o’ time</translation>
+    </message>
+    <message>
+        <source> hours </source>
+        <translation type="gpt-5-generated"> hours </translation>
+    </message>
+    <message>
+        <source> minute </source>
+        <translation type="gpt-5-generated">minute, arrr</translation>
+    </message>
+    <message>
+        <source> minutes </source>
+        <translation type="gpt-5-generated">minutes</translation>
+    </message>
+    <message>
+        <source> second</source>
+        <translation type="gpt-5-generated">second</translation>
+    </message>
+    <message>
+        <source> seconds</source>
+        <translation type="gpt-5-generated"> seconds</translation>
+    </message>
 </context>
 <context>
     <name>Reset</name>
@@ -5114,6 +5888,22 @@ This may take up to a minute, arr.</translation>
     <message>
         <source>This is a complete factory reset and cannot be undone. Are you absolutely sure you want to continue?</source>
         <translation type="gpt-5-generated">This be a full factory reset an’ can ne’er be undone. Be ye absolutely sure ye wish t’ press on?</translation>
+    </message>
+    <message>
+        <source>downloading…</source>
+        <translation type="gpt-5-generated">plunderin’ the downloads…</translation>
+    </message>
+    <message>
+        <source>checking…</source>
+        <translation type="gpt-5-generated">checkin’…</translation>
+    </message>
+    <message>
+        <source>waiting for vehicle to go offroad...</source>
+        <translation type="gpt-5-generated">waitin' fer th’ vessel t’ go offroad...</translation>
+    </message>
+    <message>
+        <source>finalizing update...</source>
+        <translation type="gpt-5-generated">battenin’ down th’ update...</translation>
     </message>
 </context>
 <context>
