@@ -18,7 +18,7 @@ from numpy.linalg import solve
 
 from cereal import car
 
-ACCELERATION_DUE_TO_GRAVITY = 9.8
+ACCELERATION_DUE_TO_GRAVITY = 9.81  # m/s^2
 
 
 class VehicleModel:
