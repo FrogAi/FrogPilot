@@ -2562,6 +2562,34 @@
         <source>&lt;b&gt;Lower the desired speed while driving through curves in a rainstorm.&lt;/b&gt; Increase for safer, gentler turns; decrease for more aggressive driving in curves.</source>
         <translation type="gpt-5-generated">&lt;b&gt;Зменшуйте бажану швидкість під час руху по поворотах у зливу.&lt;/b&gt; Збільшуйте для безпечніших, плавніших поворотів; зменшуйте для агресивнішого руху в поворотах.</translation>
     </message>
+    <message>
+        <source>Set Your Own Key</source>
+        <translation type="gpt-5-generated">Встановіть власний ключ</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set your own "OpenWeatherMap" key to increase the weather update rate.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Personal keys grant 1,000 free calls per day, allowing for updates every minute. The default key is shared and only updates every 15 minutes.&lt;/i&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Встановіть власний ключ «OpenWeatherMap», щоб підвищити частоту оновлення погоди.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Персональні ключі надають 1 000 безкоштовних запитів на день, що дозволяє оновлювати щохвилини. Типовий ключ спільний і оновлюється лише кожні 15 хвилин.&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>ADD</source>
+        <translation type="gpt-5-generated">ДОДАТИ</translation>
+    </message>
+    <message>
+        <source>Enter your "OpenWeatherMap" key</source>
+        <translation type="gpt-5-generated">Введіть свій ключ "OpenWeatherMap"</translation>
+    </message>
+    <message>
+        <source>REMOVE</source>
+        <translation type="gpt-5-generated">ВИДАЛИТИ</translation>
+    </message>
+    <message>
+        <source>Invalid key!</source>
+        <translation type="gpt-5-generated">Недійсний ключ!</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove your key?</source>
+        <translation type="gpt-5-generated">Ви впевнені, що хочете видалити свій ключ?</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotManageControl</name>

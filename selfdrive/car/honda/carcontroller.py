@@ -37,7 +37,7 @@ def compute_gas_brake(accel, speed, fingerprint, frogpilot_toggles):
   if fingerprint in HONDA_BOSCH:
     return compute_gb_honda_bosch(accel, speed)
   else:
-    return compute_gb_honda_nidec(accel, speed)
+    return compute_gb_honda_nidec(accel, speed, frogpilot_toggles)
 
 
 # TODO not clear this does anything useful

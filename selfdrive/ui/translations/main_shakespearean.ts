@@ -2571,6 +2571,34 @@
         <source>&lt;b&gt;Force openpilot to stop whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
         <translation type="gpt-5-generated">&lt;b&gt;Compel openpilot to halt whensoever the driving model “espieth” a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot doth not expressly ken traffic lights or stop signs. In “Experimental Mode”, openpilot maketh end-to-end driving judgments from camera input, which meaneth it may halt e’en when no clear cause appeareth!&lt;/i&gt;</translation>
     </message>
+    <message>
+        <source>Set Your Own Key</source>
+        <translation type="gpt-5-generated">Set Thine Own Key</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set your own "OpenWeatherMap" key to increase the weather update rate.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Personal keys grant 1,000 free calls per day, allowing for updates every minute. The default key is shared and only updates every 15 minutes.&lt;/i&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Set thine own "OpenWeatherMap" key to quicken the weather’s update rate.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Personal keys bestow 1,000 free calls each day, permitting updates each minute. The default key is shared and refresheth but every 15 minutes.&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>ADD</source>
+        <translation type="gpt-5-generated">ADD</translation>
+    </message>
+    <message>
+        <source>Enter your "OpenWeatherMap" key</source>
+        <translation type="gpt-5-generated">Enter thy “OpenWeatherMap” key</translation>
+    </message>
+    <message>
+        <source>REMOVE</source>
+        <translation type="gpt-5-generated">REMOVE thee forthwith</translation>
+    </message>
+    <message>
+        <source>Invalid key!</source>
+        <translation type="gpt-5-generated">Key most foul and invalid!</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove your key?</source>
+        <translation type="gpt-5-generated">Art thou certain thou wouldst remove thy key?</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotManageControl</name>

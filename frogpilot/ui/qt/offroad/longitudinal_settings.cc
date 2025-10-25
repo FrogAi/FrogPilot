@@ -186,6 +186,8 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     {"ReduceAccelerationSnow", tr("Reduce Acceleration by:"), tr("<b>Lower the maximum acceleration in snow.</b> Increase for softer takeoffs; decrease for quicker but less stable takeoffs."), ""},
     {"ReduceLateralAccelerationSnow", tr("Reduce Speed in Curves by:"), tr("<b>Lower the desired speed while driving through curves in snow.</b> Increase for safer, gentler turns; decrease for more aggressive driving in curves."), ""},
 
+    {"SetWeatherKey", tr("Set Your Own Key"), tr("<b>Set your own \"OpenWeatherMap\" key to increase the weather update rate.</b><br><br><i>Personal keys grant 1,000 free calls per day, allowing for updates every minute. The default key is shared and only updates every 15 minutes.</i>"), ""},
+
     {"SpeedLimitController", tr("Speed Limit Controller"), tr("<b>Limit openpilot's maximum driving speed to the current speed limit</b> obtained from downloaded maps, Mapbox, Navigate on openpilot, or the dashboard for supported vehicles (Ford, Genesis, Hyundai, Kia, Lexus, Toyota)."), "../../frogpilot/assets/toggle_icons/icon_speed_limit.png"},
     {"SLCFallback", tr("Fallback Speed"), tr("<b>The speed used by \"Speed Limit Controller\" when no speed limit is found.</b><br><br>- <b>Set Speed</b>: Use the cruise set speed<br>- <b>Experimental Mode</b>: Estimate the limit using the driving model<br>- <b>Previous Limit</b>: Keep using the last confirmed limit"), ""},
     {"SLCOverride", tr("Override Speed"), tr("<b>The speed used by \"Speed Limit Controller\" after you manually drive faster than the posted limit.</b><br><br>- <b>Set with Gas Pedal</b>: Use the highest speed reached while pressing the gas<br>- <b>Max Set Speed</b>: Use the cruise set speed<br><br>Overrides clear when openpilot disengages."), ""},
@@ -413,6 +415,28 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
         qolOpen = true;
       });
       longitudinalToggle = weatherToggle;
+    } else if (param == "SetWeatherKey") {
+      weatherKeyControl = new ButtonControl(title, "", desc);
+      QObject::connect(weatherKeyControl, &ButtonControl::clicked, [this] {
+        if (weatherKeyControl->text() == tr("ADD")) {
+          QString key = InputDialog::getText(tr("Enter your \"OpenWeatherMap\" key"), this).trimmed();
+          if (key.length() == 32) {
+            params.put("WeatherToken", key.toStdString());
+
+            weatherKeyControl->setText(tr("REMOVE"));
+          } else {
+            ConfirmationDialog::alert(tr("Invalid key!"), this);
+          }
+        } else {
+          if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to remove your key?"), this)) {
+            params.remove("WeatherToken");
+            params_cache.remove("WeatherToken");
+
+            weatherKeyControl->setText(tr("ADD"));
+          }
+        }
+      });
+      longitudinalToggle = weatherKeyControl;
     } else if (param == "LowVisibilityOffsets") {
       ButtonControl *manageLowVisibilitOffsetsButton = new ButtonControl(title, tr("MANAGE"), desc);
       QObject::connect(manageLowVisibilitOffsetsButton, &ButtonControl::clicked, [longitudinalLayout, weatherLowVisibilityPanel, this]() {
@@ -792,6 +816,8 @@ void FrogPilotLongitudinalPanel::showEvent(QShowEvent *event) {
   stoppingDecelRateToggle->setTitle(QString(tr("Stopping Rate (Default: %1)")).arg(QString::number(parent->stoppingDecelRate, 'f', 2)));
   vEgoStartingToggle->setTitle(QString(tr("Start Speed (Default: %1)")).arg(QString::number(parent->vEgoStarting, 'f', 2)));
   vEgoStoppingToggle->setTitle(QString(tr("Stop Speed (Default: %1)")).arg(QString::number(parent->vEgoStopping, 'f', 2)));
+
+  weatherKeyControl->setText(params.get("WeatherToken").empty() ? tr("ADD") : tr("REMOVE"));
 
   updateToggles();
 }

@@ -2562,6 +2562,34 @@
         <source>&lt;b&gt;Force openpilot to stop whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
         <translation type="gpt-5-generated">&lt;b&gt;บังคับให้ openpilot หยุดทุกครั้งที่แบบจำลองการขับขี่ “ตรวจพบ” ไฟแดงหรือป้ายหยุด&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;ข้อจำกัดความรับผิดชอบ&lt;/b&gt;: openpilot ไม่ได้ตรวจจับสัญญาณไฟจราจรหรือป้ายหยุดโดยตรง ใน “โหมดทดลอง” openpilot ตัดสินใจขับขี่แบบ end-to-end จากภาพกล้อง ซึ่งหมายความว่ามันอาจหยุดแม้ไม่มีเหตุผลชัดเจน!&lt;/i&gt;</translation>
     </message>
+    <message>
+        <source>Set Your Own Key</source>
+        <translation type="gpt-5-generated">ตั้งคีย์ของคุณเอง</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set your own "OpenWeatherMap" key to increase the weather update rate.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Personal keys grant 1,000 free calls per day, allowing for updates every minute. The default key is shared and only updates every 15 minutes.&lt;/i&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;ตั้งค่า "OpenWeatherMap" คีย์ของคุณเองเพื่อเพิ่มความถี่ในการอัปเดตสภาพอากาศ&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;คีย์ส่วนบุคคลให้สิทธิ์ใช้งานฟรี 1,000 ครั้งต่อวัน อนุญาตให้อัปเดตได้ทุกนาที คีย์เริ่มต้นถูกใช้งานร่วมกันและอัปเดตทุก 15 นาทีเท่านั้น&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>ADD</source>
+        <translation type="gpt-5-generated">เพิ่ม</translation>
+    </message>
+    <message>
+        <source>Enter your "OpenWeatherMap" key</source>
+        <translation type="gpt-5-generated">ป้อนคีย์ "OpenWeatherMap" ของคุณ</translation>
+    </message>
+    <message>
+        <source>REMOVE</source>
+        <translation type="gpt-5-generated">เอาออก</translation>
+    </message>
+    <message>
+        <source>Invalid key!</source>
+        <translation type="gpt-5-generated">คีย์ไม่ถูกต้อง!</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove your key?</source>
+        <translation type="gpt-5-generated">คุณแน่ใจหรือไม่ว่าต้องการลบกุญแจของคุณ?</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotManageControl</name>

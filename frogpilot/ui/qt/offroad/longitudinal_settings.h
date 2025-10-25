@@ -42,13 +42,15 @@ private:
   QSet<QString> speedLimitControllerVisualKeys = {"ShowSLCOffset", "SpeedLimitSources"};
   QSet<QString> standardPersonalityKeys = {"StandardFollow", "StandardJerkAcceleration", "StandardJerkDeceleration", "StandardJerkDanger", "StandardJerkSpeed", "StandardJerkSpeedDecrease", "ResetStandardPersonality"};
   QSet<QString> trafficPersonalityKeys = {"TrafficFollow", "TrafficJerkAcceleration", "TrafficJerkDeceleration", "TrafficJerkDanger", "TrafficJerkSpeed", "TrafficJerkSpeedDecrease", "ResetTrafficPersonality"};
-  QSet<QString> weatherKeys = {"LowVisibilityOffsets", "RainOffsets", "RainStormOffsets", "SnowOffsets"};
+  QSet<QString> weatherKeys = {"LowVisibilityOffsets", "RainOffsets", "RainStormOffsets", "SetWeatherKey", "SnowOffsets"};
   QSet<QString> weatherLowVisibilityKeys = {"IncreaseFollowingLowVisibility", "IncreasedStoppedDistanceLowVisibility", "ReduceAccelerationLowVisibility", "ReduceLateralAccelerationLowVisibility"};
   QSet<QString> weatherRainKeys = {"IncreaseFollowingRain", "IncreasedStoppedDistanceRain", "ReduceAccelerationRain", "ReduceLateralAccelerationRain"};
   QSet<QString> weatherRainStormKeys = {"IncreaseFollowingRainStorm", "IncreasedStoppedDistanceRainStorm", "ReduceAccelerationRainStorm", "ReduceLateralAccelerationRainStorm"};
   QSet<QString> weatherSnowKeys = {"IncreaseFollowingSnow", "IncreasedStoppedDistanceSnow", "ReduceAccelerationSnow", "ReduceLateralAccelerationSnow"};
 
   QSet<QString> parentKeys;
+
+  ButtonControl *weatherKeyControl;
 
   FrogPilotParamValueControl *longitudinalActuatorDelayToggle;
   FrogPilotParamValueControl *startAccelToggle;

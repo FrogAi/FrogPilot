@@ -2562,6 +2562,34 @@
         <source>&lt;b&gt;Force openpilot to stop whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
         <translation type="gpt-5-generated">&lt;b&gt;每當駕駛模型「偵測」到紅燈或停車標誌時，強制 openpilot 停車。&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;免責聲明&lt;/b&gt;：openpilot 不會明確偵測交通號誌或停車標誌。在「實驗模式」中，openpilot 依據攝影機輸入進行端到端的駕駛決策，這表示即使沒有明確理由也可能會停車！&lt;/i&gt;</translation>
     </message>
+    <message>
+        <source>Set Your Own Key</source>
+        <translation type="gpt-5-generated">設定您自己的金鑰</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set your own "OpenWeatherMap" key to increase the weather update rate.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Personal keys grant 1,000 free calls per day, allowing for updates every minute. The default key is shared and only updates every 15 minutes.&lt;/i&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;設定您自己的「OpenWeatherMap」金鑰以提高天氣更新頻率。&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;個人金鑰每天可享有 1,000 次免費呼叫，允許每分鐘更新一次。預設金鑰為共享，僅每 15 分鐘更新一次。&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>ADD</source>
+        <translation type="gpt-5-generated">新增</translation>
+    </message>
+    <message>
+        <source>Enter your "OpenWeatherMap" key</source>
+        <translation type="gpt-5-generated">輸入你的「OpenWeatherMap」金鑰</translation>
+    </message>
+    <message>
+        <source>REMOVE</source>
+        <translation type="gpt-5-generated">移除</translation>
+    </message>
+    <message>
+        <source>Invalid key!</source>
+        <translation type="gpt-5-generated">金鑰無效！</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove your key?</source>
+        <translation type="gpt-5-generated">您確定要移除您的金鑰嗎？</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotManageControl</name>

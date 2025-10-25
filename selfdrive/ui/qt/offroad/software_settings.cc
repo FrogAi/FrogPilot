@@ -67,9 +67,9 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
           branches.removeAt(i);
         }
       }
+      branches.removeAll("FrogPilot-Vetting");
+      branches.removeAll("MAKE-PRS-HERE");
     }
-    branches.removeAll("FrogPilot-Vetting");
-    branches.removeAll("MAKE-PRS-HERE");
     for (QString b : {current.c_str(), "devel-staging", "devel", "nightly", "master-ci", "master"}) {
       auto i = branches.indexOf(b);
       if (i >= 0) {

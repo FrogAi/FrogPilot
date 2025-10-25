@@ -3,9 +3,6 @@
 #include <QDateTime>
 #include <QDir>
 #include <QDirIterator>
-#include <QLocale>
-
-#include "selfdrive/ui/ui.h"
 
 #include "frogpilot/ui/qt/widgets/frogpilot_controls.h"
 
@@ -157,9 +154,8 @@ inline QString daySuffix(int day) {
 }
 
 inline QString formatCurrentDate() {
-  QLocale locale(uiState()->language.mid(5));
   QDate currentDate = QDate::currentDate();
-  return locale.toString(currentDate, "d MMMM yyyy");
+  return currentDate.toString("MMMM d'") + daySuffix(currentDate.day()) + QString(", %1").arg(currentDate.year());
 }
 
 inline QString formatElapsedTime(float elapsedMilliseconds) {
@@ -194,7 +190,7 @@ inline QString formatETA(float elapsedTime, int downloadedFiles, int previousDow
 
   int remainingTime = QDateTime::currentDateTime().secsTo(estimatedFinishTime);
 
-  QString estimatedFinishTimeStr = estimatedFinishTime.toString("HH:mm");
+  QString estimatedFinishTimeStr = estimatedFinishTime.toString("h:mm AP");
   QString remainingTimeStr = formatElapsedTime(remainingTime * 1000);
 
   return QString("%1 (%2)").arg(remainingTimeStr).arg(estimatedFinishTimeStr);

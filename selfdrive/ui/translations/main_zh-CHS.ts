@@ -2562,6 +2562,34 @@
         <source>&lt;b&gt;Force openpilot to stop whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
         <translation type="gpt-5-generated">&lt;b&gt;当驾驶模型“检测到”红灯或停车标志时，强制 openpilot 停车。&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;免责声明&lt;/b&gt;：openpilot 并不显式检测红绿灯或停车标志。在“实验模式”下，openpilot 基于摄像头输入进行端到端驾驶决策，这意味着即使没有明确理由它也可能会停车！&lt;/i&gt;</translation>
     </message>
+    <message>
+        <source>Set Your Own Key</source>
+        <translation type="gpt-5-generated">设置您自己的密钥</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set your own "OpenWeatherMap" key to increase the weather update rate.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Personal keys grant 1,000 free calls per day, allowing for updates every minute. The default key is shared and only updates every 15 minutes.&lt;/i&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;设置您自己的“OpenWeatherMap”密钥以提高天气更新频率。&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;个人密钥每天可免费调用 1,000 次，支持每分钟更新。默认密钥是共享的，只会每 15 分钟更新一次。&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>ADD</source>
+        <translation type="gpt-5-generated">添加</translation>
+    </message>
+    <message>
+        <source>Enter your "OpenWeatherMap" key</source>
+        <translation type="gpt-5-generated">请输入你的“OpenWeatherMap”密钥</translation>
+    </message>
+    <message>
+        <source>REMOVE</source>
+        <translation type="gpt-5-generated">移除</translation>
+    </message>
+    <message>
+        <source>Invalid key!</source>
+        <translation type="gpt-5-generated">密钥无效！</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove your key?</source>
+        <translation type="gpt-5-generated">您确定要移除您的密钥吗？</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotManageControl</name>

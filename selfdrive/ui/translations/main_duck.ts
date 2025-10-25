@@ -2564,6 +2564,34 @@
         <source>&lt;b&gt;Force openpilot to stop whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
         <translation type="gpt-5-generated">&lt;b&gt;Quack! Force openpilot to stop whenever the driving model “detects” a red light or stop sign, waddle-waddle.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: Quack! openpilot does not explicitly detect traffic lights or stop signs. In “Experimental Mode”, openpilot makes end-to-end driving choices from camera input—so it may stop even when there’s no clear reason, quack!&lt;/i&gt;</translation>
     </message>
+    <message>
+        <source>Set Your Own Key</source>
+        <translation type="gpt-5-generated">Quack! Set your own key, waddle-waddle!</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set your own "OpenWeatherMap" key to increase the weather update rate.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Personal keys grant 1,000 free calls per day, allowing for updates every minute. The default key is shared and only updates every 15 minutes.&lt;/i&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Quack! Set your own "OpenWeatherMap" key to goose the weather update rate, waddle-waddle.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Personal keys give 1,000 free calls per day—quack!—so you can update every minute. The default key is shared and only paddles in every 15 minutes.&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>ADD</source>
+        <translation type="gpt-5-generated">Quack! ADD!</translation>
+    </message>
+    <message>
+        <source>Enter your "OpenWeatherMap" key</source>
+        <translation type="gpt-5-generated">Quack! Waddle in your "OpenWeatherMap" key, quack!</translation>
+    </message>
+    <message>
+        <source>REMOVE</source>
+        <translation type="gpt-5-generated">Quack! REMOVE!</translation>
+    </message>
+    <message>
+        <source>Invalid key!</source>
+        <translation type="gpt-5-generated">Quack! Invalid key, squawk!</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove your key?</source>
+        <translation type="gpt-5-generated">Quack! You sure you want to pluck out your key? Waddle yes or no?</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotManageControl</name>

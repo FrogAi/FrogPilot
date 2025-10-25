@@ -2562,6 +2562,34 @@
         <source>&lt;b&gt;Force openpilot to stop whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
         <translation type="gpt-5-generated">&lt;b&gt;Forçar o openpilot a parar sempre que o modelo de direção "detectar" um semáforo vermelho ou uma placa de pare.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Aviso&lt;/b&gt;: o openpilot não detecta explicitamente semáforos ou placas de pare. No "Modo Experimental", o openpilot toma decisões de direção ponta a ponta a partir da entrada da câmera, o que significa que ele pode parar mesmo quando não há um motivo claro!&lt;/i&gt;</translation>
     </message>
+    <message>
+        <source>Set Your Own Key</source>
+        <translation type="gpt-5-generated">Defina sua própria chave</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set your own "OpenWeatherMap" key to increase the weather update rate.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Personal keys grant 1,000 free calls per day, allowing for updates every minute. The default key is shared and only updates every 15 minutes.&lt;/i&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Defina sua própria chave do "OpenWeatherMap" para aumentar a frequência de atualização do clima.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Chaves pessoais concedem 1.000 chamadas gratuitas por dia, permitindo atualizações a cada minuto. A chave padrão é compartilhada e atualiza apenas a cada 15 minutos.&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>ADD</source>
+        <translation type="gpt-5-generated">ADICIONAR</translation>
+    </message>
+    <message>
+        <source>Enter your "OpenWeatherMap" key</source>
+        <translation type="gpt-5-generated">Insira sua chave do "OpenWeatherMap"</translation>
+    </message>
+    <message>
+        <source>REMOVE</source>
+        <translation type="gpt-5-generated">REMOVER</translation>
+    </message>
+    <message>
+        <source>Invalid key!</source>
+        <translation type="gpt-5-generated">Chave inválida!</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove your key?</source>
+        <translation type="gpt-5-generated">Tem certeza de que deseja remover sua chave?</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotManageControl</name>

@@ -462,6 +462,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("TurnDesires", "0", 2, "0"),
   ("UnlimitedLength", "1", 2, "0"),
   ("UnlockDoors", "1", 0, "0"),
+  ("UpdatedToggles", "1", 0, "0"),
   ("UpdaterAvailableBranches", "", 0, ""),
   ("UseKonikServer", "0", 2, "0"),
   ("UseSI", "1", 3, "1"),
@@ -475,6 +476,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("WarningImmediateVolume", "101", 2, "101"),
   ("WarningSoftVolume", "101", 2, "101"),
   ("WeatherPresets", "0", 2, "0"),
+  ("WeatherToken", "", 2, ""),
   ("WheelIcon", "frog", 0, "stock"),
   ("WheelSpeed", "0", 2, "0")
 ]

@@ -2562,6 +2562,34 @@
         <source>&lt;b&gt;Force openpilot to stop whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
         <translation type="gpt-5-generated">&lt;b&gt;운전 모델이 빨간 신호나 정지 표지판을 “감지”하면 언제든지 openpilot을 강제로 정지합니다.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;면책조항&lt;/b&gt;: openpilot은 신호등이나 정지 표지판을 명시적으로 감지하지 않습니다. “실험 모드”에서는 카메라 입력만으로 종단간 주행 결정을 내리므로, 명확한 이유가 없어도 정지할 수 있습니다!&lt;/i&gt;</translation>
     </message>
+    <message>
+        <source>Set Your Own Key</source>
+        <translation type="gpt-5-generated">자체 키 설정</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set your own "OpenWeatherMap" key to increase the weather update rate.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Personal keys grant 1,000 free calls per day, allowing for updates every minute. The default key is shared and only updates every 15 minutes.&lt;/i&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;날씨 업데이트 빈도를 높이려면 "OpenWeatherMap" 개인 키를 설정하세요.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;개인 키는 하루 1,000회의 무료 호출이 가능하여 매분 업데이트할 수 있습니다. 기본 키는 공유되며 15분마다만 업데이트됩니다.&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>ADD</source>
+        <translation type="gpt-5-generated">추가</translation>
+    </message>
+    <message>
+        <source>Enter your "OpenWeatherMap" key</source>
+        <translation type="gpt-5-generated">"OpenWeatherMap" 키를 입력하세요</translation>
+    </message>
+    <message>
+        <source>REMOVE</source>
+        <translation type="gpt-5-generated">제거</translation>
+    </message>
+    <message>
+        <source>Invalid key!</source>
+        <translation type="gpt-5-generated">유효하지 않은 키!</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove your key?</source>
+        <translation type="gpt-5-generated">키를 정말 제거하시겠습니까?</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotManageControl</name>
