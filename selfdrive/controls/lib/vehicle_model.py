@@ -18,7 +18,7 @@ from numpy.linalg import solve
 
 from cereal import car
 
-ACCELERATION_DUE_TO_GRAVITY = 9.8
+ACCELERATION_DUE_TO_GRAVITY = 9.80665  # m/s^2, standard acceleration of gravity
 
 
 class VehicleModel:
