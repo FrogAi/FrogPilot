@@ -18,7 +18,7 @@ class CarInterface(CarInterfaceBase):
     # - to find the Cruise_Activated bit from the car
     # - proper panda safety setup (use the correct cruise_activated bit, throttle from Throttle_Hybrid, etc)
     ret.dashcamOnly = bool(ret.flags & (SubaruFlags.PREGLOBAL | SubaruFlags.LKAS_ANGLE | SubaruFlags.HYBRID))
-    ret.autoResumeSng = False
+    ret.autoResumeSng = not (ret.flags & SubaruFlags.GLOBAL_GEN2 or ret.flags & SubaruFlags.HYBRID)
 
     # Detect infotainment message sent from the camera
     if not (ret.flags & SubaruFlags.PREGLOBAL) and 0x323 in fingerprint[2]:

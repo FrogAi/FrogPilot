@@ -130,7 +130,7 @@ inline QString calculateDirectorySize(const QDir &directory) {
   constexpr double GB = 1024.0 * MB;
 
   if (!directory.exists()) {
-    return QStringLiteral("0 MB");
+    return QObject::tr("0 MB");
   }
 
   double totalSize = 0;
@@ -141,9 +141,9 @@ inline QString calculateDirectorySize(const QDir &directory) {
   }
 
   if (totalSize >= GB) {
-    return QString::number(totalSize / GB, 'f', 2) + QStringLiteral(" GB");
+    return QString::number(totalSize / GB, 'f', 2) + QObject::tr(" GB");
   }
-  return QString::number(totalSize / MB, 'f', 2) + QStringLiteral(" MB");
+  return QString::number(totalSize / MB, 'f', 2) + QObject::tr(" MB");
 }
 
 inline QString daySuffix(int day) {
@@ -166,12 +166,12 @@ inline QString formatElapsedTime(float elapsedMilliseconds) {
 
   QString formattedTime;
   if (hours > 0) {
-    formattedTime += QString::number(hours) + (hours == 1 ? " hour " : " hours ");
+    formattedTime += QString::number(hours) + (hours == 1 ? QObject::tr(" hour ") : QObject::tr(" hours "));
   }
   if (minutes > 0) {
-    formattedTime += QString::number(minutes) + (minutes == 1 ? " minute " : " minutes ");
+    formattedTime += QString::number(minutes) + (minutes == 1 ? QObject::tr(" minute ") : QObject::tr(" minutes "));
   }
-  formattedTime += QString::number(seconds) + (seconds == 1 ? " second" : " seconds");
+  formattedTime += QString::number(seconds) + (seconds == 1 ? QObject::tr(" second") : QObject::tr(" seconds"));
 
   return formattedTime.trimmed();
 }

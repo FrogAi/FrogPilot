@@ -29,11 +29,11 @@ Output rules:
 - Output: a fun, stylized rewrite that keeps technical structure intact.
 
 Hard requirements:
-1) Preserve placeholders, variables, and markup exactly as written: {{name}}, {{0}}, {{icu}}, %1, %n, %(speed)d, $SPEED, <b>…</b>, <a href="…">…</a>, etc.
+1) Preserve placeholders, variables, and markup exactly as written: {{name}}, {{0}}, {{icu}}, %1, %n, %(speed)d, $SPEED, <b>...</b>, <a href="...">...</a>, etc.
 2) Keep all non-translatable tokens unchanged: product/brand names (e.g., openpilot, ACC), file paths, error codes, part numbers.
 3) Do not add, remove, or reorder placeholders. If grammar absolutely requires reordering, keep all placeholders intact and still produce a correct sentence; prefer wordings that avoid reordering.
 4) Do not convert units or numbers (e.g., mph↔km/h). Translate unit labels only if standard in the style and not part of a preserved token.
-5) Maintain the same warning/priority level and imperative tone. Never soften or intensify safety messages ("Do not…", "Warning", "Critical").
+5) Maintain the same warning/priority level and imperative tone. Never soften or intensify safety messages ("Do not...", "Warning", "Critical").
 6) Preserve hotkeys/accelerators if present (e.g., &F, _O). If the exact letter is impossible, pick the nearest mnemonic but keep the marker.
 7) Follow style punctuation and casing norms while respecting all technical tokens.
 8) If ICU MessageFormat/plural/select syntax is present, keep the structure and variable names unchanged and rewrite only the human-readable text.
@@ -53,11 +53,11 @@ OPENAI_PROMPT = """
 You are a safety-critical UI translator for openpilot. Translate the following message (an English source string) into the locale '{language}'. Output ONLY the translated text, with no quotes or extra words.
 
 Hard requirements:
-1) Preserve placeholders, variables, and markup exactly as written: {{name}}, {{0}}, {{icu}}, %1, %n, %(speed)d, $SPEED, <b>…</b>, <a href="…">…</a>, etc.
+1) Preserve placeholders, variables, and markup exactly as written: {{name}}, {{0}}, {{icu}}, %1, %n, %(speed)d, $SPEED, <b>...</b>, <a href="...">...</a>, etc.
 2) Keep all non-translatable tokens unchanged: product/brand names (e.g., openpilot, ACC), file paths, error codes, part numbers.
 3) Do not add, remove, or reorder placeholders. If grammar absolutely requires reordering, keep all placeholders intact and still produce a correct sentence; prefer wordings that avoid reordering.
 4) Do not convert units or numbers (e.g., mph↔km/h). Translate unit labels only if standard in the target locale and not part of a preserved token.
-5) Maintain the same warning/priority level and imperative tone. Never soften or intensify safety messages ("Do not…", "Warning", "Critical").
+5) Maintain the same warning/priority level and imperative tone. Never soften or intensify safety messages ("Do not...", "Warning", "Critical").
 6) Preserve hotkeys/accelerators if present (e.g., &F, _O). If the exact letter is impossible, pick the nearest mnemonic but keep the marker.
 7) Follow target-locale punctuation and casing norms while respecting all technical tokens.
 8) If ICU MessageFormat/plural/select syntax is present, keep the structure and variable names unchanged and translate only the human-readable text.
@@ -77,7 +77,7 @@ Output rules:
 
 Decision criteria (apply in order):
 1) Hard correctness checks vs the Source:
-   - All placeholders/variables/markup from the Source must be preserved verbatim and remain valid: {{name}}, {{0}}, {{icu}}, %1, %n, %(speed)d, $SPEED, <b>…</b>, <a href="…">…</a>, &amp;, etc.
+   - All placeholders/variables/markup from the Source must be preserved verbatim and remain valid: {{name}}, {{0}}, {{icu}}, %1, %n, %(speed)d, $SPEED, <b>...</b>, <a href="...">...</a>, &amp;, etc.
    - Numbers and units must match; no unit conversion (mph↔km/h) and no number changes.
    - Non-translatable tokens present in Source must remain unchanged (e.g., openpilot, ACC, file paths, error codes, part numbers).
    - Hotkeys/accelerators such as &F or _O must be preserved with a sensible mnemonic letter in the target language; the marker must remain.

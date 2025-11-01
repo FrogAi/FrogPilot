@@ -216,6 +216,8 @@ struct FrogPilotPlan @0xa1680744031fdb2d {
   trackingLead @32 :Bool;
   unconfirmedSlcSpeedLimit @33 :Float32;
   vCruise @34 :Float32;
+  weatherDaytime @35 :Bool;
+  weatherId @36 :Int16;
 }
 
 struct FrogPilotRadarState @0xcb9fd56c7057593a {

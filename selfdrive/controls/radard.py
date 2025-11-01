@@ -14,6 +14,7 @@ from openpilot.common.realtime import DT_CTRL, DT_MDL, Ratekeeper, Priority, con
 from openpilot.common.swaglog import cloudlog
 
 from openpilot.common.simple_kalman import KF1D
+from openpilot.selfdrive.controls.controlsd import LaneChangeDirection, LaneChangeState
 
 from openpilot.frogpilot.common.frogpilot_variables import THRESHOLD, get_frogpilot_toggles
 
@@ -127,7 +128,7 @@ class Track:
       return self.leadRight
 
   def potential_far_lead(self, standstill: bool, model_data: capnp._DynamicStructReader):
-    if standstill or self.vLead < 1 or abs(self.yRel) > 1:
+    if standstill or self.vLead < 1:
       return False
 
     left_lane = interp(self.dRel, model_data.laneLines[1].x, model_data.laneLines[1].y)
@@ -158,7 +159,20 @@ def laplacian_pdf(x: float, mu: float, b: float):
   return math.exp(-abs(x-mu)/b)
 
 
-def match_vision_to_track(v_ego: float, lead: capnp._DynamicStructReader, tracks: dict[int, Track]):
+def match_vision_to_track(v_ego: float, lead: capnp._DynamicStructReader, model_data: capnp._DynamicStructReader, tracks: dict[int, Track], frogpilot_toggles: SimpleNamespace):
+  if model_data.meta.laneChangeState == LaneChangeState.laneChangeStarting and frogpilot_toggles.human_lane_changes:
+    direction = model_data.meta.laneChangeDirection
+
+    if direction == LaneChangeDirection.left:
+      left_tracks = [track for track in tracks.values() if track.leadLeft]
+      if left_tracks:
+        return min(left_tracks, key=lambda c: c.dRel)
+
+    elif direction == LaneChangeDirection.right:
+      right_tracks = [track for track in tracks.values() if track.leadRight]
+      if right_tracks:
+        return min(right_tracks, key=lambda c: c.dRel)
+
   offset_vision_dist = lead.x[0] - RADAR_TO_CAMERA
 
   def prob(c):
@@ -205,7 +219,7 @@ def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capn
              low_speed_override: bool = True) -> dict[str, Any]:
   # Determine leads, this is where the essential logic happens
   if len(tracks) > 0 and ready and lead_msg.prob > frogpilot_toggles.lead_detection_probability:
-    track = match_vision_to_track(v_ego, lead_msg, tracks)
+    track = match_vision_to_track(v_ego, lead_msg, model_data, tracks, frogpilot_toggles)
   else:
     track = None
 
@@ -325,7 +339,7 @@ class RadarD:
       self.radar_state.leadOne = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[0], model_v_ego, sm['modelV2'], sm['carState'].standstill, sm['frogpilotPlan'], self.frogpilot_toggles, low_speed_override=True)
       self.radar_state.leadTwo = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[1], model_v_ego, sm['modelV2'], sm['carState'].standstill, sm['frogpilotPlan'], self.frogpilot_toggles, low_speed_override=False)
 
-    if self.frogpilot_toggles.adjacent_lead_tracking and self.ready:
+    if (self.frogpilot_toggles.adjacent_lead_tracking or self.frogpilot_toggles.human_lane_changes) and self.ready:
       self.frogpilot_radar_state.leadLeft = get_adjacent_lead(self.tracks, sm['carState'].standstill, sm['modelV2'], left=True)
       self.frogpilot_radar_state.leadRight = get_adjacent_lead(self.tracks, sm['carState'].standstill, sm['modelV2'], left=False)
 

@@ -1,6 +1,8 @@
 #include "frogpilot/ui/qt/offroad/navigation_settings.h"
 
 FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *parent) : FrogPilotListWidget(parent), parent(parent) {
+  networkManager = new QNetworkAccessManager(this);
+
   QJsonObject shownDescriptions = QJsonDocument::fromJson(QString::fromStdString(params.get("ShownToggleDescriptions")).toUtf8()).object();
   QString className = this->metaObject()->className();
 
@@ -25,6 +27,9 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
   QObject::connect(searchInput, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
     amapKeyControl1->setVisible(id == 1);
     amapKeyControl2->setVisible(id == 1);
+    publicMapboxKeyControl->setVisible(id == 0);
+    secretMapboxKeyControl->setVisible(id == 0);
+    setupButton->setVisible(id == 0);
 
     params.putInt("SearchInput", id);
 
@@ -36,8 +41,107 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
   createKeyControl(amapKeyControl1, tr("Amap Key #1"), "AMapKey1", "", 39, settingsList);
   createKeyControl(amapKeyControl2, tr("Amap Key #2"), "AMapKey2", "", 39, settingsList);
 
-  createKeyControl(publicMapboxKeyControl, tr("Public Mapbox Key"), "MapboxPublicKey", "pk.", 80, settingsList);
-  createKeyControl(secretMapboxKeyControl, tr("Secret Mapbox Key"), "MapboxSecretKey", "sk.", 80, settingsList);
+  publicMapboxKeyControl = new FrogPilotButtonsControl(tr("Public Mapbox Key"), tr("<b>Manage your Public Mapbox Key.</b>"), "", {tr("ADD"), tr("TEST")});
+  QObject::connect(publicMapboxKeyControl, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
+    if (id == 0) {
+      if (mapboxPublicKeySet) {
+        if (FrogPilotConfirmationDialog::yesorno(tr("Remove your Public Mapbox Key?"), this)) {
+          params.remove("MapboxPublicKey");
+          params_cache.remove("MapboxPublicKey");
+
+          updateButtons();
+        }
+      } else {
+        QString key = InputDialog::getText(tr("Enter your Public Mapbox Key"), this).trimmed();
+        if (!key.isEmpty()) {
+          if (!key.startsWith("pk.")) {
+            key = "pk." + key;
+          }
+          if (key.length() >= 80) {
+            params.put("MapboxPublicKey", key.toStdString());
+
+            updateButtons();
+          } else {
+            ConfirmationDialog::alert(tr("Inputted key is invalid or too short!"), this);
+          }
+        }
+      }
+    } else {
+      publicMapboxKeyControl->setValue(tr("Testing..."));
+
+      QString key = QString::fromStdString(params.get("MapboxPublicKey"));
+      QString url = QString("https://api.mapbox.com/geocoding/v5/mapbox.places/mapbox.json?access_token=%1").arg(key);
+
+      QNetworkRequest request(url);
+      QNetworkReply *reply = networkManager->get(request);
+      connect(reply, &QNetworkReply::finished, [=]() {
+        publicMapboxKeyControl->setValue("");
+
+        QString message;
+        if (reply->error() == QNetworkReply::NoError) {
+          message = tr("Key is valid!");
+        } else if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 401) {
+          message = tr("Key is invalid!");
+        } else {
+          message = tr("An error occurred: %1").arg(reply->errorString());
+        }
+        ConfirmationDialog::alert(message, this);
+        reply->deleteLater();
+      });
+    }
+  });
+  settingsList->addItem(publicMapboxKeyControl);
+
+  secretMapboxKeyControl = new FrogPilotButtonsControl(tr("Secret Mapbox Key"), tr("<b>Manage your Secret Mapbox Key.</b>"), "", {tr("ADD"), tr("TEST")});
+  QObject::connect(secretMapboxKeyControl, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
+    if (id == 0) {
+      if (mapboxSecretKeySet) {
+        if (FrogPilotConfirmationDialog::yesorno(tr("Remove your Secret Mapbox Key?"), this)) {
+          params.remove("MapboxSecretKey");
+          params_cache.remove("MapboxSecretKey");
+
+          updateButtons();
+        }
+      } else {
+        QString key = InputDialog::getText(tr("Enter your Secret Mapbox Key"), this).trimmed();
+        if (!key.isEmpty()) {
+          if (!key.startsWith("sk.")) {
+            key = "sk." + key;
+          }
+          if (key.length() >= 80) {
+            params.put("MapboxSecretKey", key.toStdString());
+
+            updateButtons();
+          } else {
+            ConfirmationDialog::alert(tr("Inputted key is invalid or too short!"), this);
+          }
+        }
+      }
+    } else {
+      secretMapboxKeyControl->setValue(tr("Testing..."));
+
+      QString key = QString::fromStdString(params.get("MapboxSecretKey"));
+      QString url = QString("https://api.mapbox.com/directions/v5/mapbox/driving/-73.989,40.733;-74,40.733?access_token=%1").arg(key);
+
+      QNetworkRequest request(url);
+      QNetworkReply *reply = networkManager->get(request);
+      connect(reply, &QNetworkReply::finished, [=]() {
+        secretMapboxKeyControl->setValue("");
+
+        QString message;
+        if (reply->error() == QNetworkReply::NoError) {
+          message = tr("Key is valid!");
+        } else if (reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt() == 401) {
+          message = tr("Key is invalid!");
+        } else {
+          message = tr("An error occurred: %1").arg(reply->errorString());
+        }
+        ConfirmationDialog::alert(message, this);
+        reply->deleteLater();
+      });
+    }
+  });
+  settingsList->addItem(secretMapboxKeyControl);
 
   setupButton = new ButtonControl(tr("Mapbox Setup Instructions"), tr("VIEW"), tr("<b>Instructions on how to set up Mapbox</b> for \"Primeless Navigation\"."), this);
   QObject::connect(setupButton, &ButtonControl::clicked, [this]() {
@@ -179,6 +283,9 @@ void FrogPilotNavigationPanel::showEvent(QShowEvent *event) {
 
   amapKeyControl1->setVisible(selectedSearchInput == 1);
   amapKeyControl2->setVisible(selectedSearchInput == 1);
+  publicMapboxKeyControl->setVisible(selectedSearchInput == 0);
+  secretMapboxKeyControl->setVisible(selectedSearchInput == 0);
+  setupButton->setVisible(selectedSearchInput == 0);
 
   updateSpeedLimitsToggle->setVisibleButton(0, updatingLimits);
   updateSpeedLimitsToggle->setVisibleButton(1, !updatingLimits);
@@ -245,14 +352,18 @@ void FrogPilotNavigationPanel::createKeyControl(ButtonControl *&control, const Q
 }
 
 void FrogPilotNavigationPanel::updateButtons() {
+  FrogPilotUIState &fs = *frogpilotUIState();
+
   amapKeyControl1->setText(params.get("AMapKey1").empty() ? tr("ADD") : tr("REMOVE"));
   amapKeyControl2->setText(params.get("AMapKey2").empty() ? tr("ADD") : tr("REMOVE"));
 
   mapboxPublicKeySet = QString::fromStdString(params.get("MapboxPublicKey")).startsWith("pk");
   mapboxSecretKeySet = QString::fromStdString(params.get("MapboxSecretKey")).startsWith("sk");
 
-  publicMapboxKeyControl->setText(mapboxPublicKeySet ? tr("REMOVE") : tr("ADD"));
-  secretMapboxKeyControl->setText(mapboxSecretKeySet ? tr("REMOVE") : tr("ADD"));
+  publicMapboxKeyControl->setText(0, mapboxPublicKeySet ? tr("REMOVE") : tr("ADD"));
+  publicMapboxKeyControl->setVisibleButton(1, mapboxPublicKeySet && fs.frogpilot_scene.online);
+  secretMapboxKeyControl->setText(0, mapboxSecretKeySet ? tr("REMOVE") : tr("ADD"));
+  secretMapboxKeyControl->setVisibleButton(1, mapboxSecretKeySet && fs.frogpilot_scene.online);
 }
 
 void FrogPilotNavigationPanel::updateState(const UIState &s, const FrogPilotUIState &fs) {

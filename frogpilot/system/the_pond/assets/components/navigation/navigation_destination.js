@@ -236,7 +236,7 @@ export function NavDestination() {
       state.suggestions = "[]";
     } catch (err) {
       console.error("Failed to calculate route:", err);
-      showSnackbar("Failed to calculate route…");
+      showSnackbar("Failed to calculate route...");
     } finally {
       state.loadingRoute = false;
     }
@@ -433,7 +433,7 @@ export function NavDestination() {
 
       showSnackbar(`"${fav.name}" renamed to "${newName}"!`, "success");
     } catch {
-      showSnackbar("Failed to edit favorite name…");
+      showSnackbar("Failed to edit favorite name...");
     } finally {
       state.showRenameFavoriteModal = false;
     }
@@ -771,7 +771,7 @@ function NavigationDestination({
       showSnackbar(message || "Added to favorites!");
       await loadFavorites();
     } catch {
-      showSnackbar("Failed to add to favorites…");
+      showSnackbar("Failed to add to favorites...");
     }
   }
   async function toggleFavorite() {
@@ -782,7 +782,7 @@ function NavigationDestination({
       if (fav) {
         removeFavorite(fav);
       } else {
-        showSnackbar("Couldn't find favorite entry…");
+        showSnackbar("Couldn't find favorite entry...");
       }
     } else {
       await favoriteDestination();

@@ -423,6 +423,22 @@
         <source>Miles</source>
         <translation type="gpt-5-generated">マイル</translation>
     </message>
+    <message>
+        <source>ALL TIME (KONIK)</source>
+        <translation type="gpt-5-generated">常時（KONIK）</translation>
+    </message>
+    <message>
+        <source>ALL TIME</source>
+        <translation type="gpt-5-generated">常時</translation>
+    </message>
+    <message>
+        <source>PAST WEEK (KONIK)</source>
+        <translation type="gpt-5-generated">過去1週間（KONIK）</translation>
+    </message>
+    <message>
+        <source>PAST WEEK</source>
+        <translation type="gpt-5-generated">過去1週間</translation>
+    </message>
 </context>
 <context>
     <name>DriverViewWindow</name>
@@ -484,6 +500,30 @@
         <source>LIMIT</source>
         <translation type="gpt-5-generated">制限</translation>
     </message>
+    <message>
+        <source>Desired: %1</source>
+        <translation type="gpt-5-generated">希望: %1</translation>
+    </message>
+    <message>
+        <source>s</source>
+        <translation type="gpt-5-generated">s</translation>
+    </message>
+    <message>
+        <source>1 minute</source>
+        <translation type="gpt-5-generated">1分</translation>
+    </message>
+    <message>
+        <source>%1 minutes</source>
+        <translation type="gpt-5-generated">%1 分</translation>
+    </message>
+    <message>
+        <source>1 second</source>
+        <translation type="gpt-5-generated">1秒</translation>
+    </message>
+    <message>
+        <source>%1 seconds</source>
+        <translation type="gpt-5-generated">%1 秒</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotConfirmationDialog</name>
@@ -532,7 +572,7 @@
     </message>
     <message>
         <source>Deleting...</source>
-        <translation type="gpt-5-generated">削除しています…</translation>
+        <translation type="gpt-5-generated">削除しています...</translation>
     </message>
     <message>
         <source>Deleted!</source>
@@ -600,7 +640,7 @@
     </message>
     <message>
         <source>Renaming...</source>
-        <translation type="gpt-5-generated">名前変更中…</translation>
+        <translation type="gpt-5-generated">名前変更中...</translation>
     </message>
     <message>
         <source>Renamed!</source>
@@ -632,11 +672,11 @@
     </message>
     <message>
         <source>Backing up...</source>
-        <translation type="gpt-5-generated">バックアップ中…</translation>
+        <translation type="gpt-5-generated">バックアップ中...</translation>
     </message>
     <message>
         <source>Compressing...</source>
-        <translation type="gpt-5-generated">圧縮中…</translation>
+        <translation type="gpt-5-generated">圧縮中...</translation>
     </message>
     <message>
         <source>Backup created!</source>
@@ -668,11 +708,11 @@
     </message>
     <message>
         <source>Restoring...</source>
-        <translation type="gpt-5-generated">復元しています…</translation>
+        <translation type="gpt-5-generated">復元しています...</translation>
     </message>
     <message>
         <source>Extracting...</source>
-        <translation type="gpt-5-generated">抽出しています…</translation>
+        <translation type="gpt-5-generated">抽出しています...</translation>
     </message>
     <message>
         <source>Restored!</source>
@@ -680,7 +720,7 @@
     </message>
     <message>
         <source>Rebooting...</source>
-        <translation type="gpt-5-generated">再起動中…</translation>
+        <translation type="gpt-5-generated">再起動中...</translation>
     </message>
     <message>
         <source>Toggle Backups</source>
@@ -693,6 +733,238 @@
     <message>
         <source>Choose a backup to delete</source>
         <translation type="gpt-5-generated">削除するバックアップを選択してください</translation>
+    </message>
+    <message>
+        <source>FrogPilot Stats</source>
+        <translation type="gpt-5-generated">FrogPilot 統計</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;View your collected FrogPilot stats.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;収集したFrogPilotの統計を表示&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>RESET</source>
+        <translation type="gpt-5-generated">リセット</translation>
+    </message>
+    <message>
+        <source>VIEW</source>
+        <translation type="gpt-5-generated">表示</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to reset all of your FrogPilot stats?</source>
+        <translation type="gpt-5-generated">FrogPilot のすべての統計情報をリセットしてもよろしいですか？</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="gpt-5-generated">リセット</translation>
+    </message>
+    <message>
+        <source>Total Emergency Brake Alerts</source>
+        <translation type="gpt-5-generated">緊急ブレーキ警報の合計</translation>
+    </message>
+    <message>
+        <source>Time Using "Always On Lateral"</source>
+        <translation type="gpt-5-generated">「常時レーンキープ」使用時間</translation>
+    </message>
+    <message>
+        <source>Favorite Set Speed</source>
+        <translation type="gpt-5-generated">お気に入りの設定速度</translation>
+    </message>
+    <message>
+        <source>Total Disengagements</source>
+        <translation type="gpt-5-generated">総ディスエンゲージメント数</translation>
+    </message>
+    <message>
+        <source>Total Engagements</source>
+        <translation type="gpt-5-generated">総エンゲージメント</translation>
+    </message>
+    <message>
+        <source>Time Using "Experimental Mode"</source>
+        <translation type="gpt-5-generated">「実験モード」の使用時間</translation>
+    </message>
+    <message>
+        <source>Total Frog Chirps</source>
+        <translation type="gpt-5-generated">カエルの鳴き声の合計</translation>
+    </message>
+    <message>
+        <source>Total Frog Hops</source>
+        <translation type="gpt-5-generated">合計カエルジャンプ回数</translation>
+    </message>
+    <message>
+        <source>Total Drives</source>
+        <translation type="gpt-5-generated">合計走行回数</translation>
+    </message>
+    <message>
+        <source>Total Distance Driven</source>
+        <translation type="gpt-5-generated">総走行距離</translation>
+    </message>
+    <message>
+        <source>Total Driving Time</source>
+        <translation type="gpt-5-generated">総運転時間</translation>
+    </message>
+    <message>
+        <source>Total Frog Squeaks</source>
+        <translation type="gpt-5-generated">カエルの鳴き声合計</translation>
+    </message>
+    <message>
+        <source>Total Goat Screams</source>
+        <translation type="gpt-5-generated">ヤギの叫びの合計</translation>
+    </message>
+    <message>
+        <source>Highest Acceleration Rate</source>
+        <translation type="gpt-5-generated">最高加速率</translation>
+    </message>
+    <message>
+        <source>Time Using Lateral Control</source>
+        <translation type="gpt-5-generated">横方向制御の使用時間</translation>
+    </message>
+    <message>
+        <source>Longest Distance Without an Override</source>
+        <translation type="gpt-5-generated">最長距離（介入なし）</translation>
+    </message>
+    <message>
+        <source>Time Using Longitudinal Control</source>
+        <translation type="gpt-5-generated">縦方向制御の使用時間</translation>
+    </message>
+    <message>
+        <source>Driving Models:</source>
+        <translation type="gpt-5-generated">運転モデル:</translation>
+    </message>
+    <message>
+        <source>Month</source>
+        <translation type="gpt-5-generated">月</translation>
+    </message>
+    <message>
+        <source>Total Overrides</source>
+        <translation type="gpt-5-generated">総オーバーライド数</translation>
+    </message>
+    <message>
+        <source>Time Overriding openpilot</source>
+        <translation type="gpt-5-generated">openpilot の時間を上書き中</translation>
+    </message>
+    <message>
+        <source>Random Events:</source>
+        <translation type="gpt-5-generated">ランダムイベント:</translation>
+    </message>
+    <message>
+        <source>Time Stopped</source>
+        <translation type="gpt-5-generated">時間が停止しました</translation>
+    </message>
+    <message>
+        <source>Time Spent at Stoplights</source>
+        <translation type="gpt-5-generated">信号待ち時間</translation>
+    </message>
+    <message>
+        <source>Total Time Tracked</source>
+        <translation type="gpt-5-generated">合計追跡時間</translation>
+    </message>
+    <message>
+        <source>UwUs</source>
+        <translation type="gpt-5-generated">UwUs</translation>
+    </message>
+    <message>
+        <source>Loch Ness Encounters</source>
+        <translation type="gpt-5-generated">ネス湖の出会い</translation>
+    </message>
+    <message>
+        <source>Visits to 1955</source>
+        <translation type="gpt-5-generated">1955 への訪問</translation>
+    </message>
+    <message>
+        <source>Deja Vu Moments</source>
+        <translation type="gpt-5-generated">デジャヴの瞬間</translation>
+    </message>
+    <message>
+        <source>Internet Explorer Weeeeeeees</source>
+        <translation type="gpt-5-generated">Internet Explorer ウィーーーズ</translation>
+    </message>
+    <message>
+        <source>HAL 9000 Denials</source>
+        <translation type="gpt-5-generated">HAL 9000 の拒否</translation>
+    </message>
+    <message>
+        <source>openpilot Crashes</source>
+        <translation type="gpt-5-generated">openpilot がクラッシュする</translation>
+    </message>
+    <message>
+        <source>This Is Fine Moments</source>
+        <translation type="gpt-5-generated">これは大丈夫な瞬間</translation>
+    </message>
+    <message>
+        <source>To Be Continued Moments</source>
+        <translation type="gpt-5-generated">続きは後ほど</translation>
+    </message>
+    <message>
+        <source>Noices</source>
+        <translation type="gpt-5-generated">雑音</translation>
+    </message>
+    <message>
+        <source>Attempted Frog Murders</source>
+        <translation type="gpt-5-generated">カエル殺害未遂</translation>
+    </message>
+    <message>
+        <source>Total Mail Received</source>
+        <translation type="gpt-5-generated">受信メール合計</translation>
+    </message>
+    <message>
+        <source> kilometer</source>
+        <translation type="gpt-5-generated">キロメートル</translation>
+    </message>
+    <message>
+        <source> kilometers</source>
+        <translation type="gpt-5-generated">キロメートル</translation>
+    </message>
+    <message>
+        <source> mile</source>
+        <translation type="gpt-5-generated"> マイル</translation>
+    </message>
+    <message>
+        <source> miles</source>
+        <translation type="gpt-5-generated"> マイル</translation>
+    </message>
+    <message>
+        <source> day </source>
+        <translation type="gpt-5-generated">日</translation>
+    </message>
+    <message>
+        <source> days </source>
+        <translation type="gpt-5-generated">日間</translation>
+    </message>
+    <message>
+        <source> hour </source>
+        <translation type="gpt-5-generated">時間</translation>
+    </message>
+    <message>
+        <source> hours </source>
+        <translation type="gpt-5-generated">時間</translation>
+    </message>
+    <message>
+        <source> minute</source>
+        <translation type="gpt-5-generated"> 分 минут</translation>
+    </message>
+    <message>
+        <source> minutes</source>
+        <translation type="gpt-5-generated"> 分</translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation type="gpt-5-generated">km/h</translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation type="gpt-5-generated">mph</translation>
+    </message>
+    <message>
+        <source>m/s²</source>
+        <translation type="gpt-5-generated">m/s²</translation>
+    </message>
+    <message>
+        <source>Total </source>
+        <translation type="gpt-5-generated">合計</translation>
+    </message>
+    <message>
+        <source>% of </source>
+        <translation type="gpt-5-generated">% の</translation>
     </message>
 </context>
 <context>
@@ -872,6 +1144,125 @@
     <message>
         <source> seconds</source>
         <translation type="gpt-5-generated"> 秒</translation>
+    </message>
+</context>
+<context>
+    <name>FrogPilotDriveSummary</name>
+    <message>
+        <source>Random Events Summary</source>
+        <translation type="gpt-5-generated">ランダムイベントの概要</translation>
+    </message>
+    <message>
+        <source>Drive Summary</source>
+        <translation type="gpt-5-generated">走行サマリー</translation>
+    </message>
+    <message>
+        <source>UwUs</source>
+        <translation type="gpt-5-generated">UwUs</translation>
+    </message>
+    <message>
+        <source>Loch Ness Encounters</source>
+        <translation type="gpt-5-generated">ネス湖での遭遇</translation>
+    </message>
+    <message>
+        <source>Visits to 1955</source>
+        <translation type="gpt-5-generated">1955年への訪問</translation>
+    </message>
+    <message>
+        <source>Deja Vu Moments</source>
+        <translation type="gpt-5-generated">デジャブの瞬間</translation>
+    </message>
+    <message>
+        <source>Internet Explorer Weeeeeeees</source>
+        <translation type="gpt-5-generated">Internet Explorer ウィーーーーーズ</translation>
+    </message>
+    <message>
+        <source>HAL 9000 Denials</source>
+        <translation type="gpt-5-generated">HAL 9000 の拒否</translation>
+    </message>
+    <message>
+        <source>openpilot Crashes</source>
+        <translation type="gpt-5-generated">openpilotのクラッシュ</translation>
+    </message>
+    <message>
+        <source>This Is Fine Moments</source>
+        <translation type="gpt-5-generated">これは大丈夫な瞬間</translation>
+    </message>
+    <message>
+        <source>To Be Continued Moments</source>
+        <translation type="gpt-5-generated">続きは後ほど</translation>
+    </message>
+    <message>
+        <source>Noices</source>
+        <translation type="gpt-5-generated">ノイズ</translation>
+    </message>
+    <message>
+        <source>Attempted Frog Murders</source>
+        <translation type="gpt-5-generated">未遂のカエル殺害</translation>
+    </message>
+    <message>
+        <source>Total Mail Received</source>
+        <translation type="gpt-5-generated">受信メール合計</translation>
+    </message>
+    <message>
+        <source>% of Drive With openpilot Engaged</source>
+        <translation type="gpt-5-generated">openpilot作動中の走行割合</translation>
+    </message>
+    <message>
+        <source>Drive Distance</source>
+        <translation type="gpt-5-generated">走行距離</translation>
+    </message>
+    <message>
+        <source>Drive Time</source>
+        <translation type="gpt-5-generated">走行時間</translation>
+    </message>
+    <message>
+        <source>% of Drive In "Experimental Mode"</source>
+        <translation type="gpt-5-generated">「実験モード」での走行の割合</translation>
+    </message>
+    <message>
+        <source>No Random Events Played!</source>
+        <translation type="gpt-5-generated">ランダムイベントは再生されませんでした。</translation>
+    </message>
+    <message>
+        <source> kilometer</source>
+        <translation type="gpt-5-generated">キロメートル</translation>
+    </message>
+    <message>
+        <source> kilometers</source>
+        <translation type="gpt-5-generated"> キロメートル</translation>
+    </message>
+    <message>
+        <source> mile</source>
+        <translation type="gpt-5-generated">マイル</translation>
+    </message>
+    <message>
+        <source> miles</source>
+        <translation type="gpt-5-generated"> マイル</translation>
+    </message>
+    <message>
+        <source> day </source>
+        <translation type="gpt-5-generated">日</translation>
+    </message>
+    <message>
+        <source> days </source>
+        <translation type="gpt-5-generated"> 日間</translation>
+    </message>
+    <message>
+        <source> hour </source>
+        <translation type="gpt-5-generated">時間</translation>
+    </message>
+    <message>
+        <source> hours </source>
+        <translation type="gpt-5-generated">時間</translation>
+    </message>
+    <message>
+        <source> minute</source>
+        <translation type="gpt-5-generated">分</translation>
+    </message>
+    <message>
+        <source> minutes</source>
+        <translation type="gpt-5-generated"> 分</translation>
     </message>
 </context>
 <context>
@@ -1292,10 +1683,6 @@
         <translation type="gpt-5-generated">予測停止まで</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Switch to "Experimental Mode" when openpilot predicts a stop within the set time.&lt;/b&gt; This is usually triggered when the model "sees" a red light or stop sign ahead.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason.&lt;/i&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;設定した時間内にopenpilotが停止を予測した場合、「実験モード」に切り替えます。&lt;/b&gt; これは通常、モデルが前方に赤信号や一時停止標識を「認識」したときにトリガーされます。&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;免責事項&lt;/b&gt;: openpilotは信号機や一時停止標識を明示的に検出しません。「実験モード」では、openpilotはカメラ入力からエンドツーエンドで運転判断を行うため、明確な理由がない場合でも停止することがあります。&lt;/i&gt;</translation>
-    </message>
-    <message>
         <source>Turn Signal Below</source>
         <translation type="gpt-5-generated">ターンシグナル下方</translation>
     </message>
@@ -1616,10 +2003,6 @@
         <translation type="gpt-5-generated">「検出済み」の信号/標識で強制停止</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Force openpilot to stop whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason.&lt;/i&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;運転モデルが赤信号や一時停止標識を「検出」したときは必ずopenpilotを停止させます。&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;免責事項&lt;/b&gt;：openpilotは信号機や一時停止標識を明示的には検出しません。「実験モード」では、openpilotはカメラ入力からエンドツーエンドで運転判断を行うため、明確な理由がなくても停止する場合があります。&lt;/i&gt;</translation>
-    </message>
-    <message>
         <source>Increase Stopped Distance by:</source>
         <translation type="gpt-5-generated">停止距離を次で増やす:</translation>
     </message>
@@ -1650,6 +2033,42 @@
     <message>
         <source>&lt;b&gt;Reverse the cruise control button behavior&lt;/b&gt; so a short press increases the set speed by 5 instead of 1.</source>
         <translation type="gpt-5-generated">&lt;b&gt;クルーズコントロールボタンの動作を反転&lt;/b&gt;し、短押しで設定速度を1ではなく5増加させます。</translation>
+    </message>
+    <message>
+        <source>Increase Following Distance by:</source>
+        <translation type="gpt-5-generated">追従距離を増やす:</translation>
+    </message>
+    <message>
+        <source>Reduce Acceleration by:</source>
+        <translation type="gpt-5-generated">加速度を次の値だけ下げる:</translation>
+    </message>
+    <message>
+        <source>Reduce Speed in Curves by:</source>
+        <translation type="gpt-5-generated">カーブでの速度を次の値だけ減速:</translation>
+    </message>
+    <message>
+        <source>Snow</source>
+        <translation type="gpt-5-generated">雪</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Driving adjustments for snowy conditions.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;雪道における運転調整。&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra space behind lead vehicles in snow.&lt;/b&gt; Increase for more space; decrease for tighter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;雪道では先行車との車間を広めに取ります。&lt;/b&gt; 増やすと車間が広がり、減らすと間隔が狭くなります。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra buffer when stopped behind vehicles in snow.&lt;/b&gt; Increase for more room; decrease for shorter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;雪道で前車の後ろに停止する際は余裕を多めに取ってください。&lt;/b&gt; 増やすと距離が広がり、減らすと間隔が短くなります。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the maximum acceleration in snow.&lt;/b&gt; Increase for softer takeoffs; decrease for quicker but less stable takeoffs.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;雪道では最大加速度を下げてください。&lt;/b&gt; 穏やかな発進には上げ、素早いが安定性に劣る発進には下げます。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the desired speed while driving through curves in snow.&lt;/b&gt; Increase for safer, gentler turns; decrease for more aggressive driving in curves.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;雪道のカーブ走行時は希望速度を下げてください。&lt;/b&gt; 安全で穏やかな旋回には上げ、カーブでより積極的に走行する場合は下げてください。</translation>
     </message>
     <message>
         <source>Speed Limit Controller</source>
@@ -2039,6 +2458,154 @@
         <source>&lt;b&gt;Following behavior that mimics human drivers&lt;/b&gt; by closing gaps behind faster vehicles for quicker takeoffs and dynamically adjusting the desired following distance for gentler, more efficient braking.</source>
         <translation type="gpt-5-generated">&lt;b&gt;人間のドライバーを模倣する追従挙動&lt;/b&gt;。より速い車両の後方で車間を詰めて発進を素早くし、望ましい追従距離を動的に調整して、より穏やかで効率的な減速を実現します。</translation>
     </message>
+    <message>
+        <source>Weather Condition Offsets</source>
+        <translation type="gpt-5-generated">天候条件オフセット</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Automatically adjust driving behavior based on real-time weather.&lt;/b&gt; Helps maintain comfort and safety in low visibility, rain, or snow.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;リアルタイムの天候に基づいて走行挙動を自動調整します。&lt;/b&gt; 視界不良や雨、雪の状況でも快適性と安全性の維持に役立ちます。</translation>
+    </message>
+    <message>
+        <source>Low Visibility</source>
+        <translation type="gpt-5-generated">視界不良</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Driving adjustments for fog, haze, or other low-visibility conditions.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;霧、霞、その他の視界不良時の運転調整。&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra space behind lead vehicles in low visibility.&lt;/b&gt; Increase for more space; decrease for tighter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;視界が悪いときは前走車との車間を広めに確保してください。&lt;/b&gt; 増やすと車間が広くなり、減らすと車間が詰まります。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra buffer when stopped behind vehicles in low visibility.&lt;/b&gt; Increase for more room; decrease for shorter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;視界が悪いとき、前方車両の後方で停止する際は余裕を多めに確保してください。&lt;/b&gt; 余裕を増やすと車間が広くなり、減らすと短くなります。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the maximum acceleration in low visibility.&lt;/b&gt; Increase for softer takeoffs; decrease for quicker but less stable takeoffs.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;視界不良時は最大加速度を下げてください。&lt;/b&gt; 穏やかな発進にするには増やし、素早いが不安定になりやすい発進にするには減らしてください。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the desired speed while driving through curves in low visibility.&lt;/b&gt; Increase for safer, gentler turns; decrease for more aggressive driving in curves.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;視界が悪いカーブでは希望速度を下げてください。&lt;/b&gt; より安全で穏やかな旋回には増加を、カーブでより積極的な走行には減少を選択してください。</translation>
+    </message>
+    <message>
+        <source>Rain</source>
+        <translation type="gpt-5-generated">雨</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Driving adjustments for rainy conditions.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;雨天時の運転調整。&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra space behind lead vehicles in rain.&lt;/b&gt; Increase for more space; decrease for tighter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;雨天時に先行車との車間を広めに取ります。&lt;/b&gt; 値を上げると車間が広がり、下げると車間が詰まります。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra buffer when stopped behind vehicles in rain.&lt;/b&gt; Increase for more room; decrease for shorter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;雨天時に前方車両の後方で停止する際は余裕距離を追加してください。&lt;/b&gt; 広げると車間が広くなり、狭めると間隔が短くなります。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the maximum acceleration in rain.&lt;/b&gt; Increase for softer takeoffs; decrease for quicker but less stable takeoffs.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;雨天時は最大加速度を下げてください。&lt;/b&gt; ふんわり発進したい場合は上げ、素早いが安定性の低い発進にしたい場合は下げてください。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the desired speed while driving through curves in rain.&lt;/b&gt; Increase for safer, gentler turns; decrease for more aggressive driving in curves.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;雨天時のカーブ走行では希望速度を下げてください。&lt;/b&gt; 安全で穏やかな旋回には上げ、カーブでより攻撃的な走行には下げてください。</translation>
+    </message>
+    <message>
+        <source>Rainstorms</source>
+        <translation type="gpt-5-generated">豪雨</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Driving adjustments for rainstorms.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;豪雨時の運転調整。&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra space behind lead vehicles in a rainstorm.&lt;/b&gt; Increase for more space; decrease for tighter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;暴風雨時は先行車との車間距離を広めにとってください。&lt;/b&gt; 増やすと車間が広がり、減らすと間隔が詰まります。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra buffer when stopped behind vehicles in a rainstorm.&lt;/b&gt; Increase for more room; decrease for shorter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;豪雨時に前方車両の後方で停止する際は、余分な間隔を確保してください。&lt;/b&gt; 余裕を増やすには増加、間隔を短くするには減少。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the maximum acceleration in a rainstorm.&lt;/b&gt; Increase for softer takeoffs; decrease for quicker but less stable takeoffs.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;豪雨時は最大加速度を下げてください。&lt;/b&gt; 低くすると穏やかな発進に、高くすると素早いが安定性に欠ける発進になります。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the desired speed while driving through curves in a rainstorm.&lt;/b&gt; Increase for safer, gentler turns; decrease for more aggressive driving in curves.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;豪雨の中でカーブを走行する際は、希望速度を下げてください。&lt;/b&gt; より安全で穏やかな旋回には上げ、カーブでより攻撃的な走行には下げます。</translation>
+    </message>
+    <message>
+        <source>Human-Like Lane Changes</source>
+        <translation type="gpt-5-generated">人間のような車線変更</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lane-change behavior that mimics human drivers&lt;/b&gt; by anticipating and tracking adjacent vehicles during lane changes.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;人間の運転者を模倣する車線変更動作&lt;/b&gt;。車線変更中に隣接車両を予測・追跡します。</translation>
+    </message>
+    <message>
+        <source>"Detected" Stop Lights/Signs</source>
+        <translation type="gpt-5-generated">「検出」された信号/標識</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch to "Experimental Mode" whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;走行モデルが赤信号または一時停止標識を「検出」したときは常に「実験モード」に切り替えます。&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;免責事項&lt;/b&gt;：openpilot は信号機や一時停止標識を明示的には検出しません。「実験モード」では、openpilot はカメラ入力からエンドツーエンドで運転判断を行うため、明確な理由がなくても停止する場合があります！&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch to "Experimental Mode" when openpilot predicts a stop within the set time.&lt;/b&gt; This is usually triggered when the model "sees" a red light or stop sign ahead.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;設定された時間内にopenpilotが停止を予測したときは「実験モード」に切り替えます。&lt;/b&gt; これは通常、モデルが前方の赤信号や一時停止標識を「認識」したときにトリガーされます。&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;免責事項&lt;/b&gt;: openpilotは信号機や一時停止標識を明示的には検出しません。「実験モード」では、openpilotはカメラ入力からエンドツーエンドで運転判断を行うため、明確な理由がなくても停止する場合があります！&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Force openpilot to stop whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;運転モデルが赤信号または一時停止標識を「検知」したときは常に、openpilotを強制的に停止させます。&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;免責事項&lt;/b&gt;：openpilotは信号機や一時停止標識を明示的には検出しません。「Experimental Mode」では、openpilotはカメラ入力からエンドツーエンドで運転判断を行うため、明確な理由がなくても停止する場合があります！&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>Set Your Own Key</source>
+        <translation type="gpt-5-generated">自分のキーを設定する</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set your own "OpenWeatherMap" key to increase the weather update rate.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Personal keys grant 1,000 free calls per day, allowing for updates every minute. The default key is shared and only updates every 15 minutes.&lt;/i&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;天気の更新頻度を上げるには、自分の「OpenWeatherMap」キーを設定してください。&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;個人キーでは1日に1,000回まで無料で呼び出せるため、毎分更新できます。既定のキーは共有されており、15分ごとの更新のみです。&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>ADD</source>
+        <translation type="gpt-5-generated">追加</translation>
+    </message>
+    <message>
+        <source>Enter your "OpenWeatherMap" key</source>
+        <translation type="gpt-5-generated">「OpenWeatherMap」のキーを入力してください</translation>
+    </message>
+    <message>
+        <source>REMOVE</source>
+        <translation type="gpt-5-generated">削除</translation>
+    </message>
+    <message>
+        <source>Invalid key!</source>
+        <translation type="gpt-5-generated">無効なキーです。</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove your key?</source>
+        <translation type="gpt-5-generated">キーを削除してもよろしいですか？</translation>
+    </message>
+    <message>
+        <source>TEST</source>
+        <translation type="gpt-5-generated">テスト</translation>
+    </message>
+    <message>
+        <source>Testing...</source>
+        <translation type="gpt-5-generated">テスト中…</translation>
+    </message>
+    <message>
+        <source>Key is valid!</source>
+        <translation type="gpt-5-generated">キーは有効です！</translation>
+    </message>
+    <message>
+        <source>An error occurred: %1</source>
+        <translation type="gpt-5-generated">エラーが発生しました: %1</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotManageControl</name>
@@ -2159,7 +2726,7 @@
     </message>
     <message>
         <source>Resetting...</source>
-        <translation type="gpt-5-generated">リセット中…</translation>
+        <translation type="gpt-5-generated">リセット中...</translation>
     </message>
     <message>
         <source>Reset!</source>
@@ -2223,11 +2790,19 @@
     </message>
     <message>
         <source>Offline...</source>
-        <translation type="gpt-5-generated">オフライン…</translation>
+        <translation type="gpt-5-generated">オフライン...</translation>
     </message>
     <message>
-        <source>CANCELLED</source>
-        <translation type="gpt-5-generated">キャンセル済み</translation>
+        <source>0 MB</source>
+        <translation type="gpt-5-generated">0 MB</translation>
+    </message>
+    <message>
+        <source>Calculating...</source>
+        <translation type="gpt-5-generated">計算中…</translation>
+    </message>
+    <message>
+        <source>Not parked</source>
+        <translation type="gpt-5-generated">駐車されていません</translation>
     </message>
 </context>
 <context>
@@ -2342,7 +2917,7 @@
     </message>
     <message>
         <source>Updating...</source>
-        <translation type="gpt-5-generated">更新中…</translation>
+        <translation type="gpt-5-generated">更新中...</translation>
     </message>
     <message>
         <source>Select a driving model to download</source>
@@ -2414,7 +2989,7 @@
     </message>
     <message>
         <source>Cancelling...</source>
-        <translation type="gpt-5-generated">キャンセルしています…</translation>
+        <translation type="gpt-5-generated">キャンセルしています...</translation>
     </message>
     <message>
         <source>Updating Tinygrad will delete existing Tinygrad-based driving models and need to be re-downloaded. Proceed?</source>
@@ -2426,7 +3001,7 @@
     </message>
     <message>
         <source>Offline...</source>
-        <translation type="gpt-5-generated">オフライン中…</translation>
+        <translation type="gpt-5-generated">オフライン中...</translation>
     </message>
     <message>
         <source>Update available!</source>
@@ -2439,6 +3014,38 @@
     <message>
         <source>Select a Model — 🗺️ = Navigation | 📡 = Radar | 👀 = VOACC</source>
         <translation type="gpt-5-generated">モデルを選択 — 🗺️ = ナビゲーション | 📡 = レーダー | 👀 = VOACC</translation>
+    </message>
+    <message>
+        <source>Downloading...</source>
+        <translation type="gpt-5-generated">ダウンロード中…</translation>
+    </message>
+    <message>
+        <source>Not parked</source>
+        <translation type="gpt-5-generated">駐車中ではありません</translation>
+    </message>
+    <message>
+        <source>Downloaded!</source>
+        <translation type="gpt-5-generated">ダウンロード完了！</translation>
+    </message>
+    <message>
+        <source>All models downloaded!</source>
+        <translation type="gpt-5-generated">すべてのモデルをダウンロードしました！</translation>
+    </message>
+    <message>
+        <source>Download cancelled...</source>
+        <translation type="gpt-5-generated">ダウンロードをキャンセルしました…</translation>
+    </message>
+    <message>
+        <source>Download failed...</source>
+        <translation type="gpt-5-generated">ダウンロードに失敗しました…"</translation>
+    </message>
+    <message>
+        <source>GitHub and GitLab are offline...</source>
+        <translation type="gpt-5-generated">GitHub と GitLab がオフラインです…</translation>
+    </message>
+    <message>
+        <source>Repository unavailable</source>
+        <translation type="gpt-5-generated">リポジトリを利用できません</translation>
     </message>
 </context>
 <context>
@@ -2516,7 +3123,7 @@
     </message>
     <message>
         <source>Offline...</source>
-        <translation type="gpt-5-generated">オフライン…</translation>
+        <translation type="gpt-5-generated">オフライン...</translation>
     </message>
     <message>
         <source>Mapbox</source>
@@ -2584,7 +3191,7 @@
     </message>
     <message>
         <source>Cancelled...</source>
-        <translation type="gpt-5-generated">キャンセルしました…</translation>
+        <translation type="gpt-5-generated">キャンセルしました...</translation>
     </message>
     <message>
         <source>You've hit today's request limit.
@@ -2623,6 +3230,57 @@ It will reset in %1 hours and %2 minutes.</source>
     <message>
         <source>Completed!</source>
         <translation type="gpt-5-generated">完了しました！</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Manage your Public Mapbox Key.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Public Mapbox Key を管理します。&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>TEST</source>
+        <translation type="gpt-5-generated">テスト</translation>
+    </message>
+    <message>
+        <source>Remove your Public Mapbox Key?</source>
+        <translation type="gpt-5-generated">公開Mapboxキーを削除しますか？</translation>
+    </message>
+    <message>
+        <source>Enter your Public Mapbox Key</source>
+        <translation type="gpt-5-generated">Public Mapbox Key を入力してください</translation>
+    </message>
+    <message>
+        <source>Testing...</source>
+        <translation type="gpt-5-generated">テスト中…</translation>
+    </message>
+    <message>
+        <source>Key is valid!</source>
+        <translation type="gpt-5-generated">キーは有効です！</translation>
+    </message>
+    <message>
+        <source>Key is invalid!</source>
+        <translation type="gpt-5-generated">キーが無効です！</translation>
+    </message>
+    <message>
+        <source>An error occurred: %1</source>
+        <translation type="gpt-5-generated">エラーが発生しました: %1</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Manage your Secret Mapbox Key.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;シークレットのMapboxキーを管理します。&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Remove your Secret Mapbox Key?</source>
+        <translation type="gpt-5-generated">Secret Mapboxキーを削除しますか？</translation>
+    </message>
+    <message>
+        <source>Enter your Secret Mapbox Key</source>
+        <translation type="gpt-5-generated">Secret Mapboxキーを入力してください</translation>
+    </message>
+</context>
+<context>
+    <name>FrogPilotOnroadWindow</name>
+    <message>
+        <source>FPS: %1 | Min: %2 | Max: %3 | Avg: %4</source>
+        <translation type="gpt-5-generated">FPS: %1 | 最小: %2 | 最大: %3 | 平均: %4</translation>
     </message>
 </context>
 <context>
@@ -3151,6 +3809,38 @@ Developer - こだわりのある上級者向けの高度にカスタマイズ�
         <source>CANCEL</source>
         <translation type="gpt-5-generated">キャンセル</translation>
     </message>
+    <message>
+        <source>Downloading...</source>
+        <translation type="gpt-5-generated">ダウンロード中…</translation>
+    </message>
+    <message>
+        <source>Idle</source>
+        <translation type="gpt-5-generated">待機中</translation>
+    </message>
+    <message>
+        <source>Unpacking theme...</source>
+        <translation type="gpt-5-generated">テーマを展開しています…</translation>
+    </message>
+    <message>
+        <source>Downloaded!</source>
+        <translation type="gpt-5-generated">ダウンロード完了！</translation>
+    </message>
+    <message>
+        <source>Download cancelled...</source>
+        <translation type="gpt-5-generated">ダウンロードをキャンセルしました…</translation>
+    </message>
+    <message>
+        <source>Download failed...</source>
+        <translation type="gpt-5-generated">ダウンロードに失敗しました…</translation>
+    </message>
+    <message>
+        <source>Repository unavailable</source>
+        <translation type="gpt-5-generated">リポジトリを利用できません</translation>
+    </message>
+    <message>
+        <source>GitHub and GitLab are offline...</source>
+        <translation type="gpt-5-generated">GitHub と GitLab がオフラインです…</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotUtilitiesPanel</name>
@@ -3184,7 +3874,7 @@ Developer - こだわりのある上級者向けの高度にカスタマイズ�
     </message>
     <message>
         <source>Flashing...</source>
-        <translation type="gpt-5-generated">フラッシュ中…</translation>
+        <translation type="gpt-5-generated">フラッシュ中...</translation>
     </message>
     <message>
         <source>Flashed!</source>
@@ -3192,7 +3882,7 @@ Developer - こだわりのある上級者向けの高度にカスタマイズ�
     </message>
     <message>
         <source>Rebooting...</source>
-        <translation type="gpt-5-generated">再起動しています…</translation>
+        <translation type="gpt-5-generated">再起動しています...</translation>
     </message>
     <message>
         <source>Force Drive State</source>
@@ -3592,6 +4282,54 @@ Developer - こだわりのある上級者向けの高度にカスタマイズ�
     <message>
         <source>comma Pedal Support</source>
         <translation type="gpt-5-generated">comma Pedal 対応</translation>
+    </message>
+    <message>
+        <source>Subaru Settings</source>
+        <translation type="gpt-5-generated">Subaru設定</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;FrogPilot features for Subaru vehicles.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Subaru車向けのFrogPilot機能。&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Stop and Go</source>
+        <translation type="gpt-5-generated">ストップ・アンド・ゴー</translation>
+    </message>
+    <message>
+        <source>Stop and go for supported Subaru vehicles.</source>
+        <translation type="gpt-5-generated">対応するSubaru車両でのストップ＆ゴー。</translation>
+    </message>
+    <message>
+        <source>Acura/Honda Settings</source>
+        <translation type="gpt-5-generated">Acura/Honda 設定</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;FrogPilot features for Acura and Honda vehicles.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;AcuraおよびHonda車向けのFrogPilot機能。&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Gentle Following</source>
+        <translation type="gpt-5-generated">優しい追従</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Reduces jerky acceleration and braking when following a lead vehicle.&lt;/b&gt; Ideal for stop-and-go traffic.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;先行車両に追従する際の急加速や急ブレーキを軽減します。&lt;/b&gt; 渋滞時に最適です。</translation>
+    </message>
+    <message>
+        <source>Increased Braking Force</source>
+        <translation type="gpt-5-generated">制動力の増加</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Increases the maximum braking force for improved stopping performance.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;停止性能を向上させるために最大制動力を増加させます。&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Responsive Pedal at Low Speeds</source>
+        <translation type="gpt-5-generated">低速時のレスポンシブペダル</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Improves acceleration from a standstill for a more responsive throttle feel in city driving.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;市街地走行でのスロットル応答性を高めるため、停止状態からの加速を改善します。&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -4678,6 +5416,42 @@ Developer - こだわりのある上級者向けの高度にカスタマイズ�
         <source>FrogPilot</source>
         <translation type="gpt-5-generated">FrogPilot</translation>
     </message>
+    <message>
+        <source>0 MB</source>
+        <translation type="gpt-5-generated">0 MB</translation>
+    </message>
+    <message>
+        <source> GB</source>
+        <translation type="gpt-5-generated">GB</translation>
+    </message>
+    <message>
+        <source> MB</source>
+        <translation type="gpt-5-generated">MB</translation>
+    </message>
+    <message>
+        <source> hour </source>
+        <translation type="gpt-5-generated">時間</translation>
+    </message>
+    <message>
+        <source> hours </source>
+        <translation type="gpt-5-generated">時間</translation>
+    </message>
+    <message>
+        <source> minute </source>
+        <translation type="gpt-5-generated">分</translation>
+    </message>
+    <message>
+        <source> minutes </source>
+        <translation type="gpt-5-generated">分</translation>
+    </message>
+    <message>
+        <source> second</source>
+        <translation type="gpt-5-generated">秒</translation>
+    </message>
+    <message>
+        <source> seconds</source>
+        <translation type="gpt-5-generated">秒</translation>
+    </message>
 </context>
 <context>
     <name>Reset</name>
@@ -4712,7 +5486,7 @@ Developer - こだわりのある上級者向けの高度にカスタマイズ�
     <message>
         <source>Resetting device...
 This may take up to a minute.</source>
-        <translation type="gpt-5-generated">デバイスをリセットしています…
+        <translation type="gpt-5-generated">デバイスをリセットしています...
 最大で1分ほどかかる場合があります。</translation>
     </message>
     <message>
@@ -5108,6 +5882,22 @@ This may take up to a minute.</source>
     <message>
         <source>This is a complete factory reset and cannot be undone. Are you absolutely sure you want to continue?</source>
         <translation type="gpt-5-generated">これは完全な工場出荷時リセットであり、元に戻すことはできません。本当に続行してもよろしいですか？</translation>
+    </message>
+    <message>
+        <source>downloading…</source>
+        <translation type="gpt-5-generated">ダウンロード中…</translation>
+    </message>
+    <message>
+        <source>checking…</source>
+        <translation type="gpt-5-generated">確認中…</translation>
+    </message>
+    <message>
+        <source>waiting for vehicle to go offroad...</source>
+        <translation type="gpt-5-generated">車両がオフロードに出るのを待機しています…</translation>
+    </message>
+    <message>
+        <source>finalizing update...</source>
+        <translation type="gpt-5-generated">更新を完了しています…</translation>
     </message>
 </context>
 <context>

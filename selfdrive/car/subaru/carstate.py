@@ -4,7 +4,7 @@ from opendbc.can.can_define import CANDefine
 from openpilot.common.conversions import Conversions as CV
 from openpilot.selfdrive.car.interfaces import CarStateBase
 from opendbc.can.parser import CANParser
-from openpilot.selfdrive.car.subaru.values import DBC, PREGLOBAL_CARS, CanBus, SubaruFlags
+from openpilot.selfdrive.car.subaru.values import DBC, CanBus, SubaruFlags
 from openpilot.selfdrive.car import CanSignalRateCalculator
 
 
@@ -119,8 +119,17 @@ class CarState(CarStateBase):
         self.es_status_msg = copy.copy(cp_es_status.vl["ES_Status"])
         self.cruise_control_msg = copy.copy(cp_cruise.vl["CruiseControl"])
 
+      if frogpilot_toggles.subaru_sng:
+        self.brake_pedal_msg = copy.copy(cp.vl["Brake_Pedal"])
+        self.cruise_state = cp_cam.vl["ES_DashStatus"]["Cruise_State"]
+
     if not (self.CP.flags & SubaruFlags.HYBRID):
       self.es_distance_msg = copy.copy(cp_es_distance.vl["ES_Distance"])
+
+      if frogpilot_toggles.subaru_sng:
+        self.car_follow = cp_es_distance.vl["ES_Distance"]["Car_Follow"]
+        self.close_distance = cp_es_distance.vl["ES_Distance"]["Close_Distance"]
+        self.throttle_msg = copy.copy(cp.vl["Throttle"])
 
     self.es_dashstatus_msg = copy.copy(cp_cam.vl["ES_DashStatus"])
     if self.CP.flags & SubaruFlags.SEND_INFOTAINMENT:
@@ -128,11 +137,11 @@ class CarState(CarStateBase):
 
     # FrogPilot CarState functions
     self.lkas_previously_enabled = self.lkas_enabled
-    if self.car_fingerprint not in PREGLOBAL_CARS:
+    if self.CP.flags & SubaruFlags.PREGLOBAL:
+      fp_ret.brakeLights = bool(cp_cam.vl["ES_Brake"]["Cruise_Brake_Lights"])
+    else:
       fp_ret.brakeLights = bool(cp_cam.vl["ES_DashStatus"]["Brake_Lights"])
       self.lkas_enabled = self.es_lkas_state_msg.get("LKAS_Dash_State")
-    else:
-      fp_ret.brakeLights = bool(cp_cam.vl["ES_Brake"]["Cruise_Brake_Lights"])
 
     return ret, fp_ret
 

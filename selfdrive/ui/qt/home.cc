@@ -14,6 +14,7 @@
 #endif
 
 #include "frogpilot/ui/qt/widgets/drive_stats.h"
+#include "frogpilot/ui/qt/widgets/drive_summary.h"
 #include "frogpilot/ui/qt/widgets/model_reviewer.h"
 
 // HomeWindow: the container for the offroad and onroad UIs
@@ -191,35 +192,69 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
 #endif
     left_widget->addWidget(new DriveStats);
 
-    FrogPilotModelReview *modelReview = new FrogPilotModelReview(this);
-    left_widget->addWidget(modelReview);
+    FrogPilotDriveSummary *drive_summary = new FrogPilotDriveSummary(this);
+    left_widget->addWidget(drive_summary);
+
+    FrogPilotModelReview *model_review = new FrogPilotModelReview(this);
+    left_widget->addWidget(model_review);
 
     left_widget->setStyleSheet("border-radius: 10px;");
     left_widget->setCurrentIndex(1);
 
-    connect(modelReview, &FrogPilotModelReview::driveRated, [=]() {
+    connect(drive_summary, &FrogPilotDriveSummary::panelClosed, [=]() {
       left_widget->setCurrentIndex(1);
     });
-    connect(frogpilotUIState(), &FrogPilotUIState::reviewModel, [=]() {
+    connect(model_review, &FrogPilotModelReview::driveRated, [=]() {
       left_widget->setCurrentIndex(2);
+    });
+    connect(uiState(), &UIState::offroadTransition, [=](bool offroad) {
+      static bool previouslyOnroad = false;
+      if (offroad && previouslyOnroad) {
+        if (frogpilotUIState()->frogpilot_scene.started_timer > 15 * 60 * UI_FREQ && frogpilotUIState()->frogpilot_toggles.value("model_randomizer").toBool()) {
+          left_widget->setCurrentIndex(3);
+        } else {
+          left_widget->setCurrentIndex(2);
+        }
+      }
+      previouslyOnroad = !offroad;
     });
 
     home_layout->addWidget(left_widget, 1);
 
     // right: ExperimentalModeButton, SetupWidget
-    QWidget* right_widget = new QWidget(this);
-    QVBoxLayout* right_column = new QVBoxLayout(right_widget);
-    right_column->setContentsMargins(0, 0, 0, 0);
+    QStackedWidget *right_widget = new QStackedWidget(this);
     right_widget->setFixedWidth(750);
-    right_column->setSpacing(30);
+
+    QWidget *default_right = new QWidget(this);
+    QVBoxLayout *default_layout = new QVBoxLayout(default_right);
+    default_layout->setContentsMargins(0, 0, 0, 0);
+    default_layout->setSpacing(30);
 
     ExperimentalModeButton *experimental_mode = new ExperimentalModeButton(this);
     QObject::connect(experimental_mode, &ExperimentalModeButton::openSettings, this, &OffroadHome::openSettings);
-    right_column->addWidget(experimental_mode, 1);
+    default_layout->addWidget(experimental_mode, 1);
 
     SetupWidget *setup_widget = new SetupWidget;
     QObject::connect(setup_widget, &SetupWidget::openSettings, this, &OffroadHome::openSettings);
-    right_column->addWidget(setup_widget, 1);
+    default_layout->addWidget(setup_widget, 1);
+
+    right_widget->addWidget(default_right);
+
+    FrogPilotDriveSummary *random_events_summary = new FrogPilotDriveSummary(this, true);
+    right_widget->addWidget(random_events_summary);
+
+    right_widget->setCurrentIndex(0);
+
+    connect(random_events_summary, &FrogPilotDriveSummary::panelClosed, [=]() {
+      right_widget->setCurrentIndex(0);
+    });
+    connect(uiState(), &UIState::offroadTransition, [=](bool offroad) {
+      static bool previouslyOnroad = false;
+      if (offroad && previouslyOnroad && frogpilotUIState()->frogpilot_toggles.value("random_events").toBool()) {
+        right_widget->setCurrentIndex(1);
+      }
+      previouslyOnroad = !offroad;
+    });
 
     home_layout->addWidget(right_widget, 1);
   }

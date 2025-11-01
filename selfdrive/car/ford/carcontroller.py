@@ -65,16 +65,15 @@ class CarController(CarControllerBase):
       if CC.latActive:
         # apply rate limits, curvature error limit, and clip to signal range
         current_curvature = -CS.out.yawRate / max(CS.out.vEgoRaw, 0.1)
-        # PFEIFER - FSH {{
-        # Ignore limits while overriding, this prevents pull when releasing the wheel. This will cause messages to be
-        # blocked by panda safety, usually while the driver is overriding and limited to at most 1 message while the
-        # driver is not overriding.
-        if CS.out.steeringPressed:
-          self.apply_curvature_last = actuators.curvature
-        # }} PFEIFER - FSH
         apply_curvature = apply_ford_curvature_limits(actuators.curvature, self.apply_curvature_last, current_curvature, CS.out.vEgoRaw)
       else:
         apply_curvature = 0.
+
+      if CS.out.steeringPressed and abs(CS.out.steeringAngleDeg) > 60:
+        apply_curvature = 0
+        ramp_type = 3
+      else:
+        ramp_type = 0
 
       self.apply_curvature_last = apply_curvature
 
@@ -82,9 +81,9 @@ class CarController(CarControllerBase):
         # TODO: extended mode
         mode = 1 if CC.latActive else 0
         counter = (self.frame // CarControllerParams.STEER_STEP) % 0x10
-        can_sends.append(fordcan.create_lat_ctl2_msg(self.packer, self.CAN, mode, 0., 0., -apply_curvature, 0., counter))
+        can_sends.append(fordcan.create_lat_ctl2_msg(self.packer, self.CAN, mode, ramp_type, 0., 0., -apply_curvature, 0., counter))
       else:
-        can_sends.append(fordcan.create_lat_ctl_msg(self.packer, self.CAN, CC.latActive, 0., 0., -apply_curvature, 0.))
+        can_sends.append(fordcan.create_lat_ctl_msg(self.packer, self.CAN, ramp_type, CC.latActive, 0., 0., -apply_curvature, 0.))
 
     # send lka msg at 33Hz
     if (self.frame % CarControllerParams.LKA_STEP) == 0:

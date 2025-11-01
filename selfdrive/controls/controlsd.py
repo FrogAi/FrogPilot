@@ -770,7 +770,7 @@ class Controls:
     if self.frogpilot_toggles.conditional_experimental_mode or self.frogpilot_toggles.slc_fallback_experimental_mode:
       self.experimental_mode = self.sm['frogpilotPlan'].experimentalMode
 
-    if hasattr(self.LaC, "pid"):
+    if hasattr(self.LaC, "pid") and self.CP.lateralTuning.which() != "pid":
       self.LaC.pid._k_p = self.frogpilot_toggles.steerKp
 
     # Update FrogPilot variables

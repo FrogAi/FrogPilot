@@ -74,7 +74,6 @@ public:
   WifiManager *wifi;
 
 signals:
-  void reviewModel();
   void themeUpdated();
 };
 

@@ -423,6 +423,22 @@
         <source>Miles</source>
         <translation type="gpt-5-generated">Mil</translation>
     </message>
+    <message>
+        <source>ALL TIME (KONIK)</source>
+        <translation type="gpt-5-generated">TÜM ZAMAN (KONIK)</translation>
+    </message>
+    <message>
+        <source>ALL TIME</source>
+        <translation type="gpt-5-generated">HER ZAMAN</translation>
+    </message>
+    <message>
+        <source>PAST WEEK (KONIK)</source>
+        <translation type="gpt-5-generated">GEÇEN HAFTA (KONIK)</translation>
+    </message>
+    <message>
+        <source>PAST WEEK</source>
+        <translation type="gpt-5-generated">GEÇEN HAFTA</translation>
+    </message>
 </context>
 <context>
     <name>DriverViewWindow</name>
@@ -483,6 +499,30 @@
     <message>
         <source>LIMIT</source>
         <translation type="gpt-5-generated">SINIR</translation>
+    </message>
+    <message>
+        <source>Desired: %1</source>
+        <translation type="gpt-5-generated">İstenen: %1</translation>
+    </message>
+    <message>
+        <source>s</source>
+        <translation type="gpt-5-generated">s</translation>
+    </message>
+    <message>
+        <source>1 minute</source>
+        <translation type="gpt-5-generated">1 dakika</translation>
+    </message>
+    <message>
+        <source>%1 minutes</source>
+        <translation type="gpt-5-generated">%1 dakika</translation>
+    </message>
+    <message>
+        <source>1 second</source>
+        <translation type="gpt-5-generated">1 saniye</translation>
+    </message>
+    <message>
+        <source>%1 seconds</source>
+        <translation type="gpt-5-generated">%1 saniye</translation>
     </message>
 </context>
 <context>
@@ -694,6 +734,238 @@
         <source>Choose a backup to delete</source>
         <translation type="gpt-5-generated">Silinecek bir yedek seçin</translation>
     </message>
+    <message>
+        <source>FrogPilot Stats</source>
+        <translation type="gpt-5-generated">FrogPilot İstatistikleri</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;View your collected FrogPilot stats.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Topladığınız FrogPilot istatistiklerini görüntüleyin.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>RESET</source>
+        <translation type="gpt-5-generated">SIFIRLA</translation>
+    </message>
+    <message>
+        <source>VIEW</source>
+        <translation type="gpt-5-generated">GÖRÜNÜM</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to reset all of your FrogPilot stats?</source>
+        <translation type="gpt-5-generated">Tüm FrogPilot istatistiklerinizi sıfırlamak istediğinizden emin misiniz?</translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="gpt-5-generated">Sıfırla</translation>
+    </message>
+    <message>
+        <source>Total Emergency Brake Alerts</source>
+        <translation type="gpt-5-generated">Toplam Acil Fren Uyarıları</translation>
+    </message>
+    <message>
+        <source>Time Using "Always On Lateral"</source>
+        <translation type="gpt-5-generated">"Her Zaman Açık Yanal" Kullanım Süresi</translation>
+    </message>
+    <message>
+        <source>Favorite Set Speed</source>
+        <translation type="gpt-5-generated">Favori Ayarlı Hız</translation>
+    </message>
+    <message>
+        <source>Total Disengagements</source>
+        <translation type="gpt-5-generated">Toplam Devre Dışı Bırakmalar</translation>
+    </message>
+    <message>
+        <source>Total Engagements</source>
+        <translation type="gpt-5-generated">Toplam Etkileşimler</translation>
+    </message>
+    <message>
+        <source>Time Using "Experimental Mode"</source>
+        <translation type="gpt-5-generated">"Deneysel Mod" Kullanım Süresi</translation>
+    </message>
+    <message>
+        <source>Total Frog Chirps</source>
+        <translation type="gpt-5-generated">Toplam Kurbağa Vıraklaması</translation>
+    </message>
+    <message>
+        <source>Total Frog Hops</source>
+        <translation type="gpt-5-generated">Toplam Kurbağa Sıçramaları</translation>
+    </message>
+    <message>
+        <source>Total Drives</source>
+        <translation type="gpt-5-generated">Toplam Sürüşler</translation>
+    </message>
+    <message>
+        <source>Total Distance Driven</source>
+        <translation type="gpt-5-generated">Sürülen Toplam Mesafe</translation>
+    </message>
+    <message>
+        <source>Total Driving Time</source>
+        <translation type="gpt-5-generated">Toplam Sürüş Süresi</translation>
+    </message>
+    <message>
+        <source>Total Frog Squeaks</source>
+        <translation type="gpt-5-generated">Toplam Kurbağa Ciyaklamaları</translation>
+    </message>
+    <message>
+        <source>Total Goat Screams</source>
+        <translation type="gpt-5-generated">Toplam Keçi Çığlıkları</translation>
+    </message>
+    <message>
+        <source>Highest Acceleration Rate</source>
+        <translation type="gpt-5-generated">En Yüksek Hızlanma Oranı</translation>
+    </message>
+    <message>
+        <source>Time Using Lateral Control</source>
+        <translation type="gpt-5-generated">Yanal Kontrol Kullanım Süresi</translation>
+    </message>
+    <message>
+        <source>Longest Distance Without an Override</source>
+        <translation type="gpt-5-generated">Bir Müdahale Olmadan En Uzun Mesafe</translation>
+    </message>
+    <message>
+        <source>Time Using Longitudinal Control</source>
+        <translation type="gpt-5-generated">Boylamsal Kontrolü Kullanma Süresi</translation>
+    </message>
+    <message>
+        <source>Driving Models:</source>
+        <translation type="gpt-5-generated">Sürüş Modelleri:</translation>
+    </message>
+    <message>
+        <source>Month</source>
+        <translation type="gpt-5-generated">Ay</translation>
+    </message>
+    <message>
+        <source>Total Overrides</source>
+        <translation type="gpt-5-generated">Toplam Geçersiz Kılmalar</translation>
+    </message>
+    <message>
+        <source>Time Overriding openpilot</source>
+        <translation type="gpt-5-generated">openpilot’ı Zamanla Geçersiz Kılma</translation>
+    </message>
+    <message>
+        <source>Random Events:</source>
+        <translation type="gpt-5-generated">Rastgele Olaylar</translation>
+    </message>
+    <message>
+        <source>Time Stopped</source>
+        <translation type="gpt-5-generated">Zaman Durduruldu</translation>
+    </message>
+    <message>
+        <source>Time Spent at Stoplights</source>
+        <translation type="gpt-5-generated">Trafik Işıklarında Harcanan Süre</translation>
+    </message>
+    <message>
+        <source>Total Time Tracked</source>
+        <translation type="gpt-5-generated">Toplam İzlenen Süre</translation>
+    </message>
+    <message>
+        <source>UwUs</source>
+        <translation type="gpt-5-generated">UwUs</translation>
+    </message>
+    <message>
+        <source>Loch Ness Encounters</source>
+        <translation type="gpt-5-generated">Loch Ness Karşılaşmaları</translation>
+    </message>
+    <message>
+        <source>Visits to 1955</source>
+        <translation type="gpt-5-generated">1955’e ziyaretler</translation>
+    </message>
+    <message>
+        <source>Deja Vu Moments</source>
+        <translation type="gpt-5-generated">Déjà Vu Anları</translation>
+    </message>
+    <message>
+        <source>Internet Explorer Weeeeeeees</source>
+        <translation type="gpt-5-generated">Internet Explorer Weeeeeeees</translation>
+    </message>
+    <message>
+        <source>HAL 9000 Denials</source>
+        <translation type="gpt-5-generated">HAL 9000 Reddetmeler</translation>
+    </message>
+    <message>
+        <source>openpilot Crashes</source>
+        <translation type="gpt-5-generated">openpilot Çökmeleri</translation>
+    </message>
+    <message>
+        <source>This Is Fine Moments</source>
+        <translation type="gpt-5-generated">Bu Gayet İyi Anları</translation>
+    </message>
+    <message>
+        <source>To Be Continued Moments</source>
+        <translation type="gpt-5-generated">Devamı Geliyor Anlar</translation>
+    </message>
+    <message>
+        <source>Noices</source>
+        <translation type="gpt-5-generated">Gürültüler</translation>
+    </message>
+    <message>
+        <source>Attempted Frog Murders</source>
+        <translation type="gpt-5-generated">Teşebbüs Edilen Kurbağa Cinayetleri</translation>
+    </message>
+    <message>
+        <source>Total Mail Received</source>
+        <translation type="gpt-5-generated">Toplam Alınan Posta</translation>
+    </message>
+    <message>
+        <source> kilometer</source>
+        <translation type="gpt-5-generated"> kilometre</translation>
+    </message>
+    <message>
+        <source> kilometers</source>
+        <translation type="gpt-5-generated"> kilometre</translation>
+    </message>
+    <message>
+        <source> mile</source>
+        <translation type="gpt-5-generated"> mil</translation>
+    </message>
+    <message>
+        <source> miles</source>
+        <translation type="gpt-5-generated"> mil</translation>
+    </message>
+    <message>
+        <source> day </source>
+        <translation type="gpt-5-generated">gün</translation>
+    </message>
+    <message>
+        <source> days </source>
+        <translation type="gpt-5-generated">günler</translation>
+    </message>
+    <message>
+        <source> hour </source>
+        <translation type="gpt-5-generated">saat</translation>
+    </message>
+    <message>
+        <source> hours </source>
+        <translation type="gpt-5-generated">saat</translation>
+    </message>
+    <message>
+        <source> minute</source>
+        <translation type="gpt-5-generated"> dakika</translation>
+    </message>
+    <message>
+        <source> minutes</source>
+        <translation type="gpt-5-generated"> dakika</translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation type="gpt-5-generated">km/s</translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation type="gpt-5-generated">mph</translation>
+    </message>
+    <message>
+        <source>m/s²</source>
+        <translation type="gpt-5-generated">m/s²</translation>
+    </message>
+    <message>
+        <source>Total </source>
+        <translation type="gpt-5-generated">Toplam</translation>
+    </message>
+    <message>
+        <source>% of </source>
+        <translation type="gpt-5-generated">% of</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotDevicePanel</name>
@@ -872,6 +1144,125 @@
     <message>
         <source> seconds</source>
         <translation type="gpt-5-generated"> saniye</translation>
+    </message>
+</context>
+<context>
+    <name>FrogPilotDriveSummary</name>
+    <message>
+        <source>Random Events Summary</source>
+        <translation type="gpt-5-generated">Rastgele Olaylar Özeti</translation>
+    </message>
+    <message>
+        <source>Drive Summary</source>
+        <translation type="gpt-5-generated">Sürüş Özeti</translation>
+    </message>
+    <message>
+        <source>UwUs</source>
+        <translation type="gpt-5-generated">UwUs</translation>
+    </message>
+    <message>
+        <source>Loch Ness Encounters</source>
+        <translation type="gpt-5-generated">Loch Ness Karşılaşmaları</translation>
+    </message>
+    <message>
+        <source>Visits to 1955</source>
+        <translation type="gpt-5-generated">1955'e ziyaretler</translation>
+    </message>
+    <message>
+        <source>Deja Vu Moments</source>
+        <translation type="gpt-5-generated">Déjà Vu Anları</translation>
+    </message>
+    <message>
+        <source>Internet Explorer Weeeeeeees</source>
+        <translation type="gpt-5-generated">Internet Explorer Weeeeeeees</translation>
+    </message>
+    <message>
+        <source>HAL 9000 Denials</source>
+        <translation type="gpt-5-generated">HAL 9000 Reddetmeleri</translation>
+    </message>
+    <message>
+        <source>openpilot Crashes</source>
+        <translation type="gpt-5-generated">openpilot Çöküyor</translation>
+    </message>
+    <message>
+        <source>This Is Fine Moments</source>
+        <translation type="gpt-5-generated">Bu Tamam Anları</translation>
+    </message>
+    <message>
+        <source>To Be Continued Moments</source>
+        <translation type="gpt-5-generated">Devam Edecek Anları</translation>
+    </message>
+    <message>
+        <source>Noices</source>
+        <translation type="gpt-5-generated">Gürültüler</translation>
+    </message>
+    <message>
+        <source>Attempted Frog Murders</source>
+        <translation type="gpt-5-generated">Kurbağa Cinayetine Teşebbüsler</translation>
+    </message>
+    <message>
+        <source>Total Mail Received</source>
+        <translation type="gpt-5-generated">Alınan Toplam Posta</translation>
+    </message>
+    <message>
+        <source>% of Drive With openpilot Engaged</source>
+        <translation type="gpt-5-generated">openpilot Etkin Olarak Sürüşün %’si</translation>
+    </message>
+    <message>
+        <source>Drive Distance</source>
+        <translation type="gpt-5-generated">Sürüş Mesafesi</translation>
+    </message>
+    <message>
+        <source>Drive Time</source>
+        <translation type="gpt-5-generated">Sürüş Süresi</translation>
+    </message>
+    <message>
+        <source>% of Drive In "Experimental Mode"</source>
+        <translation type="gpt-5-generated">Sürüşlerin %’i "Deneysel Mod"da</translation>
+    </message>
+    <message>
+        <source>No Random Events Played!</source>
+        <translation type="gpt-5-generated">Rastgele Olay Çalınmadı!</translation>
+    </message>
+    <message>
+        <source> kilometer</source>
+        <translation type="gpt-5-generated"> kilometre</translation>
+    </message>
+    <message>
+        <source> kilometers</source>
+        <translation type="gpt-5-generated"> kilometre</translation>
+    </message>
+    <message>
+        <source> mile</source>
+        <translation type="gpt-5-generated"> mil</translation>
+    </message>
+    <message>
+        <source> miles</source>
+        <translation type="gpt-5-generated"> mil</translation>
+    </message>
+    <message>
+        <source> day </source>
+        <translation type="gpt-5-generated">gün</translation>
+    </message>
+    <message>
+        <source> days </source>
+        <translation type="gpt-5-generated">günler</translation>
+    </message>
+    <message>
+        <source> hour </source>
+        <translation type="gpt-5-generated">saat</translation>
+    </message>
+    <message>
+        <source> hours </source>
+        <translation type="gpt-5-generated">saat</translation>
+    </message>
+    <message>
+        <source> minute</source>
+        <translation type="gpt-5-generated"> dakika</translation>
+    </message>
+    <message>
+        <source> minutes</source>
+        <translation type="gpt-5-generated">dakika</translation>
     </message>
 </context>
 <context>
@@ -1292,10 +1683,6 @@
         <translation type="gpt-5-generated">Tahmini Durma Süresi</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Switch to "Experimental Mode" when openpilot predicts a stop within the set time.&lt;/b&gt; This is usually triggered when the model "sees" a red light or stop sign ahead.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason.&lt;/i&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;openpilot belirlenen süre içinde bir duruş öngördüğünde "Deneysel Mod"a geçin.&lt;/b&gt; Bu genellikle model ileride bir kırmızı ışık veya dur işareti "gördüğünde" tetiklenir.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Feragat&lt;/b&gt;: openpilot trafik ışıklarını veya dur işaretlerini açıkça tespit etmez. "Deneysel Mod"da, openpilot kamera girdisinden uçtan uca sürüş kararları verir; bu, açık bir neden olmasa bile durabileceği anlamına gelir.&lt;/i&gt;</translation>
-    </message>
-    <message>
         <source>Turn Signal Below</source>
         <translation type="gpt-5-generated">Sinyal Aşağıda</translation>
     </message>
@@ -1616,10 +2003,6 @@
         <translation type="gpt-5-generated">“Tespit Edilen” Trafik Işıkları/Levhalarında Zorla Dur</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Force openpilot to stop whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason.&lt;/i&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Sürüş modeli bir kırmızı ışık veya dur işaretini “tespit ettiğinde” openpilot’u durmaya zorla.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Feragat&lt;/b&gt;: openpilot trafik ışıklarını veya dur işaretlerini açıkça tespit etmez. “Deneysel Mod”da, openpilot kamera girişinden uçtan uca sürüş kararları verir; bu, açık bir neden olmasa bile durabileceği anlamına gelir.&lt;/i&gt;</translation>
-    </message>
-    <message>
         <source>Increase Stopped Distance by:</source>
         <translation type="gpt-5-generated">Duran Mesafeyi Artır:</translation>
     </message>
@@ -1650,6 +2033,42 @@
     <message>
         <source>&lt;b&gt;Reverse the cruise control button behavior&lt;/b&gt; so a short press increases the set speed by 5 instead of 1.</source>
         <translation type="gpt-5-generated">&lt;b&gt;Hız sabitleyici düğmesinin davranışını tersine çevirin&lt;/b&gt;, böylece kısa basışta ayarlı hız 1 yerine 5 artırılır.</translation>
+    </message>
+    <message>
+        <source>Increase Following Distance by:</source>
+        <translation type="gpt-5-generated">Takip Mesafesini Artır:</translation>
+    </message>
+    <message>
+        <source>Reduce Acceleration by:</source>
+        <translation type="gpt-5-generated">Hızlanmayı şu kadar azalt:</translation>
+    </message>
+    <message>
+        <source>Reduce Speed in Curves by:</source>
+        <translation type="gpt-5-generated">Virajlarda Hızı Azalt:</translation>
+    </message>
+    <message>
+        <source>Snow</source>
+        <translation type="gpt-5-generated">Kar</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Driving adjustments for snowy conditions.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Karlı koşullar için sürüş ayarlamaları.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra space behind lead vehicles in snow.&lt;/b&gt; Increase for more space; decrease for tighter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Karda öndeki araçların arkasında ekstra mesafe bırakın.&lt;/b&gt; Daha fazla mesafe için artırın; daha dar boşluklar için azaltın.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra buffer when stopped behind vehicles in snow.&lt;/b&gt; Increase for more room; decrease for shorter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Karda araçların arkasında dururken ekstra boşluk bırakın.&lt;/b&gt; Daha fazla alan için artırın; daha kısa boşluklar için azaltın.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the maximum acceleration in snow.&lt;/b&gt; Increase for softer takeoffs; decrease for quicker but less stable takeoffs.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Karda azami ivmeyi düşürün.&lt;/b&gt; Yumuşak kalkışlar için artırın; daha hızlı ancak daha az stabil kalkışlar için azaltın.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the desired speed while driving through curves in snow.&lt;/b&gt; Increase for safer, gentler turns; decrease for more aggressive driving in curves.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Karda virajlardan geçerken istenen hızı azaltın.&lt;/b&gt; Daha güvenli, daha yumuşak dönüşler için artırın; virajlarda daha atak sürüş için azaltın.</translation>
     </message>
     <message>
         <source>Speed Limit Controller</source>
@@ -2039,6 +2458,154 @@
         <source>&lt;b&gt;Following behavior that mimics human drivers&lt;/b&gt; by closing gaps behind faster vehicles for quicker takeoffs and dynamically adjusting the desired following distance for gentler, more efficient braking.</source>
         <translation type="gpt-5-generated">&lt;b&gt;İnsan sürücüleri taklit eden takip davranışı&lt;/b&gt;: Daha hızlı araçların arkasındaki boşlukları kapatarak daha hızlı kalkışlar ve daha yumuşak, daha verimli frenleme için istenen takip mesafesini dinamik olarak ayarlama.</translation>
     </message>
+    <message>
+        <source>Weather Condition Offsets</source>
+        <translation type="gpt-5-generated">Hava Koşulu Ofsetleri</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Automatically adjust driving behavior based on real-time weather.&lt;/b&gt; Helps maintain comfort and safety in low visibility, rain, or snow.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Gerçek zamanlı hava durumuna göre sürüş davranışını otomatik ayarla.&lt;/b&gt; Düşük görüş, yağmur veya karda konforu ve güvenliği korumaya yardımcı olur.</translation>
+    </message>
+    <message>
+        <source>Low Visibility</source>
+        <translation type="gpt-5-generated">Düşük Görünürlük</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Driving adjustments for fog, haze, or other low-visibility conditions.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Sis, pus veya diğer düşük görüş koşulları için sürüş ayarlamaları.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra space behind lead vehicles in low visibility.&lt;/b&gt; Increase for more space; decrease for tighter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Düşük görüşte öndeki araçlarla araya ekstra mesafe bırakın.&lt;/b&gt; Daha fazla mesafe için artırın; daha dar boşluklar için azaltın.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra buffer when stopped behind vehicles in low visibility.&lt;/b&gt; Increase for more room; decrease for shorter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Düşük görüşte araçların arkasında dururken fazladan tampon mesafe bırakın.&lt;/b&gt; Daha fazla alan için artırın; daha kısa boşluklar için azaltın.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the maximum acceleration in low visibility.&lt;/b&gt; Increase for softer takeoffs; decrease for quicker but less stable takeoffs.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Düşük görüşte maksimum ivmeyi azaltın.&lt;/b&gt; Daha yumuşak kalkışlar için artırın; daha hızlı ancak daha az stabil kalkışlar için azaltın.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the desired speed while driving through curves in low visibility.&lt;/b&gt; Increase for safer, gentler turns; decrease for more aggressive driving in curves.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Düşük görüşte virajlardan geçerken hedef hızı düşürün.&lt;/b&gt; Daha güvenli, yumuşak dönüşler için artırın; virajlarda daha atak sürüş için azaltın.</translation>
+    </message>
+    <message>
+        <source>Rain</source>
+        <translation type="gpt-5-generated">Yağmur</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Driving adjustments for rainy conditions.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Yağışlı koşullar için sürüş ayarlamaları.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra space behind lead vehicles in rain.&lt;/b&gt; Increase for more space; decrease for tighter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Yağmurda öndeki araçların arkasında ekstra boşluk bırakın.&lt;/b&gt; Daha fazla boşluk için artırın; daha dar aralıklar için azaltın.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra buffer when stopped behind vehicles in rain.&lt;/b&gt; Increase for more room; decrease for shorter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Yağmurda araçların arkasında dururken ekstra boşluk bırakın.&lt;/b&gt; Daha fazla alan için artırın; daha kısa aralıklar için azaltın.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the maximum acceleration in rain.&lt;/b&gt; Increase for softer takeoffs; decrease for quicker but less stable takeoffs.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Yağmurda maksimum ivmeyi azaltın.&lt;/b&gt; Daha yumuşak kalkışlar için artırın; daha hızlı ancak daha az stabil kalkışlar için azaltın.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the desired speed while driving through curves in rain.&lt;/b&gt; Increase for safer, gentler turns; decrease for more aggressive driving in curves.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Yağmurda virajlardan geçerken istenen hızı düşürün.&lt;/b&gt; Daha güvenli, daha yumuşak dönüşler için artırın; virajlarda daha agresif sürüş için azaltın.</translation>
+    </message>
+    <message>
+        <source>Rainstorms</source>
+        <translation type="gpt-5-generated">Şiddetli yağışlar</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Driving adjustments for rainstorms.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Şiddetli yağışlar için sürüş ayarları.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra space behind lead vehicles in a rainstorm.&lt;/b&gt; Increase for more space; decrease for tighter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Şiddetli yağmurda öndeki araçlarla araya ekstra mesafe bırakın.&lt;/b&gt; Daha fazla mesafe için artırın; daha dar boşluklar için azaltın.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra buffer when stopped behind vehicles in a rainstorm.&lt;/b&gt; Increase for more room; decrease for shorter gaps.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Şiddetli yağmurda araçların arkasında dururken ekstra tampon mesafe bırakın.&lt;/b&gt; Daha fazla alan için artırın; daha kısa boşluklar için azaltın.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the maximum acceleration in a rainstorm.&lt;/b&gt; Increase for softer takeoffs; decrease for quicker but less stable takeoffs.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Şiddetli yağmurda maksimum ivmeyi düşürün.&lt;/b&gt; Daha yumuşak kalkışlar için artırın; daha hızlı ancak daha az kararlı kalkışlar için azaltın.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lower the desired speed while driving through curves in a rainstorm.&lt;/b&gt; Increase for safer, gentler turns; decrease for more aggressive driving in curves.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Fırtınalı yağmurda virajlardan geçerken istenen hızı düşürün.&lt;/b&gt; Daha güvenli, yumuşak dönüşler için artırın; virajlarda daha agresif sürüş için azaltın.</translation>
+    </message>
+    <message>
+        <source>Human-Like Lane Changes</source>
+        <translation type="gpt-5-generated">İnsan Benzeri Şerit Değiştirme</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lane-change behavior that mimics human drivers&lt;/b&gt; by anticipating and tracking adjacent vehicles during lane changes.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;İnsan sürücülerini taklit eden şerit değiştirme davranışı&lt;/b&gt;; şerit değişimleri sırasında bitişik araçları öngörerek ve takip ederek.</translation>
+    </message>
+    <message>
+        <source>"Detected" Stop Lights/Signs</source>
+        <translation type="gpt-5-generated">"Algılanan" Trafik Lambaları/Levhalar</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch to "Experimental Mode" whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Sürüş modeli bir kırmızı ışık veya dur işareti "algıladığında" "Deneysel Mod"a geç.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Feragat&lt;/b&gt;: openpilot trafik ışıklarını veya dur işaretlerini açıkça algılamaz. "Deneysel Mod"da openpilot, kamera girdisinden uçtan uca sürüş kararları verir; bu da net bir sebep yokken bile durabileceği anlamına gelir!&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch to "Experimental Mode" when openpilot predicts a stop within the set time.&lt;/b&gt; This is usually triggered when the model "sees" a red light or stop sign ahead.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;openpilot ayarlanan süre içinde bir duruş öngördüğünde "Deneysel Mod"a geçin.&lt;/b&gt; Bu genellikle model ileride kırmızı ışık veya dur işareti "gördüğünde" tetiklenir.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Feragat&lt;/b&gt;: openpilot trafik ışıklarını veya dur işaretlerini açıkça tespit etmez. "Deneysel Mod"da, openpilot kamera girdisinden uçtan uca sürüş kararları verir; bu da ortada net bir sebep yokken bile durabileceği anlamına gelir!&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Force openpilot to stop whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Sürüş modeli bir kırmızı ışığı veya dur işaretini “tespit ettiğinde” openpilot’u durmaya zorla.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Feragat&lt;/b&gt;: openpilot trafik ışıklarını veya dur işaretlerini açıkça tespit etmez. “Deneysel Mod”da openpilot, kamera girişinden uçtan uca sürüş kararları verir; bu da, açık bir neden olmasa bile durabileceği anlamına gelir!&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>Set Your Own Key</source>
+        <translation type="gpt-5-generated">Kendi Anahtarınızı Ayarlayın</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set your own "OpenWeatherMap" key to increase the weather update rate.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Personal keys grant 1,000 free calls per day, allowing for updates every minute. The default key is shared and only updates every 15 minutes.&lt;/i&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Hava durumu güncelleme hızını artırmak için kendi "OpenWeatherMap" anahtarınızı ayarlayın.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Kişisel anahtarlar günde 1.000 ücretsiz çağrı sağlar ve her dakika güncellemeye izin verir. Varsayılan anahtar ortaktır ve yalnızca her 15 dakikada bir günceller.&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>ADD</source>
+        <translation type="gpt-5-generated">EKLE</translation>
+    </message>
+    <message>
+        <source>Enter your "OpenWeatherMap" key</source>
+        <translation type="gpt-5-generated">"OpenWeatherMap" anahtarınızı girin</translation>
+    </message>
+    <message>
+        <source>REMOVE</source>
+        <translation type="gpt-5-generated">KALDIR</translation>
+    </message>
+    <message>
+        <source>Invalid key!</source>
+        <translation type="gpt-5-generated">Geçersiz anahtar!</translation>
+    </message>
+    <message>
+        <source>Are you sure you want to remove your key?</source>
+        <translation type="gpt-5-generated">Anahtarınızı kaldırmak istediğinizden emin misiniz?</translation>
+    </message>
+    <message>
+        <source>TEST</source>
+        <translation type="gpt-5-generated">TEST</translation>
+    </message>
+    <message>
+        <source>Testing...</source>
+        <translation type="gpt-5-generated">Test ediliyor...</translation>
+    </message>
+    <message>
+        <source>Key is valid!</source>
+        <translation type="gpt-5-generated">Anahtar geçerli!</translation>
+    </message>
+    <message>
+        <source>An error occurred: %1</source>
+        <translation type="gpt-5-generated">Bir hata oluştu: %1</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotManageControl</name>
@@ -2226,8 +2793,16 @@
         <translation type="gpt-5-generated">Çevrimdışı...</translation>
     </message>
     <message>
-        <source>CANCELLED</source>
-        <translation type="gpt-5-generated">İPTAL EDİLDİ</translation>
+        <source>0 MB</source>
+        <translation type="gpt-5-generated">0 MB</translation>
+    </message>
+    <message>
+        <source>Calculating...</source>
+        <translation type="gpt-5-generated">Hesaplanıyor...</translation>
+    </message>
+    <message>
+        <source>Not parked</source>
+        <translation type="gpt-5-generated">Park halinde değil</translation>
     </message>
 </context>
 <context>
@@ -2440,6 +3015,38 @@
         <source>Select a Model — 🗺️ = Navigation | 📡 = Radar | 👀 = VOACC</source>
         <translation type="gpt-5-generated">Bir Model Seç — 🗺️ = Navigasyon | 📡 = Radar | 👀 = VOACC</translation>
     </message>
+    <message>
+        <source>Downloading...</source>
+        <translation type="gpt-5-generated">İndiriliyor...</translation>
+    </message>
+    <message>
+        <source>Not parked</source>
+        <translation type="gpt-5-generated">Park halinde değil</translation>
+    </message>
+    <message>
+        <source>Downloaded!</source>
+        <translation type="gpt-5-generated">İndirildi!</translation>
+    </message>
+    <message>
+        <source>All models downloaded!</source>
+        <translation type="gpt-5-generated">Tüm modeller indirildi!</translation>
+    </message>
+    <message>
+        <source>Download cancelled...</source>
+        <translation type="gpt-5-generated">İndirme iptal edildi...</translation>
+    </message>
+    <message>
+        <source>Download failed...</source>
+        <translation type="gpt-5-generated">İndirme başarısız oldu...</translation>
+    </message>
+    <message>
+        <source>GitHub and GitLab are offline...</source>
+        <translation type="gpt-5-generated">GitHub ve GitLab çevrimdışı...</translation>
+    </message>
+    <message>
+        <source>Repository unavailable</source>
+        <translation type="gpt-5-generated">Depo kullanılamıyor</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotModelReview</name>
@@ -2624,6 +3231,57 @@ It will reset in %1 hours and %2 minutes.</source>
     <message>
         <source>Completed!</source>
         <translation type="gpt-5-generated">Tamamlandı!</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Manage your Public Mapbox Key.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Genel Mapbox Anahtarınızı yönetin.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>TEST</source>
+        <translation type="gpt-5-generated">TEST</translation>
+    </message>
+    <message>
+        <source>Remove your Public Mapbox Key?</source>
+        <translation type="gpt-5-generated">Genel Mapbox Anahtarınızı kaldırmak istiyor musunuz?</translation>
+    </message>
+    <message>
+        <source>Enter your Public Mapbox Key</source>
+        <translation type="gpt-5-generated">Genel Mapbox Anahtarınızı girin</translation>
+    </message>
+    <message>
+        <source>Testing...</source>
+        <translation type="gpt-5-generated">Test ediliyor...</translation>
+    </message>
+    <message>
+        <source>Key is valid!</source>
+        <translation type="gpt-5-generated">Anahtar geçerli!</translation>
+    </message>
+    <message>
+        <source>Key is invalid!</source>
+        <translation type="gpt-5-generated">Anahtar geçersiz!</translation>
+    </message>
+    <message>
+        <source>An error occurred: %1</source>
+        <translation type="gpt-5-generated">Bir hata oluştu: %1</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Manage your Secret Mapbox Key.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Gizli Mapbox Anahtarınızı yönetin.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Remove your Secret Mapbox Key?</source>
+        <translation type="gpt-5-generated">Gizli Mapbox Anahtarınızı kaldırmak istiyor musunuz?</translation>
+    </message>
+    <message>
+        <source>Enter your Secret Mapbox Key</source>
+        <translation type="gpt-5-generated">Gizli Mapbox Anahtarınızı girin</translation>
+    </message>
+</context>
+<context>
+    <name>FrogPilotOnroadWindow</name>
+    <message>
+        <source>FPS: %1 | Min: %2 | Max: %3 | Avg: %4</source>
+        <translation type="gpt-5-generated">FPS: %1 | Min: %2 | Maks: %3 | Ort: %4</translation>
     </message>
 </context>
 <context>
@@ -3152,6 +3810,38 @@ Geliştirici - Tecrübeli meraklılar için yüksek özelleştirilebilir ayarlar
         <source>CANCEL</source>
         <translation type="gpt-5-generated">İPTAL</translation>
     </message>
+    <message>
+        <source>Downloading...</source>
+        <translation type="gpt-5-generated">İndiriliyor...</translation>
+    </message>
+    <message>
+        <source>Idle</source>
+        <translation type="gpt-5-generated">Boşta</translation>
+    </message>
+    <message>
+        <source>Unpacking theme...</source>
+        <translation type="gpt-5-generated">Tema açılıyor...</translation>
+    </message>
+    <message>
+        <source>Downloaded!</source>
+        <translation type="gpt-5-generated">İndirildi!</translation>
+    </message>
+    <message>
+        <source>Download cancelled...</source>
+        <translation type="gpt-5-generated">İndirme iptal edildi...</translation>
+    </message>
+    <message>
+        <source>Download failed...</source>
+        <translation type="gpt-5-generated">İndirme başarısız oldu...</translation>
+    </message>
+    <message>
+        <source>Repository unavailable</source>
+        <translation type="gpt-5-generated">Depo kullanılamıyor</translation>
+    </message>
+    <message>
+        <source>GitHub and GitLab are offline...</source>
+        <translation type="gpt-5-generated">GitHub ve GitLab çevrimdışı...</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotUtilitiesPanel</name>
@@ -3593,6 +4283,54 @@ Geliştirici - Tecrübeli meraklılar için yüksek özelleştirilebilir ayarlar
     <message>
         <source>comma Pedal Support</source>
         <translation type="gpt-5-generated">comma Pedal Desteği</translation>
+    </message>
+    <message>
+        <source>Subaru Settings</source>
+        <translation type="gpt-5-generated">Subaru Ayarları</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;FrogPilot features for Subaru vehicles.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Subaru araçları için FrogPilot özellikleri.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Stop and Go</source>
+        <translation type="gpt-5-generated">Dur-kalk</translation>
+    </message>
+    <message>
+        <source>Stop and go for supported Subaru vehicles.</source>
+        <translation type="gpt-5-generated">Desteklenen Subaru araçlarında dur-kalk.</translation>
+    </message>
+    <message>
+        <source>Acura/Honda Settings</source>
+        <translation type="gpt-5-generated">Acura/Honda Ayarları</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;FrogPilot features for Acura and Honda vehicles.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Acura ve Honda araçları için FrogPilot özellikleri.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Gentle Following</source>
+        <translation type="gpt-5-generated">Nazik Takip</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Reduces jerky acceleration and braking when following a lead vehicle.&lt;/b&gt; Ideal for stop-and-go traffic.</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Öndeki aracı takip ederken sarsıntılı hızlanma ve frenlemeyi azaltır.&lt;/b&gt; Dur-kalk trafikte idealdir.</translation>
+    </message>
+    <message>
+        <source>Increased Braking Force</source>
+        <translation type="gpt-5-generated">Artırılmış Frenleme Kuvveti</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Increases the maximum braking force for improved stopping performance.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Daha iyi durma performansı için maksimum frenleme kuvvetini artırır.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Responsive Pedal at Low Speeds</source>
+        <translation type="gpt-5-generated">Düşük Hızlarda Tepkili Pedal</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Improves acceleration from a standstill for a more responsive throttle feel in city driving.&lt;/b&gt;</source>
+        <translation type="gpt-5-generated">&lt;b&gt;Şehir içi sürüşte daha duyarlı bir gaz tepkisi için duruştan kalkışta ivmeyi artırır.&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -4679,6 +5417,42 @@ Geliştirici - Tecrübeli meraklılar için yüksek özelleştirilebilir ayarlar
         <source>FrogPilot</source>
         <translation type="gpt-5-generated">FrogPilot</translation>
     </message>
+    <message>
+        <source>0 MB</source>
+        <translation type="gpt-5-generated">0 MB</translation>
+    </message>
+    <message>
+        <source> GB</source>
+        <translation type="gpt-5-generated">GB</translation>
+    </message>
+    <message>
+        <source> MB</source>
+        <translation type="gpt-5-generated">MB</translation>
+    </message>
+    <message>
+        <source> hour </source>
+        <translation type="gpt-5-generated">saat</translation>
+    </message>
+    <message>
+        <source> hours </source>
+        <translation type="gpt-5-generated">saat</translation>
+    </message>
+    <message>
+        <source> minute </source>
+        <translation type="gpt-5-generated">dakika</translation>
+    </message>
+    <message>
+        <source> minutes </source>
+        <translation type="gpt-5-generated">dakika</translation>
+    </message>
+    <message>
+        <source> second</source>
+        <translation type="gpt-5-generated"> saniye</translation>
+    </message>
+    <message>
+        <source> seconds</source>
+        <translation type="gpt-5-generated"> saniye</translation>
+    </message>
 </context>
 <context>
     <name>Reset</name>
@@ -5109,6 +5883,22 @@ Bu işlem bir dakika kadar sürebilir.</translation>
     <message>
         <source>This is a complete factory reset and cannot be undone. Are you absolutely sure you want to continue?</source>
         <translation type="gpt-5-generated">Bu işlem tam bir fabrika sıfırlamasıdır ve geri alınamaz. Devam etmek istediğinizden kesinlikle emin misiniz?</translation>
+    </message>
+    <message>
+        <source>downloading…</source>
+        <translation type="gpt-5-generated">indiriliyor…</translation>
+    </message>
+    <message>
+        <source>checking…</source>
+        <translation type="gpt-5-generated">kontrol ediliyor…</translation>
+    </message>
+    <message>
+        <source>waiting for vehicle to go offroad...</source>
+        <translation type="gpt-5-generated">aracın yoldan çıkmasını bekleniyor..."</translation>
+    </message>
+    <message>
+        <source>finalizing update...</source>
+        <translation type="gpt-5-generated">güncelleme tamamlanıyor...</translation>
     </message>
 </context>
 <context>

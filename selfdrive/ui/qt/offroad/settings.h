@@ -38,6 +38,7 @@ signals:
   void closePanel();
   void closeSubPanel();
   void closeSubSubPanel();
+  void closeSubSubSubPanel();
   void updateMetric(bool metric, bool bootRun=false);
   void updateTuningLevel();
 
@@ -51,6 +52,7 @@ private:
   bool panelOpen;
   bool subPanelOpen;
   bool subSubPanelOpen;
+  bool subSubSubPanelOpen;
 
   Params params;
 };

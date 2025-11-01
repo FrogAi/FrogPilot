@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from cereal import car, custom
 from openpilot.selfdrive.controls.lib.drive_helpers import CRUISE_LONG_PRESS
-from openpilot.selfdrive.controls.lib.events import EventName
+from openpilot.selfdrive.controls.lib.events import ET
 
 from openpilot.frogpilot.common.frogpilot_variables import NON_DRIVING_GEARS, params, params_memory
 
@@ -98,8 +98,8 @@ class FrogPilotCard:
     self.always_on_lateral_enabled &= carState.gearShifter not in NON_DRIVING_GEARS
     self.always_on_lateral_enabled &= sm["frogpilotPlan"].lateralCheck
     self.always_on_lateral_enabled &= sm["liveCalibration"].calPerc >= 1
+    self.always_on_lateral_enabled &= sm["controlsState"].alertType != ET.IMMEDIATE_DISABLE or frogpilot_toggles.frogs_go_moo
     self.always_on_lateral_enabled &= not (carState.brakePressed and carState.vEgo < self.car.frogpilot_toggles.always_on_lateral_pause_speed) or carState.standstill
-    self.always_on_lateral_enabled &= not any(event.immediateDisable for events in (sm["onroadEvents"], sm["frogpilotOnroadEvents"]) for event in events if event.name != EventName.speedTooLow) or self.car.frogpilot_toggles.frogs_go_moo
 
     if sm.updated["frogpilotPlan"] or any(be.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for be in carState.buttonEvents):
       self.accel_pressed = any(be.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for be in carState.buttonEvents)
