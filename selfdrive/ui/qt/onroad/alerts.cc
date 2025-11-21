@@ -4,6 +4,7 @@
 #include <map>
 
 #include "selfdrive/ui/qt/util.h"
+#include "alert_tr.h"
 
 void OnroadAlerts::updateState(const UIState &s, const FrogPilotUIState &fs) {
   Alert a = getAlert(*(s.sm), *(fs.sm), s.scene.started_frame, fs.frogpilot_scene.frogpilot_toggles);
