@@ -133,21 +133,21 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
   p.setPen(QColor(0xff, 0xff, 0xff));
   p.setRenderHint(QPainter::TextAntialiasing);
   if (alert.size == cereal::SelfdriveState::AlertSize::SMALL) {
-    bool long_alert1 = alert.text1.length() > 40;
+    bool long_alert1 = translateAlert(alert.text1).length() > 40;
     p.setFont(InterFont(long_alert1 && sidebarsOpen ? 64 : 74, QFont::DemiBold));
-    p.drawText(r, Qt::AlignCenter, alert.text1);
+    p.drawText(r, Qt::AlignCenter, translateAlert(alert.text1));
   } else if (alert.size == cereal::SelfdriveState::AlertSize::MID) {
-    bool long_alert1 = alert.text1.length() > 30;
+    bool long_alert1 = translateAlert(alert.text1).length() > 30;
     p.setFont(InterFont(long_alert1 && sidebarsOpen ? 78 : 88, QFont::Bold));
-    p.drawText(QRect(0, c.y() - 125, width(), 150), Qt::AlignHCenter | Qt::AlignTop, alert.text1);
-    bool long_alert2 = alert.text2.length() > 40;
+    p.drawText(QRect(0, c.y() - 125, width(), 150), Qt::AlignHCenter | Qt::AlignTop, translateAlert(alert.text1));
+    bool long_alert2 = translateAlert(alert.text2).length() > 40;
     p.setFont(InterFont(long_alert2 && sidebarsOpen ? 56 : 66));
-    p.drawText(QRect(0, c.y() + 21, width(), 90), Qt::AlignHCenter, alert.text2);
+    p.drawText(QRect(0, c.y() + 21, width(), 90), Qt::AlignHCenter, translateAlert(alert.text2));
   } else if (alert.size == cereal::SelfdriveState::AlertSize::FULL) {
-    bool l = alert.text1.length() > 15;
+    bool l = translateAlert(alert.text1).length() > 15;
     p.setFont(InterFont(l ? 132 : 177, QFont::Bold));
-    p.drawText(QRect(0, r.y() + (l ? 240 : 270), width(), 600), Qt::AlignHCenter | Qt::TextWordWrap, alert.text1);
+    p.drawText(QRect(0, r.y() + (l ? 240 : 270), width(), 600), Qt::AlignHCenter | Qt::TextWordWrap, translateAlert(alert.text1));
     p.setFont(InterFont(88));
-    p.drawText(QRect(0, r.height() - (l ? 361 : 420), width(), 300), Qt::AlignHCenter | Qt::TextWordWrap, alert.text2);
+    p.drawText(QRect(0, r.height() - (l ? 361 : 420), width(), 300), Qt::AlignHCenter | Qt::TextWordWrap, translateAlert(alert.text2));
   }
 }
