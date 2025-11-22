@@ -8,10 +8,6 @@
         <translation>Закрити</translation>
     </message>
     <message>
-        <source>Snooze Update</source>
-        <translation>Відтермінувати оновлення</translation>
-    </message>
-    <message>
         <source>Reboot and Update</source>
         <translation>Перезав. і онови</translation>
     </message>
@@ -83,10 +79,6 @@
         <translation>Обмежений траффік стільникової мережі</translation>
     </message>
     <message>
-        <source>Prevent large data uploads when on a metered connection</source>
-        <translation>Запобігти великим вивантаженням коли обмежений траффік</translation>
-    </message>
-    <message>
         <source>Hidden Network</source>
         <translation>Прихована мережа</translation>
     </message>
@@ -106,28 +98,717 @@
         <source>for "%1"</source>
         <translation>для "%1"</translation>
     </message>
+    <message>
+        <source>Prevent large data uploads when on a metered cellular connection</source>
+        <translation>Запобігайте завантаженню великих обсягів даних під час використання мобільного інтернету з обмеженим трафіком</translation>
+    </message>
+    <message>
+        <source>default</source>
+        <translation>замовч.</translation>
+    </message>
+    <message>
+        <source>metered</source>
+        <translation>обмеж.</translation>
+    </message>
+    <message>
+        <source>unmetered</source>
+        <translation>необм.</translation>
+    </message>
+    <message>
+        <source>Wi-Fi Network Metered</source>
+        <translation>Обмежений трафік Wi-Fi</translation>
+    </message>
+    <message>
+        <source>Prevent large data uploads when on a metered Wi-Fi connection</source>
+        <translation>Запобігайте завантаженню великих обсягів даних під час використання WiFi з обмеженим трафіком</translation>
+    </message>
 </context>
 <context>
-    <name>AnnotatedCameraWidget</name>
+    <name>Alerts</name>
     <message>
-        <source>km/h</source>
-        <translation>км/г</translation>
+        <source>System Overheated</source>
+        <translation>Система перегрілася</translation>
     </message>
     <message>
-        <source>mph</source>
-        <translation>м*г</translation>
+        <source>%1 °C</source>
+        <translation>%1 °C</translation>
     </message>
     <message>
-        <source>MAX</source>
-        <translation>МАКС</translation>
+        <source>WARNING: This branch is not tested</source>
+        <translation>УВАГА: Ця гілка не протестована</translation>
     </message>
     <message>
-        <source>LIMIT</source>
-        <translation>ЛІМІТ</translation>
+        <source>Hop in and buckle up!</source>
+        <translation>Сідай і пристібай ремені!</translation>
     </message>
     <message>
-        <source>SPEED</source>
-        <translation>ШВИДК.</translation>
+        <source>Human-tested, frog-approved 🐸</source>
+        <translation>Випробувано людьми, схвалено жабами 🐸</translation>
+    </message>
+    <message>
+        <source>Be ready to take over at any time</source>
+        <translation>Будьте готові взяти керування</translation>
+    </message>
+    <message>
+        <source>Always keep hands on wheel and eyes on road</source>
+        <translation>Завжди тримайте руки на кермі та очі на дорозі</translation>
+    </message>
+    <message>
+        <source>Drive above %1 to engage</source>
+        <translation>Їдьте понад %1, щоб увімкнути</translation>
+    </message>
+    <message>
+        <source>Steer Unavailable Below %1</source>
+        <translation>Кермування недоступне нижче %1</translation>
+    </message>
+    <message>
+        <source>Out of Storage</source>
+        <translation>Нема місця</translation>
+    </message>
+    <message>
+        <source>%1% full</source>
+        <translation>%1% заповнено</translation>
+    </message>
+    <message>
+        <source>Camera Malfunction</source>
+        <translation>Несправність камери</translation>
+    </message>
+    <message>
+        <source>Calibration Invalid</source>
+        <translation>Калібрування недійсне</translation>
+    </message>
+    <message>
+        <source>Low Memory</source>
+        <translation>Недостатньо пам'яті</translation>
+    </message>
+    <message>
+        <source>%1% used</source>
+        <translation>%1% використано</translation>
+    </message>
+    <message>
+        <source>High CPU Usage</source>
+        <translation>Високе використання процесора</translation>
+    </message>
+    <message>
+        <source>Driving Model Lagging</source>
+        <translation>Відставання моделі водіння</translation>
+    </message>
+    <message>
+        <source>%1% frames dropped</source>
+        <translation>%1% втрачених кадрів</translation>
+    </message>
+    <message>
+        <source>Joystick Mode</source>
+        <translation>Режим джойстика</translation>
+    </message>
+    <message>
+        <source>Forcing the car to stop in %1</source>
+        <translation>Зупинка авто в %1</translation>
+    </message>
+    <message>
+        <source>Press the gas pedal or 'Resume' button to override</source>
+        <translation>Натисніть газ або 'Res', щоб скасувати</translation>
+    </message>
+    <message>
+        <source>No lane available</source>
+        <translation>Немає смуг руху</translation>
+    </message>
+    <message>
+        <source>Detected lane width is only %1</source>
+        <translation>Виявлена ширина смуги лише %1</translation>
+    </message>
+    <message>
+        <source>NNFF Torque Controller not available</source>
+        <translation>Контролер моменту NNFF недоступний</translation>
+    </message>
+    <message>
+        <source>Donate logs to Twilsonco to get your car supported!</source>
+        <translation>Відправте логи Twilsonco, щоб отримати підтримку вашого авто!</translation>
+    </message>
+    <message>
+        <source>NNFF Torque Controller loaded</source>
+        <translation>Завантажено контролер моменту NNFF</translation>
+    </message>
+    <message>
+        <source>System Initializing</source>
+        <translation>Ініціалізація системи</translation>
+    </message>
+    <message>
+        <source>Dashcam mode</source>
+        <translation>Режим відеореєстратора</translation>
+    </message>
+    <message>
+        <source>Dashcam mode for unsupported car</source>
+        <translation>Режим відеореєстратора для авто, що не підтримуються</translation>
+    </message>
+    <message>
+        <source>Car Unrecognized</source>
+        <translation>Автомобіль не розпізнано</translation>
+    </message>
+    <message>
+        <source>Check comma power connections</source>
+        <translation>Перевірте підключення живлення comma</translation>
+    </message>
+    <message>
+        <source>Dashcam Mode</source>
+        <translation>Режим відеореєстратора</translation>
+    </message>
+    <message>
+        <source>Security Key Not Available</source>
+        <translation>Ключ безпеки недоступний</translation>
+    </message>
+    <message>
+        <source>Stock LKAS is on</source>
+        <translation>Стандартна система LKAS увімкнена</translation>
+    </message>
+    <message>
+        <source>Turn off stock LKAS to engage</source>
+        <translation>Вимкніть систему LKAS, щоб активувати</translation>
+    </message>
+    <message>
+        <source>BRAKE!</source>
+        <translation>ГАЛЬМУЙ!</translation>
+    </message>
+    <message>
+        <source>Stock AEB: Risk of Collision</source>
+        <translation>Штатна AEB: ризик зіткнення</translation>
+    </message>
+    <message>
+        <source>Risk of Collision</source>
+        <translation>Ризик зіткнення</translation>
+    </message>
+    <message>
+        <source>Lane Departure Detected</source>
+        <translation>Виявлено виїзд зі смуги руху</translation>
+    </message>
+    <message>
+        <source>Steering Temporarily Unavailable</source>
+        <translation>Кермування тимчасово недоступне</translation>
+    </message>
+    <message>
+        <source>Pay Attention</source>
+        <translation>Зверніть увагу</translation>
+    </message>
+    <message>
+        <source>Driver Distracted</source>
+        <translation>Водій відволікся</translation>
+    </message>
+    <message>
+        <source>DISENGAGE IMMEDIATELY</source>
+        <translation>НЕГАЙНА ДЕАКТИВАЦІЯ</translation>
+    </message>
+    <message>
+        <source>Touch Steering Wheel: No Face Detected</source>
+        <translation>Торкніться керма: обличчя не виявлено</translation>
+    </message>
+    <message>
+        <source>Touch Steering Wheel</source>
+        <translation>Торкніться керма</translation>
+    </message>
+    <message>
+        <source>Driver Unresponsive</source>
+        <translation>Водій не реагує</translation>
+    </message>
+    <message>
+        <source>TAKE CONTROL</source>
+        <translation>КЕРМУЙТЕ</translation>
+    </message>
+    <message>
+        <source>Resume Driving Manually</source>
+        <translation>Поновлюю ручне керування</translation>
+    </message>
+    <message>
+        <source>Press Resume to Exit Standstill</source>
+        <translation>Натисніть 'Продовжити', щоб рушити</translation>
+    </message>
+    <message>
+        <source>Steer Left to Start Lane Change Once Safe</source>
+        <translation>Зміна смуги - кермо ліворуч коли безпечно</translation>
+    </message>
+    <message>
+        <source>Steer Right to Start Lane Change Once Safe</source>
+        <translation>Зміна смуги - кермо праворуч коли безпечно</translation>
+    </message>
+    <message>
+        <source>Car Detected in Blindspot</source>
+        <translation>Автомобіль в сліпій зоні</translation>
+    </message>
+    <message>
+        <source>Changing Lanes</source>
+        <translation>Змінюю смугу</translation>
+    </message>
+    <message>
+        <source>Take Control</source>
+        <translation>Кермуйте</translation>
+    </message>
+    <message>
+        <source>Turn Exceeds Steering Limit</source>
+        <translation>Поворот перевищує межу керованості</translation>
+    </message>
+    <message>
+        <source>Fan Malfunction</source>
+        <translation>Несправність вентилятора</translation>
+    </message>
+    <message>
+        <source>Likely Hardware Issue</source>
+        <translation>Ймовірна проблема з обладнанням</translation>
+    </message>
+    <message>
+        <source>Camera Malfunction: Reboot Your Device</source>
+        <translation>Несправність камери: перезавантажте пристрій</translation>
+    </message>
+    <message>
+        <source>Camera Frame Rate Low</source>
+        <translation>Низка частота кадрів камери</translation>
+    </message>
+    <message>
+        <source>Reboot your Device</source>
+        <translation>Перезавантажте пристрій</translation>
+    </message>
+    <message>
+        <source>Camera Frame Rate Low: Reboot Your Device</source>
+        <translation>Низька частота кадрів камери: перезавантажте пристрій</translation>
+    </message>
+    <message>
+        <source>locationd Temporary Error</source>
+        <translation>locationd Тимчасова помилка</translation>
+    </message>
+    <message>
+        <source>locationd Permanent Error</source>
+        <translation>locationd Постійна помилка</translation>
+    </message>
+    <message>
+        <source>paramsd Temporary Error</source>
+        <translation>paramsd Тимчасова помилка</translation>
+    </message>
+    <message>
+        <source>paramsd Permanent Error</source>
+        <translation>paramsd Постійна помилка</translation>
+    </message>
+    <message>
+        <source>Cancel Pressed</source>
+        <translation>Скасувати Натиснуто</translation>
+    </message>
+    <message>
+        <source>Brake Hold Active</source>
+        <translation>Утримання гальма активне</translation>
+    </message>
+    <message>
+        <source>Parking Brake Engaged</source>
+        <translation>Ручник активований</translation>
+    </message>
+    <message>
+        <source>Pedal Pressed</source>
+        <translation>Педаль нажата</translation>
+    </message>
+    <message>
+        <source>Release Brake to Engage</source>
+        <translation>Відпустіть гальмо, щоб активувати</translation>
+    </message>
+    <message>
+        <source>Press Set to Engage</source>
+        <translation>Натисніть Set щоб активувати</translation>
+    </message>
+    <message>
+        <source>Adaptive Cruise Disabled</source>
+        <translation>Адаптивний круїз вимкнено</translation>
+    </message>
+    <message>
+        <source>Vehicle Steering Time Limit</source>
+        <translation>Обмеження часу керування транспортним засобом</translation>
+    </message>
+    <message>
+        <source>Sensor Data Invalid</source>
+        <translation>Дані датчиків недійсні</translation>
+    </message>
+    <message>
+        <source>Possible Hardware Issue</source>
+        <translation>Можлива проблема з обладнанням</translation>
+    </message>
+    <message>
+        <source>Poor GPS reception</source>
+        <translation>Поганий прийом GPS</translation>
+    </message>
+    <message>
+        <source>Ensure device has a clear view of the sky</source>
+        <translation>Переконайтеся, що пристрій має чіткий огляд неба</translation>
+    </message>
+    <message>
+        <source>Speaker not found</source>
+        <translation>Не знайдено динамік</translation>
+    </message>
+    <message>
+        <source>Distraction Level Too High</source>
+        <translation>Занадто високий рівень відволікання</translation>
+    </message>
+    <message>
+        <source>Gear not D</source>
+        <translation>Передача не D</translation>
+    </message>
+    <message>
+        <source>Calibration Invalid: Remount Device &amp; Recalibrate</source>
+        <translation>Калібрування недійсне: перевстановіть пристрій і повторіть</translation>
+    </message>
+    <message>
+        <source>Calibration in Progress</source>
+        <translation>Калібрування в процесі</translation>
+    </message>
+    <message>
+        <source>Remount Detected: Recalibrating</source>
+        <translation>Виявлена перестановка: перекалібрування</translation>
+    </message>
+    <message>
+        <source>Door Open</source>
+        <translation>Відкриті двері</translation>
+    </message>
+    <message>
+        <source>Seatbelt Unlatched</source>
+        <translation>Ремінь безпеки розстібнутий</translation>
+    </message>
+    <message>
+        <source>Electronic Stability Control Disabled</source>
+        <translation>Електронний контроль стабільності вимкнено</translation>
+    </message>
+    <message>
+        <source>Low Battery</source>
+        <translation>Низький заряд батареї</translation>
+    </message>
+    <message>
+        <source>Low Communication Rate Between Processes</source>
+        <translation>Низька швидкість обміну даними між процесами</translation>
+    </message>
+    <message>
+        <source>Controls Process Lagging: Reboot Your Device</source>
+        <translation>Затримки процесу керування: перезавантажте пристрій</translation>
+    </message>
+    <message>
+        <source>Radar Error: Restart the Car</source>
+        <translation>Помилка радара: перезапустіть авто</translation>
+    </message>
+    <message>
+        <source>Device Fell Off Mount</source>
+        <translation>Пристрій відпав від кріплення</translation>
+    </message>
+    <message>
+        <source>Low Memory: Reboot Your Device</source>
+        <translation>Недостатньо пам'яті: перезавантажте пристрій</translation>
+    </message>
+    <message>
+        <source>Cruise Fault: Restart the Car</source>
+        <translation>Несправність круїзу: перезапустіть авто</translation>
+    </message>
+    <message>
+        <source>Cruise Fault: Restart the car to engage</source>
+        <translation>Несправність круїзу: перезапустіть авто, щоб активувати</translation>
+    </message>
+    <message>
+        <source>Controls Mismatch</source>
+        <translation>Невідповідність елементів управління</translation>
+    </message>
+    <message>
+        <source>Camera CRC Error - Road</source>
+        <translation>Помилка CRC камери - Дорожна</translation>
+    </message>
+    <message>
+        <source>Camera CRC Error - Road Fisheye</source>
+        <translation>Помилка CRC камери - Широкоформ.</translation>
+    </message>
+    <message>
+        <source>Camera CRC Error - Driver</source>
+        <translation>Помилка CRC камери - Водійська</translation>
+    </message>
+    <message>
+        <source>USB Error: Reboot Your Device</source>
+        <translation>Помилка USB: перезавантажте пристрій</translation>
+    </message>
+    <message>
+        <source>CAN Error</source>
+        <translation>Помилка CAN</translation>
+    </message>
+    <message>
+        <source>CAN Error: Check Connections</source>
+        <translation>Помилка CAN: перевірте з'єднання</translation>
+    </message>
+    <message>
+        <source>CAN Bus Disconnected</source>
+        <translation>CAN-шину відключено</translation>
+    </message>
+    <message>
+        <source>CAN Bus Disconnected: Likely Faulty Cable</source>
+        <translation>Відключення шини CAN: ймовірно, несправний кабель</translation>
+    </message>
+    <message>
+        <source>CAN Bus Disconnected: Check Connections</source>
+        <translation>CAN-шину відключено: перевірте з'єднання</translation>
+    </message>
+    <message>
+        <source>LKAS Fault: Restart the Car</source>
+        <translation>Помилка LKAS: перезапустіть авто</translation>
+    </message>
+    <message>
+        <source>LKAS Fault: Restart the car to engage</source>
+        <translation>Помилка LKAS: перезавантажте авто</translation>
+    </message>
+    <message>
+        <source>Reverse&lt;br&gt;Gear</source>
+        <translation>Задній
+хід</translation>
+    </message>
+    <message>
+        <source>Reverse Gear</source>
+        <translation>Задній хід</translation>
+    </message>
+    <message>
+        <source>Cruise Is Off</source>
+        <translation>Круїз вимкнено</translation>
+    </message>
+    <message>
+        <source>Harness Relay Malfunction</source>
+        <translation>Несправність реле проводки</translation>
+    </message>
+    <message>
+        <source>Check Hardware</source>
+        <translation>Перевірте обладнання</translation>
+    </message>
+    <message>
+        <source>openpilot Canceled</source>
+        <translation>openpilot Скасовано</translation>
+    </message>
+    <message>
+        <source>Speed too low</source>
+        <translation>Швидкість занизька</translation>
+    </message>
+    <message>
+        <source>Speed Too High</source>
+        <translation>Швидкість завелика</translation>
+    </message>
+    <message>
+        <source>Model uncertain at this speed</source>
+        <translation>Модель непризначена для цієї швидкості</translation>
+    </message>
+    <message>
+        <source>Slow down to engage</source>
+        <translation>Сповільнітся, щоб активувати</translation>
+    </message>
+    <message>
+        <source>LKAS Disabled: Enable LKAS to engage</source>
+        <translation>LKAS вимк.: увімкніть LKAS, щоб активувати</translation>
+    </message>
+    <message>
+        <source>LKAS Disabled</source>
+        <translation>LKAS вимкнено</translation>
+    </message>
+    <message>
+        <source>Vehicle Sensors Invalid</source>
+        <translation>Датчики автомобіля Недійсні</translation>
+    </message>
+    <message>
+        <source>Vehicle Sensors Calibrating</source>
+        <translation>Калібрування датчиків автомобіля</translation>
+    </message>
+    <message>
+        <source>Drive to Calibrate</source>
+        <translation>Їдьте для калібрування</translation>
+    </message>
+    <message>
+        <source>Don't use the 'Development' branch!</source>
+        <translation>Не використовуйте гілку «Розробка»!</translation>
+    </message>
+    <message>
+        <source>Forcing you into 'Dashcam Mode' for your safety</source>
+        <translation>Примусове переведення в «режим відеореєстратора» для вашої безпеки</translation>
+    </message>
+    <message>
+        <source>JESUS TAKE THE WHEEL!!</source>
+        <translation>ІСУСЄ, КЕРМУЙ!!</translation>
+    </message>
+    <message>
+        <source>Light turned green</source>
+        <translation>Зелене свіло</translation>
+    </message>
+    <message>
+        <source>Lead departed</source>
+        <translation>Авто зрушило</translation>
+    </message>
+    <message>
+        <source>openpilot crashed</source>
+        <translation>openpilot завис</translation>
+    </message>
+    <message>
+        <source>Please post the 'Error Log' in the FrogPilot Discord!</source>
+        <translation>Будь ласка, опублікуйте «Журнал помилок» у FrogPilot Discord!</translation>
+    </message>
+    <message>
+        <source>Braking Unavailable</source>
+        <translation>Гальмування недоступне</translation>
+    </message>
+    <message>
+        <source>Shift to L</source>
+        <translation>Перемикніться на L</translation>
+    </message>
+    <message>
+        <source>Speed limit changed</source>
+        <translation>Змінено обмеження швидкості</translation>
+    </message>
+    <message>
+        <source>This is fine ☕</source>
+        <translation>Це добре ☕</translation>
+    </message>
+    <message>
+        <source>Traffic Mode enabled</source>
+        <translation>Режим трафік увімкнено</translation>
+    </message>
+    <message>
+        <source>Traffic Mode Disabled</source>
+        <translation>Режим трафік вимкнено</translation>
+    </message>
+    <message>
+        <source>Turning left</source>
+        <translation>Повертаєм ліворуч</translation>
+    </message>
+    <message>
+        <source>Turning right</source>
+        <translation>Повертаєм праворуч</translation>
+    </message>
+    <message>
+        <source>UwU u went a bit fast there!</source>
+        <translation>UwU, ти трохи занадто поспішив!</translation>
+    </message>
+    <message>
+        <source>(⁄ ⁄•⁄ω⁄•⁄ ⁄)</source>
+        <translation>(⁄ ⁄•⁄ω⁄•⁄ ⁄)</translation>
+    </message>
+    <message>
+        <source>I ain't giving you no tree-fiddy</source>
+        <translation>Я не дам тобі ніяких трьохсот п'ятдесяти</translation>
+    </message>
+    <message>
+        <source>You damn Loch Ness Monsta!</source>
+        <translation>Ти, проклятий Лох-Неський монстр!</translation>
+    </message>
+    <message>
+        <source>Great Scott!</source>
+        <translation>Чудово, Скотте!</translation>
+    </message>
+    <message>
+        <source>🚗💨</source>
+        <translation>🚗💨</translation>
+    </message>
+    <message>
+        <source>♬♪ Deja vu! ᕕ(⌐■_■)ᕗ ♪♬</source>
+        <translation>♬♪ Deja vu! ᕕ(⌐■_■)ᕗ ♪♬</translation>
+    </message>
+    <message>
+        <source>🏎️</source>
+        <translation>🏎️</translation>
+    </message>
+    <message>
+        <source>IE Has Stopped Responding...</source>
+        <translation>IE Has Stopped Responding...</translation>
+    </message>
+    <message>
+        <source>I'm sorry Dave</source>
+        <translation>Вибач, Дейве</translation>
+    </message>
+    <message>
+        <source>I'm afraid I can't do that...</source>
+        <translation>Боюся, що не можу цього зробити...</translation>
+    </message>
+    <message>
+        <source>openpilot crashed 💩</source>
+        <translation>openpilot завис 💩</translation>
+    </message>
+    <message>
+        <source>To be continued...</source>
+        <translation>Продовження буде...</translation>
+    </message>
+    <message>
+        <source>⬅️</source>
+        <translation>⬅️</translation>
+    </message>
+    <message>
+        <source>Lol 69</source>
+        <translation>Лол 69</translation>
+    </message>
+    <message>
+        <source>Your Frog tried to kill me...</source>
+        <translation>Твоя Жаба намагалася мене вбити...</translation>
+    </message>
+    <message>
+        <source>👺</source>
+        <translation>👺</translation>
+    </message>
+    <message>
+        <source>You've got mail! 📧</source>
+        <translation>Вам пошта! 📧</translation>
+    </message>
+    <message>
+        <source>Calibration in Progress: %1%</source>
+        <translation>Калібрування триває: %1%</translation>
+    </message>
+    <message>
+        <source>Drive Above %1 km/h</source>
+        <translation>Їдьте швидше %1 км/год</translation>
+    </message>
+    <message>
+        <source>Recalibration in Progress: %1%</source>
+        <translation>Перекалібрування в процесі: %1%</translation>
+    </message>
+    <message>
+        <source>openpilot Unavailable</source>
+        <translation>openpilot Недоступний</translation>
+    </message>
+    <message>
+        <source>TAKE CONTROL IMMEDIATELY</source>
+        <translation>КЕРМУЙТЕ НЕГАЙНО</translation>
+    </message>
+    <message>
+        <source>openpilot will disengage</source>
+        <translation>openpilot деактивується</translation>
+    </message>
+    <message>
+        <source>Drive Above %1 mph</source>
+        <translation>Їдьте швидше %1 мнг</translation>
+    </message>
+    <message>
+        <source>Posenet Speed Invalid</source>
+        <translation>Швидкість Posenet недійсна</translation>
+    </message>
+    <message>
+        <source>Process Not Running</source>
+        <translation>Процес не виконується</translation>
+    </message>
+    <message>
+        <source>Communication Issue Between Processes</source>
+        <translation>Проблема комунікації між процесами</translation>
+    </message>
+    <message>
+        <source>Camera Malfunction, %1</source>
+        <translation>Несправність камери, %1</translation>
+    </message>
+    <message>
+        <source>Remount Device (Pitch: %1°, Yaw: %2°)</source>
+        <translation>Перевстановити пристрій (нахил: %1°, відхилення: %2°)</translation>
+    </message>
+    <message>
+        <source>Enable Cruise Control to Engage</source>
+        <translation>Увімкни круїз-контроль для активації</translation>
+    </message>
+    <message>
+        <source>Enable Main Switch to Engage</source>
+        <translation>Увімкни круїз-контроль для активації</translation>
+    </message>
+    <message>
+        <source>Enable Adaptive Cruise to Engage</source>
+        <translation>Увімкни адаптивний круїз для активації</translation>
+    </message>
+    <message>
+        <source>Speed Error: %1 m/s</source>
+        <translation>Похибка швидкості: %1 м/с</translation>
+    </message>
+    <message>
+        <source>Gas: %1%, Steer: %2%</source>
+        <translation>Газ: %1%, Кермо: %2%</translation>
     </message>
 </context>
 <context>
@@ -157,30 +838,34 @@
     </message>
 </context>
 <context>
-    <name>DestinationWidget</name>
+    <name>DeveloperPanel</name>
     <message>
-        <source>Home</source>
-        <translation>Дім</translation>
+        <source>Enable ADB</source>
+        <translation>Увімкнути ADB</translation>
     </message>
     <message>
-        <source>Work</source>
-        <translation>Робота</translation>
+        <source>ADB (Android Debug Bridge) allows connecting to your device over USB or over the network. See https://docs.comma.ai/how-to/connect-to-comma for more info.</source>
+        <translation>ADB (Android Debug Bridge) дозволяє підключатися до вашого пристрою через USB або мережу. Дивіться https://docs.comma.ai/how-to/connect-to-comma для отримання додаткової інформації.</translation>
     </message>
     <message>
-        <source>No destination set</source>
-        <translation>Немає пункту призначення</translation>
+        <source>Joystick Debug Mode</source>
+        <translation>Режим зневадження джойстиком</translation>
     </message>
     <message>
-        <source>home</source>
-        <translation>дім</translation>
+        <source>Longitudinal Maneuver Mode</source>
+        <translation>Режим поздовжнього маневрування</translation>
     </message>
     <message>
-        <source>work</source>
-        <translation>робота</translation>
+        <source>openpilot Longitudinal Control (Alpha)</source>
+        <translation>openpilot Поздовжній контроль (альфа)</translation>
     </message>
     <message>
-        <source>No %1 location set</source>
-        <translation>Локація %1 встановлена</translation>
+        <source>WARNING: openpilot longitudinal control is in alpha for this car and will disable Automatic Emergency Braking (AEB).</source>
+        <translation>УВАГА: система поздовжнього контролю openpilot для цього автомобіля перебуває в стадії альфа-тестування і вимкне функцію автоматичного екстреного гальмування (AEB).</translation>
+    </message>
+    <message>
+        <source>On this car, openpilot defaults to the car's built-in ACC instead of openpilot's longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
+        <translation>У цьому автомобілі openpilot за замовчуванням використовує вбудовану систему ACC замість поздовжнього керування openpilot. Увімкніть цю опцію, щоб перейти на поздовжнє керування openpilot. Рекомендується увімкнути експериментальний режим під час увімкнення альфа-версії поздовжнього керування openpilot.</translation>
     </message>
 </context>
 <context>
@@ -252,6 +937,10 @@
     <message>
         <source>TORQUE %</source>
         <translation>МОМЕНТ %</translation>
+    </message>
+    <message>
+        <source>DANGER %</source>
+        <translation>НЕБЕЗПЕКА %</translation>
     </message>
 </context>
 <context>
@@ -361,10 +1050,6 @@
         <translation>Вимкнути</translation>
     </message>
     <message>
-        <source>openpilot requires the device to be mounted within 4° left or right and within 5° up or 9° down. openpilot is continuously calibrating, resetting is rarely required.</source>
-        <translation>openpilot вимагає, щоб пристрій був встановлений в межах 4° вліво або вправо і в межах 5° вгору або 9° вниз. openpilot постійно калібрується, скидання рідко потрібне.</translation>
-    </message>
-    <message>
         <source> Your device is pointed %1° %2 and %3° %4.</source>
         <translation> Ваш пристрій спрямований на %1° %2 і %3° %4.</translation>
     </message>
@@ -399,6 +1084,42 @@
     <message>
         <source>Disengage to Power Off</source>
         <translation>Деактивуйте для вимкнення</translation>
+    </message>
+    <message>
+        <source>Disengage to Reset Calibration</source>
+        <translation>Деактивуйте для скидання калібрування</translation>
+    </message>
+    <message>
+        <source>openpilot requires the device to be mounted within 4° left or right and within 5° up or 9° down.</source>
+        <translation>openpilot вимагає, щоб пристрій був встановлений в межах 4° вліво або вправо і в межах 5° вгору або 9° вниз.</translation>
+    </message>
+    <message>
+        <source>
+
+Steering lag calibration is %1% complete.</source>
+        <translation>
+
+Калібрування затримки рульового управління виконано на %1%.</translation>
+    </message>
+    <message>
+        <source>
+
+Steering lag calibration is complete.</source>
+        <translation>
+
+Калібрування затримки рульового управління завершено.</translation>
+    </message>
+    <message>
+        <source> Steering torque response calibration is %1% complete.</source>
+        <translation> Калібрування реакції крутного моменту керма виконано на %1%.</translation>
+    </message>
+    <message>
+        <source> Steering torque response calibration is complete.</source>
+        <translation> Калібрування реакції крутного моменту керма завершено.</translation>
+    </message>
+    <message>
+        <source>openpilot is continuously calibrating, resetting is rarely required. Resetting calibration will restart openpilot if the car is powered on.</source>
+        <translation>openpilot постійно калібрується, скидання рідко потрібне. Скидання калібрування призведе до перезапуску openpilot, якщо автомобіль увімкнено.</translation>
     </message>
 </context>
 <context>
@@ -459,6 +1180,43 @@
     </message>
 </context>
 <context>
+    <name>FirehosePanel</name>
+    <message>
+        <source>Firehose Mode</source>
+        <translation>Режим зливи</translation>
+    </message>
+    <message>
+        <source>openpilot learns to drive by watching humans, like you, drive.
+
+Firehose Mode allows you to maximize your training data uploads to improve openpilot's driving models. More data means bigger models, which means better Experimental Mode.</source>
+        <translation>Режим зливи дозволяє максимально збільшити обсяг завантажуваних даних для навчання, щоб поліпшити моделі керування автомобілем openpilot. Більше даних означає більші моделі, а отже, кращий експериментальний режим. Вимірюване мобільне з'єднання</translation>
+    </message>
+    <message>
+        <source>Firehose Mode: ACTIVE</source>
+        <translation>Режим зливи: АКТИВ</translation>
+    </message>
+    <message>
+        <source>For maximum effectiveness, bring your device inside and connect to a good USB-C adapter and Wi-Fi weekly.&lt;br&gt;&lt;br&gt;Firehose Mode can also work while you're driving if connected to a hotspot or unlimited SIM card.&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Frequently Asked Questions&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Does it matter how or where I drive?&lt;/i&gt; Nope, just drive as you normally would.&lt;br&gt;&lt;br&gt;&lt;i&gt;Do all of my segments get pulled in Firehose Mode?&lt;/i&gt; No, we selectively pull a subset of your segments.&lt;br&gt;&lt;br&gt;&lt;i&gt;What's a good USB-C adapter?&lt;/i&gt; Any fast phone or laptop charger should be fine.&lt;br&gt;&lt;br&gt;&lt;i&gt;Does it matter which software I run?&lt;/i&gt; Yes, only upstream openpilot (and particular forks) are able to be used for training.</source>
+        <translation>Для максимальної ефективності щотижня заносьте пристрій у приміщення та підключайте його до якісного адаптера USB-C і Wi-Fi. &lt;br&gt;&lt;br&gt;Режим Firehose також може працювати під час руху, якщо пристрій підключено до точки доступу або SIM-картки з необмеженим трафіком. &lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Поширені запитання&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Чи має значення, як і де я їду?&lt;/i&gt; Ні, просто їдьте, як зазвичай. &lt;br&gt;&lt;br&gt;&lt;i&gt;Чи всі мої сегменти завантажуються в режимі Firehose?&lt;/i&gt; Ні, ми вибірково завантажуємо підмножину ваших сегментів. &lt;br&gt;&lt;br&gt;&lt;i&gt;Що таке хороший адаптер USB-C?&lt;/i&gt; Будь-який швидкий зарядний пристрій для телефону або ноутбука підійде. &lt;br&gt;&lt;br&gt;&lt;i&gt;Чи має значення, яке програмне забезпечення я використовую?&lt;/i&gt; Так, для навчання можна використовувати тільки upstream openpilot (і певні його форки).</translation>
+    </message>
+    <message numerus="yes">
+        <source>&lt;b&gt;%n segment(s)&lt;/b&gt; of your driving is in the training dataset so far.</source>
+        <translation>
+            <numerusform>&lt;b&gt;%n segment(s)&lt;/b&gt; of your driving is in the training dataset so far.</numerusform>
+            <numerusform>&lt;b&gt;%n сегменти&lt;/b&gt; вашого водіння на даний момент містяться в навчальному наборі даних.</numerusform>
+            <numerusform>&lt;b&gt;%n сегментів&lt;/b&gt; вашого водіння на даний момент містяться в навчальному наборі даних.</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>ACTIVE</source>
+        <translation>АКТИВ</translation>
+    </message>
+    <message>
+        <source>&lt;span stylesheet='font-size: 60px; font-weight: bold; color: #e74c3c;'&gt;INACTIVE&lt;/span&gt;: connect to an unmetered network</source>
+        <translation>&lt;span stylesheet='font-size: 60px; font-weight: bold; color: #e74c3c;'&gt;ВИМКН.&lt;/span&gt;: підʼєднайтесь до необмеженої мережі</translation>
+    </message>
+</context>
+<context>
     <name>FrogPilotAnnotatedCameraWidget</name>
     <message>
         <source> m/s²</source>
@@ -489,40 +1247,12 @@
         <translation> мнг</translation>
     </message>
     <message>
-        <source>Vehicle in blind spot</source>
-        <translation>ТЗ в мертвій зоні</translation>
-    </message>
-    <message>
-        <source>PENDING</source>
-        <translation>ОЧІКУВ.</translation>
-    </message>
-    <message>
-        <source>LIMIT</source>
-        <translation>ЛІМІТ</translation>
-    </message>
-    <message>
         <source>Desired: %1</source>
         <translation>Очік.: %1</translation>
     </message>
     <message>
         <source>s</source>
         <translation>с</translation>
-    </message>
-    <message>
-        <source>1 minute</source>
-        <translation>1 хвилина</translation>
-    </message>
-    <message>
-        <source>%1 minutes</source>
-        <translation>%1 хвилин</translation>
-    </message>
-    <message>
-        <source>1 second</source>
-        <translation>1 секунда</translation>
-    </message>
-    <message>
-        <source>%1 seconds</source>
-        <translation>%1 секунд</translation>
     </message>
 </context>
 <context>
@@ -571,32 +1301,12 @@
         <translation>Видалити журнали помилок</translation>
     </message>
     <message>
-        <source>Screen Recordings</source>
-        <translation>Записи екрану</translation>
-    </message>
-    <message>
         <source>DELETE ALL</source>
         <translation>ВИДАЛ. ВСЕ</translation>
     </message>
     <message>
-        <source>RENAME</source>
-        <translation>ПЕРЕЙМЕНУВАТИ</translation>
-    </message>
-    <message>
         <source>Delete All</source>
         <translation>Видалити все</translation>
-    </message>
-    <message>
-        <source>Enter a new name</source>
-        <translation>Введіть нове ім'я</translation>
-    </message>
-    <message>
-        <source>Renaming...</source>
-        <translation>Перейменування...</translation>
-    </message>
-    <message>
-        <source>Renamed!</source>
-        <translation>Перейменовано!</translation>
     </message>
     <message>
         <source>FrogPilot Backups</source>
@@ -667,44 +1377,12 @@
         <translation>Видалити всі журнали помилок?</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Delete or rename screen recordings.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Видалити або перейменувати записи екрану.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Choose a screen recording to delete</source>
-        <translation>Виберіть запис екрана, який потрібно видалити</translation>
-    </message>
-    <message>
-        <source>Delete this screen recording?</source>
-        <translation>Видалити цей запис екрана?</translation>
-    </message>
-    <message>
-        <source>Delete all screen recordings?</source>
-        <translation>Видалити всі записи екрана?</translation>
-    </message>
-    <message>
-        <source>Choose a screen recording to rename</source>
-        <translation>Виберіть запис екрана, який потрібно перейменувати</translation>
-    </message>
-    <message>
-        <source>Rename Screen Recording</source>
-        <translation>Перейменувати запис екрану</translation>
-    </message>
-    <message>
-        <source>Name already in use. Please choose a different name.</source>
-        <translation>Імʼя вже використовується. Виберіть інше імʼя.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Create, delete, or restore FrogPilot backups.&lt;/b&gt;</source>
         <translation>&lt;b&gt;Створити, видалити чи відновити резервні копії FrogPilot.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Enter a name for this backup</source>
         <translation>Введіть імʼя резервної копії</translation>
-    </message>
-    <message>
-        <source>Compress this backup? This will save space and run in the background but take a bit longer.</source>
-        <translation>Стиснути цю резервну копію? Це збереже місце і буде працювати в фоновому режиму але займе трохи більше часу.</translation>
     </message>
     <message>
         <source>Choose a FrogPilot backup to delete</source>
@@ -736,235 +1414,263 @@
     </message>
     <message>
         <source>FrogPilot Stats</source>
-        <translation type="gpt-5-generated">Статистика FrogPilot</translation>
+        <translation>Статистика FrogPilot</translation>
     </message>
     <message>
         <source>&lt;b&gt;View your collected FrogPilot stats.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Перегляньте зібрану статистику FrogPilot.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;Перегляньте зібрану статистику FrogPilot.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>RESET</source>
-        <translation type="gpt-5-generated">СКИНУТИ</translation>
+        <translation>СКИНУТИ</translation>
     </message>
     <message>
         <source>VIEW</source>
-        <translation type="gpt-5-generated">ПЕРЕГЛЯД</translation>
+        <translation>ПЕРЕГЛЯД</translation>
     </message>
     <message>
         <source>Are you sure you want to reset all of your FrogPilot stats?</source>
-        <translation type="gpt-5-generated">Ви впевнені, що хочете скинути всі ваші статистики FrogPilot?</translation>
+        <translation>Ви впевнені, що хочете скинути всі ваші статистики FrogPilot?</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="gpt-5-generated">Скинути</translation>
+        <translation>Скинути</translation>
     </message>
     <message>
         <source>Total Emergency Brake Alerts</source>
-        <translation type="gpt-5-generated">Загальна кількість попереджень про екстрене гальмування</translation>
+        <translation>Загальна кількість попереджень про екстрене гальмування</translation>
     </message>
     <message>
         <source>Time Using "Always On Lateral"</source>
-        <translation type="gpt-5-generated">Час використання «Завжди увімкненого бічного керування»</translation>
+        <translation>Час використання «Завжди увімкненого бічного керування»</translation>
     </message>
     <message>
         <source>Favorite Set Speed</source>
-        <translation type="gpt-5-generated">Улюблена встановлена швидкість</translation>
+        <translation>Улюблена встановлена швидкість</translation>
     </message>
     <message>
         <source>Total Disengagements</source>
-        <translation type="gpt-5-generated">Загальна кількість відключень</translation>
+        <translation>Загальна кількість відключень</translation>
     </message>
     <message>
         <source>Total Engagements</source>
-        <translation type="gpt-5-generated">Загальна кількість взаємодій</translation>
+        <translation>Загальна кількість взаємодій</translation>
     </message>
     <message>
         <source>Time Using "Experimental Mode"</source>
-        <translation type="gpt-5-generated">Час використання «Експериментального режиму»</translation>
+        <translation>Час використання «Експериментального режиму»</translation>
     </message>
     <message>
         <source>Total Frog Chirps</source>
-        <translation type="gpt-5-generated">Загальна кількість кумкань жаб</translation>
+        <translation>Загальна кількість кумкань жаб</translation>
     </message>
     <message>
         <source>Total Frog Hops</source>
-        <translation type="gpt-5-generated">Загальна кількість стрибків жаб</translation>
+        <translation>Загальна кількість стрибків жаб</translation>
     </message>
     <message>
         <source>Total Drives</source>
-        <translation type="gpt-5-generated">Усього поїздок</translation>
+        <translation>Усього поїздок</translation>
     </message>
     <message>
         <source>Total Distance Driven</source>
-        <translation type="gpt-5-generated">Загальна пройдена відстань</translation>
+        <translation>Загальна пройдена відстань</translation>
     </message>
     <message>
         <source>Total Driving Time</source>
-        <translation type="gpt-5-generated">Загальний час водіння</translation>
+        <translation>Загальний час водіння</translation>
     </message>
     <message>
         <source>Total Frog Squeaks</source>
-        <translation type="gpt-5-generated">Загальна кількість квакань жаб</translation>
+        <translation>Загальна кількість квакань жаб</translation>
     </message>
     <message>
         <source>Total Goat Screams</source>
-        <translation type="gpt-5-generated">Загальна кількість криків кіз</translation>
+        <translation>Загальна кількість криків кіз</translation>
     </message>
     <message>
         <source>Highest Acceleration Rate</source>
-        <translation type="gpt-5-generated">Найвища швидкість прискорення</translation>
+        <translation>Найвища швидкість прискорення</translation>
     </message>
     <message>
         <source>Time Using Lateral Control</source>
-        <translation type="gpt-5-generated">Час використання бічного керування</translation>
+        <translation>Час використання бічного керування</translation>
     </message>
     <message>
         <source>Longest Distance Without an Override</source>
-        <translation type="gpt-5-generated">Найдовша дистанція без втручання</translation>
+        <translation>Найдовша дистанція без втручання</translation>
     </message>
     <message>
         <source>Time Using Longitudinal Control</source>
-        <translation type="gpt-5-generated">Час використання поздовжнього керування</translation>
+        <translation>Час використання поздовжнього керування</translation>
     </message>
     <message>
         <source>Driving Models:</source>
-        <translation type="gpt-5-generated">Моделі керування автомобілем</translation>
+        <translation>Моделі керування автомобілем</translation>
     </message>
     <message>
         <source>Month</source>
-        <translation type="gpt-5-generated">Місяць</translation>
+        <translation>Місяць</translation>
     </message>
     <message>
         <source>Total Overrides</source>
-        <translation type="gpt-5-generated">Загальні перевизначення</translation>
+        <translation>Загальні перевизначення</translation>
     </message>
     <message>
         <source>Time Overriding openpilot</source>
-        <translation type="gpt-5-generated">Перевизначення openpilot за часом</translation>
+        <translation>Перевизначення openpilot за часом</translation>
     </message>
     <message>
         <source>Random Events:</source>
-        <translation type="gpt-5-generated">Випадкові події</translation>
+        <translation>Випадкові події</translation>
     </message>
     <message>
         <source>Time Stopped</source>
-        <translation type="gpt-5-generated">Час зупинено</translation>
+        <translation>Час зупинено</translation>
     </message>
     <message>
         <source>Time Spent at Stoplights</source>
-        <translation type="gpt-5-generated">Час, проведений на світлофорах</translation>
+        <translation>Час, проведений на світлофорах</translation>
     </message>
     <message>
         <source>Total Time Tracked</source>
-        <translation type="gpt-5-generated">Загальний час відстеження</translation>
+        <translation>Загальний час відстеження</translation>
     </message>
     <message>
         <source>UwUs</source>
-        <translation type="gpt-5-generated">UwUs</translation>
+        <translation>UwUs</translation>
     </message>
     <message>
         <source>Loch Ness Encounters</source>
-        <translation type="gpt-5-generated">Зустрічі на Лох-Несс</translation>
+        <translation>Зустрічі на Лох-Несс</translation>
     </message>
     <message>
         <source>Visits to 1955</source>
-        <translation type="gpt-5-generated">Відвідування до 1955</translation>
+        <translation>Відвідування до 1955</translation>
     </message>
     <message>
         <source>Deja Vu Moments</source>
-        <translation type="gpt-5-generated">Моменти дежавю</translation>
+        <translation>Моменти дежавю</translation>
     </message>
     <message>
         <source>Internet Explorer Weeeeeeees</source>
-        <translation type="gpt-5-generated">Internet Explorer Віііііііі</translation>
+        <translation>Internet Explorer Віііііііі</translation>
     </message>
     <message>
         <source>HAL 9000 Denials</source>
-        <translation type="gpt-5-generated">Відмови HAL 9000</translation>
+        <translation>Відмови HAL 9000</translation>
     </message>
     <message>
         <source>openpilot Crashes</source>
-        <translation type="gpt-5-generated">Збої openpilot</translation>
+        <translation>Збої openpilot</translation>
     </message>
     <message>
         <source>This Is Fine Moments</source>
-        <translation type="gpt-5-generated">Моменти «Все гаразд»</translation>
+        <translation>Моменти «Все гаразд»</translation>
     </message>
     <message>
         <source>To Be Continued Moments</source>
-        <translation type="gpt-5-generated">Моменти «Продовження слідує»</translation>
+        <translation>Моменти «Продовження слідує»</translation>
     </message>
     <message>
         <source>Noices</source>
-        <translation type="gpt-5-generated">Шуми</translation>
+        <translation>Шуми</translation>
     </message>
     <message>
         <source>Attempted Frog Murders</source>
-        <translation type="gpt-5-generated">Спроби вбивства жаб</translation>
+        <translation>Спроби вбивства жаб</translation>
     </message>
     <message>
         <source>Total Mail Received</source>
-        <translation type="gpt-5-generated">Усього отримано пошти</translation>
+        <translation>Усього отримано пошти</translation>
     </message>
     <message>
         <source> kilometer</source>
-        <translation type="gpt-5-generated">кілометр</translation>
+        <translation>кілометр</translation>
     </message>
     <message>
         <source> kilometers</source>
-        <translation type="gpt-5-generated">кілометри</translation>
+        <translation>кілометри</translation>
     </message>
     <message>
         <source> mile</source>
-        <translation type="gpt-5-generated"> миля</translation>
+        <translation> миля</translation>
     </message>
     <message>
         <source> miles</source>
-        <translation type="gpt-5-generated"> миль</translation>
+        <translation> миль</translation>
     </message>
     <message>
         <source> day </source>
-        <translation type="gpt-5-generated">день</translation>
+        <translation>день</translation>
     </message>
     <message>
         <source> days </source>
-        <translation type="gpt-5-generated">дні</translation>
+        <translation>дні</translation>
     </message>
     <message>
         <source> hour </source>
-        <translation type="gpt-5-generated">година</translation>
+        <translation>година</translation>
     </message>
     <message>
         <source> hours </source>
-        <translation type="gpt-5-generated">години</translation>
+        <translation>години</translation>
     </message>
     <message>
         <source> minute</source>
-        <translation type="gpt-5-generated"> хвилина</translation>
+        <translation> хвилина</translation>
     </message>
     <message>
         <source> minutes</source>
-        <translation type="gpt-5-generated"> хвилин</translation>
+        <translation> хвилин</translation>
     </message>
     <message>
         <source>km/h</source>
-        <translation type="gpt-5-generated">км/год</translation>
+        <translation>км/год</translation>
     </message>
     <message>
         <source>mph</source>
-        <translation type="gpt-5-generated">миль/год</translation>
+        <translation>миль/год</translation>
     </message>
     <message>
         <source>m/s²</source>
-        <translation type="gpt-5-generated">м/с²</translation>
+        <translation>м/с²</translation>
     </message>
     <message>
         <source>Total </source>
-        <translation type="gpt-5-generated">Усього</translation>
+        <translation>Усього</translation>
     </message>
     <message>
         <source>% of </source>
-        <translation type="gpt-5-generated">% від</translation>
+        <translation>% від</translation>
+    </message>
+    <message>
+        <source>Name already in use. Please choose a different name!</source>
+        <translation>Ім'я вже використовується. Виберіть інше ім'я!</translation>
+    </message>
+    <message>
+        <source>Compress this backup? This will save space and run in the background but take a bit longer!</source>
+        <translation>Стиснути цю резервну копію? Це заощадить місце і буде працювати у фоновому режимі, але займе трохи більше часу!</translation>
+    </message>
+    <message>
+        <source>Distance Driven This Month</source>
+        <translation>Проїхали за цей місяць</translation>
+    </message>
+    <message>
+        <source>Time Driving (Daytime)</source>
+        <translation>Час водіння (денний час)</translation>
+    </message>
+    <message>
+        <source>Time Driving (Nighttime)</source>
+        <translation>Час водіння (нічний час)</translation>
+    </message>
+    <message>
+        <source>Driving Personalities:</source>
+        <translation>Режими керування:</translation>
+    </message>
+    <message>
+        <source>Time Driven (Weather):</source>
+        <translation>Час водіння (погода):</translation>
     </message>
 </context>
 <context>
@@ -1032,14 +1738,6 @@
     <message>
         <source>Auto</source>
         <translation>Авто</translation>
-    </message>
-    <message>
-        <source>Start Recording</source>
-        <translation>Почати запис</translation>
-    </message>
-    <message>
-        <source>Stop Recording</source>
-        <translation>Зупинити запис</translation>
     </message>
     <message>
         <source> seconds</source>
@@ -1150,119 +1848,119 @@
     <name>FrogPilotDriveSummary</name>
     <message>
         <source>Random Events Summary</source>
-        <translation type="gpt-5-generated">Підсумок випадкових подій</translation>
+        <translation>Підсумок випадкових подій</translation>
     </message>
     <message>
         <source>Drive Summary</source>
-        <translation type="gpt-5-generated">Підсумок поїздки</translation>
+        <translation>Підсумок поїздки</translation>
     </message>
     <message>
         <source>UwUs</source>
-        <translation type="gpt-5-generated">UwUs</translation>
+        <translation>UwUs</translation>
     </message>
     <message>
         <source>Loch Ness Encounters</source>
-        <translation type="gpt-5-generated">Зустрічі на Лох-Несс</translation>
+        <translation>Зустрічі на Лох-Несс</translation>
     </message>
     <message>
         <source>Visits to 1955</source>
-        <translation type="gpt-5-generated">Відвідування до 1955</translation>
+        <translation>Відвідування до 1955</translation>
     </message>
     <message>
         <source>Deja Vu Moments</source>
-        <translation type="gpt-5-generated">Моменти дежавю</translation>
+        <translation>Моменти дежавю</translation>
     </message>
     <message>
         <source>Internet Explorer Weeeeeeees</source>
-        <translation type="gpt-5-generated">Internet Explorer Віііііііііі</translation>
+        <translation>Internet Explorer Віііііііііі</translation>
     </message>
     <message>
         <source>HAL 9000 Denials</source>
-        <translation type="gpt-5-generated">Відмови HAL 9000</translation>
+        <translation>Відмови HAL 9000</translation>
     </message>
     <message>
         <source>openpilot Crashes</source>
-        <translation type="gpt-5-generated">Збої openpilot</translation>
+        <translation>Збої openpilot</translation>
     </message>
     <message>
         <source>This Is Fine Moments</source>
-        <translation type="gpt-5-generated">Моменти «Все гаразд»</translation>
+        <translation>Моменти «Все гаразд»</translation>
     </message>
     <message>
         <source>To Be Continued Moments</source>
-        <translation type="gpt-5-generated">Моменти «Продовження слідує»</translation>
+        <translation>Моменти «Продовження слідує»</translation>
     </message>
     <message>
         <source>Noices</source>
-        <translation type="gpt-5-generated">Шуми</translation>
+        <translation>Шуми</translation>
     </message>
     <message>
         <source>Attempted Frog Murders</source>
-        <translation type="gpt-5-generated">Спроби вбивства жаб</translation>
+        <translation>Спроби вбивства жаб</translation>
     </message>
     <message>
         <source>Total Mail Received</source>
-        <translation type="gpt-5-generated">Усього отримано пошти</translation>
+        <translation>Усього отримано пошти</translation>
     </message>
     <message>
         <source>% of Drive With openpilot Engaged</source>
-        <translation type="gpt-5-generated">% часу керування з увімкненим openpilot</translation>
+        <translation>% часу керування з увімкненим openpilot</translation>
     </message>
     <message>
         <source>Drive Distance</source>
-        <translation type="gpt-5-generated">Відстань поїздки</translation>
+        <translation>Відстань поїздки</translation>
     </message>
     <message>
         <source>Drive Time</source>
-        <translation type="gpt-5-generated">Час водіння</translation>
+        <translation>Час водіння</translation>
     </message>
     <message>
         <source>% of Drive In "Experimental Mode"</source>
-        <translation type="gpt-5-generated">% поїздки в «Експериментальному режимі»</translation>
+        <translation>% поїздки в «Експериментальному режимі»</translation>
     </message>
     <message>
         <source>No Random Events Played!</source>
-        <translation type="gpt-5-generated">Жодної випадкової події не відтворено!</translation>
+        <translation>Жодної випадкової події не відтворено!</translation>
     </message>
     <message>
         <source> kilometer</source>
-        <translation type="gpt-5-generated">кілометр</translation>
+        <translation>кілометр</translation>
     </message>
     <message>
         <source> kilometers</source>
-        <translation type="gpt-5-generated"> кілометри</translation>
+        <translation> кілометри</translation>
     </message>
     <message>
         <source> mile</source>
-        <translation type="gpt-5-generated"> миля</translation>
+        <translation> миля</translation>
     </message>
     <message>
         <source> miles</source>
-        <translation type="gpt-5-generated"> миль</translation>
+        <translation> миль</translation>
     </message>
     <message>
         <source> day </source>
-        <translation type="gpt-5-generated">день</translation>
+        <translation>день</translation>
     </message>
     <message>
         <source> days </source>
-        <translation type="gpt-5-generated">дні</translation>
+        <translation>дні</translation>
     </message>
     <message>
         <source> hour </source>
-        <translation type="gpt-5-generated">година</translation>
+        <translation>година</translation>
     </message>
     <message>
         <source> hours </source>
-        <translation type="gpt-5-generated">години</translation>
+        <translation>години</translation>
     </message>
     <message>
         <source> minute</source>
-        <translation type="gpt-5-generated"> хвилина</translation>
+        <translation> хвилина</translation>
     </message>
     <message>
         <source> minutes</source>
-        <translation type="gpt-5-generated"> хвилин</translation>
+        <translation> хвилин</translation>
     </message>
 </context>
 <context>
@@ -1346,10 +2044,6 @@
     <message>
         <source>Neural Network Feedforward (NNFF)</source>
         <translation>Нейронна мережа прямого поширення (NNFF)</translation>
-    </message>
-    <message>
-        <source>Smooth Curve Handling</source>
-        <translation>Плавне керування поворотами</translation>
     </message>
     <message>
         <source>Quality of Life</source>
@@ -1520,14 +2214,6 @@
         <translation>&lt;b&gt;Коли рухаєтесь зі швидкістю нижче мінімальної швидкості зміни смуги руху з увімкненим поворотником, примушує OpenPilot вважати що ви збираєтесь повернути ліворуч/праворуч.&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Twilsonco's "Neural Network FeedForward" model controller for smoother, model-based steering trained on your vehicle's data.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Контролер моделі «Neural Network FeedForward» від Twilsonco для більш плавного, кермування від моделі, навченій на даних вашого автомобіля.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Twilsonco's torque-based adjustments to smoothen out steering in curves.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Регулювання Twilsonco на основі крутного моменту для плавного кермування у вигинах шляху.&lt;/b&gt;</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Steering control changes to fine-tune how openpilot drives.&lt;/b&gt;</source>
         <translation>&lt;b&gt;Зміни в кермуванні для точного підлаштування роботи openpilot.&lt;/b&gt;</translation>
     </message>
@@ -1554,6 +2240,18 @@
     <message>
         <source>Reset &lt;b&gt;Steer Ratio&lt;/b&gt; to its default value?</source>
         <translation>Скинути &lt;b&gt;Коеф. кермув.&lt;/b&gt; до значення за замовчуванням?</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Twilsonco's "Neural Network FeedForward" controller.&lt;/b&gt; Uses a trained neural network model to predict steering torque based on vehicle speed, roll, and past/future planned path data for smoother, model-based steering.</source>
+        <translation>&lt;b&gt;Контролер «Neural Network FeedForward» від Twilsonco&lt;/b&gt;. Використовує навчену модель нейронної мережі для прогнозування крутного моменту рульового управління на основі швидкості автомобіля, крену та даних про минулий/майбутній запланований маршрут для більш плавного керування моделлю.</translation>
+    </message>
+    <message>
+        <source>Neural Network Feedforward (NNFF) Lite</source>
+        <translation>Neural Network Feedforward (NNFF) Легк.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;A lightweight version of Twilsonco's "Neural Network FeedForward" controller.&lt;/b&gt; Uses the "look-ahead" planned lateral jerk logic from the full model to help smoothen steering adjustments in curves, but does not use the full neural network for torque calculation.</source>
+        <translation>&lt;b&gt;Полегшена версія контролера Twilsonco «Neural Network FeedForward» (Нейронна мережа з прямим з'єднанням).&lt;/b&gt; Використовує логіку планового бічного ривка «look-ahead» (передбачення) з повної моделі, щоб полегшити регулювання керування на поворотах, але не використовує повну нейронну мережу для розрахунку крутного моменту.</translation>
     </message>
 </context>
 <context>
@@ -1779,14 +2477,6 @@
         <translation>Зупин. лідер</translation>
     </message>
     <message>
-        <source>Intersections</source>
-        <translation>Перехрестя</translation>
-    </message>
-    <message>
-        <source>Turns</source>
-        <translation>Повороти</translation>
-    </message>
-    <message>
         <source>Off</source>
         <translation>Вимк.</translation>
     </message>
@@ -1863,10 +2553,6 @@
         <translation>Дані мапи</translation>
     </message>
     <message>
-        <source>Navigation</source>
-        <translation>Навігація</translation>
-    </message>
-    <message>
         <source>Highest</source>
         <translation>Верхній</translation>
     </message>
@@ -1881,10 +2567,6 @@
     <message>
         <source>Select your secondary priority</source>
         <translation>Виберіть свій другорядний пріоритет</translation>
-    </message>
-    <message>
-        <source>Select your tertiary priority</source>
-        <translation>Виберіть третій пріоритет</translation>
     </message>
     <message>
         <source>MANAGE</source>
@@ -2001,14 +2683,6 @@
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" when a slower or stopped vehicle is detected.&lt;/b&gt; Can make braking smoother and more reliable on some vehicles.</source>
         <translation>&lt;b&gt;Перейдіть в «Експериментальний режим», коли попереду виявлено повільніший або зупинений транспортний засіб.&lt;/b&gt; Може зробити гальмування більш плавним і надійним на деяких транспортних засобах.</translation>
-    </message>
-    <message>
-        <source>Navigation-Based</source>
-        <translation>Навігаційний</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Switch to "Experimental Mode" when approaching intersections or turns on the active route&lt;/b&gt; while using "Navigate on openpilot" (NOO) to allow the model to set an appropriate speed for upcoming maneuvers.</source>
-        <translation>&lt;b&gt;Перейдіть в «Експериментальний режим» при наближенні до перехресть або поворотів на активному маршруті&lt;/b&gt; під час використання «Навігації на openpilot» (NOO), щоб модель могла встановити відповідну швидкість для майбутніх маневрів.</translation>
     </message>
     <message>
         <source>Predicted Stop In</source>
@@ -2355,10 +3029,6 @@
         <translation>&lt;b&gt;Зменште бажану швидкість під час руху по вигинах дороги на снігу.&lt;/b&gt; Збільште швидкість для більш безпечних і плавних вигинів; зменште швидкість для більш агресивного руху у вигинах.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Limit openpilot's maximum driving speed to the current speed limit&lt;/b&gt; obtained from downloaded maps, Mapbox, Navigate on openpilot, or the dashboard for supported vehicles (Ford, Genesis, Hyundai, Kia, Lexus, Toyota).</source>
-        <translation>&lt;b&gt;Обмежте максимальну швидкість руху openpilot до поточного обмеження швидкості&lt;/b&gt;, отриманого з завантажених карт, Mapbox, Navigate на openpilot або приладової панелі для підтримуваних автомобілів (Ford, Genesis, Hyundai, Kia, Lexus, Toyota).</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;The speed used by "Speed Limit Controller" when no speed limit is found.&lt;/b&gt;&lt;br&gt;&lt;br&gt;- &lt;b&gt;Set Speed&lt;/b&gt;: Use the cruise set speed&lt;br&gt;- &lt;b&gt;Experimental Mode&lt;/b&gt;: Estimate the limit using the driving model&lt;br&gt;- &lt;b&gt;Previous Limit&lt;/b&gt;: Keep using the last confirmed limit</source>
         <translation>&lt;b&gt;Швидкість, яка використовується «Контролером обмеження швидкості», коли обмеження швидкості не виявлено.&lt;/b&gt;&lt;br&gt;&lt;br&gt;- &lt;b&gt;Встановити швидкість&lt;/b&gt;: Використовувати встановлену швидкість круїз-контролю&lt;br&gt;- &lt;b&gt;Експериментальний режим&lt;/b&gt;: Оцінити обмеження за допомогою моделі водіння&lt;br&gt;- &lt;b&gt;Попереднє обмеження&lt;/b&gt;: Продовжувати використовувати останнє підтверджене обмеження</translation>
     </message>
@@ -2460,151 +3130,159 @@
     </message>
     <message>
         <source>"Detected" Stop Lights/Signs</source>
-        <translation type="gpt-5-generated">Виявлені світлофори/знаки «Стоп»</translation>
+        <translation>Виявлені світлофори/знаки «Стоп»</translation>
     </message>
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Перемикайтеся в «Експериментальний режим» щоразу, коли модель керування «виявляє» червоне світло або знак зупинки.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Застереження&lt;/b&gt;: openpilot не здійснює явного виявлення світлофорів або знаків зупинки. В «Експериментальному режимі» openpilot приймає наскрізні рішення щодо керування на основі зображення з камери, що означає, що він може зупинятися навіть без очевидної причини!&lt;/i&gt;</translation>
+        <translation>&lt;b&gt;Перемикайтеся в «Експериментальний режим» щоразу, коли модель керування «виявляє» червоне світло або знак зупинки.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Застереження&lt;/b&gt;: openpilot не здійснює явного виявлення світлофорів або знаків зупинки. В «Експериментальному режимі» openpilot приймає наскрізні рішення щодо керування на основі зображення з камери, що означає, що він може зупинятися навіть без очевидної причини!&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" when openpilot predicts a stop within the set time.&lt;/b&gt; This is usually triggered when the model "sees" a red light or stop sign ahead.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Перемикайтеся на «Експериментальний режим», коли openpilot прогнозує зупинку в межах заданого часу.&lt;/b&gt; Зазвичай це спрацьовує, коли модель «бачить» попереду червоне світло або знак «Стоп».&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Відмова від відповідальності&lt;/b&gt;: openpilot не виконує явного виявлення світлофорів або знаків «Стоп». В «Експериментальному режимі» openpilot приймає комплексні рішення щодо керування на основі зображення з камери, що означає, що він може зупинитися навіть без очевидної причини!&lt;/i&gt;</translation>
+        <translation>&lt;b&gt;Перемикайтеся на «Експериментальний режим», коли openpilot прогнозує зупинку в межах заданого часу.&lt;/b&gt; Зазвичай це спрацьовує, коли модель «бачить» попереду червоне світло або знак «Стоп».&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Відмова від відповідальності&lt;/b&gt;: openpilot не виконує явного виявлення світлофорів або знаків «Стоп». В «Експериментальному режимі» openpilot приймає комплексні рішення щодо керування на основі зображення з камери, що означає, що він може зупинитися навіть без очевидної причини!&lt;/i&gt;</translation>
     </message>
     <message>
         <source>Human-Like Lane Changes</source>
-        <translation type="gpt-5-generated">Подібні до людських зміни смуги</translation>
+        <translation>Подібні до людських зміни смуги</translation>
     </message>
     <message>
         <source>&lt;b&gt;Lane-change behavior that mimics human drivers&lt;/b&gt; by anticipating and tracking adjacent vehicles during lane changes.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Поведінка зміни смуги, що імітує людських водіїв&lt;/b&gt;, завдяки передбаченню та відстеженню сусідніх транспортних засобів під час перестроювань.</translation>
+        <translation>&lt;b&gt;Поведінка зміни смуги, що імітує людських водіїв&lt;/b&gt;, завдяки передбаченню та відстеженню сусідніх транспортних засобів під час перестроювань.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Force openpilot to stop whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Примусово змушувати openpilot зупинятися щоразу, коли драйвінг-модель «виявляє» червоне світло або знак «Стоп».&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Відмова від відповідальності&lt;/b&gt;: openpilot не виконує явного виявлення світлофорів або знаків «Стоп». У «Експериментальному режимі» openpilot приймає наскрізні рішення керування за даними з камер, що означає, що він може зупинятися навіть без очевидної причини!&lt;/i&gt;</translation>
+        <translation>&lt;b&gt;Примусово змушувати openpilot зупинятися щоразу, коли драйвінг-модель «виявляє» червоне світло або знак «Стоп».&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Відмова від відповідальності&lt;/b&gt;: openpilot не виконує явного виявлення світлофорів або знаків «Стоп». У «Експериментальному режимі» openpilot приймає наскрізні рішення керування за даними з камер, що означає, що він може зупинятися навіть без очевидної причини!&lt;/i&gt;</translation>
     </message>
     <message>
         <source>Weather Condition Offsets</source>
-        <translation type="gpt-5-generated">Корекції для погодних умов</translation>
+        <translation>Корекції для погодних умов</translation>
     </message>
     <message>
         <source>&lt;b&gt;Automatically adjust driving behavior based on real-time weather.&lt;/b&gt; Helps maintain comfort and safety in low visibility, rain, or snow.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Автоматично коригує поведінку керування залежно від погодних умов у реальному часі.&lt;/b&gt; Допомагає підтримувати комфорт і безпеку за низької видимості, дощу або снігу.</translation>
+        <translation>&lt;b&gt;Автоматично коригує поведінку керування залежно від погодних умов у реальному часі.&lt;/b&gt; Допомагає підтримувати комфорт і безпеку за низької видимості, дощу або снігу.</translation>
     </message>
     <message>
         <source>Low Visibility</source>
-        <translation type="gpt-5-generated">Погана видимість</translation>
+        <translation>Погана видимість</translation>
     </message>
     <message>
         <source>&lt;b&gt;Driving adjustments for fog, haze, or other low-visibility conditions.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Коригування керування для туману, імли або інших умов з низькою видимістю.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;Коригування керування для туману, імли або інших умов з низькою видимістю.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Add extra space behind lead vehicles in low visibility.&lt;/b&gt; Increase for more space; decrease for tighter gaps.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Додавайте більше відстані за попереднім авто за низької видимості.&lt;/b&gt; Збільшуйте для більшого інтервалу; зменшуйте для менших проміжків.</translation>
+        <translation>&lt;b&gt;Додавайте більше відстані за попереднім авто за низької видимості.&lt;/b&gt; Збільшуйте для більшого інтервалу; зменшуйте для менших проміжків.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Add extra buffer when stopped behind vehicles in low visibility.&lt;/b&gt; Increase for more room; decrease for shorter gaps.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Додавайте додатковий запас, зупиняючись позаду транспортних засобів за низької видимості.&lt;/b&gt; Збільшуйте для більшого інтервалу; зменшуйте для коротших проміжків.</translation>
+        <translation>&lt;b&gt;Додавайте додатковий запас, зупиняючись позаду транспортних засобів за низької видимості.&lt;/b&gt; Збільшуйте для більшого інтервалу; зменшуйте для коротших проміжків.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Lower the maximum acceleration in low visibility.&lt;/b&gt; Increase for softer takeoffs; decrease for quicker but less stable takeoffs.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Зменшуйте максимальне прискорення за поганої видимості.&lt;/b&gt; Збільшуйте для м’якших стартів; зменшуйте для швидших, але менш стабільних стартів.</translation>
+        <translation>&lt;b&gt;Зменшуйте максимальне прискорення за поганої видимості.&lt;/b&gt; Збільшуйте для м’якших стартів; зменшуйте для швидших, але менш стабільних стартів.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Lower the desired speed while driving through curves in low visibility.&lt;/b&gt; Increase for safer, gentler turns; decrease for more aggressive driving in curves.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Зменшуйте бажану швидкість під час руху по поворотах за низької видимості.&lt;/b&gt; Збільшуйте для безпечніших, плавніших поворотів; зменшуйте для агресивнішого проходження поворотів.</translation>
+        <translation>&lt;b&gt;Зменшуйте бажану швидкість під час руху по поворотах за низької видимості.&lt;/b&gt; Збільшуйте для безпечніших, плавніших поворотів; зменшуйте для агресивнішого проходження поворотів.</translation>
     </message>
     <message>
         <source>Rain</source>
-        <translation type="gpt-5-generated">Дощ</translation>
+        <translation>Дощ</translation>
     </message>
     <message>
         <source>&lt;b&gt;Driving adjustments for rainy conditions.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Коригування водіння в дощових умовах.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;Коригування водіння в дощових умовах.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Add extra space behind lead vehicles in rain.&lt;/b&gt; Increase for more space; decrease for tighter gaps.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Додати більше дистанції позаду лідируючих авто під час дощу.&lt;/b&gt; Збільшуйте для більшого інтервалу; зменшуйте для менших проміжків.</translation>
+        <translation>&lt;b&gt;Додати більше дистанції позаду лідируючих авто під час дощу.&lt;/b&gt; Збільшуйте для більшого інтервалу; зменшуйте для менших проміжків.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Add extra buffer when stopped behind vehicles in rain.&lt;/b&gt; Increase for more room; decrease for shorter gaps.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Додавайте додатковий інтервал під час зупинки позаду авто під дощем.&lt;/b&gt; Збільшуйте для більшого простору; зменшуйте для коротших інтервалів.</translation>
+        <translation>&lt;b&gt;Додавайте додатковий інтервал під час зупинки позаду авто під дощем.&lt;/b&gt; Збільшуйте для більшого простору; зменшуйте для коротших інтервалів.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Lower the maximum acceleration in rain.&lt;/b&gt; Increase for softer takeoffs; decrease for quicker but less stable takeoffs.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Зменште максимальне прискорення під час дощу.&lt;/b&gt; Збільшуйте для м’якших стартів; зменшуйте для швидших, але менш стабільних стартів.</translation>
+        <translation>&lt;b&gt;Зменште максимальне прискорення під час дощу.&lt;/b&gt; Збільшуйте для м’якших стартів; зменшуйте для швидших, але менш стабільних стартів.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Lower the desired speed while driving through curves in rain.&lt;/b&gt; Increase for safer, gentler turns; decrease for more aggressive driving in curves.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Зменшуйте бажану швидкість під час проїзду поворотів під дощем.&lt;/b&gt; Підвищуйте для безпечніших, плавніших поворотів; знижуйте для агресивнішого проходження поворотів.</translation>
+        <translation>&lt;b&gt;Зменшуйте бажану швидкість під час проїзду поворотів під дощем.&lt;/b&gt; Підвищуйте для безпечніших, плавніших поворотів; знижуйте для агресивнішого проходження поворотів.</translation>
     </message>
     <message>
         <source>Rainstorms</source>
-        <translation type="gpt-5-generated">Зливи</translation>
+        <translation>Зливи</translation>
     </message>
     <message>
         <source>&lt;b&gt;Driving adjustments for rainstorms.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Коригування водіння під час злив.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;Коригування водіння під час злив.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Add extra space behind lead vehicles in a rainstorm.&lt;/b&gt; Increase for more space; decrease for tighter gaps.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Додавайте додаткову дистанцію позаду попереду йдучих авто під час сильної зливи.&lt;/b&gt; Збільшуйте для більшої дистанції; зменшуйте для менших інтервалів.</translation>
+        <translation>&lt;b&gt;Додавайте додаткову дистанцію позаду попереду йдучих авто під час сильної зливи.&lt;/b&gt; Збільшуйте для більшої дистанції; зменшуйте для менших інтервалів.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Add extra buffer when stopped behind vehicles in a rainstorm.&lt;/b&gt; Increase for more room; decrease for shorter gaps.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Додавайте додатковий інтервал, зупиняючись позаду авто під час зливи.&lt;/b&gt; Збільшуйте для більшого простору; зменшуйте для коротших інтервалів.</translation>
+        <translation>&lt;b&gt;Додавайте додатковий інтервал, зупиняючись позаду авто під час зливи.&lt;/b&gt; Збільшуйте для більшого простору; зменшуйте для коротших інтервалів.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Lower the maximum acceleration in a rainstorm.&lt;/b&gt; Increase for softer takeoffs; decrease for quicker but less stable takeoffs.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Зменшуйте максимальне прискорення під час зливи.&lt;/b&gt; Збільшіть для м’якших стартів; зменште для швидших, але менш стабільних стартів.</translation>
+        <translation>&lt;b&gt;Зменшуйте максимальне прискорення під час зливи.&lt;/b&gt; Збільшіть для м’якших стартів; зменште для швидших, але менш стабільних стартів.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Lower the desired speed while driving through curves in a rainstorm.&lt;/b&gt; Increase for safer, gentler turns; decrease for more aggressive driving in curves.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Зменшуйте бажану швидкість під час руху по поворотах у зливу.&lt;/b&gt; Збільшуйте для безпечніших, плавніших поворотів; зменшуйте для агресивнішого руху в поворотах.</translation>
+        <translation>&lt;b&gt;Зменшуйте бажану швидкість під час руху по поворотах у зливу.&lt;/b&gt; Збільшуйте для безпечніших, плавніших поворотів; зменшуйте для агресивнішого руху в поворотах.</translation>
     </message>
     <message>
         <source>Set Your Own Key</source>
-        <translation type="gpt-5-generated">Встановіть власний ключ</translation>
+        <translation>Встановіть власний ключ</translation>
     </message>
     <message>
         <source>&lt;b&gt;Set your own "OpenWeatherMap" key to increase the weather update rate.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Personal keys grant 1,000 free calls per day, allowing for updates every minute. The default key is shared and only updates every 15 minutes.&lt;/i&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Встановіть власний ключ «OpenWeatherMap», щоб підвищити частоту оновлення погоди.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Персональні ключі надають 1 000 безкоштовних запитів на день, що дозволяє оновлювати щохвилини. Типовий ключ спільний і оновлюється лише кожні 15 хвилин.&lt;/i&gt;</translation>
+        <translation>&lt;b&gt;Встановіть власний ключ «OpenWeatherMap», щоб підвищити частоту оновлення погоди.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Персональні ключі надають 1 000 безкоштовних запитів на день, що дозволяє оновлювати щохвилини. Типовий ключ спільний і оновлюється лише кожні 15 хвилин.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>ADD</source>
-        <translation type="gpt-5-generated">ДОДАТИ</translation>
+        <translation>ДОДАТИ</translation>
     </message>
     <message>
         <source>Enter your "OpenWeatherMap" key</source>
-        <translation type="gpt-5-generated">Введіть свій ключ "OpenWeatherMap"</translation>
+        <translation>Введіть свій ключ "OpenWeatherMap"</translation>
     </message>
     <message>
         <source>REMOVE</source>
-        <translation type="gpt-5-generated">ВИДАЛИТИ</translation>
+        <translation>ВИДАЛИТИ</translation>
     </message>
     <message>
         <source>Invalid key!</source>
-        <translation type="gpt-5-generated">Недійсний ключ!</translation>
+        <translation>Недійсний ключ!</translation>
     </message>
     <message>
         <source>Are you sure you want to remove your key?</source>
-        <translation type="gpt-5-generated">Ви впевнені, що хочете видалити свій ключ?</translation>
+        <translation>Ви впевнені, що хочете видалити свій ключ?</translation>
     </message>
     <message>
         <source>TEST</source>
-        <translation type="gpt-5-generated">ТЕСТ</translation>
+        <translation>ТЕСТ</translation>
     </message>
     <message>
         <source>Testing...</source>
-        <translation type="gpt-5-generated">Тестування...</translation>
+        <translation>Тестування...</translation>
     </message>
     <message>
         <source>Key is valid!</source>
-        <translation type="gpt-5-generated">Ключ дійсний!</translation>
+        <translation>Ключ дійсний!</translation>
     </message>
     <message>
         <source>An error occurred: %1</source>
-        <translation type="gpt-5-generated">Сталася помилка: %1</translation>
+        <translation>Сталася помилка: %1</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Limit openpilot's maximum driving speed to the current speed limit&lt;/b&gt; obtained from downloaded maps, Mapbox, or the dashboard for supported vehicles (Ford, Genesis, Hyundai, Kia, Lexus, Toyota).</source>
+        <translation>&lt;b&gt;Обмежте максимальну швидкість руху openpilot до поточного обмеження швидкості&lt;/b&gt;, отриманого з завантажених карт, Mapbox або приладової панелі для підтримуваних автомобілів (Ford, Genesis, Hyundai, Kia, Lexus, Toyota).</translation>
+    </message>
+    <message>
+        <source>Characters: 0/%1</source>
+        <translation>Символів: 0/%1</translation>
     </message>
 </context>
 <context>
@@ -3016,10 +3694,6 @@
         <translation>Скинути всі поїздки моделей та рейтинги? Це очистить історію поїздок і зібрані відгуки!</translation>
     </message>
     <message>
-        <source>Select a Model — 🗺️ = Navigation | 📡 = Radar | 👀 = VOACC</source>
-        <translation>Виберіть модель — 🗺️ = Навіг. | 📡 = Радар | 👀 = Бачення</translation>
-    </message>
-    <message>
         <source>UPDATE</source>
         <translation>ОНОВЛ.</translation>
     </message>
@@ -3044,75 +3718,8 @@
         <translation>Оновлено!</translation>
     </message>
     <message>
-        <source>Not parked</source>
-        <translation>Запаркуйтесь</translation>
-    </message>
-</context>
-<context>
-    <name>FrogPilotModelReview</name>
-    <message>
-        <source>Drive Rating Selection</source>
-        <translation>Вибір рейтингу поїздки</translation>
-    </message>
-    <message>
-        <source>How would you rate that drive?</source>
-        <translation>Як би ви оцінили цю поїздку?</translation>
-    </message>
-    <message>
-        <source>Blacklist this model to remove it from rotation</source>
-        <translation>Додати цю модель до чорного списку, щоб видалити її з ротації</translation>
-    </message>
-    <message>
-        <source>Blacklist Model</source>
-        <translation>Модель у ЧС</translation>
-    </message>
-    <message>
-        <source>Model used during that drive:</source>
-        <translation>Модель протягом цієї поїздки:</translation>
-    </message>
-    <message>
-        <source>Model Rank</source>
-        <translation>Ранг моделі</translation>
-    </message>
-    <message>
-        <source>Model Rating</source>
-        <translation>Рейтинг моделі</translation>
-    </message>
-    <message>
-        <source>Model Drives</source>
-        <translation>Поїздок моделі</translation>
-    </message>
-    <message>
-        <source>Total Drives</source>
-        <translation>Всього поїздок</translation>
-    </message>
-    <message>
-        <source>Model successfully blacklisted!</source>
-        <translation>Модель успішно внесена до чорного списку!</translation>
-    </message>
-    <message>
-        <source>#%1</source>
-        <translation>№%1</translation>
-    </message>
-    <message>
-        <source>%1%</source>
-        <translation>%1%</translation>
-    </message>
-    <message>
-        <source>%1 %2</source>
-        <translation>%1 %2</translation>
-    </message>
-    <message>
-        <source>Drive</source>
-        <translation>Поїздка</translation>
-    </message>
-    <message>
-        <source>Drives</source>
-        <translation>Поїздок</translation>
-    </message>
-    <message>
-        <source>%1 Total %2</source>
-        <translation>%1 Загалом %2</translation>
+        <source>Select a Model</source>
+        <translation>Виберіть модель</translation>
     </message>
 </context>
 <context>
@@ -3120,14 +3727,6 @@
     <message>
         <source>ADD</source>
         <translation>ДОДАТ</translation>
-    </message>
-    <message>
-        <source>Enter your %1</source>
-        <translation>Введіть ваш %1</translation>
-    </message>
-    <message>
-        <source>Inputted key is invalid or too short!</source>
-        <translation>Введений ключ недійсний або занадто короткий!</translation>
     </message>
     <message>
         <source>REMOVE</source>
@@ -3140,22 +3739,6 @@
     <message>
         <source>Offline...</source>
         <translation>Не в мережі...</translation>
-    </message>
-    <message>
-        <source>Amap</source>
-        <translation>Amap</translation>
-    </message>
-    <message>
-        <source>Destination Search Provider</source>
-        <translation>Постачальник пошуку</translation>
-    </message>
-    <message>
-        <source>Amap Key #1</source>
-        <translation>Ключ Amap № 1</translation>
-    </message>
-    <message>
-        <source>Amap Key #2</source>
-        <translation>Ключ Amap № 2</translation>
     </message>
     <message>
         <source>Public Mapbox Key</source>
@@ -3190,14 +3773,6 @@
         <translation>Завершено!</translation>
     </message>
     <message>
-        <source>Mapbox</source>
-        <translation>Mapbox</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The search provider used for destination queries&lt;/b&gt; in "Navigate on Openpilot". Options include Mapbox (recommended) and Amap.</source>
-        <translation>&lt;b&gt;Пошукова система, яка використовується для запитів про місце призначення&lt;/b&gt; у «Навігація на Openpilot». Доступні варіанти: Mapbox (рекомендовано) та Amap.</translation>
-    </message>
-    <message>
         <source>Mapbox Setup Instructions</source>
         <translation>Інструкції з налаштування Mapbox</translation>
     </message>
@@ -3226,63 +3801,48 @@ It will reset in %1 hours and %2 minutes.</source>
         <translation>Цей процес займає деякий час. Рекомендую робити після завершення поїздки та підключення до стабільного Wi-Fi. Продовжити?</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Manage your "%1".&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Змінюйте свій «%1».&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Remove your %1?</source>
-        <translation>Видалити ваш %1?</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Manage your Public Mapbox Key.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Керуйте своїм публічним ключем Mapbox.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;Керуйте своїм публічним ключем Mapbox.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>TEST</source>
-        <translation type="gpt-5-generated">ТЕСТ</translation>
+        <translation>ТЕСТ</translation>
     </message>
     <message>
         <source>Remove your Public Mapbox Key?</source>
-        <translation type="gpt-5-generated">Видалити ваш публічний ключ Mapbox?</translation>
+        <translation>Видалити ваш публічний ключ Mapbox?</translation>
     </message>
     <message>
         <source>Enter your Public Mapbox Key</source>
-        <translation type="gpt-5-generated">Введіть свій публічний ключ Mapbox</translation>
+        <translation>Введіть свій публічний ключ Mapbox</translation>
     </message>
     <message>
         <source>Testing...</source>
-        <translation type="gpt-5-generated">Тестування...</translation>
+        <translation>Тестування...</translation>
     </message>
     <message>
         <source>Key is valid!</source>
-        <translation type="gpt-5-generated">Ключ дійсний!</translation>
+        <translation>Ключ дійсний!</translation>
     </message>
     <message>
         <source>Key is invalid!</source>
-        <translation type="gpt-5-generated">Ключ недійсний!</translation>
+        <translation>Ключ недійсний!</translation>
     </message>
     <message>
         <source>An error occurred: %1</source>
-        <translation type="gpt-5-generated">Сталася помилка: %1</translation>
+        <translation>Сталася помилка: %1</translation>
     </message>
     <message>
         <source>&lt;b&gt;Manage your Secret Mapbox Key.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Керуйте своїм секретним ключем Mapbox.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;Керуйте своїм секретним ключем Mapbox.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Remove your Secret Mapbox Key?</source>
-        <translation type="gpt-5-generated">Вилучити ваш секретний ключ Mapbox?</translation>
+        <translation>Вилучити ваш секретний ключ Mapbox?</translation>
     </message>
     <message>
         <source>Enter your Secret Mapbox Key</source>
-        <translation type="gpt-5-generated">Введіть свій секретний ключ Mapbox</translation>
-    </message>
-</context>
-<context>
-    <name>FrogPilotOnroadWindow</name>
-    <message>
-        <source>FPS: %1 | Min: %2 | Max: %3 | Avg: %4</source>
-        <translation>КНС: %1 | Мін: %2 | Макс: %3 | Сер.: %4</translation>
+        <translation>Введіть свій секретний ключ Mapbox</translation>
     </message>
 </context>
 <context>
@@ -3384,10 +3944,6 @@ It will reset in %1 hours and %2 minutes.</source>
         <translation>&lt;b&gt;Точне налаштування користувацьких елементів керування прискоренням, гальмуванням та рульовим керуванням FrogPilot.&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Download map data for the "Speed Limit Controller" and configure "Navigate on openpilot" (NOO).&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Завантажте картографічні дані для «Контролера обмеження швидкості» та налаштуйте «Навігацію на openpilot» (NOO).&lt;/b&gt;</translation>
-    </message>
-    <message>
         <source>System Settings</source>
         <translation>Налаштування системи</translation>
     </message>
@@ -3428,6 +3984,10 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
     <message>
         <source>All toggle descriptions are currently expanded. You can tap a toggle's name to open or close its description at any time!</source>
         <translation>Всі описи налаштувань наразі розгорнуті. Ви можете натиснути на назву перемикача, щоб відкрити або закрити його опис у будь-який момент!</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Download map data for the "Speed Limit Controller".&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Завантажте картографічні дані для «Контролера обмеження швидкості».&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -4066,20 +4626,8 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
         <translation>Налаштування General Motors</translation>
     </message>
     <message>
-        <source>FrogsGoMoo's Experimental Tune</source>
-        <translation>Експериментальні налаштування FrogsGoMoo</translation>
-    </message>
-    <message>
-        <source>Smooth Pedal Response on Hills</source>
-        <translation>Плавна реакція педалі на схилах</translation>
-    </message>
-    <message>
         <source>Hyundai/Kia/Genesis Settings</source>
         <translation>Налаштування Hyundai/Kia/Genesis</translation>
-    </message>
-    <message>
-        <source>comma's New Longitudinal API</source>
-        <translation>Новий поздовжній API від comma</translation>
     </message>
     <message>
         <source>"Taco Bell Run" Torque Hack</source>
@@ -4150,14 +4698,6 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
         <translation>&lt;b&gt;Функції FrogPilot для автомобілів General Motors.&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Experimental GM tune by FrogsGoMoo&lt;/b&gt; that attempts to smoothen stopping and takeoff control. Use at your own risk!</source>
-        <translation>&lt;b&gt;Експериментальна настройка GM від FrogsGoMoo&lt;/b&gt;, яка намагається згладити управління зупинкою та рушанням. Використовуйте на свій ризик!</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Smoothen acceleration and braking&lt;/b&gt; when driving downhill/uphill.</source>
-        <translation>&lt;b&gt;Згладжуйте прискорення та гальмування&lt;/b&gt; під час руху вниз/вгору по схилу.</translation>
-    </message>
-    <message>
         <source>Stop-and-Go Hack</source>
         <translation>Хак «Stop-and-Go»</translation>
     </message>
@@ -4168,10 +4708,6 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
     <message>
         <source>&lt;b&gt;FrogPilot features for Genesis, Hyundai, and Kia vehicles.&lt;/b&gt;</source>
         <translation>&lt;b&gt;Функції FrogPilot для авто Genesis, Hyundai та Kia.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;comma's new gas and brake control system&lt;/b&gt; that improves acceleration and braking but may cause issues on some Genesis/Hyundai/Kia vehicles.</source>
-        <translation>&lt;b&gt;Нова система управління газом і гальмами від Comma&lt;/b&gt;, яка покращує прискорення і гальмування, але може спричинити проблеми на деяких автомобілях Genesis/Hyundai/Kia.</translation>
     </message>
     <message>
         <source>&lt;b&gt;The steering torque hack from comma's 2022 "Taco Bell Run".&lt;/b&gt; Designed to increase steering torque at low speeds for left and right turns.</source>
@@ -4286,52 +4822,20 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
         <translation>Ні</translation>
     </message>
     <message>
-        <source>Acura/Honda Settings</source>
-        <translation type="gpt-5-generated">Налаштування Acura/Honda</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;FrogPilot features for Acura and Honda vehicles.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Функції FrogPilot для автомобілів Acura та Honda.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Gentle Following</source>
-        <translation type="gpt-5-generated">Делікатне стеження</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Reduces jerky acceleration and braking when following a lead vehicle.&lt;/b&gt; Ideal for stop-and-go traffic.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Зменшує ривкові розгони та гальмування під час руху за лідируючим авто.&lt;/b&gt; Ідеально для руху з частими зупинками.</translation>
-    </message>
-    <message>
-        <source>Increased Braking Force</source>
-        <translation type="gpt-5-generated">Підвищена сила гальмування</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Increases the maximum braking force for improved stopping performance.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Збільшує максимальну силу гальмування для покращення ефективності зупинки.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Responsive Pedal at Low Speeds</source>
-        <translation type="gpt-5-generated">Чутлива педаль на низьких швидкостях</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Improves acceleration from a standstill for a more responsive throttle feel in city driving.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Покращує прискорення з місця для більш чутливого відгуку педалі газу під час міського руху.&lt;/b&gt;</translation>
-    </message>
-    <message>
         <source>Subaru Settings</source>
-        <translation type="gpt-5-generated">Налаштування Subaru</translation>
+        <translation>Налаштування Subaru</translation>
     </message>
     <message>
         <source>&lt;b&gt;FrogPilot features for Subaru vehicles.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;Функції FrogPilot для автомобілів Subaru.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;Функції FrogPilot для автомобілів Subaru.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Stop and Go</source>
-        <translation type="gpt-5-generated">Старт-стоп</translation>
+        <translation>Старт-стоп</translation>
     </message>
     <message>
         <source>Stop and go for supported Subaru vehicles.</source>
-        <translation type="gpt-5-generated">Функція «старт-стоп» для підтримуваних автомобілів Subaru.</translation>
+        <translation>Функція «старт-стоп» для підтримуваних автомобілів Subaru.</translation>
     </message>
 </context>
 <context>
@@ -4347,10 +4851,6 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
     <message>
         <source>Hide Lead Marker</source>
         <translation>Приховати маркер лідера</translation>
-    </message>
-    <message>
-        <source>Hide Map Settings Button</source>
-        <translation>Приховати кнопку налаштувань мап</translation>
     </message>
     <message>
         <source>Hide Max Speed</source>
@@ -4515,14 +5015,6 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
     <message>
         <source>Navigation Widgets</source>
         <translation>Навігаційні віджети</translation>
-    </message>
-    <message>
-        <source>Larger Map Display</source>
-        <translation>Збільшити відображення карти</translation>
-    </message>
-    <message>
-        <source>Map Style</source>
-        <translation>Стиль карти</translation>
     </message>
     <message>
         <source>Road Name</source>
@@ -4693,58 +5185,6 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
         <translation> фут</translation>
     </message>
     <message>
-        <source>Full Map</source>
-        <translation>Вся мапа</translation>
-    </message>
-    <message>
-        <source>Stock openpilot</source>
-        <translation>Штатний openpilot</translation>
-    </message>
-    <message>
-        <source>Mapbox Streets</source>
-        <translation>Mapbox Вулиці</translation>
-    </message>
-    <message>
-        <source>Mapbox Outdoors</source>
-        <translation>Mapbox на відкритому повітрі</translation>
-    </message>
-    <message>
-        <source>Mapbox Light</source>
-        <translation>Mapbox Світла</translation>
-    </message>
-    <message>
-        <source>Mapbox Dark</source>
-        <translation>Mapbox Темна</translation>
-    </message>
-    <message>
-        <source>Mapbox Navigation Day</source>
-        <translation>Mapbox навігація денна</translation>
-    </message>
-    <message>
-        <source>Mapbox Navigation Night</source>
-        <translation>Mapbox навігація нічна</translation>
-    </message>
-    <message>
-        <source>Mapbox Satellite</source>
-        <translation>Mapbox Супутник</translation>
-    </message>
-    <message>
-        <source>Mapbox Satellite Streets</source>
-        <translation>Mapbox Супутник Вулиці</translation>
-    </message>
-    <message>
-        <source>Mapbox Traffic Night</source>
-        <translation>Mapbox Нічний Трафік</translation>
-    </message>
-    <message>
-        <source>Mike's Personalized Style</source>
-        <translation>Індивідуальний стиль Майка</translation>
-    </message>
-    <message>
-        <source>Select a map style</source>
-        <translation>Виберіть стиль карти</translation>
-    </message>
-    <message>
         <source>Auto</source>
         <translation>Авто</translation>
     </message>
@@ -4795,10 +5235,6 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
     <message>
         <source>&lt;b&gt;Hide the lead-vehicle marker&lt;/b&gt; from the driving screen.</source>
         <translation>&lt;b&gt;Приховати маркер лідера (головуючого автомобіля)&lt;/b&gt; з екрану водіння.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Hide the map settings button or map&lt;/b&gt; from the driving screen.</source>
-        <translation>&lt;b&gt;Приховати кнопку налаштувань мапи або саму мапу&lt;/b&gt; з екрану водіння.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Hide the max speed&lt;/b&gt; from the driving screen.</source>
@@ -4945,10 +5381,6 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
         <translation>&lt;b&gt;Встановіть товщину лінії смуги руху.&lt;/b&gt;&lt;br&gt;&lt;br&gt;За замовчуванням відповідає стандарту ширини лінії смуги руху MUTCD, що становить 4 дюйми.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Set the driving-path edge width&lt;/b&gt; that represents different driving modes and statuses.&lt;br&gt;&lt;br&gt;Default is 20% of the total path width.&lt;br&gt;&lt;br&gt;Color Guide:&lt;br&gt;&lt;br&gt;- &lt;b&gt;Blue&lt;/b&gt;: Navigation&lt;br&gt;- &lt;b&gt;Light Blue&lt;/b&gt;: Always On Lateral&lt;br&gt;- &lt;b&gt;Green&lt;/b&gt;: Default&lt;br&gt;- &lt;b&gt;Orange&lt;/b&gt;: Experimental Mode&lt;br&gt;- &lt;b&gt;Red&lt;/b&gt;: Traffic Mode&lt;br&gt;- &lt;b&gt;Yellow&lt;/b&gt;: Conditional Experimental Mode overridden</source>
-        <translation>&lt;b&gt;Встановіть ширину краю траєкторії руху&lt;/b&gt;, яка відображає різні режими та стани руху.&lt;br&gt;&lt;br&gt;За замовчуванням встановлено 20% від загальної ширини траєкторії.&lt;br&gt;&lt;br&gt;Колірна гама:&lt;br&gt;&lt;br&gt; - &lt;b&gt;Синій&lt;/b&gt;: Навігація&lt;br&gt;- &lt;b&gt;Світло-синій&lt;/b&gt;: Завжди увімкнений режим кермування&lt;br&gt;- &lt;b&gt;Зелений&lt;/b&gt;: За замовчуванням&lt;br&gt;- &lt;b&gt;Помаранчевий&lt;/b&gt;: Експериментальний режим&lt;br&gt;- &lt;b&gt;Червоний&lt;/b&gt;: Режим трафік&lt;br&gt;- &lt;b&gt;Жовтий&lt;/b&gt;: Умовний експериментальний режим перевизначено</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Set the driving-path width.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Default (6.1 feet) matches the width of a 2019 Lexus ES 350.</source>
         <translation>&lt;b&gt;Встановіть ширину проїжджої частини.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Стандартне значення (6,1 фута) відповідає ширині автомобіля Lexus ES 350 2019 року випуску.</translation>
     </message>
@@ -4959,18 +5391,6 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
     <message>
         <source>&lt;b&gt;Extend the length of the driving path, lane lines, and road edges&lt;/b&gt; for as far as the model can see.</source>
         <translation>&lt;b&gt;Подовжуйте довжину траєкторії руху, розмітки смуг руху та країв дороги&lt;/b&gt; настільки, наскільки бачить модель.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Map style, speed limits, and other navigation widgets.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Стиль карти, обмеження швидкості та інші навігаційні віджети.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Increase the map size&lt;/b&gt; for easier navigation readings.</source>
-        <translation>&lt;b&gt;Збільште розмір карти&lt;/b&gt; для зручнішого читання навігації.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Select the map style&lt;/b&gt; for "Navigate on openpilot" (NOO):&lt;br&gt;&lt;br&gt;&lt;b&gt;Stock openpilot&lt;/b&gt;: Default comma.ai style&lt;br&gt;&lt;b&gt;FrogPilot&lt;/b&gt;: Official FrogPilot map style&lt;br&gt;&lt;b&gt;Mapbox Streets&lt;/b&gt;: Standard street-focused view&lt;br&gt;&lt;b&gt;Mapbox Outdoors&lt;/b&gt;: Emphasizes outdoor and terrain features&lt;br&gt;&lt;b&gt;Mapbox Light&lt;/b&gt;: Minimalist, bright theme&lt;br&gt;&lt;b&gt;Mapbox Dark&lt;/b&gt;: Minimalist, dark theme&lt;br&gt;&lt;b&gt;Mapbox Navigation Day&lt;/b&gt;: Optimized for daytime navigation&lt;br&gt;&lt;b&gt;Mapbox Navigation Night&lt;/b&gt;: Optimized for nighttime navigation&lt;br&gt;&lt;b&gt;Mapbox Satellite&lt;/b&gt;: Satellite imagery only&lt;br&gt;&lt;b&gt;Mapbox Satellite Streets&lt;/b&gt;: Hybrid satellite imagery with street labels&lt;br&gt;&lt;b&gt;Mapbox Traffic Night&lt;/b&gt;: Dark theme emphasizing traffic conditions&lt;br&gt;&lt;b&gt;Mike's Personalized Style&lt;/b&gt;: Customized hybrid satellite view</source>
-        <translation>&lt;b&gt;Виберіть стиль карти&lt;/b&gt; для «Навігація на openpilot» (NOO):&lt;br&gt;&lt;br&gt;&lt;b&gt;Стандартний openpilot&lt;/b&gt;: Стиль comma.ai за замовчуванням&lt;br&gt;&lt;b&gt;FrogPilot&lt;/b&gt;: Офіційний стиль карти FrogPilot&lt;br&gt;&lt;b&gt;Mapbox Streets&lt;/b&gt;: Стандартний вигляд з акцентом на вулицях&lt;br&gt;&lt;b&gt;Mapbox Outdoors&lt;/b&gt;: Акцент на особливостях місцевості та ландшафту&lt;br&gt;&lt;b&gt;Mapbox Light&lt;/b&gt;: Мінімалістична, світла тема&lt;br&gt;&lt;b&gt;Mapbox Dark&lt;/b&gt;: Мінімалістична, темна тема&lt;br&gt;&lt;b&gt;Mapbox Navigation Day&lt;/b&gt;: Оптимізовано для денної навігації&lt;br&gt;&lt;b&gt;Mapbox Navigation Night&lt;/b&gt;: Оптимізовано для нічної навігації&lt;br&gt;&lt;b&gt;Mapbox Satellite&lt;/b&gt;: Тільки супутникові знімки&lt;br&gt;&lt;b&gt;Mapbox Satellite Streets&lt;/b&gt;: Гібридні супутникові знімки з позначками вулиць&lt;br&gt;&lt;b&gt;Mapbox Traffic Night&lt;/b&gt;: Темна тема, що підкреслює дорожні умови&lt;br&gt;&lt;b&gt;Mike's Personalized Style&lt;/b&gt;: Індивідуальний гібридний супутниковий вигляд</translation>
     </message>
     <message>
         <source>&lt;b&gt;Display the road name at the bottom of the driving screen&lt;/b&gt; using data from "OpenStreetMap (OSM)".</source>
@@ -5005,14 +5425,6 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
         <translation>&lt;b&gt;Показати таймер при зупинці&lt;/b&gt; замість поточної швидкості, щоб вказати, як довго транспортний засіб перебуває в зупиненому стані.</translation>
     </message>
     <message>
-        <source>Hide Map</source>
-        <translation>Сховай мапу</translation>
-    </message>
-    <message>
-        <source>FrogPilot</source>
-        <translation>ЖабоПілот</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Set the lane-line thickness.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Default matches the MUTCD lane-line width standard of 10 centimeters.</source>
         <translation>&lt;b&gt;Встановіть товщину лінії смуги руху.&lt;/b&gt;&lt;br&gt;&lt;br&gt;За замовчуванням відповідає стандарту ширини лінії смуги руху MUTCD, що становить 10 сантиметрів.</translation>
     </message>
@@ -5023,6 +5435,18 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
     <message>
         <source>&lt;b&gt;Set the road-edge thickness.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Default matches half of the MUTCD lane-line width standard of 10 centimeters.</source>
         <translation>&lt;b&gt;Встановіть товщину краю дороги.&lt;/b&gt;&lt;br&gt;&lt;br&gt;За замовчуванням встановлюється половина стандартної ширини смуги руху MUTCD, яка становить 10 сантиметрів.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set the driving-path edge width&lt;/b&gt; that represents different driving modes and statuses.&lt;br&gt;&lt;br&gt;Default is 20% of the total path width.&lt;br&gt;&lt;br&gt;Color Guide:&lt;br&gt;&lt;br&gt;- &lt;b&gt;Light Blue&lt;/b&gt;: Always On Lateral&lt;br&gt;- &lt;b&gt;Green&lt;/b&gt;: Default&lt;br&gt;- &lt;b&gt;Orange&lt;/b&gt;: Experimental Mode&lt;br&gt;- &lt;b&gt;Red&lt;/b&gt;: Traffic Mode&lt;br&gt;- &lt;b&gt;Yellow&lt;/b&gt;: Conditional Experimental Mode overridden</source>
+        <translation>&lt;b&gt;Встановіть ширину краю траєкторії руху&lt;/b&gt;, яка відображає різні режими та стани руху. &lt;br&gt;&lt;br&gt;За замовчуванням встановлено 20% від загальної ширини траєкторії. &lt;br&gt;&lt;br&gt;Колірна гама:&lt;br&gt;&lt;br&gt;- &lt;b&gt;Світло-блакитний&lt;/b&gt;: завжди увімкнено бічний режим&lt;br&gt;- &lt;b&gt;Зелений&lt;/b&gt;: за замовчуванням&lt;br&gt;- &lt;b&gt;Помаранчевий&lt;/b&gt;: експериментальний режим&lt;br&gt;- &lt;b&gt;Червоний&lt;/b&gt;: режим руху&lt;br&gt;- &lt;b&gt;Жовтий&lt;/b&gt;: умовний експериментальний режим, що замінює інші режими</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Speed limits, and other navigation widgets.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;Обмеження швидкості та інші навігаційні віджети.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Longitudinal MPC: Danger Factor</source>
+        <translation>Поздовжній MPC: Фактор небезпеки</translation>
     </message>
 </context>
 <context>
@@ -5097,6 +5521,21 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
     </message>
 </context>
 <context>
+    <name>HudRenderer</name>
+    <message>
+        <source>MAX</source>
+        <translation>МАКС</translation>
+    </message>
+    <message>
+        <source>km/h</source>
+        <translation>км/г</translation>
+    </message>
+    <message>
+        <source>mph</source>
+        <translation>мнг</translation>
+    </message>
+</context>
+<context>
     <name>InputDialog</name>
     <message>
         <source>Cancel</source>
@@ -5113,54 +5552,6 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
     <message>
         <source>Characters: %1/%2</source>
         <translation>Символів: %1/%2</translation>
-    </message>
-</context>
-<context>
-    <name>Installer</name>
-    <message>
-        <source>Installing...</source>
-        <translation>Встановлення...</translation>
-    </message>
-</context>
-<context>
-    <name>MapETA</name>
-    <message>
-        <source>eta</source>
-        <translation>очп</translation>
-    </message>
-    <message>
-        <source>min</source>
-        <translation>мін</translation>
-    </message>
-    <message>
-        <source>hr</source>
-        <translation>г</translation>
-    </message>
-</context>
-<context>
-    <name>MapSettings</name>
-    <message>
-        <source>NAVIGATION</source>
-        <translation>НАВІГАЦІЯ</translation>
-    </message>
-    <message>
-        <source>Manage at %1</source>
-        <translation>Управляти на %1</translation>
-    </message>
-</context>
-<context>
-    <name>MapWindow</name>
-    <message>
-        <source>Map Loading</source>
-        <translation>Мапи вантажаться</translation>
-    </message>
-    <message>
-        <source>Waiting for GPS</source>
-        <translation>Очікую GPS</translation>
-    </message>
-    <message>
-        <source>Waiting for route</source>
-        <translation>Очікую шлях</translation>
     </message>
 </context>
 <context>
@@ -5222,28 +5613,32 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
         <translation>Оновлення операційної системи вашого пристрою завантажується у фоновому режимі. Коли воно буде готове до встановлення, з'явиться запит на оновлення.</translation>
     </message>
     <message>
-        <source>Device failed to register. It will not connect to or upload to comma.ai servers, and receives no support from comma.ai. If this is an official device, visit https://comma.ai/support.</source>
-        <translation>Пристрій не вдалося зареєструвати. Він не підключається до серверів comma.ai і не завантажує на них дані, а також не отримує підтримку від comma.ai. Якщо це офіційний пристрій, відвідайте веб-сайт https://comma.ai/support.</translation>
-    </message>
-    <message>
         <source>NVMe drive not mounted.</source>
         <translation>Диск NVMe не підключений.</translation>
-    </message>
-    <message>
-        <source>Unsupported NVMe drive detected. Device may draw significantly more power and overheat due to the unsupported NVMe.</source>
-        <translation>Виявлено непідтримуваний диск NVMe. Пристрій може споживати значно більше енергії та перегріватися через непідтримуваний NVMe.</translation>
     </message>
     <message>
         <source>openpilot was unable to identify your car. Your car is either unsupported or its ECUs are not recognized. Please submit a pull request to add the firmware versions to the proper vehicle. Need help? Join discord.comma.ai.</source>
         <translation>openpilot не зміг ідентифікувати ваш автомобіль. Ваш автомобіль не підтримується або його ЕБУ не розпізнаються. Надішліть запит на додавання версій прошивки до відповідного автомобіля. Потрібна допомога? Приєднуйтесь до discord.comma.ai.</translation>
     </message>
     <message>
-        <source>openpilot was unable to identify your car. Check integrity of cables and ensure all connections are secure, particularly that the comma power is fully inserted in the OBD-II port of the vehicle. Need help? Join discord.comma.ai.</source>
-        <translation>openpilot не зміг ідентифікувати ваш автомобіль. Перевірте цілісність кабелів і переконайтеся, що всі з'єднання надійні, особливо що зарядний пристрій comma повністю вставлений в порт OBD-II автомобіля. Потрібна допомога? Приєднуйтесь до discord.comma.ai.</translation>
-    </message>
-    <message>
         <source>openpilot detected a change in the device's mounting position. Ensure the device is fully seated in the mount and the mount is firmly secured to the windshield.</source>
         <translation>openpilot виявив зміну положення кріплення пристрою. Переконайтеся, що пристрій повністю вставлений у кріплення, а кріплення надійно зафіксоване на лобовому склі.</translation>
+    </message>
+    <message>
+        <source>Acknowledge Excessive Actuation</source>
+        <translation>Визнайте надмірне спрацьовування</translation>
+    </message>
+    <message>
+        <source>Snooze Update</source>
+        <translation>Відтермінувати оновлення</translation>
+    </message>
+    <message>
+        <source>Device failed to register with the comma.ai backend. It will not connect or upload to comma.ai servers, and receives no support from comma.ai. If this is a device purchased at comma.ai/shop, open a ticket at https://comma.ai/support.</source>
+        <translation>Пристрій не вдалося зареєструвати в серверній частині comma.ai. Він не підключається і не завантажує дані на сервери comma.ai, а також не отримує підтримку від comma.ai. Якщо це пристрій, придбаний на comma.ai/shop, відкрийте квиток на https://comma.ai/support.</translation>
+    </message>
+    <message>
+        <source>openpilot detected excessive %1 actuation on your last drive. Please contact support at https://comma.ai/support and share your device's Dongle ID for troubleshooting.</source>
+        <translation>openpilot виявив надмірне %1 спрацьовування під час останньої поїздки. Зверніться до служби підтримки за адресою https://comma.ai/support і надайте ідентифікатор Dongle вашого пристрою для усунення несправності.</translation>
     </message>
 </context>
 <context>
@@ -5280,20 +5675,20 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
         <translation>openpilot Недоступний</translation>
     </message>
     <message>
-        <source>Waiting for controls to start</source>
-        <translation>Очікування старту керування</translation>
-    </message>
-    <message>
         <source>TAKE CONTROL IMMEDIATELY</source>
         <translation>КЕРМУЙТЕ НЕГАЙНО</translation>
     </message>
     <message>
-        <source>Controls Unresponsive</source>
-        <translation>Керування не реагує</translation>
-    </message>
-    <message>
         <source>Reboot Device</source>
         <translation>Перезавантажити пристрій</translation>
+    </message>
+    <message>
+        <source>Waiting to start</source>
+        <translation>Очікування початку</translation>
+    </message>
+    <message>
+        <source>System Unresponsive</source>
+        <translation>Система не реагує</translation>
     </message>
 </context>
 <context>
@@ -5313,6 +5708,10 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
     <message>
         <source>Bookmark %1 to your home screen to use it like an app</source>
         <translation>Додайте %1 до домашнього екрану, щоб використовувати його як додаток</translation>
+    </message>
+    <message>
+        <source>Please connect to Wi-Fi to complete initial pairing</source>
+        <translation>Будь ласка, підключіться до Wi-Fi, щоб завершити початкове сполучення</translation>
     </message>
 </context>
 <context>
@@ -5353,8 +5752,8 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
         <translation>зберігання поїздок протягом року</translation>
     </message>
     <message>
-        <source>Turn-by-turn navigation</source>
-        <translation>Покрокова навігація</translation>
+        <source>Remote snapshots</source>
+        <translation>Віддалені знімки</translation>
     </message>
 </context>
 <context>
@@ -5370,30 +5769,6 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
 </context>
 <context>
     <name>QObject</name>
-    <message>
-        <source>km</source>
-        <translation>км</translation>
-    </message>
-    <message>
-        <source>m</source>
-        <translation>м</translation>
-    </message>
-    <message>
-        <source>mi</source>
-        <translation>мл</translation>
-    </message>
-    <message>
-        <source>ft</source>
-        <translation>фт</translation>
-    </message>
-    <message>
-        <source>Restore</source>
-        <translation>Відновити</translation>
-    </message>
-    <message>
-        <source>Exit</source>
-        <translation>Вихід</translation>
-    </message>
     <message>
         <source>FrogPilot</source>
         <translation>ЖабоПілот</translation>
@@ -5464,58 +5839,6 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
     </message>
 </context>
 <context>
-    <name>Reset</name>
-    <message>
-        <source>Reset failed. Reboot to try again.</source>
-        <translation>Скидання не вдалося. Перезавантажте систему, щоб спробувати ще раз.</translation>
-    </message>
-    <message>
-        <source>Resetting device...
-This may take up to a minute.</source>
-        <translation>Скидання пристрою...
-Це може зайняти до хвилини.</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to reset your device?</source>
-        <translation>Ви впевнені, що хочете скинути налаштування пристрою?</translation>
-    </message>
-    <message>
-        <source>System Reset</source>
-        <translation>Скинути систему</translation>
-    </message>
-    <message>
-        <source>System reset triggered. Press confirm to erase all content and settings. Press cancel to resume boot.</source>
-        <translation>Запущено скидання системи. Натисніть «Підтвердити», щоб видалити весь вміст і налаштування. Натисніть «Скасувати», щоб продовжити завантаження.</translation>
-    </message>
-    <message>
-        <source>Cancel</source>
-        <translation>Скасувати</translation>
-    </message>
-    <message>
-        <source>Reboot</source>
-        <translation>Перезав.</translation>
-    </message>
-    <message>
-        <source>Confirm</source>
-        <translation>Підтверд.</translation>
-    </message>
-    <message>
-        <source>Unable to mount data partition. Partition may be corrupted. Press confirm to erase and reset your device.</source>
-        <translation>Неможливо змонтувати розділ data. Розділ може бути пошкоджений. Натисніть «Підтвердити», щоб стерти дані та скинути налаштування пристрою.</translation>
-    </message>
-</context>
-<context>
-    <name>ScreenRecorder</name>
-    <message>
-        <source>RECORDING</source>
-        <translation>ЗАПИСУЮ</translation>
-    </message>
-    <message>
-        <source>RECORD</source>
-        <translation>ЗАПИС</translation>
-    </message>
-</context>
-<context>
     <name>SettingsWindow</name>
     <message>
         <source>← Back</source>
@@ -5565,100 +5888,9 @@ This may take up to a minute.</source>
         <source>Since you're very experienced with FrogPilot, the "Advanced" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
         <translation>Оскільки ви маєте великий досвід роботи з FrogPilot, було застосовано попереднє налаштування «Advanced», але ви можете змінити його в будь-який час за допомогою кнопки «Tuning Level»!</translation>
     </message>
-</context>
-<context>
-    <name>Setup</name>
     <message>
-        <source>Something went wrong. Reboot the device.</source>
-        <translation>Сталася помилка. Перезавантажте пристрій.</translation>
-    </message>
-    <message>
-        <source>Ensure the entered URL is valid, and the device’s internet connection is good.</source>
-        <translation>Переконайтеся, що введена URL-адреса є дійсною, а підключення пристрою до Інтернету працює належним чином.</translation>
-    </message>
-    <message>
-        <source>No custom software found at this URL.</source>
-        <translation>За цією адресою URL не знайдено жодної програми.</translation>
-    </message>
-    <message>
-        <source>WARNING: Low Voltage</source>
-        <translation>УВАГА: Низька напруга</translation>
-    </message>
-    <message>
-        <source>Power your device in a car with a harness or proceed at your own risk.</source>
-        <translation>Підʼєднайте пристрій до авто або дійте на власний ризик.</translation>
-    </message>
-    <message>
-        <source>Power off</source>
-        <translation>Вимкнути</translation>
-    </message>
-    <message>
-        <source>Continue</source>
-        <translation>Продовжити</translation>
-    </message>
-    <message>
-        <source>Getting Started</source>
-        <translation>Початок роботи</translation>
-    </message>
-    <message>
-        <source>Before we get on the road, let’s finish installation and cover some details.</source>
-        <translation>Перш ніж вирушати в дорогу, давайте завершимо установку та обговоримо деякі деталі.</translation>
-    </message>
-    <message>
-        <source>Connect to Wi-Fi</source>
-        <translation>Підключитися до Wi-Fi</translation>
-    </message>
-    <message>
-        <source>Back</source>
-        <translation>Назад</translation>
-    </message>
-    <message>
-        <source>Continue without Wi-Fi</source>
-        <translation>Продовжити без Wi-Fi</translation>
-    </message>
-    <message>
-        <source>Waiting for internet</source>
-        <translation>Очікую інет</translation>
-    </message>
-    <message>
-        <source>Choose Software to Install</source>
-        <translation>Виберіть програму для встановлення</translation>
-    </message>
-    <message>
-        <source>openpilot</source>
-        <translation>openpilot</translation>
-    </message>
-    <message>
-        <source>Custom Software</source>
-        <translation>Користувацьке ПЗ</translation>
-    </message>
-    <message>
-        <source>Enter URL</source>
-        <translation>Введіть URL-адресу</translation>
-    </message>
-    <message>
-        <source>for Custom Software</source>
-        <translation>для користувацького ПЗ</translation>
-    </message>
-    <message>
-        <source>Downloading...</source>
-        <translation>Завантаження...</translation>
-    </message>
-    <message>
-        <source>Download Failed</source>
-        <translation>Не вдале завантаження</translation>
-    </message>
-    <message>
-        <source>Reboot device</source>
-        <translation>Перезавантажити</translation>
-    </message>
-    <message>
-        <source>Start over</source>
-        <translation>Наново</translation>
-    </message>
-    <message>
-        <source>Select a language</source>
-        <translation>Виберіть мову</translation>
+        <source>Developer</source>
+        <translation>Розробн.</translation>
     </message>
 </context>
 <context>
@@ -5727,14 +5959,6 @@ This may take up to a minute.</source>
         <translation>ПАНДА</translation>
     </message>
     <message>
-        <source>GPS</source>
-        <translation>GPS</translation>
-    </message>
-    <message>
-        <source>SEARCH</source>
-        <translation>ПОШУК</translation>
-    </message>
-    <message>
         <source>GPU</source>
         <translation>ГП</translation>
     </message>
@@ -5800,10 +6024,6 @@ This may take up to a minute.</source>
     <message>
         <source>Automatically Update FrogPilot</source>
         <translation>Автоматично оновлювати FrogPilot</translation>
-    </message>
-    <message>
-        <source>FrogPilot will automatically update itself and it's assets when you're offroad and have an active internet connection.</source>
-        <translation>FrogPilot автоматично оновлюватиме себе та свої ресурси, коли ви не в дорозі та маєте активне підключення до Інтернету.</translation>
     </message>
     <message>
         <source>Download</source>
@@ -5886,28 +6106,16 @@ This may take up to a minute.</source>
         <translation>оновлено, остання перевірка %1</translation>
     </message>
     <message>
-        <source>downloading…</source>
-        <translation>завантажую...</translation>
-    </message>
-    <message>
-        <source>checking…</source>
-        <translation>перевіряю...</translation>
-    </message>
-    <message>
-        <source>waiting for vehicle to go offroad...</source>
-        <translation>очікування зупинки авто...</translation>
-    </message>
-    <message>
-        <source>finalizing update...</source>
-        <translation>завершую...</translation>
-    </message>
-    <message>
         <source>Do you want to perform a full factory reset? All saved assets and settings will be permanently deleted!</source>
         <translation>Ви хочете виконати повне скидання до заводських налаштувань? Усі збережені дані та налаштування будуть остаточно видалені!</translation>
     </message>
     <message>
         <source>This is a complete factory reset and cannot be undone. Are you absolutely sure you want to continue?</source>
         <translation>Це повне скидання налаштувань до заводських і його неможливо скасувати. Ви абсолютно впевнені, що хочете продовжити?</translation>
+    </message>
+    <message>
+        <source>Automatically download new updates when connected to Wi-Fi and the update will install the next time you are offroad (parked).</source>
+        <translation>Автоматично завантажуйте нові оновлення під час підключення до Wi-Fi, і оновлення буде встановлено наступного разу, коли ви будете поза дорогою (припарковані).</translation>
     </message>
 </context>
 <context>
@@ -5959,21 +6167,21 @@ This may take up to a minute.</source>
 <context>
     <name>TermsPage</name>
     <message>
-        <source>Terms &amp; Conditions</source>
-        <translation>Умови та положення</translation>
-    </message>
-    <message>
         <source>Decline</source>
         <translatorcomment>Відмова</translatorcomment>
         <translation>Decline</translation>
     </message>
     <message>
-        <source>Scroll to accept</source>
-        <translation>Крути щоб прийняти</translation>
-    </message>
-    <message>
         <source>Agree</source>
         <translation>Згоден</translation>
+    </message>
+    <message>
+        <source>Welcome to openpilot</source>
+        <translation>Ласкаво просимо до openpilot</translation>
+    </message>
+    <message>
+        <source>You must accept the Terms and Conditions to use openpilot. Read the latest terms at &lt;span style='color: #465BEA;'&gt;https://comma.ai/terms&lt;/span&gt; before continuing.</source>
+        <translation>Ви повинні прийняти Умови використання, щоб користуватися openpilot. Перед тим, як продовжити, ознайомтеся з останніми умовами на &lt;span style='color: #465BEA;'&gt;https://comma.ai/terms&lt;/span&gt;.</translation>
     </message>
 </context>
 <context>
@@ -5981,22 +6189,6 @@ This may take up to a minute.</source>
     <message>
         <source>Enable openpilot</source>
         <translation>Увімкнути openpilot</translation>
-    </message>
-    <message>
-        <source>Use the openpilot system for adaptive cruise control and lane keep driver assistance. Your attention is required at all times to use this feature. Changing this setting takes effect when the car is powered off.</source>
-        <translation>Використовуйте систему openpilot для адаптивного круїз-контролю та допомоги водієві у підтримці смуги руху. Для використання цієї функції необхідна постійна увага. Зміна цього параметра можлива на вимкненому авто.</translation>
-    </message>
-    <message>
-        <source>openpilot Longitudinal Control (Alpha)</source>
-        <translation>openpilot Поздовжній контроль (альфа)</translation>
-    </message>
-    <message>
-        <source>WARNING: openpilot longitudinal control is in alpha for this car and will disable Automatic Emergency Braking (AEB).</source>
-        <translation>УВАГА: система поздовжнього контролю openpilot для цього автомобіля перебуває в стадії альфа-тестування і вимкне функцію автоматичного екстреного гальмування (AEB).</translation>
-    </message>
-    <message>
-        <source>On this car, openpilot defaults to the car's built-in ACC instead of openpilot's longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
-        <translation>У цьому автомобілі openpilot за замовчуванням використовує вбудовану систему ACC замість поздовжнього керування openpilot. Увімкніть цю опцію, щоб перейти на поздовжнє керування openpilot. Рекомендується увімкнути експериментальний режим під час увімкнення альфа-версії поздовжнього керування openpilot.</translation>
     </message>
     <message>
         <source>Experimental Mode</source>
@@ -6033,22 +6225,6 @@ This may take up to a minute.</source>
     <message>
         <source>Display speed in km/h instead of mph.</source>
         <translation>Відображати швидкість у км/год замість миль/год.</translation>
-    </message>
-    <message>
-        <source>Show ETA in 24h Format</source>
-        <translation>Показати ОЧП у форматі 24 годин</translation>
-    </message>
-    <message>
-        <source>Use 24h format instead of am/pm</source>
-        <translation>Використовуйте 24-годинний формат замість ДП/ПП</translation>
-    </message>
-    <message>
-        <source>Show Map on Left Side of UI</source>
-        <translation>Розмістити мапу зліва</translation>
-    </message>
-    <message>
-        <source>Show map on left side when in split screen view.</source>
-        <translation>Показати карту зліва а не справа у режимі розділеного екрана.</translation>
     </message>
     <message>
         <source>Aggressive</source>
@@ -6102,71 +6278,44 @@ This may take up to a minute.</source>
         <source>Enable the openpilot longitudinal control (alpha) toggle to allow Experimental mode.</source>
         <translation>Увімкніть перемикач подовжнього керування openpilot (альфа), щоб дозволити експериментальний режим.</translation>
     </message>
-</context>
-<context>
-    <name>Updater</name>
     <message>
-        <source>Update Required</source>
-        <translation>Необхідне оновлення</translation>
+        <source>Use the openpilot system for adaptive cruise control and lane keep driver assistance. Your attention is required at all times to use this feature.</source>
+        <translation>Використовуйте систему openpilot для адаптивного круїз-контролю та допомоги водієві у підтримці смуги руху. Для використання цієї функції необхідна постійна увага.</translation>
     </message>
     <message>
-        <source>An operating system update is required. Connect your device to Wi-Fi for the fastest update experience. The download size is approximately 1GB.</source>
-        <translation>Необхідно оновити операційну систему. Підключіть пристрій до мережі Wi-Fi, щоб оновлення відбулося якнайшвидше. Розмір завантаження становить приблизно 1 ГБ.</translation>
+        <source>Always-On Driver Monitoring</source>
+        <translation>Постійний моніторинг водія</translation>
     </message>
     <message>
-        <source>Connect to Wi-Fi</source>
-        <translation>Підключитися до Wi-Fi</translation>
+        <source>Enable driver monitoring even when openpilot is not engaged.</source>
+        <translation>Увімкнути моніторинг водія, навіть коли openpilot не активовано.</translation>
     </message>
     <message>
-        <source>Install</source>
-        <translation>Встановити</translation>
+        <source>Record and Upload Microphone Audio</source>
+        <translation>Запис та завантаження аудіо з мікрофона</translation>
     </message>
     <message>
-        <source>Back</source>
-        <translation>Назад</translation>
+        <source>Record and store microphone audio while driving. The audio will be included in the dashcam video in comma connect.</source>
+        <translation>Записуйте та зберігайте аудіо з мікрофона під час руху. Аудіо буде включено до відео з відеореєстратора в comma connect.</translation>
     </message>
     <message>
-        <source>Loading...</source>
-        <translation>Завантаження...</translation>
-    </message>
-    <message>
-        <source>Reboot</source>
-        <translation>Перезавантаження</translation>
-    </message>
-    <message>
-        <source>Update failed</source>
-        <translation>Оновлення не вдалося</translation>
+        <source> Changing this setting will restart openpilot if the car is powered on.</source>
+        <translation> Зміна цього параметра призведе до перезапуску openpilot, якщо автомобіль увімкнено.</translation>
     </message>
 </context>
 <context>
     <name>WiFiPromptWidget</name>
     <message>
-        <source>Setup Wi-Fi</source>
-        <translation>Зʼєднай WiFi</translation>
+        <source>&lt;span style='font-family: "Noto Color Emoji";'&gt;🔥&lt;/span&gt; Firehose Mode &lt;span style='font-family: Noto Color Emoji;'&gt;🔥&lt;/span&gt;</source>
+        <translation>&lt;span style='font-family: "Noto Color Emoji";'&gt;🌧️&lt;/span&gt; Режим зливи &lt;span style='font-family: Noto Color Emoji;'&gt;🌧️&lt;/span&gt;</translation>
     </message>
     <message>
-        <source>Connect to Wi-Fi to upload driving data and help improve openpilot</source>
-        <translation>Підключіться до Wi-Fi, щоб завантажити дані про водіння та допомогти вдосконалити openpilot</translation>
+        <source>Maximize your training data uploads to improve openpilot's driving models.</source>
+        <translation>Максимізуйте завантаження навчальних даних, щоб поліпшити моделі водіння openpilot.</translation>
     </message>
     <message>
-        <source>Open Settings</source>
-        <translation>Відкрити налаштування</translation>
-    </message>
-    <message>
-        <source>Ready to upload</source>
-        <translation>Готовий до завантаження</translation>
-    </message>
-    <message>
-        <source>Training data will be pulled periodically while your device is on Wi-Fi</source>
-        <translation>Дані для навчання будуть періодично завантажуватися, коли ваш пристрій підключений до Wi-Fi</translation>
-    </message>
-    <message>
-        <source>Uploading disabled</source>
-        <translation>Завантаження вимкнено</translation>
-    </message>
-    <message>
-        <source>Toggle off the "Turn Off Data Uploads" toggle to re-enable uploads.</source>
-        <translation>Вимкніть перемикач «Вимкнути завантаження даних», щоб знову увімкнути завантаження.</translation>
+        <source>Open</source>
+        <translation>Відкрити</translation>
     </message>
 </context>
 <context>
