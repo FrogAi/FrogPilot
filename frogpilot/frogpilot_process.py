@@ -81,17 +81,23 @@ def update_stock_tuning_values(params, car_params_key):
     steer_kp = 0.0
 
   stock_values = {
+    "LongitudinalActuatorDelay": CP.longitudinalActuatorDelay,
+    "StartAccel": CP.startAccel,
     "SteerDelay": CP.steerActuatorDelay,
     "SteerFriction": friction,
     "SteerKP": steer_kp,
     "SteerLatAccel": lat_accel_factor,
     "SteerRatio": CP.steerRatio,
+    "StopAccel": CP.stopAccel,
+    "StoppingDecelRate": CP.stoppingDecelRate,
+    "VEgoStarting": CP.vEgoStarting,
+    "VEgoStopping": CP.vEgoStopping,
   }
 
   for key, stock_value in stock_values.items():
     previous_stock_value = params.get(f"{key}Stock")
 
-    if stock_value != previous_stock_value and stock_value != 0:
+    if stock_value != previous_stock_value and (stock_value != 0 or key == "StartAccel"):
       if round(params.get(key), 6) == round(previous_stock_value, 6):
         params.put(key, stock_value)
 
