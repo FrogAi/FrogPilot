@@ -50,6 +50,7 @@ private:
   void paintCEMStatus(QPainter &p, const QPoint &position);
   void paintCompass(QPainter &p, const QPoint &position);
   void paintCurveSpeedControl(QPainter &p);
+  void paintRoadName(QPainter &p);
   void paintTurnSignals(QPainter &p);
   void updateCEMIcon();
   void updateIcon(const QString &path, QSharedPointer<QMovie> &icon, QString &iconPath);
@@ -87,11 +88,14 @@ private:
   QPixmap curveSpeedIcon;
   QPixmap curveSpeedIconFlipped;
 
+  QRect roadNameRect;
+
   QSharedPointer<QMovie> cemIcon;
 
   QString cemIconPath;
   QString leadDistanceUnit;
   QString leadSpeedUnit;
+  QString roadName;
   QString speedUnit;
 
   QVector<QPixmap> blindspotImages;
