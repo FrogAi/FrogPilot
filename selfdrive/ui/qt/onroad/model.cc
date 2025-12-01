@@ -69,6 +69,9 @@ void ModelRenderer::draw(QPainter &painter, const QRect &surface_rect) {
   }
 
   // FrogPilot variables
+  if (frogpilot_toggles.value(QLatin1String("radar_tracks")).toBool()) {
+    updateRadarTracks(model.getPosition());
+  }
 
   painter.restore();
 }
@@ -323,6 +326,27 @@ void ModelRenderer::updateAdjacentLeads(const cereal::FrogPilotRadarState::Reade
     if (lead_data.getStatus()) {
       float z = line.getZ()[get_path_length_idx(line, lead_data.getDRel())];
       mapToScreen(lead_data.getDRel(), -lead_data.getYRel(), z + path_offset_z, &adjacent_lead_vertices[i]);
+    }
+  }
+}
+
+void ModelRenderer::updateRadarTracks(const cereal::XYZTData::Reader &line) {
+  std::vector<QPointF> &radar_tracks = frogpilot_nvg->radar_tracks;
+  radar_tracks.clear();
+
+  SubMaster &fpsm = *(frogpilotUIState()->sm);
+  capnp::List<cereal::RadarData::RadarPoint>::Reader radar_points = fpsm["liveTracks"].getLiveTracks().getPoints();
+  radar_tracks.reserve(radar_points.size());
+
+  capnp::List<float>::Reader line_z = line.getZ();
+
+  for (cereal::RadarData::RadarPoint::Reader point : radar_points) {
+    float d_rel = point.getDRel();
+    float z = line_z[get_path_length_idx(line, d_rel)];
+
+    QPointF calibrated_point;
+    if (mapToScreen(d_rel, -point.getYRel(), z + path_offset_z, &calibrated_point)) {
+      radar_tracks.push_back(calibrated_point);
     }
   }
 }

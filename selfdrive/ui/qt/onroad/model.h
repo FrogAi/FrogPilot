@@ -46,6 +46,7 @@ private:
 
   // FrogPilot variables
   void updateAdjacentLeads(const cereal::FrogPilotRadarState::Reader &radar_state, const cereal::XYZTData::Reader &line);
+  void updateRadarTracks(const cereal::XYZTData::Reader &line);
 
   QPointF adjacent_lead_vertices[2] = {};
 };
