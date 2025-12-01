@@ -1375,10 +1375,13 @@ class FrogPilotVariables:
     learned_lateral_profile = self.params.get("MaxLateralAcceleration")
     learned_lateral_acceleration = learned_lateral_profile.get("value", 0.0) if learned_lateral_profile.get("car_fingerprint") == toggle.car_model else 0.0
     toggle.lkas_allowed_for_aol = toggle.car_make == "hyundai" and bool(CP.flags & HyundaiFlags.CANFD or CP.flags & HyundaiFlags.HAS_LDA_BUTTON)
-    toggle.has_lkas_button = toggle.car_make in LKAS_BUTTON_BRANDS or toggle.lkas_allowed_for_aol or (toggle.car_make == "toyota" and bool(CP.flags & ToyotaFlags.TSS2))
+    toggle.has_lkas_button = toggle.car_make in LKAS_BUTTON_BRANDS or toggle.lkas_allowed_for_aol
+    toggle.has_lkas_button |= toggle.car_make == "toyota" and bool(CP.flags & ToyotaFlags.TSS2)
+    toggle.has_lkas_button |= toggle.has_sdsu and not FPCP.flags & ToyotaFrogPilotFlags.RADAR_CAN_FILTER.value
     toggle.has_distance_button = toggle.car_make in DISTANCE_BUTTON_BRANDS
     toggle.has_distance_button |= (toggle.car_make == "toyota" and bool(CP.flags & ToyotaFlags.TSS2) and
                                    not CP.flags & (ToyotaFlags.RADAR_ACC | ToyotaFlags.SECOC))
+    toggle.has_distance_button |= toggle.has_sdsu and not FPCP.flags & ToyotaFrogPilotFlags.RADAR_CAN_FILTER.value
     longitudinalActuatorDelay = CP.longitudinalActuatorDelay
     toggle.openpilot_longitudinal = CP.openpilotLongitudinalControl and (started or not toggle.disable_openpilot_long)
     pcm_cruise = CP.pcmCruise
