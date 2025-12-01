@@ -80,7 +80,7 @@ void HomeWindow::offroadTransition(bool offroad) {
   const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
 
   body->setEnabled(false);
-  sidebar->setVisible(offroad || frogpilot_toggles.value("debug_mode").toBool());
+  sidebar->setVisible(offroad || params.getBool("SidebarOpen") || frogpilot_toggles.value("debug_mode").toBool());
   if (offroad) {
     slayout->setCurrentWidget(home);
 
@@ -107,6 +107,7 @@ void HomeWindow::mousePressEvent(QMouseEvent* e) {
     sidebar->setVisible(!sidebar->isVisible());
 
     // FrogPilot variables
+    params.putBoolNonBlocking("SidebarOpen", sidebar->isVisible());
   }
 }
 
