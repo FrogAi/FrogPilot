@@ -14,6 +14,7 @@ from openpilot.system.hardware import PC
 from openpilot.frogpilot.assets.theme_manager import ThemeManager
 from openpilot.frogpilot.common import frogpilot_api, frogpilot_backups, frogpilot_functions, frogpilot_paths, frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
+from openpilot.frogpilot.controls.lib.speed_limit_filler import upload_speed_limits
 from openpilot.frogpilot.system.frogpilot_stats import send_stats
 from openpilot.frogpilot.system.frogpilot_tracking import FrogPilotTracking
 from openpilot.frogpilot.system.model_manager import ModelManager
@@ -229,6 +230,8 @@ class FrogPilotRequests:
 def transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_validated, params, frogpilot_toggles, api):
   frogpilot_planner.frogpilot_vcruise.slc.close()
 
+  frogpilot_planner.speed_limit_filler.save()
+
   if frogpilot_planner.last_gps_position is not None:
     params.put("LastGPSPosition", json.dumps(frogpilot_planner.last_gps_position))
 
@@ -356,6 +359,7 @@ def frogpilot_thread():
   frogpilot_toggles = variables.frogpilot_toggles
 
   run_update_checks = False
+  share_speed_limits = True
   started_previously = False
   time_validated = False
   waiting_for_car_params = False
@@ -385,6 +389,7 @@ def frogpilot_thread():
       transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_validated, params, frogpilot_toggles, api)
 
       run_update_checks = True
+      share_speed_limits = True
     elif started and not started_previously:
       frogpilot_planner = FrogPilotPlanner(theme_manager)
       frogpilot_tracking = FrogPilotTracking(frogpilot_planner, frogpilot_toggles)
@@ -407,6 +412,12 @@ def frogpilot_thread():
       pm.send("frogpilotPlan", frogpilot_plan_send)
 
     started_previously = started
+
+    if share_speed_limits and not started and frogpilot_utilities.is_unmetered_network(sm["deviceState"]):
+      if frogpilot_toggles.speed_limit_filler and frogpilot_toggles.telemetry_sharing:
+        thread_manager.run_in_thread(upload_speed_limits, (params, api))
+
+      share_speed_limits = False
 
     toggles_updated, update_checks_requested = frogpilot_requests.update(now, time_validated, sm, params, frogpilot_toggles, api)
     frogpilot_requests.publish(pm, stats_saved_count, variables.toggles_json)
