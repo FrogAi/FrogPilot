@@ -155,6 +155,8 @@ class LongitudinalPlanner:
     self.allow_throttle = throttle_prob > ALLOW_THROTTLE_THRESHOLD or v_ego <= MIN_ALLOW_THROTTLE_SPEED
 
     # FrogPilot variables
+    self.allow_throttle &= not sm['frogpilotCarState'].forceCoast
+
     mpc_accel_max = max(accel_clip[1], 0.0) if lead_detected else accel_clip[1]
     mpc_accel_max = max(mpc_accel_max, self.a_desired - 0.05)
 
