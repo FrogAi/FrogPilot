@@ -101,7 +101,7 @@ class FrogPilotPlanner:
 
     self.frogpilot_events.update(long_control_active, sm, frogpilot_toggles)
 
-    self.frogpilot_following.update(v_ego, sm, frogpilot_toggles)
+    self.frogpilot_following.update(long_control_active, v_ego, sm, frogpilot_toggles)
 
     gps_location = sm[self.gps_location_service]
     self.gps_valid = frogpilot_utilities.is_gps_location_valid(self.gps_location_service, sm)
@@ -178,6 +178,8 @@ class FrogPilotPlanner:
     frogpilotPlan.cscLateralAcceleration = float(self.frogpilot_vcruise.csc.lateral_acceleration)
     frogpilotPlan.cscSpeed = float(self.frogpilot_vcruise.csc_target)
     frogpilotPlan.cscTraining = self.frogpilot_vcruise.csc.enable_training
+
+    frogpilotPlan.desiredFollowDistance = int(self.frogpilot_following.desired_follow_distance)
 
     frogpilotPlan.experimentalMode = self.frogpilot_cem.experimental_mode
     frogpilotPlan.experimentalMode &= not frogpilot_toggles.conditional_experimental_mode or self.frogpilot_cem.status_value != frogpilot_variables.CE_STATUS["USER_DISABLED"]
