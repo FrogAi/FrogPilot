@@ -1593,8 +1593,8 @@ class FrogPilotVariables:
       toggle.use_konik_server &= self.get_value("UseKonikServer")
       toggle.use_konik_server |= frogpilot_paths.NOT_VETTED_PATH.is_file()
 
-    toggle.no_uploads = self.get_value("NoUploads", condition=device_management and not self.vetting_branch)
-    toggle.no_onroad_uploads = self.get_value("DisableOnroadUploads", condition=toggle.no_uploads)
+    toggle.no_uploads = self.get_value("NoUploads", condition=device_management and not self.vetting_branch) or toggle.use_higher_bitrate
+    toggle.no_onroad_uploads = self.get_value("DisableOnroadUploads", condition=toggle.no_uploads and not toggle.use_higher_bitrate)
     toggle.uploads_disabled = toggle.no_uploads and not toggle.no_onroad_uploads
 
     toggle.distance_button_function = self.get_button_function("DistanceButtonControl")
