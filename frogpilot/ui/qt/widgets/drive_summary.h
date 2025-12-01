@@ -6,7 +6,7 @@ class FrogPilotDriveSummary : public QFrame {
   Q_OBJECT
 
 public:
-  explicit FrogPilotDriveSummary(QWidget *parent = nullptr);
+  explicit FrogPilotDriveSummary(QWidget *parent = nullptr, bool randomEvents = false);
 
 signals:
   void panelClosed();
@@ -21,6 +21,8 @@ private:
 
   QWidget *createStatBox(const QString &title, QLabel **valueLabel);
 
+  bool displayRandomEvents = false;
+
   Params params;
 
   QJsonObject previousStats;
@@ -29,4 +31,6 @@ private:
   QLabel *experimentalModeTimeValue;
   QLabel *frogPilotMetersValue;
   QLabel *trackedTimeValue;
+
+  QVBoxLayout *eventsListLayout;
 };

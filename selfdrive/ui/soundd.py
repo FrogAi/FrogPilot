@@ -50,8 +50,20 @@ sound_list: dict[int, tuple[str, int | None, float]] = {
   AudibleAlert.warningImmediate: ("warning_immediate.wav", None, MAX_VOLUME),
 
   # FrogPilot variables
+  FrogPilotAudibleAlert.angry: ("angry.wav", 1, MAX_VOLUME),
+  FrogPilotAudibleAlert.continued: ("continued.wav", 1, MAX_VOLUME),
+  FrogPilotAudibleAlert.dejaVu: ("dejaVu.wav", 1, MAX_VOLUME),
+  FrogPilotAudibleAlert.doc: ("doc.wav", 1, MAX_VOLUME),
+  FrogPilotAudibleAlert.fart: ("fart.wav", 1, MAX_VOLUME),
+  FrogPilotAudibleAlert.firefox: ("firefox.wav", 1, MAX_VOLUME),
   FrogPilotAudibleAlert.goat: ("goat.wav", None, MAX_VOLUME),
+  FrogPilotAudibleAlert.hal9000: ("hal9000.wav", 1, MAX_VOLUME),
+  FrogPilotAudibleAlert.mail: ("mail.wav", 1, MAX_VOLUME),
+  FrogPilotAudibleAlert.nessie: ("nessie.wav", 1, MAX_VOLUME),
+  FrogPilotAudibleAlert.noice: ("noice.wav", 1, MAX_VOLUME),
   FrogPilotAudibleAlert.startup: ("startup.wav", 1, MAX_VOLUME),
+  FrogPilotAudibleAlert.thisIsFine: ("this_is_fine.wav", 1, MAX_VOLUME),
+  FrogPilotAudibleAlert.uwu: ("uwu.wav", 1, MAX_VOLUME),
 }
 if HARDWARE.get_device_type() in ("tici", "tizi"):
   sound_list.update({
@@ -113,7 +125,7 @@ class Soundd:
 
       if random_events_path.exists():
         goat_scream = sound == FrogPilotAudibleAlert.goat and self.frogpilot_toggles.goat_scream_alert
-        if not goat_scream:
+        if not self.frogpilot_toggles.random_events and not goat_scream:
           continue
 
         sound_path = str(random_events_path)
@@ -133,6 +145,9 @@ class Soundd:
         loaded_sounds[sound] = np.frombuffer(wavefile.readframes(length), dtype=np.int16).astype(np.float32) / (2**16/2)
 
     # FrogPilot variables
+    if self.current_alert not in loaded_sounds:
+      self.current_alert = AudibleAlert.none
+
     self.loaded_sounds = loaded_sounds
 
   def get_sound_data(self, frames): # get "frames" worth of data from the current alert sound, looping when required
@@ -181,7 +196,7 @@ class Soundd:
 
       self.update_alert(test_alert)
     elif not self.openpilot_crashed_played and frogpilot_paths.ERROR_LOG_PATH.is_file():
-      self.update_alert(AudibleAlert.prompt)
+      self.update_alert(FrogPilotAudibleAlert.fart if self.frogpilot_toggles.random_events else AudibleAlert.prompt)
       self.openpilot_crashed_played = True
     elif sm.updated['selfdriveState']:
       new_alert = sm['selfdriveState'].alertSound.raw
@@ -277,7 +292,7 @@ class Soundd:
       sound_inode = self.sound_directory.stat().st_ino
     except FileNotFoundError:
       sound_inode = None
-    sound_source = (self.sound_directory.resolve(), sound_inode, self.frogpilot_toggles.goat_scream_alert)
+    sound_source = (self.sound_directory.resolve(), sound_inode, self.frogpilot_toggles.random_events, self.frogpilot_toggles.goat_scream_alert)
     if sound_source != self.sound_source:
       self.load_sounds()
 

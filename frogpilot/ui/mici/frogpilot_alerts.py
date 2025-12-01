@@ -1,10 +1,21 @@
+import random
+
+import pyray as rl
+
 from cereal import log
-from openpilot.frogpilot.common import frogpilot_paths
+from openpilot.common.filter_simple import FirstOrderFilter
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_status
 from openpilot.selfdrive.ui.ui_state import ui_state
+from openpilot.system.ui.lib.application import gui_app
+from openpilot.system.ui.widgets import Widget
 
 
 AlertSize = log.SelfdriveState.AlertSize
 AlertStatus = log.SelfdriveState.AlertStatus
+
+FERG_CHANCE = 0.5
+FERG_HEIGHT = 240
+FERG_WIDTH = 360
 
 HIDDEN_ALERT_TYPES = {
   "calibrationIncomplete/permanent",
@@ -18,7 +29,20 @@ HIDDEN_ALERT_TYPES = {
 }
 
 
-class FrogPilotAlerts:
+class FrogPilotAlerts(Widget):
+  def __init__(self):
+    super().__init__()
+
+    self._ferg_enabled = False
+    self._ferg_showing = False
+
+    self._ferg_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
+
+    ui_state.add_offroad_transition_callback(self._draw_ferg_chance)
+
+  def _draw_ferg_chance(self):
+    self._ferg_enabled = random.random() < FERG_CHANCE
+
   def alert_fields(self, ss):
     sm = ui_state.sm
     fpss = sm["frogpilotSelfdriveState"]
@@ -49,7 +73,14 @@ class FrogPilotAlerts:
     stock_alert = sm.recv_frame["selfdriveState"] >= ui_state.started_frame and ss.alertSize != 0 and not fpss.hasPriorityAlert
 
     if frogpilot_paths.ERROR_LOG_PATH.exists() and not stock_alert and fpss.alertSize.raw != AlertSize.full:
-      fields = self._crash_fields(ss, ui_state.frogpilot_toggles.get("random_events"))
+      random_events = ui_state.frogpilot_toggles.get("random_events")
+
+      if random_events and self._ferg_enabled:
+        self._ferg_showing = True
+
+        fields = {}
+      else:
+        fields = self._crash_fields(ss, random_events)
 
     return fields
 
@@ -71,6 +102,20 @@ class FrogPilotAlerts:
       "text2": "Post the Error Log in Discord",
       "visual_alert": ss.alertHudVisual,
     }
+
+  def _render(self, rect):
+    alpha = self._ferg_filter.update(float(self._ferg_showing and ui_state.started))
+
+    self._ferg_showing = False
+
+    if alpha < frogpilot_status.MIN_VISIBLE_ALPHA:
+      return
+
+    texture = gui_app.texture(str(frogpilot_paths.WIDGET_ICONS_PATH / "ferg.png"), FERG_WIDTH, FERG_HEIGHT)
+    x = int(rect.x + (rect.width - FERG_WIDTH) / 2)
+    y = int(rect.y + (rect.height - FERG_HEIGHT) / 2)
+
+    rl.draw_texture(texture, x, y, rl.Color(255, 255, 255, int(255 * alpha)))
 
 
 frogpilot_alerts = FrogPilotAlerts()

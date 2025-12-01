@@ -198,12 +198,14 @@ class FrogPilotRequests:
 
     pm.send("frogpilotProcessState", frogpilot_process_state_send)
 
-def transition_offroad(frogpilot_planner, thread_manager, time_validated, params, frogpilot_toggles, api):
+def transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_validated, params, frogpilot_toggles, api):
   if frogpilot_planner.last_gps_position is not None:
     params.put("LastGPSPosition", json.dumps(frogpilot_planner.last_gps_position))
 
   if frogpilot_toggles.lock_doors_timer != 0:
     thread_manager.run_in_thread(frogpilot_utilities.lock_doors, (frogpilot_toggles.lock_doors_timer, params), report=False)
+
+  theme_manager.restore_wheel_image()
 
   if time_validated:
     thread_manager.run_in_thread(send_stats, (params, frogpilot_toggles, api))
@@ -341,11 +343,11 @@ def frogpilot_thread():
         model_manager.randomize_model(new_drive=True)
 
       update_toggles(variables, started, model_manager, theme_manager, thread_manager, time_validated, params)
-      transition_offroad(frogpilot_planner, thread_manager, time_validated, params, frogpilot_toggles, api)
+      transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_validated, params, frogpilot_toggles, api)
 
       run_update_checks = True
     elif started and not started_previously:
-      frogpilot_planner = FrogPilotPlanner()
+      frogpilot_planner = FrogPilotPlanner(theme_manager)
       frogpilot_tracking = FrogPilotTracking(frogpilot_planner, frogpilot_toggles)
 
       transition_onroad()
