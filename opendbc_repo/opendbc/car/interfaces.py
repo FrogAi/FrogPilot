@@ -173,12 +173,16 @@ class CarInterfaceBase(ABC):
   # FrogPilot variables
   @classmethod
   def get_frogpilot_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[structs.CarParams.CarFw], CP: structs.CarParams, frogpilot_toggles: SimpleNamespace):
+    from openpilot.frogpilot.common import frogpilot_utilities
+
     fp_ret = custom.FrogPilotCarParams.new_message()
 
     platform = PLATFORMS[candidate]
 
     if platform not in MOCK:
-      if CP.lateralTuning.which() == "pid" and CP.steerControlType != structs.CarParams.SteerControlType.angle and frogpilot_toggles.force_torque_controller:
+      use_nnff = frogpilot_utilities.nnff_supported(candidate) and frogpilot_toggles.nnff_selected
+      if CP.lateralTuning.which() == "pid" and CP.steerControlType != structs.CarParams.SteerControlType.angle and \
+         (frogpilot_toggles.force_torque_controller or use_nnff or frogpilot_toggles.nnff_lite_selected):
         CarInterfaceBase.configure_torque_tune(candidate, CP.lateralTuning)
 
       if platform in CHRYSLER:
