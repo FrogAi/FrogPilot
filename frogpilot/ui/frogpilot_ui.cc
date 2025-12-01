@@ -59,6 +59,25 @@ FrogPilotUIState::FrogPilotUIState(QObject *parent) : QObject(parent) {
   });
 
   wifi = new WifiManager(this);
+
+  tethering_mode = Params().getInt("TetheringEnabled");
+  if (tethering_mode == 1) {
+    wifi->setTetheringEnabled(true);
+  } else if (tethering_mode == 0) {
+    wifi->setTetheringEnabled(false);
+  }
+
+  QObject::connect(uiState(), &UIState::offroadTransition, this, [this](bool offroad) {
+    if (Params().getInt("TetheringEnabled") == 2) {
+      wifi->setTetheringEnabled(!offroad);
+    }
+  });
+  QObject::connect(this, &FrogPilotUIState::togglesUpdated, this, [this]() {
+    int mode = Params().getInt("TetheringEnabled");
+    if (mode != tethering_mode) {
+      setTethering(mode);
+    }
+  });
 }
 
 FrogPilotUIState *frogpilotUIState() {
@@ -167,6 +186,11 @@ void FrogPilotUIState::setDistanceButtonPressed(bool pressed) {
     msg.initEvent().initFrogpilotUIEvent().setDistanceButtonPressed(pressed);
     pm->send("frogpilotUIEvent", msg);
   }
+}
+
+void FrogPilotUIState::setTethering(int mode) {
+  tethering_mode = mode;
+  wifi->setTetheringEnabled(mode == 1 || (mode == 2 && uiState()->scene.started) || mode == 3);
 }
 
 void FrogPilotUIState::speedLimitAccepted() {

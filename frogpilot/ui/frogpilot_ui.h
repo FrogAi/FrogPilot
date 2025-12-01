@@ -39,6 +39,7 @@ public:
   void runUpdateChecks();
   void screenRecorderEvent(cereal::FrogPilotOnroadEvent::EventName event);
   void setDistanceButtonPressed(bool pressed);
+  void setTethering(int mode);
   void speedLimitAccepted();
   void testAlert(const QString &alert);
   void update();
@@ -64,6 +65,8 @@ signals:
 
 private:
   bool distance_button_pressed = false;
+
+  int tethering_mode;
 
   std::unique_ptr<PubMaster> pm;
 };
