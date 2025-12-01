@@ -219,8 +219,71 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
   QObject::connect(frogpilotUIState(), &FrogPilotUIState::togglesUpdated, reportIssueButton, updateReportIssueButton);
   updateReportIssueButton();
 
+  std::function<void(ButtonControl*, bool, const QString&)> resetSettings = [parent, this](ButtonControl *button, bool stock, const QString &confirmText) {
+    if (uiState()->scene.started) {
+      ConfirmationDialog::alert(tr("Settings can't be reset while the car is on. Turn the car off and try again."), this);
+      return;
+    }
+
+    if (actionRunning) {
+      ConfirmationDialog::alert(tr("Something else is already running. Wait for it to finish and try again."), this);
+      return;
+    }
+
+    if (ConfirmationDialog::confirm(confirmText, tr("Reset"), this)) {
+      actionRunning = true;
+
+      frogpilotUIState()->unlinkAccount();
+      uint64_t unlinkRequestTime = frogpilotUIState()->account_link_request_time;
+
+      std::thread([parent, button, stock, unlinkRequestTime, this]() {
+        runOnUIThread(button, [parent, button]() {
+          parent->activeOperations++;
+
+          button->setEnabled(false);
+          button->setValue(tr("Resetting..."));
+        });
+
+        SubMaster sm({"frogpilotAccountState"});
+        for (int i = 0; i < 10; i++) {
+          sm.update(1000);
+
+          if (sm["frogpilotAccountState"].getFrogpilotAccountState().getLinkRequestTime() >= unlinkRequestTime) {
+            break;
+          }
+        }
+
+        if (stock) {
+          params.putBool("DoToggleResetStock", true);
+        } else {
+          params.putBool("DoToggleReset", true);
+        }
+
+        runOnUIThread(button, [button]() {
+          button->setValue(tr("Rebooting to reset..."));
+        });
+
+        util::sleep_for(2500);
+
+        Hardware::reboot();
+      }).detach();
+    }
+  };
+
+  ButtonControl *resetTogglesButton = new ButtonControl(tr("Reset Settings to Default"), tr("RESET"), tr("<b>Put every FrogPilot setting back to the value it shipped with, along with some of openpilot's own settings.</b><br><br>Those openpilot settings are \"Enable openpilot\", \"Disengage on Accelerator Pedal\", \"Driving Personality\", and \"Cellular Metered\". This also clears your accepted terms, your completed training, and your language, so you go through first-time setup again in English. It also erases your saved keys (Mapbox and weather), favorite places, Discord name, timezone, chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this device from your FrogPilot.com account. The reset happens while the device reboots. Your drives, backups, downloaded themes, learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, \"The Pond\" pairing, Tailscale sign-in, \"Experimental Mode\", and \"openpilot Longitudinal Control (Alpha)\" are left alone, and settings backups still hold your keys and favorite places until you delete them."));
+  QObject::connect(resetTogglesButton, &ButtonControl::clicked, [resetSettings, resetTogglesButton]() {
+    resetSettings(resetTogglesButton, false, tr("Reset all FrogPilot and some openpilot settings? This erases your saved keys, favorite places, Discord name, timezone, chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this device from your FrogPilot.com account. The device reboots into first-time setup. Learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, \"The Pond\" pairing, and Tailscale sign-in stay."));
+  });
+  addItem(resetTogglesButton);
+
+  ButtonControl *resetTogglesButtonStock = new ButtonControl(tr("Reset Settings to Stock openpilot"), tr("RESET"), tr("<b>Put every setting back to what plain openpilot uses, turning FrogPilot's own features off rather than back to FrogPilot's defaults.</b><br><br>This also clears your accepted terms, your completed training, and your language, so you go through first-time setup again in English. It also erases your saved keys (Mapbox and weather), favorite places, Discord name, timezone, chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this device from your FrogPilot.com account. The reset happens while the device reboots. Your drives, backups, downloaded themes, learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, \"The Pond\" pairing, Tailscale sign-in, \"Experimental Mode\", and \"openpilot Longitudinal Control (Alpha)\" are left alone, and settings backups still hold your keys and favorite places until you delete them."));
+  QObject::connect(resetTogglesButtonStock, &ButtonControl::clicked, [resetSettings, resetTogglesButtonStock]() {
+    resetSettings(resetTogglesButtonStock, true, tr("Reset every setting to match stock openpilot? This erases your saved keys, favorite places, Discord name, timezone, chosen car make and model, SSH keys, and map settings, turns SSH and tethering off, asks again whether to share FrogPilot data, and unlinks this device from your FrogPilot.com account. The device reboots into first-time setup. Learned driving data, Speed Limit Filler data, FrogPilot Stats, Toyota security keys, \"The Pond\" pairing, and Tailscale sign-in stay."));
+  });
+  addItem(resetTogglesButtonStock);
+
   if (forceOpen) {
-    for (AbstractControl *control : std::initializer_list<AbstractControl*>{debugModeToggle, forceStartedButton, flashPandaButton, reportIssueButton}) {
+    for (AbstractControl *control : std::initializer_list<AbstractControl*>{debugModeToggle, forceStartedButton, flashPandaButton, reportIssueButton, resetTogglesButton, resetTogglesButtonStock}) {
       control->showDescription();
     }
   }
