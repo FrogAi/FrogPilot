@@ -1612,6 +1612,13 @@ class FrogPilotVariables:
 
     toggle.holiday_themes = self.get_value("HolidayThemes")
     toggle.current_holiday_theme = holiday_theme if toggle.holiday_themes else "stock"
+    if toggle.current_holiday_theme != "stock":
+      toggle.color_scheme = toggle.current_holiday_theme
+      toggle.distance_icons = toggle.current_holiday_theme
+      toggle.icon_pack = toggle.current_holiday_theme
+      toggle.signal_icons = toggle.current_holiday_theme
+      toggle.sound_pack = toggle.current_holiday_theme
+      toggle.wheel_image = toggle.current_holiday_theme
 
     honda_nidec_longitudinal = toggle.openpilot_longitudinal and toggle.is_honda_nidec
     toggle.honda_alt_tune = self.get_value("HondaAltTune", condition=honda_nidec_longitudinal)

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="250" height="250" viewBox="0 0 250 250">
+  <defs>
+    <linearGradient id="road-shading" x1="0" y1="0" x2=".7" y2="1">
+      <stop stop-color="#102e49"/>
+      <stop offset="1" stop-color="#0d2b47"/>
+    </linearGradient>
+    <linearGradient id="yellow-rim" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#ffe42d"/>
+      <stop offset=".5" stop-color="#ffdf25"/>
+      <stop offset="1" stop-color="#e9d13a"/>
+    </linearGradient>
+    <radialGradient id="yellow-car" cx=".52" cy=".38" r=".8">
+      <stop stop-color="#ffdb1e"/>
+      <stop offset=".7" stop-color="#fed718"/>
+      <stop offset="1" stop-color="#f8d11a"/>
+    </radialGradient>
+  </defs>
+  <path d="M69 24h112q9 0 12 10l56 202q3 12-10 12H11q-12 0-10-12L58 34q2-10 11-10Z" fill="url(#road-shading)" stroke="#eeeded" stroke-width="1.2"/>
+  <path d="M70 32h8L26 237H10Z" fill="#fed718"/>
+  <path d="M172 32h7l61 205h-17Z" fill="#fed718"/>
+  <path d="M62 127h125l15 67H47Z" fill="#ecebe9"/>
+  <path d="M75 77h99l12 42H64Z" fill="#ecebe9"/>
+  <path d="M86 33h78l9 36H77Z" fill="#ecebe9"/>
+  <g transform="translate(0 -2)">
+    <path d="m72 211 5-19q2-5 6-6 3-11 17-11 26-2 51 0 13 1 18 11 6 1 10 9l4 17h-13l4 29H76l5-30Z" fill="url(#road-shading)"/>
+    <defs>
+      <radialGradient id="ny-left-rim" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1.1916 .1419 -2.5 21 82.5 217)">
+        <stop stop-color="#ffe339" stop-opacity=".55"/>
+        <stop offset=".55" stop-color="#ffe339" stop-opacity=".33"/>
+        <stop offset="1" stop-color="#ffe339" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <path d="m83.8 195.86-5 42 2.4.28 5-42Z" fill="url(#ny-left-rim)"/>
+    <defs>
+      <radialGradient id="ny-right-rim" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1.1879 -.1697 3 21 168 217)">
+        <stop stop-color="#ffe339" stop-opacity=".55"/>
+        <stop offset=".55" stop-color="#ffe339" stop-opacity=".33"/>
+        <stop offset="1" stop-color="#ffe339" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <path d="m163.81 196.17 6 42 2.38-.34-6-42Z" fill="url(#ny-right-rim)"/>
+    <path d="m80 238 5-42c1-10 5-13 16-14 14-1.2 36-1.2 50 0 11 1 13 5 14 14l6 42h-5l-6-20q-1-5-8-6-27-2-53 0-7 1-9 6l-5 20Z" fill="url(#yellow-car)" stroke="url(#yellow-rim)" stroke-linejoin="round" stroke-width=".7"/>
+    <path d="M79 193q-5 1-5 6l1 8 3-5Zm92 0q5 1 5 6l-1 8-3-5Z" fill="url(#yellow-car)" stroke="url(#yellow-rim)" stroke-linejoin="round" stroke-width=".7"/>
+  </g>
+</svg>

@@ -51,6 +51,7 @@ sound_list: dict[int, tuple[str, int | None, float]] = {
 
   # FrogPilot variables
   FrogPilotAudibleAlert.goat: ("goat.wav", None, MAX_VOLUME),
+  FrogPilotAudibleAlert.startup: ("startup.wav", 1, MAX_VOLUME),
 }
 if HARDWARE.get_device_type() in ("tici", "tizi"):
   sound_list.update({
@@ -119,6 +120,8 @@ class Soundd:
       elif sounds_path.exists():
         sound_path = str(sounds_path)
       else:
+        if filename == "startup.wav":
+          filename = sound_list[AudibleAlert.engage][0]
         sound_path = BASEDIR + "/selfdrive/assets/sounds/" + filename
 
       with wave.open(sound_path, 'r') as wavefile:
@@ -264,6 +267,7 @@ class Soundd:
       AudibleAlert.warningImmediate: self.frogpilot_toggles.warning_immediate_volume,
 
       FrogPilotAudibleAlert.goat: self.frogpilot_toggles.prompt_volume,
+      FrogPilotAudibleAlert.startup: self.frogpilot_toggles.engage_volume
     }
     self.alert_volumes = {alert: volume / 100.0 for alert, volume in volumes.items() if volume <= 100}
 

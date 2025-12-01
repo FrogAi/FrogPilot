@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="350" height="500" viewBox="0 0 350 500">
+  <g id="frog-body">
+    <g id="frog-rear-hindlimb">
+      <path d="M150 110c14-6 44-13 70-14 11-21 16-32 25-45 10-12 28-21 38-28 9-8 17-16 22-22q2-2 2 1c-1 5-16 18-26 27q-2 4 1 3c6-4 13-9 20-17 4-5 7-10 9-14q2-2 2 1c0 4-3 9-7 14-3 4-8 7-14 13-2 2-4 4-4 5 13-3 22-13 28-11q2 2-2 4c-9 7-13 8-21 11l-9 3q-26 8-28 11c-5 25-19 53-39 67l-32 24Z" fill="#009343"/>
+    </g>
+    <g id="frog-rear-forelimb">
+      <path d="M63 174c-1 14-12 32-18 37-7 4-17 3-22 2q-3 2 1 4l9 1-12 1q-4 3 5 4l13-2q-9 4-12 3 0 4 5 1c16-2 31-12 43-44Z" fill="#009343"/>
+    </g>
+    <g id="frog-torso">
+      <path d="M5 163c-6-13 4-30 11-42-7-13 1-18 16-20 8-14 20-15 31-12 10 5 18 5 29 3 35-7 73 3 96 21 19 10 23 30 33 43 26-12 49-20 61-19 15 1 28 6 57 5q5 0 4 2c-6 2-18 2-34 1 10 6 24 10 36 14q5 3 1 5c-11 0-28-9-47-15 1 5 9 11 23 17q2 3-2 2c-11-5-18-11-26-15-7-5-15-5-22 0-21 13-34 23-57 23-18 0-31-2-40-6q-7-4-9-2-1 4-2 6c-26 23-61 25-89 12-11-4-16-12-23-16-17 1-34-1-47-3Z" fill="#26ae42"/>
+    </g>
+    <g id="frog-belly">
+      <path d="M52 169c9-5 9-19 26-26 17-8 30-5 43 0 5 12 22 22 39 28q3 1 0 5c-21 16-54 21-78 12-19-7-22-13-30-19" fill="#53bf31"/>
+    </g>
+    <g id="frog-hip-crease">
+      <path d="M120 141c6 12 21 22 40 27q3 2 4 3c-12 0-27-5-36-15-4-5-7-11-8-15" fill="#008a42"/>
+    </g>
+    <g id="frog-skin-spots">
+      <defs>
+        <radialGradient id="frog-spot-soft">
+          <stop offset="0" stop-color="#65c456" stop-opacity=".88"/>
+          <stop offset=".42" stop-color="#65c456" stop-opacity=".72"/>
+          <stop offset="1" stop-color="#65c456" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <ellipse cx="116.7" cy="92.1" rx="3.25" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="123.75" cy="93.62" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="92.71" cy="93.86" rx="2.27" ry="1.82" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="106.36" cy="95.09" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <circle cx="79.8" cy="95.6" r="1.43" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="134.36" cy="96.09" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="101" cy="96.5" rx="1.95" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="84.31" cy="98" rx="3.25" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="127.36" cy="98.09" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="118.24" cy="98.12" rx="3.9" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="97.2" cy="99" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="144.5" cy="100.81" rx="3.9" ry="3.25" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="106.36" cy="101.09" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="132" cy="102" rx="3.25" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="76.93" cy="102.4" rx="3.25" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="153.5" cy="103" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <circle cx="111.54" cy="104.15" r="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="89.31" cy="105" rx="3.25" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <circle cx="148.38" cy="106.85" r="2.6" fill="url(#frog-spot-soft)"/>
+      <circle cx="77.5" cy="108.5" r="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="160.5" cy="109" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="117.18" cy="109.47" rx="3.9" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="83.83" cy="113.92" rx="3.25" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="97.14" cy="114.07" rx="3.25" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="150.57" cy="116.29" rx="5.2" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <circle cx="70" cy="116.71" r="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="26.5" cy="118" rx="3.9" ry="3.25" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="164.31" cy="119.81" rx="3.9" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="30.14" cy="120.64" rx="3.25" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="175.29" cy="121.57" rx="3.25" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="88.81" cy="124" rx="3.9" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="20.11" cy="124.33" rx="1.95" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="158.32" cy="125" rx="4.55" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="34.67" cy="125.89" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <circle cx="142" cy="125.89" r="3.25" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="74.36" cy="126.91" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="23.64" cy="127.36" rx="2.6" ry="3.25" fill="url(#frog-spot-soft)"/>
+      <circle cx="181.38" cy="127.54" r="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="132" cy="130" rx="1.95" ry="3.25" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="169" cy="131" rx="4.55" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <circle cx="146.88" cy="131.88" r="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="15" cy="132.8" rx="1.95" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <circle cx="31.62" cy="133.38" r="2.6" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="165" cy="135" rx="3.25" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <circle cx="23.12" cy="135.12" r="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="184.75" cy="135.18" rx="5.85" ry="4.55" fill="url(#frog-spot-soft)"/>
+      <circle cx="132.28" cy="136" r="3.25" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="8.5" cy="139.5" rx=".91" ry="1.82" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="152.07" cy="141.2" rx="3.25" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <circle cx="14" cy="142.29" r="1.95" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="197.33" cy="145.89" rx="2.6" ry="1.95" fill="url(#frog-spot-soft)"/>
+      <circle cx="186.3" cy="146.3" r="2.6" fill="url(#frog-spot-soft)"/>
+      <circle cx="45" cy="147" r=".7" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="169.44" cy="150.62" rx="3.25" ry="2.6" fill="url(#frog-spot-soft)"/>
+      <circle cx="199.82" cy="153.18" r="3.25" fill="url(#frog-spot-soft)"/>
+      <ellipse cx="211.83" cy="155.61" rx="3.25" ry="3.9" fill="url(#frog-spot-soft)"/>
+      <circle cx="243.33" cy="60.33" r="2.52" fill="url(#frog-spot-dark-soft)"/>
+      <ellipse cx="214.5" cy="109" rx="2.52" ry="1.89" fill="url(#frog-spot-dark-soft)"/>
+      <ellipse cx="196.17" cy="102.25" rx="3.78" ry="2.52" fill="url(#frog-spot-dark-soft)"/>
+      <circle cx="230.78" cy="83.33" r="2.52" fill="url(#frog-spot-dark-soft)"/>
+      <circle cx="199.5" cy="108.4" r="2.52" fill="url(#frog-spot-dark-soft)"/>
+      <ellipse cx="209.42" cy="101.08" rx="3.78" ry="1.89" fill="url(#frog-spot-dark-soft)"/>
+      <ellipse cx="240.43" cy="78.14" rx="2.52" ry="1.89" fill="url(#frog-spot-dark-soft)"/>
+      <defs>
+        <radialGradient id="frog-spot-dark-soft">
+          <stop offset="0" stop-color="#24ad50" stop-opacity=".85"/>
+          <stop offset=".4" stop-color="#24ad50" stop-opacity=".7"/>
+          <stop offset="1" stop-color="#24ad50" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+    </g>
+    <g id="frog-front-forelimb">
+      <path d="M88 174c-8-4-3-14 6-12 13 2 17 19 23 32 4 14 1 26-4 34q-1 2-1-2l1-4q-4 6-6 3c5-11 6-22 3-30-7-10-11-16-22-21" fill="#26ae42"/>
+    </g>
+    <g id="frog-far-eye-brow">
+      <path d="M16 122c-5-11 4-18 15-19 2 5-6 12-15 19" fill="#009343"/>
+    </g>
+    <g id="frog-near-eye">
+      <g transform="rotate(19 50.7 105)">
+        <ellipse cx="50.7" cy="105" rx="15.4" ry="17.1" fill="#70b677"/>
+        <ellipse cx="50.7" cy="105" rx="14" ry="15.7" fill="#b5c6c5"/>
+        <ellipse cx="50.4" cy="104" rx="9.856" ry="9.576" fill="#000"/>
+        <ellipse cx="52.2" cy="102" rx="5.082" ry="2.223" transform="rotate(-30 52.2 102)" fill="#b5c6c5" display="none"/>
+      </g>
+    </g>
+    <g id="frog-mouth">
+      <path d="M5 166c13-1 29-9 40-16 6-3 10-6 14-6-5 3-10 5-14 8-15 10-27 16-39 15Z" fill="#000"/>
+    </g>
+    <g id="frog-nostril">
+      <path d="M6 157q0 6 4 6l-2-5Z" fill="#000"/>
+    </g>
+  </g>
+  <g id="costume" transform="matrix(0.8728620369875857 -0.48430129881116357 0.48430129881116357 0.8728620369875857 -323.4355919894952 -81.3688572228834)">
+    <path d="M201 333c3-8 25-8 40-8 15-1 26 2 27 8 2 8-16 12-35 13-18 1-35-4-32-13Z" fill="#bc1f26" stroke="#641319" stroke-linejoin="round" stroke-width=".55"/>
+    <path d="M213 288q24-4 43-1c-3 13-5 28-5 39q-18 9-33 0c1-13-1-26-5-38Z" fill="#fcfff4" stroke="#571718" stroke-linejoin="round" stroke-width=".55"/>
+    <path d="m217 288 7 1c3 13 5 26 2 40l-6-1c2-13 0-27-3-40" fill="#e53025"/>
+    <path d="M229 289h6c0 13 1 28-1 42h-6c3-13 2-29 1-42" fill="#bc1f26"/>
+    <path d="M242 288h7c-2 14-4 28-4 41l-6 2c1-16 3-29 3-43" fill="#e53025"/>
+    <path d="M213 288c-2-5 44-6 44-1q-15 5-44 1Z" fill="#bc1f26" stroke="#641319" stroke-linejoin="round" stroke-width=".6"/>
+    <path d="M217 326q18 5 35-1v11q-18 6-34-1Z" fill="#192b73"/>
+    <polygon points="222.000,327.900 222.784,329.922 224.948,330.042 223.268,331.412 223.822,333.508 222.000,332.333 220.178,333.508 220.732,331.412 219.052,330.042 221.216,329.922" fill="#fcfff4"/>
+    <polygon points="233.000,330.900 233.784,332.922 235.948,333.042 234.268,334.412 234.822,336.508 233.000,335.333 231.178,336.508 231.732,334.412 230.052,333.042 232.216,332.922" fill="#fcfff4"/>
+    <polygon points="245.000,328.900 245.784,330.922 247.948,331.042 246.268,332.412 246.822,334.508 245.000,333.333 243.178,334.508 243.732,332.412 242.052,331.042 244.216,330.922" fill="#fcfff4"/>
+  </g>
+</svg>

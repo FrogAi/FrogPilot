@@ -30,7 +30,7 @@ def frogpilot_boot_functions(build_metadata, params):
     HARDWARE.reboot()
 
   ThemeManager.copy_default_theme()
-  ThemeManager(params).update_active_theme(frogpilot_toggles=frogpilot_toggles)
+  ThemeManager(params).update_active_theme(time_validated=system_time_valid(), frogpilot_toggles=frogpilot_toggles)
 
   frogpilot_utilities.delete_path(frogpilot_paths.RESTORE_TEMP_PATH)
 

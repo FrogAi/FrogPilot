@@ -223,12 +223,12 @@ def update_toggles(variables, started, theme_manager, thread_manager, time_valid
 
   theme_manager.theme_updated = False
 
-  variables.update(started=started)
+  variables.update(theme_manager.holiday_theme, started)
 
   if not started:
     frogpilot_functions.sync_flag_file(frogpilot_paths.HD_PATH, frogpilot_toggles.use_higher_bitrate)
 
-  theme_manager.update_active_theme(frogpilot_toggles)
+  theme_manager.update_active_theme(time_validated, frogpilot_toggles)
 
   if time_validated:
     thread_manager.run_in_thread(frogpilot_backups.backup_toggles, (params,))
@@ -330,6 +330,7 @@ def frogpilot_thread():
     previous_update_checks_period = update_checks_period
 
     if run_update_checks:
+      theme_manager.update_active_theme(time_validated, frogpilot_toggles)
       thread_manager.run_in_thread(update_checks, (now, theme_manager, thread_manager, sm, params, frogpilot_toggles))
 
       run_update_checks = False
@@ -337,6 +338,8 @@ def frogpilot_thread():
       time_validated = system_time_valid()
 
       if time_validated:
+        theme_manager.update_active_theme(time_validated, frogpilot_toggles)
+
         thread_manager.run_in_thread(frogpilot_backups.backup_toggles, (params, True))
         thread_manager.run_in_thread(send_stats, (params, frogpilot_toggles, api))
         thread_manager.run_in_thread(update_checks, (now, theme_manager, thread_manager, sm, params, frogpilot_toggles, True))
