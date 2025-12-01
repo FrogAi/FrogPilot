@@ -110,6 +110,16 @@ void FrogPilotUIState::runUpdateChecks() {
   pm->send("frogpilotUIRequest", msg);
 }
 
+void FrogPilotUIState::setDistanceButtonPressed(bool pressed) {
+  if (pressed != distance_button_pressed) {
+    distance_button_pressed = pressed;
+
+    MessageBuilder msg;
+    msg.initEvent().initFrogpilotUIEvent().setDistanceButtonPressed(pressed);
+    pm->send("frogpilotUIEvent", msg);
+  }
+}
+
 void FrogPilotUIState::testAlert(const QString &alert, float volume) {
   MessageBuilder msg;
   cereal::FrogPilotUIRequest::Builder request = msg.initEvent().initFrogpilotUIRequest();
