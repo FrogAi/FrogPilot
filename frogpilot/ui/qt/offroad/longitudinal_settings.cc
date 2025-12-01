@@ -277,13 +277,33 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       std::vector<QString> curveSpeedProfiles{tr("Gentle"), tr("Standard"), tr("Sport"), tr("Adaptive")};
       longitudinalToggle = new ButtonParamControl(param, title, desc, icon, curveSpeedProfiles);
     } else if (param == "CalibrationProgress") {
-      longitudinalToggle = new LabelControl(title, "", desc);
+      calibrationProgressLabel = new LabelControl(title, "", desc);
+      longitudinalToggle = calibrationProgressLabel;
     } else if (param == "CalibratedLateralAcceleration") {
-      longitudinalToggle = new LabelControl(title, "", desc);
+      calibratedLateralAccelerationLabel = new LabelControl(title, "", desc);
+      longitudinalToggle = calibratedLateralAccelerationLabel;
     } else if (param == "MaxLateralAcceleration") {
-      longitudinalToggle = new LabelControl(title, "", desc);
+      maxLateralAccelerationLabel = new LabelControl(title, "", desc);
+      longitudinalToggle = maxLateralAccelerationLabel;
     } else if (param == "ResetCurveData") {
-      longitudinalToggle = new ButtonControl(title, tr("RESET"), desc);
+      ButtonControl *resetCurveDataButton = new ButtonControl(title, tr("RESET"), desc);
+      QObject::connect(resetCurveDataButton, &ButtonControl::clicked, [this]() {
+        if (uiState()->scene.started) {
+          ConfirmationDialog::alert(tr("Curve data can't be reset while the car is on. Turn the car off and try again."), this);
+          return;
+        }
+        if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely reset your curve data?"), this)) {
+          params.putFloat("CalibratedLateralAcceleration", std::stof(params.getKeyDefaultValue("CalibratedLateralAcceleration").value()));
+          params.remove("CalibrationProgress");
+          params.remove("CurvatureData");
+          params.remove("MaxLateralAcceleration");
+
+          frogpilotUIState()->updateToggles();
+
+          updateCurveLabels();
+        }
+      });
+      longitudinalToggle = resetCurveDataButton;
 
     } else if (param == "CustomPersonalities") {
       FrogPilotManageControl *customPersonalitiesToggle = new FrogPilotManageControl(param, title, desc, icon);
@@ -570,9 +590,12 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     }
   });
   QObject::connect(parent, &FrogPilotSettingsWindow::updateMetric, this, &FrogPilotLongitudinalPanel::updateMetric);
+  QObject::connect(frogpilotUIState(), &FrogPilotUIState::togglesUpdated, this, &FrogPilotLongitudinalPanel::updateCurveLabels);
 }
 
 void FrogPilotLongitudinalPanel::showEvent(QShowEvent *event) {
+  updateCurveLabels();
+
   if (parent->carDetected) {
     longitudinalActuatorDelayToggle->setTitle(QString(tr("Actuator Delay (Default: %1)")).arg(QString::number(parent->longitudinalActuatorDelay, 'f', 2)));
     startAccelToggle->setTitle(QString(tr("Start Acceleration (Default: %1)")).arg(QString::number(parent->startAccel, 'f', 2)));
@@ -583,6 +606,14 @@ void FrogPilotLongitudinalPanel::showEvent(QShowEvent *event) {
   }
 
   updateToggles();
+}
+
+void FrogPilotLongitudinalPanel::updateCurveLabels() {
+  float maxLateralAcceleration = frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value("maxLateralAccel").toDouble();
+
+  calibratedLateralAccelerationLabel->setText(QString::number(std::min(params.getFloat("CalibratedLateralAcceleration"), maxLateralAcceleration), 'f', 2) + tr(" m/s²"));
+  calibrationProgressLabel->setText(QString::number(params.getFloat("CalibrationProgress"), 'f', 0) + "%");
+  maxLateralAccelerationLabel->setText(QString::number(maxLateralAcceleration, 'f', 2) + tr(" m/s²"));
 }
 
 void FrogPilotLongitudinalPanel::updateMetric(bool metric, bool bootRun) {

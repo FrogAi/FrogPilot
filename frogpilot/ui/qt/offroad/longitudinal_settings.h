@@ -17,6 +17,7 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
+  void updateCurveLabels();
   void updateMetric(bool metric, bool bootRun);
   void updateToggles();
 
@@ -59,6 +60,10 @@ private:
   FrogPilotParamValueControl *vEgoStoppingToggle;
 
   FrogPilotSettingsWindow *parent;
+
+  LabelControl *calibratedLateralAccelerationLabel;
+  LabelControl *calibrationProgressLabel;
+  LabelControl *maxLateralAccelerationLabel;
 
   Params params;
 };
