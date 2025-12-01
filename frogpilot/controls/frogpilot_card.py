@@ -25,6 +25,7 @@ class FrogPilotCard:
     self.lkas_press_used = False
     self.manual_transmission = CP.transmissionType == structs.CarParams.TransmissionType.manual
     self.onroad_distance_button = False
+    self.pause_longitudinal = False
     self.steering_disengaged = False
 
     self.accel_press_count = 0
@@ -47,6 +48,8 @@ class FrogPilotCard:
       self.handle_experimental_mode(sm, frogpilot_toggles)
     elif sm["carControl"].longActive and function == frogpilot_variables.BUTTON_FUNCTIONS["FORCE_COAST"]:
       self.force_coast = not self.force_coast
+    elif (sm["carControl"].longActive or self.pause_longitudinal) and function == frogpilot_variables.BUTTON_FUNCTIONS["PAUSE_LONGITUDINAL"]:
+      self.pause_longitudinal = not self.pause_longitudinal
 
   def handle_experimental_mode(self, sm, frogpilot_toggles):
     if frogpilot_toggles.conditional_experimental_mode:
@@ -148,6 +151,7 @@ class FrogPilotCard:
     frogpilotCarState.forceCoast = self.force_coast
     frogpilotCarState.lkasButtonPressCount = self.lkas_button_press_count
     frogpilotCarState.parked = carState.gearShifter == frogpilot_variables.GearShifter.park or (self.manual_transmission and carState.standstill)
+    frogpilotCarState.pauseLongitudinal = self.pause_longitudinal
     frogpilotCarState.vEgo = carState.vEgo
 
     return frogpilotCarState
