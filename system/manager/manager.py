@@ -2,6 +2,7 @@
 import datetime
 import os
 import signal
+import string
 import sys
 import time
 import traceback
@@ -134,7 +135,8 @@ def manager_thread() -> None:
 
   ignore: list[str] = []
   # FrogPilot variables
-  if params.get("DongleId") in (None, UNREGISTERED_DONGLE_ID):
+  dongle_id = params.get("DongleId")
+  if dongle_id in (None, UNREGISTERED_DONGLE_ID) or not all(c in string.hexdigits for c in dongle_id):
     ignore += ["manage_athenad", "uploader"]
   if os.getenv("NOBOARD") is not None:
     ignore.append("pandad")
