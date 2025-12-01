@@ -74,6 +74,10 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
   frogpilot_nvg->setSpeedRect = set_speed_rect;
   frogpilot_nvg->speed = speed;
 
+  if (frogpilot_toggles.value(QLatin1String("hide_max_speed")).toBool()) {
+    return;
+  }
+
   // Draw set speed box
   p.setPen(QPen(QColor(255, 255, 255, 75), 6));
   p.setBrush(QColor(0, 0, 0, 166));
