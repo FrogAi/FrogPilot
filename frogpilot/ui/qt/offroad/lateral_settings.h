@@ -30,6 +30,12 @@ private:
 
   QSet<QString> parentKeys;
 
+  FrogPilotParamValueButtonControl *steerDelayToggle;
+  FrogPilotParamValueButtonControl *steerFrictionToggle;
+  FrogPilotParamValueButtonControl *steerKPToggle;
+  FrogPilotParamValueButtonControl *steerLatAccelToggle;
+  FrogPilotParamValueButtonControl *steerRatioToggle;
+
   FrogPilotSettingsWindow *parent;
 
   Params params;
