@@ -25,8 +25,11 @@ class FrogPilotUIState : public QObject {
 public:
   explicit FrogPilotUIState(QObject *parent = nullptr);
 
+  void cancelModelDownload();
   void cancelThemeDownload();
   void createSettingsBackup(const QString &name);
+  void downloadAllModels();
+  void downloadModels(const QStringList &models);
   void downloadTheme(const QString &component, const QStringList &themes);
   void experimentalModePressed();
   void flashPanda();
@@ -46,6 +49,7 @@ public:
 
   uint64_t account_link_request_time = 0;
   uint64_t account_url_request_time = 0;
+  uint64_t download_model_request_time = 0;
   uint64_t download_theme_request_time = 0;
   uint64_t flash_panda_request_time = 0;
   uint64_t settings_backup_request_time = 0;
