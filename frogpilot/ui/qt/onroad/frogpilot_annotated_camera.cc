@@ -171,6 +171,7 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   gpsBearing = frogpilotPlan.getGpsBearing();
   redLight = frogpilotPlan.getRedLight();
   roadCurvature = frogpilotPlan.getRoadCurvature();
+  roadName = QString::fromStdString(mapdOut.getRoadName());
   stoppingDistance = positionX.size() != 0 ? positionX[positionX.size() - 1] : 0.0f;
   vEgo = carState.getVEgo();
 
@@ -471,6 +472,35 @@ void FrogPilotAnnotatedCameraWidget::paintCurveSpeedControl(QPainter &p) {
   p.restore();
 }
 
+void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
+  static const QFont font = InterFont(40, QFont::DemiBold);
+
+  static QString cachedRoadName;
+  static int cachedRoadNameWidth = 0;
+
+  if (roadName != cachedRoadName) {
+    cachedRoadName = roadName;
+    cachedRoadNameWidth = QFontMetrics(font).horizontalAdvance(roadName);
+  }
+
+  QSize size(cachedRoadNameWidth + 100, 50);
+  roadNameRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignHCenter | Qt::AlignBottom, size, rect().adjusted(0, 0, 0, -10));
+
+  if (roadName.isEmpty()) {
+    return;
+  }
+
+  p.save();
+
+  paintWidgetFrame(p, roadNameRect, blackColor());
+
+  p.setFont(font);
+  p.setPen(QPen(whiteColor(), 6));
+  p.drawText(roadNameRect, Qt::AlignCenter, roadName);
+
+  p.restore();
+}
+
 void FrogPilotAnnotatedCameraWidget::paintTurnSignals(QPainter &p) {
   int frameIndex = (signalTimer.elapsed() / signalAnimationLength) % signalImages.size();
 
@@ -493,7 +523,7 @@ void FrogPilotAnnotatedCameraWidget::paintTurnSignals(QPainter &p) {
     if (showBlindspot) {
       signalXPosition = blinkerLeft ? width() - signalWidth : 0;
     }
-    signalYPosition = height() - alertHeight - signalHeight;
+    signalYPosition = (roadNameRect.isNull() ? height() - alertHeight : roadNameRect.top() - 5) - signalHeight;
   }
 
   const QPixmap &signalImage = showBlindspot ? blindspotImages.at(0) : signalImages.at(frameIndex);
@@ -515,6 +545,11 @@ void FrogPilotAnnotatedCameraWidget::paintWidgetFrame(QPainter &p, const QRect &
 }
 
 void FrogPilotAnnotatedCameraWidget::paintWorldWidgets(QPainter &p) {
+  roadNameRect = QRect();
+  if (alertHeight == 0 && frogpilot_toggles.value(QLatin1String("road_name_ui")).toBool()) {
+    paintRoadName(p);
+  }
+
   if ((blinkerLeft || blinkerRight) && signalStyle != "None" && signalStyle != "static") {
     paintTurnSignals(p);
   }
