@@ -296,7 +296,7 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
     }
   }
 
-  if (!hideBottomIcons && (forceCoast)) {
+  if (!hideBottomIcons && (forceCoast || longitudinalPaused)) {
     paintPausedIcon(p, longitudinalPausedPosition, speedIcon);
   }
 

@@ -22,6 +22,7 @@ class FrogPilotCard:
     self.distancePressed_previously = False
     self.force_coast = False
     self.onroad_distance_button = False
+    self.pause_longitudinal = False
 
     self.accel_press_count = 0
     self.decel_press_count = 0
@@ -44,6 +45,8 @@ class FrogPilotCard:
       self.handle_experimental_mode(sm, frogpilot_toggles)
     elif sm["carControl"].longActive and getattr(frogpilot_toggles, f"force_coast_via_{key}"):
       self.force_coast = not self.force_coast
+    elif (sm["carControl"].longActive or self.pause_longitudinal) and getattr(frogpilot_toggles, f"pause_longitudinal_via_{key}"):
+      self.pause_longitudinal = not self.pause_longitudinal
 
   def handle_experimental_mode(self, sm, frogpilot_toggles):
     if frogpilot_toggles.conditional_experimental_mode:

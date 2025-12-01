@@ -85,6 +85,7 @@ private:
   bool cscTraining;
   bool experimentalMode;
   bool forceCoast;
+  bool longitudinalPaused;
   bool redLight;
 
   int desiredFollowDistance;
