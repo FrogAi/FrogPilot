@@ -37,12 +37,13 @@ protected:
 private:
   void updateStartupAlert();
   void updateState(const UIState &s, const FrogPilotUIState &fs);
-  void updateThemeSelections();
+  void updateThemeSelections(bool randomThemesEnabled);
   void updateToggles();
 
   bool cancellingDownload = false;
   bool finalizingDownload = false;
   bool forceOpenDescriptions = false;
+  bool randomThemes = false;
   bool themeDownloading = false;
 
   std::map<QString, AbstractControl*> toggles;
