@@ -340,11 +340,11 @@ class LongitudinalMpc:
     lead_xv = np.column_stack((x_lead_traj, v_lead_traj))
     return lead_xv
 
-  def process_lead(self, lead, frogpilot_toggles, model_lead):
+  def process_lead(self, lead, frogpilot_toggles, model_lead, traffic_mode_active):
     v_ego = self.x0[1]
 
     # FrogPilot variables
-    if frogpilot_toggles.human_following:
+    if frogpilot_toggles.human_following or traffic_mode_active:
       if lead.modelProb > frogpilot_toggles.lead_detection_probability:
         x_lead_traj = float(lead.dRel) + (np.asarray(model_lead.x, dtype=np.float64) - model_lead.x[0])
         v_lead_traj = float(lead.vLead) + (np.asarray(model_lead.v, dtype=np.float64) - model_lead.v[0])
@@ -392,8 +392,8 @@ class LongitudinalMpc:
     model_leads = modelV2.leadsV3
     self.status = model_leads[0].prob > frogpilot_toggles.lead_detection_probability or model_leads[1].prob > frogpilot_toggles.lead_detection_probability
 
-    lead_xv_0 = self.process_lead(radarstate.leadOne, frogpilot_toggles, model_leads[0])
-    lead_xv_1 = self.process_lead(radarstate.leadTwo, frogpilot_toggles, model_leads[1])
+    lead_xv_0 = self.process_lead(radarstate.leadOne, frogpilot_toggles, model_leads[0], traffic_mode_active)
+    lead_xv_1 = self.process_lead(radarstate.leadTwo, frogpilot_toggles, model_leads[1], traffic_mode_active)
 
     # FrogPilot variables
     self.lead_xv_0 = lead_xv_0

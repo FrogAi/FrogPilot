@@ -63,7 +63,7 @@ class ConditionalExperimentalMode:
         lead_stopped = self.frogpilot_planner.lead_relevant and self.frogpilot_planner.lead_one.vLead < frogpilot_variables.LEAD_DEPARTURE_SPEED
 
         stopped_at_light = sm["modelV2"].action.shouldStop and not lead_stopped
-        if frogpilot_toggles.conditional_model_stop_time != 0 and stopped_at_light:
+        if frogpilot_toggles.conditional_model_stop_time != 0 and not sm["frogpilotCarState"].trafficModeEnabled and stopped_at_light:
           self.experimental_mode = True
           self.status_value = CEStatus["STOP_LIGHT"]
       else:
@@ -170,6 +170,7 @@ class ConditionalExperimentalMode:
     self.slow_lead_detected = self.slow_lead_filter.x >= (1 - frogpilot_variables.THRESHOLD if self.slow_lead_detected else frogpilot_variables.THRESHOLD)
 
   def stop_sign_and_light(self, v_ego, sm, model_time):
+    if not sm["frogpilotCarState"].trafficModeEnabled:
       model_velocities = [velocity for time, velocity in zip(sm["modelV2"].velocity.t, sm["modelV2"].velocity.x) if time < model_time]
       model_velocities.append(np.interp(model_time, sm["modelV2"].velocity.t, sm["modelV2"].velocity.x))
 
@@ -180,3 +181,7 @@ class ConditionalExperimentalMode:
       self.stop_light_signal = bool(model_slowing or model_stopping)
       self.stop_light_filter.update(self.stop_light_signal and not self.frogpilot_planner.lead_relevant)
       self.stop_light_detected = self.stop_light_filter.x >= frogpilot_variables.THRESHOLD
+    else:
+      self.stop_light_detected = False
+
+      self.stop_light_filter.x = 0

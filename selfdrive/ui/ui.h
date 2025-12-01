@@ -49,6 +49,7 @@ typedef enum UIStatus {
   STATUS_ALWAYS_ON_LATERAL_ACTIVE,
   STATUS_CEM_DISABLED,
   STATUS_EXPERIMENTAL_MODE_ENABLED,
+  STATUS_TRAFFIC_MODE_ENABLED,
 } UIStatus;
 
 const QColor bg_colors [] = {
@@ -60,6 +61,7 @@ const QColor bg_colors [] = {
   [STATUS_ALWAYS_ON_LATERAL_ACTIVE] = QColor(0x0a, 0xba, 0xb5, 0xf1),
   [STATUS_CEM_DISABLED] = QColor(0xff, 0xff, 0x00, 0xf1),
   [STATUS_EXPERIMENTAL_MODE_ENABLED] = QColor(0xda, 0x6f, 0x25, 0xf1),
+  [STATUS_TRAFFIC_MODE_ENABLED] = QColor(0xc9, 0x22, 0x31, 0xf1),
 };
 
 typedef struct UIScene {

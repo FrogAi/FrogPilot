@@ -205,7 +205,10 @@ class FrogPilotPlanner:
 
     frogpilotPlan.gpsBearing = self.gps_bearing
 
-    frogpilotPlan.increasedStoppedDistance = frogpilot_toggles.increase_stopped_distance
+    if sm["frogpilotCarState"].trafficModeEnabled:
+      frogpilotPlan.increasedStoppedDistance = 0
+    else:
+      frogpilotPlan.increasedStoppedDistance = frogpilot_toggles.increase_stopped_distance
 
     frogpilotPlan.laneWidthLeft = self.lane_width_left
     frogpilotPlan.laneWidthRight = self.lane_width_right

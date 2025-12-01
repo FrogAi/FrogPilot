@@ -33,8 +33,9 @@ void DrivingPersonalityButton::updateState(const UIState &s, const FrogPilotUISt
   }
 
   static const QString personalityIcons[] = {"aggressive", "standard", "relaxed"};
+  static const QString trafficIcon = "traffic";
 
-  const QString &icon = personalityIcons[static_cast<int>(s.scene.personality)];
+  const QString &icon = fs.frogpilot_scene.traffic_mode_enabled ? trafficIcon : personalityIcons[static_cast<int>(s.scene.personality)];
   if (icon == currentIcon) {
     return;
   }
