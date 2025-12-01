@@ -3,6 +3,27 @@
 #include "selfdrive/ui/qt/widgets/controls.h"
 
 // FrogPilot variables
+QMap<int, QString> DeveloperPanel::developerMetricOptions() {
+  return {
+    {0, tr("None")},
+    {1, tr("Acceleration: Current")},
+    {2, tr("Acceleration: Max")},
+    {3, tr("Auto Tune: Actuator Delay")},
+    {4, tr("Auto Tune: Friction")},
+    {5, tr("Auto Tune: Lateral Acceleration")},
+    {6, tr("Auto Tune: Steer Ratio")},
+    {7, tr("Auto Tune: Stiffness Factor")},
+    {8, tr("Engagement %: Lateral")},
+    {9, tr("Engagement %: Longitudinal")},
+    {10, tr("Lateral Control: Steering Angle")},
+    {11, tr("Lateral Control: Torque % Used")},
+    {12, tr("Longitudinal Control: Actuator Acceleration Output")},
+    {13, tr("Longitudinal MPC Jerk: Acceleration")},
+    {14, tr("Longitudinal MPC Jerk: Danger Zone")},
+    {15, tr("Longitudinal MPC Jerk: Speed Control")},
+  };
+}
+
 DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : QFrame(parent) {
   // FrogPilot variables
   mainLayout = new QStackedLayout(this);
@@ -106,6 +127,8 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : QFrame(parent) {
     {"RadarTracksUI", tr("Radar Tracks"), tr("<b>Show every object your car's radar is returning, not just the car you are following.</b><br><br>Expect a lot of dots, including signs, barriers, and parked cars."), ""},
   };
 
+  const QMap<int, QString> developerSidebarMetricOptions = developerMetricOptions();
+
   for (const auto &[param, title, desc, icon] : developerToggles) {
     AbstractControl *developerToggle;
 
@@ -136,7 +159,20 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : QFrame(parent) {
       });
       developerToggle = developerSidebarToggle;
     } else if (developerSidebarKeys.contains(param)) {
-      developerToggle = new ButtonControl(title, tr("SELECT"), desc);
+      ButtonControl *metricToggle = new ButtonControl(title, tr("SELECT"), desc);
+      QObject::connect(metricToggle, &ButtonControl::clicked, [metricToggle, key = param, developerSidebarMetricOptions, this]() {
+        QString current = developerSidebarMetricOptions.value(params.getInt(key.toStdString()), tr("None"));
+        QString selection = MultiOptionDialog::getSelection(tr("Select a metric to display"), developerSidebarMetricOptions.values(), current, this);
+
+        if (!selection.isEmpty()) {
+          int selectedMetric = developerSidebarMetricOptions.key(selection);
+
+          params.putInt(key.toStdString(), selectedMetric);
+
+          metricToggle->setValue(selection);
+        }
+      });
+      developerToggle = metricToggle;
     } else if (param == "DeveloperWidgets") {
       FrogPilotManageControl *developerWidgetsToggle = new FrogPilotManageControl(param, title, desc, icon);
       QObject::connect(developerWidgetsToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
@@ -280,6 +316,11 @@ void DeveloperPanel::showEvent(QShowEvent *event) {
   updateToggles(offroad);
 
   // FrogPilot variables
+  const QMap<int, QString> metricOptions = developerMetricOptions();
+  for (const QString &key : developerSidebarKeys) {
+    static_cast<ButtonControl*>(toggles[key])->setValue(metricOptions.value(params.getInt(key.toStdString()), tr("None")));
+  }
+
   QJsonObject shownDescriptions = QJsonDocument::fromJson(QString::fromStdString(params.get("ShownToggleDescriptions")).toUtf8()).object();
   QString className = this->metaObject()->className();
 
