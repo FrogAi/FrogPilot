@@ -49,7 +49,7 @@ class DesireHelper:
   def get_lane_change_direction(CS):
     return LaneChangeDirection.left if CS.leftBlinker else LaneChangeDirection.right
 
-  def update(self, carstate, lateral_active, lane_change_prob, frogpilot_toggles):
+  def update(self, carstate, lateral_active, lane_change_prob, frogpilotPlan, frogpilot_toggles):
     v_ego = carstate.vEgo
     one_blinker = carstate.leftBlinker != carstate.rightBlinker
     below_lane_change_speed = v_ego < frogpilot_toggles.minimum_lane_change_speed
@@ -83,6 +83,9 @@ class DesireHelper:
         else:
           torque_applied |= frogpilot_toggles.nudgeless
           torque_applied &= self.lane_change_wait_timer >= frogpilot_toggles.lane_change_delay
+
+          target_lane_width = frogpilotPlan.laneWidthLeft if self.lane_change_direction == LaneChangeDirection.left else frogpilotPlan.laneWidthRight
+          torque_applied &= target_lane_width >= frogpilot_toggles.lane_detection_width
 
         if not one_blinker or below_lane_change_speed:
           self.lane_change_state = LaneChangeState.off
