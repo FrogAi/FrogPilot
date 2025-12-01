@@ -62,7 +62,7 @@ class FrogPilotVCruise:
     return v_cruise
 
   def update_force_stop(self, long_control_active, v_ego, sm, frogpilot_toggles):
-    if not sm["selfdriveState"].enabled or not frogpilot_toggles.force_stops:
+    if not sm["selfdriveState"].enabled or sm["frogpilotCarState"].pauseLongitudinal or not frogpilot_toggles.force_stops:
       self.forcing_stop = False
       self.override_force_stop = False
 

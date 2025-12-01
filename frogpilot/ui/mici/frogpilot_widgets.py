@@ -280,7 +280,9 @@ class FrogPilotWidgets(Widget):
     self._draw_text(self._font_semi_bold, tr("STOPPED"), LABEL_FONT_SIZE, rect.x + LABEL_LEFT, rect.y + STOPPED_LABEL_TOP, alpha)
 
   def _render_longitudinal_paused(self, rect):
-    alpha = self._paused_alpha(self._longitudinal_paused_filter, ui_state.sm["frogpilotCarState"].forceCoast)
+    frogpilot_car_state = ui_state.sm["frogpilotCarState"]
+
+    alpha = self._paused_alpha(self._longitudinal_paused_filter, frogpilot_car_state.forceCoast or frogpilot_car_state.pauseLongitudinal)
 
     if alpha >= frogpilot_status.MIN_VISIBLE_ALPHA:
       x, y = self._left_slot(rect, 1)
