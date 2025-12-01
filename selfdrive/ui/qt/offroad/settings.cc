@@ -223,7 +223,11 @@ void TogglesPanel::updateToggles() {
   // FrogPilot variables
   const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
 
+  bool noLogging = frogpilot_toggles.value("no_logging").toBool();
+
+  toggles["RecordFront"]->setVisible(!noLogging);
   experimental_mode_toggle->setVisible(!frogpilot_toggles.value("conditional_experimental_mode").toBool());
+  toggles["RecordAudio"]->setVisible(!noLogging);
 }
 
 DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {

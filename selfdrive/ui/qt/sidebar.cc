@@ -149,7 +149,7 @@ void Sidebar::updateState(const UIState &s) {
   }
   setProperty("pandaStatus", QVariant::fromValue(pandaStatus));
 
-  setProperty("recordingAudio", s.scene.recording_audio);
+  setProperty("recordingAudio", s.scene.recording_audio && !frogpilot_toggles.value(QLatin1String("no_logging")).toBool());
 
   // FrogPilot variables
 }
