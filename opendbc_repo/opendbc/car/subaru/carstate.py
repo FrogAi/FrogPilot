@@ -3,7 +3,7 @@ from opendbc.can import CANDefine, CANParser
 from opendbc.car import Bus, create_button_events, structs
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.interfaces import CarStateBase
-from opendbc.car.subaru.values import DBC, CanBus, SubaruFlags
+from opendbc.car.subaru.values import DBC, CanBus, SubaruFlags, SubaruSafetyFlags
 from opendbc.car import CanSignalRateCalculator
 
 
@@ -16,6 +16,8 @@ class CarState(CarStateBase):
     self.angle_rate_calulator = CanSignalRateCalculator(50)
 
     # FrogPilot variables
+    self.subaru_sng = bool(CP.safetyConfigs[0].safetyParam & SubaruSafetyFlags.SNG)
+
     self.lkas_button = 0
 
   def update(self, can_parsers) -> structs.CarState:
@@ -136,6 +138,15 @@ class CarState(CarStateBase):
       self.lkas_button = cp_cam.vl["ES_LKAS_State"]["LKAS_Dash_State"]
 
       ret.buttonEvents = create_button_events(self.lkas_button, prev_lkas_button, {1: structs.CarState.ButtonEvent.Type.lkas})
+
+    if self.subaru_sng:
+      self.car_follow = cp_es_distance.vl["ES_Distance"]["Car_Follow"]
+      self.close_distance = cp_es_distance.vl["ES_Distance"]["Close_Distance"]
+      self.throttle_msg = copy.copy(cp.vl["Throttle"])
+
+      if not (self.CP.flags & SubaruFlags.PREGLOBAL):
+        self.brake_pedal_msg = copy.copy(cp.vl["Brake_Pedal"])
+        self.cruise_state = cp_cam.vl["ES_DashStatus"]["Cruise_State"]
 
     return ret
 
