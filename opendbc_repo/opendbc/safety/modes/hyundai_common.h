@@ -43,6 +43,11 @@ extern bool hyundai_alt_limits_2;
 bool hyundai_alt_limits_2 = false;
 
 // FrogPilot variables
+extern bool hyundai_always_on_lateral_lkas;
+bool hyundai_always_on_lateral_lkas = false;
+
+extern bool hyundai_has_lda_button;
+bool hyundai_has_lda_button = false;
 
 static uint8_t hyundai_last_button_interaction;  // button messages since the user pressed an enable button
 
@@ -56,6 +61,8 @@ void hyundai_common_init(uint16_t param) {
   const uint16_t HYUNDAI_PARAM_ALT_LIMITS_2 = 512;
 
   // FrogPilot variables
+  const int HYUNDAI_PARAM_ALWAYS_ON_LATERAL_LKAS = 4096;
+  const int HYUNDAI_PARAM_HAS_LDA_BUTTON = 1024;
 
   hyundai_ev_gas_signal = GET_FLAG(param, HYUNDAI_PARAM_EV_GAS);
   hyundai_hybrid_gas_signal = !hyundai_ev_gas_signal && GET_FLAG(param, HYUNDAI_PARAM_HYBRID_GAS);
@@ -66,6 +73,8 @@ void hyundai_common_init(uint16_t param) {
   hyundai_alt_limits_2 = GET_FLAG(param, HYUNDAI_PARAM_ALT_LIMITS_2);
 
   // FrogPilot variables
+  hyundai_always_on_lateral_lkas = GET_FLAG(param, HYUNDAI_PARAM_ALWAYS_ON_LATERAL_LKAS);
+  hyundai_has_lda_button = GET_FLAG(param, HYUNDAI_PARAM_HAS_LDA_BUTTON);
 
   hyundai_last_button_interaction = HYUNDAI_PREV_BUTTON_SAMPLES;
 
@@ -118,6 +127,13 @@ void hyundai_common_cruise_buttons_check(const int cruise_button, const bool mai
   }
 
   // FrogPilot variables
+  if (main_button && !main_button_prev && hyundai_longitudinal) {
+    if (acc_main_on && (alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL)) {
+      controls_allowed = false;
+    }
+    acc_main_on = !acc_main_on;
+  }
+  main_button_prev = main_button;
 }
 
 // FrogPilot variables
@@ -149,3 +165,15 @@ uint32_t hyundai_common_canfd_compute_checksum(const CANPacket_t *msg) {
 #endif
 
 // FrogPilot variables
+void hyundai_lkas_button_check(const bool lkas_button) {
+  if (hyundai_always_on_lateral_lkas) {
+    if (lkas_button && !lkas_button_prev) {
+      lkas_on = !lkas_on;
+    }
+
+    if (controls_allowed) {
+      lkas_on = true;
+    }
+  }
+  lkas_button_prev = lkas_button;
+}

@@ -22,6 +22,7 @@ class UIStatus(Enum):
   OVERRIDE = "override"
 
   # FrogPilot variables
+  ALWAYS_ON_LATERAL = "always_on_lateral"
 
 
 class UIState:
@@ -173,6 +174,8 @@ class UIState:
       if state in (log.SelfdriveState.OpenpilotState.preEnabled, log.SelfdriveState.OpenpilotState.overriding):
         self.status = UIStatus.OVERRIDE
       # FrogPilot variables
+      elif not ss.enabled and self.sm["frogpilotCarState"].alwaysOnLateralEnabled:
+        self.status = UIStatus.ALWAYS_ON_LATERAL
       else:
         self.status = UIStatus.ENGAGED if ss.enabled else UIStatus.DISENGAGED
 

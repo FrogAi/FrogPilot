@@ -1364,7 +1364,7 @@ class FrogPilotVariables:
     toggle.maxLateralAccel = min(CP.maxLateralAccel, MAX_LATERAL_ACCEL_NO_ROLL)
     toggle.openpilot_longitudinal = CP.openpilotLongitudinalControl
     pcm_cruise = CP.pcmCruise
-    prohibited_main_aol = not toggle.openpilot_longitudinal and toggle.lkas_allowed_for_aol
+    lkas_required_for_aol = not toggle.openpilot_longitudinal and toggle.car_make == "hyundai" and bool(CP.flags & HyundaiFlags.CANFD)
     startAccel = CP.startAccel
     stopAccel = CP.stopAccel
     steerActuatorDelay = CP.steerActuatorDelay
@@ -1434,8 +1434,9 @@ class FrogPilotVariables:
     toggle.warning_immediate_volume = self.get_value("WarningImmediateVolume", cast=float, condition=toggle.alert_volume_controller, minimum=25)
 
     toggle.always_on_lateral = self.get_value("AlwaysOnLateral")
-    toggle.always_on_lateral_lkas = toggle.always_on_lateral and toggle.lkas_allowed_for_aol and self.get_value("AlwaysOnLateralLKASButton")
-    toggle.always_on_lateral_main = toggle.always_on_lateral and not prohibited_main_aol and not toggle.always_on_lateral_lkas
+    toggle.always_on_lateral_lkas_selected = self.get_value("AlwaysOnLateralLKASButton")
+    toggle.always_on_lateral_lkas = toggle.always_on_lateral and toggle.lkas_allowed_for_aol and (toggle.always_on_lateral_lkas_selected or lkas_required_for_aol)
+    toggle.always_on_lateral_main = toggle.always_on_lateral and not toggle.always_on_lateral_lkas
     toggle.always_on_lateral_pause_speed = self.get_value("PauseAOLOnBrake", cast=float, condition=toggle.always_on_lateral, conversion=speed_conversion)
 
     toggle.automatic_updates = self.get_value("AutomaticUpdates", condition=self.release_branch or self.vetting_branch, default=True)
@@ -1601,7 +1602,7 @@ class FrogPilotVariables:
     toggle.nnff_lite = not is_angle_car and not toggle.nnff and toggle.nnff_lite_selected
     toggle.use_turn_desires = self.get_value("TurnDesires", condition=lateral_tuning)
 
-    if toggle.has_lkas_button:
+    if toggle.has_lkas_button and not toggle.always_on_lateral_lkas:
       toggle.lkas_button_function = self.get_button_function("LKASButtonControl")
     else:
       toggle.lkas_button_function = BUTTON_FUNCTIONS["NOTHING"]

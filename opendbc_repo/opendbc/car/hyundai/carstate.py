@@ -8,6 +8,7 @@ from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.hyundai.hyundaicanfd import CanBus
 from opendbc.car.hyundai.values import HyundaiFlags, CAR, DBC, Buttons, CarControllerParams
 from opendbc.car.interfaces import CarStateBase
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 
 ButtonType = structs.CarState.ButtonEvent.Type
 
@@ -22,6 +23,12 @@ BUTTONS_DICT = {Buttons.RES_ACCEL: ButtonType.accelCruise, Buttons.SET_DECEL: Bu
 
 
 # FrogPilot variables
+def create_sampled_button_events(button_samples, prev_button, buttons_dict):
+  events = []
+  for button in button_samples:
+    events += create_button_events(button, prev_button, buttons_dict)
+    prev_button = button
+  return events
 
 
 class CarState(CarStateBase):
@@ -67,6 +74,9 @@ class CarState(CarStateBase):
     self.params = CarControllerParams(CP)
 
     # FrogPilot variables
+    self.car_safety_mode_set = False
+    self.main_enabled = False
+
     self.drive_mode = 0
 
   def recent_button_interaction(self) -> bool:
@@ -128,6 +138,8 @@ class CarState(CarStateBase):
       ret.cruiseState.available = cp.vl["TCS13"]["ACCEnable"] == 0
 
       # FrogPilot variables
+      if self.CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL:
+        ret.cruiseState.available = self.main_enabled
 
       ret.cruiseState.enabled = cp.vl["TCS13"]["ACC_REQ"] == 1
       ret.cruiseState.standstill = False
@@ -197,15 +209,17 @@ class CarState(CarStateBase):
     self.main_buttons.extend(cp.vl_all["CLU11"]["CF_Clu_CruiseSwMain"])
 
     # FrogPilot variables
+    self.update_main_button(cp.vl_all["CLU11"]["CF_Clu_CruiseSwMain"], prev_main_buttons)
 
     if self.CP.flags & HyundaiFlags.HAS_LDA_BUTTON:
       self.lda_button = cp.vl["BCM_PO_11"]["LDA_BTN"]
 
     # FrogPilot variables
+    lda_buttons = cp.vl_all["BCM_PO_11"]["LDA_BTN"] if self.CP.flags & HyundaiFlags.HAS_LDA_BUTTON else []
 
     ret.buttonEvents = [*create_button_events(self.cruise_buttons[-1], prev_cruise_buttons, BUTTONS_DICT),
-                        *create_button_events(self.main_buttons[-1], prev_main_buttons, {1: ButtonType.mainCruise}),
-                        *create_button_events(self.lda_button, prev_lda_button, {1: ButtonType.lkas})]
+                        *create_sampled_button_events(cp.vl_all["CLU11"]["CF_Clu_CruiseSwMain"], prev_main_buttons, {1: ButtonType.mainCruise}),
+                        *create_sampled_button_events(lda_buttons, prev_lda_button, {1: ButtonType.lkas})]
 
     ret.blockPcmEnable = not self.recent_button_interaction()
 
@@ -279,6 +293,8 @@ class CarState(CarStateBase):
       ret.cruiseState.enabled = cp.vl["TCS"]["ACC_REQ"] == 1
 
       # FrogPilot variables
+      if self.CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL:
+        ret.cruiseState.available = self.main_enabled
 
       ret.cruiseState.standstill = False
     else:
@@ -302,6 +318,7 @@ class CarState(CarStateBase):
     self.main_buttons.extend(cp.vl_all[self.cruise_btns_msg_canfd]["ADAPTIVE_CRUISE_MAIN_BTN"])
 
     # FrogPilot variables
+    self.update_main_button(cp.vl_all[self.cruise_btns_msg_canfd]["ADAPTIVE_CRUISE_MAIN_BTN"], prev_main_buttons)
 
     self.lda_button = cp.vl[self.cruise_btns_msg_canfd]["LDA_BTN"]
     self.buttons_counter = cp.vl[self.cruise_btns_msg_canfd]["COUNTER"]
@@ -312,8 +329,9 @@ class CarState(CarStateBase):
                                           else cp_cam.vl["CAM_0x2a4"])
 
     ret.buttonEvents = [*create_button_events(self.cruise_buttons[-1], prev_cruise_buttons, BUTTONS_DICT),
-                        *create_button_events(self.main_buttons[-1], prev_main_buttons, {1: ButtonType.mainCruise}),
-                        *create_button_events(self.lda_button, prev_lda_button, {1: ButtonType.lkas})]
+                        *create_sampled_button_events(cp.vl_all[self.cruise_btns_msg_canfd]["ADAPTIVE_CRUISE_MAIN_BTN"], prev_main_buttons,
+                                                      {1: ButtonType.mainCruise}),
+                        *create_sampled_button_events(cp.vl_all[self.cruise_btns_msg_canfd]["LDA_BTN"], prev_lda_button, {1: ButtonType.lkas})]
 
     ret.blockPcmEnable = not self.recent_button_interaction()
 
@@ -349,3 +367,13 @@ class CarState(CarStateBase):
     }
 
   # FrogPilot variables
+  def update_main_button(self, main_samples, prev_main_buttons):
+    if not self.car_safety_mode_set:
+      self.main_enabled = False
+      return
+
+    main_pressed = prev_main_buttons != 0
+    for main_button in main_samples:
+      if main_button != 0 and not main_pressed:
+        self.main_enabled = not self.main_enabled
+      main_pressed = main_button != 0

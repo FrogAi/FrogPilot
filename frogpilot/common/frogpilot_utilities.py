@@ -137,7 +137,7 @@ def is_online(device_state):
 
 
 def is_openpilot_steering(sm):
-  return sm["deviceState"].started and sm["selfdriveState"].enabled
+  return sm["deviceState"].started and (sm["selfdriveState"].enabled or sm["frogpilotCarState"].alwaysOnLateralEnabled)
 
 
 def is_unmetered_network(device_state):

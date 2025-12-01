@@ -502,3 +502,4 @@ class ModelRenderer(Widget):
 
 
 # FrogPilot variables
+LANE_LINE_COLORS[UIStatus.ALWAYS_ON_LATERAL] = LANE_LINE_COLORS[UIStatus.OVERRIDE]

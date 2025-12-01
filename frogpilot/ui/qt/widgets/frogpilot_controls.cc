@@ -39,6 +39,10 @@ bool FrogPilotConfirmationDialog::yesorno(const QString &prompt_text, QWidget *p
   return d.exec();
 }
 
+bool isOpenpilotSteering() {
+  return uiState()->engaged() || (uiState()->scene.started && frogpilotUIState()->frogpilot_scene.always_on_lateral_active);
+}
+
 QFont fitInterFont(int pixelSize, QFont::Weight weight, int width, const QStringList &texts) {
   static QHash<QString, int> fittedSizes;
 
