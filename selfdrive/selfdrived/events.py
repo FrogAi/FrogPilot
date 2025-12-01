@@ -424,6 +424,21 @@ def custom_startup_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubM
   return StartupAlert(frogpilot_toggles.startup_alert_top, frogpilot_toggles.startup_alert_bottom, alert_status=FrogPilotAlertStatus.frogpilot)
 
 
+def forcing_stop_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
+  if CS.standstill:
+    stop_message = "Holding at a forced stop"
+  else:
+    model_length = sm["frogpilotPlan"].forcingStopLength
+    model_length_msg = f"{model_length:.1f} meters" if metric else f"{model_length * CV.METER_TO_FOOT:.1f} feet"
+    stop_message = f"Stopping in {model_length_msg}"
+
+  return Alert(
+    stop_message,
+    "Press gas or RES/+ to release",
+    FrogPilotAlertStatus.frogpilot, AlertSize.mid,
+    Priority.MID, VisualAlert.none, AudibleAlert.prompt, 1.)
+
+
 def pedal_interceptor_no_brake_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
   return user_soft_disable_alert("Braking Unavailable: Shift to L")(CP, CS, sm, metric, soft_disable_time, personality)
 
@@ -1063,6 +1078,10 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   FrogPilotEventName.customStartupAlert: {
     ET.PERMANENT: custom_startup_alert,
+  },
+
+  FrogPilotEventName.forcingStop: {
+    ET.WARNING: forcing_stop_alert,
   },
 
   FrogPilotEventName.openpilotCrashed: {

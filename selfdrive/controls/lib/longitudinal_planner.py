@@ -72,6 +72,7 @@ class LongitudinalPlanner:
     self.output_should_stop = False
 
     # FrogPilot variables
+    self.holding_stop = False
 
     self.v_desired_trajectory = np.zeros(CONTROL_N)
     self.a_desired_trajectory = np.zeros(CONTROL_N)
@@ -102,6 +103,11 @@ class LongitudinalPlanner:
     mode = 'blended' if sm['selfdriveState'].experimentalMode else 'acc'
 
     # FrogPilot variables
+    if sm['frogpilotPlan'].forcingStop:
+      self.mpc.mode = 'blended'
+    else:
+      self.mpc.mode = 'acc'
+
     if len(sm['carControl'].orientationNED) == 3:
       accel_coast = get_coast_accel(sm['carControl'].orientationNED[1])
     else:
@@ -132,6 +138,9 @@ class LongitudinalPlanner:
       accel_clip = [ACCEL_MIN, ACCEL_MAX]
 
     # FrogPilot variables
+    if sm['frogpilotPlan'].forcingStop:
+      accel_clip[0] = ACCEL_MIN
+
     if reset_state:
       self.v_desired_filter.x = v_ego
       # Clip aEgo to cruise limits to prevent large accelerations when becoming active
@@ -155,7 +164,16 @@ class LongitudinalPlanner:
 
     if force_slow_decel:
       v_cruise = 0.0
+
     # FrogPilot variables
+    if sm['frogpilotPlan'].forcingStop:
+      stop_deceleration = -accel_clip[0]
+      if sm['frogpilotPlan'].forcingStopLength > 0:
+        stop_deceleration = min(v_ego ** 2 / (2 * sm['frogpilotPlan'].forcingStopLength), stop_deceleration)
+
+      x.fill(0)
+      v = np.maximum(v_ego - stop_deceleration * T_IDXS_MPC, 0)
+      a = np.where(v > 0, -stop_deceleration, 0)
 
     self.mpc.set_weights(sm['frogpilotPlan'].accelerationJerk, sm['frogpilotPlan'].dangerJerk, sm['frogpilotPlan'].speedJerk, prev_accel_constraint, personality=sm['selfdriveState'].personality)
     self.mpc.set_cur_state(self.v_desired_filter.x, self.a_desired)
@@ -187,7 +205,15 @@ class LongitudinalPlanner:
     else:
       output_a_target = min(output_a_target_mpc, output_a_target_e2e)
       self.output_should_stop = output_should_stop_e2e or output_should_stop_mpc
+
     # FrogPilot variables
+    self.holding_stop = sm['frogpilotPlan'].forcingStop and (self.holding_stop or sm['carState'].standstill)
+    if self.holding_stop:
+      self.v_desired_trajectory.fill(0)
+      self.a_desired_trajectory.fill(0)
+      self.j_desired_trajectory.fill(0)
+      self.output_should_stop = True
+      output_a_target = 0
 
     accel_clip[0] = min(accel_clip[0], self.prev_accel_clip[0] + 0.05)
     accel_clip[1] = np.clip(accel_clip[1], self.prev_accel_clip[1] - 0.05, self.prev_accel_clip[1] + 0.05)
