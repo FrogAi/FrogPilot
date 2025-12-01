@@ -47,6 +47,7 @@ typedef enum UIStatus {
 
   // FrogPilot variables
   STATUS_ALWAYS_ON_LATERAL_ACTIVE,
+  STATUS_EXPERIMENTAL_MODE_ENABLED,
 } UIStatus;
 
 const QColor bg_colors [] = {
@@ -56,6 +57,7 @@ const QColor bg_colors [] = {
 
   // FrogPilot variables
   [STATUS_ALWAYS_ON_LATERAL_ACTIVE] = QColor(0x0a, 0xba, 0xb5, 0xf1),
+  [STATUS_EXPERIMENTAL_MODE_ENABLED] = QColor(0xda, 0x6f, 0x25, 0xf1),
 };
 
 typedef struct UIScene {
