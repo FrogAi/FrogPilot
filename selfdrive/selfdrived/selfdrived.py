@@ -7,6 +7,7 @@ import cereal.messaging as messaging
 
 from cereal import car, custom, log
 from msgq.visionipc import VisionIpcClient, VisionStreamType
+from opendbc.car.gm.values import CC_ONLY_CAR
 
 
 from openpilot.common.params import Params
@@ -155,7 +156,11 @@ class SelfdriveD:
 
     self.distance_pressed_previously = False
 
+    self.display_timer = 0
+
     self.frogpilot_events_prev = []
+
+    self.has_menu = self.CP.brand == "gm" and self.CP.carFingerprint not in CC_ONLY_CAR
 
   def update_events(self, CS):
     """Compute onroadEvents from carState"""
@@ -460,11 +465,15 @@ class SelfdriveD:
       if not distance_pressed and self.distance_pressed_previously and \
          not (self.sm['frogpilotCarState'].distanceVeryLongPressed and
               self.frogpilot_toggles.distance_long_button_function == frogpilot_variables.BUTTON_FUNCTIONS["PERSONALITY_PROFILE"]):
-        self.personality = (self.personality - 1) % 3
-        self.params.put_nonblocking('LongitudinalPersonality', self.personality)
-        self.events.add(EventName.personalityChanged)
+        if self.display_timer > 0 or not self.has_menu:
+          self.personality = (self.personality - 1) % 3
+          self.params.put_nonblocking('LongitudinalPersonality', self.personality)
+          self.events.add(EventName.personalityChanged)
+        self.display_timer = 350
 
       self.distance_pressed_previously = distance_pressed
+
+      self.display_timer -= 1
 
     # FrogPilot variables
     self.frogpilot_events.add_from_msg(self.sm['frogpilotPlan'].frogpilotEvents)
