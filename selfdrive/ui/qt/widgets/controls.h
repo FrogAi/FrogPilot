@@ -154,7 +154,7 @@ public:
     active_icon_pixmap = QPixmap(icon).scaledToWidth(80, Qt::SmoothTransformation);
   }
 
-  void refresh() {
+  virtual void refresh() {
     bool state = params.getBool(key);
     if (state != toggle.on) {
       toggle.togglePosition();
@@ -295,7 +295,7 @@ class ListWidget : public QWidget {
   inline void addItem(QLayout *layout) { inner_layout.addLayout(layout); }
   inline void setSpacing(int spacing) { inner_layout.setSpacing(spacing); }
 
-private:
+protected:
   void paintEvent(QPaintEvent *) override {
     QPainter p(this);
     p.setPen(Qt::gray);

@@ -150,12 +150,18 @@ InputDialog::InputDialog(const QString &title, QWidget *parent, const QString &s
 }
 
 QString InputDialog::getText(const QString &prompt, QWidget *parent, const QString &subtitle,
-                             bool secret, int minLength, const QString &defaultText) {
-  InputDialog d(prompt, parent, subtitle, secret);
+                             bool secret, int minLength, const QString &defaultText, int maxLength) {
+  InputDialog d(prompt, parent, maxLength == -1 ? subtitle : tr("Characters: %1/%2").arg(defaultText.left(maxLength).length()).arg(maxLength), secret);
   d.line->setText(defaultText);
   d.setMinLength(minLength);
 
   // FrogPilot variables
+  if (maxLength != -1) {
+    d.line->setMaxLength(maxLength);
+    QObject::connect(d.line, &QLineEdit::textChanged, &d, [&d, maxLength](const QString &text) {
+      d.sublabel->setText(tr("Characters: %1/%2").arg(text.length()).arg(maxLength));
+    });
+  }
 
   const int ret = d.exec();
   return ret ? d.text() : QString();
@@ -192,7 +198,7 @@ void InputDialog::setMinLength(int length) {
 // ConfirmationDialog
 
 ConfirmationDialog::ConfirmationDialog(const QString &prompt_text, const QString &confirm_text, const QString &cancel_text,
-                                       const bool rich, QWidget *parent) : DialogBase(parent) {
+                                       const bool rich, QWidget *parent, const bool is_long) : DialogBase(parent) {
   QFrame *container = new QFrame(this);
   container->setStyleSheet(R"(
     QFrame { background-color: #1B1B1B; color: #C9C9C9; }
@@ -200,7 +206,7 @@ ConfirmationDialog::ConfirmationDialog(const QString &prompt_text, const QString
     #confirm_btn:pressed { background-color: #3049F4; }
   )");
   QVBoxLayout *main_layout = new QVBoxLayout(container);
-  main_layout->setContentsMargins(32, rich ? 32 : 120, 32, 32);
+  main_layout->setContentsMargins(32, rich || is_long ? 32 : 120, 32, 32);
 
   QLabel *prompt = new QLabel(prompt_text, this);
   prompt->setWordWrap(true);
@@ -232,8 +238,8 @@ ConfirmationDialog::ConfirmationDialog(const QString &prompt_text, const QString
   outer_layout->addWidget(container);
 }
 
-bool ConfirmationDialog::alert(const QString &prompt_text, QWidget *parent) {
-  ConfirmationDialog d(prompt_text, tr("Ok"), "", false, parent);
+bool ConfirmationDialog::alert(const QString &prompt_text, QWidget *parent, bool is_long) {
+  ConfirmationDialog d(prompt_text, tr("Ok"), "", false, parent, is_long);
   return d.exec();
 }
 

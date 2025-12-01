@@ -3,30 +3,40 @@
 #include "selfdrive/ui/qt/widgets/controls.h"
 
 // FrogPilot variables
-DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : ListWidget(parent) {
+DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : QFrame(parent) {
   // FrogPilot variables
+  mainLayout = new QStackedLayout(this);
+
+  mainWidget = new QWidget(this);
+  QVBoxLayout *mainListLayout = new QVBoxLayout(mainWidget);
+
+  mainListLayout->setContentsMargins(50, 25, 50, 25);
+  mainListLayout->setSpacing(20);
+
+  FrogPilotListWidget *mainList = new FrogPilotListWidget(mainWidget);
+  mainListLayout->addWidget(mainList);
 
   adbToggle = new ParamControl("AdbEnabled", tr("Enable ADB"),
             tr("ADB (Android Debug Bridge) allows connecting to your device over USB or over the network. See https://docs.comma.ai/how-to/connect-to-comma for more info."), "");
-  addItem(adbToggle);
+  mainList->addItem(adbToggle);
 
   // SSH keys
-  addItem(new SshToggle());
-  addItem(new SshControl());
+  mainList->addItem(new SshToggle());
+  mainList->addItem(new SshControl());
 
   joystickToggle = new ParamControl("JoystickDebugMode", tr("Joystick Debug Mode"), "", "");
   QObject::connect(joystickToggle, &ParamControl::toggleFlipped, [=](bool state) {
     params.putBool("LongitudinalManeuverMode", false);
     longManeuverToggle->refresh();
   });
-  addItem(joystickToggle);
+  mainList->addItem(joystickToggle);
 
   longManeuverToggle = new ParamControl("LongitudinalManeuverMode", tr("Longitudinal Maneuver Mode"), "", "");
   QObject::connect(longManeuverToggle, &ParamControl::toggleFlipped, [=](bool state) {
     params.putBool("JoystickDebugMode", false);
     joystickToggle->refresh();
   });
-  addItem(longManeuverToggle);
+  mainList->addItem(longManeuverToggle);
 
   experimentalLongitudinalToggle = new ParamControl(
     "AlphaLongitudinalEnabled",
@@ -41,7 +51,7 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : ListWidget(parent) {
   QObject::connect(experimentalLongitudinalToggle, &ParamControl::toggleFlipped, [=]() {
     updateToggles(offroad);
   });
-  addItem(experimentalLongitudinalToggle);
+  mainList->addItem(experimentalLongitudinalToggle);
 
   // Joystick and longitudinal maneuvers should be hidden on release branches
   is_release = params.getBool("IsReleaseBranch");
@@ -50,6 +60,138 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : ListWidget(parent) {
   QObject::connect(uiState(), &UIState::offroadTransition, this, &DeveloperPanel::updateToggles);
 
   // FrogPilot variables
+  QJsonObject shownDescriptions = QJsonDocument::fromJson(QString::fromStdString(params.get("ShownToggleDescriptions")).toUtf8()).object();
+  QString className = this->metaObject()->className();
+
+  if (!shownDescriptions.value(className).toBool(false)) {
+    forceOpenDescriptions = true;
+  }
+
+  developerUIToggle = new FrogPilotManageControl("DeveloperUI", tr("Developer UI"), tr("<b>Put openpilot's internal numbers on screen, so you can see what it is thinking while it drives.</b><br><br>None of it changes how the car behaves. It is for working out why openpilot did something, and it is worth turning back off once you are done."), "");
+  QObject::connect(developerUIToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
+    mainLayout->setCurrentWidget(developerUIPanel);
+    emit openSubPanel();
+  });
+  mainList->insertItem(0, developerUIToggle);
+
+  mainLayout->addWidget(mainWidget);
+
+  FrogPilotListWidget *developerUIList = new FrogPilotListWidget(this);
+  developerUIList->setContentsMargins(50, 25, 50, 25);
+  developerUIPanel = new ScrollView(developerUIList, this);
+  mainLayout->addWidget(developerUIPanel);
+
+  FrogPilotListWidget *developerMetricList = new FrogPilotListWidget(this);
+  developerMetricList->setContentsMargins(50, 25, 50, 25);
+  developerMetricPanel = new ScrollView(developerMetricList, this);
+  mainLayout->addWidget(developerMetricPanel);
+
+  FrogPilotListWidget *developerSidebarList = new FrogPilotListWidget(this);
+  developerSidebarList->setContentsMargins(50, 25, 50, 25);
+  developerSidebarPanel = new ScrollView(developerSidebarList, this);
+  mainLayout->addWidget(developerSidebarPanel);
+
+  FrogPilotListWidget *developerWidgetList = new FrogPilotListWidget(this);
+  developerWidgetList->setContentsMargins(50, 25, 50, 25);
+  developerWidgetPanel = new ScrollView(developerWidgetList, this);
+  mainLayout->addWidget(developerWidgetPanel);
+
+  std::vector<std::tuple<QString, QString, QString, QString>> developerToggles {
+    {"DeveloperMetrics", tr("Developer Metrics"), tr("<b>Show readouts of what openpilot's sensors and hardware are doing while you drive.</b>"), ""},
+    {"AdjacentPathMetrics", tr("Adjacent Lane Metrics"), tr("<b>Print how wide the lanes either side of you are, right on their paths.</b><br><br>It draws the adjacent lane paths itself, so there is something to print onto, even with \"Adjacent Lanes\" switched off."), ""},
+    {"BorderMetrics", tr("Border Metrics"), tr("<b>Color the edge of the driving screen to show what openpilot is reacting to.</b><br><br>You can switch on the blind spot, steering effort, and turn signal borders separately. The blind spot one only appears on cars with factory blind spot monitoring, and the steering effort one only appears on cars where openpilot sends a steering effort rather than a steering angle."), ""},
+    {"FPSCounter", tr("FPS Display"), tr("<b>Show how many frames a second the driving screen is drawing, along the bottom.</b><br><br>It also tracks the lowest and highest it has seen."), ""},
+    {"LeadInfo", tr("Lead Info"), tr("<b>Print how far away the car ahead is and how fast it is going, underneath its marker.</b><br><br>On cars where openpilot handles the gas and brake, it also shows the gap openpilot is aiming for, so you can see it closing in on the distance you asked for."), ""},
+    {"NumericalTemp", tr("Numerical Temperature Gauge"), tr("<b>Show the device temperature as a number in the sidebar instead of a word like \"GOOD\".</b><br><br>Useful for spotting the device getting hot before it slows itself down."), ""},
+    {"SidebarMetrics", tr("Sidebar Metrics"), tr("<b>Fill the sidebar with how hard the device is working, how much storage is left, and its IP address.</b><br><br>They take the place of the vehicle, connection, and signal indicators normally shown there.<br><br>CPU and GPU cannot both be on, and RAM, SSD Left, and SSD Used are one at a time, so picking one clears the other."), ""},
+    {"UseSI", tr("Use International System of Units"), tr("<b>Show the developer readouts in plain scientific units instead of the friendlier ones.</b><br><br>This only affects the developer numbers, not the speed or distances you drive by."), ""},
+
+    {"DeveloperSidebar", tr("Developer Sidebar"), tr("<b>Add a second sidebar down the right-hand side, holding up to seven readouts you pick yourself.</b><br><br>It makes the camera view narrower, so it is worth turning off when you are not using it. Setting all seven to \"None\" leaves the bar there but empty."), ""},
+    {"DeveloperSidebarMetric1", tr("Metric #1"), tr("<b>Choose what the first slot in the developer sidebar shows.</b><br><br>The list covers steering, acceleration, engagement, and auto-tune readouts. Every slot starts already filled in, and picking \"None\" closes the gap rather than leaving a hole."), ""},
+    {"DeveloperSidebarMetric2", tr("Metric #2"), tr("<b>Choose what the second slot in the developer sidebar shows.</b>"), ""},
+    {"DeveloperSidebarMetric3", tr("Metric #3"), tr("<b>Choose what the third slot in the developer sidebar shows.</b>"), ""},
+    {"DeveloperSidebarMetric4", tr("Metric #4"), tr("<b>Choose what the fourth slot in the developer sidebar shows.</b>"), ""},
+    {"DeveloperSidebarMetric5", tr("Metric #5"), tr("<b>Choose what the fifth slot in the developer sidebar shows.</b>"), ""},
+    {"DeveloperSidebarMetric6", tr("Metric #6"), tr("<b>Choose what the sixth slot in the developer sidebar shows.</b>"), ""},
+    {"DeveloperSidebarMetric7", tr("Metric #7"), tr("<b>Choose what the seventh slot in the developer sidebar shows.</b>"), ""},
+
+    {"DeveloperWidgets", tr("Developer Widgets"), tr("<b>Draw what openpilot's model and radar are seeing straight onto the driving screen.</b><br><br>Your car needs radar for two of these, and openpilot handling the gas and brake for the third, so this menu can come up almost empty."), ""},
+    {"AdjacentLeadsUI", tr("Adjacent Leads Tracking"), tr("<b>Mark the cars your radar sees in the lanes either side of you.</b><br><br>Your car needs radar for these to appear, and they hang off the same marker \"Hide Lead Marker\" removes."), ""},
+    {"ShowStoppingPoint", tr("Model Stopping Point"), tr("<b>Drop a stop sign on the road where openpilot is planning to come to a stop.</b><br><br>It only marks stops openpilot works out for itself, so it stays away when openpilot is slowing for a car ahead, and \"Traffic Mode\" switches it off entirely. \"Show Distance\" also prints how far away that stop is."), ""},
+    {"RadarTracksUI", tr("Radar Tracks"), tr("<b>Show every object your car's radar is returning, not just the car you are following.</b><br><br>Expect a lot of dots, including signs, barriers, and parked cars."), ""},
+  };
+
+  for (const auto &[param, title, desc, icon] : developerToggles) {
+    AbstractControl *developerToggle;
+
+    if (param == "DeveloperMetrics") {
+      FrogPilotManageControl *developerMetricsToggle = new FrogPilotManageControl(param, title, desc, icon);
+      QObject::connect(developerMetricsToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
+        mainLayout->setCurrentWidget(developerMetricPanel);
+        emit openSubSubPanel();
+      });
+      developerToggle = developerMetricsToggle;
+    } else if (param == "BorderMetrics") {
+      std::vector<QString> borderToggles{"BlindSpotMetrics", "ShowSteering", "SignalMetrics"};
+      std::vector<QString> borderToggleNames{tr("Blind Spot"), tr("Steering Torque"), tr("Turn Signal")};
+      borderMetricsButton = new FrogPilotButtonToggleControl(param, title, desc, icon, borderToggles, borderToggleNames);
+      developerToggle = borderMetricsButton;
+    } else if (param == "NumericalTemp") {
+      std::vector<QString> temperatureToggles{"Fahrenheit"};
+      std::vector<QString> temperatureToggleNames{tr("Fahrenheit")};
+      developerToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, temperatureToggles, temperatureToggleNames);
+    } else if (param == "SidebarMetrics") {
+      std::vector<QString> sidebarMetricsToggleNames{tr("CPU"), tr("GPU"), tr("IP"), tr("RAM"), tr("SSD Left"), tr("SSD Used")};
+      developerToggle = new FrogPilotButtonsControl(title, desc, icon, sidebarMetricsToggleNames, true, false, 150);
+    } else if (param == "DeveloperSidebar") {
+      FrogPilotManageControl *developerSidebarToggle = new FrogPilotManageControl(param, title, desc, icon);
+      QObject::connect(developerSidebarToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
+        mainLayout->setCurrentWidget(developerSidebarPanel);
+        emit openSubSubPanel();
+      });
+      developerToggle = developerSidebarToggle;
+    } else if (developerSidebarKeys.contains(param)) {
+      developerToggle = new ButtonControl(title, tr("SELECT"), desc);
+    } else if (param == "DeveloperWidgets") {
+      FrogPilotManageControl *developerWidgetsToggle = new FrogPilotManageControl(param, title, desc, icon);
+      QObject::connect(developerWidgetsToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
+        mainLayout->setCurrentWidget(developerWidgetPanel);
+        emit openSubSubPanel();
+      });
+      developerToggle = developerWidgetsToggle;
+    } else if (param == "ShowStoppingPoint") {
+      std::vector<QString> stoppingPointToggles{"ShowStoppingPointMetrics"};
+      std::vector<QString> stoppingPointToggleNames{tr("Show Distance")};
+      developerToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, stoppingPointToggles, stoppingPointToggleNames);
+    } else {
+      developerToggle = new ParamControl(param, title, desc, icon);
+    }
+
+    toggles[param] = developerToggle;
+
+    if (developerMetricKeys.contains(param)) {
+      developerMetricList->addItem(developerToggle);
+    } else if (developerSidebarKeys.contains(param)) {
+      developerSidebarList->addItem(developerToggle);
+    } else if (developerWidgetKeys.contains(param)) {
+      developerWidgetList->addItem(developerToggle);
+    } else {
+      developerUIList->addItem(developerToggle);
+
+      parentKeys.insert(param);
+    }
+  }
+
+  QObject::connect(static_cast<ToggleControl*>(toggles["LeadInfo"]), &ToggleControl::toggleFlipped, [this]() {
+    updateToggles(offroad);
+  });
+
+  QObject::connect(parent, &SettingsWindow::closeSubPanel, [this]() {
+    mainLayout->setCurrentWidget(mainWidget);
+  });
+  QObject::connect(parent, &SettingsWindow::closeSubSubPanel, [this]() {
+    mainLayout->setCurrentWidget(developerUIPanel);
+  });
 }
 
 void DeveloperPanel::updateToggles(bool _offroad) {
@@ -64,9 +206,21 @@ void DeveloperPanel::updateToggles(bool _offroad) {
     if (btn != experimentalLongitudinalToggle) {
       btn->setEnabled(_offroad);
     }
+  }
 
   // FrogPilot variables
+  for (auto &[key, toggle] : toggles) {
+    if (ParamControl *paramToggle = qobject_cast<ParamControl *>(toggle)) {
+      paramToggle->setEnabled(true);
+    }
   }
+  developerUIToggle->setEnabled(true);
+
+  bool hasBSM = true;
+  bool hasOpenpilotLongitudinal = true;
+  bool hasRadar = true;
+  bool hideLeadMarker = false;
+  bool isAngleCar = false;
 
   // longManeuverToggle and experimentalLongitudinalToggle should not be toggleable if the car does not have longitudinal control
   auto cp_bytes = params.get("CarParamsPersistent");
@@ -90,6 +244,12 @@ void DeveloperPanel::updateToggles(bool _offroad) {
     longManeuverToggle->setEnabled(hasLongitudinalControl(CP) && _offroad);
 
     // FrogPilot variables
+    hasBSM = CP.getEnableBsm();
+    hasOpenpilotLongitudinal = hasLongitudinalControl(CP);
+    hasRadar = !CP.getRadarUnavailable();
+    hideLeadMarker = CP.getOpenpilotLongitudinalControl() && (CP.getAlphaLongitudinalAvailable() || !params.getBool("DisableOpenpilotLongitudinal")) &&
+                     params.getBool("AdvancedCustomUI") && params.getBool("HideLeadMarker") && !params.getBool("DebugMode");
+    isAngleCar = CP.getSteerControlType() == cereal::CarParams::SteerControlType::ANGLE;
   } else {
     longManeuverToggle->setEnabled(false);
     experimentalLongitudinalToggle->setVisible(false);
@@ -99,10 +259,69 @@ void DeveloperPanel::updateToggles(bool _offroad) {
   offroad = _offroad;
 
   // FrogPilot variables
+  int tuningLevel = params.getInt("TuningLevel");
+
+  for (auto &[key, toggle] : toggles) {
+    if (parentKeys.contains(key)) {
+      toggle->setVisible(false);
+    }
+  }
+
+  for (auto &[key, toggle] : toggles) {
+    if (parentKeys.contains(key)) {
+      continue;
+    }
+
+    bool setVisible = tuningLevel >= params.getTuningLevel(key.toStdString());
+
+    if (key == "AdjacentLeadsUI") {
+      setVisible &= hasRadar && !hideLeadMarker && (hasOpenpilotLongitudinal || params.getBool("LeadInfo"));
+    }
+
+    else if (key == "LeadInfo") {
+      setVisible &= !hideLeadMarker;
+    }
+
+    else if (key == "RadarTracksUI") {
+      setVisible &= hasRadar;
+    }
+
+    else if (key == "ShowStoppingPoint") {
+      setVisible &= hasOpenpilotLongitudinal;
+    }
+
+    toggle->setVisible(setVisible);
+
+    if (setVisible) {
+      if (developerMetricKeys.contains(key)) {
+        toggles["DeveloperMetrics"]->setVisible(true);
+      } else if (developerSidebarKeys.contains(key)) {
+        toggles["DeveloperSidebar"]->setVisible(true);
+      } else if (developerWidgetKeys.contains(key)) {
+        toggles["DeveloperWidgets"]->setVisible(true);
+      }
+    }
+  }
+
+  borderMetricsButton->setVisibleButton(0, hasBSM);
+  borderMetricsButton->setVisibleButton(1, !isAngleCar);
+
+  developerUIToggle->setVisible(tuningLevel >= params.getTuningLevel("DeveloperUI"));
+
+  openDescriptions(forceOpenDescriptions, toggles);
+
+  update();
 }
 
 void DeveloperPanel::showEvent(QShowEvent *event) {
   updateToggles(offroad);
 
   // FrogPilot variables
+  QJsonObject shownDescriptions = QJsonDocument::fromJson(QString::fromStdString(params.get("ShownToggleDescriptions")).toUtf8()).object();
+  QString className = this->metaObject()->className();
+
+  if (!shownDescriptions.value(className).toBool(false)) {
+    shownDescriptions.insert(className, true);
+    params.put("ShownToggleDescriptions", QJsonDocument(shownDescriptions).toJson(QJsonDocument::Compact).toStdString());
+  }
 }

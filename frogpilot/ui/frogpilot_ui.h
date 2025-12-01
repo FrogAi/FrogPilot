@@ -6,6 +6,7 @@
 #include "frogpilot/ui/qt/widgets/frogpilot_controls.h"
 
 struct FrogPilotUIScene {
+  bool frogpilot_panel_active = false;
   bool online = false;
   bool parked = false;
   bool reverse = false;

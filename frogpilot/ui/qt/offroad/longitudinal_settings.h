@@ -1,0 +1,62 @@
+#pragma once
+
+#include "frogpilot/ui/qt/offroad/frogpilot_settings.h"
+
+class FrogPilotLongitudinalPanel : public FrogPilotListWidget {
+  Q_OBJECT
+
+public:
+  explicit FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *parent, bool forceOpen = false);
+
+signals:
+  void openSubPanel();
+  void openSubSubPanel();
+  void openSubSubSubPanel();
+
+protected:
+  void showEvent(QShowEvent *event) override;
+
+private:
+  void updateMetric(bool metric, bool bootRun);
+  void updateToggles();
+
+  bool customPersonalityOpen = false;
+  bool forceOpenDescriptions = false;
+  bool qolOpen = false;
+  bool slcOpen = false;
+  bool weatherOpen = false;
+
+  std::map<QString, QWidget*> toggles;
+
+  QSet<QString> advancedLongitudinalTuneKeys = {"LongitudinalActuatorDelay", "MaxDesiredAcceleration", "StartAccel", "StopAccel", "StoppingDecelRate", "VEgoStarting", "VEgoStopping"};
+  QSet<QString> aggressivePersonalityKeys = {"AggressiveFollow", "AggressiveJerkAcceleration", "AggressiveJerkDeceleration", "AggressiveJerkDanger", "AggressiveJerkSpeed", "AggressiveJerkSpeedDecrease", "ResetAggressivePersonality"};
+  QSet<QString> conditionalExperimentalKeys = {"CECurves", "CELead", "CESignalSpeed", "CESpeed", "CEStopLights", "ShowCEMStatus"};
+  QSet<QString> curveSpeedKeys = {"CalibratedLateralAcceleration", "CalibrationProgress", "CurveSpeedProfile", "MaxLateralAcceleration", "ResetCurveData", "ShowCSCStatus"};
+  QSet<QString> customDrivingPersonalityKeys = {"AggressivePersonalityProfile", "RelaxedPersonalityProfile", "StandardPersonalityProfile"};
+  QSet<QString> longitudinalTuneKeys = {"AccelerationProfile", "DecelerationProfile", "HumanAcceleration", "HumanFollowing", "HumanLaneChanges", "LeadDetectionThreshold", "TacoTune"};
+  QSet<QString> qolKeys = {"CustomCruise", "CustomCruiseLong", "ForceStops", "IncreasedStoppedDistance", "MapGears", "ReverseCruise", "SetSpeedOffset", "WeatherPresets"};
+  QSet<QString> relaxedPersonalityKeys = {"RelaxedFollow", "RelaxedJerkAcceleration", "RelaxedJerkDeceleration", "RelaxedJerkDanger", "RelaxedJerkSpeed", "RelaxedJerkSpeedDecrease", "ResetRelaxedPersonality"};
+  QSet<QString> speedLimitControllerKeys = {"SLCFallback", "SLCOffsets", "SLCOverride", "SLCPriority", "SLCQOL", "SLCVisuals"};
+  QSet<QString> speedLimitControllerOffsetsKeys = {"Offset1", "Offset2", "Offset3", "Offset4", "Offset5", "Offset6", "Offset7"};
+  QSet<QString> speedLimitControllerQOLKeys = {"SetSpeedLimit", "SLCConfirmation", "SLCLookaheadHigher", "SLCLookaheadLower", "SLCMapboxFiller"};
+  QSet<QString> speedLimitControllerVisualKeys = {"ShowSLCOffset", "SpeedLimitSources"};
+  QSet<QString> standardPersonalityKeys = {"StandardFollow", "StandardJerkAcceleration", "StandardJerkDeceleration", "StandardJerkDanger", "StandardJerkSpeed", "StandardJerkSpeedDecrease", "ResetStandardPersonality"};
+  QSet<QString> weatherKeys = {"LowVisibilityOffsets", "RainOffsets", "RainStormOffsets", "SetWeatherKey", "SnowOffsets"};
+  QSet<QString> weatherLowVisibilityKeys = {"IncreaseFollowingLowVisibility", "IncreasedStoppedDistanceLowVisibility", "ReduceAccelerationLowVisibility", "ReduceLateralAccelerationLowVisibility"};
+  QSet<QString> weatherRainKeys = {"IncreaseFollowingRain", "IncreasedStoppedDistanceRain", "ReduceAccelerationRain", "ReduceLateralAccelerationRain"};
+  QSet<QString> weatherRainStormKeys = {"IncreaseFollowingRainStorm", "IncreasedStoppedDistanceRainStorm", "ReduceAccelerationRainStorm", "ReduceLateralAccelerationRainStorm"};
+  QSet<QString> weatherSnowKeys = {"IncreaseFollowingSnow", "IncreasedStoppedDistanceSnow", "ReduceAccelerationSnow", "ReduceLateralAccelerationSnow"};
+
+  QSet<QString> parentKeys;
+
+  FrogPilotParamValueControl *ceSpeedLeadToggle;
+  FrogPilotParamValueControl *ceSpeedToggle;
+  FrogPilotParamValueControl *longitudinalActuatorDelayToggle;
+  FrogPilotParamValueControl *startAccelToggle;
+  FrogPilotParamValueControl *stopAccelToggle;
+  FrogPilotParamValueControl *stoppingDecelRateToggle;
+  FrogPilotParamValueControl *vEgoStartingToggle;
+  FrogPilotParamValueControl *vEgoStoppingToggle;
+
+  FrogPilotSettingsWindow *parent;
+};
