@@ -23,6 +23,7 @@ public:
 
   void resetStats();
   void runUpdateChecks();
+  void testAlert(const QString &alert, float volume);
   void update();
   void updateToggles();
 
