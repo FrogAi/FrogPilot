@@ -4,6 +4,7 @@ import pyray as rl
 from cereal import messaging, car
 from dataclasses import dataclass, field
 from openpilot.common.params import Params
+from openpilot.frogpilot.ui.mici.frogpilot_road import FrogPilotRoad
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.selfdrive.locationd.calibrationd import HEIGHT_INIT
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
@@ -90,6 +91,7 @@ class ModelRenderer(Widget):
       self._longitudinal_control = cp.openpilotLongitudinalControl
 
     # FrogPilot variables
+    self._frogpilot_road = FrogPilotRoad()
 
   def set_transform(self, transform: np.ndarray):
     self._car_space_transform = transform.astype(np.float32)
@@ -228,7 +230,7 @@ class ModelRenderer(Widget):
 
   def _update_experimental_gradient(self):
     """Pre-calculate experimental mode gradient colors"""
-    if not self._experimental_mode:
+    if not self._experimental_mode and not self._frogpilot_road.path_gradient_enabled():
       return
 
     # FrogPilot variables
@@ -260,6 +262,7 @@ class ModelRenderer(Widget):
       color = self._hsla_to_color(path_hue / 360.0, saturation, lightness, alpha)
 
       # FrogPilot variables
+      color = self._frogpilot_road.path_gradient_color(color, lin_grad_point, self._acceleration_x[i], self._experimental_mode)
 
       gradient_stops.append(lin_grad_point)
       segment_colors.append(color)
@@ -347,7 +350,7 @@ class ModelRenderer(Widget):
     allow_throttle = sm['longitudinalPlan'].allowThrottle or not self._longitudinal_control
     self._blend_filter.update(int(allow_throttle))
 
-    if self._experimental_mode:
+    if self._experimental_mode or self._frogpilot_road.path_gradient_enabled():
       # Draw with acceleration coloring
       if ui_state.status == UIStatus.DISENGAGED:
         draw_polygon(self._rect, self._path.projected_points, rl.Color(0, 0, 0, 90))
