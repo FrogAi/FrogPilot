@@ -245,6 +245,9 @@ class CarInterface(CarInterfaceBase):
       ret.steerActuatorDelay = 0.075
       CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
 
+    elif candidate == CAR.CHEVROLET_TRAX:
+      CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
+
     if ret.enableGasInterceptorDEPRECATED and candidate not in ALT_ACCS:
       ret.alphaLongitudinalAvailable = False
       ret.autoResumeSng = True
