@@ -26,6 +26,9 @@ def cleanup_error_logs():
 def frogpilot_boot_functions(build_metadata, params):
   frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
+  if sync_flag_file(frogpilot_paths.HD_PATH, frogpilot_toggles.use_higher_bitrate):
+    HARDWARE.reboot()
+
   ThemeManager.copy_default_theme()
   ThemeManager(params).update_active_theme(frogpilot_toggles=frogpilot_toggles)
 
@@ -36,7 +39,8 @@ def frogpilot_boot_functions(build_metadata, params):
 
 def install_frogpilot():
   paths = [
-    frogpilot_paths.ERROR_LOGS_PATH
+    frogpilot_paths.ERROR_LOGS_PATH,
+    frogpilot_paths.HD_LOGS_PATH
   ]
   for path in paths:
     path.mkdir(parents=True, exist_ok=True)
@@ -49,6 +53,18 @@ def install_frogpilot():
 def run_frogsgomoo(build_metadata):
   if frogpilot_utilities.is_FrogsGoMoo_development(build_metadata):
     frogpilot_utilities.run_cmd_on_writable_mount("/persist", ["sudo", "python3", frogpilot_paths.FROGS_GO_MOO_PATH], "Failed to run frogsgomoo.py")
+
+
+def sync_flag_file(flag_path, enabled):
+  if flag_path.is_file() == enabled:
+    return False
+
+  if enabled:
+    flag_path.touch()
+  else:
+    flag_path.unlink()
+
+  return True
 
 
 def sync_params_cache(params, params_cache):

@@ -125,6 +125,10 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent, bool
   QObject::connect(static_cast<FrogPilotButtonToggleControl*>(toggles["NoUploads"]), &FrogPilotButtonToggleControl::buttonClicked, this, &FrogPilotDevicePanel::updateToggles);
   QObject::connect(static_cast<ToggleControl*>(toggles["NoUploads"]), &ToggleControl::toggleFlipped, this, &FrogPilotDevicePanel::updateToggles);
 
+  QObject::connect(static_cast<ToggleControl*>(toggles["HigherBitrate"]), &ToggleControl::toggleFlipped, frogpilotUIState(), &FrogPilotUIState::updateToggles);
+  QObject::connect(static_cast<FrogPilotButtonToggleControl*>(toggles["NoUploads"]), &FrogPilotButtonToggleControl::buttonClicked, frogpilotUIState(), &FrogPilotUIState::updateToggles);
+  QObject::connect(static_cast<ToggleControl*>(toggles["NoUploads"]), &ToggleControl::toggleFlipped, frogpilotUIState(), &FrogPilotUIState::updateToggles);
+
   openDescriptions(forceOpenDescriptions, toggles);
 
   QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [deviceLayout, devicePanel, this] {

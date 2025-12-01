@@ -225,6 +225,9 @@ def update_toggles(variables, started, theme_manager, thread_manager, time_valid
 
   variables.update(started=started)
 
+  if not started:
+    frogpilot_functions.sync_flag_file(frogpilot_paths.HD_PATH, frogpilot_toggles.use_higher_bitrate)
+
   theme_manager.update_active_theme(frogpilot_toggles)
 
   if time_validated:
