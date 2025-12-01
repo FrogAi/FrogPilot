@@ -99,8 +99,21 @@ void downloadThemeAssets(const QStringList &inputs, const QString &component) {
 
 const QMap<QString, QString> &getBuiltinThemes() {
   static const QMap<QString, QString> builtinThemes = {
+    {"april_fools", QObject::tr("April Fools")},
+    {"christmas", QObject::tr("Christmas")},
+    {"cinco_de_mayo", QObject::tr("Cinco de Mayo")},
+    {"easter", QObject::tr("Easter")},
+    {"fourth_of_july", QObject::tr("Fourth of July")},
+    {"halloween", QObject::tr("Halloween")},
+    {"may_the_fourth", QObject::tr("May the Fourth")},
+    {"new_years", QObject::tr("New Year's")},
     {"none", QObject::tr("None")},
-    {"stock", QObject::tr("Stock")}
+    {"st_patricks_day", QObject::tr("St. Patrick's Day")},
+    {"stitch_day", QObject::tr("Stitch Day")},
+    {"stock", QObject::tr("Stock")},
+    {"thanksgiving", QObject::tr("Thanksgiving")},
+    {"valentines_day", QObject::tr("Valentine's Day")},
+    {"world_frog_day", QObject::tr("World Frog Day")}
   };
   return builtinThemes;
 }
@@ -247,7 +260,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent, bool
                      tr("Select color schemes to download"), tr("Select a color scheme"), {"none"}}},
     {"DistanceIconPack", {themePacksDirectory, "distance_icons", "distance_icons", "DownloadableDistanceIcons",
                           tr("Select personality button packs to delete"), tr("Delete the \"%1\" personality button pack?"), tr("Delete the %1 selected personality button packs?"),
-                          tr("Select personality button packs to download"), tr("Select a personality button pack"), {"none"}}},
+                          tr("Select personality button packs to download"), tr("Select a personality button pack"), {"april_fools", "easter", "none"}}},
     {"IconPack", {themePacksDirectory, "icons", "icons", "DownloadableIcons",
                   tr("Select icon packs to delete"), tr("Delete the \"%1\" icon pack?"), tr("Delete the %1 selected icon packs?"),
                   tr("Select icon packs to download"), tr("Select an icon pack"), {"none"}}},
