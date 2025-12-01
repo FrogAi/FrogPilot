@@ -1,3 +1,5 @@
+#include <sys/xattr.h>
+
 #include "frogpilot/ui/qt/offroad/data_settings.h"
 #include "frogpilot/ui/qt/offroad/utilities.h"
 
@@ -91,6 +93,52 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
   FrogPilotListWidget *statsLabelsList = new FrogPilotListWidget(this);
   ScrollView *statsLabelsPanel = new ScrollView(statsLabelsList, this);
   dataLayout->addWidget(statsLabelsPanel);
+
+  ButtonControl *deleteDrivingDataButton = new ButtonControl(tr("Delete Driving Data"), tr("DELETE"), tr("<b>Delete every recorded drive to free up space and clear personal footage off the device.</b><br><br>Only the one-minute chunk of footage containing the moment you flagged is kept, not the rest of that drive, and preserving a drive in \"The Pond\" keeps it the same one minute at a time."));
+  QObject::connect(deleteDrivingDataButton, &ButtonControl::clicked, [=]() {
+    if (ConfirmationDialog::confirm(tr("Delete all driving footage and data? Only the flagged and preserved one-minute chunks will be kept."), tr("Delete"), this)) {
+      std::thread([=]() {
+        runOnUIThread(deleteDrivingDataButton, [=]() {
+          parent->activeOperations++;
+
+          deleteDrivingDataButton->setEnabled(false);
+          deleteDrivingDataButton->setValue(tr("Deleting..."));
+        });
+
+        bool success = true;
+
+        std::vector<QString> drivePaths = {"/data/media/0/realdata/", "/data/media/0/realdata_HD/", "/data/media/0/realdata_konik/"};
+        for (const QString &path : drivePaths) {
+          QDir dir(path);
+          if (!dir.exists()) {
+            continue;
+          }
+
+          for (const QFileInfo &entry : dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+            char preserveValue[10] = {0};
+            bool isPreserved = (getxattr(entry.absoluteFilePath().toUtf8().constData(), "user.preserve", preserveValue, sizeof(preserveValue)) > 0 && strcmp(preserveValue, "1") == 0);
+            if (!isPreserved) {
+              success &= QDir(entry.absoluteFilePath()).removeRecursively();
+            }
+          }
+        }
+
+        runOnUIThread(deleteDrivingDataButton, [=]() {
+          deleteDrivingDataButton->setValue(success ? tr("Deleted!") : tr("Delete failed..."));
+        });
+
+        util::sleep_for(2500);
+
+        runOnUIThread(deleteDrivingDataButton, [=]() {
+          deleteDrivingDataButton->setEnabled(true);
+          deleteDrivingDataButton->setValue("");
+
+          parent->activeOperations--;
+        });
+      }).detach();
+    }
+  });
+  dataMainList->addItem(deleteDrivingDataButton);
 
   FrogPilotButtonsControl *frogpilotBackupButton = new FrogPilotButtonsControl(tr("FrogPilot Backups"), tr("<b>Back up the FrogPilot software, restore a backup to go back to that version, or delete ones you no longer need.</b><br><br>Restoring reboots the device on its own and puts the software back exactly as it was when the backup was made, without changing your settings. Automatic updates turn off after a restore until you update manually. \"DELETE ALL\" also removes the backups FrogPilot makes automatically."), "", {tr("BACKUP"), tr("DELETE"), tr("DELETE ALL"), tr("RESTORE")});
   QObject::connect(frogpilotBackupButton, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
