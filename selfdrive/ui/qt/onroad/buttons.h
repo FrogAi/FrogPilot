@@ -26,8 +26,17 @@ private:
 
   // FrogPilot variables
   QColor backgroundColor() const;
+  void hideEvent(QHideEvent *event) override;
+  void showEvent(QShowEvent *event) override;
+  void updateTheme();
+
+  bool wheel_is_stock = false;
 
   QColor background_color;
+
+  QPixmap wheel_img;
+
+  QSharedPointer<FrogPilotMovie> wheel_gif;
 };
 
 void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity);

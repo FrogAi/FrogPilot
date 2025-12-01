@@ -7,6 +7,7 @@ import string
 from dataclasses import dataclass
 from cereal import messaging, log, car, custom
 from openpilot.frogpilot.ui.mici.frogpilot_alerts import frogpilot_alerts
+from openpilot.frogpilot.ui.mici.frogpilot_theme import theme
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.common.filter_simple import BounceFilter, FirstOrderFilter
 from openpilot.system.hardware import TICI
@@ -209,6 +210,8 @@ class AlertRenderer(Widget):
       self._turn_signal_timer = 0.0
 
     # FrogPilot variables
+    if txt_icon in (self._txt_turn_signal_left, self._txt_turn_signal_right):
+      txt_icon = theme.alert_signal_texture(icon_side == 'left', txt_icon)
 
     self._last_icon_side = icon_side
 

@@ -69,5 +69,15 @@ private:
   Networking *networking = nullptr;
 
   // FrogPilot variables
+  void hideEvent(QHideEvent *event) override;
+  void showEvent(QShowEvent *event) override;
+  void updateTheme();
+
   Params params;
+
+  QPair<int, int> gif_frames;
+
+  QSharedPointer<FrogPilotMovie> flag_gif;
+  QSharedPointer<FrogPilotMovie> home_gif;
+  QSharedPointer<FrogPilotMovie> settings_gif;
 };

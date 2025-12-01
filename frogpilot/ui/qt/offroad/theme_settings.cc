@@ -1,5 +1,228 @@
 #include "frogpilot/ui/qt/offroad/theme_settings.h"
 
+bool isUserCreatedTheme(const QString &themeName) {
+  return themeName.endsWith("-user_created");
+}
+
+void updateAssetParam(const QString &assetParam, Params &params, const QString &value) {
+  QStringList assets = QString::fromStdString(params.get(assetParam.toStdString())).split(",", QString::SkipEmptyParts);
+  if (!assets.contains(value)) {
+    assets.append(value);
+  }
+  assets.sort();
+
+  params.put(assetParam.toStdString(), assets.join(",").toStdString());
+}
+
+QString formatThemeName(QString key) {
+  bool userCreated = isUserCreatedTheme(key);
+  if (userCreated) {
+    key.chop(QString("-user_created").size());
+  }
+
+  int tildeIndex = key.indexOf("~");
+  QString creator;
+  if (tildeIndex >= 0) {
+    creator = key.mid(tildeIndex + 1);
+    key = key.left(tildeIndex);
+  }
+
+  bool animated = !userCreated && key.endsWith("-animated");
+  if (animated) {
+    key.chop(QString("-animated").size());
+  }
+
+  QStringList parts = key.split(userCreated && key.contains("-") ? "-" : "_", QString::SkipEmptyParts);
+  for (QString &part : parts) {
+    part[0] = part[0].toUpper();
+  }
+
+  QString displayName = parts.join(" ");
+  if (animated) {
+    displayName += " (Animated)";
+  }
+  if (userCreated) {
+    displayName += " 🌟";
+  }
+  if (!creator.isEmpty()) {
+    displayName += " - by: " + creator;
+  }
+  return displayName;
+}
+
+void deleteThemeAsset(const QDir &directory, const QString &subFolder, const QString &assetParam, const QString &assetKey, Params &params) {
+  bool deleted = false;
+  if (subFolder.isEmpty()) {
+    for (const QFileInfo &entry : directory.entryInfoList(QDir::Files)) {
+      if (entry.completeBaseName() == assetKey) {
+        deleted = QFile::remove(entry.absoluteFilePath());
+        if (deleted) {
+          break;
+        }
+      }
+    }
+  } else {
+    QDir assetDirectory(directory.filePath(assetKey));
+    deleted = QDir(assetDirectory.filePath(subFolder)).removeRecursively();
+  }
+
+  if (deleted) {
+    params.remove("ThemesDownloaded");
+
+    if (!isUserCreatedTheme(assetKey)) {
+      updateAssetParam(assetParam, params, formatThemeName(assetKey));
+    }
+  }
+}
+
+void downloadThemeAssets(const QStringList &inputs, const QString &component) {
+  QStringList outputs;
+  for (const QString &input : inputs) {
+    QString output = input;
+    output.replace(" - by: ", "~");
+    int tilde = output.indexOf("~");
+
+    QString name = tilde >= 0 ? output.left(tilde) : output;
+    name = name.toLower();
+    name.replace(" ", "_");
+    name.remove("(").remove(")");
+    name.replace("_animated", "-animated");
+    if (tilde >= 0) {
+      name += "~" + output.mid(tilde + 1);
+    }
+
+    outputs.append(name);
+  }
+
+  frogpilotUIState()->downloadTheme(component, outputs);
+}
+
+const QMap<QString, QString> &getBuiltinThemes() {
+  static const QMap<QString, QString> builtinThemes = {
+    {"none", QObject::tr("None")},
+    {"stock", QObject::tr("Stock")}
+  };
+  return builtinThemes;
+}
+
+QStringList getBuiltinThemeNames(const QStringList &excludedKeys) {
+  QStringList names;
+  const QMap<QString, QString> &builtinThemes = getBuiltinThemes();
+  for (QMap<QString, QString>::const_iterator it = builtinThemes.constBegin(); it != builtinThemes.constEnd(); ++it) {
+    if (!excludedKeys.contains(it.key())) {
+      names.append(it.value());
+    }
+  }
+  return names;
+}
+
+QString getThemeName(const std::string &paramKey, Params &params) {
+  const QString key = QString::fromStdString(params.get(paramKey));
+  const QMap<QString, QString> &builtinThemes = getBuiltinThemes();
+  if (builtinThemes.contains(key)) {
+    return builtinThemes.value(key);
+  }
+  return formatThemeName(key);
+}
+
+QStringList getThemeList(const QDir &directory, const QString &subFolder, const QString &assetParam, Params &params, QMap<QString, QString> &assetKeys) {
+  const bool useFiles = subFolder.isEmpty();
+
+  const QString currentAsset = QString::fromStdString(params.get(assetParam.toStdString()));
+
+  QStringList themes;
+  for (const QFileInfo &entry : directory.entryInfoList(QDir::Dirs | QDir::Files | QDir::NoDotAndDotDot)) {
+    QString assetKey;
+    if (useFiles) {
+      if (!entry.isFile()) {
+        continue;
+      }
+      assetKey = entry.completeBaseName();
+    } else {
+      if (!entry.isDir() || !QDir(entry.filePath()).exists(subFolder)) {
+        continue;
+      }
+      assetKey = entry.fileName();
+    }
+
+    QString displayName = formatThemeName(assetKey);
+    if (assetKeys.contains(displayName) && assetKeys.value(displayName) != assetKey) {
+      displayName += QString(" [%1]").arg(assetKey);
+    }
+
+    assetKeys.insert(displayName, assetKey);
+    if (assetKey != currentAsset && !themes.contains(displayName)) {
+      themes.append(displayName);
+    }
+  }
+  return themes;
+}
+
+QString normalizeThemeName(const QString &input) {
+  const QString builtinKey = getBuiltinThemes().key(input);
+  if (!builtinKey.isEmpty()) {
+    return builtinKey;
+  }
+
+  QString output = input.toLower().remove("(").remove(")").remove("'").remove(".");
+  output.replace(" ", input.contains("(") ? "-" : "_");
+  output.replace("_🌟", "-user_created");
+  return output.trimmed();
+}
+
+void appendCurrentTheme(QStringList &themes, const std::string &paramKey, Params &params, QMap<QString, QString> &assetKeys) {
+  const QString currentKey = QString::fromStdString(params.get(paramKey));
+  for (int i = 0; i < themes.size(); ++i) {
+    const QString theme = themes[i];
+    const QString assetKey = assetKeys.value(theme);
+    const QString builtinKey = normalizeThemeName(theme);
+    if (!assetKey.isEmpty() && assetKey != builtinKey && (themes.count(theme) > 1 || assetKey == currentKey)) {
+      const QString downloadedTheme = theme + QString(" [%1]").arg(assetKey);
+      if (themes.count(theme) > 1) {
+        themes[i] = downloadedTheme;
+      }
+      assetKeys.insert(downloadedTheme, assetKey);
+      assetKeys.insert(theme, builtinKey);
+    }
+  }
+
+  if (currentKey.isEmpty()) {
+    return;
+  }
+
+  QString current = assetKeys.key(currentKey);
+  if (current.isEmpty() || !themes.contains(current)) {
+    for (const QString &theme : themes) {
+      if (!assetKeys.contains(theme) && normalizeThemeName(theme) == currentKey) {
+        assetKeys.remove(current);
+        current = theme;
+        break;
+      }
+    }
+  }
+
+  if (current.isEmpty()) {
+    current = getThemeName(paramKey, params);
+    if (assetKeys.contains(current) && assetKeys.value(current) != currentKey) {
+      current += QString(" [%1]").arg(currentKey);
+    }
+  }
+
+  assetKeys.insert(current, currentKey);
+  if (!themes.contains(current)) {
+    themes.append(current);
+  }
+}
+
+QString storeThemeName(const QString &input, const std::string &paramKey, Params &params, const QMap<QString, QString> &assetKeys) {
+  if (assetKeys.contains(input)) {
+    params.put(paramKey, assetKeys.value(input).toStdString());
+  } else {
+    params.put(paramKey, normalizeThemeName(input).toStdString());
+  }
+  return getThemeName(paramKey, params);
+}
+
 FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent, bool forceOpen) : FrogPilotListWidget(parent), parent(parent) {
   forceOpenDescriptions = forceOpen;
 
@@ -17,6 +240,27 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent, bool
   ScrollView *customThemesPanel = new ScrollView(customThemesList, this);
 
   themesLayout->addWidget(customThemesPanel);
+
+  themeAssets = {
+    {"ColorScheme", {themePacksDirectory, "colors", "colors", "DownloadableColors",
+                     tr("Select color schemes to delete"), tr("Delete the \"%1\" color scheme?"), tr("Delete the %1 selected color schemes?"),
+                     tr("Select color schemes to download"), tr("Select a color scheme"), {"none"}}},
+    {"DistanceIconPack", {themePacksDirectory, "distance_icons", "distance_icons", "DownloadableDistanceIcons",
+                          tr("Select personality button packs to delete"), tr("Delete the \"%1\" personality button pack?"), tr("Delete the %1 selected personality button packs?"),
+                          tr("Select personality button packs to download"), tr("Select a personality button pack"), {"none"}}},
+    {"IconPack", {themePacksDirectory, "icons", "icons", "DownloadableIcons",
+                  tr("Select icon packs to delete"), tr("Delete the \"%1\" icon pack?"), tr("Delete the %1 selected icon packs?"),
+                  tr("Select icon packs to download"), tr("Select an icon pack"), {"none"}}},
+    {"SignalAnimation", {themePacksDirectory, "signals", "signals", "DownloadableSignals",
+                         tr("Select signal animations to delete"), tr("Delete the \"%1\" signal animation?"), tr("Delete the %1 selected signal animations?"),
+                         tr("Select signal animations to download"), tr("Select a signal animation"), {"stock"}}},
+    {"SoundPack", {themePacksDirectory, "sounds", "sounds", "DownloadableSounds",
+                   tr("Select sound packs to delete"), tr("Delete the \"%1\" sound pack?"), tr("Delete the %1 selected sound packs?"),
+                   tr("Select sound packs to download"), tr("Select a sound pack"), {"none"}}},
+    {"WheelIcon", {wheelsDirectory, "", "steering_wheels", "DownloadableWheels",
+                   tr("Select steering wheels to delete"), tr("Delete the \"%1\" steering wheel?"), tr("Delete the %1 selected steering wheels?"),
+                   tr("Select steering wheels to download"), tr("Select a steering wheel"), {}}}
+  };
 
   const std::vector<std::tuple<QString, QString, QString, QString>> themeToggles {
     {"CustomThemes", tr("Custom Themes"), tr("<b>Swap openpilot's colors, icons, sounds, turn signal animations, steering wheel picture, and personality button for a theme pack you download.</b><br><br>You mix and match freely, so one theme's colors can run alongside another's sounds. Packs are made by other drivers, and you can build your own with the \"Theme Maker\" in \"The Pond\"."), "../../frogpilot/assets/toggle_icons/icon_frog.svg"},
@@ -44,10 +288,70 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent, bool
         themesLayout->setCurrentWidget(customThemesPanel);
       });
       themeToggle = customThemesToggle;
-    } else if (param == "ColorScheme" || param == "DistanceIconPack" || param == "IconPack" || param == "SignalAnimation" || param == "SoundPack" || param == "WheelIcon") {
-      themeToggle = new FrogPilotButtonsControl(title, desc, icon, {tr("DELETE"), tr("DOWNLOAD"), tr("SELECT")});
+    } else if (themeAssets.count(param)) {
+      const std::string paramKey = param.toStdString();
+
+      ThemeAsset &asset = themeAssets[param];
+      asset.button = new FrogPilotButtonsControl(title, desc, icon, {tr("DELETE"), tr("DOWNLOAD"), tr("SELECT")});
+      QObject::connect(asset.button, &FrogPilotButtonsControl::buttonClicked, [this, paramKey, &asset](int id) {
+        QMap<QString, QString> assetKeys;
+        QStringList themes;
+        if (id != 1) {
+          themes = getThemeList(asset.directory, asset.subFolder, QString::fromStdString(paramKey), params, assetKeys);
+        }
+
+        if (id == 0) {
+          QStringList themesToDelete = FrogPilotMultiOptionDialog::getSelections(asset.deleteTitle, themes, tr("Delete"), this);
+          if (!themesToDelete.isEmpty()) {
+            QString confirmation;
+            if (themesToDelete.size() == 1) {
+              confirmation = asset.deleteOneConfirmation.arg(themesToDelete.first());
+            } else {
+              confirmation = asset.deleteSeveralConfirmation.arg(themesToDelete.size());
+            }
+
+            if (ConfirmationDialog::confirm(confirmation, tr("Delete"), this)) {
+              for (const QString &themeToDelete : themesToDelete) {
+                deleteThemeAsset(asset.directory, asset.subFolder, asset.downloadableParam, assetKeys.value(themeToDelete), params);
+              }
+              asset.allDownloaded = params.get(asset.downloadableParam.toStdString()).empty();
+            }
+          }
+        } else if (id == 1) {
+          if (asset.downloading) {
+            cancellingDownload = true;
+
+            frogpilotUIState()->cancelThemeDownload();
+          } else {
+            QStringList downloadableThemes = QString::fromStdString(params.get(asset.downloadableParam.toStdString())).split(",", QString::SkipEmptyParts);
+            const QStringList themesToDownload = FrogPilotMultiOptionDialog::getSelections(asset.downloadTitle, downloadableThemes, tr("Download"), this);
+            if (!themesToDownload.isEmpty()) {
+              asset.downloading = true;
+              themeDownloading = true;
+
+              downloadThemeAssets(themesToDownload, asset.component);
+
+              downloadStatusLabel->setText(tr("Downloading..."));
+            }
+          }
+        } else if (id == 2) {
+          themes.append(getBuiltinThemeNames(asset.excludedBuiltinThemes));
+
+          appendCurrentTheme(themes, paramKey, params, assetKeys);
+
+          themes.sort();
+
+          QString themeToSelect = MultiOptionDialog::getSelection(asset.selectTitle, themes,
+            assetKeys.key(QString::fromStdString(params.get(paramKey))), this);
+          if (!themeToSelect.isEmpty()) {
+            asset.button->setValue(storeThemeName(themeToSelect, paramKey, params, assetKeys));
+          }
+        }
+      });
+      themeToggle = asset.button;
     } else if (param == "DownloadStatusLabel") {
-      themeToggle = new LabelControl(title, tr("Idle"));
+      downloadStatusLabel = new LabelControl(title, tr("Idle"));
+      themeToggle = downloadStatusLabel;
 
     } else if (param == "RandomThemes") {
       std::vector<QString> randomThemesToggles{"RandomThemesHolidays"};
@@ -114,10 +418,17 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent, bool
     openDescriptions(forceOpenDescriptions, toggles);
     themesLayout->setCurrentWidget(themesPanel);
   });
+  QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotThemesPanel::updateState);
 }
 
 void FrogPilotThemesPanel::showEvent(QShowEvent *event) {
   updateStartupAlert();
+
+  for (auto &[param, asset] : themeAssets) {
+    asset.allDownloaded = params.get(asset.downloadableParam.toStdString()).empty();
+  }
+
+  updateThemeSelections();
 
   updateToggles();
 }
@@ -132,6 +443,89 @@ void FrogPilotThemesPanel::updateStartupAlert() {
     startupAlertButton->setCheckedButton(1);
   } else {
     startupAlertButton->setCheckedButton(2);
+  }
+}
+
+void FrogPilotThemesPanel::updateState(const UIState &s, const FrogPilotUIState &fs) {
+  if (!isVisible() || finalizingDownload) {
+    return;
+  }
+
+  const FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
+
+  if (themeDownloading) {
+    const cereal::FrogPilotProcessState::Reader &frogpilotProcessState = (*fs.sm)["frogpilotProcessState"].getFrogpilotProcessState();
+
+    const uint32_t downloadCount = frogpilotProcessState.getThemeDownloadCount();
+    const uint32_t failedCount = frogpilotProcessState.getThemeDownloadFailedCount();
+    const uint32_t successCount = frogpilotProcessState.getThemeDownloadSuccessCount();
+
+    QString progress = "Downloading...";
+    bool downloadFinished = false;
+    if (fs.download_theme_request_time <= frogpilotProcessState.getDownloadThemeRequestTime()) {
+      progress = QString::fromStdString(frogpilotProcessState.getThemeDownloadProgress());
+      downloadFinished = failedCount + successCount == downloadCount;
+    }
+    bool downloadStopped = progress == "Download cancelled..." || progress == "GitHub and GitLab are offline...";
+
+    if (downloadFinished && !downloadStopped) {
+      if (failedCount == 0) {
+        downloadStatusLabel->setText(tr("Downloaded!"));
+      } else if (downloadCount == 1) {
+        downloadStatusLabel->setText(tr("Download failed..."));
+      } else {
+        downloadStatusLabel->setText(tr("%1 of %2 downloaded, %3 failed").arg(successCount).arg(downloadCount).arg(failedCount));
+      }
+    } else if (downloadCount > 1 && progress.endsWith("%")) {
+      downloadStatusLabel->setText(tr("Downloading %1 of %2 (%3)").arg(failedCount + successCount + 1).arg(downloadCount).arg(progress));
+    } else if (progress != "Downloading..." && progress != "Downloaded!") {
+      static const QMap<QString, QString> progressTranslations = {
+        {"Download cancelled...", tr("Download cancelled...")},
+        {"Download failed...", tr("Download failed...")},
+        {"Download invalid...", tr("Download invalid...")},
+        {"GitHub and GitLab are offline...", tr("GitHub and GitLab are offline...")},
+        {"Unpacking theme...", tr("Unpacking theme...")},
+        {"Verifying authenticity...", tr("Verifying authenticity...")}
+      };
+
+      downloadStatusLabel->setText(progressTranslations.value(progress, progress));
+    }
+
+    if (downloadFinished || downloadStopped) {
+      finalizingDownload = true;
+
+      QTimer::singleShot(2500, this, [this]() {
+        cancellingDownload = false;
+        finalizingDownload = false;
+        themeDownloading = false;
+
+        for (auto &[param, asset] : themeAssets) {
+          asset.allDownloaded = params.get(asset.downloadableParam.toStdString()).empty();
+          asset.downloading = false;
+        }
+
+        downloadStatusLabel->setText(tr("Idle"));
+      });
+    }
+  }
+
+  static const QString cancelText = tr("CANCEL");
+  static const QString downloadText = tr("DOWNLOAD");
+
+  for (auto &[param, asset] : themeAssets) {
+    asset.button->setText(1, asset.downloading ? cancelText : downloadText);
+    asset.button->setEnabledButtons(0, !themeDownloading);
+    asset.button->setEnabledButtons(1, !cancellingDownload && !finalizingDownload &&
+      (asset.downloading || (!themeDownloading && !asset.allDownloaded && frogpilot_scene.online && frogpilot_scene.parked)));
+    asset.button->setEnabledButtons(2, !themeDownloading);
+  }
+
+  parent->keepScreenOn = themeDownloading;
+}
+
+void FrogPilotThemesPanel::updateThemeSelections() {
+  for (auto &[param, asset] : themeAssets) {
+    asset.button->setValue(getThemeName(param.toStdString(), params));
   }
 }
 

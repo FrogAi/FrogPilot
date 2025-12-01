@@ -24,6 +24,11 @@ static void update_state(FrogPilotUIState *fs) {
   }
   if (fpsm.updated("frogpilotPlan")) {
     const cereal::FrogPilotPlan::Reader &frogpilotPlan = fpsm["frogpilotPlan"].getFrogpilotPlan();
+    static uint64_t previous_theme_update_count = 0;
+    if (previous_theme_update_count != frogpilotPlan.getThemeUpdateCount()) {
+      previous_theme_update_count = frogpilotPlan.getThemeUpdateCount();
+      emit fs->themeUpdated();
+    }
   }
   if (fpsm.updated("frogpilotProcessState")) {
     const cereal::FrogPilotProcessState::Reader &frogpilotProcessState = fpsm["frogpilotProcessState"].getFrogpilotProcessState();
@@ -54,11 +59,29 @@ FrogPilotUIState *frogpilotUIState() {
   return &frogpilot_ui_state;
 }
 
+void FrogPilotUIState::cancelThemeDownload() {
+  MessageBuilder msg;
+  msg.initEvent().initFrogpilotUIRequest().setCancelThemeDownload();
+  pm->send("frogpilotUIRequest", msg);
+}
+
 void FrogPilotUIState::createSettingsBackup(const QString &name) {
   MessageBuilder msg;
   cereal::Event::Builder event = msg.initEvent();
   event.initFrogpilotUIRequest().setCreateSettingsBackup(name.toStdString());
   settings_backup_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
+void FrogPilotUIState::downloadTheme(const QString &component, const QStringList &themes) {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  capnp::List<cereal::FrogPilotUIRequest::ThemeDownload>::Builder themeDownloads = event.initFrogpilotUIRequest().initDownloadTheme(themes.size());
+  for (int i = 0; i < themes.size(); ++i) {
+    themeDownloads[i].setComponent(component.toStdString());
+    themeDownloads[i].setTheme(themes[i].toStdString());
+  }
+  download_theme_request_time = event.getLogMonoTime();
   pm->send("frogpilotUIRequest", msg);
 }
 

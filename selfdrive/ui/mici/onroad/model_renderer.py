@@ -5,6 +5,7 @@ from cereal import messaging, car
 from dataclasses import dataclass, field
 from openpilot.common.params import Params
 from openpilot.frogpilot.ui.mici.frogpilot_road import FrogPilotRoad
+from openpilot.frogpilot.ui.mici.frogpilot_theme import theme
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.selfdrive.locationd.calibrationd import HEIGHT_INIT
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
@@ -307,6 +308,11 @@ class ModelRenderer(Widget):
       _base_color = LANE_LINE_COLORS.get(ui_state.status, LANE_LINE_COLORS[UIStatus.DISENGAGED])
 
       # FrogPilot variables
+      lane_lines_color = theme.lane_lines_color()
+
+      if lane_lines_color is not None:
+        _base_color = lane_lines_color
+        alpha *= lane_lines_color.a / 255
 
       color = rl.Color(_base_color.r, _base_color.g, _base_color.b, int(alpha * 255))
 
@@ -342,7 +348,7 @@ class ModelRenderer(Widget):
         continue
 
       # if closest lane lines are not confident, make road edges green
-      color = self._get_ll_color(float(1.0 - self._road_edge_stds[i]), float(self._lane_line_probs[i + 1]) < 0.25, i == 0)
+      color = self._get_ll_color(float(1.0 - self._road_edge_stds[i]), float(self._lane_line_probs[i + 1]) < 0.25 and theme.lane_lines_color() is None, i == 0)
       draw_polygon(self._rect, road_edge.projected_points, color)
 
   def _draw_path(self, sm):
@@ -364,7 +370,7 @@ class ModelRenderer(Widget):
     else:
       # Blend throttle/no throttle colors based on transition
       blend_factor = round(self._blend_filter.x * 100) / 100
-      blended_colors = self._blend_colors(NO_THROTTLE_COLORS, THROTTLE_COLORS, blend_factor)
+      blended_colors = self._blend_colors(NO_THROTTLE_COLORS, theme.throttle_colors(THROTTLE_COLORS), blend_factor)
       gradient = Gradient(
         start=(0.0, 1.0),  # Bottom of path
         end=(0.0, 0.0),  # Top of path

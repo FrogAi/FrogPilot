@@ -7,6 +7,7 @@ import numpy as np
 import pyray as rl
 from opendbc.car import ACCELERATION_DUE_TO_GRAVITY
 from openpilot.selfdrive.ui.mici.onroad import blend_colors
+from openpilot.frogpilot.ui.mici.frogpilot_theme import theme
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
 from openpilot.system.ui.lib.application import gui_app
 from openpilot.system.ui.lib.shader_polygon import draw_polygon, Gradient
@@ -185,7 +186,7 @@ class TorqueBar(Widget):
 
     # animate alpha and angle span
     if not self._demo:
-      self._torque_line_alpha_filter.update(ui_state.status != UIStatus.DISENGAGED)
+      self._torque_line_alpha_filter.update(ui_state.status != UIStatus.DISENGAGED and not theme.signal_crosses_bottom())
     else:
       self._torque_line_alpha_filter.update(1.0)
 

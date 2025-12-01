@@ -144,7 +144,7 @@ class FrogPilotPlanner:
     relevant_lead &= lead.dRel < STOP_DISTANCE + following_speed * frogpilot_variables.MAX_T_FOLLOW + max(following_speed - lead_speed, 0) * frogpilot_variables.PLANNER_TIME
     return relevant_lead
 
-  def publish(self, sm, pm, frogpilot_toggles):
+  def publish(self, theme_update_count, sm, pm, frogpilot_toggles):
     frogpilot_plan_send = messaging.new_message("frogpilotPlan")
     frogpilot_plan_send.valid = sm.all_checks(service_list=["carState", "controlsState", "selfdriveState", "radarState"])
     frogpilotPlan = frogpilot_plan_send.frogpilotPlan
@@ -176,6 +176,8 @@ class FrogPilotPlanner:
     frogpilotPlan.roadCurvature = self.road_curvature
 
     frogpilotPlan.tFollow = float(self.frogpilot_following.t_follow)
+
+    frogpilotPlan.themeUpdateCount = theme_update_count
 
     frogpilotPlan.vCruise = float(self.v_cruise)
 
