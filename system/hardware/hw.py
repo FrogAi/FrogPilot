@@ -14,13 +14,18 @@ class Paths:
     return os.path.join(str(Path.home()), ".comma" + os.environ.get("OPENPILOT_PREFIX", ""))
 
   @staticmethod
-  def log_root() -> str:
+  def log_root(HD: bool = False) -> str:
     if os.environ.get('LOG_ROOT', False):
       return os.environ['LOG_ROOT']
     elif PC:
       return str(Path(Paths.comma_home()) / "media" / "0" / "realdata")
     else:
       # FrogPilot variables
+      if not HD:
+        HD = frogpilot_paths.HD_PATH.is_file()
+
+      if HD:
+        return f"{frogpilot_paths.HD_LOGS_PATH}/"
 
       return '/data/media/0/realdata/'
 
