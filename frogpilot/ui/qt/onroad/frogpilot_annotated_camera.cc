@@ -49,6 +49,8 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
     speedConversionMetrics = MS_TO_MPH;
   }
 
+  blindspotLeft = carState.getLeftBlindspot();
+  blindspotRight = carState.getRightBlindspot();
   brakeLights = frogpilotCarState.getBrakeLights();
   cameraSpeedLimit = frogpilotSignReading.getSpeedLimit();
   cscSpeed = frogpilotPlan.getCscSpeed();
@@ -93,4 +95,23 @@ void FrogPilotAnnotatedCameraWidget::drawOutlinedText(QPainter &p, const QPointF
 
 void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
   int slotStep = rightHandDM ? -widget_size - 2 * UI_BORDER_SIZE : widget_size + 2 * UI_BORDER_SIZE;
+}
+
+void FrogPilotAnnotatedCameraWidget::paintBlindSpotPath(QPainter &p) {
+  p.save();
+
+  QLinearGradient bs(0, height(), 0, 0);
+  bs.setColorAt(0.0f, QColor::fromHslF(0.0f, 0.75f, 0.5f, 0.4f));
+  bs.setColorAt(0.5f, QColor::fromHslF(0.0f, 0.75f, 0.5f, 0.35f));
+  bs.setColorAt(1.0f, QColor::fromHslF(0.0f, 0.75f, 0.5f, 0.0f));
+  p.setBrush(bs);
+
+  if (track_adjacent_vertices[0].boundingRect().width() > 0 && blindspotLeft) {
+    p.drawPolygon(track_adjacent_vertices[0]);
+  }
+  if (track_adjacent_vertices[1].boundingRect().width() > 0 && blindspotRight) {
+    p.drawPolygon(track_adjacent_vertices[1]);
+  }
+
+  p.restore();
 }

@@ -12,6 +12,7 @@ public:
   explicit FrogPilotAnnotatedCameraWidget(CameraWidget *nvg, QWidget *parent = 0);
 
   void mousePressEvent(QMouseEvent *mouseEvent) override;
+  void paintBlindSpotPath(QPainter &p);
   void paintFrogPilotWidgets(QPainter &p);
   void updateState(const UIState &s, const FrogPilotUIState &fs);
 
@@ -44,6 +45,9 @@ protected:
 
 private:
   void drawOutlinedText(QPainter &p, const QPointF &position, const QString &text);
+  bool blindspotLeft;
+  bool blindspotRight;
+
   float distanceConversion;
   float speedConversion;
   float speedConversionMetrics;
