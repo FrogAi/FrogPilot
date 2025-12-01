@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import cereal.messaging as messaging
 
-from opendbc.car import structs
+from opendbc.car import create_button_events, structs
 from openpilot.common.params import Params
 from openpilot.selfdrive.car.cruise import CRUISE_LONG_PRESS, ButtonType
 
@@ -17,6 +17,7 @@ class FrogPilotCard:
     self.car_safety_mode_set = False
     self.distance_pressed_previously = False
     self.manual_transmission = CP.transmissionType == structs.CarParams.TransmissionType.manual
+    self.onroad_distance_button = False
     self.rx_checks_invalid = False
 
     self.accel_press_count = 0
@@ -43,6 +44,18 @@ class FrogPilotCard:
       self.params.put_bool_nonblocking("ExperimentalMode", not sm["selfdriveState"].experimentalMode)
 
   def update(self, carState, frogpilotCarState, sm, frogpilot_toggles):
+    onroad_distance_button_events = []
+    for msg in messaging.drain_sock(self.ui_event_sock):
+      if msg.frogpilotUIEvent.which() == "distanceButtonPressed":
+        onroad_distance_button = msg.frogpilotUIEvent.distanceButtonPressed
+        onroad_distance_button_events += create_button_events(onroad_distance_button, self.onroad_distance_button, {1: ButtonType.gapAdjustCruise})
+        self.onroad_distance_button = onroad_distance_button
+
+    if onroad_distance_button_events:
+      carState.buttonEvents = [*(be.copy() for be in carState.buttonEvents), *onroad_distance_button_events]
+
+    frogpilotCarState.distancePressed |= self.onroad_distance_button
+
     panda_states = [panda_state for panda_state in sm["pandaStates"] if panda_state.safetyModel == self.CP.safetyConfigs[-1].safetyModel]
 
     self.car_safety_mode_set = len(panda_states) > 0
