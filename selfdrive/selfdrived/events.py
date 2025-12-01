@@ -1096,6 +1096,14 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.WARNING: forcing_stop_alert,
   },
 
+  FrogPilotEventName.goatSteerSaturated: {
+    ET.WARNING: Alert(
+      "JESUS TAKE THE WHEEL!!",
+      "Turn Exceeds Steering Limit",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.LOW, VisualAlert.steerRequired, FrogPilotAudibleAlert.goat, 2.),
+  },
+
   FrogPilotEventName.openpilotCrashed: {
     ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("openpilot crashed"),
 
@@ -1238,6 +1246,13 @@ if HARDWARE.get_device_type() == 'mici':
     },
     FrogPilotEventName.forcingStop: {
       ET.WARNING: forcing_stop_alert_mici,
+    },
+    FrogPilotEventName.goatSteerSaturated: {
+      ET.WARNING: Alert(
+        "Jesus Take Wheel",
+        "Turn Exceeds Limit",
+        AlertStatus.userPrompt, AlertSize.mid,
+        Priority.LOW, VisualAlert.steerRequired, FrogPilotAudibleAlert.goat, 2.),
     },
     FrogPilotEventName.openpilotCrashed: {
       ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("openpilot crashed"),
