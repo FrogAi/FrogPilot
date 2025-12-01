@@ -17,13 +17,18 @@ public:
 private:
   void paintEvent(QPaintEvent *event) override;
   void paintFPS(QPainter &p);
+  void paintSteeringTorqueBorder(QPainter &p);
   void resetFPSStats();
   void resizeEvent(QResizeEvent *event) override;
 
   bool showFPS = false;
+  bool showSteering = false;
+
   float avgFPS = 0.0f;
   float maxFPS = 0.0f;
   float minFPS = 99.9f;
+  float smoothedSteer = 0.0f;
+  float torque = 0.0f;
 
   QRect rect;
 
