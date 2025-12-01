@@ -9,6 +9,7 @@ from types import SimpleNamespace
 from cereal import log, car, custom
 import cereal.messaging as messaging
 from opendbc.car.chrysler.values import RAM_DT
+from opendbc.car.gm.values import CC_ONLY_CAR, GMFlags
 from openpilot.common.constants import CV
 from openpilot.common.git import get_short_branch
 from openpilot.common.realtime import DT_CTRL
@@ -384,6 +385,8 @@ def wrong_car_mode_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubM
   if CP.brand == "honda":
     text = "Enable Main Switch to Engage"
   # FrogPilot variables
+  elif CP.carFingerprint in CC_ONLY_CAR and not CP.flags & GMFlags.PEDAL_LONG:
+    text = "Enable Cruise Control to Engage"
   return NoEntryAlert(text)
 
 
