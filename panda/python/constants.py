@@ -41,12 +41,26 @@ H7Config = McuConfig(
 )
 
 # FrogPilot variables
+F4Config = McuConfig(
+  "STM32F4",
+  0x463,
+  [0x4000 for _ in range(4)] + [0x10000] + [0x20000 for _ in range(11)],
+  16,
+  0x1FFF7A10,
+  0x800,
+  0x1FFF79C0,
+  0x8004000,
+  "panda.bin.signed",
+  0x8000000,
+  "bootstub.panda.bin",
+)
 
 @enum.unique
 class McuType(enum.Enum):
   H7 = H7Config
 
   # FrogPilot variables
+  F4 = F4Config
 
   @property
   def config(self):
