@@ -16,6 +16,7 @@ public:
   void paintAdjacentPaths(QPainter &p);
   void paintBlindSpotPath(QPainter &p);
   void paintFrogPilotWidgets(QPainter &p);
+  void paintLeadMetrics(QPainter &p, bool adjacent, QPointF *chevron, const cereal::RadarState::LeadData::Reader &lead_data);
   void updateState(const UIState &s, const FrogPilotUIState &fs);
 
   bool hideBottomIcons = false;
@@ -42,11 +43,14 @@ public:
 
   QPolygonF track_adjacent_vertices[2];
 
+  QRect adjacentLeadTextRect;
   QRect setSpeedRect;
 
   QSize defaultSize;
 
   QString signalStyle;
+
+  QVector<QRect> leadTextRects;
 
 protected:
   void hideEvent(QHideEvent *event) override;
@@ -80,6 +84,7 @@ private:
   bool forceCoast;
   bool redLight;
 
+  int desiredFollowDistance;
   int signalAnimationLength = 0;
   int signalHeight = 0;
   int signalWidth = 0;
@@ -95,6 +100,7 @@ private:
   float speedConversion;
   float speedConversionMetrics;
   float stoppingDistance;
+  float vEgo;
 
   DrivingPersonalityButton *personalityButton;
   InstantReplayButton *instantReplayButton;

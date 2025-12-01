@@ -35,10 +35,11 @@ void ModelRenderer::draw(QPainter &painter, const QRect &surface_rect) {
   drawLaneLines(painter);
   drawPath(painter, model, surface_rect.height());
 
-  if (longitudinal_control && sm.alive("radarState") && !frogpilot_toggles.value(QLatin1String("hide_lead_marker")).toBool()) {
+  if ((longitudinal_control || frogpilot_toggles.value(QLatin1String("lead_info")).toBool()) && sm.alive("radarState") && !frogpilot_toggles.value(QLatin1String("hide_lead_marker")).toBool()) {
     update_leads(radar_state, model.getPosition());
     const auto &lead_two = radar_state.getLeadTwo();
     // FrogPilot variables
+    frogpilot_nvg->leadTextRects.clear();
     if (lead_one.getStatus()) {
       // FrogPilot variables
       QColor lead_color = lead_one.getModelProb() >= frogpilot_toggles.value(QLatin1String("lead_detection_probability")).toDouble() ? QColor(frogpilot_toggles.value(QLatin1String("lead_marker_color")).toString()) : frogpilot_nvg->whiteColor();
@@ -57,6 +58,8 @@ void ModelRenderer::draw(QPainter &painter, const QRect &surface_rect) {
       const cereal::FrogPilotRadarState::LeadData::Reader &lead_right = frogpilot_radar_state.getLeadRight();
 
       updateAdjacentLeads(frogpilot_radar_state, model.getPosition());
+
+      frogpilot_nvg->adjacentLeadTextRect = QRect();
 
       if (lead_left.getStatus()) {
         drawLead(painter, reinterpret_cast<const cereal::RadarState::LeadData::Reader&>(lead_left), adjacent_lead_vertices[0], surface_rect, frogpilot_nvg->blueColor(), true);
@@ -298,6 +301,9 @@ void ModelRenderer::drawLead(QPainter &painter, const cereal::RadarState::LeadDa
   painter.drawPolygon(chevron, std::size(chevron));
 
   // FrogPilot variables
+  if (frogpilot_toggles.value(QLatin1String("lead_info")).toBool()) {
+    frogpilot_nvg->paintLeadMetrics(painter, adjacent, chevron, lead_data);
+  }
 }
 
 // Projects a point in car to space to the corresponding point in full frame image space.
