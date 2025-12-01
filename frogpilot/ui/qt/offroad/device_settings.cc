@@ -126,6 +126,18 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent, bool
     static_cast<ParamControl*>(toggles["UseKonikServer"])->forceOn();
   }
 
+  QSet<QString> brightnessKeys = {"ScreenBrightness", "ScreenBrightnessOnroad"};
+  for (const QString &key : brightnessKeys) {
+    FrogPilotParamValueControl *paramControl = static_cast<FrogPilotParamValueControl*>(toggles[key]);
+    QObject::connect(paramControl, &FrogPilotParamValueControl::valueChanged, [key](float value) {
+      QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
+      if (key == "ScreenBrightnessOnroad" && frogpilot_toggles.value("force_onroad").toBool()) {
+        return;
+      }
+      frogpilot_toggles.insert(key == "ScreenBrightness" ? "screen_brightness" : "screen_brightness_onroad", value);
+    });
+  }
+
   QObject::connect(static_cast<FrogPilotButtonToggleControl*>(toggles["NoUploads"]), &FrogPilotButtonToggleControl::buttonClicked, this, &FrogPilotDevicePanel::updateToggles);
   QObject::connect(static_cast<ToggleControl*>(toggles["NoUploads"]), &ToggleControl::toggleFlipped, this, &FrogPilotDevicePanel::updateToggles);
 
