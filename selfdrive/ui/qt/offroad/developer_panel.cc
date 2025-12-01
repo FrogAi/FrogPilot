@@ -149,8 +149,35 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : QFrame(parent) {
       std::vector<QString> temperatureToggleNames{tr("Fahrenheit")};
       developerToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, temperatureToggles, temperatureToggleNames);
     } else if (param == "SidebarMetrics") {
+      sidebarMetricsToggles = {"ShowCPU", "ShowGPU", "ShowIP", "ShowMemoryUsage", "ShowStorageLeft", "ShowStorageUsed"};
       std::vector<QString> sidebarMetricsToggleNames{tr("CPU"), tr("GPU"), tr("IP"), tr("RAM"), tr("SSD Left"), tr("SSD Used")};
-      developerToggle = new FrogPilotButtonsControl(title, desc, icon, sidebarMetricsToggleNames, true, false, 150);
+      sidebarMetricsToggle = new FrogPilotButtonsControl(title, desc, icon, sidebarMetricsToggleNames, true, false, 150);
+      QObject::connect(sidebarMetricsToggle, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
+        params.putBool(sidebarMetricsToggles[id].toStdString(), !params.getBool(sidebarMetricsToggles[id].toStdString()));
+
+        if (id == 0) {
+          params.putBool("ShowGPU", false);
+        } else if (id == 1) {
+          params.putBool("ShowCPU", false);
+        } else if (id == 3) {
+          params.putBool("ShowStorageLeft", false);
+          params.putBool("ShowStorageUsed", false);
+        } else if (id == 4) {
+          params.putBool("ShowMemoryUsage", false);
+          params.putBool("ShowStorageUsed", false);
+        } else if (id == 5) {
+          params.putBool("ShowMemoryUsage", false);
+          params.putBool("ShowStorageLeft", false);
+        }
+
+        sidebarMetricsToggle->clearCheckedButtons();
+        for (int i = 0; i < sidebarMetricsToggles.size(); ++i) {
+          if (params.getBool(sidebarMetricsToggles[i].toStdString())) {
+            sidebarMetricsToggle->setCheckedButton(i);
+          }
+        }
+      });
+      developerToggle = sidebarMetricsToggle;
     } else if (param == "DeveloperSidebar") {
       FrogPilotManageControl *developerSidebarToggle = new FrogPilotManageControl(param, title, desc, icon);
       QObject::connect(developerSidebarToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
@@ -319,6 +346,13 @@ void DeveloperPanel::showEvent(QShowEvent *event) {
   const QMap<int, QString> metricOptions = developerMetricOptions();
   for (const QString &key : developerSidebarKeys) {
     static_cast<ButtonControl*>(toggles[key])->setValue(metricOptions.value(params.getInt(key.toStdString()), tr("None")));
+  }
+
+  sidebarMetricsToggle->clearCheckedButtons();
+  for (int i = 0; i < sidebarMetricsToggles.size(); ++i) {
+    if (params.getBool(sidebarMetricsToggles[i].toStdString())) {
+      sidebarMetricsToggle->setCheckedButton(i);
+    }
   }
 
   QJsonObject shownDescriptions = QJsonDocument::fromJson(QString::fromStdString(params.get("ShownToggleDescriptions")).toUtf8()).object();
