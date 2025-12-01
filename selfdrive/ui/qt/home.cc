@@ -210,15 +210,28 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
     right_column->addWidget(setup_widget, 1);
 
     // FrogPilot variables
-    QObject::connect(uiState(), &UIState::offroadTransition, [left_widget, model_review](bool offroad) {
+    QStackedWidget *right_stack = new QStackedWidget(this);
+    right_stack->setFixedWidth(750);
+    right_stack->addWidget(right_widget);
+
+    FrogPilotDriveSummary *random_events_summary = new FrogPilotDriveSummary(this, true);
+    right_stack->addWidget(random_events_summary);
+
+    QObject::connect(random_events_summary, &FrogPilotDriveSummary::panelClosed, [right_stack]() {
+      right_stack->setCurrentIndex(0);
+    });
+    QObject::connect(uiState(), &UIState::offroadTransition, [left_widget, model_review, right_stack](bool offroad) {
       static bool previously_onroad = false;
       if (offroad && previously_onroad) {
         left_widget->setCurrentIndex(model_review->reviewReady() ? 2 : 1);
+        if (frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value("random_events").toBool()) {
+          right_stack->setCurrentIndex(1);
+        }
       }
       previously_onroad = !offroad;
     });
 
-    home_layout->addWidget(right_widget, 1);
+    home_layout->addWidget(right_stack, 1);
   }
   center_layout->addWidget(home_widget);
 

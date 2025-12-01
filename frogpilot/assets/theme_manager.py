@@ -34,6 +34,8 @@ class ThemeManager:
     self.download_success_count = 0
     self.theme_update_count = 0
 
+    self.wheel_before_random_event = None
+
     self.holiday_theme = "stock"
 
     self.previous_asset_mappings = {}
@@ -516,7 +518,7 @@ class ThemeManager:
 
     self.update_theme_params(downloadable)
 
-  def update_wheel_image(self, image):
+  def update_wheel_image(self, image, random_event=False):
     wheel_save_location = frogpilot_paths.ACTIVE_THEME_PATH / "steering_wheel"
 
     if wheel_save_location.is_dir():
@@ -526,6 +528,8 @@ class ThemeManager:
 
     if self.holiday_theme != "stock":
       source_file = self.get_wheel_path(image, frogpilot_paths.HOLIDAY_THEMES_PATH / self.holiday_theme / "steering_wheel")
+    elif random_event:
+      source_file = self.get_wheel_path(image, frogpilot_paths.RANDOM_EVENTS_PATH / "steering_wheels")
     elif image == "none":
       if current_wheels == []:
         return False
@@ -540,6 +544,9 @@ class ThemeManager:
     if source_file is None:
       return False
 
+    if random_event and self.wheel_before_random_event is None:
+      self.wheel_before_random_event = current_wheels
+
     if current_wheels == [source_file.resolve()]:
       return False
 
@@ -549,6 +556,22 @@ class ThemeManager:
 
     destination_file = wheel_save_location / f"wheel{source_file.suffix}"
     destination_file.symlink_to(source_file)
+    return True
+
+  def restore_wheel_image(self):
+    if self.wheel_before_random_event is None:
+      return False
+
+    wheel_save_location = frogpilot_paths.ACTIVE_THEME_PATH / "steering_wheel"
+
+    if wheel_save_location.is_dir():
+      shutil.rmtree(wheel_save_location)
+    wheel_save_location.mkdir(parents=True, exist_ok=True)
+
+    for source_file in self.wheel_before_random_event:
+      (wheel_save_location / f"wheel{source_file.suffix}").symlink_to(source_file)
+
+    self.wheel_before_random_event = None
     return True
 
   def validate_themes(self, repo_url):

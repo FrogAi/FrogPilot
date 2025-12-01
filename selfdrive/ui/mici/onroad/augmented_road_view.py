@@ -3,6 +3,7 @@ import numpy as np
 import pyray as rl
 from cereal import messaging, car, log
 from msgq.visionipc import VisionStreamType
+from openpilot.frogpilot.ui.mici.frogpilot_alerts import frogpilot_alerts
 from openpilot.frogpilot.ui.mici.frogpilot_camera_view import frogpilot_camera_view
 from openpilot.frogpilot.ui.mici.frogpilot_experimental_press import ExperimentalPress
 from openpilot.frogpilot.ui.mici.frogpilot_theme import theme
@@ -255,6 +256,7 @@ class AugmentedRoadView(CameraView):
     self._hud_renderer.render(self._content_rect)
 
     # FrogPilot variables
+    frogpilot_alerts.render(self._content_rect)
 
     # Draw fake rounded border
     rl.draw_rectangle_rounded_lines_ex(self._content_rect, 0.2 * 1.02, 10, 50, rl.BLACK)
