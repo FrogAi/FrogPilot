@@ -11,6 +11,9 @@ FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(CameraWidget *nvg
 
   QObject::connect(frogpilotUIState(), &FrogPilotUIState::themeUpdated, this, &FrogPilotAnnotatedCameraWidget::updateSignals);
   QObject::connect(nvg, &CameraWidget::vipcThreadFrameReceived, frogpilotUIState(), &FrogPilotUIState::cameraFrameReceived);
+  QObject::connect(uiState(), &UIState::offroadTransition, this, [this] {
+    standstillTimer.invalidate();
+  });
 
   updateSignals();
 }
@@ -193,13 +196,28 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
     glowTimer.invalidate();
   }
 
+  if (frogpilot_scene.standstill && frogpilot_toggles.value(QLatin1String("stopped_timer")).toBool()) {
+    if (!standstillTimer.isValid()) {
+      standstillTimer.start();
+    }
+
+    standstillDuration = (sm.frame - scene.started_frame) / UI_FREQ < 60 ? 0 : standstillTimer.elapsed() / 1000;
+  } else {
+    standstillDuration = 0;
+    standstillTimer.invalidate();
+    standstillTimerRect = QRect();
+  }
+
   staticSignalRect = QRect();
-  if ((blinkerLeft || blinkerRight) && signalStyle == "static") {
+  if ((blinkerLeft || blinkerRight) && signalStyle == "static" && (standstillDuration == 0 || !standstillTimerRect.isNull())) {
     int signalXPosition = blinkerLeft ? (rect().center().x() * 0.75) - signalWidth : rect().center().x() * 1.25;
+    if (standstillDuration != 0) {
+      signalXPosition = blinkerLeft ? standstillTimerRect.left() - UI_BORDER_SIZE - signalWidth : standstillTimerRect.right() + UI_BORDER_SIZE;
+    }
     staticSignalRect = QRect(signalXPosition, signalHeight / 2, signalWidth, signalHeight);
   }
 
-  instantReplayButton->setVisible(!staticSignalRect.intersects(instantReplayButton->geometry()) && frogpilot_toggles.value(QLatin1String("instant_replay")).toInt() != 0);
+  instantReplayButton->setVisible(!standstillTimerRect.intersects(instantReplayButton->geometry()) && !staticSignalRect.intersects(instantReplayButton->geometry()) && frogpilot_toggles.value(QLatin1String("instant_replay")).toInt() != 0);
 
   if (!isVisible()) {
     return;
@@ -257,6 +275,10 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
     if (cscTraining || (isCruiseSet && cscActive)) {
       paintCurveSpeedControl(p);
     }
+  }
+
+  if (standstillDuration != 0) {
+    paintStandstillTimer(p);
   }
 
   if (!staticSignalRect.isNull()) {
@@ -497,6 +519,51 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
   p.setFont(font);
   p.setPen(QPen(whiteColor(), 6));
   p.drawText(roadNameRect, Qt::AlignCenter, roadName);
+
+  p.restore();
+}
+
+void FrogPilotAnnotatedCameraWidget::paintStandstillTimer(QPainter &p) {
+  p.save();
+
+  float transition;
+
+  QColor endColor;
+  QColor startColor;
+  if (standstillDuration < 150) {
+    startColor = bg_colors[STATUS_ENGAGED];
+    endColor = bg_colors[STATUS_CEM_DISABLED];
+    transition = util::map_val<float>(standstillDuration, 60, 150, 0, 1);
+  } else {
+    startColor = bg_colors[STATUS_CEM_DISABLED];
+    endColor = bg_colors[STATUS_TRAFFIC_MODE_ENABLED];
+    transition = util::map_val<float>(standstillDuration, 150, 300, 0, 1);
+  }
+
+  QColor blendedColor(
+    startColor.red() + transition * (endColor.red() - startColor.red()),
+    startColor.green() + transition * (endColor.green() - startColor.green()),
+    startColor.blue() + transition * (endColor.blue() - startColor.blue())
+  );
+
+  std::function<QRect(const QString &, int, const QFont &, const QColor &)> drawText = [&](const QString &text, int y, const QFont &font, const QColor &color) {
+    p.setFont(font);
+    p.setPen(color);
+
+    QRect standstillRect = p.fontMetrics().boundingRect(text);
+    standstillRect.moveCenter({rect().center().x(), y - standstillRect.height() / 2});
+    p.drawText(standstillRect.x(), standstillRect.bottom(), text);
+
+    return standstillRect;
+  };
+
+  int minutes = standstillDuration / 60;
+  QString minuteStr = tr("%n minute(s)", "", minutes);
+  standstillTimerRect = drawText(minuteStr, 210, InterFont(176, QFont::Bold), blendedColor);
+
+  int seconds = standstillDuration % 60;
+  QString secondStr = tr("%n second(s)", "", seconds);
+  drawText(secondStr, 290, InterFont(66), whiteColor());
 
   p.restore();
 }
