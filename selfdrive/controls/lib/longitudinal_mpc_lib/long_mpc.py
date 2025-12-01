@@ -308,11 +308,11 @@ class LongitudinalMpc:
     lead_xv = np.column_stack((x_lead_traj, v_lead_traj))
     return lead_xv
 
-  def process_lead(self, lead, frogpilot_toggles, model_lead):
+  def process_lead(self, lead, frogpilot_toggles, model_lead, traffic_mode_active):
     v_ego = self.x0[1]
 
     # FrogPilot variables
-    if frogpilot_toggles.human_following:
+    if traffic_mode_active or frogpilot_toggles.human_following:
       if lead.modelProb > frogpilot_toggles.lead_detection_probability and frogpilot_utilities.predicts_lead_trajectories(frogpilot_toggles.model_path):
         x_lead_traj = float(lead.dRel) + (np.asarray(model_lead.x, dtype=np.float64) - model_lead.x[0])
         v_lead_traj = float(lead.vLead) + (np.asarray(model_lead.v, dtype=np.float64) - model_lead.v[0])
@@ -350,7 +350,7 @@ class LongitudinalMpc:
     lead_xv = self.extrapolate_lead(x_lead, v_lead, a_lead, a_lead_tau)
     return lead_xv
 
-  def update(self, v_cruise, modelV2, radarstate, x, v, a, j, t_follow, accel_min, accel_max, force_decel, frogpilot_toggles, personality=log.LongitudinalPersonality.standard):
+  def update(self, v_cruise, modelV2, radarstate, x, v, a, j, t_follow, accel_min, accel_max, force_decel, frogpilot_toggles, traffic_mode_active, personality=log.LongitudinalPersonality.standard):
     v_ego = self.x0[1]
 
     # FrogPilot variables
@@ -358,8 +358,8 @@ class LongitudinalMpc:
 
     self.status = radarstate.leadOne.status or radarstate.leadTwo.status
 
-    lead_xv_0 = self.process_lead(radarstate.leadOne, frogpilot_toggles, model_leads[0])
-    lead_xv_1 = self.process_lead(radarstate.leadTwo, frogpilot_toggles, model_leads[1])
+    lead_xv_0 = self.process_lead(radarstate.leadOne, frogpilot_toggles, model_leads[0], traffic_mode_active)
+    lead_xv_1 = self.process_lead(radarstate.leadTwo, frogpilot_toggles, model_leads[1], traffic_mode_active)
 
     # FrogPilot variables
     self.lead_xv_0 = lead_xv_0
