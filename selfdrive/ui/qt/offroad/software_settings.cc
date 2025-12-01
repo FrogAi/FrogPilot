@@ -110,6 +110,13 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
       targetBranchBtn->setValue(QString::fromStdString(params.get("UpdaterTargetBranch")));
 
       // FrogPilot variables
+      if (selection.toStdString() != current && frogpilotUIState()->frogpilot_scene.parked) {
+        if (FrogPilotConfirmationDialog::yesorno(tr("This branch must be downloaded before switching. Would you like to download it now?"), this)) {
+          std::system("pkill -SIGHUP -f system.updated.updated");
+          frogpilotUIState()->runUpdateChecks();
+          return;
+        }
+      }
 
       checkForUpdates();
     }
