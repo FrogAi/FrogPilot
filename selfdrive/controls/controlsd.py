@@ -143,6 +143,7 @@ class Controls:
     pid_accel_limits = self.CI.get_pid_accel_limits(self.CP, CS.vEgo, CS.vCruise * CV.KPH_TO_MS)
 
     # FrogPilot variables
+    pid_accel_limits = (pid_accel_limits[0], min(pid_accel_limits[1], self.frogpilot_toggles.max_desired_acceleration))
 
     actuators.accel = float(self.LoC.update(CC.longActive, CS, long_plan.aTarget, long_plan.shouldStop, pid_accel_limits, self.frogpilot_toggles))
 
