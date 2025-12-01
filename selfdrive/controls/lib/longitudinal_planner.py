@@ -128,7 +128,8 @@ class LongitudinalPlanner:
       steer_angle_without_offset = sm['carState'].steeringAngleDeg - sm['liveParameters'].angleOffsetDeg
 
       # FrogPilot variables
-      accel_clip = limit_accel_in_turns(v_ego, steer_angle_without_offset, accel_clip, self.CP)
+      if not sm['frogpilotPlan'].cscControllingSpeed:
+        accel_clip = limit_accel_in_turns(v_ego, steer_angle_without_offset, accel_clip, self.CP)
     else:
       accel_clip = [ACCEL_MIN, ACCEL_MAX]
 
@@ -148,12 +149,13 @@ class LongitudinalPlanner:
 
     # FrogPilot variables
 
-    x, v, a, j, throttle_prob = self.parse_model(sm['modelV2'], v_ego, self.mpc.mode == 'blended' and frogpilot_toggles.taco_tune)
+    x, v, a, j, throttle_prob = self.parse_model(sm['modelV2'], v_ego,
+                                                 self.mpc.mode == 'blended' and frogpilot_toggles.taco_tune and not frogpilot_toggles.curve_speed_controller)
     # Don't clip at low speeds since throttle_prob doesn't account for creep
     self.allow_throttle = throttle_prob > ALLOW_THROTTLE_THRESHOLD or v_ego <= MIN_ALLOW_THROTTLE_SPEED
 
     # FrogPilot variables
-    mpc_accel_max = accel_clip[1]
+    mpc_accel_max = max(accel_clip[1], 0.0) if lead_detected else accel_clip[1]
     mpc_accel_max = max(mpc_accel_max, self.a_desired - 0.05)
 
     mpc_accel_min = sm['frogpilotPlan'].minAcceleration

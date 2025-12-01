@@ -6,6 +6,9 @@ FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(CameraWidget *nvg
   instantReplayButton = new InstantReplayButton(nvg);
   instantReplayButton->setVisible(false);
 
+  curveSpeedIcon = loadPixmap("../../frogpilot/assets/other_images/curve_speed.svg", {btn_size, btn_size});
+  curveSpeedIconFlipped = curveSpeedIcon.transformed(QTransform().scale(-1, 1));
+
   QObject::connect(nvg, &CameraWidget::vipcThreadFrameReceived, frogpilotUIState(), &FrogPilotUIState::cameraFrameReceived);
 }
 
@@ -86,13 +89,25 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   blindspotRight = carState.getRightBlindspot();
   blinkerLeft = carState.getLeftBlinker();
   blinkerRight = carState.getRightBlinker();
+  cscActive = frogpilotPlan.getCscActive() && !carState.getStandstill();
+  cscSpeed = frogpilotPlan.getCscSpeed();
+  cscTraining = frogpilotPlan.getCscTraining();
   experimentalMode = selfdriveState.getExperimentalMode();
   gpsBearing = frogpilotPlan.getGpsBearing();
   redLight = frogpilotPlan.getRedLight();
+  roadCurvature = frogpilotPlan.getRoadCurvature();
   stoppingDistance = positionX.size() != 0 ? positionX[positionX.size() - 1] : 0.0f;
   vEgo = carState.getVEgo();
 
   hideBottomIcons = alertHeight != 0;
+
+  if (cscTraining) {
+    if (!glowTimer.isValid()) {
+      glowTimer.start();
+    }
+  } else {
+    glowTimer.invalidate();
+  }
 
   instantReplayButton->setVisible(frogpilot_toggles.value(QLatin1String("instant_replay")).toInt() != 0);
 
@@ -146,6 +161,12 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
 
   if (!hideBottomIcons && frogpilot_toggles.value(QLatin1String("compass")).toBool()) {
     paintCompass(p, compassPosition);
+  }
+
+  if (frogpilot_toggles.value(QLatin1String("csc_status")).toBool()) {
+    if (cscTraining || (isCruiseSet && cscActive)) {
+      paintCurveSpeedControl(p);
+    }
   }
 }
 
@@ -308,6 +329,51 @@ void FrogPilotAnnotatedCameraWidget::paintCompass(QPainter &p, const QPoint &pos
   p.setBrush(whiteColor());
   p.setPen(Qt::NoPen);
   p.drawPolygon(triangle);
+
+  p.restore();
+}
+
+void FrogPilotAnnotatedCameraWidget::paintCurveSpeedControl(QPainter &p) {
+  QRect curveSpeedRect(QPoint(setSpeedRect.x() + setSpeedRect.width() + UI_BORDER_SIZE, setSpeedRect.top()), QSize(defaultSize.width() * 1.25, defaultSize.width() * 1.25));
+  QRect cscRect(curveSpeedRect.topLeft() + QPoint(0, curveSpeedRect.height() + UI_BORDER_SIZE / 2), QSize(curveSpeedRect.width(), cscTraining ? 50 : 100));
+
+  p.save();
+
+  QPixmap &curveSpeedImage = roadCurvature < 0 ? curveSpeedIcon : curveSpeedIconFlipped;
+  QSize curveSpeedSize = curveSpeedImage.size();
+  QPoint curveSpeedPoint = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, curveSpeedSize, curveSpeedRect).topLeft();
+
+  if (cscTraining) {
+    qreal phase = (glowTimer.elapsed() % 2000) / 2000.0 * 2 * M_PI;
+    qreal alphaFactor = 0.5 + 0.5 * sin(phase);
+
+    QColor glowColor = blueColor();
+    glowColor.setAlphaF(0.3 + 0.7 * alphaFactor);
+
+    int glowWidth = 8 + static_cast<int>(2 * alphaFactor);
+
+    p.setBrush(blackColor(166));
+    p.setPen(QPen(glowColor, glowWidth));
+    p.drawRoundedRect(curveSpeedRect, 24, 24);
+    p.drawPixmap(curveSpeedPoint, curveSpeedImage);
+    p.setPen(QPen(blackColor(), 10));
+
+    p.drawRoundedRect(cscRect, 24, 24);
+    QString trainingText = tr("Training...");
+    p.setFont(fitInterFont(35, QFont::Bold, cscRect.width() - 40, {trainingText}));
+    p.setPen(QPen(whiteColor(), 6));
+    p.drawText(cscRect.adjusted(20, 0, 0, 0), Qt::AlignVCenter | Qt::AlignLeft, trainingText);
+  } else {
+    p.setBrush(blueColor(166));
+    p.setPen(QPen(blueColor(), 10));
+    p.drawRoundedRect(cscRect, 24, 24);
+    p.setPen(QPen(whiteColor(), 6));
+
+    QString cscSpeedText = QString::number(std::nearbyint(std::min((cscSpeed - vEgo) * speedConversion + speed, speed))) + speedUnit;
+    p.setFont(fitInterFont(45, QFont::Bold, cscRect.width() - 20, {cscSpeedText}));
+    p.drawText(cscRect, Qt::AlignCenter, cscSpeedText);
+    p.drawPixmap(curveSpeedPoint, curveSpeedImage);
+  }
 
   p.restore();
 }

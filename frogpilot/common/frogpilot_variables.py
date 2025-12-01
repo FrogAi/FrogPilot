@@ -1319,6 +1319,14 @@ class FrogPilotVariables:
 
     return value
 
+  def torque_cache_matches(self, CP, version):
+    msg_bytes = self.params.get("CarParamsPrevRoute")
+    if not msg_bytes:
+      return False
+
+    prev_CP = messaging.log_from_bytes(msg_bytes, car.CarParams)
+    return torqued.TorqueEstimator.get_restore_key(prev_CP, version) == torqued.TorqueEstimator.get_restore_key(CP, torqued.VERSION)
+
   def update(self, holiday_theme="stock", started=False):
     from openpilot.frogpilot.common import frogpilot_utilities
 
@@ -1365,6 +1373,8 @@ class FrogPilotVariables:
     is_angle_car = CP.steerControlType == car.CarParams.SteerControlType.angle
     toggle.is_gm_cc_only = CP.carFingerprint in CC_ONLY_CAR
     toggle.is_honda_nidec = toggle.car_make == "honda" and CP.carFingerprint not in HONDA_BOSCH
+    learned_lateral_profile = self.params.get("MaxLateralAcceleration")
+    learned_lateral_acceleration = learned_lateral_profile.get("value", 0.0) if learned_lateral_profile.get("car_fingerprint") == toggle.car_model else 0.0
     toggle.can_use_always_on_lateral_lkas_button = toggle.car_make == "hyundai" and bool(CP.flags & HyundaiFlags.CANFD or CP.flags & HyundaiFlags.HAS_LDA_BUTTON)
     toggle.has_lkas_button = toggle.car_make in LKAS_BUTTON_BRANDS or toggle.can_use_always_on_lateral_lkas_button
     toggle.has_lkas_button |= toggle.car_make == "toyota" and CP.carFingerprint != TOYOTA.TOYOTA_PRIUS_V
@@ -1374,7 +1384,6 @@ class FrogPilotVariables:
     toggle.has_distance_button |= (toggle.car_make == "toyota" and bool(CP.flags & ToyotaFlags.TSS2) and
                                    not CP.flags & (ToyotaFlags.RADAR_ACC | ToyotaFlags.SECOC))
     longitudinalActuatorDelay = CP.longitudinalActuatorDelay
-    toggle.maxLateralAccel = min(CP.maxLateralAccel, MAX_LATERAL_ACCEL_NO_ROLL)
     toggle.openpilot_longitudinal = CP.openpilotLongitudinalControl
     pcm_cruise = CP.pcmCruise
     startAccel = CP.startAccel
@@ -1389,11 +1398,28 @@ class FrogPilotVariables:
     toggle.has_auto_tune = toggle.car_make in torqued.ALLOWED_CARS and is_torque_car
 
     msg_bytes = self.params.get("LiveTorqueParameters")
+    if not started:
+      self.drive_start_torque_cache = None
+    elif self.drive_start_torque_cache is None:
+      self.drive_start_torque_cache = msg_bytes or b""
+
     if msg_bytes:
       LTP = messaging.log_from_bytes(msg_bytes, log.Event).liveTorqueParameters
       toggle.liveValid = LTP.liveValid
+
+      if msg_bytes == self.drive_start_torque_cache:
+        toggle.liveValid &= self.torque_cache_matches(CP, LTP.version)
     else:
       toggle.liveValid = False
+
+    max_lateral_accel = CP.maxLateralAccel
+    if is_angle_car:
+      max_lateral_accel = max(max_lateral_accel, learned_lateral_acceleration)
+    else:
+      if is_torque_car and toggle.liveValid:
+        max_lateral_accel *= LTP.latAccelFactorFiltered / latAccelFactor
+      max_lateral_accel = max(max_lateral_accel, DEFAULT_LATERAL_ACCELERATION)
+    toggle.maxLateralAccel = min(max_lateral_accel, MAX_LATERAL_ACCEL_NO_ROLL)
 
     toggle.debug_mode = self.params.get_bool("DebugMode")
     toggle.force_offroad = self.params.get_bool("ForceOffroad")
