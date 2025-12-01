@@ -1,4 +1,5 @@
 import colorsys
+import math
 
 import numpy as np
 import pyray as rl
@@ -19,6 +20,7 @@ ALWAYS_ON_LATERAL_PATH_WIDTH_FACTOR = 0.75
 CEM_DISABLED_COLOR = rl.Color(255, 255, 0, 255)
 DYNAMIC_PATH_WIDTH_FACTOR = 0.5
 EXPERIMENTAL_MODE_COLOR = rl.Color(218, 111, 37, 255)
+RAINBOW_UPDATE_RATE = 20
 STOP_DISTANCE_FONT_SIZE = 36
 STOP_DISTANCE_MARGIN = 8
 STOP_SIGN_HEIGHT = 64
@@ -53,6 +55,7 @@ def solid_band_gradient(color, strength=1.0):
 
 class FrogPilotRoad:
   def __init__(self):
+    self._rainbow_hue = 0.0
     self._stopping_distance = 0.0
 
     self._blind_spot_filters = {side: FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps) for side in (True, False)}
@@ -232,11 +235,25 @@ class FrogPilotRoad:
     return 0.0
 
   def path_gradient_enabled(self):
-    return ui_state.frogpilot_toggles.get("acceleration_path", False)
+    toggles = ui_state.frogpilot_toggles
+
+    return toggles.get("acceleration_path", False) or toggles.get("rainbow_path", False)
+
+  def update_rainbow(self):
+    v_ego = ui_state.sm["carState"].vEgo
+
+    if v_ego > 0 and ui_state.frogpilot_toggles.get("rainbow_path"):
+      hue_step = math.sqrt(v_ego) / math.sqrt(145 / CV.MS_TO_KPH) * RAINBOW_UPDATE_RATE / gui_app.target_fps
+      self._rainbow_hue = (self._rainbow_hue + hue_step) % 360
 
   def path_gradient_color(self, stock_color, gradient_point, acceleration, experimental_mode):
     toggles = ui_state.frogpilot_toggles
     steady = abs(acceleration) < ACCELERATION_PATH_MIN_ACCEL
+
+    if (steady or not toggles.get("acceleration_path")) and toggles.get("rainbow_path"):
+      hue = (gradient_point * 120 + self._rainbow_hue) % 360
+
+      return hsla_to_color(hue / 360, 1.0, 0.5, np.interp(gradient_point, [0.0, 1.0], [0.5, 0.1]))
 
     if steady and not experimental_mode and toggles.get("color_scheme", "stock") != "stock":
       path_color = hex_to_color(toggles["path_color"])
