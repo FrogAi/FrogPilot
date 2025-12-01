@@ -17,6 +17,7 @@ from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.frogpilot.system.frogpilot_stats import send_stats
 from openpilot.frogpilot.system.frogpilot_tracking import FrogPilotTracking
 from openpilot.frogpilot.system.model_manager import ModelManager
+from openpilot.frogpilot.system.reporting import capture_report
 
 class FrogPilotRequests:
   def __init__(self, cancel_maps_download, model_manager, theme_manager, thread_manager):
@@ -31,6 +32,8 @@ class FrogPilotRequests:
     self.downloading_themes = False
     self.flashed_panda = False
 
+    self.issue_report = "{}"
+
     self.pending = {}
     self.request_times = {}
 
@@ -44,6 +47,13 @@ class FrogPilotRequests:
 
   def flash_panda(self):
     self.flashed_panda = frogpilot_utilities.flash_panda()
+
+  def send_report(self, report, frogpilot_toggles, api):
+    try:
+      self.issue_report = json.dumps(capture_report(report, frogpilot_toggles, api))
+    except Exception:
+      self.issue_report = json.dumps({**report, "status": "failed"})
+      raise
 
   def update(self, now, time_validated, sm, params, frogpilot_toggles, api):
     for msg in messaging.drain_sock(self.ui_request_sock):
@@ -99,6 +109,12 @@ class FrogPilotRequests:
     if not self.thread_manager.is_thread_alive("flash_panda") and self.take("flashPanda") is not None:
       self.flashed_panda = False
       self.thread_manager.run_with_lock(self.flash_panda)
+
+    if time_validated and not self.thread_manager.is_thread_alive("send_report"):
+      request = self.take("issueReport")
+      if request is not None:
+        self.issue_report = json.dumps({"status": "pending"})
+        self.thread_manager.run_with_lock(self.send_report, (json.loads(request.issueReport), dict(vars(frogpilot_toggles)), api))
 
     if not self.thread_manager.is_thread_alive("update_maps") and self.take("downloadMaps") is not None:
       self.thread_manager.run_with_lock(frogpilot_functions.update_maps, (now, params, self.cancel_maps_download, sm, True))
