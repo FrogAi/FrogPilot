@@ -28,11 +28,20 @@ void FrogPilotOnroadWindow::updateState(const UIState &s, const FrogPilotUIState
   bool blindspotRight = carState.getRightBlindspot();
   bool blinkerLeft = carState.getLeftBlinker();
   bool blinkerRight = carState.getRightBlinker();
-  bool wasShown = showFPS;
+  bool wasShown = showFPS || showSteering;
 
   torque = -carControl.getActuators().getTorque();
 
   showFPS = frogpilot_toggles.value(QLatin1String("show_fps")).toBool();
+  showSteering = frogpilot_toggles.value(QLatin1String("steering_metrics")).toBool();
+
+  if (showSteering) {
+    float absTorque = std::abs(torque);
+    smoothedSteer = 0.25f * absTorque + 0.75f * smoothedSteer;
+    if (std::abs(smoothedSteer - absTorque) < 0.01f) {
+      smoothedSteer = absTorque;
+    }
+  }
 
   if (showFPS && fps > 0.0f) {
     if (avgFPS == 0.0f) {
@@ -52,13 +61,13 @@ void FrogPilotOnroadWindow::updateState(const UIState &s, const FrogPilotUIState
                           .arg(qRound(avgFPS));
   }
 
-  if (showFPS || wasShown) {
+  if (showFPS || showSteering || wasShown) {
     update();
   }
 }
 
 void FrogPilotOnroadWindow::paintEvent(QPaintEvent *event) {
-  if (!showFPS) {
+  if (!showSteering && !showFPS) {
     return;
   }
 
@@ -67,7 +76,13 @@ void FrogPilotOnroadWindow::paintEvent(QPaintEvent *event) {
   p.setClipRegion(marginRegion);
   p.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
 
-  paintFPS(p);
+  if (showSteering) {
+    paintSteeringTorqueBorder(p);
+  }
+
+  if (showFPS) {
+    paintFPS(p);
+  }
 }
 
 void FrogPilotOnroadWindow::paintFPS(QPainter &p) {
@@ -80,6 +95,24 @@ void FrogPilotOnroadWindow::paintFPS(QPainter &p) {
   int yPos = rect.bottom() - 5;
 
   FrogPilotAnnotatedCameraWidget::drawOutlinedText(p, QPointF(xPos, yPos), fpsDisplayString);
+
+  p.restore();
+}
+
+void FrogPilotOnroadWindow::paintSteeringTorqueBorder(QPainter &p) {
+  p.save();
+
+  QLinearGradient gradient(rect.topLeft(), rect.bottomLeft());
+  gradient.setColorAt(0.0, bg_colors[STATUS_TRAFFIC_MODE_ENABLED]);
+  gradient.setColorAt(0.25, bg_colors[STATUS_EXPERIMENTAL_MODE_ENABLED]);
+  gradient.setColorAt(0.5, bg_colors[STATUS_CEM_DISABLED]);
+  gradient.setColorAt(0.75, bg_colors[STATUS_ENGAGED]);
+
+  int visibleHeight = rect.height() * smoothedSteer;
+  int xPos = (torque < 0) ? rect.x() : (rect.x() + rect.width() - UI_BORDER_SIZE);
+  int yPos = rect.y() + rect.height() - visibleHeight;
+
+  p.fillRect(QRect(xPos, yPos, UI_BORDER_SIZE, visibleHeight), gradient);
 
   p.restore();
 }

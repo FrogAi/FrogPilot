@@ -1548,7 +1548,7 @@ class FrogPilotVariables:
     border_metrics = self.get_value("BorderMetrics", condition=toggle.developer_metrics)
     toggle.blind_spot_metrics = has_bsm and self.get_value("BlindSpotMetrics", condition=border_metrics)
     toggle.signal_metrics = self.get_value("SignalMetrics", condition=border_metrics) or toggle.debug_mode
-    toggle.steering_metrics = self.get_value("ShowSteering", condition=border_metrics) or toggle.debug_mode
+    toggle.steering_metrics = not is_angle_car and (self.get_value("ShowSteering", condition=border_metrics) or toggle.debug_mode)
     toggle.show_fps = self.get_value("FPSCounter", condition=toggle.developer_metrics) or toggle.debug_mode
     toggle.adjacent_path_metrics = self.get_value("AdjacentPathMetrics", condition=toggle.developer_metrics) or toggle.debug_mode
     toggle.lead_info = self.get_value("LeadInfo", condition=toggle.developer_metrics) or toggle.debug_mode
