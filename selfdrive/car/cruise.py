@@ -44,15 +44,18 @@ class VCruiseHelper:
     self.gm_cc_long = self.CP.carFingerprint in CC_ONLY_CAR and bool(self.CP.flags & GMFlags.CC_LONG.value)
 
     # FrogPilot variables
+    self.confirming_speed_limit = False
 
   @property
   def v_cruise_initialized(self):
     return self.v_cruise_kph != V_CRUISE_UNSET
 
-  def update_v_cruise(self, CS, enabled, is_metric, frogpilot_toggles):
+  def update_v_cruise(self, CS, enabled, is_metric, speed_limit_changed, frogpilot_toggles):
     self.v_cruise_kph_last = self.v_cruise_kph
 
     # FrogPilot variables
+    if any(b.pressed for b in CS.buttonEvents):
+      self.confirming_speed_limit = speed_limit_changed
 
     if CS.cruiseState.available:
       if self.gm_cc_long or not self.CP.pcmCruise:
@@ -101,6 +104,8 @@ class VCruiseHelper:
       return
 
     # FrogPilot variables
+    if self.confirming_speed_limit:
+      return
 
     # Don't adjust speed when pressing resume to exit standstill
     cruise_standstill = self.button_change_states[button_type]["standstill"] or CS.cruiseState.standstill
@@ -144,7 +149,7 @@ class VCruiseHelper:
         self.button_timers[b.type.raw] = 1 if b.pressed else 0
         self.button_change_states[b.type.raw] = {"standstill": CS.cruiseState.standstill, "enabled": enabled}
 
-  def initialize_v_cruise(self, CS, experimental_mode: bool, resume_prev_button: bool, frogpilot_toggles: SimpleNamespace) -> None:
+  def initialize_v_cruise(self, CS, experimental_mode: bool, resume_prev_button: bool, frogpilot_toggles: SimpleNamespace, slc_target: float = 0) -> None:
     # initializing is handled by the PCM
     if self.CP.pcmCruise and not self.gm_cc_long:
       return
@@ -155,6 +160,8 @@ class VCruiseHelper:
                                       or (resume_prev_button and self.gm_cc_long)):
       self.v_cruise_kph = self.v_cruise_kph_last
     # FrogPilot variables
+    elif frogpilot_toggles.set_speed_limit and slc_target > 0:
+      self.v_cruise_kph = int(round(np.clip(slc_target * CV.MS_TO_KPH, V_CRUISE_MIN, V_CRUISE_MAX)))
     else:
       self.v_cruise_kph = int(round(np.clip(CS.vEgo * CV.MS_TO_KPH, initial, V_CRUISE_MAX)))
 

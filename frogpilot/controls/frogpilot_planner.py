@@ -39,6 +39,7 @@ class FrogPilotPlanner:
     self.lateral_check = False
     self.lead_relevant = False
     self.model_stopped = False
+    self.speed_limit_accepted = False
 
     self.accel_press_count = 0
     self.decel_press_count = 0
@@ -78,12 +79,15 @@ class FrogPilotPlanner:
     self.decel_press_count = sm["frogpilotCarState"].decelPressCount
     self.experimental_mode_press_count = sm["frogpilotCarState"].experimentalModePressCount
 
+    self.speed_limit_accepted = False
     for msg in messaging.drain_sock(self.ui_event_sock):
       ui_event = msg.frogpilotUIEvent
       if ui_event.which() == "experimentalModePressed":
         self.experimental_mode_pressed = True
       elif ui_event.which() == "screenRecorderEvent":
         self.frogpilot_events.screen_recorder_events.append(ui_event.screenRecorderEvent.raw)
+      elif ui_event.which() == "speedLimitAccepted":
+        self.speed_limit_accepted = True
 
     self.lead_one = sm["radarState"].leadOne
 
@@ -97,6 +101,8 @@ class FrogPilotPlanner:
     self.lead_relevant = self.is_lead_relevant(self.lead_one, sm["carState"].standstill, v_ego)
 
     self.frogpilot_acceleration.update(v_ego, sm, frogpilot_toggles)
+
+    self.frogpilot_vcruise.slc.frogpilot_toggles = frogpilot_toggles
 
     self.frogpilot_cem.update(v_ego, sm, frogpilot_toggles)
 
@@ -159,7 +165,7 @@ class FrogPilotPlanner:
     self.curve_ahead &= v_ego > frogpilot_variables.CRUISING_SPEED
     self.curve_ahead &= not (sm["carState"].leftBlinker or sm["carState"].rightBlinker)
 
-    self.v_cruise = self.frogpilot_vcruise.update(long_control_active, v_cruise, v_ego, sm, frogpilot_toggles)
+    self.v_cruise = self.frogpilot_vcruise.update(long_control_active, now, time_validated, v_cruise, v_ego, sm, frogpilot_toggles)
 
   def is_lead_relevant(self, lead, standstill, v_ego):
     following_speed = max(v_ego, frogpilot_variables.CRUISING_SPEED)
@@ -189,7 +195,7 @@ class FrogPilotPlanner:
 
     frogpilotPlan.desiredFollowDistance = int(self.frogpilot_following.desired_follow_distance)
 
-    frogpilotPlan.experimentalMode = self.frogpilot_cem.experimental_mode
+    frogpilotPlan.experimentalMode = self.frogpilot_cem.experimental_mode or self.frogpilot_vcruise.slc.experimental_mode
     frogpilotPlan.experimentalMode &= not frogpilot_toggles.conditional_experimental_mode or self.frogpilot_cem.status_value != frogpilot_variables.CE_STATUS["USER_DISABLED"]
 
     frogpilotPlan.forcingStop = self.frogpilot_vcruise.forcing_stop
@@ -212,6 +218,16 @@ class FrogPilotPlanner:
     frogpilotPlan.redLight = self.frogpilot_cem.stop_light_detected
 
     frogpilotPlan.roadCurvature = self.road_curvature
+
+    frogpilotPlan.slcMapboxSpeedLimit = self.frogpilot_vcruise.slc.mapbox_speed_limit
+    frogpilotPlan.slcMapSpeedLimit = self.frogpilot_vcruise.slc.map_speed_limit
+    frogpilotPlan.slcNextSpeedLimit = self.frogpilot_vcruise.slc.next_speed_limit
+    frogpilotPlan.slcOverriddenSpeed = self.frogpilot_vcruise.slc.overridden_speed
+    frogpilotPlan.slcSpeedLimit = self.frogpilot_vcruise.slc_target
+    frogpilotPlan.slcSpeedLimitOffset = self.frogpilot_vcruise.slc_offset
+    frogpilotPlan.slcSpeedLimitSource = self.frogpilot_vcruise.slc.source
+    frogpilotPlan.speedLimitChanged = self.frogpilot_vcruise.slc.speed_limit_changed_timer > DT_MDL
+    frogpilotPlan.unconfirmedSlcSpeedLimit = self.frogpilot_vcruise.slc.unconfirmed_speed_limit
 
     frogpilotPlan.tFollow = float(self.frogpilot_following.t_follow)
 

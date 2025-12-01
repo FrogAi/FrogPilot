@@ -11,6 +11,16 @@ TransmissionType = structs.CarParams.TransmissionType
 
 
 # FrogPilot variables
+def calculate_speed_limit(cp_cam):
+  speed_limit_unit = cp_cam.vl["Traffic_RecognitnData"]["TsrVlUnitMsgTxt_D_Rq"]
+  speed_limit_value = cp_cam.vl["Traffic_RecognitnData"]["TsrVLim1MsgTxt_D_Rq"]
+
+  if 0 < speed_limit_value < 251:
+    if speed_limit_unit == 1:
+      return speed_limit_value * CV.KPH_TO_MS
+    elif speed_limit_unit == 2:
+      return speed_limit_value * CV.MPH_TO_MS
+  return 0
 
 
 class CarState(CarStateBase):
@@ -141,6 +151,8 @@ class CarState(CarStateBase):
     ]
 
     # FrogPilot variables
+    if self.FPCP.hasDashboardSpeedLimit:
+      self.fp_ret.dashboardSpeedLimit = calculate_speed_limit(cp_cam)
 
     return ret
 

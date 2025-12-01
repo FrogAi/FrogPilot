@@ -32,7 +32,9 @@ void ExperimentalButton::changeMode() {
   bool can_change = hasLongitudinalControl(cp) && params.getBool("ExperimentalModeConfirmed");
   if (can_change) {
     // FrogPilot variables
-    if (frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value(QLatin1String("conditional_experimental_mode")).toBool()) {
+    const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
+
+    if (frogpilot_toggles.value(QLatin1String("conditional_experimental_mode")).toBool() || frogpilot_toggles.value(QLatin1String("slc_fallback_experimental_mode")).toBool()) {
       frogpilotUIState()->experimentalModePressed();
     } else {
       params.putBool("ExperimentalMode", !experimental_mode);

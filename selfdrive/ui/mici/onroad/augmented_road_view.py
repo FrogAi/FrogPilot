@@ -6,6 +6,7 @@ from msgq.visionipc import VisionStreamType
 from openpilot.frogpilot.ui.mici.frogpilot_alerts import frogpilot_alerts
 from openpilot.frogpilot.ui.mici.frogpilot_camera_view import frogpilot_camera_view
 from openpilot.frogpilot.ui.mici.frogpilot_experimental_press import ExperimentalPress
+from openpilot.frogpilot.ui.mici.frogpilot_speed_limit import FrogPilotSpeedLimit
 from openpilot.frogpilot.ui.mici.frogpilot_theme import theme
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
 from openpilot.selfdrive.ui.mici.onroad import SIDE_PANEL_WIDTH
@@ -174,7 +175,12 @@ class AugmentedRoadView(CameraView):
     self._pm = messaging.PubMaster(['uiDebug'])
 
     # FrogPilot variables
+    self._pressed_speed_limit = False
+
     self._experimental_press = ExperimentalPress()
+
+    self._frogpilot_speed_limit = FrogPilotSpeedLimit()
+    self._frogpilot_speed_limit.set_touch_valid_callback(self._touch_valid)
 
   def is_swiping_left(self) -> bool:
     """Check if currently swiping left (for scroller to disable)."""
@@ -192,13 +198,16 @@ class AugmentedRoadView(CameraView):
     # FrogPilot variables
     frogpilot_camera_view.update()
 
-    self._experimental_press.update(self.is_pressed, self._bookmark_icon.swiped_left())
+    self._experimental_press.update(self.is_pressed and not self._pressed_speed_limit, self._bookmark_icon.swiped_left())
 
   # FrogPilot variables
+  def _handle_mouse_press(self, mouse_pos: MousePos):
+    self._pressed_speed_limit = self._frogpilot_speed_limit.pending_sign_contains(mouse_pos)
 
   def _handle_mouse_release(self, mouse_pos: MousePos):
     # Don't trigger click callback if bookmark was triggered
-    if not self._bookmark_icon.interacting() and not self._experimental_press.triggered and not frogpilot_camera_view.reversing:
+    if (not self._bookmark_icon.interacting() and not self._pressed_speed_limit and not self._experimental_press.triggered and
+        not frogpilot_camera_view.reversing):
       super()._handle_mouse_release(mouse_pos)
 
   def _render(self, _):
@@ -256,6 +265,8 @@ class AugmentedRoadView(CameraView):
     self._hud_renderer.render(self._content_rect)
 
     # FrogPilot variables
+    self._frogpilot_speed_limit.set_can_draw(alert_to_render is None)
+    self._frogpilot_speed_limit.render(self._content_rect)
     frogpilot_alerts.render(self._content_rect)
 
     # Draw fake rounded border
