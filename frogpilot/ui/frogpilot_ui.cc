@@ -96,6 +96,14 @@ void FrogPilotUIState::experimentalModePressed() {
   pm->send("frogpilotUIEvent", msg);
 }
 
+void FrogPilotUIState::flashPanda() {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  event.initFrogpilotUIRequest().setFlashPanda();
+  flash_panda_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
 void FrogPilotUIState::resetStats() {
   MessageBuilder msg;
   msg.initEvent().initFrogpilotUIRequest().setResetStats();
