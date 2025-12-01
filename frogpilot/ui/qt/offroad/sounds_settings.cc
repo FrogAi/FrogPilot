@@ -54,6 +54,10 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent, bool
       std::vector<QString> alertButton{tr("Test")};
       float minVolume = (param == "PromptDistractedVolume" || param == "PromptVolume" || param == "WarningImmediateVolume" || param == "WarningSoftVolume") ? 25 : 0;
       FrogPilotParamValueButtonControl *volumeToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, minVolume, 101, "%", volumeLabels, 1, true, {}, alertButton);
+      QObject::connect(volumeToggle, &FrogPilotParamValueButtonControl::buttonClicked, [key = param, volumeToggle, this]() {
+        volumeToggle->updateParam();
+        testSound(key);
+      });
       soundsToggle = volumeToggle;
 
     } else if (param == "CustomAlerts") {
@@ -91,10 +95,39 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent, bool
     openDescriptions(forceOpenDescriptions, toggles);
     soundsLayout->setCurrentWidget(soundsPanel);
   });
+  soundPlayerProcess = new QProcess(this);
 }
 
 void FrogPilotSoundsPanel::showEvent(QShowEvent *event) {
   updateToggles();
+}
+
+void FrogPilotSoundsPanel::playSound(const QString &path, float volume) {
+  static const QString program = R"(
+import numpy as np
+import sounddevice as sd
+import sys
+import wave
+
+try:
+  with wave.open(sys.argv[1], 'rb') as sound_file:
+    audio = np.frombuffer(sound_file.readframes(sound_file.getnframes()), dtype=np.int16).astype(np.float32) / 32768.0
+    sample_rate = sound_file.getframerate()
+
+  sd.play(audio * float(sys.argv[2]), sample_rate)
+  sd.wait()
+except Exception:
+  pass
+)";
+
+  if (soundPlayerProcess->state() != QProcess::NotRunning) {
+    soundPlayerProcess->kill();
+    soundPlayerProcess->waitForFinished(1000);
+    if (soundPlayerProcess->state() != QProcess::NotRunning) {
+      return;
+    }
+  }
+  soundPlayerProcess->start("python3", QStringList{"-u", "-c", program, path, QString::number(volume)});
 }
 
 void FrogPilotSoundsPanel::updateToggles() {
@@ -136,4 +169,34 @@ void FrogPilotSoundsPanel::updateToggles() {
   openDescriptions(forceOpenDescriptions, toggles);
 
   update();
+}
+
+void FrogPilotSoundsPanel::testSound(const QString &key) {
+  QString baseName = QString(key).remove("Volume");
+
+  if (uiState()->scene.started) {
+    frogpilotUIState()->updateToggles();
+
+    QString camelCaseAlert = QString(baseName).replace(0, 1, baseName[0].toLower());
+    frogpilotUIState()->testAlert(camelCaseAlert);
+  } else {
+    static const QRegularExpression upperCaseRe("([A-Z])");
+    QString snakeCaseAlert = QString(baseName).replace(upperCaseRe, "_\\1").toLower().mid(1);
+    QString stockPath = "../../selfdrive/assets/sounds/" + snakeCaseAlert + ".wav";
+    QString themePath = "../../frogpilot/assets/active_theme/sounds/" + snakeCaseAlert + ".wav";
+
+    cereal::InitData::DeviceType deviceType = Hardware::get_device_type();
+    if ((snakeCaseAlert == "engage" || snakeCaseAlert == "disengage") && (deviceType == cereal::InitData::DeviceType::TICI || deviceType == cereal::InitData::DeviceType::TIZI)) {
+      stockPath = "../../selfdrive/assets/sounds/" + snakeCaseAlert + "_tizi.wav";
+
+      QString themeTiziPath = "../../frogpilot/assets/active_theme/sounds/" + snakeCaseAlert + "_tizi.wav";
+      if (QFile::exists(themeTiziPath)) {
+        themePath = themeTiziPath;
+      }
+    }
+
+    float volume = std::min(params.getFloat(key.toStdString()) / 100.0f, 1.0f);
+
+    playSound(QFile::exists(themePath) ? themePath : stockPath, volume);
+  }
 }

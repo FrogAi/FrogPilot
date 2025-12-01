@@ -84,6 +84,8 @@ class Soundd:
 
     self.ui_request_sock = messaging.sub_sock("frogpilotUIRequest")
 
+    self.auto_volume = MIN_VOLUME
+
   def load_sounds(self):
     self.loaded_sounds: dict[int, np.ndarray] = {}
 
@@ -135,7 +137,10 @@ class Soundd:
 
   def get_audible_alert(self, sm):
     # FrogPilot variables
-    if sm.updated['selfdriveState']:
+    test_alerts = [msg.frogpilotUIRequest.testAlert for msg in messaging.drain_sock(self.ui_request_sock) if msg.frogpilotUIRequest.which() == 'testAlert']
+    if test_alerts:
+      self.update_alert(getattr(AudibleAlert, test_alerts[-1]))
+    elif sm.updated['selfdriveState']:
       new_alert = sm['selfdriveState'].alertSound.raw
 
       # FrogPilot variables
@@ -179,12 +184,21 @@ class Soundd:
         sm.update(0)
 
         # FrogPilot variables
+        self.get_audible_alert(sm)
+
         if sm.updated['soundPressure'] and self.current_alert == AudibleAlert.none: # only update volume filter when not playing alert
           self.spl_filter_weighted.update(sm["soundPressure"].soundPressureWeightedDb)
           self.current_volume = self.calculate_volume(float(self.spl_filter_weighted.x))
 
           # FrogPilot variables
-        self.get_audible_alert(sm)
+          self.auto_volume = self.current_volume
+          if self.frogpilot_toggles.alert_volume_controller:
+            self.current_volume = 0.0
+
+        elif self.current_alert in self.volume_map and self.frogpilot_toggles.alert_volume_controller:
+          self.current_volume = self.volume_map[self.current_alert]
+          if self.current_volume == 1.01:
+            self.current_volume = self.auto_volume
 
         rk.keep_time()
 
@@ -194,6 +208,29 @@ class Soundd:
         frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
         if frogpilot_toggles is not self.frogpilot_toggles:
           self.frogpilot_toggles = frogpilot_toggles
+
+          if not self.frogpilot_toggles.alert_volume_controller:
+            self.current_volume = self.auto_volume
+
+    self.volume_map = {
+      AudibleAlert.engage: self.frogpilot_toggles.engage_volume / 100.0,
+      AudibleAlert.disengage: self.frogpilot_toggles.disengage_volume / 100.0,
+      AudibleAlert.refuse: self.frogpilot_toggles.refuse_volume / 100.0,
+
+      AudibleAlert.prompt: self.frogpilot_toggles.prompt_volume / 100.0,
+      AudibleAlert.promptRepeat: self.frogpilot_toggles.prompt_volume / 100.0,
+      AudibleAlert.promptDistracted: self.frogpilot_toggles.promptDistracted_volume / 100.0,
+
+      AudibleAlert.warningSoft: self.frogpilot_toggles.warningSoft_volume / 100.0,
+      AudibleAlert.warningImmediate: self.frogpilot_toggles.warningImmediate_volume / 100.0,
+
+      FrogPilotAudibleAlert.goat: self.frogpilot_toggles.prompt_volume / 100.0,
+      FrogPilotAudibleAlert.startup: self.frogpilot_toggles.engage_volume / 100.0
+    }
+
+    for sound in sound_list:
+      if sound not in self.volume_map:
+        self.volume_map[sound] = 1.01
 
 
 def main():

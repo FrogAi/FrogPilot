@@ -15,6 +15,8 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
+  void playSound(const QString &path, float volume);
+  void testSound(const QString &key);
   void updateToggles();
 
   bool forceOpenDescriptions;
@@ -29,4 +31,6 @@ private:
   FrogPilotSettingsWindow *parent;
 
   Params params;
+
+  QProcess *soundPlayerProcess;
 };
