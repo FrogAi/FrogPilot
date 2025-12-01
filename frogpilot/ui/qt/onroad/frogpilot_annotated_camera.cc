@@ -6,6 +6,9 @@ FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(CameraWidget *nvg
   instantReplayButton = new InstantReplayButton(nvg);
   instantReplayButton->setVisible(false);
 
+  curveSpeedIcon = loadPixmap("../../frogpilot/assets/other_images/curve_speed.png", {btn_size, btn_size});
+  curveSpeedIconFlipped = curveSpeedIcon.transformed(QTransform().scale(-1, 1));
+
   QObject::connect(nvg, &CameraWidget::vipcThreadFrameReceived, frogpilotUIState(), &FrogPilotUIState::cameraFrameReceived);
 }
 
@@ -82,6 +85,7 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   blindspotRight = carState.getRightBlindspot();
   brakeLights = frogpilotCarState.getBrakeLights();
   cameraSpeedLimit = frogpilotSignReading.getSpeedLimit();
+  cscActive = frogpilotPlan.getCscActive() && !carState.getStandstill();
   cscSpeed = frogpilotPlan.getCscSpeed();
   cscTraining = frogpilotPlan.getCscTraining();
   dashboardSpeedLimit = frogpilotCarState.getDashboardSpeedLimit();
@@ -105,6 +109,14 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   weatherId = frogpilotPlan.getWeatherId();
 
   hideBottomIcons = alertHeight != 0;
+
+  if (cscTraining) {
+    if (!glowTimer.isValid()) {
+      glowTimer.start();
+    }
+  } else {
+    glowTimer.invalidate();
+  }
 
   instantReplayButton->setVisible(frogpilot_toggles.value(QLatin1String("instant_replay")).toInt() != 0 && standstillDuration == 0 && !(signalStyle == "static" && blinkerRight));
 
@@ -142,6 +154,12 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
 
   if (!hideBottomIcons && frogpilot_toggles.value(QLatin1String("compass")).toBool()) {
     paintCompass(p, compassPosition);
+  }
+
+  if (!(signalStyle == "static" && blinkerLeft) && frogpilot_toggles.value(QLatin1String("csc_status")).toBool()) {
+    if (cscTraining || (isCruiseSet && cscActive)) {
+      paintCurveSpeedControl(p);
+    }
   }
 }
 
@@ -260,6 +278,56 @@ void FrogPilotAnnotatedCameraWidget::paintCompass(QPainter &p, const QPoint &pos
   p.setBrush(whiteColor());
   p.setPen(Qt::NoPen);
   p.drawPolygon(triangle);
+
+  p.restore();
+}
+
+void FrogPilotAnnotatedCameraWidget::paintCurveSpeedControl(QPainter &p) {
+  p.save();
+
+  QRect curveSpeedRect(QPoint(setSpeedRect.right() + UI_BORDER_SIZE, setSpeedRect.top()), QSize(defaultSize.width() * 1.25, defaultSize.width() * 1.25));
+
+  QPixmap &curveSpeedImage = roadCurvature < 0 ? curveSpeedIcon : curveSpeedIconFlipped;
+  QSize curveSpeedSize = curveSpeedImage.size();
+  QPoint curveSpeedPoint = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, curveSpeedSize, curveSpeedRect).topLeft();
+
+  if (cscTraining) {
+    qreal phase = (glowTimer.elapsed() % 2000) / 2000.0 * 2 * M_PI;
+    qreal alphaFactor = 0.5 + 0.5 * sin(phase);
+
+    QColor glowColor = blueColor();
+    glowColor.setAlphaF(0.3 + 0.7 * alphaFactor);
+
+    int glowWidth = 8 + static_cast<int>(2 * alphaFactor);
+
+    p.setBrush(blackColor(166));
+    p.setPen(QPen(glowColor, glowWidth));
+    p.drawRoundedRect(curveSpeedRect, 24, 24);
+    p.drawPixmap(curveSpeedPoint, curveSpeedImage);
+    p.setPen(QPen(blackColor(), 10));
+
+    QRect textRect(curveSpeedRect.topLeft() + QPoint(0, curveSpeedRect.height() + 10), QSize(curveSpeedRect.width(), 50));
+    p.drawRoundedRect(textRect, 24, 24);
+    QString trainingText = tr("Training...");
+    p.setFont(fitInterFont(35, QFont::Bold, textRect.width() - 40, {trainingText}));
+    p.setPen(QPen(whiteColor(), 6));
+    p.drawText(textRect.adjusted(20, 0, 0, 0), Qt::AlignVCenter | Qt::AlignLeft, trainingText);
+  } else {
+    QRect cscRect(curveSpeedRect.topLeft() + QPoint(0, curveSpeedRect.height() + 10), QSize(curveSpeedRect.width(), 100));
+    p.setBrush(blueColor(166));
+    p.setFont(InterFont(45, QFont::Bold));
+    p.setPen(QPen(blueColor(), 10));
+    p.drawRoundedRect(cscRect, 24, 24);
+    p.setPen(QPen(whiteColor(), 6));
+
+    QString cscSpeedText = QString::number(std::nearbyint(std::min((cscSpeed - vEgo) * speedConversion + speed, speed))) + speedUnit;
+    int textWidth = p.fontMetrics().horizontalAdvance(cscSpeedText);
+    if (textWidth > cscRect.width() - 20) {
+      p.setFont(InterFont(45 * (cscRect.width() - 20) / textWidth, QFont::Bold));
+    }
+    p.drawText(cscRect, Qt::AlignCenter, cscSpeedText);
+    p.drawPixmap(curveSpeedPoint, curveSpeedImage);
+  }
 
   p.restore();
 }

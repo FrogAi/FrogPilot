@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import math
+import numpy as np
 import os
 import requests
 import subprocess
@@ -50,6 +51,11 @@ class ThreadManager:
       return thread is not None and thread.is_alive()
 
 
+def calculate_curve_speed(road_curvature, lateral_acceleration, roll_compensation):
+  geometric_lateral_acceleration = np.maximum(lateral_acceleration + np.sign(road_curvature) * roll_compensation, 0)
+  return np.maximum(np.sqrt(geometric_lateral_acceleration / np.maximum(np.abs(road_curvature), 1e-6)), frogpilot_variables.CRUISING_SPEED)
+
+
 def calculate_distance_to_point(lat1, lon1, lat2, lon2):
   lat1_rad = math.radians(lat1)
   lon1_rad = math.radians(lon1)
@@ -64,6 +70,20 @@ def calculate_distance_to_point(lat1, lon1, lat2, lon2):
   c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
   return frogpilot_variables.EARTH_RADIUS * c
+
+
+def calculate_road_curvature(model_data, v_ego, lateral_acceleration, roll_compensation):
+  velocity = np.asarray(model_data.velocity.x)
+  road_curvature = np.where(velocity >= frogpilot_variables.MINIMUM_PLANNED_SPEED, np.asarray(model_data.orientationRate.z) / np.maximum(velocity, 1), 0)
+
+  distance_to_point = np.concatenate(([0], np.cumsum(np.hypot(np.diff(model_data.position.x), np.diff(model_data.position.y)))))
+  time_to_point = distance_to_point / max(v_ego, frogpilot_variables.CRUISING_SPEED)
+
+  curve_speed = calculate_curve_speed(road_curvature, lateral_acceleration, roll_compensation)
+  required_deceleration = (v_ego - curve_speed) / np.maximum(time_to_point - frogpilot_variables.DECEL_TIME_MARGIN, 1)
+  index = np.argmax(required_deceleration) if required_deceleration.max() > 0 else np.argmin(curve_speed)
+
+  return float(road_curvature[index]), float(time_to_point[index]), float(np.abs(road_curvature).max())
 
 
 def contains_event_type(events, frogpilot_events, *event_types):
