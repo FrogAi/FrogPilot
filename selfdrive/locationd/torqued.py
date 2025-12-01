@@ -268,8 +268,13 @@ def main(demo=False):
 
     # 4Hz driven by livePose
     if sm.frame % 5 == 0:
-      pm.send('liveTorqueParameters', estimator.get_msg(valid=sm.all_checks(), with_points=DEBUG))
+      msg = estimator.get_msg(valid=sm.all_checks(), with_points=DEBUG)
       # FrogPilot variables
+      if frogpilot_toggles.use_custom_latAccelFactor:
+        msg.liveTorqueParameters.latAccelFactorFiltered = float(frogpilot_toggles.latAccelFactor)
+      if frogpilot_toggles.use_custom_friction:
+        msg.liveTorqueParameters.frictionCoefficientFiltered = float(frogpilot_toggles.friction)
+      pm.send('liveTorqueParameters', msg)
 
     # Cache points every 60 seconds while onroad
     if sm.frame % 240 == 0:

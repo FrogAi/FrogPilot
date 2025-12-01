@@ -15,7 +15,7 @@ from openpilot.selfdrive.controls.lib.drive_helpers import clip_curvature
 from openpilot.selfdrive.controls.lib.latcontrol import LatControl
 from openpilot.selfdrive.controls.lib.latcontrol_pid import LatControlPID
 from openpilot.selfdrive.controls.lib.latcontrol_angle import LatControlAngle, STEER_ANGLE_SATURATION_THRESHOLD
-from openpilot.selfdrive.controls.lib.latcontrol_torque import LatControlTorque
+from openpilot.selfdrive.controls.lib.latcontrol_torque import KP, LatControlTorque
 from openpilot.selfdrive.controls.lib.longcontrol import LongControl
 from openpilot.selfdrive.modeld.modeld import LAT_SMOOTH_SECONDS
 from openpilot.selfdrive.locationd.helpers import PoseCalibrator, Pose
@@ -66,6 +66,10 @@ class Controls:
     self.sm = self.sm.extend(['frogpilotCarState', 'frogpilotPlan'])
 
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
+    self.using_custom_torque_params = False
+
+    if hasattr(self.LaC, "pid"):
+      self.base_k_p = self.LaC.pid._k_p
 
   def update(self):
     self.sm.update(15)
@@ -76,6 +80,9 @@ class Controls:
       self.calibrated_pose = self.pose_calibrator.build_calibrated_pose(device_pose)
 
     # FrogPilot variables
+    if hasattr(self.LaC, "pid") and self.CP.lateralTuning.which() != "pid":
+      self.LaC.pid._k_p = [self.base_k_p[0], [k_p * self.frogpilot_toggles.steerKp / KP for k_p in self.base_k_p[1]]]
+
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(self.sm)
 
   def state_control(self):
@@ -97,7 +104,12 @@ class Controls:
         self.LaC.update_live_torque_params(torque_params.latAccelFactorFiltered, torque_params.latAccelOffsetFiltered,
                                            torque_params.frictionCoefficientFiltered)
         # FrogPilot variables
+        self.using_custom_torque_params = False
       # FrogPilot variables
+      elif (not torque_params.useParams and self.using_custom_torque_params) or \
+           self.frogpilot_toggles.use_custom_friction or self.frogpilot_toggles.use_custom_latAccelFactor:
+        self.LaC.update_live_torque_params(self.frogpilot_toggles.latAccelFactor, self.CP.lateralTuning.torque.latAccelOffset, self.frogpilot_toggles.friction)
+        self.using_custom_torque_params = self.frogpilot_toggles.use_custom_friction or self.frogpilot_toggles.use_custom_latAccelFactor
 
     long_plan = self.sm['longitudinalPlan']
     model_v2 = self.sm['modelV2']
