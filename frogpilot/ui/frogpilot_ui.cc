@@ -40,6 +40,11 @@ static void update_state(FrogPilotUIState *fs) {
       previous_toggles = QByteArray(toggles.cStr(), toggles.size());
       emit fs->togglesUpdated();
     }
+    static uint64_t previous_stats_saved_count = 0;
+    if (previous_stats_saved_count != frogpilotProcessState.getStatsSavedCount()) {
+      previous_stats_saved_count = frogpilotProcessState.getStatsSavedCount();
+      emit fs->statsSaved();
+    }
   }
 }
 
