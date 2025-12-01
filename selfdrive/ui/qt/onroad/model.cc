@@ -128,7 +128,7 @@ void ModelRenderer::update_model(const cereal::ModelDataV2::Reader &model, const
     UIState *s = uiState();
     if (s->status == STATUS_ALWAYS_ON_LATERAL_ACTIVE) {
       path_width *= 0.75f;
-    } else if (s->status != STATUS_ENGAGED) {
+    } else if (s->status != STATUS_ENGAGED && s->status != STATUS_TRAFFIC_MODE_ENABLED) {
       path_width *= 0.5f;
     }
   }

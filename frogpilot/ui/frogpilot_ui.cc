@@ -21,6 +21,7 @@ static void update_state(FrogPilotUIState *fs) {
   }
   if (fpsm.updated("frogpilotCarState")) {
     const cereal::FrogPilotCarState::Reader &frogpilotCarState = fpsm["frogpilotCarState"].getFrogpilotCarState();
+    frogpilot_scene.traffic_mode_enabled = frogpilotCarState.getTrafficModeEnabled();
   }
   if (fpsm.updated("frogpilotPlan")) {
     const cereal::FrogPilotPlan::Reader &frogpilotPlan = fpsm["frogpilotPlan"].getFrogpilotPlan();

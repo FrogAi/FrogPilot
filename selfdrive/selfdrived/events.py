@@ -1243,6 +1243,22 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
   },
 
+  FrogPilotEventName.trafficModeActive: {
+    ET.WARNING: Alert(
+      "Traffic Mode Enabled",
+      "",
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
+  FrogPilotEventName.trafficModeInactive: {
+    ET.WARNING: Alert(
+      "Traffic Mode Disabled",
+      "",
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
   # Random Events
   FrogPilotEventName.accel30: {
     ET.WARNING: Alert(
@@ -1566,6 +1582,20 @@ if HARDWARE.get_device_type() == 'mici':
         "⬅️",
         FrogPilotAlertStatus.frogpilot, AlertSize.mid,
         Priority.MID, VisualAlert.none, FrogPilotAudibleAlert.continued, 7.),
+    },
+    FrogPilotEventName.trafficModeActive: {
+      ET.WARNING: Alert(
+        "Traffic Mode On",
+        "",
+        FrogPilotAlertStatus.frogpilot, AlertSize.small,
+        Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
+    },
+    FrogPilotEventName.trafficModeInactive: {
+      ET.WARNING: Alert(
+        "Traffic Mode Off",
+        "",
+        FrogPilotAlertStatus.frogpilot, AlertSize.small,
+        Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
     },
     FrogPilotEventName.yourFrogTriedToKillMe: {
       ET.PERMANENT: Alert(
