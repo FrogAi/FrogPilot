@@ -16,6 +16,7 @@ class FrogPilotCard:
 
     self.car_safety_mode_set = False
     self.distance_pressed_previously = False
+    self.force_coast = False
     self.manual_transmission = CP.transmissionType == structs.CarParams.TransmissionType.manual
     self.onroad_distance_button = False
     self.rx_checks_invalid = False
@@ -36,6 +37,8 @@ class FrogPilotCard:
   def handle_button_event(self, function, sm, frogpilot_toggles):
     if sm["carControl"].longActive and function == frogpilot_variables.BUTTON_FUNCTIONS["EXPERIMENTAL_MODE"]:
       self.handle_experimental_mode(sm, frogpilot_toggles)
+    elif sm["carControl"].longActive and function == frogpilot_variables.BUTTON_FUNCTIONS["FORCE_COAST"]:
+      self.force_coast = not self.force_coast
 
   def handle_experimental_mode(self, sm, frogpilot_toggles):
     if frogpilot_toggles.conditional_experimental_mode:
@@ -85,6 +88,8 @@ class FrogPilotCard:
       self.lkas_button_press_count += 1
       self.handle_button_event(frogpilot_toggles.lkas_button_function, sm, frogpilot_toggles)
 
+    self.force_coast &= not (carState.brakePressed or carState.gasPressed)
+
     frogpilotCarState.speedSensorsDisagree &= carState.canValid
 
     self.rx_checks_invalid = any(panda_state.safetyRxChecksInvalid for panda_state in panda_states)
@@ -95,6 +100,7 @@ class FrogPilotCard:
     frogpilotCarState.distanceLongPressed = self.very_long_press_threshold > self.gap_counter >= self.long_press_threshold
     frogpilotCarState.distanceVeryLongPressed = self.gap_counter >= self.very_long_press_threshold
     frogpilotCarState.experimentalModePressCount = self.experimental_mode_press_count
+    frogpilotCarState.forceCoast = self.force_coast
     frogpilotCarState.lkasButtonPressCount = self.lkas_button_press_count
     frogpilotCarState.parked = carState.gearShifter == frogpilot_variables.GearShifter.park or (self.manual_transmission and carState.standstill)
     frogpilotCarState.vEgo = carState.vEgo

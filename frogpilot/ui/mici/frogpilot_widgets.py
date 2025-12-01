@@ -111,6 +111,7 @@ class FrogPilotWidgets(Widget):
     self._bottom_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
     self._ce_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
     self._csc_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
+    self._longitudinal_paused_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
     self._road_name_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
     self._stopped_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
 
@@ -132,6 +133,7 @@ class FrogPilotWidgets(Widget):
 
     self._render_conditional_status(rect)
     self._render_curve_speed(rect)
+    self._render_longitudinal_paused(rect)
     self._render_road_name(rect)
     self._render_stopped_timer(rect)
 
@@ -276,6 +278,16 @@ class FrogPilotWidgets(Widget):
     self._draw_shadow(rect.x + SET_SPEED_LEFT + width / 2, rect.y + STOPPED_SHADOW_CENTER_Y, width / 2 + STOPPED_SHADOW_SPREAD, STOPPED_SHADOW_RADIUS_Y, alpha)
     self._draw_text(self._font_display, text, STOPPED_FONT_SIZE, rect.x + SET_SPEED_LEFT, rect.y + STOPPED_TOP, alpha, stopped_color(self._stopped_seconds))
     self._draw_text(self._font_semi_bold, tr("STOPPED"), LABEL_FONT_SIZE, rect.x + LABEL_LEFT, rect.y + STOPPED_LABEL_TOP, alpha)
+
+  def _render_longitudinal_paused(self, rect):
+    alpha = self._paused_alpha(self._longitudinal_paused_filter, ui_state.sm["frogpilotCarState"].forceCoast)
+
+    if alpha >= frogpilot_status.MIN_VISIBLE_ALPHA:
+      x, y = self._left_slot(rect, 1)
+      self._draw_icon("paused_longitudinal", x, y, alpha)
+
+  def _paused_alpha(self, paused_filter, paused):
+    return paused_filter.update(float(paused and self._top_slot_free())) * self._bottom_filter.x
 
   @staticmethod
   def _slide_slot(slot_filter, visibility_filter, slot):
