@@ -198,6 +198,10 @@ def migrate_params(params, params_cache):
       if value is not None and not isinstance(value, expected_type):
         param_store.remove(key)
 
+  speed_limits = params.get("SpeedLimits")
+  if speed_limits and any(set(limit) != {"is_forward", "segment_id", "source", "speed_limit", "tile"} for limit in speed_limits):
+    params.remove("SpeedLimits")
+
   if params.get_bool("IsMetric"):
     metric_conversions = {
       "CESignalSpeed": (CV.MPH_TO_KPH, 0),
