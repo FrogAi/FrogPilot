@@ -8,6 +8,7 @@ import requests
 import subprocess
 import threading
 import time
+import tomllib
 import xattr
 import zipfile
 
@@ -18,6 +19,7 @@ from cereal import log, messaging
 from opendbc.can.parser import CANParser
 from opendbc.car.ford.values import FordSafetyFlags
 from opendbc.car.gm.values import CC_ONLY_CAR, GMFlags
+from opendbc.car.interfaces import TORQUE_SUBSTITUTE_PATH
 from opendbc.car.toyota.carcontroller import DOOR_CONTROL_ADDR, LOCK_CMD
 from opendbc.car.toyota.values import ToyotaSafetyFlags
 from openpilot.common.realtime import DT_DMON, DT_HW, set_core_affinity
@@ -190,6 +192,17 @@ def get_model_lat_smooth_seconds(model_id):
   return models.get(model_id, frogpilot_variables.DEFAULT_MODEL)["lat_smooth_seconds"]
 
 
+@cache
+def get_nnff_model_files():
+  return [file.stem for file in frogpilot_paths.NNFF_MODELS_PATH.iterdir() if file.is_file()]
+
+
+@cache
+def get_nnff_substitutes():
+  with open(TORQUE_SUBSTITUTE_PATH, "rb") as f:
+    return tomllib.load(f)
+
+
 def get_target_branches(available_branches, current_branch):
   branches = available_branches.split(",")
   if not is_FrogsGoMoo():
@@ -305,6 +318,12 @@ def lock_doors(lock_doors_timer, params):
     update_can_parser(can_parser, can_sock)
     if can_parser.ts_nanos["DOOR_LOCKS"]["LOCK_STATUS"] > 0 and can_parser.vl["DOOR_LOCKS"]["LOCK_STATUS"] == 0:
       break
+
+
+@cache
+def nnff_supported(car_fingerprint):
+  from openpilot.frogpilot.controls.lib.neural_network_feedforward import get_nn_model_path
+  return get_nn_model_path(car_fingerprint, "") is not None
 
 
 @cache
