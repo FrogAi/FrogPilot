@@ -1,5 +1,93 @@
 #include "frogpilot/ui/qt/offroad/vehicle_settings.h"
 
+QStringList getCarNames(const QString &carMake, QMap<QString, QString> &carModels) {
+  static const QHash<QString, QString> makeToFolder = {
+    {"acura", "honda"},
+    {"audi", "volkswagen"},
+    {"buick", "gm"},
+    {"cadillac", "gm"},
+    {"chevrolet", "gm"},
+    {"chrysler", "chrysler"},
+    {"cupra", "volkswagen"},
+    {"dodge", "chrysler"},
+    {"ford", "ford"},
+    {"genesis", "hyundai"},
+    {"gmc", "gm"},
+    {"holden", "gm"},
+    {"honda", "honda"},
+    {"hyundai", "hyundai"},
+    {"jeep", "chrysler"},
+    {"kia", "hyundai"},
+    {"lexus", "toyota"},
+    {"lincoln", "ford"},
+    {"man", "volkswagen"},
+    {"mazda", "mazda"},
+    {"nissan", "nissan"},
+    {"peugeot", "psa"},
+    {"porsche", "volkswagen"},
+    {"ram", "chrysler"},
+    {"rivian", "rivian"},
+    {"seat", "volkswagen"},
+    {"škoda", "volkswagen"},
+    {"subaru", "subaru"},
+    {"tesla", "tesla"},
+    {"toyota", "toyota"},
+    {"volkswagen", "volkswagen"}
+  };
+
+  QStringList carNames;
+
+  const QString folder = makeToFolder.value(carMake.toLower());
+  if (folder.isEmpty()) {
+    return carNames;
+  }
+
+  QFile file(QString("../../opendbc/car/%1/values.py").arg(folder));
+  if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+    return carNames;
+  }
+
+  QString content = file.readAll();
+  file.close();
+
+  static const QRegularExpression commentRe("#[^\\n]*");
+  static const QRegularExpression footnoteRe("footnotes=\\[[^\\]]*\\],\\s*");
+  content.remove(commentRe).remove(footnoteRe);
+
+  static const QRegularExpression platformRe("(\\w+)\\s*=\\s*\\w+\\s*\\(");
+  QRegularExpressionMatchIterator platformIt = platformRe.globalMatch(content);
+
+  QVector<QPair<int, QString>> platforms;
+  while (platformIt.hasNext()) {
+    QRegularExpressionMatch match = platformIt.next();
+    platforms.append({match.capturedStart(), match.captured(1)});
+  }
+  platforms.append({content.length(), QString()});
+
+  static const QRegularExpression carNameRe("CarDocs\\w*\\s*\\(\\s*\"([^\"]+)\"");
+
+  for (int i = 0; i < platforms.size() - 1; ++i) {
+    int start = platforms[i].first;
+    int end = platforms[i + 1].first;
+    const QString &platformName = platforms[i].second;
+
+    QRegularExpressionMatchIterator carIt = carNameRe.globalMatch(
+      content.mid(start, end - start)
+    );
+
+    while (carIt.hasNext()) {
+      QString carName = carIt.next().captured(1);
+      if (carName.startsWith(carMake, Qt::CaseInsensitive)) {
+        carModels[carName] = platformName;
+        carNames.append(carName);
+      }
+    }
+  }
+
+  carNames.sort(Qt::CaseInsensitive);
+  return carNames;
+}
+
 FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, bool forceOpen) : FrogPilotListWidget(parent), parent(parent) {
   forceOpenDescriptions = forceOpen;
 
@@ -11,6 +99,54 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
   ScrollView *vehiclesPanel = new ScrollView(settingsList, this);
 
   vehiclesLayout->addWidget(vehiclesPanel);
+
+  QStringList makes = {
+    "Acura", "Audi", "Buick", "Cadillac", "Chevrolet", "Chrysler", "CUPRA",
+    "Dodge", "Ford", "Genesis", "GMC", "Holden", "Honda", "Hyundai", "Jeep",
+    "Kia", "Lexus", "Lincoln", "MAN", "Mazda", "Nissan", "Peugeot", "Porsche", "Ram",
+    "Rivian", "SEAT", "Škoda", "Subaru", "Tesla", "Toyota", "Volkswagen"
+  };
+
+  selectMakeButton = new ButtonControl(tr("Car Make"), tr("SELECT"), tr("<b>The make of the car openpilot is using.</b> To pick one yourself, turn on \"Disable Automatic Fingerprint Detection\" first (\"Advanced\" tuning level)."));
+  QObject::connect(selectMakeButton, &ButtonControl::clicked, [makes, this]() {
+    QString currentMake = QString::fromStdString(params.get("CarMake"));
+    QString makeSelection = MultiOptionDialog::getSelection(tr("Choose your car make"), makes, currentMake, this);
+    if (!makeSelection.isEmpty() && makeSelection != currentMake) {
+      params.put("CarMake", makeSelection.toStdString());
+      params.remove("CarModel");
+      params.remove("CarModelName");
+      selectMakeButton->setValue(makeSelection);
+      selectModelButton->setValue("");
+    }
+  });
+  settingsList->addItem(selectMakeButton);
+
+  selectModelButton = new ButtonControl(tr("Car Model"), tr("SELECT"), tr("<b>The model of the car openpilot is using.</b> To pick one yourself, turn on \"Disable Automatic Fingerprint Detection\" first (\"Advanced\" tuning level)."));
+  QObject::connect(selectModelButton, &ButtonControl::clicked, [parent, this]() {
+    QMap<QString, QString> carModels;
+    QString modelSelection = MultiOptionDialog::getSelection(tr("Choose your car model"),
+      getCarNames(QString::fromStdString(params.get("CarMake")), carModels), QString::fromStdString(params.get("CarModelName")), this);
+    if (!modelSelection.isEmpty()) {
+      params.put("CarModel", carModels.value(modelSelection).toStdString());
+      params.put("CarModelName", modelSelection.toStdString());
+      selectModelButton->setValue(modelSelection);
+
+      if (uiState()->scene.started && carModels.value(modelSelection).toStdString() != parent->carFingerprint && FrogPilotConfirmationDialog::toggleReboot(this)) {
+        FrogPilotConfirmationDialog::softReboot(this);
+      }
+    }
+  });
+  settingsList->addItem(selectModelButton);
+
+  forceFingerprint = new ParamControl("ForceFingerprint", tr("Disable Automatic Fingerprint Detection"), tr("<b>Lock openpilot to the car you picked and stop it changing on its own.</b>"), "");
+  QObject::connect(forceFingerprint, &ToggleControl::toggleFlipped, [this](bool state) {
+    if (!state && uiState()->scene.started && FrogPilotConfirmationDialog::toggleReboot(this)) {
+      FrogPilotConfirmationDialog::softReboot(this);
+    }
+
+    updateToggles();
+  });
+  settingsList->addItem(forceFingerprint);
 
   disableOpenpilotLong = new ParamControl("DisableOpenpilotLongitudinal", tr("Disable openpilot Longitudinal Control"), tr("<b>Let your car's own cruise control handle the gas and brake instead of openpilot.</b>"), "");
   QObject::connect(disableOpenpilotLong, &ToggleControl::toggleFlipped, [parent, this](bool state) {
@@ -200,18 +336,28 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
 
   openDescriptions(forceOpenDescriptions, toggles);
 
+  QObject::connect(uiState(), &UIState::offroadTransition, this, &FrogPilotVehiclesPanel::updateCarLabels);
+
   QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [vehiclesLayout, vehiclesPanel, this] {
     if (forceOpenDescriptions) {
       openDescriptions(forceOpenDescriptions, toggles);
       disableOpenpilotLong->showDescription();
+      forceFingerprint->showDescription();
+      selectMakeButton->showDescription();
+      selectModelButton->showDescription();
     }
     vehiclesLayout->setCurrentWidget(vehiclesPanel);
   });
 }
 
 void FrogPilotVehiclesPanel::showEvent(QShowEvent *event) {
+  updateCarLabels();
+
   if (forceOpenDescriptions) {
     disableOpenpilotLong->showDescription();
+    forceFingerprint->showDescription();
+    selectMakeButton->showDescription();
+    selectModelButton->showDescription();
   }
 
   QStringList detected;
@@ -238,6 +384,17 @@ void FrogPilotVehiclesPanel::showEvent(QShowEvent *event) {
   static_cast<LabelControl*>(toggles["SNGSupport"])->setText(!parent->carDetected ? unknown : supportsSNG ? tr("Yes") : tr("No"));
 
   updateToggles();
+}
+
+void FrogPilotVehiclesPanel::updateCarLabels() {
+  selectMakeButton->setValue(QString::fromStdString(params.get("CarMake")));
+
+  const std::string modelName = params.get("CarModelName");
+  if (modelName.empty()) {
+    selectModelButton->setValue(QString::fromStdString(params.get("CarModel")));
+  } else {
+    selectModelButton->setValue(QString::fromStdString(modelName));
+  }
 }
 
 void FrogPilotVehiclesPanel::updateToggles() {
@@ -317,6 +474,12 @@ void FrogPilotVehiclesPanel::updateToggles() {
 
   disableOpenpilotLong->setVisible((parent->hasOpenpilotLongitudinal || parent->openpilotLongitudinalControlDisabled) && parent->canDisableOpenpilotLong &&
                                  parent->tuningLevel >= parent->frogpilotToggleLevels.value("DisableOpenpilotLongitudinal").toDouble());
+  bool canForceFingerprint = parent->tuningLevel >= parent->frogpilotToggleLevels.value("ForceFingerprint").toDouble();
+  forceFingerprint->setVisible(canForceFingerprint);
+
+  bool canSelectCar = canForceFingerprint && params.getBool("ForceFingerprint");
+  selectMakeButton->setEnabled(canSelectCar);
+  selectModelButton->setEnabled(canSelectCar);
 
   openDescriptions(forceOpenDescriptions, toggles);
 
