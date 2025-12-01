@@ -15,6 +15,8 @@ from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N, get_accel_
 from openpilot.selfdrive.car.cruise import V_CRUISE_MAX, V_CRUISE_UNSET
 from openpilot.common.swaglog import cloudlog
 
+from openpilot.frogpilot.common import frogpilot_utilities
+
 LON_MPC_STEP = 0.2  # first step is 0.2s
 A_CRUISE_MAX_VALS = [1.6, 1.2, 0.8, 0.6]
 A_CRUISE_MAX_BP = [0., 10.0, 25., 40.]
@@ -72,7 +74,7 @@ class LongitudinalPlanner:
     self.solverExecutionTime = 0.0
 
   @staticmethod
-  def parse_model(model_msg):
+  def parse_model(model_msg, v_ego, taco_tune):
     if (len(model_msg.position.x) == ModelConstants.IDX_N and
       len(model_msg.velocity.x) == ModelConstants.IDX_N and
       len(model_msg.acceleration.x) == ModelConstants.IDX_N):
@@ -87,6 +89,9 @@ class LongitudinalPlanner:
       j = np.zeros(len(T_IDXS_MPC))
 
     # FrogPilot variables
+    if taco_tune:
+      orientation_rates = np.interp(T_IDXS_MPC, ModelConstants.T_IDXS, model_msg.orientationRate.z)
+      v = np.minimum(frogpilot_utilities.calculate_taco_turn_speeds(orientation_rates, v, v_ego), v)
 
     if len(model_msg.meta.disengagePredictions.gasPressProbs) > 1:
       throttle_prob = model_msg.meta.disengagePredictions.gasPressProbs[1]
@@ -143,7 +148,7 @@ class LongitudinalPlanner:
 
     # FrogPilot variables
 
-    x, v, a, j, throttle_prob = self.parse_model(sm['modelV2'])
+    x, v, a, j, throttle_prob = self.parse_model(sm['modelV2'], v_ego, self.mpc.mode == 'blended' and frogpilot_toggles.taco_tune)
     # Don't clip at low speeds since throttle_prob doesn't account for creep
     self.allow_throttle = throttle_prob > ALLOW_THROTTLE_THRESHOLD or v_ego <= MIN_ALLOW_THROTTLE_SPEED
 

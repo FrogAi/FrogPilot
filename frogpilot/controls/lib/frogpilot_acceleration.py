@@ -57,7 +57,7 @@ class FrogPilotAcceleration:
     elif sport_gear and frogpilot_toggles.map_deceleration:
       deceleration_profile = frogpilot_variables.DECELERATION_PROFILES["STANDARD"]
 
-    if force_decel:
+    if self.frogpilot_planner.frogpilot_vcruise.taco_controlling_speed or force_decel:
       self.min_accel = ACCEL_MIN
     elif deceleration_profile == frogpilot_variables.DECELERATION_PROFILES["ECO"]:
       self.min_accel = A_CRUISE_MIN_ECO
