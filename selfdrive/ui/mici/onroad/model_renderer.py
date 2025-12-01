@@ -188,7 +188,7 @@ class ModelRenderer(Widget):
 
   def _update_model(self, lead, path_x_array):
     """Update model visualization data based on model message"""
-    max_distance = np.clip(path_x_array[-1], MIN_DRAW_DISTANCE, MAX_DRAW_DISTANCE)
+    max_distance = np.clip(path_x_array[-1], MIN_DRAW_DISTANCE, self._frogpilot_road.max_draw_distance(MAX_DRAW_DISTANCE))
     max_idx = self._get_path_length_idx(self._lane_lines[0].raw_points[:, 0], max_distance)
 
     # Update lane lines using raw points
