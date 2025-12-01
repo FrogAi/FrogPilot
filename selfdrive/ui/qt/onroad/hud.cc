@@ -52,7 +52,9 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
     drawSetSpeed(p, surface_rect);
   }
   // FrogPilot variables
-  drawCurrentSpeed(p, surface_rect);
+  if (frogpilot_nvg->standstillDuration == 0) {
+    drawCurrentSpeed(p, surface_rect);
+  }
 
   p.restore();
 }

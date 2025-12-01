@@ -21,6 +21,7 @@ public:
   bool rightHandDM;
 
   int alertHeight;
+  int standstillDuration = 0;
 
   float speed = 0;
 
@@ -51,6 +52,7 @@ private:
   void paintCompass(QPainter &p, const QPoint &position);
   void paintCurveSpeedControl(QPainter &p);
   void paintRoadName(QPainter &p);
+  void paintStandstillTimer(QPainter &p);
   void paintTurnSignals(QPainter &p);
   void updateCEMIcon();
   void updateIcon(const QString &path, QSharedPointer<QMovie> &icon, QString &iconPath);
@@ -84,11 +86,13 @@ private:
 
   QElapsedTimer glowTimer;
   QElapsedTimer signalTimer;
+  QElapsedTimer standstillTimer;
 
   QPixmap curveSpeedIcon;
   QPixmap curveSpeedIconFlipped;
 
   QRect roadNameRect;
+  QRect standstillTimerRect;
 
   QSharedPointer<QMovie> cemIcon;
 
