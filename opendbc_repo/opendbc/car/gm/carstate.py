@@ -182,6 +182,7 @@ class CarState(CarStateBase):
 
     # FrogPilot variables
     if self.CP.transmissionType == TransmissionType.direct:
+      self.single_pedal_mode |= ret.regenBraking and ret.gearShifter == GearShifter.manumatic
       self.fp_ret.pedalInterceptorNoBrake = bool(self.CP.flags & GMFlags.PEDAL_LONG.value) and not self.single_pedal_mode
 
     return ret
