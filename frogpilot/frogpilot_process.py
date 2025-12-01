@@ -4,7 +4,7 @@ import json
 import os
 import time
 
-from cereal import messaging
+from cereal import car, messaging
 from openpilot.common.params import Params
 from openpilot.common.realtime import Priority, set_core_affinity
 from openpilot.common.time_helpers import system_time_valid
@@ -64,6 +64,39 @@ def update_checks(now, thread_manager, sm, params, frogpilot_toggles, boot_run=F
   while not (frogpilot_utilities.is_url_pingable("https://github.com") or frogpilot_utilities.is_url_pingable("https://gitlab.com")):
     time.sleep(60)
 
+def update_stock_tuning_values(params, car_params_key):
+  msg_bytes = params.get(car_params_key)
+  if msg_bytes is None:
+    return
+
+  CP = messaging.log_from_bytes(msg_bytes, car.CarParams)
+
+  if CP.lateralTuning.which() == "torque":
+    friction = CP.lateralTuning.torque.friction
+    lat_accel_factor = CP.lateralTuning.torque.latAccelFactor
+    steer_kp = 1.0
+  else:
+    friction = 0.0
+    lat_accel_factor = 0.0
+    steer_kp = 0.0
+
+  stock_values = {
+    "SteerDelay": CP.steerActuatorDelay,
+    "SteerFriction": friction,
+    "SteerKP": steer_kp,
+    "SteerLatAccel": lat_accel_factor,
+    "SteerRatio": CP.steerRatio,
+  }
+
+  for key, stock_value in stock_values.items():
+    previous_stock_value = params.get(f"{key}Stock")
+
+    if stock_value != previous_stock_value and stock_value != 0:
+      if round(params.get(key), 6) == round(previous_stock_value, 6):
+        params.put(key, stock_value)
+
+      params.put(f"{key}Stock", stock_value)
+
 def update_toggles(variables, started):
   variables.update(started=started)
 
@@ -76,6 +109,8 @@ def frogpilot_thread():
                             poll="modelV2")
 
   params = Params(return_defaults=True)
+
+  update_stock_tuning_values(params, "CarParamsPersistent")
 
   api = frogpilot_api.FrogPilotAPI(params)
   api.register_device()
@@ -129,7 +164,10 @@ def frogpilot_thread():
     toggles_updated, update_checks_requested = frogpilot_requests.update()
     frogpilot_requests.publish(pm, variables.toggles_json)
 
-    toggles_updated |= waiting_for_car_params and sm.updated["frogpilotCarParams"]
+    if waiting_for_car_params and sm.updated["frogpilotCarParams"]:
+      update_stock_tuning_values(params, "CarParams")
+
+      toggles_updated = True
 
     waiting_for_car_params &= not sm.updated["frogpilotCarParams"]
 
