@@ -1227,6 +1227,15 @@ ZERO_ALLOWED_TUNING_KEYS = ("LongitudinalActuatorDelay", "StartAccel", "StopAcce
 def get_mock_car_params():
   return interfaces[MOCK.MOCK].get_params(MOCK.MOCK, gen_empty_fingerprint(), [], False, False, False).as_reader()
 
+def get_models():
+  return json.loads(frogpilot_paths.MODELS_LIST_PATH.read_text()) if frogpilot_paths.MODELS_LIST_PATH.is_file() else []
+
+def is_model_complete(model_path):
+  if (model_path / "supercombo_metadata.pkl").is_file():
+    return (model_path / "supercombo.thneed").is_file() or (model_path / "supercombo_tinygrad.pkl").is_file()
+
+  return all((model_path / file_name).is_file() for file_name in SPLIT_MODEL_FILES)
+
 def get_frogpilot_toggles(sm=None):
   if sm is None:
     process_frogpilot_toggles.cache_clear()
@@ -1657,8 +1666,23 @@ class FrogPilotVariables:
 
     toggle.long_pitch = self.get_value("LongPitch", condition=toggle.openpilot_longitudinal and toggle.car_make == "gm" and not toggle.is_gm_cc_only)
 
+    models = {model["id"]: model for model in get_models()}
+
     toggle.automatically_download_models = self.get_value("AutomaticallyDownloadModels")
+    toggle.available_models = {model_id: model["name"] for model_id, model in models.items()}
     toggle.model_randomizer = self.get_value("ModelRandomizer")
+
+    if not started:
+      model_id = self.get_value("DrivingModel", cast=None)
+
+      model = models.get(model_id) if is_model_complete(frogpilot_paths.MODELS_PATH / model_id) else None
+
+      if model is None:
+        model = DEFAULT_MODEL
+
+      toggle.model = model["id"]
+      toggle.model_name = model["name"]
+      toggle.model_path = str(frogpilot_paths.STOCK_MODEL_PATH if model is DEFAULT_MODEL else frogpilot_paths.MODELS_PATH / model["id"])
 
     toggle.model_ui = self.get_value("ModelUI")
     toggle.dynamic_path_width = self.get_value("DynamicPathWidth", condition=toggle.model_ui and not toggle.debug_mode)

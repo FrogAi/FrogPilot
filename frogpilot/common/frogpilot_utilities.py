@@ -184,6 +184,12 @@ def flash_panda():
   return flashed
 
 
+@cache
+def get_model_lat_smooth_seconds(model_id):
+  models = {model["id"]: model for model in frogpilot_variables.get_models()}
+  return models.get(model_id, frogpilot_variables.DEFAULT_MODEL)["lat_smooth_seconds"]
+
+
 def get_target_branches(available_branches, current_branch):
   branches = available_branches.split(",")
   if not is_FrogsGoMoo():
@@ -234,6 +240,11 @@ def is_online(device_state):
 
 def is_openpilot_steering(sm):
   return sm["deviceState"].started and (sm["selfdriveState"].enabled or sm["frogpilotCarState"].alwaysOnLateralEnabled)
+
+
+@cache
+def is_pre_tomb_raider_model(model):
+  return model in frogpilot_variables.PRE_TOMB_RAIDER_MODELS
 
 
 def is_unmetered_network(device_state):
@@ -352,8 +363,23 @@ def update_json_file(path, data):
 
 
 @cache
+def use_action_delay(model):
+  return model in frogpilot_variables.ACTION_DELAY_MODELS
+
+
+@cache
+def use_current_speed_stop(model):
+  return model in frogpilot_variables.CURRENT_SPEED_STOP_MODELS
+
+
+@cache
 def use_konik_server():
   return frogpilot_paths.KONIK_PATH.is_file()
+
+
+@cache
+def use_min_stable_delay(model):
+  return model in frogpilot_variables.MIN_STABLE_DELAY_MODELS
 
 
 def wait_for_no_driver(params, sm, time_threshold):

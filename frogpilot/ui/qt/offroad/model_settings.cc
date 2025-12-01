@@ -26,15 +26,104 @@ FrogPilotModelPanel::FrogPilotModelPanel(FrogPilotSettingsWindow *parent, bool f
     AbstractControl *modelToggle;
 
     if (param == "DeleteModel") {
-      modelToggle = new FrogPilotButtonsControl(title, desc, icon, {tr("DELETE"), tr("DELETE ALL")});
+      deleteModelButton = new FrogPilotButtonsControl(title, desc, icon, {tr("DELETE"), tr("DELETE ALL")});
+      QObject::connect(deleteModelButton, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
+        if (id == 0) {
+          QStringList modelsToDelete = FrogPilotMultiOptionDialog::getSelections(tr("Choose driving models to delete"), modelNames(deletableModels()), tr("Delete"), this);
+          if (!modelsToDelete.isEmpty()) {
+            QString confirmation;
+            if (modelsToDelete.size() == 1) {
+              confirmation = tr("Are you sure you want to delete the \"%1\" model?").arg(modelsToDelete.first());
+            } else {
+              confirmation = tr("Are you sure you want to delete these %1 models?").arg(modelsToDelete.size());
+            }
+
+            if (ConfirmationDialog::confirm(confirmation, tr("Delete"), this)) {
+              for (const QString &modelToDelete : modelsToDelete) {
+                QDir(modelsDir.filePath(modelId(modelToDelete))).removeRecursively();
+              }
+            }
+          }
+        } else if (ConfirmationDialog::confirm(tr("Delete every downloaded driving model except the one you are using and the one FrogPilot ships with?"), tr("Delete"), this)) {
+          for (const QString &modelId : deletableModels()) {
+            QDir(modelsDir.filePath(modelId)).removeRecursively();
+          }
+        }
+
+        frogpilotUIState()->updateToggles();
+
+        refreshModels();
+      });
+      modelToggle = deleteModelButton;
     } else if (param == "DownloadModel") {
-      modelToggle = new FrogPilotButtonsControl(title, desc, icon, {tr("DOWNLOAD"), tr("DOWNLOAD ALL")});
+      downloadModelButton = new FrogPilotButtonsControl(title, desc, icon, {tr("DOWNLOAD"), tr("DOWNLOAD ALL")});
+      QObject::connect(downloadModelButton, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
+        if (allModelsDownloading || modelDownloading) {
+          frogpilotUIState()->cancelModelDownload();
+
+          cancellingDownload = true;
+          return;
+        }
+
+        if (id == 0) {
+          QStringList missingModels;
+          for (const QString &modelId : availableModels.keys()) {
+            if (!downloadedModels.contains(modelId)) {
+              missingModels.append(availableModels.value(modelId));
+            }
+          }
+
+          QStringList modelsToDownload = FrogPilotMultiOptionDialog::getSelections(tr("Choose driving models to download"), missingModels, tr("Download"), this);
+          if (modelsToDownload.isEmpty()) {
+            return;
+          }
+
+          QStringList modelIds;
+          for (const QString &modelToDownload : modelsToDownload) {
+            modelIds.append(availableModels.key(modelToDownload));
+          }
+
+          frogpilotUIState()->downloadModels(modelIds);
+
+          modelDownloading = true;
+        } else {
+          frogpilotUIState()->downloadAllModels();
+
+          allModelsDownloading = true;
+        }
+
+        downloadModelButton->setValue(tr("Downloading..."));
+      });
+      modelToggle = downloadModelButton;
     } else if (param == "ManageBlacklistedModels") {
       modelToggle = new FrogPilotButtonsControl(title, desc, icon, {tr("ADD"), tr("REMOVE"), tr("REMOVE ALL")});
     } else if (param == "ManageScores") {
       modelToggle = new FrogPilotButtonsControl(title, desc, icon, {tr("RESET"), tr("VIEW")});
     } else if (param == "SelectModel") {
-      modelToggle = new ButtonControl(title, tr("SELECT"), desc);
+      selectModelButton = new ButtonControl(title, tr("SELECT"), desc);
+      QObject::connect(selectModelButton, &ButtonControl::clicked, [this]() {
+        QString defaultModelDisplay = defaultModelName + " (Default)";
+
+        QStringList models = modelNames(downloadedModels);
+        models.sort();
+        models.prepend(defaultModelDisplay);
+
+        QString modelToSelect = MultiOptionDialog::getSelection(tr("Select a Model"), models, selectedModelName, this);
+        if (modelToSelect.isEmpty()) {
+          return;
+        }
+
+        params.put("DrivingModel", modelId(modelToSelect == defaultModelDisplay ? defaultModelName : modelToSelect).toStdString());
+
+        frogpilotUIState()->updateToggles();
+
+        if (uiState()->scene.started && FrogPilotConfirmationDialog::toggleReboot(this)) {
+          FrogPilotConfirmationDialog::softReboot(this);
+        }
+
+        refreshModels();
+      });
+      modelToggle = selectModelButton;
     } else {
       modelToggle = new ParamControl(param, title, desc, icon);
     }
@@ -50,10 +139,140 @@ FrogPilotModelPanel::FrogPilotModelPanel(FrogPilotSettingsWindow *parent, bool f
     openDescriptions(forceOpenDescriptions, toggles);
     modelLayout->setCurrentWidget(modelPanel);
   });
+  QObject::connect(frogpilotUIState(), &FrogPilotUIState::togglesUpdated, this, &FrogPilotModelPanel::refreshModels);
+  QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotModelPanel::updateState);
+}
+
+QString FrogPilotModelPanel::modelId(const QString &modelName) {
+  return modelName == defaultModelName ? defaultModel : availableModels.key(modelName);
+}
+
+QString FrogPilotModelPanel::modelName(const QString &modelId) {
+  return modelId == defaultModel ? defaultModelName : availableModels.value(modelId);
+}
+
+QStringList FrogPilotModelPanel::deletableModels() {
+  QStringList models = downloadedModels;
+  models.removeAll(QString::fromStdString(params.get("DrivingModel")));
+  models.removeAll(frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value("model").toString());
+  return models;
+}
+
+QStringList FrogPilotModelPanel::modelNames(const QStringList &modelIds) {
+  QStringList names;
+  for (const QString &modelId : modelIds) {
+    if (modelId == defaultModel || availableModels.contains(modelId)) {
+      names.append(modelName(modelId));
+    }
+  }
+  return names;
+}
+
+void FrogPilotModelPanel::refreshModels() {
+  defaultModel = "dark-souls";
+  defaultModelName = "Dark Souls";
+  modelsDir.setPath("/data/models/openpilot-0_10_3");
+
+  availableModels.clear();
+  const QJsonObject models = frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value("available_models").toObject();
+  for (const QString &modelId : models.keys()) {
+    availableModels.insert(modelId, models.value(modelId).toString());
+  }
+
+  downloadedModels.clear();
+  for (const QString &modelId : availableModels.keys()) {
+    if (modelsDir.exists(modelId)) {
+      downloadedModels.append(modelId);
+    }
+  }
+
+  hasDeletableModels = !deletableModels().isEmpty();
+
+  QString selectedModel = QString::fromStdString(params.get("DrivingModel"));
+  selectedModelName = downloadedModels.contains(selectedModel) ? availableModels.value(selectedModel) : defaultModelName + " (Default)";
+  selectModelButton->setValue(selectedModelName);
 }
 
 void FrogPilotModelPanel::showEvent(QShowEvent *event) {
+  refreshModels();
+
   updateToggles();
+}
+
+void FrogPilotModelPanel::updateState(const UIState &s, const FrogPilotUIState &fs) {
+  if (!isVisible()) {
+    return;
+  }
+
+  const FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
+
+  const cereal::FrogPilotProcessState::Reader &frogpilotProcessState = (*fs.sm)["frogpilotProcessState"].getFrogpilotProcessState();
+
+  if (frogpilotProcessState.getDownloadingModels() && !allModelsDownloading && !modelDownloading) {
+    allModelsDownloading = true;
+  }
+
+  bool downloading = allModelsDownloading || modelDownloading;
+
+  if (downloading && !finalizingDownload) {
+    if (fs.download_model_request_time <= frogpilotProcessState.getModelDownloadRequestTime()) {
+      QString progress = QString::fromStdString(frogpilotProcessState.getModelDownloadProgress());
+      bool finished = !frogpilotProcessState.getDownloadingModels();
+
+      if (progress == "Downloaded!") {
+        downloadModelButton->setValue(tr("Downloaded!"));
+      } else if (progress == "All models downloaded!") {
+        downloadModelButton->setValue(tr("All models downloaded!"));
+      } else if (progress.contains("cancelled", Qt::CaseInsensitive)) {
+        downloadModelButton->setValue(tr("Download cancelled..."));
+      } else if (progress.contains("offline", Qt::CaseInsensitive)) {
+        downloadModelButton->setValue(tr("GitHub and GitLab are offline..."));
+      } else if (finished || progress.contains("failed", Qt::CaseInsensitive)) {
+        downloadModelButton->setValue(tr("Download failed..."));
+      } else if (progress == "Downloading...") {
+        downloadModelButton->setValue(tr("Downloading..."));
+      } else {
+        downloadModelButton->setValue(progress);
+      }
+
+      if (finished) {
+        finalizingDownload = true;
+
+        QTimer::singleShot(2500, this, [this]() {
+          allModelsDownloading = false;
+          cancellingDownload = false;
+          finalizingDownload = false;
+          modelDownloading = false;
+
+          refreshModels();
+        });
+      }
+    }
+  } else if (!downloading) {
+    if (!frogpilot_scene.online) {
+      downloadModelButton->setValue(tr("Offline..."));
+    } else if (!frogpilot_scene.parked) {
+      downloadModelButton->setValue(tr("Not parked"));
+    } else {
+      downloadModelButton->setValue("");
+    }
+  }
+
+  bool canCancel = !cancellingDownload && !finalizingDownload;
+  bool canDownload = !downloading && downloadedModels.size() < availableModels.size() && frogpilot_scene.online && frogpilot_scene.parked;
+
+  deleteModelButton->setEnabled(!downloading && hasDeletableModels);
+
+  downloadModelButton->setText(0, modelDownloading ? tr("CANCEL") : tr("DOWNLOAD"));
+  downloadModelButton->setText(1, allModelsDownloading ? tr("CANCEL") : tr("DOWNLOAD ALL"));
+
+  downloadModelButton->setEnabledButtons(0, modelDownloading ? canCancel : canDownload);
+  downloadModelButton->setEnabledButtons(1, allModelsDownloading ? canCancel : canDownload);
+
+  downloadModelButton->setVisibleButton(0, !allModelsDownloading);
+  downloadModelButton->setVisibleButton(1, !modelDownloading);
+
+  parent->keepScreenOn = downloading;
 }
 
 void FrogPilotModelPanel::updateToggles() {

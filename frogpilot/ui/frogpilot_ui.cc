@@ -64,6 +64,12 @@ FrogPilotUIState *frogpilotUIState() {
   return &frogpilot_ui_state;
 }
 
+void FrogPilotUIState::cancelModelDownload() {
+  MessageBuilder msg;
+  msg.initEvent().initFrogpilotUIRequest().setCancelModelDownload();
+  pm->send("frogpilotUIRequest", msg);
+}
+
 void FrogPilotUIState::cancelThemeDownload() {
   MessageBuilder msg;
   msg.initEvent().initFrogpilotUIRequest().setCancelThemeDownload();
@@ -75,6 +81,25 @@ void FrogPilotUIState::createSettingsBackup(const QString &name) {
   cereal::Event::Builder event = msg.initEvent();
   event.initFrogpilotUIRequest().setCreateSettingsBackup(name.toStdString());
   settings_backup_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
+void FrogPilotUIState::downloadAllModels() {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  event.initFrogpilotUIRequest().setDownloadAllModels();
+  download_model_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
+void FrogPilotUIState::downloadModels(const QStringList &models) {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  capnp::List<capnp::Text>::Builder modelDownloads = event.initFrogpilotUIRequest().initDownloadModels(models.size());
+  for (int i = 0; i < models.size(); ++i) {
+    modelDownloads.set(i, models[i].toStdString());
+  }
+  download_model_request_time = event.getLogMonoTime();
   pm->send("frogpilotUIRequest", msg);
 }
 
