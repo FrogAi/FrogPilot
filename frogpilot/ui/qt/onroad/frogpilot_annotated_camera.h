@@ -85,6 +85,7 @@ private:
   bool cscTraining;
   bool experimentalMode;
   bool forceCoast;
+  bool lateralPaused;
   bool longitudinalPaused;
   bool redLight;
 
@@ -123,6 +124,7 @@ private:
   QPixmap pausedIcon;
   QPixmap speedIcon;
   QPixmap stopSignImg;
+  QPixmap turnIcon;
 
   QRect roadNameRect;
   QRect standstillTimerRect;

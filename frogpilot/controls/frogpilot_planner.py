@@ -135,6 +135,9 @@ class FrogPilotPlanner:
 
     self.lateral_acceleration = v_ego**2 * sm["controlsState"].curvature if sm.all_checks(service_list=["carState", "controlsState"]) else 0
 
+    self.lateral_check = v_ego >= frogpilot_toggles.pause_lateral_below_speed
+    self.lateral_check &= not sm["frogpilotCarState"].pauseLateral
+
     self.model_stopped = self.model_length < frogpilot_variables.CRUISING_SPEED * frogpilot_variables.PLANNER_TIME
 
     self.roll_compensation = sm["liveParameters"].roll * ACCELERATION_DUE_TO_GRAVITY
