@@ -33,7 +33,7 @@ def main():
     sm.update()
     if sm.updated['modelV2']:
       longitudinal_planner.update(sm, frogpilot_toggles)
-      longitudinal_planner.publish(sm, pm)
+      longitudinal_planner.publish(sm, pm, frogpilot_toggles)
 
       ldw.update(sm.frame, sm['modelV2'], sm['carState'], sm['carControl'])
       msg = messaging.new_message('driverAssistance')

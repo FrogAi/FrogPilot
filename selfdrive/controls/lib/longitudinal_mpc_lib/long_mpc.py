@@ -390,8 +390,7 @@ class LongitudinalMpc:
 
     # FrogPilot variables
     model_leads = modelV2.leadsV3
-
-    self.status = radarstate.leadOne.status or radarstate.leadTwo.status
+    self.status = model_leads[0].prob > frogpilot_toggles.lead_detection_probability or model_leads[1].prob > frogpilot_toggles.lead_detection_probability
 
     lead_xv_0 = self.process_lead(radarstate.leadOne, frogpilot_toggles, model_leads[0])
     lead_xv_1 = self.process_lead(radarstate.leadTwo, frogpilot_toggles, model_leads[1])
