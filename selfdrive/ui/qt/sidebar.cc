@@ -20,7 +20,7 @@ void Sidebar::drawMetric(QPainter &p, const QPair<QString, QString> &label, QCol
   p.drawRoundedRect(rect, 20, 20);
 
   p.setPen(QColor(0xff, 0xff, 0xff));
-  p.setFont(InterFont(35, QFont::DemiBold));
+  p.setFont(fitInterFont(35, QFont::DemiBold, rect.width() - 22, {label.first, label.second}));
   p.drawText(rect.adjusted(22, 0, 0, 0), Qt::AlignCenter, label.first + "\n" + label.second);
 }
 
@@ -42,6 +42,9 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
   pm = std::make_unique<PubMaster>(std::vector<const char*>{"bookmarkButton"});
 
   // FrogPilot variables
+  QObject::connect(frogpilotUIState(), &FrogPilotUIState::togglesUpdated, this, [this] {
+    update();
+  });
   QObject::connect(frogpilotUIState(), &FrogPilotUIState::cameraFrameReceived, this, [this] {
     QPair<int, int> frames = {flag_gif ? flag_gif->currentFrameNumber() : -1, settings_gif ? settings_gif->currentFrameNumber() : -1};
     if (frames != gif_frames) {
@@ -63,6 +66,33 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
 
 void Sidebar::mousePressEvent(QMouseEvent *event) {
   // FrogPilot variables
+  QPoint pos = event->pos();
+
+  static constexpr QRect cpuRect = {30, 496, 240, 126};
+  static constexpr QRect memoryRect = {30, 654, 240, 126};
+  static constexpr QRect tempRect = {30, 338, 240, 126};
+
+  if (frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value(QLatin1String("developer_metrics")).toBool() && (cpuRect.contains(pos) || memoryRect.contains(pos) || tempRect.contains(pos))) {
+    if (cpuRect.contains(pos)) {
+      const bool showCPU = params.getBool("ShowCPU");
+      params.putBool("ShowCPU", !showCPU && !params.getBool("ShowGPU"));
+      params.putBool("ShowGPU", showCPU);
+    } else if (memoryRect.contains(pos)) {
+      const bool showMemoryUsage = params.getBool("ShowMemoryUsage");
+      const bool showStorageLeft = params.getBool("ShowStorageLeft");
+      params.putBool("ShowMemoryUsage", !showMemoryUsage && !showStorageLeft && !params.getBool("ShowStorageUsed"));
+      params.putBool("ShowStorageLeft", showMemoryUsage);
+      params.putBool("ShowStorageUsed", showStorageLeft);
+    } else {
+      const bool numericalTemp = params.getBool("NumericalTemp");
+      const bool isFahrenheit = numericalTemp && !params.getBool("Fahrenheit");
+      params.putBool("Fahrenheit", isFahrenheit);
+      params.putBool("NumericalTemp", !numericalTemp || isFahrenheit);
+    }
+    frogpilotUIState()->updateToggles();
+    return;
+  }
+
   if (onroad && home_btn.contains(event->pos())) {
     flag_pressed = true;
     update();
@@ -104,6 +134,13 @@ void Sidebar::updateState(const UIState &s) {
   // FrogPilot variables
   const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
 
+  bool cpu_metrics = frogpilot_toggles.value(QLatin1String("cpu_metrics")).toBool();
+  bool gpu_metrics = frogpilot_toggles.value(QLatin1String("gpu_metrics")).toBool();
+  bool memory_metrics = frogpilot_toggles.value(QLatin1String("memory_metrics")).toBool();
+  bool numerical_temp = frogpilot_toggles.value(QLatin1String("numerical_temp")).toBool();
+  bool storage_left_metrics = frogpilot_toggles.value(QLatin1String("storage_left_metrics")).toBool();
+  bool storage_used_metrics = frogpilot_toggles.value(QLatin1String("storage_used_metrics")).toBool();
+
   QColor sidebar_color1 = QColor(frogpilot_toggles.value(QLatin1String("sidebar_color1")).toString());
   QColor sidebar_color2 = QColor(frogpilot_toggles.value(QLatin1String("sidebar_color2")).toString());
   QColor sidebar_color3 = QColor(frogpilot_toggles.value(QLatin1String("sidebar_color3")).toString());
@@ -138,9 +175,14 @@ void Sidebar::updateState(const UIState &s) {
     tempStatus = {{tr("TEMP"), tr("GOOD")}, sidebar_color1};
   } else if (ts == cereal::DeviceState::ThermalStatus::YELLOW) {
     tempStatus = {{tr("TEMP"), tr("OK")}, warning_color};
+  }
 
   // FrogPilot variables
+  if (numerical_temp) {
+    float maxTempC = deviceState.getMaxTempC();
+    tempStatus.first.second = frogpilot_toggles.value(QLatin1String("fahrenheit")).toBool() ? QString::number(qRound(maxTempC * 9 / 5 + 32)) + "°F" : QString::number(qRound(maxTempC)) + "°C";
   }
+
   setProperty("tempStatus", QVariant::fromValue(tempStatus));
 
   ItemStatus pandaStatus = {{tr("VEHICLE"), tr("ONLINE")}, sidebar_color2};
@@ -152,6 +194,52 @@ void Sidebar::updateState(const UIState &s) {
   setProperty("recordingAudio", s.scene.recording_audio && !frogpilot_toggles.value(QLatin1String("no_logging")).toBool());
 
   // FrogPilot variables
+  setProperty("ipAddress", frogpilotUIState()->wifi->ipv4_address);
+
+  if (cpu_metrics || gpu_metrics) {
+    capnp::List<int8_t>::Reader cpu_loads = deviceState.getCpuUsagePercent();
+    int cpu_usage = cpu_loads.size() != 0 ? std::accumulate(cpu_loads.begin(), cpu_loads.end(), 0) / cpu_loads.size() : 0;
+    int gpu_usage = deviceState.getGpuUsagePercent();
+    int usage = gpu_metrics ? gpu_usage : cpu_usage;
+
+    QString chip_usage = QString::number(usage) + "%";
+
+    ItemStatus chipStatus = {{gpu_metrics ? tr("GPU") : tr("CPU"), chip_usage}, sidebar_color2};
+    if (usage >= 85) {
+      chipStatus.second = danger_color;
+    } else if (usage >= 70) {
+      chipStatus.second = warning_color;
+    }
+    setProperty("chipStatus", QVariant::fromValue(chipStatus));
+  }
+
+  if (memory_metrics || storage_left_metrics || storage_used_metrics) {
+    int free_space = deviceState.getFreeSpacePercent();
+    int memory_usage = deviceState.getMemoryUsagePercent();
+    int storage_left = frogpilotDeviceState.getFreeSpace();
+    int storage_used = frogpilotDeviceState.getUsedSpace();
+
+    QString memory = QString::number(memory_usage) + "%";
+    QString storage = QString::number(storage_left_metrics ? storage_left : storage_used) + tr(" GB");
+
+    if (memory_metrics) {
+      ItemStatus memoryStatus = {{tr("MEMORY"), memory}, sidebar_color3};
+      if (memory_usage >= 85) {
+        memoryStatus.second = danger_color;
+      } else if (memory_usage >= 70) {
+        memoryStatus.second = warning_color;
+      }
+      setProperty("memoryStatus", QVariant::fromValue(memoryStatus));
+    } else {
+      ItemStatus storageStatus = {{storage_left_metrics ? tr("LEFT") : tr("USED"), storage}, sidebar_color3};
+      if (free_space < 25 && free_space >= 10) {
+        storageStatus.second = warning_color;
+      } else if (10 > free_space) {
+        storageStatus.second = danger_color;
+      }
+      setProperty("storageStatus", QVariant::fromValue(storageStatus));
+    }
+  }
 }
 
 void Sidebar::paintEvent(QPaintEvent *event) {
@@ -181,12 +269,18 @@ void Sidebar::paintEvent(QPaintEvent *event) {
 
   // network
   // FrogPilot variables
-  int x = 58;
-  const QColor gray(0x54, 0x54, 0x54);
-  for (int i = 0; i < 5; ++i) {
-    p.setBrush(i < net_strength ? Qt::white : gray);
-    p.drawEllipse(x, 196, 27, 27);
-    x += 37;
+  if (frogpilot_toggles.value(QLatin1String("ip_metrics")).toBool()) {
+    p.setPen(QColor(0xff, 0xff, 0xff));
+    p.setFont(InterFont(30));
+    p.drawText(QRect(50, 196, 225, 27), Qt::AlignLeft | Qt::AlignVCenter, ip_address);
+  } else {
+    int x = 58;
+    const QColor gray(0x54, 0x54, 0x54);
+    for (int i = 0; i < 5; ++i) {
+      p.setBrush(i < net_strength ? Qt::white : gray);
+      p.drawEllipse(x, 196, 27, 27);
+      x += 37;
+    }
   }
 
   p.setFont(InterFont(35));
@@ -202,8 +296,18 @@ void Sidebar::paintEvent(QPaintEvent *event) {
   // metrics
   drawMetric(p, temp_status.first, temp_status.second, 338);
   // FrogPilot variables
-  drawMetric(p, panda_status.first, panda_status.second, 496);
-  drawMetric(p, connect_status.first, connect_status.second, 654);
+  if (frogpilot_toggles.value(QLatin1String("cpu_metrics")).toBool() || frogpilot_toggles.value(QLatin1String("gpu_metrics")).toBool()) {
+    drawMetric(p, chip_status.first, chip_status.second, 496);
+  } else {
+    drawMetric(p, panda_status.first, panda_status.second, 496);
+  }
+  if (frogpilot_toggles.value(QLatin1String("memory_metrics")).toBool()) {
+    drawMetric(p, memory_status.first, memory_status.second, 654);
+  } else if (frogpilot_toggles.value(QLatin1String("storage_left_metrics")).toBool() || frogpilot_toggles.value(QLatin1String("storage_used_metrics")).toBool()) {
+    drawMetric(p, storage_status.first, storage_status.second, 654);
+  } else {
+    drawMetric(p, connect_status.first, connect_status.second, 654);
+  }
 }
 
 // FrogPilot variables
