@@ -9,11 +9,32 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
   main_layout->setMargin(0);
 
   // FrogPilot variables
+  // load fonts
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Black.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Bold.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-ExtraBold.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-ExtraLight.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Medium.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Regular.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-SemiBold.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Thin.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/JetBrainsMono-Medium.ttf");
+
+  setAttribute(Qt::WA_NoSystemBackground);
+
   homeWindow = new HomeWindow(this);
   main_layout->addWidget(homeWindow);
   QObject::connect(homeWindow, &HomeWindow::openSettings, this, &MainWindow::openSettings);
   QObject::connect(homeWindow, &HomeWindow::closeSettings, this, &MainWindow::closeSettings);
+
   // FrogPilot variables
+  // no outline to prevent the focus rectangle
+  setStyleSheet(R"(
+    * {
+      font-family: Inter;
+      outline: none;
+    }
+  )");
 
   settingsWindow = new SettingsWindow(this);
   main_layout->addWidget(settingsWindow);
@@ -45,26 +66,6 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
       closeSettings();
     }
   });
-
-  // load fonts
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Black.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Bold.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-ExtraBold.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-ExtraLight.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Medium.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Regular.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-SemiBold.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Thin.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/JetBrainsMono-Medium.ttf");
-
-  // no outline to prevent the focus rectangle
-  setStyleSheet(R"(
-    * {
-      font-family: Inter;
-      outline: none;
-    }
-  )");
-  setAttribute(Qt::WA_NoSystemBackground);
 }
 
 void MainWindow::openSettings(int index, const QString &param) {

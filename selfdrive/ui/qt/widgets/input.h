@@ -27,7 +27,7 @@ class InputDialog : public DialogBase {
 public:
   explicit InputDialog(const QString &title, QWidget *parent, const QString &subtitle = "", bool secret = false);
   static QString getText(const QString &title, QWidget *parent, const QString &subtitle = "",
-                         bool secret = false, int minLength = -1, const QString &defaultText = "");
+                         bool secret = false, int minLength = -1, const QString &defaultText = "", int maxLength = -1);
   QString text();
   void setMessage(const QString &message, bool clearInputField = true);
   void setMinLength(int length);
@@ -55,8 +55,8 @@ class ConfirmationDialog : public DialogBase {
 
 public:
   explicit ConfirmationDialog(const QString &prompt_text, const QString &confirm_text,
-                              const QString &cancel_text, const bool rich, QWidget* parent);
-  static bool alert(const QString &prompt_text, QWidget *parent);
+                              const QString &cancel_text, const bool rich, QWidget* parent, const bool is_long = false);
+  static bool alert(const QString &prompt_text, QWidget *parent, bool is_long = false);
   static bool confirm(const QString &prompt_text, const QString &confirm_text, QWidget *parent);
   static bool rich(const QString &prompt_text, QWidget *parent);
 };

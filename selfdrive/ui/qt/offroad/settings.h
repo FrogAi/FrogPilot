@@ -36,6 +36,10 @@ signals:
   void scrollToToggle(const QString &param);
 
   // FrogPilot variables
+  void closePanel();
+  void closeSubPanel();
+  void closeSubSubPanel();
+  void closeSubSubSubPanel();
 
 private:
   QPushButton *sidebar_alert_widget;
@@ -44,6 +48,13 @@ private:
   QStackedWidget *panel_widget;
 
   // FrogPilot variables
+  void closeAllPanels();
+  void updateDeveloperToggle(int tuningLevel);
+
+  bool panelOpen = false;
+  bool subPanelOpen = false;
+  bool subSubPanelOpen = false;
+  bool subSubSubPanelOpen = false;
 };
 
 class DevicePanel : public ListWidget {
@@ -76,10 +87,12 @@ public:
 
 signals:
   // FrogPilot variables
+  void updateMetric(bool metric, bool bootRun=false);
 
 public slots:
   void expandToggleDescription(const QString &param);
   // FrogPilot variables
+  void refreshMetric(bool isMetric);
   void scrollToToggle(const QString &param);
 
 private slots:

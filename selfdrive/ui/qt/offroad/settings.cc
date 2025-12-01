@@ -121,6 +121,9 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
   toggles["ExperimentalMode"]->setConfirmation(true, true);
 
   // FrogPilot variables
+  connect(toggles["IsMetric"], &ToggleControl::toggleFlipped, [=](bool isMetric) {
+    updateMetric(isMetric);
+  });
 }
 
 void TogglesPanel::updateState(const UIState &s) {
@@ -152,6 +155,11 @@ void TogglesPanel::showEvent(QShowEvent *event) {
   updateToggles();
 
   // FrogPilot variables
+}
+
+void TogglesPanel::refreshMetric(bool isMetric) {
+  uiState()->scene.is_metric = isMetric;
+  toggles["IsMetric"]->refresh();
 }
 
 void TogglesPanel::updateToggles() {
@@ -418,6 +426,17 @@ void SettingsWindow::showEvent(QShowEvent *event) {
 
 // FrogPilot variables
 void SettingsWindow::hideEvent(QHideEvent *event) {
+  closeAllPanels();
+}
+
+void SettingsWindow::closeAllPanels() {
+  closePanel();
+  closeSubPanel();
+
+  panelOpen = false;
+  subPanelOpen = false;
+  subSubPanelOpen = false;
+  subSubSubPanelOpen = false;
 }
 
 void SettingsWindow::setCurrentPanel(int index, const QString &param) {
@@ -446,11 +465,24 @@ void SettingsWindow::setCurrentPanel(int index, const QString &param) {
 
 SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   // FrogPilot variables
+  setStyleSheet(R"(
+    * {
+      color: white;
+      font-size: 50px;
+    }
+    SettingsWindow {
+      background-color: black;
+    }
+    QStackedWidget, ScrollView {
+      background-color: #292929;
+      border-radius: 30px;
+    }
+  )");
 
   // setup two main layouts
   sidebar_widget = new QWidget;
   QVBoxLayout *sidebar_layout = new QVBoxLayout(sidebar_widget);
-  panel_widget = new QStackedWidget();
+  panel_widget = new QStackedWidget(this);
 
   // close button
   QPushButton *close_btn = new QPushButton(tr("×"));
@@ -471,7 +503,21 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   sidebar_layout->addWidget(close_btn, 0, Qt::AlignCenter);
   QObject::connect(close_btn, &QPushButton::clicked, [this]() {
     // FrogPilot variables
-    closeSettings();
+    if (subSubSubPanelOpen) {
+      closeSubSubSubPanel();
+      subSubSubPanelOpen = false;
+    } else if (subSubPanelOpen) {
+      closeSubSubPanel();
+      subSubPanelOpen = false;
+    } else if (subPanelOpen) {
+      closeSubPanel();
+      subPanelOpen = false;
+    } else if (panelOpen) {
+      closePanel();
+      panelOpen = false;
+    } else {
+      closeSettings();
+    }
   });
 
   // setup panels
@@ -487,14 +533,27 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   QObject::connect(uiState()->prime_state, &PrimeState::changed, networking, &Networking::setPrimeType);
 
   // FrogPilot variables
+  FrogPilotSettingsWindow *frogpilotSettingsWindow = new FrogPilotSettingsWindow(this);
+  QObject::connect(toggles, &TogglesPanel::updateMetric, frogpilotSettingsWindow, &FrogPilotSettingsWindow::updateMetric);
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::updateMetric, toggles, &TogglesPanel::refreshMetric);
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openPanel, [this]() {panelOpen=true;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubPanel, [this]() {subPanelOpen=true;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::closeSubPanel, [this]() {subPanelOpen=false;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubSubPanel, [this]() {subSubPanelOpen=true;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubSubSubPanel, [this]() {subSubSubPanelOpen=true;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::tuningLevelChanged, this, &SettingsWindow::updateDeveloperToggle);
+
+  DeveloperPanel *developerPanel = new DeveloperPanel(this);
+  QObject::connect(developerPanel, &DeveloperPanel::openSubPanel, [this]() {subPanelOpen=true;});
+  QObject::connect(developerPanel, &DeveloperPanel::openSubSubPanel, [this]() {subSubPanelOpen=true;});
 
   QList<QPair<QString, QWidget *>> panels = {
     {tr("Device"), device},
     {tr("Network"), networking},
     {tr("Toggles"), toggles},
     {tr("Software"), new SoftwarePanel(this)},
-    {tr("Firehose"), new FirehosePanel(this)},
-    {tr("Developer"), new DeveloperPanel(this)},
+    {tr("Developer"), developerPanel},
+    {tr("FrogPilot"), frogpilotSettingsWindow},
   };
 
   nav_btns = new QButtonGroup(this);
@@ -524,12 +583,18 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     const int lr_margin = name != tr("Network") ? 50 : 0;  // Network panel handles its own margins
     panel->setContentsMargins(lr_margin, 25, lr_margin, 25);
 
-    ScrollView *panel_frame = new ScrollView(panel, this);
+    ScrollView *panel_frame = new ScrollView(panel, panel_widget);
     panel_widget->addWidget(panel_frame);
 
     QObject::connect(btn, &QPushButton::clicked, [=, w = panel_frame]() {
       // FrogPilot variables
+      if (w->widget() == frogpilotSettingsWindow && !params.getBool("TuningLevelConfirmed")) {
+        frogpilotSettingsWindow->confirmTuningLevel(this);
+      }
 
+      if (panelOpen || subPanelOpen) {
+        closeAllPanels();
+      }
       btn->setChecked(true);
       panel_widget->setCurrentWidget(w);
     });
@@ -544,19 +609,15 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   main_layout->addWidget(panel_widget);
 
   // FrogPilot variables
-  setStyleSheet(R"(
-    * {
-      color: white;
-      font-size: 50px;
-    }
-    SettingsWindow {
-      background-color: black;
-    }
-    QStackedWidget, ScrollView {
-      background-color: #292929;
-      border-radius: 30px;
-    }
-  )");
+  updateDeveloperToggle(params.getInt("TuningLevel"));
 }
 
 // FrogPilot variables
+void SettingsWindow::updateDeveloperToggle(int tuningLevel) {
+  for (QAbstractButton *btn : nav_btns->buttons()) {
+    if (btn->text() == tr("Developer")) {
+      btn->setVisible(tuningLevel >= 3);
+      break;
+    }
+  }
+}
