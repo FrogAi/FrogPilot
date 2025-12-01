@@ -1,0 +1,51 @@
+name: Schedule FrogPilot Update
+run-name: Schedule FrogPilot update for ${{ inputs.scheduled_date }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      scheduled_date:
+        description: Enter the date to update the FrogPilot branch (YYYY-MM-DD)
+        required: true
+        type: string
+
+permissions: {}
+
+env:
+  GIT_EMAIL: ${{ vars.GIT_EMAIL }}
+  GIT_NAME: ${{ vars.GIT_NAME }}
+
+  SCHEDULED_DATE: ${{ inputs.scheduled_date }}
+
+  TZ: UTC
+
+jobs:
+  schedule_update:
+    name: Schedule staging release handoff
+    concurrency:
+      group: frogpilot-branch-push
+      queue: max
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout staging branch
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+          ref: refs/heads/${{ vars.BRANCH_STAGING }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Schedule staging release handoff
+        run: |
+          if [[ "$(date -d "$SCHEDULED_DATE" +%F)" != "$SCHEDULED_DATE" ||
+                "$SCHEDULED_DATE" < "$(date +%F)" ]]; then
+            echo "scheduled_date must be a valid date in YYYY-MM-DD format, today or later in $TZ."
+            exit 1
+          fi
+
+          echo "$SCHEDULED_DATE" > .github/update_date
+          git add .github/update_date
+
+          GIT_COMMITTER_DATE="$(git log -1 --format=%cI)" \
+            git -c user.name="$GIT_NAME" -c user.email="$GIT_EMAIL" commit --amend --no-edit
+
+          git push --force-with-lease origin HEAD
