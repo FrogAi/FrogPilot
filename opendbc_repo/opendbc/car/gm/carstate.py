@@ -184,7 +184,7 @@ class CarState(CarStateBase):
 
     # FrogPilot variables
     if self.CP.transmissionType == TransmissionType.direct:
-      self.fp_ret.pedalInterceptorNoBrake = bool(self.CP.flags & GMFlags.PEDAL_LONG.value) and not self.single_pedal_mode
+      self.fp_ret.pedalInterceptorNoBrake = bool(self.CP.flags & GMFlags.PEDAL_LONG.value) and self.CP.openpilotLongitudinalControl and not self.single_pedal_mode
 
     prev_lkas_button = self.lkas_button
     self.lkas_button = pt_cp.vl["ASCMSteeringButton"]["LKAButton"]
