@@ -171,6 +171,8 @@ class FrogPilotPlanner:
 
     frogpilotPlan.gpsBearing = self.gps_bearing
 
+    frogpilotPlan.increasedStoppedDistance = frogpilot_toggles.increase_stopped_distance
+
     frogpilotPlan.maxAcceleration = float(self.frogpilot_acceleration.max_accel)
     frogpilotPlan.minAcceleration = float(self.frogpilot_acceleration.min_accel)
 
