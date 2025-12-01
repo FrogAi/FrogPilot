@@ -31,7 +31,7 @@ from openpilot.selfdrive.modeld.constants import ModelConstants, Plan
 from openpilot.selfdrive.modeld.models.commonmodel_pyx import DrivingModelFrame, CLContext
 from openpilot.selfdrive.modeld.runners.tinygrad_helpers import qcom_tensor_from_opencl_address
 
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_model_utilities, frogpilot_utilities, frogpilot_variables
 
 
 PROCESS_NAME = "selfdrive.modeld.modeld"
@@ -48,7 +48,8 @@ MIN_LAT_CONTROL_SPEED = 0.3
 
 
 def get_action_from_model(model_output: dict[str, np.ndarray], prev_action: log.ModelDataV2.Action,
-                          lat_action_t: float, long_action_t: float, v_ego: float) -> log.ModelDataV2.Action:
+                          lat_action_t: float, long_action_t: float, v_ego: float, lat_smooth_seconds: float, current_speed_stop: bool,
+                          min_stable_delay: float) -> log.ModelDataV2.Action:
     plan = model_output['plan'][0]
     desired_accel, should_stop = get_accel_from_plan(plan[:,Plan.VELOCITY][:,0],
                                                      plan[:,Plan.ACCELERATION][:,0],
@@ -56,6 +57,14 @@ def get_action_from_model(model_output: dict[str, np.ndarray], prev_action: log.
                                                      action_t=long_action_t)
 
     # FrogPilot variables
+    if "action" in model_output:
+      desired_accel = model_output["action"][0,1]
+      should_stop = v_ego < frogpilot_model_utilities.V_EGO_STOPPING and desired_accel < 0.1
+    elif current_speed_stop:
+      desired_accel, should_stop = frogpilot_model_utilities.get_current_speed_accel_from_plan(plan[:,Plan.VELOCITY][:,0],
+                                                                                               plan[:,Plan.ACCELERATION][:,0],
+                                                                                               long_action_t,
+                                                                                               min_stable_delay)
 
     desired_accel = smooth_value(desired_accel, prev_action.desiredAcceleration, LONG_SMOOTH_SECONDS)
 
@@ -66,9 +75,17 @@ def get_action_from_model(model_output: dict[str, np.ndarray], prev_action: log.
                                                 lat_action_t)
 
     # FrogPilot variables
+    if "action" in model_output:
+      desired_curvature = model_output["action"][0,0] / (max(2.5, v_ego))**2
+    elif min_stable_delay > 0:
+      desired_curvature = frogpilot_model_utilities.get_stable_curvature_from_plan(plan[:,Plan.T_FROM_CURRENT_EULER][:,2],
+                                                                                   plan[:,Plan.ORIENTATION_RATE][:,2],
+                                                                                   v_ego,
+                                                                                   lat_action_t,
+                                                                                   min_stable_delay)
 
     if v_ego > MIN_LAT_CONTROL_SPEED:
-      desired_curvature = smooth_value(desired_curvature, prev_action.desiredCurvature, LAT_SMOOTH_SECONDS)
+      desired_curvature = smooth_value(desired_curvature, prev_action.desiredCurvature, lat_smooth_seconds)
     else:
       desired_curvature = prev_action.desiredCurvature
 
@@ -149,15 +166,15 @@ class ModelState:
   output: np.ndarray
   prev_desire: np.ndarray  # for tracking the rising edge of the pulse
 
-  def __init__(self, context: CLContext):
-    with open(VISION_METADATA_PATH, 'rb') as f:
+  def __init__(self, context: CLContext, model_path: Path):
+    with open(model_path / VISION_METADATA_PATH.name, 'rb') as f:
       vision_metadata = pickle.load(f)
       self.vision_input_shapes =  vision_metadata['input_shapes']
       self.vision_input_names = list(self.vision_input_shapes.keys())
       self.vision_output_slices = vision_metadata['output_slices']
       vision_output_size = vision_metadata['output_shapes']['outputs'][1]
 
-    with open(POLICY_METADATA_PATH, 'rb') as f:
+    with open(model_path / POLICY_METADATA_PATH.name, 'rb') as f:
       policy_metadata = pickle.load(f)
       self.policy_input_shapes =  policy_metadata['input_shapes']
       self.policy_output_slices = policy_metadata['output_slices']
@@ -180,10 +197,10 @@ class ModelState:
     self.policy_output = np.zeros(policy_output_size, dtype=np.float32)
     self.parser = Parser()
 
-    with open(VISION_PKL_PATH, "rb") as f:
+    with open(model_path / VISION_PKL_PATH.name, "rb") as f:
       self.vision_run = pickle.load(f)
 
-    with open(POLICY_PKL_PATH, "rb") as f:
+    with open(model_path / POLICY_PKL_PATH.name, "rb") as f:
       self.policy_run = pickle.load(f)
 
   def slice_outputs(self, model_outputs: np.ndarray, output_slices: dict[str, slice]) -> dict[str, np.ndarray]:
@@ -235,6 +252,21 @@ def main(demo=False):
 
   # FrogPilot variables
   frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
+  model_path = Path(frogpilot_toggles.model_path)
+  lat_smooth_seconds = frogpilot_utilities.get_model_lat_smooth_seconds(frogpilot_toggles.model)
+  current_speed_stop = frogpilot_utilities.use_current_speed_stop(frogpilot_toggles.model)
+
+  action_delay = 0
+  if frogpilot_utilities.use_action_delay(frogpilot_toggles.model):
+    action_delay = DT_MDL / 2
+
+  min_stable_delay = 0
+  if frogpilot_utilities.use_min_stable_delay(frogpilot_toggles.model):
+    min_stable_delay = frogpilot_model_utilities.MIN_STABLE_DELAY
+
+  combined_model = frogpilot_model_utilities.is_combined_model(model_path)
+  legacy_model = not combined_model and frogpilot_model_utilities.is_legacy_model(model_path)
+  frogpilot_model_utilities.prepare_model_process(model_path, demo)
 
   if not USBGPU:
     # USB GPU currently saturates a core so can't do this yet,
@@ -247,7 +279,13 @@ def main(demo=False):
   cloudlog.warning("CL context ready; loading model")
 
   # FrogPilot variables
-  model = ModelState(cl_context)
+  if combined_model:
+    model = frogpilot_model_utilities.CombinedModelState(cl_context, model_path)
+  elif legacy_model:
+    model = frogpilot_model_utilities.LegacyModelState(cl_context, model_path)
+  else:
+    model = ModelState(cl_context, model_path)
+
   cloudlog.warning(f"models loaded in {time.monotonic() - st:.1f}s, modeld starting")
 
   # visionipc clients
@@ -313,6 +351,9 @@ def main(demo=False):
   if 'radar_tracks' in model.numpy_inputs:
     sm = sm.extend(['liveTracks'])
 
+  if combined_model:
+    sm = sm.extend(["controlsState"])
+
   pm = pm.extend(['frogpilotModelV2'])
 
   while True:
@@ -353,7 +394,7 @@ def main(demo=False):
     is_rhd = sm["driverMonitoringState"].isRHD
     frame_id = sm["roadCameraState"].frameId
     v_ego = max(sm["carState"].vEgo, 0.)
-    lat_delay = sm["liveDelay"].lateralDelay + LAT_SMOOTH_SECONDS
+    lat_delay = sm["liveDelay"].lateralDelay + lat_smooth_seconds
     if sm.updated["liveCalibration"] and sm.seen['roadCameraState'] and sm.seen['deviceState']:
       device_from_calib_euler = np.array(sm["liveCalibration"].rpyCalib, dtype=np.float32)
       dc = DEVICE_CAMERAS[(str(sm['deviceState'].deviceType), str(sm['roadCameraState'].sensor))]
@@ -377,7 +418,7 @@ def main(demo=False):
     run_count = run_count + 1
 
     frame_drop_ratio = frames_dropped / (1 + frames_dropped)
-    prepare_only = vipc_dropped_frames > 0
+    prepare_only = vipc_dropped_frames > 0 and not combined_model
     if prepare_only:
       cloudlog.error(f"skipping model eval. Dropped {vipc_dropped_frames} frames")
 
@@ -389,6 +430,13 @@ def main(demo=False):
     }
 
     # FrogPilot variables
+    lat_action_t = lat_delay + DT_MDL + action_delay
+    long_action_t = long_delay + DT_MDL + action_delay
+
+    if combined_model:
+      model.update_inputs(inputs, sm, prev_action, lat_action_t, long_action_t)
+    elif legacy_model:
+      model.update_inputs(inputs, sm, frogpilot_toggles.steerActuatorDelay, lat_delay)
 
     mt1 = time.perf_counter()
     model_output = model.run(bufs, transforms, inputs, prepare_only)
@@ -400,9 +448,14 @@ def main(demo=False):
       drivingdata_send = messaging.new_message('drivingModelData')
       posenet_send = messaging.new_message('cameraOdometry')
 
-      action = get_action_from_model(model_output, prev_action, lat_delay + DT_MDL, long_delay + DT_MDL, v_ego)
+      action = get_action_from_model(model_output, prev_action, lat_action_t, long_action_t, v_ego, lat_smooth_seconds, current_speed_stop, min_stable_delay)
 
       # FrogPilot variables
+      if legacy_model:
+        action = model.update_action(action, model_output, prev_action, frogpilot_toggles.steerActuatorDelay, frogpilot_toggles.longitudinalActuatorDelay, v_ego, MIN_LAT_CONTROL_SPEED)
+
+        if frogpilot_utilities.is_pre_tomb_raider_model(frogpilot_toggles.model):
+          model.fill_temporal_pose(modelv2_send.modelV2.temporalPose, model_output)
 
       prev_action = action
       fill_model_msg(drivingdata_send, modelv2_send, model_output, action,
