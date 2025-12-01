@@ -20,9 +20,10 @@ from openpilot.frogpilot.controls.lib.frogpilot_events import FrogPilotEvents
 from openpilot.frogpilot.controls.lib.frogpilot_following import FrogPilotFollowing
 from openpilot.frogpilot.controls.lib.frogpilot_vcruise import FrogPilotVCruise
 from openpilot.frogpilot.controls.lib.speed_limit_filler import SpeedLimitFiller
+from openpilot.frogpilot.controls.lib.weather_checker import WeatherChecker
 
 class FrogPilotPlanner:
-  def __init__(self, ThemeManager):
+  def __init__(self, ThemeManager, frogpilot_api):
     self.params = Params(return_defaults=True)
 
     self.frogpilot_acceleration = FrogPilotAcceleration(self)
@@ -30,6 +31,7 @@ class FrogPilotPlanner:
     self.frogpilot_events = FrogPilotEvents(self, ThemeManager)
     self.frogpilot_following = FrogPilotFollowing(self)
     self.frogpilot_vcruise = FrogPilotVCruise(self)
+    self.frogpilot_weather = WeatherChecker(frogpilot_api)
     self.speed_limit_filler = SpeedLimitFiller()
 
     self.accel_pressed = False
@@ -172,6 +174,11 @@ class FrogPilotPlanner:
 
     self.v_cruise = self.frogpilot_vcruise.update(long_control_active, now, time_validated, v_cruise, v_ego, sm, frogpilot_toggles)
 
+    if self.gps_valid and time_validated and frogpilot_toggles.weather_presets:
+      self.frogpilot_weather.update_weather(self.gps_position, now, frogpilot_toggles)
+    else:
+      self.frogpilot_weather.weather_id = 0
+
   def is_lead_relevant(self, lead, standstill, v_ego):
     following_speed = max(v_ego, frogpilot_variables.CRUISING_SPEED)
     lead_speed = lead.vLead + min(lead.aLeadK, 0) * frogpilot_variables.PLANNER_TIME / 2
@@ -214,6 +221,8 @@ class FrogPilotPlanner:
       frogpilotPlan.increasedStoppedDistance = 0
     else:
       frogpilotPlan.increasedStoppedDistance = frogpilot_toggles.increase_stopped_distance
+      if self.frogpilot_weather.weather_id != 0:
+        frogpilotPlan.increasedStoppedDistance += self.frogpilot_weather.increase_stopped_distance
 
     frogpilotPlan.laneWidthLeft = self.lane_width_left
     frogpilotPlan.laneWidthRight = self.lane_width_right
@@ -242,6 +251,9 @@ class FrogPilotPlanner:
     frogpilotPlan.themeUpdateCount = theme_update_count
 
     frogpilotPlan.vCruise = float(self.v_cruise)
+
+    frogpilotPlan.weatherDaytime = self.frogpilot_weather.is_daytime
+    frogpilotPlan.weatherId = self.frogpilot_weather.weather_id
 
     frogpilotPlan.wheelImageUpdateCount = self.frogpilot_events.wheel_image_update_count
 
