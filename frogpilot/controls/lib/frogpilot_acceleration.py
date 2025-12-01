@@ -66,7 +66,7 @@ class FrogPilotAcceleration:
 
     lead_two_relevant = self.frogpilot_planner.is_lead_relevant(sm["radarState"].leadTwo, sm["carState"].standstill, v_ego)
 
-    if self.frogpilot_planner.lead_relevant or lead_two_relevant or force_decel:
+    if self.frogpilot_planner.lead_relevant or lead_two_relevant or self.frogpilot_planner.frogpilot_vcruise.taco_controlling_speed or force_decel:
       self.min_accel = ACCEL_MIN
     elif (eco_gear or sport_gear) and frogpilot_toggles.map_deceleration:
       if eco_gear:
