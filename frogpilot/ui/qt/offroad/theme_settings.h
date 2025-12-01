@@ -15,6 +15,7 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
+  void updateStartupAlert();
   void updateToggles();
 
   bool forceOpenDescriptions = false;
@@ -24,6 +25,8 @@ private:
   QSet<QString> customThemeKeys = {"ColorScheme", "DistanceIconPack", "DownloadStatusLabel", "IconPack", "SignalAnimation", "SoundPack", "WheelIcon"};
 
   QSet<QString> parentKeys;
+
+  FrogPilotButtonsControl *startupAlertButton;
 
   FrogPilotSettingsWindow *parent;
 };

@@ -4,12 +4,14 @@ import math
 import os
 from enum import IntEnum
 from collections.abc import Callable
+from types import SimpleNamespace
 
 from cereal import log, car
 import cereal.messaging as messaging
 from opendbc.car.chrysler.values import RAM_DT
 from openpilot.common.constants import CV
 from openpilot.common.git import get_short_branch
+from openpilot.common.params import Params
 from openpilot.common.realtime import DT_CTRL
 from openpilot.selfdrive.locationd.calibrationd import MIN_SPEED_FILTER
 from openpilot.system.micd import SAMPLE_RATE, SAMPLE_BUFFER
@@ -405,6 +407,8 @@ def invalid_lkas_setting_alert(CP: car.CarParams, CS: car.CarState, sm: messagin
 
 
 # FrogPilot variables
+def custom_startup_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
+  return StartupAlert(frogpilot_toggles.startup_alert_top, frogpilot_toggles.startup_alert_bottom, alert_status=FrogPilotAlertStatus.frogpilot)
 
 
 
@@ -1040,6 +1044,9 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
 # FrogPilot variables
 FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
+  FrogPilotEventName.customStartupAlert: {
+    ET.PERMANENT: custom_startup_alert,
+  },
 }
 
 
@@ -1112,6 +1119,22 @@ if HARDWARE.get_device_type() == 'mici':
 
 
 # FrogPilot variables
+def custom_startup_alert_mici(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
+  params = Params()
+  default_text = (params.get_default_value("StartupMessageTop"), params.get_default_value("StartupMessageBottom"))
+
+  if (frogpilot_toggles.startup_alert_top, frogpilot_toggles.startup_alert_bottom) == default_text:
+    return StartupAlert("Buckle Up!", "Frog-approved 🐸", alert_status=FrogPilotAlertStatus.frogpilot)
+
+  return custom_startup_alert(CP, CS, sm, metric, soft_disable_time, personality, frogpilot_toggles)
+
+
+if HARDWARE.get_device_type() == 'mici':
+  FROGPILOT_EVENTS.update({
+    FrogPilotEventName.customStartupAlert: {
+      ET.PERMANENT: custom_startup_alert_mici,
+    },
+  })
 
 
 if __name__ == '__main__':
