@@ -9,6 +9,11 @@ void OnroadAlerts::updateState(const UIState &s) {
   Alert a = getAlert(*(s.sm), s.scene.started_frame);
 
   // FrogPilot variables
+  static const QSet<QString> informational_alerts = {"calibrationIncomplete/permanent", "laneChange/warning", "noLaneAvailable/warning", "personalityChanged/warning", "preLaneChangeLeft/warning", "preLaneChangeRight/warning", "turningLeft/warning", "turningRight/warning"};
+  if (informational_alerts.contains(a.type) && frogpilot_toggles.value(QLatin1String("hide_alerts")).toBool()) {
+    a = {};
+  }
+
   if (!alert.equal(a)) {
     alert = a;
     update();
