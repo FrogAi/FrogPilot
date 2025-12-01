@@ -47,9 +47,10 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started
   // FrogPilot variables
   static QString crash_log_path = "/data/error_logs/error.txt";
   if (a.size == cereal::SelfdriveState::AlertSize::NONE && QFile::exists(crash_log_path)) {
-    a = {tr("openpilot crashed"),
+    bool random_events = frogpilot_toggles.value(QLatin1String("random_events")).toBool();
+    a = {random_events ? tr("openpilot crashed 💩") : tr("openpilot crashed"),
          tr("Please post the \"Error Log\" in the FrogPilot Discord!"),
-         "openpilotCrashed",
+         random_events ? "openpilotCrashedRandomEvent" : "openpilotCrashed",
          cereal::SelfdriveState::AlertSize::MID,
          cereal::SelfdriveState::AlertStatus::CRITICAL};
   }

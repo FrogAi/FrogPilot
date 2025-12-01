@@ -1,29 +1,44 @@
 #!/usr/bin/env python3
+import random
+
 import numpy as np
 
+from openpilot.common.constants import ACCELERATION_DUE_TO_GRAVITY, CV
 from openpilot.common.realtime import DT_MDL
 from openpilot.selfdrive.selfdrived.events import ET, EVENT_NAME, FROGPILOT_EVENT_NAME, EventName, FrogPilotEventName, Events
 
 from openpilot.frogpilot.common import frogpilot_variables
 
+DEJA_VU_G_FORCE = 0.75
 GREEN_LIGHT_TIME = 0.35
+RANDOM_EVENTS_CHANCE = 0.01 * DT_MDL
+RANDOM_EVENTS_LENGTH = 5
+
+RANDOM_EVENT_START = FrogPilotEventName.accel30
+RANDOM_EVENT_END = FrogPilotEventName.youveGotMail
 
 class FrogPilotEvents:
-  def __init__(self, FrogPilotPlanner, error_log):
+  def __init__(self, FrogPilotPlanner, error_log, ThemeManager):
     self.frogpilot_planner = FrogPilotPlanner
+    self.theme_manager = ThemeManager
 
     self.events = Events(frogpilot=True)
 
+    self.always_on_lateral_enabled_previously = False
+    self.random_event_playing = False
     self.startup_seen = False
     self.stopped_for_light = False
 
     self.green_light_timer = 0
     self.max_acceleration = 0
+    self.random_event_timer = 0
     self.tracked_lead_distance = 0
 
     self.played_events = set()
 
     self.error_log = error_log
+
+    self.wheel_image_update_count = 0
 
   def update(self, long_control_active, sm, frogpilot_toggles):
     current_alert = sm["selfdriveState"].alertType
@@ -71,8 +86,107 @@ class FrogPilotEvents:
     if "nnffLoaded" not in self.played_events and self.startup_seen and alerts_empty and len(self.events) == 0 and self.frogpilot_planner.params.get("NNFFModelName") is not None and frogpilot_toggles.nnff:
       self.events.add(FrogPilotEventName.nnffLoaded)
 
+    if self.random_event_playing:
+      self.random_event_timer += DT_MDL
+
+      if self.random_event_timer >= RANDOM_EVENTS_LENGTH:
+        self.theme_manager.restore_wheel_image()
+        self.wheel_image_update_count += 1
+
+        self.random_event_playing = False
+        self.random_event_timer = 0
+
+    if not self.random_event_playing and frogpilot_toggles.random_events:
+      if "accel30" not in self.played_events and 3.5 > self.max_acceleration >= 3.0 and acceleration < 1.5:
+        self.events.add(FrogPilotEventName.accel30)
+
+        self.theme_manager.update_wheel_image("accel30", random_event=True)
+        self.wheel_image_update_count += 1
+
+        self.max_acceleration = 0
+
+      elif "accel35" not in self.played_events and 4.0 > self.max_acceleration >= 3.5 and acceleration < 1.5:
+        self.events.add(FrogPilotEventName.accel35)
+
+        self.theme_manager.update_wheel_image("accel35", random_event=True)
+        self.wheel_image_update_count += 1
+
+        self.max_acceleration = 0
+
+      elif "accel40" not in self.played_events and self.max_acceleration >= 4.0 and acceleration < 1.5:
+        self.events.add(FrogPilotEventName.accel40)
+
+        self.theme_manager.update_wheel_image("accel40", random_event=True)
+        self.wheel_image_update_count += 1
+
+        self.max_acceleration = 0
+
+      if "dejaVuCurve" not in self.played_events and sm["carState"].vEgo > frogpilot_variables.CRUISING_SPEED:
+        if abs(self.frogpilot_planner.lateral_acceleration) >= DEJA_VU_G_FORCE * ACCELERATION_DUE_TO_GRAVITY:
+          self.events.add(FrogPilotEventName.dejaVuCurve)
+
+      if "hal9000" not in self.played_events and (ET.NO_ENTRY in current_alert or ET.NO_ENTRY in current_frogpilot_alert):
+        self.events.add(FrogPilotEventName.hal9000)
+
+      if f"{EVENT_NAME[EventName.steerSaturated]}/" in current_alert or f"{FROGPILOT_EVENT_NAME[FrogPilotEventName.goatSteerSaturated]}/" in current_frogpilot_alert:
+        event_choices = []
+        if "firefoxSteerSaturated" not in self.played_events:
+          event_choices.append("firefoxSteerSaturated")
+        if "goatSteerSaturated" not in self.played_events:
+          event_choices.append("goatSteerSaturated")
+        if "thisIsFineSteerSaturated" not in self.played_events:
+          event_choices.append("thisIsFineSteerSaturated")
+
+        if event_choices and random.random() < RANDOM_EVENTS_CHANCE:
+          event_choice = random.choice(event_choices)
+
+          if event_choice == "firefoxSteerSaturated":
+            self.events.add(FrogPilotEventName.firefoxSteerSaturated)
+
+            self.theme_manager.update_wheel_image("firefoxSteerSaturated", random_event=True)
+            self.wheel_image_update_count += 1
+          elif event_choice == "goatSteerSaturated":
+            self.events.add(FrogPilotEventName.goatSteerSaturated)
+
+            self.theme_manager.update_wheel_image("goatSteerSaturated", random_event=True)
+            self.wheel_image_update_count += 1
+
+            self.random_event_playing = True
+          elif event_choice == "thisIsFineSteerSaturated":
+            self.events.add(FrogPilotEventName.thisIsFineSteerSaturated)
+
+            self.theme_manager.update_wheel_image("thisIsFineSteerSaturated", random_event=True)
+            self.wheel_image_update_count += 1
+
+      if "vCruise69" not in self.played_events and 70 > max(sm["carState"].vCruise, sm["carState"].vCruiseCluster) * (1 if frogpilot_toggles.is_metric else CV.KPH_TO_MPH) >= 69:
+        self.events.add(FrogPilotEventName.vCruise69)
+
+      if f"{EVENT_NAME[EventName.fcw]}/" in current_alert or f"{EVENT_NAME[EventName.stockAeb]}/" in current_alert:
+        event_choices = []
+        if "toBeContinued" not in self.played_events:
+          event_choices.append("toBeContinued")
+        if "yourFrogTriedToKillMe" not in self.played_events:
+          event_choices.append("yourFrogTriedToKillMe")
+
+        if event_choices:
+          event_choice = random.choice(event_choices)
+          if event_choice == "toBeContinued":
+            self.events.add(FrogPilotEventName.toBeContinued)
+          elif event_choice == "yourFrogTriedToKillMe":
+            self.events.add(FrogPilotEventName.yourFrogTriedToKillMe)
+
+      if "youveGotMail" not in self.played_events and sm["frogpilotCarState"].alwaysOnLateralEnabled and not self.always_on_lateral_enabled_previously:
+        if random.random() < RANDOM_EVENTS_CHANCE / DT_MDL:
+          self.events.add(FrogPilotEventName.youveGotMail)
+
+      self.always_on_lateral_enabled_previously = sm["frogpilotCarState"].alwaysOnLateralEnabled
+      self.random_event_playing |= bool({event for event in self.events.names if RANDOM_EVENT_START <= event <= RANDOM_EVENT_END})
+
     if self.error_log.is_file():
-      self.events.add(FrogPilotEventName.openpilotCrashed)
+      if frogpilot_toggles.random_events:
+        self.events.add(FrogPilotEventName.openpilotCrashedRandomEvent)
+      else:
+        self.events.add(FrogPilotEventName.openpilotCrashed)
 
     if sm["frogpilotCarState"].pedalInterceptorNoBrake:
       if sm["carControl"].enabled:

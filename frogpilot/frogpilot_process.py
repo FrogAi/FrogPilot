@@ -144,6 +144,8 @@ def transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_va
   if frogpilot_toggles.lock_doors_timer != 0:
     thread_manager.run_with_lock(frogpilot_utilities.lock_doors, (frogpilot_toggles.lock_doors_timer, params), report=False)
 
+  theme_manager.restore_wheel_image()
+
   if time_validated:
     thread_manager.run_with_lock(send_stats, (params, frogpilot_toggles, api))
 
@@ -240,7 +242,7 @@ def frogpilot_thread():
 
       run_update_checks = True
     elif started and not started_previously:
-      frogpilot_planner = FrogPilotPlanner(error_log)
+      frogpilot_planner = FrogPilotPlanner(error_log, theme_manager)
       frogpilot_tracking = FrogPilotTracking(frogpilot_planner, frogpilot_toggles)
 
       transition_onroad(error_log)
