@@ -77,6 +77,7 @@ class DesireHelper:
                               (carstate.rightBlindspot and self.lane_change_direction == LaneChangeDirection.right))
 
         # FrogPilot variables
+        torque_applied |= frogpilot_toggles.nudgeless
 
         if not one_blinker or below_lane_change_speed:
           self.lane_change_state = LaneChangeState.off
