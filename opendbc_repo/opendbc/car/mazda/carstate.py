@@ -25,6 +25,8 @@ class CarState(CarStateBase):
     # FrogPilot variables
     self.main_on_at_start = True
 
+    self.lkas_button = 0
+
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
@@ -123,6 +125,9 @@ class CarState(CarStateBase):
     ret.buttonEvents = create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
 
     # FrogPilot variables
+    prev_lkas_button = self.lkas_button
+    self.lkas_button = cp.vl["MSG_05"]["LKAS_BUTTON"]
+    ret.buttonEvents = [*ret.buttonEvents, *create_button_events(self.lkas_button, prev_lkas_button, {1: ButtonType.lkas})]
 
     if cp.vl["CRZ_CTRL"]["CRZ_READY"] == 1:
       self.main_on_at_start &= ret.cruiseState.available and not ret.cruiseState.enabled

@@ -398,6 +398,7 @@ BO_ 158 MSG_05: 8 XXX
  SG_ NEW_SIGNAL_1 : 23|8@0+ (1,0) [0|15] "" XXX
  SG_ NEW_SIGNAL_2 : 47|8@0+ (1,0) [0|255] "" XXX
  SG_ NEW_SIGNAL_3 : 55|8@0+ (1,0) [0|255] "" XXX
+ SG_ LKAS_BUTTON : 8|1@0+ (1,0) [0|1] "" XXX
 
 BO_ 157 CRZ_BTNS: 8 XXX
  SG_ BIT1 : 16|1@0+ (1,0) [0|1] "" XXX

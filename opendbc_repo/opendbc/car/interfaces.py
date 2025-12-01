@@ -325,6 +325,7 @@ class CarInterfaceBase(ABC):
     self.CS.out = ret
 
     # FrogPilot variables
+    fp_ret.distancePressed = bool(self.CS.distance_button)
     fp_ret.ecoGear |= ret.gearShifter == GearShifter.eco
     fp_ret.sportGear |= ret.gearShifter == GearShifter.sport
 
@@ -358,6 +359,8 @@ class CarStateBase(ABC):
 
     # FrogPilot variables
     self.CC: structs.CarControl = structs.CarControl.new_message()
+
+    self.distance_button = False
 
   # FrogPilot variables
   def init_frogpilot_params(self):

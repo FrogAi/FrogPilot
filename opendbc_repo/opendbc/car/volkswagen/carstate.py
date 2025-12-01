@@ -55,6 +55,7 @@ class CarState(CarStateBase):
       self.button_states[button.event_type] = state
 
     # FrogPilot variables
+    self.distance_button = self.button_states[ButtonType.gapAdjustCruise]
 
     return button_events
 

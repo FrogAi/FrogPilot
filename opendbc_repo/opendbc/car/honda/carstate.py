@@ -220,6 +220,7 @@ class CarState(CarStateBase):
     ]
 
     # FrogPilot variables
+    self.distance_button = self.cruise_setting == CruiseSettings.DISTANCE
 
     if self.CP.enableGasInterceptorDEPRECATED:
       gas = (cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS"] + cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS2"]) // 2
