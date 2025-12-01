@@ -24,6 +24,8 @@ class CarState(CarStateBase):
 
     self.distance_button = 0
 
+    # FrogPilot variables
+
   # RealFast variables
   def init_frogpilot_params(self):
     self.button_message = "CRUISE_BUTTONS_ALT" if self.FPCP.flags & ChryslerFrogPilotFlags.RAM_HD_ALT_BUTTONS else "CRUISE_BUTTONS"
@@ -99,7 +101,11 @@ class CarState(CarStateBase):
     self.lkas_car_model = cp_cam.vl["DAS_6"]["CAR_MODEL"]
     self.button_counter = cp.vl[self.button_message]["COUNTER"]
 
-    ret.buttonEvents = create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
+    buttonEvents = create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
+
+    # FrogPilot variables
+
+    ret.buttonEvents = buttonEvents
 
     return ret
 

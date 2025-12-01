@@ -26,4 +26,6 @@ class CarInterface(CarInterfaceBase):
       # Altima has EPS on C-CAN unlike the others that have it on V-CAN
       ret.safetyConfigs[0].safetyParam |= NissanSafetyFlags.ALT_EPS_BUS.value
 
+    # FrogPilot variables
+
     return ret

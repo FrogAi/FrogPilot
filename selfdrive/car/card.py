@@ -63,6 +63,8 @@ class Car:
   RI: RadarInterfaceBase
   CP: car.CarParams
 
+  # FrogPilot variables
+
   def __init__(self, CI=None, RI=None) -> None:
     self.can_sock = messaging.sub_sock('can', timeout=20)
     self.sm = messaging.SubMaster(['pandaStates', 'carControl', 'onroadEvents'])
@@ -105,6 +107,8 @@ class Car:
 
       # continue onto next fingerprinting step in pandad
       self.params.put_bool("FirmwareQueryDone", True)
+
+      # FrogPilot variables
     else:
       self.CI, self.CP = CI, CI.CP
       self.RI = RI
@@ -113,6 +117,9 @@ class Car:
     openpilot_enabled_toggle = self.params.get_bool("OpenpilotEnabledToggle")
     controller_available = self.CI.CC is not None and openpilot_enabled_toggle and not self.CP.dashcamOnly
     self.CP.passive = not controller_available or self.CP.dashcamOnly
+
+    # FrogPilot variables
+
     if self.CP.passive:
       safety_config = structs.CarParams.SafetyConfig()
       safety_config.safetyModel = structs.CarParams.SafetyModel.noOutput
@@ -130,6 +137,8 @@ class Car:
 
       secoc_key = self.params.get("SecOCKey")
       if secoc_key is not None:
+        # FrogPilot variables
+
         saved_secoc_key = bytes.fromhex(secoc_key.strip())
         if len(saved_secoc_key) == 16:
           self.CP.secOcKeyAvailable = True
@@ -143,6 +152,8 @@ class Car:
     prev_cp = self.params.get("CarParamsPersistent")
     if prev_cp is not None:
       self.params.put("CarParamsPrevRoute", prev_cp)
+
+    # FrogPilot variables
 
     # Write CarParams for controls and radard
     cp_bytes = self.CP.to_bytes()
@@ -161,6 +172,8 @@ class Car:
 
     # OPGM variables
     self.resume_prev_button = False
+
+    # FrogPilot variables
 
   def state_update(self) -> tuple[car.CarState, structs.RadarDataT | None]:
     """carState update loop, driven by can"""
@@ -202,6 +215,8 @@ class Car:
     elif any(be.type in (ButtonType.decelCruise, ButtonType.setCruise) for be in CS.buttonEvents):
       self.resume_prev_button = False
 
+    # FrogPilot variables
+
     return CS, RD
 
   def state_publish(self, CS: car.CarState, RD: structs.RadarDataT | None):
@@ -213,6 +228,8 @@ class Car:
       cp_send.valid = True
       cp_send.carParams = self.CP
       self.pm.send('carParams', cp_send)
+
+      # FrogPilot variables
 
     # publish new carOutput
     co_send = messaging.new_message('carOutput')
@@ -233,6 +250,8 @@ class Car:
       tracks_msg.valid = not any(RD.errors.to_dict().values())
       tracks_msg.liveTracks = RD
       self.pm.send('liveTracks', tracks_msg)
+
+    # FrogPilot variables
 
   def controls_update(self, CS: car.CarState, CC: car.CarControl):
     """control update loop, driven by carControl"""
@@ -264,6 +283,8 @@ class Car:
 
     self.initialized_prev = initialized
     self.CS_prev = CS
+
+    # FrogPilot variables
 
   def params_thread(self, evt):
     while not evt.is_set():

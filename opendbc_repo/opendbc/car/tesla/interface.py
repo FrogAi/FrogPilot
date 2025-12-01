@@ -33,4 +33,6 @@ class CarInterface(CarInterfaceBase):
 
     ret.dashcamOnly = candidate in (CAR.TESLA_MODEL_X) # dashcam only, pending find invalidLkasSetting signal
 
+    # FrogPilot variables
+
     return ret

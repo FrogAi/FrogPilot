@@ -162,6 +162,7 @@ void OnboardingWindow::updateActiveScreen() {
     setCurrentIndex(0);
   } else if (!training_done) {
     setCurrentIndex(1);
+  // FrogPilot variables
   } else {
     emit onboardingDone();
   }
@@ -207,5 +208,8 @@ OnboardingWindow::OnboardingWindow(QWidget *parent) : QStackedWidget(parent) {
       background-color: #4F4F4F;
     }
   )");
+
+  // FrogPilot variables
+
   updateActiveScreen();
 }

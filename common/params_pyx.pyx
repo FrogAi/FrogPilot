@@ -45,6 +45,8 @@ cdef extern from "common/params.h":
     void clearAll(ParamKeyFlag)
     vector[string] allKeys()
 
+    # FrogPilot variables
+
 PYTHON_2_CPP = {
   (str, STRING): lambda v: v,
   (builtins.bool, BOOL): lambda v: "1" if v else "0",
@@ -75,11 +77,15 @@ cdef class Params:
   cdef c_Params* p
   cdef str d
 
+  # FrogPilot variables
+
   def __cinit__(self, d=""):
     cdef string path = <string>d.encode()
     with nogil:
       self.p = new c_Params(path)
     self.d = d
+
+    # FrogPilot variables
 
   def __reduce__(self):
     return (type(self), (self.d,))
@@ -150,8 +156,13 @@ cdef class Params:
     """
     cdef string k = self.check_key(key)
     cdef string dat_bytes = self._put_cast(key, dat)
+
+    # FrogPilot variables
+
     with nogil:
       self.p.put(k, dat_bytes)
+
+    # FrogPilot variables
 
   def put_bool(self, key, bool val):
     cdef string k = self.check_key(key)
@@ -194,3 +205,5 @@ cdef class Params:
     cdef string k = self.check_key(key)
     cdef ParamKeyType t = self.p.getKeyType(k)
     return self._cpp2python(t, value, None, key)
+
+  # FrogPilot variables

@@ -20,6 +20,8 @@ class UIStatus(Enum):
   ENGAGED = "engaged"
   OVERRIDE = "override"
 
+  # FrogPilot variables
+
 
 class UIState:
   _instance: 'UIState | None' = None
@@ -55,6 +57,8 @@ class UIState:
         "carControl",
         "liveParameters",
         "rawAudioData",
+
+        # FrogPilot variables
       ]
     )
 
@@ -86,6 +90,8 @@ class UIState:
     self._engaged_transition_callbacks: list[Callable[[], None]] = []
 
     self.update_params()
+
+    # FrogPilot variables
 
   def add_offroad_transition_callback(self, callback: Callable[[], None]):
     self._offroad_transition_callbacks.append(callback)
@@ -142,6 +148,8 @@ class UIState:
     self.is_metric = self.params.get_bool("IsMetric")
     self.always_on_dm = self.params.get_bool("AlwaysOnDM")
 
+    # FrogPilot variables
+
   def _update_status(self) -> None:
     if self.started and self.sm.updated["selfdriveState"]:
       ss = self.sm["selfdriveState"]
@@ -149,6 +157,7 @@ class UIState:
 
       if state in (log.SelfdriveState.OpenpilotState.preEnabled, log.SelfdriveState.OpenpilotState.overriding):
         self.status = UIStatus.OVERRIDE
+      # FrogPilot variables
       else:
         self.status = UIStatus.ENGAGED if ss.enabled else UIStatus.DISENGAGED
 

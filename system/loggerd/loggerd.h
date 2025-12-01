@@ -35,6 +35,8 @@ struct EncoderSettings {
   int b_frames = 0; // we don't use b frames
 
   static EncoderSettings MainEncoderSettings(int in_width) {
+    // FrogPilot variables
+
     if (in_width <= 1344) {
       return EncoderSettings{.encode_type = MAIN_ENCODE_TYPE, .bitrate = 5'000'000, .gop_size = 20};
     } else {

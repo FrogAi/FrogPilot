@@ -32,6 +32,8 @@ class CarControllerParams:
   ACCEL_MAX = 2.  # m/s^2
   ACCEL_MIN = -4.  # m/s^2
 
+  # FrogPilot variables
+
   def __init__(self, CP):
     # Gas/brake lookups
     self.MAX_BRAKE = 400  # ~ -4.0 m/s^2 with regen
@@ -69,6 +71,8 @@ class GMSafetyFlags(IntFlag):
   FLAG_GM_GAS_INTERCEPTOR = 16
   FLAG_GM_NO_ACC = 32
   FLAG_GM_PEDAL_LONG = 64
+
+  # FrogPilot variables
 
 
 class Footnote(Enum):
@@ -240,6 +244,8 @@ class CAR(Platforms):
     CHEVROLET_TRAILBLAZER.specs,
   )
 
+  # FrogPilot variables
+
 
 class CruiseButtons:
   INIT = 0
@@ -344,3 +350,5 @@ CAMERA_ACC_CAR.update(CC_ONLY_CAR)
 EV_CAR.update({CAR.CHEVROLET_BOLT_2017, CAR.CHEVROLET_BOLT_2018, CAR.CHEVROLET_BOLT_CC})
 
 DBC = CAR.create_dbc_map()
+
+# FrogPilot variables

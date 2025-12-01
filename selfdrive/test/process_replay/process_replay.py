@@ -336,9 +336,14 @@ def card_fingerprint_callback(rc, pm, msgs, fingerprint):
 
 def get_car_params_callback(rc, pm, msgs, fingerprint):
   params = Params()
+
+  # FrogPilot variables
+
   if fingerprint:
     CarInterface = interfaces[fingerprint]
     CP = CarInterface.get_non_essential_params(fingerprint)
+
+    # FrogPilot variables
   else:
     can_msgs = ([CanData(can.address, can.dat, can.src) for can in m.can] for m in msgs if m.which() == "can")
     cached_params_raw = params.get("CarParamsCache")
@@ -356,7 +361,11 @@ def get_car_params_callback(rc, pm, msgs, fingerprint):
 
     CP = get_car(can_recv, lambda _msgs: None, lambda obd: None, params.get_bool("AlphaLongitudinalEnabled"), False, cached_params=cached_params).CP
 
+    # FrogPilot variables
+
   params.put("CarParams", CP.to_bytes())
+
+  # FrogPilot variables
 
 
 def card_rcv_callback(msg, cfg, frame):

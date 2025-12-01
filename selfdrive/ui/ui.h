@@ -15,6 +15,8 @@
 #include "system/hardware/hw.h"
 #include "selfdrive/ui/qt/prime_state.h"
 
+#include "frogpilot/ui/frogpilot_ui.h"
+
 const int UI_BORDER_SIZE = 30;
 const int UI_HEADER_HEIGHT = 420;
 
@@ -42,12 +44,16 @@ typedef enum UIStatus {
   STATUS_DISENGAGED,
   STATUS_OVERRIDE,
   STATUS_ENGAGED,
+
+  // FrogPilot variables
 } UIStatus;
 
 const QColor bg_colors [] = {
   [STATUS_DISENGAGED] = QColor(0x17, 0x33, 0x49, 0xc8),
   [STATUS_OVERRIDE] = QColor(0x91, 0x9b, 0x95, 0xf1),
   [STATUS_ENGAGED] = QColor(0x17, 0x86, 0x44, 0xf1),
+
+  // FrogPilot variables
 };
 
 typedef struct UIScene {
@@ -79,7 +85,7 @@ public:
   PrimeState *prime_state;
 
 signals:
-  void uiUpdate(const UIState &s);
+  void uiUpdate(const UIState &s, const FrogPilotUIState &fs);
   void offroadTransition(bool offroad);
   void engagedChanged(bool engaged);
 
@@ -105,6 +111,8 @@ public:
     offroad_brightness = std::clamp(brightness, 0, 100);
   }
 
+  // FrogPilot variables
+
 private:
   bool awake = false;
   int interactive_timeout = 0;
@@ -114,6 +122,8 @@ private:
   int last_brightness = 0;
   FirstOrderFilter brightness_filter;
   QFuture<void> brightness_future;
+
+  // FrogPilot variables
 
   void updateBrightness(const UIState &s);
   void updateWakefulness(const UIState &s);

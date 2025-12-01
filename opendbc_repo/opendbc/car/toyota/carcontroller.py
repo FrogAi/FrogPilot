@@ -34,6 +34,8 @@ MAX_STEER_RATE_FRAMES = 18  # tx control frames needed before torque can be cut
 # EPS allows user torque above threshold for 50 frames before permanently faulting
 MAX_USER_TORQUE = 500
 
+# FrogPilot variables
+
 
 def get_long_tune(CP, params):
   if CP.carFingerprint in TSS2_CAR:
@@ -77,6 +79,8 @@ class CarController(CarControllerBase):
     self.secoc_lta_message_counter = 0
     self.secoc_acc_message_counter = 0
     self.secoc_prev_reset_counter = 0
+
+    # FrogPilot variables
 
   def update(self, CC, CS, now_nanos):
     actuators = CC.actuators
@@ -169,6 +173,7 @@ class CarController(CarControllerBase):
         can_sends.append(lta_steer_2)
 
     # *** gas and brake ***
+    # FrogPilot variables
 
     # on entering standstill, send standstill request for older TSS-P cars that aren't designed to stay engaged at a stop
     if self.CP.carFingerprint not in NO_STOP_TIMER_CAR:
@@ -230,6 +235,7 @@ class CarController(CarControllerBase):
         self.aego.update(a_ego_blended)
         j_ego = (self.aego.x - prev_aego) / (DT_CTRL * 3)
 
+        # FrogPilot variables
         future_t = float(np.interp(CS.out.vEgo, [2., 5.], [0.25, 0.5]))
         a_ego_future = a_ego_blended + j_ego * future_t
 
@@ -319,4 +325,7 @@ class CarController(CarControllerBase):
     new_actuators.accel = self.accel
 
     self.frame += 1
+
+    # FrogPilot variables
+
     return new_actuators, can_sends

@@ -89,6 +89,8 @@ class ModelRenderer(Widget):
       cp = messaging.log_from_bytes(car_params, car.CarParams)
       self._longitudinal_control = cp.openpilotLongitudinalControl
 
+    # FrogPilot variables
+
   def set_transform(self, transform: np.ndarray):
     self._car_space_transform = transform.astype(np.float32)
     self._transform_dirty = True
@@ -139,8 +141,12 @@ class ModelRenderer(Widget):
 
     # Draw elements (hide when disengaged)
     if ui_state.status != UIStatus.DISENGAGED:
+      # FrogPilot variables
+
       self._draw_lane_lines()
       self._draw_path(sm)
+
+      # FrogPilot variables
 
     # if render_lead_indicator and radar_state:
     #   self._draw_lead_indicator()
@@ -209,10 +215,14 @@ class ModelRenderer(Widget):
     else:
       y_off = 0.9
 
+    # FrogPilot variables
+
     max_idx = self._get_path_length_idx(path_x_array, max_distance)
     self._path.projected_points = self._map_line_to_polygon(
       self._path.raw_points, y_off, self._path_offset_z, max_idx, allow_invert=False
     )
+
+    # FrogPilot variables
 
     self._update_experimental_gradient()
 
@@ -220,6 +230,8 @@ class ModelRenderer(Widget):
     """Pre-calculate experimental mode gradient colors"""
     if not self._experimental_mode:
       return
+
+    # FrogPilot variables
 
     max_len = min(len(self._path.projected_points) // 2, len(self._acceleration_x))
 
@@ -246,6 +258,8 @@ class ModelRenderer(Widget):
 
       # Use HSL to RGB conversion
       color = self._hsla_to_color(path_hue / 360.0, saturation, lightness, alpha)
+
+      # FrogPilot variables
 
       gradient_stops.append(lin_grad_point)
       segment_colors.append(color)
@@ -285,6 +299,9 @@ class ModelRenderer(Widget):
     alpha = np.clip(prob, 0.0, 0.7)
     if adjacent:
       _base_color = LANE_LINE_COLORS.get(ui_state.status, LANE_LINE_COLORS[UIStatus.DISENGAGED])
+
+      # FrogPilot variables
+
       color = rl.Color(_base_color.r, _base_color.g, _base_color.b, int(alpha * 255))
 
       # turn adjacent lls orange if torque is high
@@ -477,3 +494,6 @@ class ModelRenderer(Widget):
       int(inv_t * start.b + t * end.b),
       int(inv_t * start.a + t * end.a)
     ) for start, end in zip(begin_colors, end_colors, strict=True)]
+
+
+# FrogPilot variables

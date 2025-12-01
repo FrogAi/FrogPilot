@@ -9,12 +9,17 @@ from openpilot.system.hardware import HARDWARE, PC
 from openpilot.common.swaglog import cloudlog
 from openpilot.system.version import get_build_metadata, get_version
 
+# FrogPilot variables
+
 
 class SentryProject(Enum):
   # python project
   SELFDRIVE = "https://6f3c7076c1e14b2aa10f5dde6dda0cc4@o33823.ingest.sentry.io/77924"
   # native project
   SELFDRIVE_NATIVE = "https://3e4b586ed21a4479ad5d85083b639bc6@o33823.ingest.sentry.io/157615"
+
+
+# FrogPilot variables
 
 
 def report_tombstone(fn: str, message: str, contents: str) -> None:
@@ -25,9 +30,11 @@ def report_tombstone(fn: str, message: str, contents: str) -> None:
     scope.set_extra("tombstone", contents)
     sentry_sdk.capture_message(message=message)
     sentry_sdk.flush()
+  # FrogPilot variables
 
 
 def capture_exception(*args, **kwargs) -> None:
+  # FrogPilot variables
   cloudlog.error("crash", exc_info=kwargs.get('exc_info', 1))
 
   try:
@@ -37,8 +44,14 @@ def capture_exception(*args, **kwargs) -> None:
     cloudlog.exception("sentry exception")
 
 
+# FrogPilot variables
+
+
 def set_tag(key: str, value: str) -> None:
   sentry_sdk.set_tag(key, value)
+
+
+# FrogPilot variables
 
 
 def init(project: SentryProject) -> bool:
@@ -48,6 +61,7 @@ def init(project: SentryProject) -> bool:
   if not comma_remote or not is_registered_device() or PC:
     return False
 
+  # FrogPilot variables
   env = "release" if build_metadata.tested_channel else "master"
   dongle_id = Params().get("DongleId")
 
@@ -69,5 +83,7 @@ def init(project: SentryProject) -> bool:
   sentry_sdk.set_tag("branch", build_metadata.channel)
   sentry_sdk.set_tag("commit", build_metadata.openpilot.git_commit)
   sentry_sdk.set_tag("device", HARDWARE.get_device_type())
+
+  # FrogPilot variables
 
   return True

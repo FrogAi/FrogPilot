@@ -52,6 +52,9 @@ def get_action_from_model(model_output: dict[str, np.ndarray], prev_action: log.
                                                      plan[:,Plan.ACCELERATION][:,0],
                                                      ModelConstants.T_IDXS,
                                                      action_t=long_action_t)
+
+    # FrogPilot variables
+
     desired_accel = smooth_value(desired_accel, prev_action.desiredAcceleration, LONG_SMOOTH_SECONDS)
 
     desired_curvature = get_curvature_from_plan(plan[:,Plan.T_FROM_CURRENT_EULER][:,2],
@@ -59,6 +62,9 @@ def get_action_from_model(model_output: dict[str, np.ndarray], prev_action: log.
                                                 ModelConstants.T_IDXS,
                                                 v_ego,
                                                 lat_action_t)
+
+    # FrogPilot variables
+
     if v_ego > MIN_LAT_CONTROL_SPEED:
       desired_curvature = smooth_value(desired_curvature, prev_action.desiredCurvature, LAT_SMOOTH_SECONDS)
     else:
@@ -225,6 +231,8 @@ class ModelState:
 def main(demo=False):
   cloudlog.warning("modeld init")
 
+  # FrogPilot variables
+
   if not USBGPU:
     # USB GPU currently saturates a core so can't do this yet,
     # also need to move the aux USB interrupts for good timings
@@ -234,6 +242,8 @@ def main(demo=False):
   cloudlog.warning("setting up CL context")
   cl_context = CLContext()
   cloudlog.warning("CL context ready; loading model")
+
+  # FrogPilot variables
   model = ModelState(cl_context)
   cloudlog.warning(f"models loaded in {time.monotonic() - st:.1f}s, modeld starting")
 
@@ -293,6 +303,8 @@ def main(demo=False):
   prev_action = log.ModelDataV2.Action()
 
   DH = DesireHelper()
+
+  # FrogPilot variables
 
   while True:
     # Keep receiving frames until we are at least 1 frame ahead of previous extra frame
@@ -367,6 +379,8 @@ def main(demo=False):
       'traffic_convention': traffic_convention,
     }
 
+    # FrogPilot variables
+
     mt1 = time.perf_counter()
     model_output = model.run(bufs, transforms, inputs, prepare_only)
     mt2 = time.perf_counter()
@@ -378,6 +392,9 @@ def main(demo=False):
       posenet_send = messaging.new_message('cameraOdometry')
 
       action = get_action_from_model(model_output, prev_action, lat_delay + DT_MDL, long_delay + DT_MDL, v_ego)
+
+      # FrogPilot variables
+
       prev_action = action
       fill_model_msg(drivingdata_send, modelv2_send, model_output, action,
                      publish_state, meta_main.frame_id, meta_extra.frame_id, frame_id,
@@ -397,7 +414,11 @@ def main(demo=False):
       pm.send('modelV2', modelv2_send)
       pm.send('drivingModelData', drivingdata_send)
       pm.send('cameraOdometry', posenet_send)
+
+      # FrogPilot variables
     last_vipc_frame_id = meta_main.frame_id
+
+    # FrogPilot variables
 
 
 if __name__ == "__main__":

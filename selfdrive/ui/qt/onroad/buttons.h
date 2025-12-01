@@ -23,6 +23,8 @@ private:
   QPixmap experimental_img;
   bool experimental_mode;
   bool engageable;
+
+  // FrogPilot variables
 };
 
 void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity);

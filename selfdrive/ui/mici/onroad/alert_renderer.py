@@ -16,6 +16,8 @@ from openpilot.system.ui.widgets.label import UnifiedLabel
 AlertSize = log.SelfdriveState.AlertSize
 AlertStatus = log.SelfdriveState.AlertStatus
 
+# FrogPilot variables
+
 ALERT_MARGIN = 18
 
 ALERT_FONT_SMALL = 66 - 50
@@ -61,6 +63,8 @@ class Alert:
   status: int = 0
   visual_alert: int = car.CarControl.HUDControl.VisualAlert.none
   alert_type: str = ""
+
+  # FrogPilot variables
 
 
 # Pre-defined alert instances
@@ -138,6 +142,8 @@ class AlertRenderer(Widget):
             return ALERT_CRITICAL_TIMEOUT
           return ALERT_CRITICAL_REBOOT
 
+    # FrogPilot variables
+
     # No alert if size is none
     if ss.alertSize == 0:
       return None
@@ -193,6 +199,8 @@ class AlertRenderer(Widget):
 
     else:
       self._turn_signal_timer = 0.0
+
+    # FrogPilot variables
 
     self._last_icon_side = icon_side
 
@@ -281,6 +289,7 @@ class AlertRenderer(Widget):
       bg_height = small_alert_height
     elif event_name == 'laneChangeBlocked':
       bg_height = medium_alert_height
+    # FrogPilot variables
     else:
       bg_height = int(self._rect.height)
 
@@ -305,6 +314,8 @@ class AlertRenderer(Widget):
       font_size = 70
     else:
       font_size = 64 - 10
+
+    # FrogPilot variables
 
     if icon_side is not None:
       font_size -= 10
@@ -355,3 +366,6 @@ class AlertRenderer(Widget):
       self._alert_text2_label.set_font_size(small_font_size)
       self._alert_text2_label.set_alignment(rl.GuiTextAlignment.TEXT_ALIGN_LEFT if icon_side != 'left' else rl.GuiTextAlignment.TEXT_ALIGN_RIGHT)
       self._alert_text2_label.render(text_rect2)
+
+
+# FrogPilot variables

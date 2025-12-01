@@ -4,6 +4,8 @@ from openpilot.common.params import Params
 from openpilot.common.realtime import config_realtime_process
 from openpilot.selfdrive.monitoring.helpers import DriverMonitoring
 
+# FrogPilot variables
+
 
 def dmonitoringd_thread():
   config_realtime_process([0, 1, 2, 3], 5)
@@ -14,6 +16,8 @@ def dmonitoringd_thread():
 
   DM = DriverMonitoring(rhd_saved=params.get_bool("IsRhdDetected"), always_on=params.get_bool("AlwaysOnDM"))
   demo_mode=False
+
+  # FrogPilot variables
 
   # 20Hz <- dmonitoringmodeld
   while True:
@@ -27,6 +31,7 @@ def dmonitoringd_thread():
       DM.run_step(sm, demo=demo_mode)
     elif valid:
       DM.run_step(sm, demo=demo_mode)
+    # FrogPilot variables
 
     # publish
     dat = DM.get_state_packet(valid=valid)
@@ -36,6 +41,8 @@ def dmonitoringd_thread():
     if sm['driverStateV2'].frameId % 40 == 1:
       DM.always_on = params.get_bool("AlwaysOnDM")
       demo_mode = params.get_bool("IsDriverViewEnabled")
+
+      # FrogPilot variables
 
     # save rhd virtual toggle every 5 mins
     if (sm['driverStateV2'].frameId % 6000 == 0 and not demo_mode and

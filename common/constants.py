@@ -19,5 +19,7 @@ class CV:
   # Mass
   LB_TO_KG = 0.453592
 
+  # FrogPilot variables
+
 
 ACCELERATION_DUE_TO_GRAVITY = 9.81  # m/s^2

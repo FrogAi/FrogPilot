@@ -378,6 +378,8 @@ class TestFordSafetyBase(common.CarSafetyTest):
       for bus in (0, 2):
         self.assertEqual(enabled, self._tx(self._acc_button_msg(Buttons.CANCEL, bus)))
 
+  # FrogPilot variables
+
 
 class TestFordCANFDStockSafety(TestFordSafetyBase):
   STEER_MESSAGE = MSG_LateralMotionControl2

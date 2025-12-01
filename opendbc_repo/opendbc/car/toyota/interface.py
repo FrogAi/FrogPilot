@@ -94,6 +94,8 @@ class CarInterface(CarInterfaceBase):
       # TODO: Some of these platforms are not advertised to have full range ACC, do they really all have sng?
       stop_and_go = True
 
+    # FrogPilot variables
+
     ret.centerToFront = ret.wheelbase * 0.44
 
     # TODO: Some TSS-P platforms have BSM, but are flipped based on region or driving direction.
@@ -140,6 +142,8 @@ class CarInterface(CarInterfaceBase):
       # Hybrids have much quicker longitudinal actuator response
       if ret.flags & ToyotaFlags.HYBRID.value:
         ret.longitudinalActuatorDelay = 0.05
+
+    # FrogPilot variables
 
     return ret
 

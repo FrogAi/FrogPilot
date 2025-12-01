@@ -108,6 +108,8 @@ class TestVolkswagenPqSafetyBase(common.CarSafetyTest, common.DriverTorqueSteeri
     self.assertEqual(0, self.safety.get_torque_driver_max())
     self.assertEqual(0, self.safety.get_torque_driver_min())
 
+  # FrogPilot variables
+
 
 class TestVolkswagenPqStockSafety(TestVolkswagenPqSafetyBase):
   # Transmit of GRA_Neu is allowed on bus 0 and 2 to keep compatibility with gateway and camera integration

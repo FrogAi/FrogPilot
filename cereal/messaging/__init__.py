@@ -197,6 +197,8 @@ class SubMaster:
       self.data[s] = getattr(data.as_reader(), s)
       self.freq_tracker[s] = FrequencyTracker(SERVICE_LIST[s].frequency, self.update_freq, s == poll)
 
+    # FrogPilot variables
+
   def __getitem__(self, s: str) -> capnp.lib.capnp._DynamicStructReader:
     return self.data[s]
 
@@ -248,6 +250,8 @@ class SubMaster:
   def all_checks(self, service_list: Optional[List[str]] = None) -> bool:
     return self.all_alive(service_list) and self.all_freq_ok(service_list) and self.all_valid(service_list)
 
+  # FrogPilot variables
+
 
 class PubMaster:
   def __init__(self, services: List[str]):
@@ -269,3 +273,5 @@ class PubMaster:
 
   def all_readers_updated(self, s: str) -> bool:
     return self.sock[s].all_readers_updated()  # type: ignore
+
+  # FrogPilot variables

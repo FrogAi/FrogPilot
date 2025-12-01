@@ -166,6 +166,8 @@ public:
     refresh();
   }
 
+  // FrogPilot variables
+
 private:
   void toggleClicked(bool state);
   void setIcon(bool state) {
@@ -181,6 +183,8 @@ private:
   QPixmap active_icon_pixmap;
   bool confirm = false;
   bool store_confirm = false;
+
+  // FrogPilot variables
 };
 
 class MultiButtonControl : public AbstractControl {

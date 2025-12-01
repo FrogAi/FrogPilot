@@ -132,6 +132,8 @@ class TestGmSafetyBase(common.CarSafetyTest, common.DriverTorqueSteeringSafetyTe
     values = {"ACCButtons": buttons}
     return self.packer.make_can_msg_safety("ASCMSteeringButton", self.BUTTONS_BUS, values)
 
+  # FrogPilot variables
+
 
 class TestGmEVSafetyBase(TestGmSafetyBase):
   EXTRA_SAFETY_PARAM = GMSafetyFlags.EV
@@ -328,6 +330,8 @@ class TestGmCcLongitudinalSafety(TestGmCameraSafety):
       for btn in (Buttons.RES_ACCEL, Buttons.DECEL_SET, Buttons.CANCEL):
         self._rx(self._pcm_status_msg(enabled))
         self.assertEqual(enabled, self._tx(self._button_msg(btn)))
+
+  # FrogPilot variables
 
 
 if __name__ == "__main__":

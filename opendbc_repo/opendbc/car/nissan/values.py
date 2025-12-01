@@ -30,6 +30,9 @@ class NissanSafetyFlags(IntFlag):
   ALT_EPS_BUS = 1
 
 
+# FrogPilot variables
+
+
 class Footnote(Enum):
   SETUP = CarFootnote(
     "See more setup details for <a href=\"https://github.com/commaai/openpilot/wiki/nissan\" target=\"_blank\">Nissan</a>.",

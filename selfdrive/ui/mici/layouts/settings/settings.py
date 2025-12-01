@@ -49,6 +49,8 @@ class SettingsLayout(NavWidget):
     firehose_btn.set_click_callback(lambda: self._set_current_panel(PanelType.FIREHOSE))
 
     self._scroller = Scroller([
+      # FrogPilot variables
+
       toggles_btn,
       network_btn,
       device_btn,

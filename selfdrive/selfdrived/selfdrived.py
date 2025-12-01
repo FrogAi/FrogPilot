@@ -39,6 +39,8 @@ EventName = log.OnroadEvent.EventName
 ButtonType = car.CarState.ButtonEvent.Type
 SafetyModel = car.CarParams.SafetyModel
 
+# FrogPilot variables
+
 IGNORED_SAFETY_MODES = (SafetyModel.silent, SafetyModel.noOutput)
 
 
@@ -139,10 +141,13 @@ class SelfdriveD:
     elif self.CP.passive:
       self.events.add(EventName.dashcamMode, static=True)
 
+    # FrogPilot variables
   def update_events(self, CS):
     """Compute onroadEvents from carState"""
 
     self.events.clear()
+
+    # FrogPilot variables
 
     if self.sm['controlsState'].lateralControlState.which() == 'debugState':
       self.events.add(EventName.joystickDebug)
@@ -154,12 +159,16 @@ class SelfdriveD:
 
     # Add startup event
     if self.startup_event is not None:
+      # FrogPilot variables
       self.events.add(self.startup_event)
       self.startup_event = None
 
     # Don't add any more events if not initialized
     if not self.initialized:
       self.events.add(EventName.selfdriveInitializing)
+
+      # FrogPilot variables
+
       return
 
     # Check for user bookmark press (bookmark button or end of LKAS button feedback)
@@ -185,6 +194,8 @@ class SelfdriveD:
     if CS.canValid:
       car_events = self.car_events.update(CS, self.CS_prev, self.sm['carControl']).to_msg()
       self.events.add_from_msg(car_events)
+
+      # FrogPilot variables
 
       if self.CP.notCar:
         # wait for everything to init first
@@ -258,11 +269,14 @@ class SelfdriveD:
       direction = self.sm['modelV2'].meta.laneChangeDirection
       if (CS.leftBlindspot and direction == LaneChangeDirection.left) or \
          (CS.rightBlindspot and direction == LaneChangeDirection.right):
+        # FrogPilot variables
         self.events.add(EventName.laneChangeBlocked)
       else:
         if direction == LaneChangeDirection.left:
+          # FrogPilot variables
           self.events.add(EventName.preLaneChangeLeft)
         else:
+          # FrogPilot variables
           self.events.add(EventName.preLaneChangeRight)
     elif self.sm['modelV2'].meta.laneChangeState in (LaneChangeState.laneChangeStarting,
                                                     LaneChangeState.laneChangeFinishing):
@@ -372,6 +386,7 @@ class SelfdriveD:
       turning = abs(desired_lateral_accel) > 1.0
       # TODO: lac.saturated includes speed and other checks, should be pulled out
       if undershooting and turning and lac.saturated:
+        # FrogPilot variables
         self.events.add(EventName.steerSaturated)
 
     # Check for FCW
@@ -396,10 +411,13 @@ class SelfdriveD:
 
     # Decrement personality on distance button press
     if self.CP.openpilotLongitudinalControl:
+      # FrogPilot variables
       if any(not be.pressed and be.type == ButtonType.gapAdjustCruise for be in CS.buttonEvents):
         self.personality = (self.personality - 1) % 3
         self.params.put_nonblocking('LongitudinalPersonality', self.personality)
         self.events.add(EventName.personalityChanged)
+
+    # FrogPilot variables
 
   def data_sample(self):
     _car_state = messaging.recv_one(self.car_state_sock)
@@ -461,6 +479,8 @@ class SelfdriveD:
     self.AM.add_many(self.sm.frame, alerts)
     self.AM.process_alerts(self.sm.frame, clear_event_types)
 
+    # FrogPilot variables
+
   def publish_selfdriveState(self, CS):
     # selfdriveState
     ss_msg = messaging.new_message('selfdriveState')
@@ -481,6 +501,8 @@ class SelfdriveD:
     ss.alertSound = self.AM.current_alert.audible_alert
     ss.alertHudVisual = self.AM.current_alert.visual_alert
 
+    # FrogPilot variables
+
     self.pm.send('selfdriveState', ss_msg)
 
     # onroadEvents - logged every second or on change
@@ -490,6 +512,8 @@ class SelfdriveD:
       ce_send.onroadEvents = self.events.to_msg()
       self.pm.send('onroadEvents', ce_send)
     self.events_prev = self.events.names.copy()
+
+    # FrogPilot variables
 
   def step(self):
     CS = self.data_sample()
@@ -501,6 +525,8 @@ class SelfdriveD:
     self.publish_selfdriveState(CS)
 
     self.CS_prev = CS
+
+    # FrogPilot variables
 
   def params_thread(self, evt):
     while not evt.is_set():

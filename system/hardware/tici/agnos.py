@@ -175,6 +175,8 @@ def extract_compressed_image(target_slot_number: int, partition: dict, cloudlog)
         last_p = p
         print(f"Installing {partition['name']}: {p}", flush=True)
 
+        # FrogPilot variables
+
     if raw_hash.hexdigest().lower() != partition['hash_raw'].lower():
       raise Exception(f"Raw hash mismatch '{raw_hash.hexdigest().lower()}'")
 
@@ -223,6 +225,8 @@ def extract_casync_image(target_slot_number: int, partition: dict, cloudlog):
       last_p = p
       print(f"Installing {partition['name']}: {p}", flush=True)
 
+      # FrogPilot variables
+
   stats = casync.extract(target, sources, path, progress)
   cloudlog.error(f'casync done {json.dumps(stats)}')
 
@@ -236,6 +240,9 @@ def flash_partition(target_slot_number: int, partition: dict, cloudlog, standalo
 
   if verify_partition(target_slot_number, partition):
     cloudlog.info(f"Already flashed {partition['name']}")
+
+    # FrogPilot variables
+
     return
 
   # Clear hash before flashing in case we get interrupted

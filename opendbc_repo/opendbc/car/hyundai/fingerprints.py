@@ -21,6 +21,9 @@ FW_VERSIONS = {
       b'\xf1\x00IG  MFC  AT MES LHD 1.00 1.05 99211-G8100 210409',
     ],
   },
+
+  # FrogPilot variables
+
   CAR.HYUNDAI_AZERA_HEV_6TH_GEN: {
     (Ecu.fwdCamera, 0x7c4, None): [
       b'\xf1\x00IGH MFC  AT KOR LHD 1.00 1.00 99211-G8000 180903',

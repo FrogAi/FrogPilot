@@ -1,6 +1,7 @@
 import pyray as rl
 from dataclasses import dataclass
 from openpilot.common.constants import CV
+from openpilot.frogpilot.ui.mici.frogpilot_widgets import FrogPilotWidgets
 from openpilot.selfdrive.ui.mici.onroad.torque_bar import TorqueBar
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
 from openpilot.system.ui.lib.application import gui_app, FontWeight
@@ -127,6 +128,9 @@ class HudRenderer(Widget):
 
     self._set_speed_alpha_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
 
+    # FrogPilot variables
+    self._frogpilot_widgets = FrogPilotWidgets()
+
   def set_wheel_critical_icon(self, critical: bool):
     """Set the wheel icon to critical or normal state."""
     self._show_wheel_critical = critical
@@ -172,6 +176,8 @@ class HudRenderer(Widget):
   def _render(self, rect: rl.Rectangle) -> None:
     """Render HUD elements to the screen."""
 
+    # FrogPilot variables
+
     if ui_state.sm['controlsState'].lateralControlState.which() != 'angleState':
       self._torque_bar.render(rect)
 
@@ -180,8 +186,14 @@ class HudRenderer(Widget):
 
     self._draw_steering_wheel(rect)
 
+    # FrogPilot variables
+    self._frogpilot_widgets.set_can_draw(self._can_draw_top_icons, self.is_cruise_set and self._set_speed_alpha_filter.x > 1e-2)
+    self._frogpilot_widgets.render(rect)
+
   def _draw_steering_wheel(self, rect: rl.Rectangle) -> None:
     wheel_txt = self._txt_wheel_critical if self._show_wheel_critical else self._txt_wheel
+
+    # FrogPilot variables
 
     if self._show_wheel_critical:
       self._wheel_alpha_filter.update(255)
@@ -239,6 +251,8 @@ class HudRenderer(Widget):
 
     set_speed_color = rl.Color(255, 255, 255, int(255 * 0.9 * alpha))
     max_color = rl.Color(255, 255, 255, int(255 * 0.9 * alpha))
+
+    # FrogPilot variables
 
     set_speed = self.set_speed
     if self.is_cruise_set and not ui_state.is_metric:

@@ -28,6 +28,7 @@ static int get_health_pkt(void *dat) {
   health->heartbeat_lost_pkt = heartbeat_lost;
   health->safety_rx_checks_invalid_pkt = safety_rx_checks_invalid;
 
+  // FrogPilot variables
   health->spi_error_count_pkt = spi_error_count;
 
   health->fault_status_pkt = fault_status;

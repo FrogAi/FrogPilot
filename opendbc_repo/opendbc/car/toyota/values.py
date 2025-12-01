@@ -80,6 +80,9 @@ class ToyotaFlags(IntFlag):
   SNG_WITHOUT_DSU_DEPRECATED = 512
 
 
+# FrogPilot variables
+
+
 def dbc_dict(pt, radar):
   return {Bus.pt: pt, Bus.radar: radar}
 
@@ -601,5 +604,7 @@ SECOC_CAR = CAR.with_flags(ToyotaFlags.SECOC)
 
 # no resume button press required
 NO_STOP_TIMER_CAR = CAR.with_flags(ToyotaFlags.NO_STOP_TIMER)
+
+# FrogPilot variables
 
 DBC = CAR.create_dbc_map()

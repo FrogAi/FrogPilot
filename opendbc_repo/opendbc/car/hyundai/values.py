@@ -24,6 +24,7 @@ class CarControllerParams:
     self.STEER_THRESHOLD = 150
     self.STEER_STEP = 1  # 100 Hz
 
+    # FrogPilot variables
     if CP.flags & HyundaiFlags.CANFD:
       self.STEER_MAX = 270
       self.STEER_DRIVER_ALLOWANCE = 250
@@ -66,6 +67,9 @@ class HyundaiSafetyFlags(IntFlag):
   CANFD_LKA_STEERING_ALT = 128
   FCEV_GAS = 256
   ALT_LIMITS_2 = 512
+
+
+# FrogPilot variables
 
 
 class HyundaiFlags(IntFlag):
@@ -158,6 +162,9 @@ class CAR(Platforms):
     [HyundaiCarDocs("Hyundai Azera 2022", "All", car_parts=CarParts.common([CarHarness.hyundai_k]))],
     CarSpecs(mass=1600, wheelbase=2.885, steerRatio=14.5),
   )
+
+  # FrogPilot variables
+
   HYUNDAI_AZERA_HEV_6TH_GEN = HyundaiPlatformConfig(
     [
       HyundaiCarDocs("Hyundai Azera Hybrid 2019", "All", car_parts=CarParts.common([CarHarness.hyundai_c])),

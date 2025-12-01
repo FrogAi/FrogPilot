@@ -11,6 +11,8 @@ from opendbc.car.subaru.values import DBC, GLOBAL_ES_ADDR, CanBus, CarController
 MAX_STEER_RATE = 25  # deg/s
 MAX_STEER_RATE_FRAMES = 7  # tx control frames needed before torque can be cut
 
+# FrogPilot variables
+
 
 class CarController(CarControllerBase):
   def __init__(self, dbc_names, CP):
@@ -22,6 +24,8 @@ class CarController(CarControllerBase):
 
     self.p = CarControllerParams(CP)
     self.packer = CANPacker(DBC[CP.carFingerprint][Bus.pt])
+
+    # FrogPilot variables
 
   def update(self, CC, CS, now_nanos):
     actuators = CC.actuators
@@ -56,6 +60,8 @@ class CarController(CarControllerBase):
         can_sends.append(subarucan.create_steering_control(self.packer, apply_torque, apply_steer_req))
 
       self.apply_torque_last = apply_torque
+
+    # FrogPilot variables
 
     # *** longitudinal ***
 
@@ -93,6 +99,7 @@ class CarController(CarControllerBase):
 
         can_sends.append(subarucan.create_preglobal_es_distance(self.packer, cruise_button, CS.es_distance_msg))
 
+      # FrogPilot variables
     else:
       if self.frame % 10 == 0:
         can_sends.append(subarucan.create_es_dashstatus(self.packer, self.frame // 10, CS.es_dashstatus_msg, CC.enabled,
@@ -104,6 +111,8 @@ class CarController(CarControllerBase):
 
         if self.CP.flags & SubaruFlags.SEND_INFOTAINMENT:
           can_sends.append(subarucan.create_es_infotainment(self.packer, self.frame // 10, CS.es_infotainment_msg, hud_control.visualAlert))
+
+      # FrogPilot variables
 
       if self.CP.openpilotLongitudinalControl:
         if self.frame % 5 == 0:
@@ -142,3 +151,5 @@ class CarController(CarControllerBase):
 
     self.frame += 1
     return new_actuators, can_sends
+
+  # FrogPilot variables

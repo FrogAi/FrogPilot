@@ -124,6 +124,8 @@ class TeslaSafetyFlags(IntFlag):
 class TeslaFlags(IntFlag):
   LONG_CONTROL = 1
 
+  # FrogPilot variables
+
 
 DBC = CAR.create_dbc_map()
 

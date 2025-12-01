@@ -35,6 +35,8 @@ struct ParamKeyAttributes {
   uint32_t flags;
   ParamKeyType type;
   std::optional<std::string> default_value = std::nullopt;
+
+  // FrogPilot variables
 };
 
 class Params {
@@ -78,6 +80,8 @@ public:
     putNonBlocking(key, val ? "1" : "0");
   }
 
+  // FrogPilot variables
+
 private:
   void asyncWriteThread();
 
@@ -87,4 +91,6 @@ private:
   // for nonblocking write
   std::future<void> future;
   SafeQueue<std::pair<std::string, std::string>> queue;
+
+  // FrogPilot variables
 };

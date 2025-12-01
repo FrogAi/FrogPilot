@@ -23,6 +23,8 @@ NON_LINEAR_TORQUE_PARAMS = {
   CAR.CHEVROLET_BOLT_2018: [1.8, 1.1, 0.3, -0.045]
 }
 
+# FrogPilot variables
+
 
 class CarInterface(CarInterfaceBase):
   CarState = CarState
@@ -234,6 +236,8 @@ class CarInterface(CarInterfaceBase):
       ret.steerActuatorDelay = 0.2
       CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
 
+    # FrogPilot variables
+
     if ret.enableGasInterceptorDEPRECATED and candidate not in ALT_ACCS:
       ret.alphaLongitudinalAvailable = False
       ret.autoResumeSng = True
@@ -242,6 +246,8 @@ class CarInterface(CarInterfaceBase):
       ret.openpilotLongitudinalControl = True
       ret.pcmCruise = False
       ret.safetyConfigs[0].safetyParam |= GMSafetyFlags.HW_CAM.value
+
+      # FrogPilot variables
 
     elif candidate in CC_ONLY_CAR:
       ret.alphaLongitudinalAvailable = True

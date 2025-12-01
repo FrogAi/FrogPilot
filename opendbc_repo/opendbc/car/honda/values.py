@@ -58,6 +58,9 @@ class HondaSafetyFlags(IntFlag):
   BOSCH_CANFD = 16
 
 
+# FrogPilot variables
+
+
 class HondaFlags(IntFlag):
   # Detected flags
   # Bosch models with alternate set of LKAS_HUD messages
@@ -352,6 +355,8 @@ class CAR(Platforms):
     flags=HondaFlags.HAS_ALL_DOOR_STATES
   )
 
+  # FrogPilot variables
+
 
 HONDA_NIDEC_ALT_PCM_ACCEL = CAR.with_flags(HondaFlags.NIDEC_ALT_PCM_ACCEL)
 HONDA_NIDEC_ALT_SCM_MESSAGES = CAR.with_flags(HondaFlags.NIDEC_ALT_SCM_MESSAGES)
@@ -360,6 +365,8 @@ HONDA_BOSCH_RADARLESS = CAR.with_flags(HondaFlags.BOSCH_RADARLESS)
 HONDA_BOSCH_CANFD = CAR.with_flags(HondaFlags.BOSCH_CANFD)
 HONDA_BOSCH_ALT_RADAR = CAR.with_flags(HondaFlags.BOSCH_ALT_RADAR)
 HONDA_BOSCH_TJA_CONTROL = CAR.with_flags(HondaFlags.BOSCH_TJA_CONTROL)
+
+# FrogPilot variables
 
 
 DBC = CAR.create_dbc_map()

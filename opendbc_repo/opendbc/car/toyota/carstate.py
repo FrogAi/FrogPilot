@@ -24,6 +24,9 @@ TEMP_STEER_FAULTS = (0, 9, 11, 21, 25)
 PERM_STEER_FAULTS = (3, 17)
 
 
+# FrogPilot variables
+
+
 class CarState(CarStateBase):
   def __init__(self, CP):
     super().__init__(CP)
@@ -52,6 +55,10 @@ class CarState(CarStateBase):
     self.lkas_hud = {}
     self.gvc = 0.0
     self.secoc_synchronization = None
+
+    # FrogPilot variables
+
+  # FrogPilot variables
 
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
@@ -148,6 +155,7 @@ class CarState(CarStateBase):
       ret.cruiseState.speedCluster = cluster_set_speed * conversion_factor
 
     if self.CP.carFingerprint in TSS2_CAR and not self.CP.flags & ToyotaFlags.DISABLE_RADAR.value:
+      # FrogPilot variables
       self.acc_type = cp_acc.vl["ACC_CONTROL"]["ACC_TYPE"]
       ret.stockFcw = bool(cp_acc.vl["PCS_HUD"]["FCW"])
 
@@ -198,6 +206,8 @@ class CarState(CarStateBase):
 
         buttonEvents += create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
 
+    # FrogPilot variables
+
     ret.buttonEvents = buttonEvents
     return ret
 
@@ -205,6 +215,8 @@ class CarState(CarStateBase):
   def get_can_parsers(CP):
     pt_messages = [
       ("BLINKERS_STATE", float('nan')),
+
+      # FrogPilot variables
     ]
 
     return {

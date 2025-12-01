@@ -30,6 +30,8 @@ if HARDWARE.get_device_type() == "tizi":
 
 AudibleAlert = car.CarControl.HUDControl.AudibleAlert
 
+# FrogPilot variables
+
 
 sound_list: dict[int, tuple[str, int | None, float]] = {
   # AudibleAlert, file name, play count (none for infinite)
@@ -43,6 +45,8 @@ sound_list: dict[int, tuple[str, int | None, float]] = {
 
   AudibleAlert.warningSoft: ("warning_soft.wav", None, MAX_VOLUME),
   AudibleAlert.warningImmediate: ("warning_immediate.wav", None, MAX_VOLUME),
+
+  # FrogPilot variables
 }
 if HARDWARE.get_device_type() == "tizi":
   sound_list.update({
@@ -72,6 +76,8 @@ class Soundd:
 
     self.spl_filter_weighted = FirstOrderFilter(0, 2.5, FILTER_DT, initialized=False)
 
+    # FrogPilot variables
+
   def load_sounds(self):
     self.loaded_sounds: dict[int, np.ndarray] = {}
 
@@ -79,6 +85,7 @@ class Soundd:
     for sound in sound_list:
       filename, play_count, volume = sound_list[sound]
 
+      # FrogPilot variables
       with wave.open(BASEDIR + "/selfdrive/assets/sounds/" + filename, 'r') as wavefile:
         assert wavefile.getnchannels() == 1
         assert wavefile.getsampwidth() == 2
@@ -86,6 +93,8 @@ class Soundd:
 
         length = wavefile.getnframes()
         self.loaded_sounds[sound] = np.frombuffer(wavefile.readframes(length), dtype=np.int16).astype(np.float32) / (2**16/2)
+
+    # FrogPilot variables
 
   def get_sound_data(self, frames): # get "frames" worth of data from the current alert sound, looping when required
 
@@ -120,8 +129,12 @@ class Soundd:
       self.current_sound_frame = 0
 
   def get_audible_alert(self, sm):
+    # FrogPilot variables
     if sm.updated['selfdriveState']:
       new_alert = sm['selfdriveState'].alertSound.raw
+
+      # FrogPilot variables
+
       self.update_alert(new_alert)
     elif check_selfdrive_timeout_alert(sm):
       self.update_alert(AudibleAlert.warningImmediate)
@@ -147,6 +160,8 @@ class Soundd:
 
     sm = messaging.SubMaster(['selfdriveState', 'soundPressure'])
 
+    # FrogPilot variables
+
     with self.get_stream(sd) as stream:
       rk = Ratekeeper(20)
 
@@ -163,6 +178,10 @@ class Soundd:
         rk.keep_time()
 
         assert stream.active
+
+        # FrogPilot variables
+
+  # FrogPilot variables
 
 
 def main():

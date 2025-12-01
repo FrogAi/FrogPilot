@@ -27,3 +27,6 @@ def get_available_bytes(default: int) -> int:
     available_bytes = default
 
   return available_bytes
+
+
+# FrogPilot variables

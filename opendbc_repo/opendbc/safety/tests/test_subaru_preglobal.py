@@ -59,6 +59,8 @@ class TestSubaruPreglobalSafety(common.CarSafetyTest, common.DriverTorqueSteerin
     values = {"Cruise_Activated": enable}
     return self.packer.make_can_msg_safety("CruiseControl", 0, values)
 
+  # FrogPilot variables
+
 
 class TestSubaruPreglobalReversedDriverTorqueSafety(TestSubaruPreglobalSafety):
   FLAGS = SubaruSafetyFlags.PREGLOBAL_REVERSED_DRIVER_TORQUE

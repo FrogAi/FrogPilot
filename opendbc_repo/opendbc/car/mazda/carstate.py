@@ -20,6 +20,8 @@ class CarState(CarStateBase):
 
     self.distance_button = 0
 
+    # FrogPilot variables
+
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
@@ -114,6 +116,8 @@ class CarState(CarStateBase):
 
     # TODO: add button types for inc and dec
     ret.buttonEvents = create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
+
+    # FrogPilot variables
 
     return ret
 

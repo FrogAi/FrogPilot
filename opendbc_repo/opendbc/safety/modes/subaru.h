@@ -25,6 +25,8 @@
 #define MSG_SUBARU_Steering_Torque       0x119U
 #define MSG_SUBARU_Wheel_Speeds          0x13aU
 
+// FrogPilot variables
+
 #define MSG_SUBARU_ES_LKAS               0x122U
 #define MSG_SUBARU_ES_Brake              0x220U
 #define MSG_SUBARU_ES_Distance           0x221U
@@ -48,6 +50,7 @@
   {MSG_SUBARU_ES_DashStatus,     SUBARU_MAIN_BUS, 8, .check_relay = true},  \
   {MSG_SUBARU_ES_LKAS_State,     SUBARU_MAIN_BUS, 8, .check_relay = true},  \
   {MSG_SUBARU_ES_Infotainment,   SUBARU_MAIN_BUS, 8, .check_relay = true},  \
+  /* FrogPilot variables */                                                  \
 
 #define SUBARU_COMMON_TX_MSGS(alt_bus) \
   {MSG_SUBARU_ES_Distance, alt_bus, 8, .check_relay = false}, \
@@ -72,6 +75,8 @@
 
 static bool subaru_gen2 = false;
 static bool subaru_longitudinal = false;
+
+// FrogPilot variables
 
 static uint32_t subaru_get_checksum(const CANPacket_t *msg) {
   return (uint8_t)msg->data[0];
@@ -109,6 +114,8 @@ static void subaru_rx_hook(const CANPacket_t *msg) {
   if ((msg->addr == MSG_SUBARU_CruiseControl) && (msg->bus == alt_main_bus)) {
     bool cruise_engaged = (msg->data[5] >> 1) & 1U;
     pcm_cruise_check(cruise_engaged);
+
+    // FrogPilot variables
   }
 
   // update vehicle moving with any non-zero wheel speed
@@ -197,11 +204,15 @@ static bool subaru_tx_hook(const CANPacket_t *msg) {
     violation |= !(is_tester_present || is_button_rdbi);
   }
 
+  // FrogPilot variables
+
   if (violation){
     tx = false;
   }
   return tx;
 }
+
+// FrogPilot variables
 
 static safety_config subaru_init(uint16_t param) {
   static const CanMsg SUBARU_TX_MSGS[] = {
@@ -237,6 +248,8 @@ static safety_config subaru_init(uint16_t param) {
 
   subaru_gen2 = GET_FLAG(param, SUBARU_PARAM_GEN2);
 
+  // FrogPilot variables
+
 #ifdef ALLOW_DEBUG
   const uint16_t SUBARU_PARAM_LONGITUDINAL = 2;
   subaru_longitudinal = GET_FLAG(param, SUBARU_PARAM_LONGITUDINAL);
@@ -260,4 +273,6 @@ const safety_hooks subaru_hooks = {
   .get_counter = subaru_get_counter,
   .get_checksum = subaru_get_checksum,
   .compute_checksum = subaru_compute_checksum,
+
+  // FrogPilot variables
 };
