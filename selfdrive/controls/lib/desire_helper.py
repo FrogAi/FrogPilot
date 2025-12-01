@@ -84,6 +84,9 @@ class DesireHelper:
           torque_applied |= frogpilot_toggles.nudgeless
           torque_applied &= self.lane_change_wait_timer >= frogpilot_toggles.lane_change_delay
 
+          desired_lane_width = frogpilotPlan.laneWidthLeft if self.lane_change_direction == LaneChangeDirection.left else frogpilotPlan.laneWidthRight
+          torque_applied &= desired_lane_width >= frogpilot_toggles.lane_detection_width
+
         if not one_blinker or below_lane_change_speed:
           self.lane_change_state = LaneChangeState.off
           self.lane_change_direction = LaneChangeDirection.none

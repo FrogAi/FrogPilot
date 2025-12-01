@@ -298,10 +298,16 @@ class SelfdriveD:
       else:
         if direction == LaneChangeDirection.left:
           # FrogPilot variables
-          self.events.add(EventName.preLaneChangeLeft)
+          if self.sm['frogpilotPlan'].laneWidthLeft >= self.frogpilot_toggles.lane_detection_width:
+            self.events.add(EventName.preLaneChangeLeft)
+          else:
+            self.frogpilot_events.add(FrogPilotEventName.noLaneAvailable)
         else:
           # FrogPilot variables
-          self.events.add(EventName.preLaneChangeRight)
+          if self.sm['frogpilotPlan'].laneWidthRight >= self.frogpilot_toggles.lane_detection_width:
+            self.events.add(EventName.preLaneChangeRight)
+          else:
+            self.frogpilot_events.add(FrogPilotEventName.noLaneAvailable)
     elif self.sm['modelV2'].meta.laneChangeState in (LaneChangeState.laneChangeStarting,
                                                     LaneChangeState.laneChangeFinishing):
       self.events.add(EventName.laneChange)
