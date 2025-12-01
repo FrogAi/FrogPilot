@@ -197,6 +197,9 @@ class CarInterfaceBase(ABC):
         fp_ret.alwaysOnLateralLKASButton = True
         fp_ret.canUsePedal = candidate not in HONDA_BOSCH
 
+        if candidate not in HONDA_BOSCH and frogpilot_toggles.honda_alt_tune:
+          CP.longitudinalTuning.kiV = [0.6, 0.4, 0.25]
+
       elif platform in HYUNDAI:
         if CP.flags & HyundaiFlags.HAS_LDA_BUTTON:
           CP.safetyConfigs[-1].safetyParam |= HyundaiFrogPilotSafetyFlags.HAS_LDA_BUTTON.value
