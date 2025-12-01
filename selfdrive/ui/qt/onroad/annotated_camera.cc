@@ -122,7 +122,11 @@ void AnnotatedCameraWidget::paintGL() {
     }
 
     // FrogPilot variables
-    CameraWidget::setStreamType(wide_cam_requested ? VISION_STREAM_WIDE_ROAD : VISION_STREAM_ROAD);
+    int camera_view = frogpilot_toggles.value(QLatin1String("camera_view")).toInt();
+
+    CameraWidget::setStreamType(camera_view == 1 ? VISION_STREAM_DRIVER :
+                                camera_view == 3 || (camera_view == 0 && wide_cam_requested) ? VISION_STREAM_WIDE_ROAD :
+                                VISION_STREAM_ROAD);
     CameraWidget::setFrameId(sm["modelV2"].getModelV2().getFrameId());
     CameraWidget::paintGL();
   }
@@ -136,13 +140,17 @@ void AnnotatedCameraWidget::paintGL() {
   hud.frogpilot_nvg = frogpilot_nvg;
   model.frogpilot_nvg = frogpilot_nvg;
 
+  frogpilot_nvg->driverView = active_stream_type == VISION_STREAM_DRIVER;
   frogpilot_nvg->experimentalButtonPosition = experimental_btn->pos();
 
   dmon.frogpilot_toggles = frogpilot_toggles;
   hud.frogpilot_toggles = frogpilot_toggles;
   model.frogpilot_toggles = frogpilot_toggles;
 
-  model.draw(painter, rect());
+  if (!frogpilot_nvg->driverView) {
+    model.draw(painter, rect());
+  }
+
   dmon.draw(painter, rect());
   hud.updateState(*s);
   hud.draw(painter, rect());
