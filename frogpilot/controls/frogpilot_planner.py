@@ -4,7 +4,7 @@ import time
 
 import cereal.messaging as messaging
 
-from openpilot.common.constants import CV
+from openpilot.common.constants import ACCELERATION_DUE_TO_GRAVITY, CV
 from openpilot.common.gps import get_gps_location_service
 from openpilot.common.params import Params
 from openpilot.selfdrive.car.cruise import V_CRUISE_MAX
@@ -39,8 +39,14 @@ class FrogPilotPlanner:
     self.accel_press_count = 0
     self.decel_press_count = 0
     self.experimental_mode_press_count = None
+    self.lateral_acceleration = 0
     self.model_length = 0
     self.next_gps_position_save = 0
+    self.peak_lateral_acceleration = 0
+    self.road_curvature = 0
+    self.road_curvature_peak = 0
+    self.roll_compensation = 0
+    self.time_to_curve = 0
     self.v_cruise = 0
 
     last_gps_position = json.loads(self.params.get("LastGPSPosition") or "{}")
@@ -106,7 +112,19 @@ class FrogPilotPlanner:
     else:
       self.gps_position = None
 
+    self.lateral_acceleration = v_ego**2 * sm["controlsState"].curvature if sm.all_checks(service_list=["carState", "controlsState"]) else 0
+
     self.model_stopped = self.model_length < frogpilot_variables.CRUISING_SPEED * frogpilot_variables.PLANNER_TIME
+
+    self.roll_compensation = sm["liveParameters"].roll * ACCELERATION_DUE_TO_GRAVITY
+
+    self.frogpilot_vcruise.csc.update_max_limit(sm, frogpilot_toggles)
+    self.frogpilot_vcruise.csc.update_lateral_acceleration(frogpilot_toggles)
+
+    self.road_curvature, self.time_to_curve, self.road_curvature_peak = frogpilot_utilities.calculate_road_curvature(
+      sm["modelV2"], v_ego, self.frogpilot_vcruise.csc.lateral_acceleration, self.roll_compensation
+    )
+    self.peak_lateral_acceleration = v_ego**2 * self.road_curvature_peak
 
     if self.curve_ahead or self.frogpilot_cem.curve_detected:
       self.curve_ahead = self.peak_lateral_acceleration > frogpilot_variables.CURVE_AHEAD_EXIT
@@ -137,6 +155,12 @@ class FrogPilotPlanner:
 
     frogpilotPlan.ceStatus = self.frogpilot_cem.status_value
 
+    frogpilotPlan.cscActive = self.frogpilot_vcruise.csc_active
+    frogpilotPlan.cscControllingSpeed = self.frogpilot_vcruise.csc_controlling_speed
+    frogpilotPlan.cscLateralAcceleration = float(self.frogpilot_vcruise.csc.lateral_acceleration)
+    frogpilotPlan.cscSpeed = float(self.frogpilot_vcruise.csc_target)
+    frogpilotPlan.cscTraining = self.frogpilot_vcruise.csc.enable_training
+
     frogpilotPlan.experimentalMode = self.frogpilot_cem.experimental_mode
     frogpilotPlan.experimentalMode &= not frogpilot_toggles.conditional_experimental_mode or self.frogpilot_cem.status_value != frogpilot_variables.CE_STATUS["USER_DISABLED"]
 
@@ -148,6 +172,8 @@ class FrogPilotPlanner:
     frogpilotPlan.minAcceleration = float(self.frogpilot_acceleration.min_accel)
 
     frogpilotPlan.redLight = self.frogpilot_cem.stop_light_detected
+
+    frogpilotPlan.roadCurvature = self.road_curvature
 
     frogpilotPlan.tFollow = float(self.frogpilot_following.t_follow)
 

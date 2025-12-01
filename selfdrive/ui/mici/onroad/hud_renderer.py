@@ -141,7 +141,7 @@ class HudRenderer(Widget):
 
   def drawing_top_icons(self) -> bool:
     # whether we're drawing any top icons currently
-    return bool(self._set_speed_alpha_filter.x > 1e-2)
+    return bool(self._set_speed_alpha_filter.x > 1e-2 or self._frogpilot_widgets.drawing_top_slot())
 
   def _update_state(self) -> None:
     """Update HUD state based on car state and controls state."""
