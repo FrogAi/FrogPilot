@@ -12,6 +12,7 @@ from openpilot.common.params import Params
 from openpilot.common.realtime import DT_MDL, Priority, config_realtime_process
 from openpilot.common.swaglog import cloudlog
 from openpilot.common.simple_kalman import KF1D
+from openpilot.selfdrive.controls.lib.desire_helper import LaneChangeDirection, LaneChangeState
 
 from openpilot.frogpilot.common import frogpilot_variables
 
@@ -65,6 +66,9 @@ class Track:
     self.kf = KF1D([[v_lead], [0.0]], self.K_A, self.K_C, self.K_K)
 
     # FrogPilot variables
+    self.leadLeft = False
+    self.leadRight = False
+
     self.radarfulFilter = FirstOrderFilter(0, 1, self.K_A[0][1])
 
   def update(self, d_rel: float, y_rel: float, v_rel: float, v_lead: float, measured: float):
@@ -227,6 +231,7 @@ def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capn
 def get_adjacent_leads(tracks: dict[int, Track], model_data: capnp._DynamicStructReader, lead_track_id: int) -> tuple[dict[str, Any], dict[str, Any]]:
   lane_lines = [(np.array(lane_line.x), np.array(lane_line.y)) for lane_line in model_data.laneLines]
   max_distance = model_data.position.x[-1]
+  update_cached_leads = model_data.meta.laneChangeState != LaneChangeState.laneChangeStarting
 
   left_tracks = []
   right_tracks = []
@@ -240,6 +245,10 @@ def get_adjacent_leads(tracks: dict[int, Track], model_data: capnp._DynamicStruc
 
       lead_left = far_left_lane < -track.yRel < left_lane
       lead_right = right_lane < -track.yRel < far_right_lane
+
+    if update_cached_leads:
+      track.leadLeft = lead_left
+      track.leadRight = lead_right
 
     if lead_left:
       left_tracks.append(track)
@@ -323,7 +332,19 @@ class RadarD:
       self.radar_state.leadTwo = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[1], model_v_ego, sm['modelV2'], self.frogpilot_toggles, low_speed_override=False)
 
     # FrogPilot variables
-    if self.ready and self.frogpilot_toggles.adjacent_lead_tracking:
+    model_meta = sm['modelV2'].meta
+    if self.radar_state.leadOne.status and model_meta.laneChangeState == LaneChangeState.laneChangeStarting and self.frogpilot_toggles.human_lane_changes:
+      if model_meta.laneChangeDirection == LaneChangeDirection.left:
+        adjacent_tracks = [c for c in self.tracks.values() if c.leadLeft]
+      else:
+        adjacent_tracks = [c for c in self.tracks.values() if c.leadRight]
+
+      if len(adjacent_tracks) > 0:
+        closest_track = min(adjacent_tracks, key=lambda c: c.dRel)
+        if closest_track.identifier != self.radar_state.leadOne.radarTrackId:
+          self.radar_state.leadTwo = closest_track.get_RadarState()
+
+    if self.ready and (self.frogpilot_toggles.adjacent_lead_tracking or self.frogpilot_toggles.human_lane_changes):
       self.frogpilot_radar_state.leadLeft, self.frogpilot_radar_state.leadRight = get_adjacent_leads(self.tracks, sm['modelV2'], self.radar_state.leadOne.radarTrackId)
 
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
