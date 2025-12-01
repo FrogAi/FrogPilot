@@ -16,6 +16,7 @@ public:
   void mousePressEvent(QMouseEvent *mouseEvent) override;
   bool needsAdjacentPaths() const;
   void paintAdjacentPaths(QPainter &p);
+  void paintBlindSpotPath(QPainter &p);
   void paintFrogPilotWidgets(QPainter &p);
   void paintWorldWidgets(QPainter &p);
   void updateState(const UIState &s, const FrogPilotUIState &fs);
