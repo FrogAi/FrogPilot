@@ -46,6 +46,11 @@ HomeWindow::HomeWindow(QWidget* parent) : QWidget(parent) {
   QObject::connect(uiState(), &UIState::offroadTransition, sidebar, &Sidebar::offroadTransition);
 
   // FrogPilot variables
+  QObject::connect(frogpilotUIState(), &FrogPilotUIState::togglesUpdated, this, [this]() {
+    if (uiState()->scene.started && frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value(QLatin1String("debug_mode")).toBool()) {
+      sidebar->setVisible(true);
+    }
+  });
 }
 
 void HomeWindow::showSidebar(bool show) {
@@ -53,6 +58,9 @@ void HomeWindow::showSidebar(bool show) {
 }
 
 // FrogPilot variables
+bool HomeWindow::sidebarOpenOnroad() {
+  return frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value(QLatin1String("debug_mode")).toBool();
+}
 
 void HomeWindow::updateState(const UIState &s) {
   const SubMaster &sm = *(s.sm);
@@ -70,7 +78,7 @@ void HomeWindow::updateState(const UIState &s) {
 
 void HomeWindow::offroadTransition(bool offroad) {
   body->setEnabled(false);
-  sidebar->setVisible(offroad);
+  sidebar->setVisible(offroad || sidebarOpenOnroad());
   if (offroad) {
     slayout->setCurrentWidget(home);
 

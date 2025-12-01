@@ -75,7 +75,7 @@ void MainWindow::closeSettings() {
   main_layout->setCurrentWidget(homeWindow);
 
   if (uiState()->scene.started) {
-    homeWindow->showSidebar(false);
+    homeWindow->showSidebar(homeWindow->sidebarOpenOnroad());
   }
 }
 
