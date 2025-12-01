@@ -9,5 +9,10 @@ public:
   explicit FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent, bool forceOpen = false);
 
 private:
+  void submitReport(QJsonObject report);
+  void updateState(const UIState &s, const FrogPilotUIState &fs);
+
+  ButtonControl *reportIssueButton;
+
   Params params;
 };
