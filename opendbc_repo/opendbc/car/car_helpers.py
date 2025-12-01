@@ -12,7 +12,7 @@ from opendbc.car.fingerprints import eliminate_incompatible_cars, all_legacy_fin
 from opendbc.car.fw_versions import ObdCallback, get_fw_versions_ordered, get_present_ecus, match_fw_to_car
 from opendbc.car.honda.values import HondaFrogPilotSafetyFlags
 from opendbc.car.mock.values import CAR as MOCK
-from opendbc.car.toyota.values import ToyotaFrogPilotFlags, ToyotaFrogPilotSafetyFlags, ToyotaSafetyFlags
+from opendbc.car.toyota.values import NO_DSU_CAR, NO_STOP_TIMER_CAR, TSS2_CAR, ToyotaFlags, ToyotaFrogPilotFlags, ToyotaFrogPilotSafetyFlags, ToyotaSafetyFlags
 from opendbc.car.values import BRANDS, GAS_INTERCEPTOR_BRANDS
 from opendbc.car.vin import get_vin, is_valid_vin, VIN_UNKNOWN
 
@@ -181,12 +181,26 @@ def get_car(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_multip
   # FrogPilot variables
   FPCP: FrogPilotCarParams = CarInterface.get_frogpilot_params(candidate, fingerprints, car_fw, CP, frogpilot_toggles)
 
+  if CP.brand == "toyota" and FPCP.flags & ToyotaFrogPilotFlags.SMART_DSU.value:
+    if CP.carFingerprint in (NO_DSU_CAR - TSS2_CAR):
+      CP.alphaLongitudinalAvailable = True
+
+    if alpha_long_allowed or not CP.alphaLongitudinalAvailable:
+      CP.minEnableSpeed = -1
+      CP.openpilotLongitudinalControl = True
+      CP.flags &= ~ToyotaFlags.DISABLE_RADAR.value
+      CP.safetyConfigs[0].safetyParam &= ~ToyotaSafetyFlags.STOCK_LONGITUDINAL.value
+
   if CP.brand == "toyota" and FPCP.flags & ToyotaFrogPilotFlags.DSU_BYPASS.value:
     CP.openpilotLongitudinalControl = True
     CP.safetyConfigs[0].safetyParam &= ~ToyotaSafetyFlags.STOCK_LONGITUDINAL.value
 
   if disable_openpilot_long is not None:
     disable_openpilot_long(CP, FPCP, frogpilot_toggles)
+
+  if CP.brand == "toyota":
+    CP.autoResumeSng = CP.openpilotLongitudinalControl and CP.carFingerprint in NO_STOP_TIMER_CAR
+    FPCP.canUsePedal = not CP.autoResumeSng
 
   if CP.brand in GAS_INTERCEPTOR_BRANDS and FPCP.canUsePedal and CP.openpilotLongitudinalControl and PEDAL_MSG in fingerprints[0]:
     CP.autoResumeSng = True

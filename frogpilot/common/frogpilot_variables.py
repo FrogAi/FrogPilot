@@ -1395,6 +1395,7 @@ class FrogPilotVariables:
     toggle.has_distance_button = toggle.car_make in DISTANCE_BUTTON_BRANDS
     toggle.has_distance_button |= (toggle.car_make == "toyota" and bool(CP.flags & ToyotaFlags.TSS2) and
                                    not CP.flags & (ToyotaFlags.RADAR_ACC | ToyotaFlags.SECOC))
+    toggle.has_distance_button |= toggle.has_sdsu and not FPCP.flags & ToyotaFrogPilotFlags.RADAR_CAN_FILTER.value
     longitudinalActuatorDelay = CP.longitudinalActuatorDelay
     toggle.openpilot_longitudinal = CP.openpilotLongitudinalControl and (started or not toggle.disable_openpilot_long)
     pcm_cruise = CP.pcmCruise
