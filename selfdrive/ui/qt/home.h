@@ -41,6 +41,7 @@ private:
   QPushButton* update_notif;
 
   // FrogPilot variables
+  ElidedLabel* date;
 };
 
 class HomeWindow : public QWidget {
