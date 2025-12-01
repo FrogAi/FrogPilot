@@ -50,8 +50,14 @@ qt_src = ["main.cc", "ui.cc", "qt/sidebar.cc", "qt/body.cc",
           "qt/onroad/buttons.cc", "qt/onroad/alerts.cc", "qt/onroad/driver_monitoring.cc", "qt/onroad/hud.cc"]
 
 # FrogPilot variables
-qt_src += ["../../frogpilot/ui/frogpilot_ui.cc",
-           "../../frogpilot/ui/qt/onroad/frogpilot_annotated_camera.cc",
+qt_src += ["../../frogpilot/ui/frogpilot_ui.cc", "../../frogpilot/ui/qt/offroad/data_settings.cc",
+           "../../frogpilot/ui/qt/offroad/device_settings.cc", "../../frogpilot/ui/qt/offroad/frogpilot_settings.cc",
+           "../../frogpilot/ui/qt/offroad/lateral_settings.cc", "../../frogpilot/ui/qt/offroad/longitudinal_settings.cc",
+           "../../frogpilot/ui/qt/offroad/maps_settings.cc", "../../frogpilot/ui/qt/offroad/model_settings.cc",
+           "../../frogpilot/ui/qt/offroad/navigation_settings.cc", "../../frogpilot/ui/qt/offroad/sounds_settings.cc",
+           "../../frogpilot/ui/qt/offroad/theme_settings.cc", "../../frogpilot/ui/qt/offroad/utilities.cc",
+           "../../frogpilot/ui/qt/offroad/vehicle_settings.cc", "../../frogpilot/ui/qt/offroad/visual_settings.cc",
+           "../../frogpilot/ui/qt/offroad/wheel_settings.cc", "../../frogpilot/ui/qt/onroad/frogpilot_annotated_camera.cc",
            "../../frogpilot/ui/qt/onroad/frogpilot_buttons.cc", "../../frogpilot/ui/qt/onroad/frogpilot_onroad.cc"]
 
 # build translation files

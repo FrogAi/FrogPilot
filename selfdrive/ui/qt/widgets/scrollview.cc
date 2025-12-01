@@ -6,11 +6,11 @@
 // TODO: disable horizontal scrolling and resize
 
 ScrollView::ScrollView(QWidget *w, QWidget *parent) : QScrollArea(parent) {
+  setStyleSheet("background-color: transparent; border:none");
   setWidget(w);
   setWidgetResizable(true);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
   setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-  setStyleSheet("background-color: transparent; border:none");
 
   QString style = R"(
     QScrollBar:vertical {
