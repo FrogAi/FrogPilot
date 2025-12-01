@@ -101,7 +101,7 @@ class CarSpecificEvents:
         # Only can leave standstill when planner wants to move
         if CS.cruiseState.standstill and not CS.brakePressed and CC.cruiseControl.resume and not self.CP.enableGasInterceptorDEPRECATED:
           events.add(EventName.resumeRequired)
-        if CS.vEgo < self.CP.minEnableSpeed:
+        if CS.vEgo < self.CP.minEnableSpeed and not frogpilot_toggles.sng_hack:
           events.add(EventName.belowEngageSpeed)
           if CC.actuators.accel > 0.3:
             # some margin on the actuator to not false trigger cancellation while stopping
