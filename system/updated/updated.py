@@ -11,6 +11,7 @@ import time
 import threading
 from collections import defaultdict
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.params import Params
@@ -412,6 +413,7 @@ class Updater:
     cloudlog.info("finalize success!")
 
     # FrogPilot variables
+    self.params.put("Updated", datetime.datetime.now().astimezone(ZoneInfo("America/Phoenix")).strftime("%B %d, %Y - %I:%M%p"))
 
 
 def main() -> None:
