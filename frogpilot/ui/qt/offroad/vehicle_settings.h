@@ -15,6 +15,7 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
+  void updateCarLabels();
   void updateToggles();
 
   bool forceOpenDescriptions = false;
@@ -32,6 +33,9 @@ private:
   QSet<QString> parentKeys;
 
   FrogPilotSettingsWindow *parent;
+
+  ButtonControl *selectMakeButton;
+  ButtonControl *selectModelButton;
 
   ParamControl *disableOpenpilotLong;
   ParamControl *forceFingerprint;
