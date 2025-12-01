@@ -21,6 +21,7 @@ class Sidebar : public QFrame {
   Q_PROPERTY(bool recordingAudio MEMBER recording_audio NOTIFY valueChanged);
 
   // FrogPilot variables
+  Q_PROPERTY(QString ipAddress MEMBER ip_address NOTIFY valueChanged);
 
 public:
   explicit Sidebar(QWidget* parent = 0);
@@ -63,6 +64,7 @@ protected:
   int net_strength = 0;
 
   // FrogPilot variables
+  QString ip_address;
 
 private:
   std::unique_ptr<PubMaster> pm;
