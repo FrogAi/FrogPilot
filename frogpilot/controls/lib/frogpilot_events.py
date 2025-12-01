@@ -34,6 +34,9 @@ class FrogPilotEvents:
     else:
       self.max_acceleration = 0
 
+    if self.frogpilot_planner.frogpilot_vcruise.forcing_stop:
+      self.events.add(FrogPilotEventName.forcingStop)
+
     if sm["frogpilotCarState"].alwaysOnLateralSteeringOff:
       self.events.add(FrogPilotEventName.alwaysOnLateralSteeringOff)
 

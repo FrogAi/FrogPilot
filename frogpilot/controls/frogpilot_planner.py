@@ -164,6 +164,9 @@ class FrogPilotPlanner:
     frogpilotPlan.experimentalMode = self.frogpilot_cem.experimental_mode
     frogpilotPlan.experimentalMode &= not frogpilot_toggles.conditional_experimental_mode or self.frogpilot_cem.status_value != frogpilot_variables.CE_STATUS["USER_DISABLED"]
 
+    frogpilotPlan.forcingStop = self.frogpilot_vcruise.forcing_stop
+    frogpilotPlan.forcingStopLength = self.frogpilot_vcruise.stop_distance
+
     frogpilotPlan.frogpilotEvents = self.frogpilot_events.events.to_msg()
 
     frogpilotPlan.gpsBearing = self.gps_bearing

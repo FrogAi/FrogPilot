@@ -53,6 +53,7 @@ class FrogPilotAcceleration:
       self.max_accel = max(-self.frogpilot_planner.frogpilot_vcruise.csc.decel_rate, ACCEL_MIN)
 
     force_decel = sm["controlsState"].forceDecel
+    force_stop_ahead = self.frogpilot_planner.frogpilot_cem.stop_light_detected and frogpilot_toggles.force_stops and not self.frogpilot_planner.lead_relevant
 
     deceleration_profile = frogpilot_toggles.deceleration_profile
     if eco_gear and frogpilot_toggles.map_deceleration:
@@ -61,7 +62,7 @@ class FrogPilotAcceleration:
       deceleration_profile = frogpilot_variables.DECELERATION_PROFILES["STANDARD"]
 
     if (self.frogpilot_planner.frogpilot_vcruise.csc_controlling_speed or
-        self.frogpilot_planner.frogpilot_vcruise.taco_controlling_speed or force_decel):
+        self.frogpilot_planner.frogpilot_vcruise.taco_controlling_speed or force_decel or force_stop_ahead):
       self.min_accel = ACCEL_MIN
     elif deceleration_profile == frogpilot_variables.DECELERATION_PROFILES["ECO"]:
       self.min_accel = A_CRUISE_MIN_ECO
