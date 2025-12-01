@@ -3,6 +3,7 @@ import json
 import math
 import numpy as np
 import os
+import pickle
 import requests
 import subprocess
 import threading
@@ -245,6 +246,22 @@ def load_json_file(path):
       return json.load(file)
   except (OSError, json.JSONDecodeError):
     return {}
+
+
+@cache
+def predicts_lead_trajectories(model_path):
+  for metadata_name in ("supercombo_metadata.pkl", "driving_vision_metadata.pkl", "driving_policy_metadata.pkl"):
+    metadata_path = Path(model_path) / metadata_name
+    if not metadata_path.is_file():
+      continue
+
+    with open(metadata_path, "rb") as metadata_file:
+      lead = pickle.load(metadata_file)["output_slices"].get("lead")
+
+    if lead is not None:
+      return lead.stop - lead.start == frogpilot_variables.LEAD_TRAJECTORY_OUTPUT_SIZE
+
+  return False
 
 
 def run_cmd(cmd, fail_message, report=True):
