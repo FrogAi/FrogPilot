@@ -55,7 +55,7 @@ class FrogPilotCard:
       self.pause_longitudinal = not self.pause_longitudinal
 
   def handle_experimental_mode(self, sm, frogpilot_toggles):
-    if frogpilot_toggles.conditional_experimental_mode:
+    if frogpilot_toggles.conditional_experimental_mode or frogpilot_toggles.slc_fallback_experimental_mode:
       self.experimental_mode_press_count += 1
     else:
       self.params.put_bool_nonblocking("ExperimentalMode", not sm["selfdriveState"].experimentalMode)

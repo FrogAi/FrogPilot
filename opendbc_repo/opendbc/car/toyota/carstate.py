@@ -25,6 +25,19 @@ PERM_STEER_FAULTS = (3, 17)
 
 
 # FrogPilot variables
+# Traffic signals for Speed Limit Controller - Credit goes to the DragonPilot team!
+def calculate_speed_limit(cp_cam):
+  speed_limit_unit = cp_cam.vl["RSA1"]["TSGN1"]
+  speed_limit_value = cp_cam.vl["RSA1"]["SPDVAL1"]
+
+  if speed_limit_value >= 200:
+    return 0
+  elif speed_limit_unit == 1:
+    return speed_limit_value * CV.KPH_TO_MS
+  elif speed_limit_unit == 36:
+    return speed_limit_value * CV.MPH_TO_MS
+  else:
+    return 0
 
 
 class CarState(CarStateBase):
@@ -57,6 +70,7 @@ class CarState(CarStateBase):
     self.secoc_synchronization = None
 
     # FrogPilot variables
+    self.prev_pcm_acc_status = 0
 
   # FrogPilot variables
   def init_frogpilot_params(self):
@@ -227,7 +241,18 @@ class CarState(CarStateBase):
           buttonEvents.extend(create_button_events(1, 0, {1: ButtonType.lkas}) +
                               create_button_events(0, 1, {1: ButtonType.lkas}))
 
+    if self.pcm_acc_status != self.prev_pcm_acc_status and self.pcm_acc_status in (9, 10):
+      if self.pcm_acc_status == 9:
+        button_type = ButtonType.accelCruise
+      else:
+        button_type = ButtonType.decelCruise
+
+      buttonEvents += create_button_events(1, 0, {1: button_type}) + create_button_events(0, 1, {1: button_type})
+
+    self.prev_pcm_acc_status = self.pcm_acc_status
+
     self.fp_ret.brakeLights = bool(cp.vl["ESP_CONTROL"]["BRAKE_LIGHTS_ACC"])
+    self.fp_ret.dashboardSpeedLimit = calculate_speed_limit(cp_cam)
 
     if not self.CP.flags & ToyotaFlags.SECOC.value:
       self.fp_ret.ecoGear = cp.vl["GEAR_PACKET"]["ECON_ON"] == 1
@@ -253,5 +278,5 @@ class CarState(CarStateBase):
 
     return {
       Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], pt_messages, 0),
-      Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [], 2),
+      Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [("RSA1", float('nan'))], 2),
     }

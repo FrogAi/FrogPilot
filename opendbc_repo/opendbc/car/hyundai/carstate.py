@@ -23,6 +23,18 @@ BUTTONS_DICT = {Buttons.RES_ACCEL: ButtonType.accelCruise, Buttons.SET_DECEL: Bu
 
 
 # FrogPilot variables
+def calculate_speed_limit(CP, cp, cp_cam):
+  if CP.flags & HyundaiFlags.CANFD:
+    speed_limit_bus = cp if CP.flags & HyundaiFlags.CANFD_LKA_STEERING else cp_cam
+    speed_limit = speed_limit_bus.vl["FR_CMR_02_100ms"]["ISLW_SpdCluMainDis"]
+    return speed_limit if 0 < speed_limit < 253 else 0
+
+  speed_limit = cp_cam.vl["LKAS12"]["CF_Lkas_TsrSpeed_Display_Clu"]
+  if speed_limit in (0, 255):
+    speed_limit = cp.vl["Navi_HU"]["SpeedLim_Nav_Clu"]
+  return speed_limit if speed_limit not in (0, 255) else 0
+
+
 def create_sampled_button_events(button_samples, prev_button, buttons_dict):
   events = []
   for button in button_samples:
@@ -236,6 +248,8 @@ class CarState(CarStateBase):
     self.distance_button = self.cruise_buttons[-1] == Buttons.GAP_DIST
 
     self.fp_ret.brakeLights = bool(cp.vl["TCS13"]["BrakeLight"])
+    if self.FPCP.hasDashboardSpeedLimit:
+      self.fp_ret.dashboardSpeedLimit = calculate_speed_limit(self.CP, cp, cp_cam) * speed_conv
 
     return ret
 
@@ -350,6 +364,8 @@ class CarState(CarStateBase):
       self.params = CarControllerParams(self.CP, ret.vEgoRaw, self.frogpilot_toggles.taco_tune_hacks)
 
     self.fp_ret.brakeLights = bool(cp.vl["TCS"]["DriverBraking"])
+    if self.FPCP.hasDashboardSpeedLimit:
+      self.fp_ret.dashboardSpeedLimit = calculate_speed_limit(self.CP, cp, cp_cam) * speed_factor
 
     drive_mode = cp.vl["DRIVE_MODE"]["DRIVE_MODE2"]
     if drive_mode != 0:
@@ -377,8 +393,8 @@ class CarState(CarStateBase):
       return self.get_can_parsers_canfd(CP)
 
     return {
-      Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], [], 0),
-      Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [], 2),
+      Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], [("Navi_HU", float('nan'))], 0),
+      Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [("LKAS12", float('nan'))], 2),
     }
 
   # FrogPilot variables

@@ -227,6 +227,8 @@ class FrogPilotRequests:
     pm.send("frogpilotProcessState", frogpilot_process_state_send)
 
 def transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_validated, params, frogpilot_toggles, api):
+  frogpilot_planner.frogpilot_vcruise.slc.close()
+
   if frogpilot_planner.last_gps_position is not None:
     params.put("LastGPSPosition", json.dumps(frogpilot_planner.last_gps_position))
 

@@ -45,6 +45,7 @@ public:
   void screenRecorderEvent(cereal::FrogPilotOnroadEvent::EventName event);
   void setDistanceButtonPressed(bool pressed);
   void setTethering(int mode);
+  void speedLimitAccepted();
   void testAlert(const QString &alert, float volume);
   void unlinkAccount();
   void update();
