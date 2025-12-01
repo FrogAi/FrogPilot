@@ -23,6 +23,17 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
   settingsList->addItem(forceFingerprint);
 
   disableOpenpilotLong = new ParamControl("DisableOpenpilotLongitudinal", tr("Disable openpilot Longitudinal Control"), tr("<b>Let your car's own cruise control handle the gas and brake instead of openpilot.</b>"), "");
+  QObject::connect(disableOpenpilotLong, &ToggleControl::toggleFlipped, [parent, this](bool state) {
+    if (state && !FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely disable openpilot longitudinal control?"), this)) {
+      params.putBool("DisableOpenpilotLongitudinal", false);
+      disableOpenpilotLong->refresh();
+    } else if (uiState()->scene.started && FrogPilotConfirmationDialog::toggleReboot(this)) {
+      FrogPilotConfirmationDialog::softReboot(this);
+    }
+
+    parent->updateVariables();
+    updateToggles();
+  });
   settingsList->addItem(disableOpenpilotLong);
 
   FrogPilotListWidget *gmList = new FrogPilotListWidget(this);

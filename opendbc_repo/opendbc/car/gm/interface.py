@@ -275,21 +275,19 @@ class CarInterface(CarInterfaceBase):
         ret.safetyConfigs[0].safetyParam |= GMSafetyFlags.HW_ASCM_LONG.value
 
     elif candidate in CC_ONLY_CAR:
-      ret.alphaLongitudinalAvailable = True
+      ret.alphaLongitudinalAvailable = False
+      ret.flags |= GMFlags.CC_LONG.value
       ret.longitudinalActuatorDelay = 1.  # TODO: measure this
       ret.longitudinalTuning.kiBP = [0.]
       ret.longitudinalTuning.kiV = [0.1]
       ret.longitudinalTuning.kpBP = [10.7, 10.8, 28.]  # 10.7 m/s == 24 mph
       ret.longitudinalTuning.kpV = [0., 20., 20.]  # set lower end to 0 since we can't drive below that speed
       ret.minEnableSpeed = 24 * CV.MPH_TO_MS
+      ret.openpilotLongitudinalControl = True
       ret.pcmCruise = True
       ret.radarUnavailable = True
       ret.safetyConfigs[0].safetyParam |= GMSafetyFlags.FLAG_GM_CC_LONG.value
       ret.stoppingDecelRate = 11.18  # == 25 mph/s (.04 rate)
-
-      if alpha_long:
-        ret.flags |= GMFlags.CC_LONG.value
-        ret.openpilotLongitudinalControl = True
 
     if candidate in CC_ONLY_CAR:
       ret.safetyConfigs[0].safetyParam |= GMSafetyFlags.FLAG_GM_NO_ACC.value
