@@ -10,6 +10,7 @@
 #include "selfdrive/ui/qt/widgets/prime.h"
 
 #include "frogpilot/ui/qt/widgets/drive_stats.h"
+#include "frogpilot/ui/qt/widgets/drive_summary.h"
 
 // HomeWindow: the container for the offroad and onroad UIs
 
@@ -171,11 +172,17 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
     home_layout->setContentsMargins(0, 0, 0, 0);
     home_layout->setSpacing(30);
 
-    // left: stack of DriveStats
+    // left: stack of DriveStats / DriveSummary
     QStackedWidget *left_widget = new QStackedWidget(this);
 
     // FrogPilot variables
     left_widget->addWidget(new DriveStats());
+    FrogPilotDriveSummary *drive_summary = new FrogPilotDriveSummary(this);
+    left_widget->addWidget(drive_summary);
+
+    QObject::connect(drive_summary, &FrogPilotDriveSummary::panelClosed, [left_widget]() {
+      left_widget->setCurrentIndex(0);
+    });
 
     home_layout->addWidget(left_widget, 1);
 
@@ -195,6 +202,13 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
     right_column->addWidget(setup_widget, 1);
 
     // FrogPilot variables
+    QObject::connect(uiState(), &UIState::offroadTransition, [left_widget](bool offroad) {
+      static bool previously_onroad = false;
+      if (offroad && previously_onroad) {
+        left_widget->setCurrentIndex(1);
+      }
+      previously_onroad = !offroad;
+    });
 
     home_layout->addWidget(right_widget, 1);
   }

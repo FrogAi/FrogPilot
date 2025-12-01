@@ -58,13 +58,18 @@ class FrogPilotTracking:
   def frog_theme_active(self, component):
     return (frogpilot_paths.ACTIVE_THEME_PATH / component).resolve() == (frogpilot_paths.FROG_THEME_PATH / component).resolve()
 
-  def save_stats(self):
+  def save_stats(self, blocking=False):
     self.add("FrogPilotSeconds", self.tracked_time)
     self.add_to("ModelTimes", self.model_name, self.tracked_time)
     self.add("TrackedTime", self.tracked_time)
     self.tracked_time = 0
 
-    self.params.put_nonblocking("FrogPilotStats", dict(sorted(self.frogpilot_stats.items())))
+    if blocking:
+      self.params.wait_for_pending_writes()
+      if self.params.put("FrogPilotStats", dict(sorted(self.frogpilot_stats.items()))) != 0:
+        raise RuntimeError("Unable to save FrogPilotStats")
+    else:
+      self.params.put_nonblocking("FrogPilotStats", dict(sorted(self.frogpilot_stats.items())))
 
   def update(self, now, time_validated, sm):
     v_cruise = min(sm["carState"].vCruiseCluster, V_CRUISE_MAX) * CV.KPH_TO_MS
