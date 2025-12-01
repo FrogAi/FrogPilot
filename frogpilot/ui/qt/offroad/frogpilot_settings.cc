@@ -372,6 +372,17 @@ void FrogPilotSettingsWindow::updateVariables() {
     vEgoStopping = CP.getVEgoStopping();
   }
 
+  std::string frogpilotCarParams = params.get("FrogPilotCarParamsPersistent");
+  if (!frogpilotCarParams.empty()) {
+    AlignedBuffer aligned_buf;
+    capnp::FlatArrayMessageReader fpcmsg(aligned_buf.align(frogpilotCarParams.data(), frogpilotCarParams.size()));
+    cereal::FrogPilotCarParams::Reader FPCP = fpcmsg.getRoot<cereal::FrogPilotCarParams>();
+
+    canUsePedal = FPCP.getCanUsePedal();
+    canUseSDSU = FPCP.getCanUseSDSU();
+    hasDashSpeedLimits = FPCP.getHasDashboardSpeedLimit();
+  }
+
   drivingPanelButtons->setVisibleButton(0, tuningLevel >= frogpilotToggleLevels.value("DrivingModel").toDouble());
   drivingPanelButtons->setVisibleButton(1, hasOpenpilotLongitudinal);
 

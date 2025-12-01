@@ -16,6 +16,8 @@ private:
   void paintEvent(QPaintEvent *event) override;
   void resizeEvent(QResizeEvent *event) override;
 
+  float torque = 0.0f;
+
   QRect rect;
 
   QRegion marginRegion;

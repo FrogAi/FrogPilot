@@ -8,12 +8,15 @@ from typing import Any
 from collections.abc import Callable
 from functools import cache
 
+from cereal import custom
 from opendbc.car import DT_CTRL, apply_hysteresis, gen_empty_fingerprint, scale_rot_inertia, scale_tire_stiffness, STD_CARGO_KG
 from opendbc.car import structs
 from opendbc.car.can_definitions import CanData, CanRecvCallable, CanSendCallable
+from opendbc.car.chrysler.values import CAR as CHRYSLER, ChryslerFrogPilotFlags
 from opendbc.car.common.basedir import BASEDIR
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.common.simple_kalman import KF1D, get_kalman_gain
+from opendbc.car.mock.values import CAR as MOCK
 from opendbc.car.values import PLATFORMS
 from opendbc.can import CANParser
 
@@ -96,7 +99,7 @@ class CarInterfaceBase(ABC):
   CarController: 'CarControllerBase'
   RadarInterface: 'RadarInterfaceBase' = RadarInterfaceBase
 
-  def __init__(self, CP: structs.CarParams):
+  def __init__(self, CP: structs.CarParams, FPCP: custom.FrogPilotCarParams):
     self.CP = CP
 
     self.frame = 0
@@ -109,6 +112,9 @@ class CarInterfaceBase(ABC):
     self.CC: CarControllerBase = self.CarController(dbc_names, CP)
 
     # FrogPilot variables
+    self.FPCP = FPCP
+    self.CS.FPCP = FPCP
+    self.CS.init_frogpilot_params()
 
   def apply(self, c: structs.CarControl, now_nanos: int | None = None) -> tuple[structs.CarControl.Actuators, list[CanData]]:
     if now_nanos is None:
@@ -159,6 +165,19 @@ class CarInterfaceBase(ABC):
     return ret
 
   # FrogPilot variables
+  @classmethod
+  def get_frogpilot_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[structs.CarParams.CarFw], CP: structs.CarParams):
+    fp_ret = custom.FrogPilotCarParams.new_message()
+
+    platform = PLATFORMS[candidate]
+
+    if platform not in MOCK:
+      if platform in CHRYSLER:
+        if candidate == CHRYSLER.RAM_HD_5TH_GEN:
+          if 0x23A not in fingerprint[0]:
+            fp_ret.flags |= ChryslerFrogPilotFlags.RAM_HD_ALT_BUTTONS.value
+
+    return fp_ret
 
   @staticmethod
   @abstractmethod
@@ -245,6 +264,8 @@ class CarInterfaceBase(ABC):
         cp.update(can_packets)
 
     # FrogPilot variables
+    fp_ret = custom.FrogPilotCarState.new_message()
+    self.CS.fp_ret = fp_ret
 
     # get CarState
     ret = self.CS.update(self.can_parsers)
@@ -272,7 +293,7 @@ class CarInterfaceBase(ABC):
 
     # FrogPilot variables
 
-    return ret
+    return ret, fp_ret
 
 
 class CarStateBase(ABC):
@@ -304,6 +325,8 @@ class CarStateBase(ABC):
     self.CC: structs.CarControl = structs.CarControl.new_message()
 
   # FrogPilot variables
+  def init_frogpilot_params(self):
+    pass
 
   @abstractmethod
   def update(self, can_parsers) -> structs.CarState:

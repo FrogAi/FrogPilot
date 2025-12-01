@@ -305,6 +305,12 @@ def main(demo=False):
   DH = DesireHelper()
 
   # FrogPilot variables
+  sm = sm.extend(['frogpilotPlan', 'frogpilotProcessState'])
+
+  if 'radar_tracks' in model.numpy_inputs:
+    sm = sm.extend(['liveTracks'])
+
+  pm = pm.extend(['frogpilotModelV2'])
 
   while True:
     # Keep receiving frames until we are at least 1 frame ahead of previous extra frame
@@ -416,6 +422,10 @@ def main(demo=False):
       pm.send('cameraOdometry', posenet_send)
 
       # FrogPilot variables
+      frogpilot_modelv2_send = messaging.new_message('frogpilotModelV2')
+      frogpilot_modelv2_send.valid = modelv2_send.valid
+
+      pm.send('frogpilotModelV2', frogpilot_modelv2_send)
     last_vipc_frame_id = meta_main.frame_id
 
     # FrogPilot variables

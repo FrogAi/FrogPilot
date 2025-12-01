@@ -4,15 +4,52 @@
 
 static void update_state(FrogPilotUIState *fs) {
   FrogPilotUIScene &frogpilot_scene = fs->frogpilot_scene;
+
+  SubMaster &fpsm = *(fs->sm);
+  fpsm.update(0);
+
+  SubMaster &sm = *(uiState()->sm);
+
+  if (sm.updated("carState")) {
+    const cereal::CarState::Reader &carState = sm["carState"].getCarState();
+    frogpilot_scene.reverse = carState.getGearShifter() == cereal::CarState::GearShifter::REVERSE;
+    frogpilot_scene.standstill = carState.getStandstill() && !frogpilot_scene.reverse;
+  }
+  if (sm.updated("deviceState")) {
+    const cereal::DeviceState::Reader &deviceState = sm["deviceState"].getDeviceState();
+    frogpilot_scene.online = deviceState.getNetworkType() != cereal::DeviceState::NetworkType::NONE;
+  }
+  if (fpsm.updated("frogpilotCarState")) {
+    const cereal::FrogPilotCarState::Reader &frogpilotCarState = fpsm["frogpilotCarState"].getFrogpilotCarState();
+  }
+  if (fpsm.updated("frogpilotPlan")) {
+    const cereal::FrogPilotPlan::Reader &frogpilotPlan = fpsm["frogpilotPlan"].getFrogpilotPlan();
+  }
+  if (fpsm.updated("frogpilotProcessState")) {
+    const cereal::FrogPilotProcessState::Reader &frogpilotProcessState = fpsm["frogpilotProcessState"].getFrogpilotProcessState();
+  }
 }
 
 FrogPilotUIState::FrogPilotUIState(QObject *parent) : QObject(parent) {
+  pm = std::make_unique<PubMaster>(std::vector<const char*>{"frogpilotUIEvent", "frogpilotUIRequest"});
+  sm = std::make_unique<SubMaster>(std::vector<const char*>{
+    "carControl", "frogpilotAccountState", "frogpilotCarState", "frogpilotDeviceState",
+    "frogpilotPlan", "frogpilotProcessState", "frogpilotRadarState", "frogpilotSelfdriveState", "frogpilotSignReading", "liveDelay",
+    "liveParameters", "liveTorqueParameters", "liveTracks", "mapdExtendedOut", "mapdOut"
+  });
+
   wifi = new WifiManager(this);
 }
 
 FrogPilotUIState *frogpilotUIState() {
   static FrogPilotUIState frogpilot_ui_state;
   return &frogpilot_ui_state;
+}
+
+void FrogPilotUIState::runUpdateChecks() {
+  MessageBuilder msg;
+  msg.initEvent().initFrogpilotUIRequest().setUpdateChecks();
+  pm->send("frogpilotUIRequest", msg);
 }
 
 void FrogPilotUIState::update() {
@@ -22,4 +59,17 @@ void FrogPilotUIState::update() {
     frogpilot_scene.reverse = false;
     frogpilot_scene.standstill = false;
   }
+
+  const bool enabled = (*uiState()->sm)["selfdriveState"].getSelfdriveState().getEnabled();
+
+  const cereal::CarState::Reader &carState = (*uiState()->sm)["carState"].getCarState();
+  bool manual_transmission = (*uiState()->sm)["carParams"].getCarParams().getTransmissionType() == cereal::CarParams::TransmissionType::MANUAL;
+
+  frogpilot_scene.parked = !uiState()->scene.started || carState.getGearShifter() == cereal::CarState::GearShifter::PARK || (manual_transmission && carState.getStandstill());
+}
+
+void FrogPilotUIState::updateToggles() {
+  MessageBuilder msg;
+  msg.initEvent().initFrogpilotUIRequest().setUpdateToggles();
+  pm->send("frogpilotUIRequest", msg);
 }

@@ -23,6 +23,7 @@ def main():
                            poll='modelV2')
 
   # FrogPilot variables
+  sm = sm.extend(['frogpilotCarState', 'frogpilotPlan', 'frogpilotProcessState'])
 
   while True:
     sm.update()

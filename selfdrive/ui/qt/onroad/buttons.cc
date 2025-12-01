@@ -45,6 +45,7 @@ void ExperimentalButton::updateState(const UIState &s) {
   }
 
   // FrogPilot variables
+  const cereal::CarState::Reader &carState = (*s.sm)["carState"].getCarState();
 }
 
 void ExperimentalButton::paintEvent(QPaintEvent *event) {

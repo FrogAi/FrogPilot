@@ -42,9 +42,20 @@ protected:
   void hideEvent(QHideEvent *event) override;
 
 private:
+  bool blindspotLeft = false;
+  bool blindspotRight = false;
+  bool blinkerLeft = false;
+  bool blinkerRight = false;
+  bool brakeLights = false;
+  bool experimentalMode = false;
+
+  float accelerationEgo = 0.0f;
+  float dashboardSpeedLimit = 0.0f;
   float distanceConversion = 0.0f;
   float speedConversion = 0.0f;
   float speedConversionMetrics = 0.0f;
+  float stoppingDistance = 0.0f;
+  float vEgo = 0.0f;
 
   QColor redColor(int alpha = 255) { return QColor(201, 34, 49, alpha); }
 

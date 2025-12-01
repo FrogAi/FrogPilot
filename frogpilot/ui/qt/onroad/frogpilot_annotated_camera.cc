@@ -15,6 +15,20 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
 
   const UIScene &scene = s.scene;
 
+  const SubMaster &sm = *(s.sm);
+  const SubMaster &fpsm = *(fs.sm);
+
+  const cereal::CarState::Reader &carState = sm["carState"].getCarState();
+  const cereal::FrogPilotCarState::Reader &frogpilotCarState = fpsm["frogpilotCarState"].getFrogpilotCarState();
+  const cereal::FrogPilotPlan::Reader &frogpilotPlan = fpsm["frogpilotPlan"].getFrogpilotPlan();
+  const cereal::FrogPilotSignReading::Reader &frogpilotSignReading = fpsm["frogpilotSignReading"].getFrogpilotSignReading();
+  const cereal::MapdOut::Reader &mapdOut = fpsm["mapdOut"].getMapdOut();
+  const cereal::ModelDataV2::Reader &modelV2 = sm["modelV2"].getModelV2();
+  const cereal::SelfdriveState::Reader &selfdriveState = sm["selfdriveState"].getSelfdriveState();
+
+  const capnp::List<float>::Reader &positionX = modelV2.getPosition().getX();
+  const capnp::List<float>::Reader &velocityX = modelV2.getVelocity().getX();
+
   bool useSIMetrics = frogpilot_toggles.value(QLatin1String("use_si_metrics")).toBool();
 
   speedUnit = scene.is_metric ? tr("km/h") : tr("mph");
@@ -33,6 +47,15 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
     distanceConversion = METER_TO_FOOT;
     speedConversionMetrics = MS_TO_MPH;
   }
+
+  accelerationEgo = carState.getAEgo();
+  blindspotLeft = carState.getLeftBlindspot();
+  blindspotRight = carState.getRightBlindspot();
+  blinkerLeft = carState.getLeftBlinker();
+  blinkerRight = carState.getRightBlinker();
+  experimentalMode = selfdriveState.getExperimentalMode();
+  stoppingDistance = positionX.size() != 0 ? positionX[positionX.size() - 1] : 0.0f;
+  vEgo = carState.getVEgo();
 
   hideBottomIcons = alertHeight != 0;
 
