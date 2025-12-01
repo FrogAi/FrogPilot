@@ -64,6 +64,7 @@ class Track:
     self.kf = KF1D([[v_lead], [0.0]], self.K_A, self.K_C, self.K_K)
 
     # FrogPilot variables
+    self.radarfulFilter = FirstOrderFilter(0, 1, self.K_A[0][1])
 
   def update(self, d_rel: float, y_rel: float, v_rel: float, v_lead: float, measured: float):
     # relative values, copy
@@ -117,6 +118,18 @@ class Track:
     return ret
 
   # FrogPilot variables
+  def potential_far_lead(self, left_lane_line: tuple[np.ndarray, np.ndarray], right_lane_line: tuple[np.ndarray, np.ndarray], max_distance: float):
+    model_distance = self.dRel + RADAR_TO_CAMERA
+
+    left_lane = np.interp(model_distance, left_lane_line[0], left_lane_line[1])
+    right_lane = np.interp(model_distance, right_lane_line[0], right_lane_line[1])
+
+    if left_lane < -self.yRel < right_lane and model_distance < max_distance and self.vLeadK > 1:
+      self.radarfulFilter.update(1)
+      return True
+    else:
+      self.radarfulFilter.update(0)
+      return False
 
 
 def laplacian_pdf(x: float, mu: float, b: float):
@@ -166,7 +179,7 @@ def get_RadarState_from_vision(lead_msg: capnp._DynamicStructReader, v_ego: floa
 
 
 def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capnp._DynamicStructReader,
-             model_v_ego: float,
+             model_v_ego: float, model_data: capnp._DynamicStructReader,
              frogpilot_toggles: SimpleNamespace,
              low_speed_override: bool = True) -> dict[str, Any]:
   # Determine leads, this is where the essential logic happens
@@ -192,6 +205,16 @@ def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capn
         lead_dict = closest_track.get_RadarState()
 
   # FrogPilot variables
+  if low_speed_override and not lead_dict['status'] and len(tracks) > 0:
+    left_lane_line = (np.array(model_data.laneLines[1].x), np.array(model_data.laneLines[1].y))
+    right_lane_line = (np.array(model_data.laneLines[2].x), np.array(model_data.laneLines[2].y))
+    max_distance = model_data.position.x[-1]
+
+    far_lead_tracks = [c for c in tracks.values()
+                       if c.potential_far_lead(left_lane_line, right_lane_line, max_distance) and c.radarfulFilter.x >= frogpilot_variables.THRESHOLD]
+    if len(far_lead_tracks) > 0:
+      closest_track = min(far_lead_tracks, key=lambda c: c.dRel)
+      lead_dict = closest_track.get_RadarState()
 
   return lead_dict
 
@@ -292,8 +315,8 @@ class RadarD:
       model_v_ego = self.v_ego
     leads_v3 = sm['modelV2'].leadsV3
     if len(leads_v3) > 1:
-      self.radar_state.leadOne = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[0], model_v_ego, self.frogpilot_toggles, low_speed_override=True)
-      self.radar_state.leadTwo = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[1], model_v_ego, self.frogpilot_toggles, low_speed_override=False)
+      self.radar_state.leadOne = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[0], model_v_ego, sm['modelV2'], self.frogpilot_toggles, low_speed_override=True)
+      self.radar_state.leadTwo = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[1], model_v_ego, sm['modelV2'], self.frogpilot_toggles, low_speed_override=False)
 
     # FrogPilot variables
     if self.ready and self.frogpilot_toggles.adjacent_lead_tracking:
