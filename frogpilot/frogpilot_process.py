@@ -222,6 +222,7 @@ def frogpilot_thread():
   time_validated = False
   waiting_for_car_params = False
 
+  force_onroad_cleared_count = 0
   stats_saved_count = 0
 
   previous_update_checks_period = None
@@ -269,11 +270,14 @@ def frogpilot_thread():
     toggles_updated, update_checks_requested = frogpilot_requests.update(params)
     frogpilot_requests.publish(pm, stats_saved_count, variables.toggles_json)
 
+    toggles_updated |= sm["frogpilotDeviceState"].forceOnroadClearedCount > force_onroad_cleared_count
+
     if waiting_for_car_params and sm.updated["frogpilotCarParams"]:
       update_stock_tuning_values(params, "CarParams")
 
       toggles_updated = True
 
+    force_onroad_cleared_count = sm["frogpilotDeviceState"].forceOnroadClearedCount
     waiting_for_car_params &= not sm.updated["frogpilotCarParams"]
 
     if toggles_updated:

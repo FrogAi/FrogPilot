@@ -1579,7 +1579,7 @@ class FrogPilotVariables:
     toggle.device_shutdown_time = DEVICE_SHUTDOWN_TIMES.get(self.get_value("DeviceShutdown", cast=int, condition=device_management))
     toggle.increase_thermal_limits = self.get_value("IncreaseThermalLimits", condition=device_management)
     toggle.low_voltage_shutdown = self.get_value("LowVoltageShutdown", cast=float, condition=device_management, minimum=VBATT_PAUSE_CHARGING, maximum=12.5)
-    toggle.no_logging = self.get_value("NoLogging", condition=device_management and not self.vetting_branch)
+    toggle.no_logging = self.get_value("NoLogging", condition=device_management and not self.vetting_branch) or toggle.force_onroad
 
     if not started:
       toggle.use_higher_bitrate = device_management
@@ -1707,7 +1707,7 @@ class FrogPilotVariables:
     toggle.screen_management = screen_management
     toggle.instant_replay = self.get_value("InstantReplay", cast=int, condition=screen_management)
     toggle.screen_brightness = self.get_value("ScreenBrightness", cast=float, condition=screen_management, minimum=1)
-    toggle.screen_brightness_onroad = self.get_value("ScreenBrightnessOnroad", cast=float, condition=screen_management)
+    toggle.screen_brightness_onroad = self.get_value("ScreenBrightnessOnroad", cast=float, condition=screen_management and not toggle.force_onroad)
     toggle.screen_recorder = self.get_value("ScreenRecorder", condition=screen_management) or toggle.debug_mode
     toggle.screen_timeout = self.get_value("ScreenTimeout", cast=float, condition=screen_management)
     toggle.screen_timeout_onroad = self.get_value("ScreenTimeoutOnroad", cast=float, condition=screen_management)
