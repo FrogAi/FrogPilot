@@ -31,7 +31,7 @@ def update_translations(vanish: bool = False, translation_files: None | list[str
 
   for file in translation_files:
     tr_file = os.path.join(translations_dir, f"{file}.ts")
-    args = f"lupdate -locations none -recursive {UI_DIR} -ts {tr_file} -I {BASEDIR}"
+    args = f"lupdate -locations none -recursive {UI_DIR} {frogpilot_paths.FROGPILOT_UI_DIR} -ts {tr_file} -I {BASEDIR}"
     if vanish:
       args += " -no-obsolete"
     if file in PLURAL_ONLY:
