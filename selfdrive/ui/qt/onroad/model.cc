@@ -93,7 +93,7 @@ void ModelRenderer::update_model(const cereal::ModelDataV2::Reader &model, const
   int max_idx = get_path_length_idx(lane_lines[0], max_distance);
   for (int i = 0; i < std::size(lane_line_vertices); i++) {
     lane_line_probs[i] = line_probs[i];
-    mapLineToPolygon(lane_lines[i], 0.025 * lane_line_probs[i], 0, &lane_line_vertices[i], max_idx);
+    mapLineToPolygon(lane_lines[i], (frogpilot_toggles.value(QLatin1String("model_ui")).toBool() ? frogpilot_toggles.value(QLatin1String("lane_line_width")).toDouble() : 0.025) * lane_line_probs[i], 0, &lane_line_vertices[i], max_idx);
   }
 
   // update road edges
@@ -101,7 +101,7 @@ void ModelRenderer::update_model(const cereal::ModelDataV2::Reader &model, const
   const auto &edge_stds = model.getRoadEdgeStds();
   for (int i = 0; i < std::size(road_edge_vertices); i++) {
     road_edge_stds[i] = edge_stds[i];
-    mapLineToPolygon(road_edges[i], 0.025, 0, &road_edge_vertices[i], max_idx);
+    mapLineToPolygon(road_edges[i], frogpilot_toggles.value(QLatin1String("model_ui")).toBool() ? frogpilot_toggles.value(QLatin1String("road_edge_width")).toDouble() : 0.025, 0, &road_edge_vertices[i], max_idx);
   }
 
   // update path
@@ -111,7 +111,7 @@ void ModelRenderer::update_model(const cereal::ModelDataV2::Reader &model, const
   }
   max_idx = get_path_length_idx(model_position, max_distance);
   // FrogPilot variables
-  mapLineToPolygon(model_position, 0.9, path_offset_z, &track_vertices, max_idx, false);
+  mapLineToPolygon(model_position, frogpilot_toggles.value(QLatin1String("model_ui")).toBool() ? frogpilot_toggles.value(QLatin1String("path_width")).toDouble() : 0.9, path_offset_z, &track_vertices, max_idx, false);
 
   // FrogPilot variables
   FrogPilotUIState *fs = frogpilotUIState();
