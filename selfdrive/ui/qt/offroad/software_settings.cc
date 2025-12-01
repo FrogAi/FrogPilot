@@ -31,7 +31,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   // automatic updates toggle
   ParamControl *automaticUpdatesToggle = new ParamControl("AutomaticUpdates", tr("Automatically Update FrogPilot"),
                                                        tr("Automatically update FrogPilot when the car is off with an active internet connection. Automatic updates turn off after a FrogPilot backup is restored until you update manually."), "");
-  automaticUpdatesToggle->setVisible(params.getBool("IsReleaseBranch"));
+  automaticUpdatesToggle->setVisible(params.getBool("IsReleaseBranch") || isFrogsGoMoo());
   addItem(automaticUpdatesToggle);
 
   // current version
@@ -82,6 +82,15 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
     auto current = params.get("GitBranch");
     QStringList branches = QString::fromStdString(params.get("UpdaterAvailableBranches")).split(",");
     // FrogPilot variables
+    if (!isFrogsGoMoo()) {
+      for (int i = branches.size() - 1; i >= 0; --i) {
+        if (branches[i].startsWith("FrogPilot-Development", Qt::CaseInsensitive)) {
+          branches.removeAt(i);
+        }
+      }
+      branches.removeAll("FrogPilot-Vetting");
+      branches.removeAll("MAKE-PRS-HERE");
+    }
     for (QString b : {current.c_str(), "devel-staging", "devel", "nightly", "nightly-dev", "master"}) {
       auto i = branches.indexOf(b);
       if (i >= 0) {
@@ -170,7 +179,7 @@ void SoftwarePanel::updateLabels() {
   // FrogPilot variables
   FrogPilotUIScene &frogpilot_scene = frogpilotUIState()->frogpilot_scene;
 
-  bool parked = frogpilot_scene.parked;
+  bool parked = frogpilot_scene.parked || isFrogsGoMoo();
   shown_parked = frogpilot_scene.parked;
 
   // updater only runs offroad or when parked

@@ -70,6 +70,14 @@ def migrate_params(params, params_cache):
         params.put(key, round(params.get_default_value(key) * conversion, decimals))
 
 
+def run_frogsgomoo(build_metadata):
+  if build_metadata.channel == "FrogPilot-Development" and frogpilot_utilities.is_FrogsGoMoo():
+    mount_options = frogpilot_utilities.run_cmd(["findmnt", "-n", "-o", "OPTIONS", "/persist"], None, "Failed to retrieve mount options")
+    frogpilot_utilities.run_cmd(["sudo", "mount", "-o", "remount,rw", "/persist"], None, "Failed to remount /persist")
+    frogpilot_utilities.run_cmd(["sudo", "python3", frogpilot_variables.FROGS_GO_MOO_PATH], None, "Failed to run frogsgomoo.py")
+    frogpilot_utilities.run_cmd(["sudo", "mount", "-o", f"remount,{mount_options}", "/persist"], None, "Failed to restore /persist mount options")
+
+
 def uninstall_frogpilot():
   update_boot_logo(Path(BASEDIR) / "frogpilot/assets/other_images/stock_bg.jpg")
 

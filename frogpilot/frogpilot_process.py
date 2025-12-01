@@ -163,7 +163,7 @@ def frogpilot_thread():
       frogpilot_toggles = update_toggles(variables, started, thread_manager, time_validated, params)
 
     run_update_checks |= update_checks_requested
-    run_update_checks |= now.second == 0 and now.minute == 0
+    run_update_checks |= now.second == 0 and (now.minute == 0 or (now.minute % 5 == 0 and variables.frogs_go_moo))
     run_update_checks &= time_validated
 
     if run_update_checks:

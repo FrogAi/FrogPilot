@@ -6,7 +6,7 @@ from opendbc.safety import ALTERNATIVE_EXPERIENCE
 from openpilot.common.params import Params
 from openpilot.selfdrive.car.cruise import ButtonType
 
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 
 EventName = log.OnroadEvent.EventName
 
@@ -23,6 +23,7 @@ class FrogPilotCard:
     self.lkas_button_press_count = 0
 
     self.always_on_lateral_set = bool(CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self.frogs_go_moo = frogpilot_utilities.is_FrogsGoMoo()
 
     self.ui_event_sock = messaging.sub_sock("frogpilotUIEvent")
 

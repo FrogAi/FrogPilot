@@ -102,6 +102,7 @@ def manager_init() -> None:
                        device=HARDWARE.get_device_type())
 
   # FrogPilot variables
+  frogpilot_functions.run_frogsgomoo(build_metadata)
 
   # preimport all processes
   for p in managed_processes.values():
