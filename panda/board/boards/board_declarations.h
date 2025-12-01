@@ -46,6 +46,7 @@ struct board {
   board_set_amp_enabled set_amp_enabled;
 
   // FrogPilot variables
+  const bool fan_stall_recovery;
 };
 
 // ******************* Definitions ********************
@@ -54,7 +55,9 @@ struct board {
 #define HW_TYPE_RED_PANDA 7U
 #define HW_TYPE_TRES 9U
 #define HW_TYPE_CUATRO 10U
+
 // FrogPilot variables
+#define HW_TYPE_DOS 6U
 
 // CAN modes
 #define CAN_MODE_NORMAL 0U

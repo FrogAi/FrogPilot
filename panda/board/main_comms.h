@@ -29,7 +29,9 @@ static int get_health_pkt(void *dat) {
   health->safety_rx_checks_invalid_pkt = safety_rx_checks_invalid;
 
   // FrogPilot variables
+  #ifndef STM32F4
   health->spi_error_count_pkt = spi_error_count;
+  #endif
 
   health->fault_status_pkt = fault_status;
   health->faults_pkt = faults;

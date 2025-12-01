@@ -25,6 +25,9 @@ function agnos_init {
     MANIFEST="$DIR/system/hardware/tici/agnos.json"
 
     # FrogPilot variables
+    if grep -qsE "comma (tici|tizi)" /sys/firmware/devicetree/base/model; then
+      MANIFEST="$DIR/system/hardware/tici/c3_agnos.json"
+    fi
 
     if $AGNOS_PY --verify $MANIFEST; then
       sudo reboot
@@ -73,7 +76,7 @@ function launch {
 
   # handle pythonpath
   ln -sfn $(pwd) /data/pythonpath
-  export PYTHONPATH="$PWD"
+  export PYTHONPATH="$DIR/frogpilot/third_party:$PWD"
 
   # hardware specific init
   if [ -f /AGNOS ]; then

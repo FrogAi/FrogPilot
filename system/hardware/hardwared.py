@@ -343,6 +343,8 @@ def hardware_thread(end_event, hw_queue) -> None:
     set_offroad_alert_if_changed("Offroad_TemperatureTooHigh", show_alert, extra_text=extra_text)
 
     # FrogPilot variables
+    if HARDWARE.get_device_type() == "tici" and not os.path.isfile("/persist/comma/living-in-the-moment"):
+      set_offroad_alert_if_changed("Offroad_StorageMissing", not os.path.ismount("/data/media"))
 
     # *** registration check ***
     if not PC:
