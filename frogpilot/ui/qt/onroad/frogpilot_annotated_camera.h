@@ -45,10 +45,13 @@ protected:
 
 private:
   void drawOutlinedText(QPainter &p, const QPointF &position, const QString &text);
+  void paintCompass(QPainter &p, const QPoint &position);
+
   bool blindspotLeft;
   bool blindspotRight;
 
   float distanceConversion;
+  float gpsBearing;
   float speedConversion;
   float speedConversionMetrics;
 

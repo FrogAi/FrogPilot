@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import json
+
 import cereal.messaging as messaging
 
 from openpilot.common.constants import CV
@@ -35,6 +37,8 @@ class FrogPilotPlanner:
     self.model_length = 0
     self.v_cruise = 0
 
+    last_gps_position = self.params.get("LastGPSPosition")
+    self.gps_bearing = (json.loads(last_gps_position) or {}).get("bearing", 0.) if last_gps_position else 0.
     self.gps_position = None
     self.last_gps_position = None
 
@@ -72,6 +76,7 @@ class FrogPilotPlanner:
     gps_location = sm[self.gps_location_service]
     self.gps_valid = frogpilot_utilities.is_gps_location_valid(gps_location, self.gps_location_service, sm)
     if self.gps_valid:
+      self.gps_bearing = gps_location.bearingDeg
       self.gps_position = {
         "latitude": gps_location.latitude,
         "longitude": gps_location.longitude,
