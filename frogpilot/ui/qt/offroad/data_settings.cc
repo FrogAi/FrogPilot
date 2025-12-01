@@ -1,3 +1,5 @@
+#include <sys/xattr.h>
+
 #include "frogpilot/ui/qt/offroad/data_settings.h"
 
 namespace {
@@ -106,6 +108,57 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
   FrogPilotListWidget *statsLabelsList = new FrogPilotListWidget(this);
   ScrollView *statsLabelsPanel = new ScrollView(statsLabelsList, this);
   dataLayout->addWidget(statsLabelsPanel);
+
+  ButtonControl *deleteDrivingDataButton = new ButtonControl(tr("Delete Driving Data"), tr("DELETE"), tr("<b>Delete every recorded drive to free up space and clear personal footage off the device.</b><br><br>Only the one-minute chunk of footage containing the moment you flagged is kept, not the rest of that drive. Drives preserved in \"The Pond\" are kept whole."));
+  QObject::connect(deleteDrivingDataButton, &ButtonControl::clicked, [=]() {
+    if (ConfirmationDialog::confirm(tr("Delete all driving footage and data? Only the flagged one-minute chunks and the drives preserved in \"The Pond\" will be kept."), tr("Delete"), this)) {
+      QStringList logRoots = {"/data/media/0/realdata", "/data/media/0/realdata_HD", "/data/media/0/realdata_konik"};
+
+      std::thread([=]() {
+        runOnUIThread(deleteDrivingDataButton, [=]() {
+          parent->activeOperations++;
+
+          deleteDrivingDataButton->setEnabled(false);
+          deleteDrivingDataButton->setValue(tr("Deleting..."));
+        });
+
+        bool success = true;
+
+        for (const QString &logRoot : logRoots) {
+          QDir dir(logRoot);
+          if (!dir.exists()) {
+            continue;
+          }
+
+          for (const QFileInfo &entry : dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
+            char preserveValue[10] = {0};
+            char routePreserveValue[10] = {0};
+            bool isPreserved = (getxattr(entry.absoluteFilePath().toUtf8().constData(), "user.preserve", preserveValue, sizeof(preserveValue)) > 0 && strcmp(preserveValue, "1") == 0);
+            isPreserved |= (getxattr(entry.absoluteFilePath().toUtf8().constData(), "user.preserve_route", routePreserveValue, sizeof(routePreserveValue)) > 0 && strcmp(routePreserveValue, "1") == 0);
+            if (!isPreserved) {
+              success &= QDir(entry.absoluteFilePath()).removeRecursively();
+            }
+          }
+        }
+
+        success &= QDir("/data/media/speed_limit_captures").removeRecursively();
+
+        runOnUIThread(deleteDrivingDataButton, [=]() {
+          deleteDrivingDataButton->setValue(success ? tr("Deleted!") : tr("Delete failed..."));
+        });
+
+        util::sleep_for(2500);
+
+        runOnUIThread(deleteDrivingDataButton, [=]() {
+          deleteDrivingDataButton->setEnabled(true);
+          deleteDrivingDataButton->setValue("");
+
+          parent->activeOperations--;
+        });
+      }).detach();
+    }
+  });
+  dataMainList->addItem(deleteDrivingDataButton);
 
   FrogPilotButtonsControl *frogpilotBackupButton = new FrogPilotButtonsControl(tr("FrogPilot Backups"), tr("<b>Back up the FrogPilot software, restore a backup to go back to that version, or delete ones you no longer need.</b><br><br>Restoring reboots the device on its own and puts the software back exactly as it was when the backup was made, without changing your settings. Automatic updates turn off after a restore until you update manually. \"DELETE ALL\" also removes the backups FrogPilot makes automatically."), "", {tr("BACKUP"), tr("DELETE"), tr("DELETE ALL"), tr("RESTORE")});
   QObject::connect(frogpilotBackupButton, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
@@ -519,7 +572,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
   accountButton->setSizePolicy(accountButtonPolicy);
 
   if (forceOpen) {
-    for (AbstractControl *control : std::initializer_list<AbstractControl*>{frogpilotBackupButton, toggleBackupButton, viewStatsButton, accountButton}) {
+    for (AbstractControl *control : std::initializer_list<AbstractControl*>{deleteDrivingDataButton, frogpilotBackupButton, toggleBackupButton, viewStatsButton, accountButton}) {
       control->showDescription();
     }
   }
