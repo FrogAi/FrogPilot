@@ -2,6 +2,7 @@ import math
 import numpy as np
 from opendbc.car import Bus, create_gas_interceptor_command, make_tester_present_msg, rate_limit, structs, ACCELERATION_DUE_TO_GRAVITY, DT_CTRL
 from opendbc.car.lateral import apply_meas_steer_torque_limits, apply_std_steer_angle_limits, common_fault_avoidance
+from opendbc.car.can_definitions import CanData
 from opendbc.car.carlog import carlog
 from opendbc.car.common.filter_simple import FirstOrderFilter, HighPassFilter
 from opendbc.car.common.pid import PIDController
@@ -36,7 +37,13 @@ MAX_USER_TORQUE = 500
 
 # FrogPilot variables
 MAX_INTERCEPTOR_GAS = 0.5
+PARK = structs.CarState.GearShifter.park
 SNG_INTERCEPTOR_GAS = 0.12
+
+# Lock / unlock door commands - Credit goes to AlexandreSato!
+DOOR_CONTROL_ADDR = 0x750
+LOCK_CMD = b"\x40\x05\x30\x11\x00\x80\x00\x00"
+UNLOCK_CMD = b"\x40\x05\x30\x11\x00\x40\x00\x00"
 
 
 def get_long_tune(CP, params):
@@ -83,6 +90,7 @@ class CarController(CarControllerBase):
     self.secoc_prev_reset_counter = 0
 
     # FrogPilot variables
+    self.doors_locked = False
 
   def update(self, CC, CS, now_nanos):
     actuators = CC.actuators
@@ -348,5 +356,13 @@ class CarController(CarControllerBase):
     self.frame += 1
 
     # FrogPilot variables
+    if not self.doors_locked and CS.out.gearShifter != PARK:
+      if self.frogpilot_toggles.lock_doors:
+        can_sends.append(CanData(DOOR_CONTROL_ADDR, LOCK_CMD, 0))
+      self.doors_locked = True
+    elif self.doors_locked and CS.out.gearShifter == PARK:
+      if self.frogpilot_toggles.unlock_doors:
+        can_sends.append(CanData(DOOR_CONTROL_ADDR, UNLOCK_CMD, 0))
+      self.doors_locked = False
 
     return new_actuators, can_sends
