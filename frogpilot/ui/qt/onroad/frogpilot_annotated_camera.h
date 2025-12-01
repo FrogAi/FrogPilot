@@ -78,9 +78,11 @@ private:
   void paintStandstillTimer(QPainter &p);
   void paintStoppingPoint(QPainter &p);
   void paintTurnSignals(QPainter &p);
+  void paintWeather(QPainter &p, const QPoint &position);
   void updateCEMIcon();
   void updateIcon(const QString &path, QSharedPointer<QMovie> &icon, QString &iconPath);
   void updateSignals();
+  void updateWeatherIcon();
 
   bool assetsLoaded = false;
   bool blindspotLeft;
@@ -96,12 +98,14 @@ private:
   bool longitudinalPaused;
   bool redLight;
   bool speedLimitChanged;
+  bool weatherDaytime;
 
   int desiredFollowDistance;
   int signalAnimationLength = 0;
   int signalHeight = 0;
   int signalWidth = 0;
   int totalFrames = 0;
+  int weatherId;
 
   float accelerationEgo;
   float cameraSpeedLimit;
@@ -159,6 +163,7 @@ private:
   QRect standstillTimerRect;
 
   QSharedPointer<QMovie> cemIcon;
+  QSharedPointer<QMovie> weatherIcon;
 
   QString cemIconPath;
   QString leadDistanceUnit;
@@ -166,6 +171,7 @@ private:
   QString roadName;
   QString speedLimitOffsetStr;
   QString speedUnit;
+  QString weatherIconPath;
 
   QVector<QPixmap> blindspotImages;
   QVector<QPixmap> signalImages;

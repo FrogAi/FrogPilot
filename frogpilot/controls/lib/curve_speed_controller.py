@@ -41,6 +41,9 @@ class CurveSpeedController:
 
     self.lateral_acceleration = min(self.lateral_acceleration, self.max_limit)
 
+    if self.frogpilot_planner.frogpilot_weather.weather_id != 0:
+      self.lateral_acceleration -= self.lateral_acceleration * self.frogpilot_planner.frogpilot_weather.reduce_lateral_acceleration
+
   def update_max_limit(self, sm, frogpilot_toggles):
     if sm["controlsState"].lateralControlState.which() == "angleState":
       self.max_limit_learner.update(sm, frogpilot_toggles)

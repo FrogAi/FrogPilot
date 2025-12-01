@@ -155,6 +155,7 @@ def transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_va
   gc.collect()
 
   frogpilot_planner.frogpilot_vcruise.slc.close()
+  frogpilot_planner.frogpilot_weather.close()
 
   if frogpilot_planner.last_gps_position is not None:
     params.put("LastGPSPosition", json.dumps(frogpilot_planner.last_gps_position))
@@ -267,7 +268,7 @@ def frogpilot_thread():
 
       run_update_checks = True
     elif started and not started_previously:
-      frogpilot_planner = FrogPilotPlanner(error_log, theme_manager)
+      frogpilot_planner = FrogPilotPlanner(error_log, theme_manager, api)
       frogpilot_tracking = FrogPilotTracking(frogpilot_planner, frogpilot_toggles)
 
       transition_onroad(error_log)

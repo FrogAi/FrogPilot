@@ -74,6 +74,9 @@ class FrogPilotAcceleration:
       self.max_accel = get_max_accel_low_speeds(self.max_accel, self.frogpilot_planner.v_cruise)
       self.max_accel = min(get_max_accel_ramp_off(self.max_accel, self.frogpilot_planner.v_cruise, v_ego), self.max_accel)
 
+    if self.frogpilot_planner.frogpilot_weather.weather_id != 0:
+      self.max_accel -= self.max_accel * self.frogpilot_planner.frogpilot_weather.reduce_acceleration
+
     if self.frogpilot_planner.frogpilot_vcruise.csc_controlling_speed and self.frogpilot_planner.frogpilot_vcruise.csc.decel_rate > 0:
       self.max_accel = max(-self.frogpilot_planner.frogpilot_vcruise.csc.decel_rate, ACCEL_MIN)
 
