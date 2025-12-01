@@ -64,6 +64,14 @@ FrogPilotUIState *frogpilotUIState() {
   return &frogpilot_ui_state;
 }
 
+void FrogPilotUIState::cancelMapsDownload() {
+  download_maps_request_time = 0;
+
+  MessageBuilder msg;
+  msg.initEvent().initFrogpilotUIRequest().setCancelMapsDownload();
+  pm->send("frogpilotUIRequest", msg);
+}
+
 void FrogPilotUIState::cancelModelDownload() {
   MessageBuilder msg;
   msg.initEvent().initFrogpilotUIRequest().setCancelModelDownload();
@@ -89,6 +97,14 @@ void FrogPilotUIState::downloadAllModels() {
   cereal::Event::Builder event = msg.initEvent();
   event.initFrogpilotUIRequest().setDownloadAllModels();
   download_model_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
+void FrogPilotUIState::downloadMaps() {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  event.initFrogpilotUIRequest().setDownloadMaps();
+  download_maps_request_time = event.getLogMonoTime();
   pm->send("frogpilotUIRequest", msg);
 }
 
