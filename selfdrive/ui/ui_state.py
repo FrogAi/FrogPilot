@@ -166,6 +166,12 @@ class UIState:
         self._frogpilot_toggles_text = frogpilot_toggles_text
         self.frogpilot_toggles = json.loads(frogpilot_toggles_text)
 
+    if self.frogpilot_toggles.get("force_onroad"):
+      self.started = True
+
+    if self.frogpilot_toggles.get("force_offroad"):
+      self.started = False
+
   def _update_status(self) -> None:
     if self.started and self.sm.updated["selfdriveState"]:
       ss = self.sm["selfdriveState"]

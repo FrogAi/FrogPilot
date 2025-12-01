@@ -129,7 +129,7 @@ class AlertRenderer(Widget):
     ss = sm['selfdriveState']
 
     # Check if selfdriveState messages have stopped arriving
-    if not sm.updated['selfdriveState']:
+    if not sm.updated['selfdriveState'] and not ui_state.frogpilot_toggles.get("force_onroad"):
       recv_frame = sm.recv_frame['selfdriveState']
       time_since_onroad = time.monotonic() - ui_state.started_time
 

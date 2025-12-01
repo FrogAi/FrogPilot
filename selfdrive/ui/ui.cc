@@ -66,6 +66,9 @@ static void update_state(UIState *s) {
 
   // FrogPilot variables
   FrogPilotUIScene &frogpilot_scene = frogpilotUIState()->frogpilot_scene;
+
+  scene.started |= frogpilot_scene.frogpilot_toggles.value(QLatin1String("force_onroad")).toBool();
+  scene.started &= !frogpilot_scene.frogpilot_toggles.value(QLatin1String("force_offroad")).toBool();
 }
 
 void ui_update_params(UIState *s) {
