@@ -14,8 +14,11 @@ from openpilot.system.ui.lib.shader_polygon import draw_polygon, Gradient
 from openpilot.system.ui.lib.text_measure import measure_text_cached
 
 ACCELERATION_PATH_MIN_ACCEL = 0.25
+ALWAYS_ON_LATERAL_COLOR = rl.Color(10, 186, 181, 255)
 ALWAYS_ON_LATERAL_PATH_WIDTH_FACTOR = 0.75
+CEM_DISABLED_COLOR = rl.Color(255, 255, 0, 255)
 DYNAMIC_PATH_WIDTH_FACTOR = 0.5
+EXPERIMENTAL_MODE_COLOR = rl.Color(218, 111, 37, 255)
 STOP_DISTANCE_FONT_SIZE = 36
 STOP_DISTANCE_MARGIN = 8
 STOP_SIGN_HEIGHT = 64
@@ -33,6 +36,13 @@ def hsla_to_color(hue, saturation, lightness, alpha):
   return rl.Color(int(red * 255), int(green * 255), int(blue * 255), int(alpha * 255))
 
 
+STOCK_PATH_EDGE_COLORS = [
+  hsla_to_color(148 / 360, 0.94, 0.41, 0.4),
+  hsla_to_color(112 / 360, 1.0, 0.54, 0.35),
+  hsla_to_color(112 / 360, 1.0, 0.54, 0.0),
+]
+
+
 def band_gradient(colors):
   return Gradient(start=(0.0, 1.0), end=(0.0, 0.0), colors=colors, stops=BAND_STOPS)
 
@@ -48,6 +58,7 @@ class FrogPilotRoad:
     self._blind_spot_filters = {side: FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps) for side in (True, False)}
 
     self._adjacent_paths = []
+    self._path_edges = []
 
     self._stop_sign_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
 
@@ -86,6 +97,36 @@ class FrogPilotRoad:
       return toggles["path_width"] * DYNAMIC_PATH_WIDTH_FACTOR
 
     return toggles["path_width"]
+
+  def inner_path_width(self, path_width):
+    toggles = ui_state.frogpilot_toggles
+
+    if not toggles.get("model_ui"):
+      return path_width
+
+    return path_width * (1 - toggles["path_edge_width"] / 100)
+
+  def update_path_edges(self, map_line_to_polygon, path_points, path_width, inner_width, path_offset_z, max_idx):
+    self._path_edges = []
+
+    if inner_width == path_width:
+      return
+
+    half_band = (path_width - inner_width) / 2
+    center_offset = inner_width + half_band
+
+    for side_offset in (-center_offset, center_offset):
+      edge_points = path_points + np.array([0, side_offset, 0], dtype=np.float32)
+      self._path_edges.append(map_line_to_polygon(edge_points, half_band, path_offset_z, max_idx, allow_invert=False))
+
+  def draw_path_edges(self, rect, experimental_mode):
+    if not self._path_edges:
+      return
+
+    gradient = self._path_edge_gradient(experimental_mode)
+
+    for path_edge in self._path_edges:
+      draw_polygon(rect, path_edge, gradient=gradient)
 
   def update_adjacent_paths(self, map_line_to_polygon, lane_lines, max_idx):
     self._adjacent_paths = []
@@ -203,3 +244,21 @@ class FrogPilotRoad:
       return rl.Color(path_color.r, path_color.g, path_color.b, int(np.interp(gradient_point, BAND_STOPS, PATH_ALPHAS)))
 
     return stock_color
+
+  def _path_edge_gradient(self, experimental_mode):
+    toggles = ui_state.frogpilot_toggles
+    sm = ui_state.sm
+
+    if ui_state.status == UIStatus.ALWAYS_ON_LATERAL:
+      return solid_band_gradient(ALWAYS_ON_LATERAL_COLOR)
+
+    if sm["selfdriveState"].enabled and sm["frogpilotPlan"].ceStatus == frogpilot_status.CE_STATUS["USER_DISABLED"]:
+      return solid_band_gradient(CEM_DISABLED_COLOR)
+
+    if experimental_mode:
+      return solid_band_gradient(EXPERIMENTAL_MODE_COLOR)
+
+    if toggles.get("color_scheme", "stock") != "stock":
+      return solid_band_gradient(hex_to_color(toggles["path_edges_color"]))
+
+    return band_gradient(STOCK_PATH_EDGE_COLORS)

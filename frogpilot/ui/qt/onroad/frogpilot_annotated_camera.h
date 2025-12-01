@@ -19,6 +19,7 @@ public:
   void paintBlindSpotPath(QPainter &p);
   void paintFrogPilotWidgets(QPainter &p);
   void paintLeadMetrics(QPainter &p, bool adjacent, QPointF *chevron, float leadDistance, float vLead);
+  void paintPathEdges(QPainter &p);
   void paintWorldWidgets(QPainter &p);
   void updateState(const UIState &s, const FrogPilotUIState &fs);
 
@@ -46,6 +47,7 @@ public:
   QPoint experimentalButtonPosition;
 
   QPolygonF track_adjacent_vertices[2];
+  QPolygonF track_edge_vertices;
   QPolygonF track_vertices;
 
   QRect adjacentLeadTextRect;
