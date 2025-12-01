@@ -124,6 +124,8 @@ void ModelRenderer::update_model(const cereal::ModelDataV2::Reader &model, const
 
   const cereal::FrogPilotPlan::Reader &frogpilotPlan = fpsm["frogpilotPlan"].getFrogpilotPlan();
 
+  frogpilot_nvg->track_vertices = track_vertices;
+
   if (frogpilot_nvg->needsAdjacentPaths()) {
     mapAveragedLineToPolygon(lane_lines[0], lane_lines[1], frogpilotPlan.getLaneWidthLeft() / 2.0f, 0, &frogpilot_nvg->track_adjacent_vertices[0], max_idx, height, false);
     mapAveragedLineToPolygon(lane_lines[2], lane_lines[3], frogpilotPlan.getLaneWidthRight() / 2.0f, 0, &frogpilot_nvg->track_adjacent_vertices[1], max_idx, height, false);
