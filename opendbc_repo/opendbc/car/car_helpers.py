@@ -15,6 +15,7 @@ from opendbc.car.mock.values import CAR as MOCK
 from opendbc.car.toyota.values import NO_DSU_CAR, NO_STOP_TIMER_CAR, TSS2_CAR, ToyotaFlags, ToyotaFrogPilotFlags, ToyotaFrogPilotSafetyFlags, ToyotaSafetyFlags
 from opendbc.car.values import BRANDS, GAS_INTERCEPTOR_BRANDS
 from opendbc.car.vin import get_vin, is_valid_vin, VIN_UNKNOWN
+from openpilot.common.params import Params
 
 FRAME_FINGERPRINT = 100  # 1s
 
@@ -162,10 +163,21 @@ def get_car(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_multip
   candidate, fingerprints, vin, car_fw, source, exact_match = fingerprint(can_recv, can_send, set_obd_multiplexing, num_pandas, cached_params)
 
   # FrogPilot variables
+  params = Params()
 
-  if candidate is None:
+  car_model = params.get("CarModel")
+
+  if car_model in interfaces and (candidate is None or frogpilot_toggles.force_fingerprint):
+    candidate = car_model
+  elif candidate is None:
     carlog.error({"event": "car doesn't match any fingerprints", "fingerprints": repr(fingerprints)})
     candidate = "MOCK"
+  else:
+    car_make = candidate.split('_')[0]
+    params.put_nonblocking("CarMake", {"GMC": "GMC", "PSA": "Peugeot", "SEAT": "SEAT", "SKODA": "Škoda"}.get(car_make, car_make.title()))
+    if car_model != str(candidate):
+      params.remove("CarModelName")
+    params.put_nonblocking("CarModel", str(candidate))
 
   # FrogPilot variables
   if block_user:
@@ -196,7 +208,7 @@ def get_car(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_multip
     CP.safetyConfigs[0].safetyParam &= ~ToyotaSafetyFlags.STOCK_LONGITUDINAL.value
 
   if disable_openpilot_long is not None:
-    disable_openpilot_long(CP, FPCP, frogpilot_toggles)
+    disable_openpilot_long(CP, FPCP, params, frogpilot_toggles)
 
   if CP.brand == "toyota":
     CP.autoResumeSng = CP.openpilotLongitudinalControl and CP.carFingerprint in NO_STOP_TIMER_CAR

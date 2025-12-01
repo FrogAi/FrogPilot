@@ -270,7 +270,10 @@ def delete_path(path, report=True):
     run_cmd(["sudo", "rm", "-rf", str(path)], f"Failed to delete: {path}", report=report)
 
 
-def disable_openpilot_long(CP, FPCP, frogpilot_toggles):
+def disable_openpilot_long(CP, FPCP, params, frogpilot_toggles):
+  if CP.brand != "mock" and not can_disable_openpilot_long(CP):
+    params.put_bool_nonblocking("DisableOpenpilotLongitudinal", False)
+
   if can_disable_openpilot_long(CP) and not CP.alphaLongitudinalAvailable and frogpilot_toggles.disable_openpilot_long:
     FPCP.openpilotLongitudinalControlDisabled = CP.openpilotLongitudinalControl
     CP.openpilotLongitudinalControl = False
