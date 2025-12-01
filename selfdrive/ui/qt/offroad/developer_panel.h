@@ -30,6 +30,10 @@ private:
 
   std::map<QString, AbstractControl*> toggles;
 
+  std::vector<QString> sidebarMetricsToggles;
+
+  FrogPilotButtonsControl *sidebarMetricsToggle;
+
   FrogPilotButtonToggleControl *borderMetricsButton;
 
   FrogPilotManageControl *developerUIToggle;

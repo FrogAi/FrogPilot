@@ -30,3 +30,11 @@ def get_available_bytes(default: int) -> int:
 
 
 # FrogPilot variables
+def get_used_bytes(default: int) -> int:
+  try:
+    statvfs = os.statvfs(Paths.log_root())
+    used_bytes = (statvfs.f_blocks - statvfs.f_bavail) * statvfs.f_frsize
+  except OSError:
+    used_bytes = default
+
+  return used_bytes
