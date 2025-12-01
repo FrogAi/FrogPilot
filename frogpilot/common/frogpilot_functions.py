@@ -29,6 +29,20 @@ def cleanup_error_logs():
     error_log.unlink()
 
 
+def cleanup_screen_recordings(limit_bytes):
+  recordings = sorted(frogpilot_paths.SCREEN_RECORDINGS_PATH.glob("*.mp4"), key=lambda recording: recording.stat().st_mtime, reverse=True)
+
+  total = 0
+  for index, recording in enumerate(recordings):
+    total += recording.stat().st_size
+    if index == 0 or total <= limit_bytes:
+      continue
+
+    for suffix in frogpilot_variables.SCREEN_RECORDING_COMPANION_SUFFIXES:
+      frogpilot_utilities.delete_path(recording.with_suffix(suffix), report=False)
+    frogpilot_utilities.delete_path(recording, report=False)
+
+
 def download_maps(locations, cancel_download):
   pm = messaging.PubMaster(["mapdIn"])
   sm = messaging.SubMaster(["mapdExtendedOut"])
@@ -158,12 +172,14 @@ def install_frogpilot():
   paths = [
     frogpilot_paths.ERROR_LOGS_PATH,
     frogpilot_paths.HD_LOGS_PATH,
-    frogpilot_paths.KONIK_LOGS_PATH
+    frogpilot_paths.KONIK_LOGS_PATH,
+    frogpilot_paths.SCREEN_RECORDINGS_PATH
   ]
   for path in paths:
     path.mkdir(parents=True, exist_ok=True)
 
   cleanup_error_logs()
+  cleanup_screen_recordings(10 * 1024 * 1024 * 1024)
 
   update_boot_logo(frogpilot_paths.FROGPILOT_BOOT_LOGO_PATH)
 
