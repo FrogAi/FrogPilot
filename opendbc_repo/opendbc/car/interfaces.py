@@ -24,7 +24,7 @@ from opendbc.car.honda.values import CAR as HONDA, HONDA_BOSCH
 from opendbc.car.hyundai.hyundaicanfd import CanBus as HyundaiCanBus
 from opendbc.car.hyundai.values import CAR as HYUNDAI, CANFD_CAR, HyundaiFlags, HyundaiFrogPilotSafetyFlags
 from opendbc.car.mock.values import CAR as MOCK
-from opendbc.car.subaru.values import CAR as SUBARU, SubaruSafetyFlags
+from opendbc.car.subaru.values import CAR as SUBARU, SubaruFlags, SubaruSafetyFlags
 from opendbc.car.toyota.values import CAR as TOYOTA, NO_DSU_CAR, TSS2_CAR, UNSUPPORTED_DSU_CAR, ToyotaFrogPilotFlags
 from opendbc.car.values import PLATFORMS
 from opendbc.can import CANParser
@@ -182,6 +182,7 @@ class CarInterfaceBase(ABC):
   @classmethod
   def get_frogpilot_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[structs.CarParams.CarFw], CP: structs.CarParams, frogpilot_toggles: SimpleNamespace):
     fp_ret = custom.FrogPilotCarParams.new_message()
+    fp_ret.dashcamOnly = CP.dashcamOnly and (CP.brand in ("honda", "hyundai", "volkswagen") or (CP.brand == "subaru" and bool(CP.flags & SubaruFlags.HYBRID)))
 
     platform = PLATFORMS[candidate]
 
