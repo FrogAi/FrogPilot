@@ -132,6 +132,11 @@ class Plant:
     model.modelV2.meta.disengagePredictions.gasPressProbs = [float(prob_throttle) for _ in range(6)]
 
     # FrogPilot variables
+    model.modelV2.init('leadsV3', 2)
+    for model_lead in model.modelV2.leadsV3:
+      model_lead.prob = float(prob_lead)
+      model_lead.v = [float(v_lead) for _ in ModelConstants.LEAD_T_IDXS]
+
     frogpilot_car_state = messaging.new_message('frogpilotCarState')
     frogpilot_plan = messaging.new_message('frogpilotPlan')
     acceleration_jerk, danger_jerk, speed_jerk = get_jerk_factor(personality=self.personality)
