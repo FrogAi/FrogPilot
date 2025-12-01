@@ -234,6 +234,11 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
   timer->callOnTimeout(this, &OffroadHome::refresh);
 
   // FrogPilot variables
+  QObject::connect(frogpilotUIState(), &FrogPilotUIState::togglesUpdated, this, [this]() {
+    if (isVisible()) {
+      refresh();
+    }
+  });
 
   setStyleSheet(R"(
     * {
@@ -270,7 +275,7 @@ void OffroadHome::refresh() {
   date->setText(QLocale(uiState()->language.mid(5)).toString(QDateTime::currentDateTime(), "dddd, MMMM d"));
   date->setVisible(util::system_time_valid());
 
-  version->setText(getBrand() + " v" + getVersion().left(14).trimmed());
+  version->setText(getBrand() + " v" + getVersion().left(14).trimmed() + " - " + frogpilot_toggles.value("model_name").toString());
 
   bool updateAvailable = update_widget->refresh();
   int alerts = alerts_widget->refresh();

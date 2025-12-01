@@ -4,6 +4,8 @@ import numpy as np
 from cereal import log
 from openpilot.selfdrive.modeld.constants import ModelConstants, Plan, Meta
 
+from openpilot.frogpilot.common import frogpilot_model_utilities
+
 SEND_RAW_PRED = os.getenv('SEND_RAW_PRED')
 
 ConfidenceClass = log.ModelDataV2.ConfidenceClass
@@ -59,7 +61,7 @@ def fill_model_msg(base_msg: capnp._DynamicStructBuilder, extended_msg: capnp._D
                    net_output_data: dict[str, np.ndarray], action: log.ModelDataV2.Action,
                    publish_state: PublishState, vipc_frame_id: int, vipc_frame_id_extra: int,
                    frame_id: int, frame_drop: float, timestamp_eof: int, model_execution_time: float,
-                   valid: bool) -> None:
+                   valid: bool, combined_model=False) -> None:
   frame_age = frame_id - vipc_frame_id if frame_id > vipc_frame_id else 0
   frame_drop_perc = frame_drop * 100
   extended_msg.valid = valid
@@ -99,6 +101,8 @@ def fill_model_msg(base_msg: capnp._DynamicStructBuilder, extended_msg: capnp._D
   LINE_T_IDXS: list[float] = []
 
   # FrogPilot variables
+  if combined_model:
+    LINE_T_IDXS = frogpilot_model_utilities.get_plan_t_idxs(net_output_data)
 
   # lane lines
   modelV2.init('laneLines', 4)
@@ -127,6 +131,14 @@ def fill_model_msg(base_msg: capnp._DynamicStructBuilder, extended_msg: capnp._D
 
   # meta
   # FrogPilot variables
+  meta_width = net_output_data['meta'].shape[1]
+  if meta_width == 48:
+    meta_slices = frogpilot_model_utilities.LegacyMeta
+  elif meta_width == 53:
+    meta_slices = frogpilot_model_utilities.PressMeta
+  else:
+    meta_slices = Meta
+
   meta = modelV2.meta
   meta.desireState = net_output_data['desire_state'][0].reshape(-1).tolist()
   meta.desirePrediction = net_output_data['desire_pred'][0].reshape(-1).tolist()
@@ -142,14 +154,28 @@ def fill_model_msg(base_msg: capnp._DynamicStructBuilder, extended_msg: capnp._D
   disengage_predictions.brake5MetersPerSecondSquaredProbs = net_output_data['meta'][0,meta_slices.HARD_BRAKE_5].tolist()
 
   # FrogPilot variables
-  disengage_predictions.gasPressProbs = net_output_data['meta'][0,Meta.GAS_PRESS].tolist()
-  disengage_predictions.brakePressProbs = net_output_data['meta'][0,Meta.BRAKE_PRESS].tolist()
+  if meta_width != 48:
+    disengage_predictions.gasPressProbs = net_output_data['meta'][0,meta_slices.GAS_PRESS].tolist()
+    disengage_predictions.brakePressProbs = net_output_data['meta'][0,meta_slices.BRAKE_PRESS].tolist()
 
   # FrogPilot variables
+  if 'sim_pose' in net_output_data:
+    temporal_pose = modelV2.temporalPoseDEPRECATED
+    temporal_pose.trans = net_output_data['sim_pose'][0,:3].tolist()
+    temporal_pose.transStd = net_output_data['sim_pose_stds'][0,:3].tolist()
+    temporal_pose.rot = net_output_data['sim_pose'][0,3:].tolist()
+    temporal_pose.rotStd = net_output_data['sim_pose_stds'][0,3:].tolist()
+  elif combined_model:
+    temporal_pose = modelV2.temporalPoseDEPRECATED
+    temporal_pose.trans = net_output_data['plan'][0,0,Plan.VELOCITY].tolist()
+    temporal_pose.transStd = net_output_data['plan_stds'][0,0,Plan.VELOCITY].tolist()
+    temporal_pose.rot = net_output_data['plan'][0,0,Plan.ORIENTATION_RATE].tolist()
+    temporal_pose.rotStd = net_output_data['plan_stds'][0,0,Plan.ORIENTATION_RATE].tolist()
+
   publish_state.prev_brake_5ms2_probs[:-1] = publish_state.prev_brake_5ms2_probs[1:]
-  publish_state.prev_brake_5ms2_probs[-1] = net_output_data['meta'][0,Meta.HARD_BRAKE_5][0]
+  publish_state.prev_brake_5ms2_probs[-1] = net_output_data['meta'][0,meta_slices.HARD_BRAKE_5][0]
   publish_state.prev_brake_3ms2_probs[:-1] = publish_state.prev_brake_3ms2_probs[1:]
-  publish_state.prev_brake_3ms2_probs[-1] = net_output_data['meta'][0,Meta.HARD_BRAKE_3][0]
+  publish_state.prev_brake_3ms2_probs[-1] = net_output_data['meta'][0,meta_slices.HARD_BRAKE_3][0]
   hard_brake_predicted = (publish_state.prev_brake_5ms2_probs > ModelConstants.FCW_THRESHOLDS_5MS2).all() and \
     (publish_state.prev_brake_3ms2_probs > ModelConstants.FCW_THRESHOLDS_3MS2).all()
   meta.hardBrakePredicted = hard_brake_predicted.item()
@@ -157,9 +183,9 @@ def fill_model_msg(base_msg: capnp._DynamicStructBuilder, extended_msg: capnp._D
   # confidence
   if vipc_frame_id % (2*ModelConstants.MODEL_RUN_FREQ) == 0:
     # any disengage prob
-    brake_disengage_probs = net_output_data['meta'][0,Meta.BRAKE_DISENGAGE]
-    gas_disengage_probs = net_output_data['meta'][0,Meta.GAS_DISENGAGE]
-    steer_override_probs = net_output_data['meta'][0,Meta.STEER_OVERRIDE]
+    brake_disengage_probs = net_output_data['meta'][0,meta_slices.BRAKE_DISENGAGE]
+    gas_disengage_probs = net_output_data['meta'][0,meta_slices.GAS_DISENGAGE]
+    steer_override_probs = net_output_data['meta'][0,meta_slices.STEER_OVERRIDE]
     any_disengage_probs = 1-((1-brake_disengage_probs)*(1-gas_disengage_probs)*(1-steer_override_probs))
     # independent disengage prob for each 2s slice
     ind_disengage_probs = np.r_[any_disengage_probs[0], np.diff(any_disengage_probs) / (1 - any_disengage_probs[:-1])]
