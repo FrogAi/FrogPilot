@@ -51,6 +51,7 @@ public:
   uint64_t download_maps_request_time = 0;
   uint64_t download_model_request_time = 0;
   uint64_t download_theme_request_time = 0;
+  uint64_t flash_panda_request_time = 0;
 
   WifiManager *wifi;
 

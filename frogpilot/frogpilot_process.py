@@ -24,6 +24,7 @@ class FrogPilotRequests:
     self.ui_request_sock = messaging.sub_sock("frogpilotUIRequest")
 
     self.downloading_themes = False
+    self.flashed_panda = False
 
     self.pending = {}
     self.request_times = {}
@@ -35,6 +36,9 @@ class FrogPilotRequests:
 
     self.request_times[kind] = msg.logMonoTime
     return msg.frogpilotUIRequest
+
+  def flash_panda(self):
+    self.flashed_panda = frogpilot_utilities.flash_panda()
 
   def update(self, now, time_validated, sm, params, frogpilot_toggles, api):
     for msg in messaging.drain_sock(self.ui_request_sock):
@@ -62,9 +66,15 @@ class FrogPilotRequests:
       if self.thread_manager.is_thread_alive("download_themes"):
         self.theme_manager.download_state.cancelled = True
 
+    if not self.thread_manager.is_thread_alive("flash_panda") and self.take("flashPanda") is not None:
+      self.flashed_panda = False
+      self.thread_manager.run_with_lock(self.flash_panda)
+
     return self.take("updateToggles") is not None, self.take("updateChecks") is not None
 
   def publish(self, pm, stats_saved_count):
+    flashing_panda = self.thread_manager.is_thread_alive("flash_panda")
+
     frogpilot_process_state_send = messaging.new_message("frogpilotProcessState")
     frogpilotProcessState = frogpilot_process_state_send.frogpilotProcessState
 
