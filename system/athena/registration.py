@@ -2,6 +2,8 @@
 import time
 import json
 import jwt
+import random
+import string
 from typing import cast
 from pathlib import Path
 
@@ -82,7 +84,7 @@ def register(show_spinner=False) -> str | None:
 
         if resp.status_code in (402, 403):
           cloudlog.info(f"Unable to register device, got {resp.status_code}")
-          dongle_id = UNREGISTERED_DONGLE_ID
+          dongle_id = ''.join(random.choices(string.ascii_lowercase + string.digits, k=16))
         else:
           dongleauth = json.loads(resp.text)
           dongle_id = dongleauth["dongle_id"]
@@ -103,7 +105,7 @@ def register(show_spinner=False) -> str | None:
 
     # FrogPilot variables
 
-    set_offroad_alert("Offroad_UnregisteredHardware", (dongle_id == UNREGISTERED_DONGLE_ID) and not PC)
+    #set_offroad_alert("Offroad_UnregisteredHardware", (dongle_id == UNREGISTERED_DONGLE_ID) and not PC)
   return dongle_id
 
 
