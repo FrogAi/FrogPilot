@@ -70,7 +70,7 @@ void FrogPilotAnnotatedCameraWidget::mousePressEvent(QMouseEvent *mouseEvent) {
 }
 
 bool FrogPilotAnnotatedCameraWidget::needsAdjacentPaths() const {
-  return frogpilot_toggles.value(QLatin1String("adjacent_paths")).toBool() || frogpilot_toggles.value(QLatin1String("adjacent_path_metrics")).toBool();
+  return frogpilot_toggles.value(QLatin1String("adjacent_paths")).toBool() || frogpilot_toggles.value(QLatin1String("adjacent_path_metrics")).toBool() || (frogpilot_toggles.value(QLatin1String("blind_spot_path")).toBool() && (blindspotLeft || blindspotRight));
 }
 
 QLinearGradient FrogPilotAnnotatedCameraWidget::adjacentPathGradient(float hue) {
@@ -94,22 +94,30 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
 }
 
 void FrogPilotAnnotatedCameraWidget::paintAdjacentPaths(QPainter &p) {
-  std::function<void(const QPolygonF&, bool, float)> paintPath = [&](const QPolygonF &path, bool isLeft, float laneWidth) {
+  std::function<void(const QPolygonF&, bool, bool, float)> paintPath = [&](const QPolygonF &path, bool isLeft, bool isBlindSpot, float laneWidth) {
     if (path.isEmpty() || laneWidth == 0.0f) {
       return;
     }
 
     p.save();
 
-    const double requirement = frogpilot_toggles.value(QLatin1String("lane_detection_width")).toDouble();
-    float ratio = requirement > 0 ? std::clamp(laneWidth / requirement, 0.0, 1.0) : 1.0;
-    float hue = (ratio * ratio) * (120.0f / 360.0f);
+    float hue = 0.0f;
+    if (!isBlindSpot || !frogpilot_toggles.value(QLatin1String("blind_spot_path")).toBool()) {
+      const double requirement = frogpilot_toggles.value(QLatin1String("lane_detection_width")).toDouble();
+      float ratio = requirement > 0 ? std::clamp(laneWidth / requirement, 0.0, 1.0) : 1.0;
+      hue = (ratio * ratio) * (120.0f / 360.0f);
+    }
 
     p.setBrush(adjacentPathGradient(hue));
     p.drawPolygon(path);
 
     if (frogpilot_toggles.value(QLatin1String("adjacent_path_metrics")).toBool()) {
-      QString text = QString::number(laneWidth * distanceConversion, 'f', 2) + leadDistanceUnit;
+      QString text;
+      if (isBlindSpot && frogpilot_toggles.value(QLatin1String("blind_spot_path")).toBool()) {
+        text = tr("Vehicle in blind spot");
+      } else {
+        text = QString::number(laneWidth * distanceConversion, 'f', 2) + leadDistanceUnit;
+      }
 
       int midIndex = path.size() / 2;
       QPointF anchorPoint = isLeft ? path[midIndex / 2] : path[midIndex + (path.size() - midIndex) / 2];
@@ -130,8 +138,27 @@ void FrogPilotAnnotatedCameraWidget::paintAdjacentPaths(QPainter &p) {
     p.restore();
   };
 
-  paintPath(track_adjacent_vertices[0], true, laneWidthLeft);
-  paintPath(track_adjacent_vertices[1], false, laneWidthRight);
+  paintPath(track_adjacent_vertices[0], true, blindspotLeft, laneWidthLeft);
+  paintPath(track_adjacent_vertices[1], false, blindspotRight, laneWidthRight);
+}
+
+void FrogPilotAnnotatedCameraWidget::paintBlindSpotPath(QPainter &p) {
+  if (!blindspotLeft && !blindspotRight) {
+    return;
+  }
+
+  p.save();
+
+  p.setBrush(adjacentPathGradient(0.0f));
+
+  if (blindspotLeft && !track_adjacent_vertices[0].isEmpty()) {
+    p.drawPolygon(track_adjacent_vertices[0]);
+  }
+  if (blindspotRight && !track_adjacent_vertices[1].isEmpty()) {
+    p.drawPolygon(track_adjacent_vertices[1]);
+  }
+
+  p.restore();
 }
 
 void FrogPilotAnnotatedCameraWidget::paintWorldWidgets(QPainter &p) {

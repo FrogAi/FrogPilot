@@ -191,6 +191,8 @@ void ModelRenderer::drawPath(QPainter &painter, const cereal::ModelDataV2::Reade
   // FrogPilot variables
   if (frogpilot_toggles.value(QLatin1String("adjacent_paths")).toBool() || frogpilot_toggles.value(QLatin1String("adjacent_path_metrics")).toBool()) {
     frogpilot_nvg->paintAdjacentPaths(painter);
+  } else if (frogpilot_toggles.value(QLatin1String("blind_spot_path")).toBool()) {
+    frogpilot_nvg->paintBlindSpotPath(painter);
   }
 }
 
