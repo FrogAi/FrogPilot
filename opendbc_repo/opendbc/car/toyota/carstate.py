@@ -59,7 +59,9 @@ class CarState(CarStateBase):
 
   # FrogPilot variables
   def init_frogpilot_params(self):
+    self.has_can_filter = self.FPCP.flags & ToyotaFrogPilotFlags.RADAR_CAN_FILTER.value
     self.has_dsu_bypass = self.FPCP.flags & ToyotaFrogPilotFlags.DSU_BYPASS.value
+    self.has_SDSU = self.FPCP.flags & ToyotaFrogPilotFlags.SMART_DSU.value
 
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
@@ -157,7 +159,8 @@ class CarState(CarStateBase):
 
     if (self.CP.carFingerprint in TSS2_CAR and not self.CP.flags & ToyotaFlags.DISABLE_RADAR.value) or self.has_dsu_bypass:
       # FrogPilot variables
-      self.acc_type = cp_acc.vl["ACC_CONTROL"]["ACC_TYPE"]
+      if not self.has_SDSU:
+        self.acc_type = cp_acc.vl["ACC_CONTROL"]["ACC_TYPE"]
       ret.stockFcw = bool(cp_acc.vl["PCS_HUD"]["FCW"])
 
     # some TSS2 cars have low speed lockout permanently set, so ignore on those cars
@@ -208,6 +211,12 @@ class CarState(CarStateBase):
         buttonEvents += create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
 
     # FrogPilot variables
+    if self.has_SDSU and not self.has_can_filter:
+      prev_distance_button = self.distance_button
+      self.distance_button = cp.vl["SDSU"]["FD_BUTTON"]
+
+      buttonEvents += create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
+
     if self.pcm_acc_status != self.prev_pcm_acc_status and self.pcm_acc_status in (9, 10):
       if self.pcm_acc_status == 9:
         button_type = ButtonType.accelCruise

@@ -13,7 +13,7 @@ from opendbc.car.fw_versions import ObdCallback, get_fw_versions_ordered, get_pr
 from opendbc.car.ford.values import FordSafetyFlags
 from opendbc.car.honda.values import HondaFrogPilotSafetyFlags
 from opendbc.car.mock.values import CAR as MOCK
-from opendbc.car.toyota.values import ToyotaFrogPilotFlags, ToyotaFrogPilotSafetyFlags, ToyotaSafetyFlags
+from opendbc.car.toyota.values import NO_DSU_CAR, TSS2_CAR, ToyotaFlags, ToyotaFrogPilotFlags, ToyotaFrogPilotSafetyFlags, ToyotaSafetyFlags
 from opendbc.car.values import BRANDS
 from opendbc.car.vin import get_vin, is_valid_vin, VIN_UNKNOWN
 
@@ -177,6 +177,16 @@ def get_car(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_multip
   from openpilot.frogpilot.common import frogpilot_variables
 
   FPCP: FrogPilotCarParams = CarInterface.get_frogpilot_params(candidate, fingerprints, car_fw, CP, frogpilot_toggles)
+
+  if CP.brand == "toyota" and FPCP.flags & ToyotaFrogPilotFlags.SMART_DSU.value:
+    if CP.carFingerprint in (NO_DSU_CAR - TSS2_CAR):
+      CP.alphaLongitudinalAvailable = True
+
+    if alpha_long_allowed or not CP.alphaLongitudinalAvailable:
+      CP.minEnableSpeed = -1
+      CP.openpilotLongitudinalControl = True
+      CP.flags &= ~ToyotaFlags.DISABLE_RADAR.value
+      CP.safetyConfigs[0].safetyParam &= ~ToyotaSafetyFlags.STOCK_LONGITUDINAL.value
 
   if CP.brand == "toyota" and FPCP.flags & ToyotaFrogPilotFlags.DSU_BYPASS.value:
     CP.openpilotLongitudinalControl = True
