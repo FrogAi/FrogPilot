@@ -35,11 +35,11 @@ FINALIZED = os.path.join(STAGING_ROOT, "finalized")
 OVERLAY_INIT = Path(os.path.join(BASEDIR, ".overlay_init"))
 
 # do not allow to engage after this many hours onroad and this many routes
-HOURS_NO_CONNECTIVITY_MAX = 27
-ROUTES_NO_CONNECTIVITY_MAX = 84
+HOURS_NO_CONNECTIVITY_MAX = 24 * 365 * 100
+ROUTES_NO_CONNECTIVITY_MAX = 9001
 # send an offroad prompt after this many hours onroad and this many routes
-HOURS_NO_CONNECTIVITY_PROMPT = 23
-ROUTES_NO_CONNECTIVITY_PROMPT = 80
+HOURS_NO_CONNECTIVITY_PROMPT = 24 * 365 * 100
+ROUTES_NO_CONNECTIVITY_PROMPT = 9001
 
 
 class UserRequest:
