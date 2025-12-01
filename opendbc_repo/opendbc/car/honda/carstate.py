@@ -220,6 +220,8 @@ class CarState(CarStateBase):
     ]
 
     # FrogPilot variables
+    self.distance_button = self.cruise_setting == CruiseSettings.DISTANCE
+
     if self.CP.carFingerprint in HONDA_BOSCH and self.CP.carFingerprint not in HONDA_BOSCH_RADARLESS:
       self.fp_ret.brakeLights = ret.brake > 0.4 or (not self.CP.openpilotLongitudinalControl and cp.vl["ACC_CONTROL"]["BRAKE_LIGHTS"] != 0)
     elif self.CP.carFingerprint in (CAR.HONDA_CIVIC, CAR.HONDA_ODYSSEY):

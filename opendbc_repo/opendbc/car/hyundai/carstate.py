@@ -207,6 +207,8 @@ class CarState(CarStateBase):
     ret.lowSpeedAlert = self.low_speed_alert
 
     # FrogPilot variables
+    self.distance_button = self.cruise_buttons[-1] == Buttons.GAP_DIST
+
     self.fp_ret.brakeLights = bool(cp.vl["TCS13"]["BrakeLight"])
     if self.FPCP.hasDashboardSpeedLimit:
       self.fp_ret.dashboardSpeedLimit = calculate_speed_limit(self.CP, cp, cp_cam) * speed_conv
@@ -304,6 +306,8 @@ class CarState(CarStateBase):
     ret.blockPcmEnable = not self.recent_button_interaction()
 
     # FrogPilot variables
+    self.distance_button = self.cruise_buttons[-1] == Buttons.GAP_DIST
+
     if self.taco_tune_hack:
       self.params = CarControllerParams(self.CP, ret.vEgoRaw, self.frogpilot_toggles.taco_tune_hacks)
 

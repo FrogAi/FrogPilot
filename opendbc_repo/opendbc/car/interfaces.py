@@ -376,6 +376,8 @@ class CarStateBase(ABC):
     # FrogPilot variables
     self.CC: structs.CarControl = structs.CarControl.new_message()
 
+    self.distance_button = False
+
   # FrogPilot variables
   def init_frogpilot_params(self):
     pass

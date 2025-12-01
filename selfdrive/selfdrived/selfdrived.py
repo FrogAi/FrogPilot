@@ -153,6 +153,8 @@ class SelfdriveD:
     self.frogpilot_AM = AlertManager()
     self.frogpilot_events = Events(frogpilot=True)
 
+    self.distance_pressed_previously = False
+
     self.frogpilot_events_prev = []
 
   def update_events(self, CS):
@@ -427,10 +429,24 @@ class SelfdriveD:
     # Decrement personality on distance button press
     if self.CP.openpilotLongitudinalControl:
       # FrogPilot variables
-      if any(not be.pressed and be.type == ButtonType.gapAdjustCruise for be in CS.buttonEvents):
+      distance_pressed = False
+
+      if self.frogpilot_toggles.personality_profile_via_distance:
+        distance_pressed |= any(not be.pressed and be.type == ButtonType.gapAdjustCruise for be in CS.buttonEvents)
+        distance_pressed &= not (self.sm['frogpilotCarState'].distanceLongPressed or self.sm['frogpilotCarState'].distanceVeryLongPressed)
+      if self.frogpilot_toggles.personality_profile_via_distance_long:
+        distance_pressed |= self.sm['frogpilotCarState'].distanceLongPressed
+      if self.frogpilot_toggles.personality_profile_via_distance_very_long:
+        distance_pressed |= self.sm['frogpilotCarState'].distanceVeryLongPressed
+      if self.frogpilot_toggles.personality_profile_via_lkas:
+        distance_pressed |= any(not be.pressed and be.type == ButtonType.lkas for be in CS.buttonEvents)
+
+      if not distance_pressed and self.distance_pressed_previously:
         self.personality = (self.personality - 1) % 3
         self.params.put_nonblocking('LongitudinalPersonality', self.personality)
         self.events.add(EventName.personalityChanged)
+
+      self.distance_pressed_previously = distance_pressed
 
     # FrogPilot variables
     self.frogpilot_events.add_from_msg(self.sm['frogpilotPlan'].frogpilotEvents)
