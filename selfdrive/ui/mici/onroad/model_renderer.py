@@ -195,12 +195,12 @@ class ModelRenderer(Widget):
       if i in (1, 2):
         line_width_factor = 0.16
       lane_line.projected_points = self._map_line_to_polygon(
-        lane_line.raw_points, line_width_factor * self._lane_line_probs[i], 0.0, max_idx
+        lane_line.raw_points, self._frogpilot_road.lane_line_width(line_width_factor) * self._lane_line_probs[i], 0.0, max_idx
       )
 
     # Update road edges using raw points
     for road_edge in self._road_edges:
-      road_edge.projected_points = self._map_line_to_polygon(road_edge.raw_points, line_width_factor, 0.0, max_idx)
+      road_edge.projected_points = self._map_line_to_polygon(road_edge.raw_points, self._frogpilot_road.road_edge_width(line_width_factor), 0.0, max_idx)
 
     # Update path using raw points
     if lead and lead.status:
@@ -219,6 +219,7 @@ class ModelRenderer(Widget):
       y_off = 0.9
 
     # FrogPilot variables
+    y_off = self._frogpilot_road.path_width(y_off)
 
     max_idx = self._get_path_length_idx(path_x_array, max_distance)
     self._path.projected_points = self._map_line_to_polygon(

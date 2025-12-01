@@ -6,11 +6,13 @@ import pyray as rl
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.frogpilot.common import frogpilot_status
 from openpilot.frogpilot.ui.mici.frogpilot_theme import hex_to_color, PATH_ALPHAS
-from openpilot.selfdrive.ui.ui_state import ui_state
+from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
 from openpilot.system.ui.lib.application import gui_app
 from openpilot.system.ui.lib.shader_polygon import draw_polygon, Gradient
 
 ACCELERATION_PATH_MIN_ACCEL = 0.25
+ALWAYS_ON_LATERAL_PATH_WIDTH_FACTOR = 0.75
+DYNAMIC_PATH_WIDTH_FACTOR = 0.5
 
 BAND_ALPHAS = (0.4, 0.35, 0.0)
 BAND_STOPS = [0.0, 0.5, 1.0]
@@ -36,6 +38,36 @@ class FrogPilotRoad:
     self._blind_spot_filters = {side: FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps) for side in (True, False)}
 
     self._adjacent_paths = []
+
+  def lane_line_width(self, stock_width):
+    toggles = ui_state.frogpilot_toggles
+
+    if not toggles.get("model_ui"):
+      return stock_width
+
+    return toggles["lane_line_width"]
+
+  def road_edge_width(self, stock_width):
+    toggles = ui_state.frogpilot_toggles
+
+    if not toggles.get("model_ui"):
+      return stock_width
+
+    return toggles["road_edge_width"]
+
+  def path_width(self, stock_width):
+    toggles = ui_state.frogpilot_toggles
+
+    if not toggles.get("model_ui"):
+      return stock_width
+
+    if ui_state.status == UIStatus.ALWAYS_ON_LATERAL and toggles.get("dynamic_path_width"):
+      return toggles["path_width"] * ALWAYS_ON_LATERAL_PATH_WIDTH_FACTOR
+
+    if ui_state.status != UIStatus.ENGAGED and toggles.get("dynamic_path_width"):
+      return toggles["path_width"] * DYNAMIC_PATH_WIDTH_FACTOR
+
+    return toggles["path_width"]
 
   def update_adjacent_paths(self, map_line_to_polygon, lane_lines, max_idx):
     self._adjacent_paths = []
