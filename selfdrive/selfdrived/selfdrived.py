@@ -404,7 +404,10 @@ class SelfdriveD:
       # TODO: lac.saturated includes speed and other checks, should be pulled out
       if undershooting and turning and lac.saturated:
         # FrogPilot variables
-        self.events.add(EventName.steerSaturated)
+        if self.frogpilot_toggles.goat_scream_alert:
+          self.frogpilot_events.add(FrogPilotEventName.goatSteerSaturated)
+        else:
+          self.events.add(EventName.steerSaturated)
 
     # Check for FCW
     stock_long_is_braking = self.enabled and not self.CP.openpilotLongitudinalControl and CS.aEgo < -1.25

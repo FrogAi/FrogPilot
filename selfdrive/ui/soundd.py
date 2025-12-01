@@ -51,6 +51,7 @@ sound_list: dict[int, tuple[str, int | None, float]] = {
   AudibleAlert.warningImmediate: ("warning_immediate.wav", None, MAX_VOLUME),
 
   # FrogPilot variables
+  FrogPilotAudibleAlert.goat: ("goat.wav", None, MAX_VOLUME),
 }
 if HARDWARE.get_device_type() in ("tici", "tizi"):
   sound_list.update({
@@ -89,6 +90,8 @@ class Soundd:
 
     self.sound_source = None
 
+    self.random_events_directory = frogpilot_variables.RANDOM_EVENTS_PATH / "sounds"
+
     self.update_frogpilot_sounds()
 
   def load_sounds(self):
@@ -99,6 +102,7 @@ class Soundd:
       filename, play_count, volume = sound_list[sound]
 
       # FrogPilot variables
+      random_events_path = self.random_events_directory / filename
       sounds_path = self.sound_directory / filename
 
       if not sounds_path.exists() and "_tizi" in filename:
@@ -106,7 +110,13 @@ class Soundd:
         if standard_path.exists():
           sounds_path = standard_path
 
-      if sounds_path.exists():
+      if random_events_path.exists():
+        goat_scream = sound == FrogPilotAudibleAlert.goat and self.frogpilot_toggles.goat_scream_alert
+        if not goat_scream:
+          continue
+
+        sound_path = str(random_events_path)
+      elif sounds_path.exists():
         sound_path = str(sounds_path)
       else:
         sound_path = BASEDIR + "/selfdrive/assets/sounds/" + filename
@@ -265,7 +275,7 @@ class Soundd:
       sound_inode = self.sound_directory.stat().st_ino
     except FileNotFoundError:
       sound_inode = None
-    sound_source = (self.sound_directory.resolve(), sound_inode)
+    sound_source = (self.sound_directory.resolve(), sound_inode, self.frogpilot_toggles.goat_scream_alert)
     if sound_source != self.sound_source:
       self.load_sounds()
 
