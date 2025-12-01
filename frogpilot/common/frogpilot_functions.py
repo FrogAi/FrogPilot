@@ -217,6 +217,43 @@ def register_konik():
   Params().put("KonikDongleId", register(register_konik=True))
 
 
+def reset_settings(params, params_cache):
+  stock = params.get_bool("DoToggleResetStock")
+  if not stock and not params.get_bool("DoToggleReset"):
+    return
+
+  for key in params.all_keys():
+    key = key.decode()
+    if key in frogpilot_variables.EXCLUDED_KEYS:
+      continue
+
+    if stock:
+      value = params.get_stock_value(key)
+    else:
+      value = params.get_default_value(key)
+
+    if value == "":
+      params.remove(key)
+      params_cache.remove(key)
+    elif value is not None and value != params.get(key):
+      params.put(key, value)
+
+  for key in frogpilot_variables.RESET_REMOVED_KEYS:
+    params.remove(key)
+    params_cache.remove(key)
+
+  if stock:
+    params.put("TuningLevel", frogpilot_variables.TUNING_LEVELS["DEVELOPER"])
+    params.put_bool("TuningLevelConfirmed", True)
+
+  if params.get_bool("IsMetric"):
+    for key in frogpilot_variables.METRIC_CONVERSIONS:
+      params.put(key, frogpilot_utilities.convert_metric(key, params.get(key), True))
+
+  params.remove("DoToggleReset")
+  params.remove("DoToggleResetStock")
+
+
 def run_frogsgomoo(build_metadata):
   if frogpilot_utilities.is_FrogsGoMoo_development(build_metadata):
     frogpilot_utilities.run_cmd_on_writable_mount("/persist", ["sudo", "python3", frogpilot_paths.FROGS_GO_MOO_PATH], "Failed to run frogsgomoo.py")

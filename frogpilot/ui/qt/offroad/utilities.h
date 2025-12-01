@@ -12,6 +12,8 @@ private:
   void submitReport(QJsonObject report);
   void updateState(const UIState &s, const FrogPilotUIState &fs);
 
+  bool actionRunning = false;
+
   ButtonControl *reportIssueButton;
 
   Params params;
