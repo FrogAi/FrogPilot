@@ -143,6 +143,7 @@ class LongitudinalPlanner:
     # Don't clip at low speeds since throttle_prob doesn't account for creep
     self.allow_throttle = throttle_prob > ALLOW_THROTTLE_THRESHOLD or v_ego <= MIN_ALLOW_THROTTLE_SPEED
     # FrogPilot variables
+    self.allow_throttle &= not sm['frogpilotCarState'].forceCoast
 
     # FrogPilot variables
     mpc_accel_max = max(accel_clip[1], 0.0) if sm['radarState'].leadOne.status or sm['radarState'].leadTwo.status else accel_clip[1]

@@ -20,6 +20,7 @@ class FrogPilotCard:
     self.always_on_lateral_allowed = False
     self.cruise_available_previously = True
     self.distancePressed_previously = False
+    self.force_coast = False
     self.onroad_distance_button = False
 
     self.accel_press_count = 0
@@ -41,6 +42,8 @@ class FrogPilotCard:
   def handle_button_event(self, key, sm, frogpilot_toggles):
     if sm["carControl"].longActive and getattr(frogpilot_toggles, f"experimental_mode_via_{key}"):
       self.handle_experimental_mode(sm, frogpilot_toggles)
+    elif sm["carControl"].longActive and getattr(frogpilot_toggles, f"force_coast_via_{key}"):
+      self.force_coast = not self.force_coast
 
   def handle_experimental_mode(self, sm, frogpilot_toggles):
     if frogpilot_toggles.conditional_experimental_mode:
@@ -109,6 +112,8 @@ class FrogPilotCard:
     if any(be.pressed and be.type == ButtonType.lkas for be in carState.buttonEvents):
       self.lkas_button_press_count += 1
       self.handle_button_event("lkas", sm, frogpilot_toggles)
+
+    self.force_coast &= not (carState.brakePressed or carState.gasPressed)
 
     frogpilotCarState.accelPressCount = self.accel_press_count
     frogpilotCarState.alwaysOnLateralEnabled = self.always_on_lateral_enabled
