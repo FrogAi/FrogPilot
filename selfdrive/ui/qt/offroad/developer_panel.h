@@ -24,6 +24,8 @@ private:
   bool offroad = false;
 
   // FrogPilot variables
+  QMap<int, QString> developerMetricOptions();
+
   bool forceOpenDescriptions = false;
 
   std::map<QString, AbstractControl*> toggles;
