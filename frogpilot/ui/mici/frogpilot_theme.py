@@ -310,6 +310,9 @@ class FrogPilotTheme:
 
     return assets.signal_style == "traditional" and self._signal_visible(assets)
 
+  def static_signal_on_left(self):
+    return self._assets.signal_style == "static" and ui_state.sm["carState"].leftBlinker
+
   def bookmark_texture(self, stock_texture):
     assets = self._assets
 
