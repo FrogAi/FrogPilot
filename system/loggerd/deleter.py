@@ -2,10 +2,11 @@
 import os
 import shutil
 import threading
+from pathlib import Path
 from openpilot.system.hardware.hw import Paths
 from openpilot.common.swaglog import cloudlog
 from openpilot.system.loggerd.config import get_available_bytes, get_available_percent
-from openpilot.system.loggerd.uploader import listdir_by_creation
+from openpilot.system.loggerd.uploader import get_directory_sort, listdir_by_creation
 from openpilot.system.loggerd.xattr_cache import getxattr
 
 from openpilot.frogpilot.common import frogpilot_utilities
@@ -16,13 +17,15 @@ MIN_PERCENT = 10
 DELETE_LAST = ['boot', 'crash']
 
 # FrogPilot variables
+LOG_ROOTS = ['realdata', 'realdata_HD']
+
 PRESERVE_ATTR_NAME = 'user.preserve'
 PRESERVE_ATTR_VALUE = b'1'
 PRESERVE_COUNT = 5
 
 
 def has_preserve_xattr(d: str) -> bool:
-  return getxattr(os.path.join(Paths.log_root(), d), PRESERVE_ATTR_NAME) == PRESERVE_ATTR_VALUE
+  return getxattr(d, PRESERVE_ATTR_NAME) == PRESERVE_ATTR_VALUE
 
 
 def get_preserved_segments(dirs_by_creation: list[str]) -> set[str]:
@@ -54,14 +57,15 @@ def deleter_thread(exit_event: threading.Event):
     out_of_percent = get_available_percent(default=MIN_PERCENT + 1) < MIN_PERCENT
 
     if out_of_percent or out_of_bytes:
-      dirs = listdir_by_creation(Paths.log_root())
+      media_root = Path(Paths.log_root()).parent
       # FrogPilot variables
+      log_roots = [os.path.join(media_root, root) for root in LOG_ROOTS]
+      dirs = [os.path.join(log_root, d) for log_root in log_roots for d in listdir_by_creation(log_root)]
+      dirs.sort(key=lambda d: get_directory_sort(os.path.basename(d)))
       preserved_dirs = get_preserved_segments(dirs)
 
       # remove the earliest directory we can
-      for delete_dir in sorted(dirs, key=lambda d: (d in DELETE_LAST, d in preserved_dirs, frogpilot_utilities.has_pending_telemetry(os.path.join(Paths.log_root(), d)))):
-        delete_path = os.path.join(Paths.log_root(), delete_dir)
-
+      for delete_path in sorted(dirs, key=lambda d: (os.path.basename(d) in DELETE_LAST, d in preserved_dirs, frogpilot_utilities.has_pending_telemetry(d))):
         if any(name.endswith(".lock") for name in os.listdir(delete_path)):
           continue
 

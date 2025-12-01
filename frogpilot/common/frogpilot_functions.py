@@ -24,6 +24,13 @@ def boot_backup(build_metadata):
 def frogpilot_boot_functions(build_metadata, params):
   frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
+  if not frogpilot_variables.HD_PATH.is_file() and frogpilot_toggles.use_higher_bitrate:
+    frogpilot_variables.HD_PATH.touch()
+    HARDWARE.reboot()
+  elif frogpilot_variables.HD_PATH.is_file() and not frogpilot_toggles.use_higher_bitrate:
+    frogpilot_variables.HD_PATH.unlink()
+    HARDWARE.reboot()
+
   ThemeManager(params, boot_run=True).update_active_theme(frogpilot_toggles=frogpilot_toggles, boot_run=True)
 
   frogpilot_utilities.delete_file("/data/restore_temp")
@@ -33,7 +40,8 @@ def frogpilot_boot_functions(build_metadata, params):
 
 def install_frogpilot():
   paths = [
-    frogpilot_variables.ERROR_LOGS_PATH
+    frogpilot_variables.ERROR_LOGS_PATH,
+    frogpilot_variables.HD_LOGS_PATH
   ]
   for path in paths:
     path.mkdir(parents=True, exist_ok=True)

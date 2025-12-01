@@ -1,5 +1,6 @@
 #pragma once
 
+#include <filesystem>
 #include <string>
 
 #include "system/hardware/base.h"
@@ -32,6 +33,9 @@ namespace Path {
     }
 
     // FrogPilot variables
+    if (std::filesystem::exists("/cache/use_HD")) {
+      return "/data/media/0/realdata_HD/";
+    }
 
     return "/data/media/0/realdata";
   }

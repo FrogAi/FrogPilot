@@ -556,8 +556,8 @@ class FrogPilotVariables:
     toggle.increase_thermal_limits = self.get_value("IncreaseThermalLimits", condition=device_management)
     toggle.low_voltage_shutdown = self.get_value("LowVoltageShutdown", cast=float, condition=device_management, min=VBATT_PAUSE_CHARGING, max=12.5)
     toggle.no_logging = self.get_value("NoLogging", condition=device_management and not self.vetting_branch) or toggle.force_onroad
-    toggle.no_uploads = self.get_value("NoUploads", condition=device_management and not self.vetting_branch)
-    toggle.no_onroad_uploads = self.get_value("DisableOnroadUploads", condition=toggle.no_uploads)
+    toggle.no_uploads = self.get_value("NoUploads", condition=device_management and not self.vetting_branch) or toggle.use_higher_bitrate
+    toggle.no_onroad_uploads = self.get_value("DisableOnroadUploads", condition=toggle.no_uploads and not toggle.use_higher_bitrate)
 
     distance_button_control = self.get_value("DistanceButtonControl", cast=float)
     toggle.experimental_mode_via_distance = toggle.openpilot_longitudinal and distance_button_control == BUTTON_FUNCTIONS["EXPERIMENTAL_MODE"]
