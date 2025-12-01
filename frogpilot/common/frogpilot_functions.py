@@ -31,7 +31,7 @@ def frogpilot_boot_functions(build_metadata, params):
     frogpilot_variables.HD_PATH.unlink()
     HARDWARE.reboot()
 
-  ThemeManager(params, boot_run=True).update_active_theme(frogpilot_toggles=frogpilot_toggles, boot_run=True)
+  ThemeManager(params, boot_run=True).update_active_theme(time_validated=system_time_valid(), frogpilot_toggles=frogpilot_toggles, boot_run=True)
 
   frogpilot_utilities.delete_file("/data/restore_temp")
 

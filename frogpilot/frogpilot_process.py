@@ -127,11 +127,11 @@ def update_checks(now, theme_manager, thread_manager, sm, params, cancel_maps_do
   time.sleep(1)
 
 def update_toggles(variables, started, theme_manager, thread_manager, time_validated, params):
-  variables.update(started=started)
+  variables.update(theme_manager.holiday_theme, started)
   frogpilot_toggles = variables.frogpilot_toggles
 
   theme_manager.theme_updated = False
-  theme_manager.update_active_theme(frogpilot_toggles)
+  theme_manager.update_active_theme(time_validated, frogpilot_toggles)
 
   if time_validated:
     thread_manager.run_with_lock(frogpilot_backups.backup_toggles, (params,))
@@ -194,7 +194,7 @@ def frogpilot_thread():
       waiting_for_car_params = True
 
     if theme_manager.theme_updated:
-      variables.update(started=started)
+      variables.update(theme_manager.holiday_theme, started)
       frogpilot_toggles = variables.frogpilot_toggles
 
     if started and sm.updated["modelV2"]:
@@ -227,6 +227,7 @@ def frogpilot_thread():
     run_update_checks &= time_validated
 
     if run_update_checks:
+      theme_manager.update_active_theme(time_validated, frogpilot_toggles)
       thread_manager.run_with_lock(update_checks, (now, theme_manager, thread_manager, sm, params, cancel_maps_download, frogpilot_toggles))
 
       run_update_checks = False
@@ -234,6 +235,8 @@ def frogpilot_thread():
       time_validated = system_time_valid()
 
       if time_validated:
+        theme_manager.update_active_theme(time_validated, frogpilot_toggles)
+
         thread_manager.run_with_lock(frogpilot_backups.backup_toggles, (params, True))
         thread_manager.run_with_lock(send_stats, (params, frogpilot_toggles, api))
         thread_manager.run_with_lock(update_checks, (now, theme_manager, thread_manager, sm, params, cancel_maps_download, frogpilot_toggles, True))
