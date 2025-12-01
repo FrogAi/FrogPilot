@@ -22,6 +22,7 @@ public:
   explicit FrogPilotUIState(QObject *parent = nullptr);
 
   void runUpdateChecks();
+  void testAlert(const QString &alert, float volume);
   void update();
   void updateToggles();
 
