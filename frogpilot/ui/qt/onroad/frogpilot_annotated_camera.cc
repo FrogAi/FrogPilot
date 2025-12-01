@@ -41,6 +41,9 @@ void FrogPilotAnnotatedCameraWidget::hideEvent(QHideEvent *event) {
   if (cemIcon) {
     cemIcon->stop();
   }
+  if (weatherIcon) {
+    weatherIcon->stop();
+  }
 
   QWidget::hideEvent(event);
 }
@@ -142,6 +145,24 @@ void FrogPilotAnnotatedCameraWidget::updateIcon(const QString &path, QSharedPoin
   }
 }
 
+void FrogPilotAnnotatedCameraWidget::updateWeatherIcon() {
+  QString weatherPath;
+  if (weatherId != 0) {
+    QString icon = weatherDaytime ? "weather_clear_day" : "weather_clear_night";
+    if ((weatherId >= 200 && weatherId <= 232) || (weatherId >= 300 && weatherId <= 321) || (weatherId >= 500 && weatherId <= 531) || weatherId == 771 || weatherId == 781) {
+      icon = "weather_rain";
+    } else if (weatherId >= 600 && weatherId <= 622) {
+      icon = "weather_snow";
+    } else if (weatherId >= 701 && weatherId <= 762) {
+      icon = "weather_low_visibility";
+    } else if (weatherId >= 801 && weatherId <= 804) {
+      icon = weatherDaytime ? "weather_cloudy_day" : "weather_cloudy_night";
+    }
+    weatherPath = QString("../../frogpilot/assets/other_images/%1.svg").arg(icon);
+  }
+  updateIcon(weatherPath, weatherIcon, weatherIconPath);
+}
+
 void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPilotUIState &fs) {
   frogpilot_scene = fs.frogpilot_scene;
   frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
@@ -212,6 +233,8 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   speedLimitSource = frogpilotPlan.getSlcSpeedLimitSource();
   unconfirmedSpeedLimit = frogpilotPlan.getUnconfirmedSlcSpeedLimit();
   vEgo = carState.getVEgo();
+  weatherDaytime = frogpilotPlan.getWeatherDaytime();
+  weatherId = frogpilotPlan.getWeatherId();
 
   stoppingDistance = 0.0f;
   for (int i = 0; i < velocityX.size(); ++i) {
@@ -299,6 +322,7 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   }
 
   updateCEMIcon();
+  updateWeatherIcon();
 }
 
 void FrogPilotAnnotatedCameraWidget::mousePressEvent(QMouseEvent *mouseEvent) {
@@ -348,6 +372,7 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
   QPoint longitudinalPausedPosition = lateralPausedPosition + QPoint(slotStep, 0);
 
   QPoint compassPosition(rightHandDM ? width() - experimentalButtonPosition.x() - btn_size : experimentalButtonPosition.x() + btn_size - widget_size, cemStatusPosition.y());
+  QPoint weatherPosition = compassPosition - QPoint(slotStep, 0);
 
   personalityButton->move(rightHandDM ? width() - personalityButton->width() - UI_BORDER_SIZE : UI_BORDER_SIZE, dmIconPosition.y() - personalityButton->height() / 2);
   personalityButton->rightHandDM = rightHandDM;
@@ -400,6 +425,10 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
 
   if (!staticSignalRect.isNull()) {
     paintTurnSignals(p);
+  }
+
+  if (!hideBottomIcons) {
+    paintWeather(p, weatherPosition);
   }
 }
 
@@ -1100,6 +1129,24 @@ void FrogPilotAnnotatedCameraWidget::paintTurnSignals(QPainter &p) {
     p.drawPixmap(0, 0, signalWidth, signalHeight, signalImage);
     p.restore();
   }
+}
+
+void FrogPilotAnnotatedCameraWidget::paintWeather(QPainter &p, const QPoint &position) {
+  if (weatherId == 0) {
+    return;
+  }
+
+  p.save();
+
+  QRect weatherRect(position, QSize(widget_size, widget_size));
+
+  paintWidgetFrame(p, weatherRect, blackColor());
+
+  if (weatherIcon) {
+    p.drawPixmap(weatherRect, weatherIcon->currentPixmap());
+  }
+
+  p.restore();
 }
 
 void FrogPilotAnnotatedCameraWidget::paintWidgetFrame(QPainter &p, const QRect &rect, const QColor &borderColor) {

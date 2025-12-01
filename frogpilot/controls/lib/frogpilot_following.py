@@ -68,6 +68,9 @@ class FrogPilotFollowing:
     self.following_lead = self.frogpilot_planner.lead_one.status
     self.following_lead &= self.frogpilot_planner.lead_one.dRel < (self.t_follow * 2) * v_ego
 
+    if self.frogpilot_planner.frogpilot_weather.weather_id != 0:
+      self.t_follow = min(self.t_follow + self.frogpilot_planner.frogpilot_weather.increase_following_distance, frogpilot_variables.MAX_T_FOLLOW)
+
     self.base_t_follow = self.t_follow
 
     if long_control_active and self.frogpilot_planner.lead_one.status:
