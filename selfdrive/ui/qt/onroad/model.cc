@@ -1,8 +1,6 @@
 #include "selfdrive/ui/qt/onroad/model.h"
 
 constexpr int CLIP_MARGIN = 500;
-constexpr float MIN_DRAW_DISTANCE = 10.0;
-constexpr float MAX_DRAW_DISTANCE = 100.0;
 
 static int get_path_length_idx(const cereal::XYZTData::Reader &line, const float path_height) {
   const auto &line_x = line.getX();
@@ -88,7 +86,7 @@ void ModelRenderer::update_leads(const cereal::RadarState::Reader &radar_state, 
 
 void ModelRenderer::update_model(const cereal::ModelDataV2::Reader &model, const cereal::RadarState::LeadData::Reader &lead) {
   const auto &model_position = model.getPosition();
-  float max_distance = std::clamp(*(model_position.getX().end() - 1), MIN_DRAW_DISTANCE, MAX_DRAW_DISTANCE);
+  float max_distance = *(model_position.getX().end() - 1);
 
   // update lane lines
   const auto &lane_lines = model.getLaneLines();
