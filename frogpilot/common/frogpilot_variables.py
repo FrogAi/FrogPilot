@@ -232,6 +232,19 @@ TUNING_LEVELS = {
 def get_models():
   return json.loads(MODELS_LIST_PATH.read_text()) if MODELS_LIST_PATH.is_file() else []
 
+@cache
+def get_nnff_model_files():
+  return [file.stem for file in NNFF_MODELS_PATH.iterdir() if file.is_file()]
+
+@cache
+def get_nnff_substitutes():
+  with open(TORQUE_SUBSTITUTE_PATH, "rb") as f:
+    return tomllib.load(f)
+
+def nnff_supported(car_fingerprint):
+  from openpilot.frogpilot.controls.lib.neural_network_feedforward import get_nn_model_path
+  return get_nn_model_path(car_fingerprint, "") is not None
+
 def get_frogpilot_toggles(sm=None):
   if sm is None:
     process_frogpilot_toggles.cache_clear()
@@ -352,6 +365,7 @@ class FrogPilotVariables:
     toggle.disable_openpilot_long = self.get_value("DisableOpenpilotLongitudinal", condition=toggle.can_disable_openpilot_long)
     has_bsm = CP.enableBsm
     toggle.has_dashboard_speed_limit = FPCP.hasDashboardSpeedLimit
+    toggle.has_nnff = nnff_supported(toggle.car_model)
     has_radar = not CP.radarUnavailable
     toggle.has_sdsu = toggle.car_make == "toyota" and bool(FPCP.flags & ToyotaFrogPilotFlags.SMART_DSU.value)
     has_sng = CP.autoResumeSng
@@ -614,7 +628,7 @@ class FrogPilotVariables:
     toggle.one_lane_change = self.get_value("OneLaneChange", condition=toggle.lane_changes)
 
     lateral_tuning = self.get_value("LateralTune")
-    toggle.nnff = self.get_value("NNFF", condition=lateral_tuning and not is_angle_car)
+    toggle.nnff = self.get_value("NNFF", condition=lateral_tuning and toggle.has_nnff and not is_angle_car)
     toggle.nnff_lite = self.get_value("NNFFLite", condition=not toggle.nnff and lateral_tuning and not is_angle_car)
     toggle.use_turn_desires = self.get_value("TurnDesires", condition=lateral_tuning)
 

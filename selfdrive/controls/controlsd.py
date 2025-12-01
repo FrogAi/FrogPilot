@@ -20,6 +20,7 @@ from openpilot.selfdrive.controls.lib.longcontrol import LongControl
 from openpilot.selfdrive.locationd.helpers import PoseCalibrator, Pose
 
 from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.controls.lib.neural_network_feedforward import LatControlNNFF
 
 State = log.SelfdriveState.OpenpilotState
 LaneChangeState = log.LaneChangeState
@@ -67,6 +68,9 @@ class Controls:
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
     self.using_custom_torque_params = False
 
+    if self.CP.lateralTuning.which() == "torque" and (self.frogpilot_toggles.nnff or self.frogpilot_toggles.nnff_lite):
+      self.LaC = LatControlNNFF(self.CP, self.CI, DT_CTRL)
+
     if hasattr(self.LaC, "pid"):
       self.base_k_p = self.LaC.pid._k_p
 
@@ -81,6 +85,9 @@ class Controls:
     # FrogPilot variables
     if hasattr(self.LaC, "pid") and self.CP.lateralTuning.which() != "pid":
       self.LaC.pid._k_p = [self.base_k_p[0], [k_p * self.frogpilot_toggles.steerKp / KP for k_p in self.base_k_p[1]]]
+
+    if self.sm.updated['liveDelay'] and hasattr(self.LaC, "update_live_delay"):
+      self.LaC.update_live_delay(self.sm['liveDelay'].lateralDelay)
 
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(self.sm)
 
@@ -148,7 +155,10 @@ class Controls:
     actuators.curvature = self.desired_curvature
     steer, steeringAngleDeg, lac_log = self.LaC.update(CC.latActive, CS, self.VM, lp,
                                                        self.steer_limited_by_safety, self.desired_curvature,
-                                                       curvature_limited, lat_delay)
+                                                       curvature_limited, lat_delay,
+                                                       self.calibrated_pose,
+                                                       self.sm['modelV2'],
+                                                       self.frogpilot_toggles)
     actuators.torque = float(steer)
     actuators.steeringAngleDeg = float(steeringAngleDeg)
     # Ensure no NaNs/Infs

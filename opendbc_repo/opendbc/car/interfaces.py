@@ -186,7 +186,8 @@ class CarInterfaceBase(ABC):
     platform = PLATFORMS[candidate]
 
     if platform not in MOCK:
-      if CP.lateralTuning.which() == "pid" and CP.steerControlType != structs.CarParams.SteerControlType.angle and frogpilot_toggles.force_torque_controller:
+      if CP.lateralTuning.which() == "pid" and CP.steerControlType != structs.CarParams.SteerControlType.angle and \
+         (frogpilot_toggles.force_torque_controller or frogpilot_toggles.nnff or frogpilot_toggles.nnff_lite):
         CarInterfaceBase.configure_torque_tune(candidate, CP.lateralTuning)
 
       if platform in CHRYSLER:

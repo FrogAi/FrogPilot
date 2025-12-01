@@ -68,6 +68,9 @@ class FrogPilotEvents:
     else:
       self.tracked_lead_distance = 0
 
+    if "nnffLoaded" not in self.played_events and self.startup_seen and alerts_empty and len(self.events) == 0 and self.frogpilot_planner.params.get("NNFFModelName") is not None and frogpilot_toggles.nnff:
+      self.events.add(FrogPilotEventName.nnffLoaded)
+
     if self.error_log.is_file():
       self.events.add(FrogPilotEventName.openpilotCrashed)
 
