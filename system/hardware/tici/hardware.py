@@ -448,6 +448,9 @@ class Tici(HardwareBase):
     affine_irq(3, "spi_geni")         # SPI
 
     # FrogPilot variables
+    if "tici" in self.get_device_type():
+      affine_irq(3, "xhci-hcd:usb3")  # aux panda USB (or potentially anything else on USB)
+      affine_irq(3, "xhci-hcd:usb1")  # internal panda USB (also modem)
 
     try:
       pid = subprocess.check_output(["pgrep", "-f", "spi0"], encoding='utf8').strip()
@@ -467,7 +470,7 @@ class Tici(HardwareBase):
 
     cmds = []
 
-    if self.get_device_type() in ("tizi", ):
+    if self.get_device_type() in ("tici", "tizi"):
       # clear out old blue prime initial APN
       os.system('mmcli -m any --3gpp-set-initial-eps-bearer-settings="apn="')
 
@@ -483,6 +486,9 @@ class Tici(HardwareBase):
       ]
 
       # FrogPilot variables
+      if self.get_device_type() == "tici":
+        cmds.remove('AT+QSIMDET=1,0')
+        cmds.remove('AT+QSIMSTAT=1')
     elif manufacturer == 'Cavli Inc.':
       cmds += [
         'AT^SIMSWAP=1',     # use SIM slot, instead of internal eSIM
