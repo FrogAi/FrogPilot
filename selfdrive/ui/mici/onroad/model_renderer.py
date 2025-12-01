@@ -151,6 +151,7 @@ class ModelRenderer(Widget):
       self._draw_path(sm)
 
       # FrogPilot variables
+      self._frogpilot_road.draw_path_edges(self._rect, self._experimental_mode)
       self._frogpilot_road.draw_stopping_point(self._rect, self._path.projected_points)
 
     # if render_lead_indicator and radar_state:
@@ -221,7 +222,8 @@ class ModelRenderer(Widget):
       y_off = 0.9
 
     # FrogPilot variables
-    y_off = self._frogpilot_road.path_width(y_off)
+    path_width = self._frogpilot_road.path_width(y_off)
+    y_off = self._frogpilot_road.inner_path_width(path_width)
 
     max_idx = self._get_path_length_idx(path_x_array, max_distance)
     self._path.projected_points = self._map_line_to_polygon(
@@ -231,6 +233,7 @@ class ModelRenderer(Widget):
     # FrogPilot variables
     self._frogpilot_road.update_adjacent_paths(self._map_line_to_polygon, self._lane_lines, max_idx)
     self._frogpilot_road.update_stopping_point()
+    self._frogpilot_road.update_path_edges(self._map_line_to_polygon, self._path.raw_points, path_width, y_off, self._path_offset_z, max_idx)
 
     self._update_experimental_gradient()
 
