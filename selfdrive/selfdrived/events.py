@@ -428,6 +428,21 @@ def custom_startup_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubM
   return StartupAlert(frogpilot_toggles.startup_alert_top, frogpilot_toggles.startup_alert_bottom, alert_status=FrogPilotAlertStatus.frogpilot)
 
 
+def forcing_stop_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
+  if CS.standstill:
+    stop_message = "Holding at a forced stop"
+  else:
+    stop_distance = sm["frogpilotPlan"].forcingStopLength
+    stop_distance_text = f"{stop_distance:.1f} meters" if metric else f"{stop_distance * CV.METER_TO_FOOT:.1f} feet"
+    stop_message = f"Stopping in {stop_distance_text}"
+
+  return Alert(
+    stop_message,
+    "Press gas or RES/+ to release",
+    FrogPilotAlertStatus.frogpilot, AlertSize.mid,
+    Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 1.)
+
+
 def pedal_interceptor_no_brake_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
   return user_soft_disable_alert("Braking Unavailable: Shift to L")(CP, CS, sm, metric, soft_disable_time, personality)
 
@@ -1077,6 +1092,10 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.PERMANENT: custom_startup_alert,
   },
 
+  FrogPilotEventName.forcingStop: {
+    ET.WARNING: forcing_stop_alert,
+  },
+
   FrogPilotEventName.openpilotCrashed: {
     ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("openpilot crashed"),
 
@@ -1183,6 +1202,21 @@ if HARDWARE.get_device_type() == 'mici':
 
 
 # FrogPilot variables
+def forcing_stop_alert_mici(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
+  if CS.standstill:
+    stop_message = "Holding"
+  else:
+    stop_distance = sm["frogpilotPlan"].forcingStopLength
+    stop_distance_text = f"{stop_distance:.0f} m" if metric else f"{stop_distance * CV.METER_TO_FOOT:.0f} ft"
+    stop_message = f"Stop in {stop_distance_text}"
+
+  return Alert(
+    stop_message,
+    "Press gas to release",
+    FrogPilotAlertStatus.frogpilot, AlertSize.mid,
+    Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 1.)
+
+
 def pedal_interceptor_no_brake_alert_mici(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
   alert = pedal_interceptor_no_brake_alert(CP, CS, sm, metric, soft_disable_time, personality, frogpilot_toggles)
 
@@ -1201,6 +1235,9 @@ if HARDWARE.get_device_type() == 'mici':
         "Don't use MAKE-PRS-HERE",
         AlertStatus.userPrompt, AlertSize.mid,
         Priority.HIGHEST, VisualAlert.none, AudibleAlert.none, 1.),
+    },
+    FrogPilotEventName.forcingStop: {
+      ET.WARNING: forcing_stop_alert_mici,
     },
     FrogPilotEventName.openpilotCrashed: {
       ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("openpilot crashed"),
