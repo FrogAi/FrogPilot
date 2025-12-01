@@ -5,6 +5,7 @@ import numpy as np
 
 from openpilot.common.constants import ACCELERATION_DUE_TO_GRAVITY, CV
 from openpilot.common.realtime import DT_MDL
+from openpilot.selfdrive.controls.lib.desire_helper import TurnDirection
 from openpilot.selfdrive.selfdrived.events import ET, EVENT_NAME, FROGPILOT_EVENT_NAME, EventName, FrogPilotEventName, Events
 
 from openpilot.frogpilot.common import frogpilot_variables
@@ -209,6 +210,11 @@ class FrogPilotEvents:
         self.events.add(FrogPilotEventName.trafficModeActive)
 
       self.previous_traffic_mode = sm["frogpilotCarState"].trafficModeEnabled
+
+    if sm["frogpilotModelV2"].turnDirection == TurnDirection.turnLeft:
+      self.events.add(FrogPilotEventName.turningLeft)
+    elif sm["frogpilotModelV2"].turnDirection == TurnDirection.turnRight:
+      self.events.add(FrogPilotEventName.turningRight)
 
     if self.screen_recorder_events and alerts_empty and len(self.events) == 0:
       self.events.add(self.screen_recorder_events.pop(0))
