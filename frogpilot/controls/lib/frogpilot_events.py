@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
+import numpy as np
+
 from openpilot.common.realtime import DT_MDL
 from openpilot.selfdrive.selfdrived.events import FROGPILOT_EVENT_NAME, AlertSize, FrogPilotEventName, Events
 
 from openpilot.frogpilot.common import frogpilot_paths, frogpilot_variables
 
 ALWAYS_ON_LATERAL_WAITING_ALERT_TIME = 10
+GREEN_LIGHT_LOOKAHEAD = 6
+GREEN_LIGHT_TIME = 0.35
 
 class FrogPilotEvents:
   def __init__(self, FrogPilotPlanner):
@@ -13,8 +17,10 @@ class FrogPilotEvents:
     self.events = Events(frogpilot=True)
 
     self.startup_seen = False
+    self.stopped_for_light = False
 
     self.always_on_lateral_waiting_timer = 0
+    self.green_light_timer = 0
     self.max_acceleration = 0
 
     self.played_events = set()
@@ -36,6 +42,21 @@ class FrogPilotEvents:
 
     if self.frogpilot_planner.frogpilot_vcruise.forcing_stop:
       self.events.add(FrogPilotEventName.forcingStop)
+
+    if not self.frogpilot_planner.lead_relevant and sm["carState"].standstill and sm["carState"].gearShifter not in frogpilot_variables.NON_DRIVING_GEARS:
+      model_moving = np.interp(GREEN_LIGHT_LOOKAHEAD, sm["modelV2"].velocity.t, sm["modelV2"].velocity.x) >= frogpilot_variables.CRUISING_SPEED
+      if model_moving:
+        self.green_light_timer += DT_MDL
+      else:
+        self.green_light_timer = 0
+
+      if self.green_light_timer >= GREEN_LIGHT_TIME and self.stopped_for_light and frogpilot_toggles.green_light_alert:
+        self.events.add(FrogPilotEventName.greenLight)
+
+      self.stopped_for_light |= self.frogpilot_planner.frogpilot_cem.stop_light_detected
+    else:
+      self.green_light_timer = 0
+      self.stopped_for_light = False
 
     if sm["frogpilotCarState"].alwaysOnLateralSteeringOff:
       self.events.add(FrogPilotEventName.alwaysOnLateralSteeringOff)
