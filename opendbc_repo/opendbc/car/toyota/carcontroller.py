@@ -202,7 +202,7 @@ class CarController(CarControllerBase):
 
     # on entering standstill, send standstill request for older TSS-P cars that aren't designed to stay engaged at a stop
     if self.CP.carFingerprint not in NO_STOP_TIMER_CAR:
-      if CS.out.standstill and not self.last_standstill:
+      if CS.out.standstill and not self.last_standstill and not self.frogpilot_toggles.sng_hack:
         self.standstill_req = True
       if CS.pcm_acc_status != 8:
         # pcm entered standstill or it's disabled
@@ -213,7 +213,7 @@ class CarController(CarControllerBase):
       # brakes can take a while to ramp up causing a lurch forward. prevent resume press until planner wants to move.
       # don't use CC.cruiseControl.resume since it is gated on CS.cruiseState.standstill which goes false for 3s after resume press
       # TODO: hybrids do not have this issue and can stay stopped after resume press, whitelist them
-      should_resume = actuators.accel > 0
+      should_resume = actuators.accel > 0 or self.frogpilot_toggles.sng_hack
       if should_resume:
         self.standstill_req = False
 
