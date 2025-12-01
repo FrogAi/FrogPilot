@@ -18,6 +18,7 @@ public:
   void paintFrogPilotWidgets(QPainter &p);
   void paintLeadMetrics(QPainter &p, bool adjacent, QPointF *chevron, const cereal::RadarState::LeadData::Reader &lead_data);
   void paintPathEdges(QPainter &p);
+  void paintRainbowPath(QLinearGradient &bg, float lin_grad_point);
   void updateState(const UIState &s, const FrogPilotUIState &fs);
 
   bool hideBottomIcons = false;
@@ -99,6 +100,7 @@ private:
   float cscSpeed;
   float distanceConversion;
   float gpsBearing;
+  float hueOffset = 0.0f;
   float laneWidthLeft;
   float laneWidthRight;
   float roadCurvature;

@@ -251,6 +251,10 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
     return;
   }
 
+  if (frogpilot_toggles.value(QLatin1String("rainbow_path")).toBool() && vEgo > 0) {
+    hueOffset = fmodf(hueOffset + sqrtf(vEgo) / sqrtf(145.0f / MS_TO_KPH), 360.0f);
+  }
+
   updateCEMIcon();
 }
 
@@ -712,6 +716,13 @@ void FrogPilotAnnotatedCameraWidget::paintPedalIcons(QPainter &p) {
   p.drawPixmap(startX + btn_size / 2, startY, gasPedalImg);
 
   p.restore();
+}
+
+void FrogPilotAnnotatedCameraWidget::paintRainbowPath(QLinearGradient &bg, float lin_grad_point) {
+  float alpha = util::map_val(lin_grad_point, 0.0f, 1.0f, 0.5f, 0.1f);
+  float pathHue = fmodf(lin_grad_point * 120.0f + hueOffset, 360.0f);
+
+  bg.setColorAt(lin_grad_point, QColor::fromHslF(pathHue / 360.0f, 1.0f, 0.5f, alpha));
 }
 
 void FrogPilotAnnotatedCameraWidget::paintRadarTracks(QPainter &p) {

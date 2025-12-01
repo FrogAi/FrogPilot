@@ -173,11 +173,12 @@ void ModelRenderer::drawLaneLines(QPainter &painter) {
 void ModelRenderer::drawPath(QPainter &painter, const cereal::ModelDataV2::Reader &model, int height) {
   // FrogPilot variables
   bool acceleration_path = frogpilot_toggles.value(QLatin1String("acceleration_path")).toBool();
+  bool rainbow_path = frogpilot_toggles.value(QLatin1String("rainbow_path")).toBool();
   bool stock_colors = frogpilot_toggles.value(QLatin1String("color_scheme")).toString() == "stock";
   QColor path_color = stock_colors ? QColor() : QColor(frogpilot_toggles.value(QLatin1String("path_color")).toString());
 
   QLinearGradient bg(0, height, 0, 0);
-  if (experimental_mode || acceleration_path) {
+  if (experimental_mode || acceleration_path || rainbow_path) {
     // The first half of track_vertices are the points for the right side of the path
     const auto &acceleration = model.getAcceleration().getX();
     const int max_len = std::min<int>(track_vertices.length() / 2, acceleration.size());
@@ -191,7 +192,10 @@ void ModelRenderer::drawPath(QPainter &painter, const cereal::ModelDataV2::Reade
       float lin_grad_point = (height - track_vertices[track_idx].y()) / height;
 
       // FrogPilot variables
-      if (fabs(acceleration[i]) < 0.25 && !stock_colors) {
+      if ((fabs(acceleration[i]) < 0.25 || !acceleration_path) && rainbow_path) {
+        frogpilot_nvg->paintRainbowPath(bg, lin_grad_point);
+        continue;
+      } else if (fabs(acceleration[i]) < 0.25 && !stock_colors) {
         QColor color = path_color;
         color.setAlphaF(util::map_val(lin_grad_point, 0.0f, 1.0f, 1.0f, 0.1f));
         bg.setColorAt(lin_grad_point, color);
