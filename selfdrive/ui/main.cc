@@ -9,6 +9,7 @@
 #include "selfdrive/ui/qt/window.h"
 
 #include "frogpilot/ui/qt/egl_wayland_patch.h"
+#include "frogpilot/ui/qt/onroad/screen_recorder.h"
 
 int main(int argc, char *argv[]) {
   setpriority(PRIO_PROCESS, 0, -20);
@@ -31,6 +32,7 @@ int main(int argc, char *argv[]) {
 
   // FrogPilot variables
   patchEglWayland();
+  ScreenRecorder::attach();
 
   return a.exec();
 }
