@@ -1,6 +1,6 @@
 import time
 
-from cereal import custom, log
+from cereal import car, custom, log
 
 AUTO_BRIGHTNESS = 101
 SCREEN_OFF = 0
@@ -55,4 +55,6 @@ class FrogPilotScreen:
     unresponsive = (sm.recv_frame["selfdriveState"] >= ui_state.started_frame and ss.enabled and not toggles.get("force_onroad") and
                     SELFDRIVE_STATE_TIMEOUT < ss_missing < SELFDRIVE_STATE_TIMEOUT + SELFDRIVE_UNRESPONSIVE_TIMEOUT)
 
-    self.keep_awake = ui_state.started and self.screen_off and (alert or status_changed or unresponsive)
+    reversing = sm["carState"].gearShifter == car.CarState.GearShifter.reverse and toggles.get("driver_camera_in_reverse")
+
+    self.keep_awake = ui_state.started and ((self.screen_off and (alert or status_changed or unresponsive)) or reversing)

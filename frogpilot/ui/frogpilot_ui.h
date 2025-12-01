@@ -8,6 +8,7 @@
 struct FrogPilotUIScene {
   bool always_on_lateral_active = false;
   bool downloading_update = false;
+  bool driver_camera_active = false;
   bool frogpilot_panel_active = false;
   bool online = false;
   bool parked = false;
@@ -73,6 +74,7 @@ signals:
 private:
   bool distance_button_pressed = false;
 
+  int driver_camera_timer = 0;
   int tethering_mode = 0;
 
   std::unique_ptr<PubMaster> pm;
