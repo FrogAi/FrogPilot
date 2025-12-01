@@ -285,7 +285,10 @@ class SelfdriveD:
       if (CS.leftBlindspot and direction == LaneChangeDirection.left) or \
          (CS.rightBlindspot and direction == LaneChangeDirection.right):
         # FrogPilot variables
-        self.events.add(EventName.laneChangeBlocked)
+        if self.frogpilot_toggles.loud_blindspot_alert:
+          self.frogpilot_events.add(FrogPilotEventName.laneChangeBlockedLoud)
+        else:
+          self.events.add(EventName.laneChangeBlocked)
       else:
         if direction == LaneChangeDirection.left:
           # FrogPilot variables
