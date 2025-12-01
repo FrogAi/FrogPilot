@@ -10,6 +10,7 @@ from openpilot.common.realtime import Priority, config_realtime_process
 from openpilot.common.time_helpers import system_time_valid
 from openpilot.system.version import get_build_metadata
 
+from openpilot.frogpilot.assets.theme_manager import ThemeManager
 from openpilot.frogpilot.common import frogpilot_api, frogpilot_backups, frogpilot_functions, frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.frogpilot.system.frogpilot_stats import send_stats
@@ -17,9 +18,12 @@ from openpilot.frogpilot.system.frogpilot_tracking import FrogPilotTracking
 
 class FrogPilotRequests:
   def __init__(self, cancel_maps_download, theme_manager, thread_manager):
+    self.theme_manager = theme_manager
     self.thread_manager = thread_manager
 
     self.ui_request_sock = messaging.sub_sock("frogpilotUIRequest")
+
+    self.downloading_themes = False
 
     self.pending = {}
     self.request_times = {}
@@ -35,6 +39,28 @@ class FrogPilotRequests:
   def update(self, now, time_validated, sm, params, frogpilot_toggles, api):
     for msg in messaging.drain_sock(self.ui_request_sock):
       self.pending[msg.frogpilotUIRequest.which()] = msg
+
+    if not self.thread_manager.is_thread_alive("download_themes"):
+      if self.downloading_themes:
+        self.theme_manager.download_state.cancelled = False
+        self.theme_manager.download_lock.release()
+        self.downloading_themes = False
+
+      if "downloadTheme" in self.pending and self.theme_manager.download_lock.acquire(blocking=False):
+        self.downloading_themes = True
+
+        request = self.take("downloadTheme")
+        themes = [(theme.component, theme.theme) for theme in request.downloadTheme]
+
+        self.theme_manager.download_count = len(themes)
+        self.theme_manager.download_failed_count = 0
+        self.theme_manager.download_success_count = 0
+        self.theme_manager.download_state.progress = "Downloading..."
+        self.thread_manager.run_with_lock(self.theme_manager.download_themes, (themes,))
+
+    if "downloadTheme" not in self.pending and self.take("cancelThemeDownload") is not None:
+      if self.thread_manager.is_thread_alive("download_themes"):
+        self.theme_manager.download_state.cancelled = True
 
     return self.take("updateToggles") is not None, self.take("updateChecks") is not None
 
@@ -81,11 +107,18 @@ def update_checks(now, theme_manager, thread_manager, sm, params, cancel_maps_do
   if frogpilot_toggles.automatic_updates:
     thread_manager.run_with_lock(frogpilot_functions.update_openpilot, (thread_manager, params))
 
+  if not sm["deviceState"].networkMetered:
+    with theme_manager.download_lock:
+      theme_manager.update_themes(boot_run)
+
   time.sleep(1)
 
-def update_toggles(variables, started, thread_manager, time_validated, params):
+def update_toggles(variables, started, theme_manager, thread_manager, time_validated, params):
   variables.update(started=started)
   frogpilot_toggles = variables.frogpilot_toggles
+
+  theme_manager.theme_updated = False
+  theme_manager.update_active_theme(frogpilot_toggles)
 
   if time_validated:
     thread_manager.run_with_lock(frogpilot_backups.backup_toggles, (params,))
@@ -105,6 +138,7 @@ def frogpilot_thread():
   api = frogpilot_api.FrogPilotAPI(params)
   api.register_device(get_build_metadata())
   variables = frogpilot_variables.FrogPilotVariables()
+  theme_manager = ThemeManager(params)
   thread_manager = frogpilot_utilities.ThreadManager()
 
   frogpilot_requests = FrogPilotRequests(cancel_maps_download, theme_manager, thread_manager)
@@ -126,7 +160,7 @@ def frogpilot_thread():
     if not started and started_previously:
       frogpilot_tracking.save_stats()
 
-      frogpilot_toggles = update_toggles(variables, started, thread_manager, time_validated, params)
+      frogpilot_toggles = update_toggles(variables, started, theme_manager, thread_manager, time_validated, params)
       transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_validated, params, frogpilot_toggles, api)
 
       run_update_checks = True
@@ -138,9 +172,13 @@ def frogpilot_thread():
 
       waiting_for_car_params = True
 
+    if theme_manager.theme_updated:
+      variables.update(started=started)
+      frogpilot_toggles = variables.frogpilot_toggles
+
     if started and sm.updated["modelV2"]:
       frogpilot_planner.update(now, time_validated, sm, frogpilot_toggles)
-      frogpilot_planner.publish(sm, pm, frogpilot_toggles, variables.toggles_json)
+      frogpilot_planner.publish(theme_manager.theme_update_count, sm, pm, frogpilot_toggles, variables.toggles_json)
 
       frogpilot_tracking.update(now, time_validated, sm)
     elif not started:
@@ -159,8 +197,8 @@ def frogpilot_thread():
     force_onroad_cleared_count = sm["frogpilotDeviceState"].forceOnroadClearedCount
     waiting_for_car_params &= not sm.updated["frogpilotCarParams"]
 
-    if toggles_updated:
-      frogpilot_toggles = update_toggles(variables, started, thread_manager, time_validated, params)
+    if toggles_updated or theme_manager.theme_updated:
+      frogpilot_toggles = update_toggles(variables, started, theme_manager, thread_manager, time_validated, params)
 
     run_update_checks |= update_checks_requested
     run_update_checks |= now.second == 0 and (now.minute == 0 or (now.minute % 5 == 0 and variables.frogs_go_moo))

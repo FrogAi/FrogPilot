@@ -3,6 +3,7 @@ import numpy as np
 import time
 import wave
 
+from pathlib import Path
 
 from cereal import car, custom, messaging
 from openpilot.common.basedir import BASEDIR
@@ -69,8 +70,6 @@ def check_selfdrive_timeout_alert(sm):
 
 class Soundd:
   def __init__(self):
-    self.load_sounds()
-
     self.current_alert = AudibleAlert.none
     self.current_volume = MIN_VOLUME
     self.current_sound_frame = 0
@@ -82,26 +81,46 @@ class Soundd:
     # FrogPilot variables
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
+    self.theme_update_count = 0
+
     self.ui_request_sock = messaging.sub_sock("frogpilotUIRequest")
 
     self.auto_volume = MIN_VOLUME
 
+    self.sound_source = None
+
+    self.update_frogpilot_sounds()
+
   def load_sounds(self):
-    self.loaded_sounds: dict[int, np.ndarray] = {}
+    loaded_sounds: dict[int, np.ndarray] = {}
 
     # Load all sounds
     for sound in sound_list:
       filename, play_count, volume = sound_list[sound]
 
       # FrogPilot variables
-      with wave.open(BASEDIR + "/selfdrive/assets/sounds/" + filename, 'r') as wavefile:
+      sounds_path = self.sound_directory / filename
+
+      if not sounds_path.exists() and "_tizi" in filename:
+        standard_path = self.sound_directory / filename.replace("_tizi", "")
+        if standard_path.exists():
+          sounds_path = standard_path
+
+      if sounds_path.exists():
+        sound_path = str(sounds_path)
+      else:
+        sound_path = BASEDIR + "/selfdrive/assets/sounds/" + filename
+
+      with wave.open(sound_path, 'r') as wavefile:
         assert wavefile.getnchannels() == 1
         assert wavefile.getsampwidth() == 2
         assert wavefile.getframerate() == SAMPLE_RATE
 
         length = wavefile.getnframes()
-        self.loaded_sounds[sound] = np.frombuffer(wavefile.readframes(length), dtype=np.int16).astype(np.float32) / (2**16/2)
+        loaded_sounds[sound] = np.frombuffer(wavefile.readframes(length), dtype=np.int16).astype(np.float32) / (2**16/2)
     # FrogPilot variables
+
+    self.loaded_sounds = loaded_sounds
 
   def get_sound_data(self, frames): # get "frames" worth of data from the current alert sound, looping when required
 
@@ -205,13 +224,18 @@ class Soundd:
         assert stream.active
 
         # FrogPilot variables
+        theme_updated = sm['frogpilotPlan'].themeUpdateCount != self.theme_update_count
         frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
-        if frogpilot_toggles is not self.frogpilot_toggles:
+        if theme_updated or frogpilot_toggles is not self.frogpilot_toggles:
           self.frogpilot_toggles = frogpilot_toggles
+          self.theme_update_count = sm['frogpilotPlan'].themeUpdateCount
 
           if not self.frogpilot_toggles.alert_volume_controller:
             self.current_volume = self.auto_volume
 
+          stream = self.update_frogpilot_sounds(sd, stream)
+
+  def update_frogpilot_sounds(self, sd=None, stream=None):
     self.volume_map = {
       AudibleAlert.engage: self.frogpilot_toggles.engage_volume / 100.0,
       AudibleAlert.disengage: self.frogpilot_toggles.disengage_volume / 100.0,
@@ -231,6 +255,28 @@ class Soundd:
     for sound in sound_list:
       if sound not in self.volume_map:
         self.volume_map[sound] = 1.01
+
+    if self.frogpilot_toggles.sound_pack != "stock":
+      self.sound_directory = frogpilot_variables.ACTIVE_THEME_PATH / "sounds"
+    else:
+      self.sound_directory = Path(BASEDIR) / "selfdrive" / "assets" / "sounds"
+
+    try:
+      sound_inode = self.sound_directory.stat().st_ino
+    except FileNotFoundError:
+      sound_inode = None
+    sound_source = (self.sound_directory.resolve(), sound_inode)
+    if sound_source != self.sound_source:
+      self.load_sounds()
+
+      self.sound_source = sound_source
+
+      if stream is not None:
+        stream.close()
+        stream = self.get_stream(sd)
+        stream.start()
+
+    return stream
 
 
 def main():

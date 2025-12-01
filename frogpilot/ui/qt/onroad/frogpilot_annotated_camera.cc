@@ -9,10 +9,16 @@ FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(CameraWidget *nvg
   curveSpeedIcon = loadPixmap("../../frogpilot/assets/other_images/curve_speed.png", {btn_size, btn_size});
   curveSpeedIconFlipped = curveSpeedIcon.transformed(QTransform().scale(-1, 1));
 
+  QObject::connect(frogpilotUIState(), &FrogPilotUIState::themeUpdated, this, &FrogPilotAnnotatedCameraWidget::updateSignals);
   QObject::connect(nvg, &CameraWidget::vipcThreadFrameReceived, frogpilotUIState(), &FrogPilotUIState::cameraFrameReceived);
 }
 
 void FrogPilotAnnotatedCameraWidget::showEvent(QShowEvent *event) {
+  if (assetsLoaded) {
+    return;
+  }
+
+  updateSignals();
 }
 
 void FrogPilotAnnotatedCameraWidget::hideEvent(QHideEvent *event) {
@@ -21,6 +27,85 @@ void FrogPilotAnnotatedCameraWidget::hideEvent(QHideEvent *event) {
   }
 
   QWidget::hideEvent(event);
+}
+
+void FrogPilotAnnotatedCameraWidget::updateSignals() {
+  if (signalTimer.isValid()) {
+    signalTimer.start();
+  }
+
+  signalAnimationLength = 0;
+  signalStyle = "None";
+
+  QVector<QPixmap>().swap(blindspotImages);
+  QVector<QPixmap>().swap(signalImages);
+
+  bool isGif = false;
+
+  QFileInfoList files = QDir("../../frogpilot/assets/active_theme/signals/").entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
+  for (const QFileInfo &fileInfo : files) {
+    QString fileName = fileInfo.fileName();
+    QString filePath = fileInfo.absoluteFilePath();
+    bool isBlindspot = fileName.contains("blindspot", Qt::CaseInsensitive);
+
+    QVector<QPixmap> &targetImages = isBlindspot ? blindspotImages : signalImages;
+
+    if (fileName.endsWith(".gif", Qt::CaseInsensitive)) {
+      isGif = isGif || !isBlindspot;
+
+      QMovie movie(filePath);
+      movie.setCacheMode(QMovie::CacheNone);
+      movie.start();
+
+      int frameCount = movie.frameCount();
+      if (isBlindspot) {
+        frameCount = std::min(frameCount, 1);
+      }
+      targetImages.reserve(frameCount);
+
+      for (int i = 0; i < frameCount; ++i) {
+        movie.jumpToFrame(i);
+
+        targetImages.append(movie.currentPixmap());
+      }
+
+      movie.stop();
+    } else if (fileName.endsWith(".png", Qt::CaseInsensitive)) {
+      targetImages.append(QPixmap(filePath));
+    } else {
+      QStringList parts = fileName.split('_');
+      if (parts.size() == 2) {
+        bool validInterval = false;
+
+        const int interval = parts[1].toInt(&validInterval);
+
+        if (validInterval && interval > 0) {
+          signalStyle = parts[0];
+          signalAnimationLength = interval;
+        }
+      }
+    }
+  }
+
+  if (!signalImages.isEmpty()) {
+    QPixmap &firstImage = signalImages.front();
+    signalHeight = firstImage.height();
+    signalWidth = firstImage.width();
+    totalFrames = signalImages.size();
+
+    if (isGif && signalStyle == "traditional") {
+      signalStyle = "traditional_gif";
+    }
+  } else {
+    signalAnimationLength = 0;
+    signalHeight = 0;
+    signalWidth = 0;
+    totalFrames = 0;
+
+    signalStyle = "None";
+  }
+
+  assetsLoaded = true;
 }
 
 void FrogPilotAnnotatedCameraWidget::updateCEMIcon() {
@@ -83,6 +168,8 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
 
   blindspotLeft = carState.getLeftBlindspot();
   blindspotRight = carState.getRightBlindspot();
+  blinkerLeft = carState.getLeftBlinker();
+  blinkerRight = carState.getRightBlinker();
   brakeLights = frogpilotCarState.getBrakeLights();
   cameraSpeedLimit = frogpilotSignReading.getSpeedLimit();
   cscActive = frogpilotPlan.getCscActive() && !carState.getStandstill();
@@ -108,7 +195,15 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   weatherDaytime = frogpilotPlan.getWeatherDaytime();
   weatherId = frogpilotPlan.getWeatherId();
 
-  hideBottomIcons = alertHeight != 0;
+  hideBottomIcons = alertHeight != 0 || (signalStyle.startsWith("traditional") && (blinkerLeft || blinkerRight));
+
+  if (blinkerLeft || blinkerRight) {
+    if (!signalTimer.isValid()) {
+      signalTimer.start();
+    }
+  } else {
+    signalTimer.invalidate();
+  }
 
   if (cscTraining) {
     if (!glowTimer.isValid()) {
@@ -160,6 +255,10 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
     if (cscTraining || (isCruiseSet && cscActive)) {
       paintCurveSpeedControl(p);
     }
+  }
+
+  if ((blinkerLeft || blinkerRight) && signalStyle != "None") {
+    paintTurnSignals(p);
   }
 }
 
@@ -330,4 +429,41 @@ void FrogPilotAnnotatedCameraWidget::paintCurveSpeedControl(QPainter &p) {
   }
 
   p.restore();
+}
+
+void FrogPilotAnnotatedCameraWidget::paintTurnSignals(QPainter &p) {
+  int frameIndex = (signalTimer.elapsed() / signalAnimationLength) % totalFrames;
+
+  bool blindspotActive = blinkerLeft ? blindspotLeft : blindspotRight;
+  bool showBlindspot = blindspotActive && !blindspotImages.isEmpty();
+
+  int signalXPosition = 0;
+  int signalYPosition = 0;
+
+  if (signalStyle == "static") {
+    signalXPosition = blinkerLeft ? (rect().center().x() * 0.75) - signalWidth : rect().center().x() * 1.25;
+    signalYPosition = signalHeight / 2;
+  } else {
+    if (signalStyle == "traditional_gif") {
+      int signalMovement = (width() + signalWidth * 2) / totalFrames;
+      signalXPosition = blinkerLeft ? width() - (frameIndex * signalMovement) + signalWidth : (frameIndex * signalMovement) - signalWidth;
+    } else {
+      signalXPosition = std::clamp(blinkerLeft ? width() - ((frameIndex + 1) * signalWidth) : frameIndex * signalWidth, 0, width() - signalWidth);
+    }
+    if (showBlindspot) {
+      signalXPosition = blinkerLeft ? width() - signalWidth : 0;
+    }
+    signalYPosition = (roadNameRect.isNull() ? height() - alertHeight : roadNameRect.top() - 5) - signalHeight;
+  }
+
+  const QPixmap &signalImage = showBlindspot ? blindspotImages.at(0) : signalImages.at(frameIndex);
+  if (blinkerLeft) {
+    p.drawPixmap(signalXPosition, signalYPosition, signalWidth, signalHeight, signalImage);
+  } else {
+    p.save();
+    p.translate(signalXPosition + signalWidth, signalYPosition);
+    p.scale(-1, 1);
+    p.drawPixmap(0, 0, signalWidth, signalHeight, signalImage);
+    p.restore();
+  }
 }

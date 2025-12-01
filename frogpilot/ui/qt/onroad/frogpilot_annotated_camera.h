@@ -39,6 +39,8 @@ public:
 
   QSize defaultSize;
 
+  QString signalStyle;
+
 protected:
   void hideEvent(QHideEvent *event) override;
   void showEvent(QShowEvent *event) override;
@@ -48,14 +50,24 @@ private:
   void paintCEMStatus(QPainter &p, const QPoint &position);
   void paintCompass(QPainter &p, const QPoint &position);
   void paintCurveSpeedControl(QPainter &p);
+  void paintTurnSignals(QPainter &p);
   void updateCEMIcon();
   void updateIcon(const QString &path, QSharedPointer<QMovie> &icon, QString &iconPath);
+  void updateSignals();
 
+  bool assetsLoaded = false;
   bool blindspotLeft;
   bool blindspotRight;
+  bool blinkerLeft;
+  bool blinkerRight;
   bool cscActive;
   bool cscTraining;
   bool experimentalMode;
+
+  int signalAnimationLength = 0;
+  int signalHeight = 0;
+  int signalWidth = 0;
+  int totalFrames = 0;
 
   float cscSpeed;
   float distanceConversion;
@@ -70,6 +82,7 @@ private:
   QColor redColor(int alpha = 255) { return QColor(201, 34, 49, alpha); }
 
   QElapsedTimer glowTimer;
+  QElapsedTimer signalTimer;
 
   QPixmap curveSpeedIcon;
   QPixmap curveSpeedIconFlipped;
@@ -80,4 +93,7 @@ private:
   QString leadDistanceUnit;
   QString leadSpeedUnit;
   QString speedUnit;
+
+  QVector<QPixmap> blindspotImages;
+  QVector<QPixmap> signalImages;
 };

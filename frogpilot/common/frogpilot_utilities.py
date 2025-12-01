@@ -7,6 +7,7 @@ import requests
 import subprocess
 import threading
 import time
+import zipfile
 
 from functools import cache
 from pathlib import Path
@@ -96,6 +97,17 @@ def delete_file(path, report=True):
     run_cmd(["sudo", "rm", "-f", str(path)], None, f"Failed to delete file: {path}", report=report)
   elif path.is_dir():
     run_cmd(["sudo", "rm", "-rf", str(path)], None, f"Failed to delete directory: {path}", report=report)
+
+
+def extract_zip(zip_file, extract_path):
+  extract_root = Path(extract_path).resolve()
+  with zipfile.ZipFile(zip_file, "r") as archive:
+    for member in archive.namelist():
+      if not (extract_root / member).resolve().is_relative_to(extract_root):
+        raise ValueError(f"Refusing to extract path outside destination: {member}")
+    archive.extractall(extract_path)
+
+  zip_file.unlink()
 
 
 def has_pending_telemetry(path):

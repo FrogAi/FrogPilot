@@ -42,6 +42,23 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
   pm = std::make_unique<PubMaster>(std::vector<const char*>{"bookmarkButton"});
 
   // FrogPilot variables
+  QObject::connect(frogpilotUIState(), &FrogPilotUIState::cameraFrameReceived, this, [this] {
+    QPair<int, int> frames = {flag_gif ? flag_gif->currentFrameNumber() : -1, settings_gif ? settings_gif->currentFrameNumber() : -1};
+    if (frames != gif_frames) {
+      gif_frames = frames;
+      update();
+    }
+  });
+  QObject::connect(frogpilotUIState(), &FrogPilotUIState::themeUpdated, this, &Sidebar::updateTheme);
+  QObject::connect(device(), &Device::displayPowerChanged, this, [this](bool on) {
+    if (on) {
+      updateTheme();
+    } else {
+      flag_gif.reset();
+      home_gif.reset();
+      settings_gif.reset();
+    }
+  });
 }
 
 void Sidebar::mousePressEvent(QMouseEvent *event) {
@@ -77,6 +94,7 @@ void Sidebar::mouseReleaseEvent(QMouseEvent *event) {
 void Sidebar::offroadTransition(bool offroad) {
   onroad = !offroad;
   // FrogPilot variables
+  updateTheme();
   update();
 }
 
@@ -85,6 +103,10 @@ void Sidebar::updateState(const UIState &s) {
 
   // FrogPilot variables
   const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
+
+  QColor sidebar_color1 = QColor(frogpilot_toggles.value(QLatin1String("sidebar_color1")).toString());
+  QColor sidebar_color2 = QColor(frogpilot_toggles.value(QLatin1String("sidebar_color2")).toString());
+  QColor sidebar_color3 = QColor(frogpilot_toggles.value(QLatin1String("sidebar_color3")).toString());
 
   const SubMaster &fpsm = *(frogpilotUIState()->sm);
 
@@ -105,7 +127,7 @@ void Sidebar::updateState(const UIState &s) {
     connectStatus = ItemStatus{{tr("CONNECT"), tr("OFFLINE")}, warning_color};
   } else {
     connectStatus = nanos_since_boot() - last_ping < 80e9
-                        ? ItemStatus{{tr("CONNECT"), tr("ONLINE")}, good_color}
+                        ? ItemStatus{{tr("CONNECT"), tr("ONLINE")}, sidebar_color3}
                         : ItemStatus{{tr("CONNECT"), tr("ERROR")}, danger_color};
   }
   setProperty("connectStatus", QVariant::fromValue(connectStatus));
@@ -113,7 +135,7 @@ void Sidebar::updateState(const UIState &s) {
   ItemStatus tempStatus = {{tr("TEMP"), tr("HIGH")}, danger_color};
   auto ts = deviceState.getThermalStatus();
   if (ts == cereal::DeviceState::ThermalStatus::GREEN) {
-    tempStatus = {{tr("TEMP"), tr("GOOD")}, good_color};
+    tempStatus = {{tr("TEMP"), tr("GOOD")}, sidebar_color1};
   } else if (ts == cereal::DeviceState::ThermalStatus::YELLOW) {
     tempStatus = {{tr("TEMP"), tr("OK")}, warning_color};
 
@@ -121,7 +143,7 @@ void Sidebar::updateState(const UIState &s) {
   }
   setProperty("tempStatus", QVariant::fromValue(tempStatus));
 
-  ItemStatus pandaStatus = {{tr("VEHICLE"), tr("ONLINE")}, good_color};
+  ItemStatus pandaStatus = {{tr("VEHICLE"), tr("ONLINE")}, sidebar_color2};
   if (s.scene.pandaType == cereal::PandaState::PandaType::UNKNOWN) {
     pandaStatus = {{tr("NO"), tr("PANDA")}, danger_color};
   }
@@ -141,9 +163,9 @@ void Sidebar::paintEvent(QPaintEvent *event) {
 
   // buttons
   p.setOpacity(settings_pressed ? 0.65 : 1.0);
-  p.drawPixmap(settings_btn.x(), settings_btn.y(), settings_img);
+  p.drawPixmap(settings_btn.x(), settings_btn.y(), settings_gif ? settings_gif->currentPixmap() : settings_img);
   p.setOpacity(onroad && flag_pressed ? 0.65 : 1.0);
-  p.drawPixmap(home_btn.x(), home_btn.y(), onroad ? flag_img : home_img);
+  p.drawPixmap(home_btn.x(), home_btn.y(), onroad ? flag_gif ? flag_gif->currentPixmap() : flag_img : home_gif ? home_gif->currentPixmap() : home_img);
   if (recording_audio) {
     p.setBrush(danger_color);
     p.setOpacity(mic_indicator_pressed ? 0.65 : 1.0);
@@ -186,4 +208,27 @@ void Sidebar::paintEvent(QPaintEvent *event) {
 
 // FrogPilot variables
 void Sidebar::showEvent(QShowEvent *event) {
+  updateTheme();
+}
+
+void Sidebar::hideEvent(QHideEvent *event) {
+  flag_gif.reset();
+  home_gif.reset();
+  settings_gif.reset();
+}
+
+void Sidebar::updateTheme() {
+  if (!isVisible() || !device()->isAwake()) return;
+
+  home_gif.reset();
+  flag_gif.reset();
+  settings_gif.reset();
+
+  if (onroad) {
+    loadImage("../../frogpilot/assets/active_theme/icons/button_flag", flag_img, flag_gif, home_btn.size(), this, false);
+  } else {
+    loadImage("../../frogpilot/assets/active_theme/icons/button_home", home_img, home_gif, home_btn.size(), this);
+  }
+
+  loadImage("../../frogpilot/assets/active_theme/icons/button_settings", settings_img, settings_gif, settings_btn.size(), this, !onroad);
 }

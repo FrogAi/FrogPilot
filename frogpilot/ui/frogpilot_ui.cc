@@ -34,6 +34,11 @@ static void update_state(FrogPilotUIState *fs) {
       previous_toggles = QByteArray(toggles.cStr(), toggles.size());
       emit fs->togglesUpdated();
     }
+    static uint64_t previous_theme_update_count = 0;
+    if (previous_theme_update_count != frogpilotPlan.getThemeUpdateCount()) {
+      previous_theme_update_count = frogpilotPlan.getThemeUpdateCount();
+      emit fs->themeUpdated();
+    }
   }
   if (fpsm.updated("frogpilotProcessState")) {
     const cereal::FrogPilotProcessState::Reader &frogpilotProcessState = fpsm["frogpilotProcessState"].getFrogpilotProcessState();

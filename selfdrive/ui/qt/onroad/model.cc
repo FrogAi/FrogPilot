@@ -43,10 +43,10 @@ void ModelRenderer::draw(QPainter &painter, const QRect &surface_rect) {
     // FrogPilot variables
     if (lead_one.getStatus()) {
       // FrogPilot variables
-      drawLead(painter, lead_one, lead_vertices[0], surface_rect);
+      drawLead(painter, lead_one, lead_vertices[0], surface_rect, QColor(frogpilot_toggles.value(QLatin1String("lead_marker_color")).toString()));
     }
     if (lead_two.getStatus() && (std::abs(lead_one.getDRel() - lead_two.getDRel()) > 3.0)) {
-      drawLead(painter, lead_two, lead_vertices[1], surface_rect);
+      drawLead(painter, lead_two, lead_vertices[1], surface_rect, QColor(frogpilot_toggles.value(QLatin1String("lead_marker_color")).toString()));
     }
 
     // FrogPilot variables
@@ -122,11 +122,19 @@ void ModelRenderer::update_model(const cereal::ModelDataV2::Reader &model, const
 
 void ModelRenderer::drawLaneLines(QPainter &painter) {
   // FrogPilot variables
+  bool stock_colors = frogpilot_toggles.value(QLatin1String("color_scheme")).toString() == "stock";
+  QColor lane_lines_color = stock_colors ? QColor() : QColor(frogpilot_toggles.value(QLatin1String("lane_lines_color")).toString());
 
   // lanelines
   for (int i = 0; i < std::size(lane_line_vertices); ++i) {
     // FrogPilot variables
-    painter.setBrush(QColor::fromRgbF(1.0, 1.0, 1.0, std::clamp<float>(lane_line_probs[i], 0.0, 0.7)));
+    if (stock_colors) {
+      painter.setBrush(QColor::fromRgbF(1.0, 1.0, 1.0, std::clamp<float>(lane_line_probs[i], 0.0, 0.7)));
+    } else {
+      QColor lane_color = lane_lines_color;
+      lane_color.setAlphaF(lane_color.alphaF() * std::clamp<float>(lane_line_probs[i], 0.0, 0.7));
+      painter.setBrush(lane_color);
+    }
     painter.drawPolygon(lane_line_vertices[i]);
   }
 
@@ -140,6 +148,8 @@ void ModelRenderer::drawLaneLines(QPainter &painter) {
 void ModelRenderer::drawPath(QPainter &painter, const cereal::ModelDataV2::Reader &model, int height) {
   // FrogPilot variables
   bool acceleration_path = frogpilot_toggles.value(QLatin1String("acceleration_path")).toBool();
+  bool stock_colors = frogpilot_toggles.value(QLatin1String("color_scheme")).toString() == "stock";
+  QColor path_color = stock_colors ? QColor() : QColor(frogpilot_toggles.value(QLatin1String("path_color")).toString());
 
   QLinearGradient bg(0, height, 0, 0);
   if (experimental_mode || acceleration_path) {
@@ -156,6 +166,13 @@ void ModelRenderer::drawPath(QPainter &painter, const cereal::ModelDataV2::Reade
       float lin_grad_point = (height - track_vertices[track_idx].y()) / height;
 
       // FrogPilot variables
+      if (fabs(acceleration[i]) < 0.25 && !stock_colors) {
+        QColor color = path_color;
+        color.setAlphaF(util::map_val(lin_grad_point, 0.0f, 1.0f, 1.0f, 0.1f));
+        bg.setColorAt(lin_grad_point, color);
+        continue;
+      }
+
       // speed up: 120, slow down: 0
       float path_hue = fmax(fmin(60 + acceleration[i] * 35, 120), 0);
       // FIXME: painter.drawPolygon can be slow if hue is not rounded
@@ -171,6 +188,12 @@ void ModelRenderer::drawPath(QPainter &painter, const cereal::ModelDataV2::Reade
     }
 
   // FrogPilot variables
+  } else if (!stock_colors) {
+    QColor color = path_color;
+    color.setAlphaF(1.0f);
+    bg.setColorAt(0.0f, color);
+    color.setAlphaF(0.1f);
+    bg.setColorAt(1.0f, color);
   } else {
     updatePathGradient(bg);
   }

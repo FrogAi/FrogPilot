@@ -24,6 +24,7 @@ ExperimentalButton::ExperimentalButton(QWidget *parent) : experimental_mode(fals
   QObject::connect(this, &QPushButton::clicked, this, &ExperimentalButton::changeMode);
 
   // FrogPilot variables
+  QObject::connect(frogpilotUIState(), &FrogPilotUIState::themeUpdated, this, &ExperimentalButton::updateTheme);
 }
 
 void ExperimentalButton::changeMode() {
@@ -59,12 +60,28 @@ void ExperimentalButton::updateState(const UIState &s) {
 void ExperimentalButton::paintEvent(QPaintEvent *event) {
   QPainter p(this);
   QPixmap img = experimental_mode ? experimental_img : engage_img;
+
   // FrogPilot variables
+  if (!wheel_is_stock) {
+    img = wheel_gif ? wheel_gif->currentPixmap() : wheel_img;
+  }
+  if (img.isNull()) {
+    return;
+  }
+
+  p.setClipRegion(QRegion(QRect(0, 0, btn_size, btn_size), QRegion::Ellipse));
   drawIcon(p, QPoint(btn_size / 2, btn_size / 2), img, background_color, (isDown() || !engageable) ? 0.6 : 1.0);
 }
 
 // FrogPilot variables
 void ExperimentalButton::showEvent(QShowEvent *event) {
+  updateTheme();
+}
+
+void ExperimentalButton::hideEvent(QHideEvent *event) {
+  wheel_gif.reset();
+
+  QPushButton::hideEvent(event);
 }
 
 void ExperimentalButton::updateBackgroundColor(const FrogPilotUIScene &frogpilot_scene) {
@@ -79,4 +96,16 @@ void ExperimentalButton::updateBackgroundColor(const FrogPilotUIScene &frogpilot
   } else {
     background_color = QColor(0, 0, 0, 166);
   }
+}
+
+void ExperimentalButton::updateTheme() {
+  if (isVisible()) {
+    loadImage("../../frogpilot/assets/active_theme/steering_wheel/wheel", wheel_img, wheel_gif, QSize(img_size, img_size), this, false);
+  } else {
+    wheel_gif.reset();
+  }
+
+  const QString wheel_source = QFileInfo("../../frogpilot/assets/active_theme/steering_wheel/wheel.png").canonicalFilePath();
+  const QString stock_source = QFileInfo("../../frogpilot/assets/stock_theme/steering_wheel/wheel.png").canonicalFilePath();
+  wheel_is_stock = !wheel_gif && !wheel_img.isNull() && wheel_source == stock_source;
 }
