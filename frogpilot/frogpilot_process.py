@@ -163,6 +163,7 @@ def frogpilot_thread():
   time_validated = False
   waiting_for_car_params = False
 
+  force_onroad_cleared_count = 0
   stats_saved_count = 0
 
   error_log = frogpilot_variables.ERROR_LOGS_PATH / "error.txt"
@@ -212,6 +213,7 @@ def frogpilot_thread():
     toggles_updated, update_checks_requested = frogpilot_requests.update(now, time_validated, sm, params, frogpilot_toggles, api)
     frogpilot_requests.publish(pm, stats_saved_count)
 
+    toggles_updated |= sm["frogpilotDeviceState"].forceOnroadClearedCount > force_onroad_cleared_count
     toggles_updated |= waiting_for_car_params and sm.updated["frogpilotCarParams"]
 
     force_onroad_cleared_count = sm["frogpilotDeviceState"].forceOnroadClearedCount

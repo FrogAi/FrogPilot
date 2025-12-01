@@ -49,7 +49,7 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started
          cereal::SelfdriveState::AlertStatus::CRITICAL};
   }
 
-  if (!sm.updated("selfdriveState") && (sm.frame - started_frame) > 5 * UI_FREQ) {
+  if (!sm.updated("selfdriveState") && (sm.frame - started_frame) > 5 * UI_FREQ && !frogpilot_toggles.value(QLatin1String("force_onroad")).toBool()) {
     const int SELFDRIVE_STATE_TIMEOUT = 5;
     const int ss_missing = (nanos_since_boot() - sm.rcv_time("selfdriveState")) / 1e9;
 

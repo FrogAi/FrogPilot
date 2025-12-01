@@ -222,6 +222,10 @@ def hardware_thread(end_event, hw_queue) -> None:
 
   frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
+  force_onroad_cleared_count = 0
+
+  unforced_off_ts: float | None = None
+
   while not end_event.is_set():
     sm.update(PANDA_STATES_TIMEOUT)
 
@@ -354,6 +358,19 @@ def hardware_thread(end_event, hw_queue) -> None:
       should_start = should_start and all(startup_conditions.values())
 
     # FrogPilot variables
+    force_onroad = frogpilot_toggles.force_onroad and params.get_bool("ForceOnroad")
+    if force_onroad and onroad_conditions["ignition"]:
+      params.put_bool("ForceOnroad", False)
+      force_onroad_cleared_count += 1
+      offroad_cycle_count = sm.frame
+
+    if should_start:
+      unforced_off_ts = None
+    elif unforced_off_ts is None:
+      unforced_off_ts = time.monotonic()
+
+    should_start |= force_onroad and onroad_conditions["device_temp_good"]
+    should_start &= not params.get_bool("ForceOffroad")
 
     if should_start != should_start_prev or (count == 0):
       params.put_bool("IsEngaged", False)
@@ -410,7 +427,7 @@ def hardware_thread(end_event, hw_queue) -> None:
     msg.deviceState.somPowerDrawW = som_power_draw
 
     # Check if we need to shut down
-    if power_monitor.should_shutdown(onroad_conditions["ignition"], in_car, off_ts, started_seen, frogpilot_toggles):
+    if power_monitor.should_shutdown(onroad_conditions["ignition"], in_car, unforced_off_ts, started_seen, frogpilot_toggles):
       cloudlog.warning(f"shutting device down, offroad since {off_ts}")
       params.put_bool("DoShutdown", True)
 
