@@ -42,6 +42,7 @@ public:
   void retryIssueReport();
   void runUpdateChecks();
   void setDistanceButtonPressed(bool pressed);
+  void setTethering(int mode);
   void testAlert(const QString &alert, float volume);
   void unlinkAccount();
   void update();
@@ -70,6 +71,8 @@ signals:
 
 private:
   bool distance_button_pressed = false;
+
+  int tethering_mode = 0;
 
   std::unique_ptr<PubMaster> pm;
 };

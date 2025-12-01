@@ -124,6 +124,9 @@ def frogpilot_boot_functions(build_metadata, params):
     except json.JSONDecodeError:
       pass
 
+  if params.get("TetheringEnabled") == 3:
+    params.remove("TetheringEnabled")
+
   frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
   flag_files_changed = sync_flag_file(frogpilot_paths.HD_PATH, frogpilot_toggles.use_higher_bitrate)
