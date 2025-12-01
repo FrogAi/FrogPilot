@@ -153,6 +153,8 @@ class SelfdriveD:
     self.frogpilot_AM = AlertManager()
     self.frogpilot_events = Events(frogpilot=True)
 
+    self.distance_pressed_previously = False
+
     self.frogpilot_events_prev = []
 
   def update_events(self, CS):
@@ -435,10 +437,28 @@ class SelfdriveD:
     # Decrement personality on distance button press
     if self.CP.openpilotLongitudinalControl:
       # FrogPilot variables
-      if any(not be.pressed and be.type == ButtonType.gapAdjustCruise for be in CS.buttonEvents):
+      distance_pressed = False
+
+      if self.frogpilot_toggles.distance_button_function == frogpilot_variables.BUTTON_FUNCTIONS["PERSONALITY_PROFILE"]:
+        distance_pressed |= any(not be.pressed and be.type == ButtonType.gapAdjustCruise for be in CS.buttonEvents)
+        if self.frogpilot_toggles.distance_long_button_function != frogpilot_variables.BUTTON_FUNCTIONS["NOTHING"] or \
+           self.frogpilot_toggles.distance_very_long_button_function != frogpilot_variables.BUTTON_FUNCTIONS["NOTHING"]:
+          distance_pressed &= not (self.sm['frogpilotCarState'].distanceLongPressed or self.sm['frogpilotCarState'].distanceVeryLongPressed)
+      if self.frogpilot_toggles.distance_long_button_function == frogpilot_variables.BUTTON_FUNCTIONS["PERSONALITY_PROFILE"]:
+        distance_pressed |= self.sm['frogpilotCarState'].distanceLongPressed
+      if self.frogpilot_toggles.distance_very_long_button_function == frogpilot_variables.BUTTON_FUNCTIONS["PERSONALITY_PROFILE"]:
+        distance_pressed |= self.sm['frogpilotCarState'].distanceVeryLongPressed
+      if self.frogpilot_toggles.lkas_button_function == frogpilot_variables.BUTTON_FUNCTIONS["PERSONALITY_PROFILE"]:
+        distance_pressed |= any(not be.pressed and be.type == ButtonType.lkas for be in CS.buttonEvents)
+
+      if not distance_pressed and self.distance_pressed_previously and \
+         not (self.sm['frogpilotCarState'].distanceVeryLongPressed and
+              self.frogpilot_toggles.distance_long_button_function == frogpilot_variables.BUTTON_FUNCTIONS["PERSONALITY_PROFILE"]):
         self.personality = (self.personality - 1) % 3
         self.params.put_nonblocking('LongitudinalPersonality', self.personality)
         self.events.add(EventName.personalityChanged)
+
+      self.distance_pressed_previously = distance_pressed
 
     # FrogPilot variables
     self.frogpilot_events.add_from_msg(self.sm['frogpilotPlan'].frogpilotEvents)

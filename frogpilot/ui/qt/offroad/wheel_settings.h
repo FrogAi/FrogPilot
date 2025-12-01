@@ -12,6 +12,9 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
+  QMap<int, QString> buttonFunctions();
+
+  void updateButtonValues();
   void updateToggles();
 
   bool forceOpenDescriptions = false;

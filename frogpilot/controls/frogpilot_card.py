@@ -4,7 +4,8 @@ import cereal.messaging as messaging
 from cereal import log
 from opendbc.car import structs
 from opendbc.safety import ALTERNATIVE_EXPERIENCE
-from openpilot.selfdrive.car.cruise import ButtonType
+from openpilot.common.params import Params
+from openpilot.selfdrive.car.cruise import CRUISE_LONG_PRESS, ButtonType
 
 from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, frogpilot_variables
 
@@ -14,21 +15,39 @@ class FrogPilotCard:
   def __init__(self, CP):
     self.CP = CP
 
+    self.params = Params(return_defaults=True)
+
     self.always_on_lateral_allowed = False
     self.car_safety_mode_set = True
     self.cruise_available_previously = True
+    self.distance_pressed_previously = False
     self.lkas_press_used = False
     self.manual_transmission = CP.transmissionType == structs.CarParams.TransmissionType.manual
     self.steering_disengaged = False
 
     self.accel_press_count = 0
     self.decel_press_count = 0
+    self.experimental_mode_press_count = 0
+    self.gap_counter = 0
     self.lkas_button_press_count = 0
 
     self.always_on_lateral_set = bool(CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
     self.lkas_starts_lateral = self.always_on_lateral_set and CP.brand not in frogpilot_variables.LKAS_STATUS_BRANDS
 
+    self.long_press_threshold = CRUISE_LONG_PRESS * (1.5 if self.CP.brand == "gm" else 1)
+    self.very_long_press_threshold = CRUISE_LONG_PRESS * 5
+
     self.ui_event_sock = messaging.sub_sock("frogpilotUIEvent")
+
+  def handle_button_event(self, function, sm, frogpilot_toggles):
+    if sm["carControl"].longActive and function == frogpilot_variables.BUTTON_FUNCTIONS["EXPERIMENTAL_MODE"]:
+      self.handle_experimental_mode(sm, frogpilot_toggles)
+
+  def handle_experimental_mode(self, sm, frogpilot_toggles):
+    if frogpilot_toggles.conditional_experimental_mode:
+      self.experimental_mode_press_count += 1
+    else:
+      self.params.put_bool_nonblocking("ExperimentalMode", not sm["selfdriveState"].experimentalMode)
 
   def update(self, carState, frogpilotCarState, sm, frogpilot_toggles):
     if self.CP.brand == "hyundai":
@@ -80,13 +99,32 @@ class FrogPilotCard:
     if any(be.pressed and be.type == ButtonType.decelCruise for be in carState.buttonEvents):
       self.decel_press_count += 1
 
+    if frogpilotCarState.distancePressed:
+      self.gap_counter += 1
+    elif not self.distance_pressed_previously:
+      self.gap_counter = 0
+
+    self.distance_pressed_previously = frogpilotCarState.distancePressed
+
+    if not frogpilotCarState.distancePressed and 1 <= self.gap_counter < self.long_press_threshold:
+      self.handle_button_event(frogpilot_toggles.distance_button_function, sm, frogpilot_toggles)
+    elif frogpilotCarState.distancePressed and self.gap_counter == self.long_press_threshold:
+      self.handle_button_event(frogpilot_toggles.distance_long_button_function, sm, frogpilot_toggles)
+    elif frogpilotCarState.distancePressed and self.gap_counter == self.very_long_press_threshold:
+      self.handle_button_event(frogpilot_toggles.distance_long_button_function, sm, frogpilot_toggles)
+      self.handle_button_event(frogpilot_toggles.distance_very_long_button_function, sm, frogpilot_toggles)
+
     if any(be.pressed and be.type == ButtonType.lkas for be in carState.buttonEvents):
       self.lkas_button_press_count += 1
+      self.handle_button_event(frogpilot_toggles.lkas_button_function, sm, frogpilot_toggles)
 
     frogpilotCarState.accelPressCount = self.accel_press_count
     frogpilotCarState.alwaysOnLateralAllowed = self.always_on_lateral_allowed
     frogpilotCarState.alwaysOnLateralEnabled = self.always_on_lateral_enabled
     frogpilotCarState.decelPressCount = self.decel_press_count
+    frogpilotCarState.distanceLongPressed = self.very_long_press_threshold > self.gap_counter >= self.long_press_threshold
+    frogpilotCarState.distanceVeryLongPressed = self.gap_counter >= self.very_long_press_threshold
+    frogpilotCarState.experimentalModePressCount = self.experimental_mode_press_count
     frogpilotCarState.lkasButtonPressCount = self.lkas_button_press_count
     frogpilotCarState.parked = carState.gearShifter == frogpilot_variables.GearShifter.park or (self.manual_transmission and carState.standstill)
     frogpilotCarState.vEgo = carState.vEgo
