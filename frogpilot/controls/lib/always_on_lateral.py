@@ -90,6 +90,7 @@ class AlwaysOnLateral:
     paused |= not sm.alive["frogpilotSelfdriveState"]
     paused |= frogpilotCarState.speedSensorsDisagree
     paused |= rx_checks_invalid
+    paused |= not sm["frogpilotPlan"].lateralCheck
 
     frogpilotCarState.alwaysOnLateralAllowed = self.armed and (sm["carControl"].enabled or frogpilot_toggles.always_on_lateral)
     frogpilotCarState.alwaysOnLateralEnabled = not paused and self.armed and frogpilot_toggles.always_on_lateral

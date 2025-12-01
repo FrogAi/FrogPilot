@@ -36,6 +36,7 @@ class FrogPilotPlanner:
     self.driving_in_curve = False
     self.experimental_mode_pressed = False
     self.gps_valid = False
+    self.lateral_check = False
     self.lead_relevant = False
     self.model_stopped = False
 
@@ -132,6 +133,10 @@ class FrogPilotPlanner:
 
     self.lateral_acceleration = v_ego**2 * sm["controlsState"].curvature if sm.all_checks(service_list=["carState", "controlsState"]) else 0
 
+    self.lateral_check = v_ego >= frogpilot_toggles.pause_lateral_below_speed
+    self.lateral_check |= sm["carState"].standstill
+    self.lateral_check &= not sm["frogpilotCarState"].pauseLateral
+
     self.model_stopped = self.model_length < frogpilot_variables.CRUISING_SPEED * frogpilot_variables.PLANNER_TIME
 
     self.roll_compensation = sm["liveParameters"].roll * ACCELERATION_DUE_TO_GRAVITY
@@ -195,6 +200,8 @@ class FrogPilotPlanner:
 
     frogpilotPlan.laneWidthLeft = self.lane_width_left
     frogpilotPlan.laneWidthRight = self.lane_width_right
+
+    frogpilotPlan.lateralCheck = self.lateral_check
 
     frogpilotPlan.maxAcceleration = float(self.frogpilot_acceleration.max_accel)
     frogpilotPlan.minAcceleration = float(self.frogpilot_acceleration.min_accel)

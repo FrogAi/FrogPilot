@@ -139,7 +139,7 @@ class Controls:
     lateral_active = (lateral_allowed and self.sm["selfdriveState"].active) or self.sm["frogpilotCarState"].alwaysOnLateralEnabled
 
     CC.latActive = lateral_active and not CS.steerFaultTemporary and not CS.steerFaultPermanent and \
-                   (not standstill or self.CP.steerAtStandstill)
+                   (not standstill or self.CP.steerAtStandstill) and self.sm['frogpilotPlan'].lateralCheck
     CC.longActive = CC.enabled and not any(e.overrideLongitudinal for e in self.sm['onroadEvents']) and \
                     (force_decel or not self.sm['frogpilotCarState'].pauseLongitudinal) and self.CP.openpilotLongitudinalControl
 

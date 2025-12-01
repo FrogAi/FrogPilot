@@ -16,6 +16,7 @@ FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(CameraWidget *nvg
   pausedIcon = loadPixmap("../../frogpilot/assets/other_images/paused_icon.svg", {widget_size, widget_size});
   speedIcon = loadPixmap("../../frogpilot/assets/other_images/speed_icon.svg", {widget_size, widget_size});
   stopSignImg = loadPixmap("../../frogpilot/assets/other_images/stop_sign.svg", {btn_size, btn_size});
+  turnIcon = loadPixmap("../../frogpilot/assets/other_images/turn_icon.svg", {widget_size, widget_size});
 
   QObject::connect(frogpilotUIState(), &FrogPilotUIState::themeUpdated, this, &FrogPilotAnnotatedCameraWidget::updateSignals);
   QObject::connect(nvg, &CameraWidget::vipcThreadFrameReceived, frogpilotUIState(), &FrogPilotUIState::cameraFrameReceived);
@@ -185,6 +186,7 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   gpsBearing = frogpilotPlan.getGpsBearing();
   laneWidthLeft = frogpilotPlan.getLaneWidthLeft();
   laneWidthRight = frogpilotPlan.getLaneWidthRight();
+  lateralPaused = frogpilotCarState.getPauseLateral();
   longitudinalPaused = frogpilotCarState.getPauseLongitudinal();
   redLight = frogpilotPlan.getRedLight();
   roadCurvature = frogpilotPlan.getRoadCurvature();
@@ -282,7 +284,13 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
   int slotStep = rightHandDM ? -widget_size - 2 * UI_BORDER_SIZE : widget_size + 2 * UI_BORDER_SIZE;
 
   QPoint cemStatusPosition(dmIconPosition.x() + (rightHandDM ? -btn_size / 2 - 2 * UI_BORDER_SIZE - widget_size : btn_size / 2 + 2 * UI_BORDER_SIZE), dmIconPosition.y() - widget_size / 2);
-  QPoint longitudinalPausedPosition = cemStatusPosition + QPoint(slotStep, 0);
+
+  QPoint lateralPausedPosition = cemStatusPosition;
+  if (frogpilot_toggles.value(QLatin1String("openpilot_longitudinal")).toBool() || frogpilot_toggles.value(QLatin1String("cem_status")).toBool()) {
+    lateralPausedPosition += QPoint(slotStep, 0);
+  }
+
+  QPoint longitudinalPausedPosition = lateralPausedPosition + QPoint(slotStep, 0);
 
   QPoint compassPosition(rightHandDM ? width() - experimentalButtonPosition.x() - btn_size : experimentalButtonPosition.x() + btn_size - widget_size, cemStatusPosition.y());
 
@@ -302,6 +310,10 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
     if (cscTraining || (isCruiseSet && cscActive)) {
       paintCurveSpeedControl(p);
     }
+  }
+
+  if (!hideBottomIcons && lateralPaused) {
+    paintPausedIcon(p, lateralPausedPosition, turnIcon);
   }
 
   if (!hideBottomIcons && (forceCoast || longitudinalPaused)) {
