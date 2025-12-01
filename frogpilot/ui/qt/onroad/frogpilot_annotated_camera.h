@@ -85,6 +85,7 @@ private:
   float speedConversionMetrics;
   float stoppingDistance;
 
+  DrivingPersonalityButton *personalityButton;
   InstantReplayButton *instantReplayButton;
 
   QColor blackColor(int alpha = 255) { return QColor(0, 0, 0, alpha); }

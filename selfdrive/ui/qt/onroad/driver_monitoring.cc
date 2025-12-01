@@ -69,6 +69,14 @@ void DriverMonitorRenderer::draw(QPainter &painter, const QRect &surface_rect) {
   float opacity = is_active ? 0.65f : 0.2f;
 
   // FrogPilot variables
+  if (frogpilot_toggles.value(QLatin1String("onroad_distance_button")).toBool()) {
+    if (is_rhd) {
+      x -= UI_BORDER_SIZE + (btn_size + UI_BORDER_SIZE) + UI_BORDER_SIZE;
+    } else {
+      x += UI_BORDER_SIZE + (btn_size + UI_BORDER_SIZE) + UI_BORDER_SIZE;
+    }
+  }
+
   if (frogpilot_toggles.value(QLatin1String("road_name_ui")).toBool()) {
     y -= UI_BORDER_SIZE;
   }

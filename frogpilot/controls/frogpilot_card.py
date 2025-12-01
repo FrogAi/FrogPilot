@@ -2,6 +2,7 @@
 import cereal.messaging as messaging
 
 from cereal import log
+from opendbc.car import create_button_events
 from opendbc.safety import ALTERNATIVE_EXPERIENCE
 from openpilot.common.params import Params
 from openpilot.selfdrive.car.cruise import CRUISE_LONG_PRESS, ButtonType
@@ -19,6 +20,7 @@ class FrogPilotCard:
     self.always_on_lateral_allowed = False
     self.cruise_available_previously = True
     self.distancePressed_previously = False
+    self.onroad_distance_button = False
 
     self.accel_press_count = 0
     self.decel_press_count = 0
@@ -45,6 +47,18 @@ class FrogPilotCard:
       self.params.put_bool_nonblocking("ExperimentalMode", not sm["selfdriveState"].experimentalMode)
 
   def update(self, carState, frogpilotCarState, sm, frogpilot_toggles):
+    onroad_distance_button_events = []
+    for msg in messaging.drain_sock(self.ui_event_sock):
+      if msg.frogpilotUIEvent.which() == "distanceButtonPressed":
+        onroad_distance_button = msg.frogpilotUIEvent.distanceButtonPressed
+        onroad_distance_button_events += create_button_events(onroad_distance_button, self.onroad_distance_button, {1: ButtonType.gapAdjustCruise})
+        self.onroad_distance_button = onroad_distance_button
+
+    if onroad_distance_button_events:
+      carState.buttonEvents = [*(be.copy() for be in carState.buttonEvents), *onroad_distance_button_events]
+
+    frogpilotCarState.distancePressed |= self.onroad_distance_button
+
     if self.CP.brand == "hyundai":
       for be in carState.buttonEvents:
         if be.type == ButtonType.lkas and be.pressed and frogpilot_toggles.always_on_lateral_lkas:
