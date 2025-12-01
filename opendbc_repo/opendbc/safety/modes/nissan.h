@@ -50,6 +50,8 @@ static void nissan_rx_hook(const CANPacket_t *msg) {
     bool cruise_engaged = (msg->data[0] >> 3) & 1U;
     pcm_cruise_check(cruise_engaged);
   }
+
+  // FrogPilot variables
 }
 
 
@@ -121,6 +123,7 @@ static safety_config nissan_init(uint16_t param) {
     {.msg = {{0x454, 0, 8, 10U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true},
              {0x454, 1, 8, 10U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true},
              {0x1cc, 0, 4, 100U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}}}, // DOORS_LIGHTS / BRAKE
+    // FrogPilot variables
   };
 
   // EPS Location. false = V-CAN, true = C-CAN
@@ -128,6 +131,8 @@ static safety_config nissan_init(uint16_t param) {
 
   nissan_alt_eps = GET_FLAG(param, NISSAN_PARAM_ALT_EPS_BUS);
   return BUILD_SAFETY_CFG(nissan_rx_checks, NISSAN_TX_MSGS);
+
+  // FrogPilot variables
 }
 
 const safety_hooks nissan_hooks = {

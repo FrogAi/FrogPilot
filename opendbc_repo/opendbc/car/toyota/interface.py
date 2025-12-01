@@ -141,6 +141,8 @@ class CarInterface(CarInterfaceBase):
       if ret.flags & ToyotaFlags.HYBRID.value:
         ret.longitudinalActuatorDelay = 0.05
 
+    # FrogPilot variables
+
     return ret
 
   @staticmethod

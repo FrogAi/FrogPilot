@@ -32,6 +32,7 @@ class Controls:
     self.params = Params()
     cloudlog.info("controlsd is waiting for CarParams")
     self.CP = messaging.log_from_bytes(self.params.get("CarParams", block=True), car.CarParams)
+    # FrogPilot variables
     cloudlog.info("controlsd got CarParams")
 
     self.CI = interfaces[self.CP.carFingerprint](self.CP)
@@ -58,6 +59,8 @@ class Controls:
     elif self.CP.lateralTuning.which() == 'torque':
       self.LaC = LatControlTorque(self.CP, self.CI, DT_CTRL)
 
+    # FrogPilot variables
+
   def update(self):
     self.sm.update(15)
     if self.sm.updated["liveCalibration"]:
@@ -65,6 +68,8 @@ class Controls:
     if self.sm.updated["livePose"]:
       device_pose = Pose.from_live_pose(self.sm['livePose'])
       self.calibrated_pose = self.pose_calibrator.build_calibrated_pose(device_pose)
+
+    # FrogPilot variables
 
   def state_control(self):
     CS = self.sm['carState']
@@ -84,6 +89,8 @@ class Controls:
       if self.sm.all_checks(['liveTorqueParameters']) and torque_params.useParams:
         self.LaC.update_live_torque_params(torque_params.latAccelFactorFiltered, torque_params.latAccelOffsetFiltered,
                                            torque_params.frictionCoefficientFiltered)
+        # FrogPilot variables
+      # FrogPilot variables
 
     long_plan = self.sm['longitudinalPlan']
     model_v2 = self.sm['modelV2']
@@ -151,6 +158,7 @@ class Controls:
     CC.cruiseControl.override = CC.enabled and not CC.longActive and self.CP.openpilotLongitudinalControl
     CC.cruiseControl.cancel = CS.cruiseState.enabled and (not CC.enabled or not self.CP.pcmCruise)
     CC.cruiseControl.resume = CC.enabled and CS.cruiseState.standstill and not self.sm['longitudinalPlan'].shouldStop
+    # FrogPilot variables
 
     hudControl = CC.hudControl
     hudControl.setSpeed = float(CS.vCruiseCluster * CV.KPH_TO_MS)

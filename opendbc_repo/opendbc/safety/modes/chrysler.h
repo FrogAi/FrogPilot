@@ -78,6 +78,8 @@ static void chrysler_rx_hook(const CANPacket_t *msg) {
   if ((msg->bus == das_3_bus) && (msg->addr == chrysler_addrs->DAS_3)) {
     bool cruise_engaged = GET_BIT(msg, 21U);
     pcm_cruise_check(cruise_engaged);
+
+    // FrogPilot variables
   }
 
   // TODO: use the same message for both

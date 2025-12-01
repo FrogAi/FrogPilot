@@ -17,6 +17,7 @@ class Paths:
       return os.environ['LOG_ROOT']
     elif PC:
       return str(Path(Paths.comma_home()) / "media" / "0" / "realdata")
+    # FrogPilot variables
     else:
       return '/data/media/0/realdata/'
 

@@ -4,7 +4,7 @@ import platform
 
 from cereal import car
 from openpilot.common.params import Params
-from openpilot.system.hardware import PC, TICI
+from openpilot.system.hardware import HARDWARE, PC, TICI
 from openpilot.system.manager.process import PythonProcess, NativeProcess, DaemonProcess
 
 WEBCAM = os.getenv("USE_WEBCAM") is not None
@@ -61,6 +61,8 @@ def or_(*fns):
 def and_(*fns):
   return lambda *args: operator.and_(*(fn(*args) for fn in fns))
 
+# FrogPilot variables
+
 procs = [
   DaemonProcess("manage_athenad", "system.athena.manage_athenad", "AthenadPid"),
 
@@ -80,7 +82,6 @@ procs = [
   PythonProcess("dmonitoringmodeld", "selfdrive.modeld.dmonitoringmodeld", driverview, enabled=(WEBCAM or not PC)),
 
   PythonProcess("sensord", "system.sensord.sensord", only_onroad, enabled=not PC),
-  NativeProcess("ui", "selfdrive/ui", ["./ui"], always_run, watchdog_max_dt=(5 if not PC else None)),
   PythonProcess("soundd", "selfdrive.ui.soundd", driverview),
   PythonProcess("locationd", "selfdrive.locationd.locationd", only_onroad),
   NativeProcess("_pandad", "selfdrive/pandad", ["./pandad"], always_run, enabled=False),
@@ -113,6 +114,15 @@ procs = [
   PythonProcess("webrtcd", "system.webrtc.webrtcd", notcar),
   PythonProcess("webjoystick", "tools.bodyteleop.web", notcar),
   PythonProcess("joystick", "tools.joystick.joystick_control", and_(joystick, iscar)),
+]
+
+# FrogPilot variables
+if HARDWARE.get_device_type() == "mici":
+  procs.append(PythonProcess("ui", "selfdrive.ui.ui", always_run))
+elif TICI:
+  procs.append(NativeProcess("ui", "selfdrive/ui", ["./ui"], always_run, watchdog_max_dt=5))
+procs += [
+  PythonProcess("frogpilot_process", "frogpilot.frogpilot_process", always_run),
 ]
 
 managed_processes = {p.name: p for p in procs}

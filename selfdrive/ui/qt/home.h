@@ -39,6 +39,8 @@ private:
   OffroadAlert* alerts_widget;
   QPushButton* alert_notif;
   QPushButton* update_notif;
+
+  // FrogPilot variables
 };
 
 class HomeWindow : public QWidget {
@@ -67,6 +69,8 @@ private:
   BodyWindow *body;
   DriverViewWindow *driver_view;
   QStackedLayout *slayout;
+
+  // FrogPilot variables
 
 private slots:
   void updateState(const UIState &s);

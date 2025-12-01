@@ -54,6 +54,7 @@ def get_action_from_model(model_output: dict[str, np.ndarray], prev_action: log.
                                                      action_t=long_action_t)
     desired_accel = smooth_value(desired_accel, prev_action.desiredAcceleration, LONG_SMOOTH_SECONDS)
 
+    # FrogPilot variables
     desired_curvature = get_curvature_from_plan(plan[:,Plan.T_FROM_CURRENT_EULER][:,2],
                                                 plan[:,Plan.ORIENTATION_RATE][:,2],
                                                 ModelConstants.T_IDXS,
@@ -155,6 +156,7 @@ class ModelState:
       self.policy_output_slices = policy_metadata['output_slices']
       policy_output_size = policy_metadata['output_shapes']['outputs'][1]
 
+    # FrogPilot variables
     self.frames = {name: DrivingModelFrame(context, ModelConstants.MODEL_RUN_FREQ//ModelConstants.MODEL_CONTEXT_FREQ) for name in self.vision_input_names}
     self.prev_desire = np.zeros(ModelConstants.DESIRE_LEN, dtype=np.float32)
 
@@ -163,6 +165,7 @@ class ModelState:
     self.full_input_queues = InputQueues(ModelConstants.MODEL_CONTEXT_FREQ, ModelConstants.MODEL_RUN_FREQ, ModelConstants.N_FRAMES)
     for k in ['desire_pulse', 'features_buffer']:
       self.full_input_queues.update_dtypes_and_shapes({k: self.numpy_inputs[k].dtype}, {k: self.numpy_inputs[k].shape})
+    # FrogPilot variables
     self.full_input_queues.reset()
 
     # img buffers are managed in openCL transform code
@@ -182,6 +185,7 @@ class ModelState:
     parsed_model_outputs = {k: model_outputs[np.newaxis, v] for k,v in output_slices.items()}
     return parsed_model_outputs
 
+  # FrogPilot variables
   def run(self, bufs: dict[str, VisionBuf], transforms: dict[str, np.ndarray],
                 inputs: dict[str, np.ndarray], prepare_only: bool) -> dict[str, np.ndarray] | None:
     # Model decides when action is completed, so desire input is just a pulse triggered on rising edge
@@ -189,6 +193,7 @@ class ModelState:
     new_desire = np.where(inputs['desire_pulse'] - self.prev_desire > .99, inputs['desire_pulse'], 0)
     self.prev_desire[:] = inputs['desire_pulse']
 
+    # FrogPilot variables
     imgs_cl = {name: self.frames[name].prepare(bufs[name], transforms[name].flatten()) for name in self.vision_input_names}
 
     if TICI and not USBGPU:
@@ -210,11 +215,13 @@ class ModelState:
     self.full_input_queues.enqueue({'features_buffer': vision_outputs_dict['hidden_state'], 'desire_pulse': new_desire})
     for k in ['desire_pulse', 'features_buffer']:
       self.numpy_inputs[k][:] = self.full_input_queues.get(k)[k]
+    # FrogPilot variables
     self.numpy_inputs['traffic_convention'][:] = inputs['traffic_convention']
 
     self.policy_output = self.policy_run(**self.policy_inputs).contiguous().realize().uop.base.buffer.numpy()
     policy_outputs_dict = self.parser.parse_policy_outputs(self.slice_outputs(self.policy_output, self.policy_output_slices))
 
+    # FrogPilot variables
     combined_outputs_dict = {**vision_outputs_dict, **policy_outputs_dict}
     if SEND_RAW_PRED:
       combined_outputs_dict['raw_pred'] = np.concatenate([self.vision_output.copy(), self.policy_output.copy()])
@@ -225,6 +232,8 @@ class ModelState:
 def main(demo=False):
   cloudlog.warning("modeld init")
 
+  # FrogPilot variables
+
   if not USBGPU:
     # USB GPU currently saturates a core so can't do this yet,
     # also need to move the aux USB interrupts for good timings
@@ -234,7 +243,9 @@ def main(demo=False):
   cloudlog.warning("setting up CL context")
   cl_context = CLContext()
   cloudlog.warning("CL context ready; loading model")
+  # FrogPilot variables
   model = ModelState(cl_context)
+  # FrogPilot variables
   cloudlog.warning(f"models loaded in {time.monotonic() - st:.1f}s, modeld starting")
 
   # visionipc clients
@@ -294,6 +305,8 @@ def main(demo=False):
 
   DH = DesireHelper()
 
+  # FrogPilot variables
+
   while True:
     # Keep receiving frames until we are at least 1 frame ahead of previous extra frame
     while meta_main.timestamp_sof < meta_extra.timestamp_sof + 25000000:
@@ -331,6 +344,7 @@ def main(demo=False):
     desire = DH.desire
     is_rhd = sm["driverMonitoringState"].isRHD
     frame_id = sm["roadCameraState"].frameId
+    # FrogPilot variables
     v_ego = max(sm["carState"].vEgo, 0.)
     lat_delay = sm["liveDelay"].lateralDelay + LAT_SMOOTH_SECONDS
     if sm.updated["liveCalibration"] and sm.seen['roadCameraState'] and sm.seen['deviceState']:
@@ -367,6 +381,7 @@ def main(demo=False):
       'traffic_convention': traffic_convention,
     }
 
+    # FrogPilot variables
     mt1 = time.perf_counter()
     model_output = model.run(bufs, transforms, inputs, prepare_only)
     mt2 = time.perf_counter()
@@ -377,6 +392,7 @@ def main(demo=False):
       drivingdata_send = messaging.new_message('drivingModelData')
       posenet_send = messaging.new_message('cameraOdometry')
 
+      # FrogPilot variables
       action = get_action_from_model(model_output, prev_action, lat_delay + DT_MDL, long_delay + DT_MDL, v_ego)
       prev_action = action
       fill_model_msg(drivingdata_send, modelv2_send, model_output, action,
@@ -397,7 +413,11 @@ def main(demo=False):
       pm.send('modelV2', modelv2_send)
       pm.send('drivingModelData', drivingdata_send)
       pm.send('cameraOdometry', posenet_send)
+
+      # FrogPilot variables
     last_vipc_frame_id = meta_main.frame_id
+
+    # FrogPilot variables
 
 
 if __name__ == "__main__":

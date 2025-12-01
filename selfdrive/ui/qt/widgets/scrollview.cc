@@ -6,6 +6,7 @@
 // TODO: disable horizontal scrolling and resize
 
 ScrollView::ScrollView(QWidget *w, QWidget *parent) : QScrollArea(parent) {
+  // FrogPilot variables
   setWidget(w);
   setWidgetResizable(true);
   setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

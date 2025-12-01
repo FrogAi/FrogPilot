@@ -4,12 +4,16 @@
 #include <QPainter>
 #include "selfdrive/ui/ui.h"
 
+#include "frogpilot/ui/qt/onroad/frogpilot_annotated_camera.h"
+
 class DriverMonitorRenderer {
 public:
   DriverMonitorRenderer();
   void updateState(const UIState &s);
   void draw(QPainter &painter, const QRect &surface_rect);
 
+  // FrogPilot variables
+  FrogPilotAnnotatedCameraWidget *frogpilot_nvg = nullptr;
 private:
   float driver_pose_vals[3] = {};
   float driver_pose_diff[3] = {};

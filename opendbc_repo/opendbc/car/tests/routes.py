@@ -43,6 +43,8 @@ non_tested_cars = [
 # OPGM variables
 non_tested_cars.extend(CC_ONLY_CAR)
 
+# FrogPilot variables
+
 
 class CarTestRoute(NamedTuple):
   route: str

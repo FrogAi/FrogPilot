@@ -242,6 +242,8 @@ class CarInterface(CarInterfaceBase):
       ret.pcmCruise = False
       ret.safetyConfigs[0].safetyParam |= GMSafetyFlags.HW_CAM.value
 
+      # FrogPilot variables
+
     elif candidate in CC_ONLY_CAR:
       ret.alphaLongitudinalAvailable = True
       ret.longitudinalActuatorDelay = 1.  # TODO: measure this
@@ -263,5 +265,7 @@ class CarInterface(CarInterfaceBase):
 
     if candidate in CC_ONLY_CAR:
       ret.safetyConfigs[0].safetyParam |= GMSafetyFlags.FLAG_GM_NO_ACC.value
+
+    # FrogPilot variables
 
     return ret

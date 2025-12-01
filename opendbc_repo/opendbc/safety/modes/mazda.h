@@ -34,6 +34,8 @@ static void mazda_rx_hook(const CANPacket_t *msg) {
     if (msg->addr == MAZDA_CRZ_CTRL) {
       bool cruise_engaged = msg->data[0] & 0x8U;
       pcm_cruise_check(cruise_engaged);
+
+      // FrogPilot variables
     }
 
     if (msg->addr == MAZDA_ENGINE_DATA) {

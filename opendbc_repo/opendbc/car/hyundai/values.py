@@ -25,6 +25,7 @@ class CarControllerParams:
     self.STEER_STEP = 1  # 100 Hz
 
     if CP.flags & HyundaiFlags.CANFD:
+    # FrogPilot variables
       self.STEER_MAX = 270
       self.STEER_DRIVER_ALLOWANCE = 250
       self.STEER_DRIVER_MULTIPLIER = 2
@@ -66,6 +67,9 @@ class HyundaiSafetyFlags(IntFlag):
   CANFD_LKA_STEERING_ALT = 128
   FCEV_GAS = 256
   ALT_LIMITS_2 = 512
+
+
+# FrogPilot variables
 
 
 class HyundaiFlags(IntFlag):

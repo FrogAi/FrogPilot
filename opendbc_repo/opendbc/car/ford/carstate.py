@@ -8,6 +8,7 @@ from opendbc.car.interfaces import CarStateBase
 ButtonType = structs.CarState.ButtonEvent.Type
 GearShifter = structs.CarState.GearShifter
 TransmissionType = structs.CarParams.TransmissionType
+# FrogPilot variables
 
 
 class CarState(CarStateBase):
@@ -15,10 +16,13 @@ class CarState(CarStateBase):
     super().__init__(CP)
     can_define = CANDefine(DBC[CP.carFingerprint][Bus.pt])
     if CP.transmissionType == TransmissionType.automatic:
+      # FrogPilot variables
       self.shifter_values = can_define.dv["PowertrainData_10"]["TrnRng_D_Rq"]
 
     self.distance_button = 0
     self.lc_button = 0
+
+    # FrogPilot variables
 
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
@@ -28,6 +32,7 @@ class CarState(CarStateBase):
 
     # Occasionally on startup, the ABS module recalibrates the steering pinion offset, so we need to block engagement
     # The vehicle usually recovers out of this state within a minute of normal driving
+    # FrogPilot variables
     ret.vehicleSensorsInvalid = cp.vl["SteeringPinion_Data"]["StePinCompAnEst_D_Qf"] != 3
 
     # car speed
@@ -45,6 +50,7 @@ class CarState(CarStateBase):
     ret.parkingBrake = cp.vl["DesiredTorqBrk"]["PrkBrkStatus"] in (1, 2)
 
     # steering wheel
+    # FrogPilot variables
     ret.steeringAngleDeg = cp.vl["SteeringPinion_Data"]["StePinComp_An_Est"]
     ret.steeringTorque = cp.vl["EPAS_INFO"]["SteeringColumnTorque"]
     ret.steeringPressed = self.update_steering_pressed(abs(ret.steeringTorque) > CarControllerParams.STEER_DRIVER_ALLOWANCE, 5)
@@ -69,6 +75,7 @@ class CarState(CarStateBase):
 
     # gear
     if self.CP.transmissionType == TransmissionType.automatic:
+      # FrogPilot variables
       gear = self.shifter_values.get(cp.vl["PowertrainData_10"]["TrnRng_D_Rq"])
       ret.gearShifter = self.parse_gear_shifter(gear)
     elif self.CP.transmissionType == TransmissionType.manual:
@@ -112,6 +119,8 @@ class CarState(CarStateBase):
       *create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise}),
       *create_button_events(self.lc_button, prev_lc_button, {1: ButtonType.lkas}),
     ]
+
+    # FrogPilot variables
 
     return ret
 

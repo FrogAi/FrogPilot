@@ -19,6 +19,7 @@ STANDSTILL_THRESHOLD = 12 * 0.03125
 ENABLE_BUTTONS = (Buttons.RES_ACCEL, Buttons.SET_DECEL, Buttons.CANCEL)
 BUTTONS_DICT = {Buttons.RES_ACCEL: ButtonType.accelCruise, Buttons.SET_DECEL: ButtonType.decelCruise,
                 Buttons.GAP_DIST: ButtonType.gapAdjustCruise, Buttons.CANCEL: ButtonType.cancel}
+# FrogPilot variables
 
 
 class CarState(CarStateBase):
@@ -62,6 +63,8 @@ class CarState(CarStateBase):
     self.cluster_speed_counter = CLUSTER_SAMPLE_RATE
 
     self.params = CarControllerParams(CP)
+
+    # FrogPilot variables
 
   def recent_button_interaction(self) -> bool:
     # On some newer model years, the CANCEL button acts as a pause/resume button based on the PCM state
@@ -202,6 +205,8 @@ class CarState(CarStateBase):
       self.low_speed_alert = False
     ret.lowSpeedAlert = self.low_speed_alert
 
+    # FrogPilot variables
+
     return ret
 
   def update_canfd(self, can_parsers) -> structs.CarState:
@@ -250,6 +255,7 @@ class CarState(CarStateBase):
     ret.leftBlinker, ret.rightBlinker = self.update_blinker_from_lamp(50, cp.vl["BLINKERS"][left_blinker_sig],
                                                                       cp.vl["BLINKERS"][right_blinker_sig])
     if self.CP.enableBsm:
+      # FrogPilot variables
       ret.leftBlindspot = cp.vl["BLINDSPOTS_REAR_CORNERS"]["FL_INDICATOR"] != 0
       ret.rightBlindspot = cp.vl["BLINDSPOTS_REAR_CORNERS"]["FR_INDICATOR"] != 0
 
@@ -292,6 +298,8 @@ class CarState(CarStateBase):
                         *create_button_events(self.lda_button, prev_lda_button, {1: ButtonType.lkas})]
 
     ret.blockPcmEnable = not self.recent_button_interaction()
+
+    # FrogPilot variables
 
     return ret
 

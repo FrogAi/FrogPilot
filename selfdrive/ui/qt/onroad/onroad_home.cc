@@ -37,6 +37,15 @@ OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent) {
   setAttribute(Qt::WA_OpaquePaintEvent);
   QObject::connect(uiState(), &UIState::uiUpdate, this, &OnroadWindow::updateState);
   QObject::connect(uiState(), &UIState::offroadTransition, this, &OnroadWindow::offroadTransition);
+
+  // FrogPilot variables
+  frogpilot_nvg = new FrogPilotAnnotatedCameraWidget(nvg, this);
+  frogpilot_onroad = new FrogPilotOnroadWindow(this);
+  frogpilot_onroad->setAttribute(Qt::WA_TransparentForMouseEvents, true);
+
+  stacked_layout->addWidget(frogpilot_nvg);
+
+  nvg->frogpilot_nvg = frogpilot_nvg;
 }
 
 void OnroadWindow::updateState(const UIState &s) {
@@ -53,6 +62,18 @@ void OnroadWindow::updateState(const UIState &s) {
     bg = bgColor;
     update();
   }
+
+  // FrogPilot variables
+  const FrogPilotUIState &fs = *frogpilotUIState();
+
+  frogpilot_nvg->alertHeight = alerts->alertHeight;
+
+  frogpilot_onroad->bg = bg;
+
+  frogpilot_onroad->setGeometry(rect());
+
+  frogpilot_nvg->updateState(s, fs);
+  frogpilot_onroad->updateState(s, fs);
 }
 
 void OnroadWindow::offroadTransition(bool offroad) {
@@ -62,4 +83,16 @@ void OnroadWindow::offroadTransition(bool offroad) {
 void OnroadWindow::paintEvent(QPaintEvent *event) {
   QPainter p(this);
   p.fillRect(rect(), QColor(bg.red(), bg.green(), bg.blue(), 255));
+}
+
+// FrogPilot variables
+void OnroadWindow::mousePressEvent(QMouseEvent* mouseEvent) {
+  frogpilot_nvg->mousePressEvent(mouseEvent);
+
+  if (mouseEvent->isAccepted()) {
+    return;
+  }
+
+  // propagation event to parent(HomeWindow)
+  QWidget::mousePressEvent(mouseEvent);
 }

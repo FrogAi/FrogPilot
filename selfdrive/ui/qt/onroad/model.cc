@@ -40,13 +40,19 @@ void ModelRenderer::draw(QPainter &painter, const QRect &surface_rect) {
   if (longitudinal_control && sm.alive("radarState")) {
     update_leads(radar_state, model.getPosition());
     const auto &lead_two = radar_state.getLeadTwo();
+    // FrogPilot variables
     if (lead_one.getStatus()) {
+      // FrogPilot variables
       drawLead(painter, lead_one, lead_vertices[0], surface_rect);
     }
     if (lead_two.getStatus() && (std::abs(lead_one.getDRel() - lead_two.getDRel()) > 3.0)) {
       drawLead(painter, lead_two, lead_vertices[1], surface_rect);
     }
+
+    // FrogPilot variables
   }
+
+  // FrogPilot variables
 
   painter.restore();
 }
@@ -88,12 +94,19 @@ void ModelRenderer::update_model(const cereal::ModelDataV2::Reader &model, const
     max_distance = std::clamp((float)(lead_d - fmin(lead_d * 0.35, 10.)), 0.0f, max_distance);
   }
   max_idx = get_path_length_idx(model_position, max_distance);
+  // FrogPilot variables
   mapLineToPolygon(model_position, 0.9, path_offset_z, &track_vertices, max_idx, false);
+
+  // FrogPilot variables
+  FrogPilotUIState *fs = frogpilotUIState();
 }
 
 void ModelRenderer::drawLaneLines(QPainter &painter) {
+  // FrogPilot variables
+
   // lanelines
   for (int i = 0; i < std::size(lane_line_vertices); ++i) {
+    // FrogPilot variables
     painter.setBrush(QColor::fromRgbF(1.0, 1.0, 1.0, std::clamp<float>(lane_line_probs[i], 0.0, 0.7)));
     painter.drawPolygon(lane_line_vertices[i]);
   }
@@ -106,6 +119,8 @@ void ModelRenderer::drawLaneLines(QPainter &painter) {
 }
 
 void ModelRenderer::drawPath(QPainter &painter, const cereal::ModelDataV2::Reader &model, int height) {
+  // FrogPilot variables
+
   QLinearGradient bg(0, height, 0, 0);
   if (experimental_mode) {
     // The first half of track_vertices are the points for the right side of the path
@@ -120,6 +135,7 @@ void ModelRenderer::drawPath(QPainter &painter, const cereal::ModelDataV2::Reade
       // Flip so 0 is bottom of frame
       float lin_grad_point = (height - track_vertices[track_idx].y()) / height;
 
+      // FrogPilot variables
       // speed up: 120, slow down: 0
       float path_hue = fmax(fmin(60 + acceleration[i] * 35, 120), 0);
       // FIXME: painter.drawPolygon can be slow if hue is not rounded
@@ -134,12 +150,15 @@ void ModelRenderer::drawPath(QPainter &painter, const cereal::ModelDataV2::Reade
       i += (i + 2) < max_len ? 1 : 0;
     }
 
+  // FrogPilot variables
   } else {
     updatePathGradient(bg);
   }
 
   painter.setBrush(bg);
   painter.drawPolygon(track_vertices);
+
+  // FrogPilot variables
 }
 
 void ModelRenderer::updatePathGradient(QLinearGradient &bg) {
@@ -217,6 +236,8 @@ void ModelRenderer::drawLead(QPainter &painter, const cereal::RadarState::LeadDa
   QPointF chevron[] = {{x + (sz * 1.25), y + sz}, {x, y}, {x - (sz * 1.25), y + sz}};
   painter.setBrush(QColor(201, 34, 49, fillAlpha));
   painter.drawPolygon(chevron, std::size(chevron));
+
+  // FrogPilot variables
 }
 
 // Projects a point in car to space to the corresponding point in full frame image space.
@@ -248,3 +269,5 @@ void ModelRenderer::mapLineToPolygon(const cereal::XYZTData::Reader &line, float
     }
   }
 }
+
+// FrogPilot variables

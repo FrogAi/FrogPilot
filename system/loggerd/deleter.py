@@ -13,6 +13,7 @@ MIN_PERCENT = 10
 
 DELETE_LAST = ['boot', 'crash']
 
+# FrogPilot variables
 PRESERVE_ATTR_NAME = 'user.preserve'
 PRESERVE_ATTR_VALUE = b'1'
 PRESERVE_COUNT = 5
@@ -52,6 +53,7 @@ def deleter_thread(exit_event: threading.Event):
 
     if out_of_percent or out_of_bytes:
       dirs = listdir_by_creation(Paths.log_root())
+      # FrogPilot variables
       preserved_dirs = get_preserved_segments(dirs)
 
       # remove the earliest directory we can

@@ -126,6 +126,8 @@ class TestVolkswagenMqbSafetyBase(common.CarSafetyTest, common.DriverTorqueSteer
     self.assertEqual(0, self.safety.get_torque_driver_max())
     self.assertEqual(0, self.safety.get_torque_driver_min())
 
+  # FrogPilot variables
+
 
 class TestVolkswagenMqbStockSafety(TestVolkswagenMqbSafetyBase):
   TX_MSGS = [[MSG_HCA_01, 0], [MSG_LDW_02, 0], [MSG_LH_EPS_03, 2], [MSG_GRA_ACC_01, 0], [MSG_GRA_ACC_01, 2]]

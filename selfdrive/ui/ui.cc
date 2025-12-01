@@ -63,6 +63,9 @@ static void update_state(UIState *s) {
 
   auto params = Params();
   scene.recording_audio = params.getBool("RecordAudio") && scene.started;
+
+  // FrogPilot variables
+  FrogPilotUIScene &frogpilot_scene = frogpilotUIState()->frogpilot_scene;
 }
 
 void ui_update_params(UIState *s) {
@@ -71,14 +74,23 @@ void ui_update_params(UIState *s) {
 }
 
 void UIState::updateStatus() {
+  // FrogPilot variables
+  FrogPilotUIScene &frogpilot_scene = frogpilotUIState()->frogpilot_scene;
+
   if (scene.started && sm->updated("selfdriveState")) {
     auto ss = (*sm)["selfdriveState"].getSelfdriveState();
     auto state = ss.getState();
+
+    // FrogPilot variables
+
     if (state == cereal::SelfdriveState::OpenpilotState::PRE_ENABLED || state == cereal::SelfdriveState::OpenpilotState::OVERRIDING) {
       status = STATUS_OVERRIDE;
+    // FrogPilot variables
     } else {
       status = ss.getEnabled() ? STATUS_ENGAGED : STATUS_DISENGAGED;
     }
+
+    // FrogPilot variables
   }
 
   if (engaged() != engaged_prev) {
@@ -113,14 +125,18 @@ UIState::UIState(QObject *parent) : QObject(parent) {
 }
 
 void UIState::update() {
+  // FrogPilot variables
+  FrogPilotUIState *fs = frogpilotUIState();
   update_sockets(this);
+  // FrogPilot variables
+  fs->update();
   update_state(this);
   updateStatus();
 
   if (sm->frame % UI_FREQ == 0) {
     watchdog_kick(nanos_since_boot());
   }
-  emit uiUpdate(*this);
+  emit uiUpdate(*this, *fs);
 }
 
 Device::Device(QObject *parent) : brightness_filter(BACKLIGHT_OFFROAD, BACKLIGHT_TS, BACKLIGHT_DT), QObject(parent) {
@@ -145,6 +161,8 @@ void Device::setAwake(bool on) {
 }
 
 void Device::resetInteractiveTimeout(int timeout) {
+  // FrogPilot variables
+
   if (timeout == -1) {
     timeout = (ignition_on ? 10 : 30);
   }
@@ -152,6 +170,9 @@ void Device::resetInteractiveTimeout(int timeout) {
 }
 
 void Device::updateBrightness(const UIState &s) {
+  // FrogPilot variables
+  const FrogPilotUIScene &frogpilot_scene = frogpilotUIState()->frogpilot_scene;
+
   float clipped_brightness = offroad_brightness;
   if (s.scene.started && s.scene.light_sensor >= 0) {
     clipped_brightness = s.scene.light_sensor;
@@ -170,7 +191,10 @@ void Device::updateBrightness(const UIState &s) {
   int brightness = brightness_filter.update(clipped_brightness);
   if (!awake) {
     brightness = 0;
+  // FrogPilot variables
   }
+
+  // FrogPilot variables
 
   if (brightness != last_brightness) {
     if (!brightness_future.isRunning()) {
@@ -181,9 +205,13 @@ void Device::updateBrightness(const UIState &s) {
 }
 
 void Device::updateWakefulness(const UIState &s) {
+  // FrogPilot variables
+  const FrogPilotUIScene &frogpilot_scene = frogpilotUIState()->frogpilot_scene;
+
   bool ignition_just_turned_off = !s.scene.ignition && ignition_on;
   ignition_on = s.scene.ignition;
 
+  // FrogPilot variables
   if (ignition_just_turned_off) {
     resetInteractiveTimeout();
   } else if (interactive_timeout > 0 && --interactive_timeout == 0) {

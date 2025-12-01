@@ -111,6 +111,8 @@ class TestSubaruSafetyBase(common.CarSafetyTest):
     values = {"Cruise_Activated": enable}
     return self.packer.make_can_msg_safety("CruiseControl", self.ALT_MAIN_BUS, values)
 
+  # FrogPilot variables
+
 
 class TestSubaruStockLongitudinalSafetyBase(TestSubaruSafetyBase):
   def _cancel_msg(self, cancel, cruise_throttle=0):
@@ -175,6 +177,9 @@ class TestSubaruTorqueSafetyBase(TestSubaruSafetyBase, common.DriverTorqueSteeri
 class TestSubaruGen1TorqueStockLongitudinalSafety(TestSubaruStockLongitudinalSafetyBase, TestSubaruTorqueSafetyBase):
   FLAGS = 0
   TX_MSGS = lkas_tx_msgs(SUBARU_MAIN_BUS)
+
+
+# FrogPilot variables
 
 
 class TestSubaruGen2TorqueSafetyBase(TestSubaruTorqueSafetyBase):

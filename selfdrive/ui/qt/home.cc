@@ -42,6 +42,8 @@ HomeWindow::HomeWindow(QWidget* parent) : QWidget(parent) {
   QObject::connect(uiState(), &UIState::uiUpdate, this, &HomeWindow::updateState);
   QObject::connect(uiState(), &UIState::offroadTransition, this, &HomeWindow::offroadTransition);
   QObject::connect(uiState(), &UIState::offroadTransition, sidebar, &Sidebar::offroadTransition);
+
+  // FrogPilot variables
 }
 
 void HomeWindow::showSidebar(bool show) {
@@ -56,13 +58,20 @@ void HomeWindow::updateState(const UIState &s) {
     body->setEnabled(true);
     slayout->setCurrentWidget(body);
   }
+
+  // FrogPilot variables
+  const FrogPilotUIScene &frogpilot_scene = frogpilotUIState()->frogpilot_scene;
 }
 
 void HomeWindow::offroadTransition(bool offroad) {
+  // FrogPilot variables
+
   body->setEnabled(false);
   sidebar->setVisible(offroad);
   if (offroad) {
     slayout->setCurrentWidget(home);
+
+    // FrogPilot variables
   } else {
     slayout->setCurrentWidget(onroad);
   }
@@ -82,6 +91,8 @@ void HomeWindow::mousePressEvent(QMouseEvent* e) {
   // Handle sidebar collapsing
   if ((onroad->isVisible() || body->isVisible()) && (!sidebar->isVisible() || e->x() > sidebar->width())) {
     sidebar->setVisible(!sidebar->isVisible());
+
+    // FrogPilot variables
   }
 }
 
@@ -108,6 +119,8 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
   QHBoxLayout* header_layout = new QHBoxLayout();
   header_layout->setContentsMargins(0, 0, 0, 0);
   header_layout->setSpacing(16);
+
+  // FrogPilot variables
 
   update_notif = new QPushButton(tr("UPDATE"));
   update_notif->setVisible(false);
@@ -151,6 +164,7 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
     left_widget->addWidget(new PrimeAdWidget);
     left_widget->setStyleSheet("border-radius: 10px;");
 
+    // FrogPilot variables
     connect(uiState()->prime_state, &PrimeState::changed, [left_widget]() {
       left_widget->setCurrentIndex(uiState()->prime_state->isSubscribed() ? 0 : 1);
     });
@@ -171,6 +185,7 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
     SetupWidget *setup_widget = new SetupWidget;
     QObject::connect(setup_widget, &SetupWidget::openSettings, this, &OffroadHome::openSettings);
     right_column->addWidget(setup_widget, 1);
+    // FrogPilot variables
 
     home_layout->addWidget(right_widget, 1);
   }
@@ -189,6 +204,8 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
   // set up refresh timer
   timer = new QTimer(this);
   timer->callOnTimeout(this, &OffroadHome::refresh);
+
+  // FrogPilot variables
 
   setStyleSheet(R"(
     * {
@@ -219,6 +236,8 @@ void OffroadHome::hideEvent(QHideEvent *event) {
 }
 
 void OffroadHome::refresh() {
+  // FrogPilot variables
+
   version->setText(getBrand() + " " +  QString::fromStdString(params.get("UpdaterCurrentDescription")));
 
   bool updateAvailable = update_widget->refresh();

@@ -1066,4 +1066,5 @@ FW_VERSIONS = {
       b'36161-TGV-A030\x00\x00',
     ],
   },
+  # FrogPilot variables
 }

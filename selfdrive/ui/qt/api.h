@@ -7,6 +7,7 @@
 
 #include "common/util.h"
 
+// FrogPilot variables
 namespace CommaApi {
 
 const QString BASE_URL = util::getenv("API_HOST", "https://api.commadotai.com").c_str();

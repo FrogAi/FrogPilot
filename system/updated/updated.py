@@ -221,6 +221,7 @@ def handle_agnos_update() -> None:
   set_offroad_alert("Offroad_NeosUpdate", True)
 
   manifest_path = os.path.join(OVERLAY_MERGED, "system/hardware/tici/agnos.json")
+  # FrogPilot variables
   target_slot_number = get_target_slot_number()
   flash_agnos_update(manifest_path, target_slot_number, cloudlog)
   set_offroad_alert("Offroad_NeosUpdate", False)
@@ -410,6 +411,8 @@ class Updater:
     finalize_update()
     cloudlog.info("finalize success!")
 
+    # FrogPilot variables
+
 
 def main() -> None:
   params = Params()
@@ -452,6 +455,7 @@ def main() -> None:
     while True:
       wait_helper.ready_event.clear()
 
+      # FrogPilot variables
       # Attempt an update
       exception = None
       try:
@@ -468,6 +472,7 @@ def main() -> None:
 
         update_failed_count += 1
 
+        # FrogPilot variables
         # check for update
         params.put("UpdaterState", "checking...")
         updater.check_for_update()
@@ -507,6 +512,8 @@ def main() -> None:
 
       # infrequent attempts if we successfully updated recently
       wait_helper.user_request = UserRequest.NONE
+
+      # FrogPilot variables
       wait_helper.sleep(5*60 if update_failed_count > 0 else 1.5*60*60)
 
 

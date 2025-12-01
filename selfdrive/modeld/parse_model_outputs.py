@@ -20,6 +20,7 @@ def softmax(x, axis=-1):
 class Parser:
   def __init__(self, ignore_missing=False):
     self.ignore_missing = ignore_missing
+    # FrogPilot variables
 
   def check_missing(self, outs, name):
     missing = name not in outs
@@ -119,4 +120,7 @@ class Parser:
   def parse_outputs(self, outs: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
     outs = self.parse_vision_outputs(outs)
     outs = self.parse_policy_outputs(outs)
+
+    # FrogPilot variables
+
     return outs

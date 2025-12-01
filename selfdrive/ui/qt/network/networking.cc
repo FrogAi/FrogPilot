@@ -18,7 +18,7 @@ static const int ICON_WIDTH = 49;
 Networking::Networking(QWidget* parent, bool show_advanced) : QFrame(parent) {
   main_layout = new QStackedLayout(this);
 
-  wifi = new WifiManager(this);
+  wifi = frogpilotUIState()->wifi;
   connect(wifi, &WifiManager::refreshSignal, this, &Networking::refresh);
   connect(wifi, &WifiManager::wrongPassword, this, &Networking::wrongPassword);
 
@@ -70,6 +70,9 @@ Networking::Networking(QWidget* parent, bool show_advanced) : QFrame(parent) {
     }
   )");
   main_layout->setCurrentWidget(wifiScreen);
+
+  // FrogPilot variables
+  setPrimeType(uiState()->prime_state->currentType());
 }
 
 void Networking::setPrimeType(PrimeState::Type type) {
@@ -131,6 +134,7 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
 
   ListWidget *list = new ListWidget(this);
   // Enable tethering layout
+  // FrogPilot variables
   tetheringToggle = new ToggleControl(tr("Enable Tethering"), "", "", wifi->isTetheringEnabled());
   list->addItem(tetheringToggle);
   QObject::connect(tetheringToggle, &ToggleControl::toggleFlipped, this, &AdvancedNetworking::toggleTethering);

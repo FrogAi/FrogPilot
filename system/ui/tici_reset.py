@@ -15,6 +15,7 @@ from openpilot.system.ui.widgets.label import gui_label, gui_text_box
 
 USERDATA = "/dev/disk/by-partlabel/userdata"
 TIMEOUT = 3*60
+# FrogPilot variables
 
 
 class ResetMode(IntEnum):
@@ -48,6 +49,7 @@ class Reset(Widget):
     if PC:
       return
 
+    # FrogPilot variables
     # Removing data and formatting
     rm = os.system("sudo rm -rf /data/*")
     os.system(f"sudo umount {USERDATA}")

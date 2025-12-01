@@ -7,6 +7,7 @@
 
 void OnroadAlerts::updateState(const UIState &s) {
   Alert a = getAlert(*(s.sm), s.scene.started_frame);
+  // FrogPilot variables
   if (!alert.equal(a)) {
     alert = a;
     update();
@@ -22,11 +23,17 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started
   const cereal::SelfdriveState::Reader &ss = sm["selfdriveState"].getSelfdriveState();
   const uint64_t selfdrive_frame = sm.rcv_frame("selfdriveState");
 
+  // FrogPilot variables
+
   Alert a = {};
   if (selfdrive_frame >= started_frame) {  // Don't get old alert.
     a = {ss.getAlertText1().cStr(), ss.getAlertText2().cStr(),
          ss.getAlertType().cStr(), ss.getAlertSize(), ss.getAlertStatus()};
+
+    // FrogPilot variables
   }
+
+  // FrogPilot variables
 
   if (!sm.updated("selfdriveState") && (sm.frame - started_frame) > 5 * UI_FREQ) {
     const int SELFDRIVE_STATE_TIMEOUT = 5;
@@ -56,6 +63,8 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started
 
 void OnroadAlerts::paintEvent(QPaintEvent *event) {
   if (alert.size == cereal::SelfdriveState::AlertSize::NONE) {
+    // FrogPilot variables
+    alertHeight = 0;
     return;
   }
   static std::map<cereal::SelfdriveState::AlertSize, const int> alert_heights = {
@@ -71,6 +80,8 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
     margin = 0;
     radius = 0;
   }
+  // FrogPilot variables
+  alertHeight = h - margin;
   QRect r = QRect(0 + margin, height() - h + margin, width() - margin*2, h - margin*2);
 
   QPainter p(this);

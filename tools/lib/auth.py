@@ -32,6 +32,7 @@ from urllib.parse import parse_qs, urlencode
 from openpilot.tools.lib.api import APIError, CommaApi, UnauthorizedError
 from openpilot.tools.lib.auth_config import set_token, get_token
 
+# FrogPilot variables
 PORT = 3000
 
 

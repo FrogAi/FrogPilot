@@ -36,8 +36,10 @@ struct EncoderSettings {
 
   static EncoderSettings MainEncoderSettings(int in_width) {
     if (in_width <= 1344) {
+      // FrogPilot variables
       return EncoderSettings{.encode_type = MAIN_ENCODE_TYPE, .bitrate = 5'000'000, .gop_size = 20};
     } else {
+      // FrogPilot variables
       return EncoderSettings{.encode_type = MAIN_ENCODE_TYPE, .bitrate = 10'000'000, .gop_size = 30};
     }
   }

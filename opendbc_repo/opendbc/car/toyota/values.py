@@ -80,6 +80,9 @@ class ToyotaFlags(IntFlag):
   SNG_WITHOUT_DSU_DEPRECATED = 512
 
 
+# FrogPilot variables
+
+
 def dbc_dict(pt, radar):
   return {Bus.pt: pt, Bus.radar: radar}
 

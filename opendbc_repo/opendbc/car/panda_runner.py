@@ -12,6 +12,8 @@ class PandaRunner(AbstractContextManager):
     self.p = Panda()
     self.p.reset()
 
+    # FrogPilot variables
+
     # setup + fingerprinting
     self.p.set_safety_mode(CarParams.SafetyModel.elm327, 1)
     self.CI = get_car(self._can_recv, self.p.can_send_many, self.p.set_obd, True, False)

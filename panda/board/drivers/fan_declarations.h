@@ -6,6 +6,7 @@ struct fan_state_t {
   uint8_t power;
   float error_integral;
   uint8_t cooldown_counter;
+  // FrogPilot variables
 };
 extern struct fan_state_t fan_state;
 

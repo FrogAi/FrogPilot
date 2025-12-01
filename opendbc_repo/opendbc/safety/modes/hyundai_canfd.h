@@ -45,8 +45,12 @@
 #define HYUNDAI_CANFD_SCC_ADDR_CHECK(scc_bus)                                                                            \
   {.msg = {{0x1a0, (scc_bus), 32, 50U, .max_counter = 0xffU, .ignore_quality_flag = true}, { 0 }, { 0 }}},  \
 
+// FrogPilot variables
+
 static bool hyundai_canfd_alt_buttons = false;
 static bool hyundai_canfd_lka_steering_alt = false;
+
+// FrogPilot variables
 
 static unsigned int hyundai_canfd_get_lka_addr(void) {
   return hyundai_canfd_lka_steering_alt ? 0x110U : 0x50U;
@@ -88,9 +92,13 @@ static void hyundai_canfd_rx_hook(const CANPacket_t *msg) {
       if (msg->addr == 0x1cfU) {
         cruise_button = msg->data[2] & 0x7U;
         main_button = GET_BIT(msg, 19U);
+
+        // FrogPilot variables
       } else {
         cruise_button = (msg->data[4] >> 4) & 0x7U;
         main_button = GET_BIT(msg, 34U);
+
+        // FrogPilot variables
       }
       hyundai_common_cruise_buttons_check(cruise_button, main_button);
     }
@@ -153,6 +161,8 @@ static bool hyundai_canfd_tx_hook(const CANPacket_t *msg) {
     .has_steer_req_tolerance = true,
   };
 
+  // FrogPilot variables
+
   bool tx = true;
 
   // steering
@@ -162,6 +172,8 @@ static bool hyundai_canfd_tx_hook(const CANPacket_t *msg) {
     bool steer_req = GET_BIT(msg, 52U);
 
     if (steer_torque_cmd_checks(desired_torque, steer_req, HYUNDAI_CANFD_STEERING_LIMITS)) {
+    // FrogPilot variables
+
       tx = false;
     }
   }
@@ -219,6 +231,8 @@ static safety_config hyundai_canfd_init(uint16_t param) {
   const uint16_t HYUNDAI_PARAM_CANFD_LKA_STEERING_ALT = 128;
   const uint16_t HYUNDAI_PARAM_CANFD_ALT_BUTTONS = 32;
 
+  // FrogPilot variables
+
   static const CanMsg HYUNDAI_CANFD_LKA_STEERING_TX_MSGS[] = {
     HYUNDAI_CANFD_LKA_STEERING_COMMON_TX_MSGS(0, 1)
   };
@@ -267,6 +281,8 @@ static safety_config hyundai_canfd_init(uint16_t param) {
   gen_crc_lookup_table_16(0x1021, hyundai_canfd_crc_lut);
   hyundai_canfd_alt_buttons = GET_FLAG(param, HYUNDAI_PARAM_CANFD_ALT_BUTTONS);
   hyundai_canfd_lka_steering_alt = GET_FLAG(param, HYUNDAI_PARAM_CANFD_LKA_STEERING_ALT);
+
+  // FrogPilot variables
 
   safety_config ret;
   if (hyundai_longitudinal) {

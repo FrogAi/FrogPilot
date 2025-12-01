@@ -57,6 +57,8 @@ bool acc_main_on = false;  // referred to as "ACC off" in ISO 15622:2018
 int cruise_button_prev = 0;
 bool safety_rx_checks_invalid = false;
 
+// FrogPilot variables
+
 // for safety modes with torque steering control
 int desired_torque_last = 0;       // last desired steer torque
 int rt_torque_last = 0;            // last desired torque for real time check
@@ -296,6 +298,7 @@ void gen_crc_lookup_table_8(uint8_t poly, uint8_t crc_lut[]) {
   }
 }
 
+// FrogPilot variables
 void gen_crc_lookup_table_16(uint16_t poly, uint16_t crc_lut[]) {
   for (uint16_t i = 0; i < 256U; i++) {
     uint16_t crc = i << 8U;
@@ -361,6 +364,8 @@ static void generic_rx_checks(void) {
     controls_allowed = false;
   }
   steering_disengage_prev = steering_disengage;
+
+  // FrogPilot variables
 }
 
 static void stock_ecu_check(bool stock_ecu_detected) {
@@ -405,6 +410,7 @@ int set_safety_hooks(uint16_t mode, uint16_t param) {
     {SAFETY_FORD, &ford_hooks},
     {SAFETY_RIVIAN, &rivian_hooks},
     {SAFETY_TESLA, &tesla_hooks},
+    // FrogPilot variables
     {SAFETY_HYUNDAI_CANFD, &hyundai_canfd_hooks},
 #ifdef ALLOW_DEBUG
     {SAFETY_PSA, &psa_hooks},
@@ -481,6 +487,8 @@ int set_safety_hooks(uint16_t mode, uint16_t param) {
       current_safety_config.rx_checks[j].status = (RxStatus){0};
     }
   }
+  // FrogPilot variables
+
   return set_status;
 }
 

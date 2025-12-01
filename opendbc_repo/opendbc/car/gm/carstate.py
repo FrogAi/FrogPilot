@@ -180,6 +180,7 @@ class CarState(CarStateBase):
     if self.CP.transmissionType == TransmissionType.direct:
       self.single_pedal_mode = ret.gearShifter == GearShifter.low or pt_cp.vl["EVDriveMode"]["SinglePedalModeActive"] == 1
 
+    # FrogPilot variables
     return ret
 
   @staticmethod

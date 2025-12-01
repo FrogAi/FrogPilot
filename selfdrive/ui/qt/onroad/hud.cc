@@ -51,6 +51,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   if (is_cruise_available) {
     drawSetSpeed(p, surface_rect);
   }
+  // FrogPilot variables
   drawCurrentSpeed(p, surface_rect);
 
   p.restore();
@@ -60,7 +61,16 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
   // Draw outer box + border to contain set speed
   const QSize default_size = {172, 204};
   QSize set_speed_size = is_metric ? QSize(200, 204) : default_size;
+
+  // FrogPilot variables
+
   QRect set_speed_rect(QPoint(60 + (default_size.width() - set_speed_size.width()) / 2, 45), set_speed_size);
+
+  // FrogPilot variables
+  frogpilot_nvg->defaultSize = default_size;
+  frogpilot_nvg->isCruiseSet = is_cruise_set;
+  frogpilot_nvg->setSpeedRect = set_speed_rect;
+  frogpilot_nvg->speed = speed;
 
   // Draw set speed box
   p.setPen(QPen(QColor(255, 255, 255, 75), 6));

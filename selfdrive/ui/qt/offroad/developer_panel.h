@@ -8,6 +8,8 @@ public:
   explicit DeveloperPanel(SettingsWindow *parent);
   void showEvent(QShowEvent *event) override;
 
+// FrogPilot variables
+
 private:
   Params params;
   ParamControl* adbToggle;
@@ -16,6 +18,8 @@ private:
   ParamControl* experimentalLongitudinalToggle;
   bool is_release;
   bool offroad = false;
+
+  // FrogPilot variables
 
 private slots:
   void updateToggles(bool _offroad);

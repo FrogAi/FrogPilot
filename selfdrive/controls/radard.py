@@ -25,6 +25,8 @@ V_EGO_STATIONARY = 4.   # no stationary object flag below this speed
 RADAR_TO_CENTER = 2.7   # (deprecated) RADAR is ~ 2.7m ahead from center of car
 RADAR_TO_CAMERA = 1.52  # RADAR is ~ 1.5m ahead from center of mesh frame
 
+# FrogPilot variables
+
 
 class KalmanParams:
   def __init__(self, dt: float):
@@ -57,6 +59,8 @@ class Track:
     self.K_C = kalman_params.C
     self.K_K = kalman_params.K
     self.kf = KF1D([[v_lead], [0.0]], self.K_A, self.K_C, self.K_K)
+
+    # FrogPilot variables
 
   def update(self, d_rel: float, y_rel: float, v_rel: float, v_lead: float, measured: float):
     # relative values, copy
@@ -108,6 +112,8 @@ class Track:
   def __str__(self):
     ret = f"x: {self.dRel:4.1f}  y: {self.yRel:4.1f}  v: {self.vRel:4.1f}  a: {self.aLeadK:4.1f}"
     return ret
+
+  # FrogPilot variables
 
 
 def laplacian_pdf(x: float, mu: float, b: float):
@@ -170,6 +176,8 @@ def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capn
   elif (track is None) and ready and (lead_msg.prob > .5):
     lead_dict = get_RadarState_from_vision(lead_msg, v_ego, model_v_ego)
 
+  # FrogPilot variables
+
   if low_speed_override:
     low_speed_tracks = [c for c in tracks.values() if c.potential_low_speed_lead(v_ego)]
     if len(low_speed_tracks) > 0:
@@ -177,9 +185,14 @@ def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capn
 
       # Only choose new track if it is actually closer than the previous one
       if (not lead_dict['status']) or (closest_track.dRel < lead_dict['dRel']):
+        # FrogPilot variables
         lead_dict = closest_track.get_RadarState()
 
+  # FrogPilot variables
   return lead_dict
+
+
+# FrogPilot variables
 
 
 class RadarD:
@@ -197,6 +210,8 @@ class RadarD:
     self.radar_state_valid = False
 
     self.ready = False
+
+    # FrogPilot variables
 
   def update(self, sm: messaging.SubMaster, rr: car.RadarData):
     self.ready = sm.seen['modelV2']
@@ -242,6 +257,8 @@ class RadarD:
       self.radar_state.leadOne = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[0], model_v_ego, low_speed_override=True)
       self.radar_state.leadTwo = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[1], model_v_ego, low_speed_override=False)
 
+    # FrogPilot variables
+
   def publish(self, pm: messaging.PubMaster):
     assert self.radar_state is not None
 
@@ -249,6 +266,8 @@ class RadarD:
     radar_msg.valid = self.radar_state_valid
     radar_msg.radarState = self.radar_state
     pm.send("radarState", radar_msg)
+
+    # FrogPilot variables
 
 
 # fuses camera and radar data for best lead detection
@@ -265,6 +284,8 @@ def main() -> None:
   pm = messaging.PubMaster(['radarState'])
 
   RD = RadarD(CP.radarDelay)
+
+  # FrogPilot variables
 
   while 1:
     sm.update()

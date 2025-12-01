@@ -40,9 +40,12 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
   QObject::connect(uiState(), &UIState::uiUpdate, this, &Sidebar::updateState);
 
   pm = std::make_unique<PubMaster>(std::vector<const char*>{"bookmarkButton"});
+
+  // FrogPilot variables
 }
 
 void Sidebar::mousePressEvent(QMouseEvent *event) {
+  // FrogPilot variables
   if (onroad && home_btn.contains(event->pos())) {
     flag_pressed = true;
     update();
@@ -73,11 +76,14 @@ void Sidebar::mouseReleaseEvent(QMouseEvent *event) {
 
 void Sidebar::offroadTransition(bool offroad) {
   onroad = !offroad;
+  // FrogPilot variables
   update();
 }
 
 void Sidebar::updateState(const UIState &s) {
   if (!isVisible()) return;
+
+  // FrogPilot variables
 
   auto &sm = *(s.sm);
 
@@ -105,6 +111,8 @@ void Sidebar::updateState(const UIState &s) {
     tempStatus = {{tr("TEMP"), tr("GOOD")}, good_color};
   } else if (ts == cereal::DeviceState::ThermalStatus::YELLOW) {
     tempStatus = {{tr("TEMP"), tr("OK")}, warning_color};
+
+  // FrogPilot variables
   }
   setProperty("tempStatus", QVariant::fromValue(tempStatus));
 
@@ -115,6 +123,8 @@ void Sidebar::updateState(const UIState &s) {
   setProperty("pandaStatus", QVariant::fromValue(pandaStatus));
 
   setProperty("recordingAudio", s.scene.recording_audio);
+
+  // FrogPilot variables
 }
 
 void Sidebar::paintEvent(QPaintEvent *event) {
@@ -139,7 +149,10 @@ void Sidebar::paintEvent(QPaintEvent *event) {
   }
   p.setOpacity(1.0);
 
+  // FrogPilot variables
+
   // network
+  // FrogPilot variables
   int x = 58;
   const QColor gray(0x54, 0x54, 0x54);
   for (int i = 0; i < 5; ++i) {
@@ -160,6 +173,11 @@ void Sidebar::paintEvent(QPaintEvent *event) {
 
   // metrics
   drawMetric(p, temp_status.first, temp_status.second, 338);
+  // FrogPilot variables
   drawMetric(p, panda_status.first, panda_status.second, 496);
   drawMetric(p, connect_status.first, connect_status.second, 654);
+}
+
+// FrogPilot variables
+void Sidebar::showEvent(QShowEvent *event) {
 }

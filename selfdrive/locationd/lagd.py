@@ -214,6 +214,7 @@ class LateralLagEstimator:
     else:
       liveDelay.status = log.LiveDelayData.Status.unestimated
 
+    # FrogPilot variables
     if liveDelay.status == log.LiveDelayData.Status.estimated:
       liveDelay.lateralDelay = valid_mean_lag
     else:
@@ -374,6 +375,8 @@ def main():
     lag, valid_blocks = initial_lag_params
     lag_learner.reset(lag, valid_blocks)
 
+  # FrogPilot variables
+
   while True:
     sm.update()
     if sm.all_checks():
@@ -392,3 +395,5 @@ def main():
 
       if sm.frame % 1200 == 0: # cache every 60 seconds
         params.put_nonblocking("LiveDelay", lag_msg_dat)
+
+    # FrogPilot variables

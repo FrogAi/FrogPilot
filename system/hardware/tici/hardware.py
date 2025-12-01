@@ -446,6 +446,7 @@ class Tici(HardwareBase):
 
     # pandad core
     affine_irq(3, "spi_geni")         # SPI
+    # FrogPilot variables
     try:
       pid = subprocess.check_output(["pgrep", "-f", "spi0"], encoding='utf8').strip()
       subprocess.call(["sudo", "chrt", "-f", "-p", "1", pid])
@@ -478,6 +479,7 @@ class Tici(HardwareBase):
         'AT+QNVFW="/nv/item_files/ims/IMS_enable",00',
         'AT+QNVFW="/nv/item_files/modem/mmode/ue_usage_setting",01',
       ]
+      # FrogPilot variables
     elif manufacturer == 'Cavli Inc.':
       cmds += [
         'AT^SIMSWAP=1',     # use SIM slot, instead of internal eSIM

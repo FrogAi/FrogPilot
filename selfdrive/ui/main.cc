@@ -26,5 +26,8 @@ int main(int argc, char *argv[]) {
   MainWindow w;
   setMainWindow(&w);
   a.installEventFilter(&w);
+
+  // FrogPilot variables
+
   return a.exec();
 }

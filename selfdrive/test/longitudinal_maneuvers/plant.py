@@ -53,6 +53,8 @@ class Plant:
 
     self.planner = LongitudinalPlanner(CarInterface.get_non_essential_params(CAR.HONDA_CIVIC), init_v=self.speed)
 
+    # FrogPilot variables
+
   @property
   def current_time(self):
     return float(self.rk.frame) / self.rate
@@ -117,6 +119,8 @@ class Plant:
     model.modelV2.acceleration = acceleration
     model.modelV2.meta.disengagePredictions.gasPressProbs = [float(prob_throttle) for _ in range(6)]
 
+    # FrogPilot variables
+
     control.controlsState.longControlState = LongCtrlState.pid if self.enabled else LongCtrlState.off
     ss.selfdriveState.experimentalMode = self.e2e
     ss.selfdriveState.personality = self.personality
@@ -134,6 +138,7 @@ class Plant:
           'selfdriveState': ss.selfdriveState,
           'liveParameters': lp.liveParameters,
           'modelV2': model.modelV2}
+          # FrogPilot variables
     self.planner.update(sm)
     self.acceleration = self.planner.output_a_target
     self.speed = self.speed + self.acceleration * self.ts

@@ -56,6 +56,8 @@
   {.msg = {{0x116, 0, 8, 42U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  \
   {.msg = {{0x101, 0, 8, 50U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  \
 
+// FrogPilot variables
+
 static bool toyota_secoc = false;
 static bool toyota_alt_brake = false;
 static bool toyota_stock_longitudinal = false;
@@ -84,6 +86,8 @@ static bool toyota_get_quality_flag_valid(const CANPacket_t *msg) {
   }
   return valid;
 }
+
+// FrogPilot variables
 
 static void toyota_rx_hook(const CANPacket_t *msg) {
   if (msg->bus == 0U) {
@@ -136,6 +140,9 @@ static void toyota_rx_hook(const CANPacket_t *msg) {
       if (msg->addr == 0x1D2U) {
         bool cruise_engaged = GET_BIT(msg, 5U);  // PCM_CRUISE.CRUISE_ACTIVE
         pcm_cruise_check(cruise_engaged);
+
+        // FrogPilot variables
+
         gas_pressed = !GET_BIT(msg, 4U);  // PCM_CRUISE.GAS_RELEASED
       }
       if (!toyota_alt_brake && (msg->addr == 0x226U)) {
@@ -159,6 +166,8 @@ static void toyota_rx_hook(const CANPacket_t *msg) {
 
       UPDATE_VEHICLE_SPEED(speed / 4.0 * 0.01 * KPH_TO_MS);
     }
+
+    // FrogPilot variables
   }
 }
 
@@ -329,12 +338,15 @@ static bool toyota_tx_hook(const CANPacket_t *msg) {
         }
       }
     }
+
+    // FrogPilot variables
   }
 
   // UDS: Only tester present ("\x0F\x02\x3E\x00\x00\x00\x00\x00") allowed on diagnostics address
   if (msg->addr == 0x750U) {
     // this address is sub-addressed. only allow tester present to radar (0xF)
     bool invalid_uds_msg = (GET_BYTES(msg, 0, 4) != 0x003E020FU) || (GET_BYTES(msg, 4, 4) != 0x0U);
+    // FrogPilot variables
     if (invalid_uds_msg) {
       tx = 0;
     }
@@ -378,6 +390,8 @@ static safety_config toyota_init(uint16_t param) {
   toyota_lta = GET_FLAG(param, TOYOTA_PARAM_LTA);
   toyota_dbc_eps_torque_factor = param & TOYOTA_EPS_FACTOR;
 
+  // FrogPilot variables
+
   safety_config ret;
   if (toyota_secoc) {
     if (toyota_stock_longitudinal) {
@@ -396,6 +410,8 @@ static safety_config toyota_init(uint16_t param) {
   if (toyota_secoc) {
     static RxCheck toyota_secoc_rx_checks[] = {
       TOYOTA_SECOC_RX_CHECKS
+
+      // FrogPilot variables
     };
 
     SET_RX_CHECKS(toyota_secoc_rx_checks, ret);
@@ -403,23 +419,33 @@ static safety_config toyota_init(uint16_t param) {
     // Check the quality flag for angle measurement when using LTA, since it's not set on TSS-P cars
     static RxCheck toyota_lta_rx_checks[] = {
       TOYOTA_RX_CHECKS(true)
+
+      // FrogPilot variables
     };
 
     SET_RX_CHECKS(toyota_lta_rx_checks, ret);
   } else {
     static RxCheck toyota_lka_rx_checks[] = {
       TOYOTA_RX_CHECKS(false)
+
+      // FrogPilot variables
     };
     static RxCheck toyota_lka_alt_brake_rx_checks[] = {
       TOYOTA_ALT_BRAKE_RX_CHECKS(false)
+
+      // FrogPilot variables
     };
 
     if (!toyota_alt_brake) {
+    // FrogPilot variables
+
       SET_RX_CHECKS(toyota_lka_rx_checks, ret);
     } else {
       SET_RX_CHECKS(toyota_lka_alt_brake_rx_checks, ret);
     }
   }
+
+  // FrogPilot variables
 
   return ret;
 }
@@ -431,4 +457,6 @@ const safety_hooks toyota_hooks = {
   .get_checksum = toyota_get_checksum,
   .compute_checksum = toyota_compute_checksum,
   .get_quality_flag_valid = toyota_get_quality_flag_valid,
+
+  // FrogPilot variables
 };

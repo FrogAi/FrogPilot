@@ -94,6 +94,7 @@ void setQtSurfaceFormat() {
 #endif
   fmt.setSamples(16);
   fmt.setStencilBufferSize(1);
+  // FrogPilot variables
   QSurfaceFormat::setDefaultFormat(fmt);
 }
 
@@ -196,6 +197,8 @@ QPixmap bootstrapPixmap(const QString &id) {
 }
 
 bool hasLongitudinalControl(const cereal::CarParams::Reader &car_params) {
+  // FrogPilot variables
+
   // Using the experimental longitudinal toggle, returns whether longitudinal control
   // will be active without needing a restart of openpilot
   return car_params.getAlphaLongitudinalAvailable()

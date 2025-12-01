@@ -170,6 +170,7 @@ LoggerState::LoggerState(const std::string &log_root) {
 LoggerState::~LoggerState() {
   if (rlog) {
     log_sentinel(this, SentinelType::END_OF_ROUTE, exit_signal);
+    // FrogPilot variables
     std::remove(lock_file.c_str());
   }
 }
@@ -177,6 +178,7 @@ LoggerState::~LoggerState() {
 bool LoggerState::next() {
   if (rlog) {
     log_sentinel(this, SentinelType::END_OF_SEGMENT);
+    // FrogPilot variables
     std::remove(lock_file.c_str());
   }
 

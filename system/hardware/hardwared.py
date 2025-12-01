@@ -48,6 +48,8 @@ THERMAL_BANDS = OrderedDict({
   ThermalStatus.danger: ThermalBand(94.0, None),
 })
 
+# FrogPilot variables
+
 # Override to highest thermal band when offroad and above this temp
 OFFROAD_DANGER_TEMP = 75
 
@@ -212,6 +214,8 @@ def hardware_thread(end_event, hw_queue) -> None:
 
   fan_controller = None
 
+  # FrogPilot variables
+
   while not end_event.is_set():
     sm.update(PANDA_STATES_TIMEOUT)
 
@@ -292,6 +296,8 @@ def hardware_thread(end_event, hw_queue) -> None:
     if fan_controller is not None:
       msg.deviceState.fanSpeedPercentDesired = fan_controller.update(all_comp_temp, onroad_conditions["ignition"])
 
+    # FrogPilot variables
+
     is_offroad_for_5_min = (started_ts is None) and ((not started_seen) or (off_ts is None) or (time.monotonic() - off_ts > 60 * 5))
     if is_offroad_for_5_min and offroad_comp_temp > OFFROAD_DANGER_TEMP:
       # if device is offroad and already hot without the extra onroad load,
@@ -340,6 +346,8 @@ def hardware_thread(end_event, hw_queue) -> None:
     should_start = all(onroad_conditions.values())
     if started_ts is None:
       should_start = should_start and all(startup_conditions.values())
+
+    # FrogPilot variables
 
     if should_start != should_start_prev or (count == 0):
       params.put_bool("IsEngaged", False)
@@ -410,6 +418,8 @@ def hardware_thread(end_event, hw_queue) -> None:
     msg.deviceState.thermalStatus = thermal_status
     pm.send("deviceState", msg)
 
+    # FrogPilot variables
+
     # Log to statsd
     statlog.gauge("free_space_percent", msg.deviceState.freeSpacePercent)
     statlog.gauge("gpu_usage_percent", msg.deviceState.gpuUsagePercent)
@@ -462,6 +472,8 @@ def hardware_thread(end_event, hw_queue) -> None:
 
     count += 1
     should_start_prev = should_start
+
+    # FrogPilot variables
 
 
 def main():

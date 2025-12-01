@@ -83,6 +83,7 @@ class CarInterface(CarInterfaceBase):
     # Global longitudinal tuning defaults, can be overridden per-vehicle
 
     ret.alphaLongitudinalAvailable = ret.networkLocation == NetworkLocation.gateway or docs
+    # FrogPilot variables
     if alpha_long:
       # Proof-of-concept, prep for E2E only. No radar points available. Panda ALLOW_DEBUG firmware required.
       ret.openpilotLongitudinalControl = True

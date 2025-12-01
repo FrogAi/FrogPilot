@@ -39,6 +39,8 @@ EventName = log.OnroadEvent.EventName
 ButtonType = car.CarState.ButtonEvent.Type
 SafetyModel = car.CarParams.SafetyModel
 
+# FrogPilot variables
+
 IGNORED_SAFETY_MODES = (SafetyModel.silent, SafetyModel.noOutput)
 
 
@@ -139,10 +141,12 @@ class SelfdriveD:
     elif self.CP.passive:
       self.events.add(EventName.dashcamMode, static=True)
 
+    # FrogPilot variables
   def update_events(self, CS):
     """Compute onroadEvents from carState"""
 
     self.events.clear()
+    # FrogPilot variables
 
     if self.sm['controlsState'].lateralControlState.which() == 'debugState':
       self.events.add(EventName.joystickDebug)
@@ -154,12 +158,14 @@ class SelfdriveD:
 
     # Add startup event
     if self.startup_event is not None:
+      # FrogPilot variables
       self.events.add(self.startup_event)
       self.startup_event = None
 
     # Don't add any more events if not initialized
     if not self.initialized:
       self.events.add(EventName.selfdriveInitializing)
+      # FrogPilot variables
       return
 
     # Check for user bookmark press (bookmark button or end of LKAS button feedback)
@@ -258,11 +264,14 @@ class SelfdriveD:
       direction = self.sm['modelV2'].meta.laneChangeDirection
       if (CS.leftBlindspot and direction == LaneChangeDirection.left) or \
          (CS.rightBlindspot and direction == LaneChangeDirection.right):
+        # FrogPilot variables
         self.events.add(EventName.laneChangeBlocked)
       else:
         if direction == LaneChangeDirection.left:
+          # FrogPilot variables
           self.events.add(EventName.preLaneChangeLeft)
         else:
+          # FrogPilot variables
           self.events.add(EventName.preLaneChangeRight)
     elif self.sm['modelV2'].meta.laneChangeState in (LaneChangeState.laneChangeStarting,
                                                     LaneChangeState.laneChangeFinishing):
@@ -318,6 +327,7 @@ class SelfdriveD:
       self.events.add(EventName.canError)
 
     # generic catch-all. ideally, a more specific event should be added above instead
+    # FrogPilot variables
     has_disable_events = self.events.contains(ET.NO_ENTRY) and (self.events.contains(ET.SOFT_DISABLE) or self.events.contains(ET.IMMEDIATE_DISABLE))
     no_system_errors = (not has_disable_events) or (len(self.events) == num_events)
     if not self.sm.all_checks() and no_system_errors:
@@ -372,6 +382,7 @@ class SelfdriveD:
       turning = abs(desired_lateral_accel) > 1.0
       # TODO: lac.saturated includes speed and other checks, should be pulled out
       if undershooting and turning and lac.saturated:
+        # FrogPilot variables
         self.events.add(EventName.steerSaturated)
 
     # Check for FCW
@@ -396,10 +407,13 @@ class SelfdriveD:
 
     # Decrement personality on distance button press
     if self.CP.openpilotLongitudinalControl:
+      # FrogPilot variables
       if any(not be.pressed and be.type == ButtonType.gapAdjustCruise for be in CS.buttonEvents):
         self.personality = (self.personality - 1) % 3
         self.params.put_nonblocking('LongitudinalPersonality', self.personality)
         self.events.add(EventName.personalityChanged)
+
+    # FrogPilot variables
 
   def data_sample(self):
     _car_state = messaging.recv_one(self.car_state_sock)
@@ -461,6 +475,8 @@ class SelfdriveD:
     self.AM.add_many(self.sm.frame, alerts)
     self.AM.process_alerts(self.sm.frame, clear_event_types)
 
+    # FrogPilot variables
+
   def publish_selfdriveState(self, CS):
     # selfdriveState
     ss_msg = messaging.new_message('selfdriveState')
@@ -491,6 +507,8 @@ class SelfdriveD:
       self.pm.send('onroadEvents', ce_send)
     self.events_prev = self.events.names.copy()
 
+    # FrogPilot variables
+
   def step(self):
     CS = self.data_sample()
     self.update_events(CS)
@@ -502,11 +520,14 @@ class SelfdriveD:
 
     self.CS_prev = CS
 
+    # FrogPilot variables
+
   def params_thread(self, evt):
     while not evt.is_set():
       self.is_metric = self.params.get_bool("IsMetric")
       self.is_ldw_enabled = self.params.get_bool("IsLdwEnabled")
       self.disengage_on_accelerator = self.params.get_bool("DisengageOnAccelerator")
+      # FrogPilot variables
       self.experimental_mode = self.params.get_bool("ExperimentalMode") and self.CP.openpilotLongitudinalControl
       self.personality = self.params.get("LongitudinalPersonality", return_default=True)
       time.sleep(0.1)

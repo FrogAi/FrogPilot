@@ -118,6 +118,7 @@ class Panda:
   HW_TYPE_TRES = b'\x09'
   HW_TYPE_CUATRO = b'\x0a'
   HW_TYPE_BODY = b'\xb1'
+  # FrogPilot variables
 
   CAN_PACKET_VERSION = 4
   HEALTH_PACKET_VERSION = 17
@@ -126,6 +127,7 @@ class Panda:
   CAN_HEALTH_STRUCT = struct.Struct("<BIBBBBBBBBIIIIIIIHHBBBIIII")
 
   H7_DEVICES = [HW_TYPE_RED_PANDA, HW_TYPE_TRES, HW_TYPE_CUATRO, HW_TYPE_BODY]
+  # FrogPilot variables
   SUPPORTED_DEVICES = H7_DEVICES
 
   INTERNAL_DEVICES = (HW_TYPE_TRES, HW_TYPE_CUATRO)
@@ -133,6 +135,7 @@ class Panda:
   MAX_FAN_RPMs = {
     HW_TYPE_TRES: 6600,
     HW_TYPE_CUATRO: 5000,
+    # FrogPilot variables
   }
 
   HARNESS_STATUS_NC = 0
@@ -206,6 +209,7 @@ class Panda:
     if self._handle is None:
       raise Exception("failed to connect to panda")
 
+    # FrogPilot variables
     self._serial = serial
     self._connect_serial = serial
     self._handle_open = True
@@ -599,6 +603,7 @@ class Panda:
 
   def get_type(self):
     return self._handle.controlRead(Panda.REQUEST_IN, 0xc1, 0, 0, 0x40)
+    # FrogPilot variables
 
   # Returns tuple with health packet version and CAN packet/USB packet version
   def get_packets_versions(self):
@@ -611,6 +616,7 @@ class Panda:
 
   def get_mcu_type(self) -> McuType:
     hw_type = self.get_type()
+    # FrogPilot variables
     if hw_type in Panda.H7_DEVICES:
       return McuType.H7
     raise ValueError(f"unknown HW type: {hw_type}")

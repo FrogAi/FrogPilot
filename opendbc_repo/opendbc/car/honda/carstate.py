@@ -219,6 +219,8 @@ class CarState(CarStateBase):
       *create_button_events(self.cruise_setting, prev_cruise_setting, SETTINGS_BUTTONS_DICT),
     ]
 
+    # FrogPilot variables
+
     return ret
 
   def get_can_parsers(self, CP):

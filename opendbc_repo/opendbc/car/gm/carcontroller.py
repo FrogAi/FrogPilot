@@ -16,6 +16,8 @@ CAMERA_CANCEL_DELAY_FRAMES = 10
 # Enforce a minimum interval between steering messages to avoid a fault
 MIN_STEER_MSG_INTERVAL_MS = 15
 
+# FrogPilot variables
+
 
 class CarController(CarControllerBase):
   def __init__(self, dbc_names, CP):
@@ -36,6 +38,8 @@ class CarController(CarControllerBase):
     self.packer_pt = CANPacker(DBC[self.CP.carFingerprint][Bus.pt])
     self.packer_obj = CANPacker(DBC[self.CP.carFingerprint][Bus.radar])
     self.packer_ch = CANPacker(DBC[self.CP.carFingerprint][Bus.chassis])
+
+    # FrogPilot variables
 
   # OPGM variables
   @staticmethod
@@ -100,6 +104,9 @@ class CarController(CarControllerBase):
       if self.frame % 4 == 0:
         stopping = actuators.longControlState == LongCtrlState.stopping
         interceptor_gas_cmd = 0
+
+        # FrogPilot variables
+
         if not CC.longActive:
           # ASCM sends max regen when not enabled
           self.apply_gas = self.params.INACTIVE_REGEN
@@ -116,6 +123,8 @@ class CarController(CarControllerBase):
           if self.CP.carFingerprint in CC_ONLY_CAR:
             # gas interceptor only used for full long control on cars without ACC
             interceptor_gas_cmd = self.calc_pedal_command(actuators.accel, CC.longActive, CS.out.vEgo)
+
+        # FrogPilot variables
 
         idx = (self.frame // 4) % 4
 
@@ -134,6 +143,8 @@ class CarController(CarControllerBase):
           if self.CP.networkLocation == NetworkLocation.fwdCamera:
             at_full_stop = at_full_stop and stopping
             friction_brake_bus = CanBus.POWERTRAIN
+
+          # FrogPilot variables
 
           # GasRegenCmdActive needs to be 1 to avoid cruise faults. It describes the ACC state, not actuation
           can_sends.append(gmcan.create_gas_regen_command(self.packer_pt, CanBus.POWERTRAIN, self.apply_gas, idx, CC.enabled, at_full_stop))

@@ -26,8 +26,7 @@ DriverMonitorRenderer::DriverMonitorRenderer() : face_kpts_draw(std::size(DEFAUL
 
 void DriverMonitorRenderer::updateState(const UIState &s) {
   auto &sm = *(s.sm);
-  is_visible = sm["selfdriveState"].getSelfdriveState().getAlertSize() == cereal::SelfdriveState::AlertSize::NONE &&
-               sm.rcv_frame("driverStateV2") > s.scene.started_frame;
+  is_visible = sm.rcv_frame("driverStateV2") > s.scene.started_frame;
   if (!is_visible) return;
 
   auto dm_state = sm["driverMonitoringState"].getDriverMonitoringState();
@@ -64,14 +63,25 @@ void DriverMonitorRenderer::updateState(const UIState &s) {
 }
 
 void DriverMonitorRenderer::draw(QPainter &painter, const QRect &surface_rect) {
-  if (!is_visible) return;
-
-  painter.save();
-
   int offset = UI_BORDER_SIZE + btn_size / 2;
   float x = is_rhd ? surface_rect.width() - offset : offset;
   float y = surface_rect.height() - offset;
   float opacity = is_active ? 0.65f : 0.2f;
+
+  // FrogPilot variables
+
+  if (frogpilot_nvg) {
+    frogpilot_nvg->dmIconPosition = QPoint(x, y);
+    frogpilot_nvg->rightHandDM = is_rhd;
+
+    if (frogpilot_nvg->hideBottomIcons) {
+      return;
+    }
+  }
+
+  if (!is_visible) return;
+
+  painter.save();
 
   drawIcon(painter, QPoint(x, y), dm_img, QColor(0, 0, 0, 70), opacity);
 

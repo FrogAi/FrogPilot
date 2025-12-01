@@ -353,6 +353,8 @@ class TestTeslaSafetyBase(common.CarSafetyTest, common.AngleSteeringSafetyTest, 
         # Recover
         self.assertTrue(self._tx(self._angle_cmd_msg(0, True)))
 
+  # FrogPilot variables
+
 
 class TestTeslaStockSafety(TestTeslaSafetyBase):
 

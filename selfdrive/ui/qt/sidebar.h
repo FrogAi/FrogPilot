@@ -20,6 +20,9 @@ class Sidebar : public QFrame {
   Q_PROPERTY(int netStrength MEMBER net_strength NOTIFY valueChanged);
   Q_PROPERTY(bool recordingAudio MEMBER recording_audio NOTIFY valueChanged);
 
+  // FrogPilot variables
+  // FrogPilot properties
+
 public:
   explicit Sidebar(QWidget* parent = 0);
 
@@ -60,7 +63,12 @@ protected:
   QString net_type;
   int net_strength = 0;
 
+  // FrogPilot variables
+
 private:
   std::unique_ptr<PubMaster> pm;
   Networking *networking = nullptr;
+
+  // FrogPilot variables
+  void showEvent(QShowEvent *event) override;
 };

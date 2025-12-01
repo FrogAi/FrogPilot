@@ -132,6 +132,8 @@ class SafetyTestBase(unittest.TestCase):
       self.assertEqual(meas_min_func(), 0)
       self.assertEqual(meas_max_func(), 0)
 
+  # FrogPilot variables
+
 
 class LongitudinalAccelSafetyTest(SafetyTestBase, abc.ABC):
 
@@ -300,6 +302,8 @@ class TorqueSteeringSafetyTestBase(SafetyTestBase, abc.ABC):
     self.assertFalse(self._tx(self._torque_cmd_msg(self.MAX_TORQUE, 0)))
     for _ in range(10):
       self.assertFalse(self._tx(self._torque_cmd_msg(self.MAX_TORQUE, 1)))
+
+  # FrogPilot variables
 
 
 class SteerRequestCutSafetyTest(TorqueSteeringSafetyTestBase, abc.ABC):
@@ -806,6 +810,8 @@ class AngleSteeringSafetyTest(VehicleSpeedSafetyTest):
     for _ in range(5):
       self.assertTrue(self._tx(self._angle_cmd_msg(0, True, increment_timer=False)))
 
+  # FrogPilot variables
+
 
 class SafetyTest(SafetyTestBase):
   TX_MSGS: list[list[int]] | None = None
@@ -1126,6 +1132,8 @@ class CarSafetyTest(SafetyTest):
     self.safety.safety_tick_current_safety_config()
     self.assertFalse(self.safety.get_controls_allowed())
     self.assertFalse(self.safety.safety_config_valid())
+
+  # FrogPilot variables
 
 
 # OPGM variables

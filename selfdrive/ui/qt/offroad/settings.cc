@@ -119,6 +119,8 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
   // Toggles with confirmation dialogs
   toggles["ExperimentalMode"]->setActiveIcon("../assets/icons/experimental.svg");
   toggles["ExperimentalMode"]->setConfirmation(true, true);
+
+  // FrogPilot variables
 }
 
 void TogglesPanel::updateState(const UIState &s) {
@@ -148,6 +150,8 @@ void TogglesPanel::scrollToToggle(const QString &param) {
 
 void TogglesPanel::showEvent(QShowEvent *event) {
   updateToggles();
+
+  // FrogPilot variables
 }
 
 void TogglesPanel::updateToggles() {
@@ -201,6 +205,8 @@ void TogglesPanel::updateToggles() {
   } else {
     experimental_mode_toggle->setDescription(e2e_description);
   }
+
+  // FrogPilot variables
 }
 
 DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
@@ -294,6 +300,8 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   reboot_btn->setObjectName("reboot_btn");
   power_layout->addWidget(reboot_btn);
   QObject::connect(reboot_btn, &QPushButton::clicked, this, &DevicePanel::reboot);
+
+  // FrogPilot variables
 
   QPushButton *poweroff_btn = new QPushButton(tr("Power Off"));
   poweroff_btn->setObjectName("poweroff_btn");
@@ -402,8 +410,14 @@ void DevicePanel::poweroff() {
   }
 }
 
+// FrogPilot variables
+
 void SettingsWindow::showEvent(QShowEvent *event) {
   setCurrentPanel(0);
+}
+
+// FrogPilot variables
+void SettingsWindow::hideEvent(QHideEvent *event) {
 }
 
 void SettingsWindow::setCurrentPanel(int index, const QString &param) {
@@ -431,6 +445,7 @@ void SettingsWindow::setCurrentPanel(int index, const QString &param) {
 }
 
 SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
+  // FrogPilot variables
 
   // setup two main layouts
   sidebar_widget = new QWidget;
@@ -454,7 +469,10 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   close_btn->setFixedSize(200, 200);
   sidebar_layout->addSpacing(45);
   sidebar_layout->addWidget(close_btn, 0, Qt::AlignCenter);
-  QObject::connect(close_btn, &QPushButton::clicked, this, &SettingsWindow::closeSettings);
+  QObject::connect(close_btn, &QPushButton::clicked, [this]() {
+    // FrogPilot variables
+    closeSettings();
+  });
 
   // setup panels
   DevicePanel *device = new DevicePanel(this);
@@ -467,6 +485,8 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
 
   auto networking = new Networking(this);
   QObject::connect(uiState()->prime_state, &PrimeState::changed, networking, &Networking::setPrimeType);
+
+  // FrogPilot variables
 
   QList<QPair<QString, QWidget *>> panels = {
     {tr("Device"), device},
@@ -508,6 +528,8 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     panel_widget->addWidget(panel_frame);
 
     QObject::connect(btn, &QPushButton::clicked, [=, w = panel_frame]() {
+      // FrogPilot variables
+
       btn->setChecked(true);
       panel_widget->setCurrentWidget(w);
     });
@@ -521,6 +543,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   main_layout->addWidget(sidebar_widget);
   main_layout->addWidget(panel_widget);
 
+  // FrogPilot variables
   setStyleSheet(R"(
     * {
       color: white;
@@ -535,3 +558,5 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     }
   )");
 }
+
+// FrogPilot variables

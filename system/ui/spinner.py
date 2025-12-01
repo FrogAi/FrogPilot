@@ -27,6 +27,8 @@ FONT_SIZE = 96
 LINE_HEIGHT = 104
 DARKGRAY = (55, 55, 55, 255)
 
+# FrogPilot variables
+
 
 def clamp(value, min_value, max_value):
   return max(min(value, max_value), min_value)

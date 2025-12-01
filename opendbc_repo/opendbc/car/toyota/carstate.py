@@ -22,6 +22,7 @@ TEMP_STEER_FAULTS = (0, 9, 11, 21, 25)
 # - lka/lta msg drop out: 3 (recoverable)
 # - prolonged high driver torque: 17 (permanent)
 PERM_STEER_FAULTS = (3, 17)
+# FrogPilot variables
 
 
 class CarState(CarStateBase):
@@ -52,6 +53,11 @@ class CarState(CarStateBase):
     self.lkas_hud = {}
     self.gvc = 0.0
     self.secoc_synchronization = None
+
+    # FrogPilot variables
+    self.prev_pcm_acc_status = 0
+
+  # FrogPilot variables
 
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
@@ -148,6 +154,7 @@ class CarState(CarStateBase):
       ret.cruiseState.speedCluster = cluster_set_speed * conversion_factor
 
     if self.CP.carFingerprint in TSS2_CAR and not self.CP.flags & ToyotaFlags.DISABLE_RADAR.value:
+      # FrogPilot variables
       self.acc_type = cp_acc.vl["ACC_CONTROL"]["ACC_TYPE"]
       ret.stockFcw = bool(cp_acc.vl["PCS_HUD"]["FCW"])
 
@@ -197,6 +204,17 @@ class CarState(CarStateBase):
         self.distance_button = cp_acc.vl["ACC_CONTROL"]["DISTANCE"]
 
         buttonEvents += create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
+
+    # FrogPilot variables
+    if self.pcm_acc_status != self.prev_pcm_acc_status and self.pcm_acc_status in (9, 10):
+      if self.pcm_acc_status == 9:
+        button_type = ButtonType.accelCruise
+      else:
+        button_type = ButtonType.decelCruise
+
+      buttonEvents += create_button_events(1, 0, {1: button_type}) + create_button_events(0, 1, {1: button_type})
+
+    self.prev_pcm_acc_status = self.pcm_acc_status
 
     ret.buttonEvents = buttonEvents
     return ret

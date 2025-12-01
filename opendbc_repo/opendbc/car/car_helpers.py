@@ -13,6 +13,8 @@ from opendbc.car.vin import get_vin, is_valid_vin, VIN_UNKNOWN
 
 FRAME_FINGERPRINT = 100  # 1s
 
+# FrogPilot variables
+
 
 def load_interfaces(brand_names):
   ret = {}
@@ -152,6 +154,7 @@ def get_car(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_multip
             is_release: bool, num_pandas: int = 1, cached_params: CarParamsT | None = None):
   candidate, fingerprints, vin, car_fw, source, exact_match = fingerprint(can_recv, can_send, set_obd_multiplexing, num_pandas, cached_params)
 
+  # FrogPilot variables
   if candidate is None:
     carlog.error({"event": "car doesn't match any fingerprints", "fingerprints": repr(fingerprints)})
     candidate = "MOCK"
@@ -162,6 +165,8 @@ def get_car(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_multip
   CP.carFw = car_fw
   CP.fingerprintSource = source
   CP.fuzzyFingerprint = not exact_match
+
+  # FrogPilot variables
 
   return interfaces[CP.carFingerprint](CP)
 

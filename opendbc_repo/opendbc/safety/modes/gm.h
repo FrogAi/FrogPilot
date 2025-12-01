@@ -123,6 +123,8 @@ static void gm_rx_hook(const CANPacket_t *msg) {
       gas_pressed = gas_interceptor > GM_GAS_INTERCEPTOR_THRESHOLD;
     }
   }
+
+  // FrogPilot variables
 }
 
 static bool gm_tx_hook(const CANPacket_t *msg) {
@@ -274,10 +276,14 @@ static safety_config gm_init(uint16_t param) {
     {.msg = {{0x201, 0, 6, 10U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  // pedal
   };
 
+  // FrogPilot variables
+
   static const CanMsg GM_CC_LONG_TX_MSGS[] = {{0x180, 0, 4, .check_relay = true}, {0x1E1, 0, 7, .check_relay = false},  // pt bus
                                               {0x184, 2, 8, .check_relay = true}, {0x1E1, 2, 7, .check_relay = false}};  // camera bus
 
   gm_hw = GET_FLAG(param, GM_PARAM_HW_CAM) ? GM_CAM : GM_ASCM;
+
+  // FrogPilot variables
 
   if (gm_hw == GM_ASCM) {
     gm_long_limits = &GM_ASCM_LONG_LIMITS;
@@ -322,6 +328,7 @@ static safety_config gm_init(uint16_t param) {
   }
 
   const bool gm_ev = GET_FLAG(param, GM_PARAM_EV);
+  // FrogPilot variables
   if (enable_gas_interceptor) {
     SET_RX_CHECKS(gm_pedal_rx_checks, ret);
   } else if (!gm_has_acc && gm_ev) {

@@ -88,6 +88,7 @@ class CarSpecificEvents:
           if CS.vEgo < self.CP.minEnableSpeed + 2.:
             # non loud alert if cruise disables below 25mph as expected (+ a little margin)
             events.add(EventName.speedTooLow)
+          # FrogPilot variables
           else:
             events.add(EventName.cruiseDisabled)
       if self.CP.minEnableSpeed > 0 and CS.vEgo < 0.001:

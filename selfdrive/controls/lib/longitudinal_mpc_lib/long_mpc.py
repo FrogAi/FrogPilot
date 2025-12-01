@@ -42,6 +42,7 @@ CRASH_DISTANCE = .25
 LEAD_DANGER_FACTOR = 0.75
 LIMIT_COST = 1e6
 ACADOS_SOLVER_TYPE = 'SQP_RTI'
+# FrogPilot variables
 
 
 # Fewer timestamps don't hurt performance and lead to
@@ -58,6 +59,8 @@ STOP_DISTANCE = 6.0
 CRUISE_MIN_ACCEL = -1.2
 CRUISE_MAX_ACCEL = 1.6
 
+# FrogPilot variables
+
 def get_jerk_factor(personality=log.LongitudinalPersonality.standard):
   if personality==log.LongitudinalPersonality.relaxed:
     return 1.0
@@ -66,9 +69,11 @@ def get_jerk_factor(personality=log.LongitudinalPersonality.standard):
   elif personality==log.LongitudinalPersonality.aggressive:
     return 0.5
   else:
+    # FrogPilot variables
     raise NotImplementedError("Longitudinal personality not supported")
 
 
+# FrogPilot variables
 def get_T_FOLLOW(personality=log.LongitudinalPersonality.standard):
   if personality==log.LongitudinalPersonality.relaxed:
     return 1.75
@@ -77,6 +82,7 @@ def get_T_FOLLOW(personality=log.LongitudinalPersonality.standard):
   elif personality==log.LongitudinalPersonality.aggressive:
     return 1.25
   else:
+    # FrogPilot variables
     raise NotImplementedError("Longitudinal personality not supported")
 
 def get_stopped_equivalence_factor(v_lead):
@@ -258,6 +264,8 @@ class LongitudinalMpc:
     self.x0 = np.zeros(X_DIM)
     self.set_weights()
 
+    # FrogPilot variables
+
   def set_cost_weights(self, cost_weights, constraint_cost_weights):
     W = np.asfortranarray(np.diag(cost_weights))
     for i in range(N):
@@ -306,6 +314,9 @@ class LongitudinalMpc:
 
   def process_lead(self, lead):
     v_ego = self.x0[1]
+
+    # FrogPilot variables
+
     if lead is not None and lead.status:
       x_lead = lead.dRel
       v_lead = lead.vLead
@@ -330,10 +341,15 @@ class LongitudinalMpc:
   def update(self, radarstate, v_cruise, x, v, a, j, personality=log.LongitudinalPersonality.standard):
     t_follow = get_T_FOLLOW(personality)
     v_ego = self.x0[1]
+
+    # FrogPilot variables
+
     self.status = radarstate.leadOne.status or radarstate.leadTwo.status
 
     lead_xv_0 = self.process_lead(radarstate.leadOne)
     lead_xv_1 = self.process_lead(radarstate.leadTwo)
+
+    # FrogPilot variables
 
     # To estimate a safe distance from a moving lead, we calculate how much stopping
     # distance that lead needs as a minimum. We can add that to the current distance

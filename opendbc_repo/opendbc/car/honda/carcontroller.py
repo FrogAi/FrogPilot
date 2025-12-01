@@ -23,6 +23,7 @@ def compute_gb_honda_nidec(accel, speed):
   if speed < creep_speed:
     creep_brake = (creep_speed - speed) / creep_speed * creep_brake_value
   gb = float(accel) / 4.8 - creep_brake
+  # FrogPilot variables
   return np.clip(gb, 0.0, 1.0), np.clip(-gb, 0.0, 1.0)
 
 
@@ -238,6 +239,8 @@ class CarController(CarControllerBase):
         if self.CP.carFingerprint not in HONDA_BOSCH:
           self.speed = pcm_speed
           self.gas = pcm_accel / self.params.NIDEC_GAS_MAX
+
+    # FrogPilot variables
 
     new_actuators = actuators.as_builder()
     new_actuators.speed = self.speed

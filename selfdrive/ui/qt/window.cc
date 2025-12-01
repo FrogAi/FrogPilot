@@ -8,10 +8,12 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
   main_layout = new QStackedLayout(this);
   main_layout->setMargin(0);
 
+  // FrogPilot variables
   homeWindow = new HomeWindow(this);
   main_layout->addWidget(homeWindow);
   QObject::connect(homeWindow, &HomeWindow::openSettings, this, &MainWindow::openSettings);
   QObject::connect(homeWindow, &HomeWindow::closeSettings, this, &MainWindow::closeSettings);
+  // FrogPilot variables
 
   settingsWindow = new SettingsWindow(this);
   main_layout->addWidget(settingsWindow);

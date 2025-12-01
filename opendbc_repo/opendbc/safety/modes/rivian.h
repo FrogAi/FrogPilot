@@ -97,6 +97,8 @@ static void rivian_rx_hook(const CANPacket_t *msg) {
     if (msg->addr == 0x100U) {
       const int feature_status = msg->data[2] >> 5U;
       pcm_cruise_check(feature_status == 1);
+
+      // FrogPilot variables
     }
   }
 }

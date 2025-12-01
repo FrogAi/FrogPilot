@@ -248,10 +248,17 @@ def main(exit_event: threading.Event = None) -> None:
   uploader = Uploader(dongle_id, Paths.log_root())
 
   backoff = 0.1
+
+  # FrogPilot variables
+
   while not exit_event.is_set():
     sm.update(0)
+
+    # FrogPilot variables
+
     offroad = params.get_bool("IsOffroad")
     network_type = sm['deviceState'].networkType if not force_wifi else NetworkType.wifi
+    # FrogPilot variables
     if network_type == NetworkType.none:
       if allow_sleep:
         time.sleep(60 if offroad else 5)

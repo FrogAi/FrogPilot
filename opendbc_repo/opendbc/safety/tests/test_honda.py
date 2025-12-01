@@ -237,6 +237,8 @@ class HondaBase(common.CarSafetyTest):
     self.assertTrue(self._tx(self._send_steer_msg(0x0000)))
     self.assertFalse(self._tx(self._send_steer_msg(0x1000)))
 
+  # FrogPilot variables
+
 
 # ********************* Honda Nidec **********************
 
@@ -596,6 +598,9 @@ class TestHondaBoschCANFDAltBrakeSafety(HondaPcmEnableBase, TestHondaBoschCANFDS
     super().setUp()
     self.safety.set_safety_hooks(CarParams.SafetyModel.hondaBosch, HondaSafetyFlags.BOSCH_CANFD | HondaSafetyFlags.ALT_BRAKE)
     self.safety.init_tests()
+
+
+# FrogPilot variables
 
 
 if __name__ == "__main__":

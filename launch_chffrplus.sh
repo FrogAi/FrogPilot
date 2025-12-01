@@ -16,6 +16,8 @@ function agnos_init {
   sudo chgrp gpu /dev/adsprpc-smd /dev/ion /dev/kgsl-3d0
   sudo chmod 660 /dev/adsprpc-smd /dev/ion /dev/kgsl-3d0
 
+  # FrogPilot variables
+
   # Check if AGNOS update is required
   if [ $(< /VERSION) != "$AGNOS_VERSION" ]; then
     AGNOS_PY="$DIR/system/hardware/tici/agnos.py"

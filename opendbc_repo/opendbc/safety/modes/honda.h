@@ -17,6 +17,8 @@
 #define HONDA_ALT_BRAKE_ADDR_CHECK(pt_bus)                                                                                              \
   {.msg = {{0x1BE, (pt_bus), 3, 50U, .max_counter = 3U, .ignore_quality_flag = true}, { 0 }, { 0 }}},  /* BRAKE_MODULE */  \
 
+// FrogPilot variables
+
 enum {
   HONDA_BTN_NONE = 0,
   HONDA_BTN_MAIN = 1,
@@ -34,6 +36,8 @@ static bool honda_bosch_radarless = false;
 static bool honda_bosch_canfd = false;
 typedef enum {HONDA_NIDEC, HONDA_BOSCH} HondaHw;
 static HondaHw honda_hw = HONDA_NIDEC;
+
+// FrogPilot variables
 
 
 static unsigned int honda_get_pt_bus(void) {
@@ -63,11 +67,15 @@ static uint32_t honda_compute_checksum(const CANPacket_t *msg) {
 }
 
 static uint8_t honda_get_counter(const CANPacket_t *msg) {
+  // FrogPilot variables
+
   int counter_byte = GET_LEN(msg) - 1U;
   return (msg->data[counter_byte] >> 4U) & 0x3U;
 }
 
 static void honda_rx_hook(const CANPacket_t *msg) {
+  // FrogPilot variables
+
   const bool pcm_cruise = ((honda_hw == HONDA_BOSCH) && !honda_bosch_long) || (honda_hw == HONDA_NIDEC);
   unsigned int pt_bus = honda_get_pt_bus();
 
@@ -139,6 +147,8 @@ static void honda_rx_hook(const CANPacket_t *msg) {
     }
   }
 
+  // FrogPilot variables
+
   if (msg->addr == 0x17CU) {
     gas_pressed = msg->data[0] != 0U;
   }
@@ -148,6 +158,8 @@ static void honda_rx_hook(const CANPacket_t *msg) {
     if ((msg->bus == 2U) && (msg->addr == 0x1FAU)) {
       bool honda_stock_aeb = GET_BIT(msg, 29U);
       int honda_stock_brake = (msg->data[0] << 2) | (msg->data[1] >> 6);
+
+      // FrogPilot variables
 
       // Forward AEB when stock braking is higher than openpilot braking
       // only stop forwarding when AEB event is over
@@ -200,6 +212,9 @@ static bool honda_tx_hook(const CANPacket_t *msg) {
   // BRAKE: safety check (nidec)
   if ((msg->addr == 0x1FAU) && (msg->bus == bus_pt)) {
     honda_brake = (msg->data[0] << 2) + ((msg->data[1] >> 6) & 0x3U);
+
+    // FrogPilot variables
+
     if (longitudinal_brake_checks(honda_brake, HONDA_NIDEC_LONG_LIMITS)) {
       tx = false;
     }
@@ -269,6 +284,8 @@ static bool honda_tx_hook(const CANPacket_t *msg) {
     }
   }
 
+  // FrogPilot variables
+
   return tx;
 }
 
@@ -313,6 +330,8 @@ static safety_config honda_nidec_init(uint16_t param) {
   }
 
   SET_TX_MSGS(HONDA_N_TX_MSGS, ret);
+
+  // FrogPilot variables
 
   return ret;
 }
