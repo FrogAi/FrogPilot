@@ -53,6 +53,7 @@ private:
   void paintCurveSpeedControl(QPainter &p);
   void paintRoadName(QPainter &p);
   void paintStandstillTimer(QPainter &p);
+  void paintStoppingPoint(QPainter &p);
   void paintTurnSignals(QPainter &p);
   void updateCEMIcon();
   void updateIcon(const QString &path, QSharedPointer<QMovie> &icon, QString &iconPath);
@@ -66,6 +67,7 @@ private:
   bool cscActive;
   bool cscTraining;
   bool experimentalMode;
+  bool redLight;
 
   int signalAnimationLength = 0;
   int signalHeight = 0;
@@ -78,6 +80,7 @@ private:
   float roadCurvature;
   float speedConversion;
   float speedConversionMetrics;
+  float stoppingDistance;
 
   InstantReplayButton *instantReplayButton;
 
@@ -90,6 +93,7 @@ private:
 
   QPixmap curveSpeedIcon;
   QPixmap curveSpeedIconFlipped;
+  QPixmap stopSignImg;
 
   QRect roadNameRect;
   QRect standstillTimerRect;
