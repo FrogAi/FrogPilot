@@ -84,6 +84,12 @@ def calculate_distance_to_point(lat1, lon1, lat2, lon2):
   return frogpilot_variables.EARTH_RADIUS * c
 
 
+def calculate_taco_turn_speeds(orientation_rates, speeds, v_ego):
+  curvatures = np.asarray(orientation_rates) / np.clip(speeds, 0.3, 100.0)
+  max_lat_accel = np.interp(v_ego, [5, 10, 20], [1.5, 2.0, 3.0])
+  return np.sqrt(max_lat_accel / (np.abs(curvatures) + 1e-3)) - 2.0
+
+
 def contains_event_type(events, frogpilot_events, *event_types):
   return any(events.contains(event_type) or frogpilot_events.contains(event_type) for event_type in event_types)
 
