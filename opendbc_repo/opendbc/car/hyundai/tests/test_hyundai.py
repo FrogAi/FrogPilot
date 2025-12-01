@@ -76,7 +76,7 @@ class TestHyundaiFingerprint:
     fingerprint = gen_empty_fingerprint()
     for car_model in CAR:
       for taco_tune_hacks in (True, False):
-        frogpilot_toggles = SimpleNamespace(taco_tune_hacks=taco_tune_hacks)
+        frogpilot_toggles = SimpleNamespace(force_torque_controller=False, taco_tune_hacks=taco_tune_hacks)
         CP = CarInterface.get_params(car_model, fingerprint, [], False, False, False)
         CarInterface.get_frogpilot_params(car_model, fingerprint, [], CP, frogpilot_toggles)
         flag_set = bool(CP.safetyConfigs[-1].safetyParam & HyundaiFrogPilotSafetyFlags.TACO_TUNE_HACK)

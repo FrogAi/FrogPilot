@@ -183,6 +183,9 @@ class CarInterfaceBase(ABC):
     platform = PLATFORMS[candidate]
 
     if platform not in MOCK:
+      if CP.lateralTuning.which() == "pid" and CP.steerControlType != structs.CarParams.SteerControlType.angle and frogpilot_toggles.force_torque_controller:
+        CarInterfaceBase.configure_torque_tune(candidate, CP.lateralTuning)
+
       if platform in CHRYSLER:
         if candidate == CHRYSLER.RAM_HD_5TH_GEN:
           if 570 not in fingerprint[0]:
