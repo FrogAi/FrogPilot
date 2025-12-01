@@ -89,6 +89,12 @@ class Events:
     return any(event_type in (FROGPILOT_EVENTS if self.frogpilot else EVENTS).get(e, {}) for e in self.events)
 
   # FrogPilot variables
+  def contains_disable_event(self) -> bool:
+    for e in self.events:
+      event_types = (FROGPILOT_EVENTS if self.frogpilot else EVENTS)[e]
+      if ET.NO_ENTRY in event_types and (ET.SOFT_DISABLE in event_types or ET.IMMEDIATE_DISABLE in event_types):
+        return True
+    return False
 
   def create_alerts(self, event_types: list[str], callback_args=None):
     if callback_args is None:

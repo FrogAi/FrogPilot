@@ -605,7 +605,10 @@ class FrogPilotVariables:
     toggle.nnff_lite = self.get_value("NNFFLite", condition=not toggle.nnff and lateral_tuning and not is_angle_car)
     toggle.use_turn_desires = self.get_value("TurnDesires", condition=lateral_tuning)
 
-    lkas_button_control = self.get_value("LKASButtonControl", cast=float, condition=toggle.car_make != "subaru")
+    if toggle.has_lkas_button and not toggle.always_on_lateral_lkas:
+      lkas_button_control = self.get_value("LKASButtonControl", cast=float)
+    else:
+      lkas_button_control = BUTTON_FUNCTIONS["NOTHING"]
     toggle.experimental_mode_via_lkas = toggle.openpilot_longitudinal and lkas_button_control == BUTTON_FUNCTIONS["EXPERIMENTAL_MODE"]
     toggle.force_coast_via_lkas = toggle.openpilot_longitudinal and lkas_button_control == BUTTON_FUNCTIONS["FORCE_COAST"]
     toggle.pause_lateral_via_lkas = lkas_button_control == BUTTON_FUNCTIONS["PAUSE_LATERAL"]

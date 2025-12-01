@@ -238,6 +238,11 @@ class HondaBase(common.CarSafetyTest):
     self.assertFalse(self._tx(self._send_steer_msg(0x1000)))
 
   # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    return self._acc_state_msg(toggle_on)
+
+  def _aol_steer_msg(self):
+    return self._send_steer_msg(0x1000)
 
 
 # ********************* Honda Nidec **********************

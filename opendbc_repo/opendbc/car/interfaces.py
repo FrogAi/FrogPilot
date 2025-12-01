@@ -22,7 +22,7 @@ from opendbc.car.ford.values import CAR as FORD, FordFlags
 from opendbc.car.gm.values import CAR as GM
 from opendbc.car.honda.values import CAR as HONDA, HONDA_BOSCH
 from opendbc.car.hyundai.hyundaicanfd import CanBus as HyundaiCanBus
-from opendbc.car.hyundai.values import CAR as HYUNDAI, CANFD_CAR, HyundaiFlags
+from opendbc.car.hyundai.values import CAR as HYUNDAI, CANFD_CAR, HyundaiFlags, HyundaiFrogPilotSafetyFlags
 from opendbc.car.mock.values import CAR as MOCK
 from opendbc.car.toyota.values import CAR as TOYOTA, NO_DSU_CAR, TSS2_CAR, UNSUPPORTED_DSU_CAR, ToyotaFrogPilotFlags
 from opendbc.car.values import PLATFORMS
@@ -204,6 +204,9 @@ class CarInterfaceBase(ABC):
           fp_ret.hasDashboardSpeedLimit = 0x1FA in fingerprint[speed_limit_bus]
         else:
           fp_ret.hasDashboardSpeedLimit = 0x53E in fingerprint[2] or 0x544 in fingerprint[0]
+
+        if CP.flags & HyundaiFlags.HAS_LDA_BUTTON:
+          CP.safetyConfigs[-1].safetyParam |= HyundaiFrogPilotSafetyFlags.HAS_LDA_BUTTON.value
 
       elif platform in TOYOTA:
         fp_ret.canUsePedal = not CP.autoResumeSng

@@ -116,6 +116,7 @@ static void subaru_rx_hook(const CANPacket_t *msg) {
     pcm_cruise_check(cruise_engaged);
 
     // FrogPilot variables
+    acc_main_on = GET_BIT(msg, 40U);
   }
 
   // update vehicle moving with any non-zero wheel speed

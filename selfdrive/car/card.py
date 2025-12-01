@@ -17,6 +17,7 @@ from opendbc.car.carlog import carlog
 from opendbc.car.fw_versions import ObdCallback
 from opendbc.car.car_helpers import get_car, interfaces
 from opendbc.car.interfaces import CarInterfaceBase, RadarInterfaceBase
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 from openpilot.selfdrive.pandad import can_capnp_to_list, can_list_to_can_capnp
 from openpilot.selfdrive.car.cruise import VCruiseHelper
 from openpilot.selfdrive.car.car_specific import MockCarState
@@ -155,6 +156,9 @@ class Car:
 
     # FrogPilot variables
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
+
+    if self.frogpilot_toggles.always_on_lateral and not self.FPCP.dashcamOnly:
+      self.CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL
 
     # Write CarParams for controls and radard
     cp_bytes = self.CP.to_bytes()

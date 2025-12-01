@@ -85,6 +85,7 @@ class ToyotaFrogPilotFlags(IntFlag):
 
 
 class ToyotaFrogPilotSafetyFlags(IntFlag):
+  UNSUPPORTED_DSU = (16 << 8)
 
 
 def dbc_dict(pt, radar):

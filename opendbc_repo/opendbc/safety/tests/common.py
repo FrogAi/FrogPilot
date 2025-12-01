@@ -133,6 +133,11 @@ class SafetyTestBase(unittest.TestCase):
       self.assertEqual(meas_max_func(), 0)
 
   # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    """Toggles "Always On Lateral" on/off"""
+
+  def _aol_steer_msg(self):
+    pass
 
 
 class LongitudinalAccelSafetyTest(SafetyTestBase, abc.ABC):
@@ -304,6 +309,9 @@ class TorqueSteeringSafetyTestBase(SafetyTestBase, abc.ABC):
       self.assertFalse(self._tx(self._torque_cmd_msg(self.MAX_TORQUE, 1)))
 
   # FrogPilot variables
+  def _aol_steer_msg(self):
+    self._set_prev_torque(0)
+    return self._torque_cmd_msg(self.MAX_RATE_UP)
 
 
 class SteerRequestCutSafetyTest(TorqueSteeringSafetyTestBase, abc.ABC):
@@ -811,6 +819,11 @@ class AngleSteeringSafetyTest(VehicleSpeedSafetyTest):
       self.assertTrue(self._tx(self._angle_cmd_msg(0, True, increment_timer=False)))
 
   # FrogPilot variables
+  def _aol_steer_msg(self):
+    self._reset_angle_measurement(0)
+    self._reset_speed_measurement(1)
+    self._set_prev_desired_angle(0)
+    return self._angle_cmd_msg(self.ANGLE_RATE_UP[0] / 2.0, True)
 
 
 class SafetyTest(SafetyTestBase):
@@ -1134,6 +1147,30 @@ class CarSafetyTest(SafetyTest):
     self.assertFalse(self.safety.safety_config_valid())
 
   # FrogPilot variables
+  def test_always_on_lateral(self):
+    if self._toggle_aol(True) is None or self._aol_steer_msg() is None:
+      raise unittest.SkipTest("AOL message not implemented for this safety mode")
+
+    self.safety.set_controls_allowed(False)
+
+    # Without alt exp, make sure steering is blocked
+    self.safety.set_alternative_experience(0)
+    self.assertFalse(self._tx(self._aol_steer_msg()))
+
+    # With alt exp, but without main on, steering should be blocked
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self._rx(self._toggle_aol(False))
+    self.assertFalse(self._tx(self._aol_steer_msg()))
+    self.assertFalse(self.safety.get_longitudinal_allowed())
+
+    # With alt exp and main on, steering should be allowed
+    self._rx(self._toggle_aol(True))
+    self.assertTrue(self._tx(self._aol_steer_msg()))
+    self.assertFalse(self.safety.get_longitudinal_allowed())
+
+    # Turn off main, steering should be blocked again
+    self._rx(self._toggle_aol(False))
+    self.assertFalse(self._tx(self._aol_steer_msg()))
 
 
 # OPGM variables

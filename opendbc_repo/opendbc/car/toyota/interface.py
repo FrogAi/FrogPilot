@@ -4,7 +4,7 @@ from opendbc.car.toyota.carcontroller import CarController
 from opendbc.car.toyota.radar_interface import RadarInterface
 from opendbc.car.toyota.values import Ecu, CAR, DBC, ToyotaFlags, CarControllerParams, TSS2_CAR, RADAR_ACC_CAR, NO_DSU_CAR, \
                                                   MIN_ACC_SPEED, EPS_SCALE, NO_STOP_TIMER_CAR, ANGLE_CONTROL_CAR, \
-                                                  ToyotaSafetyFlags
+                                                  ToyotaFrogPilotSafetyFlags, ToyotaSafetyFlags
 from opendbc.car.disable_ecu import disable_ecu
 from opendbc.car.interfaces import CarInterfaceBase
 
@@ -142,6 +142,8 @@ class CarInterface(CarInterfaceBase):
         ret.longitudinalActuatorDelay = 0.05
 
     # FrogPilot variables
+    if ret.flags & ToyotaFlags.UNSUPPORTED_DSU.value:
+      ret.safetyConfigs[0].safetyParam |= ToyotaFrogPilotSafetyFlags.UNSUPPORTED_DSU.value
 
     return ret
 

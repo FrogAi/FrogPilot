@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import unittest
 
-from opendbc.car.nissan.values import NissanSafetyFlags
+from opendbc.car.nissan.values import NissanFrogPilotSafetyFlags, NissanSafetyFlags
 from opendbc.car.structs import CarParams
 from opendbc.safety.tests.libsafety import libsafety_py
 import opendbc.safety.tests.common as common
@@ -29,7 +29,7 @@ class TestNissanSafety(common.CarSafetyTest, common.AngleSteeringSafetyTest):
   def setUp(self):
     self.packer = CANPackerSafety("nissan_x_trail_2017_generated")
     self.safety = libsafety_py.libsafety
-    self.safety.set_safety_hooks(CarParams.SafetyModel.nissan, 0)
+    self.safety.set_safety_hooks(CarParams.SafetyModel.nissan, NissanFrogPilotSafetyFlags.PRO_PILOT)
     self.safety.init_tests()
 
   def _angle_cmd_msg(self, angle: float, enabled: bool):
@@ -80,6 +80,10 @@ class TestNissanSafety(common.CarSafetyTest, common.AngleSteeringSafetyTest):
         self.assertEqual(tx, should_tx)
 
   # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    # PRO_PILOT, CRUISE_ON is the main on button for X-Trail/Rogue/Altima
+    values = {"CRUISE_ON": 1 if toggle_on else 0}
+    return self.packer.make_can_msg_safety("PRO_PILOT", 2, values)
 
 
 class TestNissanSafetyAltEpsBus(TestNissanSafety):
@@ -91,7 +95,7 @@ class TestNissanSafetyAltEpsBus(TestNissanSafety):
   def setUp(self):
     self.packer = CANPackerSafety("nissan_x_trail_2017_generated")
     self.safety = libsafety_py.libsafety
-    self.safety.set_safety_hooks(CarParams.SafetyModel.nissan, NissanSafetyFlags.ALT_EPS_BUS)
+    self.safety.set_safety_hooks(CarParams.SafetyModel.nissan, NissanSafetyFlags.ALT_EPS_BUS | NissanFrogPilotSafetyFlags.PRO_PILOT)
     self.safety.init_tests()
 
 
@@ -116,6 +120,10 @@ class TestNissanLeafSafety(TestNissanSafety):
     pass
 
   # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    # CRUISE_THROTTLE, CRUISE_AVAILABLE is the main on button for Leaf
+    values = {"CRUISE_AVAILABLE": 1 if toggle_on else 0}
+    return self.packer.make_can_msg_safety("CRUISE_THROTTLE", 0, values)
 
 
 if __name__ == "__main__":

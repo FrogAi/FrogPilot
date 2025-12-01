@@ -39,9 +39,9 @@ class TestTeslaSafetyBase(common.CarSafetyTest, common.AngleSteeringSafetyTest, 
 
   # Tesla uses get_max_angle_delta_vm and get_max_angle_vm for real lateral accel and jerk limits
   # TODO: integrate this into AngleSteeringSafetyTest
-  ANGLE_RATE_BP = None
-  ANGLE_RATE_UP = None
-  ANGLE_RATE_DOWN = None
+  ANGLE_RATE_BP = [0.]
+  ANGLE_RATE_UP = [CarControllerParams.ANGLE_LIMITS.MAX_ANGLE_RATE]
+  ANGLE_RATE_DOWN = [CarControllerParams.ANGLE_LIMITS.MAX_ANGLE_RATE]
 
   # Real time limits
   LATERAL_FREQUENCY = 50  # Hz
@@ -354,6 +354,10 @@ class TestTeslaSafetyBase(common.CarSafetyTest, common.AngleSteeringSafetyTest, 
         self.assertTrue(self._tx(self._angle_cmd_msg(0, True)))
 
   # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    # DI_state, DI_cruiseState is the cruise state, 1 is standby
+    values = {"DI_cruiseState": 1 if toggle_on else 0}
+    return self.packer.make_can_msg_safety("DI_state", 0, values)
 
 
 class TestTeslaStockSafety(TestTeslaSafetyBase):

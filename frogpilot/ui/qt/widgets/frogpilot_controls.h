@@ -11,6 +11,8 @@
 #include "selfdrive/ui/qt/util.h"
 #include "selfdrive/ui/qt/widgets/controls.h"
 
+bool isOpenpilotSteering();
+
 QFont fitInterFont(int pixelSize, QFont::Weight weight, int width, const QStringList &texts);
 
 QString cleanModelName(QString modelName);

@@ -11,6 +11,7 @@
 #define PSA_LANE_KEEP_ASSIST      1010U // TX from OP,  EPS
 
 // FrogPilot variables
+#define PSA_HS2_DYN1_MDD_ETAT_2B6 694U  // RX from BSI, ACC status
 
 // CAN bus
 #define PSA_MAIN_BUS 0U
@@ -90,6 +91,9 @@ static void psa_rx_hook(const CANPacket_t *msg) {
       pcm_cruise_check((msg->data[2U] >> 7U) & 1U); // RVV_ACC_ACTIVATION_REQ
     }
     // FrogPilot variables
+    if (msg->addr == PSA_HS2_DYN1_MDD_ETAT_2B6) {
+      acc_main_on = (msg->data[3] & 0x0FU) > 2;
+    }
   }
 
 
@@ -144,6 +148,7 @@ static safety_config psa_init(uint16_t param) {
     {.msg = {{PSA_DAT_BSI, PSA_CAM_BUS, 8, 20U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},        // brake
 
     // FrogPilot variables
+    {.msg = {{PSA_HS2_DYN1_MDD_ETAT_2B6, PSA_ADAS_BUS, 8, 20U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}}, // ACC status
   };
 
   return BUILD_SAFETY_CFG(psa_rx_checks, PSA_TX_MSGS);

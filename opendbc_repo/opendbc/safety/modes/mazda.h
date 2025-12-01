@@ -36,6 +36,7 @@ static void mazda_rx_hook(const CANPacket_t *msg) {
       pcm_cruise_check(cruise_engaged);
 
       // FrogPilot variables
+      acc_main_on = GET_BIT(msg, 17U);
     }
 
     if (msg->addr == MAZDA_ENGINE_DATA) {

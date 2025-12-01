@@ -133,6 +133,10 @@ class TestGmSafetyBase(common.CarSafetyTest, common.DriverTorqueSteeringSafetyTe
     return self.packer.make_can_msg_safety("ASCMSteeringButton", self.BUTTONS_BUS, values)
 
   # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    # ECMEngineStatus, bit 29 is CruiseMainOn
+    values = {"CruiseMainOn": 1 if toggle_on else 0}
+    return self.packer.make_can_msg_safety("ECMEngineStatus", 0, values)
 
 
 class TestGmEVSafetyBase(TestGmSafetyBase):

@@ -160,6 +160,7 @@ static void ford_rx_hook(const CANPacket_t *msg) {
       pcm_cruise_check(cruise_engaged);
 
       // FrogPilot variables
+      acc_main_on = (cruise_state == 3U) || cruise_engaged;
     }
   }
 }

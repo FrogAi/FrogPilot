@@ -72,6 +72,9 @@ class HyundaiButtonBase:
       self._rx(self._button_msg(Buttons.NONE))
 
   # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    self._rx(self._button_msg(Buttons.NONE))
+    return self._button_msg(Buttons.NONE, main_button=int(toggle_on != self.safety.get_acc_main_on()))
 
 
 class HyundaiLongitudinalBase(common.LongitudinalAccelSafetyTest):
