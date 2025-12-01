@@ -145,6 +145,14 @@ void FrogPilotUIState::flashPanda() {
   pm->send("frogpilotUIRequest", msg);
 }
 
+void FrogPilotUIState::reportIssue(const QString &report) {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  event.initFrogpilotUIRequest().setIssueReport(report.toStdString());
+  issue_report_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
 void FrogPilotUIState::requestAccountLink() {
   MessageBuilder msg;
   cereal::Event::Builder event = msg.initEvent();
@@ -166,6 +174,14 @@ void FrogPilotUIState::restoreSettingsBackup(const QString &name) {
   cereal::Event::Builder event = msg.initEvent();
   event.initFrogpilotUIRequest().setRestoreSettingsBackup(name.toStdString());
   settings_backup_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
+void FrogPilotUIState::retryIssueReport() {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  event.initFrogpilotUIRequest().setRetryIssueReport();
+  issue_report_request_time = event.getLogMonoTime();
   pm->send("frogpilotUIRequest", msg);
 }
 
