@@ -6,6 +6,7 @@ from collections.abc import Callable
 from openpilot.system.ui.widgets.label import gui_label, MiciLabel, UnifiedLabel
 from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.lib.application import gui_app, FontWeight, DEFAULT_TEXT_COLOR, MousePos
+from openpilot.frogpilot.ui.mici.frogpilot_theme import theme
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.ui.text import wrap_text
 from openpilot.system.version import training_version, RELEASE_BRANCHES
@@ -219,7 +220,7 @@ class MiciHomeLayout(Widget):
 
     # Draw settings icon in bottom left corner
     rl.draw_texture(self._settings_txt, int(last_x), int(self._rect.y + self.rect.height - self._settings_txt.height / 2 - Y_CENTER),
-                    rl.Color(255, 255, 255, int(255 * 0.9)))
+                    theme.settings_tint(rl.Color(255, 255, 255, int(255 * 0.9))))
     last_x = last_x + self._settings_txt.width + ITEM_SPACING
 
     # draw network

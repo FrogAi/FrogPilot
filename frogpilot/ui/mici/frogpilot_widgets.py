@@ -67,7 +67,7 @@ class FrogPilotWidgets(Widget):
     return self._csc_filter.x >= frogpilot_status.MIN_VISIBLE_ALPHA
 
   def _render(self, rect):
-    self._bottom_filter.update(float(self._can_draw and ui_state.status != UIStatus.DISENGAGED))
+    self._bottom_filter.update(float(self._can_draw and ui_state.status != UIStatus.DISENGAGED and not theme.signal_crosses_bottom()))
 
     self._render_conditional_status(rect)
     self._render_curve_speed(rect)

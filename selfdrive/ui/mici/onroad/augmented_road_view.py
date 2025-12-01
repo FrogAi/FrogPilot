@@ -5,6 +5,7 @@ from cereal import messaging, car, log
 from msgq.visionipc import VisionStreamType
 from openpilot.frogpilot.ui.mici.frogpilot_camera_view import frogpilot_camera_view
 from openpilot.frogpilot.ui.mici.frogpilot_experimental_press import ExperimentalPress
+from openpilot.frogpilot.ui.mici.frogpilot_theme import theme
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
 from openpilot.selfdrive.ui.mici.onroad import SIDE_PANEL_WIDTH
 from openpilot.selfdrive.ui.mici.onroad.alert_renderer import AlertRenderer
@@ -133,7 +134,7 @@ class BookmarkIcon(Widget):
     if self._offset_filter.x > 0:
       icon_x = self.rect.x + self.rect.width - round(self._offset_filter.x)
       icon_y = self.rect.y + (self.rect.height - self._icon.height) / 2  # Vertically centered
-      rl.draw_texture(self._icon, int(icon_x), int(icon_y), rl.WHITE)
+      rl.draw_texture(theme.bookmark_texture(self._icon), int(icon_x), int(icon_y), rl.WHITE)
 
 
 class AugmentedRoadView(CameraView):
