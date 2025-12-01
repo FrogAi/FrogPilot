@@ -11,6 +11,8 @@ FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(CameraWidget *nvg
 
   curveSpeedIcon = loadPixmap("../../frogpilot/assets/other_images/curve_speed.svg", {btn_size, btn_size});
   curveSpeedIconFlipped = curveSpeedIcon.transformed(QTransform().scale(-1, 1));
+  pausedIcon = loadPixmap("../../frogpilot/assets/other_images/paused_icon.svg", {widget_size, widget_size});
+  speedIcon = loadPixmap("../../frogpilot/assets/other_images/speed_icon.svg", {widget_size, widget_size});
   stopSignImg = loadPixmap("../../frogpilot/assets/other_images/stop_sign.svg", {btn_size, btn_size});
 
   QObject::connect(frogpilotUIState(), &FrogPilotUIState::themeUpdated, this, &FrogPilotAnnotatedCameraWidget::updateSignals);
@@ -175,6 +177,7 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   cscSpeed = frogpilotPlan.getCscSpeed();
   cscTraining = frogpilotPlan.getCscTraining();
   experimentalMode = selfdriveState.getExperimentalMode();
+  forceCoast = frogpilotCarState.getForceCoast();
   gpsBearing = frogpilotPlan.getGpsBearing();
   redLight = frogpilotPlan.getRedLight();
   roadCurvature = frogpilotPlan.getRoadCurvature();
@@ -272,6 +275,7 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
   int slotStep = rightHandDM ? -widget_size - 2 * UI_BORDER_SIZE : widget_size + 2 * UI_BORDER_SIZE;
 
   QPoint cemStatusPosition(dmIconPosition.x() + (rightHandDM ? -btn_size / 2 - 2 * UI_BORDER_SIZE - widget_size : btn_size / 2 + 2 * UI_BORDER_SIZE), dmIconPosition.y() - widget_size / 2);
+  QPoint longitudinalPausedPosition = cemStatusPosition + QPoint(slotStep, 0);
 
   QPoint compassPosition(rightHandDM ? width() - experimentalButtonPosition.x() - btn_size : experimentalButtonPosition.x() + btn_size - widget_size, cemStatusPosition.y());
 
@@ -291,6 +295,10 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
     if (cscTraining || (isCruiseSet && cscActive)) {
       paintCurveSpeedControl(p);
     }
+  }
+
+  if (!hideBottomIcons && forceCoast) {
+    paintPausedIcon(p, longitudinalPausedPosition, speedIcon);
   }
 
   if (standstillDuration != 0) {
@@ -506,6 +514,21 @@ void FrogPilotAnnotatedCameraWidget::paintCurveSpeedControl(QPainter &p) {
     p.drawText(cscRect, Qt::AlignCenter, cscSpeedText);
     p.drawPixmap(curveSpeedPoint, curveSpeedImage);
   }
+
+  p.restore();
+}
+
+void FrogPilotAnnotatedCameraWidget::paintPausedIcon(QPainter &p, const QPoint &position, const QPixmap &icon) {
+  p.save();
+
+  QRect pausedWidget(position, QSize(widget_size, widget_size));
+
+  paintWidgetFrame(p, pausedWidget, bg_colors[STATUS_TRAFFIC_MODE_ENABLED]);
+
+  p.setOpacity(0.65);
+  p.drawPixmap(pausedWidget, icon);
+  p.setOpacity(1.0);
+  p.drawPixmap(pausedWidget, pausedIcon);
 
   p.restore();
 }
