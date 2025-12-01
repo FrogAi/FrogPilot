@@ -20,6 +20,7 @@ public:
   void paintFrogPilotWidgets(QPainter &p);
   void paintLeadMetrics(QPainter &p, bool adjacent, QPointF *chevron, float leadDistance, float vLead);
   void paintPathEdges(QPainter &p);
+  void paintRainbowPath(QLinearGradient &bg, float lin_grad_point);
   void paintWorldWidgets(QPainter &p);
   void updateState(const UIState &s, const FrogPilotUIState &fs);
 
@@ -101,6 +102,7 @@ private:
   float dashboardSpeedLimit = 0.0f;
   float distanceConversion = 0.0f;
   float gpsBearing = 0.0f;
+  float hueOffset = 0.0f;
   float laneWidthLeft = 0.0f;
   float laneWidthRight = 0.0f;
   float roadCurvature = 0.0f;

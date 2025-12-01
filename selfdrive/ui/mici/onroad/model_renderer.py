@@ -243,6 +243,7 @@ class ModelRenderer(Widget):
       return
 
     # FrogPilot variables
+    self._frogpilot_road.update_rainbow()
 
     max_len = min(len(self._path.projected_points) // 2, len(self._acceleration_x))
 
