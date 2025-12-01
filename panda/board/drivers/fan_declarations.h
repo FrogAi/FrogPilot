@@ -7,6 +7,8 @@ struct fan_state_t {
   float error_integral;
   uint8_t cooldown_counter;
   // FrogPilot variables
+  uint8_t stall_counter;
+  uint8_t stall_threshold;
 };
 extern struct fan_state_t fan_state;
 

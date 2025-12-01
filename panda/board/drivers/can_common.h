@@ -21,8 +21,13 @@ bool can_loopback = false;
   can_ring can_##x = { .w_ptr = 0, .r_ptr = 0, .fifo_size = (size), .elems = (CANPacket_t *)&(elems_##x) };
 
 // FrogPilot variables
-#define CAN_RX_BUFFER_SIZE 4096U
-#define CAN_TX_BUFFER_SIZE 416U
+#ifdef STM32H7
+  #define CAN_RX_BUFFER_SIZE 4096U
+  #define CAN_TX_BUFFER_SIZE 416U
+#else
+  #define CAN_RX_BUFFER_SIZE 1024U
+  #define CAN_TX_BUFFER_SIZE 256U
+#endif
 
 #ifdef STM32H7
 // ITCM RAM and DTCM RAM are the fastest for Cortex-M7 core access

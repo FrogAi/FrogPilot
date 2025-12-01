@@ -119,6 +119,7 @@ class Panda:
   HW_TYPE_CUATRO = b'\x0a'
   HW_TYPE_BODY = b'\xb1'
   # FrogPilot variables
+  HW_TYPE_DOS = b'\x06'
 
   CAN_PACKET_VERSION = 4
   HEALTH_PACKET_VERSION = 17
@@ -128,14 +129,16 @@ class Panda:
 
   H7_DEVICES = [HW_TYPE_RED_PANDA, HW_TYPE_TRES, HW_TYPE_CUATRO, HW_TYPE_BODY]
   # FrogPilot variables
-  SUPPORTED_DEVICES = H7_DEVICES
+  F4_DEVICES = [HW_TYPE_DOS]
+  SUPPORTED_DEVICES = H7_DEVICES + F4_DEVICES
 
-  INTERNAL_DEVICES = (HW_TYPE_TRES, HW_TYPE_CUATRO)
+  INTERNAL_DEVICES = (HW_TYPE_DOS, HW_TYPE_TRES, HW_TYPE_CUATRO)
 
   MAX_FAN_RPMs = {
     HW_TYPE_TRES: 6600,
     HW_TYPE_CUATRO: 5000,
     # FrogPilot variables
+    HW_TYPE_DOS: 6500,
   }
 
   HARNESS_STATUS_NC = 0
@@ -210,6 +213,30 @@ class Panda:
       raise Exception("failed to connect to panda")
 
     # FrogPilot variables
+    # Some fallback logic to determine panda and MCU type for old bootstubs,
+    # since we now support multiple MCUs and need to know which fw to flash.
+    # Three cases to consider:
+    # A) oldest bootstubs don't have any way to distinguish
+    #    MCU or panda type
+    # B) slightly newer (~2 weeks after first C3's built) bootstubs
+    #    have the panda type set in the USB bcdDevice
+    # C) latest bootstubs also implement the endpoint for panda type
+    bcd = None
+    if self.is_connected_usb():
+      # bcdDevice wasn't always set to the hw type, ignore if it's the old constant
+      this_bcd = self._handle._libusb_handle.getDevice().getbcdDevice()
+      if this_bcd != 0x2300:
+        bcd = bytearray([this_bcd >> 8])
+
+    self._bcd_hw_type = None
+    ret = self._handle.controlRead(Panda.REQUEST_IN, 0xc1, 0, 0, 0x40)
+    missing_hw_type_endpoint = self.bootstub and ret.startswith(b'\xff\x00\xc1\x3e\xde\xad\xd0\x0d')
+    if missing_hw_type_endpoint and bcd is not None:
+      self._bcd_hw_type = bcd
+
+    # For case A, we assume F4 MCU type, since all H7 pandas should be case B at worst
+    self._assume_f4_mcu = (self._bcd_hw_type is None) and missing_hw_type_endpoint
+
     self._serial = serial
     self._connect_serial = serial
     self._handle_open = True
@@ -602,8 +629,13 @@ class Panda:
     return bytes(part_1 + part_2)
 
   def get_type(self):
-    return self._handle.controlRead(Panda.REQUEST_IN, 0xc1, 0, 0, 0x40)
+    ret = self._handle.controlRead(Panda.REQUEST_IN, 0xc1, 0, 0, 0x40)
     # FrogPilot variables
+    # old bootstubs don't implement this endpoint, see comment in Panda.device
+    if self._bcd_hw_type is not None and (ret is None or len(ret) != 1):
+      ret = self._bcd_hw_type
+
+    return ret
 
   # Returns tuple with health packet version and CAN packet/USB packet version
   def get_packets_versions(self):
@@ -617,8 +649,15 @@ class Panda:
   def get_mcu_type(self) -> McuType:
     hw_type = self.get_type()
     # FrogPilot variables
-    if hw_type in Panda.H7_DEVICES:
+    if hw_type in Panda.F4_DEVICES:
+      return McuType.F4
+    elif hw_type in Panda.H7_DEVICES:
       return McuType.H7
+    else:
+      # have to assume F4, see comment in Panda.connect
+      if self._assume_f4_mcu:
+        return McuType.F4
+
     raise ValueError(f"unknown HW type: {hw_type}")
 
   def is_internal(self):
