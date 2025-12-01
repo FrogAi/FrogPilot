@@ -54,6 +54,36 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent, bool
       std::vector<QString> randomThemesToggleNames{tr("Include Holiday Themes")};
       themeToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, randomThemesToggles, randomThemesToggleNames);
 
+    } else if (param == "StartupAlert") {
+      startupAlertButton = new FrogPilotButtonsControl(title, desc, icon, {tr("STOCK"), tr("FROGPILOT"), tr("CUSTOM")}, true);
+
+      QObject::connect(startupAlertButton, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
+        if (id == 0) {
+          params.put("StartupMessageTop", params.getStockValue("StartupMessageTop").value());
+          params.put("StartupMessageBottom", params.getStockValue("StartupMessageBottom").value());
+        } else if (id == 1) {
+          params.put("StartupMessageTop", params.getKeyDefaultValue("StartupMessageTop").value());
+          params.put("StartupMessageBottom", params.getKeyDefaultValue("StartupMessageBottom").value());
+        } else if (id == 2) {
+          const int maxLengthTop = 35;
+          const int maxLengthBottom = 45;
+
+          QString currentTop = QString::fromStdString(params.get("StartupMessageTop"));
+          QString newTop = InputDialog::getText(tr("Enter the text for the top half"), this, "", false, 1, currentTop, maxLengthTop).trimmed();
+          if (!newTop.isEmpty()) {
+            params.put("StartupMessageTop", newTop.toStdString());
+
+            QString currentBottom = QString::fromStdString(params.get("StartupMessageBottom"));
+            QString newBottom = InputDialog::getText(tr("Enter the text for the bottom half"), this, "", false, 1, currentBottom, maxLengthBottom).trimmed();
+            if (!newBottom.isEmpty()) {
+              params.put("StartupMessageBottom", newBottom.toStdString());
+            }
+          }
+        }
+        updateStartupAlert();
+      });
+      themeToggle = startupAlertButton;
+
     } else {
       themeToggle = new ParamControl(param, title, desc, icon);
     }
@@ -87,7 +117,22 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent, bool
 }
 
 void FrogPilotThemesPanel::showEvent(QShowEvent *event) {
+  updateStartupAlert();
+
   updateToggles();
+}
+
+void FrogPilotThemesPanel::updateStartupAlert() {
+  const std::string currentTop = params.get("StartupMessageTop");
+  const std::string currentBottom = params.get("StartupMessageBottom");
+
+  if (currentTop == params.getStockValue("StartupMessageTop").value() && currentBottom == params.getStockValue("StartupMessageBottom").value()) {
+    startupAlertButton->setCheckedButton(0);
+  } else if (currentTop == params.getKeyDefaultValue("StartupMessageTop").value() && currentBottom == params.getKeyDefaultValue("StartupMessageBottom").value()) {
+    startupAlertButton->setCheckedButton(1);
+  } else {
+    startupAlertButton->setCheckedButton(2);
+  }
 }
 
 void FrogPilotThemesPanel::updateToggles() {

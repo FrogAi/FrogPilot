@@ -316,6 +316,8 @@ class AlertRenderer(Widget):
       font_size = 64 - 10
 
     # FrogPilot variables
+    if alert.alert_type.startswith("customStartupAlert"):
+      can_draw_second_line = True
 
     if icon_side is not None:
       font_size -= 10
