@@ -39,6 +39,11 @@ bool FrogPilotConfirmationDialog::yesorno(const QString &prompt_text, QWidget *p
   return d.exec();
 }
 
+bool isFrogsGoMoo() {
+  static bool is_frogsgomoo = QFile::exists("/persist/frogsgomoo.py");
+  return is_frogsgomoo;
+}
+
 bool isOpenpilotSteering() {
   return uiState()->engaged() || (uiState()->scene.started && frogpilotUIState()->frogpilot_scene.always_on_lateral_active);
 }
