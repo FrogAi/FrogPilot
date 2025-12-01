@@ -19,6 +19,8 @@ def dmonitoringd_thread():
   # FrogPilot variables
   sm = sm.extend(['frogpilotCarState'])
 
+  driver_view_enabled = params.get_bool("IsDriverViewEnabled")
+
   # 20Hz <- dmonitoringmodeld
   while True:
     sm.update()
@@ -32,16 +34,19 @@ def dmonitoringd_thread():
     elif valid:
       DM.run_step(sm, demo=demo_mode)
     # FrogPilot variables
+    elif driver_view_enabled:
+      DM.face_detected = sm['driverStateV2'].leftDriverData.faceProb > DM.settings._FACE_THRESHOLD or sm['driverStateV2'].rightDriverData.faceProb > DM.settings._FACE_THRESHOLD
 
     # publish
-    dat = DM.get_state_packet(valid=valid)
+    dat = DM.get_state_packet(valid=valid or driver_view_enabled)
     pm.send('driverMonitoringState', dat)
 
     # load live always-on toggle
     if sm['driverStateV2'].frameId % 40 == 1:
       DM.always_on = params.get_bool("AlwaysOnDM")
-      demo_mode = params.get_bool("IsDriverViewEnabled")
+      driver_view_enabled = params.get_bool("IsDriverViewEnabled")
       # FrogPilot variables
+      demo_mode = driver_view_enabled
 
     # save rhd virtual toggle every 5 mins
     if (sm['driverStateV2'].frameId % 6000 == 0 and not demo_mode and

@@ -15,6 +15,7 @@ from pathlib import Path
 import openpilot.system.sentry as sentry
 
 from cereal import log, messaging
+from openpilot.common.realtime import DT_DMON, DT_HW
 from openpilot.selfdrive.pandad import can_capnp_to_list
 from openpilot.system.loggerd.xattr_cache import getxattr
 
@@ -197,3 +198,44 @@ def update_json_file(path, data):
     os.fsync(file.fileno())
 
   os.replace(temp_path, path)
+
+
+def wait_for_no_driver(params, sm, time_threshold):
+  while sm["deviceState"].screenBrightnessPercent != 0 or any(proc.name == "dmonitoringd" and proc.running for proc in sm["managerState"].processes):
+    sm.update()
+
+    if any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown):
+      return
+
+    time.sleep(DT_HW)
+
+  params.put_bool("IsDriverViewEnabled", True)
+
+  while not any(proc.name == "dmonitoringd" and proc.running for proc in sm["managerState"].processes):
+    sm.update()
+
+    if not params.get_bool("IsDriverViewEnabled"):
+      params.put_bool("IsDriverViewEnabled", True)
+
+    time.sleep(DT_HW)
+
+  start_time = time.monotonic()
+  while True:
+    sm.update()
+
+    elapsed_time = time.monotonic() - start_time
+    if elapsed_time >= time_threshold:
+      break
+
+    if any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown):
+      break
+
+    if not params.get_bool("IsDriverViewEnabled"):
+      params.put_bool("IsDriverViewEnabled", True)
+
+    if sm["driverMonitoringState"].faceDetected or not sm.alive["driverMonitoringState"]:
+      start_time = time.monotonic()
+
+    time.sleep(DT_DMON)
+
+  params.remove("IsDriverViewEnabled")
