@@ -251,8 +251,12 @@ void TogglesPanel::updateToggles() {
   // FrogPilot variables
   const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
 
+  bool no_logging = frogpilot_toggles.value("no_logging").toBool();
+
   toggles["DisengageOnAccelerator"]->setVisible(!frogpilot_toggles.value("always_on_lateral").toBool());
   experimental_mode_toggle->setVisible(!frogpilot_toggles.value("conditional_experimental_mode").toBool());
+  toggles["RecordAudio"]->setVisible(!no_logging);
+  toggles["RecordFront"]->setVisible(!no_logging);
 }
 
 DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
