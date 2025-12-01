@@ -1,0 +1,61 @@
+name: Update PR Branch
+run-name: Update ${{ vars.BRANCH_PR_TARGET }}
+
+on:
+  push:
+    branches: [FrogPilot-Testing]
+  workflow_dispatch:
+
+permissions: {}
+
+env:
+  GIT_EMAIL: ${{ vars.GIT_EMAIL }}
+  GIT_NAME: ${{ vars.GIT_NAME }}
+
+  BRANCH_PR_TARGET: ${{ vars.BRANCH_PR_TARGET }}
+
+jobs:
+  sync:
+    if: github.repository == 'FrogAi/FrogPilot'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          ref: refs/heads/FrogPilot-Testing
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      - run: |
+          target_ref="refs/remotes/origin/$BRANCH_PR_TARGET"
+
+          if [[ -f prebuilt ]]; then
+            tree="$(git rev-parse 'HEAD~1^{tree}')"
+          else
+            tree="$(git rev-parse 'HEAD^{tree}')"
+          fi
+
+          if [[ "$tree" == "$(git rev-parse "$target_ref^{tree}")" ]]; then
+            echo "$BRANCH_PR_TARGET is already up to date."
+            exit 0
+          fi
+
+          read -r month day year < <(date -u '+%B %-d %Y')
+          case "$day" in
+            1|21|31) suffix="st" ;;
+            2|22) suffix="nd" ;;
+            3|23) suffix="rd" ;;
+            *) suffix="th" ;;
+          esac
+
+          message="$month ${day}${suffix}, $year Update"
+          parent="$target_ref"
+          if [[ "$(git log -1 --format=%s "$target_ref")" == "$message" ]]; then
+            parent="$target_ref^"
+          fi
+
+          commit="$(
+            git -c user.name="$GIT_NAME" -c user.email="$GIT_EMAIL" \
+              commit-tree "$tree" -p "$parent" -m "$message"
+          )"
+
+          git push --force-with-lease origin "$commit:refs/heads/$BRANCH_PR_TARGET"
