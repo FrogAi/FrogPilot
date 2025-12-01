@@ -25,6 +25,7 @@ class FrogPilotRequests:
     self.ui_request_sock = messaging.sub_sock("frogpilotUIRequest")
 
     self.downloading_themes = False
+    self.flashed_panda = False
 
     self.settings_backup = ""
 
@@ -38,6 +39,9 @@ class FrogPilotRequests:
 
     self.request_times[kind], request = pending
     return request
+
+  def flash_panda(self):
+    self.flashed_panda = frogpilot_utilities.flash_panda()
 
   def run_settings_backup(self, function, params, argument):
     try:
@@ -76,6 +80,10 @@ class FrogPilotRequests:
       if self.thread_manager.is_thread_alive("download_themes"):
         self.theme_manager.download_state.cancelled = True
 
+    if not self.thread_manager.is_thread_alive("flash_panda") and self.take("flashPanda") is not None:
+      self.flashed_panda = False
+      self.thread_manager.run_in_thread(self.flash_panda)
+
     if not self.thread_manager.is_thread_alive("run_settings_backup"):
       request = self.take("createSettingsBackup")
       if request is not None:
@@ -91,10 +99,15 @@ class FrogPilotRequests:
     return self.take("updateToggles") is not None, self.take("updateChecks") is not None
 
   def publish(self, pm, stats_saved_count, toggles_json):
+    flashing_panda = self.thread_manager.is_thread_alive("flash_panda")
+
     frogpilot_process_state_send = messaging.new_message("frogpilotProcessState")
     frogpilotProcessState = frogpilot_process_state_send.frogpilotProcessState
 
     frogpilotProcessState.downloadThemeRequestTime = self.request_times.get("downloadTheme", 0)
+    frogpilotProcessState.flashedPanda = self.flashed_panda
+    frogpilotProcessState.flashingPanda = flashing_panda
+    frogpilotProcessState.flashPandaRequestTime = self.request_times.get("flashPanda", 0)
     frogpilotProcessState.frogpilotToggles = toggles_json
     frogpilotProcessState.settingsBackup = self.settings_backup
     frogpilotProcessState.settingsBackupRequestTime = max(self.request_times.get("createSettingsBackup", 0), self.request_times.get("restoreSettingsBackup", 0))

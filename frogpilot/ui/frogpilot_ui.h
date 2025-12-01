@@ -29,6 +29,7 @@ public:
   void createSettingsBackup(const QString &name);
   void downloadTheme(const QString &component, const QStringList &themes);
   void experimentalModePressed();
+  void flashPanda();
   void restoreSettingsBackup(const QString &name);
   void runUpdateChecks();
   void setDistanceButtonPressed(bool pressed);
@@ -41,6 +42,7 @@ public:
   FrogPilotUIScene frogpilot_scene = {};
 
   uint64_t download_theme_request_time = 0;
+  uint64_t flash_panda_request_time = 0;
   uint64_t settings_backup_request_time = 0;
 
   WifiManager *wifi;

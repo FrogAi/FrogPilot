@@ -22,6 +22,7 @@ from openpilot.selfdrive.pandad import can_capnp_to_list
 from openpilot.system import sentry
 from openpilot.system.hardware import PC
 from openpilot.system.version import get_build_metadata
+from panda import Panda
 
 from openpilot.frogpilot.common import frogpilot_paths, frogpilot_variables
 
@@ -152,6 +153,22 @@ def extract_zip(zip_file, extract_path):
     archive.extractall(extract_path)
 
   zip_file.unlink()
+
+
+def flash_panda():
+  serials = Panda.list()
+  flashed = len(serials) > 0
+
+  for serial in serials:
+    try:
+      with Panda(serial=serial) as panda:
+        panda.flash(force=True)
+    except Exception as exception:
+      print(f"Failed to flash Panda {serial}: {exception}")
+      sentry.capture_exception(exception, crash_log=False)
+      flashed = False
+
+  return flashed
 
 
 def get_target_branches(available_branches, current_branch):
