@@ -1104,6 +1104,14 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       Priority.LOW, VisualAlert.steerRequired, FrogPilotAudibleAlert.goat, 2.),
   },
 
+  FrogPilotEventName.greenLight: {
+    ET.PERMANENT: Alert(
+      "Light Turned Green",
+      "",
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
   FrogPilotEventName.openpilotCrashed: {
     ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("openpilot crashed"),
 
@@ -1253,6 +1261,13 @@ if HARDWARE.get_device_type() == 'mici':
         "Turn Exceeds Limit",
         AlertStatus.userPrompt, AlertSize.mid,
         Priority.LOW, VisualAlert.steerRequired, FrogPilotAudibleAlert.goat, 2.),
+    },
+    FrogPilotEventName.greenLight: {
+      ET.PERMANENT: Alert(
+        "Light is Green",
+        "",
+        FrogPilotAlertStatus.frogpilot, AlertSize.small,
+        Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
     },
     FrogPilotEventName.openpilotCrashed: {
       ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("openpilot crashed"),
