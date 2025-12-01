@@ -303,7 +303,7 @@ def main(demo=False):
 
   # TODO this needs more thought, use .2s extra for now to estimate other delays
   # TODO Move smooth seconds to action function
-  long_delay = CP.longitudinalActuatorDelay + LONG_SMOOTH_SECONDS
+  long_delay = frogpilot_toggles.longitudinalActuatorDelay + LONG_SMOOTH_SECONDS
   prev_action = log.ModelDataV2.Action()
 
   DH = DesireHelper()
@@ -441,6 +441,7 @@ def main(demo=False):
 
     # FrogPilot variables
     frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
+    long_delay = frogpilot_toggles.longitudinalActuatorDelay + LONG_SMOOTH_SECONDS
 
 
 if __name__ == "__main__":

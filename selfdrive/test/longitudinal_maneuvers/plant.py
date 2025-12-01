@@ -59,10 +59,13 @@ class Plant:
     from opendbc.car.honda.values import CAR
     from opendbc.car.honda.interface import CarInterface
 
-    self.planner = LongitudinalPlanner(CarInterface.get_non_essential_params(CAR.HONDA_CIVIC), init_v=self.speed)
+    CP = CarInterface.get_non_essential_params(CAR.HONDA_CIVIC)
+    self.planner = LongitudinalPlanner(CP, init_v=self.speed)
 
     # FrogPilot variables
     self.frogpilot_toggles = SimpleNamespace(**vars(frogpilot_variables.get_frogpilot_toggles()))
+    self.frogpilot_toggles.longitudinalActuatorDelay = CP.longitudinalActuatorDelay
+    self.frogpilot_toggles.vEgoStopping = CP.vEgoStopping
 
   @property
   def current_time(self):

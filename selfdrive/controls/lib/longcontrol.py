@@ -11,14 +11,14 @@ LongCtrlState = car.CarControl.Actuators.LongControlState
 
 
 def long_control_state_trans(CP, active, long_control_state, v_ego,
-                             should_stop, brake_pressed, cruise_standstill):
+                             should_stop, brake_pressed, cruise_standstill, frogpilot_toggles):
   # FrogPilot variables
 
   stopping_condition = should_stop
   starting_condition = (not should_stop and
                         not cruise_standstill and
                         not brake_pressed)
-  started_condition = v_ego > CP.vEgoStarting
+  started_condition = v_ego > frogpilot_toggles.vEgoStarting
 
   if not active:
     long_control_state = LongCtrlState.off
@@ -65,20 +65,20 @@ class LongControl:
 
     self.long_control_state = long_control_state_trans(self.CP, active, self.long_control_state, CS.vEgo,
                                                        should_stop, CS.brakePressed,
-                                                       CS.cruiseState.standstill)
+                                                       CS.cruiseState.standstill, frogpilot_toggles)
     if self.long_control_state == LongCtrlState.off:
       self.reset()
       output_accel = 0.
 
     elif self.long_control_state == LongCtrlState.stopping:
       output_accel = self.last_output_accel
-      if output_accel > self.CP.stopAccel:
+      if output_accel > frogpilot_toggles.stopAccel:
         output_accel = min(output_accel, 0.0)
-        output_accel -= self.CP.stoppingDecelRate * DT_CTRL
+        output_accel -= frogpilot_toggles.stoppingDecelRate * DT_CTRL
       self.reset()
 
     elif self.long_control_state == LongCtrlState.starting:
-      output_accel = self.CP.startAccel
+      output_accel = frogpilot_toggles.startAccel
       self.reset()
 
     else:  # LongCtrlState.pid
