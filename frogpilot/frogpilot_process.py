@@ -10,17 +10,21 @@ from openpilot.common.realtime import Priority, set_core_affinity
 from openpilot.common.time_helpers import system_time_valid
 from openpilot.system.hardware import PC
 
+from openpilot.frogpilot.assets.theme_manager import ThemeManager
 from openpilot.frogpilot.common import frogpilot_api, frogpilot_backups, frogpilot_functions, frogpilot_paths, frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.frogpilot.system.frogpilot_stats import send_stats
 from openpilot.frogpilot.system.frogpilot_tracking import FrogPilotTracking
 
 class FrogPilotRequests:
-  def __init__(self, thread_manager):
+  def __init__(self, theme_manager, thread_manager):
+    self.theme_manager = theme_manager
     self.thread_manager = thread_manager
 
     self.the_pond_request_sock = messaging.sub_sock("thePondRequest")
     self.ui_request_sock = messaging.sub_sock("frogpilotUIRequest")
+
+    self.downloading_themes = False
 
     self.settings_backup = ""
 
@@ -50,6 +54,28 @@ class FrogPilotRequests:
     for msg in messaging.drain_sock(self.the_pond_request_sock):
       self.pending[msg.thePondRequest.request.which()] = (msg.logMonoTime, msg.thePondRequest.request)
 
+    if not self.thread_manager.is_thread_alive("download_themes"):
+      if self.downloading_themes:
+        self.theme_manager.download_state.cancelled = False
+        self.theme_manager.download_lock.release()
+        self.downloading_themes = False
+
+      if "downloadTheme" in self.pending and self.theme_manager.download_lock.acquire(blocking=False):
+        self.downloading_themes = True
+
+        request = self.take("downloadTheme")
+        themes = [(theme.component, theme.theme) for theme in request.downloadTheme]
+
+        self.theme_manager.download_count = len(themes)
+        self.theme_manager.download_failed_count = 0
+        self.theme_manager.download_success_count = 0
+        self.theme_manager.download_state.progress = "Downloading..."
+        self.thread_manager.run_in_thread(self.theme_manager.download_themes, (themes,))
+
+    if "downloadTheme" not in self.pending and self.take("cancelThemeDownload") is not None:
+      if self.thread_manager.is_thread_alive("download_themes"):
+        self.theme_manager.download_state.cancelled = True
+
     if not self.thread_manager.is_thread_alive("run_settings_backup"):
       request = self.take("createSettingsBackup")
       if request is not None:
@@ -68,9 +94,14 @@ class FrogPilotRequests:
     frogpilot_process_state_send = messaging.new_message("frogpilotProcessState")
     frogpilotProcessState = frogpilot_process_state_send.frogpilotProcessState
 
+    frogpilotProcessState.downloadThemeRequestTime = self.request_times.get("downloadTheme", 0)
     frogpilotProcessState.frogpilotToggles = toggles_json
     frogpilotProcessState.settingsBackup = self.settings_backup
     frogpilotProcessState.settingsBackupRequestTime = max(self.request_times.get("createSettingsBackup", 0), self.request_times.get("restoreSettingsBackup", 0))
+    frogpilotProcessState.themeDownloadCount = self.theme_manager.download_count
+    frogpilotProcessState.themeDownloadFailedCount = self.theme_manager.download_failed_count
+    frogpilotProcessState.themeDownloadProgress = self.theme_manager.download_state.progress
+    frogpilotProcessState.themeDownloadSuccessCount = self.theme_manager.download_success_count
 
     pm.send("frogpilotProcessState", frogpilot_process_state_send)
 
@@ -86,12 +117,16 @@ def transition_onroad():
     os.sched_setscheduler(0, os.SCHED_FIFO, os.sched_param(Priority.CTRL_LOW))
   set_core_affinity([5])
 
-def update_checks(now, thread_manager, sm, params, frogpilot_toggles, boot_run=False):
+def update_checks(now, theme_manager, thread_manager, sm, params, frogpilot_toggles, boot_run=False):
   while not (frogpilot_utilities.is_url_pingable("https://github.com") or frogpilot_utilities.is_url_pingable("https://gitlab.com")):
     time.sleep(60)
 
   if not sm["deviceState"].networkMetered and frogpilot_toggles.automatic_updates:
     thread_manager.run_in_thread(frogpilot_functions.update_openpilot, (thread_manager, params))
+
+  if not sm["deviceState"].networkMetered:
+    with theme_manager.download_lock:
+      theme_manager.update_themes(boot_run)
 
 def update_stock_tuning_values(params, car_params_key):
   msg_bytes = params.get(car_params_key)
@@ -132,8 +167,14 @@ def update_stock_tuning_values(params, car_params_key):
 
       params.put(f"{key}Stock", stock_value)
 
-def update_toggles(variables, started, thread_manager, time_validated, params):
+def update_toggles(variables, started, theme_manager, thread_manager, time_validated, params):
+  frogpilot_toggles = variables.frogpilot_toggles
+
+  theme_manager.theme_updated = False
+
   variables.update(started=started)
+
+  theme_manager.update_active_theme(frogpilot_toggles)
 
   if time_validated:
     thread_manager.run_in_thread(frogpilot_backups.backup_toggles, (params,))
@@ -153,9 +194,10 @@ def frogpilot_thread():
   api = frogpilot_api.FrogPilotAPI(params)
   api.register_device()
   variables = frogpilot_variables.FrogPilotVariables()
+  theme_manager = ThemeManager(params)
   thread_manager = frogpilot_utilities.ThreadManager()
 
-  frogpilot_requests = FrogPilotRequests(thread_manager)
+  frogpilot_requests = FrogPilotRequests(theme_manager, thread_manager)
 
   frogpilot_toggles = variables.frogpilot_toggles
 
@@ -176,7 +218,7 @@ def frogpilot_thread():
     if not started and started_previously:
       frogpilot_tracking.save_stats()
 
-      update_toggles(variables, started, thread_manager, time_validated, params)
+      update_toggles(variables, started, theme_manager, thread_manager, time_validated, params)
       transition_offroad(frogpilot_planner, thread_manager, time_validated, params, frogpilot_toggles, api)
 
       run_update_checks = True
@@ -188,13 +230,17 @@ def frogpilot_thread():
 
       waiting_for_car_params = True
 
+    if theme_manager.theme_updated:
+      update_toggles(variables, started, theme_manager, thread_manager, time_validated, params)
+
     if started and sm.updated["modelV2"]:
       frogpilot_planner.update(now, time_validated, sm, frogpilot_toggles)
-      frogpilot_planner.publish(sm, pm, frogpilot_toggles)
+      frogpilot_planner.publish(theme_manager.theme_update_count, sm, pm, frogpilot_toggles)
 
       frogpilot_tracking.update(now, time_validated, sm)
     elif not started:
       frogpilot_plan_send = messaging.new_message("frogpilotPlan")
+      frogpilot_plan_send.frogpilotPlan.themeUpdateCount = theme_manager.theme_update_count
       pm.send("frogpilotPlan", frogpilot_plan_send)
 
     started_previously = started
@@ -210,7 +256,7 @@ def frogpilot_thread():
     waiting_for_car_params &= not sm.updated["frogpilotCarParams"]
 
     if toggles_updated:
-      update_toggles(variables, started, thread_manager, time_validated, params)
+      update_toggles(variables, started, theme_manager, thread_manager, time_validated, params)
 
     update_checks_period = now.hour
 
@@ -221,7 +267,7 @@ def frogpilot_thread():
     previous_update_checks_period = update_checks_period
 
     if run_update_checks:
-      thread_manager.run_in_thread(update_checks, (now, thread_manager, sm, params, frogpilot_toggles))
+      thread_manager.run_in_thread(update_checks, (now, theme_manager, thread_manager, sm, params, frogpilot_toggles))
 
       run_update_checks = False
     elif not time_validated:
@@ -230,7 +276,7 @@ def frogpilot_thread():
       if time_validated:
         thread_manager.run_in_thread(frogpilot_backups.backup_toggles, (params, True))
         thread_manager.run_in_thread(send_stats, (params, frogpilot_toggles, api))
-        thread_manager.run_in_thread(update_checks, (now, thread_manager, sm, params, frogpilot_toggles, True))
+        thread_manager.run_in_thread(update_checks, (now, theme_manager, thread_manager, sm, params, frogpilot_toggles, True))
 
 def main():
   frogpilot_thread()

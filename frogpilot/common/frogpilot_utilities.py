@@ -8,6 +8,7 @@ import subprocess
 import threading
 import time
 import xattr
+import zipfile
 
 from functools import cache
 from pathlib import Path
@@ -118,6 +119,17 @@ def delete_path(path, report=True):
   path = Path(path)
   if path.exists() or path.is_symlink():
     run_cmd(["sudo", "rm", "-rf", str(path)], f"Failed to delete: {path}", report=report)
+
+
+def extract_zip(zip_file, extract_path):
+  extract_root = Path(extract_path).resolve()
+  with zipfile.ZipFile(zip_file, "r") as archive:
+    for member in archive.namelist():
+      if not (extract_root / member).resolve().is_relative_to(extract_root):
+        raise ValueError(f"Refusing to extract path outside destination: {member}")
+    archive.extractall(extract_path)
+
+  zip_file.unlink()
 
 
 def get_target_branches(available_branches, current_branch):

@@ -25,7 +25,9 @@ class FrogPilotUIState : public QObject {
 public:
   explicit FrogPilotUIState(QObject *parent = nullptr);
 
+  void cancelThemeDownload();
   void createSettingsBackup(const QString &name);
+  void downloadTheme(const QString &component, const QStringList &themes);
   void experimentalModePressed();
   void restoreSettingsBackup(const QString &name);
   void runUpdateChecks();
@@ -37,12 +39,14 @@ public:
 
   FrogPilotUIScene frogpilot_scene = {};
 
+  uint64_t download_theme_request_time = 0;
   uint64_t settings_backup_request_time = 0;
 
   WifiManager *wifi;
 
 signals:
   void cameraFrameReceived();
+  void themeUpdated();
   void togglesUpdated();
 
 private:

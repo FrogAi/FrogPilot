@@ -1,6 +1,7 @@
 import pyray as rl
 from dataclasses import dataclass
 from openpilot.common.constants import CV
+from openpilot.frogpilot.ui.mici.frogpilot_theme import theme
 from openpilot.frogpilot.ui.mici.frogpilot_widgets import FrogPilotWidgets
 from openpilot.selfdrive.ui.mici.onroad.torque_bar import TorqueBar
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
@@ -177,6 +178,7 @@ class HudRenderer(Widget):
     """Render HUD elements to the screen."""
 
     # FrogPilot variables
+    theme.draw_turn_signal(rect)
 
     if ui_state.sm['controlsState'].lateralControlState.which() != 'angleState':
       self._torque_bar.render(rect)
@@ -194,12 +196,14 @@ class HudRenderer(Widget):
     wheel_txt = self._txt_wheel_critical if self._show_wheel_critical else self._txt_wheel
 
     # FrogPilot variables
+    if not self._show_wheel_critical:
+      wheel_txt = theme.wheel_texture(wheel_txt)
 
     if self._show_wheel_critical:
       self._wheel_alpha_filter.update(255)
       self._wheel_y_filter.update(0)
     else:
-      if ui_state.status == UIStatus.DISENGAGED:
+      if ui_state.status == UIStatus.DISENGAGED or theme.wheel_gives_way():
         self._wheel_alpha_filter.update(0)
         self._wheel_y_filter.update(wheel_txt.height / 2)
       else:

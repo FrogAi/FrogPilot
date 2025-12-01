@@ -7,6 +7,7 @@ from openpilot.common.params import Params
 from openpilot.common.time_helpers import system_time_valid
 from openpilot.system.hardware import HARDWARE, PC
 
+from openpilot.frogpilot.assets.theme_manager import ThemeManager
 from openpilot.frogpilot.common import frogpilot_backups, frogpilot_paths, frogpilot_utilities, frogpilot_variables
 
 
@@ -17,8 +18,11 @@ def boot_backup(build_metadata):
   frogpilot_backups.backup_frogpilot(build_metadata, Params())
 
 
-def frogpilot_boot_functions(build_metadata):
+def frogpilot_boot_functions(build_metadata, params):
   frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
+
+  ThemeManager.copy_default_theme()
+  ThemeManager(params).update_active_theme(frogpilot_toggles=frogpilot_toggles)
 
   frogpilot_utilities.delete_path(frogpilot_paths.RESTORE_TEMP_PATH)
 
