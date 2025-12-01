@@ -55,6 +55,8 @@ void ExperimentalButton::updateState(const UIState &s) {
 
   updateBackgroundColor(fs.frogpilot_scene);
 
+  steering_angle_deg = fs.frogpilot_scene.frogpilot_toggles.value(QLatin1String("rotating_wheel")).toBool() ? -carState.getSteeringAngleDeg() : 0;
+
   uint64_t current_wheel_image_update_count = (*fs.sm)["frogpilotPlan"].getFrogpilotPlan().getWheelImageUpdateCount();
   if (current_wheel_image_update_count != wheel_image_update_count) {
     wheel_image_update_count = current_wheel_image_update_count;
@@ -75,6 +77,10 @@ void ExperimentalButton::paintEvent(QPaintEvent *event) {
   }
 
   p.setClipRegion(QRegion(QRect(0, 0, btn_size, btn_size), QRegion::Ellipse));
+  p.translate(btn_size / 2, btn_size / 2);
+  p.rotate(steering_angle_deg);
+  p.translate(-btn_size / 2, -btn_size / 2);
+
   drawIcon(p, QPoint(btn_size / 2, btn_size / 2), img, background_color, (isDown() || !engageable) ? 0.6 : 1.0);
 }
 
