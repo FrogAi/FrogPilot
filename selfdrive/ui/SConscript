@@ -6,7 +6,7 @@ base_libs = [common, messaging, visionipc, transformations,
              'm', 'OpenCL', 'ssl', 'crypto', 'pthread'] + qt_env["LIBS"]
 
 if arch == 'larch64':
-  base_libs.append('EGL')
+  base_libs += ['EGL', 'C2D2', 'avformat', 'avutil']
 
 if arch == "Darwin":
   del base_libs[base_libs.index('OpenCL')]
@@ -46,6 +46,7 @@ qt_src += ["../../frogpilot/ui/frogpilot_ui.cc", "../../frogpilot/ui/qt/offroad/
            "../../frogpilot/ui/qt/offroad/vehicle_settings.cc", "../../frogpilot/ui/qt/offroad/visual_settings.cc",
            "../../frogpilot/ui/qt/offroad/wheel_settings.cc", "../../frogpilot/ui/qt/onroad/frogpilot_annotated_camera.cc",
            "../../frogpilot/ui/qt/onroad/frogpilot_buttons.cc", "../../frogpilot/ui/qt/onroad/frogpilot_onroad.cc",
+           "../../frogpilot/ui/qt/onroad/screen_recorder.cc",
            "../../frogpilot/ui/qt/widgets/developer_sidebar.cc", "../../frogpilot/ui/qt/widgets/drive_stats.cc",
            "../../frogpilot/ui/qt/widgets/drive_summary.cc", "../../frogpilot/ui/qt/widgets/model_review.cc",
            "../../frogpilot/ui/qt/widgets/navigation_functions.cc"]

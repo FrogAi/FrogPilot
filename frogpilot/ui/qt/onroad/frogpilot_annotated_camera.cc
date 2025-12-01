@@ -9,6 +9,9 @@ FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(CameraWidget *nvg
   personalityButton = new DrivingPersonalityButton(nvg);
   personalityButton->setVisible(false);
 
+  screenRecorderButton = new ScreenRecorderButton(nvg);
+  screenRecorderButton->setVisible(false);
+
   brakePedalImg = loadPixmap("../../frogpilot/assets/other_images/brake_pedal.png", {btn_size, btn_size});
   curveSpeedIcon = loadPixmap("../../frogpilot/assets/other_images/curve_speed.png", {btn_size, btn_size});
   curveSpeedIconFlipped = curveSpeedIcon.transformed(QTransform().scale(-1, 1));
@@ -247,6 +250,8 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   personalityButton->setVisible(dmIconPosition != QPoint(0, 0) && (!hideBottomIcons || personalityButton->isDown()) && frogpilot_toggles.value(QLatin1String("onroad_distance_button")).toBool());
   personalityButton->updateState(s, fs);
 
+  screenRecorderButton->setVisible(frogpilot_toggles.value(QLatin1String("screen_recorder")).toBool() && !standstillTimerRect.intersects(screenRecorderButton->geometry()) && !(signalStyle == "static" && blinkerRight));
+
   if (!isVisible()) {
     return;
   }
@@ -287,6 +292,7 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
   if (personalityButton->isVisible()) {
     personalityButton->move(rightHandDM ? width() - personalityButton->width() - 2 * UI_BORDER_SIZE : UI_BORDER_SIZE, dmIconPosition.y() - personalityButton->height() / 2);
   }
+  screenRecorderButton->move(experimentalButtonPosition.x() - UI_BORDER_SIZE - btn_size, experimentalButtonPosition.y());
 
   if (!hideBottomIcons && frogpilot_toggles.value(QLatin1String("cem_status")).toBool()) {
     paintCEMStatus(p, cemStatusPosition);

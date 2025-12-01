@@ -1,4 +1,5 @@
 #include "frogpilot/ui/qt/offroad/device_settings.h"
+#include "frogpilot/ui/qt/onroad/screen_recorder.h"
 
 FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent, bool forceOpen) : FrogPilotListWidget(parent), parent(parent) {
   forceOpenDescriptions = forceOpen;
@@ -83,6 +84,47 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent, bool
       std::map<float, QString> brightnessLabels{{0, tr("Screen Off")}, {101, tr("Auto")}};
       int minBrightness = (param == "ScreenBrightnessOnroad") ? 0 : 1;
       deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, minBrightness, 101, "%", brightnessLabels, 1, true);
+    } else if (param == "ScreenRecorder") {
+      FrogPilotButtonToggleControl *recorderToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, {}, {tr("Start Recording"), tr("Stop Recording")});
+      std::function<void()> updateRecorderToggle = [recorderToggle]() {
+        bool recording = ScreenRecorder::active();
+        if (recording) {
+          recorderToggle->setCheckedButton(1);
+        } else {
+          recorderToggle->clearCheckedButtons();
+        }
+        recorderToggle->setVisibleButton(0, !recording);
+        recorderToggle->setVisibleButton(1, recording);
+      };
+      QObject::connect(recorderToggle, &FrogPilotButtonToggleControl::buttonClicked, [updateRecorderToggle](int id) {
+        if (id == 0) {
+          ScreenRecorder::start();
+        } else {
+          ScreenRecorder::stop();
+        }
+        updateRecorderToggle();
+      });
+      QObject::connect(recorderToggle, &ToggleControl::toggleFlipped, recorderToggle, [](bool state) {
+        if (!state) {
+          ScreenRecorder::stop();
+        }
+      });
+      QObject::connect(uiState(), &UIState::offroadTransition, recorderToggle, [updateRecorderToggle](bool) {
+        ScreenRecorder::stop();
+        updateRecorderToggle();
+      });
+      QObject::connect(frogpilotUIState(), &FrogPilotUIState::togglesUpdated, recorderToggle, [] {
+        if (!frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value("screen_recorder").toBool()) {
+          ScreenRecorder::stop();
+        }
+      });
+      QObject::connect(uiState(), &UIState::uiUpdate, recorderToggle, [recorderToggle, updateRecorderToggle]() {
+        if (recorderToggle->isVisible()) {
+          updateRecorderToggle();
+        }
+      });
+      updateRecorderToggle();
+      deviceToggle = recorderToggle;
     } else if (param == "ScreenTimeout" || param == "ScreenTimeoutOnroad") {
       deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, 5, 60, tr(" seconds"), {}, 5);
 

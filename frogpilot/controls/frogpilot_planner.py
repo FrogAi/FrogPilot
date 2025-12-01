@@ -76,6 +76,8 @@ class FrogPilotPlanner:
       ui_event = msg.frogpilotUIEvent
       if ui_event.which() == "experimentalModePressed":
         self.experimental_mode_pressed = True
+      elif ui_event.which() == "screenRecorderEvent":
+        self.frogpilot_events.screen_recorder_events.append(ui_event.screenRecorderEvent.raw)
 
     self.lead_one = sm["radarState"].leadOne
 

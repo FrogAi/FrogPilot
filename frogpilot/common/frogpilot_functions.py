@@ -27,6 +27,20 @@ def boot_backup(build_metadata):
   frogpilot_backups.backup_frogpilot(build_metadata, Params())
 
 
+def cleanup_screen_recordings(limit_bytes):
+  recordings = sorted(frogpilot_variables.SCREEN_RECORDINGS_PATH.glob("*.mp4"), key=lambda recording: recording.stat().st_mtime, reverse=True)
+
+  total = 0
+  for recording in recordings:
+    total += recording.stat().st_size
+    if total <= limit_bytes:
+      continue
+
+    for companion in (recording.with_suffix(".png"), recording.with_suffix(".gif")):
+      frogpilot_utilities.delete_file(companion, report=False)
+    frogpilot_utilities.delete_file(recording, report=False)
+
+
 def download_maps(locations, cancel_download):
   pm = messaging.PubMaster(["mapdIn"])
   sm = messaging.SubMaster(["mapdExtendedOut"])
@@ -160,10 +174,13 @@ def install_frogpilot():
   paths = [
     frogpilot_variables.ERROR_LOGS_PATH,
     frogpilot_variables.HD_LOGS_PATH,
-    frogpilot_variables.KONIK_LOGS_PATH
+    frogpilot_variables.KONIK_LOGS_PATH,
+    frogpilot_variables.SCREEN_RECORDINGS_PATH
   ]
   for path in paths:
     path.mkdir(parents=True, exist_ok=True)
+
+  cleanup_screen_recordings(10 * 1024 * 1024 * 1024)
 
   update_boot_logo(Path(BASEDIR) / "frogpilot/assets/other_images/frogpilot_boot_logo.jpg")
 

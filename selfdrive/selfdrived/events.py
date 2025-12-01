@@ -1199,6 +1199,38 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.NO_ENTRY: NoEntryAlert("Shift to L", alert_text_1="Braking Unavailable"),
   },
 
+  FrogPilotEventName.recordingFailed: {
+    ET.PERMANENT: Alert(
+      "Recording failed to save...",
+      "",
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.LOWEST, VisualAlert.none, AudibleAlert.refuse, 3.),
+  },
+
+  FrogPilotEventName.recordingSaved: {
+    ET.PERMANENT: Alert(
+      "Recording saved!",
+      "",
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.LOWEST, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
+  FrogPilotEventName.recordingStarted: {
+    ET.PERMANENT: Alert(
+      "Recording started",
+      "",
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.LOWEST, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
+  FrogPilotEventName.recordingStartFailed: {
+    ET.PERMANENT: Alert(
+      "Recording failed to start...",
+      "",
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.LOWEST, VisualAlert.none, AudibleAlert.refuse, 3.),
+  },
+
   FrogPilotEventName.replayFailed: {
     ET.PERMANENT: Alert(
       "Footage failed to save...",

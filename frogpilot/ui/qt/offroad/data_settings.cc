@@ -25,6 +25,45 @@ namespace {
     return storage.isValid() && storage.isReady() && sourceSize > 0 && storage.bytesAvailable() / 4 > sourceSize;
   }
 
+  void removeRecordingCompanions(const QDir &directory, const QString &name) {
+    const QString stem = name.left(name.lastIndexOf('.'));
+    QFile::remove(directory.absoluteFilePath(stem + ".png"));
+    QFile::remove(directory.absoluteFilePath(stem + ".gif"));
+  }
+
+  bool renameRecording(const QDir &directory, const QString &oldName, const QString &newName) {
+    const QString oldStem = oldName.left(oldName.lastIndexOf('.'));
+    const QString newStem = newName.left(newName.lastIndexOf('.'));
+    const QStringList sources = {
+      directory.absoluteFilePath(oldName), directory.absoluteFilePath(oldStem + ".png"), directory.absoluteFilePath(oldStem + ".gif")
+    };
+    const QStringList targets = {
+      directory.absoluteFilePath(newName), directory.absoluteFilePath(newStem + ".png"), directory.absoluteFilePath(newStem + ".gif")
+    };
+
+    if (!QFile::exists(sources[0])) {
+      return false;
+    }
+    for (const QString &target : targets) {
+      if (QFile::exists(target)) {
+        return false;
+      }
+    }
+
+    for (int i = 0; i < sources.size(); ++i) {
+      if (!QFile::exists(sources[i])) {
+        continue;
+      }
+      if (!QFile::rename(sources[i], targets[i])) {
+        for (int j = i - 1; j >= 0; --j) {
+          QFile::rename(targets[j], sources[j]);
+        }
+        return false;
+      }
+    }
+    return true;
+  }
+
   void runDataOperation(FrogPilotSettingsWindow *parent, FrogPilotButtonsControl *button, std::vector<int> hiddenButtons,
                         QString busyText, QString successText, QString failureText, std::function<bool()> operation) {
     std::thread([=]() {
@@ -172,6 +211,117 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
     }
   });
   dataMainList->addItem(deleteErrorLogsButton);
+
+  FrogPilotButtonsControl *screenRecordingsButton = new FrogPilotButtonsControl(tr("Screen Recordings"), tr("<b>Delete or rename your recordings of the driving screen.</b><br><br>Recordings are made with the \"Screen Recorder\" button on the driving screen. \"DELETE ALL\" removes every recording at once."), "", {tr("DELETE"), tr("DELETE ALL"), tr("RENAME")});
+  QObject::connect(screenRecordingsButton, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
+    QDir recordingsDir("/data/media/screen_recordings");
+    QStringList recordingsNames = recordingsDir.entryList(QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot);
+    std::sort(recordingsNames.begin(), recordingsNames.end(), std::greater<QString>());
+
+    QStringList friendlyNames;
+    QMap<QString, QString> recordingMap;
+
+    for (const QString &name : recordingsNames) {
+      if (!name.endsWith(".mp4", Qt::CaseInsensitive)) {
+        continue;
+      }
+
+      QString friendlyName = name;
+      QString cleanName = QString(name).remove(".mp4");
+
+      QStringList parts = cleanName.split("_");
+
+      if (parts.size() >= 2) {
+        QDate date = QDate::fromString(parts[0], "yyyy-MM-dd");
+        QTime time = QTime::fromString(parts[1], "HH-mm-ss");
+
+        if (date.isValid() && time.isValid()) {
+          friendlyName = friendlyDate(date, formatShortTime(time));
+        }
+      }
+
+      if (friendlyName == name) {
+        friendlyName = cleanName;
+        friendlyName.replace("_", " ");
+      }
+
+      if (cleanName.contains("_replay_")) {
+        friendlyName += tr(" (Replay)");
+      }
+
+      const QString baseName = friendlyName;
+      int duplicate = 2;
+
+      while (recordingMap.contains(friendlyName)) {
+        friendlyName = QString("%1 (%2)").arg(baseName).arg(duplicate);
+        duplicate++;
+      }
+
+      friendlyNames.append(friendlyName);
+      recordingMap[friendlyName] = name;
+    }
+
+    if (id == 0) {
+      QStringList selections = FrogPilotMultiOptionDialog::getSelections(tr("Choose screen recordings to delete"), friendlyNames, tr("Delete"), this);
+      if (!selections.isEmpty()) {
+        QString confirmation;
+        if (selections.size() == 1) {
+          confirmation = tr("Delete this screen recording?");
+        } else {
+          confirmation = tr("Delete the %1 selected screen recordings?").arg(selections.size());
+        }
+
+        if (ConfirmationDialog::confirm(confirmation, tr("Delete"), this)) {
+          runDataOperation(parent, screenRecordingsButton, {1, 2}, tr("Deleting..."), tr("Deleted!"), tr("Delete failed..."), [=]() {
+            bool success = true;
+            for (const QString &selection : selections) {
+              const QString recordingName = recordingMap[selection];
+              if (QFile::remove(recordingsDir.absoluteFilePath(recordingName))) {
+                removeRecordingCompanions(recordingsDir, recordingName);
+              } else {
+                success = false;
+              }
+            }
+            return success;
+          });
+        }
+      }
+
+    } else if (id == 1) {
+      if (ConfirmationDialog::confirm(tr("Delete all screen recordings?"), tr("Delete All"), this)) {
+        runDataOperation(parent, screenRecordingsButton, {0, 2}, tr("Deleting..."), tr("Deleted!"), tr("Delete failed..."), [=]() {
+          bool success = true;
+          for (const QString &name : recordingsDir.entryList(QDir::Files | QDir::Hidden | QDir::NoDotAndDotDot)) {
+            success &= QFile::remove(recordingsDir.absoluteFilePath(name));
+          }
+          return success;
+        });
+      }
+
+    } else if (id == 2) {
+      QString selection = MultiOptionDialog::getSelection(tr("Choose a screen recording to rename"), friendlyNames, "", this);
+      if (!selection.isEmpty()) {
+        QString newBase = InputDialog::getText(tr("Enter a new name"), this, tr("Rename Screen Recording")).trimmed().replace(" ", "_");
+        if (!newBase.isEmpty()) {
+          QString newName = newBase + ".mp4";
+          if (!validName(newBase)) {
+            ConfirmationDialog::alert(tr("That name can't be used. Names can only use letters, numbers, dashes, periods, and underscores."), this);
+            return;
+          }
+          if (recordingsNames.contains(newName)) {
+            ConfirmationDialog::alert(tr("Name already in use. Please choose a different name."), this);
+            return;
+          }
+          runDataOperation(parent, screenRecordingsButton, {0, 1}, tr("Renaming..."), tr("Renamed!"), tr("Rename failed..."), [=]() {
+            const QString oldName = recordingMap[selection];
+            bool success = renameRecording(recordingsDir, oldName, newName);
+            return success;
+          });
+        }
+      }
+    }
+  });
+  dataMainList->addItem(screenRecordingsButton);
 
   FrogPilotButtonsControl *frogpilotBackupButton = new FrogPilotButtonsControl(tr("FrogPilot Backups"), tr("<b>Back up the FrogPilot software, restore a backup to go back to that version, or delete ones you no longer need.</b><br><br>Restoring reboots the device on its own and puts the software back exactly as it was when the backup was made, without changing your settings. Automatic updates turn off after a restore until you update manually. \"DELETE ALL\" also removes the backups FrogPilot makes automatically."), "", {tr("BACKUP"), tr("DELETE"), tr("DELETE ALL"), tr("RESTORE")});
   QObject::connect(frogpilotBackupButton, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
