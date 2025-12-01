@@ -14,6 +14,9 @@ from functools import cache
 from pathlib import Path
 
 from cereal import log, messaging
+from opendbc.car.ford.values import FordSafetyFlags
+from opendbc.car.gm.values import CC_ONLY_CAR, GMFlags
+from opendbc.car.toyota.values import ToyotaSafetyFlags
 from openpilot.common.realtime import DT_DMON, DT_HW, set_core_affinity
 from openpilot.selfdrive.pandad import can_capnp_to_list
 from openpilot.system import sentry
@@ -111,6 +114,12 @@ def calculate_taco_turn_speeds(orientation_rates, speeds, v_ego):
   return np.sqrt(max_lat_accel / (np.abs(curvatures) + 1e-3)) - 2.0
 
 
+def can_disable_openpilot_long(CP):
+  if CP.brand == "gm":
+    return CP.carFingerprint in CC_ONLY_CAR
+  return CP.brand in frogpilot_variables.DISABLE_OPENPILOT_LONG_BRANDS
+
+
 def contains_event_type(events, frogpilot_events, *event_types):
   return any(events.contains(event_type) or frogpilot_events.contains(event_type) for event_type in event_types)
 
@@ -119,6 +128,19 @@ def delete_path(path, report=True):
   path = Path(path)
   if path.exists() or path.is_symlink():
     run_cmd(["sudo", "rm", "-rf", str(path)], f"Failed to delete: {path}", report=report)
+
+
+def disable_openpilot_long(CP, FPCP, frogpilot_toggles):
+  if can_disable_openpilot_long(CP) and not CP.alphaLongitudinalAvailable and frogpilot_toggles.disable_openpilot_long:
+    FPCP.openpilotLongitudinalControlDisabled = CP.openpilotLongitudinalControl
+    CP.openpilotLongitudinalControl = False
+
+    if CP.brand == "ford":
+      CP.safetyConfigs[-1].safetyParam &= ~FordSafetyFlags.LONG_CONTROL.value
+    elif CP.brand == "gm":
+      CP.flags &= ~GMFlags.CC_LONG.value
+    elif CP.brand == "toyota":
+      CP.safetyConfigs[0].safetyParam |= ToyotaSafetyFlags.STOCK_LONGITUDINAL.value
 
 
 def extract_zip(zip_file, extract_path):

@@ -158,7 +158,7 @@ def fingerprint(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_mu
 
 def get_car(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_multiplexing: ObdCallback, alpha_long_allowed: bool,
             is_release: bool, num_pandas: int = 1, cached_params: CarParamsT | None = None, frogpilot_toggles: SimpleNamespace = None,
-            block_user: bool = False):
+            block_user: bool = False, disable_openpilot_long=None):
   candidate, fingerprints, vin, car_fw, source, exact_match = fingerprint(can_recv, can_send, set_obd_multiplexing, num_pandas, cached_params)
 
   # FrogPilot variables
@@ -180,6 +180,9 @@ def get_car(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_multip
 
   # FrogPilot variables
   FPCP: FrogPilotCarParams = CarInterface.get_frogpilot_params(candidate, fingerprints, car_fw, CP, frogpilot_toggles)
+
+  if disable_openpilot_long is not None:
+    disable_openpilot_long(CP, FPCP, frogpilot_toggles)
 
   if CP.brand in GAS_INTERCEPTOR_BRANDS and FPCP.canUsePedal and CP.openpilotLongitudinalControl and PEDAL_MSG in fingerprints[0]:
     CP.autoResumeSng = True
