@@ -55,6 +55,7 @@ private:
   void paintCEMStatus(QPainter &p, const QPoint &position);
   void paintCompass(QPainter &p, const QPoint &position);
   void paintCurveSpeedControl(QPainter &p);
+  void paintRoadName(QPainter &p);
   void paintTurnSignals(QPainter &p);
   void paintWidgetFrame(QPainter &p, const QRect &rect, const QColor &borderColor);
   void updateCEMIcon();
@@ -97,6 +98,7 @@ private:
   QPixmap curveSpeedIcon;
   QPixmap curveSpeedIconFlipped;
 
+  QRect roadNameRect;
   QRect staticSignalRect;
 
   QSharedPointer<FrogPilotMovie> cemIcon;
@@ -104,6 +106,7 @@ private:
   QString cemIconPath;
   QString leadDistanceUnit;
   QString leadSpeedUnit;
+  QString roadName;
   QString signalStyle;
   QString speedUnit;
 
