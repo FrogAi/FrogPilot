@@ -8,6 +8,7 @@ FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(CameraWidget *nvg
 
   curveSpeedIcon = loadPixmap("../../frogpilot/assets/other_images/curve_speed.svg", {btn_size, btn_size});
   curveSpeedIconFlipped = curveSpeedIcon.transformed(QTransform().scale(-1, 1));
+  stopSignImg = loadPixmap("../../frogpilot/assets/other_images/stop_sign.svg", {btn_size, btn_size});
 
   QObject::connect(frogpilotUIState(), &FrogPilotUIState::themeUpdated, this, &FrogPilotAnnotatedCameraWidget::updateSignals);
   QObject::connect(nvg, &CameraWidget::vipcThreadFrameReceived, frogpilotUIState(), &FrogPilotUIState::cameraFrameReceived);
@@ -175,8 +176,15 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   redLight = frogpilotPlan.getRedLight();
   roadCurvature = frogpilotPlan.getRoadCurvature();
   roadName = QString::fromStdString(mapdOut.getRoadName());
-  stoppingDistance = positionX.size() != 0 ? positionX[positionX.size() - 1] : 0.0f;
   vEgo = carState.getVEgo();
+
+  stoppingDistance = 0.0f;
+  for (int i = 0; i < velocityX.size(); ++i) {
+    if (velocityX[i] < 1.0f) {
+      stoppingDistance = positionX[i];
+      break;
+    }
+  }
 
   hideBottomIcons = alertHeight != 0;
 
@@ -568,6 +576,30 @@ void FrogPilotAnnotatedCameraWidget::paintStandstillTimer(QPainter &p) {
   p.restore();
 }
 
+void FrogPilotAnnotatedCameraWidget::paintStoppingPoint(QPainter &p) {
+  p.save();
+
+  QPointF centerPoint = (track_vertices.first() + track_vertices.last()) / 2.0f;
+  QPointF stopSignPosition = centerPoint - QPointF(stopSignImg.width() / 2.0f, stopSignImg.height());
+  p.drawPixmap(stopSignPosition, stopSignImg);
+
+  if (frogpilot_toggles.value(QLatin1String("show_stopping_point_metrics")).toBool()) {
+    float distance = stoppingDistance * distanceConversion;
+    QString distanceText = QString::number(std::nearbyint(distance)) + leadDistanceUnit;
+
+    QFont font = InterFont(45, QFont::DemiBold);
+    QFontMetrics fm(font);
+
+    QPointF textPosition(centerPoint.x() - fm.horizontalAdvance(distanceText) / 2.0f, centerPoint.y() - stopSignImg.height() - fm.ascent());
+
+    p.setFont(font);
+    p.setPen(whiteColor());
+    drawOutlinedText(p, textPosition, distanceText);
+  }
+
+  p.restore();
+}
+
 void FrogPilotAnnotatedCameraWidget::paintTurnSignals(QPainter &p) {
   int frameIndex = (signalTimer.elapsed() / signalAnimationLength) % signalImages.size();
 
@@ -612,6 +644,10 @@ void FrogPilotAnnotatedCameraWidget::paintWidgetFrame(QPainter &p, const QRect &
 }
 
 void FrogPilotAnnotatedCameraWidget::paintWorldWidgets(QPainter &p) {
+  if (!driverView && track_vertices.length() >= 1 && redLight && stoppingDistance > 0 && frogpilot_toggles.value(QLatin1String("show_stopping_point")).toBool()) {
+    paintStoppingPoint(p);
+  }
+
   roadNameRect = QRect();
   if (alertHeight == 0 && frogpilot_toggles.value(QLatin1String("road_name_ui")).toBool()) {
     paintRoadName(p);

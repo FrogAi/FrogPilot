@@ -151,6 +151,7 @@ class ModelRenderer(Widget):
       self._draw_path(sm)
 
       # FrogPilot variables
+      self._frogpilot_road.draw_stopping_point(self._rect, self._path.projected_points)
 
     # if render_lead_indicator and radar_state:
     #   self._draw_lead_indicator()
@@ -229,6 +230,7 @@ class ModelRenderer(Widget):
 
     # FrogPilot variables
     self._frogpilot_road.update_adjacent_paths(self._map_line_to_polygon, self._lane_lines, max_idx)
+    self._frogpilot_road.update_stopping_point()
 
     self._update_experimental_gradient()
 
