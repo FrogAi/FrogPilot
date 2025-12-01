@@ -554,6 +554,25 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, this, &FrogPilotLongitudinalPanel::updateToggles);
   }
 
+  const std::vector<std::pair<QString, QString>> personalityResets {
+    {"Aggressive", tr("Are you sure you want to completely reset your settings for the <b>Aggressive</b> personality?")},
+    {"Standard", tr("Are you sure you want to completely reset your settings for the <b>Standard</b> personality?")},
+    {"Relaxed", tr("Are you sure you want to completely reset your settings for the <b>Relaxed</b> personality?")}
+  };
+  for (const std::pair<QString, QString> &reset : personalityResets) {
+    QObject::connect(static_cast<ButtonControl*>(toggles["Reset" + reset.first + "Personality"]), &ButtonControl::clicked, [reset, this]() {
+      if (FrogPilotConfirmationDialog::yesorno(reset.second, this)) {
+        const QStringList keySuffixes = {"Follow", "JerkAcceleration", "JerkDeceleration", "JerkDanger", "JerkSpeed", "JerkSpeedDecrease"};
+        for (const QString &keySuffix : keySuffixes) {
+          QString key = reset.first + keySuffix;
+          params.putFloat(key.toStdString(), std::stof(params.getKeyDefaultValue(key.toStdString()).value()));
+
+          static_cast<FrogPilotParamValueControl*>(toggles[key])->refresh();
+        }
+      }
+    });
+  }
+
   QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [longitudinalLayout, longitudinalPanel, this] {
     customPersonalityOpen = false;
     qolOpen = false;
