@@ -1,6 +1,7 @@
 #pragma once
 
 #include "frogpilot/ui/qt/offroad/frogpilot_settings.h"
+#include "frogpilot/ui/qt/widgets/navigation_functions.h"
 
 class FrogPilotMapsPanel : public FrogPilotListWidget {
   Q_OBJECT
@@ -15,7 +16,19 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
+  void cancelDownload();
+  void refreshMapInfo();
+  void updateDownloadLabels(int downloadedFiles, int totalFiles);
+  void updateState(const UIState &s, const FrogPilotUIState &fs);
+
+  bool cancellingDownload = false;
   bool forceOpenDescriptions = false;
+  bool hasMapsSelected = false;
+  bool mapsFolderExists = false;
+  bool removingMaps = false;
+  bool wasDownloadingMaps = false;
+
+  int previousDownloadedFiles = 0;
 
   ButtonControl *downloadMapsButton;
   ButtonControl *removeMapsButton;
@@ -32,5 +45,14 @@ private:
   LabelControl *lastMapsDownload;
   LabelControl *mapsSize;
 
+  std::vector<MapSelectionControl *> countrySelectionControls;
+  std::vector<MapSelectionControl *> stateSelectionControls;
+
   Params params;
+
+  QDateTime startTime;
+
+  QDir mapsFolderPath{"/data/media/0/osm/offline"};
+
+  QElapsedTimer elapsedTime;
 };
