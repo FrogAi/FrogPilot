@@ -77,7 +77,7 @@ void MainWindow::closeSettings() {
   main_layout->setCurrentWidget(homeWindow);
 
   if (uiState()->scene.started) {
-    homeWindow->showSidebar(false);
+    homeWindow->showSidebar(frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value("debug_mode").toBool());
   }
 }
 
