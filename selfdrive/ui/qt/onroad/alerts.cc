@@ -112,12 +112,12 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
   p.setPen(QColor(0xff, 0xff, 0xff));
   p.setRenderHint(QPainter::TextAntialiasing);
   if (alert.size == cereal::SelfdriveState::AlertSize::SMALL) {
-    p.setFont(InterFont(74, QFont::DemiBold));
+    p.setFont(fitInterFont(74, QFont::DemiBold, r.width(), {alert.text1}));
     p.drawText(r, Qt::AlignCenter, alert.text1);
   } else if (alert.size == cereal::SelfdriveState::AlertSize::MID) {
-    p.setFont(InterFont(88, QFont::Bold));
+    p.setFont(fitInterFont(88, QFont::Bold, r.width(), {alert.text1}));
     p.drawText(QRect(0, c.y() - 125, width(), 150), Qt::AlignHCenter | Qt::AlignTop, alert.text1);
-    p.setFont(InterFont(66));
+    p.setFont(fitInterFont(66, QFont::Normal, r.width(), {alert.text2}));
     p.drawText(QRect(0, c.y() + 21, width(), 90), Qt::AlignHCenter, alert.text2);
   } else if (alert.size == cereal::SelfdriveState::AlertSize::FULL) {
     bool l = alert.text1.length() > 15;
