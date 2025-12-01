@@ -5,6 +5,7 @@ import pyray as rl
 from cereal import log
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.frogpilot.common import frogpilot_paths, frogpilot_status
+from openpilot.frogpilot.ui.mici.frogpilot_camera_view import frogpilot_camera_view
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.ui.lib.application import gui_app
 from openpilot.system.ui.widgets import Widget
@@ -16,6 +17,8 @@ AlertStatus = log.SelfdriveState.AlertStatus
 FERG_CHANCE = 0.5
 FERG_HEIGHT = 240
 FERG_WIDTH = 360
+
+REVERSE_ALERT_TYPE = "reverseGear/permanent"
 
 HIDDEN_ALERT_TYPES = {
   "calibrationIncomplete/permanent",
@@ -68,6 +71,9 @@ class FrogPilotAlerts(Widget):
       alert_type = fields["alert_type"]
 
     if alert_type in HIDDEN_ALERT_TYPES and ui_state.frogpilot_toggles.get("hide_alerts"):
+      fields = {}
+
+    if alert_type == REVERSE_ALERT_TYPE and frogpilot_camera_view.driver_view_active:
       fields = {}
 
     stock_alert = sm.recv_frame["selfdriveState"] >= ui_state.started_frame and ss.alertSize != 0 and not fpss.hasPriorityAlert
