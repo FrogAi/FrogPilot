@@ -402,7 +402,11 @@ class SpeedLimitController:
       self.next_speed_limit = 0
       return
 
-    self.map_speed_limit = map_match.speedLimit
+    if self.frogpilot_toggles.speed_limit_filler:
+      self.map_speed_limit = self.frogpilot_planner.speed_limit_filler.get_speed_limit(map_match)
+    else:
+      self.map_speed_limit = map_match.speedLimit
+
     self.next_speed_limit = map_match.nextSpeedLimit
 
     if self.next_speed_limit <= 0 or self.next_speed_limit == self.map_speed_limit:
