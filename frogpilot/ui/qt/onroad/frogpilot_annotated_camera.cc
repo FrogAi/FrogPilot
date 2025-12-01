@@ -502,6 +502,30 @@ void FrogPilotAnnotatedCameraWidget::paintCurveSpeedControl(QPainter &p) {
   p.restore();
 }
 
+void FrogPilotAnnotatedCameraWidget::paintRadarTracks(QPainter &p) {
+  if (radar_tracks.empty()) {
+    return;
+  }
+
+  p.save();
+
+  int diameter = 25;
+
+  float radius = diameter / 2.0f;
+
+  p.setBrush(redColor());
+
+  for (const QPointF &track : radar_tracks) {
+    if (!rect().contains(track.toPoint())) {
+      continue;
+    }
+
+    p.drawEllipse(track, radius, radius);
+  }
+
+  p.restore();
+}
+
 void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
   static const QFont font = InterFont(40, QFont::DemiBold);
 
@@ -646,6 +670,10 @@ void FrogPilotAnnotatedCameraWidget::paintWidgetFrame(QPainter &p, const QRect &
 void FrogPilotAnnotatedCameraWidget::paintWorldWidgets(QPainter &p) {
   if (!driverView && track_vertices.length() >= 1 && redLight && stoppingDistance > 0 && frogpilot_toggles.value(QLatin1String("show_stopping_point")).toBool()) {
     paintStoppingPoint(p);
+  }
+
+  if (!driverView && frogpilot_toggles.value(QLatin1String("radar_tracks")).toBool()) {
+    paintRadarTracks(p);
   }
 
   roadNameRect = QRect();
