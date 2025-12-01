@@ -133,10 +133,10 @@ class SelfdriveD:
       self.startup_event = None
     if not car_recognized:
       self.startup_event = EventName.startupNoCar
-    elif car_recognized and self.CP.passive:
-      self.startup_event = EventName.startupNoControl
     elif self.CP.secOcRequired and not self.CP.secOcKeyAvailable:
       self.startup_event = EventName.startupNoSecOcKey
+    elif car_recognized and self.CP.passive:
+      self.startup_event = EventName.startupNoControl
 
     if not car_recognized:
       self.events.add(EventName.carUnrecognized, static=True)
