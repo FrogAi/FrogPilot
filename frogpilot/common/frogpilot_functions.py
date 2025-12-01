@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
+import json
+import math
 import time
 
 from multiprocessing import Process
 from pathlib import Path
 
+from cereal import messaging
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.constants import CV
 from openpilot.common.params import Params
@@ -14,6 +17,8 @@ from openpilot.system.hardware import HARDWARE, PC
 from openpilot.frogpilot.assets.theme_manager import ThemeManager
 from openpilot.frogpilot.common import frogpilot_backups, frogpilot_utilities, frogpilot_variables
 
+MAPD_DOWNLOAD_MENU_PATH = Path(BASEDIR) / "mapd_download_menu.json"
+
 
 def boot_backup(build_metadata):
   while not system_time_valid():
@@ -22,7 +27,101 @@ def boot_backup(build_metadata):
   frogpilot_backups.backup_frogpilot(build_metadata, Params())
 
 
+def download_maps(locations, cancel_download):
+  pm = messaging.PubMaster(["mapdIn"])
+  sm = messaging.SubMaster(["mapdExtendedOut"])
+
+  time.sleep(1)
+
+  msg = messaging.new_message("mapdIn")
+  msg.mapdIn.type = 0
+  msg.mapdIn.str = locations
+  pm.send("mapdIn", msg)
+
+  download_requested_at = time.monotonic()
+
+  started = False
+
+  while True:
+    sm.update(1000)
+
+    if cancel_download.is_set():
+      msg = messaging.new_message("mapdIn")
+      msg.mapdIn.type = 27
+      pm.send("mapdIn", msg)
+
+      return False
+
+    if sm.updated["mapdExtendedOut"]:
+      progress = sm["mapdExtendedOut"].downloadProgress
+
+      if progress.active:
+        started = True
+
+      if not progress.active and started:
+        return not progress.cancelled and progress.downloadedFiles == progress.totalFiles > 0
+
+    if not started and time.monotonic() - download_requested_at >= 10:
+      return False
+
+
+def download_nearby_maps(latitude, longitude, cancel_download):
+  angular_radius = 100_000 / frogpilot_variables.EARTH_RADIUS
+  latitude_offset = math.degrees(angular_radius)
+  longitude_offset = math.degrees(math.asin(math.sin(angular_radius) / math.cos(math.radians(latitude))))
+
+  min_latitude = math.floor((latitude - latitude_offset) / frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES) * frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES
+  max_latitude = math.ceil((latitude + latitude_offset) / frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES) * frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES
+  min_longitude = math.floor((longitude - longitude_offset) / frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES) * frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES
+  max_longitude = math.ceil((longitude + longitude_offset) / frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES) * frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES
+
+  current_time = time.time()
+  download_menu = {"nearby": {}}
+
+  for archive_latitude in range(min_latitude, max_latitude, frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES):
+    for archive_longitude in range(min_longitude, max_longitude, frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES):
+      archive_longitude = (archive_longitude + 180) % 360 - 180
+      archive_directory = frogpilot_variables.MAPS_PATH / str(archive_latitude) / str(archive_longitude)
+
+      if any(current_time - tile.stat().st_mtime <= frogpilot_variables.MAPD_MAX_MAP_AGE_DAYS * 24 * 60 * 60 for tile in archive_directory.glob("*")):
+        continue
+
+      download_menu["nearby"][f"{archive_latitude}_{archive_longitude}"] = {
+        "full_name": "Nearby Maps",
+        "bounding_box": {
+          "min_lon": archive_longitude,
+          "min_lat": archive_latitude,
+          "max_lon": archive_longitude + frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES,
+          "max_lat": archive_latitude + frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES,
+        },
+      }
+
+  if download_menu["nearby"]:
+    frogpilot_utilities.update_json_file(MAPD_DOWNLOAD_MENU_PATH, download_menu)
+    download_maps(",".join(f"nearby.{archive_name}" for archive_name in download_menu["nearby"]), cancel_download)
+
+  frogpilot_utilities.delete_file(MAPD_DOWNLOAD_MENU_PATH, report=False)
+
+
 def frogpilot_boot_functions(build_metadata, params):
+  if params.get("MapdSettings") == {}:
+    params.put("MapdSettings", params.get_default_value("MapdSettings"))
+
+  maps_selected = params.get("MapsSelected")
+  if maps_selected:
+    try:
+      data = json.loads(maps_selected)
+      if isinstance(data, dict):
+        new_items = []
+        for nation in data.get("nations", []):
+          new_items.append(f"nation.{nation}")
+        for state in data.get("states", []):
+          new_items.append(f"us_state.{state}")
+        new_items.sort()
+        params.put("MapsSelected", ",".join(new_items))
+    except json.JSONDecodeError:
+      pass
+
   frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
   if not frogpilot_variables.HD_PATH.is_file() and frogpilot_toggles.use_higher_bitrate:
@@ -128,6 +227,46 @@ def update_boot_logo(target_logo):
     frogpilot_utilities.run_cmd(["sudo", "mount", "-o", "remount,rw", "/"], None, "Failed to remount /")
     frogpilot_utilities.run_cmd(["sudo", "cp", target_logo, boot_logo_location], None, "Failed to replace boot logo")
     frogpilot_utilities.run_cmd(["sudo", "mount", "-o", f"remount,{mount_options}", "/"], None, "Failed to restore / mount options")
+
+
+def update_maps(now, params, cancel_download, sm, manual_update=False):
+  cancel_download.clear()
+
+  last_gps_position = params.get("LastGPSPosition")
+  if last_gps_position and not sm["deviceState"].networkMetered:
+    position = json.loads(last_gps_position)
+    download_nearby_maps(position["latitude"], position["longitude"], cancel_download)
+
+  if cancel_download.is_set() or (sm["deviceState"].networkMetered and not manual_update):
+    return
+
+  maps_selected = params.get("MapsSelected")
+  if not maps_selected:
+    return
+
+  now = now.astimezone()
+
+  day = now.day
+  is_first = day == 1
+  is_sunday = now.weekday() == 6
+  schedule = params.get("PreferredSchedule")
+
+  last_maps_update = params.get("LastMapsUpdate")
+  maps_downloaded = frogpilot_variables.MAPS_PATH.exists() and bool(last_maps_update)
+
+  if maps_downloaded and (schedule == 0 or (schedule == 1 and not is_sunday) or (schedule == 2 and not is_first)) and not manual_update:
+    return
+
+  suffix = "th" if 11 <= day <= 13 else {1: "st", 2: "nd", 3: "rd"}.get(day % 10, "th")
+  todays_date = now.strftime(f"%B {day}{suffix}, %Y")
+
+  if maps_downloaded and last_maps_update == todays_date and not manual_update:
+    return
+
+  frogpilot_utilities.delete_file(MAPD_DOWNLOAD_MENU_PATH, report=False)
+
+  if download_maps(maps_selected, cancel_download):
+    params.put("LastMapsUpdate", todays_date)
 
 
 def update_openpilot(thread_manager, params):
