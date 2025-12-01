@@ -258,6 +258,9 @@ def main(demo=False):
 
   frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
+  if not frogpilot_toggles.liveValid:
+    estimator = TorqueEstimator(messaging.log_from_bytes(params.get("CarParams", block=True), car.CarParams), decimated=True)
+
   while True:
     sm.update()
     if sm.all_checks():
