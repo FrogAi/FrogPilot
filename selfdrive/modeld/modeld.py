@@ -465,6 +465,7 @@ def main(demo=False):
       # FrogPilot variables
       frogpilot_modelv2_send = messaging.new_message('frogpilotModelV2')
       frogpilot_modelv2_send.valid = modelv2_send.valid
+      frogpilot_modelv2_send.frogpilotModelV2.turnDirection = DH.turn_direction
 
       pm.send('frogpilotModelV2', frogpilot_modelv2_send)
     last_vipc_frame_id = meta_main.frame_id
