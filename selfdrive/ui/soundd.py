@@ -85,6 +85,8 @@ class Soundd:
     self.the_pond_request_sock = messaging.sub_sock("thePondRequest")
     self.ui_request_sock = messaging.sub_sock("frogpilotUIRequest")
 
+    self.update_frogpilot_sounds()
+
   def load_sounds(self):
     self.loaded_sounds: dict[int, np.ndarray] = {}
 
@@ -122,7 +124,7 @@ class Soundd:
         written_frames += frames_to_write
         self.current_sound_frame += frames_to_write
 
-    return ret * self.current_volume
+    return ret * self.get_alert_volume()
 
   def callback(self, data_out: np.ndarray, frames: int, time, status) -> None:
     if status:
@@ -137,7 +139,18 @@ class Soundd:
 
   def get_audible_alert(self, sm):
     # FrogPilot variables
-    if sm.updated['selfdriveState']:
+    test_requests = [msg.frogpilotUIRequest for msg in messaging.drain_sock(self.ui_request_sock) if msg.frogpilotUIRequest.which() == 'testAlert']
+    if test_requests:
+      test_alert = getattr(AudibleAlert, test_requests[-1].testAlert)
+      test_volume = test_requests[-1].testAlertVolume
+
+      if test_volume <= 100:
+        self.alert_volumes[test_alert] = test_volume / 100.0
+      else:
+        self.alert_volumes.pop(test_alert, None)
+
+      self.update_alert(test_alert)
+    elif sm.updated['selfdriveState']:
       new_alert = sm['selfdriveState'].alertSound.raw
 
       # FrogPilot variables
@@ -191,9 +204,34 @@ class Soundd:
         assert stream.active
 
         # FrogPilot variables
-        self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
+        frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
+        if frogpilot_toggles is not self.frogpilot_toggles:
+          self.frogpilot_toggles = frogpilot_toggles
+
+          self.update_frogpilot_sounds()
 
   # FrogPilot variables
+  def get_alert_volume(self):
+    volume = self.alert_volumes.get(self.current_alert, self.current_volume)
+    if self.current_alert in (AudibleAlert.promptDistracted, AudibleAlert.warningSoft, AudibleAlert.warningImmediate):
+      volume = max(volume, self.current_volume)
+
+    return volume
+
+  def update_frogpilot_sounds(self):
+    volumes = {
+      AudibleAlert.engage: self.frogpilot_toggles.engage_volume,
+      AudibleAlert.disengage: self.frogpilot_toggles.disengage_volume,
+      AudibleAlert.refuse: self.frogpilot_toggles.refuse_volume,
+
+      AudibleAlert.prompt: self.frogpilot_toggles.prompt_volume,
+      AudibleAlert.promptRepeat: self.frogpilot_toggles.prompt_volume,
+      AudibleAlert.promptDistracted: self.frogpilot_toggles.prompt_distracted_volume,
+
+      AudibleAlert.warningSoft: self.frogpilot_toggles.warning_soft_volume,
+      AudibleAlert.warningImmediate: self.frogpilot_toggles.warning_immediate_volume,
+    }
+    self.alert_volumes = {alert: volume / 100.0 for alert, volume in volumes.items() if volume <= 100}
 
 
 def main():

@@ -60,6 +60,14 @@ void FrogPilotUIState::runUpdateChecks() {
   pm->send("frogpilotUIRequest", msg);
 }
 
+void FrogPilotUIState::testAlert(const QString &alert, float volume) {
+  MessageBuilder msg;
+  cereal::FrogPilotUIRequest::Builder request = msg.initEvent().initFrogpilotUIRequest();
+  request.setTestAlert(alert.toStdString());
+  request.setTestAlertVolume(volume);
+  pm->send("frogpilotUIRequest", msg);
+}
+
 void FrogPilotUIState::update() {
   update_state(this);
 
