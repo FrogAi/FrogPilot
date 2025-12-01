@@ -41,7 +41,8 @@ void ModelRenderer::draw(QPainter &painter, const QRect &surface_rect) {
     // FrogPilot variables
     if (lead_one.getStatus()) {
       // FrogPilot variables
-      drawLead(painter, lead_one, lead_vertices[0], surface_rect, QColor(frogpilot_toggles.value(QLatin1String("lead_marker_color")).toString()));
+      QColor lead_color = lead_one.getModelProb() >= frogpilot_toggles.value(QLatin1String("lead_detection_probability")).toDouble() ? QColor(frogpilot_toggles.value(QLatin1String("lead_marker_color")).toString()) : frogpilot_nvg->whiteColor();
+      drawLead(painter, lead_one, lead_vertices[0], surface_rect, lead_color);
     }
     if (lead_two.getStatus() && (std::abs(lead_one.getDRel() - lead_two.getDRel()) > 3.0)) {
       drawLead(painter, lead_two, lead_vertices[1], surface_rect, QColor(frogpilot_toggles.value(QLatin1String("lead_marker_color")).toString()));
