@@ -1,7 +1,13 @@
 #include "frogpilot/ui/qt/offroad/longitudinal_settings.h"
 
+static bool validInteger(const QJsonValue &value) {
+  return value.isDouble() && value.toDouble() == std::floor(value.toDouble());
+}
+
 FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *parent, bool forceOpen) : FrogPilotListWidget(parent), parent(parent) {
   forceOpenDescriptions = forceOpen;
+
+  networkManager = new QNetworkAccessManager(this);
 
   QStackedLayout *longitudinalLayout = new QStackedLayout();
   addItem(longitudinalLayout);
@@ -394,7 +400,36 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       });
       longitudinalToggle = weatherToggle;
     } else if (param == "SetWeatherKey") {
-      longitudinalToggle = new FrogPilotButtonsControl(title, desc, icon, {tr("ADD"), tr("TEST")});
+      weatherKeyControl = new FrogPilotButtonsControl(title, desc, icon, {tr("ADD"), tr("TEST")});
+      QObject::connect(weatherKeyControl, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
+        if (id == 0) {
+          if (!params.get("WeatherToken").empty()) {
+            if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to remove your key?"), this)) {
+              params.remove("WeatherToken");
+
+              weatherKeyControl->setText(0, tr("ADD"));
+              weatherKeyControl->setValue("");
+              weatherKeyControl->setVisibleButton(1, false);
+            }
+          } else {
+            int keyLength = 32;
+            QString newKey = InputDialog::getText(tr("Enter your \"OpenWeatherMap\" key"), this, "", false, -1, "", keyLength).trimmed();
+            if (!newKey.isEmpty()) {
+              params.put("WeatherToken", newKey.toStdString());
+
+              weatherKeyControl->setText(0, tr("REMOVE"));
+              weatherKeyControl->setVisibleButton(1, frogpilotUIState()->frogpilot_scene.online);
+
+              weatherKeyControl->setValue(tr("Testing..."));
+              testWeatherKey(newKey);
+            }
+          }
+        } else if (id == 1) {
+          weatherKeyControl->setValue(tr("Testing..."));
+          testWeatherKey(QString::fromStdString(params.get("WeatherToken")).trimmed());
+        }
+      });
+      longitudinalToggle = weatherKeyControl;
     } else if (param == "LowVisibilityOffsets") {
       ButtonControl *manageLowVisibilityOffsetsButton = new ButtonControl(title, tr("MANAGE"), desc);
       QObject::connect(manageLowVisibilityOffsetsButton, &ButtonControl::clicked, [longitudinalLayout, weatherLowVisibilityPanel, this]() {
@@ -659,6 +694,8 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
 }
 
 void FrogPilotLongitudinalPanel::showEvent(QShowEvent *event) {
+  FrogPilotUIState &fs = *frogpilotUIState();
+
   updateCurveLabels();
 
   if (parent->carDetected) {
@@ -670,9 +707,60 @@ void FrogPilotLongitudinalPanel::showEvent(QShowEvent *event) {
     vEgoStoppingToggle->setTitle(QString(tr("Stop Speed (Default: %1)")).arg(QString::number(parent->vEgoStopping, 'f', 2)));
   }
 
+  bool keyExists = !params.get("WeatherToken").empty();
+  weatherKeyControl->setText(0, keyExists ? tr("REMOVE") : tr("ADD"));
+  weatherKeyControl->setVisibleButton(1, keyExists && fs.frogpilot_scene.online);
+
   updateSLCPriorityValue();
 
   updateToggles();
+}
+
+void FrogPilotLongitudinalPanel::testWeatherKey(const QString &key) {
+  QString url = QString("https://api.openweathermap.org/data/4.0/onecall/current?lat=42.4293&lon=-83.9850&appid=%1").arg(key);
+
+  QNetworkRequest request(url);
+  QNetworkReply *reply = networkManager->get(request);
+  QObject::connect(reply, &QNetworkReply::finished, this, [=]() {
+    reply->deleteLater();
+
+    if (QString::fromStdString(params.get("WeatherToken")).trimmed() != key) {
+      return;
+    }
+
+    int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+
+    weatherKeyControl->setValue("");
+
+    if (!isVisible()) {
+      return;
+    }
+
+    QString message;
+    if (reply->error() == QNetworkReply::NoError && status >= 200 && status < 300) {
+      QJsonObject data = QJsonDocument::fromJson(reply->readAll()).object().value("data").toArray().at(0).toObject();
+
+      bool validSunData = !data.contains("sunrise") || validInteger(data.value("sunrise"));
+      validSunData &= !data.contains("sunset") || validInteger(data.value("sunset"));
+      QJsonValue weatherId = data.value("weather").toArray().at(0).toObject().value("id");
+      if (validSunData && validInteger(weatherId)) {
+        ConfirmationDialog::alert(tr("Key is valid for OpenWeatherMap One Call API 4.0!"), this);
+        return;
+      }
+      message = tr("OpenWeatherMap returned incomplete weather data. Try again later.");
+    } else if (status == 401 || status == 403) {
+      message = tr("OpenWeatherMap did not accept this key for One Call API 4.0. Check the key and make sure it has a One Call API 4.0 subscription. "
+                   "Until then, FrogPilot uses shared weather, updated every 15 minutes.");
+    } else if (status == 429) {
+      message = tr("OpenWeatherMap's request limit was reached. Try again later.");
+    } else if (status != 0) {
+      message = tr("OpenWeatherMap request failed (HTTP %1).").arg(status);
+    } else {
+      message = tr("Could not reach OpenWeatherMap. Check your connection and try again.");
+    }
+
+    ConfirmationDialog::alert(message, this);
+  });
 }
 
 void FrogPilotLongitudinalPanel::updateCurveLabels() {

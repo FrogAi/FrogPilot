@@ -256,6 +256,7 @@ class FrogPilotRequests:
 
 def transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_validated, params, frogpilot_toggles, api, stats_lock):
   frogpilot_planner.frogpilot_vcruise.slc.close()
+  frogpilot_planner.frogpilot_weather.close()
 
   frogpilot_planner.speed_limit_filler.save()
 
@@ -424,7 +425,7 @@ def frogpilot_thread():
       run_update_checks = True
       share_speed_limits = True
     elif started and not started_previously:
-      frogpilot_planner = FrogPilotPlanner(theme_manager)
+      frogpilot_planner = FrogPilotPlanner(theme_manager, api)
 
       stats_lock.acquire()
       frogpilot_tracking = FrogPilotTracking(frogpilot_planner, frogpilot_toggles)

@@ -17,6 +17,7 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
+  void testWeatherKey(const QString &key);
   void updateCurveLabels();
   void updateMetric(bool metric, bool bootRun);
   void updateSLCPriorityValue();
@@ -57,6 +58,8 @@ private:
 
   ButtonControl *slcPriorityButton;
 
+  FrogPilotButtonsControl *weatherKeyControl;
+
   FrogPilotParamValueControl *ceSpeedLeadToggle;
   FrogPilotParamValueControl *ceSpeedToggle;
   FrogPilotParamValueControl *longitudinalActuatorDelayToggle;
@@ -73,4 +76,6 @@ private:
   LabelControl *maxLateralAccelerationLabel;
 
   Params params;
+
+  QNetworkAccessManager *networkManager;
 };

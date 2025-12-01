@@ -71,6 +71,13 @@ ROAD_SUFFIXES = {
   "Street": "St",
 }
 
+WEATHER_ICONS = {
+  "low_visibility": "weather_low_visibility",
+  "rain": "weather_rain",
+  "rain_storm": "weather_rain",
+  "snow": "weather_snow",
+}
+
 
 @cache
 def road_name_text(name):
@@ -95,6 +102,7 @@ class FrogPilotWidgets(Widget):
     super().__init__()
 
     self._can_draw = False
+    self._ce_visible = False
     self._csc_flipped = False
     self._csc_training = False
     self._max_speed_showing = False
@@ -107,6 +115,7 @@ class FrogPilotWidgets(Widget):
 
     self._ce_icon = ""
     self._road_name = ""
+    self._weather_icon = ""
 
     self._bottom_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
     self._ce_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
@@ -116,6 +125,8 @@ class FrogPilotWidgets(Widget):
     self._longitudinal_slot_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
     self._road_name_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
     self._stopped_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
+    self._weather_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
+    self._weather_slot_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
 
     self._font_display = gui_app.font(FontWeight.DISPLAY)
     self._font_semi_bold = gui_app.font(FontWeight.SEMI_BOLD)
@@ -139,6 +150,7 @@ class FrogPilotWidgets(Widget):
     self._render_longitudinal_paused(rect)
     self._render_road_name(rect)
     self._render_stopped_timer(rect)
+    self._render_weather(rect)
 
   def _render_conditional_status(self, rect):
     status = ui_state.sm["frogpilotPlan"].ceStatus
@@ -153,12 +165,12 @@ class FrogPilotWidgets(Widget):
     else:
       icon = CE_ICONS.get(status)
 
-    visible = bool(icon is not None and ui_state.frogpilot_toggles.get("cem_status"))
+    self._ce_visible = bool(icon is not None and ui_state.frogpilot_toggles.get("cem_status"))
 
-    if visible and self._ce_filter.x < frogpilot_status.MIN_VISIBLE_ALPHA:
+    if self._ce_visible and self._ce_filter.x < frogpilot_status.MIN_VISIBLE_ALPHA:
       self._ce_icon = icon
 
-    alpha = self._ce_filter.update(float(visible and icon == self._ce_icon)) * self._bottom_filter.x
+    alpha = self._ce_filter.update(float(self._ce_visible and icon == self._ce_icon)) * self._bottom_filter.x
 
     if alpha >= frogpilot_status.MIN_VISIBLE_ALPHA:
       x, y = self._right_slot(rect, 0)
@@ -301,6 +313,19 @@ class FrogPilotWidgets(Widget):
 
   def _paused_alpha(self, paused_filter, paused):
     return paused_filter.update(float(paused and self._top_slot_free())) * self._bottom_filter.x
+
+  def _render_weather(self, rect):
+    icon = WEATHER_ICONS.get(frogpilot_status.weather_category(ui_state.sm["frogpilotPlan"].weatherId))
+
+    if icon is not None and self._weather_filter.x < frogpilot_status.MIN_VISIBLE_ALPHA:
+      self._weather_icon = icon
+
+    slot = self._slide_slot(self._weather_slot_filter, self._weather_filter, float(self._ce_visible))
+    alpha = self._weather_filter.update(float(icon is not None and icon == self._weather_icon)) * self._bottom_filter.x
+
+    if alpha >= frogpilot_status.MIN_VISIBLE_ALPHA:
+      x, y = self._right_slot(rect, slot)
+      self._draw_icon(self._weather_icon, x, y, alpha)
 
   @staticmethod
   def _slide_slot(slot_filter, visibility_filter, slot):
