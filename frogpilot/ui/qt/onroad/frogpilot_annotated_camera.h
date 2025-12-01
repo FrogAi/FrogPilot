@@ -52,6 +52,8 @@ protected:
 
 private:
   QLinearGradient adjacentPathGradient(float hue);
+  void paintCompass(QPainter &p, const QPoint &position);
+  void paintWidgetFrame(QPainter &p, const QRect &rect, const QColor &borderColor);
 
   bool blindspotLeft = false;
   bool blindspotRight = false;
@@ -63,6 +65,7 @@ private:
   float accelerationEgo = 0.0f;
   float dashboardSpeedLimit = 0.0f;
   float distanceConversion = 0.0f;
+  float gpsBearing = 0.0f;
   float speedConversion = 0.0f;
   float speedConversionMetrics = 0.0f;
   float stoppingDistance = 0.0f;
