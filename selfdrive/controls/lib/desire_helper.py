@@ -1,4 +1,4 @@
-from cereal import log
+from cereal import custom, log
 from openpilot.common.constants import CV
 from openpilot.common.realtime import DT_MDL
 
@@ -30,6 +30,13 @@ DESIRES = {
 }
 
 # FrogPilot variables
+TurnDirection = custom.FrogPilotModelDataV2.TurnDirection
+
+TURN_DESIRES = {
+  TurnDirection.none: log.Desire.none,
+  TurnDirection.turnLeft: log.Desire.turnLeft,
+  TurnDirection.turnRight: log.Desire.turnRight,
+}
 
 
 class DesireHelper:
@@ -132,7 +139,13 @@ class DesireHelper:
     self.prev_one_blinker = one_blinker
 
     # FrogPilot variables
-    self.desire = DESIRES[self.lane_change_direction][self.lane_change_state]
+    if lateral_active and one_blinker and below_lane_change_speed and not carstate.standstill and self.lane_change_state == LaneChangeState.off and \
+       frogpilot_toggles.use_turn_desires:
+      self.turn_direction = TurnDirection.turnLeft if carstate.leftBlinker else TurnDirection.turnRight
+      self.desire = TURN_DESIRES[self.turn_direction]
+    else:
+      self.turn_direction = TurnDirection.none
+      self.desire = DESIRES[self.lane_change_direction][self.lane_change_state]
 
     # Send keep pulse once per second during LaneChangeStart.preLaneChange
     if self.lane_change_state in (LaneChangeState.off, LaneChangeState.laneChangeStarting):
