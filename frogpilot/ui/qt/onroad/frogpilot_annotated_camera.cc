@@ -6,6 +6,9 @@ FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(CameraWidget *nvg
   instantReplayButton = new InstantReplayButton(nvg);
   instantReplayButton->setVisible(false);
 
+  personalityButton = new DrivingPersonalityButton(nvg);
+  personalityButton->setVisible(false);
+
   curveSpeedIcon = loadPixmap("../../frogpilot/assets/other_images/curve_speed.svg", {btn_size, btn_size});
   curveSpeedIconFlipped = curveSpeedIcon.transformed(QTransform().scale(-1, 1));
   stopSignImg = loadPixmap("../../frogpilot/assets/other_images/stop_sign.svg", {btn_size, btn_size});
@@ -227,6 +230,9 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
 
   instantReplayButton->setVisible(!standstillTimerRect.intersects(instantReplayButton->geometry()) && !staticSignalRect.intersects(instantReplayButton->geometry()) && frogpilot_toggles.value(QLatin1String("instant_replay")).toInt() != 0);
 
+  personalityButton->setVisible(dmIconPosition != QPoint(0, 0) && (!hideBottomIcons || personalityButton->isDown()) && frogpilot_toggles.value(QLatin1String("onroad_distance_button")).toBool());
+  personalityButton->updateState(s, fs);
+
   if (!isVisible()) {
     return;
   }
@@ -270,6 +276,8 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
   QPoint compassPosition(rightHandDM ? width() - experimentalButtonPosition.x() - btn_size : experimentalButtonPosition.x() + btn_size - widget_size, cemStatusPosition.y());
 
   instantReplayButton->move(experimentalButtonPosition.x() - UI_BORDER_SIZE - btn_size, experimentalButtonPosition.y());
+  personalityButton->move(rightHandDM ? width() - personalityButton->width() - UI_BORDER_SIZE : UI_BORDER_SIZE, dmIconPosition.y() - personalityButton->height() / 2);
+  personalityButton->rightHandDM = rightHandDM;
 
   if (!hideBottomIcons && frogpilot_toggles.value(QLatin1String("cem_status")).toBool()) {
     paintCEMStatus(p, cemStatusPosition);

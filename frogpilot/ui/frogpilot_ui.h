@@ -31,6 +31,7 @@ public:
   void experimentalModePressed();
   void restoreSettingsBackup(const QString &name);
   void runUpdateChecks();
+  void setDistanceButtonPressed(bool pressed);
   void testAlert(const QString &alert, float volume);
   void update();
   void updateToggles();
@@ -51,6 +52,8 @@ signals:
   void togglesUpdated();
 
 private:
+  bool distance_button_pressed = false;
+
   std::unique_ptr<PubMaster> pm;
 };
 
