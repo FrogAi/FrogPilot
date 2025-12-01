@@ -214,7 +214,7 @@ bool hasLongitudinalControl(const cereal::CarParams::Reader &car_params) {
   // will be active without needing a restart of openpilot
   return car_params.getAlphaLongitudinalAvailable()
              ? Params().getBool("AlphaLongitudinalEnabled")
-             : car_params.getOpenpilotLongitudinalControl();
+             : ((car_params.getOpenpilotLongitudinalControl() || openpilotLongitudinalControlDisabled) && !Params().getBool("DisableOpenpilotLongitudinal"));
 }
 
 // ParamWatcher

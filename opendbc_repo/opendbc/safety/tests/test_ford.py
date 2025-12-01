@@ -479,8 +479,7 @@ class TestFordLongitudinalSafety(TestFordLongitudinalSafetyBase):
   def setUp(self):
     self.packer = CANPackerSafety("ford_lincoln_base_pt")
     self.safety = libsafety_py.libsafety
-    # Make sure we enforce long safety even without long flag for CAN
-    self.safety.set_safety_hooks(CarParams.SafetyModel.ford, 0)
+    self.safety.set_safety_hooks(CarParams.SafetyModel.ford, FordSafetyFlags.LONG_CONTROL)
     self.safety.init_tests()
 
   def test_max_lateral_acceleration(self):

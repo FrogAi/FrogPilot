@@ -12,6 +12,20 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
 
   vehiclesLayout->addWidget(vehiclesPanel);
 
+  disableOpenpilotLong = new ParamControl("DisableOpenpilotLongitudinal", tr("Disable openpilot Longitudinal Control"), tr("<b>Let your car's own cruise control handle the gas and brake instead of openpilot.</b>"), "");
+  QObject::connect(disableOpenpilotLong, &ToggleControl::toggleFlipped, [parent, this](bool state) {
+    if (state && !FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely disable openpilot longitudinal control?"), this)) {
+      params.putBool("DisableOpenpilotLongitudinal", false);
+      disableOpenpilotLong->refresh();
+    } else if (uiState()->scene.started && FrogPilotConfirmationDialog::toggleReboot(this)) {
+      FrogPilotConfirmationDialog::softReboot(this);
+    }
+
+    parent->updateVariables();
+    updateToggles();
+  });
+  settingsList->addItem(disableOpenpilotLong);
+
   FrogPilotListWidget *gmList = new FrogPilotListWidget(this);
   FrogPilotListWidget *hkgList = new FrogPilotListWidget(this);
   FrogPilotListWidget *hondaList = new FrogPilotListWidget(this);
@@ -189,6 +203,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
   QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [vehiclesLayout, vehiclesPanel, this] {
     if (forceOpenDescriptions) {
       openDescriptions(forceOpenDescriptions, toggles);
+      disableOpenpilotLong->showDescription();
     }
     vehiclesLayout->setCurrentWidget(vehiclesPanel);
   });
@@ -196,6 +211,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
 
 void FrogPilotVehiclesPanel::showEvent(QShowEvent *event) {
   if (forceOpenDescriptions) {
+    disableOpenpilotLong->showDescription();
   }
 
   QStringList detected;
@@ -298,6 +314,9 @@ void FrogPilotVehiclesPanel::updateToggles() {
   for (const QString &key : parentKeys) {
     toggles[key]->setVisible(visibleParents.contains(key));
   }
+
+  disableOpenpilotLong->setVisible((parent->hasOpenpilotLongitudinal || parent->openpilotLongitudinalControlDisabled) && parent->canDisableOpenpilotLong &&
+                                 parent->tuningLevel >= parent->frogpilotToggleLevels.value("DisableOpenpilotLongitudinal").toDouble());
 
   openDescriptions(forceOpenDescriptions, toggles);
 

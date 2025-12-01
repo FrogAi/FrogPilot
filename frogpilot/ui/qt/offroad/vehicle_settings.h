@@ -33,5 +33,7 @@ private:
 
   FrogPilotSettingsWindow *parent;
 
+  ParamControl *disableOpenpilotLong;
+
   Params params;
 };
