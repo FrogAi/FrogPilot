@@ -179,6 +179,7 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   cscActive = frogpilotPlan.getCscActive() && !carState.getStandstill();
   cscSpeed = frogpilotPlan.getCscSpeed();
   cscTraining = frogpilotPlan.getCscTraining();
+  desiredFollowDistance = frogpilotPlan.getDesiredFollowDistance();
   experimentalMode = selfdriveState.getExperimentalMode();
   forceCoast = frogpilotCarState.getForceCoast();
   gpsBearing = frogpilotPlan.getGpsBearing();
@@ -522,6 +523,79 @@ void FrogPilotAnnotatedCameraWidget::paintCurveSpeedControl(QPainter &p) {
     p.setFont(fitInterFont(45, QFont::Bold, cscRect.width() - 20, {cscSpeedText}));
     p.drawText(cscRect, Qt::AlignCenter, cscSpeedText);
     p.drawPixmap(curveSpeedPoint, curveSpeedImage);
+  }
+
+  p.restore();
+}
+
+void FrogPilotAnnotatedCameraWidget::paintLeadMetrics(QPainter &p, bool adjacent, QPointF *chevron, float leadDistance, float vLead) {
+  float leadSpeed = std::max(vLead, 0.0f);
+
+  QString distanceString = QString::number(qRound(leadDistance * distanceConversion));
+  QString speedString = QString::number(qRound(leadSpeed * speedConversionMetrics));
+
+  QVector<QString> textLines;
+  textLines.reserve(3);
+  if (adjacent) {
+    textLines.append(distanceString + leadDistanceUnit);
+    textLines.append(speedString + leadSpeedUnit);
+  } else {
+    if (frogpilot_toggles.value(QLatin1String("openpilot_longitudinal")).toBool()) {
+      int desiredDistance = std::max(0, qRound(desiredFollowDistance * distanceConversion));
+      textLines.append(QString("%1%2 (%3)").arg(distanceString, leadDistanceUnit, tr("Desired: %1").arg(desiredDistance)));
+    } else {
+      textLines.append(distanceString + leadDistanceUnit);
+    }
+    textLines.append(speedString + leadSpeedUnit);
+
+    float timeGap = leadDistance / std::max(vEgo, 1.0f);
+    textLines.append(tr("%1 seconds").arg(QString::number(timeGap, 'f', 2)));
+  }
+
+  p.save();
+
+  p.setFont(InterFont(45, QFont::DemiBold));
+  p.setPen(whiteColor());
+
+  QFontMetrics metrics(p.font());
+  int lineHeight = metrics.lineSpacing();
+
+  int maxTextWidth = 0;
+  for (QString &line : textLines) {
+    maxTextWidth = std::max(maxTextWidth, metrics.horizontalAdvance(line));
+  }
+
+  int centerX = std::clamp<int>((chevron[2].x() + chevron[0].x()) / 2, maxTextWidth / 2, width() - maxTextWidth / 2);
+  int startY = std::min<int>(chevron[0].y() + lineHeight + 5, height() - (textLines.size() - 1) * lineHeight - metrics.descent());
+
+  int xMargin = maxTextWidth * 0.1;
+  int yMargin = lineHeight * 0.1;
+
+  QRect textRect(centerX - maxTextWidth / 2, startY - lineHeight, maxTextWidth, textLines.size() * lineHeight);
+  textRect.adjust(-xMargin, -yMargin, xMargin, yMargin);
+
+  if ((adjacent && textRect.intersects(adjacentLeadTextRect)) || std::any_of(leadTextRects.cbegin(), leadTextRects.cend(), [&textRect](const QRect &rect) {
+    return textRect.intersects(rect);
+  })) {
+    p.restore();
+    return;
+  }
+
+  if (adjacent) {
+    adjacentLeadTextRect = textRect;
+  } else {
+    leadTextRects.append(textRect);
+
+    if (vEgo < 1.0f) {
+      textLines[2].clear();
+    }
+  }
+
+  for (int i = 0; i < textLines.size(); ++i) {
+    int lineX = centerX - metrics.horizontalAdvance(textLines[i]) / 2;
+    int lineY = startY + (i * lineHeight);
+
+    drawOutlinedText(p, QPointF(lineX, lineY), textLines[i]);
   }
 
   p.restore();
