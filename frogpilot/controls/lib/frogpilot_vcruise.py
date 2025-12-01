@@ -7,12 +7,14 @@ from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import CRUIS
 
 from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.controls.lib.curve_speed_controller import CurveSpeedController
+from openpilot.frogpilot.controls.lib.speed_limit_controller import SpeedLimitController
 
 class FrogPilotVCruise:
   def __init__(self, FrogPilotPlanner):
     self.frogpilot_planner = FrogPilotPlanner
 
     self.csc = CurveSpeedController(self)
+    self.slc = SpeedLimitController(self)
 
     self.csc_active = False
     self.csc_controlling_speed = False
@@ -23,7 +25,7 @@ class FrogPilotVCruise:
     self.force_stop_timer = 0
     self.stop_distance = 0
 
-  def update(self, long_control_active, v_cruise, v_ego, sm, frogpilot_toggles):
+  def update(self, long_control_active, now, time_validated, v_cruise, v_ego, sm, frogpilot_toggles):
     self.update_force_stop(long_control_active, v_ego, sm, frogpilot_toggles)
 
     v_cruise_cluster = max(sm["carState"].vCruiseCluster * CV.KPH_TO_MS, v_cruise)
@@ -43,7 +45,27 @@ class FrogPilotVCruise:
 
     self.csc_active = self.csc_target < v_cruise
 
+    # Pfeiferj's Speed Limit Controller
+    if frogpilot_toggles.speed_limit_controller:
+      self.slc.update_limits(self.frogpilot_planner.gps_position, now, time_validated, v_ego, sm)
+      self.slc.update_override(v_cruise_cluster, v_ego_cluster, sm)
+
+      self.slc_offset = self.slc.offset
+      self.slc_target = self.slc.target
+    elif frogpilot_toggles.show_speed_limits:
+      self.slc.update_limits(self.frogpilot_planner.gps_position, now, time_validated, v_ego, sm)
+
+      self.slc_offset = 0
+      self.slc_target = self.slc.target
+    else:
+      self.slc.reset()
+
+      self.slc_offset = 0
+      self.slc_target = 0
+
     targets = [self.csc_target, v_cruise]
+    if frogpilot_toggles.speed_limit_controller and self.slc_target > 0:
+      targets.append(max(max(self.slc.overridden_speed, self.slc_target + self.slc_offset) - v_ego_diff, frogpilot_variables.CRUISING_SPEED))
 
     taco_target = v_cruise
     if long_control_active and frogpilot_toggles.taco_tune and not frogpilot_toggles.curve_speed_controller:

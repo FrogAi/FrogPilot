@@ -313,6 +313,11 @@ class FrogPilotTheme:
   def static_signal_on_left(self):
     return self._assets.signal_style == "static" and ui_state.sm["carState"].leftBlinker
 
+  def static_signal_on_right(self):
+    car_state = ui_state.sm["carState"]
+
+    return self._assets.signal_style == "static" and car_state.rightBlinker and not car_state.leftBlinker
+
   def bookmark_texture(self, stock_texture):
     assets = self._assets
 

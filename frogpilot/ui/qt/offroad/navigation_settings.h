@@ -13,10 +13,20 @@ signals:
   void openSubPanel();
 
 protected:
+  void hideEvent(QHideEvent *event) override;
   void showEvent(QShowEvent *event) override;
 
 private:
+  void mousePressEvent(QMouseEvent *event) override;
+  void testMapboxKey(FrogPilotButtonsControl *control, const std::string &paramKey, const QString &urlTemplate);
+  void updateButtons();
+  void updateNetworkState(const FrogPilotUIState &fs);
+  void updateState(const UIState &s, const FrogPilotUIState &fs);
+  void updateStep();
+
   bool forceOpenDescriptions = false;
+  bool mapboxPublicKeySet = false;
+  bool mapboxSecretKeySet = false;
 
   ButtonControl *setupButton;
 
@@ -31,6 +41,10 @@ private:
   LabelControl *ipLabel;
 
   Params params;
+
+  QLabel *imageLabel;
+
+  QNetworkAccessManager *networkManager;
 
   QStackedLayout *navigationLayout;
 };

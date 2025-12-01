@@ -453,7 +453,53 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       std::vector<QString> overrideOptions{tr("None"), tr("Set With Gas Pedal"), tr("Max Set Speed")};
       longitudinalToggle = new ButtonParamControl(param, title, desc, icon, overrideOptions);
     } else if (param == "SLCPriority") {
-      longitudinalToggle = new ButtonControl(title, tr("SELECT"), desc);
+      slcPriorityButton = new ButtonControl(title, tr("SELECT"), desc);
+      primaryPriorities = QStringList{tr("Camera"), tr("Dashboard"), tr("Map Data"), tr("Highest"), tr("Lowest")};
+      QStringList otherPriorities = {tr("None"), tr("Camera"), tr("Dashboard"), tr("Map Data")};
+      translatedPriorities = QStringList{tr("None"), tr("Camera"), tr("Dashboard"), tr("Map Data"), tr("Highest"), tr("Lowest")};
+      canonicalPriorities = QStringList{"None", "Camera", "Dashboard", "Map Data", "Highest", "Lowest"};
+      QStringList priorityPrompts = {tr("Select your primary priority"), tr("Select your secondary priority"), tr("Select your tertiary priority")};
+
+      QObject::connect(slcPriorityButton, &ButtonControl::clicked, [=]() {
+        QStringList selectedPriorities;
+
+        for (int i = 1; i <= 3; ++i) {
+          QStringList availablePriorities = i == 1 ? primaryPriorities : otherPriorities;
+          for (const QString &selected : selectedPriorities) {
+            availablePriorities.removeAll(selected);
+          }
+
+          if (!parent->hasDashSpeedLimits) {
+            availablePriorities.removeAll(tr("Dashboard"));
+          }
+          if (availablePriorities.size() == 1 && availablePriorities.contains(tr("None"))) {
+            break;
+          }
+
+          QString selection = MultiOptionDialog::getSelection(priorityPrompts[i - 1], availablePriorities, "", this);
+          if (selection.isEmpty()) {
+            break;
+          }
+
+          selectedPriorities.append(selection);
+
+          const int selectionIndex = translatedPriorities.indexOf(selection);
+          params.put(QString("SLCPriority%1").arg(i).toStdString(), canonicalPriorities[selectionIndex].toStdString());
+          if (selection == tr("None") || selection == tr("Lowest") || selection == tr("Highest")) {
+            break;
+          }
+        }
+
+        if (!selectedPriorities.isEmpty()) {
+          for (int i = selectedPriorities.size() + 1; i <= 3; ++i) {
+            params.put(QString("SLCPriority%1").arg(i).toStdString(), std::string("None"));
+          }
+        }
+
+        updateSLCPriorityValue();
+      });
+
+      longitudinalToggle = slcPriorityButton;
     } else if (param == "SLCOffsets") {
       ButtonControl *manageSLCOffsetsButton = new ButtonControl(title, tr("MANAGE"), desc);
       QObject::connect(manageSLCOffsetsButton, &ButtonControl::clicked, [longitudinalLayout, speedLimitControllerOffsetsPanel, this]() {
@@ -624,6 +670,8 @@ void FrogPilotLongitudinalPanel::showEvent(QShowEvent *event) {
     vEgoStoppingToggle->setTitle(QString(tr("Stop Speed (Default: %1)")).arg(QString::number(parent->vEgoStopping, 'f', 2)));
   }
 
+  updateSLCPriorityValue();
+
   updateToggles();
 }
 
@@ -789,6 +837,27 @@ void FrogPilotLongitudinalPanel::updateMetric(bool metric, bool bootRun) {
     offset7Toggle->updateControl(-99, 99, speedLabels, tr(" mph"));
     setSpeedOffsetToggle->updateControl(0, 99, speedLabels, tr(" mph"));
   }
+}
+
+void FrogPilotLongitudinalPanel::updateSLCPriorityValue() {
+  QStringList selectedPriorities;
+  for (int i = 1; i <= 3; ++i) {
+    QString priority = QString::fromStdString(params.get(QString("SLCPriority%1").arg(i).toStdString()));
+    const int storedIndex = canonicalPriorities.indexOf(priority);
+    if (storedIndex >= 0) {
+      priority = translatedPriorities[storedIndex];
+    }
+    if (!parent->hasDashSpeedLimits && priority == tr("Dashboard")) {
+      continue;
+    }
+    if (primaryPriorities.contains(priority)) {
+      selectedPriorities.append(priority);
+    }
+    if (priority == tr("Highest") || priority == tr("Lowest")) {
+      break;
+    }
+  }
+  slcPriorityButton->setValue(selectedPriorities.join(", "));
 }
 
 void FrogPilotLongitudinalPanel::updateToggles() {

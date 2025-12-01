@@ -1252,6 +1252,14 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       Priority.LOWEST, VisualAlert.none, AudibleAlert.prompt, 3.),
   },
 
+  FrogPilotEventName.speedLimitChanged: {
+    ET.PERMANENT: Alert(
+      "Speed limit changed",
+      "",
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
   FrogPilotEventName.speedSensorsDisagree: {
     ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Speed Sensors Disagree"),
     ET.PERMANENT: NormalPermanentAlert("Speed Sensors Disagree", "Steering is unavailable until they match"),
@@ -1588,6 +1596,13 @@ if HARDWARE.get_device_type() == 'mici':
     FrogPilotEventName.pedalInterceptorNoBrake: {
       ET.SOFT_DISABLE: pedal_interceptor_no_brake_alert_mici,
       ET.NO_ENTRY: NoEntryAlert("Shift to L", alert_text_1="Braking Unavailable"),
+    },
+    FrogPilotEventName.speedLimitChanged: {
+      ET.PERMANENT: Alert(
+        "Limit Changed",
+        "",
+        FrogPilotAlertStatus.frogpilot, AlertSize.small,
+        Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
     },
     FrogPilotEventName.speedSensorsDisagree: {
       ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Speed Sensors Disagree"),

@@ -19,6 +19,7 @@ protected:
 private:
   void updateCurveLabels();
   void updateMetric(bool metric, bool bootRun);
+  void updateSLCPriorityValue();
   void updateToggles();
 
   bool customPersonalityOpen = false;
@@ -49,6 +50,12 @@ private:
   QSet<QString> weatherSnowKeys = {"IncreaseFollowingSnow", "IncreasedStoppedDistanceSnow", "ReduceAccelerationSnow", "ReduceLateralAccelerationSnow"};
 
   QSet<QString> parentKeys;
+
+  QStringList canonicalPriorities;
+  QStringList primaryPriorities;
+  QStringList translatedPriorities;
+
+  ButtonControl *slcPriorityButton;
 
   FrogPilotParamValueControl *ceSpeedLeadToggle;
   FrogPilotParamValueControl *ceSpeedToggle;
