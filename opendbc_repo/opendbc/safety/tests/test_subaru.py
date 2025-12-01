@@ -184,6 +184,9 @@ class TestSubaruGen1TorqueStockLongitudinalSafety(TestSubaruStockLongitudinalSaf
 
 
 # FrogPilot variables
+class TestSubaruGen1TorqueRaisedSteerLimitStockLongitudinalSafety(TestSubaruGen1TorqueStockLongitudinalSafety):
+  FLAGS = SubaruSafetyFlags.RAISED_STEER_LIMIT
+  MAX_TORQUE_LOOKUP = [0], [3071]
 
 
 class TestSubaruGen2TorqueSafetyBase(TestSubaruTorqueSafetyBase):
