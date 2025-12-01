@@ -74,7 +74,7 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : QFrame(parent) {
   mainList->addItem(experimentalLongitudinalToggle);
 
   // Joystick and longitudinal maneuvers should be hidden on release branches
-  is_release = params.getBool("IsReleaseBranch");
+  is_release = false;
 
   // Toggles should be not available to change in onroad state
   QObject::connect(uiState(), &UIState::offroadTransition, this, &DeveloperPanel::updateToggles);

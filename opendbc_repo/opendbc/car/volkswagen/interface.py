@@ -84,7 +84,9 @@ class CarInterface(CarInterfaceBase):
 
     ret.alphaLongitudinalAvailable = ret.networkLocation == NetworkLocation.gateway or docs
     # FrogPilot variables
-    if alpha_long:
+    if ret.flags & VolkswagenFlags.MLB:
+      ret.alphaLongitudinalAvailable = False
+    elif alpha_long:
       # Proof-of-concept, prep for E2E only. No radar points available. Panda ALLOW_DEBUG firmware required.
       ret.openpilotLongitudinalControl = True
       safety_configs[0].safetyParam |= VolkswagenSafetyFlags.LONG_CONTROL.value
