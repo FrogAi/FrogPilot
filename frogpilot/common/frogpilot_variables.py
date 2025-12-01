@@ -1358,7 +1358,7 @@ class FrogPilotVariables:
 
     alpha_longitudinal = CP.alphaLongitudinalAvailable
     toggle.car_make = CP.brand
-    toggle.car_model = CP.carFingerprint
+    toggle.car_model = selected_car_model if toggle.force_fingerprint else CP.carFingerprint
     toggle.can_disable_openpilot_long = frogpilot_utilities.can_disable_openpilot_long(CP) and not alpha_longitudinal
     toggle.disable_openpilot_long = self.get_value("DisableOpenpilotLongitudinal", condition=toggle.can_disable_openpilot_long)
     has_bsm = CP.enableBsm
