@@ -126,15 +126,24 @@ class CarState(CarStateBase):
       self.es_infotainment_msg = copy.copy(cp_cam.vl["ES_Infotainment"])
 
     # FrogPilot variables
+    if self.CP.flags & SubaruFlags.PREGLOBAL:
+      self.fp_ret.brakeLights = bool(cp_cam.vl["ES_Brake"]["Cruise_Brake_Lights"])
+    else:
+      self.fp_ret.brakeLights = bool(cp_cam.vl["ES_DashStatus"]["Brake_Lights"])
 
     return ret
 
   @staticmethod
   def get_can_parsers(CP):
     # FrogPilot variables
+    cam_messages = []
+    if CP.flags & SubaruFlags.PREGLOBAL:
+      cam_messages += [
+        ("ES_Brake", float('nan')),
+      ]
 
     return {
       Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], [], CanBus.main),
-      Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [], CanBus.camera),
+      Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], cam_messages, CanBus.camera),
       Bus.alt: CANParser(DBC[CP.carFingerprint][Bus.pt], [], CanBus.alt)
     }

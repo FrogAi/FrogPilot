@@ -104,6 +104,7 @@ class CarState(CarStateBase):
     buttonEvents = create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
 
     # FrogPilot variables
+    self.fp_ret.brakeLights = bool(cp.vl["ESP_1"]["BRAKE_PRESSED_ACC"])
 
     ret.buttonEvents = buttonEvents
 

@@ -134,12 +134,13 @@ def fill_model_msg(base_msg: capnp._DynamicStructBuilder, extended_msg: capnp._D
   meta.init('disengagePredictions')
   disengage_predictions = meta.disengagePredictions
   disengage_predictions.t = ModelConstants.META_T_IDXS
-  disengage_predictions.brakeDisengageProbs = net_output_data['meta'][0,Meta.BRAKE_DISENGAGE].tolist()
-  disengage_predictions.gasDisengageProbs = net_output_data['meta'][0,Meta.GAS_DISENGAGE].tolist()
-  disengage_predictions.steerOverrideProbs = net_output_data['meta'][0,Meta.STEER_OVERRIDE].tolist()
-  disengage_predictions.brake3MetersPerSecondSquaredProbs = net_output_data['meta'][0,Meta.HARD_BRAKE_3].tolist()
-  disengage_predictions.brake4MetersPerSecondSquaredProbs = net_output_data['meta'][0,Meta.HARD_BRAKE_4].tolist()
-  disengage_predictions.brake5MetersPerSecondSquaredProbs = net_output_data['meta'][0,Meta.HARD_BRAKE_5].tolist()
+  disengage_predictions.brakeDisengageProbs = net_output_data['meta'][0,meta_slices.BRAKE_DISENGAGE].tolist()
+  disengage_predictions.gasDisengageProbs = net_output_data['meta'][0,meta_slices.GAS_DISENGAGE].tolist()
+  disengage_predictions.steerOverrideProbs = net_output_data['meta'][0,meta_slices.STEER_OVERRIDE].tolist()
+  disengage_predictions.brake3MetersPerSecondSquaredProbs = net_output_data['meta'][0,meta_slices.HARD_BRAKE_3].tolist()
+  disengage_predictions.brake4MetersPerSecondSquaredProbs = net_output_data['meta'][0,meta_slices.HARD_BRAKE_4].tolist()
+  disengage_predictions.brake5MetersPerSecondSquaredProbs = net_output_data['meta'][0,meta_slices.HARD_BRAKE_5].tolist()
+
   # FrogPilot variables
   disengage_predictions.gasPressProbs = net_output_data['meta'][0,Meta.GAS_PRESS].tolist()
   disengage_predictions.brakePressProbs = net_output_data['meta'][0,Meta.BRAKE_PRESS].tolist()

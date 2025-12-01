@@ -24,6 +24,8 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started
   const uint64_t selfdrive_frame = sm.rcv_frame("selfdriveState");
 
   // FrogPilot variables
+  const SubMaster &fpsm = *(frogpilotUIState()->sm);
+  const cereal::FrogPilotSelfdriveState::Reader &fpss = fpsm["frogpilotSelfdriveState"].getFrogpilotSelfdriveState();
 
   Alert a = {};
   if (selfdrive_frame >= started_frame) {  // Don't get old alert.
@@ -31,6 +33,10 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started
          ss.getAlertType().cStr(), ss.getAlertSize(), ss.getAlertStatus()};
 
     // FrogPilot variables
+    if (a.size == cereal::SelfdriveState::AlertSize::NONE || fpss.getHasPriorityAlert()) {
+      a = {fpss.getAlertText1().cStr(), fpss.getAlertText2().cStr(),
+           fpss.getAlertType().cStr(), static_cast<cereal::SelfdriveState::AlertSize>(fpss.getAlertSize()), static_cast<cereal::SelfdriveState::AlertStatus>(fpss.getAlertStatus())};
+    }
   }
 
   // FrogPilot variables

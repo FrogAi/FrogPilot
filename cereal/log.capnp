@@ -1257,6 +1257,12 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
 
   solverExecutionTime @35 :Float32;
 
+  # lead trajectories the MPC solved against (13 points at T_IDXS)
+  leadTrajectoryX0 @40 :List(Float32);
+  leadTrajectoryV0 @41 :List(Float32);
+  leadTrajectoryX1 @42 :List(Float32);
+  leadTrajectoryV1 @43 :List(Float32);
+
   enum LongitudinalPlanSource {
     cruise @0;
     lead0 @1;
@@ -2625,26 +2631,26 @@ struct Event {
     # DO change the name of the field and struct
     # DON'T change the ID (e.g. @107)
     # DON'T change which struct it points to
-    customReserved0 @107 :Custom.CustomReserved0;
-    customReserved1 @108 :Custom.CustomReserved1;
-    customReserved2 @109 :Custom.CustomReserved2;
-    customReserved3 @110 :Custom.CustomReserved3;
-    customReserved4 @111 :Custom.CustomReserved4;
-    customReserved5 @112 :Custom.CustomReserved5;
-    customReserved6 @113 :Custom.CustomReserved6;
-    customReserved7 @114 :Custom.CustomReserved7;
-    customReserved8 @115 :Custom.CustomReserved8;
-    customReserved9 @116 :Custom.CustomReserved9;
+    frogpilotCarControl @107 :Custom.FrogPilotCarControl;
+    frogpilotCarParams @108 :Custom.FrogPilotCarParams;
+    frogpilotCarState @109 :Custom.FrogPilotCarState;
+    frogpilotDeviceState @110 :Custom.FrogPilotDeviceState;
+    frogpilotModelV2 @111 :Custom.FrogPilotModelDataV2;
+    frogpilotOnroadEvents @112 :List(Custom.FrogPilotOnroadEvent);
+    frogpilotPlan @113 :Custom.FrogPilotPlan;
+    frogpilotProcessState @138 :Custom.FrogPilotProcessState;
+    frogpilotRadarState @114 :Custom.FrogPilotRadarState;
+    frogpilotSelfdriveState @115 :Custom.FrogPilotSelfdriveState;
+    frogpilotSignReading @116 :Custom.FrogPilotSignReading;
+    frogpilotUIEvent @137 :Custom.FrogPilotUIEvent;
+    frogpilotUIRequest @139 :Custom.FrogPilotUIRequest;
     customReserved10 @136 :Custom.CustomReserved10;
-    customReserved11 @137 :Custom.CustomReserved11;
-    customReserved12 @138 :Custom.CustomReserved12;
-    customReserved13 @139 :Custom.CustomReserved13;
     customReserved14 @140 :Custom.CustomReserved14;
     customReserved15 @141 :Custom.CustomReserved15;
     customReserved16 @142 :Custom.CustomReserved16;
-    customReserved17 @143 :Custom.CustomReserved17;
-    customReserved18 @144 :Custom.CustomReserved18;
-    customReserved19 @145 :Custom.CustomReserved19;
+    mapdExtendedOut @143 :Custom.MapdExtendedOut;
+    mapdIn @144 :Custom.MapdIn;
+    mapdOut @145 :Custom.MapdOut;
 
     # *********** legacy + deprecated ***********
     model @9 :Legacy.ModelData; # TODO: rename modelV2 and mark this as deprecated

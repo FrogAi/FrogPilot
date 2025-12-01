@@ -53,7 +53,8 @@ def get_fuzzy_car_interface(car_name: str, draw: DrawType) -> CarInterfaceBase:
   CarInterface = interfaces[car_name]
   car_params = CarInterface.get_params(car_name, params['fingerprints'], params['car_fw'],
                                        alpha_long=params['alpha_long'], is_release=False, docs=False)
-  return CarInterface(car_params)
+  FPCP = CarInterface.get_frogpilot_params(car_name, params['fingerprints'], params['car_fw'], car_params, TOGGLES)
+  return CarInterface(car_params, FPCP)
 
 
 class TestCarInterfaces:

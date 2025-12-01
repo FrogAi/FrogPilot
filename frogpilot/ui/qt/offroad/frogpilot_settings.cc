@@ -376,6 +376,18 @@ void FrogPilotSettingsWindow::updateVariables() {
     frogpilotUIState()->updateToggles();
   }
 
+  std::string frogpilotCarParams = params.get("FrogPilotCarParamsPersistent");
+  if (!frogpilotCarParams.empty()) {
+    AlignedBuffer aligned_buf;
+    capnp::FlatArrayMessageReader fpcmsg(aligned_buf.align(frogpilotCarParams.data(), frogpilotCarParams.size()));
+    cereal::FrogPilotCarParams::Reader FPCP = fpcmsg.getRoot<cereal::FrogPilotCarParams>();
+
+    canUsePedal = FPCP.getCanUsePedal();
+    canUseSDSU = FPCP.getCanUseSDSU();
+    hasDashSpeedLimits = FPCP.getHasDashboardSpeedLimit();
+    openpilotLongitudinalControlDisabled = FPCP.getOpenpilotLongitudinalControlDisabled();
+  }
+
   std::string liveTorqueParameters = params.get("LiveTorqueParameters");
   if (!liveTorqueParameters.empty()) {
     AlignedBuffer aligned_buf;

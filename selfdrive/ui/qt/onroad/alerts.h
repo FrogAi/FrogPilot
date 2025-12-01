@@ -34,6 +34,7 @@ protected:
     {cereal::SelfdriveState::AlertStatus::CRITICAL, QColor(0xC9, 0x22, 0x31, 0xf1)},
 
     // FrogPilot variables
+    {static_cast<cereal::SelfdriveState::AlertStatus>(cereal::FrogPilotSelfdriveState::AlertStatus::FROGPILOT), QColor(0x17, 0x86, 0x44, 0xf1)},
   };
 
   void paintEvent(QPaintEvent*) override;

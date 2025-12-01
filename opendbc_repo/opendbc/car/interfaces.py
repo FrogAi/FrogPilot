@@ -7,13 +7,24 @@ from enum import StrEnum
 from typing import Any
 from collections.abc import Callable
 from functools import cache
+from types import SimpleNamespace
 
+from cereal import custom
 from opendbc.car import DT_CTRL, apply_hysteresis, gen_empty_fingerprint, scale_rot_inertia, scale_tire_stiffness, STD_CARGO_KG
 from opendbc.car import structs
 from opendbc.car.can_definitions import CanData, CanRecvCallable, CanSendCallable
+from opendbc.car.chrysler.values import CAR as CHRYSLER, ChryslerFrogPilotFlags
 from opendbc.car.common.basedir import BASEDIR
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.common.simple_kalman import KF1D, get_kalman_gain
+from opendbc.car.ford.fordcan import CanBus as FordCanBus
+from opendbc.car.ford.values import CAR as FORD, FordFlags
+from opendbc.car.gm.values import CAR as GM
+from opendbc.car.honda.values import CAR as HONDA, HONDA_BOSCH
+from opendbc.car.hyundai.hyundaicanfd import CanBus as HyundaiCanBus
+from opendbc.car.hyundai.values import CAR as HYUNDAI, CANFD_CAR, HyundaiFlags
+from opendbc.car.mock.values import CAR as MOCK
+from opendbc.car.toyota.values import CAR as TOYOTA, NO_DSU_CAR, TSS2_CAR, UNSUPPORTED_DSU_CAR, ToyotaFrogPilotFlags
 from opendbc.car.values import PLATFORMS
 from opendbc.can import CANParser
 
@@ -98,7 +109,7 @@ class CarInterfaceBase(ABC):
   CarController: 'CarControllerBase'
   RadarInterface: 'RadarInterfaceBase' = RadarInterfaceBase
 
-  def __init__(self, CP: structs.CarParams):
+  def __init__(self, CP: structs.CarParams, FPCP: custom.FrogPilotCarParams):
     self.CP = CP
 
     self.frame = 0
@@ -111,6 +122,9 @@ class CarInterfaceBase(ABC):
     self.CC: CarControllerBase = self.CarController(dbc_names, CP)
 
     # FrogPilot variables
+    self.FPCP = FPCP
+    self.CS.FPCP = FPCP
+    self.CS.init_frogpilot_params()
 
   def apply(self, c: structs.CarControl, now_nanos: int | None = None) -> tuple[structs.CarControl.Actuators, list[CanData]]:
     if now_nanos is None:
@@ -161,6 +175,50 @@ class CarInterfaceBase(ABC):
     return ret
 
   # FrogPilot variables
+  @classmethod
+  def get_frogpilot_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[structs.CarParams.CarFw], CP: structs.CarParams, frogpilot_toggles: SimpleNamespace):
+    fp_ret = custom.FrogPilotCarParams.new_message()
+
+    platform = PLATFORMS[candidate]
+
+    if platform not in MOCK:
+      if platform in CHRYSLER:
+        if candidate == CHRYSLER.RAM_HD_5TH_GEN:
+          if 570 not in fingerprint[0]:
+            fp_ret.flags |= ChryslerFrogPilotFlags.RAM_HD_ALT_BUTTONS.value
+
+      elif platform in FORD:
+        fp_ret.hasDashboardSpeedLimit = bool(CP.flags & FordFlags.CANFD) and 0x3CD in fingerprint[FordCanBus(CP).camera]
+
+      elif platform in GM:
+        fp_ret.canUsePedal = True
+
+      elif platform in HONDA:
+        fp_ret.canUsePedal = candidate not in HONDA_BOSCH
+
+      elif platform in HYUNDAI:
+        if candidate in CANFD_CAR:
+          can_bus = HyundaiCanBus(CP)
+          speed_limit_bus = can_bus.ECAN if CP.flags & HyundaiFlags.CANFD_LKA_STEERING else can_bus.CAM
+          fp_ret.hasDashboardSpeedLimit = 0x1FA in fingerprint[speed_limit_bus]
+        else:
+          fp_ret.hasDashboardSpeedLimit = 0x53E in fingerprint[2] or 0x544 in fingerprint[0]
+
+      elif platform in TOYOTA:
+        fp_ret.canUsePedal = not CP.autoResumeSng
+        fp_ret.canUseSDSU = candidate not in UNSUPPORTED_DSU_CAR and candidate not in TSS2_CAR
+        fp_ret.hasDashboardSpeedLimit = 0x489 in fingerprint[2]
+
+        if 0x2AA in fingerprint[0] and candidate in NO_DSU_CAR:
+          fp_ret.flags |= ToyotaFrogPilotFlags.RADAR_CAN_FILTER.value
+
+        if 0x2FF in fingerprint[0] or (0x2AA in fingerprint[0] and candidate in NO_DSU_CAR):
+          fp_ret.flags |= ToyotaFrogPilotFlags.SMART_DSU.value
+
+        if 0x23 in fingerprint[0]:
+          fp_ret.flags |= ToyotaFrogPilotFlags.ZSS.value
+
+    return fp_ret
 
   @staticmethod
   @abstractmethod
@@ -247,6 +305,8 @@ class CarInterfaceBase(ABC):
         cp.update(can_packets)
 
     # FrogPilot variables
+    fp_ret = custom.FrogPilotCarState.new_message()
+    self.CS.fp_ret = fp_ret
 
     # get CarState
     ret = self.CS.update(self.can_parsers)
@@ -273,8 +333,11 @@ class CarInterfaceBase(ABC):
     self.CS.out = ret
 
     # FrogPilot variables
+    fp_ret.distancePressed = bool(self.CS.distance_button)
+    fp_ret.ecoGear |= ret.gearShifter == GearShifter.eco
+    fp_ret.sportGear |= ret.gearShifter == GearShifter.sport
 
-    return ret
+    return ret, fp_ret
 
 
 class CarStateBase(ABC):
@@ -306,6 +369,8 @@ class CarStateBase(ABC):
     self.CC: structs.CarControl = structs.CarControl.new_message()
 
   # FrogPilot variables
+  def init_frogpilot_params(self):
+    pass
 
   @abstractmethod
   def update(self, can_parsers) -> structs.CarState:

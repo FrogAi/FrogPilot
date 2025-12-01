@@ -2,7 +2,7 @@
 import math
 from numbers import Number
 
-from cereal import car, log
+from cereal import car, custom, log
 import cereal.messaging as messaging
 from openpilot.common.constants import CV
 from openpilot.common.params import Params
@@ -33,9 +33,10 @@ class Controls:
     cloudlog.info("controlsd is waiting for CarParams")
     self.CP = messaging.log_from_bytes(self.params.get("CarParams", block=True), car.CarParams)
     # FrogPilot variables
+    self.FPCP = messaging.log_from_bytes(self.params.get("FrogPilotCarParams", block=True), custom.FrogPilotCarParams)
     cloudlog.info("controlsd got CarParams")
 
-    self.CI = interfaces[self.CP.carFingerprint](self.CP)
+    self.CI = interfaces[self.CP.carFingerprint](self.CP, self.FPCP)
 
     self.sm = messaging.SubMaster(['liveDelay', 'liveParameters', 'liveTorqueParameters', 'modelV2', 'selfdriveState',
                                    'liveCalibration', 'livePose', 'longitudinalPlan', 'carState', 'carOutput',
@@ -60,6 +61,7 @@ class Controls:
       self.LaC = LatControlTorque(self.CP, self.CI, DT_CTRL)
 
     # FrogPilot variables
+    self.sm = self.sm.extend(['frogpilotCarState', 'frogpilotPlan'])
 
   def update(self):
     self.sm.update(15)

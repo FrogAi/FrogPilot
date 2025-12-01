@@ -174,12 +174,21 @@ void FrogPilotMapsPanel::showEvent(QShowEvent *event) {
   refreshMapInfo();
   updateState(*uiState(), *frogpilotUIState());
 
+  const SubMaster &fpsm = *(frogpilotUIState()->sm);
+  const cereal::MapdDownloadProgress::Reader &downloadProgress = fpsm["mapdExtendedOut"].getMapdExtendedOut().getDownloadProgress();
   if (downloadProgress.getActive()) {
     updateDownloadLabels(downloadProgress.getDownloadedFiles(), downloadProgress.getTotalFiles());
   }
 }
 
 void FrogPilotMapsPanel::updateState(const UIState &s, const FrogPilotUIState &fs) {
+  const SubMaster &fpsm = *(fs.sm);
+
+  const cereal::FrogPilotProcessState::Reader &frogpilotProcessState = fpsm["frogpilotProcessState"].getFrogpilotProcessState();
+  const cereal::MapdExtendedOut::Reader &mapdExtendedOut = fpsm["mapdExtendedOut"].getMapdExtendedOut();
+  const cereal::MapdDownloadProgress::Reader &downloadProgress = mapdExtendedOut.getDownloadProgress();
+
+  const bool mapDownloadActive = downloadProgress.getActive();
   const bool mapDownloadPending = fs.download_maps_request_time > frogpilotProcessState.getDownloadMapsRequestTime() || frogpilotProcessState.getDownloadingMaps();
   const bool downloadingMaps = mapDownloadActive || mapDownloadPending;
 
@@ -200,6 +209,9 @@ void FrogPilotMapsPanel::updateState(const UIState &s, const FrogPilotUIState &f
   const UIScene &scene = s.scene;
 
   const bool parked = !scene.started || frogpilot_scene.parked || parent->isFrogsGoMoo;
+
+  const int mapDownloadDownloaded = downloadProgress.getDownloadedFiles();
+  const int mapDownloadTotal = downloadProgress.getTotalFiles();
 
   if (downloadingMaps) {
     downloadMapsButton->setEnabled(!removingMaps && !cancellingDownload);

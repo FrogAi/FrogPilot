@@ -85,6 +85,10 @@ void Sidebar::updateState(const UIState &s) {
 
   // FrogPilot variables
 
+  const SubMaster &fpsm = *(frogpilotUIState()->sm);
+
+  const cereal::FrogPilotDeviceState::Reader &frogpilotDeviceState = fpsm["frogpilotDeviceState"].getFrogpilotDeviceState();
+
   auto &sm = *(s.sm);
 
   networking = networking ? networking : window()->findChild<Networking *>("");

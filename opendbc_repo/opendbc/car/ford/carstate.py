@@ -121,6 +121,8 @@ class CarState(CarStateBase):
     ]
 
     # FrogPilot variables
+    if self.FPCP.hasDashboardSpeedLimit:
+      self.fp_ret.dashboardSpeedLimit = calculate_speed_limit(cp_cam)
 
     return ret
 

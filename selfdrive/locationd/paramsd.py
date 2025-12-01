@@ -277,6 +277,7 @@ def main():
   learner = VehicleParamsLearner(CP, steer_ratio, stiffness_factor, np.radians(angle_offset_deg), pInitial)
 
   # FrogPilot variables
+  sm = sm.extend(['frogpilotPlan'])
 
   while True:
     sm.update()

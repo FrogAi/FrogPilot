@@ -17,6 +17,7 @@
 #include <QTextStream>
 #include <QtXml/QDomDocument>
 
+#include "cereal/messaging/messaging.h"
 #include "common/swaglog.h"
 #include "common/util.h"
 #include "system/hardware/hw.h"
@@ -198,6 +199,16 @@ QPixmap bootstrapPixmap(const QString &id) {
 
 bool hasLongitudinalControl(const cereal::CarParams::Reader &car_params) {
   // FrogPilot variables
+  bool openpilotLongitudinalControlDisabled = false;
+
+  std::string frogpilotCarParams = Params().get("FrogPilotCarParamsPersistent");
+  if (!frogpilotCarParams.empty()) {
+    AlignedBuffer aligned_buf;
+    capnp::FlatArrayMessageReader fpcmsg(aligned_buf.align(frogpilotCarParams.data(), frogpilotCarParams.size()));
+    cereal::FrogPilotCarParams::Reader FPCP = fpcmsg.getRoot<cereal::FrogPilotCarParams>();
+
+    openpilotLongitudinalControlDisabled = FPCP.getOpenpilotLongitudinalControlDisabled();
+  }
 
   // Using the experimental longitudinal toggle, returns whether longitudinal control
   // will be active without needing a restart of openpilot

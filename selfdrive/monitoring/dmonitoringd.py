@@ -17,6 +17,7 @@ def dmonitoringd_thread():
   demo_mode=False
 
   # FrogPilot variables
+  sm = sm.extend(['frogpilotCarState'])
 
   # 20Hz <- dmonitoringmodeld
   while True:

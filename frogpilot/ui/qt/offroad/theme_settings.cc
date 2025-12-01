@@ -477,9 +477,16 @@ void FrogPilotThemesPanel::updateState(const UIState &s, const FrogPilotUIState 
   const FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
 
   if (themeDownloading) {
+    const cereal::FrogPilotProcessState::Reader &frogpilotProcessState = (*fs.sm)["frogpilotProcessState"].getFrogpilotProcessState();
+
+    const uint32_t downloadCount = frogpilotProcessState.getThemeDownloadCount();
+    const uint32_t failedCount = frogpilotProcessState.getThemeDownloadFailedCount();
+    const uint32_t successCount = frogpilotProcessState.getThemeDownloadSuccessCount();
+
     QString progress = "Downloading...";
     bool downloadFinished = false;
     if (fs.download_theme_request_time <= frogpilotProcessState.getDownloadThemeRequestTime()) {
+      progress = QString::fromStdString(frogpilotProcessState.getThemeDownloadProgress());
       downloadFinished = failedCount + successCount == downloadCount;
     }
     bool downloadStopped = progress == "Download cancelled..." || progress == "GitHub and GitLab are offline...";

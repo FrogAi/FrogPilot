@@ -306,6 +306,11 @@ def main(demo=False):
   DH = DesireHelper()
 
   # FrogPilot variables
+  sm = sm.extend(['frogpilotPlan'])
+
+  if 'radar_tracks' in model.numpy_inputs:
+    sm = sm.extend(['liveTracks'])
+  pm = pm.extend(['frogpilotModelV2'])
 
   while True:
     # Keep receiving frames until we are at least 1 frame ahead of previous extra frame
@@ -345,6 +350,7 @@ def main(demo=False):
     is_rhd = sm["driverMonitoringState"].isRHD
     frame_id = sm["roadCameraState"].frameId
     # FrogPilot variables
+    v_ego_raw = sm["carState"].vEgo
     v_ego = max(sm["carState"].vEgo, 0.)
     lat_delay = sm["liveDelay"].lateralDelay + LAT_SMOOTH_SECONDS
     if sm.updated["liveCalibration"] and sm.seen['roadCameraState'] and sm.seen['deviceState']:
@@ -382,6 +388,14 @@ def main(demo=False):
     }
 
     # FrogPilot variables
+    if 'radar_tracks' in model.numpy_inputs:
+      if sm.updated['liveTracks']:
+        for index, track in enumerate(sm['liveTracks'].points):
+          if index == len(radar_tracks):
+            break
+
+          radar_tracks[index] = [track.dRel, track.yRel, track.vRel]
+
     mt1 = time.perf_counter()
     model_output = model.run(bufs, transforms, inputs, prepare_only)
     mt2 = time.perf_counter()
@@ -403,7 +417,7 @@ def main(demo=False):
       l_lane_change_prob = desire_state[log.Desire.laneChangeLeft]
       r_lane_change_prob = desire_state[log.Desire.laneChangeRight]
       lane_change_prob = l_lane_change_prob + r_lane_change_prob
-      DH.update(sm['carState'], sm['carControl'].latActive, lane_change_prob)
+      DH.update(sm['carState'], sm['carControl'].latActive, lane_change_prob, sm['frogpilotPlan'])
       modelv2_send.modelV2.meta.laneChangeState = DH.lane_change_state
       modelv2_send.modelV2.meta.laneChangeDirection = DH.lane_change_direction
       drivingdata_send.drivingModelData.meta.laneChangeState = DH.lane_change_state
@@ -415,6 +429,11 @@ def main(demo=False):
       pm.send('cameraOdometry', posenet_send)
 
       # FrogPilot variables
+      frogpilot_modelv2_send = messaging.new_message('frogpilotModelV2')
+      frogpilot_modelv2_send.valid = modelv2_send.valid
+      frogpilot_modelv2_send.frogpilotModelV2.turnDirection = DH.turn_direction
+
+      pm.send('frogpilotModelV2', frogpilot_modelv2_send)
     last_vipc_frame_id = meta_main.frame_id
 
     # FrogPilot variables

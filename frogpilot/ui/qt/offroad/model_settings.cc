@@ -292,6 +292,8 @@ void FrogPilotModelPanel::updateState(const UIState &s, const FrogPilotUIState &
 
   const FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
 
+  const cereal::FrogPilotProcessState::Reader &frogpilotProcessState = (*fs.sm)["frogpilotProcessState"].getFrogpilotProcessState();
+
   if (frogpilotProcessState.getDownloadingModels() && !allModelsDownloading && !modelDownloading) {
     allModelsDownloading = true;
   }

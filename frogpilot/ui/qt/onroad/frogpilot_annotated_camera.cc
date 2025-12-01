@@ -19,8 +19,13 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   const UIScene &scene = s.scene;
 
   const SubMaster &sm = *(s.sm);
+  const SubMaster &fpsm = *(fs.sm);
 
   const cereal::CarState::Reader &carState = sm["carState"].getCarState();
+  const cereal::FrogPilotCarState::Reader &frogpilotCarState = fpsm["frogpilotCarState"].getFrogpilotCarState();
+  const cereal::FrogPilotPlan::Reader &frogpilotPlan = fpsm["frogpilotPlan"].getFrogpilotPlan();
+  const cereal::FrogPilotSignReading::Reader &frogpilotSignReading = fpsm["frogpilotSignReading"].getFrogpilotSignReading();
+  const cereal::MapdOut::Reader &mapdOut = fpsm["mapdOut"].getMapdOut();
   const cereal::ModelDataV2::Reader &modelV2 = sm["modelV2"].getModelV2();
   const cereal::SelfdriveState::Reader &selfdriveState = sm["selfdriveState"].getSelfdriveState();
 
@@ -42,6 +47,29 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
     distanceConversion = METER_TO_FOOT;
     speedConversionMetrics = MS_TO_MPH;
   }
+
+  brakeLights = frogpilotCarState.getBrakeLights();
+  cameraSpeedLimit = frogpilotSignReading.getSpeedLimit();
+  cscSpeed = frogpilotPlan.getCscSpeed();
+  cscTraining = frogpilotPlan.getCscTraining();
+  dashboardSpeedLimit = frogpilotCarState.getDashboardSpeedLimit();
+  desiredFollowDistance = frogpilotPlan.getDesiredFollowDistance();
+  forceCoast = frogpilotCarState.getForceCoast();
+  gpsBearing = frogpilotPlan.getGpsBearing();
+  laneWidthLeft = frogpilotPlan.getLaneWidthLeft();
+  laneWidthRight = frogpilotPlan.getLaneWidthRight();
+  lateralPaused = frogpilotCarState.getPauseLateral();
+  longitudinalPaused = frogpilotCarState.getPauseLongitudinal();
+  mapSpeedLimit = frogpilotPlan.getSlcMapSpeedLimit();
+  nextSpeedLimit = frogpilotPlan.getSlcNextSpeedLimit();
+  redLight = frogpilotPlan.getRedLight();
+  roadCurvature = frogpilotPlan.getRoadCurvature();
+  roadName = QString::fromStdString(mapdOut.getRoadName());
+  speedLimitChanged = frogpilotPlan.getSpeedLimitChanged();
+  speedLimitSource = frogpilotPlan.getSlcSpeedLimitSource();
+  unconfirmedSpeedLimit = frogpilotPlan.getUnconfirmedSlcSpeedLimit();
+  weatherDaytime = frogpilotPlan.getWeatherDaytime();
+  weatherId = frogpilotPlan.getWeatherId();
 
   hideBottomIcons = alertHeight != 0;
 

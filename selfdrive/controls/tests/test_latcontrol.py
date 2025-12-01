@@ -1,6 +1,7 @@
 from parameterized import parameterized
 
 from cereal import car, log
+from opendbc.car import gen_empty_fingerprint
 from opendbc.car.car_helpers import interfaces
 from opendbc.car.honda.values import CAR as HONDA
 from opendbc.car.toyota.values import CAR as TOYOTA
@@ -20,7 +21,8 @@ class TestLatControl:
   def test_saturation(self, car_name, controller):
     CarInterface = interfaces[car_name]
     CP = CarInterface.get_non_essential_params(car_name)
-    CI = CarInterface(CP)
+    FPCP = CarInterface.get_frogpilot_params(car_name, gen_empty_fingerprint(), [], CP, TOGGLES)
+    CI = CarInterface(CP, FPCP)
     VM = VehicleModel(CP)
 
     controller = controller(CP.as_reader(), CI, DT_CTRL)

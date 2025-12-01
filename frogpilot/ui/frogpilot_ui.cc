@@ -20,11 +20,25 @@ static void update_state(FrogPilotUIState *fs) {
     const cereal::DeviceState::Reader &deviceState = sm["deviceState"].getDeviceState();
     frogpilot_scene.online = deviceState.getNetworkType() != cereal::DeviceState::NetworkType::NONE;
   }
+  if (fpsm.updated("frogpilotCarState")) {
+    const cereal::FrogPilotCarState::Reader &frogpilotCarState = fpsm["frogpilotCarState"].getFrogpilotCarState();
+    frogpilot_scene.traffic_mode_enabled = frogpilotCarState.getTrafficModeEnabled();
+  }
+  if (fpsm.updated("frogpilotPlan")) {
+    const cereal::FrogPilotPlan::Reader &frogpilotPlan = fpsm["frogpilotPlan"].getFrogpilotPlan();
+    capnp::Text::Reader toggles = frogpilotPlan.getFrogpilotToggles();
+  }
+  if (fpsm.updated("frogpilotProcessState")) {
+    const cereal::FrogPilotProcessState::Reader &frogpilotProcessState = fpsm["frogpilotProcessState"].getFrogpilotProcessState();
+  }
 }
 
 FrogPilotUIState::FrogPilotUIState(QObject *parent) : QObject(parent) {
+  pm = std::make_unique<PubMaster>(std::vector<const char*>{"frogpilotUIEvent", "frogpilotUIRequest"});
   sm = std::make_unique<SubMaster>(std::vector<const char*>{
-    "carControl", "liveDelay", "liveParameters", "liveTorqueParameters", "liveTracks"
+    "carControl", "frogpilotCarState", "frogpilotDeviceState",
+    "frogpilotPlan", "frogpilotProcessState", "frogpilotRadarState", "frogpilotSelfdriveState", "frogpilotSignReading", "liveDelay",
+    "liveParameters", "liveTorqueParameters", "liveTracks", "mapdExtendedOut", "mapdOut"
   });
 
   wifi = new WifiManager(this);
@@ -33,6 +47,121 @@ FrogPilotUIState::FrogPilotUIState(QObject *parent) : QObject(parent) {
 FrogPilotUIState *frogpilotUIState() {
   static FrogPilotUIState frogpilot_ui_state;
   return &frogpilot_ui_state;
+}
+
+void FrogPilotUIState::cancelMapsDownload() {
+  download_maps_request_time = 0;
+
+  MessageBuilder msg;
+  msg.initEvent().initFrogpilotUIRequest().setCancelMapsDownload();
+  pm->send("frogpilotUIRequest", msg);
+}
+
+void FrogPilotUIState::cancelModelDownload() {
+  MessageBuilder msg;
+  msg.initEvent().initFrogpilotUIRequest().setCancelModelDownload();
+  pm->send("frogpilotUIRequest", msg);
+}
+
+void FrogPilotUIState::cancelThemeDownload() {
+  MessageBuilder msg;
+  msg.initEvent().initFrogpilotUIRequest().setCancelThemeDownload();
+  pm->send("frogpilotUIRequest", msg);
+}
+
+void FrogPilotUIState::downloadAllModels() {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  event.initFrogpilotUIRequest().setDownloadAllModels();
+  download_model_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
+void FrogPilotUIState::downloadMaps() {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  event.initFrogpilotUIRequest().setDownloadMaps();
+  download_maps_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
+void FrogPilotUIState::downloadModels(const QStringList &models) {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  capnp::List<capnp::Text>::Builder modelDownloads = event.initFrogpilotUIRequest().initDownloadModels(models.size());
+  for (int i = 0; i < models.size(); ++i) {
+    modelDownloads.set(i, models[i].toStdString());
+  }
+  download_model_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
+void FrogPilotUIState::downloadTheme(const QString &component, const QStringList &themes) {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  capnp::List<cereal::FrogPilotUIRequest::ThemeDownload>::Builder themeDownloads = event.initFrogpilotUIRequest().initDownloadTheme(themes.size());
+  for (int i = 0; i < themes.size(); ++i) {
+    themeDownloads[i].setComponent(component.toStdString());
+    themeDownloads[i].setTheme(themes[i].toStdString());
+  }
+  download_theme_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
+void FrogPilotUIState::experimentalModePressed() {
+  MessageBuilder msg;
+  msg.initEvent().initFrogpilotUIEvent().setExperimentalModePressed();
+  pm->send("frogpilotUIEvent", msg);
+}
+
+void FrogPilotUIState::flashPanda() {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  event.initFrogpilotUIRequest().setFlashPanda();
+  flash_panda_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
+void FrogPilotUIState::reportIssue(const QString &report) {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  event.initFrogpilotUIRequest().setIssueReport(report.toStdString());
+  issue_report_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
+void FrogPilotUIState::runUpdateChecks() {
+  MessageBuilder msg;
+  msg.initEvent().initFrogpilotUIRequest().setUpdateChecks();
+  pm->send("frogpilotUIRequest", msg);
+}
+
+void FrogPilotUIState::screenRecorderEvent(cereal::FrogPilotOnroadEvent::EventName event) {
+  MessageBuilder msg;
+  msg.initEvent().initFrogpilotUIEvent().setScreenRecorderEvent(event);
+  pm->send("frogpilotUIEvent", msg);
+}
+
+void FrogPilotUIState::setDistanceButtonPressed(bool pressed) {
+  if (pressed != distance_button_pressed) {
+    distance_button_pressed = pressed;
+
+    MessageBuilder msg;
+    msg.initEvent().initFrogpilotUIEvent().setDistanceButtonPressed(pressed);
+    pm->send("frogpilotUIEvent", msg);
+  }
+}
+
+void FrogPilotUIState::speedLimitAccepted() {
+  MessageBuilder msg;
+  msg.initEvent().initFrogpilotUIEvent().setSpeedLimitAccepted();
+  pm->send("frogpilotUIEvent", msg);
+}
+
+void FrogPilotUIState::testAlert(const QString &alert) {
+  MessageBuilder msg;
+  msg.initEvent().initFrogpilotUIRequest().setTestAlert(alert.toStdString());
+  pm->send("frogpilotUIRequest", msg);
 }
 
 void FrogPilotUIState::update() {
@@ -45,4 +174,10 @@ void FrogPilotUIState::update() {
   }
 
   const bool enabled = (*uiState()->sm)["selfdriveState"].getSelfdriveState().getEnabled();
+}
+
+void FrogPilotUIState::updateToggles() {
+  MessageBuilder msg;
+  msg.initEvent().initFrogpilotUIRequest().setUpdateToggles();
+  pm->send("frogpilotUIRequest", msg);
 }

@@ -2,6 +2,8 @@ from cereal import log
 from openpilot.selfdrive.selfdrived.events import Events, ET
 from openpilot.common.realtime import DT_CTRL
 
+from openpilot.frogpilot.common import frogpilot_utilities
+
 State = log.SelfdriveState.OpenpilotState
 
 SOFT_DISABLE_TIME = 3  # seconds
@@ -14,7 +16,7 @@ class StateMachine:
     self.state = State.disabled
     self.soft_disable_timer = 0
 
-  def update(self, events: Events):
+  def update(self, events: Events, frogpilot_events: Events):
     # decrement the soft disable timer at every step, as it's reset on
     # entrance in SOFT_DISABLING state
     self.soft_disable_timer = max(0, self.soft_disable_timer - 1)
@@ -28,14 +30,14 @@ class StateMachine:
         self.state = State.disabled
         self.current_alert_types.append(ET.USER_DISABLE)
 
-      elif events.contains(ET.IMMEDIATE_DISABLE):
+      elif frogpilot_utilities.contains_event_type(events, frogpilot_events, ET.IMMEDIATE_DISABLE):
         self.state = State.disabled
         self.current_alert_types.append(ET.IMMEDIATE_DISABLE)
 
       else:
         # ENABLED
         if self.state == State.enabled:
-          if events.contains(ET.SOFT_DISABLE):
+          if frogpilot_utilities.contains_event_type(events, frogpilot_events, ET.SOFT_DISABLE):
             self.state = State.softDisabling
             self.soft_disable_timer = int(SOFT_DISABLE_TIME / DT_CTRL)
             self.current_alert_types.append(ET.SOFT_DISABLE)
@@ -46,7 +48,7 @@ class StateMachine:
 
         # SOFT DISABLING
         elif self.state == State.softDisabling:
-          if not events.contains(ET.SOFT_DISABLE):
+          if not frogpilot_utilities.contains_event_type(events, frogpilot_events, ET.SOFT_DISABLE):
             # no more soft disabling condition, so go back to ENABLED
             self.state = State.enabled
 
@@ -65,7 +67,7 @@ class StateMachine:
 
         # OVERRIDING
         elif self.state == State.overriding:
-          if events.contains(ET.SOFT_DISABLE):
+          if frogpilot_utilities.contains_event_type(events, frogpilot_events, ET.SOFT_DISABLE):
             self.state = State.softDisabling
             self.soft_disable_timer = int(SOFT_DISABLE_TIME / DT_CTRL)
             self.current_alert_types.append(ET.SOFT_DISABLE)
@@ -77,7 +79,7 @@ class StateMachine:
     # DISABLED
     elif self.state == State.disabled:
       if events.contains(ET.ENABLE):
-        if events.contains(ET.NO_ENTRY):
+        if frogpilot_utilities.contains_event_type(events, frogpilot_events, ET.NO_ENTRY):
           self.current_alert_types.append(ET.NO_ENTRY)
 
         else:

@@ -5,7 +5,7 @@ from opendbc.car import Bus, DT_CTRL, create_button_events, structs
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.common.filter_simple import FirstOrderFilter
 from opendbc.car.interfaces import CarStateBase
-from opendbc.car.toyota.values import ToyotaFlags, CAR, DBC, STEER_THRESHOLD, NO_STOP_TIMER_CAR, \
+from opendbc.car.toyota.values import ToyotaFlags, ToyotaFrogPilotFlags, CAR, DBC, STEER_THRESHOLD, NO_STOP_TIMER_CAR, \
                                                   TSS2_CAR, RADAR_ACC_CAR, EPS_SCALE, UNSUPPORTED_DSU_CAR, \
                                                   SECOC_CAR
 
@@ -213,6 +213,13 @@ class CarState(CarStateBase):
         button_type = ButtonType.decelCruise
 
       buttonEvents += create_button_events(1, 0, {1: button_type}) + create_button_events(0, 1, {1: button_type})
+
+    self.fp_ret.brakeLights = bool(cp.vl["ESP_CONTROL"]["BRAKE_LIGHTS_ACC"])
+    self.fp_ret.dashboardSpeedLimit = calculate_speed_limit(cp_cam)
+
+    if not self.CP.flags & ToyotaFlags.SECOC.value:
+      self.fp_ret.ecoGear = cp.vl["GEAR_PACKET"]["ECON_ON"] == 1
+      self.fp_ret.sportGear = cp.vl["GEAR_PACKET"]["SPORT_ON_2" if self.CP.flags & ToyotaFlags.NO_DSU else "SPORT_ON"] == 1
 
     self.prev_pcm_acc_status = self.pcm_acc_status
 
