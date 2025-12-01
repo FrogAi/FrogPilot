@@ -132,7 +132,9 @@ void ModelRenderer::update_model(const cereal::ModelDataV2::Reader &model, const
       path_width *= 0.5f;
     }
   }
-  mapLineToPolygon(model_position, frogpilot_toggles.value(QLatin1String("model_ui")).toBool() ? path_width : 0.9, path_offset_z, &track_vertices, max_idx, false);
+  float inner_path_width = path_width * (1 - frogpilot_toggles.value(QLatin1String("path_edge_width")).toDouble() / 100.0f);
+
+  mapLineToPolygon(model_position, frogpilot_toggles.value(QLatin1String("model_ui")).toBool() ? inner_path_width : 0.9, path_offset_z, &track_vertices, max_idx, false);
 
   // FrogPilot variables
   FrogPilotUIState *fs = frogpilotUIState();
@@ -141,6 +143,14 @@ void ModelRenderer::update_model(const cereal::ModelDataV2::Reader &model, const
   const cereal::FrogPilotPlan::Reader &frogpilotPlan = fpsm["frogpilotPlan"].getFrogpilotPlan();
 
   frogpilot_nvg->track_vertices = track_vertices;
+
+  if (frogpilot_toggles.value(QLatin1String("model_ui")).toBool()) {
+    if (frogpilot_toggles.value(QLatin1String("path_edge_width")).toDouble() == 0) {
+      frogpilot_nvg->track_edge_vertices = track_vertices;
+    } else {
+      mapLineToPolygon(model_position, path_width, path_offset_z, &frogpilot_nvg->track_edge_vertices, max_idx, false);
+    }
+  }
 
   if (frogpilot_nvg->needsAdjacentPaths()) {
     mapAveragedLineToPolygon(lane_lines[0], lane_lines[1], frogpilotPlan.getLaneWidthLeft() / 2.0f, 0, &frogpilot_nvg->track_adjacent_vertices[0], max_idx, height, false);
@@ -236,6 +246,8 @@ void ModelRenderer::drawPath(QPainter &painter, const cereal::ModelDataV2::Reade
   } else if (frogpilot_toggles.value(QLatin1String("blind_spot_path")).toBool()) {
     frogpilot_nvg->paintBlindSpotPath(painter);
   }
+
+  frogpilot_nvg->paintPathEdges(painter);
 }
 
 void ModelRenderer::updatePathGradient(QLinearGradient &bg) {
