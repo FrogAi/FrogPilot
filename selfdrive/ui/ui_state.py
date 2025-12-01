@@ -59,6 +59,11 @@ class UIState:
         "rawAudioData",
 
         # FrogPilot variables
+        "frogpilotCarState",
+        "frogpilotPlan",
+        "frogpilotProcessState",
+        "frogpilotSelfdriveState",
+        "mapdOut",
       ]
     )
 

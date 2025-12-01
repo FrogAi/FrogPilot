@@ -9,6 +9,18 @@ void FrogPilotOnroadWindow::resizeEvent(QResizeEvent *event) {
 }
 
 void FrogPilotOnroadWindow::updateState(const UIState &s, const FrogPilotUIState &fs) {
+  const SubMaster &sm = *(s.sm);
+  const SubMaster &fpsm = *(fs.sm);
+
+  const cereal::CarState::Reader &carState = sm["carState"].getCarState();
+  const cereal::CarControl::Reader &carControl = fpsm["carControl"].getCarControl();
+
+  bool blindspotLeft = carState.getLeftBlindspot();
+  bool blindspotRight = carState.getRightBlindspot();
+  bool blinkerLeft = carState.getLeftBlinker();
+  bool blinkerRight = carState.getRightBlinker();
+
+  torque = -carControl.getActuators().getTorque();
 }
 
 void FrogPilotOnroadWindow::paintEvent(QPaintEvent *event) {

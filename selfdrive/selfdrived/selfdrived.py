@@ -5,7 +5,7 @@ import threading
 
 import cereal.messaging as messaging
 
-from cereal import car, log
+from cereal import car, custom, log
 from msgq.visionipc import VisionIpcClient, VisionStreamType
 
 
@@ -40,6 +40,7 @@ ButtonType = car.CarState.ButtonEvent.Type
 SafetyModel = car.CarParams.SafetyModel
 
 # FrogPilot variables
+FrogPilotEventName = custom.FrogPilotOnroadEvent.EventName
 
 IGNORED_SAFETY_MODES = (SafetyModel.silent, SafetyModel.noOutput)
 
@@ -76,7 +77,7 @@ class SelfdriveD:
     # TODO: de-couple selfdrived with card/conflate on carState without introducing controls mismatches
     self.car_state_sock = messaging.sub_sock('carState', timeout=20)
 
-    ignore = self.sensor_packets + self.gps_packets + ['alertDebug']
+    ignore = self.sensor_packets + self.gps_packets + ['alertDebug', 'frogpilotProcessState']
     if SIMULATION:
       ignore += ['driverCameraState', 'managerState']
     if REPLAY:
@@ -142,12 +143,21 @@ class SelfdriveD:
       self.events.add(EventName.dashcamMode, static=True)
 
     # FrogPilot variables
+    self.sm = self.sm.extend(['frogpilotCarState', 'frogpilotPlan', 'frogpilotProcessState'])
+    self.pm = self.pm.extend(['frogpilotOnroadEvents', 'frogpilotSelfdriveState'])
+
+    self.frogpilot_AM = AlertManager()
+    self.frogpilot_events = Events(frogpilot=True)
+
+    self.frogpilot_events_prev = []
+
   def update_events(self, CS):
     """Compute onroadEvents from carState"""
 
     self.events.clear()
 
     # FrogPilot variables
+    self.frogpilot_events.clear()
 
     if self.sm['controlsState'].lateralControlState.which() == 'debugState':
       self.events.add(EventName.joystickDebug)
@@ -172,6 +182,7 @@ class SelfdriveD:
       self.events.add(EventName.selfdriveInitializing)
 
       # FrogPilot variables
+      self.frogpilot_events.add_from_msg(self.sm['frogpilotPlan'].frogpilotEvents)
 
       return
 
@@ -336,7 +347,8 @@ class SelfdriveD:
       self.events.add(EventName.canError)
 
     # generic catch-all. ideally, a more specific event should be added above instead
-    has_disable_events = self.events.contains(ET.NO_ENTRY) and (self.events.contains(ET.SOFT_DISABLE) or self.events.contains(ET.IMMEDIATE_DISABLE))
+    has_disable_events = frogpilot_utilities.contains_event_type(self.events, self.frogpilot_events, ET.NO_ENTRY) and \
+                         frogpilot_utilities.contains_event_type(self.events, self.frogpilot_events, ET.SOFT_DISABLE, ET.IMMEDIATE_DISABLE)
     no_system_errors = (not has_disable_events) or (len(self.events) == num_events)
     if not self.sm.all_checks() and no_system_errors:
       if not self.sm.all_alive():
@@ -422,6 +434,7 @@ class SelfdriveD:
         self.events.add(EventName.personalityChanged)
 
     # FrogPilot variables
+    self.frogpilot_events.add_from_msg(self.sm['frogpilotPlan'].frogpilotEvents)
 
   def data_sample(self):
     _car_state = messaging.recv_one(self.car_state_sock)
@@ -484,6 +497,11 @@ class SelfdriveD:
     self.AM.process_alerts(self.sm.frame, clear_event_types)
 
     # FrogPilot variables
+    frogpilot_alerts = self.frogpilot_events.create_alerts(self.state_machine.current_alert_types, [self.CP, CS, self.sm, self.is_metric,
+                                                                                                    self.state_machine.soft_disable_timer, pers,
+                                                                                                    self.frogpilot_toggles])
+    self.frogpilot_AM.add_many(self.sm.frame, frogpilot_alerts)
+    self.frogpilot_AM.process_alerts(self.sm.frame, clear_event_types)
 
   def publish_selfdriveState(self, CS):
     # selfdriveState
@@ -493,7 +511,7 @@ class SelfdriveD:
     ss.enabled = self.enabled
     ss.active = self.active
     ss.state = self.state_machine.state
-    ss.engageable = not self.events.contains(ET.NO_ENTRY)
+    ss.engageable = not frogpilot_utilities.contains_event_type(self.events, self.frogpilot_events, ET.NO_ENTRY)
     ss.experimentalMode = self.experimental_mode
     ss.personality = self.personality
 
@@ -503,9 +521,12 @@ class SelfdriveD:
     ss.alertStatus = self.AM.current_alert.alert_status
     ss.alertType = self.AM.current_alert.alert_type
     ss.alertSound = self.AM.current_alert.audible_alert
-    ss.alertHudVisual = self.AM.current_alert.visual_alert
+    ss.alertHudVisual = self.AM.current_alert.visual_alert or self.frogpilot_AM.current_alert.visual_alert
 
     # FrogPilot variables
+    has_priority_alert = self.frogpilot_AM.current_alert.priority > self.AM.current_alert.priority
+    if has_priority_alert:
+      ss.alertHudVisual = self.frogpilot_AM.current_alert.visual_alert
 
     self.pm.send('selfdriveState', ss_msg)
 
@@ -518,12 +539,33 @@ class SelfdriveD:
     self.events_prev = self.events.names.copy()
 
     # FrogPilot variables
+    fpss_msg = messaging.new_message('frogpilotSelfdriveState')
+    fpss_msg.valid = True
+    fpss = fpss_msg.frogpilotSelfdriveState
+
+    fpss.alertText1 = self.frogpilot_AM.current_alert.alert_text_1
+    fpss.alertText2 = self.frogpilot_AM.current_alert.alert_text_2
+    fpss.alertSize = self.frogpilot_AM.current_alert.alert_size
+    fpss.alertStatus = self.frogpilot_AM.current_alert.alert_status
+    fpss.alertType = self.frogpilot_AM.current_alert.alert_type
+    fpss.alertSound = self.frogpilot_AM.current_alert.audible_alert
+    fpss.hasDisableEvents = self.events.contains_disable_event() or self.frogpilot_events.contains_disable_event()
+    fpss.hasPriorityAlert = has_priority_alert
+
+    self.pm.send('frogpilotSelfdriveState', fpss_msg)
+
+    if (self.sm.frame % int(1. / DT_CTRL) == 0) or (self.frogpilot_events.names != self.frogpilot_events_prev):
+      fpce_send = messaging.new_message('frogpilotOnroadEvents', len(self.frogpilot_events))
+      fpce_send.valid = True
+      fpce_send.frogpilotOnroadEvents = self.frogpilot_events.to_msg()
+      self.pm.send('frogpilotOnroadEvents', fpce_send)
+    self.frogpilot_events_prev = self.frogpilot_events.names.copy()
 
   def step(self):
     CS = self.data_sample()
     self.update_events(CS)
     if not self.CP.passive and self.initialized:
-      self.enabled, self.active = self.state_machine.update(self.events)
+      self.enabled, self.active = self.state_machine.update(self.events, self.frogpilot_events)
     self.update_alerts(CS)
 
     self.publish_selfdriveState(CS)

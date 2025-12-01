@@ -19,7 +19,9 @@ class FrogPilotUIState : public QObject {
 public:
   explicit FrogPilotUIState(QObject *parent = nullptr);
 
+  void runUpdateChecks();
   void update();
+  void updateToggles();
 
   std::unique_ptr<SubMaster> sm;
 
@@ -29,6 +31,9 @@ public:
 
 signals:
   void cameraFrameReceived();
+
+private:
+  std::unique_ptr<PubMaster> pm;
 };
 
 FrogPilotUIState *frogpilotUIState();

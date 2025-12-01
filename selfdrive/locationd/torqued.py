@@ -246,12 +246,14 @@ def main(demo=False):
   DEBUG = bool(int(os.getenv("DEBUG", "0")))
 
   pm = messaging.PubMaster(['liveTorqueParameters'])
-  sm = messaging.SubMaster(['carControl', 'carOutput', 'carState', 'liveCalibration', 'livePose', 'liveDelay'], poll='livePose')
+  sm = messaging.SubMaster(['carControl', 'carOutput', 'carState', 'liveCalibration', 'livePose', 'liveDelay'], poll='livePose',
+                           ignore_alive=['frogpilotProcessState'], ignore_valid=['frogpilotProcessState'])
 
   params = Params()
   estimator = TorqueEstimator(messaging.log_from_bytes(params.get("CarParams", block=True), car.CarParams))
 
   # FrogPilot variables
+  sm = sm.extend(['frogpilotProcessState'])
 
   while True:
     sm.update()

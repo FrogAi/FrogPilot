@@ -91,6 +91,7 @@ void UIState::updateStatus() {
     }
 
     // FrogPilot variables
+    const cereal::FrogPilotSelfdriveState::AlertStatus frogpilot_alert_status = (*frogpilotUIState()->sm)["frogpilotSelfdriveState"].getFrogpilotSelfdriveState().getAlertStatus();
   }
 
   if (engaged() != engaged_prev) {

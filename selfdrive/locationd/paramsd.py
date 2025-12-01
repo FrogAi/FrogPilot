@@ -269,7 +269,8 @@ def main():
   REPLAY = bool(int(os.getenv("REPLAY", "0")))
 
   pm = messaging.PubMaster(['liveParameters'])
-  sm = messaging.SubMaster(['livePose', 'liveCalibration', 'carState'], poll='livePose')
+  sm = messaging.SubMaster(['livePose', 'liveCalibration', 'carState'], poll='livePose',
+                           ignore_alive=['frogpilotProcessState'], ignore_valid=['frogpilotProcessState'])
 
   params = Params()
   CP = messaging.log_from_bytes(params.get("CarParams", block=True), car.CarParams)
@@ -280,6 +281,7 @@ def main():
   learner = VehicleParamsLearner(CP, steer_ratio, stiffness_factor, np.radians(angle_offset_deg), pInitial)
 
   # FrogPilot variables
+  sm = sm.extend(['frogpilotProcessState'])
 
   while True:
     sm.update()
