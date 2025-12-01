@@ -10,6 +10,7 @@
 #include "selfdrive/ui/qt/widgets/prime.h"
 
 #include "frogpilot/ui/qt/widgets/drive_stats.h"
+#include "frogpilot/ui/qt/widgets/drive_summary.h"
 
 // HomeWindow: the container for the offroad and onroad UIs
 
@@ -163,19 +164,27 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
     home_layout->setContentsMargins(0, 0, 0, 0);
     home_layout->setSpacing(30);
 
-    // left: stack of DriveStats
+    // left: stack of DriveStats / DriveSummary
     QStackedWidget *left_widget = new QStackedWidget(this);
 
     // FrogPilot variables
     left_widget->addWidget(new DriveStats());
+    FrogPilotDriveSummary *drive_summary = new FrogPilotDriveSummary(this);
+    left_widget->addWidget(drive_summary);
+
+    QObject::connect(drive_summary, &FrogPilotDriveSummary::panelClosed, [left_widget]() {
+      left_widget->setCurrentIndex(0);
+    });
 
     home_layout->addWidget(left_widget, 1);
 
-    // right: ExperimentalModeButton, SetupWidget
-    QWidget* right_widget = new QWidget(this);
-    QVBoxLayout* right_column = new QVBoxLayout(right_widget);
-    right_column->setContentsMargins(0, 0, 0, 0);
+    // right: ExperimentalModeButton, SetupWidget, Random Events Summary
+    QStackedWidget *right_widget = new QStackedWidget(this);
     right_widget->setFixedWidth(750);
+
+    QWidget *default_right = new QWidget(this);
+    QVBoxLayout *right_column = new QVBoxLayout(default_right);
+    right_column->setContentsMargins(0, 0, 0, 0);
     right_column->setSpacing(30);
 
     ExperimentalModeButton *experimental_mode = new ExperimentalModeButton(this);
@@ -185,7 +194,26 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
     SetupWidget *setup_widget = new SetupWidget;
     QObject::connect(setup_widget, &SetupWidget::openSettings, this, &OffroadHome::openSettings);
     right_column->addWidget(setup_widget, 1);
+
     // FrogPilot variables
+    right_widget->addWidget(default_right);
+
+    FrogPilotDriveSummary *random_events_summary = new FrogPilotDriveSummary(this, true);
+    right_widget->addWidget(random_events_summary);
+
+    QObject::connect(random_events_summary, &FrogPilotDriveSummary::panelClosed, [=]() {
+      right_widget->setCurrentIndex(0);
+    });
+    QObject::connect(uiState(), &UIState::offroadTransition, [left_widget, right_widget](bool offroad) {
+      static bool previouslyOnroad = false;
+      if (offroad && previouslyOnroad) {
+        left_widget->setCurrentIndex(1);
+        if (frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value("random_events").toBool()) {
+          right_widget->setCurrentIndex(1);
+        }
+      }
+      previouslyOnroad = !offroad;
+    });
 
     home_layout->addWidget(right_widget, 1);
   }

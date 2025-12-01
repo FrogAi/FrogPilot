@@ -45,7 +45,7 @@ class FrogPilotTracking:
     signal_intervals = sorted(signal_path.glob("traditional_*"))
     self.frog_hop_duration = signal_frames * int(signal_intervals[-1].name.split("_")[1]) if signal_intervals else 0
 
-  def save_stats(self):
+  def save_stats(self, blocking=False):
     self.frogpilot_stats["FrogPilotSeconds"] = self.frogpilot_stats.get("FrogPilotSeconds", 0) + self.tracked_time
 
     total_model_times = self.frogpilot_stats.get("ModelTimes", {})
@@ -55,7 +55,12 @@ class FrogPilotTracking:
     self.frogpilot_stats["TrackedTime"] = self.frogpilot_stats.get("TrackedTime", 0) + self.tracked_time
     self.tracked_time = 0
 
-    self.params.put_nonblocking("FrogPilotStats", dict(sorted(self.frogpilot_stats.items())))
+    if blocking:
+      self.params.wait_for_pending_writes()
+      if self.params.put("FrogPilotStats", dict(sorted(self.frogpilot_stats.items()))) != 0:
+        raise RuntimeError("Unable to save FrogPilotStats")
+    else:
+      self.params.put_nonblocking("FrogPilotStats", dict(sorted(self.frogpilot_stats.items())))
 
   def update(self, now, time_validated, sm):
     v_cruise = min(sm["carState"].vCruiseCluster, V_CRUISE_MAX) * CV.KPH_TO_MS

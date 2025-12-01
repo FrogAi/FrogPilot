@@ -64,7 +64,7 @@ class FrogPilotRequests:
 
     return self.take("updateToggles") is not None, self.take("updateChecks") is not None
 
-  def publish(self, pm):
+  def publish(self, pm, stats_saved_count):
     frogpilot_process_state_send = messaging.new_message("frogpilotProcessState")
     frogpilotProcessState = frogpilot_process_state_send.frogpilotProcessState
 
@@ -150,6 +150,8 @@ def frogpilot_thread():
   time_validated = False
   waiting_for_car_params = False
 
+  stats_saved_count = 0
+
   while True:
     sm.update()
 
@@ -158,7 +160,8 @@ def frogpilot_thread():
     started = sm["deviceState"].started
 
     if not started and started_previously:
-      frogpilot_tracking.save_stats()
+      frogpilot_tracking.save_stats(blocking=True)
+      stats_saved_count += 1
 
       frogpilot_toggles = update_toggles(variables, started, theme_manager, thread_manager, time_validated, params)
       transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_validated, params, frogpilot_toggles, api)
@@ -190,7 +193,7 @@ def frogpilot_thread():
     started_previously = started
 
     toggles_updated, update_checks_requested = frogpilot_requests.update(now, time_validated, sm, params, frogpilot_toggles, api)
-    frogpilot_requests.publish(pm)
+    frogpilot_requests.publish(pm, stats_saved_count)
 
     toggles_updated |= waiting_for_car_params and sm.updated["frogpilotCarParams"]
 
