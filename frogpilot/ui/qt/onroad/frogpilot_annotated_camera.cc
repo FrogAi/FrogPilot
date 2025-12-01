@@ -12,10 +12,17 @@ FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(CameraWidget *nvg
   screenRecorderButton = new ScreenRecorderButton(nvg);
   screenRecorderButton->setVisible(false);
 
+  QSize iconSize(img_size / 4, img_size / 4);
+
   brakePedalImg = loadPixmap("../../frogpilot/assets/other_images/brake_pedal.png", {btn_size, btn_size});
+  cameraIcon = loadPixmap("../../frogpilot/assets/other_images/camera_icon.png", iconSize);
   curveSpeedIcon = loadPixmap("../../frogpilot/assets/other_images/curve_speed.png", {btn_size, btn_size});
   curveSpeedIconFlipped = curveSpeedIcon.transformed(QTransform().scale(-1, 1));
+  dashboardIcon = loadPixmap("../../frogpilot/assets/other_images/dashboard_icon.png", iconSize);
   gasPedalImg = loadPixmap("../../frogpilot/assets/other_images/gas_pedal.png", {btn_size, btn_size});
+  mapboxIcon = loadPixmap("../../frogpilot/assets/other_images/mapbox_icon.png", iconSize);
+  mapDataIcon = loadPixmap("../../frogpilot/assets/other_images/offline_maps_icon.png", iconSize);
+  nextMapsIcon = loadPixmap("../../frogpilot/assets/other_images/next_maps_icon.png", iconSize);
   pausedIcon = loadPixmap("../../frogpilot/assets/other_images/paused_icon.png", {widget_size, widget_size});
   speedIcon = loadPixmap("../../frogpilot/assets/other_images/speed_icon.png", {widget_size, widget_size});
   stopSignImg = loadPixmap("../../frogpilot/assets/other_images/stop_sign.png", {btn_size, btn_size});
@@ -203,10 +210,13 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   lateralPaused = frogpilotCarState.getPauseLateral();
   longitudinalPaused = frogpilotCarState.getPauseLongitudinal();
   mapSpeedLimit = frogpilotPlan.getSlcMapSpeedLimit();
+  mapboxSpeedLimit = frogpilot_toggles.value(QLatin1String("slc_mapbox_filler")).toBool() ? frogpilotPlan.getSlcMapboxSpeedLimit() : 0;
   nextSpeedLimit = frogpilotPlan.getSlcNextSpeedLimit();
   redLight = frogpilotPlan.getRedLight();
   roadCurvature = frogpilotPlan.getRoadCurvature();
   roadName = QString::fromStdString(mapdOut.getRoadName());
+  slcOverriddenSpeed = frogpilotPlan.getSlcSpeedLimit() != 0 ? frogpilotPlan.getSlcOverriddenSpeed() : 0;
+  speedLimit = slcOverriddenSpeed != 0 ? slcOverriddenSpeed : frogpilotPlan.getSlcSpeedLimit();
   speedLimitChanged = frogpilotPlan.getSpeedLimitChanged();
   speedLimitSource = frogpilotPlan.getSlcSpeedLimitSource();
   stoppingDistance = positionX.size() != 0 ? positionX[positionX.size() - 1] : 0.0f;
@@ -216,6 +226,17 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   weatherId = frogpilotPlan.getWeatherId();
 
   hideBottomIcons = alertHeight != 0 || (signalStyle.startsWith("traditional") && (blinkerLeft || blinkerRight));
+
+  bool showSpeedLimits = frogpilot_toggles.value(QLatin1String("show_speed_limits")).toBool() || frogpilot_toggles.value(QLatin1String("speed_limit_controller")).toBool();
+  speedLimitSignHeight = showSpeedLimits ? (frogpilot_toggles.value(QLatin1String("speed_limit_vienna")).toBool() ? 176 : 186) + 12 : 0;
+  speedLimitHeight = speedLimitChanged || !frogpilot_toggles.value(QLatin1String("hide_speed_limit")).toBool() ? speedLimitSignHeight : 0;
+
+  if (slcOverriddenSpeed == 0 && !frogpilot_toggles.value(QLatin1String("show_speed_limit_offset")).toBool()) {
+    speedLimit += frogpilotPlan.getSlcSpeedLimitOffset();
+  }
+  speedLimit *= speedConversion;
+  float speedLimitOffset = frogpilotPlan.getSlcSpeedLimitOffset() * speedConversion;
+  speedLimitOffsetStr = (speedLimitOffset != 0) ? QString::number(speedLimitOffset, 'f', 0).prepend((speedLimitOffset > 0) ? "+" : "") : "–";
 
   if (blinkerLeft || blinkerRight) {
     if (!signalTimer.isValid()) {
@@ -231,6 +252,14 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
     }
   } else {
     glowTimer.invalidate();
+  }
+
+  if (speedLimitChanged) {
+    if (!pendingLimitTimer.isValid()) {
+      pendingLimitTimer.start();
+    }
+  } else {
+    pendingLimitTimer.invalidate();
   }
 
   if (frogpilot_scene.standstill && frogpilot_toggles.value(QLatin1String("stopped_timer")).toBool()) {
@@ -264,6 +293,12 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
 }
 
 void FrogPilotAnnotatedCameraWidget::mousePressEvent(QMouseEvent *mouseEvent) {
+  if (speedLimitChanged && newSpeedLimitRect.contains(mapFromParent(mouseEvent->pos()))) {
+    frogpilotUIState()->speedLimitAccepted();
+    mouseEvent->accept();
+    return;
+  }
+
   mouseEvent->ignore();
 }
 
@@ -302,7 +337,7 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
     paintCompass(p, compassPosition);
   }
 
-  if (!(signalStyle == "static" && blinkerLeft) && frogpilot_toggles.value(QLatin1String("csc_status")).toBool()) {
+  if (!speedLimitChanged && !(signalStyle == "static" && blinkerLeft) && frogpilot_toggles.value(QLatin1String("csc_status")).toBool()) {
     if (cscTraining || (isCruiseSet && cscActive)) {
       paintCurveSpeedControl(p);
     }
@@ -325,8 +360,21 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
   }
 
   roadNameRect = QRect();
+  sourcesRect = QRect();
   if (alertHeight == 0 && frogpilot_toggles.value(QLatin1String("road_name_ui")).toBool()) {
     paintRoadName(p);
+  }
+
+  if (speedLimitHeight != 0) {
+    paintSpeedLimit(p);
+  }
+
+  if (speedLimitChanged) {
+    paintPendingSpeedLimit(p);
+  }
+
+  if (frogpilot_toggles.value(QLatin1String("speed_limit_sources")).toBool()) {
+    paintSpeedLimitSources(p);
   }
 
   if (standstillDuration != 0) {
@@ -724,6 +772,36 @@ void FrogPilotAnnotatedCameraWidget::paintPedalIcons(QPainter &p) {
   p.restore();
 }
 
+void FrogPilotAnnotatedCameraWidget::paintPendingSpeedLimit(QPainter &p) {
+  p.save();
+
+  QString newSpeedLimitStr = (unconfirmedSpeedLimit > 1) ? QString::number(std::nearbyint(unconfirmedSpeedLimit * speedConversion)) : "–";
+
+  bool vienna = frogpilot_toggles.value(QLatin1String("speed_limit_vienna")).toBool();
+
+  newSpeedLimitRect = speedLimitRect.translated(speedLimitRect.width() + UI_BORDER_SIZE, 0);
+  if (!vienna) {
+    newSpeedLimitRect.setWidth(newSpeedLimitStr.size() >= 3 ? 200 : 175);
+  }
+
+  paintSignFrame(p, newSpeedLimitRect, pendingLimitTimer.elapsed() % 1000 < 500 ? QPen(blackColor(), 6) : QPen(redColor(), 6), vienna);
+
+  if (!vienna) {
+    QString pendingWord = tr("PENDING");
+    QString limitWord = tr("LIMIT");
+    p.setFont(fitInterFont(28, QFont::DemiBold, newSpeedLimitRect.width() - 30, {pendingWord, limitWord}));
+    p.drawText(newSpeedLimitRect.adjusted(0, 22, 0, 0), Qt::AlignTop | Qt::AlignHCenter, pendingWord);
+    p.drawText(newSpeedLimitRect.adjusted(0, 51, 0, 0), Qt::AlignTop | Qt::AlignHCenter, limitWord);
+    p.setFont(InterFont(70, QFont::Bold));
+    p.drawText(newSpeedLimitRect.adjusted(0, 85, 0, 0), Qt::AlignTop | Qt::AlignHCenter, newSpeedLimitStr);
+  } else {
+    p.setFont(InterFont((newSpeedLimitStr.size() >= 3) ? 60 : 70, QFont::Bold));
+    p.drawText(newSpeedLimitRect, Qt::AlignCenter, newSpeedLimitStr);
+  }
+
+  p.restore();
+}
+
 void FrogPilotAnnotatedCameraWidget::paintRainbowPath(QLinearGradient &bg, float lin_grad_point) {
   float alpha = util::map_val(lin_grad_point, 0.0f, 1.0f, 0.5f, 0.1f);
   float pathHue = fmodf(lin_grad_point * 120.0f + hueOffset, 360.0f);
@@ -785,6 +863,139 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
   p.setFont(font);
   p.setPen(QPen(whiteColor(), 6));
   p.drawText(roadNameRect, Qt::AlignCenter, roadName);
+
+  p.restore();
+}
+
+void FrogPilotAnnotatedCameraWidget::paintSignFrame(QPainter &p, const QRect &rect, const QPen &pen, bool vienna) {
+  p.setBrush(whiteColor());
+  p.setPen(Qt::NoPen);
+  if (!vienna) {
+    p.drawRoundedRect(rect, 24, 24);
+    p.setPen(pen);
+    p.drawRoundedRect(rect.adjusted(9, 9, -9, -9), 16, 16);
+  } else {
+    p.drawEllipse(rect);
+    p.setPen(QPen(Qt::red, 20));
+    p.drawEllipse(rect.adjusted(16, 16, -16, -16));
+    p.setPen(pen);
+  }
+}
+
+void FrogPilotAnnotatedCameraWidget::paintSpeedLimit(QPainter &p) {
+  if (setSpeedRect.isEmpty()) {
+    return;
+  }
+
+  p.save();
+
+  QString speedLimitStr = (speedLimit > 1) ? QString::number(std::nearbyint(speedLimit)) : "–";
+
+  bool showOffset = slcOverriddenSpeed == 0 && frogpilot_toggles.value(QLatin1String("show_speed_limit_offset")).toBool();
+  bool vienna = frogpilot_toggles.value(QLatin1String("speed_limit_vienna")).toBool();
+
+  QRect signRect = setSpeedRect.adjusted(12, defaultSize.height(), -12, -12);
+  speedLimitRect = signRect;
+
+  paintSignFrame(p, signRect, QPen(blackColor(), 6), vienna);
+
+  p.setOpacity(slcOverriddenSpeed == 0 ? 1.0 : 0.25);
+  if (!vienna) {
+    QString speedWord = tr("SPEED");
+    QString limitWord = tr("LIMIT");
+    QFont wordFont = fitInterFont(28, QFont::DemiBold, signRect.width() - 30, {speedWord, limitWord});
+
+    if (showOffset) {
+      p.setFont(wordFont);
+      p.drawText(signRect.adjusted(0, 22, 0, 0), Qt::AlignTop | Qt::AlignHCenter, limitWord);
+      p.setFont(InterFont(speedLimitStr.size() >= 3 ? 60 : 70, QFont::Bold));
+      p.drawText(signRect.adjusted(0, 51, 0, 0), Qt::AlignTop | Qt::AlignHCenter, speedLimitStr);
+      p.setFont(InterFont(50, QFont::DemiBold));
+      p.drawText(signRect.adjusted(0, 120, 0, 0), Qt::AlignTop | Qt::AlignHCenter, speedLimitOffsetStr);
+    } else {
+      p.setFont(wordFont);
+      p.drawText(signRect.adjusted(0, 22, 0, 0), Qt::AlignTop | Qt::AlignHCenter, speedWord);
+      p.drawText(signRect.adjusted(0, 51, 0, 0), Qt::AlignTop | Qt::AlignHCenter, limitWord);
+      p.setFont(InterFont(speedLimitStr.size() >= 3 ? 60 : 70, QFont::Bold));
+      p.drawText(signRect.adjusted(0, 85, 0, 0), Qt::AlignTop | Qt::AlignHCenter, speedLimitStr);
+    }
+  } else {
+    if (showOffset) {
+      p.setFont(InterFont((speedLimitStr.size() >= 3) ? 60 : 70, QFont::Bold));
+      p.drawText(signRect.adjusted(0, -25, 0, 0), Qt::AlignCenter, speedLimitStr);
+      p.setFont(InterFont(40, QFont::DemiBold));
+      p.drawText(signRect.adjusted(0, 100, 0, 0), Qt::AlignTop | Qt::AlignHCenter, speedLimitOffsetStr);
+    } else {
+      p.setFont(InterFont((speedLimitStr.size() >= 3) ? 60 : 70, QFont::Bold));
+      p.drawText(signRect, Qt::AlignCenter, speedLimitStr);
+    }
+  }
+
+  p.restore();
+}
+
+void FrogPilotAnnotatedCameraWidget::paintSpeedLimitSources(QPainter &p) {
+  p.save();
+
+  int borderWidth = 8;
+  int rowHeight = 45;
+  int rowSpacing = UI_BORDER_SIZE / 2;
+  int setSpeedBorderWidth = 6;
+
+  std::function<void(QRect&, QPixmap&, const char*, const double)> drawSource = [&](QRect &rect, QPixmap &icon, const char *title, double speedLimitValue) {
+    bool isActive = speedLimitSource == title && speedLimitValue != 0;
+
+    if (isActive) {
+      p.setBrush(redColor(166));
+      p.setPen(QPen(redColor(), borderWidth));
+    } else {
+      p.setBrush(blackColor(166));
+      p.setPen(QPen(blackColor(), borderWidth));
+    }
+
+    QRect iconRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignLeft | Qt::AlignVCenter, icon.size(), rect.adjusted(20, 0, 0, 0));
+
+    QString speedText;
+    if (speedLimitValue != 0) {
+      speedText = QString::number(std::nearbyint(speedLimitValue)) + speedUnit;
+    } else {
+      speedText = tr("N/A");
+    }
+
+    QString fullText = tr(title) + " - " + speedText;
+
+    p.drawRoundedRect(rect, 24, 24);
+    p.drawPixmap(iconRect, icon);
+
+    p.setPen(QPen(whiteColor(), 6));
+    QRect textRect(iconRect.right() + 10, rect.y(), rect.width() - iconRect.width() - 30, rect.height());
+    p.setFont(fitInterFont(35, isActive ? QFont::Bold : QFont::DemiBold, textRect.width() - 4, {fullText}));
+
+    if (isActive) {
+      QFontMetrics fm(p.font());
+      int textYPosition = textRect.y() + (textRect.height() - fm.height()) / 2 + fm.ascent();
+
+      drawOutlinedText(p, QPointF(textRect.x(), textYPosition), fullText);
+    } else {
+      p.drawText(textRect, Qt::AlignVCenter | Qt::AlignLeft, fullText);
+    }
+
+    rect.translate(0, rowHeight + rowSpacing);
+  };
+
+  int sourcesHeight = 5 * rowHeight + 4 * rowSpacing;
+
+  int sourcesTop = setSpeedRect.y() + defaultSize.height() + speedLimitSignHeight + setSpeedBorderWidth / 2;
+  int sourcesBottom = dmIconPosition.y() - btn_size / 2;
+
+  QRect rowRect(setSpeedRect.x() + (borderWidth - setSpeedBorderWidth) / 2, sourcesTop + (sourcesBottom - sourcesTop - sourcesHeight) / 2, 450, rowHeight);
+  sourcesRect = QRect(rowRect.topLeft(), QSize(rowRect.width(), sourcesHeight)).adjusted(-borderWidth / 2, -borderWidth / 2, borderWidth / 2, borderWidth / 2);
+
+  drawSource(rowRect, cameraIcon, QT_TR_NOOP("Camera"), cameraSpeedLimit * speedConversion);
+  drawSource(rowRect, dashboardIcon, QT_TR_NOOP("Dashboard"), dashboardSpeedLimit * speedConversion);
+  drawSource(rowRect, mapDataIcon, QT_TR_NOOP("Map Data"), mapSpeedLimit * speedConversion);
+  drawSource(rowRect, mapboxIcon, QT_TR_NOOP("Mapbox"), mapboxSpeedLimit * speedConversion);
+  drawSource(rowRect, nextMapsIcon, QT_TR_NOOP("Upcoming"), nextSpeedLimit * speedConversion);
 
   p.restore();
 }

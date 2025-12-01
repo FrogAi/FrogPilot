@@ -1247,6 +1247,14 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       Priority.LOWEST, VisualAlert.none, AudibleAlert.prompt, 3.),
   },
 
+  FrogPilotEventName.speedLimitChanged: {
+    ET.PERMANENT: Alert(
+      "Speed limit changed",
+      "",
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
   # Random Events
   FrogPilotEventName.accel30: {
     ET.WARNING: Alert(

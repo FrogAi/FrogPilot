@@ -22,7 +22,20 @@ TEMP_STEER_FAULTS = (0, 9, 11, 21, 25)
 # - lka/lta msg drop out: 3 (recoverable)
 # - prolonged high driver torque: 17 (permanent)
 PERM_STEER_FAULTS = (3, 17)
+
+
 # FrogPilot variables
+# Traffic signals for Speed Limit Controller - Credit goes to the DragonPilot team!
+def calculate_speed_limit(cp_cam):
+  speed_limit_unit = cp_cam.vl["RSA1"]["TSGN1"]
+  speed_limit_value = cp_cam.vl["RSA1"]["SPDVAL1"]
+
+  if speed_limit_unit == 1:
+    return speed_limit_value * CV.KPH_TO_MS
+  elif speed_limit_unit == 36:
+    return speed_limit_value * CV.MPH_TO_MS
+  else:
+    return 0
 
 
 class CarState(CarStateBase):
@@ -249,5 +262,5 @@ class CarState(CarStateBase):
 
     return {
       Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], pt_messages, 0),
-      Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [], 2),
+      Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [("RSA1", float('nan'))], 2),
     }

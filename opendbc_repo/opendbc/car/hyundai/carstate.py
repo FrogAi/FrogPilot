@@ -19,7 +19,19 @@ STANDSTILL_THRESHOLD = 12 * 0.03125
 ENABLE_BUTTONS = (Buttons.RES_ACCEL, Buttons.SET_DECEL, Buttons.CANCEL)
 BUTTONS_DICT = {Buttons.RES_ACCEL: ButtonType.accelCruise, Buttons.SET_DECEL: ButtonType.decelCruise,
                 Buttons.GAP_DIST: ButtonType.gapAdjustCruise, Buttons.CANCEL: ButtonType.cancel}
+
+
 # FrogPilot variables
+def calculate_speed_limit(CP, cp, cp_cam):
+  if CP.flags & HyundaiFlags.CANFD:
+    speed_limit_bus = cp if CP.flags & HyundaiFlags.CANFD_LKA_STEERING else cp_cam
+    speed_limit = speed_limit_bus.vl["FR_CMR_02_100ms"]["ISLW_SpdCluMainDis"]
+    return speed_limit if 0 < speed_limit < 253 else 0
+
+  speed_limit = cp_cam.vl["LKAS12"]["CF_Lkas_TsrSpeed_Display_Clu"]
+  if speed_limit in (0, 255):
+    speed_limit = cp.vl["Navi_HU"]["SpeedLim_Nav_Clu"]
+  return speed_limit if speed_limit not in (0, 255) else 0
 
 
 class CarState(CarStateBase):
@@ -339,6 +351,6 @@ class CarState(CarStateBase):
       return self.get_can_parsers_canfd(CP)
 
     return {
-      Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], [], 0),
-      Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [], 2),
+      Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], [("Navi_HU", float('nan'))], 0),
+      Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [("LKAS12", float('nan'))], 2),
     }

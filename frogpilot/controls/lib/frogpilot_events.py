@@ -196,6 +196,9 @@ class FrogPilotEvents:
       else:
         self.events.add(FrogPilotEventName.pedalInterceptorNoBrakeNoEntry)
 
+    if self.frogpilot_planner.frogpilot_vcruise.slc.speed_limit_changed_timer == DT_MDL and frogpilot_toggles.speed_limit_changed_alert:
+      self.events.add(FrogPilotEventName.speedLimitChanged)
+
     self.startup_seen |= sm["frogpilotSelfdriveState"].alertText1 == frogpilot_toggles.startup_alert_top and sm["frogpilotSelfdriveState"].alertText2 == frogpilot_toggles.startup_alert_bottom
 
     if self.screen_recorder_events and alerts_empty and len(self.events) == 0:

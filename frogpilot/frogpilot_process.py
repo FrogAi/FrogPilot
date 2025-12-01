@@ -154,6 +154,8 @@ def transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_va
   gc.enable()
   gc.collect()
 
+  frogpilot_planner.frogpilot_vcruise.slc.close()
+
   if frogpilot_planner.last_gps_position is not None:
     params.put("LastGPSPosition", json.dumps(frogpilot_planner.last_gps_position))
 

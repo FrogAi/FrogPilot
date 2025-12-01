@@ -39,6 +39,7 @@ class FrogPilotPlanner:
     self.lateral_check = False
     self.lead_relevant = False
     self.model_stopped = False
+    self.speed_limit_accepted = False
 
     self.accel_press_count = 0
     self.decel_press_count = 0
@@ -72,12 +73,15 @@ class FrogPilotPlanner:
     self.decel_press_count = sm["frogpilotCarState"].decelPressCount
 
     self.experimental_mode_pressed = False
+    self.speed_limit_accepted = False
     for msg in messaging.drain_sock(self.ui_event_sock):
       ui_event = msg.frogpilotUIEvent
       if ui_event.which() == "experimentalModePressed":
         self.experimental_mode_pressed = True
       elif ui_event.which() == "screenRecorderEvent":
         self.frogpilot_events.screen_recorder_events.append(ui_event.screenRecorderEvent.raw)
+      elif ui_event.which() == "speedLimitAccepted":
+        self.speed_limit_accepted = True
 
     self.lead_one = sm["radarState"].leadOne
 
@@ -189,7 +193,7 @@ class FrogPilotPlanner:
 
     frogpilotPlan.desiredFollowDistance = int(self.frogpilot_following.desired_follow_distance)
 
-    frogpilotPlan.experimentalMode = self.frogpilot_cem.experimental_mode
+    frogpilotPlan.experimentalMode = self.frogpilot_cem.experimental_mode or self.frogpilot_vcruise.slc.experimental_mode
     frogpilotPlan.experimentalMode &= not frogpilot_toggles.conditional_experimental_mode or self.frogpilot_cem.status_value != CEStatus["USER_DISABLED"]
 
     frogpilotPlan.forcingStop = self.frogpilot_vcruise.forcing_stop
