@@ -24,6 +24,7 @@ from opendbc.car.honda.values import CAR as HONDA, HONDA_BOSCH
 from opendbc.car.hyundai.hyundaicanfd import CanBus as HyundaiCanBus
 from opendbc.car.hyundai.values import CAR as HYUNDAI, CANFD_CAR, CRUISE_STANDBY_LFA_BUTTON_CAR, HyundaiFlags, HyundaiFrogPilotSafetyFlags
 from opendbc.car.mock.values import CAR as MOCK
+from opendbc.car.subaru.values import CAR as SUBARU, SubaruSafetyFlags
 from opendbc.car.toyota.values import CAR as TOYOTA, NO_DSU_CAR, TSS2_CAR, UNSUPPORTED_DSU_CAR, ToyotaFrogPilotFlags
 from opendbc.car.values import PLATFORMS
 from opendbc.can import CANParser
@@ -225,6 +226,10 @@ class CarInterfaceBase(ABC):
           fp_ret.alwaysOnLateralLKASButton = True
         elif CP.flags & HyundaiFlags.HAS_LDA_BUTTON:
           fp_ret.alwaysOnLateralLKASButton = candidate not in CRUISE_STANDBY_LFA_BUTTON_CAR
+
+      elif platform in SUBARU:
+        if CP.autoResumeSng and frogpilot_toggles.subaru_sng:
+          CP.safetyConfigs[0].safetyParam |= SubaruSafetyFlags.SNG.value
 
       elif platform in TOYOTA:
         fp_ret.canUsePedal = not CP.autoResumeSng

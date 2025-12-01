@@ -26,6 +26,7 @@
 #define MSG_SUBARU_Wheel_Speeds          0x13aU
 
 // FrogPilot variables
+#define MSG_SUBARU_Brake_Pedal           0x139U
 
 #define MSG_SUBARU_ES_LKAS               0x122U
 #define MSG_SUBARU_ES_Brake              0x220U
@@ -51,6 +52,8 @@
   {MSG_SUBARU_ES_LKAS_State,     SUBARU_MAIN_BUS, 8, .check_relay = true},  \
   {MSG_SUBARU_ES_Infotainment,   SUBARU_MAIN_BUS, 8, .check_relay = true},  \
   /* FrogPilot variables */                                                  \
+  {MSG_SUBARU_Throttle,          SUBARU_CAM_BUS,  8, .check_relay = false}, \
+  {MSG_SUBARU_Brake_Pedal,       SUBARU_CAM_BUS,  8, .check_relay = false}, \
 
 #define SUBARU_COMMON_TX_MSGS(alt_bus) \
   {MSG_SUBARU_ES_Distance, alt_bus, 8, .check_relay = false}, \
@@ -77,7 +80,24 @@ static bool subaru_gen2 = false;
 static bool subaru_longitudinal = false;
 
 // FrogPilot variables
+typedef struct {
+  bool active;
+  uint32_t ts_last;
+} SubaruSngTx;
+
+static bool subaru_sng = false;
 static bool subaru_raised_steer_limit = false;
+static SubaruSngTx subaru_brake_pedal_tx = {.active = false, .ts_last = 0U};
+static SubaruSngTx subaru_throttle_tx = {.active = false, .ts_last = 0U};
+
+static bool subaru_sng_tx_active(SubaruSngTx *sng_tx) {
+  const uint32_t SUBARU_SNG_TX_TIMEOUT = 100000U;
+
+  if (safety_get_ts_elapsed(microsecond_timer_get(), sng_tx->ts_last) > SUBARU_SNG_TX_TIMEOUT) {
+    sng_tx->active = false;
+  }
+  return sng_tx->active;
+}
 
 static uint32_t subaru_get_checksum(const CANPacket_t *msg) {
   return (uint8_t)msg->data[0];
@@ -207,6 +227,15 @@ static bool subaru_tx_hook(const CANPacket_t *msg) {
   }
 
   // FrogPilot variables
+  if ((msg->addr == MSG_SUBARU_Throttle) || (msg->addr == MSG_SUBARU_Brake_Pedal)) {
+    violation |= !subaru_sng;
+
+    if (subaru_sng) {
+      SubaruSngTx *sng_tx = (msg->addr == MSG_SUBARU_Throttle) ? &subaru_throttle_tx : &subaru_brake_pedal_tx;
+      sng_tx->active = true;
+      sng_tx->ts_last = microsecond_timer_get();
+    }
+  }
 
   if (violation){
     tx = false;
@@ -215,6 +244,18 @@ static bool subaru_tx_hook(const CANPacket_t *msg) {
 }
 
 // FrogPilot variables
+static bool subaru_fwd_hook(int bus_num, int addr) {
+  bool block_msg = false;
+  if ((unsigned int)bus_num == SUBARU_MAIN_BUS) {
+    if ((unsigned int)addr == MSG_SUBARU_Throttle) {
+      block_msg = subaru_sng_tx_active(&subaru_throttle_tx);
+    }
+    if ((unsigned int)addr == MSG_SUBARU_Brake_Pedal) {
+      block_msg = subaru_sng_tx_active(&subaru_brake_pedal_tx);
+    }
+  }
+  return block_msg;
+}
 
 static safety_config subaru_init(uint16_t param) {
   static const CanMsg SUBARU_TX_MSGS[] = {
@@ -251,6 +292,11 @@ static safety_config subaru_init(uint16_t param) {
   subaru_gen2 = GET_FLAG(param, SUBARU_PARAM_GEN2);
 
   // FrogPilot variables
+  const uint16_t SUBARU_PARAM_SNG = 1024;
+  subaru_sng = GET_FLAG(param, SUBARU_PARAM_SNG);
+  subaru_brake_pedal_tx.active = false;
+  subaru_throttle_tx.active = false;
+
   const uint16_t SUBARU_PARAM_RAISED_STEER_LIMIT = 2048;
   subaru_raised_steer_limit = GET_FLAG(param, SUBARU_PARAM_RAISED_STEER_LIMIT);
 
@@ -279,4 +325,5 @@ const safety_hooks subaru_hooks = {
   .compute_checksum = subaru_compute_checksum,
 
   // FrogPilot variables
+  .fwd = subaru_fwd_hook,
 };

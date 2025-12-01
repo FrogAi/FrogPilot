@@ -209,6 +209,10 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
     });
   }
 
+  QObject::connect(static_cast<ToggleControl*>(toggles["SubaruSNG"]), &ToggleControl::toggleFlipped, [this](bool state) {
+    static_cast<LabelControl*>(toggles["SNGSupport"])->setText(state ? tr("Yes") : tr("No"));
+  });
+
   openDescriptions(forceOpenDescriptions, toggles);
 
   QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [vehiclesLayout, vehiclesPanel, this] {
@@ -237,7 +241,8 @@ void FrogPilotVehiclesPanel::showEvent(QShowEvent *event) {
   if (parent->hasZSS) {
     detected << "ZSS";
   }
-  bool supportsSNG = parent->hasSNG;
+  bool subaruSNG = parent->tuningLevel < parent->frogpilotToggleLevels.value("SubaruSNG").toDouble() || params.getBool("SubaruSNG");
+  bool supportsSNG = parent->hasSNG && (!parent->isSubaru || subaruSNG);
   QString unknown = tr("Unknown until first drive");
 
   static_cast<LabelControl*>(toggles["HardwareDetected"])->setText(!parent->carDetected ? unknown : detected.isEmpty() ? tr("None") : detected.join(", "));
