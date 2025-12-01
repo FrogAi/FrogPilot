@@ -120,7 +120,16 @@ void ModelRenderer::update_model(const cereal::ModelDataV2::Reader &model, const
   max_idx = get_path_length_idx(model_position, max_distance);
 
   // FrogPilot variables
-  mapLineToPolygon(model_position, frogpilot_toggles.value(QLatin1String("model_ui")).toBool() ? frogpilot_toggles.value(QLatin1String("path_width")).toDouble() : 0.9, path_offset_z, &track_vertices, max_idx, false);
+  float path_width = frogpilot_toggles.value(QLatin1String("path_width")).toDouble();
+  if (frogpilot_toggles.value(QLatin1String("dynamic_path_width")).toBool()) {
+    UIState *s = uiState();
+    if (s->status == STATUS_ALWAYS_ON_LATERAL_ACTIVE) {
+      path_width *= 0.75f;
+    } else if (s->status != STATUS_ENGAGED) {
+      path_width *= 0.5f;
+    }
+  }
+  mapLineToPolygon(model_position, frogpilot_toggles.value(QLatin1String("model_ui")).toBool() ? path_width : 0.9, path_offset_z, &track_vertices, max_idx, false);
 
   // FrogPilot variables
   FrogPilotUIState *fs = frogpilotUIState();
