@@ -197,7 +197,7 @@ class AlertRenderer(Widget):
       icon_margin_x = 2
       icon_margin_y = 5
 
-    elif event_name == 'laneChangeBlocked':
+    elif event_name in ('laneChangeBlocked', 'laneChangeBlockedLoud'):
       CS = ui_state.sm['carState']
       if CS.leftBlinker:
         icon_side = IconSide.left
@@ -301,7 +301,7 @@ class AlertRenderer(Widget):
       bg_height = small_alert_height
     elif event_name == 'laneChange':
       bg_height = small_alert_height
-    elif event_name == 'laneChangeBlocked':
+    elif event_name in ('laneChangeBlocked', 'laneChangeBlockedLoud'):
       bg_height = medium_alert_height
     # FrogPilot variables
     elif alert.frogpilot and alert.size == AlertSize.small and not alert.text2:
