@@ -149,6 +149,9 @@ class AlertRenderer(Widget):
     # FrogPilot variables
     frogpilot_fields = frogpilot_alerts.alert_fields(ss)
     if frogpilot_fields is not None:
+      if not frogpilot_fields:
+        return None
+
       ret = Alert(**frogpilot_fields)
       self._prev_alert = ret
       return ret

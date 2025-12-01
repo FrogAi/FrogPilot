@@ -6,6 +6,17 @@ from openpilot.selfdrive.ui.ui_state import ui_state
 AlertSize = log.SelfdriveState.AlertSize
 AlertStatus = log.SelfdriveState.AlertStatus
 
+HIDDEN_ALERT_TYPES = {
+  "calibrationIncomplete/permanent",
+  "laneChange/warning",
+  "noLaneAvailable/warning",
+  "personalityChanged/warning",
+  "preLaneChangeLeft/warning",
+  "preLaneChangeRight/warning",
+  "turningLeft/warning",
+  "turningRight/warning",
+}
+
 
 class FrogPilotAlerts:
   def alert_fields(self, ss):
@@ -26,6 +37,14 @@ class FrogPilotAlerts:
         "text2": fpss.alertText2,
         "visual_alert": ss.alertHudVisual,
       }
+
+    if fields is None:
+      alert_type = ss.alertType
+    else:
+      alert_type = fields["alert_type"]
+
+    if alert_type in HIDDEN_ALERT_TYPES and ui_state.frogpilot_toggles.get("hide_alerts"):
+      fields = {}
 
     stock_alert = sm.recv_frame["selfdriveState"] >= ui_state.started_frame and ss.alertSize != 0 and not fpss.hasPriorityAlert
 
