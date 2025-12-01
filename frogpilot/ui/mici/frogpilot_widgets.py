@@ -1,7 +1,11 @@
+import time
+
 from functools import cache
 
+import numpy as np
 import pyray as rl
 
+from cereal import car
 from openpilot.common.constants import CV
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.frogpilot.common import frogpilot_paths, frogpilot_status
@@ -35,6 +39,15 @@ SET_SPEED_SHADOW_RADIUS = 81
 SET_SPEED_TOP = -4
 SHADOW_ALPHA = 0.5
 SLOT_GAP = 8
+STOPPED_COLOR_TIMES = (60, 150, 300)
+STOPPED_COLORS = ((30, 215, 96), (255, 214, 10), (255, 59, 48))
+STOPPED_FONT_SIZE = 96
+STOPPED_LABEL_TOP = 96
+STOPPED_SHADOW_CENTER_Y = 72
+STOPPED_SHADOW_RADIUS_Y = 90
+STOPPED_SHADOW_SPREAD = 50
+STOPPED_TIMER_DELAY = 60
+STOPPED_TOP = 4
 TEXT_ALPHA = 0.9
 
 CE_ICONS = {
@@ -73,6 +86,10 @@ def road_name_text(name):
   return " ".join(words)
 
 
+def stopped_color(seconds):
+  return tuple(int(np.interp(seconds, STOPPED_COLOR_TIMES, channel)) for channel in zip(*STOPPED_COLORS, strict=True))
+
+
 class FrogPilotWidgets(Widget):
   def __init__(self):
     super().__init__()
@@ -82,8 +99,11 @@ class FrogPilotWidgets(Widget):
     self._csc_training = False
     self._max_speed_showing = False
 
+    self._stopped_seconds = 0
+
     self._csc_speed = 0.0
     self._csc_time = -CSC_HOLD_TIME
+    self._stopped_start = None
 
     self._ce_icon = ""
     self._road_name = ""
@@ -92,6 +112,7 @@ class FrogPilotWidgets(Widget):
     self._ce_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
     self._csc_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
     self._road_name_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
+    self._stopped_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
 
     self._font_display = gui_app.font(FontWeight.DISPLAY)
     self._font_semi_bold = gui_app.font(FontWeight.SEMI_BOLD)
@@ -101,7 +122,7 @@ class FrogPilotWidgets(Widget):
     self._max_speed_showing = max_speed_showing
 
   def drawing_top_slot(self):
-    return self._csc_filter.x >= frogpilot_status.MIN_VISIBLE_ALPHA
+    return self._csc_filter.x >= frogpilot_status.MIN_VISIBLE_ALPHA or self._stopped_filter.x >= frogpilot_status.MIN_VISIBLE_ALPHA
 
   def _top_slot_free(self):
     return not self._max_speed_showing and not self.drawing_top_slot()
@@ -112,6 +133,7 @@ class FrogPilotWidgets(Widget):
     self._render_conditional_status(rect)
     self._render_curve_speed(rect)
     self._render_road_name(rect)
+    self._render_stopped_timer(rect)
 
   def _render_conditional_status(self, rect):
     status = ui_state.sm["frogpilotPlan"].ceStatus
@@ -228,6 +250,33 @@ class FrogPilotWidgets(Widget):
 
     return text.rstrip() + "...", font_size
 
+  def _render_stopped_timer(self, rect):
+    car_state = ui_state.sm["carState"]
+    now = time.monotonic()
+
+    stopped = bool(car_state.standstill and car_state.gearShifter != car.CarState.GearShifter.reverse and ui_state.frogpilot_toggles.get("stopped_timer"))
+
+    if stopped:
+      if self._stopped_start is None:
+        self._stopped_start = now
+
+      self._stopped_seconds = int(now - max(self._stopped_start, ui_state.started_time))
+    else:
+      self._stopped_start = None
+
+    visible = stopped and self._stopped_seconds >= 1 and now - ui_state.started_time >= STOPPED_TIMER_DELAY
+    alpha = self._stopped_filter.update(float(self._can_draw and not self._max_speed_showing and visible))
+
+    if alpha < frogpilot_status.MIN_VISIBLE_ALPHA:
+      return
+
+    text = f"{self._stopped_seconds // 60}:{self._stopped_seconds % 60:02d}"
+    width = measure_text_cached(self._font_display, text, STOPPED_FONT_SIZE).x
+
+    self._draw_shadow(rect.x + SET_SPEED_LEFT + width / 2, rect.y + STOPPED_SHADOW_CENTER_Y, width / 2 + STOPPED_SHADOW_SPREAD, STOPPED_SHADOW_RADIUS_Y, alpha)
+    self._draw_text(self._font_display, text, STOPPED_FONT_SIZE, rect.x + SET_SPEED_LEFT, rect.y + STOPPED_TOP, alpha, stopped_color(self._stopped_seconds))
+    self._draw_text(self._font_semi_bold, tr("STOPPED"), LABEL_FONT_SIZE, rect.x + LABEL_LEFT, rect.y + STOPPED_LABEL_TOP, alpha)
+
   @staticmethod
   def _slide_slot(slot_filter, visibility_filter, slot):
     if visibility_filter.x < frogpilot_status.MIN_VISIBLE_ALPHA:
@@ -256,8 +305,8 @@ class FrogPilotWidgets(Widget):
     rl.draw_texture(texture, int(x), int(y), rl.Color(255, 255, 255, int(255 * TEXT_ALPHA * alpha)))
 
   @staticmethod
-  def _draw_text(font, text, size, x, y, alpha):
-    rl.draw_text_ex(font, text, rl.Vector2(x, y), size, 0, rl.Color(255, 255, 255, int(255 * TEXT_ALPHA * alpha)))
+  def _draw_text(font, text, size, x, y, alpha, color=(255, 255, 255)):
+    rl.draw_text_ex(font, text, rl.Vector2(x, y), size, 0, rl.Color(*color, int(255 * TEXT_ALPHA * alpha)))
 
   @staticmethod
   def _draw_shadow(center_x, center_y, radius_x, radius_y, alpha):
