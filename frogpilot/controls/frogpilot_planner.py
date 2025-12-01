@@ -81,7 +81,7 @@ class FrogPilotPlanner:
 
     self.model_stopped = self.model_length < frogpilot_variables.CRUISING_SPEED * frogpilot_variables.PLANNER_TIME
 
-    self.v_cruise = self.frogpilot_vcruise.update(v_cruise, v_ego, sm, frogpilot_toggles)
+    self.v_cruise = self.frogpilot_vcruise.update(long_control_active, v_cruise, v_ego, sm, frogpilot_toggles)
 
   def is_lead_relevant(self, lead, standstill, v_ego):
     following_speed = max(v_ego, frogpilot_variables.CRUISING_SPEED)
