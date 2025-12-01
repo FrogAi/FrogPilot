@@ -11,3 +11,5 @@ Export('pandad_python')
 
 if GetOption('extras'):
   env.Program('tests/test_pandad_usbprotocol', ['tests/test_pandad_usbprotocol.cc'], LIBS=[panda] + libs)
+
+  # FrogPilot variables

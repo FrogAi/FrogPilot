@@ -44,6 +44,8 @@ def migrate_all(lr: LogIterable, manager_states: bool = False, panda_states: boo
     migrate_onroadEvents,
     migrate_driverMonitoringState,
     migrate_longitudinalPlan,
+
+    # FrogPilot variables
   ]
   if manager_states:
     migrations.append(migrate_managerState)
@@ -277,6 +279,8 @@ def migrate_pandaStates(msgs):
     "KIA_EV6": HyundaiSafetyFlags.EV_GAS | HyundaiSafetyFlags.CANFD_LKA_STEERING,
     "CHEVROLET_VOLT": GMSafetyFlags.EV,
     "CHEVROLET_BOLT_EUV": GMSafetyFlags.EV | GMSafetyFlags.HW_CAM,
+
+    # FrogPilot variables
   }
   # TODO: get new Ford route
   safety_param_migration |= dict.fromkeys((set(FORD) - FORD.with_flags(FordFlags.CANFD)), FordSafetyFlags.LONG_CONTROL)
@@ -470,3 +474,6 @@ def migrate_driverMonitoringState(msgs):
     ops.append((index, msg.as_reader()))
 
   return ops, [], []
+
+
+# FrogPilot variables

@@ -140,3 +140,6 @@ class TestFordFW:
     live_fw[(0x760, None)] = {b"M1MC-2D053-XX\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"}
     candidates = FW_QUERY_CONFIG.match_fw_to_car_fuzzy(live_fw, '', {expected_fingerprint: offline_fw})
     assert len(candidates) == 0, "Should not match new model year hint"
+
+
+# FrogPilot variables

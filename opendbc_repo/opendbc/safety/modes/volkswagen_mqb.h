@@ -176,6 +176,8 @@ static bool volkswagen_mqb_tx_hook(const CANPacket_t *msg) {
     }
   }
 
+  // FrogPilot variables
+
   return tx;
 }
 

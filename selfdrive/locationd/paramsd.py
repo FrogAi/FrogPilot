@@ -166,6 +166,9 @@ class VehicleParamsLearner:
     liveParameters.roll = float(self.roll)
     liveParameters.angleOffsetAverageDeg = float(self.avg_angle_offset)
     liveParameters.angleOffsetDeg = float(self.angle_offset)
+
+    # FrogPilot variables
+
     liveParameters.steerRatioValid = self.min_sr <= liveParameters.steerRatio <= self.max_sr
     liveParameters.stiffnessFactorValid = 0.2 <= liveParameters.stiffnessFactor <= 5.0
     liveParameters.angleOffsetAverageValid = bool(self.avg_offset_valid)
@@ -276,6 +279,8 @@ def main():
   steer_ratio, stiffness_factor, angle_offset_deg, pInitial = retrieve_initial_vehicle_params(params, CP, REPLAY, DEBUG)
   learner = VehicleParamsLearner(CP, steer_ratio, stiffness_factor, np.radians(angle_offset_deg), pInitial)
 
+  # FrogPilot variables
+
   while True:
     sm.update()
     if sm.all_checks():
@@ -289,9 +294,13 @@ def main():
 
       msg_dat = msg.to_bytes()
       if sm.frame % 1200 == 0:  # once a minute
+        # FrogPilot variables
+
         params.put_nonblocking("LiveParametersV2", msg_dat)
 
       pm.send('liveParameters', msg_dat)
+
+    # FrogPilot variables
 
 
 if __name__ == "__main__":

@@ -40,9 +40,13 @@ H7Config = McuConfig(
   "bootstub.panda_h7.bin",
 )
 
+# FrogPilot variables
+
 @enum.unique
 class McuType(enum.Enum):
   H7 = H7Config
+
+  # FrogPilot variables
 
   @property
   def config(self):

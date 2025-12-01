@@ -111,6 +111,8 @@ class TestHyundaiSafety(HyundaiButtonBase, common.CarSafetyTest, common.DriverTo
     values = {"CR_Lkas_StrToqReq": torque, "CF_Lkas_ActToi": steer_req}
     return self.packer.make_can_msg_safety("LKAS11", 0, values)
 
+  # FrogPilot variables
+
 
 class TestHyundaiSafetyAltLimits(TestHyundaiSafety):
   MAX_RATE_UP = 2
@@ -269,6 +271,9 @@ class TestHyundaiLongitudinalSafetyCameraSCC(HyundaiLongitudinalBase, TestHyunda
 
   def test_disabled_ecu_alive(self):
     pass
+
+
+# FrogPilot variables
 
 
 class TestHyundaiSafetyFCEVLong(TestHyundaiLongitudinalSafety, TestHyundaiSafetyFCEV):

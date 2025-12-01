@@ -25,6 +25,8 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   onroadLbl->setStyleSheet("font-size: 50px; font-weight: 400; text-align: left; padding-top: 30px; padding-bottom: 30px;");
   addItem(onroadLbl);
 
+  // FrogPilot variables
+
   // current version
   versionLbl = new LabelControl(tr("Current Version"), "");
   addItem(versionLbl);
@@ -38,8 +40,12 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
     } else {
       std::system("pkill -SIGHUP -f system.updated.updated");
     }
+
+    // FrogPilot variables
   });
   addItem(downloadBtn);
+
+  // FrogPilot variables
 
   // install update btn
   installBtn = new ButtonControl(tr("Install Update"), tr("INSTALL"));
@@ -49,11 +55,16 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   });
   addItem(installBtn);
 
+  // FrogPilot variables
+
   // branch selecting
   targetBranchBtn = new ButtonControl(tr("Target Branch"), tr("SELECT"));
   connect(targetBranchBtn, &ButtonControl::clicked, [=]() {
     auto current = params.get("GitBranch");
     QStringList branches = QString::fromStdString(params.get("UpdaterAvailableBranches")).split(",");
+
+    // FrogPilot variables
+
     for (QString b : {current.c_str(), "devel-staging", "devel", "nightly", "nightly-dev", "master"}) {
       auto i = branches.indexOf(b);
       if (i >= 0) {
@@ -67,6 +78,9 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
     if (!selection.isEmpty()) {
       params.put("UpdaterTargetBranch", selection.toStdString());
       targetBranchBtn->setValue(QString::fromStdString(params.get("UpdaterTargetBranch")));
+
+      // FrogPilot variables
+
       checkForUpdates();
     }
   });
@@ -78,6 +92,8 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   auto uninstallBtn = new ButtonControl(tr("Uninstall %1").arg(getBrand()), tr("UNINSTALL"));
   connect(uninstallBtn, &ButtonControl::clicked, [&]() {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to uninstall?"), tr("Uninstall"), this)) {
+      // FrogPilot variables
+
       params.putBool("DoUninstall", true);
     }
   });
@@ -93,6 +109,8 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
     updateLabels();
   });
 
+  // FrogPilot variables
+
   updateLabels();
 }
 
@@ -101,7 +119,11 @@ void SoftwarePanel::showEvent(QShowEvent *event) {
   installBtn->setEnabled(true);
 
   updateLabels();
+
+  // FrogPilot variables
 }
+
+// FrogPilot variables
 
 void SoftwarePanel::updateLabels() {
   // add these back in case the files got removed
@@ -110,9 +132,13 @@ void SoftwarePanel::updateLabels() {
   fs_watch->addParam("UpdaterState");
   fs_watch->addParam("UpdateAvailable");
 
+  // FrogPilot variables
+
   if (!isVisible()) {
     return;
   }
+
+  // FrogPilot variables
 
   // updater only runs offroad
   onroadLbl->setVisible(is_onroad);
@@ -142,6 +168,9 @@ void SoftwarePanel::updateLabels() {
     }
     downloadBtn->setEnabled(true);
   }
+
+  // FrogPilot variables
+
   targetBranchBtn->setValue(QString::fromStdString(params.get("UpdaterTargetBranch")));
 
   // current + new versions

@@ -24,6 +24,8 @@ class CarState(CarStateBase):
 
     self.distance_button = 0
 
+    # FrogPilot variables
+
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
@@ -114,8 +116,12 @@ class CarState(CarStateBase):
     # TODO: is this needed?
     if self.CP.carFingerprint == CAR.NISSAN_ALTIMA:
       ret.invalidLkasSetting = bool(cp.vl["LKAS_SETTINGS"]["LKAS_ENABLED"])
+
+      # FrogPilot variables
     else:
       ret.invalidLkasSetting = bool(cp_adas.vl["LKAS_SETTINGS"]["LKAS_ENABLED"])
+
+      # FrogPilot variables
 
     self.cruise_throttle_msg = copy.copy(cp.vl["CRUISE_THROTTLE"])
 
@@ -127,6 +133,8 @@ class CarState(CarStateBase):
       self.lkas_hud_info_msg = copy.copy(cp_adas.vl["PROPILOT_HUD_INFO_MSG"])
 
     ret.buttonEvents = create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
+
+    # FrogPilot variables
 
     return ret
 

@@ -102,3 +102,5 @@ legend = ["LAT_ACCEL_FACTOR", "MAX_LAT_ACCEL_MEASURED", "FRICTION"]
 
 # OPGM variables
 "CHEVROLET_MALIBU_CC" = [1.85, 1.85, 0.075]
+
+# FrogPilot variables

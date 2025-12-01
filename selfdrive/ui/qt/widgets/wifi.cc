@@ -36,6 +36,8 @@ WiFiPromptWidget::WiFiPromptWidget(QWidget *parent) : QFrame(parent) {
   )");
   main_layout->addWidget(settings_btn);
 
+  // FrogPilot variables
+
   setStyleSheet(R"(
     WiFiPromptWidget {
       background-color: #333333;

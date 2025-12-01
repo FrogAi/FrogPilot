@@ -165,3 +165,6 @@ class TestToyotaFingerprint:
         platforms_with_shared_codes |= {str(platform), *matches}
 
     assert platforms_with_shared_codes == FUZZY_EXCLUDED_PLATFORMS, (len(platforms_with_shared_codes), len(FW_VERSIONS))
+
+
+# FrogPilot variables

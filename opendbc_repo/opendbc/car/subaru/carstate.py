@@ -15,6 +15,8 @@ class CarState(CarStateBase):
 
     self.angle_rate_calulator = CanSignalRateCalculator(50)
 
+    # FrogPilot variables
+
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
@@ -123,10 +125,14 @@ class CarState(CarStateBase):
     if self.CP.flags & SubaruFlags.SEND_INFOTAINMENT:
       self.es_infotainment_msg = copy.copy(cp_cam.vl["ES_Infotainment"])
 
+    # FrogPilot variables
+
     return ret
 
   @staticmethod
   def get_can_parsers(CP):
+    # FrogPilot variables
+
     return {
       Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], [], CanBus.main),
       Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [], CanBus.camera),

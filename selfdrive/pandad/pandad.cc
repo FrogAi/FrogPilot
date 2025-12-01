@@ -43,6 +43,8 @@
 
 ExitHandler do_exit;
 
+// FrogPilot variables
+
 bool check_all_connected(const std::vector<Panda *> &pandas) {
   for (const auto& panda : pandas) {
     if (!panda->connected()) {
@@ -107,6 +109,8 @@ void can_send_thread(std::vector<Panda *> pandas, bool fake_send) {
     } else {
       LOGE("sendcan too old to send: %" PRIu64 ", %" PRIu64, nanos_since_boot(), event.getLogMonoTime());
     }
+
+    // FrogPilot variables
   }
 }
 
@@ -459,6 +463,9 @@ void pandad_run(std::vector<Panda *> &pandas) {
     if (rk.frame() % 10 == 0) {
       sm.update(0);
       engaged = sm.allAliveAndValid({"selfdriveState"}) && sm["selfdriveState"].getSelfdriveState().getEnabled();
+
+      // FrogPilot variables
+
       is_onroad = params.getBool("IsOnroad");
       process_panda_state(pandas, &pm, engaged, is_onroad, spoofing_started);
       panda_safety.configureSafetyMode(is_onroad);

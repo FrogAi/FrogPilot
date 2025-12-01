@@ -93,6 +93,8 @@ static bool tesla_get_quality_flag_valid(const CANPacket_t *msg) {
 
 static void tesla_rx_hook(const CANPacket_t *msg) {
 
+  // FrogPilot variables
+
   if (msg->bus == 0U) {
     // Steering angle: (0.1 * val) - 819.2 in deg.
     if (msg->addr == 0x370U) {
@@ -188,6 +190,8 @@ static void tesla_rx_hook(const CANPacket_t *msg) {
       tesla_stock_lkas_prev = tesla_stock_lkas_now;
     }
   }
+
+  // FrogPilot variables
 }
 
 

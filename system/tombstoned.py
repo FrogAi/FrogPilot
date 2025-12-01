@@ -17,6 +17,8 @@ from openpilot.system.version import get_build_metadata
 MAX_SIZE = 1_000_000 * 100  # allow up to 100M
 MAX_TOMBSTONE_FN_LEN = 62  # 85 - 23 ("<dongle id>/crash/")
 
+# FrogPilot variables
+
 TOMBSTONE_DIR = "/data/tombstones/"
 APPORT_DIR = "/var/crash/"
 
@@ -118,6 +120,9 @@ def report_tombstone_apport(fn):
 
   contents = stacktrace + "\n\n" + contents
   message = message + " - " + crash_function
+
+  # FrogPilot variables
+
   sentry.report_tombstone(fn, message, contents)
 
   # Copy crashlog to upload folder
@@ -147,6 +152,8 @@ def main() -> NoReturn:
   clear_apport_folder()
   initial_tombstones = set(get_tombstones())
 
+  # FrogPilot variables
+
   while True:
     now_tombstones = set(get_tombstones())
 
@@ -169,6 +176,7 @@ def main() -> NoReturn:
         cloudlog.exception(f"Error reporting tombstone {fn}")
 
     initial_tombstones = now_tombstones
+    # FrogPilot variables
     time.sleep(5)
 
 

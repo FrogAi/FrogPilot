@@ -86,3 +86,5 @@ TEST_CASE("swaglog") {
 
   recv_log(thread_cnt, thread_msg_cnt);
 }
+
+// FrogPilot variables

@@ -1,4 +1,5 @@
 // from the linker script
+// FrogPilot variables
 #define APP_START_ADDRESS 0x8020000U
 
 // flasher state variables

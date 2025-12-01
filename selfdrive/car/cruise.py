@@ -41,12 +41,16 @@ class VCruiseHelper:
     # OPGM variables
     self.gm_cc_long = self.CP.carFingerprint in CC_ONLY_CAR and bool(self.CP.flags & GMFlags.CC_LONG.value)
 
+    # FrogPilot variables
+
   @property
   def v_cruise_initialized(self):
     return self.v_cruise_kph != V_CRUISE_UNSET
 
   def update_v_cruise(self, CS, enabled, is_metric):
     self.v_cruise_kph_last = self.v_cruise_kph
+
+    # FrogPilot variables
 
     if CS.cruiseState.available:
       if self.gm_cc_long or not self.CP.pcmCruise:
@@ -94,6 +98,8 @@ class VCruiseHelper:
     if button_type is None:
       return
 
+    # FrogPilot variables
+
     # Don't adjust speed when pressing resume to exit standstill
     cruise_standstill = self.button_change_states[button_type]["standstill"] or CS.cruiseState.standstill
     if button_type == ButtonType.accelCruise and cruise_standstill:
@@ -103,11 +109,15 @@ class VCruiseHelper:
     if not self.button_change_states[button_type]["enabled"]:
       return
 
+    # FrogPilot variables
+
     v_cruise_delta = v_cruise_delta * (5 if long_press else 1)
     if long_press and self.v_cruise_kph % v_cruise_delta != 0:  # partial interval
       self.v_cruise_kph = CRUISE_NEAREST_FUNC[button_type](self.v_cruise_kph / v_cruise_delta) * v_cruise_delta
     else:
       self.v_cruise_kph += v_cruise_delta * CRUISE_INTERVAL_SIGN[button_type]
+
+    # FrogPilot variables
 
     # If set is pressed while overriding, clip cruise speed to minimum of vEgo
     if CS.gasPressed and button_type in (ButtonType.decelCruise, ButtonType.setCruise):
@@ -137,6 +147,7 @@ class VCruiseHelper:
     if self.v_cruise_initialized and (any(b.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for b in CS.buttonEvents)
                                       or (resume_prev_button and self.gm_cc_long)):
       self.v_cruise_kph = self.v_cruise_kph_last
+    # FrogPilot variables
     else:
       self.v_cruise_kph = int(round(np.clip(CS.vEgo * CV.MS_TO_KPH, initial, V_CRUISE_MAX)))
 

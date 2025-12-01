@@ -37,6 +37,8 @@ class CarState(CarStateBase):
     # OPGM variables
     self.single_pedal_mode = False
 
+    # FrogPilot variables
+
   def update_button_enable(self, buttonEvents: list[structs.CarState.ButtonEvent]):
     if not self.CP.pcmCruise:
       for b in buttonEvents:
@@ -179,6 +181,7 @@ class CarState(CarStateBase):
     if self.CP.transmissionType == TransmissionType.direct:
       self.single_pedal_mode = ret.gearShifter == GearShifter.low or pt_cp.vl["EVDriveMode"]["SinglePedalModeActive"] == 1
 
+    # FrogPilot variables
     return ret
 
   @staticmethod
@@ -194,6 +197,8 @@ class CarState(CarStateBase):
       pt_messages += [
         ("EVDriveMode", float('nan')),
       ]
+
+    # FrogPilot variables
 
     loopback_messages = [
       ("ASCMLKASteeringCmd", float('nan')),

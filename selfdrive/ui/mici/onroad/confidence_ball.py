@@ -69,6 +69,7 @@ class ConfidenceBall(Widget):
       top_dot_color = rl.Color(255, 255, 255, 255)
       bottom_dot_color = rl.Color(82, 82, 82, 255)
 
+    # FrogPilot variables
     else:
       top_dot_color = rl.Color(50, 50, 50, 255)
       bottom_dot_color = rl.Color(13, 13, 13, 255)

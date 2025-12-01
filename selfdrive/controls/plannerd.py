@@ -22,6 +22,8 @@ def main():
   sm = messaging.SubMaster(['carControl', 'carState', 'controlsState', 'liveParameters', 'radarState', 'modelV2', 'selfdriveState'],
                            poll='modelV2')
 
+  # FrogPilot variables
+
   while True:
     sm.update()
     if sm.updated['modelV2']:
@@ -34,6 +36,8 @@ def main():
       msg.driverAssistance.leftLaneDeparture = ldw.left
       msg.driverAssistance.rightLaneDeparture = ldw.right
       pm.send('driverAssistance', msg)
+
+    # FrogPilot variables
 
 
 if __name__ == "__main__":

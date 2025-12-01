@@ -17,6 +17,8 @@ export QCOM_PRIORITY=12
 
 if [ -z "$AGNOS_VERSION" ]; then
   export AGNOS_VERSION="16"
+
+  # FrogPilot variables
 fi
 
 export STAGING_ROOT="/data/safe_staging"

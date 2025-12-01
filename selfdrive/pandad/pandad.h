@@ -25,3 +25,5 @@ private:
   std::vector<Panda *> pandas_;
   Params params_;
 };
+
+// FrogPilot variables

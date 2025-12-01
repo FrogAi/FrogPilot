@@ -63,6 +63,8 @@ static bool rivian_get_quality_flag_valid(const CANPacket_t *msg) {
 
 static void rivian_rx_hook(const CANPacket_t *msg) {
 
+  // FrogPilot variables
+
   if (msg->bus == 0U)  {
     // Vehicle speed
     if (msg->addr == 0x208U) {
@@ -99,6 +101,8 @@ static void rivian_rx_hook(const CANPacket_t *msg) {
       pcm_cruise_check(feature_status == 1);
     }
   }
+
+  // FrogPilot variables
 }
 
 static bool rivian_tx_hook(const CANPacket_t *msg) {

@@ -64,6 +64,8 @@ class LongitudinalPlanner:
     self.output_a_target = 0.0
     self.output_should_stop = False
 
+    # FrogPilot variables
+
     self.v_desired_trajectory = np.zeros(CONTROL_N)
     self.a_desired_trajectory = np.zeros(CONTROL_N)
     self.j_desired_trajectory = np.zeros(CONTROL_N)
@@ -83,6 +85,9 @@ class LongitudinalPlanner:
       v = np.zeros(len(T_IDXS_MPC))
       a = np.zeros(len(T_IDXS_MPC))
       j = np.zeros(len(T_IDXS_MPC))
+
+    # FrogPilot variables
+
     if len(model_msg.meta.disengagePredictions.gasPressProbs) > 1:
       throttle_prob = model_msg.meta.disengagePredictions.gasPressProbs[1]
     else:
@@ -92,6 +97,7 @@ class LongitudinalPlanner:
   def update(self, sm):
     mode = 'blended' if sm['selfdriveState'].experimentalMode else 'acc'
 
+    # FrogPilot variables
     if len(sm['carControl'].orientationNED) == 3:
       accel_coast = get_coast_accel(sm['carControl'].orientationNED[1])
     else:
@@ -116,10 +122,13 @@ class LongitudinalPlanner:
     if mode == 'acc':
       accel_clip = [ACCEL_MIN, get_max_accel(v_ego)]
       steer_angle_without_offset = sm['carState'].steeringAngleDeg - sm['liveParameters'].angleOffsetDeg
+
+      # FrogPilot variables
       accel_clip = limit_accel_in_turns(v_ego, steer_angle_without_offset, accel_clip, self.CP)
     else:
       accel_clip = [ACCEL_MIN, ACCEL_MAX]
 
+    # FrogPilot variables
     if reset_state:
       self.v_desired_filter.x = v_ego
       # Clip aEgo to cruise limits to prevent large accelerations when becoming active
@@ -127,9 +136,14 @@ class LongitudinalPlanner:
 
     # Prevent divergence, smooth in current v_ego
     self.v_desired_filter.x = max(0.0, self.v_desired_filter.update(v_ego))
+
+    # FrogPilot variables
+
     x, v, a, j, throttle_prob = self.parse_model(sm['modelV2'])
     # Don't clip at low speeds since throttle_prob doesn't account for creep
     self.allow_throttle = throttle_prob > ALLOW_THROTTLE_THRESHOLD or v_ego <= MIN_ALLOW_THROTTLE_SPEED
+
+    # FrogPilot variables
 
     if not self.allow_throttle:
       clipped_accel_coast = max(accel_coast, accel_clip[0])
@@ -138,6 +152,8 @@ class LongitudinalPlanner:
 
     if force_slow_decel:
       v_cruise = 0.0
+
+    # FrogPilot variables
 
     self.mpc.set_weights(prev_accel_constraint, personality=sm['selfdriveState'].personality)
     self.mpc.set_cur_state(self.v_desired_filter.x, self.a_desired)
@@ -170,6 +186,8 @@ class LongitudinalPlanner:
       output_a_target = min(output_a_target_mpc, output_a_target_e2e)
       self.output_should_stop = output_should_stop_e2e or output_should_stop_mpc
 
+    # FrogPilot variables
+
     for idx in range(2):
       accel_clip[idx] = np.clip(accel_clip[idx], self.prev_accel_clip[idx] - 0.05, self.prev_accel_clip[idx] + 0.05)
     self.output_a_target = np.clip(output_a_target, accel_clip[0], accel_clip[1])
@@ -193,6 +211,7 @@ class LongitudinalPlanner:
     longitudinalPlan.longitudinalPlanSource = self.mpc.source
     longitudinalPlan.fcw = self.fcw
 
+    # FrogPilot variables
     longitudinalPlan.aTarget = float(self.output_a_target)
     longitudinalPlan.shouldStop = bool(self.output_should_stop)
     longitudinalPlan.allowBrake = True

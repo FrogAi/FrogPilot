@@ -21,6 +21,8 @@ from openpilot.common.swaglog import cloudlog, add_file_handler
 from openpilot.system.version import get_build_metadata, terms_version, training_version
 from openpilot.system.hardware.hw import Paths
 
+from openpilot.frogpilot.common import frogpilot_functions
+
 
 def manager_init() -> None:
   save_bootlog()
@@ -37,6 +39,8 @@ def manager_init() -> None:
 
   if params.get_bool("RecordFrontLock"):
     params.put_bool("RecordFront", True)
+
+  # FrogPilot variables
 
   # set unset params to their default value
   for k in params.all_keys():
@@ -89,9 +93,15 @@ def manager_init() -> None:
                        dirty=build_metadata.openpilot.is_dirty,
                        device=HARDWARE.get_device_type())
 
+  # FrogPilot variables
+
   # preimport all processes
   for p in managed_processes.values():
     p.prepare()
+
+  # FrogPilot variables
+  frogpilot_functions.install_frogpilot()
+  frogpilot_functions.frogpilot_boot_functions()
 
 
 def manager_cleanup() -> None:
@@ -114,6 +124,8 @@ def manager_thread() -> None:
   params = Params()
 
   ignore: list[str] = []
+
+  # FrogPilot variables
   if params.get("DongleId") in (None, UNREGISTERED_DONGLE_ID):
     ignore += ["manage_athenad", "uploader"]
   if os.getenv("NOBOARD") is not None:
@@ -122,6 +134,8 @@ def manager_thread() -> None:
 
   sm = messaging.SubMaster(['deviceState', 'carParams', 'pandaStates'], poll='deviceState')
   pm = messaging.PubMaster(['managerState'])
+
+  # FrogPilot variables
 
   write_onroad_params(False, params)
   ensure_running(managed_processes.values(), False, params=params, CP=sm['carParams'], not_run=ignore)
@@ -181,6 +195,8 @@ def manager_thread() -> None:
     if shutdown:
       break
 
+    # FrogPilot variables
+
 
 def main() -> None:
   manager_init()
@@ -201,13 +217,14 @@ def main() -> None:
   params = Params()
   if params.get_bool("DoUninstall"):
     cloudlog.warning("uninstalling")
-    HARDWARE.uninstall()
+    frogpilot_functions.uninstall_frogpilot()
   elif params.get_bool("DoReboot"):
     cloudlog.warning("reboot")
     HARDWARE.reboot()
   elif params.get_bool("DoShutdown"):
     cloudlog.warning("shutdown")
     HARDWARE.shutdown()
+  # FrogPilot variables
 
 
 if __name__ == "__main__":

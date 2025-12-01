@@ -158,7 +158,11 @@ static void ford_rx_hook(const CANPacket_t *msg) {
       unsigned int cruise_state = msg->data[1] & 0x07U;
       bool cruise_engaged = (cruise_state == 4U) || (cruise_state == 5U);
       pcm_cruise_check(cruise_engaged);
+
+      // FrogPilot variables
     }
+
+    // FrogPilot variables
   }
 }
 
@@ -296,6 +300,8 @@ static safety_config ford_init(uint16_t param) {
     {.msg = {{FORD_EngBrakeData, 0, 8, 10U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},
     {.msg = {{FORD_EngVehicleSpThrottle, 0, 8, 100U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},
     {.msg = {{FORD_DesiredTorqBrk, 0, 8, 50U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},
+
+    // FrogPilot variables
   };
 
   #define FORD_COMMON_TX_MSGS \
@@ -329,6 +335,8 @@ static safety_config ford_init(uint16_t param) {
 
   const uint16_t FORD_PARAM_CANFD = 2;
   const bool ford_canfd = GET_FLAG(param, FORD_PARAM_CANFD);
+
+  // FrogPilot variables
 
   bool ford_longitudinal = false;
 

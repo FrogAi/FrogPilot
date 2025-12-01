@@ -8,3 +8,6 @@ class TestSubaruFingerprint:
         fw_size = len(fws[0])
         for fw in fws:
           assert len(fw) == fw_size, f"{platform} {ecu}: {len(fw)} {fw_size}"
+
+
+# FrogPilot variables

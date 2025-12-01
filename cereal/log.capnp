@@ -1257,6 +1257,8 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
 
   solverExecutionTime @35 :Float32;
 
+  # FrogPilot variables
+
   enum LongitudinalPlanSource {
     cruise @0;
     lead0 @1;

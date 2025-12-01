@@ -72,6 +72,8 @@ public:
       printf("%s: %s\n", filename, msg);
     }
     zmq_send(sock, log_s.data(), log_s.length(), ZMQ_NOBLOCK);
+
+    // FrogPilot variables
   }
 
   std::mutex lock;

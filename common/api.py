@@ -7,6 +7,8 @@ from openpilot.system.version import get_version
 
 API_HOST = os.getenv('API_HOST', 'https://api.commadotai.com')
 
+# FrogPilot variables
+
 # name: jwt signature algorithm
 KEYS = {"id_rsa": "RS256",
         "id_ecdsa": "ES256"}
@@ -51,6 +53,9 @@ def api_get(endpoint, method='GET', timeout=None, access_token=None, session=Non
 
   # TODO: add session to Api
   req = requests if session is None else session
+
+  # FrogPilot variables
+
   return req.request(method, API_HOST + "/" + endpoint, timeout=timeout, headers=headers, params=params)
 
 

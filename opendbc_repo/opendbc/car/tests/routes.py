@@ -43,6 +43,8 @@ non_tested_cars = [
 # OPGM variables
 non_tested_cars.extend(CC_ONLY_CAR)
 
+# FrogPilot variables
+
 
 class CarTestRoute(NamedTuple):
   route: str
@@ -346,3 +348,5 @@ routes = [
   # Controls mismatch due to standstill threshold
   CarTestRoute("bec2dcfde6a64235/2022-04-08--14-21-32", HONDA.HONDA_CRV_HYBRID, segment=22),
 ]
+
+# FrogPilot variables

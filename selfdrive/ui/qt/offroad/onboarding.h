@@ -102,6 +102,8 @@ private:
   Params params;
   bool accepted_terms = false, training_done = false;
 
+  // FrogPilot variables
+
 signals:
   void onboardingDone();
 };

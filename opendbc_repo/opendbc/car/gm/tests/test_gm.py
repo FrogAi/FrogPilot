@@ -18,3 +18,6 @@ class TestGMFingerprint:
       for finger in fingerprints:
         for required_addr in (CAMERA_DIAGNOSTIC_ADDRESS, CAMERA_DIAGNOSTIC_ADDRESS + GM_RX_OFFSET):
           assert finger.get(required_addr) == 8, required_addr
+
+
+# FrogPilot variables

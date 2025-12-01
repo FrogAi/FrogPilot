@@ -117,6 +117,8 @@ class CarState(CarStateBase):
     # Messages needed by carcontroller
     self.das_control = copy.copy(cp_ap_party.vl["DAS_control"])
 
+    # FrogPilot variables
+
     return ret
 
   @staticmethod

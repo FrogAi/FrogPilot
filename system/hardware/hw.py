@@ -18,6 +18,8 @@ class Paths:
     elif PC:
       return str(Path(Paths.comma_home()) / "media" / "0" / "realdata")
     else:
+      # FrogPilot variables
+
       return '/data/media/0/realdata/'
 
   @staticmethod

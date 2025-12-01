@@ -61,6 +61,8 @@ class BookmarkIcon(Widget):
     """Check if currently swiping left (for scroller to disable)."""
     return self._is_swiping_left
 
+  # FrogPilot variables
+
   def interacting(self):
     interacting, self._interacting = self._interacting, False
     return interacting
@@ -164,6 +166,8 @@ class AugmentedRoadView(CameraView):
     # debug
     self._pm = messaging.PubMaster(['uiDebug'])
 
+    # FrogPilot variables
+
   def is_swiping_left(self) -> bool:
     """Check if currently swiping left (for scroller to disable)."""
     return self._bookmark_icon.is_swiping_left()
@@ -176,6 +180,10 @@ class AugmentedRoadView(CameraView):
       self._offroad_label.set_text("system booting")
     else:
       self._offroad_label.set_text("start the car to\nuse openpilot")
+
+    # FrogPilot variables
+
+  # FrogPilot variables
 
   def _handle_mouse_release(self, mouse_pos: MousePos):
     # Don't trigger click callback if bookmark was triggered
@@ -206,6 +214,7 @@ class AugmentedRoadView(CameraView):
       int(self._content_rect.height)
     )
 
+    # FrogPilot variables
     # Render the base camera view
     super()._render(self._content_rect)
 
@@ -231,6 +240,8 @@ class AugmentedRoadView(CameraView):
     if ui_state.started:
       self._alert_renderer.render(self._content_rect)
     self._hud_renderer.render(self._content_rect)
+
+    # FrogPilot variables
 
     # Draw fake rounded border
     rl.draw_rectangle_rounded_lines_ex(self._content_rect, 0.2 * 1.02, 10, 50, rl.BLACK)
@@ -266,6 +277,8 @@ class AugmentedRoadView(CameraView):
         target = self.stream_type
     else:
       target = ROAD_CAM
+
+    # FrogPilot variables
 
     if self.stream_type != target:
       self.switch_stream(target)

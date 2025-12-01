@@ -67,6 +67,9 @@ def create_brake_command(packer, CAN, apply_brake, pump_on, pcm_override, pcm_ca
     "AEB_REQ_2": 0,
     "AEB_STATUS": 0,
   }
+
+  # FrogPilot variables
+
   return packer.make_can_msg("BRAKE_COMMAND", CAN.pt, values)
 
 

@@ -78,6 +78,8 @@ class TestCarModelBase(unittest.TestCase):
     cls.fingerprint = gen_empty_fingerprint()
     alpha_long = False
     for msg in lr:
+      # FrogPilot variables
+
       if msg.which() == "can":
         can = can_capnp_to_list((msg.as_builder().to_bytes(),))[0]
         can_msgs.append((can[0], [CanData(*can) for can in can[1]]))

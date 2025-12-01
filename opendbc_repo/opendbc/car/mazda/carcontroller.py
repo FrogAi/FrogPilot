@@ -7,6 +7,8 @@ from opendbc.car.mazda.values import CarControllerParams, Buttons
 
 VisualAlert = structs.CarControl.HUDControl.VisualAlert
 
+# FrogPilot variables
+
 
 class CarController(CarControllerBase):
   def __init__(self, dbc_names, CP):
@@ -14,6 +16,8 @@ class CarController(CarControllerBase):
     self.apply_torque_last = 0
     self.packer = CANPacker(dbc_names[Bus.pt])
     self.brake_counter = 0
+
+    # FrogPilot variables
 
   def update(self, CC, CS, now_nanos):
     can_sends = []
@@ -62,4 +66,7 @@ class CarController(CarControllerBase):
     new_actuators.torqueOutputCan = apply_torque
 
     self.frame += 1
+
+    # FrogPilot variables
+
     return new_actuators, can_sends

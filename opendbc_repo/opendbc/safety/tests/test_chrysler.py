@@ -23,6 +23,8 @@ class TestChryslerSafety(common.CarSafetyTest, common.MotorTorqueSteeringSafetyT
 
   DAS_BUS = 0
 
+  # FrogPilot variables
+
   def setUp(self):
     self.packer = CANPackerSafety("chrysler_pacifica_2017_hybrid_generated")
     self.safety = libsafety_py.libsafety
@@ -71,6 +73,8 @@ class TestChryslerSafety(common.CarSafetyTest, common.MotorTorqueSteeringSafetyT
       self.assertFalse(self._tx(self._button_msg(cancel=True, resume=True)))
       self.assertFalse(self._tx(self._button_msg(cancel=False, resume=False)))
 
+  # FrogPilot variables
+
 
 class TestChryslerRamDTSafety(TestChryslerSafety):
   TX_MSGS = [[0xB1, 2], [0xA6, 0], [0xFA, 0]]
@@ -84,6 +88,8 @@ class TestChryslerRamDTSafety(TestChryslerSafety):
   DAS_BUS = 2
 
   LKAS_ACTIVE_VALUE = 2
+
+  # FrogPilot variables
 
   def setUp(self):
     self.packer = CANPackerSafety("chrysler_ram_dt_generated")
@@ -109,6 +115,8 @@ class TestChryslerRamHDSafety(TestChryslerSafety):
   DAS_BUS = 2
 
   LKAS_ACTIVE_VALUE = 2
+
+  # FrogPilot variables
 
   def setUp(self):
     self.packer = CANPackerSafety("chrysler_ram_hd_generated")

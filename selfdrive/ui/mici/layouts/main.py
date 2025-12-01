@@ -97,6 +97,8 @@ class MiciMainLayout(Widget):
 
     self._handle_transitions()
 
+    # FrogPilot variables
+
   def _set_mode(self, mode: MainState):
     if mode != self._current_mode:
       if self._current_mode is not None:

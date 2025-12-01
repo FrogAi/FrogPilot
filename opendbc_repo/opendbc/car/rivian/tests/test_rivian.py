@@ -21,3 +21,6 @@ class TestRivian:
                 matches = FW_QUERY_CONFIG.match_fw_to_car_fuzzy({}, vin, FW_VERSIONS)
                 should_match = year != ModelYear.S_2025 and not bad
                 assert (matches == {platform}) == should_match, "Bad match"
+
+
+# FrogPilot variables

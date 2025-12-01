@@ -16,3 +16,6 @@ class TestHondaFingerprint:
 
   def test_tja_bosch_only(self):
     assert set(HONDA_BOSCH_TJA_CONTROL).issubset(set(HONDA_BOSCH)), "Nidec car found in TJA control list"
+
+
+# FrogPilot variables

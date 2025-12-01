@@ -7,6 +7,8 @@ from opendbc.car.volkswagen.values import DBC, CanBus, NetworkLocation, Transmis
 
 ButtonType = structs.CarState.ButtonEvent.Type
 
+# FrogPilot variables
+
 
 class CarState(CarStateBase):
   def __init__(self, CP):
@@ -19,6 +21,8 @@ class CarState(CarStateBase):
     self.upscale_lead_car_signal = False
     self.eps_stock_values = False
     self.acc_type = 0
+
+    # FrogPilot variables
 
   def update_button_enable(self, buttonEvents: list[structs.CarState.ButtonEvent]):
     if not self.CP.pcmCruise:
@@ -39,6 +43,8 @@ class CarState(CarStateBase):
         event.pressed = state
         button_events.append(event)
       self.button_states[button.event_type] = state
+
+    # FrogPilot variables
 
     return button_events
 
@@ -137,6 +143,9 @@ class CarState(CarStateBase):
     ret.lowSpeedAlert = self.update_low_speed_alert(ret.vEgo)
 
     self.frame += 1
+
+    # FrogPilot variables
+
     return ret
 
   def update_pq(self, pt_cp, cam_cp, ext_cp) -> structs.CarState:
@@ -228,6 +237,9 @@ class CarState(CarStateBase):
     ret.lowSpeedAlert = self.update_low_speed_alert(ret.vEgo)
 
     self.frame += 1
+
+    # FrogPilot variables
+
     return ret
 
   def update_mlb(self, pt_cp, cam_cp, ext_cp) -> structs.CarState:

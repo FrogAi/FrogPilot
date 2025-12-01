@@ -56,6 +56,8 @@ class CarInterface(CarInterfaceBase):
       ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0., 20.], [0., 20.]]
       ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.2, 0.3], [0.02, 0.03]]
 
+      # FrogPilot variables
+
     elif candidate == CAR.SUBARU_IMPREZA_2020:
       ret.lateralTuning.init('pid')
       ret.lateralTuning.pid.kf = 0.00005

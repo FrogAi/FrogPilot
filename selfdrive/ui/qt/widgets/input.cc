@@ -154,6 +154,9 @@ QString InputDialog::getText(const QString &prompt, QWidget *parent, const QStri
   InputDialog d(prompt, parent, subtitle, secret);
   d.line->setText(defaultText);
   d.setMinLength(minLength);
+
+  // FrogPilot variables
+
   const int ret = d.exec();
   return ret ? d.text() : QString();
 }

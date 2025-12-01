@@ -25,6 +25,8 @@ class OnboardingState(IntEnum):
   ONBOARDING = 1
   DECLINE = 2
 
+  # FrogPilot variables
+
 
 class DriverCameraSetupDialog(DriverCameraDialog):
   def __init__(self):
@@ -450,6 +452,8 @@ class OnboardingWindow(Widget):
     self._training_guide = TrainingGuide(completed_callback=self._on_completed_training)
     self._decline_page = DeclinePage(back_callback=self._on_decline_back)
 
+    # FrogPilot variables
+
   def show_event(self):
     super().show_event()
     device.set_override_interactive_timeout(300)
@@ -478,6 +482,9 @@ class OnboardingWindow(Widget):
 
   def _on_completed_training(self):
     ui_state.params.put("CompletedTrainingVersion", training_version)
+
+    # FrogPilot variables
+
     self.close()
 
   def _render(self, _):
@@ -487,4 +494,7 @@ class OnboardingWindow(Widget):
       self._training_guide.render(self._rect)
     elif self._state == OnboardingState.DECLINE:
       self._decline_page.render(self._rect)
+    # FrogPilot variables
     return -1
+
+  # FrogPilot variables

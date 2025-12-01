@@ -76,6 +76,8 @@ class TestPsaSafetyBase(common.CarSafetyTest, common.AngleSteeringSafetyTest):
     msg[0].data[6] = 0xAB
     self.assertTrue(self._rx(msg))
 
+  # FrogPilot variables
+
 
 class TestPsaStockSafety(TestPsaSafetyBase):
 

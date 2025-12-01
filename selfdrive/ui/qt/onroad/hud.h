@@ -3,6 +3,8 @@
 #include <QPainter>
 #include "selfdrive/ui/ui.h"
 
+#include "frogpilot/ui/qt/onroad/frogpilot_annotated_camera.h"
+
 class HudRenderer : public QObject {
   Q_OBJECT
 
@@ -10,6 +12,9 @@ public:
   HudRenderer();
   void updateState(const UIState &s);
   void draw(QPainter &p, const QRect &surface_rect);
+
+  // FrogPilot variables
+  FrogPilotAnnotatedCameraWidget *frogpilot_nvg;
 
 private:
   void drawSetSpeed(QPainter &p, const QRect &surface_rect);

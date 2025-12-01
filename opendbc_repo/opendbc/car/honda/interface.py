@@ -21,6 +21,8 @@ class CarInterface(CarInterfaceBase):
 
   @staticmethod
   def get_pid_accel_limits(CP, current_speed, cruise_speed):
+    # FrogPilot variables
+
     if CP.carFingerprint in HONDA_BOSCH:
       return CarControllerParams.BOSCH_ACCEL_MIN, CarControllerParams.BOSCH_ACCEL_MAX
     else:
@@ -89,6 +91,8 @@ class CarInterface(CarInterfaceBase):
       # default longitudinal tuning for all hondas
       ret.longitudinalTuning.kiBP = [0., 5., 35.]
       ret.longitudinalTuning.kiV = [1.2, 0.8, 0.5]
+
+    # FrogPilot variables
 
     # Disable control if EPS mod detected
     for fw in car_fw:
@@ -189,10 +193,14 @@ class CarInterface(CarInterfaceBase):
         # When using stock ACC, the radar intercepts and filters steering commands the EPS would otherwise accept
         ret.minSteerSpeed = 70. * CV.KPH_TO_MS
 
+    # FrogPilot variables
+
     else:
       ret.steerActuatorDelay = 0.15
       ret.lateralParams.torqueBP, ret.lateralParams.torqueV = [[0, 2560], [0, 2560]]
       CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
+
+    # FrogPilot variables
 
     # These cars use alternate user brake msg (0x1BE)
     if 0x1BE in fingerprint[CAN.pt] and candidate in (CAR.HONDA_ACCORD, CAR.HONDA_HRV_3G, *HONDA_BOSCH_CANFD):
@@ -208,6 +216,8 @@ class CarInterface(CarInterfaceBase):
       ret.safetyConfigs[-1].safetyParam |= HondaSafetyFlags.RADARLESS.value
     if candidate in HONDA_BOSCH_CANFD:
       ret.safetyConfigs[-1].safetyParam |= HondaSafetyFlags.BOSCH_CANFD.value
+
+    # FrogPilot variables
 
     # min speed to enable ACC. if car can do stop and go, then set enabling speed
     # to a negative value, so it won't matter. Otherwise, add 0.5 mph margin to not

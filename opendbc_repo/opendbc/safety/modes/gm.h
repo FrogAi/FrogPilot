@@ -23,6 +23,8 @@ enum {
   GM_BTN_RESUME = 2,
   GM_BTN_SET = 3,
   GM_BTN_CANCEL = 6,
+
+  // FrogPilot variables
 };
 
 typedef enum {
@@ -35,6 +37,8 @@ static bool gm_pcm_cruise = false;
 // OPGM variables
 static bool gm_cc_long = false;
 static bool gm_has_acc = true;
+
+// FrogPilot variables
 
 static void gm_rx_hook(const CANPacket_t *msg) {
   const int GM_STANDSTILL_THRSLD = 10;  // 0.311kph
@@ -121,6 +125,8 @@ static void gm_rx_hook(const CANPacket_t *msg) {
       int gas_interceptor = (track1 + track2) / 2;
       gas_pressed = gas_interceptor > GM_GAS_INTERCEPTOR_THRESHOLD;
     }
+
+    // FrogPilot variables
   }
 }
 
@@ -183,6 +189,8 @@ static bool gm_tx_hook(const CANPacket_t *msg) {
     if (gm_cc_long) {
       allowed_btn |= get_longitudinal_allowed() && cruise_engaged_prev && ((button == GM_BTN_SET) || (button == GM_BTN_RESUME) || (button == GM_BTN_UNPRESS));
     }
+
+    // FrogPilot variables
 
     if (!allowed_btn) {
       tx = false;
@@ -273,10 +281,14 @@ static safety_config gm_init(uint16_t param) {
     {.msg = {{0x201, 0, 6, 10U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  // pedal
   };
 
+  // FrogPilot variables
+
   static const CanMsg GM_CC_LONG_TX_MSGS[] = {{0x180, 0, 4, .check_relay = true}, {0x1E1, 0, 7, .check_relay = false},  // pt bus
                                               {0x184, 2, 8, .check_relay = true}, {0x1E1, 2, 7, .check_relay = false}};  // camera bus
 
   gm_hw = GET_FLAG(param, GM_PARAM_HW_CAM) ? GM_CAM : GM_ASCM;
+
+  // FrogPilot variables
 
   if (gm_hw == GM_ASCM) {
     gm_long_limits = &GM_ASCM_LONG_LIMITS;
@@ -321,6 +333,8 @@ static safety_config gm_init(uint16_t param) {
   }
 
   const bool gm_ev = GET_FLAG(param, GM_PARAM_EV);
+
+  // FrogPilot variables
   if (enable_gas_interceptor) {
     SET_RX_CHECKS(gm_pedal_rx_checks, ret);
   } else if (!gm_has_acc && gm_ev) {
@@ -336,6 +350,9 @@ static safety_config gm_init(uint16_t param) {
   if (gm_hw == GM_ASCM) {
     ret.disable_forwarding = true;
   }
+
+  // FrogPilot variables
+
   return ret;
 }
 

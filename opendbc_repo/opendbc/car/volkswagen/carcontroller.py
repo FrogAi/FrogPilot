@@ -10,6 +10,8 @@ from opendbc.car.volkswagen.values import CanBus, CarControllerParams, Volkswage
 VisualAlert = structs.CarControl.HUDControl.VisualAlert
 LongCtrlState = structs.CarControl.Actuators.LongControlState
 
+# FrogPilot variables
+
 
 class CarController(CarControllerBase):
   def __init__(self, dbc_names, CP):
@@ -31,6 +33,8 @@ class CarController(CarControllerBase):
     self.eps_timer_soft_disable_alert = False
     self.hca_frame_timer_running = 0
     self.hca_frame_same_torque = 0
+
+    # FrogPilot variables
 
   def update(self, CC, CS, now_nanos):
     actuators = CC.actuators
@@ -131,4 +135,7 @@ class CarController(CarControllerBase):
 
     self.gra_acc_counter_last = CS.gra_stock_values["COUNTER"]
     self.frame += 1
+
+    # FrogPilot variables
+
     return new_actuators, can_sends

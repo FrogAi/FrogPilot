@@ -78,6 +78,9 @@ void WifiManager::setup() {
   raw_adapter_state = call<uint>(adapter, NM_DBUS_INTERFACE_PROPERTIES, "Get", NM_DBUS_INTERFACE_DEVICE, "State");
   activeAp = call<QDBusObjectPath>(adapter, NM_DBUS_INTERFACE_PROPERTIES, "Get", NM_DBUS_INTERFACE_DEVICE_WIRELESS, "ActiveAccessPoint").path();
 
+  // FrogPilot variables
+  ipv4_address = getIp4Address();
+
   requestScan();
 }
 
@@ -273,6 +276,10 @@ QString WifiManager::getAdapter(const uint adapter_type) {
 
 void WifiManager::stateChange(unsigned int new_state, unsigned int previous_state, unsigned int change_reason) {
   raw_adapter_state = new_state;
+
+  // FrogPilot variables
+  ipv4_address = getIp4Address();
+
   if (new_state == NM_DEVICE_STATE_NEED_AUTH && change_reason == NM_DEVICE_STATE_REASON_SUPPLICANT_DISCONNECT && !connecting_to_network.isEmpty()) {
     forgetConnection(connecting_to_network);
     emit wrongPassword(connecting_to_network);

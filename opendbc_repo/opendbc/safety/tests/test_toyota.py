@@ -25,6 +25,8 @@ class TestToyotaSafetyBase(common.CarSafetyTest, common.LongitudinalAccelSafetyT
   FWD_BLACKLISTED_ADDRS = {2: [0x2E4, 0x412, 0x191, 0x343]}
   EPS_SCALE = 73
 
+  # FrogPilot variables
+
   packer: CANPackerSafety
   safety: libsafety_py.LibSafety
 
@@ -121,6 +123,8 @@ class TestToyotaSafetyBase(common.CarSafetyTest, common.LongitudinalAccelSafetyT
       msg[0].data[7] = 0
       self.assertFalse(self._rx(msg))
       self.assertFalse(self.safety.get_controls_allowed())
+
+  # FrogPilot variables
 
 
 class TestToyotaSafetyTorque(TestToyotaSafetyBase, common.MotorTorqueSteeringSafetyTest, common.SteerRequestCutSafetyTest):
@@ -392,6 +396,12 @@ class TestToyotaSecOcSafety(TestToyotaSecOcSafetyBase):
         should_tx = np.isclose(accel, self.INACTIVE_ACCEL, atol=0.0001)
         self.assertEqual(should_tx, self._tx(self._accel_msg_343(accel)))
         self.assertEqual(should_tx, self._tx(self._accel_msg_343(accel, cancel_req=1)))
+
+
+# FrogPilot variables
+
+
+# FrogPilot variables
 
 
 if __name__ == "__main__":

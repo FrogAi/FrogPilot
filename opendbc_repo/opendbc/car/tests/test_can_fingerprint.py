@@ -9,6 +9,8 @@ class TestCanFingerprint:
   def test_can_fingerprint(self, car_model, fingerprints):
     """Tests online fingerprinting function on offline fingerprints"""
 
+    # FrogPilot variables
+
     for fingerprint in fingerprints:  # can have multiple fingerprints for each platform
       can = [CanData(address=address, dat=b'\x00' * length, src=src)
              for address, length in fingerprint.items() for src in (0, 1)]

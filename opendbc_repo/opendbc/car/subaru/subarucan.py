@@ -334,3 +334,6 @@ def subaru_checksum(address: int, sig, d: bytearray) -> int:
   for i in range(1, len(d)):
     s += d[i]
   return s & 0xFF
+
+
+# FrogPilot variables

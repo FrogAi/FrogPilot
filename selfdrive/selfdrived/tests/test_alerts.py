@@ -128,3 +128,5 @@ class TestAlerts:
       written_alert = params.get(a)
       assert "a"*i == written_alert['extra']
       assert alert["text"] == written_alert['text']
+
+  # FrogPilot variables

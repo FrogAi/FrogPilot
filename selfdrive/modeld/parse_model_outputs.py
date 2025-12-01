@@ -21,6 +21,8 @@ class Parser:
   def __init__(self, ignore_missing=False):
     self.ignore_missing = ignore_missing
 
+    # FrogPilot variables
+
   def check_missing(self, outs, name):
     missing = name not in outs
     if missing and not self.ignore_missing:

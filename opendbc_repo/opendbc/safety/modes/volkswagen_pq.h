@@ -95,6 +95,8 @@ static void volkswagen_pq_rx_hook(const CANPacket_t *msg) {
       update_sample(&torque_driver, torque_driver_new);
     }
 
+    // FrogPilot variables
+
     if (volkswagen_longitudinal) {
       if (msg->addr == MSG_MOTOR_5) {
         // ACC main switch on is a prerequisite to enter controls, exit controls immediately on main switch off

@@ -46,7 +46,11 @@ def register(show_spinner=False) -> str | None:
   if not public_key:
     dongle_id = UNREGISTERED_DONGLE_ID
     cloudlog.warning("missing public key")
+
+    # FrogPilot variables
   elif dongle_id is None:
+    # FrogPilot variables
+
     if show_spinner:
       spinner = Spinner()
       spinner.update("registering device")
@@ -96,6 +100,9 @@ def register(show_spinner=False) -> str | None:
 
   if dongle_id:
     params.put("DongleId", dongle_id)
+
+    # FrogPilot variables
+
     set_offroad_alert("Offroad_UnregisteredHardware", (dongle_id == UNREGISTERED_DONGLE_ID) and not PC)
   return dongle_id
 

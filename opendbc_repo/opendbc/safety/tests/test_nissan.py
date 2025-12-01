@@ -18,6 +18,8 @@ class TestNissanSafety(common.CarSafetyTest, common.AngleSteeringSafetyTest):
   EPS_BUS = 0
   CRUISE_BUS = 2
 
+  # FrogPilot variables
+
   # Angle control limits
   STEER_ANGLE_MAX = 600  # deg, reasonable limit
   DEG_TO_CAN = 100
@@ -79,12 +81,16 @@ class TestNissanSafety(common.CarSafetyTest, common.AngleSteeringSafetyTest):
         tx = self._tx(self._acc_button_cmd(**args))
         self.assertEqual(tx, should_tx)
 
+  # FrogPilot variables
+
 
 class TestNissanSafetyAltEpsBus(TestNissanSafety):
   """Altima uses different buses"""
 
   EPS_BUS = 1
   CRUISE_BUS = 1
+
+  # FrogPilot variables
 
   def setUp(self):
     self.packer = CANPackerSafety("nissan_x_trail_2017_generated")
@@ -94,6 +100,8 @@ class TestNissanSafetyAltEpsBus(TestNissanSafety):
 
 
 class TestNissanLeafSafety(TestNissanSafety):
+
+  # FrogPilot variables
 
   def setUp(self):
     self.packer = CANPackerSafety("nissan_leaf_2018_generated")
@@ -112,6 +120,8 @@ class TestNissanLeafSafety(TestNissanSafety):
   # TODO: leaf should use its own safety param
   def test_acc_buttons(self):
     pass
+
+  # FrogPilot variables
 
 
 if __name__ == "__main__":
