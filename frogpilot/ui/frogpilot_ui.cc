@@ -77,6 +77,7 @@ void FrogPilotUIState::update() {
   }
 
   const bool enabled = (*uiState()->sm)["selfdriveState"].getSelfdriveState().getEnabled();
+  frogpilot_scene.always_on_lateral_active = !enabled && (*sm)["frogpilotCarState"].getFrogpilotCarState().getAlwaysOnLateralEnabled();
 
   const cereal::CarState::Reader &carState = (*uiState()->sm)["carState"].getCarState();
   bool manual_transmission = (*uiState()->sm)["carParams"].getCarParams().getTransmissionType() == cereal::CarParams::TransmissionType::MANUAL;

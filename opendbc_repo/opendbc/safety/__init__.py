@@ -10,3 +10,4 @@ class ALTERNATIVE_EXPERIENCE:
   ALLOW_AEB = 16
 
   # FrogPilot variables
+  ALWAYS_ON_LATERAL = 32

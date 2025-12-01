@@ -2,7 +2,7 @@ from opendbc.car import get_safety_config, structs
 from opendbc.car.interfaces import CarInterfaceBase
 from opendbc.car.nissan.carcontroller import CarController
 from opendbc.car.nissan.carstate import CarState
-from opendbc.car.nissan.values import CAR, NissanSafetyFlags
+from opendbc.car.nissan.values import CAR, NissanFrogPilotSafetyFlags, NissanSafetyFlags
 
 
 class CarInterface(CarInterfaceBase):
@@ -27,5 +27,7 @@ class CarInterface(CarInterfaceBase):
       ret.safetyConfigs[0].safetyParam |= NissanSafetyFlags.ALT_EPS_BUS.value
 
     # FrogPilot variables
+    if candidate in (CAR.NISSAN_ROGUE, CAR.NISSAN_XTRAIL, CAR.NISSAN_ALTIMA):
+      ret.safetyConfigs[0].safetyParam |= NissanFrogPilotSafetyFlags.PRO_PILOT.value
 
     return ret

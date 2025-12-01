@@ -70,6 +70,9 @@ class HyundaiSafetyFlags(IntFlag):
 
 
 # FrogPilot variables
+class HyundaiFrogPilotSafetyFlags(IntFlag):
+  HAS_LDA_BUTTON = 1024
+  ALWAYS_ON_LATERAL_LKAS = 4096
 
 
 class HyundaiFlags(IntFlag):
