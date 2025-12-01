@@ -252,6 +252,10 @@ class CAR(Platforms):
     [GMCarDocs("Chevrolet Suburban 2016-20")],
     CHEVROLET_SUBURBAN_CC.specs,
   )
+  CHEVROLET_TRAX = GMPlatformConfig(
+    [GMCarDocs("Chevrolet TRAX 2024")],
+    CarSpecs(mass=1365, wheelbase=2.7, steerRatio=16.4, centerToFrontRatio=0.4),
+  )
 
 
 class CruiseButtons:
@@ -359,4 +363,5 @@ EV_CAR.update({CAR.CHEVROLET_BOLT_2017, CAR.CHEVROLET_BOLT_2018, CAR.CHEVROLET_B
 DBC = CAR.create_dbc_map()
 
 # FrogPilot variables
+CAMERA_ACC_CAR.add(CAR.CHEVROLET_TRAX)
 SDGM_CAR.add(CAR.BUICK_BABYENCLAVE)
