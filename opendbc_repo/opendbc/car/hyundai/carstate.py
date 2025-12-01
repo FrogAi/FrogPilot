@@ -233,6 +233,7 @@ class CarState(CarStateBase):
     ret.lowSpeedAlert = self.low_speed_alert
 
     # FrogPilot variables
+    self.distance_button = self.cruise_buttons[-1] == Buttons.GAP_DIST
 
     return ret
 
@@ -338,6 +339,8 @@ class CarState(CarStateBase):
     ret.blockPcmEnable = not self.recent_button_interaction()
 
     # FrogPilot variables
+    self.distance_button = self.cruise_buttons[-1] == Buttons.GAP_DIST
+
     if self.taco_tune_hack:
       self.params = CarControllerParams(self.CP, ret.vEgoRaw, self.frogpilot_toggles.taco_tune_hacks)
 

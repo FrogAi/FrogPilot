@@ -21,6 +21,7 @@ class CarState(CarStateBase):
     self.distance_button = 0
 
     # FrogPilot variables
+    self.lkas_button = None
 
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
@@ -118,6 +119,12 @@ class CarState(CarStateBase):
     ret.buttonEvents = create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
 
     # FrogPilot variables
+    if cp_cam.ts_nanos["CAM_LANEINFO"]["LANE_LINES"] > 0:
+      prev_lkas_button = self.lkas_button
+      self.lkas_button = not ret.invalidLkasSetting
+
+      if prev_lkas_button is not None and self.lkas_button != prev_lkas_button:
+        ret.buttonEvents = [*ret.buttonEvents, *create_button_events(1, 0, {1: ButtonType.lkas}), *create_button_events(0, 1, {1: ButtonType.lkas})]
 
     return ret
 

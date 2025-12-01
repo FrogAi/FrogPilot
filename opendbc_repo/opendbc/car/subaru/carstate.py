@@ -1,6 +1,6 @@
 import copy
 from opendbc.can import CANDefine, CANParser
-from opendbc.car import Bus, structs
+from opendbc.car import Bus, create_button_events, structs
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.interfaces import CarStateBase
 from opendbc.car.subaru.values import DBC, CanBus, SubaruFlags
@@ -16,6 +16,7 @@ class CarState(CarStateBase):
     self.angle_rate_calulator = CanSignalRateCalculator(50)
 
     # FrogPilot variables
+    self.lkas_button = 0
 
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
@@ -126,6 +127,11 @@ class CarState(CarStateBase):
       self.es_infotainment_msg = copy.copy(cp_cam.vl["ES_Infotainment"])
 
     # FrogPilot variables
+
+      prev_lkas_button = self.lkas_button
+      self.lkas_button = cp_cam.vl["ES_LKAS_State"]["LKAS_Dash_State"]
+
+      ret.buttonEvents = create_button_events(self.lkas_button, prev_lkas_button, {1: structs.CarState.ButtonEvent.Type.lkas})
 
     return ret
 

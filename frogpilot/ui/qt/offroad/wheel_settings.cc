@@ -12,10 +12,46 @@ FrogPilotWheelPanel::FrogPilotWheelPanel(FrogPilotSettingsWindow *parent, bool f
 
   for (const auto &[param, title, desc] : wheelToggles) {
     ButtonControl *wheelToggle = new ButtonControl(title, tr("SELECT"), desc);
+    QObject::connect(wheelToggle, &ButtonControl::clicked, [key = param, wheelToggle, this]() {
+      QMap<int, QString> functionsMap = buttonFunctions();
+      QString currentFunction = functionsMap.value(params.getInt(key.toStdString()), functionsMap.value(0));
+
+      QString selection = MultiOptionDialog::getSelection(tr("Select a function to assign to this button"), functionsMap.values(), currentFunction, this);
+      if (!selection.isEmpty()) {
+        params.putInt(key.toStdString(), functionsMap.key(selection));
+
+        wheelToggle->setValue(selection);
+      }
+    });
 
     toggles[param] = wheelToggle;
 
     addItem(wheelToggle);
+  }
+}
+
+QMap<int, QString> FrogPilotWheelPanel::buttonFunctions() {
+  QMap<int, QString> functionsMap {
+    {0, tr("No Action")},
+    {3, tr("Pause Steering")}
+  };
+
+  if (parent->hasOpenpilotLongitudinal) {
+    functionsMap.insert(1, tr("Change \"Personality Profile\""));
+    functionsMap.insert(2, tr("Force openpilot to Coast"));
+    functionsMap.insert(4, tr("Pause Acceleration/Braking"));
+    functionsMap.insert(5, tr("Toggle \"Experimental Mode\" On/Off"));
+    functionsMap.insert(6, tr("Toggle \"Traffic Mode\" On/Off"));
+  }
+
+  return functionsMap;
+}
+
+void FrogPilotWheelPanel::updateButtonValues() {
+  QMap<int, QString> functionsMap = buttonFunctions();
+
+  for (auto &[key, toggle] : toggles) {
+    toggle->setValue(functionsMap.value(params.getInt(key.toStdString()), functionsMap.value(0)));
   }
 }
 
@@ -37,6 +73,8 @@ void FrogPilotWheelPanel::updateToggles() {
 
     toggle->setVisible(setVisible);
   }
+
+  updateButtonValues();
 
   openDescriptions(forceOpenDescriptions, toggles);
 
