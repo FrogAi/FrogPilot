@@ -46,6 +46,7 @@ public:
 
 signals:
   void cameraFrameReceived();
+  void statsSaved();
   void themeUpdated();
   void togglesUpdated();
 

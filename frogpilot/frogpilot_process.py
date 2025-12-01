@@ -90,7 +90,7 @@ class FrogPilotRequests:
 
     return self.take("updateToggles") is not None, self.take("updateChecks") is not None
 
-  def publish(self, pm, toggles_json):
+  def publish(self, pm, stats_saved_count, toggles_json):
     frogpilot_process_state_send = messaging.new_message("frogpilotProcessState")
     frogpilotProcessState = frogpilot_process_state_send.frogpilotProcessState
 
@@ -98,6 +98,7 @@ class FrogPilotRequests:
     frogpilotProcessState.frogpilotToggles = toggles_json
     frogpilotProcessState.settingsBackup = self.settings_backup
     frogpilotProcessState.settingsBackupRequestTime = max(self.request_times.get("createSettingsBackup", 0), self.request_times.get("restoreSettingsBackup", 0))
+    frogpilotProcessState.statsSavedCount = stats_saved_count
     frogpilotProcessState.themeDownloadCount = self.theme_manager.download_count
     frogpilotProcessState.themeDownloadFailedCount = self.theme_manager.download_failed_count
     frogpilotProcessState.themeDownloadProgress = self.theme_manager.download_state.progress
@@ -206,6 +207,8 @@ def frogpilot_thread():
   time_validated = False
   waiting_for_car_params = False
 
+  stats_saved_count = 0
+
   previous_update_checks_period = None
 
   while True:
@@ -216,7 +219,8 @@ def frogpilot_thread():
     started = sm["deviceState"].started
 
     if not started and started_previously:
-      frogpilot_tracking.save_stats()
+      frogpilot_tracking.save_stats(blocking=True)
+      stats_saved_count += 1
 
       update_toggles(variables, started, theme_manager, thread_manager, time_validated, params)
       transition_offroad(frogpilot_planner, thread_manager, time_validated, params, frogpilot_toggles, api)
@@ -246,7 +250,7 @@ def frogpilot_thread():
     started_previously = started
 
     toggles_updated, update_checks_requested = frogpilot_requests.update(params)
-    frogpilot_requests.publish(pm, variables.toggles_json)
+    frogpilot_requests.publish(pm, stats_saved_count, variables.toggles_json)
 
     if waiting_for_car_params and sm.updated["frogpilotCarParams"]:
       update_stock_tuning_values(params, "CarParams")
