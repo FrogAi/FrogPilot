@@ -3,16 +3,24 @@ import colorsys
 import numpy as np
 import pyray as rl
 
+from openpilot.common.constants import CV
 from openpilot.common.filter_simple import FirstOrderFilter
-from openpilot.frogpilot.common import frogpilot_status
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_status
 from openpilot.frogpilot.ui.mici.frogpilot_theme import hex_to_color, PATH_ALPHAS
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
-from openpilot.system.ui.lib.application import gui_app
+from openpilot.system.ui.lib.application import gui_app, FontWeight
+from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.ui.lib.shader_polygon import draw_polygon, Gradient
+from openpilot.system.ui.lib.text_measure import measure_text_cached
 
 ACCELERATION_PATH_MIN_ACCEL = 0.25
 ALWAYS_ON_LATERAL_PATH_WIDTH_FACTOR = 0.75
 DYNAMIC_PATH_WIDTH_FACTOR = 0.5
+STOP_DISTANCE_FONT_SIZE = 36
+STOP_DISTANCE_MARGIN = 8
+STOP_SIGN_HEIGHT = 64
+STOP_SIGN_MARGIN = 4
+STOP_SPEED = 1.0
 
 BAND_ALPHAS = (0.4, 0.35, 0.0)
 BAND_STOPS = [0.0, 0.5, 1.0]
@@ -35,9 +43,13 @@ def solid_band_gradient(color, strength=1.0):
 
 class FrogPilotRoad:
   def __init__(self):
+    self._stopping_distance = 0.0
+
     self._blind_spot_filters = {side: FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps) for side in (True, False)}
 
     self._adjacent_paths = []
+
+    self._stop_sign_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
 
   def lane_line_width(self, stock_width):
     toggles = ui_state.frogpilot_toggles
@@ -120,6 +132,57 @@ class FrogPilotRoad:
       ratio = 1.0
 
     return ratio ** 2 * 120 / 360
+
+  def update_stopping_point(self):
+    visible = False
+
+    if ui_state.sm["frogpilotPlan"].redLight and ui_state.frogpilot_toggles.get("show_stopping_point"):
+      stopping_distance = self._model_stopping_distance()
+
+      if stopping_distance > 0:
+        visible = True
+        self._stopping_distance = stopping_distance
+
+    self._stop_sign_filter.update(float(visible))
+
+  def draw_stopping_point(self, rect, path_points):
+    toggles = ui_state.frogpilot_toggles
+    alpha = self._stop_sign_filter.x
+
+    if alpha < frogpilot_status.MIN_VISIBLE_ALPHA or not path_points.size:
+      return
+
+    far_end = len(path_points) // 2
+    center_x = (path_points[far_end - 1][0] + path_points[far_end][0]) / 2
+    center_y = (path_points[far_end - 1][1] + path_points[far_end][1]) / 2
+
+    color = rl.Color(255, 255, 255, int(255 * 0.9 * alpha))
+    texture = gui_app.texture(str(frogpilot_paths.STOP_SIGN_PATH), STOP_SIGN_HEIGHT, STOP_SIGN_HEIGHT)
+
+    x = center_x - texture.width / 2
+    y = max(rect.y + STOP_SIGN_MARGIN, center_y - texture.height)
+
+    rl.draw_texture(texture, int(x), int(y), color)
+
+    if toggles.get("show_stopping_point_metrics"):
+      if ui_state.is_metric or toggles.get("use_si_metrics"):
+        text = f"{round(self._stopping_distance)} {tr('m')}"
+      else:
+        text = f"{round(self._stopping_distance * CV.METER_TO_FOOT)} {tr('ft')}"
+
+      font = gui_app.font(FontWeight.SEMI_BOLD)
+      text_size = measure_text_cached(font, text, STOP_DISTANCE_FONT_SIZE)
+      text_position = rl.Vector2(x + texture.width + STOP_DISTANCE_MARGIN, y + (texture.height - text_size.y) / 2)
+      rl.draw_text_ex(font, text, text_position, STOP_DISTANCE_FONT_SIZE, 0, color)
+
+  def _model_stopping_distance(self):
+    model = ui_state.sm["modelV2"]
+
+    for velocity, position in zip(model.velocity.x, model.position.x, strict=True):
+      if velocity < STOP_SPEED:
+        return position
+
+    return 0.0
 
   def path_gradient_enabled(self):
     return ui_state.frogpilot_toggles.get("acceleration_path", False)
