@@ -443,6 +443,14 @@ def forcing_stop_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMas
     Priority.LOW, VisualAlert.none, AudibleAlert.prompt, 1.)
 
 
+def holiday_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
+  return Alert(
+    frogpilot_variables.HOLIDAY_GREETINGS.get(frogpilot_toggles.current_holiday_theme, ""),
+    "",
+    AlertStatus.normal, AlertSize.small,
+    Priority.LOWEST, VisualAlert.none, FrogPilotAudibleAlert.startup, 5.)
+
+
 def pedal_interceptor_no_brake_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
   return user_soft_disable_alert("Braking Unavailable: Shift to L")(CP, CS, sm, metric, soft_disable_time, personality)
 
@@ -1110,6 +1118,10 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
       "",
       FrogPilotAlertStatus.frogpilot, AlertSize.small,
       Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
+  FrogPilotEventName.holidayActive: {
+    ET.PERMANENT: holiday_alert,
   },
 
   FrogPilotEventName.openpilotCrashed: {

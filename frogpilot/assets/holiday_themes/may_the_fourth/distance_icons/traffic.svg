@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="250" height="250" viewBox="0 0 250 250">
+  <defs>
+    <linearGradient id="silver" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#b0b0b0"/>
+      <stop offset=".25" stop-color="#d0d0d0"/>
+      <stop offset=".85" stop-color="#bdbdbd"/>
+      <stop offset="1" stop-color="#969696"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(0 -136)">
+    <g stroke="#858585" stroke-linejoin="round" stroke-width=".45">
+      <path d="M1 185.9h2.8v2.2h2.4v14.6H3.8v2.4H1Z" fill="url(#silver)"/>
+      <path d="M5 188.7h5.1v13.4H5Z" fill="#616161"/>
+      <path d="M10 187.8h9.6v-.9h3.8v.9H26v15.4H11v-1.4h-1Z" fill="url(#silver)"/>
+      <path d="M26.1 187.8h2.1v-.9h7.5v.9h3.4v15h-13Z" fill="url(#silver)"/>
+      <path d="M39 188.1h18.2v14.6H39Z" fill="#616161"/>
+      <path d="M57.2 187.6h5.6v1h4v13.7h-4v.8h-5.6Z" fill="url(#silver)"/>
+      <path d="M66 190h2.1v10.8H66Z" fill="#f3f3f3"/>
+    </g>
+    <path d="M29.5 193.6h2v3.8h-2Z" fill="#efb53c"/>
+    <g stroke="#888" stroke-width=".13">
+      <path d="m39.8 188.3.18-.2h.67l.15.22v14.96l-.18.22H40l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M40 188.4v14.8" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m41.9 188.2.18-.2h.67l.15.22v14.86l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M42.1 188.3V203" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m44 188.4.18-.2h.67l.15.22v15.06l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M44.2 188.5v14.9" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m46.1 188.2.18-.2h.67l.15.22v14.86l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M46.3 188.3V203" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m48.2 188.3.18-.2h.67l.15.22v14.06l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M48.4 188.4v13.9" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m50.3 188.3.18-.2h.67l.15.22v14.56l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M50.5 188.4v14.4" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m52.4 188.2.18-.2h.67l.15.22v15.16l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M52.6 188.3v15" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m54.5 188.3.18-.2h.67l.15.22v14.56l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M54.7 188.4v14.4" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m56.3 187 .18-.2h.67l.15.22v16.06l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M56.5 187.1V203" fill="none" stroke="#dedede" stroke-width=".18"/>
+    </g>
+    <path d="M44 202.65h1v1.96h-1Z" fill="#969696"/>
+    <path d="M46.1 202.65h1.8v1.96h-1.8Z" fill="#969696"/>
+    <path d="M67.3 189.8h176.8q3.4.2 3.4 5.5 0 5.4-3.4 5.5H67.3Z" fill="#ff0d1d"/>
+    <path d="M69 190.2h173.7" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width=".55"/>
+  </g>
+  <g transform="translate(0 -65)">
+    <g stroke="#858585" stroke-linejoin="round" stroke-width=".45">
+      <path d="M1 185.9h2.8v2.2h2.4v14.6H3.8v2.4H1Z" fill="url(#silver)"/>
+      <path d="M5 188.7h5.1v13.4H5Z" fill="#616161"/>
+      <path d="M10 187.8h9.6v-.9h3.8v.9H26v15.4H11v-1.4h-1Z" fill="url(#silver)"/>
+      <path d="M26.1 187.8h2.1v-.9h7.5v.9h3.4v15h-13Z" fill="url(#silver)"/>
+      <path d="M39 188.1h18.2v14.6H39Z" fill="#616161"/>
+      <path d="M57.2 187.6h5.6v1h4v13.7h-4v.8h-5.6Z" fill="url(#silver)"/>
+      <path d="M66 190h2.1v10.8H66Z" fill="#f3f3f3"/>
+    </g>
+    <path d="M29.5 193.6h2v3.8h-2Z" fill="#efb53c"/>
+    <g stroke="#888" stroke-width=".13">
+      <path d="m39.8 188.3.18-.2h.67l.15.22v14.96l-.18.22H40l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M40 188.4v14.8" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m41.9 188.2.18-.2h.67l.15.22v14.86l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M42.1 188.3V203" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m44 188.4.18-.2h.67l.15.22v15.06l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M44.2 188.5v14.9" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m46.1 188.2.18-.2h.67l.15.22v14.86l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M46.3 188.3V203" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m48.2 188.3.18-.2h.67l.15.22v14.06l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M48.4 188.4v13.9" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m50.3 188.3.18-.2h.67l.15.22v14.56l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M50.5 188.4v14.4" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m52.4 188.2.18-.2h.67l.15.22v15.16l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M52.6 188.3v15" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m54.5 188.3.18-.2h.67l.15.22v14.56l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M54.7 188.4v14.4" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m56.3 187 .18-.2h.67l.15.22v16.06l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M56.5 187.1V203" fill="none" stroke="#dedede" stroke-width=".18"/>
+    </g>
+    <path d="M44 202.65h1v1.96h-1Z" fill="#969696"/>
+    <path d="M46.1 202.65h1.8v1.96h-1.8Z" fill="#969696"/>
+    <path d="M67.3 189.8h176.8q3.4.2 3.4 5.5 0 5.4-3.4 5.5H67.3Z" fill="#ff0d1d"/>
+    <path d="M69 190.2h173.7" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width=".55"/>
+  </g>
+  <g>
+    <g stroke="#858585" stroke-linejoin="round" stroke-width=".45">
+      <path d="M1 185.9h2.8v2.2h2.4v14.6H3.8v2.4H1Z" fill="url(#silver)"/>
+      <path d="M5 188.7h5.1v13.4H5Z" fill="#616161"/>
+      <path d="M10 187.8h9.6v-.9h3.8v.9H26v15.4H11v-1.4h-1Z" fill="url(#silver)"/>
+      <path d="M26.1 187.8h2.1v-.9h7.5v.9h3.4v15h-13Z" fill="url(#silver)"/>
+      <path d="M39 188.1h18.2v14.6H39Z" fill="#616161"/>
+      <path d="M57.2 187.6h5.6v1h4v13.7h-4v.8h-5.6Z" fill="url(#silver)"/>
+      <path d="M66 190h2.1v10.8H66Z" fill="#f3f3f3"/>
+    </g>
+    <path d="M29.5 193.6h2v3.8h-2Z" fill="#efb53c"/>
+    <g stroke="#888" stroke-width=".13">
+      <path d="m39.8 188.3.18-.2h.67l.15.22v14.96l-.18.22H40l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M40 188.4v14.8" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m41.9 188.2.18-.2h.67l.15.22v14.86l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M42.1 188.3V203" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m44 188.4.18-.2h.67l.15.22v15.06l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M44.2 188.5v14.9" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m46.1 188.2.18-.2h.67l.15.22v14.86l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M46.3 188.3V203" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m48.2 188.3.18-.2h.67l.15.22v14.06l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M48.4 188.4v13.9" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m50.3 188.3.18-.2h.67l.15.22v14.56l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M50.5 188.4v14.4" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m52.4 188.2.18-.2h.67l.15.22v15.16l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M52.6 188.3v15" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m54.5 188.3.18-.2h.67l.15.22v14.56l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M54.7 188.4v14.4" fill="none" stroke="#dedede" stroke-width=".18"/>
+      <path d="m56.3 187 .18-.2h.67l.15.22v16.06l-.18.22h-.62l-.2-.22Z" fill="url(#silver)"/>
+      <path d="M56.5 187.1V203" fill="none" stroke="#dedede" stroke-width=".18"/>
+    </g>
+    <path d="M44 202.65h1v1.96h-1Z" fill="#969696"/>
+    <path d="M46.1 202.65h1.8v1.96h-1.8Z" fill="#969696"/>
+    <path d="M67.3 189.8h176.8q3.4.2 3.4 5.5 0 5.4-3.4 5.5H67.3Z" fill="#ff0d1d"/>
+    <path d="M69 190.2h173.7" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width=".55"/>
+  </g>
+</svg>

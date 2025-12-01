@@ -3,6 +3,8 @@ import requests
 import shutil
 import threading
 
+from datetime import date, timedelta
+from dateutil import easter, relativedelta
 from pathlib import Path
 from urllib.parse import quote_plus
 
@@ -31,6 +33,8 @@ class ThemeManager:
     self.download_failed_count = 0
     self.download_success_count = 0
     self.theme_update_count = 0
+
+    self.holiday_theme = "stock"
 
     self.previous_asset_mappings = {}
 
@@ -230,6 +234,19 @@ class ThemeManager:
       return f"{display} - by: {creator}"
     return display
 
+  def get_current_holiday(self):
+    current_date = date.today()
+
+    for holiday, holiday_date in self.get_holiday_theme_dates(current_date.year).items():
+      first_date = holiday_date
+      if holiday.endswith("_week"):
+        first_date -= timedelta(days=holiday_date.weekday())
+
+      if first_date <= current_date <= holiday_date:
+        return holiday
+
+    return "stock"
+
   @staticmethod
   def get_full_themes():
     if not frogpilot_paths.THEME_PACKS_PATH.exists():
@@ -258,19 +275,47 @@ class ThemeManager:
     return sorted(valid_themes)
 
   @staticmethod
+  def get_holiday_theme_dates(year):
+    return {
+      "new_years": date(year, 1, 1),
+      "valentines_day": date(year, 2, 14),
+      "st_patricks_day": date(year, 3, 17),
+      "world_frog_day": date(year, 3, 20),
+      "april_fools": date(year, 4, 1),
+      "easter_week": easter.easter(year),
+      "may_the_fourth": date(year, 5, 4),
+      "cinco_de_mayo": date(year, 5, 5),
+      "stitch_day": date(year, 6, 26),
+      "fourth_of_july": date(year, 7, 4),
+      "halloween_week": date(year, 10, 31),
+      "thanksgiving_week": date(year, 11, 1) + relativedelta.relativedelta(weekday=relativedelta.TH(4)),
+      "christmas_week": date(year, 12, 25)
+    }
+
+  @staticmethod
   def get_theme_asset_path(asset_type, theme):
-    asset_location = frogpilot_paths.THEME_PACKS_PATH / theme / asset_type
+    if theme in frogpilot_variables.HOLIDAY_GREETINGS:
+      asset_location = frogpilot_paths.HOLIDAY_THEMES_PATH / theme / asset_type
+    elif f"{theme}_week" in frogpilot_variables.HOLIDAY_GREETINGS:
+      asset_location = frogpilot_paths.HOLIDAY_THEMES_PATH / f"{theme}_week" / asset_type
+    else:
+      asset_location = frogpilot_paths.THEME_PACKS_PATH / theme / asset_type
 
     if not asset_location.exists() or theme == "stock":
       asset_location = frogpilot_paths.STOCK_THEME_PATH / asset_type
     return asset_location
 
   @staticmethod
-  def get_wheel_path(image):
-    if image == "stock":
-      wheel_location = frogpilot_paths.STOCK_THEME_PATH / "steering_wheel"
-    else:
-      wheel_location = frogpilot_paths.STEERING_WHEELS_PATH
+  def get_wheel_path(image, wheel_location=None):
+    if wheel_location is None:
+      if image == "stock":
+        wheel_location = frogpilot_paths.STOCK_THEME_PATH / "steering_wheel"
+      elif image in frogpilot_variables.HOLIDAY_GREETINGS:
+        wheel_location = frogpilot_paths.HOLIDAY_THEMES_PATH / image / "steering_wheel"
+      elif f"{image}_week" in frogpilot_variables.HOLIDAY_GREETINGS:
+        wheel_location = frogpilot_paths.HOLIDAY_THEMES_PATH / f"{image}_week" / "steering_wheel"
+      else:
+        wheel_location = frogpilot_paths.STEERING_WHEELS_PATH
 
     if not wheel_location.exists():
       wheel_location = frogpilot_paths.STOCK_THEME_PATH / "steering_wheel"
@@ -359,15 +404,30 @@ class ThemeManager:
       return f"{name}~{creator}"
     return name
 
-  def update_active_theme(self, frogpilot_toggles):
-    asset_mappings = {
-      "color_scheme": ("colors", frogpilot_toggles.color_scheme),
-      "distance_icons": ("distance_icons", frogpilot_toggles.distance_icons),
-      "icon_pack": ("icons", frogpilot_toggles.icon_pack),
-      "sound_pack": ("sounds", frogpilot_toggles.sound_pack),
-      "turn_signal_pack": ("signals", frogpilot_toggles.signal_icons),
-      "wheel_image": ("wheel_image", frogpilot_toggles.wheel_image)
-    }
+  def update_active_theme(self, time_validated, frogpilot_toggles):
+    if time_validated and frogpilot_toggles.holiday_themes:
+      self.holiday_theme = self.get_current_holiday()
+    else:
+      self.holiday_theme = "stock"
+
+    if self.holiday_theme != "stock":
+      asset_mappings = {
+        "color_scheme": ("colors", self.holiday_theme),
+        "distance_icons": ("distance_icons", self.holiday_theme),
+        "icon_pack": ("icons", self.holiday_theme),
+        "sound_pack": ("sounds", self.holiday_theme),
+        "turn_signal_pack": ("signals", self.holiday_theme),
+        "wheel_image": ("wheel_image", self.holiday_theme)
+      }
+    else:
+      asset_mappings = {
+        "color_scheme": ("colors", frogpilot_toggles.color_scheme),
+        "distance_icons": ("distance_icons", frogpilot_toggles.distance_icons),
+        "icon_pack": ("icons", frogpilot_toggles.icon_pack),
+        "sound_pack": ("sounds", frogpilot_toggles.sound_pack),
+        "turn_signal_pack": ("signals", frogpilot_toggles.signal_icons),
+        "wheel_image": ("wheel_image", frogpilot_toggles.wheel_image)
+      }
 
     if asset_mappings != self.previous_asset_mappings:
       links_changed = False
@@ -464,7 +524,9 @@ class ThemeManager:
     else:
       current_wheels = None
 
-    if image == "none":
+    if self.holiday_theme != "stock":
+      source_file = self.get_wheel_path(image, frogpilot_paths.HOLIDAY_THEMES_PATH / self.holiday_theme / "steering_wheel")
+    elif image == "none":
       if current_wheels == []:
         return False
 
