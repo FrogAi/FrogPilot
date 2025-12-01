@@ -65,7 +65,7 @@ void HomeWindow::showSidebar(bool show) {
 
 // FrogPilot variables
 bool HomeWindow::sidebarOpenOnroad() {
-  return frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value(QLatin1String("debug_mode")).toBool();
+  return params.getBool("SidebarOpen") || frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value(QLatin1String("debug_mode")).toBool();
 }
 
 void HomeWindow::updateState(const UIState &s) {
@@ -115,6 +115,7 @@ void HomeWindow::mousePressEvent(QMouseEvent* e) {
     sidebar->setVisible(!sidebar->isVisible());
 
     // FrogPilot variables
+    params.putBoolNonBlocking("SidebarOpen", sidebar->isVisible());
   }
 }
 
