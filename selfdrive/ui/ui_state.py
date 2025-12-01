@@ -249,6 +249,12 @@ class Device:
       return self._override_interactive_timeout
 
     ignition_timeout = 10 if gui_app.big_ui() else 5
+
+    # FrogPilot variables
+    frogpilot_timeout = self._frogpilot_screen.interactive_timeout(ui_state)
+    if frogpilot_timeout is not None:
+      return frogpilot_timeout
+
     return ignition_timeout if ui_state.ignition else 30
 
   def _reset_interactive_timeout(self) -> None:

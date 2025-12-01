@@ -32,6 +32,12 @@ class FrogPilotScreen:
         return int(offroad_brightness)
     return brightness
 
+  def interactive_timeout(self, ui_state):
+    toggles = ui_state.frogpilot_toggles
+    if not toggles.get("screen_management"):
+      return None
+    return int(toggles["screen_timeout_onroad" if ui_state.ignition else "screen_timeout"])
+
   def update(self, ui_state):
     sm = ui_state.sm
     toggles = ui_state.frogpilot_toggles
