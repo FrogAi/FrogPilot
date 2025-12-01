@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+import json
+import time
+
 import cereal.messaging as messaging
 
 from openpilot.common.constants import CV
@@ -31,8 +34,11 @@ class FrogPilotPlanner:
     self.accel_press_count = 0
     self.decel_press_count = 0
     self.model_length = 0
+    self.next_gps_position_save = 0
     self.v_cruise = 0
 
+    last_gps_position = json.loads(self.params.get("LastGPSPosition") or "{}")
+    self.gps_bearing = last_gps_position.get("bearing", 0.)
     self.gps_position = None
     self.last_gps_position = None
 
@@ -70,12 +76,17 @@ class FrogPilotPlanner:
     gps_location = sm[self.gps_location_service]
     self.gps_valid = frogpilot_utilities.is_gps_location_valid(self.gps_location_service, sm)
     if self.gps_valid:
+      self.gps_bearing = gps_location.bearingDeg
       self.gps_position = {
         "latitude": gps_location.latitude,
         "longitude": gps_location.longitude,
         "bearing": gps_location.bearingDeg,
       }
       self.last_gps_position = self.gps_position
+
+      if time.monotonic() >= self.next_gps_position_save:
+        self.params.put_nonblocking("LastGPSPosition", json.dumps(self.gps_position))
+        self.next_gps_position_save = time.monotonic() + frogpilot_variables.GPS_POSITION_SAVE_INTERVAL
     else:
       self.gps_position = None
 
@@ -102,6 +113,8 @@ class FrogPilotPlanner:
     frogpilotPlan.speedJerk = float(J_EGO_COST * self.frogpilot_following.speed_jerk)
 
     frogpilotPlan.frogpilotEvents = self.frogpilot_events.events.to_msg()
+
+    frogpilotPlan.gpsBearing = self.gps_bearing
 
     frogpilotPlan.maxAcceleration = float(self.frogpilot_acceleration.max_accel)
     frogpilotPlan.minAcceleration = float(self.frogpilot_acceleration.min_accel)
