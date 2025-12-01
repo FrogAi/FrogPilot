@@ -37,6 +37,8 @@ class FrogPilotEvents:
 
     self.played_events = set()
 
+    self.screen_recorder_events = []
+
     self.wheel_image_update_count = 0
 
   def add_wheel_event(self, event):
@@ -173,5 +175,8 @@ class FrogPilotEvents:
         self.events.add(FrogPilotEventName.pedalInterceptorNoBrakeNoEntry)
 
     self.startup_seen |= sm["frogpilotSelfdriveState"].alertText1 == frogpilot_toggles.startup_alert_top and sm["frogpilotSelfdriveState"].alertText2 == frogpilot_toggles.startup_alert_bottom
+
+    if self.screen_recorder_events and alerts_empty and len(self.events) == 0:
+      self.events.add(self.screen_recorder_events.pop(0))
 
     self.played_events.update(FROGPILOT_EVENT_NAME[event] for event in self.events.names)
