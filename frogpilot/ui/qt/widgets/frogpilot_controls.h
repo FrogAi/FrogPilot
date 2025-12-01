@@ -12,6 +12,7 @@
 #include "selfdrive/ui/qt/util.h"
 #include "selfdrive/ui/qt/widgets/controls.h"
 
+bool isFrogsGoMoo();
 bool isOpenpilotSteering();
 
 inline QColor blackColor(int alpha = 255) { return QColor(0, 0, 0, alpha); }
