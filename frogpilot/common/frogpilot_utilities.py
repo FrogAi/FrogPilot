@@ -14,7 +14,7 @@ from functools import cache
 from pathlib import Path
 
 from cereal import log, messaging
-from openpilot.common.realtime import set_core_affinity
+from openpilot.common.realtime import DT_DMON, DT_HW, set_core_affinity
 from openpilot.selfdrive.pandad import can_capnp_to_list
 from openpilot.system import sentry
 from openpilot.system.hardware import PC
@@ -245,3 +245,36 @@ def update_json_file(path, data):
     os.fsync(file.fileno())
 
   os.replace(temp_path, path)
+
+
+def wait_for_no_driver(params, sm, time_threshold):
+  while sm["deviceState"].screenBrightnessPercent != 0 or any(proc.name == "dmonitoringd" and proc.running for proc in sm["managerState"].processes):
+    sm.update()
+
+    if is_ignition_on(sm):
+      return
+
+    time.sleep(DT_HW)
+
+  params.put_bool("IsDriverViewEnabled", True)
+
+  start_time = time.monotonic()
+  while True:
+    sm.update()
+
+    elapsed_time = time.monotonic() - start_time
+    if elapsed_time >= time_threshold:
+      break
+
+    if is_ignition_on(sm):
+      break
+
+    if sm.updated["deviceState"] and not params.get_bool("IsDriverViewEnabled"):
+      params.put_bool("IsDriverViewEnabled", True)
+
+    if sm["driverMonitoringState"].faceDetected or not sm.alive["driverMonitoringState"]:
+      start_time = time.monotonic()
+
+    time.sleep(DT_DMON)
+
+  params.remove("IsDriverViewEnabled")
