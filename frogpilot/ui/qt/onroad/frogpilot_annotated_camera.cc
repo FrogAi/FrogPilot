@@ -626,6 +626,45 @@ void FrogPilotAnnotatedCameraWidget::paintLeadMetrics(QPainter &p, bool adjacent
   p.restore();
 }
 
+void FrogPilotAnnotatedCameraWidget::paintPathEdges(QPainter &p) {
+  if (!frogpilot_toggles.value(QLatin1String("model_ui")).toBool()) {
+    return;
+  }
+
+  p.save();
+
+  QLinearGradient gradient(0, height(), 0, 0);
+
+  std::function<void(const QColor &)> setPathEdgeColors = [&gradient](const QColor &baseColor) {
+    gradient.setColorAt(0.0f, QColor(baseColor.red(), baseColor.green(), baseColor.blue(), 255.0f * 0.4f));
+    gradient.setColorAt(0.5f, QColor(baseColor.red(), baseColor.green(), baseColor.blue(), 255.0f * 0.35f));
+    gradient.setColorAt(1.0f, QColor(baseColor.red(), baseColor.green(), baseColor.blue(), 255.0f * 0.0f));
+  };
+
+  if (frogpilot_scene.always_on_lateral_active) {
+    setPathEdgeColors(bg_colors[STATUS_ALWAYS_ON_LATERAL_ACTIVE]);
+  } else if (frogpilot_scene.conditional_status == 1) {
+    setPathEdgeColors(bg_colors[STATUS_CEM_DISABLED]);
+  } else if (experimentalMode) {
+    setPathEdgeColors(bg_colors[STATUS_EXPERIMENTAL_MODE_ENABLED]);
+  } else if (frogpilot_toggles.value(QLatin1String("color_scheme")).toString() != "stock") {
+    setPathEdgeColors(QColor(frogpilot_toggles.value(QLatin1String("path_edges_color")).toString()));
+  } else {
+    gradient.setColorAt(0.0f, QColor::fromHslF(148.0f / 360.0f, 0.94f, 0.41f, 0.4f));
+    gradient.setColorAt(0.5f, QColor::fromHslF(112.0f / 360.0f, 1.0f, 0.54f, 0.35f));
+    gradient.setColorAt(1.0f, QColor::fromHslF(112.0f / 360.0f, 1.0f, 0.54f, 0.0f));
+  }
+
+  p.setBrush(gradient);
+
+  QPainterPath path;
+  path.addPolygon(track_vertices);
+  path.addPolygon(track_edge_vertices);
+  p.drawPath(path);
+
+  p.restore();
+}
+
 void FrogPilotAnnotatedCameraWidget::paintPausedIcon(QPainter &p, const QPoint &position, const QPixmap &icon) {
   p.save();
 

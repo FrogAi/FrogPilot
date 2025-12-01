@@ -17,6 +17,7 @@ public:
   void paintBlindSpotPath(QPainter &p);
   void paintFrogPilotWidgets(QPainter &p);
   void paintLeadMetrics(QPainter &p, bool adjacent, QPointF *chevron, const cereal::RadarState::LeadData::Reader &lead_data);
+  void paintPathEdges(QPainter &p);
   void updateState(const UIState &s, const FrogPilotUIState &fs);
 
   bool hideBottomIcons = false;
@@ -42,6 +43,8 @@ public:
   QPoint experimentalButtonPosition;
 
   QPolygonF track_adjacent_vertices[2];
+  QPolygonF track_edge_vertices;
+  QPolygonF track_vertices;
 
   QRect adjacentLeadTextRect;
   QRect setSpeedRect;
