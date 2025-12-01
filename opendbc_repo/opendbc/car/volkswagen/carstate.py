@@ -1,13 +1,15 @@
 from opendbc.can import CANParser
-from opendbc.car import Bus, structs
+from opendbc.car import Bus, DT_CTRL, structs
 from opendbc.car.interfaces import CarStateBase
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.volkswagen.values import DBC, CanBus, NetworkLocation, TransmissionType, GearShifter, \
                                                       CarControllerParams, VolkswagenFlags
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 
 ButtonType = structs.CarState.ButtonEvent.Type
 
 # FrogPilot variables
+TSK_START_TIME = 1.0
 
 
 class CarState(CarStateBase):
@@ -23,6 +25,14 @@ class CarState(CarStateBase):
     self.acc_type = 0
 
     # FrogPilot variables
+    self.car_safety_mode_set = False
+    self.cruise_main_off_seen = False
+    self.cruise_main_on = True
+    self.main_button = None
+    self.tsk_settled = False
+
+    self.tsk_start_frame = 0
+    self.tsk_status = 0
 
   def update_button_enable(self, buttonEvents: list[structs.CarState.ButtonEvent]):
     if not self.CP.pcmCruise:
@@ -145,6 +155,29 @@ class CarState(CarStateBase):
     self.frame += 1
 
     # FrogPilot variables
+
+    self.tsk_status = pt_cp.vl["TSK_06"]["TSK_Status"]
+    self.tsk_settled |= self.tsk_status in (2, 3, 4, 5)
+
+    if self.tsk_status == 1:
+      self.tsk_start_frame = self.frame
+
+    tsk_starting = not self.tsk_settled and self.tsk_status in (0, 1)
+    tsk_starting &= self.frame - self.tsk_start_frame < TSK_START_TIME / DT_CTRL
+
+    prev_main_button = self.main_button
+
+    if pt_cp.ts_nanos["GRA_ACC_01"]["GRA_Hauptschalter"] > 0:
+      self.main_button = bool(pt_cp.vl["GRA_ACC_01"]["GRA_Hauptschalter"])
+
+    if (ret.accFaulted or tsk_starting) and self.CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL:
+      if self.main_button and prev_main_button is False:
+        self.cruise_main_on = False
+
+      ret.cruiseState.available = self.cruise_main_on
+
+    self.cruise_main_off_seen |= not ret.cruiseState.available
+    self.cruise_main_on = ret.cruiseState.available
 
     return ret
 

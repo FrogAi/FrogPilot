@@ -4,6 +4,7 @@ from opendbc.car import Bus, structs
 from opendbc.car.interfaces import CarStateBase
 from opendbc.car.rivian.values import DBC, GEAR_MAP
 from opendbc.car.common.conversions import Conversions as CV
+from opendbc.safety import MAX_SPEED_DELTA
 
 GearShifter = structs.CarState.GearShifter
 
@@ -93,6 +94,7 @@ class CarState(CarStateBase):
     self.vdm_adas_status = copy.copy(cp.vl["VDM_AdasSts"])
 
     # FrogPilot variables
+    self.fp_ret.speedSensorsDisagree = abs(cp.vl["VDM_PropStatus"]["VDM_VehicleSpeed"] * CV.KPH_TO_MS - ret.vEgoRaw) > MAX_SPEED_DELTA
 
     return ret
 

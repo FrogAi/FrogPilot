@@ -1367,7 +1367,7 @@ class FrogPilotVariables:
     toggle.is_honda_nidec = toggle.car_make == "honda" and CP.carFingerprint not in HONDA_BOSCH
     toggle.can_use_always_on_lateral_lkas_button = toggle.car_make == "hyundai" and bool(CP.flags & HyundaiFlags.CANFD or CP.flags & HyundaiFlags.HAS_LDA_BUTTON)
     toggle.has_lkas_button = toggle.car_make in LKAS_BUTTON_BRANDS or toggle.can_use_always_on_lateral_lkas_button
-    toggle.has_lkas_button |= toggle.car_make == "toyota" and bool(CP.flags & ToyotaFlags.TSS2)
+    toggle.has_lkas_button |= toggle.car_make == "toyota" and CP.carFingerprint != TOYOTA.TOYOTA_PRIUS_V
     toggle.can_use_always_on_lateral_lkas_button |= toggle.car_make in ALWAYS_ON_LATERAL_LKAS_BUTTON_BRANDS and toggle.has_lkas_button
     toggle.can_use_always_on_lateral_lkas_button &= CP.carFingerprint not in UNVERIFIED_LKAS_BUTTON_CAR
     toggle.has_distance_button = toggle.car_make in DISTANCE_BUTTON_BRANDS
@@ -1377,7 +1377,6 @@ class FrogPilotVariables:
     toggle.maxLateralAccel = min(CP.maxLateralAccel, MAX_LATERAL_ACCEL_NO_ROLL)
     toggle.openpilot_longitudinal = CP.openpilotLongitudinalControl
     pcm_cruise = CP.pcmCruise
-    prohibited_main_aol = not toggle.openpilot_longitudinal and toggle.can_use_always_on_lateral_lkas_button
     startAccel = CP.startAccel
     stopAccel = CP.stopAccel
     steerActuatorDelay = CP.steerActuatorDelay
@@ -1447,8 +1446,6 @@ class FrogPilotVariables:
     toggle.warning_immediate_volume = self.get_value("WarningImmediateVolume", cast=float, condition=toggle.alert_volume_controller, minimum=25)
 
     toggle.always_on_lateral = self.get_value("AlwaysOnLateral")
-    toggle.always_on_lateral_lkas = toggle.always_on_lateral and toggle.can_use_always_on_lateral_lkas_button and self.get_value("AlwaysOnLateralLKASButton")
-    toggle.always_on_lateral_main = toggle.always_on_lateral and not prohibited_main_aol and not toggle.always_on_lateral_lkas
     toggle.always_on_lateral_lkas_button = self.get_value("AlwaysOnLateralLKASButton", condition=toggle.can_use_always_on_lateral_lkas_button and toggle.always_on_lateral)
     toggle.always_on_lateral_lkas_button_forced = FPCP.alwaysOnLateralLKASButton and toggle.has_lkas_button
     toggle.always_on_lateral_lkas_button |= toggle.always_on_lateral_lkas_button_forced and toggle.always_on_lateral
@@ -1617,7 +1614,7 @@ class FrogPilotVariables:
     toggle.nnff_lite = not is_angle_car and not toggle.nnff and toggle.nnff_lite_selected
     toggle.use_turn_desires = self.get_value("TurnDesires", condition=lateral_tuning)
 
-    if toggle.has_lkas_button:
+    if toggle.has_lkas_button and not toggle.always_on_lateral_lkas_button:
       toggle.lkas_button_function = self.get_button_function("LKASButtonControl")
     else:
       toggle.lkas_button_function = BUTTON_FUNCTIONS["NOTHING"]

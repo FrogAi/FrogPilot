@@ -53,6 +53,11 @@ const LongitudinalLimits HYUNDAI_LONG_LIMITS = {
   {.msg = {{0x91,  0, 8, 100U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}}, \
 
 // FrogPilot variables
+#define HYUNDAI_LDA_BUTTON_ADDR_CHECK \
+  {.msg = {{0x391, 0, 8, 100U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}}, \
+
+#define HYUNDAI_SCC11_ADDR_CHECK(scc_bus) \
+  {.msg = {{0x420, (scc_bus), 8, 50U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}}, \
 
 static const CanMsg HYUNDAI_TX_MSGS[] = {
   HYUNDAI_COMMON_TX_MSGS(0)
@@ -140,6 +145,9 @@ static void hyundai_rx_hook(const CANPacket_t *msg) {
   }
 
   // FrogPilot variables
+  if (msg->addr == 0x420U) {
+    acc_main_on = GET_BIT(msg, 0U);
+  }
 
   if (msg->bus == 0U) {
     if (msg->addr == 0x251U) {
@@ -178,9 +186,16 @@ static void hyundai_rx_hook(const CANPacket_t *msg) {
       brake_pressed = ((msg->data[5] >> 5U) & 0x3U) == 0x2U;
 
       // FrogPilot variables
+      if (hyundai_longitudinal) {
+        hyundai_acc_enabled = ((msg->data[5] >> 3U) & 0x3U) == 0U;
+        acc_main_on = hyundai_main_cruise_on && hyundai_acc_enabled;
+      }
     }
 
     // FrogPilot variables
+    if (msg->addr == 0x391U) {
+      lkas_button_pressed = GET_BIT(msg, 4U);
+    }
   }
 }
 
@@ -288,13 +303,31 @@ static safety_config hyundai_init(uint16_t param) {
     };
 
     // FrogPilot variables
+    static RxCheck hyundai_long_rx_checks_lda[] = {
+      HYUNDAI_COMMON_RX_CHECKS(false)
+      HYUNDAI_LDA_BUTTON_ADDR_CHECK
+    };
+
+    static RxCheck hyundai_fcev_long_rx_checks_lda[] = {
+      HYUNDAI_COMMON_RX_CHECKS(false)
+      HYUNDAI_FCEV_GAS_ADDR_CHECK
+      HYUNDAI_LDA_BUTTON_ADDR_CHECK
+    };
 
     if (hyundai_fcev_gas_signal) {
       // FrogPilot variables
-      SET_RX_CHECKS(hyundai_fcev_long_rx_checks, ret);
+      if (hyundai_has_lda_button) {
+        SET_RX_CHECKS(hyundai_fcev_long_rx_checks_lda, ret);
+      } else {
+        SET_RX_CHECKS(hyundai_fcev_long_rx_checks, ret);
+      }
     } else {
       // FrogPilot variables
-      SET_RX_CHECKS(hyundai_long_rx_checks, ret);
+      if (hyundai_has_lda_button) {
+        SET_RX_CHECKS(hyundai_long_rx_checks_lda, ret);
+      } else {
+        SET_RX_CHECKS(hyundai_long_rx_checks, ret);
+      }
     }
     if (hyundai_camera_scc) {
       SET_TX_MSGS(HYUNDAI_CAMERA_SCC_LONG_TX_MSGS, ret);
@@ -303,22 +336,34 @@ static safety_config hyundai_init(uint16_t param) {
     }
 
   } else if (hyundai_camera_scc) {
-    static RxCheck hyundai_cam_scc_rx_checks[] = {
-      HYUNDAI_COMMON_RX_CHECKS(false)
-      HYUNDAI_SCC12_ADDR_CHECK(2)
-
-      // FrogPilot variables
-    };
-
     // FrogPilot variables
+    if (hyundai_has_lda_button) {
+      static RxCheck hyundai_cam_scc_rx_checks_lda[] = {
+        HYUNDAI_COMMON_RX_CHECKS(false)
+        HYUNDAI_SCC12_ADDR_CHECK(2)
+        HYUNDAI_SCC11_ADDR_CHECK(2)
+        HYUNDAI_LDA_BUTTON_ADDR_CHECK
+      };
 
-    ret = BUILD_SAFETY_CFG(hyundai_cam_scc_rx_checks, HYUNDAI_CAMERA_SCC_TX_MSGS);
+      ret = BUILD_SAFETY_CFG(hyundai_cam_scc_rx_checks_lda, HYUNDAI_CAMERA_SCC_TX_MSGS);
+    } else {
+      static RxCheck hyundai_cam_scc_rx_checks[] = {
+        HYUNDAI_COMMON_RX_CHECKS(false)
+        HYUNDAI_SCC12_ADDR_CHECK(2)
+
+        // FrogPilot variables
+        HYUNDAI_SCC11_ADDR_CHECK(2)
+      };
+
+      ret = BUILD_SAFETY_CFG(hyundai_cam_scc_rx_checks, HYUNDAI_CAMERA_SCC_TX_MSGS);
+    }
   } else {
     static RxCheck hyundai_rx_checks[] = {
        HYUNDAI_COMMON_RX_CHECKS(false)
        HYUNDAI_SCC12_ADDR_CHECK(0)
 
        // FrogPilot variables
+       HYUNDAI_SCC11_ADDR_CHECK(0)
     };
 
     static RxCheck hyundai_fcev_rx_checks[] = {
@@ -327,17 +372,40 @@ static safety_config hyundai_init(uint16_t param) {
       HYUNDAI_FCEV_GAS_ADDR_CHECK
 
       // FrogPilot variables
+      HYUNDAI_SCC11_ADDR_CHECK(0)
     };
 
     // FrogPilot variables
+    static RxCheck hyundai_rx_checks_lda[] = {
+       HYUNDAI_COMMON_RX_CHECKS(false)
+       HYUNDAI_SCC12_ADDR_CHECK(0)
+       HYUNDAI_SCC11_ADDR_CHECK(0)
+       HYUNDAI_LDA_BUTTON_ADDR_CHECK
+    };
+
+    static RxCheck hyundai_fcev_rx_checks_lda[] = {
+      HYUNDAI_COMMON_RX_CHECKS(false)
+      HYUNDAI_SCC12_ADDR_CHECK(0)
+      HYUNDAI_FCEV_GAS_ADDR_CHECK
+      HYUNDAI_SCC11_ADDR_CHECK(0)
+      HYUNDAI_LDA_BUTTON_ADDR_CHECK
+    };
 
     SET_TX_MSGS(HYUNDAI_TX_MSGS, ret);
     if (hyundai_fcev_gas_signal) {
       // FrogPilot variables
-      SET_RX_CHECKS(hyundai_fcev_rx_checks, ret);
+      if (hyundai_has_lda_button) {
+        SET_RX_CHECKS(hyundai_fcev_rx_checks_lda, ret);
+      } else {
+        SET_RX_CHECKS(hyundai_fcev_rx_checks, ret);
+      }
     } else {
       // FrogPilot variables
-      SET_RX_CHECKS(hyundai_rx_checks, ret);
+      if (hyundai_has_lda_button) {
+        SET_RX_CHECKS(hyundai_rx_checks_lda, ret);
+      } else {
+        SET_RX_CHECKS(hyundai_rx_checks, ret);
+      }
     }
   }
   return ret;
@@ -350,15 +418,22 @@ static safety_config hyundai_legacy_init(uint16_t param) {
     HYUNDAI_SCC12_ADDR_CHECK(0)
 
     // FrogPilot variables
+    HYUNDAI_SCC11_ADDR_CHECK(0)
   };
 
   // FrogPilot variables
+  static RxCheck hyundai_legacy_rx_checks_lda[] = {
+    HYUNDAI_COMMON_RX_CHECKS(true)
+    HYUNDAI_SCC12_ADDR_CHECK(0)
+    HYUNDAI_SCC11_ADDR_CHECK(0)
+    HYUNDAI_LDA_BUTTON_ADDR_CHECK
+  };
 
   hyundai_common_init(param);
   hyundai_legacy = true;
   hyundai_longitudinal = false;
   hyundai_camera_scc = false;
-  return BUILD_SAFETY_CFG(hyundai_legacy_rx_checks, HYUNDAI_TX_MSGS);
+  return hyundai_has_lda_button ? BUILD_SAFETY_CFG(hyundai_legacy_rx_checks_lda, HYUNDAI_TX_MSGS) : BUILD_SAFETY_CFG(hyundai_legacy_rx_checks, HYUNDAI_TX_MSGS);
 }
 
 const safety_hooks hyundai_hooks = {

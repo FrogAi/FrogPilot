@@ -79,6 +79,7 @@ static void chrysler_rx_hook(const CANPacket_t *msg) {
     pcm_cruise_check(cruise_engaged);
 
     // FrogPilot variables
+    acc_main_on = GET_BIT(msg, 20U);
   }
 
   // TODO: use the same message for both
@@ -280,6 +281,15 @@ static safety_config chrysler_init(uint16_t param) {
 }
 
 // FrogPilot variables
+static void chrysler_lkas_button_hook(const CANPacket_t *msg) {
+  if ((chrysler_platform == CHRYSLER_PACIFICA) && (msg->bus == 0U) && (msg->addr == 0x330U)) {
+    lkas_button_pressed = GET_BIT(msg, 53U);
+  }
+
+  if ((chrysler_platform != CHRYSLER_PACIFICA) && (msg->bus == 0U) && (msg->addr == 0x28AU)) {
+    lkas_button_pressed = GET_BIT(msg, 57U);
+  }
+}
 
 const safety_hooks chrysler_hooks = {
   .init = chrysler_init,
@@ -290,4 +300,5 @@ const safety_hooks chrysler_hooks = {
   .compute_checksum = chrysler_compute_checksum,
 
   // FrogPilot variables
+  .lkas_button = chrysler_lkas_button_hook,
 };

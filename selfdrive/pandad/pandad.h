@@ -27,3 +27,6 @@ private:
 };
 
 // FrogPilot variables
+inline bool heartbeat_engaged(bool engaged, bool always_on_lateral, bool controls_allowed) {
+  return engaged || (always_on_lateral && !controls_allowed);
+}

@@ -31,6 +31,8 @@ class NissanSafetyFlags(IntFlag):
 
 
 # FrogPilot variables
+class NissanFrogPilotSafetyFlags(IntFlag):
+  PRO_PILOT = 2
 
 
 class Footnote(Enum):

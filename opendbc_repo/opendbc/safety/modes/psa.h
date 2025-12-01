@@ -85,6 +85,7 @@ static void psa_rx_hook(const CANPacket_t *msg) {
       pcm_cruise_check((msg->data[2U] >> 7U) & 1U); // RVV_ACC_ACTIVATION_REQ
 
       // FrogPilot variables
+      acc_main_on = (msg->data[0] & 0x03U) == 3U; // LONGITUDINAL_REGULATION_TYPE
     }
   }
 

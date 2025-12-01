@@ -4,8 +4,9 @@ from opendbc.car import Bus, DT_CTRL, create_gas_interceptor_command, structs
 from opendbc.car.lateral import apply_driver_steer_torque_limits
 from opendbc.car.gm import gmcan
 from opendbc.car.common.conversions import Conversions as CV
-from opendbc.car.gm.values import CC_ONLY_CAR, DBC, CanBus, CarControllerParams, CruiseButtons, GMFlags
+from opendbc.car.gm.values import CAMERA_ACC_CAR, CC_ONLY_CAR, DBC, CanBus, CarControllerParams, CruiseButtons, GMFlags
 from opendbc.car.interfaces import CarControllerBase
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 
 VisualAlert = structs.CarControl.HUDControl.VisualAlert
 NetworkLocation = structs.CarParams.NetworkLocation
@@ -40,6 +41,7 @@ class CarController(CarControllerBase):
     self.packer_ch = CANPacker(DBC[self.CP.carFingerprint][Bus.chassis])
 
     # FrogPilot variables
+    self.send_main_off = self.CP.carFingerprint in CAMERA_ACC_CAR
 
   # OPGM variables
   @staticmethod
@@ -205,5 +207,13 @@ class CarController(CarControllerBase):
     self.frame += 1
 
     # FrogPilot variables
+    if CC.enabled or CS.cruise_main_off_seen or CS.out.cruiseState.enabled:
+      self.send_main_off = False
+
+    if CS.loopback_lka_steering_cmd_ts_nanos != 0 and self.send_main_off:
+      if CS.out.cruiseState.available and self.CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL:
+        can_sends.append(gmcan.create_buttons(self.packer_pt, self.CP, CanBus.POWERTRAIN, (CS.buttons_counter + 1) % 4, CruiseButtons.MAIN))
+
+      self.send_main_off = False
 
     return new_actuators, can_sends

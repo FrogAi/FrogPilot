@@ -250,6 +250,8 @@ void TogglesPanel::updateToggles() {
 
   // FrogPilot variables
   const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
+
+  toggles["DisengageOnAccelerator"]->setVisible(!frogpilot_toggles.value("always_on_lateral").toBool());
 }
 
 DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
@@ -275,10 +277,10 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   resetCalibBtn = new ButtonControl(tr("Reset Calibration"), tr("RESET"), "");
   connect(resetCalibBtn, &ButtonControl::showDescriptionEvent, this, &DevicePanel::updateCalibDescription);
   connect(resetCalibBtn, &ButtonControl::clicked, [&]() {
-    if (!uiState()->engaged()) {
+    if (!isOpenpilotSteering()) {
       if (ConfirmationDialog::confirm(tr("Are you sure you want to reset calibration?"), tr("Reset"), this)) {
         // Check engaged again in case it changed while the dialog was open
-        if (!uiState()->engaged()) {
+        if (!isOpenpilotSteering()) {
           params.remove("CalibrationParams");
           params.remove("LiveTorqueParameters");
           params.remove("LiveParameters");
@@ -428,10 +430,10 @@ void DevicePanel::updateCalibDescription() {
 }
 
 void DevicePanel::reboot() {
-  if (!uiState()->engaged()) {
+  if (!isOpenpilotSteering()) {
     if (ConfirmationDialog::confirm(tr("Are you sure you want to reboot?"), tr("Reboot"), this)) {
       // Check engaged again in case it changed while the dialog was open
-      if (!uiState()->engaged()) {
+      if (!isOpenpilotSteering()) {
         params.putBool("DoReboot", true);
       }
     }

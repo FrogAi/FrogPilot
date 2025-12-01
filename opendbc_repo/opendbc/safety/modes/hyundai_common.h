@@ -43,6 +43,13 @@ extern bool hyundai_alt_limits_2;
 bool hyundai_alt_limits_2 = false;
 
 // FrogPilot variables
+extern bool hyundai_has_lda_button;
+bool hyundai_has_lda_button = false;
+
+static bool hyundai_acc_enabled = false;
+static bool hyundai_main_button_prev = false;
+static bool hyundai_main_cruise_on = false;
+static bool hyundai_rx_checks_invalid_prev = false;
 
 static uint8_t hyundai_last_button_interaction;  // button messages since the user pressed an enable button
 
@@ -56,6 +63,7 @@ void hyundai_common_init(uint16_t param) {
   const uint16_t HYUNDAI_PARAM_ALT_LIMITS_2 = 512;
 
   // FrogPilot variables
+  const uint16_t HYUNDAI_PARAM_HAS_LDA_BUTTON = 1024;
 
   hyundai_ev_gas_signal = GET_FLAG(param, HYUNDAI_PARAM_EV_GAS);
   hyundai_hybrid_gas_signal = !hyundai_ev_gas_signal && GET_FLAG(param, HYUNDAI_PARAM_HYBRID_GAS);
@@ -66,6 +74,11 @@ void hyundai_common_init(uint16_t param) {
   hyundai_alt_limits_2 = GET_FLAG(param, HYUNDAI_PARAM_ALT_LIMITS_2);
 
   // FrogPilot variables
+  hyundai_acc_enabled = false;
+  hyundai_has_lda_button = GET_FLAG(param, HYUNDAI_PARAM_HAS_LDA_BUTTON);
+  hyundai_main_button_prev = false;
+  hyundai_main_cruise_on = false;
+  hyundai_rx_checks_invalid_prev = false;
 
   hyundai_last_button_interaction = HYUNDAI_PREV_BUTTON_SAMPLES;
 
@@ -117,6 +130,20 @@ void hyundai_common_cruise_buttons_check(const int cruise_button, const bool mai
     cruise_button_prev = cruise_button;
 
     // FrogPilot variables
+    if (safety_rx_checks_invalid && !hyundai_rx_checks_invalid_prev) {
+      hyundai_main_cruise_on = false;
+    }
+    hyundai_rx_checks_invalid_prev = safety_rx_checks_invalid;
+
+    if (main_button && !hyundai_main_button_prev) {
+      if (hyundai_main_cruise_on && ((alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL) != 0)) {
+        controls_allowed = false;
+      }
+      hyundai_main_cruise_on = !hyundai_main_cruise_on;
+    }
+    hyundai_main_button_prev = main_button;
+
+    acc_main_on = hyundai_main_cruise_on && hyundai_acc_enabled;
   }
 }
 

@@ -465,6 +465,15 @@ void pandad_run(std::vector<Panda *> &pandas) {
       engaged = sm.allAliveAndValid({"selfdriveState"}) && sm["selfdriveState"].getSelfdriveState().getEnabled();
 
       // FrogPilot variables
+      const bool always_on_lateral = sm.allAliveAndValid({"frogpilotCarState"}) && sm["frogpilotCarState"].getFrogpilotCarState().getAlwaysOnLateralEnabled();
+
+      bool controls_allowed = false;
+
+      for (const cereal::PandaState::Reader &panda_state : sm["pandaStates"].getPandaStates()) {
+        controls_allowed |= panda_state.getControlsAllowed();
+      }
+
+      engaged = heartbeat_engaged(engaged, always_on_lateral, controls_allowed);
 
       is_onroad = params.getBool("IsOnroad");
       process_panda_state(pandas, &pm, engaged, is_onroad, spoofing_started);

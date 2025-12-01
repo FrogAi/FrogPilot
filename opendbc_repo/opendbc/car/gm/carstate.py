@@ -38,6 +38,7 @@ class CarState(CarStateBase):
     self.single_pedal_mode = False
 
     # FrogPilot variables
+    self.cruise_main_off_seen = False
 
   def update_button_enable(self, buttonEvents: list[structs.CarState.ButtonEvent]):
     if not self.CP.pcmCruise:
@@ -182,6 +183,9 @@ class CarState(CarStateBase):
       self.single_pedal_mode = ret.gearShifter == GearShifter.low or pt_cp.vl["EVDriveMode"]["SinglePedalModeActive"] == 1
 
     # FrogPilot variables
+    if pt_cp.can_valid and not ret.cruiseState.available:
+      self.cruise_main_off_seen = True
+
     self.fp_ret.sportGear = pt_cp.vl["SportMode"]["SportMode"] == 1
 
     return ret

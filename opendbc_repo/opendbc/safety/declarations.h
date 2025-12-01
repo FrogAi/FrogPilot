@@ -223,6 +223,7 @@ typedef struct {
   get_quality_flag_valid_t get_quality_flag_valid;
 
   // FrogPilot variables
+  rx_hook lkas_button;
 } safety_hooks;
 
 bool safety_rx_hook(const CANPacket_t *msg);
@@ -272,6 +273,8 @@ extern int cruise_button_prev;
 extern bool safety_rx_checks_invalid;
 
 // FrogPilot variables
+extern bool lkas_button_pressed;
+extern bool lkas_on;
 
 // for safety modes with torque steering control
 extern int desired_torque_last;       // last desired steer torque
@@ -315,6 +318,8 @@ extern bool enable_gas_interceptor;
 #define ALT_EXP_ALLOW_AEB 16
 
 // FrogPilot variables
+#define ALT_EXP_ALWAYS_ON_LATERAL 32
+#define ALT_EXP_ALWAYS_ON_LATERAL_LKAS_BUTTON 64
 
 extern int alternative_experience;
 
@@ -358,3 +363,4 @@ extern const safety_hooks rivian_hooks;
 extern const safety_hooks psa_hooks;
 
 // FrogPilot variables
+bool get_lateral_allowed(void);

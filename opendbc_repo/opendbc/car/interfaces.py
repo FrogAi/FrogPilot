@@ -17,6 +17,9 @@ from opendbc.car.chrysler.values import CAR as CHRYSLER, ChryslerFrogPilotFlags
 from opendbc.car.common.basedir import BASEDIR
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.common.simple_kalman import KF1D, get_kalman_gain
+from opendbc.car.ford.values import CAR as FORD, NO_CRUISE_STANDBY_CAR
+from opendbc.car.honda.values import CAR as HONDA
+from opendbc.car.hyundai.values import CAR as HYUNDAI, CRUISE_STANDBY_LFA_BUTTON_CAR, HyundaiFlags, HyundaiFrogPilotSafetyFlags
 from opendbc.car.mock.values import CAR as MOCK
 from opendbc.car.values import PLATFORMS
 from opendbc.can import CANParser
@@ -178,6 +181,21 @@ class CarInterfaceBase(ABC):
         if candidate == CHRYSLER.RAM_HD_5TH_GEN:
           if 0x23A not in fingerprint[0]:
             fp_ret.flags |= ChryslerFrogPilotFlags.RAM_HD_ALT_BUTTONS.value
+
+      elif platform in FORD:
+        fp_ret.alwaysOnLateralLKASButton = candidate in NO_CRUISE_STANDBY_CAR
+
+      elif platform in HONDA:
+        fp_ret.alwaysOnLateralLKASButton = True
+
+      elif platform in HYUNDAI:
+        if CP.flags & HyundaiFlags.HAS_LDA_BUTTON:
+          CP.safetyConfigs[-1].safetyParam |= HyundaiFrogPilotSafetyFlags.HAS_LDA_BUTTON.value
+
+        if CP.flags & HyundaiFlags.CANFD:
+          fp_ret.alwaysOnLateralLKASButton = True
+        elif CP.flags & HyundaiFlags.HAS_LDA_BUTTON:
+          fp_ret.alwaysOnLateralLKASButton = candidate not in CRUISE_STANDBY_LFA_BUTTON_CAR
 
     return fp_ret
 

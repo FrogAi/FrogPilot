@@ -58,6 +58,11 @@
   {.msg = {{0x101, 0, 8, 50U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  \
 
 // FrogPilot variables
+#define TOYOTA_PCM_CRUISE_2_RX_CHECK                                                                                                       \
+  {.msg = {{0x1D3, 0, 8, 33U, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},                           \
+
+#define TOYOTA_DSU_CRUISE_RX_CHECK                                                                                                         \
+  {.msg = {{0x365, 0, 7, 5U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},   \
 
 static bool toyota_secoc = false;
 static bool toyota_alt_brake = false;
@@ -66,6 +71,9 @@ static bool toyota_lta = false;
 static int toyota_dbc_eps_torque_factor = 100;   // conversion factor for STEER_TORQUE_EPS in %: see dbc file
 
 // FrogPilot variables
+static bool toyota_lkas_status = false;
+
+static int toyota_lda_on_message = 0;
 
 static uint32_t toyota_compute_checksum(const CANPacket_t *msg) {
   int len = GET_LEN(msg);
@@ -171,6 +179,13 @@ static void toyota_rx_hook(const CANPacket_t *msg) {
     }
 
     // FrogPilot variables
+    if (msg->addr == 0x1D3U) {
+      acc_main_on = GET_BIT(msg, 15U);
+    }
+
+    if (msg->addr == 0x365U) {
+      acc_main_on = GET_BIT(msg, 0U);
+    }
   }
 }
 
@@ -395,6 +410,12 @@ static safety_config toyota_init(uint16_t param) {
   toyota_dbc_eps_torque_factor = param & TOYOTA_EPS_FACTOR;
 
   // FrogPilot variables
+  const uint32_t TOYOTA_PARAM_UNSUPPORTED_DSU = 16UL << TOYOTA_PARAM_OFFSET;
+
+  bool toyota_unsupported_dsu = GET_FLAG(param, TOYOTA_PARAM_UNSUPPORTED_DSU);
+
+  toyota_lda_on_message = 0;
+  toyota_lkas_status = false;
 
   safety_config ret;
   if (toyota_secoc) {
@@ -416,6 +437,7 @@ static safety_config toyota_init(uint16_t param) {
       TOYOTA_SECOC_RX_CHECKS
 
       // FrogPilot variables
+      TOYOTA_PCM_CRUISE_2_RX_CHECK
     };
 
     SET_RX_CHECKS(toyota_secoc_rx_checks, ret);
@@ -425,6 +447,7 @@ static safety_config toyota_init(uint16_t param) {
       TOYOTA_RX_CHECKS(true)
 
       // FrogPilot variables
+      TOYOTA_PCM_CRUISE_2_RX_CHECK
     };
 
     SET_RX_CHECKS(toyota_lta_rx_checks, ret);
@@ -433,16 +456,32 @@ static safety_config toyota_init(uint16_t param) {
       TOYOTA_RX_CHECKS(false)
 
       // FrogPilot variables
+      TOYOTA_PCM_CRUISE_2_RX_CHECK
     };
     static RxCheck toyota_lka_alt_brake_rx_checks[] = {
       TOYOTA_ALT_BRAKE_RX_CHECKS(false)
 
       // FrogPilot variables
+      TOYOTA_PCM_CRUISE_2_RX_CHECK
     };
 
     // FrogPilot variables
+    static RxCheck toyota_lka_unsupported_dsu_rx_checks[] = {
+      TOYOTA_RX_CHECKS(false)
+      TOYOTA_DSU_CRUISE_RX_CHECK
+    };
+    static RxCheck toyota_lka_alt_brake_unsupported_dsu_rx_checks[] = {
+      TOYOTA_ALT_BRAKE_RX_CHECKS(false)
+      TOYOTA_DSU_CRUISE_RX_CHECK
+    };
 
-    if (!toyota_alt_brake) {
+    if (toyota_unsupported_dsu) {
+      if (!toyota_alt_brake) {
+        SET_RX_CHECKS(toyota_lka_unsupported_dsu_rx_checks, ret);
+      } else {
+        SET_RX_CHECKS(toyota_lka_alt_brake_unsupported_dsu_rx_checks, ret);
+      }
+    } else if (!toyota_alt_brake) {
       SET_RX_CHECKS(toyota_lka_rx_checks, ret);
     } else {
       SET_RX_CHECKS(toyota_lka_alt_brake_rx_checks, ret);
@@ -455,6 +494,22 @@ static safety_config toyota_init(uint16_t param) {
 }
 
 // FrogPilot variables
+static void toyota_lkas_button_hook(const CANPacket_t *msg) {
+  // LDA_ON_MESSAGE shows when a press turns lane assist on, and LKAS_STATUS falls to 0 when a press turns it off.
+  // The camera also turns lane assist off by itself, flagged by TWO_BEEPS, LDA_MALFUNCTION or LDA_UNAVAILABLE
+  if ((msg->bus == 2U) && (msg->addr == 0x412U)) {
+    bool camera_turned_off = GET_BIT(msg, 12U) || GET_BIT(msg, 15U) || GET_BIT(msg, 16U);  // LKAS_HUD.TWO_BEEPS, LDA_MALFUNCTION, LDA_UNAVAILABLE
+    bool lkas_status = (msg->data[0] >> 6) != 0U;  // LKAS_HUD.LKAS_STATUS
+
+    int lda_on_message = msg->data[3] >> 6;  // LKAS_HUD.LDA_ON_MESSAGE
+
+    lkas_button_pressed = ((lda_on_message != 0) && (lda_on_message != toyota_lda_on_message)) || (!camera_turned_off && !lkas_status && toyota_lkas_status);
+    toyota_lda_on_message = lda_on_message;
+    toyota_lkas_status = lkas_status;
+  } else {
+    lkas_button_pressed = false;
+  }
+}
 
 const safety_hooks toyota_hooks = {
   .init = toyota_init,
@@ -465,4 +520,5 @@ const safety_hooks toyota_hooks = {
   .get_quality_flag_valid = toyota_get_quality_flag_valid,
 
   // FrogPilot variables
+  .lkas_button = toyota_lkas_button_hook,
 };

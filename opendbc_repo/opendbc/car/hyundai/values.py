@@ -70,6 +70,8 @@ class HyundaiSafetyFlags(IntFlag):
 
 
 # FrogPilot variables
+class HyundaiFrogPilotSafetyFlags(IntFlag):
+  HAS_LDA_BUTTON = 1024
 
 
 class HyundaiFlags(IntFlag):
@@ -800,5 +802,6 @@ LEGACY_SAFETY_MODE_CAR = CAR.with_flags(HyundaiFlags.LEGACY)
 UNSUPPORTED_LONGITUDINAL_CAR = CAR.with_flags(HyundaiFlags.LEGACY) | CAR.with_flags(HyundaiFlags.UNSUPPORTED_LONGITUDINAL)
 
 # FrogPilot variables
+CRUISE_STANDBY_LFA_BUTTON_CAR = {CAR.HYUNDAI_SONATA, CAR.HYUNDAI_SONATA_HYBRID}
 
 DBC = CAR.create_dbc_map()

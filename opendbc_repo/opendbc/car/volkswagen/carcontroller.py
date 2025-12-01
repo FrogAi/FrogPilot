@@ -6,11 +6,13 @@ from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.interfaces import CarControllerBase
 from opendbc.car.volkswagen import mlbcan, mqbcan, pqcan
 from opendbc.car.volkswagen.values import CanBus, CarControllerParams, VolkswagenFlags
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 
 VisualAlert = structs.CarControl.HUDControl.VisualAlert
 LongCtrlState = structs.CarControl.Actuators.LongControlState
 
 # FrogPilot variables
+MAIN_PRESS_FRAMES = 5
 
 
 class CarController(CarControllerBase):
@@ -35,6 +37,7 @@ class CarController(CarControllerBase):
     self.hca_frame_same_torque = 0
 
     # FrogPilot variables
+    self.cruise_main_off_frames = 0
 
   def update(self, CC, CS, now_nanos):
     actuators = CC.actuators
@@ -137,5 +140,18 @@ class CarController(CarControllerBase):
     self.frame += 1
 
     # FrogPilot variables
+    if CS.out.cruiseState.enabled:
+      self.cruise_main_off_frames = MAIN_PRESS_FRAMES
+    elif CS.out.accFaulted and self.cruise_main_off_frames < MAIN_PRESS_FRAMES:
+      self.cruise_main_off_frames = 0
+
+    cruise_main_off_pressing = 0 < self.cruise_main_off_frames < MAIN_PRESS_FRAMES
+    cruise_main_off_ready = (CS.car_safety_mode_set and not CS.cruise_main_off_seen and CS.tsk_status == 2 and
+                             self.CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    cruise_main_off_start = cruise_main_off_ready and CS.gra_stock_values["GRA_Typ_Hauptschalter"] == 1 and self.cruise_main_off_frames == 0
+
+    if (cruise_main_off_pressing or cruise_main_off_start) and gra_send_ready:
+      can_sends.append(self.CCS.create_acc_buttons_control(self.packer_pt, self.CAN.ext, {**CS.gra_stock_values, "GRA_Hauptschalter": 1}))
+      self.cruise_main_off_frames += 1
 
     return new_actuators, can_sends

@@ -160,9 +160,14 @@ static void ford_rx_hook(const CANPacket_t *msg) {
       pcm_cruise_check(cruise_engaged);
 
       // FrogPilot variables
+      acc_main_on = (cruise_state == 3U) || cruise_engaged;
     }
 
     // FrogPilot variables
+    if (msg->addr == FORD_Steering_Data_FD1) {
+      // Signal: TjaButtnOnOffPress
+      lkas_button_pressed = GET_BIT(msg, 40U);
+    }
   }
 }
 
@@ -302,6 +307,7 @@ static safety_config ford_init(uint16_t param) {
     {.msg = {{FORD_DesiredTorqBrk, 0, 8, 50U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},
 
     // FrogPilot variables
+    {.msg = {{FORD_Steering_Data_FD1, 0, 8, 10U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},
   };
 
   #define FORD_COMMON_TX_MSGS \

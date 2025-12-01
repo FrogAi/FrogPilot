@@ -3,6 +3,7 @@ from opendbc.can.parser import CANParser
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.psa.values import DBC, CarControllerParams
 from opendbc.car.interfaces import CarStateBase
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 
 GearShifter = structs.CarState.GearShifter
 TransmissionType = structs.CarParams.TransmissionType
@@ -64,6 +65,8 @@ class CarState(CarStateBase):
     ret.seatbeltUnlatched = cp_cam.vl['RESTRAINTS']['DRIVER_SEATBELT'] != 2
 
     # FrogPilot variables
+    if self.CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL:
+      ret.cruiseState.available = cp_adas.vl["HS2_DAT_MDD_CMD_452"]["LONGITUDINAL_REGULATION_TYPE"] == 3
 
     return ret
 

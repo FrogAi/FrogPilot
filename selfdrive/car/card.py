@@ -170,6 +170,8 @@ class Car:
 
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
+    self.frogpilot_card = FrogPilotCard(self.CP, self.FPCP, self.frogpilot_toggles)
+
     # Write CarParams for controls and radard
     cp_bytes = self.CP.to_bytes()
     self.params.put("CarParams", cp_bytes)
@@ -192,8 +194,6 @@ class Car:
     fpcp_bytes = self.FPCP.to_bytes()
     self.params.put("FrogPilotCarParams", fpcp_bytes)
     self.params.put_nonblocking("FrogPilotCarParamsPersistent", fpcp_bytes)
-
-    self.frogpilot_card = FrogPilotCard(self.CP)
 
     self.sm = self.sm.extend(['frogpilotPlan', 'frogpilotProcessState', 'frogpilotSelfdriveState', 'selfdriveState'])
     self.pm = self.pm.extend(['frogpilotCarState'])
@@ -318,6 +318,8 @@ class Car:
 
     # FrogPilot variables
     self.CI.CS.CC = self.sm['carControl']
+    self.CI.CS.car_safety_mode_set = self.frogpilot_card.car_safety_mode_set
+    self.CI.CS.rx_checks_invalid = self.frogpilot_card.rx_checks_invalid
 
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(self.sm)
 

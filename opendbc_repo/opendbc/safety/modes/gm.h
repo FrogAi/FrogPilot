@@ -25,6 +25,7 @@ enum {
   GM_BTN_CANCEL = 6,
 
   // FrogPilot variables
+  GM_BTN_MAIN = 5,
 };
 
 typedef enum {
@@ -39,6 +40,7 @@ static bool gm_cc_long = false;
 static bool gm_has_acc = true;
 
 // FrogPilot variables
+static bool gm_main_press_allowed = false;
 
 static void gm_rx_hook(const CANPacket_t *msg) {
   const int GM_STANDSTILL_THRSLD = 10;  // 0.311kph
@@ -127,6 +129,17 @@ static void gm_rx_hook(const CANPacket_t *msg) {
     }
 
     // FrogPilot variables
+    if (msg->addr == 0xC9U) {
+      acc_main_on = GET_BIT(msg, 29U);
+
+      if (!acc_main_on) {
+        gm_main_press_allowed = false;
+      }
+    }
+
+    if (controls_allowed || cruise_engaged_prev) {
+      gm_main_press_allowed = false;
+    }
   }
 }
 
@@ -191,6 +204,11 @@ static bool gm_tx_hook(const CANPacket_t *msg) {
     }
 
     // FrogPilot variables
+    bool main_press = (msg->bus == 0U) && (button == GM_BTN_MAIN) && acc_main_on && !controls_allowed && !cruise_engaged_prev && gm_main_press_allowed;
+    if (main_press) {
+      gm_main_press_allowed = false;
+    }
+    allowed_btn |= main_press;
 
     if (!allowed_btn) {
       tx = false;
@@ -352,6 +370,7 @@ static safety_config gm_init(uint16_t param) {
   }
 
   // FrogPilot variables
+  gm_main_press_allowed = true;
 
   return ret;
 }

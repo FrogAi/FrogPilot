@@ -94,6 +94,12 @@ class Events:
     return any(event_type in self.event_table.get(e, {}) for e in self.events)
 
   # FrogPilot variables
+  def contains_disable_event(self) -> bool:
+    for e in self.events:
+      event_types = self.event_table[e]
+      if ET.NO_ENTRY in event_types and (ET.SOFT_DISABLE in event_types or ET.IMMEDIATE_DISABLE in event_types):
+        return True
+    return False
 
   def create_alerts(self, event_types: list[str], callback_args=None):
     if callback_args is None:
@@ -416,6 +422,15 @@ def invalid_lkas_setting_alert(CP: car.CarParams, CS: car.CarState, sm: messagin
 
 
 # FrogPilot variables
+def always_on_lateral_waiting_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
+  if frogpilot_toggles.always_on_lateral_lkas_button:
+    start_steering = "Press LKAS, turn cruise off and on, or engage to start steering"
+  else:
+    start_steering = "Turn cruise off and on, or engage to start steering"
+
+  return NormalPermanentAlert("Always On Lateral Isn't Active Yet", start_steering, priority=Priority.LOWEST)
+
+
 def custom_startup_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
   return StartupAlert(frogpilot_toggles.startup_alert_top, frogpilot_toggles.startup_alert_bottom, alert_status=FrogPilotAlertStatus.frogpilot)
 
@@ -1053,8 +1068,22 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
 # FrogPilot variables
 FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
+  FrogPilotEventName.alwaysOnLateralSteeringOff: {
+    ET.PERMANENT: NormalPermanentAlert("Steering Off", "Press LKAS to resume steering"),
+  },
+
+  FrogPilotEventName.alwaysOnLateralWaiting: {
+    ET.PERMANENT: always_on_lateral_waiting_alert,
+  },
+
   FrogPilotEventName.customStartupAlert: {
     ET.PERMANENT: custom_startup_alert,
+  },
+
+  FrogPilotEventName.speedSensorsDisagree: {
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Speed Sensors Disagree"),
+    ET.PERMANENT: NormalPermanentAlert("Speed Sensors Disagree", "Steering is unavailable until they match"),
+    ET.NO_ENTRY: NoEntryAlert("Speed Sensors Disagree"),
   },
 }
 
@@ -1128,6 +1157,15 @@ if HARDWARE.get_device_type() == 'mici':
 
 
 # FrogPilot variables
+def always_on_lateral_waiting_alert_mici(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
+  if frogpilot_toggles.always_on_lateral_lkas_button:
+    start_steering = "Press LKAS to Start"
+  else:
+    start_steering = "Turn Cruise Off and On"
+
+  return NormalPermanentAlert("Steering Off", start_steering, priority=Priority.LOWEST)
+
+
 def custom_startup_alert_mici(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
   params = Params()
   default_text = (params.get_default_value("StartupMessageTop"), params.get_default_value("StartupMessageBottom"))
@@ -1140,8 +1178,19 @@ def custom_startup_alert_mici(CP: car.CarParams, CS: car.CarState, sm: messaging
 
 if HARDWARE.get_device_type() == 'mici':
   FROGPILOT_EVENTS.update({
+    FrogPilotEventName.alwaysOnLateralSteeringOff: {
+      ET.PERMANENT: NormalPermanentAlert("Steering Off", "Press LKAS to Resume"),
+    },
+    FrogPilotEventName.alwaysOnLateralWaiting: {
+      ET.PERMANENT: always_on_lateral_waiting_alert_mici,
+    },
     FrogPilotEventName.customStartupAlert: {
       ET.PERMANENT: custom_startup_alert_mici,
+    },
+    FrogPilotEventName.speedSensorsDisagree: {
+      ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Speed Sensors Disagree"),
+      ET.PERMANENT: NormalPermanentAlert("Steering Off", "Speed Sensors Disagree"),
+      ET.NO_ENTRY: NoEntryAlert("Speed Fault"),
     },
   })
 

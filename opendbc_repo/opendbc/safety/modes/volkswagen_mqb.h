@@ -177,6 +177,10 @@ static bool volkswagen_mqb_tx_hook(const CANPacket_t *msg) {
   }
 
   // FrogPilot variables
+  // Signal: GRA_ACC_01.GRA_Hauptschalter
+  if (!acc_main_on && (msg->addr == MSG_GRA_ACC_01) && GET_BIT(msg, 12U) && ((alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL) != 0)) {
+    tx = false;
+  }
 
   return tx;
 }

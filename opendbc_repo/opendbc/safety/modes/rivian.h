@@ -64,6 +64,9 @@ static bool rivian_get_quality_flag_valid(const CANPacket_t *msg) {
 static void rivian_rx_hook(const CANPacket_t *msg) {
 
   // FrogPilot variables
+  if (controls_allowed) {
+    acc_main_on = true;
+  }
 
   if (msg->bus == 0U)  {
     // Vehicle speed
@@ -103,6 +106,9 @@ static void rivian_rx_hook(const CANPacket_t *msg) {
   }
 
   // FrogPilot variables
+  if (brake_pressed && !brake_pressed_prev) {
+    acc_main_on = false;
+  }
 }
 
 static bool rivian_tx_hook(const CANPacket_t *msg) {

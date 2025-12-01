@@ -4,10 +4,12 @@ from opendbc.car.lateral import apply_driver_steer_torque_limits
 from opendbc.car.interfaces import CarControllerBase
 from opendbc.car.mazda import mazdacan
 from opendbc.car.mazda.values import CarControllerParams, Buttons
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 
 VisualAlert = structs.CarControl.HUDControl.VisualAlert
 
 # FrogPilot variables
+MAIN_OFF_FRAMES = 300
 
 
 class CarController(CarControllerBase):
@@ -18,6 +20,7 @@ class CarController(CarControllerBase):
     self.brake_counter = 0
 
     # FrogPilot variables
+    self.main_off_frames = 0
 
   def update(self, CC, CS, now_nanos):
     can_sends = []
@@ -68,5 +71,10 @@ class CarController(CarControllerBase):
     self.frame += 1
 
     # FrogPilot variables
+    if CS.main_on_at_start and self.main_off_frames < MAIN_OFF_FRAMES and self.CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL:
+      if self.frame % 10 == 0:
+        can_sends.append(mazdacan.create_button_cmd(self.packer, self.CP, CS.crz_btns_counter, Buttons.CANCEL))
+
+      self.main_off_frames += 1
 
     return new_actuators, can_sends
