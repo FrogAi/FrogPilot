@@ -240,7 +240,7 @@ void Device::updateWakefulness(const UIState &s) {
   ignition_on = s.scene.ignition;
 
   // FrogPilot variables
-  if (frogpilot_scene.downloading_update || frogpilot_scene.frogpilot_panel_active) {
+  if (frogpilot_scene.downloading_update || frogpilot_scene.frogpilot_panel_active || (s.scene.started && frogpilot_scene.driver_camera_timer >= UI_FREQ / 2)) {
     resetInteractiveTimeout();
   } else if (ignition_just_turned_on && frogpilot_toggles.value(QLatin1String("screen_brightness_onroad")).toInt() == 0) {
     resetInteractiveTimeout(0);

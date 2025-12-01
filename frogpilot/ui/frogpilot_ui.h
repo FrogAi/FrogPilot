@@ -16,6 +16,7 @@ struct FrogPilotUIScene {
   bool traffic_mode_enabled;
 
   int conditional_status;
+  int driver_camera_timer;
 
   QJsonObject frogpilot_toggles;
 };
