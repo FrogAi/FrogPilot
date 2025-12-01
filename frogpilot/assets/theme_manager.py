@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import random
 import requests
 import shutil
 import threading
@@ -383,6 +384,21 @@ class ThemeManager:
     start_of_week = target_date - timedelta(days=target_date.weekday())
     return start_of_week <= current_date < target_date
 
+  @staticmethod
+  def randomize_matching_asset(names, available_themes, selected_theme):
+    candidates = []
+    for name in names:
+      lower_name = name.lower()
+
+      theme_association = [theme for theme in available_themes if theme.replace("-animated", "") in lower_name]
+      if theme_association and selected_theme not in lower_name:
+        continue
+
+      weight = 5 if selected_theme in lower_name else 1
+      candidates.extend([name] * weight)
+
+    return random.choice(candidates) if candidates else "stock"
+
   def refresh_theme_params(self):
     self.update_theme_params({component: self.params.get(key).split(",") for component, key in DOWNLOADABLE_PARAMS.items()})
 
@@ -400,11 +416,18 @@ class ThemeManager:
       return f"{name}~{creator}"
     return name
 
-  def update_active_theme(self, time_validated, frogpilot_toggles, boot_run=False):
+  def update_active_theme(self, time_validated, frogpilot_toggles, boot_run=False, randomize_theme=False):
+    previous_holiday_theme = self.holiday_theme
+
     if time_validated and frogpilot_toggles.holiday_themes:
       self.holiday_theme = self.update_holiday()
     else:
       self.holiday_theme = "stock"
+
+    if self.holiday_theme != previous_holiday_theme:
+      self.theme_updated = True
+
+    randomize_theme |= previous_holiday_theme != "stock" and not frogpilot_toggles.random_themes_holidays
 
     if self.holiday_theme != "stock":
       asset_mappings = {
@@ -415,7 +438,30 @@ class ThemeManager:
         "turn_signal_pack": ("signals", self.holiday_theme),
         "wheel_image": ("wheel_image", self.holiday_theme)
       }
-    else:
+    elif (boot_run or randomize_theme) and frogpilot_toggles.random_themes:
+      available_themes = self.get_full_themes()
+
+      if frogpilot_toggles.random_themes_holidays:
+        available_themes.extend(HOLIDAY_SLUGS)
+
+      selected_theme = random.choice(available_themes) if available_themes else "stock"
+
+      distance_icons = [path.parent.name for path in (frogpilot_variables.THEME_SAVE_PATH / "theme_packs").glob("*/distance_icons") if path.is_dir()]
+      wheels = [path.stem for path in (frogpilot_variables.THEME_SAVE_PATH / "steering_wheels").glob("*") if path.is_file()]
+
+      if selected_theme in HOLIDAY_SLUGS:
+        distance_icons.extend(HOLIDAY_SLUGS)
+        wheels.extend(HOLIDAY_SLUGS)
+
+      asset_mappings = {
+        "color_scheme": ("colors", selected_theme.replace("-animated", "")),
+        "distance_icons": ("distance_icons", self.randomize_matching_asset(distance_icons, available_themes, selected_theme.replace("-animated", ""))),
+        "icon_pack": ("icons", selected_theme),
+        "sound_pack": ("sounds", selected_theme.replace("-animated", "")),
+        "turn_signal_pack": ("signals", selected_theme.replace("-animated", "")),
+        "wheel_image": ("wheel_image", self.randomize_matching_asset(wheels, available_themes, selected_theme.replace("-animated", "")))
+      }
+    elif not frogpilot_toggles.random_themes:
       asset_mappings = {
         "color_scheme": ("colors", frogpilot_toggles.color_scheme),
         "distance_icons": ("distance_icons", frogpilot_toggles.distance_icons),
@@ -424,6 +470,8 @@ class ThemeManager:
         "turn_signal_pack": ("signals", frogpilot_toggles.signal_icons),
         "wheel_image": ("wheel_image", frogpilot_toggles.wheel_image)
       }
+    else:
+      return
 
     if asset_mappings != self.previous_asset_mappings:
       links_changed = False

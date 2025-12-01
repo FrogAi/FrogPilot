@@ -146,6 +146,9 @@ def transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_va
 
   theme_manager.restore_wheel_image()
 
+  if frogpilot_toggles.random_themes:
+    theme_manager.update_active_theme(time_validated, frogpilot_toggles, randomize_theme=True)
+
   if time_validated:
     thread_manager.run_with_lock(send_stats, (params, frogpilot_toggles, api))
 
@@ -173,21 +176,25 @@ def update_checks(now, model_manager, theme_manager, thread_manager, sm, params,
 
   time.sleep(1)
 
-def update_toggles(variables, started, model_manager, theme_manager, thread_manager, time_validated, params):
+def update_toggles(variables, started, model_manager, theme_manager, thread_manager, time_validated, params, frogpilot_toggles):
+  previous_holiday_themes = frogpilot_toggles.holiday_themes
+  previous_random_themes = frogpilot_toggles.random_themes
+
+  model_manager.models_updated = False
+  theme_manager.theme_updated = False
+
   if not started and params.get_bool("ModelRandomizer"):
     model_manager.randomize_model(new_drive=False)
 
   variables.update(theme_manager.holiday_theme, started)
-  frogpilot_toggles = variables.frogpilot_toggles
 
-  model_manager.models_updated = False
-  theme_manager.theme_updated = False
-  theme_manager.update_active_theme(time_validated, frogpilot_toggles)
+  randomize_theme = frogpilot_toggles.holiday_themes != previous_holiday_themes
+  randomize_theme |= frogpilot_toggles.random_themes != previous_random_themes
+
+  theme_manager.update_active_theme(time_validated, frogpilot_toggles, randomize_theme=randomize_theme)
 
   if time_validated:
     thread_manager.run_with_lock(frogpilot_backups.backup_toggles, (params,))
-
-  return frogpilot_toggles
 
 def frogpilot_thread():
   pm = messaging.PubMaster(["frogpilotPlan", "frogpilotProcessState"])
@@ -237,7 +244,7 @@ def frogpilot_thread():
       if frogpilot_toggles.model_randomizer:
         model_manager.randomize_model(new_drive=True)
 
-      frogpilot_toggles = update_toggles(variables, started, model_manager, theme_manager, thread_manager, time_validated, params)
+      update_toggles(variables, started, model_manager, theme_manager, thread_manager, time_validated, params, frogpilot_toggles)
       transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_validated, params, frogpilot_toggles, api)
 
       run_update_checks = True
@@ -250,8 +257,7 @@ def frogpilot_thread():
       waiting_for_car_params = True
 
     if model_manager.models_updated or theme_manager.theme_updated:
-      variables.update(theme_manager.holiday_theme, started)
-      frogpilot_toggles = variables.frogpilot_toggles
+      update_toggles(variables, started, model_manager, theme_manager, thread_manager, time_validated, params, frogpilot_toggles)
 
     if started and sm.updated["modelV2"]:
       frogpilot_planner.update(now, time_validated, sm, frogpilot_toggles)
@@ -275,8 +281,8 @@ def frogpilot_thread():
     force_onroad_cleared_count = sm["frogpilotDeviceState"].forceOnroadClearedCount
     waiting_for_car_params &= not sm.updated["frogpilotCarParams"]
 
-    if toggles_updated or model_manager.models_updated or theme_manager.theme_updated:
-      frogpilot_toggles = update_toggles(variables, started, model_manager, theme_manager, thread_manager, time_validated, params)
+    if toggles_updated:
+      update_toggles(variables, started, model_manager, theme_manager, thread_manager, time_validated, params, frogpilot_toggles)
 
     run_update_checks |= update_checks_requested
     run_update_checks |= now.second == 0 and (now.minute == 0 or (now.minute % 5 == 0 and variables.frogs_go_moo))

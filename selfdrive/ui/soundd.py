@@ -284,7 +284,7 @@ class Soundd:
       if sound not in self.volume_map:
         self.volume_map[sound] = 1.01
 
-    if self.frogpilot_toggles.sound_pack != "stock":
+    if self.frogpilot_toggles.sound_pack != "stock" or self.frogpilot_toggles.random_themes:
       self.sound_directory = frogpilot_variables.ACTIVE_THEME_PATH / "sounds"
     else:
       self.sound_directory = Path(BASEDIR) / "selfdrive" / "assets" / "sounds"

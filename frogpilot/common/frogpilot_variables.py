@@ -522,6 +522,8 @@ class FrogPilotVariables:
     toggle.signal_icons = self.get_value("SignalAnimation", cast=None, condition=custom_themes)
     toggle.sound_pack = self.get_value("SoundPack", cast=None, condition=custom_themes)
     toggle.random_themes = self.get_value("RandomThemes", condition=custom_themes)
+    if toggle.random_themes:
+      toggle.color_scheme = "random"
     toggle.random_themes_holidays = self.get_value("RandomThemesHolidays", condition=toggle.random_themes)
     toggle.wheel_image = self.get_value("WheelIcon", cast=None, condition=custom_themes)
 
