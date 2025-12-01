@@ -460,6 +460,17 @@ def nnff_loaded_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMast
     Priority.LOW, VisualAlert.none, AudibleAlert.engage, 5.0)
 
 
+def no_lane_available_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
+  lane_width = sm["frogpilotPlan"].laneWidthLeft if sm["modelV2"].meta.laneChangeDirection == log.LaneChangeDirection.left else sm["frogpilotPlan"].laneWidthRight
+  lane_width_msg = f"{lane_width:.1f} Meters" if metric else f"{lane_width * CV.METER_TO_FOOT:.1f} Feet"
+
+  return Alert(
+    "No Lane Available",
+    f"Detected Lane Width Is Only {lane_width_msg}",
+    AlertStatus.normal, AlertSize.mid,
+    Priority.LOWEST, VisualAlert.none, AudibleAlert.none, .2)
+
+
 def pedal_interceptor_no_brake_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
   return user_soft_disable_alert("Braking Unavailable: Shift to L")(CP, CS, sm, metric, soft_disable_time, personality)
 
@@ -1153,6 +1164,10 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.PERMANENT: nnff_loaded_alert,
   },
 
+  FrogPilotEventName.noLaneAvailable: {
+    ET.WARNING: no_lane_available_alert,
+  },
+
   FrogPilotEventName.openpilotCrashed: {
     ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("openpilot crashed"),
 
@@ -1282,6 +1297,17 @@ def nnff_loaded_alert_mici(CP: car.CarParams, CS: car.CarState, sm: messaging.Su
     Priority.LOW, VisualAlert.none, AudibleAlert.engage, 5.0)
 
 
+def no_lane_available_alert_mici(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
+  lane_width = sm["frogpilotPlan"].laneWidthLeft if sm["modelV2"].meta.laneChangeDirection == log.LaneChangeDirection.left else sm["frogpilotPlan"].laneWidthRight
+  lane_width_msg = f"{lane_width:.1f} Meters" if metric else f"{lane_width * CV.METER_TO_FOOT:.1f} Feet"
+
+  return Alert(
+    "No Lane",
+    f"Only {lane_width_msg} Wide",
+    AlertStatus.normal, AlertSize.mid,
+    Priority.LOWEST, VisualAlert.none, AudibleAlert.none, .2)
+
+
 def pedal_interceptor_no_brake_alert_mici(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
   alert = pedal_interceptor_no_brake_alert(CP, CS, sm, metric, soft_disable_time, personality, frogpilot_toggles)
 
@@ -1327,6 +1353,9 @@ if HARDWARE.get_device_type() == 'mici':
     },
     FrogPilotEventName.nnffLoaded: {
       ET.PERMANENT: nnff_loaded_alert_mici,
+    },
+    FrogPilotEventName.noLaneAvailable: {
+      ET.WARNING: no_lane_available_alert_mici,
     },
     FrogPilotEventName.openpilotCrashed: {
       ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("openpilot crashed"),
