@@ -168,6 +168,14 @@ void Device::setAwake(bool on) {
 
 void Device::resetInteractiveTimeout(int timeout) {
   // FrogPilot variables
+  if (timeout == -1) {
+    const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
+    timeout = frogpilot_toggles.value(QLatin1String("screen_timeout")).toInt(-1);
+    const int timeout_onroad = frogpilot_toggles.value(QLatin1String("screen_timeout_onroad")).toInt(-1);
+    if (timeout != -1 && ignition_on && timeout_onroad != -1) {
+      timeout = timeout_onroad;
+    }
+  }
 
   if (timeout == -1) {
     timeout = (ignition_on ? 10 : 30);
