@@ -47,16 +47,30 @@ void ExperimentalButton::updateState(const UIState &s) {
   // FrogPilot variables
   const FrogPilotUIState &fs = *frogpilotUIState();
   const cereal::CarState::Reader &carState = (*s.sm)["carState"].getCarState();
+
+  updateBackgroundColor(fs.frogpilot_scene);
   uint64_t current_wheel_image_update_count = (*fs.sm)["frogpilotPlan"].getFrogpilotPlan().getWheelImageUpdateCount();
 }
 
 void ExperimentalButton::paintEvent(QPaintEvent *event) {
   QPainter p(this);
   QPixmap img = experimental_mode ? experimental_img : engage_img;
-  drawIcon(p, QPoint(btn_size / 2, btn_size / 2), img, QColor(0, 0, 0, 166), (isDown() || !engageable) ? 0.6 : 1.0);
   // FrogPilot variables
+  drawIcon(p, QPoint(btn_size / 2, btn_size / 2), img, background_color, (isDown() || !engageable) ? 0.6 : 1.0);
 }
 
 // FrogPilot variables
 void ExperimentalButton::showEvent(QShowEvent *event) {
+}
+
+void ExperimentalButton::updateBackgroundColor(const FrogPilotUIScene &frogpilot_scene) {
+  if (isDown() || !engageable) {
+    background_color = QColor(0, 0, 0, 166);
+  } else if (frogpilot_scene.always_on_lateral_active) {
+    background_color = bg_colors[STATUS_ALWAYS_ON_LATERAL_ACTIVE];
+  } else if (experimental_mode) {
+    background_color = bg_colors[STATUS_EXPERIMENTAL_MODE_ENABLED];
+  } else {
+    background_color = QColor(0, 0, 0, 166);
+  }
 }

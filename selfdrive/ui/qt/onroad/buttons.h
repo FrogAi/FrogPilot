@@ -26,6 +26,9 @@ private:
 
   // FrogPilot variables
   void showEvent(QShowEvent *event) override;
+  void updateBackgroundColor(const FrogPilotUIScene &frogpilot_scene);
+
+  QColor background_color;
 };
 
 void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity);
