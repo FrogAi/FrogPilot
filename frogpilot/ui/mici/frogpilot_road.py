@@ -26,6 +26,7 @@ STOP_DISTANCE_MARGIN = 8
 STOP_SIGN_HEIGHT = 64
 STOP_SIGN_MARGIN = 4
 STOP_SPEED = 1.0
+TRAFFIC_MODE_COLOR = rl.Color(201, 34, 49, 255)
 
 BAND_ALPHAS = (0.4, 0.35, 0.0)
 BAND_STOPS = [0.0, 0.5, 1.0]
@@ -274,6 +275,9 @@ class FrogPilotRoad:
 
     if experimental_mode:
       return solid_band_gradient(EXPERIMENTAL_MODE_COLOR)
+
+    if sm["frogpilotCarState"].trafficModeEnabled:
+      return solid_band_gradient(TRAFFIC_MODE_COLOR)
 
     if toggles.get("color_scheme", "stock") != "stock":
       return solid_band_gradient(hex_to_color(toggles["path_edges_color"]))

@@ -119,6 +119,8 @@ QColor ExperimentalButton::backgroundColor() const {
       return bg_colors[STATUS_CEM_DISABLED];
     } else if (experimental_mode) {
       return bg_colors[STATUS_EXPERIMENTAL_MODE_ENABLED];
+    } else if (frogpilot_scene.traffic_mode_enabled) {
+      return bg_colors[STATUS_TRAFFIC_MODE_ENABLED];
     }
   }
   return blackColor(166);

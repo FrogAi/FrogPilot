@@ -257,6 +257,8 @@ class HudRenderer(Widget):
     max_color = rl.Color(255, 255, 255, int(255 * 0.9 * alpha))
 
     # FrogPilot variables
+    if ui_state.sm["frogpilotCarState"].trafficModeEnabled:
+      max_color = rl.Color(255, 59, 48, int(255 * alpha))
 
     set_speed = self.set_speed
     if self.is_cruise_set and not ui_state.is_metric:

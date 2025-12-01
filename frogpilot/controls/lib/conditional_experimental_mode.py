@@ -64,7 +64,7 @@ class ConditionalExperimentalMode:
         self.experimental_mode &= self.frogpilot_planner.model_stopped or self.frogpilot_planner.frogpilot_vcruise.forcing_stop
 
         stopped_at_light = sm["modelV2"].action.shouldStop and not sm["longitudinalPlan"].shouldStop
-        if stopped_at_light and frogpilot_toggles.conditional_stop_lights:
+        if stopped_at_light and not sm["frogpilotCarState"].trafficModeEnabled and frogpilot_toggles.conditional_stop_lights:
           self.experimental_mode = True
           self.status_value = frogpilot_variables.CE_STATUS["STOP_LIGHT"]
       else:
@@ -171,15 +171,21 @@ class ConditionalExperimentalMode:
     self.slow_lead_detected = self.slow_lead_filter.x >= (1 - frogpilot_variables.THRESHOLD if self.slow_lead_detected else frogpilot_variables.THRESHOLD)
 
   def stop_sign_and_light(self, v_ego, sm):
-    model_times = np.array(sm["modelV2"].velocity.t)
-    model_velocities = np.array(sm["modelV2"].velocity.x)
+    if not sm["frogpilotCarState"].trafficModeEnabled:
+      model_times = np.array(sm["modelV2"].velocity.t)
+      model_velocities = np.array(sm["modelV2"].velocity.x)
 
-    upcoming_velocities = np.append(model_velocities[model_times < STOP_TIME], np.interp(STOP_TIME, model_times, model_velocities))
+      upcoming_velocities = np.append(model_velocities[model_times < STOP_TIME], np.interp(STOP_TIME, model_times, model_velocities))
 
-    slowdown_percentage = SLOWDOWN_RELEASE_PERCENTAGE if self.stop_light_detected else SLOWDOWN_PERCENTAGE
-    model_slowing = upcoming_velocities.min() <= slowdown_percentage * v_ego
-    model_stopping = np.interp(STOPPING_TIMES, model_times, model_velocities).max() < frogpilot_variables.STOPPING_SPEED
+      slowdown_percentage = SLOWDOWN_RELEASE_PERCENTAGE if self.stop_light_detected else SLOWDOWN_PERCENTAGE
+      model_slowing = upcoming_velocities.min() <= slowdown_percentage * v_ego
+      model_stopping = np.interp(STOPPING_TIMES, model_times, model_velocities).max() < frogpilot_variables.STOPPING_SPEED
 
-    self.stop_light_signal = bool(model_slowing or model_stopping)
-    self.stop_light_filter.update(self.stop_light_signal and not self.frogpilot_planner.lead_relevant)
-    self.stop_light_detected = self.stop_light_filter.x >= frogpilot_variables.THRESHOLD
+      self.stop_light_signal = bool(model_slowing or model_stopping)
+      self.stop_light_filter.update(self.stop_light_signal and not self.frogpilot_planner.lead_relevant)
+      self.stop_light_detected = self.stop_light_filter.x >= frogpilot_variables.THRESHOLD
+    else:
+      self.stop_light_detected = False
+      self.stop_light_signal = False
+
+      self.stop_light_filter.x = 0
