@@ -51,6 +51,7 @@ THERMAL_BANDS = OrderedDict({
 })
 
 # FrogPilot variables
+INCREASED_THERMAL_BANDS = THERMAL_BANDS | {ThermalStatus.yellow: ThermalBand(75.0, 102.0), ThermalStatus.red: ThermalBand(94.0, 107.)}
 
 # Override to highest thermal band when offroad and above this temp
 OFFROAD_DANGER_TEMP = 75
@@ -307,6 +308,7 @@ def hardware_thread(end_event, hw_queue) -> None:
       msg.deviceState.fanSpeedPercentDesired = fan_controller.update(all_comp_temp, onroad_conditions["ignition"])
 
     # FrogPilot variables
+    thermal_bands = INCREASED_THERMAL_BANDS if frogpilot_toggles.increase_thermal_limits else THERMAL_BANDS
 
     is_offroad_for_5_min = (started_ts is None) and ((not started_seen) or (off_ts is None) or (time.monotonic() - off_ts > 60 * 5))
     if is_offroad_for_5_min and offroad_comp_temp > OFFROAD_DANGER_TEMP:
@@ -314,12 +316,12 @@ def hardware_thread(end_event, hw_queue) -> None:
       # we want to cool down first before increasing load
       thermal_status = ThermalStatus.danger
     else:
-      current_band = THERMAL_BANDS[thermal_status]
-      band_idx = list(THERMAL_BANDS.keys()).index(thermal_status)
+      current_band = thermal_bands[thermal_status]
+      band_idx = list(thermal_bands.keys()).index(thermal_status)
       if current_band.min_temp is not None and all_comp_temp < current_band.min_temp:
-        thermal_status = list(THERMAL_BANDS.keys())[band_idx - 1]
+        thermal_status = list(thermal_bands.keys())[band_idx - 1]
       elif current_band.max_temp is not None and all_comp_temp > current_band.max_temp:
-        thermal_status = list(THERMAL_BANDS.keys())[band_idx + 1]
+        thermal_status = list(thermal_bands.keys())[band_idx + 1]
 
     # **** starting logic ****
 
