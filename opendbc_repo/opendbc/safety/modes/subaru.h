@@ -77,6 +77,7 @@ static bool subaru_gen2 = false;
 static bool subaru_longitudinal = false;
 
 // FrogPilot variables
+static bool subaru_raised_steer_limit = false;
 
 static uint32_t subaru_get_checksum(const CANPacket_t *msg) {
   return (uint8_t)msg->data[0];
@@ -141,7 +142,7 @@ static void subaru_rx_hook(const CANPacket_t *msg) {
 }
 
 static bool subaru_tx_hook(const CANPacket_t *msg) {
-  const TorqueSteeringLimits SUBARU_STEERING_LIMITS      = SUBARU_STEERING_LIMITS_GENERATOR(2047, 50, 70);
+  const TorqueSteeringLimits SUBARU_STEERING_LIMITS      = SUBARU_STEERING_LIMITS_GENERATOR(subaru_raised_steer_limit ? 3071 : 2047, 50, 70);
   const TorqueSteeringLimits SUBARU_GEN2_STEERING_LIMITS = SUBARU_STEERING_LIMITS_GENERATOR(1500, 35, 50);
 
   const LongitudinalLimits SUBARU_LONG_LIMITS = {
@@ -250,6 +251,8 @@ static safety_config subaru_init(uint16_t param) {
   subaru_gen2 = GET_FLAG(param, SUBARU_PARAM_GEN2);
 
   // FrogPilot variables
+  const uint16_t SUBARU_PARAM_RAISED_STEER_LIMIT = 2048;
+  subaru_raised_steer_limit = GET_FLAG(param, SUBARU_PARAM_RAISED_STEER_LIMIT);
 
 #ifdef ALLOW_DEBUG
   const uint16_t SUBARU_PARAM_LONGITUDINAL = 2;
