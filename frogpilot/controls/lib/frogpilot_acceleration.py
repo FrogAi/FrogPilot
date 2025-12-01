@@ -3,6 +3,8 @@ import numpy as np
 
 from openpilot.selfdrive.controls.lib.longitudinal_planner import ACCEL_MIN, get_coast_accel, get_max_accel
 
+from openpilot.frogpilot.common import frogpilot_variables
+
 A_CRUISE_MIN_ECO = ACCEL_MIN / 2
 A_CRUISE_MIN_COAST = -0.05
 
@@ -29,6 +31,12 @@ def get_max_accel_eco(v_ego):
 
 def get_max_accel_sport(v_ego):
   return np.interp(v_ego, A_CRUISE_MAX_BP_CUSTOM, A_CRUISE_MAX_VALS_SPORT)
+
+def get_max_accel_low_speeds(max_accel, v_cruise):
+  return np.interp(v_cruise, [0., frogpilot_variables.CITY_SPEED_LIMIT / 2, frogpilot_variables.CITY_SPEED_LIMIT], [max_accel / 4, max_accel / 2, max_accel])
+
+def get_max_accel_ramp_off(max_accel, v_cruise, v_ego):
+  return np.interp(v_cruise - v_ego, [0., 1., 5.], [0., 0.5, max_accel])
 
 def get_max_allowed_accel(v_ego):
   return np.interp(v_ego, [0., 5., 20.], [4.0, 4.0, 2.0])  # ISO 15622:2018
@@ -61,6 +69,10 @@ class FrogPilotAcceleration:
         self.max_accel = get_max_allowed_accel(v_ego)
       else:
         self.max_accel = get_max_accel(v_ego)
+
+    if frogpilot_toggles.human_acceleration:
+      self.max_accel = get_max_accel_low_speeds(self.max_accel, self.frogpilot_planner.v_cruise)
+      self.max_accel = min(get_max_accel_ramp_off(self.max_accel, self.frogpilot_planner.v_cruise, v_ego), self.max_accel)
 
     if self.frogpilot_planner.frogpilot_vcruise.csc_controlling_speed and self.frogpilot_planner.frogpilot_vcruise.csc.decel_rate > 0:
       self.max_accel = max(-self.frogpilot_planner.frogpilot_vcruise.csc.decel_rate, ACCEL_MIN)

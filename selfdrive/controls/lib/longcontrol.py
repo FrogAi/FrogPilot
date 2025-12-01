@@ -79,7 +79,7 @@ class LongControl:
       self.reset()
 
     elif self.long_control_state == LongCtrlState.starting:
-      output_accel = frogpilot_toggles.startAccel
+      output_accel = a_target if frogpilot_toggles.human_acceleration else frogpilot_toggles.startAccel
       self.reset()
 
     else:  # LongCtrlState.pid
