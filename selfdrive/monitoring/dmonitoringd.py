@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 import cereal.messaging as messaging
+from opendbc.car import structs
 from openpilot.common.params import Params
 from openpilot.common.realtime import config_realtime_process
 from openpilot.selfdrive.monitoring.helpers import DriverMonitoring
 
 # FrogPilot variables
+GearShifter = structs.CarState.GearShifter
 
 
 def dmonitoringd_thread():
@@ -49,6 +51,7 @@ def dmonitoringd_thread():
 
       # FrogPilot variables
       driver_view_enabled = demo_mode
+      demo_mode &= sm["carState"].gearShifter != GearShifter.reverse
 
     # save rhd virtual toggle every 5 mins
     if (sm['driverStateV2'].frameId % 6000 == 0 and not demo_mode and

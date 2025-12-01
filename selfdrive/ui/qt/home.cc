@@ -82,7 +82,21 @@ void HomeWindow::updateState(const UIState &s) {
   const QJsonObject &frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
 
   if (s.scene.started) {
-    developer_sidebar->setVisible(frogpilot_toggles.value(QLatin1String("developer_sidebar")).toBool());
+    if (frogpilot_scene.driver_camera_active) {
+      if (slayout->currentWidget() != driver_view) {
+        emit closeSettings();
+      }
+      slayout->setCurrentWidget(driver_view);
+      sidebar->setVisible(false);
+      developer_sidebar->setVisible(false);
+    } else {
+      if (slayout->currentWidget() == driver_view) {
+        sidebar->setVisible(sidebarOpenOnroad());
+        slayout->setCurrentWidget(onroad);
+      }
+
+      developer_sidebar->setVisible(frogpilot_toggles.value(QLatin1String("developer_sidebar")).toBool());
+    }
   }
 }
 

@@ -198,7 +198,7 @@ class AugmentedRoadView(CameraView):
 
   def _handle_mouse_release(self, mouse_pos: MousePos):
     # Don't trigger click callback if bookmark was triggered
-    if not self._bookmark_icon.interacting() and not self._experimental_press.triggered:
+    if not self._bookmark_icon.interacting() and not self._experimental_press.triggered and not frogpilot_camera_view.reversing:
       super()._handle_mouse_release(mouse_pos)
 
   def _render(self, _):
