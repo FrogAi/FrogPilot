@@ -126,7 +126,12 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
       vehicleToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 300, tr(" seconds"), autoLockLabels, 5);
     } else if (param == "ClusterOffset") {
       std::vector<QString> clusterOffsetButton{tr("Reset")};
-      vehicleToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 1.000, 1.050, "x", std::map<float, QString>(), 0.001, false, {}, clusterOffsetButton);
+      FrogPilotParamValueButtonControl *clusterOffsetToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 1.000, 1.050, "x", std::map<float, QString>(), 0.001, false, {}, clusterOffsetButton);
+      QObject::connect(clusterOffsetToggle, &FrogPilotParamValueButtonControl::buttonClicked, [clusterOffsetToggle, this]() {
+        params.putFloat("ClusterOffset", std::stof(params.getKeyDefaultValue("ClusterOffset").value()));
+        clusterOffsetToggle->refresh();
+      });
+      vehicleToggle = clusterOffsetToggle;
 
     } else if (param == "VehicleInfo") {
       ButtonControl *vehicleInfoButton = new ButtonControl(title, tr("VIEW"), desc);
