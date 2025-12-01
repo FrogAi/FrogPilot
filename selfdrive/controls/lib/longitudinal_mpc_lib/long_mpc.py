@@ -6,8 +6,9 @@ from cereal import log
 from opendbc.car.interfaces import ACCEL_MIN, ACCEL_MAX
 from openpilot.common.realtime import DT_MDL
 from openpilot.common.swaglog import cloudlog
+from openpilot.frogpilot.common import frogpilot_utilities
 # WARNING: imports outside of constants will not trigger a rebuild
-from openpilot.selfdrive.modeld.constants import index_function
+from openpilot.selfdrive.modeld.constants import index_function, ModelConstants
 from openpilot.selfdrive.controls.radard import _LEAD_ACCEL_TAU
 
 if __name__ == '__main__':  # generating code
@@ -307,10 +308,26 @@ class LongitudinalMpc:
     lead_xv = np.column_stack((x_lead_traj, v_lead_traj))
     return lead_xv
 
-  def process_lead(self, lead, frogpilot_toggles):
+  def process_lead(self, lead, frogpilot_toggles, model_lead):
     v_ego = self.x0[1]
 
     # FrogPilot variables
+    if frogpilot_toggles.human_following:
+      if lead.modelProb > frogpilot_toggles.lead_detection_probability and frogpilot_utilities.predicts_lead_trajectories(frogpilot_toggles.model_path):
+        x_lead_traj = float(lead.dRel) + (np.asarray(model_lead.x, dtype=np.float64) - model_lead.x[0])
+        v_lead_traj = float(lead.vLead) + (np.asarray(model_lead.v, dtype=np.float64) - model_lead.v[0])
+
+        v_lead_0 = v_lead_traj[0]
+        min_x_lead = ((v_ego + v_lead_0) / 2) * (v_ego - v_lead_0) / (-ACCEL_MIN * 2)
+        x_lead_traj[0] = max(x_lead_traj[0], min_x_lead)
+        v_lead_traj = np.clip(v_lead_traj, 0.0, 1e8)
+
+        x_lead_mpc = np.maximum.accumulate(np.interp(T_IDXS, ModelConstants.LEAD_T_IDXS, x_lead_traj))
+        v_lead_mpc = np.interp(T_IDXS, ModelConstants.LEAD_T_IDXS, v_lead_traj)
+
+        x_lead_max = x_lead_mpc[0] + np.cumsum(T_DIFFS[1:] * (v_lead_mpc[:-1] + v_lead_mpc[1:]) / 2)
+        x_lead_mpc[1:] = np.minimum(x_lead_mpc[1:], x_lead_max)
+        return np.column_stack((x_lead_mpc, v_lead_mpc))
 
     if lead is not None and lead.status:
       x_lead = lead.dRel
@@ -333,15 +350,16 @@ class LongitudinalMpc:
     lead_xv = self.extrapolate_lead(x_lead, v_lead, a_lead, a_lead_tau)
     return lead_xv
 
-  def update(self, v_cruise, radarstate, x, v, a, j, t_follow, accel_min, accel_max, force_decel, frogpilot_toggles, personality=log.LongitudinalPersonality.standard):
+  def update(self, v_cruise, modelV2, radarstate, x, v, a, j, t_follow, accel_min, accel_max, force_decel, frogpilot_toggles, personality=log.LongitudinalPersonality.standard):
     v_ego = self.x0[1]
 
     # FrogPilot variables
+    model_leads = modelV2.leadsV3
 
     self.status = radarstate.leadOne.status or radarstate.leadTwo.status
 
-    lead_xv_0 = self.process_lead(radarstate.leadOne, frogpilot_toggles)
-    lead_xv_1 = self.process_lead(radarstate.leadTwo, frogpilot_toggles)
+    lead_xv_0 = self.process_lead(radarstate.leadOne, frogpilot_toggles, model_leads[0])
+    lead_xv_1 = self.process_lead(radarstate.leadTwo, frogpilot_toggles, model_leads[1])
 
     # FrogPilot variables
     self.lead_xv_0 = lead_xv_0
