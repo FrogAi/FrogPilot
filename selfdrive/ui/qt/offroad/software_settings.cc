@@ -104,9 +104,17 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
     if (!selection.isEmpty()) {
       params.put("UpdaterTargetBranch", selection.toStdString());
       targetBranchBtn->setValue(QString::fromStdString(params.get("UpdaterTargetBranch")));
-      checkForUpdates();
 
       // FrogPilot variables
+      if (selection != cur && (!is_onroad || frogpilotUIState()->frogpilot_scene.parked || isFrogsGoMoo())) {
+        if (FrogPilotConfirmationDialog::yesorno(tr("This branch must be downloaded before switching. Would you like to download it now?"), this)) {
+          std::system("pkill -SIGHUP -f system.updated.updated");
+          frogpilotUIState()->runUpdateChecks();
+          return;
+        }
+      }
+
+      checkForUpdates();
     }
   });
   addItem(targetBranchBtn);
