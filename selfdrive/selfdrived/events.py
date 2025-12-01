@@ -1128,6 +1128,14 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.PERMANENT: holiday_alert,
   },
 
+  FrogPilotEventName.leadDeparting: {
+    ET.PERMANENT: Alert(
+      "Lead Departed",
+      "",
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.MID, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
   FrogPilotEventName.openpilotCrashed: {
     ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("openpilot crashed"),
 
