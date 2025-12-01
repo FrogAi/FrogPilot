@@ -20,6 +20,9 @@ class CV:
   LB_TO_KG = 0.453592
 
   # FrogPilot variables
+  METER_TO_FOOT = 3.28084
+  FOOT_TO_METER = 1. / METER_TO_FOOT
+  INCH_TO_CM = 2.54
 
 
 ACCELERATION_DUE_TO_GRAVITY = 9.81  # m/s^2
