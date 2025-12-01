@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import datetime
+import json
 import os
 import re
 import shutil
@@ -14,10 +15,13 @@ from openpilot.system.hardware.hw import Paths
 from openpilot.common.swaglog import cloudlog
 from openpilot.system.version import get_build_metadata
 
-MAX_SIZE = 1_000_000 * 100  # allow up to 100M
+from openpilot.frogpilot.common import frogpilot_paths
+
+MAX_SIZE = 1_000_000 * 200  # allow up to 200M
 MAX_TOMBSTONE_FN_LEN = 62  # 85 - 23 ("<dongle id>/crash/")
 
 # FrogPilot variables
+QUEUE_FLUSH_INTERVAL = 60
 
 TOMBSTONE_DIR = "/data/tombstones/"
 APPORT_DIR = "/var/crash/"
@@ -122,6 +126,15 @@ def report_tombstone_apport(fn):
   message = message + " - " + crash_function
 
   # FrogPilot variables
+  pid = re.search(r"^ Pid:\t(\d+)$", contents, re.MULTILINE).group(1)
+  error_path = frogpilot_paths.SWAGLOG_ERROR_PATH.with_suffix(f".{pid}")
+
+  if error_path.is_file():
+    try:
+      record = json.loads(error_path.read_text())
+      contents = f"--- last error ---\n{record['filename']}:{record['lineno']} {record['msg']}\n\n{contents}"
+    except ValueError:
+      cloudlog.exception(f"Error reading {error_path}")
 
   sentry.report_tombstone(fn, message, contents)
 
@@ -153,6 +166,7 @@ def main() -> NoReturn:
   initial_tombstones = set(get_tombstones())
 
   # FrogPilot variables
+  last_queue_flush = 0.0
 
   while True:
     now_tombstones = set(get_tombstones())
@@ -176,7 +190,12 @@ def main() -> NoReturn:
         cloudlog.exception(f"Error reporting tombstone {fn}")
 
     initial_tombstones = now_tombstones
+
     # FrogPilot variables
+    if should_report and time.monotonic() - last_queue_flush > QUEUE_FLUSH_INTERVAL:
+      last_queue_flush = time.monotonic()
+      sentry.flush_queued_tombstones()
+
     time.sleep(5)
 
 

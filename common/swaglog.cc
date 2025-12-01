@@ -74,6 +74,14 @@ public:
     zmq_send(sock, log_s.data(), log_s.length(), ZMQ_NOBLOCK);
 
     // FrogPilot variables
+    if (levelnum >= CLOUDLOG_ERROR) {
+      std::string error_path = Path::shm_path() + "/swaglog_error." + std::to_string(getpid());
+      std::string tmp_path = error_path + ".tmp";
+
+      if (util::write_file(tmp_path.c_str(), log_s.data() + 1, log_s.length() - 1, O_WRONLY | O_CREAT | O_TRUNC) == 0) {
+        rename(tmp_path.c_str(), error_path.c_str());
+      }
+    }
   }
 
   std::mutex lock;
