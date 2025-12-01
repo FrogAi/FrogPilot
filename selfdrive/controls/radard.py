@@ -29,6 +29,7 @@ RADAR_TO_CENTER = 2.7   # (deprecated) RADAR is ~ 2.7m ahead from center of car
 RADAR_TO_CAMERA = 1.52  # RADAR is ~ 1.5m ahead from center of mesh frame
 
 # FrogPilot variables
+LEAD_REFLECTION_DISTANCE = 1.5
 
 
 class KalmanParams:
@@ -202,7 +203,10 @@ def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capn
       # Only choose new track if it is actually closer than the previous one
       if (not lead_dict['status']) or (closest_track.dRel < lead_dict['dRel']):
         # FrogPilot variables
-        lead_dict = closest_track.get_RadarState()
+        if lead_dict['status'] and lead_dict['dRel'] - closest_track.dRel < LEAD_REFLECTION_DISTANCE:
+          lead_dict = closest_track.get_RadarState(lead_dict['modelProb'])
+        else:
+          lead_dict = closest_track.get_RadarState()
 
   # FrogPilot variables
   if low_speed_override and not lead_dict['status'] and len(tracks) > 0:

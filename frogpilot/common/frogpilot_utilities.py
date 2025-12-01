@@ -4,6 +4,7 @@ import json
 import math
 import numpy as np
 import os
+import pickle
 import requests
 import subprocess
 import threading
@@ -252,6 +253,22 @@ def load_log_schema(git_commit):
   schema_path = frogpilot_paths.TELEMETRY_SCHEMAS_PATH / git_commit / "log.capnp"
 
   return capnp.SchemaParser().load(str(schema_path), imports=[str(schema_path.parent)])
+
+
+@cache
+def predicts_lead_trajectories(model_path):
+  for metadata_name in ("supercombo_metadata.pkl", "driving_vision_metadata.pkl", "driving_policy_metadata.pkl", "driving_metadata.pkl"):
+    metadata_path = Path(model_path) / metadata_name
+    if not metadata_path.is_file():
+      continue
+
+    with open(metadata_path, "rb") as metadata_file:
+      lead = pickle.load(metadata_file)["output_slices"].get("lead")
+
+    if lead is not None:
+      return lead.stop - lead.start == frogpilot_variables.LEAD_TRAJECTORY_OUTPUT_SIZE
+
+  return False
 
 
 def run_cmd(cmd, fail_message, report=True):

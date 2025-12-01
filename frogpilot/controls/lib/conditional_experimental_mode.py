@@ -149,7 +149,7 @@ class ConditionalExperimentalMode:
       lead_speed = np.maximum(self.frogpilot_planner.lead_one.vLead + np.array(sm["modelV2"].leadsV3[0].v) - sm["modelV2"].leadsV3[0].v[0], 0)
       lead_distance = self.frogpilot_planner.lead_one.dRel + np.cumsum((lead_speed[:-1] + lead_speed[1:]) / 2 * np.diff(LEAD_T_IDXS))
 
-      following_distance = STOP_DISTANCE + self.frogpilot_planner.frogpilot_following.t_follow * lead_speed[1:]
+      following_distance = STOP_DISTANCE + self.frogpilot_planner.frogpilot_following.base_t_follow * lead_speed[1:]
       safe_distance = np.minimum(following_distance, LEAD_GAP_RATIO * self.frogpilot_planner.lead_one.dRel)
       required_deceleration = max(2 * (v_ego * LEAD_T_IDXS[1:] + safe_distance - lead_distance) / LEAD_T_IDXS[1:]**2)
 
