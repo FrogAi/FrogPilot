@@ -21,6 +21,7 @@ public:
   void paintWorldWidgets(QPainter &p);
   void updateState(const UIState &s, const FrogPilotUIState &fs);
 
+  bool driverView = false;
   bool hideBottomIcons = false;
   bool isCruiseSet = false;
   bool rightHandDM = false;

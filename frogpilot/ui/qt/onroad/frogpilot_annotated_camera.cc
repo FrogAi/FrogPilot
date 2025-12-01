@@ -90,6 +90,10 @@ void FrogPilotAnnotatedCameraWidget::drawOutlinedText(QPainter &p, const QPointF
 }
 
 void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
+  if (driverView) {
+    paintWorldWidgets(p);
+  }
+
   int slotStep = rightHandDM ? -widget_size - 2 * UI_BORDER_SIZE : widget_size + 2 * UI_BORDER_SIZE;
 }
 

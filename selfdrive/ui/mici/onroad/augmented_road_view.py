@@ -3,6 +3,7 @@ import numpy as np
 import pyray as rl
 from cereal import messaging, car, log
 from msgq.visionipc import VisionStreamType
+from openpilot.frogpilot.ui.mici.frogpilot_camera_view import frogpilot_camera_view
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
 from openpilot.selfdrive.ui.mici.onroad import SIDE_PANEL_WIDTH
 from openpilot.selfdrive.ui.mici.onroad.alert_renderer import AlertRenderer
@@ -182,6 +183,7 @@ class AugmentedRoadView(CameraView):
       self._offroad_label.set_text("start the car to\nuse openpilot")
 
     # FrogPilot variables
+    frogpilot_camera_view.update()
 
   # FrogPilot variables
 
@@ -215,11 +217,14 @@ class AugmentedRoadView(CameraView):
     )
 
     # FrogPilot variables
-    # Render the base camera view
-    super()._render(self._content_rect)
+    if frogpilot_camera_view.driver_view_active:
+      frogpilot_camera_view.render_driver_view(self._content_rect)
+    else:
+      # Render the base camera view
+      super()._render(self._content_rect)
 
-    # Draw all UI overlays
-    self._model_renderer.render(self._content_rect)
+      # Draw all UI overlays
+      self._model_renderer.render(self._content_rect)
 
     # Fade out bottom of overlays for looks
     rl.draw_texture_ex(self._fade_texture, rl.Vector2(self._content_rect.x, self._content_rect.y), 0.0, 1.0, rl.WHITE)
@@ -279,6 +284,7 @@ class AugmentedRoadView(CameraView):
       target = ROAD_CAM
 
     # FrogPilot variables
+    target = frogpilot_camera_view.road_stream(target, self.available_streams)
 
     if self.stream_type != target:
       self.switch_stream(target)
