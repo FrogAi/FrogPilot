@@ -51,6 +51,12 @@ class FrogPilotRoad:
 
     self._stop_sign_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
 
+  def max_draw_distance(self, stock_distance):
+    if not ui_state.frogpilot_toggles.get("model_ui"):
+      return stock_distance
+
+    return math.inf
+
   def lane_line_width(self, stock_width):
     toggles = ui_state.frogpilot_toggles
 
