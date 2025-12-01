@@ -17,6 +17,7 @@ from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.frogpilot.system.frogpilot_stats import send_stats
 from openpilot.frogpilot.system.frogpilot_tracking import FrogPilotTracking
 from openpilot.frogpilot.system.model_manager import ModelManager
+from openpilot.frogpilot.system.reporting import capture_report
 
 class FrogPilotRequests:
   def __init__(self, cancel_maps_download, model_manager, theme_manager, thread_manager):
@@ -41,6 +42,9 @@ class FrogPilotRequests:
     self.request_times = {}
 
     self.account_link = "{}"
+    self.issue_report = "{}"
+
+    self.failed_report = None
 
   def take(self, kind):
     pending = self.pending.pop(kind, None)
@@ -70,7 +74,18 @@ class FrogPilotRequests:
       self.account_link = json.dumps(account_link)
     self.account_link_request_time = request_time
 
-  def update(self, now, sm, params, api):
+  def publish_issue_report(self, issue_report):
+    self.issue_report = json.dumps(issue_report)
+
+  def send_report(self, report, frogpilot_toggles, api):
+    try:
+      self.failed_report = capture_report(report, frogpilot_toggles, api, self.publish_issue_report)
+    except Exception:
+      self.failed_report = report
+      self.publish_issue_report({"status": "failed"})
+      raise
+
+  def update(self, now, time_validated, sm, params, frogpilot_toggles, api):
     for msg in messaging.drain_sock(self.ui_request_sock):
       self.pending[msg.frogpilotUIRequest.which()] = (msg.logMonoTime, msg.frogpilotUIRequest)
 
@@ -130,6 +145,17 @@ class FrogPilotRequests:
       self.flashed_panda = False
       self.thread_manager.run_in_thread(self.flash_panda)
 
+    if time_validated and not self.thread_manager.is_thread_alive("send_report"):
+      report_waiting = self.failed_report is not None and sm["deviceState"].networkMetered and not self.failed_report.get("metered_confirmed")
+
+      request = self.take("issueReport")
+      if request is not None:
+        self.issue_report = json.dumps({"status": "pending"})
+        self.thread_manager.run_in_thread(self.send_report, (json.loads(request.issueReport), dict(vars(frogpilot_toggles)), api))
+      elif not report_waiting and self.take("retryIssueReport") is not None and self.failed_report is not None:
+        self.issue_report = json.dumps({"status": "pending"})
+        self.thread_manager.run_in_thread(self.send_report, (self.failed_report, dict(vars(frogpilot_toggles)), api))
+
     if not self.thread_manager.is_thread_alive("update_account_link"):
       refresh = self.take("accountLink") is not None
       unlink = self.take("unlinkAccount") is not None
@@ -186,6 +212,8 @@ class FrogPilotRequests:
     frogpilotProcessState.flashingPanda = flashing_panda
     frogpilotProcessState.flashPandaRequestTime = self.request_times.get("flashPanda", 0)
     frogpilotProcessState.frogpilotToggles = toggles_json
+    frogpilotProcessState.issueReport = self.issue_report
+    frogpilotProcessState.issueReportRequestTime = max(self.request_times.get("issueReport", 0), self.request_times.get("retryIssueReport", 0))
     frogpilotProcessState.modelDownloadProgress = self.model_manager.download_state.progress
     frogpilotProcessState.modelDownloadRequestTime = max(self.request_times.get("downloadAllModels", 0), self.request_times.get("downloadModels", 0))
     frogpilotProcessState.settingsBackup = self.settings_backup
@@ -378,7 +406,7 @@ def frogpilot_thread():
 
     started_previously = started
 
-    toggles_updated, update_checks_requested = frogpilot_requests.update(now, sm, params, api)
+    toggles_updated, update_checks_requested = frogpilot_requests.update(now, time_validated, sm, params, frogpilot_toggles, api)
     frogpilot_requests.publish(pm, stats_saved_count, variables.toggles_json)
 
     toggles_updated |= sm["frogpilotDeviceState"].forceOnroadClearedCount > force_onroad_cleared_count

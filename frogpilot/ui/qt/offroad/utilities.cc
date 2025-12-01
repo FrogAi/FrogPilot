@@ -130,9 +130,132 @@ FrogPilotUtilitiesPanel::FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent
   });
   addItem(flashPandaButton);
 
+  reportIssueButton = new ButtonControl(tr("Report a Bug or an Issue"), tr("REPORT"), tr("<b>Tell the FrogPilot team what went wrong, straight from the car.</b><br><br>You pick what happened from a list, add a description where it helps, and give your Discord name so they can reach you. Your settings and the most recent error log go along with it so the problem can be traced."));
+  QObject::connect(reportIssueButton, &ButtonControl::clicked, [this]() {
+    if (!frogpilotUIState()->frogpilot_scene.online) {
+      ConfirmationDialog::alert(tr("Connect to Wi-Fi or a hotspot first, then send your report."), this);
+      return;
+    }
+
+    QJsonObject previousReport = QJsonDocument::fromJson((*frogpilotUIState()->sm)["frogpilotProcessState"].getFrogpilotProcessState().getIssueReport().cStr()).object();
+    if (previousReport["status"].toString() == "failed") {
+      QString retryOption = tr("Retry previous report");
+      QString selected = MultiOptionDialog::getSelection(tr("Delivery wasn't confirmed.\nRetry to avoid duplicates."), {retryOption, tr("Start a new report")}, "", this);
+
+      if (selected.isEmpty()) {
+        return;
+      }
+
+      if (selected == retryOption) {
+        frogpilotUIState()->retryIssueReport();
+
+        reportIssueButton->setEnabled(false);
+        reportIssueButton->setValue(tr("Sending..."));
+        return;
+      }
+    }
+
+    QString crashOption = tr("I saw an alert that said \"openpilot crashed\"");
+    QString unsureOption = tr("I'm not sure if this is normal or a bug:");
+    QString otherOption = tr("Something else (please describe)");
+
+    QStringList reportMessages = {
+      tr("Acceleration feels harsh or jerky"),
+      tr("An alert was unclear and I didn't know what it meant"),
+      tr("Braking is too sudden or uncomfortable"),
+      unsureOption,
+      tr("My screen froze or is stuck loading something"),
+      tr("My steering wheel buttons aren't working"),
+      tr("openpilot disengages when I don't expect it"),
+      tr("openpilot doesn't react to stopped vehicles ahead"),
+      tr("openpilot doesn't resume from a stop"),
+      tr("openpilot feels sluggish or slow to respond"),
+      tr("Steering feels twitchy or unnatural"),
+      tr("The car doesn't follow curves well"),
+      tr("The car isn't staying centered in its lane"),
+      otherOption
+    };
+
+    if (QFile::exists("/data/error_logs/error.txt")) {
+      reportMessages.prepend(crashOption);
+    }
+
+    QStringList needsExtraInput = {crashOption, unsureOption, otherOption};
+
+    QString selectedIssue = MultiOptionDialog::getSelection(tr("What went wrong?"), reportMessages, "", this);
+    if (selectedIssue.isEmpty()) {
+      return;
+    }
+
+    if (needsExtraInput.contains(selectedIssue)) {
+      QString extraInput = InputDialog::getText(tr("Please describe what's happening"), this, "", false, 10, "", 300).trimmed();
+      if (extraInput.isEmpty()) {
+        return;
+      }
+      if (selectedIssue.endsWith(":")) {
+        selectedIssue += " " + extraInput;
+      } else {
+        selectedIssue += ": " + extraInput;
+      }
+    }
+
+    QString discordUser = InputDialog::getText(tr("What's your Discord username?"), this, "",
+                                              false, -1, QString::fromStdString(params.get("DiscordUsername")), 64).trimmed();
+    if (discordUser.isEmpty()) {
+      return;
+    }
+
+    QJsonObject reportData;
+    reportData["DiscordUser"] = discordUser;
+    reportData["Issue"] = selectedIssue;
+
+    params.putNonBlocking("DiscordUsername", discordUser.toStdString());
+    submitReport(reportData);
+  });
+  addItem(reportIssueButton);
+  std::function<void()> updateReportIssueButton = [this]() {
+    reportIssueButton->setVisible(frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value("issue_report_available").toBool());
+  };
+  QObject::connect(frogpilotUIState(), &FrogPilotUIState::togglesUpdated, reportIssueButton, updateReportIssueButton);
+  updateReportIssueButton();
+
   if (forceOpen) {
-    for (AbstractControl *control : std::initializer_list<AbstractControl*>{debugModeToggle, forceStartedButton, flashPandaButton}) {
+    for (AbstractControl *control : std::initializer_list<AbstractControl*>{debugModeToggle, forceStartedButton, flashPandaButton, reportIssueButton}) {
       control->showDescription();
     }
+  }
+
+  QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotUtilitiesPanel::updateState);
+}
+
+void FrogPilotUtilitiesPanel::submitReport(QJsonObject report) {
+  frogpilotUIState()->reportIssue(QString::fromUtf8(QJsonDocument(report).toJson(QJsonDocument::Compact)));
+
+  reportIssueButton->setEnabled(false);
+  reportIssueButton->setValue(tr("Sending..."));
+}
+
+void FrogPilotUtilitiesPanel::updateState(const UIState &s, const FrogPilotUIState &fs) {
+  if (!isVisible() || s.sm->frame % UI_FREQ != 0) {
+    return;
+  }
+
+  const cereal::FrogPilotProcessState::Reader &frogpilotProcessState = (*fs.sm)["frogpilotProcessState"].getFrogpilotProcessState();
+
+  QString status = QJsonDocument::fromJson(frogpilotProcessState.getIssueReport().cStr()).object()["status"].toString();
+  if (fs.issue_report_request_time > frogpilotProcessState.getIssueReportRequestTime() || status == "uploading") {
+    status = "pending";
+  }
+
+  reportIssueButton->setEnabled(status != "pending");
+  reportIssueButton->setText(status == "failed" ? tr("RETRY") : tr("REPORT"));
+  if (status == "pending") {
+    reportIssueButton->setValue(tr("Sending..."));
+  } else if (status == "sent") {
+    reportIssueButton->setValue(tr("Sent"));
+  } else if (status == "failed") {
+    reportIssueButton->setValue(tr("Failed"));
+  } else {
+    reportIssueButton->setValue("");
   }
 }
