@@ -222,6 +222,10 @@ class CarInterfaceBase(ABC):
         if CP.flags & HyundaiFlags.CANFD and frogpilot_toggles.taco_tune_hacks:
           CP.safetyConfigs[-1].safetyParam |= HyundaiFrogPilotSafetyFlags.TACO_TUNE_HACK.value
 
+      elif platform in SUBARU:
+        if not (CP.flags & (SubaruFlags.GLOBAL_GEN2 | SubaruFlags.HYBRID)) and frogpilot_toggles.subaru_sng:
+          CP.safetyConfigs[0].safetyParam |= SubaruSafetyFlags.SNG.value
+
       elif platform in TOYOTA:
         fp_ret.canUsePedal = not CP.autoResumeSng
         fp_ret.canUseSDSU = candidate not in UNSUPPORTED_DSU_CAR and candidate not in TSS2_CAR
