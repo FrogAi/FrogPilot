@@ -32,6 +32,8 @@ private:
 
   bool wheel_is_stock = false;
 
+  uint64_t wheel_image_update_count = 0;
+
   QColor background_color;
 
   QPixmap wheel_img;

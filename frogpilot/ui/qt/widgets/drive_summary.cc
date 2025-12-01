@@ -1,11 +1,13 @@
+#include "selfdrive/ui/qt/widgets/scrollview.h"
+
 #include "frogpilot/ui/qt/widgets/drive_summary.h"
 
-FrogPilotDriveSummary::FrogPilotDriveSummary(QWidget *parent) : QFrame(parent) {
+FrogPilotDriveSummary::FrogPilotDriveSummary(QWidget *parent, bool randomEvents) : QFrame(parent), displayRandomEvents(randomEvents) {
   QVBoxLayout *mainLayout = new QVBoxLayout(this);
   mainLayout->setContentsMargins(20, 20, 20, 20);
   mainLayout->setSpacing(15);
 
-  QLabel *titleLabel = new QLabel(tr("Drive Summary"), this);
+  QLabel *titleLabel = new QLabel(randomEvents ? tr("Random Events Summary") : tr("Drive Summary"), this);
   titleLabel->setAlignment(Qt::AlignCenter);
   titleLabel->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
   titleLabel->setStyleSheet(R"(
@@ -28,12 +30,17 @@ FrogPilotDriveSummary::FrogPilotDriveSummary(QWidget *parent) : QFrame(parent) {
   listLayout->setAlignment(Qt::AlignTop);
   listLayout->setSpacing(20);
 
-  listLayout->addWidget(createStatBox(tr("% of Drive With openpilot Engaged"), &engagementValue));
-  listLayout->addWidget(createStatBox(tr("Drive Distance"), &frogPilotMetersValue));
-  listLayout->addWidget(createStatBox(tr("Drive Time"), &trackedTimeValue));
-  listLayout->addWidget(createStatBox(tr("% of Drive In \"Experimental Mode\""), &experimentalModeTimeValue));
+  if (displayRandomEvents) {
+    eventsListLayout = listLayout;
+    mainLayout->addWidget(new ScrollView(containerWidget, this), 1);
+  } else {
+    listLayout->addWidget(createStatBox(tr("% of Drive With openpilot Engaged"), &engagementValue));
+    listLayout->addWidget(createStatBox(tr("Drive Distance"), &frogPilotMetersValue));
+    listLayout->addWidget(createStatBox(tr("Drive Time"), &trackedTimeValue));
+    listLayout->addWidget(createStatBox(tr("% of Drive In \"Experimental Mode\""), &experimentalModeTimeValue));
 
-  mainLayout->addWidget(containerWidget, 1);
+    mainLayout->addWidget(containerWidget, 1);
+  }
 
   setStyleSheet(R"(
     QFrame {
@@ -67,18 +74,74 @@ void FrogPilotDriveSummary::updateStats() {
 
   QJsonObject currentStats = QJsonDocument::fromJson(QByteArray::fromStdString(params.get("FrogPilotStats"))).object();
 
-  std::function<double(const QString &)> diffDouble = [currentStats, this](const QString &key) -> double {
-    return currentStats.value(key).toDouble() - previousStats.value(key).toDouble();
-  };
+  if (displayRandomEvents) {
+    QJsonObject currentRandomEvents = currentStats.value("RandomEvents").toObject();
+    QJsonObject previousRandomEvents = previousStats.value("RandomEvents").toObject();
 
-  int engagedTime = diffDouble("EngagedTime");
-  int experimentalTime = diffDouble("ExperimentalModeTime");
-  int trackedTime = diffDouble("TrackedTime");
+    QList<QPair<QString, int>> eventsList;
+    for (QMap<QString, QString>::const_iterator it = randomEventNames().constBegin(); it != randomEventNames().constEnd(); ++it) {
+      int currentValue = currentRandomEvents.value(it.key()).toInt();
+      int previousValue = previousRandomEvents.value(it.key()).toInt();
+      int diffValue = currentValue - previousValue;
 
-  engagementValue->setText(QLocale().toString((trackedTime > 0) ? (engagedTime * 100 / trackedTime) : 0) + "%");
-  experimentalModeTimeValue->setText(QLocale().toString((trackedTime > 0) ? (experimentalTime * 100 / trackedTime) : 0) + "%");
-  frogPilotMetersValue->setText(formatDistance(diffDouble("FrogPilotMeters"), isMetric));
-  trackedTimeValue->setText(formatDuration(trackedTime));
+      if (diffValue > 0) {
+        eventsList.append(qMakePair(it.value(), diffValue));
+      }
+    }
+
+    std::sort(eventsList.begin(), eventsList.end(), [](const QPair<QString, int> &a, const QPair<QString, int> &b) {
+      if (a.second != b.second) {
+        return a.second > b.second;
+      } else {
+        return a.first.localeAwareCompare(b.first) < 0;
+      }
+    });
+
+    QLayoutItem *child;
+    while ((child = eventsListLayout->takeAt(0)) != nullptr) {
+      if (QWidget *widget = child->widget()) {
+        widget->deleteLater();
+      }
+      delete child;
+    }
+
+    if (eventsList.isEmpty()) {
+      eventsListLayout->setAlignment(Qt::AlignVCenter);
+
+      QLabel *noEventsLabel = new QLabel(tr("No Random Events Played!"), this);
+      noEventsLabel->setAlignment(Qt::AlignCenter);
+      noEventsLabel->setWordWrap(true);
+      noEventsLabel->setStyleSheet(R"(
+        QLabel {
+          font-size: 50px;
+          font-weight: bold;
+          color: #FFFFFF;
+        }
+      )");
+      eventsListLayout->addWidget(noEventsLabel);
+    } else {
+      eventsListLayout->setAlignment(Qt::AlignTop);
+
+      for (QList<QPair<QString, int>>::const_iterator it = eventsList.constBegin(); it != eventsList.constEnd(); ++it) {
+        QLabel *valueLabel = nullptr;
+        eventsListLayout->addWidget(createStatBox(it->first, &valueLabel));
+        valueLabel->setText(QLocale().toString(it->second));
+      }
+    }
+  } else {
+    std::function<double(const QString &)> diffDouble = [currentStats, this](const QString &key) -> double {
+      return currentStats.value(key).toDouble() - previousStats.value(key).toDouble();
+    };
+
+    int engagedTime = diffDouble("EngagedTime");
+    int experimentalTime = diffDouble("ExperimentalModeTime");
+    int trackedTime = diffDouble("TrackedTime");
+
+    engagementValue->setText(QLocale().toString((trackedTime > 0) ? (engagedTime * 100 / trackedTime) : 0) + "%");
+    experimentalModeTimeValue->setText(QLocale().toString((trackedTime > 0) ? (experimentalTime * 100 / trackedTime) : 0) + "%");
+    frogPilotMetersValue->setText(formatDistance(diffDouble("FrogPilotMeters"), isMetric));
+    trackedTimeValue->setText(formatDuration(trackedTime));
+  }
 }
 
 void FrogPilotDriveSummary::hideEvent(QHideEvent *event) {

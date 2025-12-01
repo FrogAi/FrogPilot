@@ -85,6 +85,11 @@ void OnroadWindow::offroadTransition(bool offroad) {
   alerts->clear();
 
   // FrogPilot variables
+  if (!offroad) {
+    alerts->enableFerg = util::random_int(0, 1) == 1;
+  } else {
+    alerts->displayFerg = false;
+  }
 }
 
 void OnroadWindow::paintEvent(QPaintEvent *event) {

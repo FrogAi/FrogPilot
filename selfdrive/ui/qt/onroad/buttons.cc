@@ -50,12 +50,19 @@ void ExperimentalButton::updateState(const UIState &s) {
   }
 
   // FrogPilot variables
+  const FrogPilotUIState &fs = *frogpilotUIState();
   const cereal::CarState::Reader &carState = (*s.sm)["carState"].getCarState();
 
   QColor current_background_color = backgroundColor();
   if (current_background_color != background_color) {
     background_color = current_background_color;
     update();
+  }
+
+  uint64_t current_wheel_image_update_count = (*fs.sm)["frogpilotPlan"].getFrogpilotPlan().getWheelImageUpdateCount();
+  if (current_wheel_image_update_count != wheel_image_update_count) {
+    wheel_image_update_count = current_wheel_image_update_count;
+    updateTheme();
   }
 }
 

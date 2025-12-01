@@ -21,12 +21,12 @@ from openpilot.frogpilot.controls.lib.frogpilot_following import FrogPilotFollow
 from openpilot.frogpilot.controls.lib.frogpilot_vcruise import FrogPilotVCruise
 
 class FrogPilotPlanner:
-  def __init__(self):
+  def __init__(self, ThemeManager):
     self.params = Params(return_defaults=True)
 
     self.frogpilot_acceleration = FrogPilotAcceleration(self)
     self.frogpilot_cem = ConditionalExperimentalMode(self)
-    self.frogpilot_events = FrogPilotEvents(self)
+    self.frogpilot_events = FrogPilotEvents(self, ThemeManager)
     self.frogpilot_following = FrogPilotFollowing(self)
     self.frogpilot_vcruise = FrogPilotVCruise(self)
 
@@ -216,5 +216,7 @@ class FrogPilotPlanner:
     frogpilotPlan.themeUpdateCount = theme_update_count
 
     frogpilotPlan.vCruise = float(self.v_cruise)
+
+    frogpilotPlan.wheelImageUpdateCount = self.frogpilot_events.wheel_image_update_count
 
     pm.send("frogpilotPlan", frogpilot_plan_send)

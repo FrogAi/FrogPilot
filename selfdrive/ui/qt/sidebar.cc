@@ -240,6 +240,8 @@ void Sidebar::updateTheme() {
 
   if (onroad) {
     loadImage("../../frogpilot/assets/active_theme/icons/button_flag", flag_img, flag_gif, home_btn.size(), this, false);
+  } else if (util::random_int(0, 100) == 69 && frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value(QLatin1String("random_events")).toBool()) {
+    loadImage("../../frogpilot/assets/random_events/icons/button_home", home_img, home_gif, home_btn.size(), this);
   } else {
     loadImage("../../frogpilot/assets/active_theme/icons/button_home", home_img, home_gif, home_btn.size(), this);
   }
