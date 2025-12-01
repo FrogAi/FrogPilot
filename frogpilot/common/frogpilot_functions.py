@@ -133,7 +133,7 @@ def frogpilot_boot_functions(build_metadata, params):
     HARDWARE.reboot()
 
   ThemeManager.copy_default_theme()
-  ThemeManager(params).update_active_theme(time_validated=system_time_valid(), frogpilot_toggles=frogpilot_toggles)
+  ThemeManager(params).update_active_theme(time_validated=system_time_valid(), frogpilot_toggles=frogpilot_toggles, boot_run=True)
 
   if frogpilot_utilities.use_konik_server():
     if params.get("KonikDongleId") is not None:

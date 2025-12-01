@@ -207,6 +207,9 @@ def transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_va
 
   theme_manager.restore_wheel_image()
 
+  if frogpilot_toggles.random_themes:
+    theme_manager.update_active_theme(time_validated, frogpilot_toggles, randomize_theme=True)
+
   if time_validated:
     thread_manager.run_in_thread(send_stats, (params, frogpilot_toggles, api))
 
@@ -275,6 +278,9 @@ def update_stock_tuning_values(params, car_params_key):
 def update_toggles(variables, started, model_manager, theme_manager, thread_manager, time_validated, params):
   frogpilot_toggles = variables.frogpilot_toggles
 
+  previous_holiday_themes = frogpilot_toggles.holiday_themes
+  previous_random_themes = frogpilot_toggles.random_themes
+
   model_manager.models_updated = False
   theme_manager.theme_updated = False
 
@@ -287,7 +293,10 @@ def update_toggles(variables, started, model_manager, theme_manager, thread_mana
     frogpilot_functions.sync_flag_file(frogpilot_paths.HD_PATH, frogpilot_toggles.use_higher_bitrate)
     frogpilot_functions.sync_flag_file(frogpilot_paths.KONIK_PATH, frogpilot_toggles.use_konik_server)
 
-  theme_manager.update_active_theme(time_validated, frogpilot_toggles)
+  randomize_theme = frogpilot_toggles.holiday_themes != previous_holiday_themes
+  randomize_theme |= frogpilot_toggles.random_themes != previous_random_themes
+
+  theme_manager.update_active_theme(time_validated, frogpilot_toggles, randomize_theme=randomize_theme)
 
   if time_validated:
     thread_manager.run_in_thread(frogpilot_backups.backup_toggles, (params,))
