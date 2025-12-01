@@ -86,7 +86,7 @@ class Car:
 
     self.can_callbacks = can_comm_callbacks(self.can_sock, self.pm.sock['sendcan'])
 
-    is_release = self.params.get_bool("IsReleaseBranch")
+    is_release = False
 
     if CI is None:
       # wait for one pandaState and one CAN packet
@@ -143,8 +143,11 @@ class Car:
       secoc_key = self.params.get("SecOCKey")
       if secoc_key is not None:
         # FrogPilot variables
+        try:
+          saved_secoc_key = bytes.fromhex(secoc_key.strip())
+        except ValueError:
+          saved_secoc_key = b""
 
-        saved_secoc_key = bytes.fromhex(secoc_key.strip())
         if len(saved_secoc_key) == 16:
           self.CP.secOcKeyAvailable = True
           self.CI.CS.secoc_key = saved_secoc_key
@@ -159,6 +162,12 @@ class Car:
       self.params.put("CarParamsPrevRoute", prev_cp)
 
     # FrogPilot variables
+    if self.CP.secOcRequired and not self.CP.secOcKeyAvailable:
+      self.CP.passive = True
+      safety_config = structs.CarParams.SafetyConfig()
+      safety_config.safetyModel = structs.CarParams.SafetyModel.noOutput
+      self.CP.safetyConfigs = [safety_config]
+
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
     # Write CarParams for controls and radard
