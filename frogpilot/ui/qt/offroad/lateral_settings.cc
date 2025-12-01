@@ -185,6 +185,46 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent, bo
     });
   }
 
+  steerDelayToggle = static_cast<FrogPilotParamValueButtonControl*>(toggles["SteerDelay"]);
+  QObject::connect(steerDelayToggle, &FrogPilotParamValueButtonControl::buttonClicked, [parent, this]() {
+    if (FrogPilotConfirmationDialog::yesorno(tr("Reset <b>Actuator Delay</b> to its default value?"), this)) {
+      params.putFloat("SteerDelay", parent->steerActuatorDelay);
+      steerDelayToggle->refresh();
+    }
+  });
+
+  steerFrictionToggle = static_cast<FrogPilotParamValueButtonControl*>(toggles["SteerFriction"]);
+  QObject::connect(steerFrictionToggle, &FrogPilotParamValueButtonControl::buttonClicked, [parent, this]() {
+    if (FrogPilotConfirmationDialog::yesorno(tr("Reset <b>Friction</b> to its default value?"), this)) {
+      params.putFloat("SteerFriction", parent->friction);
+      steerFrictionToggle->refresh();
+    }
+  });
+
+  steerKPToggle = static_cast<FrogPilotParamValueButtonControl*>(toggles["SteerKP"]);
+  QObject::connect(steerKPToggle, &FrogPilotParamValueButtonControl::buttonClicked, [parent, this]() {
+    if (FrogPilotConfirmationDialog::yesorno(tr("Reset <b>Kp Factor</b> to its default value?"), this)) {
+      params.putFloat("SteerKP", parent->steerKp);
+      steerKPToggle->refresh();
+    }
+  });
+
+  steerLatAccelToggle = static_cast<FrogPilotParamValueButtonControl*>(toggles["SteerLatAccel"]);
+  QObject::connect(steerLatAccelToggle, &FrogPilotParamValueButtonControl::buttonClicked, [parent, this]() {
+    if (FrogPilotConfirmationDialog::yesorno(tr("Reset <b>Lateral Acceleration</b> to its default value?"), this)) {
+      params.putFloat("SteerLatAccel", parent->latAccelFactor);
+      steerLatAccelToggle->refresh();
+    }
+  });
+
+  steerRatioToggle = static_cast<FrogPilotParamValueButtonControl*>(toggles["SteerRatio"]);
+  QObject::connect(steerRatioToggle, &FrogPilotParamValueButtonControl::buttonClicked, [parent, this]() {
+    if (FrogPilotConfirmationDialog::yesorno(tr("Reset <b>Steer Ratio</b> to its default value?"), this)) {
+      params.putFloat("SteerRatio", parent->steerRatio);
+      steerRatioToggle->refresh();
+    }
+  });
+
   QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [lateralLayout, lateralPanel, this] {
     openDescriptions(forceOpenDescriptions, toggles);
     lateralLayout->setCurrentWidget(lateralPanel);
@@ -193,6 +233,17 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent, bo
 }
 
 void FrogPilotLateralPanel::showEvent(QShowEvent *event) {
+  if (parent->carDetected) {
+    steerDelayToggle->setTitle(QString(tr("Actuator Delay (Default: %1)")).arg(QString::number(parent->steerActuatorDelay, 'f', 2)));
+    steerFrictionToggle->setTitle(QString(tr("Friction (Default: %1)")).arg(QString::number(parent->friction, 'f', 2)));
+    steerKPToggle->setTitle(QString(tr("Kp Factor (Default: %1)")).arg(QString::number(parent->steerKp, 'f', 2)));
+    steerKPToggle->updateControl(parent->steerKp * 0.5, parent->steerKp * 1.5);
+    steerLatAccelToggle->setTitle(QString(tr("Lateral Acceleration (Default: %1)")).arg(QString::number(parent->latAccelFactor, 'f', 2)));
+    steerLatAccelToggle->updateControl(parent->latAccelFactor * 0.5, parent->latAccelFactor * 1.5);
+    steerRatioToggle->setTitle(QString(tr("Steer Ratio (Default: %1)")).arg(QString::number(parent->steerRatio, 'f', 2)));
+    steerRatioToggle->updateControl(parent->steerRatio * 0.5, parent->steerRatio * 1.5);
+  }
+
   updateToggles();
 }
 

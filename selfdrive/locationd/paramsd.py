@@ -170,6 +170,8 @@ class VehicleParamsLearner:
     liveParameters.angleOffsetDeg = float(self.angle_offset)
 
     # FrogPilot variables
+    if self.frogpilot_toggles.use_custom_steerRatio:
+      liveParameters.steerRatio = self.frogpilot_toggles.steerRatio
 
     liveParameters.steerRatioValid = self.min_sr <= liveParameters.steerRatio <= self.max_sr
     liveParameters.stiffnessFactorValid = 0.2 <= liveParameters.stiffnessFactor <= 5.0
@@ -301,8 +303,10 @@ def main():
       msg_dat = msg.to_bytes()
       if sm.frame % 1200 == 0:  # once a minute
         # FrogPilot variables
+        msg.clear_write_flag()
+        msg.liveParameters.steerRatio = float(learner.kf.x[States.STEER_RATIO].item())
 
-        params.put_nonblocking("LiveParametersV2", msg_dat)
+        params.put_nonblocking("LiveParametersV2", msg.to_bytes())
 
       pm.send('liveParameters', msg_dat)
 
