@@ -135,10 +135,13 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
   ListWidget *list = new ListWidget(this);
   // Enable tethering layout
   // FrogPilot variables
+  std::vector<QString> tetheringSelection{tr("Off"), tr("Always"), tr("Only Onroad"), tr("Until Reboot")};
 
-  tetheringToggle = new ToggleControl(tr("Enable Tethering"), "", "", wifi->isTetheringEnabled());
+  tetheringToggle = new ButtonParamControl("TetheringEnabled", tr("Enable Tethering"),
+                                           tr("Share your device's internet connection with other devices all the time, only while driving, or until the device reboots. Internet sharing only works on a paired device with comma prime lite or no comma prime."),
+                                           "", tetheringSelection);
   list->addItem(tetheringToggle);
-  QObject::connect(tetheringToggle, &ToggleControl::toggleFlipped, this, &AdvancedNetworking::toggleTethering);
+  QObject::connect(tetheringToggle, &MultiButtonControl::buttonClicked, this, &AdvancedNetworking::toggleTethering);
 
   // Change tethering password
   ButtonControl *editPasswordButton = new ButtonControl(tr("Tethering Password"), tr("EDIT"));
@@ -257,10 +260,10 @@ void AdvancedNetworking::refresh() {
   update();
 }
 
-void AdvancedNetworking::toggleTethering(bool enabled) {
-  wifi->setTetheringEnabled(enabled);
+void AdvancedNetworking::toggleTethering(int id) {
+  frogpilotUIState()->setTethering(id);
   tetheringToggle->setEnabled(false);
-  if (enabled) {
+  if (id != 0) {
     wifiMeteredToggle->setEnabled(false);
     wifiMeteredToggle->setCheckedButton(0);
   }

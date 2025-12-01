@@ -62,7 +62,7 @@ public:
 
 private:
   LabelControl* ipLabel;
-  ToggleControl* tetheringToggle;
+  ButtonParamControl* tetheringToggle;
   ToggleControl* roamingToggle;
   ButtonControl* editApnButton;
   ButtonControl* hiddenNetworkButton;
@@ -76,7 +76,7 @@ signals:
   void requestWifiScreen();
 
 public slots:
-  void toggleTethering(bool enabled);
+  void toggleTethering(int id);
   void refresh();
 };
 
