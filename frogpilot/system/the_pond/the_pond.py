@@ -47,8 +47,8 @@ FOOTAGE_PATHS = [
 ]
 
 KEYS = {
-  "amap1": ("amap1", "", "AMapKey1", "Amap key #1", 39),
-  "amap2": ("amap2", "", "AMapKey2", "Amap key #2", 39),
+  "amap1": ("amap1", "", "AMapKey1", "Amap key #1", 32),
+  "amap2": ("amap2", "", "AMapKey2", "Amap key #2", 32),
   "public": ("public", "pk.", "MapboxPublicKey", "Public key", 80),
   "secret": ("secret", "sk.", "MapboxSecretKey", "Secret key", 80),
 }
