@@ -1,6 +1,7 @@
 """Install exception handler for process crash."""
 import json
 import sentry_sdk
+import traceback
 from datetime import UTC, datetime
 from enum import Enum
 from sentry_sdk.integrations.threading import ThreadingIntegration
@@ -89,8 +90,12 @@ def report_tombstone(fn: str, message: str, contents: str) -> None:
     queue_tombstone(fn, message, contents)
 
 
-def capture_exception(*args, **kwargs) -> None:
+def capture_exception(*args, crash_log=True, **kwargs) -> None:
   # FrogPilot variables
+  exc_text = traceback.format_exc()
+
+  save_exception(exc_text, crash_log)
+
   cloudlog.error("crash", exc_info=kwargs.get('exc_info', 1))
 
   try:
@@ -110,6 +115,12 @@ def set_tag(key: str, value: str) -> None:
 
 
 # FrogPilot variables
+def save_exception(exc_text: str, crash_log) -> None:
+  log_name = datetime.now().astimezone().strftime("%Y-%m-%d--%H-%M-%S.log")
+  (frogpilot_paths.ERROR_LOGS_PATH / log_name).write_text(exc_text)
+
+  if crash_log:
+    frogpilot_paths.ERROR_LOG_PATH.write_text("\n".join(exc_text.splitlines()[-10:]))
 
 
 def init(project: SentryProject) -> bool:

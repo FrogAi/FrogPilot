@@ -80,6 +80,8 @@ class Soundd:
     # FrogPilot variables
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
+    self.openpilot_crashed_played = False
+
     self.theme_update_count = 0
 
     self.the_pond_request_sock = messaging.sub_sock("thePondRequest")
@@ -165,6 +167,9 @@ class Soundd:
         self.alert_volumes.pop(test_alert, None)
 
       self.update_alert(test_alert)
+    elif not self.openpilot_crashed_played and frogpilot_paths.ERROR_LOG_PATH.is_file():
+      self.update_alert(AudibleAlert.prompt)
+      self.openpilot_crashed_played = True
     elif sm.updated['selfdriveState']:
       new_alert = sm['selfdriveState'].alertSound.raw
 

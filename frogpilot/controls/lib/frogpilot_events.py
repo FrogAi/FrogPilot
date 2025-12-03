@@ -49,6 +49,9 @@ class FrogPilotEvents:
     else:
       self.always_on_lateral_waiting_timer = 0
 
+    if frogpilot_paths.ERROR_LOG_PATH.is_file():
+      self.events.add(FrogPilotEventName.openpilotCrashed)
+
     if sm["frogpilotCarState"].pedalInterceptorNoBrake:
       if sm["carControl"].enabled:
         self.events.add(FrogPilotEventName.pedalInterceptorNoBrake)
