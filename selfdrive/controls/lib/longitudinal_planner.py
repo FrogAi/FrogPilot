@@ -9,7 +9,7 @@ from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.realtime import DT_MDL
 from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.selfdrive.controls.lib.longcontrol import LongCtrlState
-from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import LongitudinalMpc
+from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import CRUISE_MIN_ACCEL, LongitudinalMpc
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import T_IDXS as T_IDXS_MPC
 from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N, get_accel_from_plan
 from openpilot.selfdrive.car.cruise import V_CRUISE_MAX, V_CRUISE_UNSET
@@ -119,7 +119,7 @@ class LongitudinalPlanner:
     prev_accel_constraint = not (reset_state or sm['carState'].standstill)
 
     if mode == 'acc':
-      accel_clip = [ACCEL_MIN, get_max_accel(v_ego)]
+      accel_clip = [sm['frogpilotPlan'].minAcceleration, sm['frogpilotPlan'].maxAcceleration]
       steer_angle_without_offset = sm['carState'].steeringAngleDeg - sm['liveParameters'].angleOffsetDeg
 
       # FrogPilot variables
@@ -128,6 +128,11 @@ class LongitudinalPlanner:
       accel_clip = [ACCEL_MIN, ACCEL_MAX]
 
     # FrogPilot variables
+    lead_detected = sm['radarState'].leadOne.status or sm['radarState'].leadTwo.status
+
+    if lead_detected:
+      accel_clip[0] = ACCEL_MIN
+
     if reset_state:
       self.v_desired_filter.x = v_ego
       # Clip aEgo to cruise limits to prevent large accelerations when becoming active
@@ -143,6 +148,12 @@ class LongitudinalPlanner:
     self.allow_throttle = throttle_prob > ALLOW_THROTTLE_THRESHOLD or v_ego <= MIN_ALLOW_THROTTLE_SPEED
 
     # FrogPilot variables
+    mpc_accel_max = accel_clip[1]
+    mpc_accel_max = max(mpc_accel_max, self.a_desired - 0.05)
+
+    mpc_accel_min = sm['frogpilotPlan'].minAcceleration
+    if mode == 'blended' or lead_detected:
+      mpc_accel_min = min(mpc_accel_min, CRUISE_MIN_ACCEL)
 
     if not self.allow_throttle:
       clipped_accel_coast = max(accel_coast, accel_clip[0])
@@ -156,7 +167,7 @@ class LongitudinalPlanner:
 
     self.mpc.set_weights(sm['frogpilotPlan'].accelerationJerk, sm['frogpilotPlan'].dangerJerk, sm['frogpilotPlan'].speedJerk, prev_accel_constraint, personality=sm['selfdriveState'].personality)
     self.mpc.set_cur_state(self.v_desired_filter.x, self.a_desired)
-    self.mpc.update(v_cruise, sm['radarState'], x, v, a, j, sm['frogpilotPlan'].tFollow, frogpilot_toggles, personality=sm['selfdriveState'].personality)
+    self.mpc.update(v_cruise, sm['radarState'], x, v, a, j, sm['frogpilotPlan'].tFollow, mpc_accel_min, mpc_accel_max, force_slow_decel, frogpilot_toggles, personality=sm['selfdriveState'].personality)
 
     self.v_desired_trajectory = np.interp(CONTROL_N_T_IDX, T_IDXS_MPC, self.mpc.v_solution)
     self.a_desired_trajectory = np.interp(CONTROL_N_T_IDX, T_IDXS_MPC, self.mpc.a_solution)
@@ -187,8 +198,8 @@ class LongitudinalPlanner:
 
     # FrogPilot variables
 
-    for idx in range(2):
-      accel_clip[idx] = np.clip(accel_clip[idx], self.prev_accel_clip[idx] - 0.05, self.prev_accel_clip[idx] + 0.05)
+    accel_clip[0] = min(accel_clip[0], self.prev_accel_clip[0] + 0.05)
+    accel_clip[1] = np.clip(accel_clip[1], self.prev_accel_clip[1] - 0.05, self.prev_accel_clip[1] + 0.05)
     self.output_a_target = np.clip(output_a_target, accel_clip[0], accel_clip[1])
     self.prev_accel_clip = accel_clip
 
