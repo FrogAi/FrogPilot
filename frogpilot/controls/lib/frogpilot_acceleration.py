@@ -1,7 +1,27 @@
 #!/usr/bin/env python3
-from openpilot.selfdrive.controls.lib.longitudinal_planner import ACCEL_MIN, get_max_accel
+import numpy as np
+
+from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import CRUISE_MIN_ACCEL
+from openpilot.selfdrive.controls.lib.longitudinal_planner import ACCEL_MIN, get_coast_accel, get_max_accel
 
 from openpilot.frogpilot.common import frogpilot_variables
+
+A_CRUISE_MIN_ECO = CRUISE_MIN_ACCEL / 2
+A_CRUISE_MIN_COAST = -0.05
+
+                  # MPH = [0.0,  11,  22,  34,  45,  56,  89]
+A_CRUISE_MAX_BP_CUSTOM =  [0.0,  5., 10., 15., 20., 25., 40.]
+A_CRUISE_MAX_VALS_ECO =   [1.4, 1.3, 1.0, 0.7, 0.6, 0.5, 0.4]
+A_CRUISE_MAX_VALS_SPORT = [3.0, 2.5, 2.0, 1.5, 1.0, 0.8, 0.6]
+
+def get_max_accel_eco(v_ego):
+  return np.interp(v_ego, A_CRUISE_MAX_BP_CUSTOM, A_CRUISE_MAX_VALS_ECO)
+
+def get_max_accel_sport(v_ego):
+  return np.interp(v_ego, A_CRUISE_MAX_BP_CUSTOM, A_CRUISE_MAX_VALS_SPORT)
+
+def get_max_allowed_accel(v_ego):
+  return np.interp(v_ego, [0., 5., 20.], [frogpilot_variables.MAX_ACCELERATION, frogpilot_variables.MAX_ACCELERATION, frogpilot_variables.MAX_ACCELERATION / 2])
 
 class FrogPilotAcceleration:
   def __init__(self, FrogPilotPlanner):
@@ -14,8 +34,37 @@ class FrogPilotAcceleration:
     eco_gear = sm["frogpilotCarState"].ecoGear
     sport_gear = sm["frogpilotCarState"].sportGear
 
-    self.max_accel = get_max_accel(v_ego)
+    acceleration_profile = frogpilot_toggles.acceleration_profile
+    if eco_gear and frogpilot_toggles.map_acceleration:
+      acceleration_profile = frogpilot_variables.ACCELERATION_PROFILES["ECO"]
+    elif sport_gear and acceleration_profile in (frogpilot_variables.ACCELERATION_PROFILES["ECO"], frogpilot_variables.ACCELERATION_PROFILES["STANDARD"]) and frogpilot_toggles.map_acceleration:
+      acceleration_profile = frogpilot_variables.ACCELERATION_PROFILES["SPORT"]
+
+    if acceleration_profile == frogpilot_variables.ACCELERATION_PROFILES["ECO"]:
+      self.max_accel = get_max_accel_eco(v_ego)
+    elif acceleration_profile == frogpilot_variables.ACCELERATION_PROFILES["SPORT"]:
+      self.max_accel = get_max_accel_sport(v_ego)
+    elif acceleration_profile == frogpilot_variables.ACCELERATION_PROFILES["SPORT_PLUS"]:
+      self.max_accel = get_max_allowed_accel(v_ego)
+    else:
+      self.max_accel = get_max_accel(v_ego)
 
     force_decel = sm["controlsState"].forceDecel
 
-    self.min_accel = ACCEL_MIN
+    deceleration_profile = frogpilot_toggles.deceleration_profile
+    if eco_gear and frogpilot_toggles.map_deceleration:
+      deceleration_profile = frogpilot_variables.DECELERATION_PROFILES["ECO"]
+    elif sport_gear and frogpilot_toggles.map_deceleration:
+      deceleration_profile = frogpilot_variables.DECELERATION_PROFILES["STANDARD"]
+
+    if force_decel:
+      self.min_accel = ACCEL_MIN
+    elif deceleration_profile == frogpilot_variables.DECELERATION_PROFILES["ECO"]:
+      self.min_accel = A_CRUISE_MIN_ECO
+    elif deceleration_profile == frogpilot_variables.DECELERATION_PROFILES["ECO_PLUS"]:
+      if len(sm["carControl"].orientationNED) == 3:
+        self.min_accel = min(get_coast_accel(sm["carControl"].orientationNED[1]), A_CRUISE_MIN_COAST)
+      else:
+        self.min_accel = get_coast_accel(0)
+    else:
+      self.min_accel = CRUISE_MIN_ACCEL

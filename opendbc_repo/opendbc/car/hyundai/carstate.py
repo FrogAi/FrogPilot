@@ -67,6 +67,7 @@ class CarState(CarStateBase):
     self.params = CarControllerParams(CP)
 
     # FrogPilot variables
+    self.drive_mode = 0
 
   def recent_button_interaction(self) -> bool:
     # On some newer model years, the CANCEL button acts as a pause/resume button based on the PCM state
@@ -317,11 +318,16 @@ class CarState(CarStateBase):
     ret.blockPcmEnable = not self.recent_button_interaction()
 
     # FrogPilot variables
+    drive_mode = cp.vl["DRIVE_MODE"]["DRIVE_MODE2"]
+    if drive_mode != 0:
+      self.drive_mode = drive_mode
+    self.fp_ret.ecoGear = self.drive_mode == 2
+    self.fp_ret.sportGear = self.drive_mode == 3
 
     return ret
 
   def get_can_parsers_canfd(self, CP):
-    msgs = []
+    msgs = [("DRIVE_MODE", float('nan'))]
     if not (CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS):
       # TODO: this can be removed once we add dynamic support to vl_all
       msgs += [

@@ -182,6 +182,7 @@ class CarState(CarStateBase):
       self.single_pedal_mode = ret.gearShifter == GearShifter.low or pt_cp.vl["EVDriveMode"]["SinglePedalModeActive"] == 1
 
     # FrogPilot variables
+    self.fp_ret.sportGear = pt_cp.vl["SportMode"]["SportMode"] == 1
 
     return ret
 
@@ -200,6 +201,9 @@ class CarState(CarStateBase):
       ]
 
     # FrogPilot variables
+    pt_messages += [
+      ("SportMode", float('nan')),
+    ]
 
     loopback_messages = [
       ("ASCMLKASteeringCmd", float('nan')),

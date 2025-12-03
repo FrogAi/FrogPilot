@@ -207,6 +207,12 @@ class CarState(CarStateBase):
         buttonEvents += create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
 
     # FrogPilot variables
+    if not self.CP.flags & ToyotaFlags.SECOC.value:
+      self.fp_ret.ecoGear = cp.vl["GEAR_PACKET"]["ECON_ON"] == 1
+      if self.CP.flags & ToyotaFlags.NO_DSU:
+        self.fp_ret.sportGear = cp.vl["GEAR_PACKET"]["SPORT_ON_2"] == 1
+      else:
+        self.fp_ret.sportGear = cp.vl["GEAR_PACKET"]["SPORT_ON"] == 1
 
     ret.buttonEvents = buttonEvents
     return ret
