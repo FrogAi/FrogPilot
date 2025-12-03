@@ -30,6 +30,9 @@ class FrogPilotEvents:
     else:
       self.max_acceleration = 0
 
+    if frogpilot_paths.ERROR_LOG_PATH.is_file():
+      self.events.add(FrogPilotEventName.openpilotCrashed)
+
     if sm["frogpilotCarState"].pedalInterceptorNoBrake:
       if sm["carControl"].enabled:
         self.events.add(FrogPilotEventName.pedalInterceptorNoBrake)

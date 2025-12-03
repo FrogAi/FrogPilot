@@ -18,6 +18,11 @@ def boot_backup(build_metadata):
   frogpilot_backups.backup_frogpilot(build_metadata, Params())
 
 
+def cleanup_error_logs():
+  for error_log in sorted(frogpilot_paths.ERROR_LOGS_PATH.glob("*.log"))[:-frogpilot_variables.MAX_ERROR_LOGS]:
+    error_log.unlink()
+
+
 def frogpilot_boot_functions(build_metadata, params):
   frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
@@ -31,9 +36,12 @@ def frogpilot_boot_functions(build_metadata, params):
 
 def install_frogpilot():
   paths = [
+    frogpilot_paths.ERROR_LOGS_PATH
   ]
   for path in paths:
     path.mkdir(parents=True, exist_ok=True)
+
+  cleanup_error_logs()
 
   update_boot_logo(frogpilot_paths.FROGPILOT_BOOT_LOGO_PATH)
 
