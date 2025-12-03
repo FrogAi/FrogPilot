@@ -41,6 +41,16 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started
   }
 
   // FrogPilot variables
+  static QString crash_log_path = "/data/error_logs/error.txt";
+  bool crashed = QFile::exists(crash_log_path);
+  bool stock_alert = selfdrive_frame >= started_frame && ss.getAlertSize() != cereal::SelfdriveState::AlertSize::NONE && !fpss.getHasPriorityAlert();
+  if (crashed && !stock_alert && fpss.getAlertSize() != cereal::FrogPilotSelfdriveState::AlertSize::FULL) {
+    a = {tr("openpilot crashed"),
+         tr("Please post the \"Error Log\" in the FrogPilot Discord!"),
+         "openpilotCrashed",
+         cereal::SelfdriveState::AlertSize::MID,
+         cereal::SelfdriveState::AlertStatus::CRITICAL};
+  }
 
   if (!sm.updated("selfdriveState") && (sm.frame - started_frame) > 5 * UI_FREQ) {
     const int SELFDRIVE_STATE_TIMEOUT = 5;

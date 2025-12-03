@@ -1077,6 +1077,16 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.PERMANENT: custom_startup_alert,
   },
 
+  FrogPilotEventName.openpilotCrashed: {
+    ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("openpilot crashed"),
+
+    ET.NO_ENTRY: Alert(
+      "openpilot crashed",
+      "Please post the \"Error Log\" in the FrogPilot Discord!",
+      AlertStatus.critical, AlertSize.mid,
+      Priority.HIGHEST, VisualAlert.none, AudibleAlert.prompt, .1),
+  },
+
   FrogPilotEventName.pedalInterceptorNoBrake: {
     ET.SOFT_DISABLE: pedal_interceptor_no_brake_alert,
     ET.NO_ENTRY: NoEntryAlert("Shift to L", alert_text_1="Braking Unavailable"),
@@ -1191,6 +1201,15 @@ if HARDWARE.get_device_type() == 'mici':
         "Don't use MAKE-PRS-HERE",
         AlertStatus.userPrompt, AlertSize.mid,
         Priority.HIGHEST, VisualAlert.none, AudibleAlert.none, 1.),
+    },
+    FrogPilotEventName.openpilotCrashed: {
+      ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("openpilot crashed"),
+
+      ET.NO_ENTRY: Alert(
+        "Crashed",
+        "Post the Error Log in Discord",
+        AlertStatus.critical, AlertSize.mid,
+        Priority.HIGHEST, VisualAlert.none, AudibleAlert.prompt, .1),
     },
     FrogPilotEventName.pedalInterceptorNoBrake: {
       ET.SOFT_DISABLE: pedal_interceptor_no_brake_alert_mici,

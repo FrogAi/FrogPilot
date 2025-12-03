@@ -118,6 +118,8 @@ def transition_onroad():
     os.sched_setscheduler(0, os.SCHED_FIFO, os.sched_param(Priority.CTRL_LOW))
   set_core_affinity([5])
 
+  frogpilot_paths.ERROR_LOG_PATH.unlink(missing_ok=True)
+
 def update_checks(now, theme_manager, thread_manager, sm, params, frogpilot_toggles, boot_run=False):
   while not (frogpilot_utilities.is_url_pingable("https://github.com") or frogpilot_utilities.is_url_pingable("https://gitlab.com")):
     time.sleep(60)
@@ -210,6 +212,8 @@ def frogpilot_thread():
   stats_saved_count = 0
 
   previous_update_checks_period = None
+
+  frogpilot_paths.ERROR_LOG_PATH.unlink(missing_ok=True)
 
   while True:
     sm.update()
