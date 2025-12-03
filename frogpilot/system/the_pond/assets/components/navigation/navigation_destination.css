@@ -31,10 +31,12 @@
 #searchSuggestions p {
   font-size: var(--font-size-sm);
   margin: 0;
-  max-width: calc(100% - 8rem);
+  max-width: 100%; /* 完全移除固定减去值 */
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex-grow: 1; /* 让文本占据尽可能多的空间 */
+  margin-right: var(--padding-sm); /* 添加一点右边距，避免和按钮太近 */
 }
 
 #searchSuggestions .suggestion-item {
@@ -44,7 +46,7 @@
   box-sizing: border-box;
   color: var(--text-color);
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start; /* 改为左对齐，让文本优先显示 */
   padding: var(--border-radius-xl);
   position: relative;
   width: 100%;
