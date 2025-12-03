@@ -51,7 +51,15 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
     frogpilotUIState()->runUpdateChecks();
   });
   addItem(downloadBtn);
+
   // FrogPilot variables
+  // error log button
+  ButtonControl *errorLogBtn = new ButtonControl(tr("Error Log"), tr("VIEW"), tr("View the error log for openpilot crashes."));
+  connect(errorLogBtn, &ButtonControl::clicked, [=]() {
+    std::string txt = util::read_file("/data/error_logs/error.txt");
+    ConfirmationDialog::rich(QString::fromStdString(txt), this);
+  });
+  addItem(errorLogBtn);
 
   // install update btn
   installBtn = new ButtonControl(tr("Install Update"), tr("INSTALL"));

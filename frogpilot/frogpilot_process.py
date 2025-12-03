@@ -97,8 +97,11 @@ def transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_va
   if time_validated:
     thread_manager.run_with_lock(send_stats, (params, frogpilot_toggles, api))
 
-def transition_onroad():
+def transition_onroad(error_log):
   config_realtime_process(5, Priority.CTRL_LOW)
+
+  if error_log.is_file():
+    error_log.unlink()
 
 def update_checks(now, theme_manager, thread_manager, sm, params, cancel_maps_download, frogpilot_toggles, boot_run=False):
   while not (frogpilot_utilities.is_url_pingable("https://github.com") or frogpilot_utilities.is_url_pingable("https://gitlab.com")):
@@ -152,6 +155,10 @@ def frogpilot_thread():
 
   stats_saved_count = 0
 
+  error_log = frogpilot_variables.ERROR_LOGS_PATH / "error.txt"
+  if error_log.is_file():
+    error_log.unlink()
+
   while True:
     sm.update()
 
@@ -168,10 +175,10 @@ def frogpilot_thread():
 
       run_update_checks = True
     elif started and not started_previously:
-      frogpilot_planner = FrogPilotPlanner()
+      frogpilot_planner = FrogPilotPlanner(error_log)
       frogpilot_tracking = FrogPilotTracking(frogpilot_planner, frogpilot_toggles)
 
-      transition_onroad()
+      transition_onroad(error_log)
 
       waiting_for_car_params = True
 

@@ -33,6 +33,7 @@ def frogpilot_boot_functions(build_metadata, params):
 
 def install_frogpilot():
   paths = [
+    frogpilot_variables.ERROR_LOGS_PATH
   ]
   for path in paths:
     path.mkdir(parents=True, exist_ok=True)

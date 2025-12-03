@@ -140,6 +140,39 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
   });
   dataMainList->addItem(deleteDrivingDataButton);
 
+  ButtonControl *deleteErrorLogsButton = new ButtonControl(tr("Delete Error Logs"), tr("DELETE"), tr("<b>Delete openpilot's saved crash logs.</b><br><br>Bug reports sent after deleting won't include crash details until a new crash happens."));
+  QObject::connect(deleteErrorLogsButton, &ButtonControl::clicked, [=]() {
+    QDir errorLogsDir("/data/error_logs");
+
+    if (ConfirmationDialog::confirm(tr("Delete all error logs?"), tr("Delete"), this)) {
+      std::thread([=]() mutable {
+        runOnUIThread(deleteErrorLogsButton, [=]() {
+          parent->activeOperations++;
+
+          deleteErrorLogsButton->setEnabled(false);
+          deleteErrorLogsButton->setValue(tr("Deleting..."));
+        });
+
+        bool success = errorLogsDir.removeRecursively();
+        errorLogsDir.mkpath(".");
+
+        runOnUIThread(deleteErrorLogsButton, [=]() {
+          deleteErrorLogsButton->setValue(success ? tr("Deleted!") : tr("Delete failed..."));
+        });
+
+        util::sleep_for(2500);
+
+        runOnUIThread(deleteErrorLogsButton, [=]() {
+          deleteErrorLogsButton->setEnabled(true);
+          deleteErrorLogsButton->setValue("");
+
+          parent->activeOperations--;
+        });
+      }).detach();
+    }
+  });
+  dataMainList->addItem(deleteErrorLogsButton);
+
   FrogPilotButtonsControl *frogpilotBackupButton = new FrogPilotButtonsControl(tr("FrogPilot Backups"), tr("<b>Back up the FrogPilot software, restore a backup to go back to that version, or delete ones you no longer need.</b><br><br>Restoring reboots the device on its own and puts the software back exactly as it was when the backup was made, without changing your settings. Automatic updates turn off after a restore until you update manually. \"DELETE ALL\" also removes the backups FrogPilot makes automatically."), "", {tr("BACKUP"), tr("DELETE"), tr("DELETE ALL"), tr("RESTORE")});
   QObject::connect(frogpilotBackupButton, &FrogPilotButtonsControl::buttonClicked, [=](int id) {
     QDir backupDir("/data/backups");

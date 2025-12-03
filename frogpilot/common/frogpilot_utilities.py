@@ -41,7 +41,7 @@ class ThreadManager:
         except Exception as exception:
           print(f"Error in thread '{name}': {exception}")
           if report:
-            sentry.capture_exception(exception)
+            sentry.capture_exception(exception, crash_log=False)
 
       thread = threading.Thread(args=args, daemon=True, target=wrapped_target)
       thread.start()
@@ -176,13 +176,13 @@ def run_cmd(cmd, success_message, fail_message, env=None, report=True):
     print(f"Command failed with error: {exception.stderr}")
     print(fail_message)
     if report:
-      sentry.capture_exception(exception)
+      sentry.capture_exception(exception, crash_log=False, extras={"stderr": exception.stderr})
     return None
   except Exception as exception:
     print(f"Unexpected error occurred: {exception}")
     print(fail_message)
     if report:
-      sentry.capture_exception(exception)
+      sentry.capture_exception(exception, crash_log=False)
     return None
 
 

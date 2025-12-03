@@ -320,7 +320,7 @@ def main():
     try:
       frogpilot_telemetry.update()
     except Exception as error:
-      sentry.capture_exception(error)
+      sentry.capture_exception(error, crash_log=False)
 
     gc.collect()
     libc.malloc_trim(0)

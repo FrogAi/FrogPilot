@@ -34,6 +34,8 @@ class FrogPilotCard:
     self.long_press_threshold = CRUISE_LONG_PRESS * (1.5 if self.CP.brand == "gm" else 1)
     self.very_long_press_threshold = CRUISE_LONG_PRESS * 5
 
+    self.error_log = frogpilot_variables.ERROR_LOGS_PATH / "error.txt"
+
     self.ui_event_sock = messaging.sub_sock("frogpilotUIEvent")
 
   def handle_button_event(self, key, sm, frogpilot_toggles):
@@ -81,6 +83,7 @@ class FrogPilotCard:
     self.always_on_lateral_enabled &= not sm["frogpilotSelfdriveState"].hasDisableEvents or self.frogs_go_moo
     self.always_on_lateral_enabled &= not any(event.name == EventName.tooDistracted for event in sm["onroadEvents"])
     self.always_on_lateral_enabled &= not (carState.brakePressed and carState.vEgo < frogpilot_toggles.always_on_lateral_pause_speed) or carState.standstill
+    self.always_on_lateral_enabled &= not self.error_log.is_file() or self.frogs_go_moo
 
     if any(be.pressed and be.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for be in carState.buttonEvents):
       self.accel_press_count += 1
