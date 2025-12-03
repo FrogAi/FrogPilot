@@ -64,8 +64,8 @@ export function NavKeys() {
   }
 
   const meta = {
-    amap1:  { prop: "amap1Key",  saved: "savedA1",     edit: "editA1",     prefix: "",    body: "amap1", minLength: 39  },
-    amap2:  { prop: "amap2Key",  saved: "savedA2",     edit: "editA2",     prefix: "",    body: "amap2", minLength: 39  },
+    amap1:  { prop: "amap1Key",  saved: "savedA1",     edit: "editA1",     prefix: "",    body: "amap1", minLength: 32  },
+    amap2:  { prop: "amap2Key",  saved: "savedA2",     edit: "editA2",     prefix: "",    body: "amap2", minLength: 32  },
     public: { prop: "publicKey", saved: "savedPublic", edit: "editPublic", prefix: "pk.", body: "public", minLength: 80 },
     secret: { prop: "secretKey", saved: "savedSecret", edit: "editSecret", prefix: "sk.", body: "secret", minLength: 80 }
   }
@@ -313,3 +313,4 @@ export function NavKeys() {
     }) : ""}
   `
 }
+
