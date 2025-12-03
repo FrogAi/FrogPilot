@@ -333,7 +333,7 @@ class LongitudinalMpc:
     lead_xv = self.extrapolate_lead(x_lead, v_lead, a_lead, a_lead_tau)
     return lead_xv
 
-  def update(self, v_cruise, radarstate, x, v, a, j, t_follow, frogpilot_toggles, personality=log.LongitudinalPersonality.standard):
+  def update(self, v_cruise, radarstate, x, v, a, j, t_follow, accel_min, accel_max, force_decel, frogpilot_toggles, personality=log.LongitudinalPersonality.standard):
     v_ego = self.x0[1]
 
     # FrogPilot variables
@@ -354,7 +354,7 @@ class LongitudinalMpc:
     lead_1_obstacle = lead_xv_1[:,0] + get_stopped_equivalence_factor(lead_xv_1[:,1])
 
     self.params[:,0] = ACCEL_MIN
-    self.params[:,1] = ACCEL_MAX
+    self.params[:,1] = accel_max
 
     # Update in ACC mode or ACC/e2e blend
     if self.mode == 'acc':
@@ -362,9 +362,9 @@ class LongitudinalMpc:
 
       # Fake an obstacle for cruise, this ensures smooth acceleration to set speed
       # when the leads are no factor.
-      v_lower = v_ego + (T_IDXS * CRUISE_MIN_ACCEL * 1.05)
+      v_lower = v_ego + (T_IDXS * (max(CRUISE_MIN_ACCEL, accel_min) if force_decel else accel_min) * 1.05)
       # TODO does this make sense when max_a is negative?
-      v_upper = v_ego + (T_IDXS * CRUISE_MAX_ACCEL * 1.05)
+      v_upper = v_ego + (T_IDXS * accel_max * 1.05)
       v_cruise_clipped = np.clip(v_cruise * np.ones(N+1),
                                  v_lower,
                                  v_upper)
