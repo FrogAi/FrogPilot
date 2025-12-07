@@ -22,4 +22,6 @@ private:
   std::map<QString, AbstractControl*> toggles;
 
   FrogPilotSettingsWindow *parent;
+
+  Params params;
 };

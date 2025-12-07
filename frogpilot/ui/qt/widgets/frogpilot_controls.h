@@ -446,6 +446,8 @@ signals:
 protected:
   QLabel *value_label;
 
+  Params params;
+
 private:
   void changeValue(int direction) {
     save_timer.stop();

@@ -7,4 +7,7 @@ class FrogPilotUtilitiesPanel : public FrogPilotListWidget {
 
 public:
   explicit FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent, bool forceOpen = false);
+
+private:
+  Params params;
 };

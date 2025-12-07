@@ -19,4 +19,6 @@ private:
   std::map<QString, ButtonControl*> toggles;
 
   FrogPilotSettingsWindow *parent;
+
+  Params params;
 };

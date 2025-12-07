@@ -12,5 +12,7 @@ signals:
   void openSubPanel();
 
 private:
+  Params params;
+
   FrogPilotButtonsControl *accountButton;
 };

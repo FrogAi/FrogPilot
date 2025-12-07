@@ -23,7 +23,7 @@ def update_checks(now, thread_manager, sm, params, frogpilot_toggles, boot_run=F
     time.sleep(60)
 
 def frogpilot_thread():
-  params = Params()
+  params = Params(return_defaults=True)
 
   api = frogpilot_api.FrogPilotAPI(params)
   api.register_device()

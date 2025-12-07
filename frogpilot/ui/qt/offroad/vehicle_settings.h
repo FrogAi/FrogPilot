@@ -35,4 +35,6 @@ private:
 
   ParamControl *disableOpenpilotLong;
   ParamControl *forceFingerprint;
+
+  Params params;
 };
