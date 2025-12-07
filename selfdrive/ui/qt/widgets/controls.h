@@ -155,7 +155,7 @@ public:
   }
 
   virtual void refresh() {
-    bool state = params.getBool(key);
+    bool state = forced || params.getBool(key);
     if (state != toggle.on) {
       toggle.togglePosition();
       setIcon(state);
@@ -167,6 +167,11 @@ public:
   }
 
   // FrogPilot variables
+  void forceOn() {
+    forced = true;
+    setEnabled(false);
+    refresh();
+  }
 
 protected:
   Params params;
@@ -187,6 +192,7 @@ private:
   bool store_confirm = false;
 
   // FrogPilot variables
+  bool forced = false;
 };
 
 class MultiButtonControl : public AbstractControl {

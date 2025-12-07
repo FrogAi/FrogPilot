@@ -14,6 +14,7 @@
 
 bool isFrogsGoMoo();
 bool isOpenpilotSteering();
+bool useKonikServer();
 
 inline QColor blackColor(int alpha = 255) { return QColor(0, 0, 0, alpha); }
 

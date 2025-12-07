@@ -7,9 +7,11 @@
 
 #include "common/util.h"
 
+#include "frogpilot/ui/qt/widgets/frogpilot_controls.h"
+
 namespace CommaApi {
 
-const QString BASE_URL = util::getenv("API_HOST", "https://api.commadotai.com").c_str();
+const QString BASE_URL = util::getenv("API_HOST", useKonikServer() ? "https://api.konik.ai" : "https://api.commadotai.com").c_str();
 QByteArray rsa_sign(const QByteArray &data);
 QString create_jwt(const QJsonObject &payloads = {}, int expiry = 3600);
 

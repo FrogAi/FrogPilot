@@ -24,7 +24,7 @@ def is_registered_device() -> bool:
   return dongle not in (None, UNREGISTERED_DONGLE_ID)
 
 
-def register(show_spinner=False) -> str | None:
+def register(show_spinner=False, register_konik=False) -> str | None:
   """
   All devices built since March 2024 come with all
   info stored in /persist/. This is kept around
@@ -45,12 +45,12 @@ def register(show_spinner=False) -> str | None:
   # Create registration token, in the future, this key will make JWTs directly
   jwt_algo, private_key, public_key = get_key_pair()
 
-  if not public_key:
+  if not public_key and not register_konik:
     dongle_id = UNREGISTERED_DONGLE_ID
     cloudlog.warning("missing public key")
 
     # FrogPilot variables
-  elif dongle_id is None:
+  elif dongle_id is None or register_konik:
     # FrogPilot variables
 
     if show_spinner:
@@ -100,10 +100,11 @@ def register(show_spinner=False) -> str | None:
     if show_spinner:
       spinner.close()
 
-  if dongle_id:
+  if not register_konik and dongle_id != params.get("KonikDongleId"):
     params.put("DongleId", dongle_id)
 
     # FrogPilot variables
+    params.put("StockDongleId", dongle_id)
 
     #set_offroad_alert("Offroad_UnregisteredHardware", (dongle_id == UNREGISTERED_DONGLE_ID) and not PC)
   return dongle_id
