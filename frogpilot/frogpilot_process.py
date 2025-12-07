@@ -227,6 +227,7 @@ def update_toggles(variables, started, theme_manager, thread_manager, time_valid
 
   if not started:
     frogpilot_functions.sync_flag_file(frogpilot_paths.HD_PATH, frogpilot_toggles.use_higher_bitrate)
+    frogpilot_functions.sync_flag_file(frogpilot_paths.KONIK_PATH, frogpilot_toggles.use_konik_server)
 
   theme_manager.update_active_theme(time_validated, frogpilot_toggles)
 

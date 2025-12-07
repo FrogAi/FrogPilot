@@ -14,14 +14,14 @@ DriveStats::DriveStats(QWidget *parent) : QFrame(parent) {
   QVBoxLayout *main_layout = new QVBoxLayout(this);
   main_layout->setContentsMargins(50, 25, 50, 20);
 
-  addStatsLayouts(tr("ALL TIME"), all);
-  addStatsLayouts(tr("PAST WEEK"), week);
+  addStatsLayouts(useKonikServer() ? tr("ALL TIME (KONIK)") : tr("ALL TIME"), all);
+  addStatsLayouts(useKonikServer() ? tr("PAST WEEK (KONIK)") : tr("PAST WEEK"), week);
   addStatsLayouts(tr("FROGPILOT"), frogPilot, true);
 
   std::optional<QString> dongleId = getDongleId();
   if (dongleId.has_value()) {
     QString url = CommaApi::BASE_URL + "/v1.1/devices/" + dongleId.value() + "/stats";
-    RequestRepeater *repeater = new RequestRepeater(this, url, "ApiCache_DriveStats", 30);
+    RequestRepeater *repeater = new RequestRepeater(this, url, useKonikServer() ? "ApiCache_DriveStatsKonik" : "ApiCache_DriveStats", 30);
     QObject::connect(repeater, &RequestRepeater::requestDone, this, &DriveStats::parseResponse);
   }
 
@@ -79,7 +79,7 @@ void DriveStats::parseResponse(const QString &response, bool success) {
   stats = doc;
 
   const QJsonValue minutes = doc.object()["all"].toObject()["minutes"];
-  const char *minutesKey = "openpilotMinutes";
+  const char *minutesKey = useKonikServer() ? "KonikMinutes" : "openpilotMinutes";
   if (minutes.isDouble() && params.getInt(minutesKey) != int(minutes.toDouble())) {
     params.putIntNonBlocking(minutesKey, minutes.toDouble());
   }

@@ -48,6 +48,11 @@ bool isOpenpilotSteering() {
   return uiState()->engaged() || (uiState()->scene.started && frogpilotUIState()->frogpilot_scene.always_on_lateral_active);
 }
 
+bool useKonikServer() {
+  static bool use_konik = QFile::exists("/cache/use_konik");
+  return use_konik;
+}
+
 QFont fitInterFont(int pixelSize, QFont::Weight weight, int width, const QStringList &texts) {
   static QHash<QString, int> fittedSizes;
 

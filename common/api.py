@@ -10,6 +10,7 @@ from openpilot.frogpilot.common import frogpilot_paths
 API_HOST = os.getenv('API_HOST', 'https://api.commadotai.com')
 
 # FrogPilot variables
+KONIK_API_HOST = os.getenv('API_HOST', 'https://api.konik.ai')
 
 # name: jwt signature algorithm
 KEYS = {"id_rsa": "RS256",
@@ -57,8 +58,9 @@ def api_get(endpoint, method='GET', timeout=None, access_token=None, session=Non
   req = requests if session is None else session
 
   # FrogPilot variables
+  host = KONIK_API_HOST if frogpilot_paths.KONIK_PATH.is_file() else API_HOST
 
-  return req.request(method, API_HOST + "/" + endpoint, timeout=timeout, headers=headers, params=params)
+  return req.request(method, host + "/" + endpoint, timeout=timeout, headers=headers, params=params)
 
 
 def get_key_pair() -> tuple[str, str, str] | tuple[None, None, None]:
