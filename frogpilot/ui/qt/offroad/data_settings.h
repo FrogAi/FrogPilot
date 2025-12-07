@@ -10,4 +10,7 @@ public:
 
 signals:
   void openSubPanel();
+
+private:
+  Params params;
 };

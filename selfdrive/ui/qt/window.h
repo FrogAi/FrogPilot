@@ -24,4 +24,5 @@ private:
   OnboardingWindow *onboardingWindow;
 
   // FrogPilot variables
+  Params params;
 };

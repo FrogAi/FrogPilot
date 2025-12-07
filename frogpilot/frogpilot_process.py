@@ -30,7 +30,7 @@ def frogpilot_thread():
                             "radarState", "selfdriveState"],
                             poll="modelV2")
 
-  params = Params()
+  params = Params(return_defaults=True)
 
   api = frogpilot_api.FrogPilotAPI(params)
   api.register_device(get_build_metadata())

@@ -75,5 +75,7 @@ private:
   LabelControl *calibrationProgressLabel;
   LabelControl *maxLateralAccelerationLabel;
 
+  Params params;
+
   QNetworkAccessManager *networkManager;
 };

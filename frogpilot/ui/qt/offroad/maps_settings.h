@@ -48,6 +48,8 @@ private:
   std::vector<MapSelectionControl *> countrySelectionControls;
   std::vector<MapSelectionControl *> stateSelectionControls;
 
+  Params params;
+
   QDateTime startTime;
 
   QDir mapsFolderPath{"/data/media/0/osm/offline"};

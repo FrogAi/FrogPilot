@@ -62,4 +62,6 @@ private:
 
   QDir themePacksDirectory{"/data/themes/theme_packs/"};
   QDir wheelsDirectory{"/data/themes/steering_wheels/"};
+
+  Params params;
 };

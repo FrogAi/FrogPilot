@@ -37,4 +37,6 @@ private:
   FrogPilotParamValueButtonControl *steerRatioToggle;
 
   FrogPilotSettingsWindow *parent;
+
+  Params params;
 };

@@ -168,6 +168,9 @@ public:
 
   // FrogPilot variables
 
+protected:
+  Params params;
+
 private:
   void toggleClicked(bool state);
   void setIcon(bool state) {
@@ -179,7 +182,6 @@ private:
   }
 
   std::string key;
-  Params params;
   QPixmap active_icon_pixmap;
   bool confirm = false;
   bool store_confirm = false;

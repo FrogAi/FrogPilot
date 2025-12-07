@@ -37,6 +37,9 @@ struct ParamKeyAttributes {
   std::optional<std::string> default_value = std::nullopt;
 
   // FrogPilot variables
+  std::optional<std::string> stock_value = std::nullopt;
+
+  int tuning_level = 0;
 };
 
 class Params {
@@ -81,6 +84,36 @@ public:
   }
 
   // FrogPilot variables
+  int getInt(const std::string &key, bool block = false) {
+    std::string value = get(key, block);
+    return value.empty() ? 0 : std::stoi(value);
+  }
+  float getFloat(const std::string &key, bool block = false) {
+    std::string value = get(key, block);
+    return value.empty() ? 0.0f : std::stof(value);
+  }
+
+  int putInt(const std::string &key, int val) {
+    std::string str = std::to_string(val);
+    return put(key.c_str(), str.c_str(), str.size());
+  }
+  int putFloat(const std::string &key, float val) {
+    std::string str = std::to_string(val);
+    return put(key.c_str(), str.c_str(), str.size());
+  }
+  void putIntNonBlocking(const std::string &key, int val) {
+    putNonBlocking(key, std::to_string(val));
+  }
+
+  int getTuningLevel(const std::string &key);
+
+  std::optional<std::string> getStockValue(const std::string &key);
+
+  void waitForPendingWrites() {
+    if (future.valid()) {
+      future.wait();
+    }
+  }
 
 private:
   void asyncWriteThread();
@@ -93,4 +126,5 @@ private:
   SafeQueue<std::pair<std::string, std::string>> queue;
 
   // FrogPilot variables
+  std::string cache_path;
 };

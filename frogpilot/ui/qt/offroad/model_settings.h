@@ -40,6 +40,8 @@ private:
 
   FrogPilotSettingsWindow *parent;
 
+  Params params;
+
   QDir modelsDir;
 
   QMap<QString, QString> availableModels;

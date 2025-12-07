@@ -71,4 +71,6 @@ private:
 
   // FrogPilot variables
   void showEvent(QShowEvent *event) override;
+
+  Params params;
 };

@@ -39,6 +39,8 @@ private:
 
   LabelControl *ipLabel;
 
+  Params params;
+
   QLabel *imageLabel;
 
   QNetworkAccessManager *networkManager;

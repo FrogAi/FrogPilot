@@ -29,4 +29,6 @@ private:
   QSet<QString> parentKeys;
 
   FrogPilotSettingsWindow *parent;
+
+  Params params;
 };

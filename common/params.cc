@@ -96,6 +96,7 @@ Params::Params(const std::string &path) {
   params_path = ensure_params_path(params_prefix, path);
 
   // FrogPilot variables
+  cache_path = "/cache/params" + params_prefix + "/";
 }
 
 Params::~Params() {
@@ -173,6 +174,7 @@ int Params::remove(const std::string &key) {
   int result = unlink(getParamPath(key).c_str());
 
   // FrogPilot variables
+  unlink((cache_path + key).c_str());
 
   if (result != 0) {
     return result;
@@ -222,6 +224,7 @@ void Params::clearAll(ParamKeyFlag key_flag) {
           unlink(getParamPath(de->d_name).c_str());
 
           // FrogPilot variables
+          unlink((cache_path + de->d_name).c_str());
         }
       }
     }
@@ -249,3 +252,14 @@ void Params::asyncWriteThread() {
 }
 
 // FrogPilot variables
+int Params::getTuningLevel(const std::string &key) {
+  return keys[key].tuning_level;
+}
+
+std::optional<std::string> Params::getStockValue(const std::string &key) {
+  ParamKeyAttributes &attributes = keys[key];
+  if (attributes.stock_value) {
+    return attributes.stock_value;
+  }
+  return attributes.default_value;
+}

@@ -41,13 +41,20 @@ def manager_init() -> None:
     params.put_bool("RecordFront", True)
 
   # FrogPilot variables
+  params_cache = Params("/cache/params", return_defaults=True)
+
+  frogpilot_functions.migrate_params(params, params_cache)
 
   # set unset params to their default value
   for k in params.all_keys():
-    default_value = params.get_default_value(k)
+    current_value = params.get(k)
     # FrogPilot variables
-    if default_value is not None and params.get(k) is None:
-      params.put(k, default_value)
+    if current_value is None:
+      cached_value = params_cache.get(k)
+      if cached_value is not None:
+        params.put(k, cached_value)
+    else:
+      params_cache.put(k, current_value)
 
   # Create folders needed for msgq
   try:

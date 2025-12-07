@@ -332,6 +332,8 @@ public:
 private:
   void updateSelectedMaps();
 
+  Params params;
+
   QButtonGroup *mapButtons;
 
   QString prefix;

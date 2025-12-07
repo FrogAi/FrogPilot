@@ -21,5 +21,7 @@ private:
 
   FrogPilotSettingsWindow *parent;
 
+  Params params;
+
   QMap<int, QString> buttonFunctions();
 };
