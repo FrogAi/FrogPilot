@@ -55,6 +55,8 @@ private:
   bool subPanelOpen = false;
   bool subSubPanelOpen = false;
   bool subSubSubPanelOpen = false;
+
+  Params params;
 };
 
 class DevicePanel : public ListWidget {

@@ -59,4 +59,6 @@ private:
   FrogPilotParamValueControl *vEgoStoppingToggle;
 
   FrogPilotSettingsWindow *parent;
+
+  Params params;
 };

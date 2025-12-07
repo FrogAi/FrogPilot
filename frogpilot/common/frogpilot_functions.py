@@ -14,6 +14,18 @@ def install_frogpilot():
   update_boot_logo(frogpilot_paths.FROGPILOT_BOOT_LOGO_PATH)
 
 
+def sync_params_cache(params, params_cache):
+  for key in params.all_keys():
+    current_value = params.get(key)
+    cached_value = params_cache.get(key)
+
+    if current_value is None:
+      if cached_value is not None:
+        params.put(key, cached_value)
+    elif current_value != cached_value:
+      params_cache.put(key, current_value)
+
+
 def uninstall_frogpilot():
   update_boot_logo(frogpilot_paths.STOCK_BOOT_LOGO_PATH)
 

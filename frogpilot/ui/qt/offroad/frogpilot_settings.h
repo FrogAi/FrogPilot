@@ -103,6 +103,8 @@ private:
 
   ParamWatcher *carParamsWatcher = nullptr;
 
+  Params params;
+
   QJsonObject shownDescriptions;
 
   QStackedLayout *mainLayout;

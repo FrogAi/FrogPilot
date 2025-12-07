@@ -69,4 +69,5 @@ private:
   Networking *networking = nullptr;
 
   // FrogPilot variables
+  Params params;
 };

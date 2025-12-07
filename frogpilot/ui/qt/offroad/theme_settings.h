@@ -29,4 +29,6 @@ private:
   FrogPilotButtonsControl *startupAlertButton;
 
   FrogPilotSettingsWindow *parent;
+
+  Params params;
 };

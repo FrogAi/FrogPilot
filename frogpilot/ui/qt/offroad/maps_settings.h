@@ -31,4 +31,6 @@ private:
   LabelControl *downloadTimeElapsed;
   LabelControl *lastMapsDownload;
   LabelControl *mapsSize;
+
+  Params params;
 };

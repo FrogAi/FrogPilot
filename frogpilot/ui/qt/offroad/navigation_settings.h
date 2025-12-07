@@ -30,5 +30,7 @@ private:
 
   LabelControl *ipLabel;
 
+  Params params;
+
   QStackedLayout *navigationLayout;
 };
