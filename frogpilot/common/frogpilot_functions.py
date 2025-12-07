@@ -5,6 +5,7 @@ from multiprocessing import Process
 
 from openpilot.common.params import Params
 from openpilot.common.time_helpers import system_time_valid
+from openpilot.system.athena.registration import register
 from openpilot.system.hardware import HARDWARE, PC
 
 from openpilot.frogpilot.assets.theme_manager import ThemeManager
@@ -26,11 +27,25 @@ def cleanup_error_logs():
 def frogpilot_boot_functions(build_metadata, params):
   frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
-  if sync_flag_file(frogpilot_paths.HD_PATH, frogpilot_toggles.use_higher_bitrate):
+  flag_files_changed = sync_flag_file(frogpilot_paths.HD_PATH, frogpilot_toggles.use_higher_bitrate)
+  flag_files_changed |= sync_flag_file(frogpilot_paths.KONIK_PATH, frogpilot_toggles.use_konik_server)
+
+  if flag_files_changed:
     HARDWARE.reboot()
 
   ThemeManager.copy_default_theme()
   ThemeManager(params).update_active_theme(time_validated=system_time_valid(), frogpilot_toggles=frogpilot_toggles)
+
+  if frogpilot_utilities.use_konik_server():
+    if params.get("KonikDongleId") is not None:
+      params.put("DongleId", params.get("KonikDongleId"))
+    else:
+      Process(target=register_konik, daemon=True).start()
+  elif params.get("KonikDongleId") is not None and params.get("DongleId") == params.get("KonikDongleId"):
+    if params.get("StockDongleId") is None:
+      params.remove("DongleId")
+    else:
+      params.put("DongleId", params.get("StockDongleId"))
 
   frogpilot_utilities.delete_path(frogpilot_paths.RESTORE_TEMP_PATH)
 
@@ -40,7 +55,8 @@ def frogpilot_boot_functions(build_metadata, params):
 def install_frogpilot():
   paths = [
     frogpilot_paths.ERROR_LOGS_PATH,
-    frogpilot_paths.HD_LOGS_PATH
+    frogpilot_paths.HD_LOGS_PATH,
+    frogpilot_paths.KONIK_LOGS_PATH
   ]
   for path in paths:
     path.mkdir(parents=True, exist_ok=True)
@@ -48,6 +64,10 @@ def install_frogpilot():
   cleanup_error_logs()
 
   update_boot_logo(frogpilot_paths.FROGPILOT_BOOT_LOGO_PATH)
+
+
+def register_konik():
+  Params().put("KonikDongleId", register(register_konik=True))
 
 
 def run_frogsgomoo(build_metadata):
