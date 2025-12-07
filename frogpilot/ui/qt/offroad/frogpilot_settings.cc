@@ -188,7 +188,7 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
 
 void FrogPilotSettingsWindow::confirmTuningLevel(QWidget *dialogParent) {
   int frogpilotHours = QJsonDocument::fromJson(QString::fromStdString(params.get("FrogPilotStats")).toUtf8()).object().value("FrogPilotSeconds").toDouble() / (60 * 60);
-  int openpilotHours = params.getInt("openpilotMinutes") / 60;
+  int openpilotHours = params.getInt("KonikMinutes") / 60 + params.getInt("openpilotMinutes") / 60;
 
   QString message;
   int newTuningLevel;

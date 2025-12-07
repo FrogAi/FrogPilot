@@ -9,6 +9,9 @@ run-name: >-
 on:
   workflow_dispatch:
     inputs:
+      not_vetted:
+        description: This branch is not vetted
+        type: boolean
       source_branch:
         default: FrogPilot-Vetting
         description: Source branch
@@ -103,6 +106,9 @@ jobs:
             git show "refs/remotes/public/$BRANCH_STAGING:.github/update_date" > .github/update_date
           fi
 
+          if ${{ inputs.not_vetted }}; then
+            touch not_vetted
+          fi
           git add --all --force
           git -c user.name="$GIT_NAME" -c user.email="$GIT_EMAIL" \
             commit -m "$COMPILE_COMMIT"

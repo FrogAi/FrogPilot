@@ -217,6 +217,11 @@ def update_json_file(path, data):
   os.replace(temp_path, path)
 
 
+@cache
+def use_konik_server():
+  return frogpilot_variables.KONIK_PATH.is_file()
+
+
 def wait_for_no_driver(params, sm, time_threshold):
   while sm["deviceState"].screenBrightnessPercent != 0 or any(proc.name == "dmonitoringd" and proc.running for proc in sm["managerState"].processes):
     sm.update()

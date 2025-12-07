@@ -13,6 +13,7 @@
 
 bool isFrogsGoMoo();
 bool isOpenpilotSteering();
+bool useKonikServer();
 
 QFont fitInterFont(int pixelSize, QFont::Weight weight, int width, const QStringList &texts);
 

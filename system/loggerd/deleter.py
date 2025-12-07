@@ -17,7 +17,7 @@ MIN_PERCENT = 10
 DELETE_LAST = ['boot', 'crash']
 
 # FrogPilot variables
-LOG_ROOTS = ['realdata', 'realdata_HD']
+LOG_ROOTS = ['realdata', 'realdata_HD', 'realdata_konik']
 
 PRESERVE_ATTR_NAME = 'user.preserve'
 PRESERVE_ATTR_VALUE = b'1'

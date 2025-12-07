@@ -22,6 +22,7 @@ Examples::
 """
 
 import argparse
+import os
 import sys
 import pprint
 import webbrowser
@@ -32,7 +33,10 @@ from urllib.parse import parse_qs, urlencode
 from openpilot.tools.lib.api import APIError, CommaApi, UnauthorizedError
 from openpilot.tools.lib.auth_config import set_token, get_token
 
+from openpilot.frogpilot.common import frogpilot_utilities
+
 # FrogPilot variables
+API_HOST = os.getenv('API_HOST', f"https://api.{'konik' if frogpilot_utilities.use_konik_server() else 'comma'}.ai")
 PORT = 3000
 
 
@@ -67,7 +71,7 @@ def auth_redirect_link(method):
   }[method]
 
   params = {
-    'redirect_uri': f"https://api.comma.ai/v2/auth/{provider_id}/redirect/",
+    'redirect_uri': f"{API_HOST}/v2/auth/{provider_id}/redirect/",
     'state': f'service,localhost:{PORT}',
   }
 
