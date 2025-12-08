@@ -63,7 +63,7 @@ class FrogPilotPlanner:
 
     self.frogpilot_acceleration.update(v_ego, sm)
 
-    self.frogpilot_events.update(sm, frogpilot_toggles)
+    self.frogpilot_events.update(long_control_active, sm, frogpilot_toggles)
 
     self.frogpilot_following.update(sm)
 

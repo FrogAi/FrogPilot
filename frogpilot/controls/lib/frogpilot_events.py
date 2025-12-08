@@ -9,9 +9,11 @@ class FrogPilotEvents:
 
     self.startup_seen = False
 
+    self.max_acceleration = 0
+
     self.played_events = set()
 
-  def update(self, sm, frogpilot_toggles):
+  def update(self, long_control_active, sm, frogpilot_toggles):
     current_alert = sm["selfdriveState"].alertType
     current_frogpilot_alert = sm["frogpilotSelfdriveState"].alertType
 
@@ -20,6 +22,11 @@ class FrogPilotEvents:
     self.events.clear()
 
     acceleration = sm["carControl"].actuators.accel
+
+    if long_control_active:
+      self.max_acceleration = max(acceleration, self.max_acceleration)
+    else:
+      self.max_acceleration = 0
 
     self.startup_seen |= sm["frogpilotSelfdriveState"].alertText1 == frogpilot_toggles.startup_alert_top and sm["frogpilotSelfdriveState"].alertText2 == frogpilot_toggles.startup_alert_bottom
 

@@ -230,8 +230,59 @@ void loadMovie(const QString &moviePath, QSharedPointer<FrogPilotMovie> &movie, 
   movie->start();
 }
 
+const QMap<QString, QString> &randomEventNames() {
+  static const QMap<QString, QString> names = {
+    {"accel30", QCoreApplication::translate("FrogPilotDataPanel", "UwUs")},
+    {"accel35", QCoreApplication::translate("FrogPilotDataPanel", "Loch Ness Encounters")},
+    {"accel40", QCoreApplication::translate("FrogPilotDataPanel", "Visits to 1955")},
+    {"dejaVuCurve", QCoreApplication::translate("FrogPilotDataPanel", "Deja Vu Moments")},
+    {"firefoxSteerSaturated", QCoreApplication::translate("FrogPilotDataPanel", "Internet Explorer Weeeeeeees")},
+    {"goatSteerSaturated", QCoreApplication::translate("FrogPilotDataPanel", "Goat Screams")},
+    {"hal9000", QCoreApplication::translate("FrogPilotDataPanel", "HAL 9000 Denials")},
+    {"openpilotCrashedRandomEvent", QCoreApplication::translate("FrogPilotDataPanel", "openpilot Crashes")},
+    {"thisIsFineSteerSaturated", QCoreApplication::translate("FrogPilotDataPanel", "This Is Fine Moments")},
+    {"toBeContinued", QCoreApplication::translate("FrogPilotDataPanel", "To Be Continued Moments")},
+    {"vCruise69", QCoreApplication::translate("FrogPilotDataPanel", "Noices")},
+    {"yourFrogTriedToKillMe", QCoreApplication::translate("FrogPilotDataPanel", "Attempted Frog Murders")},
+    {"youveGotMail", QCoreApplication::translate("FrogPilotDataPanel", "Total Mail Received")}
+  };
+  return names;
+}
+
 QString cleanModelName(QString modelName) {
   return modelName.remove("_default").remove("(Default)");
+}
+
+QString formatDistance(double meters, bool isMetric) {
+  int value;
+  QString unit;
+  if (isMetric) {
+    value = qRound(meters / 1000.0);
+    unit = (value == 1) ? QCoreApplication::translate("FrogPilotDataPanel", " kilometer") : QCoreApplication::translate("FrogPilotDataPanel", " kilometers");
+  } else {
+    value = qRound(meters * METER_TO_MILE);
+    unit = (value == 1) ? QCoreApplication::translate("FrogPilotDataPanel", " mile") : QCoreApplication::translate("FrogPilotDataPanel", " miles");
+  }
+  return QLocale().toString(value) + unit;
+}
+
+QString formatDuration(int seconds) {
+  const int secondsInDay = 60 * 60 * 24;
+  const int secondsInHour = 60 * 60;
+
+  int days = seconds / secondsInDay;
+  int hours = (seconds % secondsInDay) / secondsInHour;
+  int minutes = (seconds % secondsInHour) / 60;
+
+  QString result;
+  if (days > 0) {
+    result += QLocale().toString(days) + (days == 1 ? QCoreApplication::translate("FrogPilotDataPanel", " day ") : QCoreApplication::translate("FrogPilotDataPanel", " days "));
+  }
+  if (hours > 0 || days > 0) {
+    result += QLocale().toString(hours) + (hours == 1 ? QCoreApplication::translate("FrogPilotDataPanel", " hour ") : QCoreApplication::translate("FrogPilotDataPanel", " hours "));
+  }
+  result += QLocale().toString(minutes) + (minutes == 1 ? QCoreApplication::translate("FrogPilotDataPanel", " minute") : QCoreApplication::translate("FrogPilotDataPanel", " minutes"));
+  return result.trimmed();
 }
 
 QString formatShortTime(const QTime &time) {
