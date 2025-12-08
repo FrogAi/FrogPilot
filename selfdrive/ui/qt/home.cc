@@ -9,6 +9,8 @@
 #include "selfdrive/ui/qt/util.h"
 #include "selfdrive/ui/qt/widgets/prime.h"
 
+#include "frogpilot/ui/qt/widgets/drive_stats.h"
+
 // HomeWindow: the container for the offroad and onroad UIs
 
 HomeWindow::HomeWindow(QWidget* parent) : QWidget(parent) {
@@ -149,25 +151,11 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
     home_layout->setContentsMargins(0, 0, 0, 0);
     home_layout->setSpacing(30);
 
-    // left: PrimeAdWidget
+    // left: stack of DriveStats
     QStackedWidget *left_widget = new QStackedWidget(this);
-    QVBoxLayout *left_prime_layout = new QVBoxLayout();
-    left_prime_layout->setContentsMargins(0, 0, 0, 0);
-    QWidget *prime_user = new PrimeUserWidget();
-    prime_user->setStyleSheet(R"(
-    border-radius: 10px;
-    background-color: #333333;
-    )");
-    left_prime_layout->addWidget(prime_user);
-    left_prime_layout->addStretch();
-    left_widget->addWidget(new LayoutWidget(left_prime_layout));
-    left_widget->addWidget(new PrimeAdWidget);
-    left_widget->setStyleSheet("border-radius: 10px;");
 
     // FrogPilot variables
-    connect(uiState()->prime_state, &PrimeState::changed, [left_widget]() {
-      left_widget->setCurrentIndex(uiState()->prime_state->isSubscribed() ? 0 : 1);
-    });
+    left_widget->addWidget(new DriveStats());
 
     home_layout->addWidget(left_widget, 1);
 

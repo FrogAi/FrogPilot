@@ -46,6 +46,12 @@ FrogPilotUIState *frogpilotUIState() {
   return &frogpilot_ui_state;
 }
 
+void FrogPilotUIState::resetStats() {
+  MessageBuilder msg;
+  msg.initEvent().initFrogpilotUIRequest().setResetStats();
+  pm->send("frogpilotUIRequest", msg);
+}
+
 void FrogPilotUIState::runUpdateChecks() {
   MessageBuilder msg;
   msg.initEvent().initFrogpilotUIRequest().setUpdateChecks();

@@ -19,6 +19,7 @@ class FrogPilotUIState : public QObject {
 public:
   explicit FrogPilotUIState(QObject *parent = nullptr);
 
+  void resetStats();
   void runUpdateChecks();
   void update();
   void updateToggles();
