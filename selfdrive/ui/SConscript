@@ -45,6 +45,7 @@ qt_src += ["../../frogpilot/ui/frogpilot_ui.cc", "../../frogpilot/ui/qt/offroad/
            "../../frogpilot/ui/qt/offroad/vehicle_settings.cc", "../../frogpilot/ui/qt/offroad/visual_settings.cc",
            "../../frogpilot/ui/qt/offroad/wheel_settings.cc", "../../frogpilot/ui/qt/onroad/frogpilot_annotated_camera.cc",
            "../../frogpilot/ui/qt/onroad/frogpilot_buttons.cc", "../../frogpilot/ui/qt/onroad/frogpilot_onroad.cc",
+           "../../frogpilot/ui/qt/widgets/drive_stats.cc",
            "../../frogpilot/ui/qt/widgets/navigation_functions.cc"]
 
 # build translation files
