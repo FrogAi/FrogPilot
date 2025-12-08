@@ -16,7 +16,11 @@ inline QColor blackColor(int alpha = 255) { return QColor(0, 0, 0, alpha); }
 
 QFont fitInterFont(int pixelSize, QFont::Weight weight, int width, const QStringList &texts);
 
+const QMap<QString, QString> &randomEventNames();
+
 QString cleanModelName(QString modelName);
+QString formatDistance(double meters, bool isMetric);
+QString formatDuration(int seconds);
 QString formatShortTime(const QTime &time);
 
 class FrogPilotMovie : public QObject {

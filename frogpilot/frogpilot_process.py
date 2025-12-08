@@ -12,6 +12,8 @@ from openpilot.system.hardware import PC
 
 from openpilot.frogpilot.common import frogpilot_api
 from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
+from openpilot.frogpilot.system.frogpilot_stats import send_stats
+from openpilot.frogpilot.system.frogpilot_tracking import FrogPilotTracking
 
 class FrogPilotRequests:
   def __init__(self):
@@ -47,6 +49,9 @@ class FrogPilotRequests:
 def transition_offroad(frogpilot_planner, thread_manager, time_validated, params, frogpilot_toggles, api):
   if frogpilot_planner.last_gps_position is not None:
     params.put("LastGPSPosition", json.dumps(frogpilot_planner.last_gps_position))
+
+  if time_validated:
+    thread_manager.run_in_thread(send_stats, (params, frogpilot_toggles, api))
 
 def transition_onroad():
   if not PC:
@@ -86,17 +91,22 @@ def frogpilot_thread():
     started = sm["deviceState"].started
 
     if not started and started_previously:
+      frogpilot_tracking.save_stats()
+
       transition_offroad(frogpilot_planner, thread_manager, time_validated, params, frogpilot_toggles, api)
 
       run_update_checks = True
     elif started and not started_previously:
       frogpilot_planner = FrogPilotPlanner()
+      frogpilot_tracking = FrogPilotTracking(frogpilot_planner, frogpilot_toggles)
 
       transition_onroad()
 
     if started and sm.updated["modelV2"]:
       frogpilot_planner.update(now, time_validated, sm)
       frogpilot_planner.publish(sm, pm)
+
+      frogpilot_tracking.update(now, time_validated, sm)
     elif not started:
       frogpilot_plan_send = messaging.new_message("frogpilotPlan")
       pm.send("frogpilotPlan", frogpilot_plan_send)
@@ -122,6 +132,7 @@ def frogpilot_thread():
       time_validated = system_time_valid()
 
       if time_validated:
+        thread_manager.run_in_thread(send_stats, (params, frogpilot_toggles, api))
         thread_manager.run_in_thread(update_checks, (now, thread_manager, sm, params, frogpilot_toggles, True))
 
 def main():
