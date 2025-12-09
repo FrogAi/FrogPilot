@@ -86,6 +86,8 @@ void Sidebar::updateState(const UIState &s) {
   if (!isVisible()) return;
 
   // FrogPilot variables
+  const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
+
   const SubMaster &fpsm = *(frogpilotUIState()->sm);
 
   const cereal::FrogPilotDeviceState::Reader &frogpilotDeviceState = fpsm["frogpilotDeviceState"].getFrogpilotDeviceState();
@@ -164,6 +166,7 @@ void Sidebar::paintEvent(QPaintEvent *event) {
   p.setOpacity(1.0);
 
   // FrogPilot variables
+  const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
 
   // network
   // FrogPilot variables

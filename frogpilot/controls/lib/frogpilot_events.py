@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from openpilot.selfdrive.selfdrived.events import FROGPILOT_EVENT_NAME, Events
 
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_variables
+
 class FrogPilotEvents:
   def __init__(self, FrogPilotPlanner):
     self.frogpilot_planner = FrogPilotPlanner

@@ -4,6 +4,8 @@ from pathlib import Path
 
 from openpilot.system.hardware import PC
 
+from openpilot.frogpilot.common import frogpilot_paths
+
 DEFAULT_DOWNLOAD_CACHE_ROOT = "/tmp/comma_download_cache"
 
 class Paths:

@@ -1,6 +1,8 @@
 import time
 import threading
 
+from types import SimpleNamespace
+
 from openpilot.common.params import Params
 from openpilot.system.hardware import HARDWARE
 from openpilot.common.swaglog import cloudlog
@@ -105,7 +107,7 @@ class PowerMonitoring:
     return int(self.car_battery_capacity_uWh)
 
   # See if we need to shutdown
-  def should_shutdown(self, ignition: bool, in_car: bool, offroad_timestamp: float | None, started_seen: bool):
+  def should_shutdown(self, ignition: bool, in_car: bool, offroad_timestamp: float | None, started_seen: bool, frogpilot_toggles: SimpleNamespace):
     if offroad_timestamp is None:
       return False
 

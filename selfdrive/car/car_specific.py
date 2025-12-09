@@ -49,7 +49,7 @@ class CarSpecificEvents:
     self.no_steer_warning = False
     self.silent_steer_warning = True
 
-  def update(self, CS: car.CarState, CS_prev: car.CarState, CC: car.CarControl):
+  def update(self, CS: car.CarState, CS_prev: car.CarState, CC: car.CarControl, frogpilot_toggles):
     extra_gears = BRAND_EXTRA_GEARS.get(self.CP.brand, None)
 
     if self.CP.brand in ('body', 'mock'):

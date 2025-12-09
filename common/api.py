@@ -5,6 +5,8 @@ from datetime import datetime, timedelta, UTC
 from openpilot.system.hardware.hw import Paths
 from openpilot.system.version import get_version
 
+from openpilot.frogpilot.common import frogpilot_paths
+
 API_HOST = os.getenv('API_HOST', 'https://api.commadotai.com')
 
 # FrogPilot variables
