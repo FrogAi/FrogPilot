@@ -127,6 +127,11 @@ TogglesPanel::TogglesPanel(SettingsWindow *parent) : ListWidget(parent) {
   connect(toggles["IsMetric"], &ToggleControl::toggleFlipped, [=](bool isMetric) {
     updateMetric(isMetric);
   });
+  connect(frogpilotUIState(), &FrogPilotUIState::togglesUpdated, this, [this]() {
+    if (isVisible()) {
+      updateToggles();
+    }
+  });
 }
 
 void TogglesPanel::updateState(const UIState &s) {
@@ -158,6 +163,7 @@ void TogglesPanel::showEvent(QShowEvent *event) {
   updateToggles();
 
   // FrogPilot variables
+  frogpilotUIState()->updateToggles();
 }
 
 void TogglesPanel::refreshMetric(bool isMetric) {
@@ -222,6 +228,7 @@ void TogglesPanel::updateToggles() {
   }
 
   // FrogPilot variables
+  const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
 }
 
 DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
@@ -434,6 +441,8 @@ void SettingsWindow::showEvent(QShowEvent *event) {
 // FrogPilot variables
 void SettingsWindow::hideEvent(QHideEvent *event) {
   closeAllPanels();
+
+  frogpilotUIState()->updateToggles();
 }
 
 void SettingsWindow::closeAllPanels() {

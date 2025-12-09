@@ -12,6 +12,7 @@ void FrogPilotAnnotatedCameraWidget::hideEvent(QHideEvent *event) {
 
 void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPilotUIState &fs) {
   frogpilot_scene = fs.frogpilot_scene;
+  frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
 
   const UIScene &scene = s.scene;
 

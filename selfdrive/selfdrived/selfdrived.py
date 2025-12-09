@@ -24,7 +24,7 @@ from openpilot.selfdrive.selfdrived.alertmanager import AlertManager, set_offroa
 from openpilot.system.version import get_build_metadata
 from openpilot.system.hardware import HARDWARE
 
-from openpilot.frogpilot.common import frogpilot_utilities
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 
 REPLAY = "REPLAY" in os.environ
 SIMULATION = "SIMULATION" in os.environ
@@ -148,6 +148,8 @@ class SelfdriveD:
     self.sm = self.sm.extend(['frogpilotCarState', 'frogpilotPlan', 'frogpilotProcessState'])
     self.pm = self.pm.extend(['frogpilotOnroadEvents', 'frogpilotSelfdriveState'])
 
+    self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
+
     self.frogpilot_AM = AlertManager()
     self.frogpilot_events = Events(frogpilot=True)
 
@@ -209,7 +211,7 @@ class SelfdriveD:
 
     # Add car events, ignore if CAN isn't valid
     if CS.canValid:
-      car_events = self.car_events.update(CS, self.CS_prev, self.sm['carControl']).to_msg()
+      car_events = self.car_events.update(CS, self.CS_prev, self.sm['carControl'], self.frogpilot_toggles).to_msg()
       self.events.add_from_msg(car_events)
 
       # FrogPilot variables
@@ -575,6 +577,7 @@ class SelfdriveD:
     self.CS_prev = CS
 
     # FrogPilot variables
+    self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(self.sm)
 
   def params_thread(self, evt):
     while not evt.is_set():

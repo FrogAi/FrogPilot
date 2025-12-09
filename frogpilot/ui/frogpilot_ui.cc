@@ -27,6 +27,14 @@ static void update_state(FrogPilotUIState *fs) {
   }
   if (fpsm.updated("frogpilotProcessState")) {
     const cereal::FrogPilotProcessState::Reader &frogpilotProcessState = fpsm["frogpilotProcessState"].getFrogpilotProcessState();
+    capnp::Text::Reader toggles = frogpilotProcessState.getFrogpilotToggles();
+    QByteArray current_toggles = QByteArray::fromRawData(toggles.cStr(), toggles.size());
+    static QByteArray previous_toggles;
+    if (previous_toggles != current_toggles) {
+      frogpilot_scene.frogpilot_toggles = QJsonDocument::fromJson(current_toggles).object();
+      previous_toggles = QByteArray(toggles.cStr(), toggles.size());
+      emit fs->togglesUpdated();
+    }
   }
 }
 

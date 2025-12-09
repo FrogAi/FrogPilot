@@ -21,7 +21,7 @@ from openpilot.common.swaglog import cloudlog, add_file_handler
 from openpilot.system.version import get_build_metadata, terms_version, training_version
 from openpilot.system.hardware.hw import Paths
 
-from openpilot.frogpilot.common import frogpilot_functions
+from openpilot.frogpilot.common import frogpilot_functions, frogpilot_paths, frogpilot_variables
 
 
 def manager_init() -> None:
@@ -141,8 +141,10 @@ def manager_thread() -> None:
   # FrogPilot variables
   sm = sm.extend(['frogpilotProcessState'])
 
+  frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
+
   write_onroad_params(False, params)
-  ensure_running(managed_processes.values(), False, params=params, CP=sm['carParams'], not_run=ignore)
+  ensure_running(managed_processes.values(), False, params=params, CP=sm['carParams'], not_run=ignore, frogpilot_toggles=frogpilot_toggles)
 
   started_prev = False
   ignition_prev = False
@@ -168,7 +170,7 @@ def manager_thread() -> None:
     started_prev = started
     ignition_prev = ignition
 
-    ensure_running(managed_processes.values(), started, params=params, CP=sm['carParams'], not_run=ignore)
+    ensure_running(managed_processes.values(), started, params=params, CP=sm['carParams'], not_run=ignore, frogpilot_toggles=frogpilot_toggles)
 
     running = ' '.join("{}{}\u001b[0m".format("\u001b[32m" if p.proc.is_alive() else "\u001b[31m", p.name)
                        for p in managed_processes.values() if p.proc)
@@ -200,6 +202,7 @@ def manager_thread() -> None:
       break
 
     # FrogPilot variables
+    frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
 
 
 def main() -> None:

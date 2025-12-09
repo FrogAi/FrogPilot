@@ -307,7 +307,7 @@ class LongitudinalMpc:
     lead_xv = np.column_stack((x_lead_traj, v_lead_traj))
     return lead_xv
 
-  def process_lead(self, lead):
+  def process_lead(self, lead, frogpilot_toggles):
     v_ego = self.x0[1]
 
     # FrogPilot variables
@@ -333,15 +333,15 @@ class LongitudinalMpc:
     lead_xv = self.extrapolate_lead(x_lead, v_lead, a_lead, a_lead_tau)
     return lead_xv
 
-  def update(self, v_cruise, radarstate, x, v, a, j, t_follow, personality=log.LongitudinalPersonality.standard):
+  def update(self, v_cruise, radarstate, x, v, a, j, t_follow, frogpilot_toggles, personality=log.LongitudinalPersonality.standard):
     v_ego = self.x0[1]
 
     # FrogPilot variables
 
     self.status = radarstate.leadOne.status or radarstate.leadTwo.status
 
-    lead_xv_0 = self.process_lead(radarstate.leadOne)
-    lead_xv_1 = self.process_lead(radarstate.leadTwo)
+    lead_xv_0 = self.process_lead(radarstate.leadOne, frogpilot_toggles)
+    lead_xv_1 = self.process_lead(radarstate.leadTwo, frogpilot_toggles)
 
     # FrogPilot variables
     self.lead_xv_0 = lead_xv_0

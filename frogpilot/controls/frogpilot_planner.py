@@ -40,7 +40,7 @@ class FrogPilotPlanner:
 
     self.ui_event_sock = messaging.sub_sock("frogpilotUIEvent")
 
-  def update(self, now, time_validated, sm):
+  def update(self, now, time_validated, sm, frogpilot_toggles):
     self.accel_pressed = sm["frogpilotCarState"].accelPressCount > self.accel_press_count
     self.decel_pressed = sm["frogpilotCarState"].decelPressCount > self.decel_press_count
 
@@ -61,11 +61,11 @@ class FrogPilotPlanner:
 
     self.lead_relevant = self.is_lead_relevant(self.lead_one, sm["carState"].standstill, v_ego)
 
-    self.frogpilot_acceleration.update(v_ego, sm)
+    self.frogpilot_acceleration.update(v_ego, sm, frogpilot_toggles)
 
     self.frogpilot_events.update(long_control_active, sm, frogpilot_toggles)
 
-    self.frogpilot_following.update(sm)
+    self.frogpilot_following.update(sm, frogpilot_toggles)
 
     gps_location = sm[self.gps_location_service]
     self.gps_valid = frogpilot_utilities.is_gps_location_valid(self.gps_location_service, sm)
@@ -81,7 +81,7 @@ class FrogPilotPlanner:
 
     self.model_stopped = self.model_length < frogpilot_variables.CRUISING_SPEED * frogpilot_variables.PLANNER_TIME
 
-    self.v_cruise = self.frogpilot_vcruise.update(v_cruise, v_ego, sm)
+    self.v_cruise = self.frogpilot_vcruise.update(v_cruise, v_ego, sm, frogpilot_toggles)
 
   def is_lead_relevant(self, lead, standstill, v_ego):
     following_speed = max(v_ego, frogpilot_variables.CRUISING_SPEED)
@@ -92,7 +92,7 @@ class FrogPilotPlanner:
     relevant_lead &= lead.dRel < STOP_DISTANCE + following_speed * frogpilot_variables.MAX_T_FOLLOW + max(following_speed - lead_speed, 0) * frogpilot_variables.PLANNER_TIME
     return relevant_lead
 
-  def publish(self, sm, pm):
+  def publish(self, sm, pm, frogpilot_toggles):
     frogpilot_plan_send = messaging.new_message("frogpilotPlan")
     frogpilot_plan_send.valid = sm.all_checks(service_list=["carState", "controlsState", "selfdriveState", "radarState"])
     frogpilotPlan = frogpilot_plan_send.frogpilotPlan

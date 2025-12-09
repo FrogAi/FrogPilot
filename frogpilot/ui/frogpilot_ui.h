@@ -11,6 +11,8 @@ struct FrogPilotUIScene {
   bool parked = false;
   bool reverse = false;
   bool standstill = false;
+
+  QJsonObject frogpilot_toggles;
 };
 
 class FrogPilotUIState : public QObject {
@@ -31,6 +33,7 @@ public:
 
 signals:
   void cameraFrameReceived();
+  void togglesUpdated();
 
 private:
   std::unique_ptr<PubMaster> pm;
