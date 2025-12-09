@@ -22,7 +22,7 @@ private:
   bool mapToScreen(float in_x, float in_y, float in_z, QPointF *out);
   void mapLineToPolygon(const cereal::XYZTData::Reader &line, float y_off, float z_off,
                         QPolygonF *pvd, int max_idx, bool allow_invert = true);
-  void drawLead(QPainter &painter, const cereal::RadarState::LeadData::Reader &lead_data, const QPointF &vd, const QRect &surface_rect);
+  void drawLead(QPainter &painter, float d_rel, float v_rel, const QPointF &vd, const QRect &surface_rect, QColor marker_color);
   void update_leads(const cereal::RadarState::Reader &radar_state, const cereal::XYZTData::Reader &line);
   void update_model(const cereal::ModelDataV2::Reader &model, const cereal::RadarState::LeadData::Reader &lead, float height);
   void drawLaneLines(QPainter &painter);
@@ -47,4 +47,7 @@ private:
   // FrogPilot variables
   void mapAveragedLineToPolygon(const cereal::XYZTData::Reader &line1, const cereal::XYZTData::Reader &line2, float y_off, float z_off,
                                 QPolygonF *pvd, int max_idx, float height, bool allow_invert = true);
+  void updateAdjacentLeads(const cereal::FrogPilotRadarState::Reader &radar_state, const cereal::XYZTData::Reader &line);
+
+  QPointF adjacent_lead_vertices[2] = {};
 };
