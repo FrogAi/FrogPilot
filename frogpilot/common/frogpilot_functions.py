@@ -6,7 +6,7 @@ from pathlib import Path
 from cereal import CEREAL_PATH
 from openpilot.system.hardware import HARDWARE, PC
 
-from openpilot.frogpilot.common import frogpilot_paths
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities
 
 SCHEMA_FILES = ("car.capnp", "custom.capnp", "include/c++.capnp", "legacy.capnp", "log.capnp")
 

@@ -8,6 +8,8 @@ from openpilot.system.loggerd.config import get_available_bytes, get_available_p
 from openpilot.system.loggerd.uploader import listdir_by_creation
 from openpilot.system.loggerd.xattr_cache import getxattr
 
+from openpilot.frogpilot.common import frogpilot_utilities
+
 MIN_BYTES = 5 * 1024 * 1024 * 1024
 MIN_PERCENT = 10
 

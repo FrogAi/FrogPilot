@@ -11,7 +11,7 @@ from openpilot.common.realtime import Priority, set_core_affinity
 from openpilot.common.time_helpers import system_time_valid
 from openpilot.system.hardware import PC
 
-from openpilot.frogpilot.common import frogpilot_api
+from openpilot.frogpilot.common import frogpilot_api, frogpilot_utilities
 from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.frogpilot.system.frogpilot_stats import reset_stats, send_stats
 from openpilot.frogpilot.system.frogpilot_tracking import FrogPilotTracking
@@ -78,6 +78,7 @@ def frogpilot_thread():
 
   api = frogpilot_api.FrogPilotAPI(params)
   api.register_device()
+  thread_manager = frogpilot_utilities.ThreadManager()
 
   stats_lock = threading.Lock()
   frogpilot_requests = FrogPilotRequests()
