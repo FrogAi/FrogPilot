@@ -4,6 +4,8 @@ import cereal.messaging as messaging
 from opendbc.car import structs
 from openpilot.selfdrive.car.cruise import ButtonType
 
+from openpilot.frogpilot.common import frogpilot_utilities
+
 class FrogPilotCard:
   def __init__(self, CP):
     self.CP = CP

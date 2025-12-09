@@ -2,6 +2,8 @@ from cereal import log
 from openpilot.selfdrive.selfdrived.events import Events, ET
 from openpilot.common.realtime import DT_CTRL
 
+from openpilot.frogpilot.common import frogpilot_utilities
+
 State = log.SelfdriveState.OpenpilotState
 
 SOFT_DISABLE_TIME = 3  # seconds
