@@ -64,6 +64,7 @@ class Track:
     self.kf = KF1D([[v_lead], [0.0]], self.K_A, self.K_C, self.K_K)
 
     # FrogPilot variables
+    self.leadTrackID = 0
 
   def update(self, d_rel: float, y_rel: float, v_rel: float, v_lead: float, measured: float):
     # relative values, copy
@@ -117,6 +118,24 @@ class Track:
     return ret
 
   # FrogPilot variables
+  def potential_adjacent_lead(self, left: bool, model_data: capnp._DynamicStructReader):
+    if self.vLeadK < 1 or self.leadTrackID == self.identifier:
+      return False
+
+    model_distance = self.dRel + RADAR_TO_CAMERA
+
+    far_left_lane = np.interp(model_distance, model_data.laneLines[0].x, model_data.laneLines[0].y)
+    left_lane = np.interp(model_distance, model_data.laneLines[1].x, model_data.laneLines[1].y)
+    right_lane = np.interp(model_distance, model_data.laneLines[2].x, model_data.laneLines[2].y)
+    far_right_lane = np.interp(model_distance, model_data.laneLines[3].x, model_data.laneLines[3].y)
+
+    lead_left = far_left_lane < -self.yRel < left_lane and model_distance < model_data.position.x[-1]
+    lead_right = right_lane < -self.yRel < far_right_lane and model_distance < model_data.position.x[-1]
+
+    if left:
+      return lead_left
+    else:
+      return lead_right
 
 
 def laplacian_pdf(x: float, mu: float, b: float):
@@ -198,6 +217,15 @@ def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capn
 
 
 # FrogPilot variables
+def get_adjacent_lead(tracks: dict[int, Track], model_data: capnp._DynamicStructReader, left: bool = True) -> dict[str, Any]:
+  lead_dict = {'status': False}
+
+  adjacent_tracks = [c for c in tracks.values() if c.potential_adjacent_lead(left, model_data)]
+  if len(adjacent_tracks) > 0:
+    closest_track = min(adjacent_tracks, key=lambda c: c.dRel)
+    lead_dict = closest_track.get_RadarState()
+
+  return lead_dict
 
 
 class RadarD:
@@ -266,6 +294,13 @@ class RadarD:
       self.radar_state.leadTwo = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[1], model_v_ego, self.frogpilot_toggles, low_speed_override=False)
 
     # FrogPilot variables
+    if self.ready and (self.frogpilot_toggles.adjacent_lead_tracking):
+      for track in self.tracks.values():
+        track.leadTrackID = self.radar_state.leadOne.radarTrackId
+
+      self.frogpilot_radar_state.leadLeft = get_adjacent_lead(self.tracks, sm['modelV2'], left=True)
+      self.frogpilot_radar_state.leadRight = get_adjacent_lead(self.tracks, sm['modelV2'], left=False)
+
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
 
   def publish(self, pm: messaging.PubMaster):

@@ -26,6 +26,7 @@ public:
   FrogPilotUIScene frogpilot_scene = {};
 
   QColor blueColor(int alpha = 255) { return QColor(0, 0, 255, alpha); }
+  QColor purpleColor(int alpha = 255) { return QColor(128, 0, 128, alpha); }
   QColor whiteColor(int alpha = 255) { return QColor(255, 255, 255, alpha); }
 
   QJsonObject frogpilot_toggles;

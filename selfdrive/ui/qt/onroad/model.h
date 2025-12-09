@@ -22,7 +22,7 @@ private:
   bool mapToScreen(float in_x, float in_y, float in_z, QPointF *out);
   void mapLineToPolygon(const cereal::XYZTData::Reader &line, float y_off, float z_off,
                         QPolygonF *pvd, int max_idx, bool allow_invert = true);
-  void drawLead(QPainter &painter, const cereal::RadarState::LeadData::Reader &lead_data, const QPointF &vd, const QRect &surface_rect);
+  void drawLead(QPainter &painter, const cereal::RadarState::LeadData::Reader &lead_data, const QPointF &vd, const QRect &surface_rect, QColor marker_color, bool adjacent=false);
   void update_leads(const cereal::RadarState::Reader &radar_state, const cereal::XYZTData::Reader &line);
   void update_model(const cereal::ModelDataV2::Reader &model, const cereal::RadarState::LeadData::Reader &lead);
   void drawLaneLines(QPainter &painter);
@@ -45,4 +45,7 @@ private:
   QRectF clip_region;
 
   // FrogPilot variables
+  void updateAdjacentLeads(const cereal::FrogPilotRadarState::Reader &radar_state, const cereal::XYZTData::Reader &line);
+
+  QPointF adjacent_lead_vertices[2] = {};
 };
