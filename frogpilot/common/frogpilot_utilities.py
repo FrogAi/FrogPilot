@@ -1,0 +1,167 @@
+#!/usr/bin/env python3
+import json
+import math
+import os
+import requests
+import subprocess
+import threading
+import time
+
+from functools import cache
+from pathlib import Path
+
+import openpilot.system.sentry as sentry
+
+from cereal import log, messaging
+from openpilot.selfdrive.pandad import can_capnp_to_list
+from openpilot.system.loggerd.xattr_cache import getxattr
+
+from openpilot.frogpilot.common import frogpilot_variables
+
+class ThreadManager:
+  def __init__(self):
+    self.thread_lock = threading.Lock()
+
+    self.running_threads = {}
+
+  def run_with_lock(self, target, args=(), report=True):
+    name = target.__name__
+
+    with self.thread_lock:
+      thread = self.running_threads.get(name)
+      if thread is not None and thread.is_alive():
+        return
+
+      def wrapped_target(*t_args):
+        try:
+          target(*t_args)
+        except Exception as exception:
+          print(f"Error in thread '{name}': {exception}")
+          if report:
+            sentry.capture_exception(exception)
+
+      thread = threading.Thread(args=args, daemon=True, target=wrapped_target)
+      thread.start()
+      self.running_threads[name] = thread
+
+  def is_thread_alive(self, name):
+    with self.thread_lock:
+      thread = self.running_threads.get(name)
+      return thread is not None and thread.is_alive()
+
+
+def calculate_distance_to_point(lat1, lon1, lat2, lon2):
+  lat1_rad = math.radians(lat1)
+  lon1_rad = math.radians(lon1)
+  lat2_rad = math.radians(lat2)
+  lon2_rad = math.radians(lon2)
+
+  delta_lat = lat2_rad - lat1_rad
+  delta_lon = lon2_rad - lon1_rad
+
+  a = (math.sin(delta_lat / 2) ** 2) + math.cos(lat1_rad) * math.cos(lat2_rad) * (math.sin(delta_lon / 2) ** 2)
+  a = min(1, max(0, a))
+  c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+  return frogpilot_variables.EARTH_RADIUS * c
+
+
+def contains_event_type(events, frogpilot_events, *event_types):
+  return any(events.contains(event_type) or frogpilot_events.contains(event_type) for event_type in event_types)
+
+
+def delete_file(path, report=True):
+  path = Path(path)
+  if path.is_file() or path.is_symlink():
+    run_cmd(["sudo", "rm", "-f", str(path)], None, f"Failed to delete file: {path}", report=report)
+  elif path.is_dir():
+    run_cmd(["sudo", "rm", "-rf", str(path)], None, f"Failed to delete directory: {path}", report=report)
+
+
+def has_pending_telemetry(path):
+  return getxattr(path, frogpilot_variables.UPLOAD_ATTR_NAME) == frogpilot_variables.UPLOAD_PENDING
+
+
+@cache
+def is_FrogsGoMoo():
+  return frogpilot_variables.FROGS_GO_MOO_PATH.is_file()
+
+
+def is_gps_location_valid(gps_location, gps_service, sm):
+  return gps_location.hasFix and time.monotonic() - sm.recv_time[gps_service] <= 2.0
+
+
+def is_mapd_data_valid(mapd_out, gps_valid, sm):
+  return gps_valid and sm.alive["mapdOut"] and mapd_out.tileLoaded and mapd_out.wayId > 0
+
+
+def is_unmetered_network(device_state):
+  return not device_state.networkMetered and device_state.networkType in (log.DeviceState.NetworkType.ethernet, log.DeviceState.NetworkType.wifi)
+
+
+def is_url_pingable(url, session=requests):
+  if not url:
+    return False
+
+  headers = {"Accept": "*/*", "User-Agent": "frogpilot-ping-test/1.0 (https://github.com/FrogAi/FrogPilot)"}
+  try:
+    response = session.head(url, headers=headers, timeout=10, allow_redirects=True)
+    try:
+      if response.status_code in (405, 501):
+        response.close()
+        response = session.get(url, headers=headers, timeout=10, allow_redirects=True, stream=True)
+
+      return response.ok
+    finally:
+      response.close()
+
+  except Exception:
+    return False
+
+
+def load_json_file(path):
+  path = Path(path)
+  if not path.is_file():
+    return {}
+
+  try:
+    with open(path) as file:
+      data = json.load(file)
+  except (OSError, json.JSONDecodeError):
+    return {}
+
+  return data
+
+
+def run_cmd(cmd, success_message, fail_message, env=None, report=True):
+  try:
+    result = subprocess.run(cmd, capture_output=True, check=True, env=env, text=True)
+    if success_message:
+      print(success_message)
+    return result.stdout.strip()
+  except subprocess.CalledProcessError as exception:
+    print(f"Command failed with error: {exception.stderr}")
+    print(fail_message)
+    if report:
+      sentry.capture_exception(exception)
+    return None
+  except Exception as exception:
+    print(f"Unexpected error occurred: {exception}")
+    print(fail_message)
+    if report:
+      sentry.capture_exception(exception)
+    return None
+
+
+def update_can_parser(can_parser, can_sock):
+  can_parser.update(can_capnp_to_list(messaging.drain_sock_raw(can_sock, wait_for_one=True)))
+
+
+def update_json_file(path, data):
+  temp_path = f"{path}.tmp"
+  with open(temp_path, "w") as file:
+    json.dump(data, file, indent=2, sort_keys=True)
+    file.flush()
+    os.fsync(file.fileno())
+
+  os.replace(temp_path, path)

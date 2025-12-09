@@ -10,7 +10,7 @@ from openpilot.common.realtime import Priority, config_realtime_process
 from openpilot.common.time_helpers import system_time_valid
 from openpilot.system.version import get_build_metadata
 
-from openpilot.frogpilot.common import frogpilot_api
+from openpilot.frogpilot.common import frogpilot_api, frogpilot_utilities
 from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.frogpilot.system.frogpilot_stats import send_stats
 from openpilot.frogpilot.system.frogpilot_tracking import FrogPilotTracking
@@ -75,7 +75,7 @@ def transition_onroad():
   config_realtime_process(5, Priority.CTRL_LOW)
 
 def update_checks(now, theme_manager, thread_manager, sm, params, cancel_maps_download, frogpilot_toggles, boot_run=False):
-  while not (is_url_pingable("https://github.com") or is_url_pingable("https://gitlab.com")):
+  while not (frogpilot_utilities.is_url_pingable("https://github.com") or frogpilot_utilities.is_url_pingable("https://gitlab.com")):
     time.sleep(60)
 
   time.sleep(1)
@@ -92,6 +92,7 @@ def frogpilot_thread():
 
   api = frogpilot_api.FrogPilotAPI(params)
   api.register_device(get_build_metadata())
+  thread_manager = frogpilot_utilities.ThreadManager()
 
   frogpilot_requests = FrogPilotRequests(cancel_maps_download, theme_manager, thread_manager)
 
