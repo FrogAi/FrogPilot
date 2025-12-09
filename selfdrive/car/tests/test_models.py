@@ -15,6 +15,7 @@ from opendbc.car.fingerprints import MIGRATION
 from opendbc.car.honda.values import CAR as HONDA, HondaFlags
 from opendbc.car.structs import car
 from opendbc.car.tests.routes import non_tested_cars, routes, CarTestRoute
+from opendbc.car.tests.test_car_interfaces import TOGGLES
 from opendbc.car.values import Platform, PLATFORMS
 from opendbc.safety.tests.libsafety import libsafety_py
 from openpilot.common.basedir import BASEDIR
@@ -194,8 +195,8 @@ class TestCarModelBase(unittest.TestCase):
     CC = structs.CarControl().as_reader()
 
     for i, msg in enumerate(self.can_msgs):
-      CS, _ = self.CI.update(msg)
-      self.CI.apply(CC, msg[0])
+      CS, _ = self.CI.update(msg, TOGGLES)
+      self.CI.apply(CC, msg[0], TOGGLES)
 
       # wait max of 2s for low frequency msgs to be seen
       if i > 250:
@@ -269,8 +270,8 @@ class TestCarModelBase(unittest.TestCase):
       msgs_sent = 0
       CI = self.CarInterface(self.CP, self.FPCP)
       for _ in range(round(10.0 / DT_CTRL)):  # make sure we hit the slowest messages
-        CI.update([])
-        _, sendcan = CI.apply(car_control, now_nanos)
+        CI.update([], TOGGLES)
+        _, sendcan = CI.apply(car_control, now_nanos, TOGGLES)
 
         now_nanos += DT_CTRL * 1e9
         msgs_sent += len(sendcan)
@@ -335,7 +336,7 @@ class TestCarModelBase(unittest.TestCase):
       self.safety.safety_rx_hook(to_send)
 
       can = [(int(time.monotonic() * 1e9), [CanData(address=address, dat=dat, src=bus)])]
-      CS, _ = self.CI.update(can)
+      CS, _ = self.CI.update(can, TOGGLES)
       if n < 5:  # CANParser warmup time
         continue
 

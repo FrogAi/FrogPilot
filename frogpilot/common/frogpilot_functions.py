@@ -5,10 +5,11 @@ from openpilot.common.basedir import BASEDIR
 from openpilot.common.constants import CV
 from openpilot.system.hardware import HARDWARE, PC
 
-from openpilot.frogpilot.common import frogpilot_utilities
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 
 
 def frogpilot_boot_functions():
+  frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
 
 def install_frogpilot():

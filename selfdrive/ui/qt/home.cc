@@ -63,10 +63,12 @@ void HomeWindow::updateState(const UIState &s) {
 
   // FrogPilot variables
   const FrogPilotUIScene &frogpilot_scene = frogpilotUIState()->frogpilot_scene;
+  const QJsonObject &frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
 }
 
 void HomeWindow::offroadTransition(bool offroad) {
   // FrogPilot variables
+  const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
 
   body->setEnabled(false);
   sidebar->setVisible(offroad);
@@ -225,6 +227,7 @@ void OffroadHome::hideEvent(QHideEvent *event) {
 
 void OffroadHome::refresh() {
   // FrogPilot variables
+  const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
 
   version->setText(getBrand() + " " +  QString::fromStdString(params.get("UpdaterCurrentDescription")));
 

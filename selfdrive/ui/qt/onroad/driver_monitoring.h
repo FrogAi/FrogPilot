@@ -14,6 +14,9 @@ public:
 
   // FrogPilot variables
   FrogPilotAnnotatedCameraWidget *frogpilot_nvg = nullptr;
+
+  QJsonObject frogpilot_toggles;
+
 private:
   float driver_pose_vals[3] = {};
   float driver_pose_diff[3] = {};

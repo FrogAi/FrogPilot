@@ -2,6 +2,8 @@
 import time
 import numpy as np
 
+from types import SimpleNamespace
+
 from cereal import log
 import cereal.messaging as messaging
 from opendbc.car.interfaces import ACCEL_MIN
@@ -13,6 +15,8 @@ from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import A_CHA
 from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.selfdrive.controls.lib.longitudinal_planner import LongitudinalPlanner, get_max_accel
 from openpilot.selfdrive.controls.radard import _LEAD_ACCEL_TAU
+
+from openpilot.frogpilot.common import frogpilot_variables
 
 
 class Plant:
@@ -58,6 +62,7 @@ class Plant:
     self.planner = LongitudinalPlanner(CarInterface.get_non_essential_params(CAR.HONDA_CIVIC), init_v=self.speed)
 
     # FrogPilot variables
+    self.frogpilot_toggles = SimpleNamespace(**vars(frogpilot_variables.get_frogpilot_toggles()))
 
   @property
   def current_time(self):
@@ -155,7 +160,7 @@ class Plant:
           # FrogPilot variables
           'frogpilotCarState': frogpilot_car_state.frogpilotCarState,
           'frogpilotPlan': frogpilot_plan.frogpilotPlan}
-    self.planner.update(sm)
+    self.planner.update(sm, self.frogpilot_toggles)
     self.acceleration = self.planner.output_a_target
     self.speed = self.speed + self.acceleration * self.ts
     self.should_stop = self.planner.output_should_stop

@@ -12,6 +12,8 @@ void FrogPilotOnroadWindow::resizeEvent(QResizeEvent *event) {
 }
 
 void FrogPilotOnroadWindow::updateState(const UIState &s, const FrogPilotUIState &fs) {
+  const QJsonObject &frogpilot_toggles = fs.frogpilot_scene.frogpilot_toggles;
+
   const SubMaster &sm = *(s.sm);
   const SubMaster &fpsm = *(fs.sm);
 

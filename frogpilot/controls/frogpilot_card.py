@@ -16,7 +16,7 @@ class FrogPilotCard:
 
     self.ui_event_sock = messaging.sub_sock("frogpilotUIEvent")
 
-  def update(self, carState, frogpilotCarState, sm):
+  def update(self, carState, frogpilotCarState, sm, frogpilot_toggles):
     if any(be.pressed and be.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for be in carState.buttonEvents):
       self.accel_press_count += 1
 

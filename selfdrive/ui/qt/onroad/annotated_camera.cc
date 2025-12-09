@@ -137,6 +137,10 @@ void AnnotatedCameraWidget::paintGL() {
 
   frogpilot_nvg->experimentalButtonPosition = experimental_btn->pos();
 
+  dmon.frogpilot_toggles = frogpilot_toggles;
+  hud.frogpilot_toggles = frogpilot_toggles;
+  model.frogpilot_toggles = frogpilot_toggles;
+
   model.draw(painter, rect());
   dmon.draw(painter, rect());
   hud.updateState(*s);

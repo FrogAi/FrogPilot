@@ -26,6 +26,8 @@ from openpilot.system.hardware.fan_controller import TiciFanController
 from openpilot.system.version import terms_version, training_version
 from openpilot.system.athena.registration import UNREGISTERED_DONGLE_ID
 
+from openpilot.frogpilot.common import frogpilot_variables
+
 ThermalStatus = log.DeviceState.ThermalStatus
 NetworkType = log.DeviceState.NetworkType
 NetworkStrength = log.DeviceState.NetworkStrength
@@ -218,6 +220,8 @@ def hardware_thread(end_event, hw_queue) -> None:
   sm = sm.extend(['frogpilotPlan'])
   pm = pm.extend(['frogpilotDeviceState'])
 
+  frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
+
   while not end_event.is_set():
     sm.update(PANDA_STATES_TIMEOUT)
 
@@ -406,7 +410,7 @@ def hardware_thread(end_event, hw_queue) -> None:
     msg.deviceState.somPowerDrawW = som_power_draw
 
     # Check if we need to shut down
-    if power_monitor.should_shutdown(onroad_conditions["ignition"], in_car, off_ts, started_seen):
+    if power_monitor.should_shutdown(onroad_conditions["ignition"], in_car, off_ts, started_seen, frogpilot_toggles):
       cloudlog.warning(f"shutting device down, offroad since {off_ts}")
       params.put_bool("DoShutdown", True)
 
@@ -483,6 +487,7 @@ def hardware_thread(end_event, hw_queue) -> None:
     should_start_prev = should_start
 
     # FrogPilot variables
+    frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
 
 
 def main():

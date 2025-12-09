@@ -5,6 +5,7 @@ import pytest
 from hypothesis import Phase, given, settings
 from collections.abc import Callable
 from typing import Any
+from types import SimpleNamespace
 
 from opendbc.car import DT_CTRL, CanData, structs
 from opendbc.car.car_helpers import interfaces
@@ -25,6 +26,14 @@ ALL_REQUESTS = {tuple(r.request) for config in FW_QUERY_CONFIGS.values() for r i
 DLC_TO_LEN = [0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64]
 
 MAX_EXAMPLES = int(os.environ.get('MAX_EXAMPLES', '15'))
+
+
+class Toggles(SimpleNamespace):
+  def __getattr__(self, name):
+    return False
+
+
+TOGGLES = Toggles()
 
 
 def get_fuzzy_car_interface(car_name: str, draw: DrawType) -> CarInterfaceBase:
@@ -96,8 +105,8 @@ class TestCarInterfaces:
     now_nanos = 0
     CC = structs.CarControl().as_reader()
     for _ in range(10):
-      car_interface.update([])
-      car_interface.apply(CC, now_nanos)
+      car_interface.update([], TOGGLES)
+      car_interface.apply(CC, now_nanos, TOGGLES)
       now_nanos += DT_CTRL * 1e9  # 10 ms
 
     CC = structs.CarControl()
@@ -106,8 +115,8 @@ class TestCarInterfaces:
     CC.longActive = True
     CC = CC.as_reader()
     for _ in range(10):
-      car_interface.update([])
-      car_interface.apply(CC, now_nanos)
+      car_interface.update([], TOGGLES)
+      car_interface.apply(CC, now_nanos, TOGGLES)
       now_nanos += DT_CTRL * 1e9  # 10ms
 
     # Test radar interface
