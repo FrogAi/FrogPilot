@@ -197,6 +197,37 @@ def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capn
 
 
 # FrogPilot variables
+def get_adjacent_leads(tracks: dict[int, Track], model_data: capnp._DynamicStructReader, lead_track_id: int) -> tuple[dict[str, Any], dict[str, Any]]:
+  lane_lines = [(np.array(lane_line.x), np.array(lane_line.y)) for lane_line in model_data.laneLines]
+  max_distance = model_data.position.x[-1]
+
+  left_tracks = []
+  right_tracks = []
+  for track in tracks.values():
+    lead_left = False
+    lead_right = False
+
+    model_distance = track.dRel + RADAR_TO_CAMERA
+    if track.vLeadK >= 1 and track.identifier != lead_track_id and model_distance < max_distance:
+      far_left_lane, left_lane, right_lane, far_right_lane = [np.interp(model_distance, x, y) for x, y in lane_lines]
+
+      lead_left = far_left_lane < -track.yRel < left_lane
+      lead_right = right_lane < -track.yRel < far_right_lane
+
+    if lead_left:
+      left_tracks.append(track)
+    if lead_right:
+      right_tracks.append(track)
+
+  left_lead = {'status': False}
+  if len(left_tracks) > 0:
+    left_lead = min(left_tracks, key=lambda c: c.dRel).get_RadarState()
+
+  right_lead = {'status': False}
+  if len(right_tracks) > 0:
+    right_lead = min(right_tracks, key=lambda c: c.dRel).get_RadarState()
+
+  return left_lead, right_lead
 
 
 class RadarD:
@@ -265,6 +296,9 @@ class RadarD:
       self.radar_state.leadTwo = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[1], model_v_ego, self.frogpilot_toggles, low_speed_override=False)
 
     # FrogPilot variables
+    if self.ready and self.frogpilot_toggles.adjacent_lead_tracking:
+      self.frogpilot_radar_state.leadLeft, self.frogpilot_radar_state.leadRight = get_adjacent_leads(self.tracks, sm['modelV2'], self.radar_state.leadOne.radarTrackId)
+
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
 
   def publish(self, pm: messaging.PubMaster):
