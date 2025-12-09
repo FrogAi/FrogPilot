@@ -15,8 +15,10 @@ from functools import cache
 from pathlib import Path
 
 from cereal import log, messaging
+from opendbc.can.parser import CANParser
 from opendbc.car.ford.values import FordSafetyFlags
 from opendbc.car.gm.values import CC_ONLY_CAR, GMFlags
+from opendbc.car.toyota.carcontroller import DOOR_CONTROL_ADDR, LOCK_CMD
 from opendbc.car.toyota.values import ToyotaSafetyFlags
 from openpilot.common.realtime import DT_DMON, DT_HW, set_core_affinity
 from openpilot.selfdrive.pandad import can_capnp_to_list
@@ -258,6 +260,42 @@ def load_json_file(path):
     return {}
 
 
+def lock_doors(lock_doors_timer, params):
+  sm = messaging.SubMaster(["deviceState", "driverMonitoringState", "managerState", "pandaStates"])
+  while not (sm.seen["deviceState"] and sm.seen["managerState"]):
+    sm.update()
+
+  wait_for_no_driver(params, sm, lock_doors_timer)
+
+  sm.update()
+  if is_ignition_on(sm):
+    return
+
+  can_parser = CANParser("toyota_nodsu_pt_generated", [("DOOR_LOCKS", 3)], bus=0)
+  can_sock = messaging.sub_sock("can", timeout=100)
+
+  pm = messaging.PubMaster(["sendcan"])
+  time.sleep(0.2)
+
+  while True:
+    sm.update()
+
+    if is_ignition_on(sm):
+      break
+
+    sendcan_send = messaging.new_message("sendcan", 1)
+    sendcan_send.sendcan[0].address = DOOR_CONTROL_ADDR
+    sendcan_send.sendcan[0].dat = LOCK_CMD
+    sendcan_send.sendcan[0].src = 0
+    pm.send("sendcan", sendcan_send)
+
+    time.sleep(1)
+
+    update_can_parser(can_parser, can_sock)
+    if can_parser.ts_nanos["DOOR_LOCKS"]["LOCK_STATUS"] > 0 and can_parser.vl["DOOR_LOCKS"]["LOCK_STATUS"] == 0:
+      break
+
+
 @cache
 def predicts_lead_trajectories(model_path):
   for metadata_name in ("supercombo_metadata.pkl", "driving_vision_metadata.pkl", "driving_policy_metadata.pkl"):
@@ -319,6 +357,9 @@ def use_konik_server():
 
 
 def wait_for_no_driver(params, sm, time_threshold):
+  can_parser = CANParser("toyota_nodsu_pt_generated", [("BODY_CONTROL_STATE", 3)], bus=0)
+  can_sock = messaging.sub_sock("can", timeout=100)
+
   while sm["deviceState"].screenBrightnessPercent != 0 or any(proc.name == "dmonitoringd" and proc.running for proc in sm["managerState"].processes):
     sm.update()
 
@@ -344,6 +385,13 @@ def wait_for_no_driver(params, sm, time_threshold):
       params.put_bool("IsDriverViewEnabled", True)
 
     if sm["driverMonitoringState"].faceDetected or not sm.alive["driverMonitoringState"]:
+      start_time = time.monotonic()
+
+    update_can_parser(can_parser, can_sock)
+
+    door_open = any([can_parser.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_FL"], can_parser.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_FR"],
+                     can_parser.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_RL"], can_parser.vl["BODY_CONTROL_STATE"]["DOOR_OPEN_RR"]])
+    if door_open:
       start_time = time.monotonic()
 
     time.sleep(DT_DMON)

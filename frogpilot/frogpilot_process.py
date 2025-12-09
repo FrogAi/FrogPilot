@@ -158,6 +158,9 @@ def transition_offroad(frogpilot_planner, thread_manager, time_validated, params
   if frogpilot_planner.last_gps_position is not None:
     params.put("LastGPSPosition", json.dumps(frogpilot_planner.last_gps_position))
 
+  if frogpilot_toggles.lock_doors_timer != 0:
+    thread_manager.run_in_thread(frogpilot_utilities.lock_doors, (frogpilot_toggles.lock_doors_timer, params), report=False)
+
   if time_validated:
     thread_manager.run_in_thread(send_stats, (params, frogpilot_toggles, api))
 
