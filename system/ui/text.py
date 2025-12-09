@@ -9,6 +9,8 @@ from openpilot.system.ui.lib.text_measure import measure_text_cached
 from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.widgets.button import Button, ButtonStyle
 
+from openpilot.frogpilot.common import frogpilot_paths
+
 if gui_app.big_ui():
   MARGIN = 50
   SPACING = 40

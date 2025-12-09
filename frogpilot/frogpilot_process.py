@@ -11,7 +11,7 @@ from openpilot.common.realtime import Priority, set_core_affinity
 from openpilot.common.time_helpers import system_time_valid
 from openpilot.system.hardware import PC
 
-from openpilot.frogpilot.common import frogpilot_api, frogpilot_utilities
+from openpilot.frogpilot.common import frogpilot_api, frogpilot_paths, frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.frogpilot.system.frogpilot_stats import reset_stats, send_stats
 from openpilot.frogpilot.system.frogpilot_tracking import FrogPilotTracking
@@ -44,9 +44,11 @@ class FrogPilotRequests:
 
     return self.take("updateToggles") is not None, self.take("updateChecks") is not None
 
-  def publish(self, pm):
+  def publish(self, pm, toggles_json):
     frogpilot_process_state_send = messaging.new_message("frogpilotProcessState")
     frogpilotProcessState = frogpilot_process_state_send.frogpilotProcessState
+
+    frogpilotProcessState.frogpilotToggles = toggles_json
 
     pm.send("frogpilotProcessState", frogpilot_process_state_send)
 
@@ -66,6 +68,9 @@ def update_checks(now, thread_manager, sm, params, frogpilot_toggles, boot_run=F
   while not (frogpilot_utilities.is_url_pingable("https://github.com") or frogpilot_utilities.is_url_pingable("https://gitlab.com")):
     time.sleep(60)
 
+def update_toggles(variables, started):
+  variables.update(started=started)
+
 def frogpilot_thread():
   pm = messaging.PubMaster(["frogpilotAccountState", "frogpilotPlan", "frogpilotProcessState"])
   sm = messaging.SubMaster(["carControl", "carState", "controlsState", "deviceState",
@@ -78,14 +83,18 @@ def frogpilot_thread():
 
   api = frogpilot_api.FrogPilotAPI(params)
   api.register_device()
+  variables = frogpilot_variables.FrogPilotVariables()
   thread_manager = frogpilot_utilities.ThreadManager()
 
   stats_lock = threading.Lock()
   frogpilot_requests = FrogPilotRequests()
 
+  frogpilot_toggles = variables.frogpilot_toggles
+
   run_update_checks = False
   started_previously = False
   time_validated = False
+  waiting_for_car_params = False
 
   previous_update_checks_period = None
 
@@ -100,6 +109,7 @@ def frogpilot_thread():
       frogpilot_tracking.save_stats()
       stats_lock.release()
 
+      update_toggles(variables, started)
       transition_offroad(frogpilot_planner, thread_manager, time_validated, params, frogpilot_toggles, api, stats_lock)
 
       run_update_checks = True
@@ -111,9 +121,11 @@ def frogpilot_thread():
 
       transition_onroad()
 
+      waiting_for_car_params = True
+
     if started and sm.updated["modelV2"]:
-      frogpilot_planner.update(now, time_validated, sm)
-      frogpilot_planner.publish(sm, pm)
+      frogpilot_planner.update(now, time_validated, sm, frogpilot_toggles)
+      frogpilot_planner.publish(sm, pm, frogpilot_toggles)
 
       frogpilot_tracking.update(now, time_validated, sm)
     elif not started:
@@ -123,7 +135,14 @@ def frogpilot_thread():
     started_previously = started
 
     toggles_updated, update_checks_requested = frogpilot_requests.update(params)
-    frogpilot_requests.publish(pm)
+    frogpilot_requests.publish(pm, variables.toggles_json)
+
+    toggles_updated |= waiting_for_car_params and sm.updated["frogpilotCarParams"]
+
+    waiting_for_car_params &= not sm.updated["frogpilotCarParams"]
+
+    if toggles_updated:
+      update_toggles(variables, started)
 
     update_checks_period = now.hour
 

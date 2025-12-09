@@ -2,6 +2,7 @@ import pyray as rl
 import numpy as np
 import time
 import threading
+import json
 from collections.abc import Callable
 from enum import Enum
 from cereal import messaging, car, log
@@ -97,6 +98,9 @@ class UIState:
     self.update_params()
 
     # FrogPilot variables
+    self._frogpilot_toggles_text = ""
+
+    self.frogpilot_toggles = {}
 
   def add_offroad_transition_callback(self, callback: Callable[[], None]):
     self._offroad_transition_callbacks.append(callback)
@@ -154,6 +158,12 @@ class UIState:
     self.always_on_dm = self.params.get_bool("AlwaysOnDM")
 
     # FrogPilot variables
+    if self.sm.updated["frogpilotProcessState"]:
+      frogpilot_toggles_text = self.sm["frogpilotProcessState"].frogpilotToggles
+
+      if frogpilot_toggles_text != self._frogpilot_toggles_text:
+        self._frogpilot_toggles_text = frogpilot_toggles_text
+        self.frogpilot_toggles = json.loads(frogpilot_toggles_text)
 
   def _update_status(self) -> None:
     if self.started and self.sm.updated["selfdriveState"]:

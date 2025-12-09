@@ -12,6 +12,8 @@ from openpilot.system.hardware import HARDWARE, PC
 from openpilot.common.swaglog import cloudlog
 from openpilot.system.version import get_build_metadata, get_version
 
+from openpilot.frogpilot.common import frogpilot_paths
+
 # FrogPilot variables
 MAX_QUEUED_TOMBSTONES = 50
 SENTRY_FLUSH_TIMEOUT = 10.0

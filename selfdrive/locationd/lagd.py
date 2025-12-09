@@ -13,6 +13,8 @@ from openpilot.common.realtime import config_realtime_process
 from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.locationd.helpers import PoseCalibrator, Pose, fft_next_good_size, parabolic_peak_interp
 
+from openpilot.frogpilot.common import frogpilot_variables
+
 BLOCK_SIZE = 100
 BLOCK_NUM = 50
 BLOCK_NUM_NEEDED = 5
@@ -194,6 +196,7 @@ class LateralLagEstimator:
     self.reset(self.initial_lag, 0)
 
     # FrogPilot variables
+    self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
   def reset(self, initial_lag: float, valid_blocks: int):
     window_len = int(self.window_sec / self.dt)
@@ -401,3 +404,4 @@ def main():
         params.put_nonblocking("LiveDelay", lag_msg_dat)
 
     # FrogPilot variables
+    lag_learner.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)

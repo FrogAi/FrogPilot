@@ -6,12 +6,14 @@ from pathlib import Path
 from cereal import CEREAL_PATH
 from openpilot.system.hardware import HARDWARE, PC
 
-from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, frogpilot_variables
 
 SCHEMA_FILES = ("car.capnp", "custom.capnp", "include/c++.capnp", "legacy.capnp", "log.capnp")
 
 
 def frogpilot_boot_functions(build_metadata):
+  frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
+
   save_log_schema(build_metadata.openpilot.git_commit)
 
 

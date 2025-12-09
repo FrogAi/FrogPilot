@@ -1,5 +1,8 @@
 import os
 import requests
+
+from openpilot.frogpilot.common import frogpilot_paths
+
 API_HOST = os.getenv('API_HOST', 'https://api.commadotai.com')
 
 # TODO: this should be merged into common.api

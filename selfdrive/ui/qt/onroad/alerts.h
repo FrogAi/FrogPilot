@@ -15,6 +15,8 @@ public:
   // FrogPilot variables
   int alertHeight = 0;
 
+  QJsonObject frogpilot_toggles;
+
 protected:
   struct Alert {
     QString text1;

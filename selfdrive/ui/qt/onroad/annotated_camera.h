@@ -18,6 +18,8 @@ public:
   // FrogPilot variables
   FrogPilotAnnotatedCameraWidget *frogpilot_nvg;
 
+  QJsonObject frogpilot_toggles;
+
 private:
   QVBoxLayout *main_layout;
   ExperimentalButton *experimental_btn;

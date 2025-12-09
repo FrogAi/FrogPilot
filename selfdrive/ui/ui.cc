@@ -176,6 +176,7 @@ void Device::resetInteractiveTimeout(int timeout) {
 void Device::updateBrightness(const UIState &s) {
   // FrogPilot variables
   const FrogPilotUIScene &frogpilot_scene = frogpilotUIState()->frogpilot_scene;
+  const QJsonObject &frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
 
   float clipped_brightness = offroad_brightness;
   if (s.scene.started && s.scene.light_sensor >= 0) {
@@ -211,6 +212,7 @@ void Device::updateBrightness(const UIState &s) {
 void Device::updateWakefulness(const UIState &s) {
   // FrogPilot variables
   const FrogPilotUIScene &frogpilot_scene = frogpilotUIState()->frogpilot_scene;
+  const QJsonObject &frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
 
   bool ignition_just_turned_off = !s.scene.ignition && ignition_on;
   ignition_on = s.scene.ignition;

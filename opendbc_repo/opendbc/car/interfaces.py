@@ -7,6 +7,7 @@ from enum import StrEnum
 from typing import Any
 from collections.abc import Callable
 from functools import cache
+from types import SimpleNamespace
 
 from cereal import custom
 from opendbc.car import DT_CTRL, apply_hysteresis, gen_empty_fingerprint, scale_rot_inertia, scale_tire_stiffness, STD_CARGO_KG
@@ -116,11 +117,12 @@ class CarInterfaceBase(ABC):
     self.CS.FPCP = FPCP
     self.CS.init_frogpilot_params()
 
-  def apply(self, c: structs.CarControl, now_nanos: int | None = None) -> tuple[structs.CarControl.Actuators, list[CanData]]:
+  def apply(self, c: structs.CarControl, now_nanos: int | None = None, frogpilot_toggles: SimpleNamespace = None) -> tuple[structs.CarControl.Actuators, list[CanData]]:
     if now_nanos is None:
       now_nanos = int(time.monotonic() * 1e9)
 
     # FrogPilot variables
+    self.CC.frogpilot_toggles = frogpilot_toggles
 
     return self.CC.update(c, self.CS, now_nanos)
 
@@ -166,7 +168,7 @@ class CarInterfaceBase(ABC):
 
   # FrogPilot variables
   @classmethod
-  def get_frogpilot_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[structs.CarParams.CarFw], CP: structs.CarParams):
+  def get_frogpilot_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[structs.CarParams.CarFw], CP: structs.CarParams, frogpilot_toggles: SimpleNamespace):
     fp_ret = custom.FrogPilotCarParams.new_message()
 
     platform = PLATFORMS[candidate]
@@ -257,7 +259,7 @@ class CarInterfaceBase(ABC):
     tune.torque.latAccelOffset = 0.0
     tune.torque.steeringAngleDeadzoneDeg = steering_angle_deadzone_deg
 
-  def update(self, can_packets: list[tuple[int, list[CanData]]]) -> structs.CarState:
+  def update(self, can_packets: list[tuple[int, list[CanData]]], frogpilot_toggles: SimpleNamespace) -> structs.CarState:
     # parse can
     for cp in self.can_parsers.values():
       if cp is not None:
@@ -266,6 +268,7 @@ class CarInterfaceBase(ABC):
     # FrogPilot variables
     fp_ret = custom.FrogPilotCarState.new_message()
     self.CS.fp_ret = fp_ret
+    self.CS.frogpilot_toggles = frogpilot_toggles
 
     # get CarState
     ret = self.CS.update(self.can_parsers)
