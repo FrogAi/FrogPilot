@@ -1,0 +1,199 @@
+#!/usr/bin/env python3
+import json
+import math
+import os
+import requests
+import subprocess
+import threading
+import time
+import xattr
+
+from functools import cache
+from pathlib import Path
+
+from cereal import log, messaging
+from openpilot.common.realtime import set_core_affinity
+from openpilot.selfdrive.pandad import can_capnp_to_list
+from openpilot.system import sentry
+from openpilot.system.hardware import PC
+
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_variables
+
+class ThreadManager:
+  def __init__(self):
+    self.thread_lock = threading.Lock()
+
+    self.running_threads = {}
+
+  def run_in_thread(self, target, args=(), report=True):
+    name = target.__name__
+
+    with self.thread_lock:
+      thread = self.running_threads.get(name)
+      if thread is not None and thread.is_alive():
+        return
+
+      def wrapped_target():
+        set_core_affinity([0, 1, 2, 3])
+        if not PC:
+          os.sched_setscheduler(0, os.SCHED_OTHER, os.sched_param(0))
+
+        try:
+          target(*args)
+        except Exception as exception:
+          print(f"Error in thread '{name}': {exception}")
+          if report:
+            sentry.capture_exception(exception)
+
+      thread = threading.Thread(daemon=True, target=wrapped_target)
+      thread.start()
+      self.running_threads[name] = thread
+
+  def is_thread_alive(self, name):
+    with self.thread_lock:
+      thread = self.running_threads.get(name)
+      return thread is not None and thread.is_alive()
+
+  def join_thread(self, name):
+    with self.thread_lock:
+      thread = self.running_threads.get(name)
+
+    if thread is not None:
+      thread.join()
+
+
+def calculate_distance_to_point(lat1, lon1, lat2, lon2):
+  lat1_rad = math.radians(lat1)
+  lon1_rad = math.radians(lon1)
+  lat2_rad = math.radians(lat2)
+  lon2_rad = math.radians(lon2)
+
+  delta_lat = lat2_rad - lat1_rad
+  delta_lon = lon2_rad - lon1_rad
+
+  a = (math.sin(delta_lat / 2) ** 2) + math.cos(lat1_rad) * math.cos(lat2_rad) * (math.sin(delta_lon / 2) ** 2)
+  a = min(1, max(0, a))
+  c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+
+  return frogpilot_variables.EARTH_RADIUS * c
+
+
+def contains_event_type(events, frogpilot_events, *event_types):
+  return any(events.contains(event_type) or frogpilot_events.contains(event_type) for event_type in event_types)
+
+
+def delete_path(path, report=True):
+  path = Path(path)
+  if path.exists() or path.is_symlink():
+    run_cmd(["sudo", "rm", "-rf", str(path)], f"Failed to delete: {path}", report=report)
+
+
+def get_target_branches(available_branches, current_branch):
+  branches = available_branches.split(",")
+  if not is_FrogsGoMoo():
+    branches = [branch for branch in branches if not is_hidden_branch(branch)]
+
+  for branch in (current_branch, *frogpilot_variables.TOP_BRANCHES):
+    if branch in branches:
+      branches.remove(branch)
+      branches.insert(0, branch)
+  return branches
+
+
+def has_pending_telemetry(path):
+  try:
+    return xattr.getxattr(path, frogpilot_variables.UPLOAD_ATTR_NAME) == frogpilot_variables.UPLOAD_PENDING
+  except OSError:
+    return False
+
+
+@cache
+def is_FrogsGoMoo():
+  return frogpilot_paths.FROGS_GO_MOO_PATH.is_file()
+
+
+def is_FrogsGoMoo_development(build_metadata):
+  return build_metadata.channel == frogpilot_variables.DEVELOPMENT_BRANCH and is_FrogsGoMoo()
+
+
+def is_gps_location_valid(gps_service, sm):
+  return sm[gps_service].hasFix and time.monotonic() - sm.recv_time[gps_service] <= 2.0
+
+
+def is_hidden_branch(branch):
+  return branch.lower().startswith(frogpilot_variables.DEVELOPMENT_BRANCH.lower()) or branch in frogpilot_variables.HIDDEN_BRANCHES
+
+
+def is_ignition_on(sm):
+  return any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown)
+
+
+def is_mapd_data_valid(gps_valid, sm):
+  return gps_valid and sm.alive["mapdOut"] and sm["mapdOut"].tileLoaded and sm["mapdOut"].wayId > 0
+
+
+def is_online(device_state):
+  return device_state.networkType != log.DeviceState.NetworkType.none
+
+
+def is_openpilot_steering(sm):
+  return sm["deviceState"].started and sm["selfdriveState"].enabled
+
+
+def is_unmetered_network(device_state):
+  return not device_state.networkMetered and device_state.networkType in (log.DeviceState.NetworkType.ethernet, log.DeviceState.NetworkType.wifi)
+
+
+def is_url_pingable(url, session=requests):
+  headers = {"Accept": "*/*", "User-Agent": "frogpilot-ping-test/1.0 (https://github.com/FrogAi/FrogPilot)"}
+  try:
+    return session.head(url, headers=headers, timeout=10, allow_redirects=True).ok
+  except Exception:
+    return False
+
+
+def load_json_file(path):
+  try:
+    with open(path) as file:
+      return json.load(file)
+  except (OSError, json.JSONDecodeError):
+    return {}
+
+
+def run_cmd(cmd, fail_message, report=True):
+  try:
+    result = subprocess.run(cmd, capture_output=True, check=True, text=True)
+    return result.stdout.strip()
+  except subprocess.CalledProcessError as exception:
+    print(f"Command failed with error: {exception.stderr}")
+    print(fail_message)
+    if report:
+      sentry.capture_exception(exception, extras={"stderr": exception.stderr})
+    return None
+  except Exception as exception:
+    print(f"Unexpected error occurred: {exception}")
+    print(fail_message)
+    if report:
+      sentry.capture_exception(exception)
+    return None
+
+
+def run_cmd_on_writable_mount(mount_point, cmd, fail_message):
+  mount_options = run_cmd(["findmnt", "-n", "-o", "OPTIONS", mount_point], "Failed to retrieve mount options")
+  run_cmd(["sudo", "mount", "-o", "remount,rw", mount_point], f"Failed to remount {mount_point}")
+  run_cmd(cmd, fail_message)
+  run_cmd(["sudo", "mount", "-o", f"remount,{mount_options}", mount_point], f"Failed to restore {mount_point} mount options")
+
+
+def update_can_parser(can_parser, can_sock):
+  can_parser.update(can_capnp_to_list(messaging.drain_sock_raw(can_sock, wait_for_one=True)))
+
+
+def update_json_file(path, data):
+  temp_path = f"{path}.tmp"
+  with open(temp_path, "w") as file:
+    file.write(json.dumps(data, separators=(",", ":")))
+    file.flush()
+    os.fsync(file.fileno())
+
+  os.replace(temp_path, path)

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import sys
 
+from openpilot.frogpilot.common import frogpilot_utilities
+
 if len(sys.argv) < 4:
   print(f"{sys.argv[0]} <route> <segment> <frame number> [front|wide|driver]")
   print('example: ./fetch_image_from_route.py "02c45f73a2e5c6e9|2020-06-01--18-03-08" 3 500 driver')
