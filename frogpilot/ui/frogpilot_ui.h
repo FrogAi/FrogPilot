@@ -14,8 +14,10 @@ struct FrogPilotUIScene {
   bool parked = false;
   bool reverse = false;
   bool standstill = false;
+  bool wake_up_screen = false;
 
   int conditional_status = 0;
+  int settled_status = 0;
 
   QJsonObject frogpilot_toggles;
 };

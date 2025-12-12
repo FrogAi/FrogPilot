@@ -97,6 +97,13 @@ void UIState::updateStatus() {
 
     // FrogPilot variables
     const cereal::FrogPilotSelfdriveState::AlertStatus frogpilot_alert_status = (*frogpilotUIState()->sm)["frogpilotSelfdriveState"].getFrogpilotSelfdriveState().getAlertStatus();
+    frogpilot_scene.wake_up_screen = ss.getAlertSize() != cereal::SelfdriveState::AlertSize::NONE || frogpilot_alert_status == cereal::FrogPilotSelfdriveState::AlertStatus::USER_PROMPT || frogpilot_alert_status == cereal::FrogPilotSelfdriveState::AlertStatus::CRITICAL || (status != STATUS_OVERRIDE && status != frogpilot_scene.settled_status);
+    if (status != STATUS_OVERRIDE) {
+      frogpilot_scene.settled_status = status;
+    }
+  } else if (scene.started) {
+    const int ss_missing = (nanos_since_boot() - sm->rcv_time("selfdriveState")) / 1e9;
+    frogpilot_scene.wake_up_screen = sm->rcv_frame("selfdriveState") >= scene.started_frame && ss_missing > 5 && ss_missing - 5 < 10 && (*sm)["selfdriveState"].getSelfdriveState().getEnabled() && !Hardware::PC() && !frogpilot_scene.frogpilot_toggles.value(QLatin1String("force_onroad")).toBool();
   }
 
   if (engaged() != engaged_prev) {
@@ -206,6 +213,8 @@ void Device::updateBrightness(const UIState &s) {
   if (!awake) {
     brightness = 0;
   // FrogPilot variables
+  } else if (s.scene.started && !frogpilot_scene.wake_up_screen && interactive_timeout == 0 && frogpilot_toggles.value(QLatin1String("standby_mode")).toBool()) {
+    brightness = 0;
   } else if (s.scene.started) {
     const int screen_brightness_onroad = frogpilot_toggles.value(QLatin1String("screen_brightness_onroad")).toInt();
     if (screen_brightness_onroad != 101) {
@@ -234,15 +243,19 @@ void Device::updateWakefulness(const UIState &s) {
   const FrogPilotUIScene &frogpilot_scene = frogpilotUIState()->frogpilot_scene;
   const QJsonObject &frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
 
+  const bool screen_off_onroad = frogpilot_toggles.value(QLatin1String("screen_brightness_onroad")).toInt() == 0;
+  const bool standby_mode = frogpilot_toggles.value(QLatin1String("standby_mode")).toBool();
+
   bool ignition_just_turned_on = s.scene.ignition && !ignition_on;
 
   bool ignition_just_turned_off = !s.scene.ignition && ignition_on;
   ignition_on = s.scene.ignition;
 
   // FrogPilot variables
-  if ((!s.scene.started && (frogpilot_scene.downloading_update || frogpilot_scene.frogpilot_panel_active)) || (s.scene.started && frogpilot_scene.driver_camera_active)) {
+  const bool keep_awake = (ignition_on && frogpilot_scene.wake_up_screen && (standby_mode || screen_off_onroad)) || (!s.scene.started && (frogpilot_scene.downloading_update || frogpilot_scene.frogpilot_panel_active)) || (s.scene.started && frogpilot_scene.driver_camera_active);
+  if (keep_awake) {
     resetInteractiveTimeout();
-  } else if (ignition_just_turned_on && frogpilot_toggles.value(QLatin1String("screen_brightness_onroad")).toInt() == 0) {
+  } else if (ignition_just_turned_on && (standby_mode || screen_off_onroad)) {
     resetInteractiveTimeout(0);
   } else if (ignition_just_turned_off) {
     resetInteractiveTimeout();
