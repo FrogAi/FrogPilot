@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import datetime
+import os
 import subprocess
 import time
+from timezonefinder import TimezoneFinder
 from typing import NoReturn
 
 import cereal.messaging as messaging
@@ -9,10 +11,11 @@ from openpilot.common.time_helpers import min_date, system_time_valid
 from openpilot.common.swaglog import cloudlog
 from openpilot.common.params import Params
 from openpilot.common.gps import get_gps_location_service
+from openpilot.system.hardware import AGNOS
 
 
 def set_time(new_time):
-  diff = datetime.datetime.now() - new_time
+  diff = datetime.datetime.now(datetime.UTC).replace(tzinfo=None) - new_time
   if abs(diff) < datetime.timedelta(seconds=10):
     cloudlog.debug(f"Time diff too small: {diff}")
     return
@@ -25,6 +28,22 @@ def set_time(new_time):
 
 
 # FrogPilot variables
+def set_timezone(timezone):
+  valid_timezones = subprocess.check_output("timedatectl list-timezones", shell=True, encoding="utf8").strip().split("\n")
+  if timezone not in valid_timezones:
+    cloudlog.error(f"Timezone not supported {timezone}")
+    return
+
+  cloudlog.debug(f"Setting timezone to {timezone}")
+  try:
+    if AGNOS:
+      tzpath = os.path.join("/usr/share/zoneinfo/", timezone)
+      subprocess.check_call(f"sudo su -c 'ln -snf {tzpath} /data/etc/tmptime && mv /data/etc/tmptime /data/etc/localtime'", shell=True)
+      subprocess.check_call(f"sudo su -c 'echo \'{timezone}\' > /data/etc/timezone'", shell=True)
+    else:
+      subprocess.check_call(f"sudo timedatectl set-timezone {timezone}", shell=True)
+  except subprocess.CalledProcessError:
+    cloudlog.exception(f"Error setting timezone to {timezone}")
 
 
 def main() -> NoReturn:
@@ -43,6 +62,11 @@ def main() -> NoReturn:
   sm = messaging.SubMaster([gps_location_service])
 
   # FrogPilot variables
+  tf = TimezoneFinder()
+
+  last_timezone = params.get("Timezone")
+  if last_timezone is not None:
+    set_timezone(last_timezone)
 
   while True:
     sm.update(1000)
@@ -53,7 +77,7 @@ def main() -> NoReturn:
     pm.send('clocks', msg)
 
     gps = sm[gps_location_service]
-    gps_time = datetime.datetime.fromtimestamp(gps.unixTimestampMillis / 1000.)
+    gps_time = datetime.datetime.fromtimestamp(gps.unixTimestampMillis / 1000., datetime.UTC).replace(tzinfo=None)
     if not sm.updated[gps_location_service] or (time.monotonic() - sm.logMonoTime[gps_location_service] / 1e9) > 2.0:
       continue
     if not gps.hasFix:
@@ -64,6 +88,11 @@ def main() -> NoReturn:
     set_time(gps_time)
 
     # FrogPilot variables
+    timezone = tf.timezone_at(lng=gps.longitude, lat=gps.latitude)
+    if timezone is not None and timezone != last_timezone:
+      set_timezone(timezone)
+      params.put_nonblocking("Timezone", timezone)
+      last_timezone = timezone
 
     time.sleep(10)
 
