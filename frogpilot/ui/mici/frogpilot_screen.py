@@ -42,7 +42,7 @@ class FrogPilotScreen:
     sm = ui_state.sm
     toggles = ui_state.frogpilot_toggles
 
-    self.screen_off = toggles.get("screen_brightness_onroad") == SCREEN_OFF
+    self.screen_off = toggles.get("standby_mode") or toggles.get("screen_brightness_onroad") == SCREEN_OFF
 
     status = ui_state.status
     status_changed = status != self._status and status != type(status).OVERRIDE
