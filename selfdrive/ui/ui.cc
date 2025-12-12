@@ -85,6 +85,7 @@ void UIState::updateStatus() {
     auto state = ss.getState();
 
     // FrogPilot variables
+    const UIStatus previous_status = status;
 
     if (state == cereal::SelfdriveState::OpenpilotState::PRE_ENABLED || state == cereal::SelfdriveState::OpenpilotState::OVERRIDING) {
       status = STATUS_OVERRIDE;
@@ -97,6 +98,10 @@ void UIState::updateStatus() {
 
     // FrogPilot variables
     const cereal::FrogPilotSelfdriveState::AlertStatus frogpilot_alert_status = (*frogpilotUIState()->sm)["frogpilotSelfdriveState"].getFrogpilotSelfdriveState().getAlertStatus();
+    frogpilot_scene.wake_up_screen = ss.getAlertStatus() != cereal::SelfdriveState::AlertStatus::NORMAL || frogpilot_alert_status == cereal::FrogPilotSelfdriveState::AlertStatus::USER_PROMPT || frogpilot_alert_status == cereal::FrogPilotSelfdriveState::AlertStatus::CRITICAL || (status != previous_status && status != STATUS_OVERRIDE);
+  } else if (scene.started) {
+    const int ss_missing = (nanos_since_boot() - sm->rcv_time("selfdriveState")) / 1e9;
+    frogpilot_scene.wake_up_screen = sm->rcv_frame("selfdriveState") >= scene.started_frame && ss_missing > 5 && ss_missing - 5 < 10 && (*sm)["selfdriveState"].getSelfdriveState().getEnabled() && !Hardware::PC() && !frogpilot_scene.frogpilot_toggles.value(QLatin1String("force_onroad")).toBool();
   }
 
   if (engaged() != engaged_prev) {
@@ -207,6 +212,8 @@ void Device::updateBrightness(const UIState &s) {
   if (!awake) {
     brightness = 0;
   // FrogPilot variables
+  } else if (s.scene.started && !frogpilot_scene.wake_up_screen && interactive_timeout == 0 && frogpilot_toggles.value(QLatin1String("standby_mode")).toBool()) {
+    brightness = 0;
   } else if (s.scene.started) {
     const int screen_brightness_onroad = frogpilot_toggles.value(QLatin1String("screen_brightness_onroad")).toInt();
     if (screen_brightness_onroad != 101) {
@@ -240,9 +247,9 @@ void Device::updateWakefulness(const UIState &s) {
   ignition_on = s.scene.ignition;
 
   // FrogPilot variables
-  if (frogpilot_scene.downloading_update || frogpilot_scene.frogpilot_panel_active || (s.scene.started && frogpilot_scene.driver_camera_timer >= UI_FREQ / 2)) {
+  if ((ignition_on && frogpilot_toggles.value(QLatin1String("standby_mode")).toBool() && frogpilot_scene.wake_up_screen) || frogpilot_scene.downloading_update || frogpilot_scene.frogpilot_panel_active || (s.scene.started && frogpilot_scene.driver_camera_timer >= UI_FREQ / 2)) {
     resetInteractiveTimeout();
-  } else if (ignition_just_turned_on && frogpilot_toggles.value(QLatin1String("screen_brightness_onroad")).toInt() == 0) {
+  } else if (ignition_just_turned_on && (frogpilot_toggles.value(QLatin1String("standby_mode")).toBool() || frogpilot_toggles.value(QLatin1String("screen_brightness_onroad")).toInt() == 0)) {
     resetInteractiveTimeout(0);
   } else if (ignition_just_turned_off) {
     resetInteractiveTimeout();

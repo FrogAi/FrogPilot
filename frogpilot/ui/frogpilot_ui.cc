@@ -68,6 +68,8 @@ FrogPilotUIState::FrogPilotUIState(QObject *parent) : QObject(parent) {
   }
 
   QObject::connect(uiState(), &UIState::offroadTransition, this, [this](bool offroad) {
+    frogpilot_scene.wake_up_screen = false;
+
     if (Params().getInt("TetheringEnabled") == 2) {
       wifi->setTetheringEnabled(!offroad);
     }
