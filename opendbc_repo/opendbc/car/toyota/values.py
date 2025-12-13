@@ -85,6 +85,7 @@ class ToyotaFrogPilotFlags(IntFlag):
   DSU_BYPASS = 1
   RADAR_CAN_FILTER = 2
   SMART_DSU = 4
+  ZSS = 8
 
 
 class ToyotaFrogPilotSafetyFlags(IntFlag):
