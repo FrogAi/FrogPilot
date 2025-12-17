@@ -31,7 +31,7 @@ void ModelRenderer::draw(QPainter &painter, const QRect &surface_rect) {
   const auto &radar_state = sm["radarState"].getRadarState();
   const auto &lead_one = radar_state.getLeadOne();
 
-  update_model(model, lead_one);
+  update_model(model, lead_one, surface_rect.height());
   drawLaneLines(painter);
   drawPath(painter, model, surface_rect.height());
 
@@ -85,7 +85,7 @@ void ModelRenderer::update_leads(const cereal::RadarState::Reader &radar_state, 
   }
 }
 
-void ModelRenderer::update_model(const cereal::ModelDataV2::Reader &model, const cereal::RadarState::LeadData::Reader &lead) {
+void ModelRenderer::update_model(const cereal::ModelDataV2::Reader &model, const cereal::RadarState::LeadData::Reader &lead, float height) {
   const auto &model_position = model.getPosition();
   float max_distance = *(model_position.getX().end() - 1);
 
@@ -125,6 +125,11 @@ void ModelRenderer::update_model(const cereal::ModelDataV2::Reader &model, const
   SubMaster &fpsm = *(fs->sm);
 
   const cereal::FrogPilotPlan::Reader &frogpilotPlan = fpsm["frogpilotPlan"].getFrogpilotPlan();
+
+  if (frogpilot_nvg->needsAdjacentPaths()) {
+    mapAveragedLineToPolygon(lane_lines[0], lane_lines[1], frogpilotPlan.getLaneWidthLeft() / 2.0f, 0, &frogpilot_nvg->track_adjacent_vertices[0], max_idx, height, false);
+    mapAveragedLineToPolygon(lane_lines[2], lane_lines[3], frogpilotPlan.getLaneWidthRight() / 2.0f, 0, &frogpilot_nvg->track_adjacent_vertices[1], max_idx, height, false);
+  }
 }
 
 void ModelRenderer::drawLaneLines(QPainter &painter) {
@@ -209,7 +214,9 @@ void ModelRenderer::drawPath(QPainter &painter, const cereal::ModelDataV2::Reade
   painter.drawPolygon(track_vertices);
 
   // FrogPilot variables
-  if (frogpilot_toggles.value(QLatin1String("blind_spot_path")).toBool()) {
+  if (frogpilot_toggles.value(QLatin1String("adjacent_paths")).toBool() || frogpilot_toggles.value(QLatin1String("adjacent_path_metrics")).toBool()) {
+    frogpilot_nvg->paintAdjacentPaths(painter);
+  } else if (frogpilot_toggles.value(QLatin1String("blind_spot_path")).toBool()) {
     frogpilot_nvg->paintBlindSpotPath(painter);
   }
 }
@@ -324,6 +331,49 @@ void ModelRenderer::mapLineToPolygon(const cereal::XYZTData::Reader &line, float
 }
 
 // FrogPilot variables
+void ModelRenderer::mapAveragedLineToPolygon(const cereal::XYZTData::Reader &line1, const cereal::XYZTData::Reader &line2, float y_off, float z_off,
+                                             QPolygonF *pvd, int max_idx, float height, bool allow_invert) {
+  const auto line_x1 = line1.getX(), line_y1 = line1.getY(), line_z1 = line1.getZ();
+  const capnp::List<float>::Reader line_y2 = line2.getY();
+  QPointF left, right;
+  pvd->clear();
+  for (int i = 0; i <= max_idx; i++) {
+    // highly negative x positions  are drawn above the frame and cause flickering, clip to zy plane of camera
+    if (line_x1[i] < 0) continue;
+
+    bool l = mapToScreen(line_x1[i], ((line_y1[i] + line_y2[i]) / 2.0f) - y_off, line_z1[i] + z_off, &left);
+    bool r = mapToScreen(line_x1[i], ((line_y1[i] + line_y2[i]) / 2.0f) + y_off, line_z1[i] + z_off, &right);
+    if (l && r) {
+      // For wider lines the drawn polygon will "invert" when going over a hill and cause artifacts
+      if (!allow_invert && pvd->size() && left.y() > pvd->back().y()) {
+        continue;
+      }
+      pvd->push_back(left);
+      pvd->push_front(right);
+    }
+  }
+
+  // Ground the path
+  if (pvd->size() >= 4) {
+    int mid = pvd->size() / 2;
+
+    std::function<void(int, int)> extendToBottom = [&](int idx1, int idx2) {
+      QPointF &p0 = (*pvd)[idx1];
+      QPointF &p1 = (*pvd)[idx2];
+
+      float dy = p0.y() - p1.y();
+      if (std::abs(dy) > 0.1f) {
+        float slope = (p0.x() - p1.x()) / dy;
+        p0.setX(p0.x() + (height - p0.y()) * slope);
+        p0.setY(height);
+      }
+    };
+
+    extendToBottom(mid, mid + 1);
+    extendToBottom(mid - 1, mid - 2);
+  }
+}
+
 void ModelRenderer::updateAdjacentLeads(const cereal::FrogPilotRadarState::Reader &radar_state, const cereal::XYZTData::Reader &line) {
   for (int i = 0; i < 2; ++i) {
     const auto &lead_data = (i == 0) ? radar_state.getLeadLeft() : radar_state.getLeadRight();

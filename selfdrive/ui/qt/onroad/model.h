@@ -24,7 +24,7 @@ private:
                         QPolygonF *pvd, int max_idx, bool allow_invert = true);
   void drawLead(QPainter &painter, const cereal::RadarState::LeadData::Reader &lead_data, const QPointF &vd, const QRect &surface_rect, QColor marker_color, bool adjacent=false);
   void update_leads(const cereal::RadarState::Reader &radar_state, const cereal::XYZTData::Reader &line);
-  void update_model(const cereal::ModelDataV2::Reader &model, const cereal::RadarState::LeadData::Reader &lead);
+  void update_model(const cereal::ModelDataV2::Reader &model, const cereal::RadarState::LeadData::Reader &lead, float height);
   void drawLaneLines(QPainter &painter);
   void drawPath(QPainter &painter, const cereal::ModelDataV2::Reader &model, int height);
   void updatePathGradient(QLinearGradient &bg);
@@ -45,6 +45,8 @@ private:
   QRectF clip_region;
 
   // FrogPilot variables
+  void mapAveragedLineToPolygon(const cereal::XYZTData::Reader &line1, const cereal::XYZTData::Reader &line2, float y_off, float z_off,
+                                QPolygonF *pvd, int max_idx, float height, bool allow_invert = true);
   void updateAdjacentLeads(const cereal::FrogPilotRadarState::Reader &radar_state, const cereal::XYZTData::Reader &line);
   void updateRadarTracks(const cereal::XYZTData::Reader &line);
 

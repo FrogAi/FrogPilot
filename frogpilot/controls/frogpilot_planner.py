@@ -2,8 +2,10 @@
 import json
 
 import cereal.messaging as messaging
+import numpy as np
 
 from openpilot.common.constants import ACCELERATION_DUE_TO_GRAVITY, CV
+from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.gps import get_gps_location_service
 from openpilot.common.params import Params
 from openpilot.common.realtime import DT_MDL
@@ -40,6 +42,8 @@ class FrogPilotPlanner:
 
     self.accel_press_count = 0
     self.decel_press_count = 0
+    self.lane_width_left = 0
+    self.lane_width_right = 0
     self.lateral_acceleration = 0
     self.model_length = 0
     self.road_curvature = 0
@@ -56,6 +60,9 @@ class FrogPilotPlanner:
     self.gps_location_service = get_gps_location_service(self.params)
 
     self.ui_event_sock = messaging.sub_sock("frogpilotUIEvent")
+
+    self.lane_width_filter = FirstOrderFilter(np.zeros(2), 0.15, DT_MDL)
+    self.road_edge_filter = FirstOrderFilter(np.zeros(2), 0.15, DT_MDL)
 
   def update(self, now, time_validated, sm, frogpilot_toggles):
     self.accel_pressed = sm["frogpilotCarState"].accelPressCount > self.accel_press_count
@@ -115,6 +122,16 @@ class FrogPilotPlanner:
       self.last_gps_position = self.gps_position
     else:
       self.gps_position = None
+
+    if v_ego >= frogpilot_toggles.minimum_lane_change_speed:
+      lane_widths, road_edge_distances = frogpilot_utilities.calculate_lane_widths(sm["modelV2"])
+      self.lane_width_filter.update(lane_widths)
+      self.road_edge_filter.update(road_edge_distances)
+
+      self.lane_width_left, self.lane_width_right = np.where(self.road_edge_filter.x >= self.lane_width_filter.x, self.lane_width_filter.x, 0).tolist()
+    else:
+      self.lane_width_left = 0
+      self.lane_width_right = 0
 
     self.lateral_acceleration = v_ego**2 * sm["controlsState"].curvature if sm.all_checks(service_list=["carState", "controlsState"]) else 0
 

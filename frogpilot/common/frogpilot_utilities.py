@@ -75,6 +75,16 @@ def calculate_distance_to_point(lat1, lon1, lat2, lon2):
   return frogpilot_variables.EARTH_RADIUS * c
 
 
+def calculate_lane_widths(model_data):
+  lane_lines = np.array([line.y for line in model_data.laneLines])
+  road_edges = np.array([edge.y for edge in model_data.roadEdges])
+  ego_lines = lane_lines[[1, 2]]
+
+  lane_widths = np.median(np.abs(lane_lines[[0, 3]] - ego_lines), axis=1)
+  road_edge_distances = np.median(np.abs(road_edges - ego_lines), axis=1)
+  return lane_widths, road_edge_distances
+
+
 def calculate_road_curvature(model_data, v_ego, lateral_acceleration, roll_compensation):
   velocity = np.asarray(model_data.velocity.x)
   road_curvature = np.where(velocity >= frogpilot_variables.MINIMUM_PLANNED_SPEED, np.asarray(model_data.orientationRate.z) / np.maximum(velocity, 1), 0)
