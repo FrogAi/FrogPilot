@@ -92,6 +92,8 @@ private:
   float dashboardSpeedLimit = 0.0f;
   float distanceConversion = 0.0f;
   float gpsBearing = 0.0f;
+  float laneWidthLeft = 0.0f;
+  float laneWidthRight = 0.0f;
   float roadCurvature = 0.0f;
   float speedConversion = 0.0f;
   float speedConversionMetrics = 0.0f;

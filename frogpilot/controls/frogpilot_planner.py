@@ -3,10 +3,13 @@ import json
 import time
 
 import cereal.messaging as messaging
+import numpy as np
 
 from openpilot.common.constants import ACCELERATION_DUE_TO_GRAVITY, CV
+from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.gps import get_gps_location_service
 from openpilot.common.params import Params
+from openpilot.common.realtime import DT_MDL
 from openpilot.selfdrive.car.cruise import V_CRUISE_MAX
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import A_CHANGE_COST, DANGER_ZONE_COST, J_EGO_COST, STOP_DISTANCE
 
@@ -39,6 +42,8 @@ class FrogPilotPlanner:
     self.accel_press_count = 0
     self.decel_press_count = 0
     self.experimental_mode_press_count = None
+    self.lane_width_left = 0
+    self.lane_width_right = 0
     self.lateral_acceleration = 0
     self.model_length = 0
     self.next_gps_position_save = 0
@@ -57,6 +62,9 @@ class FrogPilotPlanner:
     self.gps_location_service = get_gps_location_service(self.params)
 
     self.ui_event_sock = messaging.sub_sock("frogpilotUIEvent")
+
+    self.lane_width_filter = FirstOrderFilter(np.zeros(2), 0.15, DT_MDL)
+    self.road_edge_filter = FirstOrderFilter(np.zeros(2), 0.15, DT_MDL)
 
   def update(self, now, time_validated, sm, frogpilot_toggles):
     self.accel_pressed = sm["frogpilotCarState"].accelPressCount > self.accel_press_count
@@ -111,6 +119,16 @@ class FrogPilotPlanner:
         self.next_gps_position_save = time.monotonic() + frogpilot_variables.GPS_POSITION_SAVE_INTERVAL
     else:
       self.gps_position = None
+
+    if v_ego >= frogpilot_toggles.minimum_lane_change_speed:
+      lane_widths, road_edge_distances = frogpilot_utilities.calculate_lane_widths(sm["modelV2"])
+      self.lane_width_filter.update(lane_widths)
+      self.road_edge_filter.update(road_edge_distances)
+
+      self.lane_width_left, self.lane_width_right = np.where(self.road_edge_filter.x >= self.lane_width_filter.x, self.lane_width_filter.x, 0).tolist()
+    else:
+      self.lane_width_left = 0
+      self.lane_width_right = 0
 
     self.lateral_acceleration = v_ego**2 * sm["controlsState"].curvature if sm.all_checks(service_list=["carState", "controlsState"]) else 0
 
@@ -172,6 +190,9 @@ class FrogPilotPlanner:
     frogpilotPlan.gpsBearing = self.gps_bearing
 
     frogpilotPlan.increasedStoppedDistance = frogpilot_toggles.increase_stopped_distance
+
+    frogpilotPlan.laneWidthLeft = self.lane_width_left
+    frogpilotPlan.laneWidthRight = self.lane_width_right
 
     frogpilotPlan.maxAcceleration = float(self.frogpilot_acceleration.max_accel)
     frogpilotPlan.minAcceleration = float(self.frogpilot_acceleration.min_accel)
