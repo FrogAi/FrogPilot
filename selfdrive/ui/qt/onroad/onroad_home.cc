@@ -70,6 +70,7 @@ void OnroadWindow::updateState(const UIState &s) {
   frogpilot_nvg->alertHeight = alerts->alertHeight;
 
   frogpilot_onroad->bg = bg;
+  frogpilot_onroad->fps = nvg->fps;
 
   alerts->frogpilot_toggles = frogpilot_toggles;
   nvg->frogpilot_toggles = frogpilot_toggles;
