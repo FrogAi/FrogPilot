@@ -43,6 +43,7 @@ class DesireHelper:
     self.desire = log.Desire.none
 
     # FrogPilot variables
+    self.lane_change_wait_timer = 0.0
 
   @staticmethod
   def get_lane_change_direction(CS):
@@ -77,7 +78,11 @@ class DesireHelper:
                               (carstate.rightBlindspot and self.lane_change_direction == LaneChangeDirection.right))
 
         # FrogPilot variables
-        torque_applied |= frogpilot_toggles.nudgeless
+        if torque_applied:
+          self.lane_change_wait_timer = frogpilot_toggles.lane_change_delay
+        else:
+          torque_applied |= frogpilot_toggles.nudgeless
+          torque_applied &= self.lane_change_wait_timer >= frogpilot_toggles.lane_change_delay
 
         if not one_blinker or below_lane_change_speed:
           self.lane_change_state = LaneChangeState.off
@@ -86,8 +91,10 @@ class DesireHelper:
           self.lane_change_state = LaneChangeState.laneChangeStarting
 
           # FrogPilot variables
+          self.lane_change_wait_timer = 0.0
 
         # FrogPilot variables
+        self.lane_change_wait_timer += DT_MDL
 
       # LaneChangeState.laneChangeStarting
       elif self.lane_change_state == LaneChangeState.laneChangeStarting:
@@ -131,3 +138,5 @@ class DesireHelper:
         self.desire = log.Desire.none
 
     # FrogPilot variables
+    if not one_blinker:
+      self.lane_change_wait_timer = 0.0
