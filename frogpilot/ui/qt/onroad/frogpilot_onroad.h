@@ -10,13 +10,24 @@ public:
 
   void updateState(const UIState &s, const FrogPilotUIState &fs);
 
+  float fps = 0.0f;
+
   QColor bg;
 
 private:
   void paintEvent(QPaintEvent *event) override;
+  void paintFPS(QPainter &p);
+  void resetFPSStats();
   void resizeEvent(QResizeEvent *event) override;
+
+  bool showFPS = false;
+  float avgFPS = 0.0f;
+  float maxFPS = 0.0f;
+  float minFPS = 99.9f;
 
   QRect rect;
 
   QRegion marginRegion;
+
+  QString fpsDisplayString;
 };
