@@ -106,6 +106,10 @@
         <source>Allow tethering with your data SIM and keep it active either while driving or continuously.</source>
         <translation type="gpt-5-generated">Autorisez le partage de connexion avec votre carte SIM de données et maintenez-le actif soit pendant la conduite, soit en continu.</translation>
     </message>
+    <message>
+        <source>Share your device's internet connection with other devices, either all the time or only while driving.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>AnnotatedCameraWidget</name>
@@ -977,6 +981,22 @@
     <message>
         <source>Time Spent in Weather:</source>
         <translation type="gpt-5-generated">Temps passé par météo</translation>
+    </message>
+    <message>
+        <source>Distance Driven This Month</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time Driving (Daytime)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time Driving (Nighttime)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time Driven (Weather):</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
