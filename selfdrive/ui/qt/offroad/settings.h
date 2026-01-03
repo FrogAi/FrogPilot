@@ -132,6 +132,9 @@ private:
   ParamWatcher *fs_watch;
 
   // FrogPilot variables
+  void hideEvent(QHideEvent *event) override;
+
+  bool shown_parked = false;
 };
 
 // Forward declaration

@@ -10,7 +10,7 @@ from openpilot.common.realtime import Priority, set_core_affinity
 from openpilot.common.time_helpers import system_time_valid
 from openpilot.system.hardware import PC
 
-from openpilot.frogpilot.common import frogpilot_api, frogpilot_backups, frogpilot_paths, frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_api, frogpilot_backups, frogpilot_functions, frogpilot_paths, frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.frogpilot.system.frogpilot_stats import send_stats
 from openpilot.frogpilot.system.frogpilot_tracking import FrogPilotTracking
@@ -89,6 +89,9 @@ def transition_onroad():
 def update_checks(now, thread_manager, sm, params, frogpilot_toggles, boot_run=False):
   while not (frogpilot_utilities.is_url_pingable("https://github.com") or frogpilot_utilities.is_url_pingable("https://gitlab.com")):
     time.sleep(60)
+
+  if not sm["deviceState"].networkMetered and frogpilot_toggles.automatic_updates:
+    thread_manager.run_in_thread(frogpilot_functions.update_openpilot, (thread_manager, params))
 
 def update_stock_tuning_values(params, car_params_key):
   msg_bytes = params.get(car_params_key)
