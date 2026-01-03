@@ -434,10 +434,6 @@ class Updater:
 def main() -> None:
   params = Params()
 
-  if params.get_bool("DisableUpdates"):
-    cloudlog.warning("updates are disabled by the DisableUpdates param")
-    exit(0)
-
   with open(LOCK_FILE, 'w') as ov_lock_fd:
     try:
       fcntl.flock(ov_lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -475,6 +471,8 @@ def main() -> None:
       wait_helper.ready_event.clear()
 
       # FrogPilot variables
+      manual_update_requested = wait_helper.user_request != UserRequest.NONE
+
       # Attempt an update
       exception = None
       try:
@@ -490,6 +488,10 @@ def main() -> None:
           continue
 
         # FrogPilot variables
+        if not manual_update_requested and not params.get_bool("IsOffroad"):
+          cloudlog.info("skipping update check, vehicle is onroad")
+          wait_helper.sleep(None)
+          continue
 
         update_failed_count += 1
 
@@ -506,6 +508,8 @@ def main() -> None:
         elif wait_helper.user_request == UserRequest.CHECK:
           cloudlog.info("skipping fetch, only checking")
         # FrogPilot variables
+        elif not manual_update_requested and not frogpilot_variables.get_frogpilot_toggles().automatic_updates:
+          cloudlog.info("skipping fetch, automatic updates are off")
         else:
           updater.fetch_update()
           write_time_to_param(params, "UpdaterLastFetchTime")
@@ -525,7 +529,6 @@ def main() -> None:
         OVERLAY_INIT.unlink(missing_ok=True)
 
       try:
-        params.put("UpdaterState", "idle")
         update_successful = (update_failed_count == 0)
         updater.set_params(update_successful, update_failed_count, exception)
       except Exception:
@@ -535,7 +538,10 @@ def main() -> None:
       wait_helper.user_request = UserRequest.NONE
 
       # FrogPilot variables
-      wait_helper.sleep(5*60 if update_failed_count > 0 else 1.5*60*60)
+      write_time_to_param(params, "UpdaterLastRunTime")
+      params.put("UpdaterState", "idle")
+
+      wait_helper.sleep(None)
 
 
 if __name__ == "__main__":

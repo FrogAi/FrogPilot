@@ -7,6 +7,7 @@
 
 struct FrogPilotUIScene {
   bool always_on_lateral_active = false;
+  bool downloading_update = false;
   bool frogpilot_panel_active = false;
   bool online = false;
   bool parked = false;
