@@ -217,7 +217,7 @@ void Device::updateWakefulness(const UIState &s) {
   ignition_on = s.scene.ignition;
 
   // FrogPilot variables
-  if (frogpilot_scene.frogpilot_panel_active) {
+  if (frogpilot_scene.downloading_update || frogpilot_scene.frogpilot_panel_active) {
     resetInteractiveTimeout();
   } else if (ignition_just_turned_off) {
     resetInteractiveTimeout();

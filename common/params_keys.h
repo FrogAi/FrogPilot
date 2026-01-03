@@ -447,6 +447,7 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"TurnDesires", {PERSISTENT, BOOL, "0", "0", 2}},
     {"UnlockDoors", {PERSISTENT, BOOL, "1", "0", 0}},
     {"Updated", {PERSISTENT, STRING, "0", "0"}},
+    {"UpdaterLastRunTime", {CLEAR_ON_MANAGER_START, TIME}},
     {"UseKonikServer", {PERSISTENT, BOOL, "0", "0", 2}},
     {"UseSI", {PERSISTENT, BOOL, "1", "1", 3}},
     {"UseVienna", {PERSISTENT, BOOL, "0", "0", 1}},

@@ -10,7 +10,7 @@ from openpilot.common.realtime import Priority, config_realtime_process
 from openpilot.common.time_helpers import system_time_valid
 from openpilot.system.version import get_build_metadata
 
-from openpilot.frogpilot.common import frogpilot_api, frogpilot_backups, frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_api, frogpilot_backups, frogpilot_functions, frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.frogpilot.system.frogpilot_stats import send_stats
 from openpilot.frogpilot.system.frogpilot_tracking import FrogPilotTracking
@@ -77,6 +77,9 @@ def transition_onroad():
 def update_checks(now, theme_manager, thread_manager, sm, params, cancel_maps_download, frogpilot_toggles, boot_run=False):
   while not (frogpilot_utilities.is_url_pingable("https://github.com") or frogpilot_utilities.is_url_pingable("https://gitlab.com")):
     time.sleep(60)
+
+  if frogpilot_toggles.automatic_updates:
+    thread_manager.run_with_lock(frogpilot_functions.update_openpilot, (thread_manager, params))
 
   time.sleep(1)
 
@@ -159,6 +162,7 @@ def frogpilot_thread():
     if toggles_updated:
       frogpilot_toggles = update_toggles(variables, started, thread_manager, time_validated, params)
 
+    run_update_checks |= update_checks_requested
     run_update_checks |= now.second == 0 and now.minute == 0
     run_update_checks &= time_validated
 

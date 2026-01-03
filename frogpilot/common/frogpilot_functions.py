@@ -87,3 +87,41 @@ def update_boot_logo(target_logo):
     frogpilot_utilities.run_cmd(["sudo", "mount", "-o", "remount,rw", "/"], None, "Failed to remount /")
     frogpilot_utilities.run_cmd(["sudo", "cp", target_logo, boot_logo_location], None, "Failed to replace boot logo")
     frogpilot_utilities.run_cmd(["sudo", "mount", "-o", f"remount,{mount_options}", "/"], None, "Failed to restore / mount options")
+
+
+def update_openpilot(thread_manager, params):
+  def signal_updater(signal, fail_message):
+    last_run = params.get("UpdaterLastRunTime")
+    if frogpilot_utilities.run_cmd(["pkill", signal, "-f", "system.updated.updated"], None, fail_message, report=False) is None:
+      return False
+
+    while params.get("UpdaterLastRunTime") == last_run:
+      time.sleep(1)
+    return True
+
+  def wait_until_offroad():
+    while params.get_bool("IsOnroad") or thread_manager.is_thread_alive("lock_doors"):
+      time.sleep(60)
+
+  def update_available():
+    if not signal_updater("-SIGUSR1", "Failed to check for update...") or not params.get_bool("UpdaterFetchAvailable"):
+      return False
+
+    wait_until_offroad()
+
+    return signal_updater("-SIGHUP", "Failed to download update...") and params.get_bool("UpdateAvailable")
+
+  if params.get("UpdaterState") != "idle":
+    return
+
+  wait_until_offroad()
+
+  if not params.get_bool("UpdateAvailable") and not update_available():
+    return
+
+  while update_available():
+    pass
+
+  wait_until_offroad()
+
+  HARDWARE.reboot()
