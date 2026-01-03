@@ -10,7 +10,7 @@ from openpilot.common.realtime import Priority, config_realtime_process
 from openpilot.common.time_helpers import system_time_valid
 from openpilot.system.version import get_build_metadata
 
-from openpilot.frogpilot.common import frogpilot_api, frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_api, frogpilot_backups, frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
 from openpilot.frogpilot.system.frogpilot_stats import send_stats
 from openpilot.frogpilot.system.frogpilot_tracking import FrogPilotTracking
@@ -80,9 +80,12 @@ def update_checks(now, theme_manager, thread_manager, sm, params, cancel_maps_do
 
   time.sleep(1)
 
-def update_toggles(variables, started):
+def update_toggles(variables, started, thread_manager, time_validated, params):
   variables.update(started=started)
   frogpilot_toggles = variables.frogpilot_toggles
+
+  if time_validated:
+    thread_manager.run_with_lock(frogpilot_backups.backup_toggles, (params,))
 
   return frogpilot_toggles
 
@@ -120,7 +123,7 @@ def frogpilot_thread():
     if not started and started_previously:
       frogpilot_tracking.save_stats()
 
-      frogpilot_toggles = update_toggles(variables, started)
+      frogpilot_toggles = update_toggles(variables, started, thread_manager, time_validated, params)
       transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_validated, params, frogpilot_toggles, api)
 
       run_update_checks = True
@@ -154,7 +157,7 @@ def frogpilot_thread():
     waiting_for_car_params &= not sm.updated["frogpilotCarParams"]
 
     if toggles_updated:
-      frogpilot_toggles = update_toggles(variables, started)
+      frogpilot_toggles = update_toggles(variables, started, thread_manager, time_validated, params)
 
     run_update_checks |= now.second == 0 and now.minute == 0
     run_update_checks &= time_validated
@@ -167,6 +170,7 @@ def frogpilot_thread():
       time_validated = system_time_valid()
 
       if time_validated:
+        thread_manager.run_with_lock(frogpilot_backups.backup_toggles, (params, True))
         thread_manager.run_with_lock(send_stats, (params, frogpilot_toggles, api))
         thread_manager.run_with_lock(update_checks, (now, theme_manager, thread_manager, sm, params, cancel_maps_download, frogpilot_toggles, True))
 

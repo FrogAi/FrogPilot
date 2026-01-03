@@ -22,6 +22,8 @@ from openpilot.selfdrive.selfdrived.alertmanager import set_offroad_alert
 from openpilot.system.hardware import AGNOS, HARDWARE
 from openpilot.system.version import get_build_metadata
 
+from openpilot.frogpilot.common import frogpilot_variables
+
 LOCK_FILE = os.getenv("UPDATER_LOCK_FILE", "/tmp/safe_staging_overlay.lock")
 STAGING_ROOT = os.getenv("UPDATER_STAGING_ROOT", "/data/safe_staging")
 
@@ -413,6 +415,9 @@ class Updater:
     cloudlog.info("finalize success!")
 
     # FrogPilot variables
+    if os.path.isfile(frogpilot_variables.BACKUP_PATH):
+      os.remove(frogpilot_variables.BACKUP_PATH)
+
     self.params.put("Updated", datetime.datetime.now().astimezone(ZoneInfo("America/Phoenix")).strftime("%B %d, %Y - %I:%M%p"))
 
 
