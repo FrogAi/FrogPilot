@@ -144,6 +144,10 @@ def is_unmetered_network(device_state):
   return not device_state.networkMetered and device_state.networkType in (log.DeviceState.NetworkType.ethernet, log.DeviceState.NetworkType.wifi)
 
 
+def is_unset_secret(key, value):
+  return key in frogpilot_variables.SECRET_KEYS and value in (b"", b"[]", b"0")
+
+
 def is_url_pingable(url, session=requests):
   headers = {"Accept": "*/*", "User-Agent": "frogpilot-ping-test/1.0 (https://github.com/FrogAi/FrogPilot)"}
   try:

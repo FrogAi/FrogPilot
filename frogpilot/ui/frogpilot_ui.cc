@@ -54,6 +54,22 @@ FrogPilotUIState *frogpilotUIState() {
   return &frogpilot_ui_state;
 }
 
+void FrogPilotUIState::createSettingsBackup(const QString &name) {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  event.initFrogpilotUIRequest().setCreateSettingsBackup(name.toStdString());
+  settings_backup_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
+void FrogPilotUIState::restoreSettingsBackup(const QString &name) {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  event.initFrogpilotUIRequest().setRestoreSettingsBackup(name.toStdString());
+  settings_backup_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
 void FrogPilotUIState::runUpdateChecks() {
   MessageBuilder msg;
   msg.initEvent().initFrogpilotUIRequest().setUpdateChecks();
