@@ -1,11 +1,28 @@
 #!/usr/bin/env python3
+import time
+
+from multiprocessing import Process
+
+from openpilot.common.params import Params
+from openpilot.common.time_helpers import system_time_valid
 from openpilot.system.hardware import HARDWARE, PC
 
-from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_backups, frogpilot_paths, frogpilot_utilities, frogpilot_variables
 
 
-def frogpilot_boot_functions():
+def boot_backup(build_metadata):
+  while not system_time_valid():
+    time.sleep(1)
+
+  frogpilot_backups.backup_frogpilot(build_metadata, Params())
+
+
+def frogpilot_boot_functions(build_metadata):
   frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
+
+  frogpilot_utilities.delete_path(frogpilot_paths.RESTORE_TEMP_PATH)
+
+  Process(target=boot_backup, args=(build_metadata,), daemon=True).start()
 
 
 def install_frogpilot():
