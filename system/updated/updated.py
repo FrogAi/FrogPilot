@@ -426,6 +426,8 @@ class Updater:
     cloudlog.info("finalize success!")
 
     # FrogPilot variables
+    frogpilot_paths.BACKUP_PATH.unlink(missing_ok=True)
+
     self.params.put("Updated", datetime.datetime.now().astimezone(ZoneInfo("America/Phoenix")).strftime("%B %d, %Y - %I:%M%p"))
 
 

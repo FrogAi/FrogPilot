@@ -1451,7 +1451,7 @@ class FrogPilotVariables:
     toggle.always_on_lateral_lkas_button |= toggle.always_on_lateral_lkas_button_forced and toggle.always_on_lateral
     toggle.always_on_lateral_pause_on_brake_speed = self.get_value("PauseAOLOnBrake", cast=float, condition=toggle.always_on_lateral, conversion=speed_conversion)
 
-    toggle.automatic_updates = self.get_value("AutomaticUpdates", condition=self.release_branch or self.vetting_branch, default=True)
+    toggle.automatic_updates = self.get_value("AutomaticUpdates", condition=self.release_branch or self.vetting_branch, default=True) and not frogpilot_paths.BACKUP_PATH.is_file()
 
     toggle.cluster_offset = self.get_value("ClusterOffset", cast=float, condition=toggle.car_make == "toyota")
 

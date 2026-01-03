@@ -22,7 +22,9 @@ class FrogPilotUIState : public QObject {
 public:
   explicit FrogPilotUIState(QObject *parent = nullptr);
 
+  void createSettingsBackup(const QString &name);
   void resetStats();
+  void restoreSettingsBackup(const QString &name);
   void runUpdateChecks();
   void testAlert(const QString &alert, float volume);
   void update();
@@ -31,6 +33,8 @@ public:
   std::unique_ptr<SubMaster> sm;
 
   FrogPilotUIScene frogpilot_scene = {};
+
+  uint64_t settings_backup_request_time = 0;
 
   WifiManager *wifi;
 
