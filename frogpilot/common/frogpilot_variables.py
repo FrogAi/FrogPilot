@@ -1434,12 +1434,12 @@ class FrogPilotVariables:
     toggle.steerActuatorDelay = self.get_value("SteerDelay", cast=float, condition=advanced_lateral_tuning and self.params.get("SteerDelay") != 0, default=steerActuatorDelay, minimum=0.01, maximum=1.0)
     toggle.use_custom_steerActuatorDelay = round(toggle.steerActuatorDelay, 6) != round(steerActuatorDelay, 6)
     toggle.friction = self.get_value("SteerFriction", cast=float, condition=advanced_lateral_tuning and self.params.get("SteerFriction") != 0, default=friction, minimum=min(friction, 0.01), maximum=1)
-    toggle.use_custom_friction = (round(toggle.friction, 6) != round(friction, 6) and is_torque_car and not toggle.has_auto_tune) or toggle.force_auto_tune_off
+    toggle.use_custom_friction = (round(toggle.friction, 6) != round(friction, 6) and is_torque_car and not toggle.has_auto_tune and not toggle.force_auto_tune) or toggle.force_auto_tune_off
     toggle.steerKp = self.get_value("SteerKP", cast=float, condition=is_torque_car and not is_angle_car and advanced_lateral_tuning and self.params.get("SteerKP") != 0, default=steerKp, minimum=steerKp * 0.5, maximum=steerKp * 1.5)
     toggle.latAccelFactor = self.get_value("SteerLatAccel", cast=float, condition=advanced_lateral_tuning and self.params.get("SteerLatAccel") != 0, default=latAccelFactor, minimum=latAccelFactor * 0.5, maximum=latAccelFactor * 1.5)
-    toggle.use_custom_latAccelFactor = (round(toggle.latAccelFactor, 6) != round(latAccelFactor, 6) and is_torque_car and not toggle.has_auto_tune) or toggle.force_auto_tune_off
+    toggle.use_custom_latAccelFactor = (round(toggle.latAccelFactor, 6) != round(latAccelFactor, 6) and is_torque_car and not toggle.has_auto_tune and not toggle.force_auto_tune) or toggle.force_auto_tune_off
     toggle.steerRatio = self.get_value("SteerRatio", cast=float, condition=advanced_lateral_tuning and self.params.get("SteerRatio") != 0, default=steerRatio, minimum=steerRatio * 0.5, maximum=steerRatio * 1.5)
-    toggle.use_custom_steerRatio = round(toggle.steerRatio, 6) != round(steerRatio, 6) or toggle.force_auto_tune_off
+    toggle.use_custom_steerRatio = (round(toggle.steerRatio, 6) != round(steerRatio, 6) and not toggle.force_auto_tune) or toggle.force_auto_tune_off
 
     advanced_longitudinal_tuning = toggle.openpilot_longitudinal and self.get_value("AdvancedLongitudinalTune")
     toggle.longitudinalActuatorDelay = self.get_value("LongitudinalActuatorDelay", cast=float, condition=advanced_longitudinal_tuning and (self.params.get("LongitudinalActuatorDelay") != 0 or self.params.get("LongitudinalActuatorDelayStock") != 0), default=longitudinalActuatorDelay, minimum=0, maximum=1)
