@@ -102,13 +102,14 @@ class Controls:
     # Update Torque Params
     if self.CP.lateralTuning.which() == 'torque':
       torque_params = self.sm['liveTorqueParameters']
-      if self.sm.all_checks(['liveTorqueParameters']) and torque_params.useParams and not self.frogpilot_toggles.force_auto_tune_off:
+      if self.sm.all_checks(['liveTorqueParameters']) and \
+         ((torque_params.useParams and not self.frogpilot_toggles.force_auto_tune_off) or self.frogpilot_toggles.force_auto_tune):
         self.LaC.update_live_torque_params(torque_params.latAccelFactorFiltered, torque_params.latAccelOffsetFiltered,
                                            torque_params.frictionCoefficientFiltered)
 
         # FrogPilot variables
-        self.using_custom_torque_params = False
-      elif (not torque_params.useParams and self.using_custom_torque_params) or \
+        self.using_custom_torque_params = True
+      elif (not torque_params.useParams and self.using_custom_torque_params and not self.frogpilot_toggles.force_auto_tune) or \
            self.frogpilot_toggles.use_custom_friction or self.frogpilot_toggles.use_custom_latAccelFactor:
         self.LaC.update_live_torque_params(self.frogpilot_toggles.latAccelFactor, self.CP.lateralTuning.torque.latAccelOffset, self.frogpilot_toggles.friction)
         self.using_custom_torque_params = self.frogpilot_toggles.use_custom_friction or self.frogpilot_toggles.use_custom_latAccelFactor
