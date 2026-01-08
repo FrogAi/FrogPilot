@@ -83,7 +83,15 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent, bo
     } else if (param == "PedalsOnUI") {
       std::vector<QString> pedalsToggles{"DynamicPedalsOnUI", "StaticPedalsOnUI"};
       std::vector<QString> pedalsToggleNames{tr("Dynamic"), tr("Static")};
-      visualToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, pedalsToggles, pedalsToggleNames, true);
+      FrogPilotButtonToggleControl *pedalsToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, pedalsToggles, pedalsToggleNames, true);
+      QObject::connect(pedalsToggle, &FrogPilotButtonToggleControl::buttonClicked, [this](int id) {
+        if (id == 0) {
+          params.putBool("StaticPedalsOnUI", false);
+        } else if (id == 1) {
+          params.putBool("DynamicPedalsOnUI", false);
+        }
+      });
+      visualToggle = pedalsToggle;
 
     } else if (param == "LaneLinesWidth" || param == "RoadEdgesWidth") {
       visualToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 24, tr(" inches"));

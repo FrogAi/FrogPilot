@@ -60,6 +60,7 @@ private:
   void paintCompass(QPainter &p, const QPoint &position);
   void paintCurveSpeedControl(QPainter &p);
   void paintPausedIcon(QPainter &p, const QPoint &position, const QPixmap &icon);
+  void paintPedalIcons(QPainter &p);
   void paintRadarTracks(QPainter &p);
   void paintRoadName(QPainter &p);
   void paintStandstillTimer(QPainter &p);
@@ -106,8 +107,10 @@ private:
   QElapsedTimer signalTimer;
   QElapsedTimer standstillTimer;
 
+  QPixmap brakePedalImg;
   QPixmap curveSpeedIcon;
   QPixmap curveSpeedIconFlipped;
+  QPixmap gasPedalImg;
   QPixmap pausedIcon;
   QPixmap speedIcon;
   QPixmap stopSignImg;

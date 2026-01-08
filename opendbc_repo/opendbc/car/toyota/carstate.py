@@ -216,6 +216,8 @@ class CarState(CarStateBase):
         buttonEvents.extend(create_button_events(1, 0, {1: ButtonType.lkas}) +
                             create_button_events(0, 1, {1: ButtonType.lkas}))
 
+    self.fp_ret.brakeLights = bool(cp.vl["ESP_CONTROL"]["BRAKE_LIGHTS_ACC"])
+
     if not self.CP.flags & ToyotaFlags.SECOC.value:
       self.fp_ret.ecoGear = cp.vl["GEAR_PACKET"]["ECON_ON"] == 1
       if self.CP.flags & ToyotaFlags.NO_DSU:
