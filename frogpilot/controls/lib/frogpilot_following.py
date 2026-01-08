@@ -5,6 +5,8 @@ class FrogPilotFollowing:
   def __init__(self, FrogPilotPlanner):
     self.frogpilot_planner = FrogPilotPlanner
 
+    self.following_lead = False
+
     self.acceleration_jerk = 0
     self.danger_jerk = 0
     self.speed_jerk = 0
@@ -33,3 +35,6 @@ class FrogPilotFollowing:
         frogpilot_toggles.relaxed_follow,
         frogpilot_toggles.custom_personalities, sm["selfdriveState"].personality
       )
+
+    self.following_lead = self.frogpilot_planner.lead_one.status
+    self.following_lead &= self.frogpilot_planner.lead_one.dRel < (self.t_follow * 2) * v_ego

@@ -11,6 +11,7 @@ from openpilot.selfdrive.car.cruise import V_CRUISE_MAX
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import A_CHANGE_COST, DANGER_ZONE_COST, J_EGO_COST, STOP_DISTANCE
 
 from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.controls.lib.conditional_experimental_mode import CEStatus, ConditionalExperimentalMode
 from openpilot.frogpilot.controls.lib.frogpilot_acceleration import FrogPilotAcceleration
 from openpilot.frogpilot.controls.lib.frogpilot_events import FrogPilotEvents
 from openpilot.frogpilot.controls.lib.frogpilot_following import FrogPilotFollowing
@@ -21,12 +22,14 @@ class FrogPilotPlanner:
     self.params = Params(return_defaults=True)
 
     self.frogpilot_acceleration = FrogPilotAcceleration(self)
+    self.frogpilot_cem = ConditionalExperimentalMode(self)
     self.frogpilot_events = FrogPilotEvents(self)
     self.frogpilot_following = FrogPilotFollowing(self)
     self.frogpilot_vcruise = FrogPilotVCruise(self)
 
     self.accel_pressed = False
     self.decel_pressed = False
+    self.experimental_mode_pressed = False
     self.gps_valid = False
     self.lateral_check = False
     self.lead_relevant = False
@@ -53,8 +56,11 @@ class FrogPilotPlanner:
     self.accel_press_count = sm["frogpilotCarState"].accelPressCount
     self.decel_press_count = sm["frogpilotCarState"].decelPressCount
 
+    self.experimental_mode_pressed = False
     for msg in messaging.drain_sock(self.ui_event_sock):
       ui_event = msg.frogpilotUIEvent
+      if ui_event.which() == "experimentalModePressed":
+        self.experimental_mode_pressed = True
 
     self.lead_one = sm["radarState"].leadOne
 
@@ -68,6 +74,20 @@ class FrogPilotPlanner:
     self.lead_relevant = self.is_lead_relevant(self.lead_one, sm["carState"].standstill, v_ego)
 
     self.frogpilot_acceleration.update(v_ego, sm, frogpilot_toggles)
+
+    self.frogpilot_cem.update_override(sm)
+
+    if long_control_active and frogpilot_toggles.conditional_experimental_mode:
+      self.frogpilot_cem.update(v_ego, sm, frogpilot_toggles)
+    else:
+      self.frogpilot_cem.curve_detected = False
+      self.frogpilot_cem.experimental_mode = False
+      self.frogpilot_cem.slow_lead_detected = False
+
+      self.frogpilot_cem.curvature_filter.x = 0
+      self.frogpilot_cem.slow_lead_filter.x = 0
+
+      self.frogpilot_cem.stop_sign_and_light(v_ego, sm, frogpilot_variables.PLANNER_TIME - 2)
 
     self.frogpilot_events.update(long_control_active, sm, frogpilot_toggles)
 
@@ -119,6 +139,7 @@ class FrogPilotPlanner:
     frogpilotPlan.desiredFollowDistance = int(self.frogpilot_following.desired_follow_distance)
 
     frogpilotPlan.experimentalMode = self.frogpilot_cem.experimental_mode
+    frogpilotPlan.experimentalMode &= not frogpilot_toggles.conditional_experimental_mode or self.frogpilot_cem.status_value != CEStatus["USER_DISABLED"]
 
     frogpilotPlan.forcingStop = self.frogpilot_vcruise.forcing_stop
     frogpilotPlan.forcingStopLength = self.frogpilot_vcruise.stop_distance

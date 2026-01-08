@@ -13,7 +13,33 @@ void FrogPilotAnnotatedCameraWidget::showEvent(QShowEvent *event) {
 }
 
 void FrogPilotAnnotatedCameraWidget::hideEvent(QHideEvent *event) {
+  if (cemIcon) {
+    cemIcon->stop();
+  }
+
   QWidget::hideEvent(event);
+}
+
+void FrogPilotAnnotatedCameraWidget::updateCEMIcon() {
+  static const QMap<int, QString> cemIcons = {{1, "chill_mode_icon"}, {3, "curve_icon"}, {4, "lead_icon"}, {5, "turn_icon"}, {6, "speed_icon"}, {7, "speed_icon"}, {8, "light_icon"}};
+
+  QString cemPath;
+  if (frogpilot_toggles.value(QLatin1String("cem_status")).toBool()) {
+    QString icon = experimentalMode ? cemIcons.value(frogpilot_scene.conditional_status, "experimental_mode_icon") : "chill_mode_icon";
+    cemPath = QString("../../frogpilot/assets/other_images/%1.gif").arg(icon);
+  }
+  updateIcon(cemPath, cemIcon, cemIconPath);
+}
+
+void FrogPilotAnnotatedCameraWidget::updateIcon(const QString &path, QSharedPointer<QMovie> &icon, QString &iconPath) {
+  if (hideBottomIcons && !path.isEmpty()) {
+    if (icon) {
+      icon->stop();
+    }
+  } else if (path != iconPath || (!path.isEmpty() && (!icon || icon->state() != QMovie::Running))) {
+    loadGif(path, icon, QSize(widget_size, widget_size), this, false);
+    iconPath = icon && icon->state() == QMovie::Running ? path : QString();
+  }
 }
 
 void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPilotUIState &fs) {
@@ -60,6 +86,7 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   cscTraining = frogpilotPlan.getCscTraining();
   dashboardSpeedLimit = frogpilotCarState.getDashboardSpeedLimit();
   desiredFollowDistance = frogpilotPlan.getDesiredFollowDistance();
+  experimentalMode = selfdriveState.getExperimentalMode();
   forceCoast = frogpilotCarState.getForceCoast();
   gpsBearing = frogpilotPlan.getGpsBearing();
   laneWidthLeft = frogpilotPlan.getLaneWidthLeft();
@@ -84,6 +111,8 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   if (!isVisible()) {
     return;
   }
+
+  updateCEMIcon();
 }
 
 void FrogPilotAnnotatedCameraWidget::mousePressEvent(QMouseEvent *mouseEvent) {
@@ -101,9 +130,15 @@ void FrogPilotAnnotatedCameraWidget::drawOutlinedText(QPainter &p, const QPointF
 void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
   int slotStep = rightHandDM ? -widget_size - 2 * UI_BORDER_SIZE : widget_size + 2 * UI_BORDER_SIZE;
 
+  QPoint cemStatusPosition(dmIconPosition.x() + (rightHandDM ? -btn_size / 2 - 2 * UI_BORDER_SIZE - widget_size : btn_size / 2 + 2 * UI_BORDER_SIZE), dmIconPosition.y() - widget_size / 2);
+
   QPoint compassPosition(rightHandDM ? width() - experimentalButtonPosition.x() - widget_size : experimentalButtonPosition.x(), cemStatusPosition.y());
 
   instantReplayButton->move(experimentalButtonPosition.x() - UI_BORDER_SIZE - btn_size, experimentalButtonPosition.y() + screenRecorderButton->height());
+
+  if (!hideBottomIcons && frogpilot_toggles.value(QLatin1String("cem_status")).toBool()) {
+    paintCEMStatus(p, cemStatusPosition);
+  }
 
   if (!hideBottomIcons && frogpilot_toggles.value(QLatin1String("compass")).toBool()) {
     paintCompass(p, compassPosition);
@@ -124,6 +159,28 @@ void FrogPilotAnnotatedCameraWidget::paintBlindSpotPath(QPainter &p) {
   }
   if (track_adjacent_vertices[1].boundingRect().width() > 0 && blindspotRight) {
     p.drawPolygon(track_adjacent_vertices[1]);
+  }
+
+  p.restore();
+}
+
+void FrogPilotAnnotatedCameraWidget::paintCEMStatus(QPainter &p, const QPoint &position) {
+  p.save();
+
+  QRect cemWidget(position, QSize(widget_size, widget_size));
+
+  p.setBrush(blackColor(166));
+  if (frogpilot_scene.conditional_status == 1) {
+    p.setPen(QPen(QColor(bg_colors[STATUS_CEM_DISABLED]), 10));
+  } else if (experimentalMode) {
+    p.setPen(QPen(QColor(bg_colors[STATUS_EXPERIMENTAL_MODE_ENABLED]), 10));
+  } else {
+    p.setPen(QPen(blackColor(), 10));
+  }
+  p.drawRoundedRect(cemWidget, 24, 24);
+
+  if (cemIcon) {
+    p.drawPixmap(cemWidget, cemIcon->currentPixmap());
   }
 
   p.restore();

@@ -182,6 +182,7 @@ void FrogPilotUIState::update() {
 
   const bool enabled = (*uiState()->sm)["selfdriveState"].getSelfdriveState().getEnabled();
   frogpilot_scene.always_on_lateral_active = !enabled && (*sm)["frogpilotCarState"].getFrogpilotCarState().getAlwaysOnLateralEnabled();
+  frogpilot_scene.conditional_status = enabled ? (*sm)["frogpilotPlan"].getFrogpilotPlan().getCeStatus() : 0;
 }
 
 void FrogPilotUIState::updateToggles() {

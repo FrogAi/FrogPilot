@@ -435,6 +435,11 @@ class SelfdriveD:
     # FrogPilot variables
     self.frogpilot_events.add_from_msg(self.sm['frogpilotPlan'].frogpilotEvents)
 
+    if self.frogpilot_toggles.conditional_experimental_mode:
+      self.experimental_mode = self.sm['frogpilotPlan'].experimentalMode
+    else:
+      self.experimental_mode |= self.sm['frogpilotPlan'].experimentalMode
+
   def data_sample(self):
     _car_state = messaging.recv_one(self.car_state_sock)
     CS = _car_state.carState if _car_state else self.CS_prev
@@ -577,7 +582,8 @@ class SelfdriveD:
       self.is_ldw_enabled = self.params.get_bool("IsLdwEnabled")
       self.disengage_on_accelerator = self.params.get_bool("DisengageOnAccelerator")
       # FrogPilot variables
-      self.experimental_mode = self.params.get_bool("ExperimentalMode") and self.CP.openpilotLongitudinalControl
+      if not self.frogpilot_toggles.conditional_experimental_mode:
+        self.experimental_mode = self.params.get_bool("ExperimentalMode") and self.CP.openpilotLongitudinalControl
       self.personality = self.params.get("LongitudinalPersonality", return_default=True)
       time.sleep(0.1)
 

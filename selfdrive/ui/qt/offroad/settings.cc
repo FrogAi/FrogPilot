@@ -222,6 +222,8 @@ void TogglesPanel::updateToggles() {
 
   // FrogPilot variables
   const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
+
+  experimental_mode_toggle->setVisible(!frogpilot_toggles.value("conditional_experimental_mode").toBool());
 }
 
 DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {

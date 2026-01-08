@@ -31,7 +31,11 @@ void ExperimentalButton::changeMode() {
   bool can_change = hasLongitudinalControl(cp) && params.getBool("ExperimentalModeConfirmed");
   if (can_change) {
     // FrogPilot variables
-    params.putBool("ExperimentalMode", !experimental_mode);
+    if (frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value(QLatin1String("conditional_experimental_mode")).toBool()) {
+      frogpilotUIState()->experimentalModePressed();
+    } else {
+      params.putBool("ExperimentalMode", !experimental_mode);
+    }
   }
 }
 
@@ -68,6 +72,8 @@ void ExperimentalButton::updateBackgroundColor(const FrogPilotUIScene &frogpilot
     background_color = QColor(0, 0, 0, 166);
   } else if (frogpilot_scene.always_on_lateral_active) {
     background_color = bg_colors[STATUS_ALWAYS_ON_LATERAL_ACTIVE];
+  } else if (frogpilot_scene.conditional_status == 1) {
+    background_color = bg_colors[STATUS_CEM_DISABLED];
   } else if (experimental_mode) {
     background_color = bg_colors[STATUS_EXPERIMENTAL_MODE_ENABLED];
   } else {
