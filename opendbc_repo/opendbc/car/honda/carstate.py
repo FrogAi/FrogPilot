@@ -6,7 +6,7 @@ from opendbc.car import Bus, create_button_events, structs
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.honda.hondacan import CanBus
 from opendbc.car.honda.values import CAR, DBC, STEER_THRESHOLD, HONDA_BOSCH, HONDA_BOSCH_ALT_RADAR, HONDA_BOSCH_CANFD, \
-                                                 HONDA_NIDEC_ALT_SCM_MESSAGES, HONDA_BOSCH_RADARLESS, \
+                                                 HONDA_NIDEC_ALT_SCM_MESSAGES, HONDA_BOSCH_RADARLESS, HONDA_NIDEC_BRAKE_LIGHT_CARS, \
                                                  HondaFlags, CruiseButtons, CruiseSettings, GearShifter, CarControllerParams
 from opendbc.car.interfaces import CarStateBase
 
@@ -221,6 +221,11 @@ class CarState(CarStateBase):
 
     # FrogPilot variables
     self.distance_button = self.cruise_setting == CruiseSettings.DISTANCE
+
+    if self.CP.carFingerprint in HONDA_BOSCH and self.CP.carFingerprint not in HONDA_BOSCH_RADARLESS:
+      self.fp_ret.brakeLights = ret.brake > 0.4 or (not self.CP.openpilotLongitudinalControl and cp.vl["ACC_CONTROL"]["BRAKE_LIGHTS"] != 0)
+    elif self.CP.carFingerprint in HONDA_NIDEC_BRAKE_LIGHT_CARS:
+      self.fp_ret.brakeLights = ret.brake > 0.4
 
     if self.CP.enableGasInterceptorDEPRECATED:
       gas = (cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS"] + cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS2"]) // 2

@@ -235,6 +235,8 @@ class CarState(CarStateBase):
     # FrogPilot variables
     self.distance_button = self.cruise_buttons[-1] == Buttons.GAP_DIST
 
+    self.fp_ret.brakeLights = bool(cp.vl["TCS13"]["BrakeLight"])
+
     return ret
 
   def update_canfd(self, can_parsers) -> structs.CarState:
@@ -343,6 +345,8 @@ class CarState(CarStateBase):
 
     if self.taco_tune_hack:
       self.params = CarControllerParams(self.CP, ret.vEgoRaw, self.frogpilot_toggles.taco_tune_hacks)
+
+    self.fp_ret.brakeLights = bool(cp.vl["TCS"]["DriverBraking"])
 
     drive_mode = cp.vl["DRIVE_MODE"]["DRIVE_MODE2"]
     if drive_mode != 0:
