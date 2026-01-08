@@ -54,6 +54,7 @@ private:
   void paintCompass(QPainter &p, const QPoint &position);
   void paintCurveSpeedControl(QPainter &p);
   void paintPausedIcon(QPainter &p, const QPoint &position, const QPixmap &icon);
+  void paintPedalIcons(QPainter &p);
   void paintRadarTracks(QPainter &p);
   void paintRoadName(QPainter &p);
   void paintStandstillTimer(QPainter &p);
@@ -68,6 +69,7 @@ private:
   bool blindspotRight;
   bool blinkerLeft;
   bool blinkerRight;
+  bool brakeLights;
   bool cscActive;
   bool cscTraining;
   bool experimentalMode;
@@ -79,6 +81,7 @@ private:
   int signalWidth = 0;
   int totalFrames = 0;
 
+  float accelerationEgo;
   float cscSpeed;
   float distanceConversion;
   float gpsBearing;
@@ -97,8 +100,10 @@ private:
   QElapsedTimer signalTimer;
   QElapsedTimer standstillTimer;
 
+  QPixmap brakePedalImg;
   QPixmap curveSpeedIcon;
   QPixmap curveSpeedIconFlipped;
+  QPixmap gasPedalImg;
   QPixmap pausedIcon;
   QPixmap speedIcon;
   QPixmap stopSignImg;
