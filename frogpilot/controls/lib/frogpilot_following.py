@@ -7,12 +7,17 @@ class FrogPilotFollowing:
   def __init__(self, FrogPilotPlanner):
     self.frogpilot_planner = FrogPilotPlanner
 
+    self.following_lead = False
+
     self.acceleration_jerk = 0
     self.danger_jerk = 0
     self.speed_jerk = 0
     self.t_follow = 0
 
-  def update(self, sm, frogpilot_toggles):
+  def update(self, v_ego, sm, frogpilot_toggles):
     self.acceleration_jerk, self.danger_jerk, self.speed_jerk = get_jerk_factor(sm["selfdriveState"].personality)
 
     self.t_follow = get_T_FOLLOW(sm["selfdriveState"].personality)
+
+    self.following_lead = self.frogpilot_planner.lead_one.status
+    self.following_lead &= self.frogpilot_planner.lead_one.dRel < (self.t_follow * 2) * v_ego

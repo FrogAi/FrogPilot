@@ -535,6 +535,11 @@ class SelfdriveD:
     if has_priority_alert:
       ss.alertHudVisual = self.frogpilot_AM.current_alert.visual_alert
 
+    if self.frogpilot_toggles.conditional_experimental_mode:
+      ss.experimentalMode = self.sm['frogpilotPlan'].experimentalMode
+    else:
+      ss.experimentalMode = self.experimental_mode or self.sm['frogpilotPlan'].experimentalMode
+
     self.pm.send('selfdriveState', ss_msg)
 
     # onroadEvents - logged every second or on change

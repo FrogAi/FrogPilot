@@ -4,6 +4,7 @@ import pyray as rl
 from cereal import messaging, car, log
 from msgq.visionipc import VisionStreamType
 from openpilot.frogpilot.ui.mici.frogpilot_camera_view import frogpilot_camera_view
+from openpilot.frogpilot.ui.mici.frogpilot_experimental_press import ExperimentalPress
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
 from openpilot.selfdrive.ui.mici.onroad import SIDE_PANEL_WIDTH
 from openpilot.selfdrive.ui.mici.onroad.alert_renderer import AlertRenderer
@@ -14,6 +15,7 @@ from openpilot.selfdrive.ui.mici.onroad.confidence_ball import ConfidenceBall
 from openpilot.selfdrive.ui.mici.onroad.cameraview import CameraView
 from openpilot.system.ui.lib.application import FontWeight, gui_app, MousePos, MouseEvent
 from openpilot.system.ui.widgets.label import UnifiedLabel
+from openpilot.system.ui.lib.scroll_panel2 import MIN_DRAG_PIXELS
 from openpilot.system.ui.widgets import Widget
 from openpilot.common.filter_simple import BounceFilter
 from openpilot.common.transformations.camera import DEVICE_CAMERAS, DeviceCameraConfig, view_frame_from_device_frame
@@ -63,6 +65,8 @@ class BookmarkIcon(Widget):
     return self._is_swiping_left
 
   # FrogPilot variables
+  def swiped_left(self):
+    return self._is_swiping and self._swipe_start_x - self._swipe_current_x > MIN_DRAG_PIXELS
 
   def interacting(self):
     interacting, self._interacting = self._interacting, False
@@ -168,6 +172,7 @@ class AugmentedRoadView(CameraView):
     self._pm = messaging.PubMaster(['uiDebug'])
 
     # FrogPilot variables
+    self._experimental_press = ExperimentalPress()
 
   def is_swiping_left(self) -> bool:
     """Check if currently swiping left (for scroller to disable)."""
@@ -185,11 +190,13 @@ class AugmentedRoadView(CameraView):
     # FrogPilot variables
     frogpilot_camera_view.update()
 
+    self._experimental_press.update(self.is_pressed, self._bookmark_icon.swiped_left())
+
   # FrogPilot variables
 
   def _handle_mouse_release(self, mouse_pos: MousePos):
     # Don't trigger click callback if bookmark was triggered
-    if not self._bookmark_icon.interacting():
+    if not self._bookmark_icon.interacting() and not self._experimental_press.triggered:
       super()._handle_mouse_release(mouse_pos)
 
   def _render(self, _):

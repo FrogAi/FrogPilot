@@ -10,7 +10,36 @@ FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(CameraWidget *nvg
 }
 
 void FrogPilotAnnotatedCameraWidget::hideEvent(QHideEvent *event) {
+  if (cemIcon) {
+    cemIcon->stop();
+  }
+
   QWidget::hideEvent(event);
+}
+
+void FrogPilotAnnotatedCameraWidget::updateCEMIcon() {
+  static const QMap<int, QString> cemIcons = {{1, "chill_mode_icon"}, {3, "curve_icon"}, {4, "lead_icon"}, {6, "conditional_speed_icon"}, {7, "conditional_speed_icon"}, {8, "light_icon"}};
+
+  QString cemPath;
+  if (frogpilot_toggles.value(QLatin1String("cem_status")).toBool()) {
+    QString icon = experimentalMode ? cemIcons.value(frogpilot_scene.conditional_status, "experimental_mode_icon") : "chill_mode_icon";
+    if (experimentalMode && frogpilot_scene.conditional_status == 5) {
+      icon = blinkerLeft ? "conditional_turn_left_icon" : "conditional_turn_right_icon";
+    }
+    cemPath = QString("../../frogpilot/assets/other_images/%1.svg").arg(icon);
+  }
+  updateIcon(cemPath, cemIcon, cemIconPath);
+}
+
+void FrogPilotAnnotatedCameraWidget::updateIcon(const QString &path, QSharedPointer<FrogPilotMovie> &icon, QString &iconPath) {
+  if (hideBottomIcons && !path.isEmpty()) {
+    if (icon) {
+      icon->stop();
+    }
+  } else if (path != iconPath || (!path.isEmpty() && (!icon || !icon->isRunning()))) {
+    loadMovie(path, icon, QSize(widget_size, widget_size), this, false);
+    iconPath = icon && icon->isRunning() ? path : QString();
+  }
 }
 
 void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPilotUIState &fs) {
@@ -59,6 +88,7 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   blinkerRight = carState.getRightBlinker();
   experimentalMode = selfdriveState.getExperimentalMode();
   gpsBearing = frogpilotPlan.getGpsBearing();
+  redLight = frogpilotPlan.getRedLight();
   stoppingDistance = positionX.size() != 0 ? positionX[positionX.size() - 1] : 0.0f;
   vEgo = carState.getVEgo();
 
@@ -69,6 +99,8 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   if (!isVisible()) {
     return;
   }
+
+  updateCEMIcon();
 }
 
 void FrogPilotAnnotatedCameraWidget::mousePressEvent(QMouseEvent *mouseEvent) {
@@ -102,9 +134,15 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
 
   int slotStep = rightHandDM ? -widget_size - 2 * UI_BORDER_SIZE : widget_size + 2 * UI_BORDER_SIZE;
 
+  QPoint cemStatusPosition(dmIconPosition.x() + (rightHandDM ? -btn_size / 2 - 2 * UI_BORDER_SIZE - widget_size : btn_size / 2 + 2 * UI_BORDER_SIZE), dmIconPosition.y() - widget_size / 2);
+
   QPoint compassPosition(rightHandDM ? width() - experimentalButtonPosition.x() - btn_size : experimentalButtonPosition.x() + btn_size - widget_size, cemStatusPosition.y());
 
   instantReplayButton->move(experimentalButtonPosition.x() - UI_BORDER_SIZE - btn_size, experimentalButtonPosition.y());
+
+  if (!hideBottomIcons && frogpilot_toggles.value(QLatin1String("cem_status")).toBool()) {
+    paintCEMStatus(p, cemStatusPosition);
+  }
 
   if (!hideBottomIcons && frogpilot_toggles.value(QLatin1String("compass")).toBool()) {
     paintCompass(p, compassPosition);
@@ -174,6 +212,26 @@ void FrogPilotAnnotatedCameraWidget::paintBlindSpotPath(QPainter &p) {
   }
   if (blindspotRight && !track_adjacent_vertices[1].isEmpty()) {
     p.drawPolygon(track_adjacent_vertices[1]);
+  }
+
+  p.restore();
+}
+
+void FrogPilotAnnotatedCameraWidget::paintCEMStatus(QPainter &p, const QPoint &position) {
+  p.save();
+
+  QRect cemWidget(position, QSize(widget_size, widget_size));
+
+  if (frogpilot_scene.conditional_status == 1) {
+    paintWidgetFrame(p, cemWidget, bg_colors[STATUS_CEM_DISABLED]);
+  } else if (experimentalMode) {
+    paintWidgetFrame(p, cemWidget, bg_colors[STATUS_EXPERIMENTAL_MODE_ENABLED]);
+  } else {
+    paintWidgetFrame(p, cemWidget, blackColor());
+  }
+
+  if (cemIcon) {
+    p.drawPixmap(cemWidget, cemIcon->currentPixmap());
   }
 
   p.restore();

@@ -11,6 +11,7 @@ from openpilot.selfdrive.car.cruise import V_CRUISE_MAX
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import A_CHANGE_COST, DANGER_ZONE_COST, J_EGO_COST, STOP_DISTANCE
 
 from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.controls.lib.conditional_experimental_mode import ConditionalExperimentalMode
 from openpilot.frogpilot.controls.lib.frogpilot_acceleration import FrogPilotAcceleration
 from openpilot.frogpilot.controls.lib.frogpilot_events import FrogPilotEvents
 from openpilot.frogpilot.controls.lib.frogpilot_following import FrogPilotFollowing
@@ -21,18 +22,23 @@ class FrogPilotPlanner:
     self.params = Params(return_defaults=True)
 
     self.frogpilot_acceleration = FrogPilotAcceleration(self)
+    self.frogpilot_cem = ConditionalExperimentalMode(self)
     self.frogpilot_events = FrogPilotEvents(self)
     self.frogpilot_following = FrogPilotFollowing(self)
     self.frogpilot_vcruise = FrogPilotVCruise(self)
 
     self.accel_pressed = False
+    self.curve_ahead = False
     self.decel_pressed = False
+    self.driving_in_curve = False
+    self.experimental_mode_pressed = False
     self.gps_valid = False
     self.lead_relevant = False
     self.model_stopped = False
 
     self.accel_press_count = 0
     self.decel_press_count = 0
+    self.experimental_mode_press_count = None
     self.model_length = 0
     self.next_gps_position_save = 0
     self.v_cruise = 0
@@ -50,11 +56,17 @@ class FrogPilotPlanner:
     self.accel_pressed = sm["frogpilotCarState"].accelPressCount > self.accel_press_count
     self.decel_pressed = sm["frogpilotCarState"].decelPressCount > self.decel_press_count
 
+    if self.experimental_mode_press_count is not None:
+      self.experimental_mode_pressed = sm["frogpilotCarState"].experimentalModePressCount > self.experimental_mode_press_count
+
     self.accel_press_count = sm["frogpilotCarState"].accelPressCount
     self.decel_press_count = sm["frogpilotCarState"].decelPressCount
+    self.experimental_mode_press_count = sm["frogpilotCarState"].experimentalModePressCount
 
     for msg in messaging.drain_sock(self.ui_event_sock):
       ui_event = msg.frogpilotUIEvent
+      if ui_event.which() == "experimentalModePressed":
+        self.experimental_mode_pressed = True
 
     self.lead_one = sm["radarState"].leadOne
 
@@ -69,9 +81,13 @@ class FrogPilotPlanner:
 
     self.frogpilot_acceleration.update(v_ego, sm, frogpilot_toggles)
 
+    self.frogpilot_cem.update(v_ego, sm, frogpilot_toggles)
+
+    self.driving_in_curve = abs(self.lateral_acceleration) >= frogpilot_variables.MINIMUM_LATERAL_ACCELERATION
+
     self.frogpilot_events.update(long_control_active, sm, frogpilot_toggles)
 
-    self.frogpilot_following.update(sm, frogpilot_toggles)
+    self.frogpilot_following.update(v_ego, sm, frogpilot_toggles)
 
     gps_location = sm[self.gps_location_service]
     self.gps_valid = frogpilot_utilities.is_gps_location_valid(self.gps_location_service, sm)
@@ -91,6 +107,13 @@ class FrogPilotPlanner:
       self.gps_position = None
 
     self.model_stopped = self.model_length < frogpilot_variables.CRUISING_SPEED * frogpilot_variables.PLANNER_TIME
+
+    if self.curve_ahead or self.frogpilot_cem.curve_detected:
+      self.curve_ahead = self.peak_lateral_acceleration > frogpilot_variables.CURVE_AHEAD_EXIT
+    else:
+      self.curve_ahead = self.peak_lateral_acceleration > frogpilot_variables.CURVE_AHEAD_ENTER and self.time_to_curve > 1
+    self.curve_ahead &= v_ego > frogpilot_variables.CRUISING_SPEED
+    self.curve_ahead &= not (sm["carState"].leftBlinker or sm["carState"].rightBlinker)
 
     self.v_cruise = self.frogpilot_vcruise.update(long_control_active, v_cruise, v_ego, sm, frogpilot_toggles)
 
@@ -112,12 +135,19 @@ class FrogPilotPlanner:
     frogpilotPlan.dangerJerk = float(DANGER_ZONE_COST * self.frogpilot_following.danger_jerk)
     frogpilotPlan.speedJerk = float(J_EGO_COST * self.frogpilot_following.speed_jerk)
 
+    frogpilotPlan.ceStatus = self.frogpilot_cem.status_value
+
+    frogpilotPlan.experimentalMode = self.frogpilot_cem.experimental_mode
+    frogpilotPlan.experimentalMode &= not frogpilot_toggles.conditional_experimental_mode or self.frogpilot_cem.status_value != frogpilot_variables.CE_STATUS["USER_DISABLED"]
+
     frogpilotPlan.frogpilotEvents = self.frogpilot_events.events.to_msg()
 
     frogpilotPlan.gpsBearing = self.gps_bearing
 
     frogpilotPlan.maxAcceleration = float(self.frogpilot_acceleration.max_accel)
     frogpilotPlan.minAcceleration = float(self.frogpilot_acceleration.min_accel)
+
+    frogpilotPlan.redLight = self.frogpilot_cem.stop_light_detected
 
     frogpilotPlan.tFollow = float(self.frogpilot_following.t_follow)
 

@@ -49,6 +49,9 @@ signals:
   void frameChanged();
 
 private:
+  bool loop = true;
+  bool played = false;
+
   int frame = 0;
 
   QDomDocument svg;

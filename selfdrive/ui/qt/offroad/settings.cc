@@ -252,6 +252,7 @@ void TogglesPanel::updateToggles() {
   const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
 
   toggles["DisengageOnAccelerator"]->setVisible(!frogpilot_toggles.value("always_on_lateral").toBool());
+  experimental_mode_toggle->setVisible(!frogpilot_toggles.value("conditional_experimental_mode").toBool());
 }
 
 DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
