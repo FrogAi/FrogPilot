@@ -129,6 +129,7 @@ FrogPilotMovie::FrogPilotMovie(const QString &fileName, const QSize &size) : siz
   }
 
   framesParent = frames.first().parentNode();
+  loop = framesParent.toElement().attribute("data-loop") != "false";
   for (const QDomElement &group : frames) {
     framesParent.removeChild(group);
   }
@@ -138,7 +139,11 @@ FrogPilotMovie::FrogPilotMovie(const QString &fileName, const QSize &size) : siz
   timer.setSingleShot(true);
   QObject::connect(&timer, &QTimer::timeout, this, [this]() {
     frame = (frame + 1) % frames.size();
-    timer.start(delays[frame]);
+    if (!loop && frame == frames.size() - 1) {
+      played = true;
+    } else {
+      timer.start(delays[frame]);
+    }
     emit frameChanged();
   });
 }
@@ -147,6 +152,10 @@ void FrogPilotMovie::start() {
   if (gif) {
     gif->start();
   } else {
+    if (!loop && frame == frames.size() - 1) {
+      frame = 0;
+    }
+    played = false;
     timer.start(delays[frame]);
   }
 }
@@ -155,6 +164,7 @@ void FrogPilotMovie::stop() {
   if (gif) {
     gif->stop();
   } else {
+    played = false;
     timer.stop();
   }
 }
@@ -163,7 +173,7 @@ bool FrogPilotMovie::isRunning() const {
   if (gif) {
     return gif->state() == QMovie::Running;
   }
-  return timer.isActive();
+  return timer.isActive() || played;
 }
 
 int FrogPilotMovie::currentFrameNumber() const {

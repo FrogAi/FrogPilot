@@ -14,6 +14,8 @@ struct FrogPilotUIScene {
   bool reverse = false;
   bool standstill = false;
 
+  int conditional_status = 0;
+
   QJsonObject frogpilot_toggles;
 };
 
@@ -24,6 +26,7 @@ public:
   explicit FrogPilotUIState(QObject *parent = nullptr);
 
   void createSettingsBackup(const QString &name);
+  void experimentalModePressed();
   void restoreSettingsBackup(const QString &name);
   void runUpdateChecks();
   void testAlert(const QString &alert, float volume);
