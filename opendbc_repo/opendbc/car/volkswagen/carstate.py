@@ -142,6 +142,7 @@ class CarState(CarStateBase):
     self.frame += 1
 
     # FrogPilot variables
+    self.fp_ret.brakeLights = bool(pt_cp.vl["ESP_05"]["ESP_Status_Bremsdruck"])
 
     return ret
 
@@ -236,6 +237,7 @@ class CarState(CarStateBase):
     self.frame += 1
 
     # FrogPilot variables
+    self.fp_ret.brakeLights = bool(pt_cp.vl["Motor_2"]["MO2_BTS"])
 
     return ret
 
