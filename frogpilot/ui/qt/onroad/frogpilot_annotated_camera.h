@@ -52,8 +52,11 @@ protected:
 
 private:
   QLinearGradient adjacentPathGradient(float hue);
+  void paintCEMStatus(QPainter &p, const QPoint &position);
   void paintCompass(QPainter &p, const QPoint &position);
   void paintWidgetFrame(QPainter &p, const QRect &rect, const QColor &borderColor);
+  void updateCEMIcon();
+  void updateIcon(const QString &path, QSharedPointer<FrogPilotMovie> &icon, QString &iconPath);
 
   bool blindspotLeft = false;
   bool blindspotRight = false;
@@ -61,6 +64,7 @@ private:
   bool blinkerRight = false;
   bool brakeLights = false;
   bool experimentalMode = false;
+  bool redLight = false;
 
   float accelerationEgo = 0.0f;
   float dashboardSpeedLimit = 0.0f;
@@ -75,6 +79,9 @@ private:
 
   QColor redColor(int alpha = 255) { return QColor(201, 34, 49, alpha); }
 
+  QSharedPointer<FrogPilotMovie> cemIcon;
+
+  QString cemIconPath;
   QString leadDistanceUnit;
   QString leadSpeedUnit;
   QString speedUnit;

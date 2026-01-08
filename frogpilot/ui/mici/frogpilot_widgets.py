@@ -1,7 +1,7 @@
 import pyray as rl
 
 from openpilot.common.filter_simple import FirstOrderFilter
-from openpilot.frogpilot.common import frogpilot_paths
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_status
 from openpilot.frogpilot.ui.mici.frogpilot_theme import theme, WHEEL_SIZE
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
 from openpilot.system.ui.lib.application import gui_app
@@ -14,6 +14,16 @@ SHADOW_ALPHA = 0.5
 SLOT_GAP = 8
 TEXT_ALPHA = 0.9
 
+CE_ICONS = {
+  frogpilot_status.CE_STATUS["CURVATURE"]: "curve_icon",
+  frogpilot_status.CE_STATUS["LEAD"]: "lead_icon",
+  frogpilot_status.CE_STATUS["SPEED"]: "conditional_speed_icon",
+  frogpilot_status.CE_STATUS["SPEED_LIMIT"]: "conditional_speed_icon",
+  frogpilot_status.CE_STATUS["STOP_LIGHT"]: "light_icon",
+  frogpilot_status.CE_STATUS["USER_DISABLED"]: "chill_mode_icon",
+  frogpilot_status.CE_STATUS["USER_OVERRIDDEN"]: "experimental_mode_icon",
+}
+
 
 class FrogPilotWidgets(Widget):
   def __init__(self):
@@ -22,7 +32,10 @@ class FrogPilotWidgets(Widget):
     self._can_draw = False
     self._max_speed_showing = False
 
+    self._ce_icon = ""
+
     self._bottom_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
+    self._ce_filter = FirstOrderFilter(0.0, 0.1, 1 / gui_app.target_fps)
 
   def set_can_draw(self, can_draw, max_speed_showing):
     self._can_draw = can_draw and ui_state.started
@@ -30,6 +43,32 @@ class FrogPilotWidgets(Widget):
 
   def _render(self, rect):
     self._bottom_filter.update(float(self._can_draw and ui_state.status != UIStatus.DISENGAGED))
+
+    self._render_conditional_status(rect)
+
+  def _render_conditional_status(self, rect):
+    status = ui_state.sm["frogpilotPlan"].ceStatus
+    car_state = ui_state.sm["carState"]
+    icon = None
+
+    if status == frogpilot_status.CE_STATUS["SIGNAL"]:
+      if car_state.leftBlinker:
+        icon = "conditional_turn_left_icon"
+      elif car_state.rightBlinker:
+        icon = "conditional_turn_right_icon"
+    else:
+      icon = CE_ICONS.get(status)
+
+    visible = bool(icon is not None and ui_state.frogpilot_toggles.get("cem_status"))
+
+    if visible and self._ce_filter.x < frogpilot_status.MIN_VISIBLE_ALPHA:
+      self._ce_icon = icon
+
+    alpha = self._ce_filter.update(float(visible and icon == self._ce_icon)) * self._bottom_filter.x
+
+    if alpha >= frogpilot_status.MIN_VISIBLE_ALPHA:
+      x, y = self._right_slot(rect, 0)
+      self._draw_icon(self._ce_icon, x, y, alpha)
 
   @staticmethod
   def _slide_slot(slot_filter, visibility_filter, slot):
