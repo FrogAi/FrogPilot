@@ -38,6 +38,7 @@ SafetyModel = car.CarParams.SafetyModel
 
 CITY_SPEED_LIMIT = 25                     # 55mph is typically the minimum speed for highways
 CRUISING_SPEED = 5                        # Roughly the speed cars go when not touching the gas while in drive
+LOW_SPEED_CRUISE_THRESHOLD = 12.5         # m/s (~28 mph) - Toyota PCM cruise set speed floor. Below this, OP owns the target.
 DEFAULT_LATERAL_ACCELERATION = 2.0        # m/s^2, typical lateral acceleration when taking curves
 EARTH_RADIUS = 6378137                    # Radius of the Earth in meters
 MAX_T_FOLLOW = 3.0                        # Maximum allowed following duration. Larger values risk losing track of the lead but may be increased as models improve

@@ -50,6 +50,11 @@ class VCruiseHelper:
     self.button_timers = {ButtonType.decelCruise: 0, ButtonType.accelCruise: 0}
     self.button_change_states = {btn: {"standstill": False, "enabled": False} for btn in self.button_timers}
 
+    # Low-speed cruise mode: allows OP to own cruise set speed below PCM's floor (~28 mph for Toyota)
+    # This enables setting speeds below the PCM minimum on cars with gas interceptor/SDSU
+    self.low_speed_cruise_mode = False
+    self.low_speed_cruise_target_kph = 0.0
+
   @property
   def v_cruise_initialized(self):
     return self.v_cruise_kph != V_CRUISE_UNSET
@@ -64,14 +69,34 @@ class VCruiseHelper:
         self.v_cruise_cluster_kph = self.v_cruise_kph
         self.update_button_timers(CS, enabled)
       else:
-        self.v_cruise_kph = CS.cruiseState.speed * CV.MS_TO_KPH
-        self.v_cruise_cluster_kph = CS.cruiseState.speedCluster * CV.MS_TO_KPH
+        # PCM cruise mode - normally just read from PCM
+        pcm_v_cruise_kph = CS.cruiseState.speed * CV.MS_TO_KPH
+        pcm_v_cruise_cluster_kph = CS.cruiseState.speedCluster * CV.MS_TO_KPH
+
         if CS.cruiseState.speed == 0:
           self.v_cruise_kph = V_CRUISE_UNSET
           self.v_cruise_cluster_kph = V_CRUISE_UNSET
+          self.low_speed_cruise_mode = False
+          self.low_speed_cruise_target_kph = 0.0
+        else:
+          # Low-speed cruise mode handling for cars with gas interceptor (e.g., Toyota with SDSU)
+          # This allows setting speeds below the PCM's minimum (typically 28 mph for Toyota)
+          if self.low_speed_cruise_mode:
+            # In low-speed mode: OP owns the set speed, use button handling
+            self._update_v_cruise_low_speed(CS, enabled, is_metric, speed_limit_changed, frogpilot_toggles)
+            self.v_cruise_cluster_kph = self.v_cruise_kph
+            self.update_button_timers(CS, enabled)
+          else:
+            # Normal PCM cruise mode
+            self.v_cruise_kph = pcm_v_cruise_kph
+            self.v_cruise_cluster_kph = pcm_v_cruise_cluster_kph
+            # Track button timers even in PCM mode for potential transition to low-speed mode
+            self.update_button_timers(CS, enabled)
     else:
       self.v_cruise_kph = V_CRUISE_UNSET
       self.v_cruise_cluster_kph = V_CRUISE_UNSET
+      self.low_speed_cruise_mode = False
+      self.low_speed_cruise_target_kph = 0.0
 
   def _update_v_cruise_non_pcm(self, CS, enabled, is_metric, speed_limit_changed, frogpilot_toggles):
     # handle button presses. TODO: this should be in state_control, but a decelCruise press
@@ -130,6 +155,96 @@ class VCruiseHelper:
       self.v_cruise_kph = max(self.v_cruise_kph, CS.vEgo * CV.MS_TO_KPH)
 
     self.v_cruise_kph = clip(round(self.v_cruise_kph, 1), V_CRUISE_MIN, V_CRUISE_MAX)
+
+  def _update_v_cruise_low_speed(self, CS, enabled, is_metric, speed_limit_changed, frogpilot_toggles):
+    """
+    Handle button presses for low-speed cruise mode when PCM cruise is active.
+    This is used when OP owns the cruise set speed below the PCM's minimum threshold.
+    Similar to _update_v_cruise_non_pcm but operates on the low_speed_cruise_target.
+    """
+    if not enabled:
+      return
+
+    long_press = False
+    button_type = None
+
+    v_cruise_delta = 1. if is_metric else IMPERIAL_INCREMENT
+
+    for b in CS.buttonEvents:
+      if b.type.raw in self.button_timers and not b.pressed:
+        if self.button_timers[b.type.raw] > CRUISE_LONG_PRESS:
+          return  # end long press
+        button_type = b.type.raw
+        break
+    else:
+      for k in self.button_timers.keys():
+        if self.button_timers[k] and self.button_timers[k] % CRUISE_LONG_PRESS == 0:
+          button_type = k
+          long_press = True
+          break
+
+    if button_type is None:
+      return
+
+    # Don't adjust speed when pressing to confirm/deny speed limits
+    if speed_limit_changed:
+      return
+
+    # Don't adjust speed when pressing resume to exit standstill
+    cruise_standstill = self.button_change_states[button_type]["standstill"] or CS.cruiseState.standstill
+    if button_type == ButtonType.accelCruise and cruise_standstill:
+      return
+
+    # Don't adjust speed if we've enabled since the button was depressed
+    if not self.button_change_states[button_type]["enabled"]:
+      return
+
+    # Apply step based on FrogPilot settings
+    v_cruise_delta_interval = frogpilot_toggles.cruise_increase_long if long_press else frogpilot_toggles.cruise_increase
+    v_cruise_delta = v_cruise_delta * v_cruise_delta_interval
+
+    # Handle rounding to nearest interval
+    if v_cruise_delta_interval % 5 == 0 and self.v_cruise_kph % v_cruise_delta != 0:
+      self.v_cruise_kph = CRUISE_NEAREST_FUNC[button_type](self.v_cruise_kph / v_cruise_delta) * v_cruise_delta
+    else:
+      self.v_cruise_kph += v_cruise_delta * CRUISE_INTERVAL_SIGN[button_type]
+
+    # Apply offset for long press
+    v_cruise_offset = (frogpilot_toggles.set_speed_offset * CRUISE_INTERVAL_SIGN[button_type]) if long_press else 0
+    if v_cruise_offset < 0:
+      v_cruise_offset = frogpilot_toggles.set_speed_offset - v_cruise_delta
+    self.v_cruise_kph += v_cruise_offset
+
+    # If gas is pressed while decelerating, clip to minimum of vEgo
+    if CS.gasPressed and button_type in (ButtonType.decelCruise, ButtonType.setCruise):
+      self.v_cruise_kph = max(self.v_cruise_kph, CS.vEgo * CV.MS_TO_KPH)
+
+    # Clip to valid range - allow down to V_CRUISE_MIN (about 5 mph)
+    self.v_cruise_kph = clip(round(self.v_cruise_kph, 1), V_CRUISE_MIN, V_CRUISE_MAX)
+
+    # Update the low-speed target to match
+    self.low_speed_cruise_target_kph = self.v_cruise_kph
+
+  def enter_low_speed_cruise_mode(self, initial_speed_kph):
+    """
+    Enter low-speed cruise mode with the given initial target speed.
+    Called when user requests a speed below the PCM's minimum threshold.
+
+    Args:
+      initial_speed_kph: The initial target speed in kph
+    """
+    self.low_speed_cruise_mode = True
+    self.low_speed_cruise_target_kph = initial_speed_kph
+    self.v_cruise_kph = initial_speed_kph
+    self.v_cruise_cluster_kph = initial_speed_kph
+
+  def exit_low_speed_cruise_mode(self):
+    """
+    Exit low-speed cruise mode and return to normal PCM cruise control.
+    Called when the set speed goes back above the PCM's threshold.
+    """
+    self.low_speed_cruise_mode = False
+    self.low_speed_cruise_target_kph = 0.0
 
   def update_button_timers(self, CS, enabled):
     # increment timer for buttons still pressed

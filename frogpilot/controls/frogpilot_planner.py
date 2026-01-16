@@ -183,6 +183,7 @@ class FrogPilotPlanner:
     frogpilotPlan.trackingLead = self.tracking_lead
 
     frogpilotPlan.vCruise = self.v_cruise
+    frogpilotPlan.lowSpeedCruiseMode = self.frogpilot_vcruise.low_speed_cruise_mode
 
     frogpilotPlan.weatherDaytime = self.frogpilot_weather.is_daytime
     frogpilotPlan.weatherId = self.frogpilot_weather.weather_id

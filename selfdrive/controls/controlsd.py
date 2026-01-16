@@ -34,7 +34,7 @@ from openpilot.frogpilot.tinygrad_modeld.tinygrad_modeld import LAT_SMOOTH_SECON
 
 from openpilot.system.hardware import HARDWARE
 
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles, params_memory
+from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles, params_memory, LOW_SPEED_CRUISE_THRESHOLD
 from openpilot.frogpilot.controls.lib.neural_network_feedforward import LatControlNNFF
 
 SOFT_DISABLE_TIME = 3  # seconds
@@ -528,6 +528,34 @@ class Controls:
     """Compute conditional state transitions and execute actions on state transitions"""
 
     self.v_cruise_helper.update_v_cruise(CS, self.enabled, self.is_metric, self.sm['frogpilotPlan'].speedLimitChanged, self.frogpilot_toggles)
+
+    # Low-speed cruise mode handling for Toyota with gas interceptor/SDSU
+    # This allows setting cruise speed below PCM's minimum (~28 mph) when OP has longitudinal control
+    if self.CP.pcmCruise and self.CP.openpilotLongitudinalControl:
+      fp_low_speed_mode = self.sm['frogpilotPlan'].lowSpeedCruiseMode
+      threshold_kph = LOW_SPEED_CRUISE_THRESHOLD * CV.MS_TO_KPH
+
+      # Sync low-speed cruise mode state from FrogPilot
+      if fp_low_speed_mode and not self.v_cruise_helper.low_speed_cruise_mode:
+        # Entering low-speed mode: initialize from frogpilotPlan.vCruise
+        fp_v_cruise_kph = self.sm['frogpilotPlan'].vCruise * CV.MS_TO_KPH
+        self.v_cruise_helper.enter_low_speed_cruise_mode(fp_v_cruise_kph)
+      elif not fp_low_speed_mode and self.v_cruise_helper.low_speed_cruise_mode:
+        # Exiting low-speed mode: return to PCM cruise
+        self.v_cruise_helper.exit_low_speed_cruise_mode()
+
+      # Check if user is trying to decrease below threshold (trigger entry into low-speed mode)
+      # This detects when user presses decel at PCM's floor speed
+      if not self.v_cruise_helper.low_speed_cruise_mode and self.v_cruise_helper.v_cruise_initialized:
+        pcm_v_cruise_kph = CS.cruiseState.speed * CV.MS_TO_KPH
+        # If PCM is at or near threshold and user pressed decel, enter low-speed mode
+        if pcm_v_cruise_kph > 0 and pcm_v_cruise_kph <= threshold_kph + 2:  # small margin for rounding
+          for b in CS.buttonEvents:
+            if b.type == car.CarState.ButtonEvent.Type.decelCruise and not b.pressed:
+              # User released decel button while at/near PCM floor - enter low-speed mode
+              initial_speed = max(pcm_v_cruise_kph - (1. if self.is_metric else CV.MPH_TO_KPH), 8)  # V_CRUISE_MIN
+              self.v_cruise_helper.enter_low_speed_cruise_mode(initial_speed)
+              break
 
     # decrement the soft disable timer at every step, as it's reset on
     # entrance in SOFT_DISABLING state
