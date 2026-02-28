@@ -106,6 +106,10 @@
         <source>Allow tethering with your data SIM and keep it active either while driving or continuously.</source>
         <translation type="gpt-5-generated">اسمح بالربط عبر بطاقة بياناتك وأبقِه نشطًا إما أثناء القيادة أو باستمرار.</translation>
     </message>
+    <message>
+        <source>Share your device's internet connection with other devices, either all the time or only while driving.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>AnnotatedCameraWidget</name>
@@ -977,6 +981,22 @@
     <message>
         <source>Time Spent in Weather:</source>
         <translation type="gpt-5-generated">الوقت المستغرق في الطقس</translation>
+    </message>
+    <message>
+        <source>Distance Driven This Month</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time Driving (Daytime)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time Driving (Nighttime)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time Driven (Weather):</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4057,6 +4077,112 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
     <message>
         <source>Are you sure you want to reset all toggles to match stock openpilot?</source>
         <translation type="gpt-5-generated">هل أنت متأكد أنك تريد إعادة تعيين جميع المفاتيح لتطابق openpilot الافتراضي؟</translation>
+    </message>
+    <message>
+        <source>Pair to "The Pond"</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>UNPAIR</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PAIR</source>
+        <translation type="unfinished">إقران</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Pair this device with your frogpilot.com account&lt;/b&gt; to remotely manage settings from anywhere.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please connect to the internet first!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to unpair from "The Pond"?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unpair</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unpairing...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Requesting code...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Authentication failed. Please restart your device.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unofficial or modified build detected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Access denied: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Too many attempts. Please wait and try again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Server is temporarily unavailable. Please try again later.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Server error (%1): %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Network error: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to unpair</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to get pairing code.
+
+%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unpaired!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to get pairing code. Please try again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Code: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to "frogpilot.com/the_pond" and enter this code: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Code expired</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Paired!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Device successfully paired to "The Pond"!</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
