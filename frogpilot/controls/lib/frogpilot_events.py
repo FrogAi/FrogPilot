@@ -51,7 +51,7 @@ class FrogPilotEvents:
         self.random_event_playing = False
         self.random_event_timer = 0
 
-    acceleration = sm["carState"].aEgo
+    acceleration = sm["carControl"].actuators.accel
 
     if not sm["carState"].gasPressed:
       self.max_acceleration = max(acceleration, self.max_acceleration)

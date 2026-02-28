@@ -31,14 +31,10 @@ from openpilot.system.version import get_build_metadata
 from panda import Panda
 
 from openpilot.frogpilot.assets.theme_manager import HOLIDAY_THEME_PATH, THEME_COMPONENT_PARAMS
-from openpilot.frogpilot.common.frogpilot_utilities import delete_file, get_lock_status, run_cmd, extract_tar
-from openpilot.frogpilot.common.frogpilot_variables import ACTIVE_THEME_PATH, DISCORD_WEBHOOK_URL_THEME, ERROR_LOGS_PATH, EXCLUDED_KEYS, RESOURCES_REPO, SCREEN_RECORDINGS_PATH, THEME_SAVE_PATH,\
+from openpilot.frogpilot.common.frogpilot_utilities import delete_file, get_frogpilot_api_info, get_lock_status, is_url_pingable, run_cmd, extract_tar
+from openpilot.frogpilot.common.frogpilot_variables import ACTIVE_THEME_PATH, ERROR_LOGS_PATH, EXCLUDED_KEYS, FROGPILOT_API, RESOURCES_REPO, SCREEN_RECORDINGS_PATH, THEME_SAVE_PATH,\
                                                            frogpilot_default_params, params, params_memory, update_frogpilot_toggles
 from openpilot.frogpilot.system.the_pond import utilities
-
-GITLAB_API = "https://gitlab.com/api/v4"
-GITLAB_SUBMISSIONS_PROJECT_ID = "71992109"
-GITLAB_TOKEN = os.environ.get("GITLAB_TOKEN", "")
 
 FOOTAGE_PATHS = [
   Paths.log_root(HD=True, raw=True),
@@ -1249,8 +1245,8 @@ def setup(app):
 
   @app.route("/api/themes/submit", methods=["POST"])
   def submit_theme():
-    if not GITLAB_TOKEN:
-      return jsonify({"error": "Missing GitLab token"}), 500
+    if not is_url_pingable(FROGPILOT_API):
+      return jsonify({"error": "FrogPilot API is not reachable"}), 503
 
     try:
       theme_name = request.form.get("themeName")
@@ -1267,11 +1263,18 @@ def setup(app):
       combined_name = f"{safe_theme_name}~{discord_username}"
       timestamp = int(time.time())
 
-      def gitlab_post(project_id, endpoint, payload):
-        url = f"{GITLAB_API}/projects/{project_id}/{endpoint}"
-        resp = requests.post(url, headers={"PRIVATE-TOKEN": GITLAB_TOKEN}, json=payload)
+      def gitlab_post(commit_payload):
+        api_token, build_metadata, device_type, dongle_id = get_frogpilot_api_info()
+        payload = {
+          "api_token": api_token,
+          "build_metadata": build_metadata,
+          "device": device_type,
+          "frogpilot_dongle_id": dongle_id,
+          **commit_payload,
+        }
+        resp = requests.post(f"{FROGPILOT_API}/gitlab/commit", json=payload, headers={"Content-Type": "application/json", "User-Agent": "frogpilot-api/1.0"}, timeout=60)
         if resp.status_code not in (200, 201):
-          raise RuntimeError(f"GitLab API error {resp.status_code}: {resp.text}")
+          raise RuntimeError(f"GitLab commit error {resp.status_code}: {resp.text}")
         return resp.json()
 
       def encode_file_base64(path):
@@ -1279,24 +1282,27 @@ def setup(app):
           return base64.b64encode(f.read()).decode("utf-8")
 
       def send_discord_notification(username, theme_name, asset_types):
-        if not DISCORD_WEBHOOK_URL_THEME:
+        if not is_url_pingable(FROGPILOT_API):
           return
 
-        message = (
-          f"🎨 **New Theme Submission**\n"
-          f"User: `{username}`\n"
-          f"Theme: `{theme_name}`\n"
-          f"Assets: {', '.join(asset_types)}\n"
-          f"[View Submissions Repo](https://gitlab.com/{RESOURCES_REPO}-Submissions)\n"
-          f"<@263565721336807424>"
-        )
-        payload = {"content": message}
+        api_token, build_metadata, device_type, dongle_id = get_frogpilot_api_info()
+
+        payload = {
+          "api_token": api_token,
+          "asset_types": asset_types,
+          "build_metadata": build_metadata,
+          "device": device_type,
+          "frogpilot_dongle_id": dongle_id,
+          "theme_name": theme_name,
+          "username": username,
+        }
+
         try:
-          resp = requests.post(DISCORD_WEBHOOK_URL_THEME, json=payload)
-          if resp.status_code not in (200, 204):
-            print(f"Discord notification failed: {resp.status_code} {resp.text}")
-        except Exception as exception:
-          print(f"Error sending Discord message: {exception}")
+          resp = requests.post(f"{FROGPILOT_API}/discord/theme", json=payload, headers={"Content-Type": "application/json", "User-Agent": "frogpilot-api/1.0"}, timeout=30)
+          resp.raise_for_status()
+          print("Successfully sent theme submission notification!")
+        except requests.exceptions.RequestException as exception:
+          print(f"Error sending theme notification: {exception}")
 
       asset_types = []
       submission_urls = {}
@@ -1319,7 +1325,7 @@ def setup(app):
           "commit_message": f"Added Distance Icons: {combined_name}",
           "actions": actions
         }
-        gitlab_post(GITLAB_SUBMISSIONS_PROJECT_ID, "repository/commits", commit_payload)
+        gitlab_post(commit_payload)
         asset_types.append("Distance Icons")
         submission_urls["distance_icons"] = f"https://gitlab.com/{RESOURCES_REPO}-Submissions/-/tree/Distance-Icons"
 
@@ -1343,7 +1349,7 @@ def setup(app):
           "commit_message": f"Added Theme: {combined_name}",
           "actions": theme_actions
         }
-        gitlab_post(GITLAB_SUBMISSIONS_PROJECT_ID, "repository/commits", commit_payload)
+        gitlab_post(commit_payload)
         asset_types.append("Theme")
         submission_urls["theme"] = f"https://gitlab.com/{RESOURCES_REPO}-Submissions/-/tree/Themes"
 
@@ -1366,7 +1372,7 @@ def setup(app):
           "commit_message": f"Added Steering Wheel: {combined_name}",
           "actions": actions
         }
-        gitlab_post(GITLAB_SUBMISSIONS_PROJECT_ID, "repository/commits", commit_payload)
+        gitlab_post(commit_payload)
         asset_types.append("Steering Wheel")
         submission_urls["steering_wheel"] = f"https://gitlab.com/{RESOURCES_REPO}-Submissions/-/tree/Steering-Wheels"
 

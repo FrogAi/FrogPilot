@@ -262,13 +262,8 @@ class ThemeManager:
     if "~" in base:
       base, creator = base.split("~", 1)
 
-    parts = base.replace("_", "-").split("-")
-    capitalized_parts = [part.capitalize() for part in parts if part]
-
-    if len(capitalized_parts) > 1 and component != "steering_wheels":
-      display = f"{capitalized_parts[0]} ({' '.join(capitalized_parts[1:])})"
-    else:
-      display = " ".join(capitalized_parts)
+    parts = base.replace("_", " ").replace("-", " ").split()
+    display = " ".join(part.capitalize() for part in parts)
 
     if creator:
       return f"{display} - by: {creator}"

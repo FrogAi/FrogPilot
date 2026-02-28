@@ -13,6 +13,9 @@ cdef extern from "common/params.h":
     DEVELOPMENT_ONLY
     ALL
 
+    # FrogPilot variables
+    DONT_LOG
+
   cdef cppclass c_Params "Params":
     c_Params(string) except + nogil
     string get(string, bool) nogil
@@ -32,6 +35,9 @@ cdef extern from "common/params.h":
     string getParamPath(string) nogil
     void clearAll(ParamKeyType)
     vector[string] allKeys()
+
+    # FrogPilot variables
+    ParamKeyType getKeyType(string) nogil
 
 
 def ensure_bytes(v):
@@ -156,3 +162,7 @@ cdef class Params:
 
   def all_keys(self):
     return self.p.allKeys()
+
+  # FrogPilot variables
+  def get_key_flag(self, key):
+    return self.p.getKeyType(self.check_key(key))

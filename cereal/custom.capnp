@@ -123,10 +123,11 @@ struct FrogPilotCarState @0xda96579883444c35 {
   distanceVeryLongPressed @8 :Bool;
   ecoGear @9 :Bool;
   forceCoast @10 :Bool;
-  pauseLateral @11 :Bool;
-  pauseLongitudinal @12 :Bool;
-  sportGear @13 :Bool;
-  trafficModeEnabled @14 :Bool;
+  isParked @11 :Bool;
+  pauseLateral @12 :Bool;
+  pauseLongitudinal @13 :Bool;
+  sportGear @14 :Bool;
+  trafficModeEnabled @15 :Bool;
 
   struct ButtonEvent {
     enum Type {

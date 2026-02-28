@@ -67,7 +67,7 @@ class FrogPilotListWidget : public QWidget {
     outer_layout.addStretch();
   }
   inline void addItem(QWidget *w, bool expanding = false) {
-    w->setSizePolicy(QSizePolicy::Preferred, expanding ? QSizePolicy::Expanding : QSizePolicy::Fixed);
+    w->setSizePolicy(QSizePolicy::Preferred, expanding ? QSizePolicy::Expanding : QSizePolicy::Maximum);
     inner_layout.addWidget(w);
   }
   inline void addItem(QLayout *layout) { inner_layout.addLayout(layout); }

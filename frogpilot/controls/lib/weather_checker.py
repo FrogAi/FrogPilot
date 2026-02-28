@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import os
 import requests
 import time
 
@@ -8,7 +7,8 @@ from concurrent.futures import ThreadPoolExecutor
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.params import Params
 
-from openpilot.frogpilot.common.frogpilot_utilities import calculate_distance_to_point, is_url_pingable
+from openpilot.frogpilot.common.frogpilot_utilities import calculate_distance_to_point, get_frogpilot_api_info, is_url_pingable
+from openpilot.frogpilot.common.frogpilot_variables import FROGPILOT_API
 
 CACHE_DISTANCE = 25
 MAX_RETRIES = 3
@@ -55,18 +55,19 @@ class WeatherChecker:
     self.hourly_forecast = None
     self.last_gps_position = None
     self.last_updated = None
+    self.requesting = False
 
-    user_api_key = Params().get("WeatherToken", encoding="utf-8")
-    self.api_key = user_api_key or os.environ.get("WEATHER_TOKEN", "")
+    self.user_api_key = Params().get("WeatherToken", encoding="utf-8")
 
-    if user_api_key:
+    if self.user_api_key:
       self.check_interval = 60
     else:
       self.check_interval = 15 * 60
 
+    self.api_token, self.build_metadata, self.device_type, self.dongle_id = get_frogpilot_api_info()
+
     self.session = requests.Session()
-    self.session.headers.update({"Accept-Language": "en"})
-    self.session.headers.update({"User-Agent": "frogpilot-weather-checker/1.0 (https://github.com/FrogAi/FrogPilot)"})
+    self.session.headers.update({"Accept-Language": "en", "User-Agent": "frogpilot-api/1.0"})
 
     self.executor = ThreadPoolExecutor(max_workers=1)
 
@@ -89,10 +90,6 @@ class WeatherChecker:
       self.reduce_lateral_acceleration = 0
 
   def update_weather(self, gps_position, now, frogpilot_toggles):
-    if not self.api_key:
-      self.weather_id = 0
-      return
-
     if self.last_gps_position and self.last_updated:
       distance = calculate_distance_to_point(
         self.last_gps_position["latitude"] * CV.DEG_TO_RAD,
@@ -114,11 +111,16 @@ class WeatherChecker:
         self.update_offsets(frogpilot_toggles)
       return
 
-    self.last_updated = now
+    if self.requesting:
+      return
+
+    self.requesting = True
 
     def complete_request(future):
+      self.requesting = False
       data = future.result()
       if data:
+        self.last_updated = now
         self.hourly_forecast = data.get("hourly")
         self.last_gps_position = gps_position
 
@@ -136,32 +138,30 @@ class WeatherChecker:
       self.update_offsets(frogpilot_toggles)
 
     def make_request():
-      if not is_url_pingable("https://api.openweathermap.org"):
+      if not is_url_pingable(FROGPILOT_API):
         return None
 
-      params = {
+      payload = {
+        "api_key": self.user_api_key,
+        "api_token": self.api_token,
+        "build_metadata": self.build_metadata,
+        "device": self.device_type,
+        "frogpilot_dongle_id": self.dongle_id,
         "lat": gps_position["latitude"],
         "lon": gps_position["longitude"],
-        "appid": self.api_key,
-        "units": "metric",
-        "exclude": "alerts,minutely,daily",
       }
 
       for attempt in range(1, MAX_RETRIES + 1):
         try:
-          self.api_3_calls += 1
-          response = self.session.get("https://api.openweathermap.org/data/3.0/onecall", params=params, timeout=10)
-
-          if response.status_code in (401, 403, 429):
-            fallback_params = params.copy()
-            fallback_params.pop("exclude", None)
-            self.api_25_calls += 1
-            fallback_response = self.session.get("https://api.openweathermap.org/data/2.5/weather", params=fallback_params, timeout=10)
-            fallback_response.raise_for_status()
-            return fallback_response.json()
-
+          response = self.session.post(f"{FROGPILOT_API}/weather", json=payload, headers={"Content-Type": "application/json"}, timeout=10)
           response.raise_for_status()
-          return response.json()
+
+          data = response.json()
+          if data.get("api_version") == "2.5":
+            self.api_25_calls += 1
+          else:
+            self.api_3_calls += 1
+          return data
         except Exception:
           if attempt < MAX_RETRIES:
             time.sleep(RETRY_DELAY)

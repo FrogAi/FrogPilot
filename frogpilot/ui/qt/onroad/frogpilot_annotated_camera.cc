@@ -1008,15 +1008,13 @@ void FrogPilotAnnotatedCameraWidget::paintWeather(QPainter &p, const cereal::Fro
   p.setPen(QPen(blackColor(), 10));
   p.drawRoundedRect(weatherRect, 24, 24);
 
-  QSharedPointer<QMovie> icon = weatherClearDay;
+  QSharedPointer<QMovie> icon = frogpilotPlan.getWeatherDaytime() ? weatherClearDay : weatherClearNight;
   if ((weatherId >= 200 && weatherId <= 232) || (weatherId >= 300 && weatherId <= 321) || (weatherId >= 500 && weatherId <= 531)) {
     icon = weatherRain;
   } else if (weatherId >= 600 && weatherId <= 622) {
     icon = weatherSnow;
   } else if (weatherId >= 701 && weatherId <= 762) {
     icon = weatherLowVisibility;
-  } else if (weatherId == 800) {
-    icon = frogpilotPlan.getWeatherDaytime() ? weatherClearDay : weatherClearNight;
   }
 
   p.drawPixmap(weatherRect, icon->currentPixmap());

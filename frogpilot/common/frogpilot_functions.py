@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
+import dataclasses
 import datetime
 import filecmp
 import glob
 import json
-import os
-import random
+import requests
 import shutil
-import string
 import subprocess
 import tarfile
 import threading
@@ -23,9 +22,9 @@ from openpilot.system.hardware import HARDWARE
 
 from openpilot.frogpilot.assets.model_manager import ModelManager
 from openpilot.frogpilot.assets.theme_manager import ThemeManager
-from openpilot.frogpilot.common.frogpilot_utilities import delete_file, run_cmd, use_konik_server
+from openpilot.frogpilot.common.frogpilot_utilities import delete_file, is_url_pingable, run_cmd, run_thread_with_lock, use_konik_server
 from openpilot.frogpilot.common.frogpilot_variables import (
-  ERROR_LOGS_PATH, EXCLUDED_KEYS, HD_LOGS_PATH, KONIK_LOGS_PATH, MODELS_PATH, SCREEN_RECORDINGS_PATH,
+  ERROR_LOGS_PATH, EXCLUDED_KEYS, FROGPILOT_API, HD_LOGS_PATH, KONIK_LOGS_PATH, MODELS_PATH, SCREEN_RECORDINGS_PATH,
   THEME_SAVE_PATH, VIDEO_CACHE_PATH, FrogPilotVariables, frogpilot_default_params, get_frogpilot_toggles, params
 )
 from openpilot.frogpilot.system.frogpilot_stats import send_stats
@@ -112,7 +111,11 @@ def backup_toggles(params_cache):
         params_backup.put(key, new_value)
         params_cache.put(key, new_value)
 
-      changes_found = key not in EXCLUDED_KEYS
+      if key not in EXCLUDED_KEYS:
+        changes_found = True
+
+  if changes_found:
+    params.put_bool("PondUploadPending", True)
 
   backup_path = Path("/data/toggle_backups")
   maximum_backups = 5
@@ -166,10 +169,9 @@ def frogpilot_boot_functions(build_metadata, params_cache):
   elif params.get("DongleId", encoding="utf8") == params.get("KonikDongleId", encoding="utf8"):
     params.remove("DongleId")
 
-  if params.get("FrogPilotDongleId", encoding="utf8") == None:
-    params.put("FrogPilotDongleId", ''.join(random.choices(string.ascii_lowercase + string.digits, k=16)))
+  params.put("BuildMetadata", json.dumps(dataclasses.asdict(build_metadata)))
 
-  def backup_thread():
+  def boot_thread():
     while not system_time_valid():
       print("Waiting for system time to become valid...")
       time.sleep(1)
@@ -179,7 +181,7 @@ def frogpilot_boot_functions(build_metadata, params_cache):
 
     send_stats()
 
-  threading.Thread(target=backup_thread, daemon=True).start()
+  threading.Thread(target=boot_thread, daemon=True).start()
 
 def setup_frogpilot(build_metadata):
   ERROR_LOGS_PATH.mkdir(parents=True, exist_ok=True)
@@ -201,6 +203,36 @@ def setup_frogpilot(build_metadata):
   if build_metadata.channel == "FrogPilot-Development" and Path("/persist/frogsgomoo.py").is_file():
     run_cmd(["sudo", "mount", "-o", "remount,rw", "/persist"], "Successfully remounted /persist as read-write", "Failed to remount /persist")
     run_cmd(["sudo", "python3", "/persist/frogsgomoo.py"], "Ran frogsgomoo.py", "Failed to run frogsgomoo.py")
+
+  register_device(build_metadata)
+
+def register_device(build_metadata):
+  def register_thread():
+    while not is_url_pingable(FROGPILOT_API):
+      time.sleep(60)
+
+    payload = {
+      "build_metadata": dataclasses.asdict(build_metadata),
+      "device": HARDWARE.get_device_type(),
+      "dongle_id": params.get("DongleId", encoding="utf8"),
+      "frogpilot_dongle_id": params.get("FrogPilotDongleId", encoding="utf8"),
+    }
+
+    try:
+      response = requests.post(f"{FROGPILOT_API}/register", json=payload, headers={"Content-Type": "application/json", "User-Agent": "frogpilot-api/1.0"}, timeout=10)
+      response.raise_for_status()
+
+      data = response.json()
+      print(f"Device registration successful: dongle_id={data.get('frogpilot_dongle_id', '')[:8]}..., token={'set' if data.get('api_token') else 'empty'}")
+      params.put("FrogPilotApiToken", data.get("api_token", ""))
+      params.put("FrogPilotDongleId", data.get("frogpilot_dongle_id"))
+    except Exception as e:
+      print(f"Device registration failed: {e}")
+      if hasattr(e, 'response') and e.response is not None:
+        print(f"  Status: {e.response.status_code}, Body: {e.response.text[:200]}")
+
+  threading.Thread(target=register_thread, daemon=True).start()
+
 
 def uninstall_frogpilot():
   boot_logo_location = Path("/usr/comma/bg.jpg")

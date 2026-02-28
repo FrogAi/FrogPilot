@@ -120,7 +120,7 @@ class FrogPilotTracking:
 
       self.previous_sound = sm["frogpilotControlsState"].alertSound
 
-    self.frogpilot_stats["HighestAcceleration"] = max(self.frogpilot_events.max_acceleration, self.frogpilot_stats.get("HighestAcceleration", 0))
+    self.frogpilot_stats["MaxAcceleration"] = max(self.frogpilot_events.max_acceleration, self.frogpilot_stats.get("MaxAcceleration", 0))
 
     if sm["carControl"].latActive:
       self.frogpilot_stats["LateralTime"] = self.frogpilot_stats.get("LateralTime", 0) + DT_MDL
