@@ -134,6 +134,44 @@ export function NavDestination() {
   const searchFieldState = reactive({ value: "" });
   const sessionToken = crypto.randomUUID?.() || Math.random().toString(36).slice(2);
 
+  let amapLoadPromise = null;
+
+  async function ensureAMapLoaded() {
+    if (amapLoadPromise) {
+      try {
+        return await amapLoadPromise;
+      } catch (e) {
+        // Previous load failed, reset and retry
+        amapLoadPromise = null;
+      }
+    }
+    
+    if (!state.amap1Key || !state.amap2Key) {
+      showSnackbar("AMap keys not configured", "error");
+      return null;
+    }
+    
+    // Set security config BEFORE loading SDK
+    window._AMapSecurityConfig = {
+      securityJsCode: state.amap2Key
+    };
+    
+    amapLoadPromise = AMapLoader.load({
+      key: state.amap1Key,
+      version: '2.0',
+      plugins: ['AMap.Autocomplete']
+    }).then(AMap => {
+      return AMap;
+    }).catch(e => {
+      console.error("Failed to load AMap SDK:", e);
+      showSnackbar("AMap search unavailable. Check your keys and network connection.", "error");
+      amapLoadPromise = null;
+      return null;
+    });
+    
+    return await amapLoadPromise;
+  }
+
   function areRoutesEqual(a, b) {
     return a?.routeHash && b?.routeHash && a.routeHash === b.routeHash;
   }
@@ -311,6 +349,8 @@ export function NavDestination() {
         const data = await res.json();
         state.suggestions = JSON.stringify(data.suggestions);
       } else {
+        const AMap = await ensureAMapLoaded();
+        if (!AMap) return;
         const auto = new AMap.Autocomplete({ city: "auto" });
         auto.search(val, (status, result) => {
           if (status === "complete" && result.tips) {
@@ -467,6 +507,8 @@ export function NavDestination() {
         const data = await res.json();
         state.suggestions = JSON.stringify(data.suggestions);
       } else {
+        const AMap = await ensureAMapLoaded();
+        if (!AMap) return;
         const auto = new AMap.Autocomplete({ city: "auto" });
         auto.search(val, (status, result) => {
           if (status === "complete" && result.tips) {
