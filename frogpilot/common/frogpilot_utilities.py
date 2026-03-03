@@ -489,7 +489,7 @@ def upload_toggles():
 
 @cache
 def use_konik_server():
-  return KONIK_PATH.is_file()
+  return KONIK_PATH.is_file() or params.get_bool("UseKonikServer")
 
 def wait_for_no_driver(sm, door_checks=False, time_threshold=60):
   can_parser = CANParser("toyota_nodsu_pt_generated", [("BODY_CONTROL_STATE", 3)], bus=0)
