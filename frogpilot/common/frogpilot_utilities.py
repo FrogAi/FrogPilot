@@ -443,7 +443,7 @@ def upload_toggles(params):
 
 @cache
 def use_konik_server():
-  return KONIK_PATH.is_file()
+  return KONIK_PATH.is_file() or params.get_bool("UseKonikServer")
 
 
 def wait_for_no_driver(params, sm, door_checks=False, time_threshold=60):
