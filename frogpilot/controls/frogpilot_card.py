@@ -12,6 +12,7 @@ class FrogPilotCard:
 
     self.accel_press_count = 0
     self.decel_press_count = 0
+    self.lkas_button_press_count = 0
 
     self.ui_event_sock = messaging.sub_sock("frogpilotUIEvent")
 
@@ -22,6 +23,8 @@ class FrogPilotCard:
     if any(be.pressed and be.type == ButtonType.decelCruise for be in carState.buttonEvents):
       self.decel_press_count += 1
 
+    if any(be.pressed and be.type == ButtonType.lkas for be in carState.buttonEvents):
+      self.lkas_button_press_count += 1
     frogpilotCarState.accelPressCount = self.accel_press_count
     frogpilotCarState.alwaysOnLateralEnabled = self.always_on_lateral_enabled
     frogpilotCarState.decelPressCount = self.decel_press_count

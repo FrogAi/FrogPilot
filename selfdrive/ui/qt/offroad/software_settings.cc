@@ -15,6 +15,8 @@
 #include "selfdrive/ui/qt/widgets/input.h"
 #include "system/hardware/hw.h"
 
+#include "frogpilot/ui/qt/offroad/telemetry_page.h"
+
 
 void SoftwarePanel::checkForUpdates() {
   std::system("pkill -SIGUSR1 -f system.updated.updated");
@@ -51,7 +53,21 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
     params.putBool("DoReboot", true);
   });
   addItem(installBtn);
+
   // FrogPilot variables
+  ParamControl *frogpilotTelemetryToggle = new ParamControl(
+    "FrogPilotTelemetry",
+    tr("Share FrogPilot Data"),
+    FrogPilotTelemetryPage::description(),
+    ""
+  );
+  frogpilotTelemetryToggle->setConfirmation(true, false);
+  QObject::connect(frogpilotTelemetryToggle, &ToggleControl::toggleFlipped, [this](bool state) {
+    if (state && params.getBool("FrogPilotTelemetry")) {
+      params.putBool("FrogPilotTelemetryConfirmed", true);
+    }
+  });
+  addItem(frogpilotTelemetryToggle);
 
   // branch selecting
   targetBranchBtn = new ButtonControl(tr("Target Branch"), tr("SELECT"));
