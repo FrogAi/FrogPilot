@@ -13,7 +13,10 @@ ZstdFileWriter::ZstdFileWriter(const std::string& filename, int compression_leve
 
   size_t initResult = ZSTD_initCStream(cstream_, compression_level);
   assert(!ZSTD_isError(initResult));
+
   // FrogPilot variables
+  size_t checksumResult = ZSTD_CCtx_setParameter(cstream_, ZSTD_c_checksumFlag, 1);
+  assert(!ZSTD_isError(checksumResult));
 
   input_cache_capacity_ = ZSTD_CStreamInSize();
   input_cache_.reserve(input_cache_capacity_);

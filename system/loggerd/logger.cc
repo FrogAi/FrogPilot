@@ -172,6 +172,8 @@ LoggerState::~LoggerState() {
     log_sentinel(this, SentinelType::END_OF_ROUTE, exit_signal);
 
     // FrogPilot variables
+    qlog.reset();
+    rlog.reset();
 
     std::remove(lock_file.c_str());
   }
@@ -182,6 +184,8 @@ bool LoggerState::next() {
     log_sentinel(this, SentinelType::END_OF_SEGMENT);
 
     // FrogPilot variables
+    qlog.reset();
+    rlog.reset();
 
     std::remove(lock_file.c_str());
   }

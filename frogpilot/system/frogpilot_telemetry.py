@@ -1,0 +1,377 @@
+#!/usr/bin/env python3
+import capnp
+import ctypes
+import gc
+import hashlib
+import hmac
+import json
+import requests
+import shutil
+import time
+import zstandard
+
+from pathlib import Path
+
+import cereal.messaging as messaging
+
+from cereal import CEREAL_PATH, log
+from openpilot.common.api import get_key_pair
+from openpilot.common.params import Params
+from openpilot.common.utils import LOG_COMPRESSION_LEVEL
+from openpilot.system import sentry
+from openpilot.system.loggerd.uploader import listdir_by_creation
+from openpilot.system.loggerd.xattr_cache import getxattr, setxattr
+
+from openpilot.frogpilot.common import frogpilot_api, frogpilot_paths, frogpilot_utilities, frogpilot_variables
+
+MAX_LOG_SIZE = 256 * 1024 * 1024
+
+SCHEMA_FILES = ("car.capnp", "custom.capnp", "include/c++.capnp", "legacy.capnp", "log.capnp")
+
+EXCLUDED_CAN_ADDRESSES = {
+  "ford": frozenset((0x462, 0x465)),
+  "gm": frozenset((0x32A, 0x4E1, 0x514)),
+  "tesla": frozenset((0x3D8,)),
+  "toyota": frozenset((0x580, 0x581, 0x582)),
+}
+
+EXCLUDED_MESSAGE_TYPES = frozenset((
+  "androidLog",
+  "audioFeedback",
+  "bookmarkButton",
+  "cameraOdometry",
+  "clocks",
+  "customReservedRawData0",
+  "customReservedRawData1",
+  "customReservedRawData2",
+  "deviceState",
+  "driverCameraState",
+  "driverEncodeIdx",
+  "driverStateV2",
+  "drivingModelData",
+  "errorLogMessage",
+  "frogpilotDeviceState",
+  "frogpilotProcessState",
+  "frogpilotSignReading",
+  "frogpilotUIEvent",
+  "frogpilotUIRequest",
+  "gnssMeasurements",
+  "gpsLocation",
+  "gpsLocationExternal",
+  "gpsNMEA",
+  "lightSensor",
+  "livePose",
+  "liveTracks",
+  "logMessage",
+  "magnetometer",
+  "managerState",
+  "mapdExtendedOut",
+  "mapdIn",
+  "navInstruction",
+  "navRoute",
+  "navThumbnail",
+  "peripheralState",
+  "procLog",
+  "qRoadEncodeIdx",
+  "qcomGnss",
+  "rawAudioData",
+  "roadCameraState",
+  "roadEncodeIdx",
+  "soundPressure",
+  "temperatureSensor",
+  "testJoystick",
+  "thePondRequest",
+  "thumbnail",
+  "touch",
+  "ubloxGnss",
+  "ubloxRaw",
+  "uiDebug",
+  "uploaderState",
+  "userBookmark",
+  "wideRoadCameraState",
+  "wideRoadEncodeIdx",
+))
+
+REMOVED_FIELDS = {
+  "carParams": ("carVin",),
+}
+
+REPLACEMENT_FIELDS = {
+  "carControl": {"orientationNED.2": 0},
+  "frogpilotPlan": {"frogpilotToggles": "", "gpsBearing": 0, "themeUpdateCount": 0, "weatherDaytime": False, "wheelImageUpdateCount": 0},
+  "frogpilotSelfdriveState": {"alertText1": "", "alertText2": ""},
+  "longitudinalPlan": {"processingDelay": 0},
+  "mapdOut": {"roadName": "", "wayId": 0, "wayName": "", "wayRef": ""},
+  "modelV2": {"leads": [], "rawPredictions": b""},
+  "selfdriveState": {"alertText1": "", "alertText2": ""},
+}
+
+WHITELIST_FIELDS = {
+  "driverMonitoringState": (),
+  "initData": ("gitCommit", "version"),
+}
+
+WHITELIST_PARAMS = ("DrivingModel", "ModelRandomizer", "RandomizedModel")
+
+
+def get_car_make(data, schema):
+  try:
+    for event in schema.Event.read_multiple_bytes(data):
+      try:
+        if event.which() == "carParams":
+          return event.carParams.brand
+      except capnp.KjException:
+        continue
+  except capnp.KjException:
+    pass
+
+  return frogpilot_variables.get_frogpilot_toggles().car_make
+
+
+def filter_log(data, schema):
+  car_fingerprint = None
+
+  fingerprinting = False
+
+  excluded_can_addresses = EXCLUDED_CAN_ADDRESSES.get(get_car_make(data, schema))
+
+  filtered_data = bytearray()
+
+  try:
+    for event in schema.Event.read_multiple_bytes(data):
+      try:
+        which = event.which()
+      except capnp.KjException:
+        continue
+
+      if which == "sentinel" and event.sentinel.type == "startOfRoute":
+        fingerprinting = True
+      elif which == "carParams":
+        car_fingerprint = event.carParams.carFingerprint
+        fingerprinting = False
+      elif which == "carState":
+        fingerprinting = False
+
+      if which in EXCLUDED_MESSAGE_TYPES or which.endswith("DEPRECATED"):
+        continue
+
+      if which in ("can", "sendcan") and fingerprinting:
+        continue
+
+      builder = event.as_builder()
+
+      if which == "can" and excluded_can_addresses:
+        kept_frames = [frame for frame in event.can if frame.address not in excluded_can_addresses]
+
+        if len(kept_frames) != len(event.can):
+          builder.can = kept_frames
+
+      if which in REMOVED_FIELDS:
+        message = getattr(builder, which)
+
+        for field in REMOVED_FIELDS[which]:
+          message.disown(field)
+
+      if which in REPLACEMENT_FIELDS:
+        message = getattr(builder, which)
+
+        for field, value in REPLACEMENT_FIELDS[which].items():
+          target = message
+          *parents, field = field.split(".")
+
+          for parent in parents:
+            target = getattr(target, parent)
+
+          if field.isdigit():
+            index = int(field)
+            if index < len(target):
+              target[index] = value
+          elif hasattr(target, field):
+            setattr(target, field, value)
+
+      elif which in WHITELIST_FIELDS:
+        kept = builder.init(which)
+        source = getattr(event, which)
+
+        for field in WHITELIST_FIELDS[which]:
+          setattr(kept, field, getattr(source, field))
+
+        if which == "initData":
+          kept.params.entries = [{"key": entry.key, "value": entry.value} for entry in source.params.entries if entry.key in WHITELIST_PARAMS]
+
+      filtered_data.extend(builder.to_bytes())
+  except capnp.KjException:
+    pass
+
+  return car_fingerprint, filtered_data
+
+
+class FrogPilotTelemetry:
+  def __init__(self):
+    self.params = Params()
+
+    self.frogpilot_api = frogpilot_api.FrogPilotAPI(self.params)
+
+    self.private_key = get_key_pair()[1].encode()
+
+    self.git_commit = self.params.get("GitCommit")
+    self.schemas = {self.git_commit: log}
+
+    schema_path = frogpilot_paths.TELEMETRY_SCHEMAS_PATH / self.git_commit
+    if not schema_path.is_dir():
+      staging_path = frogpilot_paths.TELEMETRY_SCHEMAS_PATH / f".{self.git_commit}"
+      for name in SCHEMA_FILES:
+        (staging_path / name).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(Path(CEREAL_PATH, name), staging_path / name)
+      staging_path.rename(schema_path)
+
+    self.retry_at = 0
+
+    self.car_fingerprint = None
+    self.car_fingerprint_route = None
+
+    self.decompressor = zstandard.ZstdDecompressor()
+
+    self.session = requests.Session()
+
+    self.sm = messaging.SubMaster(["deviceState"])
+
+    self.share_from_next_segment()
+
+  def mark_shared_logs(self):
+    if self.route is not None and self.first_segment is not None:
+      for log_root in frogpilot_paths.LOG_ROOTS:
+        for segment_path in log_root.glob(f"{self.route}--*"):
+          if (segment_path / "rlog.lock").exists():
+            continue
+
+          if int(segment_path.name.rpartition("--")[2]) < self.first_segment:
+            continue
+
+          if getxattr(segment_path, frogpilot_variables.UPLOAD_ATTR_NAME) is None:
+            setxattr(segment_path, frogpilot_variables.UPLOAD_ATTR_NAME, frogpilot_variables.UPLOAD_PENDING)
+
+    route = self.params.get("CurrentRoute")
+
+    if route != self.route:
+      self.route = route
+      self.first_segment = 0
+
+  def pending(self):
+    paths = [Path(log_root, segment) for log_root in frogpilot_paths.LOG_ROOTS for segment in listdir_by_creation(log_root)]
+    paths += sorted(frogpilot_paths.SPEED_LIMIT_CAPTURES_PATH.glob("*.hevc"))
+
+    for path in paths:
+      if frogpilot_utilities.has_pending_telemetry(path):
+        yield path
+
+  def schema(self, git_commit):
+    if git_commit not in self.schemas:
+      schema_path = frogpilot_paths.TELEMETRY_SCHEMAS_PATH / git_commit / "log.capnp"
+      self.schemas[git_commit] = capnp.SchemaParser().load(str(schema_path), imports=[str(schema_path.parent)])
+    return self.schemas[git_commit]
+
+  def share_from_next_segment(self):
+    self.route = self.params.get("CurrentRoute")
+    self.first_segment = None
+
+    if self.route is not None:
+      for log_root in frogpilot_paths.LOG_ROOTS:
+        for lock_path in log_root.glob(f"{self.route}--*/rlog.lock"):
+          self.first_segment = int(lock_path.parent.name.rpartition("--")[2]) + 1
+
+  def upload_id(self, name):
+    return hmac.new(self.private_key, name.encode(), "sha256").hexdigest()[:32]
+
+  def upload(self, path):
+    if path.suffix == ".hevc":
+      data = path.read_bytes()
+
+      descriptor = {**json.loads(path.with_suffix(".json").read_text()), "capture_id": self.upload_id(path.stem)}
+      endpoint = "/v1/captures"
+      upload_kind = "capture"
+    else:
+      raw_data = self.decompressor.decompress((path / "rlog.zst").read_bytes(), max_output_size=MAX_LOG_SIZE)
+      git_commit = next(log.Event.read_multiple_bytes(raw_data)).initData.gitCommit
+      schema = self.schema(git_commit)
+
+      car_fingerprint, filtered_data = filter_log(raw_data, schema)
+      data = zstandard.ZstdCompressor(level=LOG_COMPRESSION_LEVEL).compress(filtered_data)
+
+      route, _, segment = path.name.rpartition("--")
+      if car_fingerprint is not None:
+        self.car_fingerprint, self.car_fingerprint_route = car_fingerprint, route
+      elif route == self.car_fingerprint_route:
+        car_fingerprint = self.car_fingerprint
+
+      descriptor = {"car_fingerprint": car_fingerprint, "route_id": self.upload_id(route), "segment": int(segment)}
+      endpoint = "/v1/telemetry"
+      upload_kind = "telemetry"
+
+    result = self.frogpilot_api.post_json(endpoint, {**descriptor, "sha256": hashlib.sha256(data).hexdigest(), "size_bytes": len(data)}, self.session)
+
+    if result:
+      if not self.can_upload():
+        return False
+
+      self.frogpilot_api.put_upload(result["upload"], data, path.name, upload_kind, self.session)
+
+    return True
+
+  def can_upload(self):
+    self.sm.update(0)
+
+    if self.sm["deviceState"].started:
+      return False
+
+    return frogpilot_utilities.is_unmetered_network(self.sm["deviceState"])
+
+  def update(self):
+    self.mark_shared_logs()
+
+    if time.monotonic() < self.retry_at or not self.can_upload():
+      return
+
+    for path in self.pending():
+      if not self.can_upload():
+        return
+
+      try:
+        if not self.upload(path):
+          return
+      except (frogpilot_api.FrogPilotAPIError, requests.exceptions.RequestException) as error:
+        self.retry_at = time.monotonic() + 60 * 60
+        print(f"Error uploading telemetry ({error})")
+        return
+
+      if path.suffix == ".hevc" and not frogpilot_utilities.is_FrogsGoMoo():
+        path.unlink()
+        path.with_suffix(".json").unlink()
+      else:
+        try:
+          setxattr(path, frogpilot_variables.UPLOAD_ATTR_NAME, frogpilot_variables.UPLOAD_DONE)
+        except FileNotFoundError:
+          pass
+
+    self.schemas = {self.git_commit: log}
+
+
+def main():
+  frogpilot_telemetry = FrogPilotTelemetry()
+
+  libc = ctypes.CDLL("libc.so.6")
+
+  while True:
+    try:
+      frogpilot_telemetry.update()
+    except Exception as error:
+      sentry.capture_exception(error)
+
+    gc.collect()
+    libc.malloc_trim(0)
+
+    time.sleep(60)
+
+
+if __name__ == "__main__":
+  main()
