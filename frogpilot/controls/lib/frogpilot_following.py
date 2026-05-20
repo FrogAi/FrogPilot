@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import LEAD_DANGER_FACTOR, get_jerk_factor, get_T_FOLLOW
 
+from openpilot.frogpilot.common import frogpilot_utilities
+
 
 class FrogPilotFollowing:
   def __init__(self, FrogPilotPlanner):

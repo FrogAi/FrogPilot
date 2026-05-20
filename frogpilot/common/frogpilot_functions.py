@@ -12,6 +12,8 @@ from openpilot.common.constants import CV
 from openpilot.common.time_helpers import system_time_valid
 from openpilot.system.hardware import HARDWARE
 
+from openpilot.frogpilot.common import frogpilot_utilities
+
 
 def frogpilot_boot_functions():
   def boot_thread():

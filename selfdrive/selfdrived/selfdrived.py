@@ -24,6 +24,8 @@ from openpilot.selfdrive.selfdrived.alertmanager import AlertManager, set_offroa
 from openpilot.system.version import get_build_metadata
 from openpilot.system.hardware import HARDWARE
 
+from openpilot.frogpilot.common import frogpilot_utilities
+
 REPLAY = "REPLAY" in os.environ
 SIMULATION = "SIMULATION" in os.environ
 TESTING_CLOSET = "TESTING_CLOSET" in os.environ
