@@ -130,7 +130,7 @@ class SelfdriveD:
     self.rk = Ratekeeper(100, print_delay_threshold=None)
 
     # Determine startup event
-    self.startup_event = EventName.startup if build_metadata.openpilot.comma_remote and build_metadata.tested_channel else EventName.startupMaster
+    self.startup_event = FrogPilotEventName.customStartupAlert
     if HARDWARE.get_device_type() == 'mici':
       self.startup_event = None
     if not car_recognized:
@@ -166,7 +166,10 @@ class SelfdriveD:
 
     # Add startup event
     if self.startup_event is not None:
-      self.events.add(self.startup_event)
+      if self.startup_event == FrogPilotEventName.customStartupAlert:
+        self.frogpilot_events.add(self.startup_event)
+      else:
+        self.events.add(self.startup_event)
       self.startup_event = None
 
     # Don't add any more events if not initialized
