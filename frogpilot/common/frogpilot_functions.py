@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
+import dataclasses
+import requests
 import threading
 import time
 
 from pathlib import Path
 
+from openpilot.common.api import get_key_pair
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.constants import CV
 from openpilot.common.time_helpers import system_time_valid
@@ -19,11 +22,13 @@ def frogpilot_boot_functions():
   threading.Thread(target=boot_thread, daemon=True).start()
 
 
-def install_frogpilot():
+def install_frogpilot(build_metadata, params):
   paths = [
   ]
   for path in paths:
     path.mkdir(parents=True, exist_ok=True)
+
+  register_device(build_metadata, params)
 
   update_boot_logo(Path(BASEDIR) / "frogpilot/assets/other_images/frogpilot_boot_logo.jpg")
 
@@ -82,6 +87,38 @@ def migrate_params_to_si(params):
 
   migrate_renamed_param("CustomCruise", "CruiseButtonIncrement")
   migrate_renamed_param("CustomCruiseLong", "CruiseButtonIncrementLong")
+
+
+def register_device(build_metadata, params):
+  def register_thread():
+    while not frogpilot_utilities.is_url_pingable(frogpilot_variables.FROGPILOT_API):
+      time.sleep(60)
+
+    _, _, public_key = get_key_pair()
+    payload = {
+      "build_metadata": dataclasses.asdict(build_metadata),
+      "device": HARDWARE.get_device_type(),
+      "device_public_key": public_key,
+      "dongle_id": params.get("DongleId"),
+      "os_version": HARDWARE.get_os_version(),
+    }
+
+    try:
+      response = requests.post(
+        f"{frogpilot_variables.FROGPILOT_API}/register",
+        json=payload,
+        headers={"Content-Type": "application/json", "User-Agent": "frogpilot-api/1.0"},
+        timeout=10,
+      )
+      response.raise_for_status()
+
+      data = response.json()
+      params.put("FrogPilotApiToken", data.get("api_token", ""))
+      params.put("FrogPilotDongleId", data.get("frogpilot_dongle_id", ""))
+    except Exception:
+      pass
+
+  threading.Thread(target=register_thread, daemon=True).start()
 
 
 def uninstall_frogpilot():
