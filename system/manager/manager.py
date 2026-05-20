@@ -41,6 +41,8 @@ def manager_init() -> None:
     params.put_bool("RecordFront", True, block=True)
 
   # FrogPilot variables
+  params_cache = Params("/cache/params")
+
   frogpilot_functions.migrate_params_to_si(params)
 
   # set unset params to their default value
@@ -48,6 +50,11 @@ def manager_init() -> None:
     default_value = params.get_default_value(k)
 
     # FrogPilot variables
+    if params.is_cacheable_key(k):
+      cached_value = params_cache.get(k)
+      if cached_value is not None:
+        default_value = cached_value
+
     if default_value is not None and params.get(k) is None:
       params.put(k, default_value, block=True)
 

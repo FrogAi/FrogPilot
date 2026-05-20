@@ -35,7 +35,7 @@ def frogpilot_thread():
                             "onroadEvents", "pandaStates", "radarState", "selfdriveState"],
                             poll="modelV2")
 
-  params = Params()
+  params = Params(return_defaults=True)
 
   run_update_checks = False
   started_previously = False

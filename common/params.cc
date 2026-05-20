@@ -96,6 +96,9 @@ Params::Params(const std::string &path) {
   params_path = ensure_params_path(params_prefix, path);
 
   // FrogPilot variables
+  if (path.empty()) {
+    cache_path = "/cache/params" + params_prefix + "/";
+  }
 }
 
 Params::~Params() {
@@ -161,6 +164,9 @@ int Params::put(const char* key, const char* value, size_t value_size) {
     result = fsync_dir(getParamPath());
 
     // FrogPilot variables
+    if (result == 0 && !cache_path.empty() && isCacheableKey(key)) {
+      util::write_file((cache_path + key).c_str(), value, value_size, O_CREAT | O_TRUNC | O_WRONLY);
+    }
   } while (false);
 
   close(tmp_fd);
@@ -176,6 +182,10 @@ int Params::remove(const std::string &key) {
   int result = unlink(getParamPath(key).c_str());
 
   // FrogPilot variables
+  if (!cache_path.empty()) {
+    unlink((cache_path + key).c_str());
+  }
+
   if (result != 0) {
     return result;
   }
@@ -224,6 +234,9 @@ void Params::clearAll(ParamKeyFlag key_flag) {
           unlink(getParamPath(de->d_name).c_str());
 
           // FrogPilot variables
+          if (!cache_path.empty()) {
+            unlink((cache_path + de->d_name).c_str());
+          }
         }
       }
     }
@@ -251,3 +264,21 @@ void Params::asyncWriteThread() {
 }
 
 // FrogPilot variables
+bool Params::isCacheableKey(const std::string &key) {
+  auto it = keys.find(key);
+  if (it == keys.end()) {
+    return false;
+  }
+
+  const ParamKeyAttributes &attributes = it->second;
+  return (attributes.flags & PERSISTENT) && attributes.stock_value.has_value();
+}
+
+int Params::getKeyTuningLevel(const std::string &key) {
+  return keys.at(key).tuning_level;
+}
+
+std::optional<std::string> Params::getKeyStockValue(const std::string &key) {
+  const ParamKeyAttributes &attributes = keys.at(key);
+  return attributes.stock_value.has_value() ? attributes.stock_value : attributes.default_value;
+}
