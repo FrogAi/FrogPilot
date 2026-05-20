@@ -14,6 +14,8 @@ from openpilot.system.hardware import HARDWARE, PC
 from openpilot.system.hardware.hw import Paths
 from openpilot.common.swaglog import cloudlog
 
+from openpilot.frogpilot.common import frogpilot_variables
+
 
 UNREGISTERED_DONGLE_ID = "UnregisteredDevice"
 

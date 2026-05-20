@@ -8,7 +8,7 @@ from pathlib import Path
 
 from cereal import car, custom
 
-from openpilot.frogpilot.common import frogpilot_utilities
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 
 
 LOCATION_DATA_SCHEMA_VERSION = 1
@@ -203,7 +203,7 @@ def get_model_scores(params):
   return model_scores
 
 
-def send_stats(gps_position, params):
+def send_stats(gps_position, params, frogpilot_toggles):
   api_info = frogpilot_utilities.get_frogpilot_api_info()
   if not api_info.api_token or not api_info.dongle_id:
     return
@@ -237,7 +237,7 @@ def send_stats(gps_position, params):
 
   try:
     response = requests.post(
-      f"{FROGPILOT_API}/stats",
+      f"{frogpilot_variables.FROGPILOT_API}/stats",
       json=payload,
       headers={"Content-Type": "application/json", "User-Agent": "frogpilot-api/1.0"},
       timeout=30,

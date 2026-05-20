@@ -19,6 +19,8 @@ from openpilot.system.hardware.hw import Paths
 from openpilot.system.loggerd.xattr_cache import getxattr, setxattr
 from openpilot.common.swaglog import cloudlog
 
+from openpilot.frogpilot.common import frogpilot_variables
+
 NetworkType = log.DeviceState.NetworkType
 UPLOAD_ATTR_NAME = 'user.upload'
 UPLOAD_ATTR_VALUE = b'1'
@@ -252,6 +254,8 @@ def main(exit_event: threading.Event | None = None) -> None:
   # FrogPilot variables
   sm = sm.extend(['frogpilotUI'])
 
+  frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
+
   while not exit_event.is_set():
     sm.update(0)
     offroad = params.get_bool("IsOffroad")
@@ -273,6 +277,7 @@ def main(exit_event: threading.Event | None = None) -> None:
       time.sleep(backoff + random.uniform(0, backoff))
 
     # FrogPilot variables
+    frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
 
 
 if __name__ == "__main__":

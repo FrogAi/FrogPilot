@@ -62,7 +62,7 @@ class CarController(CarControllerBase):
     self.last_button_frame = 0
     self.cancel_counter = 0
 
-  def update(self, CC, CS, now_nanos):
+  def update(self, CC, CS, now_nanos, frogpilot_toggles):
     actuators = CC.actuators
     hud_control = CC.hudControl
 

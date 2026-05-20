@@ -70,7 +70,7 @@ class CarState(CarStateBase):
     # Main button also can trigger an engagement on these cars
     return any(btn in ENABLE_BUTTONS for btn in self.cruise_buttons) or any(self.main_buttons)
 
-  def update(self, can_parsers) -> tuple[structs.CarState, custom.FrogPilotCarState]:
+  def update(self, can_parsers, frogpilot_toggles) -> tuple[structs.CarState, custom.FrogPilotCarState]:
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
 

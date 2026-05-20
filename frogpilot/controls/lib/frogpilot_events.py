@@ -14,7 +14,7 @@ class FrogPilotEvents:
 
     self.played_events = set()
 
-  def update(self, long_control_active, sm):
+  def update(self, long_control_active, sm, frogpilot_toggles):
     current_alert = sm["selfdriveState"].alertType
     current_frogpilot_alert = sm["frogpilotSelfdriveState"].alertType
 

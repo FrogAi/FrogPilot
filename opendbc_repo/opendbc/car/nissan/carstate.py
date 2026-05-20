@@ -27,7 +27,7 @@ class CarState(CarStateBase):
 
     # FrogPilot variables
 
-  def update(self, can_parsers) -> tuple[structs.CarState, custom.FrogPilotCarState]:
+  def update(self, can_parsers, frogpilot_toggles) -> tuple[structs.CarState, custom.FrogPilotCarState]:
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
     cp_adas = can_parsers[Bus.adas]

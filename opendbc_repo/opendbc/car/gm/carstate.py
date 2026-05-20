@@ -41,7 +41,7 @@ class CarState(CarStateBase):
           return True
     return False
 
-  def update(self, can_parsers) -> tuple[structs.CarState, custom.FrogPilotCarState]:
+  def update(self, can_parsers, frogpilot_toggles) -> tuple[structs.CarState, custom.FrogPilotCarState]:
     pt_cp = can_parsers[Bus.pt]
     cam_cp = can_parsers[Bus.cam]
     loopback_cp = can_parsers[Bus.loopback]

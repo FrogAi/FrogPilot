@@ -12,10 +12,12 @@ from openpilot.common.constants import CV
 from openpilot.common.time_helpers import system_time_valid
 from openpilot.system.hardware import HARDWARE
 
-from openpilot.frogpilot.common import frogpilot_utilities
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 
 
 def frogpilot_boot_functions():
+  frogpilot_variables.FrogPilotVariables()
+
   def boot_thread():
     while not system_time_valid():
       print("Waiting for system time to become valid...")

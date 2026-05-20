@@ -12,7 +12,7 @@ class FrogPilotCard:
     self.accel_pressed = False
     self.decel_pressed = False
 
-  def update(self, carState, frogpilotCarState, sm):
+  def update(self, carState, frogpilotCarState, sm, frogpilot_toggles):
     accel_pressed = any(be.pressed and be.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for be in carState.buttonEvents)
     if sm.updated["frogpilotPlan"] or accel_pressed:
       self.accel_pressed = accel_pressed
