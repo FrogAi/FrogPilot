@@ -39,6 +39,11 @@ PLURAL_SELECTORS = {
   'ja': lambda n: 0,
 
   # FrogPilot variables
+  'caveman': lambda n: 0 if n == 1 else 1,
+  'duck': lambda n: 0 if n == 1 else 1,
+  'frog': lambda n: 0 if n == 1 else 1,
+  'pirate': lambda n: 0 if n == 1 else 1,
+  'shakespearean': lambda n: 0 if n == 1 else 1,
 }
 
 
