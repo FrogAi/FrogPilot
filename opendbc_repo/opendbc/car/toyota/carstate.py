@@ -205,6 +205,10 @@ class CarState(CarStateBase):
     # FrogPilot variables
     fp_ret = custom.FrogPilotCarState.new_message()
 
+    if not self.CP.flags & ToyotaFlags.SECOC.value:
+      fp_ret.ecoGear = cp.vl["GEAR_PACKET"]["ECON_ON"] == 1
+      fp_ret.sportGear = cp.vl["GEAR_PACKET"]["SPORT_ON_2" if self.CP.flags & ToyotaFlags.NO_DSU else "SPORT_ON"] == 1
+
     ret.buttonEvents = buttonEvents
 
     return ret, fp_ret
