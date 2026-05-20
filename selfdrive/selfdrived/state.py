@@ -14,7 +14,7 @@ class StateMachine:
     self.state = State.disabled
     self.soft_disable_timer = 0
 
-  def update(self, events: Events):
+  def update(self, events: Events, frogpilot_events: Events):
     # decrement the soft disable timer at every step, as it's reset on
     # entrance in SOFT_DISABLING state
     self.soft_disable_timer = max(0, self.soft_disable_timer - 1)
@@ -24,29 +24,29 @@ class StateMachine:
     # ENABLED, SOFT DISABLING, PRE ENABLING, OVERRIDING
     if self.state != State.disabled:
       # user and immediate disable always have priority in a non-disabled state
-      if events.contains(ET.USER_DISABLE):
+      if frogpilot_utilities.contains_event_type(events, frogpilot_events, ET.USER_DISABLE):
         self.state = State.disabled
         self.current_alert_types.append(ET.USER_DISABLE)
 
-      elif events.contains(ET.IMMEDIATE_DISABLE):
+      elif frogpilot_utilities.contains_event_type(events, frogpilot_events, ET.IMMEDIATE_DISABLE):
         self.state = State.disabled
         self.current_alert_types.append(ET.IMMEDIATE_DISABLE)
 
       else:
         # ENABLED
         if self.state == State.enabled:
-          if events.contains(ET.SOFT_DISABLE):
+          if frogpilot_utilities.contains_event_type(events, frogpilot_events, ET.SOFT_DISABLE):
             self.state = State.softDisabling
             self.soft_disable_timer = int(SOFT_DISABLE_TIME / DT_CTRL)
             self.current_alert_types.append(ET.SOFT_DISABLE)
 
-          elif events.contains(ET.OVERRIDE_LATERAL) or events.contains(ET.OVERRIDE_LONGITUDINAL):
+          elif frogpilot_utilities.contains_event_type(events, frogpilot_events, ET.OVERRIDE_LATERAL, ET.OVERRIDE_LONGITUDINAL):
             self.state = State.overriding
             self.current_alert_types += [ET.OVERRIDE_LATERAL, ET.OVERRIDE_LONGITUDINAL]
 
         # SOFT DISABLING
         elif self.state == State.softDisabling:
-          if not events.contains(ET.SOFT_DISABLE):
+          if not frogpilot_utilities.contains_event_type(events, frogpilot_events, ET.SOFT_DISABLE):
             # no more soft disabling condition, so go back to ENABLED
             self.state = State.enabled
 
@@ -58,32 +58,32 @@ class StateMachine:
 
         # PRE ENABLING
         elif self.state == State.preEnabled:
-          if not events.contains(ET.PRE_ENABLE):
+          if not frogpilot_utilities.contains_event_type(events, frogpilot_events, ET.PRE_ENABLE):
             self.state = State.enabled
           else:
             self.current_alert_types.append(ET.PRE_ENABLE)
 
         # OVERRIDING
         elif self.state == State.overriding:
-          if events.contains(ET.SOFT_DISABLE):
+          if frogpilot_utilities.contains_event_type(events, frogpilot_events, ET.SOFT_DISABLE):
             self.state = State.softDisabling
             self.soft_disable_timer = int(SOFT_DISABLE_TIME / DT_CTRL)
             self.current_alert_types.append(ET.SOFT_DISABLE)
-          elif not (events.contains(ET.OVERRIDE_LATERAL) or events.contains(ET.OVERRIDE_LONGITUDINAL)):
+          elif not frogpilot_utilities.contains_event_type(events, frogpilot_events, ET.OVERRIDE_LATERAL, ET.OVERRIDE_LONGITUDINAL):
             self.state = State.enabled
           else:
             self.current_alert_types += [ET.OVERRIDE_LATERAL, ET.OVERRIDE_LONGITUDINAL]
 
     # DISABLED
     elif self.state == State.disabled:
-      if events.contains(ET.ENABLE):
-        if events.contains(ET.NO_ENTRY):
+      if frogpilot_utilities.contains_event_type(events, frogpilot_events, ET.ENABLE):
+        if frogpilot_utilities.contains_event_type(events, frogpilot_events, ET.NO_ENTRY):
           self.current_alert_types.append(ET.NO_ENTRY)
 
         else:
-          if events.contains(ET.PRE_ENABLE):
+          if frogpilot_utilities.contains_event_type(events, frogpilot_events, ET.PRE_ENABLE):
             self.state = State.preEnabled
-          elif events.contains(ET.OVERRIDE_LATERAL) or events.contains(ET.OVERRIDE_LONGITUDINAL):
+          elif frogpilot_utilities.contains_event_type(events, frogpilot_events, ET.OVERRIDE_LATERAL, ET.OVERRIDE_LONGITUDINAL):
             self.state = State.overriding
           else:
             self.state = State.enabled
@@ -95,4 +95,3 @@ class StateMachine:
     if active:
       self.current_alert_types.append(ET.WARNING)
     return enabled, active
-

@@ -146,6 +146,7 @@ def manager_thread() -> None:
   ignition_prev = False
 
   # FrogPilot variables
+  sm = sm.extend(['frogpilotUI'])
 
   while True:
     sm.update(1000)

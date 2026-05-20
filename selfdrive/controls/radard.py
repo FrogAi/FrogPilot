@@ -5,7 +5,7 @@ from collections import deque
 from typing import Any
 
 import capnp
-from cereal import messaging, log, car
+from cereal import messaging, log, car, custom
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.params import Params
 from openpilot.common.realtime import DT_MDL, Priority, config_realtime_process
@@ -211,6 +211,7 @@ class RadarD:
     self.ready = False
 
     # FrogPilot variables
+    self.frogpilot_radar_state = custom.FrogPilotRadarState.new_message()
 
   def update(self, sm: messaging.SubMaster, rr: car.RadarData):
     self.ready = sm.seen['modelV2']
@@ -274,6 +275,12 @@ class RadarD:
     radar_msg.radarState = self.radar_state
     pm.send("radarState", radar_msg)
 
+    # FrogPilot variables
+    frogpilot_radar_msg = messaging.new_message("frogpilotRadarState")
+    frogpilot_radar_msg.valid = self.radar_state_valid
+    frogpilot_radar_msg.frogpilotRadarState = self.frogpilot_radar_state
+    pm.send("frogpilotRadarState", frogpilot_radar_msg)
+
 
 # fuses camera and radar data for best lead detection
 def main() -> None:
@@ -285,12 +292,15 @@ def main() -> None:
   cloudlog.info("radard got CarParams")
 
   # *** setup messaging
-  sm = messaging.SubMaster(['modelV2', 'carState', 'liveTracks'], poll='modelV2')
+  sm = messaging.SubMaster(['modelV2', 'carState', 'liveTracks'], poll='modelV2',
+                           ignore_valid=['frogpilotPlan'])
   pm = messaging.PubMaster(['radarState'])
 
   RD = RadarD(CP.radarDelay)
 
   # FrogPilot variables
+  sm = sm.extend(['frogpilotPlan', 'frogpilotUI'])
+  pm = pm.extend(['frogpilotRadarState'])
 
   while 1:
     sm.update()

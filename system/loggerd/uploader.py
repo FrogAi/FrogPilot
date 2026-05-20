@@ -250,6 +250,7 @@ def main(exit_event: threading.Event | None = None) -> None:
   backoff = 0.1
 
   # FrogPilot variables
+  sm = sm.extend(['frogpilotUI'])
 
   while not exit_event.is_set():
     sm.update(0)

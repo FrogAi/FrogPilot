@@ -1,3 +1,4 @@
+from cereal import custom
 from opendbc.car import structs, Bus
 from opendbc.can.parser import CANParser
 from opendbc.car.common.conversions import Conversions as CV
@@ -9,7 +10,7 @@ TransmissionType = structs.CarParams.TransmissionType
 
 
 class CarState(CarStateBase):
-  def update(self, can_parsers) -> structs.CarState:
+  def update(self, can_parsers) -> tuple[structs.CarState, custom.FrogPilotCarState]:
     cp = can_parsers[Bus.main]
     cp_adas = can_parsers[Bus.adas]
     cp_cam = can_parsers[Bus.cam]
@@ -64,8 +65,9 @@ class CarState(CarStateBase):
     ret.seatbeltUnlatched = cp_cam.vl['RESTRAINTS']['DRIVER_SEATBELT'] != 2
 
     # FrogPilot variables
+    fp_ret = custom.FrogPilotCarState.new_message()
 
-    return ret
+    return ret, fp_ret
 
   @staticmethod
   def get_can_parsers(CP):

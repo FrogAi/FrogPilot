@@ -254,6 +254,7 @@ def main(demo=False):
   estimator = TorqueEstimator(messaging.log_from_bytes(params.get("CarParams", block=True), car.CarParams))
 
   # FrogPilot variables
+  sm = sm.extend(['frogpilotUI'])
 
   while True:
     sm.update()

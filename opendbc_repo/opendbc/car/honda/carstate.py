@@ -1,6 +1,7 @@
 import numpy as np
 from collections import defaultdict
 
+from cereal import custom
 from opendbc.can import CANDefine, CANParser
 from opendbc.car import Bus, create_button_events, structs
 from opendbc.car.common.conversions import Conversions as CV
@@ -19,8 +20,8 @@ SETTINGS_BUTTONS_DICT = {CruiseSettings.DISTANCE: ButtonType.gapAdjustCruise, Cr
 
 
 class CarState(CarStateBase):
-  def __init__(self, CP):
-    super().__init__(CP)
+  def __init__(self, CP, FPCP):
+    super().__init__(CP, FPCP)
     can_define = CANDefine(DBC[CP.carFingerprint][Bus.pt])
 
     if CP.transmissionType != TransmissionType.manual:
@@ -51,7 +52,7 @@ class CarState(CarStateBase):
     self.is_metric = False
     self.v_cruise_factor = 1.
 
-  def update(self, can_parsers) -> structs.CarState:
+  def update(self, can_parsers) -> tuple[structs.CarState, custom.FrogPilotCarState]:
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
     if self.CP.enableBsm:
@@ -231,8 +232,9 @@ class CarState(CarStateBase):
     ]
 
     # FrogPilot variables
+    fp_ret = custom.FrogPilotCarState.new_message()
 
-    return ret
+    return ret, fp_ret
 
   def get_can_parsers(self, CP):
     parsers = {

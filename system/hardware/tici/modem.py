@@ -72,6 +72,7 @@ class State(Enum):
 
 
 STATE_WAIT = 1.0  # seconds to wait after each state handler returns
+NO_SIM_WAIT = 60.0  # seconds between SIM insertion checks while no SIM is present
 
 
 class PPPSession:
@@ -174,6 +175,7 @@ class Modem:
   def __init__(self):
     self._ppp = PPPSession()
     self._sim_change = False
+    self._next_sim_check = 0.0
     self._apn = ""  # blank = network-provided via PCO
     self._roaming_allowed = True
     self.running = True
@@ -276,8 +278,27 @@ class Modem:
     for c in cmds:
       self._at(c)
 
+  @staticmethod
+  def _parse_sim_inserted(v: str | None) -> bool | None:
+    if not v:
+      return None
+    try:
+      inserted = int(v.split(",")[1].strip())
+    except (ValueError, IndexError):
+      return None
+    if inserted == 0:
+      return False
+    if inserted == 1:
+      return True
+    return None
+
+  def _read_sim_inserted(self) -> bool | None:
+    return self._parse_sim_inserted(self._atv("AT+QSIMSTAT?", "+QSIMSTAT:"))
+
   def _do_initializing(self):
     if not os.path.exists(AT_PORT):
+      return State.INITIALIZING
+    if time.monotonic() < self._next_sim_check:
       return State.INITIALIZING
     logging.info("port found, initializing")
     self._ppp.kill()
@@ -288,11 +309,22 @@ class Modem:
       return State.INITIALIZING
 
     identity = self._read_identity()
-    if not identity["iccid"] or not identity["imei"]:
+    if not identity["imei"]:
       logging.warning(f"identity read incomplete: {identity}, retrying")
       return State.INITIALIZING
 
     self._configure_modem(identity["modem_version"])
+
+    if not identity["iccid"]:
+      sim_inserted = self._read_sim_inserted()
+      if sim_inserted is False:
+        self._sim_change = False
+        self._next_sim_check = time.monotonic() + NO_SIM_WAIT
+        self._publish_state(**identity, connected=False, ip_address="", registration="no_sim")
+        logging.warning("SIM not detected; waiting for insertion")
+        return State.INITIALIZING
+      logging.warning(f"identity read incomplete: {identity}, retrying")
+      return State.INITIALIZING
 
     self.S.update(identity)
     self._apn = self._read_param("GsmApn")
