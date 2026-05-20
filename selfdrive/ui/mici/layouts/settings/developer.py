@@ -144,7 +144,7 @@ class DeveloperLayoutMici(NavScroller):
     # CP gating
     if ui_state.CP is not None:
       alpha_avail = ui_state.CP.alphaLongitudinalAvailable
-      if not alpha_avail or ui_state.is_release:
+      if not alpha_avail:
         self._alpha_long_toggle.set_visible(False)
         ui_state.params.remove("AlphaLongitudinalEnabled")
       else:
