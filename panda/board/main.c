@@ -16,7 +16,11 @@
 
 #include "board/drivers/can_common.h"
 
-#include "board/drivers/fdcan.h"
+#ifdef STM32F4
+  #include "board/drivers/bxcan.h"
+#else
+  #include "board/drivers/fdcan.h"
+#endif
 
 #include "board/sys/power_saving.h"
 

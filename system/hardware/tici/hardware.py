@@ -372,6 +372,9 @@ class Tici(HardwareBase):
 
     # pandad core
     affine_irq(3, "spi_geni")         # SPI
+    if "tici" in self.get_device_type():
+      affine_irq(3, "xhci-hcd:usb3")  # aux panda USB (or potentially anything else on USB)
+      affine_irq(3, "xhci-hcd:usb1")  # internal panda USB (also modem)
     try:
       pid = subprocess.check_output(["pgrep", "-f", "spi0"], encoding='utf8').strip()
       subprocess.call(["sudo", "chrt", "-f", "-p", "1", pid])

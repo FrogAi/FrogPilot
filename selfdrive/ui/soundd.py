@@ -28,7 +28,7 @@ AMBIENT_DB = 24 # DB where MIN_VOLUME is applied
 DB_SCALE = 30 # AMBIENT_DB + DB_SCALE is where MAX_VOLUME is applied
 
 VOLUME_BASE = 20
-if HARDWARE.get_device_type() == "tizi":
+if HARDWARE.get_device_type() in ("tici", "tizi"):
   AMBIENT_DB = 30
   VOLUME_BASE = 10
 
@@ -53,7 +53,7 @@ sound_list: dict[int, tuple[str, int | None, float]] = {
 
   # FrogPilot variables
 }
-if HARDWARE.get_device_type() == "tizi":
+if HARDWARE.get_device_type() in ("tici", "tizi"):
   sound_list.update({
     AudibleAlert.engage: ("engage_tizi.wav", 1, MAX_VOLUME),
     AudibleAlert.disengage: ("disengage_tizi.wav", 1, MAX_VOLUME),
