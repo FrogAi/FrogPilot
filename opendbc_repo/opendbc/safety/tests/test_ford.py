@@ -65,7 +65,7 @@ class Buttons:
 #  * CAN FD with stock longitudinal
 #  * CAN FD with openpilot longitudinal
 
-class TestFordSafetyBase(common.CarSafetyTest):
+class TestFordSafetyBase(common.AlwaysOnLateralAngleSteeringSafetyTest, common.CarSafetyTest):
   STANDSTILL_THRESHOLD = 1
   RELAY_MALFUNCTION_ADDRS = {0: (MSG_ACCDATA_3, MSG_Lane_Assist_Data1, MSG_LateralMotionControl,
                                  MSG_LateralMotionControl2, MSG_IPMA_Data)}
@@ -385,6 +385,21 @@ class TestFordSafetyBase(common.CarSafetyTest):
         self.assertEqual(enabled, self._tx(self._acc_button_msg(Buttons.CANCEL, bus)))
 
   # FrogPilot variables
+  def _set_aol_acc_main(self, enabled: bool):
+    values = {
+      "BpedDrvAppl_D_Actl": 1,
+      "CcStat_D_Actl": 3 if enabled else 0,
+    }
+    self.assertTrue(self._rx(self.packer.make_can_msg_safety("EngBrakeData", 0, values)))
+    self.assertEqual(enabled, self.safety.get_acc_main_on())
+    self.assertFalse(self.safety.get_controls_allowed())
+
+  def _prepare_aol_lateral(self):
+    self._reset_curvature_measurement(0, 0)
+    self._set_prev_desired_angle(0)
+
+  def _aol_lateral_cmd(self):
+    return self._lat_ctl_msg(True, 0, 0, 0, 0)
 
 
 class TestFordCANFDStockSafety(TestFordSafetyBase):

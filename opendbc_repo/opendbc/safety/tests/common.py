@@ -1145,3 +1145,145 @@ class CarSafetyTest(SafetyTest):
 
 
 # FrogPilot variables
+class AlwaysOnLateralSafetyTestBase(SafetyTestBase, abc.ABC):
+
+  @abc.abstractmethod
+  def _set_aol_acc_main(self, enabled: bool):
+    pass
+
+  def _set_aol_lkas(self, enabled: bool):
+    raise unittest.SkipTest("No AOL LKAS path")
+
+  def _aol_steering_disengage_msg(self):
+    raise unittest.SkipTest("No steering disengage signal")
+
+  def _aol_refresh_msg(self):
+    return self._speed_msg(0)
+
+  @abc.abstractmethod
+  def _prepare_aol_lateral(self):
+    pass
+
+  @abc.abstractmethod
+  def _aol_lateral_cmd(self):
+    pass
+
+  def _set_aol_experience(self, enabled: bool):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL if enabled else ALTERNATIVE_EXPERIENCE.DEFAULT)
+
+  def _assert_aol_lateral(self, should_tx: bool):
+    self._prepare_aol_lateral()
+    self.assertEqual(should_tx, self._tx(self._aol_lateral_cmd()))
+
+  def test_always_on_lateral_acc_main_state(self):
+    self._set_aol_acc_main(False)
+    self.assertFalse(self.safety.get_acc_main_on())
+
+    self._set_aol_acc_main(True)
+    self.assertTrue(self.safety.get_acc_main_on())
+    self.assertFalse(self.safety.get_controls_allowed())
+
+    self._set_aol_acc_main(False)
+    self.assertFalse(self.safety.get_acc_main_on())
+
+  def test_always_on_lateral_does_not_enable_longitudinal(self):
+    self.safety.set_controls_allowed(False)
+    self._set_aol_experience(True)
+    self._set_aol_acc_main(True)
+
+    self.assertFalse(self.safety.get_controls_allowed())
+    self.assertFalse(self.safety.get_longitudinal_allowed())
+
+  def test_always_on_lateral_blocks_without_preconditions(self):
+    self.safety.set_controls_allowed(False)
+    self._set_aol_experience(True)
+
+    self.assertFalse(self.safety.get_acc_main_on())
+    self.assertFalse(self.safety.get_longitudinal_allowed())
+    self._assert_aol_lateral(False)
+
+  def test_always_on_lateral_blocks_with_invalid_rx_checks(self):
+    self.safety.set_controls_allowed(False)
+    self._set_aol_experience(True)
+    self._set_aol_acc_main(True)
+    self._assert_aol_lateral(True)
+
+    self.safety.set_timer(int(2e6))
+    self.safety.safety_tick_current_safety_config()
+    self.assertFalse(self.safety.safety_config_valid())
+
+    self.assertTrue(self._rx(self._aol_refresh_msg()))
+    self.assertFalse(self.safety.get_controls_allowed())
+    self.assertFalse(self.safety.get_longitudinal_allowed())
+    self._assert_aol_lateral(False)
+
+  def test_always_on_lateral_blocks_with_steering_disengage(self):
+    disengage_msg = self._aol_steering_disengage_msg()
+
+    self.safety.set_controls_allowed(False)
+    self._set_aol_experience(True)
+    self._set_aol_acc_main(True)
+    self._assert_aol_lateral(True)
+
+    self.assertTrue(self._rx(disengage_msg))
+    self.assertFalse(self.safety.get_controls_allowed())
+    self.assertFalse(self._tx(self._aol_lateral_cmd()))
+
+
+class AlwaysOnLateralTorqueSteeringSafetyTest(AlwaysOnLateralSafetyTestBase, abc.ABC):
+
+  def _prepare_aol_lateral(self):
+    self._reset_speed_measurement(0)
+    self._set_prev_torque(0)
+
+  def _aol_lateral_cmd(self):
+    return self._torque_cmd_msg(self.MAX_RATE_UP)
+
+  def test_always_on_lateral_torque_when_acc_main_on(self):
+    self.safety.set_controls_allowed(False)
+    self._set_aol_experience(True)
+    self._set_aol_acc_main(True)
+
+    self.assertFalse(self.safety.get_controls_allowed())
+    self.assertFalse(self.safety.get_longitudinal_allowed())
+    self._assert_aol_lateral(True)
+
+  def test_always_on_lateral_torque_when_lkas_on(self):
+    self.safety.set_controls_allowed(False)
+    self._set_aol_experience(True)
+
+    self.assertFalse(self.safety.get_acc_main_on())
+    self._set_aol_lkas(True)
+    self.assertFalse(self.safety.get_controls_allowed())
+    self.assertFalse(self.safety.get_longitudinal_allowed())
+    self._assert_aol_lateral(True)
+
+
+class AlwaysOnLateralAngleSteeringSafetyTest(AlwaysOnLateralSafetyTestBase, abc.ABC):
+
+  def _prepare_aol_lateral(self):
+    self._reset_angle_measurement(0)
+    self._reset_speed_measurement(0)
+    self._set_prev_desired_angle(0)
+
+  def _aol_lateral_cmd(self):
+    return self._angle_cmd_msg(0, True)
+
+  def test_always_on_lateral_angle_when_acc_main_on(self):
+    self.safety.set_controls_allowed(False)
+    self._set_aol_experience(True)
+    self._set_aol_acc_main(True)
+
+    self.assertFalse(self.safety.get_controls_allowed())
+    self.assertFalse(self.safety.get_longitudinal_allowed())
+    self._assert_aol_lateral(True)
+
+  def test_always_on_lateral_angle_when_lkas_on(self):
+    self.safety.set_controls_allowed(False)
+    self._set_aol_experience(True)
+
+    self.assertFalse(self.safety.get_acc_main_on())
+    self._set_aol_lkas(True)
+    self.assertFalse(self.safety.get_controls_allowed())
+    self.assertFalse(self.safety.get_longitudinal_allowed())
+    self._assert_aol_lateral(True)

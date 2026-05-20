@@ -72,6 +72,13 @@ class HyundaiButtonBase:
       self._rx(self._button_msg(Buttons.NONE))
 
   # FrogPilot variables
+  def _set_aol_acc_main(self, enabled: bool):
+    if self.safety.get_acc_main_on() != enabled:
+      self.assertTrue(self._rx(self._button_msg(Buttons.NONE, main_button=1)))
+      self.assertTrue(self._rx(self._button_msg(Buttons.NONE, main_button=0)))
+
+    self.assertEqual(enabled, self.safety.get_acc_main_on())
+    self.assertFalse(self.safety.get_controls_allowed())
 
 
 class HyundaiLongitudinalBase(common.LongitudinalAccelSafetyTest):

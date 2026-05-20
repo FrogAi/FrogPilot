@@ -2,6 +2,8 @@ import pytest
 import itertools
 import numpy as np
 
+from types import SimpleNamespace
+
 from openpilot.common.parameterized import parameterized_class
 from cereal import log
 from openpilot.selfdrive.car.cruise import VCruiseHelper, V_CRUISE_MIN, V_CRUISE_MAX, V_CRUISE_INITIAL, V_CRUISE_UNSET, IMPERIAL_INCREMENT
@@ -51,16 +53,23 @@ class TestVCruiseHelper:
   def setup_method(self):
     self.CP = car.CarParams(pcmCruise=self.pcm_cruise)
     self.v_cruise_helper = VCruiseHelper(self.CP)
+    self.frogpilot_toggles = SimpleNamespace(
+      conditional_experimental_mode=False,
+      cruise_increase=1,
+      cruise_increase_long=5,
+      set_speed_offset=0,
+    )
     self.reset_cruise_speed_state()
 
   def reset_cruise_speed_state(self):
     # Two resets previous cruise speed
     for _ in range(2):
-      self.v_cruise_helper.update_v_cruise(car.CarState(cruiseState={"available": False}), enabled=False, is_metric=False)
+      self.v_cruise_helper.update_v_cruise(car.CarState(cruiseState={"available": False}), enabled=False, is_metric=False,
+                                           frogpilot_toggles=self.frogpilot_toggles)
 
   def enable(self, v_ego, experimental_mode):
     # Simulates user pressing set with a current speed
-    self.v_cruise_helper.initialize_v_cruise(car.CarState(vEgo=v_ego), experimental_mode)
+    self.v_cruise_helper.initialize_v_cruise(car.CarState(vEgo=v_ego), experimental_mode, self.frogpilot_toggles)
 
   def test_adjust_speed(self):
     """
@@ -74,7 +83,7 @@ class TestVCruiseHelper:
         CS = car.CarState(cruiseState={"available": True})
         CS.buttonEvents = [ButtonEvent(type=btn, pressed=pressed)]
 
-        self.v_cruise_helper.update_v_cruise(CS, enabled=True, is_metric=False)
+        self.v_cruise_helper.update_v_cruise(CS, enabled=True, is_metric=False, frogpilot_toggles=self.frogpilot_toggles)
         assert pressed == (self.v_cruise_helper.v_cruise_kph == self.v_cruise_helper.v_cruise_kph_last)
 
   def test_rising_edge_enable(self):
@@ -89,7 +98,7 @@ class TestVCruiseHelper:
                              (True, False)):
       CS = car.CarState(cruiseState={"available": True})
       CS.buttonEvents = [ButtonEvent(type=ButtonType.decelCruise, pressed=pressed)]
-      self.v_cruise_helper.update_v_cruise(CS, enabled=enabled, is_metric=False)
+      self.v_cruise_helper.update_v_cruise(CS, enabled=enabled, is_metric=False, frogpilot_toggles=self.frogpilot_toggles)
       if pressed:
         self.enable(V_CRUISE_INITIAL * CV.KPH_TO_MS, False)
 
@@ -107,7 +116,7 @@ class TestVCruiseHelper:
       for pressed in (True, False):
         CS = car.CarState(cruiseState={"available": True, "standstill": standstill})
         CS.buttonEvents = [ButtonEvent(type=ButtonType.accelCruise, pressed=pressed)]
-        self.v_cruise_helper.update_v_cruise(CS, enabled=True, is_metric=False)
+        self.v_cruise_helper.update_v_cruise(CS, enabled=True, is_metric=False, frogpilot_toggles=self.frogpilot_toggles)
 
         # speed should only update if not at standstill and button falling edge
         should_equal = standstill or pressed
@@ -130,7 +139,7 @@ class TestVCruiseHelper:
 
       CS = car.CarState(vEgo=float(v_ego), gasPressed=True, cruiseState={"available": True})
       CS.buttonEvents = [ButtonEvent(type=ButtonType.decelCruise, pressed=False)]
-      self.v_cruise_helper.update_v_cruise(CS, enabled=True, is_metric=False)
+      self.v_cruise_helper.update_v_cruise(CS, enabled=True, is_metric=False, frogpilot_toggles=self.frogpilot_toggles)
 
       # TODO: fix skipping first run due to enabled on rising edge exception
       if v_ego == 0.0:
@@ -162,7 +171,7 @@ class TestVCruiseHelper:
     assert v_cruise_helper.v_cruise_kph == V_CRUISE_UNSET
 
     v_cruise_helper.update_button_intent(car.CarState(buttonEvents=[ButtonEvent(type=ButtonType.resumeCruise, pressed=True)]))
-    v_cruise_helper.initialize_v_cruise(car.CarState(vEgo=30 * CV.MPH_TO_MS), experimental_mode=False)
+    v_cruise_helper.initialize_v_cruise(car.CarState(vEgo=30 * CV.MPH_TO_MS), experimental_mode=False, frogpilot_toggles=self.frogpilot_toggles)
 
     assert V_CRUISE_INITIAL <= v_cruise_helper.v_cruise_kph <= V_CRUISE_MAX
     assert v_cruise_helper.v_cruise_kph != V_CRUISE_UNSET

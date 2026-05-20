@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import unittest
 
+from opendbc.car.psa.psacan import psa_checksum
 from opendbc.car.structs import CarParams
 from opendbc.safety.tests.libsafety import libsafety_py
 import opendbc.safety.tests.common as common
@@ -9,7 +10,7 @@ from opendbc.safety.tests.common import CANPackerSafety
 LANE_KEEP_ASSIST = 0x3F2
 
 
-class TestPsaSafetyBase(common.CarSafetyTest, common.AngleSteeringSafetyTest):
+class TestPsaSafetyBase(common.AlwaysOnLateralAngleSteeringSafetyTest, common.CarSafetyTest, common.AngleSteeringSafetyTest):
   RELAY_MALFUNCTION_ADDRS = {0: (LANE_KEEP_ASSIST,)}
   FWD_BLACKLISTED_ADDRS = {2: [LANE_KEEP_ASSIST]}
   TX_MSGS = [[1010, 0]]
@@ -26,6 +27,7 @@ class TestPsaSafetyBase(common.CarSafetyTest, common.AngleSteeringSafetyTest):
   ANGLE_RATE_DOWN = [5., 2., .3]
 
   # FrogPilot variables
+  cnt_acc_status = 0
 
   def setUp(self):
     self.packer = CANPackerSafety("psa_aee2010_r3")
@@ -79,6 +81,21 @@ class TestPsaSafetyBase(common.CarSafetyTest, common.AngleSteeringSafetyTest):
     self.assertTrue(self._rx(msg))
 
   # FrogPilot variables
+  def _set_aol_acc_main(self, enabled: bool):
+    values = {"ACC_STATUS": 3 if enabled else 1, "DYN_ACC_PROCESS_COUNTER": self.cnt_acc_status % 16}
+    self.__class__.cnt_acc_status += 1
+
+    checksum_sig = self.packer.dbc.name_to_msg["HS2_DYN1_MDD_ETAT_2B6"].sigs["DYN_ACC_CHECKSUM"]
+
+    def fix_checksum(msg):
+      addr, dat, bus = msg
+      ret = bytearray(dat)
+      ret[7] = (ret[7] & 0xF0) | psa_checksum(addr, checksum_sig, ret)
+      return addr, ret, bus
+
+    self.assertTrue(self._rx(self.packer.make_can_msg_safety("HS2_DYN1_MDD_ETAT_2B6", self.ADAS_BUS, values, fix_checksum=fix_checksum)))
+    self.assertEqual(enabled, self.safety.get_acc_main_on())
+    self.assertFalse(self.safety.get_controls_allowed())
 
 
 class TestPsaStockSafety(TestPsaSafetyBase):

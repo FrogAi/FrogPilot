@@ -22,7 +22,8 @@ ALL_GAS_EV_HYBRID_COMBOS = [
 ]
 
 
-class TestHyundaiCanfdBase(HyundaiButtonBase, common.CarSafetyTest, common.DriverTorqueSteeringSafetyTest, common.SteerRequestCutSafetyTest):
+class TestHyundaiCanfdBase(common.AlwaysOnLateralTorqueSteeringSafetyTest, HyundaiButtonBase,
+                           common.CarSafetyTest, common.DriverTorqueSteeringSafetyTest, common.SteerRequestCutSafetyTest):
 
   TX_MSGS = [[0x50, 0], [0x1CF, 1], [0x2A4, 0]]
   STANDSTILL_THRESHOLD = 12  # 0.375 kph
@@ -82,6 +83,19 @@ class TestHyundaiCanfdBase(HyundaiButtonBase, common.CarSafetyTest, common.Drive
     return self.packer.make_can_msg_safety("CRUISE_BUTTONS", bus, values)
 
   # FrogPilot variables
+  def _lkas_button_msg(self, pressed: bool):
+    values = {
+      "CRUISE_BUTTONS": 0,
+      "ADAPTIVE_CRUISE_MAIN_BTN": 0,
+      "LDA_BTN": int(pressed),
+    }
+    return self.packer.make_can_msg_safety("CRUISE_BUTTONS", self.PT_BUS, values)
+
+  def _set_aol_lkas(self, enabled: bool):
+    if enabled:
+      self.assertTrue(self._rx(self._lkas_button_msg(True)))
+      self.assertTrue(self._rx(self._lkas_button_msg(False)))
+      self.assertFalse(self.safety.get_controls_allowed())
 
 
 class TestHyundaiCanfdLFASteeringBase(TestHyundaiCanfdBase):
@@ -153,6 +167,13 @@ class TestHyundaiCanfdLFASteeringAltButtonsBase(TestHyundaiCanfdLFASteeringBase)
       self.assertFalse(self._tx(self._acc_cancel_msg(False)))
 
   # FrogPilot variables
+  def _lkas_button_msg(self, pressed: bool):
+    values = {
+      "CRUISE_BUTTONS": 0,
+      "ADAPTIVE_CRUISE_MAIN_BTN": 0,
+      "LDA_BTN": int(pressed),
+    }
+    return self.packer.make_can_msg_safety("CRUISE_BUTTONS_ALT", self.PT_BUS, values)
 
 
 @parameterized_class(ALL_GAS_EV_HYBRID_COMBOS)

@@ -136,9 +136,14 @@ class TestToyotaSafetyBase(common.CarSafetyTest, common.LongitudinalAccelSafetyT
     self._common_measurement_test(self._speed_msg, 0, 259 / 3.6, 1,
                                   self.safety.get_vehicle_speed_min, self.safety.get_vehicle_speed_max)
   # FrogPilot variables
+  def _set_aol_acc_main(self, enabled: bool):
+    self.assertTrue(self._rx(self.packer.make_can_msg_safety("PCM_CRUISE_2", 0, {"MAIN_ON": enabled})))
+    self.assertEqual(enabled, self.safety.get_acc_main_on())
+    self.assertFalse(self.safety.get_controls_allowed())
 
 
-class TestToyotaSafetyTorque(TestToyotaSafetyBase, common.MotorTorqueSteeringSafetyTest, common.SteerRequestCutSafetyTest):
+class TestToyotaSafetyTorque(common.AlwaysOnLateralTorqueSteeringSafetyTest,
+                             TestToyotaSafetyBase, common.MotorTorqueSteeringSafetyTest, common.SteerRequestCutSafetyTest):
 
   MAX_RATE_UP = 15
   MAX_RATE_DOWN = 25
@@ -158,7 +163,7 @@ class TestToyotaSafetyTorque(TestToyotaSafetyBase, common.MotorTorqueSteeringSaf
     self.safety.init_tests()
 
 
-class TestToyotaSafetyAngle(TestToyotaSafetyBase, common.AngleSteeringSafetyTest):
+class TestToyotaSafetyAngle(common.AlwaysOnLateralAngleSteeringSafetyTest, TestToyotaSafetyBase, common.AngleSteeringSafetyTest):
 
   # Angle control limits
   STEER_ANGLE_MAX = 94.9461  # deg

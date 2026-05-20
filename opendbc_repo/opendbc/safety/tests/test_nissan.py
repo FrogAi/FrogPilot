@@ -93,7 +93,7 @@ class TestNissanSafetyAltEpsBus(TestNissanSafety):
     self.safety.init_tests()
 
 
-class TestNissanLeafSafety(TestNissanSafety):
+class TestNissanLeafSafety(common.AlwaysOnLateralAngleSteeringSafetyTest, TestNissanSafety):
 
   def setUp(self):
     self.packer = CANPackerSafety("nissan_leaf_2018_generated")
@@ -114,6 +114,11 @@ class TestNissanLeafSafety(TestNissanSafety):
     pass
 
   # FrogPilot variables
+  def _set_aol_acc_main(self, enabled: bool):
+    values = {"GAS_PEDAL": 0, "CRUISE_AVAILABLE": enabled, "USER_BRAKE_PRESSED": False}
+    self.assertTrue(self._rx(self.packer.make_can_msg_safety("CRUISE_THROTTLE", 0, values)))
+    self.assertEqual(enabled, self.safety.get_acc_main_on())
+    self.assertFalse(self.safety.get_controls_allowed())
 
 
 if __name__ == "__main__":

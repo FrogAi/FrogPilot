@@ -19,7 +19,7 @@ MSG_ACC_GRA_ANZEIGE = 0x56A   # TX by OP, ACC HUD
 MSG_LDW_1 = 0x5BE             # TX by OP, Lane line recognition and text alerts
 
 
-class TestVolkswagenPqSafetyBase(common.CarSafetyTest, common.DriverTorqueSteeringSafetyTest):
+class TestVolkswagenPqSafetyBase(common.AlwaysOnLateralTorqueSteeringSafetyTest, common.CarSafetyTest, common.DriverTorqueSteeringSafetyTest):
   cruise_engaged = False
 
   RELAY_MALFUNCTION_ADDRS = {0: (MSG_HCA_1, MSG_LDW_1)}
@@ -109,6 +109,10 @@ class TestVolkswagenPqSafetyBase(common.CarSafetyTest, common.DriverTorqueSteeri
     self.assertEqual(0, self.safety.get_torque_driver_min())
 
   # FrogPilot variables
+  def _set_aol_acc_main(self, enabled: bool):
+    self.assertTrue(self._rx(self._motor_5_msg(main_switch=enabled)))
+    self.assertEqual(enabled, self.safety.get_acc_main_on())
+    self.assertFalse(self.safety.get_controls_allowed())
 
 
 class TestVolkswagenPqStockSafety(TestVolkswagenPqSafetyBase):
