@@ -71,6 +71,10 @@ class CarInterface(CarInterfaceBase):
       if any(fw.ecu == 'eps' and b"68" < fw.fwVersion[:4] <= b"6831" for fw in car_fw):
         ret.minSteerSpeed = 0.
 
+      # RealFast variables
+      else:
+        ret.minSteerSpeed = 0.5
+
     elif candidate == CAR.RAM_HD_5TH_GEN:
       ret.steerActuatorDelay = 0.2
 

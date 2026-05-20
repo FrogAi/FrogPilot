@@ -33,6 +33,9 @@
 #define CHRYSLER_RAM_HD_LKAS_COMMAND     0x276
 #define CHRYSLER_RAM_HD_CRUISE_BUTTONS   0x23A
 
+// RealFast variables
+#define CHRYSLER_RAM_HD_CRUISE_BUTTONS_ALT 0x23B
+
 typedef enum {
   CHRYSLER_RAM_DT,
   CHRYSLER_RAM_HD,
@@ -130,7 +133,7 @@ static bool chrysler_tx_hook(const CANPacket_t *msg) {
   }
 
   // FORCE CANCEL: only the cancel button press is allowed
-  if (msg->addr == CHRYSLER_ADDR(CRUISE_BUTTONS)) {
+  if ((msg->addr == CHRYSLER_ADDR(CRUISE_BUTTONS)) || ((chrysler_platform == CHRYSLER_RAM_HD) && (msg->addr == CHRYSLER_RAM_HD_CRUISE_BUTTONS_ALT))) {
     const bool is_cancel = msg->data[0] == 1U;
     const bool is_resume = msg->data[0] == 0x10U;
     const bool allowed = is_cancel || (is_resume && controls_allowed);
@@ -186,6 +189,9 @@ static safety_config chrysler_init(uint16_t param) {
     {CHRYSLER_RAM_HD_CRUISE_BUTTONS, 2, 3, .check_relay = false},
     {CHRYSLER_RAM_HD_LKAS_COMMAND, 0, 8, .check_relay = true},
     {CHRYSLER_RAM_HD_DAS_6, 0, 8, .check_relay = true},
+
+    // RealFast variables
+    {CHRYSLER_RAM_HD_CRUISE_BUTTONS_ALT, 2, 3, .check_relay = false},
   };
 
   const uint32_t CHRYSLER_PARAM_RAM_HD = 2U;  // set for Ram HD platform
