@@ -2,13 +2,19 @@
 import datetime
 import subprocess
 import time
+from functools import cache
+from pathlib import Path
 from typing import NoReturn
+from zoneinfo import available_timezones
+
+from timezonefinder import TimezoneFinder
 
 import cereal.messaging as messaging
 from openpilot.common.time_helpers import min_date, MAX_DATE, system_time_valid
 from openpilot.common.swaglog import cloudlog
 from openpilot.common.params import Params
 from openpilot.common.gps import get_gps_location_service
+from openpilot.system.hardware import AGNOS
 
 
 def set_time(new_time):
@@ -25,6 +31,30 @@ def set_time(new_time):
 
 
 # FrogPilot variables
+@cache
+def valid_timezones():
+  return available_timezones()
+
+
+def set_timezone(timezone):
+  if timezone not in valid_timezones():
+    cloudlog.error(f"Timezone not supported {timezone}")
+    return False
+
+  cloudlog.debug(f"Setting timezone to {timezone}")
+  try:
+    if AGNOS:
+      tzpath = Path("/usr/share/zoneinfo") / timezone
+      subprocess.run(["sudo", "ln", "-snf", str(tzpath), "/data/etc/tmptime"], check=True)
+      subprocess.run(["sudo", "mv", "/data/etc/tmptime", "/data/etc/localtime"], check=True)
+      subprocess.run(["sudo", "sh", "-c", "cat > /data/etc/timezone"], input=f"{timezone}\n", text=True, check=True)
+    else:
+      subprocess.run(["sudo", "timedatectl", "set-timezone", timezone], check=True)
+  except subprocess.CalledProcessError:
+    cloudlog.exception(f"Error setting timezone to {timezone}")
+    return False
+
+  return True
 
 
 def main() -> NoReturn:
@@ -43,6 +73,11 @@ def main() -> NoReturn:
   sm = messaging.SubMaster([gps_location_service])
 
   # FrogPilot variables
+  tf = TimezoneFinder()
+
+  last_timezone = params.get("Timezone")
+  if last_timezone is not None:
+    set_timezone(last_timezone)
 
   while True:
     sm.update(1000)
@@ -64,6 +99,11 @@ def main() -> NoReturn:
     set_time(gps_time)
 
     # FrogPilot variables
+    timezone = tf.timezone_at(lng=gps.longitude, lat=gps.latitude)
+    if timezone is not None and timezone != last_timezone:
+      if set_timezone(timezone):
+        params.put("Timezone", timezone)
+        last_timezone = timezone
 
     time.sleep(10)
 
