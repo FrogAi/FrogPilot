@@ -26,7 +26,14 @@ namespace Path {
     if (const char *env = getenv("LOG_ROOT")) {
       return env;
     }
-    return Hardware::PC() ? Path::comma_home() + "/media/0/realdata" : "/data/media/0/realdata";
+
+    if (Hardware::PC()) {
+      return Path::comma_home() + "/media/0/realdata";
+    }
+
+    // FrogPilot variables
+
+    return "/data/media/0/realdata";
   }
 
   inline std::string params() {

@@ -32,6 +32,8 @@ struct HwmonState {
 
 HwmonState hwmon_state;
 
+// FrogPilot variables
+
 bool check_connected(Panda *panda) {
   if (!panda->connected()) {
     do_exit = true;
@@ -92,6 +94,8 @@ void can_send_thread(Panda *panda, bool fake_send) {
     } else {
       LOGE("sendcan too old to send: %" PRIu64 ", %" PRIu64, nanos_since_boot(), event.getLogMonoTime());
     }
+
+    // FrogPilot variables
   }
 }
 

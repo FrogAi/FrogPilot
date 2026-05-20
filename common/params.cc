@@ -94,6 +94,8 @@ private:
 Params::Params(const std::string &path) {
   params_prefix = "/" + util::getenv("OPENPILOT_PREFIX", "d");
   params_path = ensure_params_path(params_prefix, path);
+
+  // FrogPilot variables
 }
 
 Params::~Params() {
@@ -157,18 +159,23 @@ int Params::put(const char* key, const char* value, size_t value_size) {
 
     // fsync parent directory
     result = fsync_dir(getParamPath());
+
+    // FrogPilot variables
   } while (false);
 
   close(tmp_fd);
   if (result != 0) {
     ::unlink(tmp_path.c_str());
   }
+
   return result;
 }
 
 int Params::remove(const std::string &key) {
   FileLock file_lock(params_path + "/.lock");
   int result = unlink(getParamPath(key).c_str());
+
+  // FrogPilot variables
   if (result != 0) {
     return result;
   }
@@ -215,6 +222,8 @@ void Params::clearAll(ParamKeyFlag key_flag) {
         auto it = keys.find(de->d_name);
         if (it == keys.end() || (it->second.flags & key_flag)) {
           unlink(getParamPath(de->d_name).c_str());
+
+          // FrogPilot variables
         }
       }
     }
@@ -240,3 +249,5 @@ void Params::asyncWriteThread() {
     put(p.first, p.second);
   }
 }
+
+// FrogPilot variables

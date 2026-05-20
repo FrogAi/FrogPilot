@@ -43,6 +43,8 @@ static void mazda_rx_hook(const CANPacket_t *msg) {
     if (msg->addr == MAZDA_PEDALS) {
       brake_pressed = (msg->data[0] & 0x10U);
     }
+
+    // FrogPilot variables
   }
 }
 

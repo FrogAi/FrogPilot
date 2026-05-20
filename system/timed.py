@@ -24,6 +24,9 @@ def set_time(new_time):
     cloudlog.exception("timed.failed_setting_time")
 
 
+# FrogPilot variables
+
+
 def main() -> NoReturn:
   """
     timed has two responsibilities:
@@ -38,6 +41,9 @@ def main() -> NoReturn:
 
   pm = messaging.PubMaster(['clocks'])
   sm = messaging.SubMaster([gps_location_service])
+
+  # FrogPilot variables
+
   while True:
     sm.update(1000)
 
@@ -56,6 +62,9 @@ def main() -> NoReturn:
       continue
 
     set_time(gps_time)
+
+    # FrogPilot variables
+
     time.sleep(10)
 
 if __name__ == "__main__":

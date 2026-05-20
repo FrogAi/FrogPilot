@@ -50,6 +50,8 @@ static void nissan_rx_hook(const CANPacket_t *msg) {
     bool cruise_engaged = (msg->data[0] >> 3) & 1U;
     pcm_cruise_check(cruise_engaged);
   }
+
+  // FrogPilot variables
 }
 
 

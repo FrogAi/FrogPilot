@@ -25,6 +25,8 @@ class TestPsaSafetyBase(common.CarSafetyTest, common.AngleSteeringSafetyTest):
   ANGLE_RATE_UP = [2.5, 1.5, .2]
   ANGLE_RATE_DOWN = [5., 2., .3]
 
+  # FrogPilot variables
+
   def setUp(self):
     self.packer = CANPackerSafety("psa_aee2010_r3")
     self.safety = libsafety_py.libsafety
@@ -75,6 +77,8 @@ class TestPsaSafetyBase(common.CarSafetyTest, common.AngleSteeringSafetyTest):
     # write to unused payload byte
     msg[0].data[6] = 0xAB
     self.assertTrue(self._rx(msg))
+
+  # FrogPilot variables
 
 
 class TestPsaStockSafety(TestPsaSafetyBase):

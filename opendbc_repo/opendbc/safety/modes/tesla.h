@@ -179,6 +179,8 @@ static void tesla_rx_hook(const CANPacket_t *msg) {
     if (msg->addr == 0x155U) {
       vehicle_moving = !GET_BIT(msg, 41U);  // ESP_vehicleStandstillSts
     }
+
+    // FrogPilot variables
   }
 
   if (msg->bus == 2U) {

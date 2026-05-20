@@ -171,6 +171,8 @@ class CarState(CarStateBase):
 
       ret.cruiseState.enabled = pt_cp.vl["ECMCruiseControl"]["CruiseActive"] != 0
 
+    # FrogPilot variables
+
     return ret
 
   @staticmethod

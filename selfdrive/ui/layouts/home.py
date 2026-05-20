@@ -61,11 +61,15 @@ class HomeLayout(Widget):
     self._exp_mode_button = ExperimentalModeButton()
     self._setup_callbacks()
 
+    # FrogPilot variables
+
   def show_event(self):
     super().show_event()
     self._exp_mode_button.show_event()
     self.last_refresh = time.monotonic()
     self._refresh()
+
+    # FrogPilot variables
 
   def _setup_callbacks(self):
     self.update_alert.set_dismiss_callback(lambda: self._set_state(HomeLayoutState.HOME))
@@ -180,6 +184,8 @@ class HomeLayout(Widget):
                                 version_text_width, self.header_rect.height)
     gui_label(version_rect, self._version_text, 48, rl.WHITE, alignment=rl.GuiTextAlignment.TEXT_ALIGN_RIGHT)
 
+    # FrogPilot variables
+
   def _render_home_content(self):
     self._render_left_column()
     self._render_right_column()
@@ -226,6 +232,8 @@ class HomeLayout(Widget):
     self.alert_count = alert_count
     self._prev_update_available = update_available
     self._prev_alerts_present = alerts_present
+
+    # FrogPilot variables
 
   def _get_version_text(self) -> str:
     brand = "openpilot"

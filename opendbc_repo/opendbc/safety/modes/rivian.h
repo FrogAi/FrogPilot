@@ -36,6 +36,8 @@ static uint32_t rivian_compute_checksum(const CANPacket_t *msg) {
     chksum = _rivian_compute_checksum(msg, 0x1D, 0xB1);
   } else if (msg->addr == 0x150U) {
     chksum = _rivian_compute_checksum(msg, 0x1D, 0x9A);
+
+  // FrogPilot variables
   } else {
   }
   return chksum;
@@ -81,6 +83,8 @@ static void rivian_rx_hook(const CANPacket_t *msg) {
     if (msg->addr == 0x38fU) {
       brake_pressed = (msg->data[2] >> 7) & 1U;
     }
+
+    // FrogPilot variables
   }
 
   if (msg->bus == 2U) {
@@ -154,6 +158,8 @@ static safety_config rivian_init(uint16_t param) {
     {.msg = {{0x380, 0, 5, 100U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  // EPAS_SystemStatus (driver torque)
     {.msg = {{0x38f, 0, 6, 50U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},   // iBESP2 (brakes)
     {.msg = {{0x100, 2, 8, 100U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  // ACM_Status (cruise state)
+
+    // FrogPilot variables
   };
 
   bool rivian_longitudinal = false;

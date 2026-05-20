@@ -29,6 +29,8 @@ CLOSE_BTN_PRESSED = rl.Color(59, 59, 59, 255)
 TEXT_NORMAL = rl.Color(128, 128, 128, 255)
 TEXT_SELECTED = rl.WHITE
 
+# FrogPilot variables
+
 
 class PanelType(IntEnum):
   DEVICE = 0
@@ -38,12 +40,16 @@ class PanelType(IntEnum):
   FIREHOSE = 4
   DEVELOPER = 5
 
+  # FrogPilot variables
+
 
 @dataclass
 class PanelInfo:
   name: str
   instance: Widget
   button_rect: rl.Rectangle = rl.Rectangle(0, 0, 0, 0)
+
+  # FrogPilot variables
 
 
 class SettingsLayout(Widget):
@@ -55,6 +61,8 @@ class SettingsLayout(Widget):
     wifi_manager = WifiManager()
     wifi_manager.set_active(False)
 
+    # FrogPilot variables
+
     self._panels = {
       PanelType.DEVICE: PanelInfo(tr_noop("Device"), DeviceLayout()),
       PanelType.NETWORK: PanelInfo(tr_noop("Network"), NetworkUI(wifi_manager)),
@@ -62,6 +70,8 @@ class SettingsLayout(Widget):
       PanelType.SOFTWARE: PanelInfo(tr_noop("Software"), SoftwareLayout()),
       PanelType.FIREHOSE: PanelInfo(tr_noop("Firehose"), FirehoseLayout()),
       PanelType.DEVELOPER: PanelInfo(tr_noop("Developer"), DeveloperLayout()),
+
+      # FrogPilot variables
     }
 
     self._font_medium = gui_app.font(FontWeight.MEDIUM)

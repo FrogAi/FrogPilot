@@ -37,6 +37,8 @@ PLURAL_SELECTORS = {
   'zh-CHS': lambda n: 0,
   'ko': lambda n: 0,
   'ja': lambda n: 0,
+
+  # FrogPilot variables
 }
 
 

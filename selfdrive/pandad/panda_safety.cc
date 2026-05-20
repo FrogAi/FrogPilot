@@ -50,6 +50,9 @@ std::string PandaSafety::fetchCarParams() {
   if (!params_.getBool("ControlsReady")) {
     return {};
   }
+
+  // FrogPilot variables
+
   return params_.get("CarParams");
 }
 
@@ -60,6 +63,8 @@ void PandaSafety::setSafetyMode(const std::string &params_string) {
 
   auto safety_configs = car_params.getSafetyConfigs();
   uint16_t alternative_experience = car_params.getAlternativeExperience();
+
+  // FrogPilot variables
 
   cereal::CarParams::SafetyModel safety_model = safety_configs[0].getSafetyModel();
   uint16_t safety_param = safety_configs[0].getSafetyParam();

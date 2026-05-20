@@ -248,6 +248,9 @@ def main(exit_event: threading.Event | None = None) -> None:
   uploader = Uploader(dongle_id, Paths.log_root())
 
   backoff = 0.1
+
+  # FrogPilot variables
+
   while not exit_event.is_set():
     sm.update(0)
     offroad = params.get_bool("IsOffroad")
@@ -267,6 +270,8 @@ def main(exit_event: threading.Event | None = None) -> None:
       backoff = min(backoff*2, 120)
     if allow_sleep:
       time.sleep(backoff + random.uniform(0, backoff))
+
+    # FrogPilot variables
 
 
 if __name__ == "__main__":

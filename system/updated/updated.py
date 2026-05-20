@@ -413,6 +413,7 @@ class Updater:
     finalize_update()
     cloudlog.info("finalize success!")
 
+    # FrogPilot variables
 
 def main() -> None:
   params = Params()
@@ -452,8 +453,13 @@ def main() -> None:
 
     # Run the update loop
     first_run = True
+
+    # FrogPilot variables
+
     while True:
       wait_helper.ready_event.clear()
+
+      # FrogPilot variables
 
       # Attempt an update
       exception = None

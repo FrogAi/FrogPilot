@@ -58,6 +58,8 @@ class Track:
     self.K_K = kalman_params.K
     self.kf = KF1D([[v_lead], [0.0]], self.K_A, self.K_C, self.K_K)
 
+    # FrogPilot variables
+
   def update(self, d_rel: float, y_rel: float, v_rel: float, v_lead: float, measured: float):
     # relative values, copy
     self.dRel = d_rel   # LONG_DIST
@@ -109,6 +111,8 @@ class Track:
     ret = f"x: {self.dRel:4.1f}  y: {self.yRel:4.1f}  v: {self.vRel:4.1f}  a: {self.aLeadK:4.1f}"
     return ret
 
+  # FrogPilot variables
+
 
 def laplacian_pdf(x: float, mu: float, b: float):
   b = max(b, 1e-4)
@@ -116,6 +120,8 @@ def laplacian_pdf(x: float, mu: float, b: float):
 
 
 def match_vision_to_track(v_ego: float, lead: capnp._DynamicStructReader, tracks: dict[int, Track]):
+  # FrogPilot variables
+
   offset_vision_dist = lead.x[0] - RADAR_TO_CAMERA
 
   def prob(c):
@@ -179,7 +185,12 @@ def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capn
       if (not lead_dict['status']) or (closest_track.dRel < lead_dict['dRel']):
         lead_dict = closest_track.get_RadarState()
 
+  # FrogPilot variables
+
   return lead_dict
+
+
+# FrogPilot variables
 
 
 class RadarD:
@@ -198,6 +209,8 @@ class RadarD:
     self.radar_state_valid = False
 
     self.ready = False
+
+    # FrogPilot variables
 
   def update(self, sm: messaging.SubMaster, rr: car.RadarData):
     self.ready = sm.seen['modelV2']
@@ -251,6 +264,8 @@ class RadarD:
       self.radar_state.leadOne = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[0], model_v_ego, self.lead_prob_filters[0].x, low_speed_override=True)
       self.radar_state.leadTwo = get_lead(self.v_ego, self.ready, self.tracks, leads_v3[1], model_v_ego, self.lead_prob_filters[1].x, low_speed_override=False)
 
+    # FrogPilot variables
+
   def publish(self, pm: messaging.PubMaster):
     assert self.radar_state is not None
 
@@ -274,6 +289,8 @@ def main() -> None:
   pm = messaging.PubMaster(['radarState'])
 
   RD = RadarD(CP.radarDelay)
+
+  # FrogPilot variables
 
   while 1:
     sm.update()

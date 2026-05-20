@@ -1143,3 +1143,5 @@ class CarSafetyTest(SafetyTest):
     self.assertFalse(self.safety.get_controls_allowed())
     self.assertFalse(self.safety.safety_config_valid())
 
+
+# FrogPilot variables

@@ -62,6 +62,8 @@ class Car:
   RI: RadarInterfaceBase
   CP: car.CarParams
 
+  # FrogPilot variables
+
   def __init__(self, CI=None, RI=None) -> None:
     self.can_sock = messaging.sub_sock('can', timeout=20)
     self.sm = messaging.SubMaster(['pandaStates', 'carControl', 'onroadEvents'])
@@ -103,6 +105,8 @@ class Car:
 
       # continue onto next fingerprinting step in pandad
       self.params.put_bool("FirmwareQueryDone", True, block=True)
+
+      # FrogPilot variables
     else:
       self.CI, self.CP = CI, CI.CP
       self.RI = RI
@@ -156,6 +160,8 @@ class Car:
     # card is driven by can recv, expected at 100Hz
     self.rk = Ratekeeper(100, print_delay_threshold=None)
 
+    # FrogPilot variables
+
   def state_update(self) -> tuple[car.CarState, structs.RadarDataT | None]:
     """carState update loop, driven by can"""
 
@@ -191,6 +197,8 @@ class Car:
     # OPGM variables
     self.v_cruise_helper.update_button_intent(CS)
 
+    # FrogPilot variables
+
     return CS, RD
 
   def state_publish(self, CS: car.CarState, RD: structs.RadarDataT | None):
@@ -223,6 +231,8 @@ class Car:
       tracks_msg.liveTracks = RD
       self.pm.send('liveTracks', tracks_msg)
 
+    # FrogPilot variables
+
   def controls_update(self, CS: car.CarState, CC: car.CarControl):
     """control update loop, driven by carControl"""
 
@@ -253,6 +263,9 @@ class Car:
 
     self.initialized_prev = initialized
     self.CS_prev = CS
+
+    # FrogPilot variables
+    self.CI.CS.CC = self.sm['carControl']
 
   def params_thread(self, evt):
     while not evt.is_set():

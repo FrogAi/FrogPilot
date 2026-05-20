@@ -15,6 +15,8 @@ def dmonitoringd_thread():
   DM = DriverMonitoring(rhd_saved=params.get_bool("IsRhdDetected"), always_on=params.get_bool("AlwaysOnDM"))
   demo_mode=False
 
+  # FrogPilot variables
+
   # 20Hz <- dmonitoringmodeld
   while True:
     sm.update()
@@ -27,6 +29,7 @@ def dmonitoringd_thread():
       DM.run_step(sm, demo=True)
     elif valid:
       DM.run_step(sm, demo=demo_mode)
+    # FrogPilot variables
 
     # publish
     dat = DM.get_state_packet(valid=valid)

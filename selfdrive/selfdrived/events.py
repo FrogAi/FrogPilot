@@ -21,6 +21,8 @@ VisualAlert = car.CarControl.HUDControl.VisualAlert
 AudibleAlert = car.CarControl.HUDControl.AudibleAlert
 EventName = log.OnroadEvent.EventName
 
+# FrogPilot variables
+
 
 # Alert priorities
 class Priority(IntEnum):
@@ -48,6 +50,8 @@ class ET:
 
 # get event name from enum
 EVENT_NAME = {v: k for k, v in EventName.schema.enumerants.items()}
+
+# FrogPilot variables
 
 
 class Events:
@@ -387,6 +391,9 @@ def invalid_lkas_setting_alert(CP: car.CarParams, CS: car.CarState, sm: messagin
   elif CP.brand == "nissan":
     text = "Disable your car's stock LKAS to engage"
   return NormalPermanentAlert("Invalid LKAS setting", text)
+
+
+# FrogPilot variables
 
 
 
@@ -1027,6 +1034,10 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   EventName.audioFeedback: {
     ET.PERMANENT: audio_feedback_alert,
   },
+}
+
+# FrogPilot variables
+FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 }
 
 
