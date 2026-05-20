@@ -181,6 +181,12 @@ static void tesla_rx_hook(const CANPacket_t *msg) {
     }
 
     // FrogPilot variables
+    if (msg->addr == 0x286U) {
+      int cruise_state = (msg->data[1] >> 4) & 0x07U;
+      bool cruise_engaged = (cruise_state == 2) || (cruise_state == 3) || (cruise_state == 4) ||
+                            (cruise_state == 6) || (cruise_state == 7);
+      acc_main_on = ((cruise_state == 1) || cruise_engaged) && !tesla_autopark;
+    }
   }
 
   if (msg->bus == 2U) {

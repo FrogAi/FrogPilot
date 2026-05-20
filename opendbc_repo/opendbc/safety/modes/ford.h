@@ -161,6 +161,10 @@ static void ford_rx_hook(const CANPacket_t *msg) {
     }
 
     // FrogPilot variables
+    if (msg->addr == FORD_EngBrakeData) {
+      unsigned int cruise_state = msg->data[1] & 0x07U;
+      acc_main_on = (cruise_state == 3U) || (cruise_state == 4U) || (cruise_state == 5U);
+    }
   }
 }
 

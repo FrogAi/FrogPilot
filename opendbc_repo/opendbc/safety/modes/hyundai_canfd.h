@@ -87,21 +87,25 @@ static void hyundai_canfd_rx_hook(const CANPacket_t *msg) {
       int cruise_button = 0;
 
       // FrogPilot variables
+      bool lkas_button = false;
 
       if (msg->addr == 0x1cfU) {
         cruise_button = msg->data[2] & 0x7U;
         main_button = GET_BIT(msg, 19U);
 
         // FrogPilot variables
+        lkas_button = GET_BIT(msg, 23U);
       } else {
         cruise_button = (msg->data[4] >> 4) & 0x7U;
         main_button = GET_BIT(msg, 34U);
 
         // FrogPilot variables
+        lkas_button = GET_BIT(msg, 39U);
       }
       hyundai_common_cruise_buttons_check(cruise_button, main_button);
 
       // FrogPilot variables
+      hyundai_lkas_button_check(lkas_button);
     }
 
     // gas press, different for EV, hybrid, and ICE models

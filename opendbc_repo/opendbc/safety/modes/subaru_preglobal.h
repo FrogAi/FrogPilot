@@ -49,6 +49,9 @@ static void subaru_preglobal_rx_hook(const CANPacket_t *msg) {
     }
 
     // FrogPilot variables
+    if (msg->addr == MSG_SUBARU_PG_CruiseControl) {
+      acc_main_on = GET_BIT(msg, 48U);
+    }
   }
 }
 

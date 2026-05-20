@@ -127,6 +127,9 @@ static void subaru_rx_hook(const CANPacket_t *msg) {
   }
 
   // FrogPilot variables
+  if ((msg->addr == MSG_SUBARU_CruiseControl) && (msg->bus == alt_main_bus)) {
+    acc_main_on = GET_BIT(msg, 40U);
+  }
 }
 
 static bool subaru_tx_hook(const CANPacket_t *msg) {
