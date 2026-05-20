@@ -13,6 +13,8 @@ from openpilot.system.ui.lib.multilang import tr, trn
 from openpilot.system.ui.widgets.label import gui_label
 from openpilot.system.ui.widgets import Widget
 
+from openpilot.frogpilot.ui.drive_stats import DriveStatsLayout
+
 HEADER_HEIGHT = 80
 HEAD_BUTTON_FONT_SIZE = 40
 CONTENT_MARGIN = 40
@@ -62,6 +64,7 @@ class HomeLayout(Widget):
     self._setup_callbacks()
 
     # FrogPilot variables
+    self._drive_stats_widget = DriveStatsLayout()
 
   def show_event(self):
     super().show_event()
@@ -70,6 +73,7 @@ class HomeLayout(Widget):
     self._refresh()
 
     # FrogPilot variables
+    self._drive_stats_widget.show_event()
 
   def _setup_callbacks(self):
     self.update_alert.set_dismiss_callback(lambda: self._set_state(HomeLayoutState.HOME))
@@ -197,7 +201,7 @@ class HomeLayout(Widget):
     self.offroad_alert.render(self.content_rect)
 
   def _render_left_column(self):
-    self._prime_widget.render(self.left_column_rect)
+    self._drive_stats_widget.render(self.left_column_rect)
 
   def _render_right_column(self):
     exp_height = 125
