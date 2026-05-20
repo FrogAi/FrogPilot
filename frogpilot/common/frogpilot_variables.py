@@ -20,6 +20,7 @@ from opendbc.car.toyota.values import ToyotaFrogPilotFlags
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.constants import CV
 from openpilot.common.params import Params
+from openpilot.selfdrive.controls.lib.latcontrol_torque import KP
 from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.system.hardware import HARDWARE
 from openpilot.system.hardware.power_monitoring import VBATT_PAUSE_CHARGING
@@ -252,6 +253,17 @@ class FrogPilotVariables:
     toggle.hide_speed = self.get_value("HideSpeed", condition=advanced_custom_ui)
     toggle.hide_speed_limit = self.get_value("HideSpeedLimit", condition=advanced_custom_ui)
     toggle.use_wheel_speed = self.get_value("WheelSpeed", condition=advanced_custom_ui)
+
+    advanced_lateral_tuning = self.get_value("AdvancedLateralTune")
+    toggle.steerActuatorDelay = self.get_value("SteerDelay", cast=float, condition=advanced_lateral_tuning, default=toggle.steer_actuator_delay, min=0.01, max=1.0)
+    toggle.use_custom_steerActuatorDelay = bool(round(toggle.steerActuatorDelay, 2) != round(toggle.steer_actuator_delay, 2))
+    toggle.friction = self.get_value("SteerFriction", cast=float, condition=advanced_lateral_tuning and toggle.is_torque_car, default=toggle.default_friction, min=0, max=1)
+    toggle.use_custom_friction = bool(round(toggle.friction, 2) != round(toggle.default_friction, 2)) and toggle.is_torque_car
+    toggle.steerKp = [[0], [self.get_value("SteerKP", cast=float, condition=advanced_lateral_tuning and toggle.is_torque_car and not toggle.is_angle_car, default=toggle.steer_kp, min=toggle.steer_kp * STEERING_TUNE_MIN_FACTOR, max=toggle.steer_kp * STEERING_TUNE_MAX_FACTOR)]]
+    toggle.latAccelFactor = self.get_value("SteerLatAccel", cast=float, condition=advanced_lateral_tuning and toggle.is_torque_car, default=toggle.lat_accel_factor, min=toggle.lat_accel_factor * STEERING_TUNE_MIN_FACTOR, max=toggle.lat_accel_factor * STEERING_TUNE_MAX_FACTOR)
+    toggle.use_custom_latAccelFactor = bool(round(toggle.latAccelFactor, 2) != round(toggle.lat_accel_factor, 2)) and toggle.is_torque_car
+    toggle.steerRatio = self.get_value("SteerRatio", cast=float, condition=advanced_lateral_tuning, default=toggle.steer_ratio, min=toggle.steer_ratio * STEERING_TUNE_MIN_FACTOR, max=toggle.steer_ratio * STEERING_TUNE_MAX_FACTOR)
+    toggle.use_custom_steerRatio = bool(round(toggle.steerRatio, 2) != round(toggle.steer_ratio, 2))
 
     toggle.alert_volume_controller = self.get_value("AlertVolumeControl")
     toggle.disengage_volume = self.get_value("DisengageVolume", cast=float, condition=toggle.alert_volume_controller)
