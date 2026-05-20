@@ -36,7 +36,7 @@ class CarControllerParams:
     # Gas/brake lookups
     self.MAX_BRAKE = 400  # ~ -4.0 m/s^2 with regen
 
-    if CP.carFingerprint in (CAMERA_ACC_CAR | SDGM_CAR):
+    if CP.carFingerprint in (CAMERA_ACC_CAR | SDGM_CAR) and CP.carFingerprint not in CC_ONLY_CAR:
       self.MAX_GAS = 1346.0
       self.MAX_ACC_REGEN = -540.0
       self.INACTIVE_REGEN = -500.0
@@ -63,6 +63,19 @@ class GMSafetyFlags(IntFlag):
   HW_CAM = 1
   HW_CAM_LONG = 2
   EV = 4
+
+
+# OPGM variables
+class GMOPGMSafetyFlags(IntFlag):
+  CC_LONG = 8
+  GAS_INTERCEPTOR = 16
+  NO_ACC = 32
+  PEDAL_LONG = 64
+
+
+class GMOPGMFlags(IntFlag):
+  CC_LONG = 1
+  PEDAL_LONG = 2
 
 
 class Footnote(Enum):
@@ -121,7 +134,7 @@ class CAR(Platforms):
   )
   CHEVROLET_VOLT = GMASCMPlatformConfig(
     [GMCarDocs("Chevrolet Volt 2017-18", min_enable_speed=0, video="https://youtu.be/QeMCN_4TFfQ")],
-    GMCarSpecs(mass=1607, wheelbase=2.69, steerRatio=17.7, centerToFrontRatio=0.45, tireStiffnessFactor=0.469),
+    GMCarSpecs(mass=1607, wheelbase=2.69, steerRatio=17.7, centerToFrontRatio=0.45, tireStiffnessFactor=0.469, minEnableSpeed=-1),
   )
   CADILLAC_ATS = GMASCMPlatformConfig(
     [GMCarDocs("Cadillac ATS Premium Performance 2018")],
@@ -192,6 +205,44 @@ class CAR(Platforms):
   GMC_YUKON = GMPlatformConfig(
     [GMCarDocs("GMC Yukon 2019-20", "Adaptive Cruise Control (ACC) & LKAS")],
     GMCarSpecs(mass=2490, wheelbase=2.94, steerRatio=17.3, centerToFrontRatio=0.5, tireStiffnessFactor=1.0),
+  )
+  # OPGM variables
+  # Separate car defs are required when there is no ASCM
+  CADILLAC_CT6_CC = GMPlatformConfig(
+    [GMCarDocs("Cadillac CT6 2018 (NO ACC)")],
+    GMCarSpecs(mass=1833, wheelbase=3.109, steerRatio=16.3, centerToFrontRatio=0.49),
+  )
+  CADILLAC_XT5_CC = GMPlatformConfig(
+    [GMCarDocs("Cadillac XT5 2018 (NO ACC)")],
+    GMCarSpecs(mass=1899, wheelbase=2.857, steerRatio=16.34, centerToFrontRatio=0.42),
+  )
+  CHEVROLET_BOLT_2017 = GMPlatformConfig(
+    [GMCarDocs("Chevrolet Bolt EV 2017")],
+    GMCarSpecs(mass=1624, wheelbase=2.6, steerRatio=16.8, centerToFrontRatio=0.44, tireStiffnessFactor=1.0),
+  )
+  CHEVROLET_BOLT_2018 = GMPlatformConfig(
+    [GMCarDocs("Chevrolet Bolt EV 2018-21")],
+    CHEVROLET_BOLT_2017.specs,
+  )
+  CHEVROLET_BOLT_CC = GMPlatformConfig(
+    [GMCarDocs("Chevrolet Bolt EV LT 2022-23")],
+    GMCarSpecs(mass=1636, wheelbase=2.6, steerRatio=16.8, centerToFrontRatio=0.44, tireStiffnessFactor=1.0),
+  )
+  CHEVROLET_EQUINOX_CC = GMPlatformConfig(
+    [GMCarDocs("Chevrolet Equinox 2019-22 (NO ACC)")],
+    CHEVROLET_EQUINOX.specs,
+  )
+  CHEVROLET_MALIBU_CC = GMPlatformConfig(
+    [GMCarDocs("Chevrolet Malibu 2018 (NO ACC)")],
+    GMCarSpecs(mass=1430, wheelbase=2.83, steerRatio=15.8, centerToFrontRatio=0.45),
+  )
+  CHEVROLET_SUBURBAN_CC = GMPlatformConfig(
+    [GMCarDocs("Chevrolet Suburban 2016-20")],
+    GMCarSpecs(mass=2585, wheelbase=3.302, steerRatio=17.3, centerToFrontRatio=0.49, tireStiffnessFactor=1.0),
+  )
+  CHEVROLET_TRAILBLAZER_CC = GMPlatformConfig(
+    [GMCarDocs("Chevrolet Trailblazer 2021-22 (NO ACC)")],
+    CHEVROLET_TRAILBLAZER.specs,
   )
 
 
@@ -284,3 +335,11 @@ SDGM_CAR = {CAR.CADILLAC_XT4, CAR.CHEVROLET_VOLT_2019, CAR.CHEVROLET_TRAVERSE}
 STEER_THRESHOLD = 1.0
 
 DBC = CAR.create_dbc_map()
+
+# OPGM variables
+CC_ONLY_CAR = {CAR.CADILLAC_CT6_CC, CAR.CADILLAC_XT5_CC, CAR.CHEVROLET_BOLT_2017, CAR.CHEVROLET_BOLT_2018,
+               CAR.CHEVROLET_BOLT_CC, CAR.CHEVROLET_EQUINOX_CC, CAR.CHEVROLET_MALIBU_CC, CAR.CHEVROLET_SUBURBAN_CC,
+               CAR.CHEVROLET_TRAILBLAZER_CC}
+
+CAMERA_ACC_CAR.update(CC_ONLY_CAR)
+EV_CAR.update({CAR.CHEVROLET_BOLT_2017, CAR.CHEVROLET_BOLT_2018, CAR.CHEVROLET_BOLT_CC})
