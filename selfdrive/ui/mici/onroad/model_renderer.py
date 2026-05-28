@@ -218,7 +218,7 @@ class ModelRenderer(Widget):
 
   def _update_experimental_gradient(self):
     """Pre-calculate experimental mode gradient colors"""
-    if not (self._experimental_mode or frogpilot_ui_state.frogpilot_toggles.acceleration_path):
+    if not (self._experimental_mode or False):
       return
 
     path_pts = self._path.projected_points + np.array([self._rect.x, self._rect.y], dtype=np.float32)
@@ -334,7 +334,7 @@ class ModelRenderer(Widget):
 
     path_pts = self._path.projected_points + np.array([self._rect.x, self._rect.y], dtype=np.float32)
 
-    if self._experimental_mode or frogpilot_ui_state.frogpilot_toggles.acceleration_path:
+    if self._experimental_mode or False:
       # Draw with acceleration coloring
       if ui_state.status == UIStatus.DISENGAGED:
         draw_polygon(self._rect, path_pts, rl.Color(0, 0, 0, 90))

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import datetime
+import json
 import time
 
 from cereal import messaging
@@ -31,19 +32,14 @@ def update_checks(now, thread_manager, params, frogpilot_toggles, boot_run=False
 
   time.sleep(1)
 
-def on_toggles_updated(sm, frogpilot_toggles):
-  new_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
-
-  return new_toggles
-
 def frogpilot_thread():
   rate_keeper = Ratekeeper(1 / DT_MDL, None)
 
   config_realtime_process(5, Priority.CTRL_LOW)
 
-  pm = messaging.PubMaster(["frogpilotPlan"])
+  pm = messaging.PubMaster(["frogpilotPlan", "frogpilotUI"])
   sm = messaging.SubMaster(["carControl", "carState", "controlsState", "deviceState", "driverMonitoringState",
-                            "frogpilotCarState", "frogpilotModelV2", "frogpilotSelfdriveState", "frogpilotUI",
+                            "frogpilotCarState", "frogpilotModelV2", "frogpilotSelfdriveState",
                             "gpsLocation", "gpsLocationExternal", "liveParameters", "managerState",
                             "modelV2", "onroadEvents", "pandaStates", "radarState", "selfdriveState"],
                             poll="modelV2")
@@ -52,7 +48,9 @@ def frogpilot_thread():
 
   thread_manager = frogpilot_utilities.ThreadManager()
 
-  frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
+  frogpilot_variables_instance = frogpilot_variables.FrogPilotVariables()
+  frogpilot_toggles = frogpilot_variables_instance.frogpilot_toggles
+  frogpilot_toggles_json = json.dumps(vars(frogpilot_toggles))
 
   run_update_checks = False
   started_previously = False
@@ -66,6 +64,16 @@ def frogpilot_thread():
     now = datetime.datetime.now(datetime.UTC)
 
     started = sm["deviceState"].started
+
+    if started != started_previously:
+      frogpilot_variables_instance.update(started)
+      frogpilot_toggles = frogpilot_variables_instance.frogpilot_toggles
+      frogpilot_toggles_json = json.dumps(vars(frogpilot_toggles))
+
+    frogpilot_ui_send = messaging.new_message("frogpilotUI")
+    frogpilot_ui_send.valid = True
+    frogpilot_ui_send.frogpilotUI.frogpilotToggles = frogpilot_toggles_json
+    pm.send("frogpilotUI", frogpilot_ui_send)
 
     if not started and started_previously:
       transition_offroad(frogpilot_planner.gps_position, thread_manager, time_validated, sm, params, frogpilot_toggles)
@@ -90,9 +98,6 @@ def frogpilot_thread():
 
     if rate_keeper.frame % ASSET_CHECK_RATE == 0:
       check_assets(thread_manager, frogpilot_toggles)
-
-    if sm.updated["frogpilotUI"]:
-      frogpilot_toggles = on_toggles_updated(sm, frogpilot_toggles)
 
     run_update_checks |= now.second == 0 and (now.minute % 60 == 0)
     run_update_checks &= time_validated
