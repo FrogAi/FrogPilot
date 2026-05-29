@@ -96,6 +96,8 @@ void setQtSurfaceFormat() {
   fmt.setSamples(16);
   fmt.setStencilBufferSize(1);
   // FrogPilot variables
+  // swap interval 0: a vsync-throttled swap blocks forever if weston (1.9, no pageflip-timeout) drops a pageflip and never releases the buffer, hanging the UI until the watchdog kills it
+  fmt.setSwapInterval(0);
   QSurfaceFormat::setDefaultFormat(fmt);
 }
 
