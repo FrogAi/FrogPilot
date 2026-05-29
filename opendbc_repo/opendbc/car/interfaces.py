@@ -225,6 +225,9 @@ class CarInterfaceBase(ABC):
         if 0x23 in fingerprint[0]:
           fp_ret.flags |= ToyotaFrogPilotFlags.ZSS.value
 
+        if (not fp_ret.flags & ToyotaFrogPilotFlags.SMART_DSU.value and candidate not in (NO_DSU_CAR | UNSUPPORTED_DSU_CAR) and frogpilot_toggles.toyota_dsu_bypass):
+          fp_ret.flags |= ToyotaFrogPilotFlags.DSU_BYPASS.value
+
     return fp_ret
 
   @staticmethod
