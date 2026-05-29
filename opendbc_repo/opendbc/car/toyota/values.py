@@ -82,6 +82,7 @@ class ToyotaFlags(IntFlag):
 
 # FrogPilot variables
 class ToyotaFrogPilotFlags(IntFlag):
+  DSU_BYPASS = 1
 
 
 class ToyotaFrogPilotSafetyFlags(IntFlag):

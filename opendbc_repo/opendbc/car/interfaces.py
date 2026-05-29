@@ -204,6 +204,9 @@ class CarInterfaceBase(ABC):
       elif platform in TOYOTA:
         fp_ret.canUsePedal = not CP.autoResumeSng
 
+        if not fp_ret.flags & ToyotaFrogPilotFlags.SMART_DSU.value and candidate not in (NO_DSU_CAR | UNSUPPORTED_DSU_CAR) and frogpilot_toggles.toyota_dsu_bypass:
+          fp_ret.flags |= ToyotaFrogPilotFlags.DSU_BYPASS.value
+
     return fp_ret
 
   @staticmethod
