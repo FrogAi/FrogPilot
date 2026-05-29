@@ -95,6 +95,8 @@ class CarInterface(CarInterfaceBase):
       stop_and_go = True
 
     # FrogPilot variables
+    if candidate in (CAR.TOYOTA_HIGHLANDER, CAR.TOYOTA_PRIUS_V, CAR.TOYOTA_RAV4H) and not docs:
+      stop_and_go = True
 
     ret.centerToFront = ret.wheelbase * 0.44
 
