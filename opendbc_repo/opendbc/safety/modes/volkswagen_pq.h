@@ -96,15 +96,6 @@ static void volkswagen_pq_rx_hook(const CANPacket_t *msg) {
     }
 
     if (volkswagen_longitudinal) {
-      if (msg->addr == MSG_MOTOR_5) {
-        // ACC main switch on is a prerequisite to enter controls, exit controls immediately on main switch off
-        // Signal: Motor_5.MO5_GRA_Hauptsch
-        acc_main_on = GET_BIT(msg, 50U);
-        if (!acc_main_on) {
-          controls_allowed = false;
-        }
-      }
-
       if (msg->addr == MSG_GRA_NEU) {
         // If ACC main switch is on, enter controls on falling edge of Set or Resume
         // Signal: GRA_Neu.GRA_Neu_Setzen
@@ -143,6 +134,14 @@ static void volkswagen_pq_rx_hook(const CANPacket_t *msg) {
     }
 
     // FrogPilot variables
+    if (msg->addr == MSG_MOTOR_5) {
+      // ACC main switch on is a prerequisite for AOL and long control alike
+      // Signal: Motor_5.MO5_GRA_Hauptsch
+      acc_main_on = GET_BIT(msg, 50U);
+      if (!acc_main_on) {
+        controls_allowed = false;
+      }
+    }
   }
 }
 

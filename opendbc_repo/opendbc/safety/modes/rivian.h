@@ -38,6 +38,8 @@ static uint32_t rivian_compute_checksum(const CANPacket_t *msg) {
     chksum = _rivian_compute_checksum(msg, 0x1D, 0x9A);
 
   // FrogPilot variables
+  } else if (msg->addr == 0x162U) {
+    chksum = _rivian_compute_checksum(msg, 0x1D, 0xD1);
   } else {
   }
   return chksum;
@@ -85,6 +87,10 @@ static void rivian_rx_hook(const CANPacket_t *msg) {
     }
 
     // FrogPilot variables
+    if (msg->addr == 0x162U) {
+      int interface_status = (msg->data[6] >> 3) & 0x3U;
+      acc_main_on = (interface_status == 1) || (interface_status == 2);
+    }
   }
 
   if (msg->bus == 2U) {
@@ -160,6 +166,7 @@ static safety_config rivian_init(uint16_t param) {
     {.msg = {{0x100, 2, 8, 100U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  // ACM_Status (cruise state)
 
     // FrogPilot variables
+    {.msg = {{0x162, 0, 8, 100U, .max_counter = 14U, .ignore_quality_flag = true}, { 0 }, { 0 }}},                               // VDM_AdasSts (ADAS interface status)
   };
 
   bool rivian_longitudinal = false;

@@ -87,6 +87,9 @@ static void chrysler_rx_hook(const CANPacket_t *msg) {
   }
 
   // FrogPilot variables
+  if ((msg->bus == das_3_bus) && (msg->addr == CHRYSLER_ADDR(DAS_3))) {
+    acc_main_on = GET_BIT(msg, 20U);
+  }
 }
 
 static bool chrysler_tx_hook(const CANPacket_t *msg) {
