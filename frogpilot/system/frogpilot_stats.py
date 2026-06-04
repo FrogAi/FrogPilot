@@ -8,6 +8,8 @@ from pathlib import Path
 
 from cereal import car, custom
 
+from openpilot.frogpilot.common import frogpilot_utilities
+
 
 LOCATION_DATA_SCHEMA_VERSION = 1
 STATS_PAYLOAD_SCHEMA_VERSION = 1
