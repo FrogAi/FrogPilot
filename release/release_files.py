@@ -22,6 +22,11 @@ blacklist = [
 # gets you through the blacklist
 whitelist: list[str] = [
   # FrogPilot variables
+  r"\.github/workflows/compile_frogpilot\.yaml$",
+  r"\.github/workflows/review_pull_request\.yaml$",
+  r"\.github/workflows/schedule_update\.yaml$",
+  r"\.github/workflows/update_pr_branch\.yaml$",
+  r"\.github/workflows/update_release_branch\.yaml$",
 ]
 
 if __name__ == "__main__":
