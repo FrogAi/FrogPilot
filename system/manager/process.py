@@ -6,6 +6,7 @@ import subprocess
 from collections.abc import Callable, ValuesView
 from abc import ABC, abstractmethod
 from multiprocessing import Process
+from types import SimpleNamespace
 
 from setproctitle import setproctitle
 
@@ -62,7 +63,7 @@ def join_process(process: Process, timeout: float) -> None:
 class ManagerProcess(ABC):
   daemon = False
   sigkill = False
-  should_run: Callable[[bool, Params, car.CarParams], bool]
+  should_run: Callable[[bool, Params, car.CarParams, SimpleNamespace], bool]
   proc: Process | None = None
   enabled = True
   name = ""
@@ -211,7 +212,7 @@ class DaemonProcess(ManagerProcess):
     self.params = None
 
   @staticmethod
-  def should_run(started, params, CP):
+  def should_run(started, params, CP, frogpilot_toggles):
     return True
 
   def prepare(self) -> None:
@@ -247,13 +248,13 @@ class DaemonProcess(ManagerProcess):
 
 
 def ensure_running(procs: ValuesView[ManagerProcess], started: bool, params=None, CP: car.CarParams=None,
-                   not_run: list[str] | None=None) -> list[ManagerProcess]:
+                   not_run: list[str] | None=None, frogpilot_toggles: SimpleNamespace=None) -> list[ManagerProcess]:
   if not_run is None:
     not_run = []
 
   running = []
   for p in procs:
-    if p.enabled and p.name not in not_run and p.should_run(started, params, CP):
+    if p.enabled and p.name not in not_run and p.should_run(started, params, CP, frogpilot_toggles):
       if p.restart_if_crash and p.proc is not None and not p.proc.is_alive():
         cloudlog.error(f'Restarting {p.name} (exitcode {p.proc.exitcode})')
         p.restart()

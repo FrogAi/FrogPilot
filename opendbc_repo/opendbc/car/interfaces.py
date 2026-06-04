@@ -7,6 +7,7 @@ from enum import StrEnum
 from typing import Any
 from collections.abc import Callable
 from functools import cache
+from types import SimpleNamespace
 
 from cereal import custom
 from opendbc.car import DT_CTRL, apply_hysteresis, gen_empty_fingerprint, scale_rot_inertia, scale_tire_stiffness, STD_CARGO_KG
@@ -119,10 +120,10 @@ class CarInterfaceBase(ABC):
     # FrogPilot variables
     self.FPCP = FPCP
 
-  def apply(self, c: structs.CarControl, now_nanos: int | None = None) -> tuple[structs.CarControl.Actuators, list[CanData]]:
+  def apply(self, c: structs.CarControl, now_nanos: int | None = None, frogpilot_toggles: SimpleNamespace = None) -> tuple[structs.CarControl.Actuators, list[CanData]]:
     if now_nanos is None:
       now_nanos = int(time.monotonic() * 1e9)
-    return self.CC.update(c, self.CS, now_nanos)
+    return self.CC.update(c, self.CS, now_nanos, frogpilot_toggles)
 
   @staticmethod
   def get_pid_accel_limits(CP, current_speed, cruise_speed):
@@ -133,11 +134,11 @@ class CarInterfaceBase(ABC):
     """
     Parameters essential to controlling the car may be incomplete or wrong without FW versions or fingerprints.
     """
-    return cls.get_params(candidate, gen_empty_fingerprint(), list(), False, False, False)
+    return cls.get_params(candidate, gen_empty_fingerprint(), list(), False, False, False, None)
 
   @classmethod
   def get_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[structs.CarParams.CarFw],
-                 alpha_long: bool, is_release: bool, docs: bool) -> structs.CarParams:
+                 alpha_long: bool, is_release: bool, docs: bool, frogpilot_toggles: SimpleNamespace) -> structs.CarParams:
     ret = CarInterfaceBase.get_std_params(candidate)
 
     platform = PLATFORMS[candidate]
@@ -166,7 +167,7 @@ class CarInterfaceBase(ABC):
 
   # FrogPilot variables
   @classmethod
-  def get_frogpilot_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[structs.CarParams.CarFw], CP: structs.CarParams):
+  def get_frogpilot_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[structs.CarParams.CarFw], CP: structs.CarParams, frogpilot_toggles: SimpleNamespace):
     fp_ret = custom.FrogPilotCarParams.new_message()
 
     platform = PLATFORMS[candidate]
@@ -264,14 +265,14 @@ class CarInterfaceBase(ABC):
     tune.torque.latAccelOffset = 0.0
     tune.torque.steeringAngleDeadzoneDeg = steering_angle_deadzone_deg
 
-  def update(self, can_packets: list[tuple[int, list[CanData]]]) -> tuple[structs.CarState, custom.FrogPilotCarState]:
+  def update(self, can_packets: list[tuple[int, list[CanData]]], frogpilot_toggles: SimpleNamespace) -> tuple[structs.CarState, custom.FrogPilotCarState]:
     # parse can
     for cp in self.can_parsers.values():
       if cp is not None:
         cp.update(can_packets)
 
     # get CarState
-    ret, fp_ret = self.CS.update(self.can_parsers)
+    ret, fp_ret = self.CS.update(self.can_parsers, frogpilot_toggles)
 
     ret.canValid = all(cp.can_valid for cp in self.can_parsers.values())
     ret.canTimeout = any(cp.bus_timeout for cp in self.can_parsers.values())
@@ -330,7 +331,7 @@ class CarStateBase(ABC):
     self.CC: structs.CarControl = structs.CarControl.new_message()
 
   @abstractmethod
-  def update(self, can_parsers) -> tuple[structs.CarState, custom.FrogPilotCarState]:
+  def update(self, can_parsers, frogpilot_toggles) -> tuple[structs.CarState, custom.FrogPilotCarState]:
     pass
 
   def parse_wheel_speeds(self, cs, fl, fr, rl, rr, unit=CV.KPH_TO_MS):

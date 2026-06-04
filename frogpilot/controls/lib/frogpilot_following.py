@@ -18,7 +18,7 @@ class FrogPilotFollowing:
 
     self.danger_factor = LEAD_DANGER_FACTOR
 
-  def update(self, long_control_active, v_ego, sm):
+  def update(self, long_control_active, v_ego, sm, frogpilot_toggles):
     if long_control_active:
       if sm["carState"].aEgo >= 0:
         self.base_acceleration_jerk, self.base_danger_jerk, self.base_speed_jerk = get_jerk_factor(

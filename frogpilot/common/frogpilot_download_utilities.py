@@ -6,7 +6,7 @@ from contextlib import suppress
 from pathlib import Path
 from PIL import Image
 
-from openpilot.frogpilot.common import frogpilot_utilities
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 
 REPOSITORY_SOURCES = (
   ("github", "GitHub", f"https://github.com/{frogpilot_variables.RESOURCES_REPO}", f"https://raw.githubusercontent.com/{frogpilot_variables.RESOURCES_REPO}"),

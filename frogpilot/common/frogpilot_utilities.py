@@ -24,6 +24,8 @@ from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import get_s
 from openpilot.system.hardware import HARDWARE
 from openpilot.system.version import get_build_metadata
 
+from openpilot.frogpilot.common import frogpilot_variables
+
 @dataclasses.dataclass(frozen=True)
 class FrogPilotApiInfo:
   api_token: str | None

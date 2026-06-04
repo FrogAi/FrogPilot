@@ -13,7 +13,7 @@ class CarController(CarControllerBase):
     self.apply_angle_last = 0
     self.status = 2
 
-  def update(self, CC, CS, now_nanos):
+  def update(self, CC, CS, now_nanos, frogpilot_toggles):
     can_sends = []
     actuators = CC.actuators
 
