@@ -188,6 +188,9 @@ class Car:
     CS.vCruise = float(self.v_cruise_helper.v_cruise_kph)
     CS.vCruiseCluster = float(self.v_cruise_helper.v_cruise_cluster_kph)
 
+    # OPGM variables
+    self.v_cruise_helper.update_button_intent(CS)
+
     return CS, RD
 
   def state_publish(self, CS: car.CarState, RD: structs.RadarDataT | None):

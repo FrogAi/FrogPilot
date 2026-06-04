@@ -3,7 +3,7 @@ from opendbc.can import CANDefine, CANParser
 from opendbc.car import Bus, create_button_events, structs
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.interfaces import CarStateBase
-from opendbc.car.gm.values import DBC, AccState, CruiseButtons, STEER_THRESHOLD, SDGM_CAR, ALT_ACCS
+from opendbc.car.gm.values import CAMERA_ACC_CAR, CC_ONLY_CAR, DBC, AccState, CruiseButtons, STEER_THRESHOLD, SDGM_CAR, ALT_ACCS
 
 ButtonType = structs.CarState.ButtonEvent.Type
 TransmissionType = structs.CarParams.TransmissionType
@@ -96,7 +96,14 @@ class CarState(CarStateBase):
     if self.CP.transmissionType == TransmissionType.direct:
       ret.regenBraking = pt_cp.vl["EBCMRegenPaddle"]["RegenPaddle"] != 0
 
-    ret.gasPressed = pt_cp.vl["AcceleratorPedal2"]["AcceleratorPedal2"] / 254. > 1e-5
+    # OPGM variables
+    if self.CP.enableGasInterceptorDEPRECATED:
+      gas = (pt_cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS"] + pt_cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS2"]) / 2.
+      # Panda 515 threshold = 10.88. Set lower to avoid panda blocking messages and GasInterceptor faulting.
+      threshold = 20 if self.CP.carFingerprint in CAMERA_ACC_CAR else 4
+      ret.gasPressed = gas > threshold
+    else:
+      ret.gasPressed = pt_cp.vl["AcceleratorPedal2"]["AcceleratorPedal2"] / 254. > 1e-5
 
     ret.steeringAngleDeg = pt_cp.vl["PSCMSteeringAngle"]["SteeringWheelAngle"]
     ret.steeringRateDeg = pt_cp.vl["PSCMSteeringAngle"]["SteeringWheelRate"]
@@ -129,7 +136,7 @@ class CarState(CarStateBase):
     ret.cruiseState.enabled = pt_cp.vl["AcceleratorPedal2"]["CruiseState"] != AccState.OFF
     ret.cruiseState.standstill = pt_cp.vl["AcceleratorPedal2"]["CruiseState"] == AccState.STANDSTILL
     if self.CP.networkLocation == NetworkLocation.fwdCamera:
-      if self.CP.carFingerprint not in ALT_ACCS:
+      if self.CP.carFingerprint not in (ALT_ACCS | CC_ONLY_CAR):
         ret.cruiseState.speed = cam_cp.vl["ASCMActiveCruiseControlStatus"]["ACCSpeedSetpoint"] * CV.KPH_TO_MS
         # This FCW signal only works for SDGM cars. CAM cars send FCW on GMLAN but this bit is always 0 for them
         ret.stockFcw = cam_cp.vl["ASCMActiveCruiseControlStatus"]["FCWAlert"] != 0
@@ -157,6 +164,12 @@ class CarState(CarStateBase):
 
     if ret.vEgo < self.CP.minSteerSpeed:
       ret.lowSpeedAlert = True
+
+    # OPGM variables
+    if self.CP.carFingerprint in CC_ONLY_CAR:
+      ret.accFaulted = False
+
+      ret.cruiseState.enabled = pt_cp.vl["ECMCruiseControl"]["CruiseActive"] != 0
 
     return ret
 

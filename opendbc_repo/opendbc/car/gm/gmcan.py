@@ -1,5 +1,8 @@
+from opendbc.car import DT_CTRL
 from opendbc.car.can_definitions import CanData
-from opendbc.car.gm.values import CAR
+from opendbc.car.common.conversions import Conversions as CV
+from opendbc.car.crc import CRC8BODY
+from opendbc.car.gm.values import CAR, CanBus, CruiseButtons
 
 
 def create_buttons(packer, bus, idx, button):
@@ -169,3 +172,68 @@ def create_lka_icon_command(bus, active, critical, steer):
   else:
     dat = b"\x00\x00\x00"
   return CanData(0x104c006c, dat, bus)
+
+
+# OPGM variables
+def crc8_pedal(data):
+  crc = 0xFF
+  for byte in reversed(data):
+    crc = CRC8BODY[crc ^ byte]
+  return crc
+
+
+def create_gas_interceptor_command(packer, gas_amount, idx):
+  values = {
+    "ENABLE": gas_amount > 0.001,
+    "COUNTER_PEDAL": idx & 0xF,
+  }
+
+  if values["ENABLE"]:
+    gas_command = gas_amount * 255.
+    values.update({
+      "GAS_COMMAND": gas_command,
+      "GAS_COMMAND2": gas_command,
+    })
+
+  _, dat, _ = packer.make_can_msg("GAS_COMMAND", CanBus.POWERTRAIN, values)
+  values["CHECKSUM_PEDAL"] = crc8_pedal(dat[:-1])
+
+  return packer.make_can_msg("GAS_COMMAND", CanBus.POWERTRAIN, values)
+
+
+def _create_gm_cc_spam_command_accel(CS, actuators):
+  accel_mphps = actuators.accel * CV.MS_TO_MPH
+  ego_speed_mph = CS.out.vEgo * CV.MS_TO_MPH
+  min_enable_speed_mph = round(CS.CP.minEnableSpeed * CV.MS_TO_MPH)
+  set_speed_mph = round(CS.out.cruiseState.speed * CV.MS_TO_MPH)
+
+  if accel_mphps == 0:
+    return CruiseButtons.INIT, float("inf")
+
+  if set_speed_mph == min_enable_speed_mph and accel_mphps < -1.0:
+    return CruiseButtons.CANCEL, 0.04
+
+  if accel_mphps < 0:
+    if set_speed_mph > ego_speed_mph + 3.0:
+      return CruiseButtons.DECEL_SET, 0.2
+    return CruiseButtons.DECEL_SET, max(1 / abs(accel_mphps), 0.2)
+
+  if set_speed_mph < ego_speed_mph - 3.0:
+    return CruiseButtons.RES_ACCEL, 0.2
+
+  return CruiseButtons.RES_ACCEL, max(1 / accel_mphps, 0.2)
+
+
+def create_gm_cc_spam_command(packer, controller, CS, actuators):
+  button, interval = _create_gm_cc_spam_command_accel(CS, actuators)
+
+  if button == CruiseButtons.INIT:
+    return []
+
+  time_since_last_button = (controller.frame - controller.last_button_frame) * DT_CTRL
+  if time_since_last_button <= interval:
+    return []
+
+  controller.last_button_frame = controller.frame
+  next_button_counter = (CS.buttons_counter + 1) % 4  # Predict the next rolling counter for '22-'23 EUV.
+  return [create_buttons(packer, CanBus.POWERTRAIN, next_button_counter, button)]

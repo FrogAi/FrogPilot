@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import unittest
 
-from opendbc.car.gm.values import GMSafetyFlags
+from opendbc.car.gm.values import GMOPGMSafetyFlags, GMSafetyFlags
 from opendbc.car.structs import CarParams
 from opendbc.safety.tests.libsafety import libsafety_py
 import opendbc.safety.tests.common as common
@@ -128,9 +128,18 @@ class TestGmSafetyBase(common.CarSafetyTest, common.DriverTorqueSteeringSafetyTe
     values = {"LKASteeringCmd": torque, "LKASteeringCmdActive": steer_req}
     return self.packer.make_can_msg_safety("ASCMLKASteeringCmd", 0, values)
 
-  def _button_msg(self, buttons):
+  def _button_msg_on_bus(self, buttons, bus):
     values = {"ACCButtons": buttons}
-    return self.packer.make_can_msg_safety("ASCMSteeringButton", self.BUTTONS_BUS, values)
+    return self.packer.make_can_msg_safety("ASCMSteeringButton", bus, values)
+
+  def _button_msg(self, buttons):
+    return self._button_msg_on_bus(buttons, self.BUTTONS_BUS)
+
+  # OPGM variables
+  def assert_interceptor_tx_blocked(self):
+    self.safety.set_controls_allowed(True)
+    self.assertFalse(self._tx(interceptor_command_msg(0, 0)))
+    self.assertFalse(self._tx(interceptor_command_msg(1000, 1000)))
 
 
 class TestGmEVSafetyBase(TestGmSafetyBase):
@@ -161,6 +170,12 @@ class TestGmAscmSafety(GmLongitudinalBase, TestGmSafetyBase):
     self.safety = libsafety_py.libsafety
     self.safety.set_safety_hooks(CarParams.SafetyModel.gm, self.EXTRA_SAFETY_PARAM)
     self.safety.init_tests()
+
+  # OPGM variables
+  def test_interceptor_command_blocked_without_interceptor_flag(self):
+    if self.safety.get_current_safety_param() & GMOPGMSafetyFlags.GAS_INTERCEPTOR:
+      raise unittest.SkipTest("only applies to non-interceptor safety modes")
+    self.assert_interceptor_tx_blocked()
 
 
 class TestGmAscmEVSafety(TestGmAscmSafety, TestGmEVSafetyBase):
@@ -200,6 +215,22 @@ class TestGmCameraSafety(TestGmCameraSafetyBase):
       self._rx(self._pcm_status_msg(enabled))
       self.assertEqual(enabled, self._tx(self._button_msg(Buttons.CANCEL)))
 
+  # OPGM variables
+  def test_interceptor_command_blocked_without_interceptor_flag(self):
+    if self.safety.get_current_safety_param() & GMOPGMSafetyFlags.GAS_INTERCEPTOR:
+      raise unittest.SkipTest("only applies to non-interceptor safety modes")
+    self.assert_interceptor_tx_blocked()
+
+  def test_interceptor_only_param_does_not_enable_partial_mode(self):
+    self.safety.set_safety_hooks(CarParams.SafetyModel.gm, GMSafetyFlags.HW_CAM | GMOPGMSafetyFlags.GAS_INTERCEPTOR)
+    self.safety.init_tests()
+
+    for addr, bus, length in ((0x184, 0, 8), (0x34A, 0, 5), (0x1E1, 0, 7), (0x1C4, 0, 8), (0xC9, 0, 8), (0xBE, 0, 6)):
+      self.assertTrue(self._rx(common.make_msg(bus, addr, length)))
+    self.assertTrue(self.safety.safety_config_valid())
+
+    self.assert_interceptor_tx_blocked()
+
 
 class TestGmCameraEVSafety(TestGmCameraSafety, TestGmEVSafetyBase):
   pass
@@ -222,6 +253,17 @@ class TestGmCameraLongitudinalSafety(GmLongitudinalBase, TestGmCameraSafetyBase)
     self.safety = libsafety_py.libsafety
     self.safety.set_safety_hooks(CarParams.SafetyModel.gm, GMSafetyFlags.HW_CAM | GMSafetyFlags.HW_CAM_LONG | self.EXTRA_SAFETY_PARAM)
     self.safety.init_tests()
+
+  # OPGM variables
+  def test_interceptor_command_blocked_without_interceptor_flag(self):
+    if self.safety.get_current_safety_param() & GMOPGMSafetyFlags.GAS_INTERCEPTOR:
+      raise unittest.SkipTest("only applies to non-interceptor safety modes")
+    self.assert_interceptor_tx_blocked()
+
+  def test_button_command_blocked_without_button_longitudinal_flag(self):
+    self.safety.set_cruise_engaged_prev(True)
+    for btn in range(8):
+      self.assertFalse(self._tx(self._button_msg(btn)))
 
 
 class TestGmCameraLongitudinalEVSafety(TestGmCameraLongitudinalSafety, TestGmEVSafetyBase):
@@ -249,6 +291,185 @@ class TestGmIgnition(unittest.TestCase):
     self.assertTrue(self.safety.get_ignition_can())
     self.safety.ignition_can_hook(self._msg(0))
     self.assertFalse(self.safety.get_ignition_can())
+# OPGM variables
+def interceptor_sensor_msg(gas, gas2=None):
+  return interceptor_msg(0x201, gas, gas if gas2 is None else gas2)
+
+
+def interceptor_command_msg(gas, gas2=None):
+  return interceptor_msg(0x200, gas, gas if gas2 is None else gas2)
+
+
+def interceptor_msg(addr, gas, gas2):
+  gas = int(round(gas))
+  gas2 = int(round(gas2))
+  to_send = common.make_msg(0, addr, 6)
+  to_send[0].data[0] = (gas & 0xFF00) >> 8
+  to_send[0].data[1] = gas & 0xFF
+  to_send[0].data[2] = (gas2 & 0xFF00) >> 8
+  to_send[0].data[3] = gas2 & 0xFF
+  return to_send
+
+
+class GmInterceptorMixin:
+  GAS_PRESSED_THRESHOLD = 550
+
+  def _user_gas_msg(self, gas):
+    return interceptor_sensor_msg(gas)
+
+  def _interceptor_gas_cmd(self, gas, gas2=None):
+    return interceptor_command_msg(gas, gas if gas2 is None else gas2)
+
+  def test_interceptor_user_gas_threshold(self):
+    for gas, pressed in ((550, False), (551, True)):
+      self.assertTrue(self._rx(self._user_gas_msg(gas)))
+      self.assertEqual(pressed, self.safety.get_gas_pressed_prev())
+
+  def test_interceptor_command_limits(self):
+    for controls_allowed, gas, gas2, should_tx in (
+      (False, 0, 0, True),
+      (False, 1, 1, False),
+      (True, 2633, 1316, True),
+      (True, 2634, 1316, False),
+      (True, 2633, 1317, False),
+    ):
+      self.safety.set_controls_allowed(controls_allowed)
+      self.assertEqual(should_tx, self._tx(self._interceptor_gas_cmd(gas, gas2)), (controls_allowed, gas, gas2))
+
+
+class TestGmPedalLongSafety(GmInterceptorMixin, TestGmCameraSafety, TestGmEVSafetyBase):
+  TX_MSGS = [[0x180, 0], [0x200, 0], [0x1E1, 0], [0x184, 2]]
+  BUTTONS_BUS = 0
+
+  def setUp(self):
+    self.packer = CANPackerSafety("gm_global_a_powertrain_generated")
+    self.packer_chassis = CANPackerSafety("gm_global_a_chassis")
+    self.safety = libsafety_py.libsafety
+    self.safety.set_safety_hooks(
+      CarParams.SafetyModel.gm,
+      GMSafetyFlags.HW_CAM | GMOPGMSafetyFlags.NO_ACC | GMOPGMSafetyFlags.PEDAL_LONG | GMOPGMSafetyFlags.GAS_INTERCEPTOR | self.EXTRA_SAFETY_PARAM)
+    self.safety.init_tests()
+
+  def _pcm_status_msg(self, enable):
+    values = {"CruiseActive": enable}
+    return self.packer.make_can_msg_safety("ECMCruiseControl", 0, values)
+
+  def test_cruise_engaged_prev(self):
+    for enabled in (True, False):
+      self.assertTrue(self._rx(self._pcm_status_msg(enabled)))
+      self.assertEqual(enabled, self.safety.get_cruise_engaged_prev())
+
+  def test_enable_control_allowed_from_cruise(self):
+    """No-ACC pedal-long mode tracks cruise state without enabling controls."""
+    self._rx(self._pcm_status_msg(False))
+    self.assertFalse(self.safety.get_controls_allowed())
+    self._rx(self._pcm_status_msg(True))
+    self.assertFalse(self.safety.get_controls_allowed())
+    self.assertTrue(self.safety.get_cruise_engaged_prev())
+
+  def test_disable_control_allowed_from_cruise(self):
+    """No-ACC pedal-long mode tracks cruise state without disabling controls."""
+    self.safety.set_controls_allowed(True)
+    self._rx(self._pcm_status_msg(False))
+    self.assertTrue(self.safety.get_controls_allowed())
+    self.assertFalse(self.safety.get_cruise_engaged_prev())
+
+  def test_acc_pcm_status_does_not_change_controls_allowed(self):
+    for controls_allowed in (True, False):
+      self.safety.set_controls_allowed(controls_allowed)
+      self.assertTrue(self._rx(self.packer.make_can_msg_safety("AcceleratorPedal2", 0, {"CruiseState": not controls_allowed})))
+      self.assertEqual(controls_allowed, self.safety.get_controls_allowed())
+
+  def test_buttons(self):
+    for btn in range(8):
+      self.assertFalse(self._tx(self._button_msg(btn)))
+
+    self._rx(self._pcm_status_msg(True))
+    self.assertTrue(self._tx(self._button_msg(Buttons.CANCEL)))
+    for btn in (Buttons.UNPRESS, Buttons.RES_ACCEL, Buttons.DECEL_SET):
+      self.assertFalse(self._tx(self._button_msg(btn)))
+
+  def test_camera_bus_button_command_blocked(self):
+    self._rx(self._pcm_status_msg(True))
+    self.assertFalse(self._tx(self._button_msg_on_bus(Buttons.CANCEL, 2)))
+
+
+class TestGmCameraLongitudinalInterceptorSafety(GmInterceptorMixin, TestGmCameraLongitudinalSafety, TestGmEVSafetyBase):
+  TX_MSGS = [[0x180, 0], [0x315, 0], [0x2CB, 0], [0x370, 0], [0x200, 0],  # pt bus
+             [0x184, 2]]  # camera bus
+
+  def setUp(self):
+    self.packer = CANPackerSafety("gm_global_a_powertrain_generated")
+    self.packer_chassis = CANPackerSafety("gm_global_a_chassis")
+    self.safety = libsafety_py.libsafety
+    self.safety.set_safety_hooks(
+      CarParams.SafetyModel.gm,
+      GMSafetyFlags.HW_CAM | GMSafetyFlags.HW_CAM_LONG | GMOPGMSafetyFlags.GAS_INTERCEPTOR | self.EXTRA_SAFETY_PARAM)
+    self.safety.init_tests()
+
+  def test_button_command_blocked_without_button_longitudinal_flag(self):
+    self.safety.set_cruise_engaged_prev(True)
+    for btn in range(8):
+      self.assertFalse(self._tx(self._button_msg(btn)))
+
+
+class TestGmCcLongitudinalSafety(TestGmCameraSafety):
+  TX_MSGS = [[0x180, 0], [0x1E1, 0], [0x184, 2]]
+  FWD_BLACKLISTED_ADDRS = {2: [0x180], 0: [0x184]}  # block LKAS message and PSCMStatus
+  BUTTONS_BUS = 0  # tx only
+
+  def setUp(self):
+    self.packer = CANPackerSafety("gm_global_a_powertrain_generated")
+    self.packer_chassis = CANPackerSafety("gm_global_a_chassis")
+    self.safety = libsafety_py.libsafety
+    self.safety.set_safety_hooks(
+      CarParams.SafetyModel.gm,
+      GMSafetyFlags.HW_CAM | GMOPGMSafetyFlags.NO_ACC | GMOPGMSafetyFlags.CC_LONG | self.EXTRA_SAFETY_PARAM)
+    self.safety.init_tests()
+
+  def _pcm_status_msg(self, enable):
+    values = {"CruiseActive": enable}
+    return self.packer.make_can_msg_safety("ECMCruiseControl", 0, values)
+
+  def test_fwd_hook(self):
+    for bus in range(3):
+      for addr in self.SCANNED_ADDRS:
+        self.assertEqual(-1, self.safety.safety_fwd_hook(bus, addr), f"{addr=:#x} from {bus=}")
+
+  def test_no_acc_cruise_status_controls_allowed(self):
+    self._rx(self._pcm_status_msg(False))
+    self.assertFalse(self.safety.get_controls_allowed())
+    self._rx(self._pcm_status_msg(True))
+    self.assertTrue(self.safety.get_controls_allowed())
+    self._rx(self._pcm_status_msg(False))
+    self.assertFalse(self.safety.get_controls_allowed())
+
+  def test_cancel_button_not_reenabled_by_stale_pcm_cruise_status(self):
+    self._rx(self._pcm_status_msg(True))
+    self.assertTrue(self.safety.get_controls_allowed())
+
+    self._rx(self._button_msg(Buttons.CANCEL))
+    self.assertFalse(self.safety.get_controls_allowed())
+
+    self._rx(self._pcm_status_msg(True))
+    self.assertFalse(self.safety.get_controls_allowed())
+
+  def test_buttons(self):
+    for btn in range(8):
+      self.assertFalse(self._tx(self._button_msg(btn)))
+
+    self._rx(self._pcm_status_msg(True))
+    for btn in (Buttons.UNPRESS, Buttons.RES_ACCEL, Buttons.DECEL_SET, Buttons.CANCEL):
+      self.assertTrue(self._tx(self._button_msg(btn)))
+
+    self.safety.set_controls_allowed(False)
+    self.assertTrue(self._tx(self._button_msg(Buttons.CANCEL)))
+    for btn in (Buttons.UNPRESS, Buttons.RES_ACCEL, Buttons.DECEL_SET):
+      self.assertFalse(self._tx(self._button_msg(btn)))
+
+
+class TestGmCcLongitudinalEVSafety(TestGmCcLongitudinalSafety, TestGmEVSafetyBase):
+  pass
 
 
 if __name__ == "__main__":

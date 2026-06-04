@@ -901,7 +901,9 @@ class SafetyTest(SafetyTestBase):
             if {attr, current_test}.issubset({'TestVolkswagenPqSafety', 'TestVolkswagenPqStockSafety', 'TestVolkswagenPqLongSafety'}):
               continue
             if {attr, current_test}.issubset({'TestGmCameraSafety', 'TestGmCameraLongitudinalSafety', 'TestGmAscmSafety',
-                                              'TestGmCameraEVSafety', 'TestGmCameraLongitudinalEVSafety', 'TestGmAscmEVSafety'}):
+                                              'TestGmCameraEVSafety', 'TestGmCameraLongitudinalEVSafety', 'TestGmAscmEVSafety',
+                                              'TestGmPedalLongSafety', 'TestGmCameraLongitudinalInterceptorSafety',
+                                              'TestGmCcLongitudinalSafety', 'TestGmCcLongitudinalEVSafety'}):
               continue
             if attr.startswith('TestFord') and current_test.startswith('TestFord'):
               continue
@@ -1140,3 +1142,4 @@ class CarSafetyTest(SafetyTest):
     self.safety.safety_tick_current_safety_config()
     self.assertFalse(self.safety.get_controls_allowed())
     self.assertFalse(self.safety.safety_config_valid())
+

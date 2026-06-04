@@ -1,6 +1,7 @@
 from cereal import car, log
 from opendbc.car import DT_CTRL, structs
 from opendbc.car.car_helpers import interfaces
+from opendbc.car.gm.values import GMOPGMFlags
 from opendbc.car.interfaces import MAX_CTRL_SPEED
 from opendbc.car.toyota.values import ToyotaFlags
 
@@ -76,8 +77,12 @@ class CarSpecificEvents:
       if CS.vEgo < self.CP.minEnableSpeed and not (CS.standstill and CS.brake >= 20 and
                                                    self.CP.networkLocation == NetworkLocation.fwdCamera):
         events.add(EventName.belowEngageSpeed)
-      if CS.cruiseState.standstill:
+      if CS.cruiseState.standstill and not self.CP.autoResumeSng:
         events.add(EventName.resumeRequired)
+
+      # OPGM variables
+      if CS.vEgo < self.CP.minEnableSpeed and CS.cruiseState.enabled and (self.CP.flags & GMOPGMFlags.CC_LONG.value):
+        events.add(EventName.speedTooLow)
 
     elif self.CP.brand == 'volkswagen':
       if self.CP.openpilotLongitudinalControl:

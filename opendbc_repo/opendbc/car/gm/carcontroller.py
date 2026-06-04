@@ -4,7 +4,7 @@ from opendbc.car import Bus, DT_CTRL, structs
 from opendbc.car.lateral import apply_driver_steer_torque_limits
 from opendbc.car.gm import gmcan
 from opendbc.car.common.conversions import Conversions as CV
-from opendbc.car.gm.values import DBC, CanBus, CarControllerParams, CruiseButtons
+from opendbc.car.gm.values import CC_ONLY_CAR, DBC, CanBus, CarControllerParams, CruiseButtons, GMOPGMFlags
 from opendbc.car.interfaces import CarControllerBase
 
 VisualAlert = structs.CarControl.HUDControl.VisualAlert
@@ -36,6 +36,17 @@ class CarController(CarControllerBase):
     self.packer_pt = CANPacker(DBC[self.CP.carFingerprint][Bus.pt])
     self.packer_obj = CANPacker(DBC[self.CP.carFingerprint][Bus.radar])
     self.packer_ch = CANPacker(DBC[self.CP.carFingerprint][Bus.chassis])
+
+  # OPGM variables
+  @staticmethod
+  def calc_pedal_command(accel, v_ego):
+    if accel < -2.0:
+      pedal_gas = 0
+    else:
+      pedaloffset = np.interp(v_ego, [0., 3, 6, 30], [0.10, 0.175, 0.240, 0.240])
+      pedal_gas = np.clip((pedaloffset + accel * 0.15), 0.0, 1.0)
+
+    return pedal_gas
 
   def update(self, CC, CS, now_nanos):
     actuators = CC.actuators
@@ -99,24 +110,38 @@ class CarController(CarControllerBase):
 
         idx = (self.frame // 4) % 4
 
+        # OPGM variables
+        if self.CP.enableGasInterceptorDEPRECATED:
+          if CC.longActive:
+            # Pedal-equipped GM ports use the interceptor for longitudinal gas authority.
+            interceptor_gas_cmd = self.calc_pedal_command(actuators.accel, CS.out.vEgo)
+          else:
+            interceptor_gas_cmd = 0
+          can_sends.append(gmcan.create_gas_interceptor_command(self.packer_pt, interceptor_gas_cmd, idx))
+
         at_full_stop = CC.longActive and CS.out.standstill
         near_stop = CC.longActive and (abs(CS.out.vEgo) < self.params.NEAR_STOP_BRAKE_PHASE)
-        friction_brake_bus = CanBus.CHASSIS
-        # GM Camera exceptions
-        # TODO: can we always check the longControlState?
-        if self.CP.networkLocation == NetworkLocation.fwdCamera:
-          at_full_stop = at_full_stop and stopping
-          friction_brake_bus = CanBus.POWERTRAIN
+        if CC.longActive and CS.out.vEgo > self.CP.minEnableSpeed and (self.CP.flags & GMOPGMFlags.CC_LONG.value):
+          # Using extend instead of append since the message is only sent intermittently
+          can_sends.extend(gmcan.create_gm_cc_spam_command(self.packer_pt, self, CS, actuators))
+        if self.CP.carFingerprint not in CC_ONLY_CAR:
+          # GM Camera exceptions
+          # TODO: can we always check the longControlState?
+          if self.CP.networkLocation == NetworkLocation.fwdCamera:
+            at_full_stop = at_full_stop and stopping
+            friction_brake_bus = CanBus.POWERTRAIN
+          else:
+            friction_brake_bus = CanBus.CHASSIS
 
-        # GasRegenCmdActive needs to be 1 to avoid cruise faults. It describes the ACC state, not actuation
-        can_sends.append(gmcan.create_gas_regen_command(self.packer_pt, CanBus.POWERTRAIN, self.apply_gas, idx, CC.enabled, at_full_stop))
-        can_sends.append(gmcan.create_friction_brake_command(self.packer_ch, friction_brake_bus, self.apply_brake,
-                                                             idx, CC.enabled, near_stop, at_full_stop, self.CP))
+          # GasRegenCmdActive needs to be 1 to avoid cruise faults. It describes the ACC state, not actuation
+          can_sends.append(gmcan.create_gas_regen_command(self.packer_pt, CanBus.POWERTRAIN, self.apply_gas, idx, CC.enabled, at_full_stop))
+          can_sends.append(gmcan.create_friction_brake_command(self.packer_ch, friction_brake_bus, self.apply_brake,
+                                                               idx, CC.enabled, near_stop, at_full_stop, self.CP))
 
-        # Send dashboard UI commands (ACC status)
-        send_fcw = hud_alert == VisualAlert.fcw
-        can_sends.append(gmcan.create_acc_dashboard_command(self.packer_pt, CanBus.POWERTRAIN, CC.enabled,
-                                                            hud_v_cruise * CV.MS_TO_KPH, hud_control, send_fcw))
+          # Send dashboard UI commands (ACC status)
+          send_fcw = hud_alert == VisualAlert.fcw
+          can_sends.append(gmcan.create_acc_dashboard_command(self.packer_pt, CanBus.POWERTRAIN, CC.enabled,
+                                                              hud_v_cruise * CV.MS_TO_KPH, hud_control, send_fcw))
 
       # Radar needs to know current speed and yaw rate (50hz),
       # and that ADAS is alive (10hz)
@@ -137,6 +162,18 @@ class CarController(CarControllerBase):
       if self.CP.networkLocation == NetworkLocation.gateway and self.frame % self.params.ADAS_KEEPALIVE_STEP == 0:
         can_sends += gmcan.create_adas_keepalive(CanBus.POWERTRAIN)
 
+      # OPGM variables
+      # Pedal interceptor: always send CANCEL when cruise is on
+      if CS.out.cruiseState.enabled and (self.CP.flags & GMOPGMFlags.PEDAL_LONG.value):
+        if (self.frame - self.last_button_frame) * DT_CTRL > 0.04:
+          self.last_button_frame = self.frame
+          can_sends.append(gmcan.create_buttons(self.packer_pt, CanBus.POWERTRAIN, (CS.buttons_counter + 1) % 4, CruiseButtons.CANCEL))
+      # CC_LONG: cancel stock cruise whenever controlsd requests it
+      elif CC.cruiseControl.cancel and (self.CP.flags & GMOPGMFlags.CC_LONG.value):
+        if (self.frame - self.last_button_frame) * DT_CTRL > 0.04:
+          self.last_button_frame = self.frame
+          can_sends.append(gmcan.create_buttons(self.packer_pt, CanBus.POWERTRAIN, (CS.buttons_counter + 1) % 4, CruiseButtons.CANCEL))
+
     else:
       # While car is braking, cancel button causes ECM to enter a soft disable state with a fault status.
       # A delayed cancellation allows camera to cancel and avoids a fault when user depresses brake quickly
@@ -146,7 +183,8 @@ class CarController(CarControllerBase):
       if (self.frame - self.last_button_frame) * DT_CTRL > 0.04:
         if self.cancel_counter > CAMERA_CANCEL_DELAY_FRAMES:
           self.last_button_frame = self.frame
-          can_sends.append(gmcan.create_buttons(self.packer_pt, CanBus.CAMERA, CS.buttons_counter, CruiseButtons.CANCEL))
+          button_bus = CanBus.POWERTRAIN if self.CP.carFingerprint in CC_ONLY_CAR else CanBus.CAMERA
+          can_sends.append(gmcan.create_buttons(self.packer_pt, button_bus, CS.buttons_counter, CruiseButtons.CANCEL))
 
     if self.CP.networkLocation == NetworkLocation.fwdCamera:
       # Silence "Take Steering" alert sent by camera, forward PSCMStatus with HandsOffSWlDetectionStatus=1

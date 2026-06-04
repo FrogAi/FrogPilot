@@ -4,8 +4,9 @@ import numpy as np
 
 from openpilot.common.parameterized import parameterized_class
 from cereal import log
-from openpilot.selfdrive.car.cruise import VCruiseHelper, V_CRUISE_MIN, V_CRUISE_MAX, V_CRUISE_INITIAL, IMPERIAL_INCREMENT
+from openpilot.selfdrive.car.cruise import VCruiseHelper, V_CRUISE_MIN, V_CRUISE_MAX, V_CRUISE_INITIAL, V_CRUISE_UNSET, IMPERIAL_INCREMENT
 from cereal import car
+from opendbc.car.gm.values import CAR, GMOPGMFlags
 from openpilot.common.constants import CV
 from openpilot.selfdrive.test.longitudinal_maneuvers.maneuver import Maneuver
 
@@ -149,3 +150,39 @@ class TestVCruiseHelper:
         self.enable(float(v_ego), experimental_mode)
         assert V_CRUISE_INITIAL <= self.v_cruise_helper.v_cruise_kph <= V_CRUISE_MAX
         assert self.v_cruise_helper.v_cruise_initialized
+
+  # OPGM variables
+  @staticmethod
+  def get_gm_cc_only_v_cruise_helper():
+    CP = car.CarParams(pcmCruise=True, carFingerprint=CAR.CHEVROLET_BOLT_2018, flags=GMOPGMFlags.CC_LONG.value)
+    return VCruiseHelper(CP)
+
+  def test_gm_cc_only_first_resume_initializes_from_ego_speed(self):
+    v_cruise_helper = self.get_gm_cc_only_v_cruise_helper()
+    assert v_cruise_helper.v_cruise_kph == V_CRUISE_UNSET
+
+    v_cruise_helper.update_button_intent(car.CarState(buttonEvents=[ButtonEvent(type=ButtonType.resumeCruise, pressed=True)]))
+    v_cruise_helper.initialize_v_cruise(car.CarState(vEgo=30 * CV.MPH_TO_MS), experimental_mode=False)
+
+    assert V_CRUISE_INITIAL <= v_cruise_helper.v_cruise_kph <= V_CRUISE_MAX
+    assert v_cruise_helper.v_cruise_kph != V_CRUISE_UNSET
+
+  def test_gm_cc_only_resume_after_initialized_restores_previous_cruise(self):
+    v_cruise_helper = self.get_gm_cc_only_v_cruise_helper()
+    v_cruise_helper.v_cruise_kph = 72
+    v_cruise_helper.v_cruise_kph_last = 72
+
+    v_cruise_helper.update_button_intent(car.CarState(buttonEvents=[ButtonEvent(type=ButtonType.resumeCruise, pressed=True)]))
+    v_cruise_helper.initialize_v_cruise(car.CarState(vEgo=20 * CV.MPH_TO_MS), experimental_mode=False, frogpilot_toggles=self.frogpilot_toggles)
+
+    assert v_cruise_helper.v_cruise_kph == 72
+
+  def test_gm_cc_only_button_intent_tracks_resume_and_set_buttons(self):
+    v_cruise_helper = self.get_gm_cc_only_v_cruise_helper()
+
+    v_cruise_helper.update_button_intent(car.CarState(buttonEvents=[ButtonEvent(type=ButtonType.resumeCruise, pressed=True)]))
+    assert v_cruise_helper.resume_previous_cruise
+
+    for button in (ButtonType.decelCruise, ButtonType.setCruise):
+      v_cruise_helper.update_button_intent(car.CarState(buttonEvents=[ButtonEvent(type=button, pressed=True)]))
+      assert not v_cruise_helper.resume_previous_cruise
