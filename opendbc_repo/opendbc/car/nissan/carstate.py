@@ -1,5 +1,6 @@
 import copy
 from collections import deque
+from cereal import custom
 from opendbc.can import CANDefine, CANParser
 from opendbc.car import Bus, create_button_events, structs
 from opendbc.car.common.conversions import Conversions as CV
@@ -12,8 +13,8 @@ TORQUE_SAMPLES = 12
 
 
 class CarState(CarStateBase):
-  def __init__(self, CP):
-    super().__init__(CP)
+  def __init__(self, CP, FPCP):
+    super().__init__(CP, FPCP)
     can_define = CANDefine(DBC[CP.carFingerprint][Bus.pt])
 
     self.lkas_hud_msg = {}
@@ -26,7 +27,7 @@ class CarState(CarStateBase):
 
     # FrogPilot variables
 
-  def update(self, can_parsers) -> structs.CarState:
+  def update(self, can_parsers) -> tuple[structs.CarState, custom.FrogPilotCarState]:
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
     cp_adas = can_parsers[Bus.adas]
@@ -131,10 +132,11 @@ class CarState(CarStateBase):
     buttonEvents = create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
 
     # FrogPilot variables
+    fp_ret = custom.FrogPilotCarState.new_message()
 
     ret.buttonEvents = buttonEvents
 
-    return ret
+    return ret, fp_ret
 
   @staticmethod
   def get_can_parsers(CP):

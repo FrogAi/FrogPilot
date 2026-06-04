@@ -90,6 +90,8 @@ class HyundaiSafetyFlags(IntFlag):
 #     request (0x7F2822 'conditions not correct') — longitudinal not available.
 
 # FrogPilot variables
+class HyundaiFrogPilotSafetyFlags(IntFlag):
+  pass
 
 class HyundaiFlags(IntFlag):
   # Dynamic Flags

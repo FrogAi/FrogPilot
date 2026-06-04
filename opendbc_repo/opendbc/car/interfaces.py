@@ -8,12 +8,16 @@ from typing import Any
 from collections.abc import Callable
 from functools import cache
 
+from cereal import custom
 from opendbc.car import DT_CTRL, apply_hysteresis, gen_empty_fingerprint, scale_rot_inertia, scale_tire_stiffness, STD_CARGO_KG
 from opendbc.car import structs
 from opendbc.car.can_definitions import CanData, CanRecvCallable, CanSendCallable
+from opendbc.car.chrysler.values import CAR as CHRYSLER, ChryslerRealFastFlags
 from opendbc.car.common.basedir import BASEDIR
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.common.simple_kalman import KF1D, get_kalman_gain
+from opendbc.car.hyundai.values import CAR as HYUNDAI, HyundaiFlags, HyundaiFrogPilotSafetyFlags
+from opendbc.car.toyota.values import CAR as TOYOTA, ToyotaFrogPilotFlags
 from opendbc.car.values import PLATFORMS
 from opendbc.can import CANParser
 
@@ -100,19 +104,20 @@ class CarInterfaceBase(ABC):
 
   DRIVABLE_GEARS: tuple[structs.CarState.GearShifter, ...] = ()
 
-  def __init__(self, CP: structs.CarParams):
+  def __init__(self, CP: structs.CarParams, FPCP: custom.FrogPilotCarParams):
     self.CP = CP
 
     self.frame = 0
     self.v_ego_cluster_seen = False
 
-    self.CS: CarStateBase = self.CarState(CP)
+    self.CS: CarStateBase = self.CarState(CP, FPCP)
     self.can_parsers: dict[StrEnum, CANParser] = self.CS.get_can_parsers(CP)
 
     dbc_names = {bus: cp.dbc_name for bus, cp in self.can_parsers.items()}
     self.CC: CarControllerBase = self.CarController(dbc_names, CP)
 
     # FrogPilot variables
+    self.FPCP = FPCP
 
   def apply(self, c: structs.CarControl, now_nanos: int | None = None) -> tuple[structs.CarControl.Actuators, list[CanData]]:
     if now_nanos is None:
@@ -160,6 +165,26 @@ class CarInterfaceBase(ABC):
     return ret
 
   # FrogPilot variables
+  @classmethod
+  def get_frogpilot_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[structs.CarParams.CarFw], CP: structs.CarParams):
+    fp_ret = custom.FrogPilotCarParams.new_message()
+
+    platform = PLATFORMS[candidate]
+
+    fp_ret.safetyConfigs = [custom.FrogPilotCarParams.SafetyConfig.new_message() for _ in CP.safetyConfigs]
+
+    if platform in CHRYSLER:
+      if candidate == CHRYSLER.RAM_HD_5TH_GEN:
+        if 0x23A not in fingerprint[0] and 0x23B in fingerprint[0]:
+          fp_ret.flags |= ChryslerRealFastFlags.RAM_HD_ALT_BUTTONS.value
+
+    elif platform in HYUNDAI:
+      pass
+
+    elif platform in TOYOTA:
+      pass
+
+    return fp_ret
 
   @staticmethod
   @abstractmethod
@@ -239,14 +264,14 @@ class CarInterfaceBase(ABC):
     tune.torque.latAccelOffset = 0.0
     tune.torque.steeringAngleDeadzoneDeg = steering_angle_deadzone_deg
 
-  def update(self, can_packets: list[tuple[int, list[CanData]]]) -> structs.CarState:
+  def update(self, can_packets: list[tuple[int, list[CanData]]]) -> tuple[structs.CarState, custom.FrogPilotCarState]:
     # parse can
     for cp in self.can_parsers.values():
       if cp is not None:
         cp.update(can_packets)
 
     # get CarState
-    ret = self.CS.update(self.can_parsers)
+    ret, fp_ret = self.CS.update(self.can_parsers)
 
     ret.canValid = all(cp.can_valid for cp in self.can_parsers.values())
     ret.canTimeout = any(cp.bus_timeout for cp in self.can_parsers.values())
@@ -271,11 +296,11 @@ class CarInterfaceBase(ABC):
 
     # FrogPilot variables
 
-    return ret
+    return ret, fp_ret
 
 
 class CarStateBase(ABC):
-  def __init__(self, CP: structs.CarParams):
+  def __init__(self, CP: structs.CarParams, FPCP: custom.FrogPilotCarParams):
     self.CP = CP
     self.car_fingerprint = CP.carFingerprint
     self.out = structs.CarState()
@@ -300,10 +325,12 @@ class CarStateBase(ABC):
     self.v_ego_kf = KF1D(x0=x0, A=A, C=C[0], K=K)
 
     # FrogPilot variables
+    self.FPCP = FPCP
+
     self.CC: structs.CarControl = structs.CarControl.new_message()
 
   @abstractmethod
-  def update(self, can_parsers) -> structs.CarState:
+  def update(self, can_parsers) -> tuple[structs.CarState, custom.FrogPilotCarState]:
     pass
 
   def parse_wheel_speeds(self, cs, fl, fr, rl, rr, unit=CV.KPH_TO_MS):

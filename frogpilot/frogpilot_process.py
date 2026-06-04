@@ -7,6 +7,8 @@ from openpilot.common.params import Params
 from openpilot.common.realtime import DT_MDL, Priority, Ratekeeper, config_realtime_process
 from openpilot.common.time_helpers import system_time_valid
 
+from openpilot.frogpilot.controls.frogpilot_planner import FrogPilotPlanner
+
 
 ASSET_CHECK_RATE = (1 / DT_MDL)
 
@@ -30,9 +32,11 @@ def frogpilot_thread():
 
   config_realtime_process(5, Priority.CTRL_LOW)
 
+  pm = messaging.PubMaster(["frogpilotPlan"])
   sm = messaging.SubMaster(["carControl", "carState", "controlsState", "deviceState", "driverMonitoringState",
-                            "gpsLocation", "gpsLocationExternal", "liveParameters", "managerState", "modelV2",
-                            "onroadEvents", "pandaStates", "radarState", "selfdriveState"],
+                            "frogpilotCarState", "frogpilotModelV2", "frogpilotSelfdriveState", "frogpilotUI",
+                            "gpsLocation", "gpsLocationExternal", "liveParameters", "managerState",
+                            "modelV2", "onroadEvents", "pandaStates", "radarState", "selfdriveState"],
                             poll="modelV2")
 
   params = Params(return_defaults=True)
@@ -40,6 +44,8 @@ def frogpilot_thread():
   run_update_checks = False
   started_previously = False
   time_validated = False
+
+  frogpilot_planner = FrogPilotPlanner()
 
   while True:
     sm.update()
@@ -53,12 +59,16 @@ def frogpilot_thread():
 
       run_update_checks = True
     elif started and not started_previously:
+      frogpilot_planner = FrogPilotPlanner()
+
       transition_onroad()
 
     if started and sm.updated["modelV2"]:
-      pass
+      frogpilot_planner.update(now, time_validated, sm)
+      frogpilot_planner.publish(sm, pm)
     elif not started:
-      pass
+      frogpilot_plan_send = messaging.new_message("frogpilotPlan")
+      pm.send("frogpilotPlan", frogpilot_plan_send)
 
     started_previously = started
 

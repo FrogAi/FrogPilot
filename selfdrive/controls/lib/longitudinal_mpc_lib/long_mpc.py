@@ -59,26 +59,49 @@ CRUISE_MIN_ACCEL = -1.2
 CRUISE_MAX_ACCEL = 1.6
 MIN_X_LEAD_FACTOR = 0.5
 
-def get_jerk_factor(personality=log.LongitudinalPersonality.standard):
-  if personality==log.LongitudinalPersonality.relaxed:
-    return 1.0
-  elif personality==log.LongitudinalPersonality.standard:
-    return 1.0
-  elif personality==log.LongitudinalPersonality.aggressive:
-    return 0.5
+def get_jerk_factor(aggressive_jerk_acceleration=0.5, aggressive_jerk_danger=0.5, aggressive_jerk_speed=0.5,
+                    standard_jerk_acceleration=1.0, standard_jerk_danger=1.0, standard_jerk_speed=1.0,
+                    relaxed_jerk_acceleration=1.0, relaxed_jerk_danger=1.0, relaxed_jerk_speed=1.0,
+                    custom_personalities=False, personality=log.LongitudinalPersonality.standard):
+  if custom_personalities:
+    if personality==log.LongitudinalPersonality.relaxed:
+      return relaxed_jerk_acceleration, relaxed_jerk_danger, relaxed_jerk_speed
+    elif personality==log.LongitudinalPersonality.standard:
+      return standard_jerk_acceleration, standard_jerk_danger, standard_jerk_speed
+    elif personality==log.LongitudinalPersonality.aggressive:
+      return aggressive_jerk_acceleration, aggressive_jerk_danger, aggressive_jerk_speed
+    else:
+      raise NotImplementedError("Longitudinal personality not supported")
   else:
-    raise NotImplementedError("Longitudinal personality not supported")
+    if personality==log.LongitudinalPersonality.relaxed:
+      return 1.0, 1.0, 1.0
+    elif personality==log.LongitudinalPersonality.standard:
+      return 1.0, 1.0, 1.0
+    elif personality==log.LongitudinalPersonality.aggressive:
+      return 0.5, 0.5, 0.5
+    else:
+      raise NotImplementedError("Longitudinal personality not supported")
 
 
-def get_T_FOLLOW(personality=log.LongitudinalPersonality.standard):
-  if personality==log.LongitudinalPersonality.relaxed:
-    return 1.75
-  elif personality==log.LongitudinalPersonality.standard:
-    return 1.45
-  elif personality==log.LongitudinalPersonality.aggressive:
-    return 1.25
+def get_T_FOLLOW(aggressive_follow=1.25, standard_follow=1.45, relaxed_follow=1.75, custom_personalities=False, personality=log.LongitudinalPersonality.standard):
+  if custom_personalities:
+    if personality==log.LongitudinalPersonality.relaxed:
+      return relaxed_follow
+    elif personality==log.LongitudinalPersonality.standard:
+      return standard_follow
+    elif personality==log.LongitudinalPersonality.aggressive:
+      return aggressive_follow
+    else:
+      raise NotImplementedError("Longitudinal personality not supported")
   else:
-    raise NotImplementedError("Longitudinal personality not supported")
+    if personality==log.LongitudinalPersonality.relaxed:
+      return 1.75
+    elif personality==log.LongitudinalPersonality.standard:
+      return 1.45
+    elif personality==log.LongitudinalPersonality.aggressive:
+      return 1.25
+    else:
+      raise NotImplementedError("Longitudinal personality not supported")
 
 def get_stopped_equivalence_factor(v_lead):
   return (v_lead**2) / (2 * COMFORT_BRAKE)
@@ -267,11 +290,10 @@ class LongitudinalMpc:
     for i in range(N):
       self.solver.cost_set(i, 'Zl', Zl)
 
-  def set_weights(self, prev_accel_constraint=True, personality=log.LongitudinalPersonality.standard):
-    jerk_factor = get_jerk_factor(personality)
-    a_change_cost = A_CHANGE_COST if prev_accel_constraint else 0
-    cost_weights = [X_EGO_OBSTACLE_COST, X_EGO_COST, V_EGO_COST, A_EGO_COST, jerk_factor * a_change_cost, jerk_factor * J_EGO_COST]
-    constraint_cost_weights = [LIMIT_COST, LIMIT_COST, LIMIT_COST, DANGER_ZONE_COST]
+  def set_weights(self, acceleration_jerk=1.0, danger_jerk=1.0, speed_jerk=1.0, prev_accel_constraint=True, personality=log.LongitudinalPersonality.standard):
+    a_change_cost = acceleration_jerk if prev_accel_constraint else 0
+    cost_weights = [X_EGO_OBSTACLE_COST, X_EGO_COST, V_EGO_COST, A_EGO_COST, a_change_cost, speed_jerk]
+    constraint_cost_weights = [LIMIT_COST, LIMIT_COST, LIMIT_COST, danger_jerk]
     self.set_cost_weights(cost_weights, constraint_cost_weights)
 
   def set_cur_state(self, v, a):
@@ -313,8 +335,7 @@ class LongitudinalMpc:
     lead_xv = self.extrapolate_lead(x_lead, v_lead, a_lead, a_lead_tau)
     return lead_xv
 
-  def update(self, radarstate, v_cruise, personality=log.LongitudinalPersonality.standard):
-    t_follow = get_T_FOLLOW(personality)
+  def update(self, radarstate, v_cruise, danger_factor, t_follow, accel_min, accel_max, personality=log.LongitudinalPersonality.standard):
     v_ego = self.x0[1]
     self.status = radarstate.leadOne.status or radarstate.leadTwo.status
 
@@ -343,12 +364,12 @@ class LongitudinalMpc:
       self.solver.set(i, "yref", self.yref[i])
     self.solver.set(N, "yref", self.yref[N][:COST_E_DIM])
 
-    self.params[:,0] = ACCEL_MIN
-    self.params[:,1] = ACCEL_MAX
+    self.params[:,0] = accel_min
+    self.params[:,1] = accel_max
     self.params[:,2] = np.min(x_obstacles, axis=1)
     self.params[:,3] = np.copy(self.a_prev)
     self.params[:,4] = t_follow
-    self.params[:,5] = LEAD_DANGER_FACTOR
+    self.params[:,5] = danger_factor
 
     self.run()
     if (np.any(lead_xv_0[FCW_IDXS,0] - self.x_sol[FCW_IDXS,0] < CRASH_DISTANCE) and

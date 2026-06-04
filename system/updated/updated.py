@@ -12,6 +12,7 @@ import threading
 from collections import defaultdict
 from pathlib import Path
 
+from cereal import messaging
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.params import Params
 from openpilot.common.time_helpers import system_time_valid
@@ -455,11 +456,13 @@ def main() -> None:
     first_run = True
 
     # FrogPilot variables
+    sm = messaging.SubMaster(["frogpilotUI"])
 
     while True:
       wait_helper.ready_event.clear()
 
       # FrogPilot variables
+      sm.update(0)
 
       # Attempt an update
       exception = None
