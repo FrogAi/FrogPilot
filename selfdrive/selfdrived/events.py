@@ -394,6 +394,8 @@ def invalid_lkas_setting_alert(CP: car.CarParams, CS: car.CarState, sm: messagin
 
 
 # FrogPilot variables
+def custom_startup_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality) -> Alert:
+  return StartupAlert(frogpilot_toggles.startup_alert_top, frogpilot_toggles.startup_alert_bottom, alert_status=FrogPilotAlertStatus.frogpilot)
 
 
 
@@ -1038,6 +1040,9 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
 # FrogPilot variables
 FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
+  FrogPilotEventName.customStartupAlert: {
+    ET.PERMANENT: custom_startup_alert,
+  },
 }
 
 
