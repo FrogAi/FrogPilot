@@ -221,15 +221,15 @@ class FrogPilotVariables:
     toggle.has_dash_speed_limits = toggle.car_make in ("toyota")
     toggle.has_pedal = CP.enableGasInterceptorDEPRECATED
     toggle.has_radar = not CP.radarUnavailable
-    toggle.has_sdsu = toggle.car_make == "toyota" and bool(FPCP.flags & ToyotaFrogPilotFlags.SMART_DSU.value)
+    toggle.has_sdsu = False #toggle.car_make == "toyota" and bool(FPCP.flags & ToyotaFrogPilotFlags.SMART_DSU.value)
     toggle.has_sng = CP.autoResumeSng
-    toggle.has_zss = toggle.car_make == "toyota" and bool(FPCP.flags & ToyotaFrogPilotFlags.ZSS.value)
+    toggle.has_zss = False #toggle.car_make == "toyota" and bool(FPCP.flags & ToyotaFrogPilotFlags.ZSS.value)
     toggle.is_angle_car = CP.steerControlType == car.CarParams.SteerControlType.angle
     toggle.is_tsk = toggle.car_make == "toyota" and CP.secOcRequired
     toggle.lat_accel_factor = CP.lateralTuning.torque.latAccelFactor
     toggle.lkas_allowed_for_aol = toggle.car_make == "hyundai" and bool(CP.flags & HyundaiFlags.CANFD or CP.flags & HyundaiFlags.HAS_LDA_BUTTON)
     toggle.longitudinal_actuator_delay = CP.longitudinalActuatorDelay
-    toggle.openpilot_longitudinal = CP.openpilotLongitudinalControl and not toggle.disable_openpilot_long
+    toggle.openpilot_longitudinal = True #CP.openpilotLongitudinalControl and not toggle.disable_openpilot_long
     toggle.pcm_cruise = CP.pcmCruise
     prohibited_main_aol = not toggle.openpilot_longitudinal and toggle.car_make == "hyundai" and bool(CP.flags & HyundaiFlags.CANFD or CP.flags & HyundaiFlags.HAS_LDA_BUTTON)
     toggle.start_accel = CP.startAccel

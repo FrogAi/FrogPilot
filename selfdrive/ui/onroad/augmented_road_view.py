@@ -2,6 +2,7 @@ import numpy as np
 import pyray as rl
 from cereal import log
 from msgq.visionipc import VisionStreamType
+from openpilot.frogpilot.common.frogpilot_variables import AOL_BORDER_COLOR
 from openpilot.selfdrive.ui import UI_BORDER_SIZE
 from openpilot.selfdrive.ui.ui_state import ui_state, UIStatus
 from openpilot.selfdrive.ui.onroad.alert_renderer import AlertRenderer
@@ -105,6 +106,8 @@ class AugmentedRoadView(CameraView):
     rl.draw_rectangle_lines_ex(rect, UI_BORDER_SIZE, rl.BLACK)
     border_roundness = 0.12
     border_color = BORDER_COLORS.get(ui_state.status, BORDER_COLORS[UIStatus.DISENGAGED])
+    if not ui_state.engaged and ui_state.sm["frogpilotCarState"].alwaysOnLateralEnabled:
+      border_color = rl.Color(*AOL_BORDER_COLOR)
     border_rect = rl.Rectangle(rect.x + UI_BORDER_SIZE, rect.y + UI_BORDER_SIZE,
                                rect.width - 2 * UI_BORDER_SIZE, rect.height - 2 * UI_BORDER_SIZE)
     rl.draw_rectangle_rounded_lines_ex(border_rect, border_roundness, 10, UI_BORDER_SIZE, border_color)

@@ -46,6 +46,7 @@ class UIState:
         "carParams",
         "driverMonitoringState",
         "carState",
+        "frogpilotCarState",
         "driverStateV2",
         "roadCameraState",
         "wideRoadCameraState",

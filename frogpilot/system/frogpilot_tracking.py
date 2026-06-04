@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 from openpilot.common.realtime import DT_MDL
 from openpilot.selfdrive.car.cruise import V_CRUISE_MAX
-from openpilot.selfdrive.selfdrived.events import FROGPILOT_EVENT_NAME
+#from openpilot.selfdrive.selfdrived.events import FROGPILOT_EVENT_NAME
 from openpilot.selfdrive.selfdrived.selfdrived import LONGITUDINAL_PERSONALITY_MAP, State
 from openpilot.selfdrive.selfdrived.state import ACTIVE_STATES
 from openpilot.selfdrive.ui.soundd import FrogPilotAudibleAlert
 
 from openpilot.frogpilot.common import frogpilot_utilities
-from openpilot.frogpilot.controls.lib.frogpilot_events import RANDOM_EVENT_END, RANDOM_EVENT_START
-from openpilot.frogpilot.controls.lib.weather_checker import WEATHER_CATEGORIES
+#from openpilot.frogpilot.controls.lib.frogpilot_events import RANDOM_EVENT_END, RANDOM_EVENT_START
+#from openpilot.frogpilot.controls.lib.weather_checker import WEATHER_CATEGORIES
 
 
 CRUISE_SPEED_BUCKET_KPH = 5
@@ -34,7 +34,7 @@ class FrogPilotTracking:
     self.params = frogpilot_planner.params
 
     self.frogpilot_events = frogpilot_planner.frogpilot_events
-    self.frogpilot_weather = frogpilot_planner.frogpilot_weather
+    self.frogpilot_weather = None #frogpilot_planner.frogpilot_weather
 
     self.frogpilot_stats = self.params.get("FrogPilotStats")
     self.frogpilot_stats.pop("ResetStats", None)
@@ -146,50 +146,50 @@ class FrogPilotTracking:
       self.distance_since_override += distance_driven
       self.frogpilot_stats["LongestDistanceWithoutOverride"] = max(self.distance_since_override, self.frogpilot_stats.get("LongestDistanceWithoutOverride", 0))
 
-    current_random_events = {event for event in self.frogpilot_events.events.names if RANDOM_EVENT_START <= event <= RANDOM_EVENT_END}
-    for event in current_random_events - self.previous_random_events:
-      increment_bucket(self.frogpilot_stats, "RandomEvents", FROGPILOT_EVENT_NAME[event])
-    self.previous_random_events = current_random_events
+    #current_random_events = {event for event in self.frogpilot_events.events.names if RANDOM_EVENT_START <= event <= RANDOM_EVENT_END}
+    #for event in current_random_events - self.previous_random_events:
+    #  increment_bucket(self.frogpilot_stats, "RandomEvents", FROGPILOT_EVENT_NAME[event])
+    #self.previous_random_events = current_random_events
 
     if sm["carState"].standstill:
       increment_stat(self.frogpilot_stats, "StandstillTime", DT_MDL)
       if not self.previous_standstill:
         increment_stat(self.frogpilot_stats, "StandstillEvents", 1)
 
-      if self.frogpilot_events.stopped_for_light:
-        increment_stat(self.frogpilot_stats, "StopLightTime", DT_MDL)
-        if not self.previous_stoplight:
-          increment_stat(self.frogpilot_stats, "StopLightStops", 1)
-      self.previous_stoplight = self.frogpilot_events.stopped_for_light
-    else:
-      self.previous_stoplight = False
+      #if self.frogpilot_events.stopped_for_light:
+      #  increment_stat(self.frogpilot_stats, "StopLightTime", DT_MDL)
+      #  if not self.previous_stoplight:
+      #    increment_stat(self.frogpilot_stats, "StopLightStops", 1)
+      #self.previous_stoplight = self.frogpilot_events.stopped_for_light
+    #else:
+    #  self.previous_stoplight = False
     self.previous_standstill = sm["carState"].standstill
 
-    if self.frogpilot_weather.api_25_calls:
-      increment_bucket(self.frogpilot_stats, "WeatherAPICalls", "2.5", self.frogpilot_weather.api_25_calls)
-
-      self.frogpilot_weather.api_25_calls = 0
-    if self.frogpilot_weather.api_3_calls:
-      increment_bucket(self.frogpilot_stats, "WeatherAPICalls", "3.0", self.frogpilot_weather.api_3_calls)
-
-      self.frogpilot_weather.api_3_calls = 0
-
-    if self.frogpilot_weather.sunrise != 0 and self.frogpilot_weather.sunset != 0:
-      if self.frogpilot_weather.is_daytime:
-        increment_stat(self.frogpilot_stats, "DayMeters", distance_driven)
-        increment_stat(self.frogpilot_stats, "DayTime", DT_MDL)
-      else:
-        increment_stat(self.frogpilot_stats, "NightMeters", distance_driven)
-        increment_stat(self.frogpilot_stats, "NightTime", DT_MDL)
-
-    if self.frogpilot_weather.sunrise != 0 and self.frogpilot_weather.sunset != 0:
-      suffix = "unknown"
-      for category in WEATHER_CATEGORIES.values():
-        if any(start <= self.frogpilot_weather.weather_id <= end for start, end in category["ranges"]):
-          suffix = category["suffix"]
-          break
-
-      increment_bucket(self.frogpilot_stats, "WeatherTimes", suffix, DT_MDL)
+    #if self.frogpilot_weather.api_25_calls:
+    #  increment_bucket(self.frogpilot_stats, "WeatherAPICalls", "2.5", self.frogpilot_weather.api_25_calls)
+    #
+    #  self.frogpilot_weather.api_25_calls = 0
+    #if self.frogpilot_weather.api_3_calls:
+    #  increment_bucket(self.frogpilot_stats, "WeatherAPICalls", "3.0", self.frogpilot_weather.api_3_calls)
+    #
+    #  self.frogpilot_weather.api_3_calls = 0
+    #
+    #if self.frogpilot_weather.sunrise != 0 and self.frogpilot_weather.sunset != 0:
+    #  if self.frogpilot_weather.is_daytime:
+    #    increment_stat(self.frogpilot_stats, "DayMeters", distance_driven)
+    #    increment_stat(self.frogpilot_stats, "DayTime", DT_MDL)
+    #  else:
+    #    increment_stat(self.frogpilot_stats, "NightMeters", distance_driven)
+    #    increment_stat(self.frogpilot_stats, "NightTime", DT_MDL)
+    #
+    #if self.frogpilot_weather.sunrise != 0 and self.frogpilot_weather.sunset != 0:
+    #  suffix = "unknown"
+    #  for category in WEATHER_CATEGORIES.values():
+    #    if any(start <= self.frogpilot_weather.weather_id <= end for start, end in category["ranges"]):
+    #      suffix = category["suffix"]
+    #      break
+    #
+    #  increment_bucket(self.frogpilot_stats, "WeatherTimes", suffix, DT_MDL)
 
     if self.tracked_time >= 60 and sm["carState"].standstill and self.previously_enabled:
       self.write_stats()
