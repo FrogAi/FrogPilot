@@ -223,7 +223,12 @@ def handle_agnos_update() -> None:
   cloudlog.info(f"Beginning background installation for AGNOS {updated_version}")
   set_offroad_alert("Offroad_NeosUpdate", True)
 
-  manifest_path = os.path.join(OVERLAY_MERGED, "system/hardware/tici/agnos.json")
+  manifest_dir = os.path.join(OVERLAY_MERGED, "system/hardware/tici")
+  if HARDWARE.get_device_type() == "tici" and os.path.exists(os.path.join(manifest_dir, "tici_agnos.json")):
+    manifest_file = "tici_agnos.json"
+  else:
+    manifest_file = "agnos.json"
+  manifest_path = os.path.join(manifest_dir, manifest_file)
   target_slot_number = get_target_slot_number()
   flash_agnos_update(manifest_path, target_slot_number, cloudlog)
   set_offroad_alert("Offroad_NeosUpdate", False)

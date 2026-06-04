@@ -23,7 +23,13 @@ function agnos_init {
   # Check if AGNOS update is required
   if [ $(< /VERSION) != "$AGNOS_VERSION" ]; then
     AGNOS_PY="$DIR/system/hardware/tici/agnos.py"
-    MANIFEST="$DIR/system/hardware/tici/agnos.json"
+
+    if grep -aq "comma tici" /proc/device-tree/model; then
+      MANIFEST="$DIR/system/hardware/tici/tici_agnos.json"
+    else
+      MANIFEST="$DIR/system/hardware/tici/agnos.json"
+    fi
+
     if $AGNOS_PY --verify $MANIFEST; then
       sudo reboot
     fi
