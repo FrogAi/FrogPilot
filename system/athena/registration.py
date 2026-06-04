@@ -21,7 +21,7 @@ UNREGISTERED_DONGLE_ID = "UnregisteredDevice"
 
 def is_registered_device() -> bool:
   dongle = Params().get("DongleId")
-  return dongle not in (None, UNREGISTERED_DONGLE_ID)
+  return dongle not in (None, UNREGISTERED_DONGLE_ID, frogpilot_variables.UNOFFICIAL_DONGLE_ID)
 
 
 def register(show_spinner=False) -> str | None:
@@ -80,7 +80,7 @@ def register(show_spinner=False) -> str | None:
 
         if resp.status_code in (402, 403):
           cloudlog.info(f"Unable to register device, got {resp.status_code}")
-          dongle_id = UNREGISTERED_DONGLE_ID
+          dongle_id = frogpilot_variables.UNOFFICIAL_DONGLE_ID
         else:
           dongleauth = json.loads(resp.text)
           dongle_id = dongleauth["dongle_id"]
