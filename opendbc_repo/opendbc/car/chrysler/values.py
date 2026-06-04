@@ -19,6 +19,11 @@ class ChryslerFlags(IntFlag):
   HIGHER_MIN_STEERING_SPEED = 1
 
 
+# RealFast variables
+class ChryslerRealFastFlags(IntFlag):
+  RAM_HD_ALT_BUTTONS = 1
+
+
 @dataclass
 class ChryslerCarDocs(CarDocs):
   package: str = "Adaptive Cruise Control (ACC)"
@@ -85,7 +90,7 @@ class CAR(Platforms):
   # Ram
   RAM_1500_5TH_GEN = ChryslerPlatformConfig(
     [ChryslerCarDocs("Ram 1500 2019-24", car_parts=CarParts.common([CarHarness.ram]))],
-    ChryslerCarSpecs(mass=2493., wheelbase=3.88, steerRatio=16.3, minSteerSpeed=14.5),
+    ChryslerCarSpecs(mass=2493., wheelbase=3.88, steerRatio=16.3, minSteerSpeed=14.5, minEnableSpeed=14.5),
     {Bus.pt: 'chrysler_ram_dt_generated'},
   )
   RAM_HD_5TH_GEN = ChryslerPlatformConfig(
@@ -109,7 +114,7 @@ class CarControllerParams:
     elif CP.carFingerprint in RAM_DT:
       self.STEER_DELTA_UP = 6
       self.STEER_DELTA_DOWN = 6
-      self.STEER_MAX = 261  # EPS allows more, up to 350?
+      self.STEER_MAX = 350  # EPS allows more, up to 350?
     elif CP.carFingerprint in CUSW_CARS:
       self.STEER_STEP = 1  # 100 Hz
       self.STEER_DELTA_UP = 4

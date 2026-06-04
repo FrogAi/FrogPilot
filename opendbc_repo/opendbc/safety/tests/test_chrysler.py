@@ -97,7 +97,7 @@ class TestChryslerRamDTSafety(TestChryslerSafety):
 
 
 class TestChryslerRamHDSafety(TestChryslerSafety):
-  TX_MSGS = [[0x275, 0], [0x276, 0], [0x23A, 2]]
+  TX_MSGS = [[0x275, 0], [0x276, 0], [0x23A, 2], [0x23B, 2]]
   RELAY_MALFUNCTION_ADDRS = {0: (0x276, 0x275)}
   FWD_BLACKLISTED_ADDRS = {2: [0x275, 0x276]}
 
@@ -119,6 +119,21 @@ class TestChryslerRamHDSafety(TestChryslerSafety):
   def _speed_msg(self, speed):
     values = {"Vehicle_Speed": speed}
     return self.packer.make_can_msg_safety("ESP_8", 0, values)
+
+  # RealFast variables
+  def _button_msg(self, cancel=False, resume=False, alt=False):
+    values = {"ACC_Cancel": cancel, "ACC_Resume": resume}
+    button_message = "CRUISE_BUTTONS_ALT" if alt else "CRUISE_BUTTONS"
+    return self.packer.make_can_msg_safety(button_message, self.DAS_BUS, values)
+
+  def test_alt_buttons(self):
+    for controls_allowed in (True, False):
+      self.safety.set_controls_allowed(controls_allowed)
+
+      self.assertEqual(controls_allowed, self._tx(self._button_msg(resume=True, alt=True)))
+      self.assertTrue(self._tx(self._button_msg(cancel=True, alt=True)))
+      self.assertFalse(self._tx(self._button_msg(cancel=True, resume=True, alt=True)))
+      self.assertFalse(self._tx(self._button_msg(cancel=False, resume=False, alt=True)))
 
 
 if __name__ == "__main__":
