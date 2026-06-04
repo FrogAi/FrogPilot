@@ -78,6 +78,9 @@ class Controls:
       self.calibrated_pose = self.pose_calibrator.build_calibrated_pose(device_pose)
 
     # FrogPilot variables
+    if hasattr(self.LaC, "pid") and self.CP.lateralTuning.which() != "pid":
+      self.LaC.pid._k_p = self.frogpilot_toggles.steerKp
+
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(self.sm)
 
   def state_control(self):
