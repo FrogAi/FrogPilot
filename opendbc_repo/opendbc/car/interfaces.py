@@ -296,6 +296,8 @@ class CarInterfaceBase(ABC):
     self.CS.out = ret
 
     # FrogPilot variables
+    fp_ret.ecoGear |= ret.gearShifter == GearShifter.eco
+    fp_ret.sportGear |= ret.gearShifter == GearShifter.sport
 
     return ret, fp_ret
 
