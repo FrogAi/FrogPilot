@@ -183,7 +183,7 @@ class TogglesLayout(Widget):
 
         long_desc = unavailable + " " + tr("openpilot longitudinal control may come in a future update.")
         if ui_state.CP.alphaLongitudinalAvailable:
-          if self._is_release:
+          if False:
             long_desc = unavailable + " " + tr("An alpha version of openpilot longitudinal control can be tested, along with " +
                                                "Experimental mode, on non-release branches.")
           else:
