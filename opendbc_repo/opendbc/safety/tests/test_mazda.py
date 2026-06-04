@@ -7,7 +7,7 @@ import opendbc.safety.tests.common as common
 from opendbc.safety.tests.common import CANPackerSafety, make_msg
 
 
-class TestMazdaSafety(common.CarSafetyTest, common.DriverTorqueSteeringSafetyTest):
+class TestMazdaSafety(common.AlwaysOnLateralTorqueSteeringSafetyTest, common.CarSafetyTest, common.DriverTorqueSteeringSafetyTest):
 
   TX_MSGS = [[0x243, 0], [0x09d, 0], [0x440, 0]]
   STANDSTILL_THRESHOLD = .1
@@ -81,6 +81,11 @@ class TestMazdaSafety(common.CarSafetyTest, common.DriverTorqueSteeringSafetyTes
     self.assertTrue(self._tx(self._button_msg(resume=True)))
 
   # FrogPilot variables
+  def _set_aol_acc_main(self, enabled: bool):
+    values = {"CRZ_ACTIVE": False, "CRZ_AVAILABLE": enabled}
+    self.assertTrue(self._rx(self.packer.make_can_msg_safety("CRZ_CTRL", 0, values)))
+    self.assertEqual(enabled, self.safety.get_acc_main_on())
+    self.assertFalse(self.safety.get_controls_allowed())
 
 
 class TestMazdaIgnition(unittest.TestCase):

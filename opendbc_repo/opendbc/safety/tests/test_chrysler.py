@@ -8,7 +8,7 @@ import opendbc.safety.tests.common as common
 from opendbc.safety.tests.common import CANPackerSafety
 
 
-class TestChryslerSafety(common.CarSafetyTest, common.MotorTorqueSteeringSafetyTest):
+class TestChryslerSafety(common.AlwaysOnLateralTorqueSteeringSafetyTest, common.CarSafetyTest, common.MotorTorqueSteeringSafetyTest):
   TX_MSGS = [[0x23B, 0], [0x292, 0], [0x2A6, 0]]
   RELAY_MALFUNCTION_ADDRS = {0: (0x292, 0x2A6)}
   FWD_BLACKLISTED_ADDRS = {2: [0x292, 0x2A6]}
@@ -72,6 +72,11 @@ class TestChryslerSafety(common.CarSafetyTest, common.MotorTorqueSteeringSafetyT
       self.assertFalse(self._tx(self._button_msg(cancel=False, resume=False)))
 
   # FrogPilot variables
+  def _set_aol_acc_main(self, enabled: bool):
+    values = {"ACC_AVAILABLE": enabled, "ACC_ACTIVE": False}
+    self.assertTrue(self._rx(self.packer.make_can_msg_safety("DAS_3", self.DAS_BUS, values)))
+    self.assertEqual(enabled, self.safety.get_acc_main_on())
+    self.assertFalse(self.safety.get_controls_allowed())
 
 
 class TestChryslerRamDTSafety(TestChryslerSafety):

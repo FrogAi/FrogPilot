@@ -108,6 +108,11 @@ class TestSubaruSafetyBase(common.CarSafetyTest):
     return self.packer.make_can_msg_safety("CruiseControl", self.ALT_MAIN_BUS, values)
 
   # FrogPilot variables
+  def _set_aol_acc_main(self, enabled: bool):
+    values = {"Cruise_On": enabled, "Cruise_Activated": False}
+    self.assertTrue(self._rx(self.packer.make_can_msg_safety("CruiseControl", self.ALT_MAIN_BUS, values)))
+    self.assertEqual(enabled, self.safety.get_acc_main_on())
+    self.assertFalse(self.safety.get_controls_allowed())
 
 
 class TestSubaruStockLongitudinalSafetyBase(TestSubaruSafetyBase):
@@ -155,7 +160,8 @@ class TestSubaruLongitudinalSafetyBase(TestSubaruSafetyBase, common.Longitudinal
     return self.packer.make_can_msg_safety("ES_Status", self.ALT_MAIN_BUS, values)
 
 
-class TestSubaruTorqueSafetyBase(TestSubaruSafetyBase, common.DriverTorqueSteeringSafetyTest, common.SteerRequestCutSafetyTest):
+class TestSubaruTorqueSafetyBase(common.AlwaysOnLateralTorqueSteeringSafetyTest,
+                                 TestSubaruSafetyBase, common.DriverTorqueSteeringSafetyTest, common.SteerRequestCutSafetyTest):
   MAX_RATE_UP = 50
   MAX_RATE_DOWN = 70
   MAX_TORQUE_LOOKUP = [0], [2047]

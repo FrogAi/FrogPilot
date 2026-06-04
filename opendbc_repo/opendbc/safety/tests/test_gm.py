@@ -71,7 +71,7 @@ class GmLongitudinalBase(common.CarSafetyTest, common.LongitudinalGasBrakeSafety
     self.assertFalse(self.safety.get_controls_allowed())
 
 
-class TestGmSafetyBase(common.CarSafetyTest, common.DriverTorqueSteeringSafetyTest):
+class TestGmSafetyBase(common.AlwaysOnLateralTorqueSteeringSafetyTest, common.CarSafetyTest, common.DriverTorqueSteeringSafetyTest):
   STANDSTILL_THRESHOLD = 10 * 0.0311
   # Ensures ASCM is off on ASCM cars, and relay is not malfunctioning for camera-ACC cars
   RELAY_MALFUNCTION_ADDRS = {0: (0x180,), 2: (0x184,)}  # ASCMLKASteeringCmd, PSCMStatus
@@ -136,6 +136,11 @@ class TestGmSafetyBase(common.CarSafetyTest, common.DriverTorqueSteeringSafetyTe
     return self._button_msg_on_bus(buttons, self.BUTTONS_BUS)
 
   # FrogPilot variables
+  def _set_aol_acc_main(self, enabled: bool):
+    values = {"CruiseMainOn": enabled, "BrakePressed": False, "CruiseActive": 0}
+    self.assertTrue(self._rx(self.packer.make_can_msg_safety("ECMEngineStatus", 0, values)))
+    self.assertEqual(enabled, self.safety.get_acc_main_on())
+    self.assertFalse(self.safety.get_controls_allowed())
 
   # OPGM variables
   def assert_interceptor_tx_blocked(self):

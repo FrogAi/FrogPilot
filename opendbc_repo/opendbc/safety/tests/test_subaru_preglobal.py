@@ -8,7 +8,7 @@ import opendbc.safety.tests.common as common
 from opendbc.safety.tests.common import CANPackerSafety
 
 
-class TestSubaruPreglobalSafety(common.CarSafetyTest, common.DriverTorqueSteeringSafetyTest):
+class TestSubaruPreglobalSafety(common.AlwaysOnLateralTorqueSteeringSafetyTest, common.CarSafetyTest, common.DriverTorqueSteeringSafetyTest):
   FLAGS = 0
   DBC = "subaru_outback_2015_generated"
   TX_MSGS = [[0x161, 0], [0x164, 0]]
@@ -60,6 +60,11 @@ class TestSubaruPreglobalSafety(common.CarSafetyTest, common.DriverTorqueSteerin
     return self.packer.make_can_msg_safety("CruiseControl", 0, values)
 
   # FrogPilot variables
+  def _set_aol_acc_main(self, enabled: bool):
+    values = {"Cruise_On": enabled, "Cruise_Activated": False}
+    self.assertTrue(self._rx(self.packer.make_can_msg_safety("CruiseControl", 0, values)))
+    self.assertEqual(enabled, self.safety.get_acc_main_on())
+    self.assertFalse(self.safety.get_controls_allowed())
 
 
 class TestSubaruPreglobalReversedDriverTorqueSafety(TestSubaruPreglobalSafety):

@@ -19,11 +19,14 @@ def checksum(msg):
   elif addr == 0x150:
     ret[0] = _checksum(ret[1:], 0x1D, 0x9A)
   # FrogPilot variables
+  elif addr == 0x162:
+    ret[0] = _checksum(ret[1:], 0x1D, 0xD1)
 
   return addr, ret, bus
 
 
-class TestRivianSafetyBase(common.CarSafetyTest, common.DriverTorqueSteeringSafetyTest, common.LongitudinalAccelSafetyTest,
+class TestRivianSafetyBase(common.AlwaysOnLateralTorqueSteeringSafetyTest,
+                           common.CarSafetyTest, common.DriverTorqueSteeringSafetyTest, common.LongitudinalAccelSafetyTest,
                            common.VehicleSpeedSafetyTest):
 
   TX_MSGS = [[0x120, 0], [0x321, 2], [0x162, 2]]
@@ -44,6 +47,7 @@ class TestRivianSafetyBase(common.CarSafetyTest, common.DriverTorqueSteeringSafe
   cnt_speed_2 = 0
 
   # FrogPilot variables
+  cnt_adas = 0
 
   def _torque_driver_msg(self, torque):
     values = {"EPAS_TorsionBarTorque": torque / 100.0}
@@ -82,6 +86,15 @@ class TestRivianSafetyBase(common.CarSafetyTest, common.DriverTorqueSteeringSafe
     return self.packer.make_can_msg_safety("ACM_longitudinalRequest", 0, values)
 
   # FrogPilot variables
+  def _adas_status_msg(self, interface_status: int):
+    values = {"VDM_AdasInterfaceStatus": interface_status, "VDM_AdasStatus_Counter": self.cnt_adas % 15}
+    self.__class__.cnt_adas += 1
+    return self.packer.make_can_msg_safety("VDM_AdasSts", 0, values, fix_checksum=checksum)
+
+  def _set_aol_acc_main(self, enabled: bool):
+    self.assertTrue(self._rx(self._adas_status_msg(1 if enabled else 0)))
+    self.assertEqual(enabled, self.safety.get_acc_main_on())
+    self.assertFalse(self.safety.get_controls_allowed())
 
   def test_wheel_touch(self):
     # For hiding hold wheel alert on engage

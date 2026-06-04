@@ -26,7 +26,8 @@ def round_angle(apply_angle, can_offset=0):
   return away_round(apply_angle_can + rnd_offset) * 0.1 - 1638.35
 
 
-class TestTeslaSafetyBase(common.CarSafetyTest, common.AngleSteeringSafetyTest, common.LongitudinalAccelSafetyTest):
+class TestTeslaSafetyBase(common.AlwaysOnLateralAngleSteeringSafetyTest,
+                          common.CarSafetyTest, common.AngleSteeringSafetyTest, common.LongitudinalAccelSafetyTest):
   SAFETY_PARAM = 0
 
   RELAY_MALFUNCTION_ADDRS = {0: (MSG_DAS_steeringControl, MSG_APS_eacMonitor)}
@@ -365,6 +366,14 @@ class TestTeslaSafetyBase(common.CarSafetyTest, common.AngleSteeringSafetyTest, 
         self.assertTrue(self._tx(self._angle_cmd_msg(0, True)))
 
   # FrogPilot variables
+  def _set_aol_acc_main(self, enabled: bool):
+    values = {"DI_cruiseState": 1 if enabled else 0, "DI_autoparkState": 0}
+    self.assertTrue(self._rx(self.packer.make_can_msg_safety("DI_state", 0, values)))
+    self.assertEqual(enabled, self.safety.get_acc_main_on())
+    self.assertFalse(self.safety.get_controls_allowed())
+
+  def _aol_steering_disengage_msg(self):
+    return self._angle_meas_msg(0, hands_on_level=3)
 
 
 class TestTeslaStockSafety(TestTeslaSafetyBase):
