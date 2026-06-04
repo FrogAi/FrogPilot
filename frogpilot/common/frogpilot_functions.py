@@ -5,6 +5,7 @@ import time
 from pathlib import Path
 
 from openpilot.common.basedir import BASEDIR
+from openpilot.common.constants import CV
 from openpilot.common.time_helpers import system_time_valid
 from openpilot.system.hardware import HARDWARE
 
@@ -25,6 +26,62 @@ def install_frogpilot():
     path.mkdir(parents=True, exist_ok=True)
 
   update_boot_logo(Path(BASEDIR) / "frogpilot/assets/other_images/frogpilot_boot_logo.jpg")
+
+
+def migrate_params_to_si(params):
+  def migrate(keys, metric_factor, imperial_factor):
+    factor = metric_factor if is_metric else imperial_factor
+    for key in keys:
+      value = params.get(key)
+      if value is None or value == 0:
+        continue
+      params.put(key, float(value) * factor)
+
+  def migrate_renamed_param(old_key, new_key):
+    value = params.get(old_key)
+    if value is None:
+      return
+    if params.get(new_key) is None:
+      params.put(new_key, value)
+    params.remove(old_key)
+
+  if not params.get_bool("ParamsMigratedToSI"):
+    is_metric = params.get_bool("IsMetric")
+
+    migrate((
+      "IncreasedStoppedDistance",
+      "IncreasedStoppedDistanceLowVisibility",
+      "IncreasedStoppedDistanceRain",
+      "IncreasedStoppedDistanceRainStorm",
+      "IncreasedStoppedDistanceSnow",
+      "LaneDetectionWidth",
+    ), 1.0, CV.FOOT_TO_METER)
+
+    migrate(("LaneLinesWidth", "RoadEdgesWidth"), 1.0 / 200.0, CV.INCH_TO_CM / 200.0)
+
+    migrate(("PathWidth",), 0.5, CV.FOOT_TO_METER / 2.0)
+
+    migrate((
+      "CESignalSpeed",
+      "CESpeed",
+      "CESpeedLead",
+      "MinimumLaneChangeSpeed",
+      "Offset1",
+      "Offset2",
+      "Offset3",
+      "Offset4",
+      "Offset5",
+      "Offset6",
+      "Offset7",
+      "PauseAOLOnBrake",
+      "PauseLateralSpeed",
+      "SetSpeedOffset",
+    ), CV.KPH_TO_MS, CV.MPH_TO_MS)
+
+    params.put_bool("ParamsMigratedToSI", True)
+
+  migrate_renamed_param("CustomCruise", "CruiseButtonIncrement")
+  migrate_renamed_param("CustomCruiseLong", "CruiseButtonIncrementLong")
 
 
 def uninstall_frogpilot():
