@@ -137,6 +137,8 @@ class CarState(CarStateBase):
     if self.CP.flags & SubaruFlags.SEND_INFOTAINMENT:
       self.es_infotainment_msg = copy.copy(cp_cam.vl["ES_Infotainment"])
 
+    # FrogPilot variables
+
     return ret
 
   @staticmethod

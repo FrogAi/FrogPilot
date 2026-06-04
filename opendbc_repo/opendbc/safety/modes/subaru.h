@@ -125,6 +125,8 @@ static void subaru_rx_hook(const CANPacket_t *msg) {
   if ((msg->addr == MSG_SUBARU_Throttle) && (msg->bus == SUBARU_MAIN_BUS)) {
     gas_pressed = msg->data[4] != 0U;
   }
+
+  // FrogPilot variables
 }
 
 static bool subaru_tx_hook(const CANPacket_t *msg) {

@@ -89,6 +89,8 @@ class HyundaiSafetyFlags(IntFlag):
 #   - CANFD_NO_RADAR_DISABLE: Some CAN-FD cars refuse the communication control disable
 #     request (0x7F2822 'conditions not correct') — longitudinal not available.
 
+# FrogPilot variables
+
 class HyundaiFlags(IntFlag):
   # Dynamic Flags
 

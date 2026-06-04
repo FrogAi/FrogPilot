@@ -32,6 +32,8 @@ if HARDWARE.get_device_type() == "tizi":
 
 AudibleAlert = car.CarControl.HUDControl.AudibleAlert
 
+# FrogPilot variables
+
 
 sound_list: dict[int, tuple[str, int | None, float]] = {
   # AudibleAlert, file name, play count (none for infinite)
@@ -45,6 +47,8 @@ sound_list: dict[int, tuple[str, int | None, float]] = {
 
   AudibleAlert.warningSoft: ("warning_soft.wav", None, MAX_VOLUME),
   AudibleAlert.warningImmediate: ("warning_immediate.wav", None, MAX_VOLUME),
+
+  # FrogPilot variables
 }
 if HARDWARE.get_device_type() == "tizi":
   sound_list.update({
@@ -76,6 +80,9 @@ class Soundd:
     self.selfdrive_timeout_alert = False
 
     self.spl_filter_weighted = FirstOrderFilter(0, 2.5, FILTER_DT, initialized=False)
+
+    # FrogPilot variables
+    self.update_frogpilot_sounds()
 
   def load_sounds(self):
     self.loaded_sounds: dict[int, np.ndarray] = {}
@@ -130,6 +137,9 @@ class Soundd:
   def get_audible_alert(self, sm):
     if sm.updated['selfdriveState']:
       new_alert = sm['selfdriveState'].alertSound.raw
+
+      # FrogPilot variables
+
       self.update_alert(new_alert)
     elif check_selfdrive_timeout_alert(sm):
       self.update_alert(AudibleAlert.warningImmediate)
@@ -155,6 +165,8 @@ class Soundd:
 
     sm = messaging.SubMaster(['selfdriveState', 'soundPressure'])
 
+    # FrogPilot variables
+
     with self.get_stream(sd) as stream:
       rk = Ratekeeper(20)
 
@@ -178,6 +190,11 @@ class Soundd:
         rk.keep_time()
 
         assert stream.active
+
+        # FrogPilot variables
+
+  def update_frogpilot_sounds(self):
+    pass
 
 
 def main():

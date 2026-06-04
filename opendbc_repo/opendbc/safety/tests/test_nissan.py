@@ -113,6 +113,8 @@ class TestNissanLeafSafety(TestNissanSafety):
   def test_acc_buttons(self):
     pass
 
+  # FrogPilot variables
+
 
 if __name__ == "__main__":
   unittest.main()

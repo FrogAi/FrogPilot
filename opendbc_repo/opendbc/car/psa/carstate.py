@@ -62,6 +62,9 @@ class CarState(CarStateBase):
     # lock info
     ret.doorOpen = any((cp_cam.vl['Dat_BSI']['DRIVER_DOOR'], cp_cam.vl['Dat_BSI']['PASSENGER_DOOR']))
     ret.seatbeltUnlatched = cp_cam.vl['RESTRAINTS']['DRIVER_SEATBELT'] != 2
+
+    # FrogPilot variables
+
     return ret
 
   @staticmethod

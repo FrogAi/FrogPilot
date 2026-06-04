@@ -138,6 +138,9 @@ class CarState(CarStateBase):
     ret.lowSpeedAlert = self.update_low_speed_alert(ret.vEgo)
 
     self.frame += 1
+
+    # FrogPilot variables
+
     return ret
 
   def update_pq(self, pt_cp, cam_cp, ext_cp) -> structs.CarState:
@@ -229,6 +232,9 @@ class CarState(CarStateBase):
     ret.lowSpeedAlert = self.update_low_speed_alert(ret.vEgo)
 
     self.frame += 1
+
+    # FrogPilot variables
+
     return ret
 
   def update_mlb(self, pt_cp, cam_cp, ext_cp, alt_cp) -> structs.CarState:

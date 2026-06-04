@@ -71,6 +71,8 @@ class HyundaiButtonBase:
       self.assertEqual(controls_allowed, self.safety.get_controls_allowed())
       self._rx(self._button_msg(Buttons.NONE))
 
+  # FrogPilot variables
+
 
 class HyundaiLongitudinalBase(common.LongitudinalAccelSafetyTest):
 

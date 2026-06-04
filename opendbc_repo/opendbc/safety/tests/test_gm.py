@@ -135,6 +135,8 @@ class TestGmSafetyBase(common.CarSafetyTest, common.DriverTorqueSteeringSafetyTe
   def _button_msg(self, buttons):
     return self._button_msg_on_bus(buttons, self.BUTTONS_BUS)
 
+  # FrogPilot variables
+
   # OPGM variables
   def assert_interceptor_tx_blocked(self):
     self.safety.set_controls_allowed(True)

@@ -141,6 +141,8 @@ static void volkswagen_pq_rx_hook(const CANPacket_t *msg) {
     if (msg->addr == MSG_MOTOR_2) {
       brake_pressed = (msg->data[2] & 0x1U);
     }
+
+    // FrogPilot variables
   }
 }
 

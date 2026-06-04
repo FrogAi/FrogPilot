@@ -21,6 +21,7 @@ blacklist = [
 
 # gets you through the blacklist
 whitelist: list[str] = [
+  # FrogPilot variables
 ]
 
 if __name__ == "__main__":

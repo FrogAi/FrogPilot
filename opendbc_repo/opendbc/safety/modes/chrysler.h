@@ -85,6 +85,8 @@ static void chrysler_rx_hook(const CANPacket_t *msg) {
   if ((msg->bus == 0U) && (msg->addr == CHRYSLER_ADDR(ESP_1))) {
     brake_pressed = ((msg->data[0U] & 0xFU) >> 2U) == 1U;
   }
+
+  // FrogPilot variables
 }
 
 static bool chrysler_tx_hook(const CANPacket_t *msg) {

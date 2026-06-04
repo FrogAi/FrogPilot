@@ -81,6 +81,9 @@ class ToyotaFlags(IntFlag):
   NO_STOP_TIMER_DEPRECATED = 256
 
 
+# FrogPilot variables
+
+
 def dbc_dict(pt, radar):
   return {Bus.pt: pt, Bus.radar: radar}
 

@@ -253,6 +253,8 @@ def main(demo=False):
   params = Params()
   estimator = TorqueEstimator(messaging.log_from_bytes(params.get("CarParams", block=True), car.CarParams))
 
+  # FrogPilot variables
+
   while True:
     sm.update()
     if sm.all_checks():
@@ -269,6 +271,8 @@ def main(demo=False):
     if sm.frame % 240 == 0:
       msg = estimator.get_msg(valid=sm.all_checks(), with_points=True)
       params.put("LiveTorqueParameters", msg.to_bytes())
+
+    # FrogPilot variables
 
 
 if __name__ == "__main__":

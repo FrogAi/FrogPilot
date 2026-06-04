@@ -13,6 +13,8 @@ from opendbc.car.vin import get_vin, is_valid_vin, VIN_UNKNOWN
 
 FRAME_FINGERPRINT = 100  # 1s
 
+# FrogPilot variables
+
 
 def load_interfaces(brand_names):
   ret = {}
@@ -162,6 +164,8 @@ def get_car(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_multip
   CP.carFw = car_fw
   CP.fingerprintSource = source
   CP.fuzzyFingerprint = not exact_match
+
+  # FrogPilot variables
 
   return interfaces[CP.carFingerprint](CP)
 

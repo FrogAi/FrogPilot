@@ -113,6 +113,8 @@ class CarState(CarStateBase):
       *create_button_events(self.lc_button, prev_lc_button, {1: ButtonType.lkas}),
     ]
 
+    # FrogPilot variables
+
     return ret
 
   @staticmethod

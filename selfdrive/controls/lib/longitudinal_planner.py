@@ -81,6 +81,9 @@ class LongitudinalPlanner:
       throttle_prob = model_msg.meta.disengagePredictions.gasPressProbs[1]
     else:
       throttle_prob = 1.0
+
+    # FrogPilot variables
+
     return x, v, a, j, throttle_prob
 
   def update(self, sm):

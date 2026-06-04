@@ -202,6 +202,8 @@ class CarState(CarStateBase):
       self.low_speed_alert = False
     ret.lowSpeedAlert = self.low_speed_alert
 
+    # FrogPilot variables
+
     return ret
 
   def update_canfd(self, can_parsers) -> structs.CarState:
@@ -292,6 +294,8 @@ class CarState(CarStateBase):
                         *create_button_events(self.lda_button, prev_lda_button, {1: ButtonType.lkas})]
 
     ret.blockPcmEnable = not self.recent_button_interaction()
+
+    # FrogPilot variables
 
     return ret
 

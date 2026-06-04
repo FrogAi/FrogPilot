@@ -47,6 +47,8 @@ static void subaru_preglobal_rx_hook(const CANPacket_t *msg) {
     if (msg->addr == MSG_SUBARU_PG_Throttle) {
       gas_pressed = msg->data[0] != 0U;
     }
+
+    // FrogPilot variables
   }
 }
 

@@ -286,4 +286,6 @@ class CarInterface(CarInterfaceBase):
     if candidate in CC_ONLY_CAR:
       ret.safetyConfigs[0].safetyParam |= GMOPGMSafetyFlags.NO_ACC.value
 
+    # FrogPilot variables
+
     return ret

@@ -125,6 +125,8 @@ class CarState(CarStateBase):
       *create_button_events(self.decel_button, prev_decel_button, {1: ButtonType.decelCruise}),
     ]
 
+    # FrogPilot variables
+
     return ret
 
   @staticmethod

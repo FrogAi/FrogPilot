@@ -28,6 +28,8 @@ class CarState(CarStateBase):
     ret.cruiseState.enabled = True
     ret.cruiseState.available = True
 
+    # FrogPilot variables
+
     return ret
 
   @staticmethod
