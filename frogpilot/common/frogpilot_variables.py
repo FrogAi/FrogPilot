@@ -265,6 +265,14 @@ class FrogPilotVariables:
     toggle.steerRatio = self.get_value("SteerRatio", cast=float, condition=advanced_lateral_tuning, default=toggle.steer_ratio, min=toggle.steer_ratio * STEERING_TUNE_MIN_FACTOR, max=toggle.steer_ratio * STEERING_TUNE_MAX_FACTOR)
     toggle.use_custom_steerRatio = bool(round(toggle.steerRatio, 2) != round(toggle.steer_ratio, 2))
 
+    advanced_longitudinal_tuning = toggle.openpilot_longitudinal and self.get_value("AdvancedLongitudinalTune")
+    toggle.longitudinalActuatorDelay = self.get_value("LongitudinalActuatorDelay", cast=float, condition=advanced_longitudinal_tuning, default=toggle.longitudinal_actuator_delay, min=0, max=1)
+    toggle.startAccel = self.get_value("StartAccel", cast=float, condition=advanced_longitudinal_tuning, default=toggle.start_accel, min=0, max=MAX_ACCELERATION)
+    toggle.stopAccel = self.get_value("StopAccel", cast=float, condition=advanced_longitudinal_tuning, default=toggle.stop_accel, min=-MAX_ACCELERATION, max=0)
+    toggle.stoppingDecelRate = self.get_value("StoppingDecelRate", cast=float, condition=advanced_longitudinal_tuning, default=toggle.stoppingDecelRate, min=0.001, max=1)
+    toggle.vEgoStarting = self.get_value("VEgoStarting", cast=float, condition=advanced_longitudinal_tuning, default=toggle.vEgoStarting, min=0.01, max=1)
+    toggle.vEgoStopping = self.get_value("VEgoStopping", cast=float, condition=advanced_longitudinal_tuning, default=toggle.vEgoStopping, min=0.01, max=1)
+
     toggle.alert_volume_controller = self.get_value("AlertVolumeControl")
     toggle.disengage_volume = self.get_value("DisengageVolume", cast=float, condition=toggle.alert_volume_controller)
     toggle.engage_volume = self.get_value("EngageVolume", cast=float, condition=toggle.alert_volume_controller)
