@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import dataclasses
 import json
 import math
 import numpy as np
@@ -12,20 +11,16 @@ import zipfile
 
 from functools import cache
 from pathlib import Path
-from typing import NamedTuple
 
 import openpilot.system.sentry as sentry
 
 from cereal import log, messaging
 from opendbc.can.parser import CANParser
 from opendbc.car.toyota.carcontroller import LOCK_CMD
-from openpilot.common.params import Params
 from openpilot.common.realtime import DT_DMON, DT_HW
-from openpilot.system.hardware import HARDWARE
-from openpilot.system.version import get_build_metadata
 from panda import Panda
 
-from openpilot.frogpilot.common.frogpilot_variables import EARTH_RADIUS, FROGS_GO_MOO_PATH, KONIK_PATH
+from openpilot.frogpilot.common.frogpilot_variables import CRUISING_SPEED, DECEL_TIME_MARGIN, EARTH_RADIUS, FROGS_GO_MOO_PATH, KONIK_PATH, MINIMUM_PLANNED_SPEED
 
 class ThreadManager:
   def __init__(self):
@@ -63,18 +58,6 @@ class ThreadManager:
     with self.thread_lock:
       thread = self.running_threads.get(name)
       return thread is not None and thread.is_alive()
-
-
-def calculate_bearing_offset(latitude, longitude, current_bearing, distance):
-  bearing = math.radians(current_bearing)
-  lat_rad = math.radians(latitude)
-  lon_rad = math.radians(longitude)
-
-  delta = distance / EARTH_RADIUS
-
-  new_lat = math.asin(math.sin(lat_rad) * math.cos(delta) + math.cos(lat_rad) * math.sin(delta) * math.cos(bearing))
-  new_lon = lon_rad + math.atan2(math.sin(bearing) * math.sin(delta) * math.cos(lat_rad),  math.cos(delta) - math.sin(lat_rad) * math.sin(new_lat))
-  return math.degrees(new_lat), ((math.degrees(new_lon) + 540) % 360) - 180
 
 
 def calculate_distance_to_point(lat1, lon1, lat2, lon2):
@@ -118,20 +101,6 @@ def calculate_lane_width(lane_line1, lane_line2, road_edge=None):
   return float(distance_to_lane)
 
 
-# Credit goes to Pfeiferj!
-def calculate_road_curvature(modelData):
-  orientation_rate = np.array(modelData.orientationRate.z)
-  timebase = np.array(modelData.orientationRate.t)
-  velocity = np.array(modelData.velocity.x)
-
-  lateral_acceleration = orientation_rate * velocity
-  index = np.argmax(np.abs(lateral_acceleration))
-  predicted_lateral_acc = float(lateral_acceleration[index])
-  time_to_curve = float(timebase[index])
-
-  return float(predicted_lateral_acc / max(velocity[index], 1)**2), max(time_to_curve, 1)
-
-
 def clean_model_name(name):
   return name.replace("(Default)", "").strip()
 
@@ -168,32 +137,12 @@ def flash_panda(params_memory):
     try:
       with Panda(serial=serial) as panda:
         print(f"Flashing Panda {serial}")
-        panda.flash()
+        panda.flash(force=True)
     except Exception as exception:
       print(f"Failed to flash Panda {serial}: {exception}")
       sentry.capture_exception(exception)
 
   params_memory.remove("FlashPanda")
-
-
-class FrogPilotApiInfo(NamedTuple):
-  api_token: str
-  build_metadata: dict
-  device_type: str
-  dongle_id: str
-  os_version: str
-
-
-def get_frogpilot_api_info():
-  params = Params()
-
-  api_token = params.get("FrogPilotApiToken")
-  build_metadata = dataclasses.asdict(get_build_metadata())
-  device_type = HARDWARE.get_device_type()
-  dongle_id = params.get("FrogPilotDongleId")
-  os_version = HARDWARE.get_os_version()
-
-  return FrogPilotApiInfo(api_token, build_metadata, device_type, dongle_id, os_version)
 
 
 def get_lock_status(can_parser, can_sock):
@@ -204,6 +153,14 @@ def get_lock_status(can_parser, can_sock):
 @cache
 def is_FrogsGoMoo():
   return FROGS_GO_MOO_PATH.is_file()
+
+
+def is_gps_location_valid(gps_location, gps_service, sm):
+  return gps_location.hasFix and time.monotonic() - sm.recv_time[gps_service] <= 2.0
+
+
+def is_mapd_data_valid(mapd_out, gps_valid, sm):
+  return gps_valid and sm.alive["mapdOut"] and mapd_out.tileLoaded and mapd_out.wayId > 0
 
 
 def is_url_pingable(url):
@@ -299,6 +256,22 @@ def run_cmd(cmd, success_message, fail_message, env=None, report=True):
     if report:
       sentry.capture_exception(exception)
     return None
+
+
+# Credit goes to Pfeiferj!
+def select_road_curvature(model_data, v_ego, allowed_lateral_acceleration):
+  velocity = np.asarray(model_data.velocity.x)
+
+  road_curvature = np.where(velocity >= MINIMUM_PLANNED_SPEED, np.asarray(model_data.orientationRate.z) / np.maximum(velocity, 1), 0)
+  absolute_curvature = np.abs(road_curvature)
+
+  time_to_point = np.maximum(np.asarray(model_data.orientationRate.t), 1)
+
+  curve_speed = np.maximum(np.sqrt(allowed_lateral_acceleration / np.maximum(absolute_curvature, 1e-6)), CRUISING_SPEED)
+  required_deceleration = (v_ego - curve_speed) / np.maximum(time_to_point - DECEL_TIME_MARGIN, 1)
+  index = np.argmax(required_deceleration if required_deceleration.max() > 0 else absolute_curvature)
+
+  return float(road_curvature[index]), float(time_to_point[index]), float(absolute_curvature.max())
 
 
 def update_can_parser(can_parser, can_sock):

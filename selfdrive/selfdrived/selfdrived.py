@@ -196,6 +196,7 @@ class SelfdriveD:
     # Don't add any more events if not initialized
     if not self.initialized:
       self.events.add(EventName.selfdriveInitializing)
+      self.frogpilot_events.add_from_msg(self.sm['frogpilotPlan'].frogpilotEvents)
       return
 
     # Check for user bookmark press (bookmark button or end of LKAS button feedback)

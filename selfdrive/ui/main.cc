@@ -8,6 +8,8 @@
 #include "selfdrive/ui/qt/util.h"
 #include "selfdrive/ui/qt/window.h"
 
+#include "frogpilot/ui/qt/onroad/screen_recorder.h"
+
 int main(int argc, char *argv[]) {
   setpriority(PRIO_PROCESS, 0, -20);
 
@@ -26,5 +28,10 @@ int main(int argc, char *argv[]) {
   MainWindow w;
   setMainWindow(&w);
   a.installEventFilter(&w);
+
+  // FrogPilot variables
+  ScreenRecorder::attach();
+  QObject::connect(&a, &QCoreApplication::aboutToQuit, &ScreenRecorder::stop);
+
   return a.exec();
 }

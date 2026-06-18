@@ -32,7 +32,6 @@ ScrollView::ScrollView(QWidget *w, QWidget *parent) : QScrollArea(parent) {
     }
   )";
   verticalScrollBar()->setStyleSheet(style);
-  horizontalScrollBar()->setStyleSheet(style);
 
   QScroller *scroller = QScroller::scroller(this->viewport());
   QScrollerProperties sp = scroller->scrollerProperties();

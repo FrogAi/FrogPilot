@@ -1,4 +1,4 @@
-#include <QtConcurrent>
+#include <thread>
 
 #include "frogpilot/ui/qt/offroad/maps_settings.h"
 
@@ -12,13 +12,13 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent, bool for
 
   std::vector<QString> scheduleOptions{tr("Manually"), tr("Weekly"), tr("Monthly")};
   preferredSchedule = new ButtonParamControl("PreferredSchedule", tr("Automatically Update Maps"),
-                                          tr("<b>How often maps update</b> from \"OpenStreetMap (OSM)\" with the latest speed limit information. "
-                                             "Weekly updates run every Sunday; monthly updates run on the 1st."),
+                                          tr("<b>How often openpilot re-downloads the speed limit map data for the places you picked under \"Map Sources\". \"Weekly\" runs every Sunday, \"Monthly\" runs on the 1st, and \"Manually\" waits until you press \"DOWNLOAD\" yourself.</b><br><br>"
+                                             "There is one exception. Whenever the map data is missing from the device, openpilot starts the download on its own, usually within the hour, and that one is not held back until you park."),
                                              "",
                                              scheduleOptions);
   settingsList->addItem(preferredSchedule);
 
-  downloadMapsButton = new ButtonControl(tr("Download Maps"), tr("DOWNLOAD"), tr("<b>Manually update your selected map sources</b> so \"Speed Limit Controller\" has the latest speed limit information."));
+  downloadMapsButton = new ButtonControl(tr("Download Maps"), tr("DOWNLOAD"), tr("<b>Start downloading the speed limit map data for the places you picked under \"Map Sources\".</b><br><br>Your car has to be parked and online. Large areas can take hours and use several gigabytes."));
   QObject::connect(downloadMapsButton, &ButtonControl::clicked, [this] {
     if (downloadMapsButton->text() == tr("CANCEL")) {
       if (FrogPilotConfirmationDialog::yesorno(tr("Cancel the download?"), this)) {
@@ -30,10 +30,10 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent, bool for
   });
   settingsList->addItem(downloadMapsButton);
 
-  settingsList->addItem(lastMapsDownload = new LabelControl(tr("Last Updated"), params.get("LastMapsUpdate").empty() ? "Never" : QString::fromStdString(params.get("LastMapsUpdate"))));
+  settingsList->addItem(lastMapsDownload = new LabelControl(tr("Last Updated")));
 
   selectMaps = new FrogPilotButtonsControl(tr("Map Sources"),
-                                           tr("<b>Select the countries or U.S. states to use with \"Speed Limit Controller\".</b>") ,
+                                           tr("<b>Pick the countries or U.S. states you drive in, so openpilot knows their speed limits.</b><br><br>Only what you pick here gets downloaded, so pick as little as covers your driving.") ,
                                               "", {tr("COUNTRIES"), tr("STATES")});
   QObject::connect(selectMaps, &FrogPilotButtonsControl::buttonClicked, [mapsLayout, this](int id) {
     mapsLayout->setCurrentIndex(id + 1);
@@ -50,19 +50,32 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent, bool for
   downloadStatus->setVisible(false);
   downloadTimeElapsed->setVisible(false);
 
-  removeMapsButton = new ButtonControl(tr("Remove Maps"), tr("REMOVE"), tr("<b>Delete downloaded map data</b> to free up storage space."));
+  removeMapsButton = new ButtonControl(tr("Remove Maps"), tr("REMOVE"), tr("<b>Delete your downloaded map data and clear the places you picked under \"Map Sources\", to free up storage.</b><br><br>Nothing comes back on its own, so \"Speed Limit Controller\" has no map speed limits until you pick your places again and start a new download."));
   QObject::connect(removeMapsButton, &ButtonControl::clicked, [this] {
-    if (FrogPilotConfirmationDialog::yesorno(tr("Delete all downloaded maps?"), this)) {
-      std::thread([this] {
-        mapsSize->setText(tr("0 MB"));
+    if (FrogPilotConfirmationDialog::yesorno(tr("Delete all downloaded maps and clear your selected map sources?"), this)) {
+      hasMapsSelected = false;
 
-        mapsFolderPath.removeRecursively();
+      params.remove("MapsSelected");
+      params.remove("LastMapsUpdate");
+
+      for (MapSelectionControl *control : mapSelectionControls) {
+        control->reloadSelectedMaps();
+      }
+
+      lastMapsDownload->setText(tr("Never"));
+
+      QDir mapsFolder = mapsFolderPath;
+
+      mapsSize->setText(tr("0 MB"));
+
+      std::thread([mapsFolder]() mutable {
+        mapsFolder.removeRecursively();
       }).detach();
     }
   });
   settingsList->addItem(removeMapsButton);
 
-  settingsList->addItem(mapsSize = new LabelControl(tr("Storage Used"), calculateDirectorySize(mapsFolderPath)));
+  settingsList->addItem(mapsSize = new LabelControl(tr("Storage Used")));
 
   ScrollView *settingsPanel = new ScrollView(settingsList, this);
   mapsLayout->addWidget(settingsPanel);
@@ -80,7 +93,9 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent, bool for
 
   for (std::pair<QString, QMap<QString, QString>> country : countries) {
     countriesList->addItem(new LabelControl(country.first, ""));
-    countriesList->addItem(new MapSelectionControl(country.second, true));
+    MapSelectionControl *control = new MapSelectionControl(country.second, true);
+    mapSelectionControls.push_back(control);
+    countriesList->addItem(control);
   }
 
   ScrollView *countryMapsPanel = new ScrollView(countriesList, this);
@@ -97,7 +112,9 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent, bool for
 
   for (std::pair<QString, QMap<QString, QString>> state : states) {
     statesList->addItem(new LabelControl(state.first, ""));
-    statesList->addItem(new MapSelectionControl(state.second));
+    MapSelectionControl *control = new MapSelectionControl(state.second);
+    mapSelectionControls.push_back(control);
+    statesList->addItem(control);
   }
 
   ScrollView *stateMapsPanel = new ScrollView(statesList, this);
@@ -126,43 +143,13 @@ void FrogPilotMapsPanel::showEvent(QShowEvent *event) {
     selectMaps->showDescription();
   }
 
-  UIState &s = *uiState();
-  UIScene &scene = s.scene;
-
-  FrogPilotUIState &fs = *frogpilotUIState();
-  FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
-  SubMaster &fpsm = *(fs.sm);
-
-  const cereal::MapdExtendedOut::Reader &mapdExtendedOut = fpsm["mapdExtendedOut"].getMapdExtendedOut();
-  const cereal::MapdDownloadProgress::Reader &downloadProgress = mapdExtendedOut.getDownloadProgress();
-
-  bool mapDownloadActive = downloadProgress.getActive();
-
-  int mapDownloadDownloaded = downloadProgress.getDownloadedFiles();
-  int mapDownloadTotal = downloadProgress.getTotalFiles();
-
   hasMapsSelected = !params.get("MapsSelected").empty();
+  mapDownloadStarted = false;
+  wasDownloadingMaps = false;
 
-  bool parked = !scene.started || frogpilot_scene.parked || parent->isFrogsGoMoo;
-
-  removeMapsButton->setVisible(mapsFolderPath.exists());
-
-  if (mapDownloadActive) {
-    downloadMapsButton->setText(tr("CANCEL"));
-    downloadStatus->setText(tr("Calculating..."));
-
-    downloadStatus->setVisible(true);
-
-    lastMapsDownload->setVisible(false);
-    removeMapsButton->setVisible(false);
-
-    updateDownloadLabels(mapDownloadDownloaded, mapDownloadTotal);
-  } else {
-    downloadMapsButton->setEnabled(!cancellingDownload && hasMapsSelected && frogpilot_scene.online && parked);
-    downloadMapsButton->setValue(frogpilot_scene.online ? (parked ? "" : tr("Not parked")) : tr("Offline..."));
-  }
+  refreshMapInfo();
+  updateState(*uiState(), *frogpilotUIState());
 }
-
 
 void FrogPilotMapsPanel::updateState(const UIState &s, const FrogPilotUIState &fs) {
   if (!isVisible()) {
@@ -176,42 +163,47 @@ void FrogPilotMapsPanel::updateState(const UIState &s, const FrogPilotUIState &f
   const cereal::MapdExtendedOut::Reader &mapdExtendedOut = fpsm["mapdExtendedOut"].getMapdExtendedOut();
   const cereal::MapdDownloadProgress::Reader &downloadProgress = mapdExtendedOut.getDownloadProgress();
 
-  bool mapDownloadActive = downloadProgress.getActive();
-  bool parked = !scene.started || frogpilot_scene.parked || parent->isFrogsGoMoo;
+  const bool mapDownloadActive = downloadProgress.getActive();
+  const bool mapDownloadPending = params_memory.getBool("DownloadMaps");
+  const bool downloadingMaps = mapDownloadActive || mapDownloadPending;
+  const bool parked = !scene.started || frogpilot_scene.parked || parent->isFrogsGoMoo;
 
-  int mapDownloadDownloaded = downloadProgress.getDownloadedFiles();
-  int mapDownloadTotal = downloadProgress.getTotalFiles();
+  const int mapDownloadDownloaded = downloadProgress.getDownloadedFiles();
+  const int mapDownloadTotal = downloadProgress.getTotalFiles();
 
-  if (mapDownloadActive && !cancellingDownload) {
-    updateDownloadLabels(mapDownloadDownloaded, mapDownloadTotal);
-  } else if (downloadMapsButton->text() == tr("CANCEL")) {
-    updateDownloadLabels(mapDownloadDownloaded, mapDownloadTotal);
-  } else {
-    downloadMapsButton->setEnabled(!cancellingDownload && hasMapsSelected && frogpilot_scene.online && parked);
-    downloadMapsButton->setValue(frogpilot_scene.online ? (parked ? "" : tr("Not parked")) : tr("Offline..."));
+  if (downloadingMaps && !wasDownloadingMaps) {
+    previousDownloadedFiles = 0;
+    elapsedTime.start();
+    startTime = QDateTime::currentDateTime();
+  } else if (!downloadingMaps && wasDownloadingMaps) {
+    refreshMapInfo();
+    if (mapDownloadStarted && !downloadProgress.getCancelled() && mapDownloadDownloaded == mapDownloadTotal && mapDownloadTotal > 0) {
+      lastMapsDownload->setText(formatCurrentDate());
+    }
+    mapDownloadStarted = false;
   }
+  wasDownloadingMaps = downloadingMaps;
 
-  parent->keepScreenOn = mapDownloadActive;
-}
+  if (downloadingMaps) {
+    downloadMapsButton->setEnabled(!cancellingDownload);
+    downloadMapsButton->setText(tr("CANCEL"));
 
-void FrogPilotMapsPanel::cancelDownload() {
-  cancellingDownload = true;
+    downloadETA->setVisible(true);
+    downloadStatus->setVisible(true);
+    downloadTimeElapsed->setVisible(true);
 
-  downloadMapsButton->setEnabled(false);
+    lastMapsDownload->setVisible(false);
+    removeMapsButton->setVisible(false);
 
-  downloadETA->setText(tr("Calculating..."));
-  downloadMapsButton->setText(tr("CANCEL"));
-  downloadStatus->setText(tr("Calculating..."));
-  downloadTimeElapsed->setText(tr("Calculating..."));
-
-  params_memory.putBool("CancelDownloadMaps", true);
-  params_memory.remove("DownloadMaps");
-
-  QTimer::singleShot(2500, this, [this]() {
-    cancellingDownload = false;
-
-    downloadMapsButton->setEnabled(true);
-
+    if (mapDownloadActive) {
+      mapDownloadStarted = true;
+      updateDownloadLabels(mapDownloadDownloaded, mapDownloadTotal);
+    } else {
+      downloadETA->setText(tr("Calculating..."));
+      downloadStatus->setText(tr("Calculating..."));
+      downloadTimeElapsed->setText(tr("Calculating..."));
+    }
+  } else {
     downloadMapsButton->setText(tr("DOWNLOAD"));
 
     downloadETA->setVisible(false);
@@ -221,56 +213,42 @@ void FrogPilotMapsPanel::cancelDownload() {
     lastMapsDownload->setVisible(true);
     removeMapsButton->setVisible(mapsFolderPath.exists());
 
-    update();
+    downloadMapsButton->setEnabled(!cancellingDownload && hasMapsSelected && frogpilot_scene.online && parked);
+    downloadMapsButton->setValue(frogpilot_scene.online ? (parked ? (hasMapsSelected ? "" : tr("Select your map sources")) : tr("Not parked")) : tr("Offline..."));
+  }
+
+  parent->keepScreenOn = downloadingMaps;
+}
+
+void FrogPilotMapsPanel::cancelDownload() {
+  cancellingDownload = true;
+
+  downloadMapsButton->setEnabled(false);
+
+  params_memory.putBool("CancelDownloadMaps", true);
+  params_memory.remove("DownloadMaps");
+
+  QTimer::singleShot(2500, this, [this]() {
+    cancellingDownload = false;
   });
 }
 
+void FrogPilotMapsPanel::refreshMapInfo() {
+  const std::string lastMapsUpdate = params.get("LastMapsUpdate");
+  lastMapsDownload->setText(lastMapsUpdate.empty() ? tr("Never") : QString::fromStdString(lastMapsUpdate));
+  mapsSize->setText(calculateDirectorySize(mapsFolderPath));
+}
+
 void FrogPilotMapsPanel::startDownload() {
-  downloadETA->setText(tr("Calculating..."));
-  downloadMapsButton->setText(tr("CANCEL"));
-  downloadStatus->setText(tr("Calculating..."));
-  downloadTimeElapsed->setText(tr("Calculating..."));
-
-  downloadETA->setVisible(true);
-  downloadStatus->setVisible(true);
-  downloadTimeElapsed->setVisible(true);
-
-  lastMapsDownload->setVisible(false);
-  removeMapsButton->setVisible(false);
-
-  elapsedTime.start();
-  startTime = QDateTime::currentDateTime();
-
   params_memory.putBool("DownloadMaps", true);
 }
 
 void FrogPilotMapsPanel::updateDownloadLabels(int downloadedFiles, int totalFiles) {
-  if (downloadedFiles == totalFiles && totalFiles != 0) {
-    downloadMapsButton->setText(tr("DOWNLOAD"));
-    lastMapsDownload->setText(formatCurrentDate());
-
-    downloadETA->setVisible(false);
-    downloadStatus->setVisible(false);
-    downloadTimeElapsed->setVisible(false);
-
-    lastMapsDownload->setVisible(true);
-    removeMapsButton->setVisible(true);
-
-    params.put("LastMapsUpdate", formatCurrentDate().toStdString());
-
-    update();
-
-    return;
+  if (downloadedFiles > 0) {
+    downloadETA->setText(formatETA(elapsedTime.elapsed(), downloadedFiles, previousDownloadedFiles, totalFiles, startTime));
+  } else {
+    downloadETA->setText(tr("Calculating..."));
   }
-
-  static int previousDownloadedFiles = 0;
-  if (downloadedFiles != previousDownloadedFiles) {
-    std::thread([this]() {
-      mapsSize->setText(calculateDirectorySize(mapsFolderPath));
-    }).detach();
-  }
-
-  downloadETA->setText(QString("%1").arg(formatETA(elapsedTime.elapsed(), downloadedFiles, previousDownloadedFiles, totalFiles, startTime)));
   downloadStatus->setText(QString("%1 / %2 (%3%)").arg(downloadedFiles).arg(totalFiles).arg((downloadedFiles * 100) / (totalFiles == 0 ? 1 : totalFiles)));
   downloadTimeElapsed->setText(formatElapsedTime(elapsedTime.elapsed()));
 

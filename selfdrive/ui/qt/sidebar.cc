@@ -109,6 +109,7 @@ void Sidebar::mouseReleaseEvent(QMouseEvent *event) {
 
 void Sidebar::offroadTransition(bool offroad) {
   onroad = !offroad;
+  updateHomeButton();
   update();
 }
 
@@ -281,11 +282,27 @@ void Sidebar::paintEvent(QPaintEvent *event) {
 
 // FrogPilot variables
 void Sidebar::showEvent(QShowEvent *event) {
+  onroad = uiState()->scene.started;
+
   updateTheme();
 }
 
+void Sidebar::updateHomeButton() {
+  if (onroad) {
+    loadGif(QString(), home_gif, home_btn.size(), this);
+    loadImage("../../frogpilot/assets/active_theme/icons/button_flag", flag_img, flag_gif, home_btn.size(), this);
+  } else {
+    loadGif(QString(), flag_gif, home_btn.size(), this);
+    loadImage("../../frogpilot/assets/active_theme/icons/button_home", home_img, home_gif, home_btn.size(), this);
+  }
+}
+
 void Sidebar::updateTheme() {
-  loadImage("../../frogpilot/assets/active_theme/icons/button_home", home_img, home_gif, home_btn.size(), this);
-  loadImage("../../frogpilot/assets/active_theme/icons/button_flag", flag_img, flag_gif, home_btn.size(), this);
+  loadGif(QString(), home_gif, home_btn.size(), this);
+  loadGif(QString(), flag_gif, home_btn.size(), this);
+  loadGif(QString(), settings_gif, settings_btn.size(), this);
+
+  updateHomeButton();
+
   loadImage("../../frogpilot/assets/active_theme/icons/button_settings", settings_img, settings_gif, settings_btn.size(), this);
 }

@@ -13,7 +13,7 @@ public:
   void clear();
 
   // FrogPilot variables
-  int alertHeight;
+  int alertHeight = 0;
 
   QJsonObject frogpilot_toggles;
 

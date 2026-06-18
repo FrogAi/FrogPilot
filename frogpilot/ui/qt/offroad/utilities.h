@@ -19,7 +19,7 @@ private:
   std::set<std::string> excluded_keys = {
     "AvailableModels", "AvailableModelNames", "FrogPilotStats",
     "GithubSshKeys", "GithubUsername", "MapBoxRequests",
-    "ModelDrivesAndScores", "OverpassRequests", "SpeedLimits",
+    "ModelDrivesAndScores", "SpeedLimits",
     "SpeedLimitsFiltered", "UpdaterAvailableBranches",
   };
 };

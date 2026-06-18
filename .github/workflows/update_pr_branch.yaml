@@ -1,97 +1,80 @@
-name: Update MAKE-PRS-HERE
-run-name: Update MAKE-PRS-HERE
+name: Update PR Branch
+run-name: Update ${{ vars.BRANCH_PR_TARGET }}
 
 on:
   push:
-    branches:
-      - FrogPilot-Testing
+    branches: [FrogPilot-Testing]
+  workflow_dispatch:
+
+permissions: {contents: write}
 
 env:
-  GIT_EMAIL: "91348155+FrogAi@users.noreply.github.com"
-  GIT_NAME: "James"
-  GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-  SOURCE_BRANCH: FrogPilot-Testing
-  TARGET_BRANCH: MAKE-PRS-HERE
-  TZ: America/Phoenix
+  GIT_EMAIL: ${{ vars.GIT_EMAIL }}
+  GIT_NAME: ${{ vars.GIT_NAME }}
 
-permissions:
-  contents: write
+  BRANCH_PR_TARGET: ${{ vars.BRANCH_PR_TARGET }}
+
+  COMPILE_COMMIT: ${{ vars.COMPILE_COMMIT }}
+
+  TZ: UTC
+
+concurrency: update-pr-branch
 
 jobs:
-  update_branch:
+  sync:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Checkout Source
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
-          ref: ${{ env.SOURCE_BRANCH }}
-          fetch-depth: 5
-          token: ${{ env.GITHUB_TOKEN }}
+          fetch-depth: 0
+          filter: blob:none
+          ref: refs/heads/FrogPilot-Testing
+      - run: |
+          set -o pipefail
 
-      - name: Configure Git Identity
-        run: |
-          git config --global user.name "$GIT_NAME"
-          git config --global user.email "$GIT_EMAIL"
-
-      - name: Revert "Compile FrogPilot"
-        id: prepare_source
-        run: |
-          COMPILE_COMMIT=$(git rev-list HEAD -n 1 --grep="Compile FrogPilot" || true)
-
-          if [ -n "$COMPILE_COMMIT" ]; then
-            echo "Found 'Compile FrogPilot' at $COMPILE_COMMIT. Reverting..."
-            git revert --no-edit "$COMPILE_COMMIT"
-          else
-            echo "Compile commit not found. Proceeding with current source state."
+          if [[ "$BRANCH_PR_TARGET" == FrogPilot-Testing ]]; then
+            echo "BRANCH_PR_TARGET must differ from FrogPilot-Testing." >&2
+            exit 1
           fi
 
-          echo "source_state=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          target_ref="refs/remotes/origin/$BRANCH_PR_TARGET"
 
-      - name: Checkout Target
-        run: |
-          git fetch origin "$TARGET_BRANCH" --depth=2
-          git checkout "$TARGET_BRANCH"
+          compile_commit="$(
+            git log --first-parent --format='%H%x09%s' |
+              awk -F '\t' -v want="${COMPILE_COMMIT:?COMPILE_COMMIT is required}" '!found && $2 == want { print $1; found=1 }'
+          )"
+          if [[ -f prebuilt ]]; then
+            if [[ -z "$compile_commit" ]]; then
+              echo "Compiled tree but no \"$COMPILE_COMMIT\" commit found." >&2
+              exit 1
+            fi
+            git revert --no-commit "$compile_commit"
+          fi
 
-      - name: Sync Files from Source to Target
-        env:
-          SOURCE_STATE: ${{ steps.prepare_source.outputs.source_state }}
-        run: |
-          git rm -r --ignore-unmatch .
-          git clean -fdx
-
-          git checkout "$SOURCE_STATE" -- .
-
-          rm -f .github/update_date
-          git add --all
-
-      - name: Commit and Push
-        env:
-          REPO_NAME: ${{ github.repository }}
-        run: |
-          if git diff --staged --quiet; then
-            echo "Working tree is clean. No changes to commit."
+          tree="$(git write-tree)"
+          if [[ "$tree" == "$(git rev-parse "$target_ref^{tree}")" ]]; then
+            echo "$BRANCH_PR_TARGET is already up to date."
             exit 0
           fi
 
-          DAY=$(TZ="$TZ" date +'%d' | sed 's/^0//')
-          case "$DAY" in
-            1|21|31) SUFFIX="st" ;;
-            2|22)    SUFFIX="nd" ;;
-            3|23)    SUFFIX="rd" ;;
-            *)       SUFFIX="th" ;;
+          read -r month day year < <(date '+%B %-d %Y')
+          case "$day" in
+            1|21|31) suffix="st" ;;
+            2|22) suffix="nd" ;;
+            3|23) suffix="rd" ;;
+            *) suffix="th" ;;
           esac
 
-          MONTH=$(TZ="$TZ" date +'%B')
-          YEAR=$(TZ="$TZ" date +'%Y')
-          COMMIT_MSG="${MONTH} ${DAY}${SUFFIX}, ${YEAR} Update"
-
-          if git log -1 --pretty=%s | grep -q "$COMMIT_MSG"; then
-            echo "Amending previous commit: $COMMIT_MSG"
-            git commit --amend --no-edit
-          else
-            echo "Creating new commit: $COMMIT_MSG"
-            git commit -m "$COMMIT_MSG"
+          message="$month ${day}${suffix}, $year Update"
+          parent="$target_ref"
+          if [[ "$(git log -1 --format=%s "$target_ref")" == "$message" ]]; then
+            parent="$target_ref^"
           fi
 
-          git remote set-url origin "https://${GITHUB_TOKEN}@github.com/${REPO_NAME}"
-          git push origin "$TARGET_BRANCH" --force
+          commit="$(
+            git -c user.name="$GIT_NAME" -c user.email="${GIT_EMAIL:?GIT_EMAIL is required}" \
+              commit-tree "$tree" -p "$parent" -m "$message"
+          )"
+
+          git push --force-with-lease origin "$commit:refs/heads/$BRANCH_PR_TARGET"

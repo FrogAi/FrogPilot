@@ -70,7 +70,7 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : QFrame(parent) {
     frogpilotToggleLevels[QString::fromStdString(key)] = params.getTuningLevel(key);
   }
 
-  developerUIToggle = new FrogPilotManageControl("DeveloperUI", tr("Developer UI"), tr("<b>Detailed information about openpilot's internal operations.</b>"), "");
+  developerUIToggle = new FrogPilotManageControl("DeveloperUI", tr("Developer UI"), tr("<b>Put openpilot's internal numbers on screen, so you can see what it is thinking while it drives.</b><br><br>None of it changes how the car behaves. It is for working out why openpilot did something, and it is worth turning back off once you are done."), "");
   QObject::connect(developerUIToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
     mainLayout->setCurrentWidget(developerUIPanel);
     emit openSubPanel();
@@ -100,28 +100,28 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : QFrame(parent) {
   mainLayout->addWidget(developerWidgetPanel);
 
   std::vector<std::tuple<QString, QString, QString, QString>> developerToggles {
-    {"DeveloperMetrics", tr("Developer Metrics"), tr("<b>Performance data, sensor readings, and system metrics</b> for debugging and optimizing openpilot."), ""},
-    {"AdjacentPathMetrics", tr("Adjacent Lane Metrics"), tr("<b>Show the width of the adjacent lanes.</b>"), ""},
-    {"BorderMetrics", tr("Border Metrics"), tr("<b>Show statuses along the border of the driving screen.</b><br><br><b>Blind Spot</b>: The border turns red when a vehicle is in a blind spot<br><b>Steering Torque</b>: The border goes from green to red according to how much steering torque is being used<br><b>Turn Signal</b>: The border flashes yellow when a turn signal is on"), ""},
-    {"FPSCounter", tr("FPS Display"), tr("<b>Show the frames per second (FPS)</b> at the bottom of the driving screen."), ""},
-    {"LeadInfo", tr("Lead Info"), tr("<b>Show each tracked vehicle's distance and speed</b> below its marker."), ""},
-    {"NumericalTemp", tr("Numerical Temperature Gauge"), tr("<b>Show a numerical temperature in the sidebar</b> instead of the status labels."), ""},
-    {"SidebarMetrics", tr("Sidebar Metrics"), tr("<b>Display system information</b> (CPU, GPU, RAM usage, IP address, device storage) in the sidebar."), ""},
-    {"UseSI", tr("Use International System of Units"), tr("<b>Display measurements using the \"International System of Units\" (SI)</b> standard."), ""},
+    {"DeveloperMetrics", tr("Developer Metrics"), tr("<b>Show readouts of what openpilot's sensors and hardware are doing while you drive.</b>"), ""},
+    {"AdjacentPathMetrics", tr("Adjacent Lane Metrics"), tr("<b>Print how wide the lanes either side of you are, right on their paths.</b><br><br>It draws the adjacent lane paths itself, so there is something to print onto, even with \"Adjacent Lanes\" switched off."), ""},
+    {"BorderMetrics", tr("Border Metrics"), tr("<b>Colour the edge of the driving screen to show what openpilot is reacting to.</b><br><br>You can switch on the blind spot, steering effort and turn signal borders separately. The blind spot one needs a car with factory blind spot monitoring, and stays dark without it."), ""},
+    {"FPSCounter", tr("FPS Display"), tr("<b>Show how many frames a second the driving screen is drawing, along the bottom.</b><br><br>It also tracks the lowest and highest it has seen."), ""},
+    {"LeadInfo", tr("Lead Info"), tr("<b>Print how far away the car ahead is and how fast it is going, underneath its marker.</b><br><br>It also shows the gap openpilot is aiming for, so you can see it closing in on the distance you asked for."), ""},
+    {"NumericalTemp", tr("Numerical Temperature Gauge"), tr("<b>Show the device temperature as a number in the sidebar instead of a word like \"GOOD\".</b><br><br>Useful for spotting the device getting hot before it slows itself down."), ""},
+    {"SidebarMetrics", tr("Sidebar Metrics"), tr("<b>Fill the sidebar with how hard the device is working, how much storage is left and its IP address.</b><br><br>They take the place of the vehicle, connection and signal indicators normally shown there.<br><br>CPU and GPU cannot both be on, and RAM, SSD Left and SSD Used are one at a time, so picking one clears the other."), ""},
+    {"UseSI", tr("Use International System of Units"), tr("<b>Show the developer readouts in plain scientific units instead of the friendlier ones.</b><br><br>This only affects the developer numbers, not the speed or distances you drive by."), ""},
 
-    {"DeveloperSidebar", tr("Developer Sidebar"), tr("<b>Display debugging info and metrics</b> in a dedicated sidebar on the right side of the screen."), ""},
-    {"DeveloperSidebarMetric1", tr("Metric #1"), tr("<b>Select the metric shown in the first \"Developer Sidebar\" widget.</b>"), ""},
-    {"DeveloperSidebarMetric2", tr("Metric #2"), tr("<b>Select the metric shown in the second \"Developer Sidebar\" widget.</b>"), ""},
-    {"DeveloperSidebarMetric3", tr("Metric #3"), tr("<b>Select the metric shown in the third \"Developer Sidebar\" widget.</b>"), ""},
-    {"DeveloperSidebarMetric4", tr("Metric #4"), tr("<b>Select the metric shown in the fourth \"Developer Sidebar\" widget.</b>"), ""},
-    {"DeveloperSidebarMetric5", tr("Metric #5"), tr("<b>Select the metric shown in the fifth \"Developer Sidebar\" widget.</b>"), ""},
-    {"DeveloperSidebarMetric6", tr("Metric #6"), tr("<b>Select the metric shown in the sixth \"Developer Sidebar\" widget.</b>"), ""},
-    {"DeveloperSidebarMetric7", tr("Metric #7"), tr("<b>Select the metric shown in the seventh \"Developer Sidebar\" widget.</b>"), ""},
+    {"DeveloperSidebar", tr("Developer Sidebar"), tr("<b>Add a second sidebar down the right-hand side, holding up to seven readouts you pick yourself.</b><br><br>It sits over part of the camera view, so it is worth turning off when you are not using it. Setting all seven to \"None\" leaves the bar there but empty."), ""},
+    {"DeveloperSidebarMetric1", tr("Metric #1"), tr("<b>Choose what the first slot in the developer sidebar shows.</b><br><br>The list covers steering, acceleration, engagement and auto-tune readouts. Every slot starts already filled in, and picking \"None\" closes the gap rather than leaving a hole."), ""},
+    {"DeveloperSidebarMetric2", tr("Metric #2"), tr("<b>Choose what the second slot in the developer sidebar shows.</b>"), ""},
+    {"DeveloperSidebarMetric3", tr("Metric #3"), tr("<b>Choose what the third slot in the developer sidebar shows.</b>"), ""},
+    {"DeveloperSidebarMetric4", tr("Metric #4"), tr("<b>Choose what the fourth slot in the developer sidebar shows.</b>"), ""},
+    {"DeveloperSidebarMetric5", tr("Metric #5"), tr("<b>Choose what the fifth slot in the developer sidebar shows.</b>"), ""},
+    {"DeveloperSidebarMetric6", tr("Metric #6"), tr("<b>Choose what the sixth slot in the developer sidebar shows.</b>"), ""},
+    {"DeveloperSidebarMetric7", tr("Metric #7"), tr("<b>Choose what the seventh slot in the developer sidebar shows.</b>"), ""},
 
-    {"DeveloperWidgets", tr("Developer Widgets"), tr("<b>Overlays for debugging visuals, internal states, and model predictions</b> on the driving screen."), ""},
-    {"AdjacentLeadsUI", tr("Adjacent Leads Tracking"), tr("<b>Display adjacent leads detected by the car's radar</b> to the left and right of the current driving path."), ""},
-    {"ShowStoppingPoint", tr("Model Stopping Point"), tr("<b>Show a stop-sign marker where the model intends to stop.</b>"), ""},
-    {"RadarTracksUI", tr("Radar Tracks"), tr("<b>Display all radar points</b> produced by the car's radar."), ""},
+    {"DeveloperWidgets", tr("Developer Widgets"), tr("<b>Draw what openpilot's model and radar are seeing straight onto the driving screen.</b><br><br>Your car needs radar for two of these, and openpilot handling the gas and brake for the third, so this menu can come up almost empty."), ""},
+    {"AdjacentLeadsUI", tr("Adjacent Leads Tracking"), tr("<b>Mark the cars your radar sees in the lanes either side of you.</b><br><br>Your car needs radar for these to appear, and they hang off the same marker \"Hide Lead Marker\" removes."), ""},
+    {"ShowStoppingPoint", tr("Model Stopping Point"), tr("<b>Drop a stop sign on the road where openpilot is planning to come to a stop.</b><br><br>It only marks stops openpilot works out for itself, so it stays away when openpilot is slowing for a car ahead, and \"Traffic Mode\" switches it off entirely."), ""},
+    {"RadarTracksUI", tr("Radar Tracks"), tr("<b>Show every object your car's radar is returning, not just the car you are following.</b><br><br>Expect a lot of dots, including signs, barriers and parked cars."), ""},
   };
 
   for (const auto &[param, title, desc, icon] : developerToggles) {

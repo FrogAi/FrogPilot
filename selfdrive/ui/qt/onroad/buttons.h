@@ -15,7 +15,7 @@ public:
   void updateState(const UIState &s, const FrogPilotUIState &fs);
 
   // FrogPilot variables
-  FrogPilotUIScene frogpilot_scene;
+  FrogPilotUIScene frogpilot_scene = {};
 
   QJsonObject frogpilot_toggles;
 
@@ -34,7 +34,9 @@ private:
   void updateBackgroundColor();
   void updateTheme();
 
-  int steering_angle_deg;
+  bool wheel_is_stock = false;
+
+  int steering_angle_deg = 0;
 
   Params params_memory{"", true};
 

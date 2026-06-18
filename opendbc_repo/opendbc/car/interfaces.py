@@ -17,8 +17,11 @@ from opendbc.car.chrysler.values import CAR as CHRYSLER, ChryslerFrogPilotFlags
 from opendbc.car.common.basedir import BASEDIR
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.common.simple_kalman import KF1D, get_kalman_gain
+from opendbc.car.ford.fordcan import CanBus as FordCanBus
+from opendbc.car.ford.values import CAR as FORD, FordFlags
 from opendbc.car.gm.values import CAR as GM
 from opendbc.car.honda.values import CAR as HONDA, HONDA_BOSCH
+from opendbc.car.hyundai.hyundaicanfd import CanBus as HyundaiCanBus
 from opendbc.car.hyundai.values import CAR as HYUNDAI, CANFD_CAR, HyundaiFlags, HyundaiFrogPilotSafetyFlags
 from opendbc.car.mock.values import CAR as MOCK
 from opendbc.car.toyota.values import CAR as TOYOTA, NO_DSU_CAR, TSS2_CAR, UNSUPPORTED_DSU_CAR, ToyotaFrogPilotFlags
@@ -190,6 +193,9 @@ class CarInterfaceBase(ABC):
           if 570 not in fingerprint[0]:
             fp_ret.flags |= ChryslerFrogPilotFlags.RAM_HD_ALT_BUTTONS.value
 
+      elif platform in FORD:
+        fp_ret.hasDashboardSpeedLimit = bool(CP.flags & FordFlags.CANFD) and 0x3CD in fingerprint[FordCanBus(CP).camera]
+
       elif platform in GM:
         fp_ret.canUsePedal = True
 
@@ -202,12 +208,19 @@ class CarInterfaceBase(ABC):
 
           fp_ret.isHDA2 = hda2
 
+          can_bus = HyundaiCanBus(CP)
+          speed_limit_bus = can_bus.ECAN if CP.flags & HyundaiFlags.CANFD_LKA_STEERING else can_bus.CAM
+          fp_ret.hasDashboardSpeedLimit = 0x1FA in fingerprint[speed_limit_bus]
+        else:
+          fp_ret.hasDashboardSpeedLimit = 0x53E in fingerprint[2] or 0x544 in fingerprint[0]
+
         if CP.flags & HyundaiFlags.HAS_LDA_BUTTON:
           fp_ret.safetyConfigs[-1].safetyParam |= HyundaiFrogPilotSafetyFlags.HAS_LDA_BUTTON.value
 
       elif platform in TOYOTA:
         fp_ret.canUsePedal = not CP.autoResumeSng
         fp_ret.canUseSDSU = candidate not in UNSUPPORTED_DSU_CAR and candidate not in TSS2_CAR
+        fp_ret.hasDashboardSpeedLimit = 0x489 in fingerprint[2]
 
         if 0x2AA in fingerprint[0] and candidate in NO_DSU_CAR:
           fp_ret.flags |= ToyotaFrogPilotFlags.RADAR_CAN_FILTER.value

@@ -35,7 +35,7 @@ public:
 
   std::unique_ptr<SubMaster> sm;
 
-  FrogPilotUIScene frogpilot_scene;
+  FrogPilotUIScene frogpilot_scene = {};
 
   Params params;
   Params params_memory{"", true};

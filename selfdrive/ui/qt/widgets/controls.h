@@ -165,7 +165,7 @@ public:
     active_icon_pixmap = QPixmap(icon).scaledToWidth(80, Qt::SmoothTransformation);
   }
 
-  void refresh() {
+  virtual void refresh() {
     bool state = params.getBool(key);
     if (state != toggle.on) {
       toggle.togglePosition();
@@ -176,6 +176,9 @@ public:
   void showEvent(QShowEvent *event) override {
     refresh();
   }
+
+protected:
+  Params params;
 
 private:
   void toggleClicked(bool state);
@@ -188,7 +191,6 @@ private:
   }
 
   std::string key;
-  Params params;
   QPixmap active_icon_pixmap;
   bool confirm = false;
   bool store_confirm = false;

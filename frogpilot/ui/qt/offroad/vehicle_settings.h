@@ -15,11 +15,9 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
-  void updateState(const UIState &s);
   void updateToggles();
 
   bool forceOpenDescriptions;
-  bool started;
 
   std::map<QString, AbstractControl*> toggles;
 

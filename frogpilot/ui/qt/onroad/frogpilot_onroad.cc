@@ -5,6 +5,18 @@ FrogPilotOnroadWindow::FrogPilotOnroadWindow(QWidget *parent) : QWidget(parent) 
   QObject::connect(signalTimer, &QTimer::timeout, [this] {
     flickerActive = !flickerActive;
   });
+
+  QObject::connect(uiState(), &UIState::offroadTransition, this, [this](bool offroad) {
+    resetFPSStats();
+  });
+}
+
+void FrogPilotOnroadWindow::resetFPSStats() {
+  avgFPS = 0.0f;
+  maxFPS = 0.0f;
+  minFPS = 99.9f;
+
+  smoothedSteer = 0.0f;
 }
 
 void FrogPilotOnroadWindow::resizeEvent(QResizeEvent *event) {
@@ -25,10 +37,10 @@ void FrogPilotOnroadWindow::updateState(const UIState &s, const FrogPilotUIState
   turnSignalLeft = carState.getLeftBlinker();
   turnSignalRight = carState.getRightBlinker();
 
-  showBlindspot = (blindSpotLeft || blindSpotRight) && frogpilot_toggles.value("blind_spot_metrics").toBool();
-  showFPS = frogpilot_toggles.value("show_fps").toBool();
-  showSignal = (turnSignalLeft || turnSignalRight) && frogpilot_toggles.value("signal_metrics").toBool();
-  showSteering = frogpilot_toggles.value("steering_metrics").toBool();
+  showBlindspot = (blindSpotLeft || blindSpotRight) && frogpilot_toggles.value(QLatin1String("blind_spot_metrics")).toBool();
+  showFPS = frogpilot_toggles.value(QLatin1String("show_fps")).toBool();
+  showSignal = (turnSignalLeft || turnSignalRight) && frogpilot_toggles.value(QLatin1String("signal_metrics")).toBool();
+  showSteering = frogpilot_toggles.value(QLatin1String("steering_metrics")).toBool();
 
   if (showSteering) {
     float absTorque = std::abs(torque);
@@ -64,16 +76,12 @@ void FrogPilotOnroadWindow::updateState(const UIState &s, const FrogPilotUIState
     signalTimer->stop();
   }
 
-  if (showFPS) {
-    static float avgFPS = 0.0f;
-    static float maxFPS = 0.0f;
-    static float minFPS = 99.9f;
-
+  if (showFPS && fps > 0.0f) {
     if (avgFPS == 0.0f) {
       avgFPS = fps;
     }
 
-    static float alpha = 1.0f / (UI_FREQ * 60.0f);
+    constexpr float alpha = 1.0f / (UI_FREQ * 60.0f);
     avgFPS = alpha * fps + (1.0f - alpha) * avgFPS;
 
     minFPS = std::min(minFPS, fps);

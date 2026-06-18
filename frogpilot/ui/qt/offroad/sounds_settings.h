@@ -15,13 +15,11 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
-  void initializeSoundPlayer();
+  void playSound(const QString &path, float volume);
   void testSound(const QString &key);
-  void updateState(const UIState &s);
   void updateToggles();
 
   bool forceOpenDescriptions;
-  bool started;
 
   std::map<QString, AbstractControl*> toggles;
 

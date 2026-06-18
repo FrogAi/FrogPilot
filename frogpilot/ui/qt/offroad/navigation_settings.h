@@ -23,24 +23,25 @@ private:
   void updateStep();
 
   bool forceOpenDescriptions;
-  bool mapboxPublicKeySet;
-  bool mapboxSecretKeySet;
-  bool updatingLimits;
+  bool mapboxPublicKeySet = false;
+  bool mapboxSecretKeySet = false;
+
+  ButtonControl *setupButton;
+
+  ParamControl *updateSpeedLimitsToggle;
 
   FrogPilotButtonsControl *publicMapboxKeyControl;
   FrogPilotButtonsControl *secretMapboxKeyControl;
-  ButtonControl *setupButton;
-
-  FrogPilotButtonControl *updateSpeedLimitsToggle;
 
   FrogPilotSettingsWindow *parent;
 
   LabelControl *ipLabel;
 
   Params params;
-  Params params_memory{"", true};
 
   QLabel *imageLabel;
+
+  QString currentStep;
 
   QNetworkAccessManager *networkManager;
 

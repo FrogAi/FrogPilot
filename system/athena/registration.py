@@ -99,7 +99,7 @@ def register(show_spinner=False, register_konik=False) -> str | None:
   if not register_konik and dongle_id != params.get("KonikDongleId"):
     params.put("DongleId", dongle_id)
     params.put("StockDongleId", dongle_id)
-    set_offroad_alert("Offroad_UnregisteredHardware", (dongle_id == UNREGISTERED_DONGLE_ID) and not PC)
+    #set_offroad_alert("Offroad_UnregisteredHardware", (dongle_id == UNREGISTERED_DONGLE_ID) and not PC)
   return dongle_id
 
 

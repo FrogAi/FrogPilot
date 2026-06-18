@@ -68,8 +68,8 @@ void ExperimentalButton::updateState(const UIState &s, const FrogPilotUIState &f
   }
 
   if (params_memory.getBool("UpdateWheelImage")) {
-    updateTheme();
     params_memory.remove("UpdateWheelImage");
+    updateTheme();
   }
 }
 
@@ -78,7 +78,7 @@ void ExperimentalButton::paintEvent(QPaintEvent *event) {
   p.setClipRegion(QRegion(QRect(0, 0, btn_size, btn_size), QRegion::Ellipse));
   p.setRenderHint(QPainter::Antialiasing);
 
-  if (frogpilot_toggles.value("wheel_image").toString() == "stock") {
+  if (wheel_is_stock) {
     QPixmap img = experimental_mode ? experimental_img : engage_img;
     drawIcon(p, QPoint(btn_size / 2, btn_size / 2), img, background_color, (isDown() || !engageable) ? 0.6 : 1.0, steering_angle_deg);
   } else if (wheel_gif) {
@@ -111,4 +111,8 @@ void ExperimentalButton::updateBackgroundColor() {
 
 void ExperimentalButton::updateTheme() {
   loadImage("../../frogpilot/assets/active_theme/steering_wheel/wheel", wheel_img, wheel_gif, QSize(img_size, img_size), this);
+
+  const QString wheel_source = QFileInfo("../../frogpilot/assets/active_theme/steering_wheel/wheel.png").canonicalFilePath();
+  const QString stock_source = QFileInfo("../../frogpilot/assets/stock_theme/steering_wheel/wheel.png").canonicalFilePath();
+  wheel_is_stock = !wheel_gif && !wheel_img.isNull() && wheel_source == stock_source;
 }

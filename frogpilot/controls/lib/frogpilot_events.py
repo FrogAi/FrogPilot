@@ -116,7 +116,7 @@ class FrogPilotEvents:
         self.max_acceleration = 0
 
       if "dejaVuCurve" not in self.played_events and sm["carState"].vEgo > CRUISING_SPEED:
-        if self.frogpilot_planner.lateral_acceleration >= DEJA_VU_G_FORCE * ACCELERATION_DUE_TO_GRAVITY:
+        if abs(self.frogpilot_planner.lateral_acceleration) >= DEJA_VU_G_FORCE * ACCELERATION_DUE_TO_GRAVITY:
           self.events.add(FrogPilotEventName.dejaVuCurve)
 
       if "hal9000" not in self.played_events and (ET.NO_ENTRY in current_alert or ET.NO_ENTRY in current_frogpilot_alert):

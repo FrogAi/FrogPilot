@@ -46,7 +46,7 @@ void DeveloperSidebar::updateToggles() {
     metricAssignments.push_back(metricId);
   }
 
-  metricColor = QColor(frogpilot_toggles.value("sidebar_color1").toString());
+  metricColor = QColor(frogpilot_toggles.value(QLatin1String("sidebar_color1")).toString());
 }
 
 void DeveloperSidebar::resetVariables() {
@@ -74,7 +74,7 @@ void DeveloperSidebar::updateState(const UIState &s, const FrogPilotUIState &fs)
   const cereal::LiveTorqueParametersData::Reader &liveTorqueParameters = fpsm["liveTorqueParameters"].getLiveTorqueParameters();
 
   const bool is_metric = s.scene.is_metric;
-  const bool use_si = frogpilot_scene.frogpilot_toggles.value("use_si_metrics").toBool();
+  const bool use_si = frogpilot_scene.frogpilot_toggles.value(QLatin1String("use_si_metrics")).toBool();
 
   const QString accelerationUnit = (is_metric || use_si) ? tr(" m/s²") : tr(" ft/s²");
   const float accelerationConversion = (is_metric || use_si) ? 1.0f : METER_TO_FOOT;
@@ -142,26 +142,18 @@ void DeveloperSidebar::paintEvent(QPaintEvent *event) {
 
   p.fillRect(rect(), QColor(57, 57, 57));
 
-  QMap<int, ItemStatus*> metricMap;
-  metricMap.insert(1, &accelerationStatus);
-  metricMap.insert(2, &maxAccelerationStatus);
-  metricMap.insert(3, &delayStatus);
-  metricMap.insert(4, &frictionStatus);
-  metricMap.insert(5, &latAccelStatus);
-  metricMap.insert(6, &steerRatioStatus);
-  metricMap.insert(7, &stiffnessFactorStatus);
-  metricMap.insert(8, &lateralEngagementStatus);
-  metricMap.insert(9, &longitudinalEngagementStatus);
-  metricMap.insert(10, &steerAngleStatus);
-  metricMap.insert(11, &torqueStatus);
-  metricMap.insert(12, &actuatorAccelerationStatus);
-  metricMap.insert(13, &accelerationJerkStatus);
-  metricMap.insert(14, &dangerJerkStatus);
-  metricMap.insert(15, &speedJerkStatus);
+  ItemStatus *metrics[] = {
+    nullptr,
+    &accelerationStatus, &maxAccelerationStatus, &delayStatus, &frictionStatus, &latAccelStatus,
+    &steerRatioStatus, &stiffnessFactorStatus, &lateralEngagementStatus, &longitudinalEngagementStatus,
+    &steerAngleStatus, &torqueStatus, &actuatorAccelerationStatus, &accelerationJerkStatus,
+    &dangerJerkStatus, &speedJerkStatus
+  };
+  constexpr int metricCount = std::size(metrics);
 
   int count = 0;
   for (size_t i = 0; i < metricAssignments.size(); ++i) {
-    if (metricAssignments[i] > 0 && metricMap.contains(metricAssignments[i])) {
+    if (metricAssignments[i] > 0 && metricAssignments[i] < metricCount) {
       count++;
     }
   }
@@ -176,15 +168,11 @@ void DeveloperSidebar::paintEvent(QPaintEvent *event) {
   for (size_t i = 0; i < metricAssignments.size(); ++i) {
     int metricId = metricAssignments[i];
 
-    if (metricId == 0) {
+    if (metricId <= 0 || metricId >= metricCount) {
       continue;
     }
 
-    if (!metricMap.contains(metricId)) {
-      continue;
-    }
-
-    ItemStatus *status = metricMap[metricId];
+    ItemStatus *status = metrics[metricId];
     drawMetric(p, status->first, status->second, y);
     y += metricHeight + spacing;
   }

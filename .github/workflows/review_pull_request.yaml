@@ -1,38 +1,57 @@
 name: Review Pull Request
+run-name: "Review PR #${{ github.event.pull_request.number }}"
 
 on:
   pull_request_target:
-    types: [opened, reopened]
-
-env:
-  EXPECTED_BRANCH: "MAKE-PRS-HERE"
-  GIT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    types: [edited, opened, reopened]
 
 permissions:
   pull-requests: write
 
+env:
+  BRANCH_PR_TARGET: ${{ vars.BRANCH_PR_TARGET }}
+
+  GH_TOKEN: ${{ github.token }}
+
+concurrency:
+  cancel-in-progress: true
+  group: review-pull-request-${{ github.event.pull_request.number }}
+
 jobs:
-  pr_check:
+  redirect:
+    if: >-
+      github.repository == 'FrogAi/FrogPilot' &&
+      (github.event.action != 'edited' || github.event.changes.base != null) &&
+      github.base_ref != vars.BRANCH_PR_TARGET &&
+      github.event.pull_request.user.login != 'FrogAi' &&
+      (github.event.action == 'opened' || github.actor != 'FrogAi')
     runs-on: ubuntu-latest
-    if: ${{ github.actor != 'FrogAi' }}
     steps:
-      - name: Validate Target Branch
-        env:
-          GH_TOKEN: ${{ env.GIT_TOKEN }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          REPO: ${{ github.repository }}
-          TARGET_BRANCH: ${{ github.base_ref }}
-        run: |
-          if [ "$TARGET_BRANCH" != "$EXPECTED_BRANCH" ]; then
-            echo "Invalid target branch: $TARGET_BRANCH"
+      - run: >
+          gh pr close "${{ github.event.pull_request.html_url }}"
+          --comment "Thanks for contributing! Pull requests need to target the
+          \"${BRANCH_PR_TARGET:?BRANCH_PR_TARGET is required}\" branch, so this one
+          was closed automatically. Please open a new pull request against
+          \"$BRANCH_PR_TARGET\"."
 
-            gh pr comment "$PR_NUMBER" --repo "$REPO" \
-              --body "Please submit your pull request to the \"$EXPECTED_BRANCH\" branch."
+  welcome:
+    if: >-
+      github.repository == 'FrogAi/FrogPilot' &&
+      github.event.action != 'edited' &&
+      github.base_ref == vars.BRANCH_PR_TARGET &&
+      github.event.pull_request.user.login != 'FrogAi'
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          url="${{ github.event.pull_request.html_url }}"
 
-            gh pr close "$PR_NUMBER" --repo "$REPO"
-          else
-            echo "Valid target branch."
-
-            gh pr comment "$PR_NUMBER" --repo "$REPO" \
-              --body "Thank you for your PR! If you're not already in the FrogPilot Discord, [feel free to join](https://discord.FrogPilot.com) and let me know you've opened a PR!"
+          if gh pr view "$url" --json comments --jq '.comments[].body' |
+               grep -qF 'Thank you for your PR!'; then
+            echo "Already welcomed."
+            exit 0
           fi
+
+          body="Thank you for your PR! If you're not already in the FrogPilot Discord, "
+          body+="[feel free to join](https://discord.FrogPilot.com) and let me know you've opened a PR!"
+
+          gh pr comment "$url" --body "$body"

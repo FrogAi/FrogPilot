@@ -17,15 +17,15 @@ static void update_state(FrogPilotUIState *fs) {
   }
   if (fpsm.updated("frogpilotPlan")) {
     const cereal::FrogPilotPlan::Reader &frogpilotPlan = fpsm["frogpilotPlan"].getFrogpilotPlan();
-    if (frogpilotPlan.getThemeUpdated()) {
-      emit fs->themeUpdated();
-    }
     capnp::Text::Reader toggles = frogpilotPlan.getFrogpilotToggles();
     QByteArray current_toggles(toggles.cStr(), toggles.size());
     static QByteArray previous_toggles;
     if (previous_toggles != current_toggles) {
       frogpilot_scene.frogpilot_toggles = QJsonDocument::fromJson(current_toggles).object();
       previous_toggles = current_toggles;
+    }
+    if (frogpilotPlan.getThemeUpdated()) {
+      emit fs->themeUpdated();
     }
   }
   if (fpsm.updated("selfdriveState")) {
@@ -57,5 +57,5 @@ void FrogPilotUIState::update() {
   update_state(this);
 
   frogpilot_scene.conditional_status = frogpilot_scene.enabled ? params_memory.getInt("CEStatus") : 0;
-  frogpilot_scene.driver_camera_timer = frogpilot_scene.reverse && frogpilot_scene.frogpilot_toggles.value("driver_camera_in_reverse").toBool() ? frogpilot_scene.driver_camera_timer + 1 : 0;
+  frogpilot_scene.driver_camera_timer = frogpilot_scene.reverse && frogpilot_scene.frogpilot_toggles.value(QLatin1String("driver_camera_in_reverse")).toBool() ? frogpilot_scene.driver_camera_timer + 1 : 0;
 }

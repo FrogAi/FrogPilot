@@ -9,7 +9,6 @@
 #include "selfdrive/ui/qt/widgets/cameraview.h"
 
 #include "frogpilot/ui/qt/onroad/frogpilot_buttons.h"
-#include "frogpilot/ui/screenrecorder/screenrecorder.h"
 
 class AnnotatedCameraWidget : public CameraWidget {
   Q_OBJECT
@@ -19,11 +18,11 @@ public:
   void updateState(const UIState &s, const FrogPilotUIState &fs);
 
   // FrogPilot variables
-  double fps;
+  double fps = 0;
 
   FrogPilotAnnotatedCameraWidget *frogpilot_nvg;
 
-  FrogPilotUIScene frogpilot_scene;
+  FrogPilotUIScene frogpilot_scene = {};
 
   QJsonObject frogpilot_toggles;
 
@@ -39,10 +38,8 @@ private:
   bool wide_cam_requested = false;
 
   // FrogPilot variables
-  void paintEvent(QPaintEvent *event) override;
-
   DrivingPersonalityButton *personality_btn;
-  ScreenRecorder *screen_recorder;
+  ScreenRecorderButton *screen_recorder_btn;
 
 protected:
   void paintGL() override;

@@ -339,21 +339,21 @@ class LongitudinalMpc:
       if model_lead.prob > frogpilot_toggles.lead_detection_probability and radar_lead.status:
         x_lead_traj = float(radar_lead.dRel) + (np.asarray(model_lead.x, dtype=np.float64) - model_lead.x[0])
         v_lead_traj = float(radar_lead.vLead) + (np.asarray(model_lead.v, dtype=np.float64) - model_lead.v[0])
-      else:
-        # Fake a fast lead car, so mpc can keep running in the same mode
-        x_lead_traj = 50.0 + (v_ego + 10.0) * LEAD_T_IDXS_MODEL
-        v_lead_traj = np.full_like(LEAD_T_IDXS_MODEL, v_ego + 10.0)
 
-      # MPC will not converge if immediate crash is expected
-      # Clip lead distance to what is still possible to brake for
-      v_lead_0 = v_lead_traj[0]
-      min_x_lead = MIN_X_LEAD_FACTOR * (v_ego + v_lead_0) * (v_ego - v_lead_0) / (-ACCEL_MIN * 2)
-      x_lead_traj[0] = max(x_lead_traj[0], min_x_lead)
-      v_lead_traj = np.clip(v_lead_traj, 0.0, 1e8)
+        # MPC will not converge if immediate crash is expected
+        # Clip lead distance to what is still possible to brake for
+        v_lead_0 = v_lead_traj[0]
+        min_x_lead = MIN_X_LEAD_FACTOR * (v_ego + v_lead_0) * (v_ego - v_lead_0) / (-ACCEL_MIN * 2)
+        x_lead_traj[0] = max(x_lead_traj[0], min_x_lead)
+        v_lead_traj = np.clip(v_lead_traj, 0.0, 1e8)
 
-      x_lead_mpc = np.maximum.accumulate(np.interp(T_IDXS, LEAD_T_IDXS_MODEL, x_lead_traj))
-      v_lead_mpc = np.interp(T_IDXS, LEAD_T_IDXS_MODEL, v_lead_traj)
-      return np.column_stack((x_lead_mpc, v_lead_mpc))
+        x_lead_mpc = np.maximum.accumulate(np.interp(T_IDXS, LEAD_T_IDXS_MODEL, x_lead_traj))
+        v_lead_mpc = np.interp(T_IDXS, LEAD_T_IDXS_MODEL, v_lead_traj)
+
+        # Forward movement cannot exceed the distance covered by the corrected speed.
+        x_lead_max = x_lead_mpc[0] + np.cumsum(T_DIFFS[1:] * (v_lead_mpc[:-1] + v_lead_mpc[1:]) / 2)
+        x_lead_mpc[1:] = np.minimum(x_lead_mpc[1:], x_lead_max)
+        return np.column_stack((x_lead_mpc, v_lead_mpc))
 
     if radar_lead is not None and radar_lead.status:
       x_lead = radar_lead.dRel

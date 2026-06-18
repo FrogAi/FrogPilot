@@ -1,71 +1,60 @@
 name: Schedule FrogPilot Update
+run-name: Schedule FrogPilot update for ${{ inputs.scheduled_date }}
 
 on:
   workflow_dispatch:
     inputs:
       scheduled_date:
-        description: "Enter the date to update the \"FrogPilot\" branch (YYYY-MM-DD)"
+        description: Enter the date to update the FrogPilot branch (YYYY-MM-DD)
         required: true
+        type: string
+
+permissions: {contents: write}
 
 env:
-  GIT_EMAIL: "91348155+FrogAi@users.noreply.github.com"
-  GIT_NAME: "James"
-  TARGET_BRANCH: "FrogPilot-Staging"
-  UPDATE_FILE_PATH: ".github/update_date"
+  GIT_EMAIL: ${{ vars.GIT_EMAIL }}
+  GIT_NAME: ${{ vars.GIT_NAME }}
+
+  BRANCH_STAGING: ${{ vars.BRANCH_STAGING }}
+
+  SCHEDULED_DATE: ${{ inputs.scheduled_date }}
+
+  TZ: UTC
+
+concurrency: schedule-frogpilot-update
 
 jobs:
   schedule_update:
+    name: Schedule staging release handoff
+    concurrency:
+      group: frogpilot-branch-push
+      queue: max
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Checkout Target Branch
-        uses: actions/checkout@v4
+      - name: Checkout staging branch
+        uses: actions/checkout@v7
         with:
-          ref: ${{ env.TARGET_BRANCH }}
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          fetch-depth: 3
+          fetch-depth: 2
+          ref: refs/heads/${{ env.BRANCH_STAGING }}
 
-      - name: Configure Git Identity
+      - name: Schedule staging release handoff
         run: |
-          git config --global user.name "$GIT_NAME"
-          git config --global user.email "$GIT_EMAIL"
-
-      - name: Write Schedule Date
-        env:
-          SCHEDULED_DATE: ${{ github.event.inputs.scheduled_date }}
-        run: |
-          echo "$SCHEDULED_DATE" > "$UPDATE_FILE_PATH"
-          git add "$UPDATE_FILE_PATH"
-
-      - name: Get Target Commit Data
-        id: get_target
-        run: |
-          TARGET_COMMIT=$(git rev-parse HEAD~1)
-          AUTHOR_DATE=$(git show -s --format=%aD "$TARGET_COMMIT")
-          COMMITTER_DATE=$(git show -s --format=%cD "$TARGET_COMMIT")
-
-          echo "AUTHOR_DATE=$AUTHOR_DATE" >> "$GITHUB_ENV"
-          echo "COMMITTER_DATE=$COMMITTER_DATE" >> "$GITHUB_ENV"
-          echo "TARGET_COMMIT=$TARGET_COMMIT" >> "$GITHUB_ENV"
-
-      - name: Create Fixup Commit
-        id: fixup_commit
-        run: |
-          if git diff --cached --quiet; then
-            echo "No changes detected."
-            echo "has_changes=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "Changes detected. Creating fixup commit."
-            git commit --fixup="$TARGET_COMMIT"
-            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          if [[ "$(date -d "$SCHEDULED_DATE" +%F 2>/dev/null)" != "$SCHEDULED_DATE" ||
+                "$SCHEDULED_DATE" < "$(date +%F)" ]]; then
+            echo "scheduled_date must be a valid date in YYYY-MM-DD format, today or later in $TZ."
+            exit 1
           fi
 
-      - name: Autosquash and Restore Timestamps
-        if: steps.fixup_commit.outputs.has_changes == 'true'
-        run: |
-          GIT_SEQUENCE_EDITOR=: git rebase --autosquash -i HEAD~3
-          git rebase --exec "GIT_COMMITTER_DATE='$COMMITTER_DATE' git commit --amend --no-edit --date='$AUTHOR_DATE'" HEAD~2
+          printf '%s\n' "$SCHEDULED_DATE" > .github/update_date
+          git add .github/update_date
 
-      - name: Push Changes
-        if: steps.fixup_commit.outputs.has_changes == 'true'
-        run: |
-          git push origin "$TARGET_BRANCH" --force-with-lease
+          if git diff --cached --quiet; then
+            echo "No schedule change detected."
+            exit 0
+          fi
+
+          GIT_COMMITTER_DATE="$(git log -1 --format=%cI)" \
+            git -c user.name="$GIT_NAME" -c user.email="${GIT_EMAIL:?GIT_EMAIL is required}" commit --amend --no-edit
+
+          git push --force-with-lease origin "HEAD:refs/heads/$BRANCH_STAGING"

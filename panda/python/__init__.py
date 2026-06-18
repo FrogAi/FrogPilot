@@ -441,8 +441,8 @@ class Panda:
     except Exception:
       pass
 
-  def flash(self, fn=None, code=None, reconnect=True):
-    if self.up_to_date(fn=fn):
+  def flash(self, fn=None, code=None, reconnect=True, force=False):
+    if not force and self.up_to_date(fn=fn):
       logger.info("flash: already up to date")
       return
 
