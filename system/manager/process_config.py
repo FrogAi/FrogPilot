@@ -71,7 +71,7 @@ def allow_uploads(started: bool, params: Params, CP: car.CarParams, frogpilot_to
   return not frogpilot_toggles.no_uploads or frogpilot_toggles.no_onroad_uploads
 
 def run_frogpilot_telemetry(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
-  return frogpilot_toggles.frogpilot_telemetry and not frogpilot_toggles.no_logging
+  return frogpilot_toggles.frogpilot_telemetry and not frogpilot_toggles.no_logging and not frogpilot_toggles.no_uploads
 
 def run_speed_limit_filler(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
   return frogpilot_toggles.speed_limit_filler
@@ -137,7 +137,7 @@ elif TICI:
 procs += [
   PythonProcess("frogpilot_process", "frogpilot.frogpilot_process", always_run),
   PythonProcess("frogpilot_telemetry", "frogpilot.system.frogpilot_telemetry", run_frogpilot_telemetry),
-  NativeProcess("mapd", "frogpilot/navigation", ["./mapd"], always_run),
+  NativeProcess("mapd", "frogpilot/navigation", ["env", "USE_MSGQ_PREFIX=true", "./mapd"], always_run),
   PythonProcess("speed_limit_filler", "frogpilot.system.speed_limit_filler", run_speed_limit_filler),
 ]
 

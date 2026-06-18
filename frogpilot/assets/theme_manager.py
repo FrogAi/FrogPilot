@@ -184,18 +184,23 @@ class ThemeManager:
             if item.get("type") == "blob"
           ]
         if is_gitlab:
-          response = self.session.get(f"https://gitlab.com/api/v4/projects/{repo_encoded}/repository/tree?ref={branch}&recursive=true", timeout=10)
-          response.raise_for_status()
-          return [
-            {
-              "path": item.get("path", ""),
-              "name": item.get("name", ""),
-              "type": item.get("type"),
-              "size": 0,
-            }
-            for item in response.json()
-            if item.get("type") in ("blob", "file")
-          ]
+          items = []
+          page = "1"
+          while page:
+            response = self.session.get(f"https://gitlab.com/api/v4/projects/{repo_encoded}/repository/tree?ref={branch}&recursive=true&per_page=100&page={page}", timeout=10)
+            response.raise_for_status()
+            items.extend(
+              {
+                "path": item.get("path", ""),
+                "name": item.get("name", ""),
+                "type": item.get("type"),
+                "size": 0,
+              }
+              for item in response.json()
+              if item.get("type") in ("blob", "file")
+            )
+            page = response.headers.get("X-Next-Page", "")
+          return items
         print(f"Unsupported repository URL: {repo_url}")
         return []
 
@@ -270,8 +275,13 @@ class ThemeManager:
     if "~" in base:
       base, creator = base.split("~", 1)
 
-    parts = base.replace("_", " ").replace("-", " ").split()
-    display = " ".join(part.capitalize() for part in parts)
+    variant = ""
+    if base.endswith("-animated"):
+      base = base[: -len("-animated")]
+      variant = " (Animated)"
+
+    parts = base.replace("_", " ").split()
+    display = " ".join(part.capitalize() for part in parts) + variant
 
     if creator:
       return f"{display} - by: {creator}"

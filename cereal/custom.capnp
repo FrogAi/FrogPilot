@@ -56,9 +56,10 @@ struct FrogPilotCarParams @0xaedffd8f31e7b55d {
   canUsePedal @1 :Bool;
   canUseSDSU @2 :Bool;
   flags @3 :UInt32;
-  isHDA2 @4 :Bool;
-  openpilotLongitudinalControlDisabled @5 :Bool;
-  safetyConfigs @6 :List(SafetyConfig);
+  hasDashboardSpeedLimit @4 :Bool;
+  isHDA2 @5 :Bool;
+  openpilotLongitudinalControlDisabled @6 :Bool;
+  safetyConfigs @7 :List(SafetyConfig);
 
   struct SafetyConfig {
     safetyParam @0 :UInt16;
@@ -148,40 +149,43 @@ struct FrogPilotOnroadEvent @0xa5cd762cd951a455 {
 
 struct FrogPilotPlan @0xf98d843bfd7004a3 {
   accelerationJerk @0 :Float32;
-  cscControllingSpeed @1 :Bool;
-  cscSpeed @2 :Float32;
-  cscTraining @3 :Bool;
-  dangerJerk @4 :Float32;
-  desiredFollowDistance @5 :Int64;
-  experimentalMode @6 :Bool;
-  forcingStop @7 :Bool;
-  forcingStopLength @8 :Float32;
-  frogpilotEvents @9 :List(FrogPilotOnroadEvent);
-  frogpilotToggles @10 :Text;
-  increasedStoppedDistance @11 :Float32;
-  lateralCheck @12 :Bool;
-  laneWidthLeft @13 :Float32;
-  laneWidthRight @14 :Float32;
-  maxAcceleration @15 :Float32;
-  minAcceleration @16 :Float32;
-  redLight @17 :Bool;
-  roadCurvature @18 :Float32;
-  slcMapSpeedLimit @19 :Float32;
-  slcMapboxSpeedLimit @20 :Float32;
-  slcNextSpeedLimit @21 :Float32;
-  slcOverriddenSpeed @22 :Float32;
-  slcSpeedLimit @23 :Float32;
-  slcSpeedLimitOffset @24 :Float32;
-  slcSpeedLimitSource @25 :Text;
-  speedJerk @26 :Float32;
-  speedLimitChanged @27 :Bool;
-  tFollow @28 :Float32;
-  themeUpdated @29 :Bool;
-  trackingLead @30 :Bool;
-  unconfirmedSlcSpeedLimit @31 :Float32;
-  vCruise @32 :Float32;
-  weatherDaytime @33 :Bool;
-  weatherId @34 :Int16;
+  cscActive @1 :Bool;
+  cscControllingSpeed @2 :Bool;
+  cscMaxLateralAcceleration @3 :Float32;
+  cscSpeed @4 :Float32;
+  cscTraining @5 :Bool;
+  dangerJerk @6 :Float32;
+  desiredFollowDistance @7 :Int64;
+  experimentalMode @8 :Bool;
+  forcingStop @9 :Bool;
+  forcingStopLength @10 :Float32;
+  frogpilotEvents @11 :List(FrogPilotOnroadEvent);
+  frogpilotToggles @12 :Text;
+  increasedStoppedDistance @13 :Float32;
+  laneWidthLeft @14 :Float32;
+  laneWidthRight @15 :Float32;
+  lateralCheck @16 :Bool;
+  maxAcceleration @17 :Float32;
+  minAcceleration @18 :Float32;
+  redLight @19 :Bool;
+  roadCurvature @20 :Float32;
+  slcMapboxSpeedLimit @21 :Float32;
+  slcMapboxWayId @22 :Int64;
+  slcMapSpeedLimit @23 :Float32;
+  slcNextSpeedLimit @24 :Float32;
+  slcOverriddenSpeed @25 :Float32;
+  slcSpeedLimit @26 :Float32;
+  slcSpeedLimitOffset @27 :Float32;
+  slcSpeedLimitSource @28 :Text;
+  speedJerk @29 :Float32;
+  speedLimitChanged @30 :Bool;
+  tFollow @31 :Float32;
+  themeUpdated @32 :Bool;
+  trackingLead @33 :Bool;
+  unconfirmedSlcSpeedLimit @34 :Float32;
+  vCruise @35 :Float32;
+  weatherDaytime @36 :Bool;
+  weatherId @37 :Int16;
 }
 
 struct FrogPilotRadarState @0xb86e6369214c01c8 {
@@ -276,24 +280,44 @@ struct MapdPathPoint @0xd6f78acca1bc3939 {
   targetVelocity @3 :Float32;
 }
 
+struct MapdPosition @0xde9705979aca8339 {
+  latitude @0 :Float64;
+  longitude @1 :Float64;
+}
+
 struct MapdExtendedOut @0xa30662f84033036c {
   downloadProgress @0 :MapdDownloadProgress;
   settings @1 :Text;
   path @2 :List(MapdPathPoint);
+  position @3 :MapdPosition;
+  loopRateAverage @4 :Float32;
+  loopRateMin @5 :Float32;
 }
 
 enum MapdInputType {
   download @0;
+  reloadSettings @9;
+  saveSettings @10;
+  loadDefaultSettings @21;
+  loadRecommendedSettings @22;
+  loadPersistentSettings @26;
+  cancelDownload @27;
+  setJsonPathFloat @43;
+  setJsonPathText @44;
+  setJsonPathBool @45;
+  acceptSpeedLimit @34;
+
+  # DEPRECATED settings inputs
+  setLogLevel @6;
+  setLogSource @29;
+  setLogJson @28;
   setTargetLateralAccel @1;
   setSpeedLimitOffset @2;
   setSpeedLimitControl @3;
   setMapCurveSpeedControl @4;
   setVisionCurveSpeedControl @5;
-  setLogLevel @6;
   setVisionCurveTargetLatA @7;
   setVisionCurveMinTargetV @8;
-  reloadSettings @9;
-  saveSettings @10;
   setEnableSpeed @11;
   setVisionCurveUseEnableSpeed @12;
   setMapCurveUseEnableSpeed @13;
@@ -304,24 +328,22 @@ enum MapdInputType {
   setTargetSpeedTimeOffset @18;
   setDefaultLaneWidth @19;
   setMapCurveTargetLatA @20;
-  loadDefaultSettings @21;
-  loadRecommendedSettings @22;
   setSlowDownForNextSpeedLimit @23;
   setSpeedUpForNextSpeedLimit @24;
   setHoldSpeedLimitWhileChangingSetSpeed @25;
-  loadPersistentSettings @26;
-  cancelDownload @27;
-  setLogJson @28;
-  setLogSource @29;
   setExternalSpeedLimitControl @30;
   setExternalSpeedLimit @31;
   setSpeedLimitPriority @32;
   setSpeedLimitChangeRequiresAccept @33;
-  acceptSpeedLimit @34;
   setPressGasToAcceptSpeedLimit @35;
   setAdjustSetSpeedToAcceptSpeedLimit @36;
   setAcceptSpeedLimitTimeout @37;
   setPressGasToOverrideSpeedLimit @38;
+  setConditionalSpeedLimitControl @39;
+  setShadowCarState @40;
+  setShadowModelV2 @41;
+  setShadowGpsLocation @42;
+  setShadowGpsLocationExternal @46;
 }
 
 enum WaySelectionType {
@@ -342,12 +364,35 @@ struct MapdIn @0xc86a3d38d13eb3ef {
   float @1 :Float32;
   str @2 :Text;
   bool @3 :Bool;
+  jsonPath @4 :Text;
 }
 
 enum RoadContext {
   freeway @0;
   city @1;
   unknown @2;
+}
+
+# WARNING: must be kept in perfect sync (names and values) with the
+# HighwayClass enum in cereal/offline/offline.capnp — state.go casts directly
+# between the two generated enum types.
+# unknown either means the way's highway tag was not one of the listed values
+# or the loaded map tiles predate this field.
+enum HighwayClass {
+  unknown @0;
+  motorway @1;
+  motorwayLink @2;
+  trunk @3;
+  trunkLink @4;
+  primary @5;
+  primaryLink @6;
+  secondary @7;
+  secondaryLink @8;
+  tertiary @9;
+  tertiaryLink @10;
+  unclassified @11;
+  residential @12;
+  livingStreet @13;
 }
 
 struct MapdOut @0xa4f1eb3323f5f582 {
@@ -375,4 +420,7 @@ struct MapdOut @0xa4f1eb3323f5f582 {
   mapCurveSpeed @21 :Float32;
   waySelectionType @22 :WaySelectionType;
   speedLimitAccepted @23 :Bool;
+  highwayClass @24 :HighwayClass;
+  wayId @25 :Int64;
+  conditionalSpeedLimit @26 :Text;
 }

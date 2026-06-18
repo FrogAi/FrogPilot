@@ -22,6 +22,18 @@ BUTTONS_DICT = {Buttons.RES_ACCEL: ButtonType.accelCruise, Buttons.SET_DECEL: Bu
                 Buttons.GAP_DIST: ButtonType.gapAdjustCruise, Buttons.CANCEL: ButtonType.cancel}
 
 
+def calculate_speed_limit(CP, cp, cp_cam):
+  if CP.flags & HyundaiFlags.CANFD:
+    speed_limit_bus = cp if CP.flags & HyundaiFlags.CANFD_LKA_STEERING else cp_cam
+    speed_limit = speed_limit_bus.vl["FR_CMR_02_100ms"]["ISLW_SpdCluMainDis"]
+    return speed_limit if 0 < speed_limit < 253 else 0
+
+  speed_limit = cp_cam.vl["LKAS12"]["CF_Lkas_TsrSpeed_Display_Clu"]
+  if speed_limit in (0, 255):
+    speed_limit = cp.vl["Navi_HU"]["SpeedLim_Nav_Clu"]
+  return speed_limit if speed_limit not in (0, 255) else 0
+
+
 class CarState(CarStateBase):
   def __init__(self, CP, FPCP):
     super().__init__(CP, FPCP)
@@ -205,6 +217,8 @@ class CarState(CarStateBase):
 
     # FrogPilot variables
     fp_ret = custom.FrogPilotCarState.new_message()
+    if self.FPCP.hasDashboardSpeedLimit:
+      fp_ret.dashboardSpeedLimit = calculate_speed_limit(self.CP, cp, cp_cam) * speed_conv
 
     return ret, fp_ret
 
@@ -303,6 +317,8 @@ class CarState(CarStateBase):
 
     # FrogPilot variables
     fp_ret = custom.FrogPilotCarState.new_message()
+    if self.FPCP.hasDashboardSpeedLimit:
+      fp_ret.dashboardSpeedLimit = calculate_speed_limit(self.CP, cp, cp_cam) * speed_factor
 
     return ret, fp_ret
 

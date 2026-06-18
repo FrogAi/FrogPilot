@@ -23,7 +23,7 @@ ACCELERATION_PROFILES = {
 DECELERATION_PROFILES = {
   "STANDARD": 0,
   "ECO": 1,
-  "SPORT": 2
+  "ECO_PLUS": 2
 }
 
 def get_max_accel_eco(v_ego):
@@ -77,7 +77,7 @@ class FrogPilotAcceleration:
     if self.frogpilot_planner.frogpilot_weather.weather_id != 0:
       self.max_accel -= self.max_accel * self.frogpilot_planner.frogpilot_weather.reduce_acceleration
 
-    if self.frogpilot_planner.tracking_lead:
+    if self.frogpilot_planner.tracking_lead or self.frogpilot_planner.frogpilot_vcruise.csc_controlling_speed:
       self.min_accel = ACCEL_MIN
     elif sm["frogpilotCarState"].forceCoast:
       self.min_accel = A_CRUISE_MIN_ECO
@@ -89,7 +89,7 @@ class FrogPilotAcceleration:
     else:
       if frogpilot_toggles.deceleration_profile == DECELERATION_PROFILES["ECO"]:
         self.min_accel = A_CRUISE_MIN_ECO
-      elif frogpilot_toggles.deceleration_profile == DECELERATION_PROFILES["SPORT"]:
+      elif frogpilot_toggles.deceleration_profile == DECELERATION_PROFILES["ECO_PLUS"]:
         self.min_accel = A_CRUISE_MIN_ECO_PLUS
       else:
         self.min_accel = ACCEL_MIN

@@ -14,9 +14,11 @@ class FrogPilotSettingsWindow : public QFrame {
 public:
   explicit FrogPilotSettingsWindow(SettingsWindow *parent);
 
+  void updateTuningLevel();
   void updateVariables();
 
   bool canUsePedal = false;
+  bool carDetected = false;
   bool canUseSDSU = false;
   bool forceOpenDescriptions = false;
   bool hasAlphaLongitudinal = false;
@@ -32,7 +34,6 @@ public:
   bool hasSNG = false;
   bool hasZSS = false;
   bool isAngleCar = false;
-  bool isBolt = false;
   bool isFrogsGoMoo = false;
   bool isGM = true;
   bool isHKG = true;
@@ -46,19 +47,22 @@ public:
   bool lkasAllowedForAOL = false;
   bool openpilotLongitudinalControlDisabled = false;
 
-  float friction;
-  float latAccelFactor;
-  float longitudinalActuatorDelay;
-  float startAccel;
-  float steerActuatorDelay;
-  float steerKp;
-  float steerRatio;
-  float stopAccel;
-  float stoppingDecelRate;
-  float vEgoStarting;
-  float vEgoStopping;
+  float friction = 0.0f;
+  float latAccelFactor = 0.0f;
+  float longitudinalActuatorDelay = 0.0f;
+  float maxLateralAccel = 0.0f;
+  float startAccel = 0.0f;
+  float steerActuatorDelay = 0.0f;
+  float steerKp = 0.0f;
+  float steerRatio = 0.0f;
+  float stopAccel = 0.0f;
+  float stoppingDecelRate = 0.0f;
+  float vEgoStarting = 0.0f;
+  float vEgoStopping = 0.0f;
 
-  int tuningLevel;
+  int tuningLevel = 0;
+
+  std::string carFingerprint;
 
   QJsonObject frogpilotToggleLevels;
 
@@ -79,19 +83,20 @@ private:
   void hideEvent(QHideEvent *event) override;
   void showEvent(QShowEvent *event) override;
   void updateState();
-  void updateTuningLevel();
 
-  bool panelOpen;
+  bool panelOpen = false;
 
   std::string carMake;
 
-  FrogPilotButtonsControl *drivingPanelButtons;
-  FrogPilotButtonsControl *navigationPanelButtons;
-  FrogPilotButtonsControl *soundPanelButtons;
-  FrogPilotButtonsControl *systemPanelButtons;
-  FrogPilotButtonsControl *themePanelButtons;
-  FrogPilotButtonsControl *togglePreset;
-  FrogPilotButtonsControl *vehiclePanelButtons;
+  FrogPilotButtonsControl *drivingPanelButtons = nullptr;
+  FrogPilotButtonsControl *navigationPanelButtons = nullptr;
+  FrogPilotButtonsControl *soundPanelButtons = nullptr;
+  FrogPilotButtonsControl *systemPanelButtons = nullptr;
+  FrogPilotButtonsControl *themePanelButtons = nullptr;
+  FrogPilotButtonsControl *togglePreset = nullptr;
+  FrogPilotButtonsControl *vehiclePanelButtons = nullptr;
+
+  ParamWatcher *carParamsWatcher = nullptr;
 
   Params params;
 

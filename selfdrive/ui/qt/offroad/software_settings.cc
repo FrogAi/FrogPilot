@@ -35,6 +35,16 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   automaticUpdatesToggle->setVisible(params.getBool("IsReleaseBranch") || isFrogsGoMoo());
   addItem(automaticUpdatesToggle);
 
+  ParamControl *frogpilotTelemetryToggle = new ParamControl(
+    "FrogPilotTelemetry",
+    tr("Share Driving Data"),
+    tr("<b>Automatically share anonymized driving data with FrogPilot to help improve it.</b><br><br>"
+       "Only driving signals are shared: no video, no GPS or location, no VIN, and no identifiers. Turn this off to opt out."),
+    ""
+  );
+  frogpilotTelemetryToggle->setConfirmation(true, false);
+  addItem(frogpilotTelemetryToggle);
+
   // download update btn
   downloadBtn = new ButtonControl(tr("Download"), tr("CHECK"));
   connect(downloadBtn, &ButtonControl::clicked, [=]() {

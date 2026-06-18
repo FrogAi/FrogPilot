@@ -31,40 +31,40 @@ FrogPilotVisualsPanel::FrogPilotVisualsPanel(FrogPilotSettingsWindow *parent, bo
   visualsLayout->addWidget(qualityOfLifePanel);
 
   const std::vector<std::tuple<QString, QString, QString, QString>> visualToggles {
-    {"AdvancedCustomUI", tr("Advanced UI Controls"), tr("<b>Advanced visual changes</b> to fine-tune how the driving screen looks."), "../../frogpilot/assets/toggle_icons/icon_advanced_device.png"},
-    {"HideSpeed", tr("Hide Current Speed"), tr("<b>Hide the current speed</b> from the driving screen."), ""},
-    {"HideLeadMarker", tr("Hide Lead Marker"), tr("<b>Hide the lead-vehicle marker</b> from the driving screen."), ""},
-    {"HideMaxSpeed", tr("Hide Max Speed"), tr("<b>Hide the max speed</b> from the driving screen."), ""},
-    {"HideAlerts", tr("Hide Non-Critical Alerts"), tr("<b>Hide non-critical alerts</b> from the driving screen."), ""},
-    {"HideSpeedLimit", tr("Hide Speed Limits"), tr("<b>Hide posted speed limits</b> from the driving screen."), ""},
-    {"WheelSpeed", tr("Use Wheel Speed"), tr("<b>Use the vehicle's wheel speed</b> instead of the cluster speed. This is purely a visual change and doesn't impact how openpilot drives!"), ""},
+    {"AdvancedCustomUI", tr("Advanced UI Controls"), tr("<b>Fine-tune how the driving screen looks, beyond what the everyday settings cover.</b><br><br>None of these change how the car drives."), "../../frogpilot/assets/toggle_icons/icon_advanced_device.png"},
+    {"HideSpeed", tr("Hide Current Speed"), tr("<b>Take your current speed off the driving screen.</b><br><br>Your dashboard still shows it."), ""},
+    {"HideLeadMarker", tr("Hide Lead Marker"), tr("<b>Take the marker off the car in front of you on the driving screen.</b><br><br>openpilot still tracks that car and still follows it.<br><br>\"Lead Info\" and \"Adjacent Leads Tracking\" have nothing left to attach to, so they disappear too."), ""},
+    {"HideMaxSpeed", tr("Hide Max Speed"), tr("<b>Take the speed you have set off the driving screen.</b><br><br>openpilot still holds that speed."), ""},
+    {"HideAlerts", tr("Hide Non-Critical Alerts"), tr("<b>Take the everyday informational messages off the driving screen.</b><br><br>Anything that actually needs you, like a warning or a takeover request, still comes through."), ""},
+    {"HideSpeedLimit", tr("Hide Speed Limits"), tr("<b>Take the posted speed limit sign off the driving screen.</b><br><br>If you use \"Speed Limit Controller\" it keeps working on the limit it reads, so your speed can still change for a sign you can no longer see. The sign does come back when it asks you to confirm a new limit."), ""},
+    {"WheelSpeed", tr("Use Wheel Speed"), tr("<b>Show the speed your wheels are actually turning at instead of the slightly optimistic number your dashboard shows.</b><br><br>Most cars read a little high on purpose, so this usually reads one or two lower. It only changes the number on screen, never how openpilot drives."), ""},
 
-    {"CustomUI", tr("Driving Screen Widgets"), tr("<b>Custom FrogPilot widgets</b> for the driving screen."), "../assets/icons/calibration.png"},
-    {"AccelerationPath", tr("Acceleration Path"), tr("<b>Color the driving path by planned acceleration and braking.</b>"), ""},
-    {"AdjacentPath", tr("Adjacent Lanes"), tr("<b>Show the driving paths for the left and right lanes.</b>"), ""},
-    {"BlindSpotPath", tr("Blind Spot Path"), tr("<b>Show a red path when a vehicle is in that lane's blind spot.</b>"), ""},
-    {"Compass", tr("Compass"), tr("<b>Show the current driving direction</b> with a simple on-screen compass."), ""},
-    {"OnroadDistanceButton", tr("Driving Personality Button"), tr("<b>Control and view the current driving personality</b> via a driving screen widget."), ""},
-    {"PedalsOnUI", tr("Gas / Brake Pedal Indicators"), tr("<b>On-screen gas and brake indicators.</b><br><br><b>Dynamic</b>: Opacity changes according to how much openpilot is accelerating or braking<br><b>Static</b>: Full when active, dim when not"), ""},
-    {"RotatingWheel", tr("Rotating Steering Wheel"), tr("<b>Rotate the driving screen wheel</b> with the physical steering wheel."), ""},
+    {"CustomUI", tr("Driving Screen Widgets"), tr("<b>Add extra things to the driving screen that stock openpilot does not show.</b><br><br>One of these does change how the car drives: the \"Driving Personality Button\" switches your following distance."), "../assets/icons/calibration.png"},
+    {"AccelerationPath", tr("Acceleration Path"), tr("<b>Colour the driving path green when openpilot is speeding up and red when it is slowing down.</b><br><br>Handy for seeing a slowdown coming before you feel it."), ""},
+    {"AdjacentPath", tr("Adjacent Lanes"), tr("<b>Draw the paths of the lanes either side of you, so you can see where openpilot thinks they run.</b><br><br>They only appear above about 20 mph, and only where the lane beside you measures wide enough to be a real lane."), ""},
+    {"BlindSpotPath", tr("Blind Spot Path"), tr("<b>Turn the lane beside you red whenever your car's sensors see something in that blind spot.</b><br><br>It only shows up above about 20 mph, so it stays away in slow traffic and car parks. Keep checking your mirrors regardless."), ""},
+    {"Compass", tr("Compass"), tr("<b>Add a compass to the driving screen showing which way you are heading.</b><br><br>Without a GPS fix it freezes pointing north rather than disappearing, so treat a compass that never moves as no reading at all."), ""},
+    {"OnroadDistanceButton", tr("Driving Personality Button"), tr("<b>Add a button to the driving screen that switches your following distance between Aggressive, Standard and Relaxed without going into the menus.</b><br><br>This changes how the car actually drives, not just what you see. It also shows which one is active."), ""},
+    {"PedalsOnUI", tr("Gas / Brake Pedal Indicators"), tr("<b>Show gas and brake indicators on the driving screen so you can see what openpilot is doing with the pedals.</b><br><br>\"Dynamic\" fades them in and out with how hard it is pressing. \"Static\" shows them fully lit when active and dim when not."), ""},
+    {"RotatingWheel", tr("Rotating Steering Wheel"), tr("<b>Turn the steering wheel picture on screen in time with your real steering wheel.</b>"), ""},
 
-    {"ModelUI", tr("Model UI"), tr("<b>Model visualizations</b> for the driving path, lane lines, path edges, and road edges."), "../../frogpilot/assets/toggle_icons/icon_road.png"},
-    {"DynamicPathWidth", tr("Dynamic Path Width"), tr("<b>Change the path width based on engagement.</b><br><br><b>Fully Engaged</b>: 100%<br><b>Always On Lateral</b>: 75%<br><b>Disengaged</b>: 50%"), ""},
-    {"LaneLinesWidth", tr("Lane Lines Width"), tr("<b>Set the lane-line thickness.</b><br><br>Default matches the MUTCD lane-line width standard of 4 inches."), ""},
-    {"PathEdgeWidth", tr("Path Edges Width"), tr("<b>Set the driving-path edge width</b> that represents different driving modes and statuses.<br><br>Default is 20% of the total path width.<br><br>Color Guide:<br><br>- <b>Light Blue</b>: Always On Lateral<br>- <b>Green</b>: Default<br>- <b>Orange</b>: Experimental Mode<br>- <b>Red</b>: Traffic Mode<br>- <b>Yellow</b>: Conditional Experimental Mode overridden"), ""},
-    {"PathWidth", tr("Path Width"), tr("<b>Set the driving-path width.</b><br><br>Default (6.1 feet) matches the width of a 2019 Lexus ES 350."), ""},
-    {"RoadEdgesWidth", tr("Road Edges Width"), tr("<b>Set the road-edge thickness.</b><br><br>Default matches half of the MUTCD lane-line width standard of 4 inches."), ""},
+    {"ModelUI", tr("Model UI"), tr("<b>Change how openpilot draws the road ahead, including the driving path, the lane lines and the road edges.</b><br><br>Turning this off falls back to stock openpilot's sizes, though the coloured path edges go away with it."), "../../frogpilot/assets/toggle_icons/icon_road.png"},
+    {"DynamicPathWidth", tr("Dynamic Path Width"), tr("<b>Make the driving path narrower when openpilot is doing less of the driving, so you can tell at a glance how much control it has.</b><br><br>Full width while openpilot is driving, three quarters while it is only steering for you, and half the rest of the time."), ""},
+    {"LaneLinesWidth", tr("Lane Lines Width"), tr("<b>Set how thick the lane lines are drawn on the driving screen.</b><br><br>The default matches the 4 inch lines actually painted on US roads. This only changes the picture, never where openpilot steers."), ""},
+    {"PathEdgeWidth", tr("Path Edges Width"), tr("<b>Set how thick the coloured stripe down each side of the driving path is, which is what tells you which mode openpilot is in.</b><br><br>The default is a fifth of the path width. Set it to zero to hide the stripe entirely.<br><br>Blue means navigation is steering, light blue means openpilot is only steering for you, green is normal driving, orange is Experimental Mode, red is Traffic Mode, and yellow means you have overridden Conditional Experimental Mode."), ""},
+    {"PathWidth", tr("Path Width"), tr("<b>Set how wide the driving path is drawn ahead of your car.</b><br><br>The default of 6.1 feet is roughly the width of a real car."), ""},
+    {"RoadEdgesWidth", tr("Road Edges Width"), tr("<b>Set how thick the road edges are drawn on the driving screen.</b><br><br>The default is half a lane line."), ""},
 
-    {"NavigationUI", tr("Navigation Widgets"), tr("<b>Speed limits, and other navigation widgets.</b>"), "../../frogpilot/assets/toggle_icons/icon_map.png"},
-    {"RoadNameUI", tr("Road Name"), tr("<b>Display the road name at the bottom of the driving screen</b> using data from \"OpenStreetMap (OSM)\"."), ""},
-    {"ShowSpeedLimits", tr("Show Speed Limits"), tr("<b>Show speed limits</b> in the top-left corner of the driving screen. Uses data from the car's dashboard (if supported) and \"OpenStreetMap (OSM)\"."), ""},
-    {"SLCMapboxFiller", tr("Show Speed Limits from Mapbox"), tr("<b>Use Mapbox speed-limit data when no other source is available.</b>"), ""},
-    {"UseVienna", tr("Use Vienna-Style Speed Signs"), tr("<b>Show Vienna-style (EU) speed-limit signs</b> instead of MUTCD (US)."), ""},
+    {"NavigationUI", tr("Navigation Widgets"), tr("<b>Change what navigation shows on the driving screen, from the map itself to speed limit signs.</b><br><br>Some of these need map data downloaded under \"Maps and Navigation\" before they show anything."), "../../frogpilot/assets/toggle_icons/icon_map.png"},
+    {"RoadNameUI", tr("Road Name"), tr("<b>Show the name of the road you are on along the bottom of the driving screen.</b><br><br>It comes from downloaded map data, so it stays blank on roads you have not downloaded."), ""},
+    {"ShowSpeedLimits", tr("Show Speed Limits"), tr("<b>Show the posted speed limit as a sign in the top-left corner of the driving screen.</b><br><br>The limit comes from your car's dashboard where it can read one, and from your downloaded map data otherwise."), ""},
+    {"SLCMapboxFiller", tr("Show Speed Limits from Mapbox"), tr("<b>Fall back to Mapbox for the speed limit when neither your dashboard nor your downloaded maps know one.</b><br><br>Needs your Public Mapbox Key set up under \"Maps and Navigation\" and a working internet connection."), ""},
+    {"UseVienna", tr("Use Vienna-Style Speed Signs"), tr("<b>Draw speed limit signs in the round European style instead of the rectangular American one.</b><br><br>Needs \"Show Speed Limits\" or \"Speed Limit Controller\" switched on, or the sign disappears instead of changing shape. It never changes the limit openpilot reads."), ""},
 
-    {"QOLVisuals", tr("Quality of Life"), tr("<b>Miscellaneous visual changes</b> to fine-tune how the driving screen looks."), "../../frogpilot/assets/toggle_icons/icon_quality_of_life.png"},
-    {"CameraView", tr("Camera View"), tr("<b>Select the active camera view.</b> This is purely a visual change and doesn't impact how openpilot drives!"), ""},
-    {"DriverCamera", tr("Show Driver Camera When In Reverse"), tr("<b>Show the driver camera feed</b> when the vehicle is in reverse."), ""},
-    {"StoppedTimer", tr("Stopped Timer"), tr("<b>Show a timer when stopped</b> in place of the current speed to indicate how long the vehicle has been stopped."), ""}
+    {"QOLVisuals", tr("Quality of Life"), tr("<b>Pick which camera you watch, and a couple of smaller driving screen touches that did not fit anywhere else.</b>"), "../../frogpilot/assets/toggle_icons/icon_quality_of_life.png"},
+    {"CameraView", tr("Camera View"), tr("<b>Choose which camera the driving screen shows, from the wide one to the driver-facing one.</b><br><br>openpilot keeps using every camera to drive no matter which one you put on screen."), ""},
+    {"DriverCamera", tr("Show Driver Camera When In Reverse"), tr("<b>Switch the driving screen to the driver camera whenever you put the car in reverse.</b><br><br>This is not a backup camera. It faces you, not the road behind."), ""},
+    {"StoppedTimer", tr("Stopped Timer"), tr("<b>Replace your speed with a running timer once you come to a complete stop, so you can see how long you have been waiting.</b>"), ""}
   };
 
   for (const auto &[param, title, desc, icon] : visualToggles) {
@@ -195,10 +195,13 @@ void FrogPilotVisualsPanel::updateMetric(bool metric, bool bootRun) {
     double distanceConversion = metric ? FOOT_TO_METER : METER_TO_FOOT;
     double smallDistanceConversion = metric ? INCH_TO_CM : CM_TO_INCH;
 
-    params.putIntNonBlocking("LaneLinesWidth", params.getInt("LaneLinesWidth") * smallDistanceConversion);
-    params.putIntNonBlocking("RoadEdgesWidth", params.getInt("RoadEdgesWidth") * smallDistanceConversion);
+    long smallDistanceMax = metric ? 60 : 24;
+    float distanceMax = metric ? 3.0f : 10.0f;
 
-    params.putFloatNonBlocking("PathWidth", params.getFloat("PathWidth") * distanceConversion);
+    params.putInt("LaneLinesWidth", std::clamp<long>(std::lround(params.getInt("LaneLinesWidth") * smallDistanceConversion), 0, smallDistanceMax));
+    params.putInt("RoadEdgesWidth", std::clamp<long>(std::lround(params.getInt("RoadEdgesWidth") * smallDistanceConversion), 0, smallDistanceMax));
+
+    params.putFloat("PathWidth", std::clamp<float>(std::round(params.getFloat("PathWidth") * distanceConversion * 10.0f) / 10.0f, 0.0f, distanceMax));
   }
   previousMetric = metric;
 
@@ -217,12 +220,13 @@ void FrogPilotVisualsPanel::updateMetric(bool metric, bool bootRun) {
       imperialSmallDistanceLabels[i] = i == 0 ? tr("Off") : i == 1 ? QString::number(i) + tr(" inch") : QString::number(i) + tr(" inches");
     }
 
-    for (float i = 0.0f; i <= 3.0f; i += 0.1f) {
-      metricDistanceLabels[i] = i == 0.0f ? tr("Off") : i == 1.0 ? QString::number(i) + tr(" meter") : QString::number(i, 'f', 1) + tr(" meters");
+    for (int i = 0; i <= 30; ++i) {
+      float key = i / 10.0f;
+      metricDistanceLabels[key] = i == 0 ? tr("Off") : i == 10 ? QString::number(key, 'f', 1) + tr(" meter") : QString::number(key, 'f', 1) + tr(" meters");
     }
 
     for (int i = 0; i <= 60; ++i) {
-      metricSmallDistanceLabels[i] = i == 0 ? tr("Off") : i == 1 ? QString::number(i) + tr(" centimeter") : QString::number(i) + tr(" centimeters");
+      metricSmallDistanceLabels[i] = i == 0 ? tr("Off") : i == 1 ? QString::number(i) + tr(" cm") : QString::number(i) + tr(" cm");
     }
 
     labelsInitialized = true;
@@ -233,18 +237,18 @@ void FrogPilotVisualsPanel::updateMetric(bool metric, bool bootRun) {
   FrogPilotParamValueControl *roadEdgesWidthToggle = static_cast<FrogPilotParamValueControl*>(toggles["RoadEdgesWidth"]);
 
   if (metric) {
-    laneLinesWidthToggle->setDescription(tr("<b>Set the lane-line thickness.</b><br><br>Default matches the MUTCD lane-line width standard of 10 centimeters."));
-    pathWidthToggle->setDescription(tr("<b>Set the driving-path width.</b><br><br>Default (1.9 meters) matches the width of a 2019 Lexus ES 350."));
-    roadEdgesWidthToggle->setDescription(tr("<b>Set the road-edge thickness.</b><br><br>Default matches half of the MUTCD lane-line width standard of 10 centimeters."));
+    laneLinesWidthToggle->setDescription(tr("<b>Set how thick the lane lines are drawn on the driving screen.</b><br><br>The default matches the 10 cm lines actually painted on roads. This only changes the picture, never where openpilot steers."));
+    pathWidthToggle->setDescription(tr("<b>Set how wide the driving path is drawn ahead of your car.</b><br><br>The default of 1.9 meters is roughly the width of a real car."));
+    roadEdgesWidthToggle->setDescription(tr("<b>Set how thick the road edges are drawn on the driving screen.</b><br><br>The default is half a lane line."));
 
     laneLinesWidthToggle->updateControl(0, 60, metricSmallDistanceLabels);
     roadEdgesWidthToggle->updateControl(0, 60, metricSmallDistanceLabels);
 
     pathWidthToggle->updateControl(0, 3, metricDistanceLabels);
   } else {
-    laneLinesWidthToggle->setDescription(tr("<b>Set the lane-line thickness.</b><br><br>Default matches the MUTCD lane-line width standard of 4 inches."));
-    pathWidthToggle->setDescription(tr("<b>Set the driving-path width.</b><br><br>Default (6.1 feet) matches the width of a 2019 Lexus ES 350."));
-    roadEdgesWidthToggle->setDescription(tr("<b>Set the road-edge thickness.</b><br><br>Default matches half of the MUTCD lane-line width standard of 4 inches."));
+    laneLinesWidthToggle->setDescription(tr("<b>Set how thick the lane lines are drawn on the driving screen.</b><br><br>The default matches the 4 inch lines actually painted on US roads. This only changes the picture, never where openpilot steers."));
+    pathWidthToggle->setDescription(tr("<b>Set how wide the driving path is drawn ahead of your car.</b><br><br>The default of 6.1 feet is roughly the width of a real car."));
+    roadEdgesWidthToggle->setDescription(tr("<b>Set how thick the road edges are drawn on the driving screen.</b><br><br>The default is half a lane line."));
 
     laneLinesWidthToggle->updateControl(0, 24, imperialSmallDistanceLabels);
     roadEdgesWidthToggle->updateControl(0, 24, imperialSmallDistanceLabels);
@@ -279,10 +283,6 @@ void FrogPilotVisualsPanel::updateToggles() {
       setVisible &= parent->hasOpenpilotLongitudinal;
     }
 
-    else if (key == "HideSpeedLimit") {
-      setVisible &= parent->hasOpenpilotLongitudinal && params.getBool("SpeedLimitController");
-    }
-
     else if (key == "OnroadDistanceButton") {
       setVisible &= parent->hasOpenpilotLongitudinal;
     }
@@ -298,7 +298,7 @@ void FrogPilotVisualsPanel::updateToggles() {
     else if (key == "SLCMapboxFiller") {
       setVisible &= params.getBool("ShowSpeedLimits");
       setVisible &= !params.getBool("SpeedLimitController") || !parent->hasOpenpilotLongitudinal;
-      setVisible &= !params.get("MapboxSecretKey").empty();
+      setVisible &= !params.get("MapboxPublicKey").empty();
     }
 
     else if (key == "UseVienna") {

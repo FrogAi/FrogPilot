@@ -21,6 +21,41 @@ from openpilot.common.watchdog import WATCHDOG_FN
 
 ENABLE_WATCHDOG = os.getenv("NO_WATCHDOG") is None
 
+WATCHDOG_COREDUMP_GRACE_S = 120.0
+WATCHDOG_HANG_DUMP_TIMEOUT_S = 15.0
+
+
+def coredump_in_progress(pid: int) -> bool:
+  try:
+    with open("/proc/sys/kernel/core_pattern") as f:
+      core_pattern = f.read().strip()
+  except OSError:
+    return False
+
+  if not core_pattern.startswith("|"):
+    return False
+
+  tokens = core_pattern[1:].split()
+  pid_index = next((i for i, token in enumerate(tokens) if "%p" in token), None)
+  if pid_index is None:
+    return False
+  expected_pid_arg = tokens[pid_index].replace("%p", str(pid))
+
+  for entry in os.scandir("/proc"):
+    if not entry.name.isdigit():
+      continue
+
+    try:
+      with open(f"/proc/{entry.name}/cmdline", "rb") as f:
+        argv = f.read().decode(errors="replace").split("\0")
+    except OSError:
+      continue
+
+    if len(argv) > pid_index and argv[0] == tokens[0] and argv[pid_index] == expected_pid_arg:
+      return True
+
+  return False
+
 
 def launcher(proc: str, name: str) -> None:
   try:
@@ -75,6 +110,8 @@ class ManagerProcess(ABC):
   last_watchdog_time = 0
   watchdog_max_dt: int | None = None
   watchdog_seen = False
+  watchdog_coredump_deadline: float | None = None
+  watchdog_hang_dump_deadline: float | None = None
   shutting_down = False
 
   @abstractmethod
@@ -104,10 +141,44 @@ class ManagerProcess(ABC):
 
     if dt > self.watchdog_max_dt:
       if self.watchdog_seen and ENABLE_WATCHDOG:
+        if self.wait_for_coredump():
+          return
+
+        if self.dump_hung_process():
+          return
+
         cloudlog.error(f"Watchdog timeout for {self.name} (exitcode {self.proc.exitcode}) restarting ({started=})")
         self.restart()
     else:
       self.watchdog_seen = True
+
+  def wait_for_coredump(self) -> bool:
+    if self.proc is None or not coredump_in_progress(self.proc.pid):
+      self.watchdog_coredump_deadline = None
+      return False
+
+    if self.watchdog_coredump_deadline is None:
+      self.watchdog_coredump_deadline = time.monotonic() + WATCHDOG_COREDUMP_GRACE_S
+      cloudlog.error(f"Watchdog timeout for {self.name}, core dump in progress; deferring restart up to {WATCHDOG_COREDUMP_GRACE_S}s")
+
+    return time.monotonic() < self.watchdog_coredump_deadline
+
+  def dump_hung_process(self) -> bool:
+    if self.proc is None or self.proc.exitcode is not None or coredump_in_progress(self.proc.pid):
+      self.watchdog_hang_dump_deadline = None
+      return False
+
+    if self.watchdog_hang_dump_deadline is None:
+      self.watchdog_hang_dump_deadline = time.monotonic() + WATCHDOG_HANG_DUMP_TIMEOUT_S
+      cloudlog.error(f"Watchdog timeout for {self.name} with nothing to collect; aborting it to capture a core")
+      self.signal(signal.SIGABRT)
+      return True
+
+    if time.monotonic() < self.watchdog_hang_dump_deadline:
+      return True
+
+    self.watchdog_hang_dump_deadline = None
+    return False
 
   def stop(self, retry: bool = True, block: bool = True, sig: signal.Signals = None) -> int | None:
     if self.proc is None:

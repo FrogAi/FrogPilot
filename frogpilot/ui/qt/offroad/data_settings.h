@@ -15,7 +15,7 @@ private:
   void updateStatsLabels(FrogPilotListWidget *labelsList);
 
   bool forceOpenDescriptions;
-  bool isMetric;
+  bool isMetric = false;
 
   FrogPilotSettingsWindow *parent;
 

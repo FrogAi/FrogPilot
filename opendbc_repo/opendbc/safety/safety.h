@@ -482,6 +482,9 @@ int set_safety_hooks(uint16_t mode, uint16_t param) {
       set_status = 0;  // set
     }
   }
+  // OPGM variables
+  enable_gas_interceptor = false;
+
   if ((set_status == 0) && (current_hooks->init != NULL)) {
     safety_config cfg = current_hooks->init(param);
     current_safety_config.rx_checks = cfg.rx_checks;
@@ -494,10 +497,6 @@ int set_safety_hooks(uint16_t mode, uint16_t param) {
       current_safety_config.rx_checks[j].status = (RxStatus){0};
     }
   }
-
-  // OPGM variables
-  enable_gas_interceptor = false;
-
   // FrogPilot variables
   aol_allowed = false;
   lkas_button_prev = false;

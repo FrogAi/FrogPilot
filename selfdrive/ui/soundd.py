@@ -100,7 +100,7 @@ class Soundd:
 
     self.openpilot_crashed_played = False
 
-    self.auto_volume = 0
+    self.auto_volume = MIN_VOLUME
 
     self.previous_sound_pack = None
 
@@ -174,6 +174,8 @@ class Soundd:
 
   def get_audible_alert(self, sm):
     if self.params_memory.get("TestAlert"):
+      self.frogpilot_toggles = get_frogpilot_toggles()
+      self.update_frogpilot_sounds()
       self.update_alert(getattr(AudibleAlert, self.params_memory.get("TestAlert")))
       self.params_memory.remove("TestAlert")
     elif not self.openpilot_crashed_played and self.error_log.is_file():
@@ -222,6 +224,8 @@ class Soundd:
       while True:
         sm.update(0)
 
+        self.get_audible_alert(sm)
+
         if sm.updated['soundPressure'] and self.current_alert == AudibleAlert.none: # only update volume filter when not playing alert
           self.spl_filter_weighted.update(sm["soundPressure"].soundPressureWeightedDb)
           self.current_volume = self.calculate_volume(float(self.spl_filter_weighted.x))
@@ -234,8 +238,6 @@ class Soundd:
           self.current_volume = self.volume_map[self.current_alert]
           if self.current_volume == 1.01:
             self.current_volume = self.auto_volume
-
-        self.get_audible_alert(sm)
 
         rk.keep_time()
 

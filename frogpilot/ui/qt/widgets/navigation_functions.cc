@@ -1,5 +1,7 @@
 #include "frogpilot/ui/qt/widgets/navigation_functions.h"
 
+#include <QSignalBlocker>
+
 MapSelectionControl::MapSelectionControl(const QMap<QString, QString> &map, bool isCountry) : selectionType(isCountry ? "nations" : "states") {
   mapButtons = new QButtonGroup(this);
   mapButtons->setExclusive(false);
@@ -20,10 +22,10 @@ MapSelectionControl::MapSelectionControl(const QMap<QString, QString> &map, bool
     QObject::connect(button, &QPushButton::toggled, this, &MapSelectionControl::updateSelectedMaps);
   }
 
-  loadSelectedMaps();
+  reloadSelectedMaps();
 }
 
-void MapSelectionControl::loadSelectedMaps() {
+void MapSelectionControl::reloadSelectedMaps() {
   QString mapsSelected = QString::fromStdString(params.get("MapsSelected"));
   QStringList mapList = mapsSelected.split(",", QString::SkipEmptyParts);
   QString prefix = (selectionType == "nations") ? "nation." : "us_state.";
@@ -36,6 +38,7 @@ void MapSelectionControl::loadSelectedMaps() {
   }
 
   for (QAbstractButton *button : mapButtons->buttons()) {
+    const QSignalBlocker blocker(button);
     button->setChecked(selectedMaps.contains(button->property("mapKey").toString()));
   }
 }
@@ -45,9 +48,14 @@ void MapSelectionControl::updateSelectedMaps() {
   QStringList mapList = mapsSelected.split(",", QString::SkipEmptyParts);
   QString prefix = (selectionType == "nations") ? "nation." : "us_state.";
 
+  QSet<QString> controlMaps;
+  for (QAbstractButton *button : mapButtons->buttons()) {
+    controlMaps.insert(button->property("mapKey").toString());
+  }
+
   QStringList newMapList;
   for (const QString &map : mapList) {
-    if (!map.startsWith(prefix)) {
+    if (!map.startsWith(prefix) || !controlMaps.contains(map.mid(prefix.length()))) {
       newMapList.append(map);
     }
   }
@@ -59,5 +67,5 @@ void MapSelectionControl::updateSelectedMaps() {
   }
 
   newMapList.sort();
-  params.putNonBlocking("MapsSelected", newMapList.join(",").toStdString());
+  params.put("MapsSelected", newMapList.join(",").toStdString());
 }

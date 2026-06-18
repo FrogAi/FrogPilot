@@ -73,7 +73,7 @@ class Car:
   def __init__(self, CI=None, RI=None) -> None:
     self.can_sock = messaging.sub_sock('can', timeout=20)
     self.sm = messaging.SubMaster(['pandaStates', 'carControl', 'onroadEvents'])
-    self.pm = messaging.PubMaster(['sendcan', 'carState', 'carParams', 'carOutput', 'liveTracks'])
+    self.pm = messaging.PubMaster(['sendcan', 'carState', 'carParams', 'carOutput', 'liveTracks', 'frogpilotCarParams'])
 
     self.can_rcv_cum_timeout_counter = 0
 
@@ -217,7 +217,8 @@ class Car:
     self.v_cruise_helper.update_v_cruise(CS, self.sm['carControl'].enabled, self.is_metric, self.frogpilot_toggles)
     if self.sm['carControl'].enabled and not self.CC_prev.enabled:
       # Use CarState w/ buttons from the step selfdrived enables on
-      self.v_cruise_helper.initialize_v_cruise(self.CS_prev, self.experimental_mode, self.resume_prev_button, self.frogpilot_toggles)
+      self.v_cruise_helper.initialize_v_cruise(self.CS_prev, self.experimental_mode, self.resume_prev_button, self.frogpilot_toggles,
+                                               self.sm['frogpilotPlan'].slcSpeedLimit + self.sm['frogpilotPlan'].slcSpeedLimitOffset)
 
     # TODO: mirror the carState.cruiseState struct?
     CS.vCruise = float(self.v_cruise_helper.v_cruise_kph)
@@ -243,6 +244,12 @@ class Car:
       cp_send.valid = True
       cp_send.carParams = self.CP
       self.pm.send('carParams', cp_send)
+
+      # FrogPilot variables
+      fpcp_send = messaging.new_message('frogpilotCarParams')
+      fpcp_send.valid = True
+      fpcp_send.frogpilotCarParams = self.FPCP
+      self.pm.send('frogpilotCarParams', fpcp_send)
 
     # publish new carOutput
     co_send = messaging.new_message('carOutput')

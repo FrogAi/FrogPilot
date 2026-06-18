@@ -1,107 +1,112 @@
 name: Update FrogPilot Branch
+run-name: Check scheduled FrogPilot release
 
 on:
   schedule:
-    - cron: "0 18 * * 6"
+    - cron: "0 11 * * *"
+
+permissions: {contents: write}
 
 env:
-  BRANCH_FROGPILOT: FrogPilot
-  BRANCH_PREVIOUS: FrogPilot-Previous
-  BRANCH_STAGING: FrogPilot-Staging
-  GIT_EMAIL: "91348155+FrogAi@users.noreply.github.com"
-  GIT_NAME: "James"
-  GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-  TZ: America/Phoenix
-  UPDATE_FILE: .github/update_date
+  GIT_EMAIL: ${{ vars.GIT_EMAIL }}
+  GIT_NAME: ${{ vars.GIT_NAME }}
+
+  BRANCH_PREVIOUS: ${{ vars.BRANCH_PREVIOUS }}
+  BRANCH_RELEASE: ${{ vars.BRANCH_RELEASE }}
+  BRANCH_STAGING: ${{ vars.BRANCH_STAGING }}
+
+  BASE_COMMIT: ${{ vars.BASE_COMMIT }}
+
+  TZ: UTC
 
 jobs:
-  check_update:
+  update_release:
+    name: Promote scheduled staging release
+    concurrency:
+      group: frogpilot-branch-push
+      queue: max
     runs-on: ubuntu-latest
-    outputs:
-      update_due: ${{ steps.check_update.outputs.update_due }}
-      scheduled_date: ${{ steps.check_update.outputs.scheduled_date }}
+    timeout-minutes: 120
     steps:
-      - name: Check Update Status
-        id: check_update
-        env:
-          REPO_NAME: ${{ github.repository }}
+      - name: Checkout staging branch
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          filter: blob:none
+          ref: refs/heads/${{ env.BRANCH_STAGING }}
+      - name: Promote scheduled staging release
         run: |
-          URL="https://raw.githubusercontent.com/$REPO_NAME/$BRANCH_STAGING/$UPDATE_FILE"
-          STATUS=$(curl -o /dev/null -s -w "%{http_code}\n" "$URL")
+          set -o pipefail
 
-          if [ "$STATUS" != "200" ]; then
-            echo "update_due=false" >> "$GITHUB_OUTPUT"
+          if [[ ! -f .github/update_date ]]; then
+            echo "No scheduled release."
             exit 0
           fi
 
-          SCHEDULED_DATE=$(curl -s "$URL")
-          CURRENT_DATE=$(TZ="$TZ" date +%F)
+          scheduled_date="$(<.github/update_date)"
 
-          if [ "$SCHEDULED_DATE" == "$CURRENT_DATE" ]; then
-            echo "update_due=true" >> "$GITHUB_OUTPUT"
-            echo "scheduled_date=$SCHEDULED_DATE" >> "$GITHUB_OUTPUT"
-          else
-            echo "update_due=false" >> "$GITHUB_OUTPUT"
+          if [[ "$(date -d "$scheduled_date" +%F 2>/dev/null)" != "$scheduled_date" ]]; then
+            echo "Invalid scheduled date: $scheduled_date"
+            exit 1
           fi
 
-  update_branch:
-    needs: check_update
-    if: ${{ needs.check_update.outputs.update_due == 'true' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Staging
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ env.BRANCH_STAGING }}
-          fetch-depth: 0
-          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          if [[ "$scheduled_date" > "$(date +%F)" ]]; then
+            echo "Release scheduled for $scheduled_date."
+            exit 0
+          fi
 
-      - name: Configure Git Identity
-        run: |
-          git config --global user.name "$GIT_NAME"
-          git config --global user.email "$GIT_EMAIL"
+          effective_date="$scheduled_date"
+          if [[ "$effective_date" < "$(date +%F)" ]]; then
+            effective_date="$(date +%F)"
+            echo "Scheduled for $scheduled_date; publishing as $effective_date."
+          fi
 
-      - name: Update README and Cleanup
-        env:
-          SCHEDULED_DATE: ${{ needs.check_update.outputs.scheduled_date }}
-        run: |
-          DAY=$(TZ="$TZ" date +'%d' | sed 's/^0//')
-          case "$DAY" in
-            1|21|31) SUFFIX="st" ;;
-            2|22)    SUFFIX="nd" ;;
-            3|23)    SUFFIX="rd" ;;
-            *)       SUFFIX="th" ;;
+          git fetch origin \
+            "refs/heads/$BRANCH_PREVIOUS:refs/remotes/origin/$BRANCH_PREVIOUS" \
+            "refs/heads/$BRANCH_RELEASE:refs/remotes/origin/$BRANCH_RELEASE"
+
+          read -r month day year < <(date -d "$effective_date" '+%B %-d %Y')
+          case "$day" in
+            1|21|31) suffix=st ;;
+            2|22) suffix=nd ;;
+            3|23) suffix=rd ;;
+            *) suffix=th ;;
           esac
 
-          MONTH=$(TZ="$TZ" date +'%B')
-          YEAR=$(TZ="$TZ" date +'%Y')
-          DATE_FMT="${MONTH} ${DAY}${SUFFIX}, ${YEAR}"
-          DATE_ESCAPED=$(printf '%s' "$DATE_FMT" | sed -E 's/ /%20/g; s/,/%2C/g')
-
-          sed -i -E "s|(Last%20Updated-)[^-)]*|\1${DATE_ESCAPED}|g" README.md
-
-          git rm -f "$UPDATE_FILE"
+          badge_date="${month}%20${day}${suffix}%2C%20${year}"
+          sed -i -E "s|(Last%20Updated-)[^-)]*|\1$badge_date|g" README.md
+          git rm .github/update_date
           git add README.md
-          git commit -m "Updated README date to ${DATE_FMT}"
 
-          git reset --soft HEAD~2
-          ORIGINAL_MSG=$(git log -1 --pretty=%B HEAD)
+          release_timestamp="$(date -d "$effective_date 12:00:00" --iso-8601=seconds)"
 
-          COMMIT_PHX=$(TZ="$TZ" date -d "$SCHEDULED_DATE 12:00" +"%Y-%m-%dT%H:%M:%S %z")
-          GIT_COMMITTER_DATE="$COMMIT_PHX" GIT_AUTHOR_DATE="$COMMIT_PHX" git commit -m "$ORIGINAL_MSG"
+          layer_base="$(
+            git log --reverse --format='%H %s' |
+              awk -v want="${BASE_COMMIT:?BASE_COMMIT is required}" '!found {
+                h = $1
+                sub(/^[^ ]+ +/, "")
+                if ($0 == want) { print h; found = 1 }
+              }'
+          )"
 
-      - name: Wait Until Noon ${{ env.TZ }}
-        run: |
-          NOW=$(TZ="$TZ" date +%s)
-          TARGET=$(TZ="$TZ" date -d "12:00" +%s)
-
-          if [ "$NOW" -lt "$TARGET" ]; then
-            sleep $((TARGET - NOW))
+          if [[ -z "$layer_base" ]]; then
+            echo "No \"$BASE_COMMIT\" commit found — cannot squash."
+            exit 1
           fi
 
-      - name: Push and Sync Branches
-        run: |
-          git push origin "$BRANCH_STAGING" --force
-          git fetch origin "$BRANCH_FROGPILOT:$BRANCH_FROGPILOT"
-          git push origin "$BRANCH_FROGPILOT:$BRANCH_PREVIOUS" --force
-          git push origin "$BRANCH_STAGING:$BRANCH_FROGPILOT" --force
+          squashed="$(GIT_AUTHOR_DATE="$release_timestamp" GIT_COMMITTER_DATE="$release_timestamp" \
+            git -c user.name="$GIT_NAME" -c user.email="${GIT_EMAIL:?GIT_EMAIL is required}" \
+            commit-tree "$(git rev-parse 'HEAD~1^{tree}')" -p "$layer_base^" -m "FrogPilot v$(cut -d'"' -f2 common/version.h) release")"
+          release="$(GIT_AUTHOR_DATE="$release_timestamp" GIT_COMMITTER_DATE="$release_timestamp" \
+            git -c user.name="$GIT_NAME" -c user.email="$GIT_EMAIL" \
+            commit-tree "$(git write-tree)" -p "$squashed" -m "$(git log -1 --format=%s HEAD)")"
+
+          delay=$(( $(date -d "$release_timestamp" +%s) - $(date +%s) ))
+          if (( delay > 0 )); then
+            sleep "$delay"
+          fi
+
+          git push --atomic --force-with-lease origin \
+            "refs/remotes/origin/$BRANCH_RELEASE:refs/heads/$BRANCH_PREVIOUS" \
+            "$release:refs/heads/$BRANCH_RELEASE" \
+            "$release:refs/heads/$BRANCH_STAGING"

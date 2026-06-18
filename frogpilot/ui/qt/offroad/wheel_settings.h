@@ -13,6 +13,7 @@ protected:
 
 private:
   void updateToggles();
+  void updateButtonValues();
 
   bool forceOpenDescriptions;
 
@@ -21,4 +22,6 @@ private:
   FrogPilotSettingsWindow *parent;
 
   Params params;
+
+  QMap<int, QString> buttonFunctions();
 };
