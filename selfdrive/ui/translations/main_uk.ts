@@ -44,7 +44,7 @@
     </message>
     <message>
         <source>Allow tethering with your data SIM and keep it active either while driving or continuously.</source>
-        <translation>Дозвольте точку доступу за допомогою SIM-карти з даними та залишайте її активною під час руху або постійно.</translation>
+        <translation type="vanished">Дозвольте точку доступу за допомогою SIM-карти з даними та залишайте її активною під час руху або постійно.</translation>
     </message>
     <message>
         <source>Tethering Password</source>
@@ -105,6 +105,10 @@
     <message>
         <source>for "%1"</source>
         <translation>для "%1"</translation>
+    </message>
+    <message>
+        <source>Share your device's internet connection with other devices, either all the time or only while driving.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -466,7 +470,7 @@
     <name>FrogPilotAnnotatedCameraWidget</name>
     <message>
         <source> m/s²</source>
-        <translation> м/с²</translation>
+        <translation type="vanished"> м/с²</translation>
     </message>
     <message>
         <source> meters</source>
@@ -482,7 +486,7 @@
     </message>
     <message>
         <source> ft/s²</source>
-        <translation> фт/с²</translation>
+        <translation type="vanished"> фт/с²</translation>
     </message>
     <message>
         <source> feet</source>
@@ -978,6 +982,22 @@
         <source>Time Spent in Weather:</source>
         <translation type="gpt-5-generated">Час, проведений у погодних умовах:</translation>
     </message>
+    <message>
+        <source>Distance Driven This Month</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time Driving (Daytime)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time Driving (Nighttime)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time Driven (Weather):</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotDevicePanel</name>
@@ -1156,6 +1176,14 @@
     <message>
         <source>Disable Onroad Only</source>
         <translation>Вимкнути На дорозі</translation>
+    </message>
+    <message>
+        <source>Share Driving Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Automatically share anonymized driving data with FrogPilot to help improve it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only driving signals are shared: no video, no GPS or location, no VIN, and no identifiers. Turn this off to opt out.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1912,7 +1940,7 @@
     </message>
     <message>
         <source>Are you sure you want to completely reset your settings for &lt;b&gt;Traffic Mode&lt;/b&gt;?</source>
-        <translation>Ви впевнені, що хочете повністю скинути налаштування для режиму&lt;b&gt;Трафік&lt;/b&gt;?</translation>
+        <translation type="vanished">Ви впевнені, що хочете повністю скинути налаштування для режиму&lt;b&gt;Трафік&lt;/b&gt;?</translation>
     </message>
     <message>
         <source>Are you sure you want to completely reset your settings for the &lt;b&gt;Aggressive&lt;/b&gt; personality?</source>
@@ -2080,15 +2108,15 @@
     </message>
     <message>
         <source>Traffic Mode</source>
-        <translation>Режим Трафік</translation>
+        <translation type="vanished">Режим Трафік</translation>
     </message>
     <message>
         <source>&lt;b&gt;Customize the "Traffic Mode" personality profile.&lt;/b&gt; Designed for stop-and-go driving.</source>
-        <translation>&lt;b&gt;Налаштуйте профіль особистості «Режим Трафік».&lt;/b&gt; Призначений для руху в режимі «стоп-старт».</translation>
+        <translation type="vanished">&lt;b&gt;Налаштуйте профіль особистості «Режим Трафік».&lt;/b&gt; Призначений для руху в режимі «стоп-старт».</translation>
     </message>
     <message>
         <source>&lt;b&gt;The minimum following distance to the lead vehicle in "Traffic Mode".&lt;/b&gt; openpilot blends between this value and the "Aggressive" profile as speed increases. Increase for more space; decrease for tighter gaps.</source>
-        <translation>&lt;b&gt;Мінімальна відстань до автомобіля, що рухається попереду, в режимі «Трафік».&lt;/b&gt; openpilot плавно переходить від цього значення до профілю «Агресивний» у міру збільшення швидкості. Збільшуйте для більшого простору; зменшуйте для менших проміжків.</translation>
+        <translation type="vanished">&lt;b&gt;Мінімальна відстань до автомобіля, що рухається попереду, в режимі «Трафік».&lt;/b&gt; openpilot плавно переходить від цього значення до профілю «Агресивний» у міру збільшення швидкості. Збільшуйте для більшого простору; зменшуйте для менших проміжків.</translation>
     </message>
     <message>
         <source>Acceleration Smoothness</source>
@@ -2096,7 +2124,7 @@
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot accelerates in "Traffic Mode".&lt;/b&gt; Increase for gentler starts; decrease for faster but more abrupt takeoffs.</source>
-        <translation>&lt;b&gt;Як плавно openpilot прискорюється в «Режимі трафік».&lt;/b&gt; Збільште для більш плавного старту; зменште для більш швидкого, але різкого старту.</translation>
+        <translation type="vanished">&lt;b&gt;Як плавно openpilot прискорюється в «Режимі трафік».&lt;/b&gt; Збільште для більш плавного старту; зменште для більш швидкого, але різкого старту.</translation>
     </message>
     <message>
         <source>Braking Smoothness</source>
@@ -2104,7 +2132,7 @@
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot brakes in "Traffic Mode".&lt;/b&gt; Increase for gentler stops; decrease for quicker but sharper braking.</source>
-        <translation>&lt;b&gt;Як плавно гальмує OpenPilot у «режимі трафік».&lt;/b&gt; Збільште для більш плавного гальмування; зменште для швидшого, але різкішого гальмування.</translation>
+        <translation type="vanished">&lt;b&gt;Як плавно гальмує OpenPilot у «режимі трафік».&lt;/b&gt; Збільште для більш плавного гальмування; зменште для швидшого, але різкішого гальмування.</translation>
     </message>
     <message>
         <source>Safety Gap Bias</source>
@@ -2112,7 +2140,7 @@
     </message>
     <message>
         <source>&lt;b&gt;How much extra space openpilot keeps from the vehicle ahead in "Traffic Mode".&lt;/b&gt; Increase for larger gaps and more cautious following; decrease for tighter gaps and closer following.</source>
-        <translation>&lt;b&gt;Скільки додаткового простору openpilot зберігає від транспортного засобу, що рухається попереду, в «режимі трафік».&lt;/b&gt; Збільшуйте для більших проміжків і більш обережного слідування; зменшуйте для менших проміжків і більш близького слідування.</translation>
+        <translation type="vanished">&lt;b&gt;Скільки додаткового простору openpilot зберігає від транспортного засобу, що рухається попереду, в «режимі трафік».&lt;/b&gt; Збільшуйте для більших проміжків і більш обережного слідування; зменшуйте для менших проміжків і більш близького слідування.</translation>
     </message>
     <message>
         <source>Slowdown Response</source>
@@ -2120,7 +2148,7 @@
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot slows down in "Traffic Mode".&lt;/b&gt; Increase for more gradual deceleration; decrease for faster but sharper slowdowns.</source>
-        <translation>&lt;b&gt;Як плавно openpilot уповільнює рух у «Режимі трафік».&lt;/b&gt; Збільште значення для більш поступового уповільнення; зменште значення для швидшого, але різкішого уповільнення.</translation>
+        <translation type="vanished">&lt;b&gt;Як плавно openpilot уповільнює рух у «Режимі трафік».&lt;/b&gt; Збільште значення для більш поступового уповільнення; зменште значення для швидшого, але різкішого уповільнення.</translation>
     </message>
     <message>
         <source>Speed-Up Response</source>
@@ -2128,7 +2156,7 @@
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot speeds up in "Traffic Mode".&lt;/b&gt; Increase for more gradual acceleration; decrease for quicker but more jolting acceleration.</source>
-        <translation>&lt;b&gt;Як плавно openpilot прискорюється в «Режимі трафік».&lt;/b&gt; Збільште для більш поступового прискорення; зменште для більш швидкого, але більш різкого прискорення.</translation>
+        <translation type="vanished">&lt;b&gt;Як плавно openpilot прискорюється в «Режимі трафік».&lt;/b&gt; Збільште для більш поступового прискорення; зменште для більш швидкого, але більш різкого прискорення.</translation>
     </message>
     <message>
         <source>Reset to Defaults</source>
@@ -2136,7 +2164,7 @@
     </message>
     <message>
         <source>&lt;b&gt;Reset "Traffic Mode" settings to defaults.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Скинути налаштування «Режим трафік» до заводських налаштувань.&lt;/b&gt;</translation>
+        <translation type="vanished">&lt;b&gt;Скинути налаштування «Режим трафік» до заводських налаштувань.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Aggressive</source>
@@ -2252,7 +2280,7 @@
     </message>
     <message>
         <source>&lt;b&gt;How firmly openpilot slows down.&lt;/b&gt; "Eco" favors coasting, "Sport" applies stronger braking.</source>
-        <translation>&lt;b&gt;Наскільки сильно openpilot уповільнює рух. &lt;/b&gt; «Еко» сприяє коченню, «Спорт» застосовує сильніше гальмування.</translation>
+        <translation type="vanished">&lt;b&gt;Наскільки сильно openpilot уповільнює рух. &lt;/b&gt; «Еко» сприяє коченню, «Спорт» застосовує сильніше гальмування.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Acceleration that mimics human behavior&lt;/b&gt; by easing the throttle at low speeds and adding extra power when taking off from a stop.</source>
@@ -2626,6 +2654,14 @@
         <source>Invalid key! (Error: %1)</source>
         <translation type="gpt-5-generated">Неприпустимий ключ! (Помилка: %1)</translation>
     </message>
+    <message>
+        <source>&lt;b&gt;How gently openpilot slows down.&lt;/b&gt; "Eco" favors coasting, "Eco+" coasts even more and brakes as softly as possible.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Eco+</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotManageControl</name>
@@ -2997,23 +3033,23 @@
     </message>
     <message>
         <source>Update Model Manager</source>
-        <translation>Оновити менеджер моделей</translation>
+        <translation type="vanished">Оновити менеджер моделей</translation>
     </message>
     <message>
         <source>&lt;b&gt;Update the "Model Manager"&lt;/b&gt; to support the latest models.</source>
-        <translation>&lt;b&gt;Оновіть «Менеджер моделей»&lt;/b&gt;, щоб підтримувати найновіші моделі.</translation>
+        <translation type="vanished">&lt;b&gt;Оновіть «Менеджер моделей»&lt;/b&gt;, щоб підтримувати найновіші моделі.</translation>
     </message>
     <message>
         <source>Tinygrad is out of date and must be updated before you can download new models. Update now?</source>
-        <translation>Tinygrad застарів і його необхідно оновити, перш ніж ви зможете завантажувати нові моделі. Оновити зараз?</translation>
+        <translation type="vanished">Tinygrad застарів і його необхідно оновити, перш ніж ви зможете завантажувати нові моделі. Оновити зараз?</translation>
     </message>
     <message>
         <source>Updating Tinygrad will delete all existing Tinygrad-based models which will need to be re-downloaded. Proceed?</source>
-        <translation>Оновлення Tinygrad призведе до видалення всіх існуючих моделей на базі Tinygrad, які потрібно буде завантажити заново. Продовжувати?</translation>
+        <translation type="vanished">Оновлення Tinygrad призведе до видалення всіх існуючих моделей на базі Tinygrad, які потрібно буде завантажити заново. Продовжувати?</translation>
     </message>
     <message>
         <source>Updating...</source>
-        <translation>Оновлення...</translation>
+        <translation type="vanished">Оновлення...</translation>
     </message>
     <message>
         <source>There are no more driving models to blacklist. The only available model is "%1"!</source>
@@ -3041,15 +3077,15 @@
     </message>
     <message>
         <source>UPDATE</source>
-        <translation>ОНОВЛ.</translation>
+        <translation type="vanished">ОНОВЛ.</translation>
     </message>
     <message>
         <source>Cancelling...</source>
-        <translation>Відміна...</translation>
+        <translation type="vanished">Відміна...</translation>
     </message>
     <message>
         <source>Updating Tinygrad will delete existing Tinygrad-based driving models and need to be re-downloaded. Proceed?</source>
-        <translation>Оновлення Tinygrad призведе до видалення існуючих моделей керування на базі Tinygrad, які необхідно буде завантажити заново. Продовжувати?</translation>
+        <translation type="vanished">Оновлення Tinygrad призведе до видалення існуючих моделей керування на базі Tinygrad, які необхідно буде завантажити заново. Продовжувати?</translation>
     </message>
     <message>
         <source>The "Model Randomizer" works only with downloaded models. Download all models now?</source>
@@ -3057,11 +3093,11 @@
     </message>
     <message>
         <source>Update available!</source>
-        <translation>Оновлення доступне!</translation>
+        <translation type="vanished">Оновлення доступне!</translation>
     </message>
     <message>
         <source>Up to date!</source>
-        <translation>Оновлено!</translation>
+        <translation type="vanished">Оновлено!</translation>
     </message>
     <message>
         <source>Not parked</source>
@@ -3187,11 +3223,11 @@
     </message>
     <message>
         <source>CANCEL</source>
-        <translation>ВІДМІНА</translation>
+        <translation type="vanished">ВІДМІНА</translation>
     </message>
     <message>
         <source>Manually Update Speed Limits</source>
-        <translation>Вручну оновити обмеження швидкості</translation>
+        <translation type="vanished">Вручну оновити обмеження швидкості</translation>
     </message>
     <message>
         <source>Speed Limit Filler</source>
@@ -3199,11 +3235,11 @@
     </message>
     <message>
         <source>Cancelled...</source>
-        <translation>Скасовано...</translation>
+        <translation type="vanished">Скасовано...</translation>
     </message>
     <message>
         <source>Completed!</source>
-        <translation>Завершено!</translation>
+        <translation type="vanished">Завершено!</translation>
     </message>
     <message>
         <source>Mapbox</source>
@@ -3223,23 +3259,23 @@
     </message>
     <message>
         <source>&lt;b&gt;Automatically collect missing or incorrect speed limits while you drive&lt;/b&gt; using speeds limits sourced from your dashboard (if supported), Mapbox, and "Navigate on openpilot".&lt;br&gt;&lt;br&gt;When you're parked and connected to Wi-Fi, FrogPilot will automatically processes this data into a file to be used with the tool located at "SpeedLimitFiller.frogpilot.download".&lt;br&gt;&lt;br&gt;You can download this file from "The Pond" in the "Download Speed Limits" menu.&lt;br&gt;&lt;br&gt;Need a step-by-step guide? Visit &lt;b&gt;#speed-limit-filler&lt;/b&gt; in the FrogPilot Discord!</source>
-        <translation>&lt;b&gt;Автоматично збирайте відсутні або неправильні обмеження швидкості під час руху&lt;/b&gt; за допомогою обмежень швидкості, отриманих з вашої приладової панелі (якщо це підтримується), Mapbox та «Navigate on openpilot».&lt;br&gt;&lt;br&gt;Коли ви припаркувалися і підключилися до Wi-Fi, FrogPilot автоматично обробляє ці дані у файл, який можна використовувати за допомогою інструменту, розташованого за адресою «SpeedLimitFiller.frogpilot.download». &lt;br&gt;&lt;br&gt;Ви можете завантажити цей файл з «The Pond» у меню «Завантажити обмеження швидкості».&lt;br&gt;&lt;br&gt;Потрібна покрокова інструкція? Відвідайте &lt;b&gt;#speed-limit-filler&lt;/b&gt; у FrogPilot Discord!</translation>
+        <translation type="vanished">&lt;b&gt;Автоматично збирайте відсутні або неправильні обмеження швидкості під час руху&lt;/b&gt; за допомогою обмежень швидкості, отриманих з вашої приладової панелі (якщо це підтримується), Mapbox та «Navigate on openpilot».&lt;br&gt;&lt;br&gt;Коли ви припаркувалися і підключилися до Wi-Fi, FrogPilot автоматично обробляє ці дані у файл, який можна використовувати за допомогою інструменту, розташованого за адресою «SpeedLimitFiller.frogpilot.download». &lt;br&gt;&lt;br&gt;Ви можете завантажити цей файл з «The Pond» у меню «Завантажити обмеження швидкості».&lt;br&gt;&lt;br&gt;Потрібна покрокова інструкція? Відвідайте &lt;b&gt;#speed-limit-filler&lt;/b&gt; у FrogPilot Discord!</translation>
     </message>
     <message>
         <source>Cancel the speed-limit update?</source>
-        <translation>Скасувати оновлення обмежень швидкості?</translation>
+        <translation type="vanished">Скасувати оновлення обмежень швидкості?</translation>
     </message>
     <message>
         <source>You've hit today's request limit.
 
 It will reset in %1 hours and %2 minutes.</source>
-        <translation>Ви досягли сьогоднішнього ліміту запитів.
+        <translation type="vanished">Ви досягли сьогоднішнього ліміту запитів.
 
 Він буде скинутий через %1 годин і %2 хвилин.</translation>
     </message>
     <message>
         <source>This process takes a while. It's recommended to start when you're done driving and connected to stable Wi-Fi. Continue?</source>
-        <translation>Цей процес займає деякий час. Рекомендую робити після завершення поїздки та підключення до стабільного Wi-Fi. Продовжити?</translation>
+        <translation type="vanished">Цей процес займає деякий час. Рекомендую робити після завершення поїздки та підключення до стабільного Wi-Fi. Продовжити?</translation>
     </message>
     <message>
         <source>&lt;b&gt;Manage your "%1".&lt;/b&gt;</source>
@@ -3292,6 +3328,10 @@ It will reset in %1 hours and %2 minutes.</source>
     <message>
         <source>Enter your Secret Mapbox Key</source>
         <translation type="gpt-5-generated">Введіть свій секретний ключ Mapbox</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Automatically collect missing or incorrect speed limits while you drive&lt;/b&gt; using speeds limits sourced from your dashboard (if supported), Mapbox, and "Navigate on openpilot".&lt;br&gt;&lt;br&gt;When you're parked, FrogPilot will automatically process this data into a file to be used with the tool located at "SpeedLimitFiller.frogpilot.com".&lt;br&gt;&lt;br&gt;You can download this file from "The Pond" in the "Download Speed Limits" menu.&lt;br&gt;&lt;br&gt;Need a step-by-step guide? Visit &lt;b&gt;#speed-limit-filler&lt;/b&gt; in the FrogPilot Discord!</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4360,6 +4400,14 @@ Turns OpenPilot Longitudnal Control off for camera ACC cars.</source>
         <translation type="gpt-5-generated">Встановлює швидкість круїзу автомобіля на основі SLC, MTSC, VTSC та CEM.
 
 Вимикає поздовжнє керування OpenPilot для автомобілів з камерною ACC.</translation>
+    </message>
+    <message>
+        <source>DSU Re-Route Harness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Enable openpilot longitudinal control using a DSU re-route harness.&lt;/b&gt; This harness wires the DSU's ACC messages onto the camera CAN bus so openpilot can send its own longitudinal commands. Only enable this after physically installing the harness on your TSS-P vehicle.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

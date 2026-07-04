@@ -106,6 +106,10 @@
         <source>Allow tethering with your data SIM and keep it active either while driving or continuously.</source>
         <translation type="gpt-5-generated">Permite el tethering con tu SIM de datos y mantenlo activo ya sea mientras conduces o de forma continua.</translation>
     </message>
+    <message>
+        <source>Share your device's internet connection with other devices, either all the time or only while driving.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>AnnotatedCameraWidget</name>
@@ -978,6 +982,22 @@
         <source>Time Spent in Weather:</source>
         <translation type="gpt-5-generated">Tiempo en el clima</translation>
     </message>
+    <message>
+        <source>Distance Driven This Month</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time Driving (Daytime)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time Driving (Nighttime)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time Driven (Weather):</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotDevicePanel</name>
@@ -1156,6 +1176,14 @@
     <message>
         <source> seconds</source>
         <translation type="gpt-5-generated"> segundos</translation>
+    </message>
+    <message>
+        <source>Share Driving Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Automatically share anonymized driving data with FrogPilot to help improve it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only driving signals are shared: no video, no GPS or location, no VIN, and no identifiers. Turn this off to opt out.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2626,6 +2654,14 @@
         <source>Invalid key! (Error: %1)</source>
         <translation type="gpt-5-generated">¡Clave inválida! (Error: %1)</translation>
     </message>
+    <message>
+        <source>&lt;b&gt;How gently openpilot slows down.&lt;/b&gt; "Eco" favors coasting, "Eco+" coasts even more and brakes as softly as possible.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Eco+</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotManageControl</name>
@@ -3291,6 +3327,10 @@ Se restablecerá en %1 horas y %2 minutos.</translation>
     <message>
         <source>Enter your Secret Mapbox Key</source>
         <translation type="gpt-5-generated">Introduce tu Secret Mapbox Key</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Automatically collect missing or incorrect speed limits while you drive&lt;/b&gt; using speeds limits sourced from your dashboard (if supported), Mapbox, and "Navigate on openpilot".&lt;br&gt;&lt;br&gt;When you're parked, FrogPilot will automatically process this data into a file to be used with the tool located at "SpeedLimitFiller.frogpilot.com".&lt;br&gt;&lt;br&gt;You can download this file from "The Pond" in the "Download Speed Limits" menu.&lt;br&gt;&lt;br&gt;Need a step-by-step guide? Visit &lt;b&gt;#speed-limit-filler&lt;/b&gt; in the FrogPilot Discord!</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4359,6 +4399,14 @@ Turns OpenPilot Longitudnal Control off for camera ACC cars.</source>
         <translation type="gpt-5-generated">Establece la velocidad de crucero del coche según SLC, MTSC, VTSC y CEM.
 
 Desactiva el control longitudinal de openpilot para coches con ACC por cámara.</translation>
+    </message>
+    <message>
+        <source>DSU Re-Route Harness</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Enable openpilot longitudinal control using a DSU re-route harness.&lt;/b&gt; This harness wires the DSU's ACC messages onto the camera CAN bus so openpilot can send its own longitudinal commands. Only enable this after physically installing the harness on your TSS-P vehicle.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
