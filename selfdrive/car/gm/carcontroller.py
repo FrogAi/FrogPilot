@@ -7,9 +7,9 @@ from openpilot.common.params_pyx import Params
 from opendbc.can.packer import CANPacker
 from openpilot.selfdrive.car import apply_driver_steer_torque_limits, create_gas_interceptor_command
 from openpilot.selfdrive.car.gm import gmcan
-from openpilot.selfdrive.car.gm.values import DBC, CanBus, CarControllerParams, CruiseButtons, GMFlags, CC_ONLY_CAR, SDGM_CAR, EV_CAR
+from openpilot.selfdrive.car.gm.values import DBC, CanBus, CarControllerParams, CruiseButtons, GMFlags, CAMERA_ACC_CAR, CC_ONLY_CAR, SDGM_CAR, EV_CAR
 from openpilot.selfdrive.car.interfaces import CarControllerBase
-from openpilot.selfdrive.controls.lib.drive_helpers import apply_deadzone
+from openpilot.selfdrive.controls.lib.drive_helpers import apply_deadzone, V_CRUISE_MAX
 from openpilot.selfdrive.controls.lib.vehicle_model import ACCELERATION_DUE_TO_GRAVITY
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
@@ -72,7 +72,7 @@ class CarController(CarControllerBase):
     return pedal_gas
 
 
-  def update(self, CC, CS, now_nanos, frogpilot_toggles):
+  def update(self, CC, CS, now_nanos, experimental_mode, v_cruise, frogpilot_toggles):
     actuators = CC.actuators
     accel = brake_accel = actuators.accel
     hud_control = CC.hudControl
@@ -117,7 +117,7 @@ class CarController(CarControllerBase):
       idx = self.lka_steering_cmd_counter % 4
       can_sends.append(gmcan.create_steering_control(self.packer_pt, CanBus.POWERTRAIN, apply_steer, idx, CC.latActive))
 
-    if self.CP.openpilotLongitudinalControl:
+    if self.CP.openpilotLongitudinalControl and not frogpilot_toggles.CSLC:
       # Gas/regen, brakes, and UI commands - all at 25Hz
       if self.frame % 4 == 0:
         stopping = actuators.longControlState == LongCtrlState.stopping
@@ -244,6 +244,15 @@ class CarController(CarControllerBase):
           else:
             can_sends.append(gmcan.create_buttons(self.packer_pt, CanBus.CAMERA, CS.buttons_counter, CruiseButtons.CANCEL))
 
+      # ACC Spam
+      if (self.CP.carFingerprint in SDGM_CAR or self.CP.carFingerprint in CAMERA_ACC_CAR) and frogpilot_toggles.CSLC:
+        bus = CanBus.CAMERA
+        if CC.enabled and self.frame % 3 == 0 and CS.cruise_buttons == CruiseButtons.UNPRESS and not CS.out.gasPressed and not CS.distance_button:
+          slc_set = get_set_speed(self, hud_v_cruise)
+          can_sends.extend(gmcan.create_gm_acc_spam_command(self.packer_pt, self, CS, slc_set, bus, accel, experimental_mode, self.CP.carFingerprint in SDGM_CAR, frogpilot_toggles))
+        elif CC.enabled and self.frame % 51 == 0 and CS.cruise_buttons == CruiseButtons.UNPRESS and CS.out.gasPressed and CS.out.cruiseState.speed < CS.out.vEgo < hud_v_cruise and not CS.distance_button:
+          can_sends.extend([gmcan.create_buttons(self.packer_pt, bus, (CS.buttons_counter + 1) % 4, CruiseButtons.DECEL_SET)] * (25 if self.CP.carFingerprint in SDGM_CAR else 1))
+
     if self.CP.networkLocation == NetworkLocation.fwdCamera:
       # Silence "Take Steering" alert sent by camera, forward PSCMStatus with HandsOffSWlDetectionStatus=1
       if self.frame % 10 == 0:
@@ -259,3 +268,10 @@ class CarController(CarControllerBase):
 
     self.frame += 1
     return new_actuators, can_sends
+
+def get_set_speed(self, hud_v_cruise):
+  v_cruise = min(hud_v_cruise, V_CRUISE_MAX * CV.KPH_TO_MS)
+
+  if v_cruise > 0.:
+    v_cruise = v_cruise
+  return v_cruise

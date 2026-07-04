@@ -602,6 +602,7 @@ class FrogPilotVariables:
     toggle.always_on_lateral_set = bool(CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
     toggle.car_make = CP.carName
     toggle.car_model = CP.carFingerprint
+    toggle.CSLC = params.get_bool("CSLCEnabled")
     toggle.disable_openpilot_long = params.get_bool("DisableOpenpilotLongitudinal") if toggle.tuning_level >= level["DisableOpenpilotLongitudinal"] else default.get_bool("DisableOpenpilotLongitudinal")
     friction = CP.lateralTuning.torque.friction
     has_auto_tune = toggle.car_make in {"hyundai", "toyota"} and CP.lateralTuning.which() == "torque"
@@ -619,7 +620,7 @@ class FrogPilotVariables:
     latAccelFactor = CP.lateralTuning.torque.latAccelFactor
     longitudinalActuatorDelay = CP.longitudinalActuatorDelay
     toggle.openpilot_longitudinal = CP.openpilotLongitudinalControl and not toggle.disable_openpilot_long
-    pcm_cruise = CP.pcmCruise
+    pcm_cruise = CP.pcmCruise and not toggle.CSLC
     startAccel = CP.startAccel
     steerActuatorDelay = CP.steerActuatorDelay
     steerKp = CP.lateralTuning.torque.kp

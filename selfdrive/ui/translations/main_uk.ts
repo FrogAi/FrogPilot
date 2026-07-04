@@ -4349,6 +4349,18 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
         <source>Stop and go for supported Subaru vehicles.</source>
         <translation type="gpt-5-generated">Функція «старт-стоп» для підтримуваних автомобілів Subaru.</translation>
     </message>
+    <message>
+        <source>GM CSLC</source>
+        <translation type="gpt-5-generated">GM CSLC</translation>
+    </message>
+    <message>
+        <source>Set cars cruise speed based on SLC, MTSC, VTSC, &amp; CEM.
+
+Turns OpenPilot Longitudnal Control off for camera ACC cars.</source>
+        <translation type="gpt-5-generated">Встановлює швидкість круїзу автомобіля на основі SLC, MTSC, VTSC та CEM.
+
+Вимикає поздовжнє керування OpenPilot для автомобілів з камерною ACC.</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>

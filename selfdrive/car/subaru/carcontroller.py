@@ -35,7 +35,7 @@ class CarController(CarControllerBase):
     self.sng_acc_resume_cnt = 0
     self.standstill_start = 0
 
-  def update(self, CC, CS, now_nanos, frogpilot_toggles):
+  def update(self, CC, CS, now_nanos, experimental_mode, v_cruise, frogpilot_toggles):
     actuators = CC.actuators
     hud_control = CC.hudControl
     pcm_cancel_cmd = CC.cruiseControl.cancel

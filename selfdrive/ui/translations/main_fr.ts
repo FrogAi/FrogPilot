@@ -4348,6 +4348,18 @@ Développeur – Paramètres hautement personnalisables pour passionnés chevron
         <source>&lt;b&gt;Improves acceleration from a standstill for a more responsive throttle feel in city driving.&lt;/b&gt;</source>
         <translation type="gpt-5-generated">&lt;b&gt;Améliore l’accélération au départ arrêté pour une réponse d’accélérateur plus réactive en conduite urbaine.&lt;/b&gt;</translation>
     </message>
+    <message>
+        <source>GM CSLC</source>
+        <translation type="gpt-5-generated">GM CSLC</translation>
+    </message>
+    <message>
+        <source>Set cars cruise speed based on SLC, MTSC, VTSC, &amp; CEM.
+
+Turns OpenPilot Longitudnal Control off for camera ACC cars.</source>
+        <translation type="gpt-5-generated">Régler la vitesse de croisière des voitures selon SLC, MTSC, VTSC et CEM.
+
+Désactive le contrôle longitudinal d’openpilot pour les voitures avec ACC caméra.</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>

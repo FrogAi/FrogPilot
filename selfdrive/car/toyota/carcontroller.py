@@ -94,7 +94,7 @@ class CarController(CarControllerBase):
     # FrogPilot variables
     self.doors_locked = False
 
-  def update(self, CC, CS, now_nanos, frogpilot_toggles):
+  def update(self, CC, CS, now_nanos, experimental_mode, v_cruise, frogpilot_toggles):
     actuators = CC.actuators
     stopping = actuators.longControlState == LongCtrlState.stopping
     hud_control = CC.hudControl

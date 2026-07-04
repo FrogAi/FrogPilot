@@ -4348,6 +4348,18 @@ Geliştirici - Tecrübeli meraklılar için yüksek özelleştirilebilir ayarlar
         <source>&lt;b&gt;Improves acceleration from a standstill for a more responsive throttle feel in city driving.&lt;/b&gt;</source>
         <translation type="gpt-5-generated">&lt;b&gt;Şehir içi sürüşte daha duyarlı bir gaz tepkisi için duruştan kalkışta ivmeyi artırır.&lt;/b&gt;</translation>
     </message>
+    <message>
+        <source>GM CSLC</source>
+        <translation type="gpt-5-generated">GM CSLC</translation>
+    </message>
+    <message>
+        <source>Set cars cruise speed based on SLC, MTSC, VTSC, &amp; CEM.
+
+Turns OpenPilot Longitudnal Control off for camera ACC cars.</source>
+        <translation type="gpt-5-generated">SLC, MTSC, VTSC ve CEM’e göre aracın seyir hızını ayarlayın.
+
+Kamera ACC’li araçlar için openpilot Uzunlamasına Kontrolü kapatır.</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>

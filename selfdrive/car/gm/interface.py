@@ -126,10 +126,19 @@ class CarInterface(CarInterfaceBase):
       ret.vEgoStopping = 0.25
       ret.vEgoStarting = 0.25
 
-      if ret.experimentalLongitudinalAvailable and experimental_long:
+      if ret.experimentalLongitudinalAvailable and experimental_long and not frogpilot_toggles.CSLC:
         ret.pcmCruise = False
         ret.openpilotLongitudinalControl = True
         ret.safetyConfigs[0].safetyParam |= Panda.FLAG_GM_HW_CAM_LONG
+
+      if frogpilot_toggles.CSLC:
+        # Used for CEM with CSLC
+        ret.openpilotLongitudinalControl = True
+        ret.stoppingDecelRate = 3.25  # == 8.33 mph/s (OFF + ON = 12 frames)
+        ret.longitudinalActuatorDelay = 1.
+
+        ret.longitudinalTuning.kiBP = [0.]
+        ret.longitudinalTuning.kiV = [0.]
 
     elif candidate in SDGM_CAR:
       ret.longitudinalTuning.kiV = [0., 0.]  # TODO: tuning
@@ -140,6 +149,14 @@ class CarInterface(CarInterfaceBase):
       ret.minEnableSpeed = -1.  # engage speed is decided by ASCM
       ret.minSteerSpeed = 30 * CV.MPH_TO_MS
       ret.safetyConfigs[0].safetyParam |= Panda.FLAG_GM_HW_SDGM
+
+      # Used for CEM with CSLC
+      ret.openpilotLongitudinalControl = frogpilot_toggles.CSLC
+      ret.stoppingDecelRate = 7.45  # == 16.67 mph/s (OFF + ON = 30 frames)
+      ret.longitudinalActuatorDelay = 1.
+
+      ret.longitudinalTuning.kiBP = [0.]
+      ret.longitudinalTuning.kiV = [0.]
 
     else:  # ASCM, OBD-II harness
       ret.openpilotLongitudinalControl = not frogpilot_toggles.disable_openpilot_long
@@ -311,6 +328,9 @@ class CarInterface(CarInterfaceBase):
 
     if ACCELERATOR_POS_MSG not in fingerprint[CanBus.POWERTRAIN]:
       ret.flags |= GMFlags.NO_ACCELERATOR_POS_MSG.value
+
+    if frogpilot_toggles.CSLC:
+      ret.safetyConfigs[0].safetyParam |= Panda.FLAG_GM_CSLC
 
     return ret
 

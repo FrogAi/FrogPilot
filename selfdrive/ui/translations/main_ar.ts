@@ -4349,6 +4349,18 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
         <source>&lt;b&gt;Improves acceleration from a standstill for a more responsive throttle feel in city driving.&lt;/b&gt;</source>
         <translation type="gpt-5-generated">&lt;b&gt;يحسن التسارع من التوقف التام لمنح دواسة الوقود استجابة أكثر في القيادة داخل المدينة.&lt;/b&gt;</translation>
     </message>
+    <message>
+        <source>GM CSLC</source>
+        <translation type="gpt-5-generated">GM CSLC</translation>
+    </message>
+    <message>
+        <source>Set cars cruise speed based on SLC, MTSC, VTSC, &amp; CEM.
+
+Turns OpenPilot Longitudnal Control off for camera ACC cars.</source>
+        <translation type="gpt-5-generated">حدد سرعة تثبيت السيارة بناءً على SLC وMTSC وVTSC وCEM.
+
+يعطّل التحكم الطولي في openpilot لسيارات الكاميرا ACC.</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>

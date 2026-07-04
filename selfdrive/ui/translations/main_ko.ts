@@ -4348,6 +4348,18 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
         <source>&lt;b&gt;Improves acceleration from a standstill for a more responsive throttle feel in city driving.&lt;/b&gt;</source>
         <translation type="gpt-5-generated">&lt;b&gt;도심 주행에서 더 민첩한 스로틀 감각을 위해 정지 상태에서의 가속을 향상합니다.&lt;/b&gt;</translation>
     </message>
+    <message>
+        <source>GM CSLC</source>
+        <translation type="gpt-5-generated">GM CSLC</translation>
+    </message>
+    <message>
+        <source>Set cars cruise speed based on SLC, MTSC, VTSC, &amp; CEM.
+
+Turns OpenPilot Longitudnal Control off for camera ACC cars.</source>
+        <translation type="gpt-5-generated">SLC, MTSC, VTSC 및 CEM을 기반으로 차량 크루즈 속도를 설정합니다.
+
+카메라 ACC 차량에서 OpenPilot 종방향 제어를 끕니다.</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>

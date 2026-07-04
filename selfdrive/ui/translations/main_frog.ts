@@ -4349,6 +4349,18 @@ Developer - Highly customizable settings for seasoned swamp pros</translation>
         <source>&lt;b&gt;Improves acceleration from a standstill for a more responsive throttle feel in city driving.&lt;/b&gt;</source>
         <translation type="gpt-5-generated">&lt;b&gt;Ribbit! Speeds up from a stop, for snappier throttle feel in city hops. Croak.&lt;/b&gt;</translation>
     </message>
+    <message>
+        <source>GM CSLC</source>
+        <translation type="gpt-5-generated">Ribbit GM CSLC, croak!</translation>
+    </message>
+    <message>
+        <source>Set cars cruise speed based on SLC, MTSC, VTSC, &amp; CEM.
+
+Turns OpenPilot Longitudnal Control off for camera ACC cars.</source>
+        <translation type="gpt-5-generated">Ribbit! Set car’s cruise speed by SLC, MTSC, VTSC, &amp; CEM.
+
+Croak! Turns openpilot Longitudnal Control off for camera ACC cars.</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>

@@ -4349,6 +4349,18 @@ Desenvolvedor - Configurações altamente personalizáveis para entusiastas expe
         <source>&lt;b&gt;Improves acceleration from a standstill for a more responsive throttle feel in city driving.&lt;/b&gt;</source>
         <translation type="gpt-5-generated">&lt;b&gt;Melhora a aceleração a partir da imobilidade para uma resposta do acelerador mais ágil na condução urbana.&lt;/b&gt;</translation>
     </message>
+    <message>
+        <source>GM CSLC</source>
+        <translation type="gpt-5-generated">GM CSLC</translation>
+    </message>
+    <message>
+        <source>Set cars cruise speed based on SLC, MTSC, VTSC, &amp; CEM.
+
+Turns OpenPilot Longitudnal Control off for camera ACC cars.</source>
+        <translation type="gpt-5-generated">Defina a velocidade de cruzeiro do carro com base em SLC, MTSC, VTSC e CEM.
+
+Desativa o Controle Longitudinal do openpilot para carros com ACC por câmera.</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>

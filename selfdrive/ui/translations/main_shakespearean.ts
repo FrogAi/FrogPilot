@@ -4362,6 +4362,18 @@ Developer - Most customizable settings for well-tried enthusiasts</translation>
         <source>&lt;b&gt;Improves acceleration from a standstill for a more responsive throttle feel in city driving.&lt;/b&gt;</source>
         <translation type="gpt-5-generated">&lt;b&gt;From a dead stand, it doth quicken thy steed, lending the throttle a sprightlier feel in city travel.&lt;/b&gt;</translation>
     </message>
+    <message>
+        <source>GM CSLC</source>
+        <translation type="gpt-5-generated">GM CSLC</translation>
+    </message>
+    <message>
+        <source>Set cars cruise speed based on SLC, MTSC, VTSC, &amp; CEM.
+
+Turns OpenPilot Longitudnal Control off for camera ACC cars.</source>
+        <translation type="gpt-5-generated">Set the carriage’s cruise speed by SLC, MTSC, VTSC, &amp; CEM.
+
+Turneth OpenPilot Longitudnal Control off for camera ACC carriages.</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>

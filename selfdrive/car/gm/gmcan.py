@@ -13,12 +13,44 @@ def create_buttons(packer, bus, idx, button):
     "RollingCounter": idx,
     "ACCAlwaysOne": 1,
     "DistanceButton": 0,
+    "ACCByFive": 0,
   }
 
   checksum = 240 + int(values["ACCAlwaysOne"] * 0xf)
   checksum += values["RollingCounter"] * (0x4ef if values["ACCAlwaysOne"] != 0 else 0x3f0)
   checksum -= int(values["ACCButtons"] - 1) << 4  # not correct if value is 0
   checksum -= 2 * values["DistanceButton"]
+
+  values["SteeringButtonChecksum"] = checksum
+  return packer.make_can_msg("ASCMSteeringButton", bus, values)
+
+def create_buttons_five(packer, bus, idx, button, byfive):
+  if byfive and button == CruiseButtons.RES_ACCEL:
+    accbyfive = 2
+    ACCAlwaysOne = 1
+    checkoffset = -4
+  elif byfive and button == CruiseButtons.DECEL_SET:
+    accbyfive = 3
+    ACCAlwaysOne = 0
+    checkoffset = 255*idx+10
+  else:
+    accbyfive = 0
+    ACCAlwaysOne = 1
+    checkoffset = 0
+
+  values = {
+    "ACCButtons": button,
+    "RollingCounter": idx,
+    "ACCAlwaysOne": ACCAlwaysOne,
+    "DistanceButton": 0,
+    "ACCByFive": accbyfive,
+  }
+
+  checksum = 240 + int(values["ACCAlwaysOne"] * 0xf)
+  checksum += values["RollingCounter"] * (0x4ef if values["ACCAlwaysOne"] != 0 else 0x3f0)
+  checksum -= int(values["ACCButtons"] - 1) << 4  # not correct if value is 0
+  checksum -= 2 * values["DistanceButton"]
+  checksum += checkoffset
 
   values["SteeringButtonChecksum"] = checksum
   return packer.make_can_msg("ASCMSteeringButton", bus, values)
@@ -220,5 +252,46 @@ def create_gm_cc_spam_command(packer, controller, CS, actuators):
     controller.last_button_frame = controller.frame
     idx = (CS.buttons_counter + 1) % 4  # Need to predict the next idx for '22-23 EUV
     return [create_buttons(packer, CanBus.POWERTRAIN, idx, cruiseBtn)]
+  else:
+    return []
+
+def create_gm_acc_spam_command(packer, controller, CS, slc_set, bus, accel, experimental_mode, sdgm, frogpilot_toggles):
+  cruiseBtn = CruiseButtons.INIT
+  byfive = 0
+
+  MS_CONVERT = CV.MS_TO_KPH if frogpilot_toggles.is_metric else CV.MS_TO_MPH
+
+  speedSetPoint = int(round(CS.out.cruiseState.speed * MS_CONVERT))
+  slc_set = int(round(slc_set * MS_CONVERT))
+
+  FRAMES_ON = 6
+  FRAMES_OFF = (30 if sdgm else 12) - FRAMES_ON
+
+  if not experimental_mode:
+    if slc_set + 5 < CS.out.vEgo * MS_CONVERT:
+      slc_set = slc_set - 10 # 10 lower to increase deceleration until with 5
+  else:
+    slc_set = int(round((CS.out.vEgo * 1.01 + 4.6 * accel + 0.7 * accel ** 3 - 1 / 35 * accel ** 5) * MS_CONVERT)) # 1.01 factor to match cluster speed better
+
+  if slc_set <= int(math.floor((speedSetPoint - 1)/5.0)*5.0) and speedSetPoint > (25 if frogpilot_toggles.is_metric else 20) and sdgm:
+    cruiseBtn = CruiseButtons.DECEL_SET
+    byfive = 1
+  elif slc_set >= int(math.ceil((speedSetPoint + 1)/5.0)*5.0) and sdgm:
+    cruiseBtn = CruiseButtons.RES_ACCEL
+    byfive = 1
+  elif slc_set < speedSetPoint and speedSetPoint > (25 if frogpilot_toggles.is_metric else 16):
+    cruiseBtn = CruiseButtons.DECEL_SET
+    byfive = 0
+  elif slc_set > speedSetPoint:
+    cruiseBtn = CruiseButtons.RES_ACCEL
+    byfive = 0
+  else:
+    cruiseBtn = CruiseButtons.INIT
+    byfive = 0
+
+  if (cruiseBtn != CruiseButtons.INIT) and controller.frame % (FRAMES_ON + FRAMES_OFF) < FRAMES_ON:
+    controller.last_button_frame = controller.frame
+    idx = (CS.buttons_counter + (1 if sdgm else 2)) % 4
+    return [create_buttons_five(packer, bus, idx, cruiseBtn, byfive)]*(23 if sdgm else 3)
   else:
     return []
