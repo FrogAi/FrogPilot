@@ -26,7 +26,7 @@ QString getVersion() {
 }
 
 QString getBrand() {
-  return QObject::tr("openpilot");
+  return QObject::tr("FrogPilot");
 }
 
 QString getUserAgent() {
@@ -89,6 +89,8 @@ void setQtSurfaceFormat() {
 #endif
   fmt.setSamples(16);
   fmt.setStencilBufferSize(1);
+  // swap interval 0: a vsync-throttled swap blocks forever if weston (1.9, no pageflip-timeout) drops a pageflip and never releases the buffer, hanging the UI until the watchdog kills it
+  fmt.setSwapInterval(0);
   QSurfaceFormat::setDefaultFormat(fmt);
 }
 
@@ -247,9 +249,10 @@ QPixmap bootstrapPixmap(const QString &id) {
 bool hasLongitudinalControl(const cereal::CarParams::Reader &car_params) {
   // Using the experimental longitudinal toggle, returns whether longitudinal control
   // will be active without needing a restart of openpilot
-  return car_params.getExperimentalLongitudinalAvailable()
-             ? Params().getBool("ExperimentalLongitudinalEnabled")
-             : car_params.getOpenpilotLongitudinalControl();
+  Params params = Params();
+  return (car_params.getExperimentalLongitudinalAvailable()
+             ? params.getBool("ExperimentalLongitudinalEnabled")
+             : car_params.getOpenpilotLongitudinalControl()) && !params.getBool("DisableOpenpilotLongitudinal");
 }
 
 // ParamWatcher

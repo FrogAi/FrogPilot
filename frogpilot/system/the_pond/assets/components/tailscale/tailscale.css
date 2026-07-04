@@ -1,0 +1,88 @@
+.tailscale-button {
+  background-color: var(--input-bg);
+  border: none;
+  border-radius: var(--border-radius-lg);
+  box-sizing: border-box;
+  color: var(--text-color);
+  font-family: var(--font-body);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-demi-bold);
+  padding: var(--border-radius-xl);
+  text-align: center;
+  text-decoration: none;
+  transition: background-color var(--transition-fast), box-shadow var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+  width: 100%;
+}
+
+.tailscale-button + .tailscale-button {
+  margin-top: var(--padding-sm);
+}
+
+.tailscale-button:disabled {
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: var(--disabled-opacity);
+  transform: none;
+}
+
+.tailscale-button:hover:not(:disabled) {
+  box-shadow: var(--shadow-md);
+  transform: var(--hover-scale-sm);
+}
+
+.tailscale-button:focus-visible {
+  box-shadow: var(--shadow-md);
+  outline: 2px solid var(--focus-ring-color);
+  outline-offset: 2px;
+}
+.tailscale-button-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.tailscale-link {
+  color: var(--text-color);
+  display: block;
+  font-size: var(--font-size-sm);
+  margin-top: var(--padding-sm);
+  text-align: center;
+  text-decoration: underline;
+}
+
+.tailscale-text {
+  color: var(--text-color);
+  text-align: center;
+}
+
+.tailscale-title {
+  background-color: var(--input-bg);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
+  color: var(--text-color);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  padding: var(--padding-sm);
+  text-align: center;
+  width: 100%;
+}
+
+.tailscale-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.tailscale-widget {
+  align-items: center;
+  background-color: var(--secondary-bg);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  color: var(--main-fg);
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--padding-xl);
+  max-width: var(--width-lg);
+  padding: var(--padding-lg);
+  transform-origin: top center;
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+}

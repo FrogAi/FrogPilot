@@ -1,0 +1,104 @@
+name: "Update MAKE-PRS-HERE"
+run-name: "Update MAKE-PRS-HERE"
+
+on:
+  push:
+    branches:
+      - FrogPilot-Testing
+
+permissions:
+  contents: write
+
+env:
+  SOURCE_BRANCH: FrogPilot-Testing
+  TARGET_BRANCH: ${{ vars.BRANCH_PR_TARGET || 'MAKE-PRS-HERE' }}
+  TZ: America/Phoenix
+
+concurrency:
+  group: update-make-prs-here
+
+jobs:
+  update_branch:
+    name: "Sync PR branch from the latest non-compiled source commit"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: "Checkout source branch"
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          ref: ${{ env.SOURCE_BRANCH }}
+
+      - name: "Configure git identity"
+        run: |
+          if [[ -z "${{ vars.GIT_NAME }}" || -z "${{ vars.GIT_EMAIL }}" ]]; then
+            echo "Repository variables GIT_NAME and GIT_EMAIL must be set."
+            exit 1
+          fi
+
+          git config user.name "${{ vars.GIT_NAME }}"
+          git config user.email "${{ vars.GIT_EMAIL }}"
+
+      - id: source
+        name: "Resolve source commit"
+        run: |
+          set -u
+
+          source_commit=HEAD
+          while [[ "$(git log -1 --format=%s "$source_commit")" == "Compile FrogPilot" ]]; do
+            if ! git rev-parse "${source_commit}^" >/dev/null 2>&1; then
+              echo "Unable to resolve a non-compiled source commit."
+              exit 1
+            fi
+
+            source_commit="${source_commit}^"
+          done
+
+          echo "source_commit=$(git rev-parse "$source_commit")" >> "$GITHUB_OUTPUT"
+
+      - name: "Checkout target branch"
+        run: |
+          git fetch origin "$TARGET_BRANCH"
+          git switch -C "$TARGET_BRANCH" "origin/$TARGET_BRANCH"
+
+      - name: "Sync files from source to target"
+        run: |
+          git rm -r --ignore-unmatch .
+          git clean -ffdx
+
+          git checkout "${{ steps.source.outputs.source_commit }}" -- .
+
+          rm -f ".github/update_date"
+          git add --all
+
+      - name: "Commit and push branch update"
+        run: |
+          set -u
+
+          if git diff --cached --quiet; then
+            echo "Working tree is clean. No changes to commit."
+            exit 0
+          fi
+
+          day=$(TZ="$TZ" date +%-d)
+          case "$day" in
+            1|21|31) suffix="st" ;;
+            2|22) suffix="nd" ;;
+            3|23) suffix="rd" ;;
+            *)      suffix="th" ;;
+          esac
+
+          month=$(TZ="$TZ" date +%B)
+          year=$(TZ="$TZ" date +%Y)
+          commit_message="${month} ${day}${suffix}, ${year} Update"
+
+          if [[ "$(git log -1 --pretty=%s)" == "$commit_message" ]]; then
+            git commit --amend --no-edit
+          else
+            git commit -m "$commit_message"
+          fi
+
+          git push --force-with-lease origin "HEAD:refs/heads/$TARGET_BRANCH"

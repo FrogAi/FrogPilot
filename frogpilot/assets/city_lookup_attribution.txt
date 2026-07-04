@@ -1,0 +1,7 @@
+The bundled city_lookup.sqlite database is derived from GeoNames cities500,
+admin1CodesASCII, and countryInfo data.
+
+Source: https://www.geonames.org/
+Downloads: https://download.geonames.org/export/dump/
+License: Creative Commons Attribution 4.0 License
+License URL: https://creativecommons.org/licenses/by/4.0/

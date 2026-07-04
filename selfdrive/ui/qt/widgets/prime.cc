@@ -36,7 +36,7 @@ void PairingQRWidget::hideEvent(QHideEvent *event) {
 
 void PairingQRWidget::refresh() {
   QString pairToken = CommaApi::create_jwt({{"pair", true}});
-  QString qrString = "https://connect.comma.ai/?pair=" + pairToken;
+  QString qrString = (useKonikServer() ? "https://stable.konik.ai/?pair=" : "https://connect.comma.ai/?pair=") + pairToken;
   this->updateQrCode(qrString);
   update();
 }
@@ -89,10 +89,12 @@ PairingPopup::PairingPopup(QWidget *parent) : DialogBase(parent) {
 
     vlayout->addSpacing(30);
 
-    QLabel *title = new QLabel(tr("Pair your device to your comma account"), this);
+    QLabel *title = new QLabel(tr("Pair your device to your %1 account").arg(useKonikServer() ? "Konik" : "comma"), this);
     title->setStyleSheet("font-size: 75px; color: black;");
     title->setWordWrap(true);
     vlayout->addWidget(title);
+
+    QString serverUrl = useKonikServer() ? "stable.konik.ai" : "connect.comma.ai";
 
     QLabel *instructions = new QLabel(QString(R"(
       <ol type='1' style='margin-left: 15px;'>
@@ -100,9 +102,9 @@ PairingPopup::PairingPopup(QWidget *parent) : DialogBase(parent) {
         <li style='margin-bottom: 50px;'>%2</li>
         <li style='margin-bottom: 50px;'>%3</li>
       </ol>
-    )").arg(tr("Go to https://connect.comma.ai on your phone"))
+    )").arg(tr("Go to https://%1 on your phone").arg(serverUrl))
     .arg(tr("Click \"add new device\" and scan the QR code on the right"))
-    .arg(tr("Bookmark connect.comma.ai to your home screen to use it like an app")), this);
+    .arg(tr("Bookmark %1 to your home screen to use it like an app").arg(serverUrl)), this);
 
     instructions->setStyleSheet("font-size: 47px; font-weight: bold; color: black;");
     instructions->setWordWrap(true);
@@ -188,7 +190,7 @@ SetupWidget::SetupWidget(QWidget* parent) : QFrame(parent) {
   registrationTitle->setStyleSheet("font-size: 75px; font-weight: bold;");
   finishRegistationLayout->addWidget(registrationTitle);
 
-  QLabel* registrationDescription = new QLabel(tr("Pair your device with comma connect (connect.comma.ai) and claim your comma prime offer."));
+  QLabel* registrationDescription = new QLabel(useKonikServer() ? tr("Pair your device with Konik connect (stable.konik.ai).") : tr("Pair your device with comma connect (connect.comma.ai) and claim your comma prime offer."));
   registrationDescription->setWordWrap(true);
   registrationDescription->setStyleSheet("font-size: 50px; font-weight: light;");
   finishRegistationLayout->addWidget(registrationDescription);

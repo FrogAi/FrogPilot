@@ -37,7 +37,7 @@ class CarController(CarControllerBase):
     self.steer_alert_last = False
     self.lead_distance_bars_last = None
 
-  def update(self, CC, CS, now_nanos):
+  def update(self, CC, CS, now_nanos, frogpilot_toggles):
     can_sends = []
 
     actuators = CC.actuators
@@ -69,15 +69,21 @@ class CarController(CarControllerBase):
       else:
         apply_curvature = 0.
 
+      if CS.out.steeringPressed and abs(CS.out.steeringAngleDeg) > 60:
+        apply_curvature = 0
+        ramp_type = 3
+      else:
+        ramp_type = 0
+
       self.apply_curvature_last = apply_curvature
 
       if self.CP.flags & FordFlags.CANFD:
         # TODO: extended mode
         mode = 1 if CC.latActive else 0
         counter = (self.frame // CarControllerParams.STEER_STEP) % 0x10
-        can_sends.append(fordcan.create_lat_ctl2_msg(self.packer, self.CAN, mode, 0., 0., -apply_curvature, 0., counter))
+        can_sends.append(fordcan.create_lat_ctl2_msg(self.packer, self.CAN, mode, ramp_type, 0., 0., -apply_curvature, 0., counter))
       else:
-        can_sends.append(fordcan.create_lat_ctl_msg(self.packer, self.CAN, CC.latActive, 0., 0., -apply_curvature, 0.))
+        can_sends.append(fordcan.create_lat_ctl_msg(self.packer, self.CAN, ramp_type, CC.latActive, 0., 0., -apply_curvature, 0.))
 
     # send lka msg at 33Hz
     if (self.frame % CarControllerParams.LKA_STEP) == 0:

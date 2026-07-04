@@ -84,6 +84,7 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     startup @75;
     startupNoCar @76;
     startupNoControl @77;
+    startupNoSecOcKey @121;
     startupMaster @78;
     startupNoFw @104;
     fcw @79;
@@ -116,9 +117,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     paramsdTemporaryError @50;
     paramsdPermanentError @119;
     actuatorsApiUnavailable @120;
-
-    # FrogPilot Events
-    pedalInterceptorNoBrake @134;
 
     radarCanErrorDEPRECATED @15;
     communityFeatureDisallowedDEPRECATED @62;
@@ -493,8 +491,7 @@ struct CarParams {
   startingState @70 :Bool; # Does this car make use of special starting state
 
   steerActuatorDelay @36 :Float32; # Steering wheel actuator delay in seconds
-  longitudinalActuatorDelayLowerBound @61 :Float32; # Gas/Brake actuator delay in seconds, lower bound
-  longitudinalActuatorDelayUpperBound @58 :Float32; # Gas/Brake actuator delay in seconds, upper bound
+  longitudinalActuatorDelay @58 :Float32; # Gas/Brake actuator delay in seconds
   openpilotLongitudinalControl @37 :Bool; # is openpilot doing the longitudinal control?
   carVin @38 :Text; # VIN number queried during fingerprinting
   dashcamOnly @41: Bool;
@@ -507,6 +504,9 @@ struct CarParams {
   networkLocation @50 :NetworkLocation;  # Where Panda/C2 is integrated into the car's CAN network
 
   wheelSpeedFactor @63 :Float32; # Multiplier on wheels speeds to computer actual speeds
+
+  secOcRequired @74 :Bool;  # Car requires SecOC message authentication to operate
+  secOcKeyAvailable @75 :Bool;  # Stored SecOC key loaded from params
 
   struct SafetyConfig {
     safetyModel @0 :SafetyModel;
@@ -532,11 +532,12 @@ struct CarParams {
     useSteeringAngle @0 :Bool;
     kp @1 :Float32;
     ki @2 :Float32;
+    kd @8 : Float32;
     friction @3 :Float32;
-    kf @4 :Float32;
     steeringAngleDeadzoneDeg @5 :Float32;
     latAccelFactor @6 :Float32;
     latAccelOffset @7 :Float32;
+    kfDEPRECATED @4 :Float32;
   }
 
   struct LongitudinalPIDTuning {
@@ -544,7 +545,7 @@ struct CarParams {
     kpV @1 :List(Float32);
     kiBP @2 :List(Float32);
     kiV @3 :List(Float32);
-    kf @6 :Float32;
+    kfDEPRECATED @6 :Float32;
     deadzoneBP @4 :List(Float32);
     deadzoneV @5 :List(Float32);
   }
@@ -706,4 +707,5 @@ struct CarParams {
   brakeMaxVDEPRECATED @16 :List(Float32);
   directAccelControlDEPRECATED @30 :Bool;
   maxSteeringAngleDegDEPRECATED @54 :Float32;
+  longitudinalActuatorDelayLowerBoundDEPRECATEDDEPRECATED @61 :Float32;
 }

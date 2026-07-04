@@ -1,0 +1,92 @@
+.disk .bar {
+  background-color: var(--main-bg);
+  height: 100%;
+  position: absolute;
+  right: 0;
+}
+
+.disk .progress {
+  background: linear-gradient(to right, green 0%, yellow 80%, orange 90%, red 100%);
+  border-radius: var(--border-radius-md);
+  height: var(--padding-base);
+  overflow: hidden;
+  position: relative;
+}
+
+.diskUsage,
+.drivingStats,
+.softwareInfo {
+  background-color: var(--secondary-bg);
+  border-radius: var(--border-radius-md);
+  color: var(--text-color);
+  max-width: 80%;
+  padding: var(--border-radius-xl);
+}
+
+.diskUsage .disk h4,
+.diskUsage .disk p,
+.drivingStat div p {
+  margin: 0;
+}
+
+.diskUsage p,
+.softwareGrid p {
+  font-size: var(--font-size-sm);
+  margin: 0;
+}
+
+.drivingStat {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  margin-bottom: var(--border-radius-xl);
+}
+
+.drivingStat div {
+  min-width: 0;
+}
+
+.drivingStat div p:first-of-type {
+  font-size: var(--font-size-xl);
+}
+
+.drivingStat h2 {
+  font-size: var(--font-size-base);
+  grid-column: span 3;
+  padding: 0;
+}
+
+.drivingStat:last-of-type h2 {
+  color: var(--success-text);
+}
+
+.error {
+  color: var(--danger-text);
+  font-weight: var(--font-weight-bold);
+}
+
+.softwareGrid {
+  display: grid;
+  gap: 0.5em 1em;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.softwareGrid p {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+@media only screen and (max-width: 768px) {
+  .drivingStat {
+    grid-template-columns: 1fr;
+  }
+
+  .drivingStat div p:first-of-type {
+    font-size: var(--font-size-base);
+  }
+
+  .softwareGrid {
+    display: grid;
+    gap: 0.5em 1em;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  }
+}

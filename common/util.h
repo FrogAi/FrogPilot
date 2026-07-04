@@ -36,6 +36,9 @@ const double MS_TO_KPH = 3.6;
 const double MS_TO_MPH = MS_TO_KPH * KM_TO_MILE;
 const double METER_TO_MILE = KM_TO_MILE / 1000.0;
 const double METER_TO_FOOT = 3.28084;
+const double FOOT_TO_METER = 1. / METER_TO_FOOT;
+const double CM_TO_INCH = 1. / 2.54;
+const double INCH_TO_CM = 1. / CM_TO_INCH;
 
 namespace util {
 
@@ -92,6 +95,8 @@ bool file_exists(const std::string& fn);
 bool create_directories(const std::string &dir, mode_t mode);
 
 std::string check_output(const std::string& command);
+
+bool system_time_valid();
 
 inline void sleep_for(const int milliseconds) {
   if (milliseconds > 0) {

@@ -1,0 +1,44 @@
+{
+  "LaneLines": {
+    "red": 40,
+    "green": 185,
+    "blue": 170,
+    "alpha": 255
+  },
+  "LeadMarker": {
+    "red": 40,
+    "green": 185,
+    "blue": 170,
+    "alpha": 255
+  },
+  "Path": {
+    "red": 40,
+    "green": 185,
+    "blue": 170,
+    "alpha": 255
+  },
+  "PathEdge": {
+    "red": 32,
+    "green": 148,
+    "blue": 136,
+    "alpha": 255
+  },
+  "Sidebar1": {
+    "red": 40,
+    "green": 185,
+    "blue": 170,
+    "alpha": 255
+  },
+  "Sidebar2": {
+    "red": 237,
+    "green": 118,
+    "blue": 50,
+    "alpha": 255
+  },
+  "Sidebar3": {
+    "red": 203,
+    "green": 247,
+    "blue": 18,
+    "alpha": 255
+  }
+}

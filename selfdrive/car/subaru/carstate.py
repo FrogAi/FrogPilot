@@ -1,5 +1,5 @@
 import copy
-from cereal import car
+from cereal import car, custom
 from opendbc.can.can_define import CANDefine
 from openpilot.common.conversions import Conversions as CV
 from openpilot.selfdrive.car.interfaces import CarStateBase
@@ -9,15 +9,16 @@ from openpilot.selfdrive.car import CanSignalRateCalculator
 
 
 class CarState(CarStateBase):
-  def __init__(self, CP):
-    super().__init__(CP)
+  def __init__(self, CP, FPCP):
+    super().__init__(CP, FPCP)
     can_define = CANDefine(DBC[CP.carFingerprint]["pt"])
     self.shifter_values = can_define.dv["Transmission"]["Gear"]
 
     self.angle_rate_calulator = CanSignalRateCalculator(50)
 
-  def update(self, cp, cp_cam, cp_body):
+  def update(self, cp, cp_cam, cp_body, frogpilot_toggles):
     ret = car.CarState.new_message()
+    fp_ret = custom.FrogPilotCarState.new_message()
 
     throttle_msg = cp.vl["Throttle"] if not (self.CP.flags & SubaruFlags.HYBRID) else cp_body.vl["Throttle_Hybrid"]
     ret.gas = throttle_msg["Throttle_Pedal"] / 255.
@@ -118,14 +119,31 @@ class CarState(CarStateBase):
         self.es_status_msg = copy.copy(cp_es_status.vl["ES_Status"])
         self.cruise_control_msg = copy.copy(cp_cruise.vl["CruiseControl"])
 
+      if frogpilot_toggles.subaru_sng:
+        self.brake_pedal_msg = copy.copy(cp.vl["Brake_Pedal"])
+        self.cruise_state = cp_cam.vl["ES_DashStatus"]["Cruise_State"]
+
     if not (self.CP.flags & SubaruFlags.HYBRID):
       self.es_distance_msg = copy.copy(cp_es_distance.vl["ES_Distance"])
+
+      if frogpilot_toggles.subaru_sng:
+        self.car_follow = cp_es_distance.vl["ES_Distance"]["Car_Follow"]
+        self.close_distance = cp_es_distance.vl["ES_Distance"]["Close_Distance"]
+        self.throttle_msg = copy.copy(cp.vl["Throttle"])
 
     self.es_dashstatus_msg = copy.copy(cp_cam.vl["ES_DashStatus"])
     if self.CP.flags & SubaruFlags.SEND_INFOTAINMENT:
       self.es_infotainment_msg = copy.copy(cp_cam.vl["ES_Infotainment"])
 
-    return ret
+    # FrogPilot CarState functions
+    self.lkas_previously_enabled = self.lkas_enabled
+    if self.CP.flags & SubaruFlags.PREGLOBAL:
+      fp_ret.brakeLights = bool(cp_cam.vl["ES_Brake"]["Cruise_Brake_Lights"])
+    else:
+      fp_ret.brakeLights = bool(cp_cam.vl["ES_DashStatus"]["Brake_Lights"])
+      self.lkas_enabled = self.es_lkas_state_msg.get("LKAS_Dash_State")
+
+    return ret, fp_ret
 
   @staticmethod
   def get_common_global_body_messages(CP):
@@ -164,7 +182,7 @@ class CarState(CarStateBase):
     return messages
 
   @staticmethod
-  def get_can_parser(CP):
+  def get_can_parser(CP, FPCP):
     messages = [
       # sig_address, frequency
       ("Dashlights", 10),
@@ -191,11 +209,12 @@ class CarState(CarStateBase):
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, CanBus.main)
 
   @staticmethod
-  def get_cam_can_parser(CP):
+  def get_cam_can_parser(CP, FPCP):
     if CP.flags & SubaruFlags.PREGLOBAL:
       messages = [
         ("ES_DashStatus", 20),
         ("ES_Distance", 20),
+        ("ES_Brake", 20),
       ]
     else:
       messages = [
@@ -226,4 +245,3 @@ class CarState(CarStateBase):
       ]
 
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, CanBus.alt)
-

@@ -1,0 +1,54 @@
+name: "Review Pull Request"
+run-name: "Review PR #${{ github.event.pull_request.number }}"
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - reopened
+
+permissions:
+  pull-requests: write
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+concurrency:
+  cancel-in-progress: true
+  group: review-pull-request-${{ github.event.pull_request.number }}
+
+jobs:
+  reject_wrong_target:
+    name: "Close PRs that target the wrong branch"
+    if: >-
+      ${{
+        github.event.pull_request.base.ref != (vars.BRANCH_PR_TARGET || 'MAKE-PRS-HERE') &&
+        github.event.pull_request.user.login != 'FrogAi' &&
+        (github.event.action != 'reopened' || github.actor != 'FrogAi')
+      }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: "Comment and close pull request"
+        run: |
+          gh pr close "${{ github.event.pull_request.number }}" \
+            --comment "Please submit your pull request to the \"${{ vars.BRANCH_PR_TARGET || 'MAKE-PRS-HERE' }}\" branch." \
+            --repo "${{ github.repository }}"
+
+  welcome_valid_pull_request:
+    name: "Welcome valid PRs"
+    if: >-
+      ${{
+        github.event.pull_request.user.login != 'FrogAi' &&
+        github.event.pull_request.base.ref == (vars.BRANCH_PR_TARGET || 'MAKE-PRS-HERE')
+      }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: "Leave welcome comment"
+        run: |
+          gh pr comment "${{ github.event.pull_request.number }}" \
+            --body "Thank you for your PR! If you're not already in the FrogPilot Discord, [feel free to join](https://discord.FrogPilot.com) and let me know you've opened a PR!" \
+            --create-if-none \
+            --edit-last \
+            --repo "${{ github.repository }}"

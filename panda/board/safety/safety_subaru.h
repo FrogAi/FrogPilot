@@ -17,8 +17,8 @@
   }
 
 
-const SteeringLimits SUBARU_STEERING_LIMITS      = SUBARU_STEERING_LIMITS_GENERATOR(2047, 50, 70);
-const SteeringLimits SUBARU_GEN2_STEERING_LIMITS = SUBARU_STEERING_LIMITS_GENERATOR(1000, 40, 40);
+const SteeringLimits SUBARU_STEERING_LIMITS      = SUBARU_STEERING_LIMITS_GENERATOR(3071, 50, 70);
+const SteeringLimits SUBARU_GEN2_STEERING_LIMITS = SUBARU_STEERING_LIMITS_GENERATOR(1500, 35, 50);
 
 
 const LongitudinalLimits SUBARU_LONG_LIMITS = {
@@ -36,6 +36,9 @@ const LongitudinalLimits SUBARU_LONG_LIMITS = {
 #define MSG_SUBARU_Throttle              0x40
 #define MSG_SUBARU_Steering_Torque       0x119
 #define MSG_SUBARU_Wheel_Speeds          0x13a
+
+// FrogPilot variables
+#define MSG_SUBARU_Brake_Pedal           0x139
 
 #define MSG_SUBARU_ES_LKAS               0x122
 #define MSG_SUBARU_ES_LKAS_ANGLE         0x124
@@ -62,6 +65,9 @@ const LongitudinalLimits SUBARU_LONG_LIMITS = {
   {MSG_SUBARU_ES_DashStatus,     SUBARU_MAIN_BUS, 8}, \
   {MSG_SUBARU_ES_LKAS_State,     SUBARU_MAIN_BUS, 8}, \
   {MSG_SUBARU_ES_Infotainment,   SUBARU_MAIN_BUS, 8}, \
+  /* FrogPilot variables */                           \
+  {MSG_SUBARU_Throttle,          SUBARU_CAM_BUS,  8}, \
+  {MSG_SUBARU_Brake_Pedal,       SUBARU_CAM_BUS,  8}, \
 
 #define SUBARU_COMMON_LONG_TX_MSGS(alt_bus)           \
   {MSG_SUBARU_ES_Brake,          alt_bus,         8}, \
@@ -111,8 +117,14 @@ RxCheck subaru_gen2_rx_checks[] = {
 const uint16_t SUBARU_PARAM_GEN2 = 1;
 const uint16_t SUBARU_PARAM_LONGITUDINAL = 2;
 
+// FrogPilot variables
+const uint16_t SUBARU_PARAM_SNG = 1024;
+
 bool subaru_gen2 = false;
 bool subaru_longitudinal = false;
+
+// FrogPilot variables
+bool subaru_sng = false;
 
 
 static uint32_t subaru_get_checksum(const CANPacket_t *to_push) {
@@ -152,6 +164,9 @@ static void subaru_rx_hook(const CANPacket_t *to_push) {
 
   // enter controls on rising edge of ACC, exit controls on ACC off
   if ((addr == MSG_SUBARU_CruiseControl) && (bus == alt_main_bus)) {
+    // FrogPilot variables
+    acc_main_on = GET_BIT(to_push, 40U);
+
     bool cruise_engaged = GET_BIT(to_push, 41U);
     pcm_cruise_check(cruise_engaged);
   }
@@ -232,6 +247,11 @@ static bool subaru_tx_hook(const CANPacket_t *to_send) {
     violation |= !(is_tester_present || is_button_rdbi);
   }
 
+  // FrogPilot variables
+  if ((addr == MSG_SUBARU_Throttle) || (addr == MSG_SUBARU_Brake_Pedal)) {
+    violation |= !subaru_sng;
+  }
+
   if (violation){
     tx = false;
   }
@@ -242,7 +262,11 @@ static int subaru_fwd_hook(int bus_num, int addr) {
   int bus_fwd = -1;
 
   if (bus_num == SUBARU_MAIN_BUS) {
-    bus_fwd = SUBARU_CAM_BUS;  // to the eyesight camera
+    // FrogPilot variables
+    bool block_msg = subaru_sng && ((addr == MSG_SUBARU_Throttle) || (addr == MSG_SUBARU_Brake_Pedal));
+    if (!block_msg) {
+      bus_fwd = SUBARU_CAM_BUS;  // to the eyesight camera
+    }
   }
 
   if (bus_num == SUBARU_CAM_BUS) {
@@ -267,6 +291,9 @@ static int subaru_fwd_hook(int bus_num, int addr) {
 
 static safety_config subaru_init(uint16_t param) {
   subaru_gen2 = GET_FLAG(param, SUBARU_PARAM_GEN2);
+
+  // FrogPilot variables
+  subaru_sng = GET_FLAG(param, SUBARU_PARAM_SNG);
 
 #ifdef ALLOW_DEBUG
   subaru_longitudinal = GET_FLAG(param, SUBARU_PARAM_LONGITUDINAL);

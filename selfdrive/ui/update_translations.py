@@ -2,10 +2,15 @@
 import argparse
 import json
 import os
+import xml.etree.ElementTree as ET
 
-from openpilot.common.basedir import BASEDIR
+if "BASEDIR" in os.environ:
+  BASEDIR = os.environ.get("BASEDIR")
+else:
+  from openpilot.common.basedir import BASEDIR
 
 UI_DIR = os.path.join(BASEDIR, "selfdrive", "ui")
+FROGPILOT_UI_DIR = os.path.join(BASEDIR, "frogpilot", "ui")
 TRANSLATIONS_DIR = os.path.join(UI_DIR, "translations")
 LANGUAGES_FILE = os.path.join(TRANSLATIONS_DIR, "languages.json")
 TRANSLATIONS_INCLUDE_FILE = os.path.join(TRANSLATIONS_DIR, "alerts_generated.h")
@@ -24,6 +29,47 @@ def generate_translations_include():
     f.write(content)
 
 
+def backup_translation_types(root):
+  backup = {}
+  for context in root.findall("context"):
+    context_name = context.findtext("name")
+    if not context_name:
+      continue
+
+    for message in context.findall("message"):
+      source_text = message.findtext("source")
+      translation = message.find("translation")
+
+      if not source_text or translation is None:
+        continue
+
+      type_attr = translation.attrib.get("type", "")
+      if type_attr.endswith("-generated"):
+        backup[(context_name, source_text)] = type_attr
+
+  return backup
+
+
+def restore_translation_types(root, backup):
+  for context in root.findall("context"):
+    context_name = context.findtext("name")
+    if not context_name:
+      continue
+
+    for message in context.findall("message"):
+      source_text = message.findtext("source")
+      if not source_text:
+        continue
+
+      key = (context_name, source_text)
+      if key not in backup:
+        continue
+
+      translation = message.find("translation")
+      if translation is not None:
+        translation.attrib["type"] = backup[key]
+
+
 def update_translations(vanish: bool = False, translation_files: None | list[str] = None, translations_dir: str = TRANSLATIONS_DIR):
   generate_translations_include()
 
@@ -33,13 +79,28 @@ def update_translations(vanish: bool = False, translation_files: None | list[str
 
   for file in translation_files:
     tr_file = os.path.join(translations_dir, f"{file}.ts")
-    args = f"lupdate -locations none -recursive {UI_DIR} -ts {tr_file} -I {BASEDIR}"
+
+    tree = ET.parse(tr_file)
+    root = tree.getroot()
+    backup = backup_translation_types(root)
+
+    args = f"lupdate -locations none -recursive {UI_DIR} {FROGPILOT_UI_DIR} -ts {tr_file} -I {BASEDIR}"
     if vanish:
       args += " -no-obsolete"
     if file in PLURAL_ONLY:
       args += " -pluralonly"
     ret = os.system(args)
     assert ret == 0
+
+    tree = ET.parse(tr_file)
+    root = tree.getroot()
+    restore_translation_types(root, backup)
+
+    with open(tr_file, "w", encoding="utf-8") as fp:
+      fp.write('<?xml version="1.0" encoding="utf-8"?>\n' +
+               '<!DOCTYPE TS>\n' +
+               ET.tostring(root, encoding="utf-8", short_empty_elements=False).decode() +
+               "\n")
 
 
 if __name__ == "__main__":

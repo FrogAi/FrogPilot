@@ -1,0 +1,239 @@
+name: "Compile FrogPilot"
+run-name: >-
+  Compile ${{
+    inputs.publish_frogpilot && (vars.BRANCH_RELEASE || 'FrogPilot')
+    || inputs.publish_staging && (vars.BRANCH_STAGING || 'FrogPilot-Staging')
+    || inputs.publish_testing && (vars.BRANCH_TESTING || 'FrogPilot-Testing')
+    || inputs.publish_custom_branch
+    || github.ref_name
+  }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      not_vetted:
+        description: This branch is not vetted
+        type: boolean
+      publish_custom_branch:
+        description: Custom branch name
+        type: string
+      publish_frogpilot:
+        description: Push to FrogPilot
+        type: boolean
+      publish_staging:
+        description: Push to FrogPilot-Staging
+        type: boolean
+      publish_testing:
+        description: Push to FrogPilot-Testing
+        type: boolean
+      runner:
+        default: c3
+        description: Select runner
+        options:
+          - c3
+          - c3x
+        required: true
+        type: choice
+
+env:
+  BRANCH_RELEASE: ${{ vars.BRANCH_RELEASE || 'FrogPilot' }}
+  BRANCH_STAGING: ${{ vars.BRANCH_STAGING || 'FrogPilot-Staging' }}
+  BRANCH_TESTING: ${{ vars.BRANCH_TESTING || 'FrogPilot-Testing' }}
+  BUILD_DIR: /data/openpilot
+  INPUT_CUSTOM_BRANCH: ${{ inputs.publish_custom_branch }}
+
+permissions: {}
+
+concurrency:
+  group: compile-frogpilot-${{ github.ref_name }}
+
+jobs:
+  build_and_push:
+    name: "Compile FrogPilot"
+    runs-on:
+      - self-hosted
+      - ${{ inputs.runner }}
+    timeout-minutes: 180
+    concurrency:
+      group: compile-frogpilot-runner-${{ inputs.runner }}
+    steps:
+      - name: "Validate inputs"
+        run: |
+          if [[ "${{ github.ref_type }}" != "branch" ]]; then
+            echo "This workflow only supports branch dispatches."
+            exit 1
+          fi
+
+          if [[ -z "${{ vars.GIT_NAME }}" || -z "${{ vars.GIT_EMAIL }}" ]]; then
+            echo "Repository variables GIT_NAME and GIT_EMAIL must be set."
+            exit 1
+          fi
+
+          if [[ -n "$INPUT_CUSTOM_BRANCH" ]]; then
+            git check-ref-format --branch "$INPUT_CUSTOM_BRANCH" >/dev/null
+          fi
+
+      - name: "Set up build environment"
+        env:
+          WORKFLOW_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+        run: |
+          echo "[-] Setting up repo T=$SECONDS"
+          sudo rm -rf "$BUILD_DIR"
+          sudo mkdir -p "$BUILD_DIR"
+          sudo chown -R "$(whoami):$(whoami)" "$BUILD_DIR"
+          cd "$BUILD_DIR"
+
+          git init
+          git config user.name "${{ vars.GIT_NAME }}"
+          git config user.email "${{ vars.GIT_EMAIL }}"
+          git remote add origin "https://x-access-token:${WORKFLOW_TOKEN}@github.com/${{ github.repository }}.git"
+          git fetch --no-tags origin "${{ github.ref_name }}"
+          git checkout -B "${{ github.ref_name }}" "origin/${{ github.ref_name }}"
+
+      - name: "Prepare source"
+        run: |
+          cd "$BUILD_DIR"
+
+          if [[ ! -f "release/release_files.py" ]]; then
+            echo "release/release_files.py not found — source branch may already be compiled."
+            exit 1
+          fi
+
+          SOURCE_DIR=$(mktemp -d)
+          echo "SOURCE_DIR=$SOURCE_DIR" >> "$GITHUB_ENV"
+
+          echo "[-] copying files T=$SECONDS"
+          find . -mindepth 1 -maxdepth 1 ! -name ".git" -exec mv {} "$SOURCE_DIR/" \;
+
+          cd "$SOURCE_DIR"
+          python3 ./release/release_files.py | xargs -d '\n' cp -pR --parents -t "$BUILD_DIR/"
+
+          cd "$BUILD_DIR"
+
+          rm -f panda/board/obj/panda.bin.signed
+          rm -f panda/board/obj/panda_h7.bin.signed
+
+          rm -f ".github/update_date"
+          if [[ "${{ inputs.publish_staging }}" == "true" ]]; then
+            if git fetch --no-tags --depth=1 origin "$BRANCH_STAGING" 2>/dev/null; then
+              if git show "FETCH_HEAD:.github/update_date" > ".github/update_date" 2>/dev/null; then
+                echo "Restored .github/update_date from $BRANCH_STAGING."
+              else
+                rm -f ".github/update_date"
+                echo "No .github/update_date found on $BRANCH_STAGING."
+              fi
+            else
+              echo "Branch $BRANCH_STAGING not found, skipping update_date restore."
+            fi
+          fi
+
+          rm -f not_vetted
+          if [[ "${{ inputs.not_vetted }}" == "true" ]]; then
+            touch not_vetted
+          fi
+
+      - name: "Build release"
+        run: |
+          cd "$BUILD_DIR"
+
+          export UV_INSTALL_DIR=/data/uv
+          export UV_CACHE_DIR=/data/uv-cache
+          export PATH="/data/uv:$PATH"
+          if ! command -v uv &>/dev/null; then
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+          fi
+          uv sync --frozen
+
+          source .venv/bin/activate
+          export PYTHONPATH="$BUILD_DIR"
+          scons -j$(nproc) --minimal || scons -j$(( $(nproc) / 2 )) --minimal || scons -j1 --minimal
+          scons -j$(nproc) panda/ || scons -j$(( $(nproc) / 2 )) panda/ || scons -j1 panda/
+
+          submodules=$(git submodule status)
+          if [[ -n "$submodules" ]]; then
+            echo "submodules found:"
+            echo "$submodules"
+            exit 1
+          fi
+
+          find . -name '*.a' -delete
+          find . -name '*.o' -delete
+          find . -name '*.os' -delete
+          find . -name '*.pyc' -delete
+          find . -name '__pycache__' -delete
+          find . -name 'moc_*' -delete
+
+          git checkout third_party/
+          find third_party/ -name '*Darwin*' -exec rm -r {} +
+          find third_party/ -name '*x86*' -exec rm -r {} +
+
+          find . -name '*.egg-info' -exec rm -rf {} + 2>/dev/null || true
+          find . -name '*.md' ! -name 'RELEASES.md' -delete
+          find . \( -name '*_test.py' -o -name 'conftest.py' -o -name 'test_*.py' \) -delete
+          find . \( -name '.dockerignore' -o -name '.editorconfig' -o -name '.pre-commit-config.yaml' -o -name '.pylintrc' -o -name 'Dockerfile*' \) -delete
+          find . -mindepth 2 -type d -name '.github' -exec rm -rf {} + 2>/dev/null || true
+          find . -type d \( -name 'docs' -o -name 'test' -o -name 'tests' \) -exec rm -rf {} + 2>/dev/null || true
+          find selfdrive/modeld/models/ -name '*.onnx' -delete
+
+          rm -rf \
+            .github/ISSUE_TEMPLATE/ \
+            .sconsign.dblite \
+            .venv \
+            Jenkinsfile \
+            opendbc_repo/.uv-opendbc-only/ \
+            release/ \
+            selfdrive/debug/ \
+            third_party/bootstrap/ \
+            third_party/catch2/ \
+            tinygrad_repo/examples/ \
+            tinygrad_repo/extra/ \
+            tools/cabana/ \
+            tools/car_porting/ \
+            tools/lib/ \
+            tools/replay/ \
+            tools/sim/
+          rm -f \
+            .github/labeler.yaml \
+            .github/pull_request_template.md \
+            uv.lock
+
+          touch prebuilt
+
+          git add --all --force
+          git commit -m "Compile FrogPilot"
+
+      - name: "Publish to target branches"
+        run: |
+          cd "$BUILD_DIR"
+
+          targets=("${{ github.ref_name }}")
+          if [[ "${{ inputs.publish_frogpilot }}" == "true" ]]; then
+            targets+=("$BRANCH_RELEASE")
+          fi
+          if [[ "${{ inputs.publish_staging }}" == "true" ]]; then
+            targets+=("$BRANCH_STAGING")
+          fi
+          if [[ "${{ inputs.publish_testing }}" == "true" ]]; then
+            targets+=("$BRANCH_TESTING")
+          fi
+          if [[ -n "$INPUT_CUSTOM_BRANCH" ]]; then
+            targets+=("$INPUT_CUSTOM_BRANCH")
+          fi
+
+          for target in "${targets[@]}"; do
+            echo "[-] pushing $target T=$SECONDS"
+            if expected_ref=$(git ls-remote --exit-code --heads origin "$target" 2>/dev/null | awk '{print $1}'); then
+              git push \
+                --force-with-lease="refs/heads/$target:$expected_ref" \
+                origin "HEAD:refs/heads/$target"
+            else
+              git push origin "HEAD:refs/heads/$target"
+            fi
+          done
+
+          echo "[-] done T=$SECONDS"
+
+      - name: "Cleanup"
+        if: always()
+        run: |
+          sudo rm -rf "$SOURCE_DIR"

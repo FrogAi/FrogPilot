@@ -1,19 +1,20 @@
 #!/usr/bin/env python3
-import os
-from cereal import car
+from cereal import car, custom
 from math import fabs, exp
+import numpy as np
 from panda import Panda
 
-from openpilot.common.basedir import BASEDIR
 from openpilot.common.conversions import Conversions as CV
 from openpilot.selfdrive.car import create_button_events, get_safety_config
 from openpilot.selfdrive.car.gm.radar_interface import RADAR_HEADER_MSG
 from openpilot.selfdrive.car.gm.values import CAR, CruiseButtons, CarControllerParams, EV_CAR, CAMERA_ACC_CAR, CanBus, GMFlags, CC_ONLY_CAR, SDGM_CAR
-from openpilot.selfdrive.car.interfaces import CarInterfaceBase, TorqueFromLateralAccelCallbackType, FRICTION_THRESHOLD, LatControlInputs, NanoFFModel
+from openpilot.selfdrive.car.interfaces import CarInterfaceBase, TorqueFromLateralAccelCallbackType, FRICTION_THRESHOLD, LateralAccelFromTorqueCallbackType
 from openpilot.selfdrive.controls.lib.drive_helpers import get_friction
 
 ButtonType = car.CarState.ButtonEvent.Type
+FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
 EventName = car.CarEvent.EventName
+FrogPilotEventName = custom.FrogPilotCarEvent.EventName
 GearShifter = car.CarState.GearShifter
 TransmissionType = car.CarParams.TransmissionType
 NetworkLocation = car.CarParams.NetworkLocation
@@ -31,8 +32,6 @@ NON_LINEAR_TORQUE_PARAMS = {
   CAR.GMC_ACADIA: [4.78003305, 1.0, 0.3122, 0.05591772],
   CAR.CHEVROLET_SILVERADO: [3.29974374, 1.0, 0.25571356, 0.0465122]
 }
-
-NEURAL_PARAMS_PATH = os.path.join(BASEDIR, 'selfdrive/car/torque_data/neural_ff_weights.json')
 
 
 class CarInterface(CarInterfaceBase):
@@ -53,42 +52,47 @@ class CarInterface(CarInterfaceBase):
     else:
       return CarInterfaceBase.get_steer_feedforward_default
 
-  def torque_from_lateral_accel_siglin(self, latcontrol_inputs: LatControlInputs, torque_params: car.CarParams.LateralTorqueTuning, lateral_accel_error: float,
-                                       lateral_accel_deadzone: float, friction_compensation: bool, gravity_adjusted: bool) -> float:
-    friction = get_friction(lateral_accel_error, lateral_accel_deadzone, FRICTION_THRESHOLD, torque_params, friction_compensation)
+  def get_lataccel_torque_siglin(self) -> float:
 
-    def sig(val):
-      return 1 / (1 + exp(-val)) - 0.5
+    def torque_from_lateral_accel_siglin_func(lateral_acceleration: float) -> float:
+      # The "lat_accel vs torque" relationship is assumed to be the sum of "sigmoid + linear" curves
+      # An important thing to consider is that the slope at 0 should be > 0 (ideally >1)
+      # This has big effect on the stability about 0 (noise when going straight)
+      non_linear_torque_params = NON_LINEAR_TORQUE_PARAMS.get(self.CP.carFingerprint)
+      assert non_linear_torque_params, "The params are not defined"
+      a, b, c, _ = non_linear_torque_params
+      sig_input = a * lateral_acceleration
+      sig = np.sign(sig_input) * (1 / (1 + exp(-fabs(sig_input))) - 0.5)
+      steer_torque = (sig * b) + (lateral_acceleration * c)
+      return float(steer_torque)
 
-    # The "lat_accel vs torque" relationship is assumed to be the sum of "sigmoid + linear" curves
-    # An important thing to consider is that the slope at 0 should be > 0 (ideally >1)
-    # This has big effect on the stability about 0 (noise when going straight)
-    # ToDo: To generalize to other GMs, explore tanh function as the nonlinear
-    non_linear_torque_params = NON_LINEAR_TORQUE_PARAMS.get(self.CP.carFingerprint)
-    assert non_linear_torque_params, "The params are not defined"
-    a, b, c, _ = non_linear_torque_params
-    steer_torque = (sig(latcontrol_inputs.lateral_acceleration * a) * b) + (latcontrol_inputs.lateral_acceleration * c)
-    return float(steer_torque) + friction
-
-  def torque_from_lateral_accel_neural(self, latcontrol_inputs: LatControlInputs, torque_params: car.CarParams.LateralTorqueTuning, lateral_accel_error: float,
-                                       lateral_accel_deadzone: float, friction_compensation: bool, gravity_adjusted: bool) -> float:
-    friction = get_friction(lateral_accel_error, lateral_accel_deadzone, FRICTION_THRESHOLD, torque_params, friction_compensation)
-    inputs = list(latcontrol_inputs)
-    if gravity_adjusted:
-      inputs[0] += inputs[1]
-    return float(self.neural_ff_model.predict(inputs)) + friction
+    lataccel_values = np.arange(-5.0, 5.0, 0.01)
+    torque_values = [torque_from_lateral_accel_siglin_func(x) for x in lataccel_values]
+    assert min(torque_values) < -1 and max(torque_values) > 1, "The torque values should cover the range [-1, 1]"
+    return torque_values, lataccel_values
 
   def torque_from_lateral_accel(self) -> TorqueFromLateralAccelCallbackType:
-    if self.CP.carFingerprint in (CAR.CHEVROLET_BOLT_EUV, CAR.CHEVROLET_BOLT_CC):
-      self.neural_ff_model = NanoFFModel(NEURAL_PARAMS_PATH, self.CP.carFingerprint)
-      return self.torque_from_lateral_accel_neural
-    elif self.CP.carFingerprint in NON_LINEAR_TORQUE_PARAMS:
-      return self.torque_from_lateral_accel_siglin
+    if self.CP.carFingerprint in NON_LINEAR_TORQUE_PARAMS:
+      torque_values, lataccel_values = self.get_lataccel_torque_siglin()
+
+      def torque_from_lateral_accel_siglin(lateral_acceleration: float, torque_params: car.CarParams.LateralTorqueTuning):
+        return np.interp(lateral_acceleration, lataccel_values, torque_values)
+      return torque_from_lateral_accel_siglin
     else:
       return self.torque_from_lateral_accel_linear
 
+  def lateral_accel_from_torque(self) -> LateralAccelFromTorqueCallbackType:
+    if self.CP.carFingerprint in NON_LINEAR_TORQUE_PARAMS:
+      torque_values, lataccel_values = self.get_lataccel_torque_siglin()
+
+      def lateral_accel_from_torque_siglin(torque: float, torque_params: car.CarParams.LateralTorqueTuning):
+        return np.interp(torque, torque_values, lataccel_values)
+      return lateral_accel_from_torque_siglin
+    else:
+      return self.lateral_accel_from_torque_linear
+
   @staticmethod
-  def _get_params(ret, candidate, fingerprint, car_fw, experimental_long, docs):
+  def _get_params(ret, candidate, fingerprint, car_fw, experimental_long, docs, frogpilot_toggles):
     ret.carName = "gm"
     ret.safetyConfigs = [get_safety_config(car.CarParams.SafetyModel.gm)]
     ret.autoResumeSng = False
@@ -102,11 +106,7 @@ class CarInterface(CarInterfaceBase):
     else:
       ret.transmissionType = TransmissionType.automatic
 
-    ret.longitudinalTuning.deadzoneBP = [0.]
-    ret.longitudinalTuning.deadzoneV = [0.15]
-
-    ret.longitudinalTuning.kpBP = [5., 35.]
-    ret.longitudinalTuning.kiBP = [0.]
+    ret.longitudinalTuning.kiBP = [5., 35.]
 
     if candidate in CAMERA_ACC_CAR:
       ret.experimentalLongitudinalAvailable = candidate not in CC_ONLY_CAR
@@ -118,18 +118,21 @@ class CarInterface(CarInterfaceBase):
       ret.minSteerSpeed = 10 * CV.KPH_TO_MS
 
       # Tuning for experimental long
-      ret.longitudinalTuning.kpV = [2.0, 1.5]
-      ret.longitudinalTuning.kiV = [0.72]
+      ret.longitudinalTuning.kiV = [2.0, 1.5]
+      ret.vEgoStopping = 0.1
+      ret.vEgoStarting = 0.1
+
       ret.stoppingDecelRate = 2.0  # reach brake quickly after enabling
       ret.vEgoStopping = 0.25
       ret.vEgoStarting = 0.25
 
-      if experimental_long:
+      if ret.experimentalLongitudinalAvailable and experimental_long:
         ret.pcmCruise = False
         ret.openpilotLongitudinalControl = True
         ret.safetyConfigs[0].safetyParam |= Panda.FLAG_GM_HW_CAM_LONG
 
     elif candidate in SDGM_CAR:
+      ret.longitudinalTuning.kiV = [0., 0.]  # TODO: tuning
       ret.experimentalLongitudinalAvailable = False
       ret.networkLocation = NetworkLocation.fwdCamera
       ret.pcmCruise = True
@@ -139,7 +142,7 @@ class CarInterface(CarInterfaceBase):
       ret.safetyConfigs[0].safetyParam |= Panda.FLAG_GM_HW_SDGM
 
     else:  # ASCM, OBD-II harness
-      ret.openpilotLongitudinalControl = True
+      ret.openpilotLongitudinalControl = not frogpilot_toggles.disable_openpilot_long
       ret.networkLocation = NetworkLocation.gateway
       ret.radarUnavailable = RADAR_HEADER_MSG not in fingerprint[CanBus.OBSTACLE] and not docs
       ret.pcmCruise = False  # stock non-adaptive cruise control is kept off
@@ -148,8 +151,7 @@ class CarInterface(CarInterfaceBase):
       ret.minSteerSpeed = 7 * CV.MPH_TO_MS
 
       # Tuning
-      ret.longitudinalTuning.kpV = [2.4, 1.5]
-      ret.longitudinalTuning.kiV = [0.36]
+      ret.longitudinalTuning.kiV = [2.4, 1.5]
 
       if ret.enableGasInterceptor:
         # Need to set ASCM long limits when using pedal interceptor, instead of camera ACC long limits
@@ -163,7 +165,7 @@ class CarInterface(CarInterfaceBase):
 
     ret.steerLimitTimer = 0.4
     ret.radarTimeStep = 0.0667  # GM radar runs at 15Hz instead of standard 20Hz
-    ret.longitudinalActuatorDelayUpperBound = 0.5  # large delay to initially start braking
+    ret.longitudinalActuatorDelay = 0.5  # large delay to initially start braking
 
     if candidate in (CAR.CHEVROLET_VOLT, CAR.CHEVROLET_VOLT_CC):
       ret.minEnableSpeed = -1
@@ -245,13 +247,20 @@ class CarInterface(CarInterfaceBase):
     elif candidate == CAR.CADILLAC_CT6_CC:
       CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
 
+    elif candidate == CAR.CHEVROLET_MALIBU_CC:
+      ret.steerActuatorDelay = 0.2
+      CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
+
+    elif candidate == CAR.CHEVROLET_TRAX:
+      CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
+
     if ret.enableGasInterceptor:
       ret.networkLocation = NetworkLocation.fwdCamera
       ret.safetyConfigs[0].safetyParam |= Panda.FLAG_GM_HW_CAM
       ret.experimentalLongitudinalAvailable = False
       ret.minEnableSpeed = -1
       ret.pcmCruise = False
-      ret.openpilotLongitudinalControl = True
+      ret.openpilotLongitudinalControl = not frogpilot_toggles.disable_openpilot_long
       ret.stoppingControl = True
       ret.autoResumeSng = True
 
@@ -261,7 +270,7 @@ class CarInterface(CarInterfaceBase):
         # Note: Low speed, stop and go not tested. Should be fairly smooth on highway
         ret.longitudinalTuning.kiBP = [0.0, 5., 35.]
         ret.longitudinalTuning.kiV = [0.0, 0.35, 0.5]
-        ret.longitudinalTuning.kf = 0.15
+        ret.longitudinalTuning.kfDEPRECATED = 0.15
         ret.stoppingDecelRate = 0.8
       else:  # Pedal used for SNG, ACC for longitudinal control otherwise
         ret.safetyConfigs[0].safetyParam |= Panda.FLAG_GM_HW_CAM_LONG
@@ -275,16 +284,19 @@ class CarInterface(CarInterfaceBase):
       ret.radarUnavailable = True
       ret.experimentalLongitudinalAvailable = False
       ret.minEnableSpeed = 24 * CV.MPH_TO_MS
-      ret.openpilotLongitudinalControl = True
+      ret.openpilotLongitudinalControl = not frogpilot_toggles.disable_openpilot_long
       ret.pcmCruise = False
 
       ret.stoppingDecelRate = 11.18  # == 25 mph/s (.04 rate)
 
-      ret.longitudinalActuatorDelayLowerBound = 1.  # TODO: measure this
-      ret.longitudinalActuatorDelayUpperBound = 2.
+      ret.longitudinalTuning.deadzoneBP = [0.]
+      ret.longitudinalTuning.deadzoneV = [0.56]  # == 2 km/h/s, 1.25 mph/s
+      ret.longitudinalActuatorDelay = 1.  # TODO: measure this
 
-      ret.longitudinalTuning.kiBP = [10.7, 10.8, 28.]
-      ret.longitudinalTuning.kiV = [0., 20., 20.]  # set lower end to 0 since we can't drive below that speed
+      ret.longitudinalTuning.kpBP = [10.7, 10.8, 28.]  # 10.7 m/s == 24 mph
+      ret.longitudinalTuning.kpV = [0., 20., 20.]  # set lower end to 0 since we can't drive below that speed
+      ret.longitudinalTuning.kiBP = [0.]
+      ret.longitudinalTuning.kiV = [0.1]
 
     if candidate in CC_ONLY_CAR:
       ret.safetyConfigs[0].safetyParam |= Panda.FLAG_GM_NO_ACC
@@ -301,8 +313,8 @@ class CarInterface(CarInterfaceBase):
     return ret
 
   # returns a car.CarState
-  def _update(self, c):
-    ret = self.CS.update(self.cp, self.cp_cam, self.cp_loopback)
+  def _update(self, c, frogpilot_toggles):
+    ret, fp_ret = self.CS.update(self.cp, self.cp_cam, self.cp_loopback, frogpilot_toggles)
 
     # Don't add event if transitioning from INIT, unless it's to an actual button
     if self.CS.cruise_buttons != CruiseButtons.UNPRESS or self.CS.prev_cruise_buttons != CruiseButtons.INIT:
@@ -310,7 +322,9 @@ class CarInterface(CarInterfaceBase):
         *create_button_events(self.CS.cruise_buttons, self.CS.prev_cruise_buttons, BUTTONS_DICT,
                               unpressed_btn=CruiseButtons.UNPRESS),
         *create_button_events(self.CS.distance_button, self.CS.prev_distance_button,
-                              {1: ButtonType.gapAdjustCruise})
+                              {1: ButtonType.gapAdjustCruise}),
+        *create_button_events(self.CS.lkas_enabled, self.CS.lkas_previously_enabled,
+                              {1: FrogPilotButtonType.lkas}),
       ]
 
     # The ECM allows enabling on falling edge of set, but only rising edge of resume
@@ -340,8 +354,8 @@ class CarInterface(CarInterfaceBase):
       self.CP.transmissionType == TransmissionType.direct and \
       not self.CS.single_pedal_mode and \
       c.longActive:
-      events.add(EventName.pedalInterceptorNoBrake)
+      events.add(FrogPilotEventName.pedalInterceptorNoBrake)
 
     ret.events = events.to_msg()
 
-    return ret
+    return ret, fp_ret

@@ -3,6 +3,8 @@
 #include "selfdrive/ui/qt/onroad/alerts.h"
 #include "selfdrive/ui/qt/onroad/annotated_camera.h"
 
+#include "frogpilot/ui/qt/onroad/frogpilot_onroad.h"
+
 class OnroadWindow : public QWidget {
   Q_OBJECT
 
@@ -24,8 +26,13 @@ private:
   QWidget *map = nullptr;
   QHBoxLayout* split;
 
+  // FrogPilot variables
+  void resizeEvent(QResizeEvent *event);
+
+  FrogPilotOnroadWindow *frogpilot_onroad;
+
 private slots:
   void offroadTransition(bool offroad);
   void primeChanged(bool prime);
-  void updateState(const UIState &s);
+  void updateState(const UIState &s, const FrogPilotUIState &fs);
 };

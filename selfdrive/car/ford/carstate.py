@@ -1,4 +1,4 @@
-from cereal import car
+from cereal import car, custom
 from opendbc.can.can_define import CANDefine
 from opendbc.can.parser import CANParser
 from openpilot.common.conversions import Conversions as CV
@@ -10,24 +10,48 @@ GearShifter = car.CarState.GearShifter
 TransmissionType = car.CarParams.TransmissionType
 
 
+# Traffic signals for Speed Limit Controller
+def calculate_speed_limit(cp_cam):
+  speed_limit_unit = cp_cam.vl["Traffic_RecognitnData"]["TsrVlUnitMsgTxt_D_Rq"]
+  speed_limit_value = cp_cam.vl["Traffic_RecognitnData"]["TsrVLim1MsgTxt_D_Rq"]
+
+  if speed_limit_unit == 1:
+    return speed_limit_value * CV.KPH_TO_MS
+  elif speed_limit_unit == 2:
+    return speed_limit_value * CV.MPH_TO_MS
+  else:
+    return 0
+
+
 class CarState(CarStateBase):
-  def __init__(self, CP):
-    super().__init__(CP)
+  def __init__(self, CP, FPCP):
+    super().__init__(CP, FPCP)
     can_define = CANDefine(DBC[CP.carFingerprint]["pt"])
     if CP.transmissionType == TransmissionType.automatic:
-      self.shifter_values = can_define.dv["Gear_Shift_by_Wire_FD1"]["TrnRng_D_RqGsm"]
+      if CP.flags & FordFlags.ALT_STEER_ANGLE:
+        self.shifter_values = can_define.dv["TransGearData"]["GearLvrPos_D_Actl"]
+      else:
+        self.shifter_values = can_define.dv["Gear_Shift_by_Wire_FD1"]["TrnRng_D_RqGsm"]
 
     self.vehicle_sensors_valid = False
 
     self.prev_distance_button = 0
     self.distance_button = 0
 
-  def update(self, cp, cp_cam):
+  def update(self, cp, cp_cam, frogpilot_toggles):
     ret = car.CarState.new_message()
+    fp_ret = custom.FrogPilotCarState.new_message()
 
     # Occasionally on startup, the ABS module recalibrates the steering pinion offset, so we need to block engagement
     # The vehicle usually recovers out of this state within a minute of normal driving
-    self.vehicle_sensors_valid = cp.vl["SteeringPinion_Data"]["StePinCompAnEst_D_Qf"] == 3
+    if self.CP.flags & FordFlags.ALT_STEER_ANGLE:
+      self.vehicle_sensors_valid = (
+        int((cp.vl["ParkAid_Data"]["ExtSteeringAngleReq2"] + 1000) * 10) not in (32766, 32767)
+        and cp.vl["ParkAid_Data"]["EPASExtAngleStatReq"] == 0
+        and cp.vl["ParkAid_Data"]["ApaSys_D_Stat"] in (0, 1)
+      )
+    else:
+      self.vehicle_sensors_valid = cp.vl["SteeringPinion_Data"]["StePinCompAnEst_D_Qf"] == 3
 
     # car speed
     ret.vEgoRaw = cp.vl["BrakeSysFeatures"]["Veh_V_ActlBrk"] * CV.KPH_TO_MS
@@ -45,7 +69,14 @@ class CarState(CarStateBase):
     ret.parkingBrake = cp.vl["DesiredTorqBrk"]["PrkBrkStatus"] in (1, 2)
 
     # steering wheel
-    ret.steeringAngleDeg = cp.vl["SteeringPinion_Data"]["StePinComp_An_Est"]
+    if self.CP.flags & FordFlags.ALT_STEER_ANGLE:
+      steering_angle_init = cp.vl["SteeringPinion_Data_Alt"]["StePinRelInit_An_Sns"]
+      if self.vehicle_sensors_valid:
+        steering_angle_est = cp.vl["ParkAid_Data"]["ExtSteeringAngleReq2"]
+        self.steering_angle_offset_deg = steering_angle_est - steering_angle_init
+      ret.steeringAngleDeg = steering_angle_init + self.steering_angle_offset_deg
+    else:
+      ret.steeringAngleDeg = cp.vl["SteeringPinion_Data"]["StePinComp_An_Est"]
     ret.steeringTorque = cp.vl["EPAS_INFO"]["SteeringColumnTorque"]
     ret.steeringPressed = self.update_steering_pressed(abs(ret.steeringTorque) > CarControllerParams.STEER_DRIVER_ALLOWANCE, 5)
     ret.steerFaultTemporary = cp.vl["EPAS_INFO"]["EPAS_Failure"] == 1
@@ -69,7 +100,10 @@ class CarState(CarStateBase):
 
     # gear
     if self.CP.transmissionType == TransmissionType.automatic:
-      gear = self.shifter_values.get(cp.vl["Gear_Shift_by_Wire_FD1"]["TrnRng_D_RqGsm"])
+      if self.CP.flags & FordFlags.ALT_STEER_ANGLE:
+        gear = self.shifter_values.get(cp.vl["TransGearData"]["GearLvrPos_D_Actl"])
+      else:
+        gear = self.shifter_values.get(cp.vl["Gear_Shift_by_Wire_FD1"]["TrnRng_D_RqGsm"])
       ret.gearShifter = self.parse_gear_shifter(gear)
     elif self.CP.transmissionType == TransmissionType.manual:
       ret.clutchPressed = cp.vl["Engine_Clutch_Data"]["CluPdlPos_Pc_Meas"] > 0
@@ -107,10 +141,17 @@ class CarState(CarStateBase):
     self.acc_tja_status_stock_values = cp_cam.vl["ACCDATA_3"]
     self.lkas_status_stock_values = cp_cam.vl["IPMA_Data"]
 
-    return ret
+    # FrogPilot CarState functions
+    if self.CP.flags & FordFlags.CANFD:
+      fp_ret.dashboardSpeedLimit = calculate_speed_limit(cp_cam)
+
+    self.lkas_previously_enabled = self.lkas_enabled
+    self.lkas_enabled = ret.genericToggle
+
+    return ret, fp_ret
 
   @staticmethod
-  def get_can_parser(CP):
+  def get_can_parser(CP, FPCP):
     messages = [
       # sig_address, frequency
       ("VehicleOperatingModes", 100),
@@ -121,12 +162,22 @@ class CarState(CarStateBase):
       ("BrakeSnData_4", 50),
       ("EngBrakeData", 10),
       ("Cluster_Info1_FD1", 10),
-      ("SteeringPinion_Data", 100),
       ("EPAS_INFO", 50),
       ("Steering_Data_FD1", 10),
       ("BodyInfo_3_FD1", 2),
       ("RCMStatusMessage2_FD1", 10),
     ]
+
+    if CP.flags & FordFlags.ALT_STEER_ANGLE:
+      messages += [
+        ("ParkAid_Data", 50),
+        ("SteeringPinion_Data_Alt", 100),
+        ("TransGearData", 10),
+      ]
+    else:
+      messages += [
+        ("SteeringPinion_Data", 100),
+      ]
 
     if CP.flags & FordFlags.CANFD:
       messages += [
@@ -156,7 +207,7 @@ class CarState(CarStateBase):
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, CanBus(CP).main)
 
   @staticmethod
-  def get_cam_can_parser(CP):
+  def get_cam_can_parser(CP, FPCP):
     messages = [
       # sig_address, frequency
       ("ACCDATA", 50),
@@ -164,6 +215,11 @@ class CarState(CarStateBase):
       ("ACCDATA_3", 5),
       ("IPMA_Data", 1),
     ]
+
+    if CP.flags & FordFlags.CANFD:
+      messages += [
+        ("Traffic_RecognitnData", 1),
+      ]
 
     if CP.enableBsm and CP.flags & FordFlags.CANFD:
       messages += [

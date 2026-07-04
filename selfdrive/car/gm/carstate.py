@@ -1,5 +1,5 @@
 import copy
-from cereal import car
+from cereal import car, custom
 from openpilot.common.conversions import Conversions as CV
 from openpilot.common.numpy_fast import mean
 from opendbc.can.can_define import CANDefine
@@ -14,8 +14,8 @@ STANDSTILL_THRESHOLD = 10 * 0.0311 * CV.KPH_TO_MS
 
 
 class CarState(CarStateBase):
-  def __init__(self, CP):
-    super().__init__(CP)
+  def __init__(self, CP, FPCP):
+    super().__init__(CP, FPCP)
     can_define = CANDefine(DBC[CP.carFingerprint]["pt"])
     self.shifter_values = can_define.dv["ECMPRDNL2"]["PRNDL2"]
     self.cluster_speed_hyst_gap = CV.KPH_TO_MS / 2.
@@ -32,8 +32,9 @@ class CarState(CarStateBase):
 
     self.single_pedal_mode = False
 
-  def update(self, pt_cp, cam_cp, loopback_cp):
+  def update(self, pt_cp, cam_cp, loopback_cp, frogpilot_toggles):
     ret = car.CarState.new_message()
+    fp_ret = custom.FrogPilotCarState.new_message()
 
     self.prev_cruise_buttons = self.cruise_buttons
     self.prev_distance_button = self.distance_button
@@ -94,7 +95,7 @@ class CarState(CarStateBase):
 
     if self.CP.enableGasInterceptor:
       ret.gas = (pt_cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS"] + pt_cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS2"]) / 2.
-      threshold = 15 if self.CP.carFingerprint in CAMERA_ACC_CAR else 4
+      threshold = 10 if self.CP.carFingerprint in CAMERA_ACC_CAR else 4 # Panda 515 threshold = 10.88. Set lower to avoid panda blocking messages and GasInterceptor faulting.
       if self.CP.carFingerprint == CAR.CHEVROLET_VOLT:
         threshold = 2.25
       ret.gasPressed = ret.gas > threshold
@@ -169,10 +170,22 @@ class CarState(CarStateBase):
         ret.leftBlindspot = cam_cp.vl["BCMBlindSpotMonitor"]["LeftBSM"] == 1
         ret.rightBlindspot = cam_cp.vl["BCMBlindSpotMonitor"]["RightBSM"] == 1
 
-    return ret
+    # FrogPilot CarState functions
+    self.lkas_previously_enabled = self.lkas_enabled
+    if self.CP.carFingerprint in SDGM_CAR:
+      self.lkas_enabled = cam_cp.vl["ASCMSteeringButton"]["LKAButton"]
+    else:
+      self.lkas_enabled = pt_cp.vl["ASCMSteeringButton"]["LKAButton"]
+
+    if self.CP.transmissionType == TransmissionType.direct:
+      self.single_pedal_mode |= ret.regenBraking and ret.gearShifter == GearShifter.manumatic
+
+    fp_ret.sportGear = pt_cp.vl["SportMode"]["SportMode"] == 1
+
+    return ret, fp_ret
 
   @staticmethod
-  def get_cam_can_parser(CP):
+  def get_cam_can_parser(CP, FPCP):
     messages = []
     if CP.networkLocation == NetworkLocation.fwdCamera and not CP.flags & GMFlags.NO_CAMERA.value:
       messages += [
@@ -199,7 +212,7 @@ class CarState(CarStateBase):
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, CanBus.CAMERA)
 
   @staticmethod
-  def get_can_parser(CP):
+  def get_can_parser(CP, FPCP):
     messages = [
       ("PSCMStatus", 10),
       ("ESPStatus", 10),
@@ -208,6 +221,7 @@ class CarState(CarStateBase):
       ("EBCMFrictionBrakeStatus", 20),
       ("PSCMSteeringAngle", 100),
       ("ECMAcceleratorPos", 80),
+      ("SportMode", 0),
     ]
 
     if CP.carFingerprint in SDGM_CAR:
@@ -234,9 +248,10 @@ class CarState(CarStateBase):
       messages += [
         ("ASCMLKASteeringCmd", 0),
       ]
-      if CP.flags & GMFlags.NO_ACCELERATOR_POS_MSG.value:
-        messages.remove(("ECMAcceleratorPos", 80))
-        messages.append(("EBCMBrakePedalPosition", 100))
+
+    if CP.flags & GMFlags.NO_ACCELERATOR_POS_MSG.value:
+      messages.remove(("ECMAcceleratorPos", 80))
+      messages.append(("EBCMBrakePedalPosition", 100))
 
     if CP.transmissionType == TransmissionType.direct:
       messages += [

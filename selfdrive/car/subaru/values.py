@@ -20,11 +20,13 @@ class CarControllerParams:
     self.STEER_DRIVER_FACTOR = 1       # from dbc
 
     if CP.flags & SubaruFlags.GLOBAL_GEN2:
-      self.STEER_MAX = 1000
-      self.STEER_DELTA_UP = 40
-      self.STEER_DELTA_DOWN = 40
+      self.STEER_MAX = 1500
+      self.STEER_DELTA_UP = 35
+      self.STEER_DELTA_DOWN = 50
     elif CP.carFingerprint == CAR.SUBARU_IMPREZA_2020:
       self.STEER_MAX = 1439
+    elif CP.carFingerprint == CAR.SUBARU_IMPREZA:
+      self.STEER_MAX = 3071
     else:
       self.STEER_MAX = 2047
 

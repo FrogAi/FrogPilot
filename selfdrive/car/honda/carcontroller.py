@@ -4,6 +4,7 @@ from cereal import car
 from openpilot.common.numpy_fast import clip, interp
 from openpilot.common.realtime import DT_CTRL
 from opendbc.can.packer import CANPacker
+from openpilot.selfdrive.car import create_gas_interceptor_command
 from openpilot.selfdrive.car.honda import hondacan
 from openpilot.selfdrive.car.honda.values import CruiseButtons, VISUAL_HUD, HONDA_BOSCH, HONDA_BOSCH_RADARLESS, HONDA_NIDEC_ALT_PCM_ACCEL, CarControllerParams
 from openpilot.selfdrive.car.interfaces import CarControllerBase
@@ -18,21 +19,25 @@ def compute_gb_honda_bosch(accel, speed):
   return 0.0, 0.0
 
 
-def compute_gb_honda_nidec(accel, speed):
+def compute_gb_honda_nidec(accel, speed, frogpilot_toggles):
   creep_brake = 0.0
   creep_speed = 2.3
   creep_brake_value = 0.15
   if speed < creep_speed:
     creep_brake = (creep_speed - speed) / creep_speed * creep_brake_value
   gb = float(accel) / 4.8 - creep_brake
-  return clip(gb, 0.0, 1.0), clip(-gb, 0.0, 1.0)
+
+  if frogpilot_toggles.honda_nidec_max_brake:
+    return clip(gb, 0.0, 1.0), clip(float(accel) / -4.0, 0.0, 1.0)
+  else:
+    return clip(gb, 0.0, 1.0), clip(-gb, 0.0, 1.0)
 
 
-def compute_gas_brake(accel, speed, fingerprint):
+def compute_gas_brake(accel, speed, fingerprint, frogpilot_toggles):
   if fingerprint in HONDA_BOSCH:
     return compute_gb_honda_bosch(accel, speed)
   else:
-    return compute_gb_honda_nidec(accel, speed)
+    return compute_gb_honda_nidec(accel, speed, frogpilot_toggles)
 
 
 # TODO not clear this does anything useful
@@ -125,7 +130,7 @@ class CarController(CarControllerBase):
     self.brake = 0.0
     self.last_steer = 0.0
 
-  def update(self, CC, CS, now_nanos):
+  def update(self, CC, CS, now_nanos, frogpilot_toggles):
     actuators = CC.actuators
     hud_control = CC.hudControl
     conversion = hondacan.get_cruise_speed_conversion(self.CP.carFingerprint, CS.is_metric)
@@ -134,7 +139,7 @@ class CarController(CarControllerBase):
 
     if CC.longActive:
       accel = actuators.accel
-      gas, brake = compute_gas_brake(actuators.accel, CS.out.vEgo, self.CP.carFingerprint)
+      gas, brake = compute_gas_brake(actuators.accel, CS.out.vEgo, self.CP.carFingerprint, frogpilot_toggles)
     else:
       accel = 0.0
       gas, brake = 0.0, 0.0
@@ -182,7 +187,7 @@ class CarController(CarControllerBase):
                     0.5]
     # The Honda ODYSSEY seems to have different PCM_ACCEL
     # msgs, is it other cars too?
-    if not CC.longActive:
+    if self.CP.enableGasInterceptor or not CC.longActive:
       pcm_speed = 0.0
       pcm_accel = int(0.0)
     elif self.CP.carFingerprint in HONDA_NIDEC_ALT_PCM_ACCEL:
@@ -223,7 +228,10 @@ class CarController(CarControllerBase):
           can_sends.extend(hondacan.create_acc_commands(self.packer, self.CAN, CC.enabled, CC.longActive, self.accel, self.gas,
                                                         self.stopping_counter, self.CP.carFingerprint))
         else:
-          apply_brake = clip(self.brake_last - wind_brake, 0.0, 1.0)
+          if frogpilot_toggles.honda_nidec_max_brake:
+            apply_brake = clip(self.brake_last - (wind_brake if self.brake_last <= 0.95 else 0.0), 0.0, 1.0)
+          else:
+            apply_brake = clip(self.brake_last - wind_brake, 0.0, 1.0)
           apply_brake = int(clip(apply_brake * self.params.NIDEC_BRAKE_MAX, 0, self.params.NIDEC_BRAKE_MAX - 1))
           pump_on, self.last_pump_ts = brake_pump_hysteresis(apply_brake, self.apply_brake_last, self.last_pump_ts, ts)
 
@@ -234,15 +242,29 @@ class CarController(CarControllerBase):
           self.apply_brake_last = apply_brake
           self.brake = apply_brake / self.params.NIDEC_BRAKE_MAX
 
+          if self.CP.enableGasInterceptor:
+            # way too aggressive at low speed without this
+            gas_mult = 1.0 if frogpilot_toggles.honda_low_speed_pedal else interp(CS.out.vEgo, [0., 10.], [0.4, 1.0])
+            # send exactly zero if apply_gas is zero. Interceptor will send the max between read value and apply_gas.
+            # This prevents unexpected pedal range rescaling
+            # Sending non-zero gas when OP is not enabled will cause the PCM not to respond to throttle as expected
+            # when you do enable.
+            if CC.longActive:
+              self.gas = clip(gas_mult * (gas - brake + wind_brake * 3 / 4), 0., 1.)
+            else:
+              self.gas = 0.0
+            can_sends.append(create_gas_interceptor_command(self.packer, self.gas, self.frame // 2))
+
     # Send dashboard UI commands.
     if self.frame % 10 == 0:
       hud = HUDData(int(pcm_accel), int(round(hud_v_cruise)), hud_control.leadVisible,
                     hud_control.lanesVisible, fcw_display, acc_alert, steer_required, hud_control.leadDistanceBars)
-      can_sends.extend(hondacan.create_ui_commands(self.packer, self.CAN, self.CP, CC.enabled, pcm_speed, hud, CS.is_metric, CS.acc_hud, CS.lkas_hud))
+      can_sends.extend(hondacan.create_ui_commands(self.packer, self.CAN, self.CP, CC.enabled, pcm_speed, hud, CS.is_metric, CS.acc_hud, CS.lkas_hud, CC.latActive))
 
       if self.CP.openpilotLongitudinalControl and self.CP.carFingerprint not in HONDA_BOSCH:
         self.speed = pcm_speed
-        self.gas = pcm_accel / self.params.NIDEC_GAS_MAX
+        if not self.CP.enableGasInterceptor:
+          self.gas = pcm_accel / self.params.NIDEC_GAS_MAX
 
     new_actuators = actuators.as_builder()
     new_actuators.speed = self.speed

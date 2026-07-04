@@ -15,7 +15,7 @@ class CarController(CarControllerBase):
     self.pt_packer = CANPacker(DBC[CP.carFingerprint]['pt'])
     self.tesla_can = TeslaCAN(self.packer, self.pt_packer)
 
-  def update(self, CC, CS, now_nanos):
+  def update(self, CC, CS, now_nanos, frogpilot_toggles):
     actuators = CC.actuators
     pcm_cancel_cmd = CC.cruiseControl.cancel
 

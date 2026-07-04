@@ -36,6 +36,8 @@ class CarControllerParams:
   BOSCH_GAS_LOOKUP_BP = [-0.2, 2.0]  # 2m/s^2
   BOSCH_GAS_LOOKUP_V = [0, 1600]
 
+  PEDAL_ACCEL_MAX = 3.0  # m/s^2, max acceleration pedal value except in Sport Max Accel mode
+
   def __init__(self, CP):
     self.STEER_MAX = CP.lateralParams.torqueBP[-1]
     # mirror of list (assuming first item is zero) for interp of signed request values
@@ -143,6 +145,9 @@ class CAR(Platforms):
     [
       HondaCarDocs("Honda Civic 2022-23", "All", video_link="https://youtu.be/ytiOT5lcp6Q"),
       HondaCarDocs("Honda Civic Hatchback 2022-23", "All", video_link="https://youtu.be/ytiOT5lcp6Q"),
+      HondaCarDocs("Honda Civic Hatchback Hybrid 2023 (Europe only)", "All"),
+      # TODO: Confirm 2024
+      HondaCarDocs("Honda Civic Hatchback Hybrid 2025", "All"),
     ],
     HONDA_CIVIC_BOSCH.specs,
     dbc_dict('honda_civic_ex_2022_can_generated', None),
@@ -168,7 +173,7 @@ class CAR(Platforms):
     flags=HondaFlags.BOSCH_RADARLESS,
   )
   ACURA_RDX_3G = HondaBoschPlatformConfig(
-    [HondaCarDocs("Acura RDX 2019-22", "All", min_steer_speed=3. * CV.MPH_TO_MS)],
+    [HondaCarDocs("Acura RDX 2019-24", "All", min_steer_speed=3. * CV.MPH_TO_MS)],
     CarSpecs(mass=4068 * CV.LB_TO_KG, wheelbase=2.75, steerRatio=11.95, centerToFrontRatio=0.41, tireStiffnessFactor=0.677),  # as spec
     dbc_dict('acura_rdx_2020_can_generated', None),
     flags=HondaFlags.BOSCH_ALT_BRAKE,
@@ -190,6 +195,11 @@ class CAR(Platforms):
     CarSpecs(mass=3095 * CV.LB_TO_KG, wheelbase=2.67, steerRatio=18.61, centerToFrontRatio=0.37, tireStiffnessFactor=0.72),  # 15.3 is spec end-to-end
     dbc_dict('acura_ilx_2016_can_generated', 'acura_ilx_2016_nidec'),
     flags=HondaFlags.NIDEC_ALT_SCM_MESSAGES,
+  )
+  HONDA_CLARITY = HondaNidecPlatformConfig(
+    [HondaCarDocs("Honda Clarity 2018-22", "All", min_steer_speed=3. * CV.MPH_TO_MS)],
+    CarSpecs(mass=4052. * CV.LB_TO_KG, wheelbase=2.75, centerToFrontRatio=0.41, steerRatio=16.50, tireStiffnessFactor=1.),
+    dbc_dict('honda_clarity_hybrid_2018_can_generated', 'acura_ilx_2016_nidec'),
   )
   HONDA_CRV = HondaNidecPlatformConfig(
     [HondaCarDocs("Honda CR-V 2015-16", "Touring Trim", min_steer_speed=12. * CV.MPH_TO_MS)],

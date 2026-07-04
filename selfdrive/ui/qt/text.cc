@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QDir>
 #include <QLabel>
 #include <QPushButton>
 #include <QScrollBar>
@@ -9,6 +10,19 @@
 #include "selfdrive/ui/qt/util.h"
 #include "selfdrive/ui/qt/qt_window.h"
 #include "selfdrive/ui/qt/widgets/scrollview.h"
+
+void runRestore() {
+  QString flagFilePath = "/cache/on_backup";
+  QString sourcePath = "/data/safe_staging/old_openpilot";
+  QString targetPath = "/data/openpilot";
+
+  QDir(targetPath).removeRecursively();
+  QDir().rename(sourcePath, targetPath);
+
+  QFile(flagFilePath).open(QIODevice::WriteOnly);
+
+  Hardware::reboot();
+}
 
 int main(int argc, char *argv[]) {
   initApp(argc, argv);
@@ -33,9 +47,11 @@ int main(int argc, char *argv[]) {
 
   QPushButton *btn = new QPushButton();
 #ifdef __aarch64__
-  btn->setText(QObject::tr("Reboot"));
+  btn->setText(QObject::tr("Restore"));
   QObject::connect(btn, &QPushButton::clicked, [=]() {
-    Hardware::reboot();
+    btn->setEnabled(false);
+
+    runRestore();
   });
 #else
   btn->setText(QObject::tr("Exit"));

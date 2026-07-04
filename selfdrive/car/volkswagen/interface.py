@@ -9,8 +9,8 @@ EventName = car.CarEvent.EventName
 
 
 class CarInterface(CarInterfaceBase):
-  def __init__(self, CP, CarController, CarState):
-    super().__init__(CP, CarController, CarState)
+  def __init__(self, CP, FPCP, CarController, CarState):
+    super().__init__(CP, FPCP, CarController, CarState)
 
     if CP.networkLocation == NetworkLocation.fwdCamera:
       self.ext_bus = CANBUS.pt
@@ -20,7 +20,7 @@ class CarInterface(CarInterfaceBase):
       self.cp_ext = self.cp_cam
 
   @staticmethod
-  def _get_params(ret, candidate: CAR, fingerprint, car_fw, experimental_long, docs):
+  def _get_params(ret, candidate: CAR, fingerprint, car_fw, experimental_long, docs, frogpilot_toggles):
     ret.carName = "volkswagen"
     ret.radarUnavailable = True
 
@@ -96,15 +96,13 @@ class CarInterface(CarInterfaceBase):
     ret.stopAccel = -0.55
     ret.vEgoStarting = 0.1
     ret.vEgoStopping = 0.5
-    ret.longitudinalTuning.kpV = [0.1]
-    ret.longitudinalTuning.kiV = [0.0]
     ret.autoResumeSng = ret.minEnableSpeed == -1
 
     return ret
 
   # returns a car.CarState
-  def _update(self, c):
-    ret = self.CS.update(self.cp, self.cp_cam, self.cp_ext, self.CP.transmissionType)
+  def _update(self, c, frogpilot_toggles):
+    ret, fp_ret = self.CS.update(self.cp, self.cp_cam, self.cp_ext, self.CP.transmissionType, frogpilot_toggles)
 
     events = self.create_common_events(ret, extra_gears=[GearShifter.eco, GearShifter.sport, GearShifter.manumatic],
                                        pcm_enable=not self.CS.CP.openpilotLongitudinalControl,
@@ -129,5 +127,4 @@ class CarInterface(CarInterfaceBase):
 
     ret.events = events.to_msg()
 
-    return ret
-
+    return ret, fp_ret

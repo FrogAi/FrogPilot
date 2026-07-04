@@ -1,4 +1,4 @@
-from cereal import car
+from cereal import car, custom
 from openpilot.common.conversions import Conversions as CV
 from opendbc.can.can_define import CANDefine
 from opendbc.can.parser import CANParser
@@ -6,8 +6,8 @@ from openpilot.selfdrive.car.interfaces import CarStateBase
 from openpilot.selfdrive.car.mazda.values import DBC, LKAS_LIMITS, MazdaFlags
 
 class CarState(CarStateBase):
-  def __init__(self, CP):
-    super().__init__(CP)
+  def __init__(self, CP, FPCP):
+    super().__init__(CP, FPCP)
 
     can_define = CANDefine(DBC[CP.carFingerprint]["pt"])
     self.shifter_values = can_define.dv["GEAR"]["GEAR"]
@@ -21,9 +21,10 @@ class CarState(CarStateBase):
     self.prev_distance_button = 0
     self.distance_button = 0
 
-  def update(self, cp, cp_cam):
+  def update(self, cp, cp_cam, frogpilot_toggles):
 
     ret = car.CarState.new_message()
+    fp_ret = custom.FrogPilotCarState.new_message()
 
     self.prev_distance_button = self.distance_button
     self.distance_button = cp.vl["CRZ_BTNS"]["DISTANCE_LESS"]
@@ -110,10 +111,14 @@ class CarState(CarStateBase):
     self.cam_laneinfo = cp_cam.vl["CAM_LANEINFO"]
     ret.steerFaultPermanent = cp_cam.vl["CAM_LKAS"]["ERR_BIT_1"] == 1
 
-    return ret
+    # FrogPilot CarState functions
+    self.lkas_previously_enabled = self.lkas_enabled
+    self.lkas_enabled = not self.lkas_disabled
+
+    return ret, fp_ret
 
   @staticmethod
-  def get_can_parser(CP):
+  def get_can_parser(CP, FPCP):
     messages = [
       # sig_address, frequency
       ("BLINK_INFO", 10),
@@ -140,7 +145,7 @@ class CarState(CarStateBase):
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, 0)
 
   @staticmethod
-  def get_cam_can_parser(CP):
+  def get_cam_can_parser(CP, FPCP):
     messages = []
 
     if CP.flags & MazdaFlags.GEN1:

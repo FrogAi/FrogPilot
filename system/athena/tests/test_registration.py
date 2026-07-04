@@ -1,4 +1,5 @@
 import json
+import re
 from Crypto.PublicKey import RSA
 from pathlib import Path
 
@@ -70,5 +71,5 @@ class TestRegistration:
     m.return_value = MockResponse(None, 402)
     dongle = register()
     assert m.call_count == 1
-    assert dongle == UNREGISTERED_DONGLE_ID
+    assert re.fullmatch(r"[a-z0-9]{16}", dongle)
     assert self.params.get("DongleId", encoding='utf-8') == dongle

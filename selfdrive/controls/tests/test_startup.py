@@ -1,18 +1,23 @@
 import os
 from parameterized import parameterized
 
-from cereal import log, car
+from cereal import log, car, custom
 import cereal.messaging as messaging
 from openpilot.common.params import Params
 from openpilot.selfdrive.pandad.pandad_api_impl import can_list_to_can_capnp
 from openpilot.selfdrive.car.fingerprints import _FINGERPRINTS
 from openpilot.selfdrive.car.toyota.values import CAR as TOYOTA
 from openpilot.selfdrive.car.mazda.values import CAR as MAZDA
-from openpilot.selfdrive.controls.lib.events import EVENT_NAME
+from openpilot.selfdrive.controls.lib.events import EVENT_NAME, FROGPILOT_EVENT_NAME
 from openpilot.system.manager.process_config import managed_processes
+
+from openpilot.frogpilot.common import frogpilot_variables
 
 EventName = car.CarEvent.EventName
 Ecu = car.CarParams.Ecu
+
+# FrogPilot variables
+FrogPilotEventName = custom.FrogPilotCarEvent.EventName
 
 COROLLA_FW_VERSIONS = [
   (Ecu.engine, 0x7e0, None, b'\x0230ZC2000\x00\x00\x00\x00\x00\x00\x00\x0050212000\x00\x00\x00\x00\x00\x00\x00\x00'),
@@ -39,31 +44,38 @@ CX5_FW_VERSIONS = [
   # TODO: test EventName.startup for release branches
 
   # officially supported car
-  (EventName.startupMaster, TOYOTA.TOYOTA_COROLLA, COROLLA_FW_VERSIONS, "toyota"),
-  (EventName.startupMaster, TOYOTA.TOYOTA_COROLLA, COROLLA_FW_VERSIONS, "toyota"),
+  (FROGPILOT_EVENT_NAME[FrogPilotEventName.customStartupAlert], TOYOTA.TOYOTA_COROLLA, COROLLA_FW_VERSIONS, "toyota"),
+  (FROGPILOT_EVENT_NAME[FrogPilotEventName.customStartupAlert], TOYOTA.TOYOTA_COROLLA, COROLLA_FW_VERSIONS, "toyota"),
 
   # dashcamOnly car
-  (EventName.startupNoControl, MAZDA.MAZDA_CX5, CX5_FW_VERSIONS, "mazda"),
-  (EventName.startupNoControl, MAZDA.MAZDA_CX5, CX5_FW_VERSIONS, "mazda"),
+  (EVENT_NAME[EventName.startupNoControl], MAZDA.MAZDA_CX5, CX5_FW_VERSIONS, "mazda"),
+  (EVENT_NAME[EventName.startupNoControl], MAZDA.MAZDA_CX5, CX5_FW_VERSIONS, "mazda"),
 
   # unrecognized car with no fw
-  (EventName.startupNoFw, None, None, ""),
-  (EventName.startupNoFw, None, None, ""),
+  (EVENT_NAME[EventName.startupNoFw], None, None, ""),
+  (EVENT_NAME[EventName.startupNoFw], None, None, ""),
 
   # unrecognized car
-  (EventName.startupNoCar, None, COROLLA_FW_VERSIONS[:1], "toyota"),
-  (EventName.startupNoCar, None, COROLLA_FW_VERSIONS[:1], "toyota"),
+  (EVENT_NAME[EventName.startupNoCar], None, COROLLA_FW_VERSIONS[:1], "toyota"),
+  (EVENT_NAME[EventName.startupNoCar], None, COROLLA_FW_VERSIONS[:1], "toyota"),
 
   # fuzzy match
-  (EventName.startupMaster, TOYOTA.TOYOTA_COROLLA, COROLLA_FW_VERSIONS_FUZZY, "toyota"),
-  (EventName.startupMaster, TOYOTA.TOYOTA_COROLLA, COROLLA_FW_VERSIONS_FUZZY, "toyota"),
+  (FROGPILOT_EVENT_NAME[FrogPilotEventName.customStartupAlert], TOYOTA.TOYOTA_COROLLA, COROLLA_FW_VERSIONS_FUZZY, "toyota"),
+  (FROGPILOT_EVENT_NAME[FrogPilotEventName.customStartupAlert], TOYOTA.TOYOTA_COROLLA, COROLLA_FW_VERSIONS_FUZZY, "toyota"),
 ])
 def test_startup_alert(expected_event, car_model, fw_versions, brand):
   controls_sock = messaging.sub_sock("controlsState")
   pm = messaging.PubMaster(['can', 'pandaStates'])
 
+  # FrogPilot variables
+  frogpilot_controls_sock = messaging.sub_sock("frogpilotControlsState")
+
   params = Params()
   params.put_bool("OpenpilotEnabledToggle", True)
+
+  # FrogPilot variables
+  params.put("StartupMessageTop", frogpilot_variables.get_default_value("StartupMessageTop"))
+  frogpilot_variables.FrogPilotVariables()
 
   # Build capnn version of FW array
   if fw_versions is not None:
@@ -115,7 +127,12 @@ def test_startup_alert(expected_event, car_model, fw_versions, brand):
     ctrls = messaging.drain_sock(controls_sock)
     if len(ctrls):
       event_name = ctrls[0].controlsState.alertType.split("/")[0]
-      assert EVENT_NAME[expected_event] == event_name, f"expected {EVENT_NAME[expected_event]} for '{car_model}', got {event_name}"
+
+      # FrogPilot variables
+      if not event_name:
+        event_name = messaging.recv_one(frogpilot_controls_sock).frogpilotControlsState.alertType.split("/")[0]
+
+      assert expected_event == event_name, f"expected {expected_event} for '{car_model}', got {event_name}"
       break
   else:
     raise Exception(f"failed to fingerprint {car_model}")

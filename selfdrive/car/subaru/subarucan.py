@@ -66,7 +66,7 @@ def create_es_distance(packer, frame, es_distance_msg, bus, pcm_cancel_cmd, long
   return packer.make_can_msg("ES_Distance", bus, values)
 
 
-def create_es_lkas_state(packer, frame, es_lkas_state_msg, enabled, visual_alert, left_line, right_line, left_lane_depart, right_lane_depart):
+def create_es_lkas_state(packer, frame, es_lkas_state_msg, enabled, visual_alert, left_line, right_line, left_lane_depart, right_lane_depart, lat_active):
   values = {s: es_lkas_state_msg[s] for s in [
     "CHECKSUM",
     "LKAS_Alert_Msg",
@@ -118,9 +118,11 @@ def create_es_lkas_state(packer, frame, es_lkas_state_msg, enabled, visual_alert
     elif right_lane_depart:
       values["LKAS_Alert"] = 11  # Right lane departure dash alert
 
-  if enabled:
+  if lat_active:
     values["LKAS_ACTIVE"] = 1  # Show LKAS lane lines
     values["LKAS_Dash_State"] = 2  # Green enabled indicator
+    values["LKAS_Left_Line_Enable"] = 1
+    values["LKAS_Right_Line_Enable"] = 1
   else:
     values["LKAS_Dash_State"] = 0  # LKAS Not enabled
 
@@ -319,3 +321,70 @@ def create_preglobal_es_distance(packer, cruise_button, es_distance_msg):
   values["Checksum"] = subaru_preglobal_checksum(packer, values, "ES_Distance")
 
   return packer.make_can_msg("ES_Distance", CanBus.main, values)
+
+
+def create_brake_pedal(packer, frame, brake_pedal_msg, speed_cmd, brake_cmd):
+  values = {s: brake_pedal_msg[s] for s in sorted([
+    "Brake_Lights",
+    "Brake_Pedal",
+    "Signal1",
+    "Signal2",
+    "Signal3",
+    "Signal4",
+    "Speed",
+  ])}
+
+  values["COUNTER"] = frame % 0x10
+
+  if speed_cmd:
+    values["Speed"] = 3
+  if brake_cmd:
+    values["Brake_Pedal"] = 5
+    values["Brake_Lights"] = 1
+
+  return packer.make_can_msg("Brake_Pedal", CanBus.camera, values)
+
+
+def create_throttle(packer, frame, throttle_msg, throttle_cmd):
+  values = {s: throttle_msg[s] for s in sorted([
+    "CHECKSUM",
+    "Engine_RPM",
+    "Off_Accel",
+    "Signal1",
+    "Signal2",
+    "Signal3",
+    "Throttle_Combo",
+    "Throttle_Cruise",
+    "Throttle_Pedal",
+  ])}
+
+  values["COUNTER"] = frame % 0x10
+
+  if throttle_cmd:
+    values["Throttle_Pedal"] = 5
+
+  return packer.make_can_msg("Throttle", 2, values)
+
+
+def create_preglobal_throttle(packer, frame, throttle_msg, throttle_cmd):
+  values = {s: throttle_msg[s] for s in sorted([
+    "Engine_RPM",
+    "Not_Full_Throttle",
+    "Off_Throttle",
+    "Off_Throttle_2",
+    "Signal1",
+    "Signal2",
+    "Signal3",
+    "Signal4",
+    "Throttle_Body",
+    "Throttle_Combo",
+    "Throttle_Cruise",
+    "Throttle_Pedal",
+  ])}
+
+  values["COUNTER"] = frame % 0x10
+
+  if throttle_cmd:
+    values["Throttle_Pedal"] = 5
+
+  return packer.make_can_msg("Throttle", 2, values)

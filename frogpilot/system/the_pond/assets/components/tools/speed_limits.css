@@ -1,0 +1,80 @@
+.download-speed-limits-button {
+  background-color: var(--input-bg);
+  border: none;
+  border-radius: var(--border-radius-lg);
+  box-sizing: border-box;
+  color: var(--text-color);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-demi-bold);
+  padding: var(--border-radius-xl);
+  text-align: center;
+  text-decoration: none;
+  transition: background-color var(--transition-fast), box-shadow var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+  width: 100%;
+}
+
+.download-speed-limits-button + .download-speed-limits-button {
+  margin-top: var(--padding-sm);
+}
+
+.download-speed-limits-button:hover:enabled {
+  box-shadow: var(--shadow-md);
+  transform: var(--hover-scale-sm);
+}
+
+.download-speed-limits-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.download-speed-limits-button-wrapper {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.download-speed-limits-link {
+  color: var(--text-color);
+  font-size: var(--font-size-sm);
+  margin-top: var(--padding-sm);
+  text-decoration: underline;
+  white-space: nowrap;
+}
+
+.download-speed-limits-text {
+  color: var(--text-color);
+  text-align: center;
+}
+
+.download-speed-limits-title {
+  background-color: var(--input-bg);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  box-sizing: border-box;
+  color: var(--text-color);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  padding: var(--padding-sm);
+  text-align: center;
+  width: 100%;
+}
+
+.download-speed-limits-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.download-speed-limits-widget {
+  align-items: center;
+  background-color: var(--secondary-bg);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  color: var(--main-fg);
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--padding-xl);
+  max-width: var(--width-lg);
+  padding: var(--padding-lg);
+  transform-origin: top center;
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+}

@@ -1,0 +1,70 @@
+name: "Schedule FrogPilot Update"
+run-name: "Schedule FrogPilot update for ${{ inputs.scheduled_date }}"
+
+on:
+  workflow_dispatch:
+    inputs:
+      scheduled_date:
+        description: Enter the date to update the FrogPilot branch (YYYY-MM-DD)
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  BRANCH_STAGING: ${{ vars.BRANCH_STAGING || 'FrogPilot-Staging' }}
+  TZ: America/Phoenix
+
+concurrency:
+  group: schedule-frogpilot-update-staging
+
+jobs:
+  schedule_update:
+    name: "Schedule staging release handoff"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: "Checkout staging branch"
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.BRANCH_STAGING }}
+
+      - name: "Schedule staging release handoff"
+        env:
+          INPUT_SCHEDULED_DATE: ${{ inputs.scheduled_date }}
+        run: |
+          scheduled_date="$INPUT_SCHEDULED_DATE"
+
+          if [[ -z "${{ vars.GIT_NAME }}" || -z "${{ vars.GIT_EMAIL }}" ]]; then
+            echo "Repository variables GIT_NAME and GIT_EMAIL must be set."
+            exit 1
+          fi
+
+          git config user.name "${{ vars.GIT_NAME }}"
+          git config user.email "${{ vars.GIT_EMAIL }}"
+
+          if ! parsed_date=$(TZ="$TZ" date -d "$scheduled_date" +%F 2>/dev/null); then
+            echo "scheduled_date must be a valid YYYY-MM-DD date."
+            exit 1
+          fi
+
+          today=$(TZ="$TZ" date +%F)
+          if [[ "$parsed_date" < "$today" ]]; then
+            echo "scheduled_date must be today or later in $TZ."
+            exit 1
+          fi
+
+          printf "%s\n" "$parsed_date" > ".github/update_date"
+          git add ".github/update_date"
+
+          if git diff --cached --quiet; then
+            echo "No schedule change detected."
+            exit 0
+          fi
+
+          GIT_AUTHOR_DATE="$(git log -1 --format=%aI)" \
+          GIT_COMMITTER_DATE="$(git log -1 --format=%cI)" \
+          git commit --amend --no-edit
+
+          git push --force-with-lease origin "HEAD:refs/heads/$BRANCH_STAGING"

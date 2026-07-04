@@ -1,5 +1,5 @@
 import numpy as np
-from cereal import car
+from cereal import car, custom
 from openpilot.common.conversions import Conversions as CV
 from openpilot.selfdrive.car.interfaces import CarStateBase
 from opendbc.can.parser import CANParser
@@ -8,8 +8,8 @@ from openpilot.selfdrive.car.volkswagen.values import DBC, CANBUS, NetworkLocati
 
 
 class CarState(CarStateBase):
-  def __init__(self, CP):
-    super().__init__(CP)
+  def __init__(self, CP, FPCP):
+    super().__init__(CP, FPCP)
     self.frame = 0
     self.eps_init_complete = False
     self.CCP = CarControllerParams(CP)
@@ -32,11 +32,12 @@ class CarState(CarStateBase):
 
     return button_events
 
-  def update(self, pt_cp, cam_cp, ext_cp, trans_type):
+  def update(self, pt_cp, cam_cp, ext_cp, trans_type, frogpilot_toggles):
     if self.CP.flags & VolkswagenFlags.PQ:
-      return self.update_pq(pt_cp, cam_cp, ext_cp, trans_type)
+      return self.update_pq(pt_cp, cam_cp, ext_cp, trans_type, frogpilot_toggles)
 
     ret = car.CarState.new_message()
+    fp_ret = custom.FrogPilotCarState.new_message()
     # Update vehicle speed and acceleration from ABS wheel speeds.
     ret.wheelSpeeds = self.get_wheel_speeds(
       pt_cp.vl["ESP_19"]["ESP_VL_Radgeschw_02"],
@@ -152,11 +153,18 @@ class CarState(CarStateBase):
     # Digital instrument clusters expect the ACC HUD lead car distance to be scaled differently
     self.upscale_lead_car_signal = bool(pt_cp.vl["Kombi_03"]["KBI_Variante"])
 
-    self.frame += 1
-    return ret
+    # FrogPilot CarState functions
+    fp_ret.brakeLights = bool(pt_cp.vl["ESP_05"]['ESP_Status_Bremsdruck'])
 
-  def update_pq(self, pt_cp, cam_cp, ext_cp, trans_type):
+    self.prev_distance_button = self.distance_button
+    self.distance_button = bool(pt_cp.vl["GRA_ACC_01"]["GRA_Verstellung_Zeitluecke"])
+
+    self.frame += 1
+    return ret, fp_ret
+
+  def update_pq(self, pt_cp, cam_cp, ext_cp, trans_type, frogpilot_toggles):
     ret = car.CarState.new_message()
+    fp_ret = custom.FrogPilotCarState.new_message()
     # Update vehicle speed and acceleration from ABS wheel speeds.
     ret.wheelSpeeds = self.get_wheel_speeds(
       pt_cp.vl["Bremse_3"]["Radgeschw__VL_4_1"],
@@ -251,8 +259,14 @@ class CarState(CarStateBase):
     # Additional safety checks performed in CarInterface.
     ret.espDisabled = bool(pt_cp.vl["Bremse_1"]["ESP_Passiv_getastet"])
 
+    # FrogPilot CarState functions
+    fp_ret.brakeLights = bool(pt_cp.vl["Motor_2"]['Bremstestschalter'])
+
+    self.prev_distance_button = self.distance_button
+    self.distance_button = bool(pt_cp.vl["GRA_Neu"]["GRA_Zeitluecke"])
+
     self.frame += 1
-    return ret
+    return ret, fp_ret
 
   def update_hca_state(self, hca_status):
     # Treat INITIALIZING and FAULT as temporary for worst likely EPS recovery time, for cars without factory Lane Assist
@@ -263,7 +277,7 @@ class CarState(CarStateBase):
     return temp_fault, perm_fault
 
   @staticmethod
-  def get_can_parser(CP):
+  def get_can_parser(CP, FPCP):
     if CP.flags & VolkswagenFlags.PQ:
       return CarState.get_can_parser_pq(CP)
 
@@ -300,7 +314,7 @@ class CarState(CarStateBase):
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, CANBUS.pt)
 
   @staticmethod
-  def get_cam_can_parser(CP):
+  def get_cam_can_parser(CP, FPCP):
     if CP.flags & VolkswagenFlags.PQ:
       return CarState.get_cam_can_parser_pq(CP)
 

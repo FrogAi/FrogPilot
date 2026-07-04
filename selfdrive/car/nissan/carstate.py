@@ -1,6 +1,6 @@
 import copy
 from collections import deque
-from cereal import car
+from cereal import car, custom
 from opendbc.can.can_define import CANDefine
 from openpilot.selfdrive.car.interfaces import CarStateBase
 from openpilot.common.conversions import Conversions as CV
@@ -10,8 +10,8 @@ from openpilot.selfdrive.car.nissan.values import CAR, DBC, CarControllerParams
 TORQUE_SAMPLES = 12
 
 class CarState(CarStateBase):
-  def __init__(self, CP):
-    super().__init__(CP)
+  def __init__(self, CP, FPCP):
+    super().__init__(CP, FPCP)
     can_define = CANDefine(DBC[CP.carFingerprint]["pt"])
 
     self.lkas_hud_msg = {}
@@ -23,8 +23,9 @@ class CarState(CarStateBase):
     self.prev_distance_button = 0
     self.distance_button = 0
 
-  def update(self, cp, cp_adas, cp_cam):
+  def update(self, cp, cp_adas, cp_cam, frogpilot_toggles):
     ret = car.CarState.new_message()
+    fp_ret = custom.FrogPilotCarState.new_message()
 
     self.prev_distance_button = self.distance_button
     self.distance_button = cp.vl["CRUISE_THROTTLE"]["FOLLOW_DISTANCE_BUTTON"]
@@ -107,6 +108,7 @@ class CarState(CarStateBase):
     can_gear = int(cp.vl["GEARBOX"]["GEAR_SHIFTER"])
     ret.gearShifter = self.parse_gear_shifter(self.shifter_values.get(can_gear, None))
 
+    self.lkas_previously_enabled = self.lkas_enabled
     if self.CP.carFingerprint == CAR.NISSAN_ALTIMA:
       self.lkas_enabled = bool(cp.vl["LKAS_SETTINGS"]["LKAS_ENABLED"])
     else:
@@ -121,10 +123,10 @@ class CarState(CarStateBase):
       self.lkas_hud_msg = copy.copy(cp_adas.vl["PROPILOT_HUD"])
       self.lkas_hud_info_msg = copy.copy(cp_adas.vl["PROPILOT_HUD_INFO_MSG"])
 
-    return ret
+    return ret, fp_ret
 
   @staticmethod
-  def get_can_parser(CP):
+  def get_can_parser(CP, FPCP):
     messages = [
       # sig_address, frequency
       ("STEER_ANGLE_SENSOR", 100),
@@ -185,7 +187,7 @@ class CarState(CarStateBase):
     return CANParser(DBC[CP.carFingerprint]["pt"], messages, 2)
 
   @staticmethod
-  def get_cam_can_parser(CP):
+  def get_cam_can_parser(CP, FPCP):
     messages = []
 
     if CP.carFingerprint in (CAR.NISSAN_ROGUE, CAR.NISSAN_XTRAIL):

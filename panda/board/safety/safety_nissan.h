@@ -44,6 +44,10 @@ static void nissan_rx_hook(const CANPacket_t *to_push) {
   int bus = GET_BUS(to_push);
   int addr = GET_ADDR(to_push);
 
+  if (addr == 0x1b6) {
+    acc_main_on = GET_BIT(to_push, 36U);
+  }
+
   if (bus == (nissan_alt_eps ? 1 : 0)) {
     if (addr == 0x2) {
       // Current steering angle
@@ -69,6 +73,7 @@ static void nissan_rx_hook(const CANPacket_t *to_push) {
       if (addr == 0x15c){
         gas_pressed = ((GET_BYTE(to_push, 5) << 2) | ((GET_BYTE(to_push, 6) >> 6) & 0x3U)) > 3U;
       } else {
+        acc_main_on = GET_BIT(to_push, 17U);
         gas_pressed = GET_BYTE(to_push, 0) > 3U;
       }
     }
