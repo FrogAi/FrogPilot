@@ -51,6 +51,13 @@ class TestManager:
     assert params.get("OpenpilotEnabledToggle")
     assert params.get("RouteCount") == 0
 
+  def test_restart_if_crash_flags(self):
+    # the always-run logging pipeline must self-heal when it crashes:
+    # a dead loggerd blocks engagement (processNotRunning) and a dead
+    # logmessaged silently loses all logs for the rest of the drive
+    for name in ("loggerd", "encoderd", "logmessaged"):
+      assert managed_processes[name].restart_if_crash, f"{name} must be flagged restart_if_crash"
+
   def test_restart_if_crash(self):
     def always_run(started, params, CP, frogpilot_toggles):
       return True
