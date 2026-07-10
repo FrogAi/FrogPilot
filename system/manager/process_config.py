@@ -82,7 +82,7 @@ procs = [
   NativeProcess("loggerd", "system/loggerd", ["./loggerd"], and_(allow_logging, logging), restart_if_crash=True),
   NativeProcess("encoderd", "system/loggerd", ["./encoderd"], and_(allow_logging, only_onroad), restart_if_crash=True),
   NativeProcess("stream_encoderd", "system/loggerd", ["./encoderd", "--stream"], notcar),
-  PythonProcess("logmessaged", "system.logmessaged", always_run),
+  PythonProcess("logmessaged", "system.logmessaged", always_run, restart_if_crash=True),
 
   NativeProcess("camerad", "system/camerad", ["./camerad"], driverview, enabled=not WEBCAM),
   PythonProcess("webcamerad", "tools.webcam.camerad", driverview, enabled=WEBCAM),
