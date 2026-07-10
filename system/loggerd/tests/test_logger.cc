@@ -73,3 +73,23 @@ TEST_CASE("logger") {
     verify_segment(log_root + "/" + route_name, i, segment_cnt, 1);
   }
 }
+
+TEST_CASE("logger: degrades gracefully when log storage is broken") {
+  // a regular file as the parent makes create_directories fail with ENOTDIR,
+  // which (unlike permission-based setups) also fails when running as root
+  const std::string not_a_dir = "/tmp/test_logger_notdir";
+  system(("rm -rf " + not_a_dir + " && touch " + not_a_dir).c_str());
+  {
+    LoggerState logger(not_a_dir + "/realdata");
+    REQUIRE(!logger.next());
+    REQUIRE(!logger.logging());
+    // writes while degraded must be safe no-ops
+    write_msg(&logger);
+    // the segment counter keeps advancing so encoder sync is preserved
+    REQUIRE(logger.segment() == 0);
+    REQUIRE(!logger.next());
+    REQUIRE(logger.segment() == 1);
+    // destructor must not crash with no open segment
+  }
+  system(("rm -f " + not_a_dir).c_str());
+}
