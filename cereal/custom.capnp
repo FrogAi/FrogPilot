@@ -94,7 +94,11 @@ struct FrogPilotModelDataV2 @0x80ae746ee2596b11 {
   }
 }
 
-struct FrogPilotOnroadEvent @0xa5cd762cd951a455 {
+struct FrogPilotOnroadEvents @0xa5cd762cd951a455 {
+  events @0 :List(FrogPilotOnroadEvent);
+}
+
+struct FrogPilotOnroadEvent @0x9880b8ea6a18f48b {
   name @0 :EventName;
 
   enable @1 :Bool;

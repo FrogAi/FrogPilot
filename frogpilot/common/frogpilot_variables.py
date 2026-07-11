@@ -16,12 +16,13 @@ from opendbc.car.gm.values import GMOPGMFlags
 from opendbc.car.hyundai.values import HyundaiFlags
 from opendbc.car.interfaces import CarInterfaceBase, GearShifter
 from opendbc.car.mock.values import CAR as MOCK
+from opendbc.car.nissan.values import CAR as NISSAN
 from opendbc.car.subaru.values import SubaruFlags
 from opendbc.car.toyota.values import ToyotaFrogPilotFlags
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.constants import CV
 from openpilot.common.params import Params
-from openpilot.selfdrive.controls.lib.latcontrol_torque import KP
+from openpilot.selfdrive.controls.lib.latcontrol_torque import INTERP_SPEEDS, KP, KP_INTERP
 from openpilot.selfdrive.modeld.constants import ModelConstants
 from openpilot.system.hardware import HARDWARE
 from openpilot.system.hardware.power_monitoring import VBATT_PAUSE_CHARGING
@@ -229,7 +230,8 @@ class FrogPilotVariables:
     toggle.lat_accel_factor = CP.lateralTuning.torque.latAccelFactor
     toggle.lkas_allowed_for_aol = toggle.car_make == "hyundai" and bool(CP.flags & HyundaiFlags.CANFD or CP.flags & HyundaiFlags.HAS_LDA_BUTTON)
     toggle.longitudinal_actuator_delay = CP.longitudinalActuatorDelay
-    toggle.openpilot_longitudinal = True #CP.openpilotLongitudinalControl and not toggle.disable_openpilot_long
+    nissan_aol_unsupported = toggle.car_make == "nissan" and toggle.car_model not in (NISSAN.NISSAN_LEAF, NISSAN.NISSAN_LEAF_IC)
+    toggle.openpilot_longitudinal = CP.openpilotLongitudinalControl
     toggle.pcm_cruise = CP.pcmCruise
     prohibited_main_aol = not toggle.openpilot_longitudinal and toggle.car_make == "hyundai" and bool(CP.flags & HyundaiFlags.CANFD or CP.flags & HyundaiFlags.HAS_LDA_BUTTON)
     toggle.start_accel = CP.startAccel
@@ -262,7 +264,8 @@ class FrogPilotVariables:
     toggle.use_custom_steerActuatorDelay = bool(round(toggle.steerActuatorDelay, 2) != round(toggle.steer_actuator_delay, 2))
     toggle.friction = self.get_value("SteerFriction", cast=float, condition=advanced_lateral_tuning and toggle.is_torque_car, default=toggle.default_friction, min=0, max=1)
     toggle.use_custom_friction = bool(round(toggle.friction, 2) != round(toggle.default_friction, 2)) and toggle.is_torque_car
-    toggle.steerKp = [[0], [self.get_value("SteerKP", cast=float, condition=advanced_lateral_tuning and toggle.is_torque_car and not toggle.is_angle_car, default=toggle.steer_kp, min=toggle.steer_kp * STEERING_TUNE_MIN_FACTOR, max=toggle.steer_kp * STEERING_TUNE_MAX_FACTOR)]]
+    steer_kp = self.get_value("SteerKP", cast=float, condition=advanced_lateral_tuning and toggle.is_torque_car and not toggle.is_angle_car, default=toggle.steer_kp, min=toggle.steer_kp * STEERING_TUNE_MIN_FACTOR, max=toggle.steer_kp * STEERING_TUNE_MAX_FACTOR)
+    toggle.steerKp = [INTERP_SPEEDS, [kp * steer_kp / KP for kp in KP_INTERP]]
     toggle.latAccelFactor = self.get_value("SteerLatAccel", cast=float, condition=advanced_lateral_tuning and toggle.is_torque_car, default=toggle.lat_accel_factor, min=toggle.lat_accel_factor * STEERING_TUNE_MIN_FACTOR, max=toggle.lat_accel_factor * STEERING_TUNE_MAX_FACTOR)
     toggle.use_custom_latAccelFactor = bool(round(toggle.latAccelFactor, 2) != round(toggle.lat_accel_factor, 2)) and toggle.is_torque_car
     toggle.steerRatio = self.get_value("SteerRatio", cast=float, condition=advanced_lateral_tuning, default=toggle.steer_ratio, min=toggle.steer_ratio * STEERING_TUNE_MIN_FACTOR, max=toggle.steer_ratio * STEERING_TUNE_MAX_FACTOR)
@@ -285,7 +288,7 @@ class FrogPilotVariables:
     toggle.warningSoft_volume = self.get_value("WarningSoftVolume", cast=float, condition=toggle.alert_volume_controller)
     toggle.warningImmediate_volume = max(self.get_value("WarningImmediateVolume", cast=float, condition=toggle.alert_volume_controller, default=25), 25)
 
-    toggle.always_on_lateral = self.get_value("AlwaysOnLateral")
+    toggle.always_on_lateral = self.get_value("AlwaysOnLateral") and not nissan_aol_unsupported
     toggle.always_on_lateral_lkas = toggle.always_on_lateral and toggle.lkas_allowed_for_aol and self.get_value("AlwaysOnLateralLKAS")
     toggle.always_on_lateral_main = toggle.always_on_lateral and not prohibited_main_aol and not toggle.always_on_lateral_lkas
     toggle.always_on_lateral_pause_speed = self.get_value("PauseAOLOnBrake", cast=float, condition=toggle.always_on_lateral)

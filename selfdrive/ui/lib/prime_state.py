@@ -8,7 +8,7 @@ from openpilot.common.api import api_get
 from openpilot.common.params import Params
 from openpilot.common.realtime import drop_realtime
 from openpilot.common.swaglog import cloudlog
-from openpilot.system.athena.registration import UNREGISTERED_DONGLE_ID
+from openpilot.system.athena.registration import is_registered_device
 from openpilot.selfdrive.ui.lib.api_helpers import get_token
 
 
@@ -47,9 +47,9 @@ class PrimeState:
     return PrimeType.UNKNOWN
 
   def _fetch_prime_status(self) -> None:
-    dongle_id = self._params.get("DongleId")
-    if not dongle_id or dongle_id == UNREGISTERED_DONGLE_ID:
+    if not is_registered_device():
       return
+    dongle_id = self._params.get("DongleId")
 
     try:
       identity_token = get_token(dongle_id)

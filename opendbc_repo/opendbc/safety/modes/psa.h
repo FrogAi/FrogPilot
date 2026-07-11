@@ -33,7 +33,7 @@ static uint8_t psa_get_counter(const CANPacket_t *msg) {
 }
 
 static uint32_t psa_get_checksum(const CANPacket_t *msg) {
-  return msg->data[5] & 0xFU;
+  return msg->data[(msg->addr == PSA_HS2_DYN1_MDD_ETAT_2B6) ? 7 : 5] & 0xFU;
 }
 
 static uint8_t _psa_compute_checksum(const CANPacket_t *msg, uint8_t chk_ini, int chk_pos) {
@@ -88,7 +88,7 @@ static void psa_rx_hook(const CANPacket_t *msg) {
     }
     // FrogPilot variables
     if (msg->addr == PSA_HS2_DYN1_MDD_ETAT_2B6) {
-      acc_main_on = (msg->data[3] & 0x0FU) > 2;
+      acc_main_on = (msg->data[3] & 0x0FU) > 2U;
     }
   }
 

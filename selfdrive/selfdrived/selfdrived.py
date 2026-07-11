@@ -568,9 +568,9 @@ class SelfdriveD:
     self.pm.send('frogpilotSelfdriveState', fpss_msg)
 
     if (self.sm.frame % int(1. / DT_CTRL) == 0) or (self.frogpilot_events.names != self.frogpilot_events_prev):
-      fpce_send = messaging.new_message('frogpilotOnroadEvents', len(self.frogpilot_events))
+      fpce_send = messaging.new_message('frogpilotOnroadEvents')
       fpce_send.valid = True
-      fpce_send.frogpilotOnroadEvents = self.frogpilot_events.to_msg()
+      fpce_send.frogpilotOnroadEvents.events = self.frogpilot_events.to_msg()
       self.pm.send('frogpilotOnroadEvents', fpce_send)
     self.frogpilot_events_prev = self.frogpilot_events.names.copy()
 

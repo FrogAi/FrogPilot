@@ -58,7 +58,7 @@ void hyundai_common_init(uint16_t param) {
   const uint16_t HYUNDAI_PARAM_ALT_LIMITS_2 = 512;
 
   // FrogPilot variables
-  const int HYUNDAI_PARAM_HAS_LDA_BUTTON = 1024;
+  const uint16_t HYUNDAI_PARAM_HAS_LDA_BUTTON = 1024U;
 
   hyundai_ev_gas_signal = GET_FLAG(param, HYUNDAI_PARAM_EV_GAS);
   hyundai_hybrid_gas_signal = !hyundai_ev_gas_signal && GET_FLAG(param, HYUNDAI_PARAM_HYBRID_GAS);

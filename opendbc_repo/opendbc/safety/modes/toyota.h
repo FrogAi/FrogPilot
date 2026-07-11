@@ -37,10 +37,12 @@
   {0x183, 0, 8, .check_relay = true},  /* ACC_CONTROL_2 */ \
 
 #define TOYOTA_COMMON_RX_CHECKS(lta)                                                                                                       \
-  {.msg = {{ 0xaa, 0, 8, 83U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  \
+  {.msg = {{ 0xaa, 0, 8, 83U, .ignore_checksum = true, .ignore_counter = true}, { 0 }, { 0 }}},  \
   {.msg = {{0x260, 0, 8, 50U, .ignore_counter = true, .ignore_quality_flag=!(lta)}, { 0 }, { 0 }}},                           \
   /* FrogPilot variables */                                                                                                   \
-  {.msg = {{0x1D3, 0, 8, 33U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  \
+  {.msg = {{0x1D3, 0, 8, 33U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, \
+           {0x1D3, 0, 5, 33U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, \
+           {0x365, 0, 7, 10U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}}},  \
 
 #define TOYOTA_RX_CHECKS(lta)                                                                                                               \
   TOYOTA_COMMON_RX_CHECKS(lta)                                                                                                              \

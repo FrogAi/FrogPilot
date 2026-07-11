@@ -37,10 +37,9 @@ static bool gm_cc_long = false;
 static bool gm_has_acc = true;
 static bool gm_pedal_long = false;
 
-static int GM_GAS_INTERCEPTOR_THRESHOLD = 550;
-
 static void gm_rx_hook(const CANPacket_t *msg) {
   const int GM_STANDSTILL_THRSLD = 10;  // 0.311kph
+  const int GM_GAS_INTERCEPTOR_THRESHOLD = 550;
 
   if (msg->bus == 0U) {
     if (msg->addr == 0x184U) {
@@ -379,12 +378,14 @@ static safety_config gm_init(uint16_t param) {
     SET_RX_CHECKS(gm_no_acc_ev_rx_checks, ret);
   } else if (!gm_has_acc && !gm_ev) {
     SET_RX_CHECKS(gm_no_acc_rx_checks, ret);
-  } else if (gm_ev) {
-    SET_RX_CHECKS(gm_ev_rx_checks, ret);
+  } else {
+    if (gm_ev) {
+      SET_RX_CHECKS(gm_ev_rx_checks, ret);
+    }
   }
 
   // ASCM does not forward any messages
-  if (gm_hw == GM_ASCM || gm_cc_long) {
+  if ((gm_hw == GM_ASCM) || gm_cc_long) {
     ret.disable_forwarding = true;
   }
   return ret;

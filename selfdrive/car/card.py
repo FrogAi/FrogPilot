@@ -176,7 +176,7 @@ class Car:
       self.FPCP.safetyConfigs = [custom.FrogPilotCarParams.SafetyConfig.new_message()]
 
     fpcp_bytes = self.FPCP.to_bytes()
-    self.params.put("FrogPilotCarParams", fpcp_bytes)
+    self.params.put("FrogPilotCarParams", fpcp_bytes, block=True)
     self.params.put("FrogPilotCarParamsPersistent", fpcp_bytes)
 
     self.frogpilot_card = FrogPilotCard(self.CP, self.FPCP)

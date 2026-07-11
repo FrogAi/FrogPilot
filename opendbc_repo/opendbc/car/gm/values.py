@@ -36,7 +36,7 @@ class CarControllerParams:
     # Gas/brake lookups
     self.MAX_BRAKE = 400  # ~ -4.0 m/s^2 with regen
 
-    if CP.carFingerprint in (CAMERA_ACC_CAR | SDGM_CAR) and CP.carFingerprint not in CC_ONLY_CAR:
+    if (CP.carFingerprint in (CAMERA_ACC_CAR | SDGM_CAR) or CP.enableGasInterceptorDEPRECATED) and CP.carFingerprint not in CC_ONLY_CAR:
       self.MAX_GAS = 1346.0
       self.MAX_ACC_REGEN = -540.0
       self.INACTIVE_REGEN = -500.0

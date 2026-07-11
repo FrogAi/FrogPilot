@@ -163,9 +163,9 @@ jobs:
           find . -name '__pycache__' -delete
           find . -name 'moc_*' -delete
 
-          git checkout third_party/
-          find third_party/ -name '*Darwin*' -exec rm -r {} +
-          find third_party/ -name '*x86*' -exec rm -r {} +
+          git checkout frogpilot/third_party/
+          find frogpilot/third_party/ -name '*Darwin*' -exec rm -r {} +
+          find frogpilot/third_party/ -name '*x86*' -exec rm -r {} +
 
           find . -name '*.egg-info' -exec rm -rf {} + 2>/dev/null || true
           find . -name '*.md' ! -name 'RELEASES.md' -delete

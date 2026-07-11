@@ -10,7 +10,7 @@ from openpilot.common.params import Params
 from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.ui.lib.api_helpers import get_token
 from openpilot.selfdrive.ui.ui_state import ui_state
-from openpilot.system.athena.registration import UNREGISTERED_DONGLE_ID
+from openpilot.system.athena.registration import is_registered_device
 from openpilot.system.ui.lib.application import FONT_SCALE, FontWeight
 from openpilot.system.ui.lib.multilang import tr
 from openpilot.system.ui.widgets import Widget
@@ -64,9 +64,9 @@ class DriveStatsLayout(Widget):
     self.update_stats()
 
   def fetch_drive_stats(self):
-    dongle_id = self.params.get("DongleId")
-    if not dongle_id or dongle_id == UNREGISTERED_DONGLE_ID:
+    if not is_registered_device():
       return
+    dongle_id = self.params.get("DongleId")
 
     try:
       token = get_token(dongle_id)

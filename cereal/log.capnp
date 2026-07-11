@@ -2553,7 +2553,7 @@ struct Event {
     frogpilotCarState @109 :Custom.FrogPilotCarState;
     frogpilotDeviceState @110 :Custom.FrogPilotDeviceState;
     frogpilotModelV2 @111 :Custom.FrogPilotModelDataV2;
-    frogpilotOnroadEvents @112 :List(Custom.FrogPilotOnroadEvent);
+    frogpilotOnroadEvents @112 :Custom.FrogPilotOnroadEvents;
     frogpilotPlan @113 :Custom.FrogPilotPlan;
     frogpilotRadarState @114 :Custom.FrogPilotRadarState;
     frogpilotSelfdriveState @115 :Custom.FrogPilotSelfdriveState;

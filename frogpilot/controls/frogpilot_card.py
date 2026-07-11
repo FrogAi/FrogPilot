@@ -30,7 +30,7 @@ class FrogPilotCard:
       self.always_on_lateral_allowed = carState.cruiseState.available
 
     immediate_disable = any(event.immediateDisable and event.name != EventName.speedTooLow for event in sm["onroadEvents"])
-    immediate_disable |= any(event.immediateDisable for event in sm["frogpilotOnroadEvents"])
+    immediate_disable |= any(event.immediateDisable for event in sm["frogpilotOnroadEvents"].events)
 
     self.always_on_lateral_enabled = self.always_on_lateral_allowed and self.always_on_lateral_set
     self.always_on_lateral_enabled &= carState.gearShifter not in frogpilot_variables.NON_DRIVING_GEARS

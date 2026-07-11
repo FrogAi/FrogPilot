@@ -138,7 +138,7 @@ class CarInterfaceBase(ABC):
 
   @classmethod
   def get_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[structs.CarParams.CarFw],
-                 alpha_long: bool, is_release: bool, docs: bool, frogpilot_toggles: SimpleNamespace) -> structs.CarParams:
+                 alpha_long: bool, is_release: bool, docs: bool, frogpilot_toggles: SimpleNamespace | None = None) -> structs.CarParams:
     ret = CarInterfaceBase.get_std_params(candidate)
 
     platform = PLATFORMS[candidate]

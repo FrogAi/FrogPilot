@@ -48,7 +48,7 @@ jobs:
           fi
 
           today=$(TZ="$TZ" date +%F)
-          if [[ "$parsed_date" != "$today" ]]; then
+          if [[ "$parsed_date" > "$today" ]]; then
             echo "Scheduled release date is $parsed_date. Today in $TZ is $today."
             echo "update_due=false" >> "$GITHUB_OUTPUT"
             exit 0
@@ -81,7 +81,7 @@ jobs:
           while :; do
             subject=$(git log -1 --format=%s "$anchor_commit")
 
-            if [[ "$subject" == "FrogPilot README" ]]; then
+            if [[ "$subject" == "FrogPilot README"* ]]; then
               break
             fi
 
