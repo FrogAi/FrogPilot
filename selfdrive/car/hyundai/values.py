@@ -148,7 +148,7 @@ class CAR(Platforms):
    HYUNDAI_GRANDEUR_DIESEL_2019 = HyundaiPlatformConfig(
     [HyundaiCarDocs("Hyundai Azera Diesel 19", "All", car_parts=CarParts.common([CarHarness.hyundai_c]))],
     CarSpecs(mass=1650, wheelbase=2.885, steerRatio=14.5),
-    flags=HyundaiFlags.CLUSTER_GEARS,
+    flags=HyundaiFlags.CLUSTER_GEARS | HyundaiFlags.MANDO_RADAR,
   )
   HYUNDAI_AZERA_6TH_GEN = HyundaiPlatformConfig(
     [HyundaiCarDocs("Hyundai Azera 2022", "All", car_parts=CarParts.common([CarHarness.hyundai_k]))],
