@@ -197,7 +197,7 @@
     </message>
     <message>
         <source>Adjacent Lane Metrics</source>
-        <translation type="google-generated">隣接するレーンのメトリクス</translation>
+        <translation>隣接するレーンのメトリクス</translation>
     </message>
     <message>
         <source>&lt;b&gt;Print how wide the lanes either side of you are, right on their paths.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It draws the adjacent lane paths itself, so there is something to print onto, even with "Adjacent Lanes" switched off.</source>
@@ -872,7 +872,7 @@ Firehoseモードを有効にすると学習データを最大限アップロー
     </message>
     <message>
         <source>seconds</source>
-        <translation type="google-generated">秒</translation>
+        <translation>秒</translation>
     </message>
     <message>
         <source>SPEED</source>
@@ -1350,23 +1350,23 @@ Firehoseモードを有効にすると学習データを最大限アップロー
     </message>
     <message>
         <source>&lt;b&gt;Delete every recorded drive to free up space and clear personal footage off the device.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only the one-minute chunk of footage containing the moment you flagged is kept, not the rest of that drive, and preserving a drive in "The Pond" keeps it the same one minute at a time.</source>
-        <translation type="google-generated">&lt;b&gt;記録されたすべての運転旅行を削除して領域を解放し、デバイスから個人的な映像を消去します。&lt;/b&gt;&lt;br&gt;&lt;br&gt;フラグを立てた瞬間を含む 1 分間の映像チャンクのみが保持され、その運転旅行の残りの部分は保持されません。また、「The Pond」に運転旅行を保存すると、一度に 1 分ずつ同じ状態が保たれます。</translation>
+        <translation>&lt;b&gt;記録されたすべての運転旅行を削除して領域を解放し、デバイスから個人的な映像を消去します。&lt;/b&gt;&lt;br&gt;&lt;br&gt;フラグを立てた瞬間を含む 1 分間の映像チャンクのみが保持され、その運転旅行の残りの部分は保持されません。また、「The Pond」に運転旅行を保存すると、一度に 1 分ずつ同じ状態が保たれます。</translation>
     </message>
     <message>
         <source>That name can't be used. Names can only use letters, numbers, dashes, periods, and underscores.</source>
-        <translation type="google-generated">その名前は使用できません。名前には文字、数字、ダッシュ、ピリオド、アンダースコアのみを使用できます。</translation>
+        <translation>その名前は使用できません。名前には文字、数字、ダッシュ、ピリオド、アンダースコアのみを使用できます。</translation>
     </message>
     <message>
         <source>Name your backup</source>
-        <translation type="google-generated">バックアップに名前を付けます</translation>
+        <translation>バックアップに名前を付けます</translation>
     </message>
     <message>
         <source>Backup Name</source>
-        <translation type="google-generated">バックアップ名</translation>
+        <translation>バックアップ名</translation>
     </message>
     <message>
         <source>Restore this backup? This overwrites your current settings.</source>
-        <translation type="google-generated">このバックアップを復元しますか?これにより、現在の設定が上書きされます。</translation>
+        <translation>このバックアップを復元しますか?これにより、現在の設定が上書きされます。</translation>
     </message>
 </context>
 <context>
@@ -1464,14 +1464,6 @@ Firehoseモードを有効にすると学習データを最大限アップロー
         <translation>自動</translation>
     </message>
     <message>
-        <source>Start Recording</source>
-        <translation>録画を開始</translation>
-    </message>
-    <message>
-        <source>Stop Recording</source>
-        <translation>録画を停止</translation>
-    </message>
-    <message>
         <source> seconds</source>
         <translation> 秒</translation>
     </message>
@@ -1534,18 +1526,6 @@ Firehoseモードを有効にすると学習データを最大限アップロー
     <message>
         <source>&lt;b&gt;Turn the screen off while driving, and wake it up automatically for alerts or when openpilot engages or disengages.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Tapping the screen wakes it up too.</source>
         <translation>&lt;b&gt;走行中は画面を消灯し、警報が出たとき、または openpilot が作動・解除されたときに自動点灯します。&lt;/b&gt;&lt;br&gt;&lt;br&gt;画面をタップしても点灯します。</translation>
-    </message>
-    <message>
-        <source>Couldn't start recording. Check that there's enough free space and that a recording isn't already running.</source>
-        <translation>録画を開始できませんでした。十分な空き容量があり、別の録画が実行中でないことを確認してください。</translation>
-    </message>
-    <message>
-        <source>Share Driving Data</source>
-        <translation type="google-generated">運転データの共有</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Automatically share anonymized driving data with FrogPilot to help improve it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only driving signals are shared: no video, no GPS or location, no VIN, and no identifiers. Turn this off to opt out.</source>
-        <translation type="google-generated">&lt;b&gt;匿名化された運転データを FrogPilot と自動的に共有し、改善に役立てます。&lt;/b&gt;&lt;br&gt;&lt;br&gt;共有されるのは運転信号のみです。ビデオ、GPS や位置情報、VIN、識別子は含まれません。オプトアウトするにはこれをオフにします。</translation>
     </message>
 </context>
 <context>
@@ -2045,10 +2025,6 @@ Firehoseモードを有効にすると学習データを最大限アップロー
         <translation>学習済み横加速度</translation>
     </message>
     <message>
-        <source>&lt;b&gt;How hard you corner, learned from your own driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The "Auto" profile uses this to take curves the way you do, but never harder than your steering has proven it can hold. A higher number means carrying more speed through curves. Lower means taking them gentler.</source>
-        <translation>&lt;b&gt;ご自身の運転から学習した、カーブを曲がる強さです。&lt;/b&gt;&lt;br&gt;&lt;br&gt;「自動」プロファイルでは、この値を使ってご自身と同じようにカーブを曲がりますが、ステアリングが維持できると確認された限界を超えることはありません。値が大きいほどカーブを速く通過し、小さいほど穏やかに通過します。</translation>
-    </message>
-    <message>
         <source>Calibration Progress</source>
         <translation>学習の進捗</translation>
     </message>
@@ -2057,20 +2033,12 @@ Firehoseモードを有効にすると学習データを最大限アップロー
         <translation>&lt;b&gt;openpilot がご自身のカーブの曲がり方をどれだけ学習したかを示します。&lt;/b&gt;&lt;br&gt;&lt;br&gt;この値は、ご自身で速度を操作している間だけ増えるため、自分でカーブを走行するにつれて蓄積されます。100% になると、openpilot はご自身のカーブの曲がり方に合わせるのに十分なデータを収集済みです。</translation>
     </message>
     <message>
-        <source>&lt;b&gt;How fast openpilot takes curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Gentle" and "Standard" hold to a fixed, relaxed pace, "Sport" uses your car's maximum configured or live-tuned cornering limit, and "Auto" matches the way you take curves yourself.</source>
-        <translation>&lt;b&gt;openpilot がカーブを曲がる速度です。&lt;/b&gt;&lt;br&gt;&lt;br&gt;「穏やか」と「標準」は一定のゆとりある速度を維持し、「スポーツ」は車両に設定された、またはリアルタイムで調整された最大のコーナリング限界を使用します。「自動」はご自身のカーブの曲がり方に合わせます。</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;How fast the "Sport" profile is allowed to take curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This is also the maximum for every other curve speed profile. openpilot learns the limit from your car when possible and otherwise uses the value configured for it.</source>
         <translation>&lt;b&gt;「スポーツ」プロファイルでカーブを曲がることができる速度です。&lt;/b&gt;&lt;br&gt;&lt;br&gt;この値は、他のすべてのカーブ速度プロファイルの上限でもあります。openpilot は可能な場合は車両から限界値を学習し、それ以外の場合は車両に設定された値を使用します。</translation>
     </message>
     <message>
         <source>Reset Curve Data</source>
         <translation>カーブデータをリセット</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Throw away everything openpilot has learned about how you take curves and start over.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Auto" goes back to its starting value and relearns as you drive. Only available while the car is off.</source>
-        <translation>&lt;b&gt;openpilot がご自身のカーブの曲がり方について学習した内容をすべて破棄し、最初からやり直します。&lt;/b&gt;&lt;br&gt;&lt;br&gt;「自動」は初期値に戻り、運転するにつれて再学習します。車両の電源がオフのときにのみ使用できます。</translation>
     </message>
     <message>
         <source>Driving Personalities</source>
@@ -2358,19 +2326,24 @@ Firehoseモードを有効にすると学習データを最大限アップロー
     </message>
     <message>
         <source>Reduce Cornering Force by:</source>
-        <translation>コーナリング力を下げる割合：</translation></message>
+        <translation>コーナリング力を下げる割合：</translation>
+    </message>
     <message>
         <source>&lt;b&gt;Eases off how hard openpilot corners in low visibility.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only does anything while "Curve Speed Controller" is on. Raise it for gentler, safer cornering on a slippery road. Curve speed drops by less than this number, because cornering force rises with the square of speed.</source>
-        <translation>&lt;b&gt;視界が悪いときに openpilot のコーナリング力を弱めます。&lt;/b&gt;&lt;br&gt;&lt;br&gt;「カーブ速度コントローラー」がオンのときのみ有効です。滑りやすい道路でより穏やかかつ安全にカーブを曲がるには値を上げます。コーナリング力は速度の二乗に比例して増えるため、カーブ速度の低下率はこの値より小さくなります。</translation></message>
+        <translation>&lt;b&gt;視界が悪いときに openpilot のコーナリング力を弱めます。&lt;/b&gt;&lt;br&gt;&lt;br&gt;「カーブ速度コントローラー」がオンのときのみ有効です。滑りやすい道路でより穏やかかつ安全にカーブを曲がるには値を上げます。コーナリング力は速度の二乗に比例して増えるため、カーブ速度の低下率はこの値より小さくなります。</translation>
+    </message>
     <message>
         <source>&lt;b&gt;Eases off how hard openpilot corners in rain.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only does anything while "Curve Speed Controller" is on. Raise it for gentler, safer cornering on a slippery road. Curve speed drops by less than this number, because cornering force rises with the square of speed.</source>
-        <translation>&lt;b&gt;雨天時に openpilot のコーナリング力を弱めます。&lt;/b&gt;&lt;br&gt;&lt;br&gt;「カーブ速度コントローラー」がオンのときのみ有効です。滑りやすい道路でより穏やかかつ安全にカーブを曲がるには値を上げます。コーナリング力は速度の二乗に比例して増えるため、カーブ速度の低下率はこの値より小さくなります。</translation></message>
+        <translation>&lt;b&gt;雨天時に openpilot のコーナリング力を弱めます。&lt;/b&gt;&lt;br&gt;&lt;br&gt;「カーブ速度コントローラー」がオンのときのみ有効です。滑りやすい道路でより穏やかかつ安全にカーブを曲がるには値を上げます。コーナリング力は速度の二乗に比例して増えるため、カーブ速度の低下率はこの値より小さくなります。</translation>
+    </message>
     <message>
         <source>&lt;b&gt;Eases off how hard openpilot corners in a rainstorm.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only does anything while "Curve Speed Controller" is on. Raise it for gentler, safer cornering on a slippery road. Curve speed drops by less than this number, because cornering force rises with the square of speed.</source>
-        <translation>&lt;b&gt;豪雨時に openpilot のコーナリング力を弱めます。&lt;/b&gt;&lt;br&gt;&lt;br&gt;「カーブ速度コントローラー」がオンのときのみ有効です。滑りやすい道路でより穏やかかつ安全にカーブを曲がるには値を上げます。コーナリング力は速度の二乗に比例して増えるため、カーブ速度の低下率はこの値より小さくなります。</translation></message>
+        <translation>&lt;b&gt;豪雨時に openpilot のコーナリング力を弱めます。&lt;/b&gt;&lt;br&gt;&lt;br&gt;「カーブ速度コントローラー」がオンのときのみ有効です。滑りやすい道路でより穏やかかつ安全にカーブを曲がるには値を上げます。コーナリング力は速度の二乗に比例して増えるため、カーブ速度の低下率はこの値より小さくなります。</translation>
+    </message>
     <message>
         <source>&lt;b&gt;Eases off how hard openpilot corners in snow.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only does anything while "Curve Speed Controller" is on. Raise it for gentler, safer cornering on a slippery road. Curve speed drops by less than this number, because cornering force rises with the square of speed.</source>
-        <translation>&lt;b&gt;降雪時に openpilot のコーナリング力を弱めます。&lt;/b&gt;&lt;br&gt;&lt;br&gt;「カーブ速度コントローラー」がオンのときのみ有効です。滑りやすい道路でより穏やかかつ安全にカーブを曲がるには値を上げます。コーナリング力は速度の二乗に比例して増えるため、カーブ速度の低下率はこの値より小さくなります。</translation></message>
+        <translation>&lt;b&gt;降雪時に openpilot のコーナリング力を弱めます。&lt;/b&gt;&lt;br&gt;&lt;br&gt;「カーブ速度コントローラー」がオンのときのみ有効です。滑りやすい道路でより穏やかかつ安全にカーブを曲がるには値を上げます。コーナリング力は速度の二乗に比例して増えるため、カーブ速度の低下率はこの値より小さくなります。</translation>
+    </message>
     <message>
         <source>&lt;b&gt;Fall back to Mapbox for the speed limit when none of your chosen sources have one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs your Public Mapbox Key and a working internet connection.</source>
         <translation>&lt;b&gt;選択した情報源のいずれにも制限速度がない場合、Mapbox を代替情報源として使用します。&lt;/b&gt;&lt;br&gt;&lt;br&gt;Mapbox 公開キーと利用可能なインターネット接続が必要です。</translation>
@@ -2622,10 +2595,6 @@ Firehoseモードを有効にすると学習データを最大限アップロー
     <message>
         <source>&lt;b&gt;Show which condition switched "Experimental Mode" on, right on the driving screen.&lt;/b&gt;</source>
         <translation>&lt;b&gt;どの条件で"実験モード"がオンになったかを運転画面に表示します。&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;openpilot slows down on its own for curves ahead, and you pick how fast it takes them with "Curve Speed Profile".&lt;/b&gt;&lt;br&gt;&lt;br&gt;It comes set to "Auto", which matches the way you take curves yourself.</source>
-        <translation>&lt;b&gt;openpilot が前方のカーブに合わせて自動的に減速し、"カーブ速度プロファイル"で通過速度を選びます。&lt;/b&gt;&lt;br&gt;&lt;br&gt;初期設定の"自動"は、運転者自身のカーブの曲がり方に合わせます。</translation>
     </message>
     <message>
         <source>Curve Speed Profile</source>
@@ -2892,10 +2861,6 @@ Firehoseモードを有効にすると学習データを最大限アップロー
         <translation>穏やか</translation>
     </message>
     <message>
-        <source>Auto</source>
-        <translation>自動</translation>
-    </message>
-    <message>
         <source>Curve data can't be reset while the car is on. Turn the car off and try again.</source>
         <translation>車両の電源が入っている間はカーブデータをリセットできません。車両の電源を切ってから再試行してください。</translation>
     </message>
@@ -2933,63 +2898,63 @@ Firehoseモードを有効にすると学習データを最大限アップロー
     </message>
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only fires when there is no car close ahead of you, so it stays quiet when you roll up to a red light behind traffic.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
-        <translation type="google-generated">&lt;b&gt;運転モデル​​が赤信号または一時停止標識を「検出」すると、常に「実験モード」に切り替わります。&lt;/b&gt;&lt;br&gt;&lt;br&gt;前方に車が接近していない場合にのみ作動するため、車の後ろで赤信号に近づいても静かなままです。&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;免責事項&lt;/b&gt;: openpilot は、信号機や一時停止標識を明示的に検出しません。 「実験モード」では、openpilot はカメラの入力に基づいてエンドツーエンドの運転決定を行います。つまり、明確な理由がない場合でも停止する可能性があります。&lt;/i&gt;</translation>
+        <translation>&lt;b&gt;運転モデル​​が赤信号または一時停止標識を「検出」すると、常に「実験モード」に切り替わります。&lt;/b&gt;&lt;br&gt;&lt;br&gt;前方に車が接近していない場合にのみ作動するため、車の後ろで赤信号に近づいても静かなままです。&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;免責事項&lt;/b&gt;: openpilot は、信号機や一時停止標識を明示的に検出しません。 「実験モード」では、openpilot はカメラの入力に基づいてエンドツーエンドの運転決定を行います。つまり、明確な理由がない場合でも停止する可能性があります。&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its acceleration any time your car is not slowing down with the "Aggressive" profile, not just when pulling away from a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler starts and pickup. Lower it for faster but more abrupt ones. "Speed-Up Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;停止状態から発進するときだけでなく、車が「積極的」プロファイルで減速していないときでも、openpilot はどのくらいスムーズに加速度を変化させますか。&lt;/b&gt;&lt;br&gt;&lt;br&gt;この値を上げると、発進と加速がより穏やかになります。値を下げると、より速くなりますが、より突然になります。 「加速応答」は、同じ瞬間における 2 番目の滑らかさコントロールであり、車が停止している間は完全にオフになります。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
+        <translation>&lt;b&gt;停止状態から発進するときだけでなく、車が「積極的」プロファイルで減速していないときでも、openpilot はどのくらいスムーズに加速度を変化させますか。&lt;/b&gt;&lt;br&gt;&lt;br&gt;この値を上げると、発進と加速がより穏やかになります。値を下げると、より速くなりますが、より突然になります。 「加速応答」は、同じ瞬間における 2 番目の滑らかさコントロールであり、車が停止している間は完全にオフになります。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its braking any time your car is slowing down with the "Aggressive" profile, not just when coming to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler stops and slowdowns. Lower it for quicker but sharper ones. "Slowdown Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;停止時だけでなく、車が「積極的」プロファイルで減速しているときに、openpilot がどのくらいスムーズにブレーキを変化させるか。&lt;/b&gt;&lt;br&gt;&lt;br&gt;より穏やかに停止したり減速したりするには、値を上げます。下げると速くなりますが、よりシャープになります。 「減速応答」は、同じ瞬間における 2 番目の滑らかさコントロールであり、車が停止している間は完全にオフになります。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
+        <translation>&lt;b&gt;停止時だけでなく、車が「積極的」プロファイルで減速しているときに、openpilot がどのくらいスムーズにブレーキを変化させるか。&lt;/b&gt;&lt;br&gt;&lt;br&gt;より穏やかに停止したり減速したりするには、値を上げます。下げると速くなりますが、よりシャープになります。 「減速応答」は、同じ瞬間における 2 番目の滑らかさコントロールであり、車が停止している間は完全にオフになります。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot sheds speed any time your car is slowing down with the "Aggressive" profile, like easing off for a slower car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual slowdowns. Lower it for faster but sharper ones. It works alongside "Braking Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;「積極的」プロファイルを使用して車が減速しているときに、openpilot がどれだけスムーズに減速するか (前方の遅い車に合わせて緩めるなど)。&lt;/b&gt;&lt;br&gt;&lt;br&gt;値を上げると、より緩やかに減速します。下げると速くなりますが、よりシャープになります。これは、同じ瞬間を個別に制御する「制動の滑らかさ」と並行して機能します。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
+        <translation>&lt;b&gt;「積極的」プロファイルを使用して車が減速しているときに、openpilot がどれだけスムーズに減速するか (前方の遅い車に合わせて緩めるなど)。&lt;/b&gt;&lt;br&gt;&lt;br&gt;値を上げると、より緩やかに減速します。下げると速くなりますが、よりシャープになります。これは、同じ瞬間を個別に制御する「制動の滑らかさ」と並行して機能します。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot builds speed any time your car is not slowing down with the "Aggressive" profile, like catching up to your set speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual pickup. Lower it for quicker but more jolting pickup. It works alongside "Acceleration Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;設定速度に追いつくなど、車が「積極的」プロファイルで減速していない場合に、openpilot がどれだけスムーズに加速するか。&lt;/b&gt;&lt;br&gt;&lt;br&gt;より緩やかに加速するには、この値を上げます。下げると、より速く、しかしより衝撃的な加速が得られます。これは、同じ瞬間を個別に制御する「加速の滑らかさ」と並行して機能します。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
+        <translation>&lt;b&gt;設定速度に追いつくなど、車が「積極的」プロファイルで減速していない場合に、openpilot がどれだけスムーズに加速するか。&lt;/b&gt;&lt;br&gt;&lt;br&gt;より緩やかに加速するには、この値を上げます。下げると、より速く、しかしより衝撃的な加速が得られます。これは、同じ瞬間を個別に制御する「加速の滑らかさ」と並行して機能します。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its acceleration any time your car is not slowing down with the "Standard" profile, not just when pulling away from a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler starts and pickup. Lower it for faster but more abrupt ones. "Speed-Up Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;停止状態から発進するときだけでなく、車が「標準」プロファイルで減速していないときでも、openpilot はどのくらいスムーズに加速度を変化させますか。&lt;/b&gt;&lt;br&gt;&lt;br&gt;この値を上げると、発進と加速がより穏やかになります。値を下げると、より速くなりますが、より突然になります。 「加速応答」は、同じ瞬間における 2 番目の滑らかさコントロールであり、車が停止している間は完全にオフになります。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
+        <translation>&lt;b&gt;停止状態から発進するときだけでなく、車が「標準」プロファイルで減速していないときでも、openpilot はどのくらいスムーズに加速度を変化させますか。&lt;/b&gt;&lt;br&gt;&lt;br&gt;この値を上げると、発進と加速がより穏やかになります。値を下げると、より速くなりますが、より突然になります。 「加速応答」は、同じ瞬間における 2 番目の滑らかさコントロールであり、車が停止している間は完全にオフになります。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its braking any time your car is slowing down with the "Standard" profile, not just when coming to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler stops and slowdowns. Lower it for quicker but sharper ones. "Slowdown Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;停止時だけでなく、車が「標準」プロファイルで減速しているときに、openpilot がどのくらいスムーズにブレーキを変化させるか。&lt;/b&gt;&lt;br&gt;&lt;br&gt;より穏やかに停止したり減速したりするには、値を上げます。下げると速くなりますが、よりシャープになります。 「減速応答」は、同じ瞬間における 2 番目の滑らかさコントロールであり、車が停止している間は完全にオフになります。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
+        <translation>&lt;b&gt;停止時だけでなく、車が「標準」プロファイルで減速しているときに、openpilot がどのくらいスムーズにブレーキを変化させるか。&lt;/b&gt;&lt;br&gt;&lt;br&gt;より穏やかに停止したり減速したりするには、値を上げます。下げると速くなりますが、よりシャープになります。 「減速応答」は、同じ瞬間における 2 番目の滑らかさコントロールであり、車が停止している間は完全にオフになります。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot sheds speed any time your car is slowing down with the "Standard" profile, like easing off for a slower car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual slowdowns. Lower it for faster but sharper ones. It works alongside "Braking Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;「標準」プロファイルを使用して車が減速しているときに、openpilot がどれだけスムーズに減速するか (前方の遅い車に合わせて緩めるなど)。&lt;/b&gt;&lt;br&gt;&lt;br&gt;値を上げると、より緩やかに減速します。下げると速くなりますが、よりシャープになります。これは、同じ瞬間を個別に制御する「制動の滑らかさ」と並行して機能します。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
+        <translation>&lt;b&gt;「標準」プロファイルを使用して車が減速しているときに、openpilot がどれだけスムーズに減速するか (前方の遅い車に合わせて緩めるなど)。&lt;/b&gt;&lt;br&gt;&lt;br&gt;値を上げると、より緩やかに減速します。下げると速くなりますが、よりシャープになります。これは、同じ瞬間を個別に制御する「制動の滑らかさ」と並行して機能します。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot builds speed any time your car is not slowing down with the "Standard" profile, like catching up to your set speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual pickup. Lower it for quicker but more jolting pickup. It works alongside "Acceleration Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;設定速度に追いつくなど、車が「標準」プロファイルで減速していない場合に、openpilot がどれだけスムーズに加速するか。&lt;/b&gt;&lt;br&gt;&lt;br&gt;より緩やかに加速するには、この値を上げます。下げると、より速く、しかしより衝撃的な加速が得られます。これは、同じ瞬間を個別に制御する「加速の滑らかさ」と並行して機能します。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
+        <translation>&lt;b&gt;設定速度に追いつくなど、車が「標準」プロファイルで減速していない場合に、openpilot がどれだけスムーズに加速するか。&lt;/b&gt;&lt;br&gt;&lt;br&gt;より緩やかに加速するには、この値を上げます。下げると、より速く、しかしより衝撃的な加速が得られます。これは、同じ瞬間を個別に制御する「加速の滑らかさ」と並行して機能します。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its acceleration any time your car is not slowing down with the "Relaxed" profile, not just when pulling away from a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler starts and pickup. Lower it for faster but more abrupt ones. "Speed-Up Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;停止状態から発進するときだけでなく、車が「快適」プロファイルで減速していないときでも、openpilot はどのくらいスムーズに加速度を変化させますか。&lt;/b&gt;&lt;br&gt;&lt;br&gt;この値を上げると、発進と加速がより穏やかになります。値を下げると、より速くなりますが、より突然になります。 「加速応答」は、同じ瞬間における 2 番目の滑らかさコントロールであり、車が停止している間は完全にオフになります。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
+        <translation>&lt;b&gt;停止状態から発進するときだけでなく、車が「快適」プロファイルで減速していないときでも、openpilot はどのくらいスムーズに加速度を変化させますか。&lt;/b&gt;&lt;br&gt;&lt;br&gt;この値を上げると、発進と加速がより穏やかになります。値を下げると、より速くなりますが、より突然になります。 「加速応答」は、同じ瞬間における 2 番目の滑らかさコントロールであり、車が停止している間は完全にオフになります。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its braking any time your car is slowing down with the "Relaxed" profile, not just when coming to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler stops and slowdowns. Lower it for quicker but sharper ones. "Slowdown Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;停止時だけでなく、車が「快適」プロファイルで減速しているときに、openpilot がどのくらいスムーズにブレーキを変化させるか。&lt;/b&gt;&lt;br&gt;&lt;br&gt;より穏やかに停止したり減速したりするには、値を上げます。下げると速くなりますが、よりシャープになります。 「減速応答」は、同じ瞬間における 2 番目の滑らかさコントロールであり、車が停止している間は完全にオフになります。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
+        <translation>&lt;b&gt;停止時だけでなく、車が「快適」プロファイルで減速しているときに、openpilot がどのくらいスムーズにブレーキを変化させるか。&lt;/b&gt;&lt;br&gt;&lt;br&gt;より穏やかに停止したり減速したりするには、値を上げます。下げると速くなりますが、よりシャープになります。 「減速応答」は、同じ瞬間における 2 番目の滑らかさコントロールであり、車が停止している間は完全にオフになります。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot sheds speed any time your car is slowing down with the "Relaxed" profile, like easing off for a slower car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual slowdowns. Lower it for faster but sharper ones. It works alongside "Braking Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;「快適」プロファイルを使用して車が減速しているときに、openpilot がどれだけスムーズに減速するか (前方の遅い車に合わせて緩めるなど)。&lt;/b&gt;&lt;br&gt;&lt;br&gt;値を上げると、より緩やかに減速します。下げると速くなりますが、よりシャープになります。これは、同じ瞬間を個別に制御する「制動の滑らかさ」と並行して機能します。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
+        <translation>&lt;b&gt;「快適」プロファイルを使用して車が減速しているときに、openpilot がどれだけスムーズに減速するか (前方の遅い車に合わせて緩めるなど)。&lt;/b&gt;&lt;br&gt;&lt;br&gt;値を上げると、より緩やかに減速します。下げると速くなりますが、よりシャープになります。これは、同じ瞬間を個別に制御する「制動の滑らかさ」と並行して機能します。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot builds speed any time your car is not slowing down with the "Relaxed" profile, like catching up to your set speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual pickup. Lower it for quicker but more jolting pickup. It works alongside "Acceleration Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;設定速度に追いつくなど、車が「快適」プロファイルで減速していない場合に、openpilot がどれだけスムーズに加速するか。&lt;/b&gt;&lt;br&gt;&lt;br&gt;より緩やかに加速するには、この値を上げます。下げると、より速く、しかしより衝撃的な加速が得られます。これは、同じ瞬間を個別に制御する「加速の滑らかさ」と並行して機能します。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
+        <translation>&lt;b&gt;設定速度に追いつくなど、車が「快適」プロファイルで減速していない場合に、openpilot がどれだけスムーズに加速するか。&lt;/b&gt;&lt;br&gt;&lt;br&gt;より緩やかに加速するには、この値を上げます。下げると、より速く、しかしより衝撃的な加速が得られます。これは、同じ瞬間を個別に制御する「加速の滑らかさ」と並行して機能します。 「トラフィックモード」は両方を無視し、独自の固定値を使用します。</translation>
     </message>
     <message>
         <source>&lt;b&gt;openpilot comes to a full stop whenever it thinks it sees a red light or stop sign, whether or not "Experimental Mode" is running.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only kicks in when openpilot is not already tracking a car ahead, so behind a queue at a light your normal following does the stopping instead. Touching the gas cancels a forced stop for the next 10 seconds.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Heads up&lt;/b&gt;: openpilot never actually reads traffic lights or stop signs. It decides from what the camera sees, so it can stop when there is no reason to.&lt;/i&gt;</source>
-        <translation type="google-generated">&lt;b&gt;openpilot は、「実験モード」が走行しているかどうかに関係なく、赤信号や一時停止の標識を見たときは常に完全に停止します。&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot がまだ前方の車を追跡していないときにのみ作動するため、信号待ちの列の後ろで通常の後続車が停止します。アクセルに触れると、次の 10 秒間の強制停止はキャンセルされます。&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;注意&lt;/b&gt;: openpilot は実際に信号機や一時停止の標識を読み取ることはありません。カメラの映像に基づいて判断するため、理由がない場合は停止することができます。&lt;/i&gt;</translation>
+        <translation>&lt;b&gt;openpilot は、「実験モード」が走行しているかどうかに関係なく、赤信号や一時停止の標識を見たときは常に完全に停止します。&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot がまだ前方の車を追跡していないときにのみ作動するため、信号待ちの列の後ろで通常の後続車が停止します。アクセルに触れると、次の 10 秒間の強制停止はキャンセルされます。&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;注意&lt;/b&gt;: openpilot は実際に信号機や一時停止の標識を読み取ることはありません。カメラの映像に基づいて判断するため、理由がない場合は停止することができます。&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds an extra amount on top of the "Cruise Interval (Hold)" step, but only when you press and hold the + cruise button.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The - button does not mirror it. Holding - moves your set speed down by twice the "Cruise Interval (Hold)" amount minus this offset, so with the shipped 5 hold interval and 5 chosen here you just get a plain 5 down. A quick tap is never affected, and 0 turns this off.</source>
-        <translation type="google-generated">&lt;b&gt;「クルーズ速度の長押し増減幅」ステップに追加量を追加しますが、+ クルーズ ボタンを押し続けた場合に限ります。&lt;/b&gt;&lt;br&gt;&lt;br&gt;- ボタンには反映されません。 - を押し続けると、設定速度が「クルーズ速度の長押し増減幅」量の 2 倍からこのオフセットを引いた分だけ低下します。そのため、デフォルトの 5 保持間隔とここで選択した 5 を使用すると、単純な 5 が低下するだけです。素早いタップは決して影響を受けず、0 はこれをオフにします。</translation>
+        <translation>&lt;b&gt;「クルーズ速度の長押し増減幅」ステップに追加量を追加しますが、+ クルーズ ボタンを押し続けた場合に限ります。&lt;/b&gt;&lt;br&gt;&lt;br&gt;- ボタンには反映されません。 - を押し続けると、設定速度が「クルーズ速度の長押し増減幅」量の 2 倍からこのオフセットを引いた分だけ低下します。そのため、デフォルトの 5 保持間隔とここで選択した 5 を使用すると、単純な 5 が低下するだけです。素早いタップは決して影響を受けず、0 はこれをオフにします。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Hold openpilot's max speed to the posted speed limit.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The limit comes from your downloaded maps, Mapbox, "Navigate on openpilot", or, on supported Ford, Genesis, Hyundai, Kia, Lexus and Toyota models, your dashboard.</source>
@@ -2997,7 +2962,28 @@ Firehoseモードを有効にすると学習データを最大限アップロー
     </message>
     <message>
         <source>&lt;b&gt;Choose which sources openpilot checks for the speed limit and in what order, or have it always use the highest or lowest limit being reported.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick up to two sources and openpilot uses the first one that currently has a limit. "Highest" and "Lowest" ignore the order and take the fastest or slowest limit any source reports, so one wrong map entry can hold you well below the posted limit.</source>
-        <translation>&lt;b&gt;openpilot が制限速度を確認する情報源と順序を選ぶか、報告された最高値または最低値を常に使用します。&lt;/b&gt;&lt;br&gt;&lt;br&gt;最大二つ選べ、openpilot は現在制限速度を提供している最初の情報源を使用します。"最高" と "最低" は順序を無視し、いずれかの情報源が報告する最も高い値または低い値を採用します。そのため、誤った地図情報一件で道路の制限速度を大幅に下回る速度へ抑えられる場合があります。</translation></message>
+        <translation>&lt;b&gt;openpilot が制限速度を確認する情報源と順序を選ぶか、報告された最高値または最低値を常に使用します。&lt;/b&gt;&lt;br&gt;&lt;br&gt;最大二つ選べ、openpilot は現在制限速度を提供している最初の情報源を使用します。"最高" と "最低" は順序を無視し、いずれかの情報源が報告する最も高い値または低い値を採用します。そのため、誤った地図情報一件で道路の制限速度を大幅に下回る速度へ抑えられる場合があります。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot slows down on its own for curves ahead, and you pick how fast it takes them with "Curve Speed Profile".&lt;/b&gt;&lt;br&gt;&lt;br&gt;It comes set to "Adaptive", which learns how you prefer to take curves.</source>
+        <translation>&lt;b&gt;openpilot が前方のカーブに合わせて自動的に減速し、「カーブ速度プロファイル」で通過速度を選びます。&lt;/b&gt;&lt;br&gt;&lt;br&gt;初期設定の「アダプティブ」は、運転者が好むカーブの曲がり方を学習します。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How hard you corner, learned from your own driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The "Adaptive" profile uses this to take curves the way you do, but never harder than your steering has proven it can hold. A higher number means carrying more speed through curves. Lower means taking them gentler.</source>
+        <translation>&lt;b&gt;ご自身の運転から学習した、カーブを曲がる強さです。&lt;/b&gt;&lt;br&gt;&lt;br&gt;「アダプティブ」プロファイルでは、この値を使ってご自身と同じようにカーブを曲がりますが、ステアリングが維持できると確認された限界を超えることはありません。値が大きいほどカーブを速く通過し、小さいほど穏やかに通過します。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How fast openpilot takes curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Gentle" and "Standard" hold to a fixed, relaxed pace, "Sport" uses your car's maximum configured or live-tuned cornering limit, and "Adaptive" learns how you prefer to take curves.</source>
+        <translation>&lt;b&gt;openpilot がカーブを曲がる速度です。&lt;/b&gt;&lt;br&gt;&lt;br&gt;「穏やか」と「標準」は一定のゆとりある速度を維持し、「スポーツ」は車両に設定された、またはリアルタイムで調整された最大のコーナリング限界を使用します。「アダプティブ」は、運転者が好むカーブの曲がり方を学習します。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Throw away everything openpilot has learned about how you take curves and start over.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Adaptive" goes back to its starting value and relearns as you drive. Only available while the car is off.</source>
+        <translation>&lt;b&gt;openpilot がご自身のカーブの曲がり方について学習した内容をすべて破棄し、最初からやり直します。&lt;/b&gt;&lt;br&gt;&lt;br&gt;「アダプティブ」は初期値に戻り、運転するにつれて再学習します。車両の電源がオフのときにのみ使用できます。</translation>
+    </message>
+    <message>
+        <source>Adaptive</source>
+        <translation>アダプティブ</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotManageControl</name>
@@ -3401,7 +3387,7 @@ Firehoseモードを有効にすると学習データを最大限アップロー
     </message>
     <message>
         <source>&lt;b&gt;Update the "Model Manager" so it can handle the latest models.&lt;/b&gt;</source>
-        <translation type="google-generated">&lt;b&gt;最新モデルを扱えるように「モデルマネージャー」を更新します。&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;最新モデルを扱えるように「モデルマネージャー」を更新します。&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Tinygrad is out of date and must be updated before you can download new models. Update now?</source>
@@ -3417,7 +3403,7 @@ Firehoseモードを有効にすると学習データを最大限アップロー
     </message>
     <message>
         <source>Select a Model</source>
-        <translation type="google-generated">モデルを選択してください</translation>
+        <translation>モデルを選択してください</translation>
     </message>
     <message>
         <source>UPDATE</source>
@@ -3540,7 +3526,7 @@ Firehoseモードを有効にすると学習データを最大限アップロー
     </message>
     <message>
         <source>&lt;b&gt;Draws the map itself on your driving screen, alongside what the "Public Mapbox Key" does for searching.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Keep this one to yourself, since it can be used to run up charges on your Mapbox account. After you add it you are asked whether to reboot now or later, and it does not take effect until the device has actually rebooted.</source>
-        <translation type="google-generated">&lt;b&gt;「Mapbox 公開キー」の検索機能とともに、運転画面に地図自体を描画します。&lt;/b&gt;&lt;br&gt;&lt;br&gt;これは、Mapbox アカウントの料金を増やすために使用される可能性があるため、秘密にしておいてください。追加した後、今すぐ再起動するか後で再起動するかを尋ねられますが、デバイスが実際に再起動するまで有効になりません。</translation>
+        <translation>&lt;b&gt;「Mapbox 公開キー」の検索機能とともに、運転画面に地図自体を描画します。&lt;/b&gt;&lt;br&gt;&lt;br&gt;これは、Mapbox アカウントの料金を増やすために使用される可能性があるため、秘密にしておいてください。追加した後、今すぐ再起動するか後で再起動するかを尋ねられますが、デバイスが実際に再起動するまで有効になりません。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Spot missing or outdated OpenStreetMap speed limits while you drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;FrogPilot compares the speed limits it sees with your downloaded maps and saves possible corrections for you to review later. This makes it quick and easy to improve speed-limit data for future drives and everyone who uses OpenStreetMap.&lt;br&gt;&lt;br&gt;Downloaded maps are required. Saved suggestions may reveal which roads you drove. Nothing is submitted automatically, so review each suggestion before making an OpenStreetMap edit.&lt;br&gt;&lt;br&gt;Need a step-by-step guide? Visit &lt;b&gt;#speed-limit-filler&lt;/b&gt; in the FrogPilot Discord!</source>
@@ -3687,7 +3673,7 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>DEVICE / SCREEN</source>
-        <translation type="google-generated">デバイス / スクリーン</translation>
+        <translation>デバイス / スクリーン</translation>
     </message>
 </context>
 <context>
@@ -3810,11 +3796,11 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>&lt;b&gt;Set the volume for the sound openpilot makes when it stops driving and hands the car back to you.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear this when you tap the brake, press "Cancel", or when your car's cruise control drops out. Most faults that force openpilot to give up use a warning chime instead, which comes from "Soft Warning Volume" or "Urgent Warning Volume".</source>
-        <translation type="google-generated">&lt;b&gt;openpilot が運転を停止して車を返却するときに発する音の音量を設定します。&lt;/b&gt;&lt;br&gt;&lt;br&gt;この音は、ブレーキを踏んだとき、「キャンセル」を押したとき、または車のクルーズ コントロールが停止したときに聞こえます。 openpilot を強制的に諦めさせるほとんどの障害では、代わりに「重要警告音量」または「緊急警告音量」からの警告チャイムが使用されます。</translation>
+        <translation>&lt;b&gt;openpilot が運転を停止して車を返却するときに発する音の音量を設定します。&lt;/b&gt;&lt;br&gt;&lt;br&gt;この音は、ブレーキを踏んだとき、「キャンセル」を押したとき、または車のクルーズ コントロールが停止したときに聞こえます。 openpilot を強制的に諦めさせるほとんどの障害では、代わりに「重要警告音量」または「緊急警告音量」からの警告チャイムが使用されます。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Turn on extra alerts stock openpilot doesn't have, for things you would otherwise have to catch yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These cover the light turning green, the car ahead pulling away, and the speed limit changing. The blind spot one in here is not a new alert: openpilot already chimes when you signal for a lane change and there's a car beside you, and this only swaps that chime for a louder one.</source>
-        <translation type="google-generated">&lt;b&gt;標準の openpilot にはない追加のアラートをオンにします。これがなければ自分で捕まえる必要がある場合に備えます。&lt;/b&gt;&lt;br&gt;&lt;br&gt;これらのアラートは、信号が青に変わったり、前の車が動き始めたり、制限速度が変わったりすることをカバーします。ここでの盲点は、新しい警告ではありません。車線変更の合図をし、隣に車がいるとき、openpilot はすでにチャイムを鳴らしており、これはそのチャイムをより大きな音に置き換えるだけです。</translation>
+        <translation>&lt;b&gt;標準の openpilot にはない追加のアラートをオンにします。これがなければ自分で捕まえる必要がある場合に備えます。&lt;/b&gt;&lt;br&gt;&lt;br&gt;これらのアラートは、信号が青に変わったり、前の車が動き始めたり、制限速度が変わったりすることをカバーします。ここでの盲点は、新しい警告ではありません。車線変更の合図をし、隣に車がいるとき、openpilot はすでにチャイムを鳴らしており、これはそのチャイムをより大きな音に置き換えるだけです。</translation>
     </message>
 </context>
 <context>
@@ -4093,7 +4079,7 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>Include Holiday Themes</source>
-        <translation type="google-generated">ホリデーテーマを含める</translation>
+        <translation>ホリデーテーマを含める</translation>
     </message>
     <message>
         <source>Are you sure you want to completely reset your startup message?</source>
@@ -4109,7 +4095,7 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>Verifying authenticity...</source>
-        <translation type="google-generated">本物であることを確認中...</translation>
+        <translation>本物であることを確認中...</translation>
     </message>
 </context>
 <context>
@@ -4252,7 +4238,7 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>An alert was unclear and I'm not sure what it meant</source>
-        <translation type="google-generated">アラートが不明瞭で、何を意味するのかわかりません</translation>
+        <translation>アラートが不明瞭で、何を意味するのかわかりません</translation>
     </message>
     <message>
         <source>What's going on?</source>
@@ -5020,15 +5006,15 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>Failed to register with comma.ai backend. It will not connect or upload to comma.ai servers, and receives no support from comma.ai. If this is a device purchased at comma.ai/shop, open a ticket at https://comma.ai/support.</source>
-        <translation type="google-generated">comma.ai バックエンドへの登録に失敗しました。 comma.ai サーバーへの接続やアップロードは行われず、comma.ai からのサポートも受けられません。これが comma.ai/shop で購入したデバイスの場合は、https://comma.ai/support でサポート リクエストを作成してください。</translation>
+        <translation>comma.ai バックエンドへの登録に失敗しました。 comma.ai サーバーへの接続やアップロードは行われず、comma.ai からのサポートも受けられません。これが comma.ai/shop で購入したデバイスの場合は、https://comma.ai/support でサポート リクエストを作成してください。</translation>
     </message>
     <message>
         <source>Poor visibility detected for driver monitoring. Ensure the device has a clear view of the driver. This can be checked in the device settings. Extreme lighting conditions and/or unconventional mounting positions may also trigger this alert.</source>
-        <translation type="google-generated">ドライバー監視のために視界不良が検出されました。デバイスからドライバーがはっきりと見えるようにしてください。これはデバイスの設定で確認できます。極端な照明条件や通常とは異なる取り付け位置によっても、このアラートがトリガーされる可能性があります。</translation>
+        <translation>ドライバー監視のために視界不良が検出されました。デバイスからドライバーがはっきりと見えるようにしてください。これはデバイスの設定で確認できます。極端な照明条件や通常とは異なる取り付け位置によっても、このアラートがトリガーされる可能性があります。</translation>
     </message>
     <message>
         <source>Excessive %1 actuation detected on your last drive. Please contact support at https://comma.ai/support and share your device's Dongle ID for troubleshooting.</source>
-        <translation type="google-generated">最後のドライブで過度の %1 作動が検出されました。トラブルシューティングのために、サポート (https://comma.ai/support) に連絡し、デバイスのドングル ID を共有してください。</translation>
+        <translation>最後のドライブで過度の %1 作動が検出されました。トラブルシューティングのために、サポート (https://comma.ai/support) に連絡し、デバイスのドングル ID を共有してください。</translation>
     </message>
 </context>
 <context>
@@ -5223,7 +5209,7 @@ Only continue if you know what they do.</source>
     </message>
 </context>
 <context>
-    <name>ScreenRecorder</name>
+    <name>ScreenRecorderButton</name>
     <message>
         <source>RECORDING</source>
         <translation>録画中</translation>
@@ -5510,7 +5496,15 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>Automatically update FrogPilot when the vehicle is parked with an active internet connection.</source>
-        <translation type="google-generated">インターネット接続が有効な状態で車両を駐車すると、FrogPilot が自動的に更新されます。</translation>
+        <translation>インターネット接続が有効な状態で車両を駐車すると、FrogPilot が自動的に更新されます。</translation>
+    </message>
+    <message>
+        <source>Share Driving Data</source>
+        <translation>運転データの共有</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Automatically share anonymized driving data with FrogPilot to help improve it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only driving signals are shared: no video, no GPS or location, no VIN, and no identifiers. Turn this off to opt out.</source>
+        <translation>&lt;b&gt;匿名化された運転データを FrogPilot と自動的に共有し、改善に役立てます。&lt;/b&gt;&lt;br&gt;&lt;br&gt;共有されるのは運転信号のみです。ビデオ、GPS や位置情報、VIN、識別子は含まれません。オプトアウトするにはこれをオフにします。</translation>
     </message>
 </context>
 <context>

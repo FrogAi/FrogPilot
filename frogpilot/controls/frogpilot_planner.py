@@ -147,6 +147,7 @@ class FrogPilotPlanner:
     frogpilotPlan.tFollow = float(self.frogpilot_following.t_follow)
     frogpilotPlan.trackingLead = self.tracking_lead
 
+    frogpilotPlan.cscActive = self.frogpilot_vcruise.csc_active
     frogpilotPlan.cscControllingSpeed = self.frogpilot_vcruise.csc_controlling_speed
     frogpilotPlan.cscMaxLateralAcceleration = float(self.frogpilot_vcruise.csc.max_limit)
     frogpilotPlan.cscSpeed = float(self.frogpilot_vcruise.csc_target)

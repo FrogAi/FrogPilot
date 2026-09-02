@@ -21,7 +21,9 @@ from openpilot.common.swaglog import cloudlog, add_file_handler
 from openpilot.system.version import get_build_metadata, terms_version, training_version
 from openpilot.system.hardware.hw import Paths
 
-from openpilot.frogpilot.common.frogpilot_functions import frogpilot_boot_functions, install_frogpilot, run_frogsgomoo, uninstall_frogpilot
+from openpilot.frogpilot.common.frogpilot_functions import (
+  frogpilot_boot_functions, install_frogpilot, migrate_params, run_frogsgomoo, uninstall_frogpilot
+)
 from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
 
 
@@ -43,6 +45,8 @@ def manager_init() -> None:
 
   # FrogPilot variables
   params_cache = Params("/cache/params", return_defaults=True)
+
+  migrate_params(params, params_cache)
 
   # set unset params to their default value
   for k in params.all_keys():

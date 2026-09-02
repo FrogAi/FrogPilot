@@ -197,7 +197,7 @@
     </message>
     <message>
         <source>Adjacent Lane Metrics</source>
-        <translation type="google-generated">相鄰車道指標</translation>
+        <translation>相鄰車道指標</translation>
     </message>
     <message>
         <source>&lt;b&gt;Print how wide the lanes either side of you are, right on their paths.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It draws the adjacent lane paths itself, so there is something to print onto, even with "Adjacent Lanes" switched off.</source>
@@ -872,7 +872,7 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>seconds</source>
-        <translation type="google-generated">秒</translation>
+        <translation>秒</translation>
     </message>
     <message>
         <source>SPEED</source>
@@ -1350,23 +1350,23 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>&lt;b&gt;Delete every recorded drive to free up space and clear personal footage off the device.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only the one-minute chunk of footage containing the moment you flagged is kept, not the rest of that drive, and preserving a drive in "The Pond" keeps it the same one minute at a time.</source>
-        <translation type="google-generated">&lt;b&gt;刪除每一次記錄的駕駛旅程，以釋放空間並清除設備上的個人錄影。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;僅保留包含您標記的那一刻的一分鐘錄影片段，而不保留該駕駛旅程的其餘部分，並且在“The Pond”中保存駕駛旅程可以使其一次一分鐘保持不變。</translation>
+        <translation>&lt;b&gt;刪除每一次記錄的駕駛旅程，以釋放空間並清除設備上的個人錄影。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;僅保留包含您標記的那一刻的一分鐘錄影片段，而不保留該駕駛旅程的其餘部分，並且在“The Pond”中保存駕駛旅程可以使其一次一分鐘保持不變。</translation>
     </message>
     <message>
         <source>That name can't be used. Names can only use letters, numbers, dashes, periods, and underscores.</source>
-        <translation type="google-generated">這個名字不能用名稱只能使用字母、數字、短劃線、句點和底線。</translation>
+        <translation>這個名字不能用名稱只能使用字母、數字、短劃線、句點和底線。</translation>
     </message>
     <message>
         <source>Name your backup</source>
-        <translation type="google-generated">為您的備份命名</translation>
+        <translation>為您的備份命名</translation>
     </message>
     <message>
         <source>Backup Name</source>
-        <translation type="google-generated">備份名稱</translation>
+        <translation>備份名稱</translation>
     </message>
     <message>
         <source>Restore this backup? This overwrites your current settings.</source>
-        <translation type="google-generated">恢復這個備份嗎？這將覆蓋您當前的設定。</translation>
+        <translation>恢復這個備份嗎？這將覆蓋您當前的設定。</translation>
     </message>
 </context>
 <context>
@@ -1464,14 +1464,6 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
         <translation>自動</translation>
     </message>
     <message>
-        <source>Start Recording</source>
-        <translation>開始錄影</translation>
-    </message>
-    <message>
-        <source>Stop Recording</source>
-        <translation>停止錄影</translation>
-    </message>
-    <message>
         <source> seconds</source>
         <translation> 秒</translation>
     </message>
@@ -1534,18 +1526,6 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     <message>
         <source>&lt;b&gt;Turn the screen off while driving, and wake it up automatically for alerts or when openpilot engages or disengages.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Tapping the screen wakes it up too.</source>
         <translation>&lt;b&gt;行駛時關閉螢幕；出現警示或 openpilot 啟用、解除控制時，螢幕會自動喚醒。&lt;/b&gt;&lt;br&gt;&lt;br&gt;點選螢幕也可將其喚醒。</translation>
-    </message>
-    <message>
-        <source>Couldn't start recording. Check that there's enough free space and that a recording isn't already running.</source>
-        <translation>無法開始錄影。請確認有足夠的可用空間，且目前沒有其他錄影正在進行。</translation>
-    </message>
-    <message>
-        <source>Share Driving Data</source>
-        <translation type="google-generated">分享駕駛數據</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Automatically share anonymized driving data with FrogPilot to help improve it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only driving signals are shared: no video, no GPS or location, no VIN, and no identifiers. Turn this off to opt out.</source>
-        <translation type="google-generated">&lt;b&gt;自動與 FrogPilot 分享匿名駕駛資料以協助改善。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;僅共享駕駛訊號：沒有影片、沒有 GPS 或位置、沒有 VIN，也沒有識別碼。關閉此選項以選擇退出。</translation>
     </message>
 </context>
 <context>
@@ -2045,10 +2025,6 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
         <translation>已校準的橫向加速度</translation>
     </message>
     <message>
-        <source>&lt;b&gt;How hard you corner, learned from your own driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The "Auto" profile uses this to take curves the way you do, but never harder than your steering has proven it can hold. A higher number means carrying more speed through curves. Lower means taking them gentler.</source>
-        <translation>&lt;b&gt;從您自己的駕駛方式中學習到的過彎激烈程度。&lt;/b&gt;&lt;br&gt;&lt;br&gt;「自動」模式會使用此值，以您的方式過彎，但絕不會超過轉向系統已證明能夠承受的限度。數值越高，過彎時維持的速度越高；數值越低，過彎越平緩。</translation>
-    </message>
-    <message>
         <source>Calibration Progress</source>
         <translation>校準進度</translation>
     </message>
@@ -2057,20 +2033,12 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
         <translation>&lt;b&gt;openpilot 已從您的過彎方式中學習了多少。&lt;/b&gt;&lt;br&gt;&lt;br&gt;此數值只會在您親自控制車速時增加，因此會隨著您親自駕車過彎而逐漸填滿。達到 100% 時，openpilot 已收集到足夠的過彎資料，可以配合您的過彎方式。</translation>
     </message>
     <message>
-        <source>&lt;b&gt;How fast openpilot takes curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Gentle" and "Standard" hold to a fixed, relaxed pace, "Sport" uses your car's maximum configured or live-tuned cornering limit, and "Auto" matches the way you take curves yourself.</source>
-        <translation>&lt;b&gt;openpilot 的過彎速度。&lt;/b&gt;&lt;br&gt;&lt;br&gt;「柔和」和「標準」會維持固定、從容的速度；「運動」會使用為您的車輛設定或即時調校的最大過彎限度；「自動」則會配合您自己的過彎方式。</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;How fast the "Sport" profile is allowed to take curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This is also the maximum for every other curve speed profile. openpilot learns the limit from your car when possible and otherwise uses the value configured for it.</source>
         <translation>&lt;b&gt;「運動」模式允許的過彎速度。&lt;/b&gt;&lt;br&gt;&lt;br&gt;此值也是其他所有彎道速度模式的上限。條件允許時，openpilot 會從您的車輛學習此限度；否則會使用為該車輛設定的數值。</translation>
     </message>
     <message>
         <source>Reset Curve Data</source>
         <translation>重設彎道資料</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Throw away everything openpilot has learned about how you take curves and start over.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Auto" goes back to its starting value and relearns as you drive. Only available while the car is off.</source>
-        <translation>&lt;b&gt;清除 openpilot 學到的所有關於您過彎方式的資料，並重新開始。&lt;/b&gt;&lt;br&gt;&lt;br&gt;「自動」會恢復初始值，並在您駕駛時重新學習。只能在車輛關閉時使用。</translation>
     </message>
     <message>
         <source>Driving Personalities</source>
@@ -2358,19 +2326,24 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>Reduce Cornering Force by:</source>
-        <translation>降低過彎作用力：</translation></message>
+        <translation>降低過彎作用力：</translation>
+    </message>
     <message>
         <source>&lt;b&gt;Eases off how hard openpilot corners in low visibility.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only does anything while "Curve Speed Controller" is on. Raise it for gentler, safer cornering on a slippery road. Curve speed drops by less than this number, because cornering force rises with the square of speed.</source>
-        <translation>&lt;b&gt;在低能見度時，減輕 openpilot 過彎的作用力。&lt;/b&gt;&lt;br&gt;&lt;br&gt;僅在「彎道速度控制器」開啟時生效。提高此值可在濕滑道路上更平順且安全地過彎。彎道速度的降幅會小於此值，因為過彎作用力會隨速度的平方增加。</translation></message>
+        <translation>&lt;b&gt;在低能見度時，減輕 openpilot 過彎的作用力。&lt;/b&gt;&lt;br&gt;&lt;br&gt;僅在「彎道速度控制器」開啟時生效。提高此值可在濕滑道路上更平順且安全地過彎。彎道速度的降幅會小於此值，因為過彎作用力會隨速度的平方增加。</translation>
+    </message>
     <message>
         <source>&lt;b&gt;Eases off how hard openpilot corners in rain.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only does anything while "Curve Speed Controller" is on. Raise it for gentler, safer cornering on a slippery road. Curve speed drops by less than this number, because cornering force rises with the square of speed.</source>
-        <translation>&lt;b&gt;下雨時，減輕 openpilot 過彎的作用力。&lt;/b&gt;&lt;br&gt;&lt;br&gt;僅在「彎道速度控制器」開啟時生效。提高此值可在濕滑道路上更平順且安全地過彎。彎道速度的降幅會小於此值，因為過彎作用力會隨速度的平方增加。</translation></message>
+        <translation>&lt;b&gt;下雨時，減輕 openpilot 過彎的作用力。&lt;/b&gt;&lt;br&gt;&lt;br&gt;僅在「彎道速度控制器」開啟時生效。提高此值可在濕滑道路上更平順且安全地過彎。彎道速度的降幅會小於此值，因為過彎作用力會隨速度的平方增加。</translation>
+    </message>
     <message>
         <source>&lt;b&gt;Eases off how hard openpilot corners in a rainstorm.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only does anything while "Curve Speed Controller" is on. Raise it for gentler, safer cornering on a slippery road. Curve speed drops by less than this number, because cornering force rises with the square of speed.</source>
-        <translation>&lt;b&gt;暴雨時，減輕 openpilot 過彎的作用力。&lt;/b&gt;&lt;br&gt;&lt;br&gt;僅在「彎道速度控制器」開啟時生效。提高此值可在濕滑道路上更平順且安全地過彎。彎道速度的降幅會小於此值，因為過彎作用力會隨速度的平方增加。</translation></message>
+        <translation>&lt;b&gt;暴雨時，減輕 openpilot 過彎的作用力。&lt;/b&gt;&lt;br&gt;&lt;br&gt;僅在「彎道速度控制器」開啟時生效。提高此值可在濕滑道路上更平順且安全地過彎。彎道速度的降幅會小於此值，因為過彎作用力會隨速度的平方增加。</translation>
+    </message>
     <message>
         <source>&lt;b&gt;Eases off how hard openpilot corners in snow.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only does anything while "Curve Speed Controller" is on. Raise it for gentler, safer cornering on a slippery road. Curve speed drops by less than this number, because cornering force rises with the square of speed.</source>
-        <translation>&lt;b&gt;下雪時，減輕 openpilot 過彎的作用力。&lt;/b&gt;&lt;br&gt;&lt;br&gt;僅在「彎道速度控制器」開啟時生效。提高此值可在濕滑道路上更平順且安全地過彎。彎道速度的降幅會小於此值，因為過彎作用力會隨速度的平方增加。</translation></message>
+        <translation>&lt;b&gt;下雪時，減輕 openpilot 過彎的作用力。&lt;/b&gt;&lt;br&gt;&lt;br&gt;僅在「彎道速度控制器」開啟時生效。提高此值可在濕滑道路上更平順且安全地過彎。彎道速度的降幅會小於此值，因為過彎作用力會隨速度的平方增加。</translation>
+    </message>
     <message>
         <source>&lt;b&gt;Fall back to Mapbox for the speed limit when none of your chosen sources have one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs your Public Mapbox Key and a working internet connection.</source>
         <translation>&lt;b&gt;當您選擇的來源都沒有速限資訊時，改用 Mapbox 作為備用來源。&lt;/b&gt;&lt;br&gt;&lt;br&gt;需要您的 Mapbox 公開金鑰和正常可用的網際網路連線。</translation>
@@ -2622,10 +2595,6 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     <message>
         <source>&lt;b&gt;Show which condition switched "Experimental Mode" on, right on the driving screen.&lt;/b&gt;</source>
         <translation>&lt;b&gt;直接在行駛畫面顯示是哪項條件開啟了「實驗模式」。&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;openpilot slows down on its own for curves ahead, and you pick how fast it takes them with "Curve Speed Profile".&lt;/b&gt;&lt;br&gt;&lt;br&gt;It comes set to "Auto", which matches the way you take curves yourself.</source>
-        <translation>&lt;b&gt;openpilot 會自行為前方彎道減速，您可透過「彎道速度模式」選擇過彎速度。&lt;/b&gt;&lt;br&gt;&lt;br&gt;預設設為「自動」，會配合您自己過彎的方式。</translation>
     </message>
     <message>
         <source>Curve Speed Profile</source>
@@ -2892,10 +2861,6 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
         <translation>柔和</translation>
     </message>
     <message>
-        <source>Auto</source>
-        <translation>自動</translation>
-    </message>
-    <message>
         <source>Curve data can't be reset while the car is on. Turn the car off and try again.</source>
         <translation>車輛電源開啟時無法重設彎道資料。請關閉車輛電源後再試一次。</translation>
     </message>
@@ -2933,63 +2898,63 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only fires when there is no car close ahead of you, so it stays quiet when you roll up to a red light behind traffic.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
-        <translation type="google-generated">&lt;b&gt;只要駕駛模型「偵測到」紅燈或停車標誌，就會切換到「實驗模式」。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;它僅在您前方沒有車輛靠近時才會觸發，因此當您在車流後面遇到紅燈時，它會保持安靜。 &lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;免責聲明&lt;/b&gt;：openpilot不會明確偵測交通燈或停車標誌。在「實驗模式」中，openpilot根據攝影機輸入做出端到端的駕駛決策，這意味著即使沒有明確的原因，它也可能會停止！ &lt;/i&gt;</translation>
+        <translation>&lt;b&gt;只要駕駛模型「偵測到」紅燈或停車標誌，就會切換到「實驗模式」。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;它僅在您前方沒有車輛靠近時才會觸發，因此當您在車流後面遇到紅燈時，它會保持安靜。 &lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;免責聲明&lt;/b&gt;：openpilot不會明確偵測交通燈或停車標誌。在「實驗模式」中，openpilot根據攝影機輸入做出端到端的駕駛決策，這意味著即使沒有明確的原因，它也可能會停止！ &lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its acceleration any time your car is not slowing down with the "Aggressive" profile, not just when pulling away from a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler starts and pickup. Lower it for faster but more abrupt ones. "Speed-Up Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;當您的汽車沒有以「積極」設定檔減速時，openpilot如何平滑地改變其加速度，而不僅僅是在離開停車點時。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以獲得更溫和的啟動和加速。降低它可以得到更快但更突然的動作。 「加速反應」是對同一時刻的第二個平滑度控制，當您的汽車靜止時，這個控制將完全關閉。 “流量模式”忽略兩者並使用自己的固定值。</translation>
+        <translation>&lt;b&gt;當您的汽車沒有以「積極」設定檔減速時，openpilot如何平滑地改變其加速度，而不僅僅是在離開停車點時。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以獲得更溫和的啟動和加速。降低它可以得到更快但更突然的動作。 「加速反應」是對同一時刻的第二個平滑度控制，當您的汽車靜止時，這個控制將完全關閉。 “流量模式”忽略兩者並使用自己的固定值。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its braking any time your car is slowing down with the "Aggressive" profile, not just when coming to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler stops and slowdowns. Lower it for quicker but sharper ones. "Slowdown Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;每當您的汽車透過「積極」設定檔減速時，openpilot 改變煞車的平穩程度如何，而不僅僅是在停車時。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以實現更溫和的停車和減速。降低它以獲得更快但更銳利的效果。 「減速反應」是對同一時刻的第二個平滑度控制，當您的汽車靜止時，這個控制將完全關閉。 “流量模式”忽略兩者並使用自己的固定值。</translation>
+        <translation>&lt;b&gt;每當您的汽車透過「積極」設定檔減速時，openpilot 改變煞車的平穩程度如何，而不僅僅是在停車時。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以實現更溫和的停車和減速。降低它以獲得更快但更銳利的效果。 「減速反應」是對同一時刻的第二個平滑度控制，當您的汽車靜止時，這個控制將完全關閉。 “流量模式”忽略兩者並使用自己的固定值。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot sheds speed any time your car is slowing down with the "Aggressive" profile, like easing off for a slower car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual slowdowns. Lower it for faster but sharper ones. It works alongside "Braking Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;每當您的汽車使用「積極」設定檔減速時，openpilot 減速的平穩程度如何，例如為前方較慢的汽車減速。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以實現更逐漸的減速。降低它以獲得更快但更銳利的速度。它與“煞車平順度”一起工作，“煞車平順度”是對這些相同時刻的單獨控制。 “流量模式”忽略兩者並使用自己的固定值。</translation>
+        <translation>&lt;b&gt;每當您的汽車使用「積極」設定檔減速時，openpilot 減速的平穩程度如何，例如為前方較慢的汽車減速。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以實現更逐漸的減速。降低它以獲得更快但更銳利的速度。它與“煞車平順度”一起工作，“煞車平順度”是對這些相同時刻的單獨控制。 “流量模式”忽略兩者並使用自己的固定值。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot builds speed any time your car is not slowing down with the "Aggressive" profile, like catching up to your set speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual pickup. Lower it for quicker but more jolting pickup. It works alongside "Acceleration Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;當您的汽車沒有以「積極」設定檔減速時，openpilot 加速的平穩程度如何，例如追上您的設定速度。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以獲得更漸進的加速。降低它可以獲得更快但更顛簸的加速。它與“加速平順度”一起工作，“加速平順度”是對這些相同時刻的單獨控制。 “流量模式”忽略兩者並使用自己的固定值。</translation>
+        <translation>&lt;b&gt;當您的汽車沒有以「積極」設定檔減速時，openpilot 加速的平穩程度如何，例如追上您的設定速度。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以獲得更漸進的加速。降低它可以獲得更快但更顛簸的加速。它與“加速平順度”一起工作，“加速平順度”是對這些相同時刻的單獨控制。 “流量模式”忽略兩者並使用自己的固定值。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its acceleration any time your car is not slowing down with the "Standard" profile, not just when pulling away from a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler starts and pickup. Lower it for faster but more abrupt ones. "Speed-Up Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;當您的汽車沒有以「標準」設定檔減速時，openpilot如何平滑地改變其加速度，而不僅僅是在離開停車點時。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以獲得更溫和的啟動和加速。降低它可以得到更快但更突然的動作。 「加速反應」是對同一時刻的第二個平滑度控制，當您的汽車靜止時，這個控制將完全關閉。 “流量模式”忽略兩者並使用自己的固定值。</translation>
+        <translation>&lt;b&gt;當您的汽車沒有以「標準」設定檔減速時，openpilot如何平滑地改變其加速度，而不僅僅是在離開停車點時。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以獲得更溫和的啟動和加速。降低它可以得到更快但更突然的動作。 「加速反應」是對同一時刻的第二個平滑度控制，當您的汽車靜止時，這個控制將完全關閉。 “流量模式”忽略兩者並使用自己的固定值。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its braking any time your car is slowing down with the "Standard" profile, not just when coming to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler stops and slowdowns. Lower it for quicker but sharper ones. "Slowdown Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;每當您的汽車透過「標準」設定檔減速時，openpilot 改變煞車的平穩程度如何，而不僅僅是在停車時。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以實現更溫和的停車和減速。降低它以獲得更快但更銳利的效果。 「減速反應」是對同一時刻的第二個平滑度控制，當您的汽車靜止時，這個控制將完全關閉。 “流量模式”忽略兩者並使用自己的固定值。</translation>
+        <translation>&lt;b&gt;每當您的汽車透過「標準」設定檔減速時，openpilot 改變煞車的平穩程度如何，而不僅僅是在停車時。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以實現更溫和的停車和減速。降低它以獲得更快但更銳利的效果。 「減速反應」是對同一時刻的第二個平滑度控制，當您的汽車靜止時，這個控制將完全關閉。 “流量模式”忽略兩者並使用自己的固定值。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot sheds speed any time your car is slowing down with the "Standard" profile, like easing off for a slower car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual slowdowns. Lower it for faster but sharper ones. It works alongside "Braking Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;每當您的汽車使用「標準」設定檔減速時，openpilot 減速的平穩程度如何，例如為前方較慢的汽車減速。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以實現更逐漸的減速。降低它以獲得更快但更銳利的速度。它與“煞車平順度”一起工作，“煞車平順度”是對這些相同時刻的單獨控制。 “流量模式”忽略兩者並使用自己的固定值。</translation>
+        <translation>&lt;b&gt;每當您的汽車使用「標準」設定檔減速時，openpilot 減速的平穩程度如何，例如為前方較慢的汽車減速。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以實現更逐漸的減速。降低它以獲得更快但更銳利的速度。它與“煞車平順度”一起工作，“煞車平順度”是對這些相同時刻的單獨控制。 “流量模式”忽略兩者並使用自己的固定值。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot builds speed any time your car is not slowing down with the "Standard" profile, like catching up to your set speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual pickup. Lower it for quicker but more jolting pickup. It works alongside "Acceleration Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;當您的汽車沒有以「標準」設定檔減速時，openpilot 加速的平穩程度如何，例如追上您的設定速度。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以獲得更漸進的加速。降低它可以獲得更快但更顛簸的加速。它與“加速平順度”一起工作，“加速平順度”是對這些相同時刻的單獨控制。 “流量模式”忽略兩者並使用自己的固定值。</translation>
+        <translation>&lt;b&gt;當您的汽車沒有以「標準」設定檔減速時，openpilot 加速的平穩程度如何，例如追上您的設定速度。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以獲得更漸進的加速。降低它可以獲得更快但更顛簸的加速。它與“加速平順度”一起工作，“加速平順度”是對這些相同時刻的單獨控制。 “流量模式”忽略兩者並使用自己的固定值。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its acceleration any time your car is not slowing down with the "Relaxed" profile, not just when pulling away from a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler starts and pickup. Lower it for faster but more abrupt ones. "Speed-Up Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;當您的汽車沒有以「舒適」設定檔減速時，openpilot如何平滑地改變其加速度，而不僅僅是在離開停車點時。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以獲得更溫和的啟動和加速。降低它可以得到更快但更突然的動作。 「加速反應」是對同一時刻的第二個平滑度控制，當您的汽車靜止時，這個控制將完全關閉。 “流量模式”忽略兩者並使用自己的固定值。</translation>
+        <translation>&lt;b&gt;當您的汽車沒有以「舒適」設定檔減速時，openpilot如何平滑地改變其加速度，而不僅僅是在離開停車點時。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以獲得更溫和的啟動和加速。降低它可以得到更快但更突然的動作。 「加速反應」是對同一時刻的第二個平滑度控制，當您的汽車靜止時，這個控制將完全關閉。 “流量模式”忽略兩者並使用自己的固定值。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its braking any time your car is slowing down with the "Relaxed" profile, not just when coming to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler stops and slowdowns. Lower it for quicker but sharper ones. "Slowdown Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;每當您的汽車透過「舒適」設定檔減速時，openpilot 改變煞車的平穩程度如何，而不僅僅是在停車時。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以實現更溫和的停車和減速。降低它以獲得更快但更銳利的效果。 「減速反應」是對同一時刻的第二個平滑度控制，當您的汽車靜止時，這個控制將完全關閉。 “流量模式”忽略兩者並使用自己的固定值。</translation>
+        <translation>&lt;b&gt;每當您的汽車透過「舒適」設定檔減速時，openpilot 改變煞車的平穩程度如何，而不僅僅是在停車時。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以實現更溫和的停車和減速。降低它以獲得更快但更銳利的效果。 「減速反應」是對同一時刻的第二個平滑度控制，當您的汽車靜止時，這個控制將完全關閉。 “流量模式”忽略兩者並使用自己的固定值。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot sheds speed any time your car is slowing down with the "Relaxed" profile, like easing off for a slower car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual slowdowns. Lower it for faster but sharper ones. It works alongside "Braking Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;每當您的汽車使用「舒適」設定檔減速時，openpilot 減速的平穩程度如何，例如為前方較慢的汽車減速。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以實現更逐漸的減速。降低它以獲得更快但更銳利的速度。它與“煞車平順度”一起工作，“煞車平順度”是對這些相同時刻的單獨控制。 “流量模式”忽略兩者並使用自己的固定值。</translation>
+        <translation>&lt;b&gt;每當您的汽車使用「舒適」設定檔減速時，openpilot 減速的平穩程度如何，例如為前方較慢的汽車減速。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以實現更逐漸的減速。降低它以獲得更快但更銳利的速度。它與“煞車平順度”一起工作，“煞車平順度”是對這些相同時刻的單獨控制。 “流量模式”忽略兩者並使用自己的固定值。</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot builds speed any time your car is not slowing down with the "Relaxed" profile, like catching up to your set speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual pickup. Lower it for quicker but more jolting pickup. It works alongside "Acceleration Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;當您的汽車沒有以「舒適」設定檔減速時，openpilot 加速的平穩程度如何，例如追上您的設定速度。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以獲得更漸進的加速。降低它可以獲得更快但更顛簸的加速。它與“加速平順度”一起工作，“加速平順度”是對這些相同時刻的單獨控制。 “流量模式”忽略兩者並使用自己的固定值。</translation>
+        <translation>&lt;b&gt;當您的汽車沒有以「舒適」設定檔減速時，openpilot 加速的平穩程度如何，例如追上您的設定速度。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;提高它以獲得更漸進的加速。降低它可以獲得更快但更顛簸的加速。它與“加速平順度”一起工作，“加速平順度”是對這些相同時刻的單獨控制。 “流量模式”忽略兩者並使用自己的固定值。</translation>
     </message>
     <message>
         <source>&lt;b&gt;openpilot comes to a full stop whenever it thinks it sees a red light or stop sign, whether or not "Experimental Mode" is running.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only kicks in when openpilot is not already tracking a car ahead, so behind a queue at a light your normal following does the stopping instead. Touching the gas cancels a forced stop for the next 10 seconds.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Heads up&lt;/b&gt;: openpilot never actually reads traffic lights or stop signs. It decides from what the camera sees, so it can stop when there is no reason to.&lt;/i&gt;</source>
-        <translation type="google-generated">&lt;b&gt;openpilot 每當它認為看到紅燈或停車標誌時就會完全停止，無論「實驗模式」是否正在運行。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;只有當 openpilot 尚未追蹤前方車輛時，它才會啟動，因此在紅燈處的隊列後面，您的正常跟隨會停止。觸摸油門會取消接下來 10 秒的強制停車。 &lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;注意&lt;/b&gt;：openpilot 從來不會真正讀取交通號誌或停車標誌。它根據相機看到的內容來決定，因此它可以在沒有理由的情況下停止。 &lt;/i&gt;</translation>
+        <translation>&lt;b&gt;openpilot 每當它認為看到紅燈或停車標誌時就會完全停止，無論「實驗模式」是否正在運行。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;只有當 openpilot 尚未追蹤前方車輛時，它才會啟動，因此在紅燈處的隊列後面，您的正常跟隨會停止。觸摸油門會取消接下來 10 秒的強制停車。 &lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;注意&lt;/b&gt;：openpilot 從來不會真正讀取交通號誌或停車標誌。它根據相機看到的內容來決定，因此它可以在沒有理由的情況下停止。 &lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds an extra amount on top of the "Cruise Interval (Hold)" step, but only when you press and hold the + cruise button.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The - button does not mirror it. Holding - moves your set speed down by twice the "Cruise Interval (Hold)" amount minus this offset, so with the shipped 5 hold interval and 5 chosen here you just get a plain 5 down. A quick tap is never affected, and 0 turns this off.</source>
-        <translation type="google-generated">&lt;b&gt;在「巡航速度調整間隔（長按）」步驟上方新增額外金額，但僅當您按住 + 巡航按鈕時才新增。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;- 按鈕不會反映它。按住 - 會將您的設定速度降低兩倍於「巡航速度調整間隔（長按）」量減去此偏移量，因此使用預設的 5 保持間隔和此處選擇的 5，您只會得到簡單的 5 下降。快速點擊永遠不會受到影響，0 將其關閉。</translation>
+        <translation>&lt;b&gt;在「巡航速度調整間隔（長按）」步驟上方新增額外金額，但僅當您按住 + 巡航按鈕時才新增。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;- 按鈕不會反映它。按住 - 會將您的設定速度降低兩倍於「巡航速度調整間隔（長按）」量減去此偏移量，因此使用預設的 5 保持間隔和此處選擇的 5，您只會得到簡單的 5 下降。快速點擊永遠不會受到影響，0 將其關閉。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Hold openpilot's max speed to the posted speed limit.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The limit comes from your downloaded maps, Mapbox, "Navigate on openpilot", or, on supported Ford, Genesis, Hyundai, Kia, Lexus and Toyota models, your dashboard.</source>
@@ -2997,7 +2962,28 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>&lt;b&gt;Choose which sources openpilot checks for the speed limit and in what order, or have it always use the highest or lowest limit being reported.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick up to two sources and openpilot uses the first one that currently has a limit. "Highest" and "Lowest" ignore the order and take the fastest or slowest limit any source reports, so one wrong map entry can hold you well below the posted limit.</source>
-        <translation>&lt;b&gt;選擇 openpilot 查詢速限的來源與順序，或讓系統一律採用目前回報的最高或最低速限。&lt;/b&gt;&lt;br&gt;&lt;br&gt;最多可選擇兩個來源，openpilot 會使用依序第一個目前有速限的來源。「最高」與「最低」會忽略順序，採用任一來源回報的最高或最低速限，因此一筆錯誤的地圖資料就可能讓車速長時間遠低於公告速限。</translation></message>
+        <translation>&lt;b&gt;選擇 openpilot 查詢速限的來源與順序，或讓系統一律採用目前回報的最高或最低速限。&lt;/b&gt;&lt;br&gt;&lt;br&gt;最多可選擇兩個來源，openpilot 會使用依序第一個目前有速限的來源。「最高」與「最低」會忽略順序，採用任一來源回報的最高或最低速限，因此一筆錯誤的地圖資料就可能讓車速長時間遠低於公告速限。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot slows down on its own for curves ahead, and you pick how fast it takes them with "Curve Speed Profile".&lt;/b&gt;&lt;br&gt;&lt;br&gt;It comes set to "Adaptive", which learns how you prefer to take curves.</source>
+        <translation>&lt;b&gt;openpilot 會自行為前方彎道減速，您可透過「彎道速度模式」選擇過彎速度。&lt;/b&gt;&lt;br&gt;&lt;br&gt;預設設為「自適應」，它會學習您偏好的過彎方式。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How hard you corner, learned from your own driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The "Adaptive" profile uses this to take curves the way you do, but never harder than your steering has proven it can hold. A higher number means carrying more speed through curves. Lower means taking them gentler.</source>
+        <translation>&lt;b&gt;從您自己的駕駛方式中學習到的過彎激烈程度。&lt;/b&gt;&lt;br&gt;&lt;br&gt;「自適應」模式會使用此值，以您的方式過彎，但絕不會超過轉向系統已證明能夠承受的限度。數值越高，過彎時維持的速度越高；數值越低，過彎越平緩。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How fast openpilot takes curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Gentle" and "Standard" hold to a fixed, relaxed pace, "Sport" uses your car's maximum configured or live-tuned cornering limit, and "Adaptive" learns how you prefer to take curves.</source>
+        <translation>&lt;b&gt;openpilot 的過彎速度。&lt;/b&gt;&lt;br&gt;&lt;br&gt;「柔和」和「標準」會維持固定、從容的速度；「運動」會使用為您的車輛設定或即時調校的最大過彎限度；「自適應」則會學習您偏好的過彎方式。</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Throw away everything openpilot has learned about how you take curves and start over.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Adaptive" goes back to its starting value and relearns as you drive. Only available while the car is off.</source>
+        <translation>&lt;b&gt;清除 openpilot 學到的所有關於您過彎方式的資料，並重新開始。&lt;/b&gt;&lt;br&gt;&lt;br&gt;「自適應」會恢復初始值，並在您駕駛時重新學習。只能在車輛關閉時使用。</translation>
+    </message>
+    <message>
+        <source>Adaptive</source>
+        <translation>自適應</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotManageControl</name>
@@ -3401,7 +3387,7 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>&lt;b&gt;Update the "Model Manager" so it can handle the latest models.&lt;/b&gt;</source>
-        <translation type="google-generated">&lt;b&gt;更新“模型管理器”，使其可以處理最新模型。 &lt;/b&gt;</translation>
+        <translation>&lt;b&gt;更新“模型管理器”，使其可以處理最新模型。 &lt;/b&gt;</translation>
     </message>
     <message>
         <source>Tinygrad is out of date and must be updated before you can download new models. Update now?</source>
@@ -3417,7 +3403,7 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>Select a Model</source>
-        <translation type="google-generated">選擇型號</translation>
+        <translation>選擇型號</translation>
     </message>
     <message>
         <source>UPDATE</source>
@@ -3540,7 +3526,7 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>&lt;b&gt;Draws the map itself on your driving screen, alongside what the "Public Mapbox Key" does for searching.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Keep this one to yourself, since it can be used to run up charges on your Mapbox account. After you add it you are asked whether to reboot now or later, and it does not take effect until the device has actually rebooted.</source>
-        <translation type="google-generated">&lt;b&gt;在您的駕駛畫面上繪製地圖，以及「Mapbox 公開金鑰」用於搜尋的功能。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;將此地圖保留給您自己，因為它可用於增加您的 Mapbox 帳戶的費用。新增後，系統會詢問您是立即重新啟動還是稍後重新啟動，並且直到裝置實際重新啟動後才會生效。</translation>
+        <translation>&lt;b&gt;在您的駕駛畫面上繪製地圖，以及「Mapbox 公開金鑰」用於搜尋的功能。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;將此地圖保留給您自己，因為它可用於增加您的 Mapbox 帳戶的費用。新增後，系統會詢問您是立即重新啟動還是稍後重新啟動，並且直到裝置實際重新啟動後才會生效。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Spot missing or outdated OpenStreetMap speed limits while you drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;FrogPilot compares the speed limits it sees with your downloaded maps and saves possible corrections for you to review later. This makes it quick and easy to improve speed-limit data for future drives and everyone who uses OpenStreetMap.&lt;br&gt;&lt;br&gt;Downloaded maps are required. Saved suggestions may reveal which roads you drove. Nothing is submitted automatically, so review each suggestion before making an OpenStreetMap edit.&lt;br&gt;&lt;br&gt;Need a step-by-step guide? Visit &lt;b&gt;#speed-limit-filler&lt;/b&gt; in the FrogPilot Discord!</source>
@@ -3687,7 +3673,7 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>DEVICE / SCREEN</source>
-        <translation type="google-generated">設備/螢幕</translation>
+        <translation>設備/螢幕</translation>
     </message>
 </context>
 <context>
@@ -3810,11 +3796,11 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>&lt;b&gt;Set the volume for the sound openpilot makes when it stops driving and hands the car back to you.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear this when you tap the brake, press "Cancel", or when your car's cruise control drops out. Most faults that force openpilot to give up use a warning chime instead, which comes from "Soft Warning Volume" or "Urgent Warning Volume".</source>
-        <translation type="google-generated">&lt;b&gt;設定 openpilot 在停止行駛並將汽車交還給您時發出的聲音的音量。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;當您踩剎車、按「取消」或汽車的巡航控制系統退出時，您會聽到此聲音。大多數迫使 openpilot 放棄的故障都使用警告鈴聲，該鈴聲來自「一般警告音量」或「緊急警告音量」。</translation>
+        <translation>&lt;b&gt;設定 openpilot 在停止行駛並將汽車交還給您時發出的聲音的音量。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;當您踩剎車、按「取消」或汽車的巡航控制系統退出時，您會聽到此聲音。大多數迫使 openpilot 放棄的故障都使用警告鈴聲，該鈴聲來自「一般警告音量」或「緊急警告音量」。</translation>
     </message>
     <message>
         <source>&lt;b&gt;Turn on extra alerts stock openpilot doesn't have, for things you would otherwise have to catch yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These cover the light turning green, the car ahead pulling away, and the speed limit changing. The blind spot one in here is not a new alert: openpilot already chimes when you signal for a lane change and there's a car beside you, and this only swaps that chime for a louder one.</source>
-        <translation type="google-generated">&lt;b&gt;開啟標準 openpilot 沒有的額外警報，否則您必須自行趕上。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;這些警報包括綠燈變綠、前方車輛開始移動以及限速變化。這裡的盲點並不是一個新的警報：當您發出變換車道訊號並且您旁邊有一輛車時，openpilot 已經響起，而這只會將鈴聲替換為更響亮的鈴聲。</translation>
+        <translation>&lt;b&gt;開啟標準 openpilot 沒有的額外警報，否則您必須自行趕上。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;這些警報包括綠燈變綠、前方車輛開始移動以及限速變化。這裡的盲點並不是一個新的警報：當您發出變換車道訊號並且您旁邊有一輛車時，openpilot 已經響起，而這只會將鈴聲替換為更響亮的鈴聲。</translation>
     </message>
 </context>
 <context>
@@ -4093,7 +4079,7 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>Include Holiday Themes</source>
-        <translation type="google-generated">包括節日主題</translation>
+        <translation>包括節日主題</translation>
     </message>
     <message>
         <source>Are you sure you want to completely reset your startup message?</source>
@@ -4109,7 +4095,7 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>Verifying authenticity...</source>
-        <translation type="google-generated">驗證真實性...</translation>
+        <translation>驗證真實性...</translation>
     </message>
 </context>
 <context>
@@ -4252,7 +4238,7 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>An alert was unclear and I'm not sure what it meant</source>
-        <translation type="google-generated">警報不清楚，我不確定它的含義</translation>
+        <translation>警報不清楚，我不確定它的含義</translation>
     </message>
     <message>
         <source>What's going on?</source>
@@ -5020,15 +5006,15 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>Failed to register with comma.ai backend. It will not connect or upload to comma.ai servers, and receives no support from comma.ai. If this is a device purchased at comma.ai/shop, open a ticket at https://comma.ai/support.</source>
-        <translation type="google-generated">無法向 comma.ai 後端註冊。它不會連接或上傳到 comma.ai 伺服器，並且不會收到 comma.ai 的支援。如果這是在 comma.ai/shop 購買的設備，請在 https://comma.ai/support 建立支援請求。</translation>
+        <translation>無法向 comma.ai 後端註冊。它不會連接或上傳到 comma.ai 伺服器，並且不會收到 comma.ai 的支援。如果這是在 comma.ai/shop 購買的設備，請在 https://comma.ai/support 建立支援請求。</translation>
     </message>
     <message>
         <source>Poor visibility detected for driver monitoring. Ensure the device has a clear view of the driver. This can be checked in the device settings. Extreme lighting conditions and/or unconventional mounting positions may also trigger this alert.</source>
-        <translation type="google-generated">偵測到駕駛員監控視野不佳。確保設備能夠清晰地看到駕駛員。這可以在設備設定中進行檢查。極端的照明條件和/或非常規的安裝位置也可能觸發此警報。</translation>
+        <translation>偵測到駕駛員監控視野不佳。確保設備能夠清晰地看到駕駛員。這可以在設備設定中進行檢查。極端的照明條件和/或非常規的安裝位置也可能觸發此警報。</translation>
     </message>
     <message>
         <source>Excessive %1 actuation detected on your last drive. Please contact support at https://comma.ai/support and share your device's Dongle ID for troubleshooting.</source>
-        <translation type="google-generated">在您的最後一個磁碟機上偵測到 %1 過度驅動。請透過 https://comma.ai/support 聯絡支援人員並分享您裝置的加密狗 ID 以進行故障排除。</translation>
+        <translation>在您的最後一個磁碟機上偵測到 %1 過度驅動。請透過 https://comma.ai/support 聯絡支援人員並分享您裝置的加密狗 ID 以進行故障排除。</translation>
     </message>
 </context>
 <context>
@@ -5223,7 +5209,7 @@ Only continue if you know what they do.</source>
     </message>
 </context>
 <context>
-    <name>ScreenRecorder</name>
+    <name>ScreenRecorderButton</name>
     <message>
         <source>RECORDING</source>
         <translation>錄影中</translation>
@@ -5510,7 +5496,15 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>Automatically update FrogPilot when the vehicle is parked with an active internet connection.</source>
-        <translation type="google-generated">當車輛停放且網路連線有效時，自動更新 FrogPilot。</translation>
+        <translation>當車輛停放且網路連線有效時，自動更新 FrogPilot。</translation>
+    </message>
+    <message>
+        <source>Share Driving Data</source>
+        <translation>分享駕駛數據</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Automatically share anonymized driving data with FrogPilot to help improve it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only driving signals are shared: no video, no GPS or location, no VIN, and no identifiers. Turn this off to opt out.</source>
+        <translation>&lt;b&gt;自動與 FrogPilot 分享匿名駕駛資料以協助改善。 &lt;/b&gt;&lt;br&gt;&lt;br&gt;僅共享駕駛訊號：沒有影片、沒有 GPS 或位置、沒有 VIN，也沒有識別碼。關閉此選項以選擇退出。</translation>
     </message>
 </context>
 <context>

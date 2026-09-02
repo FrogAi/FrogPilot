@@ -197,7 +197,7 @@
     </message>
     <message>
         <source>Adjacent Lane Metrics</source>
-        <translation type="google-generated">مقاييس الحارة المجاورة</translation>
+        <translation>مقاييس الحارة المجاورة</translation>
     </message>
     <message>
         <source>&lt;b&gt;Print how wide the lanes either side of you are, right on their paths.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It draws the adjacent lane paths itself, so there is something to print onto, even with "Adjacent Lanes" switched off.</source>
@@ -689,7 +689,7 @@
         <source>
 
 Steering lag calibration is %1% complete.</source>
-        <translation type="google-generated">
+        <translation>
 
 اكتملت معايرة تأخر التوجيه بنسبة %1%.</translation>
     </message>
@@ -697,13 +697,13 @@ Steering lag calibration is %1% complete.</source>
         <source>
 
 Steering lag calibration is complete.</source>
-        <translation type="google-generated">
+        <translation>
 
 اكتملت معايرة تأخر التوجيه.</translation>
     </message>
     <message>
         <source> Steering torque response calibration is %1% complete.</source>
-        <translation type="google-generated"> اكتملت معايرة استجابة عزم دوران التوجيه بنسبة %1%.</translation>
+        <translation> اكتملت معايرة استجابة عزم دوران التوجيه بنسبة %1%.</translation>
     </message>
     <message>
         <source> Steering torque response calibration is complete.</source>
@@ -810,7 +810,7 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>&lt;span stylesheet='font-size: 60px; font-weight: bold; color: #e74c3c;'&gt;INACTIVE&lt;/span&gt;: connect to an unmetered network</source>
-        <translation type="google-generated">&lt;span stylesheet='font-size: 60px; font-weight: bold; color: #e74c3c;'&gt;INACTIVE&lt;/span&gt;: الاتصال بشبكة غير محدودة</translation>
+        <translation>&lt;span stylesheet='font-size: 60px; font-weight: bold; color: #e74c3c;'&gt;INACTIVE&lt;/span&gt;: الاتصال بشبكة غير محدودة</translation>
     </message>
 </context>
 <context>
@@ -877,7 +877,7 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>seconds</source>
-        <translation type="google-generated">ثواني</translation>
+        <translation>ثواني</translation>
     </message>
     <message>
         <source>SPEED</source>
@@ -1355,23 +1355,23 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>&lt;b&gt;Delete every recorded drive to free up space and clear personal footage off the device.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only the one-minute chunk of footage containing the moment you flagged is kept, not the rest of that drive, and preserving a drive in "The Pond" keeps it the same one minute at a time.</source>
-        <translation type="google-generated">&lt;b&gt;احذف كل رحلة قيادة مسجلة لإخلاء مساحة ومسح اللقطات الشخصية من الجهاز.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يتم الاحتفاظ فقط بجزء من اللقطات مدته دقيقة واحدة يحتوي على اللحظة التي قمت بوضع علامة عليها، وليس بقية رحلة القيادة تلك، كما أن الاحتفاظ برحلة القيادة في "The Pond" يبقيها بنفس الدقيقة الواحدة في كل مرة.</translation>
+        <translation>&lt;b&gt;احذف كل رحلة قيادة مسجلة لإخلاء مساحة ومسح اللقطات الشخصية من الجهاز.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يتم الاحتفاظ فقط بجزء من اللقطات مدته دقيقة واحدة يحتوي على اللحظة التي قمت بوضع علامة عليها، وليس بقية رحلة القيادة تلك، كما أن الاحتفاظ برحلة القيادة في "The Pond" يبقيها بنفس الدقيقة الواحدة في كل مرة.</translation>
     </message>
     <message>
         <source>That name can't be used. Names can only use letters, numbers, dashes, periods, and underscores.</source>
-        <translation type="google-generated">لا يمكن استخدام هذا الاسم. يمكن للأسماء استخدام الأحرف والأرقام والشرطات والنقاط والشرطات السفلية فقط.</translation>
+        <translation>لا يمكن استخدام هذا الاسم. يمكن للأسماء استخدام الأحرف والأرقام والشرطات والنقاط والشرطات السفلية فقط.</translation>
     </message>
     <message>
         <source>Name your backup</source>
-        <translation type="google-generated">قم بتسمية النسخة الاحتياطية الخاصة بك</translation>
+        <translation>قم بتسمية النسخة الاحتياطية الخاصة بك</translation>
     </message>
     <message>
         <source>Backup Name</source>
-        <translation type="google-generated">اسم النسخة الاحتياطية</translation>
+        <translation>اسم النسخة الاحتياطية</translation>
     </message>
     <message>
         <source>Restore this backup? This overwrites your current settings.</source>
-        <translation type="google-generated">هل تريد استعادة هذه النسخة الاحتياطية؟ يؤدي هذا إلى استبدال إعداداتك الحالية.</translation>
+        <translation>هل تريد استعادة هذه النسخة الاحتياطية؟ يؤدي هذا إلى استبدال إعداداتك الحالية.</translation>
     </message>
 </context>
 <context>
@@ -1469,14 +1469,6 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
         <translation>تلقائي</translation>
     </message>
     <message>
-        <source>Start Recording</source>
-        <translation>بدء التسجيل</translation>
-    </message>
-    <message>
-        <source>Stop Recording</source>
-        <translation>إيقاف التسجيل</translation>
-    </message>
-    <message>
         <source> seconds</source>
         <translation> ثوانٍ</translation>
     </message>
@@ -1539,18 +1531,6 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     <message>
         <source>&lt;b&gt;Turn the screen off while driving, and wake it up automatically for alerts or when openpilot engages or disengages.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Tapping the screen wakes it up too.</source>
         <translation>&lt;b&gt;أطفئ الشاشة أثناء القيادة، وشغّلها تلقائيًا عند صدور التنبيهات أو تفعيل openpilot أو إلغاء تفعيله.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يمكن أيضًا تشغيلها بلمس الشاشة.</translation>
-    </message>
-    <message>
-        <source>Couldn't start recording. Check that there's enough free space and that a recording isn't already running.</source>
-        <translation>تعذر بدء التسجيل. تحقق من توفر مساحة كافية ومن عدم وجود تسجيل جارٍ بالفعل.</translation>
-    </message>
-    <message>
-        <source>Share Driving Data</source>
-        <translation type="google-generated">مشاركة بيانات القيادة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Automatically share anonymized driving data with FrogPilot to help improve it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only driving signals are shared: no video, no GPS or location, no VIN, and no identifiers. Turn this off to opt out.</source>
-        <translation type="google-generated">&lt;b&gt;يمكنك مشاركة بيانات القيادة مجهولة المصدر تلقائيًا مع FrogPilot للمساعدة في تحسينها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تتم مشاركة إشارات القيادة فقط: لا يوجد فيديو، ولا نظام تحديد المواقع (GPS) أو الموقع، ولا VIN، ولا معرفات. قم بإيقاف تشغيل هذا لإلغاء الاشتراك.</translation>
     </message>
 </context>
 <context>
@@ -2050,10 +2030,6 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
         <translation>التسارع الجانبي المُعاير</translation>
     </message>
     <message>
-        <source>&lt;b&gt;How hard you corner, learned from your own driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The "Auto" profile uses this to take curves the way you do, but never harder than your steering has proven it can hold. A higher number means carrying more speed through curves. Lower means taking them gentler.</source>
-        <translation>&lt;b&gt;مدى حدّة دخولك المنعطفات، كما تعلّمه النظام من قيادتك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يستخدم نمط "تلقائي" هذه القيمة لاجتياز المنعطفات بالطريقة التي تقود بها، ولكن دون أن يتجاوز أبدًا ما أثبت نظام التوجيه قدرته على تحمّله. تعني القيمة الأعلى الحفاظ على سرعة أكبر خلال المنعطفات، وتعني القيمة الأدنى اجتيازها بلطف أكبر.</translation>
-    </message>
-    <message>
         <source>Calibration Progress</source>
         <translation>تقدم المعايرة</translation>
     </message>
@@ -2062,20 +2038,12 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
         <translation>&lt;b&gt;مقدار ما تعلّمه openpilot من طريقتك في اجتياز المنعطفات.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا تزداد هذه النسبة إلا عندما تتحكم أنت في السرعة، لذا تمتلئ بينما تقود بنفسك عبر المنعطفات. عند 100%، يكون openpilot قد جمع ما يكفي عن طريقتك في اجتياز المنعطفات لمطابقتها.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;How fast openpilot takes curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Gentle" and "Standard" hold to a fixed, relaxed pace, "Sport" uses your car's maximum configured or live-tuned cornering limit, and "Auto" matches the way you take curves yourself.</source>
-        <translation>&lt;b&gt;مدى سرعة openpilot في اجتياز المنعطفات.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يحافظ النمطان "لطيف" و"قياسي" على وتيرة ثابتة ومريحة، ويستخدم نمط "رياضي" أقصى حد لاجتياز المنعطفات مضبوط لسيارتك أو مولّف آنيًا، بينما يطابق نمط "تلقائي" طريقتك في اجتياز المنعطفات.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;How fast the "Sport" profile is allowed to take curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This is also the maximum for every other curve speed profile. openpilot learns the limit from your car when possible and otherwise uses the value configured for it.</source>
         <translation>&lt;b&gt;مدى السرعة المسموح بها لنمط "رياضي" عند اجتياز المنعطفات.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يمثل هذا أيضًا الحد الأقصى لكل أنماط سرعة المنعطفات الأخرى. يتعلّم openpilot هذا الحد من سيارتك عندما يكون ذلك ممكنًا، وإلا فيستخدم القيمة المضبوطة لها.</translation>
     </message>
     <message>
         <source>Reset Curve Data</source>
         <translation>إعادة ضبط بيانات المنعطفات</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Throw away everything openpilot has learned about how you take curves and start over.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Auto" goes back to its starting value and relearns as you drive. Only available while the car is off.</source>
-        <translation>&lt;b&gt;امسح كل ما تعلّمه openpilot عن طريقتك في اجتياز المنعطفات وابدأ من جديد.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يعود نمط "تلقائي" إلى قيمته الابتدائية ويعيد التعلّم أثناء قيادتك. لا يتوفر هذا إلا عندما تكون السيارة مطفأة.</translation>
     </message>
     <message>
         <source>Driving Personalities</source>
@@ -2363,19 +2331,24 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>Reduce Cornering Force by:</source>
-        <translation>تقليل قوة الانعطاف بنسبة:</translation></message>
+        <translation>تقليل قوة الانعطاف بنسبة:</translation>
+    </message>
     <message>
         <source>&lt;b&gt;Eases off how hard openpilot corners in low visibility.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only does anything while "Curve Speed Controller" is on. Raise it for gentler, safer cornering on a slippery road. Curve speed drops by less than this number, because cornering force rises with the square of speed.</source>
-        <translation>&lt;b&gt;يخفّف قوة انعطاف openpilot عند ضعف الرؤية.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يؤثر إلا عندما يكون "متحكم سرعة المنعطفات" مفعّلًا. ارفع القيمة لقيادة أكثر سلاسة وأمانًا في المنعطفات على الطرق الزلقة. تنخفض سرعة المنعطف بأقل من هذه القيمة، لأن قوة الانعطاف تزداد مع مربع السرعة.</translation></message>
+        <translation>&lt;b&gt;يخفّف قوة انعطاف openpilot عند ضعف الرؤية.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يؤثر إلا عندما يكون "متحكم سرعة المنعطفات" مفعّلًا. ارفع القيمة لقيادة أكثر سلاسة وأمانًا في المنعطفات على الطرق الزلقة. تنخفض سرعة المنعطف بأقل من هذه القيمة، لأن قوة الانعطاف تزداد مع مربع السرعة.</translation>
+    </message>
     <message>
         <source>&lt;b&gt;Eases off how hard openpilot corners in rain.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only does anything while "Curve Speed Controller" is on. Raise it for gentler, safer cornering on a slippery road. Curve speed drops by less than this number, because cornering force rises with the square of speed.</source>
-        <translation>&lt;b&gt;يخفّف قوة انعطاف openpilot أثناء المطر.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يؤثر إلا عندما يكون "متحكم سرعة المنعطفات" مفعّلًا. ارفع القيمة لقيادة أكثر سلاسة وأمانًا في المنعطفات على الطرق الزلقة. تنخفض سرعة المنعطف بأقل من هذه القيمة، لأن قوة الانعطاف تزداد مع مربع السرعة.</translation></message>
+        <translation>&lt;b&gt;يخفّف قوة انعطاف openpilot أثناء المطر.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يؤثر إلا عندما يكون "متحكم سرعة المنعطفات" مفعّلًا. ارفع القيمة لقيادة أكثر سلاسة وأمانًا في المنعطفات على الطرق الزلقة. تنخفض سرعة المنعطف بأقل من هذه القيمة، لأن قوة الانعطاف تزداد مع مربع السرعة.</translation>
+    </message>
     <message>
         <source>&lt;b&gt;Eases off how hard openpilot corners in a rainstorm.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only does anything while "Curve Speed Controller" is on. Raise it for gentler, safer cornering on a slippery road. Curve speed drops by less than this number, because cornering force rises with the square of speed.</source>
-        <translation>&lt;b&gt;يخفّف قوة انعطاف openpilot أثناء المطر الغزير.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يؤثر إلا عندما يكون "متحكم سرعة المنعطفات" مفعّلًا. ارفع القيمة لقيادة أكثر سلاسة وأمانًا في المنعطفات على الطرق الزلقة. تنخفض سرعة المنعطف بأقل من هذه القيمة، لأن قوة الانعطاف تزداد مع مربع السرعة.</translation></message>
+        <translation>&lt;b&gt;يخفّف قوة انعطاف openpilot أثناء المطر الغزير.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يؤثر إلا عندما يكون "متحكم سرعة المنعطفات" مفعّلًا. ارفع القيمة لقيادة أكثر سلاسة وأمانًا في المنعطفات على الطرق الزلقة. تنخفض سرعة المنعطف بأقل من هذه القيمة، لأن قوة الانعطاف تزداد مع مربع السرعة.</translation>
+    </message>
     <message>
         <source>&lt;b&gt;Eases off how hard openpilot corners in snow.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only does anything while "Curve Speed Controller" is on. Raise it for gentler, safer cornering on a slippery road. Curve speed drops by less than this number, because cornering force rises with the square of speed.</source>
-        <translation>&lt;b&gt;يخفّف قوة انعطاف openpilot أثناء تساقط الثلوج.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يؤثر إلا عندما يكون "متحكم سرعة المنعطفات" مفعّلًا. ارفع القيمة لقيادة أكثر سلاسة وأمانًا في المنعطفات على الطرق الزلقة. تنخفض سرعة المنعطف بأقل من هذه القيمة، لأن قوة الانعطاف تزداد مع مربع السرعة.</translation></message>
+        <translation>&lt;b&gt;يخفّف قوة انعطاف openpilot أثناء تساقط الثلوج.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يؤثر إلا عندما يكون "متحكم سرعة المنعطفات" مفعّلًا. ارفع القيمة لقيادة أكثر سلاسة وأمانًا في المنعطفات على الطرق الزلقة. تنخفض سرعة المنعطف بأقل من هذه القيمة، لأن قوة الانعطاف تزداد مع مربع السرعة.</translation>
+    </message>
     <message>
         <source>&lt;b&gt;Fall back to Mapbox for the speed limit when none of your chosen sources have one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs your Public Mapbox Key and a working internet connection.</source>
         <translation>&lt;b&gt;استخدم Mapbox كمصدر احتياطي لحد السرعة عندما لا يوفر أي من مصادرك المختارة حدًا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يتطلب مفتاح Mapbox العام واتصالًا فعالًا بالإنترنت.</translation>
@@ -2627,10 +2600,6 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     <message>
         <source>&lt;b&gt;Show which condition switched "Experimental Mode" on, right on the driving screen.&lt;/b&gt;</source>
         <translation>&lt;b&gt;اعرض على شاشة القيادة الشرط الذي فعّل "الوضع التجريبي".&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;openpilot slows down on its own for curves ahead, and you pick how fast it takes them with "Curve Speed Profile".&lt;/b&gt;&lt;br&gt;&lt;br&gt;It comes set to "Auto", which matches the way you take curves yourself.</source>
-        <translation>&lt;b&gt;يبطئ openpilot تلقائيًا للمنعطفات القادمة، وتحدد سرعة اجتيازها عبر "نمط سرعة المنعطفات".&lt;/b&gt;&lt;br&gt;&lt;br&gt;يكون مضبوطًا على "تلقائي"، الذي يطابق طريقتك في اجتياز المنعطفات.</translation>
     </message>
     <message>
         <source>Curve Speed Profile</source>
@@ -2897,10 +2866,6 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
         <translation>لطيف</translation>
     </message>
     <message>
-        <source>Auto</source>
-        <translation>تلقائي</translation>
-    </message>
-    <message>
         <source>Curve data can't be reset while the car is on. Turn the car off and try again.</source>
         <translation>لا يمكن إعادة ضبط بيانات المنعطفات والسيارة قيد التشغيل. أوقف تشغيل السيارة وحاول مرة أخرى.</translation>
     </message>
@@ -2938,63 +2903,63 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only fires when there is no car close ahead of you, so it stays quiet when you roll up to a red light behind traffic.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
-        <translation type="google-generated">&lt;b&gt;قم بالتبديل إلى "الوضع التجريبي" عندما "يكتشف" طراز القيادة ضوءًا أحمر أو علامة توقف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يعمل فقط عندما لا تكون هناك سيارة قريبة أمامك، لذلك يظل هادئًا عندما تقترب من إشارة حمراء خلف حركة المرور.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;إخلاء المسؤولية&lt;/b&gt;: لا يكتشف openpilot إشارات المرور أو إشارات التوقف بشكل صريح. في "الوضع التجريبي"، يتخذ openpilot قرارات القيادة الشاملة من خلال إدخال الكاميرا، مما يعني أنه قد يتوقف حتى في حالة عدم وجود سبب واضح!&lt;/i&gt;</translation>
+        <translation>&lt;b&gt;قم بالتبديل إلى "الوضع التجريبي" عندما "يكتشف" طراز القيادة ضوءًا أحمر أو علامة توقف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يعمل فقط عندما لا تكون هناك سيارة قريبة أمامك، لذلك يظل هادئًا عندما تقترب من إشارة حمراء خلف حركة المرور.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;إخلاء المسؤولية&lt;/b&gt;: لا يكتشف openpilot إشارات المرور أو إشارات التوقف بشكل صريح. في "الوضع التجريبي"، يتخذ openpilot قرارات القيادة الشاملة من خلال إدخال الكاميرا، مما يعني أنه قد يتوقف حتى في حالة عدم وجود سبب واضح!&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its acceleration any time your car is not slowing down with the "Aggressive" profile, not just when pulling away from a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler starts and pickup. Lower it for faster but more abrupt ones. "Speed-Up Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;مدى سلاسة تغيير openpilot لتسارعها في أي وقت لا تتباطأ فيه سيارتك باستخدام الوضع "جريء"، وليس فقط عند الابتعاد عن نقطة التوقف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعه من أجل بدء تشغيل وتسارع أكثر سلاسة. قم بخفضه للحصول على نتائج أسرع ولكن أكثر مفاجئة. "استجابة التسارع" هو عنصر التحكم الثاني في السلاسة في تلك اللحظات نفسها، ويتم إيقاف تشغيله بالكامل عندما تكون سيارتك متوقفة. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
+        <translation>&lt;b&gt;مدى سلاسة تغيير openpilot لتسارعها في أي وقت لا تتباطأ فيه سيارتك باستخدام الوضع "جريء"، وليس فقط عند الابتعاد عن نقطة التوقف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعه من أجل بدء تشغيل وتسارع أكثر سلاسة. قم بخفضه للحصول على نتائج أسرع ولكن أكثر مفاجئة. "استجابة التسارع" هو عنصر التحكم الثاني في السلاسة في تلك اللحظات نفسها، ويتم إيقاف تشغيله بالكامل عندما تكون سيارتك متوقفة. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its braking any time your car is slowing down with the "Aggressive" profile, not just when coming to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler stops and slowdowns. Lower it for quicker but sharper ones. "Slowdown Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;مدى سلاسة تغيير openpilot للمكابح في أي وقت تتباطأ فيه سيارتك باستخدام الوضع "جريء"، وليس فقط عند التوقف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعها للتوقف والتباطؤ بشكل ألطف. قم بخفضه للحصول على صور أسرع ولكن أكثر وضوحًا. "استجابة التباطؤ" هو عنصر التحكم الثاني في السلاسة في تلك اللحظات نفسها، ويتم إيقاف تشغيله بالكامل عندما تكون سيارتك متوقفة. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
+        <translation>&lt;b&gt;مدى سلاسة تغيير openpilot للمكابح في أي وقت تتباطأ فيه سيارتك باستخدام الوضع "جريء"، وليس فقط عند التوقف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعها للتوقف والتباطؤ بشكل ألطف. قم بخفضه للحصول على صور أسرع ولكن أكثر وضوحًا. "استجابة التباطؤ" هو عنصر التحكم الثاني في السلاسة في تلك اللحظات نفسها، ويتم إيقاف تشغيله بالكامل عندما تكون سيارتك متوقفة. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot sheds speed any time your car is slowing down with the "Aggressive" profile, like easing off for a slower car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual slowdowns. Lower it for faster but sharper ones. It works alongside "Braking Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;مدى سلاسة تباطؤ openpilot في أي وقت تتباطأ فيه سيارتك باستخدام الملف الشخصي "جريء"، مثل تخفيف السرعة لسيارة أبطأ أمامك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعه لتحقيق المزيد من عمليات التباطؤ التدريجي. قم بخفضه للحصول على صور أسرع ولكن أكثر وضوحًا. وهو يعمل جنبًا إلى جنب مع "سلاسة الكبح"، وهو عنصر تحكم منفصل في تلك اللحظات نفسها. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
+        <translation>&lt;b&gt;مدى سلاسة تباطؤ openpilot في أي وقت تتباطأ فيه سيارتك باستخدام الملف الشخصي "جريء"، مثل تخفيف السرعة لسيارة أبطأ أمامك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعه لتحقيق المزيد من عمليات التباطؤ التدريجي. قم بخفضه للحصول على صور أسرع ولكن أكثر وضوحًا. وهو يعمل جنبًا إلى جنب مع "سلاسة الكبح"، وهو عنصر تحكم منفصل في تلك اللحظات نفسها. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot builds speed any time your car is not slowing down with the "Aggressive" profile, like catching up to your set speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual pickup. Lower it for quicker but more jolting pickup. It works alongside "Acceleration Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;مدى سلاسة تسارع openpilot في أي وقت لا تتباطأ فيه سيارتك باستخدام الملف الشخصي "جريء"، مثل اللحاق بالسرعة المحددة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعه للحصول على تسارع أكثر تدرجًا. قم بخفضه للحصول على تسارع أسرع ولكن أكثر اهتزازًا. وهو يعمل جنبًا إلى جنب مع "سلاسة التسارع"، وهو عنصر تحكم منفصل في تلك اللحظات نفسها. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
+        <translation>&lt;b&gt;مدى سلاسة تسارع openpilot في أي وقت لا تتباطأ فيه سيارتك باستخدام الملف الشخصي "جريء"، مثل اللحاق بالسرعة المحددة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعه للحصول على تسارع أكثر تدرجًا. قم بخفضه للحصول على تسارع أسرع ولكن أكثر اهتزازًا. وهو يعمل جنبًا إلى جنب مع "سلاسة التسارع"، وهو عنصر تحكم منفصل في تلك اللحظات نفسها. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its acceleration any time your car is not slowing down with the "Standard" profile, not just when pulling away from a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler starts and pickup. Lower it for faster but more abrupt ones. "Speed-Up Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;مدى سلاسة تغيير openpilot لتسارعها في أي وقت لا تتباطأ فيه سيارتك باستخدام الوضع "قياسي"، وليس فقط عند الابتعاد عن نقطة التوقف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعه من أجل بدء تشغيل وتسارع أكثر سلاسة. قم بخفضه للحصول على نتائج أسرع ولكن أكثر مفاجئة. "استجابة التسارع" هو عنصر التحكم الثاني في السلاسة في تلك اللحظات نفسها، ويتم إيقاف تشغيله بالكامل عندما تكون سيارتك متوقفة. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
+        <translation>&lt;b&gt;مدى سلاسة تغيير openpilot لتسارعها في أي وقت لا تتباطأ فيه سيارتك باستخدام الوضع "قياسي"، وليس فقط عند الابتعاد عن نقطة التوقف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعه من أجل بدء تشغيل وتسارع أكثر سلاسة. قم بخفضه للحصول على نتائج أسرع ولكن أكثر مفاجئة. "استجابة التسارع" هو عنصر التحكم الثاني في السلاسة في تلك اللحظات نفسها، ويتم إيقاف تشغيله بالكامل عندما تكون سيارتك متوقفة. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its braking any time your car is slowing down with the "Standard" profile, not just when coming to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler stops and slowdowns. Lower it for quicker but sharper ones. "Slowdown Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;مدى سلاسة تغيير openpilot للمكابح في أي وقت تتباطأ فيه سيارتك باستخدام الوضع "قياسي"، وليس فقط عند التوقف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعها للتوقف والتباطؤ بشكل ألطف. قم بخفضه للحصول على صور أسرع ولكن أكثر وضوحًا. "استجابة التباطؤ" هو عنصر التحكم الثاني في السلاسة في تلك اللحظات نفسها، ويتم إيقاف تشغيله بالكامل عندما تكون سيارتك متوقفة. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
+        <translation>&lt;b&gt;مدى سلاسة تغيير openpilot للمكابح في أي وقت تتباطأ فيه سيارتك باستخدام الوضع "قياسي"، وليس فقط عند التوقف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعها للتوقف والتباطؤ بشكل ألطف. قم بخفضه للحصول على صور أسرع ولكن أكثر وضوحًا. "استجابة التباطؤ" هو عنصر التحكم الثاني في السلاسة في تلك اللحظات نفسها، ويتم إيقاف تشغيله بالكامل عندما تكون سيارتك متوقفة. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot sheds speed any time your car is slowing down with the "Standard" profile, like easing off for a slower car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual slowdowns. Lower it for faster but sharper ones. It works alongside "Braking Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;مدى سلاسة تباطؤ openpilot في أي وقت تتباطأ فيه سيارتك باستخدام الملف الشخصي "قياسي"، مثل تخفيف السرعة لسيارة أبطأ أمامك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعه لتحقيق المزيد من عمليات التباطؤ التدريجي. قم بخفضه للحصول على صور أسرع ولكن أكثر وضوحًا. وهو يعمل جنبًا إلى جنب مع "سلاسة الكبح"، وهو عنصر تحكم منفصل في تلك اللحظات نفسها. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
+        <translation>&lt;b&gt;مدى سلاسة تباطؤ openpilot في أي وقت تتباطأ فيه سيارتك باستخدام الملف الشخصي "قياسي"، مثل تخفيف السرعة لسيارة أبطأ أمامك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعه لتحقيق المزيد من عمليات التباطؤ التدريجي. قم بخفضه للحصول على صور أسرع ولكن أكثر وضوحًا. وهو يعمل جنبًا إلى جنب مع "سلاسة الكبح"، وهو عنصر تحكم منفصل في تلك اللحظات نفسها. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot builds speed any time your car is not slowing down with the "Standard" profile, like catching up to your set speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual pickup. Lower it for quicker but more jolting pickup. It works alongside "Acceleration Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;مدى سلاسة تسارع openpilot في أي وقت لا تتباطأ فيه سيارتك باستخدام الملف الشخصي "قياسي"، مثل اللحاق بالسرعة المحددة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعه للحصول على تسارع أكثر تدرجًا. قم بخفضه للحصول على تسارع أسرع ولكن أكثر اهتزازًا. وهو يعمل جنبًا إلى جنب مع "سلاسة التسارع"، وهو عنصر تحكم منفصل في تلك اللحظات نفسها. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
+        <translation>&lt;b&gt;مدى سلاسة تسارع openpilot في أي وقت لا تتباطأ فيه سيارتك باستخدام الملف الشخصي "قياسي"، مثل اللحاق بالسرعة المحددة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعه للحصول على تسارع أكثر تدرجًا. قم بخفضه للحصول على تسارع أسرع ولكن أكثر اهتزازًا. وهو يعمل جنبًا إلى جنب مع "سلاسة التسارع"، وهو عنصر تحكم منفصل في تلك اللحظات نفسها. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its acceleration any time your car is not slowing down with the "Relaxed" profile, not just when pulling away from a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler starts and pickup. Lower it for faster but more abrupt ones. "Speed-Up Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;مدى سلاسة تغيير openpilot لتسارعها في أي وقت لا تتباطأ فيه سيارتك باستخدام الوضع "مريح"، وليس فقط عند الابتعاد عن نقطة التوقف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعه من أجل بدء تشغيل وتسارع أكثر سلاسة. قم بخفضه للحصول على نتائج أسرع ولكن أكثر مفاجئة. "استجابة التسارع" هو عنصر التحكم الثاني في السلاسة في تلك اللحظات نفسها، ويتم إيقاف تشغيله بالكامل عندما تكون سيارتك متوقفة. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
+        <translation>&lt;b&gt;مدى سلاسة تغيير openpilot لتسارعها في أي وقت لا تتباطأ فيه سيارتك باستخدام الوضع "مريح"، وليس فقط عند الابتعاد عن نقطة التوقف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعه من أجل بدء تشغيل وتسارع أكثر سلاسة. قم بخفضه للحصول على نتائج أسرع ولكن أكثر مفاجئة. "استجابة التسارع" هو عنصر التحكم الثاني في السلاسة في تلك اللحظات نفسها، ويتم إيقاف تشغيله بالكامل عندما تكون سيارتك متوقفة. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its braking any time your car is slowing down with the "Relaxed" profile, not just when coming to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler stops and slowdowns. Lower it for quicker but sharper ones. "Slowdown Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;مدى سلاسة تغيير openpilot للمكابح في أي وقت تتباطأ فيه سيارتك باستخدام الوضع "مريح"، وليس فقط عند التوقف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعها للتوقف والتباطؤ بشكل ألطف. قم بخفضه للحصول على صور أسرع ولكن أكثر وضوحًا. "استجابة التباطؤ" هو عنصر التحكم الثاني في السلاسة في تلك اللحظات نفسها، ويتم إيقاف تشغيله بالكامل عندما تكون سيارتك متوقفة. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
+        <translation>&lt;b&gt;مدى سلاسة تغيير openpilot للمكابح في أي وقت تتباطأ فيه سيارتك باستخدام الوضع "مريح"، وليس فقط عند التوقف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعها للتوقف والتباطؤ بشكل ألطف. قم بخفضه للحصول على صور أسرع ولكن أكثر وضوحًا. "استجابة التباطؤ" هو عنصر التحكم الثاني في السلاسة في تلك اللحظات نفسها، ويتم إيقاف تشغيله بالكامل عندما تكون سيارتك متوقفة. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot sheds speed any time your car is slowing down with the "Relaxed" profile, like easing off for a slower car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual slowdowns. Lower it for faster but sharper ones. It works alongside "Braking Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;مدى سلاسة تباطؤ openpilot في أي وقت تتباطأ فيه سيارتك باستخدام الملف الشخصي "مريح"، مثل تخفيف السرعة لسيارة أبطأ أمامك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعه لتحقيق المزيد من عمليات التباطؤ التدريجي. قم بخفضه للحصول على صور أسرع ولكن أكثر وضوحًا. وهو يعمل جنبًا إلى جنب مع "سلاسة الكبح"، وهو عنصر تحكم منفصل في تلك اللحظات نفسها. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
+        <translation>&lt;b&gt;مدى سلاسة تباطؤ openpilot في أي وقت تتباطأ فيه سيارتك باستخدام الملف الشخصي "مريح"، مثل تخفيف السرعة لسيارة أبطأ أمامك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعه لتحقيق المزيد من عمليات التباطؤ التدريجي. قم بخفضه للحصول على صور أسرع ولكن أكثر وضوحًا. وهو يعمل جنبًا إلى جنب مع "سلاسة الكبح"، وهو عنصر تحكم منفصل في تلك اللحظات نفسها. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot builds speed any time your car is not slowing down with the "Relaxed" profile, like catching up to your set speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual pickup. Lower it for quicker but more jolting pickup. It works alongside "Acceleration Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;مدى سلاسة تسارع openpilot في أي وقت لا تتباطأ فيه سيارتك باستخدام الملف الشخصي "مريح"، مثل اللحاق بالسرعة المحددة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعه للحصول على تسارع أكثر تدرجًا. قم بخفضه للحصول على تسارع أسرع ولكن أكثر اهتزازًا. وهو يعمل جنبًا إلى جنب مع "سلاسة التسارع"، وهو عنصر تحكم منفصل في تلك اللحظات نفسها. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
+        <translation>&lt;b&gt;مدى سلاسة تسارع openpilot في أي وقت لا تتباطأ فيه سيارتك باستخدام الملف الشخصي "مريح"، مثل اللحاق بالسرعة المحددة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفعه للحصول على تسارع أكثر تدرجًا. قم بخفضه للحصول على تسارع أسرع ولكن أكثر اهتزازًا. وهو يعمل جنبًا إلى جنب مع "سلاسة التسارع"، وهو عنصر تحكم منفصل في تلك اللحظات نفسها. يتجاهل "وضع المرور" كليهما ويستخدم القيم الثابتة الخاصة به.</translation>
     </message>
     <message>
         <source>&lt;b&gt;openpilot comes to a full stop whenever it thinks it sees a red light or stop sign, whether or not "Experimental Mode" is running.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only kicks in when openpilot is not already tracking a car ahead, so behind a queue at a light your normal following does the stopping instead. Touching the gas cancels a forced stop for the next 10 seconds.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Heads up&lt;/b&gt;: openpilot never actually reads traffic lights or stop signs. It decides from what the camera sees, so it can stop when there is no reason to.&lt;/i&gt;</source>
-        <translation type="google-generated">&lt;b&gt;يتوقف openpilot تمامًا عندما يعتقد أنه يرى ضوءًا أحمر أو علامة توقف، سواء كانت "الوضع التجريبي" قيد التشغيل أم لا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يبدأ الأمر إلا عندما لا يكون openpilot يتتبع سيارة أمامه بالفعل، لذلك خلف قائمة الانتظار عند الضوء، يقوم متابعك العادي بالتوقف بدلاً من ذلك. يؤدي لمس الوقود إلى إلغاء التوقف القسري لمدة 10 ثانية.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;تنبيه&lt;/b&gt;: openpilot لا يقرأ فعليًا إشارات المرور أو إشارات التوقف. إنه يقرر بناءً على ما تراه الكاميرا، لذا يمكنه التوقف عندما لا يكون هناك سبب لذلك.&lt;/i&gt;</translation>
+        <translation>&lt;b&gt;يتوقف openpilot تمامًا عندما يعتقد أنه يرى ضوءًا أحمر أو علامة توقف، سواء كانت "الوضع التجريبي" قيد التشغيل أم لا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يبدأ الأمر إلا عندما لا يكون openpilot يتتبع سيارة أمامه بالفعل، لذلك خلف قائمة الانتظار عند الضوء، يقوم متابعك العادي بالتوقف بدلاً من ذلك. يؤدي لمس الوقود إلى إلغاء التوقف القسري لمدة 10 ثانية.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;تنبيه&lt;/b&gt;: openpilot لا يقرأ فعليًا إشارات المرور أو إشارات التوقف. إنه يقرر بناءً على ما تراه الكاميرا، لذا يمكنه التوقف عندما لا يكون هناك سبب لذلك.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds an extra amount on top of the "Cruise Interval (Hold)" step, but only when you press and hold the + cruise button.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The - button does not mirror it. Holding - moves your set speed down by twice the "Cruise Interval (Hold)" amount minus this offset, so with the shipped 5 hold interval and 5 chosen here you just get a plain 5 down. A quick tap is never affected, and 0 turns this off.</source>
-        <translation type="google-generated">&lt;b&gt;يضيف مبلغًا إضافيًا أعلى خطوة "خطوة سرعة المثبت (ضغط مطول)"، ولكن فقط عند الضغط مع الاستمرار على زر تثبيت السرعة +.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يعكسه الزر -. يؤدي الضغط على - إلى خفض السرعة المحددة بمقدار ضعف مقدار "خطوة سرعة المثبت (ضغط مطول)" مطروحًا منه هذه الإزاحة، لذلك مع الفاصل الزمني الافتراضي للتعليق 5 و5 المختار هنا، ستحصل على 5 عادي للأسفل. لا تتأثر النقرة السريعة أبدًا، ويقوم 0 بإيقاف تشغيلها.</translation>
+        <translation>&lt;b&gt;يضيف مبلغًا إضافيًا أعلى خطوة "خطوة سرعة المثبت (ضغط مطول)"، ولكن فقط عند الضغط مع الاستمرار على زر تثبيت السرعة +.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يعكسه الزر -. يؤدي الضغط على - إلى خفض السرعة المحددة بمقدار ضعف مقدار "خطوة سرعة المثبت (ضغط مطول)" مطروحًا منه هذه الإزاحة، لذلك مع الفاصل الزمني الافتراضي للتعليق 5 و5 المختار هنا، ستحصل على 5 عادي للأسفل. لا تتأثر النقرة السريعة أبدًا، ويقوم 0 بإيقاف تشغيلها.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Hold openpilot's max speed to the posted speed limit.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The limit comes from your downloaded maps, Mapbox, "Navigate on openpilot", or, on supported Ford, Genesis, Hyundai, Kia, Lexus and Toyota models, your dashboard.</source>
@@ -3002,7 +2967,28 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>&lt;b&gt;Choose which sources openpilot checks for the speed limit and in what order, or have it always use the highest or lowest limit being reported.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick up to two sources and openpilot uses the first one that currently has a limit. "Highest" and "Lowest" ignore the order and take the fastest or slowest limit any source reports, so one wrong map entry can hold you well below the posted limit.</source>
-        <translation>&lt;b&gt;اختر المصادر التي يفحصها openpilot لمعرفة حد السرعة وترتيبها، أو اجعله يستخدم دائمًا أعلى أو أدنى حد مُبلغ عنه.&lt;/b&gt;&lt;br&gt;&lt;br&gt;اختر ما يصل إلى مصدرين، وسيستخدم openpilot أول مصدر يتوفر لديه حد حاليًا. يتجاهل خياري "الأعلى" و"الأدنى" الترتيب ويأخذان أسرع أو أبطأ حد يبلّغ عنه أي مصدر، لذا قد يؤدي إدخال خاطئ واحد في الخريطة إلى إبقائك دون الحد المعلن بكثير.</translation></message>
+        <translation>&lt;b&gt;اختر المصادر التي يفحصها openpilot لمعرفة حد السرعة وترتيبها، أو اجعله يستخدم دائمًا أعلى أو أدنى حد مُبلغ عنه.&lt;/b&gt;&lt;br&gt;&lt;br&gt;اختر ما يصل إلى مصدرين، وسيستخدم openpilot أول مصدر يتوفر لديه حد حاليًا. يتجاهل خياري "الأعلى" و"الأدنى" الترتيب ويأخذان أسرع أو أبطأ حد يبلّغ عنه أي مصدر، لذا قد يؤدي إدخال خاطئ واحد في الخريطة إلى إبقائك دون الحد المعلن بكثير.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot slows down on its own for curves ahead, and you pick how fast it takes them with "Curve Speed Profile".&lt;/b&gt;&lt;br&gt;&lt;br&gt;It comes set to "Adaptive", which learns how you prefer to take curves.</source>
+        <translation>&lt;b&gt;يبطئ openpilot تلقائيًا للمنعطفات القادمة، وتحدد سرعة اجتيازها عبر "نمط سرعة المنعطفات".&lt;/b&gt;&lt;br&gt;&lt;br&gt;يكون مضبوطًا على "تكيفي"، الذي يتعلم كيف تفضل اجتياز المنعطفات.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How hard you corner, learned from your own driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The "Adaptive" profile uses this to take curves the way you do, but never harder than your steering has proven it can hold. A higher number means carrying more speed through curves. Lower means taking them gentler.</source>
+        <translation>&lt;b&gt;مدى حدّة دخولك المنعطفات، كما تعلّمه النظام من قيادتك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يستخدم نمط "تكيفي" هذه القيمة لاجتياز المنعطفات بالطريقة التي تقود بها، ولكن دون أن يتجاوز أبدًا ما أثبت نظام التوجيه قدرته على تحمّله. تعني القيمة الأعلى الحفاظ على سرعة أكبر خلال المنعطفات، وتعني القيمة الأدنى اجتيازها بلطف أكبر.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How fast openpilot takes curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Gentle" and "Standard" hold to a fixed, relaxed pace, "Sport" uses your car's maximum configured or live-tuned cornering limit, and "Adaptive" learns how you prefer to take curves.</source>
+        <translation>&lt;b&gt;مدى سرعة openpilot في اجتياز المنعطفات.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يحافظ النمطان "لطيف" و"قياسي" على وتيرة ثابتة ومريحة، ويستخدم نمط "رياضي" أقصى حد لاجتياز المنعطفات مضبوط لسيارتك أو مولّف آنيًا، بينما يتعلم نمط "تكيفي" كيف تفضل اجتياز المنعطفات.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Throw away everything openpilot has learned about how you take curves and start over.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Adaptive" goes back to its starting value and relearns as you drive. Only available while the car is off.</source>
+        <translation>&lt;b&gt;امسح كل ما تعلّمه openpilot عن طريقتك في اجتياز المنعطفات وابدأ من جديد.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يعود نمط "تكيفي" إلى قيمته الابتدائية ويعيد التعلّم أثناء قيادتك. لا يتوفر هذا إلا عندما تكون السيارة مطفأة.</translation>
+    </message>
+    <message>
+        <source>Adaptive</source>
+        <translation>تكيفي</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotManageControl</name>
@@ -3406,7 +3392,7 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>&lt;b&gt;Update the "Model Manager" so it can handle the latest models.&lt;/b&gt;</source>
-        <translation type="google-generated">&lt;b&gt;Uقم بتحديث "Model Manager" حتى يتمكن من التعامل مع أحدث الموديلات.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;Uقم بتحديث "Model Manager" حتى يتمكن من التعامل مع أحدث الموديلات.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Tinygrad is out of date and must be updated before you can download new models. Update now?</source>
@@ -3422,7 +3408,7 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>Select a Model</source>
-        <translation type="google-generated">حدد نموذجًا</translation>
+        <translation>حدد نموذجًا</translation>
     </message>
     <message>
         <source>UPDATE</source>
@@ -3545,7 +3531,7 @@ Firehose Mode allows you to maximize your training data uploads to improve openp
     </message>
     <message>
         <source>&lt;b&gt;Draws the map itself on your driving screen, alongside what the "Public Mapbox Key" does for searching.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Keep this one to yourself, since it can be used to run up charges on your Mapbox account. After you add it you are asked whether to reboot now or later, and it does not take effect until the device has actually rebooted.</source>
-        <translation type="google-generated">&lt;b&gt;يرسم الخريطة نفسها على شاشة القيادة الخاصة بك، جنبًا إلى جنب مع ما يفعله "مفتاح Mapbox العام" للبحث.&lt;/b&gt;&lt;br&gt;&lt;br&gt;احتفظ بهذه الخريطة لنفسك، حيث يمكن استخدامها لزيادة الرسوم على حساب Mapbox الخاص بك. بعد إضافته، يتم سؤالك عما إذا كنت تريد إعادة التشغيل الآن أم لاحقًا، ولا يسري مفعوله إلا بعد إعادة تشغيل الجهاز فعليًا.</translation>
+        <translation>&lt;b&gt;يرسم الخريطة نفسها على شاشة القيادة الخاصة بك، جنبًا إلى جنب مع ما يفعله "مفتاح Mapbox العام" للبحث.&lt;/b&gt;&lt;br&gt;&lt;br&gt;احتفظ بهذه الخريطة لنفسك، حيث يمكن استخدامها لزيادة الرسوم على حساب Mapbox الخاص بك. بعد إضافته، يتم سؤالك عما إذا كنت تريد إعادة التشغيل الآن أم لاحقًا، ولا يسري مفعوله إلا بعد إعادة تشغيل الجهاز فعليًا.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Spot missing or outdated OpenStreetMap speed limits while you drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;FrogPilot compares the speed limits it sees with your downloaded maps and saves possible corrections for you to review later. This makes it quick and easy to improve speed-limit data for future drives and everyone who uses OpenStreetMap.&lt;br&gt;&lt;br&gt;Downloaded maps are required. Saved suggestions may reveal which roads you drove. Nothing is submitted automatically, so review each suggestion before making an OpenStreetMap edit.&lt;br&gt;&lt;br&gt;Need a step-by-step guide? Visit &lt;b&gt;#speed-limit-filler&lt;/b&gt; in the FrogPilot Discord!</source>
@@ -3692,7 +3678,7 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>DEVICE / SCREEN</source>
-        <translation type="google-generated">الجهاز / الشاشة</translation>
+        <translation>الجهاز / الشاشة</translation>
     </message>
 </context>
 <context>
@@ -3815,11 +3801,11 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>&lt;b&gt;Set the volume for the sound openpilot makes when it stops driving and hands the car back to you.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear this when you tap the brake, press "Cancel", or when your car's cruise control drops out. Most faults that force openpilot to give up use a warning chime instead, which comes from "Soft Warning Volume" or "Urgent Warning Volume".</source>
-        <translation type="google-generated">&lt;b&gt;اضبط مستوى الصوت الذي يصدره openpilot عندما يتوقف عن القيادة ويعيد السيارة إليك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تسمع ذلك عندما تضغط على الفرامل، أو تضغط على "إلغاء"، أو عندما ينطفئ مثبت السرعة في سيارتك. تستخدم معظم الأخطاء التي تجبر openpilot على التوقف عن استخدام نغمة تحذيرية بدلاً من ذلك، والتي تأتي من "مستوى صوت التحذير الجاد" أو "مستوى صوت التحذير العاجل".</translation>
+        <translation>&lt;b&gt;اضبط مستوى الصوت الذي يصدره openpilot عندما يتوقف عن القيادة ويعيد السيارة إليك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تسمع ذلك عندما تضغط على الفرامل، أو تضغط على "إلغاء"، أو عندما ينطفئ مثبت السرعة في سيارتك. تستخدم معظم الأخطاء التي تجبر openpilot على التوقف عن استخدام نغمة تحذيرية بدلاً من ذلك، والتي تأتي من "مستوى صوت التحذير الجاد" أو "مستوى صوت التحذير العاجل".</translation>
     </message>
     <message>
         <source>&lt;b&gt;Turn on extra alerts stock openpilot doesn't have, for things you would otherwise have to catch yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These cover the light turning green, the car ahead pulling away, and the speed limit changing. The blind spot one in here is not a new alert: openpilot already chimes when you signal for a lane change and there's a car beside you, and this only swaps that chime for a louder one.</source>
-        <translation type="google-generated">&lt;b&gt;لا يتوفر معيار تشغيل التنبيهات الإضافية في openpilot، للأشياء التي قد يتعين عليك التقاطها بنفسك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;وتشمل هذه التنبيهات تحول الضوء إلى اللون الأخضر، وبدء السيارة التي أمامك في التحرك، وتغيير حد السرعة. النقطة العمياء هنا ليست تنبيهًا جديدًا: openpilot يرن بالفعل عندما تشير إلى تغيير المسار وتوجد سيارة بجانبك، وهذا فقط يستبدل الرنين بصوت أعلى.</translation>
+        <translation>&lt;b&gt;لا يتوفر معيار تشغيل التنبيهات الإضافية في openpilot، للأشياء التي قد يتعين عليك التقاطها بنفسك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;وتشمل هذه التنبيهات تحول الضوء إلى اللون الأخضر، وبدء السيارة التي أمامك في التحرك، وتغيير حد السرعة. النقطة العمياء هنا ليست تنبيهًا جديدًا: openpilot يرن بالفعل عندما تشير إلى تغيير المسار وتوجد سيارة بجانبك، وهذا فقط يستبدل الرنين بصوت أعلى.</translation>
     </message>
 </context>
 <context>
@@ -4098,7 +4084,7 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>Include Holiday Themes</source>
-        <translation type="google-generated">تضمين موضوعات العطلة</translation>
+        <translation>تضمين موضوعات العطلة</translation>
     </message>
     <message>
         <source>Are you sure you want to completely reset your startup message?</source>
@@ -4114,7 +4100,7 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>Verifying authenticity...</source>
-        <translation type="google-generated">التحقق من صحة...</translation>
+        <translation>التحقق من صحة...</translation>
     </message>
 </context>
 <context>
@@ -4257,7 +4243,7 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>An alert was unclear and I'm not sure what it meant</source>
-        <translation type="google-generated">كان التنبيه غير واضح ولست متأكدًا مما يعنيه</translation>
+        <translation>كان التنبيه غير واضح ولست متأكدًا مما يعنيه</translation>
     </message>
     <message>
         <source>What's going on?</source>
@@ -5030,15 +5016,15 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>Failed to register with comma.ai backend. It will not connect or upload to comma.ai servers, and receives no support from comma.ai. If this is a device purchased at comma.ai/shop, open a ticket at https://comma.ai/support.</source>
-        <translation type="google-generated">فشل التسجيل في الواجهة الخلفية comma.ai. لن يتم الاتصال أو التحميل على خوادم comma.ai، ولا يتلقى أي دعم من comma.ai. إذا كان هذا جهازًا تم شراؤه من comma.ai/shop، فقم بإنشاء طلب دعم على https://comma.ai/support.</translation>
+        <translation>فشل التسجيل في الواجهة الخلفية comma.ai. لن يتم الاتصال أو التحميل على خوادم comma.ai، ولا يتلقى أي دعم من comma.ai. إذا كان هذا جهازًا تم شراؤه من comma.ai/shop، فقم بإنشاء طلب دعم على https://comma.ai/support.</translation>
     </message>
     <message>
         <source>Poor visibility detected for driver monitoring. Ensure the device has a clear view of the driver. This can be checked in the device settings. Extreme lighting conditions and/or unconventional mounting positions may also trigger this alert.</source>
-        <translation type="google-generated">تم الكشف عن ضعف الرؤية لمراقبة السائق. تأكد من أن الجهاز لديه رؤية واضحة للسائق. يمكن التحقق من ذلك في إعدادات الجهاز. قد تؤدي ظروف الإضاءة الشديدة و/أو مواضع التثبيت غير التقليدية أيضًا إلى ظهور هذا التنبيه.</translation>
+        <translation>تم الكشف عن ضعف الرؤية لمراقبة السائق. تأكد من أن الجهاز لديه رؤية واضحة للسائق. يمكن التحقق من ذلك في إعدادات الجهاز. قد تؤدي ظروف الإضاءة الشديدة و/أو مواضع التثبيت غير التقليدية أيضًا إلى ظهور هذا التنبيه.</translation>
     </message>
     <message>
         <source>Excessive %1 actuation detected on your last drive. Please contact support at https://comma.ai/support and share your device's Dongle ID for troubleshooting.</source>
-        <translation type="google-generated">تم اكتشاف تشغيل زائد لـ %1 على محرك الأقراص الأخير. برجاء الاتصال بالدعم على https://comma.ai/support ومشاركة معرف Dongle الخاص بجهازك لاستكشاف الأخطاء وإصلاحها.</translation>
+        <translation>تم اكتشاف تشغيل زائد لـ %1 على محرك الأقراص الأخير. برجاء الاتصال بالدعم على https://comma.ai/support ومشاركة معرف Dongle الخاص بجهازك لاستكشاف الأخطاء وإصلاحها.</translation>
     </message>
 </context>
 <context>
@@ -5248,7 +5234,7 @@ Only continue if you know what they do.</source>
     </message>
 </context>
 <context>
-    <name>ScreenRecorder</name>
+    <name>ScreenRecorderButton</name>
     <message>
         <source>RECORDING</source>
         <translation>جارٍ التسجيل</translation>
@@ -5535,7 +5521,15 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source>Automatically update FrogPilot when the vehicle is parked with an active internet connection.</source>
-        <translation type="google-generated">قم بتحديث FrogPilot تلقائيًا عندما تكون السيارة متوقفة مع اتصال إنترنت نشط.</translation>
+        <translation>قم بتحديث FrogPilot تلقائيًا عندما تكون السيارة متوقفة مع اتصال إنترنت نشط.</translation>
+    </message>
+    <message>
+        <source>Share Driving Data</source>
+        <translation>مشاركة بيانات القيادة</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Automatically share anonymized driving data with FrogPilot to help improve it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only driving signals are shared: no video, no GPS or location, no VIN, and no identifiers. Turn this off to opt out.</source>
+        <translation>&lt;b&gt;يمكنك مشاركة بيانات القيادة مجهولة المصدر تلقائيًا مع FrogPilot للمساعدة في تحسينها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تتم مشاركة إشارات القيادة فقط: لا يوجد فيديو، ولا نظام تحديد المواقع (GPS) أو الموقع، ولا VIN، ولا معرفات. قم بإيقاف تشغيل هذا لإلغاء الاشتراك.</translation>
     </message>
 </context>
 <context>
@@ -5719,7 +5713,7 @@ Only continue if you know what they do.</source>
     </message>
     <message>
         <source> Changing this setting will restart openpilot if the car is powered on.</source>
-        <translation type="google-generated"> سيؤدي تغيير هذا الإعداد إلى إعادة تشغيل openpilot إذا كانت السيارة قيد التشغيل.</translation>
+        <translation> سيؤدي تغيير هذا الإعداد إلى إعادة تشغيل openpilot إذا كانت السيارة قيد التشغيل.</translation>
     </message>
     <message>
         <source>An alpha version of openpilot longitudinal control can be tested, along with Experimental mode, on non-release branches.</source>

@@ -197,7 +197,7 @@
     </message>
     <message>
         <source>Adjacent Lane Metrics</source>
-        <translation type="google-generated">Métricas de pista adjacente</translation>
+        <translation>Métricas de pista adjacente</translation>
     </message>
     <message>
         <source>&lt;b&gt;Print how wide the lanes either side of you are, right on their paths.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It draws the adjacent lane paths itself, so there is something to print onto, even with "Adjacent Lanes" switched off.</source>
@@ -873,7 +873,7 @@ O Modo Firehose permite maximizar o envio de dados de treinamento para melhorar 
     </message>
     <message>
         <source>seconds</source>
-        <translation type="google-generated">segundos</translation>
+        <translation>segundos</translation>
     </message>
     <message>
         <source>SPEED</source>
@@ -1351,23 +1351,23 @@ O Modo Firehose permite maximizar o envio de dados de treinamento para melhorar 
     </message>
     <message>
         <source>&lt;b&gt;Delete every recorded drive to free up space and clear personal footage off the device.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only the one-minute chunk of footage containing the moment you flagged is kept, not the rest of that drive, and preserving a drive in "The Pond" keeps it the same one minute at a time.</source>
-        <translation type="google-generated">&lt;b&gt;Exclua todas as viagens de carro gravadas para liberar espaço e limpar as filmagens pessoais do dispositivo.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Apenas o trecho de um minuto da filmagem que contém o momento que você sinalizou é mantido, e não o resto da viagem de carro, e preservar uma viagem de carro em "The Pond" a mantém igual um minuto de cada vez.</translation>
+        <translation>&lt;b&gt;Exclua todas as viagens de carro gravadas para liberar espaço e limpar as filmagens pessoais do dispositivo.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Apenas o trecho de um minuto da filmagem que contém o momento que você sinalizou é mantido, e não o resto da viagem de carro, e preservar uma viagem de carro em "The Pond" a mantém igual um minuto de cada vez.</translation>
     </message>
     <message>
         <source>That name can't be used. Names can only use letters, numbers, dashes, periods, and underscores.</source>
-        <translation type="google-generated">Esse nome não pode ser usado. Os nomes só podem usar letras, números, travessões, pontos e sublinhados.</translation>
+        <translation>Esse nome não pode ser usado. Os nomes só podem usar letras, números, travessões, pontos e sublinhados.</translation>
     </message>
     <message>
         <source>Name your backup</source>
-        <translation type="google-generated">Nomeie seu backup</translation>
+        <translation>Nomeie seu backup</translation>
     </message>
     <message>
         <source>Backup Name</source>
-        <translation type="google-generated">Nome do backup</translation>
+        <translation>Nome do backup</translation>
     </message>
     <message>
         <source>Restore this backup? This overwrites your current settings.</source>
-        <translation type="google-generated">Restaurar este backup? Isso substitui suas configurações atuais.</translation>
+        <translation>Restaurar este backup? Isso substitui suas configurações atuais.</translation>
     </message>
 </context>
 <context>
@@ -1465,14 +1465,6 @@ O Modo Firehose permite maximizar o envio de dados de treinamento para melhorar 
         <translation>Automático</translation>
     </message>
     <message>
-        <source>Start Recording</source>
-        <translation>Iniciar gravação</translation>
-    </message>
-    <message>
-        <source>Stop Recording</source>
-        <translation>Parar gravação</translation>
-    </message>
-    <message>
         <source> seconds</source>
         <translation> segundos</translation>
     </message>
@@ -1535,18 +1527,6 @@ O Modo Firehose permite maximizar o envio de dados de treinamento para melhorar 
     <message>
         <source>&lt;b&gt;Turn the screen off while driving, and wake it up automatically for alerts or when openpilot engages or disengages.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Tapping the screen wakes it up too.</source>
         <translation>&lt;b&gt;Desligue a tela durante a condução e acenda-a automaticamente para alertas ou quando o openpilot for ativado ou desativado.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Tocar na tela também a acende.</translation>
-    </message>
-    <message>
-        <source>Couldn't start recording. Check that there's enough free space and that a recording isn't already running.</source>
-        <translation>Não foi possível iniciar a gravação. Verifique se há espaço livre suficiente e se nenhuma gravação já está em andamento.</translation>
-    </message>
-    <message>
-        <source>Share Driving Data</source>
-        <translation type="google-generated">Compartilhe dados de direção</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Automatically share anonymized driving data with FrogPilot to help improve it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only driving signals are shared: no video, no GPS or location, no VIN, and no identifiers. Turn this off to opt out.</source>
-        <translation type="google-generated">&lt;b&gt;Compartilhe automaticamente dados de direção anônimos com FrogPilot para ajudar a melhorá-los.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Apenas sinais de direção são compartilhados: sem vídeo, sem GPS ou localização, sem VIN e sem identificadores. Desligue isso para cancelar.</translation>
     </message>
 </context>
 <context>
@@ -2046,10 +2026,6 @@ O Modo Firehose permite maximizar o envio de dados de treinamento para melhorar 
         <translation>Aceleração lateral calibrada</translation>
     </message>
     <message>
-        <source>&lt;b&gt;How hard you corner, learned from your own driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The "Auto" profile uses this to take curves the way you do, but never harder than your steering has proven it can hold. A higher number means carrying more speed through curves. Lower means taking them gentler.</source>
-        <translation>&lt;b&gt;A intensidade com que você faz curvas, aprendida com sua própria condução.&lt;/b&gt;&lt;br&gt;&lt;br&gt;O perfil "Automático" usa esse valor para fazer curvas como você, mas nunca com mais intensidade do que a direção comprovadamente consegue suportar. Um valor mais alto significa manter mais velocidade nas curvas; um valor mais baixo significa fazê-las com mais suavidade.</translation>
-    </message>
-    <message>
         <source>Calibration Progress</source>
         <translation>Progresso da calibração</translation>
     </message>
@@ -2058,20 +2034,12 @@ O Modo Firehose permite maximizar o envio de dados de treinamento para melhorar 
         <translation>&lt;b&gt;Quanto o openpilot já aprendeu com a sua forma de fazer curvas.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Esse valor só aumenta enquanto você controla a velocidade, por isso é preenchido à medida que você mesmo dirige nas curvas. Ao chegar a 100%, o openpilot reuniu dados suficientes sobre a sua forma de fazer curvas para reproduzi-la.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;How fast openpilot takes curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Gentle" and "Standard" hold to a fixed, relaxed pace, "Sport" uses your car's maximum configured or live-tuned cornering limit, and "Auto" matches the way you take curves yourself.</source>
-        <translation>&lt;b&gt;A velocidade com que o openpilot faz curvas.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Suave" e "Padrão" mantêm um ritmo fixo e tranquilo, "Esportivo" usa o limite máximo em curvas configurado ou ajustado em tempo real para o seu carro, e "Automático" reproduz a sua forma de fazer curvas.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;How fast the "Sport" profile is allowed to take curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This is also the maximum for every other curve speed profile. openpilot learns the limit from your car when possible and otherwise uses the value configured for it.</source>
         <translation>&lt;b&gt;A velocidade com que o perfil "Esportivo" pode fazer curvas.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Esse valor também é o máximo para todos os outros perfis de velocidade em curvas. Quando possível, o openpilot aprende o limite com o seu carro; caso contrário, usa o valor configurado para ele.</translation>
     </message>
     <message>
         <source>Reset Curve Data</source>
         <translation>Redefinir dados de curvas</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Throw away everything openpilot has learned about how you take curves and start over.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Auto" goes back to its starting value and relearns as you drive. Only available while the car is off.</source>
-        <translation>&lt;b&gt;Descarte tudo o que o openpilot aprendeu sobre a sua forma de fazer curvas e comece de novo.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Automático" retorna ao valor inicial e reaprende enquanto você dirige. Disponível somente com o carro desligado.</translation>
     </message>
     <message>
         <source>Driving Personalities</source>
@@ -2359,19 +2327,24 @@ O Modo Firehose permite maximizar o envio de dados de treinamento para melhorar 
     </message>
     <message>
         <source>Reduce Cornering Force by:</source>
-        <translation>Reduzir a força nas curvas em:</translation></message>
+        <translation>Reduzir a força nas curvas em:</translation>
+    </message>
     <message>
         <source>&lt;b&gt;Eases off how hard openpilot corners in low visibility.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only does anything while "Curve Speed Controller" is on. Raise it for gentler, safer cornering on a slippery road. Curve speed drops by less than this number, because cornering force rises with the square of speed.</source>
-        <translation>&lt;b&gt;Reduz a força aplicada pelo openpilot nas curvas em condições de baixa visibilidade.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Só tem efeito com o "Controlador de velocidade em curvas" ativado. Aumente para fazer curvas com mais suavidade e segurança em pista escorregadia. A velocidade em curva cai menos do que esse valor, porque a força nas curvas cresce com o quadrado da velocidade.</translation></message>
+        <translation>&lt;b&gt;Reduz a força aplicada pelo openpilot nas curvas em condições de baixa visibilidade.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Só tem efeito com o "Controlador de velocidade em curvas" ativado. Aumente para fazer curvas com mais suavidade e segurança em pista escorregadia. A velocidade em curva cai menos do que esse valor, porque a força nas curvas cresce com o quadrado da velocidade.</translation>
+    </message>
     <message>
         <source>&lt;b&gt;Eases off how hard openpilot corners in rain.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only does anything while "Curve Speed Controller" is on. Raise it for gentler, safer cornering on a slippery road. Curve speed drops by less than this number, because cornering force rises with the square of speed.</source>
-        <translation>&lt;b&gt;Reduz a força aplicada pelo openpilot nas curvas na chuva.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Só tem efeito com o "Controlador de velocidade em curvas" ativado. Aumente para fazer curvas com mais suavidade e segurança em pista escorregadia. A velocidade em curva cai menos do que esse valor, porque a força nas curvas cresce com o quadrado da velocidade.</translation></message>
+        <translation>&lt;b&gt;Reduz a força aplicada pelo openpilot nas curvas na chuva.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Só tem efeito com o "Controlador de velocidade em curvas" ativado. Aumente para fazer curvas com mais suavidade e segurança em pista escorregadia. A velocidade em curva cai menos do que esse valor, porque a força nas curvas cresce com o quadrado da velocidade.</translation>
+    </message>
     <message>
         <source>&lt;b&gt;Eases off how hard openpilot corners in a rainstorm.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only does anything while "Curve Speed Controller" is on. Raise it for gentler, safer cornering on a slippery road. Curve speed drops by less than this number, because cornering force rises with the square of speed.</source>
-        <translation>&lt;b&gt;Reduz a força aplicada pelo openpilot nas curvas sob chuva forte.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Só tem efeito com o "Controlador de velocidade em curvas" ativado. Aumente para fazer curvas com mais suavidade e segurança em pista escorregadia. A velocidade em curva cai menos do que esse valor, porque a força nas curvas cresce com o quadrado da velocidade.</translation></message>
+        <translation>&lt;b&gt;Reduz a força aplicada pelo openpilot nas curvas sob chuva forte.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Só tem efeito com o "Controlador de velocidade em curvas" ativado. Aumente para fazer curvas com mais suavidade e segurança em pista escorregadia. A velocidade em curva cai menos do que esse valor, porque a força nas curvas cresce com o quadrado da velocidade.</translation>
+    </message>
     <message>
         <source>&lt;b&gt;Eases off how hard openpilot corners in snow.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only does anything while "Curve Speed Controller" is on. Raise it for gentler, safer cornering on a slippery road. Curve speed drops by less than this number, because cornering force rises with the square of speed.</source>
-        <translation>&lt;b&gt;Reduz a força aplicada pelo openpilot nas curvas na neve.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Só tem efeito com o "Controlador de velocidade em curvas" ativado. Aumente para fazer curvas com mais suavidade e segurança em pista escorregadia. A velocidade em curva cai menos do que esse valor, porque a força nas curvas cresce com o quadrado da velocidade.</translation></message>
+        <translation>&lt;b&gt;Reduz a força aplicada pelo openpilot nas curvas na neve.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Só tem efeito com o "Controlador de velocidade em curvas" ativado. Aumente para fazer curvas com mais suavidade e segurança em pista escorregadia. A velocidade em curva cai menos do que esse valor, porque a força nas curvas cresce com o quadrado da velocidade.</translation>
+    </message>
     <message>
         <source>&lt;b&gt;Fall back to Mapbox for the speed limit when none of your chosen sources have one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs your Public Mapbox Key and a working internet connection.</source>
         <translation>&lt;b&gt;Use o Mapbox como fonte alternativa do limite de velocidade quando nenhuma das fontes escolhidas tiver um.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Requer sua chave pública do Mapbox e uma conexão funcional com a internet.</translation>
@@ -2623,10 +2596,6 @@ O Modo Firehose permite maximizar o envio de dados de treinamento para melhorar 
     <message>
         <source>&lt;b&gt;Show which condition switched "Experimental Mode" on, right on the driving screen.&lt;/b&gt;</source>
         <translation>&lt;b&gt;Mostre na tela de condução qual condição ativou o "Modo experimental".&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;openpilot slows down on its own for curves ahead, and you pick how fast it takes them with "Curve Speed Profile".&lt;/b&gt;&lt;br&gt;&lt;br&gt;It comes set to "Auto", which matches the way you take curves yourself.</source>
-        <translation>&lt;b&gt;O openpilot reduz a velocidade automaticamente para as curvas à frente, e você escolhe como ele as percorre em "Perfil de velocidade em curvas".&lt;/b&gt;&lt;br&gt;&lt;br&gt;O padrão é "Automático", que reproduz a forma como você mesmo faz as curvas.</translation>
     </message>
     <message>
         <source>Curve Speed Profile</source>
@@ -2893,10 +2862,6 @@ O Modo Firehose permite maximizar o envio de dados de treinamento para melhorar 
         <translation>Suave</translation>
     </message>
     <message>
-        <source>Auto</source>
-        <translation>Automático</translation>
-    </message>
-    <message>
         <source>Curve data can't be reset while the car is on. Turn the car off and try again.</source>
         <translation>Os dados de curvas não podem ser redefinidos enquanto o carro está ligado. Desligue o carro e tente novamente.</translation>
     </message>
@@ -2934,63 +2899,63 @@ O Modo Firehose permite maximizar o envio de dados de treinamento para melhorar 
     </message>
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only fires when there is no car close ahead of you, so it stays quiet when you roll up to a red light behind traffic.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
-        <translation type="google-generated">&lt;b&gt;Mude para "Modo experimental" sempre que o modelo de direção "detecta" um semáforo vermelho ou uma placa de pare.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Ele só dispara quando não há nenhum carro à sua frente, por isso permanece silencioso quando você chega a um semáforo vermelho atrás do trânsito.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Isenção de responsabilidade&lt;/b&gt;: openpilot não detecta explicitamente semáforos ou sinais de parada. Em "Modo experimental", openpilot toma decisões de direção de ponta a ponta a partir da entrada da câmera, o que significa que ele pode parar mesmo quando não há um motivo claro!&lt;/i&gt;</translation>
+        <translation>&lt;b&gt;Mude para "Modo experimental" sempre que o modelo de direção "detecta" um semáforo vermelho ou uma placa de pare.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Ele só dispara quando não há nenhum carro à sua frente, por isso permanece silencioso quando você chega a um semáforo vermelho atrás do trânsito.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Isenção de responsabilidade&lt;/b&gt;: openpilot não detecta explicitamente semáforos ou sinais de parada. Em "Modo experimental", openpilot toma decisões de direção de ponta a ponta a partir da entrada da câmera, o que significa que ele pode parar mesmo quando não há um motivo claro!&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its acceleration any time your car is not slowing down with the "Aggressive" profile, not just when pulling away from a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler starts and pickup. Lower it for faster but more abrupt ones. "Speed-Up Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;A suavidade com que openpilot muda sua aceleração sempre que seu carro não está desacelerando com o perfil "Agressivo", e não apenas ao sair de uma parada.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente-o para partidas e acelerações mais suaves. Abaixe-o para movimentos mais rápidos, porém mais abruptos. "Resposta de aceleração" é um segundo controle de suavidade nesses mesmos momentos, e este é totalmente desligado enquanto o carro está parado. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
+        <translation>&lt;b&gt;A suavidade com que openpilot muda sua aceleração sempre que seu carro não está desacelerando com o perfil "Agressivo", e não apenas ao sair de uma parada.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente-o para partidas e acelerações mais suaves. Abaixe-o para movimentos mais rápidos, porém mais abruptos. "Resposta de aceleração" é um segundo controle de suavidade nesses mesmos momentos, e este é totalmente desligado enquanto o carro está parado. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its braking any time your car is slowing down with the "Aggressive" profile, not just when coming to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler stops and slowdowns. Lower it for quicker but sharper ones. "Slowdown Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;A suavidade com que openpilot altera sua frenagem sempre que seu carro está desacelerando com o perfil "Agressivo", e não apenas ao parar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente-o para paradas e desacelerações mais suaves. Abaixe-o para obter resultados mais rápidos, porém mais nítidos. "Resposta de desaceleração" é um segundo controle de suavidade nesses mesmos momentos, e este é totalmente desligado enquanto o carro está parado. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
+        <translation>&lt;b&gt;A suavidade com que openpilot altera sua frenagem sempre que seu carro está desacelerando com o perfil "Agressivo", e não apenas ao parar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente-o para paradas e desacelerações mais suaves. Abaixe-o para obter resultados mais rápidos, porém mais nítidos. "Resposta de desaceleração" é um segundo controle de suavidade nesses mesmos momentos, e este é totalmente desligado enquanto o carro está parado. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot sheds speed any time your car is slowing down with the "Aggressive" profile, like easing off for a slower car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual slowdowns. Lower it for faster but sharper ones. It works alongside "Braking Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;A suavidade com que openpilot desacelera sempre que seu carro está desacelerando com o perfil "Agressivo", como desacelerar para um carro mais lento à frente.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente para desacelerações mais graduais. Abaixe-o para obter resultados mais rápidos, porém mais nítidos. Funciona junto com "Suavidade da frenagem", um controle separado sobre esses mesmos momentos. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
+        <translation>&lt;b&gt;A suavidade com que openpilot desacelera sempre que seu carro está desacelerando com o perfil "Agressivo", como desacelerar para um carro mais lento à frente.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente para desacelerações mais graduais. Abaixe-o para obter resultados mais rápidos, porém mais nítidos. Funciona junto com "Suavidade da frenagem", um controle separado sobre esses mesmos momentos. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot builds speed any time your car is not slowing down with the "Aggressive" profile, like catching up to your set speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual pickup. Lower it for quicker but more jolting pickup. It works alongside "Acceleration Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;A suavidade com que openpilot acelera sempre que seu carro não está desacelerando com o perfil "Agressivo", como se estivesse alcançando a velocidade definida.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente-o para uma aceleração mais gradual. Abaixe-o para uma aceleração mais rápida, porém mais brusca. Funciona junto com "Suavidade da aceleração", um controle separado sobre esses mesmos momentos. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
+        <translation>&lt;b&gt;A suavidade com que openpilot acelera sempre que seu carro não está desacelerando com o perfil "Agressivo", como se estivesse alcançando a velocidade definida.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente-o para uma aceleração mais gradual. Abaixe-o para uma aceleração mais rápida, porém mais brusca. Funciona junto com "Suavidade da aceleração", um controle separado sobre esses mesmos momentos. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its acceleration any time your car is not slowing down with the "Standard" profile, not just when pulling away from a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler starts and pickup. Lower it for faster but more abrupt ones. "Speed-Up Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;A suavidade com que openpilot muda sua aceleração sempre que seu carro não está desacelerando com o perfil "Padrão", e não apenas ao sair de uma parada.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente-o para partidas e acelerações mais suaves. Abaixe-o para movimentos mais rápidos, porém mais abruptos. "Resposta de aceleração" é um segundo controle de suavidade nesses mesmos momentos, e este é totalmente desligado enquanto o carro está parado. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
+        <translation>&lt;b&gt;A suavidade com que openpilot muda sua aceleração sempre que seu carro não está desacelerando com o perfil "Padrão", e não apenas ao sair de uma parada.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente-o para partidas e acelerações mais suaves. Abaixe-o para movimentos mais rápidos, porém mais abruptos. "Resposta de aceleração" é um segundo controle de suavidade nesses mesmos momentos, e este é totalmente desligado enquanto o carro está parado. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its braking any time your car is slowing down with the "Standard" profile, not just when coming to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler stops and slowdowns. Lower it for quicker but sharper ones. "Slowdown Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;A suavidade com que openpilot altera sua frenagem sempre que seu carro está desacelerando com o perfil "Padrão", e não apenas ao parar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente-o para paradas e desacelerações mais suaves. Abaixe-o para obter resultados mais rápidos, porém mais nítidos. "Resposta de desaceleração" é um segundo controle de suavidade nesses mesmos momentos, e este é totalmente desligado enquanto o carro está parado. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
+        <translation>&lt;b&gt;A suavidade com que openpilot altera sua frenagem sempre que seu carro está desacelerando com o perfil "Padrão", e não apenas ao parar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente-o para paradas e desacelerações mais suaves. Abaixe-o para obter resultados mais rápidos, porém mais nítidos. "Resposta de desaceleração" é um segundo controle de suavidade nesses mesmos momentos, e este é totalmente desligado enquanto o carro está parado. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot sheds speed any time your car is slowing down with the "Standard" profile, like easing off for a slower car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual slowdowns. Lower it for faster but sharper ones. It works alongside "Braking Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;A suavidade com que openpilot desacelera sempre que seu carro está desacelerando com o perfil "Padrão", como desacelerar para um carro mais lento à frente.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente para desacelerações mais graduais. Abaixe-o para obter resultados mais rápidos, porém mais nítidos. Funciona junto com "Suavidade da frenagem", um controle separado sobre esses mesmos momentos. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
+        <translation>&lt;b&gt;A suavidade com que openpilot desacelera sempre que seu carro está desacelerando com o perfil "Padrão", como desacelerar para um carro mais lento à frente.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente para desacelerações mais graduais. Abaixe-o para obter resultados mais rápidos, porém mais nítidos. Funciona junto com "Suavidade da frenagem", um controle separado sobre esses mesmos momentos. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot builds speed any time your car is not slowing down with the "Standard" profile, like catching up to your set speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual pickup. Lower it for quicker but more jolting pickup. It works alongside "Acceleration Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;A suavidade com que openpilot acelera sempre que seu carro não está desacelerando com o perfil "Padrão", como se estivesse alcançando a velocidade definida.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente-o para uma aceleração mais gradual. Abaixe-o para uma aceleração mais rápida, porém mais brusca. Funciona junto com "Suavidade da aceleração", um controle separado sobre esses mesmos momentos. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
+        <translation>&lt;b&gt;A suavidade com que openpilot acelera sempre que seu carro não está desacelerando com o perfil "Padrão", como se estivesse alcançando a velocidade definida.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente-o para uma aceleração mais gradual. Abaixe-o para uma aceleração mais rápida, porém mais brusca. Funciona junto com "Suavidade da aceleração", um controle separado sobre esses mesmos momentos. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its acceleration any time your car is not slowing down with the "Relaxed" profile, not just when pulling away from a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler starts and pickup. Lower it for faster but more abrupt ones. "Speed-Up Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;A suavidade com que openpilot muda sua aceleração sempre que seu carro não está desacelerando com o perfil "Relaxado", e não apenas ao sair de uma parada.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente-o para partidas e acelerações mais suaves. Abaixe-o para movimentos mais rápidos, porém mais abruptos. "Resposta de aceleração" é um segundo controle de suavidade nesses mesmos momentos, e este é totalmente desligado enquanto o carro está parado. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
+        <translation>&lt;b&gt;A suavidade com que openpilot muda sua aceleração sempre que seu carro não está desacelerando com o perfil "Relaxado", e não apenas ao sair de uma parada.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente-o para partidas e acelerações mais suaves. Abaixe-o para movimentos mais rápidos, porém mais abruptos. "Resposta de aceleração" é um segundo controle de suavidade nesses mesmos momentos, e este é totalmente desligado enquanto o carro está parado. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its braking any time your car is slowing down with the "Relaxed" profile, not just when coming to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler stops and slowdowns. Lower it for quicker but sharper ones. "Slowdown Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;A suavidade com que openpilot altera sua frenagem sempre que seu carro está desacelerando com o perfil "Relaxado", e não apenas ao parar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente-o para paradas e desacelerações mais suaves. Abaixe-o para obter resultados mais rápidos, porém mais nítidos. "Resposta de desaceleração" é um segundo controle de suavidade nesses mesmos momentos, e este é totalmente desligado enquanto o carro está parado. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
+        <translation>&lt;b&gt;A suavidade com que openpilot altera sua frenagem sempre que seu carro está desacelerando com o perfil "Relaxado", e não apenas ao parar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente-o para paradas e desacelerações mais suaves. Abaixe-o para obter resultados mais rápidos, porém mais nítidos. "Resposta de desaceleração" é um segundo controle de suavidade nesses mesmos momentos, e este é totalmente desligado enquanto o carro está parado. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot sheds speed any time your car is slowing down with the "Relaxed" profile, like easing off for a slower car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual slowdowns. Lower it for faster but sharper ones. It works alongside "Braking Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;A suavidade com que openpilot desacelera sempre que seu carro está desacelerando com o perfil "Relaxado", como desacelerar para um carro mais lento à frente.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente para desacelerações mais graduais. Abaixe-o para obter resultados mais rápidos, porém mais nítidos. Funciona junto com "Suavidade da frenagem", um controle separado sobre esses mesmos momentos. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
+        <translation>&lt;b&gt;A suavidade com que openpilot desacelera sempre que seu carro está desacelerando com o perfil "Relaxado", como desacelerar para um carro mais lento à frente.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente para desacelerações mais graduais. Abaixe-o para obter resultados mais rápidos, porém mais nítidos. Funciona junto com "Suavidade da frenagem", um controle separado sobre esses mesmos momentos. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot builds speed any time your car is not slowing down with the "Relaxed" profile, like catching up to your set speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual pickup. Lower it for quicker but more jolting pickup. It works alongside "Acceleration Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation type="google-generated">&lt;b&gt;A suavidade com que openpilot acelera sempre que seu carro não está desacelerando com o perfil "Relaxado", como se estivesse alcançando a velocidade definida.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente-o para uma aceleração mais gradual. Abaixe-o para uma aceleração mais rápida, porém mais brusca. Funciona junto com "Suavidade da aceleração", um controle separado sobre esses mesmos momentos. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
+        <translation>&lt;b&gt;A suavidade com que openpilot acelera sempre que seu carro não está desacelerando com o perfil "Relaxado", como se estivesse alcançando a velocidade definida.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Aumente-o para uma aceleração mais gradual. Abaixe-o para uma aceleração mais rápida, porém mais brusca. Funciona junto com "Suavidade da aceleração", um controle separado sobre esses mesmos momentos. O "Modo Tráfego" ignora ambos e usa seus próprios valores fixos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;openpilot comes to a full stop whenever it thinks it sees a red light or stop sign, whether or not "Experimental Mode" is running.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only kicks in when openpilot is not already tracking a car ahead, so behind a queue at a light your normal following does the stopping instead. Touching the gas cancels a forced stop for the next 10 seconds.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Heads up&lt;/b&gt;: openpilot never actually reads traffic lights or stop signs. It decides from what the camera sees, so it can stop when there is no reason to.&lt;/i&gt;</source>
-        <translation type="google-generated">&lt;b&gt;openpilot para totalmente sempre que pensa que vê um semáforo vermelho ou sinal de stop, esteja "Modo experimental" em movimento ou não.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Ele só entra em ação quando openpilot ainda não está rastreando um carro à frente, então, atrás de uma fila em um semáforo, seu seguidor normal faz a parada. Tocar no acelerador cancela uma parada forçada pelos próximos 10 segundos.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Atenção&lt;/b&gt;: openpilot nunca lê semáforos ou sinais de parada. Ele decide o que a câmera vê, então pode parar quando não houver motivo para isso.&lt;/i&gt;</translation>
+        <translation>&lt;b&gt;openpilot para totalmente sempre que pensa que vê um semáforo vermelho ou sinal de stop, esteja "Modo experimental" em movimento ou não.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Ele só entra em ação quando openpilot ainda não está rastreando um carro à frente, então, atrás de uma fila em um semáforo, seu seguidor normal faz a parada. Tocar no acelerador cancela uma parada forçada pelos próximos 10 segundos.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Atenção&lt;/b&gt;: openpilot nunca lê semáforos ou sinais de parada. Ele decide o que a câmera vê, então pode parar quando não houver motivo para isso.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds an extra amount on top of the "Cruise Interval (Hold)" step, but only when you press and hold the + cruise button.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The - button does not mirror it. Holding - moves your set speed down by twice the "Cruise Interval (Hold)" amount minus this offset, so with the shipped 5 hold interval and 5 chosen here you just get a plain 5 down. A quick tap is never affected, and 0 turns this off.</source>
-        <translation type="google-generated">&lt;b&gt;Adiciona um valor extra além da etapa "Intervalo do controle de cruzeiro (manter pressionado)", mas somente quando você pressiona e mantém pressionado o botão de cruzeiro +.&lt;/b&gt;&lt;br&gt;&lt;br&gt;O botão - não o espelha. Manter - diminui sua velocidade definida duas vezes o valor "Intervalo do controle de cruzeiro (manter pressionado)" menos esse deslocamento, portanto, com o intervalo de espera padrão 5 e 5 escolhido aqui, você obtém apenas um 5 simples para baixo. Um toque rápido nunca é afetado e 0 desativa isso.</translation>
+        <translation>&lt;b&gt;Adiciona um valor extra além da etapa "Intervalo do controle de cruzeiro (manter pressionado)", mas somente quando você pressiona e mantém pressionado o botão de cruzeiro +.&lt;/b&gt;&lt;br&gt;&lt;br&gt;O botão - não o espelha. Manter - diminui sua velocidade definida duas vezes o valor "Intervalo do controle de cruzeiro (manter pressionado)" menos esse deslocamento, portanto, com o intervalo de espera padrão 5 e 5 escolhido aqui, você obtém apenas um 5 simples para baixo. Um toque rápido nunca é afetado e 0 desativa isso.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Hold openpilot's max speed to the posted speed limit.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The limit comes from your downloaded maps, Mapbox, "Navigate on openpilot", or, on supported Ford, Genesis, Hyundai, Kia, Lexus and Toyota models, your dashboard.</source>
@@ -2998,7 +2963,28 @@ O Modo Firehose permite maximizar o envio de dados de treinamento para melhorar 
     </message>
     <message>
         <source>&lt;b&gt;Choose which sources openpilot checks for the speed limit and in what order, or have it always use the highest or lowest limit being reported.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick up to two sources and openpilot uses the first one that currently has a limit. "Highest" and "Lowest" ignore the order and take the fastest or slowest limit any source reports, so one wrong map entry can hold you well below the posted limit.</source>
-        <translation>&lt;b&gt;Escolha quais fontes o openpilot consulta para obter o limite de velocidade e em que ordem, ou faça com que ele sempre use o maior ou o menor limite informado.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Selecione até duas fontes; o openpilot usa a primeira que tiver um limite no momento. "Mais alto" e "Mais baixo" ignoram a ordem e usam o maior ou o menor valor de qualquer fonte; portanto, uma entrada incorreta no mapa pode manter o carro bem abaixo do limite da via.</translation></message>
+        <translation>&lt;b&gt;Escolha quais fontes o openpilot consulta para obter o limite de velocidade e em que ordem, ou faça com que ele sempre use o maior ou o menor limite informado.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Selecione até duas fontes; o openpilot usa a primeira que tiver um limite no momento. "Mais alto" e "Mais baixo" ignoram a ordem e usam o maior ou o menor valor de qualquer fonte; portanto, uma entrada incorreta no mapa pode manter o carro bem abaixo do limite da via.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot slows down on its own for curves ahead, and you pick how fast it takes them with "Curve Speed Profile".&lt;/b&gt;&lt;br&gt;&lt;br&gt;It comes set to "Adaptive", which learns how you prefer to take curves.</source>
+        <translation>&lt;b&gt;O openpilot reduz a velocidade automaticamente para as curvas à frente, e você escolhe como ele as percorre em "Perfil de velocidade em curvas".&lt;/b&gt;&lt;br&gt;&lt;br&gt;O padrão é "Adaptativo", que aprende como você prefere fazer as curvas.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How hard you corner, learned from your own driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The "Adaptive" profile uses this to take curves the way you do, but never harder than your steering has proven it can hold. A higher number means carrying more speed through curves. Lower means taking them gentler.</source>
+        <translation>&lt;b&gt;A intensidade com que você faz curvas, aprendida com sua própria condução.&lt;/b&gt;&lt;br&gt;&lt;br&gt;O perfil "Adaptativo" usa esse valor para fazer curvas como você, mas nunca com mais intensidade do que a direção comprovadamente consegue suportar. Um valor mais alto significa manter mais velocidade nas curvas; um valor mais baixo significa fazê-las com mais suavidade.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How fast openpilot takes curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Gentle" and "Standard" hold to a fixed, relaxed pace, "Sport" uses your car's maximum configured or live-tuned cornering limit, and "Adaptive" learns how you prefer to take curves.</source>
+        <translation>&lt;b&gt;A velocidade com que o openpilot faz curvas.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Suave" e "Padrão" mantêm um ritmo fixo e tranquilo, "Esportivo" usa o limite máximo em curvas configurado ou ajustado em tempo real para o seu carro, e "Adaptativo" aprende como você prefere fazer as curvas.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Throw away everything openpilot has learned about how you take curves and start over.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Adaptive" goes back to its starting value and relearns as you drive. Only available while the car is off.</source>
+        <translation>&lt;b&gt;Descarte tudo o que o openpilot aprendeu sobre a sua forma de fazer curvas e comece de novo.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Adaptativo" retorna ao valor inicial e reaprende enquanto você dirige. Disponível somente com o carro desligado.</translation>
+    </message>
+    <message>
+        <source>Adaptive</source>
+        <translation>Adaptativo</translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotManageControl</name>
@@ -3402,7 +3388,7 @@ O Modo Firehose permite maximizar o envio de dados de treinamento para melhorar 
     </message>
     <message>
         <source>&lt;b&gt;Update the "Model Manager" so it can handle the latest models.&lt;/b&gt;</source>
-        <translation type="google-generated">&lt;b&gt;UAtualize o "Model Manager" para que ele possa lidar com os modelos mais recentes.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;UAtualize o "Model Manager" para que ele possa lidar com os modelos mais recentes.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Tinygrad is out of date and must be updated before you can download new models. Update now?</source>
@@ -3418,7 +3404,7 @@ O Modo Firehose permite maximizar o envio de dados de treinamento para melhorar 
     </message>
     <message>
         <source>Select a Model</source>
-        <translation type="google-generated">Selecione um modelo</translation>
+        <translation>Selecione um modelo</translation>
     </message>
     <message>
         <source>UPDATE</source>
@@ -3541,7 +3527,7 @@ O Modo Firehose permite maximizar o envio de dados de treinamento para melhorar 
     </message>
     <message>
         <source>&lt;b&gt;Draws the map itself on your driving screen, alongside what the "Public Mapbox Key" does for searching.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Keep this one to yourself, since it can be used to run up charges on your Mapbox account. After you add it you are asked whether to reboot now or later, and it does not take effect until the device has actually rebooted.</source>
-        <translation type="google-generated">&lt;b&gt;Desenha o próprio mapa na tela de direção, junto com o que o "Chave pública do Mapbox" faz para pesquisar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Guarde este para você, pois ele pode ser usado para aumentar cobranças na sua conta Mapbox. Depois de adicioná-lo, você será questionado se deseja reinicializar agora ou mais tarde, e isso não terá efeito até que o dispositivo seja realmente reinicializado.</translation>
+        <translation>&lt;b&gt;Desenha o próprio mapa na tela de direção, junto com o que o "Chave pública do Mapbox" faz para pesquisar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Guarde este para você, pois ele pode ser usado para aumentar cobranças na sua conta Mapbox. Depois de adicioná-lo, você será questionado se deseja reinicializar agora ou mais tarde, e isso não terá efeito até que o dispositivo seja realmente reinicializado.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Spot missing or outdated OpenStreetMap speed limits while you drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;FrogPilot compares the speed limits it sees with your downloaded maps and saves possible corrections for you to review later. This makes it quick and easy to improve speed-limit data for future drives and everyone who uses OpenStreetMap.&lt;br&gt;&lt;br&gt;Downloaded maps are required. Saved suggestions may reveal which roads you drove. Nothing is submitted automatically, so review each suggestion before making an OpenStreetMap edit.&lt;br&gt;&lt;br&gt;Need a step-by-step guide? Visit &lt;b&gt;#speed-limit-filler&lt;/b&gt; in the FrogPilot Discord!</source>
@@ -3688,7 +3674,7 @@ Continue somente se souber o que essas configurações fazem.</translation>
     </message>
     <message>
         <source>DEVICE / SCREEN</source>
-        <translation type="google-generated">DISPOSITIVO / TELA</translation>
+        <translation>DISPOSITIVO / TELA</translation>
     </message>
 </context>
 <context>
@@ -3811,11 +3797,11 @@ Continue somente se souber o que essas configurações fazem.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Set the volume for the sound openpilot makes when it stops driving and hands the car back to you.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear this when you tap the brake, press "Cancel", or when your car's cruise control drops out. Most faults that force openpilot to give up use a warning chime instead, which comes from "Soft Warning Volume" or "Urgent Warning Volume".</source>
-        <translation type="google-generated">&lt;b&gt;Defina o volume do som que openpilot faz quando para de dirigir e devolve o carro para você.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Você ouve isso quando pisa no freio, pressiona "Cancelar" ou quando o controle de cruzeiro do carro é desligado. A maioria das falhas que forçam openpilot a desistir usam um sinal sonoro de aviso, que vem de "Volume dos avisos sérios" ou "Volume dos avisos urgentes".</translation>
+        <translation>&lt;b&gt;Defina o volume do som que openpilot faz quando para de dirigir e devolve o carro para você.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Você ouve isso quando pisa no freio, pressiona "Cancelar" ou quando o controle de cruzeiro do carro é desligado. A maioria das falhas que forçam openpilot a desistir usam um sinal sonoro de aviso, que vem de "Volume dos avisos sérios" ou "Volume dos avisos urgentes".</translation>
     </message>
     <message>
         <source>&lt;b&gt;Turn on extra alerts stock openpilot doesn't have, for things you would otherwise have to catch yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These cover the light turning green, the car ahead pulling away, and the speed limit changing. The blind spot one in here is not a new alert: openpilot already chimes when you signal for a lane change and there's a car beside you, and this only swaps that chime for a louder one.</source>
-        <translation type="google-generated">&lt;b&gt;Ative alertas extras que o padrão openpilot não tem, para coisas que você teria que detectar sozinho.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Eles abrangem o semáforo ficando verde, o carro à frente começando a se mover e o limite de velocidade mudando. O ponto cego aqui não é um alerta novo: openpilot já toca quando você sinaliza para uma mudança de faixa e há um carro ao seu lado, e isso apenas troca aquele toque por um mais alto.</translation>
+        <translation>&lt;b&gt;Ative alertas extras que o padrão openpilot não tem, para coisas que você teria que detectar sozinho.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Eles abrangem o semáforo ficando verde, o carro à frente começando a se mover e o limite de velocidade mudando. O ponto cego aqui não é um alerta novo: openpilot já toca quando você sinaliza para uma mudança de faixa e há um carro ao seu lado, e isso apenas troca aquele toque por um mais alto.</translation>
     </message>
 </context>
 <context>
@@ -4094,7 +4080,7 @@ Continue somente se souber o que essas configurações fazem.</translation>
     </message>
     <message>
         <source>Include Holiday Themes</source>
-        <translation type="google-generated">Incluir temas de férias</translation>
+        <translation>Incluir temas de férias</translation>
     </message>
     <message>
         <source>Are you sure you want to completely reset your startup message?</source>
@@ -4110,7 +4096,7 @@ Continue somente se souber o que essas configurações fazem.</translation>
     </message>
     <message>
         <source>Verifying authenticity...</source>
-        <translation type="google-generated">Verificando autenticidade...</translation>
+        <translation>Verificando autenticidade...</translation>
     </message>
 </context>
 <context>
@@ -4253,7 +4239,7 @@ Continue somente se souber o que essas configurações fazem.</translation>
     </message>
     <message>
         <source>An alert was unclear and I'm not sure what it meant</source>
-        <translation type="google-generated">Um alerta não estava claro e não tenho certeza do que significava</translation>
+        <translation>Um alerta não estava claro e não tenho certeza do que significava</translation>
     </message>
     <message>
         <source>What's going on?</source>
@@ -5022,15 +5008,15 @@ Continue somente se souber o que essas configurações fazem.</translation>
     </message>
     <message>
         <source>Failed to register with comma.ai backend. It will not connect or upload to comma.ai servers, and receives no support from comma.ai. If this is a device purchased at comma.ai/shop, open a ticket at https://comma.ai/support.</source>
-        <translation type="google-generated">Falha ao registrar-se no back-end comma.ai. Ele não se conectará nem fará upload para servidores comma.ai e não receberá suporte de comma.ai. Se este for um dispositivo adquirido em comma.ai/shop, crie uma solicitação de suporte em https://comma.ai/support.</translation>
+        <translation>Falha ao registrar-se no back-end comma.ai. Ele não se conectará nem fará upload para servidores comma.ai e não receberá suporte de comma.ai. Se este for um dispositivo adquirido em comma.ai/shop, crie uma solicitação de suporte em https://comma.ai/support.</translation>
     </message>
     <message>
         <source>Poor visibility detected for driver monitoring. Ensure the device has a clear view of the driver. This can be checked in the device settings. Extreme lighting conditions and/or unconventional mounting positions may also trigger this alert.</source>
-        <translation type="google-generated">Má visibilidade detectada para monitoramento do motorista. Certifique-se de que o dispositivo tenha uma visão clara do driver. Isso pode ser verificado nas configurações do dispositivo. Condições extremas de iluminação e/ou posições de montagem não convencionais também podem acionar este alerta.</translation>
+        <translation>Má visibilidade detectada para monitoramento do motorista. Certifique-se de que o dispositivo tenha uma visão clara do driver. Isso pode ser verificado nas configurações do dispositivo. Condições extremas de iluminação e/ou posições de montagem não convencionais também podem acionar este alerta.</translation>
     </message>
     <message>
         <source>Excessive %1 actuation detected on your last drive. Please contact support at https://comma.ai/support and share your device's Dongle ID for troubleshooting.</source>
-        <translation type="google-generated">Acionamento excessivo de %1 detectado em sua última unidade. Entre em contato com o suporte em https://comma.ai/support e compartilhe o Dongle ID do seu dispositivo para solução de problemas.</translation>
+        <translation>Acionamento excessivo de %1 detectado em sua última unidade. Entre em contato com o suporte em https://comma.ai/support e compartilhe o Dongle ID do seu dispositivo para solução de problemas.</translation>
     </message>
 </context>
 <context>
@@ -5228,7 +5214,7 @@ Continue somente se souber o que essas configurações fazem.</translation>
     </message>
 </context>
 <context>
-    <name>ScreenRecorder</name>
+    <name>ScreenRecorderButton</name>
     <message>
         <source>RECORDING</source>
         <translation>GRAVANDO</translation>
@@ -5515,7 +5501,15 @@ Continue somente se souber o que essas configurações fazem.</translation>
     </message>
     <message>
         <source>Automatically update FrogPilot when the vehicle is parked with an active internet connection.</source>
-        <translation type="google-generated">Atualize automaticamente o FrogPilot quando o veículo estiver estacionado com uma conexão ativa à Internet.</translation>
+        <translation>Atualize automaticamente o FrogPilot quando o veículo estiver estacionado com uma conexão ativa à Internet.</translation>
+    </message>
+    <message>
+        <source>Share Driving Data</source>
+        <translation>Compartilhe dados de direção</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Automatically share anonymized driving data with FrogPilot to help improve it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only driving signals are shared: no video, no GPS or location, no VIN, and no identifiers. Turn this off to opt out.</source>
+        <translation>&lt;b&gt;Compartilhe automaticamente dados de direção anônimos com FrogPilot para ajudar a melhorá-los.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Apenas sinais de direção são compartilhados: sem vídeo, sem GPS ou localização, sem VIN e sem identificadores. Desligue isso para cancelar.</translation>
     </message>
 </context>
 <context>

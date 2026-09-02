@@ -2,6 +2,7 @@
 import dataclasses
 import hashlib
 import json
+import math
 import re
 import secrets
 import threading
@@ -11,6 +12,7 @@ from pathlib import Path
 
 from cereal import messaging
 from openpilot.common.basedir import BASEDIR
+from openpilot.common.gps import get_gps_location_service
 from openpilot.common.params import Params
 from openpilot.common.time_helpers import system_time_valid
 from openpilot.system.athena.registration import register
@@ -19,9 +21,11 @@ from openpilot.system.hardware import HARDWARE
 from openpilot.frogpilot.assets.theme_manager import ThemeManager
 from openpilot.frogpilot.common import frogpilot_api
 from openpilot.frogpilot.common.frogpilot_backups import backup_frogpilot
-from openpilot.frogpilot.common.frogpilot_utilities import delete_file, is_FrogsGoMoo, run_cmd, use_konik_server
+from openpilot.frogpilot.common.frogpilot_utilities import (
+  delete_file, is_FrogsGoMoo, is_gps_location_valid, run_cmd, update_json_file, use_konik_server
+)
 from openpilot.frogpilot.common.frogpilot_variables import (
-  ERROR_LOGS_PATH, FROGS_GO_MOO_PATH, HD_LOGS_PATH, KONIK_LOGS_PATH, MAPS_PATH,
+  EARTH_RADIUS, ERROR_LOGS_PATH, FROGS_GO_MOO_PATH, HD_LOGS_PATH, KONIK_LOGS_PATH, MAPD_ARCHIVE_SIZE_DEGREES, MAPD_MAX_MAP_AGE_DAYS, MAPS_PATH,
   SCREEN_RECORDINGS_PATH, THEME_SAVE_PATH, FrogPilotVariables, get_frogpilot_toggles
 )
 
@@ -50,6 +54,121 @@ def capture_report(discord_user, report, params, frogpilot_toggles):
   else:
     status = response.status_code if response is not None else "unavailable"
     print(f"Error sending report: {status}")
+
+
+def cleanup_screen_recordings(limit_bytes):
+  recordings = sorted(SCREEN_RECORDINGS_PATH.glob("*.mp4"), key=lambda recording: recording.stat().st_mtime, reverse=True)
+
+  total = 0
+  for recording in recordings:
+    total += recording.stat().st_size
+    if total > limit_bytes:
+      delete_file(recording, report=False)
+
+
+def download_maps(locations, params_memory):
+  pm = messaging.PubMaster(["mapdIn"])
+  sm = messaging.SubMaster(["mapdExtendedOut"])
+
+  time.sleep(1)
+
+  msg = messaging.new_message("mapdIn")
+  msg.mapdIn.type = 0
+  msg.mapdIn.str = locations
+  pm.send("mapdIn", msg)
+
+  download_requested_at = time.monotonic()
+
+  started = False
+
+  while True:
+    sm.update(1000)
+
+    if params_memory.get_bool("CancelDownloadMaps"):
+      msg = messaging.new_message("mapdIn")
+      msg.mapdIn.type = 27
+      pm.send("mapdIn", msg)
+
+      params_memory.remove("CancelDownloadMaps")
+
+      return False
+
+    if sm.updated["mapdExtendedOut"]:
+      progress = sm["mapdExtendedOut"].downloadProgress
+
+      if progress.active:
+        started = True
+
+      if not progress.active and started:
+        return not progress.cancelled and progress.downloadedFiles == progress.totalFiles > 0
+
+    if not started and time.monotonic() - download_requested_at >= 10:
+      return False
+
+
+def download_nearby_maps(latitude, longitude, params_memory):
+  if not (-90 <= latitude <= 90 and -180 <= longitude <= 180):
+    return False
+
+  angular_radius = 100_000 / EARTH_RADIUS
+  latitude_offset = math.degrees(angular_radius)
+
+  min_latitude = max(-90, math.floor((latitude - latitude_offset) / MAPD_ARCHIVE_SIZE_DEGREES) * MAPD_ARCHIVE_SIZE_DEGREES)
+  max_latitude = min(90, math.ceil((latitude + latitude_offset) / MAPD_ARCHIVE_SIZE_DEGREES) * MAPD_ARCHIVE_SIZE_DEGREES)
+
+  if abs(latitude) + latitude_offset >= 90:
+    min_longitude = -180
+    max_longitude = 180
+  else:
+    longitude_offset = math.degrees(math.asin(math.sin(angular_radius) / math.cos(math.radians(latitude))))
+    min_longitude = math.floor((longitude - longitude_offset) / MAPD_ARCHIVE_SIZE_DEGREES) * MAPD_ARCHIVE_SIZE_DEGREES
+    max_longitude = math.ceil((longitude + longitude_offset) / MAPD_ARCHIVE_SIZE_DEGREES) * MAPD_ARCHIVE_SIZE_DEGREES
+
+  archive_directories = []
+  current_time = time.time()
+  download_menu = {"nearby": {}}
+
+  for archive_latitude in range(min_latitude, max_latitude, MAPD_ARCHIVE_SIZE_DEGREES):
+    for archive_longitude in range(min_longitude, max_longitude, MAPD_ARCHIVE_SIZE_DEGREES):
+      archive_longitude = (archive_longitude + 180) % 360 - 180
+      archive_directory = MAPS_PATH / str(archive_latitude) / str(archive_longitude)
+
+      if archive_directory.exists() and current_time - archive_directory.stat().st_mtime <= MAPD_MAX_MAP_AGE_DAYS * 24 * 60 * 60:
+        continue
+
+      archive_directories.append(archive_directory)
+      download_menu["nearby"][f"{archive_latitude}_{archive_longitude}"] = {
+        "full_name": "Nearby Maps",
+        "bounding_box": {
+          "min_lon": archive_longitude,
+          "min_lat": archive_latitude,
+          "max_lon": archive_longitude + MAPD_ARCHIVE_SIZE_DEGREES,
+          "max_lat": archive_latitude + MAPD_ARCHIVE_SIZE_DEGREES,
+        },
+      }
+
+  if not download_menu["nearby"]:
+    return True
+
+  menu_path = Path(BASEDIR) / "mapd_download_menu.json"
+  previous_menu = menu_path.read_bytes() if menu_path.exists() else None
+
+  update_json_file(menu_path, download_menu)
+
+  try:
+    downloaded = download_maps(",".join(f"nearby.{archive_name}" for archive_name in download_menu["nearby"]), params_memory)
+
+    if downloaded:
+      for archive_directory in archive_directories:
+        if archive_directory.is_dir():
+          archive_directory.touch()
+
+    return downloaded
+  finally:
+    if previous_menu is None:
+      delete_file(menu_path, report=False)
+    else:
+      menu_path.write_bytes(previous_menu)
 
 
 def frogpilot_boot_functions(build_metadata, params):
@@ -94,20 +213,6 @@ def frogpilot_boot_functions(build_metadata, params):
   threading.Thread(target=boot_thread, daemon=True).start()
 
 
-def migrate_mapd_settings(params):
-  if params.get("MapdSettings") == {}:
-    params.put("MapdSettings", params.get_default_value("MapdSettings"))
-
-
-def cleanup_screen_recordings(limit_bytes):
-  recordings = sorted(SCREEN_RECORDINGS_PATH.glob("*.mp4"), key=lambda recording: recording.stat().st_mtime, reverse=True)
-
-  total = 0
-  for recording in recordings:
-    total += recording.stat().st_size
-    if total > limit_bytes:
-      delete_file(recording, report=False)
-
 def install_frogpilot(build_metadata, params):
   paths = [
     ERROR_LOGS_PATH,
@@ -126,12 +231,22 @@ def install_frogpilot(build_metadata, params):
   update_boot_logo(frogpilot=True)
 
 
-def run_frogsgomoo(build_metadata):
-  if build_metadata.channel == "FrogPilot-Development" and is_FrogsGoMoo():
-    mount_options = run_cmd(["findmnt", "-n", "-o", "OPTIONS", "/persist"], "Successfully retrieved mount options", "Failed to retrieve mount options")
-    run_cmd(["sudo", "mount", "-o", "remount,rw", "/persist"], "Successfully remounted /persist as read-write", "Failed to remount /persist")
-    run_cmd(["sudo", "python3", FROGS_GO_MOO_PATH], "Successfully ran frogsgomoo.py", "Failed to run frogsgomoo.py")
-    run_cmd(["sudo", "mount", "-o", f"remount,{mount_options}", "/persist"], "Successfully restored /persist mount options", "Failed to restore /persist mount options")
+def migrate_mapd_settings(params):
+  if params.get("MapdSettings") == {}:
+    params.put("MapdSettings", params.get_default_value("MapdSettings"))
+
+
+def migrate_params(params, params_cache):
+  param_types = {
+    "MaxLateralAcceleration": dict,
+  }
+
+  for key, expected_type in param_types.items():
+    for param_store in (params, params_cache):
+      value = param_store.get(key)
+
+      if value is not None and not isinstance(value, expected_type):
+        param_store.remove(key)
 
 
 def register_device(build_metadata, params):
@@ -175,6 +290,14 @@ def register_device(build_metadata, params):
   threading.Thread(target=register_thread, daemon=True).start()
 
 
+def run_frogsgomoo(build_metadata):
+  if build_metadata.channel == "FrogPilot-Development" and is_FrogsGoMoo():
+    mount_options = run_cmd(["findmnt", "-n", "-o", "OPTIONS", "/persist"], "Successfully retrieved mount options", "Failed to retrieve mount options")
+    run_cmd(["sudo", "mount", "-o", "remount,rw", "/persist"], "Successfully remounted /persist as read-write", "Failed to remount /persist")
+    run_cmd(["sudo", "python3", FROGS_GO_MOO_PATH], "Successfully ran frogsgomoo.py", "Failed to run frogsgomoo.py")
+    run_cmd(["sudo", "mount", "-o", f"remount,{mount_options}", "/persist"], "Successfully restored /persist mount options", "Failed to restore /persist mount options")
+
+
 def uninstall_frogpilot():
   update_boot_logo(stock=True)
 
@@ -203,7 +326,17 @@ def update_boot_logo(frogpilot=False, stock=False):
     run_cmd(["sudo", "mount", "-o", f"remount,{mount_options}", "/"], "Successfully restored / mount options", "Failed to restore / mount options")
 
 
-def update_maps(now, params, params_memory, manual_update=False):
+def update_maps(now, params, params_memory, sm, manual_update=False):
+  if not sm["deviceState"].networkMetered:
+    gps_location_service = get_gps_location_service(params)
+    gps_location = sm[gps_location_service]
+
+    if is_gps_location_valid(gps_location, gps_location_service, sm):
+      download_nearby_maps(gps_location.latitude, gps_location.longitude, params_memory)
+
+  if sm["deviceState"].networkMetered and not manual_update:
+    return
+
   maps_selected = params.get("MapsSelected")
   if not maps_selected:
     return
@@ -227,41 +360,7 @@ def update_maps(now, params, params_memory, manual_update=False):
   if maps_downloaded and last_maps_update == todays_date and not manual_update:
     return
 
-  pm = messaging.PubMaster(["mapdIn"])
-  sm = messaging.SubMaster(["mapdExtendedOut"])
-
-  time.sleep(1)
-
-  msg = messaging.new_message("mapdIn")
-  msg.mapdIn.type = 0
-  msg.mapdIn.str = maps_selected
-  pm.send("mapdIn", msg)
-
-  download_completed = False
-  started = False
-  while True:
-    sm.update(1000)
-
-    if params_memory.get_bool("CancelDownloadMaps"):
-      msg = messaging.new_message("mapdIn")
-      msg.mapdIn.type = 27
-      pm.send("mapdIn", msg)
-
-      params_memory.remove("CancelDownloadMaps")
-      params_memory.remove("DownloadMaps")
-      return
-
-    if sm.updated["mapdExtendedOut"]:
-      progress = sm["mapdExtendedOut"].downloadProgress
-
-      if progress.active:
-        started = True
-
-      if not progress.active and started:
-        download_completed = not progress.cancelled and progress.downloadedFiles == progress.totalFiles > 0
-        break
-
-  if download_completed:
+  if download_maps(maps_selected, params_memory):
     params.put("LastMapsUpdate", todays_date)
 
   params_memory.remove("DownloadMaps")

@@ -305,7 +305,7 @@ inline static std::unordered_map<std::string, ParamKeyAttributes> keys = {
     {"MapsSelected", {PERSISTENT, STRING, "", "", 0}},
     {"MapSpeedLimit", {CLEAR_ON_MANAGER_START, FLOAT, "0.0", "0.0"}},
     {"MaxDesiredAcceleration", {PERSISTENT, FLOAT, "4.0", "2.0", 3}},
-    {"MaxLateralAcceleration", {PERSISTENT, FLOAT, "0.0", "0.0", 3}},
+    {"MaxLateralAcceleration", {PERSISTENT, JSON, "{}", "{}", 3}},
     {"MinimumBackupSize", {PERSISTENT, INT, "0", "0"}},
     {"MinimumLaneChangeSpeed", {PERSISTENT, FLOAT, "20.0", "20.0", 2}},
     {"ModelDownloadProgress", {CLEAR_ON_MANAGER_START, STRING, "", ""}},

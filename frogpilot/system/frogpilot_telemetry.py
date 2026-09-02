@@ -514,8 +514,9 @@ class FrogPilotTelemetry:
     self.sm = messaging.SubMaster(["deviceState"])
 
   def at_home(self):
-    network_type = self.sm["deviceState"].networkType
-    return not self.sm["deviceState"].started and network_type in (log.DeviceState.NetworkType.ethernet, log.DeviceState.NetworkType.wifi)
+    device_state = self.sm["deviceState"]
+    network_type = device_state.networkType
+    return not device_state.started and not device_state.networkMetered and network_type in (log.DeviceState.NetworkType.ethernet, log.DeviceState.NetworkType.wifi)
 
   def get_pending_logs(self):
     pending_logs = []

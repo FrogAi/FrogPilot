@@ -1,11 +1,7 @@
-#include "frogpilot/ui/screenrecorder/screenrecorder.h"
 #include "frogpilot/ui/qt/offroad/device_settings.h"
 
 FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent, bool forceOpen) : FrogPilotListWidget(parent), parent(parent) {
   forceOpenDescriptions = forceOpen;
-
-  ScreenRecorder *screenRecorder = new ScreenRecorder(this);
-  screenRecorder->setVisible(false);
 
   QStackedLayout *deviceLayout = new QStackedLayout();
   addItem(deviceLayout);
@@ -80,30 +76,6 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent, bool
         brightnessLabels[i] = i == 0 ? tr("Screen Off") : i == 101 ? tr("Auto") : QString::number(i) + "%";
       }
       deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, minBrightness, 101, QString(), brightnessLabels, 1, true);
-    } else if (param == "ScreenRecorder") {
-      std::vector<QString> recorderButtonNames{tr("Start Recording"), tr("Stop Recording")};
-      FrogPilotButtonControl *recorderToggle = new FrogPilotButtonControl(param, title, desc, icon, recorderButtonNames, true);
-      QObject::connect(screenRecorder, &ScreenRecorder::recordingStateChanged, recorderToggle, [recorderToggle](bool recording) {
-        if (recording) {
-          recorderToggle->setCheckedButton(1);
-        } else {
-          recorderToggle->clearCheckedButtons();
-        }
-
-        recorderToggle->setVisibleButton(0, !recording);
-        recorderToggle->setVisibleButton(1, recording);
-      });
-      QObject::connect(recorderToggle, &FrogPilotButtonControl::buttonClicked, [screenRecorder](int id) {
-        if (id == 0) {
-          if (!screenRecorder->startRecording()) {
-            ConfirmationDialog::alert(tr("Couldn't start recording. Check that there's enough free space and that a recording isn't already running."), screenRecorder->window());
-          }
-        } else if (id == 1) {
-          screenRecorder->stopRecording();
-        }
-      });
-      recorderToggle->setVisibleButton(1, false);
-      deviceToggle = recorderToggle;
     } else if (param == "ScreenTimeout" || param == "ScreenTimeoutOnroad") {
       deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, 5, 60, tr(" seconds"), {}, 5);
 

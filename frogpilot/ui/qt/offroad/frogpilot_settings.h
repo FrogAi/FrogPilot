@@ -50,6 +50,7 @@ public:
   float friction;
   float latAccelFactor;
   float longitudinalActuatorDelay;
+  float maxLateralAccel = 0.0f;
   float startAccel;
   float steerActuatorDelay;
   float steerKp;
@@ -60,6 +61,8 @@ public:
   float vEgoStopping;
 
   int tuningLevel;
+
+  std::string carFingerprint;
 
   QJsonObject frogpilotToggleLevels;
 

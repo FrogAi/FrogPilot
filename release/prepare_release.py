@@ -68,6 +68,14 @@ REPOSITORY_WORKFLOWS = {
   ".github/workflows/update_release_branch.yaml",
 }
 
+CAMERAD_OPENCL_PROGRAM = "system/camerad/cameras/process_raw.cl"
+
+CAMERAD_OPENCL_HEADERS = {
+  "system/camerad/sensors/ar0231_cl.h",
+  "system/camerad/sensors/os04c10_cl.h",
+  "system/camerad/sensors/ox03c10_cl.h",
+}
+
 REQUIRED_FILES = GENERATED_FILES | LEGAL_FILES | REPOSITORY_WORKFLOWS | {
   "RELEASES.md",
   "common/version.h",
@@ -80,6 +88,8 @@ REQUIRED_FILES = GENERATED_FILES | LEGAL_FILES | REPOSITORY_WORKFLOWS | {
   "launch_chffrplus.sh",
   "launch_env.sh",
   "launch_openpilot.sh",
+  "opendbc_repo/opendbc/car/torque_data/override.toml",
+  "opendbc_repo/opendbc/car/torque_data/params.toml",
   "opendbc_repo/opendbc/car/torque_data/substitute.toml",
   "panda/board/body/__init__.py",
   "panda/board/jungle/__init__.py",
@@ -317,6 +327,8 @@ def is_runtime_file(path: Path, root: Path) -> bool:
   relative = relative_path(path, root)
   parts = Path(relative).parts
 
+  if relative in CAMERAD_OPENCL_HEADERS:
+    return (root / CAMERAD_OPENCL_PROGRAM).is_file()
   if relative in REQUIRED_FILES or relative in SOURCE_SYMLINKS or relative in TOOLS_FILES:
     return True
   if fnmatch.fnmatchcase(relative, SIGNAL_MARKER_GLOB):
@@ -427,13 +439,16 @@ def strip_debug_sections(root: Path) -> tuple[int, int]:
 
 # Release verification
 def verify(root: Path) -> None:
-  missing = [relative for relative in sorted(REQUIRED_FILES) if not (root / relative).is_file()]
+  runtime_opencl_headers = CAMERAD_OPENCL_HEADERS if (root / CAMERAD_OPENCL_PROGRAM).is_file() else set()
+  required_files = REQUIRED_FILES | runtime_opencl_headers
+
+  missing = [relative for relative in sorted(required_files) if not (root / relative).is_file()]
   if missing:
     raise RuntimeError(f"required release file is missing: {missing[0]}")
   if not (root / "prebuilt").is_file():
     raise RuntimeError("prebuilt release marker is missing")
 
-  for relative in sorted(REQUIRED_FILES):
+  for relative in sorted(required_files):
     path = root / relative
     if path.stat().st_size == 0:
       raise RuntimeError(f"required release file is empty: {relative}")
@@ -516,7 +531,7 @@ assert connection.execute("PRAGMA quick_check").fetchone() == ("ok",)
   for path in release_tree(root):
     if not path.is_file() or path.is_symlink():
       continue
-    if path.suffix in forbidden_suffixes and relative_path(path, root) != "common/version.h":
+    if path.suffix in forbidden_suffixes and relative_path(path, root) not in (runtime_opencl_headers | {"common/version.h"}):
       raise RuntimeError(f"build input entered release: {relative_path(path, root)}")
     with path.open("rb") as file:
       if file.read(4) != b"\x7fELF":

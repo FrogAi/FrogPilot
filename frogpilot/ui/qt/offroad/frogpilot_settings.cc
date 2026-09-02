@@ -281,7 +281,7 @@ void FrogPilotSettingsWindow::updateVariables() {
 
     carDetected = true;
 
-    std::string carFingerprint = CP.getCarFingerprint();
+    carFingerprint = CP.getCarFingerprint();
     carMake = CP.getBrand();
 
     friction = CP.getLateralTuning().getTorque().getFriction();
@@ -308,6 +308,7 @@ void FrogPilotSettingsWindow::updateVariables() {
     latAccelFactor = CP.getLateralTuning().getTorque().getLatAccelFactor();
     lkasAllowedForAOL = frogpilot_toggles.value("lkas_allowed_for_aol").toBool();
     longitudinalActuatorDelay = CP.getLongitudinalActuatorDelay();
+    maxLateralAccel = CP.getMaxLateralAccel();
     startAccel = CP.getStartAccel();
     steerActuatorDelay = CP.getSteerActuatorDelay();
     steerKp = isTorqueCar ? 1.0f : 0.0f;
@@ -447,7 +448,7 @@ void FrogPilotSettingsWindow::updateVariables() {
   drivingPanelButtons->setVisibleButton(0, false);
   drivingPanelButtons->setVisibleButton(1, hasOpenpilotLongitudinal);
 
-  systemPanelButtons->setVisibleButton(1, tuningLevel >= frogpilotToggleLevels.value("DeviceManagement").toDouble() || tuningLevel >= frogpilotToggleLevels.value("ScreenManagement").toDouble() || tuningLevel >= frogpilotToggleLevels.value("FrogPilotTelemetry").toDouble());
+  systemPanelButtons->setVisibleButton(1, tuningLevel >= frogpilotToggleLevels.value("DeviceManagement").toDouble() || tuningLevel >= frogpilotToggleLevels.value("ScreenManagement").toDouble());
 
   vehiclePanelButtons->setVisibleButton(1, tuningLevel >= frogpilotToggleLevels.value("WheelControls").toDouble());
 

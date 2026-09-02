@@ -15,6 +15,7 @@ class FrogPilotVCruise:
     self.csc = CurveSpeedController(self)
     self.slc = SpeedLimitController(self)
 
+    self.csc_active = False
     self.csc_controlling_speed = False
     self.forcing_stop = False
     self.override_force_stop = False
@@ -50,7 +51,9 @@ class FrogPilotVCruise:
     self.csc.update_max_limit(sm, frogpilot_toggles)
     self.csc.update_lateral_acceleration(frogpilot_toggles)
 
-    if long_control_active and v_ego > CRUISING_SPEED and self.frogpilot_planner.road_curvature_detected and frogpilot_toggles.curve_speed_controller:
+    self.csc_active = long_control_active and v_ego > CRUISING_SPEED and self.frogpilot_planner.road_curvature_detected and frogpilot_toggles.curve_speed_controller
+
+    if self.csc_active:
       self.csc.update_target(v_ego)
 
       self.csc_controlling_speed = True
@@ -71,7 +74,7 @@ class FrogPilotVCruise:
 
       self.slc_offset = self.slc.offset
       self.slc_target = self.slc.target
-    elif frogpilot_toggles.show_speed_limits:
+    elif frogpilot_toggles.show_speed_limits or frogpilot_toggles.speed_limit_filler:
       self.slc.update_limits(now, time_validated, v_ego, sm)
 
       self.slc_offset = 0

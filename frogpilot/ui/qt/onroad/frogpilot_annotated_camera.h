@@ -85,7 +85,7 @@ private:
   bool blinkerLeft;
   bool blinkerRight;
   bool brakeLights;
-  bool cscControllingSpeed;
+  bool cscActive;
   bool cscTraining;
   bool experimentalMode;
   bool forceCoast;

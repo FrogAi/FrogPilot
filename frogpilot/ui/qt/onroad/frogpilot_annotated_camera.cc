@@ -226,7 +226,7 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   blinkerLeft = carState.getLeftBlinker();
   blinkerRight = carState.getRightBlinker();
   brakeLights = frogpilotCarState.getBrakeLights();
-  cscControllingSpeed = frogpilotPlan.getCscControllingSpeed();
+  cscActive = frogpilotPlan.getCscActive();
   cscSpeed = frogpilotPlan.getCscSpeed();
   cscTraining = frogpilotPlan.getCscTraining();
   dashboardSpeedLimit = frogpilotCarState.getDashboardSpeedLimit();
@@ -337,7 +337,7 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p, UIState 
   if (!speedLimitChanged && !(signalStyle == "static" && blinkerLeft) && frogpilot_toggles.value(QLatin1String("csc_status")).toBool()) {
     if (cscTraining) {
       paintCurveSpeedControlTraining(p);
-    } else if (isCruiseSet && cscControllingSpeed) {
+    } else if (isCruiseSet && cscActive) {
       paintCurveSpeedControl(p);
     }
   }

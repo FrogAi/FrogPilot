@@ -1,5 +1,15 @@
 #include "frogpilot/ui/qt/offroad/longitudinal_settings.h"
 
+namespace {
+float getMaxLateralAcceleration(Params &params, FrogPilotSettingsWindow *settings) {
+  QJsonObject profile = QJsonDocument::fromJson(QByteArray::fromStdString(params.get("MaxLateralAcceleration"))).object();
+  if (profile.value("car_fingerprint").toString().toStdString() == settings->carFingerprint) {
+    return profile.value("value").toDouble(settings->maxLateralAccel);
+  }
+  return settings->maxLateralAccel;
+}
+}
+
 FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *parent, bool forceOpen) : FrogPilotListWidget(parent), parent(parent) {
   forceOpenDescriptions = forceOpen;
 
@@ -90,12 +100,12 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     {"CESignalSpeed", tr("Turn Signal Below"), tr("<b>Switch to \"Experimental Mode\" when you signal below the speed you set, so openpilot picks its own speed through the turn instead of holding your set speed.</b><br><br>This runs off the \"Not For Detected Lanes\" button on this row, which has to stay on. With it on, openpilot only reads a signal as a turn when the space beside you is narrower than the \"Minimum Lane Width\" under \"Lane Changes\" in the \"STEERING\" panel. That width starts at zero, so nothing happens until you raise it, and turning the button off stops it firing at all."), ""},
     {"ShowCEMStatus", tr("Status Widget"), tr("<b>Show which condition switched \"Experimental Mode\" on, right on the driving screen.</b>"), ""},
 
-    {"CurveSpeedController", tr("Curve Speed Controller"), tr("<b>openpilot slows down on its own for curves ahead, and you pick how fast it takes them with \"Curve Speed Profile\".</b><br><br>It comes set to \"Auto\", which matches the way you take curves yourself."), "../../frogpilot/assets/toggle_icons/icon_speed_map.png"},
-    {"CalibratedLateralAcceleration", tr("Calibrated Lateral Acceleration"), tr("<b>How hard you corner, learned from your own driving.</b><br><br>The \"Auto\" profile uses this to take curves the way you do, but never harder than your steering has proven it can hold. A higher number means carrying more speed through curves. Lower means taking them gentler."), ""},
+    {"CurveSpeedController", tr("Curve Speed Controller"), tr("<b>openpilot slows down on its own for curves ahead, and you pick how fast it takes them with \"Curve Speed Profile\".</b><br><br>It comes set to \"Adaptive\", which learns how you prefer to take curves."), "../../frogpilot/assets/toggle_icons/icon_speed_map.png"},
+    {"CalibratedLateralAcceleration", tr("Calibrated Lateral Acceleration"), tr("<b>How hard you corner, learned from your own driving.</b><br><br>The \"Adaptive\" profile uses this to take curves the way you do, but never harder than your steering has proven it can hold. A higher number means carrying more speed through curves. Lower means taking them gentler."), ""},
     {"CalibrationProgress", tr("Calibration Progress"), tr("<b>How much of your own cornering openpilot has learned from.</b><br><br>This only grows while you're the one controlling the speed, so it fills up as you drive curves yourself. At 100% openpilot has gathered enough of your cornering to match the way you take curves."), ""},
-    {"CurveSpeedProfile", tr("Curve Speed Profile"), tr("<b>How fast openpilot takes curves.</b><br><br>\"Gentle\" and \"Standard\" hold to a fixed, relaxed pace, \"Sport\" uses your car's maximum configured or live-tuned cornering limit, and \"Auto\" matches the way you take curves yourself."), ""},
+    {"CurveSpeedProfile", tr("Curve Speed Profile"), tr("<b>How fast openpilot takes curves.</b><br><br>\"Gentle\" and \"Standard\" hold to a fixed, relaxed pace, \"Sport\" uses your car's maximum configured or live-tuned cornering limit, and \"Adaptive\" learns how you prefer to take curves."), ""},
     {"MaxLateralAcceleration", tr("Maximum Lateral Acceleration"), tr("<b>How fast the \"Sport\" profile is allowed to take curves.</b><br><br>This is also the maximum for every other curve speed profile. openpilot learns the limit from your car when possible and otherwise uses the value configured for it."), ""},
-    {"ResetCurveData", tr("Reset Curve Data"), tr("<b>Throw away everything openpilot has learned about how you take curves and start over.</b><br><br>\"Auto\" goes back to its starting value and relearns as you drive. Only available while the car is off."), ""},
+    {"ResetCurveData", tr("Reset Curve Data"), tr("<b>Throw away everything openpilot has learned about how you take curves and start over.</b><br><br>\"Adaptive\" goes back to its starting value and relearns as you drive. Only available while the car is off."), ""},
     {"ShowCSCStatus", tr("Status Widget"), tr("<b>Show the speed openpilot is aiming for through the curve, right on the driving screen.</b><br><br>It also shows a \"Training...\" note while openpilot is learning from the way you take a curve yourself."), ""},
 
     {"CustomPersonalities", tr("Driving Personalities"), tr("<b>Change what Aggressive, Standard and Relaxed actually do, so they match how you like to drive.</b>"), "../../frogpilot/assets/toggle_icons/icon_personality.png"},
@@ -262,7 +272,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       });
       longitudinalToggle = curveControlToggle;
     } else if (param == "CurveSpeedProfile") {
-      std::vector<QString> curveSpeedProfiles{tr("Gentle"), tr("Standard"), tr("Sport"), tr("Auto")};
+      std::vector<QString> curveSpeedProfiles{tr("Gentle"), tr("Standard"), tr("Sport"), tr("Adaptive")};
       longitudinalToggle = new ButtonParamControl(param, title, desc, icon, curveSpeedProfiles);
     } else if (param == "CalibrationProgress") {
       calibrationProgressLabel = new LabelControl(title, QString::number(params.getFloat("CalibrationProgress"), 'f', 0) + "%", desc);
@@ -271,7 +281,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       calibratedLateralAccelerationLabel = new LabelControl(title, QString::number(params.getFloat("CalibratedLateralAcceleration"), 'f', 2) + tr(" m/s²"), desc);
       longitudinalToggle = calibratedLateralAccelerationLabel;
     } else if (param == "MaxLateralAcceleration") {
-      maxLateralAccelerationLabel = new LabelControl(title, QString::number(params.getFloat("MaxLateralAcceleration"), 'f', 2) + tr(" m/s²"), desc);
+      maxLateralAccelerationLabel = new LabelControl(title, QString::number(getMaxLateralAcceleration(params, parent), 'f', 2) + tr(" m/s²"), desc);
       longitudinalToggle = maxLateralAccelerationLabel;
     } else if (param == "ResetCurveData") {
       ButtonControl *resetCurveDataButton = new ButtonControl(title, tr("RESET"), desc);
@@ -284,9 +294,11 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
           params.putFloat("CalibratedLateralAcceleration", 2.00);
           params.remove("CalibrationProgress");
           params.remove("CurvatureData");
+          params.remove("MaxLateralAcceleration");
 
           calibratedLateralAccelerationLabel->setText(QString::number(2.00, 'f', 2) + tr(" m/s²"));
           calibrationProgressLabel->setText(QString::number(0.00, 'f', 0) + "%");
+          maxLateralAccelerationLabel->setText(QString::number(this->parent->maxLateralAccel, 'f', 2) + tr(" m/s²"));
         }
       });
       longitudinalToggle = resetCurveDataButton;
@@ -805,7 +817,7 @@ void FrogPilotLongitudinalPanel::showEvent(QShowEvent *event) {
 
   calibratedLateralAccelerationLabel->setText(QString::number(params.getFloat("CalibratedLateralAcceleration"), 'f', 2) + tr(" m/s²"));
   calibrationProgressLabel->setText(QString::number(params.getFloat("CalibrationProgress"), 'f', 0) + "%");
-  maxLateralAccelerationLabel->setText(QString::number(params.getFloat("MaxLateralAcceleration"), 'f', 2) + tr(" m/s²"));
+  maxLateralAccelerationLabel->setText(QString::number(getMaxLateralAcceleration(params, parent), 'f', 2) + tr(" m/s²"));
 
   longitudinalActuatorDelayToggle->setTitle(QString(tr("Actuator Delay (Default: %1)")).arg(QString::number(parent->longitudinalActuatorDelay, 'f', 2)));
   startAccelToggle->setTitle(QString(tr("Start Acceleration (Default: %1)")).arg(QString::number(parent->startAccel, 'f', 2)));
