@@ -23,12 +23,12 @@ private:
   void updateStep();
 
   bool forceOpenDescriptions;
-  bool mapboxPublicKeySet;
-  bool mapboxSecretKeySet;
+  bool mapboxPublicKeySet = false;
+  bool mapboxSecretKeySet = false;
 
   ButtonControl *setupButton;
 
-  FrogPilotButtonControl *updateSpeedLimitsToggle;
+  ParamControl *updateSpeedLimitsToggle;
 
   FrogPilotButtonsControl *publicMapboxKeyControl;
   FrogPilotButtonsControl *secretMapboxKeyControl;
@@ -40,6 +40,8 @@ private:
   Params params;
 
   QLabel *imageLabel;
+
+  QString currentStep;
 
   QNetworkAccessManager *networkManager;
 

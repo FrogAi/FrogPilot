@@ -1,5 +1,5 @@
 name: Compile FrogPilot
-run-name: Compile ${{ github.ref_name }}
+run-name: Compile ${{ inputs.source_branch == 'Custom' && inputs.custom_source_branch || inputs.source_branch }}
 
 on:
   workflow_dispatch:
@@ -7,8 +7,18 @@ on:
       not_vetted:
         description: This branch is not vetted
         type: boolean
+      source_branch:
+        default: FrogPilot-Vetting
+        description: Source branch
+        options:
+          - FrogPilot-Vetting
+          - Custom
+        type: choice
+      custom_source_branch:
+        description: Custom source branch
+        type: string
       publish_custom_branch:
-        description: Custom branch name
+        description: Custom target branch
         type: string
       publish_frogpilot:
         description: Push to FrogPilot
@@ -36,6 +46,8 @@ env:
   BRANCH_STAGING: ${{ vars.BRANCH_STAGING }}
   BRANCH_TESTING: ${{ vars.BRANCH_TESTING }}
   CUSTOM_BRANCH: ${{ inputs.publish_custom_branch }}
+  CUSTOM_SOURCE_BRANCH: ${{ inputs.custom_source_branch }}
+  SOURCE_BRANCH: ${{ inputs.source_branch }}
 
   COMPILE_COMMIT: ${{ vars.COMPILE_COMMIT }}
 
@@ -55,6 +67,14 @@ jobs:
     steps:
       - name: Set up source
         run: |
+          if [[ "$SOURCE_BRANCH" == "Custom" ]]; then
+            SOURCE_BRANCH="$CUSTOM_SOURCE_BRANCH"
+          fi
+          if [[ -z "$SOURCE_BRANCH" || "$(git check-ref-format --branch "$SOURCE_BRANCH")" != "$SOURCE_BRANCH" ]]; then
+            echo "Invalid source branch: $SOURCE_BRANCH" >&2
+            exit 1
+          fi
+
           : "${COMPILE_COMMIT:?COMPILE_COMMIT is required}" "${GIT_NAME:?GIT_NAME is required}" "${GIT_EMAIL:?GIT_EMAIL is required}"
 
           sudo rm -rf "$BUILD_DIR" "$SOURCE_DIR" /data/scons_cache
@@ -62,9 +82,9 @@ jobs:
           git clone --filter=blob:none --no-checkout --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$BUILD_DIR"
 
           cd "$BUILD_DIR"
-          git checkout -B "$GITHUB_REF_NAME" "refs/remotes/origin/$GITHUB_REF_NAME"
-          if [[ "$(git rev-parse HEAD)" != "$GITHUB_SHA" ]]; then
-            echo "$GITHUB_REF_NAME moved since dispatch — dispatch again."
+          git checkout -B "$SOURCE_BRANCH" "refs/remotes/origin/$SOURCE_BRANCH"
+          if [[ "$SOURCE_BRANCH" == "$GITHUB_REF_NAME" && "$(git rev-parse HEAD)" != "$GITHUB_SHA" ]]; then
+            echo "$SOURCE_BRANCH moved since dispatch — dispatch again."
             exit 1
           fi
 
@@ -73,7 +93,7 @@ jobs:
             exit 1
           fi
 
-          targets=("$GITHUB_REF_NAME")
+          targets=("$SOURCE_BRANCH")
           ${{ inputs.publish_frogpilot }} && targets+=("$BRANCH_RELEASE")
           ${{ inputs.publish_staging }} && targets+=("$BRANCH_STAGING")
           ${{ inputs.publish_testing }} && targets+=("$BRANCH_TESTING")

@@ -1,4 +1,5 @@
 #include "frogpilot/ui/qt/offroad/device_settings.h"
+#include "frogpilot/ui/qt/onroad/screen_recorder.h"
 
 FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent, bool forceOpen) : FrogPilotListWidget(parent), parent(parent) {
   forceOpenDescriptions = forceOpen;
@@ -29,7 +30,6 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent, bool
     {"HigherBitrate", tr("High-Quality Recording"), tr("<b>Record your drives in higher video quality.</b><br><br>This row only appears once \"Disable Uploads\" is on and \"Disable Onroad Only\" is off, since the larger files are not meant to be uploaded. The device needs to reboot for it to take effect."), ""},
     {"LowVoltageShutdown", tr("Low-Voltage Cutoff"), tr("<b>Shut the device down when your car's battery drops below the voltage you pick.</b><br><br>This only happens while parked, and keeps the device from draining the battery too far to start the car."), ""},
     {"IncreaseThermalLimits", tr("Raise Temperature Limits"), tr("<b>Let the device run about 6 degrees Celsius hotter than normal before openpilot reacts to the heat.</b><br><br>Normally openpilot disengages and will not re-engage once the device gets hot, and drops back to the offroad screen if it keeps climbing. This makes both happen later. Running the device that hot can shorten its life or damage it, so only use this if you understand the risk."), ""},
-    {"FrogPilotTelemetry", tr("Share Driving Data"), tr("<b>Automatically share anonymized driving data with FrogPilot to help improve it.</b><br><br>Only driving signals are shared: no video, no GPS or location, no VIN, and no identifiers. Turn this off to opt out."), ""},
     {"UseKonikServer", tr("Use Konik Server"), tr("<b>Upload your drives to \"stable.konik.ai\" instead of \"connect.comma.ai\".</b><br><br>The device needs to reboot for this to take effect."), ""},
 
     {"ScreenManagement", tr("Screen Settings"), tr("<b>Change how bright the screen is, how long it stays on, and whether you can record it.</b>"), "../../frogpilot/assets/toggle_icons/icon_light.png"},
@@ -76,6 +76,37 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent, bool
         brightnessLabels[i] = i == 0 ? tr("Screen Off") : i == 101 ? tr("Auto") : QString::number(i) + "%";
       }
       deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, minBrightness, 101, QString(), brightnessLabels, 1, true);
+    } else if (param == "ScreenRecorder") {
+      FrogPilotButtonControl *recorderToggle = new FrogPilotButtonControl(param, title, desc, icon, {tr("Start Recording"), tr("Stop Recording")}, true);
+      auto updateRecorderToggle = [recorderToggle]() {
+        bool recording = ScreenRecorder::active();
+        if (recording) {
+          recorderToggle->setCheckedButton(1);
+        } else {
+          recorderToggle->clearCheckedButtons();
+        }
+        recorderToggle->setVisibleButton(0, !recording);
+        recorderToggle->setVisibleButton(1, recording);
+      };
+      QObject::connect(recorderToggle, &FrogPilotButtonControl::buttonClicked, [recorderToggle, updateRecorderToggle](int id) {
+        if (id == 0) {
+          ScreenRecorder::start();
+        } else {
+          ScreenRecorder::stop();
+        }
+
+        if (id == 0 && !ScreenRecorder::active()) {
+          ConfirmationDialog::alert(
+            tr("Couldn't start recording. Check that there's enough free space and that a recording isn't already running."), recorderToggle->window());
+        }
+        updateRecorderToggle();
+      });
+      QObject::connect(uiState(), &UIState::offroadTransition, recorderToggle, [updateRecorderToggle](bool) {
+        ScreenRecorder::stop();
+        updateRecorderToggle();
+      });
+      updateRecorderToggle();
+      deviceToggle = recorderToggle;
     } else if (param == "ScreenTimeout" || param == "ScreenTimeoutOnroad") {
       deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, 5, 60, tr(" seconds"), {}, 5);
 
@@ -112,7 +143,6 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent, bool
     });
   }
 
-  static_cast<ParamControl*>(toggles["FrogPilotTelemetry"])->setConfirmation(true, false);
   static_cast<ParamControl*>(toggles["IncreaseThermalLimits"])->setConfirmation(true, false);
   static_cast<ParamControl*>(toggles["NoLogging"])->setConfirmation(true, false);
   static_cast<ParamControl*>(toggles["NoUploads"])->setConfirmation(true, false);
@@ -120,10 +150,10 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent, bool
   QSet<QString> brightnessKeys = {"ScreenBrightness", "ScreenBrightnessOnroad"};
   for (const QString &key : brightnessKeys) {
     FrogPilotParamValueControl *paramControl = static_cast<FrogPilotParamValueControl*>(toggles[key]);
-    QObject::connect(paramControl, &FrogPilotParamValueControl::valueChanged, [key, this](float value) {
-      if (!started && key == "ScreenBrightness") {
+    QObject::connect(paramControl, &FrogPilotParamValueControl::valueChanged, [key](float value) {
+      if (!uiState()->scene.started && key == "ScreenBrightness") {
         Hardware::set_brightness(std::lround(value));
-      } else if (started && key == "ScreenBrightnessOnroad") {
+      } else if (uiState()->scene.started && key == "ScreenBrightnessOnroad") {
         Hardware::set_brightness(std::lround(value));
       }
     });
@@ -171,19 +201,10 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent, bool
     openDescriptions(forceOpenDescriptions, toggles);
     deviceLayout->setCurrentWidget(devicePanel);
   });
-  QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotDevicePanel::updateState);
 }
 
 void FrogPilotDevicePanel::showEvent(QShowEvent *event) {
   updateToggles();
-}
-
-void FrogPilotDevicePanel::updateState(const UIState &s) {
-  if (!isVisible()) {
-    return;
-  }
-
-  started = s.scene.started;
 }
 
 void FrogPilotDevicePanel::updateToggles() {

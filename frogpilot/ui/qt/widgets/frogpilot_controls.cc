@@ -1,10 +1,41 @@
-#include "selfdrive/ui/ui.h"
+#include "frogpilot/ui/qt/widgets/frogpilot_controls.h"
 
-#include "frogpilot/ui/frogpilot_ui.h"
+#include <QFile>
+#include <QFileInfo>
+#include <QPointer>
+
+const QString buttonStyle = R"(
+  QPushButton {
+    padding: 0px 25px 0px 25px;
+    border-radius: 50px;
+    font-size: 35px;
+    font-weight: 500;
+    height: 100px;
+    color: #E4E4E4;
+    background-color: #393939;
+  }
+  QPushButton:pressed {
+    background-color: #4a4a4a;
+  }
+  QPushButton:checked:enabled {
+    background-color: #33Ab4C;
+  }
+  QPushButton:disabled {
+    color: #33E4E4E4;
+  }
+)";
 
 bool FrogPilotConfirmationDialog::toggleReboot(QWidget *parent) {
   ConfirmationDialog d(tr("Reboot required to take effect."), tr("Reboot Now"), tr("Reboot Later"), false, parent);
-  return d.exec();
+  bool reboot = d.exec();
+  if (reboot) {
+    for (FrogPilotParamValueControl *control : parent->findChildren<FrogPilotParamValueControl*>()) {
+      if (control->isVisible()) {
+        control->updateParam();
+      }
+    }
+  }
+  return reboot;
 }
 
 bool FrogPilotConfirmationDialog::yesorno(const QString &prompt_text, QWidget *parent) {
@@ -22,7 +53,7 @@ bool useKonikServer() {
   return use_konik;
 }
 
-void clearMovie(QSharedPointer<QMovie> &movie, QWidget *parent) {
+static void clearMovie(QSharedPointer<QMovie> &movie, QWidget *parent) {
   if (!movie) {
     return;
   }
@@ -96,16 +127,6 @@ void loadImage(const QString &basePath, QPixmap &pixmap, QSharedPointer<QMovie> 
   }
 
   parent->update();
-}
-
-void openDescriptions(bool forceOpenDescriptions, std::map<QString, AbstractControl*> toggles) {
-  if (forceOpenDescriptions) {
-    for (auto &[key, toggle] : toggles) {
-      if (key != "CESpeed") {
-        toggle->showDescription();
-      }
-    }
-  }
 }
 
 void updateFrogPilotToggles() {

@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <wayland-client.h>
 
+#include <atomic>
 #include <cstdarg>
 #include <cstdio>
 #include <cstring>
@@ -69,6 +70,7 @@ struct SwapchainBuffer {
 std::mutex recorder_mutex;
 std::vector<SwapchainBuffer> swapchain;
 wl_proxy *attached_buffer = nullptr;
+std::atomic<bool> recording = false;  // read every paint by the button, so it must not take recorder_mutex
 
 void capture(wl_proxy *wl_buffer);
 
@@ -507,9 +509,11 @@ void ScreenRecorder::start() {
 
   std::lock_guard lock(recorder_mutex);
   session = s;
+  recording = true;
 }
 
 void ScreenRecorder::stop() {
+  recording = false;
   Session *s;
   {
     std::lock_guard lock(recorder_mutex);
@@ -548,8 +552,7 @@ void ScreenRecorder::stop() {
 }
 
 bool ScreenRecorder::active() {
-  std::lock_guard lock(recorder_mutex);
-  return session != nullptr;
+  return recording;
 }
 
 #else

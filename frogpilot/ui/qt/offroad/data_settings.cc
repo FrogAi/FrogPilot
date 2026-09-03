@@ -61,8 +61,6 @@ namespace {
 FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool forceOpen) : FrogPilotListWidget(parent), parent(parent) {
   forceOpenDescriptions = forceOpen;
 
-  QDir("/data/restore_temp").removeRecursively();
-
   QStackedLayout *dataLayout = new QStackedLayout();
   addItem(dataLayout);
 
@@ -215,7 +213,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
             runOnUIThread(screenRecordingsButton, [=]() {
               parent->keepScreenOn = true;
 
-              screenRecordingsButton->setEnabled(false);
+              screenRecordingsButton->setButtonsEnabled(false);
               screenRecordingsButton->setValue(tr("Deleting..."));
 
               screenRecordingsButton->setVisibleButton(1, false);
@@ -240,7 +238,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
             util::sleep_for(2500);
 
             runOnUIThread(screenRecordingsButton, [=]() {
-              screenRecordingsButton->setEnabled(true);
+              screenRecordingsButton->setButtonsEnabled(true);
               screenRecordingsButton->setValue("");
 
               screenRecordingsButton->setVisibleButton(1, true);
@@ -258,7 +256,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
           runOnUIThread(screenRecordingsButton, [=]() {
             parent->keepScreenOn = true;
 
-            screenRecordingsButton->setEnabled(false);
+            screenRecordingsButton->setButtonsEnabled(false);
             screenRecordingsButton->setValue(tr("Deleting..."));
 
             screenRecordingsButton->setVisibleButton(0, false);
@@ -281,7 +279,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
           util::sleep_for(2500);
 
           runOnUIThread(screenRecordingsButton, [=]() {
-            screenRecordingsButton->setEnabled(true);
+            screenRecordingsButton->setButtonsEnabled(true);
             screenRecordingsButton->setValue("");
 
             screenRecordingsButton->setVisibleButton(0, true);
@@ -310,7 +308,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
             runOnUIThread(screenRecordingsButton, [=]() {
               parent->keepScreenOn = true;
 
-              screenRecordingsButton->setEnabled(false);
+              screenRecordingsButton->setButtonsEnabled(false);
               screenRecordingsButton->setValue(tr("Renaming..."));
 
               screenRecordingsButton->setVisibleButton(0, false);
@@ -337,7 +335,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
             util::sleep_for(2500);
 
             runOnUIThread(screenRecordingsButton, [=]() {
-              screenRecordingsButton->setEnabled(true);
+              screenRecordingsButton->setButtonsEnabled(true);
               screenRecordingsButton->setValue("");
 
               screenRecordingsButton->setVisibleButton(0, true);
@@ -426,7 +424,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
           runOnUIThread(frogpilotBackupButton, [=]() {
             parent->keepScreenOn = true;
 
-            frogpilotBackupButton->setEnabled(false);
+            frogpilotBackupButton->setButtonsEnabled(false);
             frogpilotBackupButton->setValue(tr("Backing up..."));
 
             frogpilotBackupButton->setVisibleButton(1, false);
@@ -455,7 +453,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
           util::sleep_for(2500);
 
           runOnUIThread(frogpilotBackupButton, [=]() {
-            frogpilotBackupButton->setEnabled(true);
+            frogpilotBackupButton->setButtonsEnabled(true);
             frogpilotBackupButton->setValue("");
 
             frogpilotBackupButton->setVisibleButton(1, true);
@@ -475,7 +473,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
             runOnUIThread(frogpilotBackupButton, [=]() {
               parent->keepScreenOn = true;
 
-              frogpilotBackupButton->setEnabled(false);
+              frogpilotBackupButton->setButtonsEnabled(false);
               frogpilotBackupButton->setValue(tr("Deleting..."));
 
               frogpilotBackupButton->setVisibleButton(0, false);
@@ -492,7 +490,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
             util::sleep_for(2500);
 
             runOnUIThread(frogpilotBackupButton, [=]() {
-              frogpilotBackupButton->setEnabled(true);
+              frogpilotBackupButton->setButtonsEnabled(true);
               frogpilotBackupButton->setValue("");
 
               frogpilotBackupButton->setVisibleButton(0, true);
@@ -511,7 +509,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
           runOnUIThread(frogpilotBackupButton, [=]() {
             parent->keepScreenOn = true;
 
-            frogpilotBackupButton->setEnabled(false);
+            frogpilotBackupButton->setButtonsEnabled(false);
             frogpilotBackupButton->setValue(tr("Deleting..."));
 
             frogpilotBackupButton->setVisibleButton(0, false);
@@ -529,7 +527,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
           util::sleep_for(2500);
 
           runOnUIThread(frogpilotBackupButton, [=]() {
-            frogpilotBackupButton->setEnabled(true);
+            frogpilotBackupButton->setButtonsEnabled(true);
             frogpilotBackupButton->setValue("");
 
             frogpilotBackupButton->setVisibleButton(0, true);
@@ -554,7 +552,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
             runOnUIThread(frogpilotBackupButton, [=]() {
               parent->keepScreenOn = true;
 
-              frogpilotBackupButton->setEnabled(false);
+              frogpilotBackupButton->setButtonsEnabled(false);
               frogpilotBackupButton->setValue(tr("Restoring..."));
 
               frogpilotBackupButton->setVisibleButton(0, false);
@@ -617,6 +615,8 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
 
               Hardware::reboot();
             } else {
+              QDir(extractDirectory).removeRecursively();
+
               runOnUIThread(frogpilotBackupButton, [=]() {
                 frogpilotBackupButton->setValue(tr("Restore failed..."));
               });
@@ -624,7 +624,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
               util::sleep_for(2500);
 
               runOnUIThread(frogpilotBackupButton, [=]() {
-                frogpilotBackupButton->setEnabled(true);
+                frogpilotBackupButton->setButtonsEnabled(true);
                 frogpilotBackupButton->setValue("");
 
                 frogpilotBackupButton->setVisibleButton(0, true);
@@ -707,7 +707,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
           runOnUIThread(toggleBackupButton, [=]() {
             parent->keepScreenOn = true;
 
-            toggleBackupButton->setEnabled(false);
+            toggleBackupButton->setButtonsEnabled(false);
             toggleBackupButton->setValue(tr("Backing up..."));
 
             toggleBackupButton->setVisibleButton(1, false);
@@ -733,7 +733,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
           util::sleep_for(2500);
 
           runOnUIThread(toggleBackupButton, [=]() {
-            toggleBackupButton->setEnabled(true);
+            toggleBackupButton->setButtonsEnabled(true);
             toggleBackupButton->setValue("");
 
             toggleBackupButton->setVisibleButton(1, true);
@@ -753,7 +753,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
             runOnUIThread(toggleBackupButton, [=]() {
               parent->keepScreenOn = true;
 
-              toggleBackupButton->setEnabled(false);
+              toggleBackupButton->setButtonsEnabled(false);
               toggleBackupButton->setValue(tr("Deleting..."));
 
               toggleBackupButton->setVisibleButton(0, false);
@@ -770,7 +770,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
             util::sleep_for(2500);
 
             runOnUIThread(toggleBackupButton, [=]() {
-              toggleBackupButton->setEnabled(true);
+              toggleBackupButton->setButtonsEnabled(true);
               toggleBackupButton->setValue("");
 
               toggleBackupButton->setVisibleButton(0, true);
@@ -789,7 +789,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
           runOnUIThread(toggleBackupButton, [=]() {
             parent->keepScreenOn = true;
 
-            toggleBackupButton->setEnabled(false);
+            toggleBackupButton->setButtonsEnabled(false);
             toggleBackupButton->setValue(tr("Deleting..."));
 
             toggleBackupButton->setVisibleButton(0, false);
@@ -807,7 +807,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
           util::sleep_for(2500);
 
           runOnUIThread(toggleBackupButton, [=]() {
-            toggleBackupButton->setEnabled(true);
+            toggleBackupButton->setButtonsEnabled(true);
             toggleBackupButton->setValue("");
 
             toggleBackupButton->setVisibleButton(0, true);
@@ -827,7 +827,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
             runOnUIThread(toggleBackupButton, [=]() {
               parent->keepScreenOn = true;
 
-              toggleBackupButton->setEnabled(false);
+              toggleBackupButton->setButtonsEnabled(false);
               toggleBackupButton->setValue(tr("Restoring..."));
 
               toggleBackupButton->setVisibleButton(0, false);
@@ -852,7 +852,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
             util::sleep_for(2500);
 
             runOnUIThread(toggleBackupButton, [=]() {
-              toggleBackupButton->setEnabled(true);
+              toggleBackupButton->setButtonsEnabled(true);
               toggleBackupButton->setValue("");
 
               toggleBackupButton->setVisibleButton(0, true);
@@ -906,8 +906,6 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
       updateStatsLabels(statsLabelsList);
     }
   });
-
-  updateStatsLabels(statsLabelsList);
 }
 
 void FrogPilotDataPanel::updateStatsLabels(FrogPilotListWidget *labelsList) {

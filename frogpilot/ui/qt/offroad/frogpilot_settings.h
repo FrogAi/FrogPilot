@@ -47,20 +47,20 @@ public:
   bool lkasAllowedForAOL = false;
   bool openpilotLongitudinalControlDisabled = false;
 
-  float friction;
-  float latAccelFactor;
-  float longitudinalActuatorDelay;
+  float friction = 0.0f;
+  float latAccelFactor = 0.0f;
+  float longitudinalActuatorDelay = 0.0f;
   float maxLateralAccel = 0.0f;
-  float startAccel;
-  float steerActuatorDelay;
-  float steerKp;
-  float steerRatio;
-  float stopAccel;
-  float stoppingDecelRate;
-  float vEgoStarting;
-  float vEgoStopping;
+  float startAccel = 0.0f;
+  float steerActuatorDelay = 0.0f;
+  float steerKp = 0.0f;
+  float steerRatio = 0.0f;
+  float stopAccel = 0.0f;
+  float stoppingDecelRate = 0.0f;
+  float vEgoStarting = 0.0f;
+  float vEgoStopping = 0.0f;
 
-  int tuningLevel;
+  int tuningLevel = 0;
 
   std::string carFingerprint;
 
@@ -84,7 +84,7 @@ private:
   void showEvent(QShowEvent *event) override;
   void updateState();
 
-  bool panelOpen;
+  bool panelOpen = false;
 
   std::string carMake;
 

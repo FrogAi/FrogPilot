@@ -839,25 +839,25 @@ void FrogPilotLongitudinalPanel::updateMetric(bool metric, bool bootRun) {
     double distanceConversion = metric ? FOOT_TO_METER : METER_TO_FOOT;
     double speedConversion = metric ? MILE_TO_KM : KM_TO_MILE;
 
-    params.putIntNonBlocking("IncreasedStoppedDistance", std::lround(params.getInt("IncreasedStoppedDistance") * distanceConversion));
-    params.putIntNonBlocking("IncreasedStoppedDistanceLowVisibility", std::lround(params.getInt("IncreasedStoppedDistanceLowVisibility") * distanceConversion));
-    params.putIntNonBlocking("IncreasedStoppedDistanceRain", std::lround(params.getInt("IncreasedStoppedDistanceRain") * distanceConversion));
-    params.putIntNonBlocking("IncreasedStoppedDistanceRainStorm", std::lround(params.getInt("IncreasedStoppedDistanceRainStorm") * distanceConversion));
-    params.putIntNonBlocking("IncreasedStoppedDistanceSnow", std::lround(params.getInt("IncreasedStoppedDistanceSnow") * distanceConversion));
+    params.putInt("IncreasedStoppedDistance", std::lround(params.getInt("IncreasedStoppedDistance") * distanceConversion));
+    params.putInt("IncreasedStoppedDistanceLowVisibility", std::lround(params.getInt("IncreasedStoppedDistanceLowVisibility") * distanceConversion));
+    params.putInt("IncreasedStoppedDistanceRain", std::lround(params.getInt("IncreasedStoppedDistanceRain") * distanceConversion));
+    params.putInt("IncreasedStoppedDistanceRainStorm", std::lround(params.getInt("IncreasedStoppedDistanceRainStorm") * distanceConversion));
+    params.putInt("IncreasedStoppedDistanceSnow", std::lround(params.getInt("IncreasedStoppedDistanceSnow") * distanceConversion));
 
-    params.putIntNonBlocking("CESignalSpeed", std::lround(params.getInt("CESignalSpeed") * speedConversion));
-    params.putIntNonBlocking("CESpeed", std::lround(params.getInt("CESpeed") * speedConversion));
-    params.putIntNonBlocking("CESpeedLead", std::lround(params.getInt("CESpeedLead") * speedConversion));
-    params.putIntNonBlocking("CustomCruise", std::max(1L, std::lround(params.getInt("CustomCruise") * speedConversion)));
-    params.putIntNonBlocking("CustomCruiseLong", std::max(1L, std::lround(params.getInt("CustomCruiseLong") * speedConversion)));
-    params.putIntNonBlocking("Offset1", std::lround(params.getInt("Offset1") * speedConversion));
-    params.putIntNonBlocking("Offset2", std::lround(params.getInt("Offset2") * speedConversion));
-    params.putIntNonBlocking("Offset3", std::lround(params.getInt("Offset3") * speedConversion));
-    params.putIntNonBlocking("Offset4", std::lround(params.getInt("Offset4") * speedConversion));
-    params.putIntNonBlocking("Offset5", std::lround(params.getInt("Offset5") * speedConversion));
-    params.putIntNonBlocking("Offset6", std::lround(params.getInt("Offset6") * speedConversion));
-    params.putIntNonBlocking("Offset7", std::lround(params.getInt("Offset7") * speedConversion));
-    params.putIntNonBlocking("SetSpeedOffset", std::lround(params.getInt("SetSpeedOffset") * speedConversion));
+    params.putInt("CESignalSpeed", std::lround(params.getInt("CESignalSpeed") * speedConversion));
+    params.putInt("CESpeed", std::lround(params.getInt("CESpeed") * speedConversion));
+    params.putInt("CESpeedLead", std::lround(params.getInt("CESpeedLead") * speedConversion));
+    params.putInt("CustomCruise", std::max(1L, std::lround(params.getInt("CustomCruise") * speedConversion)));
+    params.putInt("CustomCruiseLong", std::max(1L, std::lround(params.getInt("CustomCruiseLong") * speedConversion)));
+    params.putInt("Offset1", std::lround(params.getInt("Offset1") * speedConversion));
+    params.putInt("Offset2", std::lround(params.getInt("Offset2") * speedConversion));
+    params.putInt("Offset3", std::lround(params.getInt("Offset3") * speedConversion));
+    params.putInt("Offset4", std::lround(params.getInt("Offset4") * speedConversion));
+    params.putInt("Offset5", std::lround(params.getInt("Offset5") * speedConversion));
+    params.putInt("Offset6", std::lround(params.getInt("Offset6") * speedConversion));
+    params.putInt("Offset7", std::lround(params.getInt("Offset7") * speedConversion));
+    params.putInt("SetSpeedOffset", std::lround(params.getInt("SetSpeedOffset") * speedConversion));
   }
   previousMetric = metric;
 

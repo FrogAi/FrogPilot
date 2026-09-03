@@ -137,7 +137,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
   QObject::connect(disableOpenpilotLong, &ToggleControl::toggleFlipped, [parent, this](bool state) {
     if (state) {
       if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely disable openpilot longitudinal control?"), this)) {
-        if (started) {
+        if (uiState()->scene.started) {
           if (FrogPilotConfirmationDialog::toggleReboot(this)) {
             Hardware::reboot();
           }
@@ -301,7 +301,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
   QSet<QString> rebootKeys = {"TacoTuneHacks"};
   for (const QString &key : rebootKeys) {
     QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, [key, this](bool state) {
-      if (started) {
+      if (uiState()->scene.started) {
         if (key == "TacoTuneHacks" && state) {
           if (FrogPilotConfirmationDialog::toggleReboot(this)) {
             Hardware::reboot();
@@ -317,7 +317,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
 
   openDescriptions(forceOpenDescriptions, toggles);
 
-  QObject::connect(uiState(), &UIState::offroadTransition, [selectMakeButton, selectModelButton, this]() {
+  std::function<void()> updateCarLabels = [selectMakeButton, selectModelButton, this]() {
     std::thread([selectMakeButton, selectModelButton, this]() {
       QString carMake = QString::fromStdString(params.get("CarMake", true));
       QString carModel = QString::fromStdString(params.get(params.get("CarModelName").empty() ? "CarModel" : "CarModelName", true));
@@ -327,7 +327,9 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
         selectModelButton->setValue(carModel);
       });
     }).detach();
-  });
+  };
+  QObject::connect(uiState(), &UIState::offroadTransition, updateCarLabels);
+  updateCarLabels();
 
   QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [vehiclesLayout, vehiclesPanel, this] {
     if (forceOpenDescriptions) {
@@ -337,7 +339,6 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
     }
     vehiclesLayout->setCurrentWidget(vehiclesPanel);
   });
-  QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotVehiclesPanel::updateState);
 }
 
 void FrogPilotVehiclesPanel::showEvent(QShowEvent *event) {
@@ -362,14 +363,6 @@ void FrogPilotVehiclesPanel::showEvent(QShowEvent *event) {
   static_cast<LabelControl*>(toggles["SNGSupport"])->setText(!parent->carDetected ? unknown : parent->hasSNG ? tr("Yes") : tr("No"));
 
   updateToggles();
-}
-
-void FrogPilotVehiclesPanel::updateState(const UIState &s) {
-  if (!isVisible()) {
-    return;
-  }
-
-  started = s.scene.started;
 }
 
 void FrogPilotVehiclesPanel::updateToggles() {

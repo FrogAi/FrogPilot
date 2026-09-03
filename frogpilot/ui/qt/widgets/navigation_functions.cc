@@ -48,9 +48,14 @@ void MapSelectionControl::updateSelectedMaps() {
   QStringList mapList = mapsSelected.split(",", QString::SkipEmptyParts);
   QString prefix = (selectionType == "nations") ? "nation." : "us_state.";
 
+  QSet<QString> controlMaps;
+  for (QAbstractButton *button : mapButtons->buttons()) {
+    controlMaps.insert(button->property("mapKey").toString());
+  }
+
   QStringList newMapList;
   for (const QString &map : mapList) {
-    if (!map.startsWith(prefix)) {
+    if (!map.startsWith(prefix) || !controlMaps.contains(map.mid(prefix.length()))) {
       newMapList.append(map);
     }
   }

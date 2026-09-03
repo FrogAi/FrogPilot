@@ -110,8 +110,6 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent, bool
     openDescriptions(forceOpenDescriptions, toggles);
     soundsLayout->setCurrentWidget(soundsPanel);
   });
-  QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotSoundsPanel::updateState);
-
   soundPlayerProcess = new QProcess(this);
 
   updateToggles();
@@ -147,14 +145,6 @@ except Exception:
     }
   }
   soundPlayerProcess->start("python3", QStringList{"-u", "-c", program, path, QString::number(volume)});
-}
-
-void FrogPilotSoundsPanel::updateState(const UIState &s) {
-  if (!isVisible()) {
-    return;
-  }
-
-  started = s.scene.started;
 }
 
 void FrogPilotSoundsPanel::updateToggles() {
@@ -198,7 +188,7 @@ void FrogPilotSoundsPanel::updateToggles() {
 void FrogPilotSoundsPanel::testSound(const QString &key) {
   QString baseName = QString(key).remove("Volume");
 
-  if (started) {
+  if (uiState()->scene.started) {
     updateFrogPilotToggles();
 
     QString camelCaseAlert = QString(baseName).replace(0, 1, baseName[0].toLower());

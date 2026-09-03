@@ -175,7 +175,7 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent, bo
   QSet<QString> rebootKeys = {"AlwaysOnLateral", "ForceTorqueController", "NNFF", "NNFFLite"};
   for (const QString &key : rebootKeys) {
     QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, [key, this](bool state) {
-      if (started) {
+      if (uiState()->scene.started) {
         if (key == "AlwaysOnLateral" && state) {
           if (FrogPilotConfirmationDialog::toggleReboot(this)) {
             Hardware::reboot();
@@ -236,7 +236,6 @@ FrogPilotLateralPanel::FrogPilotLateralPanel(FrogPilotSettingsWindow *parent, bo
     lateralLayout->setCurrentWidget(lateralPanel);
   });
   QObject::connect(parent, &FrogPilotSettingsWindow::updateMetric, this, &FrogPilotLateralPanel::updateMetric);
-  QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotLateralPanel::updateState);
 }
 
 void FrogPilotLateralPanel::showEvent(QShowEvent *event) {
@@ -252,23 +251,17 @@ void FrogPilotLateralPanel::showEvent(QShowEvent *event) {
   updateToggles();
 }
 
-void FrogPilotLateralPanel::updateState(const UIState &s) {
-  if (!isVisible()) return;
-
-  started = s.scene.started;
-}
-
 void FrogPilotLateralPanel::updateMetric(bool metric, bool bootRun) {
   static bool previousMetric;
   if (metric != previousMetric && !bootRun) {
     double distanceConversion = metric ? FOOT_TO_METER : METER_TO_FOOT;
     double speedConversion = metric ? MILE_TO_KM : KM_TO_MILE;
 
-    params.putFloatNonBlocking("LaneDetectionWidth", params.getFloat("LaneDetectionWidth") * distanceConversion);
+    params.putFloat("LaneDetectionWidth", params.getFloat("LaneDetectionWidth") * distanceConversion);
 
-    params.putIntNonBlocking("MinimumLaneChangeSpeed", std::lround(params.getInt("MinimumLaneChangeSpeed") * speedConversion));
-    params.putIntNonBlocking("PauseAOLOnBrake", std::lround(params.getInt("PauseAOLOnBrake") * speedConversion));
-    params.putIntNonBlocking("PauseLateralSpeed", std::lround(params.getInt("PauseLateralSpeed") * speedConversion));
+    params.putInt("MinimumLaneChangeSpeed", std::lround(params.getInt("MinimumLaneChangeSpeed") * speedConversion));
+    params.putInt("PauseAOLOnBrake", std::lround(params.getInt("PauseAOLOnBrake") * speedConversion));
+    params.putInt("PauseLateralSpeed", std::lround(params.getInt("PauseLateralSpeed") * speedConversion));
   }
   previousMetric = metric;
 

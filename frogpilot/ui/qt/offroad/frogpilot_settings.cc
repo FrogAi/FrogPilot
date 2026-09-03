@@ -128,11 +128,9 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
   QWidget *frogpilotWidget = new QWidget(this);
   QVBoxLayout *frogpilotLayout = new QVBoxLayout(frogpilotWidget);
   frogpilotLayout->setContentsMargins(50, 25, 50, 25);
-  frogpilotWidget->setLayout(frogpilotLayout);
 
   frogpilotPanel = new ScrollView(frogpilotWidget, this);
   mainLayout->addWidget(frogpilotPanel);
-  frogpilotPanel->setWidget(frogpilotWidget);
 
   FrogPilotListWidget *list = new FrogPilotListWidget(this);
   frogpilotLayout->addWidget(list);

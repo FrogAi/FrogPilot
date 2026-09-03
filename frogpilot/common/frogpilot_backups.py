@@ -90,7 +90,11 @@ def create_backup(backup, destination, success_message, fail_message, params, mi
               continue
             tar.add(entry, arcname=Path(destination.name) / entry.name)
 
-    compressed_temp.rename(final_destination)
+    try:
+      compressed_temp.rename(final_destination)
+    except FileNotFoundError:
+      print(fail_message)
+      return
 
     compressed_backup_size = final_destination.stat().st_size
     if minimum_backup_size == 0 or compressed_backup_size < minimum_backup_size:

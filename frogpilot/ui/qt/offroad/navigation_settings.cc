@@ -132,12 +132,12 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
   });
   settingsList->addItem(setupButton);
 
-  updateSpeedLimitsToggle = new FrogPilotButtonControl("SpeedLimitFiller", tr("Speed Limit Filler"),
+  updateSpeedLimitsToggle = new ParamControl("SpeedLimitFiller", tr("Speed Limit Filler"),
                                                     tr("<b>Spot missing or outdated OpenStreetMap speed limits while you drive.</b><br><br>"
                                                        "FrogPilot compares the speed limits it sees with your downloaded maps and saves possible corrections for you to review later. This makes it quick and easy to improve speed-limit data for future drives and everyone who uses OpenStreetMap.<br><br>"
                                                        "Downloaded maps are required. Saved suggestions may reveal which roads you drove. Nothing is submitted automatically, so review each suggestion before making an OpenStreetMap edit.<br><br>"
                                                        "Need a step-by-step guide? Visit <b>#speed-limit-filler</b> in the FrogPilot Discord!"),
-                                                       "", {});
+                                                       "");
   settingsList->addItem(updateSpeedLimitsToggle);
 
   ScrollView *settingsPanel = new ScrollView(settingsList, this);
@@ -222,12 +222,17 @@ void FrogPilotNavigationPanel::updateState(const UIState &s, const FrogPilotUISt
 }
 
 void FrogPilotNavigationPanel::updateStep() {
-  QString currentStep;
+  QString step;
   if (mapboxPublicKeySet) {
-    currentStep = "../../frogpilot/navigation/navigation_training/public_key_set.png";
+    step = "../../frogpilot/navigation/navigation_training/public_key_set.png";
   } else {
-    currentStep = "../../frogpilot/navigation/navigation_training/no_keys_set.png";
+    step = "../../frogpilot/navigation/navigation_training/no_keys_set.png";
   }
+
+  if (step == currentStep) {
+    return;
+  }
+  currentStep = step;
 
   QPixmap pixmap;
   pixmap.load(currentStep);

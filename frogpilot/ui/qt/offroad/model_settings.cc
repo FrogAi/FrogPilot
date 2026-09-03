@@ -275,7 +275,7 @@ FrogPilotModelPanel::FrogPilotModelPanel(FrogPilotSettingsWindow *parent, bool f
 
           updateFrogPilotToggles();
 
-          if (started) {
+          if (uiState()->scene.started) {
             if (FrogPilotConfirmationDialog::toggleReboot(this)) {
               Hardware::reboot();
             }
@@ -349,7 +349,7 @@ FrogPilotModelPanel::FrogPilotModelPanel(FrogPilotSettingsWindow *parent, bool f
 
     if (state && !allModelsDownloaded && !allModelsDownloading && !modelDownloading) {
       FrogPilotUIState &fs = *frogpilotUIState();
-      bool parked = !started || fs.frogpilot_scene.parked || this->parent->isFrogsGoMoo;
+      bool parked = !uiState()->scene.started || fs.frogpilot_scene.parked || this->parent->isFrogsGoMoo;
 
       if (!fs.frogpilot_scene.online || !parked) {
         ConfirmationDialog::alert(tr("The \"Model Randomizer\" only picks from models you have downloaded. Park your car and connect to the internet to download them."), this);
@@ -446,8 +446,6 @@ void FrogPilotModelPanel::showEvent(QShowEvent *event) {
   updateTinygradButton->setEnabled(!modelDownloading && !cancellingDownload && frogpilot_scene.online && parked && tinygradUpdate);
   updateTinygradButton->setValue(tinygradUpdate ? tr("Update available!") : tr("Up to date!"));
 
-  started = s.scene.started;
-
   updateToggles();
 }
 
@@ -458,7 +456,7 @@ void FrogPilotModelPanel::updateState(const UIState &s, const FrogPilotUIState &
 
   const FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
 
-  bool parked = !started || frogpilot_scene.parked || parent->isFrogsGoMoo;
+  bool parked = !s.scene.started || frogpilot_scene.parked || parent->isFrogsGoMoo;
 
   if (allModelsDownloading || modelDownloading) {
     QString progress = QString::fromStdString(params_memory.get("ModelDownloadProgress"));
@@ -595,9 +593,7 @@ void FrogPilotModelPanel::updateState(const UIState &s, const FrogPilotUIState &
   downloadModelButton->setVisibleButton(0, !allModelsDownloading);
   downloadModelButton->setVisibleButton(1, !modelDownloading);
 
-  updateTinygradButton->setEnabled(!modelDownloading && !cancellingDownload && !cancellingDownload && !finalizingDownload && frogpilot_scene.online && parked && tinygradUpdate);
-
-  started = s.scene.started;
+  updateTinygradButton->setEnabled(!modelDownloading && !cancellingDownload && !finalizingDownload && frogpilot_scene.online && parked && tinygradUpdate);
 
   parent->keepScreenOn = allModelsDownloading || modelDownloading || updatingTinygrad;
 }

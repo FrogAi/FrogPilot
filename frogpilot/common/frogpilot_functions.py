@@ -5,6 +5,7 @@ import json
 import math
 import re
 import secrets
+import shutil
 import threading
 import time
 
@@ -202,6 +203,8 @@ def frogpilot_boot_functions(build_metadata, params):
       params.put("DongleId", params.get("KonikDongleId"))
   elif params.get("DongleId") == params.get("KonikDongleId"):
     params.put("DongleId", params.get("StockDongleId"))
+
+  shutil.rmtree("/data/restore_temp", ignore_errors=True)
 
   def boot_thread():
     while not system_time_valid():
