@@ -1,5 +1,10 @@
 name: Compile FrogPilot
-run-name: Compile ${{ inputs.source_branch == 'Custom' && inputs.custom_source_branch || inputs.source_branch }}
+run-name: >-
+  Compile ${{ inputs.publish_custom_branch ||
+    inputs.publish_frogpilot && 'FrogPilot' ||
+    inputs.publish_staging && 'FrogPilot-Staging' ||
+    inputs.publish_testing && 'FrogPilot-Testing' ||
+    inputs.source_branch == 'Custom' && inputs.custom_source_branch || inputs.source_branch }}
 
 on:
   workflow_dispatch:
@@ -17,9 +22,6 @@ on:
       custom_source_branch:
         description: Custom source branch
         type: string
-      publish_custom_branch:
-        description: Custom target branch
-        type: string
       publish_frogpilot:
         description: Push to FrogPilot
         type: boolean
@@ -29,6 +31,9 @@ on:
       publish_testing:
         description: Push to FrogPilot-Testing
         type: boolean
+      publish_custom_branch:
+        description: Custom target branch
+        type: string
       runner:
         default: c3
         description: Select runner

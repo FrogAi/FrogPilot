@@ -427,6 +427,9 @@ def strip_debug_sections(root: Path) -> tuple[int, int]:
   for path in sorted(release_tree(root)):
     if not path.is_file() or path.is_symlink():
       continue
+    # llvm-strip breaks Qualcomm's DSP-loadable binaries.
+    if relative_path(path, root).startswith("third_party/snpe/dsp/"):
+      continue
     with path.open("rb") as file:
       if file.read(4) != b"\x7fELF":
         continue
