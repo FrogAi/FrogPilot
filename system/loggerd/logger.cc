@@ -1,5 +1,7 @@
 #include "system/loggerd/logger.h"
 
+#include <cerrno>
+#include <cstring>
 #include <fstream>
 #include <map>
 #include <vector>
@@ -180,15 +182,28 @@ bool LoggerState::next() {
     std::remove(lock_file.c_str());
   }
 
+  // the segment counter advances even when storage is broken so we stay in
+  // sync with encoderd's segment rollover; a failed segment is simply a
+  // directory that never exists, and the next rotation retries from scratch.
   segment_path = route_path + "--" + std::to_string(++part);
-  bool ret = util::create_directories(segment_path, 0775);
-  assert(ret == true);
-
-  lock_file = segment_path + "/rlog.lock";
-  std::ofstream{lock_file};
+  if (!util::create_directories(segment_path, 0775)) {
+    LOGE("failed to create segment %s: %s - logging degraded", segment_path.c_str(), strerror(errno));
+    rlog.reset();
+    qlog.reset();
+    return false;
+  }
 
   rlog.reset(new ZstdFileWriter(segment_path + "/rlog.zst", LOG_COMPRESSION_LEVEL));
   qlog.reset(new ZstdFileWriter(segment_path + "/qlog.zst", LOG_COMPRESSION_LEVEL));
+  if (!rlog->ok() || !qlog->ok()) {
+    LOGE("failed to open log files in %s - logging degraded", segment_path.c_str());
+    rlog.reset();
+    qlog.reset();
+    return false;
+  }
+
+  lock_file = segment_path + "/rlog.lock";
+  std::ofstream{lock_file};
 
   // log init data & sentinel type.
   write(init_data.asBytes(), true);
@@ -197,6 +212,6 @@ bool LoggerState::next() {
 }
 
 void LoggerState::write(uint8_t* data, size_t size, bool in_qlog) {
-  rlog->write(data, size);
-  if (in_qlog) qlog->write(data, size);
+  if (rlog) rlog->write(data, size);
+  if (in_qlog && qlog) qlog->write(data, size);
 }
