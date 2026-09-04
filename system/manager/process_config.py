@@ -79,10 +79,10 @@ def run_speed_limit_filler(started: bool, params: Params, CP: car.CarParams, fro
 procs = [
   DaemonProcess("manage_athenad", "system.athena.manage_athenad", "AthenadPid"),
 
-  NativeProcess("loggerd", "system/loggerd", ["./loggerd"], and_(allow_logging, logging)),
-  NativeProcess("encoderd", "system/loggerd", ["./encoderd"], and_(allow_logging, only_onroad)),
+  NativeProcess("loggerd", "system/loggerd", ["./loggerd"], and_(allow_logging, logging), restart_if_crash=True),
+  NativeProcess("encoderd", "system/loggerd", ["./encoderd"], and_(allow_logging, only_onroad), restart_if_crash=True),
   NativeProcess("stream_encoderd", "system/loggerd", ["./encoderd", "--stream"], notcar),
-  PythonProcess("logmessaged", "system.logmessaged", always_run),
+  PythonProcess("logmessaged", "system.logmessaged", always_run, restart_if_crash=True),
 
   NativeProcess("camerad", "system/camerad", ["./camerad"], driverview, enabled=not WEBCAM),
   PythonProcess("webcamerad", "tools.webcam.camerad", driverview, enabled=WEBCAM),
@@ -131,9 +131,9 @@ procs = [
 
 # FrogPilot variables
 if HARDWARE.get_device_type() == "mici":
-  procs.append(PythonProcess("ui", "selfdrive.ui.ui", always_run))
+  procs.append(PythonProcess("ui", "selfdrive.ui.ui", always_run, restart_if_crash=True))
 elif TICI:
-  procs.append(NativeProcess("ui", "selfdrive/ui", ["./ui"], always_run, watchdog_max_dt=5)),
+  procs.append(NativeProcess("ui", "selfdrive/ui", ["./ui"], always_run, watchdog_max_dt=5, restart_if_crash=True)),
 procs += [
   PythonProcess("frogpilot_process", "frogpilot.frogpilot_process", always_run),
   PythonProcess("frogpilot_telemetry", "frogpilot.system.frogpilot_telemetry", run_frogpilot_telemetry),
