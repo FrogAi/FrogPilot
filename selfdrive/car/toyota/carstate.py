@@ -73,6 +73,8 @@ class CarState(CarStateBase):
     self.needs_angle_offset_zss = True
 
     self.angle_offset_zss = 0
+    self.pcm_acc_status = 0
+    self.prev_pcm_acc_status = 0
     self.zorro_steer_value = 0
 
   def update(self, cp, cp_cam, CC, frogpilot_toggles):
@@ -184,6 +186,7 @@ class CarState(CarStateBase):
        (self.CP.carFingerprint in TSS2_CAR and self.acc_type == 1):
       self.low_speed_lockout = cp.vl["PCM_CRUISE_2"]["LOW_SPEED_LOCKOUT"] == 2
 
+    self.prev_pcm_acc_status = self.pcm_acc_status
     self.pcm_acc_status = cp.vl["PCM_CRUISE"]["CRUISE_STATE"]
     if self.CP.carFingerprint not in (NO_STOP_TIMER_CAR - TSS2_CAR):
       # ignore standstill state in certain vehicles, since pcm allows to restart with just an acceleration request
@@ -216,9 +219,6 @@ class CarState(CarStateBase):
 
     # FrogPilot CarState functions
     fp_ret.brakeLights = bool(cp.vl["ESP_CONTROL"]["BRAKE_LIGHTS_ACC"])
-
-    self.cruise_decreased = self.pcm_acc_status == 10
-    self.cruise_increased = self.pcm_acc_status == 9
 
     fp_ret.dashboardSpeedLimit = calculate_speed_limit(cp_cam, frogpilot_toggles)
 

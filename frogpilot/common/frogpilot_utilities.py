@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import dataclasses
 import json
 import math
 import numpy as np
@@ -10,6 +9,7 @@ import threading
 import time
 import urllib.error
 import urllib.request
+import uuid
 import zipfile
 
 from functools import cache
@@ -22,28 +22,31 @@ from opendbc.can.parser import CANParser
 from openpilot.common.realtime import DT_DMON, DT_HW
 from openpilot.selfdrive.car.toyota.carcontroller import LOCK_CMD
 from openpilot.system.hardware import HARDWARE
-from openpilot.system.version import get_build_metadata
 from panda import Panda
 
-from openpilot.frogpilot.common.frogpilot_variables import EARTH_RADIUS, ERROR_LOGS_PATH, FROGPILOT_API, KONIK_PATH, MAPD_PATH, MAPS_PATH, params, params_cache, params_memory
+from openpilot.frogpilot.common import frogpilot_api
+from openpilot.frogpilot.common.frogpilot_variables import CRUISING_SPEED, DECEL_TIME_MARGIN, EARTH_RADIUS, ERROR_LOGS_PATH, KONIK_PATH, MAPS_PATH, MINIMUM_PLANNED_SPEED
+from openpilot.frogpilot.common.frogpilot_variables import params, params_cache, params_memory
 
 running_threads = {}
 
 locks = {
   "backup_toggles": threading.Lock(),
+  "capture_report": threading.Lock(),
   "download_all_models": threading.Lock(),
   "download_model": threading.Lock(),
   "download_theme": threading.Lock(),
   "flash_panda": threading.Lock(),
   "lock_doors": threading.Lock(),
+  "send_stats": threading.Lock(),
   "update_checks": threading.Lock(),
   "update_maps": threading.Lock(),
   "update_openpilot": threading.Lock()
 }
 
 def run_thread_with_lock(name, target, args=(), report=True):
-  if not running_threads.get(name, threading.Thread()).is_alive():
-    with locks[name]:
+  with locks[name]:
+    if not running_threads.get(name, threading.Thread()).is_alive():
       def wrapped_target(*t_args):
         try:
           target(*t_args)
@@ -58,17 +61,6 @@ def run_thread_with_lock(name, target, args=(), report=True):
       thread = threading.Thread(target=wrapped_target, args=args, daemon=True)
       thread.start()
       running_threads[name] = thread
-
-def calculate_bearing_offset(latitude, longitude, current_bearing, distance):
-  bearing = math.radians(current_bearing)
-  lat_rad = math.radians(latitude)
-  lon_rad = math.radians(longitude)
-
-  delta = distance / EARTH_RADIUS
-
-  new_latitude = math.asin(math.sin(lat_rad) * math.cos(delta) + math.cos(lat_rad) * math.sin(delta) * math.cos(bearing))
-  new_longitude = lon_rad + math.atan2(math.sin(bearing) * math.sin(delta) * math.cos(lat_rad),  math.cos(delta) - math.sin(lat_rad) * math.sin(new_latitude))
-  return math.degrees(new_latitude), ((math.degrees(new_longitude) + 540) % 360) - 180
 
 def calculate_distance_to_point(lat1, lon1, lat2, lon2):
   lat1_rad = math.radians(lat1)
@@ -103,44 +95,27 @@ def calculate_lane_width(lane, current_lane, road_edge=None):
 
   return float(distance_to_lane)
 
-# Credit goes to Pfeiferj!
-def calculate_road_curvature(modelData):
-  orientation_rate = np.array(modelData.orientationRate.z)
-  velocity = np.array(modelData.velocity.x)
-  timebase = np.array(modelData.orientationRate.t)
-
-  lateral_acceleration = orientation_rate * velocity
-  index = np.argmax(np.abs(lateral_acceleration))
-  predicted_lateral_acc = float(lateral_acceleration[index])
-  time_to_curve = float(timebase[index])
-
-  return float(predicted_lateral_acc / max(velocity[index], 1)**2), max(time_to_curve, 1)
-
 def capture_report(discord_user, report, frogpilot_toggles):
-  api_info = get_frogpilot_api_info()
-
   error_file_path = ERROR_LOGS_PATH / "error.txt"
   error_content = "No error log found."
   if error_file_path.exists():
-    error_content = error_file_path.read_text()[:1000]
+    error_content = error_file_path.read_text()[-500:]
 
   payload = {
-    "api_token": api_info.api_token,
-    "build_metadata": api_info.build_metadata,
-    "device": api_info.device_type,
     "discord_user": discord_user,
     "error_content": error_content,
-    "frogpilot_dongle_id": api_info.dongle_id,
     "frogpilot_toggles": frogpilot_toggles,
     "report": report,
+    "report_id": str(uuid.uuid4()),
+    "report_schema_version": 1,
   }
 
-  try:
-    response = requests.post(f"{FROGPILOT_API}/discord/report", json=payload, headers={"Content-Type": "application/json", "User-Agent": "frogpilot-api/1.0"}, timeout=30)
-    response.raise_for_status()
+  response = frogpilot_api.post("/v1/reports", json=payload, headers={"User-Agent": "frogpilot-api/1.0"}, timeout=30)
+  if response is not None and 200 <= response.status_code < 300:
     print("Successfully sent error report!")
-  except requests.exceptions.RequestException as exception:
-    print(f"Error sending report: {exception}")
+  else:
+    status = "no_response" if response is None else response.status_code
+    print(f"Error sending report (status={status})")
 
 def clean_model_name(name):
   return (
@@ -166,7 +141,7 @@ def extract_tar(tar_file, extract_path):
   print(f"Extracting {tar_file} to {extract_path}")
 
   with tarfile.open(tar_file, "r:gz") as tar:
-    tar.extractall(path=extract_path)
+    tar.extractall(path=extract_path, filter="data")
 
   tar_file.unlink()
   print(f"Extraction completed: {tar_file} has been removed")
@@ -191,29 +166,12 @@ def flash_panda():
     try:
       with Panda(serial=serial) as panda:
         print(f"Flashing Panda {serial}")
-        panda.flash()
+        panda.flash(force=True)
     except Exception as exception:
       print(f"Failed to flash Panda {serial}: {exception}")
       sentry.capture_exception(exception)
 
   params_memory.remove("FlashPanda")
-
-@dataclasses.dataclass(frozen=True)
-class FrogPilotApiInfo:
-  api_token: str | None
-  build_metadata: dict
-  device_type: str
-  dongle_id: str | None
-  os_version: str | None
-
-def get_frogpilot_api_info():
-  return FrogPilotApiInfo(
-    api_token=params.get("FrogPilotApiToken", encoding="utf-8"),
-    build_metadata=dataclasses.asdict(get_build_metadata()),
-    device_type=HARDWARE.get_device_type(),
-    dongle_id=params.get("FrogPilotDongleId", encoding="utf-8"),
-    os_version=HARDWARE.get_os_version(),
-  )
 
 def get_lock_status(can_parser, can_sock):
   can_msgs = messaging.drain_sock_raw(can_sock, wait_for_one=True)
@@ -289,21 +247,6 @@ def lock_doors(lock_doors_timer, sm):
     if lock_status == 0:
       break
 
-def parse_gps_position(gps_position):
-  if not isinstance(gps_position, dict):
-    return None
-
-  try:
-    latitude = float(gps_position["latitude"])
-    longitude = float(gps_position["longitude"])
-  except (KeyError, TypeError, ValueError):
-    return None
-
-  if not -90 <= latitude <= 90 or not -180 <= longitude <= 180:
-    return None
-
-  return latitude, longitude
-
 def run_cmd(cmd, success_message, fail_message, env=None, report=True):
   try:
     result = subprocess.run(cmd, capture_output=True, check=True, env=env, text=True)
@@ -322,14 +265,26 @@ def run_cmd(cmd, success_message, fail_message, env=None, report=True):
       sentry.capture_exception(exception)
     return None
 
+# Credit goes to Pfeiferj!
+def select_road_curvature(model_data, v_ego, allowed_lateral_acceleration):
+  velocity = np.asarray(model_data.velocity.x)
+
+  road_curvature = np.where(velocity >= MINIMUM_PLANNED_SPEED, np.asarray(model_data.orientationRate.z) / np.maximum(velocity, 1), 0)
+  absolute_curvature = np.abs(road_curvature)
+
+  time_to_point = np.maximum(np.asarray(model_data.orientationRate.t), 1)
+
+  curve_speed = np.maximum(np.sqrt(allowed_lateral_acceleration / np.maximum(absolute_curvature, 1e-6)), CRUISING_SPEED)
+  required_deceleration = (v_ego - curve_speed) / np.maximum(time_to_point - DECEL_TIME_MARGIN, 1)
+  index = np.argmax(required_deceleration if required_deceleration.max() > 0 else absolute_curvature)
+
+  return float(road_curvature[index]), float(time_to_point[index]), float(absolute_curvature.max())
+
 def update_json_file(path, data):
   with open(path, "w") as file:
     json.dump(data, file, indent=2, sort_keys=True)
 
 def update_maps(now):
-  while not MAPD_PATH.exists():
-    time.sleep(60)
-
   try:
     maps_selected = json.loads(params.get("MapsSelected", encoding="utf-8") or "{}")
   except json.JSONDecodeError:
@@ -343,28 +298,41 @@ def update_maps(now):
   if not (maps_selected.get("nations") or maps_selected.get("states")):
     return
 
+  now = now.astimezone()
+
   day = now.day
   is_first = day == 1
   is_Sunday = now.weekday() == 6
   schedule = params.get_int("PreferredSchedule")
 
-  maps_downloaded = MAPS_PATH.exists()
+  last_maps_update = params.get("LastMapsUpdate", encoding="utf-8")
+  maps_downloaded = MAPS_PATH.exists() and last_maps_update is not None
+
   if maps_downloaded and (schedule == 0 or (schedule == 1 and not is_Sunday) or (schedule == 2 and not is_first)):
     return
 
   suffix = "th" if 11 <= day <= 13 else {1: "st", 2: "nd", 3: "rd"}.get(day % 10, "th")
   todays_date = now.strftime(f"%B {day}{suffix}, %Y")
 
-  if maps_downloaded and params.get("LastMapsUpdate", encoding="utf-8") == todays_date:
+  if maps_downloaded and last_maps_update == todays_date:
     return
 
-  if params.get("OSMDownloadProgress", encoding="utf-8") is None:
-    params_memory.put("OSMDownloadLocations", json.dumps(maps_selected))
+  if params.get("OSMDownloadProgress", encoding="utf-8") is not None:
+    return
 
-  while params.get("OSMDownloadProgress", encoding="utf-8") is not None:
-    time.sleep(60)
+  params_memory.put("OSMDownloadLocations", json.dumps(maps_selected))
 
-  params.put("LastMapsUpdate", todays_date)
+  while params_memory.get("OSMDownloadLocations", encoding="utf-8") is not None:
+    time.sleep(1)
+
+  download_progress = json.loads(params.get("OSMDownloadProgress", encoding="utf-8") or "{}")
+
+  if download_progress.get("downloaded_files") == download_progress.get("total_files", 0) > 0:
+    params.put("LastMapsUpdate", todays_date)
+
+    subprocess.run(["pkill", "mapd"], check=False)
+
+  params.remove("OSMDownloadProgress")
 
 def update_openpilot():
   def update_available():

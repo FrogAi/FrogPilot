@@ -13,10 +13,10 @@ public:
   void clear();
 
   // FrogPilot variables
-  bool displayFerg;
+  bool displayFerg = false;
   bool enableFerg;
 
-  int alertHeight;
+  int alertHeight = 0;
 
   const QMap<cereal::FrogPilotControlsState::AlertStatus, QColor> frogpilot_alert_colors = {
     {cereal::FrogPilotControlsState::AlertStatus::NORMAL, QColor(0x15, 0x15, 0x15, 0xf1)},

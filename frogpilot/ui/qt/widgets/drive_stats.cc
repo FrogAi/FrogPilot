@@ -78,6 +78,12 @@ void DriveStats::parseResponse(const QString &response, bool success) {
     return;
   }
   stats = doc;
+
+  const QJsonValue minutes = doc.object()["all"].toObject()["minutes"];
+  if (minutes.isDouble()) {
+    params.putIntNonBlocking(konik ? "KonikMinutes" : "openpilotMinutes", minutes.toDouble());
+  }
+
   updateStats();
 }
 
@@ -103,6 +109,4 @@ void DriveStats::updateStats() {
   updateStatsForLabel(json["all"].toObject(), all);
   updateStatsForLabel(json["week"].toObject(), week);
   updateFrogPilotStatsForLabel(frogPilot);
-
-  params.putIntNonBlocking(konik ? "KonikMinutes" : "openpilotMinutes", json["all"].toObject()["minutes"].toDouble());
 }

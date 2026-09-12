@@ -7,6 +7,7 @@ from openpilot.selfdrive.car.subaru.values import CAR, GLOBAL_ES_ADDR, SubaruFla
 
 FrogPilotButtonType = custom.FrogPilotCarState.ButtonEvent.Type
 
+
 class CarInterface(CarInterfaceBase):
 
   @staticmethod

@@ -16,6 +16,7 @@ from openpilot.frogpilot.common.frogpilot_variables import ACTIVE_THEME_PATH, RA
 
 CANCEL_DOWNLOAD_PARAM = "CancelThemeDownload"
 DOWNLOAD_PROGRESS_PARAM = "ThemeDownloadProgress"
+POND_ACTIVE_THEME = "pond_active-user_created"
 
 HOLIDAY_THEME_PATH = Path(__file__).parent / "holiday_themes"
 STOCKOP_THEME_PATH = Path(__file__).parent / "stock_theme"
@@ -93,6 +94,33 @@ class ThemeManager:
     steering_wheel_save_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(steering_wheel_image_path, steering_wheel_save_path)
 
+  @staticmethod
+  def _install_zip(theme_path, download_path):
+    stage_path = download_path.with_name(f".{download_path.name}.new")
+    backup_path = download_path.with_name(f".{download_path.name}.old")
+    delete_file(stage_path, print_error=False)
+    delete_file(backup_path, print_error=False)
+
+    try:
+      extract_zip(theme_path, stage_path)
+      if params_memory.get_bool(CANCEL_DOWNLOAD_PARAM):
+        delete_file(stage_path)
+        return False
+
+      if download_path.exists():
+        download_path.rename(backup_path)
+      try:
+        stage_path.rename(download_path)
+      except OSError:
+        if backup_path.exists():
+          backup_path.rename(download_path)
+        raise
+      delete_file(backup_path, print_error=False)
+      return True
+    except Exception:
+      delete_file(stage_path, print_error=False)
+      raise
+
   def download_theme(self, theme_component, theme_name, asset_param, frogpilot_toggles):
     self.downloading_theme = True
 
@@ -133,12 +161,22 @@ class ThemeManager:
 
       if verify_download(theme_path, theme_url, self.session):
         print(f"Theme {theme_name} downloaded and verified successfully from GitHub!")
-        self.update_theme_size(theme_component, theme_name, theme_path.stat().st_size)
+        theme_size = theme_path.stat().st_size
 
         if extension == ".zip":
           params_memory.put(DOWNLOAD_PROGRESS_PARAM, "Unpacking theme...")
-          extract_zip(theme_path, download_path)
+          try:
+            installed = self._install_zip(theme_path, download_path)
+          except Exception as exception:
+            handle_error(None, "Download failed...", exception, asset_param, DOWNLOAD_PROGRESS_PARAM)
+            self.downloading_theme = False
+            return
+          if not installed:
+            handle_error(None, "Download cancelled...", "Download cancelled...", asset_param, DOWNLOAD_PROGRESS_PARAM)
+            self.downloading_theme = False
+            return
 
+        self.update_theme_size(theme_component, theme_name, theme_size)
         params_memory.put(DOWNLOAD_PROGRESS_PARAM, "Downloaded!")
         params_memory.remove(asset_param)
 
@@ -175,18 +213,23 @@ class ThemeManager:
             if item.get("type") == "blob"
           ]
         if is_gitlab:
-          response = self.session.get(f"https://gitlab.com/api/v4/projects/{repo_encoded}/repository/tree?ref={branch}&recursive=true", timeout=10)
-          response.raise_for_status()
-          return [
-            {
-              "path": item.get("path", ""),
-              "name": item.get("name", ""),
-              "type": item.get("type"),
-              "size": 0,
-            }
-            for item in response.json()
-            if item.get("type") in ("blob", "file")
-          ]
+          items = []
+          page = "1"
+          while page:
+            response = self.session.get(f"https://gitlab.com/api/v4/projects/{repo_encoded}/repository/tree?ref={branch}&recursive=true&per_page=100&page={page}", timeout=10)
+            response.raise_for_status()
+            items.extend(
+              {
+                "path": item.get("path", ""),
+                "name": item.get("name", ""),
+                "type": item.get("type"),
+                "size": 0,
+              }
+              for item in response.json()
+              if item.get("type") in ("blob", "file")
+            )
+            page = response.headers.get("X-Next-Page", "")
+          return items
         print(f"Unsupported repository URL: {repo_url}")
         return []
 
@@ -251,8 +294,8 @@ class ThemeManager:
       return assets
 
     except requests.exceptions.RequestException as error:
-      print(f"Request failed: {error}")
-      handle_request_error(f"Failed to fetch theme sizes from {'GitHub' if is_github else 'GitLab'}: {error}", None, None, None)
+      print(f"Failed to fetch theme sizes from {'GitHub' if is_github else 'GitLab'}: {error}")
+      handle_request_error(error, None, None, None)
       return {}
 
   @staticmethod
@@ -262,8 +305,13 @@ class ThemeManager:
     if "~" in base:
       base, creator = base.split("~", 1)
 
-    parts = base.replace("_", " ").replace("-", " ").split()
-    display = " ".join(part.capitalize() for part in parts)
+    variant = ""
+    if base.endswith("-animated"):
+      base = base[: -len("-animated")]
+      variant = " (Animated)"
+
+    parts = base.replace("_", " ").split()
+    display = " ".join(part.capitalize() for part in parts) + variant
 
     if creator:
       return f"{display} - by: {creator}"
@@ -277,7 +325,7 @@ class ThemeManager:
 
     valid_themes = set()
     for theme_directory in theme_packs_path.iterdir():
-      if not theme_directory.is_dir():
+      if not theme_directory.is_dir() or theme_directory.name == POND_ACTIVE_THEME:
         continue
 
       base_name = theme_directory.name.replace("-animated", "")
@@ -331,12 +379,22 @@ class ThemeManager:
 
     if verify_download(theme_path, theme_url, self.session):
       print(f"Theme {theme_name} downloaded and verified successfully from GitLab!")
-      self.update_theme_size(theme_component, theme_name, theme_path.stat().st_size)
+      theme_size = theme_path.stat().st_size
 
       if extension == ".zip":
         params_memory.put(DOWNLOAD_PROGRESS_PARAM, "Unpacking theme...")
-        extract_zip(theme_path, download_path)
+        try:
+          installed = self._install_zip(theme_path, download_path)
+        except Exception as exception:
+          handle_error(None, "Download failed...", exception, asset_param, DOWNLOAD_PROGRESS_PARAM)
+          self.downloading_theme = False
+          return True
+        if not installed:
+          handle_error(None, "Download cancelled...", "Download cancelled...", asset_param, DOWNLOAD_PROGRESS_PARAM)
+          self.downloading_theme = False
+          return True
 
+      self.update_theme_size(theme_component, theme_name, theme_size)
       params_memory.put(DOWNLOAD_PROGRESS_PARAM, "Downloaded!")
       params_memory.remove(asset_param)
 
@@ -362,7 +420,7 @@ class ThemeManager:
 
     candidates = []
     for theme_pack in theme_packs_path.iterdir():
-      if not theme_pack.is_dir():
+      if not theme_pack.is_dir() or theme_pack.name == POND_ACTIVE_THEME:
         continue
 
       distance_icons_dir = theme_pack / "distance_icons"
@@ -395,7 +453,7 @@ class ThemeManager:
 
     candidates = []
     for wheel_file in steering_wheels_path.iterdir():
-      if not wheel_file.is_file():
+      if not wheel_file.is_file() or wheel_file.stem == POND_ACTIVE_THEME:
         continue
 
       name = wheel_file.stem.lower()
@@ -449,8 +507,18 @@ class ThemeManager:
     else:
       return
 
-    if asset_mappings != self.previous_asset_mappings:
+    mappings_changed = asset_mappings != self.previous_asset_mappings
+    refresh_pond_wheel = False
+    if not mappings_changed and asset_mappings["wheel_image"][1] == POND_ACTIVE_THEME:
+      wheel_source = next((THEME_SAVE_PATH / "steering_wheels").glob(f"{POND_ACTIVE_THEME}.*"), None)
+      active_wheel = next((ACTIVE_THEME_PATH / "steering_wheel").glob("wheel.*"), None)
+      refresh_pond_wheel = wheel_source is not None and (active_wheel is None or active_wheel.resolve() != wheel_source.resolve())
+
+    if mappings_changed or refresh_pond_wheel:
       for asset, (asset_type, current_value) in asset_mappings.items():
+        if not mappings_changed and asset_type != "wheel_image":
+          continue
+
         print(f"Updating {asset}: {asset_type} with value {current_value}")
 
         if asset_type == "wheel_image":
@@ -609,6 +677,10 @@ class ThemeManager:
       wheel_location = HOLIDAY_THEME_PATH / self.holiday_theme / "steering_wheel"
     elif random_event:
       wheel_location = RANDOM_EVENTS_PATH / "steering_wheels"
+    elif image == "none":
+      delete_file(wheel_save_location, print_error=not boot_run)
+      wheel_save_location.mkdir(parents=True, exist_ok=True)
+      return None
     elif image == "stock":
       wheel_location = STOCKOP_THEME_PATH / "steering_wheel"
     elif image in HOLIDAY_SLUGS:
@@ -622,16 +694,18 @@ class ThemeManager:
       wheel_location = STOCKOP_THEME_PATH / "steering_wheel"
       print("Using the stock steering wheel instead")
 
+    image_name = image.replace(" ", "_").lower()
+    source_file = next((file for file in wheel_location.iterdir() if file.stem.lower() in {image_name, "wheel"}), None)
+    if source_file is None:
+      return None
+
     delete_file(wheel_save_location, print_error=not boot_run)
     wheel_save_location.mkdir(parents=True, exist_ok=True)
 
-    image_name = image.replace(" ", "_").lower()
-    matching_files = [images for images in wheel_location.iterdir() if images.stem.lower() in {image_name, "wheel"}]
-    if matching_files:
-      source_file = matching_files[0]
-      destination_file = wheel_save_location / f"wheel{source_file.suffix}"
-      destination_file.symlink_to(source_file)
-      print(f"Linked {destination_file} to {source_file}")
+    destination_file = wheel_save_location / f"wheel{source_file.suffix}"
+    destination_file.symlink_to(source_file)
+    print(f"Linked {destination_file} to {source_file}")
+    return source_file.resolve()
 
   def validate_themes(self, downloadable_colors, downloadable_distance_icons, downloadable_icons, downloadable_signals, downloadable_sounds, downloadable_wheels, frogpilot_toggles):
     downloaded_data = json.loads(params.get("ThemesDownloaded") or "{}")

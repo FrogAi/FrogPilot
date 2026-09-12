@@ -36,22 +36,21 @@ SafetyModel = car.CarParams.SafetyModel
 
 CITY_SPEED_LIMIT = 25                     # 55mph is typically the minimum speed for highways
 CRUISING_SPEED = 5                        # Roughly the speed cars go when not touching the gas while in drive
+DECEL_TIME_MARGIN = 2.0                   # Seconds reserved for deceleration preparation
 DEFAULT_LATERAL_ACCELERATION = 2.0        # m/s^2, typical lateral acceleration when taking curves
 EARTH_RADIUS = 6378137                    # Radius of the Earth in meters
 MAX_T_FOLLOW = 3.0                        # Maximum allowed following duration. Larger values risk losing track of the lead but may be increased as models improve
 MINIMUM_LATERAL_ACCELERATION = 1.3        # m/s^2, typical minimum lateral acceleration when taking curves
+MINIMUM_PLANNED_SPEED = 2.0               # m/s, model path points predicted slower than this are stop approaches, not curves
 PLANNER_TIME = ModelConstants.T_IDXS[-1]  # Length of time the model projects out for
 SLOWDOWN_PERCENTAGE = 0.50                # Treat an end-of-horizon speed drop below 50% of the current speed as a stop hint
 THRESHOLD = 0.63                          # Requires the condition to be true for ~1 second
 
 NON_DRIVING_GEARS = [GearShifter.neutral, GearShifter.park, GearShifter.reverse, GearShifter.unknown]
 
-FROGPILOT_API = "https://frogpilot.com/api"
-
 RESOURCES_REPO = "FrogAi/FrogPilot-Resources"
 
 ACTIVE_THEME_PATH = Path(__file__).parents[1] / "assets/active_theme"
-CITY_LOOKUP_PATH = Path(BASEDIR) / "frogpilot/assets/city_lookup.sqlite"
 METADATAS_PATH = Path(__file__).parents[1] / "assets/model_metadata"
 MODELS_PATH = Path("/data/models")
 RANDOM_EVENTS_PATH = Path(__file__).parents[1] / "assets/random_events"
@@ -69,7 +68,6 @@ HD_PATH = Path("/cache/use_HD")
 KONIK_LOGS_PATH = Path("/data/media/0/realdata_konik")
 KONIK_PATH = Path("/cache/use_konik")
 
-MAPD_PATH = Path("/data/media/0/osm/mapd")
 MAPS_PATH = Path("/data/media/0/osm/offline")
 
 NNFF_MODELS_PATH = Path(BASEDIR) / "frogpilot/assets/nnff_models"
@@ -86,6 +84,13 @@ BUTTON_FUNCTIONS = {
   "PAUSE_LONGITUDINAL": 4,
   "EXPERIMENTAL_MODE": 5,
   "TRAFFIC_MODE": 6
+}
+
+CURVE_SPEED_PROFILES = {
+  "GENTLE": 0,
+  "STANDARD": 1,
+  "SPORT": 2,
+  "AUTO": 3
 }
 
 DEVELOPER_SIDEBAR_METRICS = {
@@ -108,9 +113,55 @@ DEVELOPER_SIDEBAR_METRICS = {
 }
 
 EXCLUDED_KEYS = {
-  "AvailableModels", "AvailableModelNames", "CalibratedLateralAcceleration", "CalibrationProgress", "CarParamsPersistent",
-  "CurvatureData", "ExperimentalLongitudinalEnabled", "KonikMinutes", "MapBoxRequests", "ModelDrivesAndScores", "ModelVersions",
-  "openpilotMinutes", "SpeedLimits", "SpeedLimitsFiltered", "UpdaterAvailableBranches"
+  "ApiCache_DriveStats",
+  "AthenadRecentlyViewedRoutes",
+  "AthenadUploadQueue",
+  "AvailableModelNames",
+  "AvailableModels",
+  "CalibratedLateralAcceleration",
+  "CalibrationParams",
+  "CalibrationProgress",
+  "CarBatteryCapacity",
+  "CarParamsPersistent",
+  "CurvatureData",
+  "ExperimentalLongitudinalEnabled",
+  "FrogPilotCarParamsPersistent",
+  "FrogPilotStats",
+  "GitDiff",
+  "KonikMinutes",
+  "LastAthenaPingTime",
+  "LastOffroadStatusPacket",
+  "LastUpdateRouteCount",
+  "LastUpdateTime",
+  "LastUpdateUptimeOnroad",
+  "LiveDelay",
+  "LiveParameters",
+  "LiveTorqueParameters",
+  "LocationFilterInitialState",
+  "MapBoxRequests",
+  "MaxLateralAcceleration",
+  "MinimumBackupSize",
+  "ModelDrivesAndScores",
+  "ModelVersions",
+  "NetworkMetered",
+  "openpilotMinutes",
+  "OverpassRequests",
+  "PandaSignatures",
+  "PreviousSpeedLimit",
+  "SecOCKey",
+  "SecOCKeys",
+  "SpeedLimits",
+  "Timezone",
+  "UpdateFailedCount",
+  "UpdaterAvailableBranches",
+  "UpdaterCurrentDescription",
+  "UpdaterCurrentReleaseNotes",
+  "UpdaterFetchAvailable",
+  "UpdaterNewDescription",
+  "UpdaterNewReleaseNotes",
+  "UpdaterTargetBranch",
+  "UptimeOffroad",
+  "UptimeOnroad"
 }
 
 TINYGRAD_FILES = [
@@ -137,19 +188,8 @@ def get_nnff_substitutes():
   return substitutes
 
 def nnff_supported(car_fingerprint):
-  model_files = get_nnff_model_files()
-  substitutes = get_nnff_substitutes()
-
-  fingerprints_to_check = [car_fingerprint]
-  if car_fingerprint in substitutes:
-    fingerprints_to_check.append(substitutes[car_fingerprint])
-
-  for fingerprint in fingerprints_to_check:
-    for file in model_files:
-      if file.startswith(fingerprint):
-        return True
-
-  return False
+  from openpilot.frogpilot.controls.lib.neural_network_feedforward import get_nn_model_path
+  return get_nn_model_path(car_fingerprint, "") is not None
 
 def get_frogpilot_toggles():
   return SimpleNamespace(**json.loads(params_memory.get("FrogPilotToggles") or "{}"))
@@ -216,6 +256,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("ConditionalExperimental", "1", 1, "0"),
   ("CurvatureData", "", 2, ""),
   ("CurveSpeedController", "1", 1, "0"),
+  ("CurveSpeedProfile", "3", 2, "3"),
   ("CustomAlerts", "0", 0, "0"),
   ("CustomColors", "frog", 0, "stock"),
   ("CustomCruise", "1", 2, "1"),
@@ -265,7 +306,6 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("FrogPilotTelemetry", "1", 0, "1"),
   ("FrogsGoMoosTweak", "1", 2, "0"),
   ("FullMap", "0", 2, "0"),
-  ("GasRegenCmd", "1", 2, "0"),
   ("GithubSshKeys", "", 0, ""),
   ("GithubUsername", "", 0, ""),
   ("GoatScream", "0", 1, "0"),
@@ -327,7 +367,8 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("MapGears", "0", 2, "0"),
   ("MapsSelected", "", 0, ""),
   ("MapStyle", "1", 2, "0"),
-  ("MaxDesiredAcceleration", "4.0", 2, "2.0"),
+  ("MaxDesiredAcceleration", "4.0", 3, "2.0"),
+  ("MaxLateralAcceleration", "{}", 3, "{}"),
   ("MinimumLaneChangeSpeed", str(LANE_CHANGE_SPEED_MIN / CV.MPH_TO_MS), 2, str(LANE_CHANGE_SPEED_MIN / CV.MPH_TO_MS)),
   ("Model", DEFAULT_MODEL + "_default", 1, DEFAULT_MODEL + "_default"),
   ("ModelDrivesAndScores", "", 2, ""),
@@ -342,7 +383,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("NNFFLite", "0", 2, "0"),
   ("NoLogging", "0", 2, "0"),
   ("NoUploads", "0", 2, "0"),
-  ("NudgelessLaneChange", "1", 0, "0"),
+  ("NudgelessLaneChange", "0", 0, "0"),
   ("NumericalTemp", "1", 3, "0"),
   ("Offset1", "5", 0, "0"),
   ("Offset2", "5", 0, "0"),
@@ -476,7 +517,6 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
   ("TurnDesires", "0", 2, "0"),
   ("UnlimitedLength", "1", 2, "0"),
   ("UnlockDoors", "1", 0, "0"),
-  ("UpdatedToggles", "1", 0, "0"),
   ("UpdaterAvailableBranches", "", 0, ""),
   ("UseKonikServer", "0", 2, "0"),
   ("UseSI", "1", 3, "1"),
@@ -496,6 +536,7 @@ frogpilot_default_params: list[tuple[str, str | bytes, int, str]] = [
 ]
 
 misc_tuning_levels: list[tuple[str, str | bytes, int, str]] = [
+  ("ResetCurveData", "", 1, ""),
   ("SidebarMetrics", "1", 3, "0"),
   ("SLCPriority", "", 2, ""),
   ("WheelControls", "", 2, "")
@@ -512,6 +553,9 @@ class FrogPilotVariables:
     self.staging_branch = short_branch == "FrogPilot-Staging"
     self.testing_branch = short_branch == "FrogPilot-Testing"
     self.vetting_branch = short_branch == "FrogPilot-Vetting"
+
+    for k, v, _, _ in frogpilot_default_params:
+      params_default.put(k, v)
 
     default = params_default
     level = self.tuning_levels
@@ -553,12 +597,11 @@ class FrogPilotVariables:
 
       HARDWARE.reboot()
 
-    for k, v, _, _ in frogpilot_default_params:
-      params_default.put(k, v)
-
     params_memory.put("FrogPilotTuningLevels", json.dumps(self.tuning_levels))
 
   def update(self, holiday_theme, started):
+    params_memory.remove("FrogPilotTogglesUpdated")
+
     default = params_default
     level = self.tuning_levels
     toggle = self.frogpilot_toggles
@@ -599,15 +642,18 @@ class FrogPilotVariables:
       CarInterface, _, _ = interfaces[MOCK.MOCK]
       FPCP = CarInterface.get_frogpilot_params(MOCK.MOCK, gen_empty_fingerprint(), [], CP, toggle)
 
+    selected_car_model = params.get("CarModel", encoding="utf-8")
+    toggle.force_fingerprint = (params.get_bool("ForceFingerprint") if toggle.tuning_level >= level["ForceFingerprint"] else default.get_bool("ForceFingerprint")) and bool(selected_car_model)
+
     toggle.always_on_lateral_set = bool(CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
     toggle.car_make = CP.carName
-    toggle.car_model = CP.carFingerprint
+    toggle.car_model = selected_car_model if toggle.force_fingerprint else CP.carFingerprint
     toggle.disable_openpilot_long = params.get_bool("DisableOpenpilotLongitudinal") if toggle.tuning_level >= level["DisableOpenpilotLongitudinal"] else default.get_bool("DisableOpenpilotLongitudinal")
     friction = CP.lateralTuning.torque.friction
     has_auto_tune = toggle.car_make in {"hyundai", "toyota"} and CP.lateralTuning.which() == "torque"
     has_bsm = CP.enableBsm
     toggle.has_cc_long = toggle.car_make == "gm" and bool(CP.flags & GMFlags.CC_LONG.value)
-    has_nnff = nnff_supported(toggle.car_model)
+    toggle.has_nnff = nnff_supported(toggle.car_model)
     toggle.has_pedal = CP.enableGasInterceptor
     toggle.has_radar = not CP.radarUnavailable
     toggle.has_sdsu = toggle.car_make == "toyota" and bool(CP.flags & ToyotaFlags.SMART_DSU.value)
@@ -618,6 +664,7 @@ class FrogPilotVariables:
     is_angle_car = CP.steerControlType == car.CarParams.SteerControlType.angle
     latAccelFactor = CP.lateralTuning.torque.latAccelFactor
     longitudinalActuatorDelay = CP.longitudinalActuatorDelay
+    toggle.maxLateralAccel = CP.maxLateralAccel if CP.maxLateralAccel > 0 else DEFAULT_LATERAL_ACCELERATION
     toggle.openpilot_longitudinal = CP.openpilotLongitudinalControl and not toggle.disable_openpilot_long
     pcm_cruise = CP.pcmCruise
     startAccel = CP.startAccel
@@ -632,13 +679,10 @@ class FrogPilotVariables:
 
     msg_bytes = params.get("LiveTorqueParameters")
     if msg_bytes:
-      with log.LiveTorqueParametersData.from_bytes(msg_bytes) as LTP:
-        toggle.liveValid = LTP.liveValid
+      with log.Event.from_bytes(msg_bytes) as evt:
+        toggle.liveValid = evt.liveTorqueParameters.liveValid
     else:
       toggle.liveValid = False
-
-    if not toggle.use_lkas_for_aol:
-      params.remove("AlwaysOnLateralLKAS")
 
     advanced_custom_ui = params.get_bool("AdvancedCustomUI") if toggle.tuning_level >= level["AdvancedCustomUI"] else default.get_bool("AdvancedCustomUI")
     toggle.hide_alerts = advanced_custom_ui and (params.get_bool("HideAlerts") if toggle.tuning_level >= level["HideAlerts"] else default.get_bool("HideAlerts")) and not toggle.debug_mode
@@ -653,24 +697,25 @@ class FrogPilotVariables:
     advanced_lateral_tuning = params.get_bool("AdvancedLateralTune") if toggle.tuning_level >= level["AdvancedLateralTune"] else default.get_bool("AdvancedLateralTune")
     toggle.force_auto_tune = advanced_lateral_tuning and not has_auto_tune and is_torque_car and (params.get_bool("ForceAutoTune") if toggle.tuning_level >= level["ForceAutoTune"] else default.get_bool("ForceAutoTune"))
     toggle.force_auto_tune_off = advanced_lateral_tuning and has_auto_tune and is_torque_car and (params.get_bool("ForceAutoTuneOff") if toggle.tuning_level >= level["ForceAutoTuneOff"] else default.get_bool("ForceAutoTuneOff"))
-    toggle.steerActuatorDelay = np.clip(params.get_float("SteerDelay"), 0.01, 1.0) if advanced_lateral_tuning and toggle.tuning_level >= level["SteerDelay"] else steerActuatorDelay
+    toggle.force_torque_controller = advanced_lateral_tuning and (params.get_bool("ForceTorqueController") if toggle.tuning_level >= level["ForceTorqueController"] else default.get_bool("ForceTorqueController"))
+    toggle.steerActuatorDelay = np.clip(params.get_float("SteerDelay"), 0.01, 1.0) if advanced_lateral_tuning and toggle.tuning_level >= level["SteerDelay"] and params.get_float("SteerDelay") != 0 else steerActuatorDelay
     toggle.use_custom_steerActuatorDelay = bool(round(toggle.steerActuatorDelay, 2) != round(steerActuatorDelay, 2))
-    toggle.friction = np.clip(params.get_float("SteerFriction"), 0, 0.5) if advanced_lateral_tuning and toggle.tuning_level >= level["SteerFriction"] else friction
-    toggle.use_custom_friction = bool(round(toggle.friction, 2) != round(friction, 2)) and is_torque_car and not toggle.force_auto_tune or toggle.force_auto_tune_off
-    toggle.steerKp = [[0], [np.clip(params.get_float("SteerKP"), steerKp * 0.5, steerKp * 1.5) if advanced_lateral_tuning and is_torque_car and toggle.tuning_level >= level["SteerKP"] else steerKp]]
-    toggle.latAccelFactor = np.clip(params.get_float("SteerLatAccel"), latAccelFactor * 0.75, latAccelFactor * 1.25) if advanced_lateral_tuning and toggle.tuning_level >= level["SteerLatAccel"] else latAccelFactor
-    toggle.use_custom_latAccelFactor = bool(round(toggle.latAccelFactor, 2) != round(latAccelFactor, 2)) and is_torque_car and not toggle.force_auto_tune or toggle.force_auto_tune_off
-    toggle.steerRatio = np.clip(params.get_float("SteerRatio"), steerRatio * 0.5, steerRatio * 1.5) if advanced_lateral_tuning and toggle.tuning_level >= level["SteerRatio"] else steerRatio
-    toggle.use_custom_steerRatio = bool(round(toggle.steerRatio, 2) != round(steerRatio, 2)) and not toggle.force_auto_tune or toggle.force_auto_tune_off
+    toggle.friction = np.clip(params.get_float("SteerFriction"), 0.01, 0.5) if advanced_lateral_tuning and toggle.tuning_level >= level["SteerFriction"] and params.get_float("SteerFriction") != 0 else friction
+    toggle.use_custom_friction = (bool(round(toggle.friction, 2) != round(friction, 2)) and is_torque_car and not has_auto_tune and not toggle.force_auto_tune) or toggle.force_auto_tune_off
+    toggle.steerKp = [[0], [np.clip(params.get_float("SteerKP"), steerKp * 0.5, steerKp * 1.5) if advanced_lateral_tuning and is_torque_car and toggle.tuning_level >= level["SteerKP"] and params.get_float("SteerKP") != 0 else steerKp]]
+    toggle.latAccelFactor = np.clip(params.get_float("SteerLatAccel"), latAccelFactor * 0.75, latAccelFactor * 1.25) if advanced_lateral_tuning and toggle.tuning_level >= level["SteerLatAccel"] and params.get_float("SteerLatAccel") != 0 else latAccelFactor
+    toggle.use_custom_latAccelFactor = (bool(round(toggle.latAccelFactor, 2) != round(latAccelFactor, 2)) and is_torque_car and not has_auto_tune and not toggle.force_auto_tune) or toggle.force_auto_tune_off
+    toggle.steerRatio = np.clip(params.get_float("SteerRatio"), steerRatio * 0.5, steerRatio * 1.5) if advanced_lateral_tuning and toggle.tuning_level >= level["SteerRatio"] and params.get_float("SteerRatio") != 0 else steerRatio
+    toggle.use_custom_steerRatio = (bool(round(toggle.steerRatio, 2) != round(steerRatio, 2)) and not toggle.force_auto_tune) or toggle.force_auto_tune_off
 
     advanced_longitudinal_tuning = toggle.openpilot_longitudinal and (params.get_bool("AdvancedLongitudinalTune") if toggle.tuning_level >= level["AdvancedLongitudinalTune"] else default.get_bool("AdvancedLongitudinalTune"))
-    toggle.longitudinalActuatorDelay = np.clip(params.get_float("LongitudinalActuatorDelay"), 0, 1) if advanced_longitudinal_tuning and toggle.tuning_level >= level["LongitudinalActuatorDelay"] else longitudinalActuatorDelay
-    toggle.max_desired_acceleration = np.clip(params.get_float("MaxDesiredAcceleration"), 0.1, 4.0) if advanced_longitudinal_tuning and toggle.tuning_level >= level["MaxDesiredAcceleration"] else default.get_float("MaxDesiredAcceleration")
-    toggle.startAccel = np.clip(params.get_float("StartAccel"), 0, 4) if advanced_longitudinal_tuning and toggle.tuning_level >= level["StartAccel"] else startAccel
-    toggle.stopAccel = np.clip(params.get_float("StopAccel"), -4, 0) if advanced_longitudinal_tuning and toggle.tuning_level >= level["StopAccel"] else stopAccel
-    toggle.stoppingDecelRate = np.clip(params.get_float("StoppingDecelRate"), 0.001, 1) if advanced_longitudinal_tuning and toggle.tuning_level >= level["StoppingDecelRate"] else toggle.stoppingDecelRate
-    toggle.vEgoStarting = np.clip(params.get_float("VEgoStarting"), 0.01, 1) if advanced_longitudinal_tuning and toggle.tuning_level >= level["VEgoStarting"] else toggle.vEgoStarting
-    toggle.vEgoStopping = np.clip(params.get_float("VEgoStopping"), 0.01, 1) if advanced_longitudinal_tuning and toggle.tuning_level >= level["VEgoStopping"] else toggle.vEgoStopping
+    toggle.longitudinalActuatorDelay = np.clip(params.get_float("LongitudinalActuatorDelay"), 0, 1) if advanced_longitudinal_tuning and toggle.tuning_level >= level["LongitudinalActuatorDelay"] and params.get_float("LongitudinalActuatorDelay") != 0 else longitudinalActuatorDelay
+    toggle.max_desired_acceleration = np.clip(params.get_float("MaxDesiredAcceleration"), 0.1, 4.0) if advanced_longitudinal_tuning and toggle.tuning_level >= level["MaxDesiredAcceleration"] and params.get_float("MaxDesiredAcceleration") != 0 else default.get_float("MaxDesiredAcceleration")
+    toggle.startAccel = np.clip(params.get_float("StartAccel"), 0, 4) if advanced_longitudinal_tuning and toggle.tuning_level >= level["StartAccel"] and params.get_float("StartAccel") != 0 else startAccel
+    toggle.stopAccel = np.clip(params.get_float("StopAccel"), -4, 0) if advanced_longitudinal_tuning and toggle.tuning_level >= level["StopAccel"] and params.get_float("StopAccel") != 0 else stopAccel
+    toggle.stoppingDecelRate = np.clip(params.get_float("StoppingDecelRate"), 0.001, 12) if advanced_longitudinal_tuning and toggle.tuning_level >= level["StoppingDecelRate"] and params.get_float("StoppingDecelRate") != 0 else toggle.stoppingDecelRate
+    toggle.vEgoStarting = np.clip(params.get_float("VEgoStarting"), 0.01, 1) if advanced_longitudinal_tuning and toggle.tuning_level >= level["VEgoStarting"] and params.get_float("VEgoStarting") != 0 else toggle.vEgoStarting
+    toggle.vEgoStopping = np.clip(params.get_float("VEgoStopping"), 0.01, 1) if advanced_longitudinal_tuning and toggle.tuning_level >= level["VEgoStopping"] and params.get_float("VEgoStopping") != 0 else toggle.vEgoStopping
 
     toggle.alert_volume_controller = params.get_bool("AlertVolumeControl") if toggle.tuning_level >= level["AlertVolumeControl"] else default.get_bool("AlertVolumeControl")
     toggle.disengage_volume = params.get_int("DisengageVolume") if toggle.alert_volume_controller and toggle.tuning_level >= level["DisengageVolume"] else default.get_int("DisengageVolume")
@@ -678,18 +723,16 @@ class FrogPilotVariables:
     toggle.prompt_volume = params.get_int("PromptVolume") if toggle.alert_volume_controller and toggle.tuning_level >= level["PromptVolume"] else default.get_int("PromptVolume")
     toggle.promptDistracted_volume = params.get_int("PromptDistractedVolume") if toggle.alert_volume_controller and toggle.tuning_level >= level["PromptDistractedVolume"] else default.get_int("PromptDistractedVolume")
     toggle.refuse_volume = params.get_int("RefuseVolume") if toggle.alert_volume_controller and toggle.tuning_level >= level["RefuseVolume"] else default.get_int("RefuseVolume")
-    toggle.warningSoft_volume = params.get_int("WarningSoftVolume") if toggle.alert_volume_controller and toggle.tuning_level >= level["WarningSoftVolume"] else default.get_int("WarningSoftVolume")
+    toggle.warningSoft_volume = max(params.get_int("WarningSoftVolume"), 25) if toggle.alert_volume_controller and toggle.tuning_level >= level["WarningSoftVolume"] else default.get_int("WarningSoftVolume")
     toggle.warningImmediate_volume = max(params.get_int("WarningImmediateVolume"), 25) if toggle.alert_volume_controller and toggle.tuning_level >= level["WarningImmediateVolume"] else default.get_int("WarningImmediateVolume")
 
     toggle.always_on_lateral = params.get_bool("AlwaysOnLateral") if toggle.tuning_level >= level["AlwaysOnLateral"] else default.get_bool("AlwaysOnLateral")
     toggle.always_on_lateral_set &= toggle.always_on_lateral
     toggle.always_on_lateral_lkas = toggle.always_on_lateral_set and toggle.use_lkas_for_aol and (params.get_bool("AlwaysOnLateralLKAS") if toggle.tuning_level >= level["AlwaysOnLateralLKAS"] else default.get_bool("AlwaysOnLateralLKAS"))
     toggle.always_on_lateral_main = toggle.always_on_lateral_set and not toggle.use_lkas_for_aol and (params.get_bool("AlwaysOnLateralMain") if toggle.tuning_level >= level["AlwaysOnLateralMain"] else default.get_bool("AlwaysOnLateralMain"))
-    toggle.always_on_lateral_pause_speed = params.get_int("PauseAOLOnBrake") if toggle.always_on_lateral_set and toggle.tuning_level >= level["PauseAOLOnBrake"] else default.get_int("PauseAOLOnBrake")
+    toggle.always_on_lateral_pause_speed = params.get_int("PauseAOLOnBrake") * speed_conversion if toggle.always_on_lateral_set and toggle.tuning_level >= level["PauseAOLOnBrake"] else default.get_int("PauseAOLOnBrake") * CV.MPH_TO_MS
 
     toggle.automatic_updates = (params.get_bool("AutomaticUpdates") if toggle.tuning_level >= level["AutomaticUpdates"] and (self.release_branch or self.vetting_branch) else default.get_bool("AutomaticUpdates")) and not BACKUP_PATH.is_file()
-
-    toggle.car_model = params.get("CarModel", encoding="utf-8") or toggle.car_model
 
     toggle.cluster_offset = params.get_float("ClusterOffset") if toggle.car_make == "toyota" and toggle.tuning_level >= level["ClusterOffset"] else default.get_float("ClusterOffset")
 
@@ -708,12 +751,13 @@ class FrogPilotVariables:
     if toggle.tuning_level >= level["CEModelStopTime"]:
       toggle.conditional_model_stop_time = params.get_int("CEModelStopTime") if toggle.conditional_experimental_mode else default.get_int("CEModelStopTime")
     else:
-      toggle.conditional_model_stop_time = default.get_int("CEModelStopTime") if toggle.conditional_experimental_mode and params.get_bool("CEStopLights") else 0
+      toggle.conditional_model_stop_time = default.get_int("CEModelStopTime") if toggle.conditional_experimental_mode and (params.get_bool("CEStopLights") if toggle.tuning_level >= level["CEStopLights"] else default.get_bool("CEStopLights")) else 0
     toggle.conditional_signal = params.get_int("CESignalSpeed") * speed_conversion if toggle.conditional_experimental_mode and toggle.tuning_level >= level["CESignalSpeed"] else default.get_int("CESignalSpeed") * CV.MPH_TO_MS
     toggle.conditional_signal_lane_detection = toggle.conditional_signal != 0 and (params.get_bool("CESignalLaneDetection") if toggle.tuning_level >= level["CESignalLaneDetection"] else default.get_bool("CESignalLaneDetection"))
     toggle.cem_status = toggle.conditional_experimental_mode and (params.get_bool("ShowCEMStatus") if toggle.tuning_level >= level["ShowCEMStatus"] else default.get_bool("ShowCEMStatus")) or toggle.debug_mode
 
     toggle.curve_speed_controller = toggle.openpilot_longitudinal and (params.get_bool("CurveSpeedController") if toggle.tuning_level >= level["CurveSpeedController"] else default.get_bool("CurveSpeedController"))
+    toggle.curve_speed_profile = params.get_int("CurveSpeedProfile") if toggle.curve_speed_controller and toggle.tuning_level >= level["CurveSpeedProfile"] else default.get_int("CurveSpeedProfile")
     toggle.csc_status = toggle.curve_speed_controller and (params.get_bool("ShowCSCStatus") if toggle.tuning_level >= level["ShowCSCStatus"] else default.get_bool("ShowCSCStatus")) or toggle.debug_mode
 
     toggle.custom_alerts = params.get_bool("CustomAlerts") if toggle.tuning_level >= level["CustomAlerts"] else default.get_bool("CustomAlerts")
@@ -723,7 +767,7 @@ class FrogPilotVariables:
     toggle.loud_blindspot_alert = has_bsm and toggle.custom_alerts and (params.get_bool("LoudBlindspotAlert") if toggle.tuning_level >= level["LoudBlindspotAlert"] else default.get_bool("LoudBlindspotAlert"))
     toggle.speed_limit_changed_alert = toggle.custom_alerts and (params.get_bool("SpeedLimitChangedAlert") if toggle.tuning_level >= level["SpeedLimitChangedAlert"] else default.get_bool("SpeedLimitChangedAlert"))
 
-    toggle.custom_personalities = toggle.openpilot_longitudinal and params.get_bool("CustomPersonalities") if toggle.tuning_level >= level["CustomPersonalities"] else default.get_bool("CustomPersonalities")
+    toggle.custom_personalities = toggle.openpilot_longitudinal and (params.get_bool("CustomPersonalities") if toggle.tuning_level >= level["CustomPersonalities"] else default.get_bool("CustomPersonalities"))
     aggressive_profile = toggle.custom_personalities and (params.get_bool("AggressivePersonalityProfile") if toggle.tuning_level >= level["AggressivePersonalityProfile"] else default.get_bool("AggressivePersonalityProfile"))
     toggle.aggressive_jerk_acceleration = np.clip(params.get_int("AggressiveJerkAcceleration") / 100, 0.25, 2) if aggressive_profile and toggle.tuning_level >= level["AggressiveJerkAcceleration"] else default.get_int("AggressiveJerkAcceleration") / 100
     toggle.aggressive_jerk_deceleration = np.clip(params.get_int("AggressiveJerkDeceleration") / 100, 0.25, 2) if aggressive_profile and toggle.tuning_level >= level["AggressiveJerkDeceleration"] else default.get_int("AggressiveJerkDeceleration") / 100
@@ -751,20 +795,21 @@ class FrogPilotVariables:
     toggle.adjacent_paths = custom_ui and (params.get_bool("AdjacentPath") if toggle.tuning_level >= level["AdjacentPath"] else default.get_bool("AdjacentPath"))
     toggle.blind_spot_path = has_bsm and (custom_ui and (params.get_bool("BlindSpotPath") if toggle.tuning_level >= level["BlindSpotPath"] else default.get_bool("BlindSpotPath")) or toggle.debug_mode)
     toggle.compass = custom_ui and (params.get_bool("Compass") if toggle.tuning_level >= level["Compass"] else default.get_bool("Compass"))
+    toggle.onroad_distance_button = toggle.openpilot_longitudinal and (custom_ui and (params.get_bool("OnroadDistanceButton") if toggle.tuning_level >= level["OnroadDistanceButton"] else default.get_bool("OnroadDistanceButton")) or toggle.debug_mode)
     toggle.pedals_on_ui = toggle.openpilot_longitudinal and (custom_ui and (params.get_bool("PedalsOnUI") if toggle.tuning_level >= level["PedalsOnUI"] else default.get_bool("PedalsOnUI")))
     toggle.dynamic_pedals_on_ui = toggle.pedals_on_ui and (params.get_bool("DynamicPedalsOnUI") if toggle.tuning_level >= level["DynamicPedalsOnUI"] else default.get_bool("DynamicPedalsOnUI"))
     toggle.static_pedals_on_ui = toggle.pedals_on_ui and (params.get_bool("StaticPedalsOnUI") if toggle.tuning_level >= level["StaticPedalsOnUI"] else default.get_bool("StaticPedalsOnUI"))
     toggle.rotating_wheel = custom_ui and (params.get_bool("RotatingWheel") if toggle.tuning_level >= level["RotatingWheel"] else default.get_bool("RotatingWheel"))
 
     toggle.developer_ui = params.get_bool("DeveloperUI") if toggle.tuning_level >= level["DeveloperUI"] else default.get_bool("DeveloperUI")
-    developer_metrics = toggle.developer_ui and params.get_bool("DeveloperMetrics") if toggle.tuning_level >= level["DeveloperMetrics"] else default.get_bool("DeveloperMetrics")
+    developer_metrics = toggle.developer_ui and (params.get_bool("DeveloperMetrics") if toggle.tuning_level >= level["DeveloperMetrics"] else default.get_bool("DeveloperMetrics"))
     border_metrics = developer_metrics and (params.get_bool("BorderMetrics") if toggle.tuning_level >= level["BorderMetrics"] else default.get_bool("BorderMetrics"))
     toggle.blind_spot_metrics = has_bsm and border_metrics and (params.get_bool("BlindSpotMetrics") if toggle.tuning_level >= level["BlindSpotMetrics"] else default.get_bool("BlindSpotMetrics")) or toggle.debug_mode
     toggle.signal_metrics = border_metrics and (params.get_bool("SignalMetrics") if toggle.tuning_level >= level["SignalMetrics"] else default.get_bool("SignalMetrics")) or toggle.debug_mode
     toggle.steering_metrics = border_metrics and (params.get_bool("ShowSteering") if toggle.tuning_level >= level["ShowSteering"] else default.get_bool("ShowSteering")) or toggle.debug_mode
     toggle.show_fps = developer_metrics and (params.get_bool("FPSCounter") if toggle.tuning_level >= level["FPSCounter"] else default.get_bool("FPSCounter")) or toggle.debug_mode
-    toggle.adjacent_path_metrics = (developer_metrics and params.get_bool("AdjacentPathMetrics") if toggle.tuning_level >= level["AdjacentPathMetrics"] else default.get_bool("AdjacentPathMetrics")) or toggle.debug_mode
-    toggle.lead_metrics = (developer_metrics and params.get_bool("LeadInfo") if toggle.tuning_level >= level["LeadInfo"] else default.get_bool("LeadInfo")) or toggle.debug_mode
+    toggle.adjacent_path_metrics = (developer_metrics and (params.get_bool("AdjacentPathMetrics") if toggle.tuning_level >= level["AdjacentPathMetrics"] else default.get_bool("AdjacentPathMetrics"))) or toggle.debug_mode
+    toggle.lead_metrics = (developer_metrics and (params.get_bool("LeadInfo") if toggle.tuning_level >= level["LeadInfo"] else default.get_bool("LeadInfo"))) or toggle.debug_mode
     toggle.numerical_temp = developer_metrics and (params.get_bool("NumericalTemp") if toggle.tuning_level >= level["NumericalTemp"] else default.get_bool("NumericalTemp")) or toggle.debug_mode
     toggle.fahrenheit = toggle.numerical_temp and (params.get_bool("Fahrenheit") if toggle.tuning_level >= level["Fahrenheit"] else default.get_bool("Fahrenheit")) and not toggle.debug_mode
     toggle.cpu_metrics = developer_metrics and (params.get_bool("ShowCPU") if toggle.tuning_level >= level["ShowCPU"] else default.get_bool("ShowCPU")) or toggle.debug_mode
@@ -782,11 +827,11 @@ class FrogPilotVariables:
     toggle.developer_sidebar_metric5 = params.get_int("DeveloperSidebarMetric5") if toggle.developer_sidebar and toggle.tuning_level >= level["DeveloperSidebarMetric5"] else DEVELOPER_SIDEBAR_METRICS["AUTOTUNE_STEER_RATIO"] if toggle.debug_mode else default.get_int("DeveloperSidebarMetric5")
     toggle.developer_sidebar_metric6 = params.get_int("DeveloperSidebarMetric6") if toggle.developer_sidebar and toggle.tuning_level >= level["DeveloperSidebarMetric6"] else DEVELOPER_SIDEBAR_METRICS["AUTOTUNE_STIFFNESS_FACTOR"] if toggle.debug_mode else default.get_int("DeveloperSidebarMetric6")
     toggle.developer_sidebar_metric7 = params.get_int("DeveloperSidebarMetric7") if toggle.developer_sidebar and toggle.tuning_level >= level["DeveloperSidebarMetric7"] else DEVELOPER_SIDEBAR_METRICS["LATERAL_TORQUE_USED"] if toggle.debug_mode else default.get_int("DeveloperSidebarMetric7")
-    developer_widgets = toggle.developer_ui and params.get_bool("DeveloperWidgets") if toggle.tuning_level >= level["DeveloperWidgets"] else default.get_bool("DeveloperWidgets")
-    toggle.adjacent_lead_tracking = toggle.has_radar and ((developer_widgets and params.get_bool("AdjacentLeadsUI") if toggle.tuning_level >= level["AdjacentLeadsUI"] else default.get_bool("AdjacentLeadsUI")) or toggle.debug_mode)
-    toggle.radar_tracks = toggle.has_radar and ((developer_widgets and params.get_bool("RadarTracksUI") if toggle.tuning_level >= level["RadarTracksUI"] else default.get_bool("RadarTracksUI")) or toggle.debug_mode)
+    developer_widgets = toggle.developer_ui and (params.get_bool("DeveloperWidgets") if toggle.tuning_level >= level["DeveloperWidgets"] else default.get_bool("DeveloperWidgets"))
+    toggle.adjacent_lead_tracking = toggle.has_radar and ((developer_widgets and (params.get_bool("AdjacentLeadsUI") if toggle.tuning_level >= level["AdjacentLeadsUI"] else default.get_bool("AdjacentLeadsUI"))) or toggle.debug_mode)
+    toggle.radar_tracks = toggle.has_radar and ((developer_widgets and (params.get_bool("RadarTracksUI") if toggle.tuning_level >= level["RadarTracksUI"] else default.get_bool("RadarTracksUI"))) or toggle.debug_mode)
     toggle.show_stopping_point = toggle.openpilot_longitudinal and (developer_widgets and (params.get_bool("ShowStoppingPoint") if toggle.tuning_level >= level["ShowStoppingPoint"] else default.get_bool("ShowStoppingPoint")) or toggle.debug_mode)
-    toggle.show_stopping_point_metrics = toggle.show_stopping_point and (params.get_bool("ShowStoppingPointMetrics") if toggle.tuning_level >= level["ShowStoppingPointMetrics"] else default.get_bool("ShowStoppingPointMetrics") or toggle.debug_mode)
+    toggle.show_stopping_point_metrics = toggle.show_stopping_point and ((params.get_bool("ShowStoppingPointMetrics") if toggle.tuning_level >= level["ShowStoppingPointMetrics"] else default.get_bool("ShowStoppingPointMetrics")) or toggle.debug_mode)
 
     device_management = params.get_bool("DeviceManagement") if toggle.tuning_level >= level["DeviceManagement"] else default.get_bool("DeviceManagement")
     device_shutdown_setting = params.get_int("DeviceShutdown") if device_management and toggle.tuning_level >= level["DeviceShutdown"] else default.get_int("DeviceShutdown")
@@ -829,8 +874,6 @@ class FrogPilotVariables:
     toggle.vEgoStarting = 0.15 if toggle.experimental_gm_tune else toggle.vEgoStarting
     toggle.vEgoStopping = 0.15 if toggle.experimental_gm_tune else toggle.vEgoStopping
 
-    toggle.force_fingerprint = (params.get_bool("ForceFingerprint") if toggle.tuning_level >= level["ForceFingerprint"] else default.get_bool("ForceFingerprint")) and toggle.car_model is not None
-
     toggle.frogpilot_telemetry = params.get_bool("FrogPilotTelemetry") if toggle.tuning_level >= level["FrogPilotTelemetry"] else default.get_bool("FrogPilotTelemetry")
 
     toggle.frogsgomoo_tweak = toggle.openpilot_longitudinal and toggle.car_make == "toyota" and (params.get_bool("FrogsGoMoosTweak") if toggle.tuning_level >= level["FrogsGoMoosTweak"] else default.get_bool("FrogsGoMoosTweak"))
@@ -854,12 +897,11 @@ class FrogPilotVariables:
     toggle.one_lane_change = toggle.lane_changes and (params.get_bool("OneLaneChange") if toggle.tuning_level >= level["OneLaneChange"] else default.get_bool("OneLaneChange"))
 
     lateral_tuning = params.get_bool("LateralTune") if toggle.tuning_level >= level["LateralTune"] else default.get_bool("LateralTune")
-    toggle.force_torque_controller = lateral_tuning and not is_torque_car and (params.get_bool("ForceTorqueController") if toggle.tuning_level >= level["ForceTorqueController"] else default.get_bool("ForceTorqueController"))
-    toggle.nnff = lateral_tuning and has_nnff and not is_angle_car and (params.get_bool("NNFF") if toggle.tuning_level >= level["NNFF"] else default.get_bool("NNFF"))
+    toggle.nnff = lateral_tuning and toggle.has_nnff and not is_angle_car and (params.get_bool("NNFF") if toggle.tuning_level >= level["NNFF"] else default.get_bool("NNFF"))
     toggle.nnff_lite = not toggle.nnff and lateral_tuning and not is_angle_car and (params.get_bool("NNFFLite") if toggle.tuning_level >= level["NNFFLite"] else default.get_bool("NNFFLite"))
     toggle.use_turn_desires = lateral_tuning and (params.get_bool("TurnDesires") if toggle.tuning_level >= level["TurnDesires"] else default.get_bool("TurnDesires"))
 
-    lkas_button_control = (params.get_int("LKASButtonControl") if toggle.tuning_level >= level["LKASButtonControl"] else default.get_int("LKASButtonControl")) if toggle.car_make != "subaru" else 0
+    lkas_button_control = (params.get_int("LKASButtonControl") if toggle.tuning_level >= level["LKASButtonControl"] else default.get_int("LKASButtonControl")) if toggle.car_make != "subaru" and not toggle.always_on_lateral_lkas else 0
     toggle.experimental_mode_via_lkas = toggle.openpilot_longitudinal and lkas_button_control == BUTTON_FUNCTIONS["EXPERIMENTAL_MODE"]
     toggle.experimental_mode_via_press |= toggle.experimental_mode_via_lkas
     toggle.force_coast_via_lkas = toggle.openpilot_longitudinal and lkas_button_control == BUTTON_FUNCTIONS["FORCE_COAST"]
@@ -958,7 +1000,7 @@ class FrogPilotVariables:
     toggle.cruise_increase_long = params.get_int("CustomCruiseLong") if quality_of_life_longitudinal and not pcm_cruise and toggle.tuning_level >= level["CustomCruiseLong"] else default.get_int("CustomCruiseLong")
     toggle.force_stops = quality_of_life_longitudinal and (params.get_bool("ForceStops") if toggle.tuning_level >= level["ForceStops"] else default.get_bool("ForceStops"))
     toggle.increase_stopped_distance = params.get_int("IncreasedStoppedDistance") * distance_conversion if quality_of_life_longitudinal and toggle.tuning_level >= level["IncreasedStoppedDistance"] else default.get_int("IncreasedStoppedDistance") * CV.FOOT_TO_METER
-    map_gears = quality_of_life_longitudinal and (params.get_bool("MapGears") if toggle.tuning_level >= level["MapGears"] else default.get_bool("MapGears"))
+    map_gears = quality_of_life_longitudinal and (toggle.car_make in {"gm", "toyota"} or hyundai_canfd) and not CP.secOcRequired and (params.get_bool("MapGears") if toggle.tuning_level >= level["MapGears"] else default.get_bool("MapGears"))
     toggle.map_acceleration = map_gears and (params.get_bool("MapAcceleration") if toggle.tuning_level >= level["MapAcceleration"] else default.get_bool("MapAcceleration"))
     toggle.map_deceleration = map_gears and (params.get_bool("MapDeceleration") if toggle.tuning_level >= level["MapDeceleration"] else default.get_bool("MapDeceleration"))
     toggle.reverse_cruise_increase = quality_of_life_longitudinal and toggle.car_make == "toyota" and pcm_cruise and (params.get_bool("ReverseCruise") if toggle.tuning_level >= level["ReverseCruise"] else default.get_bool("ReverseCruise"))
@@ -984,7 +1026,6 @@ class FrogPilotVariables:
     quality_of_life_visuals = params.get_bool("QOLVisuals") if toggle.tuning_level >= level["QOLVisuals"] else default.get_bool("QOLVisuals")
     toggle.camera_view = params.get_int("CameraView") if quality_of_life_visuals and toggle.tuning_level >= level["CameraView"] else default.get_int("CameraView")
     toggle.driver_camera_in_reverse = quality_of_life_visuals and (params.get_bool("DriverCamera") if toggle.tuning_level >= level["DriverCamera"] else default.get_bool("DriverCamera"))
-    toggle.onroad_distance_button = toggle.openpilot_longitudinal and (quality_of_life_visuals and (params.get_bool("OnroadDistanceButton") if toggle.tuning_level >= level["OnroadDistanceButton"] else default.get_bool("OnroadDistanceButton")) or toggle.debug_mode)
     toggle.stopped_timer = quality_of_life_visuals and (params.get_bool("StoppedTimer") if toggle.tuning_level >= level["StoppedTimer"] else default.get_bool("StoppedTimer"))
 
     toggle.rainbow_path = params.get_bool("RainbowPath") if toggle.tuning_level >= level["RainbowPath"] else default.get_bool("RainbowPath")
@@ -1002,16 +1043,15 @@ class FrogPilotVariables:
     toggle.sng_hack = toggle.openpilot_longitudinal and toggle.car_make == "toyota" and not toggle.has_pedal and not has_sng and (params.get_bool("SNGHack") if toggle.tuning_level >= level["SNGHack"] else default.get_bool("SNGHack"))
 
     toggle.speed_limit_controller = toggle.openpilot_longitudinal and (params.get_bool("SpeedLimitController") if toggle.tuning_level >= level["SpeedLimitController"] else default.get_bool("SpeedLimitController"))
-    toggle.force_mph_dashboard = toggle.speed_limit_controller and (params.get_bool("ForceMPHDashboard") if toggle.tuning_level >= level["ForceMPHDashboard"] else default.get_bool("ForceMPHDashboard"))
+    toggle.force_mph_dashboard = toggle.speed_limit_controller and toggle.car_make == "toyota" and (params.get_bool("ForceMPHDashboard") if toggle.tuning_level >= level["ForceMPHDashboard"] else default.get_bool("ForceMPHDashboard"))
     toggle.map_speed_lookahead_higher = params.get_int("SLCLookaheadHigher") if toggle.speed_limit_controller and toggle.tuning_level >= level["SLCLookaheadHigher"] else default.get_int("SLCLookaheadHigher")
     toggle.map_speed_lookahead_lower = params.get_int("SLCLookaheadLower") if toggle.speed_limit_controller and toggle.tuning_level >= level["SLCLookaheadLower"] else default.get_int("SLCLookaheadLower")
     toggle.set_speed_limit = toggle.speed_limit_controller and (params.get_bool("SetSpeedLimit") if toggle.tuning_level >= level["SetSpeedLimit"] else default.get_bool("SetSpeedLimit"))
     toggle.show_speed_limit_offset = toggle.speed_limit_controller and (params.get_bool("ShowSLCOffset") if toggle.tuning_level >= level["ShowSLCOffset"] else default.get_bool("ShowSLCOffset")) or toggle.debug_mode
     slc_fallback_method = params.get_int("SLCFallback") if toggle.speed_limit_controller and toggle.tuning_level >= level["SLCFallback"] else default.get_int("SLCFallback")
-    toggle.slc_fallback_experimental_mode = slc_fallback_method == 1
-    toggle.slc_fallback_previous_speed_limit = slc_fallback_method == 2
-    toggle.slc_fallback_set_speed = slc_fallback_method == 0
-    toggle.slc_mapbox_filler = (toggle.show_speed_limits or toggle.speed_limit_controller) and params.get("MapboxSecretKey", encoding="utf-8") != None and (params.get_bool("SLCMapboxFiller") if toggle.tuning_level >= level["SLCMapboxFiller"] else default.get_bool("SLCMapboxFiller"))
+    toggle.slc_fallback_experimental_mode = toggle.speed_limit_controller and slc_fallback_method == 1
+    toggle.slc_fallback_previous_speed_limit = toggle.speed_limit_controller and slc_fallback_method == 2
+    toggle.slc_mapbox_filler = (toggle.show_speed_limits or toggle.speed_limit_controller) and params.get("MapboxPublicKey", encoding="utf-8") not in (None, "0") and (params.get_bool("SLCMapboxFiller") if toggle.tuning_level >= level["SLCMapboxFiller"] else default.get_bool("SLCMapboxFiller"))
     toggle.speed_limit_confirmation = toggle.speed_limit_controller and (params.get_bool("SLCConfirmation") if toggle.tuning_level >= level["SLCConfirmation"] else default.get_bool("SLCConfirmation"))
     toggle.speed_limit_confirmation_higher = toggle.speed_limit_confirmation and (params.get_bool("SLCConfirmationHigher") if toggle.tuning_level >= level["SLCConfirmationHigher"] else default.get_bool("SLCConfirmationHigher"))
     toggle.speed_limit_confirmation_lower = toggle.speed_limit_confirmation and (params.get_bool("SLCConfirmationLower") if toggle.tuning_level >= level["SLCConfirmationLower"] else default.get_bool("SLCConfirmationLower"))
@@ -1034,8 +1074,8 @@ class FrogPilotVariables:
 
     toggle.speed_limit_filler = params.get_bool("SpeedLimitFiller") if toggle.tuning_level >= level["SpeedLimitFiller"] else default.get_bool("SpeedLimitFiller")
 
-    toggle.startup_alert_top = params.get("StartupMessageTop", encoding="utf-8") if toggle.tuning_level >= level["StartupMessageTop"] else default.get("StartupMessageTop", encoding="utf-8")
-    toggle.startup_alert_bottom = params.get("StartupMessageBottom", encoding="utf-8") if toggle.tuning_level >= level["StartupMessageBottom"] else default.get("StartupMessageBottom", encoding="utf-8")
+    toggle.startup_alert_top = (params.get("StartupMessageTop", encoding="utf-8") if toggle.tuning_level >= level["StartupMessageTop"] else default.get("StartupMessageTop", encoding="utf-8")) or ""
+    toggle.startup_alert_bottom = (params.get("StartupMessageBottom", encoding="utf-8") if toggle.tuning_level >= level["StartupMessageBottom"] else default.get("StartupMessageBottom", encoding="utf-8")) or ""
 
     toggle.subaru_sng = toggle.car_make == "subaru" and not (CP.flags & SubaruFlags.GLOBAL_GEN2 or CP.flags & SubaruFlags.HYBRID) and (params.get_bool("SubaruSNG") if toggle.tuning_level >= level["SubaruSNG"] else default.get_bool("SubaruSNG"))
 
@@ -1052,4 +1092,3 @@ class FrogPilotVariables:
     toggle.volt_sng = toggle.car_model == "CHEVROLET_VOLT" and (params.get_bool("VoltSNG") if toggle.tuning_level >= level["VoltSNG"] else default.get_bool("VoltSNG"))
 
     params_memory.put("FrogPilotToggles", json.dumps(toggle.__dict__))
-    params_memory.remove("FrogPilotTogglesUpdated")

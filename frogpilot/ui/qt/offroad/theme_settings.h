@@ -15,26 +15,27 @@ signals:
   void openSubPanel();
 
 private:
+  void updateStartupAlert();
   void updateState(const UIState &s, const FrogPilotUIState &fs);
   void updateToggles();
 
-  bool cancellingDownload;
-  bool colorDownloading;
-  bool colorsDownloaded;
-  bool distanceIconDownloading;
-  bool distanceIconsDownloaded;
-  bool finalizingDownload;
-  bool forceOpenDescriptions;
-  bool iconDownloading;
-  bool iconsDownloaded;
-  bool randomThemes;
-  bool signalDownloading;
-  bool signalsDownloaded;
-  bool soundDownloading;
-  bool soundsDownloaded;
-  bool themeDownloading;
-  bool wheelDownloading;
-  bool wheelsDownloaded;
+  bool cancellingDownload = false;
+  bool colorDownloading = false;
+  bool colorsDownloaded = false;
+  bool distanceIconDownloading = false;
+  bool distanceIconsDownloaded = false;
+  bool finalizingDownload = false;
+  bool forceOpenDescriptions = false;
+  bool iconDownloading = false;
+  bool iconsDownloaded = false;
+  bool randomThemes = false;
+  bool signalDownloading = false;
+  bool signalsDownloaded = false;
+  bool soundDownloading = false;
+  bool soundsDownloaded = false;
+  bool themeDownloading = false;
+  bool wheelDownloading = false;
+  bool wheelsDownloaded = false;
 
   std::map<QString, AbstractControl*> toggles;
 
@@ -48,6 +49,7 @@ private:
   FrogPilotButtonsControl *manageCustomSoundsButton;
   FrogPilotButtonsControl *manageDistanceIconsButton;
   FrogPilotButtonsControl *manageWheelIconsButton;
+  FrogPilotButtonsControl *startupAlertButton;
 
   FrogPilotSettingsWindow *parent;
 

@@ -1,33 +1,28 @@
+import ipaddress
 import re
 import socket
 import struct
 
 from datetime import datetime
-from urllib.parse import urlsplit
 from pathlib import Path
+from urllib.parse import urlsplit
 
 PARAM_GET_ALLOWLIST = frozenset({
-  "IsMetric", "DiscordUsername",
-  "DownloadableColors", "DownloadableDistanceIcons", "DownloadableIcons",
-  "DownloadableSignals", "DownloadableSounds", "DownloadableWheels",
+  "DiscordUsername", "DownloadableColors", "DownloadableDistanceIcons", "DownloadableIcons",
+  "DownloadableSignals", "DownloadableSounds", "DownloadableWheels", "IsMetric",
 })
 PARAM_MEMORY_GET_ALLOWLIST = frozenset({"ThemeDownloadProgress"})
 
-ONROAD_BLOCKED = frozenset({
-  ("POST", "/api/toggles/reset_default"),
-  ("POST", "/api/toggles/reset_stock"),
-  ("POST", "/api/toggles/restore"),
-  ("POST", "/api/themes/apply"),
-  ("POST", "/api/tailscale/setup"),
-  ("POST", "/api/tailscale/uninstall"),
-  ("DELETE", "/api/routes/delete_all"),
-  ("DELETE", "/api/screen_recordings/delete_all"),
-  ("DELETE", "/api/error_logs/delete_all"),
-  ("DELETE", "/api/tmux_log/delete_all"),
+ONROAD_ALLOWED = frozenset()
+
+ONROAD_BLOCKED_READS = frozenset({
+  "/api/tmux_log/live",
 })
 
 def is_onroad_blocked(method: str, path: str) -> bool:
-  return (method, path) in ONROAD_BLOCKED
+  if method in ("GET", "HEAD", "OPTIONS"):
+    return path in ONROAD_BLOCKED_READS
+  return path not in ONROAD_ALLOWED
 
 _SECOC_RE = re.compile(r"^[0-9a-fA-F]{32}$")
 
@@ -44,6 +39,14 @@ def is_safe_display_name(name) -> bool:
     return False
   return _UNSAFE_NAME_RE.search(name) is None
 
+def theme_asset_slug(display_name: str) -> str:
+  return display_name.lower().replace("(", "").replace(")", "").replace(" ", "_").replace("_animated", "-animated")
+
+_SLUG_RE = re.compile(r"[a-z0-9_'~.-]+")
+
+def is_safe_slug(value) -> bool:
+  return isinstance(value, str) and _SLUG_RE.fullmatch(value) is not None and ".." not in value
+
 def route_segment_matches(segment: str, route_name: str) -> bool:
   return segment == route_name or segment.startswith(route_name + "--")
 
@@ -52,15 +55,49 @@ def is_within(base, target) -> bool:
   target_r = Path(target).resolve()
   return base_r == target_r or base_r in target_r.parents
 
-def _bare_host(value: str | None) -> str | None:
+def _http_origin(value: str | None) -> tuple[str, str, int] | None:
   if not value:
     return None
-  host = urlsplit(value).hostname if "//" in value else value.split(":", 1)[0]
-  return host.lower() if host else None
+  try:
+    parsed = urlsplit(value)
+    if parsed.scheme not in ("http", "https") or not parsed.netloc or parsed.username is not None or parsed.password is not None:
+      return None
+    if parsed.path or parsed.query or parsed.fragment:
+      return None
+    port = parsed.port or (80 if parsed.scheme == "http" else 443)
+  except ValueError:
+    return None
+  host = parsed.hostname
+  return (parsed.scheme, host.lower().rstrip("."), port) if host else None
 
-def origin_allowed(origin: str | None, allowed_hosts: set[str]) -> bool:
-  bare = _bare_host(origin)
-  return bare is not None and bare in allowed_hosts
+def origin_allowed(origin: str | None, request_scheme: str, request_host: str, trusted_ports: set[int]) -> bool:
+  expected = _http_origin(f"{request_scheme}://{request_host}")
+  source = _http_origin(origin)
+  if source is None or expected is None or source != expected:
+    return False
+  return expected[2] in trusted_ports
+
+LOCAL_SUFFIXES = (".local", ".lan", ".home", ".home.arpa", ".internal", ".localdomain", ".fritz.box", ".ts.net")
+
+def host_allowed(request_scheme: str, request_host: str, trusted_hosts: set[str]) -> bool:
+  parsed = _http_origin(f"{request_scheme}://{request_host}")
+  if parsed is None:
+    return False
+  host = parsed[1]
+  if host in trusted_hosts or host.endswith(LOCAL_SUFFIXES) or "." not in host:
+    return True
+  try:
+    ipaddress.ip_address(host)
+    return True
+  except ValueError:
+    return False
+
+def referer_allowed(referer: str | None, request_scheme: str, request_host: str, trusted_ports: set[int]) -> bool:
+  try:
+    parsed = urlsplit(referer or "")
+  except ValueError:
+    return False
+  return origin_allowed(f"{parsed.scheme}://{parsed.netloc}", request_scheme, request_host, trusted_ports)
 
 def format_ordinal_date(dt: datetime) -> str:
   day = dt.day

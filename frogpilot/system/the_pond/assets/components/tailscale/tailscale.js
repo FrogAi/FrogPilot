@@ -18,6 +18,7 @@ export function isValidTailscaleAuthUrl(u) {
 export function TailscaleControl() {
   const state = reactive({
     status: "checking",
+    external: false,
     installed: false,
     showUninstallModal: false,
   });
@@ -29,6 +30,7 @@ export function TailscaleControl() {
         throw new Error(`Request failed with status ${response.status}`)
       }
       const result = await response.json()
+      state.external = result.external === true
       state.installed = result.installed
     } catch (error) {
       console.error("Failed to check Tailscale install status:", error)
@@ -43,7 +45,7 @@ export function TailscaleControl() {
   }
 
   async function handleAction() {
-    if (state.status !== "idle") {
+    if (state.status !== "idle" || state.external) {
       return
     }
 
@@ -80,19 +82,22 @@ export function TailscaleControl() {
     <div class="tailscale-wrapper">
       <section class="tailscale-widget">
         <div class="tailscale-title">
-          ${() => state.installed ? "Uninstall Tailscale" : "Install Tailscale"}
+          ${() => state.external ? "Tailscale Is Managed Externally" : state.installed ? "Uninstall Tailscale" : "Install Tailscale"}
         </div>
         <p class="tailscale-text">
-          Tailscale creates a secure, private connection between your openpilot device and your phone or PC so you can access and control it from anywhere!
+          ${() => state.external
+            ? "The Pond found an existing Tailscale installation and will leave it unchanged."
+            : "Tailscale creates a secure, private connection between your openpilot device and your phone or PC so you can access and control it from anywhere!"}
         </p>
         <div class="tailscale-button-wrapper">
           <button
             class="tailscale-button"
             @click="${() => state.installed ? confirmUninstall() : handleAction()}"
-            disabled="${() => state.status === "checking" || state.status === "installing" || state.status === "uninstalling"}"
+            disabled="${() => state.external || state.status === "checking" || state.status === "installing" || state.status === "uninstalling"}"
           >
             ${() => {
               if (state.status === "checking") return "Checking..."
+              if (state.external) return "Managed Outside The Pond"
               if (state.status === "installing") return "Installing..."
               if (state.status === "uninstalling") return "Uninstalling..."
               if (state.installed) return "Uninstall"

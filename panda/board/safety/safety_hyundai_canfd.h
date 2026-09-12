@@ -249,7 +249,7 @@ static bool hyundai_canfd_tx_hook(const CANPacket_t *to_send) {
 
     // 2m/s margin
     if ((hyundai_canfd_front_left_vego < (11.f + 2.f) && hyundai_canfd_rear_right_vego < (11.f + 2.f)) && hyundai_canfd_taco_tune_hack) {
-      bool aol_active = (alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL) && lkas_on;
+      bool aol_active = (acc_main_on || lkas_on) && (alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL);
 
       bool violation = false;
       uint32_t ts = microsecond_timer_get();

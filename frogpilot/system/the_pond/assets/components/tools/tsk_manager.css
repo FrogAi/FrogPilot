@@ -74,22 +74,6 @@
   transition: opacity var(--transition-slow);
 }
 
-.tskkeys-group > .tskkeys-row:last-of-type {
-  margin-bottom: 0;
-}
-
-.tskkeys-help-icon {
-  cursor: pointer;
-  font-size: var(--font-size-sm);
-  margin-left: var(--gap-xxs);
-  position: relative;
-  top: -1px;
-}
-
-.tskkeys-help-img img {
-  max-width: 100%;
-}
-
 .tskkeys-input {
   background-color: var(--input-bg);
   border: var(--border-style-input);

@@ -17,7 +17,7 @@
   margin-top: var(--padding-sm);
 }
 
-.download-speed-limits-button:hover:enabled {
+.download-speed-limits-button:hover:not(:disabled) {
   box-shadow: var(--shadow-md);
   transform: var(--hover-scale-sm);
 }
@@ -31,14 +31,6 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-}
-
-.download-speed-limits-link {
-  color: var(--text-color);
-  font-size: var(--font-size-sm);
-  margin-top: var(--padding-sm);
-  text-decoration: underline;
-  white-space: nowrap;
 }
 
 .download-speed-limits-text {

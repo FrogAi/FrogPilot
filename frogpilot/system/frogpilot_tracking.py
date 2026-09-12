@@ -11,7 +11,7 @@ from openpilot.selfdrive.ui.soundd import FrogPilotAudibleAlert
 
 from openpilot.frogpilot.common.frogpilot_utilities import clean_model_name
 from openpilot.frogpilot.common.frogpilot_variables import params
-from openpilot.frogpilot.controls.lib.weather_checker import WEATHER_CATEGORIES
+from openpilot.frogpilot.controls.lib.weather_checker import weather_category
 
 RANDOM_EVENT_START = FrogPilotEventName.accel30
 RANDOM_EVENT_END = FrogPilotEventName.youveGotMail
@@ -33,7 +33,7 @@ class FrogPilotTracking:
         if isinstance(value, dict) else value
       )
       for key, value in self.frogpilot_stats.items()
-      if not key.startswith("Total") and key.lower() != "unknown"
+      if (not key.startswith("Total") or key == "TotalEvents") and key.lower() != "unknown"
     }
 
     if "ResetStats" not in self.frogpilot_stats:
@@ -166,14 +166,9 @@ class FrogPilotTracking:
     self.frogpilot_weather.api_25_calls = 0
     self.frogpilot_weather.api_3_calls = 0
 
-    suffix = "unknown"
-    for category in WEATHER_CATEGORIES.values():
-      if any(start <= self.frogpilot_weather.weather_id <= end for start, end in category["ranges"]):
-        suffix = category["suffix"]
-        break
-
     weather_times = self.frogpilot_stats.get("WeatherTimes", {})
-    weather_times[suffix] = weather_times.get(suffix, 0) + DT_MDL
+    category = weather_category(self.frogpilot_weather.weather_id)
+    weather_times[category] = weather_times.get(category, 0) + DT_MDL
     self.frogpilot_stats["WeatherTimes"] = weather_times
 
     if self.tracked_time >= 60 and sm["carState"].standstill and self.previously_enabled:

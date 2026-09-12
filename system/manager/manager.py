@@ -18,7 +18,7 @@ from openpilot.system.athena.registration import register, UNREGISTERED_DONGLE_I
 from openpilot.common.swaglog import cloudlog, add_file_handler
 from openpilot.system.version import get_build_metadata, terms_version, training_version
 
-from openpilot.frogpilot.common.frogpilot_functions import convert_params, frogpilot_boot_functions, setup_frogpilot, uninstall_frogpilot
+from openpilot.frogpilot.common.frogpilot_functions import convert_params, frogpilot_boot_functions, register_device, setup_frogpilot, uninstall_frogpilot
 from openpilot.frogpilot.common.frogpilot_variables import EXCLUDED_KEYS, frogpilot_default_params, get_frogpilot_toggles, params_cache, params_memory
 
 
@@ -106,6 +106,9 @@ def manager_init() -> None:
 
   if not build_metadata.openpilot.is_dirty:
     os.environ['CLEAN'] = '1'
+
+  # FrogPilot variables
+  register_device(build_metadata)
 
   # init logging
   sentry.init(sentry.SentryProject.SELFDRIVE)

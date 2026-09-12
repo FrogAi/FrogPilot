@@ -4,9 +4,24 @@
 
 #include "system/hardware/hw.h"
 
+#include "frogpilot/ui/qt/onroad/screen_recorder.h"
+
 MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
   main_layout = new QStackedLayout(this);
   main_layout->setMargin(0);
+
+  // load fonts
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Black.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Bold.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-ExtraBold.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-ExtraLight.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Medium.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Regular.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-SemiBold.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Thin.ttf");
+  QFontDatabase::addApplicationFont("../assets/fonts/JetBrainsMono-Medium.ttf");
+
+  setAttribute(Qt::WA_NoSystemBackground);
 
   homeWindow = new HomeWindow(this);
   main_layout->addWidget(homeWindow);
@@ -34,6 +49,7 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
   }
 
   QObject::connect(uiState(), &UIState::offroadTransition, [=](bool offroad) {
+    screenRecorder()->stop();
     if (!offroad) {
       closeSettings();
     }
@@ -44,17 +60,6 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
     }
   });
 
-  // load fonts
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Black.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Bold.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-ExtraBold.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-ExtraLight.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Medium.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Regular.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-SemiBold.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/Inter-Thin.ttf");
-  QFontDatabase::addApplicationFont("../assets/fonts/JetBrainsMono-Medium.ttf");
-
   // no outline to prevent the focus rectangle
   setStyleSheet(R"(
     * {
@@ -62,7 +67,6 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
       outline: none;
     }
   )");
-  setAttribute(Qt::WA_NoSystemBackground);
 }
 
 void MainWindow::openSettings(int index, const QString &param) {

@@ -47,7 +47,7 @@ static void update_state(FrogPilotUIState *fs) {
 void update_theme(FrogPilotUIState *fs) {
   FrogPilotUIScene &frogpilot_scene = fs->frogpilot_scene;
 
-  frogpilot_scene.use_stock_colors = frogpilot_scene.frogpilot_toggles.value("color_scheme").toString() == "stock";
+  frogpilot_scene.use_stock_colors = frogpilot_scene.frogpilot_toggles.value(QLatin1String("color_scheme")).toString() == "stock";
 
   if (!frogpilot_scene.use_stock_colors) {
     frogpilot_scene.use_stock_colors |= !loadThemeColors("", true).isValid();
@@ -73,7 +73,7 @@ FrogPilotUIState::FrogPilotUIState(QObject *parent) : QObject(parent) {
 
   frogpilot_scene.frogpilot_toggles = QJsonDocument::fromJson(QByteArray::fromStdString(params_memory.get("FrogPilotToggles", true))).object();
 
-  if (frogpilot_scene.frogpilot_toggles.value("tethering_config").toInt() == 1) {
+  if (frogpilot_scene.frogpilot_toggles.value(QLatin1String("tethering_config")).toInt() == 1) {
     wifi->setTetheringEnabled(true);
   }
 
@@ -89,5 +89,5 @@ void FrogPilotUIState::update() {
   update_state(this);
 
   frogpilot_scene.conditional_status = frogpilot_scene.enabled ? params_memory.getInt("CEStatus") : 0;
-  frogpilot_scene.driver_camera_timer = frogpilot_scene.reverse && frogpilot_toggles.value("driver_camera_in_reverse").toBool() ? frogpilot_scene.driver_camera_timer + 1 : 0;
+  frogpilot_scene.driver_camera_timer = frogpilot_scene.reverse && frogpilot_toggles.value(QLatin1String("driver_camera_in_reverse")).toBool() ? frogpilot_scene.driver_camera_timer + 1 : 0;
 }

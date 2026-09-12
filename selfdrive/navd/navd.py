@@ -50,6 +50,7 @@ class RouteEngine:
 
     self.ui_pid = None
 
+    self.off_route_counter = 0
     self.reroute_counter = 0
 
 
@@ -364,7 +365,7 @@ class RouteEngine:
     if ('maxspeed' in closest.annotations) and self.localizer_valid:
       msg.navInstruction.speedLimit = closest.annotations['maxspeed']
       self.nav_speed_limit = closest.annotations['maxspeed']
-    if not self.localizer_valid or ('maxspeed' not in closest.annotations):
+    if not self.localizer_valid or ('maxspeed' not in closest.annotations) or self.off_route():
       self.nav_speed_limit = 0
 
     # Speed limit sign type
@@ -443,17 +444,10 @@ class RouteEngine:
     self.recompute_backoff = 0
     self.recompute_countdown = 0
 
-  def should_recompute(self):
-    if self.step_idx is None or self.route is None:
-      return True
-
-    # Don't recompute in last segment, assume destination is reached
-    if self.step_idx == len(self.route) - 1:
-      return False
-
-    # Compute closest distance to all line segments in the current path
+  def distance_to_route(self, step_idx=None):
+    # Compute closest distance to all line segments in the given step's path
     min_d = REROUTE_DISTANCE + 1
-    path = self.route_geometry[self.step_idx]
+    path = self.route_geometry[self.step_idx if step_idx is None else step_idx]
     for i in range(len(path) - 1):
       a = path[i]
       b = path[i + 1]
@@ -462,8 +456,32 @@ class RouteEngine:
         continue
 
       min_d = min(min_d, minimum_distance(a, b, self.last_position))
+    return min_d
 
-    if min_d > REROUTE_DISTANCE:
+  def off_route(self):
+    # Don't trust the distance check when GPS drifts in tunnels
+    if not self.gps_ok:
+      self.off_route_counter = 0
+      return False
+
+    far = self.distance_to_route() > REROUTE_DISTANCE
+    if far and self.step_idx + 1 < len(self.route_geometry):
+      # The step index lags the car after a maneuver, so check the next step's geometry too
+      far = self.distance_to_route(self.step_idx + 1) > REROUTE_DISTANCE
+
+    # Debounce like the reroute logic so GPS reacquisition drift can't blip the limit
+    self.off_route_counter = self.off_route_counter + 1 if far else 0
+    return self.off_route_counter > REROUTE_COUNTER_MIN
+
+  def should_recompute(self):
+    if self.step_idx is None or self.route is None:
+      return True
+
+    # Don't recompute in last segment, assume destination is reached
+    if self.step_idx == len(self.route) - 1:
+      return False
+
+    if self.distance_to_route() > REROUTE_DISTANCE:
       self.reroute_counter += 1
     else:
       self.reroute_counter = 0

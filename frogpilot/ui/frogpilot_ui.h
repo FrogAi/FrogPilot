@@ -1,6 +1,5 @@
 #pragma once
 
-#include <iostream>
 #include <memory>
 
 #include <QObject>
@@ -65,7 +64,7 @@ public:
 
   std::unique_ptr<SubMaster> sm;
 
-  FrogPilotUIScene frogpilot_scene;
+  FrogPilotUIScene frogpilot_scene = {};
 
   Params params_memory{"/dev/shm/params"};
 

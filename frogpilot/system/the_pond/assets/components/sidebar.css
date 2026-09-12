@@ -33,7 +33,7 @@
 }
 
 .hidden {
-  display: none !important;
+  display: none;
 }
 
 .logo {
@@ -210,18 +210,10 @@
 }
 
 @media only screen and (max-width: 768px) {
-  #sidebarUnderlay {
-    display: block;
-  }
-
   .sidebar {
     left: calc(-1 * var(--sidebar-width));
     overflow-y: scroll;
     transition: var(--transition-fast);
-  }
-
-  .sidebar .menu_section > li > a {
-    font-size: var(--padding-sm);
   }
 
   .sidebar .title {

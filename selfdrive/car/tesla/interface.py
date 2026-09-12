@@ -26,7 +26,8 @@ class CarInterface(CarInterfaceBase):
     flags = (Panda.FLAG_TESLA_RAVEN if candidate == CAR.TESLA_MODELS_RAVEN else 0)
     if (CANBUS.autopilot_powertrain in fingerprint.keys()) and (0x2bf in fingerprint[CANBUS.autopilot_powertrain].keys()):
       ret.openpilotLongitudinalControl = not frogpilot_toggles.disable_openpilot_long
-      flags |= Panda.FLAG_TESLA_LONG_CONTROL
+      if ret.openpilotLongitudinalControl:
+        flags |= Panda.FLAG_TESLA_LONG_CONTROL
       ret.safetyConfigs = [
         get_safety_config(car.CarParams.SafetyModel.tesla, flags),
         get_safety_config(car.CarParams.SafetyModel.tesla, flags | Panda.FLAG_TESLA_POWERTRAIN),

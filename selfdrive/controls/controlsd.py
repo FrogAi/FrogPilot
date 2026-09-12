@@ -263,6 +263,9 @@ class Controls:
     if CS.canValid:
       self.events.add_from_msg(CS.events)
 
+      if self.sm['frogpilotCarState'].pedalInterceptorNoBrake:
+        self.frogpilot_events.add(FrogPilotEventName.pedalInterceptorNoBrake)
+
     # Create events for temperature, disk space, and memory
     if self.sm['deviceState'].thermalStatus >= ThermalStatus.red:
       self.events.add(EventName.overheat)

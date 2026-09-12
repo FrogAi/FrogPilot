@@ -1,14 +1,12 @@
-export function formatSecondsToHuman(seconds, precision = "minutes") {
+export function formatSecondsToHuman(seconds) {
   const units = [
     { label: "days", value: Math.floor(seconds / 86400) },
     { label: "hours", value: Math.floor((seconds % 86400) / 3600) },
     { label: "minutes", value: Math.floor((seconds % 3600) / 60) }
   ]
 
-  const slice = precision === "days" ? 1 : precision === "hours" ? 2 : 3
   return units
     .filter(u => u.value > 0)
-    .slice(0, slice)
     .map(u => `${u.value} ${u.label}`)
     .join(", ")
 }

@@ -1,6 +1,7 @@
 import { html, reactive } from "/assets/vendor/arrow.mjs";
 import {
   addRouteToMap,
+  ensureMapboxLoaded,
   formatMetersToHuman,
   formatSecondsToHuman,
   getCoordinatesFromSearch,
@@ -9,54 +10,9 @@ import {
   getOrdinalSuffix,
   highlightRoute,
 } from "./navigation_utilities.js";
+import { fetchJson } from "/assets/js/api.js";
 import { Modal } from "/assets/components/modal.js";
 import { onRouteLeave } from "/assets/components/router.js";
-
-function sha1hex(str) {
-  const rot = (v, s) => (v << s) | (v >>> (32 - s));
-  const bytes = new TextEncoder().encode(str);
-  const words = [];
-  for (let i = 0; i < bytes.length; i++) {
-    words[i >> 2] |= bytes[i] << ((3 - (i & 3)) << 3);
-  }
-  const bitLen = bytes.length << 3;
-  words[bitLen >> 5] |= 0x80 << (24 - (bitLen & 31));
-  words[((bitLen + 64 >> 9) << 4) + 15] = bitLen;
-  let [a, b, c, d, e] = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0];
-  const w = new Array(80);
-  for (let i = 0; i < words.length; i += 16) {
-    for (let t = 0; t < 16; t++) w[t] = words[i + t] | 0;
-    for (let t = 16; t < 80; t++) {
-      w[t] = rot(w[t - 3] ^ w[t - 8] ^ w[t - 14] ^ w[t - 16], 1);
-    }
-    let [aa, bb, cc, dd, ee] = [a, b, c, d, e];
-    for (let t = 0; t < 80; t++) {
-      const k = t < 20 ? 0x5a827999 : t < 40 ? 0x6ed9eba1 : t < 60 ? 0x8f1bbcdc : 0xca62c1d6;
-      const f = t < 20 ? (bb & cc) | (~bb & dd) : t < 40 ? bb ^ cc ^ dd : t < 60 ? (bb & cc) | (bb & dd) | (cc & dd) : bb ^ cc ^ dd;
-      const tmp = (rot(aa, 5) + f + ee + k + w[t]) >>> 0;
-      ee = dd;
-      dd = cc;
-      cc = rot(bb, 30) >>> 0;
-      bb = aa;
-      aa = tmp;
-    }
-    a = (a + aa) >>> 0;
-    b = (b + bb) >>> 0;
-    c = (c + cc) >>> 0;
-    d = (d + dd) >>> 0;
-    e = (e + ee) >>> 0;
-  }
-  return [a, b, c, d, e].map(x => x.toString(16).padStart(8, "0")).join("");
-}
-
-async function geometryHashFromRoute(route) {
-  const flat = route.geometry.coordinates.flat().join(",");
-  if (crypto?.subtle?.digest && window.isSecureContext) {
-    const buf = await crypto.subtle.digest("SHA-1", new TextEncoder().encode(flat));
-    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
-  }
-  return sha1hex(flat);
-}
 
 async function setSpecial(favorite, type, state, loadFavoritesAlphabetically) {
   try {
@@ -87,11 +43,12 @@ async function setSpecial(favorite, type, state, loadFavoritesAlphabetically) {
     const body = { routeId: favorite.routeId, id: favorite.id };
     if (newIsHome !== null) body.is_home = newIsHome;
     if (newIsWork !== null) body.is_work = newIsWork;
-    await fetch("/api/navigation/favorite/rename", {
+    const response = await fetch("/api/navigation/favorite/rename", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body)
     });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
     showSnackbar(message);
     const sorted = await loadFavoritesAlphabetically();
     state.suggestions = "[]";
@@ -106,10 +63,9 @@ let map;
 let destinationMarker;
 let favoriteMarkers = [];
 let navInitStarted = false;
+let searchController = null;
+let searchTimer = null;
 const state = reactive({
-  amap1Key: undefined,
-  amap2Key: undefined,
-  canToggleProvider: false,
   confirmedRoute: null,
   confirmedRouteRefresh: 0,
   destination: undefined,
@@ -121,13 +77,13 @@ const state = reactive({
   initialized: false,
   isMetric: true,
   lastPosition: undefined,
+  locationAvailable: null,
   loadingRoute: false,
   mapboxPublic: undefined,
   mapboxSecret: undefined,
   missingKeys: null,
   newFavoriteName: "",
   previousDestinations: [],
-  searchProvider: "mapbox",
   selectedRoute: null,
   showRemoveFavoriteModal: false,
   showRenameFavoriteModal: false,
@@ -138,16 +94,16 @@ const sessionToken = crypto.randomUUID?.() || Math.random().toString(36).slice(2
 
 export function NavDestination() {
   onRouteLeave(() => {
+    clearTimeout(searchTimer);
+    searchController?.abort();
+    searchController = null;
     navInitStarted = false;
     state.initialized = false;
+    state.locationAvailable = null;
     state.missingKeys = null;
     try { map?.remove(); } catch (e) {}
     map = undefined;
   });
-
-  function areRoutesEqual(a, b) {
-    return a?.routeHash && b?.routeHash && a.routeHash === b.routeHash;
-  }
 
   function confirmRemoveFavorite(favorite) {
     state.favoriteToRemove = favorite;
@@ -195,22 +151,17 @@ export function NavDestination() {
       if (routes.length > 0) {
         const selectedRouteId = "main";
         const selectedRouteData = routes[0];
-        const routeHash = await geometryHashFromRoute(selectedRouteData);
         const selected = {
           name,
           duration: selectedRouteData.duration,
           distance: selectedRouteData.distance,
           destinationCoordinates: coords,
           startingCoordinates: [state.lastPosition.longitude, state.lastPosition.latitude],
-          routeId: selectedRouteId,
-          routeHash,
-          steps: selectedRouteData?.legs?.[0]?.steps || []
+          routeId: selectedRouteId
         };
 
         state.selectedRoute = selected;
         if (resume) state.confirmedRoute = JSON.parse(JSON.stringify(selected));
-
-        localStorage.setItem("lastRouteId", selected.routeId);
 
         addRouteToMap(
           map,
@@ -222,8 +173,7 @@ export function NavDestination() {
               ...state.selectedRoute,
               duration: route.duration,
               distance: route.distance,
-              routeId,
-              steps: route?.legs?.[0]?.steps || []
+              routeId
             };
             highlightRoute(map, routes, routeId);
           },
@@ -257,6 +207,7 @@ export function NavDestination() {
     let data;
     try {
       const res = await fetch("/api/navigation");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       data = await res.json();
     } catch {
       state.missingKeys = true;
@@ -265,19 +216,14 @@ export function NavDestination() {
     }
     state.mapboxPublic = (data.mapboxPublic || "").trim();
     state.mapboxSecret = !!data.mapboxSecretSet;
-    state.amap1Key = !!data.amap1KeySet;
-    state.amap2Key = !!data.amap2KeySet;
     state.isMetric = data.isMetric ?? true;
-    const hasMapbox = !!state.mapboxPublic && state.mapboxSecret;
-    const hasAMap = state.amap1Key && state.amap2Key;
-    state.missingKeys = !hasMapbox;
-    state.canToggleProvider = hasMapbox && hasAMap;
-    state.searchProvider = hasMapbox ? "mapbox" : "";
+    state.missingKeys = !(state.mapboxPublic && state.mapboxSecret);
     if (state.missingKeys) return;
-    state.lastPosition = {
-      latitude: parseFloat(data.lastPosition?.latitude),
-      longitude: parseFloat(data.lastPosition?.longitude)
-    };
+    const latitude = Number(data.lastPosition?.latitude);
+    const longitude = Number(data.lastPosition?.longitude);
+    state.locationAvailable = Number.isFinite(latitude) && latitude >= -90 && latitude <= 90 &&
+      Number.isFinite(longitude) && longitude >= -180 && longitude <= 180;
+    state.lastPosition = state.locationAvailable ? { latitude, longitude } : undefined;
     try {
       state.destination = JSON.parse(data.destination);
     } catch {}
@@ -286,8 +232,17 @@ export function NavDestination() {
       state.previousDestinations = prev.map(d => ({ name: d.place_name }));
       state.suggestions = JSON.stringify(state.previousDestinations);
     } catch {}
-    setupMap();
-    loadFavoritesAlphabetically();
+    if (!state.locationAvailable) {
+      loadFavoritesAlphabetically();
+      return;
+    }
+    try {
+      await ensureMapboxLoaded();
+      setupMap();
+      loadFavoritesAlphabetically();
+    } catch {
+      showSnackbar("Failed to load the map...", "error");
+    }
   }
 
   async function handleFavoritesClick() {
@@ -306,35 +261,14 @@ export function NavDestination() {
 
   async function handleSearchKey(e) {
     if (e.key === "Enter") {
-      clearTimeout(window.searchTimeout);
+      clearTimeout(searchTimer);
       const val = e.target.value.trim();
       searchFieldState.value = e.target.value;
       if (val.length < 3) {
-        if (val.length === 0) state.suggestions = "[]";
+        state.suggestions = "[]";
         return;
       }
-      state.selectedRoute = null;
-      state.confirmedRoute = null;
-      state.suggestions = "[]";
-      if (state.searchProvider === "mapbox") {
-        const prox = `${state.lastPosition.longitude},${state.lastPosition.latitude}`;
-        const params = new URLSearchParams({
-          proximity: prox,
-          access_token: state.mapboxPublic,
-          session_token: sessionToken,
-          q: val,
-          limit: 4
-        });
-        try {
-          const res = await fetch(`https://api.mapbox.com/search/searchbox/v1/suggest?${params}`);
-          const data = res.ok ? await res.json() : {};
-          state.suggestions = JSON.stringify(Array.isArray(data.suggestions) ? data.suggestions : []);
-        } catch {
-          showSnackbar("Search failed - check your connection...", "error");
-        }
-      } else {
-        state.suggestions = "[]";
-      }
+      await searchSuggestions(val);
     }
   }
 
@@ -382,11 +316,12 @@ export function NavDestination() {
   async function loadFavoritesAlphabetically() {
     try {
       const res = await fetch("/api/navigation/favorite");
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const json = await res.json();
       const sorted = json.favorites.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
       state.favoritesCount = sorted.length;
       state.favoriteRoutes = sorted;
-      addFavoriteMarkers(sorted);
+      if (map) addFavoriteMarkers(sorted);
       if (state.favoritesVisible) {
         state.suggestions = JSON.stringify(sorted);
       }
@@ -401,11 +336,12 @@ export function NavDestination() {
     if (!state.favoriteToRemove) return;
     const { id, name, latitude, longitude, routeId } = state.favoriteToRemove;
     try {
-      await fetch("/api/navigation/favorite", {
+      const response = await fetch("/api/navigation/favorite", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, name, latitude, longitude, routeId })
       });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
       await loadFavoritesAlphabetically();
       showSnackbar("Favorite removed!");
     } catch {
@@ -424,29 +360,23 @@ export function NavDestination() {
       return;
     }
     try {
-      await fetch("/api/navigation/favorite", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(fav)
-      });
-
-      await fetch("/api/navigation/favorite", {
+      const response = await fetch("/api/navigation/favorite/rename", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          id: fav.id,
           name: newName,
-          longitude: fav.longitude,
-          latitude: fav.latitude,
           routeId: fav.routeId
         })
       });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
       if (state.favoritesVisible) {
         state.suggestions = "[]";
         state.favoritesVisible = false;
       }
 
-      handleFavoritesClick();
+      await handleFavoritesClick();
 
       showSnackbar(`"${fav.name}" renamed to "${newName}"!`, "success");
     } catch {
@@ -459,38 +389,46 @@ export function NavDestination() {
   async function searchInput(e) {
     const newVal = e.target.value.trim();
     searchFieldState.value = e.target.value;
-    clearTimeout(window.searchTimeout);
-    window.searchTimeout = setTimeout(async () => {
+    clearTimeout(searchTimer);
+    if (newVal.length < 3) searchController?.abort();
+    searchTimer = setTimeout(async () => {
       const val = newVal;
       if (val.length < 3) {
-        if (val.length === 0) {
-          state.suggestions = "[]";
-        }
+        state.suggestions = "[]";
         return;
       }
-      state.selectedRoute = null;
-      state.confirmedRoute = null;
-      state.suggestions = "[]";
-      if (state.searchProvider === "mapbox") {
-        const prox = `${state.lastPosition.longitude},${state.lastPosition.latitude}`;
-        const params = new URLSearchParams({
-          proximity: prox,
-          access_token: state.mapboxPublic,
-          session_token: sessionToken,
-          q: val,
-          limit: 4
-        });
-        try {
-          const res = await fetch(`https://api.mapbox.com/search/searchbox/v1/suggest?${params}`);
-          const data = res.ok ? await res.json() : {};
-          state.suggestions = JSON.stringify(Array.isArray(data.suggestions) ? data.suggestions : []);
-        } catch {
-          showSnackbar("Search failed - check your connection...", "error");
-        }
-      } else {
-        state.suggestions = "[]";
-      }
+      await searchSuggestions(val);
     }, 800);
+  }
+
+  async function searchSuggestions(value) {
+    state.selectedRoute = null;
+    state.confirmedRoute = null;
+    state.suggestions = "[]";
+    if (!state.lastPosition) return;
+
+    searchController?.abort();
+    const controller = new AbortController();
+    searchController = controller;
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    const params = new URLSearchParams({
+      proximity: `${state.lastPosition.longitude},${state.lastPosition.latitude}`,
+      access_token: state.mapboxPublic,
+      session_token: sessionToken,
+      q: value,
+      limit: 4
+    });
+    try {
+      const response = await fetch(`https://api.mapbox.com/search/searchbox/v1/suggest?${params}`, { signal: controller.signal });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      state.suggestions = JSON.stringify(Array.isArray(data.suggestions) ? data.suggestions : []);
+    } catch (error) {
+      if (error.name !== "AbortError") showSnackbar("Search failed - check your connection...", "error");
+    } finally {
+      clearTimeout(timeout);
+      if (searchController === controller) searchController = null;
+    }
   }
 
   async function selectSuggestion(sugg) {
@@ -500,35 +438,32 @@ export function NavDestination() {
       initiateNavigation({
         name: sugg.name,
         longitude: sugg.longitude,
-        latitude: sugg.latitude,
-        routeId: sugg.routeId
+        latitude: sugg.latitude
       });
       return;
     }
     state.loadingRoute = true;
     try {
-      if (state.searchProvider === "mapbox") {
-        if (sugg.geometry && Array.isArray(sugg.geometry.coordinates)) {
-          coords = sugg.geometry.coordinates;
-        } else if (sugg.mapbox_id) {
-          const url = new URL(`https://api.mapbox.com/search/searchbox/v1/retrieve/${encodeURIComponent(sugg.mapbox_id)}`);
-          url.searchParams.set("access_token", state.mapboxPublic);
-          url.searchParams.set("session_token", sessionToken);
-          const ret = await fetch(url);
-          const retJson = await ret.json();
-          coords = retJson.features[0].geometry.coordinates;
-        } else {
-          coords = await getCoordinatesFromSearch(label, state.mapboxPublic);
-        }
+      if (sugg.geometry && Array.isArray(sugg.geometry.coordinates)) {
+        coords = sugg.geometry.coordinates;
+      } else if (sugg.mapbox_id) {
+        const url = new URL(`https://api.mapbox.com/search/searchbox/v1/retrieve/${encodeURIComponent(sugg.mapbox_id)}`);
+        url.searchParams.set("access_token", state.mapboxPublic);
+        url.searchParams.set("session_token", sessionToken);
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10000);
+        const ret = await fetch(url, { signal: controller.signal }).finally(() => clearTimeout(timeout));
+        if (!ret.ok) throw new Error(`HTTP ${ret.status}`);
+        const retJson = await ret.json();
+        coords = retJson.features[0].geometry.coordinates;
       } else {
-        coords = [sugg.location.lng, sugg.location.lat];
+        coords = await getCoordinatesFromSearch(label, state.mapboxPublic);
       }
       if (coords) {
         initiateNavigation({
           name: label,
           longitude: coords[0],
-          latitude: coords[1],
-          routeId: null
+          latitude: coords[1]
         });
       } else {
         throw new Error("Could not determine location.");
@@ -541,12 +476,8 @@ export function NavDestination() {
   }
 
   const setupMap = async () => {
-    if (!state.mapboxPublic || state.initialized) return;
+    if (!state.mapboxPublic || !state.lastPosition || state.initialized) return;
     const container = document.getElementById("map");
-    if (!container) {
-      requestAnimationFrame(setupMap);
-      return;
-    }
     state.initialized = true;
     mapboxgl.accessToken = state.mapboxPublic;
     map = new mapboxgl.Map({
@@ -570,8 +501,7 @@ export function NavDestination() {
         curve: 1
       });
       if (state.destination) {
-        const savedId = localStorage.getItem("activeRouteId");
-        initiateNavigation({ ...state.destination, routeId: savedId }, { resume: true });
+        initiateNavigation(state.destination, { resume: true });
       }
     });
     map.on("style.load", () => {
@@ -615,19 +545,23 @@ export function NavDestination() {
                 </div>
               </section>
             `
-          : html`
+          : state.locationAvailable === false
+            ? html`
+              <section class="keys-required-wrapper">
+                <div class="keys-required-widget">
+                  <div class="keys-required-title">Waiting for Location</div>
+                  <p class="keys-required-text">The map will be available after the device receives a GPS position.</p>
+                </div>
+              </section>
+            `
+            : html`
               <div class="map-wrapper">
                 <div class="search-wrapper">
                   <div class="search-controls">
                     <input aria-label="Search for a destination" autocomplete="off" id="search-field" placeholder="Search here" value="${() => searchFieldState.value}" @input="${searchInput}" @keydown="${handleSearchKey}" />
                     ${() => (state.favoritesCount > 0 ? html`<button class="favorites-toggle-button" @click="${handleFavoritesClick}">❤️ Favorites</button>` : "")}
-                    ${() => (state.canToggleProvider ? html`
-                      <div class="search-provider-toggle">
-                        <button class="${() => (state.searchProvider === "amap" ? "active" : "")}" @click="${() => { state.searchProvider = "amap"; state.suggestions = "[]"; }}">AMap</button>
-                        <button class="${() => (state.searchProvider === "mapbox" ? "active" : "")}" @click="${() => { state.searchProvider = "mapbox"; state.suggestions = "[]"; }}">Mapbox</button>
-                      </div>
-                    ` : "")}
                   </div>
+                  <p class="navigation-privacy-note">Destination searches and routes are sent to Mapbox.</p>
                   <div id="infobox">
                     ${() => {
                       if (state.loadingRoute) {
@@ -636,7 +570,7 @@ export function NavDestination() {
                         return NavigationDestination({
                           ...state.selectedRoute,
                           isFavorited: isRouteFavorited(state.selectedRoute, state.favoriteRoutes),
-                          isConfirmed: () => areRoutesEqual(state.selectedRoute, state.confirmedRoute),
+                          isConfirmed: () => !!state.confirmedRoute,
                           map,
                           isMetric: state.isMetric,
                           cancelNavigationFn: () => {
@@ -726,7 +660,6 @@ function NavigationDestination({
   duration,
   distance,
   routeId,
-  routeHash,
   isConfirmed,
   destinationCoordinates,
   startingCoordinates,
@@ -738,47 +671,54 @@ function NavigationDestination({
   removeFavorite,
   searchFieldState,
   isFavorited,
-  favoriteRoutes = [],
-  steps = []
+  favoriteRoutes = []
 }) {
   async function cancelNavigation() {
-    showSnackbar("Navigation cancelled...");
-    removeRouteFromMap(map);
-    cancelNavigationFn();
-    localStorage.removeItem("activeRouteId");
-    map.flyTo({ center: startingCoordinates, zoom: 15, pitch: 45, speed: 1, curve: 1 });
-    await fetch("/api/navigation", { method: "DELETE" });
+    try {
+      const response = await fetch("/api/navigation", { method: "DELETE" });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      showSnackbar("Navigation cancelled...");
+      removeRouteFromMap(map);
+      cancelNavigationFn();
+      map.flyTo({ center: startingCoordinates, zoom: 15, pitch: 45, speed: 1, curve: 1 });
+    } catch {
+      showSnackbar("Failed to cancel navigation...", "error");
+    }
   }
   async function confirmDestination() {
-    onConfirm?.();
-    showSnackbar("Navigation set!");
-    localStorage.setItem("activeRouteId", routeId);
-    await fetch("/api/navigation", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        longitude: destinationCoordinates[0],
-        latitude: destinationCoordinates[1]
-      })
-    });
-    await loadFavorites();
-    const searchInputEl = document.getElementById("search-field");
-    if (searchInputEl) searchInputEl.value = "";
-    searchFieldState.value = "";
-    requestAnimationFrame(() => {
-      map?.flyTo({
-        center: startingCoordinates,
-        zoom: 18,
-        pitch: 45,
-        speed: 1,
-        curve: 1
+    try {
+      const response = await fetch("/api/navigation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          longitude: destinationCoordinates[0],
+          latitude: destinationCoordinates[1]
+        })
       });
-    });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      onConfirm?.();
+      showSnackbar("Navigation set!");
+      await loadFavorites();
+      const searchInputEl = document.getElementById("search-field");
+      if (searchInputEl) searchInputEl.value = "";
+      searchFieldState.value = "";
+      requestAnimationFrame(() => {
+        map?.flyTo({
+          center: startingCoordinates,
+          zoom: 18,
+          pitch: 45,
+          speed: 1,
+          curve: 1
+        });
+      });
+    } catch {
+      showSnackbar("Failed to set navigation...", "error");
+    }
   }
   async function favoriteDestination() {
     try {
-      const res = await fetch("/api/navigation/favorite", {
+      const { message } = await fetchJson("/api/navigation/favorite", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -788,11 +728,10 @@ function NavigationDestination({
           routeId
         })
       });
-      const { message } = await res.json();
       showSnackbar(message || "Added to favorites!");
       await loadFavorites();
-    } catch {
-      showSnackbar("Failed to add to favorites...");
+    } catch (e) {
+      showSnackbar(e.message, "error");
     }
   }
   async function toggleFavorite() {

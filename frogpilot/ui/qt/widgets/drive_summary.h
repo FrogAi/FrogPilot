@@ -31,8 +31,6 @@ private:
   QLabel *titleLabel;
   QLabel *trackedTimeValue;
 
-  QMap<QString, QLabel*> randomEventLabels;
-
   QMap<QString, QString> randomEventsMap;
 
   QVBoxLayout *eventsListLayout;

@@ -9,6 +9,8 @@ public:
   explicit FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent);
 
 private:
+  bool actionRunning = false;
+
   FrogPilotSettingsWindow *parent;
 
   Params params;

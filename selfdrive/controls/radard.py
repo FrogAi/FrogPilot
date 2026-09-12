@@ -111,7 +111,12 @@ class Track:
     }
 
   def potential_adjacent_lead(self, left: bool, model_data: capnp._DynamicStructReader):
+    should_update_cached_leads = model_data.meta.laneChangeState != LaneChangeState.laneChangeStarting
+
     if self.vLeadK < 1 or self.leadTrackID == self.identifier:
+      if should_update_cached_leads:
+        self.leadLeft = False
+        self.leadRight = False
       return False
 
     far_left_lane = interp(self.dRel, model_data.laneLines[0].x, model_data.laneLines[0].y)
@@ -119,13 +124,17 @@ class Track:
     right_lane = interp(self.dRel, model_data.laneLines[2].x, model_data.laneLines[2].y)
     far_right_lane = interp(self.dRel, model_data.laneLines[3].x, model_data.laneLines[3].y)
 
-    self.leadLeft = far_left_lane < -self.yRel < left_lane and self.dRel < model_data.position.x[-1]
-    self.leadRight = right_lane < -self.yRel < far_right_lane and self.dRel < model_data.position.x[-1]
+    lead_left = far_left_lane < -self.yRel < left_lane and self.dRel < model_data.position.x[-1]
+    lead_right = right_lane < -self.yRel < far_right_lane and self.dRel < model_data.position.x[-1]
+
+    if should_update_cached_leads:
+      self.leadLeft = lead_left
+      self.leadRight = lead_right
 
     if left:
-      return self.leadLeft
+      return lead_left
     else:
-      return self.leadRight
+      return lead_right
 
   def potential_far_lead(self, lead_msg: capnp._DynamicStructReader, model_data: capnp._DynamicStructReader):
     left_lane = interp(self.dRel, model_data.laneLines[1].x, model_data.laneLines[1].y)

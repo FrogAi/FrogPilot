@@ -6,6 +6,7 @@
 #include <cmath>
 
 #include "common/swaglog.h"
+#include "frogpilot/ui/qt/onroad/screen_recorder.h"
 #include "selfdrive/ui/qt/onroad/buttons.h"
 #include "selfdrive/ui/qt/util.h"
 
@@ -30,9 +31,10 @@ AnnotatedCameraWidget::AnnotatedCameraWidget(VisionStreamType type, QWidget* par
   frogpilot_nvg->setAttribute(Qt::WA_TransparentForMouseEvents, true);
 
   distance_btn = new DistanceButton(this);
-  screen_recorder = new ScreenRecorder(this);
+  screen_recorder_btn = new ScreenRecorderButton(this);
 
   distance_btn->setVisible(false);
+  screen_recorder_btn->setVisible(false);
 }
 
 void AnnotatedCameraWidget::resizeEvent(QResizeEvent *event) {
@@ -40,7 +42,7 @@ void AnnotatedCameraWidget::resizeEvent(QResizeEvent *event) {
 
   frogpilot_nvg->setGeometry(rect());
 
-  screen_recorder->move(experimental_btn->x() - UI_BORDER_SIZE - btn_size, experimental_btn->y());
+  screen_recorder_btn->move(experimental_btn->x() - UI_BORDER_SIZE - btn_size, experimental_btn->y());
 }
 
 void AnnotatedCameraWidget::updateState(const UIState &s, const FrogPilotUIState &fs) {
@@ -116,11 +118,17 @@ void AnnotatedCameraWidget::updateState(const UIState &s, const FrogPilotUIState
   distance_btn->setEnabled(frogpilot_nvg->dmIconPosition != QPoint(0, 0) && !hideBottomIcons && frogpilot_toggles.value("onroad_distance_button").toBool());
   distance_btn->setVisible(distance_btn->isEnabled());
   if (distance_btn->isEnabled()) {
-    distance_btn->move(rightHandDM ? width() - UI_BORDER_SIZE - distance_btn->width() - (UI_BORDER_SIZE / 2) : UI_BORDER_SIZE, frogpilot_nvg->dmIconPosition.y() - distance_btn->height() / 2);
     distance_btn->updateState(s.scene, fs.frogpilot_scene);
   }
   experimental_btn->setVisible(!frogpilot_nvg->bigMapOpen);
-  screen_recorder->setVisible(frogpilot_nvg->standstillDuration == 0 && !fs.frogpilot_scene.map_open && !(frogpilot_nvg->signalStyle == "static" && car_state.getRightBlinker()) && frogpilot_toggles.value("screen_recorder").toBool());
+  if (frogpilot_toggles.value("screen_recorder").toBool()) {
+    const bool recorderVisible = frogpilot_nvg->standstillDuration == 0 && !fs.frogpilot_scene.map_open &&
+                                 !(frogpilot_nvg->signalStyle == "static" && car_state.getRightBlinker());
+    screen_recorder_btn->setVisible(recorderVisible);
+  } else {
+    screenRecorder()->stop();
+    screen_recorder_btn->setVisible(false);
+  }
 
   frogpilot_nvg->updateState(fs, frogpilot_toggles);
 }
@@ -350,7 +358,7 @@ void AnnotatedCameraWidget::drawLaneLines(QPainter &painter, const UIState *s, c
       float lin_grad_point = (height() - scene.track_vertices[track_idx].y()) / height();
 
       if ((fabs(acceleration[i]) < 0.25 || !frogpilot_toggles.value("acceleration_path").toBool()) && frogpilot_toggles.value("rainbow_path").toBool()) {
-        frogpilot_nvg->paintRainbowPath(painter, bg, lin_grad_point, sm);
+        frogpilot_nvg->paintRainbowPath(bg, lin_grad_point);
       } else if (fabs(acceleration[i]) < 0.25 && !frogpilot_scene.use_stock_colors) {
         QColor color = frogpilot_scene.path_color;
         color.setAlphaF(util::map_val(lin_grad_point, 0.0f, 1.0f, 1.0f, 0.1f));
@@ -418,6 +426,9 @@ void AnnotatedCameraWidget::drawDriverState(QPainter &painter, const UIState *s,
     offset += UI_BORDER_SIZE;
   }
   int y = height() - offset;
+  if (distance_btn->isEnabled()) {
+    distance_btn->move(rightHandDM ? width() - UI_BORDER_SIZE - distance_btn->width() - UI_BORDER_SIZE / 2 : UI_BORDER_SIZE, y - distance_btn->height() / 2);
+  }
   frogpilot_nvg->dmIconPosition.setX(x);
   frogpilot_nvg->dmIconPosition.setY(y);
   float opacity = dmActive ? 0.65 : 0.2;
@@ -495,13 +506,9 @@ void AnnotatedCameraWidget::drawLead(QPainter &painter, const cereal::RadarState
 }
 
 void AnnotatedCameraWidget::paintGL() {
-}
-
-void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
   UIState *s = uiState();
   FrogPilotUIState *fs = frogpilotUIState();
   QJsonObject &frogpilot_toggles = fs->frogpilot_toggles;
-  QPainter painter(this);
   SubMaster &sm = *(s->sm);
   SubMaster &fpsm = *(fs->sm);
   const double start_draw_t = millis_since_boot();
@@ -539,7 +546,7 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
       wide_cam_requested = wide_cam_requested && s->scene.calibration_wide_valid;
     }
     CameraWidget::setStreamType(frogpilot_toggles.value("camera_view").toInt() == 1 ? VISION_STREAM_DRIVER :
-                                frogpilot_toggles.value("camera_view").toInt() == 3 || wide_cam_requested ? VISION_STREAM_WIDE_ROAD :
+                                frogpilot_toggles.value("camera_view").toInt() == 3 || (frogpilot_toggles.value("camera_view").toInt() == 0 && wide_cam_requested) ? VISION_STREAM_WIDE_ROAD :
                                 VISION_STREAM_ROAD);
 
     s->scene.wide_cam = CameraWidget::getStreamType() == VISION_STREAM_WIDE_ROAD;
@@ -549,12 +556,11 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
     } else {
       CameraWidget::updateCalibration(DEFAULT_CALIBRATION);
     }
-    painter.beginNativePainting();
     CameraWidget::setFrameId(model.getFrameId());
     CameraWidget::paintGL();
-    painter.endNativePainting();
   }
 
+  QPainter painter(this);
   painter.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing);
   painter.setPen(Qt::NoPen);
 
@@ -571,19 +577,18 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
       auto lead_two = radar_state.getLeadTwo();
       auto lead_left = frogpilot_radar_state.getLeadLeft();
       auto lead_right = frogpilot_radar_state.getLeadRight();
+      frogpilot_nvg->leadTextRects.clear();
+      if (lead_one.getStatus()) {
+        drawLead(painter, lead_one, frogpilotPlan, s->scene.lead_vertices[0], lead_one.getModelProb() >= frogpilot_toggles.value("lead_detection_probability").toDouble() ? fs->frogpilot_scene.lead_marker_color : whiteColor(), fs);
+      }
+      if (lead_two.getStatus() && (std::abs(lead_one.getDRel() - lead_two.getDRel()) > 3.0)) {
+        drawLead(painter, lead_two, frogpilotPlan, s->scene.lead_vertices[1], fs->frogpilot_scene.lead_marker_color, fs);
+      }
       if (lead_left.getStatus()) {
         drawLead(painter, reinterpret_cast<const cereal::RadarState::LeadData::Reader &>(lead_left), frogpilotPlan, fs->frogpilot_scene.lead_vertices[0], frogpilot_nvg->blueColor(), fs, true);
       }
       if (lead_right.getStatus()) {
         drawLead(painter, reinterpret_cast<const cereal::RadarState::LeadData::Reader &>(lead_right), frogpilotPlan, fs->frogpilot_scene.lead_vertices[1], frogpilot_nvg->purpleColor(), fs, true);
-      }
-      if (lead_one.getStatus()) {
-        drawLead(painter, lead_one, frogpilotPlan, s->scene.lead_vertices[0], lead_one.getModelProb() >= frogpilot_toggles.value("lead_detection_probability").toDouble() ? fs->frogpilot_scene.lead_marker_color : whiteColor(), fs);
-      } else {
-        frogpilot_nvg->leadTextRect = QRect();
-      }
-      if (lead_two.getStatus() && (std::abs(lead_one.getDRel() - lead_two.getDRel()) > 3.0)) {
-        drawLead(painter, lead_two, frogpilotPlan, s->scene.lead_vertices[1], fs->frogpilot_scene.lead_marker_color, fs);
       }
     }
   }
@@ -614,6 +619,8 @@ void AnnotatedCameraWidget::paintEvent(QPaintEvent *event) {
   if (s->scene.world_objects_visible) {
     frogpilot_nvg->paintFrogPilotWidgets(painter, *s, *fs, sm, fpsm, frogpilot_toggles);
   }
+
+  painter.end();
 }
 
 void AnnotatedCameraWidget::showEvent(QShowEvent *event) {

@@ -1,54 +1,3 @@
-#fileList {
-  background-color: var(--sidebar-bg);
-  border-radius: var(--border-radius-lg);
-  box-sizing: border-box;
-  color: var(--text-color);
-  margin-left: 0;
-  max-height: 80vh;
-  max-width: var(--width-xxl);
-  overflow-y: auto;
-  padding: var(--padding-base);
-  scrollbar-color: var(--thumb-color) var(--track-color);
-  scrollbar-width: auto;
-  width: 85%;
-}
-
-#fileList .fileEntry {
-  align-items: center;
-  border-bottom: var(--border-width-thin) var(--border-style-base) var(--border-color-base);
-  cursor: pointer;
-  display: grid;
-  gap: var(--gap-md);
-  grid-template-columns: 1fr 250px 250px;
-  padding: var(--padding-sm) var(--padding-base);
-}
-
-#fileList .fileEntry p {
-  margin: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-#fileList .fileEntry.header {
-  background-color: var(--secondary-bg);
-  cursor: default;
-  font-weight: var(--font-weight-bold);
-}
-
-#fileList .fileEntry:hover {
-  background-color: var(--sidebar-active-bg);
-}
-
-#fileList .fileEntry:focus-visible {
-  outline: 2px solid var(--thumb-color);
-  outline-offset: -2px;
-}
-
-#fileList .fileEntry p .label {
-  display: none;
-}
-
 .cancel-button {
   background-color: var(--danger-bg);
   border: none;
@@ -82,43 +31,6 @@
   transform: var(--hover-scale-sm);
 }
 
-.tmux-control-text {
-  color: var(--text-color);
-  text-align: center;
-}
-
-.tmux-control-title {
-  background-color: var(--input-bg);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-sm);
-  color: var(--text-color);
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-bold);
-  padding: var(--padding-sm);
-  text-align: center;
-  width: 100%;
-}
-
-.tmux-control-widget {
-  align-items: center;
-  background-color: var(--secondary-bg);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-md);
-  color: var(--main-fg);
-  display: flex;
-  flex-direction: column;
-  margin-top: var(--padding-xl);
-  max-width: var(--width-lg);
-  padding: var(--padding-lg);
-  transform-origin: top center;
-  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
-}
-
-.tmux-control-wrapper {
-  display: flex;
-  justify-content: center;
-}
-
 .tmux-controls {
   box-sizing: border-box;
   display: flex;
@@ -146,6 +58,57 @@
   top: 0;
   width: 100%;
   z-index: var(--z-modal);
+}
+
+.tmux-log-selector-wrapper #fileList {
+  background-color: var(--sidebar-bg);
+  border-radius: var(--border-radius-lg);
+  box-sizing: border-box;
+  color: var(--text-color);
+  margin-left: 0;
+  max-height: 80vh;
+  max-width: var(--width-xxl);
+  overflow-y: auto;
+  padding: var(--padding-base);
+  scrollbar-color: var(--thumb-color) var(--track-color);
+  scrollbar-width: auto;
+  width: 85%;
+}
+
+.tmux-log-selector-wrapper #fileList .fileEntry {
+  align-items: center;
+  border-bottom: var(--border-width-thin) var(--border-style-base) var(--border-color-base);
+  cursor: pointer;
+  display: grid;
+  gap: var(--gap-md);
+  grid-template-columns: 1fr 250px 250px;
+  padding: var(--padding-sm) var(--padding-base);
+}
+
+.tmux-log-selector-wrapper #fileList .fileEntry p {
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tmux-log-selector-wrapper #fileList .fileEntry.header {
+  background-color: var(--secondary-bg);
+  cursor: default;
+  font-weight: var(--font-weight-bold);
+}
+
+.tmux-log-selector-wrapper #fileList .fileEntry:hover {
+  background-color: var(--sidebar-active-bg);
+}
+
+.tmux-log-selector-wrapper #fileList .fileEntry:focus-visible {
+  outline: 2px solid var(--thumb-color);
+  outline-offset: -2px;
+}
+
+.tmux-log-selector-wrapper #fileList .fileEntry p .label {
+  display: none;
 }
 
 .tmux-wrapper {
@@ -194,25 +157,25 @@
   .tmux-wrapper {
     height: 65vh;
   }
-  #fileList .fileEntry {
+  .tmux-log-selector-wrapper #fileList .fileEntry {
     grid-template-columns: 1fr;
     gap: 0;
   }
-  #fileList .fileEntry.header {
+  .tmux-log-selector-wrapper #fileList .fileEntry.header {
     display: none;
   }
-  #fileList .fileEntry p {
+  .tmux-log-selector-wrapper #fileList .fileEntry p {
     display: flex;
     justify-content: space-between;
     overflow: hidden;
     width: 100%;
   }
-  #fileList .fileEntry p .label {
+  .tmux-log-selector-wrapper #fileList .fileEntry p .label {
     display: inline;
     font-weight: bold;
     margin-right: 1em;
   }
-  #fileList .fileEntry p .value {
+  .tmux-log-selector-wrapper #fileList .fileEntry p .value {
     flex-grow: 1;
     overflow: hidden;
     text-align: right;

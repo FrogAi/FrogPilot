@@ -160,13 +160,18 @@ class CarInterface(CarInterfaceBase):
   def _update(self, c, frogpilot_toggles):
     ret, fp_ret = self.CS.update(self.cp, self.cp_cam, c, frogpilot_toggles)
 
+    button_events = []
+    if self.CS.pcm_acc_status != self.CS.prev_pcm_acc_status and self.CS.pcm_acc_status in (9, 10):
+      button_type = ButtonType.accelCruise if self.CS.pcm_acc_status == 9 else ButtonType.decelCruise
+      button_events += create_button_events(1, 0, {1: button_type}) + create_button_events(0, 1, {1: button_type})
+
     if self.CP.carFingerprint in (TSS2_CAR - RADAR_ACC_CAR) or (self.CP.flags & ToyotaFlags.SMART_DSU and not self.CP.flags & ToyotaFlags.RADAR_CAN_FILTER):
-      ret.buttonEvents = [
-        *create_button_events(self.CS.cruise_decreased, False, {1: ButtonType.decelCruise}),
-        *create_button_events(self.CS.cruise_increased, False, {1: ButtonType.accelCruise}),
+      button_events += [
         *create_button_events(self.CS.distance_button, self.CS.prev_distance_button, {1: ButtonType.gapAdjustCruise}),
         *create_button_events(self.CS.lkas_enabled, self.CS.lkas_previously_enabled, {1: FrogPilotButtonType.lkas}),
       ]
+
+    ret.buttonEvents = button_events
 
     # events
     events = self.create_common_events(ret)

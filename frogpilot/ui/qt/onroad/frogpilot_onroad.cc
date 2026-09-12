@@ -6,6 +6,20 @@ FrogPilotOnroadWindow::FrogPilotOnroadWindow(QWidget *parent) : QWidget(parent) 
   QObject::connect(signalTimer, &QTimer::timeout, [this] {
     flickerActive = !flickerActive;
   });
+
+  QObject::connect(uiState(), &UIState::offroadTransition, this, [this](bool offroad) {
+    resetFPSStats();
+  });
+}
+
+void FrogPilotOnroadWindow::resetFPSStats() {
+  maxFPS = 0.0;
+  minFPS = 99.9;
+  totalFPS = 0.0;
+
+  fpsHistory.clear();
+
+  smoothedSteer = 0.0f;
 }
 
 void FrogPilotOnroadWindow::updateState(const UIState &s, const FrogPilotUIState &fs) {
@@ -21,10 +35,10 @@ void FrogPilotOnroadWindow::updateState(const UIState &s, const FrogPilotUIState
   turnSignalLeft = carState.getLeftBlinker();
   turnSignalRight = carState.getRightBlinker();
 
-  showBlindspot = (blindSpotLeft || blindSpotRight) && frogpilot_toggles.value("blind_spot_metrics").toBool();
-  showFPS = frogpilot_toggles.value("show_fps").toBool();
-  showSignal = (turnSignalLeft || turnSignalRight) && frogpilot_toggles.value("signal_metrics").toBool();
-  showSteering = frogpilot_toggles.value("steering_metrics").toBool();
+  showBlindspot = (blindSpotLeft || blindSpotRight) && frogpilot_toggles.value(QLatin1String("blind_spot_metrics")).toBool();
+  showFPS = frogpilot_toggles.value(QLatin1String("show_fps")).toBool();
+  showSignal = (turnSignalLeft || turnSignalRight) && frogpilot_toggles.value(QLatin1String("signal_metrics")).toBool();
+  showSteering = frogpilot_toggles.value(QLatin1String("steering_metrics")).toBool();
 
   update();
 }
@@ -69,13 +83,12 @@ void FrogPilotOnroadWindow::paintEvent(QPaintEvent *event) {
 void FrogPilotOnroadWindow::paintFPS(QPainter &p, const QRect &rect) {
   p.save();
 
+  if (fps <= 0.0) {
+    p.restore();
+    return;
+  }
+
   qint64 now = QDateTime::currentMSecsSinceEpoch();
-
-  static double maxFPS = 0.0;
-  static double minFPS = 99.9;
-  static double totalFPS = 0.0;
-
-  static QList<QPair<qint64, double>> fpsHistory;
 
   fpsHistory.append({now, fps});
   totalFPS += fps;
@@ -110,10 +123,9 @@ void FrogPilotOnroadWindow::paintFPS(QPainter &p, const QRect &rect) {
 void FrogPilotOnroadWindow::paintSteeringTorqueBorder(QPainter &p, const QRect &rect) {
   p.save();
 
-  static float smoothedSteer = 0.0;
   smoothedSteer = 0.25 * std::abs(steer) + 0.75 * smoothedSteer;
-  if (std::abs(smoothedSteer - steer) < 0.01) {
-    smoothedSteer = steer;
+  if (std::abs(smoothedSteer - std::abs(steer)) < 0.01) {
+    smoothedSteer = std::abs(steer);
   }
 
   QLinearGradient gradient(rect.topLeft(), rect.bottomLeft());
@@ -125,16 +137,13 @@ void FrogPilotOnroadWindow::paintSteeringTorqueBorder(QPainter &p, const QRect &
 
   int visibleHeight = rect.height() * smoothedSteer;
 
-  QRect rectToFill, rectToHide;
+  QRect rectToFill;
   if (steer < 0) {
     rectToFill = QRect(rect.x(), rect.y() + rect.height() - visibleHeight, UI_BORDER_SIZE, visibleHeight);
-    rectToHide = QRect(rect.x(), rect.y(), UI_BORDER_SIZE, rect.height() - visibleHeight);
   } else {
     rectToFill = QRect(rect.x() + rect.width() - UI_BORDER_SIZE, rect.y() + rect.height() - visibleHeight, UI_BORDER_SIZE, visibleHeight);
-    rectToHide = QRect(rect.x() + rect.width() - UI_BORDER_SIZE, rect.y(), UI_BORDER_SIZE, rect.height() - visibleHeight);
   }
   p.fillRect(rectToFill, QBrush(gradient));
-  p.fillRect(rectToHide, Qt::transparent);
 
   p.restore();
 }

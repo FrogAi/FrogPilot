@@ -67,7 +67,9 @@ def save_exception(exc_text: str, crash_log) -> None:
   ]
 
   for file_path in files:
-    if file_path.name == "error.txt" and crash_log:
+    if file_path.name == "error.txt":
+      if not crash_log:
+        continue
       lines = exc_text.splitlines()[-10:]
       file_path.write_text("\n".join(lines))
     else:
@@ -102,6 +104,7 @@ def init(project: SentryProject) -> bool:
 
   sentry_sdk.init(project.value,
                   default_integrations=False,
+                  include_local_variables=False,
                   release=get_version(),
                   integrations=integrations,
                   traces_sample_rate=1.0,

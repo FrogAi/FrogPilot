@@ -8,7 +8,6 @@
 
 #include "frogpilot/ui/qt/onroad/frogpilot_annotated_camera.h"
 #include "frogpilot/ui/qt/onroad/frogpilot_buttons.h"
-#include "frogpilot/ui/screenrecorder/screenrecorder.h"
 
 class AnnotatedCameraWidget : public CameraWidget {
   Q_OBJECT
@@ -20,10 +19,10 @@ public:
   MapSettingsButton *map_settings_btn;
 
   // FrogPilot variables
-  double fps;
+  double fps = 0;
 
   FrogPilotAnnotatedCameraWidget *frogpilot_nvg;
-  ScreenRecorder *screen_recorder;
+  ScreenRecorderButton *screen_recorder_btn;
 
 private:
   void drawText(QPainter &p, int x, int y, const QString &text, int alpha = 255);
@@ -51,7 +50,6 @@ private:
   bool wide_cam_requested = false;
 
   // FrogPilot variables
-  void paintEvent(QPaintEvent *event) override;
   void resizeEvent(QResizeEvent *event);
 
   DistanceButton *distance_btn;

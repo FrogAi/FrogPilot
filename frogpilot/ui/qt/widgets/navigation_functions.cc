@@ -1,6 +1,7 @@
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QSignalBlocker>
 
 #include "frogpilot/ui/qt/widgets/navigation_functions.h"
 
@@ -24,10 +25,10 @@ MapSelectionControl::MapSelectionControl(const QMap<QString, QString> &map, bool
     QObject::connect(button, &QPushButton::toggled, this, &MapSelectionControl::updateSelectedMaps);
   }
 
-  loadSelectedMaps();
+  reloadSelectedMaps();
 }
 
-void MapSelectionControl::loadSelectedMaps() {
+void MapSelectionControl::reloadSelectedMaps() {
   QJsonObject existingMaps = QJsonDocument::fromJson(QByteArray::fromStdString(params.get("MapsSelected"))).object();
 
   QSet<QString> selectedMaps;
@@ -36,6 +37,7 @@ void MapSelectionControl::loadSelectedMaps() {
   }
 
   for (QAbstractButton *button : mapButtons->buttons()) {
+    const QSignalBlocker blocker(button);
     button->setChecked(selectedMaps.contains(button->property("mapKey").toString()));
   }
 }
@@ -58,5 +60,5 @@ void MapSelectionControl::updateSelectedMaps() {
   }
 
   existingMaps[selectionType] = QJsonArray::fromStringList(selectedMaps.values());
-  params.putNonBlocking("MapsSelected", QJsonDocument(existingMaps).toJson(QJsonDocument::Compact).toStdString());
+  params.put("MapsSelected", QJsonDocument(existingMaps).toJson(QJsonDocument::Compact).toStdString());
 }

@@ -3,6 +3,7 @@
 #include <QApplication>
 #include <QTranslator>
 
+#include "frogpilot/ui/qt/onroad/screen_recorder.h"
 #include "system/hardware/hw.h"
 #include "selfdrive/ui/qt/qt_window.h"
 #include "selfdrive/ui/qt/util.h"
@@ -25,6 +26,8 @@ int main(int argc, char *argv[]) {
 
   MainWindow w;
   setMainWindow(&w);
+  screenRecorder()->attach();
+  QObject::connect(&a, &QApplication::aboutToQuit, screenRecorder(), &ScreenRecorder::stop);
   a.installEventFilter(&w);
   return a.exec();
 }

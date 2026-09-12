@@ -1,5 +1,7 @@
 #pragma once
 
+#include <QElapsedTimer>
+
 #include "selfdrive/ui/qt/sidebar.h"
 
 class DeveloperSidebar : public QFrame {
@@ -21,9 +23,14 @@ private:
   double maxAcceleration;
   double totalEngagementTime;
 
+  int maxSteerAngle;
+  int maxTorque;
+
   std::vector<int> metricAssignments;
 
   QColor metricColor;
+
+  QElapsedTimer torqueTimer;
 
   ItemStatus accelerationJerkStatus;
   ItemStatus accelerationStatus;

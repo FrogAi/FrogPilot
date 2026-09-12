@@ -16,11 +16,9 @@ protected:
 
 private:
   void updateMetric(bool metric, bool bootRun);
-  void updateState(const UIState &s);
   void updateToggles();
 
-  bool forceOpenDescriptions;
-  bool started;
+  bool forceOpenDescriptions = false;
 
   std::map<QString, AbstractControl*> toggles;
 

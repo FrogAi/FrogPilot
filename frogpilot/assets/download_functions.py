@@ -37,10 +37,17 @@ def download_file(cancel_param, destination, progress_param, url, download_param
   try:
     destination.parent.mkdir(parents=True, exist_ok=True)
 
+    if cancel_param and params_memory.get_bool(cancel_param):
+      handle_error(None, "Download cancelled...", "Download cancelled...", download_param, progress_param)
+      return
+
     total_size = get_remote_file_size(url, session)
     if total_size == 0:
       if not url.endswith(".gif"):
         handle_error(None, "Download invalid...", "Download invalid...", download_param, progress_param)
+      return
+    if cancel_param and params_memory.get_bool(cancel_param):
+      handle_error(None, "Download cancelled...", "Download cancelled...", download_param, progress_param)
       return
 
     with session.get(url, stream=True, timeout=10) as response:
@@ -102,14 +109,16 @@ def handle_error(destination, error_message, error, download_param, progress_par
     params_memory.remove(download_param)
 
 def handle_request_error(error, destination, download_param, progress_param):
-  error_map = {
-    requests.exceptions.ConnectionError: "Connection dropped",
-    requests.exceptions.HTTPError: lambda error: f"Server error ({error.response.status_code})" if error and getattr(error, "response", None) else "Server error",
-    requests.exceptions.RequestException: "Network request error. Check connection",
-    requests.exceptions.Timeout: "Download timed out",
-  }
+  if isinstance(error, requests.exceptions.HTTPError) and error.response is not None:
+    error_message = f"Server error ({error.response.status_code})"
+  else:
+    error_message = {
+      requests.exceptions.ConnectionError: "Connection dropped",
+      requests.exceptions.HTTPError: "Server error",
+      requests.exceptions.RequestException: "Network request error. Check connection",
+      requests.exceptions.Timeout: "Download timed out",
+    }.get(type(error), "Unexpected error")
 
-  error_message = error_map.get(type(error), "Unexpected error")
   handle_error(destination, f"Failed: {error_message}", error, download_param, progress_param)
 
 def verify_download(file_path, url, session):

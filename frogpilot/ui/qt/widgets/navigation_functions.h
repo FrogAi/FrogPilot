@@ -92,13 +92,13 @@ inline QMap<QString, QString> europeMap = {
   {"EE", "Estonia"}, {"FI", "Finland"}, {"FR", "France"},
   {"GE", "Georgia"}, {"DE", "Germany"}, {"GR", "Greece"},
   {"HU", "Hungary"}, {"IS", "Iceland"}, {"IE", "Ireland"},
-  {"IT", "Italy"}, {"KZ", "Kazakhstan"}, {"LV", "Latvia"},
+  {"IT", "Italy"}, {"LV", "Latvia"},
   {"LT", "Lithuania"}, {"LU", "Luxembourg"}, {"MK", "Macedonia"},
   {"MD", "Moldova"}, {"ME", "Montenegro"}, {"NL", "Netherlands"},
   {"NO", "Norway"}, {"PL", "Poland"}, {"PT", "Portugal"},
   {"RO", "Romania"}, {"RS", "Serbia"}, {"SK", "Slovakia"},
   {"SI", "Slovenia"}, {"ES", "Spain"}, {"SE", "Sweden"},
-  {"CH", "Switzerland"}, {"TR", "Turkey"}, {"UA", "Ukraine"},
+  {"CH", "Switzerland"}, {"UA", "Ukraine"},
   {"GB", "United Kingdom"}
 };
 
@@ -179,16 +179,11 @@ inline QString formatElapsedTime(float elapsedMilliseconds) {
 inline QString formatETA(float elapsedTime, int downloadedFiles, int previousDownloadedFiles, int totalFiles, QDateTime &startTime) {
   static QDateTime estimatedFinishTime;
 
-  static float previousElapsedTime;
-
   if (downloadedFiles != previousDownloadedFiles) {
     estimatedFinishTime = startTime.addMSecs((elapsedTime * totalFiles) / downloadedFiles);
-  } else {
-    estimatedFinishTime = estimatedFinishTime.addSecs((previousElapsedTime - elapsedTime) / 1000);
   }
-  previousElapsedTime = elapsedTime;
 
-  int remainingTime = QDateTime::currentDateTime().secsTo(estimatedFinishTime);
+  int remainingTime = qMax<qint64>(0, QDateTime::currentDateTime().secsTo(estimatedFinishTime));
 
   QString estimatedFinishTimeStr = estimatedFinishTime.toString("h:mm AP");
   QString remainingTimeStr = formatElapsedTime(remainingTime * 1000);
@@ -201,9 +196,9 @@ class MapSelectionControl : public QWidget {
 
 public:
   MapSelectionControl(const QMap<QString, QString> &map, bool isCountry = false);
+  void reloadSelectedMaps();
 
 private:
-  void loadSelectedMaps();
   void updateSelectedMaps();
 
   Params params;

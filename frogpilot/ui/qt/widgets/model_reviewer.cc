@@ -215,11 +215,18 @@ void FrogPilotModelReview::mousePressEvent(QMouseEvent *e) {
 }
 
 void FrogPilotModelReview::showEvent(QShowEvent *event) {
+  if (modelRated) {
+    mainLayout->setCurrentIndex(1);
+    return;
+  }
+
+  blacklistMessageLabel->clear();
+
   QStringList availableModels = QString::fromStdString(params.get("AvailableModels")).split(",", QString::SkipEmptyParts);
   availableModelNames = QString::fromStdString(params.get("AvailableModelNames")).split(",", QString::SkipEmptyParts);
   blacklistedModels = QString::fromStdString(params.get("BlacklistedModels")).split(",", QString::SkipEmptyParts);
 
-  blacklistButton->setVisible(!(QSet<QString>::fromList(availableModels) - QSet<QString>::fromList(blacklistedModels)).isEmpty());
+  blacklistButton->setVisible((QSet<QString>::fromList(availableModels) - QSet<QString>::fromList(blacklistedModels)).size() > 1);
 
   QMap<QString, QString> modelMap;
   for (int i = 0; i < qMin(availableModels.size(), availableModelNames.size()); ++i) {
@@ -231,7 +238,7 @@ void FrogPilotModelReview::showEvent(QShowEvent *event) {
   modelDrivesAndScores = QJsonDocument::fromJson(QString::fromStdString(params.get("ModelDrivesAndScores")).toUtf8()).object();
   currentModelData = modelDrivesAndScores.value(currentModelFiltered).toObject();
 
-  mainLayout->setCurrentIndex(modelRated ? 1 : 0);
+  mainLayout->setCurrentIndex(0);
 }
 
 int FrogPilotModelReview::getModelRank() {
@@ -280,6 +287,8 @@ void FrogPilotModelReview::onBlacklistButtonClicked() {
 
   blacklistMessageLabel->setText(tr("Model successfully blacklisted!"));
 
+  modelRated = true;
+
   updateLabel();
 }
 
@@ -288,7 +297,7 @@ void FrogPilotModelReview::onRatingButtonClicked() {
   int modelRating = currentModelData.value("Score").toInt();
 
   totalDrives = modelDrives + 1;
-  finalRating = ((modelRating * modelDrives) + sender()->property("rating").toInt()) / totalDrives;
+  const int finalRating = ((modelRating * modelDrives) + sender()->property("rating").toInt()) / totalDrives;
 
   currentModelData["Drives"] = totalDrives;
   currentModelData["Score"] = finalRating;
@@ -304,7 +313,7 @@ void FrogPilotModelReview::onRatingButtonClicked() {
 void FrogPilotModelReview::updateLabel() {
   modelLabel->setText(currentModelFiltered);
   modelRankLabel->setText(tr("#%1").arg(getModelRank()));
-  modelRatingLabel->setText(tr("%1%").arg(finalRating));
+  modelRatingLabel->setText(tr("%1%").arg(currentModelData.value("Score").toInt()));
   totalDrivesLabel->setText(tr("%1 %2").arg(totalDrives).arg(totalDrives == 1 ? tr("Drive") : tr("Drives")));
   totalOverallDrivesLabel->setText(tr("%1 Total %2").arg(totalOverallDrives).arg(totalOverallDrives == 1 ? tr("Drive") : tr("Drives")));
 

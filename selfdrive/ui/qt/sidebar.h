@@ -70,7 +70,9 @@ private:
   std::unique_ptr<PubMaster> pm;
 
   // FrogPilot variables
+  void hideEvent(QHideEvent *event) override;
   void showEvent(QShowEvent *event);
+  void updateHomeButton();
   void updateTheme();
 
   bool isCPU;

@@ -35,6 +35,12 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   automaticUpdatesToggle->setVisible(params.getBool("IsReleaseBranch"));
   addItem(automaticUpdatesToggle);
 
+  // telemetry toggle
+  ParamControl *shareDrivingDataToggle = new ParamControl("FrogPilotTelemetry", tr("Share FrogPilot Data"),
+                                                          tr("<b>Help improve FrogPilot by sharing basic usage stats and filtered driving logs.</b><br><br>We do our best to remove personal information before anything is uploaded. For usage stats, we never send your exact location. We send only a general city, state, and country. Smaller towns are replaced with a nearby major city when possible, or a broader regional location otherwise. Stats are linked to your FrogPilot device ID and include details about your device, software version, car, FrogPilot settings, and driving totals.<br><br>Driving logs are filtered on your device before upload. They do not include camera footage or images, your FrogPilot device ID, account details, SSH keys, or the exact GPS, VIN, and date/time fields we can identify. Each drive also gets a separate random ID.<br><br>The one exception is raw CAN data from your car. We keep it because it helps improve vehicle support and discover new signals, but some cars may include details such as GPS, VIN, date/time, or driver and passenger status in that data.<br><br>Turn this off at any time to stop both uploads."), "");
+  shareDrivingDataToggle->setConfirmation(true, false);
+  addItem(shareDrivingDataToggle);
+
   // download update btn
   downloadBtn = new ButtonControl(tr("Download"), tr("CHECK"));
   connect(downloadBtn, &ButtonControl::clicked, [=]() {

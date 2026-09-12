@@ -31,7 +31,7 @@ def assets_checks(model_manager, theme_manager, frogpilot_toggles):
 
   report_data = json.loads(params_memory.get("IssueReported", encoding="utf-8") or "{}")
   if report_data:
-    capture_report(report_data["DiscordUser"], report_data["Issue"], vars(frogpilot_toggles))
+    run_thread_with_lock("capture_report", capture_report, (report_data["DiscordUser"], report_data["Issue"], dict(vars(frogpilot_toggles))))
     params_memory.remove("IssueReported")
 
   for asset_type, asset_param in THEME_COMPONENT_PARAMS.items():
@@ -39,14 +39,16 @@ def assets_checks(model_manager, theme_manager, frogpilot_toggles):
     if asset_to_download:
       run_thread_with_lock("download_theme", theme_manager.download_theme, (asset_type, asset_to_download, asset_param, frogpilot_toggles))
 
-def update_checks(model_manager, now, theme_manager, frogpilot_toggles, boot_run=False):
+def update_checks(model_manager, now, theme_manager, sm, frogpilot_toggles, boot_run=False):
   while not (is_url_pingable("https://github.com") or is_url_pingable("https://gitlab.com")):
     time.sleep(60)
 
   model_manager.update_models(boot_run)
-  theme_manager.update_themes(frogpilot_toggles, boot_run)
+  if not sm["deviceState"].networkMetered:
+    theme_manager.update_themes(frogpilot_toggles, boot_run)
 
-  run_thread_with_lock("update_maps", update_maps, (now,))
+  if not sm["deviceState"].networkMetered:
+    run_thread_with_lock("update_maps", update_maps, (now,))
 
   if frogpilot_toggles.automatic_updates:
     run_thread_with_lock("update_openpilot", update_openpilot)
@@ -72,7 +74,7 @@ def frogpilot_thread():
 
   pm = messaging.PubMaster(["frogpilotPlan"])
   sm = messaging.SubMaster(["carControl", "carState", "controlsState", "deviceState", "driverMonitoringState",
-                            "liveLocationKalman", "liveParameters", "managerState", "modelV2", "onroadEvents",
+                            "liveLocationKalman", "liveParameters", "liveTorqueParameters", "managerState", "modelV2", "onroadEvents",
                             "pandaStates", "radarState", "frogpilotCarState", "frogpilotControlsState",
                             "frogpilotModelV2", "frogpilotNavigation", "frogpilotOnroadEvents"],
                             poll="modelV2", ignore_avg_freq=["frogpilotRadarState"])
@@ -92,6 +94,8 @@ def frogpilot_thread():
     if not started and started_previously:
       run_update_checks = True
 
+      frogpilot_planner.frogpilot_vcruise.slc.close()
+
       frogpilot_variables.update(theme_manager.holiday_theme, started)
       frogpilot_toggles = get_frogpilot_toggles()
 
@@ -102,7 +106,7 @@ def frogpilot_thread():
         theme_manager.update_active_theme(time_validated, frogpilot_toggles, randomize_theme=True)
 
       if time_validated:
-        send_stats(json.loads(params.get("LastGPSPosition") or "{}"), params, frogpilot_toggles)
+        run_thread_with_lock("send_stats", send_stats, (params, frogpilot_toggles))
 
     elif started and not started_previously:
       if error_log.is_file():
@@ -153,7 +157,7 @@ def frogpilot_thread():
 
     if run_update_checks:
       theme_manager.update_active_theme(time_validated, frogpilot_toggles)
-      run_thread_with_lock("update_checks", update_checks, (model_manager, now, theme_manager, frogpilot_toggles))
+      run_thread_with_lock("update_checks", update_checks, (model_manager, now, theme_manager, sm, frogpilot_toggles))
 
       run_update_checks = False
     elif not time_validated:
@@ -162,7 +166,7 @@ def frogpilot_thread():
         continue
 
       theme_manager.update_active_theme(time_validated, frogpilot_toggles)
-      run_thread_with_lock("update_checks", update_checks, (model_manager, now, theme_manager, frogpilot_toggles, True))
+      run_thread_with_lock("update_checks", update_checks, (model_manager, now, theme_manager, sm, frogpilot_toggles, True))
 
     rate_keeper.keep_time()
 

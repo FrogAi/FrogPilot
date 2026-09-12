@@ -14,7 +14,9 @@ const state = reactive({
   showDeleteAllModal: false,
 });
 
-;(async () => {
+async function initializeErrorLogs() {
+  state.loading = true;
+  state.loadError = false;
   try {
     const res = await fetch("/api/error_logs", { headers: { Accept: "application/json" } });
     const data = await res.json();
@@ -33,7 +35,7 @@ const state = reactive({
   } finally {
     state.loading = false;
   }
-})();
+}
 
 async function deleteAllLogs() {
   state.showDeleteAllModal = false;
@@ -52,6 +54,7 @@ async function deleteAllLogs() {
 }
 
 export function ErrorLogs() {
+  initializeErrorLogs();
   return html`
   <div class="error-logs-wrapper">
     <div id="errorLogs">

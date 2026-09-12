@@ -16,6 +16,7 @@ const state = reactive({
 })
 
 function formatRouteDate(dateString) {
+  if (!dateString) return "Unknown date"
   const date = new Date(dateString)
   if (isNaN(date.getTime())) {
     return dateString
@@ -33,6 +34,7 @@ function formatRouteDate(dateString) {
 }
 
 let routesController = null
+let routesStarted = false
 
 async function fetchRoutes() {
   if (routesController) routesController.abort()
@@ -85,15 +87,14 @@ async function fetchRoutes() {
   }
 }
 
-fetchRoutes()
-onRouteLeave(() => { if (routesController) routesController.abort() })
-
 function refresh() {
   if (routesController) routesController.abort()
   state.error = null
   state.loading = true
+  state.progress = 0
   state.routes = []
-  fetchRoutes()
+  state.total = 0
+  return fetchRoutes()
 }
 
 let overlay = null
@@ -140,12 +141,11 @@ function closeDialog(o) {
   if (o) o.remove()
 }
 
-async function deleteRoute(route) {
+function deleteRoute(route) {
   const onDelete = async () => {
     try {
       const res = await fetch(`/api/routes/${encodeURIComponent(route.name)}`, { method: "DELETE" })
       if (res.ok) {
-        state.routes = state.routes.filter(r => r.name !== route.name)
         closeDialog(dlg)
         closeOverlay()
         refresh()
@@ -236,7 +236,7 @@ async function renameRoute(route) {
     </div>`);
 }
 
-async function openOverlay(route) {
+function openOverlay(route) {
   if (overlay) return;
 
   overlay = document.createElement("div");
@@ -315,14 +315,16 @@ async function openOverlay(route) {
       }
       const data = await response.json();
       segments = data.segment_urls;
+      const availableCameras = new Set(data.available_cameras || []);
+      selectedCamera = availableCameras.has("forward") ? "forward" : [...availableCameras][0] ?? "forward";
 
-      if (!segments || segments.length === 0) {
-        segments = [`/video/${encodeURIComponent(route.name)}--0`];
-      }
-      vid.src = `${segments[0]}?camera=forward`;
+      vid.src = `${segments[0]}?camera=${selectedCamera}`;
       vid.load();
       vid.play();
-      cameraButtons.forEach(btn => { btn.disabled = false; });
+      cameraButtons.forEach(btn => {
+        btn.disabled = !availableCameras.has(btn.dataset.camera);
+        btn.classList.toggle("active", btn.dataset.camera === selectedCamera);
+      });
     } catch (error) {
       showSnackbar("Error: Could not load combined route video.", "error");
     }
@@ -392,7 +394,17 @@ async function deleteAllRoutes() {
 }
 
 export function RouteRecordings() {
-  onRouteLeave(closeOverlay)
+  if (!routesStarted) {
+    routesStarted = true
+    refresh()
+  }
+  onRouteLeave(() => {
+    closeOverlay()
+    if (state.loading) {
+      routesStarted = false
+      if (routesController) routesController.abort()
+    }
+  })
   if (state.selectedRoute && !overlay) openOverlay(state.selectedRoute);
 
   return html`
@@ -435,6 +447,9 @@ export function RouteRecordings() {
                 route => html`
                   <div
                     class="recording-card"
+                    role="button"
+                    tabindex="0"
+                    aria-label="${() => `Open route ${route.timestamp}`}"
                     @mouseenter="${e => {
                       if (state.selectedRoute) return;
 
@@ -477,18 +492,26 @@ export function RouteRecordings() {
                     @click="${() => {
                       state.selectedRoute = route;
                     }}"
+                    @keydown="${e => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        state.selectedRoute = route;
+                      }
+                    }}"
                   >
                     <button type="button" class="preserved-icon" aria-label="${() => (route.is_preserved ? "Remove preserved route" : "Preserve route")}" @click="${e => togglePreserved(route, e)}">
                       ${() => html`<i class="bi ${route.is_preserved ? "bi-heart-fill" : "bi-heart"}"></i>`}
                     </button>
                     <div class="recording-preview-container">
                       <img
+                        alt=""
                         src="${route.png}"
                         class="recording-preview recording-preview-png"
                         style="display:block;"
                         @error="${e => { e.target.style.visibility = "hidden" }}"
                       >
                       <img
+                        alt=""
                         data-src="${route.gif}"
                         class="recording-preview recording-preview-gif"
                         style="display:none;"

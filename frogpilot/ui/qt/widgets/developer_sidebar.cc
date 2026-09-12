@@ -25,6 +25,8 @@ DeveloperSidebar::DeveloperSidebar(QWidget *parent) : QFrame(parent) {
   setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
   setFixedWidth(300);
 
+  resetVariables();
+
   QObject::connect(frogpilotUIState(), &FrogPilotUIState::themeUpdated, this, &DeveloperSidebar::updateTheme);
   QObject::connect(uiState(), &UIState::offroadTransition, this, &DeveloperSidebar::resetVariables);
   QObject::connect(uiState(), &UIState::uiUpdate, this, &DeveloperSidebar::updateState);
@@ -53,7 +55,11 @@ void DeveloperSidebar::resetVariables() {
   lateralEngagementTime = 0;
   longitudinalEngagementTime = 0;
   maxAcceleration = 0;
+  maxSteerAngle = 0;
+  maxTorque = 0;
   totalEngagementTime = 0;
+
+  torqueTimer.invalidate();
 }
 
 void DeveloperSidebar::updateState(const UIState &s, const FrogPilotUIState &fs) {
@@ -72,12 +78,12 @@ void DeveloperSidebar::updateState(const UIState &s, const FrogPilotUIState &fs)
   const cereal::LiveTorqueParametersData::Reader &liveTorqueParameters = fpsm["liveTorqueParameters"].getLiveTorqueParameters();
 
   const bool is_metric = s.scene.is_metric;
-  const bool use_si = fs.frogpilot_toggles.value("use_si_metrics").toBool();
+  const bool use_si = fs.frogpilot_toggles.value(QLatin1String("use_si_metrics")).toBool();
 
   const QString accelerationUnit = (is_metric || use_si) ? tr(" m/s²") : tr(" ft/s²");
   const float accelerationConversion = (is_metric || use_si) ? 1.0f : METER_TO_FOOT;
 
-  double acceleration = carState.getAEgo() * accelerationConversion;
+  double acceleration = carState.getAEgo();
   if (!carState.getGasPressed()) {
     maxAcceleration = std::max(maxAcceleration, acceleration);
   }
@@ -86,20 +92,16 @@ void DeveloperSidebar::updateState(const UIState &s, const FrogPilotUIState &fs)
   longitudinalEngagementTime += carControl.getLongActive() && !frogpilot_scene.reverse && !frogpilot_scene.standstill ? 1 : 0;
   totalEngagementTime += !(frogpilot_scene.reverse || frogpilot_scene.standstill) || totalEngagementTime == 0 ? 1 : 0;
 
-  static int maxSteerAngle = 0;
   int currentSteerAngle = fabs(carState.getSteeringAngleDeg());
 
-  static int maxTorque = 0;
   int currentTorque = fabs(carControl.getActuators().getSteer() * 100);
-
-  static QElapsedTimer torqueTimer;
 
   if (currentTorque >= 50) {
     maxSteerAngle = std::max(maxSteerAngle, currentSteerAngle);
     maxTorque = std::max(maxTorque, currentTorque);
 
     torqueTimer.start();
-  } else if (torqueTimer.elapsed() >= 10000) {
+  } else if (torqueTimer.isValid() && torqueTimer.elapsed() >= 10000) {
     maxTorque = 0;
     maxSteerAngle = 0;
 
@@ -114,7 +116,7 @@ void DeveloperSidebar::updateState(const UIState &s, const FrogPilotUIState &fs)
     torqueLabel += QString(" - (%1%)").arg(maxTorque);
   }
 
-  accelerationStatus = ItemStatus(QPair<QString, QString>(tr("ACCEL"), QString::number(acceleration, 'f', 2) + accelerationUnit), metricColor);
+  accelerationStatus = ItemStatus(QPair<QString, QString>(tr("ACCEL"), QString::number(acceleration * accelerationConversion, 'f', 2) + accelerationUnit), metricColor);
   accelerationJerkStatus = ItemStatus(QPair<QString, QString>(tr("ACCEL JERK"), QString::number(frogpilotPlan.getAccelerationJerk())), metricColor);
   actuatorAccelerationStatus = ItemStatus(QPair<QString, QString>(tr("ACT ACCEL"), QString::number(carControl.getActuators().getAccel() * accelerationConversion, 'f', 2) + accelerationUnit), metricColor);
   dangerJerkStatus = ItemStatus(QPair<QString, QString>(tr("DANGER JERK"), QString::number(frogpilotPlan.getDangerJerk())), metricColor);
@@ -123,7 +125,7 @@ void DeveloperSidebar::updateState(const UIState &s, const FrogPilotUIState &fs)
   latAccelStatus = ItemStatus(QPair<QString, QString>(tr("LAT ACCEL"), QString::number(liveTorqueParameters.getLatAccelFactorFiltered(), 'f', 5)), metricColor);
   lateralEngagementStatus = ItemStatus(QPair<QString, QString>(tr("LATERAL %"), QString::number((lateralEngagementTime / totalEngagementTime) * 100.0f, 'f', 2) + "%"), metricColor);
   longitudinalEngagementStatus = ItemStatus(QPair<QString, QString>(tr("LONG %"), QString::number((longitudinalEngagementTime / totalEngagementTime) * 100.0f, 'f', 2) + "%"), metricColor);
-  maxAccelerationStatus = ItemStatus(QPair<QString, QString>(tr("MAX ACCEL"), QString::number(maxAcceleration, 'f', 2) + accelerationUnit), metricColor);
+  maxAccelerationStatus = ItemStatus(QPair<QString, QString>(tr("MAX ACCEL"), QString::number(maxAcceleration * accelerationConversion, 'f', 2) + accelerationUnit), metricColor);
   speedJerkStatus = ItemStatus(QPair<QString, QString>(tr("SPEED JERK"), QString::number(frogpilotPlan.getSpeedJerk())), metricColor);
   steerAngleStatus = ItemStatus(QPair<QString, QString>(tr("STEER ANGLE"), steerLabel), metricColor);
   steerRatioStatus = ItemStatus(QPair<QString, QString>(tr("STEER RATIO"), QString::number(liveParameters.getSteerRatio(), 'f', 5)), metricColor);
@@ -140,26 +142,18 @@ void DeveloperSidebar::paintEvent(QPaintEvent *event) {
 
   p.fillRect(rect(), QColor(57, 57, 57));
 
-  QMap<int, ItemStatus*> metricMap;
-  metricMap.insert(1, &accelerationStatus);
-  metricMap.insert(2, &maxAccelerationStatus);
-  metricMap.insert(3, &delayStatus);
-  metricMap.insert(4, &frictionStatus);
-  metricMap.insert(5, &latAccelStatus);
-  metricMap.insert(6, &steerRatioStatus);
-  metricMap.insert(7, &stiffnessFactorStatus);
-  metricMap.insert(8, &lateralEngagementStatus);
-  metricMap.insert(9, &longitudinalEngagementStatus);
-  metricMap.insert(10, &steerAngleStatus);
-  metricMap.insert(11, &torqueStatus);
-  metricMap.insert(12, &actuatorAccelerationStatus);
-  metricMap.insert(13, &accelerationJerkStatus);
-  metricMap.insert(14, &dangerJerkStatus);
-  metricMap.insert(15, &speedJerkStatus);
+  ItemStatus *metrics[] = {
+    nullptr,
+    &accelerationStatus, &maxAccelerationStatus, &delayStatus, &frictionStatus, &latAccelStatus,
+    &steerRatioStatus, &stiffnessFactorStatus, &lateralEngagementStatus, &longitudinalEngagementStatus,
+    &steerAngleStatus, &torqueStatus, &actuatorAccelerationStatus, &accelerationJerkStatus,
+    &dangerJerkStatus, &speedJerkStatus
+  };
+  constexpr int metricCount = std::size(metrics);
 
   int count = 0;
   for (size_t i = 0; i < metricAssignments.size(); ++i) {
-    if (metricAssignments[i] > 0 && metricMap.contains(metricAssignments[i])) {
+    if (metricAssignments[i] > 0 && metricAssignments[i] < metricCount) {
       count++;
     }
   }
@@ -174,15 +168,11 @@ void DeveloperSidebar::paintEvent(QPaintEvent *event) {
   for (size_t i = 0; i < metricAssignments.size(); ++i) {
     int metricId = metricAssignments[i];
 
-    if (metricId == 0) {
+    if (metricId <= 0 || metricId >= metricCount) {
       continue;
     }
 
-    if (!metricMap.contains(metricId)) {
-      continue;
-    }
-
-    ItemStatus *status = metricMap[metricId];
+    ItemStatus *status = metrics[metricId];
     drawMetric(p, status->first, status->second, y);
     y += metricHeight + spacing;
   }

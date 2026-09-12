@@ -1,39 +1,44 @@
 #!/usr/bin/env python3
-import base64
 import hashlib
 import json
+import math
 import os
 import re
 import requests
 import secrets
 import shutil
 import socket
+import stat
 import struct
 import subprocess
 import threading
 import time
 
-from datetime import datetime, timedelta, timezone
+from contextlib import contextmanager
+from datetime import datetime
 from flask import Flask, Response, jsonify, render_template, request, send_file, send_from_directory, stream_with_context
+from functools import wraps
 from io import BytesIO
 from pathlib import Path
 from werkzeug.utils import secure_filename
 
 from cereal import car, messaging
 from opendbc.can.parser import CANParser
+from openpilot.common.params import ParamKeyType
 from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.car.toyota.carcontroller import LOCK_CMD, UNLOCK_CMD
 from openpilot.system.hardware import HARDWARE, PC
 from openpilot.system.hardware.hw import Paths
 from openpilot.system.loggerd.deleter import PRESERVE_ATTR_NAME, PRESERVE_ATTR_VALUE, PRESERVE_COUNT
 from openpilot.system.version import get_build_metadata
-from panda import Panda
 
-from openpilot.frogpilot.assets.theme_manager import HOLIDAY_THEME_PATH, THEME_COMPONENT_PARAMS
-from openpilot.frogpilot.common.frogpilot_utilities import delete_file, get_frogpilot_api_info, get_lock_status, run_cmd, extract_tar
-from openpilot.frogpilot.common.frogpilot_variables import ACTIVE_THEME_PATH, ERROR_LOGS_PATH, EXCLUDED_KEYS, FROGPILOT_API, RESOURCES_REPO, SCREEN_RECORDINGS_PATH, THEME_SAVE_PATH,\
-                                                           frogpilot_default_params, params, params_memory, update_frogpilot_toggles
+from openpilot.frogpilot.assets.theme_manager import HOLIDAY_THEME_PATH, POND_ACTIVE_THEME, THEME_COMPONENT_PARAMS
+from openpilot.frogpilot.common.frogpilot_utilities import delete_file, extract_tar
+from openpilot.frogpilot.common.frogpilot_variables import (ACTIVE_THEME_PATH, ERROR_LOGS_PATH, EXCLUDED_KEYS, RESOURCES_REPO,
+                                                            SCREEN_RECORDINGS_PATH, THEME_SAVE_PATH, frogpilot_default_params, params,
+                                                            params_memory, update_frogpilot_toggles)
 from openpilot.frogpilot.system.the_pond import helpers, utilities
+from openpilot.frogpilot.system.the_pond.theme_submission import ThemeAsset, ThemeSubmissionError, submit_theme_assets
 
 FOOTAGE_PATHS = [
   Paths.log_root(HD=True, raw=True),
@@ -48,40 +53,349 @@ KEYS = {
   "secret": ("secret", "sk.", "MapboxSecretKey", "Secret key", 80),
 }
 
+_SENTRY_LOG_RE = re.compile(r"\d{4}-\d{2}-\d{2}--\d{2}-\d{2}-\d{2}\.log")
+_THEME_ASSET_SUFFIXES = frozenset({".gif", ".jpeg", ".jpg", ".json", ".png", ".wav"})
+
 TMUX_LOGS_PATH = Path("/data/tmux_logs")
 TAILSCALE_BASE = "/data/tailscale"
-NAVIGATION_TRAINING_PATH = "/data/openpilot/frogpilot/navigation/navigation_training"
+TAILSCALE_UNIT_PATH = Path("/etc/systemd/system/tailscaled.service")
+NAVIGATION_TRAINING_PATH = Path(__file__).parents[2] / "navigation/navigation_training"
+MAPBOX_HELP_IMAGES = frozenset({"both_keys_set.png", "no_keys_set.png", "public_key_set.png", "setup_completed.png"})
 
 _PARAMS_LOCK = threading.RLock()
+_ROUTE_STORAGE_ROOT = Path(FOOTAGE_PATHS[-1]).parent
+_ROUTE_MUTATION_LOCK_PATH = _ROUTE_STORAGE_ROOT / ".route_mutation.lock"
+_ROUTE_TRASH_PATH = _ROUTE_STORAGE_ROOT / ".route_trash"
+_SCREEN_RECORDINGS_LOCK_PATH = Path(SCREEN_RECORDINGS_PATH).with_suffix(".lock")
+_SCREEN_RECORDINGS_STAGING_PATH = Path(f"{SCREEN_RECORDINGS_PATH}.in_progress")
+_TAILSCALE_LOCK = threading.Lock()
 
 _CMD_TIMEOUT = 60
+_DRIVING_ERROR = "Unavailable while driving. Shift into Park or go offroad to use this."
+_MAX_FAVORITES = 100
+_MAX_SECOC_KEYS = 64
+_NAVIGATION_MAX_BYTES = 4096
 _TMUX_STREAM_MAX_SECONDS = 3600
+_POND_PORT = 8083 if PC else 8082
+_POND_PORTS = {_POND_PORT} if PC else {80, _POND_PORT}
 
-def _run_cmd(cmd, ok, fail, **kw):
-  kw.setdefault("timeout", _CMD_TIMEOUT)
-  return run_cmd(cmd, ok, fail, **kw)
+def _toggle_backup_keys():
+  return {
+    key for key, _, _, _ in frogpilot_default_params
+    if key not in EXCLUDED_KEYS and not (params.get_key_flag(key) & ParamKeyType.DONT_LOG)
+  }
 
-_CSP = (
-  "default-src 'self'; "
-  "script-src 'self'; "
-  "style-src 'self' 'unsafe-inline'; "
-  "img-src 'self' data: blob: https://api.mapbox.com https://*.tiles.mapbox.com; "
-  "font-src 'self' data:; "
-  "connect-src 'self' https://api.mapbox.com https://events.mapbox.com https://*.tiles.mapbox.com; "
-  "worker-src blob:; "
-  "child-src blob:; "
-  "object-src 'none'; "
-  "base-uri 'self'; "
-  "form-action 'self'; "
-  "frame-ancestors 'none'"
-)
+def _run_cmd(cmd, ok, fail, timeout=_CMD_TIMEOUT, env=None):
+  try:
+    result = subprocess.run(cmd, capture_output=True, check=True, env=env, text=True, timeout=timeout)
+  except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+    print(fail)
+    raise
+  print(ok)
+  return result.stdout.strip()
 
-def _allowed_hosts():
-  hosts = {"localhost", "127.0.0.1"}
-  self_host = (request.host or "").split(":")[0].lower()
-  if self_host:
-    hosts.add(self_host)
+def _tmux_output():
+  try:
+    output = subprocess.check_output(["tmux", "capture-pane", "-p", "-S", "-1000"], text=True, timeout=5)
+    return "\n".join(reversed(output.splitlines()))
+  except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
+    return "No active tmux session to stream."
+
+def _tailscale_unit():
+  return f"""[Unit]
+Description=Tailscale node agent
+After=network.target
+
+[Service]
+ExecStart={TAILSCALE_BASE}/tailscaled \\
+  --tun=userspace-networking \\
+  --socks5-server=localhost:1055 \\
+  --state={TAILSCALE_BASE}/state/tailscaled.state \\
+  --socket={TAILSCALE_BASE}/tailscaled.sock \\
+  --statedir={TAILSCALE_BASE}/state
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+"""
+
+def _tailscale_marker():
+  return Path(TAILSCALE_BASE) / ".the_pond_managed"
+
+def _tailscale_managed():
+  expected_unit = _tailscale_unit()
+  expected_hash = hashlib.sha256(expected_unit.encode()).hexdigest()
+  try:
+    marker = _tailscale_marker()
+    return (
+      (Path(TAILSCALE_BASE) / "tailscale").is_file()
+      and (Path(TAILSCALE_BASE) / "tailscaled").is_file()
+      and _normalized_unit(TAILSCALE_UNIT_PATH.read_text()) == _normalized_unit(expected_unit)
+      and (not marker.exists() or marker.read_text().strip() == expected_hash)
+    )
+  except OSError:
+    return False
+
+def _normalized_unit(unit):
+  return "\n".join(line.strip() for line in unit.splitlines() if line.strip())
+
+def _tailscale_operation(function):
+  @wraps(function)
+  def wrapped(*args, **kwargs):
+    if not _TAILSCALE_LOCK.acquire(blocking=False):
+      return jsonify({"error": "Another Tailscale operation is already running"}), 409
+    try:
+      return function(*args, **kwargs)
+    finally:
+      _TAILSCALE_LOCK.release()
+  return wrapped
+
+@contextmanager
+def _writable_root():
+  was_read_only = bool(os.statvfs("/").f_flag & os.ST_RDONLY)
+  try:
+    if was_read_only:
+      _run_cmd(["sudo", "mount", "-o", "remount,rw", "/"], "Remounted / as read-write.", "Failed to remount / as read-write.")
+    yield
+  finally:
+    if was_read_only:
+      _run_cmd(["sudo", "mount", "-o", "remount,ro", "/"], "Remounted / read-only.", "Failed to restore / as read-only.")
+
+def _delete_and_verify(path):
+  delete_file(path)
+  return not os.path.lexists(path)
+
+def _quiesce_process(proc):
+  if proc.poll() is None:
+    try:
+      _run_cmd(["sudo", "kill", "-TERM", f"-{proc.pid}"], "Stopped Tailscale setup process.", "Failed to stop Tailscale setup process.")
+    except subprocess.CalledProcessError:
+      if proc.poll() is None:
+        raise
+  try:
+    proc.wait(timeout=5)
+  except subprocess.TimeoutExpired:
+    _run_cmd(["sudo", "kill", "-KILL", f"-{proc.pid}"], "Killed unresponsive Tailscale setup process.",
+             "Failed to kill unresponsive Tailscale setup process.")
+    proc.wait(timeout=5)
+
+_CSP = "; ".join([
+  "default-src 'self'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob: https://api.mapbox.com https://*.tiles.mapbox.com",
+  "font-src 'self' data:",
+  "connect-src 'self' https://api.mapbox.com https://events.mapbox.com https://*.tiles.mapbox.com",
+  "worker-src blob:",
+  "child-src blob:",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+])
+
+def _trusted_pond_hosts():
+  hosts = {"localhost", "127.0.0.1", "::1", helpers.MDNS_HOSTNAME.lower().rstrip(".")}
+  if request.remote_addr and (local_ip := _local_ip_for(request.remote_addr)):
+    hosts.add(local_ip.lower().rstrip("."))
   return hosts
+
+def _route_is_locked(segment_dir):
+  if any(Path(segment_dir).glob("*.lock")):
+    return True
+  if not _loggerd_may_be_running():
+    return False
+
+  segment_name = Path(segment_dir).name
+  current_route = params.get("CurrentRoute", encoding="utf8")
+  if current_route and helpers.route_segment_matches(segment_name, current_route):
+    return True
+
+  try:
+    route_count = int(params.get("RouteCount", encoding="utf8"))
+  except (TypeError, ValueError):
+    return not current_route
+  return segment_name.startswith(f"{(route_count - 1) & 0xffffffff:08x}--")
+
+def _valid_route_name(name):
+  return isinstance(name, str) and utilities.SEGMENT_RE.fullmatch(f"{name}--0") is not None
+
+def _route_segments(route_name=None):
+  return [
+    segment
+    for footage_path in dict.fromkeys(FOOTAGE_PATHS)
+    if os.path.exists(footage_path)
+    for segment in Path(footage_path).iterdir()
+    if segment.is_dir() and not segment.is_symlink() and utilities.SEGMENT_RE.fullmatch(segment.name)
+    and (route_name is None or helpers.route_segment_matches(segment.name, route_name))
+  ]
+
+def _quarantine_route_segments(segments):
+  try:
+    _ROUTE_TRASH_PATH.mkdir(mode=0o775, parents=True, exist_ok=True)
+    if _ROUTE_TRASH_PATH.is_symlink() or not _ROUTE_TRASH_PATH.is_dir():
+      return [], False
+
+    moved = []
+    for segment in segments:
+      destination = _ROUTE_TRASH_PATH / f"{secrets.token_hex(16)}-{segment.name}"
+      try:
+        segment.rename(destination)
+        moved.append((segment, destination))
+      except OSError:
+        cloudlog.exception(f"the_pond: could not quarantine route segment {segment}")
+        for original, quarantined in reversed(moved):
+          try:
+            quarantined.rename(original)
+          except OSError:
+            cloudlog.exception(f"the_pond: could not restore route segment {original}")
+        return [], False
+    return [destination for _, destination in moved], True
+  except OSError:
+    cloudlog.exception("the_pond: could not prepare the route quarantine")
+    return [], False
+
+def _delete_quarantined_routes(quarantined):
+  deleted_all = True
+  for route_path in quarantined:
+    delete_file(str(route_path))
+    deleted_all &= not route_path.exists()
+  return deleted_all
+
+def _screen_recording_path(filename):
+  root = Path(SCREEN_RECORDINGS_PATH)
+  recording = root / filename
+  if not helpers.is_within(root, recording) or recording.suffix.lower() != ".mp4" or recording.is_symlink():
+    return None
+  return recording
+
+@contextmanager
+def _route_mutation_lock(exclusive):
+  import fcntl
+
+  try:
+    lock_fd = os.open(_ROUTE_MUTATION_LOCK_PATH, os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o664)
+  except OSError:
+    cloudlog.exception("the_pond: could not open the route-mutation coordination lock")
+    yield None
+    return
+
+  try:
+    try:
+      lock_type = fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH
+      fcntl.flock(lock_fd, lock_type | fcntl.LOCK_NB)
+    except BlockingIOError:
+      yield False
+      return
+    yield True
+  finally:
+    os.close(lock_fd)
+
+@contextmanager
+def _screen_recordings_lock(exclusive):
+  import fcntl
+
+  try:
+    lock_fd = os.open(_SCREEN_RECORDINGS_LOCK_PATH, os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o664)
+  except OSError:
+    cloudlog.exception("the_pond: could not open the screen-recording coordination lock")
+    yield None
+    return
+
+  try:
+    try:
+      lock_type = fcntl.LOCK_EX if exclusive else fcntl.LOCK_SH
+      fcntl.flock(lock_fd, lock_type | fcntl.LOCK_NB)
+    except BlockingIOError:
+      yield False
+      return
+    yield True
+  finally:
+    os.close(lock_fd)
+
+def _publish_staged_screen_recording(staging_path):
+  ready_suffix = ".ready"
+  final_name = staging_path.name[:-len(ready_suffix)]
+  if not final_name.lower().endswith(".mp4"):
+    return False
+
+  destination = Path(SCREEN_RECORDINGS_PATH) / final_name
+  suffix = 0
+  while True:
+    candidate = destination if suffix == 0 else destination.with_name(f"{destination.stem}-{suffix}{destination.suffix}")
+    try:
+      os.link(staging_path, candidate)
+      staging_path.unlink()
+      return True
+    except FileExistsError:
+      try:
+        same_file = os.path.samefile(staging_path, candidate)
+      except OSError:
+        cloudlog.exception(f"the_pond: could not compare completed screen recording {staging_path}")
+        return False
+      if same_file:
+        try:
+          staging_path.unlink()
+        except OSError:
+          cloudlog.exception(f"the_pond: could not finish recovering completed screen recording {staging_path}")
+          return False
+        return True
+      suffix += 1
+      continue
+    except OSError:
+      cloudlog.exception(f"the_pond: could not recover completed screen recording {staging_path}")
+      return False
+
+def _reconcile_screen_recordings():
+  try:
+    if _SCREEN_RECORDINGS_STAGING_PATH.exists():
+      if _SCREEN_RECORDINGS_STAGING_PATH.is_symlink() or not _SCREEN_RECORDINGS_STAGING_PATH.is_dir():
+        return False
+      for staging_path in _SCREEN_RECORDINGS_STAGING_PATH.iterdir():
+        if staging_path.is_symlink() or not staging_path.is_file():
+          return False
+        if staging_path.name.endswith(".partial"):
+          staging_path.unlink()
+        elif staging_path.name.endswith(".ready"):
+          if not _publish_staged_screen_recording(staging_path):
+            return False
+        else:
+          return False
+    return True
+  except OSError:
+    cloudlog.exception("the_pond: could not reconcile stale screen-recording state")
+    return False
+
+def _screen_recordings_need_reconciliation():
+  try:
+    if _SCREEN_RECORDINGS_STAGING_PATH.is_symlink():
+      return True
+    if not _SCREEN_RECORDINGS_STAGING_PATH.exists():
+      return False
+    if not _SCREEN_RECORDINGS_STAGING_PATH.is_dir():
+      return True
+    return next(_SCREEN_RECORDINGS_STAGING_PATH.iterdir(), None) is not None
+  except OSError:
+    return True
+
+@contextmanager
+def _screen_recordings_read_lock():
+  reconciled = True
+  if _screen_recordings_need_reconciliation():
+    with _screen_recordings_lock(True) as storage_coordinated:
+      if storage_coordinated is None:
+        yield None
+        return
+      if storage_coordinated:
+        reconciled = _reconcile_screen_recordings()
+
+  if not reconciled:
+    yield None
+    return
+
+  with _screen_recordings_lock(False) as storage_coordinated:
+    yield storage_coordinated
 
 def _car_params():
   cp_bytes = params.get("CarParamsPersistent")
@@ -94,38 +408,114 @@ def _car_params():
     cloudlog.exception("the_pond: failed to parse CarParamsPersistent")
     return None
 
+_DOOR_COMMAND_LOCK = threading.Lock()
+
+def _doors_supported(cp):
+  return cp is not None and cp.carName == "toyota" and HARDWARE.get_device_type() != "tici"
+
+def _door_lock_status(can_parser, can_sock):
+  can_parser.update_strings(messaging.drain_sock_raw(can_sock, wait_for_one=True))
+  if not can_parser.can_valid:
+    return None
+  return can_parser.vl["DOOR_LOCKS"]["LOCK_STATUS"]
+
+def _send_door_command(command, expect_locked):
+  can_parser = CANParser("toyota_nodsu_pt_generated", [("DOOR_LOCKS", 3)], bus=0)
+  can_sock = messaging.sub_sock("can", timeout=100)
+  pm = messaging.PubMaster(["sendcan"])
+  try:
+    deadline = time.monotonic() + 10
+    while time.monotonic() < deadline:
+      if params.get_bool("IsOnroad"):
+        return None
+      message = messaging.new_message("sendcan", 1)
+      message.sendcan[0].address = 0x750
+      message.sendcan[0].dat = command
+      message.sendcan[0].src = 0
+      try:
+        pm.send("sendcan", message)
+      except messaging.MultiplePublishersError:
+        return None
+      time.sleep(1)
+      status = _door_lock_status(can_parser, can_sock)
+      if status is not None and (status == 0) == expect_locked:
+        return True
+    return False
+  finally:
+    del can_sock
+
+def _send_cached_video(mp4_file):
+  try:
+    file_stat = os.fstat(mp4_file.fileno())
+    response = send_file(mp4_file, mimetype="video/mp4", conditional=False)
+    response.content_length = file_stat.st_size
+    response.last_modified = file_stat.st_mtime
+    response.set_etag(f"{int(file_stat.st_mtime)}-{file_stat.st_size}")
+    return response.make_conditional(request.environ, accept_ranges=True, complete_length=file_stat.st_size)
+  except Exception:
+    mp4_file.close()
+    raise
+
+def _stored_secoc_keys():
+  try:
+    keys = json.loads(params.get("SecOCKeys") or "[]")
+  except (TypeError, ValueError):
+    return []
+  return [key for key in keys if isinstance(key, dict)]
+
+def _redacted_secoc_keys(keys):
+  return [{"name": key.get("name"), "value_set": helpers.is_valid_secoc_key(key.get("value"))} for key in keys]
+
 def _favorite_id(fav):
   raw = f"{fav.get('longitude')},{fav.get('latitude')}|{fav.get('routeId') or ''}|{fav.get('name') or ''}"
   return hashlib.sha1(raw.encode()).hexdigest()
 
-def _frogpilot_api_payload(**extra):
-  info = get_frogpilot_api_info()
-  return {
-    "api_token": info.api_token,
-    "build_metadata": info.build_metadata,
-    "device": info.device_type,
-    "frogpilot_dongle_id": info.dongle_id,
-    **extra,
-  }
+def _valid_coordinate(value, minimum, maximum):
+  return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value) and minimum <= value <= maximum
 
-def _gitlab_action(file_path, content):
-  return {"action": "create", "file_path": file_path, "content": content, "encoding": "base64"}
+def _reboot_after_reset(reset_param):
+  if params.get_bool("IsOnroad"):
+    params.remove(reset_param)
+    return
+  HARDWARE.reboot()
 
 _gear_lock = threading.Lock()
-_parked_snapshot = {"parked": False, "fresh": False}
+_parked_snapshot = {
+  "parked": False,
+  "fresh": False,
+  "loggerd_running": False,
+  "manager_current": False,
+  "onroad": params.get_bool("IsOnroad"),
+  "transition_time": time.monotonic(),
+}
 
 def _gear_monitor():
   sm = None
   while True:
     try:
       if sm is None:
-        sm = messaging.SubMaster(["frogpilotCarState"])
+        sm = messaging.SubMaster(["frogpilotCarState", "managerState"])
       sm.update(1000)
       fresh = sm.alive["frogpilotCarState"] and sm.valid["frogpilotCarState"]
       parked = bool(sm["frogpilotCarState"].isParked) if fresh else False
+      is_onroad = params.get_bool("IsOnroad")
+      now = time.monotonic()
       with _gear_lock:
+        if is_onroad != _parked_snapshot["onroad"]:
+          _parked_snapshot["onroad"] = is_onroad
+          _parked_snapshot["manager_current"] = False
+          _parked_snapshot["transition_time"] = now
         _parked_snapshot["parked"] = parked
         _parked_snapshot["fresh"] = fresh
+
+        if sm.updated["managerState"] and sm.valid["managerState"]:
+          loggerd_running = any(
+            process.name == "loggerd" and (process.running or process.shouldBeRunning)
+            for process in sm["managerState"].processes
+          )
+          if loggerd_running or now - _parked_snapshot["transition_time"] >= 1.0:
+            _parked_snapshot["loggerd_running"] = loggerd_running
+            _parked_snapshot["manager_current"] = True
     except Exception:
       sm = None
       with _gear_lock:
@@ -136,31 +526,55 @@ def _is_parked():
   with _gear_lock:
     return _parked_snapshot["fresh"] and _parked_snapshot["parked"]
 
+def _loggerd_may_be_running():
+  is_onroad = params.get_bool("IsOnroad")
+  loggerd_desired = False
+  if is_onroad:
+    try:
+      no_logging = json.loads(params_memory.get("FrogPilotToggles") or b"{}").get("no_logging")
+      loggerd_desired = not isinstance(no_logging, bool) or not no_logging
+    except (AttributeError, TypeError, ValueError):
+      loggerd_desired = True
+
+  with _gear_lock:
+    if is_onroad != _parked_snapshot["onroad"]:
+      return is_onroad or _parked_snapshot["loggerd_running"]
+    return _parked_snapshot["loggerd_running"] or loggerd_desired or not _parked_snapshot["manager_current"]
+
 def _drive_locked():
   return params.get_bool("IsOnroad") and not _is_parked()
 
 def setup(app):
   @app.before_request
   def _request_gate():
+    trusted_hosts = _trusted_pond_hosts()
+    if not helpers.host_allowed(request.scheme, request.host, trusted_hosts):
+      return jsonify({"error": "Unrecognized Host"}), 421
+
     if request.method not in ("GET", "HEAD", "OPTIONS"):
-      origin = request.headers.get("Origin") or request.headers.get("Referer")
-      if not helpers.origin_allowed(origin, _allowed_hosts()):
+      origin = request.headers.get("Origin")
+      allowed = helpers.origin_allowed(origin, request.scheme, request.host, _POND_PORTS) if origin is not None else \
+                helpers.referer_allowed(request.headers.get("Referer"), request.scheme, request.host, _POND_PORTS)
+      if not allowed:
         return jsonify({"error": "Cross-origin request blocked"}), 403
 
     if helpers.is_onroad_blocked(request.method, request.path) and _drive_locked():
-      return jsonify({"error": "Unavailable while driving. Shift into Park or go offroad to use this."}), 423
+      return jsonify({"error": _DRIVING_ERROR}), 423
 
   @app.after_request
   def _security_headers(resp):
-    resp.headers.setdefault("Content-Security-Policy", _CSP)
+    resp.headers["Content-Security-Policy"] = _CSP
     resp.headers["X-Content-Type-Options"] = "nosniff"
     resp.headers["X-Frame-Options"] = "DENY"
     resp.headers["Referrer-Policy"] = "same-origin"
+    resp.headers["Cross-Origin-Resource-Policy"] = "same-origin"
+    if request.path.startswith("/api/"):
+      resp.headers["Cache-Control"] = "no-store"
     return resp
 
   @app.errorhandler(404)
   def not_found(_):
-    if request.path.startswith("/api/"):
+    if request.path.startswith(("/api/", "/assets/", "/mapbox-help/", "/screen_recordings/")):
       return jsonify({"error": "Not found"}), 404
     return render_template("index.html")
 
@@ -169,6 +583,10 @@ def setup(app):
     if request.path.startswith("/api/"):
       return jsonify({"error": "Method not allowed"}), 405
     return render_template("index.html")
+
+  @app.errorhandler(413)
+  def payload_too_large(_):
+    return jsonify({"error": "That upload is too large. The limit is 32 MB in total."}), 413
 
   @app.errorhandler(500)
   def internal_error(_):
@@ -186,69 +604,63 @@ def setup(app):
 
   @app.route("/api/doors_available", methods=["GET"])
   def doors_available():
-    cp = _car_params()
-    if cp is None:
-      return jsonify({"result": False})
-    return jsonify({"result": HARDWARE.get_device_type() != "tici" and cp.carName == "toyota"})
+    return jsonify({"result": _doors_supported(_car_params())})
 
   @app.route("/api/doors/lock", methods=["POST"])
   def lock_doors():
-    cp = _car_params()
-    if cp is None or cp.carName != "toyota":
-      return jsonify({"error": "Door control is only supported on Toyota vehicles"}), 409
-
-    cloudlog.warning("the_pond audit: door lock requested")
-    can_parser = CANParser("toyota_nodsu_pt_generated", [("DOOR_LOCKS", 3)], bus=0)
-    can_sock = messaging.sub_sock("can", timeout=100)
+    if not _doors_supported(_car_params()):
+      return jsonify({"error": "Door control is not supported on this device"}), 409
+    if params.get_bool("IsOnroad"):
+      return jsonify({"error": "Door control is only available when the car is off"}), 409
+    if not _DOOR_COMMAND_LOCK.acquire(blocking=False):
+      return jsonify({"error": "Another door command is already running"}), 409
     try:
-      with Panda(disable_checks=True) as panda:
-        if not params.get_bool("IsOnroad"):
-          panda.set_safety_mode(panda.SAFETY_TOYOTA)
-        deadline = time.monotonic() + 10
-        while time.monotonic() < deadline:
-          panda.can_send(0x750, LOCK_CMD, 0)
-          time.sleep(1)
-          if get_lock_status(can_parser, can_sock) == 0:
-            return {"message": "Doors locked!"}
+      cloudlog.warning("the_pond audit: door lock requested")
+      locked = _send_door_command(LOCK_CMD, True)
+      if locked:
+        return {"message": "Doors locked!"}
+      if locked is None:
+        return jsonify({"error": "The car is already locking up on its own. Try again in a moment."}), 409
       return jsonify({"error": "Timed out waiting for doors to lock"}), 504
     finally:
-      del can_sock
+      _DOOR_COMMAND_LOCK.release()
 
   @app.route("/api/doors/unlock", methods=["POST"])
   def unlock_doors():
-    cp = _car_params()
-    if cp is None or cp.carName != "toyota":
-      return jsonify({"error": "Door control is only supported on Toyota vehicles"}), 409
-
-    cloudlog.warning("the_pond audit: door unlock requested")
-    can_parser = CANParser("toyota_nodsu_pt_generated", [("DOOR_LOCKS", 3)], bus=0)
-    can_sock = messaging.sub_sock("can", timeout=100)
+    if not _doors_supported(_car_params()):
+      return jsonify({"error": "Door control is not supported on this device"}), 409
+    if params.get_bool("IsOnroad"):
+      return jsonify({"error": "Door control is only available when the car is off"}), 409
+    if not _DOOR_COMMAND_LOCK.acquire(blocking=False):
+      return jsonify({"error": "Another door command is already running"}), 409
     try:
-      with Panda(disable_checks=True) as panda:
-        if not params.get_bool("IsOnroad"):
-          panda.set_safety_mode(panda.SAFETY_TOYOTA)
-        deadline = time.monotonic() + 10
-        while time.monotonic() < deadline:
-          panda.can_send(0x750, UNLOCK_CMD, 0)
-          time.sleep(1)
-          if get_lock_status(can_parser, can_sock) != 0:
-            return {"message": "Doors unlocked!"}
+      cloudlog.warning("the_pond audit: door unlock requested")
+      unlocked = _send_door_command(UNLOCK_CMD, False)
+      if unlocked:
+        return {"message": "Doors unlocked!"}
+      if unlocked is None:
+        return jsonify({"error": "The car is already locking up on its own. Try again in a moment."}), 409
       return jsonify({"error": "Timed out waiting for doors to unlock"}), 504
     finally:
-      del can_sock
+      _DOOR_COMMAND_LOCK.release()
 
   @app.route("/api/error_logs", methods=["GET"])
   def get_error_logs():
     if not os.path.exists(ERROR_LOGS_PATH):
       return jsonify([]), 200
     files = utilities.list_file(ERROR_LOGS_PATH)
-    filtered = [file for file in files if file.startswith("error")]
+    filtered = [file for file in files if file.startswith("error") or _SENTRY_LOG_RE.fullmatch(file)]
     return jsonify(filtered), 200
 
   @app.route("/api/error_logs/delete_all", methods=["DELETE"])
   def delete_all_error_logs():
-    for f in os.listdir(ERROR_LOGS_PATH):
-      delete_file(os.path.join(ERROR_LOGS_PATH, f))
+    try:
+      targets = [os.path.join(ERROR_LOGS_PATH, name) for name in os.listdir(ERROR_LOGS_PATH)]
+    except FileNotFoundError:
+      targets = []
+    failed = [path for path in targets if not _delete_and_verify(path)]
+    if failed:
+      return jsonify({"error": "Some error logs could not be deleted"}), 500
     return {"message": "All error logs deleted!"}, 200
 
   @app.route("/api/error_logs/<filename>", methods=["DELETE"])
@@ -257,7 +669,8 @@ def setup(app):
     path = os.path.join(ERROR_LOGS_PATH, safe)
     if not safe or not os.path.isfile(path):
       return jsonify({"error": "Not found"}), 404
-    delete_file(path)
+    if not _delete_and_verify(path):
+      return jsonify({"error": "Error log could not be deleted"}), 500
     return {"message": "Error log deleted!"}
 
   @app.route("/api/error_logs/<filename>", methods=["GET"])
@@ -272,6 +685,7 @@ def setup(app):
   @app.route("/api/navigation", methods=["DELETE"])
   def clear_navigation():
     params.remove("NavDestination")
+    params.remove("NavDestinationWaypoints")
     return {"message": "Destination cleared"}
 
   @app.route("/api/navigation", methods=["GET"])
@@ -280,20 +694,19 @@ def setup(app):
       last_position = json.loads(params.get("LastGPSPosition", encoding="utf8") or "{}")
     except (ValueError, TypeError):
       last_position = {}
-    if not isinstance(last_position, dict):
-      last_position = {}
-    latitude = last_position.get("latitude", 51.276824158421331)
-    longitude = last_position.get("longitude", 30.221928335547232)
+    latitude = last_position.get("latitude") if isinstance(last_position, dict) else None
+    longitude = last_position.get("longitude") if isinstance(last_position, dict) else None
+    last_position = {
+      "latitude": str(latitude),
+      "longitude": str(longitude),
+    } if _valid_coordinate(latitude, -90, 90) and _valid_coordinate(longitude, -180, 180) else None
 
     return {
       "amap1KeySet": bool(params.get("AMapKey1", encoding="utf8")),
       "amap2KeySet": bool(params.get("AMapKey2", encoding="utf8")),
       "destination": params.get("NavDestination", encoding="utf8") or "",
       "isMetric": params.get_bool("IsMetric"),
-      "lastPosition": {
-        "latitude": str(latitude),
-        "longitude": str(longitude)
-      },
+      "lastPosition": last_position,
       "mapboxPublic": params.get("MapboxPublicKey", encoding="utf8") or "",
       "mapboxSecretSet": bool(params.get("MapboxSecretKey", encoding="utf8")),
       "previousDestinations": params.get("ApiCache_NavDestinations", encoding="utf8") or "",
@@ -301,18 +714,29 @@ def setup(app):
 
   @app.route("/api/navigation", methods=["POST"])
   def set_navigation():
+    if request.content_length is not None and request.content_length > _NAVIGATION_MAX_BYTES:
+      return jsonify({"error": "Destination is too large"}), 413
     payload = request.get_json(silent=True) or {}
-    if not isinstance(payload, dict):
+    if not isinstance(payload, dict) or not set(payload).issubset({"latitude", "longitude", "name"}):
       return jsonify({"error": "Invalid destination"}), 400
+    latitude = payload.get("latitude")
+    longitude = payload.get("longitude")
+    if not _valid_coordinate(latitude, -90, 90) or not _valid_coordinate(longitude, -180, 180):
+      return jsonify({"error": "Invalid destination coordinates"}), 400
     name = payload.get("name")
     if name is not None and not helpers.is_safe_display_name(name):
       return jsonify({"error": "Invalid destination name"}), 400
+    params.remove("NavDestinationWaypoints")
     params.put("NavDestination", json.dumps(payload))
     return {"message": "Destination set"}
 
   @app.route("/api/navigation/favorite", methods=["DELETE"])
   def remove_favorite_destination():
+    if request.content_length is not None and request.content_length > _NAVIGATION_MAX_BYTES:
+      return jsonify({"error": "Favorite is too large"}), 413
     to_remove = request.get_json(silent=True) or {}
+    if not isinstance(to_remove, dict) or not set(to_remove).issubset({"id", "latitude", "longitude", "name", "routeId"}):
+      return jsonify({"error": "Invalid favorite"}), 400
 
     with _PARAMS_LOCK:
       existing = json.loads(params.get("FavoriteDestinations", encoding="utf8") or "[]")
@@ -342,16 +766,28 @@ def setup(app):
 
   @app.route("/api/navigation/favorite", methods=["POST"])
   def add_favorite_destination():
-    new_fav = request.json or {}
+    if request.content_length is not None and request.content_length > _NAVIGATION_MAX_BYTES:
+      return jsonify({"error": "Favorite is too large"}), 413
+    new_fav = request.get_json(silent=True) or {}
+    allowed_fields = {"id", "is_home", "is_work", "latitude", "longitude", "name", "routeId"}
+    if not isinstance(new_fav, dict) or not set(new_fav).issubset(allowed_fields):
+      return jsonify({"error": "Invalid favorite"}), 400
 
     name = new_fav.get("name")
-    if name is not None and not helpers.is_safe_display_name(name):
+    if not helpers.is_safe_display_name(name) or not _valid_coordinate(new_fav.get("latitude"), -90, 90) or \
+        not _valid_coordinate(new_fav.get("longitude"), -180, 180):
       return jsonify({"error": "Invalid favorite name"}), 400
+    if any(field in new_fav and not isinstance(new_fav[field], bool) for field in ("is_home", "is_work")):
+      return jsonify({"error": "Invalid favorite"}), 400
+    if any(field in new_fav and (not isinstance(new_fav[field], str) or len(new_fav[field]) > 256) for field in ("id", "routeId")):
+      return jsonify({"error": "Invalid favorite"}), 400
 
     new_fav.setdefault("id", _favorite_id(new_fav))
 
     with _PARAMS_LOCK:
       existing = json.loads(params.get("FavoriteDestinations", encoding="utf8") or "[]")
+      if len(existing) >= _MAX_FAVORITES and not any(f.get("id") == new_fav["id"] for f in existing):
+        return jsonify({"error": f"A maximum of {_MAX_FAVORITES} favorites can be saved"}), 400
       if not any(f.get("id") == new_fav["id"] for f in existing):
         existing.append(new_fav)
       params.put("FavoriteDestinations", json.dumps(existing))
@@ -359,7 +795,11 @@ def setup(app):
 
   @app.route("/api/navigation/favorite/rename", methods=["POST"])
   def rename_favorite_destination():
-    data = request.json or {}
+    if request.content_length is not None and request.content_length > _NAVIGATION_MAX_BYTES:
+      return jsonify({"error": "Favorite is too large"}), 413
+    data = request.get_json(silent=True) or {}
+    if not isinstance(data, dict) or not set(data).issubset({"id", "is_home", "is_work", "name", "routeId"}):
+      return jsonify({"error": "Invalid favorite"}), 400
     fid = data.get("id")
     route_id_to_rename = data.get("routeId")
     new_name = data.get("name")
@@ -371,6 +811,8 @@ def setup(app):
 
     if new_name is not None and not helpers.is_safe_display_name(new_name):
       return jsonify({"error": "Invalid favorite name"}), 400
+    if any(value is not None and not isinstance(value, bool) for value in (is_home, is_work)):
+      return jsonify({"error": "Invalid favorite"}), 400
 
     with _PARAMS_LOCK:
       existing_favorites = json.loads(params.get("FavoriteDestinations", encoding="utf8") or "[]")
@@ -423,7 +865,7 @@ def setup(app):
   def set_navigation_keys():
     data = request.get_json() or {}
 
-    saved = []
+    updates = []
     for meta in KEYS.values():
       raw = (data.get(meta[0]) or "").strip()
       if not raw:
@@ -433,13 +875,15 @@ def setup(app):
       if len(full) < meta[4]:
         return jsonify(error=f"{meta[3]} is invalid or too short..."), 400
 
-      params.put(meta[2], full)
-      saved.append(meta[3])
+      updates.append((meta[2], full, meta[3]))
 
-    if not saved:
+    if not updates:
       return jsonify(error="Nothing to update..."), 400
 
-    return jsonify(message=f"{', '.join(saved)} saved successfully!")
+    for param, value, _ in updates:
+      params.put(param, value)
+
+    return jsonify(message=f"{', '.join(label for _, _, label in updates)} saved successfully!")
 
   @app.route("/api/params", methods=["GET"])
   def get_param():
@@ -473,41 +917,66 @@ def setup(app):
 
   @app.route("/api/routes/<name>", methods=["DELETE"])
   def delete_route(name):
-    deleted = False
-    for footage_path in FOOTAGE_PATHS:
-      for segment in os.listdir(footage_path):
-        if segment == name or segment.startswith(name + "--"):
-          delete_file(os.path.join(footage_path, segment))
-          deleted = True
-    if not deleted:
-      return {"error": "Route not found"}, 404
+    if not _valid_route_name(name):
+      return {"error": "Invalid route name"}, 400
+
+    with _route_mutation_lock(True) as mutation_coordinated:
+      if mutation_coordinated is None:
+        return {"error": "Could not coordinate route storage"}, 500
+      if not mutation_coordinated:
+        return {"error": "Another route mutation is in progress"}, 423
+      segments = _route_segments(name)
+      if not segments:
+        return {"error": "Route not found"}, 404
+      if any(_route_is_locked(segment) for segment in segments):
+        return {"error": "Route is still being written"}, 423
+      quarantined, moved_all = _quarantine_route_segments(segments)
+      if not moved_all:
+        return {"error": "Route deletion incomplete"}, 500
+      if not _delete_quarantined_routes(quarantined):
+        return {"error": "Route deletion incomplete"}, 500
     return {"message": "Route deleted!"}, 200
 
   @app.route("/api/routes/delete_all", methods=["DELETE"])
   def delete_all_routes():
-    for footage_path in FOOTAGE_PATHS:
-      if os.path.exists(footage_path):
-        for segment in os.listdir(footage_path):
-          delete_file(os.path.join(footage_path, segment))
-
+    with _route_mutation_lock(True) as mutation_coordinated:
+      if mutation_coordinated is None:
+        return {"error": "Could not coordinate route storage"}, 500
+      if not mutation_coordinated:
+        return {"error": "Another route mutation is in progress"}, 423
+      segments = _route_segments()
+      if any(_route_is_locked(segment) for segment in segments):
+        return {"error": "A route is still being written"}, 423
+      quarantined, moved_all = _quarantine_route_segments(segments)
+      if not moved_all:
+        return {"error": "Route deletion incomplete"}, 500
+      if not _delete_quarantined_routes(quarantined):
+        return {"error": "Route deletion incomplete"}, 500
     return {"message": "All routes deleted!"}, 200
 
   @app.route("/api/routes/<name>/preserve", methods=["POST"])
   def preserve_route(name):
-    preserved_routes = 0
-    for footage_path in FOOTAGE_PATHS:
-      for segment in os.listdir(footage_path):
-        if segment.endswith("--0"):
-          segment_path = os.path.join(footage_path, segment)
-          if PRESERVE_ATTR_NAME in os.listxattr(segment_path) and os.getxattr(segment_path, PRESERVE_ATTR_NAME) == PRESERVE_ATTR_VALUE:
-            preserved_routes += 1
+    if not _valid_route_name(name):
+      return {"error": "Invalid route name"}, 400
 
-    if preserved_routes >= PRESERVE_COUNT:
-      return {"error": f"Maximum of {PRESERVE_COUNT} preserved routes reached..."}, 400
+    with _route_mutation_lock(True) as mutation_coordinated:
+      if mutation_coordinated is None:
+        return {"error": "Could not coordinate route storage"}, 500
+      if not mutation_coordinated:
+        return {"error": "Another route mutation is in progress"}, 423
+      preserved_routes = sum(
+        PRESERVE_ATTR_NAME in os.listxattr(segment) and os.getxattr(segment, PRESERVE_ATTR_NAME) == PRESERVE_ATTR_VALUE
+        for segment in _route_segments()
+        if segment.name.endswith("--0")
+      )
 
-    for footage_path in FOOTAGE_PATHS:
-      route_path = os.path.join(footage_path, f"{name}--0")
-      if os.path.exists(route_path):
+      if preserved_routes >= PRESERVE_COUNT:
+        return {"error": f"Maximum of {PRESERVE_COUNT} preserved routes reached..."}, 400
+
+      route_path = next((segment for segment in _route_segments(name) if segment.name == f"{name}--0"), None)
+      if route_path is not None:
+        if _route_is_locked(route_path):
+          return {"error": "Route is still being written"}, 423
         os.setxattr(route_path, PRESERVE_ATTR_NAME, PRESERVE_ATTR_VALUE)
         return {"message": "Route preserved!!"}, 200
 
@@ -515,9 +984,18 @@ def setup(app):
 
   @app.route("/api/routes/<name>/preserve", methods=["DELETE"])
   def un_preserve_route(name):
-    for footage_path in FOOTAGE_PATHS:
-      route_path = os.path.join(footage_path, f"{name}--0")
-      if os.path.exists(route_path) and PRESERVE_ATTR_NAME in os.listxattr(route_path):
+    if not _valid_route_name(name):
+      return {"error": "Invalid route name"}, 400
+
+    with _route_mutation_lock(True) as mutation_coordinated:
+      if mutation_coordinated is None:
+        return {"error": "Could not coordinate route storage"}, 500
+      if not mutation_coordinated:
+        return {"error": "Another route mutation is in progress"}, 423
+      route_path = next((segment for segment in _route_segments(name) if segment.name == f"{name}--0"), None)
+      if route_path is not None and PRESERVE_ATTR_NAME in os.listxattr(route_path):
+        if _route_is_locked(route_path):
+          return {"error": "Route is still being written"}, 423
         os.removexattr(route_path, PRESERVE_ATTR_NAME)
         return {"message": "Route unpreserved!"}, 200
     return {"error": "Route not found"}, 404
@@ -525,28 +1003,69 @@ def setup(app):
   @app.route("/video/<name>/combined", methods=["GET"])
   def get_combined_route_video(name):
     camera = request.args.get("camera", "forward")
-    for footage_path in FOOTAGE_PATHS:
-      segments = utilities.get_segments_in_route(name, footage_path)
-      if segments:
-        cam_file = {
-          "forward": "fcamera.hevc",
-          "wide": "ecamera.hevc",
-          "driver": "dcamera.hevc",
-        }.get(camera, "fcamera.hevc")
+    camera_files = {"driver": "dcamera.hevc", "forward": "fcamera.hevc", "wide": "ecamera.hevc"}
+    if camera not in camera_files:
+      return {"error": "Unknown camera"}, 400
+    input_files = None
+    source_fds = []
+    with _route_mutation_lock(False) as mutation_coordinated:
+      if mutation_coordinated is None:
+        return {"error": "Could not coordinate route storage"}, 500
+      if not mutation_coordinated:
+        return {"error": "Another route mutation is in progress"}, 423
 
+      for footage_path in FOOTAGE_PATHS:
+        segments = utilities.get_segments_in_route(name, footage_path)
+        if not segments:
+          continue
+        segment_dirs = [Path(footage_path) / segment for segment in segments]
+        if any(_route_is_locked(segment_dir) for segment_dir in segment_dirs):
+          return {"error": "Route is still being written"}, 423
+
+        cam_file = camera_files[camera]
         input_files = [
-          os.path.join(footage_path, seg, cam_file)
-          for seg in segments
-          if os.path.exists(os.path.join(footage_path, seg, cam_file))
+          str(segment_dir / cam_file)
+          for segment_dir in segment_dirs
+          if (segment_dir / cam_file).exists()
         ]
-
         if not input_files:
           return {"error": "No video files found"}, 404
 
-        mp4_file = utilities.ffmpeg_concat_segments_to_mp4(input_files, cache_key=f"{name}-{camera}")
-        return send_file(mp4_file, mimetype="video/mp4", conditional=True)
+        try:
+          for input_file in input_files:
+            source_fd = os.open(input_file, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW)
+            try:
+              if not stat.S_ISREG(os.fstat(source_fd).st_mode):
+                raise OSError("combined-video source is not a regular file")
+            except OSError:
+              os.close(source_fd)
+              raise
+            source_fds.append(source_fd)
+        except OSError:
+          for source_fd in source_fds:
+            os.close(source_fd)
+          cloudlog.exception(f"the_pond: could not snapshot combined route video for {name}")
+          return {"error": "Could not read video source"}, 500
+        break
 
-    return {"error": "Route not found"}, 404
+    if input_files is None:
+      return {"error": "Route not found"}, 404
+
+    try:
+      source_paths = [f"/proc/{os.getpid()}/fd/{source_fd}" for source_fd in source_fds]
+      mp4_file = utilities.ffmpeg_concat_segments_to_mp4(
+        source_paths,
+        cache_key=f"{name}-{camera}",
+        cache_identity_files=input_files,
+      )
+    except (OSError, ValueError):
+      cloudlog.exception(f"the_pond: could not process the combined route video for {name}")
+      return {"error": "Could not process video"}, 503
+    finally:
+      for source_fd in source_fds:
+        os.close(source_fd)
+
+    return _send_cached_video(mp4_file)
 
   @app.route("/api/routes/<name>", methods=["GET"])
   def get_route(name):
@@ -558,7 +1077,7 @@ def setup(app):
           break
 
         segment_urls = [f"/video/{segment}" for segment in segments]
-        total_duration = sum(utilities.get_video_duration(os.path.join(footage_path, f"{name}--{i}", "fcamera.hevc")) for i in range(len(segment_urls)))
+        total_duration = sum(utilities.get_video_duration(os.path.join(footage_path, segment, "fcamera.hevc")) for segment in segments)
         return {
           "name": name,
           "segment_urls": segment_urls,
@@ -571,208 +1090,335 @@ def setup(app):
   @app.route("/api/routes/clear_name", methods=["POST"])
   def clear_route_name():
     data = request.get_json()
+    if not isinstance(data, dict):
+      return jsonify({"error": "Invalid request"}), 400
     route_name = data.get("name")
 
     if not route_name:
       return jsonify({"error": "Missing route name"}), 400
+    if not _valid_route_name(route_name):
+      return jsonify({"error": "Invalid route name"}), 400
 
-    cleared = False
-    original_timestamp = None
-    for footage_path in FOOTAGE_PATHS:
-      if not os.path.exists(footage_path):
-        continue
+    with _route_mutation_lock(True) as mutation_coordinated:
+      if mutation_coordinated is None:
+        return jsonify({"error": "Could not coordinate route storage"}), 500
+      if not mutation_coordinated:
+        return jsonify({"error": "Another route mutation is in progress"}), 423
+      segments = _route_segments(route_name)
+      if not segments:
+        return jsonify({"error": "Route not found or no custom name to clear"}), 404
+      if any(_route_is_locked(segment) for segment in segments):
+        return jsonify({"error": "Route is still being written"}), 423
 
-      segments_to_process = [s for s in os.listdir(footage_path) if helpers.route_segment_matches(s, route_name) and os.path.isdir(os.path.join(footage_path, s))]
-      if not segments_to_process:
-        continue
-
-      for segment in segments_to_process:
-        segment_dir = os.path.join(footage_path, segment)
+      found_marker = False
+      removal_failed = False
+      for segment_dir in segments:
         for item in os.listdir(segment_dir):
-          if not item.endswith((".hevc", ".ts", ".png", ".gif")) and item not in utilities.LOG_CANDIDATES:
+          if not utilities.is_route_entry_protected(item):
+            found_marker = True
             try:
               os.remove(os.path.join(segment_dir, item))
-              cleared = True
             except OSError:
-              pass
+              removal_failed = True
+              cloudlog.exception(f"the_pond clear_route_name: could not remove name marker {item} from {segment_dir}")
 
-        if cleared:
-          rlog_path = f"{segment_dir}/rlog"
-          route_timestamp_dt = utilities.get_route_start_time(rlog_path)
-          original_timestamp = route_timestamp_dt.isoformat() if route_timestamp_dt else None
+      if removal_failed:
+        return jsonify({"error": "Could not clear route name completely"}), 500
+      if not found_marker:
+        return jsonify({"error": "Route not found or no custom name to clear"}), 404
 
-    if cleared:
-      return jsonify({"message": "Route name cleared successfully!", "timestamp": original_timestamp}), 200
-    else:
-      return jsonify({"error": "Route not found or no custom name to clear"}), 404
+      timestamp_segment = next((segment for segment in segments if segment.name == f"{route_name}--0"), segments[0])
+      route_timestamp_dt = utilities.get_route_start_time(timestamp_segment / "rlog")
+      original_timestamp = route_timestamp_dt.isoformat() if route_timestamp_dt else None
+    return jsonify({"message": "Route name cleared successfully!", "timestamp": original_timestamp}), 200
 
   @app.route("/api/routes/rename", methods=["POST"])
   def rename_route():
     data = request.get_json()
+    if not isinstance(data, dict):
+      return jsonify({"error": "Invalid request"}), 400
     old_name = data.get("old")
     new_name_raw = data.get("new")
 
-    if not old_name or not new_name_raw:
+    if not isinstance(old_name, str) or not isinstance(new_name_raw, str) or not old_name or not new_name_raw:
       return jsonify({"error": "Missing old or new name"}), 400
+    if not _valid_route_name(old_name):
+      return jsonify({"error": "Invalid route name"}), 400
 
     new_name = secure_filename(new_name_raw)
-    if not new_name:
+    if not new_name or utilities.is_route_entry_protected(new_name):
       return jsonify({"error": "Invalid new name"}), 400
-    renamed = False
-    had_segments = False
-    write_error = False
 
-    for footage_path in FOOTAGE_PATHS:
-      if not os.path.exists(footage_path):
-        continue
+    with _route_mutation_lock(True) as mutation_coordinated:
+      if mutation_coordinated is None:
+        return jsonify({"error": "Could not coordinate route storage"}), 500
+      if not mutation_coordinated:
+        return jsonify({"error": "Another route mutation is in progress"}), 423
+      segments = _route_segments(old_name)
+      if not segments:
+        return jsonify({"error": "Route not found"}), 404
+      if any(_route_is_locked(segment) for segment in segments):
+        return jsonify({"error": "Route is still being written"}), 423
 
-      segments_to_process = [s for s in os.listdir(footage_path) if helpers.route_segment_matches(s, old_name) and os.path.isdir(os.path.join(footage_path, s))]
-      if not segments_to_process:
-        continue
-      had_segments = True
+      try:
+        old_markers = [
+          os.path.join(segment_dir, item)
+          for segment_dir in segments
+          for item in os.listdir(segment_dir)
+          if not utilities.is_route_entry_protected(item) and item != new_name
+        ]
+      except OSError:
+        cloudlog.exception(f"the_pond rename_route: could not inspect route markers for {old_name}")
+        return jsonify({"error": "Could not rename route"}), 500
 
-      for segment in segments_to_process:
-        segment_dir = os.path.join(footage_path, segment)
-        for item in os.listdir(segment_dir):
-          if not item.endswith((".hevc", ".ts", ".png", ".gif")) and item not in utilities.LOG_CANDIDATES:
-            try:
-              os.remove(os.path.join(segment_dir, item))
-            except OSError:
-              pass
-
-      for segment in segments_to_process:
-        segment_dir = os.path.join(footage_path, segment)
+      created_markers = []
+      for segment_dir in segments:
         new_name_file_path = os.path.join(segment_dir, new_name)
-
+        target_existed = os.path.lexists(new_name_file_path)
         try:
           with open(new_name_file_path, "a"):
-            os.utime(new_name_file_path, None)
-          renamed = True
+            pass
+          if not target_existed:
+            created_markers.append(new_name_file_path)
         except OSError as e:
-          write_error = True
           cloudlog.exception(f"the_pond rename_route: could not write name marker in {segment_dir}: {e}")
+          for created_marker in created_markers:
+            try:
+              if os.path.lexists(created_marker):
+                os.remove(created_marker)
+            except OSError:
+              cloudlog.exception(f"the_pond rename_route: could not roll back new marker {created_marker}")
+          return jsonify({"error": "Could not rename route"}), 500
 
-    if renamed:
-      return jsonify({"message": "Route renamed successfully!"}), 200
-    if had_segments and write_error:
-      return jsonify({"error": "Could not rename route"}), 500
-    return jsonify({"error": "Route not found"}), 404
+      removed_markers = []
+      for old_marker in old_markers:
+        try:
+          os.remove(old_marker)
+          removed_markers.append(old_marker)
+        except OSError:
+          cloudlog.exception(f"the_pond rename_route: could not remove old marker {old_marker}")
+          for removed_marker in removed_markers:
+            try:
+              with open(removed_marker, "a"):
+                pass
+            except OSError:
+              cloudlog.exception(f"the_pond rename_route: could not restore old marker {removed_marker}")
+          for created_marker in created_markers:
+            try:
+              if os.path.lexists(created_marker):
+                os.remove(created_marker)
+            except OSError:
+              cloudlog.exception(f"the_pond rename_route: could not roll back new marker {created_marker}")
+          return jsonify({"error": "Could not rename route"}), 500
+
+    return jsonify({"message": "Route renamed successfully!"}), 200
 
   @app.route("/api/screen_recordings/delete/<path:filename>", methods=["DELETE"])
   def delete_screen_recording(filename):
-    mp4_path = SCREEN_RECORDINGS_PATH / filename
-    if not helpers.is_within(SCREEN_RECORDINGS_PATH, mp4_path):
+    mp4_path = _screen_recording_path(filename)
+    if mp4_path is None:
       return {"error": "Forbidden"}, 403
-    if not mp4_path.exists():
-      return {"error": "File not found"}, 404
 
-    delete_file(str(mp4_path))
+    with _screen_recordings_lock(True) as storage_coordinated:
+      if storage_coordinated is None:
+        return {"error": "Could not coordinate screen recordings"}, 500
+      if not storage_coordinated:
+        return {"error": "A recording is still being written"}, 423
+      if not _reconcile_screen_recordings():
+        return {"error": "Could not reconcile screen recordings"}, 500
+      if not mp4_path.is_file():
+        return {"error": "File not found"}, 404
 
-    for ext in (".png", ".gif"):
-      thumb = mp4_path.with_suffix(ext)
-      if thumb.exists():
-        delete_file(str(thumb))
+      for ext in (".png", ".gif"):
+        thumb = mp4_path.with_suffix(ext)
+        if thumb.exists() or thumb.is_symlink():
+          delete_file(str(thumb))
+          if thumb.exists() or thumb.is_symlink():
+            return {"error": "Could not delete recording assets"}, 500
+
+      delete_file(str(mp4_path))
+      if mp4_path.exists() or mp4_path.is_symlink():
+        return {"error": "Could not delete recording"}, 500
 
     return {"message": "Deleted"}, 200
 
   @app.route("/api/screen_recordings/delete_all", methods=["DELETE"])
   def delete_all_screen_recordings():
-    files_to_delete = [f for f in os.listdir(SCREEN_RECORDINGS_PATH) if f.endswith(".mp4")]
-    for filename in files_to_delete:
-      delete_file(os.path.join(SCREEN_RECORDINGS_PATH, filename))
-      for ext in (".png", ".gif"):
-        thumb = os.path.join(SCREEN_RECORDINGS_PATH, filename.replace(".mp4", ext))
-        if os.path.exists(thumb):
-          delete_file(thumb)
+    with _screen_recordings_lock(True) as storage_coordinated:
+      if storage_coordinated is None:
+        return {"error": "Could not coordinate screen recordings"}, 500
+      if not storage_coordinated:
+        return {"error": "A recording is still being written"}, 423
+      if not _reconcile_screen_recordings():
+        return {"error": "Could not reconcile screen recordings"}, 500
+
+      recordings = [recording for recording in Path(SCREEN_RECORDINGS_PATH).glob("*.mp4") if recording.is_file() and not recording.is_symlink()]
+      deletion_failed = False
+      for recording in recordings:
+        companion_failed = False
+        for ext in (".png", ".gif"):
+          thumb = recording.with_suffix(ext)
+          if thumb.exists() or thumb.is_symlink():
+            delete_file(str(thumb))
+            if thumb.exists() or thumb.is_symlink():
+              companion_failed = True
+              deletion_failed = True
+        if companion_failed:
+          continue
+        delete_file(str(recording))
+        if recording.exists() or recording.is_symlink():
+          deletion_failed = True
+      if deletion_failed:
+        return {"error": "Some screen recordings could not be deleted"}, 500
     return {"message": "All screen recordings deleted!"}, 200
 
   @app.route("/api/screen_recordings/download/<path:filename>", methods=["GET"])
   def download_screen_recording(filename):
-    if not helpers.is_within(SCREEN_RECORDINGS_PATH, SCREEN_RECORDINGS_PATH / filename):
+    mp4_path = _screen_recording_path(filename)
+    if mp4_path is None:
       return {"error": "Forbidden"}, 403
-    return send_from_directory(SCREEN_RECORDINGS_PATH, filename, as_attachment=True)
+    with _screen_recordings_read_lock() as storage_coordinated:
+      if storage_coordinated is None:
+        return {"error": "Could not coordinate screen recordings"}, 500
+      if not storage_coordinated:
+        return {"error": "Screen recordings are being modified"}, 423
+      if not mp4_path.is_file():
+        return {"error": "File not found"}, 404
+      return send_from_directory(SCREEN_RECORDINGS_PATH, filename, as_attachment=True)
 
   @app.route("/api/screen_recordings/list", methods=["GET"])
   def list_screen_recordings():
-    def generate():
+    with _screen_recordings_read_lock() as storage_coordinated:
+      if storage_coordinated is None:
+        return {"error": "Could not coordinate screen recordings"}, 500
+      if not storage_coordinated:
+        return {"error": "Screen recordings are being modified"}, 423
       recordings = sorted(
-        [recording for recording in SCREEN_RECORDINGS_PATH.glob("*.mp4") if not Path(f"{recording}.lock").exists()],
+        [
+          recording
+          for recording in SCREEN_RECORDINGS_PATH.glob("*.mp4")
+          if recording.is_file() and not recording.is_symlink()
+        ],
         key=lambda p: p.stat().st_mtime,
         reverse=True
       )
+      metadata = []
+      for mp4 in recordings:
+        try:
+          metadata.append(utilities.screen_recording_metadata(mp4))
+        except Exception:
+          metadata.append(None)
+          cloudlog.exception(f"the_pond list_screen_recordings: failed to process {mp4.name}")
+
+    def generate():
       total = len(recordings)
 
       yield f"data: {json.dumps({'progress': 0, 'total': total})}\n\n"
-      for processed, mp4 in enumerate(recordings, start=1):
-        try:
-          result = utilities.screen_recording_metadata(mp4)
+      for processed, result in enumerate(metadata, start=1):
+        if result is not None:
           yield f"data: {json.dumps({'recordings': [result]})}\n\n"
-        except Exception:
-          cloudlog.exception(f"the_pond list_screen_recordings: failed to process {mp4.name}")
         yield f"data: {json.dumps({'progress': processed, 'total': total})}\n\n"
 
     return Response(stream_with_context(generate()), mimetype="text/event-stream")
 
   @app.route("/screen_recordings/<path:filename>", methods=["GET"])
   def serve_screen_recording_asset(filename):
+    if Path(filename).name != filename or Path(filename).suffix.lower() not in (".gif", ".png"):
+      return {"error": "Not found"}, 404
     asset = SCREEN_RECORDINGS_PATH / filename
-    if helpers.is_within(SCREEN_RECORDINGS_PATH, asset) and not asset.exists() and asset.suffix in (".png", ".gif"):
-      mp4 = asset.with_suffix(".mp4")
-      if mp4.exists():
-        if asset.suffix == ".png":
-          utilities.video_to_png(mp4, asset)
-        else:
-          utilities.video_to_gif(mp4, asset)
+    if not helpers.is_within(SCREEN_RECORDINGS_PATH, asset) or asset.is_symlink():
+      return {"error": "Forbidden"}, 403
+    creating_thumbnail = not asset.exists() and asset.suffix in (".png", ".gif")
+    source_fd = None
+    with _screen_recordings_read_lock() as storage_coordinated:
+      if storage_coordinated is None:
+        return {"error": "Could not coordinate screen recordings"}, 500
+      if not storage_coordinated:
+        return {"error": "Screen recordings are busy"}, 423
+      mp4 = _screen_recording_path(str(Path(filename).with_suffix(".mp4")))
+      if not creating_thumbnail or asset.exists() or mp4 is None or not mp4.is_file():
+        return send_from_directory(SCREEN_RECORDINGS_PATH, filename)
+      try:
+        source_fd = os.open(mp4, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW)
+        if not stat.S_ISREG(os.fstat(source_fd).st_mode):
+          raise OSError("screen-recording source is not a regular file")
+      except OSError:
+        if source_fd is not None:
+          os.close(source_fd)
+        cloudlog.exception(f"the_pond: could not snapshot screen-recording thumbnail source {mp4}")
+        return {"error": "Could not create thumbnail"}, 500
+
+    temporary_asset = asset.with_name(f".{asset.stem}.{secrets.token_hex(8)}{asset.suffix}")
+    try:
+      source_path = f"/proc/{os.getpid()}/fd/{source_fd}"
+      if asset.suffix == ".png":
+        utilities.video_to_png(source_path, temporary_asset)
+      else:
+        utilities.video_to_gif(source_path, temporary_asset)
+      if not temporary_asset.is_file() or temporary_asset.stat().st_size == 0:
+        raise OSError("thumbnail generation produced no output")
+      with _screen_recordings_read_lock() as storage_coordinated:
+        if storage_coordinated and mp4.is_file():
+          os.replace(temporary_asset, asset)
+    except (OSError, subprocess.SubprocessError):
+      cloudlog.exception(f"the_pond: could not create screen-recording thumbnail {asset}")
+      return {"error": "Could not create thumbnail"}, 500
+    finally:
+      os.close(source_fd)
+      temporary_asset.unlink(missing_ok=True)
     return send_from_directory(SCREEN_RECORDINGS_PATH, filename)
 
   @app.route("/api/screen_recordings/rename", methods=["POST"])
   def rename_screen_recording():
-    data = request.get_json() or {}
-    old = data.get("old")
-    new_raw = data.get("new") or ""
+    data = request.get_json()
+    if not isinstance(data, dict):
+      return {"error": "Invalid request"}, 400
 
-    if not old or not new_raw:
+    old = data.get("old")
+    new_raw = data.get("new")
+
+    if not isinstance(old, str) or not isinstance(new_raw, str) or not old or not new_raw:
       return {"error": "Missing filenames"}, 400
 
     stem = secure_filename(new_raw[:-4] if new_raw.lower().endswith(".mp4") else new_raw)
     if not stem:
       return {"error": "Invalid new name"}, 400
     new = f"{stem}.mp4"
-    old_path = SCREEN_RECORDINGS_PATH / old
-    new_path = SCREEN_RECORDINGS_PATH / new
+    old_path = _screen_recording_path(old)
+    new_path = _screen_recording_path(new)
+    if old_path is None or new_path is None:
+      return {"error": "Forbidden"}, 403
 
-    if not old_path.exists():
-      return {"error": "Original file not found"}, 404
+    with _screen_recordings_lock(True) as storage_coordinated:
+      if storage_coordinated is None:
+        return {"error": "Could not coordinate screen recordings"}, 500
+      if not storage_coordinated:
+        return {"error": "A recording is still being written"}, 423
+      if not _reconcile_screen_recordings():
+        return {"error": "Could not reconcile screen recordings"}, 500
+      if not old_path.is_file():
+        return {"error": "Original file not found"}, 404
+      old_assets = [old_path, old_path.with_suffix(".png"), old_path.with_suffix(".gif")]
+      new_assets = [new_path, new_path.with_suffix(".png"), new_path.with_suffix(".gif")]
+      if any(path.exists() for path in new_assets):
+        return {"error": "Target file already exists"}, 400
 
-    if new_path.exists():
-      return {"error": "Target file already exists"}, 400
-
-    old_path.rename(new_path)
-    for extension in (".png", ".gif"):
-      old_thumb = old_path.with_suffix(extension)
-      new_thumb = new_path.with_suffix(extension)
-
-      if old_thumb.exists():
-        old_thumb.rename(new_thumb)
+      renamed = []
+      try:
+        for source, target in zip(old_assets, new_assets, strict=True):
+          if source.exists():
+            source.rename(target)
+            renamed.append((source, target))
+      except OSError:
+        for source, target in reversed(renamed):
+          target.rename(source)
+        return {"error": "Could not rename recording"}, 500
 
     return {"message": "Renamed"}, 200
 
   @app.route("/api/speed_limits", methods=["POST"])
   def speed_limits():
-    try:
-      data = json.loads(params.get("SpeedLimitsFiltered") or "[]")
-    except (ValueError, TypeError):
-      data = []
-    if not isinstance(data, list):
-      data = []
-
-    current_time = (datetime.now(timezone.utc) - timedelta(days=6, hours=23)).isoformat()
-    data = [{**e, "last_vetted": current_time} for e in data if isinstance(e, dict)]
-
-    with _PARAMS_LOCK:
-      params.put("SpeedLimitsFiltered", json.dumps(data))
-
-    buffer = BytesIO(json.dumps(data, indent=2).encode())
+    buffer = BytesIO(params.get("SpeedLimits") or b"[]")
     buffer.seek(0)
     return send_file(buffer, as_attachment=True, download_name="speed_limits.json", mimetype="application/json")
 
@@ -809,29 +1455,19 @@ def setup(app):
 
   @app.route("/api/tailscale/installed", methods=["GET"])
   def tailscale_installed():
-    base = TAILSCALE_BASE
-    tailscale_binary = f"{base}/tailscale"
-    tailscaled_binary = f"{base}/tailscaled"
-
-    systemd_unit = "/etc/systemd/system/tailscaled.service"
-
-    if os.path.exists(tailscale_binary) and os.path.exists(tailscaled_binary) and os.path.exists(systemd_unit):
-      return jsonify({"installed": True})
-
-    try:
-      result = subprocess.run(["which", "tailscale"], capture_output=True, text=True, timeout=10)
-    except subprocess.TimeoutExpired:
-      return jsonify({"installed": False})
-    if result.returncode == 0:
-      return jsonify({"installed": True})
-
-    return jsonify({"installed": False})
+    managed = _tailscale_managed()
+    external = not managed and (TAILSCALE_UNIT_PATH.exists() or shutil.which("tailscale") is not None)
+    return jsonify({"external": external, "installed": managed or external, "managed": managed})
 
   @app.route("/api/tailscale/setup", methods=["POST"])
+  @_tailscale_operation
   def tailscale_setup():
     cloudlog.warning("the_pond audit: tailscale setup (sudo install systemd unit) requested")
     arch = "arm64"
     base = TAILSCALE_BASE
+
+    if (TAILSCALE_UNIT_PATH.exists() or shutil.which("tailscale")) and not _tailscale_managed():
+      return jsonify({"error": "An external Tailscale installation already owns the system service"}), 409
 
     version = "1.84.0"
     try:
@@ -842,9 +1478,6 @@ def setup(app):
         version = max(found, key=lambda v: tuple(map(int, v.split("."))))
     except requests.RequestException:
       pass
-
-    if not re.fullmatch(r"\d+\.\d+\.\d+", version):
-      return jsonify({"error": "Could not determine a valid Tailscale version"}), 502
 
     bin_dir = f"{base}/tailscale_{version}_{arch}"
     state = f"{base}/state"
@@ -857,8 +1490,6 @@ def setup(app):
 
     _run_cmd(["curl", "-fsSL", "--connect-timeout", "15", "--max-time", "300", tgz_url, "-o", tgz_path],
              "Downloaded Tailscale archive.", "Failed to download Tailscale archive.", timeout=320)
-    if not os.path.exists(tgz_path):
-      return jsonify({"error": "Failed to download Tailscale archive"}), 502
 
     try:
       sums = requests.get(tgz_url + ".sha256", timeout=15)
@@ -874,40 +1505,26 @@ def setup(app):
       return jsonify({"error": "Tailscale archive checksum mismatch; aborting"}), 502
 
     extract_tar(tgz_path, base)
+    for name in ("tailscale", "tailscaled"):
+      shutil.copy2(f"{bin_dir}/{name}", f"{base}/{name}")
+      os.chmod(f"{base}/{name}", 0o755)
+      print(f"Copied {name} binary.")
 
-    _run_cmd(["cp", f"{bin_dir}/tailscale", f"{base}/tailscale"], "Copied tailscale binary.", "Failed to copy tailscale binary.")
-    _run_cmd(["cp", f"{bin_dir}/tailscaled", f"{base}/tailscaled"], "Copied tailscaled binary.", "Failed to copy tailscaled binary.")
-    _run_cmd(["chmod", "+x", f"{base}/tailscale", f"{base}/tailscaled"], "Made binaries executable.", "Failed to chmod binaries.")
-
-    systemd_unit = f"""[Unit]
-    Description=Tailscale node agent
-    After=network.target
-
-    [Service]
-    ExecStart={base}/tailscaled \\
-      --tun=userspace-networking \\
-      --socks5-server=localhost:1055 \\
-      --state={state}/tailscaled.state \\
-      --socket={socket} \\
-      --statedir={state}
-    Restart=on-failure
-    RestartSec=5
-
-    [Install]
-    WantedBy=multi-user.target
-    """
+    systemd_unit = _tailscale_unit()
     unit_tmp = f"{base}/tailscaled.service"
     with open(unit_tmp, "w") as f:
       f.write(systemd_unit)
 
-    try:
-      _run_cmd(["sudo", "mount", "-o", "remount,rw", "/"], "Remounted / as read-write.", "Failed to remount / as read-write.")
-      _run_cmd(["sudo", "install", "-m", "644", unit_tmp, "/etc/systemd/system/tailscaled.service"], "Installed systemd unit.", "Failed to install systemd unit.")
+    if _drive_locked():
+      return jsonify({"error": _DRIVING_ERROR}), 423
+
+    with _writable_root():
+      _run_cmd(["sudo", "install", "-m", "644", unit_tmp, str(TAILSCALE_UNIT_PATH)],
+               "Installed systemd unit.", "Failed to install systemd unit.")
+      _tailscale_marker().write_text(hashlib.sha256(systemd_unit.encode()).hexdigest())
       _run_cmd(["sudo", "systemctl", "daemon-reload"], "Reloaded systemd daemon.", "Failed to reload systemd daemon.")
-      _run_cmd(["sudo", "systemctl", "enable", "/etc/systemd/system/tailscaled.service"], "Enabled tailscaled service.", "Failed to enable tailscaled service.")
+      _run_cmd(["sudo", "systemctl", "enable", str(TAILSCALE_UNIT_PATH)], "Enabled tailscaled service.", "Failed to enable tailscaled service.")
       _run_cmd(["sudo", "systemctl", "restart", "tailscaled"], "Started tailscaled service.", "Failed to start tailscaled service.")
-    finally:
-      _run_cmd(["sudo", "mount", "-o", "remount,ro", "/"], "Remounted / read-only.", "Failed to remount / read-only -- filesystem may be left writable.")
 
     proc = subprocess.Popen(
       ["sudo", f"{base}/tailscale", "--socket", socket, "up", "--hostname", f"{HARDWARE.get_device_type()}-the-pond"],
@@ -917,14 +1534,17 @@ def setup(app):
       preexec_fn=os.setsid
     )
 
+    terminate_lock = threading.Lock()
+
     def _terminate():
-      _run_cmd(["sudo", "kill", "-TERM", f"-{proc.pid}"], "Sent SIGTERM to Tailscale setup process.", "Failed to send SIGTERM to Tailscale setup process.")
+      with terminate_lock:
+        _quiesce_process(proc)
 
     watchdog = threading.Timer(60, _terminate)
     watchdog.start()
     auth_url = None
     try:
-      for line in (proc.stdout or []):
+      for line in proc.stdout:
         match = re.search(r"https://login\.tailscale\.com/\S+", line)
         if match:
           auth_url = match.group(0)
@@ -932,10 +1552,6 @@ def setup(app):
     finally:
       watchdog.cancel()
       _terminate()
-      try:
-        proc.wait(timeout=5)
-      except subprocess.TimeoutExpired:
-        cloudlog.warning("the_pond tailscale_setup: tailscale up did not exit after SIGTERM")
 
     if not auth_url:
       return jsonify({"error": "Tailscale did not return an authentication URL. Please try again."}), 504
@@ -946,34 +1562,34 @@ def setup(app):
     }), 200
 
   @app.route("/api/tailscale/uninstall", methods=["POST"])
+  @_tailscale_operation
   def tailscale_uninstall():
     cloudlog.warning("the_pond audit: tailscale uninstall (sudo rm -rf / systemctl) requested")
+    if not _tailscale_managed():
+      return jsonify({"error": "The detected Tailscale installation is not managed by The Pond"}), 409
+
     base = TAILSCALE_BASE
     state = f"{base}/state"
-    unit_path = "/etc/systemd/system/tailscaled.service"
+    unit_path = str(TAILSCALE_UNIT_PATH)
     local_unit = f"{base}/tailscaled.service"
 
     _run_cmd(["sudo", "systemctl", "stop", "tailscaled"], "Stopped tailscaled.", "Failed to stop tailscaled.")
     _run_cmd(["sudo", "systemctl", "disable", "tailscaled"], "Disabled tailscaled.", "Failed to disable tailscaled.")
 
     if os.path.exists(unit_path):
-      try:
-        _run_cmd(["sudo", "mount", "-o", "remount,rw", "/"], "Remounted / as read-write.", "Failed to remount /.")
+      if _drive_locked():
+        return jsonify({"error": _DRIVING_ERROR}), 423
+      with _writable_root():
         _run_cmd(["sudo", "rm", unit_path], "Removed systemd unit file.", "Failed to remove systemd unit file.")
-      finally:
-        _run_cmd(["sudo", "mount", "-o", "remount,ro", "/"], "Remounted / read-only.", "Failed to remount / read-only -- filesystem may be left writable.")
       _run_cmd(["sudo", "systemctl", "daemon-reload"], "Reloaded systemd daemon.", "Failed to reload systemd.")
 
-    delete_file(local_unit)
+    if os.path.lexists(local_unit) and not _delete_and_verify(local_unit):
+      return jsonify({"error": "Failed to remove the local Tailscale service file"}), 500
 
     for filename in ["tailscale", "tailscaled", "tailscale.tgz"]:
-      delete_file(os.path.join(base, filename))
-
-    for item in os.listdir(base):
-      if item.startswith("tailscale_"):
-        item_path = os.path.join(base, item)
-        if os.path.isdir(item_path):
-          _run_cmd(["sudo", "rm", "-rf", item_path], f"Removed {item_path}.", f"Failed to remove {item_path}.")
+      path = os.path.join(base, filename)
+      if os.path.lexists(path) and not _delete_and_verify(path):
+        return jsonify({"error": "Failed to remove a Tailscale installation file"}), 500
 
     if os.path.exists(state):
       _run_cmd(["sudo", "rm", "-rf", state], "Removed tailscale state dir.", "Failed to remove tailscale state dir.")
@@ -981,10 +1597,15 @@ def setup(app):
     if os.path.exists(base):
       _run_cmd(["sudo", "rm", "-rf", base], "Removed tailscale dir.", "Failed to remove tailscale dir.")
 
+    if any(os.path.lexists(path) for path in (unit_path, local_unit, base)):
+      return jsonify({"error": "Tailscale uninstall is incomplete"}), 500
+
     return jsonify({"message": "Tailscale uninstalled!"}), 200
 
   @app.route("/api/themes", methods=["POST"])
   def save_theme_route():
+    if f'{secure_filename((request.form.get("themeName") or "").replace(" ", "_"))}-user_created' == POND_ACTIVE_THEME:
+      return jsonify({"message": "Theme name is invalid."}), 400
     theme_path, error = utilities.create_theme(request.form, request.files)
     if error:
       return jsonify({"message": error}), 400
@@ -1003,8 +1624,8 @@ def setup(app):
     if not mem_key:
       return jsonify({"error": "Unknown component"}), 400
 
-    slug = display_name.lower().replace("(", "").replace(")", "").replace(" ", "_")
-    if "/" in slug or "\\" in slug or ".." in slug:
+    slug = helpers.theme_asset_slug(display_name)
+    if not helpers.is_safe_slug(slug):
       return jsonify({"error": "Invalid component name"}), 400
 
     params_memory.put(mem_key, slug)
@@ -1015,83 +1636,33 @@ def setup(app):
   @app.route("/api/themes/apply", methods=["POST"])
   def apply_theme():
     form_data = request.form.to_dict(flat=True)
-    files = request.files
+    form_data["themeName"] = "pond_active"
 
-    if not form_data.get("themeName"):
-      form_data["themeName"] = f"tmp_{secrets.token_hex(8)}"
-
-    temp_path, error = utilities.create_theme(form_data, files, temporary=True)
+    _, error = utilities.create_theme(form_data, request.files)
     if error:
       return {"error": error}, 400
 
-    persistent_source = THEME_SAVE_PATH / "active_theme_source"
-    if persistent_source.exists() or persistent_source.is_symlink():
-      delete_file(persistent_source)
-    persistent_source.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copytree(temp_path, persistent_source, symlinks=False)
-    delete_file(temp_path.parent)
-    temp_path = persistent_source
-
     save_checklist = json.loads(form_data.get("saveChecklist", "{}"))
+    theme_params = {
+      "colors": "CustomColors",
+      "distance_icons": "CustomDistanceIcons",
+      "icons": "CustomIcons",
+      "sounds": "CustomSounds",
+      "steering_wheel": "WheelIcon",
+      "turn_signals": "CustomSignals",
+    }
+    selected_params = [param for component, param in theme_params.items() if save_checklist.get(component)]
+    previous = {param: params.get(param) for param in selected_params}
+    try:
+      for param in selected_params:
+        params.put(param, POND_ACTIVE_THEME)
+      params.put_bool("PersonalizeOpenpilot", True)
+    except Exception:
+      cloudlog.exception("the_pond: could not apply theme parameters")
+      for param, value in previous.items():
+        params.remove(param) if value is None else params.put(param, value)
+      return {"error": "Theme could not be applied"}, 500
 
-    if save_checklist.get("colors"):
-      asset_location = temp_path / "colors"
-      save_location = ACTIVE_THEME_PATH / "colors"
-      if save_location.exists() or save_location.is_symlink():
-        delete_file(save_location)
-      if asset_location.exists():
-        save_location.parent.mkdir(parents=True, exist_ok=True)
-        save_location.symlink_to(asset_location, target_is_directory=True)
-
-    if save_checklist.get("distance_icons"):
-      asset_location = temp_path / "distance_icons"
-      save_location = ACTIVE_THEME_PATH / "distance_icons"
-      if save_location.exists() or save_location.is_symlink():
-        delete_file(save_location)
-      if asset_location.exists():
-        save_location.parent.mkdir(parents=True, exist_ok=True)
-        save_location.symlink_to(asset_location, target_is_directory=True)
-
-    if save_checklist.get("icons"):
-      asset_location = temp_path / "icons"
-      save_location = ACTIVE_THEME_PATH / "icons"
-      if save_location.exists() or save_location.is_symlink():
-        delete_file(save_location)
-      if asset_location.exists():
-        save_location.parent.mkdir(parents=True, exist_ok=True)
-        save_location.symlink_to(asset_location, target_is_directory=True)
-
-    if save_checklist.get("sounds"):
-      asset_location = temp_path / "sounds"
-      save_location = ACTIVE_THEME_PATH / "sounds"
-      if save_location.exists() or save_location.is_symlink():
-        delete_file(save_location)
-      if asset_location.exists():
-        save_location.parent.mkdir(parents=True, exist_ok=True)
-        save_location.symlink_to(asset_location, target_is_directory=True)
-
-    if save_checklist.get("turn_signals"):
-      asset_location = temp_path / "signals"
-      save_location = ACTIVE_THEME_PATH / "signals"
-      if save_location.exists() or save_location.is_symlink():
-        delete_file(save_location)
-      if asset_location.exists():
-        save_location.parent.mkdir(parents=True, exist_ok=True)
-        save_location.symlink_to(asset_location, target_is_directory=True)
-
-    wheel_location = temp_path / "WheelIcon"
-    wheel_save_location = ACTIVE_THEME_PATH / "steering_wheel"
-    if wheel_location.exists():
-      if wheel_save_location.exists():
-        delete_file(wheel_save_location)
-
-      wheel_save_location.mkdir(parents=True, exist_ok=True)
-      for file in wheel_location.iterdir():
-        destination_file = wheel_save_location / file.name
-        delete_file(destination_file)
-        destination_file.symlink_to(file)
-
-    params.put_bool("PersonalizeOpenpilot", True)
     params_memory.put_bool("UseActiveTheme", True)
 
     update_frogpilot_toggles()
@@ -1099,6 +1670,8 @@ def setup(app):
 
   @app.route("/api/themes/asset/<path:theme>/<path:asset_path>")
   def get_theme_asset(theme, asset_path):
+    if Path(asset_path).suffix.lower() not in _THEME_ASSET_SUFFIXES:
+      return "File not found", 404
     theme_type = request.args.get("type", "")
 
     if theme_type == "active" or theme == "__active__":
@@ -1117,7 +1690,7 @@ def setup(app):
     if not any(helpers.is_within(root, file_path) for root in roots):
       return "Forbidden", 403
 
-    if not file_path.exists():
+    if not file_path.is_file():
       return "File not found", 404
 
     return send_file(file_path, as_attachment=False)
@@ -1129,39 +1702,62 @@ def setup(app):
 
     if theme_type == "holiday":
       return jsonify({"message": "Cannot delete holiday themes."}), 403
+    if params.get_bool("RandomThemes"):
+      return jsonify({"message": "Disable random themes before deleting theme assets."}), 409
 
-    if theme_type == "steering_wheel":
-      wheels_root = THEME_SAVE_PATH / "steering_wheels"
-      wheel_path = wheels_root / theme_path_str
-      if not helpers.is_within(wheels_root, wheel_path):
+    selection_params = {
+      "colors": "CustomColors", "distance_icons": "CustomDistanceIcons", "icons": "CustomIcons",
+      "signals": "CustomSignals", "sounds": "CustomSounds", "steering_wheels": "WheelIcon",
+    }
+    def selected(theme_name, theme_component):
+      selected_name = params.get(selection_params[theme_component], encoding="utf-8") or ""
+      return helpers.theme_asset_slug(selected_name) == helpers.theme_asset_slug(theme_name)
+
+    with utilities.theme_mutation_lock():
+      if theme_type == "steering_wheel":
+        wheels_root = THEME_SAVE_PATH / "steering_wheels"
+        wheel_path = wheels_root / theme_path_str
+        if wheel_path.resolve().parent != wheels_root.resolve() or wheel_path.stem == POND_ACTIVE_THEME:
+          return jsonify({"message": "Forbidden"}), 403
+        if selected(wheel_path.stem, "steering_wheels"):
+          return jsonify({"message": "Select a different steering wheel before deleting this one."}), 409
+        if wheel_path.exists():
+          if not _delete_and_verify(wheel_path):
+            return jsonify({"message": "Steering wheel could not be deleted."}), 500
+          params.remove("ThemesDownloaded")
+          return jsonify({"message": f'Steering wheel "{utilities.normalize_theme_name(wheel_path.stem)}" deleted!'}), 200
+        return jsonify({"message": "Steering wheel not found..."}), 404
+
+      packs_root = THEME_SAVE_PATH / "theme_packs"
+      theme_path = packs_root / theme_path_str
+      if theme_path.resolve().parent != packs_root.resolve() or theme_path.name == POND_ACTIVE_THEME:
         return jsonify({"message": "Forbidden"}), 403
-      if wheel_path.exists():
-        delete_file(wheel_path)
-        return jsonify({"message": f'Steering wheel "{utilities.normalize_theme_name(wheel_path.stem)}" deleted!'}), 200
-      return jsonify({"message": "Steering wheel not found..."}), 404
+      if not theme_path.is_dir():
+        return jsonify({"message": "Theme not found..."}), 404
 
-    packs_root = THEME_SAVE_PATH / "theme_packs"
-    theme_path = packs_root / theme_path_str
-    if not helpers.is_within(packs_root, theme_path):
-      return jsonify({"message": "Forbidden"}), 403
-    if not theme_path.is_dir():
-      return jsonify({"message": "Theme not found..."}), 404
+      if component:
+        allowed = {"colors", "distance_icons", "icons", "sounds", "signals"}
+        if component not in allowed:
+          return jsonify({"message": "Unknown component..."}), 400
+        if selected(theme_path.name, component):
+          return jsonify({"message": "Select a different theme component before deleting this one."}), 409
 
-    if component:
-      allowed = {"colors", "distance_icons", "icons", "sounds", "signals"}
-      if component not in allowed:
-        return jsonify({"message": "Unknown component..."}), 400
+        target = theme_path / component
+        if not target.exists():
+          return jsonify({"message": f'Component "{component}" not found in theme...'}), 404
 
-      target = theme_path / component
-      if not target.exists():
-        return jsonify({"message": f'Component "{component}" not found in theme...'}), 404
+        if not _delete_and_verify(target):
+          return jsonify({"message": f'Component "{component}" could not be deleted.'}), 500
 
-      delete_file(target)
+        params.remove("ThemesDownloaded")
+        return jsonify({"message": f'Removed {component.replace("_", " ")} from "{utilities.normalize_theme_name(theme_path.name)}"!'}), 200
 
-      return jsonify({"message": f'Removed {component.replace("_", " ")} from "{utilities.normalize_theme_name(theme_path.name)}"!'}), 200
-
-    delete_file(theme_path)
-    return jsonify({"message": f'Theme "{utilities.normalize_theme_name(theme_path.name)}" deleted!'}), 200
+      if any(selected(theme_path.name, item) for item in selection_params if item != "steering_wheels"):
+        return jsonify({"message": "Select different theme components before deleting this theme."}), 409
+      if not _delete_and_verify(theme_path):
+        return jsonify({"message": "Theme could not be deleted."}), 500
+      params.remove("ThemesDownloaded")
+      return jsonify({"message": f'Theme "{utilities.normalize_theme_name(theme_path.name)}" deleted!'}), 200
 
   @app.route("/api/themes/default", methods=["GET"])
   def get_default_theme():
@@ -1201,14 +1797,17 @@ def setup(app):
     colors_path = ACTIVE_THEME_PATH / "colors" / "colors.json"
     if colors_path.exists():
       try:
-        with open(colors_path, "r") as f:
+        with open(colors_path) as f:
           theme_data["colors"] = json.load(f)
       except (OSError, ValueError):
         cloudlog.exception("the_pond get_default_theme: failed to read active colors.json")
 
     signals_dir = ACTIVE_THEME_PATH / "signals"
     if signals_dir.exists():
-      sequential_files = sorted([f.name for f in signals_dir.glob("turn_signal_*.png") if "blindspot" not in f.name.lower()])
+      sequential_files = sorted(
+        file.name for file in signals_dir.iterdir()
+        if file.is_file() and file.suffix.lower() in utilities.IMAGE_EXTS and re.fullmatch(r"turn_signal_\d+", file.stem)
+      )
       if sequential_files:
         theme_data["sequentialImages"] = sequential_files
         theme_data["turnSignalType"] = "Sequential"
@@ -1216,8 +1815,8 @@ def setup(app):
       theme_data["turnSignalStyle"] = "Traditional"
       theme_data["turnSignalLength"] = 100
 
-      for file in os.listdir(signals_dir):
-        if not any(file.endswith(ext) for ext in utilities.IMAGE_EXTS):
+      for file in sorted(os.listdir(signals_dir)):
+        if Path(file).suffix.lower() not in utilities.IMAGE_EXTS:
           parts = file.split("_")
           if len(parts) == 2:
             theme_data["turnSignalStyle"] = parts[0].capitalize()
@@ -1225,7 +1824,7 @@ def setup(app):
               theme_data["turnSignalLength"] = int(parts[1])
             except ValueError:
               pass
-          break
+            break
 
       if turn_signal := utilities.first_image(signals_dir, "turn_signal"):
         theme_data["images"]["turnSignal"] = turn_signal
@@ -1263,25 +1862,6 @@ def setup(app):
 
     return jsonify(theme_data)
 
-  @app.route("/api/themes/download", methods=["POST"])
-  def download_theme_route():
-    theme_path, error = utilities.create_theme(request.form, request.files, temporary=True)
-    if error:
-      return jsonify({"message": error}), 400
-
-    sane_theme_name = utilities.normalize_theme_name(request.form.get("themeName"), for_path=True)
-
-    archive_path = shutil.make_archive(str(theme_path.parent / sane_theme_name), "zip", theme_path.parent, sane_theme_name)
-
-    memory_file = BytesIO()
-    with open(archive_path, "rb") as f:
-      memory_file.write(f.read())
-    memory_file.seek(0)
-
-    delete_file(theme_path.parent)
-
-    return send_file(memory_file, download_name=f'{sane_theme_name}.zip', as_attachment=True)
-
   @app.route("/api/themes/list", methods=["GET"])
   def list_themes():
     all_themes = []
@@ -1289,7 +1869,7 @@ def setup(app):
 
     if themes_path.exists():
       for theme_dir in themes_path.iterdir():
-        if theme_dir.is_dir():
+        if theme_dir.is_dir() and theme_dir.name != POND_ACTIVE_THEME:
           is_user_created = "-user_created" in theme_dir.name
           components = utilities.check_theme_components(theme_dir)
           all_themes.append({
@@ -1315,6 +1895,8 @@ def setup(app):
     wheels_path = THEME_SAVE_PATH / "steering_wheels"
     if wheels_path.exists():
       for wheel_file in wheels_path.iterdir():
+        if wheel_file.stem == POND_ACTIVE_THEME:
+          continue
         all_themes.append({
           "name": utilities.normalize_theme_name(wheel_file.stem),
           "path": wheel_file.name,
@@ -1353,15 +1935,15 @@ def setup(app):
 
     icons_dir = theme_dir / "icons"
     if icons_dir.exists():
-      if (icons_dir / "button_home.gif").exists():
+      if home_icon := utilities.first_image(icons_dir, "button_home"):
         response_data["images"]["homeButton"] = {
-          "filename": "button_home.gif",
-          "path": "icons/button_home.gif"
+          "filename": home_icon,
+          "path": f"icons/{home_icon}"
         }
-      if (icons_dir / "button_settings.png").exists():
+      if settings_icon := utilities.first_image(icons_dir, "button_settings"):
         response_data["images"]["settingsButton"] = {
-          "filename": "button_settings.png",
-          "path": "icons/button_settings.png"
+          "filename": settings_icon,
+          "path": f"icons/{settings_icon}"
         }
 
     distance_dir = theme_dir / "distance_icons"
@@ -1376,7 +1958,10 @@ def setup(app):
 
     signals_dir = theme_dir / "signals"
     if signals_dir.exists():
-      sequential_files = sorted([f.name for f in signals_dir.glob("turn_signal_*.png") if "blindspot" not in f.name.lower()])
+      sequential_files = sorted(
+        file.name for file in signals_dir.iterdir()
+        if file.is_file() and file.suffix.lower() in utilities.IMAGE_EXTS and re.fullmatch(r"turn_signal_\d+", file.stem)
+      )
       if sequential_files:
         response_data["sequentialImages"] = sequential_files
         response_data["turnSignalType"] = "Sequential"
@@ -1384,8 +1969,8 @@ def setup(app):
       response_data["turnSignalStyle"] = "Traditional"
       response_data["turnSignalLength"] = 100
 
-      for file in os.listdir(signals_dir):
-        if not any(file.endswith(ext) for ext in utilities.IMAGE_EXTS):
+      for file in sorted(os.listdir(signals_dir)):
+        if Path(file).suffix.lower() not in utilities.IMAGE_EXTS:
           parts = file.split("_")
           if len(parts) == 2:
             response_data["turnSignalStyle"] = parts[0].capitalize()
@@ -1442,6 +2027,7 @@ def setup(app):
 
   @app.route("/api/themes/submit", methods=["POST"])
   def submit_theme():
+    theme_path = None
     try:
       theme_name = request.form.get("themeName")
       if not theme_name:
@@ -1453,89 +2039,47 @@ def setup(app):
       if error:
         return jsonify({"message": error}), 400
 
-      safe_theme_name = utilities.normalize_theme_name(theme_name, for_path=True)
-      combined_name = f"{safe_theme_name}~{discord_username}"
-
-      def gitlab_post(commit_payload):
-        resp = requests.post(f"{FROGPILOT_API}/gitlab/commit", json=_frogpilot_api_payload(**commit_payload),
-                             headers={"Content-Type": "application/json", "User-Agent": "frogpilot-api/1.0"}, timeout=60)
-        if resp.status_code not in (200, 201):
-          raise RuntimeError(f"GitLab commit error {resp.status_code}: {resp.text}")
-        return resp.json()
-
-      def encode_file_base64(path):
-        with open(path, "rb") as f:
-          return base64.b64encode(f.read()).decode("utf-8")
-
-      def send_discord_notification(username, theme_name, asset_types):
-        payload = _frogpilot_api_payload(asset_types=asset_types, theme_name=theme_name, username=username)
-
-        try:
-          resp = requests.post(f"{FROGPILOT_API}/discord/theme", json=payload, headers={"Content-Type": "application/json", "User-Agent": "frogpilot-api/1.0"}, timeout=30)
-          resp.raise_for_status()
-          cloudlog.info("the_pond: sent theme submission notification")
-        except requests.exceptions.RequestException:
-          cloudlog.exception("the_pond: failed to send theme notification")
-
-      asset_types = []
+      assets = []
       submission_urls = {}
 
       distance_icons_path = theme_path / "distance_icons"
       if distance_icons_path.exists() and any(distance_icons_path.iterdir()):
         zip_path = shutil.make_archive(str(distance_icons_path), "zip", distance_icons_path)
-        gitlab_post({
-          "branch": "Distance-Icons",
-          "commit_message": f"Added Distance Icons: {combined_name}",
-          "actions": [_gitlab_action(f"{combined_name}.zip", encode_file_base64(zip_path))],
-        })
-        asset_types.append("Distance Icons")
+        assets.append(ThemeAsset.from_path("distance_icons", "application/zip", zip_path))
         submission_urls["distance_icons"] = f"https://gitlab.com/{RESOURCES_REPO}-Submissions/-/tree/Distance-Icons"
 
-      theme_actions = []
       for folder in ["colors", "icons", "signals", "sounds"]:
         folder_path = theme_path / folder
         if folder_path.exists() and any(folder_path.iterdir()):
           zip_path = shutil.make_archive(str(folder_path), "zip", folder_path)
-          theme_actions.append(_gitlab_action(f"{combined_name}/{folder}.zip", encode_file_base64(zip_path)))
-
-      if theme_actions:
-        gitlab_post({
-          "branch": "Themes",
-          "commit_message": f"Added Theme: {combined_name}",
-          "actions": theme_actions,
-        })
-        asset_types.append("Theme")
-        submission_urls["theme"] = f"https://gitlab.com/{RESOURCES_REPO}-Submissions/-/tree/Themes"
+          assets.append(ThemeAsset.from_path(folder, "application/zip", zip_path))
+          submission_urls["theme"] = f"https://gitlab.com/{RESOURCES_REPO}-Submissions/-/tree/Themes"
 
       wheel_file = request.files.get("steeringWheel")
       if wheel_file and wheel_file.filename:
-        suffix = Path(wheel_file.filename).suffix
-        wheel_file.seek(0)
-        encoded_wheel = base64.b64encode(wheel_file.read()).decode("utf-8")
-        gitlab_post({
-          "branch": "Steering-Wheels",
-          "commit_message": f"Added Steering Wheel: {combined_name}",
-          "actions": [_gitlab_action(f"{combined_name}{suffix}", encoded_wheel)],
-        })
-        asset_types.append("Steering Wheel")
+        assets.append(ThemeAsset.from_steering_wheel_upload(wheel_file, theme_path))
         submission_urls["steering_wheel"] = f"https://gitlab.com/{RESOURCES_REPO}-Submissions/-/tree/Steering-Wheels"
 
       if not submission_urls:
         return jsonify({"error": "No valid theme data or steering wheel file provided"}), 400
 
-      send_discord_notification(discord_username, theme_name, asset_types)
+      submit_theme_assets(theme_name, discord_username, assets)
 
       return jsonify({
         "message": "Submission successful!",
         "branches": submission_urls
       }), 200
 
+    except ThemeSubmissionError as error:
+      cloudlog.exception("the_pond submit_theme rejected")
+      return jsonify({"error": str(error)}), 400
+
     except Exception:
       cloudlog.exception("the_pond submit_theme failed")
       return jsonify({"error": "Theme submission failed. Please try again later."}), 500
 
     finally:
-      if "theme_path" in locals() and theme_path is not None and theme_path.parent.exists():
+      if theme_path is not None and theme_path.parent.exists():
         delete_file(theme_path.parent)
 
   @app.route("/api/tmux_log/capture", methods=["POST"])
@@ -1554,17 +2098,22 @@ def setup(app):
       return jsonify({"error": "No tmux buffer to capture (is a tmux session running?)"}), 409
     log_path.write_text(result.stdout, encoding="utf-8")
 
-    _run_cmd(["tmux", "delete-buffer"], "Deleted tmux buffer.", "Failed to delete tmux buffer.")
+    try:
+      _run_cmd(["tmux", "delete-buffer"], "Deleted tmux buffer.", "Failed to delete tmux buffer.")
+    except (OSError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+      _delete_and_verify(log_path)
+      raise
     return jsonify({"message": "Captured console log successfully!", "log_file": log_filename}), 200
 
   @app.route("/api/tmux_log/delete/<filename>", methods=["DELETE"])
   def delete_tmux_log(filename):
     safe = secure_filename(filename)
     file_path = TMUX_LOGS_PATH / safe
-    if not safe or not helpers.is_within(TMUX_LOGS_PATH, file_path):
+    if not safe:
       return jsonify({"error": "Forbidden"}), 403
     if file_path.exists():
-      delete_file(file_path)
+      if not _delete_and_verify(file_path):
+        return jsonify({"error": "Tmux log could not be deleted"}), 500
       return jsonify({"message": f"{filename} deleted!"}), 200
 
     return jsonify({"error": "File not found"}), 404
@@ -1572,10 +2121,14 @@ def setup(app):
   @app.route("/api/tmux_log/delete_all", methods=["DELETE"])
   def delete_all_tmux_logs():
     if TMUX_LOGS_PATH.exists():
-
-      delete_file(TMUX_LOGS_PATH)
-
-    TMUX_LOGS_PATH.mkdir(parents=True, exist_ok=True)
+      if not _delete_and_verify(TMUX_LOGS_PATH):
+        return jsonify({"error": "Tmux logs could not be deleted"}), 500
+    try:
+      TMUX_LOGS_PATH.mkdir(parents=True, exist_ok=True)
+    except OSError:
+      return jsonify({"error": "Tmux log directory could not be recreated"}), 500
+    if TMUX_LOGS_PATH.is_symlink() or not TMUX_LOGS_PATH.is_dir() or any(TMUX_LOGS_PATH.iterdir()):
+      return jsonify({"error": "Tmux log directory could not be reset"}), 500
     return jsonify({"message": "All tmux logs deleted!"}), 200
 
   @app.route("/api/tmux_log/download/<path:filename>", methods=["GET"])
@@ -1592,33 +2145,27 @@ def setup(app):
   def stream_tmux_log():
     def generate():
       deadline = time.monotonic() + _TMUX_STREAM_MAX_SECONDS
-      try:
-        while time.monotonic() < deadline:
-          try:
-            output = subprocess.check_output(["tmux", "capture-pane", "-p", "-S", "-1000"], text=True, timeout=5)
-          except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
-            yield "data: No active tmux session to stream.\n\n"
-            time.sleep(1)
-            continue
-          except FileNotFoundError:
-            yield "data: tmux is not available on this device.\n\n"
-            break
-          yield "data: " + "\n".join(reversed(output.splitlines())).replace("\n", "\ndata: ") + "\n\n"
-          time.sleep(0.1)
-      except GeneratorExit:
-        return
+      previous = None
+      while time.monotonic() < deadline:
+        try:
+          output = _tmux_output()
+        except FileNotFoundError:
+          yield "data: tmux is not available on this device.\n\n"
+          break
+        if output != previous:
+          previous = output
+          yield "data: " + output.replace("\n", "\ndata: ") + "\n\n"
+        time.sleep(1)
     return Response(stream_with_context(generate()), mimetype="text/event-stream")
 
   @app.route("/api/tmux_log/rename/<old>/<new>", methods=["PUT"])
   def rename_tmux_log_path_params(old, new):
     old_safe = secure_filename(old)
     new_safe = secure_filename(new)
-    if not old_safe or not new_safe:
+    if not old_safe or not new_safe.endswith(".json"):
       return jsonify({"error": "Invalid name"}), 400
     old_path = TMUX_LOGS_PATH / old_safe
     new_path = TMUX_LOGS_PATH / new_safe
-    if not helpers.is_within(TMUX_LOGS_PATH, old_path) or not helpers.is_within(TMUX_LOGS_PATH, new_path):
-      return jsonify({"error": "Forbidden"}), 403
 
     if not old_path.exists():
       return jsonify({"error": "Original file not found"}), 404
@@ -1643,33 +2190,49 @@ def setup(app):
     if not name:
       return jsonify({"error": "Missing key name"}), 400
     with _PARAMS_LOCK:
-      keys = json.loads(params.get("SecOCKeys") or "[]")
+      keys = _stored_secoc_keys()
       keys = [key for key in keys if key.get("name") != name]
       params.put("SecOCKeys", json.dumps(keys))
-    return jsonify(keys)
+    return jsonify(_redacted_secoc_keys(keys))
 
   @app.route("/api/tsk_keys", methods=["GET"])
   def get_secoc_keys():
-    return jsonify(json.loads(params.get("SecOCKeys") or "[]"))
+    return jsonify(_redacted_secoc_keys(_stored_secoc_keys()))
 
   @app.route("/api/tsk_keys", methods=["POST"])
   def save_secoc_keys():
-    keys = request.get_json() or []
-    if not isinstance(keys, list) or not all(
-        isinstance(k, dict)
-        and helpers.is_valid_secoc_key(k.get("value"))
-        and helpers.is_safe_display_name(k.get("name"))
-        for k in keys
+    if request.content_length is not None and request.content_length > 32 * 1024:
+      return jsonify({"error": "Key list is too large"}), 413
+    submitted = request.get_json(silent=True) or []
+    if not isinstance(submitted, list) or len(submitted) > _MAX_SECOC_KEYS or not all(
+        isinstance(k, dict) and set(k).issubset({"name", "rename_from", "value"}) and helpers.is_safe_display_name(k.get("name"))
+        for k in submitted
     ):
       return jsonify({"error": "Each key needs a safe name and a 32-hexadecimal-character value"}), 400
-    params.put("SecOCKeys", json.dumps(keys))
+    if len({entry["name"] for entry in submitted}) != len(submitted):
+      return jsonify({"error": "Key names must be unique"}), 400
 
-    return jsonify(keys)
+    with _PARAMS_LOCK:
+      stored = {key.get("name"): key.get("value") for key in _stored_secoc_keys()}
+
+      keys = []
+      for entry in submitted:
+        name = entry.get("name")
+        value = entry.get("value") if "value" in entry else stored.get(entry.get("rename_from") or name)
+        if not helpers.is_valid_secoc_key(value):
+          return jsonify({"error": "Each key needs a safe name and a 32-hexadecimal-character value"}), 400
+        keys.append({"name": name, "value": value})
+
+      params.put("SecOCKeys", json.dumps(keys))
+
+    return jsonify(_redacted_secoc_keys(keys))
 
   @app.route("/api/tsk_key_set", methods=["POST"])
   def set_secoc_key():
     data = request.get_json(silent=True) or {}
     value = data.get("value")
+    if value is None:
+      value = next((key.get("value") for key in _stored_secoc_keys() if key.get("name") == data.get("name")), None)
     if not helpers.is_valid_secoc_key(value):
       return jsonify({"error": "Key must be 32 hexadecimal characters"}), 400
 
@@ -1684,15 +2247,12 @@ def setup(app):
   @app.route("/api/toggles/backup", methods=["POST"])
   def backup_toggle_values():
     toggle_values = {}
-    for key, _, _, _ in frogpilot_default_params:
-      if key in EXCLUDED_KEYS:
-        continue
-
+    for key in _toggle_backup_keys():
       raw_value = params.get(key)
       if isinstance(raw_value, bytes):
         value = raw_value.decode("utf-8", errors="replace")
       else:
-        value = raw_value or "0"
+        value = raw_value or ""
 
       toggle_values[key] = value
 
@@ -1706,10 +2266,10 @@ def setup(app):
   @app.route("/api/toggles/restore", methods=["POST"])
   def restore_toggle_values():
     request_data = request.get_json()
-    if not request_data or "data" not in request_data:
+    if not isinstance(request_data, dict) or "data" not in request_data:
       return jsonify({"success": False, "message": "Missing 'data' in request."}), 400
 
-    allowed_keys = {key for key, _, _, _ in frogpilot_default_params if key not in EXCLUDED_KEYS}
+    allowed_keys = _toggle_backup_keys()
 
     raw = request_data["data"]
     if isinstance(raw, dict):
@@ -1720,60 +2280,146 @@ def setup(app):
       except Exception:
         return jsonify({"success": False, "message": "Invalid backup data."}), 400
 
+    if not isinstance(toggle_values, dict) or any(not isinstance(value, str) for value in toggle_values.values()):
+      return jsonify({"success": False, "message": "Invalid backup data."}), 400
+
     with _PARAMS_LOCK:
-      for key, value in toggle_values.items():
-        if key in allowed_keys:
-          params.put(key, value)
+      previous = {key: params.get(key) for key in toggle_values if key in allowed_keys}
+      written = []
+      try:
+        for key, value in toggle_values.items():
+          if key in allowed_keys:
+            params.put(key, value)
+            written.append(key)
+      except Exception:
+        cloudlog.exception("the_pond: toggle restore failed; restoring previous values")
+        for key in reversed(written):
+          try:
+            params.remove(key) if previous[key] is None else params.put(key, previous[key])
+          except Exception:
+            cloudlog.exception(f"the_pond: could not restore toggle {key}")
+        return jsonify({"success": False, "message": "Toggles could not be restored."}), 500
 
     update_frogpilot_toggles()
     return jsonify({"success": True, "message": "Toggles restored!"})
 
   @app.route("/api/toggles/reset_default", methods=["POST"])
   def reset_toggle_values():
+    if params.get_bool("IsOnroad"):
+      return {"error": "Toggle reset is only available while offroad"}, 423
     cloudlog.warning("the_pond audit: toggle reset (default) + reboot requested")
     params.put_bool("DoToggleReset", True)
-    threading.Timer(0.5, HARDWARE.reboot).start()
+    threading.Timer(0.5, _reboot_after_reset, args=("DoToggleReset",)).start()
     return {"message": "Resetting toggles and rebooting..."}, 200
 
   @app.route("/api/toggles/reset_stock", methods=["POST"])
   def reset_toggle_values_to_stock():
+    if params.get_bool("IsOnroad"):
+      return {"error": "Toggle reset is only available while offroad"}, 423
     cloudlog.warning("the_pond audit: toggle reset (stock) + reboot requested")
     params.put_bool("DoToggleResetStock", True)
-    threading.Timer(0.5, HARDWARE.reboot).start()
+    threading.Timer(0.5, _reboot_after_reset, args=("DoToggleResetStock",)).start()
     return {"message": "Resetting toggles to stock and rebooting..."}, 200
 
   @app.route("/mapbox-help/<path:filename>", methods=["GET"])
   def serve_mapbox_help(filename):
+    if filename not in MAPBOX_HELP_IMAGES:
+      return {"error": "Not found"}, 404
     return send_from_directory(NAVIGATION_TRAINING_PATH, filename)
 
   @app.route("/thumbnails/<path:file_path>", methods=["GET"])
   def get_thumbnail(file_path):
+    parts = Path(file_path).parts
+    if len(parts) != 2 or utilities.SEGMENT_RE.fullmatch(parts[0]) is None or parts[1] not in ("preview.png", "preview.gif"):
+      return {"error": "Thumbnail not found"}, 404
     for footage_path in FOOTAGE_PATHS:
-      abs_path = os.path.join(footage_path, file_path)
-      if not helpers.is_within(footage_path, abs_path):
+      preview_path = Path(footage_path) / file_path
+      if not helpers.is_within(footage_path, preview_path):
         continue
-      if not os.path.exists(abs_path) and abs_path.endswith(("preview.png", "preview.gif")):
-        qcamera = os.path.join(os.path.dirname(abs_path), "qcamera.ts")
-        if os.path.exists(qcamera):
-          if abs_path.endswith("preview.png"):
-            utilities.video_to_png(qcamera, abs_path)
+      if not preview_path.exists():
+        segment_dir = preview_path.parent
+        qcamera = segment_dir / "qcamera.ts"
+        if not qcamera.exists():
+          continue
+
+        source_fd = None
+        with _route_mutation_lock(False) as mutation_coordinated:
+          if mutation_coordinated is None:
+            return {"error": "Could not coordinate route storage"}, 500
+          if not mutation_coordinated:
+            return {"error": "Another route mutation is in progress"}, 423
+          if _route_is_locked(segment_dir):
+            return {"error": "Route is still being written"}, 423
+          try:
+            source_fd = os.open(qcamera, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW)
+            if not stat.S_ISREG(os.fstat(source_fd).st_mode):
+              raise OSError("qcamera source is not a regular file")
+          except OSError:
+            if source_fd is not None:
+              os.close(source_fd)
+            cloudlog.exception(f"the_pond: could not snapshot route thumbnail source {qcamera}")
+            return {"error": "Could not read thumbnail source"}, 500
+
+        temporary_preview = preview_path.with_name(f".{preview_path.stem}.{secrets.token_hex(8)}{preview_path.suffix}")
+        try:
+          source_path = f"/proc/{os.getpid()}/fd/{source_fd}"
+          if preview_path.suffix == ".png":
+            utilities.video_to_png(source_path, temporary_preview)
           else:
-            utilities.video_to_gif(qcamera, abs_path)
-      if os.path.exists(abs_path):
+            utilities.video_to_gif(source_path, temporary_preview)
+          if not temporary_preview.is_file() or temporary_preview.stat().st_size == 0:
+            raise OSError("thumbnail generation produced no output")
+          os.replace(temporary_preview, preview_path)
+        except (OSError, subprocess.SubprocessError):
+          cloudlog.exception(f"the_pond: could not create route thumbnail {preview_path}")
+          return {"error": "Could not create thumbnail"}, 500
+        finally:
+          os.close(source_fd)
+          temporary_preview.unlink(missing_ok=True)
+      if preview_path.exists():
         return send_from_directory(footage_path, file_path, as_attachment=True)
     return {"error": "Thumbnail not found"}, 404
 
   @app.route("/video/<path>", methods=["GET"])
   def get_video(path):
-    camera = request.args.get("camera")
-    filename = {"driver": "dcamera.hevc", "wide": "ecamera.hevc"}.get(camera, "fcamera.hevc")
+    camera = request.args.get("camera", "forward")
+    camera_files = {"driver": "dcamera.hevc", "forward": "fcamera.hevc", "wide": "ecamera.hevc"}
+    if camera not in camera_files:
+      return {"error": "Unknown camera"}, 400
+    filename = camera_files[camera]
     for footage_path in FOOTAGE_PATHS:
       filepath = os.path.join(footage_path, path, filename)
       if not helpers.is_within(footage_path, filepath):
         continue
-      if os.path.exists(filepath):
-        mp4_path = utilities.ffmpeg_mp4_wrap_process_builder(filepath)
-        return send_file(mp4_path, mimetype="video/mp4", conditional=True)
+      source_fd = None
+      with _route_mutation_lock(False) as mutation_coordinated:
+        if mutation_coordinated is None:
+          return {"error": "Could not coordinate route storage"}, 500
+        if not mutation_coordinated:
+          return {"error": "Another route mutation is in progress"}, 423
+        if not os.path.exists(filepath):
+          continue
+        if _route_is_locked(Path(filepath).parent):
+          return {"error": "Route is still being written"}, 423
+        try:
+          source_fd = os.open(filepath, os.O_RDONLY | os.O_CLOEXEC | os.O_NOFOLLOW)
+          if not stat.S_ISREG(os.fstat(source_fd).st_mode):
+            raise OSError("video source is not a regular file")
+        except OSError:
+          if source_fd is not None:
+            os.close(source_fd)
+          cloudlog.exception(f"the_pond: could not snapshot route video source {filepath}")
+          return {"error": "Could not read video source"}, 500
+
+      try:
+        source_path = f"/proc/{os.getpid()}/fd/{source_fd}"
+        mp4_file = utilities.ffmpeg_mp4_wrap_process_builder(source_path, cache_key=filepath)
+      except (OSError, ValueError):
+        cloudlog.exception(f"the_pond: could not process the route video {filepath}")
+        return {"error": "Could not process video"}, 503
+      finally:
+        os.close(source_fd)
+      return _send_cached_video(mp4_file)
     return {"error": "Video not found"}, 404
 
 MDNS_GROUP = "224.0.0.251"
@@ -1803,7 +2449,8 @@ def _mdns_responder():
     try:
       data, addr = sock.recvfrom(2048)
       if helpers.is_mdns_query_for(data) and (ip := _local_ip_for(addr[0])):
-        sock.sendto(helpers.build_mdns_a_response(ip), addr)
+        destination = addr if addr[1] != MDNS_PORT else (MDNS_GROUP, MDNS_PORT)
+        sock.sendto(helpers.build_mdns_a_response(ip), destination)
     except OSError:
       cloudlog.exception("the_pond mdns: loop error")
 
@@ -1845,25 +2492,23 @@ def _self_check(port):
 
 def create_app():
   app = Flask(__name__, static_folder="assets", static_url_path="/assets")
-  app.secret_key = secrets.token_hex(32)
-  app.config["MAX_CONTENT_LENGTH"] = 256 * 1024 * 1024
+  app.config["MAX_CONTENT_LENGTH"] = 32 * 1024 * 1024
   setup(app)
   return app
 
 def main():
   app = create_app()
 
-  port = 8083 if PC else 8082
   if PC:
     print("\"The Pond\" is not running on a comma device (PC mode, port 8083)")
 
   if not PC:
     threading.Thread(target=_gear_monitor, daemon=True, name="the_pond_gear").start()
     threading.Thread(target=_mdns_responder, daemon=True, name="the_pond_mdns").start()
-    _ensure_port80_redirect(port)
-    threading.Thread(target=_self_check, args=(port,), daemon=True, name="the_pond_selfcheck").start()
+    _ensure_port80_redirect(_POND_PORT)
+    threading.Thread(target=_self_check, args=(_POND_PORT,), daemon=True, name="the_pond_selfcheck").start()
 
-  app.run(host="0.0.0.0", port=port, threaded=True, debug=False)
+  app.run(host="0.0.0.0", port=_POND_PORT, threaded=True, debug=False)
 
 if __name__ == "__main__":
   main()

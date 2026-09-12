@@ -2,6 +2,7 @@ import { html, reactive } from "/assets/vendor/arrow.mjs"
 import { formatSecondsToHuman } from "/assets/js/utils.js"
 import { Modal } from "/assets/components/modal.js";
 import { onRouteLeave } from "/assets/components/router.js"
+import { fetchJson } from "/assets/js/api.js"
 
 const logSelectorState = reactive({
   loading: false,
@@ -18,10 +19,7 @@ async function loadTmuxLogs() {
 
   logSelectorState.loading = true;
   try {
-    const res = await fetch("/api/tmux_log/list");
-    if (!res.ok) throw new Error(await res.text());
-
-    const data = await res.json();
+    const data = await fetchJson("/api/tmux_log/list");
     logSelectorState.files = data.map(f => {
       const date = new Date(f.timestamp * 1000);
       return {
@@ -65,10 +63,7 @@ function TmuxLogSelector({ action, closeFn }) {
     if (!file) return;
 
     try {
-      const res = await fetch(`/api/tmux_log/delete/${encodeURIComponent(file.filename)}`, {
-        method: "DELETE"
-      });
-      if (!res.ok) throw new Error(await res.text());
+      await fetchJson(`/api/tmux_log/delete/${encodeURIComponent(file.filename)}`, { method: "DELETE" });
 
       showSnackbar(`${file.filename} deleted successfully!`, "success");
       logSelectorState.files = logSelectorState.files.filter(f => f.filename !== file.filename);
@@ -99,15 +94,11 @@ function TmuxLogSelector({ action, closeFn }) {
     }
 
     try {
-      const res = await fetch(`/api/tmux_log/rename/${encodeURIComponent(file.filename)}/${encodeURIComponent(newName)}`, {
-        method: "PUT"
-      });
-      if (!res.ok) throw new Error(await res.text());
+      const result = await fetchJson(`/api/tmux_log/rename/${encodeURIComponent(file.filename)}/${encodeURIComponent(newName)}`, { method: "PUT" });
 
-      showSnackbar(`${file.filename} renamed to ${newName}!`, "success");
-      logSelectorState.files = logSelectorState.files.map(f =>
-        f.filename === file.filename ? { ...f, filename: newName } : f
-      );
+      showSnackbar(result.message, "success");
+      logSelectorState.logsLoadedOnce = false;
+      loadTmuxLogs();
     } catch (err) {
       showSnackbar(`Rename failed: ${err.message}`, "error");
     } finally {
@@ -188,6 +179,8 @@ function TmuxLogSelector({ action, closeFn }) {
   `
 }
 
+let liveStream = null;
+
 export function TmuxLog() {
   const state = reactive({
     paused: false,
@@ -196,32 +189,42 @@ export function TmuxLog() {
     selectorAction: null,
   });
 
-  const event_source = new EventSource("/api/tmux_log/live");
-
-  event_source.onmessage = e => {
-    state.latest = e.data;
-    if (!state.paused) {
+  function connectStream() {
+    if (state.paused) return;
+    closeStream();
+    liveStream = new EventSource("/api/tmux_log/live");
+    liveStream.onmessage = e => {
+      state.latest = e.data;
       state.log = state.latest;
+    };
+    liveStream.onerror = () => {
+      state.log = "The live tmux log is unavailable.";
+    };
+  }
+
+  function closeStream() {
+    if (liveStream) {
+      liveStream.close();
+      liveStream = null;
     }
   }
 
-  event_source.onerror = err => {
-    console.error("tmux log stream error (will auto-reconnect):", err);
-  }
-
-  onRouteLeave(() => event_source.close())
+  connectStream();
+  onRouteLeave(closeStream)
 
   function togglePause () {
     state.paused = !state.paused;
-    if (!state.paused) {
+    if (state.paused) {
+      closeStream();
+    } else {
       state.log = state.latest;
+      connectStream();
     }
   }
 
   function captureLog() {
-    fetch("/api/tmux_log/capture", { method: "POST" })
-      .then(res => {
-        if (!res.ok) return res.text().then(msg => { throw new Error(msg); });
+    fetchJson("/api/tmux_log/capture", { method: "POST" })
+      .then(() => {
         showSnackbar("Current session captured!", "success");
         logSelectorState.files = [];
         logSelectorState.logsLoadedOnce = false;
@@ -245,9 +248,8 @@ export function TmuxLog() {
 
   function deleteAllSessions() {
     logSelectorState.showDeleteAllModal = false;
-    fetch("/api/tmux_log/delete_all", { method: "DELETE" })
-      .then(res => {
-        if (!res.ok) return res.text().then(msg => { throw new Error(msg); });
+    fetchJson("/api/tmux_log/delete_all", { method: "DELETE" })
+      .then(() => {
         showSnackbar("All logs deleted successfully!", "success");
         logSelectorState.files = [];
         logSelectorState.logsLoadedOnce = false;

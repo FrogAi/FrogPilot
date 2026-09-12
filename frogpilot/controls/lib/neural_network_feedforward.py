@@ -12,7 +12,8 @@ from cereal import log
 from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.numpy_fast import interp
 from openpilot.common.params import Params
-from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N
+from openpilot.selfdrive.car.interfaces import FRICTION_THRESHOLD
+from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N, get_friction
 from openpilot.selfdrive.controls.lib.latcontrol import LatControl
 from openpilot.selfdrive.controls.lib.pid import PIDController
 from openpilot.selfdrive.controls.lib.vehicle_model import ACCELERATION_DUE_TO_GRAVITY
@@ -338,7 +339,8 @@ class LatControlNNFF(LatControl):
 
           error = desired_lateral_accel - actual_lateral_accel
           friction_input = self.lat_accel_friction_factor * error + self.lat_jerk_friction_factor * lookahead_lateral_jerk
-          ff = self.torque_from_lateral_accel(gravity_adjusted_lateral_accel, self.torque_params)
+          friction_compensation = get_friction(friction_input, lateral_accel_deadzone, FRICTION_THRESHOLD, self.torque_params) if frogpilot_toggles.nnff_lite else 0.0
+          ff = self.torque_from_lateral_accel(gravity_adjusted_lateral_accel + friction_compensation, self.torque_params)
       else:
         torque_from_measurement = self.torque_from_lateral_accel(measurement, self.torque_params)
         torque_from_setpoint = self.torque_from_lateral_accel(setpoint, self.torque_params)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 from parameterized import parameterized_class
 import unittest
-from panda import Panda
+from panda import ALTERNATIVE_EXPERIENCE, Panda
 from panda.tests.libpanda import libpanda_py
 import panda.tests.safety.common as common
 from panda.tests.safety.common import CANPackerPanda
@@ -364,6 +364,18 @@ class TestTacoTuneHack(TestHyundaiCanfdHDA2EV):
     self._set_prev_torque(super().MAX_TORQUE - 1)
     self.assertTrue(self._tx(self._torque_cmd_msg(super().MAX_TORQUE)))
     self.assertFalse(self._tx(self._torque_cmd_msg(super().MAX_TORQUE + 1)))
+
+  def test_taco_tune_hack_aol_with_acc_main(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self.safety.set_controls_allowed(False)
+    self._rx(self._speed_msg(self.SPEED_LOW))
+    self._rx(self._button_msg(0, main_button=1))
+    self._rx(self._button_msg(0))
+    self.assertTrue(self._tx(self._torque_cmd_msg(1)))
+
+    self._rx(self._button_msg(0, main_button=1))
+    self._rx(self._button_msg(0))
+    self.assertFalse(self._tx(self._torque_cmd_msg(1)))
 
   def test_against_torque_driver(self):
     self._rx(self._speed_msg(self.SPEED_HIGH))

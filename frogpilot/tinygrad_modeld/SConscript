@@ -34,6 +34,8 @@ tinygrad_files = ["#"+x for x in glob.glob(env.Dir("#tinygrad_repo").relpath + "
 # Get model metadata
 for model_name in ['driving_vision', 'driving_policy']:
   fn = File(f"models/{model_name}").abspath
+  if not os.path.exists(fn + ".onnx"):
+    continue
   script_files = [File(Dir("#frogpilot/tinygrad_modeld").File("get_model_metadata.py").abspath)]
   cmd = f'python3 {Dir("#frogpilot/tinygrad_modeld").abspath}/get_model_metadata.py {fn}.onnx'
   lenv.Command(fn + "_metadata.pkl", [fn + ".onnx"] + tinygrad_files + script_files, cmd)
@@ -49,6 +51,8 @@ def tg_compile(flags, model_name):
 
 # Compile small models
 for model_name in ['driving_vision', 'driving_policy', 'dmonitoring_model']:
+  if not File(f"models/{model_name}.onnx").exists():
+    continue
   flags = {
     'larch64': 'DEV=QCOM',
     'Darwin': 'DEV=CPU IMAGE=0',

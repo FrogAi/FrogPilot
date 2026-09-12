@@ -114,7 +114,6 @@ void FrogPilotDriveSummary::showEvent(QShowEvent *event) {
       }
       delete child;
     }
-    randomEventLabels.clear();
 
     if (eventsList.isEmpty()) {
       eventsListLayout->setAlignment(Qt::AlignCenter);
@@ -135,7 +134,6 @@ void FrogPilotDriveSummary::showEvent(QShowEvent *event) {
       for (QList<QPair<QString, int>>::const_iterator it = eventsList.constBegin(); it != eventsList.constEnd(); ++it) {
         QLabel *valueLabel = nullptr;
         eventsListLayout->addWidget(createStatBox(it->first, &valueLabel, this));
-        randomEventLabels.insert(it->first, valueLabel);
         valueLabel->setText(QLocale().toString(it->second));
       }
     }

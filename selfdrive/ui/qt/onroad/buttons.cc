@@ -36,8 +36,22 @@ void ExperimentalButton::showEvent(QShowEvent *event) {
   updateTheme();
 }
 
+void ExperimentalButton::hideEvent(QHideEvent *event) {
+  clearMovie(wheel_gif, this);
+
+  QPushButton::hideEvent(event);
+}
+
 void ExperimentalButton::updateTheme() {
-  loadImage("../../frogpilot/assets/active_theme/steering_wheel/wheel", wheel_img, wheel_gif, QSize(img_size, img_size), this);
+  use_stock_wheel = frogpilotUIState()->frogpilot_toggles.value("wheel_image").toString() == "stock";
+
+  if (isVisible() && !use_stock_wheel) {
+    loadImage("../../frogpilot/assets/active_theme/steering_wheel/wheel", wheel_img, wheel_gif, QSize(img_size, img_size), this);
+  } else {
+    clearMovie(wheel_gif, this);
+  }
+
+  update();
 }
 
 void ExperimentalButton::changeMode() {
@@ -66,7 +80,9 @@ void ExperimentalButton::updateState(const UIState &s, const FrogPilotUIState &f
   // FrogPilot variables
   SubMaster &fpsm = *(fs.sm);
 
-  use_stock_wheel = frogpilot_toggles.value("wheel_image").toString() == "stock";
+  if (use_stock_wheel != (frogpilot_toggles.value("wheel_image").toString() == "stock")) {
+    updateTheme();
+  }
 
   if (frogpilot_toggles.value("rotating_wheel").toBool() && steering_angle != -fpsm["carState"].getCarState().getSteeringAngleDeg()) {
     steering_angle = -fpsm["carState"].getCarState().getSteeringAngleDeg();
@@ -77,7 +93,7 @@ void ExperimentalButton::updateState(const UIState &s, const FrogPilotUIState &f
   }
 
   if (params_memory.getBool("UpdateWheelImage")) {
-    loadImage("../../frogpilot/assets/active_theme/steering_wheel/wheel", wheel_img, wheel_gif, QSize(img_size, img_size), this);
+    updateTheme();
 
     params_memory.remove("UpdateWheelImage");
   }

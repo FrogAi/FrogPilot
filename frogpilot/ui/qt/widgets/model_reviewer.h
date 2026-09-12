@@ -24,9 +24,8 @@ private:
 
   void updateLabel();
 
-  bool modelRated;
+  bool modelRated = false;
 
-  int finalRating;
   int totalDrives;
   int totalOverallDrives;
 

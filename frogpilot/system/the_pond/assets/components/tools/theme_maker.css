@@ -650,11 +650,6 @@ label.file-upload-button {
   position: relative;
 }
 
-.draggable-item.dragging {
-  opacity: 0.5;
-  background-color: var(--main-fg);
-}
-
 .draggable-item:hover {
   background-color: var(--main-fg);
 }

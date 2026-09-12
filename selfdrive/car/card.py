@@ -31,7 +31,7 @@ class Car:
   def __init__(self, CI=None):
     self.can_sock = messaging.sub_sock('can', timeout=20)
     self.sm = messaging.SubMaster(['pandaStates', 'carControl', 'controlsState', 'liveCalibration', 'onroadEvents', 'frogpilotControlsState', 'frogpilotOnroadEvents', 'frogpilotPlan'])
-    self.pm = messaging.PubMaster(['sendcan', 'carState', 'carParams', 'carOutput', 'frogpilotCarState'])
+    self.pm = messaging.PubMaster(['sendcan', 'carState', 'carParams', 'carOutput', 'frogpilotCarParams', 'frogpilotCarState'])
 
     self.can_rcv_cum_timeout_counter = 0
 
@@ -50,9 +50,9 @@ class Car:
 
       num_pandas = len(messaging.recv_one_retry(self.sm.sock['pandaStates']).pandaStates)
       experimental_long_allowed = self.params.get_bool("ExperimentalLongitudinalEnabled")
-      self.CI, self.CP, FPCP = get_car(self.can_sock, self.pm.sock['sendcan'], experimental_long_allowed, self.params, num_pandas, get_frogpilot_toggles())
+      self.CI, self.CP, self.FPCP = get_car(self.can_sock, self.pm.sock['sendcan'], experimental_long_allowed, self.params, num_pandas, get_frogpilot_toggles())
     else:
-      self.CI, self.CP = CI, CI.CP
+      self.CI, self.CP, self.FPCP = CI, CI.CP, CI.CS.FPCP
 
     # set alternative experiences from parameters
     self.disengage_on_accelerator = self.params.get_bool("DisengageOnAccelerator")
@@ -110,7 +110,7 @@ class Car:
       self.CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL
       self.CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.DISABLE_DISENGAGE_ON_GAS
 
-    fpcp_bytes = FPCP.to_bytes()
+    fpcp_bytes = self.FPCP.to_bytes()
     self.params.put("FrogPilotCarParams", fpcp_bytes)
     self.params.put_nonblocking("FrogPilotCarParamsPersistent", fpcp_bytes)
 
@@ -167,6 +167,12 @@ class Car:
       cp_send.valid = True
       cp_send.carParams = self.CP
       self.pm.send('carParams', cp_send)
+
+      # FrogPilot variables
+      fpcp_send = messaging.new_message('frogpilotCarParams')
+      fpcp_send.valid = True
+      fpcp_send.frogpilotCarParams = self.FPCP
+      self.pm.send('frogpilotCarParams', fpcp_send)
 
     # publish new carOutput
     co_send = messaging.new_message('carOutput')

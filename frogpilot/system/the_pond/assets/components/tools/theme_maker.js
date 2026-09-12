@@ -1,5 +1,8 @@
 import { html, reactive } from "/assets/vendor/arrow.mjs";
 import { Modal } from "/assets/components/modal.js";
+import { onRouteLeave } from "/assets/components/router.js";
+
+const downloadPollTimers = new Set();
 
 const defaultColors = {
   LaneLines: { red: 23, green: 134, blue: 68, alpha: 255 },
@@ -85,8 +88,8 @@ const state = reactive({
     distance_icons: false,
     icons: false,
     sounds: false,
-    turn_signals: false,
     steering_wheel: false,
+    turn_signals: false,
   },
   showTurnSignalHelp: false,
   showSubmitConfirmation: false,
@@ -208,8 +211,7 @@ const onClearClick = (e, type, key, subkey = null) => {
   e.preventDefault();
   e.stopPropagation();
   clearAsset(type, key, subkey);
-  const input = e.currentTarget.parentElement.querySelector("input[type=\"file\"]");
-  if (input) input.value = "";
+  e.currentTarget.closest(".file-upload-label").parentElement.querySelector("input[type=\"file\"]").value = "";
 };
 
 const clearAssetType = (assetType) => {
@@ -432,17 +434,27 @@ const fetchDownloadables = async () => {
   }
 };
 
-(async () => {
+let initializationPromise = null;
+
+async function initializeThemeMaker() {
   try {
     const response = await fetch("/api/params?key=DiscordUsername");
     state.discordUsername = await response.text();
     await loadDefaultTheme();
     await fetchDownloadables();
-
-  } catch {}
-})();
+  } catch {
+    showSnackbar("Failed to load theme data.", "error");
+  }
+}
 
 export function ThemeMaker() {
+  initializationPromise ||= initializeThemeMaker();
+  onRouteLeave(() => {
+    downloadPollTimers.forEach(finish => finish({ ok: false, status: "cancelled", cancelled: true }));
+    downloadPollTimers.clear();
+    state.isLoadingAsset = false;
+  });
+
   const normalize = (str) => (str || "")
     .toString()
     .trim()
@@ -467,11 +479,21 @@ export function ThemeMaker() {
     });
   };
 
-  const hasDistanceIcons = () => Object.values(fileStore.images.distanceIcons).some(f => f) || Object.values(state.imageFileNames.distanceIcons).some(name => name);
-  const hasIcons = () => ["homeButton", "settingsButton"].some(key => fileStore.images[key] || state.imageFileNames[key]);
-  const hasSounds = () => Object.values(fileStore.sounds).some(f => f) || Object.values(state.soundFileNames).some(name => name);
-  const hasTurnSignals = () => fileStore.images.turnSignal || state.imageFileNames.turnSignal || fileStore.images.turnSignalBlindspot || state.imageFileNames.turnSignalBlindspot || fileStore.sequentialFiles.length > 0 || state.sequentialImages.length > 0;
-  const hasSteeringWheel = () => fileStore.images.steeringWheel || state.imageFileNames.steeringWheel;
+  const checklistItems = (verb) => html`<div class="checklist-container">
+    <p style="margin-bottom: 10px; text-align: left; font-weight: bold;">Select components to ${verb}:</p>
+    ${() => [
+      ["colors", "Colors", null],
+      ["distance_icons", "Distance Icons", () => Object.values(fileStore.images.distanceIcons).some(f => f) || Object.values(state.imageFileNames.distanceIcons).some(name => name)],
+      ["icons", "Icons", () => ["homeButton", "settingsButton"].some(key => fileStore.images[key] || state.imageFileNames[key])],
+      ["sounds", "Sounds", () => Object.values(fileStore.sounds).some(f => f) || Object.values(state.soundFileNames).some(name => name)],
+      ["steering_wheel", "Steering Wheel", () => fileStore.images.steeringWheel || state.imageFileNames.steeringWheel],
+      ["turn_signals", "Turn Signals", () => fileStore.images.turnSignal || state.imageFileNames.turnSignal || fileStore.images.turnSignalBlindspot || state.imageFileNames.turnSignalBlindspot || fileStore.sequentialFiles.length > 0 || state.sequentialImages.length > 0]
+    ].filter(([, , gate]) => !gate || gate()).map(([key, label]) => html`<label class="checklist-item">
+      <input type="checkbox" checked="${() => state.saveChecklist[key]}" @click="${() => state.saveChecklist[key] = !state.saveChecklist[key]}">
+      <span class="label-text">${label}</span>
+      <span class="custom-checkbox"></span>
+    </label>`)}
+  </div>`;
 
   const handleFileUpload = (e, type, key, subkey = null) => {
     const { files } = e.target;
@@ -604,7 +626,7 @@ export function ThemeMaker() {
     try {
       const response = await fetch(url, options);
       const result = await response.json();
-      const message = result.message || (response.ok ? successMessage : errorMessage);
+      const message = response.ok ? (result.message || successMessage) : (result.error || result.message || errorMessage);
       if (message) {
         showSnackbar(message, response.ok ? "success" : "error");
       }
@@ -668,27 +690,17 @@ export function ThemeMaker() {
     state.isSubmitting = false;
   };
 
+  const resetChecklist = () => {
+    for (const component in state.saveChecklist) state.saveChecklist[component] = false;
+  };
+
   const confirmApply = () => {
-    state.saveChecklist = {
-      colors: false,
-      distance_icons: false,
-      icons: false,
-      sounds: false,
-      turn_signals: false,
-      steering_wheel: false,
-    };
+    resetChecklist();
     state.showApplyConfirmModal = true;
   };
 
   const confirmSave = () => {
-    state.saveChecklist = {
-      colors: false,
-      distance_icons: false,
-      icons: false,
-      sounds: false,
-      turn_signals: false,
-      steering_wheel: false,
-    };
+    resetChecklist();
     state.showSaveConfirmModal = true;
   };
 
@@ -699,26 +711,13 @@ export function ThemeMaker() {
     if (isThemeAssetEmpty()) {
       return showSnackbar("Cannot submit an empty theme...", "error");
     }
-    state.saveChecklist = {
-      colors: false,
-      distance_icons: false,
-      icons: false,
-      sounds: false,
-      turn_signals: false,
-      steering_wheel: false,
-    };
+    resetChecklist();
     state.showSubmitConfirmation = true;
   };
 
-  const manageThemes = async () => {
-    let data;
-    try {
-      const response = await fetch("/api/themes/list");
-      data = await response.json();
-    } catch {
-      showSnackbar("Failed to load themes.", "error");
-      return;
-    }
+  const loadThemes = async () => {
+    const response = await fetch("/api/themes/list");
+    const data = await response.json();
     state.themes = (data.themes || []).map(t => ({
       ...t,
       localHasColors: !!t.hasColors,
@@ -730,20 +729,22 @@ export function ThemeMaker() {
     }));
     mergeDownloadablesIntoThemes();
     sortThemesAlphabetically();
+  };
+
+  const manageThemes = async () => {
+    try {
+      await loadThemes();
+    } catch {
+      showSnackbar("Failed to load themes.", "error");
+      return;
+    }
     state.showManageThemesModal = true;
   };
 
   const mergeDownloadablesIntoThemes = () => {
     const byName = new Map();
-    const norm = (s) => (s || "")
-      .toString()
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
 
-    for (const t of state.themes) byName.set(norm(t.name), t);
+    for (const t of state.themes) byName.set(normalize(t.name), t);
 
     const tabToFlag = {
       colors: "hasColors",
@@ -757,7 +758,7 @@ export function ThemeMaker() {
     const addIfMissing = (bucketKey, tabName) => {
       const list = state.downloadable[bucketKey] || [];
       for (const name of list) {
-        const key = norm(name);
+        const key = normalize(name);
         if (!byName.has(key)) {
           const t = {
             name,
@@ -785,38 +786,35 @@ export function ThemeMaker() {
   };
 
   const refreshThemesAndDownloadables = async () => {
-    const r = await fetch("/api/themes/list");
-    const data = await r.json();
-    state.themes = (data.themes || []).map(t => ({
-      ...t,
-      localHasColors: !!t.hasColors,
-      localHasDistanceIcons: !!t.hasDistanceIcons,
-      localHasIcons: !!t.hasIcons,
-      localHasSounds: !!t.hasSounds,
-      localHasSteeringWheel: !!t.hasSteeringWheel,
-      localHasTurnSignals: !!t.hasTurnSignals,
-    }));
-    mergeDownloadablesIntoThemes();
-    sortThemesAlphabetically();
+    await loadThemes();
     await fetchDownloadables();
   };
 
   const pollDownloadProgress = async () => {
     return new Promise((resolve) => {
+      const deadline = Date.now() + 180000;
+      const finish = (result) => {
+        clearInterval(timer);
+        downloadPollTimers.delete(finish);
+        resolve(result);
+      };
       const timer = setInterval(async () => {
+        if (Date.now() > deadline) {
+          finish({ ok: false, status: "timed out" });
+          return;
+        }
         try {
           const r = await fetch("/api/params_memory?key=ThemeDownloadProgress");
           const txt = (await r.text()) || "";
           if (!txt) return;
           if (/Downloaded!/i.test(txt)) {
-            clearInterval(timer);
-            resolve({ ok: true, status: "done" });
-          } else if (/failed|cancelled/i.test(txt)) {
-            clearInterval(timer);
-            resolve({ ok: false, status: txt });
+            finish({ ok: true, status: "done" });
+          } else if (/failed|cancelled|offline|invalid/i.test(txt)) {
+            finish({ ok: false, status: txt });
           }
         } catch {}
       }, 1000);
+      downloadPollTimers.add(finish);
     });
   };
 
@@ -831,19 +829,17 @@ export function ThemeMaker() {
       });
       if (!res.ok) {
         showSnackbar("Unable to start download.", "error");
-        state.isLoadingAsset = false;
         return;
       }
       showSnackbar(`Downloading ${tab.replace("_", " ")} for the "${displayName}" theme...`);
       const result = await pollDownloadProgress();
+      if (result.cancelled) return;
       if (!result.ok) {
         showSnackbar(`Download ${result.status}`, "error");
-        state.isLoadingAsset = false;
         return;
       }
       await refreshThemesAndDownloadables();
-      const norm = s => (s || "").toString().trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
-      const theme = state.themes.find(t => norm(t.name) === norm(displayName));
+      const theme = state.themes.find(t => normalize(t.name) === normalize(displayName));
       if (theme) {
         const tabToLocalFlag = {
           colors: "localHasColors",
@@ -869,12 +865,26 @@ export function ThemeMaker() {
     state.isLoadingAsset = true;
 
     try {
-      const response = await fetch(`/api/themes/load/${theme.path}?type=${theme.type}`);
+      const loadPath = theme.type === "steering_wheel" ? theme.path.replace(/\.[^.]+$/, "") : theme.path;
+      const response = await fetch(`/api/themes/load/${loadPath}?type=${theme.type}`);
       if (!response.ok) {
         showSnackbar("Failed to load theme asset.", "error");
         return;
       }
       const data = await response.json();
+
+      const available = {
+        colors: data.colors,
+        distance_icons: Object.keys(data.images.distanceIcons || {}).length,
+        icons: data.images.homeButton || data.images.settingsButton,
+        sounds: Object.keys(data.sounds).length,
+        steering_wheel: data.images.steeringWheel,
+        turn_signals: data.images.turnSignal || data.images.turnSignalBlindspot || data.sequentialImages.length
+      }[assetType];
+      if (!available) {
+        showSnackbar(`"${theme.name}" has no ${assetType.replace("_", " ")}.`, "error");
+        return;
+      }
 
       clearAssetType(assetType);
 
@@ -898,18 +908,18 @@ export function ThemeMaker() {
         }
       };
 
-      if (assetType === "colors" && data.colors) {
+      if (assetType === "colors") {
         state.colors = data.colors;
       }
 
-      if (assetType === "distance_icons" && data.images.distanceIcons) {
+      if (assetType === "distance_icons") {
         for (const [subkey, asset] of Object.entries(data.images.distanceIcons)) {
           state.imageFileNames.distanceIcons[subkey] = theme.name;
           await fetchAndStoreFile(asset.path, "distanceIcons", subkey, "image", "distance_icons");
         }
       }
 
-      if (assetType === "icons" && (data.images.homeButton || data.images.settingsButton)) {
+      if (assetType === "icons") {
         if (data.images.homeButton) {
           state.imageFileNames.homeButton = theme.name;
           await fetchAndStoreFile(data.images.homeButton.path, "homeButton", null, "image", "icons");
@@ -920,16 +930,12 @@ export function ThemeMaker() {
         }
       }
 
-      if (assetType === "steering_wheel" && data.images && data.images.steeringWheel) {
-        const url = `/api/themes/asset/${theme.path}/${data.images.steeringWheel.path}?type=${theme.type}`;
-        const fileResponse = await fetch(url);
-        const blob = await fileResponse.blob();
-        const file = new File([blob], theme.path, { type: blob.type });
-        fileStore.images.steeringWheel = file;
+      if (assetType === "steering_wheel") {
+        await fetchAndStoreFile(data.images.steeringWheel.path, "steeringWheel");
         state.imageFileNames.steeringWheel = theme.name;
       }
 
-      if (assetType === "sounds" && Object.keys(data.sounds).length) {
+      if (assetType === "sounds") {
         for (const [key, asset] of Object.entries(data.sounds)) {
           state.soundFileNames[key] = theme.name;
           await fetchAndStoreFile(asset.path, key, null, "audio", "sounds");
@@ -951,10 +957,10 @@ export function ThemeMaker() {
           await fetchAndStoreFile(data.images.turnSignalBlindspot.path, "turnSignalBlindspot", null, "image", "signals");
         }
 
-        state.sequentialImages = data.sequentialImages || [];
+        state.sequentialImages = data.sequentialImages;
         fileStore.sequentialFiles = [];
 
-        if (data.sequentialImages && data.sequentialImages.length > 0) {
+        if (data.sequentialImages.length > 0) {
           state.imageFileNames.turnSignal = theme.name;
           for (const img of data.sequentialImages) {
             const url = `/api/themes/asset/${theme.path}/signals/${img}?type=${theme.type}`;
@@ -981,14 +987,6 @@ export function ThemeMaker() {
   };
 
   const deleteThemeAndRestoreDownloadables = (themeName) => {
-    const norm = (s) => (s || "")
-      .toString()
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-
     const flagToBucket = {
       hasColors: "colors",
       hasDistanceIcons: "distance_icons",
@@ -998,20 +996,16 @@ export function ThemeMaker() {
       hasTurnSignals: "signals"
     };
 
-    const index = state.themes.findIndex((t) => norm(t.name) === norm(themeName));
+    const index = state.themes.findIndex((t) => normalize(t.name) === normalize(themeName));
     if (index === -1) return;
 
     const theme = state.themes[index];
     state.themes.splice(index, 1);
 
-    const ensureInBucket = (bucket, name) => {
-      if (!state.downloadable[bucket]) state.downloadable[bucket] = [];
-      const exists = state.downloadable[bucket].some((n) => norm(n) === norm(name));
-      if (!exists) state.downloadable[bucket].push(name);
-    };
-
     for (const [flag, bucket] of Object.entries(flagToBucket)) {
-      if (theme[flag]) ensureInBucket(bucket, theme.name);
+      if (theme[flag] && !state.downloadable[bucket].some((n) => normalize(n) === normalize(theme.name))) {
+        state.downloadable[bucket].push(theme.name);
+      }
     }
   };
 
@@ -1258,41 +1252,7 @@ export function ThemeMaker() {
 
       ${() => state.showApplyConfirmModal && Modal({
         title: "Apply Theme",
-        message: html`
-          <div class="checklist-container">
-            <p style="margin-bottom: 10px; text-align: left; font-weight: bold;">Select components to apply:</p>
-            <label class="checklist-item">
-              <input type="checkbox" checked="${() => state.saveChecklist.colors}" @click="${() => state.saveChecklist.colors = !state.saveChecklist.colors}">
-              <span class="label-text">Colors</span>
-              <span class="custom-checkbox"></span>
-            </label>
-            ${() => hasDistanceIcons() && html`<label class="checklist-item">
-              <input type="checkbox" checked="${() => state.saveChecklist.distance_icons}" @click="${() => state.saveChecklist.distance_icons = !state.saveChecklist.distance_icons}">
-              <span class="label-text">Distance Icons</span>
-              <span class="custom-checkbox"></span>
-            </label>`}
-            ${() => hasIcons() && html`<label class="checklist-item">
-              <input type="checkbox" checked="${() => state.saveChecklist.icons}" @click="${() => state.saveChecklist.icons = !state.saveChecklist.icons}">
-              <span class="label-text">Icons</span>
-              <span class="custom-checkbox"></span>
-            </label>`}
-            ${() => hasSounds() && html`<label class="checklist-item">
-              <input type="checkbox" checked="${() => state.saveChecklist.sounds}" @click="${() => state.saveChecklist.sounds = !state.saveChecklist.sounds}">
-              <span class="label-text">Sounds</span>
-              <span class="custom-checkbox"></span>
-            </label>`}
-            ${() => hasSteeringWheel() && html`<label class="checklist-item">
-              <input type="checkbox" checked="${() => state.saveChecklist.steering_wheel}" @click="${() => state.saveChecklist.steering_wheel = !state.saveChecklist.steering_wheel}">
-              <span class="label-text">Steering Wheel</span>
-              <span class="custom-checkbox"></span>
-            </label>`}
-            ${() => hasTurnSignals() && html`<label class="checklist-item">
-              <input type="checkbox" checked="${() => state.saveChecklist.turn_signals}" @click="${() => state.saveChecklist.turn_signals = !state.saveChecklist.turn_signals}">
-              <span class="label-text">Turn Signals</span>
-              <span class="custom-checkbox"></span>
-            </label>`}
-          </div>
-        `,
+        message: checklistItems("apply"),
         onConfirm: applyTheme,
         onCancel: () => state.showApplyConfirmModal = false,
         confirmText: "Apply",
@@ -1307,39 +1267,7 @@ export function ThemeMaker() {
             <input type="text" id="themeName" placeholder="Enter theme name..." autocomplete="off"
               value="${() => state.themeName}" @input="${(e) => state.themeName = e.target.value}" />
           </div>
-          <div class="checklist-container">
-            <p style="margin-bottom: 10px; text-align: left; font-weight: bold;">Select components to save:</p>
-            <label class="checklist-item">
-              <input type="checkbox" checked="${() => state.saveChecklist.colors}" @click="${() => state.saveChecklist.colors = !state.saveChecklist.colors}">
-              <span class="label-text">Colors</span>
-              <span class="custom-checkbox"></span>
-            </label>
-            ${() => hasDistanceIcons() && html`<label class="checklist-item">
-              <input type="checkbox" checked="${() => state.saveChecklist.distance_icons}" @click="${() => state.saveChecklist.distance_icons = !state.saveChecklist.distance_icons}">
-              <span class="label-text">Distance Icons</span>
-              <span class="custom-checkbox"></span>
-            </label>`}
-            ${() => hasIcons() && html`<label class="checklist-item">
-              <input type="checkbox" checked="${() => state.saveChecklist.icons}" @click="${() => state.saveChecklist.icons = !state.saveChecklist.icons}">
-              <span class="label-text">Icons</span>
-              <span class="custom-checkbox"></span>
-            </label>`}
-            ${() => hasSounds() && html`<label class="checklist-item">
-              <input type="checkbox" checked="${() => state.saveChecklist.sounds}" @click="${() => state.saveChecklist.sounds = !state.saveChecklist.sounds}">
-              <span class="label-text">Sounds</span>
-              <span class="custom-checkbox"></span>
-            </label>`}
-            ${() => hasSteeringWheel() && html`<label class="checklist-item">
-              <input type="checkbox" checked="${() => state.saveChecklist.steering_wheel}" @click="${() => state.saveChecklist.steering_wheel = !state.saveChecklist.steering_wheel}">
-              <span class="label-text">Steering Wheel</span>
-              <span class="custom-checkbox"></span>
-            </label>`}
-            ${() => hasTurnSignals() && html`<label class="checklist-item">
-              <input type="checkbox" checked="${() => state.saveChecklist.turn_signals}" @click="${() => state.saveChecklist.turn_signals = !state.saveChecklist.turn_signals}">
-              <span class="label-text">Turn Signals</span>
-              <span class="custom-checkbox"></span>
-            </label>`}
-          </div>
+          ${checklistItems("save")}
         `,
         onConfirm: saveTheme,
         onCancel: () => state.showSaveConfirmModal = false,
@@ -1358,39 +1286,7 @@ export function ThemeMaker() {
           </div>
           <p>Please enter your Discord username below so we can contact you if needed.</p>
           <input type="text" placeholder="Discord Username" class="discord-username-input" value="${() => state.discordUsername}" @input="${e => state.discordUsername = e.target.value}" />
-          <div class="checklist-container">
-            <p style="margin-bottom: 10px; text-align: left; font-weight: bold;">Select components to submit:</p>
-            <label class="checklist-item">
-              <input type="checkbox" checked="${() => state.saveChecklist.colors}" @click="${() => state.saveChecklist.colors = !state.saveChecklist.colors}">
-              <span class="label-text">Colors</span>
-              <span class="custom-checkbox"></span>
-            </label>
-            ${() => hasDistanceIcons() && html`<label class="checklist-item">
-              <input type="checkbox" checked="${() => state.saveChecklist.distance_icons}" @click="${() => state.saveChecklist.distance_icons = !state.saveChecklist.distance_icons}">
-              <span class="label-text">Distance Icons</span>
-              <span class="custom-checkbox"></span>
-            </label>`}
-            ${() => hasIcons() && html`<label class="checklist-item">
-              <input type="checkbox" checked="${() => state.saveChecklist.icons}" @click="${() => state.saveChecklist.icons = !state.saveChecklist.icons}">
-              <span class="label-text">Icons</span>
-              <span class="custom-checkbox"></span>
-            </label>`}
-            ${() => hasSounds() && html`<label class="checklist-item">
-              <input type="checkbox" checked="${() => state.saveChecklist.sounds}" @click="${() => state.saveChecklist.sounds = !state.saveChecklist.sounds}">
-              <span class="label-text">Sounds</span>
-              <span class="custom-checkbox"></span>
-            </label>`}
-            ${() => hasSteeringWheel() && html`<label class="checklist-item">
-              <input type="checkbox" checked="${() => state.saveChecklist.steering_wheel}" @click="${() => state.saveChecklist.steering_wheel = !state.saveChecklist.steering_wheel}">
-              <span class="label-text">Steering Wheel</span>
-              <span class="custom-checkbox"></span>
-            </label>`}
-            ${() => hasTurnSignals() && html`<label class="checklist-item">
-              <input type="checkbox" checked="${() => state.saveChecklist.turn_signals}" @click="${() => state.saveChecklist.turn_signals = !state.saveChecklist.turn_signals}">
-              <span class="label-text">Turn Signals</span>
-              <span class="custom-checkbox"></span>
-            </label>`}
-          </div>
+          ${checklistItems("submit")}
         `,
         onConfirm: submitTheme,
         onCancel: () => state.showSubmitConfirmation = false,
@@ -1427,13 +1323,13 @@ export function ThemeMaker() {
                     .replace(/^[a-z]/, c => c.toUpperCase())}`;
                   if (theme.type !== "holiday" && theme[key]) {
                     return html`
-                      <button class="delete-theme-button" aria-label="Delete ${theme.name} theme" @click="${(e) => { e.stopPropagation(); confirmDelete(theme); }}">
+                      <button class="delete-theme-button" aria-label="${() => `Delete ${theme.name} theme`}" @click="${(e) => { e.stopPropagation(); confirmDelete(theme); }}">
                         <i class="bi bi-trash-fill"></i>
                       </button>
                     `;
                   }
                   return isDownloadable(state.activeTab, theme.name) ? html`
-                    <button class="download-theme-button" aria-label="Download ${theme.name} theme"
+                    <button class="download-theme-button" aria-label="${() => `Download ${theme.name} theme`}"
                       @click="${async (e) => {
                         e.stopPropagation();
                         if (state.isLoadingAsset) return;

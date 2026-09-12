@@ -143,6 +143,11 @@ void TogglesPanel::showEvent(QShowEvent *event) {
   updateToggles();
 }
 
+void TogglesPanel::refreshMetric(bool metric) {
+  uiState()->scene.is_metric = metric;
+  toggles["IsMetric"]->refresh();
+}
+
 void TogglesPanel::updateToggles() {
   FrogPilotUIState &fs = *frogpilotUIState();
   QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
@@ -151,8 +156,9 @@ void TogglesPanel::updateToggles() {
   disengage_on_accelerator_toggle->setVisible(!frogpilot_toggles.value("always_on_lateral").toBool());
   auto driver_camera_toggle = toggles["RecordFront"];
   driver_camera_toggle->setVisible(!(frogpilot_toggles.value("no_logging").toBool() && frogpilot_toggles.value("no_uploads").toBool()));
-  auto nav_settings_left_toggle = toggles["NavSettingLeftSide"];
-  nav_settings_left_toggle->setVisible(!frogpilot_toggles.value("full_map").toBool());
+#ifdef ENABLE_MAPS
+  toggles["NavSettingLeftSide"]->setVisible(!frogpilot_toggles.value("full_map").toBool());
+#endif
 
   auto experimental_mode_toggle = toggles["ExperimentalMode"];
   auto op_long_toggle = toggles["ExperimentalLongitudinalEnabled"];
@@ -391,7 +397,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   // setup two main layouts
   sidebar_widget = new QWidget;
   QVBoxLayout *sidebar_layout = new QVBoxLayout(sidebar_widget);
-  panel_widget = new QStackedWidget();
+  panel_widget = new QStackedWidget(this);
 
   // close button
   QPushButton *close_btn = new QPushButton(tr("← Back"));
@@ -439,6 +445,8 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   QObject::connect(toggles, &TogglesPanel::updateMetric, this, &SettingsWindow::updateMetric);
 
   FrogPilotSettingsWindow *frogpilotSettingsWindow = new FrogPilotSettingsWindow(this);
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::updateMetric, toggles, &TogglesPanel::refreshMetric);
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::closeSubPanel, [this]() {subPanelOpen=false;});
   QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openPanel, [this]() {panelOpen=true;});
   QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubPanel, [this]() {subPanelOpen=true;});
   QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubSubPanel, [this]() {subSubPanelOpen=true;});
@@ -479,7 +487,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
     const int lr_margin = name != tr("Network") ? 50 : 0;  // Network panel handles its own margins
     panel->setContentsMargins(lr_margin, 25, lr_margin, 25);
 
-    ScrollView *panel_frame = new ScrollView(panel, this);
+    ScrollView *panel_frame = new ScrollView(panel, panel_widget);
     panel_widget->addWidget(panel_frame);
 
     QObject::connect(btn, &QPushButton::clicked, [=, w = panel_frame]() {

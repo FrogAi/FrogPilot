@@ -10,7 +10,7 @@ public:
 
   void updateState(const UIState &s, const FrogPilotUIState &fs);
 
-  double fps;
+  double fps = 0.0;
 
   QColor bg;
 
@@ -19,18 +19,26 @@ private:
   void paintFPS(QPainter &p, const QRect &rect);
   void paintSteeringTorqueBorder(QPainter &p, const QRect &rect);
   void paintTurnSignalBorder(QPainter &p, const QRect &rect);
+  void resetFPSStats();
 
-  bool blindSpotLeft;
-  bool blindSpotRight;
-  bool flickerActive;
-  bool showBlindspot;
-  bool showFPS;
-  bool showSignal;
-  bool showSteering;
-  bool turnSignalLeft;
-  bool turnSignalRight;
+  bool blindSpotLeft = false;
+  bool blindSpotRight = false;
+  bool flickerActive = false;
+  bool showBlindspot = false;
+  bool showFPS = false;
+  bool showSignal = false;
+  bool showSteering = false;
+  bool turnSignalLeft = false;
+  bool turnSignalRight = false;
 
-  float steer;
+  double maxFPS = 0.0;
+  double minFPS = 99.9;
+  double totalFPS = 0.0;
+
+  float smoothedSteer = 0.0f;
+  float steer = 0.0f;
+
+  QList<QPair<qint64, double>> fpsHistory;
 
   QTimer *signalTimer;
 };

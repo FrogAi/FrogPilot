@@ -1,193 +1,107 @@
-name: "Update FrogPilot Branch"
-run-name: "Check scheduled FrogPilot release"
+name: Update FrogPilot Branch
+run-name: Check scheduled FrogPilot release
 
 on:
   schedule:
-    - cron: "0 11 * * 6"
-      timezone: America/Phoenix
+    - cron: "0 11 * * *"
 
-permissions:
-  contents: write
+permissions: {contents: write}
 
 env:
-  BRANCH_RELEASE: ${{ vars.BRANCH_RELEASE || 'FrogPilot' }}
-  BRANCH_PREVIOUS: ${{ vars.BRANCH_PREVIOUS || 'FrogPilot-Previous' }}
-  BRANCH_STAGING: ${{ vars.BRANCH_STAGING || 'FrogPilot-Staging' }}
-  TZ: America/Phoenix
+  GIT_EMAIL: ${{ vars.GIT_EMAIL }}
+  GIT_NAME: ${{ vars.GIT_NAME }}
 
-concurrency:
-  group: update-frogpilot-release
+  BRANCH_PREVIOUS: ${{ vars.BRANCH_PREVIOUS }}
+  BRANCH_RELEASE: ${{ vars.BRANCH_RELEASE }}
+  BRANCH_STAGING: ${{ vars.BRANCH_STAGING }}
+
+  BASE_COMMIT: ${{ vars.BASE_COMMIT }}
+
+  TZ: UTC
 
 jobs:
-  update_branch:
-    name: "Promote the scheduled staging release"
+  update_release:
+    name: Promote scheduled staging release
+    concurrency:
+      group: frogpilot-branch-push
+      queue: max
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 120
     steps:
-      - name: "Checkout staging branch"
-        uses: actions/checkout@v6
+      - name: Checkout staging branch
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
-          ref: ${{ env.BRANCH_STAGING }}
+          ref: refs/heads/${{ env.BRANCH_STAGING }}
+          sparse-checkout: |
+            .github
+            common
 
-      - id: due
-        name: "Check whether a release is due"
+      - name: Promote scheduled staging release
+        shell: bash
         run: |
-          set -u
-
-          if [[ ! -f ".github/update_date" ]]; then
-            echo "No scheduled release marker found."
-            echo "update_due=false" >> "$GITHUB_OUTPUT"
+          if [[ ! -f .github/update_date ]]; then
+            echo "No scheduled release."
             exit 0
           fi
 
-          scheduled_date=$(tr -d "\r\n" < ".github/update_date")
-          if ! parsed_date=$(TZ="$TZ" date -d "$scheduled_date" +%F 2>/dev/null); then
-            echo "Invalid scheduled date in .github/update_date: $scheduled_date"
+          scheduled_date="$(<.github/update_date)"
+          today="$(date +%F)"
+
+          if [[ "$(date -d "$scheduled_date" +%F 2>/dev/null)" != "$scheduled_date" ]]; then
+            echo "Invalid scheduled date: $scheduled_date"
             exit 1
           fi
 
-          today=$(TZ="$TZ" date +%F)
-          if [[ "$parsed_date" != "$today" ]]; then
-            echo "Scheduled release date is $parsed_date. Today in $TZ is $today."
-            echo "update_due=false" >> "$GITHUB_OUTPUT"
+          if [[ "$scheduled_date" > "$today" ]]; then
+            echo "Release scheduled for $scheduled_date."
             exit 0
           fi
 
-          echo "scheduled_date=$parsed_date" >> "$GITHUB_OUTPUT"
-          echo "update_due=true" >> "$GITHUB_OUTPUT"
-
-      - if: steps.due.outputs.update_due == 'true'
-        name: "Configure git identity"
-        run: |
-          if [[ -z "${{ vars.GIT_NAME }}" || -z "${{ vars.GIT_EMAIL }}" ]]; then
-            echo "Repository variables GIT_NAME and GIT_EMAIL must be set."
-            exit 1
+          if [[ "$scheduled_date" < "$today" ]]; then
+            echo "Scheduled for $scheduled_date; publishing as $today."
           fi
 
-          git config user.name "${{ vars.GIT_NAME }}"
-          git config user.email "${{ vars.GIT_EMAIL }}"
-          git fetch origin "$BRANCH_RELEASE" "$BRANCH_PREVIOUS"
-
-      - id: metadata
-        if: steps.due.outputs.update_due == 'true'
-        name: "Resolve anchor commit and compute release metadata"
-        run: |
-          set -u
-
-          scheduled_date="${{ steps.due.outputs.scheduled_date }}"
-
-          anchor_commit=HEAD
-          while :; do
-            subject=$(git log -1 --format=%s "$anchor_commit")
-
-            if [[ "$subject" == "FrogPilot README" ]]; then
-              break
-            fi
-
-            if ! git rev-parse "${anchor_commit}^" >/dev/null 2>&1; then
-              echo "Unable to resolve the FrogPilot README commit on $BRANCH_STAGING."
-              exit 1
-            fi
-
-            anchor_commit="${anchor_commit}^"
-          done
-
-          day=$(TZ="$TZ" date -d "$scheduled_date" +%-d)
+          read -r month day year < <(date -d "$today" '+%B %-d %Y')
           case "$day" in
-            1|21|31) suffix="st" ;;
-            2|22) suffix="nd" ;;
-            3|23) suffix="rd" ;;
-            *)      suffix="th" ;;
+            1|21|31) suffix=st ;;
+            2|22) suffix=nd ;;
+            3|23) suffix=rd ;;
+            *) suffix=th ;;
           esac
 
-          month=$(TZ="$TZ" date -d "$scheduled_date" +%B)
-          year=$(TZ="$TZ" date -d "$scheduled_date" +%Y)
-          release_label="${month} ${day}${suffix}, ${year}"
-          release_label_escaped=$(printf "%s" "$release_label" | sed -E "s/ /%20/g; s/,/%2C/g")
-
-          echo "anchor_commit=$anchor_commit" >> "$GITHUB_OUTPUT"
-          echo "previous_ref=$(git rev-parse "origin/$BRANCH_PREVIOUS")" >> "$GITHUB_OUTPUT"
-          echo "release_label_escaped=$release_label_escaped" >> "$GITHUB_OUTPUT"
-          echo "release_ref=$(git rev-parse "origin/$BRANCH_RELEASE")" >> "$GITHUB_OUTPUT"
-          echo "release_timestamp=$(TZ="$TZ" date -d "$scheduled_date 12:00:00" +"%Y-%m-%dT%H:%M:%S %z")" >> "$GITHUB_OUTPUT"
-          echo "root_commit=$(git rev-list --max-parents=0 HEAD)" >> "$GITHUB_OUTPUT"
-          echo "staging_ref=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-
-      - if: steps.due.outputs.update_due == 'true'
-        name: "Rewrite README badge with release date"
-        run: |
-          set -u
-
-          anchor_commit="${{ steps.metadata.outputs.anchor_commit }}"
-          release_label_escaped="${{ steps.metadata.outputs.release_label_escaped }}"
-          release_timestamp="${{ steps.metadata.outputs.release_timestamp }}"
-          staging_ref="${{ steps.metadata.outputs.staging_ref }}"
-
-          git switch --detach "$anchor_commit"
-          sed -i -E "s|(Last%20Updated-)[^-)]*|\1${release_label_escaped}|g" README.md
+          badge_date="${month}%20${day}${suffix}%2C%20${year}"
+          sed -i -E "s|(Last%20Updated-)[^-)]*|\1$badge_date|g" README.md
+          git rm .github/update_date
           git add README.md
 
-          if ! git diff --cached --quiet; then
-            GIT_AUTHOR_DATE="$release_timestamp" \
-            GIT_COMMITTER_DATE="$release_timestamp" \
-            git commit --amend --no-edit --date="$release_timestamp"
-          fi
+          : "${BASE_COMMIT:?BASE_COMMIT is required}"
+          layer_base="$(
+            git log --reverse --format='%H %s' |
+              awk '!found && $0 == $1 " " ENVIRON["BASE_COMMIT"] { print $1; found = 1 }'
+          )"
 
-          rewritten_anchor=$(git rev-parse HEAD)
-          git switch -C release-rewrite "$staging_ref"
-          if [[ "$staging_ref" == "$anchor_commit" ]]; then
-            git reset --hard "$rewritten_anchor"
-          else
-            git rebase --onto "$rewritten_anchor" "$anchor_commit"
-          fi
-
-      - id: rewrite
-        if: steps.due.outputs.update_due == 'true'
-        name: "Rewrite all commit timestamps"
-        run: |
-          set -u
-
-          release_timestamp="${{ steps.metadata.outputs.release_timestamp }}"
-          root_commit="${{ steps.metadata.outputs.root_commit }}"
-
-          rewrite_command="GIT_AUTHOR_DATE=\"$release_timestamp\" GIT_COMMITTER_DATE=\"$release_timestamp\" git commit --amend --no-edit --date=\"$release_timestamp\""
-          if [[ "$(git rev-parse HEAD)" != "$root_commit" ]]; then
-            GIT_SEQUENCE_EDITOR=: git rebase -i --exec "$rewrite_command" "$root_commit"
-          fi
-
-          echo "release_timestamp=$release_timestamp" >> "$GITHUB_OUTPUT"
-          echo "staging_ref=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
-          echo "release_ref=${{ steps.metadata.outputs.release_ref }}" >> "$GITHUB_OUTPUT"
-          echo "previous_ref=${{ steps.metadata.outputs.previous_ref }}" >> "$GITHUB_OUTPUT"
-
-      - if: steps.due.outputs.update_due == 'true'
-        name: "Remove schedule marker and finalize release branch"
-        run: |
-          set -u
-
-          git rm -f ".github/update_date"
-
-          if git diff --cached --quiet; then
-            echo "No schedule marker to remove."
+          if [[ -z "$layer_base" ]]; then
+            echo "No \"$BASE_COMMIT\" commit found; cannot squash."
             exit 1
           fi
 
-          GIT_AUTHOR_DATE="${{ steps.rewrite.outputs.release_timestamp }}" \
-          GIT_COMMITTER_DATE="${{ steps.rewrite.outputs.release_timestamp }}" \
-          git commit --amend --no-edit --date="${{ steps.rewrite.outputs.release_timestamp }}"
+          release_timestamp="$(date -d "$today 12:00:00" --iso-8601=seconds)"
+          export GIT_AUTHOR_DATE="$release_timestamp" GIT_COMMITTER_DATE="$release_timestamp"
 
-      - if: steps.due.outputs.update_due == 'true'
-        name: "Push release, backup, and staging branches"
-        run: |
-          git push \
-            --force-with-lease="refs/heads/${{ env.BRANCH_PREVIOUS }}:${{ steps.rewrite.outputs.previous_ref }}" \
-            origin "${{ steps.rewrite.outputs.release_ref }}:refs/heads/${{ env.BRANCH_PREVIOUS }}"
+          git config user.name "$GIT_NAME"
+          git config user.email "${GIT_EMAIL:?GIT_EMAIL is required}"
 
-          git push \
-            --force-with-lease="refs/heads/${{ env.BRANCH_RELEASE }}:${{ steps.rewrite.outputs.release_ref }}" \
-            origin "HEAD:refs/heads/${{ env.BRANCH_RELEASE }}"
+          squashed="$(git commit-tree "$(git rev-parse 'HEAD~1^{tree}')" -p "$layer_base^" \
+            -m "FrogPilot v$(cut -d'"' -f2 common/version.h) release")"
+          release="$(git commit-tree "$(git write-tree)" -p "$squashed" -m "$(git log -1 --format=%s HEAD)")"
 
-          git push \
-            --force-with-lease="refs/heads/${{ env.BRANCH_STAGING }}:${{ steps.rewrite.outputs.staging_ref }}" \
-            origin "HEAD:refs/heads/${{ env.BRANCH_STAGING }}"
+          delay=$(( $(date -d "$release_timestamp" +%s) - $(date +%s) ))
+          if (( delay > 0 )); then
+            sleep "$delay"
+          fi
+
+          git push --atomic --force-with-lease origin \
+            "refs/remotes/origin/$BRANCH_RELEASE:refs/heads/$BRANCH_PREVIOUS" \
+            "$release:refs/heads/$BRANCH_RELEASE" \
+            "$release:refs/heads/$BRANCH_STAGING"

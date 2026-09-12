@@ -91,10 +91,10 @@ class FrogPilotCard:
     self.always_on_lateral_enabled = self.car.frogpilot_toggles.always_on_lateral_set
 
     if self.car.frogpilot_toggles.use_lkas_for_aol:
-      self.always_on_lateral_enabled |= self.car.frogpilot_toggles.always_on_lateral_lkas or carState.cruiseState.enabled
+      self.always_on_lateral_enabled &= self.car.frogpilot_toggles.always_on_lateral_lkas or carState.cruiseState.enabled
       self.always_on_lateral_enabled &= frogpilotCarState.alwaysOnLateralAllowed
     else:
-      self.always_on_lateral_enabled |= self.car.frogpilot_toggles.always_on_lateral_main or carState.cruiseState.enabled
+      self.always_on_lateral_enabled &= self.car.frogpilot_toggles.always_on_lateral_main or carState.cruiseState.enabled
       self.always_on_lateral_enabled &= carState.cruiseState.available
 
     self.always_on_lateral_enabled &= carState.gearShifter not in NON_DRIVING_GEARS

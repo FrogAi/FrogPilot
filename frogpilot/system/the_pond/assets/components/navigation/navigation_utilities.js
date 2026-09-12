@@ -1,3 +1,41 @@
+let mapboxPromise = null;
+
+export function ensureMapboxLoaded() {
+  if (window.mapboxgl) return Promise.resolve();
+  if (mapboxPromise) return mapboxPromise;
+
+  mapboxPromise = new Promise((resolve, reject) => {
+    const stylesheet = document.createElement("link");
+    stylesheet.rel = "stylesheet";
+    stylesheet.href = "/assets/vendor/mapbox-gl/mapbox-gl.css";
+    document.head.appendChild(stylesheet);
+
+    const script = document.createElement("script");
+    script.src = "/assets/vendor/mapbox-gl/mapbox-gl.js";
+    script.onload = resolve;
+    script.onerror = () => {
+      mapboxPromise = null;
+      stylesheet.remove();
+      script.remove();
+      reject(new Error("Mapbox could not be loaded"));
+    };
+    document.head.appendChild(script);
+  });
+  return mapboxPromise;
+}
+
+async function fetchMapbox(url) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 export function highlightRoute(map, routes, selectedRouteId) {
   if (!map.isStyleLoaded() || !routes) return;
   routes.forEach((route, idx) => {
@@ -50,22 +88,18 @@ function addRouteLayers(map, sourceId, layerId, clickLayerId, route) {
   });
 }
 
-function safeGetId(fn) {
-  try { return fn?.() ?? null } catch { return null }
-}
-
-export function buildTooltipRow(emoji, label, value, doc = (typeof document !== "undefined" ? document : undefined)) {
-  const row = doc.createElement("div");
+function buildTooltipRow(emoji, label, value) {
+  const row = document.createElement("div");
   row.className = "tooltip-row";
-  const emojiSpan = doc.createElement("span");
+  const emojiSpan = document.createElement("span");
   emojiSpan.className = "emoji";
   emojiSpan.textContent = emoji;
-  const labelSpan = doc.createElement("span");
+  const labelSpan = document.createElement("span");
   labelSpan.className = "label";
   labelSpan.textContent = label;
-  const valueSpan = doc.createElement("span");
+  const valueSpan = document.createElement("span");
   valueSpan.className = "value";
-  valueSpan.textContent = value == null ? "" : String(value);
+  valueSpan.textContent = value;
   row.appendChild(emojiSpan);
   row.appendChild(labelSpan);
   row.appendChild(valueSpan);
@@ -80,8 +114,8 @@ function handleRouteEvents(map, clickLayerId, onRouteSelect, routes, useMetric, 
     map.setPaintProperty(layerId, "line-opacity", 1);
     document.querySelectorAll(".mapboxgl-popup.route-tooltip").forEach(p => p.remove());
     const props = feature.properties;
-    const duration = useMetric ? formatSecondsToHuman(props.duration) : formatSecondsToAmerican(props.duration);
-    const distance = useMetric ? formatMetersToHuman(props.distance, true) : formatMetersToMiles(props.distance);
+    const duration = formatSecondsToHuman(props.duration);
+    const distance = formatMetersToHuman(props.distance, useMetric);
     const arrival = new Date(Date.now() + props.duration * 1000);
     const isLong = props.duration > 24 * 3600;
     const timeStr = arrival.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
@@ -111,8 +145,7 @@ function handleRouteEvents(map, clickLayerId, onRouteSelect, routes, useMetric, 
   };
   const onLeave = () => {
     map.getCanvas().style.cursor = "";
-    const id = safeGetId(getSelectedRouteId);
-    highlightRoute(map, routes, id);
+    highlightRoute(map, routes, getSelectedRouteId());
     document.querySelectorAll(".mapboxgl-popup").forEach(p => p.remove());
   };
 
@@ -151,8 +184,7 @@ export function addRouteToMap(map, routes, start, dest, onRouteSelect, useMetric
   });
 
   map.once("idle", () => {
-    const id = safeGetId(getSelectedRouteId);
-    highlightRoute(map, routes, id);
+    highlightRoute(map, routes, getSelectedRouteId());
   });
 
   if (!map.__popupClickBound) {
@@ -172,15 +204,13 @@ export function addRouteToMap(map, routes, start, dest, onRouteSelect, useMetric
 
 export async function getCoordinatesFromSearch(searchValue, mapboxPublic) {
   const params = new URLSearchParams({ access_token: mapboxPublic, q: searchValue });
-  const response = await fetch(`https://api.mapbox.com/search/geocode/v6/forward?${params.toString()}`);
-  const data = await response.json();
+  const data = await fetchMapbox(`https://api.mapbox.com/search/geocode/v6/forward?${params.toString()}`);
   return data.features[0].geometry.coordinates;
 }
 
 export async function getRoutes(from, to, mapboxPublic) {
   const url = `https://api.mapbox.com/directions/v5/mapbox/driving-traffic/${from};${to}?geometries=geojson&annotations=congestion&overview=full&alternatives=true&access_token=${mapboxPublic}`;
-  const response = await fetch(url);
-  const data = await response.json();
+  const data = await fetchMapbox(url);
   return data.routes;
 }
 
@@ -222,18 +252,6 @@ export function formatSecondsToHuman(s) {
 
 export function formatMetersToHuman(m, metric = true) {
   return metric ? (m >= 1000 ? `${(m / 1000).toFixed(1)} km` : `${Math.round(m)} m`) : (m * 3.28084 >= 5280 ? `${((m * 3.28084) / 5280).toFixed(1)} mi` : `${Math.round(m * 3.28084)} ft`);
-}
-
-export function formatSecondsToAmerican(s) {
-  const mins = Math.round(s / 60);
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  return h > 0 ? `${h} hr ${m} min` : `${m} min`;
-}
-
-export function formatMetersToMiles(m) {
-  const miles = m / 1609.34;
-  return miles >= 0.1 ? `${miles.toFixed(1)} mi` : `${(miles * 5280).toFixed(0)} ft`;
 }
 
 function congestionToColor(lvl) {

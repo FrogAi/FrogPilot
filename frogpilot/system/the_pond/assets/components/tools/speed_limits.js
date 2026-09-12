@@ -26,13 +26,11 @@ export function SpeedLimits() {
       <section class="download-speed-limits-widget">
         <div class="download-speed-limits-title">Download Speed Limits</div>
         <p class="download-speed-limits-text">
-          Download speed limit data collected using "Speed Limit Filler".
+          Download speed limit data collected using "Speed Limit Filler", then review it on the Speed Limit Filler website before submitting any OSM edits.
         </p>
         <div class="download-speed-limits-button-wrapper">
           <button class="download-speed-limits-button" disabled="${() => state.busy}" @click="${handleDownload}">${() => state.busy ? "Downloading..." : "Download"}</button>
-          <a class="download-speed-limits-link" href="https://SpeedLimitFiller.frogpilot.download" target="_blank" rel="noopener noreferrer">
-            Submit speed limits here
-          </a>
+          <a class="download-speed-limits-button" href="https://speedlimitfiller.frogpilot.com" target="_blank" rel="noopener noreferrer">Open Website</a>
         </div>
       </section>
     </div>

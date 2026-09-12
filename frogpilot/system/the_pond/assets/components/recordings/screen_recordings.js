@@ -1,4 +1,6 @@
 import { html, reactive } from "/assets/vendor/arrow.mjs"
+import { fetchJson } from "/assets/js/api.js"
+import { getOrdinalSuffix } from "/assets/components/navigation/navigation_utilities.js"
 import { Modal } from "/assets/components/modal.js";
 import { onRouteLeave } from "/assets/components/router.js"
 
@@ -14,12 +16,6 @@ const state = reactive({
   progress: 0,
   total: 0,
 })
-
-function getOrdinalSuffix(n) {
-  const s = ["th", "st", "nd", "rd"];
-  const v = n % 100;
-  return s[(v - 20) % 10] || s[v] || s[0];
-}
 
 function formatScreenRecordingDate(dateString) {
   const date = new Date(dateString);
@@ -37,6 +33,7 @@ function formatScreenRecordingDate(dateString) {
 }
 
 let recordingsController = null
+let recordingsStarted = false
 
 async function fetchRecordings() {
   if (recordingsController) recordingsController.abort()
@@ -83,9 +80,6 @@ async function fetchRecordings() {
     if (recordingsController === controller) state.loading = false
   }
 }
-
-fetchRecordings()
-onRouteLeave(() => { if (recordingsController) recordingsController.abort() })
 
 function refresh() {
   if (recordingsController) recordingsController.abort()
@@ -151,26 +145,18 @@ async function renameFile(rec) {
     const newFilename = val + ".mp4"
 
     try {
-      const res = await fetch("/api/screen_recordings/rename", {
+      await fetchJson("/api/screen_recordings/rename", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ old: oldFilename, new: newFilename }),
       })
 
-      if (res.ok) {
-        closeDialog(dlg)
-
-        const overlayTitleSpan = overlay && overlay.querySelector(".media-player-title span");
-        if (overlayTitleSpan) {
-          overlayTitleSpan.textContent = val.replace(/_/g, " ");
-        }
-        refresh()
-        showSnackbar("Recording renamed!")
-      } else {
-        showSnackbar("Rename failed...", "error")
-      }
-    } catch {
-      showSnackbar("Rename failed...", "error")
+      closeDialog(dlg)
+      closeOverlay()
+      refresh()
+      showSnackbar("Recording renamed!")
+    } catch (e) {
+      showSnackbar(e.message, "error")
     }
   }
   const dlg = openDialog(html`
@@ -194,16 +180,12 @@ async function deleteFile() {
   const rec = state.recordingToDelete;
 
   try {
-    const res = await fetch(`/api/screen_recordings/delete/${encodeURIComponent(rec.filename)}`, { method: "DELETE" })
-    if (res.ok) {
-        closeOverlay();
-        refresh();
-        showSnackbar("Recording deleted!");
-    } else {
-        showSnackbar("Delete failed...", "error");
-    }
-  } catch {
-    showSnackbar("Delete failed...", "error");
+    await fetchJson(`/api/screen_recordings/delete/${encodeURIComponent(rec.filename)}`, { method: "DELETE" })
+    closeOverlay();
+    refresh();
+    showSnackbar("Recording deleted!");
+  } catch (e) {
+    showSnackbar(e.message, "error");
   } finally {
     state.showDeleteModal = false;
     state.recordingToDelete = null;
@@ -263,19 +245,28 @@ async function deleteAllRecordings() {
   state.showDeleteAllModal = false
   state.isDeletingAll = true
   try {
-    const res = await fetch("/api/screen_recordings/delete_all", { method: "DELETE" })
-    if (!res.ok) throw new Error()
+    await fetchJson("/api/screen_recordings/delete_all", { method: "DELETE" })
     await refresh()
     showSnackbar("All screen recordings deleted!")
-  } catch {
-    showSnackbar("An error occurred while deleting all screen recordings...", "error")
+  } catch (e) {
+    showSnackbar(e.message, "error")
   } finally {
     state.isDeletingAll = false
   }
 }
 
 export function ScreenRecordings() {
-  onRouteLeave(closeOverlay)
+  if (!recordingsStarted) {
+    recordingsStarted = true
+    refresh()
+  }
+  onRouteLeave(() => {
+    closeOverlay()
+    if (state.loading) {
+      recordingsStarted = false
+      if (recordingsController) recordingsController.abort()
+    }
+  })
   if (state.selectedRecording && !overlay) openOverlay(state.selectedRecording)
 
   return html`
@@ -295,7 +286,7 @@ export function ScreenRecordings() {
           return ""
         }}
 
-        <div class="screen-recordings-grid ${() => state.isDeletingAll ? "disabled" : ""}">
+        <div class="${() => `screen-recordings-grid ${state.isDeletingAll ? "disabled" : ""}`}">
           ${() => state.recordings.map(rec => {
             const displayName = rec.is_custom_name ? rec.filename.replace(/\.mp4$/i, "").replace(/_/g, " ") : formatScreenRecordingDate(rec.timestamp)
             return html`
@@ -347,8 +338,8 @@ export function ScreenRecordings() {
                 @click="${() => { state.selectedRecording = rec }}"
               >
                 <div class="recording-preview-container">
-                  <img src="${rec.png}" class="recording-preview recording-preview-png" style="display:block;" @error="${e => { e.target.style.visibility = 'hidden' }}">
-                  <img data-src="${rec.gif}" class="recording-preview recording-preview-gif" style="display:none;">
+                  <img alt="" src="${rec.png}" class="recording-preview recording-preview-png" style="display:block;" @error="${e => { e.target.style.visibility = 'hidden' }}">
+                  <img alt="" data-src="${rec.gif}" class="recording-preview recording-preview-gif" style="display:none;">
                 </div>
                 <p class="recording-filename">${() => displayName}</p>
               </div>

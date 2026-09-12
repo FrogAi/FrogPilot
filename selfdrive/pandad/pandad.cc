@@ -50,7 +50,7 @@ std::atomic<bool> ignition(false);
 ExitHandler do_exit;
 
 // FrogPilot variables
-static uint64_t last_door_lock_command_time = 0;
+static std::atomic<uint64_t> last_door_lock_command_time{0};
 
 bool check_all_connected(const std::vector<Panda *> &pandas) {
   for (const auto& panda : pandas) {
@@ -216,7 +216,7 @@ void can_send_thread(std::vector<Panda *> pandas, bool fake_send) {
     // FrogPilot variables
     for (const cereal::CanData::Reader &can : event.getSendcan()) {
       if (can.getAddress() == 0x750) {
-        last_door_lock_command_time = nanos_since_boot();
+        last_door_lock_command_time.store(nanos_since_boot());
         Panda *internal_panda = pandas[0];
         const std::optional<health_t> state = internal_panda->get_state();
         if (state && state->safety_mode_pkt == (uint8_t)cereal::CarParams::SafetyModel::NO_OUTPUT) {
@@ -328,7 +328,7 @@ std::optional<bool> send_panda_states(PubMaster *pm, const std::vector<Panda *> 
     }
 
     // set safety mode to NO_OUTPUT when car is off. ELM327 is an alternative if we want to leverage athenad/connect
-    if (!ignition_local && (health.safety_mode_pkt != (uint8_t)(cereal::CarParams::SafetyModel::NO_OUTPUT)) && (nanos_since_boot() - last_door_lock_command_time >= 2e9)) {
+    if (!ignition_local && (health.safety_mode_pkt != (uint8_t)(cereal::CarParams::SafetyModel::NO_OUTPUT)) && (nanos_since_boot() - last_door_lock_command_time.load() >= 2e9)) {
       panda->set_safety_model(cereal::CarParams::SafetyModel::NO_OUTPUT);
     }
 

@@ -1,4 +1,5 @@
 #include "common/util.h"
+#include "common/swaglog.h"
 
 #include <sys/ioctl.h>
 #include <sys/stat.h>
@@ -12,6 +13,7 @@
 #include <iomanip>
 #include <random>
 #include <sstream>
+#include <stdexcept>
 
 #ifdef __linux__
 #include <sys/prctl.h>
@@ -149,11 +151,16 @@ int safe_fflush(FILE *stream) {
   return ret;
 }
 
-int safe_ioctl(int fd, unsigned long request, void *argp) {
+int safe_ioctl(int fd, unsigned long request, void *argp, const char *exception_msg) {
   int ret;
   do {
     ret = ioctl(fd, request, argp);
   } while ((ret == -1) && (errno == EINTR));
+
+  if (ret == -1 && exception_msg) {
+    LOGE("safe_ioctl error: %s %s(%d) (fd: %d request: %lx argp: %p)", exception_msg, strerror(errno), errno, fd, request, argp);
+    throw std::runtime_error(exception_msg);
+  }
   return ret;
 }
 

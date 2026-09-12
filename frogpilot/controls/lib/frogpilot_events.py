@@ -129,7 +129,7 @@ class FrogPilotEvents:
         self.played_events.add("accel40")
 
       if "dejaVuCurve" not in self.played_events and sm["carState"].vEgo > CRUISING_SPEED:
-        if self.frogpilot_planner.lateral_acceleration >= DEJA_VU_G_FORCE * ACCELERATION_DUE_TO_GRAVITY:
+        if abs(self.frogpilot_planner.lateral_acceleration) >= DEJA_VU_G_FORCE * ACCELERATION_DUE_TO_GRAVITY:
           self.events.add(FrogPilotEventName.dejaVuCurve)
 
           self.random_event_playing = True

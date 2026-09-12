@@ -148,6 +148,6 @@ std::pair<QString, QString> map_format_distance(float d, bool is_metric) {
   } else {
     float feet = d * METER_TO_FOOT;
     return (feet > 500) ? std::pair{round_distance(d * METER_TO_MILE), QObject::tr("mi")}
-                        : std::pair{QString::number(50 * std::nearbyint(d / 50)), QObject::tr("ft")};
+                        : std::pair{QString::number(50 * std::nearbyint(feet / 50)), QObject::tr("ft")};
   }
 }

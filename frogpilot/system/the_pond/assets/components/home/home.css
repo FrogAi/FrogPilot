@@ -23,12 +23,6 @@
   padding: var(--border-radius-xl);
 }
 
-.diskUsage .disk h4,
-.diskUsage .disk p,
-.drivingStat div p {
-  margin: 0;
-}
-
 .diskUsage p,
 .softwareGrid p {
   font-size: var(--font-size-sm);
@@ -43,6 +37,10 @@
 
 .drivingStat div {
   min-width: 0;
+}
+
+.drivingStat div p {
+  margin: 0;
 }
 
 .drivingStat div p:first-of-type {

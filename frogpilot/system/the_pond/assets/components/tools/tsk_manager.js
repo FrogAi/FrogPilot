@@ -6,6 +6,7 @@ const state = reactive({
   selectedKeyName: "",
   keyValue: "",
   keys: [],
+  loaded: false,
   saved: false,
   editMode: true,
   message: "",
@@ -50,23 +51,16 @@ function canSave() {
   const name = state.keyName
   const value = state.keyValue
 
-  if (
-    !name.trim() ||
-    !/^[0-9a-fA-F]{32}$/.test(value) ||
-    /\s/.test(name)
-  ) {
-    return false
-  }
-
+  if (!state.loaded) return false
+  if (!name.trim() || /\s/.test(name)) return false
   if (isDuplicateName()) return false
 
   const selected = state.keys.find(k => k.name === state.selectedKeyName)
-  if (!selected) return true
+  if (!selected) return /^[0-9a-fA-F]{32}$/.test(value)
 
-  const nameChanged = name !== selected.name
-  const valueChanged = value !== selected.value
+  if (value && !/^[0-9a-fA-F]{32}$/.test(value)) return false
 
-  return nameChanged || valueChanged
+  return name !== selected.name || value !== ""
 }
 
 function selectKey(name) {
@@ -74,7 +68,7 @@ function selectKey(name) {
   if (selected) {
     state.selectedKeyName = selected.name
     state.keyName = selected.name
-    state.keyValue = selected.value
+    state.keyValue = ""
     state.saved = true
     state.editMode = false
   } else {
@@ -88,10 +82,14 @@ function selectKey(name) {
 
 const util = {
   req: async (url, opts) => {
-    const response = await fetch(url, opts)
-    return {
-      ok: response.ok,
-      data: await response.json().catch(() => ({}))
+    try {
+      const response = await fetch(url, opts)
+      return {
+        ok: response.ok,
+        data: await response.json().catch(() => ({}))
+      }
+    } catch {
+      return { ok: false, data: {} }
     }
   }
 }
@@ -103,6 +101,7 @@ const api = {
     const { ok, data } = await util.req(api.path, { method: "GET" })
     if (ok) {
       state.keys = Array.isArray(data) ? data : []
+      state.loaded = true
     } else {
       showMessage("error", "Failed to load keys...")
     }
@@ -118,8 +117,14 @@ const api = {
       return
     }
 
-    const updatedKeys = state.keys.filter(k => k.name !== state.selectedKeyName)
-    updatedKeys.push({ name, value })
+    const updatedKeys = state.keys
+      .filter(k => k.name !== state.selectedKeyName)
+      .map(k => ({ name: k.name }))
+    if (value) {
+      updatedKeys.push({ name, value })
+    } else {
+      updatedKeys.push({ name, rename_from: state.selectedKeyName })
+    }
 
     state.busy = true
     try {
@@ -166,9 +171,9 @@ const api = {
     }
   },
 
-  applyKey: async (name, value) => {
+  applyKey: async (name) => {
     if (state.busy) return
-    const payload = { name, value }
+    const payload = { name }
 
     state.busy = true
     try {
@@ -190,13 +195,10 @@ const api = {
   }
 }
 
-let hasLoaded = false
-if (!hasLoaded) {
-  hasLoaded = true
-  api.load()
-}
+let loadPromise = null
 
 export function TSKManager() {
+  loadPromise ||= api.load()
   return html`
     <div class="tskkeys-wrapper tskkeys-offset-top">
       <div class="tskkeys-container">
@@ -243,7 +245,7 @@ export function TSKManager() {
           <input
             id="tsk-key-value"
             class="tskkeys-input"
-            placeholder="Enter key value..."
+            placeholder="${() => state.selectedKeyName ? "Saved. Type a new value to replace it..." : "Enter key value..."}"
             autocomplete="off"
             value="${() => state.keyValue}"
             @input="${(e) => {
@@ -295,7 +297,7 @@ export function TSKManager() {
             @click="${() => {
               const selected = state.keys.find(k => k.name === state.selectedKeyName)
               if (selected) {
-                api.applyKey(selected.name, selected.value)
+                api.applyKey(selected.name)
               } else {
                 showMessage("error", "Select a key from the list first")
               }

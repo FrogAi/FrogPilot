@@ -95,7 +95,7 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
   QJsonObject &frogpilot_toggles = fs.frogpilot_toggles;
   SubMaster &fpsm = *(fs.sm);
 
-  if (fpsm["frogpilotPlan"].getFrogpilotPlan().getSpeedLimitChanged() && nvg->frogpilot_nvg->newSpeedLimitRect.contains(e->pos())) {
+  if (fpsm["frogpilotPlan"].getFrogpilotPlan().getSpeedLimitChanged() && nvg->frogpilot_nvg->newSpeedLimitRect.contains(nvg->mapFrom(this, e->pos()))) {
     fs.params_memory.putBool("SpeedLimitAccepted", true);
     return;
   }
@@ -127,7 +127,6 @@ void OnroadWindow::mousePressEvent(QMouseEvent* e) {
       alerts->setVisible(true);
       nvg->setVisible(true);
     }
-    nvg->screen_recorder->setVisible(!map->isVisible() && frogpilot_toggles.value("screen_recorder").toBool());
   }
 #endif
   // propagation event to parent(HomeWindow)

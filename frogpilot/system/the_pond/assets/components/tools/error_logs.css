@@ -159,12 +159,6 @@
   outline-offset: -2px;
 }
 
-.error-logs-wrapper #errorLogs #fileList .fileEntry.header {
-  background-color: var(--secondary-bg);
-  cursor: default;
-  font-weight: bold;
-}
-
 .delete-all-button {
   background-color: var(--danger-bg);
   border: none;

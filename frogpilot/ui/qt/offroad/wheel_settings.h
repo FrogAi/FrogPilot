@@ -15,8 +15,9 @@ protected:
 
 private:
   void updateToggles();
+  void updateButtonValues();
 
-  bool forceOpenDescriptions;
+  bool forceOpenDescriptions = false;
 
   std::map<QString, AbstractControl*> toggles;
 
@@ -25,4 +26,6 @@ private:
   Params params;
 
   QJsonObject frogpilotToggleLevels;
+
+  QMap<int, QString> buttonFunctions();
 };

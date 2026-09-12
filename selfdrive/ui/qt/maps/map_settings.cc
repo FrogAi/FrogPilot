@@ -190,6 +190,7 @@ void MapSettings::refresh() {
     destination.insert("save_type", NAV_TYPE_FAVORITE);
     DestinationWidget *destination_widget = get_w(n++);
     destination_widget->set(destination, false);
+    destination_widget->setVisible(true);
   }
 
   for (QJsonValue location_value : NavManager::instance()->currentLocations()) {
@@ -207,6 +208,10 @@ void MapSettings::refresh() {
     destination_widget = destination_widget ? destination_widget : get_w(n++);
     destination_widget->set(destination, false);
     destination_widget->setVisible(!locationEqual(destination, current_dest));
+  }
+
+  for (; n < widgets.size(); ++n) {
+    widgets[n]->setVisible(false);
   }
 
   setUpdatesEnabled(true);

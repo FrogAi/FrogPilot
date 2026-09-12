@@ -95,7 +95,7 @@ void hyundai_common_cruise_buttons_check(const int cruise_button, const bool mai
 
 void hyundai_lkas_button_check(const bool lkas_pressed) {
   if (lkas_pressed && !lkas_pressed_prev) {
-    lkas_on = true;
+    lkas_on = !lkas_on;
   }
   lkas_pressed_prev = lkas_pressed;
 }

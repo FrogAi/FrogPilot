@@ -18,18 +18,9 @@ import { TSKManager } from "/assets/components/tools/tsk_manager.js"
 
 let router, routerState
 
-function _teardownStore() {
-  if (!_teardownStore.list) _teardownStore.list = []
-  return _teardownStore.list
-}
+const teardowns = []
 export function onRouteLeave(fn) {
-  _teardownStore().push(fn)
-}
-function _runTeardowns() {
-  const list = _teardownStore()
-  while (list.length) {
-    try { list.pop()() } catch (e) { console.error("teardown error:", e) }
-  }
+  teardowns.push(fn)
 }
 
 function createRoute(id, path, component) {
@@ -72,13 +63,9 @@ function Root() {
     params: {},
   })
 
-  let prevPath = null
   router.subscribe(({ initialized, navigation, matches, errors }) => {
     const [match] = matches
-    if (prevPath !== null && prevPath !== match.route.path) {
-      _runTeardowns()
-    }
-    prevPath = match.route.path
+    while (teardowns.length) teardowns.pop()()
     Object.assign(routerState, {
       initialized,
       activePath: match.route.path,
@@ -89,15 +76,48 @@ function Root() {
     })
   })
 
-  const onroadState = reactive({ onroad: false })
+  const onroadState = reactive({ onroad: false, checked: false, unreachable: false })
+  let lastOnroadResponse = Date.now()
+
+  function onroadLocked() {
+    return onroadState.onroad || (!onroadState.checked && onroadState.unreachable)
+  }
+
+  function applyOnroadLock() {
+    const locked = onroadLocked()
+    for (const selector of [".content", ".sidebar", "#sidebarUnderlay", "#menu_button"]) {
+      const el = document.querySelector(selector)
+      if (el) el.inert = locked
+    }
+    if (!locked) return
+    const overlay = document.querySelector(".onroad-overlay")
+    if (overlay && !overlay.contains(document.activeElement)) overlay.focus()
+  }
+
   async function pollOnroad() {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 1500)
     try {
-      onroadState.onroad = (await (await fetch("/api/onroad")).json()).onroad
+      const response = await fetch("/api/onroad", { signal: controller.signal })
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const data = await response.json()
+      if (typeof data.onroad !== "boolean") throw new Error("Invalid onroad response")
+      onroadState.onroad = data.onroad
+      onroadState.checked = true
+      onroadState.unreachable = false
+      lastOnroadResponse = Date.now()
     } catch {
+      if (Date.now() - lastOnroadResponse >= 1500) {
+        onroadState.checked = false
+        onroadState.unreachable = true
+      }
+    } finally {
+      clearTimeout(timeout)
+      requestAnimationFrame(applyOnroadLock)
+      setTimeout(pollOnroad, 1000)
     }
   }
   pollOnroad()
-  setInterval(pollOnroad, 1000)
 
   return html`
     ${() => Sidebar(routerState.activePathFull)}
@@ -119,13 +139,18 @@ function Root() {
       }}
     </div>
     ${() => {
-      if (!onroadState.onroad) return ""
+      if (!onroadLocked()) return ""
       return html`
-      <div class="onroad-overlay" role="dialog" aria-modal="true" aria-labelledby="onroad-title">
+      <div class="onroad-overlay" role="dialog" aria-modal="true" aria-labelledby="onroad-title" tabindex="-1">
         <div class="onroad-message">
           <i class="bi bi-car-front-fill onroad-icon" aria-hidden="true"></i>
-          <h1 id="onroad-title">The Pond is locked while driving</h1>
-          <p>Shift into Park to use The Pond.</p>
+          ${() => onroadState.checked ? html`
+            <h1 id="onroad-title">The Pond is locked while driving</h1>
+            <p>Shift into Park to use The Pond.</p>
+          ` : html`
+            <h1 id="onroad-title">Can't reach your car</h1>
+            <p>The Pond will unlock as soon as it hears back.</p>
+          `}
         </div>
       </div>`
     }}
@@ -144,11 +169,6 @@ export function Link(href, children, onClick, classes = "", ariaCurrent = null) 
       onClick?.()
     }}"
   >${children}</a>`
-}
-
-export function Navigate(href) {
-  router.navigate(href)
-  window.scrollTo(0, 0)
 }
 
 Root()(document.getElementById("app"))

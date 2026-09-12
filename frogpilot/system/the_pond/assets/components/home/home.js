@@ -1,3 +1,4 @@
+import { fetchJson } from "/assets/js/api.js";
 import { html, reactive } from "/assets/vendor/arrow.mjs";
 
 function DiskUsage(disk) {
@@ -22,11 +23,7 @@ function DiskUsage(disk) {
 }
 
 function DriveStat(title, stats = {}, defaultUnit) {
-  const format = (n) =>
-    (Math.round(Number(n) || 0) + 0).toLocaleString("en-US", {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    });
+  const format = (n) => (Number(n) || 0).toLocaleString("en-US", { maximumFractionDigits: 0 });
 
   return html`
     <div class="drivingStat">
@@ -75,21 +72,17 @@ export function Home() {
 
   async function initialize() {
     try {
-      const [statsResponse, unitResponse] = await Promise.all([
-        fetch("/api/stats"),
+      const [statsJson, unitResponse] = await Promise.all([
+        fetchJson("/api/stats"),
         fetch("/api/params?key=IsMetric"),
       ]);
 
-      if (!statsResponse.ok) throw new Error(`API error: ${statsResponse.statusText}`);
       if (!unitResponse.ok) throw new Error(`API error: ${unitResponse.statusText}`);
 
-      const statsJson = await statsResponse.json();
-      const isMetricText = (await unitResponse.text()).trim();
-      const isMetric = isMetricText === "1";
+      const isMetric = (await unitResponse.text()).trim() === "1";
 
       state.data = statsJson;
       state.unit = isMetric ? "kilometers" : "miles";
-      localStorage.setItem("isMetric", isMetricText);
     } catch (err) {
       console.error("Failed to initialize component:", err);
       state.error = err.message;

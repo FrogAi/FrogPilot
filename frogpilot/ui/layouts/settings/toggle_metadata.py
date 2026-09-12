@@ -145,6 +145,23 @@ SOFTWARE_TOGGLES = (
     description=("FrogPilot will automatically update itself and its assets when you are offroad with an active internet connection."),
     tuning_level=0,
   ),
+  ToggleDefinition(
+    title=("Share FrogPilot Data"),
+    param="FrogPilotTelemetry",
+    description="".join((
+      "<b>Help improve FrogPilot by sharing basic usage stats and filtered driving logs.</b><br><br>",
+      "We do our best to remove personal information before anything is uploaded. For usage stats, we never send your exact location. We send only ",
+      "a general city, state, and country. Smaller towns are replaced with a nearby major city when possible, or a broader regional location ",
+      "otherwise. Stats are linked to your FrogPilot device ID and include details about your device, software version, car, FrogPilot settings, ",
+      "and driving totals.<br><br>",
+      "Driving logs are filtered on your device before upload. They do not include camera footage or images, your FrogPilot device ID, account ",
+      "details, SSH keys, or the exact GPS, VIN, and date/time fields we can identify. Each drive also gets a separate random ID.<br><br>",
+      "The one exception is raw CAN data from your car. We keep it because it helps improve vehicle support and discover new signals, but some cars ",
+      "may include details such as GPS, VIN, date/time, or driver and passenger status in that data.<br><br>",
+      "Turn this off at any time to stop both uploads.",
+    )),
+    tuning_level=0,
+  ),
 )
 
 
@@ -350,7 +367,7 @@ GAS_BRAKE_TOGGLES = (
     parent_param="AdvancedLongitudinalTune",
     step=0.1,
     toggle_type=ToggleType.NUMERIC,
-    tuning_level=2,
+    tuning_level=3,
     unit="m/s²",
   ),
   ToggleDefinition(
@@ -1302,6 +1319,7 @@ GAS_BRAKE_TOGGLES = (
   ToggleDefinition(
     title=("Force MPH from Dashboard"),
     param="ForceMPHDashboard",
+    car_params=["toyota_brand"],
     description=("<b>Always read dashboard speed limit signs in mph.</b> Turn this on if the cluster shows mph but the limit is interpreted as km/h."),
     parent_param="SLCQOL",
     tuning_level=3,
@@ -1341,8 +1359,8 @@ GAS_BRAKE_TOGGLES = (
   ToggleDefinition(
     title=("Use Mapbox as Fallback"),
     param="SLCMapboxFiller",
-    depends_on=["MapboxSecretKey"],
-    description=("<b>Use Mapbox speed-limit data when no other source is available.</b>"),
+    depends_on=["MapboxPublicKey"],
+    description=("<b>Use Mapbox speed-limit data when no other source is available.</b><br><br>Requires a Public Mapbox Key and internet access."),
     parent_param="SLCQOL",
     tuning_level=1,
   ),
@@ -1580,6 +1598,7 @@ STEERING_TOGGLES = (
   ToggleDefinition(
     title=("Enable With Cruise Control"),
     param="AlwaysOnLateralMain",
+    depends_on=["!visible:AlwaysOnLateralLKAS"],
     description=("<b>Enable \"Always On Lateral\" whenever \"Cruise Control\" is on, even when openpilot is not engaged.</b>"),
     parent_param="AlwaysOnLateral",
     tuning_level=2,
@@ -1587,6 +1606,7 @@ STEERING_TOGGLES = (
   ToggleDefinition(
     title=("Enable With LKAS"),
     param="AlwaysOnLateralLKAS",
+    car_params=["hyundai_canfd_platform", "!openpilot_longitudinal"],
     description=("<b>Enable \"Always On Lateral\" whenever \"LKAS\" is on, even when openpilot is not engaged.</b>"),
     parent_param="AlwaysOnLateral",
     tuning_level=2,
@@ -1768,13 +1788,6 @@ DEVICE_CONTROLS_TOGGLES = (
     tuning_level=2,
   ),
   ToggleDefinition(
-    title=("Share Driving Data"),
-    param="FrogPilotTelemetry",
-    description=("<b>Automatically share anonymized driving data with FrogPilot to help improve it.</b><br><br>Only driving signals are shared: no video, no GPS or location, no VIN, and no identifiers. Turn this off to opt out."),
-    parent_param="DeviceManagement",
-    tuning_level=0,
-  ),
-  ToggleDefinition(
     title=("High-Quality Recording"),
     param="HigherBitrate",
     depends_on=["!DisableOnroadUploads", "DeviceManagement", "NoUploads"],
@@ -1905,7 +1918,7 @@ THEME_TOGGLES = (
     title=("Distance Button"),
     param="CustomDistanceIcons",
     button_labels=["DELETE", "DOWNLOAD", "SELECT"],
-    depends_on=["OnroadDistanceButton", "QOLVisuals"],
+    depends_on=["CustomUI", "OnroadDistanceButton"],
     description=("<b>The distance button icons shown on the driving screen.</b> Use the \"Theme Maker\" in \"The Pond\" to create and share your own themes!"),
     parent_param="PersonalizeOpenpilot",
     toggle_type=ToggleType.MULTI_BUTTON,
@@ -2245,8 +2258,6 @@ APPEARANCE_TOGGLES = (
   ToggleDefinition(
     title=("Hide Speed Limits"),
     param="HideSpeedLimit",
-    car_params=["openpilot_longitudinal"],
-    depends_on=["SpeedLimitController"],
     description=("<b>Hide posted speed limits</b> from the driving screen."),
     parent_param="AdvancedCustomUI",
     tuning_level=2,
@@ -2316,6 +2327,8 @@ APPEARANCE_TOGGLES = (
   ToggleDefinition(
     title=("Lead Info"),
     param="LeadInfo",
+    car_params=["openpilot_longitudinal"],
+    depends_on=["!AdvancedCustomUI", "!HideLeadMarker"],
     description=("<b>Show each tracked vehicle's distance and speed</b> below its marker."),
     parent_param="DeveloperMetrics",
     tuning_level=3,
@@ -2436,6 +2449,8 @@ APPEARANCE_TOGGLES = (
   ToggleDefinition(
     title=("Adjacent Leads Tracking"),
     param="AdjacentLeadsUI",
+    car_params=["radar_support"],
+    depends_on=["!AdvancedCustomUI", "!HideLeadMarker"],
     description=("<b>Display adjacent leads detected by the car's radar</b> to the left and right of the current driving path."),
     parent_param="DeveloperWidgets",
     tuning_level=3,
@@ -2454,6 +2469,7 @@ APPEARANCE_TOGGLES = (
   ToggleDefinition(
     title=("Radar Tracks"),
     param="RadarTracksUI",
+    car_params=["radar_support"],
     description=("<b>Display all radar points</b> produced by the car's radar."),
     parent_param="DeveloperWidgets",
     tuning_level=3,
@@ -2653,8 +2669,8 @@ APPEARANCE_TOGGLES = (
   ToggleDefinition(
     title=("Show Speed Limits from Mapbox"),
     param="SLCMapboxFiller",
-    depends_on=["!SpeedLimitController", "MapboxSecretKey", "ShowSpeedLimits"],
-    description=("<b>Use Mapbox speed-limit data when no other source is available.</b>"),
+    depends_on=["!SpeedLimitController", "MapboxPublicKey", "ShowSpeedLimits"],
+    description=("<b>Use Mapbox speed-limit data when no other source is available.</b><br><br>Requires a Public Mapbox Key and internet access."),
     parent_param="NavigationUI",
     tuning_level=1,
   ),
@@ -2734,7 +2750,7 @@ WHEEL_CONTROLS_TOGGLES = (
     param="LKASButtonControl",
     button_labels=["SELECT"],
     car_params=["!subaru_brand"],
-    depends_on=["!AlwaysOnLateral", "!AlwaysOnLateralLKAS"],
+    depends_on=["!AlwaysOnLateral", "!AlwaysOnLateralLKAS", "!visible:AlwaysOnLateralLKAS"],
     description=("<b>Action performed when the \"LKAS\" button is pressed.</b>"),
     icon="../../../frogpilot/assets/toggle_icons/icon_mute.png",
     toggle_type=ToggleType.BUTTON,
@@ -2772,7 +2788,14 @@ NAVIGATION_TOGGLES = (
   ToggleDefinition(
     title=("Speed Limit Filler"),
     param="SpeedLimitFiller",
-    description=("<b>Automatically collect missing or incorrect speed limits while you drive</b> using speeds limits sourced from your dashboard (if supported), Mapbox, and \"Navigate on openpilot\".<br><br>When you're parked, FrogPilot will automatically process this data into a file to be used with the tool located at \"SpeedLimitFiller.frogpilot.com\".<br><br>You can download this file from \"The Pond\" in the \"Download Speed Limits\" menu.<br><br>Need a step-by-step guide? Visit <b>#speed-limit-filler</b> in the FrogPilot Discord!"),
+    description=(
+      "<b>Collect missing or incorrect speed limits automatically while you drive.</b><br><br>" +
+      "FrogPilot compares speed limits from your dashboard, where supported, Mapbox, and \"Navigate on openpilot\". Downloaded maps are required because " +
+      "FrogPilot uses their OSM way IDs to identify each road.<br><br>You can download the results from \"The Pond\" in " +
+      "the \"Download Speed Limits\" menu and load them into the Speed Limit Filler website. Review every proposed edit before submitting it to OSM.<br><br>" +
+      "Need a step-by-step guide? " +
+      "Visit <b>#speed-limit-filler</b> in the FrogPilot Discord!"
+    ),
     tuning_level=0,
   ),
 )

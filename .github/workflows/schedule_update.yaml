@@ -1,5 +1,5 @@
-name: "Schedule FrogPilot Update"
-run-name: "Schedule FrogPilot update for ${{ inputs.scheduled_date }}"
+name: Schedule FrogPilot Update
+run-name: Schedule FrogPilot update for ${{ inputs.scheduled_date }}
 
 on:
   workflow_dispatch:
@@ -9,62 +9,53 @@ on:
         required: true
         type: string
 
-permissions:
-  contents: write
+permissions: {contents: write}
 
 env:
-  BRANCH_STAGING: ${{ vars.BRANCH_STAGING || 'FrogPilot-Staging' }}
-  TZ: America/Phoenix
+  GIT_EMAIL: ${{ vars.GIT_EMAIL }}
+  GIT_NAME: ${{ vars.GIT_NAME }}
 
-concurrency:
-  group: schedule-frogpilot-update-staging
+  BRANCH_STAGING: ${{ vars.BRANCH_STAGING }}
+
+  SCHEDULED_DATE: ${{ inputs.scheduled_date }}
+
+  TZ: UTC
+
+concurrency: schedule-frogpilot-update
 
 jobs:
   schedule_update:
-    name: "Schedule staging release handoff"
+    name: Schedule staging release handoff
+    concurrency:
+      group: frogpilot-branch-push
+      queue: max
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
-      - name: "Checkout staging branch"
-        uses: actions/checkout@v6
+      - name: Checkout staging branch
+        uses: actions/checkout@v7
         with:
-          ref: ${{ env.BRANCH_STAGING }}
+          fetch-depth: 2
+          ref: refs/heads/${{ env.BRANCH_STAGING }}
+          sparse-checkout: .github
 
-      - name: "Schedule staging release handoff"
-        env:
-          INPUT_SCHEDULED_DATE: ${{ inputs.scheduled_date }}
+      - name: Schedule staging release handoff
         run: |
-          scheduled_date="$INPUT_SCHEDULED_DATE"
-
-          if [[ -z "${{ vars.GIT_NAME }}" || -z "${{ vars.GIT_EMAIL }}" ]]; then
-            echo "Repository variables GIT_NAME and GIT_EMAIL must be set."
+          if [[ "$(date -d "$SCHEDULED_DATE" +%F 2>/dev/null)" != "$SCHEDULED_DATE" ||
+                "$SCHEDULED_DATE" < "$(date +%F)" ]]; then
+            echo "scheduled_date must be a valid date in YYYY-MM-DD format, today or later in $TZ."
             exit 1
           fi
 
-          git config user.name "${{ vars.GIT_NAME }}"
-          git config user.email "${{ vars.GIT_EMAIL }}"
-
-          if ! parsed_date=$(TZ="$TZ" date -d "$scheduled_date" +%F 2>/dev/null); then
-            echo "scheduled_date must be a valid YYYY-MM-DD date."
-            exit 1
-          fi
-
-          today=$(TZ="$TZ" date +%F)
-          if [[ "$parsed_date" < "$today" ]]; then
-            echo "scheduled_date must be today or later in $TZ."
-            exit 1
-          fi
-
-          printf "%s\n" "$parsed_date" > ".github/update_date"
-          git add ".github/update_date"
+          printf '%s\n' "$SCHEDULED_DATE" > .github/update_date
+          git add .github/update_date
 
           if git diff --cached --quiet; then
             echo "No schedule change detected."
             exit 0
           fi
 
-          GIT_AUTHOR_DATE="$(git log -1 --format=%aI)" \
           GIT_COMMITTER_DATE="$(git log -1 --format=%cI)" \
-          git commit --amend --no-edit
+            git -c user.name="$GIT_NAME" -c user.email="${GIT_EMAIL:?GIT_EMAIL is required}" commit --amend --no-edit
 
           git push --force-with-lease origin "HEAD:refs/heads/$BRANCH_STAGING"

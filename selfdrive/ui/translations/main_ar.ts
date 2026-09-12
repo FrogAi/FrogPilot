@@ -88,23 +88,23 @@
     </message>
     <message>
         <source>Off</source>
-        <translation type="gpt-5-generated">إيقاف</translation>
+        <translation>إيقاف</translation>
     </message>
     <message>
         <source>Always</source>
-        <translation type="gpt-5-generated">دائمًا</translation>
+        <translation>دائمًا</translation>
     </message>
     <message>
         <source>Only Onroad</source>
-        <translation type="gpt-5-generated">على الطريق فقط</translation>
+        <translation>أثناء القيادة فقط</translation>
     </message>
     <message>
         <source>Until Reboot</source>
-        <translation type="gpt-5-generated">حتى إعادة التشغيل</translation>
+        <translation>حتى إعادة التشغيل</translation>
     </message>
     <message>
-        <source>Allow tethering with your data SIM and keep it active either while driving or continuously.</source>
-        <translation type="gpt-5-generated">اسمح بالربط عبر بطاقة بياناتك وأبقِه نشطًا إما أثناء القيادة أو باستمرار.</translation>
+        <source>Share your device's internet connection with other devices, either all the time or only while driving.</source>
+        <translation>شارك اتصال جهازك بالإنترنت مع الأجهزة الأخرى، إما دائمًا أو أثناء القيادة فقط.</translation>
     </message>
 </context>
 <context>
@@ -119,15 +119,15 @@
     </message>
     <message>
         <source>MAX</source>
-        <translation>MAX</translation>
+        <translation>الأقصى</translation>
     </message>
     <message>
         <source>SPEED</source>
-        <translation>SPEED</translation>
+        <translation>حد</translation>
     </message>
     <message>
         <source>LIMIT</source>
-        <translation>LIMIT</translation>
+        <translation>السرعة</translation>
     </message>
 </context>
 <context>
@@ -187,75 +187,71 @@
     <name>DeveloperSidebar</name>
     <message>
         <source> m/s²</source>
-        <translation type="gpt-5-generated">م/ث²</translation>
+        <translation> m/s²</translation>
     </message>
     <message>
         <source> ft/s²</source>
-        <translation type="gpt-5-generated">قدم/ث²</translation>
+        <translation> ft/s²</translation>
     </message>
     <message>
         <source>ACCEL</source>
-        <translation type="gpt-5-generated">تسارع</translation>
+        <translation>التسارع</translation>
     </message>
     <message>
         <source>ACCEL JERK</source>
-        <translation type="gpt-5-generated">تسارع مفاجئ</translation>
+        <translation>معدل تغير التسارع</translation>
     </message>
     <message>
         <source>ACT ACCEL</source>
-        <translation type="gpt-5-generated">ACT ACCEL</translation>
+        <translation>التسارع الفعلي</translation>
     </message>
     <message>
         <source>DANGER JERK</source>
-        <translation type="gpt-5-generated">خطر: ارتجاج مفاجئ</translation>
+        <translation>معدل التغير الخطر</translation>
     </message>
     <message>
         <source>STEER DELAY</source>
-        <translation type="gpt-5-generated">تأخّر التوجيه</translation>
+        <translation>تأخر التوجيه</translation>
     </message>
     <message>
         <source>FRICTION</source>
-        <translation type="gpt-5-generated">احتكاك</translation>
+        <translation>الاحتكاك</translation>
     </message>
     <message>
         <source>LAT ACCEL</source>
-        <translation type="gpt-5-generated">التسارع الجانبي</translation>
+        <translation>التسارع الجانبي</translation>
     </message>
     <message>
         <source>LATERAL %</source>
-        <translation type="gpt-5-generated">جانبي %</translation>
+        <translation>الجانبي %</translation>
     </message>
     <message>
         <source>LONG %</source>
-        <translation type="gpt-5-generated">الطولي %</translation>
+        <translation>الطولي %</translation>
     </message>
     <message>
         <source>MAX ACCEL</source>
-        <translation type="gpt-5-generated">أقصى تسارع</translation>
+        <translation>أقصى تسارع</translation>
     </message>
     <message>
         <source>SPEED JERK</source>
-        <translation type="gpt-5-generated">ارتجاج السرعة</translation>
+        <translation>معدل تغير تسارع السرعة</translation>
     </message>
     <message>
         <source>STEER ANGLE</source>
-        <translation type="gpt-5-generated">زاوية التوجيه</translation>
+        <translation>زاوية التوجيه</translation>
     </message>
     <message>
         <source>STEER RATIO</source>
-        <translation type="gpt-5-generated">نسبة التوجيه</translation>
+        <translation>نسبة التوجيه</translation>
     </message>
     <message>
         <source>STEER STIFF</source>
-        <translation type="gpt-5-generated">توجيه قاسٍ</translation>
+        <translation>صلابة التوجيه</translation>
     </message>
     <message>
         <source>TORQUE %</source>
-        <translation type="gpt-5-generated">عزم</translation>
-    </message>
-    <message>
-        <source>DANGER %</source>
-        <translation type="gpt-5-generated">خطر %</translation>
+        <translation>العزم %</translation>
     </message>
 </context>
 <context>
@@ -274,7 +270,7 @@
     </message>
     <message>
         <source>Driver Camera</source>
-        <translation>كاميرة السائق</translation>
+        <translation>كاميرا السائق</translation>
     </message>
     <message>
         <source>PREVIEW</source>
@@ -282,7 +278,7 @@
     </message>
     <message>
         <source>Preview the driver facing camera to ensure that driver monitoring has good visibility. (vehicle must be off)</source>
-        <translation>قم بمعاينة الكاميرا المواجهة للسائق للتأكد من أن نظام مراقبة السائق يتمتع برؤية جيدة. (يجب أن تكون السيارة متوقفة)</translation>
+        <translation>عاين الكاميرا المواجهة للسائق للتأكد من أن نظام مراقبة السائق يراك بوضوح. (يجب إيقاف تشغيل السيارة)</translation>
     </message>
     <message>
         <source>Reset Calibration</source>
@@ -306,7 +302,7 @@
     </message>
     <message>
         <source>Review the rules, features, and limitations of openpilot</source>
-        <translation>مراجعة الأدوار والميزات والقيود في openpilot</translation>
+        <translation>راجع القواعد والميزات والقيود في openpilot</translation>
     </message>
     <message>
         <source>Are you sure you want to review the training guide?</source>
@@ -314,7 +310,7 @@
     </message>
     <message>
         <source>Regulatory</source>
-        <translation>التنظيمية</translation>
+        <translation>المعلومات التنظيمية</translation>
     </message>
     <message>
         <source>VIEW</source>
@@ -342,7 +338,7 @@
     </message>
     <message>
         <source>openpilot requires the device to be mounted within 4° left or right and within 5° up or 9° down. openpilot is continuously calibrating, resetting is rarely required.</source>
-        <translation>يحتاج openpilot أن يتم ضبط الجهاز ضمن حدود 4 درجات يميناً أو يساراً و5 درجات نحو الأعلى أو 9 نحو الأسفل. يقوم openpilot بالمعايرة باستمرار، ونادراً ما يحتاج إلى عملية إعادة الضبط.</translation>
+        <translation>يتطلب openpilot تثبيت الجهاز ضمن 4 درجات إلى اليمين أو اليسار، وضمن 5 درجات إلى الأعلى أو 9 درجات إلى الأسفل. يعاير openpilot نفسه باستمرار، ونادرًا ما يلزم إعادة ضبط المعايرة.</translation>
     </message>
     <message>
         <source> Your device is pointed %1° %2 and %3° %4.</source>
@@ -366,11 +362,11 @@
     </message>
     <message>
         <source>Are you sure you want to reboot?</source>
-        <translation>هل أنت متأكد  أنك تريد إعادة التشغيل؟</translation>
+        <translation>هل أنت متأكد أنك تريد إعادة التشغيل؟</translation>
     </message>
     <message>
         <source>Disengage to Reboot</source>
-        <translation>فك الارتباط من أجل إعادة التشغيل</translation>
+        <translation>ألغِ تفعيل openpilot لإعادة التشغيل</translation>
     </message>
     <message>
         <source>Are you sure you want to power off?</source>
@@ -378,7 +374,7 @@
     </message>
     <message>
         <source>Disengage to Power Off</source>
-        <translation>فك الارتباط من أجل إيقاف التشغيل</translation>
+        <translation>ألغِ تفعيل openpilot لإيقاف التشغيل</translation>
     </message>
     <message>
         <source>Reset</source>
@@ -390,7 +386,7 @@
     </message>
     <message>
         <source>Pair your device with comma connect (connect.comma.ai) and claim your comma prime offer.</source>
-        <translation>اقرن جهازك بجهاز (connect.comma.ai) واحصل على عرضك من comma prime.</translation>
+        <translation>اقرن جهازك بخدمة comma connect (connect.comma.ai) واحصل على عرض comma prime.</translation>
     </message>
     <message>
         <source>Pair Device</source>
@@ -402,46 +398,46 @@
     </message>
     <message>
         <source>Pair your device with Konik connect (stable.konik.ai).</source>
-        <translation type="gpt-5-generated">أقرِن جهازك مع Konik connect (stable.konik.ai).</translation>
+        <translation>اقرن جهازك بخدمة Konik connect (stable.konik.ai).</translation>
     </message>
 </context>
 <context>
     <name>DriveStats</name>
     <message>
         <source>FROGPILOT</source>
-        <translation type="gpt-5-generated">FROGPILOT</translation>
+        <translation>FROGPILOT</translation>
     </message>
     <message>
         <source>Drives</source>
-        <translation type="gpt-5-generated">الرحلات</translation>
+        <translation>الرحلات</translation>
     </message>
     <message>
         <source>Hours</source>
-        <translation type="gpt-5-generated">ساعات</translation>
+        <translation>الساعات</translation>
     </message>
     <message>
         <source>KM</source>
-        <translation type="gpt-5-generated">كم</translation>
+        <translation>كم</translation>
     </message>
     <message>
         <source>Miles</source>
-        <translation type="gpt-5-generated">أميال</translation>
+        <translation>الأميال</translation>
     </message>
     <message>
         <source>ALL TIME (KONIK)</source>
-        <translation type="gpt-5-generated">طوال الوقت (KONIK)</translation>
+        <translation>كل الوقت (KONIK)</translation>
     </message>
     <message>
         <source>ALL TIME</source>
-        <translation type="gpt-5-generated">طوال الوقت</translation>
+        <translation>كل الوقت</translation>
     </message>
     <message>
         <source>PAST WEEK (KONIK)</source>
-        <translation type="gpt-5-generated">الأسبوع الماضي (KONIK)</translation>
+        <translation>الأسبوع الماضي (KONIK)</translation>
     </message>
     <message>
         <source>PAST WEEK</source>
-        <translation type="gpt-5-generated">الأسبوع الماضي</translation>
+        <translation>الأسبوع الماضي</translation>
     </message>
 </context>
 <context>
@@ -465,4655 +461,4721 @@
 <context>
     <name>FrogPilotAnnotatedCameraWidget</name>
     <message>
-        <source> m/s²</source>
-        <translation type="gpt-5-generated">م/ث²</translation>
-    </message>
-    <message>
         <source> meters</source>
-        <translation type="gpt-5-generated">أمتار</translation>
+        <translation> متر</translation>
     </message>
     <message>
         <source> m/s</source>
-        <translation type="gpt-5-generated">م/ث</translation>
+        <translation> m/s</translation>
     </message>
     <message>
         <source> km/h</source>
-        <translation type="gpt-5-generated">كم/س</translation>
-    </message>
-    <message>
-        <source> ft/s²</source>
-        <translation type="gpt-5-generated">قدم/ثانية²</translation>
+        <translation> كم/س</translation>
     </message>
     <message>
         <source> feet</source>
-        <translation type="gpt-5-generated">أقدام</translation>
+        <translation> قدم</translation>
     </message>
     <message>
         <source> mph</source>
-        <translation type="gpt-5-generated"> ميل/ساعة</translation>
+        <translation> ميل/س</translation>
     </message>
     <message>
         <source>Vehicle in blind spot</source>
-        <translation type="gpt-5-generated">مركبة في النقطة العمياء</translation>
+        <translation>توجد مركبة في النقطة العمياء</translation>
     </message>
     <message>
         <source>PENDING</source>
-        <translation type="gpt-5-generated">قيد الانتظار</translation>
+        <translation>قيد الانتظار</translation>
     </message>
     <message>
         <source>LIMIT</source>
-        <translation type="gpt-5-generated">الحد</translation>
+        <translation>الحد</translation>
     </message>
     <message>
         <source>Desired: %1</source>
-        <translation type="gpt-5-generated">المرغوب: %1</translation>
+        <translation>المطلوب: %1</translation>
     </message>
     <message>
         <source>s</source>
-        <translation type="gpt-5-generated">س</translation>
+        <translation>ث</translation>
     </message>
     <message>
         <source>1 minute</source>
-        <translation type="gpt-5-generated">1 دقيقة</translation>
+        <translation>1 دقيقة</translation>
     </message>
     <message>
         <source>%1 minutes</source>
-        <translation type="gpt-5-generated">%1 دقائق</translation>
+        <translation>%1 دقيقة</translation>
     </message>
     <message>
         <source>1 second</source>
-        <translation type="gpt-5-generated">1 ثانية</translation>
+        <translation>1 ثانية</translation>
     </message>
     <message>
         <source>%1 seconds</source>
-        <translation type="gpt-5-generated">%1 ثوانٍ</translation>
+        <translation>%1 ثانية</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotConfirmationDialog</name>
     <message>
         <source>Reboot required to take effect.</source>
-        <translation type="gpt-5-generated">إعادة التشغيل مطلوبة لتصبح التغييرات سارية المفعول.</translation>
+        <translation>يلزم إعادة التشغيل لتطبيق التغيير.</translation>
     </message>
     <message>
         <source>Reboot Now</source>
-        <translation type="gpt-5-generated">أعد التشغيل الآن</translation>
+        <translation>إعادة التشغيل الآن</translation>
     </message>
     <message>
         <source>Reboot Later</source>
-        <translation type="gpt-5-generated">أعد التشغيل لاحقًا</translation>
+        <translation>إعادة التشغيل لاحقًا</translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="gpt-5-generated">نعم</translation>
+        <translation>نعم</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="gpt-5-generated">لا</translation>
+        <translation>لا</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotDataPanel</name>
     <message>
         <source>Delete Driving Data</source>
-        <translation type="gpt-5-generated">حذف بيانات القيادة</translation>
+        <translation>حذف بيانات القيادة</translation>
     </message>
     <message>
         <source>DELETE</source>
-        <translation type="gpt-5-generated">حذف</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Delete all stored driving footage and data&lt;/b&gt; to free up space and clear private information.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;احذف كل لقطات القيادة والبيانات المخزنة&lt;/b&gt; لتحرير المساحة ومسح المعلومات الخاصة.</translation>
-    </message>
-    <message>
-        <source>Delete all driving data and footage?</source>
-        <translation type="gpt-5-generated">حذف كل بيانات القيادة واللقطات؟</translation>
+        <translation>حذف</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="gpt-5-generated">حذف</translation>
+        <translation>حذف</translation>
     </message>
     <message>
         <source>Deleting...</source>
-        <translation type="gpt-5-generated">جارٍ الحذف...</translation>
+        <translation>جارٍ الحذف...</translation>
     </message>
     <message>
         <source>Deleted!</source>
-        <translation type="gpt-5-generated">تم الحذف!</translation>
+        <translation>تم الحذف!</translation>
     </message>
     <message>
         <source>Delete Error Logs</source>
-        <translation type="gpt-5-generated">حذف سجلات الأخطاء</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Delete collected error logs&lt;/b&gt; to free up space and clear old crash records.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;احذف سجلات الأخطاء المجمعة&lt;/b&gt; لتحرير مساحة ومسح سجلات الأعطال القديمة.</translation>
+        <translation>حذف سجلات الأخطاء</translation>
     </message>
     <message>
         <source>Delete all error logs?</source>
-        <translation type="gpt-5-generated">حذف جميع سجلات الأخطاء؟</translation>
+        <translation>هل تريد حذف جميع سجلات الأخطاء؟</translation>
     </message>
     <message>
         <source>Screen Recordings</source>
-        <translation type="gpt-5-generated">تسجيلات الشاشة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Delete or rename screen recordings.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;احذف أو أعد تسمية تسجيلات الشاشة.&lt;/b&gt;</translation>
+        <translation>تسجيلات الشاشة</translation>
     </message>
     <message>
         <source>DELETE ALL</source>
-        <translation type="gpt-5-generated">احذف الكل</translation>
+        <translation>حذف الكل</translation>
     </message>
     <message>
         <source>RENAME</source>
-        <translation type="gpt-5-generated">إعادة التسمية</translation>
+        <translation>إعادة التسمية</translation>
     </message>
     <message>
         <source>Choose a screen recording to delete</source>
-        <translation type="gpt-5-generated">اختر تسجيل شاشة لحذفه</translation>
+        <translation>اختر تسجيل شاشة لحذفه</translation>
     </message>
     <message>
         <source>Delete this screen recording?</source>
-        <translation type="gpt-5-generated">حذف تسجيل الشاشة هذا؟</translation>
+        <translation>هل تريد حذف تسجيل الشاشة هذا؟</translation>
     </message>
     <message>
         <source>Delete all screen recordings?</source>
-        <translation type="gpt-5-generated">حذف جميع تسجيلات الشاشة؟</translation>
+        <translation>هل تريد حذف جميع تسجيلات الشاشة؟</translation>
     </message>
     <message>
         <source>Delete All</source>
-        <translation type="gpt-5-generated">حذف الكل</translation>
+        <translation>حذف الكل</translation>
     </message>
     <message>
         <source>Choose a screen recording to rename</source>
-        <translation type="gpt-5-generated">اختر تسجيل شاشة لإعادة تسميته</translation>
+        <translation>اختر تسجيل شاشة لإعادة تسميته</translation>
     </message>
     <message>
         <source>Enter a new name</source>
-        <translation type="gpt-5-generated">أدخل اسمًا جديدًا</translation>
+        <translation>أدخل اسمًا جديدًا</translation>
     </message>
     <message>
         <source>Rename Screen Recording</source>
-        <translation type="gpt-5-generated">إعادة تسمية تسجيل الشاشة</translation>
+        <translation>إعادة تسمية تسجيل الشاشة</translation>
     </message>
     <message>
         <source>Name already in use. Please choose a different name.</source>
-        <translation type="gpt-5-generated">الاسم مستخدم بالفعل. يرجى اختيار اسمًا مختلفًا.</translation>
+        <translation>الاسم مستخدم بالفعل. يرجى اختيار اسم مختلف.</translation>
     </message>
     <message>
         <source>Renaming...</source>
-        <translation type="gpt-5-generated">إعادة التسمية...</translation>
+        <translation>جارٍ إعادة التسمية...</translation>
     </message>
     <message>
         <source>Renamed!</source>
-        <translation type="gpt-5-generated">تمت إعادة التسمية!</translation>
+        <translation>تمت إعادة التسمية!</translation>
     </message>
     <message>
         <source>FrogPilot Backups</source>
-        <translation type="gpt-5-generated">نسخ FrogPilot الاحتياطية</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Create, delete, or restore FrogPilot backups.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إنشاء نسخ احتياطية لـ FrogPilot أو حذفها أو استعادتها.&lt;/b&gt;</translation>
+        <translation>نسخ FrogPilot الاحتياطية</translation>
     </message>
     <message>
         <source>BACKUP</source>
-        <translation type="gpt-5-generated">نسخة احتياطية</translation>
+        <translation>نسخ احتياطي</translation>
     </message>
     <message>
         <source>RESTORE</source>
-        <translation type="gpt-5-generated">استعادة</translation>
+        <translation>استعادة</translation>
     </message>
     <message>
         <source>Enter a name for this backup</source>
-        <translation type="gpt-5-generated">أدخل اسمًا لهذا النسخ الاحتياطي</translation>
-    </message>
-    <message>
-        <source>Compress this backup? This will save space and run in the background but take a bit longer.</source>
-        <translation type="gpt-5-generated">ضغط هذا النسخ الاحتياطي؟ سيوفر هذا مساحة ويعمل في الخلفية لكنه سيستغرق وقتًا أطول قليلًا.</translation>
+        <translation>أدخل اسمًا لهذه النسخة الاحتياطية</translation>
     </message>
     <message>
         <source>Backing up...</source>
-        <translation type="gpt-5-generated">جارٍ النسخ الاحتياطي...</translation>
+        <translation>جارٍ إنشاء النسخة الاحتياطية...</translation>
     </message>
     <message>
         <source>Compressing...</source>
-        <translation type="gpt-5-generated">جارٍ الضغط...</translation>
+        <translation>جارٍ الضغط...</translation>
     </message>
     <message>
         <source>Backup created!</source>
-        <translation type="gpt-5-generated">تم إنشاء النسخة الاحتياطية!</translation>
+        <translation>تم إنشاء النسخة الاحتياطية!</translation>
     </message>
     <message>
         <source>Choose a FrogPilot backup to delete</source>
-        <translation type="gpt-5-generated">اختر نسخة احتياطية من FrogPilot لحذفها</translation>
+        <translation>اختر نسخة FrogPilot احتياطية لحذفها</translation>
     </message>
     <message>
         <source>Delete this backup?</source>
-        <translation type="gpt-5-generated">حذف هذا النسخ الاحتياطي؟</translation>
-    </message>
-    <message>
-        <source>Delete all backups?</source>
-        <translation type="gpt-5-generated">حذف جميع النسخ الاحتياطية؟</translation>
+        <translation>هل تريد حذف هذه النسخة الاحتياطية؟</translation>
     </message>
     <message>
         <source>Choose a backup to restore</source>
-        <translation type="gpt-5-generated">اختر نسخة احتياطية لاستعادتها</translation>
+        <translation>اختر نسخة احتياطية لاستعادتها</translation>
     </message>
     <message>
         <source>Restore this backup?</source>
-        <translation type="gpt-5-generated">هل تريد استعادة هذا النسخة الاحتياطية؟</translation>
+        <translation>هل تريد استعادة هذه النسخة الاحتياطية؟</translation>
     </message>
     <message>
         <source>Restore</source>
-        <translation type="gpt-5-generated">استعادة</translation>
+        <translation>استعادة</translation>
     </message>
     <message>
         <source>Restoring...</source>
-        <translation type="gpt-5-generated">جارٍ الاستعادة...</translation>
+        <translation>جارٍ الاستعادة...</translation>
     </message>
     <message>
         <source>Extracting...</source>
-        <translation type="gpt-5-generated">جارٍ الاستخراج...</translation>
+        <translation>جارٍ الاستخراج...</translation>
     </message>
     <message>
         <source>Restored!</source>
-        <translation type="gpt-5-generated">تمّت الاستعادة!</translation>
+        <translation>تمت الاستعادة!</translation>
     </message>
     <message>
         <source>Rebooting...</source>
-        <translation type="gpt-5-generated">إعادة التشغيل...</translation>
-    </message>
-    <message>
-        <source>Toggle Backups</source>
-        <translation type="gpt-5-generated">تبديل النسخ الاحتياطية</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Create, delete, or restore toggle backups.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أنشئ أو احذف أو استعد نُسخ التبديل الاحتياطية.&lt;/b&gt;</translation>
+        <translation>جارٍ إعادة التشغيل...</translation>
     </message>
     <message>
         <source>Choose a backup to delete</source>
-        <translation type="gpt-5-generated">اختر نسخة احتياطية لحذفها</translation>
+        <translation>اختر نسخة احتياطية لحذفها</translation>
     </message>
     <message>
         <source>FrogPilot Stats</source>
-        <translation type="gpt-5-generated">إحصائيات FrogPilot</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;View your collected FrogPilot stats.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;عرض إحصاءات FrogPilot التي جُمعت.&lt;/b&gt;</translation>
+        <translation>إحصاءات FrogPilot</translation>
     </message>
     <message>
         <source>RESET</source>
-        <translation type="gpt-5-generated">إعادة ضبط</translation>
+        <translation>إعادة الضبط</translation>
     </message>
     <message>
         <source>VIEW</source>
-        <translation type="gpt-5-generated">عرض</translation>
+        <translation>عرض</translation>
     </message>
     <message>
         <source>Are you sure you want to reset all of your FrogPilot stats?</source>
-        <translation type="gpt-5-generated">هل أنت متأكد أنك تريد إعادة ضبط جميع إحصاءات FrogPilot الخاصة بك؟</translation>
+        <translation>هل أنت متأكد من رغبتك في إعادة ضبط جميع إحصاءات FrogPilot؟</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="gpt-5-generated">إعادة ضبط</translation>
-    </message>
-    <message>
-        <source>Total Emergency Brake Alerts</source>
-        <translation type="gpt-5-generated">إجمالي تنبيهات الفرملة الطارئة</translation>
+        <translation>إعادة الضبط</translation>
     </message>
     <message>
         <source>Time Using "Always On Lateral"</source>
-        <translation type="gpt-5-generated">الوقت باستخدام "Always On Lateral"</translation>
+        <translation>مدة استخدام "التوجيه الجانبي الدائم"</translation>
     </message>
     <message>
         <source>Favorite Set Speed</source>
-        <translation type="gpt-5-generated">سرعة الضبط المفضلة</translation>
+        <translation>السرعة المضبوطة المفضلة</translation>
     </message>
     <message>
         <source>Total Disengagements</source>
-        <translation type="gpt-5-generated">إجمالي حالات فك الارتباط</translation>
+        <translation>إجمالي مرات إلغاء التفعيل</translation>
     </message>
     <message>
         <source>Total Engagements</source>
-        <translation type="gpt-5-generated">إجمالي التفاعلات</translation>
+        <translation>إجمالي مرات التفعيل</translation>
     </message>
     <message>
         <source>Time Using "Experimental Mode"</source>
-        <translation type="gpt-5-generated">الوقت باستخدام "الوضع التجريبي"</translation>
+        <translation>مدة استخدام "الوضع التجريبي"</translation>
     </message>
     <message>
         <source>Total Frog Chirps</source>
-        <translation type="gpt-5-generated">إجمالي نقيق الضفادع</translation>
+        <translation>إجمالي نقيق الضفدع</translation>
     </message>
     <message>
         <source>Total Frog Hops</source>
-        <translation type="gpt-5-generated">إجمالي قفزات الضفدع</translation>
+        <translation>إجمالي قفزات الضفدع</translation>
     </message>
     <message>
         <source>Total Drives</source>
-        <translation type="gpt-5-generated">إجمالي الرحلات</translation>
+        <translation>إجمالي الرحلات</translation>
     </message>
     <message>
         <source>Total Distance Driven</source>
-        <translation type="gpt-5-generated">إجمالي المسافة المقطوعة</translation>
+        <translation>إجمالي المسافة المقطوعة</translation>
     </message>
     <message>
         <source>Total Driving Time</source>
-        <translation type="gpt-5-generated">إجمالي وقت القيادة</translation>
+        <translation>إجمالي وقت القيادة</translation>
     </message>
     <message>
         <source>Total Frog Squeaks</source>
-        <translation type="gpt-5-generated">إجمالي صرير الضفادع</translation>
+        <translation>إجمالي صرير الضفدع</translation>
     </message>
     <message>
         <source>Total Goat Screams</source>
-        <translation type="gpt-5-generated">إجمالي صرخات الماعز</translation>
-    </message>
-    <message>
-        <source>Highest Acceleration Rate</source>
-        <translation type="gpt-5-generated">أعلى معدل تسارع</translation>
-    </message>
-    <message>
-        <source>Time Using Lateral Control</source>
-        <translation type="gpt-5-generated">الوقت باستخدام التحكم الجانبي</translation>
+        <translation>إجمالي صرخات الماعز</translation>
     </message>
     <message>
         <source>Longest Distance Without an Override</source>
-        <translation type="gpt-5-generated">أطول مسافة دون تدخل</translation>
-    </message>
-    <message>
-        <source>Time Using Longitudinal Control</source>
-        <translation type="gpt-5-generated">الوقت باستخدام التحكم الطولي</translation>
+        <translation>أطول مسافة دون تدخل يدوي</translation>
     </message>
     <message>
         <source>Driving Models:</source>
-        <translation type="gpt-5-generated">نماذج القيادة</translation>
+        <translation>نماذج القيادة:</translation>
     </message>
     <message>
         <source>Month</source>
-        <translation type="gpt-5-generated">شهر</translation>
+        <translation>الشهر</translation>
     </message>
     <message>
         <source>Total Overrides</source>
-        <translation type="gpt-5-generated">إجمالي التجاوزات</translation>
-    </message>
-    <message>
-        <source>Time Overriding openpilot</source>
-        <translation type="gpt-5-generated">تجاوز الوقت لـ openpilot</translation>
+        <translation>إجمالي التدخلات اليدوية</translation>
     </message>
     <message>
         <source>Random Events:</source>
-        <translation type="gpt-5-generated">أحداث عشوائية</translation>
+        <translation>الأحداث العشوائية:</translation>
     </message>
     <message>
         <source>Time Stopped</source>
-        <translation type="gpt-5-generated">توقف الوقت</translation>
+        <translation>مدة التوقف</translation>
     </message>
     <message>
         <source>Time Spent at Stoplights</source>
-        <translation type="gpt-5-generated">الوقت المُستغرق عند إشارات المرور</translation>
-    </message>
-    <message>
-        <source>Total Time Tracked</source>
-        <translation type="gpt-5-generated">إجمالي الوقت المُتعقَّب</translation>
+        <translation>الوقت عند إشارات المرور</translation>
     </message>
     <message>
         <source>UwUs</source>
-        <translation type="gpt-5-generated">UwUs</translation>
+        <translation>UwUs</translation>
     </message>
     <message>
         <source>Loch Ness Encounters</source>
-        <translation type="gpt-5-generated">لقاءات لوخ نيس</translation>
+        <translation>لقاءات وحش لوخ نيس</translation>
     </message>
     <message>
         <source>Visits to 1955</source>
-        <translation type="gpt-5-generated">زيارات إلى 1955</translation>
+        <translation>زيارات إلى عام 1955</translation>
     </message>
     <message>
         <source>Deja Vu Moments</source>
-        <translation type="gpt-5-generated">لحظات الديجافو</translation>
+        <translation>لحظات ديجا فو</translation>
     </message>
     <message>
         <source>Internet Explorer Weeeeeeees</source>
-        <translation type="gpt-5-generated">Internet Explorer وييييييييي</translation>
+        <translation>صرخات Internet Explorer الطويلة</translation>
     </message>
     <message>
         <source>HAL 9000 Denials</source>
-        <translation type="gpt-5-generated">رفض HAL 9000</translation>
+        <translation>رفض HAL 9000</translation>
     </message>
     <message>
         <source>openpilot Crashes</source>
-        <translation type="gpt-5-generated">أعطال openpilot</translation>
+        <translation>أعطال openpilot</translation>
     </message>
     <message>
         <source>This Is Fine Moments</source>
-        <translation type="gpt-5-generated">لحظات هذا جيد</translation>
+        <translation>لحظات «كل شيء بخير»</translation>
     </message>
     <message>
         <source>To Be Continued Moments</source>
-        <translation type="gpt-5-generated">لحظات تُستكمل لاحقًا</translation>
+        <translation>لحظات «يتبع»</translation>
     </message>
     <message>
         <source>Noices</source>
-        <translation type="gpt-5-generated">أصوات</translation>
+        <translation>لحظات «نايس»</translation>
     </message>
     <message>
         <source>Attempted Frog Murders</source>
-        <translation type="gpt-5-generated">محاولات قتل الضفادع</translation>
+        <translation>محاولات قتل الضفدع</translation>
     </message>
     <message>
         <source>Total Mail Received</source>
-        <translation type="gpt-5-generated">إجمالي البريد المستلم</translation>
+        <translation>إجمالي البريد المستلم</translation>
     </message>
     <message>
         <source> kilometer</source>
-        <translation type="gpt-5-generated"> كيلومتر</translation>
+        <translation> كيلومتر</translation>
     </message>
     <message>
         <source> kilometers</source>
-        <translation type="gpt-5-generated"> كيلومترات</translation>
+        <translation> كيلومترات</translation>
     </message>
     <message>
         <source> mile</source>
-        <translation type="gpt-5-generated"> ميل</translation>
+        <translation> ميل</translation>
     </message>
     <message>
         <source> miles</source>
-        <translation type="gpt-5-generated">أميال</translation>
+        <translation> أميال</translation>
     </message>
     <message>
         <source> day </source>
-        <translation type="gpt-5-generated">يوم</translation>
+        <translation> يوم </translation>
     </message>
     <message>
         <source> days </source>
-        <translation type="gpt-5-generated">أيام</translation>
+        <translation> أيام </translation>
     </message>
     <message>
         <source> hour </source>
-        <translation type="gpt-5-generated">ساعة</translation>
+        <translation> ساعة </translation>
     </message>
     <message>
         <source> hours </source>
-        <translation type="gpt-5-generated">ساعات</translation>
+        <translation> ساعات </translation>
     </message>
     <message>
         <source> minute</source>
-        <translation type="gpt-5-generated">دقيقة</translation>
+        <translation> دقيقة</translation>
     </message>
     <message>
         <source> minutes</source>
-        <translation type="gpt-5-generated"> دقائق</translation>
+        <translation> دقائق</translation>
     </message>
     <message>
         <source>km/h</source>
-        <translation type="gpt-5-generated">كم/ساعة</translation>
+        <translation>كم/س</translation>
     </message>
     <message>
         <source>mph</source>
-        <translation type="gpt-5-generated">ميل/ساعة</translation>
+        <translation>ميل/س</translation>
     </message>
     <message>
         <source>m/s²</source>
-        <translation type="gpt-5-generated">م/ث²</translation>
+        <translation>m/s²</translation>
     </message>
     <message>
         <source>Total </source>
-        <translation type="gpt-5-generated">الإجمالي</translation>
+        <translation>الإجمالي </translation>
     </message>
     <message>
         <source>% of </source>
-        <translation type="gpt-5-generated">% من</translation>
+        <translation>% من </translation>
     </message>
     <message>
         <source>Driving Personalities:</source>
-        <translation type="gpt-5-generated">شخصيات القيادة</translation>
+        <translation>أنماط القيادة:</translation>
     </message>
     <message>
-        <source>Time Spent in Weather:</source>
-        <translation type="gpt-5-generated">الوقت المستغرق في الطقس</translation>
+        <source>&lt;b&gt;Delete every recorded drive to free up space and clear personal footage off the device.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only the minute of footage you flagged while driving is kept, not the rest of that drive, and preserving a drive in "The Pond" keeps just its first minute the same way.</source>
+        <translation>&lt;b&gt;احذف جميع الرحلات المسجلة لتوفير مساحة وإزالة المقاطع الشخصية من الجهاز.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا تُحفظ إلا الدقيقة التي وضعت عليها علامة أثناء القيادة، وليس بقية الرحلة. كما أن حفظ رحلة في "The Pond" يُبقي دقيقتها الأولى فقط بالطريقة نفسها.</translation>
+    </message>
+    <message>
+        <source>Delete all driving footage and data? Flagged and preserved drives will be kept.</source>
+        <translation>هل تريد حذف جميع مقاطع وبيانات القيادة؟ ستبقى الرحلات التي وُضعت عليها علامة أو حُفظت.</translation>
+    </message>
+    <message>
+        <source>Delete failed...</source>
+        <translation>فشل الحذف...</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Delete openpilot's saved crash logs.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Bug reports sent after deleting won't include crash details until a new crash happens.</source>
+        <translation>&lt;b&gt;احذف سجلات أعطال openpilot المحفوظة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لن تتضمن تقارير الأخطاء المرسلة بعد الحذف تفاصيل الأعطال حتى يقع عطل جديد.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Delete or rename your recordings of the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Recordings are made with the "Screen Recorder" button on the driving screen. "DELETE ALL" removes every recording at once.</source>
+        <translation>&lt;b&gt;احذف تسجيلات شاشة القيادة أو أعد تسميتها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تُنشأ التسجيلات بزر "مسجل الشاشة" على شاشة القيادة. ويؤدي "حذف الكل" إلى إزالة جميع التسجيلات دفعة واحدة.</translation>
+    </message>
+    <message>
+        <source>Rename failed...</source>
+        <translation>فشلت إعادة التسمية...</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Back up the FrogPilot software, restore a backup to go back to that version, or delete ones you no longer need.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Restoring reboots the device on its own and puts the software back exactly as it was when the backup was made, without changing your settings. Automatic updates turn off after a restore until you update manually. "DELETE ALL" also removes the backups FrogPilot makes automatically.</source>
+        <translation>&lt;b&gt;أنشئ نسخة احتياطية من برنامج FrogPilot، أو استعد نسخة للرجوع إلى إصدارها، أو احذف النسخ التي لم تعد تحتاج إليها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تؤدي الاستعادة إلى إعادة تشغيل الجهاز تلقائيًا وإرجاع البرنامج تمامًا إلى حالته وقت إنشاء النسخة، من دون تغيير إعداداتك. تتوقف التحديثات التلقائية بعد الاستعادة حتى تُجري تحديثًا يدويًا. كما يزيل "حذف الكل" النسخ التي ينشئها FrogPilot تلقائيًا.</translation>
+    </message>
+    <message>
+        <source>That name can't be used. Names can only use letters, numbers, dashes, periods, and underscores, and "_auto" and "_in_progress" are reserved.</source>
+        <translation>لا يمكن استخدام هذا الاسم. يجب أن تقتصر الأسماء على الحروف والأرقام والشرطات والنقاط والشرطات السفلية، والاسمان "_auto" و"_in_progress" محجوزان.</translation>
+    </message>
+    <message>
+        <source>Compress this backup? It takes a bit longer, but the backup uses much less space.</source>
+        <translation>هل تريد ضغط هذه النسخة الاحتياطية؟ يستغرق ذلك وقتًا أطول قليلًا، لكنه يقلل المساحة المستخدمة كثيرًا.</translation>
+    </message>
+    <message>
+        <source>Backup failed...</source>
+        <translation>فشل إنشاء النسخة الاحتياطية...</translation>
+    </message>
+    <message>
+        <source>Delete all backups? This includes the backups FrogPilot makes automatically.</source>
+        <translation>هل تريد حذف جميع النسخ الاحتياطية؟ يشمل ذلك النسخ التي ينشئها FrogPilot تلقائيًا.</translation>
+    </message>
+    <message>
+        <source>Backups can't be restored while the car is on. Turn the car off and try again.</source>
+        <translation>لا يمكن استعادة النسخ الاحتياطية والسيارة قيد التشغيل. أوقف تشغيل السيارة وحاول مرة أخرى.</translation>
+    </message>
+    <message>
+        <source>Restore this backup? The device will reboot on its own once the restore finishes.</source>
+        <translation>هل تريد استعادة هذه النسخة الاحتياطية؟ سيُعاد تشغيل الجهاز تلقائيًا عند اكتمال الاستعادة.</translation>
+    </message>
+    <message>
+        <source>Restore failed...</source>
+        <translation>فشلت الاستعادة...</translation>
+    </message>
+    <message>
+        <source>Settings Backups</source>
+        <translation>نسخ الإعدادات الاحتياطية</translation>
+    </message>
+    <message>
+        <source>Delete all settings backups? This includes the copies FrogPilot saves automatically.</source>
+        <translation>هل تريد حذف جميع نسخ الإعدادات الاحتياطية؟ يشمل ذلك النسخ التي يحفظها FrogPilot تلقائيًا.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;See everything FrogPilot has tracked about your driving, or reset the numbers and start over.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Stats can only be reset while the car is off.</source>
+        <translation>&lt;b&gt;اعرض كل ما تتبعه FrogPilot عن قيادتك، أو أعد ضبط الأرقام وابدأ من جديد.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يمكن إعادة ضبط الإحصاءات إلا والسيارة متوقفة عن التشغيل.</translation>
+    </message>
+    <message>
+        <source>Stats can't be reset while the car is on. Turn the car off and try again.</source>
+        <translation>لا يمكن إعادة ضبط الإحصاءات والسيارة قيد التشغيل. أوقف تشغيل السيارة وحاول مرة أخرى.</translation>
+    </message>
+    <message>
+        <source>Total Collision Alerts</source>
+        <translation>إجمالي تنبيهات الاصطدام</translation>
+    </message>
+    <message>
+        <source>Distance Driven This Month</source>
+        <translation>المسافة المقطوعة هذا الشهر</translation>
+    </message>
+    <message>
+        <source>Time Driving (Daytime)</source>
+        <translation>وقت القيادة (نهارًا)</translation>
+    </message>
+    <message>
+        <source>Time openpilot Was Steering</source>
+        <translation>مدة تولي openpilot للتوجيه</translation>
+    </message>
+    <message>
+        <source>Time openpilot Controlled the Speed</source>
+        <translation>مدة تحكم openpilot في السرعة</translation>
+    </message>
+    <message>
+        <source>Highest openpilot Acceleration</source>
+        <translation>أعلى تسارع لـ openpilot</translation>
+    </message>
+    <message>
+        <source>Time Driving (Nighttime)</source>
+        <translation>وقت القيادة (ليلًا)</translation>
+    </message>
+    <message>
+        <source>Time Driving Manually</source>
+        <translation>وقت القيادة اليدوية</translation>
+    </message>
+    <message>
+        <source>Time Driven (Weather):</source>
+        <translation>وقت القيادة (الطقس):</translation>
+    </message>
+    <message>
+        <source>Recording in progress...</source>
+        <translation>التسجيل جارٍ...</translation>
+    </message>
+    <message>
+        <source>That name can't be used. Names can't contain slashes or dots at the start.</source>
+        <translation>لا يمكن استخدام هذا الاسم. لا يجوز أن تحتوي الأسماء على شرطات مائلة أو أن تبدأ بنقاط.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Save a copy of your current settings, restore a saved copy, or delete ones you no longer need.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Restoring applies the settings right away with no reboot needed. FrogPilot also saves a copy automatically whenever you change a setting; those show up in the list by date and time, and only the newest few are kept.</source>
+        <translation>&lt;b&gt;احفظ نسخة من إعداداتك الحالية، أو استعد نسخة محفوظة، أو احذف النسخ التي لم تعد تحتاج إليها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تُطبق الإعدادات فور الاستعادة من دون حاجة إلى إعادة التشغيل. ويحفظ FrogPilot نسخة تلقائيًا كلما غيّرت إعدادًا؛ وتظهر تلك النسخ في القائمة حسب التاريخ والوقت، ولا يُحتفظ إلا بأحدث عدة نسخ.</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotDevicePanel</name>
     <message>
         <source>Device Settings</source>
-        <translation type="gpt-5-generated">إعدادات الجهاز</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Settings that control how the device runs, powers off, and manages driving data.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إعدادات تتحكم في كيفية عمل الجهاز وإيقافه وإدارة بيانات القيادة.&lt;/b&gt;</translation>
+        <translation>إعدادات الجهاز</translation>
     </message>
     <message>
         <source>Device Shutdown Timer</source>
-        <translation type="gpt-5-generated">مؤقّت إيقاف تشغيل الجهاز</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Keep the device on for the set amount of time after a drive&lt;/b&gt; before it shuts down automatically.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أبقِ الجهاز يعمل لمدة الوقت المحدد بعد القيادة&lt;/b&gt; قبل أن ينطفئ تلقائيًا.</translation>
+        <translation>مؤقت إيقاف تشغيل الجهاز</translation>
     </message>
     <message>
         <source>Disable Logging</source>
-        <translation type="gpt-5-generated">تعطيل التسجيل</translation>
-    </message>
-    <message>
-        <source>WARNING: This will prevent your drives from being recorded and all data will be unobtainable!</source>
-        <translation type="gpt-5-generated">تحذير: سيمنع هذا تسجيل رحلاتك وسيصبح جميع البيانات غير قابلة للاسترداد!</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Prevent the device from saving driving data.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;منع الجهاز من حفظ بيانات القيادة.&lt;/b&gt;</translation>
+        <translation>تعطيل التسجيل</translation>
     </message>
     <message>
         <source>Disable Uploads</source>
-        <translation type="gpt-5-generated">تعطيل التحميلات</translation>
-    </message>
-    <message>
-        <source>WARNING: This will prevent your drives from being uploaded to &lt;b&gt;comma connect&lt;/b&gt; which will impact debugging and official support from comma!</source>
-        <translation type="gpt-5-generated">تحذير: سيمنع هذا رفع رحلاتك إلى &lt;b&gt;comma connect&lt;/b&gt; مما سيؤثر على تتبع الأخطاء والدعم الرسمي من comma!</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Prevent the device from uploading driving data.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;منع الجهاز من رفع بيانات القيادة.&lt;/b&gt;</translation>
+        <translation>تعطيل الرفع</translation>
     </message>
     <message>
         <source>High-Quality Recording</source>
-        <translation type="gpt-5-generated">تسجيل عالي الجودة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Save drive footage in higher video quality.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;احفظ لقطات القيادة بجودة فيديو أعلى.&lt;/b&gt;</translation>
+        <translation>تسجيل عالي الجودة</translation>
     </message>
     <message>
         <source>Low-Voltage Cutoff</source>
-        <translation type="gpt-5-generated">القطع عند الجهد المنخفض</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;While parked, if the battery voltage falls below the set level, the device shuts down&lt;/b&gt; to prevent excessive battery drain.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أثناء إيقاف السيارة، إذا انخفض جهد البطارية عن المستوى المحدد، فسيتم إيقاف تشغيل الجهاز&lt;/b&gt; لمنع استنزاف البطارية المفرط.</translation>
+        <translation>فصل الجهد المنخفض</translation>
     </message>
     <message>
         <source>Raise Temperature Limits</source>
-        <translation type="gpt-5-generated">رفع حدود الحرارة</translation>
-    </message>
-    <message>
-        <source>WARNING: Running at higher temperatures may damage your device!</source>
-        <translation type="gpt-5-generated">تحذير: التشغيل عند درجات حرارة أعلى قد يتلف جهازك!</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Allow the device to run at higher temperatures&lt;/b&gt; before throttling or shutting down. Use only if you understand the risks!</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اسمح للجهاز بالعمل في درجات حرارة أعلى&lt;/b&gt; قبل تقليل الأداء أو الإيقاف. استخدم هذا فقط إذا كنت تفهم المخاطر!</translation>
+        <translation>رفع حدود الحرارة</translation>
     </message>
     <message>
         <source>Use Konik Server</source>
-        <translation type="gpt-5-generated">استخدم Konik Server</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Upload driving data to "connect.konik.ai" instead of "connect.comma.ai".&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;حمّل بيانات القيادة إلى "connect.konik.ai" بدلًا من "connect.comma.ai".&lt;/b&gt;</translation>
+        <translation>استخدام خادم Konik</translation>
     </message>
     <message>
         <source>Screen Settings</source>
-        <translation type="gpt-5-generated">إعدادات الشاشة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Settings that control screen brightness, screen recording, and timeout duration.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إعدادات تتحكم في سطوع الشاشة وتسجيل الشاشة ومدة انتهاء المهلة.&lt;/b&gt;</translation>
+        <translation>إعدادات الشاشة</translation>
     </message>
     <message>
         <source>Screen Brightness (Offroad)</source>
-        <translation type="gpt-5-generated">سطوع الشاشة (خارج الطريق)</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The screen brightness while not driving.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;ساطع الشاشة أثناء عدم القيادة.&lt;/b&gt;</translation>
+        <translation>سطوع الشاشة (أثناء التوقف)</translation>
     </message>
     <message>
         <source>Screen Brightness (Onroad)</source>
-        <translation type="gpt-5-generated">سطوع الشاشة (على الطريق)</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The screen brightness while driving.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;سطوع الشاشة أثناء القيادة.&lt;/b&gt;</translation>
+        <translation>سطوع الشاشة (أثناء القيادة)</translation>
     </message>
     <message>
         <source>Screen Recorder</source>
-        <translation type="gpt-5-generated">مسجل الشاشة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Add a button to the driving screen to record the display.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أضف زرًا إلى شاشة القيادة لتسجيل العرض.&lt;/b&gt;</translation>
+        <translation>مسجل الشاشة</translation>
     </message>
     <message>
         <source>Screen Timeout (Offroad)</source>
-        <translation type="gpt-5-generated">مهلة إيقاف الشاشة (خارج الطريق)</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How long the screen stays on after being tapped while not driving.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدة بقاء الشاشة قيد التشغيل بعد لمسها أثناء عدم القيادة.&lt;/b&gt;</translation>
+        <translation>مهلة الشاشة (أثناء التوقف)</translation>
     </message>
     <message>
         <source>Screen Timeout (Onroad)</source>
-        <translation type="gpt-5-generated">مهلة إيقاف الشاشة (على الطريق)</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How long the screen stays on after being tapped while driving.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدة بقاء الشاشة قيد التشغيل بعد لمسها أثناء القيادة.&lt;/b&gt;</translation>
+        <translation>مهلة الشاشة (أثناء القيادة)</translation>
     </message>
     <message>
         <source>Standby Mode</source>
-        <translation type="gpt-5-generated">وضع الاستعداد</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Turn the screen off while driving and automatically wake it up for alerts or engagement state changes.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أطفئ الشاشة أثناء القيادة وأعد تشغيلها تلقائيًا عند وجود تنبيهات أو تغييرات في حالة التفعيل.&lt;/b&gt;</translation>
+        <translation>وضع الاستعداد</translation>
     </message>
     <message>
         <source>5 mins</source>
-        <translation type="gpt-5-generated">5 دقائق</translation>
+        <translation>5 دقائق</translation>
     </message>
     <message>
         <source> mins</source>
-        <translation type="gpt-5-generated"> دقائق</translation>
+        <translation> دقائق</translation>
     </message>
     <message>
         <source> hour</source>
-        <translation type="gpt-5-generated">ساعة</translation>
+        <translation> ساعة</translation>
     </message>
     <message>
         <source> hours</source>
-        <translation type="gpt-5-generated"> ساعات</translation>
+        <translation> ساعات</translation>
     </message>
     <message>
         <source>Disable Onroad Only</source>
-        <translation type="gpt-5-generated">تعطيل وضع الطريق فقط</translation>
+        <translation>التعطيل أثناء القيادة فقط</translation>
     </message>
     <message>
         <source> volts</source>
-        <translation type="gpt-5-generated"> فولت</translation>
+        <translation> فولت</translation>
     </message>
     <message>
         <source>Screen Off</source>
-        <translation type="gpt-5-generated">إيقاف الشاشة</translation>
+        <translation>إطفاء الشاشة</translation>
     </message>
     <message>
         <source>Auto</source>
-        <translation type="gpt-5-generated">تلقائي</translation>
+        <translation>تلقائي</translation>
     </message>
     <message>
         <source>Start Recording</source>
-        <translation type="gpt-5-generated">بدء التسجيل</translation>
+        <translation>بدء التسجيل</translation>
     </message>
     <message>
         <source>Stop Recording</source>
-        <translation type="gpt-5-generated">إيقاف التسجيل</translation>
+        <translation>إيقاف التسجيل</translation>
     </message>
     <message>
         <source> seconds</source>
-        <translation type="gpt-5-generated"> ثوانٍ</translation>
+        <translation> ثوانٍ</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Change how the device powers off, handles heat, and records your drives.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;غيّر طريقة إيقاف تشغيل الجهاز وتعامله مع الحرارة وتسجيله لرحلاتك.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How long the device stays on after you finish driving before it shuts itself off.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Shorter times use less of your car's battery. The lowest setting is 5 minutes.</source>
+        <translation>&lt;b&gt;حدد مدة بقاء الجهاز قيد التشغيل بعد انتهاء القيادة قبل أن يتوقف تلقائيًا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تستهلك المدد الأقصر قدرًا أقل من بطارية السيارة. أقل إعداد هو 5 دقائق.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Stop the device from saving anything from your drives.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Nothing is written to storage, so you won't be able to review your drives later or send a useful bug report.</source>
+        <translation>&lt;b&gt;امنع الجهاز من حفظ أي شيء من رحلاتك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لن تُكتب أي بيانات على وحدة التخزين، ولذلك لن تتمكن من مراجعة رحلاتك لاحقًا أو إرسال تقرير خطأ مفيد.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Stop the device from uploading your drives to "comma connect".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your drives are still saved on the device. comma uses uploads for debugging and official support, so turning this on limits the help they can give. "Disable Onroad Only" pauses uploads while you drive and lets them finish once you park, but only while the device is on Wi-Fi or Ethernet.</source>
+        <translation>&lt;b&gt;امنع الجهاز من رفع رحلاتك إلى "comma connect".&lt;/b&gt;&lt;br&gt;&lt;br&gt;ستظل الرحلات محفوظة على الجهاز. تستخدم comma البيانات المرفوعة لتصحيح الأخطاء وتقديم الدعم الرسمي، لذا فإن تفعيل هذا الخيار يحد من المساعدة التي يمكنها تقديمها. يوقف خيار "التعطيل أثناء القيادة فقط" الرفع خلال القيادة ويسمح بإكماله بعد التوقف، ولكن فقط عندما يكون الجهاز متصلًا عبر Wi-Fi أو Ethernet.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Record your drives in higher video quality.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This row only appears once "Disable Uploads" is on and "Disable Onroad Only" is off, since the larger files are not meant to be uploaded. The device needs to reboot for it to take effect.</source>
+        <translation>&lt;b&gt;سجّل رحلاتك بجودة فيديو أعلى.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يظهر هذا الصف إلا عند تفعيل "تعطيل الرفع" وإيقاف "التعطيل أثناء القيادة فقط"، لأن الملفات الأكبر غير مخصصة للرفع. يلزم إعادة تشغيل الجهاز لتطبيق التغيير.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Shut the device down when your car's battery drops below the voltage you pick.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This only happens while parked, and keeps the device from draining the battery too far to start the car.</source>
+        <translation>&lt;b&gt;أوقف تشغيل الجهاز عندما ينخفض جهد بطارية السيارة عن القيمة التي تختارها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يحدث ذلك إلا أثناء توقف السيارة، ويمنع الجهاز من استنزاف البطارية إلى مستوى قد يحول دون تشغيل السيارة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let the device run about 6 degrees Celsius hotter than normal before openpilot reacts to the heat.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Normally openpilot disengages and will not re-engage once the device gets hot, and drops back to the offroad screen if it keeps climbing. This makes both happen later. Running the device that hot can shorten its life or damage it, so only use this if you understand the risk.</source>
+        <translation>&lt;b&gt;اسمح للجهاز بالعمل عند حرارة أعلى من المعتاد بنحو 6 درجات مئوية قبل أن يستجيب openpilot للحرارة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;عادةً يلغي openpilot التفعيل ولا يسمح بإعادة التفعيل عندما يسخن الجهاز، ثم يعود إلى شاشة وضع عدم القيادة إذا استمرت الحرارة في الارتفاع. يؤخر هذا الخيار كلا الإجراءين. قد يؤدي تشغيل الجهاز بهذه الحرارة إلى تقصير عمره أو إتلافه، لذا لا تستخدمه إلا إذا كنت تدرك المخاطر.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Upload your drives to "stable.konik.ai" instead of "connect.comma.ai".&lt;/b&gt;&lt;br&gt;&lt;br&gt;The device needs to reboot for this to take effect.</source>
+        <translation>&lt;b&gt;ارفع رحلاتك إلى "stable.konik.ai" بدلًا من "connect.comma.ai".&lt;/b&gt;&lt;br&gt;&lt;br&gt;يلزم إعادة تشغيل الجهاز لتطبيق التغيير.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Change how bright the screen is, how long it stays on, and whether you can record it.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;غيّر سطوع الشاشة ومدة بقائها مضاءة وإمكانية تسجيلها.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How bright the screen is while you're not driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Auto" only follows the light around you while you are driving. While you are parked it is a fixed 50%, whatever the light is like.</source>
+        <translation>&lt;b&gt;حدد سطوع الشاشة عندما لا تقود.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يتبع خيار "تلقائي" الإضاءة المحيطة إلا أثناء القيادة. أما أثناء التوقف فيثبت السطوع عند 50% بغض النظر عن الإضاءة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How bright the screen is while you're driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Auto" matches the light around you, and "Screen Off" keeps the display dark until you tap it.</source>
+        <translation>&lt;b&gt;حدد سطوع الشاشة أثناء القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يضبط خيار "تلقائي" السطوع وفق الإضاءة المحيطة، بينما يبقي خيار "إطفاء الشاشة" الشاشة مظلمة حتى تلمسها.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add a button to the driving screen that records what's on it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your recordings are saved on the device and can be renamed or deleted under "Screen Recordings" in the "DATA" panel.</source>
+        <translation>&lt;b&gt;أضف زرًا إلى شاشة القيادة لتسجيل ما يظهر عليها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تُحفظ التسجيلات على الجهاز، ويمكن إعادة تسميتها أو حذفها من "تسجيلات الشاشة" في لوحة "البيانات".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How long the screen stays on after you tap it while not driving.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;حدد مدة بقاء الشاشة مضاءة بعد لمسها عندما لا تقود.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How long the screen stays on after you tap it while driving.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;حدد مدة بقاء الشاشة مضاءة بعد لمسها أثناء القيادة.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Turn the screen off while driving, and wake it up automatically for alerts or when openpilot engages or disengages.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Tapping the screen wakes it up too.</source>
+        <translation>&lt;b&gt;أطفئ الشاشة أثناء القيادة، وشغّلها تلقائيًا عند صدور التنبيهات أو تفعيل openpilot أو إلغاء تفعيله.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يمكن أيضًا تشغيلها بلمس الشاشة.</translation>
+    </message>
+    <message>
+        <source>Couldn't start recording. Check that there's enough free space and that a recording isn't already running.</source>
+        <translation>تعذر بدء التسجيل. تحقق من توفر مساحة كافية ومن عدم وجود تسجيل جارٍ بالفعل.</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotDriveSummary</name>
     <message>
         <source>Random Events Summary</source>
-        <translation type="gpt-5-generated">ملخص الأحداث العشوائية</translation>
+        <translation>ملخص الأحداث العشوائية</translation>
     </message>
     <message>
         <source>Drive Summary</source>
-        <translation type="gpt-5-generated">ملخص القيادة</translation>
+        <translation>ملخص الرحلة</translation>
     </message>
     <message>
         <source>UwUs</source>
-        <translation type="gpt-5-generated">UwUs</translation>
+        <translation>UwUs</translation>
     </message>
     <message>
         <source>Loch Ness Encounters</source>
-        <translation type="gpt-5-generated">لقاءات بحيرة لوخ نيس</translation>
+        <translation>لقاءات وحش لوخ نيس</translation>
     </message>
     <message>
         <source>Visits to 1955</source>
-        <translation type="gpt-5-generated">الزيارات إلى 1955</translation>
+        <translation>زيارات إلى عام 1955</translation>
     </message>
     <message>
         <source>Deja Vu Moments</source>
-        <translation type="gpt-5-generated">لحظات ديجا فو</translation>
+        <translation>لحظات ديجا فو</translation>
     </message>
     <message>
         <source>Internet Explorer Weeeeeeees</source>
-        <translation type="gpt-5-generated">إنترنت إكسبلورر وييييييييييس</translation>
+        <translation>صرخات Internet Explorer الطويلة</translation>
     </message>
     <message>
         <source>HAL 9000 Denials</source>
-        <translation type="gpt-5-generated">رفض HAL 9000</translation>
+        <translation>رفض HAL 9000</translation>
     </message>
     <message>
         <source>openpilot Crashes</source>
-        <translation type="gpt-5-generated">أعطال openpilot</translation>
+        <translation>أعطال openpilot</translation>
     </message>
     <message>
         <source>This Is Fine Moments</source>
-        <translation type="gpt-5-generated">لحظات «كل شيء على ما يرام»</translation>
+        <translation>لحظات «كل شيء بخير»</translation>
     </message>
     <message>
         <source>To Be Continued Moments</source>
-        <translation type="gpt-5-generated">اللحظات سيتم استكمالها لاحقًا</translation>
+        <translation>لحظات «يتبع»</translation>
     </message>
     <message>
         <source>Noices</source>
-        <translation type="gpt-5-generated">أصوات</translation>
+        <translation>لحظات «نايس»</translation>
     </message>
     <message>
         <source>Attempted Frog Murders</source>
-        <translation type="gpt-5-generated">محاولات قتل ضفادع</translation>
+        <translation>محاولات قتل الضفدع</translation>
     </message>
     <message>
         <source>Total Mail Received</source>
-        <translation type="gpt-5-generated">إجمالي البريد المستلم</translation>
+        <translation>إجمالي البريد المستلم</translation>
     </message>
     <message>
         <source>% of Drive With openpilot Engaged</source>
-        <translation type="gpt-5-generated">نسبة القيادة مع تشغيل openpilot</translation>
+        <translation>% من الرحلة مع تفعيل openpilot</translation>
     </message>
     <message>
         <source>Drive Distance</source>
-        <translation type="gpt-5-generated">مسافة القيادة</translation>
+        <translation>مسافة الرحلة</translation>
     </message>
     <message>
         <source>Drive Time</source>
-        <translation type="gpt-5-generated">وقت القيادة</translation>
+        <translation>مدة الرحلة</translation>
     </message>
     <message>
         <source>% of Drive In "Experimental Mode"</source>
-        <translation type="gpt-5-generated">٪ من القيادة في "الوضع التجريبي"</translation>
+        <translation>% من الرحلة في "الوضع التجريبي"</translation>
     </message>
     <message>
         <source>No Random Events Played!</source>
-        <translation type="gpt-5-generated">لم يتم تشغيل أي أحداث عشوائية!</translation>
+        <translation>لم تُشغّل أي أحداث عشوائية!</translation>
     </message>
     <message>
         <source> kilometer</source>
-        <translation type="gpt-5-generated">كيلومتر</translation>
+        <translation> كيلومتر</translation>
     </message>
     <message>
         <source> kilometers</source>
-        <translation type="gpt-5-generated"> كيلومترات</translation>
+        <translation> كيلومترات</translation>
     </message>
     <message>
         <source> mile</source>
-        <translation type="gpt-5-generated"> ميل</translation>
+        <translation> ميل</translation>
     </message>
     <message>
         <source> miles</source>
-        <translation type="gpt-5-generated"> أميال</translation>
+        <translation> أميال</translation>
     </message>
     <message>
         <source> day </source>
-        <translation type="gpt-5-generated">يوم</translation>
+        <translation> يوم </translation>
     </message>
     <message>
         <source> days </source>
-        <translation type="gpt-5-generated">أيام</translation>
+        <translation> أيام </translation>
     </message>
     <message>
         <source> hour </source>
-        <translation type="gpt-5-generated">ساعة</translation>
+        <translation> ساعة </translation>
     </message>
     <message>
         <source> hours </source>
-        <translation type="gpt-5-generated">ساعات</translation>
+        <translation> ساعات </translation>
     </message>
     <message>
         <source> minute</source>
-        <translation type="gpt-5-generated"> دقيقة</translation>
+        <translation> دقيقة</translation>
     </message>
     <message>
         <source> minutes</source>
-        <translation type="gpt-5-generated"> دقائق</translation>
+        <translation> دقائق</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotLateralPanel</name>
     <message>
         <source>Advanced Lateral Tuning</source>
-        <translation type="gpt-5-generated">الضبط الجانبي المتقدم</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Advanced steering control changes to fine-tune how openpilot drives.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تغييرات متقدمة في التحكم بالتوجيه لضبط طريقة قيادة openpilot بدقة.&lt;/b&gt;</translation>
+        <translation>الضبط الجانبي المتقدم</translation>
     </message>
     <message>
         <source>Actuator Delay (Default: %1)</source>
-        <translation type="gpt-5-generated">تأخير المشغّل (الافتراضي: %1)</translation>
+        <translation>تأخر المشغّل (الافتراضي: %1)</translation>
     </message>
     <message>
         <source>Actuator Delay</source>
-        <translation type="gpt-5-generated">تأخير المشغّل</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The time between openpilot's steering command and the vehicle's response.&lt;/b&gt; Increase if the vehicle reacts late; decrease if it feels jumpy. Auto-learned by default.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;الوقت بين أمر توجيه openpilot واستجابة السيارة.&lt;/b&gt; زِده إذا كانت استجابة السيارة متأخرة؛ خفِّضه إذا بدا السلوك متقلبًا. يُتعلَّم تلقائيًا افتراضيًا.</translation>
+        <translation>تأخر المشغّل</translation>
     </message>
     <message>
         <source>Friction (Default: %1)</source>
-        <translation type="gpt-5-generated">الاحتكاك (الإعداد الافتراضي: %1)</translation>
+        <translation>الاحتكاك (الافتراضي: %1)</translation>
     </message>
     <message>
         <source>Friction</source>
-        <translation type="gpt-5-generated">الاحتكاك</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Compensates for steering friction.&lt;/b&gt; Increase if the wheel sticks near center; decrease if it jitters. Auto-learned by default.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;يعوّض احتكاك التوجيه.&lt;/b&gt; زد إذا كان المقود يعلق قرب المنتصف؛ وخفّض إذا كان يرتجف. يتعلّم تلقائيًا افتراضيًا.</translation>
+        <translation>الاحتكاك</translation>
     </message>
     <message>
         <source>Kp Factor (Default: %1)</source>
-        <translation type="gpt-5-generated">عامل Kp (الافتراضي: %1)</translation>
+        <translation>معامل Kp (الافتراضي: %1)</translation>
     </message>
     <message>
         <source>Kp Factor</source>
-        <translation type="gpt-5-generated">عامل Kp</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How strongly openpilot corrects lane position.&lt;/b&gt; Higher is tighter but twitchier; lower is smoother but slower. Auto-learned by default.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى قوة تصحيح openpilot لوضعية المسار.&lt;/b&gt; قيمة أعلى أشدّ لكنها أكثر ارتعاشًا؛ قيمة أقل أكثر سلاسة لكنها أبطأ. يتعلّم تلقائيًا افتراضيًا.</translation>
+        <translation>معامل Kp</translation>
     </message>
     <message>
         <source>Lateral Acceleration (Default: %1)</source>
-        <translation type="gpt-5-generated">التسارع الجانبي (الافتراضي: %1)</translation>
+        <translation>التسارع الجانبي (الافتراضي: %1)</translation>
     </message>
     <message>
         <source>Lateral Acceleration</source>
-        <translation type="gpt-5-generated">التسارع الجانبي</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Maps steering torque to turning response.&lt;/b&gt; Increase for sharper turns; decrease for gentler steering. Auto-learned by default.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;يحوّل عزم توجيه الخرائط إلى استجابة الانعطاف.&lt;/b&gt; زِد لإجراء منعطفات أكثر حدة؛ وخفّض لتوجيه أكثر نعومة. يتعلم تلقائيًا افتراضيًا.</translation>
+        <translation>التسارع الجانبي</translation>
     </message>
     <message>
         <source>Steer Ratio (Default: %1)</source>
-        <translation type="gpt-5-generated">نسبة التوجيه (الافتراضي: %1)</translation>
+        <translation>نسبة التوجيه (الافتراضية: %1)</translation>
     </message>
     <message>
         <source>Steer Ratio</source>
-        <translation type="gpt-5-generated">نسبة التوجيه</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The relationship between steering wheel rotation and road wheel angle.&lt;/b&gt; Increase if steering feels too quick or twitchy; decrease if it feels too slow or weak. Auto-learned by default.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;العلاقة بين دوران عجلة القيادة وزاوية عجلات الطريق.&lt;/b&gt; زدها إذا بدا التوجيه سريعًا أو عصبيًا؛ أنقصها إذا بدا بطيئًا أو ضعيفًا. يتم التعلم تلقائيًا افتراضيًا.</translation>
+        <translation>نسبة التوجيه</translation>
     </message>
     <message>
         <source>Force Auto-Tune On</source>
-        <translation type="gpt-5-generated">فرض تشغيل الضبط التلقائي</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Force-enable openpilot's live auto-tuning for "Friction" and "Lateral Acceleration".&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تمكين قسري للضبط التلقائي المباشر في openpilot لخاصيتي "Friction" و"Lateral Acceleration".&lt;/b&gt;</translation>
+        <translation>فرض تشغيل الضبط التلقائي</translation>
     </message>
     <message>
         <source>Force Auto-Tune Off</source>
-        <translation type="gpt-5-generated">إيقاف الضبط التلقائي بالقوة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Force-disable openpilot's live auto-tuning for "Friction" and "Lateral Acceleration" and use the set value instead.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تعطيل قسري لخاصية الضبط التلقائي الحي لـ openpilot لقيم "Friction" و"Lateral Acceleration" واستخدام القيمة المحددة بدلاً منها.&lt;/b&gt;</translation>
+        <translation>فرض إيقاف الضبط التلقائي</translation>
     </message>
     <message>
         <source>Force Torque Controller</source>
-        <translation type="gpt-5-generated">متحكم عزم القوة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Use torque-based steering control instead of angle-based control for smoother lane keeping, especially in curves.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;استخدم التحكم في التوجيه المعتمد على العزم بدلًا من التحكم المعتمد على الزاوية لتحقيق ثبات أكثر سلاسة داخل المسار، خاصةً في المنعطفات.&lt;/b&gt;</translation>
+        <translation>فرض استخدام متحكم العزم</translation>
     </message>
     <message>
         <source>Always On Lateral</source>
-        <translation type="gpt-5-generated">التوجيه الجانبي دائم التشغيل</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;openpilot's steering remains active even when the accelerator or brake pedals are pressed.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;نظام التوجيه في openpilot يظل نشطًا حتى عند الضغط على دواسة الوقود أو الفرامل.&lt;/b&gt;</translation>
+        <translation>التوجيه الجانبي الدائم</translation>
     </message>
     <message>
         <source>Enable With Cruise Control</source>
-        <translation type="gpt-5-generated">التفعيل مع نظام تثبيت السرعة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Enable "Always On Lateral" whenever "Cruise Control" is on, even when openpilot is not engaged.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;فعّل "Always On Lateral" كلما كان "Cruise Control" قيد التشغيل، حتى عندما لا يكون openpilot مفعّلًا.&lt;/b&gt;</translation>
+        <translation>التفعيل مع مثبت السرعة</translation>
     </message>
     <message>
         <source>Enable With LKAS</source>
-        <translation type="gpt-5-generated">التفعيل مع LKAS</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Enable "Always On Lateral" whenever "LKAS" is on, even when openpilot is not engaged.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;فعّل "Always On Lateral" كلما كان "LKAS" مفعّلًا، حتى عندما لا يكون openpilot مفعّلًا.&lt;/b&gt;</translation>
+        <translation>التفعيل مع LKAS</translation>
     </message>
     <message>
         <source>Pause on Brake Press Below</source>
-        <translation type="gpt-5-generated">إيقاف مؤقت عند ضغط المكابح أدناه</translation>
+        <translation>الإيقاف المؤقت عند ضغط المكابح دون</translation>
     </message>
     <message>
         <source>&lt;b&gt;Pause "Always On Lateral" below the set speed while the brake pedal is pressed.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أوقف مؤقتًا "Always On Lateral" أدناه السرعة المحددة أثناء الضغط على دواسة الفرامل.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;أوقف "التوجيه الجانبي الدائم" مؤقتًا دون السرعة المضبوطة أثناء ضغط دواسة المكابح.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Lane Changes</source>
-        <translation type="gpt-5-generated">تغييرات المسار</translation>
+        <translation>تغيير المسار</translation>
     </message>
     <message>
         <source>&lt;b&gt;Allow openpilot to change lanes.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اسمح لـ openpilot بتغيير المسارات.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;اسمح لـ openpilot بتغيير المسار.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Automatic Lane Changes</source>
-        <translation type="gpt-5-generated">تغييرات المسار التلقائية</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;When the turn signal is on, openpilot will automatically change lanes.&lt;/b&gt; No steering-wheel nudge required!</source>
-        <translation type="gpt-5-generated">&lt;b&gt;عند تشغيل إشارة الانعطاف، سيقوم openpilot بتغيير المسار تلقائيًا.&lt;/b&gt; لا حاجة لدفعة على عجلة القيادة!</translation>
+        <translation>تغيير المسار التلقائي</translation>
     </message>
     <message>
         <source>Lane Change Delay</source>
-        <translation type="gpt-5-generated">تأخير تغيير المسار</translation>
+        <translation>مهلة تغيير المسار</translation>
     </message>
     <message>
         <source>&lt;b&gt;Delay between turn signal activation and the start of an automatic lane change.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;التأخير بين تفعيل إشارة الانعطاف وبداية تغيير المسار التلقائي.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;حدد المهلة بين تشغيل إشارة الانعطاف وبدء تغيير المسار تلقائيًا.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Minimum Lane Change Speed</source>
-        <translation type="gpt-5-generated">السرعة الدنيا لتغيير المسار</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Lowest speed at which openpilot will change lanes.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أدنى سرعة يقوم عندها openpilot بتغيير المسار.&lt;/b&gt;</translation>
+        <translation>الحد الأدنى لسرعة تغيير المسار</translation>
     </message>
     <message>
         <source>Minimum Lane Width</source>
-        <translation type="gpt-5-generated">أدنى عرض للمسار</translation>
+        <translation>الحد الأدنى لعرض المسار</translation>
     </message>
     <message>
         <source>&lt;b&gt;Prevent automatic lane changes into lanes narrower than the set width.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;منع تغييرات المسار التلقائية إلى مسارات أضيق من العرض المحدد.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;امنع تغيير المسار تلقائيًا إلى مسارات أضيق من العرض المضبوط.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>One Lane Change Per Signal</source>
-        <translation type="gpt-5-generated">تغيير مسار واحد لكل إشارة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Limit automatic lane changes to one per turn-signal activation.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;حدّد تغييرات المسار التلقائية إلى مرة واحدة لكل تفعيل لإشارة الانعطاف.&lt;/b&gt;</translation>
+        <translation>تغيير واحد للمسار لكل إشارة</translation>
     </message>
     <message>
         <source>Lateral Tuning</source>
-        <translation type="gpt-5-generated">الضبط الجانبي</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Miscellaneous steering control changes&lt;/b&gt; to fine-tune how openpilot drives.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تغييرات متنوعة في التحكم بالتوجيه&lt;/b&gt; لضبط كيفية قيادة openpilot بدقة.</translation>
-    </message>
-    <message>
-        <source>Force Turn Desires Below Lane Change Speed</source>
-        <translation type="gpt-5-generated">فرض رغبات الانعطاف تحت سرعة تغيير المسار</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;While driving below the minimum lane change speed with an active turn signal, instruct openpilot to turn left/right.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أثناء القيادة بسرعة أقل من الحد الأدنى لتغيير المسار ومع تشغيل إشارة الانعطاف، وجّه openpilot للانعطاف يسارًا/يمينًا.&lt;/b&gt;</translation>
+        <translation>الضبط الجانبي</translation>
     </message>
     <message>
         <source>Quality of Life</source>
-        <translation type="gpt-5-generated">جودة الحياة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Steering control changes to fine-tune how openpilot drives.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تغييرات التحكم بالتوجيه لضبط كيفية قيادة openpilot بدقة.&lt;/b&gt;</translation>
+        <translation>تحسينات الاستخدام</translation>
     </message>
     <message>
         <source>Pause Steering Below</source>
-        <translation type="gpt-5-generated">إيقاف التوجيه مؤقتًا أدناه</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Pause steering below the set speed.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أوقف التوجيه عند السرعة المضبوطة أو أقل.&lt;/b&gt;</translation>
+        <translation>إيقاف التوجيه مؤقتًا دون</translation>
     </message>
     <message>
         <source>Instant</source>
-        <translation type="gpt-5-generated">فوري</translation>
+        <translation>فوري</translation>
     </message>
     <message>
         <source> second</source>
-        <translation type="gpt-5-generated">ثانية</translation>
+        <translation> ثانية</translation>
     </message>
     <message>
         <source> seconds</source>
-        <translation type="gpt-5-generated"> ثوانٍ</translation>
+        <translation> ثوانٍ</translation>
     </message>
     <message>
         <source>Turn Signal Only</source>
-        <translation type="gpt-5-generated">إشارات الانعطاف فقط</translation>
+        <translation>مع إشارة الانعطاف فقط</translation>
     </message>
     <message>
         <source>Reset &lt;b&gt;Actuator Delay&lt;/b&gt; to its default value?</source>
-        <translation type="gpt-5-generated">إعادة تعيين &lt;b&gt;زمن تأخر المُشغِّل&lt;/b&gt; إلى قيمته الافتراضية؟</translation>
+        <translation>هل تريد إعادة &lt;b&gt;تأخر المشغّل&lt;/b&gt; إلى قيمته الافتراضية؟</translation>
     </message>
     <message>
         <source>Reset &lt;b&gt;Friction&lt;/b&gt; to its default value?</source>
-        <translation type="gpt-5-generated">إعادة تعيين &lt;b&gt;الاحتكاك&lt;/b&gt; إلى قيمته الافتراضية؟</translation>
+        <translation>هل تريد إعادة &lt;b&gt;الاحتكاك&lt;/b&gt; إلى قيمته الافتراضية؟</translation>
     </message>
     <message>
         <source>Reset &lt;b&gt;Kp Factor&lt;/b&gt; to its default value?</source>
-        <translation type="gpt-5-generated">إعادة تعيين &lt;b&gt;عامل Kp&lt;/b&gt; إلى قيمته الافتراضية؟</translation>
-    </message>
-    <message>
-        <source>Reset &lt;b&gt;Lateral Accel&lt;/b&gt; to its default value?</source>
-        <translation type="gpt-5-generated">إعادة ضبط &lt;b&gt;التسارع الجانبي&lt;/b&gt; إلى قيمته الافتراضية؟</translation>
+        <translation>هل تريد إعادة &lt;b&gt;معامل Kp&lt;/b&gt; إلى قيمته الافتراضية؟</translation>
     </message>
     <message>
         <source>Reset &lt;b&gt;Steer Ratio&lt;/b&gt; to its default value?</source>
-        <translation type="gpt-5-generated">إعادة ضبط &lt;b&gt;Steer Ratio&lt;/b&gt; إلى قيمته الافتراضية؟</translation>
-    </message>
-    <message>
-        <source>Lateral Accel (Default: %1)</source>
-        <translation type="gpt-5-generated">التسارع الجانبي (الافتراضي: %1)</translation>
+        <translation>هل تريد إعادة &lt;b&gt;نسبة التوجيه&lt;/b&gt; إلى قيمتها الافتراضية؟</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="gpt-5-generated">إيقاف</translation>
+        <translation>إيقاف</translation>
     </message>
     <message>
         <source> foot</source>
-        <translation type="gpt-5-generated">قدم</translation>
+        <translation> قدم</translation>
     </message>
     <message>
         <source> feet</source>
-        <translation type="gpt-5-generated">قدم</translation>
+        <translation> أقدام</translation>
     </message>
     <message>
         <source> mph</source>
-        <translation type="gpt-5-generated">ميل/ساعة</translation>
+        <translation> ميل/س</translation>
     </message>
     <message>
         <source> meter</source>
-        <translation type="gpt-5-generated"> متر</translation>
+        <translation> متر</translation>
     </message>
     <message>
         <source> meters</source>
-        <translation type="gpt-5-generated">أمتار</translation>
+        <translation> أمتار</translation>
     </message>
     <message>
         <source> km/h</source>
-        <translation type="gpt-5-generated">كم/س</translation>
+        <translation> كم/س</translation>
     </message>
     <message>
         <source>Neural Network Feedforward (NNFF)</source>
-        <translation type="gpt-5-generated">التغذية الأمامية للشبكة العصبية (NNFF)</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Twilsonco's "Neural Network FeedForward" controller.&lt;/b&gt; Uses a trained neural network model to predict steering torque based on vehicle speed, roll, and past/future planned path data for smoother, model-based steering.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;وحدة التحكم «Neural Network FeedForward» الخاصة بـ Twilsonco.&lt;/b&gt; تستخدم نموذج شبكة عصبية مدرّبة للتنبؤ بعزم التوجيه بناءً على سرعة المركبة، والميل، وبيانات المسار المخططة السابقة/اللاحقة لقيادة أكثر سلاسة قائمة على النموذج.</translation>
+        <translation>التغذية الأمامية بالشبكة العصبية (NNFF)</translation>
     </message>
     <message>
         <source>Neural Network Feedforward (NNFF) Lite</source>
-        <translation type="gpt-5-generated">التغذية الأمامية للشبكة العصبية (NNFF) لايت</translation>
+        <translation>التغذية الأمامية المبسطة بالشبكة العصبية (NNFF)</translation>
     </message>
     <message>
-        <source>&lt;b&gt;A lightweight version of Twilsonco's "Neural Network FeedForward" controller.&lt;/b&gt; Uses the "look-ahead" planned lateral jerk logic from the full model to help smoothen steering adjustments in curves, but does not use the full neural network for torque calculation.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إصدار خفيف من متحكم Twilsonco "Neural Network FeedForward".&lt;/b&gt; يستخدم منطق التسارع الجانبي المتوقع "look-ahead" من النموذج الكامل للمساعدة في تنعيم تعديلات التوجيه في المنحنيات، لكنه لا يستخدم شبكة عصبية كاملة لحساب العزم.</translation>
+        <source>&lt;b&gt;Hand-set the steering numbers openpilot normally works out for itself, and switch that learning on or off.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Wrong values show up as a wheel that feels twitchy or lazy. Every number has a "Reset" button that puts your car's original value back.</source>
+        <translation>&lt;b&gt;اضبط يدويًا قيم التوجيه التي يحسبها openpilot عادةً بنفسه، وشغّل ذلك التعلم أو أوقفه.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تظهر القيم الخاطئة في صورة عجلة متوترة أو بطيئة الاستجابة. لكل قيمة زر "إعادة الضبط" يعيد القيمة الأصلية لسيارتك.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How long your car takes to respond after openpilot turns the wheel.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it if your car reacts late. Lower it if the steering feels jumpy. openpilot learns this on its own by default.</source>
+        <translation>&lt;b&gt;حدد الوقت الذي تستغرقه سيارتك للاستجابة بعد أن يدير openpilot عجلة القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة إذا تأخرت استجابة السيارة، واخفضها إذا بدا التوجيه متوترًا. يتعلم openpilot هذه القيمة تلقائيًا بصورة افتراضية.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How much extra effort openpilot uses to get the wheel moving off center.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it if the wheel sticks near center and openpilot is slow to start correcting. Lower it if the wheel jitters on a straight road.</source>
+        <translation>&lt;b&gt;حدد مقدار القوة الإضافية التي يستخدمها openpilot لتحريك عجلة القيادة بعيدًا عن المنتصف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة إذا علقت العجلة قرب المنتصف وتأخر openpilot في بدء التصحيح، واخفضها إذا اهتزت العجلة على طريق مستقيم.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How hard openpilot pushes the wheel to pull your car back to the middle of the lane.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it if your car sits off to one side or is slow to come back. Lower it if the wheel feels twitchy or keeps overshooting. openpilot never changes this one on its own.</source>
+        <translation>&lt;b&gt;حدد مقدار القوة التي يطبقها openpilot على عجلة القيادة لإعادة السيارة إلى منتصف المسار.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة إذا بقيت السيارة إلى أحد الجانبين أو عادت ببطء، واخفضها إذا بدت العجلة متوترة أو تجاوزت المنتصف باستمرار. لا يغيّر openpilot هذه القيمة تلقائيًا مطلقًا.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How much steering effort openpilot uses to turn your car, where lower values make it steer harder and higher values make it steer more gently.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Lower it if your car drifts wide in curves. Raise it if the car turns in more sharply than you want.</source>
+        <translation>&lt;b&gt;حدد مقدار جهد التوجيه الذي يستخدمه openpilot لتدوير السيارة؛ فالقيم الأقل تجعل التوجيه أقوى، والقيم الأعلى تجعله ألطف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;اخفض القيمة إذا اتسع انحراف السيارة في المنعطفات، وارفعها إذا انعطفت السيارة بحدة أكبر مما تريد.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far your steering wheel turns to swing the front wheels a set amount, where raising it makes openpilot turn the wheel further for the same corner.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Lower it if openpilot feels twitchy or keeps overshooting the middle of the lane. Raise it if openpilot reacts too slowly and lets the car drift wide. openpilot learns this on its own by default.</source>
+        <translation>&lt;b&gt;حدد مقدار دوران عجلة القيادة اللازم لتدوير العجلتين الأماميتين بمقدار معين؛ فرفع القيمة يجعل openpilot يدير عجلة القيادة أكثر للمنعطف نفسه.&lt;/b&gt;&lt;br&gt;&lt;br&gt;اخفض القيمة إذا بدا openpilot متوترًا أو استمر في تجاوز منتصف المسار، وارفعها إذا كانت استجابته بطيئة وسمح للسيارة بالانحراف إلى الخارج. يتعلم openpilot هذه القيمة تلقائيًا بصورة افتراضية.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let openpilot work out its own steering values on a car that doesn't do this automatically.&lt;/b&gt;&lt;br&gt;&lt;br&gt;What openpilot learns replaces the numbers you set, so those rows disappear while this is on.</source>
+        <translation>&lt;b&gt;اسمح لـ openpilot بحساب قيم التوجيه بنفسه في سيارة لا تفعل ذلك تلقائيًا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تحل القيم التي يتعلمها openpilot محل القيم التي تضبطها، لذلك تختفي صفوفها أثناء تشغيل هذا الخيار.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Stop openpilot from working out its own steering values, and use the numbers you set instead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only offered on cars that normally tune themselves.</source>
+        <translation>&lt;b&gt;امنع openpilot من حساب قيم التوجيه بنفسه، واستخدم القيم التي تضبطها بدلًا منها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يتوفر إلا للسيارات التي تضبط نفسها تلقائيًا في العادة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch openpilot to steering by effort instead of by wheel angle, which usually holds the lane more smoothly through curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only offered on cars that don't already steer this way. Changing this while driving asks you to reboot.</source>
+        <translation>&lt;b&gt;حوّل openpilot إلى التوجيه حسب القوة بدلًا من زاوية العجلة، ما يحافظ عادةً على المسار بسلاسة أكبر عبر المنعطفات.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يتوفر إلا للسيارات التي لا تستخدم هذه الطريقة أصلًا. سيُطلب منك إعادة التشغيل إذا غيّرت هذا أثناء القيادة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot keeps steering for you even when it isn't controlling the gas and brake, so it holds your lane when you press a pedal, cancel, or haven't engaged openpilot at all.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It steers from the moment your car's cruise control is switched on until you switch that back off or shift out of drive, and it pauses while you hold the brake below the speed set in "Pause on Brake Press Below". On the newer Hyundai, Kia and Genesis cars where openpilot does not handle the gas and brake, the LKAS button takes the place of cruise control.</source>
+        <translation>&lt;b&gt;يواصل openpilot التوجيه حتى عندما لا يتحكم بالتسارع والكبح، فيحافظ على مسارك عند ضغط إحدى الدواستين أو الإلغاء أو حتى قبل تفعيل openpilot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يبدأ التوجيه منذ تشغيل مثبت السرعة في السيارة ويستمر حتى إيقافه أو الخروج من وضع القيادة، ويتوقف مؤقتًا عند إبقاء المكابح مضغوطة دون السرعة المحددة في "الإيقاف المؤقت عند ضغط المكابح دون". في سيارات Hyundai وKia وGenesis الأحدث التي لا يتولى فيها openpilot التسارع والكبح، يحل زر LKAS محل مثبت السرعة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Keep steering the whole time your car's cruise control is switched on, even before you set a speed and after you cancel.&lt;/b&gt;&lt;br&gt;&lt;br&gt;With this off, openpilot only keeps steering while your car's cruise control is actually engaged. Tapping the gas is fine, but pressing the brake switches your cruise control off, and the steering stops with it.</source>
+        <translation>&lt;b&gt;استمر في التوجيه طوال فترة تشغيل مثبت السرعة في السيارة، حتى قبل ضبط سرعة وبعد الإلغاء.&lt;/b&gt;&lt;br&gt;&lt;br&gt;عند إيقاف هذا الخيار، لا يواصل openpilot التوجيه إلا عندما يكون مثبت السرعة مفعّلًا فعليًا. لا بأس بلمس دواسة الوقود، لكن ضغط المكابح يوقف مثبت السرعة ويتوقف التوجيه معه.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Use the LKAS button to arm steering, so openpilot keeps steering even when it is not engaged.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot does not read your car's LKAS status for this. It starts every drive disarmed and each press of the LKAS button flips it, so expect one press after starting the car. With this off, steering stops as soon as openpilot is no longer engaged, and the LKAS button is free to reassign under "LKAS Button".</source>
+        <translation>&lt;b&gt;استخدم زر LKAS لتسليح التوجيه كي يواصل openpilot التوجيه حتى عندما لا يكون مفعّلًا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يقرأ openpilot حالة LKAS في سيارتك لهذا الغرض. تبدأ كل رحلة والتوجيه غير مسلح، وتبدّل كل ضغطة على زر LKAS حالته، لذا توقّع ضغطة واحدة بعد تشغيل السيارة. عند إيقاف هذا الخيار، يتوقف التوجيه بمجرد إلغاء تفعيل openpilot، ويمكن عندها إعادة تعيين زر LKAS ضمن "زر LKAS".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;With your turn signal on, openpilot starts the lane change on its own instead of waiting for a small push on the wheel from you.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It waits out "Lane Change Delay" before moving over, skips the move below the minimum lane change speed, and stays out of lanes narrower than any "Minimum Lane Width" you set. It only holds off for a car beside you if your car came with factory blind spot monitoring, so without that hardware there is no blind spot check at all. Check that the lane is clear yourself before you signal.</source>
+        <translation>&lt;b&gt;عند تشغيل إشارة الانعطاف، يبدأ openpilot تغيير المسار تلقائيًا بدلًا من انتظار دفعة خفيفة منك على عجلة القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ينتظر انقضاء "مهلة تغيير المسار" قبل الانتقال، ولا ينتقل دون الحد الأدنى لسرعة تغيير المسار، ويتجنب المسارات الأضيق من "الحد الأدنى لعرض المسار" الذي ضبطته. ولا يؤخر المناورة بسبب وجود سيارة بجانبك إلا إذا كانت سيارتك مزودة من المصنع بنظام لمراقبة النقطة العمياء؛ وبدون هذا النظام لا يُجرى أي فحص للنقطة العمياء. تحقق بنفسك من خلو المسار قبل تشغيل الإشارة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;The slowest speed at which openpilot will change lanes for you.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Below this speed you steer into the lane change yourself. Set it to "Any speed" to let openpilot change lanes at any speed, but that also switches off "Steer Into Turns Below Lane Change Speed", which only ever runs below this number.</source>
+        <translation>&lt;b&gt;حدد أدنى سرعة يغيّر عندها openpilot المسار نيابةً عنك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;دون هذه السرعة، تتولى أنت توجيه السيارة لتغيير المسار. اضبطها على "أي سرعة" للسماح لـ openpilot بتغيير المسار عند أي سرعة، لكن ذلك يوقف أيضًا "المساعدة على الانعطاف دون سرعة تغيير المسار"، التي لا تعمل إلا دون هذه القيمة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Only one lane change per turn signal.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Switch the signal off and back on to change lanes again. Lane changes you start yourself by pushing the wheel count toward this too.</source>
+        <translation>&lt;b&gt;اسمح بتغيير واحد فقط للمسار لكل تشغيل لإشارة الانعطاف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;أوقف الإشارة ثم شغّلها مجددًا لتغيير المسار مرة أخرى. تُحتسب أيضًا تغييرات المسار التي تبدأها بنفسك بدفع عجلة القيادة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch openpilot's steering over to a neural network for a smoother wheel, and have it steer into turns when you signal below your minimum lane change speed.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;حوّل توجيه openpilot إلى شبكة عصبية لحركة أكثر سلاسة للعجلة، واجعله يساعد على التوجيه داخل المنعطفات عند تشغيل الإشارة دون الحد الأدنى لسرعة تغيير المسار.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>Steer Into Turns Below Lane Change Speed</source>
+        <translation>المساعدة على الانعطاف دون سرعة تغيير المسار</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;With your turn signal on below your minimum lane change speed, openpilot steers with you into the turn instead of pulling back toward the lane you're leaving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Use it for intersections and tight exit ramps, where openpilot normally works against your steering. You still choose where and when to turn.</source>
+        <translation>&lt;b&gt;عند تشغيل إشارة الانعطاف دون الحد الأدنى لسرعة تغيير المسار، يساعدك openpilot على التوجيه داخل المنعطف بدلًا من السحب نحو المسار الذي تغادره.&lt;/b&gt;&lt;br&gt;&lt;br&gt;استخدمه عند التقاطعات ومخارج الطرق الضيقة، حيث يعاكس openpilot توجيهك عادةً. تظل أنت من يختار مكان ووقت الانعطاف.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot steers using a model trained on real driving data from cars like yours, which usually holds the lane more steadily and tracks curves more closely.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only appears when a trained model matches your car. While it's on it takes over the "Friction" and "Lateral Acceleration" tuning, so those two rows disappear. Built by Twilsonco.</source>
+        <translation>&lt;b&gt;يوجّه openpilot باستخدام نموذج مدرّب على بيانات قيادة حقيقية من سيارات مماثلة لسيارتك، ما يحافظ عادةً على المسار بثبات أكبر ويتتبع المنعطفات بدقة أعلى.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يظهر إلا عند توفر نموذج مدرّب يطابق سيارتك. أثناء تشغيله يتولى ضبط "الاحتكاك" و"التسارع الجانبي"، فتختفي هاتان الخانتان. طوّره Twilsonco.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot looks ahead at how sharply the road is about to bend and starts adjusting its steering early, which smooths how it enters and leaves curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Use this when the full "Neural Network Feedforward (NNFF)" setting isn't offered for your car. It borrows the look-ahead without the trained model, so the improvement is smaller.</source>
+        <translation>&lt;b&gt;ينظر openpilot إلى حدة الانحناء القادم في الطريق ويبدأ تعديل التوجيه مبكرًا، ما يجعل الدخول إلى المنعطفات والخروج منها أكثر سلاسة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;استخدم هذا عندما لا يتوفر إعداد "التغذية الأمامية بالشبكة العصبية (NNFF)" الكامل لسيارتك. فهو يستخدم الاستباق من دون النموذج المدرّب، لذا يكون التحسن أقل.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Hand the wheel back to yourself below a speed you set.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;استعد التحكم بعجلة القيادة دون سرعة تحددها.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot stops steering below the speed you set and hands the wheel back to you, and "Turn Signal Only" narrows that to just the moments a turn signal is flashing.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The gas and brake carry on as normal and nothing warns you when the steering stops, so be ready to take the wheel at low speed. This pauses "Always On Lateral" too.</source>
+        <translation>&lt;b&gt;يتوقف openpilot عن التوجيه دون السرعة التي تضبطها ويعيد إليك عجلة القيادة، ويقصر خيار "مع إشارة الانعطاف فقط" ذلك على الأوقات التي تومض فيها الإشارة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يستمر التحكم بالتسارع والكبح كالمعتاد، ولا يصدر أي تنبيه عند توقف التوجيه، لذا كن مستعدًا لتولي عجلة القيادة عند السرعات المنخفضة. يؤدي ذلك أيضًا إلى إيقاف "التوجيه الجانبي الدائم" مؤقتًا.</translation>
+    </message>
+    <message>
+        <source>Reset &lt;b&gt;Lateral Acceleration&lt;/b&gt; to its default value?</source>
+        <translation>هل تريد إعادة &lt;b&gt;التسارع الجانبي&lt;/b&gt; إلى قيمته الافتراضية؟</translation>
+    </message>
+    <message>
+        <source>Any speed</source>
+        <translation>أي سرعة</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotLongitudinalPanel</name>
     <message>
         <source>Advanced Longitudinal Tuning</source>
-        <translation type="gpt-5-generated">الضبط الطولي المتقدم</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Advanced acceleration and braking control changes&lt;/b&gt; to fine-tune how openpilot drives.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تغييرات متقدمة في التحكم بالتسارع والفرملة&lt;/b&gt; لضبط كيفية قيادة openpilot بدقة.</translation>
+        <translation>الضبط الطولي المتقدم</translation>
     </message>
     <message>
         <source>Actuator Delay (Default: %1)</source>
-        <translation type="gpt-5-generated">تأخير المشغّل (الافتراضي: %1)</translation>
+        <translation>تأخر المشغّل (الافتراضي: %1)</translation>
     </message>
     <message>
         <source>Actuator Delay</source>
-        <translation type="gpt-5-generated">تأخير المشغّل</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The time between openpilot's throttle or brake command and the vehicle's response.&lt;/b&gt; Increase if the vehicle feels slow to react; decrease if it feels too eager or overshoots.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;الوقت بين أمر الدواسة أو الفرامل من openpilot واستجابة المركبة.&lt;/b&gt; زدْه إذا بدت المركبة بطيئة في الاستجابة؛ أنقِصْه إذا بدت متحمسة أكثر من اللازم أو تتجاوز الهدف.&lt;/b&gt;</translation>
+        <translation>تأخر المشغّل</translation>
     </message>
     <message>
         <source>Start Acceleration (Default: %1)</source>
-        <translation type="gpt-5-generated">بدء التسارع (الافتراضي: %1)</translation>
+        <translation>تسارع الانطلاق (الافتراضي: %1)</translation>
     </message>
     <message>
         <source>Start Acceleration</source>
-        <translation type="gpt-5-generated">بدء التسارع</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Extra acceleration applied when starting from a stop.&lt;/b&gt; Increase for quicker takeoffs; decrease for smoother, gentler starts.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تسارع إضافي يُطبَّق عند البدء من التوقف.&lt;/b&gt; زدْه لانطلاقات أسرع؛ وخفِّضه لبدايات أكثر سلاسة ولطفًا.</translation>
+        <translation>تسارع الانطلاق</translation>
     </message>
     <message>
         <source>Start Speed (Default: %1)</source>
-        <translation type="gpt-5-generated">سرعة البدء (الافتراضي: %1)</translation>
+        <translation>سرعة الانطلاق (الافتراضية: %1)</translation>
     </message>
     <message>
         <source>Start Speed</source>
-        <translation type="gpt-5-generated">سرعة البدء</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The speed at which openpilot exits the stopped state.&lt;/b&gt; Increase to reduce creeping; decrease to move sooner after stopping.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;السرعة التي يخرج بها openpilot من حالة التوقف.&lt;/b&gt; زدها لتقليل الزحف؛ خفّضها للتحرك أسرع بعد التوقف.</translation>
+        <translation>سرعة الانطلاق</translation>
     </message>
     <message>
         <source>Stop Acceleration (Default: %1)</source>
-        <translation type="gpt-5-generated">إيقاف التسارع (الافتراضي: %1)</translation>
+        <translation>تسارع التوقف (الافتراضي: %1)</translation>
     </message>
     <message>
         <source>Stop Acceleration</source>
-        <translation type="gpt-5-generated">أوقف التسارع</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Brake force applied to hold the vehicle at a standstill.&lt;/b&gt; Increase to prevent rolling on hills; decrease for smoother, softer stops.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تم تطبيق قوة الكبح لإبقاء المركبة متوقفة تمامًا.&lt;/b&gt; زدها لمنع التدحرج على المنحدرات؛ خففها لتوقفات أكثر سلاسة ونعومة.</translation>
+        <translation>تسارع التوقف</translation>
     </message>
     <message>
         <source>Stopping Rate (Default: %1)</source>
-        <translation type="gpt-5-generated">معدل الإيقاف (الافتراضي: %1)</translation>
+        <translation>معدل التوقف (الافتراضي: %1)</translation>
     </message>
     <message>
         <source>Stopping Rate</source>
-        <translation type="gpt-5-generated">معدل التوقف</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How quickly braking ramps up when stopping.&lt;/b&gt; Increase for shorter, firmer stops; decrease for smoother, longer stops.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;سرعة تصاعد الكبح عند التوقف.&lt;/b&gt; زِدها لتوقفات أقصر وأكثر صلابة؛ خفّضها لتوقفات أنعم وأطول.</translation>
+        <translation>معدل التوقف</translation>
     </message>
     <message>
         <source>Stop Speed (Default: %1)</source>
-        <translation type="gpt-5-generated">سرعة التوقف (الافتراضي: %1)</translation>
+        <translation>سرعة التوقف (الافتراضية: %1)</translation>
     </message>
     <message>
         <source>Stop Speed</source>
-        <translation type="gpt-5-generated">سرعة التوقف</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The speed at which openpilot considers the vehicle stopped.&lt;/b&gt; Increase to brake earlier and stop smoothly; decrease to wait longer but risk overshooting.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;السرعة التي يعتبر عندها openpilot المركبة متوقفة.&lt;/b&gt; زِدها للفرملة مبكرًا والتوقف بسلاسة؛ خفّضها للانتظار مدة أطول لكن مع خطر تجاوز نقطة التوقف.</translation>
+        <translation>سرعة التوقف</translation>
     </message>
     <message>
         <source>Conditional Experimental Mode</source>
-        <translation type="gpt-5-generated">الوضع التجريبي المشروط</translation>
+        <translation>الوضع التجريبي المشروط</translation>
     </message>
     <message>
         <source>&lt;b&gt;Automatically switch to "Experimental Mode" when set conditions are met.&lt;/b&gt; Allows the model to handle challenging situations with smarter decision making.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;التحويل تلقائيًا إلى "الوضع التجريبي" عند استيفاء الشروط المحددة.&lt;/b&gt; يسمح للنموذج بالتعامل مع المواقف الصعبة بقرارات أكثر ذكاءً.</translation>
+        <translation>&lt;b&gt;انتقل تلقائيًا إلى "الوضع التجريبي" عند تحقق الشروط المضبوطة.&lt;/b&gt; يتيح ذلك للنموذج التعامل مع المواقف الصعبة باتخاذ قرارات أذكى.</translation>
     </message>
     <message>
         <source>Below</source>
-        <translation type="gpt-5-generated">أدناه</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Switch to "Experimental Mode" when driving below this speed without a lead&lt;/b&gt; to help openpilot handle low-speed situations more smoothly.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;بدّل إلى "الوضع التجريبي" عند القيادة تحت هذه السرعة دون سيارة أمامك&lt;/b&gt; لمساعدة openpilot على التعامل مع حالات السرعة المنخفضة بسلاسة أكبر.</translation>
+        <translation>دون</translation>
     </message>
     <message>
         <source>Curve Detected Ahead</source>
-        <translation type="gpt-5-generated">تم اكتشاف منعطف أمامك</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Switch to "Experimental Mode" when a curve is detected&lt;/b&gt; to allow the model to set an appropriate speed for the curve.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;بدّل إلى "الوضع التجريبي" عند اكتشاف منعطف&lt;/b&gt; للسماح للنموذج بتحديد سرعة مناسبة للمنعطف.</translation>
+        <translation>اكتشاف منعطف أمامك</translation>
     </message>
     <message>
         <source>Lead Detected Ahead</source>
-        <translation type="gpt-5-generated">تم اكتشاف مركبة أمامك</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Switch to "Experimental Mode" when a slower or stopped vehicle is detected.&lt;/b&gt; Can make braking smoother and more reliable on some vehicles.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;بدّل إلى "الوضع التجريبي" عند اكتشاف مركبة أبطأ أو متوقفة.&lt;/b&gt; قد يجعل الكبح أكثر سلاسة واعتمادية في بعض المركبات.</translation>
+        <translation>اكتشاف مركبة أمامك</translation>
     </message>
     <message>
         <source>Navigation-Based</source>
-        <translation type="gpt-5-generated">معتمد على الملاحة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Switch to "Experimental Mode" when approaching intersections or turns on the active route&lt;/b&gt; while using "Navigate on openpilot" (NOO) to allow the model to set an appropriate speed for upcoming maneuvers.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;بدّل إلى "الوضع التجريبي" عند الاقتراب من التقاطعات أو المنعطفات على المسار النشط&lt;/b&gt; أثناء استخدام "Navigate on openpilot" (NOO) للسماح للنموذج بضبط سرعة مناسبة للمناورات القادمة.</translation>
+        <translation>وفق الملاحة</translation>
     </message>
     <message>
         <source>Predicted Stop In</source>
-        <translation type="gpt-5-generated">التوقف المتوقع خلال</translation>
+        <translation>توقف متوقع خلال</translation>
     </message>
     <message>
         <source>Turn Signal Below</source>
-        <translation type="gpt-5-generated">إشارة الانعطاف أدناه</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Switch to "Experimental Mode" when using a turn signal below the set speed&lt;/b&gt; to allow the model to choose an appropriate speed for smoother left and right turns.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;بدّل إلى "الوضع التجريبي" عند استخدام إشارة الانعطاف أدنى من السرعة المضبوطة&lt;/b&gt; للسماح للنموذج باختيار سرعة مناسبة لانعطافات يسار ويمين أكثر سلاسة.</translation>
+        <translation>إشارة الانعطاف دون</translation>
     </message>
     <message>
         <source>Status Widget</source>
-        <translation type="gpt-5-generated">أداة الحالة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Show which condition triggered "Experimental Mode"&lt;/b&gt; on the driving screen.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اعرض الحالة التي فعّلت "الوضع التجريبي"&lt;/b&gt; على شاشة القيادة.</translation>
+        <translation>أداة الحالة</translation>
     </message>
     <message>
         <source>Curve Speed Controller</source>
-        <translation type="gpt-5-generated">مُتحكِّم سرعة المنعطفات</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Automatically slow down for upcoming curves&lt;/b&gt; using data learned from your driving style, adapting to curves as you would.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;الإبطاء تلقائيًا للمنعطفات القادمة&lt;/b&gt; باستخدام بيانات متعلمة من أسلوب قيادتك، للتكيف مع المنحنيات كما تفعل أنت.</translation>
+        <translation>متحكم سرعة المنعطفات</translation>
     </message>
     <message>
         <source>Calibrated Lateral Acceleration</source>
-        <translation type="gpt-5-generated">تسارع جانبي مُعاير</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The learned lateral acceleration from collected driving data.&lt;/b&gt; This sets how fast openpilot will take curves. Higher values allow faster cornering; lower values slow the vehicle for gentler turns.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;التسارع الجانبي المتعلم من بيانات القيادة المجمعة.&lt;/b&gt; يحدد ذلك مدى سرعة دخول openpilot إلى المنعطفات. القيم الأعلى تسمح بمنعطفات أسرع؛ القيم الأقل تبطّئ المركبة لمنعطفات أكثر لطفًا.</translation>
+        <translation>التسارع الجانبي المُعاير</translation>
     </message>
     <message>
         <source>Calibration Progress</source>
-        <translation type="gpt-5-generated">تقدم المعايرة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How much curve data has been collected.&lt;/b&gt; This is a progress meter; it is normal for the value to stay low and rarely reach 100%.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;كمية بيانات المنحنيات التي تم جمعها.&lt;/b&gt; هذا مقياس تقدّم؛ من الطبيعي أن يبقى المؤشر منخفضًا ونادرًا ما يصل إلى 100%.</translation>
+        <translation>تقدم المعايرة</translation>
     </message>
     <message>
         <source>Reset Curve Data</source>
-        <translation type="gpt-5-generated">إعادة تعيين بيانات المنحنى</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Reset collected user data for "Curve Speed Controller".&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إعادة تعيين بيانات المستخدم المجمّعة لميزة "Curve Speed Controller".&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Show the "Curve Speed Controller" target speed on the driving screen.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اعرض سرعة الهدف لوظيفة "Curve Speed Controller" على شاشة القيادة.&lt;/b&gt;</translation>
+        <translation>إعادة ضبط بيانات المنعطفات</translation>
     </message>
     <message>
         <source>Driving Personalities</source>
-        <translation type="gpt-5-generated">أنماط القيادة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Customize the "Driving Personalities"&lt;/b&gt; to better match your driving style.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;خصص "شخصيات القيادة"&lt;/b&gt; لتطابق أسلوب قيادتك بشكل أفضل.</translation>
-    </message>
-    <message>
-        <source>Traffic Mode</source>
-        <translation type="gpt-5-generated">وضع حركة المرور</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Customize the "Traffic Mode" personality profile.&lt;/b&gt; Designed for stop-and-go driving.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;خصّص ملف تعريف شخصية "وضع المرور".&lt;/b&gt; مصمم للقيادة المتقطعة (توقف وانطلاق).</translation>
+        <translation>أنماط القيادة</translation>
     </message>
     <message>
         <source>Following Distance</source>
-        <translation type="gpt-5-generated">مسافة التتبّع</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The minimum following distance to the lead vehicle in "Traffic Mode".&lt;/b&gt; openpilot blends between this value and the "Aggressive" profile as speed increases. Increase for more space; decrease for tighter gaps.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أقل مسافة متابعة للمركبة الأمامية في "وضع الازدحام".&lt;/b&gt; يقوم openpilot بالمزج بين هذه القيمة وملف "عدواني" مع زيادة السرعة. زدها لمزيد من المسافة؛ خفّضها لفراغات أضيق.</translation>
+        <translation>مسافة التتبع</translation>
     </message>
     <message>
         <source>Acceleration Smoothness</source>
-        <translation type="gpt-5-generated">سلاسة التسارع</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How smoothly openpilot accelerates in "Traffic Mode".&lt;/b&gt; Increase for gentler starts; decrease for faster but more abrupt takeoffs.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى سلاسة تسارع openpilot في «وضع الازدحام».&lt;/b&gt; زِد لجعل الانطلاق ألطف؛ وخفّض لانطلاق أسرع لكنه أكثر فجاءة.</translation>
+        <translation>سلاسة التسارع</translation>
     </message>
     <message>
         <source>Braking Smoothness</source>
-        <translation type="gpt-5-generated">سلاسة الكبح</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How smoothly openpilot brakes in "Traffic Mode".&lt;/b&gt; Increase for gentler stops; decrease for quicker but sharper braking.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى سلاسة فرملة openpilot في "وضع الازدحام".&lt;/b&gt; زِدها لتوقفات ألطف؛ خفِّضها لتباطؤ أسرع ولكن أشد حدة.</translation>
+        <translation>سلاسة الكبح</translation>
     </message>
     <message>
         <source>Safety Gap Bias</source>
-        <translation type="gpt-5-generated">انحياز فجوة الأمان</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How much extra space openpilot keeps from the vehicle ahead in "Traffic Mode".&lt;/b&gt; Increase for larger gaps and more cautious following; decrease for tighter gaps and closer following.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;كم من المسافة الإضافية يحتفظ بها openpilot عن المركبة التي أمامه في "وضع الازدحام".&lt;/b&gt; زدها لفراغات أكبر واتباع أكثر حذرًا؛ أنقصها لفراغات أضيق واتباع أقرب.</translation>
+        <translation>انحياز مسافة الأمان</translation>
     </message>
     <message>
         <source>Slowdown Response</source>
-        <translation type="gpt-5-generated">استجابة الإبطاء</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How smoothly openpilot slows down in "Traffic Mode".&lt;/b&gt; Increase for more gradual deceleration; decrease for faster but sharper slowdowns.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى سلاسة تباطؤ openpilot في "وضع الازدحام".&lt;/b&gt; زد القيمة لزيادة التباطؤ التدريجي؛ أنقصها لتباطؤ أسرع لكنه أكثر حدة.</translation>
+        <translation>استجابة التباطؤ</translation>
     </message>
     <message>
         <source>Speed-Up Response</source>
-        <translation type="gpt-5-generated">تسريع الاستجابة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How smoothly openpilot speeds up in "Traffic Mode".&lt;/b&gt; Increase for more gradual acceleration; decrease for quicker but more jolting acceleration.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى سلاسة تسارع openpilot في «وضع الازدحام».&lt;/b&gt; زد القيمة لتسارع أكثر تدرجًا؛ خفّضها لتسارع أسرع لكنه أكثر اهتزازًا.</translation>
+        <translation>استجابة التسارع</translation>
     </message>
     <message>
         <source>Reset to Defaults</source>
-        <translation type="gpt-5-generated">إعادة التعيين إلى الإعدادات الافتراضية</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Reset "Traffic Mode" settings to defaults.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إعادة تعيين إعدادات "وضع المرور" إلى القيم الافتراضية.&lt;/b&gt;</translation>
+        <translation>إعادة القيم الافتراضية</translation>
     </message>
     <message>
         <source>Aggressive</source>
-        <translation type="gpt-5-generated">عدواني</translation>
+        <translation>جريء</translation>
     </message>
     <message>
         <source>&lt;b&gt;Customize the "Aggressive" personality profile.&lt;/b&gt; Designed for assertive driving with tighter gaps.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;خصص ملف تعريف الشخصية "عدواني".&lt;/b&gt; مصمم للقيادة الحازمة مع فجوات أضيق.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How many seconds openpilot follows behind lead vehicles when using the "Aggressive" profile.&lt;/b&gt; Increase for more space; decrease for tighter gaps.&lt;br&gt;&lt;br&gt;Default: 1.25 seconds.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;عدد الثواني التي يتبع فيها openpilot المركبات الأمامية عند استخدام نمط "Aggressive".&lt;/b&gt; زد لزيادة المسافة؛ أنقص لتقليل الفجوات.&lt;br&gt;&lt;br&gt;الافتراضي: 1.25 ثانية.&lt;/br&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How smoothly openpilot accelerates with the "Aggressive" profile.&lt;/b&gt; Increase for gentler starts; decrease for faster but more abrupt takeoffs.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى نعومة تسارع openpilot مع ملف التعريف "Aggressive".&lt;/b&gt; زد القيمة لبدء أكثر لطفًا؛ خفّضها لانطلاق أسرع لكنه أكثر فجاءة.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How smoothly openpilot brakes with the "Aggressive" profile.&lt;/b&gt; Increase for gentler stops; decrease for quicker but sharper braking.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى سلاسة فَرملة openpilot باستخدام ملف التعريف "Aggressive".&lt;/b&gt; زِد القيمة لتوقفات ألطف؛ واخْفِضها لتباطؤ أسرع لكن أكثر حِدّة.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How much extra space openpilot keeps from the vehicle ahead with the "Aggressive" profile.&lt;/b&gt; Increase for larger gaps and more cautious following; decrease for tighter gaps and closer following.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مقدار المسافة الإضافية التي يحتفظ بها openpilot عن المركبة الأمامية عند استخدام نمط "Aggressive".&lt;/b&gt; زِد القيمة لزيادة الفجوات واتباع أكثر حذرًا؛ وخفّضها لتضييق الفجوات واتباع أقرب.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How smoothly openpilot slows down with the "Aggressive" profile.&lt;/b&gt; Increase for more gradual deceleration; decrease for faster but sharper slowdowns.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى سلاسة تباطؤ openpilot مع ملف تعريف "Aggressive".&lt;/b&gt; زد القيمة للحصول على تباطؤ أكثر تدريجية؛ خفّضها لإبطاء أسرع لكن أكثر حدّة.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How smoothly openpilot speeds up with the "Aggressive" profile.&lt;/b&gt; Increase for more gradual acceleration; decrease for quicker but more jolting acceleration.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى سلاسة تسارع openpilot مع ملف التعريف "Aggressive".&lt;/b&gt; زِد القيمة لتسارع أكثر تدرجًا؛ اخفضها لتسارع أسرع لكنه أكثر اهتزازًا.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Reset the "Aggressive" profile to defaults.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إعادة تعيين ملف تعريف "Aggressive" إلى القيم الافتراضية.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;خصّص نمط القيادة "الجريء".&lt;/b&gt; صُمم لقيادة حازمة بفواصل أقصر.</translation>
     </message>
     <message>
         <source>Standard</source>
-        <translation type="gpt-5-generated">قياسي</translation>
+        <translation>قياسي</translation>
     </message>
     <message>
         <source>&lt;b&gt;Customize the "Standard" personality profile.&lt;/b&gt; Designed for balanced driving with moderate gaps.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;خصص ملف تعريف الشخصية "Standard".&lt;/b&gt; مصمم لقيادة متوازنة مع فواصل معتدلة.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How many seconds openpilot follows behind lead vehicles when using the "Standard" profile.&lt;/b&gt; Increase for more space; decrease for tighter gaps.&lt;br&gt;&lt;br&gt;Default: 1.45 seconds.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;عدد الثواني التي يتبع فيها openpilot المركبات الأمامية عند استخدام ملف التعريف "قياسي".&lt;/b&gt; زِد للحصول على مساحة أكبر؛ قَلِّل لفراغات أضيق.&lt;br&gt;&lt;br&gt;الإعداد الافتراضي: 1.45 ثانية.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How smoothly openpilot accelerates with the "Standard" profile.&lt;/b&gt; Increase for gentler starts; decrease for faster but more abrupt takeoffs.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى سلاسة تسارع openpilot مع ملف التعريف "Standard".&lt;/b&gt; زِدْه لبدء أكثر لطفًا؛ وخفِّضه لانطلاق أسرع لكن أكثر فجائية.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How smoothly openpilot brakes with the "Standard" profile.&lt;/b&gt; Increase for gentler stops; decrease for quicker but sharper braking.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى سلاسة فرملة openpilot باستخدام ملف التعريف "Standard".&lt;/b&gt; زِد لجعل التوقفات ألطف؛ وخفّض للحصول على فرملة أسرع لكن أكثر حِدّة.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How much extra space openpilot keeps from the vehicle ahead with the "Standard" profile.&lt;/b&gt; Increase for larger gaps and more cautious following; decrease for tighter gaps and closer following.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;كم من المسافة الإضافية يحتفظ بها openpilot عن المركبة الأمامية مع ملف تعريف "Standard".&lt;/b&gt; زِدها لترك فجوات أكبر واتباع أكثر حذرًا؛ وقلّلها لفجوات أضيق واتباع أقرب.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How smoothly openpilot slows down with the "Standard" profile.&lt;/b&gt; Increase for more gradual deceleration; decrease for faster but sharper slowdowns.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى سلاسة إبطاء openpilot مع نمط "Standard".&lt;/b&gt; زِد القيمة لإبطاء أكثر تدرجًا؛ خفّضها لإبطاء أسرع لكنه أكثر حدّة.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How smoothly openpilot speeds up with the "Standard" profile.&lt;/b&gt; Increase for more gradual acceleration; decrease for quicker but more jolting acceleration.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى سلاسة تسارع openpilot مع ملف "Standard".&lt;/b&gt; زد القيمة لتسارع أكثر تدرجًا؛ خفّضها لتسارع أسرع لكن أكثر اهتزازًا.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Reset the "Standard" profile to defaults.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إعادة تعيين ملف تعريف "قياسي" إلى الإعدادات الافتراضية.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;خصّص نمط القيادة "القياسي".&lt;/b&gt; صُمم لقيادة متوازنة بفواصل متوسطة.</translation>
     </message>
     <message>
         <source>Relaxed</source>
-        <translation type="gpt-5-generated">مسترخٍ</translation>
+        <translation>مريح</translation>
     </message>
     <message>
         <source>&lt;b&gt;Customize the "Relaxed" personality profile.&lt;/b&gt; Designed for smoother, more comfortable driving with larger gaps.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;خصص ملف شخصية "الهادئ".&lt;/b&gt; مصمم لقيادة أكثر سلاسة وراحة مع مسافات أكبر.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How many seconds openpilot follows behind lead vehicles when using the "Relaxed" profile.&lt;/b&gt; Increase for more space; decrease for tighter gaps.&lt;br&gt;&lt;br&gt;Default: 1.75 seconds.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;عدد الثواني التي يتبع فيها openpilot المركبات الأمامية عند استخدام نمط "Relaxed".&lt;/b&gt; زِد للحصول على مسافة أكبر؛ قَلِّل لفراغات أضيق.&lt;br&gt;&lt;br&gt;الإعداد الافتراضي: 1.75 ثانية.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How smoothly openpilot accelerates with the "Relaxed" profile.&lt;/b&gt; Increase for gentler starts; decrease for faster but more abrupt takeoffs.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى سلاسة تسارع openpilot مع نمط "Relaxed".&lt;/b&gt; زد القيمة لبدء أكثر لطفًا؛ خفِّضها لانطلاق أسرع لكن أكثر حدة.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How smoothly openpilot brakes with the "Relaxed" profile.&lt;/b&gt; Increase for gentler stops; decrease for quicker but sharper braking.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى سلاسة فرملة openpilot باستخدام ملف “مرتاح”.&lt;/b&gt; زِد القيمة لتوقفات أكثر لطفًا؛ اخفضها لفرملة أسرع لكنها أكثر حدة.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How much extra space openpilot keeps from the vehicle ahead with the "Relaxed" profile.&lt;/b&gt; Increase for larger gaps and more cautious following; decrease for tighter gaps and closer following.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مقدار المسافة الإضافية التي يحافظ عليها openpilot عن المركبة الأمامية مع ملف التعريف "مرتاح".&lt;/b&gt; زدها لفراغات أكبر وتتبع أكثر حذرًا؛ خفّضها لفراغات أضيق وتتبع أقرب.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How smoothly openpilot slows down with the "Relaxed" profile.&lt;/b&gt; Increase for more gradual deceleration; decrease for faster but sharper slowdowns.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى سلاسة تباطؤ openpilot مع ملف التعريف "Relaxed".&lt;/b&gt; زد القيمة لزيادة التباطؤ التدريجي؛ أنقصها لتباطؤ أسرع لكن أكثر حدة.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How smoothly openpilot speeds up with the "Relaxed" profile.&lt;/b&gt; Increase for more gradual acceleration; decrease for quicker but more jolting acceleration.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى سلاسة تسارع openpilot مع ملف "Relaxed".&lt;/b&gt; زِد لجعل التسارع أكثر تدرجاً؛ خفّض لجعله أسرع لكن أكثر اهتزازاً.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Reset the "Relaxed" profile to defaults.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إعادة تعيين ملف تعريف "Relaxed" إلى الإعدادات الافتراضية.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;خصّص نمط القيادة "المريح".&lt;/b&gt; صُمم لقيادة أكثر سلاسة وراحة بفواصل أكبر.</translation>
     </message>
     <message>
         <source>Longitudinal Tuning</source>
-        <translation type="gpt-5-generated">الضبط الطولي</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Acceleration and braking control changes&lt;/b&gt; to fine-tune how openpilot drives.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تغييرات في التحكم بالتسارع والفرملة&lt;/b&gt; لضبط كيفية قيادة openpilot بدقة.</translation>
+        <translation>الضبط الطولي</translation>
     </message>
     <message>
         <source>Acceleration Profile</source>
-        <translation type="gpt-5-generated">ملف تعريف التسارع</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How quickly openpilot speeds up.&lt;/b&gt; "Eco" is gentle and efficient, "Sport" is firmer and more responsive, and "Sport+" accelerates at the maximum rate allowed.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى سرعة تسارع openpilot.&lt;/b&gt; «Eco» لطيف وفعّال، «Sport» أكثر صلابة واستجابة، و«Sport+» يتسارع بأقصى معدل مسموح به.</translation>
+        <translation>نمط التسارع</translation>
     </message>
     <message>
         <source>Deceleration Profile</source>
-        <translation type="gpt-5-generated">ملف تباطؤ</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How firmly openpilot slows down.&lt;/b&gt; "Eco" favors coasting, "Sport" applies stronger braking.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى قوة تباطؤ openpilot.&lt;/b&gt; يفضّل وضع "Eco" الانزلاق، بينما يطبّق وضع "Sport" فرملة أقوى.</translation>
+        <translation>نمط التباطؤ</translation>
     </message>
     <message>
         <source>Human-Like Acceleration</source>
-        <translation type="gpt-5-generated">تسارع شبيه بالبشر</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Acceleration that mimics human behavior&lt;/b&gt; by easing the throttle at low speeds and adding extra power when taking off from a stop.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تسارع يحاكي السلوك البشري&lt;/b&gt; عبر تخفيف دواسة الوقود عند السرعات المنخفضة وإضافة قوة إضافية عند الانطلاق من التوقف.</translation>
+        <translation>تسارع شبيه بالبشر</translation>
     </message>
     <message>
         <source>Human-Like Following</source>
-        <translation type="gpt-5-generated">تتبّع شبيه بالبشر</translation>
+        <translation>تتبع شبيه بالبشر</translation>
     </message>
     <message>
         <source>Lead Detection Sensitivity</source>
-        <translation type="gpt-5-generated">حساسية اكتشاف المركبة المتصدرة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How sensitive openpilot is to detecting vehicles.&lt;/b&gt; Higher sensitivity allows quicker detection at longer distances but may react to non-vehicle objects; lower sensitivity is more conservative and reduces false detections.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى حساسية openpilot لاكتشاف المركبات.&lt;/b&gt; حساسية أعلى تسمح باكتشاف أسرع من مسافات أطول لكنها قد تتفاعل مع أشياء ليست مركبات؛ حساسية أقل أكثر تحفظًا وتقلل الاكتشافات الخاطئة.</translation>
+        <translation>حساسية اكتشاف المركبة الأمامية</translation>
     </message>
     <message>
         <source>Maximum Acceleration</source>
-        <translation type="gpt-5-generated">التسارع الأقصى</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Limit the strongest acceleration&lt;/b&gt; openpilot can command.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;حدّ من أقوى تسارع&lt;/b&gt; يمكن أن يأمر به openpilot.</translation>
+        <translation>أقصى تسارع</translation>
     </message>
     <message>
         <source>"Taco Bell Run" Turn Speed Hack</source>
-        <translation type="gpt-5-generated">اختراق سرعة الانعطاف "Taco Bell Run"</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The turn-speed hack from comma's 2022 "Taco Bell Run".&lt;/b&gt; Designed to slow down for left and right turns.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;حيلة سرعة الانعطاف من "Taco Bell Run" لعام 2022 من comma.&lt;/b&gt; مصممة للإبطاء عند الانعطاف يسارًا ويمينًا.</translation>
+        <translation>حيلة سرعة المنعطفات "Taco Bell Run"</translation>
     </message>
     <message>
         <source>Quality of Life</source>
-        <translation type="gpt-5-generated">جودة الحياة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Miscellaneous acceleration and braking control changes&lt;/b&gt; to fine-tune how openpilot drives.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تغييرات متفرقة في التحكم بالتسارع والكبح&lt;/b&gt; لضبط كيفية قيادة openpilot بدقة.</translation>
+        <translation>تحسينات الاستخدام</translation>
     </message>
     <message>
         <source>Cruise Interval</source>
-        <translation type="gpt-5-generated">فاصل تثبيت السرعة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How much the set speed increases or decreases&lt;/b&gt; for each + or – cruise control button press.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مقدار زيادة أو نقصان السرعة المضبوطة&lt;/b&gt; مع كل ضغطة على زر التحكم في السرعة + أو –.</translation>
+        <translation>خطوة سرعة المثبت</translation>
     </message>
     <message>
         <source>Cruise Interval (Hold)</source>
-        <translation type="gpt-5-generated">فاصل تثبيت السرعة (اضغط مطولًا)</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How much the set speed increases or decreases while holding the + or – cruise control buttons.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مقدار زيادة أو نقصان السرعة المضبوطة أثناء الضغط المستمر على أزرار مثبت السرعة + أو –.&lt;/b&gt;</translation>
+        <translation>خطوة سرعة المثبت (ضغط مطول)</translation>
     </message>
     <message>
         <source>Force Stop at "Detected" Stop Lights/Signs</source>
-        <translation type="gpt-5-generated">إيقاف إجباري عند أضواء/علامات التوقف «المكتشفة»</translation>
+        <translation>فرض التوقف عند إشارات المرور/علامات التوقف "المكتشفة"</translation>
     </message>
     <message>
         <source>Increase Stopped Distance by:</source>
-        <translation type="gpt-5-generated">زيادة مسافة التوقف بمقدار:</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Add extra space when stopped behind vehicles.&lt;/b&gt; Increase for more room; decrease for shorter gaps.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أضِف مسافة إضافية عند التوقف خلف المركبات.&lt;/b&gt; زِد لحيز أكبر؛ خفّض لفجوات أقصر.</translation>
+        <translation>زيادة مسافة التوقف بمقدار:</translation>
     </message>
     <message>
         <source>Map Accel/Decel to Gears</source>
-        <translation type="gpt-5-generated">تعيين التسارع/التباطؤ إلى التروس</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Map the Acceleration or Deceleration profiles to the vehicle's "Eco" and "Sport" gear modes.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;قم بربط ملفات تعريف التسارع أو التباطؤ بوضعيات تروس المركبة "Eco" و"Sport".&lt;/b&gt;</translation>
+        <translation>ربط التسارع/التباطؤ بأوضاع ناقل الحركة</translation>
     </message>
     <message>
         <source>Offset Set Speed by:</source>
-        <translation type="gpt-5-generated">تعويض ضبط السرعة بمقدار:</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Increase the set speed by the chosen offset.&lt;/b&gt; For example, set +5 if you usually drive 5 over the limit.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;زيادة السرعة المضبوطة بالمقدار المختار.&lt;/b&gt; على سبيل المثال، اضبط +5 إذا كنت عادة تقود بسرعة تزيد 5 عن الحد.</translation>
+        <translation>إزاحة السرعة المضبوطة بمقدار:</translation>
     </message>
     <message>
         <source>Reverse Cruise Increase</source>
-        <translation type="gpt-5-generated">زيادة السرعة للخلف</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Reverse the cruise control button behavior&lt;/b&gt; so a short press increases the set speed by 5 instead of 1.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اعكس سلوك زر التحكم في السرعة&lt;/b&gt; بحيث تزيد الضغطة القصيرة السرعة المحددة بمقدار 5 بدلًا من 1.</translation>
+        <translation>عكس زيادة سرعة المثبت</translation>
     </message>
     <message>
         <source>Increase Following Distance by:</source>
-        <translation type="gpt-5-generated">زيادة مسافة المتابعة بمقدار:</translation>
+        <translation>زيادة مسافة التتبع بمقدار:</translation>
     </message>
     <message>
         <source>Reduce Acceleration by:</source>
-        <translation type="gpt-5-generated">تقليل التسارع بمقدار:</translation>
+        <translation>خفض التسارع بمقدار:</translation>
     </message>
     <message>
         <source>Reduce Speed in Curves by:</source>
-        <translation type="gpt-5-generated">تقليل السرعة في المنعطفات بمقدار:</translation>
+        <translation>خفض السرعة في المنعطفات بمقدار:</translation>
     </message>
     <message>
         <source>Snow</source>
-        <translation type="gpt-5-generated">ثلج</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Driving adjustments for snowy conditions.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تعديلات القيادة لظروف الثلوج.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Add extra space behind lead vehicles in snow.&lt;/b&gt; Increase for more space; decrease for tighter gaps.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أضف مسافة إضافية خلف المركبات الأمامية في الثلج.&lt;/b&gt; زِد للحصول على مساحة أكبر؛ خفِّض لمسافات أقصر.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Add extra buffer when stopped behind vehicles in snow.&lt;/b&gt; Increase for more room; decrease for shorter gaps.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أضف مسافة أمان إضافية عند التوقف خلف المركبات في الثلج.&lt;/b&gt; زدها لمزيد من الحيز؛ وخفّضها لفراغات أقصر.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Lower the maximum acceleration in snow.&lt;/b&gt; Increase for softer takeoffs; decrease for quicker but less stable takeoffs.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;خفّض الحد الأقصى للتسارع على الثلج.&lt;/b&gt; زدْه لانطلاقات أكثر سلاسة؛ وخفّضه لانطلاقات أسرع ولكن أقل استقرارًا.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Lower the desired speed while driving through curves in snow.&lt;/b&gt; Increase for safer, gentler turns; decrease for more aggressive driving in curves.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اخفض السرعة المطلوبة أثناء القيادة عبر المنحنيات في الثلج.&lt;/b&gt; زدها لالتفافات أكثر أمانًا ولطفًا؛ وقلّلها لقيادة أكثر عدوانية في المنحنيات.</translation>
+        <translation>ثلج</translation>
     </message>
     <message>
         <source>Speed Limit Controller</source>
-        <translation type="gpt-5-generated">متحكم حد السرعة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Limit openpilot's maximum driving speed to the current speed limit&lt;/b&gt; obtained from downloaded maps, Mapbox, Navigate on openpilot, or the dashboard for supported vehicles (Ford, Genesis, Hyundai, Kia, Lexus, Toyota).</source>
-        <translation type="gpt-5-generated">&lt;b&gt;حدد السرعة القصوى لقيادة openpilot على حد السرعة الحالي&lt;/b&gt; المُستمد من الخرائط المُنزَّلة، Mapbox، Navigate on openpilot، أو لوحة العدادات للمركبات المدعومة (Ford، Genesis، Hyundai، Kia، Lexus، Toyota).</translation>
+        <translation>متحكم حد السرعة</translation>
     </message>
     <message>
         <source>Fallback Speed</source>
-        <translation type="gpt-5-generated">السرعة الاحتياطية</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The speed used by "Speed Limit Controller" when no speed limit is found.&lt;/b&gt;&lt;br&gt;&lt;br&gt;- &lt;b&gt;Set Speed&lt;/b&gt;: Use the cruise set speed&lt;br&gt;- &lt;b&gt;Experimental Mode&lt;/b&gt;: Estimate the limit using the driving model&lt;br&gt;- &lt;b&gt;Previous Limit&lt;/b&gt;: Keep using the last confirmed limit</source>
-        <translation type="gpt-5-generated">&lt;b&gt;السرعة التي يستخدمها "Speed Limit Controller" عند عدم العثور على حد للسرعة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;- &lt;b&gt;السرعة المضبوطة&lt;/b&gt;: استخدم سرعة مثبت السرعة المضبوطة&lt;br&gt;- &lt;b&gt;الوضع التجريبي&lt;/b&gt;: قدّر الحد باستخدام نموذج القيادة&lt;br&gt;- &lt;b&gt;الحد السابق&lt;/b&gt;: استمر في استخدام آخر حدّ مؤكد</translation>
+        <translation>السرعة الاحتياطية</translation>
     </message>
     <message>
         <source>Override Speed</source>
-        <translation type="gpt-5-generated">تجاوز السرعة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The speed used by "Speed Limit Controller" after you manually drive faster than the posted limit.&lt;/b&gt;&lt;br&gt;&lt;br&gt;- &lt;b&gt;Set with Gas Pedal&lt;/b&gt;: Use the highest speed reached while pressing the gas&lt;br&gt;- &lt;b&gt;Max Set Speed&lt;/b&gt;: Use the cruise set speed&lt;br&gt;&lt;br&gt;Overrides clear when openpilot disengages.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;السرعة التي يستخدمها "Speed Limit Controller" بعد أن تقود يدويًا أسرع من الحد المعلن.&lt;/b&gt;&lt;br&gt;&lt;br&gt;- &lt;b&gt;تحديد بدواسة الوقود&lt;/b&gt;: استخدام أعلى سرعة تم بلوغها أثناء الضغط على دواسة الوقود&lt;br&gt;- &lt;b&gt;الحد الأقصى للسرعة المحددة&lt;/b&gt;: استخدام سرعة ضبط نظام القيادة الثابتة&lt;br&gt;&lt;br&gt;يتم مسح التجاوزات عند فصل openpilot.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Miscellaneous "Speed Limit Controller" changes&lt;/b&gt; to fine-tune how openpilot drives.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تغييرات متنوعة في "متحكم حدّ السرعة"&lt;/b&gt; لضبط كيفية قيادة openpilot بدقة.</translation>
+        <translation>سرعة التجاوز</translation>
     </message>
     <message>
         <source>Confirm New Speed Limits</source>
-        <translation type="gpt-5-generated">تأكيد حدود السرعة الجديدة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Ask before changing to a new speed limit.&lt;/b&gt; To accept, tap the flashing on-screen widget or press the Cruise Increase button. To deny, press the Cruise Decrease button or ignore the prompt for 30 seconds.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اسأل قبل التبديل إلى حد سرعة جديد.&lt;/b&gt; للقبول، اضغط على الأداة الوميض على الشاشة أو اضغط زر زيادة السرعة Cruise. للرفض، اضغط زر خفض السرعة Cruise أو تجاهل المطالبة لمدة 30 ثانية.</translation>
+        <translation>تأكيد حدود السرعة الجديدة</translation>
     </message>
     <message>
         <source>Force MPH from Dashboard</source>
-        <translation type="gpt-5-generated">فرض MPH من لوحة العدادات</translation>
+        <translation>فرض mph من لوحة العدادات</translation>
     </message>
     <message>
         <source>&lt;b&gt;Always read dashboard speed limit signs in mph.&lt;/b&gt; Turn this on if the cluster shows mph but the limit is interpreted as km/h.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اقرأ دائمًا علامات حد السرعة على لوحة العدادات بوحدة mph.&lt;/b&gt; فعِّل هذا إذا كانت مجموعة العدادات تعرض mph لكن يتم تفسير الحد بوحدة km/h.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;اقرأ دائمًا علامات حد السرعة في لوحة العدادات بوحدة mph.&lt;/b&gt; فعّل هذا إذا كانت مجموعة العدادات تعرض mph لكن الحد يُفسر بوحدة km/h.</translation>
     </message>
     <message>
         <source>Higher Limit Lookahead Time</source>
-        <translation type="gpt-5-generated">زمن التطلع إلى حد أعلى</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How far ahead openpilot anticipates upcoming higher speed limits&lt;/b&gt; from downloaded map data.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;المسافة التي يتوقع فيها openpilot حدود السرعة الأعلى القادمة&lt;/b&gt; من بيانات الخرائط التي تم تنزيلها.</translation>
+        <translation>زمن استباق الحد الأعلى</translation>
     </message>
     <message>
         <source>Lower Limit Lookahead Time</source>
-        <translation type="gpt-5-generated">الحد الأدنى لوقت الاستشراف</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How far ahead openpilot anticipates upcoming lower speed limits&lt;/b&gt; from downloaded map data.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدى تقدم توقع openpilot لحدود السرعة المنخفضة القادمة&lt;/b&gt; من بيانات الخرائط المُنزَّلة.</translation>
+        <translation>زمن استباق الحد الأدنى</translation>
     </message>
     <message>
         <source>Match Speed Limit on Engage</source>
-        <translation type="gpt-5-generated">مطابقة حد السرعة عند التفعيل</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;When openpilot is first enabled, automatically set the max speed to the current posted limit.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;عند تمكين openpilot لأول مرة، اضبط تلقائيًا السرعة القصوى على الحد المعلن الحالي.&lt;/b&gt;</translation>
+        <translation>مطابقة حد السرعة عند التفعيل</translation>
     </message>
     <message>
         <source>Use Mapbox as Fallback</source>
-        <translation type="gpt-5-generated">استخدم Mapbox كبديل</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Use Mapbox speed-limit data when no other source is available.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;استخدم بيانات حدود السرعة من Mapbox عند عدم توفر أي مصدر آخر.&lt;/b&gt;</translation>
+        <translation>استخدام Mapbox كمصدر احتياطي</translation>
     </message>
     <message>
         <source>Speed Limit Source Priority</source>
-        <translation type="gpt-5-generated">أولوية مصدر حد السرعة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The source order for speed limits&lt;/b&gt; when more than one is available.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;ترتيب المصادر لحدود السرعة&lt;/b&gt; عند توفر أكثر من مصدر واحد.</translation>
+        <translation>أولوية مصدر حد السرعة</translation>
     </message>
     <message>
         <source>Speed Limit Offsets</source>
-        <translation type="gpt-5-generated">إزاحات حد السرعة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Add an offset to the posted speed limit&lt;/b&gt; to better match your driving style.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أضِف إزاحة إلى الحد الأقصى للسرعة المُعلَن&lt;/b&gt; ليتوافق بشكل أفضل مع أسلوب قيادتك.&lt;/b&gt;</translation>
+        <translation>إزاحات حد السرعة</translation>
     </message>
     <message>
         <source>Speed Offset (0–24 mph)</source>
-        <translation type="gpt-5-generated">تعويض السرعة (0–24 mph)</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How much to offset posted speed-limits&lt;/b&gt; between 0 and 24 mph.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;كم مقدار تعويض حدود السرعة المعلنة&lt;/b&gt; بين 0 و24 ميل/س؟</translation>
+        <translation>إزاحة السرعة (0–24 mph)</translation>
     </message>
     <message>
         <source>Speed Offset (25–34 mph)</source>
-        <translation type="gpt-5-generated">تعويض السرعة (25–34 mph)</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How much to offset posted speed-limits&lt;/b&gt; between 25 and 34 mph.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;كم مقدار تعويض حدود السرعة المعلنة&lt;/b&gt; بين 25 و34 mph.&lt;/b</translation>
+        <translation>إزاحة السرعة (25–34 mph)</translation>
     </message>
     <message>
         <source>Speed Offset (35–44 mph)</source>
-        <translation type="gpt-5-generated">تعويض السرعة (35–44 mph)</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How much to offset posted speed-limits&lt;/b&gt; between 35 and 44 mph.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;كم مقدار تعويض حدود السرعة المُعلنة&lt;/b&gt; بين 35 و44 mph.&lt;/b</translation>
+        <translation>إزاحة السرعة (35–44 mph)</translation>
     </message>
     <message>
         <source>Speed Offset (45–54 mph)</source>
-        <translation type="gpt-5-generated">تعويض السرعة (45–54 ميل/س)</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How much to offset posted speed-limits&lt;/b&gt; between 45 and 54 mph.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;كم مقدار تعويض حدود السرعة المعلنة&lt;/b&gt; بين 45 و54 ميل/س؟</translation>
+        <translation>إزاحة السرعة (45–54 mph)</translation>
     </message>
     <message>
         <source>Speed Offset (55–64 mph)</source>
-        <translation type="gpt-5-generated">تعويض السرعة (55–64 mph)</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How much to offset posted speed-limits&lt;/b&gt; between 55 and 64 mph.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;كم مقدار تعويض حدود السرعة المعلنة&lt;/b&gt; بين 55 و64 mph.</translation>
+        <translation>إزاحة السرعة (55–64 mph)</translation>
     </message>
     <message>
         <source>Speed Offset (65–74 mph)</source>
-        <translation type="gpt-5-generated">انحراف السرعة (65–74 ميل/س)</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How much to offset posted speed-limits&lt;/b&gt; between 65 and 74 mph.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مقدار تعويض حدود السرعة المعلنة&lt;/b&gt; بين 65 و74 ميل/ساعة.</translation>
+        <translation>إزاحة السرعة (65–74 mph)</translation>
     </message>
     <message>
         <source>Speed Offset (75–99 mph)</source>
-        <translation type="gpt-5-generated">تعويض السرعة (75–99 ميل/س)</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How much to offset posted speed-limits&lt;/b&gt; between 75 and 99 mph.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;كم يجب تعويض حدود السرعة المعلنة&lt;/b&gt; بين 75 و99 mph.&lt;/b&gt;</translation>
+        <translation>إزاحة السرعة (75–99 mph)</translation>
     </message>
     <message>
         <source>Visual Settings</source>
-        <translation type="gpt-5-generated">إعدادات العرض</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Visual "Speed Limit Controller" changes&lt;/b&gt; to fine-tune how the driving screen looks.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تغييرات مرئية في "متحكم حد السرعة"&lt;/b&gt; لضبط مظهر شاشة القيادة بدقة.</translation>
+        <translation>إعدادات العرض</translation>
     </message>
     <message>
         <source>Show Speed Limit Offset</source>
-        <translation type="gpt-5-generated">عرض تعويض حد السرعة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Show the current offset from the posted limit&lt;/b&gt; on the driving screen.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اعرض الانحراف الحالي عن الحد المنشور&lt;/b&gt; على شاشة القيادة.</translation>
+        <translation>إظهار إزاحة حد السرعة</translation>
     </message>
     <message>
         <source>Show Speed Limit Sources</source>
-        <translation type="gpt-5-generated">إظهار مصادر حد السرعة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Display the speed-limit sources and their current values&lt;/b&gt; on the driving screen.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;عرض مصادر حدود السرعة وقيمها الحالية&lt;/b&gt; على شاشة القيادة.</translation>
+        <translation>إظهار مصادر حد السرعة</translation>
     </message>
     <message>
         <source> seconds</source>
-        <translation type="gpt-5-generated">ثوانٍ</translation>
+        <translation> ثوانٍ</translation>
     </message>
     <message>
         <source> m/s²</source>
-        <translation type="gpt-5-generated">م/ث²</translation>
+        <translation> m/s²</translation>
     </message>
     <message>
         <source> mph</source>
-        <translation type="gpt-5-generated">ميل/ساعة</translation>
+        <translation> ميل/س</translation>
     </message>
     <message>
         <source>With Lead</source>
-        <translation type="gpt-5-generated">مع مركبة أمامية</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Switch to "Experimental Mode" when driving below this speed with a lead&lt;/b&gt; to help openpilot handle low-speed situations more smoothly.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;بدّل إلى "الوضع التجريبي" عند القيادة تحت هذه السرعة مع وجود مركبة أمامك&lt;/b&gt; لمساعدة openpilot على التعامل بسلاسة أكبر مع المواقف منخفضة السرعة.</translation>
+        <translation>مع مركبة أمامية قريبة</translation>
     </message>
     <message>
         <source>Slower Lead</source>
-        <translation type="gpt-5-generated">مركبة أمامية أبطأ</translation>
+        <translation>مركبة أمامية أبطأ</translation>
     </message>
     <message>
         <source>Stopped Lead</source>
-        <translation type="gpt-5-generated">المركبة المتقدمة متوقفة</translation>
+        <translation>مركبة أمامية متوقفة</translation>
     </message>
     <message>
         <source>Intersections</source>
-        <translation type="gpt-5-generated">التقاطعات</translation>
+        <translation>التقاطعات</translation>
     </message>
     <message>
         <source>Turns</source>
-        <translation type="gpt-5-generated">المنعطفات</translation>
+        <translation>المنعطفات</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="gpt-5-generated">إيقاف</translation>
+        <translation>إيقاف</translation>
     </message>
     <message>
         <source> second</source>
-        <translation type="gpt-5-generated"> ثانية</translation>
+        <translation> ثانية</translation>
     </message>
     <message>
         <source>Not For Detected Lanes</source>
-        <translation type="gpt-5-generated">ليس للمسارات المُكتشفة</translation>
+        <translation>ليس للمسارات المكتشفة</translation>
     </message>
     <message>
         <source>RESET</source>
-        <translation type="gpt-5-generated">إعادة ضبط</translation>
+        <translation>إعادة الضبط</translation>
     </message>
     <message>
         <source>Are you sure you want to completely reset your curvature data?</source>
-        <translation type="gpt-5-generated">هل أنت متأكد أنك تريد إعادة تعيين بيانات الانحناء بالكامل؟</translation>
+        <translation>هل أنت متأكد من رغبتك في إعادة ضبط بيانات الانحناء بالكامل؟</translation>
     </message>
     <message>
         <source>Eco</source>
-        <translation type="gpt-5-generated">اقتصادي</translation>
+        <translation>اقتصادي</translation>
     </message>
     <message>
         <source>Sport</source>
-        <translation type="gpt-5-generated">رياضي</translation>
+        <translation>رياضي</translation>
     </message>
     <message>
         <source>Sport+</source>
-        <translation type="gpt-5-generated">سبورت+</translation>
+        <translation>رياضي+</translation>
     </message>
     <message>
         <source> feet</source>
-        <translation type="gpt-5-generated"> أقدام</translation>
+        <translation> أقدام</translation>
     </message>
     <message>
         <source>Acceleration</source>
-        <translation type="gpt-5-generated">التسارع</translation>
+        <translation>التسارع</translation>
     </message>
     <message>
         <source>Deceleration</source>
-        <translation type="gpt-5-generated">تباطؤ</translation>
+        <translation>التباطؤ</translation>
     </message>
     <message>
         <source>MANAGE</source>
-        <translation type="gpt-5-generated">إدارة</translation>
+        <translation>إدارة</translation>
     </message>
     <message>
         <source>Set Speed</source>
-        <translation type="gpt-5-generated">تعيين السرعة</translation>
+        <translation>السرعة المضبوطة</translation>
     </message>
     <message>
         <source>Experimental Mode</source>
-        <translation type="gpt-5-generated">الوضع التجريبي</translation>
+        <translation>الوضع التجريبي</translation>
     </message>
     <message>
         <source>Previous Limit</source>
-        <translation type="gpt-5-generated">الحد السابق</translation>
+        <translation>الحد السابق</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="gpt-5-generated">لا شيء</translation>
+        <translation>لا شيء</translation>
     </message>
     <message>
         <source>Set With Gas Pedal</source>
-        <translation type="gpt-5-generated">ضبط باستخدام دواسة الوقود</translation>
+        <translation>الضبط بدواسة الوقود</translation>
     </message>
     <message>
         <source>Max Set Speed</source>
-        <translation type="gpt-5-generated">السرعة المحددة القصوى</translation>
+        <translation>أقصى سرعة مضبوطة</translation>
     </message>
     <message>
         <source>SELECT</source>
-        <translation type="gpt-5-generated">تحديد</translation>
+        <translation>اختيار</translation>
     </message>
     <message>
         <source>Dashboard</source>
-        <translation type="gpt-5-generated">لوحة القيادة</translation>
+        <translation>لوحة العدادات</translation>
     </message>
     <message>
         <source>Map Data</source>
-        <translation type="gpt-5-generated">بيانات الخرائط</translation>
+        <translation>بيانات الخرائط</translation>
     </message>
     <message>
         <source>Navigation</source>
-        <translation type="gpt-5-generated">الملاحة</translation>
+        <translation>الملاحة</translation>
     </message>
     <message>
         <source>Highest</source>
-        <translation type="gpt-5-generated">الأعلى</translation>
+        <translation>الأعلى</translation>
     </message>
     <message>
         <source>Lowest</source>
-        <translation type="gpt-5-generated">الأدنى</translation>
+        <translation>الأدنى</translation>
     </message>
     <message>
         <source>Select your primary priority</source>
-        <translation type="gpt-5-generated">اختر أولويتك الأساسية</translation>
+        <translation>اختر الأولوية الأولى</translation>
     </message>
     <message>
         <source>Select your secondary priority</source>
-        <translation type="gpt-5-generated">اختر أولويتك الثانوية</translation>
+        <translation>اختر الأولوية الثانية</translation>
     </message>
     <message>
         <source>Select your tertiary priority</source>
-        <translation type="gpt-5-generated">اختر أولويتك الثالثة</translation>
+        <translation>اختر الأولوية الثالثة</translation>
     </message>
     <message>
         <source>Lower Limits</source>
-        <translation type="gpt-5-generated">الحدود الدنيا</translation>
+        <translation>الحدود الأدنى</translation>
     </message>
     <message>
         <source>Higher Limits</source>
-        <translation type="gpt-5-generated">حدود أعلى</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to completely reset your settings for &lt;b&gt;Traffic Mode&lt;/b&gt;?</source>
-        <translation type="gpt-5-generated">هل أنت متأكد أنك تريد إعادة تعيين إعداداتك بالكامل لوضع &lt;b&gt;Traffic Mode&lt;/b&gt;?</translation>
+        <translation>الحدود الأعلى</translation>
     </message>
     <message>
         <source>Are you sure you want to completely reset your settings for the &lt;b&gt;Aggressive&lt;/b&gt; personality?</source>
-        <translation type="gpt-5-generated">هل أنت متأكد أنك تريد إعادة ضبط إعداداتك بالكامل لشخصية &lt;b&gt;عدوانية&lt;/b&gt;?</translation>
+        <translation>هل أنت متأكد من رغبتك في إعادة ضبط إعدادات نمط &lt;b&gt;الجريء&lt;/b&gt; بالكامل؟</translation>
     </message>
     <message>
         <source>Are you sure you want to completely reset your settings for the &lt;b&gt;Standard&lt;/b&gt; personality?</source>
-        <translation type="gpt-5-generated">هل أنت متأكد أنك تريد إعادة تعيين إعداداتك بالكامل لشخصية &lt;b&gt;Standard&lt;/b&gt;?</translation>
+        <translation>هل أنت متأكد من رغبتك في إعادة ضبط إعدادات نمط &lt;b&gt;القياسي&lt;/b&gt; بالكامل؟</translation>
     </message>
     <message>
         <source>Are you sure you want to completely reset your settings for the &lt;b&gt;Relaxed&lt;/b&gt; personality?</source>
-        <translation type="gpt-5-generated">هل أنت متأكد أنك تريد إعادة ضبط إعداداتك تمامًا لشخصية &lt;b&gt;الهادئة&lt;/b&gt;?</translation>
+        <translation>هل أنت متأكد من رغبتك في إعادة ضبط إعدادات نمط &lt;b&gt;المريح&lt;/b&gt; بالكامل؟</translation>
     </message>
     <message>
         <source> foot</source>
-        <translation type="gpt-5-generated">قدم</translation>
+        <translation> قدم</translation>
     </message>
     <message>
         <source> meter</source>
-        <translation type="gpt-5-generated">متر</translation>
+        <translation> متر</translation>
     </message>
     <message>
         <source> meters</source>
-        <translation type="gpt-5-generated"> أمتار</translation>
+        <translation> أمتار</translation>
     </message>
     <message>
         <source> km/h</source>
-        <translation type="gpt-5-generated">كم/س</translation>
+        <translation> كم/س</translation>
     </message>
     <message>
         <source>Speed Offset (0–29 km/h)</source>
-        <translation type="gpt-5-generated">تعويض السرعة (0–29 كم/س)</translation>
+        <translation>إزاحة السرعة (0–29 km/h)</translation>
     </message>
     <message>
         <source>Speed Offset (30–49 km/h)</source>
-        <translation type="gpt-5-generated">تعويض السرعة (30–49 كم/س)</translation>
+        <translation>إزاحة السرعة (30–49 km/h)</translation>
     </message>
     <message>
         <source>Speed Offset (50–59 km/h)</source>
-        <translation type="gpt-5-generated">تعويض السرعة (50–59 كم/س)</translation>
+        <translation>إزاحة السرعة (50–59 km/h)</translation>
     </message>
     <message>
         <source>Speed Offset (60–79 km/h)</source>
-        <translation type="gpt-5-generated">تعويض السرعة (60–79 كم/س)</translation>
+        <translation>إزاحة السرعة (60–79 km/h)</translation>
     </message>
     <message>
         <source>Speed Offset (80–99 km/h)</source>
-        <translation type="gpt-5-generated">تعويض السرعة (80–99 كم/س)</translation>
+        <translation>إزاحة السرعة (80–99 km/h)</translation>
     </message>
     <message>
         <source>Speed Offset (100–119 km/h)</source>
-        <translation type="gpt-5-generated">تعويض السرعة (100–119 كم/س)</translation>
+        <translation>إزاحة السرعة (100–119 km/h)</translation>
     </message>
     <message>
         <source>Speed Offset (120–140 km/h)</source>
-        <translation type="gpt-5-generated">إزاحة السرعة (120–140 كم/س)</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Following behavior that mimics human drivers&lt;/b&gt; by closing gaps behind faster vehicles for quicker takeoffs and dynamically adjusting the desired following distance for gentler, more efficient braking.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;سلوك متابعة يحاكي السائقين البشر&lt;/b&gt; عبر تقليل الفجوات خلف المركبات الأسرع لانطلاق أسرع وضبط مسافة المتابعة المطلوبة ديناميكياً لكبح ألطف وأكثر كفاءة.</translation>
+        <translation>إزاحة السرعة (120–140 km/h)</translation>
     </message>
     <message>
         <source>Weather Condition Offsets</source>
-        <translation type="gpt-5-generated">تعويضات حالة الطقس</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Automatically adjust driving behavior based on real-time weather.&lt;/b&gt; Helps maintain comfort and safety in low visibility, rain, or snow.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اضبط سلوك القيادة تلقائيًا بناءً على حالة الطقس الفعلية في الوقت الحقيقي.&lt;/b&gt; يساعد على الحفاظ على الراحة والسلامة في حالات ضعف الرؤية أو المطر أو الثلج.</translation>
+        <translation>تعديلات أحوال الطقس</translation>
     </message>
     <message>
         <source>Low Visibility</source>
-        <translation type="gpt-5-generated">ضعف الرؤية</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Driving adjustments for fog, haze, or other low-visibility conditions.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تعديلات القيادة للضباب أو الغبار أو غيرها من ظروف الرؤية المنخفضة.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Add extra space behind lead vehicles in low visibility.&lt;/b&gt; Increase for more space; decrease for tighter gaps.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أضف مسافة إضافية خلف المركبات الأمامية في ضعف الرؤية.&lt;/b&gt; زِد لزيادة المسافة؛ خفّض لتقليل الفجوات.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Add extra buffer when stopped behind vehicles in low visibility.&lt;/b&gt; Increase for more room; decrease for shorter gaps.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أضِف مسافة أمان إضافية عند التوقف خلف مركبات في ظروف رؤية منخفضة.&lt;/b&gt; زِد لحيّز أكبر؛ قَلّل لفجوات أقصر.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Lower the maximum acceleration in low visibility.&lt;/b&gt; Increase for softer takeoffs; decrease for quicker but less stable takeoffs.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;خفّض الحد الأقصى للتسارع في ضعف الرؤية.&lt;/b&gt; زدْه لانطلاقات أكثر نعومة؛ وخفّضه لانطلاقات أسرع لكنها أقل استقرارًا.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Lower the desired speed while driving through curves in low visibility.&lt;/b&gt; Increase for safer, gentler turns; decrease for more aggressive driving in curves.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;خفّض السرعة المطلوبة أثناء القيادة عبر المنعطفات في ضعف الرؤية.&lt;/b&gt; زدها لالتفافات أكثر أمانًا ولطفًا؛ وخفّضها لقيادة أكثر عدوانية في المنعطفات.</translation>
+        <translation>ضعف الرؤية</translation>
     </message>
     <message>
         <source>Rain</source>
-        <translation type="gpt-5-generated">مطر</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Driving adjustments for rainy conditions.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تعديلات القيادة للظروف الممطرة.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Add extra space behind lead vehicles in rain.&lt;/b&gt; Increase for more space; decrease for tighter gaps.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أضف مسافة إضافية خلف المركبات الأمامية عند المطر.&lt;/b&gt; زِد للحصول على مساحة أكبر؛ قَلِّل لمسافات أقصر.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Add extra buffer when stopped behind vehicles in rain.&lt;/b&gt; Increase for more room; decrease for shorter gaps.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أضِف مسافة أمان إضافية عند التوقف خلف المركبات أثناء المطر.&lt;/b&gt; زِدها لمزيد من المساحة؛ خفّضها لفواصل أقصر.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Lower the maximum acceleration in rain.&lt;/b&gt; Increase for softer takeoffs; decrease for quicker but less stable takeoffs.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;خفّض الحد الأقصى للتسارع في المطر.&lt;/b&gt; زدْه لبدء انطلاقات أكثر نعومة؛ وخفّضه لانطلاقات أسرع ولكن أقل استقرارًا.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Lower the desired speed while driving through curves in rain.&lt;/b&gt; Increase for safer, gentler turns; decrease for more aggressive driving in curves.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;خفّض السرعة المطلوبة أثناء القيادة عبر المنعطفات في المطر.&lt;/b&gt; زدها لانعطافات أكثر أمانًا ولطفًا؛ وأنقصها لقيادة أكثر عدوانية في المنعطفات.</translation>
+        <translation>مطر</translation>
     </message>
     <message>
         <source>Rainstorms</source>
-        <translation type="gpt-5-generated">عواصف مطرية</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Driving adjustments for rainstorms.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تعديلات القيادة للعواصف المطرية.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Add extra space behind lead vehicles in a rainstorm.&lt;/b&gt; Increase for more space; decrease for tighter gaps.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أضف مسافة إضافية خلف المركبات الأمامية أثناء العاصفة الممطرة.&lt;/b&gt; زد لزيادة المسافة؛ خفّض لتقليل الفجوات.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Add extra buffer when stopped behind vehicles in a rainstorm.&lt;/b&gt; Increase for more room; decrease for shorter gaps.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أضف هامش أمان إضافيًا عند التوقف خلف المركبات أثناء عاصفة مطرية.&lt;/b&gt; زِد لحيز أكبر؛ قَلِّل لفجوات أقصر.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Lower the maximum acceleration in a rainstorm.&lt;/b&gt; Increase for softer takeoffs; decrease for quicker but less stable takeoffs.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;خفّض الحد الأقصى للتسارع أثناء العاصفة الممطرة.&lt;/b&gt; زِدْه لنعومة أكبر عند الانطلاق؛ وخفِّضه لانطلاق أسرع ولكن أقل استقرارًا.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Lower the desired speed while driving through curves in a rainstorm.&lt;/b&gt; Increase for safer, gentler turns; decrease for more aggressive driving in curves.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اخفض السرعة المرغوبة أثناء القيادة عبر المنعطفات في عاصفة ممطرة.&lt;/b&gt; زدها لنعطفات أكثر أمانًا ولطفًا؛ وخفّضها لقيادة أكثر عدوانية في المنعطفات.</translation>
+        <translation>أمطار غزيرة</translation>
     </message>
     <message>
         <source>Human-Like Lane Changes</source>
-        <translation type="gpt-5-generated">تغييرات مسار شبيهة بالبشر</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Lane-change behavior that mimics human drivers&lt;/b&gt; by anticipating and tracking adjacent vehicles during lane changes.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;سلوك تغيير المسار يحاكي السائقين البشر&lt;/b&gt; عبر التنبؤ ومتابعة المركبات المجاورة أثناء تغيير المسارات.</translation>
+        <translation>تغيير مسار شبيه بالبشر</translation>
     </message>
     <message>
         <source>"Detected" Stop Lights/Signs</source>
-        <translation type="gpt-5-generated">أُكتشفت إشارات/أضواء توقف</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Switch to "Experimental Mode" whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;التبديل إلى "الوضع التجريبي" كلما "اكتشف" نموذج القيادة إشارة ضوء أحمر أو علامة توقف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;إخلاء مسؤولية&lt;/b&gt;: لا يكتشف openpilot إشارات المرور أو علامات التوقف صراحةً. في "الوضع التجريبي"، يتخذ openpilot قرارات قيادة شاملة من مدخلات الكاميرا، ما يعني أنه قد يتوقف حتى عندما لا يوجد سبب واضح!&lt;/i&gt;</translation>
+        <translation>إشارات المرور/علامات التوقف "المكتشفة"</translation>
     </message>
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" when openpilot predicts a stop within the set time.&lt;/b&gt; This is usually triggered when the model "sees" a red light or stop sign ahead.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;انتقل إلى "الوضع التجريبي" عندما يتوقع openpilot توقفًا ضمن الزمن المحدد.&lt;/b&gt; يحدث هذا عادةً عندما "يرى" النموذج إشارة ضوئية حمراء أو إشارة توقف أمامك.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;إخلاء مسؤولية&lt;/b&gt;: لا يكتشف openpilot إشارات المرور أو إشارات التوقف بشكل صريح. في "الوضع التجريبي"، يتخذ openpilot قرارات قيادة شاملة من مدخلات الكاميرا، ما يعني أنه قد يتوقف حتى عندما لا يوجد سبب واضح!&lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Force openpilot to stop whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إجبار openpilot على التوقف كلما "اكتشف" نموذج القيادة إشارة حمراء أو إشارة توقف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;إخلاء المسؤولية&lt;/b&gt;: لا يكتشف openpilot إشارات المرور أو إشارات التوقف بشكل صريح. في "الوضع التجريبي"، يتخذ openpilot قرارات قيادة شاملة من مدخلات الكاميرا، ما يعني أنه قد يتوقف حتى عندما لا يوجد سبب واضح!&lt;/i&gt;</translation>
+        <translation>&lt;b&gt;انتقل إلى "الوضع التجريبي" عندما يتوقع openpilot توقفًا خلال الزمن المضبوط.&lt;/b&gt; يحدث ذلك عادةً عندما "يرى" النموذج ضوءًا أحمر أو علامة توقف أمامك.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;إخلاء مسؤولية&lt;/b&gt;: لا يكتشف openpilot إشارات المرور أو علامات التوقف صراحةً. في "الوضع التجريبي"، يتخذ openpilot قرارات القيادة الشاملة اعتمادًا على صورة الكاميرا، ما يعني أنه قد يتوقف حتى دون سبب واضح!&lt;/i&gt;</translation>
     </message>
     <message>
         <source>Set Your Own Key</source>
-        <translation type="gpt-5-generated">عيّن مفتاحك الخاص</translation>
+        <translation>تعيين مفتاحك الخاص</translation>
     </message>
     <message>
         <source>&lt;b&gt;Set your own "OpenWeatherMap" key to increase the weather update rate.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Personal keys grant 1,000 free calls per day, allowing for updates every minute. The default key is shared and only updates every 15 minutes.&lt;/i&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;عيّن مفتاح "OpenWeatherMap" الخاص بك لزيادة معدل تحديث الطقس.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;توفر المفاتيح الشخصية 1,000 مكالمة مجانية يوميًا، مما يسمح بتحديثات كل دقيقة. المفتاح الافتراضي مشترك ويُحدّث كل 15 دقيقة فقط.&lt;/i&gt;</translation>
+        <translation>&lt;b&gt;عيّن مفتاح "OpenWeatherMap" الخاص بك لزيادة معدل تحديث الطقس.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;تمنح المفاتيح الشخصية 1,000 طلب مجاني يوميًا، ما يسمح بالتحديث كل دقيقة. المفتاح الافتراضي مشترك ولا يُحدّث إلا كل 15 دقيقة.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>ADD</source>
-        <translation type="gpt-5-generated">إضافة</translation>
+        <translation>إضافة</translation>
     </message>
     <message>
         <source>Enter your "OpenWeatherMap" key</source>
-        <translation type="gpt-5-generated">أدخل مفتاح "OpenWeatherMap" الخاص بك</translation>
+        <translation>أدخل مفتاح "OpenWeatherMap" الخاص بك</translation>
     </message>
     <message>
         <source>REMOVE</source>
-        <translation type="gpt-5-generated">إزالة</translation>
+        <translation>إزالة</translation>
     </message>
     <message>
         <source>Are you sure you want to remove your key?</source>
-        <translation type="gpt-5-generated">هل أنت متأكد أنك تريد إزالة مفتاحك؟</translation>
+        <translation>هل أنت متأكد من رغبتك في إزالة مفتاحك؟</translation>
     </message>
     <message>
         <source>TEST</source>
-        <translation type="gpt-5-generated">اختبار</translation>
+        <translation>اختبار</translation>
     </message>
     <message>
         <source>Testing...</source>
-        <translation type="gpt-5-generated">جارٍ الاختبار...</translation>
+        <translation>جارٍ الاختبار...</translation>
     </message>
     <message>
         <source>Key is valid!</source>
-        <translation type="gpt-5-generated">المفتاح صالح!</translation>
+        <translation>المفتاح صالح!</translation>
     </message>
     <message>
         <source>An error occurred: %1</source>
-        <translation type="gpt-5-generated">حدث خطأ: %1</translation>
+        <translation>حدث خطأ: %1</translation>
     </message>
     <message>
         <source>Characters: 0/%1</source>
-        <translation type="gpt-5-generated">عدد الأحرف: 0/%1</translation>
+        <translation>عدد الأحرف: 0/%1</translation>
     </message>
     <message>
         <source>Your key is valid for version 2.5, but version 3.0 is highly recommended! Please subscribe to the "One Call API 3.0" plan!</source>
-        <translation type="gpt-5-generated">مفتاحك صالح للإصدار 2.5، لكن الإصدار 3.0 موصى به بشدة! يُرجى الاشتراك في خطة "One Call API 3.0"!</translation>
+        <translation>مفتاحك صالح للإصدار 2.5، لكن يُوصى بشدة باستخدام الإصدار 3.0! يرجى الاشتراك في خطة "One Call API 3.0"!</translation>
     </message>
     <message>
         <source>Invalid key! (Error: %1)</source>
-        <translation type="gpt-5-generated">مفتاح غير صالح! (خطأ: %1)</translation>
+        <translation>مفتاح غير صالح! (الخطأ: %1)</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Hand-set the acceleration and braking numbers openpilot normally takes from your car.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;اضبط يدويًا قيم التسارع والكبح التي يأخذها openpilot عادةً من سيارتك.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How long your car takes to respond after openpilot presses the gas or brake.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it if your car feels slow to react. Lower it if it feels too eager or overshoots.</source>
+        <translation>&lt;b&gt;حدد الوقت الذي تستغرقه سيارتك للاستجابة بعد أن يطلب openpilot التسارع أو الكبح.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة إذا بدت استجابة السيارة بطيئة، واخفضها إذا كانت متسرعة أو تتجاوز المطلوب.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;The hardest openpilot is ever allowed to accelerate, no matter which profile you pick.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Lower it for a calmer car everywhere. This caps acceleration only, never braking.</source>
+        <translation>&lt;b&gt;حدد أقصى تسارع يُسمح لـ openpilot بتطبيقه، بصرف النظر عن النمط المختار.&lt;/b&gt;&lt;br&gt;&lt;br&gt;اخفض القيمة لقيادة أهدأ في جميع الحالات. يحد هذا التسارع فقط ولا يحد الكبح مطلقًا.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How hard openpilot pulls away in the first moment after a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for quicker takeoffs. Lower it for gentler ones. Only some cars use a fixed launch push like this, so on most cars this row does nothing.</source>
+        <translation>&lt;b&gt;حدد قوة انطلاق openpilot في اللحظة الأولى بعد التوقف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لانطلاق أسرع، واخفضها لانطلاق ألطف. لا تستخدم دفعة انطلاق ثابتة كهذه إلا بعض السيارات، ولذلك لا يؤثر هذا الصف في معظم السيارات.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;The speed that marks the end of pulling away from a stop, which sets how long openpilot holds its takeoff acceleration.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it to keep that takeoff push going up to a higher speed. Lower it to hand back to normal gas and brake control almost as soon as the wheels turn, which makes the start softer. Only some cars have a separate takeoff stage at all, so on most cars this row does nothing.</source>
+        <translation>&lt;b&gt;حدد السرعة التي تنتهي عندها مرحلة الانطلاق من التوقف، ومن ثم مدة احتفاظ openpilot بتسارع الانطلاق.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لاستمرار دفعة الانطلاق حتى سرعة أعلى. اخفضها للعودة إلى التحكم العادي بالتسارع والكبح فور دوران العجلات تقريبًا، ما يجعل الانطلاق ألطف. لا توجد مرحلة انطلاق منفصلة إلا في بعض السيارات، ولذلك لا يؤثر هذا الصف في معظم السيارات.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How hard openpilot holds the brakes as your car finishes stopping and while it sits still.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The number is negative because it is braking, so -2.00 holds harder than -0.50. Go more negative if your car creeps or rolls back on a hill, and closer to zero if the last moment of the stop feels too abrupt.</source>
+        <translation>&lt;b&gt;حدد قوة إبقاء openpilot للمكابح عند اكتمال توقف السيارة وأثناء ثباتها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;القيمة سالبة لأنها تمثل الكبح؛ لذلك تكون قوة التثبيت عند -2.00 أكبر منها عند -0.50. اجعلها أكثر سلبية إذا زحفت السيارة أو تراجعت على منحدر، وقرّبها من الصفر إذا بدت اللحظة الأخيرة من التوقف حادة جدًا.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How quickly openpilot builds up brake pressure as it comes to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for shorter, firmer stops. Lower it for longer, smoother ones.</source>
+        <translation>&lt;b&gt;حدد سرعة زيادة openpilot لضغط المكابح أثناء التوقف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لتوقف أقصر وأقوى، واخفضها لتوقف أطول وأكثر سلاسة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;The speed below which openpilot treats your car as stopped and switches to holding the brakes.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it to settle into the stop earlier and more smoothly. Lower it to keep normal braking going longer, at the risk of rolling past your mark.</source>
+        <translation>&lt;b&gt;حدد السرعة التي يعتبر openpilot السيارة دونها متوقفة وينتقل إلى تثبيت المكابح.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لبدء تثبيت التوقف أبكر وبسلاسة أكبر، واخفضها لمواصلة الكبح العادي مدة أطول مع احتمال تجاوز نقطة التوقف المطلوبة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch to "Experimental Mode" below this speed when there is no car ahead of you.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It helps openpilot handle slow, fiddly situations more smoothly.</source>
+        <translation>&lt;b&gt;انتقل إلى "الوضع التجريبي" دون هذه السرعة عند عدم وجود سيارة أمامك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يساعد ذلك openpilot على التعامل بسلاسة أكبر مع المواقف البطيئة والدقيقة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch to "Experimental Mode" when openpilot sees a curve coming up.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The model picks its own speed for the curve instead of holding your set speed.</source>
+        <translation>&lt;b&gt;انتقل إلى "الوضع التجريبي" عندما يرى openpilot منعطفًا قادمًا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يختار النموذج سرعته الخاصة للمنعطف بدلًا من الحفاظ على سرعتك المضبوطة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch to "Experimental Mode" whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only fires when there is no car close ahead of you, so it stays quiet when you roll up to a red light behind traffic, and "Traffic Mode" switches it off entirely.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
+        <translation>&lt;b&gt;انتقل إلى "الوضع التجريبي" كلما "اكتشف" نموذج القيادة ضوءًا أحمر أو علامة توقف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يُفعّل ذلك إلا عند عدم وجود سيارة قريبة أمامك، فلا يعمل عندما تقترب من ضوء أحمر خلف حركة المرور، ويوقفه "وضع الازدحام" بالكامل.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;إخلاء مسؤولية&lt;/b&gt;: لا يكتشف openpilot إشارات المرور أو علامات التوقف صراحةً. في "الوضع التجريبي"، يتخذ openpilot قرارات القيادة الشاملة اعتمادًا على صورة الكاميرا، ما يعني أنه قد يتوقف حتى دون سبب واضح!&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch to "Experimental Mode" when the car ahead is slower than you or has stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Slower Lead" and "Stopped Lead" both start off, so pick at least one with the buttons on this row or nothing happens.</source>
+        <translation>&lt;b&gt;انتقل إلى "الوضع التجريبي" عندما تكون السيارة أمامك أبطأ منك أو متوقفة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يبدأ خياري "مركبة أمامية أبطأ" و"مركبة أمامية متوقفة" متوقفين، لذا اختر واحدًا منهما على الأقل بأزرار هذا الصف وإلا فلن يحدث شيء.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch to "Experimental Mode" when you approach an intersection or a turn on your route, so the model can pick its own speed for it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs "Navigate on openpilot" running. The "Intersections" button starts off and "Turns" starts on, so out of the box this only fires for turns.</source>
+        <translation>&lt;b&gt;انتقل إلى "الوضع التجريبي" عند الاقتراب من تقاطع أو منعطف على مسارك كي يختار النموذج سرعته المناسبة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يتطلب تشغيل "الملاحة على openpilot". يبدأ زر "التقاطعات" متوقفًا وزر "المنعطفات" مفعّلًا، لذلك لا يعمل افتراضيًا إلا للمنعطفات.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch to "Experimental Mode" when you signal below the speed you set, so openpilot picks its own speed through the turn instead of holding your set speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This runs off the "Not For Detected Lanes" button on this row, which has to stay on. With it on, openpilot only reads a signal as a turn when the space beside you is narrower than the "Minimum Lane Width" under "Lane Changes" in the "STEERING" panel. That width starts at zero, so nothing happens until you raise it, and turning the button off stops it firing at all.</source>
+        <translation>&lt;b&gt;انتقل إلى "الوضع التجريبي" عند تشغيل الإشارة دون السرعة التي ضبطتها، كي يختار openpilot سرعته عبر المنعطف بدلًا من الحفاظ على السرعة المضبوطة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يعتمد ذلك على زر "ليس للمسارات المكتشفة" في هذا الصف، ويجب أن يبقى مفعّلًا. عند تفعيله، لا يعتبر openpilot الإشارة منعطفًا إلا إذا كانت المساحة بجانبك أضيق من "الحد الأدنى لعرض المسار" ضمن "تغيير المسار" في لوحة "التوجيه". يبدأ ذلك العرض عند الصفر، لذا لن يحدث شيء حتى ترفعه، ويؤدي إيقاف الزر إلى تعطيل الشرط تمامًا.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Show which condition switched "Experimental Mode" on, right on the driving screen.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;اعرض على شاشة القيادة الشرط الذي فعّل "الوضع التجريبي".&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Throw away everything openpilot has learned about how you take curves and start over.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Adaptive" goes back to its starting value and relearns as you drive. Only available while the car is off.</source>
+        <translation>&lt;b&gt;امسح كل ما تعلّمه openpilot عن طريقتك في اجتياز المنعطفات وابدأ من جديد.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يعود نمط "تكيفي" إلى قيمته الابتدائية ويعيد التعلّم أثناء قيادتك. لا يتوفر هذا إلا عندما تكون السيارة مطفأة.</translation>
+    </message>
+    <message>
+        <source>Curve Speed Profile</source>
+        <translation>نمط سرعة المنعطفات</translation>
+    </message>
+    <message>
+        <source>Maximum Lateral Acceleration</source>
+        <translation>أقصى تسارع جانبي</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Show the speed openpilot is aiming for through the curve, right on the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It also shows a "Training..." note while openpilot is learning from the way you take a curve yourself.</source>
+        <translation>&lt;b&gt;اعرض على شاشة القيادة السرعة التي يستهدفها openpilot عبر المنعطف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تظهر أيضًا ملاحظة "جارٍ التدريب..." بينما يتعلم openpilot من طريقتك في اجتياز المنعطف بنفسك.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Change what Aggressive, Standard and Relaxed actually do, so they match how you like to drive.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;غيّر سلوك الأنماط الجريء والقياسي والمريح لتطابق طريقة القيادة التي تفضلها.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How many seconds of space openpilot keeps behind the car ahead with the "Aggressive" profile.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more room. Lower it for tighter gaps.&lt;br&gt;&lt;br&gt;Default: 1.25 seconds.</source>
+        <translation>&lt;b&gt;حدد عدد ثواني المسافة التي يحافظ عليها openpilot خلف السيارة الأمامية في النمط "الجريء".&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لمسافة أكبر، واخفضها لفاصل أقصر.&lt;br&gt;&lt;br&gt;الافتراضي: 1.25 ثانية.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How smoothly openpilot speeds up with the "Aggressive" profile.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler, more gradual acceleration. Lower it for quicker but more abrupt acceleration. It applies whenever your car is gaining speed, not only when leaving a stop, and "Traffic Mode" ignores it in favour of its own value.</source>
+        <translation>&lt;b&gt;حدد سلاسة تسارع openpilot في النمط "الجريء".&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لتسارع ألطف وأكثر تدرجًا، واخفضها لتسارع أسرع لكنه أشد حدة. ينطبق ذلك كلما زادت سرعة السيارة، وليس عند الانطلاق من التوقف فقط، ويتجاهله "وضع الازدحام" لصالح قيمته الخاصة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How smoothly openpilot slows down with the "Aggressive" profile.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler braking. Lower it for quicker but sharper braking. It applies whenever your car is losing speed, not only when coming to a stop, and "Traffic Mode" ignores it in favour of its own value.</source>
+        <translation>&lt;b&gt;حدد سلاسة تباطؤ openpilot في النمط "الجريء".&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لكبح ألطف، واخفضها لكبح أسرع لكنه أشد حدة. ينطبق ذلك كلما انخفضت سرعة السيارة، وليس عند التوقف فقط، ويتجاهله "وضع الازدحام" لصالح قيمته الخاصة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How hard openpilot works to protect your following distance with the "Aggressive" profile.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it and openpilot reacts sooner and harder when the gap starts closing. Lower it and it tolerates the gap shrinking before doing anything.</source>
+        <translation>&lt;b&gt;حدد مدى قوة استجابة openpilot لحماية مسافة التتبع في النمط "الجريء".&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة ليستجيب openpilot أبكر وبقوة أكبر عندما يبدأ الفاصل بالتقلص. اخفضها ليسمح بتقلص الفاصل أكثر قبل الاستجابة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;A second smoothness setting for slowing down with the "Aggressive" profile, working alongside "Braking Smoothness".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual slowdowns. Lower it for faster but sharper ones. Both are active whenever your car is losing speed, including the last of a stop, and "Traffic Mode" ignores both.</source>
+        <translation>&lt;b&gt;إعداد سلاسة ثانٍ للتباطؤ في النمط "الجريء" يعمل إلى جانب "سلاسة الكبح".&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لتباطؤ أكثر تدرجًا، واخفضها لتباطؤ أسرع لكنه أشد حدة. يعمل الإعدادان كلما انخفضت سرعة السيارة، بما في ذلك نهاية التوقف، ويتجاهلهما "وضع الازدحام".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;A second smoothness setting for speeding up with the "Aggressive" profile, working alongside "Acceleration Smoothness".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual pickup. Lower it for quicker but more jolting pickup. Both are active whenever your car is gaining speed, at any speed, and "Traffic Mode" ignores both.</source>
+        <translation>&lt;b&gt;إعداد سلاسة ثانٍ للتسارع في النمط "الجريء" يعمل إلى جانب "سلاسة التسارع".&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لتسارع أكثر تدرجًا، واخفضها لتسارع أسرع لكنه أكثر اهتزازًا. يعمل الإعدادان كلما زادت سرعة السيارة وعند أي سرعة، ويتجاهلهما "وضع الازدحام".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Put every "Aggressive" profile value back the way it shipped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only affects this profile. Your other profiles are left alone.</source>
+        <translation>&lt;b&gt;أعد جميع قيم النمط "الجريء" إلى إعدادات المصنع.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يؤثر إلا في هذا النمط، وتبقى الأنماط الأخرى من دون تغيير.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How many seconds of space openpilot keeps behind the car ahead with the "Standard" profile.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more room. Lower it for tighter gaps.&lt;br&gt;&lt;br&gt;Default: 1.45 seconds.</source>
+        <translation>&lt;b&gt;حدد عدد ثواني المسافة التي يحافظ عليها openpilot خلف السيارة الأمامية في النمط "القياسي".&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لمسافة أكبر، واخفضها لفاصل أقصر.&lt;br&gt;&lt;br&gt;الافتراضي: 1.45 ثانية.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How smoothly openpilot speeds up with the "Standard" profile.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler, more gradual acceleration. Lower it for quicker but more abrupt acceleration. It applies whenever your car is gaining speed, not only when leaving a stop, and "Traffic Mode" ignores it in favour of its own value.</source>
+        <translation>&lt;b&gt;حدد سلاسة تسارع openpilot في النمط "القياسي".&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لتسارع ألطف وأكثر تدرجًا، واخفضها لتسارع أسرع لكنه أشد حدة. ينطبق ذلك كلما زادت سرعة السيارة، وليس عند الانطلاق من التوقف فقط، ويتجاهله "وضع الازدحام" لصالح قيمته الخاصة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How smoothly openpilot slows down with the "Standard" profile.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler braking. Lower it for quicker but sharper braking. It applies whenever your car is losing speed, not only when coming to a stop, and "Traffic Mode" ignores it in favour of its own value.</source>
+        <translation>&lt;b&gt;حدد سلاسة تباطؤ openpilot في النمط "القياسي".&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لكبح ألطف، واخفضها لكبح أسرع لكنه أشد حدة. ينطبق ذلك كلما انخفضت سرعة السيارة، وليس عند التوقف فقط، ويتجاهله "وضع الازدحام" لصالح قيمته الخاصة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How hard openpilot works to protect your following distance with the "Standard" profile.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it and openpilot reacts sooner and harder when the gap starts closing. Lower it and it tolerates the gap shrinking before doing anything.</source>
+        <translation>&lt;b&gt;حدد مدى قوة استجابة openpilot لحماية مسافة التتبع في النمط "القياسي".&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة ليستجيب openpilot أبكر وبقوة أكبر عندما يبدأ الفاصل بالتقلص. اخفضها ليسمح بتقلص الفاصل أكثر قبل الاستجابة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;A second smoothness setting for slowing down with the "Standard" profile, working alongside "Braking Smoothness".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual slowdowns. Lower it for faster but sharper ones. Both are active whenever your car is losing speed, including the last of a stop, and "Traffic Mode" ignores both.</source>
+        <translation>&lt;b&gt;إعداد سلاسة ثانٍ للتباطؤ في النمط "القياسي" يعمل إلى جانب "سلاسة الكبح".&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لتباطؤ أكثر تدرجًا، واخفضها لتباطؤ أسرع لكنه أشد حدة. يعمل الإعدادان كلما انخفضت سرعة السيارة، بما في ذلك نهاية التوقف، ويتجاهلهما "وضع الازدحام".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;A second smoothness setting for speeding up with the "Standard" profile, working alongside "Acceleration Smoothness".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual pickup. Lower it for quicker but more jolting pickup. Both are active whenever your car is gaining speed, at any speed, and "Traffic Mode" ignores both.</source>
+        <translation>&lt;b&gt;إعداد سلاسة ثانٍ للتسارع في النمط "القياسي" يعمل إلى جانب "سلاسة التسارع".&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لتسارع أكثر تدرجًا، واخفضها لتسارع أسرع لكنه أكثر اهتزازًا. يعمل الإعدادان كلما زادت سرعة السيارة وعند أي سرعة، ويتجاهلهما "وضع الازدحام".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Put every "Standard" profile value back the way it shipped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only affects this profile. Your other profiles are left alone.</source>
+        <translation>&lt;b&gt;أعد جميع قيم النمط "القياسي" إلى إعدادات المصنع.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يؤثر إلا في هذا النمط، وتبقى الأنماط الأخرى من دون تغيير.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How many seconds of space openpilot keeps behind the car ahead with the "Relaxed" profile.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more room. Lower it for tighter gaps.&lt;br&gt;&lt;br&gt;Default: 1.75 seconds.</source>
+        <translation>&lt;b&gt;حدد عدد ثواني المسافة التي يحافظ عليها openpilot خلف السيارة الأمامية في النمط "المريح".&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لمسافة أكبر، واخفضها لفاصل أقصر.&lt;br&gt;&lt;br&gt;الافتراضي: 1.75 ثانية.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How smoothly openpilot speeds up with the "Relaxed" profile.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler, more gradual acceleration. Lower it for quicker but more abrupt acceleration. It applies whenever your car is gaining speed, not only when leaving a stop, and "Traffic Mode" ignores it in favour of its own value.</source>
+        <translation>&lt;b&gt;حدد سلاسة تسارع openpilot في النمط "المريح".&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لتسارع ألطف وأكثر تدرجًا، واخفضها لتسارع أسرع لكنه أشد حدة. ينطبق ذلك كلما زادت سرعة السيارة، وليس عند الانطلاق من التوقف فقط، ويتجاهله "وضع الازدحام" لصالح قيمته الخاصة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How smoothly openpilot slows down with the "Relaxed" profile.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler braking. Lower it for quicker but sharper braking. It applies whenever your car is losing speed, not only when coming to a stop, and "Traffic Mode" ignores it in favour of its own value.</source>
+        <translation>&lt;b&gt;حدد سلاسة تباطؤ openpilot في النمط "المريح".&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لكبح ألطف، واخفضها لكبح أسرع لكنه أشد حدة. ينطبق ذلك كلما انخفضت سرعة السيارة، وليس عند التوقف فقط، ويتجاهله "وضع الازدحام" لصالح قيمته الخاصة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How hard openpilot works to protect your following distance with the "Relaxed" profile.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it and openpilot reacts sooner and harder when the gap starts closing. Lower it and it tolerates the gap shrinking before doing anything.</source>
+        <translation>&lt;b&gt;حدد مدى قوة استجابة openpilot لحماية مسافة التتبع في النمط "المريح".&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة ليستجيب openpilot أبكر وبقوة أكبر عندما يبدأ الفاصل بالتقلص. اخفضها ليسمح بتقلص الفاصل أكثر قبل الاستجابة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;A second smoothness setting for slowing down with the "Relaxed" profile, working alongside "Braking Smoothness".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual slowdowns. Lower it for faster but sharper ones. Both are active whenever your car is losing speed, including the last of a stop, and "Traffic Mode" ignores both.</source>
+        <translation>&lt;b&gt;إعداد سلاسة ثانٍ للتباطؤ في النمط "المريح" يعمل إلى جانب "سلاسة الكبح".&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لتباطؤ أكثر تدرجًا، واخفضها لتباطؤ أسرع لكنه أشد حدة. يعمل الإعدادان كلما انخفضت سرعة السيارة، بما في ذلك نهاية التوقف، ويتجاهلهما "وضع الازدحام".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;A second smoothness setting for speeding up with the "Relaxed" profile, working alongside "Acceleration Smoothness".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual pickup. Lower it for quicker but more jolting pickup. Both are active whenever your car is gaining speed, at any speed, and "Traffic Mode" ignores both.</source>
+        <translation>&lt;b&gt;إعداد سلاسة ثانٍ للتسارع في النمط "المريح" يعمل إلى جانب "سلاسة التسارع".&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لتسارع أكثر تدرجًا، واخفضها لتسارع أسرع لكنه أكثر اهتزازًا. يعمل الإعدادان كلما زادت سرعة السيارة وعند أي سرعة، ويتجاهلهما "وضع الازدحام".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Put every "Relaxed" profile value back the way it shipped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only affects this profile. Your other profiles are left alone.</source>
+        <translation>&lt;b&gt;أعد جميع قيم النمط "المريح" إلى إعدادات المصنع.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يؤثر إلا في هذا النمط، وتبقى الأنماط الأخرى من دون تغيير.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Change how openpilot speeds up and slows down.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;غيّر طريقة تسارع openpilot وتباطئه.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How quickly openpilot speeds up.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Standard" is openpilot's normal acceleration, "Eco" is gentle and efficient, "Sport" is firmer and more responsive, and "Sport+" accelerates as hard as your car allows. None of these apply while "Experimental Mode" is running, including when "Conditional Experimental Mode" switches it on for you.</source>
+        <translation>&lt;b&gt;حدد سرعة تسارع openpilot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يمثل "القياسي" تسارع openpilot العادي، و"الاقتصادي" تسارعًا لطيفًا وفعالًا، و"الرياضي" تسارعًا أقوى وأسرع استجابة، بينما يتسارع "الرياضي+" بأقصى ما تسمح به سيارتك. لا ينطبق أي منها أثناء تشغيل "الوضع التجريبي"، بما في ذلك عندما يفعّله "الوضع التجريبي المشروط" نيابةً عنك.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How gently openpilot slows down when the road ahead is clear.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Standard" brakes at full strength, "Eco" brakes about half as hard so you coast more, and "Eco+" brakes about a quarter as hard for the gentlest slowdowns. Whenever there is a car ahead, or while "Experimental Mode" is running, openpilot goes back to full-strength braking so it can still stop in time.</source>
+        <translation>&lt;b&gt;حدد مدى لطف تباطؤ openpilot عندما يكون الطريق أمامك خاليًا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يكبح "القياسي" بالقوة الكاملة، ويكبح "الاقتصادي" بنحو نصف القوة لتنساب السيارة أكثر، ويكبح "الاقتصادي+" بنحو ربع القوة لألطف تباطؤ. عند وجود سيارة أمامك أو أثناء تشغيل "الوضع التجريبي"، يعود openpilot إلى الكبح بالقوة الكاملة ليظل قادرًا على التوقف في الوقت المناسب.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot builds speed more like a person, holding back while your set speed is low and easing off as you close in on it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;At a 25 mph set speed you get roughly half the acceleration you otherwise would. On cars with a fixed launch push, this replaces that push with the same smooth target openpilot uses everywhere else, and the "Start Acceleration" row disappears while this is on.</source>
+        <translation>&lt;b&gt;يزيد openpilot السرعة بطريقة أقرب إلى البشر، فيخفف التسارع عندما تكون السرعة المضبوطة منخفضة ثم يقلله تدريجيًا عند الاقتراب منها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;عند ضبط السرعة على 25 mph تحصل على نحو نصف التسارع المعتاد. في السيارات ذات دفعة الانطلاق الثابتة، يستبدل ذلك الدفعة بالهدف السلس نفسه الذي يستخدمه openpilot في بقية الحالات، ويختفي صف "تسارع الانطلاق" أثناء تشغيل هذا الخيار.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot follows the car ahead more naturally, reading where that car is headed so it eases off and starts braking earlier and softer instead of reacting late.&lt;/b&gt;&lt;br&gt;&lt;br&gt;On the default driving model this only works while openpilot can clearly see the car ahead. Older driving models need radar for it, and on a radarless car with an older model nothing changes.</source>
+        <translation>&lt;b&gt;يتتبع openpilot السيارة الأمامية بصورة أكثر طبيعية، ويتوقع اتجاهها ليخفف التسارع ويبدأ الكبح أبكر وألطف بدلًا من الاستجابة المتأخرة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;في نموذج القيادة الافتراضي لا يعمل ذلك إلا عندما يرى openpilot السيارة الأمامية بوضوح. تحتاج نماذج القيادة الأقدم إلى رادار، ولا يتغير شيء في سيارة بلا رادار تستخدم نموذجًا أقدم.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot watches the cars in the lane it is moving into and adjusts its speed for them during a lane change.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without this it only reacts to the car directly ahead until the move is finished.</source>
+        <translation>&lt;b&gt;يراقب openpilot السيارات في المسار الذي ينتقل إليه ويضبط سرعته وفقًا لها أثناء تغيير المسار.&lt;/b&gt;&lt;br&gt;&lt;br&gt;بدون هذا الخيار لا يستجيب إلا للسيارة أمامه مباشرةً حتى يكتمل الانتقال.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How sure openpilot has to be that something in front of you is really a car before it starts following it and braking for it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Lower numbers pick up cars sooner and farther away, with more chances of reacting to something that is not a moving car. Higher numbers wait for a clearer look, so there are fewer false alarms but openpilot notices the car ahead later.&lt;br&gt;&lt;br&gt;Default: 35%.</source>
+        <translation>&lt;b&gt;حدد مقدار اليقين المطلوب لدى openpilot بأن الجسم أمامك سيارة فعلًا قبل أن يبدأ تتبعها والكبح من أجلها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تكتشف القيم الأقل السيارات أبكر ومن مسافة أبعد، مع احتمال أكبر للاستجابة لجسم ليس سيارة متحركة. تنتظر القيم الأعلى رؤية أوضح، فتقل الإنذارات الكاذبة لكن يلاحظ openpilot السيارة الأمامية لاحقًا.&lt;br&gt;&lt;br&gt;الافتراضي: 35%.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot slows down more for left and right turns, using the trick comma built for their 2022 "Taco Bell Run" drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It never switches off, so it is still working on fast highway curves. What stops at about 45 mph is the ramp: openpilot allows more cornering force the faster you go, up to that speed, then holds it flat. That makes the slowdown most noticeable in slow, tight turns.</source>
+        <translation>&lt;b&gt;يبطئ openpilot أكثر للمنعطفات اليمنى واليسرى باستخدام الحيلة التي طورتها comma لرحلة "Taco Bell Run" عام 2022.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يتوقف هذا الخيار مطلقًا، لذلك يظل عاملًا على منحنيات الطرق السريعة. الذي يتوقف عند نحو 45 mph هو التدرج: يسمح openpilot بقوة انعطاف أكبر كلما زادت السرعة حتى ذلك الحد، ثم يثبتها. لذلك يكون التباطؤ أوضح في المنعطفات البطيئة والضيقة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Smaller changes to how openpilot handles the gas and brake.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;تغييرات صغيرة في طريقة تحكم openpilot بالتسارع والكبح.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How much your set speed moves with each tap of the + or - cruise button.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Set it to 1 to land on any speed exactly, or higher to get where you are going in fewer taps.</source>
+        <translation>&lt;b&gt;حدد مقدار تغير السرعة المضبوطة مع كل ضغطة على زر + أو - لمثبت السرعة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;اضبطها على 1 للوصول بدقة إلى أي سرعة، أو على قيمة أعلى للوصول إليها بعدد ضغطات أقل.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How much your set speed moves while you hold the + or - cruise button down.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The default is 5, against 1 for a single tap.</source>
+        <translation>&lt;b&gt;حدد مقدار تغير السرعة المضبوطة أثناء الضغط المطول على زر + أو - لمثبت السرعة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;القيمة الافتراضية هي 5، مقابل 1 للضغطة الواحدة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot comes to a full stop whenever it thinks it sees a red light or stop sign, whether or not "Experimental Mode" is running.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only kicks in when openpilot is not already tracking a car ahead, so behind a queue at a light your normal following does the stopping instead, and "Traffic Mode" turns it off entirely. Touching the gas cancels a forced stop for the next 10 seconds.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Heads up&lt;/b&gt;: openpilot never actually reads traffic lights or stop signs. It decides from what the camera sees, so it can stop when there is no reason to.&lt;/i&gt;</source>
+        <translation>&lt;b&gt;يتوقف openpilot توقفًا كاملًا كلما اعتقد أنه يرى ضوءًا أحمر أو علامة توقف، سواء أكان "الوضع التجريبي" قيد التشغيل أم لا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يعمل ذلك إلا عندما لا يكون openpilot يتتبع سيارة أمامه بالفعل؛ فإذا كنت خلف طابور عند إشارة، يتولى التتبع العادي إيقاف السيارة بدلًا منه، ويعطله "وضع الازدحام" بالكامل. يؤدي لمس دواسة الوقود إلى إلغاء أي توقف إجباري خلال الـ 10 ثوانٍ التالية.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;تنبيه&lt;/b&gt;: لا يقرأ openpilot إشارات المرور أو علامات التوقف فعليًا. بل يقرر اعتمادًا على ما تراه الكاميرا، لذلك قد يتوقف دون سبب.&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Adds a set amount of extra room between you and the car ahead, and keeps that room at every speed, not just when you are stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You notice it most at red lights, where a few feet stops openpilot creeping up close. While moving, that same room means openpilot starts slowing a little sooner. "Traffic Mode" ignores this setting.</source>
+        <translation>&lt;b&gt;يضيف مسافة ثابتة بينك وبين السيارة الأمامية ويحافظ عليها عند كل السرعات، لا عند التوقف فقط.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يظهر أثرها أكثر عند الإشارات الحمراء، حيث تمنع بضعة أقدام openpilot من الزحف إلى مسافة قريبة. أثناء الحركة تعني المسافة نفسها أن openpilot يبدأ التباطؤ أبكر قليلًا. يتجاهل "وضع الازدحام" هذا الإعداد.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lets your car's "Eco" and "Sport" gear modes take over how openpilot speeds up, how it slows down, or both.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick "Acceleration", "Deceleration" or both with the buttons on this row, since neither starts on and nothing changes until you do.&lt;br&gt;&lt;br&gt;"Eco" gear makes openpilot accelerate gently and "Sport" gear makes it accelerate firmly. Braking goes the other way: "Eco" gear halves how hard openpilot can brake and "Sport" gear cuts it to a quarter, so "Sport" coasts the longest. The braking change only applies when there is no car ahead.</source>
+        <translation>&lt;b&gt;اسمح لوضعي ناقل الحركة "اقتصادي" و"رياضي" في سيارتك بالتحكم في طريقة تسارع openpilot أو تباطئه أو كليهما.&lt;/b&gt;&lt;br&gt;&lt;br&gt;اختر "التسارع" أو "التباطؤ" أو كليهما بأزرار هذا الصف، إذ يبدأ كلاهما متوقفًا ولا يتغير شيء حتى تختار.&lt;br&gt;&lt;br&gt;يجعل وضع "اقتصادي" تسارع openpilot لطيفًا، ويجعله وضع "رياضي" أقوى. أما الكبح فيعمل بالعكس: يخفض وضع "اقتصادي" أقصى قوة كبح إلى النصف، ويخفضها وضع "رياضي" إلى الربع، لذلك يتيح "رياضي" أطول انسياب. لا ينطبق تغيير الكبح إلا عند عدم وجود سيارة أمامك.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Changes the set speed by an extra amount every time you press and hold the + cruise button.&lt;/b&gt;&lt;br&gt;&lt;br&gt;With 5 chosen, holding + lands 5 above where the "Cruise Interval (Hold)" amount alone would have put you. The - button does not mirror it: holding - moves down by twice the "Cruise Interval (Hold)" amount minus your offset, so with the shipped 5 and 5 you just get a plain 5 down. A quick tap is never affected.</source>
+        <translation>&lt;b&gt;يغيّر السرعة المضبوطة بمقدار إضافي كلما ضغطت مطولًا على زر + لمثبت السرعة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;عند اختيار 5، يصل الضغط المطول على + إلى سرعة أعلى بمقدار 5 من النتيجة التي كانت ستنتج عن "خطوة سرعة المثبت (ضغط مطول)" وحدها. لا يعمل زر - بصورة معكوسة: فالضغط المطول عليه يخفض السرعة بمقدار ضعف "خطوة سرعة المثبت (ضغط مطول)" ناقص الإزاحة؛ لذلك مع القيمتين الافتراضيتين 5 و5 يكون الانخفاض 5 فقط. لا تتأثر الضغطة السريعة مطلقًا.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Every tap of the + cruise button raises your set speed by 5 instead of 1, the same amount you already get from holding it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Leave it off when you want to land on an exact speed like 63.</source>
+        <translation>&lt;b&gt;تزيد كل ضغطة على زر + لمثبت السرعة السرعة المضبوطة بمقدار 5 بدلًا من 1، وهو المقدار نفسه الناتج عن الضغط المطول.&lt;/b&gt;&lt;br&gt;&lt;br&gt;اتركه متوقفًا عندما تريد الوصول إلى سرعة دقيقة مثل 63.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot drives more cautiously on its own when the weather turns bad.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It checks the current weather where you are and applies whichever set of adjustments below matches. Every one of those adjustments starts at 0, so a weather icon shows up on the driving screen but nothing about how openpilot drives changes until you open the sets below and put in your own numbers.</source>
+        <translation>&lt;b&gt;يقود openpilot تلقائيًا بحذر أكبر عندما يسوء الطقس.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يتحقق من الطقس الحالي في موقعك ويطبق مجموعة التعديلات المطابقة أدناه. تبدأ جميع هذه التعديلات عند 0، لذلك يظهر رمز الطقس على شاشة القيادة لكن لا يتغير سلوك openpilot حتى تفتح المجموعات أدناه وتدخل قيمك الخاصة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How openpilot drives when fog or haze cuts your visibility.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These add to your normal settings rather than replacing them.</source>
+        <translation>&lt;b&gt;حدد طريقة قيادة openpilot عندما يقلل الضباب أو الغشاوة مدى الرؤية.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تُضاف هذه القيم إلى إعداداتك العادية ولا تستبدلها.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Adds extra seconds of space between you and the car ahead in low visibility.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your total gap never goes past 3.00 seconds, so this only adds what is left below that.</source>
+        <translation>&lt;b&gt;يضيف ثوانٍ إضافية إلى الفاصل بينك وبين السيارة الأمامية عند ضعف الرؤية.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يتجاوز إجمالي الفاصل 3.00 ثوانٍ، لذلك لا يضيف إلا المقدار المتبقي دون ذلك.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Adds extra room between you and the car ahead in low visibility, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life".</source>
+        <translation>&lt;b&gt;يضيف مسافة بينك وبين السيارة الأمامية عند ضعف الرؤية، في كل السرعات وليس عند التوقف فقط.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تُضاف إلى الإعداد نفسه ضمن "تحسينات الاستخدام".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Holds openpilot back from accelerating as hard in low visibility.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;يحد من قوة تسارع openpilot عند ضعف الرؤية.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Takes curves more slowly in low visibility.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only does anything while "Curve Speed Controller" is on. Raise it for gentler, safer cornering on a slippery road.</source>
+        <translation>&lt;b&gt;يجتاز المنعطفات بسرعة أقل عند ضعف الرؤية.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يؤثر إلا أثناء تشغيل "متحكم سرعة المنعطفات". ارفع القيمة لانعطاف ألطف وأكثر أمانًا على طريق زلق.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How openpilot drives in the rain.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These add to your normal settings rather than replacing them.</source>
+        <translation>&lt;b&gt;حدد طريقة قيادة openpilot تحت المطر.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تُضاف هذه القيم إلى إعداداتك العادية ولا تستبدلها.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Adds extra seconds of space between you and the car ahead in rain.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your total gap never goes past 3.00 seconds, so this only adds what is left below that.</source>
+        <translation>&lt;b&gt;يضيف ثوانٍ إضافية إلى الفاصل بينك وبين السيارة الأمامية أثناء المطر.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يتجاوز إجمالي الفاصل 3.00 ثوانٍ، لذلك لا يضيف إلا المقدار المتبقي دون ذلك.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Adds extra room between you and the car ahead in rain, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life".</source>
+        <translation>&lt;b&gt;يضيف مسافة بينك وبين السيارة الأمامية أثناء المطر، في كل السرعات وليس عند التوقف فقط.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تُضاف إلى الإعداد نفسه ضمن "تحسينات الاستخدام".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Holds openpilot back from accelerating as hard in rain.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for softer, more controlled pickup on a slippery road.</source>
+        <translation>&lt;b&gt;يحد من قوة تسارع openpilot أثناء المطر.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لتسارع ألطف وأكثر تحكمًا على طريق زلق.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Takes curves more slowly in rain.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only does anything while "Curve Speed Controller" is on. Raise it for gentler, safer cornering on a slippery road.</source>
+        <translation>&lt;b&gt;يجتاز المنعطفات بسرعة أقل أثناء المطر.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يؤثر إلا أثناء تشغيل "متحكم سرعة المنعطفات". ارفع القيمة لانعطاف ألطف وأكثر أمانًا على طريق زلق.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How openpilot drives in heavy rain.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These add to your normal settings rather than replacing them.</source>
+        <translation>&lt;b&gt;حدد طريقة قيادة openpilot تحت المطر الغزير.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تُضاف هذه القيم إلى إعداداتك العادية ولا تستبدلها.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Adds extra seconds of space between you and the car ahead in a rainstorm.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your total gap never goes past 3.00 seconds, so this only adds what is left below that.</source>
+        <translation>&lt;b&gt;يضيف ثوانٍ إضافية إلى الفاصل بينك وبين السيارة الأمامية أثناء المطر الغزير.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يتجاوز إجمالي الفاصل 3.00 ثوانٍ، لذلك لا يضيف إلا المقدار المتبقي دون ذلك.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Adds extra room between you and the car ahead in a rainstorm, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life".</source>
+        <translation>&lt;b&gt;يضيف مسافة بينك وبين السيارة الأمامية أثناء المطر الغزير، في كل السرعات وليس عند التوقف فقط.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تُضاف إلى الإعداد نفسه ضمن "تحسينات الاستخدام".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Holds openpilot back from accelerating as hard in a rainstorm.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for softer, more controlled pickup on a slippery road.</source>
+        <translation>&lt;b&gt;يحد من قوة تسارع openpilot أثناء المطر الغزير.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لتسارع ألطف وأكثر تحكمًا على طريق زلق.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Takes curves more slowly in a rainstorm.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only does anything while "Curve Speed Controller" is on. Raise it for gentler, safer cornering on a slippery road.</source>
+        <translation>&lt;b&gt;يجتاز المنعطفات بسرعة أقل أثناء المطر الغزير.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يؤثر إلا أثناء تشغيل "متحكم سرعة المنعطفات". ارفع القيمة لانعطاف ألطف وأكثر أمانًا على طريق زلق.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How openpilot drives in snow.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These add to your normal settings rather than replacing them.</source>
+        <translation>&lt;b&gt;حدد طريقة قيادة openpilot في الثلج.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تُضاف هذه القيم إلى إعداداتك العادية ولا تستبدلها.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Adds extra seconds of space between you and the car ahead in snow.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your total gap never goes past 3.00 seconds, so this only adds what is left below that.</source>
+        <translation>&lt;b&gt;يضيف ثوانٍ إضافية إلى الفاصل بينك وبين السيارة الأمامية في الثلج.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يتجاوز إجمالي الفاصل 3.00 ثوانٍ، لذلك لا يضيف إلا المقدار المتبقي دون ذلك.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Adds extra room between you and the car ahead in snow, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life".</source>
+        <translation>&lt;b&gt;يضيف مسافة بينك وبين السيارة الأمامية في الثلج، في كل السرعات وليس عند التوقف فقط.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تُضاف إلى الإعداد نفسه ضمن "تحسينات الاستخدام".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Holds openpilot back from accelerating as hard in snow.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for softer, more controlled pickup on a slippery road.</source>
+        <translation>&lt;b&gt;يحد من قوة تسارع openpilot في الثلج.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة لتسارع ألطف وأكثر تحكمًا على طريق زلق.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Takes curves more slowly in snow.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only does anything while "Curve Speed Controller" is on. Raise it for gentler, safer cornering on a slippery road.</source>
+        <translation>&lt;b&gt;يجتاز المنعطفات بسرعة أقل في الثلج.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يؤثر إلا أثناء تشغيل "متحكم سرعة المنعطفات". ارفع القيمة لانعطاف ألطف وأكثر أمانًا على طريق زلق.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Hold openpilot's max speed to the posted speed limit.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The limit comes from your downloaded maps, Mapbox, "Navigate on openpilot", or your dashboard on Ford, Genesis, Hyundai, Kia, Lexus and Toyota.</source>
+        <translation>&lt;b&gt;قيّد السرعة القصوى لـ openpilot بحد السرعة المعلن.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يأتي الحد من الخرائط التي نزّلتها أو Mapbox أو "الملاحة على openpilot" أو لوحة العدادات في سيارات Ford وGenesis وHyundai وKia وLexus وToyota.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;The speed used by "Speed Limit Controller" when no speed limit is found.&lt;/b&gt;&lt;br&gt;&lt;br&gt;- &lt;b&gt;Set Speed&lt;/b&gt;: Use the cruise set speed&lt;br&gt;- &lt;b&gt;Experimental Mode&lt;/b&gt;: Let openpilot pick the speed from what the camera sees, never going above your set speed&lt;br&gt;- &lt;b&gt;Previous Limit&lt;/b&gt;: Keep using the last confirmed limit</source>
+        <translation>&lt;b&gt;السرعة التي يستخدمها "متحكم حد السرعة" عند عدم العثور على حد للسرعة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;- &lt;b&gt;السرعة المضبوطة&lt;/b&gt;: استخدم السرعة المضبوطة لمثبت السرعة&lt;br&gt;- &lt;b&gt;الوضع التجريبي&lt;/b&gt;: دع openpilot يختار السرعة مما تراه الكاميرا، من دون تجاوز سرعتك المضبوطة مطلقًا&lt;br&gt;- &lt;b&gt;الحد السابق&lt;/b&gt;: استمر في استخدام آخر حد مؤكد</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;The speed used by "Speed Limit Controller" after you manually drive faster than the posted limit.&lt;/b&gt;&lt;br&gt;&lt;br&gt;- &lt;b&gt;None&lt;/b&gt;: Go back to the posted limit as soon as you are off the gas&lt;br&gt;- &lt;b&gt;Set With Gas Pedal&lt;/b&gt;: Use the highest speed reached while pressing the gas&lt;br&gt;- &lt;b&gt;Max Set Speed&lt;/b&gt;: Use the cruise set speed&lt;br&gt;&lt;br&gt;Overrides clear when openpilot disengages.</source>
+        <translation>&lt;b&gt;السرعة التي يستخدمها "متحكم حد السرعة" بعد أن تتجاوز يدويًا الحد المعلن.&lt;/b&gt;&lt;br&gt;&lt;br&gt;- &lt;b&gt;لا شيء&lt;/b&gt;: عُد إلى الحد المعلن بمجرد رفع قدمك عن دواسة الوقود&lt;br&gt;- &lt;b&gt;الضبط بدواسة الوقود&lt;/b&gt;: استخدم أعلى سرعة وصلت إليها أثناء ضغط دواسة الوقود&lt;br&gt;- &lt;b&gt;أقصى سرعة مضبوطة&lt;/b&gt;: استخدم السرعة المضبوطة لمثبت السرعة&lt;br&gt;&lt;br&gt;تُلغى التجاوزات عند إلغاء تفعيل openpilot.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Smaller changes to how "Speed Limit Controller" behaves.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;تغييرات صغيرة في سلوك "متحكم حد السرعة".&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Ask before changing to a new speed limit, with the "Lower Limits" and "Higher Limits" buttons choosing which changes need your approval.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Neither button starts on, so pick at least one or openpilot keeps accepting every new limit without asking. To accept, tap the flashing widget on the driving screen or press the Cruise Increase button. To deny, press Cruise Decrease or ignore it for 30 seconds.</source>
+        <translation>&lt;b&gt;اطلب التأكيد قبل الانتقال إلى حد سرعة جديد، وحدد بزرّي "الحدود الأدنى" و"الحدود الأعلى" التغييرات التي تحتاج إلى موافقتك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يبدأ الزران متوقفين، لذا اختر واحدًا منهما على الأقل وإلا سيستمر openpilot في قبول كل حد جديد من دون سؤال. للقبول، المس الأداة الوامضة على شاشة القيادة أو اضغط زر زيادة سرعة المثبت. للرفض، اضغط زر خفض سرعة المثبت أو تجاهل الطلب مدة 30 ثانية.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far ahead openpilot looks for a higher speed limit coming up.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This reads from your downloaded map data.</source>
+        <translation>&lt;b&gt;حدد مدى استباق openpilot للبحث عن حد سرعة أعلى قادم.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تُقرأ هذه المعلومات من بيانات الخرائط التي نزّلتها.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far ahead openpilot looks for a lower speed limit coming up.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This reads from your downloaded map data.</source>
+        <translation>&lt;b&gt;حدد مدى استباق openpilot للبحث عن حد سرعة أدنى قادم.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تُقرأ هذه المعلومات من بيانات الخرائط التي نزّلتها.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Engaging openpilot sets your max speed to the current speed limit with your "Speed Limit Offsets" added on top.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The offsets do not start at zero, so set them all to 0 if you want the max speed to land on the posted number. This only happens when openpilot has no set speed to go back to, since engaging with the Resume or + button brings back your last set speed instead.</source>
+        <translation>&lt;b&gt;عند تفعيل openpilot تُضبط السرعة القصوى على حد السرعة الحالي مع إضافة "إزاحات حد السرعة".&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا تبدأ الإزاحات عند الصفر، لذا اضبطها كلها على 0 إذا أردت أن تطابق السرعة القصوى الحد المعلن. لا يحدث ذلك إلا عندما لا تكون لدى openpilot سرعة مضبوطة سابقة، لأن التفعيل بزر Resume أو + يعيد آخر سرعة مضبوطة بدلًا منها.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Choose which sources openpilot checks for the speed limit and in what order, or have it always use the highest or lowest limit being reported.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick up to three sources and openpilot uses the first one that currently has a limit. "Highest" and "Lowest" ignore the order and take the fastest or slowest limit any source reports, so one wrong map entry can hold you well below the posted limit.</source>
+        <translation>&lt;b&gt;اختر المصادر التي يفحصها openpilot لمعرفة حد السرعة وترتيبها، أو اجعله يستخدم دائمًا أعلى أو أدنى حد مُبلغ عنه.&lt;/b&gt;&lt;br&gt;&lt;br&gt;اختر ما يصل إلى ثلاثة مصادر، وسيستخدم openpilot أول مصدر يتوفر لديه حد حاليًا. يتجاهل خياري "الأعلى" و"الأدنى" الترتيب ويأخذان أسرع أو أبطأ حد يبلّغ عنه أي مصدر، لذا قد يؤدي إدخال خاطئ واحد في الخريطة إلى إبقائك دون الحد المعلن بكثير.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Drive a set amount above or below the posted speed limit.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Each speed range below gets its own offset.</source>
+        <translation>&lt;b&gt;قُد بمقدار محدد أعلى أو أدنى من حد السرعة المعلن.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لكل نطاق سرعة أدناه إزاحته الخاصة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 0 and 24 mph.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;حدد مقدار قيادة openpilot أعلى أو أدنى من الحد المعلن بين 0 و24 mph.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 25 and 34 mph.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;حدد مقدار قيادة openpilot أعلى أو أدنى من الحد المعلن بين 25 و34 mph.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 35 and 44 mph.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;حدد مقدار قيادة openpilot أعلى أو أدنى من الحد المعلن بين 35 و44 mph.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 45 and 54 mph.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;حدد مقدار قيادة openpilot أعلى أو أدنى من الحد المعلن بين 45 و54 mph.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 55 and 64 mph.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;حدد مقدار قيادة openpilot أعلى أو أدنى من الحد المعلن بين 55 و64 mph.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 65 and 74 mph.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;حدد مقدار قيادة openpilot أعلى أو أدنى من الحد المعلن بين 65 و74 mph.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 75 and 99 mph.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;حدد مقدار قيادة openpilot أعلى أو أدنى من الحد المعلن بين 75 و99 mph.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Change how "Speed Limit Controller" appears on the driving screen.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;غيّر طريقة ظهور "متحكم حد السرعة" على شاشة القيادة.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;The speed limit sign on the driving screen shows the posted limit with your offset printed underneath it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;With this off, the offset is added into the number on the sign instead, so a 65 mph road with a +10 offset shows 75 rather than 65.</source>
+        <translation>&lt;b&gt;تعرض علامة حد السرعة على شاشة القيادة الحد المعلن، وتطبع إزاحتك أسفله.&lt;/b&gt;&lt;br&gt;&lt;br&gt;عند إيقاف هذا الخيار، تُضاف الإزاحة إلى الرقم الظاهر على العلامة؛ لذلك يظهر 75 بدلًا من 65 لطريق حده 65 mph مع إزاحة +10.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Show every speed limit source and what each one currently reports, on the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Useful for working out which source to trust before setting your priority order.</source>
+        <translation>&lt;b&gt;اعرض على شاشة القيادة جميع مصادر حد السرعة والقيمة التي يبلّغ عنها كل مصدر حاليًا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يفيد ذلك في تحديد المصدر الجدير بالثقة قبل ترتيب الأولويات.</translation>
+    </message>
+    <message>
+        <source> m/s</source>
+        <translation> m/s</translation>
+    </message>
+    <message>
+        <source> m/s²/s</source>
+        <translation> m/s²/s</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch to "Experimental Mode" below this speed when you are close behind the car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"With Lead" means right up behind it, not just any car ahead. Below about 10 mph that window is narrower than the gap openpilot itself keeps, so the car stops counting and the "Below" value is used instead.</source>
+        <translation>&lt;b&gt;انتقل إلى "الوضع التجريبي" دون هذه السرعة عندما تكون قريبًا خلف السيارة الأمامية.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يعني "مع مركبة أمامية قريبة" أنك خلفها مباشرةً، لا مجرد وجود أي سيارة أمامك. دون نحو 10 mph تكون هذه النافذة أضيق من الفاصل الذي يحافظ عليه openpilot نفسه، فلا تعود السيارة محتسبة وتُستخدم قيمة "دون" بدلًا منها.</translation>
+    </message>
+    <message>
+        <source>Gentle</source>
+        <translation>لطيف</translation>
+    </message>
+    <message>
+        <source>Adaptive</source>
+        <translation>تكيفي</translation>
+    </message>
+    <message>
+        <source>Curve data can't be reset while the car is on. Turn the car off and try again.</source>
+        <translation>لا يمكن إعادة ضبط بيانات المنعطفات والسيارة قيد التشغيل. أوقف تشغيل السيارة وحاول مرة أخرى.</translation>
+    </message>
+    <message>
+        <source>Eco+</source>
+        <translation>اقتصادي+</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 0 and 29 km/h.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;حدد مقدار قيادة openpilot أعلى أو أدنى من الحد المعلن بين 0 و29 km/h.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 30 and 49 km/h.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;حدد مقدار قيادة openpilot أعلى أو أدنى من الحد المعلن بين 30 و49 km/h.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 50 and 59 km/h.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;حدد مقدار قيادة openpilot أعلى أو أدنى من الحد المعلن بين 50 و59 km/h.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 60 and 79 km/h.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;حدد مقدار قيادة openpilot أعلى أو أدنى من الحد المعلن بين 60 و79 km/h.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 80 and 99 km/h.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;حدد مقدار قيادة openpilot أعلى أو أدنى من الحد المعلن بين 80 و99 km/h.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 100 and 119 km/h.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;حدد مقدار قيادة openpilot أعلى أو أدنى من الحد المعلن بين 100 و119 km/h.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 120 and 140 km/h.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;حدد مقدار قيادة openpilot أعلى أو أدنى من الحد المعلن بين 120 و140 km/h.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot slows down on its own for curves ahead, and you pick how fast it takes them with "Curve Speed Profile".&lt;/b&gt;&lt;br&gt;&lt;br&gt;It comes set to "Adaptive", which learns how you prefer to take curves.</source>
+        <translation>&lt;b&gt;يبطئ openpilot تلقائيًا للمنعطفات القادمة، وتحدد سرعة اجتيازها عبر "نمط سرعة المنعطفات".&lt;/b&gt;&lt;br&gt;&lt;br&gt;يكون مضبوطًا على "تكيفي"، الذي يتعلم كيف تفضل اجتياز المنعطفات.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How much of your own cornering openpilot has learned from.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This only grows while you're the one controlling the speed, so it fills up as you drive curves yourself. At 100% openpilot has gathered enough of your cornering to match the way you take curves.</source>
+        <translation>&lt;b&gt;مقدار ما تعلّمه openpilot من طريقتك في اجتياز المنعطفات.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا تزداد هذه النسبة إلا عندما تتحكم أنت في السرعة، لذا تمتلئ بينما تقود بنفسك عبر المنعطفات. عند 100%، يكون openpilot قد جمع ما يكفي عن طريقتك في اجتياز المنعطفات لمطابقتها.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How hard you corner, learned from your own driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The "Adaptive" profile uses this to take curves the way you do, but never harder than your steering has proven it can hold. A higher number means carrying more speed through curves. Lower means taking them gentler.</source>
+        <translation>&lt;b&gt;مدى حدّة دخولك المنعطفات، كما تعلّمه النظام من قيادتك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يستخدم نمط "تكيفي" هذه القيمة لاجتياز المنعطفات بالطريقة التي تقود بها، ولكن دون أن يتجاوز أبدًا ما أثبت نظام التوجيه قدرته على تحمّله. تعني القيمة الأعلى الحفاظ على سرعة أكبر خلال المنعطفات، وتعني القيمة الأدنى اجتيازها بلطف أكبر.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How fast the "Sport" profile is allowed to take curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This is also the maximum for every other curve speed profile. openpilot learns the limit from your car when possible and otherwise uses the value configured for it.</source>
+        <translation>&lt;b&gt;مدى السرعة المسموح بها لنمط "رياضي" عند اجتياز المنعطفات.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يمثل هذا أيضًا الحد الأقصى لكل أنماط سرعة المنعطفات الأخرى. يتعلّم openpilot هذا الحد من سيارتك عندما يكون ذلك ممكنًا، وإلا فيستخدم القيمة المضبوطة لها.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How fast openpilot takes curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Gentle" and "Standard" hold to a fixed, relaxed pace, "Sport" uses your car's maximum configured or live-tuned cornering limit, and "Adaptive" learns how you prefer to take curves.</source>
+        <translation>&lt;b&gt;مدى سرعة openpilot في اجتياز المنعطفات.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يحافظ النمطان "لطيف" و"قياسي" على وتيرة ثابتة ومريحة، ويستخدم نمط "رياضي" أقصى حد لاجتياز المنعطفات مضبوط لسيارتك أو مولّف آنيًا، بينما يتعلم نمط "تكيفي" كيف تفضل اجتياز المنعطفات.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Fall back to Mapbox for the speed limit when none of your chosen sources have one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs your Public Mapbox Key and a working internet connection.</source>
+        <translation>&lt;b&gt;استخدم Mapbox كمصدر احتياطي لحد السرعة عندما لا يوفر أي من مصادرك المختارة حدًا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يتطلب مفتاح Mapbox العام واتصالًا فعالًا بالإنترنت.</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotManageControl</name>
     <message>
         <source>MANAGE</source>
-        <translation type="gpt-5-generated">إدارة</translation>
+        <translation>إدارة</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotMapsPanel</name>
     <message>
         <source>Manually</source>
-        <translation type="gpt-5-generated">يدويًا</translation>
+        <translation>يدويًا</translation>
     </message>
     <message>
         <source>Weekly</source>
-        <translation type="gpt-5-generated">أسبوعي</translation>
+        <translation>أسبوعيًا</translation>
     </message>
     <message>
         <source>Monthly</source>
-        <translation type="gpt-5-generated">شهري</translation>
+        <translation>شهريًا</translation>
     </message>
     <message>
         <source>Automatically Update Maps</source>
-        <translation type="gpt-5-generated">تحديث الخرائط تلقائيًا</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How often maps update&lt;/b&gt; from "OpenStreetMap (OSM)" with the latest speed limit information. Weekly updates run every Sunday; monthly updates run on the 1st.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;عدد مرات تحديث الخرائط&lt;/b&gt; من "OpenStreetMap (OSM)" بأحدث معلومات حدود السرعة. يتم تشغيل التحديثات الأسبوعية كل يوم أحد؛ وتُجرى التحديثات الشهرية في اليوم الأول من كل شهر.</translation>
+        <translation>تحديث الخرائط تلقائيًا</translation>
     </message>
     <message>
         <source>Download Maps</source>
-        <translation type="gpt-5-generated">تنزيل الخرائط</translation>
+        <translation>تنزيل الخرائط</translation>
     </message>
     <message>
         <source>DOWNLOAD</source>
-        <translation type="gpt-5-generated">تنزيل</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Manually update your selected map sources&lt;/b&gt; so "Speed Limit Controller" has the latest speed limit information.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;قم بتحديث مصادر الخرائط المحددة يدويًا&lt;/b&gt; حتى يحتوي "Speed Limit Controller" على أحدث معلومات حدود السرعة.</translation>
+        <translation>تنزيل</translation>
     </message>
     <message>
         <source>CANCEL</source>
-        <translation type="gpt-5-generated">إلغاء</translation>
+        <translation>إلغاء</translation>
     </message>
     <message>
         <source>Cancel the download?</source>
-        <translation type="gpt-5-generated">إلغاء التنزيل؟</translation>
+        <translation>هل تريد إلغاء التنزيل؟</translation>
     </message>
     <message>
         <source>Last Updated</source>
-        <translation type="gpt-5-generated">آخر تحديث</translation>
+        <translation>آخر تحديث</translation>
     </message>
     <message>
         <source>Map Sources</source>
-        <translation type="gpt-5-generated">مصادر الخرائط</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Select the countries or U.S. states to use with "Speed Limit Controller".&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اختر البلدان أو الولايات الأميركية للاستخدام مع "Speed Limit Controller".&lt;/b&gt;</translation>
+        <translation>مصادر الخرائط</translation>
     </message>
     <message>
         <source>COUNTRIES</source>
-        <translation type="gpt-5-generated">الدول</translation>
+        <translation>الدول</translation>
     </message>
     <message>
         <source>STATES</source>
-        <translation type="gpt-5-generated">الولايات</translation>
+        <translation>الولايات</translation>
     </message>
     <message>
         <source>Progress</source>
-        <translation type="gpt-5-generated">التقدم</translation>
+        <translation>التقدم</translation>
     </message>
     <message>
         <source>Time Elapsed</source>
-        <translation type="gpt-5-generated">الوقت المنقضي</translation>
+        <translation>الوقت المنقضي</translation>
     </message>
     <message>
         <source>Time Remaining</source>
-        <translation type="gpt-5-generated">الوقت المتبقي</translation>
+        <translation>الوقت المتبقي</translation>
     </message>
     <message>
         <source>Remove Maps</source>
-        <translation type="gpt-5-generated">إزالة الخرائط</translation>
+        <translation>إزالة الخرائط</translation>
     </message>
     <message>
         <source>REMOVE</source>
-        <translation type="gpt-5-generated">إزالة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Delete downloaded map data&lt;/b&gt; to free up storage space.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;احذف بيانات الخرائط التي تم تنزيلها&lt;/b&gt; لتحرير مساحة التخزين.</translation>
-    </message>
-    <message>
-        <source>Delete all downloaded maps?</source>
-        <translation type="gpt-5-generated">حذف جميع الخرائط التي تم تنزيلها؟</translation>
+        <translation>إزالة</translation>
     </message>
     <message>
         <source>Reset Downloader</source>
-        <translation type="gpt-5-generated">إعادة تعيين أداة التنزيل</translation>
+        <translation>إعادة ضبط أداة التنزيل</translation>
     </message>
     <message>
         <source>RESET</source>
-        <translation type="gpt-5-generated">إعادة تعيين</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Reset the map downloader.&lt;/b&gt; Use this if downloads are stuck or failing.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إعادة تعيين مُنزِّل الخرائط.&lt;/b&gt; استخدم هذا إذا كانت التنزيلات عالقة أو تفشل.</translation>
-    </message>
-    <message>
-        <source>Reset the map downloader? Your device will reboot afterward.</source>
-        <translation type="gpt-5-generated">إعادة تعيين مُنزِّل الخرائط؟ سيُعاد تشغيل جهازك بعد ذلك.</translation>
+        <translation>إعادة الضبط</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="gpt-5-generated">إعادة التعيين</translation>
+        <translation>إعادة الضبط</translation>
     </message>
     <message>
         <source>Resetting...</source>
-        <translation type="gpt-5-generated">إعادة التعيين جارٍ...</translation>
+        <translation>جارٍ إعادة الضبط...</translation>
     </message>
     <message>
         <source>Reset!</source>
-        <translation type="gpt-5-generated">إعادة ضبط!</translation>
+        <translation>تمت إعادة الضبط!</translation>
     </message>
     <message>
         <source>Rebooting...</source>
-        <translation type="gpt-5-generated">إعادة التشغيل...</translation>
+        <translation>جارٍ إعادة التشغيل...</translation>
     </message>
     <message>
         <source>Storage Used</source>
-        <translation type="gpt-5-generated">المساحة المستخدمة</translation>
+        <translation>المساحة المستخدمة</translation>
     </message>
     <message>
         <source>Africa</source>
-        <translation type="gpt-5-generated">أفريقيا</translation>
+        <translation>أفريقيا</translation>
     </message>
     <message>
         <source>Antarctica</source>
-        <translation type="gpt-5-generated">أنتاركتيكا</translation>
+        <translation>القارة القطبية الجنوبية</translation>
     </message>
     <message>
         <source>Asia</source>
-        <translation type="gpt-5-generated">آسيا</translation>
+        <translation>آسيا</translation>
     </message>
     <message>
         <source>Europe</source>
-        <translation type="gpt-5-generated">أوروبا</translation>
+        <translation>أوروبا</translation>
     </message>
     <message>
         <source>North America</source>
-        <translation type="gpt-5-generated">أمريكا الشمالية</translation>
+        <translation>أمريكا الشمالية</translation>
     </message>
     <message>
         <source>Oceania</source>
-        <translation type="gpt-5-generated">أوقيانوسيا</translation>
+        <translation>أوقيانوسيا</translation>
     </message>
     <message>
         <source>South America</source>
-        <translation type="gpt-5-generated">أمريكا الجنوبية</translation>
+        <translation>أمريكا الجنوبية</translation>
     </message>
     <message>
         <source>United States - Midwest</source>
-        <translation type="gpt-5-generated">الولايات المتحدة - الغرب الأوسط</translation>
+        <translation>الولايات المتحدة - الغرب الأوسط</translation>
     </message>
     <message>
         <source>United States - Northeast</source>
-        <translation type="gpt-5-generated">الولايات المتحدة - الشمال الشرقي</translation>
+        <translation>الولايات المتحدة - الشمال الشرقي</translation>
     </message>
     <message>
         <source>United States - South</source>
-        <translation type="gpt-5-generated">الولايات المتحدة - الجنوب</translation>
+        <translation>الولايات المتحدة - الجنوب</translation>
     </message>
     <message>
         <source>United States - West</source>
-        <translation type="gpt-5-generated">الولايات المتحدة - الغرب</translation>
+        <translation>الولايات المتحدة - الغرب</translation>
     </message>
     <message>
         <source>United States - Territories</source>
-        <translation type="gpt-5-generated">الولايات المتحدة - الأقاليم</translation>
+        <translation>الولايات المتحدة - الأقاليم</translation>
     </message>
     <message>
         <source>Offline...</source>
-        <translation type="gpt-5-generated">غير متصل...</translation>
+        <translation>غير متصل...</translation>
     </message>
     <message>
         <source>0 MB</source>
-        <translation type="gpt-5-generated">0 ميغابايت</translation>
+        <translation>0 MB</translation>
     </message>
     <message>
         <source>Calculating...</source>
-        <translation type="gpt-5-generated">جارٍ الحساب...</translation>
+        <translation>جارٍ الحساب...</translation>
     </message>
     <message>
         <source>Not parked</source>
-        <translation type="gpt-5-generated">غير مركون</translation>
+        <translation>السيارة غير متوقفة</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How often openpilot re-downloads the speed limit map data for the places you picked under "Map Sources". "Weekly" runs every Sunday, "Monthly" runs on the 1st, and "Manually" waits until you press "DOWNLOAD" yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;There is one exception. Whenever the map data is missing from the device, openpilot starts the download on its own, usually within the hour, and that one is not held back until you park.</source>
+        <translation>&lt;b&gt;حدد عدد مرات إعادة تنزيل openpilot لبيانات خرائط حدود السرعة للأماكن التي اخترتها ضمن "مصادر الخرائط". يعمل "أسبوعيًا" كل يوم أحد، ويعمل "شهريًا" في اليوم 1 من كل شهر، بينما ينتظر "يدويًا" حتى تضغط "تنزيل" بنفسك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;هناك استثناء واحد: عندما تكون بيانات الخرائط مفقودة من الجهاز، يبدأ openpilot التنزيل تلقائيًا، عادةً خلال ساعة، ولا ينتظر هذا التنزيل حتى توقف السيارة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Start downloading the speed limit map data for the places you picked under "Map Sources".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your car has to be parked and online. Large areas can take hours and use several gigabytes.</source>
+        <translation>&lt;b&gt;ابدأ تنزيل بيانات خرائط حدود السرعة للأماكن التي اخترتها ضمن "مصادر الخرائط".&lt;/b&gt;&lt;br&gt;&lt;br&gt;يجب أن تكون سيارتك متوقفة ومتصلة بالإنترنت. قد تستغرق المناطق الكبيرة ساعات وتستهلك عدة غيغابايت.</translation>
+    </message>
+    <message>
+        <source>Never</source>
+        <translation>أبدًا</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Pick the countries or U.S. states you drive in, so openpilot knows their speed limits.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only what you pick here gets downloaded, so pick as little as covers your driving.</source>
+        <translation>&lt;b&gt;اختر الدول أو الولايات الأمريكية التي تقود فيها كي يعرف openpilot حدود السرعة فيها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يُنزّل إلا ما تختاره هنا، لذا اختر أقل نطاق يغطي مناطق قيادتك.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Delete your downloaded map data and clear the places you picked under "Map Sources", to free up storage.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Nothing comes back on its own, so "Speed Limit Controller" has no map speed limits until you pick your places again and start a new download.</source>
+        <translation>&lt;b&gt;احذف بيانات الخرائط التي نزّلتها وامسح الأماكن المختارة ضمن "مصادر الخرائط" لتوفير مساحة تخزين.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لن يعود أي شيء تلقائيًا، لذلك لن تتوفر لـ "متحكم حد السرعة" حدود سرعة من الخرائط حتى تختار أماكنك مجددًا وتبدأ تنزيلًا جديدًا.</translation>
+    </message>
+    <message>
+        <source>Delete all downloaded maps and clear your selected map sources?</source>
+        <translation>هل تريد حذف جميع الخرائط المنزلة ومسح مصادر الخرائط المختارة؟</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Delete every map you have downloaded, reinstall the map downloader, and reboot your device.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Use this when downloads keep getting stuck or failing. Once your device is back online it downloads the places you picked under "Map Sources" all over again on its own, which can take hours.</source>
+        <translation>&lt;b&gt;احذف كل الخرائط التي نزّلتها، وأعد تثبيت أداة تنزيل الخرائط، ثم أعد تشغيل جهازك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;استخدم هذا عندما تتعطل التنزيلات أو تفشل باستمرار. بعد عودة جهازك إلى الاتصال، يعيد تلقائيًا تنزيل الأماكن التي اخترتها ضمن "مصادر الخرائط" من البداية، وقد يستغرق ذلك ساعات.</translation>
+    </message>
+    <message>
+        <source>Reset the map downloader? This deletes every map you have downloaded, and your device will reboot afterward.</source>
+        <translation>هل تريد إعادة ضبط أداة تنزيل الخرائط؟ سيؤدي ذلك إلى حذف كل الخرائط التي نزّلتها، ثم إعادة تشغيل جهازك.</translation>
+    </message>
+    <message>
+        <source>Select your map sources</source>
+        <translation>اختر مصادر الخرائط</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotModelPanel</name>
     <message>
         <source>Automatically Download New Models</source>
-        <translation type="gpt-5-generated">تنزيل النماذج الجديدة تلقائيًا</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Automatically download new driving models&lt;/b&gt; as they become available.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تنزيل نماذج القيادة الجديدة تلقائيًا&lt;/b&gt; عند توفرها.</translation>
+        <translation>تنزيل النماذج الجديدة تلقائيًا</translation>
     </message>
     <message>
         <source>Delete Driving Models</source>
-        <translation type="gpt-5-generated">حذف نماذج القيادة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Delete downloaded driving models&lt;/b&gt; to free up storage space.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;احذف نماذج القيادة المُنزّلة&lt;/b&gt; لتحرير مساحة التخزين.</translation>
+        <translation>حذف نماذج القيادة</translation>
     </message>
     <message>
         <source>Download Driving Models</source>
-        <translation type="gpt-5-generated">تنزيل نماذج القيادة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Manually download driving models&lt;/b&gt; to the device.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;قم بتنزيل نماذج القيادة يدويًا&lt;/b&gt; إلى الجهاز.</translation>
+        <translation>تنزيل نماذج القيادة</translation>
     </message>
     <message>
         <source>Model Randomizer</source>
-        <translation type="gpt-5-generated">مُعَدِّل النموذج العشوائي</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Select a random driving model each drive&lt;/b&gt; and use feedback prompts at the end of the drive to help find the model that best suits you!</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اختر نموذج قيادة عشوائيًا في كل رحلة&lt;/b&gt; واستخدم مطالبات الملاحظات في نهاية الرحلة للمساعدة في العثور على النموذج الأنسب لك!</translation>
+        <translation>اختيار نموذج عشوائي</translation>
     </message>
     <message>
         <source>Manage Model Blacklist</source>
-        <translation type="gpt-5-generated">إدارة القائمة السوداء للنماذج</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Add or remove driving models from the "Model Randomizer" blacklist.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أضِف أو أزِل نماذج القيادة من قائمة الحظر في "Model Randomizer".&lt;/b&gt;</translation>
+        <translation>إدارة قائمة استبعاد النماذج</translation>
     </message>
     <message>
         <source>Manage Model Ratings</source>
-        <translation type="gpt-5-generated">إدارة تقييمات النموذج</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;View or reset saved model ratings&lt;/b&gt; used by the "Model Randomizer".</source>
-        <translation type="gpt-5-generated">&lt;b&gt;عرض أو إعادة تعيين تقييمات النماذج المحفوظة&lt;/b&gt; المستخدمة بواسطة "Model Randomizer".</translation>
+        <translation>إدارة تقييمات النماذج</translation>
     </message>
     <message>
         <source>Select Driving Model</source>
-        <translation type="gpt-5-generated">اختر نموذج القيادة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Choose which driving model openpilot uses.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اختر نموذج القيادة الذي يستخدمه openpilot.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Update Model Manager</source>
-        <translation type="gpt-5-generated">تحديث مدير النموذج</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Update the "Model Manager"&lt;/b&gt; to support the latest models.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;حدّث "Model Manager"&lt;/b&gt; لدعم أحدث النماذج.</translation>
+        <translation>اختيار نموذج القيادة</translation>
     </message>
     <message>
         <source>DELETE</source>
-        <translation type="gpt-5-generated">حذف</translation>
+        <translation>حذف</translation>
     </message>
     <message>
         <source>DELETE ALL</source>
-        <translation type="gpt-5-generated">حذف الكل</translation>
+        <translation>حذف الكل</translation>
     </message>
     <message>
         <source>Select a driving model to delete</source>
-        <translation type="gpt-5-generated">اختر نموذج قيادة لحذفه</translation>
+        <translation>اختر نموذج قيادة لحذفه</translation>
     </message>
     <message>
         <source>Are you sure you want to delete the "%1" model?</source>
-        <translation type="gpt-5-generated">هل أنت متأكد أنك تريد حذف النموذج "%1"؟</translation>
+        <translation>هل أنت متأكد من رغبتك في حذف النموذج "%1"؟</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="gpt-5-generated">حذف</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to delete all of your downloaded driving models?</source>
-        <translation type="gpt-5-generated">هل أنت متأكد أنك تريد حذف جميع نماذج القيادة التي قمت بتنزيلها؟</translation>
+        <translation>حذف</translation>
     </message>
     <message>
         <source>DOWNLOAD</source>
-        <translation type="gpt-5-generated">تنزيل</translation>
+        <translation>تنزيل</translation>
     </message>
     <message>
         <source>DOWNLOAD ALL</source>
-        <translation type="gpt-5-generated">تنزيل الكل</translation>
-    </message>
-    <message>
-        <source>Tinygrad is out of date and must be updated before you can download new models. Update now?</source>
-        <translation type="gpt-5-generated">Tinygrad غير محدّث ويجب تحديثه قبل تنزيل النماذج الجديدة. هل تريد التحديث الآن؟</translation>
-    </message>
-    <message>
-        <source>Updating Tinygrad will delete all existing Tinygrad-based models which will need to be re-downloaded. Proceed?</source>
-        <translation type="gpt-5-generated">سيؤدي تحديث Tinygrad إلى حذف جميع النماذج المبنية على Tinygrad الحالية والتي سيتعين إعادة تنزيلها. المتابعة؟</translation>
+        <translation>تنزيل الكل</translation>
     </message>
     <message>
         <source>CANCEL</source>
-        <translation type="gpt-5-generated">إلغاء</translation>
-    </message>
-    <message>
-        <source>Updating...</source>
-        <translation type="gpt-5-generated">جارٍ التحديث...</translation>
+        <translation>إلغاء</translation>
     </message>
     <message>
         <source>Select a driving model to download</source>
-        <translation type="gpt-5-generated">اختر نموذج قيادة لتنزيله</translation>
+        <translation>اختر نموذج قيادة لتنزيله</translation>
     </message>
     <message>
         <source>ADD</source>
-        <translation type="gpt-5-generated">إضافة</translation>
+        <translation>إضافة</translation>
     </message>
     <message>
         <source>REMOVE</source>
-        <translation type="gpt-5-generated">إزالة</translation>
+        <translation>إزالة</translation>
     </message>
     <message>
         <source>REMOVE ALL</source>
-        <translation type="gpt-5-generated">إزالة الكل</translation>
+        <translation>إزالة الكل</translation>
     </message>
     <message>
         <source>There are no more driving models to blacklist. The only available model is "%1"!</source>
-        <translation type="gpt-5-generated">لا توجد المزيد من نماذج القيادة لإدراجها في القائمة السوداء. النموذج الوحيد المتاح هو "%1"!</translation>
+        <translation>لا توجد نماذج قيادة أخرى لإضافتها إلى قائمة الاستبعاد. النموذج الوحيد المتاح هو "%1"!</translation>
     </message>
     <message>
         <source>Select a driving model to add to the blacklist</source>
-        <translation type="gpt-5-generated">اختر نموذج قيادة لإضافته إلى القائمة السوداء</translation>
+        <translation>اختر نموذج قيادة لإضافته إلى قائمة الاستبعاد</translation>
     </message>
     <message>
         <source>Are you sure you want to add the "%1" model to the blacklist?</source>
-        <translation type="gpt-5-generated">هل أنت متأكد أنك تريد إضافة النموذج "%1" إلى القائمة السوداء؟</translation>
+        <translation>هل أنت متأكد من رغبتك في إضافة النموذج "%1" إلى قائمة الاستبعاد؟</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="gpt-5-generated">إضافة</translation>
+        <translation>إضافة</translation>
     </message>
     <message>
         <source>Select a driving model to remove from the blacklist</source>
-        <translation type="gpt-5-generated">اختر نموذج قيادة لإزالته من القائمة السوداء</translation>
+        <translation>اختر نموذج قيادة لإزالته من قائمة الاستبعاد</translation>
     </message>
     <message>
         <source>Are you sure you want to remove the "%1" model from the blacklist?</source>
-        <translation type="gpt-5-generated">هل أنت متأكد أنك تريد إزالة "%1" من القائمة السوداء؟</translation>
+        <translation>هل أنت متأكد من رغبتك في إزالة النموذج "%1" من قائمة الاستبعاد؟</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="gpt-5-generated">إزالة</translation>
+        <translation>إزالة</translation>
     </message>
     <message>
         <source>Are you sure you want to remove all of your blacklisted driving models?</source>
-        <translation type="gpt-5-generated">هل أنت متأكد أنك تريد إزالة جميع نماذج القيادة المدرجة في القائمة السوداء؟</translation>
+        <translation>هل أنت متأكد من رغبتك في إزالة جميع نماذج القيادة من قائمة الاستبعاد؟</translation>
     </message>
     <message>
         <source>RESET</source>
-        <translation type="gpt-5-generated">إعادة تعيين</translation>
+        <translation>إعادة الضبط</translation>
     </message>
     <message>
         <source>VIEW</source>
-        <translation type="gpt-5-generated">عرض</translation>
-    </message>
-    <message>
-        <source>Reset all model drives and ratings? This clears your drive history and collected feedback!</source>
-        <translation type="gpt-5-generated">إعادة تعيين جميع سجلات القيادة والتقييمات؟ سيؤدي هذا إلى مسح سجل قيادتك والملاحظات المجمعة!</translation>
+        <translation>عرض</translation>
     </message>
     <message>
         <source>SELECT</source>
-        <translation type="gpt-5-generated">تحديد</translation>
-    </message>
-    <message>
-        <source>UPDATE</source>
-        <translation type="gpt-5-generated">تحديث</translation>
-    </message>
-    <message>
-        <source>Cancelling...</source>
-        <translation type="gpt-5-generated">جارٍ الإلغاء...</translation>
-    </message>
-    <message>
-        <source>Updating Tinygrad will delete existing Tinygrad-based driving models and need to be re-downloaded. Proceed?</source>
-        <translation type="gpt-5-generated">سيؤدي تحديث Tinygrad إلى حذف نماذج القيادة المعتمدة على Tinygrad الحالية ويلزم إعادة تنزيلها. المتابعة؟</translation>
-    </message>
-    <message>
-        <source>The "Model Randomizer" works only with downloaded models. Download all models now?</source>
-        <translation type="gpt-5-generated">تعمل "Model Randomizer" فقط مع النماذج التي تم تنزيلها. هل تريد تنزيل جميع النماذج الآن؟</translation>
+        <translation>اختيار</translation>
     </message>
     <message>
         <source>Offline...</source>
-        <translation type="gpt-5-generated">غير متصل...</translation>
-    </message>
-    <message>
-        <source>Update available!</source>
-        <translation type="gpt-5-generated">يتوفر تحديث!</translation>
-    </message>
-    <message>
-        <source>Up to date!</source>
-        <translation type="gpt-5-generated">محدّث!</translation>
-    </message>
-    <message>
-        <source>Select a Model — 🗺️ = Navigation | 📡 = Radar | 👀 = VOACC</source>
-        <translation type="gpt-5-generated">اختر نموذجًا — 🗺️ = الملاحة | 📡 = الرادار | 👀 = VOACC</translation>
+        <translation>غير متصل...</translation>
     </message>
     <message>
         <source>Downloading...</source>
-        <translation type="gpt-5-generated">جارٍ التنزيل...</translation>
+        <translation>جارٍ التنزيل...</translation>
     </message>
     <message>
         <source>Not parked</source>
-        <translation type="gpt-5-generated">غير مُركن</translation>
+        <translation>السيارة غير متوقفة</translation>
     </message>
     <message>
         <source>Downloaded!</source>
-        <translation type="gpt-5-generated">تم التنزيل!</translation>
+        <translation>تم التنزيل!</translation>
     </message>
     <message>
         <source>All models downloaded!</source>
-        <translation type="gpt-5-generated">تم تنزيل جميع النماذج!</translation>
+        <translation>تم تنزيل جميع النماذج!</translation>
     </message>
     <message>
         <source>Download cancelled...</source>
-        <translation type="gpt-5-generated">تم إلغاء التنزيل...</translation>
+        <translation>أُلغي التنزيل...</translation>
     </message>
     <message>
         <source>Download failed...</source>
-        <translation type="gpt-5-generated">فشل التنزيل...</translation>
+        <translation>فشل التنزيل...</translation>
     </message>
     <message>
         <source>GitHub and GitLab are offline...</source>
-        <translation type="gpt-5-generated">GitHub وGitLab غير متاحين...</translation>
+        <translation>GitHub وGitLab غير متصلين...</translation>
     </message>
     <message>
         <source>Repository unavailable</source>
-        <translation type="gpt-5-generated">المستودع غير متاح</translation>
+        <translation>المستودع غير متاح</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Download new driving models on their own as they are released, so they are ready when you want to try one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This runs whenever the device is online, including while you are driving. It also grabs every model that is not already on the device, not just newly released ones, so anything you removed with "Delete Driving Models" comes back.</source>
+        <translation>&lt;b&gt;نزّل نماذج القيادة الجديدة تلقائيًا عند إصدارها لتكون جاهزة عندما ترغب في تجربتها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يعمل ذلك كلما كان الجهاز متصلًا، بما في ذلك أثناء القيادة. كما ينزّل كل نموذج غير موجود على الجهاز، لا النماذج الجديدة فقط، ولذلك سيعود أي نموذج أزلته عبر "حذف نماذج القيادة".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Remove driving models you have downloaded to free up storage.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DELETE" picks one, "DELETE ALL" removes the rest. The model you are currently using and the one FrogPilot ships with are always kept. Turn "Automatically Download New Models" off first, or anything you delete is downloaded again within the hour.</source>
+        <translation>&lt;b&gt;أزل نماذج القيادة التي نزّلتها لتوفير مساحة تخزين.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يختار "حذف" نموذجًا واحدًا، ويزيل "حذف الكل" بقية النماذج. يُحتفظ دائمًا بالنموذج المستخدم حاليًا والنموذج المرفق مع FrogPilot. أوقف "تنزيل النماذج الجديدة تلقائيًا" أولًا، وإلا فسيعاد تنزيل ما تحذفه خلال ساعة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Download driving models onto the device so you can switch to them.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DOWNLOAD" picks one, "DOWNLOAD ALL" fetches everything. Your car has to be parked and online, and models are large, so this can take a while.</source>
+        <translation>&lt;b&gt;نزّل نماذج القيادة على الجهاز لتتمكن من التبديل إليها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يختار "تنزيل" نموذجًا واحدًا، ويجلب "تنزيل الكل" جميع النماذج. يجب أن تكون سيارتك متوقفة ومتصلة بالإنترنت، والنماذج كبيرة، لذا قد يستغرق ذلك بعض الوقت.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Picks a different driving model for you at the start of every drive, then asks how it went when you park, so you can work out which one you like best.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only chooses from models you have downloaded and have not blacklisted, and it only asks for a rating after drives longer than 15 minutes. Your ratings are saved under "Manage Model Ratings" for you to compare.</source>
+        <translation>&lt;b&gt;يختار لك نموذج قيادة مختلفًا في بداية كل رحلة، ثم يسألك عن التجربة عند التوقف لتعرف النموذج الذي تفضله.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يختار إلا من النماذج التي نزّلتها ولم تستبعدها، ولا يطلب تقييمًا إلا بعد رحلات تزيد مدتها على 15 دقيقة. تُحفظ تقييماتك ضمن "إدارة تقييمات النماذج" للمقارنة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Stop the "Model Randomizer" from picking driving models you did not get on with.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Blocking a model here has no effect on choosing it yourself under "Select Driving Model".</source>
+        <translation>&lt;b&gt;امنع "اختيار نموذج عشوائي" من اختيار نماذج القيادة التي لم تعجبك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يؤثر استبعاد نموذج هنا في اختيارك اليدوي له ضمن "اختيار نموذج القيادة".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;See how you rated each driving model and how many drives you gave it, or wipe those ratings and start fresh.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These are for your own comparison. The "Model Randomizer" picks at random and does not favour your higher-rated models.</source>
+        <translation>&lt;b&gt;اعرض تقييمك لكل نموذج قيادة وعدد الرحلات التي استخدمته فيها، أو امسح تلك التقييمات وابدأ من جديد.&lt;/b&gt;&lt;br&gt;&lt;br&gt;هذه البيانات للمقارنة الشخصية فقط. يختار "اختيار نموذج عشوائي" عشوائيًا ولا يفضّل النماذج الأعلى تقييمًا.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Choose which driving model does the driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The model is the part of openpilot that decides how to steer, speed up, and slow down, so switching it changes how the car feels. Only models you have downloaded are listed, and changing it while driving asks you to reboot.</source>
+        <translation>&lt;b&gt;اختر نموذج القيادة الذي يقود السيارة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;النموذج هو الجزء من openpilot الذي يقرر طريقة التوجيه والتسارع والتباطؤ، لذلك يغيّر تبديله إحساس السيارة. لا تظهر إلا النماذج التي نزّلتها، وسيُطلب منك إعادة التشغيل عند تغييره أثناء القيادة.</translation>
+    </message>
+    <message>
+        <source>Delete every downloaded driving model except the one you are using and the one FrogPilot ships with?</source>
+        <translation>هل تريد حذف كل نماذج القيادة المنزلة باستثناء النموذج المستخدم حاليًا والنموذج المرفق مع FrogPilot؟</translation>
+    </message>
+    <message>
+        <source>There are no driving models available to blacklist.</source>
+        <translation>لا توجد نماذج قيادة متاحة للاستبعاد.</translation>
+    </message>
+    <message>
+        <source>You have not blocked any driving models.</source>
+        <translation>لم تستبعد أي نماذج قيادة.</translation>
+    </message>
+    <message>
+        <source>Reset how many drives and what rating each driving model has? Your drives themselves are not touched.</source>
+        <translation>هل تريد إعادة ضبط عدد الرحلات وتقييم كل نموذج قيادة؟ لن تتأثر الرحلات نفسها.</translation>
+    </message>
+    <message>
+        <source>Select a Model 🗺️ = Navigation | 📡 = Radar | 👀 = VOACC</source>
+        <translation>اختر نموذجًا 🗺️ = ملاحة | 📡 = رادار | 👀 = VOACC</translation>
+    </message>
+    <message>
+        <source>The "Model Randomizer" only picks from models you have downloaded. Park your car and connect to the internet to download them.</source>
+        <translation>لا يختار "اختيار نموذج عشوائي" إلا من النماذج التي نزّلتها. أوقف السيارة واتصل بالإنترنت لتنزيلها.</translation>
+    </message>
+    <message>
+        <source>The "Model Randomizer" only picks from models you have downloaded. Download every model now?</source>
+        <translation>لا يختار "اختيار نموذج عشوائي" إلا من النماذج التي نزّلتها. هل تريد تنزيل جميع النماذج الآن؟</translation>
+    </message>
+    <message>
+        <source>%1 Drive</source>
+        <translation>%1 رحلة</translation>
+    </message>
+    <message>
+        <source>%1 Drives</source>
+        <translation>%1 رحلات</translation>
+    </message>
+    <message>
+        <source>N/A</source>
+        <translation>غير متاح</translation>
+    </message>
+    <message>
+        <source>Score: %1%</source>
+        <translation>النتيجة: %1%</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotModelReview</name>
     <message>
         <source>How would you rate that drive?</source>
-        <translation type="gpt-5-generated">كيف تقيم تلك القيادة؟</translation>
+        <translation>كيف تقيّم تلك الرحلة؟</translation>
     </message>
     <message>
         <source>Model successfully blacklisted!</source>
-        <translation type="gpt-5-generated">تم حظر الطراز بنجاح!</translation>
+        <translation>تم استبعاد النموذج بنجاح!</translation>
     </message>
     <message>
         <source>Drive Rating Selection</source>
-        <translation type="gpt-5-generated">اختيار تصنيف القيادة</translation>
+        <translation>اختيار تقييم الرحلة</translation>
     </message>
     <message>
         <source>Blacklist this model to remove it from rotation</source>
-        <translation type="gpt-5-generated">أدرج هذا الطراز في القائمة السوداء لإزالته من التداول</translation>
+        <translation>استبعد هذا النموذج لإزالته من التناوب</translation>
     </message>
     <message>
         <source>Blacklist Model</source>
-        <translation type="gpt-5-generated">نموذج القائمة السوداء</translation>
+        <translation>استبعاد النموذج</translation>
     </message>
     <message>
         <source>Model used during that drive:</source>
-        <translation type="gpt-5-generated">الطراز المستخدم أثناء تلك القيادة:"</translation>
+        <translation>النموذج المستخدم في تلك الرحلة:</translation>
     </message>
     <message>
         <source>Model Rank</source>
-        <translation type="gpt-5-generated">ترتيب النموذج</translation>
+        <translation>ترتيب النموذج</translation>
     </message>
     <message>
         <source>Model Rating</source>
-        <translation type="gpt-5-generated">تصنيف النموذج</translation>
+        <translation>تقييم النموذج</translation>
     </message>
     <message>
         <source>Model Drives</source>
-        <translation type="gpt-5-generated">القيادة بواسطة النموذج</translation>
+        <translation>رحلات النموذج</translation>
     </message>
     <message>
         <source>Total Drives</source>
-        <translation type="gpt-5-generated">إجمالي الرحلات</translation>
+        <translation>إجمالي الرحلات</translation>
     </message>
     <message>
         <source>#%1</source>
-        <translation type="gpt-5-generated">#%1</translation>
+        <translation>#%1</translation>
     </message>
     <message>
         <source>%1%</source>
-        <translation type="gpt-5-generated">%1%</translation>
+        <translation>%1%</translation>
     </message>
     <message>
         <source>%1 %2</source>
-        <translation type="gpt-5-generated">%1 %2</translation>
+        <translation>%1 %2</translation>
     </message>
     <message>
         <source>Drive</source>
-        <translation type="gpt-5-generated">قد قدماً</translation>
+        <translation>رحلة</translation>
     </message>
     <message>
         <source>Drives</source>
-        <translation type="gpt-5-generated">الرحلات</translation>
+        <translation>رحلات</translation>
     </message>
     <message>
         <source>%1 Total %2</source>
-        <translation type="gpt-5-generated">%1 المجموع %2</translation>
+        <translation>%1 إجمالي %2</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotNavigationPanel</name>
     <message>
         <source>Manage Your Settings At</source>
-        <translation type="gpt-5-generated">إدارة إعداداتك في</translation>
+        <translation>إدارة إعداداتك عبر</translation>
     </message>
     <message>
         <source>Offline...</source>
-        <translation type="gpt-5-generated">غير متصل...</translation>
+        <translation>غير متصل...</translation>
     </message>
     <message>
         <source>Mapbox</source>
-        <translation type="gpt-5-generated">Mapbox</translation>
+        <translation>Mapbox</translation>
     </message>
     <message>
         <source>Amap</source>
-        <translation type="gpt-5-generated">Amap</translation>
+        <translation>Amap</translation>
     </message>
     <message>
         <source>Destination Search Provider</source>
-        <translation type="gpt-5-generated">موفر بحث الوجهة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The search provider used for destination queries&lt;/b&gt; in "Navigate on Openpilot". Options include Mapbox (recommended) and Amap.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;موفّر البحث المستخدم لاستعلامات الوجهة&lt;/b&gt; في "Navigate on Openpilot". الخيارات تشمل Mapbox (موصى به) وAmap.</translation>
+        <translation>مزود البحث عن الوجهات</translation>
     </message>
     <message>
         <source>Amap Key #1</source>
-        <translation type="gpt-5-generated">مفتاح Amap #1</translation>
+        <translation>مفتاح Amap رقم 1</translation>
     </message>
     <message>
         <source>Amap Key #2</source>
-        <translation type="gpt-5-generated">مفتاح Amap #2</translation>
+        <translation>مفتاح Amap رقم 2</translation>
     </message>
     <message>
         <source>Public Mapbox Key</source>
-        <translation type="gpt-5-generated">مفتاح Mapbox العام</translation>
+        <translation>مفتاح Mapbox العام</translation>
     </message>
     <message>
         <source>Secret Mapbox Key</source>
-        <translation type="gpt-5-generated">مفتاح Mapbox السري</translation>
+        <translation>مفتاح Mapbox السري</translation>
     </message>
     <message>
         <source>Mapbox Setup Instructions</source>
-        <translation type="gpt-5-generated">إرشادات إعداد Mapbox</translation>
+        <translation>تعليمات إعداد Mapbox</translation>
     </message>
     <message>
         <source>VIEW</source>
-        <translation type="gpt-5-generated">عرض</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Instructions on how to set up Mapbox&lt;/b&gt; for "Primeless Navigation".</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إرشادات إعداد Mapbox&lt;/b&gt; لـ "Primeless Navigation".</translation>
-    </message>
-    <message>
-        <source>CANCEL</source>
-        <translation type="gpt-5-generated">إلغاء</translation>
-    </message>
-    <message>
-        <source>Manually Update Speed Limits</source>
-        <translation type="gpt-5-generated">تحديث حدود السرعة يدويًا</translation>
+        <translation>عرض</translation>
     </message>
     <message>
         <source>Speed Limit Filler</source>
-        <translation type="gpt-5-generated">مُكمِّل حدّ السرعة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Automatically collect missing or incorrect speed limits while you drive&lt;/b&gt; using speeds limits sourced from your dashboard (if supported), Mapbox, and "Navigate on openpilot".&lt;br&gt;&lt;br&gt;When you're parked and connected to Wi-Fi, FrogPilot will automatically processes this data into a file to be used with the tool located at "SpeedLimitFiller.frogpilot.download".&lt;br&gt;&lt;br&gt;You can download this file from "The Pond" in the "Download Speed Limits" menu.&lt;br&gt;&lt;br&gt;Need a step-by-step guide? Visit &lt;b&gt;#speed-limit-filler&lt;/b&gt; in the FrogPilot Discord!</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اجمع تلقائيًا حدود السرعة المفقودة أو غير الصحيحة أثناء القيادة&lt;/b&gt; باستخدام حدود السرعة المأخوذة من لوحة العدادات لديك (إذا كانت مدعومة)، وMapbox، و"Navigate on openpilot".&lt;br&gt;&lt;br&gt;عند إيقاف السيارة والاتصال بشبكة Wi‑Fi، سيقوم FrogPilot تلقائيًا بمعالجة هذه البيانات في ملف لاستخدامه مع الأداة الموجودة في "SpeedLimitFiller.frogpilot.download".&lt;br&gt;&lt;br&gt;يمكنك تنزيل هذا الملف من "The Pond" ضمن قائمة "Download Speed Limits".&lt;br&gt;&lt;br&gt;تحتاج إلى دليل خطوة بخطوة؟ زر &lt;b&gt;#speed-limit-filler&lt;/b&gt; في خادم FrogPilot على Discord!</translation>
-    </message>
-    <message>
-        <source>Cancel the speed-limit update?</source>
-        <translation type="gpt-5-generated">إلغاء تحديث حد السرعة؟</translation>
-    </message>
-    <message>
-        <source>Cancelled...</source>
-        <translation type="gpt-5-generated">أُلغي...</translation>
-    </message>
-    <message>
-        <source>You've hit today's request limit.
-
-It will reset in %1 hours and %2 minutes.</source>
-        <translation type="gpt-5-generated">لقد وصلت إلى حد الطلبات اليوم.
-
-سيُعاد التعيين خلال %1 ساعة و%2 دقيقة.</translation>
-    </message>
-    <message>
-        <source>This process takes a while. It's recommended to start when you're done driving and connected to stable Wi-Fi. Continue?</source>
-        <translation type="gpt-5-generated">هذه العملية تستغرق بعض الوقت. يُنصح بالبدء عندما تنتهي من القيادة وتكون متصلاً بشبكة Wi‑Fi مستقرة. المتابعة؟</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Manage your "%1".&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إدارة "%1".&lt;/b&gt;</translation>
+        <translation>مُكمّل حدود السرعة</translation>
     </message>
     <message>
         <source>ADD</source>
-        <translation type="gpt-5-generated">إضافة</translation>
+        <translation>إضافة</translation>
     </message>
     <message>
         <source>Enter your %1</source>
-        <translation type="gpt-5-generated">أدخل %1 الخاص بك</translation>
+        <translation>أدخل %1 الخاص بك</translation>
     </message>
     <message>
         <source>Remove your %1?</source>
-        <translation type="gpt-5-generated">هل تريد إزالة %1؟</translation>
+        <translation>هل تريد إزالة %1 الخاص بك؟</translation>
     </message>
     <message>
         <source>REMOVE</source>
-        <translation type="gpt-5-generated">إزالة</translation>
-    </message>
-    <message>
-        <source>Completed!</source>
-        <translation type="gpt-5-generated">اكتمل!</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Manage your Public Mapbox Key.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إدارة مفتاح Mapbox العام.&lt;/b&gt;</translation>
+        <translation>إزالة</translation>
     </message>
     <message>
         <source>TEST</source>
-        <translation type="gpt-5-generated">اختبار</translation>
+        <translation>اختبار</translation>
     </message>
     <message>
         <source>Remove your Public Mapbox Key?</source>
-        <translation type="gpt-5-generated">إزالة مفتاح Mapbox العام الخاص بك؟</translation>
+        <translation>هل تريد إزالة مفتاح Mapbox العام؟</translation>
     </message>
     <message>
         <source>Enter your Public Mapbox Key</source>
-        <translation type="gpt-5-generated">أدخل مفتاح Mapbox العام الخاص بك</translation>
+        <translation>أدخل مفتاح Mapbox العام</translation>
     </message>
     <message>
         <source>Testing...</source>
-        <translation type="gpt-5-generated">جارٍ الاختبار...</translation>
+        <translation>جارٍ الاختبار...</translation>
     </message>
     <message>
         <source>Key is valid!</source>
-        <translation type="gpt-5-generated">المفتاح صالح!</translation>
+        <translation>المفتاح صالح!</translation>
     </message>
     <message>
         <source>Key is invalid!</source>
-        <translation type="gpt-5-generated">المفتاح غير صالح!</translation>
+        <translation>المفتاح غير صالح!</translation>
     </message>
     <message>
         <source>An error occurred: %1</source>
-        <translation type="gpt-5-generated">حدث خطأ: %1</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Manage your Secret Mapbox Key.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إدارة مفتاح Mapbox السري.&lt;/b&gt;</translation>
+        <translation>حدث خطأ: %1</translation>
     </message>
     <message>
         <source>Remove your Secret Mapbox Key?</source>
-        <translation type="gpt-5-generated">إزالة مفتاح Mapbox السري الخاص بك؟</translation>
+        <translation>هل تريد إزالة مفتاح Mapbox السري؟</translation>
     </message>
     <message>
         <source>Enter your Secret Mapbox Key</source>
-        <translation type="gpt-5-generated">أدخل مفتاح Mapbox السري الخاص بك</translation>
+        <translation>أدخل مفتاح Mapbox السري</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Open this address in a browser on the same Wi-Fi to reach "The Pond", where you search for destinations and send them to your car.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;افتح هذا العنوان في متصفح على شبكة Wi-Fi نفسها للوصول إلى "The Pond"، حيث يمكنك البحث عن الوجهات وإرسالها إلى سيارتك.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switches this menu between your Mapbox keys and your Amap keys.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Picking "Amap" just swaps which rows this menu shows you. "The Pond" still needs both Mapbox keys before it will show its navigation page at all, so set those either way. Destination searching itself happens in "The Pond", not here.</source>
+        <translation>&lt;b&gt;بدّل هذه القائمة بين مفاتيح Mapbox ومفاتيح Amap.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يؤدي اختيار "Amap" إلى تبديل الصفوف الظاهرة في هذه القائمة فقط. تظل "The Pond" بحاجة إلى مفتاحي Mapbox قبل أن تعرض صفحة الملاحة أصلًا، لذا اضبطهما في كل الأحوال. يجري البحث عن الوجهات نفسه في "The Pond" وليس هنا.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lets you search for a destination and preview the route without paying for comma's subscription.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You make this key yourself on Mapbox's website. Navigation stays locked until both this and the "Secret Mapbox Key" are set, so add both. "Mapbox Setup Instructions" walks you through it.</source>
+        <translation>&lt;b&gt;يتيح لك البحث عن وجهة ومعاينة المسار من دون دفع اشتراك comma.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تنشئ هذا المفتاح بنفسك على موقع Mapbox. تظل الملاحة مقفلة حتى ضبط هذا المفتاح و"مفتاح Mapbox السري" معًا، لذا أضف كليهما. ترشدك "تعليمات إعداد Mapbox" خلال الخطوات.</translation>
+    </message>
+    <message>
+        <source>That's your Secret Mapbox Key. Enter your Public Mapbox Key.</source>
+        <translation>هذا هو مفتاح Mapbox السري. أدخل مفتاح Mapbox العام.</translation>
+    </message>
+    <message>
+        <source>[key hidden]</source>
+        <translation>[المفتاح مخفي]</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Draws the map itself on your driving screen, alongside what the "Public Mapbox Key" does for searching.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Keep this one to yourself, since it can be used to run up charges on your Mapbox account. After you add it you are asked whether to reboot, and the map only appears once the device has actually rebooted.</source>
+        <translation>&lt;b&gt;يرسم الخريطة نفسها على شاشة القيادة، إلى جانب وظيفة "مفتاح Mapbox العام" في البحث.&lt;/b&gt;&lt;br&gt;&lt;br&gt;احتفظ بهذا المفتاح لنفسك، إذ يمكن استخدامه لتكبيد حسابك على Mapbox رسومًا. بعد إضافته، يُطلب منك تحديد ما إذا كنت تريد إعادة التشغيل، ولا تظهر الخريطة إلا بعد إعادة تشغيل الجهاز فعليًا.</translation>
+    </message>
+    <message>
+        <source>That's your Public Mapbox Key. Enter your Secret Mapbox Key.</source>
+        <translation>هذا هو مفتاح Mapbox العام. أدخل مفتاح Mapbox السري.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Walks you through getting your own free Mapbox keys so navigation works without comma's subscription.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The guide only shows the steps for where you are in setup, so it changes as you add each key. Tap the instructions to come back here.</source>
+        <translation>&lt;b&gt;يرشدك إلى الحصول على مفاتيح Mapbox المجانية الخاصة بك لتعمل الملاحة من دون اشتراك comma.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يعرض الدليل إلا الخطوات المناسبة لمرحلتك الحالية من الإعداد، لذلك يتغير عند إضافة كل مفتاح. المس التعليمات للعودة إلى هنا.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Your %1, stored for Amap destination searching in "The Pond".&lt;/b&gt;&lt;br&gt;&lt;br&gt;FrogPilot does not actually send searches to Amap yet, so "The Pond" only checks that the keys are filled in. Set both Mapbox keys if you want destination search to work.</source>
+        <translation>&lt;b&gt;%1 الخاص بك، محفوظ للبحث عن الوجهات عبر Amap في "The Pond".&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يرسل FrogPilot عمليات البحث إلى Amap فعليًا حتى الآن، لذا لا تتحقق "The Pond" إلا من إدخال المفتاحين. اضبط مفتاحي Mapbox إذا أردت أن يعمل البحث عن الوجهات.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Collect missing or incorrect speed limits automatically while you drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;FrogPilot compares speed limits from your dashboard, where supported, Mapbox, and "Navigate on openpilot". Downloaded maps are required because FrogPilot uses their OSM way IDs to identify each road.&lt;br&gt;&lt;br&gt;You can download the results from "The Pond" in the "Download Speed Limits" menu and load them into the Speed Limit Filler website. Review every proposed edit before submitting it to OSM.&lt;br&gt;&lt;br&gt;Need a step-by-step guide? Visit &lt;b&gt;#speed-limit-filler&lt;/b&gt; in the FrogPilot Discord!</source>
+        <translation>&lt;b&gt;اجمع حدود السرعة الناقصة أو غير الصحيحة تلقائيًا أثناء القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يقارن FrogPilot حدود السرعة الواردة من لوحة العدادات، حيثما كان ذلك مدعومًا، ومن Mapbox ومن "Navigate on openpilot". يلزم وجود الخرائط المنزلة لأن FrogPilot يستخدم معرّفات طرق OSM فيها لتحديد كل طريق.&lt;br&gt;&lt;br&gt;يمكنك تنزيل النتائج من "The Pond" عبر قائمة "Download Speed Limits" وتحميلها إلى موقع Speed Limit Filler. راجع كل تعديل مقترح قبل إرساله إلى OSM.&lt;br&gt;&lt;br&gt;هل تحتاج إلى دليل خطوة بخطوة؟ زُر &lt;b&gt;#speed-limit-filler&lt;/b&gt; في Discord الخاص بـ FrogPilot!</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotOnroadWindow</name>
     <message>
         <source>FPS: %1 | Min: %2 | Max: %3 | Avg: %4</source>
-        <translation type="gpt-5-generated">الإطارات في الثانية: %1 | الأدنى: %2 | الأقصى: %3 | المتوسط: %4</translation>
+        <translation>FPS: %1 | الأدنى: %2 | الأقصى: %3 | المتوسط: %4</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotSettingsWindow</name>
     <message>
         <source>MANAGE</source>
-        <translation type="gpt-5-generated">إدارة</translation>
+        <translation>إدارة</translation>
     </message>
     <message>
         <source>DRIVING MODEL</source>
-        <translation type="gpt-5-generated">نموذج القيادة</translation>
+        <translation>نموذج القيادة</translation>
     </message>
     <message>
         <source>GAS / BRAKE</source>
-        <translation type="gpt-5-generated">الغاز / الفرامل</translation>
+        <translation>التسارع / الكبح</translation>
     </message>
     <message>
         <source>STEERING</source>
-        <translation type="gpt-5-generated">التوجيه</translation>
+        <translation>التوجيه</translation>
     </message>
     <message>
         <source>MAP DATA</source>
-        <translation type="gpt-5-generated">بيانات الخريطة</translation>
+        <translation>بيانات الخرائط</translation>
     </message>
     <message>
         <source>NAVIGATION</source>
-        <translation type="gpt-5-generated">الملاحة</translation>
+        <translation>الملاحة</translation>
     </message>
     <message>
         <source>DATA</source>
-        <translation type="gpt-5-generated">البيانات</translation>
+        <translation>البيانات</translation>
     </message>
     <message>
         <source>DEVICE CONTROLS</source>
-        <translation type="gpt-5-generated">عناصر تحكم الجهاز</translation>
+        <translation>عناصر تحكم الجهاز</translation>
     </message>
     <message>
         <source>UTILITIES</source>
-        <translation type="gpt-5-generated">أدوات</translation>
+        <translation>الأدوات</translation>
     </message>
     <message>
         <source>APPEARANCE</source>
-        <translation type="gpt-5-generated">المظهر</translation>
+        <translation>المظهر</translation>
     </message>
     <message>
         <source>THEME</source>
-        <translation type="gpt-5-generated">السمة</translation>
+        <translation>السمة</translation>
     </message>
     <message>
         <source>VEHICLE SETTINGS</source>
-        <translation type="gpt-5-generated">إعدادات المركبة</translation>
-    </message>
-    <message>
-        <source>WHEEL CONTROLS</source>
-        <translation type="gpt-5-generated">أدوات التحكم في المقود</translation>
+        <translation>إعدادات السيارة</translation>
     </message>
     <message>
         <source>Alerts and Sounds</source>
-        <translation type="gpt-5-generated">التنبيهات والأصوات</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Adjust alert volumes and enable custom notifications.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اضبط مستويات تنبيهات الصوت وفعّل الإشعارات المخصصة.&lt;/b&gt;</translation>
+        <translation>التنبيهات والأصوات</translation>
     </message>
     <message>
         <source>Driving Controls</source>
-        <translation type="gpt-5-generated">عناصر التحكم بالقيادة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Fine-tune custom FrogPilot acceleration, braking, and steering controls.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اضبط بدقة عناصر تحكم FrogPilot المخصصة للتسارع والكبح والتوجيه.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Navigation</source>
-        <translation type="gpt-5-generated">الملاحة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Download map data for the "Speed Limit Controller" and configure "Navigate on openpilot" (NOO).&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;نزّل بيانات الخريطة لميزة "Speed Limit Controller" وتهيئة "Navigate on openpilot" (NOO).&lt;/b&gt;</translation>
+        <translation>عناصر تحكم القيادة</translation>
     </message>
     <message>
         <source>System Settings</source>
-        <translation type="gpt-5-generated">إعدادات النظام</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Manage backups, device settings, screen options, storage, and tools to keep FrogPilot running smoothly.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إدارة النسخ الاحتياطية، إعدادات الجهاز، خيارات الشاشة، التخزين، والأدوات للحفاظ على تشغيل FrogPilot بسلاسة.&lt;/b&gt;</translation>
+        <translation>إعدادات النظام</translation>
     </message>
     <message>
         <source>Theme and Appearance</source>
-        <translation type="gpt-5-generated">السمة والمظهر</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Customize the look of the driving screen and interface, including themes!&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;خصّص مظهر شاشة القيادة والواجهة، بما في ذلك السمات!&lt;/b&gt;</translation>
+        <translation>السمة والمظهر</translation>
     </message>
     <message>
         <source>Vehicle Settings</source>
-        <translation type="gpt-5-generated">إعدادات المركبة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Configure car-specific options and steering wheel button mappings.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;قم بتكوين خيارات خاصة بالسيارة وتعيينات أزرار عجلة القيادة.&lt;/b&gt;</translation>
+        <translation>إعدادات السيارة</translation>
     </message>
     <message>
         <source>Minimal</source>
-        <translation type="gpt-5-generated">الحد الأدنى</translation>
+        <translation>أساسي</translation>
     </message>
     <message>
         <source>Standard</source>
-        <translation type="gpt-5-generated">قياسي</translation>
+        <translation>قياسي</translation>
     </message>
     <message>
         <source>Advanced</source>
-        <translation type="gpt-5-generated">متقدّم</translation>
+        <translation>متقدم</translation>
     </message>
     <message>
         <source>Developer</source>
-        <translation type="gpt-5-generated">مطوّر</translation>
+        <translation>مطوّر</translation>
     </message>
     <message>
         <source>Tuning Level</source>
-        <translation type="gpt-5-generated">مستوى الضبط</translation>
+        <translation>مستوى الضبط</translation>
     </message>
     <message>
-        <source>Choose your tuning level. Lower levels keep it simple; higher levels unlock more toggles for finer control.
+        <source>WHEEL BUTTONS</source>
+        <translation>أزرار عجلة القيادة</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set the volume for each of openpilot's alerts, and add extra alerts stock openpilot doesn't have.&lt;/b&gt; Extra alerts include a chime when the light turns green or when the car ahead starts moving.</source>
+        <translation>&lt;b&gt;اضبط مستوى صوت كل تنبيه من تنبيهات openpilot، وأضف تنبيهات أخرى غير موجودة في openpilot الأصلي.&lt;/b&gt; تشمل التنبيهات الإضافية رنينًا عند تحول الإشارة إلى اللون الأخضر أو بدء السيارة الأمامية بالحركة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Adjust how openpilot accelerates, brakes, steers, and changes lanes, and switch between driving models.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DRIVING MODEL" only appears once your "Tuning Level" is "Standard" or higher, and "GAS / BRAKE" only appears on cars where openpilot handles the gas and brake.</source>
+        <translation>&lt;b&gt;اضبط طريقة تسارع openpilot وكبحه وتوجيهه وتغييره للمسار، وبدّل بين نماذج القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يظهر "نموذج القيادة" إلا عندما يكون "مستوى الضبط" على "قياسي" أو أعلى، ولا يظهر "التسارع / الكبح" إلا في السيارات التي يتولى فيها openpilot التسارع والكبح.</translation>
+    </message>
+    <message>
+        <source>Maps and Navigation</source>
+        <translation>الخرائط والملاحة</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Download the speed limit data openpilot uses, and set up turn-by-turn navigation.&lt;/b&gt; Speed limits come from offline map data for the states or countries you pick, so they work without cell signal.</source>
+        <translation>&lt;b&gt;نزّل بيانات حدود السرعة التي يستخدمها openpilot، وأعد الملاحة خطوة بخطوة.&lt;/b&gt; تأتي حدود السرعة من بيانات خرائط غير متصلة للولايات أو الدول التي تختارها، لذلك تعمل من دون إشارة خلوية.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Manage your saved data, how the device and screen behave, and tools for fixing problems.&lt;/b&gt; This is also where your drive stats and backups of your settings live.</source>
+        <translation>&lt;b&gt;أدر بياناتك المحفوظة وسلوك الجهاز والشاشة وأدوات إصلاح المشكلات.&lt;/b&gt; ستجد هنا أيضًا إحصاءات رحلاتك والنسخ الاحتياطية من إعداداتك.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Change what appears on the driving screen, and how openpilot looks and sounds.&lt;/b&gt; Anything from hiding on-screen icons to full theme packs with new colors, sounds, and turn signal animations.</source>
+        <translation>&lt;b&gt;غيّر ما يظهر على شاشة القيادة وشكل openpilot وأصواته.&lt;/b&gt; يشمل ذلك إخفاء رموز الشاشة وحزم سمات كاملة بألوان وأصوات ورسوم متحركة جديدة لإشارات الانعطاف.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Tell openpilot what car you drive, turn on features made for your brand, and change what your steering wheel buttons do.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Brand features include things like smoother stop-and-go and automatic door locks. "WHEEL BUTTONS" only appears once your "Tuning Level" is "Advanced" or higher.</source>
+        <translation>&lt;b&gt;أخبر openpilot بالسيارة التي تقودها، وفعّل ميزات مصممة لعلامتها التجارية، وغيّر وظائف أزرار عجلة القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تشمل ميزات العلامة أشياء مثل التوقف والانطلاق الأكثر سلاسة وقفل الأبواب تلقائيًا. لا تظهر "أزرار عجلة القيادة" إلا عندما يكون "مستوى الضبط" على "متقدم" أو أعلى.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Choose how much control you want over FrogPilot's settings.&lt;/b&gt; Anything above your level is hidden and uses FrogPilot's recommended setting instead. Nothing you've set is lost, and it comes back when you move up.&lt;br&gt;&lt;br&gt;Minimal - FrogPilot decides nearly everything for you&lt;br&gt;Standard - Recommended for most drivers&lt;br&gt;Advanced - Extra fine-tuning once you know how your car drives&lt;br&gt;Developer - Everything, including settings that can drastically change how openpilot drives</source>
+        <translation>&lt;b&gt;اختر مقدار التحكم الذي تريده في إعدادات FrogPilot.&lt;/b&gt; يُخفى كل ما يتجاوز مستواك وتُستخدم توصية FrogPilot بدلًا منه. لا تفقد أي قيمة ضبطتها، وتعود عند الانتقال إلى مستوى أعلى.&lt;br&gt;&lt;br&gt;أساسي - يقرر FrogPilot كل شيء تقريبًا نيابةً عنك&lt;br&gt;قياسي - موصى به لمعظم السائقين&lt;br&gt;متقدم - ضبط إضافي دقيق بعد أن تعرف سلوك سيارتك&lt;br&gt;مطوّر - كل شيء، بما في ذلك إعدادات قد تغيّر طريقة قيادة openpilot جذريًا</translation>
+    </message>
+    <message>
+        <source>"Developer" unlocks settings that can drastically change how openpilot drives, and any you changed before will start being used again.
 
-Minimal - Ideal for those who prefer simplicity or ease of use
-Standard - Recommended for most users for a balanced experience
-Advanced - Fine-tuning for experienced users
-Developer - Highly customizable settings for seasoned enthusiasts</source>
-        <translation type="gpt-5-generated">اختر مستوى الضبط لديك. المستويات الأدنى تبقيه بسيطًا؛ المستويات الأعلى تفتح مزيدًا من المفاتيح لمزيد من التحكم الدقيق.
+Only continue if you know what they do.</source>
+        <translation>يفتح مستوى "مطوّر" إعدادات قد تغيّر طريقة قيادة openpilot جذريًا، وسيعاد استخدام أي إعدادات غيّرتها سابقًا.
 
-الحد الأدنى - مثالي لمن يفضلون البساطة أو سهولة الاستخدام
-القياسي - موصى به لمعظم المستخدمين لتجربة متوازنة
-متقدم - ضبط دقيق للمستخدمين ذوي الخبرة
-المطوّر - إعدادات قابلة للتخصيص بدرجة عالية للمتمرسين</translation>
+لا تتابع إلا إذا كنت تعرف ما تفعله.</translation>
     </message>
     <message>
-        <source>WARNING: These settings are risky and can drastically change how openpilot drives. Only change if you fully understand what they do!</source>
-        <translation type="gpt-5-generated">تحذير: هذه الإعدادات محفوفة بالمخاطر ويمكن أن تغيّر طريقة قيادة openpilot بشكل جذري. لا تغيّرها إلا إذا كنت تفهم تمامًا ما تفعله!</translation>
+        <source>Continue</source>
+        <translation>متابعة</translation>
     </message>
     <message>
-        <source>All toggle descriptions are currently expanded. You can tap a toggle's name to open or close its description at any time!</source>
-        <translation type="gpt-5-generated">تم توسيع جميع أوصاف أزرار التبديل حاليًا. يمكنك النقر على اسم زر التبديل لفتح أو إغلاق وصفه في أي وقت!</translation>
+        <source>All descriptions are currently expanded. You can tap any setting's name to open or close its description at any time!</source>
+        <translation>جميع الأوصاف موسعة حاليًا. يمكنك لمس اسم أي إعداد لفتح وصفه أو إغلاقه في أي وقت!</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotSoundsPanel</name>
     <message>
-        <source>Alert Volume Controller</source>
-        <translation type="gpt-5-generated">متحكم مستوى تنبيهات</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Set how loud each type of openpilot alert is&lt;/b&gt; to keep routine prompts from becoming distracting.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اضبط مدى ارتفاع صوت كل نوع من تنبيهات openpilot&lt;/b&gt; لمنع الإشعارات الروتينية من أن تصبح مشتتة.</translation>
-    </message>
-    <message>
         <source>Disengage Volume</source>
-        <translation type="gpt-5-generated">مستوى صوت الفصل</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Set the volume for alerts when openpilot disengages.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Examples include: "Cruise Fault: Restart the Car", "Parking Brake Engaged", "Pedal Pressed".</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اضبط مستوى الصوت للتنبيهات عند فصل openpilot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تشمل الأمثلة: "عطل نظام القيادة: أعد تشغيل السيارة"، "فرامل الانتظار مفعّلة"، "تم الضغط على الدواسة".</translation>
+        <translation>مستوى صوت إلغاء التفعيل</translation>
     </message>
     <message>
         <source>Engage Volume</source>
-        <translation type="gpt-5-generated">مستوى الصوت عند التفعيل</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Set the volume for the chime when openpilot engages&lt;/b&gt;, such as after pressing the "RESUME" or "SET" steering wheel buttons.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اضبط مستوى صوت الجرس عند تفعيل openpilot&lt;/b&gt;، مثلًا بعد الضغط على زري عجلة القيادة "RESUME" أو "SET".</translation>
+        <translation>مستوى صوت التفعيل</translation>
     </message>
     <message>
         <source>Prompt Volume</source>
-        <translation type="gpt-5-generated">حجم المطالبة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Set the volume for prompts that need attention.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Examples include: "Car Detected in Blindspot", "Steering Temporarily Unavailable", "Turn Exceeds Steering Limit".</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اضبط مستوى الصوت للتنبيهات التي تتطلب الانتباه.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تشمل الأمثلة: "تم اكتشاف سيارة في النقطة العمياء"، "التوجيه غير متاح مؤقتًا"، "المنعطف يتجاوز حد التوجيه".</translation>
-    </message>
-    <message>
-        <source>Prompt Distracted Volume</source>
-        <translation type="gpt-5-generated">حجم تنبيه التشتت</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Set the volume for prompts when openpilot detects driver distraction or unresponsiveness.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Examples include: "Pay Attention", "Touch Steering Wheel".</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اضبط مستوى الصوت للتنبيهات عند اكتشاف openpilot لتشتت السائق أو عدم استجابته.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تشمل الأمثلة: "انتبه" و"المس عجلة القيادة".</translation>
-    </message>
-    <message>
-        <source>Refuse Volume</source>
-        <translation type="gpt-5-generated">رفض الصوت</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Set the volume for alerts when openpilot refuses to engage.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Examples include: "Brake Hold Active", "Door Open", "Seatbelt Unlatched".</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اضبط مستوى صوت التنبيهات عندما يرفض openpilot التفعيل.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تشمل الأمثلة: "تفعيل تثبيت الفرامل"، "الباب مفتوح"، "فك حزام الأمان".</translation>
-    </message>
-    <message>
-        <source>Warning Soft Volume</source>
-        <translation type="gpt-5-generated">تحذير: مستوى الصوت منخفض</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Set the volume for softer warnings about potential risks.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Examples include: "BRAKE! Risk of Collision", "Steering Temporarily Unavailable".</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اضبط مستوى الصوت للتحذيرات الأخف بشأن المخاطر المحتملة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تشمل أمثلة: "فرامل! خطر اصطدام"، "التوجيه غير متاح مؤقتًا".</translation>
-    </message>
-    <message>
-        <source>Warning Immediate Volume</source>
-        <translation type="gpt-5-generated">تحذير فوري للصوت</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Set the volume for the loudest warnings that require urgent attention.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Examples include: "DISENGAGE IMMEDIATELY — Driver Distracted", "DISENGAGE IMMEDIATELY — Driver Unresponsive".</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اضبط مستوى الصوت لأعلى التحذيرات التي تتطلب انتباهًا عاجلًا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تشمل أمثلة: "افصل فورًا — السائق مشتت"، "افصل فورًا — السائق لا يستجيب".</translation>
+        <translation>مستوى صوت التنبيه الإرشادي</translation>
     </message>
     <message>
         <source>FrogPilot Alerts</source>
-        <translation type="gpt-5-generated">تنبيهات FrogPilot</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Optional FrogPilot alerts&lt;/b&gt; that highlight driving events in a more noticeable way.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تنبيهات FrogPilot اختيارية&lt;/b&gt; تُبرز أحداث القيادة بطريقة أكثر لفتًا للانتباه.</translation>
+        <translation>تنبيهات FrogPilot</translation>
     </message>
     <message>
         <source>Goat Scream</source>
-        <translation type="gpt-5-generated">صرخة الماعز</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Play the infamous "Goat Scream" when the steering controller reaches its limit.&lt;/b&gt; Based on the "Turn Exceeds Steering Limit" event.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تشغيل صرخة الماعز الشهيرة عند وصول متحكم التوجيه إلى حدّه.&lt;/b&gt; يعتمد على حدث "تجاوز المنعطف حد التوجيه".</translation>
+        <translation>صرخة الماعز</translation>
     </message>
     <message>
         <source>Green Light Alert</source>
-        <translation type="gpt-5-generated">تنبيه الضوء الأخضر</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Play an alert when the model predicts a red light has turned green.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights. This alert is based on end-to-end model predictions from camera input and may trigger even when the light has not changed.&lt;/i&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تشغيل تنبيه عندما يتنبأ النموذج بأن الإشارة الحمراء قد تحولت إلى خضراء.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;إخلاء المسؤولية&lt;/b&gt;: لا يكتشف openpilot إشارات المرور بشكلٍ صريح. يعتمد هذا التنبيه على تنبؤات نموذج طرف-إلى-طرف من مدخلات الكاميرا وقد يتم تشغيله حتى عندما لا تكون الإشارة قد تغيّرت.&lt;/i&gt;</translation>
+        <translation>تنبيه الإشارة الخضراء</translation>
     </message>
     <message>
         <source>Lead Departing Alert</source>
-        <translation type="gpt-5-generated">تنبيه مغادرة المركبة الأمامية</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Play an alert when the lead vehicle departs from a stop.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تشغيل تنبيه عند تحرك المركبة المتقدمة من التوقف.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Loud "Car Detected in Blindspot" Alert</source>
-        <translation type="gpt-5-generated">تنبيه مرتفع "تم اكتشاف سيارة في النقطة العمياء"</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Play a louder alert if a vehicle is in the blind spot when attempting to change lanes.&lt;/b&gt; Based on the "Car Detected in Blindspot" event.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تشغيل تنبيه أعلى صوتًا إذا كانت هناك مركبة في المنطقة العمياء عند محاولة تغيير المسار.&lt;/b&gt; يعتمد على حدث "Car Detected in Blindspot".</translation>
+        <translation>تنبيه تحرك السيارة الأمامية</translation>
     </message>
     <message>
         <source>Speed Limit Changed Alert</source>
-        <translation type="gpt-5-generated">تنبيه تغيير حد السرعة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Play an alert when the posted speed limit changes.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تشغيل تنبيه عند تغيّر حد السرعة المعلن.&lt;/b&gt;</translation>
+        <translation>تنبيه تغير حد السرعة</translation>
     </message>
     <message>
         <source>Muted</source>
-        <translation type="gpt-5-generated">كتم الصوت</translation>
+        <translation>صامت</translation>
     </message>
     <message>
         <source>Auto</source>
-        <translation type="gpt-5-generated">تلقائي</translation>
+        <translation>تلقائي</translation>
     </message>
     <message>
         <source>Test</source>
-        <translation type="gpt-5-generated">اختبار</translation>
+        <translation>اختبار</translation>
+    </message>
+    <message>
+        <source>Alert Volumes</source>
+        <translation>مستويات صوت التنبيهات</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set your own volume for each type of openpilot alert instead of letting openpilot pick.&lt;/b&gt; Every alert starts on "Auto", which raises the volume as your car gets noisier and lowers it when things are quiet. Turning this back off puts all of them back on "Auto".</source>
+        <translation>&lt;b&gt;اضبط بنفسك مستوى صوت كل نوع من تنبيهات openpilot بدلًا من ترك openpilot يختاره.&lt;/b&gt; يبدأ كل تنبيه على "تلقائي"، الذي يرفع الصوت مع ازدياد ضوضاء السيارة ويخفضه عندما تكون هادئة. يؤدي إيقاف هذا الخيار مجددًا إلى إعادة جميع التنبيهات إلى "تلقائي".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set the volume for the sound openpilot makes when it stops driving and hands the car back to you.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear this when you tap the brake, press "Cancel", or when your car's cruise control drops out. If a fault forces openpilot to give up instead, you get a warning chime, which comes from "Soft Warning Volume" or "Urgent Warning Volume".</source>
+        <translation>&lt;b&gt;اضبط مستوى صوت النغمة التي يصدرها openpilot عندما يتوقف عن القيادة ويعيد إليك التحكم بالسيارة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تسمعها عند لمس المكابح أو ضغط "إلغاء" أو خروج مثبت السرعة في سيارتك من التفعيل. إذا أجبر عطل openpilot على التوقف بدلًا من ذلك، فستسمع رنين تحذير يحدده "مستوى صوت التحذير الجاد" أو "مستوى صوت التحذير العاجل".</translation>
+    </message>
+    <message>
+        <source>Distracted Driver Volume</source>
+        <translation>مستوى صوت تشتت السائق</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set the volume for the sound openpilot makes when the driver camera thinks you've stopped watching the road.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear this if you look down at your phone, or if the camera cannot see your face and you go too long without touching the wheel. Ignore it long enough and it escalates into the "DISENGAGE IMMEDIATELY" warning, which plays at "Urgent Warning Volume" instead. openpilot will not hand the car back on its own, so taking over is on you.</source>
+        <translation>&lt;b&gt;اضبط مستوى صوت النغمة التي يصدرها openpilot عندما تعتقد كاميرا السائق أنك توقفت عن مراقبة الطريق.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تسمعها إذا نظرت إلى هاتفك أو إذا تعذر على الكاميرا رؤية وجهك ومر وقت طويل من دون لمس عجلة القيادة. إذا تجاهلتها مدة كافية، تتصاعد إلى تحذير "ألغِ التفعيل فورًا" الذي يعمل عند "مستوى صوت التحذير العاجل". لن يعيد openpilot التحكم بالسيارة إليك تلقائيًا، لذا تقع عليك مسؤولية توليه.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set the volume for the sound openpilot makes when it starts driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear this right after you press "SET" or "RESUME" on your steering wheel.</source>
+        <translation>&lt;b&gt;اضبط مستوى صوت النغمة التي يصدرها openpilot عندما يبدأ القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تسمعها فور ضغط "SET" أو "RESUME" على عجلة القيادة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set the volume for the quick chimes openpilot uses when it needs you to notice something.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear these for things like a car sitting in your blind spot when you signal, or a turn too sharp for openpilot to steer through on its own. The "Goat Scream" alert plays at this volume as well.</source>
+        <translation>&lt;b&gt;اضبط مستوى صوت الرنات السريعة التي يستخدمها openpilot عندما يحتاج إلى لفت انتباهك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تسمعها في حالات مثل وجود سيارة في نقطتك العمياء عند تشغيل الإشارة، أو عندما يكون المنعطف أشد من قدرة openpilot على توجيهه بمفرده. يعمل تنبيه "صرخة الماعز" بهذا المستوى أيضًا.</translation>
+    </message>
+    <message>
+        <source>Soft Warning Volume</source>
+        <translation>مستوى صوت التحذير الجاد</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set the volume for openpilot's serious warnings, such as "BRAKE! Risk of Collision" when it thinks you're about to hit something.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The "Louder Blind Spot Alert" plays at this volume too. This one stops at 25% so a warning can always reach you.</source>
+        <translation>&lt;b&gt;اضبط مستوى صوت تحذيرات openpilot الجادة، مثل "اكبح! خطر اصطدام" عندما يعتقد أنك على وشك الاصطدام بشيء.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يعمل "تنبيه أعلى للنقطة العمياء" بهذا المستوى أيضًا. لا يمكن خفضه عن 25% لضمان سماع التحذير دائمًا.</translation>
+    </message>
+    <message>
+        <source>Urgent Warning Volume</source>
+        <translation>مستوى صوت التحذير العاجل</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set the volume for openpilot's most urgent warnings, the ones telling you to take the wheel right now.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DISENGAGE IMMEDIATELY" plays at this volume, which is what you get once you've ignored the driver camera long enough that openpilot no longer trusts you're paying attention. This one stops at 25% so a warning can always reach you.</source>
+        <translation>&lt;b&gt;اضبط مستوى صوت أشد تحذيرات openpilot إلحاحًا، وهي التي تطلب منك تولي عجلة القيادة فورًا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يعمل تحذير "ألغِ التفعيل فورًا" بهذا المستوى، ويصدر بعدما تتجاهل كاميرا السائق مدة تجعل openpilot لا يثق بانتباهك. لا يمكن خفضه عن 25% لضمان سماع التحذير دائمًا.</translation>
+    </message>
+    <message>
+        <source>Won't Engage Volume</source>
+        <translation>مستوى صوت تعذر التفعيل</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set the volume for the sound openpilot makes when you try to turn it on and it refuses.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear this when something is in the way, like an open door, an unbuckled seatbelt, or the parking brake still being on.</source>
+        <translation>&lt;b&gt;اضبط مستوى صوت النغمة التي يصدرها openpilot عندما تحاول تفعيله ويتعذر ذلك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تسمعها عندما يمنع شيء التفعيل، مثل باب مفتوح أو حزام أمان غير مربوط أو مكابح توقف ما زالت مفعّلة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Turn on extra alerts stock openpilot doesn't have, for things you would otherwise have to catch yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These cover the light turning green, the car ahead pulling away, and the speed limit changing. The blind spot one in here is not a new alert: openpilot already chimes when there is a car beside you, and this only swaps that chime for a louder one.</source>
+        <translation>&lt;b&gt;فعّل تنبيهات إضافية غير موجودة في openpilot الأصلي لأحداث كان عليك ملاحظتها بنفسك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تشمل تحول الإشارة إلى الأخضر وتحرك السيارة الأمامية وتغير حد السرعة. تنبيه النقطة العمياء هنا ليس جديدًا؛ إذ يصدر openpilot رنينًا بالفعل عند وجود سيارة بجانبك، ولا يفعل هذا الخيار سوى استبداله برنين أعلى.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Swap the chime for "Turn Exceeds Steering Limit" out for a screaming goat.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That alert means the turn is sharper than openpilot can steer through on its own, so it's asking you to help turn the wheel. It plays at whatever you set "Prompt Volume" to.</source>
+        <translation>&lt;b&gt;استبدل رنين "المنعطف يتجاوز حد التوجيه" بصرخة ماعز.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يعني ذلك التنبيه أن المنعطف أشد من قدرة openpilot على توجيهه بمفرده، ولذلك يطلب منك المساعدة في تدوير عجلة القيادة. يعمل بالمستوى المضبوط لـ "مستوى صوت التنبيه الإرشادي".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Play a chime when you're stopped at a light and openpilot sees the road ahead open up.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This only fires when nobody is stopped in front of you. For a line of cars at a light you need "Lead Departing Alert" switched on as well, and that one starts off.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not actually read traffic lights. It is going off what the camera sees, so it can chime when the light has not changed.&lt;/i&gt;</source>
+        <translation>&lt;b&gt;شغّل رنينًا عندما تكون متوقفًا عند إشارة ويرى openpilot أن الطريق أمامك أصبح مفتوحًا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يعمل إلا عندما لا تكون هناك سيارة متوقفة أمامك. إذا كنت ضمن طابور سيارات عند الإشارة، فيجب تفعيل "تنبيه تحرك السيارة الأمامية" أيضًا، وهو متوقف افتراضيًا.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;إخلاء مسؤولية&lt;/b&gt;: لا يقرأ openpilot إشارات المرور فعليًا. بل يعتمد على ما تراه الكاميرا، لذلك قد يصدر الرنين مع أن الإشارة لم تتغير.&lt;/i&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Play a chime when you're stopped in traffic and the car in front of you starts moving again.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It waits until that car has genuinely pulled away rather than just crept forward, so it won't chime the moment they roll an inch.</source>
+        <translation>&lt;b&gt;شغّل رنينًا عندما تكون متوقفًا في الازدحام وتبدأ السيارة أمامك بالحركة مجددًا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ينتظر حتى تتحرك السيارة فعلًا بدلًا من مجرد الزحف إلى الأمام، لذلك لن يرن لحظة تقدمها مقدار بوصة واحدة.</translation>
+    </message>
+    <message>
+        <source>Louder Blind Spot Alert</source>
+        <translation>تنبيه أعلى للنقطة العمياء</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Upgrade "Car Detected in Blindspot" from openpilot's quiet prompt chime to its warning chime.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You get this alert when you signal for a lane change while openpilot is steering and there is a car beside you where you cannot see it. It needs at least 20 mph, so signalling slower than that gets you nothing. Because it becomes a warning, its volume comes from "Soft Warning Volume" instead of "Prompt Volume".</source>
+        <translation>&lt;b&gt;ارفع "اكتشاف سيارة في النقطة العمياء" من رنين openpilot الإرشادي الهادئ إلى رنين التحذير.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يصدر هذا التنبيه عندما تشغّل الإشارة لتغيير المسار بينما يتولى openpilot التوجيه وتوجد سيارة بجانبك حيث لا تراها. يتطلب سرعة 20 mph على الأقل، لذلك لن يصدر شيء عند تشغيل الإشارة دونها. ولأنه يصبح تحذيرًا، يُحدد صوته عبر "مستوى صوت التحذير الجاد" بدلًا من "مستوى صوت التنبيه الإرشادي".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Play a chime whenever the speed limit openpilot is reading changes.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That limit comes from your car's dashboard, your downloaded map data, or your navigation route, depending on which of those you have set up. You hear it right as the limit changes, such as entering a school zone or coming off the highway.</source>
+        <translation>&lt;b&gt;شغّل رنينًا كلما تغير حد السرعة الذي يقرأه openpilot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يأتي الحد من لوحة عدادات سيارتك أو بيانات الخرائط المنزلة أو مسار الملاحة، بحسب ما أعددته منها. تسمع الرنين فور تغير الحد، مثل دخول منطقة مدرسة أو مغادرة الطريق السريع.</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotThemesPanel</name>
     <message>
         <source>Custom Themes</source>
-        <translation type="gpt-5-generated">السمات المخصصة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The overall look and feel of openpilot.&lt;/b&gt; Use the "Theme Maker" in "The Pond" to create and share your own themes!</source>
-        <translation type="gpt-5-generated">&lt;b&gt;المظهر والإحساس العام لـ openpilot.&lt;/b&gt; استخدم "منشئ السمات" في "The Pond" لإنشاء سماتك الخاصة ومشاركتها!</translation>
+        <translation>سمات مخصصة</translation>
     </message>
     <message>
         <source>Color Scheme</source>
-        <translation type="gpt-5-generated">مخطط الألوان</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The color scheme used throughout openpilot.&lt;/b&gt; Use the "Theme Maker" in "The Pond" to create and share your own themes!</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مخطط الألوان المستخدم في كامل openpilot.&lt;/b&gt; استخدم "منشئ السِمة" في "The Pond" لإنشاء سماتك الخاصة ومشاركتها!</translation>
-    </message>
-    <message>
-        <source>Distance Button</source>
-        <translation type="gpt-5-generated">زر المسافة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The distance button icons shown on the driving screen.&lt;/b&gt; Use the "Theme Maker" in "The Pond" to create and share your own themes!</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أيقونات زر المسافة المعروضة على شاشة القيادة.&lt;/b&gt; استخدم "Theme Maker" في "The Pond" لإنشاء سماتك الخاصة ومشاركتها!</translation>
+        <translation>نظام الألوان</translation>
     </message>
     <message>
         <source>Icon Pack</source>
-        <translation type="gpt-5-generated">حزمة الأيقونات</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The icon style used across openpilot.&lt;/b&gt; Use the "Theme Maker" in "The Pond" to create and share your own themes!</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أسلوب الأيقونات المستخدم عبر openpilot.&lt;/b&gt; استخدم "Theme Maker" في "The Pond" لإنشاء سماتك الخاصة ومشاركتها!</translation>
+        <translation>حزمة الرموز</translation>
     </message>
     <message>
         <source>Sound Pack</source>
-        <translation type="gpt-5-generated">حزمة الصوت</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The sound pack used by openpilot.&lt;/b&gt; Use the "Theme Maker" in "The Pond" to create and share your own themes!</source>
-        <translation type="gpt-5-generated">&lt;b&gt;حزمة الأصوات التي يستخدمها openpilot.&lt;/b&gt; استخدم "Theme Maker" في "The Pond" لإنشاء ومشاركة سماتك الخاصة!&lt;/b&gt;</translation>
+        <translation>حزمة الأصوات</translation>
     </message>
     <message>
         <source>Steering Wheel</source>
-        <translation type="gpt-5-generated">عجلة القيادة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The steering-wheel icon&lt;/b&gt; shown at the top-right of the driving screen. Use the "Theme Maker" in "The Pond" to create and share your own themes!</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أيقونة عجلة القيادة&lt;/b&gt; المعروضة في أعلى يمين شاشة القيادة. استخدم "Theme Maker" في "The Pond" لإنشاء ومشاركة سماتك الخاصة!</translation>
+        <translation>عجلة القيادة</translation>
     </message>
     <message>
         <source>Turn Signal</source>
-        <translation type="gpt-5-generated">إشارة الانعطاف</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Themed turn-signal animations.&lt;/b&gt; Use the "Theme Maker" in "The Pond" to create and share your own themes!</source>
-        <translation type="gpt-5-generated">&lt;b&gt;حركات اتجاه بإطارات موضوعية.&lt;/b&gt; استخدم "صانع السمات" في "The Pond" لإنشاء سماتك الخاصة ومشاركتها!</translation>
+        <translation>إشارة الانعطاف</translation>
     </message>
     <message>
         <source>Download Status</source>
-        <translation type="gpt-5-generated">حالة التنزيل</translation>
+        <translation>حالة التنزيل</translation>
     </message>
     <message>
         <source>Holiday Themes</source>
-        <translation type="gpt-5-generated">سمات العطلات</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Themes based on U.S. holidays.&lt;/b&gt; Minor holidays last one day; major holidays (Christmas, Easter, Halloween) run for a full week.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;سمات مبنية على العطلات الأميركية.&lt;/b&gt; العطلات الصغيرة تدوم يومًا واحدًا؛ العطلات الكبرى (عيد الميلاد، عيد الفصح، الهالووين) تمتد لأسبوع كامل.</translation>
+        <translation>سمات المناسبات</translation>
     </message>
     <message>
         <source>Rainbow Path</source>
-        <translation type="gpt-5-generated">مسار قوس قزح</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Color the driving path like a Mario Kart–style "Rainbow Road".&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;لوّن مسار القيادة بأسلوب “طريق قوس قزح” كما في Mario Kart.&lt;/b&gt;</translation>
+        <translation>مسار قوس قزح</translation>
     </message>
     <message>
         <source>Random Events</source>
-        <translation type="gpt-5-generated">أحداث عشوائية</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Occasional on-screen effects triggered by driving conditions.&lt;/b&gt; These are purely a visual and don't impact how openpilot drives!</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تأثيرات على الشاشة تظهر أحيانًا بسبب ظروف القيادة.&lt;/b&gt; هذه بصرية بحتًا ولا تؤثر على طريقة قيادة openpilot!</translation>
+        <translation>أحداث عشوائية</translation>
     </message>
     <message>
         <source>Random Themes</source>
-        <translation type="gpt-5-generated">سمات عشوائية</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Pick a random theme between each drive&lt;/b&gt; from the themes you have downloaded. Great for variety without changing settings while driving.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اختر سمة عشوائية بين كل رحلة&lt;/b&gt; من السمات التي قمت بتنزيلها. رائع للتنوع دون تغيير الإعدادات أثناء القيادة.</translation>
+        <translation>سمات عشوائية</translation>
     </message>
     <message>
         <source>Startup Alert</source>
-        <translation type="gpt-5-generated">تنبيه بدء التشغيل</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Customize the "Startup Alert" message&lt;/b&gt; shown at the start of each drive.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;خصص رسالة "تنبيه بدء التشغيل"&lt;/b&gt; المعروضة عند بداية كل رحلة.</translation>
+        <translation>رسالة بدء التشغيل</translation>
     </message>
     <message>
         <source>DELETE</source>
-        <translation type="gpt-5-generated">حذف</translation>
+        <translation>حذف</translation>
     </message>
     <message>
         <source>DOWNLOAD</source>
-        <translation type="gpt-5-generated">تنزيل</translation>
+        <translation>تنزيل</translation>
     </message>
     <message>
         <source>SELECT</source>
-        <translation type="gpt-5-generated">تحديد</translation>
+        <translation>اختيار</translation>
     </message>
     <message>
         <source>Select a color scheme to delete</source>
-        <translation type="gpt-5-generated">اختر مخطط ألوان لحذفه</translation>
+        <translation>اختر نظام ألوان لحذفه</translation>
     </message>
     <message>
         <source>Delete the "%1" color scheme?</source>
-        <translation type="gpt-5-generated">حذف نظام الألوان "%1"?</translation>
+        <translation>هل تريد حذف نظام الألوان "%1"؟</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="gpt-5-generated">حذف</translation>
+        <translation>حذف</translation>
     </message>
     <message>
         <source>Select a color scheme to download</source>
-        <translation type="gpt-5-generated">اختر مخطط ألوان للتنزيل</translation>
+        <translation>اختر نظام ألوان لتنزيله</translation>
     </message>
     <message>
         <source>Select a color scheme</source>
-        <translation type="gpt-5-generated">اختر مخطط ألوان</translation>
-    </message>
-    <message>
-        <source>Select a distance icon pack to delete</source>
-        <translation type="gpt-5-generated">اختر حزمة أيقونات المسافة لحذفها</translation>
-    </message>
-    <message>
-        <source>Delete the "%1" distance icon pack?</source>
-        <translation type="gpt-5-generated">حذف حزمة أيقونات المسافة "%1"?</translation>
-    </message>
-    <message>
-        <source>Select a distance icon pack to download</source>
-        <translation type="gpt-5-generated">اختر حزمة أيقونات المسافة لتنزيلها</translation>
-    </message>
-    <message>
-        <source>Select a distance icon pack</source>
-        <translation type="gpt-5-generated">اختر حزمة أيقونات المسافة</translation>
+        <translation>اختر نظام ألوان</translation>
     </message>
     <message>
         <source>Select an icon pack to delete</source>
-        <translation type="gpt-5-generated">اختر حزمة أيقونات لحذفها</translation>
+        <translation>اختر حزمة رموز لحذفها</translation>
     </message>
     <message>
         <source>Delete the "%1" icon pack?</source>
-        <translation type="gpt-5-generated">حذف حزمة الأيقونات "%1"?</translation>
+        <translation>هل تريد حذف حزمة الرموز "%1"؟</translation>
     </message>
     <message>
         <source>Select an icon pack to download</source>
-        <translation type="gpt-5-generated">اختر حزمة أيقونات للتنزيل</translation>
+        <translation>اختر حزمة رموز لتنزيلها</translation>
     </message>
     <message>
         <source>Select an icon pack</source>
-        <translation type="gpt-5-generated">اختر حزمة أيقونات</translation>
+        <translation>اختر حزمة رموز</translation>
     </message>
     <message>
         <source>Select a signal animation to delete</source>
-        <translation type="gpt-5-generated">اختر رسم إشارة متحركة لحذفه</translation>
+        <translation>اختر رسم إشارة متحركًا لحذفه</translation>
     </message>
     <message>
         <source>Delete the "%1" signal animation?</source>
-        <translation type="gpt-5-generated">حذف تحريك الإشارة "%1"؟</translation>
+        <translation>هل تريد حذف رسم الإشارة المتحرك "%1"؟</translation>
     </message>
     <message>
         <source>Select a signal animation to download</source>
-        <translation type="gpt-5-generated">حدد رسمًا متحركًا للإشارة لتنزيله</translation>
+        <translation>اختر رسم إشارة متحركًا لتنزيله</translation>
     </message>
     <message>
         <source>Select a signal animation</source>
-        <translation type="gpt-5-generated">اختر رسوم إشارة متحركة</translation>
+        <translation>اختر رسم إشارة متحركًا</translation>
     </message>
     <message>
         <source>Select a sound pack to delete</source>
-        <translation type="gpt-5-generated">اختر حزمة صوتية لحذفها</translation>
+        <translation>اختر حزمة أصوات لحذفها</translation>
     </message>
     <message>
         <source>Delete the "%1" sound pack?</source>
-        <translation type="gpt-5-generated">حذف حزمة الصوت "%1"?</translation>
+        <translation>هل تريد حذف حزمة الأصوات "%1"؟</translation>
     </message>
     <message>
         <source>Select a sound pack to download</source>
-        <translation type="gpt-5-generated">اختر حزمة صوت لتنزيلها</translation>
+        <translation>اختر حزمة أصوات لتنزيلها</translation>
     </message>
     <message>
         <source>Select a sound pack</source>
-        <translation type="gpt-5-generated">اختر حزمة أصوات</translation>
+        <translation>اختر حزمة أصوات</translation>
     </message>
     <message>
         <source>Select a steering wheel to delete</source>
-        <translation type="gpt-5-generated">اختر عجلة قيادة لحذفها</translation>
+        <translation>اختر صورة عجلة قيادة لحذفها</translation>
     </message>
     <message>
         <source>Delete the "%1" steering wheel?</source>
-        <translation type="gpt-5-generated">حذف عجلة القيادة "%1"؟</translation>
+        <translation>هل تريد حذف صورة عجلة القيادة "%1"؟</translation>
     </message>
     <message>
         <source>Select a steering wheel to download</source>
-        <translation type="gpt-5-generated">اختر عجلة قيادة للتنزيل</translation>
+        <translation>اختر صورة عجلة قيادة لتنزيلها</translation>
     </message>
     <message>
         <source>Select a steering wheel</source>
-        <translation type="gpt-5-generated">اختر عجلة قيادة</translation>
+        <translation>اختر صورة عجلة قيادة</translation>
     </message>
     <message>
         <source>STOCK</source>
-        <translation type="gpt-5-generated">المخزون</translation>
+        <translation>الأصلي</translation>
     </message>
     <message>
         <source>FROGPILOT</source>
-        <translation type="gpt-5-generated">FROGPILOT</translation>
+        <translation>FROGPILOT</translation>
     </message>
     <message>
         <source>CUSTOM</source>
-        <translation type="gpt-5-generated">مخصص</translation>
+        <translation>مخصص</translation>
     </message>
     <message>
         <source>CLEAR</source>
-        <translation type="gpt-5-generated">مسح</translation>
+        <translation>مسح</translation>
     </message>
     <message>
         <source>Enter the text for the top half</source>
-        <translation type="gpt-5-generated">أدخل النص للنصف العلوي</translation>
+        <translation>أدخل نص النصف العلوي</translation>
     </message>
     <message>
         <source>Characters: 0/%1</source>
-        <translation type="gpt-5-generated">الأحرف: 0/%1</translation>
+        <translation>عدد الأحرف: 0/%1</translation>
     </message>
     <message>
         <source>Enter the text for the bottom half</source>
-        <translation type="gpt-5-generated">أدخل النص للنصف السفلي</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to completely reset your startup message?</source>
-        <translation type="gpt-5-generated">هل أنت متأكد أنك تريد إعادة تعيين رسالة بدء التشغيل بالكامل؟</translation>
-    </message>
-    <message>
-        <source>"Random Themes" only works with downloaded themes, so make sure you download the themes you want it to use!</source>
-        <translation type="gpt-5-generated">ميزة "السمات العشوائية" تعمل فقط مع السمات المُحمَّلة، لذا تأكد من تنزيل السمات التي تريد استخدامها!</translation>
+        <translation>أدخل نص النصف السفلي</translation>
     </message>
     <message>
         <source>CANCEL</source>
-        <translation type="gpt-5-generated">إلغاء</translation>
+        <translation>إلغاء</translation>
     </message>
     <message>
         <source>Downloading...</source>
-        <translation type="gpt-5-generated">جارٍ التنزيل...</translation>
+        <translation>جارٍ التنزيل...</translation>
     </message>
     <message>
         <source>Idle</source>
-        <translation type="gpt-5-generated">خامل</translation>
+        <translation>خامل</translation>
     </message>
     <message>
         <source>Unpacking theme...</source>
-        <translation type="gpt-5-generated">جارٍ فك حزمة السمة...</translation>
+        <translation>جارٍ فك حزمة السمة...</translation>
     </message>
     <message>
         <source>Downloaded!</source>
-        <translation type="gpt-5-generated">تم التنزيل!</translation>
+        <translation>تم التنزيل!</translation>
     </message>
     <message>
         <source>Download cancelled...</source>
-        <translation type="gpt-5-generated">تم إلغاء التنزيل...</translation>
+        <translation>أُلغي التنزيل...</translation>
     </message>
     <message>
         <source>Download failed...</source>
-        <translation type="gpt-5-generated">فشل التنزيل...</translation>
-    </message>
-    <message>
-        <source>Repository unavailable</source>
-        <translation type="gpt-5-generated">المستودع غير متاح</translation>
+        <translation>فشل التنزيل...</translation>
     </message>
     <message>
         <source>GitHub and GitLab are offline...</source>
-        <translation type="gpt-5-generated">GitHub وGitLab غير متصلين بالإنترنت...</translation>
+        <translation>GitHub وGitLab غير متصلين...</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Swap openpilot's colors, icons, sounds, turn signal animations, steering wheel picture and personality button for a theme pack you download.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You mix and match freely, so one theme's colors can run alongside another's sounds. Packs are made by other drivers, and you can build your own with the "Theme Maker" in "The Pond".</source>
+        <translation>&lt;b&gt;استبدل ألوان openpilot ورموزه وأصواته ورسوم إشارات الانعطاف وصورة عجلة القيادة وزر نمط القيادة بعناصر من حزمة سمة تنزّلها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يمكنك المزج بحرية، فتستخدم ألوان سمة مع أصوات سمة أخرى. يصنع سائقون آخرون هذه الحزم، ويمكنك إنشاء حزمتك عبر "صانع السمات" في "The Pond".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Change the colors openpilot draws on the driving screen, mainly the path ahead of you and the lane lines.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Stock" is openpilot's normal green path with white lane lines. A scheme also recolors the marker on the car ahead and the sidebar boxes, but the road edges are always red and never change. Holiday options match the holiday they are named after, and a downloaded pack brings its own set of colors.</source>
+        <translation>&lt;b&gt;غيّر الألوان التي يرسمها openpilot على شاشة القيادة، خصوصًا المسار أمامك وخطوط المسارات.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يعرض "الأصلي" مسار openpilot الأخضر المعتاد وخطوط المسار البيضاء. يغيّر نظام الألوان أيضًا لون علامة السيارة الأمامية ومربعات الشريط الجانبي، لكن حواف الطريق تبقى حمراء دائمًا ولا تتغير. تطابق خيارات المناسبات مناسباتها، وتأتي الحزمة المنزلة بمجموعة ألوان خاصة بها.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Change the settings, home and flag buttons on openpilot's sidebar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Stock" puts the normal three back. A pack replaces all three at once and nothing else, so every other icon openpilot draws stays stock.</source>
+        <translation>&lt;b&gt;غيّر أزرار الإعدادات والصفحة الرئيسية والعلامة في الشريط الجانبي لـ openpilot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يعيد "الأصلي" الأزرار الثلاثة المعتادة. تستبدل الحزمة الأزرار الثلاثة معًا ولا شيء غيرها، لذلك تبقى جميع الرموز الأخرى التي يرسمها openpilot أصلية.</translation>
+    </message>
+    <message>
+        <source>Personality Button</source>
+        <translation>زر نمط القيادة</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Change the icons on the driving personality button, the one you tap on the driving screen to switch between Aggressive, Standard and Relaxed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Each pack draws four icons: one each for Aggressive, Standard and Relaxed, plus one that takes over while Traffic Mode is on. This row only appears while that button is switched on under "Driving Personality Button".</source>
+        <translation>&lt;b&gt;غيّر رموز زر نمط القيادة الذي تلمسه على شاشة القيادة للتبديل بين الجريء والقياسي والمريح.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ترسم كل حزمة أربعة رموز: واحدًا لكل من الجريء والقياسي والمريح، ورمزًا آخر يظهر أثناء تشغيل وضع الازدحام. لا يظهر هذا الصف إلا أثناء تشغيل ذلك الزر ضمن "زر نمط القيادة".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Change the chimes openpilot plays for its alerts, like the sound when it starts driving or warns you about something.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Stock" uses openpilot's normal chimes. A pack only replaces the sound files it actually ships and anything it leaves out stays stock, so the holiday packs mostly bring just their own engage and disengage chimes. How loud each one plays is set separately under "Alert Volumes" in "Alerts and Sounds".</source>
+        <translation>&lt;b&gt;غيّر الرنات التي يشغّلها openpilot لتنبيهاته، مثل صوت بدء القيادة أو التحذير من شيء.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يستخدم "الأصلي" رنات openpilot المعتادة. لا تستبدل الحزمة إلا ملفات الصوت التي تتضمنها، ويبقى أي صوت غير موجود أصليًا؛ لذلك تأتي حزم المناسبات غالبًا برنات التفعيل وإلغاء التفعيل الخاصة بها فقط. يُضبط مستوى كل صوت بصورة مستقلة ضمن "مستويات صوت التنبيهات" في "التنبيهات والأصوات".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Change the steering wheel picture in the top right corner of the driving screen, which spins as openpilot steers.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Stock" uses openpilot's normal wheel and "None" hides it completely. Some downloaded wheels are animated.</source>
+        <translation>&lt;b&gt;غيّر صورة عجلة القيادة في الزاوية العليا اليمنى من شاشة القيادة، التي تدور مع توجيه openpilot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يستخدم "الأصلي" عجلة openpilot المعتادة، ويخفيها "لا شيء" تمامًا. بعض الصور المنزلة متحركة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Play an animation across the driving screen for as long as your turn signal is on.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The animation runs toward whichever side you signalled. "None" turns it off, and each downloaded pack brings its own animation.</source>
+        <translation>&lt;b&gt;شغّل رسمًا متحركًا عبر شاشة القيادة ما دامت إشارة الانعطاف مفعّلة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يتحرك الرسم نحو الجهة التي أشرت إليها. يوقفه "لا شيء"، وتأتي كل حزمة منزلة برسم خاص بها.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Dress openpilot up for thirteen holidays through the year, swapping the colors, icons, sounds, turn signals, steering wheel and personality button all at once.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Smaller ones like April Fools or Cinco de Mayo run on the day itself. Easter, Halloween, Thanksgiving and Christmas start on the Monday of that week and finish on the day, so they last anywhere from one day to a full week depending on where the date falls.&lt;br&gt;&lt;br&gt;While a holiday is running it replaces the themes you picked, and your own choices come back the next day.</source>
+        <translation>&lt;b&gt;زيّن openpilot لثلاث عشرة مناسبة على مدار العام، مع استبدال الألوان والرموز والأصوات وإشارات الانعطاف وعجلة القيادة وزر نمط القيادة دفعة واحدة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تعمل المناسبات الأصغر مثل كذبة أبريل أو Cinco de Mayo في يومها فقط. تبدأ سمات عيد الفصح والهالوين وعيد الشكر وعيد الميلاد يوم الاثنين من ذلك الأسبوع وتنتهي في يوم المناسبة، فتستمر من يوم واحد إلى أسبوع كامل بحسب موقع التاريخ.&lt;br&gt;&lt;br&gt;أثناء المناسبة تحل سمتها محل السمات التي اخترتها، وتعود اختياراتك في اليوم التالي.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Paint the driving path in shifting rainbow colors that scroll faster the quicker you go, like the Rainbow Road track from Mario Kart.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The rainbow replaces whatever color the path normally uses, including one that came with a theme you downloaded. With "Acceleration Path" also on, the green and red speed colors take over whenever openpilot speeds up or slows down, so the rainbow only shows while you hold a steady speed.</source>
+        <translation>&lt;b&gt;لوّن مسار القيادة بألوان قوس قزح متغيرة تتحرك أسرع كلما زادت سرعتك، مثل مضمار Rainbow Road في Mario Kart.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يستبدل قوس قزح اللون المعتاد للمسار، بما في ذلك لون حزمة سمة نزّلتها. عند تشغيل "مسار التسارع" أيضًا، تحل ألوان السرعة الخضراء والحمراء محلها عندما يتسارع openpilot أو يتباطأ، لذلك لا يظهر قوس قزح إلا عند ثبات السرعة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Play a rare joke alert, with its own sound and sometimes its own steering wheel picture, when something unusual happens on a drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Taking off hard, a corner sharper than openpilot can steer through, or a collision warning can each set one off. Every alert can only happen once per drive, a swapped steering wheel goes back to normal after about five seconds, and none of them change how openpilot drives.</source>
+        <translation>&lt;b&gt;شغّل تنبيهًا فكاهيًا نادرًا بصوته الخاص وأحيانًا بصورة عجلة قيادة خاصة عند وقوع حدث غير معتاد أثناء الرحلة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;قد يفعّله انطلاق قوي أو منعطف أشد من قدرة openpilot على التوجيه أو تحذير اصطدام. لا يحدث كل تنبيه إلا مرة واحدة في الرحلة، وتعود صورة عجلة القيادة المستبدلة إلى طبيعتها بعد نحو خمس ثوانٍ، ولا يغيّر أي منها طريقة قيادة openpilot.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Start every drive with a different theme, picked at random from the packs you have already downloaded.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Nothing happens until you download at least one pack. While this is on, the rows inside "Custom Themes" stop offering "SELECT", and turning it back off gives you your own picks again.</source>
+        <translation>&lt;b&gt;ابدأ كل رحلة بسمة مختلفة تُختار عشوائيًا من الحزم التي نزّلتها بالفعل.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لن يحدث شيء حتى تنزّل حزمة واحدة على الأقل. أثناء تشغيل هذا الخيار، تتوقف الصفوف داخل "سمات مخصصة" عن عرض "اختيار"، وعند إيقافه تعود اختياراتك الخاصة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Change the two lines of text openpilot shows on screen at the start of every drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"STOCK" is openpilot's usual safety reminder and "FROGPILOT" is the frog version. "CUSTOM" lets you write your own, up to 35 characters on the top line and 45 on the bottom, and "CLEAR" leaves the screen blank.</source>
+        <translation>&lt;b&gt;غيّر سطري النص اللذين يعرضهما openpilot على الشاشة في بداية كل رحلة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يمثل "الأصلي" تذكير السلامة المعتاد في openpilot، و"FROGPILOT" نسخة الضفدع. يتيح لك "مخصص" كتابة نصك حتى 35 حرفًا في السطر العلوي و45 في السفلي، ويترك "مسح" الشاشة فارغة.</translation>
+    </message>
+    <message>
+        <source>Select a personality button pack to delete</source>
+        <translation>اختر حزمة زر نمط القيادة لحذفها</translation>
+    </message>
+    <message>
+        <source>Delete the "%1" personality button pack?</source>
+        <translation>هل تريد حذف حزمة زر نمط القيادة "%1"؟</translation>
+    </message>
+    <message>
+        <source>Select a personality button pack to download</source>
+        <translation>اختر حزمة زر نمط القيادة لتنزيلها</translation>
+    </message>
+    <message>
+        <source>Select a personality button pack</source>
+        <translation>اختر حزمة زر نمط القيادة</translation>
+    </message>
+    <message>
+        <source>Clear your startup message? Nothing will be shown at the start of a drive.</source>
+        <translation>هل تريد مسح رسالة بدء التشغيل؟ لن يظهر شيء عند بدء الرحلة.</translation>
+    </message>
+    <message>
+        <source>"Random Themes" only picks from themes you've already downloaded, so grab the ones you want it to use!</source>
+        <translation>لا يختار "سمات عشوائية" إلا من السمات التي نزّلتها بالفعل، لذا نزّل السمات التي تريد منه استخدامها!</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotUtilitiesPanel</name>
     <message>
         <source>Debug Mode</source>
-        <translation type="gpt-5-generated">وضع التصحيح</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Use FrogPilot's developer metrics on your next drive&lt;/b&gt; to diagnose issues and improve bug reports.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;استخدم مقاييس المطوّر في FrogPilot في قيادتك القادمة&lt;/b&gt; لتشخيص المشكلات وتحسين تقارير الأخطاء.</translation>
-    </message>
-    <message>
-        <source>Flash Panda</source>
-        <translation type="gpt-5-generated">تفليش Panda</translation>
+        <translation>وضع تصحيح الأخطاء</translation>
     </message>
     <message>
         <source>FLASH</source>
-        <translation type="gpt-5-generated">فلاش</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Reinstall the Panda firmware&lt;/b&gt; to fix connection or reliability issues.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أعد تثبيت برنامج Panda الثابت&lt;/b&gt; لإصلاح مشاكل الاتصال أو الاعتمادية.</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to flash the Panda firmware?</source>
-        <translation type="gpt-5-generated">هل أنت متأكد أنك تريد تفليش برنامج Panda الثابت؟</translation>
+        <translation>تفليش</translation>
     </message>
     <message>
         <source>Flash</source>
-        <translation type="gpt-5-generated">وميض</translation>
+        <translation>تفليش</translation>
     </message>
     <message>
         <source>Flashing...</source>
-        <translation type="gpt-5-generated">جارٍ التفليش...</translation>
+        <translation>جارٍ التفليش...</translation>
     </message>
     <message>
         <source>Flashed!</source>
-        <translation type="gpt-5-generated">تم الوميض!</translation>
+        <translation>تم التفليش!</translation>
     </message>
     <message>
         <source>Rebooting...</source>
-        <translation type="gpt-5-generated">إعادة التشغيل...</translation>
+        <translation>جارٍ إعادة التشغيل...</translation>
     </message>
     <message>
         <source>Force Drive State</source>
-        <translation type="gpt-5-generated">فرض حالة القيادة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Manually set openpilot to be offroad or onroad.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اضبط openpilot يدويًا على الوضع خارج الطريق أو على الطريق.&lt;/b&gt;</translation>
+        <translation>فرض حالة القيادة</translation>
     </message>
     <message>
         <source>OFFROAD</source>
-        <translation type="gpt-5-generated">خارج الطريق</translation>
+        <translation>خارج القيادة</translation>
     </message>
     <message>
         <source>ONROAD</source>
-        <translation type="gpt-5-generated">على الطريق</translation>
+        <translation>أثناء القيادة</translation>
     </message>
     <message>
         <source>OFF</source>
-        <translation type="gpt-5-generated">إيقاف</translation>
+        <translation>إيقاف</translation>
     </message>
     <message>
         <source>Report a Bug or an Issue</source>
-        <translation type="gpt-5-generated">الإبلاغ عن خطأ أو مشكلة</translation>
+        <translation>الإبلاغ عن خطأ أو مشكلة</translation>
     </message>
     <message>
         <source>REPORT</source>
-        <translation type="gpt-5-generated">تقرير</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Send a bug report&lt;/b&gt; so we can help fix the problem!</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أرسل تقرير خطأ&lt;/b&gt; حتى نتمكن من المساعدة في إصلاح المشكلة!</translation>
-    </message>
-    <message>
-        <source>Please connect to the internet before sending a report!</source>
-        <translation type="gpt-5-generated">يرجى الاتصال بالإنترنت قبل إرسال التقرير!</translation>
+        <translation>إبلاغ</translation>
     </message>
     <message>
         <source>I saw an alert that said "openpilot crashed"</source>
-        <translation type="gpt-5-generated">رأيت تنبيهًا يقول "openpilot crashed"</translation>
+        <translation>رأيت تنبيهًا يقول "تعطل openpilot"</translation>
     </message>
     <message>
         <source>Acceleration feels harsh or jerky</source>
-        <translation type="gpt-5-generated">التسارع يبدو قاسياً أو متقطعاً</translation>
+        <translation>التسارع حاد أو متقطع</translation>
     </message>
     <message>
         <source>An alert was unclear and I didn't know what it meant</source>
-        <translation type="gpt-5-generated">كان التنبيه غير واضح ولم أعرف ما الذي يعنيه</translation>
+        <translation>كان أحد التنبيهات غير واضح ولم أفهم معناه</translation>
     </message>
     <message>
         <source>Braking is too sudden or uncomfortable</source>
-        <translation type="gpt-5-generated">الفرملة مفاجئة جدًا أو غير مريحة</translation>
+        <translation>الكبح مفاجئ أو غير مريح</translation>
     </message>
     <message>
         <source>I'm not sure if this is normal or a bug:</source>
-        <translation type="gpt-5-generated">لست متأكدًا مما إذا كان هذا طبيعيًا أم خطأ.</translation>
+        <translation>لست متأكدًا مما إذا كان هذا طبيعيًا أم خطأ:</translation>
     </message>
     <message>
         <source>My screen froze or is stuck loading something</source>
-        <translation type="gpt-5-generated">شاشتي تجمّدت أو عالقة أثناء التحميل</translation>
+        <translation>تجمدت شاشتي أو علقت أثناء تحميل شيء</translation>
     </message>
     <message>
         <source>My steering wheel buttons aren't working</source>
-        <translation type="gpt-5-generated">أزرار عجلة القيادة لا تعمل لديّ</translation>
+        <translation>أزرار عجلة القيادة لا تعمل</translation>
     </message>
     <message>
         <source>openpilot disengages when I don't expect it</source>
-        <translation type="gpt-5-generated">يتوقف openpilot عن القيادة عندما لا أتوقع ذلك</translation>
+        <translation>يلغي openpilot التفعيل على نحو غير متوقع</translation>
     </message>
     <message>
         <source>openpilot doesn't react to stopped vehicles ahead</source>
-        <translation type="gpt-5-generated">openpilot لا يتفاعل مع المركبات المتوقفة أمامك</translation>
+        <translation>لا يستجيب openpilot للمركبات المتوقفة أمامه</translation>
     </message>
     <message>
         <source>openpilot doesn't resume from a stop</source>
-        <translation type="gpt-5-generated">openpilot لا يستأنف من التوقف</translation>
+        <translation>لا يستأنف openpilot الحركة بعد التوقف</translation>
     </message>
     <message>
         <source>openpilot feels sluggish or slow to respond</source>
-        <translation type="gpt-5-generated">يشعر openpilot بالبطء أو ببطء في الاستجابة</translation>
+        <translation>تبدو استجابة openpilot بطيئة</translation>
     </message>
     <message>
         <source>Steering feels twitchy or unnatural</source>
-        <translation type="gpt-5-generated">التوجيه يبدو متشنجًا أو غير طبيعي</translation>
+        <translation>يبدو التوجيه متوترًا أو غير طبيعي</translation>
     </message>
     <message>
         <source>The car doesn't follow curves well</source>
-        <translation type="gpt-5-generated">السيارة لا تتبع المنعطفات جيدًا</translation>
+        <translation>لا تتبع السيارة المنعطفات جيدًا</translation>
     </message>
     <message>
         <source>The car isn't staying centered in its lane</source>
-        <translation type="gpt-5-generated">السيارة لا تبقى في وسط مسارها</translation>
+        <translation>لا تبقى السيارة في منتصف مسارها</translation>
     </message>
     <message>
         <source>Something else (please describe)</source>
-        <translation type="gpt-5-generated">شيء آخر (يرجى الوصف)</translation>
-    </message>
-    <message>
-        <source>What's going on?</source>
-        <translation type="gpt-5-generated">ما الذي يحدث؟</translation>
+        <translation>شيء آخر (يرجى وصفه)</translation>
     </message>
     <message>
         <source>Please describe what's happening</source>
-        <translation type="gpt-5-generated">يرجى وصف ما يحدث</translation>
-    </message>
-    <message>
-        <source>Send Report</source>
-        <translation type="gpt-5-generated">إرسال تقرير</translation>
+        <translation>يرجى وصف ما يحدث</translation>
     </message>
     <message>
         <source>What's your Discord username?</source>
-        <translation type="gpt-5-generated">ما اسم المستخدم الخاص بك على Discord؟</translation>
-    </message>
-    <message>
-        <source>Report Sent! Thanks for letting us know!</source>
-        <translation type="gpt-5-generated">تم إرسال التقرير! شكرًا لإبلاغنا!</translation>
-    </message>
-    <message>
-        <source>Reset Toggles to Default</source>
-        <translation type="gpt-5-generated">إعادة تعيين المفاتيح إلى الإعدادات الافتراضية</translation>
+        <translation>ما اسم المستخدم الخاص بك على Discord؟</translation>
     </message>
     <message>
         <source>RESET</source>
-        <translation type="gpt-5-generated">إعادة ضبط</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Reset all toggles to their default values.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إعادة تعيين جميع المفاتيح إلى قيمها الافتراضية.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to reset all toggles to their default values?</source>
-        <translation type="gpt-5-generated">هل أنت متأكد أنك تريد إعادة تعيين جميع المفاتيح إلى قيمها الافتراضية؟</translation>
+        <translation>إعادة الضبط</translation>
     </message>
     <message>
         <source>Reset</source>
-        <translation type="gpt-5-generated">إعادة ضبط</translation>
+        <translation>إعادة الضبط</translation>
     </message>
     <message>
         <source>Resetting...</source>
-        <translation type="gpt-5-generated">إعادة التعيين...</translation>
+        <translation>جارٍ إعادة الضبط...</translation>
     </message>
     <message>
-        <source>Reset!</source>
-        <translation type="gpt-5-generated">إعادة ضبط!</translation>
+        <source>&lt;b&gt;Show FrogPilot's developer readouts on the driving screen for your next drive, so a bug report can say what openpilot was actually doing.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It switches itself back off once you finish the drive. While it is on, the temperature reads in Celsius and the developer numbers read in scientific units, whatever you picked elsewhere. Your speedometer is not affected.</source>
+        <translation>&lt;b&gt;اعرض قراءات المطوّر في FrogPilot على شاشة القيادة خلال رحلتك التالية كي يوضح تقرير الخطأ ما كان يفعله openpilot فعليًا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يتوقف الخيار تلقائيًا عند انتهاء الرحلة. أثناء تشغيله، تُعرض الحرارة بالدرجات المئوية وقراءات المطوّر بالوحدات العلمية بصرف النظر عن اختياراتك الأخرى. لا يتأثر عداد السرعة.</translation>
     </message>
     <message>
-        <source>Reset Toggles to Stock openpilot</source>
-        <translation type="gpt-5-generated">إعادة تعيين المفاتيح إلى إعدادات openpilot الافتراضية</translation>
+        <source>Reflash the Panda</source>
+        <translation>إعادة تفليش Panda</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Reset all toggles to match stock openpilot.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إعادة تعيين جميع المفاتيح لتطابق openpilot الافتراضي.&lt;/b&gt;</translation>
+        <source>&lt;b&gt;Reinstall the software on the Panda, the small box that lets your device talk to your car.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Try this if openpilot keeps losing contact with the car or the Panda shows up as faulty. Your device reboots once it finishes, and the car has to be off to start.</source>
+        <translation>&lt;b&gt;أعد تثبيت البرنامج على Panda، وهي العلبة الصغيرة التي تتيح لجهازك الاتصال بسيارتك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;جرّب ذلك إذا استمر openpilot في فقدان الاتصال بالسيارة أو ظهرت Panda معطلة. يُعاد تشغيل جهازك عند الانتهاء، ويجب أن تكون السيارة متوقفة عن التشغيل للبدء.</translation>
     </message>
     <message>
-        <source>Are you sure you want to reset all toggles to match stock openpilot?</source>
-        <translation type="gpt-5-generated">هل أنت متأكد أنك تريد إعادة تعيين جميع المفاتيح لتطابق openpilot الافتراضي؟</translation>
+        <source>The Panda can't be reflashed while the car is on. Turn the car off and try again.</source>
+        <translation>لا يمكن إعادة تفليش Panda والسيارة قيد التشغيل. أوقف تشغيل السيارة وحاول مرة أخرى.</translation>
+    </message>
+    <message>
+        <source>Something else is already running. Wait for it to finish and try again.</source>
+        <translation>هناك عملية أخرى قيد التشغيل بالفعل. انتظر حتى تنتهي وحاول مرة أخرى.</translation>
+    </message>
+    <message>
+        <source>Reflash the Panda? Your device reboots once it finishes.</source>
+        <translation>هل تريد إعادة تفليش Panda؟ سيُعاد تشغيل جهازك عند الانتهاء.</translation>
+    </message>
+    <message>
+        <source>Flash failed...</source>
+        <translation>فشل التفليش...</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Make openpilot behave as though the car is running, or as though it is parked, without the car actually being either.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This is a testing tool. Forcing the running state pins the screen to full brightness and stops openpilot warning you that its controls are unresponsive, so leave it on "OFF" unless you know why you need it. It clears itself the next time the device restarts.</source>
+        <translation>&lt;b&gt;اجعل openpilot يتصرف كما لو كانت السيارة قيد التشغيل أو متوقفة، من دون أن تكون السيارة في أي من الحالتين فعليًا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;هذه أداة اختبار. يؤدي فرض حالة التشغيل إلى تثبيت الشاشة على السطوع الكامل ومنع openpilot من تحذيرك بأن عناصر تحكمه لا تستجيب، لذا اتركها على "إيقاف" إلا إذا كنت تعرف سبب حاجتك إليها. تُمسح الحالة عند إعادة تشغيل الجهاز في المرة التالية.</translation>
+    </message>
+    <message>
+        <source>openpilot hasn't learned your car yet, so it can't be forced onroad. Complete a drive first.</source>
+        <translation>لم يتعلم openpilot سيارتك بعد، لذلك لا يمكن فرض حالة القيادة. أكمل رحلة أولًا.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Tell the FrogPilot team what went wrong, straight from the car.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You pick what happened from a list, add a description where it helps, and give your Discord name so they can reach you. Your settings and the most recent error log go along with it so the problem can be traced.</source>
+        <translation>&lt;b&gt;أخبر فريق FrogPilot بما حدث مباشرةً من السيارة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;اختر ما حدث من قائمة، وأضف وصفًا عند الحاجة، وقدّم اسمك على Discord ليتواصل الفريق معك. تُرسل إعداداتك وأحدث سجل أخطاء معه لتتبع المشكلة.</translation>
+    </message>
+    <message>
+        <source>Connect to Wi-Fi or a hotspot first, then send your report.</source>
+        <translation>اتصل أولًا بشبكة Wi-Fi أو نقطة اتصال، ثم أرسل تقريرك.</translation>
+    </message>
+    <message>
+        <source>What went wrong?</source>
+        <translation>ما الذي حدث؟</translation>
+    </message>
+    <message>
+        <source>The more detail the better</source>
+        <translation>كلما زادت التفاصيل كان أفضل</translation>
+    </message>
+    <message>
+        <source>So we can reach you about the fix</source>
+        <translation>لكي نتواصل معك بشأن الإصلاح</translation>
+    </message>
+    <message>
+        <source>Report sent, thanks for letting us know!</source>
+        <translation>أُرسل التقرير، شكرًا لإبلاغنا!</translation>
+    </message>
+    <message>
+        <source>Reset Settings to Default</source>
+        <translation>إعادة الإعدادات إلى قيم FrogPilot الافتراضية</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Put every FrogPilot setting back to the value it shipped with.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This also clears your accepted terms, your completed training and your language, so you go through first-time setup again in English. The reset happens while the device reboots, and your drives, backups and downloaded themes are left alone.</source>
+        <translation>&lt;b&gt;أعد جميع إعدادات FrogPilot إلى القيم التي أُرفقت معه.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يمسح ذلك أيضًا موافقتك على الشروط والتدريب المكتمل واللغة، لذلك ستعيد الإعداد الأولي باللغة الإنجليزية. تتم إعادة الضبط أثناء إعادة تشغيل الجهاز، ولا تتأثر رحلاتك ونسخك الاحتياطية والسمات المنزلة.</translation>
+    </message>
+    <message>
+        <source>Settings can't be reset while the car is on. Turn the car off and try again.</source>
+        <translation>لا يمكن إعادة ضبط الإعدادات والسيارة قيد التشغيل. أوقف تشغيل السيارة وحاول مرة أخرى.</translation>
+    </message>
+    <message>
+        <source>Reset every FrogPilot setting to its default? You will have to accept the terms, redo the training and set your language again, and the device reboots.</source>
+        <translation>هل تريد إعادة جميع إعدادات FrogPilot إلى قيمها الافتراضية؟ سيتعين عليك قبول الشروط وإعادة التدريب وضبط اللغة مرة أخرى، وسيُعاد تشغيل الجهاز.</translation>
+    </message>
+    <message>
+        <source>Rebooting to reset...</source>
+        <translation>جارٍ إعادة التشغيل لإعادة الضبط...</translation>
+    </message>
+    <message>
+        <source>Reset Settings to Stock openpilot</source>
+        <translation>إعادة الإعدادات إلى openpilot الأصلي</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Put every setting back to what plain openpilot uses, turning FrogPilot's own features off rather than back to FrogPilot's defaults.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This also clears your accepted terms, your completed training and your language, so you go through first-time setup again in English. The reset happens while the device reboots, and your drives, backups and downloaded themes are left alone.</source>
+        <translation>&lt;b&gt;أعد جميع الإعدادات إلى القيم التي يستخدمها openpilot الأصلي، مع إيقاف ميزات FrogPilot بدلًا من إعادتها إلى قيم FrogPilot الافتراضية.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يمسح ذلك أيضًا موافقتك على الشروط والتدريب المكتمل واللغة، لذلك ستعيد الإعداد الأولي باللغة الإنجليزية. تتم إعادة الضبط أثناء إعادة تشغيل الجهاز، ولا تتأثر رحلاتك ونسخك الاحتياطية والسمات المنزلة.</translation>
+    </message>
+    <message>
+        <source>Reset every setting to match stock openpilot? You will have to accept the terms, redo the training and set your language again, and the device reboots.</source>
+        <translation>هل تريد إعادة جميع الإعدادات لتطابق openpilot الأصلي؟ سيتعين عليك قبول الشروط وإعادة التدريب وضبط اللغة مرة أخرى، وسيُعاد تشغيل الجهاز.</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotVehiclesPanel</name>
     <message>
         <source>Car Make</source>
-        <translation type="gpt-5-generated">صانع السيارة</translation>
+        <translation>الشركة المصنعة</translation>
     </message>
     <message>
         <source>SELECT</source>
-        <translation type="gpt-5-generated">تحديد</translation>
+        <translation>اختيار</translation>
     </message>
     <message>
         <source>Choose your car make</source>
-        <translation type="gpt-5-generated">اختر ماركة سيارتك</translation>
+        <translation>اختر الشركة المصنعة لسيارتك</translation>
     </message>
     <message>
         <source>Car Model</source>
-        <translation type="gpt-5-generated">طراز السيارة</translation>
+        <translation>طراز السيارة</translation>
     </message>
     <message>
         <source>Choose your car model</source>
-        <translation type="gpt-5-generated">اختر طراز سيارتك</translation>
+        <translation>اختر طراز سيارتك</translation>
     </message>
     <message>
         <source>Disable Automatic Fingerprint Detection</source>
-        <translation type="gpt-5-generated">تعطيل الكشف التلقائي عن البصمة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Force the selected fingerprint&lt;/b&gt; and prevent it from ever changing.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;فرض بصمة الإصبع المحددة&lt;/b&gt; ومنعها من التغيّر مطلقًا.</translation>
+        <translation>تعطيل التعرف التلقائي على بصمة السيارة</translation>
     </message>
     <message>
         <source>Disable openpilot Longitudinal Control</source>
-        <translation type="gpt-5-generated">تعطيل التحكم الطولي في openpilot</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Disable openpilot longitudinal&lt;/b&gt; and use the car's stock ACC instead.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;عطّل التحكم الطولي لـ openpilot&lt;/b&gt; واستخدم ACC القياسي للسيارة بدلاً من ذلك.</translation>
+        <translation>تعطيل التحكم الطولي لـ openpilot</translation>
     </message>
     <message>
         <source>Are you sure you want to completely disable openpilot longitudinal control?</source>
-        <translation type="gpt-5-generated">هل أنت متأكد أنك تريد تعطيل التحكم الطولي لـ openpilot تمامًا؟</translation>
+        <translation>هل أنت متأكد من رغبتك في تعطيل التحكم الطولي لـ openpilot بالكامل؟</translation>
     </message>
     <message>
         <source>General Motors Settings</source>
-        <translation type="gpt-5-generated">إعدادات جنرال موتورز</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;FrogPilot features for General Motors vehicles.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;ميزات FrogPilot لمركبات جنرال موتورز.&lt;/b&gt;</translation>
+        <translation>إعدادات General Motors</translation>
     </message>
     <message>
         <source>FrogsGoMoo's Experimental Tune</source>
-        <translation type="gpt-5-generated">الضبط التجريبي لـ FrogsGoMoo</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Experimental GM tune by FrogsGoMoo&lt;/b&gt; that attempts to smoothen stopping and takeoff control. Use at your own risk!</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إعداد تجريبي لـ GM من FrogsGoMoo&lt;/b&gt; يحاول تنعيم التحكم في التوقف والانطلاق. استخدمه على مسؤوليتك الخاصة!</translation>
+        <translation>ضبط FrogsGoMoo التجريبي</translation>
     </message>
     <message>
         <source>Smooth Pedal Response on Hills</source>
-        <translation type="gpt-5-generated">استجابة دواسة سلسة على التلال</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Smoothen acceleration and braking&lt;/b&gt; when driving downhill/uphill.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اجعل التسارع والكبح أكثر سلاسة&lt;/b&gt; عند القيادة نزولًا/صعودًا.</translation>
+        <translation>استجابة سلسة للدواسات على المنحدرات</translation>
     </message>
     <message>
         <source>Stop-and-Go Hack</source>
-        <translation type="gpt-5-generated">حيلة التوقف والانطلاق</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Force stop-and-go&lt;/b&gt; on the 2017 Chevy Volt.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إجبار التوقف والانطلاق&lt;/b&gt; على سيارة Chevy Volt 2017.</translation>
+        <translation>حيلة التوقف والانطلاق</translation>
     </message>
     <message>
         <source>Hyundai/Kia/Genesis Settings</source>
-        <translation type="gpt-5-generated">إعدادات Hyundai/Kia/Genesis</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;FrogPilot features for Genesis, Hyundai, and Kia vehicles.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;ميزات FrogPilot لمركبات Genesis وHyundai وKia.&lt;/b&gt;</translation>
+        <translation>إعدادات Hyundai/Kia/Genesis</translation>
     </message>
     <message>
         <source>comma's New Longitudinal API</source>
-        <translation type="gpt-5-generated">واجهة برمجة التطبيقات الطولية الجديدة من comma</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;comma's new gas and brake control system&lt;/b&gt; that improves acceleration and braking but may cause issues on some Genesis/Hyundai/Kia vehicles.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;نظام التحكم الجديد من comma في الوقود والفرامل&lt;/b&gt; الذي يحسّن التسارع والكبح لكنه قد يسبّب مشكلات في بعض مركبات Genesis/Hyundai/Kia.</translation>
+        <translation>واجهة comma الجديدة للتحكم الطولي (API)</translation>
     </message>
     <message>
         <source>"Taco Bell Run" Torque Hack</source>
-        <translation type="gpt-5-generated">اختراق عزم الدوران "Taco Bell Run"</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The steering torque hack from comma's 2022 "Taco Bell Run".&lt;/b&gt; Designed to increase steering torque at low speeds for left and right turns.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اختراق عزم التوجيه من رحلة “Taco Bell” عام 2022 من comma.&lt;/b&gt; مصمّم لزيادة عزم التوجيه عند السرعات المنخفضة للانعطافات يمينًا ويسارًا.</translation>
+        <translation>حيلة عزم "Taco Bell Run"</translation>
     </message>
     <message>
         <source>Toyota/Lexus Settings</source>
-        <translation type="gpt-5-generated">إعدادات Toyota/Lexus</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;FrogPilot features for Lexus and Toyota vehicles.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;ميزات FrogPilot لمركبات لكزس وتويوتا.&lt;/b&gt;</translation>
+        <translation>إعدادات Toyota/Lexus</translation>
     </message>
     <message>
         <source>Automatically Lock/Unlock Doors</source>
-        <translation type="gpt-5-generated">قفل/فتح الأبواب تلقائيًا</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Automatically lock/unlock doors&lt;/b&gt; when shifting in and out of drive.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;قفل/فتح الأقفال تلقائيًا&lt;/b&gt; عند الانتقال إلى وضع القيادة والخروج منه.</translation>
+        <translation>قفل/فتح الأبواب تلقائيًا</translation>
     </message>
     <message>
         <source>Dashboard Speed Offset</source>
-        <translation type="gpt-5-generated">تعويض سرعة لوحة العدادات</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;The speed offset openpilot uses to match the speed on the dashboard display.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إزاحة السرعة التي يستخدمها openpilot لمطابقة السرعة على شاشة لوحة العدادات.&lt;/b&gt;</translation>
+        <translation>إزاحة سرعة لوحة العدادات</translation>
     </message>
     <message>
         <source>FrogsGoMoo's Personal Tweaks</source>
-        <translation type="gpt-5-generated">تعديلات FrogsGoMoo الشخصية</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Personal tweaks by FrogsGoMoo for quicker acceleration and smoother braking.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تعديلات شخصية من FrogsGoMoo لتسارع أسرع وكبح أكثر سلاسة.&lt;/b&gt;</translation>
+        <translation>تعديلات FrogsGoMoo الشخصية</translation>
     </message>
     <message>
         <source>Lock Doors On Ignition Off After</source>
-        <translation type="gpt-5-generated">قفل الأبواب عند إيقاف الإشعال بعد</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Automatically lock the doors on ignition off&lt;/b&gt; when no one is detected in the front seats.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اقفل الأبواب تلقائياً عند إطفاء الإشعال&lt;/b&gt; عندما لا يُكتشف وجود أحد في المقاعد الأمامية.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Force stop-and-go&lt;/b&gt; on Lexus/Toyota vehicles without stock stop-and-go functionality.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;فرض التوقف والانطلاق&lt;/b&gt; في مركبات Lexus/Toyota التي لا تحتوي على وظيفة التوقف والانطلاق الأصلية.</translation>
+        <translation>قفل الأبواب بعد إيقاف التشغيل بمدة</translation>
     </message>
     <message>
         <source>MANAGE</source>
-        <translation type="gpt-5-generated">إدارة</translation>
+        <translation>إدارة</translation>
     </message>
     <message>
         <source>Lock</source>
-        <translation type="gpt-5-generated">قفل</translation>
+        <translation>قفل</translation>
     </message>
     <message>
         <source>Unlock</source>
-        <translation type="gpt-5-generated">افتح القفل</translation>
+        <translation>فتح</translation>
     </message>
     <message>
         <source>Never</source>
-        <translation type="gpt-5-generated">أبدًا</translation>
+        <translation>أبدًا</translation>
     </message>
     <message>
         <source> seconds</source>
-        <translation type="gpt-5-generated">ثوانٍ</translation>
+        <translation> ثوانٍ</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="gpt-5-generated">لا شيء</translation>
+        <translation>لا شيء</translation>
     </message>
     <message>
         <source>Vehicle Info</source>
-        <translation type="gpt-5-generated">معلومات المركبة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Information about your vehicle in regards to openpilot support and functionality.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;معلومات عن سيارتك فيما يتعلق بدعم openpilot ووظائفه.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Detected 3rd party hardware.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تم اكتشاف عتاد طرف ثالث.&lt;/b&gt;</translation>
+        <translation>معلومات السيارة</translation>
     </message>
     <message>
         <source>openpilot Longitudinal Support</source>
-        <translation type="gpt-5-generated">دعم الطولية في openpilot</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Can openpilot control the vehicle's acceleration and braking?&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;هل يمكن لـ openpilot التحكم في تسارع المركبة وكبحها؟&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Does your vehicle support the "comma pedal"?&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;هل يدعم مركبتك "comma pedal"؟&lt;/b&gt;</translation>
+        <translation>دعم التحكم الطولي لـ openpilot</translation>
     </message>
     <message>
         <source>Radar Support</source>
-        <translation type="gpt-5-generated">دعم الرادار</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Does openpilot use the vehicle's radar data&lt;/b&gt; alongside the device's camera for tracking lead vehicles?</source>
-        <translation type="gpt-5-generated">&lt;b&gt;هل يستخدم openpilot بيانات رادار السيارة&lt;/b&gt; إلى جانب كاميرا الجهاز لتتبع المركبات الأمامية؟</translation>
+        <translation>دعم الرادار</translation>
     </message>
     <message>
         <source>SDSU Support</source>
-        <translation type="gpt-5-generated">دعم SDSU</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Does your vehicle support "SDSUs"?&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;هل يدعم مركبتك "SDSUs"؟&lt;/b&gt;</translation>
+        <translation>دعم SDSU</translation>
     </message>
     <message>
         <source>Stop-and-Go Support</source>
-        <translation type="gpt-5-generated">دعم التوقف والانطلاق</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Does your vehicle support stop-and-go driving?&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;هل يدعم مركبتك القيادة بتوقف وانطلاق؟&lt;/b&gt;</translation>
+        <translation>دعم التوقف والانطلاق</translation>
     </message>
     <message>
         <source>VIEW</source>
-        <translation type="gpt-5-generated">عرض</translation>
+        <translation>عرض</translation>
     </message>
     <message>
         <source>Yes</source>
-        <translation type="gpt-5-generated">نعم</translation>
+        <translation>نعم</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="gpt-5-generated">لا</translation>
+        <translation>لا</translation>
     </message>
     <message>
         <source>3rd Party Hardware Detected</source>
-        <translation type="gpt-5-generated">تم اكتشاف عتاد طرف ثالث</translation>
+        <translation>اكتشاف أجهزة خارجية</translation>
     </message>
     <message>
         <source>Blind Spot Support</source>
-        <translation type="gpt-5-generated">دعم النقطة العمياء</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Does openpilot use the vehicle's blind spot data?&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;هل يستخدم openpilot بيانات النقطة العمياء للمركبة؟&lt;/b&gt;</translation>
+        <translation>دعم النقطة العمياء</translation>
     </message>
     <message>
         <source>comma Pedal Support</source>
-        <translation type="gpt-5-generated">دعم comma Pedal</translation>
+        <translation>دعم دواسة comma</translation>
     </message>
     <message>
         <source>Subaru Settings</source>
-        <translation type="gpt-5-generated">إعدادات Subaru</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;FrogPilot features for Subaru vehicles.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;ميزات FrogPilot لمركبات سوبارو.&lt;/b&gt;</translation>
+        <translation>إعدادات Subaru</translation>
     </message>
     <message>
         <source>Stop and Go</source>
-        <translation type="gpt-5-generated">توقف وانطلق</translation>
-    </message>
-    <message>
-        <source>Stop and go for supported Subaru vehicles.</source>
-        <translation type="gpt-5-generated">توقف وانطلاق للمركبات المدعومة من Subaru.</translation>
+        <translation>التوقف والانطلاق</translation>
     </message>
     <message>
         <source>Acura/Honda Settings</source>
-        <translation type="gpt-5-generated">إعدادات Acura/Honda</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;FrogPilot features for Acura and Honda vehicles.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;ميزات FrogPilot لمركبات Acura وHonda.&lt;/b&gt;</translation>
+        <translation>إعدادات Acura/Honda</translation>
     </message>
     <message>
         <source>Gentle Following</source>
-        <translation type="gpt-5-generated">متابعة سلسة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Reduces jerky acceleration and braking when following a lead vehicle.&lt;/b&gt; Ideal for stop-and-go traffic.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;يقلل التسارع والكبح المتقطعين عند متابعة مركبة أمامية.&lt;/b&gt; مثالي لحركة المرور المتقطعة.</translation>
+        <translation>تتبع لطيف</translation>
     </message>
     <message>
         <source>Increased Braking Force</source>
-        <translation type="gpt-5-generated">قوة كبح متزايدة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Increases the maximum braking force for improved stopping performance.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;يزيد قوة الكبح القصوى لتحسين أداء التوقف.&lt;/b&gt;</translation>
+        <translation>قوة كبح أكبر</translation>
     </message>
     <message>
         <source>Responsive Pedal at Low Speeds</source>
-        <translation type="gpt-5-generated">دواسة استجابة عند السرعات المنخفضة</translation>
+        <translation>استجابة أسرع للدواسة عند السرعات المنخفضة</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Improves acceleration from a standstill for a more responsive throttle feel in city driving.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;يحسن التسارع من التوقف التام لمنح دواسة الوقود استجابة أكثر في القيادة داخل المدينة.&lt;/b&gt;</translation>
+        <source>&lt;b&gt;Lock openpilot to the car you picked and stop it changing on its own.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;ثبّت openpilot على السيارة التي اخترتها وامنعه من تغييرها تلقائيًا.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let your car's own cruise control handle the gas and brake instead of openpilot.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;دع مثبت السرعة في سيارتك يتولى التسارع والكبح بدلًا من openpilot.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Settings that only work on Acura and Honda cars, covering how smoothly openpilot follows, how hard it can brake, and how it pulls away from a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These only show up on Hondas using the older Nidec system, and "Responsive Pedal at Low Speeds" needs a comma pedal fitted on top of that.</source>
+        <translation>&lt;b&gt;إعدادات لا تعمل إلا على سيارات Acura وHonda، وتشمل سلاسة تتبع openpilot وقوة كبحه وطريقة انطلاقه من التوقف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا تظهر إلا في سيارات Honda التي تستخدم نظام Nidec الأقدم، ويتطلب "استجابة أسرع للدواسة عند السرعات المنخفضة" تركيب دواسة comma أيضًا.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Smooth out how openpilot speeds up and slows down while following the car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Best in stop-and-go traffic, where the standard tuning can feel like it surges and grabs. The trade is that openpilot reacts a little more slowly when the car ahead changes speed.</source>
+        <translation>&lt;b&gt;اجعل تسارع openpilot وتباطؤه أكثر سلاسة أثناء تتبع السيارة الأمامية.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يفيد أكثر في ازدحام التوقف والانطلاق، حيث قد يبدو الضبط القياسي مندفعًا وحادًا. في المقابل، تصبح استجابة openpilot أبطأ قليلًا عند تغير سرعة السيارة الأمامية.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let openpilot brake noticeably harder than Honda normally allows, so it can stop in a shorter distance.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;اسمح لـ openpilot بالكبح بقوة أكبر بوضوح مما تسمح به Honda عادةً كي يتوقف في مسافة أقصر.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Give openpilot a stronger push on the gas when pulling away from a stop, so takeoff feels less sluggish around town.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The softening it removes is openpilot's own, not Honda's: openpilot normally cuts its pedal command to 40% at a standstill and ramps it back to full by about 22 mph. It needs a comma pedal fitted to do anything.</source>
+        <translation>&lt;b&gt;امنح openpilot دفعة تسارع أقوى عند الانطلاق من التوقف ليصبح الانطلاق أقل بطئًا داخل المدن.&lt;/b&gt;&lt;br&gt;&lt;br&gt;التخفيف الذي يزيله تابع لـ openpilot لا لـ Honda: يخفض openpilot عادةً أمر الدواسة إلى 40% عند التوقف ويرفعه تدريجيًا إلى القوة الكاملة عند نحو 22 mph. يتطلب تركيب دواسة comma ليكون له أي تأثير.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Settings that only work on Buick, Cadillac, Chevrolet, GMC and Holden cars, covering how openpilot stops, starts and handles hills.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Which of these you see depends on your exact model.</source>
+        <translation>&lt;b&gt;إعدادات لا تعمل إلا على سيارات Buick وCadillac وChevrolet وGMC وHolden، وتشمل طريقة توقف openpilot وانطلاقه وتعامله مع المنحدرات.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تعتمد الخيارات الظاهرة على طراز سيارتك بالتحديد.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Swap in FrogsGoMoo's own GM tuning for coming to a stop and pulling away again.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It is still being worked on, so expect it to feel different rather than strictly better. It takes over your stopping and starting values from "Driving Controls" and hides those rows while it is on.</source>
+        <translation>&lt;b&gt;استخدم ضبط FrogsGoMoo الخاص لسيارات GM عند التوقف والانطلاق مجددًا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ما زال قيد التطوير، لذا توقّع أن يكون إحساسه مختلفًا لا أفضل بالضرورة. يحل محل قيم التوقف والانطلاق ضمن "عناصر تحكم القيادة" ويخفي تلك الصفوف أثناء تشغيله.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Even out the gas and brake when the road tilts, so openpilot does not surge downhill or fall behind going up.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This is already on.</source>
+        <translation>&lt;b&gt;وازن التسارع والكبح عند انحدار الطريق كي لا يندفع openpilot نزولًا أو يتباطأ صعودًا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;هذا الخيار مفعّل بالفعل.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Make the car pull away by itself after a full stop on a Chevrolet Volt, which does not do this from the factory.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without it you have to press the gas or the resume button every time traffic moves off. Keep your foot near the brake the first few times so you can see how it behaves.</source>
+        <translation>&lt;b&gt;اجعل Chevrolet Volt تنطلق تلقائيًا بعد توقف كامل، وهي ميزة غير متاحة من المصنع.&lt;/b&gt;&lt;br&gt;&lt;br&gt;بدونها يجب ضغط دواسة الوقود أو زر الاستئناف كلما تحركت حركة المرور. أبقِ قدمك قرب المكابح في المرات الأولى لمراقبة سلوكها.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Settings that only work on Genesis, Hyundai and Kia cars, covering openpilot's newer gas and brake control and a steering torque hack.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Which of these you see depends on which system your car uses, and the steering hack only appears on cars using CAN-FD.</source>
+        <translation>&lt;b&gt;إعدادات لا تعمل إلا على سيارات Genesis وHyundai وKia، وتشمل طريقة openpilot الأحدث للتحكم بالتسارع والكبح وحيلة لعزم التوجيه.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تعتمد الخيارات الظاهرة على النظام الذي تستخدمه سيارتك، ولا تظهر حيلة التوجيه إلا في السيارات التي تستخدم CAN-FD.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Use comma's newer way of sending gas and brake commands to the car, which usually makes speeding up and slowing down smoother.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This is already on. It is not a good fit for every Genesis, Hyundai or Kia, so if your car brakes or accelerates oddly, switch it off and reboot.</source>
+        <translation>&lt;b&gt;استخدم طريقة comma الأحدث لإرسال أوامر التسارع والكبح إلى السيارة، ما يجعل التسارع والتباطؤ أكثر سلاسة عادةً.&lt;/b&gt;&lt;br&gt;&lt;br&gt;هذا الخيار مفعّل بالفعل. لا يناسب كل سيارات Genesis أو Hyundai أو Kia، لذا أوقفه وأعد التشغيل إذا كان كبح سيارتك أو تسارعها غير طبيعي.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let openpilot pull the wheel harder through turns, using the trick comma demonstrated on their 2022 "Taco Bell Run" drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It raises the steering limit everywhere, not just at low speed, and it relaxes one of the safety checks that normally caps steering effort. You will also have to grip the wheel more firmly to take over.</source>
+        <translation>&lt;b&gt;اسمح لـ openpilot بتطبيق قوة أكبر على عجلة القيادة عبر المنعطفات باستخدام الحيلة التي عرضتها comma في رحلة "Taco Bell Run" عام 2022.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ترفع حد التوجيه في جميع السرعات، لا عند السرعات المنخفضة فقط، وتخفف أحد فحوص السلامة التي تحد عادةً جهد التوجيه. ستحتاج أيضًا إلى الإمساك بالعجلة بقوة أكبر لتولي التحكم.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Settings that only work on Subaru cars.&lt;/b&gt;&lt;br&gt;&lt;br&gt;There is one, and it decides whether your car pulls away by itself after a stop.</source>
+        <translation>&lt;b&gt;إعدادات لا تعمل إلا على سيارات Subaru.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يوجد إعداد واحد يحدد ما إذا كانت سيارتك تنطلق تلقائيًا بعد التوقف.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Get your car moving again by itself once the car ahead pulls away from a full stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Subaru's own cruise holds the brakes and waits for you to press resume after a few seconds stopped. FrogPilot watches the car ahead and sends that resume for you. Keep your foot ready near the brake the first few times so you can see how it behaves.</source>
+        <translation>&lt;b&gt;اجعل سيارتك تستأنف الحركة تلقائيًا عندما تنطلق السيارة الأمامية بعد توقف كامل.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يبقي مثبت السرعة في Subaru المكابح مضغوطة وينتظر منك ضغط الاستئناف بعد بضع ثوانٍ من التوقف. يراقب FrogPilot السيارة الأمامية ويرسل أمر الاستئناف نيابةً عنك. أبقِ قدمك مستعدة قرب المكابح في المرات الأولى لمراقبة سلوكه.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Settings that only work on Lexus and Toyota cars, covering door locking, dashboard speed, stop-and-go and openpilot's own tuning.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Which of these you see depends on your exact model and on what hardware is fitted.</source>
+        <translation>&lt;b&gt;إعدادات لا تعمل إلا على سيارات Lexus وToyota، وتشمل قفل الأبواب وسرعة لوحة العدادات والتوقف والانطلاق وضبط openpilot الخاص.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تعتمد الخيارات الظاهرة على طراز سيارتك بالتحديد والأجهزة المركبة فيها.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lock the doors when you shift out of park and unlock them again when you shift back into it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This runs whenever the car is on, whether or not openpilot is engaged.</source>
+        <translation>&lt;b&gt;اقفل الأبواب عند الخروج من وضع الركن وافتحها مجددًا عند العودة إليه.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يعمل ذلك كلما كانت السيارة قيد التشغيل، سواء أكان openpilot مفعّلًا أم لا.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Line up the speed openpilot shows on screen with the number on your dashboard, which most cars deliberately read a little high.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it until openpilot's number matches your dashboard. This does not change how fast openpilot actually drives, with one exception: while it is following posted speed limits, a higher number here makes it drive slightly slower.</source>
+        <translation>&lt;b&gt;طابق السرعة التي يعرضها openpilot على الشاشة مع الرقم في لوحة العدادات، الذي تعرضه معظم السيارات أعلى قليلًا عمدًا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ارفع القيمة حتى يطابق رقم openpilot لوحة العدادات. لا يغيّر ذلك سرعة قيادة openpilot الفعلية، باستثناء واحد: عند اتباع حدود السرعة المعلنة، تجعل القيمة الأعلى هنا القيادة أبطأ قليلًا.</translation>
+    </message>
+    <message>
+        <source>DSU Re-Route Harness</source>
+        <translation>ضفيرة إعادة توجيه DSU</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let openpilot control the gas and brake on an older Toyota by rerouting the cruise control computer's messages through a wiring harness you fit yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The DSU is the box that normally runs your car's radar cruise. Only turn this on after the harness is physically installed, because openpilot cannot check for it.</source>
+        <translation>&lt;b&gt;اسمح لـ openpilot بالتحكم بالتسارع والكبح في سيارة Toyota قديمة عبر إعادة توجيه رسائل حاسوب مثبت السرعة من خلال ضفيرة أسلاك تركبها بنفسك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;وحدة DSU هي العلبة التي تدير عادةً مثبت السرعة بالرادار في سيارتك. لا تشغّل هذا الخيار إلا بعد تركيب الضفيرة فعليًا، لأن openpilot لا يستطيع التحقق من وجودها.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Swap in FrogsGoMoo's own settings for how openpilot comes to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These are personal preferences rather than a fix for anything, and they are already on. They take over your stopping and starting values from "Driving Controls" and hide those rows while this is on, though on a Toyota the starting value has no effect.</source>
+        <translation>&lt;b&gt;استخدم إعدادات FrogsGoMoo الخاصة لطريقة توقف openpilot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;هذه تفضيلات شخصية وليست إصلاحًا لمشكلة، وهي مفعّلة بالفعل. تحل محل قيم التوقف والانطلاق ضمن "عناصر تحكم القيادة" وتخفي تلك الصفوف أثناء تشغيلها، مع أن قيمة الانطلاق لا تؤثر في سيارات Toyota.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lock the doors on their own once you have switched the car off and left it, after the number of seconds you pick.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The countdown only starts once the screen has gone dark, and it starts over if the driver camera still sees a face in the driver's seat or if any door is open. Somebody sitting in the front passenger seat will not hold it off. Set it to "Never" to switch it off.</source>
+        <translation>&lt;b&gt;اقفل الأبواب تلقائيًا بعد إيقاف السيارة ومغادرتها وانقضاء عدد الثواني الذي تختاره.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يبدأ العد التنازلي حتى تنطفئ الشاشة، ويبدأ من جديد إذا ظلت كاميرا السائق ترى وجهًا في مقعد السائق أو كان أي باب مفتوحًا. وجود شخص في مقعد الراكب الأمامي لا يمنع القفل. اضبطه على "أبدًا" لإيقافه.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Make the car pull away by itself after a full stop on a Lexus or Toyota that does not do this from the factory.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without it you have to press the gas or the resume button every time traffic moves off. It works by telling the car openpilot is never fully stopped, so keep your foot near the brake the first few times.</source>
+        <translation>&lt;b&gt;اجعل سيارة Lexus أو Toyota تنطلق تلقائيًا بعد توقف كامل إذا لم تكن تدعم ذلك من المصنع.&lt;/b&gt;&lt;br&gt;&lt;br&gt;بدون هذا الخيار يجب ضغط دواسة الوقود أو زر الاستئناف كلما تحركت حركة المرور. يعمل بإخبار السيارة أن openpilot لم يتوقف تمامًا قط، لذا أبقِ قدمك قرب المكابح في المرات الأولى.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;What openpilot has worked out about your car and what it can do with it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These rows are read-only. They stay on "Unknown until first drive" until openpilot has recognised your car.</source>
+        <translation>&lt;b&gt;اعرض ما توصل إليه openpilot عن سيارتك وما يستطيع فعله بها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;هذه الصفوف للقراءة فقط. تبقى على "غير معروف حتى الرحلة الأولى" إلى أن يتعرف openpilot على سيارتك.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Extra hardware openpilot has found fitted to your car, such as a comma pedal, an SDSU or a ZSS.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot works these out from your car's wiring on its own. "None" is not proof nothing is fitted: on a Toyota a comma pedal is only reported while openpilot is handling the gas and brake, and on a Bosch Honda it is never reported at all.</source>
+        <translation>&lt;b&gt;اعرض الأجهزة الإضافية التي اكتشف openpilot تركيبها في سيارتك، مثل دواسة comma أو SDSU أو ZSS.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يستنتج openpilot ذلك تلقائيًا من أسلاك سيارتك. لا تعني "لا شيء" بالضرورة عدم تركيب جهاز: في Toyota لا يُبلغ عن دواسة comma إلا عندما يتولى openpilot التسارع والكبح، وفي Honda بنظام Bosch لا يُبلغ عنها مطلقًا.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Whether openpilot can read your car's blind spot sensors, which it uses to hold off a lane change when someone is beside you.&lt;/b&gt;&lt;br&gt;&lt;br&gt;If this says No, check your mirrors yourself before every lane change, because openpilot has nothing to warn it.</source>
+        <translation>&lt;b&gt;يوضح ما إذا كان openpilot يستطيع قراءة حساسات النقطة العمياء في سيارتك، التي يستخدمها لتأخير تغيير المسار عند وجود مركبة بجانبك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;إذا كانت الإجابة "لا"، فتحقق بنفسك من المرايا قبل كل تغيير للمسار، لأن openpilot لا يملك ما يحذره.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Whether a comma pedal would work on your car, which is an add-on that lets openpilot pull away from a stop on cars that cannot do it themselves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This tells you whether one is worth fitting, not whether you already have one. "3rd Party Hardware Detected" above answers that.</source>
+        <translation>&lt;b&gt;يوضح ما إذا كانت دواسة comma ستعمل في سيارتك، وهي إضافة تتيح لـ openpilot الانطلاق من التوقف في السيارات التي لا تفعل ذلك بنفسها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يوضح هذا ما إذا كانت تستحق التركيب، لا ما إذا كانت مركبة لديك بالفعل. يجيب صف "اكتشاف أجهزة خارجية" أعلاه عن ذلك.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Whether openpilot handles the gas and brake itself, rather than leaving that to your car's own cruise control.&lt;/b&gt;&lt;br&gt;&lt;br&gt;If this says No, openpilot only steers and your car decides the speed, so the settings under "Driving Controls" that shape acceleration and braking will not do anything.</source>
+        <translation>&lt;b&gt;يوضح ما إذا كان openpilot يتحكم بالتسارع والكبح بنفسه بدلًا من ترك ذلك لمثبت السرعة في سيارتك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;إذا كانت الإجابة "لا"، فلا يفعل openpilot سوى التوجيه وتحدد سيارتك السرعة، ولذلك لن تؤثر إعدادات التسارع والكبح ضمن "عناصر تحكم القيادة".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Whether openpilot can use your car's radar alongside its camera, which helps it track the car ahead in rain, fog and darkness.&lt;/b&gt;&lt;br&gt;&lt;br&gt;If this says No, openpilot is working from the camera alone and may pick up the car ahead later in poor visibility.</source>
+        <translation>&lt;b&gt;يوضح ما إذا كان openpilot يستطيع استخدام رادار سيارتك مع الكاميرا، ما يساعده على تتبع السيارة الأمامية في المطر والضباب والظلام.&lt;/b&gt;&lt;br&gt;&lt;br&gt;إذا كانت الإجابة "لا"، فيعمل openpilot بالكاميرا وحدها وقد يكتشف السيارة الأمامية متأخرًا عند ضعف الرؤية.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Whether an SDSU would work on your car, which is a small board that lets openpilot control the gas and brake on older Toyotas.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This tells you whether one is worth fitting, not whether you already have one.</source>
+        <translation>&lt;b&gt;يوضح ما إذا كانت لوحة SDSU ستعمل في سيارتك، وهي لوحة صغيرة تتيح لـ openpilot التحكم بالتسارع والكبح في سيارات Toyota الأقدم.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يوضح هذا ما إذا كانت تستحق التركيب، لا ما إذا كانت مركبة لديك بالفعل.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Whether openpilot pulls away by itself after a full stop, instead of waiting for you to press the gas or the resume button.&lt;/b&gt;&lt;br&gt;&lt;br&gt;If this says No, your car's brand group above may still offer a "Stop-and-Go Hack" that adds it.</source>
+        <translation>&lt;b&gt;يوضح ما إذا كان openpilot ينطلق تلقائيًا بعد توقف كامل بدلًا من انتظار ضغطك لدواسة الوقود أو زر الاستئناف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;إذا كانت الإجابة "لا"، فقد توفر مجموعة علامة سيارتك أعلاه "حيلة التوقف والانطلاق" لإضافة ذلك.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Warning:&lt;/b&gt; openpilot can't tell whether your keys are still in the car, so keep a spare somewhere safe before you rely on this!</source>
+        <translation>&lt;b&gt;تحذير:&lt;/b&gt; لا يستطيع openpilot معرفة ما إذا كانت مفاتيحك ما زالت داخل السيارة، لذا احتفظ بمفتاح احتياطي في مكان آمن قبل الاعتماد على هذا الخيار!</translation>
+    </message>
+    <message>
+        <source>Unknown until first drive</source>
+        <translation>غير معروف حتى الرحلة الأولى</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotVisualsPanel</name>
     <message>
         <source>Advanced UI Controls</source>
-        <translation type="gpt-5-generated">عناصر تحكم واجهة المستخدم المتقدمة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Advanced visual changes&lt;/b&gt; to fine-tune how the driving screen looks.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تغييرات بصرية متقدمة&lt;/b&gt; لضبط مظهر شاشة القيادة بدقة.</translation>
+        <translation>عناصر تحكم متقدمة بالواجهة</translation>
     </message>
     <message>
         <source>Hide Current Speed</source>
-        <translation type="gpt-5-generated">إخفاء السرعة الحالية</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Hide the current speed&lt;/b&gt; from the driving screen.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إخفاء السرعة الحالية&lt;/b&gt; من شاشة القيادة.</translation>
+        <translation>إخفاء السرعة الحالية</translation>
     </message>
     <message>
         <source>Hide Lead Marker</source>
-        <translation type="gpt-5-generated">إخفاء علامة القائد</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Hide the lead-vehicle marker&lt;/b&gt; from the driving screen.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إخفاء مؤشّر المركبة الأمامية&lt;/b&gt; من شاشة القيادة.</translation>
+        <translation>إخفاء علامة السيارة الأمامية</translation>
     </message>
     <message>
         <source>Hide Map Settings Button</source>
-        <translation type="gpt-5-generated">إخفاء زر إعدادات الخريطة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Hide the map settings button or map&lt;/b&gt; from the driving screen.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إخفاء زر إعدادات الخريطة أو الخريطة&lt;/b&gt; من شاشة القيادة.</translation>
+        <translation>إخفاء زر إعدادات الخريطة</translation>
     </message>
     <message>
         <source>Hide Max Speed</source>
-        <translation type="gpt-5-generated">إخفاء السرعة القصوى</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Hide the max speed&lt;/b&gt; from the driving screen.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إخفاء السرعة القصوى&lt;/b&gt; من شاشة القيادة.</translation>
+        <translation>إخفاء السرعة القصوى</translation>
     </message>
     <message>
         <source>Hide Non-Critical Alerts</source>
-        <translation type="gpt-5-generated">إخفاء التنبيهات غير الحرجة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Hide non-critical alerts&lt;/b&gt; from the driving screen.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إخفاء التنبيهات غير الحرجة&lt;/b&gt; من شاشة القيادة.</translation>
+        <translation>إخفاء التنبيهات غير الحرجة</translation>
     </message>
     <message>
         <source>Hide Speed Limits</source>
-        <translation type="gpt-5-generated">إخفاء حدود السرعة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Hide posted speed limits&lt;/b&gt; from the driving screen.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إخفاء حدود السرعة المعروضة&lt;/b&gt; من شاشة القيادة.</translation>
+        <translation>إخفاء حدود السرعة</translation>
     </message>
     <message>
         <source>Use Wheel Speed</source>
-        <translation type="gpt-5-generated">استخدم سرعة العجلة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Use the vehicle's wheel speed&lt;/b&gt; instead of the cluster speed. This is purely a visual change and doesn't impact how openpilot drives!</source>
-        <translation type="gpt-5-generated">&lt;b&gt;استخدم سرعة عجلات المركبة&lt;/b&gt; بدلاً من سرعة لوحة العدادات. هذا تغيير بصري بحت ولا يؤثر على طريقة قيادة openpilot!</translation>
+        <translation>استخدام سرعة العجلات</translation>
     </message>
     <message>
         <source>Developer UI</source>
-        <translation type="gpt-5-generated">واجهة المطوّر</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Detailed information about openpilot's internal operations.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;معلومات مفصلة حول العمليات الداخلية لـ openpilot.&lt;/b&gt;</translation>
+        <translation>واجهة المطوّر</translation>
     </message>
     <message>
         <source>Adjacent Path Metrics</source>
-        <translation type="gpt-5-generated">مقاييس المسار المجاور</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Show the width of the adjacent lanes.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أظهر عرض الحارات المجاورة.&lt;/b&gt;</translation>
+        <translation>مؤشرات المسارات المجاورة</translation>
     </message>
     <message>
         <source>Developer Metrics</source>
-        <translation type="gpt-5-generated">مقاييس المطورين</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Performance data, sensor readings, and system metrics&lt;/b&gt; for debugging and optimizing openpilot.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;بيانات الأداء وقراءات الحساسات وقياسات النظام&lt;/b&gt; لأغراض تصحيح الأخطاء وتحسين openpilot.</translation>
+        <translation>مؤشرات المطوّر</translation>
     </message>
     <message>
         <source>Border Metrics</source>
-        <translation type="gpt-5-generated">مقاييس الحدود</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Show statuses along the border of the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Blind Spot&lt;/b&gt;: The border turns red when a vehicle is in a blind spot&lt;br&gt;&lt;b&gt;Steering Torque&lt;/b&gt;: The border goes from green to red according to how much steering torque is being used&lt;br&gt;&lt;b&gt;Turn Signal&lt;/b&gt;: The border flashes yellow when a turn signal is on</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اعرض الحالات على طول حافة شاشة القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;النقطة العمياء&lt;/b&gt;: تتحول الحافة إلى اللون الأحمر عندما تكون هناك مركبة في النقطة العمياء&lt;br&gt;&lt;b&gt;عزم التوجيه&lt;/b&gt;: تتحول الحافة من الأخضر إلى الأحمر حسب مقدار عزم التوجيه المستخدم&lt;br&gt;&lt;b&gt;إشارة الانعطاف&lt;/b&gt;: تومض الحافة باللون الأصفر عند تشغيل إشارة الانعطاف</translation>
+        <translation>مؤشرات الحواف</translation>
     </message>
     <message>
         <source>Lead Info</source>
-        <translation type="gpt-5-generated">معلومات السيارة الأم</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Show each tracked vehicle's distance and speed&lt;/b&gt; below its marker.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اعرض مسافة وسرعة كل مركبة مُتعقَّبة&lt;/b&gt; أسفل مؤشرها.</translation>
+        <translation>معلومات السيارة الأمامية</translation>
     </message>
     <message>
         <source>FPS Display</source>
-        <translation type="gpt-5-generated">عرض FPS</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Show the frames per second (FPS)&lt;/b&gt; at the bottom of the driving screen.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;عرض الإطارات في الثانية (FPS)&lt;/b&gt; في أسفل شاشة القيادة.</translation>
+        <translation>عرض FPS</translation>
     </message>
     <message>
         <source>Numerical Temperature Gauge</source>
-        <translation type="gpt-5-generated">مقياس درجة الحرارة الرقمي</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Show a numerical temperature in the sidebar&lt;/b&gt; instead of the status labels.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;عرض درجة حرارة رقمية في الشريط الجانبي&lt;/b&gt; بدلًا من تسميات الحالة.</translation>
+        <translation>مقياس حرارة رقمي</translation>
     </message>
     <message>
         <source>Sidebar Metrics</source>
-        <translation type="gpt-5-generated">مقاييس الشريط الجانبي</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Display system information&lt;/b&gt; (CPU, GPU, RAM usage, IP address, device storage) in the sidebar.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;عرض معلومات النظام&lt;/b&gt; (استخدام CPU وGPU وRAM، عنوان IP، تخزين الجهاز) في الشريط الجانبي.</translation>
+        <translation>مؤشرات الشريط الجانبي</translation>
     </message>
     <message>
         <source>Use International System of Units</source>
-        <translation type="gpt-5-generated">استخدم النظام الدولي للوحدات</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Display measurements using the "International System of Units" (SI)&lt;/b&gt; standard.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;عرض القياسات باستخدام معيار "النظام الدولي للوحدات" (SI)&lt;/b&gt;</translation>
+        <translation>استخدام النظام الدولي للوحدات</translation>
     </message>
     <message>
         <source>Developer Sidebar</source>
-        <translation type="gpt-5-generated">الشريط الجانبي للمطور</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Display debugging info and metrics&lt;/b&gt; in a dedicated sidebar on the right side of the screen.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اعرض معلومات تصحيح الأخطاء والقياسات&lt;/b&gt; في شريط جانبي مخصص على الجانب الأيمن من الشاشة.</translation>
+        <translation>الشريط الجانبي للمطوّر</translation>
     </message>
     <message>
         <source>Metric #1</source>
-        <translation type="gpt-5-generated">الميتريك رقم 1</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Select the metric shown in the first "Developer Sidebar" widget.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اختر المقياس المعروض في أول أداة "Developer Sidebar".&lt;/b&gt;</translation>
+        <translation>المؤشر رقم 1</translation>
     </message>
     <message>
         <source>Metric #2</source>
-        <translation type="gpt-5-generated">المقياس رقم 2</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Select the metric shown in the second "Developer Sidebar" widget.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اختر المقياس المعروض في عنصر واجهة المستخدم الثاني "Developer Sidebar".&lt;/b&gt;</translation>
+        <translation>المؤشر رقم 2</translation>
     </message>
     <message>
         <source>Metric #3</source>
-        <translation type="gpt-5-generated">المقياس #3</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Select the metric shown in the third "Developer Sidebar" widget.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;حدّد المقياس المعروض في عنصر واجهة المستخدم الثالث "Developer Sidebar".&lt;/b&gt;</translation>
+        <translation>المؤشر رقم 3</translation>
     </message>
     <message>
         <source>Metric #4</source>
-        <translation type="gpt-5-generated">المقياس رقم 4</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Select the metric shown in the fourth "Developer Sidebar" widget.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اختر المقياس المعروض في عنصر واجهة مستخدم "Developer Sidebar" الرابع.&lt;/b&gt;</translation>
+        <translation>المؤشر رقم 4</translation>
     </message>
     <message>
         <source>Metric #5</source>
-        <translation type="gpt-5-generated">الميتريك رقم #5</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Select the metric shown in the fifth "Developer Sidebar" widget.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اختر المقياس الظاهر في الأداة الخامسة "Developer Sidebar".&lt;/b&gt;</translation>
+        <translation>المؤشر رقم 5</translation>
     </message>
     <message>
         <source>Metric #6</source>
-        <translation type="gpt-5-generated">المقياس رقم 6</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Select the metric shown in the sixth "Developer Sidebar" widget.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;حدد المقياس المعروض في أداة "Developer Sidebar" السادسة.&lt;/b&gt;</translation>
+        <translation>المؤشر رقم 6</translation>
     </message>
     <message>
         <source>Metric #7</source>
-        <translation type="gpt-5-generated">الميتريك رقم #7</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Select the metric shown in the seventh "Developer Sidebar" widget.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;حدد المقياس المعروض في الأداة السابعة "Developer Sidebar".&lt;/b&gt;</translation>
+        <translation>المؤشر رقم 7</translation>
     </message>
     <message>
         <source>Developer Widgets</source>
-        <translation type="gpt-5-generated">عناصر المطوّر</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Overlays for debugging visuals, internal states, and model predictions&lt;/b&gt; on the driving screen.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;طبقات فوقية لعرض تصحيح التصورات والحالات الداخلية وتنبؤات النموذج&lt;/b&gt; على شاشة القيادة.</translation>
+        <translation>أدوات المطوّر</translation>
     </message>
     <message>
         <source>Adjacent Leads Tracking</source>
-        <translation type="gpt-5-generated">تتبع المركبات الأمامية المجاورة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Display adjacent leads detected by the car's radar&lt;/b&gt; to the left and right of the current driving path.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اعرض المركبات المجاورة التي يكتشفها رادار السيارة&lt;/b&gt; على يسار ويمين مسار القيادة الحالي.</translation>
+        <translation>تتبع السيارات في المسارات المجاورة</translation>
     </message>
     <message>
         <source>Model Stopping Point</source>
-        <translation type="gpt-5-generated">نقطة توقّف النموذج</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Show a stop-sign marker where the model intends to stop.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اعرض علامة إيقاف حيث يعتزم النموذج التوقف.&lt;/b&gt;</translation>
+        <translation>نقطة توقف النموذج</translation>
     </message>
     <message>
         <source>Radar Tracks</source>
-        <translation type="gpt-5-generated">مسارات الرادار</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Display all radar points&lt;/b&gt; produced by the car's radar.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;عرض جميع نقاط الرادار&lt;/b&gt; التي ينتجها رادار السيارة.</translation>
+        <translation>مسارات الرادار</translation>
     </message>
     <message>
         <source>Driving Screen Widgets</source>
-        <translation type="gpt-5-generated">عناصر واجهة شاشة القيادة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Custom FrogPilot widgets&lt;/b&gt; for the driving screen.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;عناصر FrogPilot المخصصة&lt;/b&gt; لشاشة القيادة.</translation>
+        <translation>أدوات شاشة القيادة</translation>
     </message>
     <message>
         <source>Acceleration Path</source>
-        <translation type="gpt-5-generated">مسار التسارع</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Color the driving path by planned acceleration and braking.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;لوّن مسار القيادة وفق التسارع والتباطؤ المخططين.&lt;/b&gt;</translation>
+        <translation>مسار التسارع</translation>
     </message>
     <message>
         <source>Adjacent Lanes</source>
-        <translation type="gpt-5-generated">المسارات المجاورة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Show the driving paths for the left and right lanes.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اعرض مسارات القيادة للمسارين الأيسر والأيمن.&lt;/b&gt;</translation>
+        <translation>المسارات المجاورة</translation>
     </message>
     <message>
         <source>Blind Spot Path</source>
-        <translation type="gpt-5-generated">مسار النقطة العمياء</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Show a red path when a vehicle is in that lane's blind spot.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اعرض مسارًا أحمر عندما تكون مركبة في النقطة العمياء لذلك المسار.&lt;/b&gt;</translation>
+        <translation>مسار النقطة العمياء</translation>
     </message>
     <message>
         <source>Compass</source>
-        <translation type="gpt-5-generated">بوصلة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Show the current driving direction&lt;/b&gt; with a simple on-screen compass.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اعرض اتجاه القيادة الحالي&lt;/b&gt; باستخدام بوصلة بسيطة على الشاشة.</translation>
+        <translation>بوصلة</translation>
     </message>
     <message>
         <source>Driving Personality Button</source>
-        <translation type="gpt-5-generated">زر شخصية القيادة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Control and view the current driving personality&lt;/b&gt; via a driving screen widget.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تحكم واعرض شخصية القيادة الحالية&lt;/b&gt; عبر أداة واجهة على شاشة القيادة.</translation>
+        <translation>زر نمط القيادة</translation>
     </message>
     <message>
         <source>Gas / Brake Pedal Indicators</source>
-        <translation type="gpt-5-generated">مؤشرات دواسة الوقود/الفرامل</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;On-screen gas and brake indicators.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Dynamic&lt;/b&gt;: Opacity changes according to how much openpilot is accelerating or braking&lt;br&gt;&lt;b&gt;Static&lt;/b&gt;: Full when active, dim when not</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مؤشرات الوقود والفرامل على الشاشة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;ديناميكي&lt;/b&gt;: تتغير العتمة وفقًا لمقدار تسارع openpilot أو كبحه&lt;br&gt;&lt;b&gt;ثابت&lt;/b&gt;: كاملة عند التفعيل، وخافتة عند عدمه</translation>
+        <translation>مؤشرات دواستي الوقود / المكابح</translation>
     </message>
     <message>
         <source>Rotating Steering Wheel</source>
-        <translation type="gpt-5-generated">تدوير عجلة القيادة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Rotate the driving screen wheel&lt;/b&gt; with the physical steering wheel.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;لفّ عجلة شاشة القيادة&lt;/b&gt; باستخدام عجلة القيادة الفعلية.</translation>
+        <translation>عجلة قيادة دوارة</translation>
     </message>
     <message>
         <source>Model UI</source>
-        <translation type="gpt-5-generated">واجهة النموذج</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Model visualizations&lt;/b&gt; for the driving path, lane lines, path edges, and road edges.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تصويرات النموذج&lt;/b&gt; لمسار القيادة، وخطوط المسار، وحواف المسار، وحواف الطريق.</translation>
+        <translation>واجهة النموذج</translation>
     </message>
     <message>
         <source>Dynamic Path Width</source>
-        <translation type="gpt-5-generated">عرض المسار الديناميكي</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Change the path width based on engagement.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Fully Engaged&lt;/b&gt;: 100%&lt;br&gt;&lt;b&gt;Always On Lateral&lt;/b&gt;: 75%&lt;br&gt;&lt;b&gt;Disengaged&lt;/b&gt;: 50%</source>
-        <translation type="gpt-5-generated">&lt;b&gt;غيّر عرض المسار بناءً على حالة التفعيل.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;مفعّل بالكامل&lt;/b&gt;: 100%&lt;br&gt;&lt;b&gt;تفعيل جانبي دائم&lt;/b&gt;: 75%&lt;br&gt;&lt;b&gt;غير مفعّل&lt;/b&gt;: 50%</translation>
+        <translation>عرض ديناميكي للمسار</translation>
     </message>
     <message>
         <source>Lane Lines Width</source>
-        <translation type="gpt-5-generated">عرض خطوط المسار</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Set the lane-line thickness.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Default matches the MUTCD lane-line width standard of 4 inches.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اضبط سماكة خط المسار.&lt;/b&gt;&lt;br&gt;&lt;br&gt;الإعداد الافتراضي يطابق معيار عرض خط المسار في MUTCD البالغ 4 بوصات.</translation>
+        <translation>عرض خطوط المسار</translation>
     </message>
     <message>
         <source>Path Edges Width</source>
-        <translation type="gpt-5-generated">عرض حواف المسار</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Set the driving-path edge width&lt;/b&gt; that represents different driving modes and statuses.&lt;br&gt;&lt;br&gt;Default is 20% of the total path width.&lt;br&gt;&lt;br&gt;Color Guide:&lt;br&gt;&lt;br&gt;- &lt;b&gt;Blue&lt;/b&gt;: Navigation&lt;br&gt;- &lt;b&gt;Light Blue&lt;/b&gt;: Always On Lateral&lt;br&gt;- &lt;b&gt;Green&lt;/b&gt;: Default&lt;br&gt;- &lt;b&gt;Orange&lt;/b&gt;: Experimental Mode&lt;br&gt;- &lt;b&gt;Red&lt;/b&gt;: Traffic Mode&lt;br&gt;- &lt;b&gt;Yellow&lt;/b&gt;: Conditional Experimental Mode overridden</source>
-        <translation type="gpt-5-generated">&lt;b&gt;عيّن عرض حافة مسار القيادة&lt;/b&gt; الذي يمثل أوضاع القيادة والحالات المختلفة.&lt;br&gt;&lt;br&gt;الإعداد الافتراضي هو 20% من إجمالي عرض المسار.&lt;br&gt;&lt;br&gt;دليل الألوان:&lt;br&gt;&lt;br&gt;- &lt;b&gt;أزرق&lt;/b&gt;: الملاحة&lt;br&gt;- &lt;b&gt;أزرق فاتح&lt;/b&gt;: التوجيه الجانبي دائم التشغيل&lt;br&gt;- &lt;b&gt;أخضر&lt;/b&gt;: افتراضي&lt;br&gt;- &lt;b&gt;برتقالي&lt;/b&gt;: الوضع التجريبي&lt;br&gt;- &lt;b&gt;أحمر&lt;/b&gt;: وضع المرور&lt;br&gt;- &lt;b&gt;أصفر&lt;/b&gt;: تم تجاوز الوضع التجريبي الشرطي</translation>
+        <translation>عرض حواف المسار</translation>
     </message>
     <message>
         <source>Path Width</source>
-        <translation type="gpt-5-generated">عرض المسار</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Set the driving-path width.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Default (6.1 feet) matches the width of a 2019 Lexus ES 350.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اضبط عرض مسار القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;الافتراضي (6.1 قدم) يطابق عرض سيارة Lexus ES 350 طراز 2019.</translation>
+        <translation>عرض المسار</translation>
     </message>
     <message>
         <source>Road Edges Width</source>
-        <translation type="gpt-5-generated">عرض حواف الطريق</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Set the road-edge thickness.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Default matches half of the MUTCD lane-line width standard of 4 inches.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اضبط سُمك حافة الطريق.&lt;/b&gt;&lt;br&gt;&lt;br&gt;الإعداد الافتراضي يطابق نصف معيار MUTCD لعرض خط المسار وهو 4 بوصات.</translation>
+        <translation>عرض حواف الطريق</translation>
     </message>
     <message>
         <source>"Unlimited" Road UI</source>
-        <translation type="gpt-5-generated">واجهة الطريق "غير محدودة"</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Extend the length of the driving path, lane lines, and road edges&lt;/b&gt; for as far as the model can see.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;مدّ طول مسار القيادة، وخطوط المسار، وحواف الطريق&lt;/b&gt; لمسافة بقدر ما يستطيع النموذج رؤيته.</translation>
+        <translation>واجهة طريق "غير محدودة"</translation>
     </message>
     <message>
         <source>Navigation Widgets</source>
-        <translation type="gpt-5-generated">عناصر واجهة الملاحة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Map style, speed limits, and other navigation widgets.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;نمط الخريطة، حدود السرعة، وعناصر التنقل الأخرى.&lt;/b&gt;</translation>
+        <translation>أدوات الملاحة</translation>
     </message>
     <message>
         <source>Larger Map Display</source>
-        <translation type="gpt-5-generated">عرض خريطة أكبر</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Increase the map size&lt;/b&gt; for easier navigation readings.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;كبّر حجم الخريطة&lt;/b&gt; لقراءة أسهل لبيانات الملاحة.</translation>
+        <translation>عرض خريطة أكبر</translation>
     </message>
     <message>
         <source>Map Style</source>
-        <translation type="gpt-5-generated">نمط الخريطة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Select the map style&lt;/b&gt; for "Navigate on openpilot" (NOO):&lt;br&gt;&lt;br&gt;&lt;b&gt;Stock openpilot&lt;/b&gt;: Default comma.ai style&lt;br&gt;&lt;b&gt;FrogPilot&lt;/b&gt;: Official FrogPilot map style&lt;br&gt;&lt;b&gt;Mapbox Streets&lt;/b&gt;: Standard street-focused view&lt;br&gt;&lt;b&gt;Mapbox Outdoors&lt;/b&gt;: Emphasizes outdoor and terrain features&lt;br&gt;&lt;b&gt;Mapbox Light&lt;/b&gt;: Minimalist, bright theme&lt;br&gt;&lt;b&gt;Mapbox Dark&lt;/b&gt;: Minimalist, dark theme&lt;br&gt;&lt;b&gt;Mapbox Navigation Day&lt;/b&gt;: Optimized for daytime navigation&lt;br&gt;&lt;b&gt;Mapbox Navigation Night&lt;/b&gt;: Optimized for nighttime navigation&lt;br&gt;&lt;b&gt;Mapbox Satellite&lt;/b&gt;: Satellite imagery only&lt;br&gt;&lt;b&gt;Mapbox Satellite Streets&lt;/b&gt;: Hybrid satellite imagery with street labels&lt;br&gt;&lt;b&gt;Mapbox Traffic Night&lt;/b&gt;: Dark theme emphasizing traffic conditions&lt;br&gt;&lt;b&gt;Mike's Personalized Style&lt;/b&gt;: Customized hybrid satellite view</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اختر نمط الخريطة&lt;/b&gt; لميزة "Navigate on openpilot" (NOO):&lt;br&gt;&lt;br&gt;&lt;b&gt;Stock openpilot&lt;/b&gt;: نمط comma.ai الافتراضي&lt;br&gt;&lt;b&gt;FrogPilot&lt;/b&gt;: النمط الرسمي لخريطة FrogPilot&lt;br&gt;&lt;b&gt;Mapbox Streets&lt;/b&gt;: عرض قياسي يركز على الشوارع&lt;br&gt;&lt;b&gt;Mapbox Outdoors&lt;/b&gt;: يبرز الميزات الخارجية والتضاريس&lt;br&gt;&lt;b&gt;Mapbox Light&lt;/b&gt;: سمة بسيطة ومضيئة&lt;br&gt;&lt;b&gt;Mapbox Dark&lt;/b&gt;: سمة بسيطة ومظلمة&lt;br&gt;&lt;b&gt;Mapbox Navigation Day&lt;/b&gt;: مُحسّن للملاحة نهارًا&lt;br&gt;&lt;b&gt;Mapbox Navigation Night&lt;/b&gt;: مُحسّن للملاحة ليلًا&lt;br&gt;&lt;b&gt;Mapbox Satellite&lt;/b&gt;: صور أقمار صناعية فقط&lt;br&gt;&lt;b&gt;Mapbox Satellite Streets&lt;/b&gt;: صور أقمار صناعية هجينة مع تسميات الشوارع&lt;br&gt;&lt;b&gt;Mapbox Traffic Night&lt;/b&gt;: سمة داكنة تبرز ظروف حركة المرور&lt;br&gt;&lt;b&gt;Mike's Personalized Style&lt;/b&gt;: عرض هجين مخصص لصور الأقمار الصناعية</translation>
+        <translation>نمط الخريطة</translation>
     </message>
     <message>
         <source>Road Name</source>
-        <translation type="gpt-5-generated">اسم الطريق</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Display the road name at the bottom of the driving screen&lt;/b&gt; using data from "OpenStreetMap (OSM)".</source>
-        <translation type="gpt-5-generated">&lt;b&gt;عرض اسم الطريق في أسفل شاشة القيادة&lt;/b&gt; باستخدام بيانات من "OpenStreetMap (OSM)".</translation>
+        <translation>اسم الطريق</translation>
     </message>
     <message>
         <source>Show Speed Limits</source>
-        <translation type="gpt-5-generated">عرض حدود السرعة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Show speed limits&lt;/b&gt; in the top-left corner of the driving screen. Uses data from the car's dashboard (if supported) and "OpenStreetMap (OSM)".</source>
-        <translation type="gpt-5-generated">&lt;b&gt;إظهار حدود السرعة&lt;/b&gt; في الزاوية العلوية اليسرى من شاشة القيادة. يستخدم بيانات من لوحة عدادات السيارة (إن كانت مدعومة) و"OpenStreetMap (OSM)".</translation>
+        <translation>إظهار حدود السرعة</translation>
     </message>
     <message>
         <source>Show Speed Limits from Mapbox</source>
-        <translation type="gpt-5-generated">عرض حدود السرعة من Mapbox</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Use Mapbox speed-limit data when no other source is available.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;استخدم بيانات حدود السرعة من Mapbox عند عدم توفر أي مصدر آخر.&lt;/b&gt;</translation>
+        <translation>إظهار حدود السرعة من Mapbox</translation>
     </message>
     <message>
         <source>Use Vienna-Style Speed Signs</source>
-        <translation type="gpt-5-generated">استخدم لافتات السرعة على طراز فيينا</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Show Vienna-style (EU) speed-limit signs&lt;/b&gt; instead of MUTCD (US).</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اعرض لافتات حدود السرعة بأسلوب فيينا (EU)&lt;/b&gt; بدلًا من MUTCD (US).</translation>
+        <translation>استخدام علامات سرعة بنمط فيينا</translation>
     </message>
     <message>
         <source>Quality of Life</source>
-        <translation type="gpt-5-generated">جودة الحياة</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Miscellaneous visual changes&lt;/b&gt; to fine-tune how the driving screen looks.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;تغييرات بصرية متنوعة&lt;/b&gt; لضبط مظهر شاشة القيادة بدقة.</translation>
+        <translation>تحسينات الاستخدام</translation>
     </message>
     <message>
         <source>Camera View</source>
-        <translation type="gpt-5-generated">عرض الكاميرا</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Select the active camera view.&lt;/b&gt; This is purely a visual change and doesn't impact how openpilot drives!</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اختر عرض الكاميرا النشط.&lt;/b&gt; هذا تغيير بصري بحت ولا يؤثر على طريقة قيادة openpilot!</translation>
+        <translation>عرض الكاميرا</translation>
     </message>
     <message>
         <source>Show Driver Camera When In Reverse</source>
-        <translation type="gpt-5-generated">إظهار كاميرا السائق عند الرجوع للخلف</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Show the driver camera feed&lt;/b&gt; when the vehicle is in reverse.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;أظهر بث كاميرا السائق&lt;/b&gt; عند وضع السيارة على الرجوع للخلف.</translation>
+        <translation>إظهار كاميرا السائق عند الرجوع للخلف</translation>
     </message>
     <message>
         <source>Stopped Timer</source>
-        <translation type="gpt-5-generated">مؤقّت متوقّف</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Show a timer when stopped&lt;/b&gt; in place of the current speed to indicate how long the vehicle has been stopped.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اعرض مؤقتًا عند التوقف&lt;/b&gt; بدلًا من السرعة الحالية للإشارة إلى مدة توقف المركبة.</translation>
+        <translation>مؤقت التوقف</translation>
     </message>
     <message>
         <source>Hide Map</source>
-        <translation type="gpt-5-generated">إخفاء الخريطة</translation>
+        <translation>إخفاء الخريطة</translation>
     </message>
     <message>
         <source>Blind Spot</source>
-        <translation type="gpt-5-generated">النقطة العمياء</translation>
+        <translation>النقطة العمياء</translation>
     </message>
     <message>
         <source>Steering Torque</source>
-        <translation type="gpt-5-generated">عزم التوجيه</translation>
+        <translation>عزم التوجيه</translation>
     </message>
     <message>
         <source>Turn Signal</source>
-        <translation type="gpt-5-generated">إشارة الانعطاف</translation>
+        <translation>إشارة الانعطاف</translation>
     </message>
     <message>
         <source>Fahrenheit</source>
-        <translation type="gpt-5-generated">فهرنهايت</translation>
+        <translation>فهرنهايت</translation>
     </message>
     <message>
         <source>CPU</source>
-        <translation type="gpt-5-generated">وحدة المعالجة المركزية</translation>
+        <translation>CPU</translation>
     </message>
     <message>
         <source>GPU</source>
-        <translation type="gpt-5-generated">GPU</translation>
+        <translation>GPU</translation>
     </message>
     <message>
         <source>IP</source>
-        <translation type="gpt-5-generated">IP</translation>
+        <translation>IP</translation>
     </message>
     <message>
         <source>RAM</source>
-        <translation type="gpt-5-generated">ذاكرة RAM</translation>
+        <translation>RAM</translation>
     </message>
     <message>
         <source>SSD Left</source>
-        <translation type="gpt-5-generated">SSD يسار</translation>
+        <translation>المتبقي في SSD</translation>
     </message>
     <message>
         <source>SSD Used</source>
-        <translation type="gpt-5-generated">استخدام SSD</translation>
+        <translation>المستخدم من SSD</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="gpt-5-generated">لا شيء</translation>
+        <translation>لا شيء</translation>
     </message>
     <message>
         <source>Acceleration: Current</source>
-        <translation type="gpt-5-generated">التسارع: الحالي</translation>
+        <translation>التسارع: الحالي</translation>
     </message>
     <message>
         <source>Acceleration: Max</source>
-        <translation type="gpt-5-generated">التسارع: الحد الأقصى</translation>
+        <translation>التسارع: الأقصى</translation>
     </message>
     <message>
         <source>Auto Tune: Actuator Delay</source>
-        <translation type="gpt-5-generated">الضبط التلقائي: تأخير المُشغِّل</translation>
+        <translation>الضبط التلقائي: تأخر المشغّل</translation>
     </message>
     <message>
         <source>Auto Tune: Friction</source>
-        <translation type="gpt-5-generated">الضبط التلقائي: الاحتكاك</translation>
+        <translation>الضبط التلقائي: الاحتكاك</translation>
     </message>
     <message>
         <source>Auto Tune: Lateral Acceleration</source>
-        <translation type="gpt-5-generated">الضبط التلقائي: التسارع الجانبي</translation>
+        <translation>الضبط التلقائي: التسارع الجانبي</translation>
     </message>
     <message>
         <source>Auto Tune: Steer Ratio</source>
-        <translation type="gpt-5-generated">الضبط التلقائي: نسبة التوجيه</translation>
+        <translation>الضبط التلقائي: نسبة التوجيه</translation>
     </message>
     <message>
         <source>Auto Tune: Stiffness Factor</source>
-        <translation type="gpt-5-generated">الضبط التلقائي: عامل الصلابة</translation>
+        <translation>الضبط التلقائي: معامل الصلابة</translation>
     </message>
     <message>
         <source>Engagement %: Lateral</source>
-        <translation type="gpt-5-generated">نسبة التفعيل: جانبي</translation>
+        <translation>نسبة التفعيل: جانبي</translation>
     </message>
     <message>
         <source>Engagement %: Longitudinal</source>
-        <translation type="gpt-5-generated">نسبة التفعيل٪: طولي</translation>
+        <translation>نسبة التفعيل: طولي</translation>
     </message>
     <message>
         <source>Lateral Control: Steering Angle</source>
-        <translation type="gpt-5-generated">التحكم الجانبي: زاوية التوجيه</translation>
+        <translation>التحكم الجانبي: زاوية التوجيه</translation>
     </message>
     <message>
         <source>Lateral Control: Torque % Used</source>
-        <translation type="gpt-5-generated">التحكم الجانبي: نسبة عزم الدوران المستخدمة %</translation>
+        <translation>التحكم الجانبي: نسبة العزم المستخدمة</translation>
     </message>
     <message>
         <source>Longitudinal Control: Actuator Acceleration Output</source>
-        <translation type="gpt-5-generated">التحكم الطولي: خرج تسارع المشغّل</translation>
+        <translation>التحكم الطولي: خرج تسارع المشغّل</translation>
     </message>
     <message>
         <source>Longitudinal MPC Jerk: Acceleration</source>
-        <translation type="gpt-5-generated">ارتعاش MPC الطولي: تسارع</translation>
+        <translation>تغير تسارع MPC الطولي: التسارع</translation>
     </message>
     <message>
         <source>Longitudinal MPC Jerk: Danger Zone</source>
-        <translation type="gpt-5-generated">تسارع طولي MPC: منطقة الخطر</translation>
+        <translation>تغير تسارع MPC الطولي: منطقة الخطر</translation>
     </message>
     <message>
         <source>Longitudinal MPC Jerk: Speed Control</source>
-        <translation type="gpt-5-generated">زيادة التسارع الطولي في MPC: التحكم بالسرعة</translation>
+        <translation>تغير تسارع MPC الطولي: التحكم بالسرعة</translation>
     </message>
     <message>
         <source>SELECT</source>
-        <translation type="gpt-5-generated">تحديد</translation>
+        <translation>اختيار</translation>
     </message>
     <message>
         <source>Select a metric to display</source>
-        <translation type="gpt-5-generated">اختر مقياسًا لعرضه</translation>
+        <translation>اختر مؤشرًا لعرضه</translation>
     </message>
     <message>
         <source>Show Distance</source>
-        <translation type="gpt-5-generated">عرض المسافة</translation>
+        <translation>إظهار المسافة</translation>
     </message>
     <message>
         <source>Dynamic</source>
-        <translation type="gpt-5-generated">ديناميكي</translation>
+        <translation>ديناميكي</translation>
     </message>
     <message>
         <source>Static</source>
-        <translation type="gpt-5-generated">ثابت</translation>
+        <translation>ثابت</translation>
     </message>
     <message>
         <source> inches</source>
-        <translation type="gpt-5-generated">بوصة</translation>
+        <translation> بوصات</translation>
     </message>
     <message>
         <source>Off</source>
-        <translation type="gpt-5-generated">إيقاف</translation>
+        <translation>إيقاف</translation>
     </message>
     <message>
         <source> feet</source>
-        <translation type="gpt-5-generated">أقدام</translation>
+        <translation> أقدام</translation>
     </message>
     <message>
         <source>Full Map</source>
-        <translation type="gpt-5-generated">الخريطة الكاملة</translation>
+        <translation>خريطة كاملة</translation>
     </message>
     <message>
         <source>Stock openpilot</source>
-        <translation type="gpt-5-generated">نسخة openpilot الأصلية</translation>
+        <translation>openpilot الأصلي</translation>
     </message>
     <message>
         <source>FrogPilot</source>
-        <translation type="gpt-5-generated">FrogPilot</translation>
+        <translation>FrogPilot</translation>
     </message>
     <message>
         <source>Mapbox Streets</source>
-        <translation type="gpt-5-generated">Mapbox Streets</translation>
+        <translation>شوارع Mapbox</translation>
     </message>
     <message>
         <source>Mapbox Outdoors</source>
-        <translation type="gpt-5-generated">Mapbox Outdoors</translation>
+        <translation>Mapbox للأنشطة الخارجية</translation>
     </message>
     <message>
         <source>Mapbox Light</source>
-        <translation type="gpt-5-generated">Mapbox Light</translation>
+        <translation>Mapbox الفاتح</translation>
     </message>
     <message>
         <source>Mapbox Dark</source>
-        <translation type="gpt-5-generated">Mapbox Dark</translation>
+        <translation>Mapbox الداكن</translation>
     </message>
     <message>
         <source>Mapbox Navigation Day</source>
-        <translation type="gpt-5-generated">التنقل عبر Mapbox نهاراً</translation>
+        <translation>ملاحة Mapbox النهارية</translation>
     </message>
     <message>
         <source>Mapbox Navigation Night</source>
-        <translation type="gpt-5-generated">ملاحة Mapbox الليلية</translation>
+        <translation>ملاحة Mapbox الليلية</translation>
     </message>
     <message>
         <source>Mapbox Satellite</source>
-        <translation type="gpt-5-generated">Mapbox Satellite</translation>
+        <translation>Mapbox بالأقمار الصناعية</translation>
     </message>
     <message>
         <source>Mapbox Satellite Streets</source>
-        <translation type="gpt-5-generated">Mapbox Satellite Streets</translation>
+        <translation>Mapbox بالأقمار الصناعية والشوارع</translation>
     </message>
     <message>
         <source>Mapbox Traffic Night</source>
-        <translation type="gpt-5-generated">حركة المرور من Mapbox (ليلاً)</translation>
+        <translation>حركة مرور Mapbox الليلية</translation>
     </message>
     <message>
         <source>Mike's Personalized Style</source>
-        <translation type="gpt-5-generated">النمط المخصص لِمايك</translation>
+        <translation>نمط Mike المخصص</translation>
     </message>
     <message>
         <source>Select a map style</source>
-        <translation type="gpt-5-generated">اختر نمط خريطة</translation>
+        <translation>اختر نمط خريطة</translation>
     </message>
     <message>
         <source>Auto</source>
-        <translation type="gpt-5-generated">تلقائي</translation>
+        <translation>تلقائي</translation>
     </message>
     <message>
         <source>Driver</source>
-        <translation type="gpt-5-generated">السائق</translation>
+        <translation>السائق</translation>
     </message>
     <message>
         <source>Standard</source>
-        <translation type="gpt-5-generated">قياسي</translation>
+        <translation>قياسي</translation>
     </message>
     <message>
         <source>Wide</source>
-        <translation type="gpt-5-generated">عريض</translation>
+        <translation>واسع</translation>
     </message>
     <message>
         <source> foot</source>
-        <translation type="gpt-5-generated">قدم</translation>
+        <translation> قدم</translation>
     </message>
     <message>
         <source> inch</source>
-        <translation type="gpt-5-generated">بوصة</translation>
+        <translation> بوصة</translation>
     </message>
     <message>
         <source> meter</source>
-        <translation type="gpt-5-generated">متر</translation>
+        <translation> متر</translation>
     </message>
     <message>
         <source> meters</source>
-        <translation type="gpt-5-generated"> أمتار</translation>
+        <translation> أمتار</translation>
     </message>
     <message>
-        <source> centimeter</source>
-        <translation type="gpt-5-generated">سنتيمتر</translation>
+        <source>&lt;b&gt;Fine-tune how the driving screen looks, beyond what the everyday settings cover.&lt;/b&gt;&lt;br&gt;&lt;br&gt;None of these change how the car drives.</source>
+        <translation>&lt;b&gt;اضبط مظهر شاشة القيادة بدقة أكبر مما تتيحه الإعدادات اليومية.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يغيّر أي من هذه الخيارات طريقة قيادة السيارة.</translation>
     </message>
     <message>
-        <source> centimeters</source>
-        <translation type="gpt-5-generated">سنتيمترات</translation>
+        <source>&lt;b&gt;Take your current speed off the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your dashboard still shows it.</source>
+        <translation>&lt;b&gt;أزل سرعتك الحالية من شاشة القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;ستظل لوحة العدادات تعرضها.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Set the lane-line thickness.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Default matches the MUTCD lane-line width standard of 10 centimeters.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اضبط سماكة خط المسار.&lt;/b&gt;&lt;br&gt;&lt;br&gt;الإعداد الافتراضي يطابق معيار عرض خط المسار في MUTCD البالغ 10 سنتيمترات.</translation>
+        <source>&lt;b&gt;Take the marker off the car in front of you on the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot still tracks that car and still follows it.&lt;br&gt;&lt;br&gt;"Lead Info" and "Adjacent Leads Tracking" have nothing left to attach to, so they disappear too.</source>
+        <translation>&lt;b&gt;أزل علامة السيارة الأمامية من شاشة القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يظل openpilot يتتبع تلك السيارة ويتبعها.&lt;br&gt;&lt;br&gt;لن يبقى لـ "معلومات السيارة الأمامية" و"تتبع السيارات في المسارات المجاورة" موضع يرتبطان به، لذلك يختفيان أيضًا.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Set the driving-path width.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Default (1.9 meters) matches the width of a 2019 Lexus ES 350.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اضبط عرض مسار القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;الإعداد الافتراضي (1.9 متر) يطابق عرض سيارة 2019 Lexus ES 350.</translation>
+        <source>&lt;b&gt;Take the map button off the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Tapping the driving screen still opens the map. Switching on "Hide Map" as well stops that too, but that also takes away your turn-by-turn directions.</source>
+        <translation>&lt;b&gt;أزل زر الخريطة من شاشة القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يظل لمس شاشة القيادة يفتح الخريطة. يؤدي تشغيل "إخفاء الخريطة" أيضًا إلى منع ذلك، لكنه يزيل كذلك إرشادات الملاحة خطوة بخطوة.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Set the road-edge thickness.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Default matches half of the MUTCD lane-line width standard of 10 centimeters.</source>
-        <translation type="gpt-5-generated">&lt;b&gt;اضبط سماكة حافة الطريق.&lt;/b&gt;&lt;br&gt;&lt;br&gt;القيمة الافتراضية تطابق نصف معيار MUTCD لعرض خط المسار وهو 10 سنتيمترات.</translation>
+        <source>&lt;b&gt;Take the speed you have set off the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot still holds that speed.</source>
+        <translation>&lt;b&gt;أزل السرعة المضبوطة من شاشة القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يظل openpilot محافظًا على تلك السرعة.</translation>
     </message>
     <message>
-        <source>Longitudinal MPC: Danger Factor</source>
-        <translation type="gpt-5-generated">عامل الخطر لمنظّم الحركة الطولي (MPC)</translation>
+        <source>&lt;b&gt;Take the everyday informational messages off the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Anything that actually needs you, like a warning or a takeover request, still comes through.</source>
+        <translation>&lt;b&gt;أزل الرسائل المعلوماتية اليومية من شاشة القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تظل الرسائل التي تتطلب تدخلك فعلًا، مثل التحذير أو طلب تولي التحكم، ظاهرة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Take the posted speed limit sign off the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;If you use "Speed Limit Controller" it keeps working on the limit it reads, so your speed can still change for a sign you can no longer see. The sign does come back when it asks you to confirm a new limit.</source>
+        <translation>&lt;b&gt;أزل علامة حد السرعة المعلن من شاشة القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;إذا كنت تستخدم "متحكم حد السرعة"، فسيواصل العمل وفق الحد الذي يقرأه، لذلك قد تتغير سرعتك بسبب علامة لم تعد تراها. تعود العلامة للظهور عندما يطلب منك تأكيد حد جديد.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Show the speed your wheels are actually turning at instead of the slightly optimistic number your dashboard shows.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Most cars read a little high on purpose, so this usually reads one or two lower. It only changes the number on screen, never how openpilot drives.</source>
+        <translation>&lt;b&gt;اعرض السرعة الفعلية لدوران العجلات بدلًا من الرقم الأعلى قليلًا الذي تعرضه لوحة العدادات.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تعرض معظم السيارات سرعة أعلى قليلًا عمدًا، لذلك تكون هذه القراءة أقل بواحد أو اثنين عادةً. لا يغيّر ذلك إلا الرقم على الشاشة، ولا يغيّر طريقة قيادة openpilot مطلقًا.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Put openpilot's internal numbers on screen, so you can see what it is thinking while it drives.&lt;/b&gt;&lt;br&gt;&lt;br&gt;None of it changes how the car behaves. It is for working out why openpilot did something, and it is worth turning back off once you are done.</source>
+        <translation>&lt;b&gt;اعرض الأرقام الداخلية لـ openpilot على الشاشة لترى ما يفكر فيه أثناء القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يغيّر أي منها سلوك السيارة. الغرض منها فهم سبب تصرف openpilot بطريقة ما، ويُفضل إيقافها بعد الانتهاء.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Show readouts of what openpilot's sensors and hardware are doing while you drive.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;اعرض قراءات عمل حساسات openpilot وأجهزته أثناء القيادة.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Print how wide the lanes either side of you are, right on their paths.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It draws the adjacent lane paths itself, so there is something to print onto, even with "Adjacent Lanes" switched off.</source>
+        <translation>&lt;b&gt;اعرض عرض المسارات على جانبيك مباشرةً فوق مساراتها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يرسم النظام مسارات المسارات المجاورة بنفسه لعرض القيم عليها، حتى مع إيقاف "المسارات المجاورة".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Colour the edge of the driving screen to show what openpilot is reacting to.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You can switch on the blind spot, steering effort and turn signal borders separately. The blind spot one needs a car with factory blind spot monitoring, and stays dark without it.</source>
+        <translation>&lt;b&gt;لوّن حافة شاشة القيادة لإظهار ما يستجيب له openpilot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يمكنك تشغيل حواف النقطة العمياء وجهد التوجيه وإشارة الانعطاف بصورة مستقلة. تتطلب حافة النقطة العمياء سيارة مزودة بنظام مصنع لمراقبتها، وتبقى داكنة من دونه.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Show how many frames a second the driving screen is drawing, along the bottom.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It also tracks the lowest and highest it has seen.</source>
+        <translation>&lt;b&gt;اعرض عدد الإطارات التي ترسمها شاشة القيادة في الثانية على طول الحافة السفلية.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يتتبع أيضًا أدنى وأعلى قيمة شاهدها.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Print how far away the car ahead is and how fast it is going, underneath its marker.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It also shows the gap openpilot is aiming for, so you can see it closing in on the distance you asked for.</source>
+        <translation>&lt;b&gt;اعرض مسافة السيارة الأمامية وسرعتها تحت علامتها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يعرض أيضًا الفاصل الذي يستهدفه openpilot، لتتمكن من رؤية اقترابه من المسافة التي طلبتها.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Show the device temperature as a number in the sidebar instead of a word like "GOOD".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Useful for spotting the device getting hot before it slows itself down.</source>
+        <translation>&lt;b&gt;اعرض حرارة الجهاز رقمًا في الشريط الجانبي بدلًا من كلمة مثل "جيد".&lt;/b&gt;&lt;br&gt;&lt;br&gt;يفيد ذلك في ملاحظة ارتفاع حرارة الجهاز قبل أن يخفض أداءه.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Fill the sidebar with how hard the device is working, how much storage is left and its IP address.&lt;/b&gt;&lt;br&gt;&lt;br&gt;They take the place of the vehicle, connection and signal indicators normally shown there.&lt;br&gt;&lt;br&gt;CPU and GPU cannot both be on, and RAM, SSD Left and SSD Used are one at a time, so picking one clears the other.</source>
+        <translation>&lt;b&gt;املأ الشريط الجانبي بعبء عمل الجهاز والمساحة المتبقية وعنوان IP.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تحل هذه المؤشرات محل مؤشرات السيارة والاتصال والإشارة المعروضة هناك عادةً.&lt;br&gt;&lt;br&gt;لا يمكن تشغيل CPU وGPU معًا، ولا يمكن اختيار أكثر من واحد من RAM و"المتبقي في SSD" و"المستخدم من SSD"، لذلك يؤدي اختيار أحدها إلى مسح الآخر.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Show the developer readouts in plain scientific units instead of the friendlier ones.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This only affects the developer numbers, not the speed or distances you drive by.</source>
+        <translation>&lt;b&gt;اعرض قراءات المطوّر بالوحدات العلمية المباشرة بدلًا من الوحدات الأسهل للاستخدام.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يؤثر ذلك إلا في أرقام المطوّر، لا في السرعة أو المسافات التي تعتمد عليها أثناء القيادة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add a second sidebar down the right-hand side, holding up to seven readouts you pick yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It sits over part of the camera view, so it is worth turning off when you are not using it. Setting all seven to "None" leaves the bar there but empty.</source>
+        <translation>&lt;b&gt;أضف شريطًا جانبيًا ثانيًا على الجهة اليمنى يتسع لما يصل إلى سبع قراءات تختارها بنفسك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يغطي جزءًا من عرض الكاميرا، لذلك يُفضل إيقافه عند عدم استخدامه. يؤدي ضبط القراءات السبع كلها على "لا شيء" إلى إبقاء الشريط فارغًا.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Choose what the first slot in the developer sidebar shows.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The list covers steering, acceleration, engagement and auto-tune readouts. Every slot starts already filled in, and picking "None" closes the gap rather than leaving a hole.</source>
+        <translation>&lt;b&gt;اختر ما تعرضه الخانة الأولى في الشريط الجانبي للمطوّر.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تشمل القائمة قراءات التوجيه والتسارع والتفعيل والضبط التلقائي. تبدأ كل خانة بقيمة معروضة، ويؤدي اختيار "لا شيء" إلى إغلاق الفراغ بدلًا من ترك فجوة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Choose what the second slot in the developer sidebar shows.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;اختر ما تعرضه الخانة الثانية في الشريط الجانبي للمطوّر.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Choose what the third slot in the developer sidebar shows.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;اختر ما تعرضه الخانة الثالثة في الشريط الجانبي للمطوّر.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Choose what the fourth slot in the developer sidebar shows.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;اختر ما تعرضه الخانة الرابعة في الشريط الجانبي للمطوّر.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Choose what the fifth slot in the developer sidebar shows.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;اختر ما تعرضه الخانة الخامسة في الشريط الجانبي للمطوّر.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Choose what the sixth slot in the developer sidebar shows.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;اختر ما تعرضه الخانة السادسة في الشريط الجانبي للمطوّر.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Choose what the seventh slot in the developer sidebar shows.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;اختر ما تعرضه الخانة السابعة في الشريط الجانبي للمطوّر.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Draw what openpilot's model and radar are seeing straight onto the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your car needs radar for two of these, and openpilot handling the gas and brake for the third, so this menu can come up almost empty.</source>
+        <translation>&lt;b&gt;ارسم ما يراه نموذج openpilot والرادار مباشرةً على شاشة القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تحتاج سيارتك إلى رادار لاثنين من هذه الخيارات وإلى تحكم openpilot بالتسارع والكبح للثالث، لذلك قد تظهر هذه القائمة شبه فارغة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Mark the cars your radar sees in the lanes either side of you.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your car needs radar for these to appear, and they hang off the same marker "Hide Lead Marker" removes.</source>
+        <translation>&lt;b&gt;ضع علامات على السيارات التي يراها الرادار في المسارات على جانبيك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تحتاج سيارتك إلى رادار لظهورها، وترتبط بالعلامة نفسها التي يزيلها "إخفاء علامة السيارة الأمامية".</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Drop a stop sign on the road where openpilot is planning to come to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only marks stops openpilot works out for itself, so it stays away when openpilot is slowing for a car ahead, and "Traffic Mode" switches it off entirely.</source>
+        <translation>&lt;b&gt;ضع علامة توقف على الطريق عند النقطة التي يخطط openpilot للتوقف فيها.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا تحدد إلا التوقفات التي يستنتجها openpilot بنفسه، لذلك لا تظهر عندما يبطئ بسبب سيارة أمامه، ويوقفها "وضع الازدحام" بالكامل.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Show every object your car's radar is returning, not just the car you are following.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Expect a lot of dots, including signs, barriers and parked cars.</source>
+        <translation>&lt;b&gt;اعرض كل جسم يعيده رادار السيارة، لا السيارة التي تتبعها فقط.&lt;/b&gt;&lt;br&gt;&lt;br&gt;توقّع الكثير من النقاط، بما في ذلك العلامات والحواجز والسيارات المتوقفة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add extra things to the driving screen that stock openpilot does not show.&lt;/b&gt;&lt;br&gt;&lt;br&gt;One of these does change how the car drives: the "Driving Personality Button" switches your following distance.</source>
+        <translation>&lt;b&gt;أضف إلى شاشة القيادة عناصر لا يعرضها openpilot الأصلي.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يغيّر أحد هذه الخيارات طريقة قيادة السيارة فعلًا: يبدّل "زر نمط القيادة" مسافة التتبع.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Colour the driving path green when openpilot is speeding up and red when it is slowing down.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Handy for seeing a slowdown coming before you feel it.</source>
+        <translation>&lt;b&gt;لوّن مسار القيادة بالأخضر عند تسارع openpilot وبالأحمر عند تباطئه.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يفيد في رؤية التباطؤ قبل الشعور به.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Draw the paths of the lanes either side of you, so you can see where openpilot thinks they run.&lt;/b&gt;&lt;br&gt;&lt;br&gt;They only appear above about 20 mph, and only where the lane beside you measures wide enough to be a real lane.</source>
+        <translation>&lt;b&gt;ارسم امتداد المسارين على جانبيك لترى أين يعتقد openpilot أنهما يمتدان.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يظهران إلا فوق نحو 20 mph، وفقط عندما يكون المسار المجاور عريضًا بما يكفي ليكون مسارًا فعليًا.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Turn the lane beside you red whenever your car's sensors see something in that blind spot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only shows up above about 20 mph, so it stays away in slow traffic and car parks. Keep checking your mirrors regardless.</source>
+        <translation>&lt;b&gt;لوّن المسار بجانبك بالأحمر كلما رأت حساسات سيارتك جسمًا في تلك النقطة العمياء.&lt;/b&gt;&lt;br&gt;&lt;br&gt;لا يظهر إلا فوق نحو 20 mph، لذلك لا يظهر في الازدحام البطيء ومواقف السيارات. واصل التحقق من مراياك في جميع الأحوال.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add a compass to the driving screen showing which way you are heading.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without a GPS fix it freezes pointing north rather than disappearing, so treat a compass that never moves as no reading at all.</source>
+        <translation>&lt;b&gt;أضف بوصلة إلى شاشة القيادة توضح اتجاه سيرك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;عند عدم توفر تثبيت GPS تتجمد مشيرةً إلى الشمال بدلًا من الاختفاء، لذا اعتبر البوصلة التي لا تتحرك كأنها لا تعرض أي قراءة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add a button to the driving screen that switches your following distance between Aggressive, Standard and Relaxed without going into the menus.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This changes how the car actually drives, not just what you see. It also shows which one is active.</source>
+        <translation>&lt;b&gt;أضف زرًا إلى شاشة القيادة لتبديل مسافة التتبع بين الجريء والقياسي والمريح من دون فتح القوائم.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يغيّر ذلك طريقة قيادة السيارة فعليًا، لا ما تراه فقط، ويعرض أيضًا النمط المفعّل.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Show gas and brake indicators on the driving screen so you can see what openpilot is doing with the pedals.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Dynamic" fades them in and out with how hard it is pressing. "Static" shows them fully lit when active and dim when not.</source>
+        <translation>&lt;b&gt;اعرض مؤشري التسارع والكبح على شاشة القيادة لترى كيف يتحكم openpilot بالدواستين.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يُظهرهما "الديناميكي" ويخفيهما تدريجيًا بحسب قوة الضغط، بينما يعرضهما "الثابت" مضاءين بالكامل عند التفعيل وخافتين عند عدمه.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Turn the steering wheel picture on screen in time with your real steering wheel.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;دوّر صورة عجلة القيادة على الشاشة بالتزامن مع عجلة القيادة الحقيقية.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Change how openpilot draws the road ahead, including the driving path, the lane lines and the road edges.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Turning this off falls back to stock openpilot's sizes, though the coloured path edges go away with it.</source>
+        <translation>&lt;b&gt;غيّر طريقة رسم openpilot للطريق أمامك، بما في ذلك مسار القيادة وخطوط المسارات وحواف الطريق.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يؤدي إيقاف ذلك إلى العودة إلى أحجام openpilot الأصلية، مع اختفاء حواف المسار الملونة أيضًا.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Make the driving path narrower when openpilot is doing less of the driving, so you can tell at a glance how much control it has.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Full width while openpilot is driving, three quarters while it is only steering for you, and half the rest of the time.</source>
+        <translation>&lt;b&gt;اجعل مسار القيادة أضيق عندما يتولى openpilot قدرًا أقل من القيادة لتعرف مقدار تحكمه بنظرة سريعة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يظهر بالعرض الكامل عندما يقود openpilot، وبثلاثة أرباع العرض عندما يتولى التوجيه فقط، وبنصف العرض في بقية الوقت.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set how thick the lane lines are drawn on the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The default matches the 4 inch lines actually painted on US roads. This only changes the picture, never where openpilot steers.</source>
+        <translation>&lt;b&gt;اضبط سماكة رسم خطوط المسار على شاشة القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تطابق القيمة الافتراضية الخطوط بعرض 4 بوصات المرسومة فعليًا على الطرق الأمريكية. لا يغيّر ذلك إلا الصورة، ولا يغيّر موضع توجيه openpilot مطلقًا.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set how thick the coloured stripe down each side of the driving path is, which is what tells you which mode openpilot is in.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The default is a fifth of the path width. Set it to zero to hide the stripe entirely.&lt;br&gt;&lt;br&gt;Blue means navigation is steering, light blue means openpilot is only steering for you, green is normal driving, orange is Experimental Mode, red is Traffic Mode, and yellow means you have overridden Conditional Experimental Mode.</source>
+        <translation>&lt;b&gt;اضبط سماكة الشريط الملون على جانبي مسار القيادة، الذي يوضح وضع openpilot الحالي.&lt;/b&gt;&lt;br&gt;&lt;br&gt;القيمة الافتراضية هي خُمس عرض المسار. اضبطها على الصفر لإخفاء الشريط تمامًا.&lt;br&gt;&lt;br&gt;يعني الأزرق أن الملاحة تتولى التوجيه، والأزرق الفاتح أن openpilot يتولى التوجيه فقط، والأخضر القيادة العادية، والبرتقالي الوضع التجريبي، والأحمر وضع الازدحام، والأصفر أنك تجاوزت الوضع التجريبي المشروط.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set how wide the driving path is drawn ahead of your car.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The default of 6.1 feet is roughly the width of a real car.</source>
+        <translation>&lt;b&gt;اضبط عرض رسم مسار القيادة أمام سيارتك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تقارب القيمة الافتراضية البالغة 6.1 أقدام عرض سيارة حقيقية.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set how thick the road edges are drawn on the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The default is half a lane line.</source>
+        <translation>&lt;b&gt;اضبط سماكة رسم حواف الطريق على شاشة القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;القيمة الافتراضية هي نصف سماكة خط المسار.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Draw the path, lane lines and road edges as far ahead as the model can see, instead of stopping short.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The far end is the model's best guess, so it wanders more the further out it goes.</source>
+        <translation>&lt;b&gt;ارسم المسار وخطوط المسارات وحواف الطريق إلى أبعد نقطة يراها النموذج بدلًا من إنهائها مبكرًا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يمثل الطرف البعيد أفضل تقدير للنموذج، لذلك يزداد تذبذبه كلما امتد إلى مسافة أبعد.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Change what navigation shows on the driving screen, from the map itself to speed limit signs.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Some of these need map data downloaded under "Maps and Navigation" before they show anything.</source>
+        <translation>&lt;b&gt;غيّر ما تعرضه الملاحة على شاشة القيادة، من الخريطة نفسها إلى علامات حدود السرعة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تتطلب بعض هذه الخيارات تنزيل بيانات الخرائط ضمن "الخرائط والملاحة" قبل أن تعرض شيئًا.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Make the map on the driving screen bigger so it is easier to read at a glance.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;كبّر الخريطة على شاشة القيادة لتصبح أسهل قراءة بنظرة سريعة.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Choose how the navigation map looks, from plain streets to satellite imagery.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;Stock openpilot&lt;/b&gt;: Default comma.ai style&lt;br&gt;&lt;b&gt;FrogPilot&lt;/b&gt;: Official FrogPilot map style&lt;br&gt;&lt;b&gt;Mapbox Streets&lt;/b&gt;: Standard street-focused view&lt;br&gt;&lt;b&gt;Mapbox Outdoors&lt;/b&gt;: Emphasizes outdoor and terrain features&lt;br&gt;&lt;b&gt;Mapbox Light&lt;/b&gt;: Minimalist, bright theme&lt;br&gt;&lt;b&gt;Mapbox Dark&lt;/b&gt;: Minimalist, dark theme&lt;br&gt;&lt;b&gt;Mapbox Navigation Day&lt;/b&gt;: Optimized for daytime navigation&lt;br&gt;&lt;b&gt;Mapbox Navigation Night&lt;/b&gt;: Optimized for nighttime navigation&lt;br&gt;&lt;b&gt;Mapbox Satellite&lt;/b&gt;: Satellite imagery only&lt;br&gt;&lt;b&gt;Mapbox Satellite Streets&lt;/b&gt;: Hybrid satellite imagery with street labels&lt;br&gt;&lt;b&gt;Mapbox Traffic Night&lt;/b&gt;: Dark theme emphasizing traffic conditions&lt;br&gt;&lt;b&gt;Mike's Personalized Style&lt;/b&gt;: Customized hybrid satellite view</source>
+        <translation>&lt;b&gt;اختر مظهر خريطة الملاحة، من الشوارع البسيطة إلى صور الأقمار الصناعية.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;b&gt;openpilot الأصلي&lt;/b&gt;: نمط comma.ai الافتراضي&lt;br&gt;&lt;b&gt;FrogPilot&lt;/b&gt;: نمط خريطة FrogPilot الرسمي&lt;br&gt;&lt;b&gt;شوارع Mapbox&lt;/b&gt;: عرض قياسي يركز على الشوارع&lt;br&gt;&lt;b&gt;Mapbox للأنشطة الخارجية&lt;/b&gt;: يبرز معالم الطبيعة والتضاريس&lt;br&gt;&lt;b&gt;Mapbox الفاتح&lt;/b&gt;: سمة مشرقة وبسيطة&lt;br&gt;&lt;b&gt;Mapbox الداكن&lt;/b&gt;: سمة داكنة وبسيطة&lt;br&gt;&lt;b&gt;ملاحة Mapbox النهارية&lt;/b&gt;: محسنة للملاحة نهارًا&lt;br&gt;&lt;b&gt;ملاحة Mapbox الليلية&lt;/b&gt;: محسنة للملاحة ليلًا&lt;br&gt;&lt;b&gt;Mapbox بالأقمار الصناعية&lt;/b&gt;: صور أقمار صناعية فقط&lt;br&gt;&lt;b&gt;Mapbox بالأقمار الصناعية والشوارع&lt;/b&gt;: صور أقمار صناعية مع تسميات الشوارع&lt;br&gt;&lt;b&gt;حركة مرور Mapbox الليلية&lt;/b&gt;: سمة داكنة تبرز ظروف حركة المرور&lt;br&gt;&lt;b&gt;نمط Mike المخصص&lt;/b&gt;: عرض مخصص يجمع صور الأقمار الصناعية</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Show the name of the road you are on along the bottom of the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It comes from downloaded map data, so it stays blank on roads you have not downloaded.</source>
+        <translation>&lt;b&gt;اعرض اسم الطريق الذي تسير عليه أسفل شاشة القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يأتي من بيانات الخرائط المنزلة، لذلك يظل فارغًا على الطرق التي لم تنزّل بياناتها.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Show the posted speed limit as a sign in the top-left corner of the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The limit comes from your car's dashboard where it can read one, and from your downloaded map data otherwise.</source>
+        <translation>&lt;b&gt;اعرض حد السرعة المعلن كعلامة في الزاوية العليا اليسرى من شاشة القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يأتي الحد من لوحة عدادات سيارتك عندما يمكن قراءته، وإلا فمن بيانات الخرائط المنزلة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Draw speed limit signs in the round European style instead of the rectangular American one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs "Show Speed Limits" or "Speed Limit Controller" switched on, or the sign disappears instead of changing shape. It never changes the limit openpilot reads.</source>
+        <translation>&lt;b&gt;ارسم علامات حدود السرعة بالنمط الأوروبي الدائري بدلًا من النمط الأمريكي المستطيل.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يتطلب تشغيل "إظهار حدود السرعة" أو "متحكم حد السرعة"، وإلا تختفي العلامة بدلًا من تغيير شكلها. لا يغيّر أبدًا الحد الذي يقرأه openpilot.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Pick which camera you watch, and a couple of smaller driving screen touches that did not fit anywhere else.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;اختر الكاميرا التي تشاهدها وبعض تعديلات شاشة القيادة الصغيرة التي لم تناسب الأقسام الأخرى.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Choose which camera the driving screen shows, from the wide one to the driver-facing one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot keeps using every camera to drive no matter which one you put on screen.</source>
+        <translation>&lt;b&gt;اختر الكاميرا التي تعرضها شاشة القيادة، من الكاميرا الواسعة إلى المواجهة للسائق.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يواصل openpilot استخدام جميع الكاميرات للقيادة بصرف النظر عن الكاميرا المعروضة على الشاشة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch the driving screen to the driver camera whenever you put the car in reverse.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This is not a backup camera. It faces you, not the road behind.</source>
+        <translation>&lt;b&gt;حوّل شاشة القيادة إلى كاميرا السائق كلما وضعت السيارة في وضع الرجوع للخلف.&lt;/b&gt;&lt;br&gt;&lt;br&gt;هذه ليست كاميرا رجوع خلفية؛ فهي تواجهك أنت لا الطريق خلف السيارة.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Replace your speed with a running timer once you come to a complete stop, so you can see how long you have been waiting.&lt;/b&gt;</source>
+        <translation>&lt;b&gt;استبدل عرض سرعتك بمؤقت يعمل بعد التوقف الكامل لترى مدة انتظارك.&lt;/b&gt;</translation>
+    </message>
+    <message>
+        <source> cm</source>
+        <translation> سم</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set how thick the lane lines are drawn on the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The default matches the 10 cm lines actually painted on roads. This only changes the picture, never where openpilot steers.</source>
+        <translation>&lt;b&gt;اضبط سماكة رسم خطوط المسار على شاشة القيادة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تطابق القيمة الافتراضية الخطوط بعرض 10 cm المرسومة فعليًا على الطرق. لا يغيّر ذلك إلا الصورة، ولا يغيّر موضع توجيه openpilot مطلقًا.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set how wide the driving path is drawn ahead of your car.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The default of 1.9 meters is roughly the width of a real car.</source>
+        <translation>&lt;b&gt;اضبط عرض رسم مسار القيادة أمام سيارتك.&lt;/b&gt;&lt;br&gt;&lt;br&gt;تقارب القيمة الافتراضية البالغة 1.9 متر عرض سيارة حقيقية.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Fall back to Mapbox for the speed limit when neither your dashboard nor your downloaded maps know one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs your Public Mapbox Key set up under "Maps and Navigation" and a working internet connection.</source>
+        <translation>&lt;b&gt;استخدم Mapbox كمصدر احتياطي لحد السرعة عندما لا تعرض لوحة العدادات ولا الخرائط المنزّلة حدًا.&lt;/b&gt;&lt;br&gt;&lt;br&gt;يتطلب إعداد مفتاح Mapbox العام ضمن "الخرائط والملاحة" واتصالًا فعالًا بالإنترنت.</translation>
     </message>
 </context>
 <context>
     <name>FrogPilotWheelPanel</name>
     <message>
         <source>Distance Button</source>
-        <translation type="gpt-5-generated">زر المسافة</translation>
+        <translation>زر المسافة</translation>
     </message>
     <message>
         <source>&lt;b&gt;Action performed when the "Distance" button is pressed.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;الإجراء الذي يتم تنفيذه عند الضغط على زر "المسافة".&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;الإجراء المنفذ عند ضغط زر "المسافة".&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Distance Button (Long Press)</source>
-        <translation type="gpt-5-generated">زر المسافة (ضغط مطوّل)</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Action performed when the "Distance" button is pressed for more than 0.5 seconds.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;الإجراء الذي يتم تنفيذه عند الضغط على زر "المسافة" لأكثر من 0.5 ثانية.&lt;/b&gt;</translation>
+        <translation>زر المسافة (ضغط مطول)</translation>
     </message>
     <message>
         <source>Distance Button (Very Long Press)</source>
-        <translation type="gpt-5-generated">زر المسافة (ضغط مطوّل جدًا)</translation>
+        <translation>زر المسافة (ضغط مطول جدًا)</translation>
     </message>
     <message>
         <source>&lt;b&gt;Action performed when the "Distance" button is pressed for more than 2.5 seconds.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;الإجراء الذي يتم تنفيذه عند الضغط على زر "المسافة" لأكثر من 2.5 ثانية.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;الإجراء المنفذ عند ضغط زر "المسافة" لأكثر من 2.5 ثانية.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>LKAS Button</source>
-        <translation type="gpt-5-generated">زر LKAS</translation>
+        <translation>زر LKAS</translation>
     </message>
     <message>
         <source>&lt;b&gt;Action performed when the "LKAS" button is pressed.&lt;/b&gt;</source>
-        <translation type="gpt-5-generated">&lt;b&gt;الإجراء المتخذ عند الضغط على زر "LKAS".&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;الإجراء المنفذ عند ضغط زر "LKAS".&lt;/b&gt;</translation>
     </message>
     <message>
         <source>No Action</source>
-        <translation type="gpt-5-generated">لا إجراء</translation>
+        <translation>لا إجراء</translation>
     </message>
     <message>
         <source>Pause Steering</source>
-        <translation type="gpt-5-generated">إيقاف التوجيه مؤقتًا</translation>
+        <translation>إيقاف التوجيه مؤقتًا</translation>
     </message>
     <message>
         <source>Change "Personality Profile"</source>
-        <translation type="gpt-5-generated">غيّر "الملف التعريفي للشخصية"</translation>
+        <translation>تغيير "نمط القيادة"</translation>
     </message>
     <message>
         <source>Force openpilot to Coast</source>
-        <translation type="gpt-5-generated">إجبار openpilot على الانزلاق</translation>
+        <translation>إجبار openpilot على الانسياب</translation>
     </message>
     <message>
         <source>Pause Acceleration/Braking</source>
-        <translation type="gpt-5-generated">إيقاف مؤقت للتسارع/الفرملة</translation>
+        <translation>إيقاف التسارع/الكبح مؤقتًا</translation>
     </message>
     <message>
         <source>Toggle "Experimental Mode" On/Off</source>
-        <translation type="gpt-5-generated">تبديل "الوضع التجريبي" تشغيل/إيقاف</translation>
+        <translation>تشغيل/إيقاف "الوضع التجريبي"</translation>
     </message>
     <message>
         <source>Toggle "Traffic Mode" On/Off</source>
-        <translation type="gpt-5-generated">تبديل "وضع المرور" تشغيل/إيقاف</translation>
+        <translation>تشغيل/إيقاف "وضع الازدحام"</translation>
     </message>
     <message>
         <source>SELECT</source>
-        <translation type="gpt-5-generated">تحديد</translation>
+        <translation>اختيار</translation>
     </message>
     <message>
         <source>Select a function to assign to this button</source>
-        <translation type="gpt-5-generated">حدد وظيفة لتعيينها لهذا الزر</translation>
+        <translation>اختر وظيفة لتعيينها لهذا الزر</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Action performed when the "Distance" button is pressed for more than 0.5 seconds.&lt;/b&gt;&lt;br&gt;&lt;br&gt;On GM cars the hold is 0.75 seconds instead.</source>
+        <translation>&lt;b&gt;الإجراء المنفذ عند ضغط زر "المسافة" لأكثر من 0.5 ثانية.&lt;/b&gt;&lt;br&gt;&lt;br&gt;في سيارات GM تكون مدة الضغط 0.75 ثانية بدلًا من ذلك.</translation>
     </message>
 </context>
 <context>
@@ -5125,17 +5187,17 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
     <message numerus="yes">
         <source>Need at least %n character(s)!</source>
         <translation>
-            <numerusform>تحتاج إلى حرف %n على الأقل!</numerusform>
-            <numerusform>تحتاج إلى حرف %n على الأقل!</numerusform>
-            <numerusform>تحتاج إلى حرفين %n على الأقل!</numerusform>
             <numerusform>تحتاج إلى %n أحرف على الأقل!</numerusform>
+            <numerusform>تحتاج إلى حرف واحد على الأقل (%n)!</numerusform>
+            <numerusform>تحتاج إلى حرفين على الأقل (%n)!</numerusform>
             <numerusform>تحتاج إلى %n أحرف على الأقل!</numerusform>
+            <numerusform>تحتاج إلى %n حرفًا على الأقل!</numerusform>
             <numerusform>تحتاج إلى %n حرف على الأقل!</numerusform>
         </translation>
     </message>
     <message>
         <source>Characters: %1/%2</source>
-        <translation type="gpt-5-generated">الأحرف: %1/%2</translation>
+        <translation>عدد الأحرف: %1/%2</translation>
     </message>
 </context>
 <context>
@@ -5164,11 +5226,11 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
     <name>MapSettings</name>
     <message>
         <source>NAVIGATION</source>
-        <translation>التنقل</translation>
+        <translation>الملاحة</translation>
     </message>
     <message>
         <source>Manage at %1</source>
-        <translation type="gpt-5-generated">إدارة في %1</translation>
+        <translation>الإدارة عبر %1</translation>
     </message>
 </context>
 <context>
@@ -5220,53 +5282,53 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
     <name>OffroadAlert</name>
     <message>
         <source>Device temperature too high. System cooling down before starting. Current internal component temperature: %1</source>
-        <translation>درجة حرارة الجهاز مرتفعة جداً. يقوم النظام بالتبريد قبل البدء. درجة الحرارة الحالية للمكونات الداخلية: %1</translation>
+        <translation>حرارة الجهاز مرتفعة جدًا. يبرّد النظام نفسه قبل بدء التشغيل. حرارة المكونات الداخلية الحالية: %1</translation>
     </message>
     <message>
         <source>Immediately connect to the internet to check for updates. If you do not connect to the internet, openpilot won't engage in %1</source>
-        <translation>اتصل فوراً بالإنترنت للتحقق من وجود تحديثات. إذا لم تكم متصلاً بالإنترنت فإن openpilot لن يساهم في %1</translation>
+        <translation>اتصل بالإنترنت فورًا للتحقق من التحديثات. إذا لم تتصل بالإنترنت، فلن يسمح openpilot بالتفعيل بعد %1</translation>
     </message>
     <message>
         <source>Connect to internet to check for updates. openpilot won't automatically start until it connects to internet to check for updates.</source>
-        <translation>اتصل بالإنترنت للتحقق من وجود تحديثات. لا يعمل openpilot تلقائياً إلا إذا اتصل بالإنترنت من أجل التحقق من التحديثات.</translation>
+        <translation>اتصل بالإنترنت للتحقق من التحديثات. لن يبدأ openpilot تلقائيًا حتى يتصل بالإنترنت ويتحقق من التحديثات.</translation>
     </message>
     <message>
         <source>Unable to download updates
 %1</source>
-        <translation>غير قادر على تحميل التحديثات
+        <translation>تعذر تنزيل التحديثات
 %1</translation>
     </message>
     <message>
         <source>Taking camera snapshots. System won't start until finished.</source>
-        <translation>التقاط لقطات كاميرا. لن يبدأ النظام حتى تنتهي هذه العملية.</translation>
+        <translation>جارٍ التقاط صور من الكاميرا. لن يبدأ النظام حتى تكتمل العملية.</translation>
     </message>
     <message>
         <source>An update to your device's operating system is downloading in the background. You will be prompted to update when it's ready to install.</source>
-        <translation>يتم تنزيل تحديث لنظام تشغيل جهازك في الخلفية. سيطلَب منك التحديث عندما يصبح جاهزاً للتثبيت.</translation>
+        <translation>جارٍ تنزيل تحديث لنظام تشغيل جهازك في الخلفية. سيُطلب منك تثبيته عندما يصبح جاهزًا.</translation>
     </message>
     <message>
         <source>Device failed to register. It will not connect to or upload to comma.ai servers, and receives no support from comma.ai. If this is an official device, visit https://comma.ai/support.</source>
-        <translation>فشل تسجيل الجهاز. لن يقوم بالاتصال أو تحميل خوادم comma.ai، ولا تلقي الدعم من comma.ai. إذا كان هذا الجهاز نظامياً فيرجى زيارة الموقع https://comma.ai/support.</translation>
+        <translation>فشل تسجيل الجهاز. لن يتصل بخوادم comma.ai أو يرفع بيانات إليها، ولن يحصل على دعم من comma.ai. إذا كان هذا جهازًا رسميًا، فزر https://comma.ai/support.</translation>
     </message>
     <message>
         <source>NVMe drive not mounted.</source>
-        <translation>محرك NVMe غير مثبَّت.</translation>
+        <translation>وحدة تخزين NVMe غير مركّبة.</translation>
     </message>
     <message>
         <source>Unsupported NVMe drive detected. Device may draw significantly more power and overheat due to the unsupported NVMe.</source>
-        <translation>تم اكتشاف محرك NVMe غير مدعوم. قد يستهلك الجهاز قدراً أكبر بكثير من الطاقة، وزيادة في ارتفاع درجة الحرارة بسبب وجود NVMe غير مدعوم.</translation>
+        <translation>اكتُشفت وحدة تخزين NVMe غير مدعومة. قد يستهلك الجهاز طاقة أكبر بكثير ويتعرض لحرارة مفرطة بسبب وحدة NVMe غير المدعومة.</translation>
     </message>
     <message>
         <source>openpilot was unable to identify your car. Your car is either unsupported or its ECUs are not recognized. Please submit a pull request to add the firmware versions to the proper vehicle. Need help? Join discord.comma.ai.</source>
-        <translation>لم يكن openpilot قادراً على تحديد سيارتك. إما أن تكون سيارتك غير مدعومة أو أنه لم يتم التعرف على وحدة التحكم الإلكتروني (ECUs) فيها. يرجى تقديم طلب سحب من أجل إضافة نسخ برمجيات ثابتة إلى السيارة المناسبة. هل تحتاج إلى أي مساعدة؟ لا تتردد في التواصل مع doscord.comma.ai.</translation>
+        <translation>تعذر على openpilot التعرف على سيارتك. إما أن السيارة غير مدعومة أو أن وحدات التحكم الإلكترونية (ECUs) فيها غير معروفة. يرجى إرسال طلب سحب لإضافة إصدارات البرامج الثابتة إلى السيارة الصحيحة. هل تحتاج إلى مساعدة؟ انضم إلى discord.comma.ai.</translation>
     </message>
     <message>
         <source>openpilot was unable to identify your car. Check integrity of cables and ensure all connections are secure, particularly that the comma power is fully inserted in the OBD-II port of the vehicle. Need help? Join discord.comma.ai.</source>
-        <translation>لم يتمكن openpilot من تحديد سيارتك. تحقق من سلامة الكابلات وتأكد من تأمين جميع الوصلات، لا سيما أنه قد تم إدخال طاقة الفاصلة بالكامل في منفذ OBD-II في السيارة. هل تريد أي مساعدة؟ لا تتردد في الانضمام إلى discord.comma.ai.</translation>
+        <translation>تعذر على openpilot التعرف على سيارتك. تحقق من سلامة الكابلات وإحكام جميع التوصيلات، وخصوصًا إدخال comma power بالكامل في منفذ OBD-II بالسيارة. هل تحتاج إلى مساعدة؟ انضم إلى discord.comma.ai.</translation>
     </message>
     <message>
         <source>openpilot detected a change in the device's mounting position. Ensure the device is fully seated in the mount and the mount is firmly secured to the windshield.</source>
-        <translation>لقد اكتشف openpilot تغييراً في موقع تركيب الجهاز. تأكد من تثبيت الجهاز بشكل كامل في موقعه وتثبيته بإحكام على الزجاج الأمامي.</translation>
+        <translation>اكتشف openpilot تغيرًا في موضع تثبيت الجهاز. تأكد من استقرار الجهاز بالكامل في الحامل ومن تثبيت الحامل بإحكام على الزجاج الأمامي.</translation>
     </message>
 </context>
 <context>
@@ -5288,35 +5350,35 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
     <name>OnroadAlerts</name>
     <message>
         <source>openpilot Unavailable</source>
-        <translation>openpilot غير متوفر</translation>
+        <translation>openpilot غير متاح</translation>
     </message>
     <message>
         <source>Waiting for controls to start</source>
-        <translation>في انتظار بدء عناصر التحكم</translation>
+        <translation>في انتظار بدء أنظمة التحكم</translation>
     </message>
     <message>
         <source>TAKE CONTROL IMMEDIATELY</source>
-        <translation>تحكم على الفور</translation>
+        <translation>تولَّ التحكم فورًا</translation>
     </message>
     <message>
         <source>Controls Unresponsive</source>
-        <translation>الضوابط غير مستجيبة</translation>
+        <translation>أنظمة التحكم لا تستجيب</translation>
     </message>
     <message>
         <source>Reboot Device</source>
-        <translation>إعادة التشغيل</translation>
+        <translation>أعد تشغيل الجهاز</translation>
     </message>
     <message>
         <source>openpilot crashed</source>
-        <translation type="gpt-5-generated">تعطّل openpilot</translation>
+        <translation>تعطل openpilot</translation>
     </message>
     <message>
         <source>Please post the "Error Log" in the FrogPilot Discord!</source>
-        <translation type="gpt-5-generated">يرجى نشر "Error Log" في Discord الخاص بـFrogPilot!</translation>
+        <translation>يرجى نشر "سجل الأخطاء" في FrogPilot Discord!</translation>
     </message>
     <message>
         <source>openpilot crashed 💩</source>
-        <translation type="gpt-5-generated">تعطّل openpilot 💩</translation>
+        <translation>تعطل openpilot 💩</translation>
     </message>
 </context>
 <context>
@@ -5327,15 +5389,15 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
     </message>
     <message>
         <source>Pair your device to your %1 account</source>
-        <translation type="gpt-5-generated">اقرن جهازك بحساب %1 الخاص بك</translation>
+        <translation>اربط جهازك بحساب %1 الخاص بك</translation>
     </message>
     <message>
         <source>Go to https://%1 on your phone</source>
-        <translation type="gpt-5-generated">اذهب إلى https://%1 على هاتفك</translation>
+        <translation>انتقل إلى https://%1 على هاتفك</translation>
     </message>
     <message>
         <source>Bookmark %1 to your home screen to use it like an app</source>
-        <translation type="gpt-5-generated">ضع إشارة مرجعية لـ %1 على شاشتك الرئيسية لاستخدامه كتطبيق</translation>
+        <translation>أضف %1 إلى شاشتك الرئيسية لاستخدامه كتطبيق</translation>
     </message>
 </context>
 <context>
@@ -5373,7 +5435,7 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
     </message>
     <message>
         <source>1 year of drive storage</source>
-        <translation>سنة واحدة من تخزين القرص</translation>
+        <translation>تخزين الرحلات لمدة عام واحد</translation>
     </message>
     <message>
         <source>Turn-by-turn navigation</source>
@@ -5401,10 +5463,10 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
         <source>%n minute(s) ago</source>
         <translation>
             <numerusform>منذ %n دقيقة</numerusform>
+            <numerusform>منذ دقيقة واحدة (%n)</numerusform>
+            <numerusform>منذ دقيقتين (%n)</numerusform>
+            <numerusform>منذ %n دقائق</numerusform>
             <numerusform>منذ %n دقيقة</numerusform>
-            <numerusform>منذ دقيقتين %n</numerusform>
-            <numerusform>منذ %n دقائق</numerusform>
-            <numerusform>منذ %n دقائق</numerusform>
             <numerusform>منذ %n دقيقة</numerusform>
         </translation>
     </message>
@@ -5412,10 +5474,10 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
         <source>%n hour(s) ago</source>
         <translation>
             <numerusform>منذ %n ساعة</numerusform>
+            <numerusform>منذ ساعة واحدة (%n)</numerusform>
+            <numerusform>منذ ساعتين (%n)</numerusform>
+            <numerusform>منذ %n ساعات</numerusform>
             <numerusform>منذ %n ساعة</numerusform>
-            <numerusform>منذ ساعتين %n</numerusform>
-            <numerusform>منذ %n ساعات</numerusform>
-            <numerusform>منذ %n ساعات</numerusform>
             <numerusform>منذ %n ساعة</numerusform>
         </translation>
     </message>
@@ -5423,10 +5485,10 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
         <source>%n day(s) ago</source>
         <translation>
             <numerusform>منذ %n يوم</numerusform>
-            <numerusform>منذ %n يوم</numerusform>
-            <numerusform>منذ يومين %n</numerusform>
+            <numerusform>منذ يوم واحد (%n)</numerusform>
+            <numerusform>منذ يومين (%n)</numerusform>
             <numerusform>منذ %n أيام</numerusform>
-            <numerusform>منذ %n أيام</numerusform>
+            <numerusform>منذ %n يومًا</numerusform>
             <numerusform>منذ %n يوم</numerusform>
         </translation>
     </message>
@@ -5452,58 +5514,58 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
     </message>
     <message>
         <source>Restore</source>
-        <translation type="gpt-5-generated">استعادة</translation>
+        <translation>استعادة</translation>
     </message>
     <message>
         <source>FrogPilot</source>
-        <translation type="gpt-5-generated">FrogPilot</translation>
+        <translation>FrogPilot</translation>
     </message>
     <message>
         <source>0 MB</source>
-        <translation type="gpt-5-generated">0 ميجابايت</translation>
+        <translation>0 MB</translation>
     </message>
     <message>
         <source> GB</source>
-        <translation type="gpt-5-generated">جي بي</translation>
+        <translation> GB</translation>
     </message>
     <message>
         <source> MB</source>
-        <translation type="gpt-5-generated"> ميغابايت</translation>
+        <translation> MB</translation>
     </message>
     <message>
         <source> hour </source>
-        <translation type="gpt-5-generated">ساعة</translation>
+        <translation> ساعة </translation>
     </message>
     <message>
         <source> hours </source>
-        <translation type="gpt-5-generated">ساعات</translation>
+        <translation> ساعات </translation>
     </message>
     <message>
         <source> minute </source>
-        <translation type="gpt-5-generated">دقيقة</translation>
+        <translation> دقيقة </translation>
     </message>
     <message>
         <source> minutes </source>
-        <translation type="gpt-5-generated">دقائق</translation>
+        <translation> دقائق </translation>
     </message>
     <message>
         <source> second</source>
-        <translation type="gpt-5-generated"> ثانية</translation>
+        <translation> ثانية</translation>
     </message>
     <message>
         <source> seconds</source>
-        <translation type="gpt-5-generated">ثوانٍ</translation>
+        <translation> ثوانٍ</translation>
     </message>
 </context>
 <context>
     <name>Reset</name>
     <message>
         <source>Reset failed. Reboot to try again.</source>
-        <translation>فشل إعاة الضبط. أعد التشغيل للمحاولة من جديد.</translation>
+        <translation>فشلت إعادة الضبط. أعد التشغيل وحاول مرة أخرى.</translation>
     </message>
     <message>
         <source>Are you sure you want to reset your device?</source>
-        <translation>هل أنت متأكد أنك تريد إعادة ضبط جهازك؟</translation>
+        <translation>هل أنت متأكد من رغبتك في إعادة ضبط جهازك؟</translation>
     </message>
     <message>
         <source>System Reset</source>
@@ -5524,27 +5586,27 @@ Developer - Highly customizable settings for seasoned enthusiasts</source>
     <message>
         <source>Resetting device...
 This may take up to a minute.</source>
-        <translation>يتم إعادة ضبط الجهاز...
-قد يستغرق الأمر حوالي الدقيقة.</translation>
+        <translation>جارٍ إعادة ضبط الجهاز...
+قد يستغرق ذلك دقيقة واحدة كحد أقصى.</translation>
     </message>
     <message>
         <source>Unable to mount data partition. Partition may be corrupted. Press confirm to erase and reset your device.</source>
-        <translation>غير قادر على تحميل جزء البيانات. قد يكون الجزء تالفاً. اضغط على تأكيد لمسح جهازك وإعادة ضبطه.</translation>
+        <translation>تعذر تحميل قسم البيانات. قد يكون القسم تالفًا. اضغط "تأكيد" لمسح جهازك وإعادة ضبطه.</translation>
     </message>
     <message>
         <source>System reset triggered. Press confirm to erase all content and settings. Press cancel to resume boot.</source>
-        <translation>تم تفعيل إعادة ضبط النظام. اضغط على تأكيد لمسح جميع المحتويات والإعدادات. اضغط على إلغاء لاستئناف التمهيد.</translation>
+        <translation>بدأت إعادة ضبط النظام. اضغط "تأكيد" لمسح جميع المحتويات والإعدادات، أو اضغط "إلغاء" لاستئناف بدء التشغيل.</translation>
     </message>
 </context>
 <context>
-    <name>ScreenRecorder</name>
+    <name>ScreenRecorderButton</name>
     <message>
         <source>RECORDING</source>
-        <translation type="gpt-5-generated">تسجيل</translation>
+        <translation>جارٍ التسجيل</translation>
     </message>
     <message>
         <source>RECORD</source>
-        <translation type="gpt-5-generated">تسجيل</translation>
+        <translation>تسجيل</translation>
     </message>
 </context>
 <context>
@@ -5567,35 +5629,35 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>← Back</source>
-        <translation type="gpt-5-generated">← رجوع</translation>
+        <translation>← رجوع</translation>
     </message>
     <message>
         <source>FrogPilot</source>
-        <translation type="gpt-5-generated">FrogPilot</translation>
+        <translation>FrogPilot</translation>
     </message>
     <message>
         <source>Welcome to FrogPilot! Since you're new to openpilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
-        <translation type="gpt-5-generated">مرحبًا بك في FrogPilot! بما أنك جديد على openpilot، تم تطبيق الإعداد المسبق "Minimal"، لكن يمكنك تغيير ذلك في أي وقت عبر زر "Tuning Level"!</translation>
+        <translation>مرحبًا بك في FrogPilot! نظرًا لأنك جديد على openpilot، طُبّقت الإعدادات المسبقة "الأساسية"، لكن يمكنك تغييرها في أي وقت عبر زر "مستوى الضبط"!</translation>
     </message>
     <message>
         <source>Welcome to FrogPilot! Since you're new to FrogPilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
-        <translation type="gpt-5-generated">مرحبًا بك في FrogPilot! بما أنك جديد في FrogPilot، تم تطبيق إعداد التبديل "Minimal"، لكن يمكنك تغيير ذلك في أي وقت عبر زر "Tuning Level"!</translation>
+        <translation>مرحبًا بك في FrogPilot! نظرًا لأنك جديد على FrogPilot، طُبّقت الإعدادات المسبقة "الأساسية"، لكن يمكنك تغييرها في أي وقت عبر زر "مستوى الضبط"!</translation>
     </message>
     <message>
         <source>Since you're fairly new to FrogPilot, the "Minimal" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
-        <translation type="gpt-5-generated">نظرًا لأنك جديد نسبيًا على FrogPilot، تم تطبيق إعداد التبديل "Minimal"، لكن يمكنك تغييره في أي وقت عبر زر "Tuning Level"!</translation>
+        <translation>نظرًا لأن خبرتك في FrogPilot ما زالت محدودة، طُبّقت الإعدادات المسبقة "الأساسية"، لكن يمكنك تغييرها في أي وقت عبر زر "مستوى الضبط"!</translation>
     </message>
     <message>
         <source>Since you're experienced with openpilot, the "Standard" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
-        <translation type="gpt-5-generated">بما أنك خبير في openpilot، تم تطبيق الإعداد المسبق "Standard"، لكن يمكنك تغييره في أي وقت عبر زر "Tuning Level"!</translation>
+        <translation>نظرًا لأن لديك خبرة في openpilot، طُبّقت الإعدادات المسبقة "القياسية"، لكن يمكنك تغييرها في أي وقت عبر زر "مستوى الضبط"!</translation>
     </message>
     <message>
         <source>Since you're experienced with FrogPilot, the "Standard" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
-        <translation type="gpt-5-generated">بما أنك متمرّسًا مع FrogPilot، فقد تم تطبيق إعداد التبديل "Standard"، لكن يمكنك تغييره في أي وقت عبر زر "Tuning Level"!</translation>
+        <translation>نظرًا لأن لديك خبرة في FrogPilot، طُبّقت الإعدادات المسبقة "القياسية"، لكن يمكنك تغييرها في أي وقت عبر زر "مستوى الضبط"!</translation>
     </message>
     <message>
         <source>Since you're very experienced with FrogPilot, the "Advanced" toggle preset has been applied, but you can change this at any time via the "Tuning Level" button!</source>
-        <translation type="gpt-5-generated">نظرًا لخبرتك الكبيرة مع FrogPilot، تم تطبيق إعداد التبديل "Advanced"، لكن يمكنك تغيير ذلك في أي وقت عبر زر "Tuning Level"!</translation>
+        <translation>نظرًا لأن لديك خبرة كبيرة في FrogPilot، طُبّقت الإعدادات المسبقة "المتقدمة"، لكن يمكنك تغييرها في أي وقت عبر زر "مستوى الضبط"!</translation>
     </message>
 </context>
 <context>
@@ -5606,7 +5668,7 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Power your device in a car with a harness or proceed at your own risk.</source>
-        <translation>شغل جهازك في السيارة عن طريق شرطان التوصيل، أو تابع على مسؤوليتك.</translation>
+        <translation>زوّد جهازك بالطاقة داخل السيارة باستخدام ضفيرة توصيل، أو تابع على مسؤوليتك الخاصة.</translation>
     </message>
     <message>
         <source>Power off</source>
@@ -5650,7 +5712,7 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Downloading...</source>
-        <translation>يتم الآن التنزيل...</translation>
+        <translation>جارٍ التنزيل...</translation>
     </message>
     <message>
         <source>Download Failed</source>
@@ -5670,11 +5732,11 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Something went wrong. Reboot the device.</source>
-        <translation>حدث خطأ ما. أعد التشغيل الجهاز.</translation>
+        <translation>حدث خطأ ما. أعد تشغيل الجهاز.</translation>
     </message>
     <message>
         <source>No custom software found at this URL.</source>
-        <translation>لم يتم العثور على برنامج خاص لعنوان URL ها.</translation>
+        <translation>لم يُعثر على برنامج مخصص في عنوان URL هذا.</translation>
     </message>
     <message>
         <source>Select a language</source>
@@ -5682,7 +5744,7 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Choose Software to Install</source>
-        <translation>اختر البرنامج للتثبيت</translation>
+        <translation>اختر البرنامج المراد تثبيته</translation>
     </message>
     <message>
         <source>openpilot</source>
@@ -5701,7 +5763,7 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Pair your device with comma connect (connect.comma.ai) and claim your comma prime offer.</source>
-        <translation>اقرن جهازك بجهاز (connect.comma.ai) واحصل على عرضك من comma prime.</translation>
+        <translation>اقرن جهازك بخدمة comma connect (connect.comma.ai) واحصل على عرض comma prime.</translation>
     </message>
     <message>
         <source>Pair device</source>
@@ -5709,7 +5771,7 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Pair your device with Konik connect (stable.konik.ai).</source>
-        <translation type="gpt-5-generated">اقرن جهازك مع Konik connect (stable.konik.ai).</translation>
+        <translation>اقرن جهازك بخدمة Konik connect (stable.konik.ai).</translation>
     </message>
 </context>
 <context>
@@ -5796,27 +5858,27 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>GPU</source>
-        <translation type="gpt-5-generated">GPU</translation>
+        <translation>GPU</translation>
     </message>
     <message>
         <source>CPU</source>
-        <translation type="gpt-5-generated">وحدة المعالجة المركزية</translation>
+        <translation>CPU</translation>
     </message>
     <message>
         <source> GB</source>
-        <translation type="gpt-5-generated">GB</translation>
+        <translation> GB</translation>
     </message>
     <message>
         <source>MEMORY</source>
-        <translation type="gpt-5-generated">الذاكرة</translation>
+        <translation>الذاكرة</translation>
     </message>
     <message>
         <source>LEFT</source>
-        <translation type="gpt-5-generated">يسار</translation>
+        <translation>المتبقي</translation>
     </message>
     <message>
         <source>USED</source>
-        <translation type="gpt-5-generated">مُسْتَخْدَم</translation>
+        <translation>المستخدم</translation>
     </message>
 </context>
 <context>
@@ -5891,55 +5953,63 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Updates are only downloaded while the car is off or in park.</source>
-        <translation type="gpt-5-generated">لا يتم تنزيل التحديثات إلا عندما تكون السيارة مطفأة أو في وضع التوقف.</translation>
+        <translation>لا تُنزّل التحديثات إلا عندما تكون السيارة متوقفة عن التشغيل أو في وضع الركن.</translation>
     </message>
     <message>
         <source>Automatically Update FrogPilot</source>
-        <translation type="gpt-5-generated">تحديث FrogPilot تلقائيًا</translation>
+        <translation>تحديث FrogPilot تلقائيًا</translation>
     </message>
     <message>
         <source>FrogPilot will automatically update itself and it's assets when you're offroad and have an active internet connection.</source>
-        <translation type="gpt-5-generated">سيقوم FrogPilot بتحديث نفسه وأصوله تلقائيًا عندما تكون خارج الطريق وبحالة اتصال إنترنت نشطة.</translation>
+        <translation>سيحدّث FrogPilot نفسه وموارده تلقائيًا عندما لا تكون في وضع القيادة ويتوفر اتصال نشط بالإنترنت.</translation>
     </message>
     <message>
         <source>This branch must be downloaded before switching. Would you like to download it now?</source>
-        <translation type="gpt-5-generated">يجب تنزيل هذا الفرع قبل التبديل. هل ترغب في تنزيله الآن؟</translation>
+        <translation>يجب تنزيل هذا الفرع قبل التبديل إليه. هل تريد تنزيله الآن؟</translation>
     </message>
     <message>
         <source>Error Log</source>
-        <translation type="gpt-5-generated">سجل الأخطاء</translation>
+        <translation>سجل الأخطاء</translation>
     </message>
     <message>
         <source>VIEW</source>
-        <translation type="gpt-5-generated">عرض</translation>
+        <translation>عرض</translation>
     </message>
     <message>
         <source>View the error log for openpilot crashes.</source>
-        <translation type="gpt-5-generated">اعرض سجل الأخطاء لحالات تعطل openpilot.</translation>
+        <translation>اعرض سجل الأخطاء لأعطال openpilot.</translation>
     </message>
     <message>
         <source>Do you want to perform a full factory reset? All saved assets and settings will be permanently deleted!</source>
-        <translation type="gpt-5-generated">هل تريد إجراء إعادة ضبط المصنع بالكامل؟ سيتم حذف جميع الأصول والإعدادات المحفوظة نهائيًا!</translation>
+        <translation>هل تريد إجراء إعادة ضبط كاملة إلى إعدادات المصنع؟ ستُحذف جميع الموارد والإعدادات المحفوظة نهائيًا!</translation>
     </message>
     <message>
         <source>This is a complete factory reset and cannot be undone. Are you absolutely sure you want to continue?</source>
-        <translation type="gpt-5-generated">هذا إعادة ضبط مصنع كاملة ولا يمكن التراجع عنها. هل أنت متأكد تمامًا أنك تريد المتابعة؟</translation>
+        <translation>هذه إعادة ضبط كاملة إلى إعدادات المصنع ولا يمكن التراجع عنها. هل أنت متأكد تمامًا من رغبتك في المتابعة؟</translation>
     </message>
     <message>
         <source>downloading…</source>
-        <translation type="gpt-5-generated">جارٍ التنزيل…</translation>
+        <translation>جارٍ التنزيل…</translation>
     </message>
     <message>
         <source>checking…</source>
-        <translation type="gpt-5-generated">جارٍ الفحص…</translation>
+        <translation>جارٍ التحقق…</translation>
     </message>
     <message>
         <source>waiting for vehicle to go offroad...</source>
-        <translation type="gpt-5-generated">جارٍ انتظار المركبة للخروج عن الطريق...</translation>
+        <translation>في انتظار خروج السيارة من وضع القيادة...</translation>
     </message>
     <message>
         <source>finalizing update...</source>
-        <translation type="gpt-5-generated">جارٍ إنهاء التحديث...</translation>
+        <translation>جارٍ إنهاء التحديث...</translation>
+    </message>
+    <message>
+        <source>Share FrogPilot Data</source>
+        <translation>مشاركة بيانات FrogPilot</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Help improve FrogPilot by sharing basic usage stats and filtered driving logs.&lt;/b&gt;&lt;br&gt;&lt;br&gt;We do our best to remove personal information before anything is uploaded. For usage stats, we never send your exact location. We send only a general city, state, and country. Smaller towns are replaced with a nearby major city when possible, or a broader regional location otherwise. Stats are linked to your FrogPilot device ID and include details about your device, software version, car, FrogPilot settings, and driving totals.&lt;br&gt;&lt;br&gt;Driving logs are filtered on your device before upload. They do not include camera footage or images, your FrogPilot device ID, account details, SSH keys, or the exact GPS, VIN, and date/time fields we can identify. Each drive also gets a separate random ID.&lt;br&gt;&lt;br&gt;The one exception is raw CAN data from your car. We keep it because it helps improve vehicle support and discover new signals, but some cars may include details such as GPS, VIN, date/time, or driver and passenger status in that data.&lt;br&gt;&lt;br&gt;Turn this off at any time to stop both uploads.</source>
+        <translation>&lt;b&gt;ساعد في تحسين FrogPilot من خلال مشاركة إحصاءات الاستخدام الأساسية وسجلات القيادة المُرشَّحة.&lt;/b&gt;&lt;br&gt;&lt;br&gt;نبذل قصارى جهدنا لإزالة المعلومات الشخصية قبل تحميل أي شيء. بالنسبة إلى إحصاءات الاستخدام، لا نرسل موقعك الدقيق أبدًا. نرسل فقط معلومات عامة عن المدينة والولاية والبلد. تُستبدل البلدات الصغيرة بمدينة كبيرة قريبة عندما يكون ذلك ممكنًا، أو بموقع إقليمي أوسع في الحالات الأخرى. ترتبط الإحصاءات بمعرّف جهاز FrogPilot الخاص بك، وتتضمن تفاصيل عن جهازك وإصدار البرنامج وسيارتك وإعدادات FrogPilot وإجماليات القيادة.&lt;br&gt;&lt;br&gt;تُرشَّح سجلات القيادة على جهازك قبل تحميلها. ولا تتضمن لقطات الكاميرا أو الصور، أو معرّف جهاز FrogPilot الخاص بك، أو تفاصيل الحساب، أو مفاتيح SSH، أو حقول GPS وVIN والتاريخ/الوقت الدقيقة التي يمكننا تحديدها. ويحصل كل مشوار أيضًا على معرّف عشوائي منفصل.&lt;br&gt;&lt;br&gt;الاستثناء الوحيد هو بيانات CAN الخام من سيارتك. نحتفظ بها لأنها تساعد على تحسين دعم المركبات واكتشاف إشارات جديدة، لكن بعض السيارات قد تُضمّن في تلك البيانات تفاصيل مثل GPS أو VIN أو التاريخ/الوقت أو حالة السائق والراكب.&lt;br&gt;&lt;br&gt;عطّل هذا الخيار في أي وقت لإيقاف كلا التحميلين.</translation>
     </message>
 </context>
 <context>
@@ -5950,7 +6020,7 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Warning: This grants SSH access to all public keys in your GitHub settings. Never enter a GitHub username other than your own. A comma employee will NEVER ask you to add their GitHub username.</source>
-        <translation>تنبيه: هذا يمنح SSH إمكانية الوصول إلى جميع المفاتيح العامة في إعدادات GitHub. لا تقم بإدخال اسم مستخدم GitHub بدلاً من اسمك. لن تطلب منك comma employee إطلاقاً أن تضيف اسم مستخدم GitHub الخاص بهم.</translation>
+        <translation>تحذير: يمنح هذا وصول SSH لجميع المفاتيح العامة المسجلة في إعدادات حسابك على GitHub. لا تدخل أبدًا اسم مستخدم GitHub غير اسمك. لن يطلب منك أي موظف في comma أبدًا إضافة اسم مستخدم GitHub الخاص به.</translation>
     </message>
     <message>
         <source>ADD</source>
@@ -5958,11 +6028,11 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Enter your GitHub username</source>
-        <translation>ادخل اسم المستخدم GitHub الخاص بك</translation>
+        <translation>أدخل اسم مستخدم GitHub الخاص بك</translation>
     </message>
     <message>
         <source>LOADING</source>
-        <translation>يتم التحميل</translation>
+        <translation>جارٍ التحميل</translation>
     </message>
     <message>
         <source>REMOVE</source>
@@ -5970,11 +6040,11 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Username '%1' has no keys on GitHub</source>
-        <translation>لا يحتوي اسم المستخدم '%1' أي مفاتيح على GitHub</translation>
+        <translation>لا توجد مفاتيح على GitHub لاسم المستخدم '%1'</translation>
     </message>
     <message>
         <source>Request timed out</source>
-        <translation>انتهى وقت الطلب</translation>
+        <translation>انتهت مهلة الطلب</translation>
     </message>
     <message>
         <source>Username '%1' doesn't exist on GitHub</source>
@@ -6011,19 +6081,19 @@ This may take up to a minute.</source>
     <name>TogglesPanel</name>
     <message>
         <source>Enable openpilot</source>
-        <translation>تمكين openpilot</translation>
+        <translation>تفعيل openpilot</translation>
     </message>
     <message>
         <source>Use the openpilot system for adaptive cruise control and lane keep driver assistance. Your attention is required at all times to use this feature. Changing this setting takes effect when the car is powered off.</source>
-        <translation>استخدم نظام openpilot من أجل الضبط التكيفي للسرعة والحفاظ على مساعدة السائق للبقاء في المسار. انتباهك مطلوب في جميع الأوقات مع استخدام هذه الميزة. يعمل هذا التغيير في الإعدادات عند إيقاف تشغيل السيارة.</translation>
+        <translation>استخدم نظام openpilot لمثبت السرعة المتكيف ومساعدة الحفاظ على المسار. يجب أن تبقى منتبهًا في جميع الأوقات عند استخدام هذه الميزة. يسري تغيير هذا الإعداد بعد إيقاف تشغيل السيارة.</translation>
     </message>
     <message>
         <source>Enable Lane Departure Warnings</source>
-        <translation>قم بتمكين تحذيرات مغادرة المسار</translation>
+        <translation>تفعيل تحذيرات مغادرة المسار</translation>
     </message>
     <message>
         <source>Receive alerts to steer back into the lane when your vehicle drifts over a detected lane line without a turn signal activated while driving over 31 mph (50 km/h).</source>
-        <translation>تلقي التنبيهات من أجل الالتفاف للعودة إلى المسار عندما تنحرف سيارتك فوق الخط المحدد للمسار دون تشغيل إشارة الانعطاف عند القيادة لمسافة تزيد عن 31 ميل/سا (50 كم/سا).</translation>
+        <translation>تلقَّ تنبيهًا لتوجيه السيارة إلى داخل المسار عندما تنحرف فوق خط مسار مكتشف من دون تشغيل إشارة الانعطاف أثناء القيادة بسرعة تتجاوز 31 mph (50 km/h).</translation>
     </message>
     <message>
         <source>Use Metric System</source>
@@ -6031,23 +6101,23 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Display speed in km/h instead of mph.</source>
-        <translation>عرض السرعة بواحدات كم/سا بدلاً من ميل/سا.</translation>
+        <translation>اعرض السرعة بوحدات كم/س بدلًا من ميل/س.</translation>
     </message>
     <message>
         <source>Record and Upload Driver Camera</source>
-        <translation>تسجيل وتحميل كاميرا السائق</translation>
+        <translation>تسجيل كاميرا السائق ورفع بياناتها</translation>
     </message>
     <message>
         <source>Upload data from the driver facing camera and help improve the driver monitoring algorithm.</source>
-        <translation>تحميل البيانات من الكاميرا المواجهة للسائق، والمساعدة في تحسين خوارزمية مراقبة السائق.</translation>
+        <translation>ارفع بيانات الكاميرا المواجهة للسائق للمساعدة في تحسين خوارزمية مراقبة السائق.</translation>
     </message>
     <message>
         <source>Disengage on Accelerator Pedal</source>
-        <translation>فك الارتباط عن دواسة الوقود</translation>
+        <translation>إلغاء التفعيل عند ضغط دواسة الوقود</translation>
     </message>
     <message>
         <source>When enabled, pressing the accelerator pedal will disengage openpilot.</source>
-        <translation>عند تمكين هذه الميزة، فإن الضغط على دواسة الوقود سيؤدي إلى فك ارتباط openpilot.</translation>
+        <translation>عند تفعيل هذا الخيار، يؤدي ضغط دواسة الوقود إلى إلغاء تفعيل openpilot.</translation>
     </message>
     <message>
         <source>Show ETA in 24h Format</source>
@@ -6063,19 +6133,19 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Show map on left side when in split screen view.</source>
-        <translation>عرض الخريطة عل الجانب الأيسر عندما تكون وضعية العرض بطريقة الشاشة المنقسمة.</translation>
+        <translation>اعرض الخريطة على الجانب الأيسر في وضع الشاشة المنقسمة.</translation>
     </message>
     <message>
         <source>openpilot Longitudinal Control (Alpha)</source>
-        <translation>التحكم الطولي openpilot (ألفا)</translation>
+        <translation>التحكم الطولي لـ openpilot (ألفا)</translation>
     </message>
     <message>
         <source>WARNING: openpilot longitudinal control is in alpha for this car and will disable Automatic Emergency Braking (AEB).</source>
-        <translation>تحذير: التحكم الطولي في openpilot في المرحلة ألفا لهذه السيارة، وسيقوم بتعطيل مكابح الطوارئ الآلية (AEB).</translation>
+        <translation>تحذير: التحكم الطولي لـ openpilot في المرحلة ألفا لهذه السيارة، وسيعطّل الكبح التلقائي في حالات الطوارئ (AEB).</translation>
     </message>
     <message>
         <source>On this car, openpilot defaults to the car's built-in ACC instead of openpilot's longitudinal control. Enable this to switch to openpilot longitudinal control. Enabling Experimental mode is recommended when enabling openpilot longitudinal control alpha.</source>
-        <translation>في هذه السيارة يعمل openpilot افتراضياً بالشكل المدمج في التحكم التكيفي في السرعة بدلاً من التحكم الطولي. قم بتمكين هذا الخيار من أجل الانتقال إلى التحكم الطولي. يوصى بتمكين الوضع التجريبي عند استخدام وضع التحكم الطولي ألفا من openpilot.</translation>
+        <translation>في هذه السيارة، يستخدم openpilot افتراضيًا مثبت السرعة المتكيف (ACC) المدمج في السيارة بدلًا من التحكم الطولي لـ openpilot. فعّل هذا الخيار للانتقال إلى التحكم الطولي لـ openpilot. يُوصى بتفعيل الوضع التجريبي عند تفعيل التحكم الطولي لـ openpilot في المرحلة ألفا.</translation>
     </message>
     <message>
         <source>Experimental Mode</source>
@@ -6083,55 +6153,55 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Aggressive</source>
-        <translation>الهجومي</translation>
+        <translation>جريء</translation>
     </message>
     <message>
         <source>Standard</source>
-        <translation>القياسي</translation>
+        <translation>قياسي</translation>
     </message>
     <message>
         <source>Relaxed</source>
-        <translation>الراحة</translation>
+        <translation>مريح</translation>
     </message>
     <message>
         <source>Driving Personality</source>
-        <translation>شخصية القيادة</translation>
+        <translation>نمط القيادة</translation>
     </message>
     <message>
         <source>openpilot defaults to driving in &lt;b&gt;chill mode&lt;/b&gt;. Experimental mode enables &lt;b&gt;alpha-level features&lt;/b&gt; that aren't ready for chill mode. Experimental features are listed below:</source>
-        <translation>يتم وضع openpilot بشكل قياسي في &lt;b&gt;وضعية الراحة&lt;/b&gt;. يمكن الوضع التجريبي &lt;b&gt;ميزات المستوى ألفا&lt;/b&gt; التي لا تكون جاهزة في وضع الراحة:</translation>
+        <translation>يقود openpilot افتراضيًا في &lt;b&gt;الوضع الهادئ&lt;/b&gt;. يفعّل الوضع التجريبي &lt;b&gt;ميزات في المرحلة ألفا&lt;/b&gt; لم تصبح جاهزة للوضع الهادئ. الميزات التجريبية مدرجة أدناه:</translation>
     </message>
     <message>
         <source>End-to-End Longitudinal Control</source>
-        <translation>التحكم الطولي من طرف إلى طرف</translation>
+        <translation>التحكم الطولي الشامل</translation>
     </message>
     <message>
         <source>Let the driving model control the gas and brakes. openpilot will drive as it thinks a human would, including stopping for red lights and stop signs. Since the driving model decides the speed to drive, the set speed will only act as an upper bound. This is an alpha quality feature; mistakes should be expected.</source>
-        <translation>دع نظام القيادة يتحكم بالوقود والمكابح. سيقوم openpilot بالقيادة كما لو أنه كائن بشري، بما في ذلك التوقف عند الإشارة الحمراء، وإشارات التوقف. وبما أن نمط القيادة يحدد سرعة القيادة، فإن السرعة المضبوطة تشكل الحد الأقصى فقط. هذه خاصية الجودة ألفا، فيجب توقع حدوث الأخطاء.</translation>
+        <translation>دع نموذج القيادة يتحكم بالتسارع والكبح. سيقود openpilot بالطريقة التي يتوقع أن يقود بها الإنسان، بما في ذلك التوقف عند الإشارات الحمراء وعلامات التوقف. وبما أن نموذج القيادة يحدد سرعة السير، فلن تعمل السرعة المضبوطة إلا كحد أعلى. هذه ميزة في المرحلة ألفا، ويجب توقع الأخطاء.</translation>
     </message>
     <message>
         <source>New Driving Visualization</source>
-        <translation>تصور القيادة الديد</translation>
+        <translation>عرض القيادة الجديد</translation>
     </message>
     <message>
         <source>Experimental mode is currently unavailable on this car since the car's stock ACC is used for longitudinal control.</source>
-        <translation>الوضع التجريبي غير متوفر حالياً في هذه السيارة نظراً لاستخدام رصيد التحكم التكيفي بالسرعة من أجل التحكم الطولي.</translation>
+        <translation>الوضع التجريبي غير متاح حاليًا في هذه السيارة لأن مثبت السرعة المتكيف (ACC) الأصلي للسيارة يتولى التحكم الطولي.</translation>
     </message>
     <message>
         <source>openpilot longitudinal control may come in a future update.</source>
-        <translation>قد يتم الحصول على التحكم الطولي في openpilot في عمليات التحديث المستقبلية.</translation>
+        <translation>قد يتوفر التحكم الطولي لـ openpilot في تحديث مستقبلي.</translation>
     </message>
     <message>
         <source>Enable the openpilot longitudinal control (alpha) toggle to allow Experimental mode.</source>
-        <translation>تمكين التحكم الطولي من openpilot (ألفا) للسماح بالوضع التجريبي.</translation>
+        <translation>فعّل خيار التحكم الطولي لـ openpilot (ألفا) للسماح باستخدام الوضع التجريبي.</translation>
     </message>
     <message>
         <source>Standard is recommended. In aggressive mode, openpilot will follow lead cars closer and be more aggressive with the gas and brake. In relaxed mode openpilot will stay further away from lead cars. On supported cars, you can cycle through these personalities with your steering wheel distance button.</source>
-        <translation>يوصى بالمعيار. في الوضع العدواني، سيتبع الطيار المفتوح السيارات الرائدة بشكل أقرب ويكون أكثر عدوانية مع البنزين والفرامل. في الوضع المريح، سيبقى openpilot بعيدًا عن السيارات الرائدة. في السيارات المدعومة، يمكنك التنقل بين هذه الشخصيات باستخدام زر مسافة عجلة القيادة.</translation>
+        <translation>يُوصى بالنمط القياسي. في النمط الجريء، يتبع openpilot السيارات الأمامية من مسافة أقرب ويستخدم تسارعًا وكبحًا أقوى. في النمط المريح، يحافظ openpilot على مسافة أكبر من السيارات الأمامية. في السيارات المدعومة، يمكنك التنقل بين هذه الأنماط بزر المسافة على عجلة القيادة.</translation>
     </message>
     <message>
         <source>The driving visualization will transition to the road-facing wide-angle camera at low speeds to better show some turns. The Experimental mode logo will also be shown in the top right corner.</source>
-        <translation type="gpt-5-generated">ستنتقل عرض القيادة إلى الكاميرا الواسعة المواجهة للطريق عند السرعات المنخفضة لإظهار بعض المنعطفات بشكل أفضل. سيُعرض شعار وضع Experimental أيضًا في الزاوية العلوية اليمنى.</translation>
+        <translation>سينتقل عرض القيادة إلى الكاميرا واسعة الزاوية المواجهة للطريق عند السرعات المنخفضة لإظهار بعض المنعطفات بصورة أفضل. سيظهر أيضًا شعار الوضع التجريبي في الزاوية العليا اليمنى.</translation>
     </message>
 </context>
 <context>
@@ -6193,11 +6263,11 @@ This may take up to a minute.</source>
     </message>
     <message>
         <source>Uploading disabled</source>
-        <translation type="gpt-5-generated">تم تعطيل الرفع</translation>
+        <translation>الرفع معطل</translation>
     </message>
     <message>
         <source>Toggle off the "Turn Off Data Uploads" toggle to re-enable uploads.</source>
-        <translation type="gpt-5-generated">أوقف تشغيل زر "إيقاف تحميل البيانات" لإعادة تفعيل عمليات التحميل.</translation>
+        <translation>أوقف خيار "إيقاف رفع البيانات" لإعادة تمكين الرفع.</translation>
     </message>
 </context>
 <context>

@@ -1,6 +1,7 @@
 import { html, reactive } from "/assets/vendor/arrow.mjs";
 import { Link } from "/assets/components/router.js";
 import { upperFirst, hideSidebar, showSidebar } from "/assets/js/utils.js";
+import { fetchJson } from "/assets/js/api.js";
 
 const MenuItems = {
   home: [
@@ -42,28 +43,17 @@ export function Sidebar() {
   const activeItem = Object.values(MenuItems).flat().find(item => item.link === currentPath);
   state.activeRoute = activeItem?.name ?? "";
 
-  if (!state.isDoorsFetched) {
-    state.isDoorsFetched = true;
+  for (const [endpoint, fetchedKey, visibleKey] of [
+    ["/api/doors_available", "isDoorsFetched", "doorsVisible"],
+    ["/api/tsk_available", "isTSKFetched", "tskVisible"],
+  ]) {
+    if (state[fetchedKey]) continue;
+    state[fetchedKey] = true;
     (async () => {
       try {
-        const response = await fetch("/api/doors_available");
-        const data = await response.json();
-        state.doorsVisible = data.result;
+        state[visibleKey] = (await fetchJson(endpoint)).result;
       } catch (e) {
-        console.error("Failed to fetch door availability:", e);
-      }
-    })();
-  }
-
-  if (!state.isTSKFetched) {
-    state.isTSKFetched = true;
-    (async () => {
-      try {
-        const response = await fetch("/api/tsk_available");
-        const data = await response.json();
-        state.tskVisible = data.result;
-      } catch (e) {
-        console.error("Failed to fetch TSK availability:", e);
+        console.error(`Failed to fetch ${endpoint}:`, e);
       }
     })();
   }

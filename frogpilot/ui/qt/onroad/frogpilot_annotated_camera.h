@@ -19,11 +19,11 @@ public:
   void paintFrogPilotWidgets(QPainter &p, UIState &s, FrogPilotUIState &fs, SubMaster &sm, SubMaster &fpsm, QJsonObject &frogpilot_toggles);
   void paintLeadMetrics(QPainter &p, bool adjacent, QPointF *chevron, const cereal::FrogPilotPlan::Reader &frogpilotPlan, const cereal::RadarState::LeadData::Reader &lead_data);
   void paintPathEdges(QPainter &p, const cereal::NavInstruction::Reader &navInstruction, const UIScene &scene, const FrogPilotUIScene &frogpilot_scene, SubMaster &sm);
-  void paintRainbowPath(QPainter &p, QLinearGradient &bg, float lin_grad_point, SubMaster &sm);
+  void paintRainbowPath(QLinearGradient &bg, float lin_grad_point);
   void updateState(const FrogPilotUIState &fs, const QJsonObject &frogpilot_toggles);
 
-  bool bigMapOpen;
-  bool hideBottomIcons;
+  bool bigMapOpen = false;
+  bool hideBottomIcons = false;
   bool isCruiseSet;
   bool mapButtonVisible;
   bool mutcdSpeedLimit;
@@ -31,13 +31,13 @@ public:
   bool viennaSpeedLimit;
 
   int alertHeight;
-  int frogHopCount;
+  int frogHopCount = 0;
   int signMargin;
-  int standstillDuration;
+  int standstillDuration = 0;
 
   float distanceConversion;
   float setSpeed;
-  float speed;
+  float speed = 0;
   float speedConversion;
   float speedConversionMetrics;
 
@@ -47,7 +47,6 @@ public:
   QPoint dmIconPosition;
   QPoint experimentalButtonPosition;
 
-  QRect leadTextRect;
   QRect newSpeedLimitRect;
   QRect setSpeedRect;
   QRect speedLimitRect;
@@ -60,12 +59,15 @@ public:
   QString speedLimitOffsetStr;
   QString speedUnit;
 
+  QVector<QRect> leadTextRects;
+
 protected:
+  void hideEvent(QHideEvent *event) override;
   void showEvent(QShowEvent *event) override;
 
 private:
-  void paintCEMStatus(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan, FrogPilotUIScene &frogpilot_scene, SubMaster &sm);
-  void paintCompass(QPainter &p, QJsonObject &frogpilot_toggles);
+  void paintCEMStatus(QPainter &p, FrogPilotUIScene &frogpilot_scene, SubMaster &sm);
+  void paintCompass(QPainter &p);
   void paintCurveSpeedControl(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan);
   void paintLateralPaused(QPainter &p, FrogPilotUIScene &frogpilot_scene);
   void paintLongitudinalPaused(QPainter &p, FrogPilotUIScene &frogpilot_scene);
@@ -79,20 +81,25 @@ private:
   void paintStoppingPoint(QPainter &p, UIScene &scene, FrogPilotUIScene &frogpilot_scene, QJsonObject &frogpilot_toggles);
   void paintTurnSignals(QPainter &p, const cereal::CarState::Reader &carState);
   void paintWeather(QPainter &p, const cereal::FrogPilotPlan::Reader &frogpilotPlan, FrogPilotUIScene &frogpilot_scene);
+  void updateCEMIcon(const FrogPilotUIScene &frogpilot_scene, bool experimentalMode);
   void updateSignals();
+  void updateWeatherIcon(const cereal::FrogPilotPlan::Reader &frogpilotPlan);
 
-  int animationFrameIndex;
-  int signalAnimationLength;
-  int signalHeight;
-  int signalMovement;
-  int signalWidth;
-  int totalFrames;
+  bool assetsLoaded = false;
+
+  float hueOffset = 0.0f;
+
+  int animationFrameIndex = 0;
+  int cachedRoadNameWidth = 0;
+  int signalAnimationLength = 0;
+  int signalHeight = 0;
+  int signalWidth = 0;
+  int totalFrames = 0;
 
   Params params;
   Params params_memory{"/dev/shm/params"};
 
   QColor blackColor(int alpha = 255) { return QColor(0, 0, 0, alpha); }
-  QColor greenColor(int alpha = 242) { return QColor(23, 134, 68, alpha); }
   QColor redColor(int alpha = 255) { return QColor(201, 34, 49, alpha); }
   QColor whiteColor(int alpha = 255) { return QColor(255, 255, 255, alpha); }
 
@@ -102,6 +109,7 @@ private:
 
   QPixmap brakePedalImg;
   QPixmap curveSpeedIcon;
+  QPixmap curveSpeedIconFlipped;
   QPixmap dashboardIcon;
   QPixmap gasPedalImg;
   QPixmap mapDataIcon;
@@ -116,18 +124,12 @@ private:
   QPoint compassPosition;
   QPoint lateralPausedPosition;
 
-  QSharedPointer<QMovie> cemCurveIcon;
-  QSharedPointer<QMovie> cemLeadIcon;
-  QSharedPointer<QMovie> cemSpeedIcon;
-  QSharedPointer<QMovie> cemStopIcon;
-  QSharedPointer<QMovie> cemTurnIcon;
-  QSharedPointer<QMovie> chillModeIcon;
-  QSharedPointer<QMovie> experimentalModeIcon;
-  QSharedPointer<QMovie> weatherClearDay;
-  QSharedPointer<QMovie> weatherClearNight;
-  QSharedPointer<QMovie> weatherLowVisibility;
-  QSharedPointer<QMovie> weatherRain;
-  QSharedPointer<QMovie> weatherSnow;
+  QSharedPointer<QMovie> cemIcon;
+  QSharedPointer<QMovie> weatherIcon;
+
+  QString cachedRoadName;
+  QString cemIconPath;
+  QString weatherIconPath;
 
   QString cscSpeedStr;
 
