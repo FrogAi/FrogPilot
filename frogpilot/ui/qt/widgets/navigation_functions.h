@@ -179,14 +179,9 @@ inline QString formatElapsedTime(float elapsedMilliseconds) {
 inline QString formatETA(float elapsedTime, int downloadedFiles, int previousDownloadedFiles, int totalFiles, QDateTime &startTime) {
   static QDateTime estimatedFinishTime;
 
-  static float previousElapsedTime;
-
   if (downloadedFiles != previousDownloadedFiles) {
     estimatedFinishTime = startTime.addMSecs((elapsedTime * totalFiles) / downloadedFiles);
-  } else {
-    estimatedFinishTime = estimatedFinishTime.addSecs((previousElapsedTime - elapsedTime) / 1000);
   }
-  previousElapsedTime = elapsedTime;
 
   int remainingTime = qMax<qint64>(0, QDateTime::currentDateTime().secsTo(estimatedFinishTime));
 

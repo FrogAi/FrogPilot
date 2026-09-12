@@ -7,13 +7,14 @@
 
 void OnroadAlerts::updateState(const UIState &s, const FrogPilotUIState &fs) {
   Alert a = getAlert(*(s.sm), *(fs.sm), s.scene.started_frame);
+  if (a.status == cereal::SelfdriveState::AlertStatus::NORMAL && frogpilot_toggles.value("hide_alerts").toBool()) {
+    a = {};
+    alertHeight = 0;
+  }
+
   if (!alert.equal(a)) {
-    if (a.status == cereal::SelfdriveState::AlertStatus::NORMAL && frogpilot_toggles.value("hide_alerts").toBool()) {
-      clear();
-    } else {
-      alert = a;
-      update();
-    }
+    alert = a;
+    update();
   }
 
   // FrogPilot variables

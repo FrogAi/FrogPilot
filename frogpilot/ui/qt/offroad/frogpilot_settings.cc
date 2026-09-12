@@ -282,7 +282,11 @@ void FrogPilotSettingsWindow::updateVariables() {
     carFingerprint = CP.getCarFingerprint();
     carMake = CP.getBrand();
 
-    friction = CP.getLateralTuning().getTorque().getFriction();
+    if (CP.getLateralTuning().which() == cereal::CarParams::LateralTuning::TORQUE) {
+      friction = CP.getLateralTuning().getTorque().getFriction();
+    } else {
+      friction = 0.0f;
+    }
     hasAlphaLongitudinal = CP.getAlphaLongitudinalAvailable();
     hasBSM = CP.getEnableBsm();
     hasDashSpeedLimits = false;
@@ -303,7 +307,11 @@ void FrogPilotSettingsWindow::updateVariables() {
     isToyota = carMake == "toyota";
     isTSK = CP.getSecOcRequired();
     isVolt = carFingerprint == "CHEVROLET_VOLT";
-    latAccelFactor = CP.getLateralTuning().getTorque().getLatAccelFactor();
+    if (isTorqueCar) {
+      latAccelFactor = CP.getLateralTuning().getTorque().getLatAccelFactor();
+    } else {
+      latAccelFactor = 0.0f;
+    }
     lkasAllowedForAOL = frogpilot_toggles.value("lkas_allowed_for_aol").toBool();
     longitudinalActuatorDelay = CP.getLongitudinalActuatorDelay();
     maxLateralAccel = CP.getMaxLateralAccel();

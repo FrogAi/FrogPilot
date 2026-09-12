@@ -2,6 +2,27 @@
 #include "selfdrive/ui/qt/widgets/ssh_keys.h"
 #include "selfdrive/ui/qt/widgets/controls.h"
 
+QMap<int, QString> DeveloperPanel::developerMetricOptions() {
+  return {
+    {0, tr("None")},
+    {1, tr("Acceleration: Current")},
+    {2, tr("Acceleration: Max")},
+    {3, tr("Auto Tune: Actuator Delay")},
+    {4, tr("Auto Tune: Friction")},
+    {5, tr("Auto Tune: Lateral Acceleration")},
+    {6, tr("Auto Tune: Steer Ratio")},
+    {7, tr("Auto Tune: Stiffness Factor")},
+    {8, tr("Engagement %: Lateral")},
+    {9, tr("Engagement %: Longitudinal")},
+    {10, tr("Lateral Control: Steering Angle")},
+    {11, tr("Lateral Control: Torque % Used")},
+    {12, tr("Longitudinal Control: Actuator Acceleration Output")},
+    {13, tr("Longitudinal MPC Jerk: Acceleration")},
+    {14, tr("Longitudinal MPC Jerk: Danger Zone")},
+    {15, tr("Longitudinal MPC Jerk: Speed Control")},
+  };
+}
+
 DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : QFrame(parent) {
   mainLayout = new QStackedLayout(this);
 
@@ -147,11 +168,6 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : QFrame(parent) {
       sidebarMetricsToggles = {"ShowCPU", "ShowGPU", "ShowIP", "ShowMemoryUsage", "ShowStorageLeft", "ShowStorageUsed"};
       std::vector<QString> sidebarMetricsToggleNames{tr("CPU"), tr("GPU"), tr("IP"), tr("RAM"), tr("SSD Left"), tr("SSD Used")};
       sidebarMetricsToggle = new FrogPilotButtonsControl(title, desc, icon, sidebarMetricsToggleNames, true, false, 150);
-      for (int i = 0; i < sidebarMetricsToggles.size(); ++i) {
-        if (params.getBool(sidebarMetricsToggles[i].toStdString())) {
-          sidebarMetricsToggle->setCheckedButton(i);
-        }
-      }
       QObject::connect(sidebarMetricsToggle, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
         params.putBool(sidebarMetricsToggles[id].toStdString(), !params.getBool(sidebarMetricsToggles[id].toStdString()));
 
@@ -186,24 +202,7 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : QFrame(parent) {
       });
       developerToggle = developerSidebarToggle;
     } else if (developerSidebarKeys.contains(param)) {
-      QMap<int, QString> developerSidebarMetricOptions {
-        {0, tr("None")},
-        {1, tr("Acceleration: Current")},
-        {2, tr("Acceleration: Max")},
-        {3, tr("Auto Tune: Actuator Delay")},
-        {4, tr("Auto Tune: Friction")},
-        {5, tr("Auto Tune: Lateral Acceleration")},
-        {6, tr("Auto Tune: Steer Ratio")},
-        {7, tr("Auto Tune: Stiffness Factor")},
-        {8, tr("Engagement %: Lateral")},
-        {9, tr("Engagement %: Longitudinal")},
-        {10, tr("Lateral Control: Steering Angle")},
-        {11, tr("Lateral Control: Torque % Used")},
-        {12, tr("Longitudinal Control: Actuator Acceleration Output")},
-        {13, tr("Longitudinal MPC Jerk: Acceleration")},
-        {14, tr("Longitudinal MPC Jerk: Danger Zone")},
-        {15, tr("Longitudinal MPC Jerk: Speed Control")},
-      };
+      QMap<int, QString> developerSidebarMetricOptions = developerMetricOptions();
 
       ButtonControl *metricToggle = new ButtonControl(title, tr("SELECT"), desc);
       QObject::connect(metricToggle, &ButtonControl::clicked, [metricToggle, key = param, developerSidebarMetricOptions, this]() mutable {
@@ -218,7 +217,6 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : QFrame(parent) {
           metricToggle->setValue(selection);
         }
       });
-      metricToggle->setValue(developerSidebarMetricOptions.value(params.getInt(param.toStdString()), tr("None")));
       developerToggle = metricToggle;
     } else if (param == "DeveloperWidgets") {
       FrogPilotManageControl *developerWidgetsToggle = new FrogPilotManageControl(param, title, desc, icon);
@@ -280,6 +278,7 @@ void DeveloperPanel::updateToggles(bool _offroad) {
   }
 
   // longManeuverToggle and experimentalLongitudinalToggle should not be toggleable if the car does not have longitudinal control
+  bool hideLeadMarker = false;
   auto cp_bytes = params.get("CarParamsPersistent");
   if (!cp_bytes.empty()) {
     AlignedBuffer aligned_buf;
@@ -303,6 +302,8 @@ void DeveloperPanel::updateToggles(bool _offroad) {
     // FrogPilot variables
     hasOpenpilotLongitudinal = hasLongitudinalControl(CP);
     hasRadar = !CP.getRadarUnavailable();
+    hideLeadMarker = CP.getOpenpilotLongitudinalControl() && (CP.getAlphaLongitudinalAvailable() || !params.getBool("DisableOpenpilotLongitudinal")) &&
+                     params.getBool("AdvancedCustomUI") && params.getBool("HideLeadMarker") && !params.getBool("DebugMode");
 
     borderMetricsButton->setVisibleButton(0, CP.getEnableBsm());
   } else {
@@ -331,6 +332,10 @@ void DeveloperPanel::updateToggles(bool _offroad) {
 
     if (key == "AdjacentLeadsUI") {
       setVisible &= hasRadar && !(params.getBool("AdvancedCustomUI") && params.getBool("HideLeadMarker"));
+    }
+
+    else if (key == "LeadInfo") {
+      setVisible &= !hideLeadMarker;
     }
 
     else if (key == "RadarTracksUI") {
@@ -369,6 +374,12 @@ void DeveloperPanel::showEvent(QShowEvent *event) {
   updateToggles(offroad);
 
   // FrogPilot variables
+  const QMap<int, QString> metricOptions = developerMetricOptions();
+  for (const QString &key : developerSidebarKeys) {
+    static_cast<ButtonControl*>(toggles[key])->setValue(metricOptions.value(params.getInt(key.toStdString()), tr("None")));
+  }
+
+  sidebarMetricsToggle->clearCheckedButtons();
   for (int i = 0; i < sidebarMetricsToggles.size(); ++i) {
     if (params.getBool(sidebarMetricsToggles[i].toStdString())) {
       sidebarMetricsToggle->setCheckedButton(i);

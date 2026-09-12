@@ -45,8 +45,8 @@ jobs:
       - run: |
           url="${{ github.event.pull_request.html_url }}"
 
-          if gh pr view "$url" --json comments --jq '.comments[].body' |
-               grep -qF 'Thank you for your PR!'; then
+          comments="$(gh pr view "$url" --json comments --jq '.comments[].body')"
+          if [[ "$comments" == *'Thank you for your PR!'* ]]; then
             echo "Already welcomed."
             exit 0
           fi

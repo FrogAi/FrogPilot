@@ -53,30 +53,25 @@ void Sidebar::mousePressEvent(QMouseEvent *event) {
   static constexpr QRect memoryRect = {30, 654, 240, 126};
   static constexpr QRect tempRect = {30, 338, 240, 126};
 
-  static int showChip = 0;
-  static int showMemory = 0;
-  static int showTemp = 0;
-
   FrogPilotUIState *fs = frogpilotUIState();
   FrogPilotUIScene &frogpilot_scene = fs->frogpilot_scene;
   QJsonObject &frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
 
   if (cpuRect.contains(pos) && frogpilot_toggles.value("developer_ui").toBool()) {
-    showChip = (showChip + 1) % 3;
-
-    params.putBool("ShowCPU", showChip == 1);
-    params.putBool("ShowGPU", showChip == 2);
+    const bool showCPU = params.getBool("ShowCPU");
+    params.putBool("ShowCPU", !showCPU && !params.getBool("ShowGPU"));
+    params.putBool("ShowGPU", showCPU);
   } else if (memoryRect.contains(pos) && frogpilot_toggles.value("developer_ui").toBool()) {
-    showMemory = (showMemory + 1) % 4;
-
-    params.putBool("ShowMemoryUsage", showMemory == 1);
-    params.putBool("ShowStorageLeft", showMemory == 2);
-    params.putBool("ShowStorageUsed", showMemory == 3);
+    const bool showMemoryUsage = params.getBool("ShowMemoryUsage");
+    const bool showStorageLeft = params.getBool("ShowStorageLeft");
+    params.putBool("ShowMemoryUsage", !showMemoryUsage && !showStorageLeft && !params.getBool("ShowStorageUsed"));
+    params.putBool("ShowStorageLeft", showMemoryUsage);
+    params.putBool("ShowStorageUsed", showStorageLeft);
   } else if (tempRect.contains(pos) && frogpilot_toggles.value("developer_ui").toBool()) {
-    showTemp = (showTemp + 1) % 3;
-
-    params.putBool("Fahrenheit", showTemp == 2);
-    params.putBool("NumericalTemp", showTemp != 0);
+    const bool numericalTemp = params.getBool("NumericalTemp");
+    const bool isFahrenheit = numericalTemp && !params.getBool("Fahrenheit");
+    params.putBool("Fahrenheit", isFahrenheit);
+    params.putBool("NumericalTemp", !numericalTemp || isFahrenheit);
   } else if (onroad && home_btn.contains(pos)) {
     flag_pressed = true;
   } else if (settings_btn.contains(pos)) {
@@ -287,7 +282,15 @@ void Sidebar::showEvent(QShowEvent *event) {
   updateTheme();
 }
 
+void Sidebar::hideEvent(QHideEvent *event) {
+  loadGif(QString(), flag_gif, home_btn.size(), this);
+  loadGif(QString(), home_gif, home_btn.size(), this);
+  loadGif(QString(), settings_gif, settings_btn.size(), this);
+}
+
 void Sidebar::updateHomeButton() {
+  if (!isVisible()) return;
+
   if (onroad) {
     loadGif(QString(), home_gif, home_btn.size(), this);
     loadImage("../../frogpilot/assets/active_theme/icons/button_flag", flag_img, flag_gif, home_btn.size(), this);
@@ -298,6 +301,8 @@ void Sidebar::updateHomeButton() {
 }
 
 void Sidebar::updateTheme() {
+  if (!isVisible()) return;
+
   loadGif(QString(), home_gif, home_btn.size(), this);
   loadGif(QString(), flag_gif, home_btn.size(), this);
   loadGif(QString(), settings_gif, settings_btn.size(), this);

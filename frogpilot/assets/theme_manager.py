@@ -98,6 +98,32 @@ class ThemeManager:
     steering_wheel_save_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(steering_wheel_image_path, steering_wheel_save_path)
 
+  def _install_zip(self, theme_path, download_path):
+    stage_path = download_path.with_name(f".{download_path.name}.new")
+    backup_path = download_path.with_name(f".{download_path.name}.old")
+    delete_file(stage_path, print_error=False)
+    delete_file(backup_path, print_error=False)
+
+    try:
+      extract_zip(theme_path, stage_path)
+      if self.params_memory.get_bool(CANCEL_DOWNLOAD_PARAM):
+        delete_file(stage_path)
+        return False
+
+      if download_path.exists():
+        download_path.rename(backup_path)
+      try:
+        stage_path.rename(download_path)
+      except OSError:
+        if backup_path.exists():
+          backup_path.rename(download_path)
+        raise
+      delete_file(backup_path, print_error=False)
+      return True
+    except Exception:
+      delete_file(stage_path, print_error=False)
+      raise
+
   def download_theme(self, theme_component, theme_name, asset_param, frogpilot_toggles):
     self.downloading_theme = True
 
@@ -142,12 +168,22 @@ class ThemeManager:
 
     if verify_download(theme_path, self.params_memory, self.session, theme_url):
       print(f"Theme {theme_name} downloaded and verified successfully from GitHub!")
-      self.update_theme_size(theme_component, theme_name, theme_path.stat().st_size)
+      theme_size = theme_path.stat().st_size
 
       if extension == ".zip":
         self.params_memory.put(DOWNLOAD_PROGRESS_PARAM, "Unpacking theme...")
-        extract_zip(theme_path, download_path)
+        try:
+          installed = self._install_zip(theme_path, download_path)
+        except Exception as exception:
+          handle_error(None, asset_param, exception, "Download failed...", self.params_memory, DOWNLOAD_PROGRESS_PARAM)
+          self.downloading_theme = False
+          return
+        if not installed:
+          handle_error(None, asset_param, "Download cancelled...", "Download cancelled...", self.params_memory, DOWNLOAD_PROGRESS_PARAM)
+          self.downloading_theme = False
+          return
 
+      self.update_theme_size(theme_component, theme_name, theme_size)
       self.params_memory.put(DOWNLOAD_PROGRESS_PARAM, "Downloaded!")
       self.params_memory.remove(asset_param)
 
@@ -354,12 +390,22 @@ class ThemeManager:
 
     if verify_download(theme_path, self.params_memory, self.session, theme_url):
       print(f"Theme {theme_name} downloaded and verified successfully from GitLab!")
-      self.update_theme_size(theme_component, theme_name, theme_path.stat().st_size)
+      theme_size = theme_path.stat().st_size
 
       if extension == ".zip":
         self.params_memory.put(DOWNLOAD_PROGRESS_PARAM, "Unpacking theme...")
-        extract_zip(theme_path, download_path)
+        try:
+          installed = self._install_zip(theme_path, download_path)
+        except Exception as exception:
+          handle_error(None, asset_param, exception, "Download failed...", self.params_memory, DOWNLOAD_PROGRESS_PARAM)
+          self.downloading_theme = False
+          return True
+        if not installed:
+          handle_error(None, asset_param, "Download cancelled...", "Download cancelled...", self.params_memory, DOWNLOAD_PROGRESS_PARAM)
+          self.downloading_theme = False
+          return True
 
+      self.update_theme_size(theme_component, theme_name, theme_size)
       self.params_memory.put(DOWNLOAD_PROGRESS_PARAM, "Downloaded!")
       self.params_memory.remove(asset_param)
 
@@ -635,6 +681,10 @@ class ThemeManager:
       wheel_location = HOLIDAY_THEME_PATH / self.holiday_theme / "steering_wheel"
     elif random_event:
       wheel_location = RANDOM_EVENTS_PATH / "steering_wheels"
+    elif image == "none":
+      delete_file(wheel_save_location, print_error=not boot_run)
+      wheel_save_location.mkdir(parents=True, exist_ok=True)
+      return
     elif image == "stock":
       wheel_location = STOCKOP_THEME_PATH / "steering_wheel"
     elif image in HOLIDAY_SLUGS:
@@ -648,16 +698,17 @@ class ThemeManager:
       wheel_location = STOCKOP_THEME_PATH / "steering_wheel"
       print("Using the stock steering wheel instead")
 
+    image_name = image.replace(" ", "_").lower()
+    source_file = next((file for file in wheel_location.iterdir() if file.stem.lower() in {image_name, "wheel"}), None)
+    if source_file is None:
+      return
+
     delete_file(wheel_save_location, print_error=not boot_run)
     wheel_save_location.mkdir(parents=True, exist_ok=True)
 
-    image_name = image.replace(" ", "_").lower()
-    matching_files = [images for images in wheel_location.iterdir() if images.stem.lower() in {image_name, "wheel"}]
-    if matching_files:
-      source_file = matching_files[0]
-      destination_file = wheel_save_location / f"wheel{source_file.suffix}"
-      destination_file.symlink_to(source_file)
-      print(f"Linked {destination_file} to {source_file}")
+    destination_file = wheel_save_location / f"wheel{source_file.suffix}"
+    destination_file.symlink_to(source_file)
+    print(f"Linked {destination_file} to {source_file}")
 
   def validate_themes(self, downloadable_colors, downloadable_distance_icons, downloadable_icons, downloadable_signals, downloadable_sounds, downloadable_wheels, frogpilot_toggles):
     downloaded_data = self.params.get("ThemesDownloaded")

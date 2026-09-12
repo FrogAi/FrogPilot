@@ -19,6 +19,14 @@ void DrivingPersonalityButton::showEvent(QShowEvent *event) {
   updateTheme();
 }
 
+void DrivingPersonalityButton::hideEvent(QHideEvent *event) {
+  setDown(false);
+  params_memory.putBool("OnroadDistanceButtonPressed", false);
+  clearMovie(currentGif, this);
+
+  QPushButton::hideEvent(event);
+}
+
 void DrivingPersonalityButton::updateTheme() {
   currentGif.clear();
   currentImg = QPixmap();
@@ -27,6 +35,10 @@ void DrivingPersonalityButton::updateTheme() {
 }
 
 void DrivingPersonalityButton::updateState(const UIState &s, const FrogPilotUIState &fs) {
+  if (!isVisible()) {
+    return;
+  }
+
   const UIScene &scene = s.scene;
 
   const SubMaster &fpsm = *(fs.sm);

@@ -30,6 +30,7 @@ private:
   bool engageable;
 
   // FrogPilot variables
+  void hideEvent(QHideEvent *event) override;
   void showEvent(QShowEvent *event) override;
   void updateBackgroundColor();
   void updateTheme();

@@ -3,12 +3,33 @@
 #include <sys/xattr.h>
 #include <unistd.h>
 
+#include <QDirIterator>
 #include <QProcess>
 #include <QStorageInfo>
 
 #include "frogpilot/ui/qt/offroad/data_settings.h"
 
 namespace {
+  qint64 restoreSourceSize(const QFileInfo &source) {
+    if (source.isFile()) {
+      return source.size();
+    }
+
+    qint64 size = 0;
+    QDirIterator iterator(source.absoluteFilePath(), QDir::Files | QDir::Hidden | QDir::System | QDir::NoSymLinks, QDirIterator::Subdirectories);
+    while (iterator.hasNext()) {
+      iterator.next();
+      size += iterator.fileInfo().size();
+    }
+    return size;
+  }
+
+  bool hasRestoreSpace(const QString &sourcePath) {
+    QStorageInfo storage("/data");
+    qint64 sourceSize = restoreSourceSize(QFileInfo(sourcePath));
+    return storage.isValid() && storage.isReady() && sourceSize > 0 && storage.bytesAvailable() / 4 > sourceSize;
+  }
+
   int lockRecordings() {
     int fd = ::open("/data/media/screen_recordings.lock", O_RDWR | O_CREAT | O_CLOEXEC | O_NOFOLLOW, 0664);
     if (fd >= 0 && ::flock(fd, LOCK_EX | LOCK_NB) != 0) {
@@ -24,15 +45,39 @@ namespace {
     QFile::remove(directory.absoluteFilePath(stem + ".gif"));
   }
 
-  void renameRecordingCompanions(const QDir &directory, const QString &oldName, const QString &newName) {
+  bool renameRecording(const QDir &directory, const QString &oldName, const QString &newName) {
     const QString oldStem = oldName.left(oldName.lastIndexOf('.'));
     const QString newStem = newName.left(newName.lastIndexOf('.'));
-    for (const QString &extension : {QString(".png"), QString(".gif")}) {
-      const QString oldPath = directory.absoluteFilePath(oldStem + extension);
-      if (QFile::exists(oldPath)) {
-        QFile::rename(oldPath, directory.absoluteFilePath(newStem + extension));
+    const QStringList sources = {
+      directory.absoluteFilePath(oldName), directory.absoluteFilePath(oldStem + ".png"), directory.absoluteFilePath(oldStem + ".gif")
+    };
+    const QStringList targets = {
+      directory.absoluteFilePath(newName), directory.absoluteFilePath(newStem + ".png"), directory.absoluteFilePath(newStem + ".gif")
+    };
+
+    if (!QFile::exists(sources[0])) {
+      return false;
+    }
+    for (const QString &target : targets) {
+      if (QFile::exists(target)) {
+        return false;
       }
     }
+
+    int renamed = 0;
+    for (int i = 0; i < sources.size(); ++i) {
+      if (!QFile::exists(sources[i])) {
+        continue;
+      }
+      if (!QFile::rename(sources[i], targets[i])) {
+        for (int j = i - 1; j >= 0; --j) {
+          QFile::rename(targets[j], sources[j]);
+        }
+        return false;
+      }
+      renamed = i + 1;
+    }
+    return renamed > 0;
   }
 
   const QStringList PROTECTED_PARAMS = {
@@ -315,16 +360,11 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
               screenRecordingsButton->setVisibleButton(1, false);
             });
 
-            QString newPath = recordingsDir.absoluteFilePath(newName);
             const QString oldName = recordingMap[selection];
-            QString oldPath = recordingsDir.absoluteFilePath(oldName);
             int lockFd = lockRecordings();
             bool success = false;
             if (lockFd >= 0) {
-              success = QFile::rename(oldPath, newPath);
-              if (success) {
-                renameRecordingCompanions(recordingsDir, oldName, newName);
-              }
+              success = renameRecording(recordingsDir, oldName, newName);
               ::close(lockFd);
             }
 
@@ -566,7 +606,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
             QDir(extractDirectory).removeRecursively();
             QDir().mkpath(extractDirectory);
 
-            bool success = QStorageInfo("/data").bytesAvailable() > QFileInfo(archivePath).size() * 4;
+            bool success = hasRestoreSpace(archivePath);
 
             if (success) {
               success = runCommand("tar", {"--use-compress-program=zstd", "-xf", archivePath, "-C", extractDirectory}) == 0;
@@ -583,7 +623,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
               candidates << extractDirectory;
 
               for (const QString &candidate : candidates) {
-                if (QFileInfo::exists(candidate + "/launch_openpilot.sh") && QFileInfo::exists(candidate + "/launch_chffrplus.sh") &&
+                if (QFileInfo(candidate + "/launch_openpilot.sh").isFile() && QFileInfo(candidate + "/launch_chffrplus.sh").isFile() &&
                     QDir(candidate + "/selfdrive").exists() && QDir(candidate + "/system").exists()) {
                   sourceRoot = candidate;
                   break;
@@ -843,6 +883,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
 
             runOnUIThread(toggleBackupButton, [=]() {
               if (success) {
+                parent->updateMetric(params.getBool("IsMetric"), true);
                 parent->updateTuningLevel();
               }
 

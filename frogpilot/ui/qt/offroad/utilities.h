@@ -9,6 +9,7 @@ public:
   explicit FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent, bool forceOpen = false);
 
 private:
+  bool actionRunning = false;
   bool forceOpenDescriptions;
 
   FrogPilotSettingsWindow *parent;
@@ -20,6 +21,6 @@ private:
     "AvailableModels", "AvailableModelNames", "FrogPilotStats",
     "GithubSshKeys", "GithubUsername", "MapBoxRequests",
     "ModelDrivesAndScores", "SpeedLimits",
-    "SpeedLimitsFiltered", "UpdaterAvailableBranches",
+    "UpdaterAvailableBranches",
   };
 };
