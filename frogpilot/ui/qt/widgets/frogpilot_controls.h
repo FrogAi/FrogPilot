@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <cmath>
 #include <set>
 #include <utility>
@@ -20,6 +21,7 @@
 bool isFrogsGoMoo();
 bool useKonikServer();
 
+void clearMovie(QSharedPointer<QMovie> &movie, QWidget *parent);
 void loadGif(const QString &gifPath, QSharedPointer<QMovie> &movie, const QSize &size, QWidget *parent, bool repaintOnFrame = true);
 void loadImage(const QString &basePath, QPixmap &pixmap, QSharedPointer<QMovie> &movie, const QSize &size, QWidget *parent);
 void updateFrogPilotToggles();
@@ -332,76 +334,69 @@ public:
     hlayout->addWidget(&decrement_button);
     hlayout->addWidget(&increment_button);
 
-    QObject::connect(&decrement_button, &QPushButton::pressed, this, &FrogPilotParamValueControl::decrementPressed);
-    QObject::connect(&increment_button, &QPushButton::pressed, this, &FrogPilotParamValueControl::incrementPressed);
+    QObject::connect(&decrement_button, &QPushButton::pressed, this, [this]() { changeValue(-1); });
+    QObject::connect(&increment_button, &QPushButton::pressed, this, [this]() { changeValue(1); });
+    QObject::connect(&decrement_button, &QPushButton::released, this, [this]() { finishPress(decrement_button); });
+    QObject::connect(&increment_button, &QPushButton::released, this, [this]() { finishPress(increment_button); });
 
-    last_action_timer.start();
+    save_timer.setSingleShot(true);
+    save_timer.setInterval(150);
+    QObject::connect(&save_timer, &QTimer::timeout, this, &FrogPilotParamValueControl::updateParam);
   }
 
-  void decrementPressed() {
+  void changeValue(int direction) {
+    save_timer.stop();
+
     if (display_warning && !warning_shown) {
-      decrement_button.setDown(false);
-
       showWarning();
-
       return;
     }
 
-    if (last_action_timer.isValid() && last_action_timer.elapsed() > decrement_button.autoRepeatInterval() + 50) {
-      decrement_repeating = false;
+    float delta = interval;
+    if (fast_increase && hold_accelerated) {
+      delta *= 5;
     }
-
-    float delta = decrement_repeating && fast_increase ? interval * 5 : interval;
-    value = std::max(value - delta, min_value);
+    value = std::clamp(value + direction * delta, min_value, max_value);
 
     updateValue();
 
-    if (std::lround(value / interval) % 5 == 0) {
-      decrement_repeating = true;
+    if (std::abs(value - hold_start_value) > 5 * interval && std::lround(value / interval) % 5 == 0) {
+      hold_accelerated = true;
+    }
+  }
+
+  void finishPress(const QPushButton &button) {
+    // Qt emits released during auto-repeat while the button remains down.
+    if (button.isDown()) {
+      return;
     }
 
-    last_action_timer.restart();
+    hold_accelerated = false;
+    hold_start_value = value;
+    if (!decrement_button.isDown() && !increment_button.isDown() && value_dirty) {
+      save_timer.start();
+    }
   }
 
   void hideEvent(QHideEvent *event) override {
     AbstractControl::hideEvent(event);
-
+    decrement_button.setDown(false);
+    increment_button.setDown(false);
+    hold_accelerated = false;
+    hold_start_value = value;
     warning_shown = false;
-
     updateParam();
   }
 
-  void incrementPressed() {
-    if (display_warning && !warning_shown) {
-      increment_button.setDown(false);
-
-      showWarning();
-
-      return;
-    }
-
-    if (last_action_timer.isValid() && last_action_timer.elapsed() > increment_button.autoRepeatInterval() + 50) {
-      increment_repeating = false;
-    }
-
-    float delta = increment_repeating && fast_increase ? interval * 5 : interval;
-    value = std::min(value + delta, max_value);
-
-    updateValue();
-
-    if (std::lround(value / interval) % 5 == 0) {
-      increment_repeating = true;
-    }
-
-    last_action_timer.restart();
-  }
-
   virtual void refresh() {
+    save_timer.stop();
     float stored = key_type == ParamKeyType::INT ? std::round(params.getInt(key) * factor) / factor
                                                  : std::round(params.getFloat(key) * factor) / factor;
 
     value = std::clamp(stored, min_value, max_value);
-    previous_value = stored;
+    value_dirty = value != stored;
+    hold_accelerated = false;
+    hold_start_value = value;
 
     updateDisplay();
   }
@@ -462,7 +457,8 @@ public:
   }
 
   void updateParam() {
-    if (value == previous_value) {
+    save_timer.stop();
+    if (!value_dirty) {
       return;
     }
 
@@ -471,11 +467,12 @@ public:
     } else {
       params.putFloat(key, value);
     }
-    previous_value = value;
+    value_dirty = false;
   }
 
   void updateValue() {
     value = std::clamp(std::round(value * factor) / factor, min_value, max_value);
+    value_dirty = true;
 
     emit valueChanged(value);
 
@@ -491,17 +488,17 @@ protected:
   Params params;
 
 private:
-  bool decrement_repeating = false;
   bool display_warning = false;
   bool fast_increase;
-  bool increment_repeating = false;
+  bool hold_accelerated = false;
+  bool value_dirty = false;
   bool warning_shown = false;
 
   float interval;
   float factor;
+  float hold_start_value = 0.0f;
   float max_value;
   float min_value;
-  float previous_value = 0.0f;
   float value = 0.0f;
 
   std::map<float, QString> value_labels;
@@ -510,13 +507,13 @@ private:
 
   ParamKeyType key_type;
 
-  QElapsedTimer last_action_timer;
-
   QPushButton decrement_button;
   QPushButton increment_button;
 
   QString label;
   QString warning;
+
+  QTimer save_timer;
 };
 
 class FrogPilotParamValueButtonControl : public FrogPilotParamValueControl {

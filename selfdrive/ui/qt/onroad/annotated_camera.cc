@@ -8,6 +8,8 @@
 #include "common/swaglog.h"
 #include "selfdrive/ui/qt/util.h"
 
+#include "frogpilot/ui/qt/onroad/screen_recorder.h"
+
 // Window that shows camera view and variety of info drawn on top
 AnnotatedCameraWidget::AnnotatedCameraWidget(VisionStreamType type, QWidget *parent)
     : fps_filter(UI_FREQ, 3, 1. / UI_FREQ), CameraWidget("camerad", type, parent) {
@@ -42,12 +44,16 @@ void AnnotatedCameraWidget::updateState(const UIState &s, const FrogPilotUIState
   bool onroad_distance_btn_enabled = frogpilot_nvg->dmIconPosition != QPoint(0, 0) && !frogpilot_nvg->hideBottomIcons && frogpilot_toggles.value("onroad_distance_button").toBool();
   personality_btn->setVisible(onroad_distance_btn_enabled);
   if (onroad_distance_btn_enabled) {
-    personality_btn->move(frogpilot_nvg->rightHandDM ? width() - UI_BORDER_SIZE - personality_btn->width() - (UI_BORDER_SIZE / 2) : UI_BORDER_SIZE, frogpilot_nvg->dmIconPosition.y() - personality_btn->height() / 2);
     personality_btn->updateState(s, fs);
   }
 
   screen_recorder_btn->move(experimental_btn->x() - UI_BORDER_SIZE - btn_size, experimental_btn->y());
-  screen_recorder_btn->setVisible(frogpilot_nvg->standstillDuration == 0 && !(frogpilot_nvg->signalStyle == "static" && carState.getRightBlinker()) && frogpilot_toggles.value("screen_recorder").toBool());
+  if (frogpilot_toggles.value("screen_recorder").toBool()) {
+    screen_recorder_btn->setVisible(frogpilot_nvg->standstillDuration == 0 && !(frogpilot_nvg->signalStyle == "static" && carState.getRightBlinker()));
+  } else {
+    ScreenRecorder::stop();
+    screen_recorder_btn->setVisible(false);
+  }
 
   dmon.onroad_distance_btn_enabled = onroad_distance_btn_enabled;
 }
@@ -172,6 +178,10 @@ void AnnotatedCameraWidget::paintGL() {
   hud.updateState(*s);
   model.draw(painter, rect());
   dmon.draw(painter, rect());
+  if (personality_btn->isVisible()) {
+    personality_btn->move(frogpilot_nvg->rightHandDM ? width() - UI_BORDER_SIZE - personality_btn->width() - UI_BORDER_SIZE / 2 : UI_BORDER_SIZE,
+                          frogpilot_nvg->dmIconPosition.y() - personality_btn->height() / 2);
+  }
   hud.draw(painter, rect());
 
   // FrogPilot variables

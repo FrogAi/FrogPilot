@@ -169,23 +169,24 @@ struct FrogPilotPlan @0xf98d843bfd7004a3 {
   minAcceleration @18 :Float32;
   redLight @19 :Bool;
   roadCurvature @20 :Float32;
-  slcMapboxSpeedLimit @21 :Float32;
-  slcMapboxWayId @22 :Int64;
-  slcMapSpeedLimit @23 :Float32;
-  slcNextSpeedLimit @24 :Float32;
-  slcOverriddenSpeed @25 :Float32;
-  slcSpeedLimit @26 :Float32;
-  slcSpeedLimitOffset @27 :Float32;
-  slcSpeedLimitSource @28 :Text;
-  speedJerk @29 :Float32;
-  speedLimitChanged @30 :Bool;
-  tFollow @31 :Float32;
-  themeUpdated @32 :Bool;
-  trackingLead @33 :Bool;
-  unconfirmedSlcSpeedLimit @34 :Float32;
-  vCruise @35 :Float32;
-  weatherDaytime @36 :Bool;
-  weatherId @37 :Int16;
+  slcMapboxIsForward @21 :Bool;
+  slcMapboxSpeedLimit @22 :Float32;
+  slcMapboxWayId @23 :Int64;
+  slcMapSpeedLimit @24 :Float32;
+  slcNextSpeedLimit @25 :Float32;
+  slcOverriddenSpeed @26 :Float32;
+  slcSpeedLimit @27 :Float32;
+  slcSpeedLimitOffset @28 :Float32;
+  slcSpeedLimitSource @29 :Text;
+  speedJerk @30 :Float32;
+  speedLimitChanged @31 :Bool;
+  tFollow @32 :Float32;
+  themeUpdated @33 :Bool;
+  trackingLead @34 :Bool;
+  unconfirmedSlcSpeedLimit @35 :Float32;
+  vCruise @36 :Float32;
+  weatherDaytime @37 :Bool;
+  weatherId @38 :Int16;
 }
 
 struct FrogPilotRadarState @0xb86e6369214c01c8 {

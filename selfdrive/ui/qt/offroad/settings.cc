@@ -157,6 +157,11 @@ void TogglesPanel::showEvent(QShowEvent *event) {
   updateToggles();
 }
 
+void TogglesPanel::refreshMetric(bool isMetric) {
+  uiState()->scene.is_metric = isMetric;
+  toggles["IsMetric"]->refresh();
+}
+
 void TogglesPanel::updateToggles() {
   auto experimental_mode_toggle = toggles["ExperimentalMode"];
   const QString e2e_description = QString("%1<br>"
@@ -521,6 +526,7 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   QObject::connect(toggles, &TogglesPanel::updateMetric, this, &SettingsWindow::updateMetric);
 
   FrogPilotSettingsWindow *frogpilotSettingsWindow = new FrogPilotSettingsWindow(this);
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::updateMetric, toggles, &TogglesPanel::refreshMetric);
   QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openPanel, [this]() {panelOpen=true;});
   QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubPanel, [this]() {subPanelOpen=true;});
   QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::closeSubPanel, [this]() {subPanelOpen=false;});

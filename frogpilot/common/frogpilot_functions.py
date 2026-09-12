@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
-import dataclasses
-import hashlib
 import json
 import math
-import re
-import secrets
 import shutil
 import threading
 import time
@@ -20,7 +16,6 @@ from openpilot.system.athena.registration import register
 from openpilot.system.hardware import HARDWARE
 
 from openpilot.frogpilot.assets.theme_manager import ThemeManager
-from openpilot.frogpilot.common import frogpilot_api
 from openpilot.frogpilot.common.frogpilot_backups import backup_frogpilot
 from openpilot.frogpilot.common.frogpilot_utilities import (
   delete_file, is_FrogsGoMoo, is_gps_location_valid, run_cmd, update_json_file, use_konik_server
@@ -31,40 +26,18 @@ from openpilot.frogpilot.common.frogpilot_variables import (
 )
 
 
-def capture_report(discord_user, report, params, frogpilot_toggles):
-  api_info = frogpilot_api.get_info()
-
-  error_file_path = ERROR_LOGS_PATH / "error.txt"
-  error_content = "No error log found."
-  if error_file_path.exists():
-    error_content = error_file_path.read_text()[:1000]
-
-  payload = {
-    "build_metadata": api_info["build_metadata"],
-    "device": api_info["device_type"],
-    "discord_user": discord_user,
-    "error_content": error_content,
-    "frogpilot_dongle_id": api_info["dongle_id"],
-    "frogpilot_toggles": frogpilot_toggles,
-    "report": report,
-  }
-
-  response = frogpilot_api.post("/discord/report", json=payload, headers={"Content-Type": "application/json", "User-Agent": "frogpilot-api/1.0"}, timeout=30)
-  if response is not None and 200 <= response.status_code < 300:
-    print("Successfully sent error report!")
-  else:
-    status = response.status_code if response is not None else "unavailable"
-    print(f"Error sending report: {status}")
-
-
 def cleanup_screen_recordings(limit_bytes):
   recordings = sorted(SCREEN_RECORDINGS_PATH.glob("*.mp4"), key=lambda recording: recording.stat().st_mtime, reverse=True)
 
   total = 0
   for recording in recordings:
     total += recording.stat().st_size
-    if total > limit_bytes:
-      delete_file(recording, report=False)
+    if total <= limit_bytes:
+      continue
+
+    for companion in (recording.with_suffix(".png"), recording.with_suffix(".gif")):
+      delete_file(companion, report=False)
+    delete_file(recording, report=False)
 
 
 def download_maps(locations, params_memory):
@@ -229,8 +202,6 @@ def install_frogpilot(build_metadata, params):
 
   cleanup_screen_recordings(10 * 1024 * 1024 * 1024)
 
-  register_device(build_metadata, params)
-
   update_boot_logo(frogpilot=True)
 
 
@@ -250,47 +221,6 @@ def migrate_params(params, params_cache):
 
       if value is not None and not isinstance(value, expected_type):
         param_store.remove(key)
-
-
-def register_device(build_metadata, params):
-  def register_thread():
-    while not system_time_valid():
-      time.sleep(1)
-
-    api_token = params.get("FrogPilotApiToken") or secrets.token_urlsafe(32)
-    payload = {
-      "api_token_hash": hashlib.sha256(api_token.encode()).hexdigest(),
-      "build_metadata": dataclasses.asdict(build_metadata),
-      "device_type": HARDWARE.get_device_type(),
-      "os_version": HARDWARE.get_os_version(),
-    }
-
-    while True:
-      response = frogpilot_api.signed_post("/v1/register", payload)
-      if response is not None and response.status_code == 200:
-        try:
-          frogpilot_dongle_id = response.json().get("frogpilot_dongle_id")
-        except (AttributeError, ValueError):
-          frogpilot_dongle_id = None
-
-        if isinstance(frogpilot_dongle_id, str) and re.fullmatch(r"[a-z0-9]{16}", frogpilot_dongle_id):
-          params.put("FrogPilotApiToken", api_token)
-          params.put("FrogPilotDongleId", frogpilot_dongle_id)
-          print("Successfully registered device!")
-          return
-
-        print("Malformed registration response")
-        time.sleep(frogpilot_api.get_retry_delay(response))
-        continue
-
-      if response is not None and response.status_code != 429 and response.status_code < 500:
-        break
-
-      time.sleep(frogpilot_api.get_retry_delay(response))
-
-    print("Failed to register device")
-
-  threading.Thread(target=register_thread, daemon=True).start()
 
 
 def run_frogsgomoo(build_metadata):

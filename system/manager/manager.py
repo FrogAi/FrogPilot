@@ -24,6 +24,7 @@ from openpilot.system.hardware.hw import Paths
 from openpilot.frogpilot.common.frogpilot_functions import (
   frogpilot_boot_functions, install_frogpilot, migrate_params, run_frogsgomoo, uninstall_frogpilot
 )
+from openpilot.frogpilot.common.frogpilot_api import FrogPilotAPI
 from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
 
 
@@ -45,6 +46,7 @@ def manager_init() -> None:
 
   # FrogPilot variables
   params_cache = Params("/cache/params", return_defaults=True)
+  frogpilot_api = FrogPilotAPI(params)
 
   migrate_params(params, params_cache)
 
@@ -92,6 +94,9 @@ def manager_init() -> None:
 
   if not build_metadata.openpilot.is_dirty:
     os.environ['CLEAN'] = '1'
+
+  # FrogPilot variables
+  frogpilot_api.register_device(build_metadata)
 
   # init logging
   sentry.init(sentry.SentryProject.SELFDRIVE)

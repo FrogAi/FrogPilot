@@ -163,17 +163,17 @@ def is_mapd_data_valid(mapd_out, gps_valid, sm):
   return gps_valid and sm.alive["mapdOut"] and mapd_out.tileLoaded and mapd_out.wayId > 0
 
 
-def is_url_pingable(url):
+def is_url_pingable(url, session=requests):
   if not url:
     return False
 
   headers = {"User-Agent": "frogpilot-ping-test/1.0 (https://github.com/FrogAi/FrogPilot)"}
   try:
-    response = requests.head(url, headers=headers, timeout=10, allow_redirects=True)
+    response = session.head(url, headers=headers, timeout=10, allow_redirects=True)
     try:
       if response.status_code in (405, 501):
         response.close()
-        response = requests.get(url, headers=headers, timeout=10, allow_redirects=True, stream=True)
+        response = session.get(url, headers=headers, timeout=10, allow_redirects=True, stream=True)
 
       return response.ok
     finally:

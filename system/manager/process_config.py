@@ -71,7 +71,8 @@ def allow_uploads(started: bool, params: Params, CP: car.CarParams, frogpilot_to
   return not frogpilot_toggles.no_uploads or frogpilot_toggles.no_onroad_uploads
 
 def run_frogpilot_telemetry(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
-  return frogpilot_toggles.frogpilot_telemetry and not frogpilot_toggles.no_logging and not frogpilot_toggles.no_uploads
+  uploads_allowed = allow_uploads(started, params, CP, frogpilot_toggles)
+  return frogpilot_toggles.frogpilot_telemetry and not frogpilot_toggles.no_logging and uploads_allowed
 
 def run_speed_limit_filler(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
   return frogpilot_toggles.speed_limit_filler

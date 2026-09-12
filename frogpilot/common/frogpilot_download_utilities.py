@@ -13,6 +13,10 @@ def download_file(cancel_param, destination, download_param, params_memory, prog
   try:
     destination.parent.mkdir(parents=True, exist_ok=True)
 
+    if cancel_param and params_memory.get_bool(cancel_param):
+      handle_error(None, download_param, "Download cancelled...", "Download cancelled...", params_memory, progress_param)
+      return
+
     with session.get(url, stream=True, timeout=10) as response:
       if response.status_code == 404 and url.endswith(".gif"):
         print(f"GIF download failed (404). Attempting fallback to PNG for {destination.name}")
@@ -23,6 +27,10 @@ def download_file(cancel_param, destination, download_param, params_memory, prog
       total_size = int(response.headers.get("Content-Length", 0))
       if total_size == 0:
         handle_error(None, download_param, "Download invalid...", "Download invalid...", params_memory, progress_param)
+        return
+
+      if cancel_param and params_memory.get_bool(cancel_param):
+        handle_error(None, download_param, "Download cancelled...", "Download cancelled...", params_memory, progress_param)
         return
 
       temp_file_path = destination.with_suffix(destination.suffix + ".tmp")
@@ -83,9 +91,9 @@ def get_remote_file_size(params_memory, session, url):
 
 
 def get_repository_url(session):
-  if is_url_pingable("https://github.com") and not github_rate_limited(session):
+  if is_url_pingable("https://github.com", session=session) and not github_rate_limited(session):
     return GITHUB_URL
-  if is_url_pingable("https://gitlab.com"):
+  if is_url_pingable("https://gitlab.com", session=session):
     return GITLAB_URL
   return None
 

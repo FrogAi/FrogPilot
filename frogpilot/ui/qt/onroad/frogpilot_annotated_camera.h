@@ -48,14 +48,16 @@ public:
   QPolygonF track_vertices;
 
   QRect adjacentLeadTextRect;
-  QRect leadTextRect;
   QRect setSpeedRect;
+
+  QVector<QRect> leadTextRects;
 
   QSize defaultSize;
 
   QString signalStyle;
 
 protected:
+  void hideEvent(QHideEvent *event) override;
   void showEvent(QShowEvent *event) override;
 
 private:
@@ -97,7 +99,6 @@ private:
 
   int animationFrameIndex = 0;
   int desiredFollowDistance;
-  int frogHopCount = 0;
   int signalAnimationLength = 0;
   int signalHeight = 0;
   int signalMovement = 0;
@@ -109,6 +110,7 @@ private:
   float cscSpeed;
   float dashboardSpeedLimit;
   float distanceConversion;
+  float hueOffset = 0.0f;
   float laneWidthLeft;
   float laneWidthRight;
   float mapSpeedLimit;
@@ -125,7 +127,6 @@ private:
 
   std::string speedLimitSource;
 
-  Params params;
   Params params_memory{"", true};
 
   QColor blackColor(int alpha = 255) { return QColor(0, 0, 0, alpha); }

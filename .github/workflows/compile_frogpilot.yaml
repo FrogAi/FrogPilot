@@ -4,7 +4,7 @@ run-name: >-
     inputs.publish_frogpilot && 'FrogPilot' ||
     inputs.publish_staging && 'FrogPilot-Staging' ||
     inputs.publish_testing && 'FrogPilot-Testing' ||
-    inputs.source_branch == 'Custom' && inputs.custom_source_branch || inputs.source_branch }}
+    inputs.source_branch != 'Custom' && inputs.source_branch || inputs.custom_source_branch }}
 
 on:
   workflow_dispatch:

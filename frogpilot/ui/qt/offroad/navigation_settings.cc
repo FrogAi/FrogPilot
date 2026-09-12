@@ -132,12 +132,16 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
   });
   settingsList->addItem(setupButton);
 
-  updateSpeedLimitsToggle = new ParamControl("SpeedLimitFiller", tr("Speed Limit Filler"),
-                                                    tr("<b>Spot missing or outdated OpenStreetMap speed limits while you drive.</b><br><br>"
-                                                       "FrogPilot compares the speed limits it sees with your downloaded maps and saves possible corrections for you to review later. This makes it quick and easy to improve speed-limit data for future drives and everyone who uses OpenStreetMap.<br><br>"
-                                                       "Downloaded maps are required. Saved suggestions may reveal which roads you drove. Nothing is submitted automatically, so review each suggestion before making an OpenStreetMap edit.<br><br>"
+  updateSpeedLimitsToggle = new FrogPilotButtonToggleControl("SpeedLimitFiller", tr("Speed Limit Filler"),
+                                                    tr("<b>Collect missing or incorrect speed limits automatically while you drive.</b><br><br>"
+                                                       "FrogPilot compares speed limits from your dashboard, where supported, and Mapbox. Downloaded maps are required because "
+                                                       "FrogPilot uses their OSM way IDs to identify each road. Collected limits are reused on later drives in the same direction, "
+                                                       "including after map updates, until the downloaded maps match.<br><br>You can download the results from \"The Pond\" in "
+                                                       "the \"Download Speed Limits\" menu and load them into the Speed Limit Filler website. Review every proposed edit before submitting it to OSM.<br><br>"
+                                                       "\"Share Data\" sends collected road speed limits to FrogPilot while parked on unmetered "
+                                                       "Wi-Fi or Ethernet to help expand speed limit coverage for all FrogPilot users.<br><br>"
                                                        "Need a step-by-step guide? Visit <b>#speed-limit-filler</b> in the FrogPilot Discord!"),
-                                                       "");
+                                                       "", {"SpeedLimitFillerShareData"}, {tr("Share Data")});
   settingsList->addItem(updateSpeedLimitsToggle);
 
   ScrollView *settingsPanel = new ScrollView(settingsList, this);

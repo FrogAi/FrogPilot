@@ -23,7 +23,7 @@ class CurveSpeedController:
 
     self.enable_training = False
     self.stored_max_limit = None
-    self.target_set = False
+    self.target = None
 
     self.max_limit_learner = MaxLateralAccelerationLearner(self)
     self.profile_learner = CurveSpeedProfileLearner(self)
@@ -47,11 +47,8 @@ class CurveSpeedController:
     if sm["controlsState"].lateralControlState.which() == "angleState":
       self.max_limit_learner.update(sm, frogpilot_toggles)
       max_limit = self.max_limit
-    elif sm["controlsState"].lateralControlState.which() == "torqueState":
-      use_live_parameters = sm["liveTorqueParameters"].useParams or frogpilot_toggles.force_auto_tune
-      use_live_parameters &= sm["liveTorqueParameters"].latAccelFactorFiltered > 0
-
-      if use_live_parameters:
+    elif sm["controlsState"].lateralControlState.which() == "torqueState" and sm.all_checks(["liveTorqueParameters"]):
+      if (sm["liveTorqueParameters"].useParams or frogpilot_toggles.force_auto_tune) and sm["liveTorqueParameters"].latAccelFactorFiltered > 0:
         max_limit = sm["liveTorqueParameters"].latAccelFactorFiltered
         learned = True
       else:
@@ -69,16 +66,20 @@ class CurveSpeedController:
         "value": self.max_limit,
       })
 
-  def update_target(self, v_ego):
-    csc_speed = max((self.lateral_acceleration / abs(self.frogpilot_planner.road_curvature))**0.5, CRUISING_SPEED)
+  def update_target(self, v_cruise, v_ego):
+    csc_speed = max((self.lateral_acceleration / max(abs(self.frogpilot_planner.road_curvature), 1e-6))**0.5, CRUISING_SPEED)
 
-    if not self.target_set:
-      self.target_set = True
+    if self.target is None:
       self.target = max(v_ego, csc_speed)
 
     if csc_speed < self.target:
       decel_rate = max(v_ego - csc_speed, 0) / max(self.frogpilot_planner.time_to_curve - DECEL_TIME_MARGIN, 1)
 
       self.target = max(min(self.target, v_ego) - decel_rate * DT_MDL, csc_speed)
-    elif v_ego <= self.target + 1 and abs(self.frogpilot_planner.lateral_acceleration) < self.lateral_acceleration:
+    elif abs(self.frogpilot_planner.lateral_acceleration) < self.lateral_acceleration:
       self.target = min(self.target + TARGET_RISE_RATE * DT_MDL, csc_speed)
+
+      if self.target >= v_cruise:
+        self.target = csc_speed
+
+    return self.target

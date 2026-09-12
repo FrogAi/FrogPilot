@@ -53,7 +53,7 @@ bool useKonikServer() {
   return use_konik;
 }
 
-static void clearMovie(QSharedPointer<QMovie> &movie, QWidget *parent) {
+void clearMovie(QSharedPointer<QMovie> &movie, QWidget *parent) {
   if (!movie) {
     return;
   }

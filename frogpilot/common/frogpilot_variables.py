@@ -46,8 +46,6 @@ THRESHOLD = 1 - 1 / math.e                # Requires the condition to be true fo
 
 NON_DRIVING_GEARS = [GearShifter.neutral, GearShifter.park, GearShifter.reverse, GearShifter.unknown]
 
-FROGPILOT_API = "https://api.frogpilot.com"
-
 RESOURCES_REPO = "FrogAi/FrogPilot-Resources"
 
 ACTIVE_THEME_PATH = Path(BASEDIR) / "frogpilot/assets/active_theme"
@@ -184,10 +182,12 @@ EXCLUDED_KEYS = {
   "ModelDrivesAndScores",
   "NetworkMetered",
   "openpilotMinutes",
+  "OverpassRequests",
   "PandaSignatures",
   "PreviousSpeedLimit",
+  "SecOCKey",
+  "SecOCKeys",
   "SpeedLimits",
-  "SpeedLimitsFiltered",
   "Timezone",
   "UpdateFailedCount",
   "UpdaterAvailableBranches",
@@ -356,7 +356,7 @@ class FrogPilotVariables:
       FPCP = interfaces[MOCK.MOCK].get_frogpilot_params(MOCK.MOCK, gen_empty_fingerprint(), [], CP, toggle)
 
     selected_car_model = self.params.get("CarModel")
-    toggle.force_fingerprint = self.get_value("ForceFingerprint", condition=selected_car_model != self.default_values["CarModel"])
+    toggle.force_fingerprint = self.get_value("ForceFingerprint", condition=selected_car_model != self.default_values["CarModel"] and bool(selected_car_model))
 
     alpha_longitudinal = CP.alphaLongitudinalAvailable
     toggle.car_make = CP.brand
@@ -376,7 +376,7 @@ class FrogPilotVariables:
     latAccelFactor = CP.lateralTuning.torque.latAccelFactor
     toggle.lkas_allowed_for_aol = toggle.car_make == "hyundai" and bool(CP.flags & HyundaiFlags.CANFD or CP.flags & HyundaiFlags.HAS_LDA_BUTTON)
     longitudinalActuatorDelay = CP.longitudinalActuatorDelay
-    toggle.maxLateralAccel = CP.maxLateralAccel
+    toggle.maxLateralAccel = CP.maxLateralAccel if CP.maxLateralAccel > 0 else DEFAULT_LATERAL_ACCELERATION
     toggle.openpilot_longitudinal = CP.openpilotLongitudinalControl and not toggle.disable_openpilot_long
     pcm_cruise = CP.pcmCruise
     prohibited_main_aol = not toggle.openpilot_longitudinal and toggle.car_make == "hyundai" and bool(CP.flags & HyundaiFlags.CANFD or CP.flags & HyundaiFlags.HAS_LDA_BUTTON)
@@ -464,11 +464,12 @@ class FrogPilotVariables:
     toggle.conditional_stopped_lead = self.get_value("CEStoppedLead", condition=toggle.conditional_lead)
     toggle.conditional_limit = self.get_value("CESpeed", cast=float, condition=toggle.conditional_experimental_mode, conversion=speed_conversion)
     toggle.conditional_limit_lead = self.get_value("CESpeedLead", cast=float, condition=toggle.conditional_experimental_mode, conversion=speed_conversion)
-    if toggle.conditional_experimental_mode and self.get_value("CEStopLights"):
+    if toggle.conditional_experimental_mode and (toggle.tuning_level >= self.tuning_levels["CEModelStopTime"] or self.get_value("CEStopLights")):
       toggle.conditional_model_stop_time = self.get_value("CEModelStopTime", cast=float)
     else:
       toggle.conditional_model_stop_time = 0
-    toggle.conditional_signal = self.get_value("CESignalSpeed", cast=float, condition=toggle.conditional_experimental_mode, conversion=speed_conversion)
+    toggle.conditional_signal = self.get_value("CESignalSpeed", cast=float, condition=toggle.conditional_experimental_mode, conversion=speed_conversion,
+                                             default=self.default_values["CESignalSpeed"] * CV.MPH_TO_MS)
     toggle.conditional_signal_lane_detection = self.get_value("CESignalLaneDetection", condition=toggle.conditional_signal != 0)
     toggle.cem_status = self.get_value("ShowCEMStatus", condition=toggle.conditional_experimental_mode) or toggle.debug_mode
 
@@ -726,7 +727,7 @@ class FrogPilotVariables:
     slc_fallback_method = self.get_value("SLCFallback", cast=float, condition=toggle.speed_limit_controller)
     toggle.slc_fallback_experimental_mode = toggle.speed_limit_controller and slc_fallback_method == 1
     toggle.slc_fallback_previous_speed_limit = toggle.speed_limit_controller and slc_fallback_method == 2
-    toggle.slc_mapbox_filler = self.get_value("SLCMapboxFiller", condition=(toggle.show_speed_limits or toggle.speed_limit_controller) and bool(self.params.get("MapboxPublicKey")))
+    toggle.slc_mapbox_filler = self.get_value("SLCMapboxFiller", condition=(toggle.show_speed_limits or toggle.speed_limit_controller) and self.params.get("MapboxPublicKey") not in (None, "0"))
     speed_limit_confirmation = self.get_value("SLCConfirmation", condition=toggle.speed_limit_controller)
     toggle.speed_limit_confirmation_higher = self.get_value("SLCConfirmationHigher", condition=speed_limit_confirmation)
     toggle.speed_limit_confirmation_lower = self.get_value("SLCConfirmationLower", condition=speed_limit_confirmation)
@@ -747,9 +748,10 @@ class FrogPilotVariables:
     toggle.speed_limit_sources = self.get_value("SpeedLimitSources", condition=toggle.speed_limit_controller) or toggle.debug_mode
 
     toggle.speed_limit_filler = self.get_value("SpeedLimitFiller")
+    toggle.speed_limit_filler_share_data = toggle.speed_limit_filler and self.get_value("SpeedLimitFillerShareData")
 
-    toggle.startup_alert_top = self.get_value("StartupMessageTop", cast=str, default="")
-    toggle.startup_alert_bottom = self.get_value("StartupMessageBottom", cast=str, default="")
+    toggle.startup_alert_top = self.get_value("StartupMessageTop", cast=str, default="") or ""
+    toggle.startup_alert_bottom = self.get_value("StartupMessageBottom", cast=str, default="") or ""
 
     toggle.subaru_sng = self.get_value("SubaruSNG", condition=toggle.car_make == "subaru" and not (CP.flags & SubaruFlags.GLOBAL_GEN2 or CP.flags & SubaruFlags.HYBRID))
 

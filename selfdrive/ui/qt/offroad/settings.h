@@ -52,10 +52,10 @@ private:
   // FrogPilot variables
   void updateDeveloperToggle(int tuningLevel);
 
-  bool panelOpen;
-  bool subPanelOpen;
-  bool subSubPanelOpen;
-  bool subSubSubPanelOpen;
+  bool panelOpen = false;
+  bool subPanelOpen = false;
+  bool subSubPanelOpen = false;
+  bool subSubSubPanelOpen = false;
 
   Params params;
 };
@@ -92,6 +92,7 @@ signals:
 
 public slots:
   void expandToggleDescription(const QString &param);
+  void refreshMetric(bool isMetric);
   void scrollToToggle(const QString &param);
 
 private slots:

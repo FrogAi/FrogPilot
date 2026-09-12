@@ -94,10 +94,10 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     {"ConditionalExperimental", tr("Conditional Experimental Mode"), tr("<b>Automatically switch to \"Experimental Mode\" when set conditions are met.</b> Allows the model to handle challenging situations with smarter decision making."), "../../frogpilot/assets/toggle_icons/icon_conditional.png"},
     {"CESpeed", tr("Below"), tr("<b>Switch to \"Experimental Mode\" below this speed when there is no car ahead of you.</b><br><br>It helps openpilot handle slow, fiddly situations more smoothly."), ""},
     {"CECurves", tr("Curve Detected Ahead"), tr("<b>Switch to \"Experimental Mode\" when openpilot sees a curve coming up.</b><br><br>The model picks its own speed for the curve instead of holding your set speed."), ""},
-    {"CEStopLights", tr("\"Detected\" Stop Lights/Signs"), tr("<b>Switch to \"Experimental Mode\" whenever the driving model \"detects\" a red light or stop sign.</b><br><br>It only fires when there is no car close ahead of you, so it stays quiet when you roll up to a red light behind traffic.<br><br><i><b>Disclaimer</b>: openpilot does not explicitly detect traffic lights or stop signs. In \"Experimental Mode\", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!</i>"), ""},
+    {"CEStopLights", tr("\"Detected\" Stop Lights/Signs"), tr("<b>Switch to \"Experimental Mode\" for a predicted stop, except while following a detected lead.</b><br><br>It keeps checking for a possible stop behind that lead and can trigger once the lead is no longer tracked. \"Traffic Mode\" turns this condition off.<br><br><i><b>Disclaimer</b>: openpilot does not explicitly detect traffic lights or stop signs. In \"Experimental Mode\", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!</i>"), ""},
     {"CELead", tr("Lead Detected Ahead"), tr("<b>Switch to \"Experimental Mode\" when the car ahead is slower than you or has stopped.</b><br><br>\"Slower Lead\" and \"Stopped Lead\" both start off, so pick at least one with the buttons on this row or nothing happens."), ""},
-    {"CEModelStopTime", tr("Predicted Stop In"), tr("<b>Switch to \"Experimental Mode\" when openpilot predicts a stop within the set time.</b> This is usually triggered when the model \"sees\" a red light or stop sign ahead.<br><br><i><b>Disclaimer</b>: openpilot does not explicitly detect traffic lights or stop signs. In \"Experimental Mode\", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!</i>"), ""},
-    {"CESignalSpeed", tr("Turn Signal Below"), tr("<b>Switch to \"Experimental Mode\" when you signal below the speed you set, so openpilot picks its own speed through the turn instead of holding your set speed.</b><br><br>This runs off the \"Not For Detected Lanes\" button on this row, which has to stay on. With it on, openpilot only reads a signal as a turn when the space beside you is narrower than the \"Minimum Lane Width\" under \"Lane Changes\" in the \"STEERING\" panel. That width starts at zero, so nothing happens until you raise it, and turning the button off stops it firing at all."), ""},
+    {"CEModelStopTime", tr("Stop Detection Sensitivity"), tr("<b>Adjust when a predicted stop can switch to \"Experimental Mode\". Higher values can trigger earlier; lower values are less sensitive.</b><br><br>The seconds value is a sensitivity setting, not an exact countdown to a stop. While following a detected lead, it keeps checking for a possible stop and can trigger once that lead is no longer tracked. \"Traffic Mode\" turns this condition off.<br><br><i><b>Disclaimer</b>: openpilot does not explicitly detect traffic lights or stop signs. In \"Experimental Mode\", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!</i>"), ""},
+    {"CESignalSpeed", tr("Turn Signal Below"), tr("<b>Switch to \"Experimental Mode\" when you signal below the set speed. Turn on \"Not For Detected Lanes\" to suppress this when an adjacent lane is detected.</b><br><br>With the button off, any signal below the set speed can trigger it. With it on, the space beside you must be narrower than the \"Minimum Lane Width\" under \"Lane Changes\" in the \"STEERING\" panel. That width starts at zero, so raise it to use lane detection. Lane estimates can miss an adjacent lane."), ""},
     {"ShowCEMStatus", tr("Status Widget"), tr("<b>Show which condition switched \"Experimental Mode\" on, right on the driving screen.</b>"), ""},
 
     {"CurveSpeedController", tr("Curve Speed Controller"), tr("<b>openpilot slows down on its own for curves ahead, and you pick how fast it takes them with \"Curve Speed Profile\".</b><br><br>It comes set to \"Adaptive\", which learns how you prefer to take curves."), "../../frogpilot/assets/toggle_icons/icon_speed_map.png"},
@@ -533,6 +533,8 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       ButtonControl *slcPriorityButton = new ButtonControl(title, tr("SELECT"), desc);
       QStringList primaryPriorities = {tr("Dashboard"), tr("Map Data"), tr("Highest"), tr("Lowest")};
       QStringList otherPriorities = {tr("None"), tr("Dashboard"), tr("Map Data")};
+      QStringList translatedPriorities = {tr("None"), tr("Dashboard"), tr("Map Data"), tr("Highest"), tr("Lowest")};
+      const QStringList canonicalPriorities = {"None", "Dashboard", "Map Data", "Highest", "Lowest"};
       QStringList priorityPrompts = {tr("Select your primary priority"), tr("Select your secondary priority")};
 
       QObject::connect(slcPriorityButton, &ButtonControl::clicked, [=]() {
@@ -556,10 +558,12 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
 
           selectedPriorities.append(selection);
 
-          params.put(QString("SLCPriority%1").arg(i).toStdString(), selection.toStdString());
+          const int selectionIndex = translatedPriorities.indexOf(selection);
+          params.put(QString("SLCPriority%1").arg(i).toStdString(),
+                     (selectionIndex >= 0 ? canonicalPriorities[selectionIndex] : selection).toStdString());
           if (selection == tr("None")) {
             for (int j = i + 1; j <= 2; ++j) {
-              params.put(QString("SLCPriority%1").arg(j).toStdString(), tr("None").toStdString());
+              params.put(QString("SLCPriority%1").arg(j).toStdString(), std::string("None"));
             }
             break;
           }
@@ -578,7 +582,11 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       QStringList selectedPriorities;
       for (int i = 1; i <= 2; ++i) {
         QString priority = QString::fromStdString(params.get(QString("SLCPriority%1").arg(i).toStdString()));
-        if (!parent->hasDashSpeedLimits && (priority == "Dashboard" || priority == tr("Dashboard"))) {
+        const int storedIndex = canonicalPriorities.indexOf(priority);
+        if (storedIndex >= 0) {
+          priority = translatedPriorities[storedIndex];
+        }
+        if (!parent->hasDashSpeedLimits && priority == tr("Dashboard")) {
           continue;
         }
         if (primaryPriorities.contains(priority)) {
@@ -1010,6 +1018,7 @@ void FrogPilotLongitudinalPanel::updateToggles() {
     }
 
     else if (key == "ReverseCruise") {
+      setVisible &= parent->hasPCMCruise;
       setVisible &= parent->isToyota;
     }
 

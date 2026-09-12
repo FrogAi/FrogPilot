@@ -93,6 +93,12 @@ void ExperimentalButton::showEvent(QShowEvent *event) {
   updateTheme();
 }
 
+void ExperimentalButton::hideEvent(QHideEvent *event) {
+  clearMovie(wheel_gif, this);
+
+  QPushButton::hideEvent(event);
+}
+
 void ExperimentalButton::updateBackgroundColor() {
   if (isDown() || !engageable) {
     background_color = QColor(0, 0, 0, 166);
@@ -110,7 +116,11 @@ void ExperimentalButton::updateBackgroundColor() {
 }
 
 void ExperimentalButton::updateTheme() {
-  loadImage("../../frogpilot/assets/active_theme/steering_wheel/wheel", wheel_img, wheel_gif, QSize(img_size, img_size), this);
+  if (isVisible()) {
+    loadImage("../../frogpilot/assets/active_theme/steering_wheel/wheel", wheel_img, wheel_gif, QSize(img_size, img_size), this);
+  } else {
+    clearMovie(wheel_gif, this);
+  }
 
   const QString wheel_source = QFileInfo("../../frogpilot/assets/active_theme/steering_wheel/wheel.png").canonicalFilePath();
   const QString stock_source = QFileInfo("../../frogpilot/assets/stock_theme/steering_wheel/wheel.png").canonicalFilePath();
