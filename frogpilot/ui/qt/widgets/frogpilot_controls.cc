@@ -53,7 +53,7 @@ bool useKonikServer() {
   return use_konik;
 }
 
-static void clearMovie(QSharedPointer<QMovie> &movie, QWidget *parent) {
+void clearMovie(QSharedPointer<QMovie> &movie, QWidget *parent) {
   if (!movie) {
     return;
   }
@@ -84,17 +84,19 @@ void loadGif(const QString &gifPath, QSharedPointer<QMovie> &movie, const QSize 
     sourcePath = gifInfo.absoluteFilePath();
   }
 
-  if (movie && movie->property("sourcePath").toString() == sourcePath && movie->state() == QMovie::Running) {
+  if (movie && movie->fileName() == sourcePath) {
     if (movie->scaledSize() != size) {
       movie->setScaledSize(size);
+    }
+    if (movie->state() != QMovie::Running) {
+      movie->start();
     }
     return;
   }
 
   clearMovie(movie, parent);
 
-  movie = QSharedPointer<QMovie>::create(gifPath);
-  movie->setProperty("sourcePath", sourcePath);
+  movie = QSharedPointer<QMovie>::create(sourcePath);
   movie->setCacheMode(QMovie::CacheAll);
   movie->setScaledSize(size);
 
@@ -122,7 +124,7 @@ void loadImage(const QString &basePath, QPixmap &pixmap, QSharedPointer<QMovie> 
   } else {
     clearMovie(movie, parent);
 
-    QPixmap loadedPixmap(basePath + ".png");
+    QPixmap loadedPixmap(QFileInfo(basePath + ".png").canonicalFilePath());
     pixmap = loadedPixmap.isNull() ? QPixmap() : loadedPixmap.scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
   }
 

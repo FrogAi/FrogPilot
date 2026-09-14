@@ -1,4 +1,5 @@
-#include <thread>
+#include <QFutureWatcher>
+#include <QtConcurrent>
 
 #include "frogpilot/ui/qt/offroad/maps_settings.h"
 
@@ -54,6 +55,15 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent, bool for
   QObject::connect(removeMapsButton, &ButtonControl::clicked, [this] {
     if (FrogPilotConfirmationDialog::yesorno(tr("Delete all downloaded maps and clear your selected map sources?"), this)) {
       hasMapsSelected = false;
+      removingMaps = true;
+
+      downloadMapsButton->setEnabled(false);
+      removeMapsButton->setEnabled(false);
+      selectMaps->setButtonsEnabled(false);
+
+      removeMapsButton->setValue(tr("Removing..."));
+
+      this->parent->keepScreenOn = true;
 
       params.remove("MapsSelected");
       params.remove("LastMapsUpdate");
@@ -66,11 +76,29 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent, bool for
 
       QDir mapsFolder = mapsFolderPath;
 
-      mapsSize->setText(tr("0 MB"));
+      QFutureWatcher<bool> *removalWatcher = new QFutureWatcher<bool>(this);
+      QObject::connect(removalWatcher, &QFutureWatcher<bool>::finished, this, [this, removalWatcher]() {
+        const bool removed = removalWatcher->result();
+        removalWatcher->deleteLater();
 
-      std::thread([mapsFolder]() mutable {
-        mapsFolder.removeRecursively();
-      }).detach();
+        removingMaps = false;
+
+        removeMapsButton->setValue("");
+
+        removeMapsButton->setEnabled(true);
+        selectMaps->setButtonsEnabled(true);
+
+        refreshMapInfo();
+        updateState(*uiState(), *frogpilotUIState());
+
+        if (!removed && isVisible()) {
+          ConfirmationDialog::alert(tr("Some map data could not be removed. Try again."), this);
+        }
+      });
+
+      removalWatcher->setFuture(QtConcurrent::run([mapsFolder]() mutable {
+        return mapsFolder.removeRecursively();
+      }));
     }
   });
   settingsList->addItem(removeMapsButton);
@@ -136,6 +164,10 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent, bool for
 }
 
 void FrogPilotMapsPanel::showEvent(QShowEvent *event) {
+  for (MapSelectionControl *control : mapSelectionControls) {
+    control->reloadSelectedMaps();
+  }
+
   if (forceOpenDescriptions) {
     downloadMapsButton->showDescription();
     preferredSchedule->showDescription();
@@ -185,7 +217,7 @@ void FrogPilotMapsPanel::updateState(const UIState &s, const FrogPilotUIState &f
   wasDownloadingMaps = downloadingMaps;
 
   if (downloadingMaps) {
-    downloadMapsButton->setEnabled(!cancellingDownload);
+    downloadMapsButton->setEnabled(!removingMaps && !cancellingDownload);
     downloadMapsButton->setText(tr("CANCEL"));
 
     downloadETA->setVisible(true);
@@ -213,11 +245,11 @@ void FrogPilotMapsPanel::updateState(const UIState &s, const FrogPilotUIState &f
     lastMapsDownload->setVisible(true);
     removeMapsButton->setVisible(mapsFolderPath.exists());
 
-    downloadMapsButton->setEnabled(!cancellingDownload && hasMapsSelected && frogpilot_scene.online && parked);
+    downloadMapsButton->setEnabled(!removingMaps && !cancellingDownload && hasMapsSelected && frogpilot_scene.online && parked);
     downloadMapsButton->setValue(frogpilot_scene.online ? (parked ? (hasMapsSelected ? "" : tr("Select your map sources")) : tr("Not parked")) : tr("Offline..."));
   }
 
-  parent->keepScreenOn = downloadingMaps;
+  parent->keepScreenOn = downloadingMaps || removingMaps;
 }
 
 void FrogPilotMapsPanel::cancelDownload() {

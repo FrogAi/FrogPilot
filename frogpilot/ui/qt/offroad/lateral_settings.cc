@@ -276,7 +276,7 @@ void FrogPilotLateralPanel::updateMetric(bool metric, bool bootRun) {
   if (!labelsInitialized) {
     for (int i = 0; i <= 150; ++i) {
       float key = i / 10.0f;
-      imperialDistanceLabels[key] = key == 0 ? tr("Off") : i == 1 ? QString::number(i) + tr(" foot") : QString::number(key, 'f', 1) + tr(" feet");
+      imperialDistanceLabels[key] = key == 0 ? tr("Off") : QString::number(key, 'f', 1) + (key == 1 ? tr(" foot") : tr(" feet"));
     }
 
     for (int i = 0; i <= 99; ++i) {

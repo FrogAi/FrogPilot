@@ -62,13 +62,14 @@ def _matched_regions(database, table, longitude, latitude):
     if matches and matches[-1] == region_id:
       continue
 
-    rings = [(is_hole, array("i", points)) for _, _, is_hole, points in ring_rows]
-    outer_is_hole, outer_points = rings[0]
-    outer_matches = not outer_is_hole and _point_in_ring(longitude, latitude, outer_points) is not False
-    hole_matches = any(_point_in_ring(longitude, latitude, points) is True for _, points in rings[1:])
+    _, _, is_hole, points = next(ring_rows)
+    if is_hole or _point_in_ring(longitude, latitude, array("i", points)) is False:
+      continue
 
-    if outer_matches and not hole_matches:
-      matches.append(region_id)
+    if any(_point_in_ring(longitude, latitude, array("i", points)) is True for _, _, _, points in ring_rows):
+      continue
+
+    matches.append(region_id)
 
   return matches
 
@@ -127,42 +128,30 @@ def get_location(last_gps_position):
       if matched_country_ids:
         country_id = matched_country_ids[0]
         state_id = None
+        matched_state_ids = _matched_regions(database, "state_rings", longitude_e7, latitude_e7)
+        if len(matched_state_ids) == 1:
+          state_id = matched_state_ids[0]
       else:
         country_id, state_id = _grid_cell(database, longitude_e7, latitude_e7)
 
-      place = database.execute(
+      location = database.execute(
         """
-        SELECT country_city, state_city, state_id, country, state
-        FROM location_places
-        WHERE country_id = ?
-        ORDER BY (x - ?) * (x - ?) + (y - ?) * (y - ?) + (z - ?) * (z - ?), place_number
-        LIMIT 1
+        SELECT COALESCE((
+          SELECT city
+          FROM places
+          WHERE country_id = :country_id
+            AND (states.id IS NULL OR state_id = states.id)
+          ORDER BY (x - :x) * (x - :x) + (y - :y) * (y - :y) + (z - :z) * (z - :z), place_number
+          LIMIT 1
+        ), states.capital_city, countries.capital_city, 'N/A'), countries.name, COALESCE(states.name, 'N/A')
+        FROM countries
+        LEFT JOIN states ON states.id = :state_id AND countries.name = 'United States'
+        WHERE countries.id = :country_id
         """,
-        (country_id, x, x, y, y, z, z),
+        {"country_id": country_id, "state_id": state_id, "x": x, "y": y, "z": z},
       ).fetchone()
 
-      if place is None:
-        return UNKNOWN_LOCATION
-
-      country_city, state_city, place_state_id, country, state = place
-
-      if matched_country_ids and place_state_id is not None:
-        matched_state_ids = _matched_regions(database, "state_rings", longitude_e7, latitude_e7)
-
-        if len(matched_state_ids) == 1:
-          state_id = matched_state_ids[0]
-        else:
-          state_id = None
-
-      if state_id == place_state_id and state_id is not None:
-        location = state_city, country, state
-      else:
-        location = country_city, country, "N/A"
-
-      if not all(isinstance(value, str) for value in location):
-        return UNKNOWN_LOCATION
-
-      return location
+      return location or UNKNOWN_LOCATION
 
   except (KeyError, TypeError, ValueError, sqlite3.Error, IndexError):
     return UNKNOWN_LOCATION

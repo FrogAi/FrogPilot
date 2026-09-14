@@ -6,7 +6,7 @@ on:
     branches: [FrogPilot-Testing]
   workflow_dispatch:
 
-permissions: {contents: write}
+permissions: {}
 
 env:
   GIT_EMAIL: ${{ vars.GIT_EMAIL }}
@@ -30,6 +30,7 @@ jobs:
           fetch-depth: 0
           filter: blob:none
           ref: refs/heads/FrogPilot-Testing
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       - run: |
           set -o pipefail
 
@@ -40,11 +41,12 @@ jobs:
 
           target_ref="refs/remotes/origin/$BRANCH_PR_TARGET"
 
-          compile_commit="$(
-            git log --first-parent --format='%H%x09%s' |
-              awk -F '\t' -v want="${COMPILE_COMMIT:?COMPILE_COMMIT is required}" '!found && $2 == want { print $1; found=1 }'
-          )"
           if [[ -f prebuilt ]]; then
+            : "${COMPILE_COMMIT:?COMPILE_COMMIT is required}"
+            compile_commit="$(
+              git log --first-parent --format='%H %s' |
+                awk '!found && $0 == $1 " " ENVIRON["COMPILE_COMMIT"] { print $1; found = 1 }'
+            )"
             if [[ -z "$compile_commit" ]]; then
               echo "Compiled tree but no \"$COMPILE_COMMIT\" commit found." >&2
               exit 1

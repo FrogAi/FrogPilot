@@ -166,6 +166,7 @@ cdef class Params:
 
   def put(self, key, dat):
     """
+    Returns 0 on success or a nonzero write status on failure.
     Warning: This function blocks until the param is written to disk!
     In very rare cases this can take over a second, and your code will hang.
     Use the put_nonblocking, put_bool_nonblocking in time sensitive code, but
@@ -173,8 +174,10 @@ cdef class Params:
     """
     cdef string k = self.check_key(key)
     cdef string dat_bytes = self._put_cast(key, dat)
+    cdef int result
     with nogil:
-      self.p.put(k, dat_bytes)
+      result = self.p.put(k, dat_bytes)
+    return result
 
   def put_bool(self, key, bool val):
     cdef string k = self.check_key(key)

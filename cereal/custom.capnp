@@ -1,8 +1,6 @@
 using Cxx = import "./include/c++.capnp";
 $Cxx.namespace("cereal");
 
-using Car = import "car.capnp";
-
 @0xb526ba661d550a59;
 
 # custom.capnp: a home for empty structs reserved for custom forks
@@ -169,23 +167,24 @@ struct FrogPilotPlan @0xf98d843bfd7004a3 {
   minAcceleration @18 :Float32;
   redLight @19 :Bool;
   roadCurvature @20 :Float32;
-  slcMapboxSpeedLimit @21 :Float32;
-  slcMapboxWayId @22 :Int64;
-  slcMapSpeedLimit @23 :Float32;
-  slcNextSpeedLimit @24 :Float32;
-  slcOverriddenSpeed @25 :Float32;
-  slcSpeedLimit @26 :Float32;
-  slcSpeedLimitOffset @27 :Float32;
-  slcSpeedLimitSource @28 :Text;
-  speedJerk @29 :Float32;
-  speedLimitChanged @30 :Bool;
-  tFollow @31 :Float32;
-  themeUpdated @32 :Bool;
-  trackingLead @33 :Bool;
-  unconfirmedSlcSpeedLimit @34 :Float32;
-  vCruise @35 :Float32;
-  weatherDaytime @36 :Bool;
-  weatherId @37 :Int16;
+  slcMapboxIsForward @21 :Bool;
+  slcMapboxSpeedLimit @22 :Float32;
+  slcMapboxWayId @23 :Int64;
+  slcMapSpeedLimit @24 :Float32;
+  slcNextSpeedLimit @25 :Float32;
+  slcOverriddenSpeed @26 :Float32;
+  slcSpeedLimit @27 :Float32;
+  slcSpeedLimitOffset @28 :Float32;
+  slcSpeedLimitSource @29 :Text;
+  speedJerk @30 :Float32;
+  speedLimitChanged @31 :Bool;
+  tFollow @32 :Float32;
+  themeUpdated @33 :Bool;
+  trackingLead @34 :Bool;
+  unconfirmedSlcSpeedLimit @35 :Float32;
+  vCruise @36 :Float32;
+  weatherDaytime @37 :Bool;
+  weatherId @38 :Int16;
 }
 
 struct FrogPilotRadarState @0xb86e6369214c01c8 {
@@ -217,7 +216,7 @@ struct FrogPilotSelfdriveState @0xf416ec09499d9d19 {
   alertStatus @2 :AlertStatus;
   alertSize @3 :AlertSize;
   alertType @4 :Text;
-  alertSound @5 :Car.CarControl.HUDControl.AudibleAlert;
+  alertSound @5 :FrogPilotCarControl.HUDControl.AudibleAlert;
 
   enum AlertStatus {
     normal @0;
@@ -423,4 +422,6 @@ struct MapdOut @0xa4f1eb3323f5f582 {
   highwayClass @24 :HighwayClass;
   wayId @25 :Int64;
   conditionalSpeedLimit @26 :Text;
+  isForward @27 :Bool;  # Travel follows the original OSM node order.
+  locationMonoTime @28 :UInt64;  # Source GPS measurement time for the match; 0 when unavailable.
 }

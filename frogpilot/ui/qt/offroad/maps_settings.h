@@ -28,6 +28,7 @@ private:
   bool mapDownloadStarted = false;
   bool forceOpenDescriptions;
   bool hasMapsSelected = false;
+  bool removingMaps = false;
   bool wasDownloadingMaps = false;
 
   int previousDownloadedFiles = 0;

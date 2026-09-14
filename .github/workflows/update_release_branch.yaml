@@ -5,7 +5,7 @@ on:
   schedule:
     - cron: "0 11 * * *"
 
-permissions: {contents: write}
+permissions: {}
 
 env:
   GIT_EMAIL: ${{ vars.GIT_EMAIL }}
@@ -34,6 +34,7 @@ jobs:
           fetch-depth: 0
           filter: blob:none
           ref: refs/heads/${{ env.BRANCH_STAGING }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       - name: Promote scheduled staging release
         run: |
           set -o pipefail

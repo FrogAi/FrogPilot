@@ -12,7 +12,7 @@ class TestParams:
     self.params = Params()
 
   def test_params_put_and_get(self):
-    self.params.put("DongleId", "cb38263377b873ee")
+    assert self.params.put("DongleId", "cb38263377b873ee") == 0
     assert self.params.get("DongleId") == "cb38263377b873ee"
 
   def test_params_non_ascii(self):

@@ -9,7 +9,7 @@ on:
         required: true
         type: string
 
-permissions: {contents: write}
+permissions: {}
 
 env:
   GIT_EMAIL: ${{ vars.GIT_EMAIL }}
@@ -37,6 +37,7 @@ jobs:
         with:
           fetch-depth: 2
           ref: refs/heads/${{ env.BRANCH_STAGING }}
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
       - name: Schedule staging release handoff
         run: |
