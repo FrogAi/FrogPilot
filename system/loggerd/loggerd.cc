@@ -22,11 +22,17 @@ struct LoggerdState {
 };
 
 void logger_rotate(LoggerdState *s) {
-  bool ret =s->logger.next();
-  assert(ret);
+  bool ret = s->logger.next();
+  // reset the rotation state even on failure so the next attempt waits a full
+  // segment: one bounded retry per rotation instead of crashing (or spinning)
+  // when log storage fails (e.g. an ext4 read-only remount mid-drive)
   s->ready_to_rotate = 0;
   s->last_rotate_tms = millis_since_boot();
-  LOGW((s->logger.segment() == 0) ? "logging to %s" : "rotated to %s", s->logger.segmentPath().c_str());
+  if (ret) {
+    LOGW((s->logger.segment() == 0) ? "logging to %s" : "rotated to %s", s->logger.segmentPath().c_str());
+  } else {
+    LOGE("failed to create %s - logging degraded, will retry at next rotation", s->logger.segmentPath().c_str());
+  }
 }
 
 void rotate_if_needed(LoggerdState *s) {
@@ -79,7 +85,7 @@ size_t write_encode_data(LoggerdState *s, cereal::Event::Reader event, RemoteEnc
         LOGW("%s: dropped %d non iframe packets before init", encoder_info.publish_name, re.dropped_frames);
         re.dropped_frames = 0;
       }
-      if (encoder_info.record) {
+      if (encoder_info.record && re.writer) {
         // write the header
         auto header = edata.getHeader();
         re.writer->write((uint8_t *)header.begin(), header.size(), idx.getTimestampEof() / 1000, true, false);
@@ -137,16 +143,23 @@ int handle_encoder_msg(LoggerdState *s, Message *msg, std::string &name, struct 
       // if we aren't actually recording, don't create the writer
       if (encoder_info.record) {
         assert(encoder_info.filename != NULL);
-        re.writer.reset(new VideoWriter(s->logger.segmentPath().c_str(),
-                                        encoder_info.filename, idx.getType() != cereal::EncodeIndex::Type::FULL_H_E_V_C,
-                                        edata.getWidth(), edata.getHeight(), encoder_info.fps, idx.getType()));
+        if (s->logger.logging()) {
+          re.writer.reset(new VideoWriter(s->logger.segmentPath().c_str(),
+                                          encoder_info.filename, idx.getType() != cereal::EncodeIndex::Type::FULL_H_E_V_C,
+                                          edata.getWidth(), edata.getHeight(), encoder_info.fps, idx.getType()));
+        } else {
+          // log storage is degraded: no segment directory exists, so run this
+          // segment without a video writer and keep the encoder stream drained
+          re.writer.reset();
+        }
         re.recording = false;
         re.audio_initialized = false;
       }
       re.current_segment = s->logger.segment();
       re.marked_ready_to_rotate = false;
     }
-    if (re.audio_initialized || !encoder_info.include_audio) {
+    // without a writer there is no audio muxing to wait for
+    if (re.audio_initialized || !encoder_info.include_audio || !re.writer) {
       // we are in this segment now, process any queued messages before this one
       if (!re.q.empty()) {
         // Swap the queue out before iterating — recursive write_encode_data can push_back

@@ -52,8 +52,10 @@ int main(int argc, char** argv) {
   LOGW("bootlog to %s", path.c_str());
 
   // Open bootlog
-  bool r = util::create_directories(Path::log_root() + "/boot/", 0775);
-  assert(r);
+  if (!util::create_directories(Path::log_root() + "/boot/", 0775)) {
+    LOGE("bootlog: failed to create %s - skipping bootlog", (Path::log_root() + "/boot/").c_str());
+    return 0;
+  }
 
   ZstdFileWriter file(path, LOG_COMPRESSION_LEVEL);
   // Write initdata

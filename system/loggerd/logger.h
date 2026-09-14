@@ -20,6 +20,7 @@ public:
   bool next();
   void write(uint8_t* data, size_t size, bool in_qlog);
   inline int segment() const { return part; }
+  inline bool logging() const { return rlog != nullptr; }
   inline const std::string& segmentPath() const { return segment_path; }
   inline const std::string& routeName() const { return route_name; }
   inline void write(kj::ArrayPtr<kj::byte> bytes, bool in_qlog) { write(bytes.begin(), bytes.size(), in_qlog); }
