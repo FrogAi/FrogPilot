@@ -26,6 +26,7 @@ def _char_sets():
   unifont = set(base)
 
   for language, code in _languages().items():
+    code = code.removeprefix("main_")
     unifont.update(language)
     po_path = TRANSLATIONS_DIR / f"app_{code}.po"
     try:

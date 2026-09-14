@@ -25,6 +25,8 @@ private:
   bool offroad = false;
 
   // FrogPilot variables
+  QMap<int, QString> developerMetricOptions();
+
   bool forceOpenDescriptions = false;
   bool hasBSM = true;
   bool hasOpenpilotLongitudinal = true;

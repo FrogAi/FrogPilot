@@ -82,7 +82,10 @@ public:
       LOGE("Failed to lock file %s, errno=%d", fn.c_str(), errno);
     }
   }
-  ~FileLock() { close(fd_); }
+  ~FileLock() {
+    HANDLE_EINTR(flock(fd_, LOCK_UN));
+    close(fd_);
+  }
 
 private:
   int fd_ = -1;

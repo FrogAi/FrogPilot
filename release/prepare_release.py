@@ -109,6 +109,7 @@ RUNTIME_SUFFIXES = {
   ".css",
   ".db",
   ".dbc",
+  ".fnt",
   ".gif",
   ".gz",
   ".html",

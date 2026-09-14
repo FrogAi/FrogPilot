@@ -154,6 +154,7 @@ def init(project: SentryProject) -> bool:
 
   sentry_sdk.init(project.value,
                   default_integrations=False,
+                  include_local_variables=False,
                   release=get_version(),
                   integrations=integrations,
                   traces_sample_rate=1.0,

@@ -15,7 +15,9 @@ signals:
   void openSubPanel();
 
 private:
+  void updateStartupAlert();
   void updateState(const UIState &s, const FrogPilotUIState &fs);
+  void updateThemeSelections(bool randomThemesEnabled);
   void updateToggles();
 
   bool cancellingDownload = false;
@@ -48,6 +50,7 @@ private:
   FrogPilotButtonsControl *manageSignalAnimationButton;
   FrogPilotButtonsControl *manageSoundPackButton;
   FrogPilotButtonsControl *manageWheelIconsButton;
+  FrogPilotButtonsControl *startupAlertButton;
 
   FrogPilotSettingsWindow *parent;
 
@@ -55,13 +58,6 @@ private:
 
   QDir themePacksDirectory{"/data/themes/theme_packs/"};
   QDir wheelsDirectory{"/data/themes/steering_wheels/"};
-
-  QString colorSchemeToDownload;
-  QString distanceIconPackToDownload;
-  QString iconPackToDownload;
-  QString signalAnimationToDownload;
-  QString soundPackToDownload;
-  QString wheelToDownload;
 
   Params params;
   Params params_memory{"", true};

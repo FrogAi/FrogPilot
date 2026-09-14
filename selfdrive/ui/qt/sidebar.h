@@ -73,6 +73,7 @@ private:
   Networking *networking = nullptr;
 
   // FrogPilot variables
+  void hideEvent(QHideEvent *event) override;
   void showEvent(QShowEvent *event);
   void updateHomeButton();
   void updateTheme();

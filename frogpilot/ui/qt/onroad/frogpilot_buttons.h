@@ -11,6 +11,7 @@ public:
   void updateState(const UIState &s, const FrogPilotUIState &fs);
 
 private:
+  void hideEvent(QHideEvent *event) override;
   void paintEvent(QPaintEvent *event) override;
   void showEvent(QShowEvent *event) override;
   void updateTheme();

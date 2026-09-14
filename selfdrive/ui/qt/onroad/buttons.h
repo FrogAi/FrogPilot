@@ -30,9 +30,12 @@ private:
   bool engageable;
 
   // FrogPilot variables
+  void hideEvent(QHideEvent *event) override;
   void showEvent(QShowEvent *event) override;
   void updateBackgroundColor();
   void updateTheme();
+
+  bool wheel_is_stock = false;
 
   int steering_angle_deg = 0;
 

@@ -1,10 +1,8 @@
 from cereal import car, custom
 
+from openpilot.frogpilot.common import frogpilot_utilities
+from openpilot.frogpilot.common.frogpilot_api import API_VERSION
 from openpilot.frogpilot.assets.city_lookup import get_location
-from openpilot.frogpilot.common import frogpilot_api, frogpilot_utilities
-
-
-STATS_PAYLOAD_SCHEMA_VERSION = 1
 
 
 def get_car_params(params):
@@ -46,21 +44,18 @@ def get_model_scores(params):
   return model_scores
 
 
-def send_stats(params, frogpilot_toggles):
+def send_stats(params, frogpilot_toggles, frogpilot_api):
   if not frogpilot_toggles.frogpilot_telemetry:
     return
 
   if frogpilot_toggles.car_make == "mock":
     return
 
-  if not frogpilot_api.get_token() or not params.get("FrogPilotDongleId"):
-    return
-
   city, country, state = get_location(params.get("LastGPSPosition"))
 
   payload = {
     "model_scores": get_model_scores(params),
-    "stats_schema_version": STATS_PAYLOAD_SCHEMA_VERSION,
+    "stats_schema_version": API_VERSION,
     "user_stats": {
       "calibrated_lateral_acceleration": params.get("CalibratedLateralAcceleration"),
       "car_params": get_car_params(params),
@@ -75,8 +70,6 @@ def send_stats(params, frogpilot_toggles):
   }
 
   response = frogpilot_api.post("/v1/stats", json=payload, timeout=30)
-  if response is not None and response.status_code == 204:
-    print("Successfully sent FrogPilot stats!")
-  else:
-    status = response.status_code if response is not None else "unavailable"
-    print(f"Failed to send stats: {status}")
+  if response is None or not 200 <= response.status_code < 300:
+    status = "no_response" if response is None else response.status_code
+    print(f"Error sending stats (status={status})")

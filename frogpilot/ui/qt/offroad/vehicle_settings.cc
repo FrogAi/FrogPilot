@@ -109,19 +109,24 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
     "Rivian", "SEAT", "Škoda", "Subaru", "Tesla", "Toyota", "Volkswagen"
   };
 
-  ButtonControl *selectMakeButton = new ButtonControl(tr("Car Make"), tr("SELECT"));
-  QObject::connect(selectMakeButton, &ButtonControl::clicked, [makes, selectMakeButton, this]() {
-    QString makeSelection = MultiOptionDialog::getSelection(tr("Choose your car make"), makes, "", this);
-    if (!makeSelection.isEmpty()) {
+  selectMakeButton = new ButtonControl(tr("Car Make"), tr("SELECT"));
+  QObject::connect(selectMakeButton, &ButtonControl::clicked, [makes, this]() {
+    QString currentMake = QString::fromStdString(params.get("CarMake"));
+    QString makeSelection = MultiOptionDialog::getSelection(tr("Choose your car make"), makes, currentMake, this);
+    if (!makeSelection.isEmpty() && makeSelection != currentMake) {
       params.put("CarMake", makeSelection.toStdString());
+      params.remove("CarModel");
+      params.remove("CarModelName");
       selectMakeButton->setValue(makeSelection);
+      selectModelButton->setValue("");
     }
   });
   settingsList->addItem(selectMakeButton);
 
-  ButtonControl *selectModelButton = new ButtonControl(tr("Car Model"), tr("SELECT"));
-  QObject::connect(selectModelButton, &ButtonControl::clicked, [selectModelButton, this]() {
-    QString modelSelection = MultiOptionDialog::getSelection(tr("Choose your car model"), getCarNames(QString::fromStdString(params.get("CarMake")).toLower(), carModels), "", this);
+  selectModelButton = new ButtonControl(tr("Car Model"), tr("SELECT"));
+  QObject::connect(selectModelButton, &ButtonControl::clicked, [this]() {
+    QString modelSelection = MultiOptionDialog::getSelection(tr("Choose your car model"),
+      getCarNames(QString::fromStdString(params.get("CarMake")).toLower(), carModels), QString::fromStdString(params.get("CarModelName")), this);
     if (!modelSelection.isEmpty()) {
       params.put("CarModel", carModels.value(modelSelection).toStdString());
       params.put("CarModelName", modelSelection.toStdString());
@@ -296,7 +301,8 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
     });
   }
 
-  static_cast<FrogPilotParamValueControl*>(toggles["LockDoorsTimer"])->setWarning("<b>Warning:</b> openpilot can't detect if keys are still inside the car, so ensure you have a spare key to prevent accidental lockouts!");
+  static_cast<FrogPilotParamValueControl*>(toggles["LockDoorsTimer"])->setWarning(tr(
+    "<b>Warning:</b> openpilot can't tell whether your keys are still in the car, so keep a spare somewhere safe before you rely on this!"));
 
   QSet<QString> rebootKeys = {"TacoTuneHacks"};
   for (const QString &key : rebootKeys) {
@@ -317,19 +323,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
 
   openDescriptions(forceOpenDescriptions, toggles);
 
-  std::function<void()> updateCarLabels = [selectMakeButton, selectModelButton, this]() {
-    std::thread([selectMakeButton, selectModelButton, this]() {
-      QString carMake = QString::fromStdString(params.get("CarMake", true));
-      QString carModel = QString::fromStdString(params.get(params.get("CarModelName").empty() ? "CarModel" : "CarModelName", true));
-
-      runOnUIThread(selectMakeButton, [carMake, carModel, selectMakeButton, selectModelButton]() {
-        selectMakeButton->setValue(carMake);
-        selectModelButton->setValue(carModel);
-      });
-    }).detach();
-  };
-  QObject::connect(uiState(), &UIState::offroadTransition, updateCarLabels);
-  updateCarLabels();
+  QObject::connect(uiState(), &UIState::offroadTransition, this, &FrogPilotVehiclesPanel::updateCarLabels);
 
   QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [vehiclesLayout, vehiclesPanel, this] {
     if (forceOpenDescriptions) {
@@ -342,6 +336,8 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
 }
 
 void FrogPilotVehiclesPanel::showEvent(QShowEvent *event) {
+  updateCarLabels();
+
   if (forceOpenDescriptions) {
     disableOpenpilotLong->showDescription();
     forceFingerprint->showDescription();
@@ -351,9 +347,9 @@ void FrogPilotVehiclesPanel::showEvent(QShowEvent *event) {
   if (parent->hasPedal) detected << "comma Pedal";
   if (parent->hasSDSU) detected << "SDSU";
   if (parent->hasZSS) detected << "ZSS";
-  static_cast<LabelControl*>(toggles["HardwareDetected"])->setText(detected.isEmpty() ? tr("None") : detected.join(", "));
-
   QString unknown = tr("Unknown until first drive");
+
+  static_cast<LabelControl*>(toggles["HardwareDetected"])->setText(!parent->carDetected ? unknown : detected.isEmpty() ? tr("None") : detected.join(", "));
 
   static_cast<LabelControl*>(toggles["BlindSpotSupport"])->setText(!parent->carDetected ? unknown : parent->hasBSM ? tr("Yes") : tr("No"));
   static_cast<LabelControl*>(toggles["OpenpilotLongitudinal"])->setText(!parent->carDetected ? unknown : parent->hasOpenpilotLongitudinal ? tr("Yes") : tr("No"));
@@ -363,6 +359,17 @@ void FrogPilotVehiclesPanel::showEvent(QShowEvent *event) {
   static_cast<LabelControl*>(toggles["SNGSupport"])->setText(!parent->carDetected ? unknown : parent->hasSNG ? tr("Yes") : tr("No"));
 
   updateToggles();
+}
+
+void FrogPilotVehiclesPanel::updateCarLabels() {
+  selectMakeButton->setValue(QString::fromStdString(params.get("CarMake")));
+
+  const std::string modelName = params.get("CarModelName");
+  if (modelName.empty()) {
+    selectModelButton->setValue(QString::fromStdString(params.get("CarModel")));
+  } else {
+    selectModelButton->setValue(QString::fromStdString(modelName));
+  }
 }
 
 void FrogPilotVehiclesPanel::updateToggles() {
@@ -380,13 +387,13 @@ void FrogPilotVehiclesPanel::updateToggles() {
     bool setVisible = parent->tuningLevel >= parent->frogpilotToggleLevels[key].toDouble();
 
     if (gmKeys.contains(key)) {
-      setVisible &= parent->isGM;
+      setVisible &= parent->carDetected && parent->isGM;
     } else if (hkgKeys.contains(key)) {
-      setVisible &= parent->isHKG;
+      setVisible &= parent->carDetected && parent->isHKG;
     } else if (subaruKeys.contains(key)) {
-      setVisible &= parent->isSubaru;
+      setVisible &= parent->carDetected && parent->isSubaru;
     } else if (toyotaKeys.contains(key)) {
-      setVisible &= parent->isToyota;
+      setVisible &= parent->carDetected && parent->isToyota;
     } else if (vehicleInfoKeys.contains(key)) {
       setVisible = true;
     }
@@ -428,8 +435,9 @@ void FrogPilotVehiclesPanel::updateToggles() {
     }
   }
 
-  disableOpenpilotLong->setVisible((parent->hasOpenpilotLongitudinal || parent->openpilotLongitudinalControlDisabled) && !parent->hasAlphaLongitudinal && parent->tuningLevel >= parent->frogpilotToggleLevels["DisableOpenpilotLongitudinal"].toBool());
-  forceFingerprint->setVisible(parent->tuningLevel >= parent->frogpilotToggleLevels["ForceFingerprint"].toBool());
+  disableOpenpilotLong->setVisible((parent->hasOpenpilotLongitudinal || parent->openpilotLongitudinalControlDisabled) && !parent->hasAlphaLongitudinal &&
+                                 parent->tuningLevel >= parent->frogpilotToggleLevels["DisableOpenpilotLongitudinal"].toDouble());
+  forceFingerprint->setVisible(parent->tuningLevel >= parent->frogpilotToggleLevels["ForceFingerprint"].toDouble());
 
   openDescriptions(forceOpenDescriptions, toggles);
 

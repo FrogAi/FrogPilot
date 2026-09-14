@@ -60,6 +60,11 @@ class ThreadManager:
       return thread is not None and thread.is_alive()
 
 
+def calculate_curve_speed(road_curvature, lateral_acceleration, roll_compensation):
+  geometric_lateral_acceleration = np.maximum(lateral_acceleration + np.sign(road_curvature) * roll_compensation, 0)
+  return np.maximum(np.sqrt(geometric_lateral_acceleration / np.maximum(np.abs(road_curvature), 1e-6)), CRUISING_SPEED)
+
+
 def calculate_distance_to_point(lat1, lon1, lat2, lon2):
   lat1_rad = math.radians(lat1)
   lon1_rad = math.radians(lon1)
@@ -163,17 +168,21 @@ def is_mapd_data_valid(mapd_out, gps_valid, sm):
   return gps_valid and sm.alive["mapdOut"] and mapd_out.tileLoaded and mapd_out.wayId > 0
 
 
-def is_url_pingable(url):
+def is_mapd_match_valid(mapd_out, location_mono_time):
+  return mapd_out.wayId > 0 and mapd_out.locationMonoTime > 0 and 0 <= location_mono_time - mapd_out.locationMonoTime <= 2_000_000_000
+
+
+def is_url_pingable(url, session=requests):
   if not url:
     return False
 
   headers = {"User-Agent": "frogpilot-ping-test/1.0 (https://github.com/FrogAi/FrogPilot)"}
   try:
-    response = requests.head(url, headers=headers, timeout=10, allow_redirects=True)
+    response = session.head(url, headers=headers, timeout=10, allow_redirects=True)
     try:
       if response.status_code in (405, 501):
         response.close()
-        response = requests.get(url, headers=headers, timeout=10, allow_redirects=True, stream=True)
+        response = session.get(url, headers=headers, timeout=10, allow_redirects=True, stream=True)
 
       return response.ok
     finally:
@@ -259,17 +268,23 @@ def run_cmd(cmd, success_message, fail_message, env=None, report=True):
 
 
 # Credit goes to Pfeiferj!
-def select_road_curvature(model_data, v_ego, allowed_lateral_acceleration):
+def select_road_curvature(model_data, v_ego, allowed_lateral_acceleration, roll_compensation):
   velocity = np.asarray(model_data.velocity.x)
 
   road_curvature = np.where(velocity >= MINIMUM_PLANNED_SPEED, np.asarray(model_data.orientationRate.z) / np.maximum(velocity, 1), 0)
   absolute_curvature = np.abs(road_curvature)
 
-  time_to_point = np.maximum(np.asarray(model_data.orientationRate.t), 1)
+  distance_to_point = np.concatenate(([0], np.cumsum(np.hypot(np.diff(model_data.position.x), np.diff(model_data.position.y)))))
+  time_to_point = np.maximum(distance_to_point / max(v_ego, CRUISING_SPEED), 1)
 
-  curve_speed = np.maximum(np.sqrt(allowed_lateral_acceleration / np.maximum(absolute_curvature, 1e-6)), CRUISING_SPEED)
+  curve_speed = calculate_curve_speed(road_curvature, allowed_lateral_acceleration, roll_compensation)
   required_deceleration = (v_ego - curve_speed) / np.maximum(time_to_point - DECEL_TIME_MARGIN, 1)
-  index = np.argmax(required_deceleration if required_deceleration.max() > 0 else absolute_curvature)
+  if required_deceleration.max() > 0:
+    index = np.argmax(required_deceleration)
+  elif roll_compensation != 0:
+    index = np.argmin(curve_speed)
+  else:
+    index = np.argmax(absolute_curvature)
 
   return float(road_curvature[index]), float(time_to_point[index]), float(absolute_curvature.max())
 

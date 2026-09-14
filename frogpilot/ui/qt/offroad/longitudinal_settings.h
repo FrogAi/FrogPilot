@@ -17,14 +17,15 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
+  void testWeatherKey(const QString &key, int apiIndex = 0);
   void updateMetric(bool metric, bool bootRun);
   void updateToggles();
 
-  bool customPersonalityOpen;
+  bool customPersonalityOpen = false;
   bool forceOpenDescriptions;
-  bool qolOpen;
-  bool slcOpen;
-  bool weatherOpen;
+  bool qolOpen = false;
+  bool slcOpen = false;
+  bool weatherOpen = false;
 
   std::map<QString, QWidget*> toggles;
 

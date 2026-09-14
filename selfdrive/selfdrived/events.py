@@ -412,12 +412,16 @@ def custom_startup_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubM
 
 
 def forcing_stop_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
-  model_length = sm["frogpilotPlan"].forcingStopLength
-  model_length_msg = f"{model_length:.1f} meters" if metric else f"{model_length * CV.METER_TO_FOOT:.1f} feet"
+  if CS.standstill:
+    stop_message = "Holding at a forced stop"
+  else:
+    model_length = sm["frogpilotPlan"].forcingStopLength
+    model_length_msg = f"{model_length:.1f} meters" if metric else f"{model_length * CV.METER_TO_FOOT:.1f} feet"
+    stop_message = f"Stopping in {model_length_msg}"
 
   return Alert(
-    f"Forcing the car to stop in {model_length_msg}",
-    "Press the gas pedal or 'Resume' button to override",
+    stop_message,
+    "Press gas or RES/+ to release",
     FrogPilotAlertStatus.frogpilot, AlertSize.mid,
     Priority.MID, VisualAlert.none, AudibleAlert.prompt, 1.)
 

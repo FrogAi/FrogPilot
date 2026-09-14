@@ -14,6 +14,7 @@ import sys
 import tempfile
 import threading
 import time
+from contextlib import closing
 from dataclasses import asdict, dataclass, replace
 from datetime import datetime
 from functools import partial, total_ordering
@@ -808,12 +809,16 @@ def backoff(retries: int) -> int:
 
 
 def main(exit_event: threading.Event = None):
+  if exit_event is None:
+    exit_event = threading.Event()
+
   try:
     set_core_affinity([0, 1, 2, 3])
   except Exception:
     cloudlog.exception("failed to set core affinity")
 
   params = Params()
+  params.remove("LastAthenaPingTime")
   dongle_id = params.get("DongleId")
   UploadQueueCache.initialize(upload_queue)
 
@@ -822,38 +827,37 @@ def main(exit_event: threading.Event = None):
 
   conn_start = None
   conn_retries = 0
-  while exit_event is None or not exit_event.is_set():
+  while not exit_event.is_set():
     try:
       if conn_start is None:
         conn_start = time.monotonic()
 
       cloudlog.event("athenad.main.connecting_ws", ws_uri=ws_uri, retries=conn_retries)
-      ws = create_connection(ws_uri,
-                             cookie="jwt=" + api.get_token(),
-                             enable_multithread=True,
-                             timeout=30.0)
-      cloudlog.event("athenad.main.connected_ws", ws_uri=ws_uri, retries=conn_retries,
-                     duration=time.monotonic() - conn_start)
-      conn_start = None
+      with closing(create_connection(ws_uri,
+                                     cookie="jwt=" + api.get_token(),
+                                     enable_multithread=True,
+                                     timeout=30.0)) as ws:
+        cloudlog.event("athenad.main.connected_ws", ws_uri=ws_uri, retries=conn_retries,
+                       duration=time.monotonic() - conn_start)
+        conn_start = None
 
-      conn_retries = 0
-      cur_upload_items.clear()
+        cur_upload_items.clear()
 
-      handle_long_poll(ws, exit_event)
-
-      ws.close()
+        handle_long_poll(ws, exit_event)
     except (KeyboardInterrupt, SystemExit):
       break
     except (ConnectionError, TimeoutError, WebSocketException):
-      conn_retries += 1
-      params.remove("LastAthenaPingTime")
+      pass
     except Exception:
       cloudlog.exception("athenad.main.exception")
-
-      conn_retries += 1
+    finally:
+      if params.get("LastAthenaPingTime") is not None:
+        conn_retries = 0
+      else:
+        conn_retries += 1
       params.remove("LastAthenaPingTime")
 
-    time.sleep(backoff(conn_retries))
+    exit_event.wait(backoff(conn_retries))
 
 
 if __name__ == "__main__":

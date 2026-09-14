@@ -1,5 +1,7 @@
 #include "frogpilot/ui/qt/offroad/longitudinal_settings.h"
 
+#include <QJsonArray>
+
 namespace {
 float getMaxLateralAcceleration(Params &params, FrogPilotSettingsWindow *settings) {
   QJsonObject profile = QJsonDocument::fromJson(QByteArray::fromStdString(params.get("MaxLateralAcceleration"))).object();
@@ -94,10 +96,10 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     {"ConditionalExperimental", tr("Conditional Experimental Mode"), tr("<b>Automatically switch to \"Experimental Mode\" when set conditions are met.</b> Allows the model to handle challenging situations with smarter decision making."), "../../frogpilot/assets/toggle_icons/icon_conditional.png"},
     {"CESpeed", tr("Below"), tr("<b>Switch to \"Experimental Mode\" below this speed when there is no car ahead of you.</b><br><br>It helps openpilot handle slow, fiddly situations more smoothly."), ""},
     {"CECurves", tr("Curve Detected Ahead"), tr("<b>Switch to \"Experimental Mode\" when openpilot sees a curve coming up.</b><br><br>The model picks its own speed for the curve instead of holding your set speed."), ""},
-    {"CEStopLights", tr("\"Detected\" Stop Lights/Signs"), tr("<b>Switch to \"Experimental Mode\" whenever the driving model \"detects\" a red light or stop sign.</b><br><br>It only fires when there is no car close ahead of you, so it stays quiet when you roll up to a red light behind traffic.<br><br><i><b>Disclaimer</b>: openpilot does not explicitly detect traffic lights or stop signs. In \"Experimental Mode\", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!</i>"), ""},
+    {"CEStopLights", tr("\"Detected\" Stop Lights/Signs"), tr("<b>Switch to \"Experimental Mode\" for a predicted stop, except while following a detected lead.</b><br><br>It keeps checking for a possible stop behind that lead and can trigger once the lead is no longer tracked. \"Traffic Mode\" turns this condition off.<br><br><i><b>Disclaimer</b>: openpilot does not explicitly detect traffic lights or stop signs. In \"Experimental Mode\", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!</i>"), ""},
     {"CELead", tr("Lead Detected Ahead"), tr("<b>Switch to \"Experimental Mode\" when the car ahead is slower than you or has stopped.</b><br><br>\"Slower Lead\" and \"Stopped Lead\" both start off, so pick at least one with the buttons on this row or nothing happens."), ""},
-    {"CEModelStopTime", tr("Predicted Stop In"), tr("<b>Switch to \"Experimental Mode\" when openpilot predicts a stop within the set time.</b> This is usually triggered when the model \"sees\" a red light or stop sign ahead.<br><br><i><b>Disclaimer</b>: openpilot does not explicitly detect traffic lights or stop signs. In \"Experimental Mode\", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!</i>"), ""},
-    {"CESignalSpeed", tr("Turn Signal Below"), tr("<b>Switch to \"Experimental Mode\" when you signal below the speed you set, so openpilot picks its own speed through the turn instead of holding your set speed.</b><br><br>This runs off the \"Not For Detected Lanes\" button on this row, which has to stay on. With it on, openpilot only reads a signal as a turn when the space beside you is narrower than the \"Minimum Lane Width\" under \"Lane Changes\" in the \"STEERING\" panel. That width starts at zero, so nothing happens until you raise it, and turning the button off stops it firing at all."), ""},
+    {"CEModelStopTime", tr("Stop Detection Sensitivity"), tr("<b>Adjust when a predicted stop can switch to \"Experimental Mode\". Higher values can trigger earlier; lower values are less sensitive.</b><br><br>The seconds value is a sensitivity setting, not an exact countdown to a stop. While following a detected lead, it keeps checking for a possible stop and can trigger once that lead is no longer tracked. \"Traffic Mode\" turns this condition off.<br><br><i><b>Disclaimer</b>: openpilot does not explicitly detect traffic lights or stop signs. In \"Experimental Mode\", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!</i>"), ""},
+    {"CESignalSpeed", tr("Turn Signal Below"), tr("<b>Switch to \"Experimental Mode\" when you signal below the set speed. Turn on \"Not For Detected Lanes\" to suppress this when an adjacent lane is detected.</b><br><br>With the button off, any signal below the set speed can trigger it. With it on, the space beside you must be narrower than the \"Minimum Lane Width\" under \"Lane Changes\" in the \"STEERING\" panel. That width starts at zero, so raise it to use lane detection. Lane estimates can miss an adjacent lane."), ""},
     {"ShowCEMStatus", tr("Status Widget"), tr("<b>Show which condition switched \"Experimental Mode\" on, right on the driving screen.</b>"), ""},
 
     {"CurveSpeedController", tr("Curve Speed Controller"), tr("<b>openpilot slows down on its own for curves ahead, and you pick how fast it takes them with \"Curve Speed Profile\".</b><br><br>It comes set to \"Adaptive\", which learns how you prefer to take curves."), "../../frogpilot/assets/toggle_icons/icon_speed_map.png"},
@@ -149,7 +151,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     {"QOLLongitudinal", tr("Quality of Life"), tr("<b>Smaller changes to how openpilot handles the gas and brake.</b>"), "../../frogpilot/assets/toggle_icons/icon_quality_of_life.png"},
     {"CustomCruise", tr("Cruise Interval"), tr("<b>How much your set speed moves with each tap of the + or - cruise button.</b><br><br>Set it to 1 to land on any speed exactly, or higher to get where you are going in fewer taps."), ""},
     {"CustomCruiseLong", tr("Cruise Interval (Hold)"), tr("<b>How much your set speed moves while you hold the + or - cruise button down.</b><br><br>The default is 5, against 1 for a single tap."), ""},
-    {"ForceStops", tr("Force Stop at \"Detected\" Stop Lights/Signs"), tr("<b>openpilot comes to a full stop whenever it thinks it sees a red light or stop sign, whether or not \"Experimental Mode\" is running.</b><br><br>It only kicks in when openpilot is not already tracking a car ahead, so behind a queue at a light your normal following does the stopping instead. Touching the gas cancels a forced stop for the next 10 seconds.<br><br><i><b>Heads up</b>: openpilot never actually reads traffic lights or stop signs. It decides from what the camera sees, so it can stop when there is no reason to.</i>"), ""},
+    {"ForceStops", tr("Force Stop at \"Detected\" Stop Lights/Signs"), tr("<b>openpilot comes to a full stop whenever it thinks it sees a red light or stop sign, whether or not \"Experimental Mode\" is running.</b><br><br>It only kicks in when openpilot is not already tracking a car ahead, so behind a queue at a light your normal following does the stopping instead. Touching the gas cancels a forced stop.<br><br><i><b>Heads up</b>: openpilot never actually reads traffic lights or stop signs. It decides from what the camera sees, so it can stop when there is no reason to.</i>"), ""},
     {"IncreasedStoppedDistance", tr("Increase Stopped Distance by:"), tr("<b>Adds a set amount of extra room between you and the car ahead, and keeps that room at every speed, not just when you are stopped.</b><br><br>You notice it most at red lights, where a few feet stops openpilot creeping up close. While moving, that same room means openpilot starts slowing a little sooner. \"Traffic Mode\" ignores this setting."), ""},
     {"MapGears", tr("Map Accel/Decel to Gears"), tr("<b>Lets your car's \"Eco\" and \"Sport\" gear modes take over how openpilot speeds up, how it slows down, or both.</b><br><br>Pick \"Acceleration\", \"Deceleration\" or both with the buttons on this row, since neither starts on and nothing changes until you do.<br><br>\"Eco\" gear makes openpilot accelerate gently and \"Sport\" gear makes it accelerate firmly. Braking goes the other way: \"Eco\" gear halves how hard openpilot can brake and \"Sport\" gear cuts it to a quarter, so \"Sport\" coasts the longest. The braking change only applies when there is no car ahead."), ""},
     {"SetSpeedOffset", tr("Offset Set Speed by:"), tr("<b>Adds an extra amount on top of the \"Cruise Interval (Hold)\" step, but only when you press and hold the + cruise button.</b><br><br>The - button does not mirror it. Holding - moves your set speed down by twice the \"Cruise Interval (Hold)\" amount minus this offset, so with the shipped 5 hold interval and 5 chosen here you just get a plain 5 down. A quick tap is never affected, and 0 turns this off."), ""},
@@ -180,7 +182,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     {"ReduceAccelerationSnow", tr("Reduce Acceleration by:"), tr("<b>Holds openpilot back from accelerating as hard in snow.</b><br><br>Raise it for softer, more controlled pickup on a slippery road."), ""},
     {"ReduceLateralAccelerationSnow", tr("Reduce Cornering Force by:"), tr("<b>Eases off how hard openpilot corners in snow.</b><br><br>Only does anything while \"Curve Speed Controller\" is on. Raise it for gentler, safer cornering on a slippery road. Curve speed drops by less than this number, because cornering force rises with the square of speed."), ""},
 
-    {"SetWeatherKey", tr("Set Your Own Key"), tr("<b>Set your own \"OpenWeatherMap\" key to increase the weather update rate.</b><br><br><i>Personal keys grant 1,000 free calls per day, allowing for updates every minute. The default key is shared and only updates every 15 minutes.</i>"), ""},
+    {"SetWeatherKey", tr("Set Your Own Key"), tr("<b>Use your own \"OpenWeatherMap\" key for weather requests every minute.</b><br><br>Supports One Call 4.0 and 3.0, plus Current Weather 2.5. Without a working personal key, FrogPilot tries shared weather with a 15-minute request interval. Your saved key is kept."), ""},
 
     {"SpeedLimitController", tr("Speed Limit Controller"), tr("<b>Hold openpilot's max speed to the posted speed limit.</b><br><br>The limit comes from your downloaded maps, Mapbox, \"Navigate on openpilot\", or, on supported Ford, Genesis, Hyundai, Kia, Lexus and Toyota models, your dashboard."), "../../frogpilot/assets/toggle_icons/icon_speed_limit.png"},
     {"SLCFallback", tr("Fallback Speed"), tr("<b>The speed used by \"Speed Limit Controller\" when no speed limit is found.</b><br><br>- <b>Set Speed</b>: Use the cruise set speed<br>- <b>Experimental Mode</b>: Let openpilot pick the speed from what the camera sees, never going above your set speed<br>- <b>Previous Limit</b>: Keep using the last confirmed limit"), ""},
@@ -229,7 +231,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       stopAccelToggle = new FrogPilotParamValueControl(param, title, desc, icon, -4, 0, tr(" m/s²"), std::map<float, QString>(), 0.01, true);
       longitudinalToggle = stopAccelToggle;
     } else if (param == "StoppingDecelRate") {
-      stoppingDecelRateToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.001, 1, tr(" m/s²/s"), std::map<float, QString>(), 0.001, true);
+      stoppingDecelRateToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.001, 12, tr(" m/s²/s"), std::map<float, QString>(), 0.001, true);
       longitudinalToggle = stoppingDecelRateToggle;
     } else if (param == "VEgoStopping") {
       vEgoStoppingToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0.01, 1, tr(" m/s"), std::map<float, QString>(), 0.01);
@@ -422,43 +424,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
           }
         } else if (id == 1) {
           weatherKeyControl->setValue(tr("Testing..."));
-
-          QString key = QString::fromStdString(params.get("WeatherToken")).trimmed();
-          QString url30 = QString("https://api.openweathermap.org/data/3.0/onecall?lat=42.4293&lon=-83.9850&exclude=current,minutely,hourly,daily,alerts&appid=%1").arg(key);
-
-          QNetworkRequest request(url30);
-          QNetworkReply *reply = networkManager->get(request);
-          QObject::connect(reply, &QNetworkReply::finished, this, [=]() {
-            reply->deleteLater();
-
-            if (reply->error() == QNetworkReply::NoError) {
-              weatherKeyControl->setValue("");
-              ConfirmationDialog::alert(tr("Key is valid!"), this);
-              return;
-            }
-
-            int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-            if (status == 401 || status == 403) {
-              QString url25 = QString("https://api.openweathermap.org/data/2.5/weather?lat=42.4293&lon=-83.9850&appid=%1").arg(key);
-
-              QNetworkRequest request25(url25);
-              QNetworkReply *reply25 = networkManager->get(request25);
-              QObject::connect(reply25, &QNetworkReply::finished, this, [=]() {
-                reply25->deleteLater();
-
-                weatherKeyControl->setValue("");
-                if (reply25->error() == QNetworkReply::NoError) {
-                  ConfirmationDialog::alert(tr("Your key is valid for version 2.5, but version 3.0 is highly recommended! Please subscribe to the \"One Call API 3.0\" plan!"), this);
-                } else {
-                   int status25 = reply25->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
-                   ConfirmationDialog::alert(tr("Invalid key! (Error: %1)").arg(status25), this);
-                }
-              });
-            } else {
-              weatherKeyControl->setValue("");
-              ConfirmationDialog::alert(tr("An error occurred: %1").arg(reply->errorString()), this);
-            }
-          });
+          testWeatherKey(QString::fromStdString(params.get("WeatherToken")).trimmed());
         }
       });
       longitudinalToggle = weatherKeyControl;
@@ -533,6 +499,8 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       ButtonControl *slcPriorityButton = new ButtonControl(title, tr("SELECT"), desc);
       QStringList primaryPriorities = {tr("Dashboard"), tr("Map Data"), tr("Highest"), tr("Lowest")};
       QStringList otherPriorities = {tr("None"), tr("Dashboard"), tr("Map Data")};
+      QStringList translatedPriorities = {tr("None"), tr("Dashboard"), tr("Map Data"), tr("Highest"), tr("Lowest")};
+      const QStringList canonicalPriorities = {"None", "Dashboard", "Map Data", "Highest", "Lowest"};
       QStringList priorityPrompts = {tr("Select your primary priority"), tr("Select your secondary priority")};
 
       QObject::connect(slcPriorityButton, &ButtonControl::clicked, [=]() {
@@ -556,10 +524,12 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
 
           selectedPriorities.append(selection);
 
-          params.put(QString("SLCPriority%1").arg(i).toStdString(), selection.toStdString());
+          const int selectionIndex = translatedPriorities.indexOf(selection);
+          params.put(QString("SLCPriority%1").arg(i).toStdString(),
+                     (selectionIndex >= 0 ? canonicalPriorities[selectionIndex] : selection).toStdString());
           if (selection == tr("None")) {
             for (int j = i + 1; j <= 2; ++j) {
-              params.put(QString("SLCPriority%1").arg(j).toStdString(), tr("None").toStdString());
+              params.put(QString("SLCPriority%1").arg(j).toStdString(), std::string("None"));
             }
             break;
           }
@@ -578,7 +548,11 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       QStringList selectedPriorities;
       for (int i = 1; i <= 2; ++i) {
         QString priority = QString::fromStdString(params.get(QString("SLCPriority%1").arg(i).toStdString()));
-        if (!parent->hasDashSpeedLimits && (priority == "Dashboard" || priority == tr("Dashboard"))) {
+        const int storedIndex = canonicalPriorities.indexOf(priority);
+        if (storedIndex >= 0) {
+          priority = translatedPriorities[storedIndex];
+        }
+        if (!parent->hasDashSpeedLimits && priority == tr("Dashboard")) {
           continue;
         }
         if (primaryPriorities.contains(priority)) {
@@ -833,6 +807,67 @@ void FrogPilotLongitudinalPanel::showEvent(QShowEvent *event) {
   updateToggles();
 }
 
+void FrogPilotLongitudinalPanel::testWeatherKey(const QString &key, int apiIndex) {
+  const QStringList endpoints = {"4.0/onecall/current", "3.0/onecall", "2.5/weather"};
+  QString apiVersion = endpoints[apiIndex].section('/', 0, 0);
+  QString url = QString("https://api.openweathermap.org/data/%1?lat=42.4293&lon=-83.9850&appid=%2").arg(endpoints[apiIndex], key);
+  if (apiVersion == "3.0") {
+    url += "&exclude=minutely,hourly,daily,alerts";
+  }
+
+  QNetworkRequest request(url);
+  QNetworkReply *reply = networkManager->get(request);
+  QObject::connect(reply, &QNetworkReply::finished, this, [=]() {
+    reply->deleteLater();
+
+    int status = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    if ((status == 401 || status == 403 || status == 404 || status == 410) && apiIndex + 1 < endpoints.size()) {
+      testWeatherKey(key, apiIndex + 1);
+      return;
+    }
+
+    weatherKeyControl->setValue("");
+
+    QString message;
+    if (reply->error() == QNetworkReply::NoError && status >= 200 && status < 300) {
+      QJsonObject data = QJsonDocument::fromJson(reply->readAll()).object();
+      if (apiVersion == "4.0") {
+        data = data.value("data").toArray().at(0).toObject();
+      } else if (apiVersion == "3.0") {
+        data = data.value("current").toObject();
+      }
+
+      QJsonObject sunData = data;
+      if (apiVersion == "2.5") {
+        sunData = data.value("sys").toObject();
+      }
+
+      auto validInteger = [](const QJsonValue &value) {
+        return value.isDouble() && value.toDouble() == std::floor(value.toDouble());
+      };
+      bool validSunData = apiVersion != "2.5" || data.value("sys").isObject();
+      validSunData &= !sunData.contains("sunrise") || validInteger(sunData.value("sunrise"));
+      validSunData &= !sunData.contains("sunset") || validInteger(sunData.value("sunset"));
+      QJsonValue weatherId = data.value("weather").toArray().at(0).toObject().value("id");
+      if (validSunData && validInteger(weatherId)) {
+        ConfirmationDialog::alert(tr("Key is valid for OpenWeatherMap %1!").arg(apiVersion), this);
+        return;
+      }
+      message = tr("OpenWeatherMap returned incomplete weather data. Try again later.");
+    } else if (status == 401 || status == 403) {
+      message = tr("OpenWeatherMap did not authorize this key (HTTP %1).").arg(status);
+    } else if (status == 429) {
+      message = tr("OpenWeatherMap's request limit was reached. Try again later.");
+    } else if (status != 0) {
+      message = tr("OpenWeatherMap request failed (HTTP %1).").arg(status);
+    } else {
+      message = tr("Could not reach OpenWeatherMap. Check your connection and try again.");
+    }
+
+    ConfirmationDialog::alert(message, this);
+  });
+}
+
 void FrogPilotLongitudinalPanel::updateMetric(bool metric, bool bootRun) {
   static bool previousMetric;
   if (metric != previousMetric && !bootRun) {
@@ -1010,6 +1045,7 @@ void FrogPilotLongitudinalPanel::updateToggles() {
     }
 
     else if (key == "ReverseCruise") {
+      setVisible &= parent->hasPCMCruise;
       setVisible &= parent->isToyota;
     }
 
