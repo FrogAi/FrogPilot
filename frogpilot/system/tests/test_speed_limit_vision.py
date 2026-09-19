@@ -245,6 +245,11 @@ class TestRuntime:
     self.confirm()
     assert self.params.get(VISION_SPEED_LIMIT_PARAM)['speedLimit'] == pytest.approx(55 * CV.MPH_TO_MS)
 
+  def test_unpopulated_vipc_valid_flag_does_not_reject_camera_frames(self):
+    # camera_common.cc does not populate VisionIpcBufExtra.valid on this branch.
+    self.camera.valid = False
+    self.confirm()
+
   def test_offroad_parking_and_pressure_clear_results(self):
     for field, value in (('started', False), ('thermalStatus', 2), ('memoryUsagePercent', 94)):
       self.confirm()

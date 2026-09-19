@@ -211,6 +211,97 @@ def test_process_only_runs_onroad_when_enabled():
   assert managed_processes["speed_limit_vision"].should_run is run_speed_limit_vision
 
 
+def test_runtime_subscription_accepts_messages_at_its_loop_rate(mocker):
+  from cereal import messaging
+  from openpilot.frogpilot.system.speed_limit_vision import RUNTIME_LOOP_HZ, SpeedLimitVisionDaemon, main
+
+  run = mocker.patch.object(SpeedLimitVisionDaemon, "run", autospec=True)
+  main()
+  sm = run.call_args.args[0].sm
+  for tick in range(RUNTIME_LOOP_HZ + 1):
+    messages = [messaging.new_message("carState", valid=True).as_reader()]
+    if tick % (RUNTIME_LOOP_HZ // 2) == 0:
+      messages.append(messaging.new_message("deviceState", valid=True).as_reader())
+    sm.update_msgs(100 + tick / RUNTIME_LOOP_HZ, messages)
+  assert sm.all_checks(["deviceState", "carState"])
+
+
+def test_real_camera_models_and_params_reach_controller(controller, mocker):
+  from pathlib import Path
+
+  import cv2
+  import numpy as np
+  from cereal import messaging
+  from msgq.visionipc import VisionIpcClient, VisionIpcServer, VisionStreamType
+  from openpilot.common.params import Params
+  from openpilot.frogpilot.system.speed_limit_vision import RUNTIME_LOOP_HZ, SpeedLimitVisionDaemon
+
+  params = Params(memory=True)
+  controller.frogpilot_planner.params_memory = params
+  services = ["deviceState", "carState", "mapdOut"]
+  pm = messaging.PubMaster(services)
+  sm = messaging.SubMaster(services, frequency=RUNTIME_LOOP_HZ)
+  daemon = SpeedLimitVisionDaemon(params, sm, VisionIpcClient, VisionStreamType, mocker.Mock())
+  clock = mocker.patch("time.monotonic", return_value=100.0)
+
+  folder = Path(__file__).parents[2] / "system" / "tests" / "fixtures" / "vision_speed_limit"
+  frames = []
+  for number in (140, 146):
+    frame = cv2.imread(str(folder / f"sign_20_frame_{number}.png"))
+    height, width = frame.shape[:2]
+    # Exercise the actual padded NV12 layout delivered through VisionIPC.
+    stride = width + 16
+    uv_offset = stride * (height + 8)
+    buffer = np.zeros(uv_offset + height // 2 * stride, dtype=np.uint8)
+    planar = cv2.cvtColor(frame, cv2.COLOR_BGR2YUV_I420).ravel()
+    y_size = height * width
+    buffer[:height * stride].reshape(height, stride)[:, :width] = planar[:y_size].reshape(height, width)
+    chroma = buffer[uv_offset:].reshape(height // 2, stride)[:, :width]
+    chroma[:, 0::2] = planar[y_size:y_size * 5 // 4].reshape(height // 2, width // 2)
+    chroma[:, 1::2] = planar[y_size * 5 // 4:].reshape(height // 2, width // 2)
+    frames.append(buffer)
+
+  stream = VisionStreamType.VISION_STREAM_ROAD
+  server = VisionIpcServer("camerad")
+  server.create_buffers_with_sizes(stream, 4, width, height, len(frames[0]), stride, uv_offset)
+  server.start_listener()
+  try:
+    assert stream in VisionIpcClient.available_streams("camerad", block=True)
+    for tick in range(RUNTIME_LOOP_HZ + 1):
+      now = 100 + tick / RUNTIME_LOOP_HZ
+      clock.return_value = now
+      car = messaging.new_message("carState", valid=True)
+      car.carState.gearShifter = "drive"
+      pm.send("carState", car)
+      if tick % (RUNTIME_LOOP_HZ // 2) == 0:
+        device = messaging.new_message("deviceState", valid=True)
+        device.deviceState.started = True
+        device.deviceState.memoryUsagePercent = 30
+        device.deviceState.cpuUsagePercent = [10] * 8
+        pm.send("deviceState", device)
+      if tick <= RUNTIME_LOOP_HZ // 2:
+        sm.update(0)
+        if tick < RUNTIME_LOOP_HZ // 2:
+          continue
+        assert sm.all_checks(["deviceState", "carState"])
+        assert daemon.connect_camera()
+      server.send(stream, frames[tick % 2], frame_id=tick, timestamp_eof=int(now * 1e9))
+      daemon.step(now)
+
+    assert sm.all_checks(["deviceState", "carState"])
+    assert params.get(VISION_SPEED_LIMIT_PARAM)["speedLimit"] == pytest.approx(20 * CV.MPH_TO_MS)
+    update(controller)
+    assert controller.source == "Vision"
+    assert controller.target == pytest.approx(20 * CV.MPH_TO_MS)
+
+    clock.return_value += HEARTBEAT_TIMEOUT + 1
+    update(controller, SubMaster(dashboard=0, map_limit=0))
+    assert controller.target == 0
+  finally:
+    daemon.clear("Stopped", disconnect=True)
+    del server
+
+
 def test_typed_param_roundtrip_and_drive_transition(tmp_path):
   from openpilot.common.params import ParamKeyFlag, Params
 

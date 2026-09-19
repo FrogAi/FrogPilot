@@ -36,9 +36,13 @@ possible; controller confirmation is still configurable.
   device. Nominal detection is 6 Hz with 10 Hz follow-up for two seconds after a
   candidate, backed off for CPU/memory pressure and measured inference cost.
   Critical memory pressure or high thermal state clears the source and pauses it.
+  Message-frequency checks use the worker's 30 Hz loop rate, including when
+  consuming the faster car-state stream.
 - The worker prefers the road stream and falls back to wide road. NV12 decoding
   respects stride **and UV-plane offset**. Frames older than 0.5 seconds, repeated
   timestamps, offroad/invalid car state, and non-driving gears cannot confirm a sign.
+  This branch's camera producer does not populate VisionIPC's `valid` flag;
+  frame acceptance checks received buffers, timestamps, and layout instead.
 - Model bytes and tensor shapes are checked before use. Inference handles the
   actual single-class proposal detector and 19-class probability output. Advisory
   color rejection, a maximum of four non-overlapping proposals, bounded crop
@@ -85,7 +89,11 @@ scons --minimal -j4 common/params_pyx.so \
 Tests cover positive and blank-image inference, model corruption, output shape and
 probability validation, sign conflicts, units, confirmation, stale snapshots,
 camera layout/loss, load shedding, source priorities, driver acceptance/rejection,
-gas overrides, and stale-limit fallback. The two positive frames are a small
+gas overrides, and stale-limit fallback. An integration test sends padded NV12
+frames through real VisionIPC and device/car-state messages through PubMaster /
+SubMaster, runs the actual ONNX models, and passes results through native shared
+parameters to the controller. It also checks that the controller stops using
+those results when their heartbeat expires. The two positive frames are a small
 regression fixture; they do not establish onroad accuracy.
 
 Before merge/deployment, model [licensing and provenance](../frogpilot/assets/vision_models/README.md)
@@ -99,7 +107,7 @@ Host checks do not establish those properties.
 
 Linux x86-64 under WSL, Python 3.12.3, OpenCV 4.11.0:
 
-- 61 tests passed: 48 feature tests and 13 existing Params tests, using the
+- 64 tests passed: 51 feature tests and 13 existing Params tests, using the
   repository pytest configuration and native parameter bindings.
 - The parameter/messaging/VisionIPC bindings and all three edited Qt translation
   units compiled with the repository SCons configuration. This is a component

@@ -137,7 +137,9 @@ class SpeedLimitVisionDaemon:
     buffer = self.client.recv(timeout_ms=100)
     now = time.monotonic()
     frame_time = self.client.timestamp_eof / 1e9
-    if buffer is None or not self.client.valid or not 0 <= now - frame_time <= MAX_FRAME_AGE:
+    # This branch's camerad does not populate VisionIpcBufExtra.valid. Validate
+    # received frames using their timestamps and buffer layout instead.
+    if buffer is None or not 0 <= now - frame_time <= MAX_FRAME_AGE:
       if now - self.last_frame_at > HEARTBEAT_TIMEOUT:
         self.clear("Waiting for camera", disconnect=True)
       return
@@ -192,7 +194,7 @@ def main():
     set_core_affinity([0, 1, 2])
   cv2.setNumThreads(1)
   cv2.ocl.setUseOpenCL(False)
-  sm = messaging.SubMaster(["deviceState", "carState", "mapdOut"])
+  sm = messaging.SubMaster(["deviceState", "carState", "mapdOut"], frequency=RUNTIME_LOOP_HZ)
   SpeedLimitVisionDaemon(Params(memory=True), sm, VisionIpcClient, VisionStreamType, cloudlog).run()
 
 
