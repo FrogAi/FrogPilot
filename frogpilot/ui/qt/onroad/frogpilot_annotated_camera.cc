@@ -244,6 +244,7 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   lateralPaused = frogpilotCarState.getPauseLateral();
   longitudinalPaused = frogpilotCarState.getPauseLongitudinal();
   mapSpeedLimit = frogpilotPlan.getSlcMapSpeedLimit();
+  visionSpeedLimit = frogpilotPlan.getSlcVisionSpeedLimit();
   mapboxSpeedLimit = frogpilotPlan.getSlcMapboxSpeedLimit();
   nextSpeedLimit = frogpilotPlan.getSlcNextSpeedLimit();
   redLight = frogpilotPlan.getRedLight();
@@ -1097,6 +1098,11 @@ void FrogPilotAnnotatedCameraWidget::paintSpeedLimitSources(QPainter &p) {
   drawSource(mapDataRect, mapDataIcon, "Map Data", mapSpeedLimit * speedConversion);
   drawSource(mapboxRect, mapboxIcon, "Mapbox", mapboxSpeedLimit * speedConversion);
   drawSource(nextLimitRect, nextMapsIcon, "Upcoming", nextSpeedLimit * speedConversion);
+
+  if (frogpilot_toggles.value(QLatin1String("vision_speed_limit_detection")).toBool()) {
+    QRect visionRect(nextLimitRect.x(), nextLimitRect.bottom() + UI_BORDER_SIZE / 2, 450, 60);
+    drawSource(visionRect, speedIcon, "Vision", visionSpeedLimit * speedConversion);
+  }
 
   p.restore();
 }
