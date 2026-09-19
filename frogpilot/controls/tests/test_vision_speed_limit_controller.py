@@ -153,6 +153,63 @@ def test_denied_vision_change_preserves_current_limit(controller):
   assert controller.target == pytest.approx(55 * CV.MPH_TO_MS)
 
 
+@pytest.mark.parametrize("fallback", [False, True])
+@pytest.mark.parametrize("unavailable", ["expired", "disabled", "deselected"])
+def test_unavailable_vision_cancels_pending_confirmation(controller, mocker, fallback, unavailable):
+  controller.frogpilot_toggles.vision_speed_limit_detection = False
+  update(controller)
+  controller.frogpilot_toggles.vision_speed_limit_detection = True
+  controller.frogpilot_toggles.speed_limit_confirmation_lower = True
+  controller.frogpilot_toggles.slc_fallback_previous_speed_limit = fallback
+  update(controller)
+  assert controller.unconfirmed_speed_limit == pytest.approx(45 * CV.MPH_TO_MS)
+  controller.frogpilot_planner.params_memory.values["SpeedLimitAccepted"] = True
+
+  if unavailable == "expired":
+    mocker.patch("time.monotonic", return_value=101 + HEARTBEAT_TIMEOUT)
+  elif unavailable == "disabled":
+    controller.frogpilot_toggles.vision_speed_limit_detection = False
+  else:
+    controller.frogpilot_toggles.speed_limit_priority1 = "None"
+  update(controller, SubMaster(dashboard=0, map_limit=0))
+
+  assert controller.unconfirmed_speed_limit == 0
+  assert controller.speed_limit_changed_timer == 0
+  assert not controller.frogpilot_planner.params_memory.get_bool("SpeedLimitAccepted")
+  assert controller.target == pytest.approx(55 * CV.MPH_TO_MS if fallback else 0)
+  assert controller.source == ("Map Data" if fallback else "None")
+
+
+def test_expired_vision_clears_its_denied_limit(controller, mocker):
+  controller.frogpilot_toggles.vision_speed_limit_detection = False
+  update(controller)
+  controller.frogpilot_toggles.vision_speed_limit_detection = True
+  controller.frogpilot_toggles.speed_limit_confirmation_lower = True
+  update(controller)
+  sm = SubMaster()
+  sm["frogpilotCarState"].decelPressed = True
+  update(controller, sm)
+  assert controller.denied_target > 0
+  mocker.patch("time.monotonic", return_value=101 + HEARTBEAT_TIMEOUT)
+  update(controller, SubMaster(dashboard=0, map_limit=0))
+  assert controller.denied_target == 0
+  assert controller.target == pytest.approx(55 * CV.MPH_TO_MS)
+
+
+def test_vision_expiry_preserves_pending_map_confirmation(controller, mocker):
+  controller.frogpilot_toggles.speed_limit_priority1 = "Map Data"
+  update(controller)
+  controller.frogpilot_toggles.speed_limit_confirmation_lower = True
+  update(controller, SubMaster(map_limit=45))
+  mocker.patch("time.monotonic", return_value=101 + HEARTBEAT_TIMEOUT)
+  update(controller, SubMaster(map_limit=45))
+  assert controller.unconfirmed_speed_limit == pytest.approx(45 * CV.MPH_TO_MS)
+  controller.frogpilot_planner.params_memory.values["SpeedLimitAccepted"] = True
+  update(controller, SubMaster(map_limit=45))
+  assert controller.source == "Map Data"
+  assert controller.target == pytest.approx(45 * CV.MPH_TO_MS)
+
+
 def test_display_only_does_not_apply_offset_or_override(controller):
   controller.frogpilot_toggles.speed_limit_controller = False
   controller.overridden_speed = 30

@@ -59,6 +59,9 @@ possible; controller confirmation is still configurable.
 - Expired/disabled vision is excluded from Previous Limit fallback. Vision limits
   are not saved to the persistent PreviousSpeedLimit parameter. Mapbox, map data,
   and dashboard behavior remain available when inference fails.
+  Pending vision confirmations, denied readings, and queued approval taps clear
+  when vision becomes unavailable or is no longer selected. Pending confirmations
+  from other sources retain the existing controller behavior.
 - StarPilot's training collector, automatic bookmarks, raw-frame logging, legacy
   OCR models, optical-flow experiment, and unrelated telemetry are not dependencies.
 
@@ -81,9 +84,7 @@ ruff check frogpilot/common/vision_speed_limit.py \
 uv lock --check
 scons --minimal -j4 common/params_pyx.so \
   msgq_repo/msgq/ipc_pyx.so msgq_repo/msgq/visionipc/visionipc_pyx.so \
-  frogpilot/ui/qt/offroad/longitudinal_settings.o \
-  frogpilot/ui/qt/offroad/visual_settings.o \
-  frogpilot/ui/qt/onroad/frogpilot_annotated_camera.o
+  selfdrive/ui/ui
 ```
 
 Tests cover positive and blank-image inference, model corruption, output shape and
@@ -107,11 +108,14 @@ Host checks do not establish those properties.
 
 Linux x86-64 under WSL, Python 3.12.3, OpenCV 4.11.0:
 
-- 64 tests passed: 51 feature tests and 13 existing Params tests, using the
+- 72 tests passed: 59 feature tests and 13 existing Params tests, using the
   repository pytest configuration and native parameter bindings.
-- The parameter/messaging/VisionIPC bindings and all three edited Qt translation
-  units compiled with the repository SCons configuration. This is a component
-  build, not a complete device image or an on-device UI check.
+- The parameter/messaging/VisionIPC bindings compiled, and the complete Qt UI
+  compiled and linked with the repository SCons configuration.
+- An isolated 2160x1080 Qt preview confirmed the Vision toggle and source selection
+  dialogs render, all three priorities save correctly, and cancelling the second
+  dialog preserves the existing order. This is a desktop settings check, not a
+  complete device image or on-device UI validation.
 - New modules/tests and the edited controller/process configuration pass Ruff.
   The variables module has 56 pre-existing diagnostics; comparison against the
   base revision found no new diagnostics in changed existing Python files.

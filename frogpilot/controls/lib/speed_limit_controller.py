@@ -62,6 +62,7 @@ class SpeedLimitController:
     self.mapbox_future = None
     self.mapbox_position = None
 
+    self.confirmation_source = "None"
     self.previous_source = "None"
     self.source = "None"
 
@@ -101,6 +102,7 @@ class SpeedLimitController:
     self.unconfirmed_speed_limit = 0
     self.vision_speed_limit = 0
 
+    self.confirmation_source = "None"
     self.source = "None"
 
     self.invalidate_mapbox()
@@ -136,6 +138,7 @@ class SpeedLimitController:
     if not confirmation_required:
       self.denied_target = 0
 
+      self.confirmation_source = "None"
       self.source = desired_source
       self.target = desired_target
 
@@ -148,6 +151,7 @@ class SpeedLimitController:
       return
 
     if abs(desired_target - self.unconfirmed_speed_limit) >= 1:
+      self.confirmation_source = desired_source
       self.source = "None"
 
       self.speed_limit_changed_timer = DT_MDL
@@ -161,6 +165,7 @@ class SpeedLimitController:
       self.denied_target = 0
       self.overridden_speed = 0
 
+      self.confirmation_source = "None"
       self.source = desired_source
       self.target = desired_target
 
@@ -218,6 +223,14 @@ class SpeedLimitController:
 
     desired_target = limits.get(desired_source, 0)
 
+    if self.confirmation_source == "Vision" and desired_source != "Vision":
+      # A pending/denied vision reading must not outlive its source or selection.
+      self.confirmation_source = "None"
+      self.denied_target = 0
+      self.unconfirmed_speed_limit = 0
+      self.speed_limit_changed_timer = 0
+      self.frogpilot_planner.params_memory.remove("SpeedLimitAccepted")
+
     self.update_mapbox_speed_limit(gps_position, map_match, now, time_validated, v_ego, desired_target)
 
     if desired_target == 0:
@@ -249,6 +262,7 @@ class SpeedLimitController:
       self.source = "None"
 
     if abs(desired_target - self.target) < 1:
+      self.confirmation_source = "None"
       self.denied_target = 0
       self.unconfirmed_speed_limit = 0
 
