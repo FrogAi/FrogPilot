@@ -52,10 +52,13 @@ possible; controller confirmation is still configurable.
   seconds. Multiple crops of a single frame are not independent confirmation.
   Changes below 30 mph from 30 mph or above require at least 0.90 confidence.
 - One JSON value in `Params(memory=True)` carries the m/s result, confidence,
-  detection time, and producer heartbeat together. The SLC validates it independently:
+  detection time, and last processed camera-frame time together. The SLC validates
+  it independently:
   the result expires after 300 seconds without matching observations, or after
-  three seconds without a live producer/camera. Heartbeats do not extend the
-  detection age. Observed road-name changes and camera switches clear confirmation.
+  three seconds without a new processed camera frame. Republishing does not extend
+  either deadline. Live frames without a recognized sign preserve the held limit
+  until its detection expires. Observed road-name changes and camera switches
+  clear confirmation.
 - Expired/disabled vision is excluded from Previous Limit fallback. Vision limits
   are not saved to the persistent PreviousSpeedLimit parameter. Mapbox, map data,
   and dashboard behavior remain available when inference fails.
@@ -94,7 +97,7 @@ gas overrides, and stale-limit fallback. An integration test sends padded NV12
 frames through real VisionIPC and device/car-state messages through PubMaster /
 SubMaster, runs the actual ONNX models, and passes results through native shared
 parameters to the controller. It also checks that the controller stops using
-those results when their heartbeat expires. The two positive frames are a small
+those results when their camera-frame timestamp expires. The two positive frames are a small
 regression fixture; they do not establish onroad accuracy.
 
 Before merge/deployment, model [licensing and provenance](../frogpilot/assets/vision_models/README.md)
@@ -108,7 +111,7 @@ Host checks do not establish those properties.
 
 Linux x86-64 under WSL, Python 3.12.3, OpenCV 4.11.0:
 
-- 72 tests passed: 59 feature tests and 13 existing Params tests, using the
+- 74 tests passed: 61 feature tests and 13 existing Params tests, using the
   repository pytest configuration and native parameter bindings.
 - The parameter/messaging/VisionIPC bindings compiled, and the complete Qt UI
   compiled and linked with the repository SCons configuration.

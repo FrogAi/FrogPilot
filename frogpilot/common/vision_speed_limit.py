@@ -69,7 +69,8 @@ class SpeedLimitConfirmation:
       "speedLimit": self.speed_mph * CV.MPH_TO_MS,
       "confidence": self.confidence,
       "detectedAt": self.detected_at,
-      "timestamp": now,
+      # Republishing a held result cannot extend the camera's freshness window.
+      "timestamp": self.last_frame_time,
     }
 
 

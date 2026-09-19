@@ -82,6 +82,7 @@ class TestConfirmation:
   def test_hold_does_not_refresh_detection_age(self):
     self.confirm()
     detection_time = self.state.detected_at
+    self.state.update(None, 20, 20)  # Live camera, with no new sign observation.
     assert read_vision_speed_limit(self.state.snapshot(20), 20) > 0
     assert self.state.detected_at == detection_time
     assert self.state.snapshot(11 + HOLD_SECONDS)['speedLimit'] == 0
@@ -96,6 +97,12 @@ class TestConfirmation:
     self.confirm()
     snapshot = self.state.snapshot(11)
     assert read_vision_speed_limit(snapshot, 11 + HEARTBEAT_TIMEOUT + 0.01) == 0
+
+  def test_republishing_does_not_extend_camera_freshness(self):
+    self.confirm()
+    last_frame = self.state.last_frame_time
+    snapshot = self.state.snapshot(last_frame + HEARTBEAT_TIMEOUT - 0.1)
+    assert read_vision_speed_limit(snapshot, last_frame + HEARTBEAT_TIMEOUT + 0.1) == 0
 
   def test_malformed_snapshots_fail_closed(self):
     self.confirm()
@@ -277,6 +284,14 @@ class TestRuntime:
     self.mocker.patch('openpilot.frogpilot.system.speed_limit_vision.time.monotonic', return_value=14)
     self.daemon.step(14)
     assert self.params.get(VISION_SPEED_LIMIT_PARAM) is None
+
+  def test_worker_stopping_after_camera_stall_does_not_extend_deadline(self):
+    self.confirm()
+    self.camera.recv.return_value = None
+    self.step(11.2)
+    self.step(11.23)  # Republish between inference attempts, without a new frame.
+    snapshot = self.params.get(VISION_SPEED_LIMIT_PARAM)
+    assert read_vision_speed_limit(snapshot, 10.2 + HEARTBEAT_TIMEOUT + 0.1) == 0
 
   def test_road_change_requires_new_confirmation(self):
     self.confirm()
