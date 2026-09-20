@@ -126,11 +126,13 @@ those results when their camera-frame timestamp expires. The two positive frames
 regression fixture; they do not establish onroad accuracy.
 
 Before merge/deployment, model [licensing and provenance](../frogpilot/assets/vision_models/README.md)
-must be resolved. Hardware validation remains necessary: check on-device inference
-latency and model/control deadlines, memory and thermal headroom, camera restart,
-drive transitions, and a labeled raw-camera replay set with both ordinary signs
-and hard negatives (advisory signs, school conditions, side roads, night/glare).
-Host checks do not establish those properties.
+must be resolved. The final candidate passed the native C3 checks recorded below,
+and the tester subsequently reported that it worked well on a drive. Broader
+validation remains necessary for sustained model/control deadlines, memory and
+thermal headroom, camera restarts, drive transitions, and a labeled raw-camera
+set with ordinary signs and hard negatives (advisory signs, school conditions,
+side roads, night/glare). Short hardware checks and one tester's report do not
+establish those properties.
 
 ### Host validation record (2026-09-19)
 
@@ -165,7 +167,7 @@ the failure because it did not have the full stack's reader count.
 
 The worker now consumes `frogpilotCarState`, which carries the same CAN-valid flag
 and a drive/low gear flag. No checks in calibration or the vehicle control
-processes have been relaxed. This branch is not validated for driving.
+processes have been relaxed. At this stage, road recognition had not been validated.
 
 A separate worker bug was reproduced using the C3's physical cameras and driving
 model, with isolated messaging and recorded/synthetic vehicle-state inputs.
@@ -304,12 +306,10 @@ measured 15 seconds per phase after settling, with 60 valid calibration messages
 and 301 valid messages each from modelV2 and cameraOdometry, and zero invalid
 messages, both with vision disabled and with it enabled.
 
-**Those C3 results precede the heading fallback.** Its standalone recognizer ran
-on the C3, but the complete final three-model worker still needs native latency,
-coexistence, startup and road validation. The updated candidate is not yet
-installed. Host replay cannot establish ARM scheduling, sustained thermal
-headroom or driving safety. No claim of general sign accuracy or driving
-readiness is made.
+**Those earlier C3 results precede the heading fallback.** The final three-model
+candidate was subsequently built, installed and checked on the C3 as recorded
+below. Host replay alone cannot establish ARM scheduling, sustained thermal
+headroom or driving safety.
 
 ### Desktop process and UI replay
 
@@ -348,6 +348,43 @@ within their message-frequency checks. Screenshots verified the visible
 Vision row at both 30 and 40 mph. These are host timings, with CUDA driving
 inference and CPU VSL inference; they are not C3 timing measurements.
 
-These additional changes are local and require a fresh native C3 UI build and
-device startup/performance checks before installation. They have not been
-installed on the C3.
+### Final candidate C3 validation and tester feedback (2026-09-20)
+
+Runtime revision `42f682c7bfaeed4bc7d4a2b05ec62e510112503e`, including the
+heading fallback, confirmation logging fix and Qt source-row fix, was built in
+a separate staged checkout on the C3 before activation. Native
+`scons --minimal -j2` completed successfully in 325.6 seconds. The subsequent
+build at the canonical installation path passed in 15.5 seconds, and the device
+rebooted into that revision with its native Qt UI running.
+
+- The native padded-NV12 VisionIPC/ONNX/shared-Params/Vision-only SLC test
+  confirmed 30, then 40, then 30 mph from the recorded fixtures. The inspected
+  hard negatives did not change the held limit, and camera expiry removed it.
+  Individual fixture processing took 0.20–0.58 seconds; these are short test
+  measurements, not a sustained onroad inference-rate guarantee.
+- An isolated physical-camera/model/calibration coexistence test measured
+  15 seconds per phase after settling. With vision off/on respectively,
+  `modelV2` and `cameraOdometry` each produced 300/301 valid messages, and
+  calibration produced 60/60. None was invalid. The enabled vision worker
+  remained in `Scanning` under a recorded recognition workload; sampled
+  inference times were approximately 0.58–0.61 seconds.
+- After reboot, a 20-second observation of the full stack in Park found all
+  14 monitored channels alive, valid and within their frequency checks, with
+  zero invalid messages, no selfdrive alerts and no unexpectedly stopped
+  managed processes. There were 400 messages each from `modelV2` and
+  `cameraOdometry`, and 80 calibration messages. The same 15 `carState` readers
+  remained present. Vision was correctly `Idle` in Park, so this check verified
+  startup and communication health rather than sign recognition.
+- The installed candidate's 12 manifest hashes matched, and the eight backed-up
+  steering/tuning settings remained unchanged through installation and reboot.
+
+After installation, the tester reported that the feature worked very well on
+a subsequent drive and requested maintainer review. This is user-reported road
+experience, not an independently scored route evaluation; no distance, sign
+count, lighting coverage or miss rate was recorded with that report.
+
+The native checks and road feedback supersede the earlier uninstalled/untested
+status. General recognition accuracy, sustained load/thermal margin and the
+other limitations above remain open for review. The timing simulation's missed
+40 mph signs at 1.5 times the cost estimate also remain relevant. Private route
+recordings and device diagnostics are not included in this repository.
