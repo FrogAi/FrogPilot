@@ -85,6 +85,11 @@ loop is running, or hold a previous vision limit after the producer dies.
 With the repository's Linux development dependencies and native bindings built:
 
 ```sh
+scons --minimal -j4 common/params_pyx.so \
+  msgq_repo/msgq/ipc_pyx.so msgq_repo/msgq/visionipc/visionipc_pyx.so \
+  selfdrive/pandad/pandad_api_impl.so \
+  selfdrive/controls/lib/longitudinal_mpc_lib/c_generated_code/acados_ocp_solver_pyx.so \
+  selfdrive/ui/ui
 pytest -n0 frogpilot/system/tests/test_speed_limit_vision.py \
   frogpilot/controls/tests/test_vision_speed_limit_controller.py common/tests/test_params.py
 ruff check frogpilot/common/vision_speed_limit.py \
@@ -92,9 +97,6 @@ ruff check frogpilot/common/vision_speed_limit.py \
   frogpilot/system/tests/test_speed_limit_vision.py \
   frogpilot/controls/tests/test_vision_speed_limit_controller.py
 uv lock --check
-scons --minimal -j4 common/params_pyx.so \
-  msgq_repo/msgq/ipc_pyx.so msgq_repo/msgq/visionipc/visionipc_pyx.so \
-  selfdrive/ui/ui
 ```
 
 Tests cover positive and blank-image inference, model corruption, output shape and
@@ -118,7 +120,7 @@ Host checks do not establish those properties.
 
 Linux x86-64 under WSL, Python 3.12.3, OpenCV 4.11.0:
 
-- 74 tests passed: 61 feature tests and 13 existing Params tests, using the
+- 100 tests passed: 87 feature tests and 13 existing Params tests, using the
   repository pytest configuration and native parameter bindings.
 - The parameter/messaging/VisionIPC bindings compiled, and the complete Qt UI
   compiled and linked with the repository SCons configuration.
@@ -133,16 +135,21 @@ Linux x86-64 under WSL, Python 3.12.3, OpenCV 4.11.0:
   the pinned StarPilot files; positive frame inference and blank-image rejection
   ran using the actual ONNX weights.
 
-No comma hardware test, labeled route accuracy assessment, native Mici UI port,
-or license clearance is claimed by these results.
+These host results do not establish comma hardware performance, labeled route
+accuracy, native Mici UI support, or license clearance.
 
 ### C3 investigation and follow-up validation (2026-09-19)
 
 Initial vehicle testing of `4ff97619` on a comma 3 running AGNOS 12.8 exposed
-unresolved communication errors. Recorded camera odometry and car-state messages
-were valid, while calibration and several downstream outputs remained invalid.
-Replaying those inputs through calibrationd on the device did not reproduce the
-failure. This branch is not validated for driving.
+communication errors. The full process stack exceeded `carState`'s 15-reader
+capacity when the vision worker subscribed, repeatedly evicting readers and
+invalidating calibration and downstream outputs. Temporarily pausing only the
+vision worker restored their validity. Isolated input replay did not reproduce
+the failure because it did not have the full stack's reader count.
+
+The worker now consumes `frogpilotCarState`, which carries the same CAN-valid flag
+and a drive/low gear flag. No checks in calibration or the vehicle control
+processes have been relaxed. This branch is not validated for driving.
 
 A separate worker bug was reproduced using the C3's physical cameras and driving
 model, with isolated messaging and recorded/synthetic vehicle-state inputs.
@@ -154,18 +161,30 @@ window with vision disabled and enabled. This short, isolated test does not
 validate the complete vehicle process stack, recognition accuracy, or sustained
 thermal performance.
 
-The follow-up Linux host suite passes 87 tests, including a regression using the
-real SubMaster frequency tracker and rejection of stale, future-dated, and
-invalid inputs. The changed Python files pass Ruff. The vehicle communication
-failure was subsequently reproduced in a parked vehicle: the additional worker
-exceeded `carState`'s 15-reader limit, causing repeated reader eviction. Temporarily
-pausing that worker restored calibration and downstream message validity. The
-worker now consumes `frogpilotCarState`, which carries the same CAN-valid flag
-and a drive/low gear flag. No checks in calibration or the vehicle control
-processes have been relaxed.
-
 The reader-capacity fix passes 100 host tests (87 feature tests and 13 Params
 tests), including preservation of all 15 existing car-state readers and the
-auxiliary publisher's gear/validity behavior. The native Qt UI and the CAN/Panda
-binding compile with the updated schema. The feature modules and tests pass
-Ruff; the existing long line in `card.py` is unchanged.
+auxiliary publisher's gear/validity behavior, the real SubMaster frequency tracker,
+and rejection of stale, future-dated, and invalid inputs. The native Qt UI and the
+CAN/Panda binding compile with the updated schema. The feature modules and tests
+pass Ruff; the existing long line in `card.py` is unchanged.
+
+Revision `77fc9ba3` was then built and started on the C3 in the parked vehicle,
+with ignition on and FrogPilot disengaged. After a 12-second settling period,
+a 20-second observation of the complete running stack found:
+
+- All 12 monitored services were alive, valid, and within their receive-frequency
+  checks. None of their sampled messages was invalid, including 80 calibration
+  messages and 401 messages each from live pose, longitudinal planning, radar,
+  live parameters, and driver assistance.
+- No selfdrive alert was present in 1,999 observed state messages, and no managed
+  process that should have been running was stopped.
+- `carState` held a stable set of 15 reader IDs throughout the window, compared
+  with repeated eviction before the fix. These counters were read directly from
+  shared memory; adding a diagnostic subscriber to this full channel would itself
+  exceed the limit.
+- The vision worker was running. Its `Idle` status was expected in Park; this
+  parked check did not exercise inference while driving.
+
+The temporary calibration instrumentation was removed from the device's source
+after collection. These results verify recovery from the reproduced parked
+communication failure, not road sign accuracy or driving behavior.
