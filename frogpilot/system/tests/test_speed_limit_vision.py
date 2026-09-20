@@ -199,7 +199,7 @@ class FakeSubMaster(dict):
   def __init__(self):
     super().__init__(
       deviceState=SimpleNamespace(started=True, thermalStatus=0, memoryUsagePercent=30, cpuUsagePercent=[10] * 8),
-      carState=SimpleNamespace(gearShifter='drive'),
+      frogpilotCarState=SimpleNamespace(drivingGear=True),
       mapdOut=SimpleNamespace(roadName='Main Street'),
     )
     self.valid = dict.fromkeys(self, True)
@@ -274,7 +274,7 @@ class TestRuntime:
       setattr(self.sm['deviceState'], field, previous)
       self.daemon.last_inference_at = 0
     self.confirm()
-    self.sm['carState'].gearShifter = 'reverse'
+    self.sm['frogpilotCarState'].drivingGear = False
     self.step(11)
     assert self.params.get(VISION_SPEED_LIMIT_PARAM) is None
 
@@ -336,7 +336,7 @@ class TestRuntime:
 
   def test_invalid_car_messages_clear_source(self):
     self.confirm()
-    self.sm.alive['carState'] = False
+    self.sm.alive['frogpilotCarState'] = False
     self.step(11)
     assert self.params.get(VISION_SPEED_LIMIT_PARAM) is None
 

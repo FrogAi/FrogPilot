@@ -276,11 +276,48 @@ def test_runtime_subscription_accepts_messages_at_its_loop_rate(mocker):
   main()
   sm = run.call_args.args[0].sm
   for tick in range(RUNTIME_LOOP_HZ + 1):
-    messages = [messaging.new_message("carState", valid=True).as_reader()]
+    messages = [messaging.new_message("frogpilotCarState", valid=True).as_reader()]
     if tick % (RUNTIME_LOOP_HZ // 2) == 0:
       messages.append(messaging.new_message("deviceState", valid=True).as_reader())
     sm.update_msgs(100 + tick / RUNTIME_LOOP_HZ, messages)
-  assert sm.all_checks(["deviceState", "carState"])
+  assert sm.all_checks(["deviceState", "frogpilotCarState"])
+
+
+def test_vision_worker_preserves_existing_car_state_readers(mocker):
+  from cereal import messaging
+  from openpilot.frogpilot.system.speed_limit_vision import SpeedLimitVisionDaemon, main
+
+  # FrogPilot fills all 15 slots. A sixteenth reader evicts existing consumers.
+  pm = messaging.PubMaster(["carState"])
+  readers = [messaging.sub_sock("carState", conflate=True) for _ in range(15)]
+  mocker.patch.object(SpeedLimitVisionDaemon, "run")
+  main()
+  for timestamp in range(1, 4):
+    message = messaging.new_message("carState", valid=True)
+    message.logMonoTime = timestamp
+    pm.send("carState", message)
+    for reader in readers:
+      received = messaging.recv_one_or_none(reader)
+      assert received is not None and received.logMonoTime == timestamp
+
+
+@pytest.mark.parametrize("gear", ["drive", "low", "park", "reverse", "neutral", "unknown"])
+@pytest.mark.parametrize("can_valid", [True, False])
+def test_auxiliary_car_state_preserves_gear_and_validity(mocker, gear, can_valid):
+  from cereal import car, custom
+  from openpilot.selfdrive.car.card import Car
+
+  publisher = Car.__new__(Car)
+  publisher.sm = SimpleNamespace(frame=1, all_checks=lambda _: True)
+  publisher.pm = mocker.Mock()
+  publisher.rk = SimpleNamespace(remaining=0.0)
+  publisher.last_actuators_output = car.CarControl.Actuators.new_message()
+  publisher.can_rcv_cum_timeout_counter = 0
+  state = car.CarState.new_message(gearShifter=gear, canValid=can_valid)
+  publisher.state_publish(state, None, custom.FrogPilotCarState.new_message())
+  messages = {call.args[0]: call.args[1] for call in publisher.pm.send.call_args_list}
+  assert messages["frogpilotCarState"].valid == messages["carState"].valid == can_valid
+  assert messages["frogpilotCarState"].frogpilotCarState.drivingGear == (gear in ("drive", "low"))
 
 
 def test_real_camera_models_and_params_reach_controller(controller, mocker):
@@ -295,7 +332,7 @@ def test_real_camera_models_and_params_reach_controller(controller, mocker):
 
   params = Params(memory=True)
   controller.frogpilot_planner.params_memory = params
-  services = ["deviceState", "carState", "mapdOut"]
+  services = ["deviceState", "frogpilotCarState", "mapdOut"]
   pm = messaging.PubMaster(services)
   sm = messaging.SubMaster(services, frequency=RUNTIME_LOOP_HZ)
   daemon = SpeedLimitVisionDaemon(params, sm, VisionIpcClient, VisionStreamType, mocker.Mock())
@@ -327,9 +364,9 @@ def test_real_camera_models_and_params_reach_controller(controller, mocker):
     for tick in range(RUNTIME_LOOP_HZ + 1):
       now = 100 + tick / RUNTIME_LOOP_HZ
       clock.return_value = now
-      car = messaging.new_message("carState", valid=True)
-      car.carState.gearShifter = "drive"
-      pm.send("carState", car)
+      car = messaging.new_message("frogpilotCarState", valid=True)
+      car.frogpilotCarState.drivingGear = True
+      pm.send("frogpilotCarState", car)
       if tick % (RUNTIME_LOOP_HZ // 2) == 0:
         device = messaging.new_message("deviceState", valid=True)
         device.deviceState.started = True
@@ -340,12 +377,12 @@ def test_real_camera_models_and_params_reach_controller(controller, mocker):
         sm.update(0)
         if tick < RUNTIME_LOOP_HZ // 2:
           continue
-        assert sm.all_checks(["deviceState", "carState"])
+        assert sm.all_checks(["deviceState", "frogpilotCarState"])
         assert daemon.connect_camera()
       server.send(stream, frames[tick % 2], frame_id=tick, timestamp_eof=int(now * 1e9))
       daemon.step(now)
 
-    assert sm.all_checks(["deviceState", "carState"])
+    assert sm.all_checks(["deviceState", "frogpilotCarState"])
     assert params.get(VISION_SPEED_LIMIT_PARAM)["speedLimit"] == pytest.approx(20 * CV.MPH_TO_MS)
     update(controller)
     assert controller.source == "Vision"

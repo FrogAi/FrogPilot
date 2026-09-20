@@ -39,6 +39,12 @@ possible; controller confirmation is still configurable.
   The worker validates input payloads and source timestamps: car state must be
   at most 0.1 seconds old and device state at most 5 seconds old. Inference blocks
   this worker, so its receive frequency is not used to infer publisher health.
+- Vehicle validity and the drive/low gear flag arrive through `frogpilotCarState`.
+  The standard `carState` channel already has 15 readers in a fully configured
+  FrogPilot, which fills this msgq version's reader capacity. Adding the vision
+  worker there evicts existing readers and can invalidate calibration and the
+  downstream control stack. Using the auxiliary channel preserves those readers
+  without changing the shared-memory layout or relaxing any control checks.
 - The worker prefers the road stream and falls back to wide road. NV12 decoding
   respects stride **and UV-plane offset**. Frames older than 0.5 seconds, repeated
   timestamps, offroad/invalid car state, and non-driving gears cannot confirm a sign.
@@ -151,5 +157,15 @@ thermal performance.
 The follow-up Linux host suite passes 87 tests, including a regression using the
 real SubMaster frequency tracker and rejection of stale, future-dated, and
 invalid inputs. The changed Python files pass Ruff. The vehicle communication
-failure remains under investigation; no checks in calibration or the vehicle
-control processes have been relaxed.
+failure was subsequently reproduced in a parked vehicle: the additional worker
+exceeded `carState`'s 15-reader limit, causing repeated reader eviction. Temporarily
+pausing that worker restored calibration and downstream message validity. The
+worker now consumes `frogpilotCarState`, which carries the same CAN-valid flag
+and a drive/low gear flag. No checks in calibration or the vehicle control
+processes have been relaxed.
+
+The reader-capacity fix passes 100 host tests (87 feature tests and 13 Params
+tests), including preservation of all 15 existing car-state readers and the
+auxiliary publisher's gear/validity behavior. The native Qt UI and the CAN/Panda
+binding compile with the updated schema. The feature modules and tests pass
+Ruff; the existing long line in `card.py` is unchanged.

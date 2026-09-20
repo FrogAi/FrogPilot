@@ -15,7 +15,7 @@ RUNTIME_LOOP_HZ = 30
 BUSY_INTERVAL = 1.5
 MODEL_RETRY_INTERVAL = 30.0
 MAX_FRAME_AGE = 0.5
-INPUT_MAX_AGE = {"deviceState": 5.0, "carState": 0.1}
+INPUT_MAX_AGE = {"deviceState": 5.0, "frogpilotCarState": 0.1}
 
 
 def inputs_valid(sm, now):
@@ -109,7 +109,7 @@ class SpeedLimitVisionDaemon:
     if device_state.thermalStatus >= 2 or device_state.memoryUsagePercent >= 94:
       self.clear("Paused: device load", disconnect=True)
       return
-    if self.sm["carState"].gearShifter not in ("drive", "low"):
+    if not self.sm["frogpilotCarState"].drivingGear:
       self.clear("Idle", disconnect=True)
       return
 
@@ -203,7 +203,9 @@ def main():
     set_core_affinity([0, 1, 2])
   cv2.setNumThreads(1)
   cv2.ocl.setUseOpenCL(False)
-  sm = messaging.SubMaster(["deviceState", "carState", "mapdOut"], frequency=RUNTIME_LOOP_HZ)
+  # carState already has 15 readers in FrogPilot, the msgq per-channel limit.
+  # Use the auxiliary message so this optional worker cannot evict them.
+  sm = messaging.SubMaster(["deviceState", "frogpilotCarState", "mapdOut"], frequency=RUNTIME_LOOP_HZ)
   SpeedLimitVisionDaemon(Params(memory=True), sm, VisionIpcClient, VisionStreamType, cloudlog).run()
 
 
