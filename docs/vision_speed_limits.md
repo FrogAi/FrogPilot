@@ -54,7 +54,9 @@ possible; controller confirmation is still configurable.
   actual single-class proposal detector and 19-class probability output. Advisory
   color rejection, a maximum of four non-overlapping proposals, bounded crop
   reads, and rejection of conflicting numbers limit ambiguous results. These
-  heuristics are not a classifier for conditional-sign applicability.
+  heuristics are not a classifier for conditional-sign applicability. The color
+  filter normalizes brightness with a bounded gain so shadowed white panels are
+  not rejected solely for being dim; hue, saturation, and model inputs are unchanged.
 - Confirmation requires two matching independent camera frames within two
   seconds. Multiple crops of a single frame are not independent confirmation.
   Changes below 30 mph from 30 mph or above require at least 0.90 confidence.
@@ -120,7 +122,7 @@ Host checks do not establish those properties.
 
 Linux x86-64 under WSL, Python 3.12.3, OpenCV 4.11.0:
 
-- 100 tests passed: 87 feature tests and 13 existing Params tests, using the
+- 142 tests passed: 129 feature tests and 13 existing Params tests, using the
   repository pytest configuration and native parameter bindings.
 - The parameter/messaging/VisionIPC bindings compiled, and the complete Qt UI
   compiled and linked with the repository SCons configuration.
@@ -188,3 +190,33 @@ a 20-second observation of the complete running stack found:
 The temporary calibration instrumentation was removed from the device's source
 after collection. These results verify recovery from the reproduced parked
 communication failure, not road sign accuracy or driving behavior.
+
+### Drive investigation and shadow-filter regression (2026-09-19)
+
+The subsequent C3 road trial reported `Vision N/A`. Recorded messages during the
+driving segments were valid, the vision worker remained running with no logged
+inference exceptions, and the auxiliary gear flag correctly indicated Drive.
+The device stayed below the worker's thermal and memory pause thresholds, but
+`slcVisionSpeedLimit` remained zero. Existing logs do not record each vision
+frame's decisions, so they cannot establish the exact live inference cadence or
+explain every missed sign.
+
+Offline replay reproduced a specific rejection on a clearly visible 30 mph sign:
+the proposal model located it, but the color filter rejected its shadowed white
+panel before classification. Direct classification of that crop correctly read
+30 mph. The filter now adjusts its brightness reference using the crop's 90th
+percentile, with gain limited to 3x. It preserves hue/saturation checks, the
+original model inputs, confidence thresholds, and temporal confirmation.
+
+At 6.67 sampled frames per second over a 60-second full-resolution recording,
+the original pipeline produced no readings; the correction produced six 30 mph
+readings on successive sampled frames and confirmed the limit. No other speed
+was produced in that sample. This replay rate is not a measurement of C3 runtime
+performance, and this single sign does not establish general recognition accuracy.
+
+All 142 host tests pass, including shadowed neutral/cool white signs, dim colored
+sign rejection, featureless crops, and bounded handling of near-black inputs.
+The four new dim-white regression cases fail before the fix. The changed Python
+files pass Ruff. This Python-only correction has not yet been validated on the
+C3 or in another road trial; it does not require rebuilding the native UI/schema.
+Private route recordings are not included in the repository.

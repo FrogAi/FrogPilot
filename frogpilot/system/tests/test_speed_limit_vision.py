@@ -179,13 +179,29 @@ class TestModel:
       with pytest.raises(ValueError):
         model.classify(crop)
 
-  def test_advisory_color_is_rejected(self):
-    advisory = np.full((100, 80, 3), (0, 220, 255), np.uint8)
-    cv2.putText(advisory, '35', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 3)
-    assert not is_regulatory_sign(advisory)
-    regulatory = np.full((100, 80, 3), 230, np.uint8)
+  @pytest.mark.parametrize('brightness', [1.0, 0.65, 0.45, 0.25])
+  @pytest.mark.parametrize('background', [(230, 230, 230), (230, 210, 190)])
+  def test_regulatory_sign_in_sun_and_shadow(self, brightness, background):
+    regulatory = np.full((100, 80, 3), background, np.uint8)
     cv2.putText(regulatory, '55', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 3)
-    assert is_regulatory_sign(regulatory)
+    assert is_regulatory_sign((regulatory * brightness).astype(np.uint8))
+
+  @pytest.mark.parametrize('brightness', [1.0, 0.45, 0.25])
+  @pytest.mark.parametrize('background', [(0, 220, 255), (0, 130, 255), (0, 0, 230), (0, 200, 0), (220, 70, 20)])
+  @pytest.mark.parametrize('foreground', [0, 230])
+  def test_colored_sign_is_rejected_in_sun_and_shadow(self, brightness, background, foreground):
+    colored = np.full((100, 80, 3), background, np.uint8)
+    cv2.putText(colored, '35', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (foreground,) * 3, 3)
+    assert not is_regulatory_sign((colored * brightness).astype(np.uint8))
+
+  @pytest.mark.parametrize('brightness', [0, 40, 100, 230])
+  def test_featureless_crop_is_rejected(self, brightness):
+    assert not is_regulatory_sign(np.full((100, 80, 3), brightness, np.uint8))
+
+  def test_near_black_crop_is_not_amplified_into_a_sign(self):
+    crop = np.full((100, 80, 3), 20, np.uint8)
+    cv2.putText(crop, '35', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 3)
+    assert not is_regulatory_sign(crop)
 
   def test_conflicting_signs_are_not_selected(self):
     model = SpeedLimitModel.__new__(SpeedLimitModel)

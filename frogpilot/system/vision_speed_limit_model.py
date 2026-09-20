@@ -48,6 +48,11 @@ def is_regulatory_sign(crop):
   height, width = crop.shape[:2]
   hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
   hue, saturation, value = cv2.split(hsv)
+  # White panels in shadow can fall below a fixed brightness threshold. Normalize
+  # only the filter's brightness, preserving hue/saturation and the model input.
+  # Bound the gain so near-black noise cannot become a white panel.
+  reference_value = max(float(np.percentile(value, 90)), 1.0)
+  value = value.astype(np.float32) * min(3.0, max(1.0, 200.0 / reference_value))
   white = (value >= 135) & (saturation <= 70)
   dark = (value <= 115) & (saturation <= 110)
   white_ratio = float(white.mean())
