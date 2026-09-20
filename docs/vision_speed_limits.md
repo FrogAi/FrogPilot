@@ -245,7 +245,7 @@ StarPilot's color thresholds also admitted Route 50 shields from the same footag
 The updated recognition gates and bounded follow-up scheduling address these
 reproduced cases without counting crop variants as independent observations.
 
-Current host checks pass 218 tests (205 feature tests and 13 Params tests),
+Current host checks pass 219 tests (206 feature tests and 13 Params tests),
 including the shipped heading model's preprocessing/dictionary, rejected route,
 speed-bump and weight-limit headings, strong-score requirements, finite output
 checks, capture-time confirmation and follow-up bounds. The synthetic heading
@@ -310,3 +310,44 @@ coexistence, startup and road validation. The updated candidate is not yet
 installed. Host replay cannot establish ARM scheduling, sustained thermal
 headroom or driving safety. No claim of general sign accuracy or driving
 readiness is made.
+
+### Desktop process and UI replay
+
+A separate WSL checkout now runs the actual `modeld`, `controlsd`, `plannerd`,
+`frogpilot_process`, and `speed_limit_vision` entry points together with the
+native Qt UI. The saved road video enters through padded NV12 VisionIPC at
+20 Hz. Recorded vehicle, engagement, calibration and radar messages supply
+the inputs that normally come from hardware. The driving model, plans,
+controls and Vision limits are computed live; their output messages are not
+replayed from the recording.
+
+The desktop adapter uses its own messaging/Params prefix, the recorded
+configuration with Vision as the only SLC priority, and locally compiled CUDA
+driving models. Cloud/asset maintenance is disabled for this private replay.
+Only the narrow camera recording is available, so `modeld` uses its existing
+single-camera path. This is not a closed-loop vehicle simulation or proof of
+the original two-camera driving model's accuracy.
+
+Running the real vision entry point exposed a confirmation-time crash: the
+worker passed structured fields to `cloudlog.info`, which does not accept
+them. It now uses FrogPilot's `cloudlog.event` API. A regression test exercises
+confirmation, snapshot publication and continued processing with the real
+`SwagLogger`; the earlier observer logger had hidden this error.
+
+The visible desktop replay also exposed clipping of the fifth source row at
+the smaller window size. Source rows, icons and fonts now fit the available
+height below the speed-limit sign. The native Qt target builds successfully,
+and the 1620 by 810 window visibly displays the active Vision source.
+
+The combined desktop run selected 30 mph at recording time 58.20 seconds,
+40 mph at 110.45 seconds, cleared the source after the road change at
+158.65 seconds, and selected the glare-obscured 30 mph sign at 316.30 seconds.
+The real `frogpilotPlan` carried those values. At the final check, the model,
+FrogPilot plan, longitudinal plan and control channels were alive, valid and
+within their message-frequency checks. Screenshots verified the visible
+Vision row at both 30 and 40 mph. These are host timings, with CUDA driving
+inference and CPU VSL inference; they are not C3 timing measurements.
+
+These additional changes are local and require a fresh native C3 UI build and
+device startup/performance checks before installation. They have not been
+installed on the C3.

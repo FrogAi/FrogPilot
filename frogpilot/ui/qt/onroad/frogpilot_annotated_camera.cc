@@ -1042,20 +1042,28 @@ void FrogPilotAnnotatedCameraWidget::paintSpeedLimit(QPainter &p) {
 void FrogPilotAnnotatedCameraWidget::paintSpeedLimitSources(QPainter &p) {
   p.save();
 
+  const bool showVision = frogpilot_toggles.value(QLatin1String("vision_speed_limit_detection")).toBool();
+  const int sourceCount = showVision ? 5 : 4;
+  const int sourceTop = speedLimitRect.bottom() + UI_BORDER_SIZE;
+  const int sourceSpacing = UI_BORDER_SIZE / 2;
+  const int rowHeight = std::clamp((height() - sourceTop - UI_BORDER_SIZE - (sourceCount - 1) * sourceSpacing) / sourceCount, 1, 60);
+  const int fontSize = std::min(35, rowHeight * 3 / 5);
+
   std::function<void(QRect&, QPixmap&, const QString&, const double)> drawSource = [&](QRect &rect, QPixmap &icon, const QString &title, double speedLimitValue) {
     bool isActive = QString::fromUtf8(speedLimitSource.c_str()) == title && speedLimitValue != 0;
 
     if (isActive) {
       p.setBrush(redColor(166));
-      p.setFont(InterFont(35, QFont::Bold));
+      p.setFont(InterFont(fontSize, QFont::Bold));
       p.setPen(QPen(redColor(), 10));
     } else {
       p.setBrush(blackColor(166));
-      p.setFont(InterFont(35, QFont::DemiBold));
+      p.setFont(InterFont(fontSize, QFont::DemiBold));
       p.setPen(QPen(blackColor(), 10));
     }
 
-    QSize size(img_size / 4, img_size / 4);
+    const int iconSize = std::min(img_size / 4, std::max(1, rowHeight - 12));
+    QSize size(iconSize, iconSize);
     QRect iconRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignLeft | Qt::AlignVCenter, size, rect.adjusted(20, 0, 0, 0));
 
     QString speedText;
@@ -1089,18 +1097,18 @@ void FrogPilotAnnotatedCameraWidget::paintSpeedLimitSources(QPainter &p) {
 
   int signMargin = 12;
 
-  QRect dashboardRect(speedLimitRect.x() - signMargin, speedLimitRect.y() + speedLimitRect.height() + UI_BORDER_SIZE, 450, 60);
-  QRect mapDataRect(dashboardRect.x(), dashboardRect.y() + dashboardRect.height() + UI_BORDER_SIZE / 2, 450, 60);
-  QRect mapboxRect(mapDataRect.x(), mapDataRect.y() + mapDataRect.height() + UI_BORDER_SIZE / 2, 450, 60);
-  QRect nextLimitRect(mapboxRect.x(), mapboxRect.y() + mapboxRect.height() + UI_BORDER_SIZE / 2, 450, 60);
+  QRect dashboardRect(speedLimitRect.x() - signMargin, sourceTop, 450, rowHeight);
+  QRect mapDataRect(dashboardRect.x(), dashboardRect.y() + rowHeight + sourceSpacing, 450, rowHeight);
+  QRect mapboxRect(mapDataRect.x(), mapDataRect.y() + rowHeight + sourceSpacing, 450, rowHeight);
+  QRect nextLimitRect(mapboxRect.x(), mapboxRect.y() + rowHeight + sourceSpacing, 450, rowHeight);
 
   drawSource(dashboardRect, dashboardIcon, "Dashboard", dashboardSpeedLimit * speedConversion);
   drawSource(mapDataRect, mapDataIcon, "Map Data", mapSpeedLimit * speedConversion);
   drawSource(mapboxRect, mapboxIcon, "Mapbox", mapboxSpeedLimit * speedConversion);
   drawSource(nextLimitRect, nextMapsIcon, "Upcoming", nextSpeedLimit * speedConversion);
 
-  if (frogpilot_toggles.value(QLatin1String("vision_speed_limit_detection")).toBool()) {
-    QRect visionRect(nextLimitRect.x(), nextLimitRect.bottom() + UI_BORDER_SIZE / 2, 450, 60);
+  if (showVision) {
+    QRect visionRect(nextLimitRect.x(), nextLimitRect.y() + rowHeight + sourceSpacing, 450, rowHeight);
     drawSource(visionRect, speedIcon, "Vision", visionSpeedLimit * speedConversion);
   }
 

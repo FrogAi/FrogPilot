@@ -174,8 +174,8 @@ class SpeedLimitVisionDaemon:
     previous_speed = self.confirmation.speed_mph
     self.confirmation.update(detection, frame_time, finished_at)
     if self.confirmation.speed_mph and self.confirmation.speed_mph != previous_speed:
-      self.logger.info("Vision speed limit confirmed", speed_mph=self.confirmation.speed_mph,
-                       confidence=self.confirmation.confidence, processing_seconds=self.processing_time)
+      self.logger.event("Vision speed limit confirmed", speed_mph=self.confirmation.speed_mph,
+                        confidence=self.confirmation.confidence, processing_seconds=self.processing_time)
     if detection is not None and detection.confidence >= MIN_CONFIDENCE:
       if self.confirmation.speed_mph == detection.speed_mph:
         self.followup_until = 0.0

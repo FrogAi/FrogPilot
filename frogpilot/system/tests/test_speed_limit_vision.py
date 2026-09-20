@@ -384,6 +384,22 @@ class TestRuntime:
     self.confirm()
     assert self.params.get(VISION_SPEED_LIMIT_PARAM)['speedLimit'] == pytest.approx(55 * CV.MPH_TO_MS)
 
+  def test_confirmation_with_real_frogpilot_logger(self, caplog):
+    import logging
+    from openpilot.common.logging_extra import SwagLogger
+
+    logger = SwagLogger()
+    logger.setLevel(logging.INFO)
+    logger.addHandler(caplog.handler)
+    self.daemon.logger = logger
+    self.confirm()
+    self.step(10.4)
+    assert self.daemon.status == 'Tracking'
+    assert read_vision_speed_limit(self.params.get(VISION_SPEED_LIMIT_PARAM), 10.4) == pytest.approx(55 * CV.MPH_TO_MS)
+    assert len(caplog.records) == 1
+    assert caplog.records[0].msg['event'] == 'Vision speed limit confirmed'
+    assert caplog.records[0].msg['speed_mph'] == 55
+
   def test_unpopulated_vipc_valid_flag_does_not_reject_camera_frames(self):
     # camera_common.cc does not populate VisionIpcBufExtra.valid on this branch.
     self.camera.valid = False
@@ -465,9 +481,9 @@ class TestRuntime:
     assert self.daemon.followup_until == 12
     self.step(10.2)
     assert self.daemon.followup_until == 0
-    self.daemon.logger.info.assert_called_once()
+    self.daemon.logger.event.assert_called_once()
     self.step(10.4)
-    self.daemon.logger.info.assert_called_once()
+    self.daemon.logger.event.assert_called_once()
 
   def test_followup_window_is_not_extended_by_unconfirmed_reads(self):
     self.step(10)
