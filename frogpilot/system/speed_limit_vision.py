@@ -15,6 +15,14 @@ RUNTIME_LOOP_HZ = 30
 BUSY_INTERVAL = 1.5
 MODEL_RETRY_INTERVAL = 30.0
 MAX_FRAME_AGE = 0.5
+INPUT_MAX_AGE = {"deviceState": 5.0, "carState": 0.1}
+
+
+def inputs_valid(sm, now):
+  # Inference intentionally blocks this worker. Its receive rate therefore does
+  # not measure the publishers' rates; validate freshness at the source instead.
+  return (sm.all_alive(list(INPUT_MAX_AGE)) and sm.all_valid(list(INPUT_MAX_AGE)) and
+          all(0 <= now - sm.logMonoTime[service] / 1e9 <= max_age for service, max_age in INPUT_MAX_AGE.items()))
 
 
 def inference_interval(device_state, processing_time, followup=False):
@@ -92,8 +100,9 @@ class SpeedLimitVisionDaemon:
 
   def step(self, now):
     self.sm.update(0)
+    now = time.monotonic()
     self.confirmation.expire(now)
-    if not self.sm.all_checks(["deviceState", "carState"]) or not self.sm["deviceState"].started:
+    if not inputs_valid(self.sm, now) or not self.sm["deviceState"].started:
       self.clear("Idle", disconnect=True)
       return
     device_state = self.sm["deviceState"]

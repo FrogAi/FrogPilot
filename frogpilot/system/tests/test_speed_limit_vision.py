@@ -7,6 +7,7 @@ import cv2
 import numpy as np
 import pytest
 
+from cereal import messaging
 from openpilot.common.constants import CV
 from openpilot.frogpilot.common.vision_speed_limit import (
   HEARTBEAT_TIMEOUT,
@@ -16,7 +17,7 @@ from openpilot.frogpilot.common.vision_speed_limit import (
   SpeedLimitConfirmation,
   read_vision_speed_limit,
 )
-from openpilot.frogpilot.system.speed_limit_vision import SpeedLimitVisionDaemon, decode_nv12, inference_interval
+from openpilot.frogpilot.system.speed_limit_vision import INPUT_MAX_AGE, SpeedLimitVisionDaemon, decode_nv12, inference_interval, inputs_valid
 from openpilot.frogpilot.system.vision_speed_limit_model import CLASSIFIER_SIZE, SpeedLimitModel, is_regulatory_sign
 
 
@@ -203,12 +204,16 @@ class FakeSubMaster(dict):
     )
     self.valid = dict.fromkeys(self, True)
     self.alive = dict.fromkeys(self, True)
+    self.logMonoTime = dict.fromkeys(self, 0)
 
   def update(self, timeout):
     pass
 
-  def all_checks(self, services):
-    return all(self.valid[key] and self.alive[key] for key in services)
+  def all_alive(self, services):
+    return all(self.alive[key] for key in services)
+
+  def all_valid(self, services):
+    return all(self.valid[key] for key in services)
 
 
 class TestRuntime:
@@ -231,6 +236,7 @@ class TestRuntime:
 
   def step(self, now):
     self.camera.timestamp_eof = int(now * 1000000000.0)
+    self.sm.logMonoTime = dict.fromkeys(self.sm, int(now * 1e9))
     self.mocker.patch('openpilot.frogpilot.system.speed_limit_vision.time.monotonic', return_value=now)
     self.daemon.step(now)
 
@@ -281,6 +287,7 @@ class TestRuntime:
   def test_duplicate_frame_cannot_keep_source_alive(self):
     self.confirm()
     self.daemon.last_inference_at = 0
+    self.sm.logMonoTime = dict.fromkeys(self.sm, int(14 * 1e9))
     self.mocker.patch('openpilot.frogpilot.system.speed_limit_vision.time.monotonic', return_value=14)
     self.daemon.step(14)
     assert self.params.get(VISION_SPEED_LIMIT_PARAM) is None
@@ -330,6 +337,34 @@ class TestRuntime:
   def test_invalid_car_messages_clear_source(self):
     self.confirm()
     self.sm.alive['carState'] = False
+    self.step(11)
+    assert self.params.get(VISION_SPEED_LIMIT_PARAM) is None
+
+  def test_slow_inference_does_not_reject_fresh_inputs(self):
+    sm = messaging.SubMaster(list(INPUT_MAX_AGE), frequency=30)
+    for now in (10, 10.35, 10.7):
+      messages = [messaging.new_message(service, valid=True) for service in INPUT_MAX_AGE]
+      for message in messages:
+        message.logMonoTime = int(now * 1e9)
+      sm.update_msgs(now, messages)
+    assert not sm.all_freq_ok()
+    assert inputs_valid(sm, now)
+
+  @pytest.mark.parametrize('service', INPUT_MAX_AGE)
+  @pytest.mark.parametrize('age', [-0.01, 0.0, 0.05, 0.11, 6.0])
+  def test_input_source_timestamps(self, service, age):
+    self.confirm()
+    self.sm.logMonoTime[service] = int((10.2 - age) * 1e9)
+    if 0 <= age <= INPUT_MAX_AGE[service]:
+      assert inputs_valid(self.sm, 10.2)
+    else:
+      self.daemon.step(10.2)
+      assert self.params.get(VISION_SPEED_LIMIT_PARAM) is None
+
+  @pytest.mark.parametrize('service', INPUT_MAX_AGE)
+  def test_invalid_input_payload_clears_result(self, service):
+    self.confirm()
+    self.sm.valid[service] = False
     self.step(11)
     assert self.params.get(VISION_SPEED_LIMIT_PARAM) is None
 

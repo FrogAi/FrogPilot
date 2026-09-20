@@ -36,8 +36,9 @@ possible; controller confirmation is still configurable.
   device. Nominal detection is 6 Hz with 10 Hz follow-up for two seconds after a
   candidate, backed off for CPU/memory pressure and measured inference cost.
   Critical memory pressure or high thermal state clears the source and pauses it.
-  Message-frequency checks use the worker's 30 Hz loop rate, including when
-  consuming the faster car-state stream.
+  The worker validates input payloads and source timestamps: car state must be
+  at most 0.1 seconds old and device state at most 5 seconds old. Inference blocks
+  this worker, so its receive frequency is not used to infer publisher health.
 - The worker prefers the road stream and falls back to wide road. NV12 decoding
   respects stride **and UV-plane offset**. Frames older than 0.5 seconds, repeated
   timestamps, offroad/invalid car state, and non-driving gears cannot confirm a sign.
@@ -128,3 +129,27 @@ Linux x86-64 under WSL, Python 3.12.3, OpenCV 4.11.0:
 
 No comma hardware test, labeled route accuracy assessment, native Mici UI port,
 or license clearance is claimed by these results.
+
+### C3 investigation and follow-up validation (2026-09-19)
+
+Initial vehicle testing of `4ff97619` on a comma 3 running AGNOS 12.8 exposed
+unresolved communication errors. Recorded camera odometry and car-state messages
+were valid, while calibration and several downstream outputs remained invalid.
+Replaying those inputs through calibrationd on the device did not reproduce the
+failure. This branch is not validated for driving.
+
+A separate worker bug was reproduced using the C3's physical cameras and driving
+model, with isolated messaging and recorded/synthetic vehicle-state inputs.
+Inference took approximately 0.33–0.37 seconds, reducing the worker's receive rate
+and incorrectly triggering its own frequency check. The worker now checks message
+validity and source age instead. The same bench test then stayed in `Scanning`;
+calibration produced 60 valid and zero invalid messages in each 15-second measured
+window with vision disabled and enabled. This short, isolated test does not
+validate the complete vehicle process stack, recognition accuracy, or sustained
+thermal performance.
+
+The follow-up Linux host suite passes 87 tests, including a regression using the
+real SubMaster frequency tracker and rejection of stale, future-dated, and
+invalid inputs. The changed Python files pass Ruff. The vehicle communication
+failure remains under investigation; no checks in calibration or the vehicle
+control processes have been relaxed.
