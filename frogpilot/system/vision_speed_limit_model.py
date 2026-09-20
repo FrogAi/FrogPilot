@@ -11,16 +11,20 @@ import cv2
 import numpy as np
 
 from openpilot.frogpilot.common.vision_speed_limit import Detection, VALID_SPEEDS_MPH
+from openpilot.frogpilot.system.vision_speed_limit_header import SpeedLimitHeader
 
 MODEL_DIR = Path(__file__).resolve().parents[1] / "assets" / "vision_models"
 MODEL_HASHES = {
   "speed_limit_us_detector.onnx": "82408b68c79c269296f0af942130c5383cace4ee06c78e2a4690e8488720116a",
   "speed_limit_us_value_classifier.onnx": "07c6696e530eb940d2757d5849b4bc0f1d785cda704e5296e18c0a94959f30a5",
+  "speed_limit_header.onnx": "c76ae166149da213cc9268b0c73381925a825fe2737a23d41b4c8dc1221431f0",
 }
 DETECTOR_SIZE = 256
 CLASSIFIER_SIZE = 128
 CLASSIFIER_SPEEDS = (10, 100, 15, 20, 25, 30, 35, 40, 45, 5, 50, 55, 60, 65, 70, 75, 80, 90)
 PROPOSAL_CONFIDENCE = 0.06
+TINTED_PROPOSAL_CONFIDENCE = 0.60
+TINTED_CLASSIFIER_CONFIDENCE = 0.95
 CLASSIFIER_CONFIDENCE = 0.60
 MAX_PROPOSALS = 4
 ROI = (0.45, 0.0, 1.0, 0.82)
@@ -37,11 +41,12 @@ def letterbox(image, size):
   return output, ratio, left, top
 
 
-def is_regulatory_sign(crop):
+def is_regulatory_sign(crop, max_white_saturation=70):
   """Reject colored advisory/signage crops before interpreting a number as mph.
 
-  This is StarPilot's white-panel/color filter. It is a heuristic, not proof that
-  a sign applies to this lane or that a conditional limit is currently in effect.
+  Adapted from StarPilot's white-panel/color filter. The wider saturation range
+  for tinted panels is only used with stronger detector and classifier evidence.
+  This heuristic cannot establish lane applicability or conditional restrictions.
   """
   if crop.size == 0:
     return False
@@ -53,13 +58,13 @@ def is_regulatory_sign(crop):
   # Bound the gain so near-black noise cannot become a white panel.
   reference_value = max(float(np.percentile(value, 90)), 1.0)
   value = value.astype(np.float32) * min(3.0, max(1.0, 200.0 / reference_value))
-  white = (value >= 135) & (saturation <= 70)
+  white = (value >= 135) & (saturation <= max_white_saturation)
   dark = (value <= 115) & (saturation <= 110)
   white_ratio = float(white.mean())
   if white_ratio < 0.08 or float(dark.mean()) < 0.01:
     return False
   color_masks = (
-    ((hue >= 12) & (hue <= 45) & (saturation >= 70) & (value >= 85), 0.12, 0.45),
+    ((hue >= 12) & (hue <= 45) & (saturation > max_white_saturation) & (value >= 85), 0.12, 0.45),
     (((hue <= 12) | (hue >= 168)) & (saturation >= 80) & (value >= 60), 0.10, 0.35),
     ((hue >= 45) & (hue <= 90) & (saturation >= 70) & (value >= 70), 0.35, 0.60),
     ((hue >= 90) & (hue <= 135) & (saturation >= 70) & (value >= 70), 0.35, 0.60),
@@ -78,6 +83,7 @@ def is_regulatory_sign(crop):
 
 class SpeedLimitModel:
   def __init__(self, model_dir=MODEL_DIR):
+    self.needs_followup = False
     networks = []
     for name, expected_hash in MODEL_HASHES.items():
       path = Path(model_dir) / name
@@ -88,7 +94,8 @@ class SpeedLimitModel:
       network.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
       network.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
       networks.append(network)
-    self.detector, self.classifier = networks
+    self.detector, self.classifier, header_network = networks
+    self.header = SpeedLimitHeader(header_network)
 
     # Check the pinned model contract before any results can reach the controller.
     self.proposals(np.zeros((480, 960, 3), dtype=np.uint8))
@@ -142,19 +149,40 @@ class SpeedLimitModel:
     return Detection(speed_mph, confidence)
 
   def detect(self, frame) -> Detection | None:
+    self.needs_followup = False
     height, width = frame.shape[:2]
     detections = []
     for (x, y, box_width, box_height), proposal_confidence in self.proposals(frame):
       reads = []
+      strong_proposal = proposal_confidence >= TINTED_PROPOSAL_CONFIDENCE
+      header_accepted = None
       for expand_left, expand_top, expand_right, expand_bottom in CROP_EXPANSIONS:
         x1, y1 = max(int(x - box_width * expand_left), 0), max(int(y - box_height * expand_top), 0)
         x2 = min(int(x + box_width * (1 + expand_right)), width)
         y2 = min(int(y + box_height * (1 + expand_bottom)), height)
         crop = frame[y1:y2, x1:x2]
-        if is_regulatory_sign(crop):
-          read = self.classify(crop)
-          if read is not None:
-            reads.append(read)
+        neutral_panel = is_regulatory_sign(crop)
+        # Sunset can tint a white panel. Keep the color gate, but allow moderate
+        # tint only when both models provide stronger evidence.
+        tinted_panel = (not neutral_panel and strong_proposal and
+                        is_regulatory_sign(crop, max_white_saturation=110))
+        if not neutral_panel and not tinted_panel and (not strong_proposal or header_accepted is False):
+          continue
+        read = self.classify(crop)
+        if read is None or (not neutral_panel and read.confidence < TINTED_CLASSIFIER_CONFIDENCE):
+          continue
+        if not neutral_panel and not tinted_panel:
+          # Glare can erase the white/black contrast entirely. A strong number
+          # read alone also accepts route shields: require the actual heading.
+          # Check it once per proposal, rather than once for every expanded crop.
+          # An unreadable heading may become legible as the sign approaches.
+          # This scheduling hint cannot supply or confirm a speed by itself.
+          self.needs_followup = True
+          if header_accepted is None:
+            header_accepted = self.header.has_heading(frame[y:y + box_height, x:x + box_width])
+          if not header_accepted:
+            continue
+        reads.append(read)
       if not reads:
         continue
       # Disagreeing crop reads are ambiguous; do not pick whichever scores highest.

@@ -19,6 +19,7 @@ from openpilot.frogpilot.common.vision_speed_limit import (
 )
 from openpilot.frogpilot.system.speed_limit_vision import INPUT_MAX_AGE, SpeedLimitVisionDaemon, decode_nv12, inference_interval, inputs_valid
 from openpilot.frogpilot.system.vision_speed_limit_model import CLASSIFIER_SIZE, SpeedLimitModel, is_regulatory_sign
+from openpilot.frogpilot.system.vision_speed_limit_header import HEADER_OUTPUT_SHAPE, SpeedLimitHeader, is_speed_limit_heading
 
 
 class MemoryParams:
@@ -61,6 +62,18 @@ class TestConfirmation:
   def test_old_history_cannot_confirm(self):
     self.state.update(Detection(55, 0.99), 10, 10)
     self.state.update(Detection(55, 0.99), 13, 13)
+    assert self.state.speed_mph == 0
+
+  def test_confirmation_window_uses_capture_times_with_slow_inference(self):
+    self.state.update(Detection(40, 0.95), 10.0, 10.7)
+    self.state.update(Detection(40, 0.95), 11.75, 12.45)
+    assert self.state.speed_mph == 40
+    assert self.state.detected_at == 11.75
+    assert read_vision_speed_limit(self.state.snapshot(12.45), 12.45) == pytest.approx(40 * CV.MPH_TO_MS)
+
+  def test_slow_inference_does_not_extend_capture_history(self):
+    self.state.update(Detection(40, 0.95), 10.0, 10.7)
+    self.state.update(Detection(40, 0.95), 12.01, 12.71)
     assert self.state.speed_mph == 0
 
   def test_invalid_detections_and_timestamps(self):
@@ -186,13 +199,14 @@ class TestModel:
     cv2.putText(regulatory, '55', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 3)
     assert is_regulatory_sign((regulatory * brightness).astype(np.uint8))
 
+  @pytest.mark.parametrize('max_white_saturation', [70, 110])
   @pytest.mark.parametrize('brightness', [1.0, 0.45, 0.25])
   @pytest.mark.parametrize('background', [(0, 220, 255), (0, 130, 255), (0, 0, 230), (0, 200, 0), (220, 70, 20)])
   @pytest.mark.parametrize('foreground', [0, 230])
-  def test_colored_sign_is_rejected_in_sun_and_shadow(self, brightness, background, foreground):
+  def test_colored_sign_is_rejected_in_sun_and_shadow(self, brightness, background, foreground, max_white_saturation):
     colored = np.full((100, 80, 3), background, np.uint8)
     cv2.putText(colored, '35', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (foreground,) * 3, 3)
-    assert not is_regulatory_sign((colored * brightness).astype(np.uint8))
+    assert not is_regulatory_sign((colored * brightness).astype(np.uint8), max_white_saturation)
 
   @pytest.mark.parametrize('brightness', [0, 40, 100, 230])
   def test_featureless_crop_is_rejected(self, brightness):
@@ -203,12 +217,107 @@ class TestModel:
     cv2.putText(crop, '35', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 3)
     assert not is_regulatory_sign(crop)
 
+  def test_moderate_warm_tint_requires_the_stronger_filter_mode(self):
+    crop = np.full((100, 80, 3), (140, 190, 220), np.uint8)
+    cv2.putText(crop, '40', (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 0), 3)
+    assert not is_regulatory_sign(crop)
+    assert is_regulatory_sign(crop, max_white_saturation=110)
+
+  @pytest.mark.parametrize('proposal_confidence', [0.59, 0.60, 0.90])
+  @pytest.mark.parametrize('classifier_confidence', [0.94, 0.95, 0.99])
+  def test_tinted_panel_requires_both_stronger_model_thresholds(self, proposal_confidence, classifier_confidence):
+    model = SpeedLimitModel.__new__(SpeedLimitModel)
+    model.proposals = self.mocker.Mock(return_value=[([300, 50, 80, 100], proposal_confidence)])
+    model.classify = self.mocker.Mock(return_value=Detection(40, classifier_confidence))
+    self.mocker.patch('openpilot.frogpilot.system.vision_speed_limit_model.is_regulatory_sign',
+                      side_effect=lambda crop, max_white_saturation=70: max_white_saturation == 110)
+    result = model.detect(np.full((480, 960, 3), 230, np.uint8))
+    assert (result is not None) == (proposal_confidence >= 0.60 and classifier_confidence >= 0.95)
+
   def test_conflicting_signs_are_not_selected(self):
     model = SpeedLimitModel.__new__(SpeedLimitModel)
     model.proposals = self.mocker.Mock(return_value=[([300, 50, 80, 100], 0.9), ([450, 50, 80, 100], 0.9)])
     model.classify = self.mocker.Mock(side_effect=[Detection(55, 0.99)] * 3 + [Detection(35, 0.99)] * 3)
     self.mocker.patch('openpilot.frogpilot.system.vision_speed_limit_model.is_regulatory_sign', return_value=True)
     assert model.detect(np.full((480, 960, 3), 230, np.uint8)) is None
+
+  @pytest.mark.parametrize('heading', [False, True])
+  @pytest.mark.parametrize('proposal_confidence', [0.59, 0.60])
+  @pytest.mark.parametrize('classifier_confidence', [0.94, 0.95])
+  def test_glare_requires_a_heading_and_two_strong_model_scores(self, heading, proposal_confidence, classifier_confidence):
+    model = SpeedLimitModel.__new__(SpeedLimitModel)
+    model.proposals = self.mocker.Mock(return_value=[([300, 50, 80, 100], proposal_confidence)])
+    model.classify = self.mocker.Mock(return_value=Detection(30, classifier_confidence))
+    model.header = self.mocker.Mock()
+    model.header.has_heading.return_value = heading
+    self.mocker.patch('openpilot.frogpilot.system.vision_speed_limit_model.is_regulatory_sign', return_value=False)
+    result = model.detect(np.full((480, 960, 3), 230, np.uint8))
+    assert (result is not None) == (heading and proposal_confidence >= 0.60 and classifier_confidence >= 0.95)
+    assert model.header.has_heading.call_count == int(proposal_confidence >= 0.60 and classifier_confidence >= 0.95)
+    assert model.needs_followup == (proposal_confidence >= 0.60 and classifier_confidence >= 0.95)
+
+
+class TestHeader:
+  @pytest.mark.parametrize('words, expected', [
+    (('SPEED', 'LIMIT'), True), (('ROUTE', '50'), False),
+    (('SPEED', 'BUMP'), False), (('WEIGHT', 'LIMIT'), False),
+  ])
+  def test_real_model_heading_preprocessing_and_dictionary(self, words, expected):
+    # A synthetic panel tests the shipped graph, BGR normalization, row crops,
+    # and pinned dictionary together. It is not evidence of road-sign accuracy.
+    model = SpeedLimitModel()
+    panel = np.full((200, 120, 3), 255, dtype=np.uint8)
+    for word, baseline in zip(words, (45, 88), strict=True):
+      width = cv2.getTextSize(word, cv2.FONT_HERSHEY_SIMPLEX, 0.65, 2)[0][0]
+      cv2.putText(panel, word, ((120 - width) // 2, baseline), cv2.FONT_HERSHEY_SIMPLEX,
+                  0.65, (0, 0, 0), 2, cv2.LINE_AA)
+    assert model.header.has_heading(panel) is expected
+
+  @staticmethod
+  def scores(text='', confidence=0.99):
+    tokens = {' ': 437, **{chr(ord('A') + index): 11 + index for index in range(26)}, '1': 2}
+    sequence = []
+    previous = None
+    for character in text:
+      token = tokens[character]
+      if token == previous:
+        sequence.append(0)
+      sequence.append(token)
+      previous = token
+    output = np.zeros(HEADER_OUTPUT_SHAPE, dtype=np.float32)
+    output[:, :, 0] = 1.0
+    for step, token in enumerate(sequence):
+      if token:
+        output[0, step, 0] = 1 - confidence
+        output[0, step, token] = confidence
+    return output
+
+  @pytest.mark.parametrize('text', ['SPEEDLIMIT', 'SPEED LIMIT', ' SPEED LIMIT '])
+  def test_exact_heading_with_ctc_repeats(self, text):
+    assert is_speed_limit_heading(self.scores(text))
+
+  @pytest.mark.parametrize('text', ['', 'EAST', 'JCT', 'SPEED', 'LIMIT', 'RAMP SPEED', 'SPED LIMIT', 'SPEED LIM1T'])
+  def test_other_words_and_partial_headings_are_rejected(self, text):
+    assert not is_speed_limit_heading(self.scores(text))
+
+  def test_uncertain_heading_is_rejected(self):
+    assert not is_speed_limit_heading(self.scores('SPEED LIMIT', confidence=0.8))
+
+  @pytest.mark.parametrize('scores', [np.zeros((1, 10, 438)), np.full(HEADER_OUTPUT_SHAPE, np.nan), np.zeros(HEADER_OUTPUT_SHAPE)])
+  def test_invalid_model_outputs(self, scores):
+    with pytest.raises(ValueError):
+      is_speed_limit_heading(scores)
+
+  def test_heading_work_is_bounded(self, mocker):
+    network = mocker.Mock()
+    network.forward.return_value = self.scores()
+    header = SpeedLimitHeader(network)
+    network.reset_mock()
+    assert not header.has_heading(np.zeros((100, 80, 3), dtype=np.uint8))
+    assert network.forward.call_count == 2
+    network.reset_mock()
+    assert not header.has_heading(np.zeros((0, 0, 3), dtype=np.uint8))
+    network.forward.assert_not_called()
 
 
 class FakeSubMaster(dict):
@@ -248,6 +357,7 @@ class TestRuntime:
     self.camera.valid = True
     self.model = self.mocker.Mock()
     self.model.detect.return_value = Detection(55, 0.95)
+    self.model.needs_followup = False
     self.daemon = SpeedLimitVisionDaemon(self.params, self.sm, self.camera_type, self.stream_type, self.mocker.Mock(), lambda: self.model)
 
   def step(self, now):
@@ -334,10 +444,67 @@ class TestRuntime:
   def test_cpu_and_processing_backoff(self):
     state = self.sm['deviceState']
     assert inference_interval(state, 0) == pytest.approx(1 / 6)
-    assert inference_interval(state, 1) >= 2.5
+    assert inference_interval(state, 1) == pytest.approx(1.5)
+    assert inference_interval(state, 0.4, followup=True) == pytest.approx(0.4)
     state.cpuUsagePercent = [95] * 8
     assert inference_interval(state, 0) >= 1.5
     assert inference_interval(state, 0, followup=True) >= 1.5
+
+  def test_slow_model_gets_a_prompt_independent_followup_frame(self):
+    for started_at in (10.0, 10.35):
+      self.camera.timestamp_eof = int(started_at * 1e9)
+      self.sm.logMonoTime = dict.fromkeys(self.sm, int(started_at * 1e9))
+      self.mocker.patch('openpilot.frogpilot.system.speed_limit_vision.time.monotonic',
+                        side_effect=[started_at, started_at, started_at + 0.3])
+      self.daemon.step(started_at)
+    assert self.model.detect.call_count == 2
+    assert read_vision_speed_limit(self.params.get(VISION_SPEED_LIMIT_PARAM), 10.65) == pytest.approx(55 * CV.MPH_TO_MS)
+
+  def test_followup_ends_when_a_sign_is_confirmed(self):
+    self.step(10)
+    assert self.daemon.followup_until == 12
+    self.step(10.2)
+    assert self.daemon.followup_until == 0
+    self.daemon.logger.info.assert_called_once()
+    self.step(10.4)
+    self.daemon.logger.info.assert_called_once()
+
+  def test_followup_window_is_not_extended_by_unconfirmed_reads(self):
+    self.step(10)
+    self.model.detect.return_value = Detection(40, 0.95)
+    self.step(10.2)
+    assert self.daemon.followup_until == 12
+    self.model.detect.return_value = Detection(30, 0.95)
+    self.step(10.4)
+    assert self.daemon.followup_until == 12
+
+  def test_low_confidence_candidate_does_not_trigger_followup(self):
+    self.model.detect.return_value = Detection(40, 0.69)
+    self.step(10)
+    assert self.daemon.followup_until == 0
+
+  def test_rejected_heading_gets_bounded_retry_without_publishing_a_speed(self):
+    self.model.detect.return_value = None
+    self.model.needs_followup = True
+    self.step(10)
+    assert self.daemon.followup_until == 12
+    for now in (10.2, 11.9, 12.1, 13.9):
+      self.step(now)
+      assert self.daemon.followup_until == 12
+      assert read_vision_speed_limit(self.params.get(VISION_SPEED_LIMIT_PARAM), now) == 0
+    self.step(14.1)
+    assert self.daemon.followup_until == 16.1
+
+  def test_verified_number_can_start_followup_during_heading_retry_cooldown(self):
+    self.model.detect.return_value = None
+    self.model.needs_followup = True
+    self.step(10)
+    self.model.detect.return_value = Detection(40, 0.95)
+    self.model.needs_followup = False
+    self.step(12.1)
+    assert self.daemon.followup_until == 14.1
+    self.step(12.3)
+    assert read_vision_speed_limit(self.params.get(VISION_SPEED_LIMIT_PARAM), 12.3) == pytest.approx(40 * CV.MPH_TO_MS)
 
   def test_inference_failure_clears_source(self):
     self.confirm()

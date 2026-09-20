@@ -5,7 +5,7 @@ import time
 import cv2
 import numpy as np
 
-from openpilot.frogpilot.common.vision_speed_limit import HEARTBEAT_TIMEOUT, VISION_SPEED_LIMIT_PARAM, SpeedLimitConfirmation
+from openpilot.frogpilot.common.vision_speed_limit import HEARTBEAT_TIMEOUT, MIN_CONFIDENCE, VISION_SPEED_LIMIT_PARAM, SpeedLimitConfirmation
 from openpilot.frogpilot.system.vision_speed_limit_model import SpeedLimitModel
 
 INFERENCE_INTERVAL = 1 / 6
@@ -28,7 +28,9 @@ def inputs_valid(sm, now):
 def inference_interval(device_state, processing_time, followup=False):
   usage = list(device_state.cpuUsagePercent)
   busy = bool(usage) and (sum(usage) / len(usage) >= 78 or sum(value >= 92 for value in usage) >= 4)
-  return max(FOLLOWUP_INTERVAL if followup else INFERENCE_INTERVAL, processing_time * 2.5,
+  # Give a pending sign a short confirmation burst. Applying the steady-state
+  # processing backoff here otherwise defeats follow-up on slower devices.
+  return max(FOLLOWUP_INTERVAL if followup else INFERENCE_INTERVAL, processing_time * (1.0 if followup else 1.5),
              BUSY_INTERVAL if busy or device_state.memoryUsagePercent >= 88 else 0)
 
 
@@ -62,12 +64,14 @@ class SpeedLimitVisionDaemon:
     self.last_model_attempt = -float("inf")
     self.processing_time = 0.0
     self.followup_until = 0.0
+    self.next_candidate_followup_at = 0.0
     self.status = ""
     self.clear("Starting")
 
   def clear(self, status, disconnect=False):
     self.confirmation.reset()
     self.followup_until = 0.0
+    self.next_candidate_followup_at = 0.0
     self.params_memory.remove(VISION_SPEED_LIMIT_PARAM)
     if disconnect:
       self.client = None
@@ -167,9 +171,22 @@ class SpeedLimitVisionDaemon:
     if finished_at - frame_time > HEARTBEAT_TIMEOUT:
       self.clear("Paused: slow inference")
       return
+    previous_speed = self.confirmation.speed_mph
     self.confirmation.update(detection, frame_time, finished_at)
-    if detection is not None:
+    if self.confirmation.speed_mph and self.confirmation.speed_mph != previous_speed:
+      self.logger.info("Vision speed limit confirmed", speed_mph=self.confirmation.speed_mph,
+                       confidence=self.confirmation.confidence, processing_seconds=self.processing_time)
+    if detection is not None and detection.confidence >= MIN_CONFIDENCE:
+      if self.confirmation.speed_mph == detection.speed_mph:
+        self.followup_until = 0.0
+      elif finished_at >= self.followup_until:
+        self.followup_until = finished_at + FOLLOWUP_SECONDS
+    elif detection is None and self.model.needs_followup and finished_at >= max(self.followup_until, self.next_candidate_followup_at):
+      # A strong numeric candidate may still fail the heading check on approach.
+      # Give it a bounded retry burst without accepting the number. A cooldown
+      # prevents rejected route shields from keeping that burst active forever.
       self.followup_until = finished_at + FOLLOWUP_SECONDS
+      self.next_candidate_followup_at = self.followup_until + FOLLOWUP_SECONDS
     self.publish(finished_at, force=True)
     self.set_status("Tracking" if self.confirmation.speed_mph else "Scanning")
 
@@ -201,7 +218,7 @@ def main():
 
   if not PC:
     set_core_affinity([0, 1, 2])
-  cv2.setNumThreads(1)
+  cv2.setNumThreads(2)
   cv2.ocl.setUseOpenCL(False)
   # carState already has 15 readers in FrogPilot, the msgq per-channel limit.
   # Use the auxiliary message so this optional worker cannot evict them.

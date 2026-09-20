@@ -38,7 +38,9 @@ class SpeedLimitConfirmation:
       return
     self.last_frame_time = frame_time
     self.expire(now)
-    while self.history and now - self.history[0][0] > HISTORY_SECONDS:
+    # Compare camera capture times. Inference latency must not shorten the
+    # interval in which two independent observations can agree.
+    while self.history and frame_time - self.history[0][0] > HISTORY_SECONDS:
       self.history.popleft()
     if detection is None:
       return
