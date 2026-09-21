@@ -112,7 +112,8 @@ Recorded results are kept in [the validation record](vision_speed_limits_validat
   notices does not resolve corresponding-source obligations or license acceptance.
 - The models cannot establish lane applicability or whether a conditional school
   or construction limit is active. Matching numbers in two frames do not establish
-  physical sign identity or make their errors statistically independent. Recognition errors and missed signs are possible.
+  physical sign identity or make their errors statistically independent. Recognition
+  errors and missed signs are possible.
   This is not a European/Canadian sign model. Python/Mici settings and source display
   are not implemented or validated by this Qt port.
 - Broader labeled-route accuracy, sustained control/model deadlines, thermal/memory
