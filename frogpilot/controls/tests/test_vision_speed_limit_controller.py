@@ -4,32 +4,15 @@ from types import SimpleNamespace
 import pytest
 
 from openpilot.common.constants import CV
+from openpilot.frogpilot.common.tests.vision_helpers import MemoryParams
 from openpilot.frogpilot.common.vision_speed_limit import HEARTBEAT_TIMEOUT, VISION_SPEED_LIMIT_PARAM, Detection, SpeedLimitConfirmation
 from openpilot.frogpilot.controls.lib.speed_limit_controller import SpeedLimitController
 
 
-class TestParams:
-  __test__ = False
-
-  def __init__(self):
-    self.values = {"PreviousSpeedLimit": 0.0}
-
-  def get(self, key):
-    return self.values.get(key)
-
-  def get_bool(self, key):
-    return bool(self.get(key))
-
-  def put_nonblocking(self, key, value):
-    self.values[key] = value
-
-  def remove(self, key):
-    self.values.pop(key, None)
-
-
 @pytest.fixture
 def controller(mocker):
-  planner = SimpleNamespace(params=TestParams(), params_memory=TestParams(), gps_valid=True)
+  planner = SimpleNamespace(params=MemoryParams(), params_memory=MemoryParams(), gps_valid=True)
+  planner.params.put("PreviousSpeedLimit", 0.0)
   slc = SpeedLimitController(SimpleNamespace(frogpilot_planner=planner))
   slc.frogpilot_toggles = SimpleNamespace(
     speed_limit_controller=True, vision_speed_limit_detection=True, is_metric=False,
@@ -246,6 +229,8 @@ def test_vcruise_display_only_and_cruise_cap(controller, mocker, control_enabled
   vcruise.slc = controller
   vcruise.csc = mocker.Mock()
   vcruise.update_force_stop = mocker.Mock()
+  vcruise.vision_cruise_cap = None
+  vcruise.previous_cruise_setting = None
   toggles = controller.frogpilot_toggles
   toggles.speed_limit_controller = control_enabled
   toggles.show_speed_limits = True
@@ -255,6 +240,174 @@ def test_vcruise_display_only_and_cruise_cap(controller, mocker, control_enabled
   expected = min(cruise_speed, 45 * CV.MPH_TO_MS + controller.offset) if control_enabled else cruise_speed
   assert target == pytest.approx(expected)
   assert vcruise.slc_offset == (controller.offset if control_enabled else 0)
+
+
+@pytest.fixture
+def cruise(controller, mocker):
+  from openpilot.frogpilot.controls.lib.frogpilot_vcruise import FrogPilotVCruise
+
+  controller.frogpilot_planner.gps_position = {}
+  mocker.patch("openpilot.frogpilot.controls.lib.frogpilot_vcruise.CurveSpeedController")
+  mocker.patch("openpilot.frogpilot.controls.lib.frogpilot_vcruise.SpeedLimitController", return_value=controller)
+  vcruise = FrogPilotVCruise(controller.frogpilot_planner)
+  vcruise.update_force_stop = mocker.Mock()
+  controller.frogpilot_toggles.show_speed_limits = True
+  controller.frogpilot_toggles.curve_speed_controller = False
+  for i in range(1, 8):
+    setattr(controller.frogpilot_toggles, f"speed_limit_offset{i}", 0.0)
+  return vcruise
+
+
+def cruise_update(cruise, sm, setting=70, engaged=True, speed=45):
+  sm["carControl"].longActive = engaged
+  sm["carState"].vCruiseCluster = setting * CV.MPH_TO_KPH
+  sm["carState"].vEgoCluster = speed * CV.MPH_TO_MS
+  return cruise.update(engaged, datetime(2026, 1, 1, tzinfo=UTC), False,
+                       setting * CV.MPH_TO_MS, speed * CV.MPH_TO_MS, sm,
+                       cruise.slc.frogpilot_toggles) * CV.MS_TO_MPH
+
+
+@pytest.mark.parametrize("replacement", [35, 45, 55])
+@pytest.mark.parametrize("confirmation", [False, True])
+def test_vision_handover_obeys_confirmation(cruise, mocker, replacement, confirmation):
+  sm = SubMaster(dashboard=0, map_limit=replacement)
+  toggles = cruise.slc.frogpilot_toggles
+  toggles.speed_limit_confirmation_higher = confirmation
+  toggles.speed_limit_confirmation_lower = confirmation
+  confirmation = confirmation and replacement != 45
+  assert cruise_update(cruise, sm) == pytest.approx(45)
+  mocker.patch("time.monotonic", return_value=104.0)
+  for _ in range(3):
+    assert cruise_update(cruise, sm) == pytest.approx(45 if confirmation else replacement)
+  if confirmation:
+    assert cruise.slc.source == "None"
+    assert cruise.slc.vision_speed_limit == 0
+    assert cruise.slc.unconfirmed_speed_limit * CV.MS_TO_MPH == pytest.approx(replacement)
+    cruise.slc.frogpilot_planner.params_memory.values["SpeedLimitAccepted"] = True
+    assert cruise_update(cruise, sm) == pytest.approx(replacement)
+  assert cruise.slc.source == "Map Data"
+
+
+def test_vision_loss_retains_control_cap_without_resurrecting_limit(cruise, mocker):
+  sm = SubMaster(dashboard=0, map_limit=0)
+  assert cruise_update(cruise, sm) == pytest.approx(45)
+  mocker.patch("time.monotonic", return_value=104.0)
+  for _ in range(3):
+    assert cruise_update(cruise, sm) == pytest.approx(45)
+    assert cruise.slc.target == cruise.slc.vision_speed_limit == 0
+    assert cruise.slc.source == "None"
+  assert cruise_update(cruise, sm, setting=40) == pytest.approx(40)
+  assert cruise_update(cruise, sm, setting=42) == pytest.approx(42)
+  assert cruise.vision_cruise_cap is None
+
+
+def test_vision_loss_cap_ends_on_disengagement(cruise, mocker):
+  sm = SubMaster(dashboard=0, map_limit=0)
+  cruise_update(cruise, sm)
+  mocker.patch("time.monotonic", return_value=104.0)
+  assert cruise_update(cruise, sm) == pytest.approx(45)
+  cruise_update(cruise, sm, engaged=False)
+  assert cruise.vision_cruise_cap is None
+  assert cruise.slc.previous_source == "None"
+  assert cruise_update(cruise, sm) == pytest.approx(70)
+
+
+@pytest.mark.parametrize("manual,set_speed,expected", [(True, False, 50), (False, True, 70), (False, False, 45)])
+def test_vision_loss_respects_gas_override_mode(cruise, mocker, manual, set_speed, expected):
+  sm = SubMaster(dashboard=0, map_limit=0)
+  cruise_update(cruise, sm)
+  mocker.patch("time.monotonic", return_value=104.0)
+  cruise.slc.frogpilot_toggles.speed_limit_controller_override_manual = manual
+  cruise.slc.frogpilot_toggles.speed_limit_controller_override_set_speed = set_speed
+  sm["carState"].gasPressed = True
+  assert cruise_update(cruise, sm, speed=50) == pytest.approx(expected)
+  sm["carState"].gasPressed = False
+  assert cruise_update(cruise, sm, speed=50) == pytest.approx(expected)
+
+
+def test_denied_handover_cannot_release_vision_control_cap(cruise, mocker):
+  sm = SubMaster(dashboard=0, map_limit=55)
+  cruise.slc.frogpilot_toggles.speed_limit_confirmation_higher = True
+  cruise_update(cruise, sm)
+  mocker.patch("time.monotonic", return_value=104.0)
+  cruise_update(cruise, sm)
+  sm["frogpilotCarState"].decelPressed = True
+  assert cruise_update(cruise, sm) == pytest.approx(45)
+  sm["frogpilotCarState"].decelPressed = False
+  assert cruise_update(cruise, sm) == pytest.approx(45)
+  assert cruise.slc.denied_target * CV.MS_TO_MPH == pytest.approx(55)
+
+
+def test_pending_handover_cancels_when_replacement_disappears(cruise, mocker):
+  sm = SubMaster(dashboard=0, map_limit=55)
+  cruise.slc.frogpilot_toggles.speed_limit_confirmation_higher = True
+  cruise_update(cruise, sm)
+  mocker.patch("time.monotonic", return_value=104.0)
+  cruise_update(cruise, sm)
+  cruise.slc.frogpilot_planner.params_memory.values["SpeedLimitAccepted"] = True
+  sm["mapdOut"].speedLimit = 0
+  assert cruise_update(cruise, sm) == pytest.approx(45)
+  assert cruise.slc.unconfirmed_speed_limit == 0
+  assert not cruise.slc.frogpilot_planner.params_memory.get_bool("SpeedLimitAccepted")
+
+
+@pytest.mark.parametrize("confirmation", [False, True])
+def test_new_vision_read_after_expiry_obeys_increase_setting(cruise, mocker, confirmation):
+  sm = SubMaster(dashboard=0, map_limit=0)
+  cruise.slc.frogpilot_toggles.speed_limit_confirmation_higher = confirmation
+  cruise_update(cruise, sm)
+  mocker.patch("time.monotonic", return_value=104.0)
+  assert cruise_update(cruise, sm) == pytest.approx(45)
+  state = SpeedLimitConfirmation()
+  for now in (103.5, 103.8):
+    state.update(Detection(55, 0.95), now, now)
+  cruise.slc.frogpilot_planner.params_memory.put(VISION_SPEED_LIMIT_PARAM, state.snapshot(104))
+  assert cruise_update(cruise, sm) == pytest.approx(45 if confirmation else 55)
+  if confirmation:
+    sm["frogpilotCarState"].accelPressed = True
+    assert cruise_update(cruise, sm) == pytest.approx(55)
+  assert cruise.slc.source == "Vision"
+
+
+@pytest.mark.parametrize("action", ["accel", "disable_controller"])
+def test_driver_can_release_vision_loss_cap(cruise, mocker, action):
+  sm = SubMaster(dashboard=0, map_limit=0)
+  cruise_update(cruise, sm)
+  mocker.patch("time.monotonic", return_value=104.0)
+  assert cruise_update(cruise, sm) == pytest.approx(45)
+  if action == "accel":
+    sm["frogpilotCarState"].accelPressed = True
+  else:
+    cruise.slc.frogpilot_toggles.speed_limit_controller = False
+  assert cruise_update(cruise, sm) == pytest.approx(70)
+  assert cruise.vision_cruise_cap is None
+
+
+def test_curve_target_does_not_become_a_sticky_vision_cap(cruise, mocker):
+  sm = SubMaster(dashboard=0, map_limit=0)
+  cruise.slc.frogpilot_toggles.curve_speed_controller = True
+  cruise.csc.update_target.return_value = 25 * CV.MPH_TO_MS
+  assert cruise_update(cruise, sm) == pytest.approx(25)
+  mocker.patch("time.monotonic", return_value=104.0)
+  cruise.csc.update_target.return_value = 70 * CV.MPH_TO_MS
+  assert cruise_update(cruise, sm) == pytest.approx(45)
+
+
+def test_mapbox_handover_cannot_bypass_confirmation(cruise, mocker):
+  sm = SubMaster(dashboard=0, map_limit=0)
+  cruise.slc.frogpilot_toggles.speed_limit_confirmation_higher = True
+  cruise_update(cruise, sm)
+  mocker.patch.object(cruise.slc, "update_mapbox_speed_limit")
+  cruise.slc.mapbox_speed_limit = 55 * CV.MPH_TO_MS
+  mocker.patch("time.monotonic", return_value=104.0)
+  assert cruise_update(cruise, sm) == pytest.approx(45)
+  assert cruise.slc.confirmation_source == "Mapbox"
+  cruise.slc.frogpilot_planner.params_memory.put("SpeedLimitAccepted", True)
+  # Same number from a different source requires a new prompt.
+  sm["mapdOut"].speedLimit = 55 * CV.MPH_TO_MS
+  assert cruise_update(cruise, sm) == pytest.approx(45)
+  assert cruise.slc.confirmation_source == "Map Data"
+  assert not cruise.slc.frogpilot_planner.params_memory.get_bool("SpeedLimitAccepted")
 
 
 def test_process_only_runs_onroad_when_enabled():
@@ -380,7 +533,7 @@ def test_real_camera_models_and_params_reach_controller(controller, mocker):
         assert sm.all_checks(["deviceState", "frogpilotCarState"])
         assert daemon.connect_camera()
       server.send(stream, frames[tick % 2], frame_id=tick, timestamp_eof=int(now * 1e9))
-      daemon.step(now)
+      daemon.step()
 
     assert sm.all_checks(["deviceState", "frogpilotCarState"])
     assert params.get(VISION_SPEED_LIMIT_PARAM)["speedLimit"] == pytest.approx(20 * CV.MPH_TO_MS)

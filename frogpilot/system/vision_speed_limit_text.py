@@ -10,8 +10,8 @@ from openpilot.frogpilot.common.vision_speed_limit import VALID_SPEEDS_MPH
 
 HEADER_CONFIDENCE = 0.85
 NUMBER_CONFIDENCE = 0.85
-HEADER_INPUT_SIZE = (160, 48)
-HEADER_OUTPUT_SHAPE = (1, 20, 438)
+TEXT_INPUT_SIZE = (160, 48)
+TEXT_OUTPUT_SHAPE = (1, 20, 438)
 # Indices in the pinned en_PP-OCRv5_mobile_rec dictionary, including CTC blank 0.
 # Other tokens reject the heading. Numeric verification uses a separate whitelist.
 HEADER_TOKENS = {
@@ -26,12 +26,12 @@ NUMBER_TOKENS = {index + 1: str(index) for index in range(10)}
 
 
 def decode_text(scores, tokens):
-  if scores.shape != HEADER_OUTPUT_SHAPE or not np.isfinite(scores).all():
-    raise ValueError("Invalid speed limit header output")
+  if scores.shape != TEXT_OUTPUT_SHAPE or not np.isfinite(scores).all():
+    raise ValueError("Invalid speed limit text output")
   probabilities = scores[0]
   if (np.any(probabilities < 0) or np.any(probabilities > 1.00001) or
       not np.allclose(probabilities.sum(axis=1), 1.0, atol=0.001)):
-    raise ValueError("Invalid speed limit header probabilities")
+    raise ValueError("Invalid speed limit text probabilities")
   text, confidence = [], []
   previous = -1
   for row in probabilities:
@@ -57,14 +57,14 @@ def read_speed_limit_number(scores):
   return int(text)
 
 
-class SpeedLimitHeader:
+class SpeedLimitTextVerifier:
   def __init__(self, network):
     self.network = network
     self.read(np.zeros((48, 160, 3), dtype=np.uint8))
 
   def read(self, image):
-    # PaddleOCR's BGR input normalization. Only the heading model sees this image.
-    self.network.setInput(cv2.dnn.blobFromImage(image, 1 / 127.5, HEADER_INPUT_SIZE, mean=(127.5,) * 3))
+    # Heading rows use a full-width BGR input; digits preserve their aspect ratio.
+    self.network.setInput(cv2.dnn.blobFromImage(image, 1 / 127.5, TEXT_INPUT_SIZE, mean=(127.5,) * 3))
     return is_speed_limit_heading(self.network.forward())
 
   def has_heading(self, crop):

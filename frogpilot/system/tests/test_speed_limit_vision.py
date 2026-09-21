@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 
 from cereal import messaging
+from openpilot.frogpilot.common.tests.vision_helpers import MemoryParams
 from openpilot.common.constants import CV
 from openpilot.frogpilot.common.vision_speed_limit import (
   HEARTBEAT_TIMEOUT,
@@ -19,21 +20,7 @@ from openpilot.frogpilot.common.vision_speed_limit import (
 )
 from openpilot.frogpilot.system.speed_limit_vision import INPUT_MAX_AGE, SpeedLimitVisionDaemon, decode_nv12, inference_interval, inputs_valid
 from openpilot.frogpilot.system.vision_speed_limit_model import CLASSIFIER_SIZE, SpeedLimitModel, is_regulatory_sign
-from openpilot.frogpilot.system.vision_speed_limit_header import HEADER_OUTPUT_SHAPE, SpeedLimitHeader, is_speed_limit_heading, read_speed_limit_number
-
-
-class MemoryParams:
-  def __init__(self):
-    self.values = {}
-
-  def put(self, key, value):
-    self.values[key] = value
-
-  def get(self, key):
-    return self.values.get(key)
-
-  def remove(self, key):
-    self.values.pop(key, None)
+from openpilot.frogpilot.system.vision_speed_limit_text import TEXT_OUTPUT_SHAPE, SpeedLimitTextVerifier, is_speed_limit_heading, read_speed_limit_number
 
 
 class TestConfirmation:
@@ -141,9 +128,13 @@ class TestModel:
     model = SpeedLimitModel()
     assert model.detect(np.zeros((1208, 1928, 3), dtype=np.uint8)) is None
 
-  def test_real_sign_frames_require_temporal_confirmation(self):
+  @pytest.mark.parametrize('previous_speed', [0, 55])
+  def test_real_sign_frames_require_temporal_confirmation(self, previous_speed):
     model = SpeedLimitModel()
     state = SpeedLimitConfirmation()
+    if previous_speed:
+      for now in (99.0, 99.2):
+        state.update(Detection(previous_speed, 0.99), now, now)
     folder = Path(__file__).parent / 'fixtures' / 'vision_speed_limit'
     for index, number in enumerate((140, 146)):
       frame = cv2.imread(str(folder / f'sign_20_frame_{number}.png'))
@@ -152,7 +143,7 @@ class TestModel:
       assert detection is not None and detection.speed_mph == 20
       now = 100 + index * 0.2
       state.update(detection, now, now)
-      assert state.speed_mph == (0 if index == 0 else 20)
+      assert state.speed_mph == (previous_speed if index == 0 else 20)
     assert read_vision_speed_limit(state.snapshot(101), 101) == pytest.approx(20 * CV.MPH_TO_MS)
 
   def test_duplicate_detector_boxes_do_not_multiply_work(self):
@@ -227,8 +218,8 @@ class TestModel:
   @pytest.mark.parametrize('classifier_confidence', [0.94, 0.95, 0.99])
   def test_tinted_panel_requires_both_stronger_model_thresholds(self, proposal_confidence, classifier_confidence):
     model = SpeedLimitModel.__new__(SpeedLimitModel)
-    model.header = self.mocker.Mock()
-    model.header.matches_value.return_value = True
+    model.text = self.mocker.Mock()
+    model.text.matches_value.return_value = True
     model.proposals = self.mocker.Mock(return_value=[([300, 50, 80, 100], proposal_confidence)])
     model.classify = self.mocker.Mock(return_value=Detection(40, classifier_confidence))
     self.mocker.patch('openpilot.frogpilot.system.vision_speed_limit_model.is_regulatory_sign',
@@ -238,8 +229,8 @@ class TestModel:
 
   def test_conflicting_signs_are_not_selected(self):
     model = SpeedLimitModel.__new__(SpeedLimitModel)
-    model.header = self.mocker.Mock()
-    model.header.matches_value.return_value = True
+    model.text = self.mocker.Mock()
+    model.text.matches_value.return_value = True
     model.proposals = self.mocker.Mock(return_value=[([300, 50, 80, 100], 0.9), ([450, 50, 80, 100], 0.9)])
     model.classify = self.mocker.Mock(side_effect=[Detection(55, 0.99)] * 3 + [Detection(35, 0.99)] * 3)
     self.mocker.patch('openpilot.frogpilot.system.vision_speed_limit_model.is_regulatory_sign', return_value=True)
@@ -252,13 +243,13 @@ class TestModel:
     model = SpeedLimitModel.__new__(SpeedLimitModel)
     model.proposals = self.mocker.Mock(return_value=[([300, 50, 80, 100], proposal_confidence)])
     model.classify = self.mocker.Mock(return_value=Detection(30, classifier_confidence))
-    model.header = self.mocker.Mock()
-    model.header.has_heading.return_value = heading
-    model.header.matches_value.return_value = True
+    model.text = self.mocker.Mock()
+    model.text.has_heading.return_value = heading
+    model.text.matches_value.return_value = True
     self.mocker.patch('openpilot.frogpilot.system.vision_speed_limit_model.is_regulatory_sign', return_value=False)
     result = model.detect(np.full((480, 960, 3), 230, np.uint8))
     assert (result is not None) == (heading and proposal_confidence >= 0.60 and classifier_confidence >= 0.95)
-    assert model.header.has_heading.call_count == int(proposal_confidence >= 0.60 and classifier_confidence >= 0.95)
+    assert model.text.has_heading.call_count == int(proposal_confidence >= 0.60 and classifier_confidence >= 0.95)
     assert model.needs_followup == (proposal_confidence >= 0.60 and classifier_confidence >= 0.95)
 
   @pytest.mark.parametrize('number_matches', [False, True])
@@ -266,8 +257,8 @@ class TestModel:
     model = SpeedLimitModel.__new__(SpeedLimitModel)
     model.proposals = self.mocker.Mock(return_value=[([300, 50, 80, 100], 0.9)])
     model.classify = self.mocker.Mock(return_value=Detection(70, 0.99))
-    model.header = self.mocker.Mock()
-    model.header.matches_value.return_value = number_matches
+    model.text = self.mocker.Mock()
+    model.text.matches_value.return_value = number_matches
     self.mocker.patch('openpilot.frogpilot.system.vision_speed_limit_model.is_regulatory_sign', return_value=True)
     state = SpeedLimitConfirmation()
     state.update(Detection(30, 0.99), 99.0, 99.0)
@@ -276,13 +267,25 @@ class TestModel:
       result = model.detect(np.full((480, 960, 3), 230, np.uint8))
       state.update(result, now, now)
     assert state.speed_mph == (70 if number_matches else 30)
-    assert model.header.matches_value.call_count == 2
-    assert all(call.args[1] == 70 for call in model.header.matches_value.call_args_list)
-    model.header.has_heading.assert_not_called()
+    assert model.text.matches_value.call_count == 2
+    assert all(call.args[1] == 70 for call in model.text.matches_value.call_args_list)
+    model.text.has_heading.assert_not_called()
     assert model.needs_followup is not number_matches
 
+  def test_repeated_crops_cannot_promote_a_weak_classification(self):
+    model = SpeedLimitModel.__new__(SpeedLimitModel)
+    model.proposals = self.mocker.Mock(return_value=[([300, 50, 80, 100], 0.99)])
+    model.classify = self.mocker.Mock(return_value=Detection(70, 0.65))
+    model.text = self.mocker.Mock()
+    model.text.matches_value.return_value = True
+    self.mocker.patch('openpilot.frogpilot.system.vision_speed_limit_model.is_regulatory_sign', return_value=True)
+    state = SpeedLimitConfirmation()
+    for now in (100.0, 100.2):
+      state.update(model.detect(np.full((480, 960, 3), 230, np.uint8)), now, now)
+    assert state.speed_mph == 0
 
-class TestHeader:
+
+class TestTextVerifier:
   @pytest.mark.parametrize('words, expected', [
     (('SPEED', 'LIMIT'), True), (('ROUTE', '50'), False),
     (('SPEED', 'BUMP'), False), (('WEIGHT', 'LIMIT'), False),
@@ -296,7 +299,7 @@ class TestHeader:
       width = cv2.getTextSize(word, cv2.FONT_HERSHEY_SIMPLEX, 0.65, 2)[0][0]
       cv2.putText(panel, word, ((120 - width) // 2, baseline), cv2.FONT_HERSHEY_SIMPLEX,
                   0.65, (0, 0, 0), 2, cv2.LINE_AA)
-    assert model.header.has_heading(panel) is expected
+    assert model.text.has_heading(panel) is expected
 
   @staticmethod
   def scores(text='', confidence=0.99):
@@ -310,7 +313,7 @@ class TestHeader:
         sequence.append(0)
       sequence.append(token)
       previous = token
-    output = np.zeros(HEADER_OUTPUT_SHAPE, dtype=np.float32)
+    output = np.zeros(TEXT_OUTPUT_SHAPE, dtype=np.float32)
     output[:, :, 0] = 1.0
     for step, token in enumerate(sequence):
       if token:
@@ -329,7 +332,7 @@ class TestHeader:
   def test_uncertain_heading_is_rejected(self):
     assert not is_speed_limit_heading(self.scores('SPEED LIMIT', confidence=0.8))
 
-  @pytest.mark.parametrize('scores', [np.zeros((1, 10, 438)), np.full(HEADER_OUTPUT_SHAPE, np.nan), np.zeros(HEADER_OUTPUT_SHAPE)])
+  @pytest.mark.parametrize('scores', [np.zeros((1, 10, 438)), np.full(TEXT_OUTPUT_SHAPE, np.nan), np.zeros(TEXT_OUTPUT_SHAPE)])
   def test_invalid_model_outputs(self, scores):
     with pytest.raises(ValueError):
       is_speed_limit_heading(scores)
@@ -337,7 +340,7 @@ class TestHeader:
   def test_heading_work_is_bounded(self, mocker):
     network = mocker.Mock()
     network.forward.return_value = self.scores()
-    header = SpeedLimitHeader(network)
+    header = SpeedLimitTextVerifier(network)
     network.reset_mock()
     assert not header.has_heading(np.zeros((100, 80, 3), dtype=np.uint8))
     assert network.forward.call_count == 2
@@ -360,7 +363,7 @@ class TestHeader:
     scores[0, 0, 0] = 0.2
     assert read_speed_limit_number(scores) is None
 
-  @pytest.mark.parametrize('scores', [np.zeros((1, 10, 438)), np.full(HEADER_OUTPUT_SHAPE, np.nan), np.zeros(HEADER_OUTPUT_SHAPE)])
+  @pytest.mark.parametrize('scores', [np.zeros((1, 10, 438)), np.full(TEXT_OUTPUT_SHAPE, np.nan), np.zeros(TEXT_OUTPUT_SHAPE)])
   def test_invalid_number_outputs(self, scores):
     with pytest.raises(ValueError):
       read_speed_limit_number(scores)
@@ -368,7 +371,7 @@ class TestHeader:
   def test_number_mismatch_cannot_be_overturned(self, mocker):
     network = mocker.Mock()
     network.forward.return_value = self.scores()
-    header = SpeedLimitHeader(network)
+    header = SpeedLimitTextVerifier(network)
     network.reset_mock()
     network.forward.side_effect = [self.scores('30'), self.scores('70')]
     assert not header.matches_value(np.zeros((100, 80, 3), dtype=np.uint8), 70)
@@ -377,7 +380,7 @@ class TestHeader:
   def test_number_work_is_bounded_and_preserves_aspect(self, mocker):
     network = mocker.Mock()
     network.forward.return_value = self.scores()
-    header = SpeedLimitHeader(network)
+    header = SpeedLimitTextVerifier(network)
     network.reset_mock()
     assert not header.matches_value(np.zeros((100, 80, 3), dtype=np.uint8), 70)
     assert network.forward.call_count == 2
@@ -398,8 +401,8 @@ class TestHeader:
     width = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 2.0, 3)[0][0]
     cv2.putText(panel, text, ((120 - width) // 2, 170), cv2.FONT_HERSHEY_SIMPLEX,
                 2.0, (0, 0, 0), 3, cv2.LINE_AA)
-    assert model.header.matches_value(panel, speed)
-    assert not model.header.matches_value(panel, 30 if speed != 30 else 70)
+    assert model.text.matches_value(panel, speed)
+    assert not model.text.matches_value(panel, 30 if speed != 30 else 70)
 
 
 class FakeSubMaster(dict):
@@ -407,7 +410,7 @@ class FakeSubMaster(dict):
     super().__init__(
       deviceState=SimpleNamespace(started=True, thermalStatus=0, memoryUsagePercent=30, cpuUsagePercent=[10] * 8),
       frogpilotCarState=SimpleNamespace(drivingGear=True),
-      mapdOut=SimpleNamespace(roadName='Main Street'),
+      mapdOut=SimpleNamespace(roadName='Main Street', tileLoaded=True, wayId=1, isForward=True, locationMonoTime=10_000_000_000),
     )
     self.valid = dict.fromkeys(self, True)
     self.alive = dict.fromkeys(self, True)
@@ -446,7 +449,7 @@ class TestRuntime:
     self.camera.timestamp_eof = int(now * 1000000000.0)
     self.sm.logMonoTime = dict.fromkeys(self.sm, int(now * 1e9))
     self.mocker.patch('openpilot.frogpilot.system.speed_limit_vision.time.monotonic', return_value=now)
-    self.daemon.step(now)
+    self.daemon.step()
 
   def confirm(self):
     self.step(10)
@@ -513,7 +516,7 @@ class TestRuntime:
     self.daemon.last_inference_at = 0
     self.sm.logMonoTime = dict.fromkeys(self.sm, int(14 * 1e9))
     self.mocker.patch('openpilot.frogpilot.system.speed_limit_vision.time.monotonic', return_value=14)
-    self.daemon.step(14)
+    self.daemon.step()
     assert self.params.get(VISION_SPEED_LIMIT_PARAM) is None
 
   def test_worker_stopping_after_camera_stall_does_not_extend_deadline(self):
@@ -524,11 +527,30 @@ class TestRuntime:
     snapshot = self.params.get(VISION_SPEED_LIMIT_PARAM)
     assert read_vision_speed_limit(snapshot, 10.2 + HEARTBEAT_TIMEOUT + 0.1) == 0
 
-  def test_road_change_requires_new_confirmation(self):
+  @pytest.mark.parametrize('field,value', [('wayId', 2), ('isForward', False)])
+  def test_matched_road_change_requires_new_confirmation(self, field, value):
     self.confirm()
-    self.sm['mapdOut'].roadName = 'Side Street'
+    # Names may be identical or absent on distinct roads.
+    setattr(self.sm['mapdOut'], field, value)
     self.step(11)
     assert self.params.get(VISION_SPEED_LIMIT_PARAM)['speedLimit'] == 0
+
+  @pytest.mark.parametrize('field,value', [('tileLoaded', False), ('wayId', 0), ('locationMonoTime', 1),
+                                         ('locationMonoTime', 12_000_000_000)])
+  def test_unusable_map_match_does_not_invent_a_road_change(self, field, value):
+    self.confirm()
+    self.sm['mapdOut'].wayId = 2
+    setattr(self.sm['mapdOut'], field, value)
+    self.model.detect.return_value = None
+    self.step(11)
+    assert self.params.get(VISION_SPEED_LIMIT_PARAM)['speedLimit'] > 0
+
+  def test_name_change_on_same_matched_road_preserves_confirmation(self):
+    self.confirm()
+    self.sm['mapdOut'].roadName = ''
+    self.model.detect.return_value = None
+    self.step(11)
+    assert self.params.get(VISION_SPEED_LIMIT_PARAM)['speedLimit'] > 0
 
   def test_missing_model_retries_slowly(self):
     self.daemon.model_factory = self.mocker.Mock(side_effect=FileNotFoundError())
@@ -554,7 +576,7 @@ class TestRuntime:
       self.sm.logMonoTime = dict.fromkeys(self.sm, int(started_at * 1e9))
       self.mocker.patch('openpilot.frogpilot.system.speed_limit_vision.time.monotonic',
                         side_effect=[started_at, started_at, started_at + 0.3])
-      self.daemon.step(started_at)
+      self.daemon.step()
     assert self.model.detect.call_count == 2
     assert read_vision_speed_limit(self.params.get(VISION_SPEED_LIMIT_PARAM), 10.65) == pytest.approx(55 * CV.MPH_TO_MS)
 
@@ -639,7 +661,7 @@ class TestRuntime:
     if 0 <= age <= INPUT_MAX_AGE[service]:
       assert inputs_valid(self.sm, 10.2)
     else:
-      self.daemon.step(10.2)
+      self.daemon.step()
       assert self.params.get(VISION_SPEED_LIMIT_PARAM) is None
 
   @pytest.mark.parametrize('service', INPUT_MAX_AGE)

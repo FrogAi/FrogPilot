@@ -1,7 +1,7 @@
 # Vision speed limits
 
-Adds StarPilot's sign detector and number classifier, with a PaddleOCR heading
-fallback, as an optional **Vision** source in FrogPilot's Speed Limit Controller.
+Adds StarPilot's sign detector and number classifier, with independent PaddleOCR text
+verification, as an optional **Vision** source in FrogPilot's Speed Limit Controller.
 This port targets `MAKE-PRS-HERE` at `f8fb0668ed7fd13caf5a21e1ac27f6378df1b37f`;
 the default prebuilt distribution is not the source tree used for this change.
 
@@ -41,7 +41,9 @@ convert those mph readings; display units never determine sign units.
   gears cannot confirm a sign.
 - **Recognition:** model hashes and output contracts are checked. Up to four
   non-overlapping proposals receive bounded crop reads; conflicting numbers reject
-  the result. A color filter rejects advisory signage and adjusts brightness with
+  the result. Agreeing crops use the lowest classifier score without a crop-count
+  bonus or a weighted detector score; this is not calibrated recognition accuracy.
+  A color filter rejects advisory signage and adjusts brightness with
   bounded gain for shadows. Tinted panels require stronger detector/classifier
   scores. Glare-rejected panels additionally require an exact `SPEED LIMIT` heading,
   with at most two OCR alignments per proposal. Every accepted number, including on
@@ -50,7 +52,7 @@ convert those mph readings; display units never determine sign units.
   disagreement rejects the proposal. OCR verifies the classifier's number rather
   than supplying a replacement. Automatic increases and driver settings are preserved.
   See [model provenance and preparation](../frogpilot/assets/vision_models/README.md).
-- **Confirmation:** two matching independent frames within two seconds are required,
+- **Confirmation:** two matching, separately captured frames within two seconds are required,
   using camera capture times. Crop variants do not count as separate observations.
   Changes below 30 mph from 30 mph or above require at least 0.90 confidence. A
   confirmed match ends follow-up; weak reads cannot start it. Strong numeric
@@ -60,13 +62,22 @@ convert those mph readings; display units never determine sign units.
   confidence, detection time and last processed frame time. The SLC independently
   expires results after 300 seconds without matching observations or three seconds
   without a new processed frame. Republishing extends neither deadline. Live frames
-  without a sign preserve the held limit until expiry. Road-name changes and camera
-  switches clear confirmation.
+  without a sign preserve the held limit until expiry. This five-minute ceiling is
+  a bounded retention policy, not proof that the sign still applies. Fresh matched
+  map segment/direction changes and camera switches clear confirmation; road names
+  do not identify a segment. A match must have a loaded tile, positive way ID and a
+  location timestamp no more than two seconds old. Without a usable map match, the
+  worker cannot detect road transitions; time and camera expiry still apply.
 - **Controller:** expired/disabled Vision cannot survive through Previous Limit
   fallback, and Vision readings are never persisted as `PreviousSpeedLimit`.
-  Pending Vision confirmations, denied readings and queued acceptance taps clear
-  when the source disappears or is deselected. Other source confirmations and
-  Mapbox/map/dashboard fallback retain their existing behavior.
+  Source handovers compare against the last accepted target, so losing Vision
+  cannot bypass higher/lower confirmation. Pending decisions and queued taps are
+  tied to their source. Valid replacements still increase automatically when
+  confirmation is disabled. With no accepted replacement, an engaged controller
+  keeps the last Vision cruise ceiling while the displayed reading becomes
+  unavailable. A new accepted limit, disengagement, disabling SLC or an explicit
+  cruise increase releases that ceiling; gas overrides retain their selected mode.
+  Curve speed reductions do not become permanent Vision ceilings.
 
 ## Validation
 
@@ -83,49 +94,13 @@ pytest -n0 frogpilot/system/tests/test_speed_limit_vision.py \
   frogpilot/controls/tests/test_vision_speed_limit_controller.py common/tests/test_params.py
 ruff check frogpilot/common/vision_speed_limit.py \
   frogpilot/system/speed_limit_vision.py frogpilot/system/vision_speed_limit_model.py \
-  frogpilot/system/vision_speed_limit_header.py \
+  frogpilot/system/vision_speed_limit_text.py \
   frogpilot/system/tests/test_speed_limit_vision.py \
   frogpilot/controls/tests/test_vision_speed_limit_controller.py
 uv lock --check
 ```
 
-### Recorded results (2026-09-20)
-
-The following results cover runtime `42f682c7bfaeed4bc7d4a2b05ec62e510112503e`, before
-the independent digit check. These are recorded results, not new test runs:
-
-- **Host:** 219 tests passed (206 feature and 13 Params), covering actual ONNX
-  inference, native padded-NV12 VisionIPC/messaging/shared-Params/SLC integration,
-  units, confirmation, stale limits, camera loss, load shedding, reader preservation
-  and the real confirmation logger. Native Qt/bindings builds, changed-Python Ruff,
-  lock validation and diff checks passed; model conversion reproduced the pinned hash.
-- **Replay:** 12,000 recorded frames plus native daemon/SLC and full desktop
-  model/controls/planning/Qt replay recovered the inspected 30/40/30 mph signs and
-  road-change clearing. Inspected Route 6/50 shields and a recreation sign supplied
-  no accepted speed. These private development recordings are not an independent
-  accuracy benchmark or a closed-loop vehicle simulation.
-- **Native C3:** staged and canonical ARM builds passed before reboot into the tested
-  revision with Qt running. Native NV12/model/Params/SLC fixtures confirmed 30/40/30
-  mph, rejected inspected negatives and expired camera-stale results. Fixture
-  inference took 0.20-0.58 seconds. Physical-camera/model/calibration checks produced
-  zero invalid messages during 15-second vision-off/on windows; enabled inference
-  samples took 0.58-0.61 seconds. A separate 20-second post-reboot check in Park found
-  all 14 monitored channels healthy, stable readers, no alerts and no unexpected
-  stopped processes. Vision was correctly Idle in Park. The 12 candidate manifest
-  hashes matched and eight backed-up steering/tuning settings were preserved.
-- **Road feedback:** the tester reported a successful subsequent drive. No labeled
-  sign count, miss rate, distance or lighting coverage accompanied that report.
-
-### Nighttime misread and digit-verification candidate (2026-09-20)
-
-A later drive exposed a repeated 30-to-70 mph misclassification that raised the
-cruise target and commanded acceleration. Two-frame confirmation did not reject
-the repeated error. Offline NV12 replay reproduces it; the independent digit check
-rejects it while preserving the existing positive fixtures. The candidate passes
-255 host tests. Paired two-minute native VisionIPC/Params/SLC host replay selected
-70 mph with an 80 mph target before the change and retained 30 mph with a target at
-most 35 mph after it. Its additional OCR work still requires native C3 timing, coexistence
-and startup checks before installation; earlier hardware results do not validate it.
+Recorded results are kept in [the validation record](vision_speed_limits_validation.md).
 
 ## Limitations and review items
 
@@ -133,7 +108,8 @@ and startup checks before installation; earlier hardware results do not validate
   an upstream inclusion question. The StarPilot weights declare AGPL-3.0; retaining
   notices does not resolve corresponding-source obligations or license acceptance.
 - The models cannot establish lane applicability or whether a conditional school
-  or construction limit is active. Recognition errors and missed signs are possible.
+  or construction limit is active. Matching numbers in two frames do not establish
+  physical sign identity or make their errors statistically independent. Recognition errors and missed signs are possible.
   This is not a European/Canadian sign model. Python/Mici settings and source display
   are not implemented or validated by this Qt port.
 - Broader labeled-route accuracy, sustained control/model deadlines, thermal/memory

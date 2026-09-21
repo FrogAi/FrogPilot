@@ -16,6 +16,7 @@ BUSY_INTERVAL = 1.5
 MODEL_RETRY_INTERVAL = 30.0
 MAX_FRAME_AGE = 0.5
 INPUT_MAX_AGE = {"deviceState": 5.0, "frogpilotCarState": 0.1}
+MAP_MATCH_MAX_AGE = 2.0
 
 
 def inputs_valid(sm, now):
@@ -57,7 +58,7 @@ class SpeedLimitVisionDaemon:
     self.client = None
     self.stream = None
     self.confirmation = SpeedLimitConfirmation()
-    self.last_road = ""
+    self.last_road = None
     self.last_frame_at = 0.0
     self.last_inference_at = -float("inf")
     self.last_publish_at = -float("inf")
@@ -77,7 +78,7 @@ class SpeedLimitVisionDaemon:
       self.client = None
       self.stream = None
       self.last_frame_at = 0.0
-      self.last_road = ""
+      self.last_road = None
     self.set_status(status)
 
   def set_status(self, status):
@@ -102,30 +103,29 @@ class SpeedLimitVisionDaemon:
       self.stream = desired
     return self.client.is_connected() or self.client.connect(False)
 
-  def step(self, now):
-    self.sm.update(0)
-    now = time.monotonic()
-    self.confirmation.expire(now)
+  def prepare(self, now):
     if not inputs_valid(self.sm, now) or not self.sm["deviceState"].started:
       self.clear("Idle", disconnect=True)
-      return
+      return False
     device_state = self.sm["deviceState"]
     if device_state.thermalStatus >= 2 or device_state.memoryUsagePercent >= 94:
       self.clear("Paused: device load", disconnect=True)
-      return
+      return False
     if not self.sm["frogpilotCarState"].drivingGear:
       self.clear("Idle", disconnect=True)
-      return
+      return False
 
-    if self.sm.valid["mapdOut"] and self.sm.alive["mapdOut"]:
-      road = self.sm["mapdOut"].roadName
-      if road and self.last_road and road != self.last_road:
+    match = self.sm["mapdOut"]
+    if (self.sm.valid["mapdOut"] and self.sm.alive["mapdOut"] and match.tileLoaded and match.wayId > 0 and
+        0 < match.locationMonoTime <= now * 1e9 and now - match.locationMonoTime / 1e9 <= MAP_MATCH_MAX_AGE):
+      road = (match.wayId, match.isForward)
+      if self.last_road is not None and road != self.last_road:
         self.clear("Scanning")
-      self.last_road = road or self.last_road
+      self.last_road = road
 
     if self.model is None:
       if now - self.last_model_attempt < MODEL_RETRY_INTERVAL:
-        return
+        return False
       self.last_model_attempt = now
       self.clear("Loading models")
       try:
@@ -133,9 +133,17 @@ class SpeedLimitVisionDaemon:
       except (OSError, ValueError, cv2.error):
         self.logger.exception("Unable to load vision speed limit models")
         self.clear("Models unavailable", disconnect=True)
-        return
+        return False
+    return True
 
-    if now - self.last_inference_at < inference_interval(device_state, self.processing_time, now < self.followup_until):
+  def step(self):
+    self.sm.update(0)
+    now = time.monotonic()
+    self.confirmation.expire(now)
+    if not self.prepare(now):
+      return
+
+    if now - self.last_inference_at < inference_interval(self.sm["deviceState"], self.processing_time, now < self.followup_until):
       # A heartbeat is evidence of a live camera, not merely a live Python loop.
       if now - self.last_frame_at <= HEARTBEAT_TIMEOUT:
         self.publish(now)
@@ -162,7 +170,9 @@ class SpeedLimitVisionDaemon:
       return
 
     self.last_frame_at = now
-    started_at = now
+    self.process_frame(buffer, frame_time, now)
+
+  def process_frame(self, buffer, frame_time, started_at):
     frame = decode_nv12(buffer.data, self.client.width, self.client.height, self.client.stride, self.client.uv_offset)
     detection = self.model.detect(frame)
     finished_at = time.monotonic()
@@ -197,7 +207,7 @@ class SpeedLimitVisionDaemon:
     try:
       while True:
         try:
-          self.step(time.monotonic())
+          self.step()
         except (OSError, ValueError, cv2.error):
           self.logger.exception("Vision speed limit inference failed")
           self.model = None

@@ -11,7 +11,7 @@ import cv2
 import numpy as np
 
 from openpilot.frogpilot.common.vision_speed_limit import Detection, MIN_CONFIDENCE, VALID_SPEEDS_MPH
-from openpilot.frogpilot.system.vision_speed_limit_header import SpeedLimitHeader
+from openpilot.frogpilot.system.vision_speed_limit_text import SpeedLimitTextVerifier
 
 MODEL_DIR = Path(__file__).resolve().parents[1] / "assets" / "vision_models"
 MODEL_HASHES = {
@@ -94,8 +94,8 @@ class SpeedLimitModel:
       network.setPreferableBackend(cv2.dnn.DNN_BACKEND_OPENCV)
       network.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)
       networks.append(network)
-    self.detector, self.classifier, header_network = networks
-    self.header = SpeedLimitHeader(header_network)
+    self.detector, self.classifier, text_network = networks
+    self.text = SpeedLimitTextVerifier(text_network)
 
     # Check the pinned model contract before any results can reach the controller.
     self.proposals(np.zeros((480, 960, 3), dtype=np.uint8))
@@ -179,7 +179,7 @@ class SpeedLimitModel:
           # This scheduling hint cannot supply or confirm a speed by itself.
           self.needs_followup = True
           if header_accepted is None:
-            header_accepted = self.header.has_heading(frame[y:y + box_height, x:x + box_width])
+            header_accepted = self.text.has_heading(frame[y:y + box_height, x:x + box_width])
           if not header_accepted:
             continue
         reads.append(read)
@@ -188,11 +188,13 @@ class SpeedLimitModel:
       # Disagreeing crop reads are ambiguous; do not pick whichever scores highest.
       if len({read.speed_mph for read in reads}) != 1:
         continue
-      confidence = min(0.95, max(read.confidence for read in reads) * 0.72 + proposal_confidence * 0.24 + (len(reads) - 1) * 0.06)
+      # Overlapping crops are correlated. They must agree, but cannot boost the
+      # score of a weak classification. This score is not calibrated accuracy.
+      confidence = min(read.confidence for read in reads)
       # Consecutive blurry frames can repeat the same wrong number. Require the
       # separate text recognizer to agree, including on ordinary white panels.
       # It verifies the classifier's number; it never replaces it with another.
-      if not self.header.matches_value(frame[y:y + box_height, x:x + box_width], reads[0].speed_mph):
+      if not self.text.matches_value(frame[y:y + box_height, x:x + box_width], reads[0].speed_mph):
         self.needs_followup |= confidence >= MIN_CONFIDENCE
         continue
       detections.append(Detection(reads[0].speed_mph, confidence))

@@ -29,16 +29,16 @@ license, or replace them with compatible weights and revalidate the integration.
 Adding the license text does not itself settle those obligations. No relicensing
 of FrogPilot's existing code is intended by this port.
 
-The inference pipeline's preprocessing, classifier ordering, confidence weighting,
+The inference pipeline's preprocessing, classifier ordering,
 and regulatory-panel heuristic are adapted from StarPilot's
 [`speed_limit_vision.py`](https://github.com/firestar5683/StarPilot/blob/b990a776b2fceefaca4d678cf87067874f4b1672/starpilot/system/speed_limit_vision.py).
 Its MIT notice, including firestar5683 and StarPilot contributors, is preserved
 in [STARPILOT-LICENSE](STARPILOT-LICENSE). The worker, confirmation state, freshness
 checks, and FrogPilot integration were implemented separately for this port.
 
-## Heading recognizer
+## Text recognizer
 
-The additional heading recognizer comes from PaddlePaddle's
+The additional text recognizer comes from PaddlePaddle's
 [`en_PP-OCRv5_mobile_rec_onnx`, revision
 3fafbc3b5dcf93dd72add9f48368be8a3a2cd33b](https://huggingface.co/PaddlePaddle/en_PP-OCRv5_mobile_rec_onnx/tree/3fafbc3b5dcf93dd72add9f48368be8a3a2cd33b).
 The publisher identifies its license as Apache-2.0. The PaddleOCR project's
@@ -76,3 +76,8 @@ number. This adds inference work but no model or runtime dependency.
 Model replacement is deliberate: update the checksums, class mapping, shape
 checks, and regression evidence together. Missing, modified, unsupported, or
 non-finite model outputs make the Vision source unavailable.
+
+The reported confidence is the lowest classifier score among agreeing crop reads,
+not a measured probability of recognizing the correct road limit. Detector scores
+and repeated crops do not add confidence. OCR agreement is a separate required
+check. Runtime thresholds are acceptance rules, not calibrated accuracy estimates.
