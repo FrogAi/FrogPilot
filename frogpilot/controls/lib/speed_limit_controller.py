@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # PFEIFER - SLC - Modified by FrogAi for FrogPilot
 import requests
+import time
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -10,6 +11,7 @@ from openpilot.common.realtime import DT_MDL
 from openpilot.common.swaglog import cloudlog
 
 from openpilot.frogpilot.common.frogpilot_utilities import is_mapd_data_valid, is_mapd_match_valid
+from openpilot.frogpilot.common.vision_speed_limit import VISION_SPEED_LIMIT_PARAM, read_vision_speed_limit
 
 MAPBOX_MONTHLY_REQUEST_LIMIT = 100_000
 MAPBOX_REQUEST_INTERVAL = 5
@@ -55,10 +57,12 @@ class SpeedLimitController:
     self.speed_limit_changed_timer = 0
     self.target = 0
     self.unconfirmed_speed_limit = 0
+    self.vision_speed_limit = 0
 
     self.mapbox_future = None
     self.mapbox_position = None
 
+    self.confirmation_source = "None"
     self.previous_source = "None"
     self.source = "None"
 
@@ -74,7 +78,7 @@ class SpeedLimitController:
     self.mapbox_executor = ThreadPoolExecutor(max_workers=1)
     self.mapbox_session = requests.Session()
 
-    self.previous_target = self.frogpilot_planner.params.get("PreviousSpeedLimit")
+    self.previous_target = self.frogpilot_planner.params.get("PreviousSpeedLimit") or 0
 
   def close(self):
     self.mapbox_executor.shutdown()
@@ -96,8 +100,14 @@ class SpeedLimitController:
     self.speed_limit_changed_timer = 0
     self.target = 0
     self.unconfirmed_speed_limit = 0
+    self.vision_speed_limit = 0
 
+    self.confirmation_source = "None"
     self.source = "None"
+
+    if self.previous_source == "Vision":
+      self.previous_source = "None"
+      self.previous_target = 0
 
     self.invalidate_mapbox()
 
@@ -116,10 +126,19 @@ class SpeedLimitController:
 
     return next((getattr(self.frogpilot_toggles, offset) for upper_bound, offset in offset_map if 0 < displayed_speed_limit < upper_bound), 0)
 
+  def cancel_confirmation(self):
+    self.confirmation_source = "None"
+    self.denied_target = 0
+    self.unconfirmed_speed_limit = 0
+    self.speed_limit_changed_timer = 0
+    self.frogpilot_planner.params_memory.remove("SpeedLimitAccepted")
+
   def handle_limit_change(self, desired_source, desired_target, sm):
-    if desired_source == "None" or self.target == 0:
+    # Losing a reading must not turn a source handover into initial acquisition.
+    reference_target = self.target or (self.previous_target if self.previous_source == "Vision" else 0)
+    if desired_source == "None" or reference_target == 0 or abs(desired_target - reference_target) < 1:
       confirmation_required = False
-    elif desired_target < self.target:
+    elif desired_target < reference_target:
       confirmation_required = self.frogpilot_toggles.speed_limit_confirmation_lower
     else:
       confirmation_required = self.frogpilot_toggles.speed_limit_confirmation_higher
@@ -132,6 +151,7 @@ class SpeedLimitController:
     if not confirmation_required:
       self.denied_target = 0
 
+      self.confirmation_source = "None"
       self.source = desired_source
       self.target = desired_target
 
@@ -144,6 +164,7 @@ class SpeedLimitController:
       return
 
     if abs(desired_target - self.unconfirmed_speed_limit) >= 1:
+      self.confirmation_source = desired_source
       self.source = "None"
 
       self.speed_limit_changed_timer = DT_MDL
@@ -157,6 +178,7 @@ class SpeedLimitController:
       self.denied_target = 0
       self.overridden_speed = 0
 
+      self.confirmation_source = "None"
       self.source = desired_source
       self.target = desired_target
 
@@ -179,9 +201,24 @@ class SpeedLimitController:
 
     self.update_map_speed_limit(map_match, v_ego, sm)
 
+    self.vision_speed_limit = 0
+    if self.frogpilot_toggles.vision_speed_limit_detection:
+      self.vision_speed_limit = read_vision_speed_limit(self.frogpilot_planner.params_memory.get(VISION_SPEED_LIMIT_PARAM), time.monotonic())
+    if not self.vision_speed_limit and (self.source == "Vision" or self.previous_source == "Vision"):
+      # Invalidate the observation, retaining the last accepted reference for
+      # handover decisions. It is neither a fresh reading nor Previous fallback.
+      self.target = 0
+      self.overridden_speed = 0
+      self.source = "None"
+      if not sm["carControl"].longActive:
+        self.previous_source = "None"
+        self.previous_target = 0
+        self.cancel_confirmation()
+
     limits = {
       "Dashboard": sm["frogpilotCarState"].dashboardSpeedLimit,
       "Map Data": self.map_speed_limit,
+      "Vision": self.vision_speed_limit,
     }
     limits = {source: limit for source, limit in limits.items() if limit >= 1}
 
@@ -193,6 +230,7 @@ class SpeedLimitController:
       priorities = (
         self.frogpilot_toggles.speed_limit_priority1,
         self.frogpilot_toggles.speed_limit_priority2,
+        self.frogpilot_toggles.speed_limit_priority3,
       )
       desired_source = next((source for source in priorities if source in limits), "None")
 
@@ -201,19 +239,23 @@ class SpeedLimitController:
     self.update_mapbox_speed_limit(gps_position, map_match, now, time_validated, v_ego, desired_target)
 
     if desired_target == 0:
-      previous_limit_available = self.previous_target > 0 and self.denied_target != self.previous_target
+      previous_limit_available = self.previous_target > 0 and self.denied_target != self.previous_target and self.previous_source != "Vision"
 
       if self.mapbox_speed_limit >= 1:
         desired_source, desired_target = "Mapbox", self.mapbox_speed_limit
       elif self.frogpilot_toggles.slc_fallback_previous_speed_limit and previous_limit_available:
         desired_source, desired_target = self.previous_source, self.previous_target
 
-        if self.unconfirmed_speed_limit or self.denied_target:
+        if self.confirmation_source in ("None", desired_source) and (self.unconfirmed_speed_limit or self.denied_target):
           self.source = desired_source
           self.target = desired_target
 
           self.speed_limit_changed_timer = 0
           return
+
+    if self.confirmation_source not in ("None", desired_source):
+      # A queued tap or denial belongs to a particular source, including Mapbox.
+      self.cancel_confirmation()
 
     if desired_target == 0:
       self.target = 0
@@ -224,11 +266,12 @@ class SpeedLimitController:
       return
 
     if self.unconfirmed_speed_limit or self.denied_target:
-      if self.target == 0:
+      if self.target == 0 and self.previous_source != "Vision":
         self.target = self.previous_target
       self.source = "None"
 
     if abs(desired_target - self.target) < 1:
+      self.confirmation_source = "None"
       self.denied_target = 0
       self.unconfirmed_speed_limit = 0
 
@@ -250,7 +293,8 @@ class SpeedLimitController:
       if self.target != self.previous_target:
         self.previous_target = self.target
 
-        self.frogpilot_planner.params.put_nonblocking("PreviousSpeedLimit", self.target)
+        if self.source != "Vision":
+          self.frogpilot_planner.params.put_nonblocking("PreviousSpeedLimit", self.target)
 
   def update_mapbox_speed_limit(self, gps_position, map_match, now, time_validated, v_ego, desired_target):
     mapbox_enabled = self.frogpilot_toggles.slc_mapbox_filler or self.frogpilot_toggles.speed_limit_filler

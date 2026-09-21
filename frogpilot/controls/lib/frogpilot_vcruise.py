@@ -20,6 +20,8 @@ class FrogPilotVCruise:
 
     self.force_stop_timer = 0
     self.stop_distance = 0
+    self.vision_cruise_cap = None
+    self.previous_cruise_setting = None
 
   def update(self, long_control_active, now, time_validated, v_cruise, v_ego, sm, frogpilot_toggles):
     self.update_force_stop(long_control_active, v_ego, sm, frogpilot_toggles)
@@ -65,7 +67,28 @@ class FrogPilotVCruise:
 
     targets = [self.csc_target if self.csc_target >= CRUISING_SPEED else v_cruise, v_cruise]
     if frogpilot_toggles.speed_limit_controller and self.slc_target > 0:
-      targets.append(max(max(self.slc.overridden_speed, self.slc_target + self.slc_offset) - v_ego_diff, CRUISING_SPEED))
+      slc_cap = max(max(self.slc.overridden_speed, self.slc_target + self.slc_offset) - v_ego_diff, CRUISING_SPEED)
+      targets.append(slc_cap)
+      self.vision_cruise_cap = min(slc_cap, v_cruise) if self.slc.previous_source == "Vision" else None
+
+    if not long_control_active or not frogpilot_toggles.speed_limit_controller or self.slc.previous_source != "Vision":
+      self.vision_cruise_cap = None
+    elif self.slc_target == 0 and self.vision_cruise_cap is not None:
+      # Keep a control ceiling, not an expired posted limit. Camera/source loss
+      # alone cannot authorize acceleration towards a higher cruise setting.
+      cruise_increased = self.previous_cruise_setting is not None and v_cruise > self.previous_cruise_setting + 0.01
+      if not self.slc.unconfirmed_speed_limit and (sm["frogpilotCarState"].accelPressed or cruise_increased):
+        self.vision_cruise_cap = None
+      else:
+        if sm["carState"].gasPressed:
+          if frogpilot_toggles.speed_limit_controller_override_manual:
+            self.vision_cruise_cap = max(self.vision_cruise_cap, v_ego)
+          elif frogpilot_toggles.speed_limit_controller_override_set_speed:
+            self.vision_cruise_cap = v_cruise
+        self.vision_cruise_cap = min(self.vision_cruise_cap, v_cruise)
+        targets.append(self.vision_cruise_cap)
+
+    self.previous_cruise_setting = v_cruise
 
     v_cruise = min(targets)
 
@@ -102,7 +125,8 @@ class FrogPilotVCruise:
       return
 
     if stop_detected:
-      model_stop_distance = next((distance for distance, velocity in zip(sm["modelV2"].position.x, sm["modelV2"].velocity.x) if velocity < 0.05), self.frogpilot_planner.model_length)
+      model_stop_distance = next((distance for distance, velocity in zip(sm["modelV2"].position.x, sm["modelV2"].velocity.x, strict=False)
+                                  if velocity < 0.05), self.frogpilot_planner.model_length)
 
     if self.forcing_stop:
       self.stop_distance = max(self.stop_distance - v_ego * DT_MDL, 0)

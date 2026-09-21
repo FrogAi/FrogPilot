@@ -113,6 +113,7 @@ private:
   float laneWidthLeft;
   float laneWidthRight;
   float mapSpeedLimit;
+  float visionSpeedLimit;
   float mapboxSpeedLimit;
   float nextSpeedLimit;
   float roadCurvature;
