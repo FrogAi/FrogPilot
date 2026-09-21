@@ -1,103 +1,73 @@
 # Vision speed limits
 
-This port adds StarPilot's two-stage sign model as an optional `Vision` source in
-FrogPilot's existing Speed Limit Controller. It targets `MAKE-PRS-HERE` at
-`f8fb0668ed7fd13caf5a21e1ac27f6378df1b37f`; the default prebuilt distribution is not
-the source tree used to build this change.
+Adds StarPilot's sign detector and number classifier, with a PaddleOCR heading
+fallback, as an optional **Vision** source in FrogPilot's Speed Limit Controller.
+This port targets `MAKE-PRS-HERE` at `f8fb0668ed7fd13caf5a21e1ac27f6378df1b37f`;
+the default prebuilt distribution is not the source tree used for this change.
 
 ## Use
 
-In the Qt settings, select the Advanced tuning level and enable **Vision Speed
-Limits (U.S.)** under Speed Limit Controller. Select **Vision** in **Speed Limit
-Source Priority** to choose its position relative to Map Data and Dashboard.
-Three priority slots are supported. Existing first and second choices are
-preserved; the new third slot defaults to Vision, which contributes nothing while
-detection is disabled. Highest/Lowest modes consider enabled, available sources.
+In Qt settings, select the Advanced tuning level and enable **Vision Speed Limits
+(U.S.)** under Speed Limit Controller. Set **Speed Limit Source Priority** to
+choose Vision's position relative to Map Data and Dashboard. Three slots are
+supported; existing first/second choices are preserved and the third defaults to
+Vision. Detection is off by default. Highest/Lowest modes use available sources.
 
 For display without longitudinal control, enable the same toggle under Visuals /
-Navigation Widgets and enable Show Speed Limits. Detection alone does not enable
-longitudinal control. Existing offsets, change confirmations, gas overrides,
-cruise-speed cap, and disengagement behavior remain in FrogPilot's controller.
-The optional source panel includes Vision. This branch's Python/Mici UI does not
-have the equivalent FrogPilot settings/source panel; that UI is not validated by
-this Qt port.
+Navigation Widgets and enable **Show Speed Limits**. Detection alone does not
+enable longitudinal control. Existing offsets, driver confirmations, gas overrides,
+cruise-speed caps and disengagement behavior remain in the controller. The optional
+source panel includes Vision.
 
-Detection is off by default. Supported readings are U.S. 5–80 mph signs in
-increments of 5. Metric displays convert those mph values normally. This is not
-a European/Canadian sign model and it does not infer sign units from IsMetric.
-The models cannot establish lane applicability or whether a conditional school
-or construction limit is active. Recognition errors and missed signs remain
-possible; controller confirmation is still configurable.
+Supported readings are U.S. 5-80 mph signs in increments of 5. Metric displays
+convert those mph readings; display units never determine sign units.
 
-## Implementation
+## Architecture
 
-- `speed_limit_vision` is managed onroad only when the effective FrogPilot toggle
-  is enabled. OpenCV runs two CPU threads, on the existing helper cores 0–2 on
-  device. Nominal detection is 6 Hz with 10 Hz follow-up for two seconds after a
-  candidate, backed off for CPU/memory pressure and measured inference cost.
-  Critical memory pressure or high thermal state clears the source and pauses it.
-  The worker validates input payloads and source timestamps: car state must be
-  at most 0.1 seconds old and device state at most 5 seconds old. Inference blocks
-  this worker, so its receive frequency is not used to infer publisher health.
-- Vehicle validity and the drive/low gear flag arrive through `frogpilotCarState`.
-  The standard `carState` channel already has 15 readers in a fully configured
-  FrogPilot, which fills this msgq version's reader capacity. Adding the vision
-  worker there evicts existing readers and can invalidate calibration and the
-  downstream control stack. Using the auxiliary channel preserves those readers
-  without changing the shared-memory layout or relaxing any control checks.
-- The worker prefers the road stream and falls back to wide road. NV12 decoding
-  respects stride **and UV-plane offset**. Frames older than 0.5 seconds, repeated
-  timestamps, offroad/invalid car state, and non-driving gears cannot confirm a sign.
-  This branch's camera producer does not populate VisionIPC's `valid` flag;
-  frame acceptance checks received buffers, timestamps, and layout instead.
-- Model bytes and tensor shapes are checked before use. Inference handles the
-  actual single-class proposal detector and 19-class probability output. Advisory
-  color rejection, a maximum of four non-overlapping proposals, bounded crop
-  reads, and rejection of conflicting numbers limit ambiguous results. These
-  heuristics are not a classifier for conditional-sign applicability. The color
-  filter normalizes brightness with a bounded gain so shadowed white panels are
-  not rejected solely for being dim; hue, saturation, and model inputs are unchanged.
-  Moderately tinted panels require stronger detector and classifier scores. A
-  separate, pinned PaddleOCR heading model can rescue glare-rejected panels only
-  after those stronger scores and an exact `SPEED LIMIT` text check. A strong
-  numeric read by itself also accepts route shields and is not sufficient.
-  The heading check has at most two alignments per proposal and never supplies
-  a speed value; see the [model provenance](../frogpilot/assets/vision_models/README.md).
-- Confirmation requires two matching independent camera frames within two
-  seconds. Multiple crops of a single frame are not independent confirmation.
-  That window uses capture times, so inference latency does not shorten it.
-  Processing backoff is 1.5 times inference duration while scanning and 1.0
-  times during a bounded follow-up window. A confirmed match ends that window;
-  weak reads cannot start it. A strong numeric candidate with an unreadable
-  heading can request a two-second retry burst, followed by a two-second
-  cooldown. That hint cannot publish a limit. Confirmed speed changes are logged
-  for diagnosis.
-  Changes below 30 mph from 30 mph or above require at least 0.90 confidence.
-- One JSON value in `Params(memory=True)` carries the m/s result, confidence,
-  detection time, and last processed camera-frame time together. The SLC validates
-  it independently:
-  the result expires after 300 seconds without matching observations, or after
-  three seconds without a new processed camera frame. Republishing does not extend
-  either deadline. Live frames without a recognized sign preserve the held limit
-  until its detection expires. Observed road-name changes and camera switches
-  clear confirmation.
-- Expired/disabled vision is excluded from Previous Limit fallback. Vision limits
-  are not saved to the persistent PreviousSpeedLimit parameter. Mapbox, map data,
-  and dashboard behavior remain available when inference fails.
-  Pending vision confirmations, denied readings, and queued approval taps clear
-  when vision becomes unavailable or is no longer selected. Pending confirmations
-  from other sources retain the existing controller behavior.
-- StarPilot's training collector, automatic bookmarks, raw-frame logging, legacy
-  OCR models, optical-flow experiment, and unrelated telemetry are not dependencies.
-
-The source was reviewed rather than copied wholesale. In particular, this port
-does not use display units as sign units, assume three detector classes, count
-multiple crops as temporal confirmation, keep a result alive because the Python
-loop is running, or hold a previous vision limit after the producer dies.
+- **Worker:** `speed_limit_vision` runs onroad when enabled, using OpenCV with two
+  CPU threads on device helper cores 0-2. Scheduling targets 6 Hz while scanning
+  and 10 Hz during two-second follow-ups, limited by measured inference cost and
+  CPU/memory pressure. These are scheduling targets, not measured device rates.
+  Processing backoff is 1.5 times inference duration normally and 1.0 during
+  follow-up. High thermal state or critical memory pressure clears the source.
+- **Inputs:** vehicle validity and drive/low gear come from `frogpilotCarState`,
+  preserving the full `carState` channel's 15 existing readers. The worker checks
+  payload validity and source age (0.1 seconds for vehicle state, 5 for device
+  state); its inference-limited receive frequency does not measure publisher health.
+  It prefers road camera and falls back to wide road. NV12 decoding respects stride
+  and UV-plane offset. Buffer layout and timestamps establish frame acceptance
+  because this camera producer does not populate VisionIPC's `valid` flag. Frames
+  older than 0.5 seconds, duplicate timestamps, invalid/offroad state and non-driving
+  gears cannot confirm a sign.
+- **Recognition:** model hashes and output contracts are checked. Up to four
+  non-overlapping proposals receive bounded crop reads; conflicting numbers reject
+  the result. A color filter rejects advisory signage and adjusts brightness with
+  bounded gain for shadows. Tinted panels require stronger detector/classifier
+  scores. Glare-rejected panels additionally require an exact `SPEED LIMIT` heading,
+  with at most two OCR alignments per proposal. OCR never supplies the numeric speed.
+  See [model provenance and preparation](../frogpilot/assets/vision_models/README.md).
+- **Confirmation:** two matching independent frames within two seconds are required,
+  using camera capture times. Crop variants do not count as separate observations.
+  Changes below 30 mph from 30 mph or above require at least 0.90 confidence. A
+  confirmed match ends follow-up; weak reads cannot start it. Strong numeric
+  candidates with unreadable headings can request a two-second retry followed by a
+  two-second cooldown, without publishing a limit. Confirmed speed changes are logged.
+- **Freshness:** one JSON value in shared `Params(memory=True)` carries m/s,
+  confidence, detection time and last processed frame time. The SLC independently
+  expires results after 300 seconds without matching observations or three seconds
+  without a new processed frame. Republishing extends neither deadline. Live frames
+  without a sign preserve the held limit until expiry. Road-name changes and camera
+  switches clear confirmation.
+- **Controller:** expired/disabled Vision cannot survive through Previous Limit
+  fallback, and Vision readings are never persisted as `PreviousSpeedLimit`.
+  Pending Vision confirmations, denied readings and queued acceptance taps clear
+  when the source disappears or is deselected. Other source confirmations and
+  Mapbox/map/dashboard fallback retain their existing behavior.
 
 ## Validation
 
-With the repository's Linux development dependencies and native bindings built:
+With this repository's Linux development dependencies, build the native targets
+and run the focused checks:
 
 ```sh
 scons --minimal -j4 common/params_pyx.so \
@@ -115,276 +85,48 @@ ruff check frogpilot/common/vision_speed_limit.py \
 uv lock --check
 ```
 
-Tests cover positive and blank-image inference, model corruption, output shape and
-probability validation, sign conflicts, units, confirmation, stale snapshots,
-camera layout/loss, load shedding, source priorities, driver acceptance/rejection,
-gas overrides, and stale-limit fallback. An integration test sends padded NV12
-frames through real VisionIPC and device/car-state messages through PubMaster /
-SubMaster, runs the actual ONNX models, and passes results through native shared
-parameters to the controller. It also checks that the controller stops using
-those results when their camera-frame timestamp expires. The two positive frames are a small
-regression fixture; they do not establish onroad accuracy.
+### Recorded results (2026-09-20)
 
-Before merge/deployment, model [licensing and provenance](../frogpilot/assets/vision_models/README.md)
-must be resolved. The final candidate passed the native C3 checks recorded below,
-and the tester subsequently reported that it worked well on a drive. Broader
-validation remains necessary for sustained model/control deadlines, memory and
-thermal headroom, camera restarts, drive transitions, and a labeled raw-camera
-set with ordinary signs and hard negatives (advisory signs, school conditions,
-side roads, night/glare). Short hardware checks and one tester's report do not
-establish those properties.
+The tested runtime is `42f682c7bfaeed4bc7d4a2b05ec62e510112503e`. Later documentation
+edits do not change that runtime. These are recorded results, not new test runs:
 
-### Host validation record (2026-09-19)
+- **Host:** 219 tests passed (206 feature and 13 Params), covering actual ONNX
+  inference, native padded-NV12 VisionIPC/messaging/shared-Params/SLC integration,
+  units, confirmation, stale limits, camera loss, load shedding, reader preservation
+  and the real confirmation logger. Native Qt/bindings builds, changed-Python Ruff,
+  lock validation and diff checks passed; model conversion reproduced the pinned hash.
+- **Replay:** 12,000 recorded frames plus native daemon/SLC and full desktop
+  model/controls/planning/Qt replay recovered the inspected 30/40/30 mph signs and
+  road-change clearing. Inspected Route 6/50 shields and a recreation sign supplied
+  no accepted speed. These private development recordings are not an independent
+  accuracy benchmark or a closed-loop vehicle simulation.
+- **Native C3:** staged and canonical ARM builds passed before reboot into the tested
+  revision with Qt running. Native NV12/model/Params/SLC fixtures confirmed 30/40/30
+  mph, rejected inspected negatives and expired camera-stale results. Fixture
+  inference took 0.20-0.58 seconds. Physical-camera/model/calibration checks produced
+  zero invalid messages during 15-second vision-off/on windows; enabled inference
+  samples took 0.58-0.61 seconds. A separate 20-second post-reboot check in Park found
+  all 14 monitored channels healthy, stable readers, no alerts and no unexpected
+  stopped processes. Vision was correctly Idle in Park. The 12 candidate manifest
+  hashes matched and eight backed-up steering/tuning settings were preserved.
+- **Road feedback:** the tester reported a successful subsequent drive. No labeled
+  sign count, miss rate, distance or lighting coverage accompanied that report.
 
-Linux x86-64 under WSL, Python 3.12.3, OpenCV 4.11.0:
+## Limitations and review items
 
-- 142 tests passed: 129 feature tests and 13 existing Params tests, using the
-  repository pytest configuration and native parameter bindings.
-- The parameter/messaging/VisionIPC bindings compiled, and the complete Qt UI
-  compiled and linked with the repository SCons configuration.
-- An isolated 2160x1080 Qt preview confirmed the Vision toggle and source selection
-  dialogs render, all three priorities save correctly, and cancelling the second
-  dialog preserves the existing order. This is a desktop settings check, not a
-  complete device image or on-device UI validation.
-- New modules/tests and the edited controller/process configuration pass Ruff.
-  The variables module has 56 pre-existing diagnostics; comparison against the
-  base revision found no new diagnostics in changed existing Python files.
-- `uv lock --check --offline` and `git diff --check` passed. Model checksums match
-  the pinned StarPilot files; positive frame inference and blank-image rejection
-  ran using the actual ONNX weights.
+- Model [licensing and provenance](../frogpilot/assets/vision_models/README.md) remain
+  an upstream inclusion question. The StarPilot weights declare AGPL-3.0; retaining
+  notices does not resolve corresponding-source obligations or license acceptance.
+- The models cannot establish lane applicability or whether a conditional school
+  or construction limit is active. Recognition errors and missed signs are possible.
+  This is not a European/Canadian sign model. Python/Mici settings and source display
+  are not implemented or validated by this Qt port.
+- Broader labeled-route accuracy, sustained control/model deadlines, thermal/memory
+  headroom, camera restarts and drive transitions remain unestablished. A timing
+  simulation missed the brief 40 mph sign in 10/40 starting phases at 1.5 times the
+  estimated inference cost. Short hardware checks and road feedback do not establish
+  general reliability or sustained inference rates.
 
-These host results do not establish comma hardware performance, labeled route
-accuracy, native Mici UI support, or license clearance.
-
-### C3 investigation and follow-up validation (2026-09-19)
-
-Initial vehicle testing of `4ff97619` on a comma 3 running AGNOS 12.8 exposed
-communication errors. The full process stack exceeded `carState`'s 15-reader
-capacity when the vision worker subscribed, repeatedly evicting readers and
-invalidating calibration and downstream outputs. Temporarily pausing only the
-vision worker restored their validity. Isolated input replay did not reproduce
-the failure because it did not have the full stack's reader count.
-
-The worker now consumes `frogpilotCarState`, which carries the same CAN-valid flag
-and a drive/low gear flag. No checks in calibration or the vehicle control
-processes have been relaxed. At this stage, road recognition had not been validated.
-
-A separate worker bug was reproduced using the C3's physical cameras and driving
-model, with isolated messaging and recorded/synthetic vehicle-state inputs.
-Inference took approximately 0.33–0.37 seconds, reducing the worker's receive rate
-and incorrectly triggering its own frequency check. The worker now checks message
-validity and source age instead. The same bench test then stayed in `Scanning`;
-calibration produced 60 valid and zero invalid messages in each 15-second measured
-window with vision disabled and enabled. This short, isolated test does not
-validate the complete vehicle process stack, recognition accuracy, or sustained
-thermal performance.
-
-The reader-capacity fix passes 100 host tests (87 feature tests and 13 Params
-tests), including preservation of all 15 existing car-state readers and the
-auxiliary publisher's gear/validity behavior, the real SubMaster frequency tracker,
-and rejection of stale, future-dated, and invalid inputs. The native Qt UI and the
-CAN/Panda binding compile with the updated schema. The feature modules and tests
-pass Ruff; the existing long line in `card.py` is unchanged.
-
-Revision `77fc9ba3` was then built and started on the C3 in the parked vehicle,
-with ignition on and FrogPilot disengaged. After a 12-second settling period,
-a 20-second observation of the complete running stack found:
-
-- All 12 monitored services were alive, valid, and within their receive-frequency
-  checks. None of their sampled messages was invalid, including 80 calibration
-  messages and 401 messages each from live pose, longitudinal planning, radar,
-  live parameters, and driver assistance.
-- No selfdrive alert was present in 1,999 observed state messages, and no managed
-  process that should have been running was stopped.
-- `carState` held a stable set of 15 reader IDs throughout the window, compared
-  with repeated eviction before the fix. These counters were read directly from
-  shared memory; adding a diagnostic subscriber to this full channel would itself
-  exceed the limit.
-- The vision worker was running. Its `Idle` status was expected in Park; this
-  parked check did not exercise inference while driving.
-
-The temporary calibration instrumentation was removed from the device's source
-after collection. These results verify recovery from the reproduced parked
-communication failure, not road sign accuracy or driving behavior.
-
-### Drive investigation and shadow-filter regression (2026-09-19)
-
-The subsequent C3 road trial reported `Vision N/A`. Recorded messages during the
-driving segments were valid, the vision worker remained running with no logged
-inference exceptions, and the auxiliary gear flag correctly indicated Drive.
-The device stayed below the worker's thermal and memory pause thresholds, but
-`slcVisionSpeedLimit` remained zero. Existing logs do not record each vision
-frame's decisions, so they cannot establish the exact live inference cadence or
-explain every missed sign.
-
-Offline replay reproduced a specific rejection on a clearly visible 30 mph sign:
-the proposal model located it, but the color filter rejected its shadowed white
-panel before classification. Direct classification of that crop correctly read
-30 mph. The filter now adjusts its brightness reference using the crop's 90th
-percentile, with gain limited to 3x. It preserves hue/saturation checks, the
-original model inputs, confidence thresholds, and temporal confirmation.
-
-At 6.67 sampled frames per second over a 60-second full-resolution recording,
-the original pipeline produced no readings; the correction produced six 30 mph
-readings on successive sampled frames and confirmed the limit. No other speed
-was produced in that sample. This replay rate is not a measurement of C3 runtime
-performance, and this single sign does not establish general recognition accuracy.
-
-All 142 host tests pass, including shadowed neutral/cool white signs, dim colored
-sign rejection, featureless crops, and bounded handling of near-black inputs.
-The four new dim-white regression cases fail before the fix. The changed Python
-files pass Ruff. These were the results before the subsequent C3 bench checks
-and glare investigation below. No native UI/schema rebuild is introduced by
-the recognition and scheduling changes.
-Private route recordings are not included in the repository.
-
-### Glare recognition and scheduling follow-up (2026-09-20)
-
-Further review found two independent limitations: sunset-tinted and glare-covered
-white signs still failed the color filter, and the original processing backoff
-could leave too few inference opportunities before a sign passed. Simply copying
-StarPilot's color thresholds also admitted Route 50 shields from the same footage.
-The updated recognition gates and bounded follow-up scheduling address these
-reproduced cases without counting crop variants as independent observations.
-
-Current host checks pass 219 tests (206 feature tests and 13 Params tests),
-including the shipped heading model's preprocessing/dictionary, rejected route,
-speed-bump and weight-limit headings, strong-score requirements, finite output
-checks, capture-time confirmation and follow-up bounds. The synthetic heading
-tests verify the model interface, not road accuracy. Changed Python files pass
-Ruff. The converted heading graph passes ONNX validation and comparison against
-the pinned original graph; its preparation script reproduces the bundled hash.
-
-Dense inference over ten 60-second full-resolution clips (12,000 actual frames)
-recognizes the inspected shadowed 30, tinted 40 and glare-covered 30 signs.
-Neither the inspected recreation sign nor the Route 6/50 shields yields an
-accepted speed. This is a small, geographically limited regression set used
-during development, not an independent accuracy benchmark. Individual-frame
-results do not establish that an on-device worker confirms signs in time.
-
-The same ten minutes were decoded to NV12 and sent at their recorded camera
-timestamps through native VisionIPC, the actual vision daemon, shared Params,
-and FrogPilot's `FrogPilotVCruise`/SLC in a separate WSL checkout. Messaging and
-parameters used unique test prefixes. Recorded qlog vehicle/device/map payloads
-were held between samples and republished at service rates; Vision-only selection
-was enabled. This exercised the feature and cruise-target integration, not the
-driving model, the complete manager stack, vehicle actuation or the onroad UI.
-
-- The first drive delivered 8,400 frames. With a processing delay floor of 1.25
-  times the prior C3 per-network cost estimate, the selected limit changed to
-  30 mph at 58.19 seconds, 40 at 110.08, and 30 at 317.17. Recorded road-name
-  changes cleared it at 157.82 and 395.81 seconds. Configured offsets and cruise
-  caps remained in the existing controller path.
-- The second drive delivered 3,600 frames at native host inference speed. It
-  selected 30 mph at 66.03 seconds and cleared it when the recorded gear changed
-  to Park. Neither replay selected another speed or logged an inference failure.
-- Maximum camera delivery lateness was 141 ms in the first run and 111 ms in
-  the second, below the worker's 500 ms input-age limit. These are host transport
-  measurements, not C3 performance measurements.
-- A focused native-camera glare replay confirmed 30 mph with a 1.5-times cost
-  floor and removed it three seconds after camera input ended. Trying the tighter
-  heading alignment first reduced inference work without changing the accepted
-  heading set. Rejected headings can request the bounded retry described above.
-- A simulation using the actual daemon/Ratekeeper and the dense NV12 inference
-  cache recovered the full sequence at all 40 starting phases at both the cost
-  estimate and 1.25 times that estimate. At 1.5 times the estimate, 30/40 phases
-  passed; ten missed the brief 40 mph observation window. **Slowdown margin is
-  limited.** The delay model uses earlier C3 measurements (212 ms base, 29 ms per
-  numeric classification and 150 ms per heading inference); it does not model
-  final-device contention and is not a hardware deadline guarantee.
-
-Earlier RGB-only replay and timing simulations missed failures exposed by this
-NV12 path. These regressions therefore cannot be replaced by a few still-image
-successes. Raw recordings and private diagnostic outputs are not distributed.
-
-Before adding the heading fallback, a native C3 build completed and an isolated
-test passed actual padded NV12 VisionIPC frames through the ONNX models, shared
-parameters and Vision-only SLC: 30 then 40 mph, with no change on route shields
-and removal after camera input expired. Two-thread inference on those examples
-took about 0.25–0.34 seconds. Physical camera/model/calibration coexistence tests
-measured 15 seconds per phase after settling, with 60 valid calibration messages
-and 301 valid messages each from modelV2 and cameraOdometry, and zero invalid
-messages, both with vision disabled and with it enabled.
-
-**Those earlier C3 results precede the heading fallback.** The final three-model
-candidate was subsequently built, installed and checked on the C3 as recorded
-below. Host replay alone cannot establish ARM scheduling, sustained thermal
-headroom or driving safety.
-
-### Desktop process and UI replay
-
-A separate WSL checkout now runs the actual `modeld`, `controlsd`, `plannerd`,
-`frogpilot_process`, and `speed_limit_vision` entry points together with the
-native Qt UI. The saved road video enters through padded NV12 VisionIPC at
-20 Hz. Recorded vehicle, engagement, calibration and radar messages supply
-the inputs that normally come from hardware. The driving model, plans,
-controls and Vision limits are computed live; their output messages are not
-replayed from the recording.
-
-The desktop adapter uses its own messaging/Params prefix, the recorded
-configuration with Vision as the only SLC priority, and locally compiled CUDA
-driving models. Cloud/asset maintenance is disabled for this private replay.
-Only the narrow camera recording is available, so `modeld` uses its existing
-single-camera path. This is not a closed-loop vehicle simulation or proof of
-the original two-camera driving model's accuracy.
-
-Running the real vision entry point exposed a confirmation-time crash: the
-worker passed structured fields to `cloudlog.info`, which does not accept
-them. It now uses FrogPilot's `cloudlog.event` API. A regression test exercises
-confirmation, snapshot publication and continued processing with the real
-`SwagLogger`; the earlier observer logger had hidden this error.
-
-The visible desktop replay also exposed clipping of the fifth source row at
-the smaller window size. Source rows, icons and fonts now fit the available
-height below the speed-limit sign. The native Qt target builds successfully,
-and the 1620 by 810 window visibly displays the active Vision source.
-
-The combined desktop run selected 30 mph at recording time 58.20 seconds,
-40 mph at 110.45 seconds, cleared the source after the road change at
-158.65 seconds, and selected the glare-obscured 30 mph sign at 316.30 seconds.
-The real `frogpilotPlan` carried those values. At the final check, the model,
-FrogPilot plan, longitudinal plan and control channels were alive, valid and
-within their message-frequency checks. Screenshots verified the visible
-Vision row at both 30 and 40 mph. These are host timings, with CUDA driving
-inference and CPU VSL inference; they are not C3 timing measurements.
-
-### Final candidate C3 validation and tester feedback (2026-09-20)
-
-Runtime revision `42f682c7bfaeed4bc7d4a2b05ec62e510112503e`, including the
-heading fallback, confirmation logging fix and Qt source-row fix, was built in
-a separate staged checkout on the C3 before activation. Native
-`scons --minimal -j2` completed successfully in 325.6 seconds. The subsequent
-build at the canonical installation path passed in 15.5 seconds, and the device
-rebooted into that revision with its native Qt UI running.
-
-- The native padded-NV12 VisionIPC/ONNX/shared-Params/Vision-only SLC test
-  confirmed 30, then 40, then 30 mph from the recorded fixtures. The inspected
-  hard negatives did not change the held limit, and camera expiry removed it.
-  Individual fixture processing took 0.20–0.58 seconds; these are short test
-  measurements, not a sustained onroad inference-rate guarantee.
-- An isolated physical-camera/model/calibration coexistence test measured
-  15 seconds per phase after settling. With vision off/on respectively,
-  `modelV2` and `cameraOdometry` each produced 300/301 valid messages, and
-  calibration produced 60/60. None was invalid. The enabled vision worker
-  remained in `Scanning` under a recorded recognition workload; sampled
-  inference times were approximately 0.58–0.61 seconds.
-- After reboot, a 20-second observation of the full stack in Park found all
-  14 monitored channels alive, valid and within their frequency checks, with
-  zero invalid messages, no selfdrive alerts and no unexpectedly stopped
-  managed processes. There were 400 messages each from `modelV2` and
-  `cameraOdometry`, and 80 calibration messages. The same 15 `carState` readers
-  remained present. Vision was correctly `Idle` in Park, so this check verified
-  startup and communication health rather than sign recognition.
-- The installed candidate's 12 manifest hashes matched, and the eight backed-up
-  steering/tuning settings remained unchanged through installation and reboot.
-
-After installation, the tester reported that the feature worked very well on
-a subsequent drive and requested maintainer review. This is user-reported road
-experience, not an independently scored route evaluation; no distance, sign
-count, lighting coverage or miss rate was recorded with that report.
-
-The native checks and road feedback supersede the earlier uninstalled/untested
-status. General recognition accuracy, sustained load/thermal margin and the
-other limitations above remain open for review. The timing simulation's missed
-40 mph signs at 1.5 times the cost estimate also remain relevant. Private route
-recordings and device diagnostics are not included in this repository.
+Detailed investigation history is retained in the
+[PR discussion](https://github.com/FrogAi/FrogPilot/pull/321#issuecomment-5754480633). Private route recordings
+and device diagnostics are not distributed with the port.
