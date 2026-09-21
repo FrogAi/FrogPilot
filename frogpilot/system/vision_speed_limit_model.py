@@ -10,7 +10,7 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from openpilot.frogpilot.common.vision_speed_limit import Detection, VALID_SPEEDS_MPH
+from openpilot.frogpilot.common.vision_speed_limit import Detection, MIN_CONFIDENCE, VALID_SPEEDS_MPH
 from openpilot.frogpilot.system.vision_speed_limit_header import SpeedLimitHeader
 
 MODEL_DIR = Path(__file__).resolve().parents[1] / "assets" / "vision_models"
@@ -189,6 +189,12 @@ class SpeedLimitModel:
       if len({read.speed_mph for read in reads}) != 1:
         continue
       confidence = min(0.95, max(read.confidence for read in reads) * 0.72 + proposal_confidence * 0.24 + (len(reads) - 1) * 0.06)
+      # Consecutive blurry frames can repeat the same wrong number. Require the
+      # separate text recognizer to agree, including on ordinary white panels.
+      # It verifies the classifier's number; it never replaces it with another.
+      if not self.header.matches_value(frame[y:y + box_height, x:x + box_width], reads[0].speed_mph):
+        self.needs_followup |= confidence >= MIN_CONFIDENCE
+        continue
       detections.append(Detection(reads[0].speed_mph, confidence))
     if not detections or len({detection.speed_mph for detection in detections}) != 1:
       return None

@@ -1,16 +1,19 @@
-"""Check a rejected sign's heading with PaddleOCR's English recognition model.
+"""Verify sign text with PaddleOCR's English recognition model.
 
 See frogpilot/assets/vision_models/README.md and PADDLEOCR-LICENSE for provenance.
-This checks the words SPEED LIMIT, not lane or conditional-sign applicability.
+Text agreement does not establish lane or conditional-sign applicability.
 """
 import cv2
 import numpy as np
 
+from openpilot.frogpilot.common.vision_speed_limit import VALID_SPEEDS_MPH
+
 HEADER_CONFIDENCE = 0.85
+NUMBER_CONFIDENCE = 0.85
 HEADER_INPUT_SIZE = (160, 48)
 HEADER_OUTPUT_SHAPE = (1, 20, 438)
 # Indices in the pinned en_PP-OCRv5_mobile_rec dictionary, including CTC blank 0.
-# All other emitted tokens reject the heading; numbers never become speed reads.
+# Other tokens reject the heading. Numeric verification uses a separate whitelist.
 HEADER_TOKENS = {
   14: "D", 15: "E", 19: "I", 22: "L", 23: "M", 26: "P", 29: "S", 30: "T",
   40: "D", 41: "E", 45: "I", 48: "L", 49: "M", 52: "P", 55: "S", 56: "T", 437: " ",
@@ -18,9 +21,11 @@ HEADER_TOKENS = {
 # Try the tighter text alignment first; the broader crop remains a fallback.
 # Either alignment accepts the same exact heading, so ordering changes cost only.
 HEADER_REGIONS = (((0.12, 0.34), (0.32, 0.56)), ((0.04, 0.30), (0.28, 0.52)))
+NUMBER_REGIONS = ((0.45, 1.0), (0.50, 0.95))
+NUMBER_TOKENS = {index + 1: str(index) for index in range(10)}
 
 
-def is_speed_limit_heading(scores):
+def decode_text(scores, tokens):
   if scores.shape != HEADER_OUTPUT_SHAPE or not np.isfinite(scores).all():
     raise ValueError("Invalid speed limit header output")
   probabilities = scores[0]
@@ -32,12 +37,24 @@ def is_speed_limit_heading(scores):
   for row in probabilities:
     index = int(np.argmax(row))
     if index and index != previous:
-      if index not in HEADER_TOKENS:
-        return False
-      text.append(HEADER_TOKENS[index])
+      if index not in tokens:
+        return "", []
+      text.append(tokens[index])
       confidence.append(float(row[index]))
     previous = index
-  return bool("".join(text).replace(" ", "") == "SPEEDLIMIT" and np.mean(confidence) >= HEADER_CONFIDENCE)
+  return "".join(text), confidence
+
+
+def is_speed_limit_heading(scores):
+  text, confidence = decode_text(scores, HEADER_TOKENS)
+  return bool(text.replace(" ", "") == "SPEEDLIMIT" and np.mean(confidence) >= HEADER_CONFIDENCE)
+
+
+def read_speed_limit_number(scores):
+  text, confidence = decode_text(scores, NUMBER_TOKENS)
+  if not confidence or min(confidence) < NUMBER_CONFIDENCE or text not in {str(speed) for speed in VALID_SPEEDS_MPH}:
+    return None
+  return int(text)
 
 
 class SpeedLimitHeader:
@@ -61,4 +78,23 @@ class SpeedLimitHeader:
                 for top, bottom in regions]
       if self.read(np.concatenate(strips, axis=1)):
         return True
+    return False
+
+  def matches_value(self, crop, speed_mph):
+    height, width = crop.shape[:2]
+    if height < 40 or width < 28:
+      return False
+    # Stretching two digits across the full text-line input distorts their shape.
+    # Preserve aspect ratio and right-pad after normalization, as PaddleOCR does.
+    for top, bottom in NUMBER_REGIONS:
+      digits = crop[int(height * top):int(height * bottom), int(width * 0.05):int(width * 0.95)]
+      resized_width = min(160, int(np.ceil(48 * digits.shape[1] / digits.shape[0])))
+      image = cv2.resize(digits, (resized_width, 48)).astype(np.float32) / 127.5 - 1
+      blob = np.zeros((1, 3, 48, 160), dtype=np.float32)
+      blob[0, :, :, :resized_width] = image.transpose(2, 0, 1)
+      self.network.setInput(blob)
+      value = read_speed_limit_number(self.network.forward())
+      if value is not None:
+        # A confident disagreement cannot be overturned by another crop.
+        return value == speed_mph
     return False

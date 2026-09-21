@@ -19,7 +19,7 @@ from openpilot.frogpilot.common.vision_speed_limit import (
 )
 from openpilot.frogpilot.system.speed_limit_vision import INPUT_MAX_AGE, SpeedLimitVisionDaemon, decode_nv12, inference_interval, inputs_valid
 from openpilot.frogpilot.system.vision_speed_limit_model import CLASSIFIER_SIZE, SpeedLimitModel, is_regulatory_sign
-from openpilot.frogpilot.system.vision_speed_limit_header import HEADER_OUTPUT_SHAPE, SpeedLimitHeader, is_speed_limit_heading
+from openpilot.frogpilot.system.vision_speed_limit_header import HEADER_OUTPUT_SHAPE, SpeedLimitHeader, is_speed_limit_heading, read_speed_limit_number
 
 
 class MemoryParams:
@@ -227,6 +227,8 @@ class TestModel:
   @pytest.mark.parametrize('classifier_confidence', [0.94, 0.95, 0.99])
   def test_tinted_panel_requires_both_stronger_model_thresholds(self, proposal_confidence, classifier_confidence):
     model = SpeedLimitModel.__new__(SpeedLimitModel)
+    model.header = self.mocker.Mock()
+    model.header.matches_value.return_value = True
     model.proposals = self.mocker.Mock(return_value=[([300, 50, 80, 100], proposal_confidence)])
     model.classify = self.mocker.Mock(return_value=Detection(40, classifier_confidence))
     self.mocker.patch('openpilot.frogpilot.system.vision_speed_limit_model.is_regulatory_sign',
@@ -236,6 +238,8 @@ class TestModel:
 
   def test_conflicting_signs_are_not_selected(self):
     model = SpeedLimitModel.__new__(SpeedLimitModel)
+    model.header = self.mocker.Mock()
+    model.header.matches_value.return_value = True
     model.proposals = self.mocker.Mock(return_value=[([300, 50, 80, 100], 0.9), ([450, 50, 80, 100], 0.9)])
     model.classify = self.mocker.Mock(side_effect=[Detection(55, 0.99)] * 3 + [Detection(35, 0.99)] * 3)
     self.mocker.patch('openpilot.frogpilot.system.vision_speed_limit_model.is_regulatory_sign', return_value=True)
@@ -250,11 +254,32 @@ class TestModel:
     model.classify = self.mocker.Mock(return_value=Detection(30, classifier_confidence))
     model.header = self.mocker.Mock()
     model.header.has_heading.return_value = heading
+    model.header.matches_value.return_value = True
     self.mocker.patch('openpilot.frogpilot.system.vision_speed_limit_model.is_regulatory_sign', return_value=False)
     result = model.detect(np.full((480, 960, 3), 230, np.uint8))
     assert (result is not None) == (heading and proposal_confidence >= 0.60 and classifier_confidence >= 0.95)
     assert model.header.has_heading.call_count == int(proposal_confidence >= 0.60 and classifier_confidence >= 0.95)
     assert model.needs_followup == (proposal_confidence >= 0.60 and classifier_confidence >= 0.95)
+
+  @pytest.mark.parametrize('number_matches', [False, True])
+  def test_white_panel_requires_independent_number_agreement(self, number_matches):
+    model = SpeedLimitModel.__new__(SpeedLimitModel)
+    model.proposals = self.mocker.Mock(return_value=[([300, 50, 80, 100], 0.9)])
+    model.classify = self.mocker.Mock(return_value=Detection(70, 0.99))
+    model.header = self.mocker.Mock()
+    model.header.matches_value.return_value = number_matches
+    self.mocker.patch('openpilot.frogpilot.system.vision_speed_limit_model.is_regulatory_sign', return_value=True)
+    state = SpeedLimitConfirmation()
+    state.update(Detection(30, 0.99), 99.0, 99.0)
+    state.update(Detection(30, 0.99), 99.2, 99.2)
+    for now in (100.0, 100.7):
+      result = model.detect(np.full((480, 960, 3), 230, np.uint8))
+      state.update(result, now, now)
+    assert state.speed_mph == (70 if number_matches else 30)
+    assert model.header.matches_value.call_count == 2
+    assert all(call.args[1] == 70 for call in model.header.matches_value.call_args_list)
+    model.header.has_heading.assert_not_called()
+    assert model.needs_followup is not number_matches
 
 
 class TestHeader:
@@ -275,7 +300,8 @@ class TestHeader:
 
   @staticmethod
   def scores(text='', confidence=0.99):
-    tokens = {' ': 437, **{chr(ord('A') + index): 11 + index for index in range(26)}, '1': 2}
+    tokens = {' ': 437, **{chr(ord('A') + index): 11 + index for index in range(26)},
+              **{str(index): index + 1 for index in range(10)}}
     sequence = []
     previous = None
     for character in text:
@@ -318,6 +344,62 @@ class TestHeader:
     network.reset_mock()
     assert not header.has_heading(np.zeros((0, 0, 3), dtype=np.uint8))
     network.forward.assert_not_called()
+
+  @pytest.mark.parametrize('speed', range(5, 85, 5))
+  def test_number_dictionary_and_ctc_repeats(self, speed):
+    assert read_speed_limit_number(self.scores(str(speed))) == speed
+
+  @pytest.mark.parametrize('text', ['', '0', '03', '90', '100', '30 MPH', '3O', '30 70'])
+  def test_ambiguous_numbers_are_rejected(self, text):
+    assert read_speed_limit_number(self.scores(text)) is None
+
+  def test_each_digit_requires_confidence(self):
+    scores = self.scores('70')
+    scores[0, 0] = 0
+    scores[0, 0, 8] = 0.8
+    scores[0, 0, 0] = 0.2
+    assert read_speed_limit_number(scores) is None
+
+  @pytest.mark.parametrize('scores', [np.zeros((1, 10, 438)), np.full(HEADER_OUTPUT_SHAPE, np.nan), np.zeros(HEADER_OUTPUT_SHAPE)])
+  def test_invalid_number_outputs(self, scores):
+    with pytest.raises(ValueError):
+      read_speed_limit_number(scores)
+
+  def test_number_mismatch_cannot_be_overturned(self, mocker):
+    network = mocker.Mock()
+    network.forward.return_value = self.scores()
+    header = SpeedLimitHeader(network)
+    network.reset_mock()
+    network.forward.side_effect = [self.scores('30'), self.scores('70')]
+    assert not header.matches_value(np.zeros((100, 80, 3), dtype=np.uint8), 70)
+    assert network.forward.call_count == 1
+
+  def test_number_work_is_bounded_and_preserves_aspect(self, mocker):
+    network = mocker.Mock()
+    network.forward.return_value = self.scores()
+    header = SpeedLimitHeader(network)
+    network.reset_mock()
+    assert not header.matches_value(np.zeros((100, 80, 3), dtype=np.uint8), 70)
+    assert network.forward.call_count == 2
+    blob = network.setInput.call_args_list[0].args[0]
+    assert blob.shape == (1, 3, 48, 160)
+    assert np.all(blob[0, :, :, :63] == -1)
+    assert np.all(blob[0, :, :, 63:] == 0)
+    network.reset_mock()
+    assert not header.matches_value(np.zeros((0, 0, 3), dtype=np.uint8), 70)
+    network.forward.assert_not_called()
+
+  @pytest.mark.parametrize('speed', [20, 30, 40, 70])
+  def test_real_model_number_verification(self, speed):
+    # Exercises the existing graph and digit preprocessing, not road accuracy.
+    model = SpeedLimitModel()
+    panel = np.full((200, 120, 3), 255, dtype=np.uint8)
+    text = str(speed)
+    width = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 2.0, 3)[0][0]
+    cv2.putText(panel, text, ((120 - width) // 2, 170), cv2.FONT_HERSHEY_SIMPLEX,
+                2.0, (0, 0, 0), 3, cv2.LINE_AA)
+    assert model.header.matches_value(panel, speed)
+    assert not model.header.matches_value(panel, 30 if speed != 30 else 70)
 
 
 class FakeSubMaster(dict):

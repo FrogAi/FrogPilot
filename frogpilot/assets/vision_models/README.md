@@ -57,13 +57,21 @@ compares its output against the original model on three deterministic inputs.
 The recorded conversion uses `onnx==1.22.0` and `onnxruntime==1.24.4`; these are
 development dependencies only. The deployed worker still uses OpenCV DNN on CPU.
 
-The recognizer sees two cropped heading rows placed side by side. Only the exact
+For heading verification, the recognizer sees two cropped rows placed side by side. Only the exact
 CTC-decoded words `SPEED LIMIT` (ignoring case and spaces) can pass. Its dictionary
 indices are pinned from `inference.yml`; all other emitted characters reject the
-heading. OCR never supplies a numeric speed. This fallback requires a strong sign
+heading. This fallback requires a strong sign
 proposal and number classification, and is used only when the panel color checks
 reject a crop. It has at most two alignments per proposal and cannot establish
 lane applicability or whether a conditional limit is active.
+
+The same recognizer independently verifies every accepted numeric classification,
+including on neutral white panels. The lower sign crop is resized with preserved
+aspect ratio and right-padded after normalization. At most two alignments are tried;
+only digit tokens 1-10, valid U.S. values and at least 0.85 confidence for each digit
+can pass. A confident value must match the classifier; disagreement rejects the
+proposal without trying another alignment. OCR never replaces the classifier's
+number. This adds inference work but no model or runtime dependency.
 
 Model replacement is deliberate: update the checksums, class mapping, shape
 checks, and regression evidence together. Missing, modified, unsupported, or
