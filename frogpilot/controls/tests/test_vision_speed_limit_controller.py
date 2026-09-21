@@ -473,7 +473,7 @@ def test_auxiliary_car_state_preserves_gear_and_validity(mocker, gear, can_valid
   assert messages["frogpilotCarState"].frogpilotCarState.drivingGear == (gear in ("drive", "low"))
 
 
-def test_real_camera_models_and_params_reach_controller(controller, mocker):
+def test_real_camera_school_sign_cannot_supply_controller_limit(controller, mocker):
   from pathlib import Path
 
   import cv2
@@ -536,10 +536,10 @@ def test_real_camera_models_and_params_reach_controller(controller, mocker):
       daemon.step()
 
     assert sm.all_checks(["deviceState", "frogpilotCarState"])
-    assert params.get(VISION_SPEED_LIMIT_PARAM)["speedLimit"] == pytest.approx(20 * CV.MPH_TO_MS)
-    update(controller)
-    assert controller.source == "Vision"
-    assert controller.target == pytest.approx(20 * CV.MPH_TO_MS)
+    assert params.get(VISION_SPEED_LIMIT_PARAM)["speedLimit"] == 0
+    update(controller, SubMaster(dashboard=0, map_limit=0))
+    assert controller.source == "None"
+    assert controller.target == 0
 
     clock.return_value += HEARTBEAT_TIMEOUT + 1
     update(controller, SubMaster(dashboard=0, map_limit=0))

@@ -128,23 +128,15 @@ class TestModel:
     model = SpeedLimitModel()
     assert model.detect(np.zeros((1208, 1928, 3), dtype=np.uint8)) is None
 
-  @pytest.mark.parametrize('previous_speed', [0, 55])
-  def test_real_sign_frames_require_temporal_confirmation(self, previous_speed):
+  @pytest.mark.parametrize('number', [140, 146])
+  def test_readable_school_limit_is_not_an_unconditional_limit(self, number):
     model = SpeedLimitModel()
-    state = SpeedLimitConfirmation()
-    if previous_speed:
-      for now in (99.0, 99.2):
-        state.update(Detection(previous_speed, 0.99), now, now)
     folder = Path(__file__).parent / 'fixtures' / 'vision_speed_limit'
-    for index, number in enumerate((140, 146)):
-      frame = cv2.imread(str(folder / f'sign_20_frame_{number}.png'))
-      assert frame is not None
-      detection = model.detect(frame)
-      assert detection is not None and detection.speed_mph == 20
-      now = 100 + index * 0.2
-      state.update(detection, now, now)
-      assert state.speed_mph == (previous_speed if index == 0 else 20)
-    assert read_vision_speed_limit(state.snapshot(101), 101) == pytest.approx(20 * CV.MPH_TO_MS)
+    frame = cv2.imread(str(folder / f'sign_20_frame_{number}.png'))
+    assert frame is not None
+    assert any(model.text.matches_value(frame[y:y + height, x:x + width], 20)
+               for (x, y, width, height), _ in model.proposals(frame))
+    assert model.detect(frame) is None
 
   def test_duplicate_detector_boxes_do_not_multiply_work(self):
     model = SpeedLimitModel.__new__(SpeedLimitModel)
@@ -283,6 +275,19 @@ class TestModel:
     for now in (100.0, 100.2):
       state.update(model.detect(np.full((480, 960, 3), 230, np.uint8)), now, now)
     assert state.speed_mph == 0
+
+  @pytest.mark.parametrize('background', [(230, 230, 230), (140, 190, 220)])
+  def test_yellow_conditional_header_cannot_be_diluted_by_crop_expansion(self, background):
+    frame = np.full((480, 960, 3), 230, np.uint8)
+    frame[50:150, 300:380] = background
+    frame[50:70, 300:380] = (0, 220, 230)
+    model = SpeedLimitModel.__new__(SpeedLimitModel)
+    model.proposals = self.mocker.Mock(return_value=[([300, 50, 80, 100], 0.99)])
+    model.classify = self.mocker.Mock(return_value=Detection(20, 0.99))
+    model.text = self.mocker.Mock()
+    model.text.matches_value.return_value = True
+    assert model.detect(frame) is None
+    model.classify.assert_not_called()
 
 
 class TestTextVerifier:

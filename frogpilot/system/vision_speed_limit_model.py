@@ -81,6 +81,18 @@ def is_regulatory_sign(crop, max_white_saturation=70):
   return False
 
 
+def has_yellow_header(crop):
+  """Reject a visible yellow school/conditional header above a white panel.
+
+  This catches the observed layout, not all conditional signs or their status.
+  A uniformly tinted white sign does not have this distinct colored band.
+  """
+  hue, saturation, value = cv2.split(cv2.cvtColor(crop, cv2.COLOR_BGR2HSV))
+  yellow = (hue >= 12) & (hue <= 45) & (saturation > 110) & (value >= 85)
+  height = crop.shape[0]
+  return float(yellow[:height // 4].mean()) > 0.25 and float(yellow[height // 3:].mean()) < 0.10
+
+
 class SpeedLimitModel:
   def __init__(self, model_dir=MODEL_DIR):
     self.needs_followup = False
@@ -153,6 +165,9 @@ class SpeedLimitModel:
     height, width = frame.shape[:2]
     detections = []
     for (x, y, box_width, box_height), proposal_confidence in self.proposals(frame):
+      # Evaluate the original proposal so expanded crops cannot dilute a header.
+      if has_yellow_header(frame[y:y + box_height, x:x + box_width]):
+        continue
       reads = []
       strong_proposal = proposal_confidence >= TINTED_PROPOSAL_CONFIDENCE
       header_accepted = None

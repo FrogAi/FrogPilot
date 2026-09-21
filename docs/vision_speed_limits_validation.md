@@ -5,7 +5,7 @@ Private route recordings are not distributed with the port.
 
 ## Cleanup and handover fixes (2026-09-21)
 
-- 282 host checks pass, including final cruise outcomes for source loss, same/higher/
+- 284 host checks pass, including final cruise outcomes for source loss, same/higher/
   lower replacements, automatic increases, acceptance/denial, Mapbox handover,
   driver overrides, curve interaction and disengagement. Changed Python passes Ruff.
 - A paired recognition comparison used 961 development frames: 858 samples from
@@ -19,6 +19,12 @@ Private route recordings are not distributed with the port.
   lost one, and restricting digit OCR to one alignment lost two. Those bounded
   fallbacks are retained. This development set does not establish unseen-route
   accuracy or calibrate the confidence thresholds.
+- Full temporal replay additionally exposed acceptance of a yellow-header school
+  sign at the clip's end. Both the prior and simplified score accept its printed
+  20 mph. The detector now rejects this visible conditional layout. The two public
+  school fixtures now verify rejection through native NV12/Params/SLC rather than
+  treating numeric recognition as permission to apply the limit. This addresses
+  the observed layout, not all conditional-sign activation or lane applicability.
 - The five-minute observation ceiling remains a retention policy. Fresh map segment
   and direction changes now clear it, including unnamed roads. Source loss cannot
   raise the cruise target by exposing a higher stored setting. Physical sign

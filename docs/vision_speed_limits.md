@@ -45,7 +45,10 @@ convert those mph readings; display units never determine sign units.
   bonus or a weighted detector score; this is not calibrated recognition accuracy.
   A color filter rejects advisory signage and adjusts brightness with
   bounded gain for shadows. Tinted panels require stronger detector/classifier
-  scores. Glare-rejected panels additionally require an exact `SPEED LIMIT` heading,
+  scores. A distinct yellow header above a white panel rejects the observed school/
+  conditional layout before crop expansion; uniformly tinted signs remain eligible.
+  This does not detect every condition or its activation status.
+  Glare-rejected panels additionally require an exact `SPEED LIMIT` heading,
   with at most two OCR alignments per proposal. Every accepted number, including on
   neutral white panels, must also match a separate OCR digit read. This uses at most
   two aspect-preserving crops and requires confidence for each digit. A confident
