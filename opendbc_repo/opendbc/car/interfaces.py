@@ -17,8 +17,11 @@ from opendbc.car.chrysler.values import CAR as CHRYSLER, ChryslerFrogPilotFlags
 from opendbc.car.common.basedir import BASEDIR
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.common.simple_kalman import KF1D, get_kalman_gain
+from opendbc.car.gm.values import CAR as GM
+from opendbc.car.honda.values import CAR as HONDA, HONDA_BOSCH
 from opendbc.car.hyundai.values import CAR as HYUNDAI, HyundaiFlags, HyundaiFrogPilotSafetyFlags
 from opendbc.car.mock.values import CAR as MOCK
+from opendbc.car.toyota.values import CAR as TOYOTA
 from opendbc.car.values import PLATFORMS
 from opendbc.can import CANParser
 
@@ -180,6 +183,12 @@ class CarInterfaceBase(ABC):
           if 0x23A not in fingerprint[0]:
             fp_ret.flags |= ChryslerFrogPilotFlags.RAM_HD_ALT_BUTTONS.value
 
+      elif platform in GM:
+        fp_ret.canUsePedal = True
+
+      elif platform in HONDA:
+        fp_ret.canUsePedal = candidate not in HONDA_BOSCH
+
       elif platform in HYUNDAI:
         if CP.flags & HyundaiFlags.HAS_LDA_BUTTON:
           CP.safetyConfigs[-1].safetyParam |= HyundaiFrogPilotSafetyFlags.HAS_LDA_BUTTON.value
@@ -188,6 +197,9 @@ class CarInterfaceBase(ABC):
         lkas_required_for_aol = CP.flags & HyundaiFlags.CANFD and not CP.openpilotLongitudinalControl
         if lkas_allowed_for_aol and frogpilot_toggles.always_on_lateral and (frogpilot_toggles.always_on_lateral_lkas_selected or lkas_required_for_aol):
           CP.safetyConfigs[-1].safetyParam |= HyundaiFrogPilotSafetyFlags.ALWAYS_ON_LATERAL_LKAS.value
+
+      elif platform in TOYOTA:
+        fp_ret.canUsePedal = not CP.autoResumeSng
 
     return fp_ret
 

@@ -214,6 +214,10 @@ class CarState(CarStateBase):
       else:
         self.fp_ret.sportGear = cp.vl["GEAR_PACKET"]["SPORT_ON"] == 1
 
+    if self.CP.enableGasInterceptorDEPRECATED:
+      gas = (cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS"] + cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS2"]) // 2
+      ret.gasPressed = gas > 805
+
     ret.buttonEvents = buttonEvents
     return ret
 
