@@ -221,6 +221,10 @@ class CarState(CarStateBase):
 
     # FrogPilot variables
 
+    if self.CP.enableGasInterceptorDEPRECATED:
+      gas = (cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS"] + cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS2"]) // 2
+      ret.gasPressed = gas > 492
+
     return ret
 
   def get_can_parsers(self, CP):

@@ -425,6 +425,10 @@ def custom_startup_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubM
   return StartupAlert(frogpilot_toggles.startup_alert_top, frogpilot_toggles.startup_alert_bottom, alert_status=FrogPilotAlertStatus.frogpilot)
 
 
+def pedal_interceptor_no_brake_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
+  return user_soft_disable_alert("Braking Unavailable: Shift to L")(CP, CS, sm, metric, soft_disable_time, personality)
+
+
 
 EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   # ********** events with no alerts **********
@@ -1070,6 +1074,15 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.PERMANENT: custom_startup_alert,
   },
 
+  FrogPilotEventName.pedalInterceptorNoBrake: {
+    ET.SOFT_DISABLE: pedal_interceptor_no_brake_alert,
+    ET.NO_ENTRY: NoEntryAlert("Shift to L", alert_text_1="Braking Unavailable"),
+  },
+
+  FrogPilotEventName.pedalInterceptorNoBrakeNoEntry: {
+    ET.NO_ENTRY: NoEntryAlert("Shift to L", alert_text_1="Braking Unavailable"),
+  },
+
   FrogPilotEventName.replayFailed: {
     ET.PERMANENT: Alert(
       "Footage failed to save...",
@@ -1157,6 +1170,16 @@ if HARDWARE.get_device_type() == 'mici':
 
 
 # FrogPilot variables
+def pedal_interceptor_no_brake_alert_mici(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
+  alert = pedal_interceptor_no_brake_alert(CP, CS, sm, metric, soft_disable_time, personality, frogpilot_toggles)
+
+  if isinstance(alert, UserSoftDisableAlert):
+    alert.alert_text_1 = "Shift to L"
+    alert.alert_text_2 = "Braking Unavailable"
+
+  return alert
+
+
 if HARDWARE.get_device_type() == 'mici':
   FROGPILOT_EVENTS.update({
     FrogPilotEventName.blockUser: {
@@ -1165,6 +1188,10 @@ if HARDWARE.get_device_type() == 'mici':
         "Don't use MAKE-PRS-HERE",
         AlertStatus.userPrompt, AlertSize.mid,
         Priority.HIGHEST, VisualAlert.none, AudibleAlert.none, 1.),
+    },
+    FrogPilotEventName.pedalInterceptorNoBrake: {
+      ET.SOFT_DISABLE: pedal_interceptor_no_brake_alert_mici,
+      ET.NO_ENTRY: NoEntryAlert("Shift to L", alert_text_1="Braking Unavailable"),
     },
   })
 

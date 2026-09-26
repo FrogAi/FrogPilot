@@ -4,14 +4,16 @@ import time
 from types import SimpleNamespace
 
 from cereal import custom
-from opendbc.car import gen_empty_fingerprint
+from opendbc.car import gen_empty_fingerprint, PEDAL_MSG
 from opendbc.car.can_definitions import CanRecvCallable, CanSendCallable
 from opendbc.car.carlog import carlog
 from opendbc.car.structs import CarParams, CarParamsT
 from opendbc.car.fingerprints import eliminate_incompatible_cars, all_legacy_fingerprint_cars
 from opendbc.car.fw_versions import ObdCallback, get_fw_versions_ordered, get_present_ecus, match_fw_to_car
+from opendbc.car.honda.values import HondaFrogPilotSafetyFlags
 from opendbc.car.mock.values import CAR as MOCK
-from opendbc.car.values import BRANDS
+from opendbc.car.toyota.values import ToyotaFrogPilotSafetyFlags
+from opendbc.car.values import BRANDS, GAS_INTERCEPTOR_BRANDS
 from opendbc.car.vin import get_vin, is_valid_vin, VIN_UNKNOWN
 
 FRAME_FINGERPRINT = 100  # 1s
@@ -178,6 +180,17 @@ def get_car(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_multip
 
   # FrogPilot variables
   FPCP: FrogPilotCarParams = CarInterface.get_frogpilot_params(candidate, fingerprints, car_fw, CP, frogpilot_toggles)
+
+  if CP.brand in GAS_INTERCEPTOR_BRANDS and FPCP.canUsePedal and CP.openpilotLongitudinalControl and PEDAL_MSG in fingerprints[0]:
+    CP.autoResumeSng = True
+    CP.enableGasInterceptorDEPRECATED = True
+    CP.minEnableSpeed = -1
+
+    if CP.brand == "honda":
+      CP.pcmCruise = False
+      CP.safetyConfigs[-1].safetyParam |= HondaFrogPilotSafetyFlags.GAS_INTERCEPTOR.value
+    elif CP.brand == "toyota":
+      CP.safetyConfigs[0].safetyParam |= ToyotaFrogPilotSafetyFlags.GAS_INTERCEPTOR.value
 
   return interfaces[CP.carFingerprint](CP, FPCP)
 

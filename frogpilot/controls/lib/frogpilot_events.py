@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from openpilot.selfdrive.selfdrived.events import FROGPILOT_EVENT_NAME, Events
+from openpilot.selfdrive.selfdrived.events import FROGPILOT_EVENT_NAME, FrogPilotEventName, Events
 
 from openpilot.frogpilot.common import frogpilot_paths, frogpilot_variables
 
@@ -29,6 +29,12 @@ class FrogPilotEvents:
       self.max_acceleration = max(acceleration, self.max_acceleration)
     else:
       self.max_acceleration = 0
+
+    if sm["frogpilotCarState"].pedalInterceptorNoBrake:
+      if sm["carControl"].enabled:
+        self.events.add(FrogPilotEventName.pedalInterceptorNoBrake)
+      else:
+        self.events.add(FrogPilotEventName.pedalInterceptorNoBrakeNoEntry)
 
     self.startup_seen |= sm["frogpilotSelfdriveState"].alertText1 == frogpilot_toggles.startup_alert_top and sm["frogpilotSelfdriveState"].alertText2 == frogpilot_toggles.startup_alert_bottom
 
