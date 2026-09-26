@@ -12,7 +12,7 @@ ButtonType = car.CarState.ButtonEvent.Type
 def main():
   params = Params()
   pm = messaging.PubMaster(['userBookmark', 'audioFeedback'])
-  sm = messaging.SubMaster(['rawAudioData', 'bookmarkButton', 'carState'])
+  sm = messaging.SubMaster(['rawAudioData', 'bookmarkButton'])
   should_record_audio = False
   block_num = 0
   waiting_for_release = False
