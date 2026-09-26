@@ -74,6 +74,7 @@ private slots:
   void updateCalibDescription();
 
   // FrogPilot variables
+  void softreboot();
 
 private:
   Params params;

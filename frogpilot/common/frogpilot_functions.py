@@ -2,6 +2,7 @@
 import json
 import math
 import os
+import subprocess
 import time
 
 from multiprocessing import Process
@@ -298,6 +299,12 @@ def save_log_schema(git_commit):
         os.fsync(f.fileno())
 
     staging_path.rename(schema_path)
+
+
+def soft_reboot():
+  frogpilot_paths.BOOTED_PATH.touch()
+
+  subprocess.check_call(["sudo", "systemctl", "restart", "--no-block", "comma"])
 
 
 def sync_flag_file(flag_path, enabled):

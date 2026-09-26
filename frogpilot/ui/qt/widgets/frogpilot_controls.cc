@@ -29,6 +29,15 @@ const QString buttonStyle = R"(
   }
 )";
 
+void FrogPilotConfirmationDialog::softReboot(QWidget *parent) {
+  if (isOpenpilotSteering()) {
+    ConfirmationDialog::alert(tr("The device can't reboot while openpilot is steering. Disengage, then reboot from the Device panel."), parent);
+    return;
+  }
+
+  Params().putBool("DoSoftReboot", true);
+}
+
 bool FrogPilotConfirmationDialog::toggleReboot(QWidget *parent) {
   ConfirmationDialog d(tr("Reboot required to take effect."), tr("Reboot Now"), tr("Reboot Later"), false, parent);
   return d.exec();
