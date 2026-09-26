@@ -22,6 +22,8 @@ class CarInterface(CarInterfaceBase):
   @staticmethod
   def get_pid_accel_limits(CP, current_speed, cruise_speed):
     # FrogPilot variables
+    if CP.enableGasInterceptorDEPRECATED:
+      return CarControllerParams.NIDEC_ACCEL_MIN, CarControllerParams.PEDAL_ACCEL_MAX
 
     if CP.carFingerprint in HONDA_BOSCH:
       return CarControllerParams.BOSCH_ACCEL_MIN, CarControllerParams.BOSCH_ACCEL_MAX

@@ -225,6 +225,10 @@ class CarState(CarStateBase):
     elif self.CP.carFingerprint in (CAR.HONDA_CIVIC, CAR.HONDA_ODYSSEY):
       self.fp_ret.brakeLights = ret.brake > 0.4
 
+    if self.CP.enableGasInterceptorDEPRECATED:
+      gas = (cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS"] + cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS2"]) // 2
+      ret.gasPressed = gas > 492
+
     return ret
 
   def get_can_parsers(self, CP):

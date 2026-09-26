@@ -1176,6 +1176,8 @@ class CarSafetyTest(SafetyTest):
 # OPGM variables
 class GasInterceptorSafetyTest(SafetyTestBase):
 
+  INTERCEPTOR_THRESHOLD = 0
+
   cnt_gas_cmd = 0
   cnt_user_gas = 0
 
@@ -1208,12 +1210,22 @@ class GasInterceptorSafetyTest(SafetyTestBase):
   def test_no_disengage_on_gas(self):
     pass
 
+  def test_prev_gas_interceptor(self):
+    self._rx(self._interceptor_user_gas(0x0))
+    self.assertFalse(self.safety.get_gas_pressed_prev())
+    self._rx(self._interceptor_user_gas(0x1000))
+    self.assertTrue(self.safety.get_gas_pressed_prev())
+    self._rx(self._interceptor_user_gas(0x0))
+
   def test_no_disengage_on_gas_interceptor(self):
     for g in range(0x1000):
       self._rx(self._interceptor_user_gas(0))
       self.safety.set_controls_allowed(True)
       self._rx(self._interceptor_user_gas(g))
       self.assertTrue(self.safety.get_controls_allowed(), g)
+      self.assertEqual(g <= self.INTERCEPTOR_THRESHOLD, self.safety.get_longitudinal_allowed(), g)
+      self._rx(self._interceptor_user_gas(0))
+      self.assertTrue(self.safety.get_longitudinal_allowed(), g)
 
   def test_allow_engage_with_gas_interceptor_pressed(self):
     self._rx(self._interceptor_user_gas(0x1000))

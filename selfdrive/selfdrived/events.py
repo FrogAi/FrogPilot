@@ -421,6 +421,10 @@ def custom_startup_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubM
   return StartupAlert(frogpilot_toggles.startup_alert_top, frogpilot_toggles.startup_alert_bottom, alert_status=FrogPilotAlertStatus.frogpilot)
 
 
+def pedal_interceptor_no_brake_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
+  return user_soft_disable_alert("Braking Unavailable: Shift to L")(CP, CS, sm, metric, soft_disable_time, personality)
+
+
 
 EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   # ********** events with no alerts **********
@@ -1056,6 +1060,15 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
   FrogPilotEventName.customStartupAlert: {
     ET.PERMANENT: custom_startup_alert,
+  },
+
+  FrogPilotEventName.pedalInterceptorNoBrake: {
+    ET.SOFT_DISABLE: pedal_interceptor_no_brake_alert,
+    ET.NO_ENTRY: NoEntryAlert("Shift to L", alert_text_1="Braking Unavailable"),
+  },
+
+  FrogPilotEventName.pedalInterceptorNoBrakeNoEntry: {
+    ET.NO_ENTRY: NoEntryAlert("Shift to L", alert_text_1="Braking Unavailable"),
   },
 
   FrogPilotEventName.replayFailed: {

@@ -243,6 +243,20 @@ class CarInterface(CarInterfaceBase):
       ret.safetyConfigs[0].safetyParam |= GMSafetyFlags.HW_CAM.value
 
       # FrogPilot variables
+      if candidate in CC_ONLY_CAR:
+        ret.flags |= GMFlags.PEDAL_LONG.value
+        ret.longitudinalTuning.kiBP = [0.0, 3., 6., 35.]
+        ret.longitudinalTuning.kiV = [0.125, 0.175, 0.225, 0.33]
+        ret.safetyConfigs[0].safetyParam |= GMSafetyFlags.FLAG_GM_PEDAL_LONG.value
+        ret.stoppingDecelRate = 0.8
+      else:
+        ret.safetyConfigs[0].safetyParam |= GMSafetyFlags.HW_CAM_LONG.value
+        ret.startingState = True
+        ret.vEgoStopping = 0.25
+        ret.vEgoStarting = 0.25
+
+      if candidate not in (CAMERA_ACC_CAR | SDGM_CAR):
+        ret.safetyConfigs[0].safetyParam |= GMSafetyFlags.HW_ASCM_LONG.value
 
     elif candidate in CC_ONLY_CAR:
       ret.alphaLongitudinalAvailable = True

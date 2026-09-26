@@ -28,6 +28,12 @@ class FrogPilotEvents:
     else:
       self.max_acceleration = 0
 
+    if sm["frogpilotCarState"].pedalInterceptorNoBrake:
+      if sm["carControl"].enabled:
+        self.events.add(FrogPilotEventName.pedalInterceptorNoBrake)
+      else:
+        self.events.add(FrogPilotEventName.pedalInterceptorNoBrakeNoEntry)
+
     self.startup_seen |= sm["frogpilotSelfdriveState"].alertText1 == frogpilot_toggles.startup_alert_top and sm["frogpilotSelfdriveState"].alertText2 == frogpilot_toggles.startup_alert_bottom
 
     self.played_events.update(FROGPILOT_EVENT_NAME[event] for event in self.events.names)

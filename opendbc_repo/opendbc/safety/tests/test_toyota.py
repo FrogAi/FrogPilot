@@ -4,7 +4,7 @@ import random
 import unittest
 import itertools
 
-from opendbc.car.toyota.values import ToyotaSafetyFlags
+from opendbc.car.toyota.values import ToyotaFrogPilotSafetyFlags, ToyotaSafetyFlags
 from opendbc.car.structs import CarParams
 from opendbc.safety.tests.libsafety import libsafety_py
 import opendbc.safety.tests.common as common
@@ -401,6 +401,39 @@ class TestToyotaSecOcSafety(TestToyotaSecOcSafetyBase):
 
 
 # FrogPilot variables
+class TestToyotaSafetyGasInterceptorBase(common.GasInterceptorSafetyTest, TestToyotaSafetyBase):
+
+  TX_MSGS = TOYOTA_COMMON_TX_MSGS + TOYOTA_COMMON_LONG_TX_MSGS + [[0x200, 0]]
+  INTERCEPTOR_THRESHOLD = 805
+
+  def setUp(self):
+    super().setUp()
+    self.safety.set_safety_hooks(CarParams.SafetyModel.toyota, self.safety.get_current_safety_param() |
+                                 ToyotaFrogPilotSafetyFlags.GAS_INTERCEPTOR)
+    self.safety.init_tests()
+
+  def test_stock_longitudinal(self):
+    self.safety.set_safety_hooks(CarParams.SafetyModel.toyota, self.safety.get_current_safety_param() |
+                                 ToyotaSafetyFlags.STOCK_LONGITUDINAL)
+    self.safety.init_tests()
+
+    for test in (self.test_prev_gas_interceptor, self.test_no_disengage_on_gas_interceptor,
+                 self.test_gas_interceptor_safety_check):
+      with self.subTest(test=test.__name__):
+        with self.assertRaises(AssertionError):
+          test()
+
+
+class TestToyotaSafetyTorqueGasInterceptor(TestToyotaSafetyGasInterceptorBase, TestToyotaSafetyTorque):
+  pass
+
+
+class TestToyotaSafetyAngleGasInterceptor(TestToyotaSafetyGasInterceptorBase, TestToyotaSafetyAngle):
+  pass
+
+
+class TestToyotaAltBrakeSafetyGasInterceptor(TestToyotaSafetyGasInterceptorBase, TestToyotaAltBrakeSafety):
+  pass
 
 
 if __name__ == "__main__":

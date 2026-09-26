@@ -223,6 +223,10 @@ class CarState(CarStateBase):
 
     self.prev_pcm_acc_status = self.pcm_acc_status
 
+    if self.CP.enableGasInterceptorDEPRECATED:
+      gas = (cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS"] + cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS2"]) // 2
+      ret.gasPressed = gas > 805
+
     ret.buttonEvents = buttonEvents
     return ret
 

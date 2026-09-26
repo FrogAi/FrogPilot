@@ -41,6 +41,7 @@ class CarControllerParams:
   STEER_GLOBAL_MIN_SPEED = 3 * CV.MPH_TO_MS
 
   # FrogPilot variables
+  PEDAL_ACCEL_MAX = 3.0
 
   def __init__(self, CP):
     self.STEER_MAX = CP.lateralParams.torqueBP[-1]
@@ -61,6 +62,8 @@ class HondaSafetyFlags(IntFlag):
 
 
 # FrogPilot variables
+class HondaFrogPilotSafetyFlags(IntFlag):
+  GAS_INTERCEPTOR = 32
 
 
 class HondaFlags(IntFlag):

@@ -18,6 +18,8 @@
   {.msg = {{0x1BE, (pt_bus), 3, 50U, .max_counter = 3U, .ignore_quality_flag = true}, { 0 }, { 0 }}},  /* BRAKE_MODULE */  \
 
 // FrogPilot variables
+#define HONDA_GAS_INTERCEPTOR_RX_CHECK                                                                                                  \
+  {.msg = {{0x201, 0, 6, 50U, .ignore_checksum = true, .max_counter = 15U, .ignore_quality_flag = true}, { 0 }, { 0 }}},  \
 
 enum {
   HONDA_BTN_NONE = 0,
@@ -68,15 +70,20 @@ static uint32_t honda_compute_checksum(const CANPacket_t *msg) {
 
 static uint8_t honda_get_counter(const CANPacket_t *msg) {
   // FrogPilot variables
-
-  int counter_byte = GET_LEN(msg) - 1U;
-  return (msg->data[counter_byte] >> 4U) & 0x3U;
+  uint8_t cnt = 0U;
+  if (msg->addr == 0x201U) {
+    cnt = msg->data[4] & 0x0FU;
+  } else {
+    int counter_byte = GET_LEN(msg) - 1U;
+    cnt = (msg->data[counter_byte] >> 4U) & 0x3U;
+  }
+  return cnt;
 }
 
 static void honda_rx_hook(const CANPacket_t *msg) {
   // FrogPilot variables
 
-  const bool pcm_cruise = ((honda_hw == HONDA_BOSCH) && !honda_bosch_long) || (honda_hw == HONDA_NIDEC);
+  const bool pcm_cruise = ((honda_hw == HONDA_BOSCH) && !honda_bosch_long) || ((honda_hw == HONDA_NIDEC) && !enable_gas_interceptor);
   unsigned int pt_bus = honda_get_pt_bus();
 
   // sample speed
@@ -148,8 +155,16 @@ static void honda_rx_hook(const CANPacket_t *msg) {
   }
 
   // FrogPilot variables
+  if ((msg->addr == 0x201U) && enable_gas_interceptor) {
+    const int HONDA_GAS_INTERCEPTOR_THRESHOLD = 492;
 
-  if (msg->addr == 0x17CU) {
+    int track1 = (msg->data[0] << 8) + msg->data[1];
+    int track2 = (msg->data[2] << 8) + msg->data[3];
+    int gas_interceptor = (track1 + track2) / 2;
+    gas_pressed = gas_interceptor > HONDA_GAS_INTERCEPTOR_THRESHOLD;
+  }
+
+  if ((msg->addr == 0x17CU) && !enable_gas_interceptor) {
     gas_pressed = msg->data[0] != 0U;
   }
 
@@ -285,6 +300,11 @@ static bool honda_tx_hook(const CANPacket_t *msg) {
   }
 
   // FrogPilot variables
+  if (msg->addr == 0x200U) {
+    if (longitudinal_interceptor_checks(msg)) {
+      tx = false;
+    }
+  }
 
   return tx;
 }
@@ -332,6 +352,33 @@ static safety_config honda_nidec_init(uint16_t param) {
   SET_TX_MSGS(HONDA_N_TX_MSGS, ret);
 
   // FrogPilot variables
+  const uint16_t HONDA_PARAM_GAS_INTERCEPTOR = 32;
+
+  enable_gas_interceptor = GET_FLAG(param, HONDA_PARAM_GAS_INTERCEPTOR);
+
+  if (enable_gas_interceptor) {
+    static CanMsg HONDA_N_INTERCEPTOR_TX_MSGS[] = {{0xE4, 0, 5, .check_relay = true}, {0x194, 0, 4, .check_relay = true}, {0x1FA, 0, 8, .check_relay = false},
+                                                   {0x200, 0, 6, .check_relay = false}, {0x30C, 0, 8, .check_relay = true}, {0x33D, 0, 5, .check_relay = true}};
+
+    static RxCheck honda_nidec_alt_interceptor_rx_checks[] = {
+      HONDA_COMMON_NO_SCM_FEEDBACK_RX_CHECKS(0)
+      {.msg = {{0x1FA, 2, 8, 50U, .max_counter = 3U, .ignore_quality_flag = true}, { 0 }, { 0 }}},
+      HONDA_GAS_INTERCEPTOR_RX_CHECK
+    };
+    static RxCheck honda_nidec_common_interceptor_rx_checks[] = {
+      HONDA_COMMON_RX_CHECKS(0)
+      {.msg = {{0x1FA, 2, 8, 50U, .max_counter = 3U, .ignore_quality_flag = true}, { 0 }, { 0 }}},
+      HONDA_GAS_INTERCEPTOR_RX_CHECK
+    };
+
+    if (enable_nidec_alt) {
+      SET_RX_CHECKS(honda_nidec_alt_interceptor_rx_checks, ret);
+    } else {
+      SET_RX_CHECKS(honda_nidec_common_interceptor_rx_checks, ret);
+    }
+
+    SET_TX_MSGS(HONDA_N_INTERCEPTOR_TX_MSGS, ret);
+  }
 
   return ret;
 }

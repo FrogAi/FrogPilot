@@ -1,7 +1,7 @@
 import numpy as np
 
 from opendbc.can import CANPacker
-from opendbc.car import Bus, DT_CTRL, rate_limit, make_tester_present_msg, structs
+from opendbc.car import Bus, DT_CTRL, create_gas_interceptor_command, rate_limit, make_tester_present_msg, structs
 from opendbc.car.honda import hondacan
 from opendbc.car.honda.values import CAR, CruiseButtons, HONDA_BOSCH, HONDA_BOSCH_CANFD, HONDA_BOSCH_RADARLESS, \
                                      HONDA_BOSCH_TJA_CONTROL, HONDA_NIDEC_ALT_PCM_ACCEL, CarControllerParams
@@ -166,7 +166,7 @@ class CarController(CarControllerBase):
                     0.5]
     # The Honda ODYSSEY seems to have different PCM_ACCEL
     # msgs, is it other cars too?
-    if not CC.longActive:
+    if not CC.longActive or self.CP.enableGasInterceptorDEPRECATED:
       pcm_speed = 0.0
       pcm_accel = int(0.0)
     elif self.CP.carFingerprint in HONDA_NIDEC_ALT_PCM_ACCEL:
@@ -241,6 +241,13 @@ class CarController(CarControllerBase):
           self.gas = pcm_accel / self.params.NIDEC_GAS_MAX
 
     # FrogPilot variables
+    if self.CP.enableGasInterceptorDEPRECATED and self.frame % 2 == 0:
+      gas_mult = np.interp(CS.out.vEgo, [0., 10.], [0.4, 1.0])
+      if CC.longActive:
+        self.gas = float(np.clip(gas_mult * (gas - brake + wind_brake * 3 / 4), 0., 1.))
+      else:
+        self.gas = 0.0
+      can_sends.append(create_gas_interceptor_command(self.packer, self.gas, self.frame // 2))
 
     new_actuators = actuators.as_builder()
     new_actuators.speed = self.speed
