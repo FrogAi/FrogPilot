@@ -353,7 +353,7 @@ class QCOMDevice(HCQCompiled):
       System.write_sysfs("/sys/class/kgsl/kgsl-3d0/idle_timer", value="4000000000", msg="Failed to disable suspend mode", expected="4294967276")
 
     compilers = [(QCOMRenderer, functools.partial(QCOMCompiler, device))]
-    super().__init__(device, QCOMAllocator(self), compilers, functools.partial(QCOMProgram, self), QCOMSignal,
+    super().__init__(device, QCOMAllocator(self, batch_cnt=0), compilers, functools.partial(QCOMProgram, self), QCOMSignal,
                      functools.partial(QCOMComputeQueue, self), None)
 
   def _gpu_alloc(self, size:int, flags:int=0, uncached=False, fill_zeroes=False) -> HCQBuffer:
