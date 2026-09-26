@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import math
+import subprocess
 import time
 
 from multiprocessing import Process
@@ -276,6 +277,12 @@ def reset_settings(params, params_cache):
 def run_frogsgomoo(build_metadata):
   if frogpilot_utilities.is_FrogsGoMoo_development(build_metadata):
     frogpilot_utilities.run_cmd_on_writable_mount("/persist", ["sudo", "python3", frogpilot_paths.FROGS_GO_MOO_PATH], "Failed to run frogsgomoo.py")
+
+
+def soft_reboot():
+  frogpilot_paths.BOOTED_PATH.touch()
+
+  subprocess.check_call(["sudo", "systemctl", "restart", "--no-block", "comma"])
 
 
 def sync_flag_file(flag_path, enabled):
