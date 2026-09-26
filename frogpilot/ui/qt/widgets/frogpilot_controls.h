@@ -48,6 +48,7 @@ class FrogPilotConfirmationDialog : public ConfirmationDialog {
   Q_OBJECT
 
 public:
+  static void softReboot(QWidget *parent);
   static bool toggleReboot(QWidget *parent);
   static bool yesorno(const QString &prompt_text, QWidget *parent);
 };

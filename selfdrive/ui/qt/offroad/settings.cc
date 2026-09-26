@@ -323,6 +323,10 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   QObject::connect(reboot_btn, &QPushButton::clicked, this, &DevicePanel::reboot);
 
   // FrogPilot variables
+  QPushButton *softreboot_btn = new QPushButton(tr("Soft Reboot"));
+  softreboot_btn->setObjectName("softreboot_btn");
+  power_layout->addWidget(softreboot_btn);
+  QObject::connect(softreboot_btn, &QPushButton::clicked, this, &DevicePanel::softreboot);
 
   QPushButton *poweroff_btn = new QPushButton(tr("Power Off"));
   poweroff_btn->setObjectName("poweroff_btn");
@@ -336,6 +340,8 @@ DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
   setStyleSheet(R"(
     #reboot_btn { height: 120px; border-radius: 15px; background-color: #393939; }
     #reboot_btn:pressed { background-color: #4a4a4a; }
+    #softreboot_btn { height: 120px; border-radius: 15px; background-color: #178644; }
+    #softreboot_btn:pressed { background-color: #1e9e52; }
     #poweroff_btn { height: 120px; border-radius: 15px; background-color: #E22C2C; }
     #poweroff_btn:pressed { background-color: #FF2424; }
   )");
@@ -432,6 +438,18 @@ void DevicePanel::poweroff() {
 }
 
 // FrogPilot variables
+void DevicePanel::softreboot() {
+  if (!isOpenpilotSteering()) {
+    if (ConfirmationDialog::confirm(tr("Are you sure you want to soft reboot?"), tr("Soft Reboot"), this)) {
+      // Check engaged again in case it changed while the dialog was open
+      if (!isOpenpilotSteering()) {
+        params.putBool("DoSoftReboot", true);
+      }
+    }
+  } else {
+    ConfirmationDialog::alert(tr("Disengage to Soft Reboot"), this);
+  }
+}
 
 void SettingsWindow::showEvent(QShowEvent *event) {
   setCurrentPanel(0);

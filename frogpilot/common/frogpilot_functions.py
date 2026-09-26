@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import json
 import math
+import subprocess
 import time
 
 from multiprocessing import Process
@@ -228,6 +229,12 @@ def run_frogsgomoo(build_metadata):
     frogpilot_utilities.run_cmd(["sudo", "mount", "-o", "remount,rw", "/persist"], None, "Failed to remount /persist")
     frogpilot_utilities.run_cmd(["sudo", "python3", frogpilot_variables.FROGS_GO_MOO_PATH], None, "Failed to run frogsgomoo.py")
     frogpilot_utilities.run_cmd(["sudo", "mount", "-o", f"remount,{mount_options}", "/persist"], None, "Failed to restore /persist mount options")
+
+
+def soft_reboot():
+  Path("/tmp/booted").touch()
+
+  subprocess.check_call(["sudo", "systemctl", "restart", "--no-block", "comma"])
 
 
 def uninstall_frogpilot():
