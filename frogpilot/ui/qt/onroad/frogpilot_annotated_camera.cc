@@ -3,6 +3,9 @@
 #include "frogpilot/ui/qt/onroad/frogpilot_annotated_camera.h"
 
 FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(CameraWidget *nvg, QWidget *parent) : QWidget(parent) {
+  instantReplayButton = new InstantReplayButton(nvg);
+  instantReplayButton->setVisible(false);
+
   QObject::connect(nvg, &CameraWidget::vipcThreadFrameReceived, frogpilotUIState(), &FrogPilotUIState::cameraFrameReceived);
 }
 
@@ -60,6 +63,8 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
 
   hideBottomIcons = alertHeight != 0;
 
+  instantReplayButton->setVisible(frogpilot_toggles.value(QLatin1String("instant_replay")).toInt() != 0);
+
   if (!isVisible()) {
     return;
   }
@@ -95,6 +100,8 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
   }
 
   int slotStep = rightHandDM ? -widget_size - 2 * UI_BORDER_SIZE : widget_size + 2 * UI_BORDER_SIZE;
+
+  instantReplayButton->move(experimentalButtonPosition.x() - UI_BORDER_SIZE - btn_size, experimentalButtonPosition.y());
 }
 
 void FrogPilotAnnotatedCameraWidget::paintAdjacentPaths(QPainter &p) {
