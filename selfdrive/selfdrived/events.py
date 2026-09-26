@@ -1088,6 +1088,22 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.PERMANENT: custom_startup_alert,
   },
 
+  FrogPilotEventName.replayFailed: {
+    ET.PERMANENT: Alert(
+      "Footage failed to save...",
+      "",
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.LOWEST, VisualAlert.none, AudibleAlert.refuse, 3.),
+  },
+
+  FrogPilotEventName.replaySaved: {
+    ET.PERMANENT: Alert(
+      "Footage saved!",
+      "",
+      FrogPilotAlertStatus.frogpilot, AlertSize.small,
+      Priority.LOWEST, VisualAlert.none, AudibleAlert.prompt, 3.),
+  },
+
   FrogPilotEventName.speedSensorsDisagree: {
     ET.IMMEDIATE_DISABLE: ImmediateDisableAlert("Speed Sensors Disagree"),
     ET.PERMANENT: NormalPermanentAlert("Speed Sensors Disagree", "Steering is unavailable until they match"),
