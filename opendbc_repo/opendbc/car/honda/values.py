@@ -59,6 +59,8 @@ class HondaSafetyFlags(IntFlag):
 
 
 # FrogPilot variables
+class HondaFrogPilotSafetyFlags(IntFlag):
+  GAS_INTERCEPTOR = 32
 
 
 class HondaFlags(IntFlag):

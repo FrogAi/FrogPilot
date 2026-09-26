@@ -49,6 +49,12 @@ class FrogPilotEvents:
     else:
       self.always_on_lateral_waiting_timer = 0
 
+    if sm["frogpilotCarState"].pedalInterceptorNoBrake:
+      if sm["carControl"].enabled:
+        self.events.add(FrogPilotEventName.pedalInterceptorNoBrake)
+      else:
+        self.events.add(FrogPilotEventName.pedalInterceptorNoBrakeNoEntry)
+
     if sm["frogpilotCarState"].speedSensorsDisagree:
       self.events.add(FrogPilotEventName.speedSensorsDisagree)
 

@@ -18,9 +18,11 @@ from opendbc.car.common.basedir import BASEDIR
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.common.simple_kalman import KF1D, get_kalman_gain
 from opendbc.car.ford.values import CAR as FORD, NO_CRUISE_STANDBY_CAR
-from opendbc.car.honda.values import CAR as HONDA
+from opendbc.car.gm.values import CAR as GM
+from opendbc.car.honda.values import CAR as HONDA, HONDA_BOSCH
 from opendbc.car.hyundai.values import CAR as HYUNDAI, CRUISE_STANDBY_LFA_BUTTON_CAR, HyundaiFlags, HyundaiFrogPilotSafetyFlags
 from opendbc.car.mock.values import CAR as MOCK
+from opendbc.car.toyota.values import CAR as TOYOTA
 from opendbc.car.values import PLATFORMS
 from opendbc.can import CANParser
 
@@ -185,8 +187,12 @@ class CarInterfaceBase(ABC):
       elif platform in FORD:
         fp_ret.alwaysOnLateralLKASButton = candidate in NO_CRUISE_STANDBY_CAR
 
+      elif platform in GM:
+        fp_ret.canUsePedal = True
+
       elif platform in HONDA:
         fp_ret.alwaysOnLateralLKASButton = True
+        fp_ret.canUsePedal = candidate not in HONDA_BOSCH
 
       elif platform in HYUNDAI:
         if CP.flags & HyundaiFlags.HAS_LDA_BUTTON:
@@ -196,6 +202,9 @@ class CarInterfaceBase(ABC):
           fp_ret.alwaysOnLateralLKASButton = True
         elif CP.flags & HyundaiFlags.HAS_LDA_BUTTON:
           fp_ret.alwaysOnLateralLKASButton = candidate not in CRUISE_STANDBY_LFA_BUTTON_CAR
+
+      elif platform in TOYOTA:
+        fp_ret.canUsePedal = not CP.autoResumeSng
 
     return fp_ret
 

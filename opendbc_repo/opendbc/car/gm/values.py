@@ -33,6 +33,7 @@ class CarControllerParams:
   ACCEL_MIN = -4.  # m/s^2
 
   # FrogPilot variables
+  SNG_INTERCEPTOR_GAS = 18. / 255.
 
   def __init__(self, CP):
     # Gas/brake lookups
@@ -73,6 +74,7 @@ class GMSafetyFlags(IntFlag):
   FLAG_GM_PEDAL_LONG = 64
 
   # FrogPilot variables
+  HW_ASCM_LONG = 128
 
 
 class Footnote(Enum):

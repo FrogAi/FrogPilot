@@ -13,6 +13,7 @@ LongCtrlState = car.CarControl.Actuators.LongControlState
 def long_control_state_trans(CP, active, long_control_state, v_ego,
                              should_stop, brake_pressed, cruise_standstill, frogpilot_toggles=None):
   # FrogPilot variables
+  cruise_standstill = cruise_standstill and not CP.enableGasInterceptorDEPRECATED
 
   stopping_condition = should_stop
   starting_condition = (not should_stop and
@@ -84,7 +85,7 @@ class LongControl:
     else:  # LongCtrlState.pid
       error = a_target - CS.aEgo
       output_accel = self.pid.update(error, speed=CS.vEgo,
-                                     feedforward=a_target)
+                                     feedforward=a_target * (self.CP.longitudinalTuning.kfDEPRECATED or 1.0))
 
     self.last_output_accel = np.clip(output_accel, accel_limits[0], accel_limits[1])
     return self.last_output_accel
