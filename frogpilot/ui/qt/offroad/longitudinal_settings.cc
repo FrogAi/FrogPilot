@@ -184,7 +184,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
 
     {"SetWeatherKey", tr("Set Your Own Key"), tr("<b>Use your own \"OpenWeatherMap\" key for weather requests every minute.</b><br><br>Supports One Call 4.0 and 3.0, plus Current Weather 2.5. Without a working personal key, FrogPilot tries shared weather with a 15-minute request interval. Your saved key is kept."), ""},
 
-    {"SpeedLimitController", tr("Speed Limit Controller"), tr("<b>Hold openpilot's max speed to the posted speed limit.</b><br><br>The limit comes from your downloaded maps, Mapbox, \"Navigate on openpilot\", or, on supported Ford, Genesis, Hyundai, Kia, Lexus and Toyota models, your dashboard."), "../../frogpilot/assets/toggle_icons/icon_speed_limit.png"},
+    {"SpeedLimitController", tr("Speed Limit Controller"), tr("<b>Hold openpilot's max speed to the posted speed limit.</b><br><br>The limit comes from your downloaded maps, Mapbox, Vision when enabled, or, on supported Ford, Genesis, Hyundai, Kia, Lexus and Toyota models, your dashboard."), "../../frogpilot/assets/toggle_icons/icon_speed_limit.png"},
     {"SLCFallback", tr("Fallback Speed"), tr("<b>The speed used by \"Speed Limit Controller\" when no speed limit is found.</b><br><br>- <b>Set Speed</b>: Use the cruise set speed<br>- <b>Experimental Mode</b>: Let openpilot pick the speed from what the camera sees, never going above your set speed<br>- <b>Previous Limit</b>: Keep using the last confirmed limit"), ""},
     {"SLCOverride", tr("Override Speed"), tr("<b>The speed used by \"Speed Limit Controller\" after you manually drive faster than the posted limit.</b><br><br>- <b>None</b>: Go back to the posted limit as soon as you are off the gas<br>- <b>Set With Gas Pedal</b>: Use the highest speed reached while pressing the gas<br>- <b>Max Set Speed</b>: Use the cruise set speed<br><br>Overrides clear when openpilot disengages."), ""},
     {"SLCQOL", tr("Quality of Life"), tr("<b>Smaller changes to how \"Speed Limit Controller\" behaves.</b>"), ""},
@@ -193,7 +193,8 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
     {"SLCLookaheadLower", tr("Lower Limit Lookahead Time"), tr("<b>How far ahead openpilot looks for a lower speed limit coming up.</b><br><br>This reads from your downloaded map data."), ""},
     {"SetSpeedLimit", tr("Match Speed Limit on Engage"), tr("<b>Engaging openpilot sets your max speed to the current speed limit with your \"Speed Limit Offsets\" added on top.</b><br><br>The offsets do not start at zero, so set them all to 0 if you want the max speed to land on the posted number. This only happens when openpilot has no set speed to go back to, since engaging with the Resume or + button brings back your last set speed instead."), ""},
     {"SLCMapboxFiller", tr("Use Mapbox as Fallback"), tr("<b>Fall back to Mapbox for the speed limit when none of your chosen sources have one.</b><br><br>Needs your Public Mapbox Key and a working internet connection."), ""},
-    {"SLCPriority", tr("Speed Limit Source Priority"), tr("<b>Choose which sources openpilot checks for the speed limit and in what order, or have it always use the highest or lowest limit being reported.</b><br><br>Pick up to two sources and openpilot uses the first one that currently has a limit. \"Highest\" and \"Lowest\" ignore the order and take the fastest or slowest limit any source reports, so one wrong map entry can hold you well below the posted limit."), ""},
+    {"SLCPriority", tr("Speed Limit Source Priority"), tr("<b>Choose which sources openpilot checks for the speed limit and in what order, or have it always use the highest or lowest limit being reported.</b><br><br>Pick up to three sources and openpilot uses the first one that currently has a limit. \"Highest\" and \"Lowest\" ignore the order and take the fastest or slowest limit any source reports. Vision requires \"Vision Speed Limits\" to be enabled."), ""},
+    {"VisionSpeedLimitDetection", tr("Vision Speed Limits (U.S.)"), tr("<b>Read U.S. speed limit signs using the road camera.</b><br><br>Requires the vision models. Recognized numbers are mph, even when your display uses km/h. Choose Vision in \"Speed Limit Source Priority\" to control its priority. Your offsets and confirmation settings still apply. The model can misread signs and cannot determine whether a sign applies to your lane or a conditional limit is active."), ""},
     {"SLCOffsets", tr("Speed Limit Offsets"), tr("<b>Drive a set amount above or below the posted speed limit.</b><br><br>Each speed range below gets its own offset."), ""},
     {"Offset1", tr("Speed Offset (0–24 mph)"), tr("<b>How far above or below the posted limit openpilot drives between 0 and 24 mph.</b>"), ""},
     {"Offset2", tr("Speed Offset (25–34 mph)"), tr("<b>How far above or below the posted limit openpilot drives between 25 and 34 mph.</b>"), ""},
@@ -497,18 +498,20 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       longitudinalToggle = overrideSelection;
     } else if (param == "SLCPriority") {
       ButtonControl *slcPriorityButton = new ButtonControl(title, tr("SELECT"), desc);
-      QStringList primaryPriorities = {tr("Dashboard"), tr("Map Data"), tr("Highest"), tr("Lowest")};
-      QStringList otherPriorities = {tr("None"), tr("Dashboard"), tr("Map Data")};
-      QStringList translatedPriorities = {tr("None"), tr("Dashboard"), tr("Map Data"), tr("Highest"), tr("Lowest")};
-      const QStringList canonicalPriorities = {"None", "Dashboard", "Map Data", "Highest", "Lowest"};
-      QStringList priorityPrompts = {tr("Select your primary priority"), tr("Select your secondary priority")};
+      QStringList primaryPriorities = {tr("Dashboard"), tr("Map Data"), tr("Vision"), tr("Highest"), tr("Lowest")};
+      QStringList otherPriorities = {tr("None"), tr("Dashboard"), tr("Map Data"), tr("Vision")};
+      QStringList translatedPriorities = {tr("None"), tr("Dashboard"), tr("Map Data"), tr("Vision"), tr("Highest"), tr("Lowest")};
+      const QStringList canonicalPriorities = {"None", "Dashboard", "Map Data", "Vision", "Highest", "Lowest"};
+      QStringList priorityPrompts = {tr("Select your primary priority"), tr("Select your secondary priority"), tr("Select your tertiary priority")};
 
       QObject::connect(slcPriorityButton, &ButtonControl::clicked, [=]() {
         QStringList selectedPriorities;
 
-        for (int i = 1; i <= 2; ++i) {
+        for (int i = 1; i <= 3; ++i) {
           QStringList availablePriorities = i == 1 ? primaryPriorities : otherPriorities;
-          availablePriorities = availablePriorities.toSet().subtract(selectedPriorities.toSet()).toList();
+          for (const QString &selected : selectedPriorities) {
+            availablePriorities.removeAll(selected);
+          }
 
           if (!parent->hasDashSpeedLimits) {
             availablePriorities.removeAll(tr("Dashboard"));
@@ -519,24 +522,20 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
 
           QString selection = MultiOptionDialog::getSelection(priorityPrompts[i - 1], availablePriorities, "", this);
           if (selection.isEmpty()) {
-            break;
+            return;
           }
 
           selectedPriorities.append(selection);
+          if (selection == tr("None") || selection == tr("Lowest") || selection == tr("Highest")) {
+            break;
+          }
+        }
 
+        // Apply a complete selection; cancelling a dialog preserves the saved order.
+        for (int i = 1; i <= 3; ++i) {
+          const QString selection = selectedPriorities.value(i - 1, tr("None"));
           const int selectionIndex = translatedPriorities.indexOf(selection);
-          params.put(QString("SLCPriority%1").arg(i).toStdString(),
-                     (selectionIndex >= 0 ? canonicalPriorities[selectionIndex] : selection).toStdString());
-          if (selection == tr("None")) {
-            for (int j = i + 1; j <= 2; ++j) {
-              params.put(QString("SLCPriority%1").arg(j).toStdString(), std::string("None"));
-            }
-            break;
-          }
-
-          if (selection == tr("Lowest") || selection == tr("Highest")) {
-            break;
-          }
+          params.put(QString("SLCPriority%1").arg(i).toStdString(), canonicalPriorities[selectionIndex].toStdString());
         }
 
         selectedPriorities.removeAll(tr("None"));
@@ -546,7 +545,7 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
       });
 
       QStringList selectedPriorities;
-      for (int i = 1; i <= 2; ++i) {
+      for (int i = 1; i <= 3; ++i) {
         QString priority = QString::fromStdString(params.get(QString("SLCPriority%1").arg(i).toStdString()));
         const int storedIndex = canonicalPriorities.indexOf(priority);
         if (storedIndex >= 0) {
@@ -557,6 +556,9 @@ FrogPilotLongitudinalPanel::FrogPilotLongitudinalPanel(FrogPilotSettingsWindow *
         }
         if (primaryPriorities.contains(priority)) {
           selectedPriorities.append(priority);
+        }
+        if (priority == tr("Lowest") || priority == tr("Highest")) {
+          break;
         }
       }
       slcPriorityButton->setValue(selectedPriorities.join(", "));

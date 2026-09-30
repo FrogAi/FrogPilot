@@ -46,6 +46,9 @@ dependencies = [
   # modeld
   "onnx >= 1.14.0",
 
+  # FrogPilot vision speed limits
+  "opencv-python-headless",
+
   # logging
   "pyzmq",
   "sentry-sdk",
@@ -111,7 +114,6 @@ dev = [
   "dictdiffer",
   "jeepney",
   "matplotlib",
-  "opencv-python-headless",
   "parameterized >=0.8, <0.9",
   "pyautogui",
   "pygame",
@@ -156,6 +158,8 @@ markers = [
   "skip_tici_setup: mark test to skip tici setup fixture"
 ]
 testpaths = [
+  "frogpilot/controls/tests",
+  "frogpilot/system/tests",
   "common",
   "selfdrive",
   "system/manager",

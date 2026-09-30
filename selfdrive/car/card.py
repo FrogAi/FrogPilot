@@ -275,6 +275,7 @@ class Car:
     fpcs_send = messaging.new_message('frogpilotCarState')
     fpcs_send.valid = CS.canValid
     fpcs_send.frogpilotCarState = FPCS
+    fpcs_send.frogpilotCarState.drivingGear = CS.gearShifter in ("drive", "low")
     self.pm.send('frogpilotCarState', fpcs_send)
 
   def controls_update(self, CS: car.CarState, CC: car.CarControl):

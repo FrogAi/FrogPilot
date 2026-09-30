@@ -77,6 +77,9 @@ def run_frogpilot_telemetry(started: bool, params: Params, CP: car.CarParams, fr
 def run_speed_limit_filler(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
   return frogpilot_toggles.speed_limit_filler
 
+def run_speed_limit_vision(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
+  return started and frogpilot_toggles.vision_speed_limit_detection
+
 procs = [
   DaemonProcess("manage_athenad", "system.athena.manage_athenad", "AthenadPid"),
 
@@ -140,6 +143,7 @@ procs += [
   PythonProcess("frogpilot_telemetry", "frogpilot.system.frogpilot_telemetry", run_frogpilot_telemetry),
   NativeProcess("mapd", "frogpilot/navigation", ["env", "USE_MSGQ_PREFIX=true", "./mapd"], always_run),
   PythonProcess("speed_limit_filler", "frogpilot.system.speed_limit_filler", run_speed_limit_filler),
+  PythonProcess("speed_limit_vision", "frogpilot.system.speed_limit_vision", run_speed_limit_vision),
 ]
 
 managed_processes = {p.name: p for p in procs}
