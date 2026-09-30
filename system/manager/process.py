@@ -113,6 +113,7 @@ class ManagerProcess(ABC):
   watchdog_coredump_deadline: float | None = None
   watchdog_hang_dump_deadline: float | None = None
   shutting_down = False
+  restart_if_crash = False
 
   @abstractmethod
   def prepare(self) -> None:
@@ -239,7 +240,7 @@ class ManagerProcess(ABC):
 
 
 class NativeProcess(ManagerProcess):
-  def __init__(self, name, cwd, cmdline, should_run, enabled=True, sigkill=False, watchdog_max_dt=None):
+  def __init__(self, name, cwd, cmdline, should_run, enabled=True, sigkill=False, watchdog_max_dt=None, restart_if_crash=False):
     self.name = name
     self.cwd = cwd
     self.cmdline = cmdline
@@ -247,6 +248,7 @@ class NativeProcess(ManagerProcess):
     self.enabled = enabled
     self.sigkill = sigkill
     self.watchdog_max_dt = watchdog_max_dt
+    self.restart_if_crash = restart_if_crash
     self.launcher = nativelauncher
 
   def prepare(self) -> None:
@@ -269,13 +271,14 @@ class NativeProcess(ManagerProcess):
 
 
 class PythonProcess(ManagerProcess):
-  def __init__(self, name, module, should_run, enabled=True, sigkill=False, watchdog_max_dt=None):
+  def __init__(self, name, module, should_run, enabled=True, sigkill=False, watchdog_max_dt=None, restart_if_crash=False):
     self.name = name
     self.module = module
     self.should_run = should_run
     self.enabled = enabled
     self.sigkill = sigkill
     self.watchdog_max_dt = watchdog_max_dt
+    self.restart_if_crash = restart_if_crash
     self.launcher = launcher
 
   def prepare(self) -> None:
@@ -356,6 +359,9 @@ def ensure_running(procs: ValuesView[ManagerProcess], started: bool, params=None
   running = []
   for p in procs:
     if p.enabled and p.name not in not_run and p.should_run(started, params, CP, frogpilot_toggles):
+      if p.restart_if_crash and p.proc is not None and not p.proc.is_alive():
+        cloudlog.error(f'Restarting {p.name} (exitcode {p.proc.exitcode})')
+        p.restart()
       running.append(p)
     else:
       p.stop(block=False)
