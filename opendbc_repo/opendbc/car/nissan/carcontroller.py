@@ -14,7 +14,6 @@ class CarController(CarControllerBase):
     self.car_fingerprint = CP.carFingerprint
 
     self.apply_angle_last = 0
-    self.lat_engaged_last = False
 
     self.packer = CANPacker(dbc_names[Bus.pt])
 
@@ -59,13 +58,7 @@ class CarController(CarControllerBase):
     can_sends.append(nissancan.create_steering_control(
       self.packer, self.apply_angle_last, self.frame, CC.latActive, lkas_max_torque))
 
-    # The EPS won't hold an angle at a standstill, so CC.latActive drops out below 0.3 m/s even though
-    # lateral control is still engaged. Hold the last engaged state across the same standstill gate
-    # controlsd uses, so the steering wheel icon doesn't blink off at every light. cruiseState.available
-    # is what arms Always On Lateral, so the held state clears as soon as ProPILOT is switched off
-    if abs(CS.out.vEgo) > max(self.CP.minSteerSpeed, 0.3) and not CS.out.standstill:
-      self.lat_engaged_last = CC.latActive
-    lat_engaged = CC.latActive or CC.enabled or (self.lat_engaged_last and CS.out.cruiseState.available)
+    lat_engaged = CC.latActive or CC.enabled
 
     # Below are the HUD messages. We copy the stock message and modify
     if self.CP.carFingerprint != CAR.NISSAN_ALTIMA:
