@@ -60,12 +60,16 @@ class CarController(CarControllerBase):
     hud_control = CC.hudControl
 
     # FrogPilot variables
+    if CS.taco_tune_hack:
+      self.params = CS.params
 
     # steering torque
     new_torque = int(round(actuators.torque * self.params.STEER_MAX))
     apply_torque = apply_driver_steer_torque_limits(new_torque, self.apply_torque_last, CS.out.steeringTorque, self.params)
 
     # FrogPilot variables
+    if CS.taco_tune_hack:
+      apply_torque = int(np.clip(apply_torque, -self.params.STEER_MAX, self.params.STEER_MAX))
 
     # >90 degree steering fault prevention
     self.angle_limit_counter, apply_steer_req = common_fault_avoidance(abs(CS.out.steeringAngleDeg) >= MAX_ANGLE, CC.latActive,
