@@ -2,11 +2,12 @@
 from parameterized import parameterized_class
 import unittest
 
-from opendbc.car.hyundai.values import HyundaiSafetyFlags
+from opendbc.car.hyundai.values import CarControllerParams, HyundaiFrogPilotSafetyFlags, HyundaiSafetyFlags
+from opendbc.car.lateral import apply_driver_steer_torque_limits
 from opendbc.car.structs import CarParams
 from opendbc.safety.tests.libsafety import libsafety_py
 import opendbc.safety.tests.common as common
-from opendbc.safety.tests.common import CANPackerSafety
+from opendbc.safety.tests.common import CANPackerSafety, MAX_SAMPLE_VALS
 from opendbc.safety.tests.hyundai_common import HyundaiButtonBase, HyundaiLongitudinalBase
 
 # All combinations of radar/camera-SCC and gas/hybrid/EV cars
@@ -295,6 +296,86 @@ class TestHyundaiCanfdLFASteeringLongAltButtons(TestHyundaiCanfdLFASteeringLongB
 
 
 # FrogPilot variables
+class TestHyundaiCanfdLKASteeringEVTacoTuneHack(TestHyundaiCanfdLKASteeringEV):
+  # The tests run at standstill, so these are the low speed limits
+
+  MAX_RATE_UP = 3
+  MAX_TORQUE_LOOKUP = [0], [384]
+
+  DRIVER_TORQUE_ALLOWANCE = 350
+
+  # Raw wheel speed, in 0.03125 kph, of the first speed past the low speed limits: 13 m/s
+  HIGH_SPEED = 1498
+
+  def setUp(self):
+    self.packer = CANPackerSafety("hyundai_canfd_generated")
+    self.safety = libsafety_py.libsafety
+    self.safety.set_safety_hooks(CarParams.SafetyModel.hyundaiCanfd, HyundaiSafetyFlags.CANFD_LKA_STEERING | HyundaiSafetyFlags.EV_GAS |
+                                 HyundaiFrogPilotSafetyFlags.TACO_TUNE_HACK)
+    self.safety.init_tests()
+
+  def test_speed_threshold(self):
+    self.safety.set_controls_allowed(True)
+
+    for speed, max_torque, max_rate_up, driver_torque_allowance in ((self.HIGH_SPEED - 1, 384, 3, 350), (self.HIGH_SPEED, 330, 2, 250)):
+      self._reset_speed_measurement(speed)
+      self._reset_torque_driver_measurement(0)
+
+      self._set_prev_torque(max_torque)
+      self.assertTrue(self._tx(self._torque_cmd_msg(max_torque)))
+      self._set_prev_torque(max_torque)
+      self.assertFalse(self._tx(self._torque_cmd_msg(max_torque + 1)))
+
+      self._set_prev_torque(0)
+      self.assertTrue(self._tx(self._torque_cmd_msg(max_rate_up)))
+      self._set_prev_torque(0)
+      self.assertFalse(self._tx(self._torque_cmd_msg(max_rate_up + 1)))
+
+      self._reset_torque_driver_measurement(-driver_torque_allowance)
+      self._set_prev_torque(max_torque)
+      self.assertTrue(self._tx(self._torque_cmd_msg(max_torque)))
+      self._reset_torque_driver_measurement(-driver_torque_allowance - 1)
+      self._set_prev_torque(max_torque)
+      self.assertFalse(self._tx(self._torque_cmd_msg(max_torque)))
+
+    # The low speed limits apply until every speed sample is past them
+    self._reset_torque_driver_measurement(0)
+    self._reset_speed_measurement(self.HIGH_SPEED - 1)
+    for _ in range(MAX_SAMPLE_VALS - 1):
+      self._rx(self._speed_msg(self.HIGH_SPEED))
+      self._set_prev_torque(384)
+      self.assertTrue(self._tx(self._torque_cmd_msg(384)))
+
+    self._rx(self._speed_msg(self.HIGH_SPEED))
+    self._set_prev_torque(384)
+    self.assertFalse(self._tx(self._torque_cmd_msg(384)))
+
+  def test_carcontroller_limits(self):
+    # Nothing the car controller sends is blocked, through both sets of limits, the switch between them and the driver overriding
+    self.safety.set_controls_allowed(True)
+
+    apply_torque_last = 0
+    v_ego_raw = 0.
+    for frame in range(6000):
+      self.safety.set_timer(frame * 10000)
+
+      # 8 to 16 m/s and back at 2 m/s^2, +-1 torque request switching every 1.5 s, driver torque from -600 to 600 and back every 7 s
+      speed = round((8. + abs((frame * 0.02 + 8.) % 16. - 8.)) * 115.2)
+      torque_request = 1. if (frame // 150) % 2 == 0 else -1.
+      driver_torque = round(abs(frame % 700 - 350) * 1200 / 350 - 600)
+
+      self._rx(self._speed_msg(speed))
+      self._rx(self._torque_driver_msg(driver_torque))
+
+      # The car controller reads the speed a frame after the panda does
+      params = CarControllerParams(None, v_ego_raw, True)
+      v_ego_raw = speed * 0.03125 / 3.6
+
+      apply_torque = apply_driver_steer_torque_limits(int(round(torque_request * params.STEER_MAX)), apply_torque_last, driver_torque, params)
+      apply_torque = max(-params.STEER_MAX, min(apply_torque, params.STEER_MAX))
+      apply_torque_last = apply_torque
+
+      self.assertTrue(self._tx(self._torque_cmd_msg(apply_torque)), f"{frame=} {speed=} {driver_torque=} {apply_torque=}")
 
 
 if __name__ == "__main__":
