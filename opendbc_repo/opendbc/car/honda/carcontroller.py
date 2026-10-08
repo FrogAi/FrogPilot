@@ -16,7 +16,7 @@ def compute_gb_honda_bosch(accel, speed):
   return 0.0, 0.0
 
 
-def compute_gb_honda_nidec(accel, speed):
+def compute_gb_honda_nidec(accel, speed, max_brake):
   creep_brake = 0.0
   creep_speed = 2.3
   creep_brake_value = 0.15
@@ -24,14 +24,15 @@ def compute_gb_honda_nidec(accel, speed):
     creep_brake = (creep_speed - speed) / creep_speed * creep_brake_value
   gb = float(accel) / 4.8 - creep_brake
   # FrogPilot variables
-  return np.clip(gb, 0.0, 1.0), np.clip(-gb, 0.0, 1.0)
+  brake = float(accel) / CarControllerParams.NIDEC_ACCEL_MIN + creep_brake if max_brake else -gb
+  return np.clip(gb, 0.0, 1.0), np.clip(brake, 0.0, 1.0)
 
 
-def compute_gas_brake(accel, speed, fingerprint):
+def compute_gas_brake(accel, speed, fingerprint, max_brake):
   if fingerprint in HONDA_BOSCH:
     return compute_gb_honda_bosch(accel, speed)
   else:
-    return compute_gb_honda_nidec(accel, speed)
+    return compute_gb_honda_nidec(accel, speed, max_brake)
 
 
 # TODO not clear this does anything useful
@@ -118,7 +119,7 @@ class CarController(CarControllerBase):
 
     if CC.longActive:
       accel = actuators.accel
-      gas, brake = compute_gas_brake(actuators.accel, CS.out.vEgo, self.CP.carFingerprint)
+      gas, brake = compute_gas_brake(actuators.accel, CS.out.vEgo, self.CP.carFingerprint, self.frogpilot_toggles.honda_max_brake)
     else:
       accel = 0.0
       gas, brake = 0.0, 0.0
