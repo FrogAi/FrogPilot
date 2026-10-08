@@ -318,7 +318,7 @@ def frogpilot_thread():
     if toggles_updated:
       update_toggles(variables, started, theme_manager, thread_manager, time_validated, params)
 
-    update_checks_period = now.hour
+    update_checks_period = now.minute // 5 if variables.frogs_go_moo else now.hour
 
     run_update_checks |= update_checks_requested
     run_update_checks |= update_checks_period != previous_update_checks_period

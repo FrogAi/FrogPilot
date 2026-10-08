@@ -46,6 +46,11 @@ def install_frogpilot():
   update_boot_logo(frogpilot_paths.FROGPILOT_BOOT_LOGO_PATH)
 
 
+def run_frogsgomoo(build_metadata):
+  if frogpilot_utilities.is_FrogsGoMoo_development(build_metadata):
+    frogpilot_utilities.run_cmd_on_writable_mount("/persist", ["sudo", "python3", frogpilot_paths.FROGS_GO_MOO_PATH], "Failed to run frogsgomoo.py")
+
+
 def sync_params_cache(params, params_cache):
   for key in params.all_keys():
     current_value = params.get(key)
