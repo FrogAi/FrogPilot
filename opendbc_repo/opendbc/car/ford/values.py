@@ -53,6 +53,7 @@ class FordFlags(IntFlag):
   CANFD = 1
 
   # FrogPilot variables
+  ALT_STEER_ANGLE = 2
 
 
 class RADAR:
@@ -182,6 +183,11 @@ class CAR(Platforms):
   )
 
   # FrogPilot variables
+  FORD_EDGE_MK2 = FordPlatformConfig(
+    [FordCarDocs("Ford Fusion Retrofitted 2013-19")],
+    CarSpecs(mass=1691, wheelbase=2.85, steerRatio=15.3),
+    flags=FordFlags.ALT_STEER_ANGLE,
+  )
 
 
 # FW response contains a combined software and part number
