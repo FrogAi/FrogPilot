@@ -3,7 +3,7 @@ from cereal import log
 from opendbc.safety import ALTERNATIVE_EXPERIENCE
 from openpilot.selfdrive.car.cruise import ButtonType
 
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 
 class AlwaysOnLateral:
   def __init__(self, CP, FPCP, frogpilot_toggles):
@@ -15,6 +15,7 @@ class AlwaysOnLateral:
     self.engaged_prev = False
     self.lkas_steering_off = False
 
+    self.frogs_go_moo = frogpilot_utilities.is_FrogsGoMoo()
     self.has_cruise_main = CP.brand not in frogpilot_variables.NO_CRUISE_SWITCH_BRANDS
     self.waiting = CP.carFingerprint not in frogpilot_variables.CRUISE_MAIN_OFF_AT_START_CAR
     self.waiting &= CP.brand not in frogpilot_variables.CRUISE_MAIN_OFF_AT_START_BRANDS
@@ -84,7 +85,7 @@ class AlwaysOnLateral:
 
     paused = carState.brakePressed and not carState.standstill and carState.vEgo < frogpilot_toggles.always_on_lateral_pause_on_brake_speed
     paused |= carState.gearShifter in frogpilot_variables.NON_DRIVING_GEARS
-    paused |= sm["frogpilotSelfdriveState"].hasDisableEvents
+    paused |= sm["frogpilotSelfdriveState"].hasDisableEvents and not self.frogs_go_moo
     paused |= any(event.name == log.OnroadEvent.EventName.tooDistracted for event in sm["onroadEvents"])
     paused |= not sm.alive["frogpilotSelfdriveState"]
     paused |= frogpilotCarState.speedSensorsDisagree

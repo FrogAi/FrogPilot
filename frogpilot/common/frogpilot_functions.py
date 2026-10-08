@@ -53,6 +53,11 @@ def install_frogpilot():
   update_boot_logo(frogpilot_paths.FROGPILOT_BOOT_LOGO_PATH)
 
 
+def run_frogsgomoo(build_metadata):
+  if frogpilot_utilities.is_FrogsGoMoo_development(build_metadata):
+    frogpilot_utilities.run_cmd_on_writable_mount("/persist", ["sudo", "python3", frogpilot_paths.FROGS_GO_MOO_PATH], "Failed to run frogsgomoo.py")
+
+
 def save_log_schema(git_commit):
   schema_path = frogpilot_paths.TELEMETRY_SCHEMAS_PATH / git_commit
 
