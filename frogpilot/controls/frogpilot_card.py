@@ -34,6 +34,7 @@ class FrogPilotCard:
     self.lkas_button_press_count = 0
 
     self.always_on_lateral_set = bool(CP.alternativeExperience & ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self.frogs_go_moo = frogpilot_utilities.is_FrogsGoMoo()
     self.lkas_starts_lateral = self.always_on_lateral_set and CP.brand not in frogpilot_variables.LKAS_STATUS_BRANDS
 
     self.long_press_threshold = CRUISE_LONG_PRESS * (1.5 if self.CP.brand == "gm" else 1)
@@ -104,10 +105,10 @@ class FrogPilotCard:
     self.always_on_lateral_enabled = self.always_on_lateral_allowed and self.always_on_lateral_set and frogpilot_toggles.always_on_lateral
     self.always_on_lateral_enabled &= carState.gearShifter not in frogpilot_variables.NON_DRIVING_GEARS
     self.always_on_lateral_enabled &= sm["liveCalibration"].calPerc >= 1
-    self.always_on_lateral_enabled &= not sm["frogpilotSelfdriveState"].hasDisableEvents
+    self.always_on_lateral_enabled &= not sm["frogpilotSelfdriveState"].hasDisableEvents or self.frogs_go_moo
     self.always_on_lateral_enabled &= not any(event.name == EventName.tooDistracted for event in sm["onroadEvents"])
     self.always_on_lateral_enabled &= not (carState.brakePressed and carState.vEgo < frogpilot_toggles.always_on_lateral_pause_speed) or carState.standstill
-    self.always_on_lateral_enabled &= not frogpilot_paths.ERROR_LOG_PATH.is_file()
+    self.always_on_lateral_enabled &= not frogpilot_paths.ERROR_LOG_PATH.is_file() or self.frogs_go_moo
     self.always_on_lateral_enabled &= not self.steering_disengaged
 
     if any(be.pressed and be.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for be in carState.buttonEvents):

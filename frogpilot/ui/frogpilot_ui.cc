@@ -175,7 +175,7 @@ void FrogPilotUIState::update() {
   const cereal::CarState::Reader &carState = (*uiState()->sm)["carState"].getCarState();
   bool manual_transmission = (*uiState()->sm)["carParams"].getCarParams().getTransmissionType() == cereal::CarParams::TransmissionType::MANUAL;
 
-  frogpilot_scene.parked = !uiState()->scene.started || carState.getGearShifter() == cereal::CarState::GearShifter::PARK || (manual_transmission && carState.getStandstill());
+  frogpilot_scene.parked = !uiState()->scene.started || carState.getGearShifter() == cereal::CarState::GearShifter::PARK || (manual_transmission && carState.getStandstill()) || isFrogsGoMoo();
 }
 
 void FrogPilotUIState::updateToggles() {
