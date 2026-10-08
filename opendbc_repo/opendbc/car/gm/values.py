@@ -248,6 +248,10 @@ class CAR(Platforms):
     [GMCarDocs("Buick Baby Enclave 2020-23", "Driver Assist Package")],
     CarSpecs(mass=2050, wheelbase=2.86, steerRatio=16.0, centerToFrontRatio=0.5),
   )
+  CHEVROLET_SUBURBAN = GMPlatformConfig(
+    [GMCarDocs("Chevrolet Suburban 2016-20")],
+    CHEVROLET_SUBURBAN_CC.specs,
+  )
 
 
 class CruiseButtons:
