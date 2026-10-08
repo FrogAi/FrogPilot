@@ -1,7 +1,7 @@
 from opendbc.car import CanBusBase
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.honda.values import (HondaFlags, HONDA_BOSCH, HONDA_BOSCH_ALT_RADAR, HONDA_BOSCH_RADARLESS,
-                                      HONDA_BOSCH_CANFD, CarControllerParams)
+                                      HONDA_BOSCH_CANFD, CarControllerParams, CAR)
 
 # CAN bus layout with relay
 # 0 = ACC-CAN - radar side
@@ -69,6 +69,11 @@ def create_brake_command(packer, CAN, apply_brake, pump_on, pcm_override, pcm_ca
   }
 
   # FrogPilot variables
+  if car_fingerprint == CAR.HONDA_CLARITY:
+    values["BRAKE_PUMP_REQUEST"] = False
+    values["BRAKE_PUMP_REQUEST_HYBRID"] = brake_rq
+    values["COMPUTER_BRAKE"] = 0
+    values["COMPUTER_BRAKE_HYBRID"] = apply_brake
 
   return packer.make_can_msg("BRAKE_COMMAND", CAN.pt, values)
 
