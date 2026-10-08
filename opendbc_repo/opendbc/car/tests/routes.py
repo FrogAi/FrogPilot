@@ -44,6 +44,7 @@ non_tested_cars = [
 non_tested_cars.extend(CC_ONLY_CAR)
 
 # FrogPilot variables
+non_tested_cars.append(GM.BUICK_BABYENCLAVE)
 
 
 class CarTestRoute(NamedTuple):

@@ -244,6 +244,10 @@ class CAR(Platforms):
     CHEVROLET_TRAILBLAZER.specs,
   )
   # FrogPilot variables
+  BUICK_BABYENCLAVE = GMSDGMPlatformConfig(
+    [GMCarDocs("Buick Baby Enclave 2020-23", "Driver Assist Package")],
+    CarSpecs(mass=2050, wheelbase=2.86, steerRatio=16.0, centerToFrontRatio=0.5),
+  )
 
 
 class CruiseButtons:
@@ -351,3 +355,4 @@ EV_CAR.update({CAR.CHEVROLET_BOLT_2017, CAR.CHEVROLET_BOLT_2018, CAR.CHEVROLET_B
 DBC = CAR.create_dbc_map()
 
 # FrogPilot variables
+SDGM_CAR.add(CAR.BUICK_BABYENCLAVE)
