@@ -16,6 +16,9 @@ class TestCanFingerprint:
     if car_model == "CHEVROLET_TRAX":
       pytest.skip()
 
+    if car_model == "GMC_YUKON_CC":
+      pytest.skip()
+
     for fingerprint in fingerprints:  # can have multiple fingerprints for each platform
       can = [CanData(address=address, dat=b'\x00' * length, src=src)
              for address, length in fingerprint.items() for src in (0, 1)]

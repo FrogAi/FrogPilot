@@ -262,6 +262,10 @@ class CAR(Platforms):
     [GMCarDocs("Chevrolet Volt (NO ACC) 2017-18")],
     CHEVROLET_VOLT.specs,
   )
+  GMC_YUKON_CC = GMPlatformConfig(
+    [GMCarDocs("GMC Yukon (NO ACC) 2017")],
+    CarSpecs(mass=2541, wheelbase=2.95, steerRatio=17.3, centerToFrontRatio=0.48),
+  )
 
 
 class CruiseButtons:
@@ -371,6 +375,8 @@ DBC = CAR.create_dbc_map()
 # FrogPilot variables
 CAMERA_ACC_CAR.add(CAR.CHEVROLET_TRAX)
 CAMERA_ACC_CAR.add(CAR.CHEVROLET_VOLT_CC)
+CAMERA_ACC_CAR.add(CAR.GMC_YUKON_CC)
 CC_ONLY_CAR.add(CAR.CHEVROLET_VOLT_CC)
+CC_ONLY_CAR.add(CAR.GMC_YUKON_CC)
 EV_CAR.add(CAR.CHEVROLET_VOLT_CC)
 SDGM_CAR.add(CAR.BUICK_BABYENCLAVE)
