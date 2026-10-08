@@ -48,6 +48,7 @@ non_tested_cars.append(FORD.FORD_EDGE_MK2)
 non_tested_cars.append(GM.BUICK_BABYENCLAVE)
 non_tested_cars.append(GM.CHEVROLET_SUBURBAN)
 non_tested_cars.append(GM.CHEVROLET_TRAX)
+non_tested_cars.append(HONDA.HONDA_CLARITY)
 
 
 class CarTestRoute(NamedTuple):

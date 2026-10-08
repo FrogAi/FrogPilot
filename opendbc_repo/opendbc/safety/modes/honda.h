@@ -40,6 +40,7 @@ typedef enum {HONDA_NIDEC, HONDA_BOSCH} HondaHw;
 static HondaHw honda_hw = HONDA_NIDEC;
 
 // FrogPilot variables
+static bool honda_clarity_brake_msg = false;
 
 
 static unsigned int honda_get_pt_bus(void) {
@@ -175,6 +176,9 @@ static void honda_rx_hook(const CANPacket_t *msg) {
       int honda_stock_brake = (msg->data[0] << 2) | (msg->data[1] >> 6);
 
       // FrogPilot variables
+      if (honda_clarity_brake_msg) {
+        honda_stock_brake = (msg->data[6] << 2) | (msg->data[7] >> 6);
+      }
 
       // Forward AEB when stock braking is higher than openpilot braking
       // only stop forwarding when AEB event is over
@@ -229,6 +233,9 @@ static bool honda_tx_hook(const CANPacket_t *msg) {
     honda_brake = (msg->data[0] << 2) + ((msg->data[1] >> 6) & 0x3U);
 
     // FrogPilot variables
+    if (honda_clarity_brake_msg) {
+      honda_brake = (msg->data[6] << 2) + ((msg->data[7] >> 6) & 0x3U);
+    }
 
     if (longitudinal_brake_checks(honda_brake, HONDA_NIDEC_LONG_LIMITS)) {
       tx = false;
@@ -353,8 +360,10 @@ static safety_config honda_nidec_init(uint16_t param) {
 
   // FrogPilot variables
   const uint16_t HONDA_PARAM_GAS_INTERCEPTOR = 32;
+  const uint16_t HONDA_PARAM_CLARITY = 64;
 
   enable_gas_interceptor = GET_FLAG(param, HONDA_PARAM_GAS_INTERCEPTOR);
+  honda_clarity_brake_msg = GET_FLAG(param, HONDA_PARAM_CLARITY);
 
   if (enable_gas_interceptor) {
     static CanMsg HONDA_N_INTERCEPTOR_TX_MSGS[] = {{0xE4, 0, 5, .check_relay = true}, {0x194, 0, 4, .check_relay = true}, {0x1FA, 0, 8, .check_relay = false},

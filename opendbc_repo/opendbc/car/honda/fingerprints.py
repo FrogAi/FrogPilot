@@ -1067,4 +1067,23 @@ FW_VERSIONS = {
     ],
   },
   # FrogPilot variables
+  CAR.HONDA_CLARITY: {
+    (Ecu.shiftByWire, 0x18da0bf1, None): [
+      b'54008-TRW-A910\x00\x00',
+    ],
+    (Ecu.vsa, 0x18da28f1, None): [
+      b'57114-TRW-A010\x00\x00',
+      b'57114-TRW-A020\x00\x00',
+    ],
+    (Ecu.eps, 0x18da30f1, None): [
+      b'39990-TRW-A020\x00\x00',
+    ],
+    (Ecu.srs, 0x18da53f1, None): [
+      b'77959-TRW-A210\x00\x00',
+      b'77959-TRW-A220\x00\x00',
+    ],
+    (Ecu.gateway, 0x18daeff1, None): [
+      b'38897-TRW-A010\x00\x00',
+    ],
+  },
 }
