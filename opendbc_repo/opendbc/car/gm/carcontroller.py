@@ -1,9 +1,10 @@
 import numpy as np
 from opendbc.can import CANPacker
-from opendbc.car import Bus, DT_CTRL, create_gas_interceptor_command, structs
+from opendbc.car import ACCELERATION_DUE_TO_GRAVITY, Bus, DT_CTRL, create_gas_interceptor_command, structs
 from opendbc.car.lateral import apply_driver_steer_torque_limits
 from opendbc.car.gm import gmcan
 from opendbc.car.common.conversions import Conversions as CV
+from opendbc.car.common.filter_simple import FirstOrderFilter
 from opendbc.car.gm.values import CAMERA_ACC_CAR, CC_ONLY_CAR, DBC, CanBus, CarControllerParams, CruiseButtons, GMFlags
 from opendbc.car.interfaces import CarControllerBase
 from opendbc.safety import ALTERNATIVE_EXPERIENCE
@@ -18,6 +19,21 @@ CAMERA_CANCEL_DELAY_FRAMES = 10
 MIN_STEER_MSG_INTERVAL_MS = 15
 
 # FrogPilot variables
+BRAKE_PITCH_FACTOR_BP = [5., 10.]
+BRAKE_PITCH_FACTOR_V = [0., 1.]
+LONGITUDINAL_STEP = 4
+PITCH_DEADZONE = 0.01
+PITCH_FILTER_TIME_CONSTANT = 0.09 * LONGITUDINAL_STEP
+
+
+def apply_deadzone(error, deadzone):
+  if error > deadzone:
+    error -= deadzone
+  elif error < -deadzone:
+    error += deadzone
+  else:
+    error = 0.
+  return error
 
 
 class CarController(CarControllerBase):
@@ -42,6 +58,8 @@ class CarController(CarControllerBase):
 
     # FrogPilot variables
     self.send_main_off = self.CP.carFingerprint in CAMERA_ACC_CAR
+
+    self.pitch = FirstOrderFilter(0., PITCH_FILTER_TIME_CONSTANT, DT_CTRL * LONGITUDINAL_STEP)
 
   # OPGM variables
   @staticmethod
@@ -105,14 +123,22 @@ class CarController(CarControllerBase):
         interceptor_gas_cmd = 0
 
         # FrogPilot variables
+        accel = actuators.accel
+        brake_accel = actuators.accel
+        if len(CC.orientationNED) == 3:
+          self.pitch.update(CC.orientationNED[1])
+          if self.frogpilot_toggles.long_pitch:
+            accel_due_to_pitch = ACCELERATION_DUE_TO_GRAVITY * apply_deadzone(self.pitch.x, PITCH_DEADZONE)
+            accel += accel_due_to_pitch
+            brake_accel += accel_due_to_pitch * np.interp(CS.out.vEgo, BRAKE_PITCH_FACTOR_BP, BRAKE_PITCH_FACTOR_V)
 
         if not CC.longActive:
           # ASCM sends max regen when not enabled
           self.apply_gas = self.params.INACTIVE_REGEN
           self.apply_brake = 0
         else:
-          self.apply_gas = float(np.interp(actuators.accel, self.params.GAS_LOOKUP_BP, self.params.GAS_LOOKUP_V))
-          self.apply_brake = int(round(np.interp(actuators.accel, self.params.BRAKE_LOOKUP_BP, self.params.BRAKE_LOOKUP_V)))
+          self.apply_gas = float(np.interp(accel, self.params.GAS_LOOKUP_BP, self.params.GAS_LOOKUP_V))
+          self.apply_brake = int(round(np.interp(brake_accel, self.params.BRAKE_LOOKUP_BP, self.params.BRAKE_LOOKUP_V)))
           # Don't allow any gas above inactive regen while stopping
           # FIXME: brakes aren't applied immediately when enabling at a stop
           if stopping:
