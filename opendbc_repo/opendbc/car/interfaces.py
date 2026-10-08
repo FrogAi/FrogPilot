@@ -200,6 +200,9 @@ class CarInterfaceBase(ABC):
       elif platform in HONDA:
         fp_ret.canUsePedal = candidate not in HONDA_BOSCH
 
+        if candidate not in HONDA_BOSCH and frogpilot_toggles.honda_alt_tune:
+          CP.longitudinalTuning.kiV = [0.6, 0.4, 0.25]
+
       elif platform in HYUNDAI:
         if candidate in CANFD_CAR:
           can_bus = HyundaiCanBus(CP)
