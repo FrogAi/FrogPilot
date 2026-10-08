@@ -256,6 +256,10 @@ class CAR(Platforms):
     [GMCarDocs("Chevrolet TRAX 2024")],
     CarSpecs(mass=1365, wheelbase=2.7, steerRatio=16.4, centerToFrontRatio=0.4),
   )
+  CHEVROLET_VOLT_CC = GMPlatformConfig(
+    [GMCarDocs("Chevrolet Volt (NO ACC) 2017-18")],
+    CHEVROLET_VOLT.specs,
+  )
 
 
 class CruiseButtons:
@@ -364,4 +368,7 @@ DBC = CAR.create_dbc_map()
 
 # FrogPilot variables
 CAMERA_ACC_CAR.add(CAR.CHEVROLET_TRAX)
+CAMERA_ACC_CAR.add(CAR.CHEVROLET_VOLT_CC)
+CC_ONLY_CAR.add(CAR.CHEVROLET_VOLT_CC)
+EV_CAR.add(CAR.CHEVROLET_VOLT_CC)
 SDGM_CAR.add(CAR.BUICK_BABYENCLAVE)
