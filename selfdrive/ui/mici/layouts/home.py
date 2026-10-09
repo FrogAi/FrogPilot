@@ -6,6 +6,7 @@ from collections.abc import Callable
 from openpilot.system.ui.widgets.label import gui_label, MiciLabel, UnifiedLabel
 from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.lib.application import gui_app, FontWeight, DEFAULT_TEXT_COLOR, MousePos
+from openpilot.frogpilot.ui.mici.frogpilot_home import frogpilot_model_name, version_second_line
 from openpilot.frogpilot.ui.mici.frogpilot_theme import theme
 from openpilot.selfdrive.ui.ui_state import ui_state
 from openpilot.system.ui.text import wrap_text
@@ -201,9 +202,9 @@ class MiciHomeLayout(Widget):
       self._branch_label.set_position(version_pos.x + self._version_label.rect.width + self._date_label.rect.width + 20, version_pos.y)
       self._branch_label.render()
 
-      if not release_branch:
+      if not release_branch or frogpilot_model_name():
         # 2nd line
-        self._version_commit_label.set_text(self._version_text[2])
+        self._version_commit_label.set_text(version_second_line(self._version_text[2], release_branch))
         self._version_commit_label.set_position(version_pos.x, version_pos.y + self._date_label.font_size + 7)
         self._version_commit_label.render()
 

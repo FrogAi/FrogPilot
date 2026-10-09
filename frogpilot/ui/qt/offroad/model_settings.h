@@ -20,6 +20,7 @@ private:
   QStringList deletableModels();
   QStringList modelNames(const QStringList &modelIds);
   void refreshModels();
+  void updateModelLabels(FrogPilotListWidget *labelsList);
   void updateState(const UIState &s, const FrogPilotUIState &fs);
   void updateToggles();
 
