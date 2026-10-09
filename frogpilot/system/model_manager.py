@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import random
 import requests
 import tarfile
 import threading
@@ -64,6 +65,23 @@ class ModelManager:
 
   def missing_models(self):
     return [model["id"] for model in frogpilot_variables.get_models() if not (frogpilot_paths.MODELS_PATH / model["id"]).is_dir()]
+
+  def randomize_model(self, new_drive):
+    blacklisted_models = self.params.get("BlacklistedModels").split(",")
+    randomized_model = self.params.get("RandomizedModel")
+
+    selectable_models = [model_id for model_id in self.downloaded_models() + [frogpilot_variables.DEFAULT_MODEL["id"]] if model_id not in blacklisted_models]
+    if not selectable_models:
+      selectable_models = [frogpilot_variables.DEFAULT_MODEL["id"]]
+
+    if randomized_model in selectable_models:
+      if not new_drive:
+        return
+
+      if len(selectable_models) > 1:
+        selectable_models.remove(randomized_model)
+
+    self.params.put("RandomizedModel", random.choice(selectable_models))
 
   def remove_outdated_models(self, repo_url):
     for model_id in self.downloaded_models():
