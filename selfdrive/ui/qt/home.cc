@@ -11,6 +11,7 @@
 
 #include "frogpilot/ui/qt/widgets/drive_stats.h"
 #include "frogpilot/ui/qt/widgets/drive_summary.h"
+#include "frogpilot/ui/qt/widgets/model_review.h"
 
 // HomeWindow: the container for the offroad and onroad UIs
 
@@ -176,6 +177,13 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
       left_widget->setCurrentIndex(0);
     });
 
+    FrogPilotModelReview *model_review = new FrogPilotModelReview(this);
+    left_widget->addWidget(model_review);
+
+    QObject::connect(model_review, &FrogPilotModelReview::driveRated, [left_widget]() {
+      left_widget->setCurrentIndex(1);
+    });
+
     home_layout->addWidget(left_widget, 1);
 
     // right: ExperimentalModeButton, SetupWidget, Random Events Summary
@@ -204,10 +212,10 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
     QObject::connect(random_events_summary, &FrogPilotDriveSummary::panelClosed, [=]() {
       right_widget->setCurrentIndex(0);
     });
-    QObject::connect(uiState(), &UIState::offroadTransition, [left_widget, right_widget](bool offroad) {
+    QObject::connect(uiState(), &UIState::offroadTransition, [left_widget, model_review, right_widget](bool offroad) {
       static bool previouslyOnroad = false;
       if (offroad && previouslyOnroad) {
-        left_widget->setCurrentIndex(1);
+        left_widget->setCurrentIndex(model_review->reviewReady() ? 2 : 1);
         if (frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value("random_events").toBool()) {
           right_widget->setCurrentIndex(1);
         }
@@ -275,7 +283,8 @@ void OffroadHome::refresh() {
   date->setText(QLocale(uiState()->language.mid(5)).toString(QDateTime::currentDateTime(), "dddd, MMMM d"));
   date->setVisible(util::system_time_valid());
 
-  version->setText(getBrand() + " v" + getVersion().left(14).trimmed() + " - " + frogpilot_toggles.value("model_name").toString());
+  QString modelName = frogpilot_toggles.value("model_randomizer").toBool() ? tr("Mystery Model 👻") : frogpilot_toggles.value("model_name").toString();
+  version->setText(getBrand() + " v" + getVersion().left(14).trimmed() + " - " + modelName);
 
   bool updateAvailable = update_widget->refresh();
   int alerts = alerts_widget->refresh();

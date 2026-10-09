@@ -651,7 +651,10 @@ class FrogPilotVariables:
     toggle.model_randomizer = self.get_value("ModelRandomizer")
     toggle.models_path = str(MODELS_PATH)
     if not started:
-      model_id = self.get_value("DrivingModel", cast=None)
+      if toggle.model_randomizer:
+        model_id = self.params.get("RandomizedModel")
+      else:
+        model_id = self.get_value("DrivingModel", cast=None)
 
       model = models.get(model_id) if (MODELS_PATH / model_id).is_dir() else None
 

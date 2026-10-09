@@ -161,6 +161,9 @@ def update_checks(now, model_manager, theme_manager, thread_manager, sm, params,
   time.sleep(1)
 
 def update_toggles(variables, started, model_manager, theme_manager, thread_manager, time_validated, params):
+  if not started and params.get_bool("ModelRandomizer"):
+    model_manager.randomize_model(new_drive=False)
+
   variables.update(theme_manager.holiday_theme, started)
   frogpilot_toggles = variables.frogpilot_toggles
 
@@ -216,6 +219,9 @@ def frogpilot_thread():
     if not started and started_previously:
       frogpilot_tracking.save_stats(blocking=True)
       stats_saved_count += 1
+
+      if frogpilot_toggles.model_randomizer:
+        model_manager.randomize_model(new_drive=True)
 
       frogpilot_toggles = update_toggles(variables, started, model_manager, theme_manager, thread_manager, time_validated, params)
       transition_offroad(frogpilot_planner, theme_manager, thread_manager, time_validated, params, frogpilot_toggles, api)
