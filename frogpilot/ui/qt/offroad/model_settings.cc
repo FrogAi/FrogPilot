@@ -12,6 +12,12 @@ FrogPilotModelPanel::FrogPilotModelPanel(FrogPilotSettingsWindow *parent, bool f
 
   modelLayout->addWidget(modelPanel);
 
+  FrogPilotListWidget *modelLabelsList = new FrogPilotListWidget(this);
+
+  ScrollView *modelLabelsPanel = new ScrollView(modelLabelsList, this);
+
+  modelLayout->addWidget(modelLabelsPanel);
+
   const std::vector<std::tuple<QString, QString, QString, QString>> modelToggles {
     {"AutomaticallyDownloadModels", tr("Automatically Download New Models"), tr("<b>Download new driving models on their own as they are released, so they are ready when you want to try one.</b><br><br>This runs whenever the device is on Wi-Fi or another unmetered connection, including while you are driving. It also grabs every model that is not already on the device, not just newly released ones, so anything you removed with \"Delete Driving Models\" comes back."), ""},
     {"DeleteModel", tr("Delete Driving Models"), tr("<b>Remove driving models you have downloaded to free up storage.</b><br><br>\"DELETE\" lets you pick which ones, \"DELETE ALL\" removes the rest. The model you are currently using and the one FrogPilot ships with are always kept. Turn \"Automatically Download New Models\" off first, or anything you delete is downloaded again within the hour whenever the device is on Wi-Fi or another unmetered connection."), ""},
@@ -96,9 +102,68 @@ FrogPilotModelPanel::FrogPilotModelPanel(FrogPilotSettingsWindow *parent, bool f
       });
       modelToggle = downloadModelButton;
     } else if (param == "ManageBlacklistedModels") {
-      modelToggle = new FrogPilotButtonsControl(title, desc, icon, {tr("ADD"), tr("REMOVE"), tr("REMOVE ALL")});
+      FrogPilotButtonsControl *blacklistButton = new FrogPilotButtonsControl(title, desc, icon, {tr("ADD"), tr("REMOVE"), tr("REMOVE ALL")});
+      QObject::connect(blacklistButton, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
+        QStringList blacklistedModels = QString::fromStdString(params.get("BlacklistedModels")).split(",", QString::SkipEmptyParts);
+
+        if (id == 0) {
+          QStringList blacklistableModels;
+          for (const QString &modelId : QStringList{defaultModel} + downloadedModels) {
+            if (!blacklistedModels.contains(modelId)) {
+              blacklistableModels.append(modelId);
+            }
+          }
+
+          if (blacklistableModels.isEmpty()) {
+            ConfirmationDialog::alert(tr("There are no driving models available to blacklist."), this);
+          } else if (blacklistableModels.size() == 1) {
+            ConfirmationDialog::alert(tr("There are no more driving models to blacklist. The only available model is \"%1\"!").arg(modelName(blacklistableModels.first())), this);
+          } else {
+            QString modelToBlacklist = MultiOptionDialog::getSelection(tr("Select a driving model to add to the blacklist"), modelNames(blacklistableModels), "", this);
+            if (!modelToBlacklist.isEmpty() && ConfirmationDialog::confirm(tr("Are you sure you want to add the \"%1\" model to the blacklist?").arg(modelToBlacklist), tr("Add"), this)) {
+              blacklistedModels.append(modelId(modelToBlacklist));
+
+              params.put("BlacklistedModels", blacklistedModels.join(",").toStdString());
+
+              frogpilotUIState()->updateToggles();
+            }
+          }
+        } else if (id == 1) {
+          QStringList whitelistableModels = modelNames(blacklistedModels);
+          whitelistableModels.sort();
+
+          if (whitelistableModels.isEmpty()) {
+            ConfirmationDialog::alert(tr("You have not blacklisted any driving models."), this);
+            return;
+          }
+
+          QString modelToWhitelist = MultiOptionDialog::getSelection(tr("Select a driving model to remove from the blacklist"), whitelistableModels, "", this);
+          if (!modelToWhitelist.isEmpty() && ConfirmationDialog::confirm(tr("Are you sure you want to remove the \"%1\" model from the blacklist?").arg(modelToWhitelist), tr("Remove"), this)) {
+            blacklistedModels.removeAll(modelId(modelToWhitelist));
+
+            params.put("BlacklistedModels", blacklistedModels.join(",").toStdString());
+          }
+        } else if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to remove all of your blacklisted driving models?"), this)) {
+          params.remove("BlacklistedModels");
+        }
+      });
+      modelToggle = blacklistButton;
     } else if (param == "ManageScores") {
-      modelToggle = new FrogPilotButtonsControl(title, desc, icon, {tr("RESET"), tr("VIEW")});
+      FrogPilotButtonsControl *manageScoresButton = new FrogPilotButtonsControl(title, desc, icon, {tr("RESET"), tr("VIEW")});
+      QObject::connect(manageScoresButton, &FrogPilotButtonsControl::buttonClicked, [modelLayout, modelLabelsList, modelLabelsPanel, this](int id) {
+        if (id == 0) {
+          if (FrogPilotConfirmationDialog::yesorno(tr("Reset how many drives and what rating each driving model has? Your drives themselves are not touched."), this)) {
+            params.remove("ModelDrivesAndScores");
+          }
+        } else {
+          emit openSubPanel();
+
+          updateModelLabels(modelLabelsList);
+
+          modelLayout->setCurrentWidget(modelLabelsPanel);
+        }
+      });
+      modelToggle = manageScoresButton;
     } else if (param == "SelectModel") {
       selectModelButton = new ButtonControl(title, tr("SELECT"), desc);
       QObject::connect(selectModelButton, &ButtonControl::clicked, [this]() {
@@ -134,6 +199,24 @@ FrogPilotModelPanel::FrogPilotModelPanel(FrogPilotSettingsWindow *parent, bool f
   }
 
   openDescriptions(forceOpenDescriptions, toggles);
+
+  QObject::connect(static_cast<ToggleControl*>(toggles["ModelRandomizer"]), &ToggleControl::toggleFlipped, [this](bool state) {
+    updateToggles();
+
+    if (downloadedModels.size() < availableModels.size() && !allModelsDownloading && !modelDownloading && state) {
+      FrogPilotUIState &fs = *frogpilotUIState();
+
+      if (!fs.frogpilot_scene.online || !fs.frogpilot_scene.parked) {
+        ConfirmationDialog::alert(tr("The \"Model Randomizer\" only picks from models you have downloaded. Park your car and connect to the internet to download them."), this);
+      } else if (FrogPilotConfirmationDialog::yesorno(tr("The \"Model Randomizer\" only picks from models you have downloaded. Download every model now?"), this)) {
+        frogpilotUIState()->downloadAllModels();
+
+        allModelsDownloading = true;
+
+        downloadModelButton->setValue(tr("Downloading..."));
+      }
+    }
+  });
 
   QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [modelLayout, modelPanel, this] {
     openDescriptions(forceOpenDescriptions, toggles);
@@ -273,6 +356,35 @@ void FrogPilotModelPanel::updateState(const UIState &s, const FrogPilotUIState &
   downloadModelButton->setVisibleButton(1, !modelDownloading);
 
   parent->keepScreenOn = downloading;
+}
+
+void FrogPilotModelPanel::updateModelLabels(FrogPilotListWidget *labelsList) {
+  labelsList->clear();
+
+  QJsonObject modelDrivesAndScores = QJsonDocument::fromJson(QString::fromStdString(params.get("ModelDrivesAndScores")).toUtf8()).object();
+
+  QStringList models = availableModels.values();
+  models.append(defaultModelName);
+  models.sort();
+
+  for (const QString &model : models) {
+    QJsonObject modelData = modelDrivesAndScores.value(model).toObject();
+
+    int drives = modelData.value("Drives").toInt(0);
+    int score = qRound(modelData.value("Score").toDouble());
+
+    QString drivesDisplay;
+    if (drives == 1) {
+      drivesDisplay = tr("%1 Drive").arg(drives);
+    } else if (drives > 0) {
+      drivesDisplay = tr("%1 Drives").arg(drives);
+    } else {
+      drivesDisplay = tr("N/A");
+    }
+    QString scoreDisplay = drives > 0 ? tr("Score: %1%").arg(score) : tr("N/A");
+
+    labelsList->addItem(new LabelControl(model, QString("%1 (%2)").arg(scoreDisplay, drivesDisplay), "", this));
+  }
 }
 
 void FrogPilotModelPanel::updateToggles() {
