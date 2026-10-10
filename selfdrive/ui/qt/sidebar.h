@@ -20,10 +20,12 @@ class Sidebar : public QFrame {
   Q_PROPERTY(int netStrength MEMBER net_strength NOTIFY valueChanged);
   Q_PROPERTY(bool recordingAudio MEMBER recording_audio NOTIFY valueChanged);
 
+  // FrogPilot variables
   // FrogPilot properties
-  Q_PROPERTY(ItemStatus chipStatus MEMBER chip_status NOTIFY valueChanged)
-  Q_PROPERTY(ItemStatus memoryStatus MEMBER memory_status NOTIFY valueChanged)
-  Q_PROPERTY(ItemStatus storageStatus MEMBER storage_status NOTIFY valueChanged)
+  Q_PROPERTY(ItemStatus chipStatus MEMBER chip_status NOTIFY valueChanged);
+  Q_PROPERTY(QString ipAddress MEMBER ip_address NOTIFY valueChanged);
+  Q_PROPERTY(ItemStatus memoryStatus MEMBER memory_status NOTIFY valueChanged);
+  Q_PROPERTY(ItemStatus storageStatus MEMBER storage_status NOTIFY valueChanged);
 
 public:
   explicit Sidebar(QWidget* parent = 0);
@@ -34,7 +36,7 @@ signals:
 
 public slots:
   void offroadTransition(bool offroad);
-  void updateState(const UIState &s, const FrogPilotUIState &fs);
+  void updateState(const UIState &s);
 
 protected:
   void paintEvent(QPaintEvent *event) override;
@@ -67,6 +69,7 @@ protected:
 
   // FrogPilot variables
   ItemStatus chip_status, memory_status, storage_status;
+  QString ip_address;
 
 private:
   std::unique_ptr<PubMaster> pm;
@@ -74,11 +77,12 @@ private:
 
   // FrogPilot variables
   void hideEvent(QHideEvent *event) override;
-  void showEvent(QShowEvent *event);
-  void updateHomeButton();
+  void showEvent(QShowEvent *event) override;
   void updateTheme();
 
   Params params;
+
+  QPair<int, int> gif_frames;
 
   QSharedPointer<QMovie> flag_gif;
   QSharedPointer<QMovie> home_gif;

@@ -243,6 +243,9 @@ class Platforms(str, ReprEnum, metaclass=PlatformsType):
 
 
 # OPGM variables
+PEDAL_MSG = 0x201
+
+
 def crc8_pedal(data):
   crc = 0xFF    # standard init value
   poly = 0xD5   # standard crc8: x8+x7+x6+x4+x2+1

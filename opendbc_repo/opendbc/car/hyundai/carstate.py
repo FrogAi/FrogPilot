@@ -2,12 +2,11 @@ from collections import deque
 import copy
 import math
 
-from cereal import custom
 from opendbc.can import CANDefine, CANParser
 from opendbc.car import Bus, create_button_events, structs
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.hyundai.hyundaicanfd import CanBus
-from opendbc.car.hyundai.values import HyundaiFlags, CAR, DBC, Buttons, CarControllerParams
+from opendbc.car.hyundai.values import HyundaiFlags, CAR, DBC, Buttons, CarControllerParams, HyundaiFrogPilotSafetyFlags
 from opendbc.car.interfaces import CarStateBase
 
 ButtonType = structs.CarState.ButtonEvent.Type
@@ -22,6 +21,7 @@ BUTTONS_DICT = {Buttons.RES_ACCEL: ButtonType.accelCruise, Buttons.SET_DECEL: Bu
                 Buttons.GAP_DIST: ButtonType.gapAdjustCruise, Buttons.CANCEL: ButtonType.cancel}
 
 
+# FrogPilot variables
 def calculate_speed_limit(CP, cp, cp_cam):
   if CP.flags & HyundaiFlags.CANFD:
     speed_limit_bus = cp if CP.flags & HyundaiFlags.CANFD_LKA_STEERING else cp_cam
@@ -35,8 +35,8 @@ def calculate_speed_limit(CP, cp, cp_cam):
 
 
 class CarState(CarStateBase):
-  def __init__(self, CP, FPCP):
-    super().__init__(CP, FPCP)
+  def __init__(self, CP):
+    super().__init__(CP)
     can_define = CANDefine(DBC[CP.carFingerprint][Bus.pt])
 
     self.cruise_buttons: deque = deque([Buttons.NONE] * PREV_BUTTON_SAMPLES, maxlen=PREV_BUTTON_SAMPLES)
@@ -76,13 +76,16 @@ class CarState(CarStateBase):
 
     self.params = CarControllerParams(CP)
 
+    # FrogPilot variables
+    self.taco_tune_hack = bool(CP.safetyConfigs[-1].safetyParam & HyundaiFrogPilotSafetyFlags.TACO_TUNE_HACK)
+
   def recent_button_interaction(self) -> bool:
     # On some newer model years, the CANCEL button acts as a pause/resume button based on the PCM state
     # To avoid re-engaging when openpilot cancels, check user engagement intention via buttons
     # Main button also can trigger an engagement on these cars
     return any(btn in ENABLE_BUTTONS for btn in self.cruise_buttons) or any(self.main_buttons)
 
-  def update(self, can_parsers, frogpilot_toggles) -> structs.CarState:
+  def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
 
@@ -216,11 +219,13 @@ class CarState(CarStateBase):
     ret.lowSpeedAlert = self.low_speed_alert
 
     # FrogPilot variables
-    fp_ret = custom.FrogPilotCarState.new_message()
-    if self.FPCP.hasDashboardSpeedLimit:
-      fp_ret.dashboardSpeedLimit = calculate_speed_limit(self.CP, cp, cp_cam) * speed_conv
+    self.distance_button = self.cruise_buttons[-1] == Buttons.GAP_DIST
 
-    return ret, fp_ret
+    self.fp_ret.brakeLights = bool(cp.vl["TCS13"]["BrakeLight"])
+    if self.FPCP.hasDashboardSpeedLimit:
+      self.fp_ret.dashboardSpeedLimit = calculate_speed_limit(self.CP, cp, cp_cam) * speed_conv
+
+    return ret
 
   def update_canfd(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
@@ -268,6 +273,7 @@ class CarState(CarStateBase):
     ret.leftBlinker, ret.rightBlinker = self.update_blinker_from_lamp(50, cp.vl["BLINKERS"][left_blinker_sig],
                                                                       cp.vl["BLINKERS"][right_blinker_sig])
     if self.CP.enableBsm:
+      # FrogPilot variables
       if self.CP.carFingerprint == CAR.HYUNDAI_IONIQ_6:
         ret.leftBlindspot = cp.vl["BLINDSPOTS_REAR_CORNERS"]["LEFT_MB"] != 0
         ret.rightBlindspot = cp.vl["BLINDSPOTS_REAR_CORNERS"]["MORE_LEFT_PROB"] != 0
@@ -316,11 +322,16 @@ class CarState(CarStateBase):
     ret.blockPcmEnable = not self.recent_button_interaction()
 
     # FrogPilot variables
-    fp_ret = custom.FrogPilotCarState.new_message()
-    if self.FPCP.hasDashboardSpeedLimit:
-      fp_ret.dashboardSpeedLimit = calculate_speed_limit(self.CP, cp, cp_cam) * speed_factor
+    self.distance_button = self.cruise_buttons[-1] == Buttons.GAP_DIST
 
-    return ret, fp_ret
+    if self.taco_tune_hack:
+      self.params = CarControllerParams(self.CP, ret.vEgoRaw, self.frogpilot_toggles.taco_tune_hacks)
+
+    self.fp_ret.brakeLights = bool(cp.vl["TCS"]["DriverBraking"])
+    if self.FPCP.hasDashboardSpeedLimit:
+      self.fp_ret.dashboardSpeedLimit = calculate_speed_limit(self.CP, cp, cp_cam) * speed_factor
+
+    return ret
 
   def get_can_parsers_canfd(self, CP):
     msgs = []
@@ -340,6 +351,6 @@ class CarState(CarStateBase):
       return self.get_can_parsers_canfd(CP)
 
     return {
-      Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], [], 0),
-      Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [], 2),
+      Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], [("Navi_HU", float('nan'))], 0),
+      Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [("LKAS12", float('nan'))], 2),
     }

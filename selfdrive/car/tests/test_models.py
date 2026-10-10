@@ -15,6 +15,7 @@ from opendbc.car.fingerprints import MIGRATION
 from opendbc.car.honda.values import CAR as HONDA, HondaFlags
 from opendbc.car.structs import car
 from opendbc.car.tests.routes import non_tested_cars, routes, CarTestRoute
+from opendbc.car.tests.test_car_interfaces import TOGGLES
 from opendbc.car.values import Platform, PLATFORMS
 from opendbc.safety.tests.libsafety import libsafety_py
 from openpilot.common.basedir import BASEDIR
@@ -150,6 +151,7 @@ class TestCarModelBase(unittest.TestCase):
 
     cls.CarInterface = interfaces[cls.platform]
     cls.CP = cls.CarInterface.get_params(cls.platform, cls.fingerprint, car_fw, alpha_long, False, docs=False)
+    cls.FPCP = cls.CarInterface.get_frogpilot_params(cls.platform, cls.fingerprint, car_fw, cls.CP, TOGGLES)
     assert cls.CP
     assert cls.CP.carFingerprint == cls.platform
 
@@ -160,7 +162,7 @@ class TestCarModelBase(unittest.TestCase):
     del cls.can_msgs
 
   def setUp(self):
-    self.CI = self.CarInterface(self.CP.copy())
+    self.CI = self.CarInterface(self.CP.copy(), self.FPCP)
     assert self.CI
 
     # TODO: check safetyModel is in release panda build
@@ -193,8 +195,8 @@ class TestCarModelBase(unittest.TestCase):
     CC = structs.CarControl().as_reader()
 
     for i, msg in enumerate(self.can_msgs):
-      CS = self.CI.update(msg)
-      self.CI.apply(CC, msg[0])
+      CS, _ = self.CI.update(msg, TOGGLES)
+      self.CI.apply(CC, msg[0], TOGGLES)
 
       # wait max of 2s for low frequency msgs to be seen
       if i > 250:
@@ -266,10 +268,10 @@ class TestCarModelBase(unittest.TestCase):
     def test_car_controller(car_control):
       now_nanos = 0
       msgs_sent = 0
-      CI = self.CarInterface(self.CP)
+      CI = self.CarInterface(self.CP, self.FPCP)
       for _ in range(round(10.0 / DT_CTRL)):  # make sure we hit the slowest messages
-        CI.update([])
-        _, sendcan = CI.apply(car_control, now_nanos)
+        CI.update([], TOGGLES)
+        _, sendcan = CI.apply(car_control, now_nanos, TOGGLES)
 
         now_nanos += DT_CTRL * 1e9
         msgs_sent += len(sendcan)
@@ -334,7 +336,7 @@ class TestCarModelBase(unittest.TestCase):
       self.safety.safety_rx_hook(to_send)
 
       can = [(int(time.monotonic() * 1e9), [CanData(address=address, dat=dat, src=bus)])]
-      CS = self.CI.update(can)
+      CS, _ = self.CI.update(can, TOGGLES)
       if n < 5:  # CANParser warmup time
         continue
 

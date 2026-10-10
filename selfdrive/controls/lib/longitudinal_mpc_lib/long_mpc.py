@@ -43,6 +43,7 @@ CRASH_DISTANCE = .25
 LEAD_DANGER_FACTOR = 0.75
 LIMIT_COST = 1e6
 ACADOS_SOLVER_TYPE = 'SQP_RTI'
+# FrogPilot variables
 # Default lead acceleration decay set to 50% at 1s
 LEAD_ACCEL_TAU = 1.5
 
@@ -60,9 +61,11 @@ COMFORT_BRAKE = 2.5
 STOP_DISTANCE = 6.0
 CRUISE_MIN_ACCEL = -1.2
 CRUISE_MAX_ACCEL = 1.6
+
+# FrogPilot variables
 MIN_X_LEAD_FACTOR = 0.5
 
-def get_jerk_factor(aggressive_jerk_acceleration=0.5, aggressive_jerk_danger=0.5, aggressive_jerk_speed=0.5,
+def get_jerk_factor(aggressive_jerk_acceleration=0.5, aggressive_jerk_danger=1.0, aggressive_jerk_speed=0.5,
                     standard_jerk_acceleration=1.0, standard_jerk_danger=1.0, standard_jerk_speed=1.0,
                     relaxed_jerk_acceleration=1.0, relaxed_jerk_danger=1.0, relaxed_jerk_speed=1.0,
                     custom_personalities=False, personality=log.LongitudinalPersonality.standard):
@@ -76,16 +79,18 @@ def get_jerk_factor(aggressive_jerk_acceleration=0.5, aggressive_jerk_danger=0.5
     else:
       raise NotImplementedError("Longitudinal personality not supported")
   else:
+    # FrogPilot variables
     if personality==log.LongitudinalPersonality.relaxed:
       return 1.0, 1.0, 1.0
     elif personality==log.LongitudinalPersonality.standard:
       return 1.0, 1.0, 1.0
     elif personality==log.LongitudinalPersonality.aggressive:
-      return 0.5, 0.5, 0.5
+      return 0.5, 1.0, 0.5
     else:
       raise NotImplementedError("Longitudinal personality not supported")
 
 
+# FrogPilot variables
 def get_T_FOLLOW(aggressive_follow=1.25, standard_follow=1.45, relaxed_follow=1.75, custom_personalities=False, personality=log.LongitudinalPersonality.standard):
   if custom_personalities:
     if personality==log.LongitudinalPersonality.relaxed:
@@ -97,6 +102,7 @@ def get_T_FOLLOW(aggressive_follow=1.25, standard_follow=1.45, relaxed_follow=1.
     else:
       raise NotImplementedError("Longitudinal personality not supported")
   else:
+    # FrogPilot variables
     if personality==log.LongitudinalPersonality.relaxed:
       return 1.75
     elif personality==log.LongitudinalPersonality.standard:
@@ -283,9 +289,11 @@ class LongitudinalMpc:
     self.time_linearization = 0.0
     self.time_integrator = 0.0
     self.x0 = np.zeros(X_DIM)
+    self.set_weights()
+
+    # FrogPilot variables
     self.lead_xv_0 = np.zeros((N+1, 2))
     self.lead_xv_1 = np.zeros((N+1, 2))
-    self.set_weights()
 
   def set_cost_weights(self, cost_weights, constraint_cost_weights):
     W = np.asfortranarray(np.diag(cost_weights))
@@ -332,13 +340,14 @@ class LongitudinalMpc:
     lead_xv = np.column_stack((x_lead_traj, v_lead_traj))
     return lead_xv
 
-  def process_lead(self, model_lead, radar_lead, frogpilot_toggles, traffic_mode_active):
+  def process_lead(self, lead, frogpilot_toggles, model_lead, traffic_mode_active):
     v_ego = self.x0[1]
 
+    # FrogPilot variables
     if frogpilot_toggles.human_following or traffic_mode_active:
-      if model_lead.prob > frogpilot_toggles.lead_detection_probability and radar_lead.status:
-        x_lead_traj = float(radar_lead.dRel) + (np.asarray(model_lead.x, dtype=np.float64) - model_lead.x[0])
-        v_lead_traj = float(radar_lead.vLead) + (np.asarray(model_lead.v, dtype=np.float64) - model_lead.v[0])
+      if lead.modelProb > frogpilot_toggles.lead_detection_probability:
+        x_lead_traj = float(lead.dRel) + (np.asarray(model_lead.x, dtype=np.float64) - model_lead.x[0])
+        v_lead_traj = float(lead.vLead) + (np.asarray(model_lead.v, dtype=np.float64) - model_lead.v[0])
 
         # MPC will not converge if immediate crash is expected
         # Clip lead distance to what is still possible to brake for
@@ -355,11 +364,11 @@ class LongitudinalMpc:
         x_lead_mpc[1:] = np.minimum(x_lead_mpc[1:], x_lead_max)
         return np.column_stack((x_lead_mpc, v_lead_mpc))
 
-    if radar_lead is not None and radar_lead.status:
-      x_lead = radar_lead.dRel
-      v_lead = radar_lead.vLead
-      a_lead = radar_lead.aLeadK
-      a_lead_tau = radar_lead.aLeadTau
+    if lead is not None and lead.status:
+      x_lead = lead.dRel
+      v_lead = lead.vLead
+      a_lead = lead.aLeadK
+      a_lead_tau = lead.aLeadTau
     else:
       # Fake a fast lead car, so mpc can keep running in the same mode
       x_lead = 50.0
@@ -373,15 +382,20 @@ class LongitudinalMpc:
     x_lead = np.clip(x_lead, min_x_lead, 1e8)
     v_lead = np.clip(v_lead, 0.0, 1e8)
     a_lead = np.clip(a_lead, -10., 5.)
-    return self.extrapolate_lead(x_lead, v_lead, a_lead, a_lead_tau)
+    lead_xv = self.extrapolate_lead(x_lead, v_lead, a_lead, a_lead_tau)
+    return lead_xv
 
-  def update(self, v_cruise, modelV2, radarstate, x, v, a, j, t_follow, accel_min, accel_max, frogpilot_toggles, traffic_mode_active, personality=log.LongitudinalPersonality.standard):
+  def update(self, v_cruise, modelV2, radarstate, x, v, a, j, t_follow, accel_min, accel_max, force_decel, frogpilot_toggles, traffic_mode_active, personality=log.LongitudinalPersonality.standard):
     v_ego = self.x0[1]
+
+    # FrogPilot variables
     model_leads = modelV2.leadsV3
     self.status = model_leads[0].prob > frogpilot_toggles.lead_detection_probability or model_leads[1].prob > frogpilot_toggles.lead_detection_probability
 
-    lead_xv_0 = self.process_lead(model_leads[0], radarstate.leadOne, frogpilot_toggles, traffic_mode_active)
-    lead_xv_1 = self.process_lead(model_leads[1], radarstate.leadTwo, frogpilot_toggles, traffic_mode_active)
+    lead_xv_0 = self.process_lead(radarstate.leadOne, frogpilot_toggles, model_leads[0], traffic_mode_active)
+    lead_xv_1 = self.process_lead(radarstate.leadTwo, frogpilot_toggles, model_leads[1], traffic_mode_active)
+
+    # FrogPilot variables
     self.lead_xv_0 = lead_xv_0
     self.lead_xv_1 = lead_xv_1
 
@@ -400,7 +414,7 @@ class LongitudinalMpc:
 
       # Fake an obstacle for cruise, this ensures smooth acceleration to set speed
       # when the leads are no factor.
-      v_lower = v_ego + (T_IDXS * accel_min * 1.05)
+      v_lower = v_ego + (T_IDXS * (max(CRUISE_MIN_ACCEL, accel_min) if force_decel else accel_min) * 1.05)
       # TODO does this make sense when max_a is negative?
       v_upper = v_ego + (T_IDXS * accel_max * 1.05)
       v_cruise_clipped = np.clip(v_cruise * np.ones(N+1),

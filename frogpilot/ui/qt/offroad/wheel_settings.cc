@@ -4,7 +4,7 @@ FrogPilotWheelPanel::FrogPilotWheelPanel(FrogPilotSettingsWindow *parent, bool f
   forceOpenDescriptions = forceOpen;
 
   const std::vector<std::tuple<QString, QString, QString>> wheelToggles {
-    {"DistanceButtonControl", tr("Distance Button"), tr("<b>Action performed when the \"Distance\" button is pressed.</b>")},
+    {"DistanceButtonControl", tr("Distance Button"), tr("<b>Action performed when the \"Distance\" button is pressed.</b><br><br>On GM cars with adaptive cruise, changing the \"Personality Profile\" takes a second press within 3.5 seconds of the first.")},
     {"LongDistanceButtonControl", tr("Distance Button (Long Press)"), tr("<b>Action performed when the \"Distance\" button is pressed for more than 0.5 seconds.</b><br><br>On GM cars the hold is 0.75 seconds instead.")},
     {"VeryLongDistanceButtonControl", tr("Distance Button (Very Long Press)"), tr("<b>Action performed when the \"Distance\" button is pressed for more than 2.5 seconds.</b>")},
     {"LKASButtonControl", tr("LKAS Button"), tr("<b>Action performed when the \"LKAS\" button is pressed.</b>")}
@@ -27,18 +27,7 @@ FrogPilotWheelPanel::FrogPilotWheelPanel(FrogPilotSettingsWindow *parent, bool f
     toggles[param] = wheelToggle;
 
     addItem(wheelToggle);
-
-    QObject::connect(wheelToggle, &AbstractControl::hideDescriptionEvent, [this]() {
-      update();
-    });
-    QObject::connect(wheelToggle, &AbstractControl::showDescriptionEvent, [this]() {
-      update();
-    });
   }
-
-  updateButtonValues();
-
-  openDescriptions(forceOpenDescriptions, toggles);
 }
 
 QMap<int, QString> FrogPilotWheelPanel::buttonFunctions() {
@@ -62,7 +51,7 @@ void FrogPilotWheelPanel::updateButtonValues() {
   QMap<int, QString> functionsMap = buttonFunctions();
 
   for (auto &[key, toggle] : toggles) {
-    static_cast<ButtonControl*>(toggle)->setValue(functionsMap.value(params.getInt(key.toStdString()), functionsMap.value(0)));
+    toggle->setValue(functionsMap.value(params.getInt(key.toStdString()), functionsMap.value(0)));
   }
 }
 
@@ -72,10 +61,10 @@ void FrogPilotWheelPanel::showEvent(QShowEvent *event) {
 
 void FrogPilotWheelPanel::updateToggles() {
   for (auto &[key, toggle] : toggles) {
-    bool setVisible = parent->tuningLevel >= parent->frogpilotToggleLevels[key].toDouble();
+    bool setVisible = parent->tuningLevel >= parent->frogpilotToggleLevels.value(key).toDouble();
 
     if (key == "LKASButtonControl") {
-      setVisible &= !parent->isSubaru;
+      setVisible &= parent->hasLKASButton;
       setVisible &= !parent->lkasAllowedForAOL || !(params.getBool("AlwaysOnLateral") && params.getBool("AlwaysOnLateralLKAS"));
     }
 

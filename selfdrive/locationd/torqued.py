@@ -12,7 +12,7 @@ from openpilot.common.filter_simple import FirstOrderFilter
 from openpilot.common.swaglog import cloudlog
 from openpilot.selfdrive.locationd.helpers import PointBuckets, ParameterEstimator, PoseCalibrator, Pose
 
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
+from openpilot.frogpilot.common import frogpilot_variables
 
 HISTORY = 5  # secs
 POINTS_PER_BUCKET = 1500
@@ -232,9 +232,9 @@ class TorqueEstimator(ParameterEstimator):
     if with_points:
       liveTorqueParameters.points = self.filtered_points.get_points()[:, [0, 2]].tolist()
 
-    liveTorqueParameters.latAccelFactorFiltered = float(self.filtered_params['latAccelFactor'].x if not self.frogpilot_toggles.use_custom_latAccelFactor else self.frogpilot_toggles.latAccelFactor)
+    liveTorqueParameters.latAccelFactorFiltered = float(self.filtered_params['latAccelFactor'].x)
     liveTorqueParameters.latAccelOffsetFiltered = float(self.filtered_params['latAccelOffset'].x)
-    liveTorqueParameters.frictionCoefficientFiltered = float(self.filtered_params['frictionCoefficient'].x if not self.frogpilot_toggles.use_custom_friction else self.frogpilot_toggles.friction)
+    liveTorqueParameters.frictionCoefficientFiltered = float(self.filtered_params['frictionCoefficient'].x)
     liveTorqueParameters.totalBucketPoints = len(self.filtered_points)
     liveTorqueParameters.calPerc = self.filtered_points.get_valid_percent()
     liveTorqueParameters.decay = self.decay
@@ -256,12 +256,10 @@ def main(demo=False):
   # FrogPilot variables
   sm = sm.extend(['frogpilotPlan'])
 
-  frogpilot_toggles = get_frogpilot_toggles()
+  frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
   if not frogpilot_toggles.liveValid:
     estimator = TorqueEstimator(messaging.log_from_bytes(params.get("CarParams", block=True), car.CarParams), decimated=True)
-
-  estimator.frogpilot_toggles = frogpilot_toggles
 
   while True:
     sm.update()
@@ -273,7 +271,13 @@ def main(demo=False):
 
     # 4Hz driven by livePose
     if sm.frame % 5 == 0:
-      pm.send('liveTorqueParameters', estimator.get_msg(valid=sm.all_checks(), with_points=DEBUG))
+      msg = estimator.get_msg(valid=sm.all_checks(), with_points=DEBUG)
+      # FrogPilot variables
+      if frogpilot_toggles.use_custom_latAccelFactor:
+        msg.liveTorqueParameters.latAccelFactorFiltered = float(frogpilot_toggles.latAccelFactor)
+      if frogpilot_toggles.use_custom_friction:
+        msg.liveTorqueParameters.frictionCoefficientFiltered = float(frogpilot_toggles.friction)
+      pm.send('liveTorqueParameters', msg)
 
     # Cache points every 60 seconds while onroad
     if sm.frame % 240 == 0:
@@ -281,7 +285,7 @@ def main(demo=False):
       params.put_nonblocking("LiveTorqueParameters", msg.to_bytes())
 
     # FrogPilot variables
-    estimator.frogpilot_toggles = get_frogpilot_toggles(sm)
+    frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
 
 
 if __name__ == "__main__":

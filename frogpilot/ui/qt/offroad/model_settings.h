@@ -15,19 +15,21 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
+  QString modelId(const QString &modelName);
+  QString modelName(const QString &modelId);
+  QStringList deletableModels();
+  QStringList modelNames(const QStringList &modelIds);
+  void refreshModels();
   void updateModelLabels(FrogPilotListWidget *labelsList);
   void updateState(const UIState &s, const FrogPilotUIState &fs);
   void updateToggles();
 
-  bool allModelsDownloaded = false;
   bool allModelsDownloading = false;
   bool cancellingDownload = false;
   bool finalizingDownload = false;
   bool forceOpenDescriptions;
+  bool hasDeletableModels = false;
   bool modelDownloading = false;
-  bool noModelsDownloaded = false;
-  bool tinygradUpdate = false;
-  bool updatingTinygrad = false;
 
   std::map<QString, AbstractControl*> toggles;
 
@@ -35,20 +37,18 @@ private:
 
   FrogPilotButtonsControl *deleteModelButton;
   FrogPilotButtonsControl *downloadModelButton;
-  FrogPilotButtonsControl *updateTinygradButton;
 
   FrogPilotSettingsWindow *parent;
 
   Params params;
-  Params params_memory{"", true};
 
-  QDir modelDir{"/data/models/"};
+  QDir modelsDir;
 
-  QMap<QString, QString> modelFileToNameMap;
-  QMap<QString, QString> modelFileToNameMapProcessed;
+  QMap<QString, QString> availableModels;
 
-  QString currentModel;
   QString defaultModel;
+  QString defaultModelName;
+  QString selectedModelName;
 
-  QStringList availableModelNames;
+  QStringList downloadedModels;
 };

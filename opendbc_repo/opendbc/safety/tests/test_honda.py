@@ -2,7 +2,7 @@
 import unittest
 import numpy as np
 
-from opendbc.car.honda.values import HondaSafetyFlags
+from opendbc.car.honda.values import HondaFrogPilotSafetyFlags, HondaSafetyFlags
 from opendbc.safety.tests.libsafety import libsafety_py
 import opendbc.safety.tests.common as common
 from opendbc.car.structs import CarParams
@@ -239,10 +239,10 @@ class HondaBase(common.CarSafetyTest):
 
   # FrogPilot variables
   def _toggle_aol(self, toggle_on):
-    # SCM_FEEDBACK, bit 28 is MAIN_ON
-    values = {"MAIN_ON": 1 if toggle_on else 0, "COUNTER": self.cnt_acc_state % 4}
-    self.__class__.cnt_acc_state += 1
-    return self.packer.make_can_msg_panda("SCM_FEEDBACK", self.PT_BUS, values)
+    return self._acc_state_msg(toggle_on)
+
+  def _aol_steer_msg(self):
+    return self._send_steer_msg(0x1000)
 
 
 # ********************* Honda Nidec **********************
@@ -604,6 +604,51 @@ class TestHondaBoschCANFDAltBrakeSafety(HondaPcmEnableBase, TestHondaBoschCANFDS
     self.safety.set_safety_hooks(CarParams.SafetyModel.hondaBosch, HondaSafetyFlags.BOSCH_CANFD | HondaSafetyFlags.ALT_BRAKE)
     self.safety.init_tests()
 
+
+# FrogPilot variables
+class TestHondaNidecGasInterceptorSafety(common.GasInterceptorSafetyTest, HondaButtonEnableBase, TestHondaNidecSafetyBase):
+
+  TX_MSGS = HONDA_N_COMMON_TX_MSGS + [[0x200, 0]]
+  INTERCEPTOR_THRESHOLD = 492
+
+  def setUp(self):
+    self.packer = CANPackerSafety("honda_civic_touring_2016_can_generated")
+    self.safety = libsafety_py.libsafety
+    self.safety.set_safety_hooks(CarParams.SafetyModel.hondaNidec, HondaFrogPilotSafetyFlags.GAS_INTERCEPTOR)
+    self.safety.init_tests()
+
+
+class TestHondaNidecAltGasInterceptorSafety(TestHondaNidecGasInterceptorSafety):
+
+  def setUp(self):
+    self.packer = CANPackerSafety("acura_ilx_2016_can_generated")
+    self.safety = libsafety_py.libsafety
+    self.safety.set_safety_hooks(CarParams.SafetyModel.hondaNidec, HondaSafetyFlags.NIDEC_ALT | HondaFrogPilotSafetyFlags.GAS_INTERCEPTOR)
+    self.safety.init_tests()
+
+  def _acc_state_msg(self, main_on):
+    values = {"MAIN_ON": main_on, "COUNTER": self.cnt_acc_state % 4}
+    self.__class__.cnt_acc_state += 1
+    return self.packer.make_can_msg_safety("SCM_BUTTONS", self.PT_BUS, values)
+
+  def _button_msg(self, buttons, main_on=False, bus=None):
+    bus = self.PT_BUS if bus is None else bus
+    values = {"CRUISE_BUTTONS": buttons, "MAIN_ON": main_on, "COUNTER": self.cnt_button % 4}
+    self.__class__.cnt_button += 1
+    return self.packer.make_can_msg_safety("SCM_BUTTONS", bus, values)
+
+
+class TestHondaNidecClaritySafety(TestHondaNidecPcmSafety):
+
+  def setUp(self):
+    self.packer = CANPackerSafety("honda_clarity_hybrid_2018_can_generated")
+    self.safety = libsafety_py.libsafety
+    self.safety.set_safety_hooks(CarParams.SafetyModel.hondaNidec, HondaFrogPilotSafetyFlags.CLARITY)
+    self.safety.init_tests()
+
+  def _send_brake_msg(self, brake, aeb_req=0, bus=0):
+    values = {"COMPUTER_BRAKE_HYBRID": brake, "AEB_REQ_1": aeb_req}
+    return self.packer.make_can_msg_safety("BRAKE_COMMAND", bus, values)
 
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@
 import datetime
 import os
 import signal
+import string
 import sys
 import time
 import traceback
@@ -21,11 +22,7 @@ from openpilot.common.swaglog import cloudlog, add_file_handler
 from openpilot.system.version import get_build_metadata, terms_version, training_version
 from openpilot.system.hardware.hw import Paths
 
-from openpilot.frogpilot.common.frogpilot_functions import (
-  frogpilot_boot_functions, install_frogpilot, migrate_params, run_frogsgomoo, uninstall_frogpilot
-)
-from openpilot.frogpilot.common.frogpilot_api import FrogPilotAPI
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
+from openpilot.frogpilot.common import frogpilot_functions, frogpilot_variables
 
 
 def manager_init() -> None:
@@ -46,13 +43,13 @@ def manager_init() -> None:
 
   # FrogPilot variables
   params_cache = Params("/cache/params", return_defaults=True)
-  frogpilot_api = FrogPilotAPI(params)
 
-  migrate_params(params, params_cache)
+  frogpilot_functions.migrate_params(params, params_cache)
 
   # set unset params to their default value
   for k in params.all_keys():
     current_value = params.get(k)
+    # FrogPilot variables
     if current_value is None:
       cached_value = params_cache.get(k)
       if cached_value is not None:
@@ -95,9 +92,6 @@ def manager_init() -> None:
   if not build_metadata.openpilot.is_dirty:
     os.environ['CLEAN'] = '1'
 
-  # FrogPilot variables
-  frogpilot_api.register_device(build_metadata)
-
   # init logging
   sentry.init(sentry.SentryProject.SELFDRIVE)
   cloudlog.bind_global(dongle_id=dongle_id,
@@ -109,15 +103,15 @@ def manager_init() -> None:
                        device=HARDWARE.get_device_type())
 
   # FrogPilot variables
-  run_frogsgomoo(build_metadata)
+  frogpilot_functions.run_frogsgomoo(build_metadata)
 
   # preimport all processes
   for p in managed_processes.values():
     p.prepare()
 
   # FrogPilot variables
-  install_frogpilot(build_metadata, params)
-  frogpilot_boot_functions(build_metadata, params)
+  frogpilot_functions.install_frogpilot()
+  frogpilot_functions.frogpilot_boot_functions(build_metadata, params)
 
 
 def manager_cleanup() -> None:
@@ -140,7 +134,9 @@ def manager_thread() -> None:
   params = Params()
 
   ignore: list[str] = []
-  if params.get("DongleId") in (None, UNREGISTERED_DONGLE_ID):
+  # FrogPilot variables
+  dongle_id = params.get("DongleId")
+  if dongle_id in (None, UNREGISTERED_DONGLE_ID) or not all(c in string.hexdigits for c in dongle_id):
     ignore += ["manage_athenad", "uploader"]
   if os.getenv("NOBOARD") is not None:
     ignore.append("pandad")
@@ -150,7 +146,7 @@ def manager_thread() -> None:
   pm = messaging.PubMaster(['managerState'])
 
   write_onroad_params(False, params)
-  ensure_running(managed_processes.values(), False, params=params, CP=sm['carParams'], not_run=ignore, frogpilot_toggles=get_frogpilot_toggles())
+  ensure_running(managed_processes.values(), False, params=params, CP=sm['carParams'], not_run=ignore, frogpilot_toggles=frogpilot_variables.get_frogpilot_toggles())
 
   started_prev = False
   ignition_prev = False
@@ -158,9 +154,7 @@ def manager_thread() -> None:
   # FrogPilot variables
   sm = sm.extend(['frogpilotPlan'])
 
-  params_memory = Params(memory=True)
-
-  frogpilot_toggles = get_frogpilot_toggles()
+  frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
   while True:
     sm.update(1000)
@@ -169,14 +163,8 @@ def manager_thread() -> None:
 
     if started and not started_prev and not frogpilot_toggles.force_onroad:
       params.clear_all(ParamKeyFlag.CLEAR_ON_ONROAD_TRANSITION)
-
-      # FrogPilot variables
-      params_memory.clear_all(ParamKeyFlag.CLEAR_ON_ONROAD_TRANSITION)
     elif not started and started_prev:
       params.clear_all(ParamKeyFlag.CLEAR_ON_OFFROAD_TRANSITION)
-
-      # FrogPilot variables
-      params_memory.clear_all(ParamKeyFlag.CLEAR_ON_OFFROAD_TRANSITION)
 
     ignition = any(ps.ignitionLine or ps.ignitionCan for ps in sm['pandaStates'] if ps.pandaType != log.PandaState.PandaType.unknown)
     if ignition and not ignition_prev:
@@ -211,7 +199,7 @@ def manager_thread() -> None:
 
     # Exit main loop when uninstall/shutdown/reboot is needed
     shutdown = False
-    for param in ("DoUninstall", "DoShutdown", "DoReboot"):
+    for param in ("DoUninstall", "DoShutdown", "DoReboot", "DoSoftReboot"):
       if params.get_bool(param):
         shutdown = True
         params.put("LastManagerExitReason", f"{param} {datetime.datetime.now()}")
@@ -221,7 +209,7 @@ def manager_thread() -> None:
       break
 
     # FrogPilot variables
-    frogpilot_toggles = get_frogpilot_toggles(sm)
+    frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
 
 
 def main() -> None:
@@ -243,13 +231,17 @@ def main() -> None:
   params = Params()
   if params.get_bool("DoUninstall"):
     cloudlog.warning("uninstalling")
-    uninstall_frogpilot()
+    frogpilot_functions.uninstall_frogpilot()
   elif params.get_bool("DoReboot"):
     cloudlog.warning("reboot")
     HARDWARE.reboot()
   elif params.get_bool("DoShutdown"):
     cloudlog.warning("shutdown")
     HARDWARE.shutdown()
+  # FrogPilot variables
+  elif params.get_bool("DoSoftReboot"):
+    cloudlog.warning("soft reboot")
+    frogpilot_functions.soft_reboot()
 
 
 if __name__ == "__main__":

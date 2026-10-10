@@ -13,9 +13,10 @@ from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.widgets.button import Button, ButtonStyle
 from openpilot.system.ui.widgets.label import gui_label, gui_text_box
 
-NVME = "/dev/nvme0n1"
 USERDATA = "/dev/disk/by-partlabel/userdata"
 TIMEOUT = 3*60
+# FrogPilot variables
+NVME = "/dev/nvme0n1"
 
 
 class ResetMode(IntEnum):
@@ -49,6 +50,7 @@ class Reset(Widget):
     if PC:
       return
 
+    # FrogPilot variables
     # Best effort to wipe NVME
     os.system(f"sudo umount {NVME}")
     os.system(f"yes | sudo mkfs.ext4 {NVME}")

@@ -1,6 +1,5 @@
 import copy
 
-from cereal import custom
 from opendbc.can import CANDefine, CANParser
 from opendbc.car import Bus, DT_CTRL, create_button_events, structs
 from opendbc.car.common.conversions import Conversions as CV
@@ -25,6 +24,7 @@ TEMP_STEER_FAULTS = (0, 9, 11, 21, 25)
 PERM_STEER_FAULTS = (3, 17)
 
 
+# FrogPilot variables
 # Traffic signals for Speed Limit Controller - Credit goes to the DragonPilot team!
 def calculate_speed_limit(cp_cam):
   speed_limit_unit = cp_cam.vl["RSA1"]["TSGN1"]
@@ -39,8 +39,8 @@ def calculate_speed_limit(cp_cam):
 
 
 class CarState(CarStateBase):
-  def __init__(self, CP, FPCP):
-    super().__init__(CP, FPCP)
+  def __init__(self, CP):
+    super().__init__(CP)
     can_define = CANDefine(DBC[CP.carFingerprint][Bus.pt])
     self.eps_torque_scale = EPS_SCALE[CP.carFingerprint] / 100.
     self.cluster_speed_hyst_gap = CV.KPH_TO_MS / 2.
@@ -74,12 +74,14 @@ class CarState(CarStateBase):
     self.angle_offset_zss = 0
     self.prev_pcm_acc_status = 0
 
+  # FrogPilot variables
+  def init_frogpilot_params(self):
     self.has_can_filter = self.FPCP.flags & ToyotaFrogPilotFlags.RADAR_CAN_FILTER.value
     self.has_dsu_bypass = self.FPCP.flags & ToyotaFrogPilotFlags.DSU_BYPASS.value
     self.has_SDSU = self.FPCP.flags & ToyotaFrogPilotFlags.SMART_DSU.value
     self.has_ZSS = self.FPCP.flags & ToyotaFrogPilotFlags.ZSS.value
 
-  def update(self, can_parsers, frogpilot_toggles) -> structs.CarState:
+  def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
 
@@ -113,7 +115,7 @@ class CarState(CarStateBase):
       cp.vl["WHEEL_SPEEDS"]["WHEEL_SPEED_RL"],
       cp.vl["WHEEL_SPEEDS"]["WHEEL_SPEED_RR"],
     )
-    ret.vEgoCluster = ret.vEgo * frogpilot_toggles.cluster_offset
+    ret.vEgoCluster = ret.vEgo * self.frogpilot_toggles.cluster_offset
 
     ret.standstill = abs(ret.vEgoRaw) < 1e-3
 
@@ -174,6 +176,7 @@ class CarState(CarStateBase):
       ret.cruiseState.speedCluster = cluster_set_speed * conversion_factor
 
     if (self.CP.carFingerprint in TSS2_CAR and not self.CP.flags & ToyotaFlags.DISABLE_RADAR.value) or self.has_dsu_bypass:
+      # FrogPilot variables
       if not self.has_SDSU:
         self.acc_type = cp_acc.vl["ACC_CONTROL"]["ACC_TYPE"]
       ret.stockFcw = bool(cp_acc.vl["PCS_HUD"]["FCW"])
@@ -226,8 +229,6 @@ class CarState(CarStateBase):
         buttonEvents += create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
 
     # FrogPilot variables
-    fp_ret = custom.FrogPilotCarState.new_message()
-
     if self.has_SDSU and not self.has_can_filter:
       prev_distance_button = self.distance_button
       self.distance_button = cp.vl["SDSU"]["FD_BUTTON"]
@@ -242,11 +243,12 @@ class CarState(CarStateBase):
 
       buttonEvents += create_button_events(1, 0, {1: button_type}) + create_button_events(0, 1, {1: button_type})
 
-    fp_ret.dashboardSpeedLimit = calculate_speed_limit(cp_cam)
+    self.fp_ret.brakeLights = bool(cp.vl["ESP_CONTROL"]["BRAKE_LIGHTS_ACC"])
+    self.fp_ret.dashboardSpeedLimit = calculate_speed_limit(cp_cam)
 
     if not self.CP.flags & ToyotaFlags.SECOC.value:
-      fp_ret.ecoGear = cp.vl["GEAR_PACKET"]["ECON_ON"] == 1
-      fp_ret.sportGear = cp.vl["GEAR_PACKET"]["SPORT_ON_2" if self.CP.flags & ToyotaFlags.NO_DSU else "SPORT_ON"] == 1
+      self.fp_ret.ecoGear = cp.vl["GEAR_PACKET"]["ECON_ON"] == 1
+      self.fp_ret.sportGear = cp.vl["GEAR_PACKET"]["SPORT_ON_2" if self.CP.flags & ToyotaFlags.NO_DSU else "SPORT_ON"] == 1
 
     self.prev_pcm_acc_status = self.pcm_acc_status
 
@@ -266,9 +268,12 @@ class CarState(CarStateBase):
         if abs(ret.steeringAngleDeg - zorro_steer_value) < 4.0:
           ret.steeringAngleDeg = zorro_steer_value
 
-    ret.buttonEvents = buttonEvents
+    if self.CP.enableGasInterceptorDEPRECATED:
+      gas = (cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS"] + cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS2"]) // 2
+      ret.gasPressed = gas > 805
 
-    return ret, fp_ret
+    ret.buttonEvents = buttonEvents
+    return ret
 
   @staticmethod
   def get_can_parsers(CP):
@@ -278,5 +283,5 @@ class CarState(CarStateBase):
 
     return {
       Bus.pt: CANParser(DBC[CP.carFingerprint][Bus.pt], pt_messages, 0),
-      Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [], 2),
+      Bus.cam: CANParser(DBC[CP.carFingerprint][Bus.pt], [("RSA1", float('nan'))], 2),
     }

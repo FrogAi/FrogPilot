@@ -26,8 +26,7 @@ DriverMonitorRenderer::DriverMonitorRenderer() : face_kpts_draw(std::size(DEFAUL
 
 void DriverMonitorRenderer::updateState(const UIState &s) {
   auto &sm = *(s.sm);
-  is_visible = sm["selfdriveState"].getSelfdriveState().getAlertSize() == cereal::SelfdriveState::AlertSize::NONE &&
-               sm.rcv_frame("driverStateV2") > s.scene.started_frame;
+  is_visible = sm.rcv_frame("driverStateV2") > s.scene.started_frame;
   if (!is_visible) return;
 
   auto dm_state = sm["driverMonitoringState"].getDriverMonitoringState();
@@ -64,17 +63,13 @@ void DriverMonitorRenderer::updateState(const UIState &s) {
 }
 
 void DriverMonitorRenderer::draw(QPainter &painter, const QRect &surface_rect) {
-  if (!is_visible) return;
-
-  painter.save();
-
   int offset = UI_BORDER_SIZE + btn_size / 2;
   float x = is_rhd ? surface_rect.width() - offset : offset;
   float y = surface_rect.height() - offset;
   float opacity = is_active ? 0.65f : 0.2f;
 
   // FrogPilot variables
-  if (onroad_distance_btn_enabled) {
+  if (frogpilot_toggles.value(QLatin1String("onroad_distance_button")).toBool()) {
     if (is_rhd) {
       x -= UI_BORDER_SIZE + (btn_size + UI_BORDER_SIZE) + UI_BORDER_SIZE;
     } else {
@@ -82,9 +77,22 @@ void DriverMonitorRenderer::draw(QPainter &painter, const QRect &surface_rect) {
     }
   }
 
-  if (frogpilot_toggles.value("road_name_ui").toBool()) {
+  if (frogpilot_toggles.value(QLatin1String("road_name_ui")).toBool()) {
     y -= UI_BORDER_SIZE;
   }
+
+  if (frogpilot_nvg) {
+    frogpilot_nvg->dmIconPosition = QPoint(x, y);
+    frogpilot_nvg->rightHandDM = is_rhd;
+
+    if (frogpilot_nvg->hideBottomIcons) {
+      return;
+    }
+  }
+
+  if (!is_visible) return;
+
+  painter.save();
 
   drawIcon(painter, QPoint(x, y), dm_img, QColor(0, 0, 0, 70), opacity);
 
@@ -117,11 +125,4 @@ void DriverMonitorRenderer::draw(QPainter &painter, const QRect &surface_rect) {
   painter.drawArc(QRectF(x - arc_l / 2, std::min(y + delta_y, y), arc_l, std::abs(delta_y)), (driver_pose_sins[0] > 0 ? 0 : 180) * 16, 180 * 16);
 
   painter.restore();
-
-  // FrogPilot variables
-  if (frogpilot_nvg) {
-    frogpilot_nvg->dmIconPosition.setX(x);
-    frogpilot_nvg->dmIconPosition.setY(y);
-    frogpilot_nvg->rightHandDM = is_rhd;
-  }
 }

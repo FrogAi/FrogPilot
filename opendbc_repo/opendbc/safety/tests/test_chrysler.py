@@ -3,9 +3,10 @@ import unittest
 
 from opendbc.car.chrysler.values import ChryslerSafetyFlags
 from opendbc.car.structs import CarParams
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 from opendbc.safety.tests.libsafety import libsafety_py
 import opendbc.safety.tests.common as common
-from opendbc.safety.tests.common import CANPackerSafety
+from opendbc.safety.tests.common import CANPackerSafety, MAX_WRONG_COUNTERS
 
 
 class TestChryslerSafety(common.CarSafetyTest, common.MotorTorqueSteeringSafetyTest):
@@ -75,7 +76,29 @@ class TestChryslerSafety(common.CarSafetyTest, common.MotorTorqueSteeringSafetyT
   def _toggle_aol(self, toggle_on):
     # DAS_3, bit 20 is ACC_AVAILABLE
     values = {"ACC_AVAILABLE": 1 if toggle_on else 0}
-    return self.packer.make_can_msg_panda("DAS_3", self.DAS_BUS, values)
+    return self.packer.make_can_msg_safety("DAS_3", self.DAS_BUS, values)
+
+  def test_always_on_lateral_invalid_msg(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    for invalid in ("checksum", "counter", "lag"):
+      msg = self._torque_meas_msg(0)
+      for rx_msg in (self._speed_msg(0), self._user_brake_msg(False), self._user_gas_msg(0), msg, self._toggle_aol(True)):
+        self._rx(rx_msg)
+      self.safety.safety_tick_current_safety_config()
+      self._rx(self._toggle_aol(True))
+      self.assertTrue(self._tx(self._aol_steer_msg()))
+
+      if invalid == "checksum":
+        msg[0].data[7] ^= 0xFF
+        self._rx(msg)
+      elif invalid == "counter":
+        for _ in range(MAX_WRONG_COUNTERS):
+          self._rx(msg)
+      else:
+        self.safety.set_timer(int(2e6))
+      self.safety.safety_tick_current_safety_config()
+      self._rx(self._toggle_aol(True))
+      self.assertFalse(self._tx(self._aol_steer_msg()))
 
 
 class TestChryslerRamDTSafety(TestChryslerSafety):

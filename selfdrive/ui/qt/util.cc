@@ -17,6 +17,7 @@
 #include <QTextStream>
 #include <QtXml/QDomDocument>
 
+#include "cereal/messaging/messaging.h"
 #include "common/swaglog.h"
 #include "common/util.h"
 #include "system/hardware/hw.h"
@@ -94,6 +95,7 @@ void setQtSurfaceFormat() {
 #endif
   fmt.setSamples(16);
   fmt.setStencilBufferSize(1);
+  // FrogPilot variables
   // swap interval 0: a vsync-throttled swap blocks forever if weston (1.9, no pageflip-timeout) drops a pageflip and never releases the buffer, hanging the UI until the watchdog kills it
   fmt.setSwapInterval(0);
   QSurfaceFormat::setDefaultFormat(fmt);
@@ -198,12 +200,23 @@ QPixmap bootstrapPixmap(const QString &id) {
 }
 
 bool hasLongitudinalControl(const cereal::CarParams::Reader &car_params) {
+  // FrogPilot variables
+  bool openpilotLongitudinalControlDisabled = false;
+
+  std::string frogpilotCarParams = Params().get("FrogPilotCarParamsPersistent");
+  if (!frogpilotCarParams.empty()) {
+    AlignedBuffer aligned_buf;
+    capnp::FlatArrayMessageReader fpcmsg(aligned_buf.align(frogpilotCarParams.data(), frogpilotCarParams.size()));
+    cereal::FrogPilotCarParams::Reader FPCP = fpcmsg.getRoot<cereal::FrogPilotCarParams>();
+
+    openpilotLongitudinalControlDisabled = FPCP.getOpenpilotLongitudinalControlDisabled();
+  }
+
   // Using the experimental longitudinal toggle, returns whether longitudinal control
   // will be active without needing a restart of openpilot
-  Params params = Params();
-  return (car_params.getAlphaLongitudinalAvailable()
-             ? params.getBool("AlphaLongitudinalEnabled")
-             : car_params.getOpenpilotLongitudinalControl()) && !params.getBool("DisableOpenpilotLongitudinal");
+  return car_params.getAlphaLongitudinalAvailable()
+             ? Params().getBool("AlphaLongitudinalEnabled")
+             : ((car_params.getOpenpilotLongitudinalControl() || openpilotLongitudinalControlDisabled) && !Params().getBool("DisableOpenpilotLongitudinal"));
 }
 
 // ParamWatcher

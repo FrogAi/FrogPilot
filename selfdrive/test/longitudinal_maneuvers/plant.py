@@ -2,13 +2,21 @@
 import time
 import numpy as np
 
+from types import SimpleNamespace
+
 from cereal import log
 import cereal.messaging as messaging
+from opendbc.car.interfaces import ACCEL_MIN
+from openpilot.common.constants import CV
 from openpilot.common.realtime import Ratekeeper, DT_MDL
+from openpilot.selfdrive.car.cruise import V_CRUISE_MAX
 from openpilot.selfdrive.controls.lib.longcontrol import LongCtrlState
+from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import A_CHANGE_COST, DANGER_ZONE_COST, J_EGO_COST, get_jerk_factor, get_T_FOLLOW
 from openpilot.selfdrive.modeld.constants import ModelConstants
-from openpilot.selfdrive.controls.lib.longitudinal_planner import LongitudinalPlanner
+from openpilot.selfdrive.controls.lib.longitudinal_planner import LongitudinalPlanner, get_max_accel
 from openpilot.selfdrive.controls.radard import _LEAD_ACCEL_TAU
+
+from openpilot.frogpilot.common import frogpilot_variables
 
 
 class Plant:
@@ -51,7 +59,13 @@ class Plant:
     from opendbc.car.honda.values import CAR
     from opendbc.car.honda.interface import CarInterface
 
-    self.planner = LongitudinalPlanner(CarInterface.get_non_essential_params(CAR.HONDA_CIVIC), init_v=self.speed)
+    CP = CarInterface.get_non_essential_params(CAR.HONDA_CIVIC)
+    self.planner = LongitudinalPlanner(CP, init_v=self.speed)
+
+    # FrogPilot variables
+    self.frogpilot_toggles = SimpleNamespace(**vars(frogpilot_variables.get_frogpilot_toggles()))
+    self.frogpilot_toggles.longitudinalActuatorDelay = CP.longitudinalActuatorDelay
+    self.frogpilot_toggles.vEgoStopping = CP.vEgoStopping
 
   @property
   def current_time(self):
@@ -117,6 +131,23 @@ class Plant:
     model.modelV2.acceleration = acceleration
     model.modelV2.meta.disengagePredictions.gasPressProbs = [float(prob_throttle) for _ in range(6)]
 
+    # FrogPilot variables
+    model.modelV2.init('leadsV3', 2)
+    for model_lead in model.modelV2.leadsV3:
+      model_lead.prob = float(prob_lead)
+      model_lead.v = [float(v_lead) for _ in ModelConstants.LEAD_T_IDXS]
+
+    frogpilot_car_state = messaging.new_message('frogpilotCarState')
+    frogpilot_plan = messaging.new_message('frogpilotPlan')
+    acceleration_jerk, danger_jerk, speed_jerk = get_jerk_factor(personality=self.personality)
+    frogpilot_plan.frogpilotPlan.accelerationJerk = float(A_CHANGE_COST * acceleration_jerk)
+    frogpilot_plan.frogpilotPlan.dangerJerk = float(DANGER_ZONE_COST * danger_jerk)
+    frogpilot_plan.frogpilotPlan.speedJerk = float(J_EGO_COST * speed_jerk)
+    frogpilot_plan.frogpilotPlan.maxAcceleration = float(get_max_accel(self.speed))
+    frogpilot_plan.frogpilotPlan.minAcceleration = ACCEL_MIN
+    frogpilot_plan.frogpilotPlan.tFollow = float(get_T_FOLLOW(personality=self.personality))
+    frogpilot_plan.frogpilotPlan.vCruise = float(min(v_cruise * 3.6, V_CRUISE_MAX) * CV.KPH_TO_MS)
+
     control.controlsState.longControlState = LongCtrlState.pid if self.enabled else LongCtrlState.off
     ss.selfdriveState.experimentalMode = self.e2e
     ss.selfdriveState.personality = self.personality
@@ -133,8 +164,11 @@ class Plant:
           'controlsState': control.controlsState,
           'selfdriveState': ss.selfdriveState,
           'liveParameters': lp.liveParameters,
-          'modelV2': model.modelV2}
-    self.planner.update(sm)
+          'modelV2': model.modelV2,
+          # FrogPilot variables
+          'frogpilotCarState': frogpilot_car_state.frogpilotCarState,
+          'frogpilotPlan': frogpilot_plan.frogpilotPlan}
+    self.planner.update(sm, self.frogpilot_toggles)
     self.acceleration = self.planner.output_a_target
     self.speed = self.speed + self.acceleration * self.ts
     self.should_stop = self.planner.output_should_stop

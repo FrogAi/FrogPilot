@@ -114,28 +114,31 @@ class Panda:
   HW_TYPE_UNKNOWN = b'\x00'
   HW_TYPE_WHITE = b'\x01'
   HW_TYPE_BLACK = b'\x03'
-  HW_TYPE_DOS = b'\x06'
   HW_TYPE_RED_PANDA = b'\x07'
   HW_TYPE_TRES = b'\x09'
   HW_TYPE_CUATRO = b'\x0a'
   HW_TYPE_BODY = b'\xb1'
+  # FrogPilot variables
+  HW_TYPE_DOS = b'\x06'
 
   CAN_PACKET_VERSION = 4
   HEALTH_PACKET_VERSION = 17
   CAN_HEALTH_PACKET_VERSION = 5
-  HEALTH_STRUCT = struct.Struct("<IIIIIIIIBBBBBHBBBHfBBHBHHB")
+  HEALTH_STRUCT = struct.Struct("<IIIIIIIIBBBBBHBBBHfBBHHHB")
   CAN_HEALTH_STRUCT = struct.Struct("<BIBBBBBBBBIIIIIIIHHBBBIIII")
 
-  F4_DEVICES = [HW_TYPE_WHITE, HW_TYPE_BLACK, HW_TYPE_DOS]
   H7_DEVICES = [HW_TYPE_RED_PANDA, HW_TYPE_TRES, HW_TYPE_CUATRO, HW_TYPE_BODY]
+  # FrogPilot variables
+  F4_DEVICES = [HW_TYPE_DOS]
   SUPPORTED_DEVICES = H7_DEVICES + F4_DEVICES
 
   INTERNAL_DEVICES = (HW_TYPE_DOS, HW_TYPE_TRES, HW_TYPE_CUATRO)
 
   MAX_FAN_RPMs = {
-    HW_TYPE_DOS: 6500,
     HW_TYPE_TRES: 6600,
     HW_TYPE_CUATRO: 5000,
+    # FrogPilot variables
+    HW_TYPE_DOS: 6500,
   }
 
   HARNESS_STATUS_NC = 0
@@ -209,6 +212,7 @@ class Panda:
     if self._handle is None:
       raise Exception("failed to connect to panda")
 
+    # FrogPilot variables
     # Some fallback logic to determine panda and MCU type for old bootstubs,
     # since we now support multiple MCUs and need to know which fw to flash.
     # Three cases to consider:
@@ -217,6 +221,13 @@ class Panda:
     # B) slightly newer (~2 weeks after first C3's built) bootstubs
     #    have the panda type set in the USB bcdDevice
     # C) latest bootstubs also implement the endpoint for panda type
+    bcd = None
+    if self.is_connected_usb():
+      # bcdDevice wasn't always set to the hw type, ignore if it's the old constant
+      this_bcd = self._handle._libusb_handle.getDevice().getbcdDevice()
+      if this_bcd != 0x2300:
+        bcd = bytearray([this_bcd >> 8])
+
     self._bcd_hw_type = None
     ret = self._handle.controlRead(Panda.REQUEST_IN, 0xc1, 0, 0, 0x40)
     missing_hw_type_endpoint = self.bootstub and ret.startswith(b'\xff\x00\xc1\x3e\xde\xad\xd0\x0d')
@@ -553,10 +564,9 @@ class Panda:
       "fan_power": a[19],
       "safety_rx_checks_invalid": a[20],
       "spi_error_count": a[21],
-      "fan_stall_count": a[22],
-      "sbu1_voltage_mV": a[23],
-      "sbu2_voltage_mV": a[24],
-      "som_reset_triggered": a[25],
+      "sbu1_voltage_mV": a[22],
+      "sbu2_voltage_mV": a[23],
+      "som_reset_triggered": a[24],
     }
 
   @ensure_can_health_packet_version
@@ -620,7 +630,7 @@ class Panda:
 
   def get_type(self):
     ret = self._handle.controlRead(Panda.REQUEST_IN, 0xc1, 0, 0, 0x40)
-
+    # FrogPilot variables
     # old bootstubs don't implement this endpoint, see comment in Panda.device
     if self._bcd_hw_type is not None and (ret is None or len(ret) != 1):
       ret = self._bcd_hw_type
@@ -638,6 +648,7 @@ class Panda:
 
   def get_mcu_type(self) -> McuType:
     hw_type = self.get_type()
+    # FrogPilot variables
     if hw_type in Panda.F4_DEVICES:
       return McuType.F4
     elif hw_type in Panda.H7_DEVICES:

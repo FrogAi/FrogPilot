@@ -1,7 +1,8 @@
 #include <cassert>
 #include <cmath>
 
-#include "system/camerad/sensors/sensor.h"
+#include "system/camerad/sensors/ar0231.h"
+#include "system/camerad/sensors/ar0231_registers.h"
 
 namespace {
 

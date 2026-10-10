@@ -4,14 +4,16 @@ import time
 from types import SimpleNamespace
 
 from cereal import custom
-from opendbc.car import gen_empty_fingerprint
+from opendbc.car import gen_empty_fingerprint, PEDAL_MSG
 from opendbc.car.can_definitions import CanRecvCallable, CanSendCallable
 from opendbc.car.carlog import carlog
 from opendbc.car.structs import CarParams, CarParamsT
 from opendbc.car.fingerprints import eliminate_incompatible_cars, all_legacy_fingerprint_cars
 from opendbc.car.fw_versions import ObdCallback, get_fw_versions_ordered, get_present_ecus, match_fw_to_car
+from opendbc.car.ford.values import FordSafetyFlags
+from opendbc.car.honda.values import HondaFrogPilotSafetyFlags
 from opendbc.car.mock.values import CAR as MOCK
-from opendbc.car.toyota.values import ToyotaFrogPilotFlags
+from opendbc.car.toyota.values import NO_DSU_CAR, TSS2_CAR, ToyotaFlags, ToyotaFrogPilotFlags, ToyotaFrogPilotSafetyFlags, ToyotaSafetyFlags
 from opendbc.car.values import BRANDS
 from opendbc.car.vin import get_vin, is_valid_vin, VIN_UNKNOWN
 from openpilot.common.params import Params
@@ -160,39 +162,72 @@ def get_car(can_recv: CanRecvCallable, can_send: CanSendCallable, set_obd_multip
             is_release: bool, params: Params, num_pandas: int = 1, cached_params: CarParamsT | None = None, frogpilot_toggles: SimpleNamespace = None):
   candidate, fingerprints, vin, car_fw, source, exact_match = fingerprint(can_recv, can_send, set_obd_multiplexing, num_pandas, cached_params)
 
-  if candidate is None or frogpilot_toggles.force_fingerprint:
-    if frogpilot_toggles.force_fingerprint:
-      candidate = frogpilot_toggles.car_model
+  # FrogPilot variables
+  car_model = params.get("CarModel")
+  force_fingerprint = frogpilot_toggles.force_fingerprint and car_model in interfaces
+  if candidate is None or force_fingerprint:
+    if car_model in interfaces:
+      candidate = car_model
     else:
       carlog.error({"event": "car doesn't match any fingerprints", "fingerprints": repr(fingerprints)})
       candidate = "MOCK"
   else:
-    params.put_nonblocking("CarMake", candidate.split('_')[0].title())
+    car_make = candidate.split('_')[0]
+    params.put_nonblocking("CarMake", {"GMC": "GMC", "PSA": "Peugeot", "SEAT": "SEAT", "SKODA": "Škoda"}.get(car_make, car_make.title()))
+    if car_model != str(candidate):
+      params.remove("CarModelName")
     params.put_nonblocking("CarModel", str(candidate))
 
-  if frogpilot_toggles.block_user:
-    candidate = "MOCK"
-
   CarInterface = interfaces[candidate]
-  CP: CarParams = CarInterface.get_params(candidate, fingerprints, car_fw, alpha_long_allowed, is_release, docs=False, frogpilot_toggles=frogpilot_toggles)
+  CP: CarParams = CarInterface.get_params(candidate, fingerprints, car_fw, alpha_long_allowed, is_release, docs=False)
   CP.carVin = vin
   CP.carFw = car_fw
   CP.fingerprintSource = source
   CP.fuzzyFingerprint = not exact_match
 
   # FrogPilot variables
+  from openpilot.frogpilot.common import frogpilot_variables
+
   FPCP: FrogPilotCarParams = CarInterface.get_frogpilot_params(candidate, fingerprints, car_fw, CP, frogpilot_toggles)
 
   if CP.brand == "toyota" and FPCP.flags & ToyotaFrogPilotFlags.SMART_DSU.value:
-    CP.minEnableSpeed = -1
-    CP.openpilotLongitudinalControl = True
+    if CP.carFingerprint in (NO_DSU_CAR - TSS2_CAR):
+      CP.alphaLongitudinalAvailable = True
+
+    if alpha_long_allowed or not CP.alphaLongitudinalAvailable:
+      CP.minEnableSpeed = -1
+      CP.openpilotLongitudinalControl = True
+      CP.flags &= ~ToyotaFlags.DISABLE_RADAR.value
+      CP.safetyConfigs[0].safetyParam &= ~ToyotaSafetyFlags.STOCK_LONGITUDINAL.value
 
   if CP.brand == "toyota" and FPCP.flags & ToyotaFrogPilotFlags.DSU_BYPASS.value:
     CP.openpilotLongitudinalControl = True
+    CP.safetyConfigs[0].safetyParam &= ~ToyotaSafetyFlags.STOCK_LONGITUDINAL.value
 
-  if not CP.alphaLongitudinalAvailable and frogpilot_toggles.disable_openpilot_long:
+  if CP.brand != "mock" and CP.brand not in frogpilot_variables.DISABLE_OPENPILOT_LONG_BRANDS:
+    params.put_bool_nonblocking("DisableOpenpilotLongitudinal", False)
+
+  if CP.brand in frogpilot_variables.DISABLE_OPENPILOT_LONG_BRANDS and not CP.alphaLongitudinalAvailable and frogpilot_toggles.disable_openpilot_long:
+    FPCP.openpilotLongitudinalControlDisabled = CP.openpilotLongitudinalControl
     CP.openpilotLongitudinalControl = False
-    FPCP.openpilotLongitudinalControlDisabled = True
+
+    if CP.brand == "ford":
+      CP.safetyConfigs[-1].safetyParam &= ~FordSafetyFlags.LONG_CONTROL.value
+    elif CP.brand == "toyota":
+      CP.safetyConfigs[0].safetyParam |= ToyotaSafetyFlags.STOCK_LONGITUDINAL.value
+
+  if CP.brand == "honda" and FPCP.canUsePedal and CP.openpilotLongitudinalControl and PEDAL_MSG in fingerprints[0]:
+    CP.autoResumeSng = True
+    CP.enableGasInterceptorDEPRECATED = True
+    CP.minEnableSpeed = -1
+    CP.pcmCruise = False
+    CP.safetyConfigs[-1].safetyParam |= HondaFrogPilotSafetyFlags.GAS_INTERCEPTOR.value
+
+  if CP.brand == "toyota" and FPCP.canUsePedal and CP.openpilotLongitudinalControl and PEDAL_MSG in fingerprints[0]:
+    CP.autoResumeSng = True
+    CP.enableGasInterceptorDEPRECATED = True
+    CP.minEnableSpeed = -1
+    CP.safetyConfigs[0].safetyParam |= ToyotaFrogPilotSafetyFlags.GAS_INTERCEPTOR.value
 
   return interfaces[CP.carFingerprint](CP, FPCP)
 

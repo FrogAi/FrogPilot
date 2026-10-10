@@ -22,7 +22,7 @@ from openpilot.selfdrive.selfdrived.alertmanager import set_offroad_alert
 from openpilot.system.hardware import AGNOS, HARDWARE
 from openpilot.system.version import get_build_metadata
 
-from openpilot.frogpilot.common.frogpilot_variables import BACKUP_PATH, get_frogpilot_toggles
+from openpilot.frogpilot.common import frogpilot_variables
 
 LOCK_FILE = os.getenv("UPDATER_LOCK_FILE", "/tmp/safe_staging_overlay.lock")
 STAGING_ROOT = os.getenv("UPDATER_STAGING_ROOT", "/data/safe_staging")
@@ -224,6 +224,7 @@ def handle_agnos_update() -> None:
   set_offroad_alert("Offroad_NeosUpdate", True)
 
   manifest_dir = os.path.join(OVERLAY_MERGED, "system/hardware/tici")
+  # FrogPilot variables
   if HARDWARE.get_device_type() == "tici" and os.path.exists(os.path.join(manifest_dir, "tici_agnos.json")):
     manifest_file = "tici_agnos.json"
   else:
@@ -419,10 +420,11 @@ class Updater:
     cloudlog.info("finalize success!")
 
     # FrogPilot variables
-    if os.path.isfile(BACKUP_PATH):
-      os.remove(BACKUP_PATH)
+    if os.path.isfile(frogpilot_variables.BACKUP_PATH):
+      os.remove(frogpilot_variables.BACKUP_PATH)
 
     self.params.put("Updated", datetime.datetime.now().astimezone(ZoneInfo("America/Phoenix")).strftime("%B %d, %Y - %I:%M%p"))
+
 
 def main() -> None:
   params = Params()
@@ -458,18 +460,11 @@ def main() -> None:
 
     # Run the update loop
     first_run = True
-
-    # FrogPilot variables
-    params_memory = Params(memory=True)
-
     while True:
       wait_helper.ready_event.clear()
 
       # FrogPilot variables
-      frogpilot_toggles = get_frogpilot_toggles()
-
-      manual_update_requested = params_memory.get_bool("ManualUpdateInitiated")
-      params_memory.remove("ManualUpdateInitiated")
+      manual_update_requested = wait_helper.user_request != UserRequest.NONE
 
       # Attempt an update
       exception = None
@@ -487,6 +482,7 @@ def main() -> None:
 
         update_failed_count += 1
 
+        # FrogPilot variables
         if manual_update_requested or params.get_bool("IsOffroad"):
           # check for update
           params.put("UpdaterState", "checking...")
@@ -521,7 +517,6 @@ def main() -> None:
         OVERLAY_INIT.unlink(missing_ok=True)
 
       try:
-        params.put("UpdaterState", "idle")
         update_successful = (update_failed_count == 0)
         updater.set_params(update_successful, update_failed_count, exception)
       except Exception:
@@ -529,6 +524,11 @@ def main() -> None:
 
       # infrequent attempts if we successfully updated recently
       wait_helper.user_request = UserRequest.NONE
+
+      # FrogPilot variables
+      write_time_to_param(params, "UpdaterLastRunTime")
+      params.put("UpdaterState", "idle")
+
       wait_helper.sleep(60*60*24*365*100)
 
 

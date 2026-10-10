@@ -115,7 +115,7 @@ class TestSubaruSafetyBase(common.CarSafetyTest):
   def _toggle_aol(self, toggle_on):
     # CruiseControl, Cruise_On is the main on button
     values = {"Cruise_On": 1 if toggle_on else 0}
-    return self.packer.make_can_msg_panda("CruiseControl", self.ALT_MAIN_BUS, values)
+    return self.packer.make_can_msg_safety("CruiseControl", self.ALT_MAIN_BUS, values)
 
 
 class TestSubaruStockLongitudinalSafetyBase(TestSubaruSafetyBase):
@@ -166,7 +166,7 @@ class TestSubaruLongitudinalSafetyBase(TestSubaruSafetyBase, common.Longitudinal
 class TestSubaruTorqueSafetyBase(TestSubaruSafetyBase, common.DriverTorqueSteeringSafetyTest, common.SteerRequestCutSafetyTest):
   MAX_RATE_UP = 50
   MAX_RATE_DOWN = 70
-  MAX_TORQUE_LOOKUP = [0], [3071]
+  MAX_TORQUE_LOOKUP = [0], [2047]
 
   # Safety around steering req bit
   MIN_VALID_STEERING_FRAMES = 7
@@ -181,6 +181,12 @@ class TestSubaruTorqueSafetyBase(TestSubaruSafetyBase, common.DriverTorqueSteeri
 class TestSubaruGen1TorqueStockLongitudinalSafety(TestSubaruStockLongitudinalSafetyBase, TestSubaruTorqueSafetyBase):
   FLAGS = 0
   TX_MSGS = lkas_tx_msgs(SUBARU_MAIN_BUS)
+
+
+# FrogPilot variables
+class TestSubaruGen1TorqueRaisedSteerLimitStockLongitudinalSafety(TestSubaruGen1TorqueStockLongitudinalSafety):
+  FLAGS = SubaruSafetyFlags.RAISED_STEER_LIMIT
+  MAX_TORQUE_LOOKUP = [0], [3071]
 
 
 class TestSubaruGen2TorqueSafetyBase(TestSubaruTorqueSafetyBase):

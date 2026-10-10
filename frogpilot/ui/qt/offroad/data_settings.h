@@ -14,10 +14,5 @@ signals:
 private:
   void updateStatsLabels(FrogPilotListWidget *labelsList);
 
-  bool forceOpenDescriptions;
-  bool isMetric = false;
-
-  FrogPilotSettingsWindow *parent;
-
   Params params;
 };

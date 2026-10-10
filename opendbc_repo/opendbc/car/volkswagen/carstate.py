@@ -1,4 +1,3 @@
-from cereal import custom
 from opendbc.can import CANParser
 from opendbc.car import Bus, structs
 from opendbc.car.interfaces import CarStateBase
@@ -10,8 +9,8 @@ ButtonType = structs.CarState.ButtonEvent.Type
 
 
 class CarState(CarStateBase):
-  def __init__(self, CP, FPCP):
-    super().__init__(CP, FPCP)
+  def __init__(self, CP):
+    super().__init__(CP)
     self.frame = 0
     self.eps_init_complete = False
     self.CCP = CarControllerParams(CP)
@@ -41,9 +40,12 @@ class CarState(CarStateBase):
         button_events.append(event)
       self.button_states[button.event_type] = state
 
+    # FrogPilot variables
+    self.distance_button = self.button_states[ButtonType.gapAdjustCruise]
+
     return button_events
 
-  def update(self, can_parsers, frogpilot_toggles) -> structs.CarState:
+  def update(self, can_parsers) -> structs.CarState:
     pt_cp = can_parsers[Bus.pt]
     cam_cp = can_parsers[Bus.cam]
     ext_cp = pt_cp if self.CP.networkLocation == NetworkLocation.fwdCamera else cam_cp
@@ -140,9 +142,9 @@ class CarState(CarStateBase):
     self.frame += 1
 
     # FrogPilot variables
-    fp_ret = custom.FrogPilotCarState.new_message()
+    self.fp_ret.brakeLights = bool(pt_cp.vl["ESP_05"]["ESP_Status_Bremsdruck"])
 
-    return ret, fp_ret
+    return ret
 
   def update_pq(self, pt_cp, cam_cp, ext_cp) -> structs.CarState:
     ret = structs.CarState()
@@ -235,9 +237,9 @@ class CarState(CarStateBase):
     self.frame += 1
 
     # FrogPilot variables
-    fp_ret = custom.FrogPilotCarState.new_message()
+    self.fp_ret.brakeLights = bool(pt_cp.vl["Motor_2"]["MO2_BTS"])
 
-    return ret, fp_ret
+    return ret
 
   def update_mlb(self, pt_cp, cam_cp, ext_cp) -> structs.CarState:
     ret = structs.CarState()

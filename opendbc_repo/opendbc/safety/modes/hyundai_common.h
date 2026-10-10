@@ -128,6 +128,7 @@ void hyundai_common_cruise_buttons_check(const int cruise_button, const bool mai
   main_button_prev = main_button;
 }
 
+// FrogPilot variables
 #ifdef CANFD
 uint32_t hyundai_common_canfd_compute_checksum(const CANPacket_t *msg) {
   int len = GET_LEN(msg);

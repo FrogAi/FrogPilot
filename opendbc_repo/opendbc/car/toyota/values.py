@@ -88,6 +88,11 @@ class ToyotaFrogPilotFlags(IntFlag):
   ZSS = 8
 
 
+class ToyotaFrogPilotSafetyFlags(IntFlag):
+  UNSUPPORTED_DSU = (16 << 8)
+  GAS_INTERCEPTOR = (32 << 8)
+
+
 def dbc_dict(pt, radar):
   return {Bus.pt: pt, Bus.radar: radar}
 

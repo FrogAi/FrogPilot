@@ -2,6 +2,7 @@
 #include "selfdrive/ui/qt/widgets/ssh_keys.h"
 #include "selfdrive/ui/qt/widgets/controls.h"
 
+// FrogPilot variables
 QMap<int, QString> DeveloperPanel::developerMetricOptions() {
   return {
     {0, tr("None")},
@@ -86,11 +87,6 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : QFrame(parent) {
     forceOpenDescriptions = true;
   }
 
-  std::vector<std::string> keys = params.allKeys();
-  for (const std::string &key : keys) {
-    frogpilotToggleLevels[QString::fromStdString(key)] = params.getTuningLevel(key);
-  }
-
   developerUIToggle = new FrogPilotManageControl("DeveloperUI", tr("Developer UI"), tr("<b>Put openpilot's internal numbers on screen, so you can see what it is thinking while it drives.</b><br><br>None of it changes how the car behaves. It is for working out why openpilot did something, and it is worth turning back off once you are done."), "");
   QObject::connect(developerUIToggle, &FrogPilotManageControl::manageButtonClicked, [this]() {
     mainLayout->setCurrentWidget(developerUIPanel);
@@ -123,14 +119,14 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : QFrame(parent) {
   std::vector<std::tuple<QString, QString, QString, QString>> developerToggles {
     {"DeveloperMetrics", tr("Developer Metrics"), tr("<b>Show readouts of what openpilot's sensors and hardware are doing while you drive.</b>"), ""},
     {"AdjacentPathMetrics", tr("Adjacent Lane Metrics"), tr("<b>Print how wide the lanes either side of you are, right on their paths.</b><br><br>It draws the adjacent lane paths itself, so there is something to print onto, even with \"Adjacent Lanes\" switched off."), ""},
-    {"BorderMetrics", tr("Border Metrics"), tr("<b>Colour the edge of the driving screen to show what openpilot is reacting to.</b><br><br>You can switch on the blind spot, steering effort and turn signal borders separately. The blind spot one needs a car with factory blind spot monitoring, and stays dark without it."), ""},
+    {"BorderMetrics", tr("Border Metrics"), tr("<b>Colour the edge of the driving screen to show what openpilot is reacting to.</b><br><br>You can switch on the blind spot, steering effort and turn signal borders separately. The blind spot one only appears on cars with factory blind spot monitoring, and the steering effort one only appears on cars where openpilot sends a steering effort rather than a steering angle."), ""},
     {"FPSCounter", tr("FPS Display"), tr("<b>Show how many frames a second the driving screen is drawing, along the bottom.</b><br><br>It also tracks the lowest and highest it has seen."), ""},
-    {"LeadInfo", tr("Lead Info"), tr("<b>Print how far away the car ahead is and how fast it is going, underneath its marker.</b><br><br>It also shows the gap openpilot is aiming for, so you can see it closing in on the distance you asked for."), ""},
+    {"LeadInfo", tr("Lead Info"), tr("<b>Print how far away the car ahead is and how fast it is going, underneath its marker.</b><br><br>On cars where openpilot handles the gas and brake, it also shows the gap openpilot is aiming for, so you can see it closing in on the distance you asked for."), ""},
     {"NumericalTemp", tr("Numerical Temperature Gauge"), tr("<b>Show the device temperature as a number in the sidebar instead of a word like \"GOOD\".</b><br><br>Useful for spotting the device getting hot before it slows itself down."), ""},
     {"SidebarMetrics", tr("Sidebar Metrics"), tr("<b>Fill the sidebar with how hard the device is working, how much storage is left and its IP address.</b><br><br>They take the place of the vehicle, connection and signal indicators normally shown there.<br><br>CPU and GPU cannot both be on, and RAM, SSD Left and SSD Used are one at a time, so picking one clears the other."), ""},
     {"UseSI", tr("Use International System of Units"), tr("<b>Show the developer readouts in plain scientific units instead of the friendlier ones.</b><br><br>This only affects the developer numbers, not the speed or distances you drive by."), ""},
 
-    {"DeveloperSidebar", tr("Developer Sidebar"), tr("<b>Add a second sidebar down the right-hand side, holding up to seven readouts you pick yourself.</b><br><br>It sits over part of the camera view, so it is worth turning off when you are not using it. Setting all seven to \"None\" leaves the bar there but empty."), ""},
+    {"DeveloperSidebar", tr("Developer Sidebar"), tr("<b>Add a second sidebar down the right-hand side, holding up to seven readouts you pick yourself.</b><br><br>It makes the camera view narrower, so it is worth turning off when you are not using it. Setting all seven to \"None\" leaves the bar there but empty."), ""},
     {"DeveloperSidebarMetric1", tr("Metric #1"), tr("<b>Choose what the first slot in the developer sidebar shows.</b><br><br>The list covers steering, acceleration, engagement and auto-tune readouts. Every slot starts already filled in, and picking \"None\" closes the gap rather than leaving a hole."), ""},
     {"DeveloperSidebarMetric2", tr("Metric #2"), tr("<b>Choose what the second slot in the developer sidebar shows.</b>"), ""},
     {"DeveloperSidebarMetric3", tr("Metric #3"), tr("<b>Choose what the third slot in the developer sidebar shows.</b>"), ""},
@@ -144,6 +140,8 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : QFrame(parent) {
     {"ShowStoppingPoint", tr("Model Stopping Point"), tr("<b>Drop a stop sign on the road where openpilot is planning to come to a stop.</b><br><br>It only marks stops openpilot works out for itself, so it stays away when openpilot is slowing for a car ahead, and \"Traffic Mode\" switches it off entirely."), ""},
     {"RadarTracksUI", tr("Radar Tracks"), tr("<b>Show every object your car's radar is returning, not just the car you are following.</b><br><br>Expect a lot of dots, including signs, barriers and parked cars."), ""},
   };
+
+  const QMap<int, QString> developerSidebarMetricOptions = developerMetricOptions();
 
   for (const auto &[param, title, desc, icon] : developerToggles) {
     AbstractControl *developerToggle;
@@ -202,10 +200,8 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : QFrame(parent) {
       });
       developerToggle = developerSidebarToggle;
     } else if (developerSidebarKeys.contains(param)) {
-      QMap<int, QString> developerSidebarMetricOptions = developerMetricOptions();
-
       ButtonControl *metricToggle = new ButtonControl(title, tr("SELECT"), desc);
-      QObject::connect(metricToggle, &ButtonControl::clicked, [metricToggle, key = param, developerSidebarMetricOptions, this]() mutable {
+      QObject::connect(metricToggle, &ButtonControl::clicked, [metricToggle, key = param, developerSidebarMetricOptions, this]() {
         QString current = developerSidebarMetricOptions.value(params.getInt(key.toStdString()), tr("None"));
         QString selection = MultiOptionDialog::getSelection(tr("Select a metric to display"), developerSidebarMetricOptions.values(), current, this);
 
@@ -248,6 +244,10 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : QFrame(parent) {
     }
   }
 
+  QObject::connect(static_cast<ToggleControl*>(toggles["LeadInfo"]), &ToggleControl::toggleFlipped, [this]() {
+    updateToggles(offroad);
+  });
+
   QObject::connect(parent, &SettingsWindow::closeSubPanel, [this]() {mainLayout->setCurrentWidget(mainWidget);});
   QObject::connect(parent, &SettingsWindow::closeSubSubPanel, [this]() {mainLayout->setCurrentWidget(developerUIPanel);});
 }
@@ -264,21 +264,23 @@ void DeveloperPanel::updateToggles(bool _offroad) {
     if (btn != experimentalLongitudinalToggle) {
       btn->setEnabled(_offroad);
     }
-
-    // FrogPilot variables
-    for (auto &[key, toggle] : toggles) {
-      if (toggle == btn) {
-        btn->setEnabled(true);
-        break;
-      }
-    }
-    if (developerUIToggle == btn) {
-      btn->setEnabled(true);
-    }
   }
 
-  // longManeuverToggle and experimentalLongitudinalToggle should not be toggleable if the car does not have longitudinal control
+  // FrogPilot variables
+  for (auto &[key, toggle] : toggles) {
+    if (ParamControl *paramToggle = qobject_cast<ParamControl *>(toggle)) {
+      paramToggle->setEnabled(true);
+    }
+  }
+  developerUIToggle->setEnabled(true);
+
+  bool hasBSM = true;
+  bool hasOpenpilotLongitudinal = true;
+  bool hasRadar = true;
   bool hideLeadMarker = false;
+  bool isAngleCar = false;
+
+  // longManeuverToggle and experimentalLongitudinalToggle should not be toggleable if the car does not have longitudinal control
   auto cp_bytes = params.get("CarParamsPersistent");
   if (!cp_bytes.empty()) {
     AlignedBuffer aligned_buf;
@@ -300,12 +302,12 @@ void DeveloperPanel::updateToggles(bool _offroad) {
     longManeuverToggle->setEnabled(hasLongitudinalControl(CP) && _offroad);
 
     // FrogPilot variables
+    hasBSM = CP.getEnableBsm();
     hasOpenpilotLongitudinal = hasLongitudinalControl(CP);
     hasRadar = !CP.getRadarUnavailable();
     hideLeadMarker = CP.getOpenpilotLongitudinalControl() && (CP.getAlphaLongitudinalAvailable() || !params.getBool("DisableOpenpilotLongitudinal")) &&
                      params.getBool("AdvancedCustomUI") && params.getBool("HideLeadMarker") && !params.getBool("DebugMode");
-
-    borderMetricsButton->setVisibleButton(0, CP.getEnableBsm());
+    isAngleCar = CP.getSteerControlType() == cereal::CarParams::SteerControlType::ANGLE;
   } else {
     longManeuverToggle->setEnabled(false);
     experimentalLongitudinalToggle->setVisible(false);
@@ -315,7 +317,7 @@ void DeveloperPanel::updateToggles(bool _offroad) {
   offroad = _offroad;
 
   // FrogPilot variables
-  tuningLevel = params.getInt("TuningLevel");
+  int tuningLevel = params.getInt("TuningLevel");
 
   for (auto &[key, toggle] : toggles) {
     if (parentKeys.contains(key)) {
@@ -328,10 +330,10 @@ void DeveloperPanel::updateToggles(bool _offroad) {
       continue;
     }
 
-    bool setVisible = tuningLevel >= frogpilotToggleLevels[key].toDouble();
+    bool setVisible = tuningLevel >= params.getTuningLevel(key.toStdString());
 
     if (key == "AdjacentLeadsUI") {
-      setVisible &= hasRadar && !(params.getBool("AdvancedCustomUI") && params.getBool("HideLeadMarker"));
+      setVisible &= hasRadar && !hideLeadMarker && (hasOpenpilotLongitudinal || params.getBool("LeadInfo"));
     }
 
     else if (key == "LeadInfo") {
@@ -353,8 +355,6 @@ void DeveloperPanel::updateToggles(bool _offroad) {
         toggles["DeveloperMetrics"]->setVisible(true);
       } else if (developerSidebarKeys.contains(key)) {
         toggles["DeveloperSidebar"]->setVisible(true);
-      } else if (developerUIKeys.contains(key)) {
-        toggles["DeveloperUI"]->setVisible(true);
       } else if (developerWidgetKeys.contains(key)) {
         toggles["DeveloperWidgets"]->setVisible(true);
       }
@@ -362,8 +362,9 @@ void DeveloperPanel::updateToggles(bool _offroad) {
   }
 
   borderMetricsButton->setVisibleButton(0, hasBSM);
+  borderMetricsButton->setVisibleButton(1, !isAngleCar);
 
-  developerUIToggle->setVisible(tuningLevel >= frogpilotToggleLevels["DeveloperUI"].toDouble());
+  developerUIToggle->setVisible(tuningLevel >= params.getTuningLevel("DeveloperUI"));
 
   openDescriptions(forceOpenDescriptions, toggles);
 

@@ -1,10 +1,9 @@
 import copy
-from cereal import custom
 from opendbc.can import CANDefine, CANParser
 from opendbc.car import Bus, create_button_events, structs
 from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.interfaces import CarStateBase
-from opendbc.car.gm.values import CAMERA_ACC_CAR, CC_ONLY_CAR, DBC, AccState, CruiseButtons, STEER_THRESHOLD, SDGM_CAR, ALT_ACCS
+from opendbc.car.gm.values import CAMERA_ACC_CAR, CC_ONLY_CAR, GMFlags, DBC, AccState, CruiseButtons, STEER_THRESHOLD, SDGM_CAR, ALT_ACCS
 
 ButtonType = structs.CarState.ButtonEvent.Type
 TransmissionType = structs.CarParams.TransmissionType
@@ -20,8 +19,8 @@ GearShifter = structs.CarState.GearShifter
 
 
 class CarState(CarStateBase):
-  def __init__(self, CP, FPCP):
-    super().__init__(CP, FPCP)
+  def __init__(self, CP):
+    super().__init__(CP)
     can_define = CANDefine(DBC[CP.carFingerprint][Bus.pt])
     self.shifter_values = can_define.dv["ECMPRDNL2"]["PRNDL2"]
     self.cluster_speed_hyst_gap = CV.KPH_TO_MS / 2.
@@ -38,8 +37,6 @@ class CarState(CarStateBase):
     # OPGM variables
     self.single_pedal_mode = False
 
-    self.pedal_steady = 0
-
   def update_button_enable(self, buttonEvents: list[structs.CarState.ButtonEvent]):
     if not self.CP.pcmCruise:
       for b in buttonEvents:
@@ -49,7 +46,7 @@ class CarState(CarStateBase):
           return True
     return False
 
-  def update(self, can_parsers, frogpilot_toggles) -> structs.CarState:
+  def update(self, can_parsers) -> structs.CarState:
     pt_cp = can_parsers[Bus.pt]
     cam_cp = can_parsers[Bus.cam]
     loopback_cp = can_parsers[Bus.loopback]
@@ -108,7 +105,7 @@ class CarState(CarStateBase):
     if self.CP.enableGasInterceptorDEPRECATED:
       gas = (pt_cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS"] + pt_cp.vl["GAS_SENSOR"]["INTERCEPTOR_GAS2"]) / 2.
       # Panda 515 threshold = 10.88. Set lower to avoid panda blocking messages and GasInterceptor faulting.
-      threshold = 20 if self.CP.carFingerprint in CAMERA_ACC_CAR else 4
+      threshold = 10 if self.CP.carFingerprint in CAMERA_ACC_CAR else 4
       ret.gasPressed = gas > threshold
     else:
       ret.gasPressed = pt_cp.vl["AcceleratorPedal2"]["AcceleratorPedal2"] / 254. > 1e-5
@@ -184,12 +181,11 @@ class CarState(CarStateBase):
       self.single_pedal_mode = ret.gearShifter == GearShifter.low or pt_cp.vl["EVDriveMode"]["SinglePedalModeActive"] == 1
 
     # FrogPilot variables
-    fp_ret = custom.FrogPilotCarState.new_message()
-
     if self.CP.transmissionType == TransmissionType.direct:
       self.single_pedal_mode |= ret.regenBraking and ret.gearShifter == GearShifter.manumatic
+      self.fp_ret.pedalInterceptorNoBrake = bool(self.CP.flags & GMFlags.PEDAL_LONG.value) and not self.single_pedal_mode
 
-    return ret, fp_ret
+    return ret
 
   @staticmethod
   def get_can_parsers(CP):
@@ -197,6 +193,12 @@ class CarState(CarStateBase):
     if CP.networkLocation == NetworkLocation.fwdCamera:
       pt_messages += [
         ("ASCMLKASteeringCmd", float('nan')),
+      ]
+
+    # OPGM variables
+    if CP.transmissionType == TransmissionType.direct:
+      pt_messages += [
+        ("EVDriveMode", float('nan')),
       ]
 
     loopback_messages = [

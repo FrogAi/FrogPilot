@@ -1,9 +1,3 @@
-#include "selfdrive/ui/qt/util.h"
-
-#include <cmath>
-
-#include <QDateTime>
-
 #include "frogpilot/ui/qt/onroad/frogpilot_buttons.h"
 #include "frogpilot/ui/qt/onroad/screen_recorder.h"
 
@@ -11,8 +5,8 @@ DrivingPersonalityButton::DrivingPersonalityButton(QWidget *parent) : QPushButto
   setFixedSize(btn_size + UI_BORDER_SIZE, btn_size);
 
   QObject::connect(frogpilotUIState(), &FrogPilotUIState::themeUpdated, this, &DrivingPersonalityButton::updateTheme);
-  QObject::connect(this, &QPushButton::pressed, [this] {params_memory.putBool("OnroadDistanceButtonPressed", true);});
-  QObject::connect(this, &QPushButton::released, [this] {params_memory.putBool("OnroadDistanceButtonPressed", false);});
+  QObject::connect(this, &QPushButton::pressed, [] {frogpilotUIState()->setDistanceButtonPressed(true);});
+  QObject::connect(this, &QPushButton::released, [] {frogpilotUIState()->setDistanceButtonPressed(false);});
 }
 
 void DrivingPersonalityButton::showEvent(QShowEvent *event) {
@@ -21,17 +15,16 @@ void DrivingPersonalityButton::showEvent(QShowEvent *event) {
 
 void DrivingPersonalityButton::hideEvent(QHideEvent *event) {
   setDown(false);
-  params_memory.putBool("OnroadDistanceButtonPressed", false);
-  clearMovie(currentGif, this);
+  frogpilotUIState()->setDistanceButtonPressed(false);
+  currentGif.reset();
 
   QPushButton::hideEvent(event);
 }
 
 void DrivingPersonalityButton::updateTheme() {
   currentGif.clear();
+  currentIcon.clear();
   currentImg = QPixmap();
-
-  theme_updated = true;
 }
 
 void DrivingPersonalityButton::updateState(const UIState &s, const FrogPilotUIState &fs) {
@@ -39,41 +32,16 @@ void DrivingPersonalityButton::updateState(const UIState &s, const FrogPilotUISt
     return;
   }
 
-  const UIScene &scene = s.scene;
+  static const QString personalityIcons[] = {"aggressive", "standard", "relaxed"};
+  static const QString trafficIcon = "traffic";
 
-  const SubMaster &fpsm = *(fs.sm);
-
-  const cereal::FrogPilotCarState::Reader &frogpilotCarState = fpsm["frogpilotCarState"].getFrogpilotCarState();
-
-  bool new_traffic_mode_active = frogpilotCarState.getTrafficModeEnabled();
-
-  int new_personality = static_cast<int>(scene.personality) + 1;
-
-  bool state_changed = (traffic_mode_active != new_traffic_mode_active) ||
-                       (personality != new_personality && !new_traffic_mode_active);
-
-  if (!state_changed && !theme_updated) {
+  const QString &icon = fs.frogpilot_scene.traffic_mode_enabled ? trafficIcon : personalityIcons[static_cast<int>(s.scene.personality)];
+  if (icon == currentIcon) {
     return;
   }
+  currentIcon = icon;
 
-  traffic_mode_active = new_traffic_mode_active;
-
-  personality = new_personality;
-
-  theme_updated = false;
-
-  QString icon;
-  if (traffic_mode_active) {
-    icon = "traffic";
-  } else if (personality == 1) {
-    icon = "aggressive";
-  } else if (personality == 2) {
-    icon = "standard";
-  } else if (personality == 3) {
-    icon = "relaxed";
-  }
-
-  loadImage("../../frogpilot/assets/active_theme/distance_icons/" + icon, currentImg, currentGif, QSize(btn_size, btn_size), this);
+  loadImage("../../frogpilot/assets/active_theme/distance_icons/" + icon, currentImg, currentGif, QSize(btn_size, btn_size), this, false);
 }
 
 void DrivingPersonalityButton::paintEvent(QPaintEvent *event) {
@@ -83,8 +51,51 @@ void DrivingPersonalityButton::paintEvent(QPaintEvent *event) {
   drawIcon(p, rect().center() + QPoint(UI_BORDER_SIZE / 2, 0), currentGif ? currentGif->currentPixmap() : currentImg, Qt::transparent, 1.0);
 }
 
+InstantReplayButton::InstantReplayButton(QWidget *parent) : QPushButton(parent) {
+  setFixedSize(btn_size, btn_size / 3);
+
+  QObject::connect(this, &QPushButton::clicked, &ScreenRecorder::saveReplay);
+  QObject::connect(uiState(), &UIState::uiUpdate, this, &InstantReplayButton::updateState);
+}
+
+void InstantReplayButton::updateState(const UIState &s, const FrogPilotUIState &fs) {
+  ScreenRecorder::setReplayDuration(s.scene.started ? fs.frogpilot_scene.frogpilot_toggles.value(QLatin1String("instant_replay")).toInt() : 0);
+
+  bool ready = ScreenRecorder::replayReady();
+  bool saving = ScreenRecorder::replaySaving();
+  setEnabled(ready && !saving);
+
+  if (saving) {
+    setText(tr("SAVING..."));
+  } else if (ready) {
+    setText(tr("CAPTURE"));
+  } else {
+    setText(tr("BUFFERING..."));
+  }
+}
+
+void InstantReplayButton::paintEvent(QPaintEvent *event) {
+  QPainter p(this);
+  p.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
+
+  p.setBrush(QColor(0, 0, 0, 166));
+  p.setPen(QPen(QColor(0, 150, 255), 6));
+
+  QRect button_rect = rect().adjusted(10, 4, -10, -4);
+  p.drawRoundedRect(button_rect, 20, 20);
+
+  p.setFont(InterFont(25, QFont::DemiBold));
+  int text_width = p.fontMetrics().horizontalAdvance(text());
+  if (text_width > button_rect.width() - 16) {
+    p.setFont(InterFont(25 * (button_rect.width() - 16) / text_width, QFont::DemiBold));
+  }
+
+  p.setPen(Qt::white);
+  p.drawText(button_rect, Qt::AlignCenter, text());
+}
+
 ScreenRecorderButton::ScreenRecorderButton(QWidget *parent) : QPushButton(parent) {
-  setFixedSize(btn_size, btn_size);
+  setFixedSize(btn_size, 2 * (btn_size / 3) + UI_BORDER_SIZE / 2);
 
   QObject::connect(this, &QPushButton::clicked, [this] {
     if (ScreenRecorder::active()) {
@@ -93,16 +104,6 @@ ScreenRecorderButton::ScreenRecorderButton(QWidget *parent) : QPushButton(parent
       ScreenRecorder::start();
     }
     update();
-  });
-  QObject::connect(uiState(), &UIState::offroadTransition, this, [](bool offroad) {
-    if (offroad) {
-      ScreenRecorder::stop();
-    }
-  });
-  QObject::connect(uiState(), &UIState::uiUpdate, this, [this] {
-    if (ScreenRecorder::active()) {
-      update();
-    }
   });
 }
 
@@ -120,11 +121,9 @@ void ScreenRecorderButton::paintEvent(QPaintEvent *event) {
     glow_color.setAlphaF(0.3 + 0.7 * alpha_factor);
 
     p.setBrush(QColor(201, 34, 49));
-    p.setFont(InterFont(25, QFont::Bold));
     p.setPen(QPen(glow_color, 8 + static_cast<int>(2 * alpha_factor)));
   } else {
     p.setBrush(QColor(0, 0, 0, 166));
-    p.setFont(InterFont(25, QFont::DemiBold));
     p.setPen(QPen(QColor(201, 34, 49), 8));
   }
 
@@ -133,8 +132,10 @@ void ScreenRecorderButton::paintEvent(QPaintEvent *event) {
   p.drawRoundedRect(button_rect, 24, 24);
 
   QRect text_rect = button_rect.adjusted(centering_offset, 0, -centering_offset, 0);
+  QString label = recording ? tr("RECORDING") : tr("RECORD");
+  p.setFont(fitInterFont(25, recording ? QFont::Bold : QFont::DemiBold, text_rect.width() - (recording ? 0 : btn_size / 5), {label}));
   p.setPen(QPen(Qt::white, 6));
-  p.drawText(text_rect, Qt::AlignLeft | Qt::AlignVCenter, recording ? tr("RECORDING") : tr("RECORD"));
+  p.drawText(text_rect, Qt::AlignLeft | Qt::AlignVCenter, label);
 
   if (!recording) {
     p.setBrush(QColor(201, 34, 49, 166));

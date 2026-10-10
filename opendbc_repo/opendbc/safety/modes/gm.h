@@ -181,13 +181,13 @@ static bool gm_tx_hook(const CANPacket_t *msg) {
   }
 
   // BUTTONS: used for resume spamming and cruise cancellation with stock longitudinal
-  if ((msg->addr == 0x1E1U) && (gm_pcm_cruise || gm_pedal_long || gm_cc_long)) {
+  if (msg->addr == 0x1E1U) {
     int button = (msg->data[5] >> 4) & 0x7U;
 
     bool allowed_btn = (button == GM_BTN_CANCEL) && cruise_engaged_prev;
     // For standard CC, allow spamming of SET / RESUME
     if (gm_cc_long) {
-      allowed_btn |= cruise_engaged_prev && ((button == GM_BTN_SET) || (button == GM_BTN_RESUME) || (button == GM_BTN_UNPRESS));
+      allowed_btn |= get_longitudinal_allowed() && cruise_engaged_prev && ((button == GM_BTN_SET) || (button == GM_BTN_RESUME) || (button == GM_BTN_UNPRESS));
     }
 
     if (!allowed_btn) {
@@ -198,7 +198,7 @@ static bool gm_tx_hook(const CANPacket_t *msg) {
   // OPGM variables
   // GAS: safety check (interceptor)
   if (msg->addr == 0x200U) {
-    if (longitudinal_interceptor_checks(msg)) {
+    if (!enable_gas_interceptor || longitudinal_interceptor_checks(msg)) {
       tx = false;
     }
   }
@@ -222,10 +222,7 @@ static safety_config gm_init(uint16_t param) {
 
   static const CanMsg GM_ASCM_TX_MSGS[] = {{0x180, 0, 4, .check_relay = true}, {0x409, 0, 7, .check_relay = false}, {0x40A, 0, 7, .check_relay = false}, {0x2CB, 0, 8, .check_relay = true}, {0x370, 0, 6, .check_relay = false},  // pt bus
                                            {0xA1, 1, 7, .check_relay = false}, {0x306, 1, 8, .check_relay = false}, {0x308, 1, 7, .check_relay = false}, {0x310, 1, 2, .check_relay = false},   // obs bus
-                                           {0x315, 2, 5, .check_relay = false},  // ch bus
-                                           // OPGM Variables
-                                           {0x200, 0, 6, .check_relay = false},
-                                           {0x1E1, 0, 7, .check_relay = false}}; // pt bus
+                                           {0x315, 2, 5, .check_relay = false}};  // ch bus
 
 
   static const LongitudinalLimits GM_CAM_LONG_LIMITS = {
@@ -275,9 +272,16 @@ static safety_config gm_init(uint16_t param) {
     {.msg = {{0x3D1, 0, 8, 10U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  // Non-ACC PCM
   };
 
-  static RxCheck gm_pedal_rx_checks[] = {
+  static RxCheck gm_pedal_ev_rx_checks[] = {
     GM_COMMON_RX_CHECKS
     {.msg = {{0xBD, 0, 7, 40U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},
+    {.msg = {{0x3D1, 0, 8, 10U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  // Non-ACC PCM
+    {.msg = {{0x201, 0, 6, 10U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  // pedal
+  };
+
+  // FrogPilot variables
+  static RxCheck gm_pedal_rx_checks[] = {
+    GM_COMMON_RX_CHECKS
     {.msg = {{0x3D1, 0, 8, 10U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  // Non-ACC PCM
     {.msg = {{0x201, 0, 6, 10U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  // pedal
   };
@@ -287,15 +291,22 @@ static safety_config gm_init(uint16_t param) {
 
   gm_hw = GET_FLAG(param, GM_PARAM_HW_CAM) ? GM_CAM : GM_ASCM;
 
-  if (gm_hw == GM_ASCM) {
+  // FrogPilot variables
+  const uint16_t GM_PARAM_HW_ASCM_LONG = 128;
+
+  if ((gm_hw == GM_ASCM) || GET_FLAG(param, GM_PARAM_HW_ASCM_LONG)) {
     gm_long_limits = &GM_ASCM_LONG_LIMITS;
   } else if (gm_hw == GM_CAM) {
     gm_long_limits = &GM_CAM_LONG_LIMITS;
   } else {
   }
 
+  bool gm_cam_long = false;
+
+#ifdef ALLOW_DEBUG
   const uint16_t GM_PARAM_HW_CAM_LONG = 2;
-  bool gm_cam_long = GET_FLAG(param, GM_PARAM_HW_CAM_LONG);
+  gm_cam_long = GET_FLAG(param, GM_PARAM_HW_CAM_LONG);
+#endif
 
   // OPGM Variables
   const uint16_t GM_PARAM_CC_LONG = 8;
@@ -316,19 +327,20 @@ static safety_config gm_init(uint16_t param) {
     // FIXME: cppcheck thinks that gm_cam_long is always false. This is not true
     // if ALLOW_DEBUG is defined but cppcheck is run without ALLOW_DEBUG
     // cppcheck-suppress knownConditionTrueFalse
+    ret = gm_cam_long ? BUILD_SAFETY_CFG(gm_rx_checks, GM_CAM_LONG_TX_MSGS) : BUILD_SAFETY_CFG(gm_rx_checks, GM_CAM_TX_MSGS);
+
     if (gm_cc_long) {
       ret = BUILD_SAFETY_CFG(gm_rx_checks, GM_CC_LONG_TX_MSGS);
-    } else if (gm_cam_long) {
-      ret = BUILD_SAFETY_CFG(gm_rx_checks, GM_CAM_LONG_TX_MSGS);
-    } else {
-      ret = BUILD_SAFETY_CFG(gm_rx_checks, GM_CAM_TX_MSGS);
     }
   } else {
     ret = BUILD_SAFETY_CFG(gm_rx_checks, GM_ASCM_TX_MSGS);
   }
 
   const bool gm_ev = GET_FLAG(param, GM_PARAM_EV);
-  if (enable_gas_interceptor) {
+  // FrogPilot variables
+  if (enable_gas_interceptor && gm_ev) {
+    SET_RX_CHECKS(gm_pedal_ev_rx_checks, ret);
+  } else if (enable_gas_interceptor && !gm_ev) {
     SET_RX_CHECKS(gm_pedal_rx_checks, ret);
   } else if (!gm_has_acc && gm_ev) {
     SET_RX_CHECKS(gm_no_acc_ev_rx_checks, ret);
@@ -339,7 +351,7 @@ static safety_config gm_init(uint16_t param) {
   }
 
   // ASCM does not forward any messages
-  if (gm_hw == GM_ASCM || gm_cc_long) {
+  if (gm_hw == GM_ASCM) {
     ret.disable_forwarding = true;
   }
   return ret;

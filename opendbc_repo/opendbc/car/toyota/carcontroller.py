@@ -1,6 +1,6 @@
 import math
 import numpy as np
-from opendbc.car import Bus, make_tester_present_msg, rate_limit, structs, ACCELERATION_DUE_TO_GRAVITY, DT_CTRL
+from opendbc.car import Bus, create_gas_interceptor_command, make_tester_present_msg, rate_limit, structs, ACCELERATION_DUE_TO_GRAVITY, DT_CTRL
 from opendbc.car.lateral import apply_meas_steer_torque_limits, apply_std_steer_angle_limits, common_fault_avoidance
 from opendbc.car.can_definitions import CanData
 from opendbc.car.carlog import carlog
@@ -10,7 +10,7 @@ from opendbc.car.secoc import add_mac, build_sync_mac
 from opendbc.car.interfaces import CarControllerBase
 from opendbc.car.toyota import toyotacan
 from opendbc.car.toyota.values import CAR, NO_STOP_TIMER_CAR, TSS2_CAR, \
-                                        CarControllerParams, ToyotaFlags, \
+                                        MIN_ACC_SPEED, PEDAL_TRANSITION, CarControllerParams, ToyotaFlags, \
                                         UNSUPPORTED_DSU_CAR
 from opendbc.can import CANPacker
 
@@ -36,7 +36,9 @@ MAX_STEER_RATE_FRAMES = 18  # tx control frames needed before torque can be cut
 MAX_USER_TORQUE = 500
 
 # FrogPilot variables
+MAX_INTERCEPTOR_GAS = 0.5
 PARK = structs.CarState.GearShifter.park
+STOP_AND_GO_CAR = NO_STOP_TIMER_CAR | {CAR.LEXUS_CTH, CAR.LEXUS_NX, CAR.LEXUS_RX, CAR.TOYOTA_AVALON_2019, CAR.TOYOTA_CAMRY, CAR.TOYOTA_CHR, CAR.TOYOTA_PRIUS}
 
 # Lock / unlock door commands - Credit goes to AlexandreSato!
 LOCK_CMD = b"\x40\x05\x30\x11\x00\x80\x00\x00"
@@ -44,7 +46,7 @@ UNLOCK_CMD = b"\x40\x05\x30\x11\x00\x40\x00\x00"
 
 
 def get_long_tune(CP, params):
-  if CP.carFingerprint in TSS2_CAR:
+  if CP.carFingerprint in TSS2_CAR or CP.enableGasInterceptorDEPRECATED:
     kiBP = [2., 5.]
     kiV = [0.5, 0.25]
   else:
@@ -89,7 +91,7 @@ class CarController(CarControllerBase):
     # FrogPilot variables
     self.doors_locked = False
 
-  def update(self, CC, CS, now_nanos, frogpilot_toggles):
+  def update(self, CC, CS, now_nanos):
     actuators = CC.actuators
     stopping = actuators.longControlState == LongCtrlState.stopping
     hud_control = CC.hudControl
@@ -180,10 +182,27 @@ class CarController(CarControllerBase):
         can_sends.append(lta_steer_2)
 
     # *** gas and brake ***
+    # FrogPilot variables
+    if self.CP.enableGasInterceptorDEPRECATED and self.frame % 2 == 0:
+      interceptor_gas_cmd = 0.
+      if CC.longActive and self.CP.carFingerprint not in STOP_AND_GO_CAR:
+        if self.CP.carFingerprint == CAR.TOYOTA_RAV4:
+          pedal_scale = np.interp(CS.out.vEgo, [0.0, MIN_ACC_SPEED, MIN_ACC_SPEED + PEDAL_TRANSITION], [0.15, 0.3, 0.0])
+        elif self.CP.carFingerprint == CAR.TOYOTA_COROLLA:
+          pedal_scale = np.interp(CS.out.vEgo, [0.0, MIN_ACC_SPEED, MIN_ACC_SPEED + PEDAL_TRANSITION], [0.3, 0.4, 0.0])
+        else:
+          pedal_scale = np.interp(CS.out.vEgo, [0.0, MIN_ACC_SPEED, MIN_ACC_SPEED + PEDAL_TRANSITION], [0.4, 0.5, 0.0])
+        pedal_offset = np.interp(CS.out.vEgo, [0.0, 2.3, MIN_ACC_SPEED + PEDAL_TRANSITION], [-.4, 0.0, 0.2])
+        pedal_command = pedal_scale * (self.accel + pedal_offset)
+        interceptor_gas_cmd = np.clip(pedal_command, 0., MAX_INTERCEPTOR_GAS)
+      elif CC.longActive and CS.out.standstill and actuators.accel > 0.0:
+        interceptor_gas_cmd = 0.12
+
+      can_sends.append(create_gas_interceptor_command(self.packer, interceptor_gas_cmd, self.frame // 2))
 
     # on entering standstill, send standstill request for older TSS-P cars that aren't designed to stay engaged at a stop
     if self.CP.carFingerprint not in NO_STOP_TIMER_CAR:
-      if CS.out.standstill and not self.last_standstill and not frogpilot_toggles.sng_hack:
+      if CS.out.standstill and not self.last_standstill and not self.frogpilot_toggles.sng_hack:
         self.standstill_req = True
       if CS.pcm_acc_status != 8:
         # pcm entered standstill or it's disabled
@@ -194,7 +213,7 @@ class CarController(CarControllerBase):
       # brakes can take a while to ramp up causing a lurch forward. prevent resume press until planner wants to move.
       # don't use CC.cruiseControl.resume since it is gated on CS.cruiseState.standstill which goes false for 3s after resume press
       # TODO: hybrids do not have this issue and can stay stopped after resume press, whitelist them
-      should_resume = actuators.accel > 0 or frogpilot_toggles.sng_hack
+      should_resume = actuators.accel > 0 or self.frogpilot_toggles.sng_hack
       if should_resume:
         self.standstill_req = False
 
@@ -241,7 +260,8 @@ class CarController(CarControllerBase):
         self.aego.update(a_ego_blended)
         j_ego = (self.aego.x - prev_aego) / (DT_CTRL * 3)
 
-        if frogpilot_toggles.frogsgomoo_tweak:
+        # FrogPilot variables
+        if self.frogpilot_toggles.frogsgomoo_tweak:
           future_t = float(np.interp(CS.out.vEgo, [2., 5.], [0.35, 1.0]))
         else:
           future_t = float(np.interp(CS.out.vEgo, [2., 5.], [0.25, 0.5]))
@@ -279,7 +299,7 @@ class CarController(CarControllerBase):
 
         main_accel_cmd = 0. if self.CP.flags & ToyotaFlags.SECOC.value else pcm_accel_cmd
         can_sends.append(toyotacan.create_accel_command(self.packer, main_accel_cmd, pcm_cancel_cmd, self.permit_braking, self.standstill_req, lead,
-                                                        CS.acc_type, fcw_alert, self.distance_button, frogpilot_toggles.reverse_cruise_increase))
+                                                        CS.acc_type, fcw_alert, self.distance_button, self.frogpilot_toggles.reverse_cruise_increase))
         if self.CP.flags & ToyotaFlags.SECOC.value:
           acc_cmd_2 = toyotacan.create_accel_command_2(self.packer, pcm_accel_cmd)
           acc_cmd_2 = add_mac(self.secoc_key,
@@ -298,7 +318,7 @@ class CarController(CarControllerBase):
         if self.CP.carFingerprint in UNSUPPORTED_DSU_CAR:
           can_sends.append(toyotacan.create_acc_cancel_command(self.packer))
         else:
-          can_sends.append(toyotacan.create_accel_command(self.packer, 0, pcm_cancel_cmd, True, False, lead, CS.acc_type, False, self.distance_button, frogpilot_toggles.reverse_cruise_increase))
+          can_sends.append(toyotacan.create_accel_command(self.packer, 0, pcm_cancel_cmd, True, False, lead, CS.acc_type, False, self.distance_button, self.frogpilot_toggles.reverse_cruise_increase))
 
     # *** hud ui ***
     if self.CP.carFingerprint != CAR.TOYOTA_PRIUS_V:
@@ -336,11 +356,11 @@ class CarController(CarControllerBase):
 
     # FrogPilot variables
     if not self.doors_locked and CS.out.gearShifter != PARK:
-      if frogpilot_toggles.lock_doors:
+      if self.frogpilot_toggles.lock_doors:
         can_sends.append(CanData(0x750, LOCK_CMD, 0))
       self.doors_locked = True
     elif self.doors_locked and CS.out.gearShifter == PARK:
-      if frogpilot_toggles.unlock_doors:
+      if self.frogpilot_toggles.unlock_doors:
         can_sends.append(CanData(0x750, UNLOCK_CMD, 0))
       self.doors_locked = False
 

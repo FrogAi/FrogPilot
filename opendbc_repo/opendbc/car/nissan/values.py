@@ -30,6 +30,11 @@ class NissanSafetyFlags(IntFlag):
   ALT_EPS_BUS = 1
 
 
+# FrogPilot variables
+class NissanFrogPilotSafetyFlags(IntFlag):
+  PRO_PILOT = 2
+
+
 class Footnote(Enum):
   SETUP = CarFootnote(
     "See more setup details for <a href=\"https://github.com/commaai/openpilot/wiki/nissan\" target=\"_blank\">Nissan</a>.",
@@ -66,7 +71,11 @@ class CAR(Platforms):
   )
   # Leaf with ADAS ECU found behind instrument cluster instead of glovebox
   # Currently the only known difference between them is the inverted seatbelt signal.
-  NISSAN_LEAF_IC = NISSAN_LEAF.override(car_docs=[NissanCarDocs(NISSAN_LEAF.car_docs[0].name + " - Instrument Cluster", video=NISSAN_LEAF.car_docs[0].video)])
+  NISSAN_LEAF_IC = NissanPlatformConfig(
+    [NissanCarDocs("Nissan Leaf Instrument Cluster 2018-23", video="https://youtu.be/vaMbtAh_0cY")],
+    NISSAN_LEAF.specs,
+    {Bus.pt: 'nissan_leaf_2018_generated'},
+  )
   NISSAN_ROGUE = NissanPlatformConfig(
     [NissanCarDocs("Nissan Rogue 2018-20")],
     NissanCarSpecs(mass=1610, wheelbase=2.705)

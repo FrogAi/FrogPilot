@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
   main_layout = new QStackedLayout(this);
   main_layout->setMargin(0);
 
+  // FrogPilot variables
   // load fonts
   QFontDatabase::addApplicationFont("../assets/fonts/Inter-Black.ttf");
   QFontDatabase::addApplicationFont("../assets/fonts/Inter-Bold.ttf");
@@ -21,11 +22,19 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
 
   setAttribute(Qt::WA_NoSystemBackground);
 
-
   homeWindow = new HomeWindow(this);
   main_layout->addWidget(homeWindow);
   QObject::connect(homeWindow, &HomeWindow::openSettings, this, &MainWindow::openSettings);
   QObject::connect(homeWindow, &HomeWindow::closeSettings, this, &MainWindow::closeSettings);
+
+  // FrogPilot variables
+  // no outline to prevent the focus rectangle
+  setStyleSheet(R"(
+    * {
+      font-family: Inter;
+      outline: none;
+    }
+  )");
 
   settingsWindow = new SettingsWindow(this);
   main_layout->addWidget(settingsWindow);
@@ -57,14 +66,6 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
       closeSettings();
     }
   });
-
-  // no outline to prevent the focus rectangle
-  setStyleSheet(R"(
-    * {
-      font-family: Inter;
-      outline: none;
-    }
-  )");
 }
 
 void MainWindow::openSettings(int index, const QString &param) {
@@ -81,11 +82,6 @@ void MainWindow::closeSettings() {
 }
 
 bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
-  // FrogPilot variables
-  FrogPilotUIState &fs = *frogpilotUIState();
-  FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
-  QJsonObject &frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
-
   bool ignore = false;
   switch (event->type()) {
     case QEvent::TouchBegin:
@@ -94,8 +90,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
     case QEvent::MouseButtonPress:
     case QEvent::MouseMove: {
       // ignore events when device is awakened by resetInteractiveTimeout
-      ignore = !device()->isAwake() || frogpilot_scene.driver_camera_timer >= UI_FREQ / 2;
-      device()->resetInteractiveTimeout(frogpilot_toggles.value("screen_timeout").toInt(), frogpilot_toggles.value("screen_timeout_onroad").toInt());
+      ignore = !device()->isAwake() || frogpilotUIState()->frogpilot_scene.driver_camera_timer >= UI_FREQ / 2 || (device()->isDark() && (event->type() == QEvent::TouchBegin || event->type() == QEvent::MouseButtonPress));
+      device()->resetInteractiveTimeout();
       break;
     }
     default:

@@ -1,4 +1,3 @@
-from cereal import custom
 from opendbc.can import CANDefine, CANParser
 from opendbc.car import Bus, create_button_events, structs
 from opendbc.car.common.conversions import Conversions as CV
@@ -11,6 +10,7 @@ GearShifter = structs.CarState.GearShifter
 TransmissionType = structs.CarParams.TransmissionType
 
 
+# FrogPilot variables
 def calculate_speed_limit(cp_cam):
   speed_limit_unit = cp_cam.vl["Traffic_RecognitnData"]["TsrVlUnitMsgTxt_D_Rq"]
   speed_limit_value = cp_cam.vl["Traffic_RecognitnData"]["TsrVLim1MsgTxt_D_Rq"]
@@ -24,16 +24,23 @@ def calculate_speed_limit(cp_cam):
 
 
 class CarState(CarStateBase):
-  def __init__(self, CP, FPCP):
-    super().__init__(CP, FPCP)
+  def __init__(self, CP):
+    super().__init__(CP)
     can_define = CANDefine(DBC[CP.carFingerprint][Bus.pt])
     if CP.transmissionType == TransmissionType.automatic:
-      self.shifter_values = can_define.dv["PowertrainData_10"]["TrnRng_D_Rq"]
+      # FrogPilot variables
+      if CP.flags & FordFlags.ALT_STEER_ANGLE:
+        self.shifter_values = can_define.dv["TransGearData"]["GearLvrPos_D_Actl"]
+      else:
+        self.shifter_values = can_define.dv["PowertrainData_10"]["TrnRng_D_Rq"]
 
     self.distance_button = 0
     self.lc_button = 0
 
-  def update(self, can_parsers, frogpilot_toggles) -> structs.CarState:
+    # FrogPilot variables
+    self.steering_angle_offset_deg = 0.
+
+  def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
 
@@ -41,7 +48,13 @@ class CarState(CarStateBase):
 
     # Occasionally on startup, the ABS module recalibrates the steering pinion offset, so we need to block engagement
     # The vehicle usually recovers out of this state within a minute of normal driving
-    ret.vehicleSensorsInvalid = cp.vl["SteeringPinion_Data"]["StePinCompAnEst_D_Qf"] != 3
+    # FrogPilot variables
+    if self.CP.flags & FordFlags.ALT_STEER_ANGLE:
+      ret.vehicleSensorsInvalid = (int((cp.vl["ParkAid_Data"]["ExtSteeringAngleReq2"] + 1000) * 10) in (32766, 32767) or
+                                   cp.vl["ParkAid_Data"]["EPASExtAngleStatReq"] != 0 or
+                                   cp.vl["ParkAid_Data"]["ApaSys_D_Stat"] not in (0, 1))
+    else:
+      ret.vehicleSensorsInvalid = cp.vl["SteeringPinion_Data"]["StePinCompAnEst_D_Qf"] != 3
 
     # car speed
     ret.vEgoRaw = cp.vl["BrakeSysFeatures"]["Veh_V_ActlBrk"] * CV.KPH_TO_MS
@@ -58,7 +71,14 @@ class CarState(CarStateBase):
     ret.parkingBrake = cp.vl["DesiredTorqBrk"]["PrkBrkStatus"] in (1, 2)
 
     # steering wheel
-    ret.steeringAngleDeg = cp.vl["SteeringPinion_Data"]["StePinComp_An_Est"]
+    # FrogPilot variables
+    if self.CP.flags & FordFlags.ALT_STEER_ANGLE:
+      steering_angle_init = cp.vl["SteeringPinion_Data_Alt"]["StePinRelInit_An_Sns"]
+      if not ret.vehicleSensorsInvalid:
+        self.steering_angle_offset_deg = cp.vl["ParkAid_Data"]["ExtSteeringAngleReq2"] - steering_angle_init
+      ret.steeringAngleDeg = steering_angle_init + self.steering_angle_offset_deg
+    else:
+      ret.steeringAngleDeg = cp.vl["SteeringPinion_Data"]["StePinComp_An_Est"]
     ret.steeringTorque = cp.vl["EPAS_INFO"]["SteeringColumnTorque"]
     ret.steeringPressed = self.update_steering_pressed(abs(ret.steeringTorque) > CarControllerParams.STEER_DRIVER_ALLOWANCE, 5)
     ret.steerFaultTemporary = cp.vl["EPAS_INFO"]["EPAS_Failure"] == 1
@@ -82,7 +102,11 @@ class CarState(CarStateBase):
 
     # gear
     if self.CP.transmissionType == TransmissionType.automatic:
-      gear = self.shifter_values.get(cp.vl["PowertrainData_10"]["TrnRng_D_Rq"])
+      # FrogPilot variables
+      if self.CP.flags & FordFlags.ALT_STEER_ANGLE:
+        gear = self.shifter_values.get(cp.vl["TransGearData"]["GearLvrPos_D_Actl"])
+      else:
+        gear = self.shifter_values.get(cp.vl["PowertrainData_10"]["TrnRng_D_Rq"])
       ret.gearShifter = self.parse_gear_shifter(gear)
     elif self.CP.transmissionType == TransmissionType.manual:
       if bool(cp.vl["BCM_Lamp_Stat_FD1"]["RvrseLghtOn_B_Stat"]):
@@ -127,11 +151,10 @@ class CarState(CarStateBase):
     ]
 
     # FrogPilot variables
-    fp_ret = custom.FrogPilotCarState.new_message()
     if self.FPCP.hasDashboardSpeedLimit:
-      fp_ret.dashboardSpeedLimit = calculate_speed_limit(cp_cam)
+      self.fp_ret.dashboardSpeedLimit = calculate_speed_limit(cp_cam)
 
-    return ret, fp_ret
+    return ret
 
   @staticmethod
   def get_can_parsers(CP):

@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 import requests
+import time
 
 from concurrent.futures import ThreadPoolExecutor
 
 from openpilot.common.params import Params
 
-from openpilot.frogpilot.common.frogpilot_api import FrogPilotAPIError
-from openpilot.frogpilot.common.frogpilot_utilities import calculate_distance_to_point
+from openpilot.frogpilot.common import frogpilot_api, frogpilot_utilities
 
 CACHE_DISTANCE = 25_000
+CACHE_MAX_AGE = 20 * 60
+UPDATE_DISTANCE = 20_000
 
 DEFAULT_UPDATE_INTERVAL = 15 * 60
 PERSONAL_KEY_UPDATE_INTERVAL = 60
@@ -47,6 +49,10 @@ WEATHER_OFFSETS = (
 )
 
 
+def valid_weather(data):
+  return isinstance(data, dict) and all(type(data.get(key)) is int for key in ("sunrise", "sunset", "weather_id"))
+
+
 def weather_category(weather_id):
   return next(
     (category["suffix"] for category in WEATHER_CATEGORIES.values() if any(start <= weather_id <= end for start, end in category["ranges"])),
@@ -55,15 +61,11 @@ def weather_category(weather_id):
 
 
 class WeatherChecker:
-  def __init__(self, frogpilot_api):
+  def __init__(self, api):
     self.params = Params()
 
     self.is_daytime = False
-    self.requesting = False
 
-    self.api_25_calls = 0
-    self.api_3_calls = 0
-    self.api_4_calls = 0
     self.increase_following_distance = 0
     self.increase_stopped_distance = 0
     self.next_request = 0
@@ -72,14 +74,16 @@ class WeatherChecker:
     self.reduce_lateral_acceleration = 0
     self.sunrise = 0
     self.sunset = 0
+    self.weather_calls = 0
     self.weather_id = 0
 
+    self.future = None
     self.last_position = None
-    self.personal_api_key = None
+    self.last_request_time = None
+    self.request_position = None
+    self.request_time = None
 
-    self.personal_api_version = "4.0"
-
-    self.frogpilot_api = frogpilot_api
+    self.frogpilot_api = api
 
     self.executor = ThreadPoolExecutor(max_workers=1)
 
@@ -96,116 +100,85 @@ class WeatherChecker:
       setattr(self, offset, value)
 
   def invalidate(self):
+    self.last_position = None
+    self.last_request_time = None
     self.next_request = 0
     self.weather_id = 0
 
   def update_weather(self, gps_position, now, frogpilot_toggles):
-    timestamp = now.timestamp()
+    timestamp = time.monotonic()
 
     position = (gps_position["latitude"], gps_position["longitude"])
 
-    self.is_daytime = self.sunrise <= timestamp < self.sunset
+    if self.future is not None and self.future.done():
+      self.complete_request()
+
+    distance = 0
+    if self.last_position is not None:
+      distance = frogpilot_utilities.calculate_distance_to_point(*self.last_position, *position)
+      if distance >= CACHE_DISTANCE or timestamp - self.last_request_time >= CACHE_MAX_AGE:
+        self.invalidate()
+
+    self.is_daytime = self.sunrise <= now.timestamp() < self.sunset
 
     self.update_offsets(frogpilot_toggles)
 
-    if self.requesting or timestamp < self.next_retry:
+    if self.future is not None or timestamp < self.next_retry:
       return
 
-    moved = self.last_position and calculate_distance_to_point(*self.last_position, *position) > CACHE_DISTANCE
+    moved = distance >= UPDATE_DISTANCE
     if timestamp < self.next_request and not moved:
       return
 
     api_key = self.params.get("WeatherToken")
 
-    self.requesting = True
-
-    self.next_retry = timestamp + RETRY_INTERVAL
-
-    def complete_request(future):
-      self.requesting = False
-
-      try:
-        data = future.result()
-      except (FrogPilotAPIError, IndexError, KeyError, TypeError, ValueError, requests.RequestException):
-        return
-
-      if not isinstance(data, dict) or not isinstance(data.get("api_version"), str):
-        return
-      if not all(type(data.get(key)) is int for key in ("sunrise", "sunset", "weather_id")):
-        return
-
-      using_personal_key = data.get("using_personal_key", False)
-      if not isinstance(using_personal_key, bool):
-        return
-
-      if data.get("api_version") == "2.5":
-        self.api_25_calls += 1
-      elif data.get("api_version") == "3.0":
-        self.api_3_calls += 1
-      elif data.get("api_version") == "4.0":
-        self.api_4_calls += 1
-
-      self.last_position = position
-
-      self.next_request = timestamp + (PERSONAL_KEY_UPDATE_INTERVAL if using_personal_key else DEFAULT_UPDATE_INTERVAL)
-
-      self.sunrise = data.get("sunrise", 0)
-      self.sunset = data.get("sunset", 0)
-
-      self.weather_id = data.get("weather_id", 0)
-
-      self.update_offsets(frogpilot_toggles)
+    self.request_position = position
+    self.request_time = timestamp
 
     def make_request():
-      if self.personal_api_key != api_key:
-        self.personal_api_key = api_key
-        self.personal_api_version = "4.0"
-
       if api_key:
-        endpoints = {"4.0": "4.0/onecall/current", "3.0": "3.0/onecall", "2.5": "2.5/weather"}
-        api_versions = tuple(endpoints)
+        query = {"appid": api_key, "lat": position[0], "lon": position[1]}
         try:
-          for api_version in api_versions[api_versions.index(self.personal_api_version):]:
-            query = {"appid": api_key, "lat": position[0], "lon": position[1]}
-            if api_version == "3.0":
-              query["exclude"] = "alerts,daily,hourly,minutely"
+          with self.session.get("https://api.openweathermap.org/data/4.0/onecall/current", params=query, timeout=30, allow_redirects=False) as response:
+            if 200 <= response.status_code < 300:
+              data = response.json()["data"][0]
+              if not isinstance(data, dict):
+                raise ValueError("Invalid personal weather data")
 
-            url = f"https://api.openweathermap.org/data/{endpoints[api_version]}"
-            with self.session.get(url, params=query, timeout=30, allow_redirects=False) as response:
-              if response.status_code in (401, 403, 404, 410):
-                continue
-              if not 200 <= response.status_code < 300:
-                break
-              data = response.json()
-
-            if api_version == "4.0":
-              data = data["data"][0]
-              sun_data = data
-            elif api_version == "3.0":
-              data = data["current"]
-              sun_data = data
-            else:
-              sun_data = data["sys"]
-
-            if not isinstance(sun_data, dict):
-              raise ValueError("Invalid personal weather data")
-
-            weather = {
-              "api_version": api_version,
-              "sunrise": sun_data.get("sunrise", 0),
-              "sunset": sun_data.get("sunset", 0),
-              "using_personal_key": True,
-              "weather_id": data["weather"][0]["id"],
-            }
-            if not all(type(weather[key]) is int for key in ("sunrise", "sunset", "weather_id")):
-              raise ValueError("Invalid personal weather data")
-
-            self.personal_api_version = api_version
-            return weather
+              weather = {
+                "sunrise": data.get("sunrise", 0),
+                "sunset": data.get("sunset", 0),
+                "weather_id": data["weather"][0]["id"],
+              }
+              if valid_weather(weather):
+                return weather, PERSONAL_KEY_UPDATE_INTERVAL
         except (IndexError, KeyError, TypeError, ValueError, requests.RequestException):
           pass
 
-      return self.frogpilot_api.post_json("/v1/weather", {"latitude": position[0], "longitude": position[1]}, session=self.session, timeout=30)
+      return self.frogpilot_api.post_json("/v1/weather", {"latitude": position[0], "longitude": position[1]}, session=self.session, timeout=30), DEFAULT_UPDATE_INTERVAL
 
-    future = self.executor.submit(make_request)
-    future.add_done_callback(complete_request)
+    self.future = self.executor.submit(make_request)
+
+  def complete_request(self):
+    future = self.future
+    self.future = None
+
+    self.next_retry = time.monotonic() + RETRY_INTERVAL
+
+    try:
+      data, interval = future.result()
+    except (frogpilot_api.FrogPilotAPIError, IndexError, KeyError, TypeError, ValueError, requests.RequestException):
+      return
+
+    if not valid_weather(data):
+      return
+
+    self.weather_calls += 1
+
+    self.last_position = self.request_position
+    self.last_request_time = self.request_time
+    self.next_request = self.request_time + interval
+
+    self.sunrise = data["sunrise"]
+    self.sunset = data["sunset"]
+    self.weather_id = data["weather_id"]

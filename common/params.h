@@ -44,7 +44,7 @@ struct ParamKeyAttributes {
 
 class Params {
 public:
-  explicit Params(const std::string &path = {}, bool memory = false);
+  explicit Params(const std::string &path = {});
   ~Params();
   // Not copyable.
   Params(const Params&) = delete;
@@ -104,13 +104,16 @@ public:
   void putIntNonBlocking(const std::string &key, int val) {
     putNonBlocking(key, std::to_string(val));
   }
-  void putFloatNonBlocking(const std::string &key, float val) {
-    putNonBlocking(key, std::to_string(val));
-  }
 
   int getTuningLevel(const std::string &key);
 
   std::optional<std::string> getStockValue(const std::string &key);
+
+  void waitForPendingWrites() {
+    if (future.valid()) {
+      future.wait();
+    }
+  }
 
 private:
   void asyncWriteThread();

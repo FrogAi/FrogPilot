@@ -2,7 +2,7 @@
 import json
 import sentry_sdk
 import traceback
-from datetime import datetime
+from datetime import UTC, datetime
 from enum import Enum
 from sentry_sdk.integrations.threading import ThreadingIntegration
 from sentry_sdk.transport import HttpTransport
@@ -13,8 +13,9 @@ from openpilot.system.hardware import HARDWARE, PC
 from openpilot.common.swaglog import cloudlog
 from openpilot.system.version import get_build_metadata, get_version
 
-from openpilot.frogpilot.common.frogpilot_variables import ERROR_LOGS_PATH, SENTRY_QUEUE_PATH
+from openpilot.frogpilot.common import frogpilot_variables
 
+# FrogPilot variables
 MAX_QUEUED_TOMBSTONES = 50
 SENTRY_FLUSH_TIMEOUT = 10.0
 
@@ -26,17 +27,14 @@ class SentryProject(Enum):
   SELFDRIVE_NATIVE = "https://7ba43fba4cfcf1a6c0eff83d40374e43@o4505034923769856.ingest.us.sentry.io/4505034930651136"
 
 
+# FrogPilot variables
 class DeliveryTrackingTransport(HttpTransport):
-  def __init__(self, options):
-    super().__init__(options)
-    self.delivered = True
-
   def on_dropped_event(self, reason) -> None:
     self.delivered = False
 
 
 def deliver_tombstone(fn: str, message: str, contents: str) -> bool:
-  transport = getattr(sentry_sdk.get_client(), "transport", None)
+  transport = sentry_sdk.get_client().transport
   if not isinstance(transport, DeliveryTrackingTransport):
     return False
 
@@ -48,25 +46,28 @@ def deliver_tombstone(fn: str, message: str, contents: str) -> bool:
     sentry_sdk.capture_message(message=message)
     sentry_sdk.flush(timeout=SENTRY_FLUSH_TIMEOUT)
 
-  return transport.delivered
+  return transport._worker._timed_queue_join(0) and transport.delivered
 
 
 def queue_tombstone(fn: str, message: str, contents: str) -> None:
   try:
-    SENTRY_QUEUE_PATH.mkdir(parents=True, exist_ok=True)
-    queued = sorted(SENTRY_QUEUE_PATH.glob("*.json"))
+    frogpilot_variables.SENTRY_QUEUE_PATH.mkdir(parents=True, exist_ok=True)
+    queued = sorted(frogpilot_variables.SENTRY_QUEUE_PATH.glob("*.json"))
     for expired in queued[:max(0, len(queued) + 1 - MAX_QUEUED_TOMBSTONES)]:
       expired.unlink(missing_ok=True)
 
     name = datetime.now().strftime("%Y-%m-%d--%H-%M-%S-%f") + ".json"
-    (SENTRY_QUEUE_PATH / name).write_text(json.dumps({"fn": fn, "message": message, "contents": contents}))
+    (frogpilot_variables.SENTRY_QUEUE_PATH / name).write_text(json.dumps({"fn": fn, "message": message, "contents": contents}))
     cloudlog.warning(f"queued tombstone for a later connection: {name}")
   except OSError:
     cloudlog.exception("sentry.queue_tombstone")
 
 
 def flush_queued_tombstones() -> None:
-  for path in sorted(SENTRY_QUEUE_PATH.glob("*.json")) if SENTRY_QUEUE_PATH.is_dir() else []:
+  if not frogpilot_variables.SENTRY_QUEUE_PATH.is_dir():
+    return
+
+  for path in sorted(frogpilot_variables.SENTRY_QUEUE_PATH.glob("*.json")):
     try:
       report = json.loads(path.read_text())
     except (OSError, ValueError):
@@ -83,18 +84,14 @@ def flush_queued_tombstones() -> None:
 def report_tombstone(fn: str, message: str, contents: str) -> None:
   cloudlog.error({'tombstone': message})
 
+  # FrogPilot variables
   if not deliver_tombstone(fn, message, contents):
     queue_tombstone(fn, message, contents)
 
 
 def capture_exception(*args, crash_log=True, **kwargs) -> None:
+  # FrogPilot variables
   exc_text = traceback.format_exc()
-
-  errors_to_ignore = [
-  ]
-
-  if any(error in exc_text for error in errors_to_ignore):
-    return
 
   save_exception(exc_text, crash_log)
   cloudlog.error("crash", exc_info=kwargs.get('exc_info', 1))
@@ -106,14 +103,20 @@ def capture_exception(*args, crash_log=True, **kwargs) -> None:
     cloudlog.exception("sentry exception")
 
 
+# FrogPilot variables
+def capture_message(message: str, **kwargs) -> None:
+  sentry_sdk.capture_message(message, **kwargs)
+
+
 def set_tag(key: str, value: str) -> None:
   sentry_sdk.set_tag(key, value)
 
 
+# FrogPilot variables
 def save_exception(exc_text: str, crash_log) -> None:
   files = [
-    ERROR_LOGS_PATH / datetime.now().astimezone().strftime("%Y-%m-%d--%H-%M-%S.log"),
-    ERROR_LOGS_PATH / "error.txt"
+    frogpilot_variables.ERROR_LOGS_PATH / datetime.now().astimezone().strftime("%Y-%m-%d--%H-%M-%S.log"),
+    frogpilot_variables.ERROR_LOGS_PATH / "error.txt"
   ]
 
   for file_path in files:
@@ -133,6 +136,7 @@ def init(project: SentryProject) -> bool:
   if not FrogPilot or build_metadata.openpilot.is_dirty or PC:
     return False
 
+  # FrogPilot variables
   short_branch = build_metadata.channel
 
   if short_branch in ["COMMA", "HEAD"]:
@@ -168,7 +172,14 @@ def init(project: SentryProject) -> bool:
   sentry_sdk.set_tag("origin", build_metadata.openpilot.git_origin)
   sentry_sdk.set_tag("branch", short_branch)
   sentry_sdk.set_tag("commit", build_metadata.openpilot.git_commit)
+  # FrogPilot variables
   sentry_sdk.set_tag("updated", params.get("Updated"))
-  sentry_sdk.set_tag("installed", params.get("InstallDate"))
+
+  install_date = params.get("InstallDate")
+
+  if install_date is not None:
+    install_date = install_date.replace(tzinfo=UTC)
+
+  sentry_sdk.set_tag("installed", install_date)
 
   return True

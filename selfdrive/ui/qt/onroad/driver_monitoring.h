@@ -13,9 +13,7 @@ public:
   void draw(QPainter &painter, const QRect &surface_rect);
 
   // FrogPilot variables
-  FrogPilotAnnotatedCameraWidget *frogpilot_nvg;
-
-  bool onroad_distance_btn_enabled;
+  FrogPilotAnnotatedCameraWidget *frogpilot_nvg = nullptr;
 
   QJsonObject frogpilot_toggles;
 
