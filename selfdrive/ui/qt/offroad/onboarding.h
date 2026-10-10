@@ -94,13 +94,16 @@ class OnboardingWindow : public QStackedWidget {
 public:
   explicit OnboardingWindow(QWidget *parent = 0);
   inline void showTrainingGuide() { setCurrentIndex(1); }
-  inline bool completed() const { return accepted_terms && training_done; }
+  inline bool completed() const { return accepted_terms && training_done && telemetry_confirmed; }
 
 private:
   void updateActiveScreen();
 
   Params params;
   bool accepted_terms = false, training_done = false;
+
+  // FrogPilot variables
+  bool telemetry_confirmed = false;
 
 signals:
   void onboardingDone();

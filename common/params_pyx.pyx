@@ -20,9 +20,6 @@ cdef extern from "common/params.h":
     CLEAR_ON_IGNITION_ON
     ALL
 
-    # FrogPilot variables
-    DONT_LOG
-
   cpdef enum ParamKeyType:
     STRING
     BOOL
@@ -33,7 +30,7 @@ cdef extern from "common/params.h":
     BYTES
 
   cdef cppclass c_Params "Params":
-    c_Params(string, bool) except + nogil
+    c_Params(string) except + nogil
     string get(string, bool) nogil
     bool getBool(string, bool) nogil
     int remove(string) nogil
@@ -49,11 +46,11 @@ cdef extern from "common/params.h":
     vector[string] allKeys()
 
     # FrogPilot variables
-    ParamKeyFlag getKeyFlag(string) nogil
-
     optional[string] getStockValue(string) nogil
 
     int getTuningLevel(string) nogil
+
+    void waitForPendingWrites() nogil
 
 PYTHON_2_CPP = {
   (str, STRING): lambda v: v,
@@ -86,26 +83,19 @@ cdef class Params:
   cdef str d
 
   # FrogPilot variables
-  cdef bool m
   cdef bool return_defaults
 
-  def __cinit__(self, d="", *, memory=False, return_defaults=False):
+  def __cinit__(self, d="", return_defaults=False):
     cdef string path = <string>d.encode()
-
-    # FrogPilot variables
-    cdef bool c_memory = memory
-
     with nogil:
-      self.p = new c_Params(path, c_memory)
+      self.p = new c_Params(path)
     self.d = d
 
     # FrogPilot variables
-    self.m = memory
-
-    self.return_defaults = return_defaults or memory
+    self.return_defaults = return_defaults
 
   def __reduce__(self):
-    return (type(self), (self.d, self.m, self.return_defaults))
+    return (type(self), (self.d, self.return_defaults))
 
   def __dealloc__(self):
     del self.p
@@ -166,7 +156,6 @@ cdef class Params:
 
   def put(self, key, dat):
     """
-    Returns 0 on success or a nonzero write status on failure.
     Warning: This function blocks until the param is written to disk!
     In very rare cases this can take over a second, and your code will hang.
     Use the put_nonblocking, put_bool_nonblocking in time sensitive code, but
@@ -222,9 +211,6 @@ cdef class Params:
     return self._cpp2python(t, value, None, key)
 
   # FrogPilot variables
-  def get_key_flag(self, key):
-    return self.p.getKeyFlag(self.check_key(key))
-
   def get_stock_value(self, key):
     cdef string k = self.check_key(key)
     cdef ParamKeyType t = self.p.getKeyType(k)
@@ -232,6 +218,8 @@ cdef class Params:
     return self._cpp2python(t, stock.value(), None, key) if stock.has_value() else None
 
   def get_tuning_level(self, key):
-    cdef string k = self.check_key(key)
-    cdef optional[int] level = self.p.getTuningLevel(k)
-    return level.value() if level.has_value() else 0
+    return self.p.getTuningLevel(self.check_key(key))
+
+  def wait_for_pending_writes(self):
+    with nogil:
+      self.p.waitForPendingWrites()

@@ -18,7 +18,7 @@ from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N
 from openpilot.selfdrive.controls.lib.latcontrol import LatControl
 from openpilot.selfdrive.modeld.constants import ModelConstants
 
-from openpilot.frogpilot.common.frogpilot_variables import NNFF_MODELS_PATH, get_nnff_model_files, get_nnff_substitutes
+from openpilot.frogpilot.common import frogpilot_variables
 
 # At higher speeds (25+mph) we can assume:
 # Lateral acceleration achieved by a specific car correlates to
@@ -119,12 +119,12 @@ def get_nn_model(car, eps_firmware) -> FluxModel | None:
 
 def get_nn_model_path(car, eps_firmware) -> str | None:
   def best_model_path(query):
-    candidates = get_nnff_model_files()
+    candidates = frogpilot_variables.get_nnff_model_files()
     if not candidates:
       return None, 0.0
 
     best = max(candidates, key=lambda model: similarity(model, query))
-    return os.path.join(NNFF_MODELS_PATH, f"{best}.json"), similarity(best, query)
+    return os.path.join(frogpilot_variables.NNFF_MODELS_PATH, f"{best}.json"), similarity(best, query)
 
   def find_valid_model(*queries_with_candidates):
     for query, candidate in queries_with_candidates:
@@ -133,7 +133,7 @@ def get_nn_model_path(car, eps_firmware) -> str | None:
         return path
     return None
 
-  substitutes = get_nnff_substitutes()
+  substitutes = frogpilot_variables.get_nnff_substitutes()
   sub_candidate = substitutes.get(car, car)
 
   candidates_to_check = [car]

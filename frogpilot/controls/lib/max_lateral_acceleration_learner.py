@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-from openpilot.common.constants import ACCELERATION_DUE_TO_GRAVITY
 from openpilot.common.realtime import DT_MDL
 
-from openpilot.frogpilot.common.frogpilot_variables import CRUISING_SPEED
+from openpilot.frogpilot.common import frogpilot_variables
 
 TRACKING_RATIO = 0.9
 
@@ -18,31 +17,21 @@ class MaxLateralAccelerationLearner:
 
     self.tracking_time = 0
 
-    self.car_fingerprint = None
-
   def update(self, sm, frogpilot_toggles):
     if not self.initialized:
-      learned_limit = 0.0
+      self.csc.max_limit = frogpilot_toggles.maxLateralAccel
 
-      learned_profile = self.csc.frogpilot_planner.params.get("MaxLateralAcceleration")
-
-      if isinstance(learned_profile, dict) and learned_profile.get("car_fingerprint") == frogpilot_toggles.car_model:
-        learned_limit = learned_profile.get("value", 0.0)
-
-      self.car_fingerprint = frogpilot_toggles.car_model
-      self.csc.max_limit = max(frogpilot_toggles.maxLateralAccel, learned_limit)
-
-      self._update_profile()
+      self._update_profile(frogpilot_toggles.car_model)
 
       self.initialized = True
 
     valid = sm.all_checks(["carControl", "carState", "controlsState", "liveParameters"])
     valid &= sm["controlsState"].lateralControlState.angleState.active and sm["liveParameters"].valid and len(sm["carControl"].angularVelocity) > 2
-    valid &= sm["carState"].vEgo > CRUISING_SPEED and not sm["carState"].steeringPressed
+    valid &= sm["carState"].vEgo > frogpilot_variables.CRUISING_SPEED and not sm["carState"].steeringPressed
     valid &= not (sm["carState"].leftBlinker or sm["carState"].rightBlinker)
 
     if valid:
-      roll_compensation = sm["liveParameters"].roll * ACCELERATION_DUE_TO_GRAVITY
+      roll_compensation = self.csc.frogpilot_planner.roll_compensation
 
       actual_lateral_acceleration = sm["carControl"].angularVelocity[2] * sm["carState"].vEgo - roll_compensation
       desired_lateral_acceleration = sm["controlsState"].desiredCurvature * sm["carState"].vEgo**2 - roll_compensation
@@ -59,15 +48,15 @@ class MaxLateralAccelerationLearner:
       self.tracking_time += DT_MDL
     else:
       if self.tracking_time >= MIN_LEARNING_TIME:
-        self._update_profile()
+        self._update_profile(frogpilot_toggles.car_model)
 
       self.tracking_time = 0.0
 
     if self.tracking_time >= MIN_LEARNING_TIME:
       self.csc.max_limit = min(self.csc.max_limit + LEARNING_RATE * DT_MDL, demonstrated_limit)
 
-  def _update_profile(self):
+  def _update_profile(self, car_model):
     self.csc.frogpilot_planner.params.put_nonblocking("MaxLateralAcceleration", {
-      "car_fingerprint": self.car_fingerprint,
+      "car_fingerprint": car_model,
       "value": self.csc.max_limit,
     })

@@ -23,15 +23,14 @@ private:
 
   std::map<QString, AbstractControl*> toggles;
 
-  QSet<QString> alertVolumeControlKeys {"DisengageVolume", "EngageVolume", "PromptDistractedVolume", "PromptVolume", "RefuseVolume", "WarningImmediateVolume", "WarningSoftVolume"};
-  QSet<QString> customAlertsKeys {"GoatScream", "GreenLightAlert", "LeadDepartingAlert", "LoudBlindspotAlert", "SpeedLimitChangedAlert"};
+  QSet<QString> alertVolumeControlKeys = {"DisengageVolume", "EngageVolume", "PromptDistractedVolume", "PromptVolume", "RefuseVolume", "WarningImmediateVolume", "WarningSoftVolume"};
+  QSet<QString> customAlertsKeys = {"GoatScream", "GreenLightAlert", "LeadDepartingAlert", "LoudBlindspotAlert", "SpeedLimitChangedAlert"};
 
   QSet<QString> parentKeys;
 
   FrogPilotSettingsWindow *parent;
 
   Params params;
-  Params params_memory{"", true};
 
   QProcess *soundPlayerProcess;
 };

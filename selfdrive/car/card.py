@@ -22,7 +22,7 @@ from openpilot.selfdrive.pandad import can_capnp_to_list, can_list_to_can_capnp
 from openpilot.selfdrive.car.cruise import VCruiseHelper
 from openpilot.selfdrive.car.car_specific import MockCarState
 
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles, update_frogpilot_toggles
+from openpilot.frogpilot.common import frogpilot_variables
 from openpilot.frogpilot.controls.frogpilot_card import FrogPilotCard
 
 REPLAY = "REPLAY" in os.environ
@@ -106,7 +106,7 @@ class Car:
         with car.CarParams.from_bytes(cached_params_raw) as _cached_params:
           cached_params = _cached_params
 
-      self.CI = get_car(*self.can_callbacks, obd_callback(self.params), alpha_long_allowed, is_release, self.params, num_pandas, cached_params, get_frogpilot_toggles())
+      self.CI = get_car(*self.can_callbacks, obd_callback(self.params), alpha_long_allowed, is_release, self.params, num_pandas, cached_params, frogpilot_variables.get_frogpilot_toggles())
       self.RI = interfaces[self.CI.CP.carFingerprint].RadarInterface(self.CI.CP)
       self.CP = self.CI.CP
 
@@ -121,7 +121,7 @@ class Car:
 
     self.CP.alternativeExperience = 0
     openpilot_enabled_toggle = self.params.get_bool("OpenpilotEnabledToggle")
-    controller_available = self.CI.CC is not None and openpilot_enabled_toggle
+    controller_available = self.CI.CC is not None and openpilot_enabled_toggle and not self.FPCP.dashcamOnly
     self.CP.passive = not controller_available
     if self.CP.passive:
       safety_config = structs.CarParams.SafetyConfig()
@@ -154,6 +154,12 @@ class Car:
     if prev_cp is not None:
       self.params.put("CarParamsPrevRoute", prev_cp)
 
+    # FrogPilot variables
+    self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
+
+    if self.frogpilot_toggles.always_on_lateral and not self.FPCP.dashcamOnly:
+      self.CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL
+
     # Write CarParams for controls and radard
     cp_bytes = self.CP.to_bytes()
     self.params.put("CarParams", cp_bytes)
@@ -173,20 +179,13 @@ class Car:
     self.resume_prev_button = False
 
     # FrogPilot variables
-    self.frogpilot_toggles = get_frogpilot_toggles()
-
-    if self.frogpilot_toggles.always_on_lateral:
-      self.FPCP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL
-
     fpcp_bytes = self.FPCP.to_bytes()
     self.params.put("FrogPilotCarParams", fpcp_bytes)
     self.params.put_nonblocking("FrogPilotCarParamsPersistent", fpcp_bytes)
 
-    update_frogpilot_toggles()
+    self.frogpilot_card = FrogPilotCard(self.CP)
 
-    self.frogpilot_card = FrogPilotCard(self.CP, self.FPCP)
-
-    self.sm = self.sm.extend(['frogpilotOnroadEvents', 'frogpilotPlan', 'frogpilotSelfdriveState', 'liveCalibration', 'selfdriveState'])
+    self.sm = self.sm.extend(['frogpilotPlan', 'frogpilotSelfdriveState', 'liveCalibration', 'selfdriveState'])
     self.pm = self.pm.extend(['frogpilotCarState'])
 
   def state_update(self) -> tuple[car.CarState, structs.RadarDataT | None]:
@@ -311,7 +310,7 @@ class Car:
     # FrogPilot variables
     self.CI.CS.CC = self.sm['carControl']
 
-    self.frogpilot_toggles = get_frogpilot_toggles(self.sm)
+    self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(self.sm)
 
   def params_thread(self, evt):
     while not evt.is_set():

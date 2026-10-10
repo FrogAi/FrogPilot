@@ -1,33 +1,35 @@
 #!/usr/bin/env python3
 import json
 import math
-import shutil
-import threading
+import subprocess
 import time
 
+from multiprocessing import Process
 from pathlib import Path
 
 from cereal import messaging
 from openpilot.common.basedir import BASEDIR
-from openpilot.common.gps import get_gps_location_service
+from openpilot.common.constants import CV
 from openpilot.common.params import Params
 from openpilot.common.time_helpers import system_time_valid
 from openpilot.system.athena.registration import register
-from openpilot.system.hardware import HARDWARE
+from openpilot.system.hardware import HARDWARE, PC
 
 from openpilot.frogpilot.assets.theme_manager import ThemeManager
-from openpilot.frogpilot.common.frogpilot_backups import backup_frogpilot
-from openpilot.frogpilot.common.frogpilot_utilities import (
-  delete_file, is_FrogsGoMoo, is_gps_location_valid, run_cmd, update_json_file, use_konik_server
-)
-from openpilot.frogpilot.common.frogpilot_variables import (
-  EARTH_RADIUS, ERROR_LOGS_PATH, FROGS_GO_MOO_PATH, HD_LOGS_PATH, KONIK_LOGS_PATH, MAPD_ARCHIVE_SIZE_DEGREES, MAPD_MAX_MAP_AGE_DAYS, MAPS_PATH,
-  SCREEN_RECORDINGS_PATH, THEME_SAVE_PATH, FrogPilotVariables, get_frogpilot_toggles
-)
+from openpilot.frogpilot.common import frogpilot_backups, frogpilot_utilities, frogpilot_variables
+
+MAPD_DOWNLOAD_MENU_PATH = Path(BASEDIR) / "mapd_download_menu.json"
+
+
+def boot_backup(build_metadata):
+  while not system_time_valid():
+    time.sleep(1)
+
+  frogpilot_backups.backup_frogpilot(build_metadata, Params())
 
 
 def cleanup_screen_recordings(limit_bytes):
-  recordings = sorted(SCREEN_RECORDINGS_PATH.glob("*.mp4"), key=lambda recording: recording.stat().st_mtime, reverse=True)
+  recordings = sorted(frogpilot_variables.SCREEN_RECORDINGS_PATH.glob("*.mp4"), key=lambda recording: recording.stat().st_mtime, reverse=True)
 
   total = 0
   for recording in recordings:
@@ -36,11 +38,11 @@ def cleanup_screen_recordings(limit_bytes):
       continue
 
     for companion in (recording.with_suffix(".png"), recording.with_suffix(".gif")):
-      delete_file(companion, report=False)
-    delete_file(recording, report=False)
+      frogpilot_utilities.delete_file(companion, report=False)
+    frogpilot_utilities.delete_file(recording, report=False)
 
 
-def download_maps(locations, params_memory):
+def download_maps(locations, cancel_download):
   pm = messaging.PubMaster(["mapdIn"])
   sm = messaging.SubMaster(["mapdExtendedOut"])
 
@@ -58,12 +60,10 @@ def download_maps(locations, params_memory):
   while True:
     sm.update(1000)
 
-    if params_memory.get_bool("CancelDownloadMaps"):
+    if cancel_download.is_set():
       msg = messaging.new_message("mapdIn")
       msg.mapdIn.type = 27
       pm.send("mapdIn", msg)
-
-      params_memory.remove("CancelDownloadMaps")
 
       return False
 
@@ -80,75 +80,47 @@ def download_maps(locations, params_memory):
       return False
 
 
-def download_nearby_maps(latitude, longitude, params_memory):
-  if not (-90 <= latitude <= 90 and -180 <= longitude <= 180):
-    return False
-
-  angular_radius = 100_000 / EARTH_RADIUS
+def download_nearby_maps(latitude, longitude, cancel_download):
+  angular_radius = 100_000 / frogpilot_variables.EARTH_RADIUS
   latitude_offset = math.degrees(angular_radius)
+  longitude_offset = math.degrees(math.asin(math.sin(angular_radius) / math.cos(math.radians(latitude))))
 
-  min_latitude = max(-90, math.floor((latitude - latitude_offset) / MAPD_ARCHIVE_SIZE_DEGREES) * MAPD_ARCHIVE_SIZE_DEGREES)
-  max_latitude = min(90, math.ceil((latitude + latitude_offset) / MAPD_ARCHIVE_SIZE_DEGREES) * MAPD_ARCHIVE_SIZE_DEGREES)
+  min_latitude = math.floor((latitude - latitude_offset) / frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES) * frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES
+  max_latitude = math.ceil((latitude + latitude_offset) / frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES) * frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES
+  min_longitude = math.floor((longitude - longitude_offset) / frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES) * frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES
+  max_longitude = math.ceil((longitude + longitude_offset) / frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES) * frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES
 
-  if abs(latitude) + latitude_offset >= 90:
-    min_longitude = -180
-    max_longitude = 180
-  else:
-    longitude_offset = math.degrees(math.asin(math.sin(angular_radius) / math.cos(math.radians(latitude))))
-    min_longitude = math.floor((longitude - longitude_offset) / MAPD_ARCHIVE_SIZE_DEGREES) * MAPD_ARCHIVE_SIZE_DEGREES
-    max_longitude = math.ceil((longitude + longitude_offset) / MAPD_ARCHIVE_SIZE_DEGREES) * MAPD_ARCHIVE_SIZE_DEGREES
-
-  archive_directories = []
   current_time = time.time()
   download_menu = {"nearby": {}}
 
-  for archive_latitude in range(min_latitude, max_latitude, MAPD_ARCHIVE_SIZE_DEGREES):
-    for archive_longitude in range(min_longitude, max_longitude, MAPD_ARCHIVE_SIZE_DEGREES):
+  for archive_latitude in range(min_latitude, max_latitude, frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES):
+    for archive_longitude in range(min_longitude, max_longitude, frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES):
       archive_longitude = (archive_longitude + 180) % 360 - 180
-      archive_directory = MAPS_PATH / str(archive_latitude) / str(archive_longitude)
+      archive_directory = frogpilot_variables.MAPS_PATH / str(archive_latitude) / str(archive_longitude)
 
-      if archive_directory.exists() and current_time - archive_directory.stat().st_mtime <= MAPD_MAX_MAP_AGE_DAYS * 24 * 60 * 60:
+      if any(current_time - tile.stat().st_mtime <= frogpilot_variables.MAPD_MAX_MAP_AGE_DAYS * 24 * 60 * 60 for tile in archive_directory.glob("*")):
         continue
 
-      archive_directories.append(archive_directory)
       download_menu["nearby"][f"{archive_latitude}_{archive_longitude}"] = {
         "full_name": "Nearby Maps",
         "bounding_box": {
           "min_lon": archive_longitude,
           "min_lat": archive_latitude,
-          "max_lon": archive_longitude + MAPD_ARCHIVE_SIZE_DEGREES,
-          "max_lat": archive_latitude + MAPD_ARCHIVE_SIZE_DEGREES,
+          "max_lon": archive_longitude + frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES,
+          "max_lat": archive_latitude + frogpilot_variables.MAPD_ARCHIVE_SIZE_DEGREES,
         },
       }
 
-  if not download_menu["nearby"]:
-    return True
+  if download_menu["nearby"]:
+    frogpilot_utilities.update_json_file(MAPD_DOWNLOAD_MENU_PATH, download_menu)
+    download_maps(",".join(f"nearby.{archive_name}" for archive_name in download_menu["nearby"]), cancel_download)
 
-  menu_path = Path(BASEDIR) / "mapd_download_menu.json"
-  previous_menu = menu_path.read_bytes() if menu_path.exists() else None
-
-  update_json_file(menu_path, download_menu)
-
-  try:
-    downloaded = download_maps(",".join(f"nearby.{archive_name}" for archive_name in download_menu["nearby"]), params_memory)
-
-    if downloaded:
-      for archive_directory in archive_directories:
-        if archive_directory.is_dir():
-          archive_directory.touch()
-
-    return downloaded
-  finally:
-    if previous_menu is None:
-      delete_file(menu_path, report=False)
-    else:
-      menu_path.write_bytes(previous_menu)
+  frogpilot_utilities.delete_file(MAPD_DOWNLOAD_MENU_PATH, report=False)
 
 
 def frogpilot_boot_functions(build_metadata, params):
-  params_memory = Params(memory=True)
-
-  migrate_mapd_settings(params)
+  if params.get("MapdSettings") == {}:
+    params.put("MapdSettings", params.get_default_value("MapdSettings"))
 
   maps_selected = params.get("MapsSelected")
   if maps_selected:
@@ -162,52 +134,56 @@ def frogpilot_boot_functions(build_metadata, params):
           new_items.append(f"us_state.{state}")
         new_items.sort()
         params.put("MapsSelected", ",".join(new_items))
-    except (json.JSONDecodeError, TypeError, ValueError):
+    except json.JSONDecodeError:
       pass
 
-  FrogPilotVariables()
-  ThemeManager(params, params_memory, boot_run=True).update_active_theme(time_validated=system_time_valid(), frogpilot_toggles=get_frogpilot_toggles(), boot_run=True)
+  if params.get("TetheringEnabled") == 3:
+    params.remove("TetheringEnabled")
 
-  if use_konik_server():
+  frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
+
+  if not frogpilot_variables.HD_PATH.is_file() and frogpilot_toggles.use_higher_bitrate:
+    frogpilot_variables.HD_PATH.touch()
+    HARDWARE.reboot()
+  elif frogpilot_variables.HD_PATH.is_file() and not frogpilot_toggles.use_higher_bitrate:
+    frogpilot_variables.HD_PATH.unlink()
+    HARDWARE.reboot()
+
+  if not frogpilot_variables.KONIK_PATH.is_file() and frogpilot_toggles.use_konik_server:
+    frogpilot_variables.KONIK_PATH.touch()
+    HARDWARE.reboot()
+  elif frogpilot_variables.KONIK_PATH.is_file() and not frogpilot_toggles.use_konik_server:
+    frogpilot_variables.KONIK_PATH.unlink()
+    HARDWARE.reboot()
+
+  ThemeManager(params, boot_run=True).update_active_theme(time_validated=system_time_valid(), frogpilot_toggles=frogpilot_toggles, boot_run=True)
+
+  if frogpilot_utilities.use_konik_server():
     if params.get("KonikDongleId") is not None:
       params.put("DongleId", params.get("KonikDongleId"))
     else:
-      params.put("KonikDongleId", register(show_spinner=True, register_konik=True))
-      params.put("DongleId", params.get("KonikDongleId"))
+      Process(target=register_konik, daemon=True).start()
   elif params.get("DongleId") == params.get("KonikDongleId"):
     params.put("DongleId", params.get("StockDongleId"))
 
-  shutil.rmtree("/data/restore_temp", ignore_errors=True)
+  frogpilot_utilities.delete_file("/data/restore_temp")
 
-  def boot_thread():
-    while not system_time_valid():
-      print("Waiting for system time to become valid...")
-      time.sleep(1)
-
-    backup_frogpilot(build_metadata, params)
-
-  threading.Thread(target=boot_thread, daemon=True).start()
+  Process(target=boot_backup, args=(build_metadata,), daemon=True).start()
 
 
-def install_frogpilot(build_metadata, params):
+def install_frogpilot():
   paths = [
-    ERROR_LOGS_PATH,
-    HD_LOGS_PATH,
-    KONIK_LOGS_PATH,
-    SCREEN_RECORDINGS_PATH,
-    THEME_SAVE_PATH
+    frogpilot_variables.ERROR_LOGS_PATH,
+    frogpilot_variables.HD_LOGS_PATH,
+    frogpilot_variables.KONIK_LOGS_PATH,
+    frogpilot_variables.SCREEN_RECORDINGS_PATH
   ]
   for path in paths:
     path.mkdir(parents=True, exist_ok=True)
 
   cleanup_screen_recordings(10 * 1024 * 1024 * 1024)
 
-  update_boot_logo(frogpilot=True)
-
-
-def migrate_mapd_settings(params):
-  if params.get("MapdSettings") == {}:
-    params.put("MapdSettings", params.get_default_value("MapdSettings"))
+  update_boot_logo(Path(BASEDIR) / "frogpilot/assets/other_images/frogpilot_boot_logo.jpg")
 
 
 def migrate_params(params, params_cache):
@@ -222,52 +198,77 @@ def migrate_params(params, params_cache):
       if value is not None and not isinstance(value, expected_type):
         param_store.remove(key)
 
+  speed_limits = params.get("SpeedLimits")
+  if speed_limits and any(set(limit) != {"is_forward", "segment_id", "source", "speed_limit", "tile"} for limit in speed_limits):
+    params.remove("SpeedLimits")
+
+  if params.get_bool("IsMetric"):
+    metric_conversions = {
+      "CESignalSpeed": (CV.MPH_TO_KPH, 0),
+      "LaneLinesWidth": (CV.INCH_TO_CM, 0),
+      "MinimumLaneChangeSpeed": (CV.MPH_TO_KPH, 0),
+      "Offset1": (CV.MPH_TO_KPH, 0),
+      "Offset2": (CV.MPH_TO_KPH, 0),
+      "Offset3": (CV.MPH_TO_KPH, 0),
+      "Offset4": (CV.MPH_TO_KPH, 0),
+      "Offset5": (CV.MPH_TO_KPH, 0),
+      "Offset6": (CV.MPH_TO_KPH, 0),
+      "Offset7": (CV.MPH_TO_KPH, 0),
+      "PathWidth": (CV.FOOT_TO_METER, 1),
+      "RoadEdgesWidth": (CV.INCH_TO_CM, 0),
+    }
+
+    for key, (conversion, decimals) in metric_conversions.items():
+      if params.get(key) is None and not Path(params_cache.get_param_path(key)).is_file():
+        params.put(key, round(params.get_default_value(key) * conversion, decimals))
+
+
+def register_konik():
+  Params().put("KonikDongleId", register(register_konik=True))
+
 
 def run_frogsgomoo(build_metadata):
-  if build_metadata.channel == "FrogPilot-Development" and is_FrogsGoMoo():
-    mount_options = run_cmd(["findmnt", "-n", "-o", "OPTIONS", "/persist"], "Successfully retrieved mount options", "Failed to retrieve mount options")
-    run_cmd(["sudo", "mount", "-o", "remount,rw", "/persist"], "Successfully remounted /persist as read-write", "Failed to remount /persist")
-    run_cmd(["sudo", "python3", FROGS_GO_MOO_PATH], "Successfully ran frogsgomoo.py", "Failed to run frogsgomoo.py")
-    run_cmd(["sudo", "mount", "-o", f"remount,{mount_options}", "/persist"], "Successfully restored /persist mount options", "Failed to restore /persist mount options")
+  if build_metadata.channel == "FrogPilot-Development" and frogpilot_utilities.is_FrogsGoMoo():
+    mount_options = frogpilot_utilities.run_cmd(["findmnt", "-n", "-o", "OPTIONS", "/persist"], None, "Failed to retrieve mount options")
+    frogpilot_utilities.run_cmd(["sudo", "mount", "-o", "remount,rw", "/persist"], None, "Failed to remount /persist")
+    frogpilot_utilities.run_cmd(["sudo", "python3", frogpilot_variables.FROGS_GO_MOO_PATH], None, "Failed to run frogsgomoo.py")
+    frogpilot_utilities.run_cmd(["sudo", "mount", "-o", f"remount,{mount_options}", "/persist"], None, "Failed to restore /persist mount options")
+
+
+def soft_reboot():
+  Path("/tmp/booted").touch()
+
+  subprocess.check_call(["sudo", "systemctl", "restart", "--no-block", "comma"])
 
 
 def uninstall_frogpilot():
-  update_boot_logo(stock=True)
+  update_boot_logo(Path(BASEDIR) / "frogpilot/assets/other_images/stock_bg.jpg")
 
   HARDWARE.uninstall()
 
 
-def update_boot_logo(frogpilot=False, stock=False):
+def update_boot_logo(target_logo):
+  if PC:
+    return
+
   boot_logo_location = Path("/usr/comma/bg.jpg")
 
-  if frogpilot:
-    target_logo = Path(BASEDIR) / "frogpilot/assets/other_images/frogpilot_boot_logo.jpg"
-  elif stock:
-    target_logo = Path(BASEDIR) / "frogpilot/assets/other_images/stock_bg.jpg"
-  else:
-    print('Error: Must specify either "frogpilot=True" or "stock=True"')
-    return
-
-  if not target_logo.is_file():
-    print(f"Error: Target logo file not found at {target_logo}")
-    return
-
   if boot_logo_location.read_bytes() != target_logo.read_bytes():
-    mount_options = run_cmd(["findmnt", "-n", "-o", "OPTIONS", "/"], "Successfully retrieved mount options", "Failed to retrieve mount options")
-    run_cmd(["sudo", "mount", "-o", "remount,rw", "/"], "Successfully remounted / as read-write", "Failed to remount /")
-    run_cmd(["sudo", "cp", target_logo, boot_logo_location], "Successfully replaced boot logo", "Failed to replace boot logo")
-    run_cmd(["sudo", "mount", "-o", f"remount,{mount_options}", "/"], "Successfully restored / mount options", "Failed to restore / mount options")
+    mount_options = frogpilot_utilities.run_cmd(["findmnt", "-n", "-o", "OPTIONS", "/"], None, "Failed to retrieve mount options")
+    frogpilot_utilities.run_cmd(["sudo", "mount", "-o", "remount,rw", "/"], None, "Failed to remount /")
+    frogpilot_utilities.run_cmd(["sudo", "cp", target_logo, boot_logo_location], None, "Failed to replace boot logo")
+    frogpilot_utilities.run_cmd(["sudo", "mount", "-o", f"remount,{mount_options}", "/"], None, "Failed to restore / mount options")
 
 
-def update_maps(now, params, params_memory, sm, manual_update=False):
-  if not sm["deviceState"].networkMetered:
-    gps_location_service = get_gps_location_service(params)
-    gps_location = sm[gps_location_service]
+def update_maps(now, params, cancel_download, sm, manual_update=False):
+  cancel_download.clear()
 
-    if is_gps_location_valid(gps_location, gps_location_service, sm):
-      download_nearby_maps(gps_location.latitude, gps_location.longitude, params_memory)
+  last_gps_position = params.get("LastGPSPosition")
+  if last_gps_position and not sm["deviceState"].networkMetered:
+    position = json.loads(last_gps_position)
+    download_nearby_maps(position["latitude"], position["longitude"], cancel_download)
 
-  if sm["deviceState"].networkMetered and not manual_update:
+  if cancel_download.is_set() or (sm["deviceState"].networkMetered and not manual_update):
     return
 
   maps_selected = params.get("MapsSelected")
@@ -282,7 +283,7 @@ def update_maps(now, params, params_memory, sm, manual_update=False):
   schedule = params.get("PreferredSchedule")
 
   last_maps_update = params.get("LastMapsUpdate")
-  maps_downloaded = MAPS_PATH.exists() and bool(last_maps_update)
+  maps_downloaded = frogpilot_variables.MAPS_PATH.exists() and bool(last_maps_update)
 
   if maps_downloaded and (schedule == 0 or (schedule == 1 and not is_sunday) or (schedule == 2 and not is_first)) and not manual_update:
     return
@@ -293,46 +294,45 @@ def update_maps(now, params, params_memory, sm, manual_update=False):
   if maps_downloaded and last_maps_update == todays_date and not manual_update:
     return
 
-  if download_maps(maps_selected, params_memory):
-    params.put("LastMapsUpdate", todays_date)
+  frogpilot_utilities.delete_file(MAPD_DOWNLOAD_MENU_PATH, report=False)
 
-  params_memory.remove("DownloadMaps")
+  if download_maps(maps_selected, cancel_download):
+    params.put("LastMapsUpdate", todays_date)
 
 
 def update_openpilot(thread_manager, params):
-  def update_available():
-    run_cmd(["pkill", "-SIGUSR1", "-f", "system.updated.updated"], "Checking for updates...", "Failed to check for update...", report=False)
-
-    while params.get("UpdaterState") != "checking...":
-      time.sleep(1)
-
-    while params.get("UpdaterState") == "checking...":
-      time.sleep(1)
-
-    if not params.get_bool("UpdaterFetchAvailable"):
+  def signal_updater(signal, fail_message):
+    last_run = params.get("UpdaterLastRunTime")
+    if frogpilot_utilities.run_cmd(["pkill", signal, "-f", "system.updated.updated"], None, fail_message, report=False) is None:
       return False
 
+    while params.get("UpdaterLastRunTime") == last_run:
+      time.sleep(1)
+    return True
+
+  def wait_until_offroad():
     while params.get_bool("IsOnroad") or thread_manager.is_thread_alive("lock_doors"):
       time.sleep(60)
 
-    run_cmd(["pkill", "-SIGHUP", "-f", "system.updated.updated"], "Update available, downloading...", "Failed to download update...", report=False)
+  def update_available():
+    if not signal_updater("-SIGUSR1", "Failed to check for update...") or not params.get_bool("UpdaterFetchAvailable"):
+      return False
 
-    while not params.get_bool("UpdateAvailable"):
-      time.sleep(60)
+    wait_until_offroad()
 
-    return True
+    return signal_updater("-SIGHUP", "Failed to download update...") and params.get_bool("UpdateAvailable")
 
   if params.get("UpdaterState") != "idle":
     return
 
-  while params.get_bool("IsOnroad") or thread_manager.is_thread_alive("lock_doors"):
-    time.sleep(60)
+  wait_until_offroad()
 
-  if not update_available():
+  if not params.get_bool("UpdateAvailable") and not update_available():
     return
 
-  while True:
-    if not update_available():
-      break
+  while update_available():
+    pass
+
+  wait_until_offroad()
 
   HARDWARE.reboot()

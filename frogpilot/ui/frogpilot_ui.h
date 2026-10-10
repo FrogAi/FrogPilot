@@ -8,19 +8,16 @@
 struct FrogPilotUIScene {
   bool always_on_lateral_active;
   bool downloading_update;
-  bool enabled;
   bool frogpilot_panel_active;
   bool online;
   bool parked;
   bool reverse;
-  bool sidebars_open;
   bool standstill;
   bool traffic_mode_enabled;
   bool wake_up_screen;
 
   int conditional_status;
   int driver_camera_timer;
-  int started_timer;
 
   QJsonObject frogpilot_toggles;
 };
@@ -31,19 +28,49 @@ class FrogPilotUIState : public QObject {
 public:
   explicit FrogPilotUIState(QObject *parent = nullptr);
 
+  void cancelMapsDownload();
+  void cancelModelDownload();
+  void cancelThemeDownload();
+  void downloadAllModels();
+  void downloadMaps();
+  void downloadModels(const QStringList &models);
+  void downloadTheme(const QString &component, const QStringList &themes);
+  void experimentalModePressed();
+  void flashPanda();
+  void reportIssue(const QString &report);
+  void runUpdateChecks();
+  void screenRecorderEvent(cereal::FrogPilotOnroadEvent::EventName event);
+  void setDistanceButtonPressed(bool pressed);
+  void setTethering(int mode);
+  void speedLimitAccepted();
+  void testAlert(const QString &alert);
   void update();
+  void updateToggles();
 
   std::unique_ptr<SubMaster> sm;
 
   FrogPilotUIScene frogpilot_scene = {};
 
-  Params params;
-  Params params_memory{"", true};
+  uint64_t download_maps_request_time = 0;
+  uint64_t download_model_request_time = 0;
+  uint64_t download_theme_request_time = 0;
+  uint64_t flash_panda_request_time = 0;
+  uint64_t issue_report_request_time = 0;
 
   WifiManager *wifi;
 
 signals:
+  void cameraFrameReceived();
+  void statsSaved();
   void themeUpdated();
+  void togglesUpdated();
+
+private:
+  bool distance_button_pressed = false;
+
+  int tethering_mode;
+
+  std::unique_ptr<PubMaster> pm;
 };
 
 FrogPilotUIState *frogpilotUIState();

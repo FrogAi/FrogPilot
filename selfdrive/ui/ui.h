@@ -81,7 +81,7 @@ class UIState : public QObject {
 
 public:
   UIState(QObject* parent = 0);
-  void updateStatus(FrogPilotUIState *fs);
+  void updateStatus();
   inline bool engaged() const {
     return scene.started && (*sm)["selfdriveState"].getSelfdriveState().getEnabled();
   }
@@ -119,6 +119,9 @@ public:
     offroad_brightness = std::clamp(brightness, 0, 100);
   }
 
+  // FrogPilot variables
+  bool isDark() { return dark; }
+
 private:
   bool awake = false;
   int interactive_timeout = 0;
@@ -129,8 +132,11 @@ private:
   FirstOrderFilter brightness_filter;
   QFuture<void> brightness_future;
 
-  void updateBrightness(const UIState &s, const FrogPilotUIState &fs);
-  void updateWakefulness(const UIState &s, const FrogPilotUIState &fs);
+  // FrogPilot variables
+  bool dark = false;
+
+  void updateBrightness(const UIState &s);
+  void updateWakefulness(const UIState &s);
   void setAwake(bool on);
 
 signals:
@@ -138,8 +144,8 @@ signals:
   void interactiveTimeout();
 
 public slots:
-  void resetInteractiveTimeout(int timeout = -1, int timeout_onroad = -1);
-  void update(const UIState &s, const FrogPilotUIState &fs);
+  void resetInteractiveTimeout(int timeout = -1);
+  void update(const UIState &s);
 };
 
 Device *device();

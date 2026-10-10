@@ -5,6 +5,7 @@
 // Stock longitudinal
 #define TOYOTA_BASE_TX_MSGS \
   {0x191, 0, 8, .check_relay = true}, {0x412, 0, 8, .check_relay = true}, {0x1D2, 0, 8, .check_relay = false},  /* LKAS + LTA + PCM cancel cmd */  \
+  {0x750, 0, 8, .check_relay = false}, \
 
 #define TOYOTA_COMMON_TX_MSGS \
   TOYOTA_BASE_TX_MSGS \
@@ -39,8 +40,6 @@
 #define TOYOTA_COMMON_RX_CHECKS(lta)                                                                                                       \
   {.msg = {{ 0xaa, 0, 8, 83U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  \
   {.msg = {{0x260, 0, 8, 50U, .ignore_counter = true, .ignore_quality_flag=!(lta)}, { 0 }, { 0 }}},                           \
-  /* FrogPilot Variables */                                                                                                   \
-  {.msg = {{0x1D3, 0, 8, 33U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  \
 
 #define TOYOTA_RX_CHECKS(lta)                                                                                                               \
   TOYOTA_COMMON_RX_CHECKS(lta)                                                                                                              \
@@ -57,6 +56,16 @@
   {.msg = {{0x176, 0, 8, 32U, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},                           \
   {.msg = {{0x116, 0, 8, 42U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  \
   {.msg = {{0x101, 0, 8, 50U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  \
+
+// FrogPilot variables
+#define TOYOTA_PCM_CRUISE_2_RX_CHECK                                                                                                       \
+  {.msg = {{0x1D3, 0, 8, 33U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},  \
+
+#define TOYOTA_DSU_CRUISE_RX_CHECK                                                                                                         \
+  {.msg = {{0x365, 0, 7, 5U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }, { 0 }}},   \
+
+#define TOYOTA_GAS_INTERCEPTOR_RX_CHECK                                                                                                    \
+  {.msg = {{0x201, 0, 6, 50U, .ignore_checksum = true, .max_counter = 15U, .ignore_quality_flag = true}, { 0 }, { 0 }}},     \
 
 static bool toyota_secoc = false;
 static bool toyota_alt_brake = false;
@@ -85,6 +94,15 @@ static bool toyota_get_quality_flag_valid(const CANPacket_t *msg) {
     valid = !GET_BIT(msg, 3U);  // STEER_ANGLE_INITIALIZING
   }
   return valid;
+}
+
+// FrogPilot variables
+static uint8_t toyota_get_counter(const CANPacket_t *msg) {
+  uint8_t cnt = 0U;
+  if (msg->addr == 0x201U) {
+    cnt = msg->data[4] & 0x0FU;
+  }
+  return cnt;
 }
 
 static void toyota_rx_hook(const CANPacket_t *msg) {
@@ -138,7 +156,12 @@ static void toyota_rx_hook(const CANPacket_t *msg) {
       if (msg->addr == 0x1D2U) {
         bool cruise_engaged = GET_BIT(msg, 5U);  // PCM_CRUISE.CRUISE_ACTIVE
         pcm_cruise_check(cruise_engaged);
-        gas_pressed = !GET_BIT(msg, 4U);  // PCM_CRUISE.GAS_RELEASED
+
+        // FrogPilot variables
+
+        if (!enable_gas_interceptor) {
+          gas_pressed = !GET_BIT(msg, 4U);  // PCM_CRUISE.GAS_RELEASED
+        }
       }
       if (!toyota_alt_brake && (msg->addr == 0x226U)) {
         brake_pressed = GET_BIT(msg, 37U);  // BRAKE_MODULE.BRAKE_PRESSED (toyota_nodsu_pt_generated.dbc)
@@ -169,6 +192,15 @@ static void toyota_rx_hook(const CANPacket_t *msg) {
 
     if (msg->addr == 0x365U) {
       acc_main_on = GET_BIT(msg, 0U);
+    }
+
+    if ((msg->addr == 0x201U) && enable_gas_interceptor) {
+      const int TOYOTA_GAS_INTERCEPTOR_THRSLD = 805;
+
+      int track1 = (msg->data[0] << 8) + msg->data[1];
+      int track2 = (msg->data[2] << 8) + msg->data[3];
+      int gas_interceptor = (track1 + track2) / 2;
+      gas_pressed = gas_interceptor > TOYOTA_GAS_INTERCEPTOR_THRSLD;
     }
   }
 }
@@ -340,15 +372,23 @@ static bool toyota_tx_hook(const CANPacket_t *msg) {
         }
       }
     }
+
+    // FrogPilot variables
+    if (msg->addr == 0x200U) {
+      if (longitudinal_interceptor_checks(msg)) {
+        tx = false;
+      }
+    }
   }
 
   // UDS: Only tester present ("\x0F\x02\x3E\x00\x00\x00\x00\x00") allowed on diagnostics address
   if (msg->addr == 0x750U) {
     // this address is sub-addressed. only allow tester present to radar (0xF)
     bool invalid_uds_msg = (GET_BYTES(msg, 0, 4) != 0x003E020FU) || (GET_BYTES(msg, 4, 4) != 0x0U);
+    // FrogPilot variables
     // AleSato added some more hack'sss
-    bool valid_uds_msgs = (GET_BYTES(msg, 0, 4) == 0x11300540U);  // automatic door locking and unlocking
-    if (invalid_uds_msg && !valid_uds_msgs) {
+    bool valid_uds_msgs = (GET_BYTES(msg, 0, 4) == 0x11300540U) && ((GET_BYTES(msg, 4, 4) == 0x00008000U) || (GET_BYTES(msg, 4, 4) == 0x00004000U));  // automatic door locking and unlocking
+    if (!valid_uds_msgs && (invalid_uds_msg || toyota_stock_longitudinal || toyota_secoc)) {
       tx = 0;
     }
   }
@@ -391,6 +431,14 @@ static safety_config toyota_init(uint16_t param) {
   toyota_lta = GET_FLAG(param, TOYOTA_PARAM_LTA);
   toyota_dbc_eps_torque_factor = param & TOYOTA_EPS_FACTOR;
 
+  // FrogPilot variables
+  const uint32_t TOYOTA_PARAM_UNSUPPORTED_DSU = 16UL << TOYOTA_PARAM_OFFSET;
+  const uint32_t TOYOTA_PARAM_GAS_INTERCEPTOR = 32UL << TOYOTA_PARAM_OFFSET;
+
+  bool toyota_unsupported_dsu = GET_FLAG(param, TOYOTA_PARAM_UNSUPPORTED_DSU);
+
+  enable_gas_interceptor = GET_FLAG(param, TOYOTA_PARAM_GAS_INTERCEPTOR) && !toyota_stock_longitudinal && !toyota_secoc;
+
   safety_config ret;
   if (toyota_secoc) {
     if (toyota_stock_longitudinal) {
@@ -409,6 +457,9 @@ static safety_config toyota_init(uint16_t param) {
   if (toyota_secoc) {
     static RxCheck toyota_secoc_rx_checks[] = {
       TOYOTA_SECOC_RX_CHECKS
+
+      // FrogPilot variables
+      TOYOTA_PCM_CRUISE_2_RX_CHECK
     };
 
     SET_RX_CHECKS(toyota_secoc_rx_checks, ret);
@@ -416,21 +467,96 @@ static safety_config toyota_init(uint16_t param) {
     // Check the quality flag for angle measurement when using LTA, since it's not set on TSS-P cars
     static RxCheck toyota_lta_rx_checks[] = {
       TOYOTA_RX_CHECKS(true)
+
+      // FrogPilot variables
+      TOYOTA_PCM_CRUISE_2_RX_CHECK
     };
 
     SET_RX_CHECKS(toyota_lta_rx_checks, ret);
   } else {
     static RxCheck toyota_lka_rx_checks[] = {
       TOYOTA_RX_CHECKS(false)
+
+      // FrogPilot variables
+      TOYOTA_PCM_CRUISE_2_RX_CHECK
     };
     static RxCheck toyota_lka_alt_brake_rx_checks[] = {
       TOYOTA_ALT_BRAKE_RX_CHECKS(false)
+
+      // FrogPilot variables
+      TOYOTA_PCM_CRUISE_2_RX_CHECK
     };
 
-    if (!toyota_alt_brake) {
+    // FrogPilot variables
+    static RxCheck toyota_lka_unsupported_dsu_rx_checks[] = {
+      TOYOTA_RX_CHECKS(false)
+      TOYOTA_DSU_CRUISE_RX_CHECK
+    };
+    static RxCheck toyota_lka_alt_brake_unsupported_dsu_rx_checks[] = {
+      TOYOTA_ALT_BRAKE_RX_CHECKS(false)
+      TOYOTA_DSU_CRUISE_RX_CHECK
+    };
+
+    if (toyota_unsupported_dsu) {
+      if (!toyota_alt_brake) {
+        SET_RX_CHECKS(toyota_lka_unsupported_dsu_rx_checks, ret);
+      } else {
+        SET_RX_CHECKS(toyota_lka_alt_brake_unsupported_dsu_rx_checks, ret);
+      }
+    } else if (!toyota_alt_brake) {
       SET_RX_CHECKS(toyota_lka_rx_checks, ret);
     } else {
       SET_RX_CHECKS(toyota_lka_alt_brake_rx_checks, ret);
+    }
+  }
+
+  // FrogPilot variables
+  if (enable_gas_interceptor) {
+    static const CanMsg TOYOTA_INTERCEPTOR_TX_MSGS[] = {
+      TOYOTA_COMMON_LONG_TX_MSGS
+      {0x200, 0, 6, .check_relay = false},
+    };
+
+    static RxCheck toyota_lta_interceptor_rx_checks[] = {
+      TOYOTA_RX_CHECKS(true)
+      TOYOTA_PCM_CRUISE_2_RX_CHECK
+      TOYOTA_GAS_INTERCEPTOR_RX_CHECK
+    };
+    static RxCheck toyota_lka_interceptor_rx_checks[] = {
+      TOYOTA_RX_CHECKS(false)
+      TOYOTA_PCM_CRUISE_2_RX_CHECK
+      TOYOTA_GAS_INTERCEPTOR_RX_CHECK
+    };
+    static RxCheck toyota_lka_alt_brake_interceptor_rx_checks[] = {
+      TOYOTA_ALT_BRAKE_RX_CHECKS(false)
+      TOYOTA_PCM_CRUISE_2_RX_CHECK
+      TOYOTA_GAS_INTERCEPTOR_RX_CHECK
+    };
+    static RxCheck toyota_lka_unsupported_dsu_interceptor_rx_checks[] = {
+      TOYOTA_RX_CHECKS(false)
+      TOYOTA_DSU_CRUISE_RX_CHECK
+      TOYOTA_GAS_INTERCEPTOR_RX_CHECK
+    };
+    static RxCheck toyota_lka_alt_brake_unsupported_dsu_interceptor_rx_checks[] = {
+      TOYOTA_ALT_BRAKE_RX_CHECKS(false)
+      TOYOTA_DSU_CRUISE_RX_CHECK
+      TOYOTA_GAS_INTERCEPTOR_RX_CHECK
+    };
+
+    SET_TX_MSGS(TOYOTA_INTERCEPTOR_TX_MSGS, ret);
+
+    if (toyota_lta) {
+      SET_RX_CHECKS(toyota_lta_interceptor_rx_checks, ret);
+    } else if (toyota_unsupported_dsu) {
+      if (!toyota_alt_brake) {
+        SET_RX_CHECKS(toyota_lka_unsupported_dsu_interceptor_rx_checks, ret);
+      } else {
+        SET_RX_CHECKS(toyota_lka_alt_brake_unsupported_dsu_interceptor_rx_checks, ret);
+      }
+    } else if (!toyota_alt_brake) {
+      SET_RX_CHECKS(toyota_lka_interceptor_rx_checks, ret);
+    } else {
+      SET_RX_CHECKS(toyota_lka_alt_brake_interceptor_rx_checks, ret);
     }
   }
 
@@ -444,4 +570,7 @@ const safety_hooks toyota_hooks = {
   .get_checksum = toyota_get_checksum,
   .compute_checksum = toyota_compute_checksum,
   .get_quality_flag_valid = toyota_get_quality_flag_valid,
+
+  // FrogPilot variables
+  .get_counter = toyota_get_counter,
 };

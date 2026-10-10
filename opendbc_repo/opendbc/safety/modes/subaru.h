@@ -25,6 +25,9 @@
 #define MSG_SUBARU_Steering_Torque       0x119U
 #define MSG_SUBARU_Wheel_Speeds          0x13aU
 
+// FrogPilot variables
+#define MSG_SUBARU_Brake_Pedal           0x139U
+
 #define MSG_SUBARU_ES_LKAS               0x122U
 #define MSG_SUBARU_ES_Brake              0x220U
 #define MSG_SUBARU_ES_Distance           0x221U
@@ -48,6 +51,9 @@
   {MSG_SUBARU_ES_DashStatus,     SUBARU_MAIN_BUS, 8, .check_relay = true},  \
   {MSG_SUBARU_ES_LKAS_State,     SUBARU_MAIN_BUS, 8, .check_relay = true},  \
   {MSG_SUBARU_ES_Infotainment,   SUBARU_MAIN_BUS, 8, .check_relay = true},  \
+  /* FrogPilot variables */                                                  \
+  {MSG_SUBARU_Throttle,          SUBARU_CAM_BUS,  8, .check_relay = false}, \
+  {MSG_SUBARU_Brake_Pedal,       SUBARU_CAM_BUS,  8, .check_relay = false}, \
 
 #define SUBARU_COMMON_TX_MSGS(alt_bus) \
   {MSG_SUBARU_ES_Distance, alt_bus, 8, .check_relay = false}, \
@@ -72,6 +78,10 @@
 
 static bool subaru_gen2 = false;
 static bool subaru_longitudinal = false;
+
+// FrogPilot variables
+static bool subaru_sng = false;
+static bool subaru_raised_steer_limit = false;
 
 static uint32_t subaru_get_checksum(const CANPacket_t *msg) {
   return (uint8_t)msg->data[0];
@@ -136,7 +146,7 @@ static void subaru_rx_hook(const CANPacket_t *msg) {
 }
 
 static bool subaru_tx_hook(const CANPacket_t *msg) {
-  const TorqueSteeringLimits SUBARU_STEERING_LIMITS      = SUBARU_STEERING_LIMITS_GENERATOR(3071, 50, 70);
+  const TorqueSteeringLimits SUBARU_STEERING_LIMITS      = SUBARU_STEERING_LIMITS_GENERATOR(subaru_raised_steer_limit ? 3071 : 2047, 50, 70);
   const TorqueSteeringLimits SUBARU_GEN2_STEERING_LIMITS = SUBARU_STEERING_LIMITS_GENERATOR(1500, 35, 50);
 
   const LongitudinalLimits SUBARU_LONG_LIMITS = {
@@ -200,10 +210,21 @@ static bool subaru_tx_hook(const CANPacket_t *msg) {
     violation |= !(is_tester_present || is_button_rdbi);
   }
 
+  // FrogPilot variables
+  if ((msg->addr == MSG_SUBARU_Throttle) || (msg->addr == MSG_SUBARU_Brake_Pedal)) {
+    violation |= !subaru_sng;
+  }
+
   if (violation){
     tx = false;
   }
   return tx;
+}
+
+// FrogPilot variables
+static bool subaru_fwd_hook(int bus_num, int addr) {
+  bool sng_msg = ((unsigned int)addr == MSG_SUBARU_Throttle) || ((unsigned int)addr == MSG_SUBARU_Brake_Pedal);
+  return subaru_sng && ((unsigned int)bus_num == SUBARU_MAIN_BUS) && sng_msg;
 }
 
 static safety_config subaru_init(uint16_t param) {
@@ -240,6 +261,13 @@ static safety_config subaru_init(uint16_t param) {
 
   subaru_gen2 = GET_FLAG(param, SUBARU_PARAM_GEN2);
 
+  // FrogPilot variables
+  const uint16_t SUBARU_PARAM_SNG = 1024;
+  subaru_sng = GET_FLAG(param, SUBARU_PARAM_SNG);
+
+  const uint16_t SUBARU_PARAM_RAISED_STEER_LIMIT = 2048;
+  subaru_raised_steer_limit = GET_FLAG(param, SUBARU_PARAM_RAISED_STEER_LIMIT);
+
 #ifdef ALLOW_DEBUG
   const uint16_t SUBARU_PARAM_LONGITUDINAL = 2;
   subaru_longitudinal = GET_FLAG(param, SUBARU_PARAM_LONGITUDINAL);
@@ -263,4 +291,7 @@ const safety_hooks subaru_hooks = {
   .get_counter = subaru_get_counter,
   .get_checksum = subaru_get_checksum,
   .compute_checksum = subaru_compute_checksum,
+
+  // FrogPilot variables
+  .fwd = subaru_fwd_hook,
 };

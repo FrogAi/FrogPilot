@@ -73,24 +73,8 @@ class HyundaiButtonBase:
 
   # FrogPilot variables
   def _toggle_aol(self, toggle_on):
-    """
-      Simulates toggling the main cruise button. The safety model requires a
-      press and release to change the main cruise state. This function
-      resets the safety model to a known state before each call.
-    """
-    if not hasattr(self, "_aol_state"):
-      self._aol_state = False
-
-    # Already in the requested state
-    if toggle_on == self._aol_state:
-      return None
-
-    # Toggle: press + release sequence
-    self._rx(self._button_msg(Buttons.NONE, main_button=1))
-    self._rx(self._button_msg(Buttons.NONE, main_button=0))
-
-    self._aol_state = toggle_on
-    return None  # avoid duplicate message in harness
+    self._rx(self._button_msg(Buttons.NONE))
+    return self._button_msg(Buttons.NONE, main_button=int(toggle_on != self.safety.get_acc_main_on()))
 
 
 class HyundaiLongitudinalBase(common.LongitudinalAccelSafetyTest):

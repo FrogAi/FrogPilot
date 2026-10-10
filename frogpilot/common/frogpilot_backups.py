@@ -9,25 +9,24 @@ from pathlib import Path
 from openpilot.common.basedir import BASEDIR
 from openpilot.common.params import Params
 
-from openpilot.frogpilot.common.frogpilot_utilities import delete_file
-from openpilot.frogpilot.common.frogpilot_variables import EXCLUDED_KEYS, FROGPILOT_BACKUPS, TOGGLE_BACKUPS
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 
 
 def backup_frogpilot(build_metadata, params):
   maximum_backups = 3
-  cleanup_backups(FROGPILOT_BACKUPS, maximum_backups)
+  cleanup_backups(frogpilot_variables.FROGPILOT_BACKUPS, maximum_backups)
 
   today = datetime.datetime.now().date()
-  for backup in FROGPILOT_BACKUPS.glob("*_auto.tar.zst"):
+  for backup in frogpilot_variables.FROGPILOT_BACKUPS.glob("*_auto.tar.zst"):
     if backup.name.endswith(f"_{build_metadata.channel}_auto.tar.zst"):
       if datetime.datetime.fromtimestamp(backup.stat().st_mtime).date() == today:
-        if not backup.name.startswith(f"{build_metadata.openpilot.git_commit[:6]}_"):
-          delete_file(backup, report=False)
+        if not backup.name.startswith(f"{build_metadata.openpilot.git_commit}_"):
+          frogpilot_utilities.delete_file(backup, report=False)
 
-  _, _, free = shutil.disk_usage(FROGPILOT_BACKUPS)
+  _, _, free = shutil.disk_usage(frogpilot_variables.FROGPILOT_BACKUPS)
   minimum_backup_size = params.get("MinimumBackupSize")
   if free > minimum_backup_size * maximum_backups:
-    destination = FROGPILOT_BACKUPS / f"{build_metadata.openpilot.git_commit}_{build_metadata.channel}_auto"
+    destination = frogpilot_variables.FROGPILOT_BACKUPS / f"{build_metadata.openpilot.git_commit}_{build_metadata.channel}_auto"
     create_backup(Path(BASEDIR), destination, "Successfully backed up FrogPilot!", "Failed to backup FrogPilot...", params, minimum_backup_size, compressed=True)
 
 
@@ -45,17 +44,17 @@ def backup_toggles(params, boot_run=False):
       changes_found = True
     elif current_value != params_backup.get(key):
       params_backup.put(key, current_value)
-      changes_found |= key.decode("utf-8") not in EXCLUDED_KEYS
+      changes_found |= key.decode("utf-8") not in frogpilot_variables.EXCLUDED_KEYS
 
   maximum_backups = 5
-  cleanup_backups(TOGGLE_BACKUPS, maximum_backups)
+  cleanup_backups(frogpilot_variables.TOGGLE_BACKUPS, maximum_backups)
 
   if not changes_found or boot_run:
     if not changes_found:
       print("Toggles are identical to the previous backup. Aborting...")
     return
 
-  destination = TOGGLE_BACKUPS / f"{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_auto"
+  destination = frogpilot_variables.TOGGLE_BACKUPS / f"{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S_%f')}_auto"
   create_backup(Path(params_backup.get_param_path()), destination, "Successfully backed up toggles!", "Failed to backup toggles...", params)
 
 
@@ -63,11 +62,11 @@ def cleanup_backups(directory, limit):
   directory.mkdir(parents=True, exist_ok=True)
 
   for backup in directory.glob("*_in_progress*"):
-    delete_file(backup, report=False)
+    frogpilot_utilities.delete_file(backup, report=False)
 
   backups = sorted(directory.glob("*_auto*"), key=lambda f: f.stat().st_mtime, reverse=True)
   for oldest_backup in backups[limit:]:
-    delete_file(oldest_backup, report=False)
+    frogpilot_utilities.delete_file(oldest_backup, report=False)
 
 
 def create_backup(backup, destination, success_message, fail_message, params, minimum_backup_size=0, compressed=False):

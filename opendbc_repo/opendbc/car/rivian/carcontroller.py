@@ -15,7 +15,7 @@ class CarController(CarControllerBase):
 
     self.cancel_frames = 0
 
-  def update(self, CC, CS, now_nanos, frogpilot_toggles):
+  def update(self, CC, CS, now_nanos):
     actuators = CC.actuators
     can_sends = []
 

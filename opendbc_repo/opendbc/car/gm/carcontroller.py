@@ -1,9 +1,10 @@
 import numpy as np
 from opendbc.can import CANPacker
-from opendbc.car import Bus, DT_CTRL, create_gas_interceptor_command, structs
+from opendbc.car import ACCELERATION_DUE_TO_GRAVITY, Bus, DT_CTRL, create_gas_interceptor_command, structs
 from opendbc.car.lateral import apply_driver_steer_torque_limits
 from opendbc.car.gm import gmcan
 from opendbc.car.common.conversions import Conversions as CV
+from opendbc.car.common.filter_simple import FirstOrderFilter
 from opendbc.car.gm.values import CC_ONLY_CAR, DBC, CanBus, CarControllerParams, CruiseButtons, GMFlags
 from opendbc.car.interfaces import CarControllerBase
 
@@ -15,6 +16,21 @@ LongCtrlState = structs.CarControl.Actuators.LongControlState
 CAMERA_CANCEL_DELAY_FRAMES = 10
 # Enforce a minimum interval between steering messages to avoid a fault
 MIN_STEER_MSG_INTERVAL_MS = 15
+
+# FrogPilot variables
+BRAKE_PITCH_FACTOR_BP = [5., 10.]
+BRAKE_PITCH_FACTOR_V = [0., 1.]
+PITCH_DEADZONE = 0.01
+
+
+def apply_deadzone(error, deadzone):
+  if error > deadzone:
+    error -= deadzone
+  elif error < -deadzone:
+    error += deadzone
+  else:
+    error = 0.
+  return error
 
 
 class CarController(CarControllerBase):
@@ -37,11 +53,8 @@ class CarController(CarControllerBase):
     self.packer_obj = CANPacker(DBC[self.CP.carFingerprint][Bus.radar])
     self.packer_ch = CANPacker(DBC[self.CP.carFingerprint][Bus.chassis])
 
-    # OPGM variables
-    self.prev_op_enabled = False
-
-    self.apply_speed = 0
-    self.pedal_steady = 0
+    # FrogPilot variables
+    self.pitch = FirstOrderFilter(0., 0.09 * 4, DT_CTRL * 4)
 
   # OPGM variables
   @staticmethod
@@ -57,7 +70,7 @@ class CarController(CarControllerBase):
 
     return pedal_gas
 
-  def update(self, CC, CS, now_nanos, frogpilot_toggles):
+  def update(self, CC, CS, now_nanos):
     actuators = CC.actuators
     hud_control = CC.hudControl
     hud_alert = hud_control.visualAlert
@@ -106,13 +119,24 @@ class CarController(CarControllerBase):
       if self.frame % 4 == 0:
         stopping = actuators.longControlState == LongCtrlState.stopping
         interceptor_gas_cmd = 0
+
+        # FrogPilot variables
+        accel = actuators.accel
+        brake_accel = actuators.accel
+        if len(CC.orientationNED) == 3:
+          self.pitch.update(CC.orientationNED[1])
+          if self.frogpilot_toggles.long_pitch:
+            accel_due_to_pitch = ACCELERATION_DUE_TO_GRAVITY * apply_deadzone(self.pitch.x, PITCH_DEADZONE)
+            accel += accel_due_to_pitch
+            brake_accel += accel_due_to_pitch * np.interp(CS.out.vEgo, BRAKE_PITCH_FACTOR_BP, BRAKE_PITCH_FACTOR_V)
+
         if not CC.longActive:
           # ASCM sends max regen when not enabled
           self.apply_gas = self.params.INACTIVE_REGEN
           self.apply_brake = 0
         else:
-          self.apply_gas = float(np.interp(actuators.accel, self.params.GAS_LOOKUP_BP, self.params.GAS_LOOKUP_V))
-          self.apply_brake = int(round(np.interp(actuators.accel, self.params.BRAKE_LOOKUP_BP, self.params.BRAKE_LOOKUP_V)))
+          self.apply_gas = float(np.interp(accel, self.params.GAS_LOOKUP_BP, self.params.GAS_LOOKUP_V))
+          self.apply_brake = int(round(np.interp(brake_accel, self.params.BRAKE_LOOKUP_BP, self.params.BRAKE_LOOKUP_V)))
           # Don't allow any gas above inactive regen while stopping
           # FIXME: brakes aren't applied immediately when enabling at a stop
           if stopping:
@@ -122,6 +146,12 @@ class CarController(CarControllerBase):
           if self.CP.carFingerprint in CC_ONLY_CAR:
             # gas interceptor only used for full long control on cars without ACC
             interceptor_gas_cmd = self.calc_pedal_command(actuators.accel, CC.longActive, CS.out.vEgo)
+
+        # FrogPilot variables
+        if self.CP.enableGasInterceptorDEPRECATED and self.apply_gas > self.params.INACTIVE_REGEN and CS.out.cruiseState.standstill:
+          interceptor_gas_cmd = self.params.SNG_INTERCEPTOR_GAS
+          self.apply_brake = 0
+          self.apply_gas = self.params.INACTIVE_REGEN
 
         idx = (self.frame // 4) % 4
 
@@ -137,12 +167,15 @@ class CarController(CarControllerBase):
           friction_brake_bus = CanBus.CHASSIS
           # GM Camera exceptions
           # TODO: can we always check the longControlState?
-          if self.CP.networkLocation == NetworkLocation.fwdCamera and self.CP.carFingerprint not in CC_ONLY_CAR:
+          if self.CP.networkLocation == NetworkLocation.fwdCamera:
             at_full_stop = at_full_stop and stopping
             friction_brake_bus = CanBus.POWERTRAIN
 
           # FrogPilot variables
-          if CC.cruiseControl.resume and CS.out.cruiseState.standstill and frogpilot_toggles.volt_sng:
+          if self.CP.autoResumeSng:
+            at_full_stop = False
+
+          if CC.cruiseControl.resume and CS.out.cruiseState.standstill and self.frogpilot_toggles.volt_sng:
             acc_engaged = False
           else:
             acc_engaged = CC.enabled
@@ -182,8 +215,7 @@ class CarController(CarControllerBase):
         if (self.frame - self.last_button_frame) * DT_CTRL > 0.04:
           self.last_button_frame = self.frame
           can_sends.append(gmcan.create_buttons(self.packer_pt, CanBus.POWERTRAIN, (CS.buttons_counter + 1) % 4, CruiseButtons.CANCEL))
-      # CC_LONG: only send CANCEL on OP disengage when cruise is still on
-      elif ((self.CP.flags & GMFlags.CC_LONG.value) and self.prev_op_enabled and not CC.enabled and CS.out.cruiseState.enabled):
+      elif CC.cruiseControl.cancel and (self.CP.flags & GMFlags.CC_LONG.value):
         if (self.frame - self.last_button_frame) * DT_CTRL > 0.04:
           self.last_button_frame = self.frame
           can_sends.append(gmcan.create_buttons(self.packer_pt, CanBus.POWERTRAIN, (CS.buttons_counter + 1) % 4, CruiseButtons.CANCEL))
@@ -211,10 +243,4 @@ class CarController(CarControllerBase):
     new_actuators.brake = self.apply_brake
 
     self.frame += 1
-
-    # OPGM variables
-    new_actuators.speed = self.apply_speed
-
-    self.prev_op_enabled = CC.enabled
-
     return new_actuators, can_sends

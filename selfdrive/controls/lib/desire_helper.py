@@ -138,6 +138,7 @@ class DesireHelper:
 
     self.prev_one_blinker = one_blinker
 
+    # FrogPilot variables
     if lateral_active and one_blinker and below_lane_change_speed and not carstate.standstill and frogpilot_toggles.use_turn_desires:
       self.turn_direction = TurnDirection.turnLeft if carstate.leftBlinker else TurnDirection.turnRight
       self.desire = TURN_DESIRES[self.turn_direction]

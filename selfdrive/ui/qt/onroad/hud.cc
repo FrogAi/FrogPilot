@@ -34,7 +34,7 @@ void HudRenderer::updateState(const UIState &s) {
 
   // Handle older routes where vEgoCluster is not set
   v_ego_cluster_seen = v_ego_cluster_seen || car_state.getVEgoCluster() != 0.0;
-  float v_ego = v_ego_cluster_seen && !frogpilot_toggles.value("use_wheel_speed").toBool() ? car_state.getVEgoCluster() : car_state.getVEgo();
+  float v_ego = v_ego_cluster_seen && !frogpilot_toggles.value(QLatin1String("use_wheel_speed")).toBool() ? car_state.getVEgoCluster() : car_state.getVEgo();
   speed = std::max<float>(0.0f, v_ego * (is_metric ? MS_TO_KPH : MS_TO_MPH));
 }
 
@@ -51,7 +51,8 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   if (is_cruise_available) {
     drawSetSpeed(p, surface_rect);
   }
-  if (frogpilot_nvg->standstillDuration == 0 && !frogpilot_toggles.value("hide_speed").toBool()) {
+  // FrogPilot variables
+  if (frogpilot_nvg->standstillDuration == 0 && !frogpilot_toggles.value(QLatin1String("hide_speed")).toBool()) {
     drawCurrentSpeed(p, surface_rect);
   }
 
@@ -64,52 +65,52 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
   QSize set_speed_size = is_metric ? QSize(200, 204) : default_size;
 
   // FrogPilot variables
-  if (frogpilot_nvg->speedLimitHeight != 0) {
-    set_speed_size.rheight() += frogpilot_nvg->speedLimitHeight;
-    if (frogpilot_toggles.value("speed_limit_vienna").toBool()) {
-      set_speed_size.rwidth() = 200;
-    }
+  set_speed_size.rheight() += frogpilot_nvg->speedLimitHeight;
+  if (frogpilot_nvg->speedLimitSignHeight != 0 && frogpilot_toggles.value(QLatin1String("speed_limit_vienna")).toBool()) {
+    set_speed_size.rwidth() = 200;
   }
 
   QRect set_speed_rect(QPoint(60 + (default_size.width() - set_speed_size.width()) / 2, 45), set_speed_size);
-
-  if (!frogpilot_toggles.value("hide_max_speed").toBool()) {
-    // Draw set speed box
-    p.setPen(QPen(QColor(255, 255, 255, 75), 6));
-    p.setBrush(QColor(0, 0, 0, 166));
-    p.drawRoundedRect(set_speed_rect, 32, 32);
-
-    // Colors based on status
-    QColor max_color = QColor(0xa6, 0xa6, 0xa6, 0xff);
-    QColor set_speed_color = QColor(0x72, 0x72, 0x72, 0xff);
-    if (is_cruise_set) {
-      set_speed_color = QColor(255, 255, 255);
-      if (status == STATUS_DISENGAGED) {
-        max_color = QColor(255, 255, 255);
-      } else if (status == STATUS_OVERRIDE) {
-        max_color = QColor(0x91, 0x9b, 0x95, 0xff);
-      } else {
-        max_color = QColor(0x80, 0xd8, 0xa6, 0xff);
-      }
-    }
-
-    // Draw "MAX" text
-    p.setFont(InterFont(40, QFont::DemiBold));
-    p.setPen(max_color);
-    p.drawText(set_speed_rect.adjusted(0, 27, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("MAX"));
-
-    // Draw set speed
-    QString setSpeedStr = is_cruise_set ? QString::number(std::nearbyint(set_speed)) : "–";
-    p.setFont(InterFont(90, QFont::Bold));
-    p.setPen(set_speed_color);
-    p.drawText(set_speed_rect.adjusted(0, 77, 0, 0), Qt::AlignTop | Qt::AlignHCenter, setSpeedStr);
-  }
 
   // FrogPilot variables
   frogpilot_nvg->defaultSize = default_size;
   frogpilot_nvg->isCruiseSet = is_cruise_set;
   frogpilot_nvg->setSpeedRect = set_speed_rect;
   frogpilot_nvg->speed = speed;
+
+  if (frogpilot_toggles.value(QLatin1String("hide_max_speed")).toBool()) {
+    return;
+  }
+
+  // Draw set speed box
+  p.setPen(QPen(QColor(255, 255, 255, 75), 6));
+  p.setBrush(QColor(0, 0, 0, 166));
+  p.drawRoundedRect(set_speed_rect, 32, 32);
+
+  // Colors based on status
+  QColor max_color = QColor(0xa6, 0xa6, 0xa6, 0xff);
+  QColor set_speed_color = QColor(0x72, 0x72, 0x72, 0xff);
+  if (is_cruise_set) {
+    set_speed_color = QColor(255, 255, 255);
+    if (status == STATUS_DISENGAGED) {
+      max_color = QColor(255, 255, 255);
+    } else if (status == STATUS_OVERRIDE) {
+      max_color = QColor(0x91, 0x9b, 0x95, 0xff);
+    } else {
+      max_color = QColor(0x80, 0xd8, 0xa6, 0xff);
+    }
+  }
+
+  // Draw "MAX" text
+  p.setFont(InterFont(40, QFont::DemiBold));
+  p.setPen(max_color);
+  p.drawText(set_speed_rect.adjusted(0, 27, 0, 0), Qt::AlignTop | Qt::AlignHCenter, tr("MAX"));
+
+  // Draw set speed
+  QString setSpeedStr = is_cruise_set ? QString::number(std::nearbyint(set_speed)) : "–";
+  p.setFont(InterFont(90, QFont::Bold));
+  p.setPen(set_speed_color);
+  p.drawText(set_speed_rect.adjusted(0, 77, 0, 0), Qt::AlignTop | Qt::AlignHCenter, setSpeedStr);
 }
 
 void HudRenderer::drawCurrentSpeed(QPainter &p, const QRect &surface_rect) {

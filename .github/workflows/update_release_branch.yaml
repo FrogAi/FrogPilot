@@ -21,12 +21,12 @@ env:
 
 jobs:
   update_release:
+    if: github.repository == 'FrogAi/FrogPilot'
     name: Promote scheduled staging release
     concurrency:
       group: frogpilot-branch-push
       queue: max
     runs-on: ubuntu-latest
-    timeout-minutes: 120
     steps:
       - name: Checkout staging branch
         uses: actions/checkout@v7
@@ -37,36 +37,20 @@ jobs:
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       - name: Promote scheduled staging release
         run: |
-          set -o pipefail
-
           if [[ ! -f .github/update_date ]]; then
             echo "No scheduled release."
             exit 0
           fi
 
           scheduled_date="$(<.github/update_date)"
+          today="$(date +%F)"
 
-          if [[ "$(date -d "$scheduled_date" +%F 2>/dev/null)" != "$scheduled_date" ]]; then
-            echo "Invalid scheduled date: $scheduled_date"
-            exit 1
-          fi
-
-          if [[ "$scheduled_date" > "$(date +%F)" ]]; then
+          if [[ "$scheduled_date" > "$today" ]]; then
             echo "Release scheduled for $scheduled_date."
             exit 0
           fi
 
-          effective_date="$scheduled_date"
-          if [[ "$effective_date" < "$(date +%F)" ]]; then
-            effective_date="$(date +%F)"
-            echo "Scheduled for $scheduled_date; publishing as $effective_date."
-          fi
-
-          git fetch origin \
-            "refs/heads/$BRANCH_PREVIOUS:refs/remotes/origin/$BRANCH_PREVIOUS" \
-            "refs/heads/$BRANCH_RELEASE:refs/remotes/origin/$BRANCH_RELEASE"
-
-          read -r month day year < <(date -d "$effective_date" '+%B %-d %Y')
+          read -r month day year < <(date -d "$today" '+%B %-d %Y')
           case "$day" in
             1|21|31) suffix=st ;;
             2|22) suffix=nd ;;
@@ -74,33 +58,19 @@ jobs:
             *) suffix=th ;;
           esac
 
-          badge_date="${month}%20${day}${suffix}%2C%20${year}"
-          sed -i -E "s|(Last%20Updated-)[^-)]*|\1$badge_date|g" README.md
+          sed -i "s/Last%20Updated-[^-]*/Last%20Updated-$month%20$day$suffix%2C%20$year/" README.md
           git rm .github/update_date
           git add README.md
 
-          release_timestamp="$(date -d "$effective_date 12:00:00" --iso-8601=seconds)"
+          release_timestamp="$today 12:00:00"
+          export GIT_AUTHOR_DATE="$release_timestamp"
+          export GIT_COMMITTER_DATE="$release_timestamp"
+          git config user.name "$GIT_NAME"
+          git config user.email "$GIT_EMAIL"
 
-          layer_base="$(
-            git log --reverse --format='%H %s' |
-              awk -v want="${BASE_COMMIT:?BASE_COMMIT is required}" '!found {
-                h = $1
-                sub(/^[^ ]+ +/, "")
-                if ($0 == want) { print h; found = 1 }
-              }'
-          )"
-
-          if [[ -z "$layer_base" ]]; then
-            echo "No \"$BASE_COMMIT\" commit found — cannot squash."
-            exit 1
-          fi
-
-          squashed="$(GIT_AUTHOR_DATE="$release_timestamp" GIT_COMMITTER_DATE="$release_timestamp" \
-            git -c user.name="$GIT_NAME" -c user.email="${GIT_EMAIL:?GIT_EMAIL is required}" \
-            commit-tree "$(git rev-parse 'HEAD~1^{tree}')" -p "$layer_base^" -m "FrogPilot v$(cut -d'"' -f2 common/version.h) release")"
-          release="$(GIT_AUTHOR_DATE="$release_timestamp" GIT_COMMITTER_DATE="$release_timestamp" \
-            git -c user.name="$GIT_NAME" -c user.email="$GIT_EMAIL" \
-            commit-tree "$(git write-tree)" -p "$squashed" -m "$(git log -1 --format=%s HEAD)")"
+          layer_base="$(git log --format=%H --grep="^$BASE_COMMIT\$")"
+          squashed="$(git commit-tree 'HEAD~1^{tree}' -p "$layer_base^" -m "FrogPilot v$(cut -d'"' -f2 common/version.h) release")"
+          release="$(git commit-tree "$(git write-tree)" -p "$squashed" -m "$(git log -1 --format=%s HEAD)")"
 
           delay=$(( $(date -d "$release_timestamp" +%s) - $(date +%s) ))
           if (( delay > 0 )); then

@@ -3,28 +3,26 @@
 #include "selfdrive/ui/qt/offroad/settings.h"
 #include "selfdrive/ui/qt/widgets/scrollview.h"
 
-#include "frogpilot/ui/frogpilot_ui.h"
-#include "frogpilot/ui/qt/widgets/frogpilot_controls.h"
-
-class QNetworkAccessManager;
-
 class FrogPilotSettingsWindow : public QFrame {
   Q_OBJECT
 
 public:
   explicit FrogPilotSettingsWindow(SettingsWindow *parent);
 
+  void confirmTuningLevel(QWidget *dialogParent);
   void updateTuningLevel();
   void updateVariables();
 
+  bool canDisableOpenpilotLong = true;
+  bool canUseDSUBypass = false;
   bool canUsePedal = false;
   bool carDetected = false;
   bool canUseSDSU = false;
-  bool forceOpenDescriptions = false;
   bool hasAlphaLongitudinal = false;
   bool hasAutoTune = true;
   bool hasBSM = true;
   bool hasDashSpeedLimits = true;
+  bool hasLKASButton = true;
   bool hasNNFFLog = true;
   bool hasOpenpilotLongitudinal = true;
   bool hasPCMCruise = false;
@@ -34,10 +32,12 @@ public:
   bool hasSNG = false;
   bool hasZSS = false;
   bool isAngleCar = false;
-  bool isFrogsGoMoo = false;
+  bool isFrogsGoMoo = ::isFrogsGoMoo();
   bool isGM = true;
+  bool isGMCCOnly = false;
   bool isHKG = true;
   bool isHKGCanFd = true;
+  bool isHondaNidec = false;
   bool isSubaru = false;
   bool isTorqueCar = false;
   bool isToyota = true;
@@ -50,7 +50,6 @@ public:
   float friction = 0.0f;
   float latAccelFactor = 0.0f;
   float longitudinalActuatorDelay = 0.0f;
-  float maxLateralAccel = 0.0f;
   float startAccel = 0.0f;
   float steerActuatorDelay = 0.0f;
   float steerKp = 0.0f;
@@ -60,6 +59,7 @@ public:
   float vEgoStarting = 0.0f;
   float vEgoStopping = 0.0f;
 
+  int activeOperations = 0;
   int tuningLevel = 0;
 
   std::string carFingerprint;
@@ -84,9 +84,8 @@ private:
   void showEvent(QShowEvent *event) override;
   void updateState();
 
+  bool forceOpenDescriptions = false;
   bool panelOpen = false;
-
-  std::string carMake;
 
   FrogPilotButtonsControl *drivingPanelButtons = nullptr;
   FrogPilotButtonsControl *navigationPanelButtons = nullptr;

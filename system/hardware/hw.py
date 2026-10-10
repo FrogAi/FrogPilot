@@ -18,6 +18,7 @@ class Paths:
     elif PC:
       return str(Path(Paths.comma_home()) / "media" / "0" / "realdata")
 
+    # FrogPilot variables
     if not HD and not konik:
       HD = Path("/cache/use_HD").is_file()
       konik = Path("/cache/use_konik").is_file()

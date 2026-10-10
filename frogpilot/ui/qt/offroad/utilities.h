@@ -2,6 +2,8 @@
 
 #include "frogpilot/ui/qt/offroad/frogpilot_settings.h"
 
+extern const std::set<std::string> excluded_keys;
+
 class FrogPilotUtilitiesPanel : public FrogPilotListWidget {
   Q_OBJECT
 
@@ -9,18 +11,12 @@ public:
   explicit FrogPilotUtilitiesPanel(FrogPilotSettingsWindow *parent, bool forceOpen = false);
 
 private:
-  bool actionRunning = false;
-  bool forceOpenDescriptions;
+  void submitReport(QJsonObject report);
+  void updateState(const UIState &s, const FrogPilotUIState &fs);
 
-  FrogPilotSettingsWindow *parent;
+  bool actionRunning = false;
+
+  ButtonControl *reportIssueButton;
 
   Params params;
-  Params params_memory{"", true};
-
-  std::set<std::string> excluded_keys = {
-    "AvailableModels", "AvailableModelNames", "FrogPilotStats",
-    "GithubSshKeys", "GithubUsername", "MapBoxRequests",
-    "ModelDrivesAndScores", "SpeedLimits",
-    "UpdaterAvailableBranches",
-  };
 };

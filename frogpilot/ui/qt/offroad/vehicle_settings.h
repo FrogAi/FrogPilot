@@ -22,9 +22,10 @@ private:
 
   std::map<QString, AbstractControl*> toggles;
 
-  QSet<QString> gmKeys = {"VoltSNG"};
+  QSet<QString> gmKeys = {"LongPitch", "VoltSNG"};
   QSet<QString> hkgKeys = {"TacoTuneHacks"};
-  QSet<QString> longitudinalKeys = {"FrogsGoMoosTweak", "SNGHack", "VoltSNG"};
+  QSet<QString> hondaKeys = {"HondaAltTune", "HondaMaxBrake"};
+  QSet<QString> longitudinalKeys = {"FrogsGoMoosTweak", "HondaAltTune", "HondaMaxBrake", "LongPitch", "SNGHack", "VoltSNG"};
   QSet<QString> subaruKeys = {"SubaruSNG"};
   QSet<QString> toyotaKeys = {"ClusterOffset", "FrogsGoMoosTweak", "LockDoorsTimer", "SNGHack", "ToyotaDSUBypass", "ToyotaDoors"};
   QSet<QString> vehicleInfoKeys = {"BlindSpotSupport", "HardwareDetected", "OpenpilotLongitudinal", "PedalSupport", "RadarSupport", "SDSUSupport", "SNGSupport"};
@@ -40,6 +41,4 @@ private:
   ParamControl *forceFingerprint;
 
   Params params;
-
-  QMap<QString, QString> carModels;
 };

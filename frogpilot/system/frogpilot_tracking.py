@@ -2,12 +2,11 @@
 from openpilot.common.constants import CV
 from openpilot.common.realtime import DT_MDL
 from openpilot.selfdrive.car.cruise import V_CRUISE_MAX
-from openpilot.selfdrive.selfdrived.events import FROGPILOT_EVENT_NAME
+from openpilot.selfdrive.selfdrived.events import FROGPILOT_EVENT_NAME, FrogPilotAudibleAlert, FrogPilotEventName
 from openpilot.selfdrive.selfdrived.selfdrived import LONGITUDINAL_PERSONALITY_MAP, State
 from openpilot.selfdrive.selfdrived.state import ACTIVE_STATES
-from openpilot.selfdrive.ui.soundd import FrogPilotAudibleAlert
 
-from openpilot.frogpilot.common.frogpilot_utilities import clean_model_name
+from openpilot.frogpilot.common import frogpilot_variables
 from openpilot.frogpilot.controls.lib.frogpilot_events import RANDOM_EVENT_END, RANDOM_EVENT_START
 from openpilot.frogpilot.controls.lib.weather_checker import weather_category
 
@@ -22,11 +21,15 @@ class FrogPilotTracking:
     self.frogpilot_stats.pop("CurrentMonthsKilometers", None)
     self.frogpilot_stats.pop("ResetStats", None)
 
+    weather_api_calls = self.frogpilot_stats.pop("WeatherAPICalls", {})
+    self.frogpilot_stats["WeatherCalls"] = self.frogpilot_stats.get("WeatherCalls", 0) + sum(weather_api_calls.values())
+
     self.drive_added = False
     self.previously_enabled = False
 
     self.distance_since_override = 0
     self.drive_time = 0
+    self.frog_hop_time = 0
     self.tracked_time = 0
 
     self.previous_random_events = set()
@@ -35,9 +38,14 @@ class FrogPilotTracking:
     self.previous_sound = FrogPilotAudibleAlert.none
     self.previous_state = State.disabled
 
-    self.model_name = clean_model_name(frogpilot_toggles.model_name)
+    self.model_name = frogpilot_toggles.model_name
 
-  def save_stats(self):
+    signal_path = frogpilot_variables.THEME_SAVE_PATH / "theme_packs/frog/signals"
+    signal_frames = sum("blindspot" not in path.name.lower() for path in signal_path.glob("*.png"))
+    signal_intervals = sorted(signal_path.glob("traditional_*"))
+    self.frog_hop_duration = signal_frames * int(signal_intervals[-1].name.split("_")[1]) if signal_intervals else 0
+
+  def save_stats(self, blocking=False):
     self.frogpilot_stats["FrogPilotSeconds"] = self.frogpilot_stats.get("FrogPilotSeconds", 0) + self.tracked_time
 
     total_model_times = self.frogpilot_stats.get("ModelTimes", {})
@@ -47,9 +55,14 @@ class FrogPilotTracking:
     self.frogpilot_stats["TrackedTime"] = self.frogpilot_stats.get("TrackedTime", 0) + self.tracked_time
     self.tracked_time = 0
 
-    self.params.put_nonblocking("FrogPilotStats", dict(sorted(self.frogpilot_stats.items())))
+    if blocking:
+      self.params.wait_for_pending_writes()
+      if self.params.put("FrogPilotStats", dict(sorted(self.frogpilot_stats.items()))) != 0:
+        raise RuntimeError("Unable to save FrogPilotStats")
+    else:
+      self.params.put_nonblocking("FrogPilotStats", dict(sorted(self.frogpilot_stats.items())))
 
-  def update(self, now, time_validated, sm, frogpilot_toggles):
+  def update(self, now, time_validated, sm):
     v_cruise = min(sm["carState"].vCruiseCluster, V_CRUISE_MAX) * CV.KPH_TO_MS
     v_ego = max(sm["carState"].vEgo, 0)
 
@@ -84,12 +97,12 @@ class FrogPilotTracking:
     if sm["selfdriveState"].state != self.previous_state:
       if sm["selfdriveState"].state in ACTIVE_STATES and self.previous_state not in ACTIVE_STATES:
         self.frogpilot_stats["Engages"] = self.frogpilot_stats.get("Engages", 0) + 1
-        if frogpilot_toggles.sound_pack == "frog":
+        if (frogpilot_variables.ACTIVE_THEME_PATH / "sounds").resolve() == (frogpilot_variables.THEME_SAVE_PATH / "theme_packs/frog/sounds").resolve():
           self.frogpilot_stats["FrogChirps"] = self.frogpilot_stats.get("FrogChirps", 0) + 1
 
       elif sm["selfdriveState"].state == State.disabled and self.previous_state in ACTIVE_STATES:
         self.frogpilot_stats["Disengages"] = self.frogpilot_stats.get("Disengages", 0) + 1
-        if frogpilot_toggles.sound_pack == "frog":
+        if (frogpilot_variables.ACTIVE_THEME_PATH / "sounds").resolve() == (frogpilot_variables.THEME_SAVE_PATH / "theme_packs/frog/sounds").resolve():
           self.frogpilot_stats["FrogSqueaks"] = self.frogpilot_stats.get("FrogSqueaks", 0) + 1
 
       if sm["selfdriveState"].state == State.overriding and self.previous_state != State.overriding:
@@ -97,8 +110,22 @@ class FrogPilotTracking:
 
       self.previous_state = sm["selfdriveState"].state
 
-    if sm["selfdriveState"].experimentalMode:
+    if sm["selfdriveState"].enabled or sm["frogpilotCarState"].alwaysOnLateralEnabled:
+      self.frogpilot_stats["EngagedTime"] = self.frogpilot_stats.get("EngagedTime", 0) + DT_MDL
+
+    if sm["selfdriveState"].experimentalMode and sm["carControl"].longActive:
       self.frogpilot_stats["ExperimentalModeTime"] = self.frogpilot_stats.get("ExperimentalModeTime", 0) + DT_MDL
+
+    blinker_on = sm["carState"].leftBlinker or sm["carState"].rightBlinker
+    if blinker_on and self.frog_hop_duration > 0 and (frogpilot_variables.ACTIVE_THEME_PATH / "signals").resolve() == (frogpilot_variables.THEME_SAVE_PATH / "theme_packs/frog/signals").resolve():
+      self.frog_hop_time += int(DT_MDL * 1000)
+      frog_hops = self.frog_hop_time // self.frog_hop_duration
+
+      if frog_hops > 0:
+        self.frogpilot_stats["FrogHops"] = self.frogpilot_stats.get("FrogHops", 0) + frog_hops
+        self.frog_hop_time -= frog_hops * self.frog_hop_duration
+    else:
+      self.frog_hop_time = 0
 
     self.frogpilot_stats["FrogPilotMeters"] = self.frogpilot_stats.get("FrogPilotMeters", 0) + distance_driven
 
@@ -115,7 +142,7 @@ class FrogPilotTracking:
     if sm["carControl"].longActive:
       self.frogpilot_stats["LongitudinalTime"] = self.frogpilot_stats.get("LongitudinalTime", 0) + DT_MDL
 
-      personality_name = LONGITUDINAL_PERSONALITY_MAP.get(sm["selfdriveState"].personality, "Unknown").capitalize()
+      personality_name = LONGITUDINAL_PERSONALITY_MAP.get(sm["selfdriveState"].personality.raw, "Unknown").capitalize()
       total_personality_times = self.frogpilot_stats.get("PersonalityTimes", {})
       total_personality_times[personality_name] = total_personality_times.get(personality_name, 0) + DT_MDL
       self.frogpilot_stats["PersonalityTimes"] = total_personality_times
@@ -129,7 +156,7 @@ class FrogPilotTracking:
       self.distance_since_override += distance_driven
       self.frogpilot_stats["LongestDistanceWithoutOverride"] = max(self.distance_since_override, self.frogpilot_stats.get("LongestDistanceWithoutOverride", 0))
 
-    current_random_events = {event for event in self.frogpilot_events.events.names if RANDOM_EVENT_START <= event <= RANDOM_EVENT_END}
+    current_random_events = {event for event in self.frogpilot_events.events.names if RANDOM_EVENT_START <= event <= RANDOM_EVENT_END or event == FrogPilotEventName.goatSteerSaturated}
     if len(current_random_events) > 0:
       new_events = current_random_events - self.previous_random_events
       if new_events:
@@ -146,15 +173,8 @@ class FrogPilotTracking:
       if self.frogpilot_events.stopped_for_light:
         self.frogpilot_stats["StopLightTime"] = self.frogpilot_stats.get("StopLightTime", 0) + DT_MDL
 
-    weather_api_calls = self.frogpilot_stats.get("WeatherAPICalls", {})
-    weather_api_calls["2.5"] = weather_api_calls.get("2.5", 0) + self.frogpilot_weather.api_25_calls
-    weather_api_calls["3.0"] = weather_api_calls.get("3.0", 0) + self.frogpilot_weather.api_3_calls
-    weather_api_calls["4.0"] = weather_api_calls.get("4.0", 0) + self.frogpilot_weather.api_4_calls
-    self.frogpilot_stats["WeatherAPICalls"] = weather_api_calls
-
-    self.frogpilot_weather.api_25_calls = 0
-    self.frogpilot_weather.api_3_calls = 0
-    self.frogpilot_weather.api_4_calls = 0
+    self.frogpilot_stats["WeatherCalls"] = self.frogpilot_stats.get("WeatherCalls", 0) + self.frogpilot_weather.weather_calls
+    self.frogpilot_weather.weather_calls = 0
 
     weather_times = self.frogpilot_stats.get("WeatherTimes", {})
     category = weather_category(self.frogpilot_weather.weather_id)

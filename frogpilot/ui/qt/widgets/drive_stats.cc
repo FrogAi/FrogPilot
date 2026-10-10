@@ -45,13 +45,13 @@ void DriveStats::showEvent(QShowEvent *event) {
   updateStats();
 }
 
-void DriveStats::addStatsLayouts(const QString &title, StatsLabels &labels, bool FrogPilot) {
+void DriveStats::addStatsLayouts(const QString &title, StatsLabels &labels, bool frogpilot) {
   QGridLayout *grid_layout = new QGridLayout;
   grid_layout->setVerticalSpacing(10);
   grid_layout->setContentsMargins(0, 10, 0, 10);
 
   int row = 0;
-  grid_layout->addWidget(newLabel(title, FrogPilot ? "frogpilot_title" : "title"), row++, 0, 1, 3);
+  grid_layout->addWidget(newLabel(title, frogpilot ? "frogpilot_title" : "title"), row++, 0, 1, 3);
   grid_layout->addItem(new QSpacerItem(0, 10), row++, 0, 1, 1);
 
   grid_layout->addWidget(labels.routes = newLabel("0", "number"), row, 0, Qt::AlignLeft);
@@ -80,8 +80,9 @@ void DriveStats::parseResponse(const QString &response, bool success) {
   stats = doc;
 
   const QJsonValue minutes = doc.object()["all"].toObject()["minutes"];
-  if (minutes.isDouble()) {
-    params.putIntNonBlocking(konik ? "KonikMinutes" : "openpilotMinutes", minutes.toDouble());
+  const char *minutesKey = konik ? "KonikMinutes" : "openpilotMinutes";
+  if (minutes.isDouble() && params.getInt(minutesKey) != int(minutes.toDouble())) {
+    params.putIntNonBlocking(minutesKey, minutes.toDouble());
   }
 
   updateStats();

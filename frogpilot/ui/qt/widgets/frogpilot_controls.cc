@@ -1,8 +1,9 @@
 #include "frogpilot/ui/qt/widgets/frogpilot_controls.h"
 
-#include <QFile>
-#include <QFileInfo>
-#include <QPointer>
+#include <QCheckBox>
+
+#include "selfdrive/ui/qt/widgets/scrollview.h"
+#include "selfdrive/ui/ui.h"
 
 const QString buttonStyle = R"(
   QPushButton {
@@ -18,24 +19,28 @@ const QString buttonStyle = R"(
     background-color: #4a4a4a;
   }
   QPushButton:checked:enabled {
-    background-color: #33Ab4C;
+    background-color: #178644;
+  }
+  QPushButton:checked:disabled {
+    background-color: #99178644;
   }
   QPushButton:disabled {
     color: #33E4E4E4;
   }
 )";
 
+void FrogPilotConfirmationDialog::softReboot(QWidget *parent) {
+  if (isOpenpilotSteering()) {
+    ConfirmationDialog::alert(tr("The device can't reboot while openpilot is steering. Disengage, then reboot from the Device panel."), parent);
+    return;
+  }
+
+  Params().putBool("DoSoftReboot", true);
+}
+
 bool FrogPilotConfirmationDialog::toggleReboot(QWidget *parent) {
   ConfirmationDialog d(tr("Reboot required to take effect."), tr("Reboot Now"), tr("Reboot Later"), false, parent);
-  bool reboot = d.exec();
-  if (reboot) {
-    for (FrogPilotParamValueControl *control : parent->findChildren<FrogPilotParamValueControl*>()) {
-      if (control->isVisible()) {
-        control->updateParam();
-      }
-    }
-  }
-  return reboot;
+  return d.exec();
 }
 
 bool FrogPilotConfirmationDialog::yesorno(const QString &prompt_text, QWidget *parent) {
@@ -44,8 +49,12 @@ bool FrogPilotConfirmationDialog::yesorno(const QString &prompt_text, QWidget *p
 }
 
 bool isFrogsGoMoo() {
-  static bool is_FrogsGoMoo = QFile::exists("/persist/frogsgomoo.py");
-  return is_FrogsGoMoo;
+  static bool is_frogsgomoo = QFile::exists("/persist/frogsgomoo.py");
+  return is_frogsgomoo;
+}
+
+bool isOpenpilotSteering() {
+  return uiState()->engaged() || (uiState()->scene.started && frogpilotUIState()->frogpilot_scene.always_on_lateral_active);
 }
 
 bool useKonikServer() {
@@ -53,76 +62,99 @@ bool useKonikServer() {
   return use_konik;
 }
 
-void clearMovie(QSharedPointer<QMovie> &movie, QWidget *parent) {
-  if (!movie) {
-    return;
+QFont fitInterFont(int pixelSize, QFont::Weight weight, int width, const QStringList &texts) {
+  static QHash<QString, int> fittedSizes;
+
+  QString key = QString("%1 %2 %3 %4").arg(pixelSize).arg(weight).arg(width).arg(texts.join('|'));
+  QHash<QString, int>::const_iterator fitted = fittedSizes.constFind(key);
+  if (fitted != fittedSizes.constEnd()) {
+    return InterFont(fitted.value(), weight);
   }
 
-  QObject::disconnect(movie.data(), nullptr, parent, nullptr);
-  movie->stop();
-  movie.reset();
+  InterFont font(pixelSize, weight);
+  QFontMetrics metrics(font);
+
+  int textWidth = 0;
+  for (const QString &text : texts) {
+    textWidth = std::max(textWidth, metrics.horizontalAdvance(text));
+  }
+  if (textWidth > width) {
+    font.setPixelSize(std::max(1, pixelSize * width / textWidth));
+  }
+  fittedSizes.insert(key, font.pixelSize());
+  return font;
+}
+
+class TitleFitter : public QObject {
+public:
+  using QObject::QObject;
+
+protected:
+  bool eventFilter(QObject *object, QEvent *event) override {
+    if (event->type() != QEvent::Paint) {
+      return false;
+    }
+
+    QPushButton *title = static_cast<QPushButton*>(object);
+
+    QFont font = fitInterFont(title->font().pixelSize(), static_cast<QFont::Weight>(title->font().weight()), title->width(), {title->text()});
+    QString text = title->text();
+    if (font.pixelSize() < 30) {
+      font.setPixelSize(30);
+      text = QFontMetrics(font).elidedText(text, Qt::ElideRight, title->width());
+    }
+
+    QPainter painter(title);
+    painter.setFont(font);
+    title->style()->drawItemText(&painter, title->rect(), Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic, title->palette(), title->isEnabled(), text,
+                                 title->foregroundRole());
+    return true;
+  }
+};
+
+void fitTitle(QPushButton *title) {
+  static TitleFitter *titleFitter = new TitleFitter(qApp);
+
+  title->parentWidget()->findChild<ElidedLabel*>()->hide();
+  title->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+  title->installEventFilter(titleFitter);
 }
 
 void loadGif(const QString &gifPath, QSharedPointer<QMovie> &movie, const QSize &size, QWidget *parent, bool repaintOnFrame) {
-  if (!parent) {
-    return;
-  }
-
-  if (gifPath.isEmpty()) {
-    clearMovie(movie, parent);
-    return;
-  }
-
-  QFileInfo gifInfo(gifPath);
-  if (!gifInfo.exists()) {
-    clearMovie(movie, parent);
-    return;
-  }
-
-  QString sourcePath = gifInfo.canonicalFilePath();
+  const QString sourcePath = QFileInfo(gifPath).canonicalFilePath();
   if (sourcePath.isEmpty()) {
-    sourcePath = gifInfo.absoluteFilePath();
+    movie.reset();
+    return;
   }
 
   if (movie && movie->fileName() == sourcePath) {
     if (movie->scaledSize() != size) {
       movie->setScaledSize(size);
     }
-    if (movie->state() != QMovie::Running) {
-      movie->start();
-    }
+    movie->start();
     return;
   }
-
-  clearMovie(movie, parent);
 
   movie = QSharedPointer<QMovie>::create(sourcePath);
   movie->setCacheMode(QMovie::CacheAll);
   movie->setScaledSize(size);
 
   if (repaintOnFrame) {
-    QPointer<QWidget> safeParent(parent);
-    QObject::connect(movie.data(), &QMovie::frameChanged, parent, [safeParent]() {
-      if (safeParent && safeParent->isVisible()) {
-        safeParent->update();
-      }
+    QObject::connect(movie.data(), &QMovie::frameChanged, parent, [parent]() {
+      parent->update();
     });
   }
 
   movie->start();
 }
 
-void loadImage(const QString &basePath, QPixmap &pixmap, QSharedPointer<QMovie> &movie, const QSize &size, QWidget *parent) {
-  if (!parent) {
-    return;
-  }
-
+void loadImage(const QString &basePath, QPixmap &pixmap, QSharedPointer<QMovie> &movie, const QSize &size, QWidget *parent, bool repaintOnFrame) {
   const QString gifPath = basePath + ".gif";
   if (QFileInfo::exists(gifPath)) {
     pixmap = QPixmap();
-    loadGif(gifPath, movie, size, parent);
+    loadGif(gifPath, movie, size, parent, repaintOnFrame);
   } else {
-    clearMovie(movie, parent);
+    movie.reset();
 
     QPixmap loadedPixmap(QFileInfo(basePath + ".png").canonicalFilePath());
     pixmap = loadedPixmap.isNull() ? QPixmap() : loadedPixmap.scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
@@ -131,11 +163,119 @@ void loadImage(const QString &basePath, QPixmap &pixmap, QSharedPointer<QMovie> 
   parent->update();
 }
 
-void updateFrogPilotToggles() {
-  static Params params_memory{"", true};
-  params_memory.putBool("FrogPilotTogglesUpdated", true);
-}
-
 QString cleanModelName(QString modelName) {
   return modelName.remove("_default").remove("(Default)");
+}
+
+QString formatShortTime(const QTime &time) {
+  QLocale uiLocale(uiState()->language.mid(5));
+  if (uiLocale.language() == QLocale::C) {
+    uiLocale = QLocale(QLocale::English, QLocale::UnitedStates);
+  }
+  return uiLocale.toString(time, QLocale::ShortFormat);
+}
+
+FrogPilotMultiOptionDialog::FrogPilotMultiOptionDialog(const QString &prompt_text, const QStringList &l, const QString &confirm_text, QWidget *parent) : DialogBase(parent) {
+  QFrame *container = new QFrame(this);
+  container->setStyleSheet(R"(
+    QFrame { background-color: #1B1B1B; }
+    #confirm_btn[enabled="false"] { background-color: #2B2B2B; }
+    #confirm_btn:enabled { background-color: #465BEA; }
+    #confirm_btn:enabled:pressed { background-color: #3049F4; }
+  )");
+
+  QVBoxLayout *main_layout = new QVBoxLayout(container);
+  main_layout->setContentsMargins(55, 50, 55, 50);
+
+  QLabel *title = new QLabel(prompt_text, this);
+  title->setStyleSheet("font-size: 70px; font-weight: 500;");
+  main_layout->addWidget(title, 0, Qt::AlignLeft | Qt::AlignTop);
+  main_layout->addSpacing(25);
+
+  QWidget *listWidget = new QWidget(this);
+  QVBoxLayout *listLayout = new QVBoxLayout(listWidget);
+  listLayout->setSpacing(20);
+  listWidget->setStyleSheet(R"(
+    QPushButton {
+      height: 135;
+      padding: 0px 160px 0px 50px;
+      text-align: left;
+      font-size: 55px;
+      font-weight: 300;
+      border-radius: 10px;
+      background-color: #4F4F4F;
+    }
+    QPushButton:checked { background-color: #465BEA; }
+    QCheckBox::indicator {
+      width: 60px;
+      height: 60px;
+      border: 5px solid #E4E4E4;
+      border-radius: 10px;
+    }
+    QCheckBox::indicator:checked { image: url(:/icons/checkmark.svg); }
+  )");
+
+  QButtonGroup *group = new QButtonGroup(listWidget);
+  group->setExclusive(false);
+
+  QPushButton *confirm_btn = new QPushButton(confirm_text);
+  confirm_btn->setObjectName("confirm_btn");
+  confirm_btn->setEnabled(false);
+
+  for (const QString &s : l) {
+    QPushButton *selectionLabel = new QPushButton(s);
+    selectionLabel->setCheckable(true);
+    selectionLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed);
+
+    QCheckBox *checkbox = new QCheckBox(selectionLabel);
+    checkbox->setAttribute(Qt::WA_TransparentForMouseEvents);
+    QObject::connect(selectionLabel, &QPushButton::toggled, checkbox, &QCheckBox::setChecked);
+
+    QHBoxLayout *selectionLayout = new QHBoxLayout(selectionLabel);
+    selectionLayout->setContentsMargins(0, 0, 50, 0);
+    selectionLayout->addWidget(checkbox, 0, Qt::AlignRight);
+
+    QObject::connect(selectionLabel, &QPushButton::toggled, [=](bool checked) {
+      if (checked) {
+        selections.append(s);
+      } else {
+        selections.removeOne(s);
+      }
+      confirm_btn->setEnabled(!selections.isEmpty());
+    });
+
+    group->addButton(selectionLabel);
+    listLayout->addWidget(selectionLabel);
+  }
+  // add stretch to keep buttons spaced correctly
+  listLayout->addStretch(1);
+
+  ScrollView *scroll_view = new ScrollView(listWidget, this);
+  scroll_view->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+
+  main_layout->addWidget(scroll_view);
+  main_layout->addSpacing(35);
+
+  // cancel + confirm buttons
+  QHBoxLayout *blayout = new QHBoxLayout;
+  main_layout->addLayout(blayout);
+  blayout->setSpacing(50);
+
+  QPushButton *cancel_btn = new QPushButton(tr("Cancel"));
+  QObject::connect(cancel_btn, &QPushButton::clicked, this, &ConfirmationDialog::reject);
+  QObject::connect(confirm_btn, &QPushButton::clicked, this, &ConfirmationDialog::accept);
+  blayout->addWidget(cancel_btn);
+  blayout->addWidget(confirm_btn);
+
+  QVBoxLayout *outer_layout = new QVBoxLayout(this);
+  outer_layout->setContentsMargins(50, 50, 50, 50);
+  outer_layout->addWidget(container);
+}
+
+QStringList FrogPilotMultiOptionDialog::getSelections(const QString &prompt_text, const QStringList &l, const QString &confirm_text, QWidget *parent) {
+  FrogPilotMultiOptionDialog d(prompt_text, l, confirm_text, parent);
+  if (d.exec()) {
+    return d.selections;
+  }
+  return {};
 }

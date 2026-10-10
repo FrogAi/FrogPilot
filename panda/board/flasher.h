@@ -1,4 +1,5 @@
 // from the linker script
+// FrogPilot variables
 #ifdef STM32H7
   #define APP_START_ADDRESS 0x8020000U
 #elif defined(STM32F4)

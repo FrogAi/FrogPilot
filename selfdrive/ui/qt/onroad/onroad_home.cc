@@ -39,25 +39,22 @@ OnroadWindow::OnroadWindow(QWidget *parent) : QWidget(parent) {
   QObject::connect(uiState(), &UIState::offroadTransition, this, &OnroadWindow::offroadTransition);
 
   // FrogPilot variables
-  frogpilot_nvg = new FrogPilotAnnotatedCameraWidget(this);
+  frogpilot_nvg = new FrogPilotAnnotatedCameraWidget(nvg, this);
   frogpilot_onroad = new FrogPilotOnroadWindow(this);
   frogpilot_onroad->setAttribute(Qt::WA_TransparentForMouseEvents, true);
 
   stacked_layout->addWidget(frogpilot_nvg);
-  stacked_layout->addWidget(frogpilot_onroad);
-
-  frogpilot_onroad->raise();
 
   nvg->frogpilot_nvg = frogpilot_nvg;
 }
 
-void OnroadWindow::updateState(const UIState &s, const FrogPilotUIState &fs) {
+void OnroadWindow::updateState(const UIState &s) {
   if (!s.scene.started) {
     return;
   }
 
-  alerts->updateState(s, fs);
-  nvg->updateState(s, fs);
+  alerts->updateState(s);
+  nvg->updateState(s);
 
   QColor bgColor = bg_colors[s.status];
   if (bg != bgColor) {
@@ -67,23 +64,15 @@ void OnroadWindow::updateState(const UIState &s, const FrogPilotUIState &fs) {
   }
 
   // FrogPilot variables
-  const FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
-  const QJsonObject &frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
+  const FrogPilotUIState &fs = *frogpilotUIState();
+  const QJsonObject &frogpilot_toggles = fs.frogpilot_scene.frogpilot_toggles;
 
   frogpilot_nvg->alertHeight = alerts->alertHeight;
 
   frogpilot_onroad->bg = bg;
   frogpilot_onroad->fps = nvg->fps;
 
-  nvg->frogpilot_nvg = frogpilot_nvg;
-
-  nvg->frogpilot_scene = frogpilot_scene;
-  frogpilot_nvg->frogpilot_scene = frogpilot_scene;
-  frogpilot_onroad->frogpilot_scene = frogpilot_scene;
-
   alerts->frogpilot_toggles = frogpilot_toggles;
-  frogpilot_nvg->frogpilot_toggles = frogpilot_toggles;
-  frogpilot_onroad->frogpilot_toggles = frogpilot_toggles;
   nvg->frogpilot_toggles = frogpilot_toggles;
 
   frogpilot_onroad->setGeometry(rect());

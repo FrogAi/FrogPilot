@@ -17,7 +17,7 @@ private:
 
   bool forceOpenDescriptions;
 
-  std::map<QString, AbstractControl*> toggles;
+  std::map<QString, ButtonControl*> toggles;
 
   FrogPilotSettingsWindow *parent;
 

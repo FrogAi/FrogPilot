@@ -1,4 +1,3 @@
-from cereal import custom
 from opendbc.can import CANDefine, CANParser
 from opendbc.car import Bus, create_button_events, structs
 from opendbc.car.chrysler.values import DBC, STEER_THRESHOLD, RAM_CARS, ChryslerFrogPilotFlags
@@ -9,8 +8,8 @@ ButtonType = structs.CarState.ButtonEvent.Type
 
 
 class CarState(CarStateBase):
-  def __init__(self, CP, FPCP):
-    super().__init__(CP, FPCP)
+  def __init__(self, CP):
+    super().__init__(CP)
     self.CP = CP
     can_define = CANDefine(DBC[CP.carFingerprint][Bus.pt])
 
@@ -25,13 +24,14 @@ class CarState(CarStateBase):
 
     self.distance_button = 0
 
-    # RealFast variables
-    self.button_message = "CRUISE_BUTTONS_ALT" if FPCP.flags & ChryslerFrogPilotFlags.RAM_HD_ALT_BUTTONS else "CRUISE_BUTTONS"
-
     # FrogPilot variables
     self.lkas_button = 0
 
-  def update(self, can_parsers, frogpilot_toggles) -> structs.CarState:
+  # RealFast variables
+  def init_frogpilot_params(self):
+    self.button_message = "CRUISE_BUTTONS_ALT" if self.FPCP.flags & ChryslerFrogPilotFlags.RAM_HD_ALT_BUTTONS else "CRUISE_BUTTONS"
+
+  def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
     cp_cam = can_parsers[Bus.cam]
 
@@ -105,7 +105,7 @@ class CarState(CarStateBase):
     buttonEvents = create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
 
     # FrogPilot variables
-    fp_ret = custom.FrogPilotCarState.new_message()
+    self.fp_ret.brakeLights = bool(cp.vl["ESP_1"]["BRAKE_PRESSED_ACC"])
 
     self.prev_lkas_button = self.lkas_button
     if self.CP.carFingerprint in RAM_CARS:
@@ -119,7 +119,7 @@ class CarState(CarStateBase):
 
     ret.buttonEvents = buttonEvents
 
-    return ret, fp_ret
+    return ret
 
   @staticmethod
   def get_can_parsers(CP):

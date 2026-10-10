@@ -40,6 +40,9 @@ class CarControllerParams:
   STEER_DELTA_DOWN = 3
   STEER_GLOBAL_MIN_SPEED = 3 * CV.MPH_TO_MS
 
+  # FrogPilot variables
+  PEDAL_ACCEL_MAX = 3.0
+
   def __init__(self, CP):
     self.STEER_MAX = CP.lateralParams.torqueBP[-1]
     # mirror of list (assuming first item is zero) for interp of signed request
@@ -56,6 +59,12 @@ class HondaSafetyFlags(IntFlag):
   NIDEC_ALT = 4
   RADARLESS = 8
   BOSCH_CANFD = 16
+
+
+# FrogPilot variables
+class HondaFrogPilotSafetyFlags(IntFlag):
+  GAS_INTERCEPTOR = 32
+  CLARITY = 64
 
 
 class HondaFlags(IntFlag):
@@ -231,7 +240,7 @@ class CAR(Platforms):
     flags=HondaFlags.BOSCH_RADARLESS,
   )
   HONDA_CITY_7G = HondaBoschPlatformConfig(
-    [HondaCarDocs("Honda City (Brazil only) 2023-25", "All")],
+    [HondaCarDocs("Honda City (Brazil only) 2023", "All")],
     CarSpecs(mass=3125 * CV.LB_TO_KG, wheelbase=2.6, steerRatio=19.0, centerToFrontRatio=0.41, minSteerSpeed=23. * CV.KPH_TO_MS),
     {Bus.pt: 'honda_bosch_radarless_generated'},
     flags=HondaFlags.BOSCH_RADARLESS,
@@ -350,6 +359,13 @@ class CAR(Platforms):
     CarSpecs(mass=1326, wheelbase=2.70, centerToFrontRatio=0.4, steerRatio=15.38),  # 10.93 is end-to-end spec
     radar_dbc_dict('honda_civic_touring_2016_can_generated'),
     flags=HondaFlags.HAS_ALL_DOOR_STATES
+  )
+  # FrogPilot variables
+  HONDA_CLARITY = HondaNidecPlatformConfig(
+    [HondaCarDocs("Honda Clarity 2018-21", "All", min_steer_speed=3. * CV.MPH_TO_MS)],
+    CarSpecs(mass=4052 * CV.LB_TO_KG, wheelbase=2.75, steerRatio=16.5, centerToFrontRatio=0.43),
+    radar_dbc_dict('honda_clarity_hybrid_2018_can_generated'),
+    flags=HondaFlags.HAS_ALL_DOOR_STATES,
   )
 
 

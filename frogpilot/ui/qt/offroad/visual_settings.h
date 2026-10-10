@@ -10,7 +10,6 @@ public:
 
 signals:
   void openSubPanel();
-  void openSubSubPanel();
 
 protected:
   void showEvent(QShowEvent *event) override;
@@ -25,6 +24,7 @@ private:
 
   QSet<QString> advancedCustomOnroadUIKeys = {"HideAlerts", "HideLeadMarker", "HideMaxSpeed", "HideSpeed", "HideSpeedLimit", "WheelSpeed"};
   QSet<QString> customOnroadUIKeys = {"AccelerationPath", "AdjacentPath", "BlindSpotPath", "Compass", "OnroadDistanceButton", "PedalsOnUI", "RotatingWheel"};
+  QSet<QString> longitudinalKeys = {"AccelerationPath", "HideLeadMarker", "OnroadDistanceButton", "PedalsOnUI"};
   QSet<QString> modelUIKeys = {"DynamicPathWidth", "LaneLinesWidth", "PathEdgeWidth", "PathWidth", "RoadEdgesWidth"};
   QSet<QString> navigationUIKeys = {"RoadNameUI", "ShowSpeedLimits", "SLCMapboxFiller", "UseVienna"};
   QSet<QString> qualityOfLifeKeys = {"CameraView", "DriverCamera", "StoppedTimer"};

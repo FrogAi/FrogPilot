@@ -17,8 +17,10 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
-  void testWeatherKey(const QString &key, int apiIndex = 0);
+  void testWeatherKey(const QString &key);
+  void updateCurveLabels();
   void updateMetric(bool metric, bool bootRun);
+  void updateSLCPriorityValue();
   void updateToggles();
 
   bool customPersonalityOpen = false;
@@ -31,7 +33,7 @@ private:
 
   QSet<QString> advancedLongitudinalTuneKeys = {"LongitudinalActuatorDelay", "MaxDesiredAcceleration", "StartAccel", "StopAccel", "StoppingDecelRate", "VEgoStarting", "VEgoStopping"};
   QSet<QString> aggressivePersonalityKeys = {"AggressiveFollow", "AggressiveJerkAcceleration", "AggressiveJerkDeceleration", "AggressiveJerkDanger", "AggressiveJerkSpeed", "AggressiveJerkSpeedDecrease", "ResetAggressivePersonality"};
-  QSet<QString> conditionalExperimentalKeys = {"CESpeed", "CESpeedLead", "CECurves", "CELead", "CEModelStopTime", "CESignalSpeed", "CEStopLights", "ShowCEMStatus"};
+  QSet<QString> conditionalExperimentalKeys = {"CESpeed", "CECurves", "CELead", "CEModelStopTime", "CESignalSpeed", "CEStopLights", "ShowCEMStatus"};
   QSet<QString> curveSpeedKeys = {"CalibratedLateralAcceleration", "CalibrationProgress", "CurveSpeedProfile", "MaxLateralAcceleration", "ResetCurveData", "ShowCSCStatus"};
   QSet<QString> customDrivingPersonalityKeys = {"AggressivePersonalityProfile", "RelaxedPersonalityProfile", "StandardPersonalityProfile"};
   QSet<QString> longitudinalTuneKeys = {"AccelerationProfile", "DecelerationProfile", "HumanAcceleration", "HumanFollowing", "HumanLaneChanges", "LeadDetectionThreshold", "TacoTune"};
@@ -50,8 +52,16 @@ private:
 
   QSet<QString> parentKeys;
 
+  QStringList canonicalPriorities;
+  QStringList primaryPriorities;
+  QStringList translatedPriorities;
+
+  ButtonControl *slcPriorityButton;
+
   FrogPilotButtonsControl *weatherKeyControl;
 
+  FrogPilotParamValueControl *ceSpeedLeadToggle;
+  FrogPilotParamValueControl *ceSpeedToggle;
   FrogPilotParamValueControl *longitudinalActuatorDelayToggle;
   FrogPilotParamValueControl *startAccelToggle;
   FrogPilotParamValueControl *stopAccelToggle;

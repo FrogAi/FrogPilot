@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 import capnp
+import ctypes
+import gc
 import hashlib
-import os
+import hmac
+import json
 import requests
-import secrets
+import shutil
 import time
 import zstandard
 
@@ -11,35 +14,36 @@ from pathlib import Path
 
 import cereal.messaging as messaging
 
-from cereal import log
+from cereal import CEREAL_PATH, log
+from openpilot.common.api import get_key_pair
 from openpilot.common.params import Params
+from openpilot.common.utils import LOG_COMPRESSION_LEVEL
 from openpilot.system import sentry
-from openpilot.system.hardware import PC
-from openpilot.system.hardware.hw import Paths
 from openpilot.system.loggerd.uploader import listdir_by_creation
 from openpilot.system.loggerd.xattr_cache import getxattr, setxattr
 
-from openpilot.frogpilot.common.frogpilot_api import FrogPilotAPI, FrogPilotAPIError
+from openpilot.frogpilot.common import frogpilot_api, frogpilot_utilities, frogpilot_variables
+from openpilot.frogpilot.system.speed_limit_capture import CAPTURES_PATH
 
-NetworkType = log.DeviceState.NetworkType
+LOG_ROOTS = [Path("/data/media/0", name) for name in ("realdata", "realdata_HD", "realdata_konik")]
 
-COMPRESSION_LEVEL = 10
+MAX_LOG_SIZE = 256 * 1024 * 1024
 
-DRIVE_ATTR_NAME = "user.frogpilot_telemetry_drive"
-UPLOAD_ATTR_NAME = "user.frogpilot_telemetry"
+SCHEMA_FILES = ("car.capnp", "custom.capnp", "include/c++.capnp", "legacy.capnp", "log.capnp")
+SCHEMAS_PATH = Path("/data/telemetry_schemas")
+
+UPLOAD_DONE = b"done"
 
 EXCLUDED_MESSAGE_TYPES = frozenset((
-  "accelerometer2",
   "androidLog",
   "audioFeedback",
-  "boot",
+  "bookmarkButton",
   "clocks",
   "customReservedRawData0",
   "customReservedRawData1",
   "customReservedRawData2",
   "deviceState",
   "driverCameraState",
-  "driverEncodeData",
   "driverEncodeIdx",
   "driverStateV2",
   "drivingModelData",
@@ -47,217 +51,226 @@ EXCLUDED_MESSAGE_TYPES = frozenset((
   "frogpilotDeviceState",
   "gnssMeasurements",
   "gpsNMEA",
-  "gyroscope2",
   "lightSensor",
-  "livestreamDriverEncodeData",
-  "livestreamDriverEncodeIdx",
-  "livestreamRoadEncodeData",
-  "livestreamRoadEncodeIdx",
-  "livestreamWideRoadEncodeData",
-  "livestreamWideRoadEncodeIdx",
   "logMessage",
   "magnetometer",
   "managerState",
   "mapdExtendedOut",
   "mapdIn",
-  "mapdOut",
-  "mapRenderState",
-  "microphone",
-  "model",
   "navInstruction",
-  "navModel",
   "navRoute",
   "navThumbnail",
   "peripheralState",
   "procLog",
-  "qRoadEncodeData",
   "qRoadEncodeIdx",
   "qcomGnss",
   "rawAudioData",
-  "roadEncodeData",
+  "roadCameraState",
   "roadEncodeIdx",
+  "soundPressure",
   "temperatureSensor",
-  "temperatureSensor2",
   "testJoystick",
   "thumbnail",
+  "touch",
   "ubloxGnss",
   "ubloxRaw",
   "uiDebug",
-  "uiPlan",
   "uploaderState",
-  "wideRoadEncodeData",
+  "wideRoadCameraState",
   "wideRoadEncodeIdx",
 ))
 
 REMOVED_FIELDS = {
-  "liveLocationKalman": (
-    "calibratedOrientationECEF",
-    "filterState",
-    "orientationECEF",
-    "positionECEF",
-    "positionGeodetic",
-    "velocityECEF",
-    "velocityNED",
-  ),
+  "carParams": ("carVin",),
   "livePose": ("debugFilterState",),
 }
 
 REPLACEMENT_FIELDS = {
-  "alertDebug": {"alertText1": "", "alertText2": ""},
   "carControl": {"orientationNED.2": 0},
-  "carParams": {"carVin": ""},
-  "controlsState": {"alertText1DEPRECATED": "", "alertText2DEPRECATED": ""},
-  "frogpilotPlan": {"slcMapboxWayId": 0},
-  "frogpilotSelfdriveState": {"alertText1": "", "alertText2": ""},
+  "frogpilotPlan": {"gpsBearing": 0, "slcMapboxWayId": 0},
   "gpsLocation": {"altitude": 0, "bearingDeg": 0, "latitude": 0, "longitude": 0, "unixTimestampMillis": 0, "vNED": []},
   "gpsLocationExternal": {"altitude": 0, "bearingDeg": 0, "latitude": 0, "longitude": 0, "unixTimestampMillis": 0, "vNED": []},
-  "liveLocationKalman": {
-    "calibratedOrientationNED.value.2": 0,
-    "gpsTimeOfWeek": 0,
-    "gpsWeek": 0,
-    "orientationNED.value.2": 0,
-    "unixTimestampMillis": 0,
-  },
   "livePose": {"orientationNED.z": 0},
-  "modelV2": {"leads": [], "rawPredictions": b""},
-  "roadCameraState": {"image": b""},
-  "selfdriveState": {"alertText1": "", "alertText2": ""},
-  "wideRoadCameraState": {"image": b""},
+  "longitudinalPlan": {"processingDelay": 0},
+  "mapdOut": {"roadName": "", "wayId": 0, "wayName": "", "wayRef": ""},
+  "modelV2": {"rawPredictions": b""},
 }
 
 WHITELIST_FIELDS = {
-  "driverMonitoringState": ("isRHD",),
+  "driverMonitoringState": ("awarenessStatus", "isRHD"),
   "initData": ("deviceType", "dirty", "gitCommit", "gitCommitDate", "osVersion", "version"),
 }
 
-def filter_log(data):
+def filter_log(data, schema):
+  car_fingerprint = None
+
+  fingerprinting = False
+
   filtered_data = bytearray()
 
-  try:
-    for event in log.Event.read_multiple_bytes(data):
-      try:
-        which = event.which()
-      except capnp.KjException:
-        continue
+  for event in schema.Event.read_multiple_bytes(data):
+    try:
+      which = event.which()
+    except capnp.KjException:
+      continue
 
-      if which in EXCLUDED_MESSAGE_TYPES or which.endswith("DEPRECATED"):
-        continue
+    if which == "sentinel" and event.sentinel.type == "startOfRoute":
+      fingerprinting = True
+    elif which == "carParams":
+      car_fingerprint = event.carParams.carFingerprint
+      fingerprinting = False
+    elif which == "carState":
+      fingerprinting = False
 
-      builder = event.as_builder()
+    if which in EXCLUDED_MESSAGE_TYPES or which.endswith("DEPRECATED"):
+      continue
 
-      if which in REMOVED_FIELDS:
-        message = getattr(builder, which)
+    if which in ("can", "sendcan") and fingerprinting:
+      continue
 
-        for field in REMOVED_FIELDS[which]:
-          message.disown(field)
+    builder = event.as_builder()
 
-      if which in REPLACEMENT_FIELDS:
-        message = getattr(builder, which)
+    if which in REMOVED_FIELDS:
+      message = getattr(builder, which)
 
-        for field, value in REPLACEMENT_FIELDS[which].items():
-          target = message
-          *parents, field = field.split(".")
+      for field in REMOVED_FIELDS[which]:
+        message.disown(field)
 
-          for parent in parents:
-            target = getattr(target, parent)
+    if which in REPLACEMENT_FIELDS:
+      message = getattr(builder, which)
 
-          if field.isdigit():
-            index = int(field)
-            if index < len(target):
-              target[index] = value
-          else:
-            setattr(target, field, value)
+      for field, value in REPLACEMENT_FIELDS[which].items():
+        target = message
+        *parents, field = field.split(".")
 
-      elif which in WHITELIST_FIELDS:
-        kept = builder.init(which)
-        source = getattr(event, which)
+        for parent in parents:
+          target = getattr(target, parent)
 
-        for field in WHITELIST_FIELDS[which]:
-          setattr(kept, field, getattr(source, field))
+        if field.isdigit():
+          index = int(field)
+          if index < len(target):
+            target[index] = value
+        elif hasattr(target, field):
+          setattr(target, field, value)
 
-      filtered_data.extend(builder.to_bytes())
-  except capnp.KjException:
-    pass
+    elif which in WHITELIST_FIELDS:
+      kept = builder.init(which)
+      source = getattr(event, which)
 
-  return filtered_data
+      for field in WHITELIST_FIELDS[which]:
+        setattr(kept, field, getattr(source, field))
+
+    filtered_data.extend(builder.to_bytes())
+
+  return car_fingerprint, filtered_data
 
 class FrogPilotTelemetry:
   def __init__(self):
-    selected_log_root = Path(Paths.log_root())
-    if os.environ.get("LOG_ROOT") or PC:
-      self.log_roots = (str(selected_log_root),)
-    else:
-      media_root = selected_log_root.parent
-      self.log_roots = tuple(dict.fromkeys(str(media_root / name) for name in ("realdata", "realdata_HD", "realdata_konik")))
+    self.params = Params()
 
-    self.frogpilot_api = FrogPilotAPI(Params())
+    self.frogpilot_api = frogpilot_api.FrogPilotAPI(self.params)
 
-    self.compressor = zstandard.ZstdCompressor(level=COMPRESSION_LEVEL)
+    self.private_key = get_key_pair()[1].encode()
+
+    self.git_commit = self.params.get("GitCommit")
+    self.schemas = {self.git_commit: log}
+
+    schema_path = SCHEMAS_PATH / self.git_commit
+    if not schema_path.is_dir():
+      staging_path = SCHEMAS_PATH / f".{self.git_commit}"
+      for name in SCHEMA_FILES:
+        (staging_path / name).parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy(Path(CEREAL_PATH, name), staging_path / name)
+      staging_path.rename(schema_path)
+
+    self.retry_at = 0
+
+    self.car_fingerprint = None
+    self.car_fingerprint_route = None
+
     self.decompressor = zstandard.ZstdDecompressor()
 
     self.session = requests.Session()
 
     self.sm = messaging.SubMaster(["deviceState"])
 
-  def pending_logs(self):
-    drive_ids = {}
-    pending = []
+    self.route = self.params.get("CurrentRoute")
+    self.first_segment = None
 
-    for log_root in self.log_roots:
-      for segment in listdir_by_creation(log_root):
-        log_path = next((path for name in ("rlog.zst", "rlog") if (path := Path(log_root, segment, name)).is_file()), None)
-        if log_path is None:
-          continue
+    if self.route is not None:
+      for log_root in LOG_ROOTS:
+        for lock_path in log_root.glob(f"{self.route}--*/rlog.lock"):
+          self.first_segment = int(lock_path.parent.name.rpartition("--")[2]) + 1
 
-        try:
-          drive_id = getxattr(log_path, DRIVE_ATTR_NAME)
-          uploaded = getxattr(log_path, UPLOAD_ATTR_NAME)
-        except OSError:
-          continue
+  def mark_shared_logs(self):
+    if self.route is not None and self.first_segment is not None:
+      for log_root in LOG_ROOTS:
+        for segment_path in log_root.glob(f"{self.route}--*"):
+          finished = not (segment_path / "rlog.lock").exists()
+          if finished and int(segment_path.name.rpartition("--")[2]) >= self.first_segment and getxattr(segment_path, frogpilot_variables.UPLOAD_ATTR_NAME) is None:
+            setxattr(segment_path, frogpilot_variables.UPLOAD_ATTR_NAME, frogpilot_variables.UPLOAD_PENDING)
 
-        route = segment.rpartition("--")[0]
+    route = self.params.get("CurrentRoute")
 
-        if uploaded:
-          drive_ids[route] = uploaded.decode()
-        else:
-          if drive_id:
-            drive_ids.setdefault(route, drive_id.decode())
+    if route != self.route:
+      self.route = route
+      self.first_segment = 0
 
-          pending.append((log_path, route, drive_id))
+  def pending(self):
+    paths = [Path(log_root, segment) for log_root in LOG_ROOTS for segment in listdir_by_creation(log_root)]
+    paths += sorted(CAPTURES_PATH.glob("*.hevc"))
 
-    for log_path, route, existing_id in pending:
-      if route not in drive_ids:
-        drive_ids[route] = secrets.token_hex(16)
+    for path in paths:
+      try:
+        pending = getxattr(path, frogpilot_variables.UPLOAD_ATTR_NAME) == frogpilot_variables.UPLOAD_PENDING
+      except OSError:
+        continue
 
-      drive_id = drive_ids[route].encode()
+      if pending:
+        yield path
 
-      if existing_id != drive_id:
-        try:
-          setxattr(log_path, DRIVE_ATTR_NAME, drive_id)
-        except FileNotFoundError:
-          continue
+  def schema(self, git_commit):
+    if git_commit not in self.schemas:
+      schema_path = SCHEMAS_PATH / git_commit / "log.capnp"
+      self.schemas[git_commit] = capnp.SchemaParser().load(str(schema_path), imports=[str(schema_path.parent)])
+    return self.schemas[git_commit]
 
-    for log_path, route, _ in pending:
-      if not log_path.with_suffix(".lock").is_file():
-        yield log_path, drive_ids[route]
+  def upload_id(self, name):
+    return hmac.new(self.private_key, name.encode(), "sha256").hexdigest()[:32]
 
-  def upload(self, log_path, drive_id):
-    if log_path.suffix == ".zst":
-      with log_path.open("rb") as compressed, self.decompressor.stream_reader(compressed) as reader:
-        raw_data = reader.read()
+  def upload(self, path):
+    if path.suffix == ".hevc":
+      data = path.read_bytes()
+
+      descriptor = {**json.loads(path.with_suffix(".json").read_text()), "capture_id": self.upload_id(path.stem)}
+      endpoint = "/v1/captures"
     else:
-      raw_data = log_path.read_bytes()
-    data = self.compressor.compress(filter_log(raw_data))
+      try:
+        raw_data = self.decompressor.decompress((path / "rlog.zst").read_bytes(), max_output_size=MAX_LOG_SIZE)
+        git_commit = next(log.Event.read_multiple_bytes(raw_data)).initData.gitCommit
+        schema = self.schema(git_commit)
+      except (OSError, StopIteration, capnp.KjException, zstandard.ZstdError):
+        return
 
-    submission = self.frogpilot_api.post_json("/v1/telemetry", {
-      "route_id": drive_id,
-      "segment": int(log_path.parent.name.rpartition("--")[2]),
-      "sha256": hashlib.sha256(data).hexdigest(),
-      "size_bytes": len(data),
-    }, self.session)
+      car_fingerprint, filtered_data = filter_log(raw_data, schema)
+      data = zstandard.ZstdCompressor(level=LOG_COMPRESSION_LEVEL).compress(filtered_data)
 
-    if upload := submission.get("upload"):
-      self.frogpilot_api.put_upload(upload, data, log_path.name, self.session)
+      route, _, segment = path.name.rpartition("--")
+      if car_fingerprint is not None:
+        self.car_fingerprint, self.car_fingerprint_route = car_fingerprint, route
+      elif route == self.car_fingerprint_route:
+        car_fingerprint = self.car_fingerprint
+
+      descriptor = {"car_fingerprint": car_fingerprint, "route_id": self.upload_id(route), "segment": int(segment)}
+      endpoint = "/v1/telemetry"
+
+    result = self.frogpilot_api.post_json(endpoint, {**descriptor, "sha256": hashlib.sha256(data).hexdigest(), "size_bytes": len(data)}, self.session)
+
+    if result:
+      if not self.can_upload():
+        return False
+
+      self.frogpilot_api.put_upload(result["upload"], data, path.name, self.session)
 
   def can_upload(self):
     self.sm.update(0)
@@ -265,33 +278,52 @@ class FrogPilotTelemetry:
     if self.sm["deviceState"].started:
       return False
 
-    return not self.sm["deviceState"].networkMetered and self.sm["deviceState"].networkType in (NetworkType.ethernet, NetworkType.wifi)
+    return frogpilot_utilities.is_unmetered_network(self.sm["deviceState"])
 
   def update(self):
-    if not self.can_upload():
+    self.mark_shared_logs()
+
+    if time.monotonic() < self.retry_at or not self.can_upload():
       return
 
-    for log_path, drive_id in self.pending_logs():
-      try:
-        self.upload(log_path, drive_id)
-        setxattr(log_path, UPLOAD_ATTR_NAME, drive_id.encode())
-      except (FrogPilotAPIError, requests.exceptions.RequestException):
-        return
-      except Exception as error:
-        sentry.capture_exception(error, crash_log=False)
-
+    for path in self.pending():
       if not self.can_upload():
         return
+
+      try:
+        if self.upload(path) is False:
+          return
+      except (frogpilot_api.FrogPilotAPIError, requests.exceptions.RequestException) as error:
+        self.retry_at = time.monotonic() + 60 * 60
+        print(f"Error uploading telemetry ({error})")
+        return
+
+      if path.suffix == ".hevc" and not frogpilot_utilities.is_FrogsGoMoo():
+        path.unlink()
+        path.with_suffix(".json").unlink()
+      else:
+        setxattr(path, frogpilot_variables.UPLOAD_ATTR_NAME, UPLOAD_DONE)
+
+    for schema_path in SCHEMAS_PATH.iterdir():
+      if schema_path.name != self.git_commit:
+        shutil.rmtree(schema_path)
+
+    self.schemas = {self.git_commit: log}
 
 
 def main():
   frogpilot_telemetry = FrogPilotTelemetry()
 
+  libc = ctypes.CDLL("libc.so.6")
+
   while True:
     try:
       frogpilot_telemetry.update()
     except Exception as error:
-      sentry.capture_exception(error)
+      sentry.capture_exception(error, crash_log=False)
+
+    gc.collect()
+    libc.malloc_trim(0)
 
     time.sleep(60)
 

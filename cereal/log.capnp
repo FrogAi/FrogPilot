@@ -2638,13 +2638,13 @@ struct Event {
     frogpilotModelV2 @111 :Custom.FrogPilotModelDataV2;
     frogpilotOnroadEvents @112 :List(Custom.FrogPilotOnroadEvent);
     frogpilotPlan @113 :Custom.FrogPilotPlan;
+    frogpilotProcessState @138 :Custom.FrogPilotProcessState;
     frogpilotRadarState @114 :Custom.FrogPilotRadarState;
     frogpilotSelfdriveState @115 :Custom.FrogPilotSelfdriveState;
-    customReserved9 @116 :Custom.CustomReserved9;
+    frogpilotSignReading @116 :Custom.FrogPilotSignReading;
+    frogpilotUIEvent @137 :Custom.FrogPilotUIEvent;
+    frogpilotUIRequest @139 :Custom.FrogPilotUIRequest;
     customReserved10 @136 :Custom.CustomReserved10;
-    customReserved11 @137 :Custom.CustomReserved11;
-    customReserved12 @138 :Custom.CustomReserved12;
-    customReserved13 @139 :Custom.CustomReserved13;
     customReserved14 @140 :Custom.CustomReserved14;
     customReserved15 @141 :Custom.CustomReserved15;
     customReserved16 @142 :Custom.CustomReserved16;

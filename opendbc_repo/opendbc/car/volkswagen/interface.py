@@ -83,7 +83,10 @@ class CarInterface(CarInterfaceBase):
     # Global longitudinal tuning defaults, can be overridden per-vehicle
 
     ret.alphaLongitudinalAvailable = ret.networkLocation == NetworkLocation.gateway or docs
-    if alpha_long:
+    # FrogPilot variables
+    if ret.flags & VolkswagenFlags.MLB:
+      ret.alphaLongitudinalAvailable = False
+    elif alpha_long:
       # Proof-of-concept, prep for E2E only. No radar points available. Panda ALLOW_DEBUG firmware required.
       ret.openpilotLongitudinalControl = True
       safety_configs[0].safetyParam |= VolkswagenSafetyFlags.LONG_CONTROL.value

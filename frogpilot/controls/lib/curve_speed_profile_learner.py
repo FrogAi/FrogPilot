@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 import numpy as np
 
-from openpilot.common.constants import ACCELERATION_DUE_TO_GRAVITY
 from openpilot.common.realtime import DT_MDL
 from openpilot.selfdrive.controls.lib.drive_helpers import MAX_LATERAL_ACCEL_NO_ROLL
 
-from openpilot.frogpilot.common.frogpilot_variables import DEFAULT_LATERAL_ACCELERATION
-
-CURVE_THRESHOLD = 1.3
+from openpilot.frogpilot.common import frogpilot_variables
 
 CURVE_EXIT_TIME = 0.5
 MINIMUM_CURVE_TIME = 0.5
@@ -20,11 +17,11 @@ class CurveSpeedProfileLearner:
   def __init__(self, CurveSpeedController):
     self.csc = CurveSpeedController
 
+    self.signalled = False
+
     self.curve_exit_time = 0
 
     self.curve_samples = []
-
-    self.calibrated_lateral_acceleration = DEFAULT_LATERAL_ACCELERATION
 
     curvature_data = self.csc.frogpilot_planner.params.get("CurvatureData")
     self.curve_values = curvature_data.get("curves", [])[-LEARNING_CURVES:]
@@ -32,18 +29,24 @@ class CurveSpeedProfileLearner:
     self._update_profile()
 
   def update(self, long_control_active, sm):
+    blinker = sm["carState"].leftBlinker or sm["carState"].rightBlinker
+
     valid = sm.all_checks(["carControl", "carState", "liveParameters", "radarState"])
     valid &= sm["liveParameters"].valid and len(sm["carControl"].angularVelocity) > 2
     valid &= not long_control_active and not sm["carState"].cruiseState.enabled and not sm["radarState"].leadOne.status
     valid &= not sm["carState"].espActive
     valid &= self.csc.frogpilot_planner.frogpilot_weather.weather_id == 0 or self.csc.frogpilot_planner.frogpilot_weather.reduce_lateral_acceleration == 0
-    valid &= self.csc.frogpilot_planner.road_curvature_detected
+    valid &= sm["carState"].vEgo > frogpilot_variables.CRUISING_SPEED
 
     if valid:
-      roll_compensation = sm["liveParameters"].roll * ACCELERATION_DUE_TO_GRAVITY
-      actual_lateral_acceleration = sm["carControl"].angularVelocity[2] * sm["carState"].vEgo - roll_compensation
+      actual_lateral_acceleration = sm["carControl"].angularVelocity[2] * sm["carState"].vEgo - self.csc.frogpilot_planner.roll_compensation
+      in_curve = abs(actual_lateral_acceleration) >= frogpilot_variables.MINIMUM_LATERAL_ACCELERATION
 
-      valid &= abs(actual_lateral_acceleration) >= CURVE_THRESHOLD
+      self.signalled = blinker or (self.signalled and in_curve)
+
+      valid &= in_curve and not self.signalled
+    else:
+      self.signalled = self.signalled or blinker
 
     if valid:
       self.curve_exit_time = 0
@@ -73,9 +76,9 @@ class CurveSpeedProfileLearner:
     if self.curve_values:
       preferred_lateral_acceleration = float(np.percentile(self.curve_values, CURVE_PERCENTILE))
     else:
-      preferred_lateral_acceleration = DEFAULT_LATERAL_ACCELERATION
+      preferred_lateral_acceleration = frogpilot_variables.DEFAULT_LATERAL_ACCELERATION
 
-    self.calibrated_lateral_acceleration = DEFAULT_LATERAL_ACCELERATION + confidence * (preferred_lateral_acceleration - DEFAULT_LATERAL_ACCELERATION)
+    self.calibrated_lateral_acceleration = frogpilot_variables.DEFAULT_LATERAL_ACCELERATION + confidence * (preferred_lateral_acceleration - frogpilot_variables.DEFAULT_LATERAL_ACCELERATION)
 
     self.csc.frogpilot_planner.params.put_nonblocking("CalibratedLateralAcceleration", self.calibrated_lateral_acceleration)
     self.csc.frogpilot_planner.params.put_nonblocking("CalibrationProgress", confidence * 100)

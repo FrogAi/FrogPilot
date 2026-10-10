@@ -19,6 +19,7 @@
 #include "system/camerad/cameras/ife.h"
 #include "system/camerad/cameras/spectra.h"
 #include "system/camerad/cameras/bps_blobs.h"
+#include "system/camerad/sensors/ar0231.h"
 
 
 // ************** low level camera helpers ****************
@@ -1004,9 +1005,9 @@ bool SpectraCamera::openSensor() {
   };
 
   // Figure out which sensor we have
-  if (!init_sensor_lambda(new AR0231) &&
+  if (!init_sensor_lambda(new OS04C10) &&
       !init_sensor_lambda(new OX03C10) &&
-      !init_sensor_lambda(new OS04C10)) {
+      !init_sensor_lambda(new AR0231)) {
     LOGE("** sensor %d FAILED bringup, disabling", cc.camera_num);
     enabled = false;
     return false;
