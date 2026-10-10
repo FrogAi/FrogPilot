@@ -157,7 +157,6 @@ board board_tres = {
   .has_spi = true,
   .has_fan = true,
   .avdd_mV = 1800U,
-  .fan_stall_recovery = false,
   .fan_enable_cooldown_time = 3U,
   .init = tres_init,
   .init_bootloader = unused_init_bootloader,

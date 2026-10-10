@@ -218,9 +218,6 @@ static safety_config chrysler_init(uint16_t param) {
     {CHRYSLER_ADDRS.CRUISE_BUTTONS, 0, 3, .check_relay = false},
     {CHRYSLER_ADDRS.LKAS_COMMAND, 0, 6, .check_relay = true},
     {CHRYSLER_ADDRS.DAS_6, 0, 8, .check_relay = true},
-
-    // RealFast variables
-    {CHRYSLER_ADDRS.CRUISE_BUTTONS_ALT, 2, 3, .check_relay = false},
   };
 
   static const CanMsg CHRYSLER_RAM_DT_TX_MSGS[] = {

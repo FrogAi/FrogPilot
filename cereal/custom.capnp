@@ -53,9 +53,9 @@ struct FrogPilotCarParams @0xaedffd8f31e7b55d {
   alternativeExperience @0 :Int16;
   canUsePedal @1 :Bool;
   canUseSDSU @2 :Bool;
-  flags @3 :UInt32;
-  hasDashboardSpeedLimit @4 :Bool;
-  isHDA2 @5 :Bool;
+  dashcamOnly @3 :Bool;
+  flags @4 :UInt32;
+  hasDashboardSpeedLimit @5 :Bool;
   openpilotLongitudinalControlDisabled @6 :Bool;
   safetyConfigs @7 :List(SafetyConfig);
 
@@ -65,25 +65,29 @@ struct FrogPilotCarParams @0xaedffd8f31e7b55d {
 }
 
 struct FrogPilotCarState @0xf35cc4560bbf6ec2 {
-  accelPressed @0 :Bool;
+  accelPressCount @0 :UInt64;
   alwaysOnLateralEnabled @1 :Bool;
   brakeLights @2 :Bool;
   dashboardSpeedLimit @3 :Float32;
-  decelPressed @4 :Bool;
+  decelPressCount @4 :UInt64;
   distancePressed @5 :Bool;
   distanceLongPressed @6 :Bool;
   distanceVeryLongPressed @7 :Bool;
   ecoGear @8 :Bool;
-  forceCoast @9 :Bool;
-  pauseLateral @10 :Bool;
-  pauseLongitudinal @11 :Bool;
-  sportGear @12 :Bool;
-  trafficModeEnabled @13 :Bool;
+  experimentalModePressCount @9 :UInt64;
+  forceCoast @10 :Bool;
+  lkasButtonPressCount @11 :UInt64;
+  pauseLateral @12 :Bool;
+  pauseLongitudinal @13 :Bool;
+  pedalInterceptorNoBrake @14 :Bool;
+  sportGear @15 :Bool;
+  trafficModeEnabled @16 :Bool;
 }
 
 struct FrogPilotDeviceState @0xda96579883444c35 {
-  freeSpace @0 :Int16;
-  usedSpace @1 :Int16;
+  forceOnroadClearedCount @0 :UInt64;
+  freeSpace @1 :Int16;
+  usedSpace @2 :Int16;
 }
 
 struct FrogPilotModelDataV2 @0x80ae746ee2596b11 {
@@ -107,84 +111,92 @@ struct FrogPilotOnroadEvent @0xa5cd762cd951a455 {
   immediateDisable @6 :Bool;
   preEnable @7 :Bool;
   permanent @8 :Bool;
-  overrideLateral @10 :Bool;
   overrideLongitudinal @9 :Bool;
+  overrideLateral @10 :Bool;
 
   enum EventName {
-    blockUser @0;
-    customStartupAlert @1;
-    forcingStop @2;
-    goatSteerSaturated @3;
-    greenLight @4;
-    holidayActive @5;
-    laneChangeBlockedLoud @6;
-    leadDeparting @7;
+    customStartupAlert @0;
+    forcingStop @1;
+    goatSteerSaturated @2;
+    greenLight @3;
+    holidayActive @4;
+    laneChangeBlockedLoud @5;
+    leadDeparting @6;
+    nnffLoaded @7;
     noLaneAvailable @8;
-    nnffLoaded @9;
-    openpilotCrashed @10;
-    pedalInterceptorNoBrake @11;
-    speedLimitChanged @12;
-    trafficModeActive @13;
-    trafficModeInactive @14;
-    turningLeft @15;
-    turningRight @16;
+    openpilotCrashed @9;
+    pedalInterceptorNoBrake @10;
+    pedalInterceptorNoBrakeNoEntry @11;
+    recordingFailed @12;
+    recordingSaved @13;
+    recordingStarted @14;
+    recordingStartFailed @15;
+    replayFailed @16;
+    replaySaved @17;
+    speedLimitChanged @18;
+    trafficModeActive @19;
+    trafficModeInactive @20;
+    turningLeft @21;
+    turningRight @22;
 
     # Random Events
-    accel30 @17;
-    accel35 @18;
-    accel40 @19;
-    dejaVuCurve @20;
-    firefoxSteerSaturated @21;
-    hal9000 @22;
-    openpilotCrashedRandomEvent @23;
-    thisIsFineSteerSaturated @24;
-    toBeContinued @25;
-    vCruise69 @26;
-    yourFrogTriedToKillMe @27;
-    youveGotMail @28;
+    accel30 @23;
+    accel35 @24;
+    accel40 @25;
+    dejaVuCurve @26;
+    firefoxSteerSaturated @27;
+    hal9000 @28;
+    openpilotCrashedRandomEvent @29;
+    thisIsFineSteerSaturated @30;
+    toBeContinued @31;
+    vCruise69 @32;
+    yourFrogTriedToKillMe @33;
+    youveGotMail @34;
   }
 }
 
 struct FrogPilotPlan @0xf98d843bfd7004a3 {
   accelerationJerk @0 :Float32;
-  cscActive @1 :Bool;
-  cscControllingSpeed @2 :Bool;
-  cscMaxLateralAcceleration @3 :Float32;
-  cscSpeed @4 :Float32;
-  cscTraining @5 :Bool;
-  dangerJerk @6 :Float32;
-  desiredFollowDistance @7 :Int64;
-  experimentalMode @8 :Bool;
-  forcingStop @9 :Bool;
-  forcingStopLength @10 :Float32;
-  frogpilotEvents @11 :List(FrogPilotOnroadEvent);
-  frogpilotToggles @12 :Text;
-  increasedStoppedDistance @13 :Float32;
-  laneWidthLeft @14 :Float32;
-  laneWidthRight @15 :Float32;
-  lateralCheck @16 :Bool;
-  maxAcceleration @17 :Float32;
-  minAcceleration @18 :Float32;
-  redLight @19 :Bool;
-  roadCurvature @20 :Float32;
-  slcMapboxIsForward @21 :Bool;
-  slcMapboxSpeedLimit @22 :Float32;
-  slcMapboxWayId @23 :Int64;
-  slcMapSpeedLimit @24 :Float32;
-  slcNextSpeedLimit @25 :Float32;
-  slcOverriddenSpeed @26 :Float32;
-  slcSpeedLimit @27 :Float32;
-  slcSpeedLimitOffset @28 :Float32;
-  slcSpeedLimitSource @29 :Text;
-  speedJerk @30 :Float32;
-  speedLimitChanged @31 :Bool;
-  tFollow @32 :Float32;
-  themeUpdated @33 :Bool;
-  trackingLead @34 :Bool;
-  unconfirmedSlcSpeedLimit @35 :Float32;
-  vCruise @36 :Float32;
-  weatherDaytime @37 :Bool;
-  weatherId @38 :Int16;
+  ceStatus @1 :UInt8;
+  cscActive @2 :Bool;
+  cscControllingSpeed @3 :Bool;
+  cscLateralAcceleration @4 :Float32;
+  cscSpeed @5 :Float32;
+  cscTraining @6 :Bool;
+  dangerJerk @7 :Float32;
+  desiredFollowDistance @8 :Int64;
+  experimentalMode @9 :Bool;
+  forcingStop @10 :Bool;
+  forcingStopLength @11 :Float32;
+  frogpilotEvents @12 :List(FrogPilotOnroadEvent);
+  frogpilotToggles @13 :Text;
+  gpsBearing @14 :Float32;
+  increasedStoppedDistance @15 :Float32;
+  laneWidthLeft @16 :Float32;
+  laneWidthRight @17 :Float32;
+  lateralCheck @18 :Bool;
+  maxAcceleration @19 :Float32;
+  minAcceleration @20 :Float32;
+  redLight @21 :Bool;
+  roadCurvature @22 :Float32;
+  slcMapboxIsForward @23 :Bool;
+  slcMapboxSpeedLimit @24 :Float32;
+  slcMapboxWayId @25 :Int64;
+  slcMapSpeedLimit @26 :Float32;
+  slcNextSpeedLimit @27 :Float32;
+  slcOverriddenSpeed @28 :Float32;
+  slcSpeedLimit @29 :Float32;
+  slcSpeedLimitOffset @30 :Float32;
+  slcSpeedLimitSource @31 :Text;
+  speedJerk @32 :Float32;
+  speedLimitChanged @33 :Bool;
+  tFollow @34 :Float32;
+  themeUpdateCount @35 :UInt64;
+  unconfirmedSlcSpeedLimit @36 :Float32;
+  vCruise @37 :Float32;
+  weatherDaytime @38 :Bool;
+  weatherId @39 :Int16;
+  wheelImageUpdateCount @40 :UInt64;
 }
 
 struct FrogPilotRadarState @0xb86e6369214c01c8 {
@@ -217,6 +229,8 @@ struct FrogPilotSelfdriveState @0xf416ec09499d9d19 {
   alertSize @3 :AlertSize;
   alertType @4 :Text;
   alertSound @5 :FrogPilotCarControl.HUDControl.AudibleAlert;
+  hasDisableEvents @6 :Bool;
+  hasPriorityAlert @7 :Bool;
 
   enum AlertStatus {
     normal @0;
@@ -233,19 +247,61 @@ struct FrogPilotSelfdriveState @0xf416ec09499d9d19 {
   }
 }
 
-struct CustomReserved9 @0xa1680744031fdb2d {
+struct FrogPilotSignReading @0xa1680744031fdb2d {
+  speedLimit @0 :Float32;
+}
+
+struct FrogPilotUIEvent @0xc2243c65e0340384 {
+  union {
+    distanceButtonPressed @0 :Bool;
+    experimentalModePressed @1 :Void;
+    screenRecorderEvent @2 :FrogPilotOnroadEvent.EventName;
+    speedLimitAccepted @3 :Void;
+  }
+}
+
+struct FrogPilotProcessState @0x9ccdc8676701b412 {
+  downloadMapsRequestTime @0 :UInt64;
+  downloadThemeRequestTime @1 :UInt64;
+  downloadingMaps @2 :Bool;
+  downloadingModels @3 :Bool;
+  flashPandaRequestTime @4 :UInt64;
+  flashedPanda @5 :Bool;
+  flashingPanda @6 :Bool;
+  issueReport @7 :Text;
+  issueReportRequestTime @8 :UInt64;
+  modelDownloadProgress @9 :Text;
+  modelDownloadRequestTime @10 :UInt64;
+  statsSavedCount @11 :UInt64;
+  themeDownloadCount @12 :UInt32;
+  themeDownloadFailedCount @13 :UInt32;
+  themeDownloadProgress @14 :Text;
+  themeDownloadSuccessCount @15 :UInt32;
+}
+
+struct FrogPilotUIRequest @0xcd96dafb67a082d0 {
+  union {
+    cancelMapsDownload @0 :Void;
+    cancelModelDownload @1 :Void;
+    cancelThemeDownload @2 :Void;
+    downloadAllModels @3 :Void;
+    downloadMaps @4 :Void;
+    downloadModels @5 :List(Text);
+    downloadTheme @6 :List(ThemeDownload);
+    flashPanda @7 :Void;
+    issueReport @8 :Text;
+    testAlert @9 :Text;
+    updateChecks @10 :Void;
+    updateToggles @11 :Void;
+  }
+
+  struct ThemeDownload {
+    component @0 :Text;
+    theme @1 :Text;
+  }
 }
 
 struct CustomReserved10 @0xcb9fd56c7057593a {
-}
-
-struct CustomReserved11 @0xc2243c65e0340384 {
-}
-
-struct CustomReserved12 @0x9ccdc8676701b412 {
-}
-
-struct CustomReserved13 @0xcd96dafb67a082d0 {
 }
 
 struct CustomReserved14 @0xb057204d7deadf3f {
@@ -422,6 +478,5 @@ struct MapdOut @0xa4f1eb3323f5f582 {
   highwayClass @24 :HighwayClass;
   wayId @25 :Int64;
   conditionalSpeedLimit @26 :Text;
-  isForward @27 :Bool;  # Travel follows the original OSM node order.
-  locationMonoTime @28 :UInt64;  # Source GPS measurement time for the match; 0 when unavailable.
+  isForward @27 :Bool;  # Travel follows the way's stored node order.
 }

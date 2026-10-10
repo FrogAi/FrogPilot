@@ -43,6 +43,7 @@ bool get_brake_pressed_prev(void);
 bool get_regen_braking_prev(void);
 bool get_steering_disengage_prev(void);
 bool get_acc_main_on(void);
+bool get_lkas_on(void);
 float get_vehicle_speed_min(void);
 float get_vehicle_speed_max(void);
 int get_current_safety_mode(void);

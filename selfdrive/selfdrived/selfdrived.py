@@ -4,7 +4,6 @@ import time
 import threading
 
 import cereal.messaging as messaging
-import openpilot.system.sentry as sentry
 
 from cereal import car, custom, log
 from msgq.visionipc import VisionIpcClient, VisionStreamType
@@ -27,8 +26,7 @@ from openpilot.selfdrive.selfdrived.alertmanager import AlertManager, set_offroa
 from openpilot.system.version import get_build_metadata
 from openpilot.system.hardware import HARDWARE
 
-from openpilot.frogpilot.common.frogpilot_utilities import contains_event_type
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 
 REPLAY = "REPLAY" in os.environ
 SIMULATION = "SIMULATION" in os.environ
@@ -152,7 +150,7 @@ class SelfdriveD:
     self.sm = self.sm.extend(['frogpilotCarState', 'frogpilotPlan'])
     self.pm = self.pm.extend(['frogpilotOnroadEvents', 'frogpilotSelfdriveState'])
 
-    self.frogpilot_toggles = get_frogpilot_toggles()
+    self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
     self.frogpilot_AM = AlertManager()
     self.frogpilot_events = Events(frogpilot=True)
@@ -165,16 +163,11 @@ class SelfdriveD:
 
     self.has_menu = self.CP.brand == "gm" and self.CP.carFingerprint not in CC_ONLY_CAR
 
-    self.FPCP = messaging.log_from_bytes(self.params.get("FrogPilotCarParams", block=True), custom.FrogPilotCarParams)
-
-    if self.frogpilot_toggles.block_user:
-      self.startup_event = FrogPilotEventName.blockUser
-      sentry.capture_message("Blocked user from using the development branch", level="info")
-
   def update_events(self, CS):
     """Compute onroadEvents from carState"""
 
     self.events.clear()
+    # FrogPilot variables
     self.frogpilot_events.clear()
 
     if self.sm['controlsState'].lateralControlState.which() == 'debugState':
@@ -187,7 +180,8 @@ class SelfdriveD:
 
     # Add startup event
     if self.startup_event is not None:
-      if self.startup_event in (FrogPilotEventName.blockUser, FrogPilotEventName.customStartupAlert):
+      # FrogPilot variables
+      if self.startup_event == FrogPilotEventName.customStartupAlert:
         self.frogpilot_events.add(self.startup_event)
       else:
         self.events.add(self.startup_event)
@@ -196,6 +190,7 @@ class SelfdriveD:
     # Don't add any more events if not initialized
     if not self.initialized:
       self.events.add(EventName.selfdriveInitializing)
+      # FrogPilot variables
       self.frogpilot_events.add_from_msg(self.sm['frogpilotPlan'].frogpilotEvents)
       return
 
@@ -295,17 +290,20 @@ class SelfdriveD:
       direction = self.sm['modelV2'].meta.laneChangeDirection
       if (CS.leftBlindspot and direction == LaneChangeDirection.left) or \
          (CS.rightBlindspot and direction == LaneChangeDirection.right):
+        # FrogPilot variables
         if self.frogpilot_toggles.loud_blindspot_alert:
           self.frogpilot_events.add(FrogPilotEventName.laneChangeBlockedLoud)
         else:
           self.events.add(EventName.laneChangeBlocked)
       else:
         if direction == LaneChangeDirection.left:
+          # FrogPilot variables
           if self.sm['frogpilotPlan'].laneWidthLeft >= self.frogpilot_toggles.lane_detection_width:
             self.events.add(EventName.preLaneChangeLeft)
           else:
             self.frogpilot_events.add(FrogPilotEventName.noLaneAvailable)
         else:
+          # FrogPilot variables
           if self.sm['frogpilotPlan'].laneWidthRight >= self.frogpilot_toggles.lane_detection_width:
             self.events.add(EventName.preLaneChangeRight)
           else:
@@ -318,8 +316,8 @@ class SelfdriveD:
       # All pandas must match the list of safetyConfigs, and if outside this list, must be silent or noOutput
       if i < len(self.CP.safetyConfigs):
         safety_mismatch = pandaState.safetyModel != self.CP.safetyConfigs[i].safetyModel or \
-                          pandaState.safetyParam != self.FPCP.safetyConfigs[i].safetyParam or \
-                          pandaState.alternativeExperience != self.FPCP.alternativeExperience
+                          pandaState.safetyParam != self.CP.safetyConfigs[i].safetyParam or \
+                          pandaState.alternativeExperience != self.CP.alternativeExperience
       else:
         safety_mismatch = pandaState.safetyModel not in IGNORED_SAFETY_MODES
 
@@ -364,9 +362,9 @@ class SelfdriveD:
       self.events.add(EventName.canError)
 
     # generic catch-all. ideally, a more specific event should be added above instead
-    has_disable_events = contains_event_type(self.events, self.frogpilot_events, ET.NO_ENTRY) and \
-                         (contains_event_type(self.events, self.frogpilot_events, ET.SOFT_DISABLE) or
-                          contains_event_type(self.events, self.frogpilot_events, ET.IMMEDIATE_DISABLE))
+    # FrogPilot variables
+    has_disable_events = frogpilot_utilities.contains_event_type(self.events, self.frogpilot_events, ET.NO_ENTRY) and \
+                         frogpilot_utilities.contains_event_type(self.events, self.frogpilot_events, ET.SOFT_DISABLE, ET.IMMEDIATE_DISABLE)
     no_system_errors = (not has_disable_events) or (len(self.events) == num_events)
     if not self.sm.all_checks() and no_system_errors:
       if not self.sm.all_alive():
@@ -420,6 +418,7 @@ class SelfdriveD:
       turning = abs(desired_lateral_accel) > 1.0
       # TODO: lac.saturated includes speed and other checks, should be pulled out
       if undershooting and turning and lac.saturated:
+        # FrogPilot variables
         if self.frogpilot_toggles.goat_scream_alert:
           self.frogpilot_events.add(FrogPilotEventName.goatSteerSaturated)
         else:
@@ -447,6 +446,7 @@ class SelfdriveD:
 
     # Decrement personality on distance button press
     if self.CP.openpilotLongitudinalControl:
+      # FrogPilot variables
       distance_pressed = False
 
       if self.frogpilot_toggles.personality_profile_via_distance:
@@ -534,8 +534,7 @@ class SelfdriveD:
 
     pers = LONGITUDINAL_PERSONALITY_MAP[self.personality]
     alerts = self.events.create_alerts(self.state_machine.current_alert_types, [self.CP, CS, self.sm, self.is_metric,
-                                                                                self.state_machine.soft_disable_timer, pers,
-                                                                                self.frogpilot_toggles])
+                                                                                self.state_machine.soft_disable_timer, pers])
     self.AM.add_many(self.sm.frame, alerts)
     self.AM.process_alerts(self.sm.frame, clear_event_types)
 
@@ -554,7 +553,7 @@ class SelfdriveD:
     ss.enabled = self.enabled
     ss.active = self.active
     ss.state = self.state_machine.state
-    ss.engageable = not contains_event_type(self.events, self.frogpilot_events, ET.NO_ENTRY)
+    ss.engageable = not frogpilot_utilities.contains_event_type(self.events, self.frogpilot_events, ET.NO_ENTRY)
     ss.experimentalMode = self.experimental_mode
     ss.personality = self.personality
 
@@ -564,7 +563,7 @@ class SelfdriveD:
     ss.alertStatus = self.AM.current_alert.alert_status
     ss.alertType = self.AM.current_alert.alert_type
     ss.alertSound = self.AM.current_alert.audible_alert
-    ss.alertHudVisual = self.AM.current_alert.visual_alert
+    ss.alertHudVisual = self.AM.current_alert.visual_alert or self.frogpilot_AM.current_alert.visual_alert
 
     self.pm.send('selfdriveState', ss_msg)
 
@@ -587,6 +586,10 @@ class SelfdriveD:
     fpss.alertStatus = self.frogpilot_AM.current_alert.alert_status
     fpss.alertType = self.frogpilot_AM.current_alert.alert_type
     fpss.alertSound = self.frogpilot_AM.current_alert.audible_alert
+    fpss.hasDisableEvents = self.events.contains_disable_event() or self.frogpilot_events.contains_disable_event()
+    fpss.hasPriorityAlert = self.frogpilot_AM.current_alert.alert_status == custom.FrogPilotSelfdriveState.AlertStatus.critical
+    fpss.hasPriorityAlert |= self.frogpilot_AM.current_alert.alert_type.endswith(f"/{ET.SOFT_DISABLE}")
+    fpss.hasPriorityAlert &= self.AM.current_alert.alert_status != log.SelfdriveState.AlertStatus.critical
 
     self.pm.send('frogpilotSelfdriveState', fpss_msg)
 
@@ -609,13 +612,14 @@ class SelfdriveD:
     self.CS_prev = CS
 
     # FrogPilot variables
-    self.frogpilot_toggles = get_frogpilot_toggles(self.sm)
+    self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(self.sm)
 
   def params_thread(self, evt):
     while not evt.is_set():
       self.is_metric = self.params.get_bool("IsMetric")
       self.is_ldw_enabled = self.params.get_bool("IsLdwEnabled")
       self.disengage_on_accelerator = self.params.get_bool("DisengageOnAccelerator")
+      # FrogPilot variables
       if not self.frogpilot_toggles.conditional_experimental_mode:
         self.experimental_mode = self.params.get_bool("ExperimentalMode") and self.CP.openpilotLongitudinalControl
       self.personality = self.params.get("LongitudinalPersonality", return_default=True)

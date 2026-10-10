@@ -12,12 +12,7 @@ class ExperimentalButton : public QPushButton {
 
 public:
   explicit ExperimentalButton(QWidget *parent = 0);
-  void updateState(const UIState &s, const FrogPilotUIState &fs);
-
-  // FrogPilot variables
-  FrogPilotUIScene frogpilot_scene = {};
-
-  QJsonObject frogpilot_toggles;
+  void updateState(const UIState &s);
 
 private:
   void paintEvent(QPaintEvent *event) override;
@@ -32,14 +27,14 @@ private:
   // FrogPilot variables
   void hideEvent(QHideEvent *event) override;
   void showEvent(QShowEvent *event) override;
-  void updateBackgroundColor();
+  void updateBackgroundColor(const FrogPilotUIScene &frogpilot_scene);
   void updateTheme();
 
   bool wheel_is_stock = false;
 
   int steering_angle_deg = 0;
 
-  Params params_memory{"", true};
+  uint64_t wheel_image_update_count = 0;
 
   QColor background_color;
 
@@ -48,4 +43,4 @@ private:
   QSharedPointer<QMovie> wheel_gif;
 };
 
-void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity, const int &angle = 0);
+void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity);

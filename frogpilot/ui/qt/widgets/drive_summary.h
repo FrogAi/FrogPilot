@@ -14,10 +14,12 @@ signals:
 protected:
   void showEvent(QShowEvent *event) override;
   void hideEvent(QHideEvent *event) override;
-  void mousePressEvent(QMouseEvent *e);
+  void mousePressEvent(QMouseEvent *e) override;
 
 private:
-  QWidget *createStatBox(const QString &title, QLabel **valueLabel, QWidget *parent);
+  void updateStats();
+
+  QWidget *createStatBox(const QString &title, QLabel **valueLabel);
 
   bool displayRandomEvents;
 
@@ -28,10 +30,7 @@ private:
   QLabel *experimentalModeTimeValue;
   QLabel *frogPilotMetersValue;
   QLabel *engagementValue;
-  QLabel *titleLabel;
   QLabel *trackedTimeValue;
-
-  QMap<QString, QLabel*> randomEventLabels;
 
   QMap<QString, QString> randomEventsMap;
 

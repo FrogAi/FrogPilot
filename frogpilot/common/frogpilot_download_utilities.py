@@ -1,36 +1,37 @@
 #!/usr/bin/env python3
 import requests
 
-from datetime import datetime, timezone
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 
-from openpilot.frogpilot.common.frogpilot_utilities import delete_file, is_url_pingable
-from openpilot.frogpilot.common.frogpilot_variables import RESOURCES_REPO
+GITHUB_URL = f"https://raw.githubusercontent.com/{frogpilot_variables.RESOURCES_REPO}"
+GITLAB_URL = f"https://gitlab.com/{frogpilot_variables.RESOURCES_REPO}/-/raw"
 
-GITHUB_URL = f"https://raw.githubusercontent.com/{RESOURCES_REPO}"
-GITLAB_URL = f"https://gitlab.com/{RESOURCES_REPO}/-/raw"
+class DownloadState:
+  def __init__(self):
+    self.cancelled = False
+    self.progress = ""
 
-def download_file(cancel_param, destination, download_param, params_memory, progress_param, session, url, offset_bytes=0, total_bytes=0):
+def download_file(destination, download_state, session, url):
   try:
     destination.parent.mkdir(parents=True, exist_ok=True)
 
-    if cancel_param and params_memory.get_bool(cancel_param):
-      handle_error(None, download_param, "Download cancelled...", "Download cancelled...", params_memory, progress_param)
+    if download_state.cancelled:
+      handle_error(None, "Download cancelled...", download_state)
       return
 
     with session.get(url, stream=True, timeout=10) as response:
       if response.status_code == 404 and url.endswith(".gif"):
-        print(f"GIF download failed (404). Attempting fallback to PNG for {destination.name}")
-        return download_file(cancel_param, destination.with_suffix(".png"), download_param, params_memory, progress_param, session, url.replace(".gif", ".png"), offset_bytes, total_bytes)
+        return download_file(destination.with_suffix(".png"), download_state, session, url.replace(".gif", ".png"))
 
       response.raise_for_status()
 
       total_size = int(response.headers.get("Content-Length", 0))
       if total_size == 0:
-        handle_error(None, download_param, "Download invalid...", "Download invalid...", params_memory, progress_param)
+        handle_error(None, "Download invalid...", download_state)
         return
 
-      if cancel_param and params_memory.get_bool(cancel_param):
-        handle_error(None, download_param, "Download cancelled...", "Download cancelled...", params_memory, progress_param)
+      if download_state.cancelled:
+        handle_error(None, "Download cancelled...", download_state)
         return
 
       temp_file_path = destination.with_suffix(destination.suffix + ".tmp")
@@ -40,40 +41,33 @@ def download_file(cancel_param, destination, download_param, params_memory, prog
           downloaded_size = 0
 
           for chunk in response.iter_content(chunk_size=16384):
-            if params_memory.get_bool(cancel_param):
+            if download_state.cancelled:
               raise InterruptedError
 
             if chunk:
               temp_file.write(chunk)
               downloaded_size += len(chunk)
 
-              if total_bytes:
-                overall_progress = (offset_bytes + downloaded_size) / total_bytes * 100
-              elif total_size > 0:
-                overall_progress = downloaded_size / total_size * 100
-              else:
-                overall_progress = 0
+              overall_progress = downloaded_size / total_size * 100
 
-              if overall_progress < 100:
-                params_memory.put(progress_param, f"{overall_progress:.0f}%")
-              else:
-                params_memory.put(progress_param, "Verifying authenticity...")
+              download_state.progress = f"{overall_progress:.0f}%"
 
         temp_file_path.replace(destination)
+        return destination
 
       except InterruptedError:
         temp_file_path.unlink(missing_ok=True)
-        handle_error(None, download_param, "Download cancelled...", "Download cancelled...", params_memory, progress_param)
+        handle_error(None, "Download cancelled...", download_state)
         return
       except Exception:
         temp_file_path.unlink(missing_ok=True)
         raise
 
   except Exception as exception:
-    handle_request_error(destination, download_param, exception, params_memory, progress_param)
+    handle_request_error(exception, download_state)
 
 
-def get_remote_file_size(params_memory, session, url):
+def get_remote_file_size(session, url):
   try:
     response = session.head(url, headers={"Accept-Encoding": "identity"}, timeout=10)
     response.raise_for_status()
@@ -85,15 +79,14 @@ def get_remote_file_size(params_memory, session, url):
         size = int(response.headers.get("Content-Length", 0))
 
     return size
-  except Exception as exception:
-    handle_request_error(None, None, exception, params_memory, None)
+  except Exception:
     return 0
 
 
 def get_repository_url(session):
-  if is_url_pingable("https://github.com", session=session) and not github_rate_limited(session):
+  if frogpilot_utilities.is_url_pingable("https://github.com", session=session) and not github_rate_limited(session):
     return GITHUB_URL
-  if is_url_pingable("https://gitlab.com", session=session):
+  if frogpilot_utilities.is_url_pingable("https://gitlab.com", session=session):
     return GITLAB_URL
   return None
 
@@ -104,34 +97,21 @@ def github_rate_limited(session):
     response.raise_for_status()
     rate_limit_info = response.json()
 
-    rate_info = rate_limit_info.get("resources", {}).get("core", {})
-    remaining = rate_info.get("remaining", 0)
-    print(f"GitHub API Requests Remaining: {remaining}")
+    return rate_limit_info.get("resources", {}).get("core", {}).get("remaining", 0) <= 0
 
-    if remaining <= 0:
-      reset_timestamp = rate_info.get("reset", 0)
-      reset_time = datetime.fromtimestamp(reset_timestamp, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
-      print("GitHub rate limit reached")
-      print(f"GitHub Rate Limit Resets At (UTC): {reset_time}")
-      return True
-    return False
-
-  except requests.exceptions.RequestException as exception:
-    print(f"Error checking GitHub rate limit: {exception}")
+  except requests.exceptions.RequestException:
     return True
 
 
-def handle_error(destination, download_param, error, error_message, params_memory, progress_param):
+def handle_error(destination, error_message, download_state):
   if destination:
-    delete_file(destination)
+    frogpilot_utilities.delete_file(destination)
 
-  if progress_param and "404" not in error_message:
-    print(f"Error occurred: {error}")
-    params_memory.put(progress_param, error_message)
-    params_memory.remove(download_param)
+  if download_state and "404" not in error_message:
+    download_state.progress = error_message
 
 
-def handle_request_error(destination, download_param, error, params_memory, progress_param):
+def handle_request_error(error, download_state):
   if isinstance(error, requests.exceptions.HTTPError) and error.response is not None:
     error_message = f"Server error ({error.response.status_code})"
   elif isinstance(error, (requests.exceptions.ChunkedEncodingError, requests.exceptions.ConnectionError)):
@@ -140,31 +120,22 @@ def handle_request_error(destination, download_param, error, params_memory, prog
     error_message = "Read timed out"
   elif isinstance(error, requests.exceptions.RequestException):
     error_message = "Network request error. Check connection"
-  elif isinstance(error, requests.exceptions.Timeout):
-    error_message = "Download timed out"
   else:
     error_message = "Unexpected error"
 
-  handle_error(destination, download_param, error, f"Failed: {error_message}", params_memory, progress_param)
+  handle_error(None, f"Failed: {error_message}", download_state)
 
 
-def verify_download(file_path, params_memory, session, url):
+def verify_download(file_path, session, url):
   if not file_path.is_file():
-    print(f"File not found: {file_path}")
     return False
 
   if file_path.suffix == ".png" and url.endswith(".gif"):
     url = url.replace(".gif", ".png")
 
-  remote_file_size = get_remote_file_size(params_memory, session, url)
+  remote_file_size = get_remote_file_size(session, url)
 
   if remote_file_size == 0:
-    print(f"Error fetching remote size for {file_path}")
     return False
 
-  local_size = file_path.stat().st_size
-  if remote_file_size != local_size:
-    print(f"File size mismatch for {file_path}: Remote {remote_file_size} vs Local {local_size}")
-    return False
-
-  return True
+  return remote_file_size == file_path.stat().st_size

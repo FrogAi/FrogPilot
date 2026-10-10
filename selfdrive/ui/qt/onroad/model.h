@@ -16,8 +16,6 @@ public:
   // FrogPilot variables
   FrogPilotAnnotatedCameraWidget *frogpilot_nvg;
 
-  FrogPilotUIScene frogpilot_scene = {};
-
   QJsonObject frogpilot_toggles;
 
 private:

@@ -16,7 +16,7 @@ public:
   explicit DriveStats(QWidget *parent = 0);
 
 private:
-  void addStatsLayouts(const QString &title, StatsLabels &labels, bool FrogPilot = false);
+  void addStatsLayouts(const QString &title, StatsLabels &labels, bool frogpilot = false);
   void showEvent(QShowEvent *event) override;
   void updateFrogPilotStatsForLabel(StatsLabels &labels);
   void updateStats();

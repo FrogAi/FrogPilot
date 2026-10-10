@@ -3,13 +3,13 @@ import re
 import sys
 import pyray as rl
 from openpilot.system.hardware import HARDWARE, PC
-from openpilot.system.ui.lib.application import BIG_UI, gui_app
+from openpilot.system.ui.lib.application import gui_app
 from openpilot.system.ui.lib.scroll_panel import GuiScrollPanel
 from openpilot.system.ui.lib.text_measure import measure_text_cached
 from openpilot.system.ui.widgets import Widget
 from openpilot.system.ui.widgets.button import Button, ButtonStyle
 
-if BIG_UI:
+if gui_app.big_ui():
   MARGIN = 50
   SPACING = 40
   FONT_SIZE = 72

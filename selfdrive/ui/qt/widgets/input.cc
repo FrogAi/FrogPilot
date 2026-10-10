@@ -141,15 +141,9 @@ InputDialog::InputDialog(const QString &title, QWidget *parent, const QString &s
   QObject::connect(k, &Keyboard::emitEnter, this, &InputDialog::handleEnter);
   QObject::connect(k, &Keyboard::emitBackspace, this, [=]() {
     line->backspace();
-
-    // FrogPilot variables
-    updateMaxLengthSublabel(line->text());
   });
   QObject::connect(k, &Keyboard::emitKey, this, [=](const QString &key) {
-    if (line->text().length() < maxLength || maxLength == DEFAULT_MAX_LENGTH) {
-      line->insert(key.left(1));
-      updateMaxLengthSublabel(line->text());
-    }
+    line->insert(key.left(1));
   });
 
   main_layout->addWidget(k, 2, Qt::AlignBottom);
@@ -157,13 +151,17 @@ InputDialog::InputDialog(const QString &title, QWidget *parent, const QString &s
 
 QString InputDialog::getText(const QString &prompt, QWidget *parent, const QString &subtitle,
                              bool secret, int minLength, const QString &defaultText, int maxLength) {
-  InputDialog d(prompt, parent, subtitle, secret);
+  InputDialog d(prompt, parent, maxLength == -1 ? subtitle : tr("Characters: %1/%2").arg(defaultText.left(maxLength).length()).arg(maxLength), secret);
   d.line->setText(defaultText);
   d.setMinLength(minLength);
 
   // FrogPilot variables
-  d.setMaxLength(maxLength);
-  d.updateMaxLengthSublabel(defaultText);
+  if (maxLength != -1) {
+    d.line->setMaxLength(maxLength);
+    QObject::connect(d.line, &QLineEdit::textChanged, &d, [&d, maxLength](const QString &text) {
+      d.sublabel->setText(tr("Characters: %1/%2").arg(text.length()).arg(maxLength));
+    });
+  }
 
   const int ret = d.exec();
   return ret ? d.text() : QString();
@@ -195,17 +193,6 @@ void InputDialog::setMessage(const QString &message, bool clearInputField) {
 
 void InputDialog::setMinLength(int length) {
   minLength = length;
-}
-
-// FrogPilot variables
-void InputDialog::setMaxLength(int length) {
-  maxLength = length;
-}
-
-void InputDialog::updateMaxLengthSublabel(const QString &text) {
-  if (maxLength != DEFAULT_MAX_LENGTH) {
-    sublabel->setText(tr("Characters: %1/%2").arg(text.length()).arg(maxLength));
-  }
 }
 
 // ConfirmationDialog

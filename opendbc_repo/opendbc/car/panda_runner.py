@@ -5,6 +5,9 @@ from panda import Panda
 from opendbc.car.car_helpers import get_car
 from opendbc.car.can_definitions import CanData
 from opendbc.car.structs import CarParams, CarControl
+from openpilot.common.params import Params
+
+from openpilot.frogpilot.common import frogpilot_variables
 
 
 class PandaRunner(AbstractContextManager):
@@ -12,9 +15,12 @@ class PandaRunner(AbstractContextManager):
     self.p = Panda()
     self.p.reset()
 
+    # FrogPilot variables
+    self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
+
     # setup + fingerprinting
     self.p.set_safety_mode(CarParams.SafetyModel.elm327, 1)
-    self.CI = get_car(self._can_recv, self.p.can_send_many, self.p.set_obd, True, False)
+    self.CI = get_car(self._can_recv, self.p.can_send_many, self.p.set_obd, True, False, Params(), frogpilot_toggles=self.frogpilot_toggles)
     assert self.CI.CP.carFingerprint.lower() != "mock", "Unable to identify car. Check connections and ensure car is supported."
 
     safety_model = self.CI.CP.safetyConfigs[0].safetyModel
@@ -40,7 +46,7 @@ class PandaRunner(AbstractContextManager):
     return [[CanData(addr, dat, bus) for addr, dat, bus in recv], ]
 
   def read(self, strict: bool = True):
-    cs = self.CI.update([int(time.monotonic()*1e9), self._can_recv()[0]])
+    cs, _ = self.CI.update([int(time.monotonic()*1e9), self._can_recv()[0]], self.frogpilot_toggles)
     if strict:
       assert cs.canValid, "CAN went invalid, check connections"
     return cs
@@ -49,7 +55,7 @@ class PandaRunner(AbstractContextManager):
     if cc.enabled and not self.p.health()['controls_allowed']:
       # prevent the car from faulting. print a warning?
       cc = CarControl(enabled=False)
-    _, can_sends = self.CI.apply(cc)
+    _, can_sends = self.CI.apply(cc, frogpilot_toggles=self.frogpilot_toggles)
     self.p.can_send_many(can_sends, timeout=25)
     self.p.send_heartbeat()
 

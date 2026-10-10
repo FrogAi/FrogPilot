@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import sys
 
-from openpilot.frogpilot.common.frogpilot_utilities import use_konik_server
+from openpilot.frogpilot.common import frogpilot_utilities
 
 if len(sys.argv) < 4:
   print(f"{sys.argv[0]} <route> <segment> <frame number> [front|wide|driver]")
@@ -26,7 +26,7 @@ segment = int(sys.argv[2])
 frame = int(sys.argv[3])
 camera = cameras[sys.argv[4]] if len(sys.argv) > 4 and sys.argv[4] in cameras else "cameras"
 
-url = f"https://api.{'konik.ai' if use_konik_server() else 'commadotai.com'}/v1/route/{route}/files"
+url = f"https://api.{'konik.ai' if frogpilot_utilities.use_konik_server() else 'commadotai.com'}/v1/route/{route}/files"
 r = requests.get(url, headers={"Authorization": f"JWT {jwt}"}, timeout=10)
 assert r.status_code == 200
 print("got api response")

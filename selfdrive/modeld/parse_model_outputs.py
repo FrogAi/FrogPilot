@@ -5,21 +5,23 @@ def safe_exp(x, out=None):
   # -11 is around 10**14, more causes float16 overflow
   return np.exp(np.clip(x, -np.inf, 11), out=out)
 
-def sigmoid(x):
-  return 1. / (1. + safe_exp(-x))
+def sigmoid(x, exp=safe_exp):
+  return 1. / (1. + exp(-x))
 
-def softmax(x, axis=-1):
+def softmax(x, axis=-1, exp=safe_exp):
   x -= np.max(x, axis=axis, keepdims=True)
   if x.dtype == np.float32 or x.dtype == np.float64:
-    safe_exp(x, out=x)
+    exp(x, out=x)
   else:
-    x = safe_exp(x)
+    x = exp(x)
   x /= np.sum(x, axis=axis, keepdims=True)
   return x
 
 class Parser:
-  def __init__(self, ignore_missing=False):
+  def __init__(self, ignore_missing=False, exp=safe_exp):
     self.ignore_missing = ignore_missing
+    # FrogPilot variables
+    self.exp = exp
 
   def check_missing(self, outs, name):
     missing = name not in outs
@@ -33,13 +35,13 @@ class Parser:
     raw = outs[name]
     if out_shape is not None:
       raw = raw.reshape((raw.shape[0],) + out_shape)
-    outs[name] = softmax(raw, axis=-1)
+    outs[name] = softmax(raw, axis=-1, exp=self.exp)
 
   def parse_binary_crossentropy(self, name, outs):
     if self.check_missing(outs, name):
       return
     raw = outs[name]
-    outs[name] = sigmoid(raw)
+    outs[name] = sigmoid(raw, exp=self.exp)
 
   def parse_mdn(self, name, outs, in_N=0, out_N=1, out_shape=None):
     if self.check_missing(outs, name):
@@ -49,12 +51,12 @@ class Parser:
 
     n_values = (raw.shape[2] - out_N)//2
     pred_mu = raw[:,:,:n_values]
-    pred_std = safe_exp(raw[:,:,n_values: 2*n_values])
+    pred_std = self.exp(raw[:,:,n_values: 2*n_values])
 
     if in_N > 1:
       weights = np.zeros((raw.shape[0], in_N, out_N), dtype=raw.dtype)
       for i in range(out_N):
-        weights[:,:,i - out_N] = softmax(raw[:,:,i - out_N], axis=-1)
+        weights[:,:,i - out_N] = softmax(raw[:,:,i - out_N], axis=-1, exp=self.exp)
 
       if out_N == 1:
         for fidx in range(weights.shape[0]):
@@ -119,4 +121,10 @@ class Parser:
   def parse_outputs(self, outs: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
     outs = self.parse_vision_outputs(outs)
     outs = self.parse_policy_outputs(outs)
+
+    # FrogPilot variables
+    for name, width in [('sim_pose', ModelConstants.POSE_WIDTH), ('desired_curvature', ModelConstants.DESIRED_CURV_WIDTH)]:
+      if name in outs:
+        self.parse_mdn(name, outs, in_N=0, out_N=0, out_shape=(width,))
+
     return outs

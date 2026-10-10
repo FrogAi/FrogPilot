@@ -5,66 +5,57 @@
 
 #include "selfdrive/ui/qt/util.h"
 
-void OnroadAlerts::updateState(const UIState &s, const FrogPilotUIState &fs) {
-  Alert a = getAlert(*(s.sm), *(fs.sm), s.scene.started_frame);
-  if (a.status == cereal::SelfdriveState::AlertStatus::NORMAL && frogpilot_toggles.value("hide_alerts").toBool()) {
+void OnroadAlerts::updateState(const UIState &s) {
+  Alert a = getAlert(*(s.sm), s.scene.started_frame);
+  // FrogPilot variables
+  static const QSet<QString> informational_alerts = {"calibrationIncomplete", "laneChange", "noLaneAvailable", "personalityChanged", "preLaneChangeLeft", "preLaneChangeRight", "turningLeft", "turningRight"};
+  if (frogpilot_toggles.value(QLatin1String("hide_alerts")).toBool() && informational_alerts.contains(a.type.section('/', 0, 0))) {
     a = {};
-    alertHeight = 0;
   }
 
   if (!alert.equal(a)) {
     alert = a;
     update();
   }
-
-  // FrogPilot variables
-  sidebarsOpen = fs.frogpilot_scene.sidebars_open;
 }
 
 void OnroadAlerts::clear() {
   alert = {};
   update();
-
-  // FrogPilot variables
-  alertHeight = 0;
 }
 
-OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, const SubMaster &fpsm, uint64_t started_frame) {
+OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started_frame) {
   const cereal::SelfdriveState::Reader &ss = sm["selfdriveState"].getSelfdriveState();
   const uint64_t selfdrive_frame = sm.rcv_frame("selfdriveState");
 
   // FrogPilot variables
+  const SubMaster &fpsm = *(frogpilotUIState()->sm);
   const cereal::FrogPilotSelfdriveState::Reader &fpss = fpsm["frogpilotSelfdriveState"].getFrogpilotSelfdriveState();
 
   Alert a = {};
-  static QString crash_log_path = "/data/error_logs/error.txt";
-  if (QFile::exists(crash_log_path)) {
-    if (frogpilot_toggles.value("random_events").toBool()) {
-      a = {tr("openpilot crashed 💩"),
-           tr("Please post the \"Error Log\" in the FrogPilot Discord!"),
-           "openpilotCrashedRandomEvent",
-           cereal::SelfdriveState::AlertSize::MID,
-           cereal::SelfdriveState::AlertStatus::CRITICAL};
-    } else {
-      a = {tr("openpilot crashed"),
-           tr("Please post the \"Error Log\" in the FrogPilot Discord!"),
-           "openpilotCrashed",
-           cereal::SelfdriveState::AlertSize::MID,
-           cereal::SelfdriveState::AlertStatus::CRITICAL};
-    }
-    return a;
-  } else if (selfdrive_frame >= started_frame) {  // Don't get old alert.
+  if (selfdrive_frame >= started_frame) {  // Don't get old alert.
     a = {ss.getAlertText1().cStr(), ss.getAlertText2().cStr(),
          ss.getAlertType().cStr(), ss.getAlertSize(), ss.getAlertStatus()};
 
     // FrogPilot variables
-    if (a.size == cereal::SelfdriveState::AlertSize::NONE) {
+    if (a.size == cereal::SelfdriveState::AlertSize::NONE || fpss.getHasPriorityAlert()) {
       a = {fpss.getAlertText1().cStr(), fpss.getAlertText2().cStr(),
            fpss.getAlertType().cStr(), static_cast<cereal::SelfdriveState::AlertSize>(fpss.getAlertSize()), static_cast<cereal::SelfdriveState::AlertStatus>(fpss.getAlertStatus())};
     }
   }
 
-  if (!sm.updated("selfdriveState") && (sm.frame - started_frame) > 5 * UI_FREQ && !frogpilot_toggles.value("force_onroad").toBool()) {
+  // FrogPilot variables
+  static QString crash_log_path = "/data/error_logs/error.txt";
+  if (a.size == cereal::SelfdriveState::AlertSize::NONE && QFile::exists(crash_log_path)) {
+    bool random_events = frogpilot_toggles.value(QLatin1String("random_events")).toBool();
+    a = {random_events ? tr("openpilot crashed 💩") : tr("openpilot crashed"),
+         tr("Please post the \"Error Log\" in the FrogPilot Discord!"),
+         random_events ? "openpilotCrashedRandomEvent" : "openpilotCrashed",
+         cereal::SelfdriveState::AlertSize::MID,
+         cereal::SelfdriveState::AlertStatus::CRITICAL};
+  }
+
+  if (!sm.updated("selfdriveState") && (sm.frame - started_frame) > 5 * UI_FREQ && !frogpilot_toggles.value(QLatin1String("force_onroad")).toBool()) {
     const int SELFDRIVE_STATE_TIMEOUT = 5;
     const int ss_missing = (nanos_since_boot() - sm.rcv_time("selfdriveState")) / 1e9;
 
@@ -101,9 +92,7 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
     {cereal::SelfdriveState::AlertSize::MID, 420},
     {cereal::SelfdriveState::AlertSize::FULL, height()},
   };
-  // FrogPilot variables
-  alertHeight = alert_heights[alert.size];
-  int h = alertHeight;
+  int h = alert_heights[alert.size];
 
   int margin = 40;
   int radius = 30;
@@ -112,7 +101,7 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
     radius = 0;
   }
   // FrogPilot variables
-  alertHeight -= margin;
+  alertHeight = h - margin;
   QRect r = QRect(0 + margin, height() - h + margin, width() - margin*2, h - margin*2);
 
   QPainter p(this);
@@ -120,7 +109,7 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
   // draw background + gradient
   p.setPen(Qt::NoPen);
   p.setCompositionMode(QPainter::CompositionMode_SourceOver);
-  p.setBrush(QBrush(frogpilot_alert_colors[static_cast<cereal::FrogPilotSelfdriveState::AlertStatus>(alert.status)]));
+  p.setBrush(QBrush(alert_colors[alert.status]));
   p.drawRoundedRect(r, radius, radius);
 
   QLinearGradient g(0, r.y(), 0, r.bottom());
@@ -137,15 +126,12 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
   p.setPen(QColor(0xff, 0xff, 0xff));
   p.setRenderHint(QPainter::TextAntialiasing);
   if (alert.size == cereal::SelfdriveState::AlertSize::SMALL) {
-    bool long_alert1 = alert.text1.length() > 40;
-    p.setFont(InterFont(long_alert1 && sidebarsOpen ? 64 : 74, QFont::DemiBold));
+    p.setFont(fitInterFont(74, QFont::DemiBold, r.width(), {alert.text1}));
     p.drawText(r, Qt::AlignCenter, alert.text1);
   } else if (alert.size == cereal::SelfdriveState::AlertSize::MID) {
-    bool long_alert1 = alert.text1.length() > 30;
-    p.setFont(InterFont(long_alert1 && sidebarsOpen ? 78 : 88, QFont::Bold));
+    p.setFont(fitInterFont(88, QFont::Bold, r.width(), {alert.text1}));
     p.drawText(QRect(0, c.y() - 125, width(), 150), Qt::AlignHCenter | Qt::AlignTop, alert.text1);
-    bool long_alert2 = alert.text2.length() > 40;
-    p.setFont(InterFont(long_alert2 && sidebarsOpen ? 56 : 66));
+    p.setFont(fitInterFont(66, QFont::Normal, r.width(), {alert.text2}));
     p.drawText(QRect(0, c.y() + 21, width(), 90), Qt::AlignHCenter, alert.text2);
   } else if (alert.size == cereal::SelfdriveState::AlertSize::FULL) {
     bool l = alert.text1.length() > 15;

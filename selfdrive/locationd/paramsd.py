@@ -12,7 +12,7 @@ from openpilot.selfdrive.locationd.models.constants import GENERATED_DIR
 from openpilot.selfdrive.locationd.helpers import PoseCalibrator, Pose
 from openpilot.common.swaglog import cloudlog
 
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
+from openpilot.frogpilot.common import frogpilot_variables
 
 MAX_ANGLE_OFFSET_DELTA = 20 * DT_MDL  # Max 20 deg/s
 ROLL_MAX_DELTA = np.radians(20.0) * DT_MDL  # 20deg in 1 second is well within curvature limits
@@ -58,9 +58,6 @@ class VehicleParamsLearner:
     self.roll_valid = True
 
     self.reset(None)
-
-    # FrogPilot variables
-    self.CP = CP
 
   def reset(self, t: float | None):
     self.kf.init_state(self.x_initial, covs=self.P_initial, filter_time=t)
@@ -192,10 +189,6 @@ class VehicleParamsLearner:
       liveParameters.debugFilterState.value = x.tolist()
       liveParameters.debugFilterState.std = P.tolist()
 
-    # FrogPilot variables
-    if self.CP.carFingerprint == "RAM_HD":
-      liveParameters.valid = True
-
     return msg
 
 
@@ -288,7 +281,7 @@ def main():
   # FrogPilot variables
   sm = sm.extend(['frogpilotPlan'])
 
-  learner.frogpilot_toggles = get_frogpilot_toggles()
+  learner.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
   while True:
     sm.update()
@@ -303,12 +296,15 @@ def main():
 
       msg_dat = msg.to_bytes()
       if sm.frame % 1200 == 0:  # once a minute
-        params.put_nonblocking("LiveParametersV2", msg_dat)
+        # FrogPilot variables
+        msg.clear_write_flag()
+        msg.liveParameters.steerRatio = float(learner.kf.x[States.STEER_RATIO].item())
+        params.put_nonblocking("LiveParametersV2", msg.to_bytes())
 
       pm.send('liveParameters', msg_dat)
 
     # FrogPilot variables
-    learner.frogpilot_toggles = get_frogpilot_toggles(sm)
+    learner.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
 
 
 if __name__ == "__main__":

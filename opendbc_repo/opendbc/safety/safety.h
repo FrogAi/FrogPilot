@@ -26,7 +26,6 @@
 #include "opendbc/safety/modes/elm327.h"
 #include "opendbc/safety/modes/body.h"
 #include "opendbc/safety/modes/psa.h"
-
 #ifdef CANFD
 #include "opendbc/safety/modes/hyundai_canfd.h"
 #endif
@@ -305,6 +304,7 @@ void gen_crc_lookup_table_8(uint8_t poly, uint8_t crc_lut[]) {
   }
 }
 
+// FrogPilot variables
 #ifdef CANFD
 void gen_crc_lookup_table_16(uint16_t poly, uint16_t crc_lut[]) {
   for (uint16_t i = 0; i < 256U; i++) {
@@ -374,7 +374,7 @@ static void generic_rx_checks(void) {
   steering_disengage_prev = steering_disengage;
 
   // FrogPilot variables
-  aol_allowed = (acc_main_on || lkas_on) && (alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL);
+  aol_allowed = (acc_main_on || lkas_on) && (alternative_experience & ALT_EXP_ALWAYS_ON_LATERAL) && !safety_rx_checks_invalid;
 }
 
 static void stock_ecu_check(bool stock_ecu_detected) {
@@ -419,6 +419,7 @@ int set_safety_hooks(uint16_t mode, uint16_t param) {
     {SAFETY_FORD, &ford_hooks},
     {SAFETY_RIVIAN, &rivian_hooks},
     {SAFETY_TESLA, &tesla_hooks},
+    // FrogPilot variables
 #ifdef CANFD
     {SAFETY_HYUNDAI_CANFD, &hyundai_canfd_hooks},
 #endif

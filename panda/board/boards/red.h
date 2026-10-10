@@ -117,7 +117,6 @@ board board_red = {
   .has_spi = false,
   .has_fan = false,
   .avdd_mV = 3300U,
-  .fan_stall_recovery = false,
   .fan_enable_cooldown_time = 0U,
   .init = red_init,
   .init_bootloader = unused_init_bootloader,

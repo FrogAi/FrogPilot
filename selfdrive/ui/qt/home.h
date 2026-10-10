@@ -58,7 +58,7 @@ signals:
 
 public slots:
   void offroadTransition(bool offroad);
-  void showDriverView(bool show, bool started=false);
+  void showDriverView(bool show);
   void showSidebar(bool show);
 
 protected:
@@ -79,5 +79,5 @@ private:
   Params params;
 
 private slots:
-  void updateState(const UIState &s, const FrogPilotUIState &fs);
+  void updateState(const UIState &s);
 };

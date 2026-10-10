@@ -84,7 +84,7 @@ class TestMazdaSafety(common.CarSafetyTest, common.DriverTorqueSteeringSafetyTes
   def _toggle_aol(self, toggle_on):
     # CRZ_CTRL, CRZ_AVAILABLE is the main on button
     values = {"CRZ_AVAILABLE": 1 if toggle_on else 0}
-    return self.packer.make_can_msg_panda("CRZ_CTRL", 0, values)
+    return self.packer.make_can_msg_safety("CRZ_CTRL", 0, values)
 
 
 if __name__ == "__main__":

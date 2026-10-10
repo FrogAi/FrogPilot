@@ -1,7 +1,7 @@
 import numpy as np
 
 from opendbc.can import CANPacker
-from opendbc.car import Bus, DT_CTRL, rate_limit, make_tester_present_msg, structs
+from opendbc.car import Bus, DT_CTRL, create_gas_interceptor_command, rate_limit, make_tester_present_msg, structs
 from opendbc.car.honda import hondacan
 from opendbc.car.honda.values import CAR, CruiseButtons, HONDA_BOSCH, HONDA_BOSCH_CANFD, HONDA_BOSCH_RADARLESS, \
                                      HONDA_BOSCH_TJA_CONTROL, HONDA_NIDEC_ALT_PCM_ACCEL, CarControllerParams
@@ -16,21 +16,23 @@ def compute_gb_honda_bosch(accel, speed):
   return 0.0, 0.0
 
 
-def compute_gb_honda_nidec(accel, speed):
+def compute_gb_honda_nidec(accel, speed, max_brake):
   creep_brake = 0.0
   creep_speed = 2.3
   creep_brake_value = 0.15
   if speed < creep_speed:
     creep_brake = (creep_speed - speed) / creep_speed * creep_brake_value
   gb = float(accel) / 4.8 - creep_brake
-  return np.clip(gb, 0.0, 1.0), np.clip(-gb, 0.0, 1.0)
+  # FrogPilot variables
+  brake = float(accel) / CarControllerParams.NIDEC_ACCEL_MIN + creep_brake if max_brake else -gb
+  return np.clip(gb, 0.0, 1.0), np.clip(brake, 0.0, 1.0)
 
 
-def compute_gas_brake(accel, speed, fingerprint):
+def compute_gas_brake(accel, speed, fingerprint, max_brake):
   if fingerprint in HONDA_BOSCH:
     return compute_gb_honda_bosch(accel, speed)
   else:
-    return compute_gb_honda_nidec(accel, speed)
+    return compute_gb_honda_nidec(accel, speed, max_brake)
 
 
 # TODO not clear this does anything useful
@@ -109,7 +111,7 @@ class CarController(CarControllerBase):
     self.brake = 0.0
     self.last_torque = 0.0
 
-  def update(self, CC, CS, now_nanos, frogpilot_toggles):
+  def update(self, CC, CS, now_nanos):
     actuators = CC.actuators
     hud_control = CC.hudControl
     hud_v_cruise = hud_control.setSpeed / CS.v_cruise_factor if hud_control.speedVisible else 255
@@ -117,7 +119,7 @@ class CarController(CarControllerBase):
 
     if CC.longActive:
       accel = actuators.accel
-      gas, brake = compute_gas_brake(actuators.accel, CS.out.vEgo, self.CP.carFingerprint)
+      gas, brake = compute_gas_brake(actuators.accel, CS.out.vEgo, self.CP.carFingerprint, self.frogpilot_toggles.honda_max_brake)
     else:
       accel = 0.0
       gas, brake = 0.0, 0.0
@@ -165,7 +167,7 @@ class CarController(CarControllerBase):
                     0.5]
     # The Honda ODYSSEY seems to have different PCM_ACCEL
     # msgs, is it other cars too?
-    if not CC.longActive:
+    if not CC.longActive or self.CP.enableGasInterceptorDEPRECATED:
       pcm_speed = 0.0
       pcm_accel = int(0.0)
     elif self.CP.carFingerprint in HONDA_NIDEC_ALT_PCM_ACCEL:
@@ -238,6 +240,15 @@ class CarController(CarControllerBase):
         if self.CP.carFingerprint not in HONDA_BOSCH:
           self.speed = pcm_speed
           self.gas = pcm_accel / self.params.NIDEC_GAS_MAX
+
+    # FrogPilot variables
+    if self.CP.enableGasInterceptorDEPRECATED and self.frame % 2 == 0:
+      gas_mult = np.interp(CS.out.vEgo, [0., 10.], [0.4, 1.0])
+      if CC.longActive:
+        self.gas = float(np.clip(gas_mult * (gas - brake + wind_brake * 3 / 4), 0., 1.))
+      else:
+        self.gas = 0.0
+      can_sends.append(create_gas_interceptor_command(self.packer, self.gas, self.frame // 2))
 
     new_actuators = actuators.as_builder()
     new_actuators.speed = self.speed

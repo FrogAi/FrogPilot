@@ -4,18 +4,14 @@
 
 #include "selfdrive/ui/qt/util.h"
 
-void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity, const int &angle) {
+void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity) {
   p.setRenderHint(QPainter::Antialiasing);
   p.setOpacity(1.0);  // bg dictates opacity of ellipse
   p.setPen(Qt::NoPen);
   p.setBrush(bg);
   p.drawEllipse(center, btn_size / 2, btn_size / 2);
-  p.save();
-  p.translate(center);
-  p.rotate(angle);
   p.setOpacity(opacity);
-  p.drawPixmap(-QPoint(img.width() / 2, img.height() / 2), img);
-  p.restore();
+  p.drawPixmap(center - QPoint(img.width() / 2, img.height() / 2), img);
   p.setOpacity(1.0);
 }
 
@@ -36,18 +32,17 @@ void ExperimentalButton::changeMode() {
   bool can_change = hasLongitudinalControl(cp) && params.getBool("ExperimentalModeConfirmed");
   if (can_change) {
     // FrogPilot variables
-    if (frogpilot_toggles.value("conditional_experimental_mode").toBool()) {
-      int override_value = (frogpilot_scene.conditional_status == 1 || frogpilot_scene.conditional_status == 2) ? 0 : experimental_mode ? 1 : 2;
-      params_memory.putInt("CEStatus", override_value);
+    if (frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value(QLatin1String("conditional_experimental_mode")).toBool()) {
+      frogpilotUIState()->experimentalModePressed();
     } else {
       params.putBool("ExperimentalMode", !experimental_mode);
     }
   }
 }
 
-void ExperimentalButton::updateState(const UIState &s, const FrogPilotUIState &fs) {
+void ExperimentalButton::updateState(const UIState &s) {
   const auto cs = (*s.sm)["selfdriveState"].getSelfdriveState();
-  bool eng = cs.getEngageable() || cs.getEnabled() || fs.frogpilot_scene.always_on_lateral_active;
+  bool eng = cs.getEngageable() || cs.getEnabled() || frogpilotUIState()->frogpilot_scene.always_on_lateral_active;
   if ((cs.getExperimentalMode() != experimental_mode) || (eng != engageable)) {
     engageable = eng;
     experimental_mode = cs.getExperimentalMode();
@@ -55,37 +50,38 @@ void ExperimentalButton::updateState(const UIState &s, const FrogPilotUIState &f
   }
 
   // FrogPilot variables
+  const FrogPilotUIState &fs = *frogpilotUIState();
   const cereal::CarState::Reader &carState = (*s.sm)["carState"].getCarState();
 
-  updateBackgroundColor();
+  updateBackgroundColor(fs.frogpilot_scene);
 
-  int current_steering_angle_deg = -carState.getSteeringAngleDeg();
-  if (current_steering_angle_deg != steering_angle_deg && frogpilot_toggles.value("rotating_wheel").toBool()) {
-    steering_angle_deg = current_steering_angle_deg;
-    update();
-  } else if (!frogpilot_toggles.value("rotating_wheel").toBool()) {
-    steering_angle_deg = 0;
-  }
+  steering_angle_deg = fs.frogpilot_scene.frogpilot_toggles.value(QLatin1String("rotating_wheel")).toBool() ? -carState.getSteeringAngleDeg() : 0;
 
-  if (params_memory.getBool("UpdateWheelImage")) {
-    params_memory.remove("UpdateWheelImage");
+  uint64_t current_wheel_image_update_count = (*fs.sm)["frogpilotPlan"].getFrogpilotPlan().getWheelImageUpdateCount();
+  if (current_wheel_image_update_count != wheel_image_update_count) {
+    wheel_image_update_count = current_wheel_image_update_count;
     updateTheme();
   }
 }
 
 void ExperimentalButton::paintEvent(QPaintEvent *event) {
   QPainter p(this);
-  p.setClipRegion(QRegion(QRect(0, 0, btn_size, btn_size), QRegion::Ellipse));
-  p.setRenderHint(QPainter::Antialiasing);
+  QPixmap img = experimental_mode ? experimental_img : engage_img;
 
-  if (wheel_is_stock) {
-    QPixmap img = experimental_mode ? experimental_img : engage_img;
-    drawIcon(p, QPoint(btn_size / 2, btn_size / 2), img, background_color, (isDown() || !engageable) ? 0.6 : 1.0, steering_angle_deg);
-  } else if (wheel_gif) {
-    drawIcon(p, QPoint(btn_size / 2, btn_size / 2), wheel_gif->currentPixmap(), background_color, (isDown() || !engageable) ? 0.6 : 1.0, steering_angle_deg);
-  } else if (!wheel_img.isNull()) {
-    drawIcon(p, QPoint(btn_size / 2, btn_size / 2), wheel_img, background_color, (isDown() || !engageable) ? 0.6 : 1.0, steering_angle_deg);
+  // FrogPilot variables
+  if (!wheel_is_stock) {
+    img = wheel_gif ? wheel_gif->currentPixmap() : wheel_img;
   }
+  if (img.isNull()) {
+    return;
+  }
+
+  p.setClipRegion(QRegion(QRect(0, 0, btn_size, btn_size), QRegion::Ellipse));
+  p.translate(btn_size / 2, btn_size / 2);
+  p.rotate(steering_angle_deg);
+  p.translate(-btn_size / 2, -btn_size / 2);
+
+  drawIcon(p, QPoint(btn_size / 2, btn_size / 2), img, background_color, (isDown() || !engageable) ? 0.6 : 1.0);
 }
 
 // FrogPilot variables
@@ -94,12 +90,12 @@ void ExperimentalButton::showEvent(QShowEvent *event) {
 }
 
 void ExperimentalButton::hideEvent(QHideEvent *event) {
-  clearMovie(wheel_gif, this);
+  wheel_gif.reset();
 
   QPushButton::hideEvent(event);
 }
 
-void ExperimentalButton::updateBackgroundColor() {
+void ExperimentalButton::updateBackgroundColor(const FrogPilotUIScene &frogpilot_scene) {
   if (isDown() || !engageable) {
     background_color = QColor(0, 0, 0, 166);
   } else if (frogpilot_scene.always_on_lateral_active) {
@@ -117,9 +113,9 @@ void ExperimentalButton::updateBackgroundColor() {
 
 void ExperimentalButton::updateTheme() {
   if (isVisible()) {
-    loadImage("../../frogpilot/assets/active_theme/steering_wheel/wheel", wheel_img, wheel_gif, QSize(img_size, img_size), this);
+    loadImage("../../frogpilot/assets/active_theme/steering_wheel/wheel", wheel_img, wheel_gif, QSize(img_size, img_size), this, false);
   } else {
-    clearMovie(wheel_gif, this);
+    wheel_gif.reset();
   }
 
   const QString wheel_source = QFileInfo("../../frogpilot/assets/active_theme/steering_wheel/wheel.png").canonicalFilePath();

@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 import random
 
+import numpy as np
+
 from openpilot.common.constants import ACCELERATION_DUE_TO_GRAVITY, CV
 from openpilot.common.realtime import DT_MDL
 from openpilot.selfdrive.controls.lib.desire_helper import TurnDirection
 from openpilot.selfdrive.selfdrived.events import ET, EVENT_NAME, FROGPILOT_EVENT_NAME, EventName, FrogPilotEventName, Events
 
-from openpilot.frogpilot.common.frogpilot_variables import CRUISING_SPEED, NON_DRIVING_GEARS
+from openpilot.frogpilot.common import frogpilot_variables
 
 DEJA_VU_G_FORCE = 0.75
+GREEN_LIGHT_TIME = 0.35
 RANDOM_EVENTS_CHANCE = 0.01 * DT_MDL
 RANDOM_EVENTS_LENGTH = 5
 
@@ -28,6 +31,7 @@ class FrogPilotEvents:
     self.startup_seen = False
     self.stopped_for_light = False
 
+    self.green_light_timer = 0
     self.max_acceleration = 0
     self.random_event_timer = 0
     self.tracked_lead_distance = 0
@@ -36,9 +40,13 @@ class FrogPilotEvents:
 
     self.error_log = error_log
 
-  def update(self, long_control_active, v_cruise, sm, frogpilot_toggles):
+    self.screen_recorder_events = []
+
+    self.wheel_image_update_count = 0
+
+  def update(self, long_control_active, sm, frogpilot_toggles):
     current_alert = sm["selfdriveState"].alertType
-    current_frogpilot_alert = sm["selfdriveState"].alertType
+    current_frogpilot_alert = sm["frogpilotSelfdriveState"].alertType
 
     alerts_empty = all(sm[state].alertText1 == "" and sm[state].alertText2 == "" for state in ["selfdriveState", "frogpilotSelfdriveState"])
 
@@ -54,23 +62,25 @@ class FrogPilotEvents:
     if self.frogpilot_planner.frogpilot_vcruise.forcing_stop:
       self.events.add(FrogPilotEventName.forcingStop)
 
-    if not self.frogpilot_planner.tracking_lead and sm["carState"].standstill and sm["carState"].gearShifter not in NON_DRIVING_GEARS:
-      if not self.frogpilot_planner.model_stopped and self.stopped_for_light and frogpilot_toggles.green_light_alert:
+    if not self.frogpilot_planner.lead_relevant and sm["carState"].standstill and sm["carState"].gearShifter not in frogpilot_variables.NON_DRIVING_GEARS:
+      self.green_light_timer = self.green_light_timer + DT_MDL if np.interp(6, sm["modelV2"].velocity.t, sm["modelV2"].velocity.x) >= frogpilot_variables.CRUISING_SPEED else 0
+
+      if self.green_light_timer >= GREEN_LIGHT_TIME and self.stopped_for_light and frogpilot_toggles.green_light_alert:
         self.events.add(FrogPilotEventName.greenLight)
 
       self.stopped_for_light = self.frogpilot_planner.frogpilot_cem.stop_light_detected
     else:
+      self.green_light_timer = 0
       self.stopped_for_light = False
 
     if "holidayActive" not in self.played_events and self.startup_seen and alerts_empty and len(self.events) == 0 and frogpilot_toggles.current_holiday_theme != "stock":
       self.events.add(FrogPilotEventName.holidayActive)
 
-    if self.frogpilot_planner.tracking_lead and sm["carState"].standstill and sm["carState"].gearShifter not in NON_DRIVING_GEARS:
-      if self.tracked_lead_distance == 0:
-        self.tracked_lead_distance = self.frogpilot_planner.lead_one.dRel
-
+    if not sm["carState"].standstill:
+      self.tracked_lead_distance = self.frogpilot_planner.lead_one.dRel if self.frogpilot_planner.lead_one.status else 0
+    elif self.frogpilot_planner.lead_one.status and self.tracked_lead_distance != 0 and sm["carState"].gearShifter not in frogpilot_variables.NON_DRIVING_GEARS:
       lead_departing = self.frogpilot_planner.lead_one.dRel - self.tracked_lead_distance >= 1
-      lead_departing &= self.frogpilot_planner.lead_one.vLead >= 1
+      lead_departing &= self.frogpilot_planner.lead_one.vLead >= frogpilot_variables.LEAD_DEPARTURE_SPEED
 
       if lead_departing and frogpilot_toggles.lead_departing_alert:
         self.events.add(FrogPilotEventName.leadDeparting)
@@ -84,8 +94,8 @@ class FrogPilotEvents:
       self.random_event_timer += DT_MDL
 
       if self.random_event_timer >= RANDOM_EVENTS_LENGTH:
-        self.theme_manager.update_wheel_image(frogpilot_toggles.wheel_image)
-        self.frogpilot_planner.params_memory.put_bool("UpdateWheelImage", True)
+        self.theme_manager.restore_wheel_image()
+        self.wheel_image_update_count += 1
 
         self.random_event_playing = False
         self.random_event_timer = 0
@@ -95,7 +105,7 @@ class FrogPilotEvents:
         self.events.add(FrogPilotEventName.accel30)
 
         self.theme_manager.update_wheel_image("accel30", random_event=True)
-        self.frogpilot_planner.params_memory.put_bool("UpdateWheelImage", True)
+        self.wheel_image_update_count += 1
 
         self.max_acceleration = 0
 
@@ -103,7 +113,7 @@ class FrogPilotEvents:
         self.events.add(FrogPilotEventName.accel35)
 
         self.theme_manager.update_wheel_image("accel35", random_event=True)
-        self.frogpilot_planner.params_memory.put_bool("UpdateWheelImage", True)
+        self.wheel_image_update_count += 1
 
         self.max_acceleration = 0
 
@@ -111,11 +121,11 @@ class FrogPilotEvents:
         self.events.add(FrogPilotEventName.accel40)
 
         self.theme_manager.update_wheel_image("accel40", random_event=True)
-        self.frogpilot_planner.params_memory.put_bool("UpdateWheelImage", True)
+        self.wheel_image_update_count += 1
 
         self.max_acceleration = 0
 
-      if "dejaVuCurve" not in self.played_events and sm["carState"].vEgo > CRUISING_SPEED:
+      if "dejaVuCurve" not in self.played_events and sm["carState"].vEgo > frogpilot_variables.CRUISING_SPEED:
         if abs(self.frogpilot_planner.lateral_acceleration) >= DEJA_VU_G_FORCE * ACCELERATION_DUE_TO_GRAVITY:
           self.events.add(FrogPilotEventName.dejaVuCurve)
 
@@ -138,17 +148,19 @@ class FrogPilotEvents:
             self.events.add(FrogPilotEventName.firefoxSteerSaturated)
 
             self.theme_manager.update_wheel_image("firefoxSteerSaturated", random_event=True)
-            self.frogpilot_planner.params_memory.put_bool("UpdateWheelImage", True)
+            self.wheel_image_update_count += 1
           elif event_choice == "goatSteerSaturated":
             self.events.add(FrogPilotEventName.goatSteerSaturated)
 
             self.theme_manager.update_wheel_image("goatSteerSaturated", random_event=True)
-            self.frogpilot_planner.params_memory.put_bool("UpdateWheelImage", True)
+            self.wheel_image_update_count += 1
+
+            self.random_event_playing = True
           elif event_choice == "thisIsFineSteerSaturated":
             self.events.add(FrogPilotEventName.thisIsFineSteerSaturated)
 
             self.theme_manager.update_wheel_image("thisIsFineSteerSaturated", random_event=True)
-            self.frogpilot_planner.params_memory.put_bool("UpdateWheelImage", True)
+            self.wheel_image_update_count += 1
 
       if "vCruise69" not in self.played_events and 70 > max(sm["carState"].vCruise, sm["carState"].vCruiseCluster) * (1 if frogpilot_toggles.is_metric else CV.KPH_TO_MPH) >= 69:
         self.events.add(FrogPilotEventName.vCruise69)
@@ -180,6 +192,12 @@ class FrogPilotEvents:
       else:
         self.events.add(FrogPilotEventName.openpilotCrashed)
 
+    if sm["frogpilotCarState"].pedalInterceptorNoBrake:
+      if sm["carControl"].enabled:
+        self.events.add(FrogPilotEventName.pedalInterceptorNoBrake)
+      else:
+        self.events.add(FrogPilotEventName.pedalInterceptorNoBrakeNoEntry)
+
     if self.frogpilot_planner.frogpilot_vcruise.slc.speed_limit_changed_timer == DT_MDL and frogpilot_toggles.speed_limit_changed_alert:
       self.events.add(FrogPilotEventName.speedLimitChanged)
 
@@ -197,5 +215,8 @@ class FrogPilotEvents:
       self.events.add(FrogPilotEventName.turningLeft)
     elif sm["frogpilotModelV2"].turnDirection == TurnDirection.turnRight:
       self.events.add(FrogPilotEventName.turningRight)
+
+    if self.screen_recorder_events and alerts_empty and len(self.events) == 0:
+      self.events.add(self.screen_recorder_events.pop(0))
 
     self.played_events.update(FROGPILOT_EVENT_NAME[event] for event in self.events.names)

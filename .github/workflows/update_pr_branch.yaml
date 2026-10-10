@@ -14,16 +14,10 @@ env:
 
   BRANCH_PR_TARGET: ${{ vars.BRANCH_PR_TARGET }}
 
-  COMPILE_COMMIT: ${{ vars.COMPILE_COMMIT }}
-
-  TZ: UTC
-
-concurrency: update-pr-branch
-
 jobs:
   sync:
+    if: github.repository == 'FrogAi/FrogPilot'
     runs-on: ubuntu-latest
-    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
         with:
@@ -32,35 +26,20 @@ jobs:
           ref: refs/heads/FrogPilot-Testing
           token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
       - run: |
-          set -o pipefail
-
-          if [[ "$BRANCH_PR_TARGET" == FrogPilot-Testing ]]; then
-            echo "BRANCH_PR_TARGET must differ from FrogPilot-Testing." >&2
-            exit 1
-          fi
-
           target_ref="refs/remotes/origin/$BRANCH_PR_TARGET"
 
           if [[ -f prebuilt ]]; then
-            : "${COMPILE_COMMIT:?COMPILE_COMMIT is required}"
-            compile_commit="$(
-              git log --first-parent --format='%H %s' |
-                awk '!found && $0 == $1 " " ENVIRON["COMPILE_COMMIT"] { print $1; found = 1 }'
-            )"
-            if [[ -z "$compile_commit" ]]; then
-              echo "Compiled tree but no \"$COMPILE_COMMIT\" commit found." >&2
-              exit 1
-            fi
-            git revert --no-commit "$compile_commit"
+            tree="$(git rev-parse 'HEAD~1^{tree}')"
+          else
+            tree="$(git rev-parse 'HEAD^{tree}')"
           fi
 
-          tree="$(git write-tree)"
           if [[ "$tree" == "$(git rev-parse "$target_ref^{tree}")" ]]; then
             echo "$BRANCH_PR_TARGET is already up to date."
             exit 0
           fi
 
-          read -r month day year < <(date '+%B %-d %Y')
+          read -r month day year < <(date -u '+%B %-d %Y')
           case "$day" in
             1|21|31) suffix="st" ;;
             2|22) suffix="nd" ;;
@@ -75,7 +54,7 @@ jobs:
           fi
 
           commit="$(
-            git -c user.name="$GIT_NAME" -c user.email="${GIT_EMAIL:?GIT_EMAIL is required}" \
+            git -c user.name="$GIT_NAME" -c user.email="$GIT_EMAIL" \
               commit-tree "$tree" -p "$parent" -m "$message"
           )"
 

@@ -20,7 +20,7 @@ void Sidebar::drawMetric(QPainter &p, const QPair<QString, QString> &label, QCol
   p.drawRoundedRect(rect, 20, 20);
 
   p.setPen(QColor(0xff, 0xff, 0xff));
-  p.setFont(InterFont(35, QFont::DemiBold));
+  p.setFont(fitInterFont(35, QFont::DemiBold, rect.width() - 22, {label.first, label.second}));
   p.drawText(rect.adjusted(22, 0, 0, 0), Qt::AlignCenter, label.first + "\n" + label.second);
 }
 
@@ -42,7 +42,26 @@ Sidebar::Sidebar(QWidget *parent) : QFrame(parent), onroad(false), flag_pressed(
   pm = std::make_unique<PubMaster>(std::vector<const char*>{"bookmarkButton"});
 
   // FrogPilot variables
+  QObject::connect(frogpilotUIState(), &FrogPilotUIState::togglesUpdated, this, [this] {
+    update();
+  });
+  QObject::connect(frogpilotUIState(), &FrogPilotUIState::cameraFrameReceived, this, [this] {
+    QPair<int, int> frames = {flag_gif ? flag_gif->currentFrameNumber() : -1, settings_gif ? settings_gif->currentFrameNumber() : -1};
+    if (frames != gif_frames) {
+      gif_frames = frames;
+      update();
+    }
+  });
   QObject::connect(frogpilotUIState(), &FrogPilotUIState::themeUpdated, this, &Sidebar::updateTheme);
+  QObject::connect(device(), &Device::displayPowerChanged, this, [this](bool on) {
+    if (on) {
+      updateTheme();
+    } else {
+      flag_gif.reset();
+      home_gif.reset();
+      settings_gif.reset();
+    }
+  });
 }
 
 void Sidebar::mousePressEvent(QMouseEvent *event) {
@@ -53,36 +72,36 @@ void Sidebar::mousePressEvent(QMouseEvent *event) {
   static constexpr QRect memoryRect = {30, 654, 240, 126};
   static constexpr QRect tempRect = {30, 338, 240, 126};
 
-  FrogPilotUIState *fs = frogpilotUIState();
-  FrogPilotUIScene &frogpilot_scene = fs->frogpilot_scene;
-  QJsonObject &frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
-
-  if (cpuRect.contains(pos) && frogpilot_toggles.value("developer_ui").toBool()) {
-    const bool showCPU = params.getBool("ShowCPU");
-    params.putBool("ShowCPU", !showCPU && !params.getBool("ShowGPU"));
-    params.putBool("ShowGPU", showCPU);
-  } else if (memoryRect.contains(pos) && frogpilot_toggles.value("developer_ui").toBool()) {
-    const bool showMemoryUsage = params.getBool("ShowMemoryUsage");
-    const bool showStorageLeft = params.getBool("ShowStorageLeft");
-    params.putBool("ShowMemoryUsage", !showMemoryUsage && !showStorageLeft && !params.getBool("ShowStorageUsed"));
-    params.putBool("ShowStorageLeft", showMemoryUsage);
-    params.putBool("ShowStorageUsed", showStorageLeft);
-  } else if (tempRect.contains(pos) && frogpilot_toggles.value("developer_ui").toBool()) {
-    const bool numericalTemp = params.getBool("NumericalTemp");
-    const bool isFahrenheit = numericalTemp && !params.getBool("Fahrenheit");
-    params.putBool("Fahrenheit", isFahrenheit);
-    params.putBool("NumericalTemp", !numericalTemp || isFahrenheit);
-  } else if (onroad && home_btn.contains(pos)) {
-    flag_pressed = true;
-  } else if (settings_btn.contains(pos)) {
-    settings_pressed = true;
-  } else if (recording_audio && mic_indicator_btn.contains(event->pos())) {
-    mic_indicator_pressed = true;
+  if (frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value(QLatin1String("developer_metrics")).toBool() && (cpuRect.contains(pos) || memoryRect.contains(pos) || tempRect.contains(pos))) {
+    if (cpuRect.contains(pos)) {
+      const bool showCPU = params.getBool("ShowCPU");
+      params.putBool("ShowCPU", !showCPU && !params.getBool("ShowGPU"));
+      params.putBool("ShowGPU", showCPU);
+    } else if (memoryRect.contains(pos)) {
+      const bool showMemoryUsage = params.getBool("ShowMemoryUsage");
+      const bool showStorageLeft = params.getBool("ShowStorageLeft");
+      params.putBool("ShowMemoryUsage", !showMemoryUsage && !showStorageLeft && !params.getBool("ShowStorageUsed"));
+      params.putBool("ShowStorageLeft", showMemoryUsage);
+      params.putBool("ShowStorageUsed", showStorageLeft);
+    } else {
+      const bool numericalTemp = params.getBool("NumericalTemp");
+      const bool isFahrenheit = numericalTemp && !params.getBool("Fahrenheit");
+      params.putBool("Fahrenheit", isFahrenheit);
+      params.putBool("NumericalTemp", !numericalTemp || isFahrenheit);
+    }
+    frogpilotUIState()->updateToggles();
+    return;
   }
 
-  if (!(flag_pressed || mic_indicator_pressed || settings_pressed)) {
+  if (onroad && home_btn.contains(event->pos())) {
+    flag_pressed = true;
     update();
-    updateFrogPilotToggles();
+  } else if (settings_btn.contains(event->pos())) {
+    settings_pressed = true;
+    update();
+  } else if (recording_audio && mic_indicator_btn.contains(event->pos())) {
+    mic_indicator_pressed = true;
+    update();
   }
 }
 
@@ -104,18 +123,29 @@ void Sidebar::mouseReleaseEvent(QMouseEvent *event) {
 
 void Sidebar::offroadTransition(bool offroad) {
   onroad = !offroad;
-  updateHomeButton();
+  // FrogPilot variables
+  updateTheme();
   update();
 }
 
-void Sidebar::updateState(const UIState &s, const FrogPilotUIState &fs) {
+void Sidebar::updateState(const UIState &s) {
   if (!isVisible()) return;
 
   // FrogPilot variables
-  const FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
-  const QJsonObject &frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
+  const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
 
-  const SubMaster &fpsm = *(fs.sm);
+  bool cpu_metrics = frogpilot_toggles.value(QLatin1String("cpu_metrics")).toBool();
+  bool gpu_metrics = frogpilot_toggles.value(QLatin1String("gpu_metrics")).toBool();
+  bool memory_metrics = frogpilot_toggles.value(QLatin1String("memory_metrics")).toBool();
+  bool numerical_temp = frogpilot_toggles.value(QLatin1String("numerical_temp")).toBool();
+  bool storage_left_metrics = frogpilot_toggles.value(QLatin1String("storage_left_metrics")).toBool();
+  bool storage_used_metrics = frogpilot_toggles.value(QLatin1String("storage_used_metrics")).toBool();
+
+  QColor sidebar_color1 = QColor(frogpilot_toggles.value(QLatin1String("sidebar_color1")).toString());
+  QColor sidebar_color2 = QColor(frogpilot_toggles.value(QLatin1String("sidebar_color2")).toString());
+  QColor sidebar_color3 = QColor(frogpilot_toggles.value(QLatin1String("sidebar_color3")).toString());
+
+  const SubMaster &fpsm = *(frogpilotUIState()->sm);
 
   const cereal::FrogPilotDeviceState::Reader &frogpilotDeviceState = fpsm["frogpilotDeviceState"].getFrogpilotDeviceState();
 
@@ -134,71 +164,78 @@ void Sidebar::updateState(const UIState &s, const FrogPilotUIState &fs) {
     connectStatus = ItemStatus{{tr("CONNECT"), tr("OFFLINE")}, warning_color};
   } else {
     connectStatus = nanos_since_boot() - last_ping < 80e9
-                        ? ItemStatus{{tr("CONNECT"), tr("ONLINE")}, QColor(frogpilot_toggles.value("sidebar_color3").toString())}
+                        ? ItemStatus{{tr("CONNECT"), tr("ONLINE")}, sidebar_color3}
                         : ItemStatus{{tr("CONNECT"), tr("ERROR")}, danger_color};
   }
   setProperty("connectStatus", QVariant::fromValue(connectStatus));
 
-  int maxTempC = deviceState.getMaxTempC();
-  QString max_temp = frogpilot_toggles.value("fahrenheit").toBool() ? QString::number(maxTempC * 9 / 5 + 32) + "°F" : QString::number(maxTempC) + "°C";
-  ItemStatus tempStatus = {{tr("TEMP"), frogpilot_toggles.value("numerical_temp").toBool() ? max_temp : tr("HIGH")}, danger_color};
+  ItemStatus tempStatus = {{tr("TEMP"), tr("HIGH")}, danger_color};
   auto ts = deviceState.getThermalStatus();
   if (ts == cereal::DeviceState::ThermalStatus::GREEN) {
-    tempStatus = {{tr("TEMP"), frogpilot_toggles.value("numerical_temp").toBool() ? max_temp : tr("GOOD")}, QColor(frogpilot_toggles.value("sidebar_color1").toString())};
+    tempStatus = {{tr("TEMP"), tr("GOOD")}, sidebar_color1};
   } else if (ts == cereal::DeviceState::ThermalStatus::YELLOW) {
-    tempStatus = {{tr("TEMP"), frogpilot_toggles.value("numerical_temp").toBool() ? max_temp : tr("OK")}, warning_color};
+    tempStatus = {{tr("TEMP"), tr("OK")}, warning_color};
   }
+
+  // FrogPilot variables
+  if (numerical_temp) {
+    float maxTempC = deviceState.getMaxTempC();
+    tempStatus.first.second = frogpilot_toggles.value(QLatin1String("fahrenheit")).toBool() ? QString::number(qRound(maxTempC * 9 / 5 + 32)) + "°F" : QString::number(qRound(maxTempC)) + "°C";
+  }
+
   setProperty("tempStatus", QVariant::fromValue(tempStatus));
 
-  ItemStatus pandaStatus = {{tr("VEHICLE"), tr("ONLINE")}, QColor(frogpilot_toggles.value("sidebar_color2").toString())};
+  ItemStatus pandaStatus = {{tr("VEHICLE"), tr("ONLINE")}, sidebar_color2};
   if (s.scene.pandaType == cereal::PandaState::PandaType::UNKNOWN) {
     pandaStatus = {{tr("NO"), tr("PANDA")}, danger_color};
   }
   setProperty("pandaStatus", QVariant::fromValue(pandaStatus));
 
-  setProperty("recordingAudio", s.scene.recording_audio);
+  setProperty("recordingAudio", s.scene.recording_audio && !frogpilot_toggles.value(QLatin1String("no_logging")).toBool());
 
   // FrogPilot variables
-  if (frogpilot_toggles.value("cpu_metrics").toBool() || frogpilot_toggles.value("gpu_metrics").toBool()) {
+  setProperty("ipAddress", frogpilotUIState()->wifi->ipv4_address);
+
+  if (cpu_metrics || gpu_metrics) {
     capnp::List<int8_t>::Reader cpu_loads = deviceState.getCpuUsagePercent();
     int cpu_usage = cpu_loads.size() != 0 ? std::accumulate(cpu_loads.begin(), cpu_loads.end(), 0) / cpu_loads.size() : 0;
     int gpu_usage = deviceState.getGpuUsagePercent();
-    int usage = frogpilot_toggles.value("cpu_metrics").toBool() ? cpu_usage : gpu_usage;
+    int usage = gpu_metrics ? gpu_usage : cpu_usage;
 
     QString chip_usage = QString::number(usage) + "%";
 
-    ItemStatus chipStatus = {{frogpilot_toggles.value("gpu_metrics").toBool() ? tr("GPU") : tr("CPU"), chip_usage}, QColor(frogpilot_toggles.value("sidebar_color2").toString())};
+    ItemStatus chipStatus = {{gpu_metrics ? tr("GPU") : tr("CPU"), chip_usage}, sidebar_color2};
     if (usage >= 85) {
-      chipStatus = {{frogpilot_toggles.value("gpu_metrics").toBool() ? tr("GPU") : tr("CPU"), chip_usage}, danger_color};
+      chipStatus.second = danger_color;
     } else if (usage >= 70) {
-      chipStatus = {{frogpilot_toggles.value("gpu_metrics").toBool() ? tr("GPU") : tr("CPU"), chip_usage}, warning_color};
+      chipStatus.second = warning_color;
     }
     setProperty("chipStatus", QVariant::fromValue(chipStatus));
   }
 
-  if (frogpilot_toggles.value("memory_metrics").toBool() || frogpilot_toggles.value("storage_left_metrics").toBool() || frogpilot_toggles.value("storage_used_metrics").toBool()) {
+  if (memory_metrics || storage_left_metrics || storage_used_metrics) {
     int free_space = deviceState.getFreeSpacePercent();
     int memory_usage = deviceState.getMemoryUsagePercent();
     int storage_left = frogpilotDeviceState.getFreeSpace();
     int storage_used = frogpilotDeviceState.getUsedSpace();
 
     QString memory = QString::number(memory_usage) + "%";
-    QString storage = QString::number(frogpilot_toggles.value("storage_left_metrics").toBool() ? storage_left : storage_used) + tr(" GB");
+    QString storage = QString::number(storage_left_metrics ? storage_left : storage_used) + tr(" GB");
 
-    if (frogpilot_toggles.value("memory_metrics").toBool()) {
-      ItemStatus memoryStatus = {{tr("MEMORY"), memory}, QColor(frogpilot_toggles.value("sidebar_color3").toString())};
+    if (memory_metrics) {
+      ItemStatus memoryStatus = {{tr("MEMORY"), memory}, sidebar_color3};
       if (memory_usage >= 85) {
-        memoryStatus = {{tr("MEMORY"), memory}, danger_color};
+        memoryStatus.second = danger_color;
       } else if (memory_usage >= 70) {
-        memoryStatus = {{tr("MEMORY"), memory}, warning_color};
+        memoryStatus.second = warning_color;
       }
       setProperty("memoryStatus", QVariant::fromValue(memoryStatus));
     } else {
-      ItemStatus storageStatus = {{frogpilot_toggles.value("storage_left_metrics").toBool() ? tr("LEFT") : tr("USED"), storage}, QColor(frogpilot_toggles.value("sidebar_color3").toString())};
+      ItemStatus storageStatus = {{storage_left_metrics ? tr("LEFT") : tr("USED"), storage}, sidebar_color3};
       if (free_space < 25 && free_space >= 10) {
-        storageStatus = {{frogpilot_toggles.value("storage_left_metrics").toBool() ? tr("LEFT") : tr("USED"), storage}, warning_color};
+        storageStatus.second = warning_color;
       } else if (10 > free_space) {
-        storageStatus = {{frogpilot_toggles.value("storage_left_metrics").toBool() ? tr("LEFT") : tr("USED"), storage}, danger_color};
+        storageStatus.second = danger_color;
       }
       setProperty("storageStatus", QVariant::fromValue(storageStatus));
     }
@@ -228,17 +265,14 @@ void Sidebar::paintEvent(QPaintEvent *event) {
   p.setOpacity(1.0);
 
   // FrogPilot variables
-  FrogPilotUIState *fs = frogpilotUIState();
-  FrogPilotUIScene &frogpilot_scene = fs->frogpilot_scene;
-  QJsonObject &frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
+  QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
 
   // network
-  if (frogpilot_toggles.value("ip_metrics").toBool()) {
+  // FrogPilot variables
+  if (frogpilot_toggles.value(QLatin1String("ip_metrics")).toBool()) {
     p.setPen(QColor(0xff, 0xff, 0xff));
-    p.save();
     p.setFont(InterFont(30));
-    p.drawText(QRect(50, 196, 225, 27), Qt::AlignLeft | Qt::AlignVCenter, frogpilotUIState()->wifi->getIp4Address());
-    p.restore();
+    p.drawText(QRect(50, 196, 225, 27), Qt::AlignLeft | Qt::AlignVCenter, ip_address);
   } else {
     int x = 58;
     const QColor gray(0x54, 0x54, 0x54);
@@ -261,14 +295,15 @@ void Sidebar::paintEvent(QPaintEvent *event) {
 
   // metrics
   drawMetric(p, temp_status.first, temp_status.second, 338);
-  if (frogpilot_toggles.value("cpu_metrics").toBool() || frogpilot_toggles.value("gpu_metrics").toBool()) {
+  // FrogPilot variables
+  if (frogpilot_toggles.value(QLatin1String("cpu_metrics")).toBool() || frogpilot_toggles.value(QLatin1String("gpu_metrics")).toBool()) {
     drawMetric(p, chip_status.first, chip_status.second, 496);
   } else {
     drawMetric(p, panda_status.first, panda_status.second, 496);
   }
-  if (frogpilot_toggles.value("memory_metrics").toBool()) {
+  if (frogpilot_toggles.value(QLatin1String("memory_metrics")).toBool()) {
     drawMetric(p, memory_status.first, memory_status.second, 654);
-  } else if (frogpilot_toggles.value("storage_left_metrics").toBool() || frogpilot_toggles.value("storage_used_metrics").toBool()) {
+  } else if (frogpilot_toggles.value(QLatin1String("storage_left_metrics")).toBool() || frogpilot_toggles.value(QLatin1String("storage_used_metrics")).toBool()) {
     drawMetric(p, storage_status.first, storage_status.second, 654);
   } else {
     drawMetric(p, connect_status.first, connect_status.second, 654);
@@ -277,37 +312,27 @@ void Sidebar::paintEvent(QPaintEvent *event) {
 
 // FrogPilot variables
 void Sidebar::showEvent(QShowEvent *event) {
-  onroad = uiState()->scene.started;
-
   updateTheme();
 }
 
 void Sidebar::hideEvent(QHideEvent *event) {
-  loadGif(QString(), flag_gif, home_btn.size(), this);
-  loadGif(QString(), home_gif, home_btn.size(), this);
-  loadGif(QString(), settings_gif, settings_btn.size(), this);
-}
-
-void Sidebar::updateHomeButton() {
-  if (!isVisible()) return;
-
-  if (onroad) {
-    loadGif(QString(), home_gif, home_btn.size(), this);
-    loadImage("../../frogpilot/assets/active_theme/icons/button_flag", flag_img, flag_gif, home_btn.size(), this);
-  } else {
-    loadGif(QString(), flag_gif, home_btn.size(), this);
-    loadImage("../../frogpilot/assets/active_theme/icons/button_home", home_img, home_gif, home_btn.size(), this);
-  }
+  flag_gif.reset();
+  home_gif.reset();
+  settings_gif.reset();
 }
 
 void Sidebar::updateTheme() {
-  if (!isVisible()) return;
+  if (!isVisible() || !device()->isAwake()) return;
 
-  loadGif(QString(), home_gif, home_btn.size(), this);
-  loadGif(QString(), flag_gif, home_btn.size(), this);
-  loadGif(QString(), settings_gif, settings_btn.size(), this);
+  home_gif.reset();
+  flag_gif.reset();
+  settings_gif.reset();
 
-  updateHomeButton();
+  if (onroad) {
+    loadImage("../../frogpilot/assets/active_theme/icons/button_flag", flag_img, flag_gif, home_btn.size(), this, false);
+  } else {
+    loadImage("../../frogpilot/assets/active_theme/icons/button_home", home_img, home_gif, home_btn.size(), this);
+  }
 
-  loadImage("../../frogpilot/assets/active_theme/icons/button_settings", settings_img, settings_gif, settings_btn.size(), this);
+  loadImage("../../frogpilot/assets/active_theme/icons/button_settings", settings_img, settings_gif, settings_btn.size(), this, !onroad);
 }

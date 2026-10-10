@@ -61,6 +61,10 @@ class SubaruSafetyFlags(IntFlag):
   LONG = 2
   PREGLOBAL_REVERSED_DRIVER_TORQUE = 4
 
+  # FrogPilot variables
+  SNG = 1024
+  RAISED_STEER_LIMIT = 2048
+
 
 class SubaruFlags(IntFlag):
   # Detected flags

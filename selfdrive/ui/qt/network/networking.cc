@@ -18,7 +18,7 @@ static const int ICON_WIDTH = 49;
 Networking::Networking(QWidget* parent, bool show_advanced) : QFrame(parent) {
   main_layout = new QStackedLayout(this);
 
-  wifi = new WifiManager(this);
+  wifi = frogpilotUIState()->wifi;
   connect(wifi, &WifiManager::refreshSignal, this, &Networking::refresh);
   connect(wifi, &WifiManager::wrongPassword, this, &Networking::wrongPassword);
 
@@ -70,6 +70,9 @@ Networking::Networking(QWidget* parent, bool show_advanced) : QFrame(parent) {
     }
   )");
   main_layout->setCurrentWidget(wifiScreen);
+
+  // FrogPilot variables
+  setPrimeType(uiState()->prime_state->currentType());
 }
 
 void Networking::setPrimeType(PrimeState::Type type) {
@@ -131,14 +134,11 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
 
   ListWidget *list = new ListWidget(this);
   // Enable tethering layout
+  // FrogPilot variables
   std::vector<QString> tetheringSelection{tr("Off"), tr("Always"), tr("Only Onroad"), tr("Until Reboot")};
   tetheringToggle = new ButtonParamControl("TetheringEnabled", tr("Enable Tethering"),
-                                           tr("Share your device's internet connection with other devices, either all the time or only while driving."),
+                                           tr("Share your device's internet connection with other devices, either all the time or only while driving. Internet sharing only works on a paired device with comma prime lite or no comma prime."),
                                            "", tetheringSelection);
-  if (params.getInt("TetheringEnabled") == 3) {
-    params.remove("TetheringEnabled");
-    tetheringToggle->setCheckedButton(0);
-  }
   list->addItem(tetheringToggle);
   QObject::connect(tetheringToggle, &MultiButtonControl::buttonClicked, this, &AdvancedNetworking::toggleTethering);
 
@@ -260,7 +260,7 @@ void AdvancedNetworking::refresh() {
 }
 
 void AdvancedNetworking::toggleTethering(int id) {
-  wifi->setTetheringEnabled(id == 1 || id == 2 && uiState()->scene.started || id == 3);
+  frogpilotUIState()->setTethering(id);
   tetheringToggle->setEnabled(false);
   if (id != 0) {
     wifiMeteredToggle->setEnabled(false);

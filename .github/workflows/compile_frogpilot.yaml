@@ -1,9 +1,9 @@
 name: Compile FrogPilot
 run-name: >-
   Compile ${{ inputs.publish_custom_branch ||
-    inputs.publish_frogpilot && 'FrogPilot' ||
-    inputs.publish_staging && 'FrogPilot-Staging' ||
-    inputs.publish_testing && 'FrogPilot-Testing' ||
+    inputs.publish_frogpilot && vars.BRANCH_RELEASE ||
+    inputs.publish_staging && vars.BRANCH_STAGING ||
+    inputs.publish_testing && vars.BRANCH_TESTING ||
     inputs.source_branch != 'Custom' && inputs.source_branch || inputs.custom_source_branch }}
 
 on:
@@ -41,8 +41,7 @@ on:
         type: choice
 
 env:
-  BUILD_DIR: /data/openpilot
-  SOURCE_DIR: /data/frogpilot_source
+  PUBLIC_REPO: ${{ vars.PUBLIC_REPO }}
 
   GIT_EMAIL: ${{ vars.GIT_EMAIL }}
   GIT_NAME: ${{ vars.GIT_NAME }}
@@ -58,90 +57,55 @@ env:
 
 permissions: {}
 
-concurrency: compile-frogpilot
-
 jobs:
   build_and_push:
     name: Compile FrogPilot
-    concurrency:
-      group: frogpilot-branch-push
-      queue: max
     runs-on: [self-hosted, "${{ inputs.runner }}"]
-    timeout-minutes: 180
-    defaults: {run: {shell: bash}}
     steps:
       - name: Set up source
         run: |
           if [[ "$SOURCE_BRANCH" == "Custom" ]]; then
             SOURCE_BRANCH="$CUSTOM_SOURCE_BRANCH"
           fi
-          if [[ -z "$SOURCE_BRANCH" || "$(git check-ref-format --branch "$SOURCE_BRANCH")" != "$SOURCE_BRANCH" ]]; then
-            echo "Invalid source branch: $SOURCE_BRANCH" >&2
-            exit 1
-          fi
 
-          : "${COMPILE_COMMIT:?COMPILE_COMMIT is required}" "${GIT_NAME:?GIT_NAME is required}" "${GIT_EMAIL:?GIT_EMAIL is required}"
+          sudo systemctl stop comma
 
-          sudo rm -rf "$BUILD_DIR" "$SOURCE_DIR" /data/scons_cache
-          mkdir -p "$SOURCE_DIR"
-          git clone --filter=blob:none --no-checkout --no-tags "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" "$BUILD_DIR"
+          ssh_command="$(git -C /data/openpilot config --local --get core.sshCommand)"
+          git clone --config core.sshCommand="$ssh_command" --filter=blob:none --no-tags --branch "$SOURCE_BRANCH" \
+            "git@github.com:$GITHUB_REPOSITORY.git" "$RUNNER_TEMP/build"
 
-          cd "$BUILD_DIR"
-          git checkout -B "$SOURCE_BRANCH" "refs/remotes/origin/$SOURCE_BRANCH"
-          if [[ "$SOURCE_BRANCH" == "$GITHUB_REF_NAME" && "$(git rev-parse HEAD)" != "$GITHUB_SHA" ]]; then
-            echo "$SOURCE_BRANCH moved since dispatch — dispatch again."
-            exit 1
-          fi
-
-          if [[ ! -f release/release_files.py ]]; then
-            echo "No release/release_files.py — source branch already compiled?"
-            exit 1
-          fi
-
-          targets=("$SOURCE_BRANCH")
-          ${{ inputs.publish_frogpilot }} && targets+=("$BRANCH_RELEASE")
-          ${{ inputs.publish_staging }} && targets+=("$BRANCH_STAGING")
-          ${{ inputs.publish_testing }} && targets+=("$BRANCH_TESTING")
-          [[ -n "$CUSTOM_BRANCH" ]] && targets+=("$CUSTOM_BRANCH")
-
-          for target in "${targets[@]}"; do
-            if [[ -z "$target" || "$(git check-ref-format --branch "$target")" != "$target" ]]; then
-              echo "Invalid branch name: $target" >&2
-              exit 1
-            fi
-            printf '%s\t%s\n' "$target" "$(git rev-parse --verify --quiet "refs/remotes/origin/$target")"
-          done | sort -u > "$RUNNER_TEMP/targets"
-
-          if ! { [[ " ${targets[*]} " == *" $BRANCH_STAGING "* ]] &&
-                 git show "refs/remotes/origin/$BRANCH_STAGING:.github/update_date" > "$RUNNER_TEMP/update_date" 2>/dev/null; }
-          then
-            rm -f "$RUNNER_TEMP/update_date"
-          fi
+          cd "$RUNNER_TEMP/build"
+          git remote add public "$PUBLIC_REPO"
+          git fetch --filter=blob:none --no-tags public
 
       - name: Build source
+        env:
+          BUILD: |
+            source /etc/profile
+
+            cd /data/openpilot
+            export PYTHONPATH=/data/openpilot
+
+            scons -j"$(nproc)" --minimal --ccflags=-g0 --cache-disable
         run: |
-          source /etc/profile
-          unset CERT DEBUG ENABLE_SPI FINAL_PROVISIONING H723 RELEASE USBGPU
-
-          cd "$BUILD_DIR"
-          export PYTHONPATH="$BUILD_DIR"
-
-          jobs=$(nproc)
-          scons -j"$jobs" --minimal --ccflags=-g0 || scons -j"$((jobs / 2))" --minimal --ccflags=-g0 || scons -j1 --minimal --ccflags=-g0
+          sudo -E unshare --mount \
+            sh -c 'mount --bind "$RUNNER_TEMP/build" /data/openpilot && exec setpriv --reuid="$SUDO_UID" --regid="$SUDO_GID" --init-groups bash -e -c "$BUILD"'
 
       - name: Prepare release
         run: |
-          find "$BUILD_DIR" -mindepth 1 -maxdepth 1 ! -name .git -exec mv -t "$SOURCE_DIR" {} +
+          mkdir "$RUNNER_TEMP/release"
+          mv "$RUNNER_TEMP/build/.git" "$RUNNER_TEMP/release"
 
           source /etc/profile
-          python3 "$SOURCE_DIR/release/prepare_release.py" "$SOURCE_DIR" "$BUILD_DIR"
+          python3 "$RUNNER_TEMP/build/release/prepare_release.py" "$RUNNER_TEMP/build" "$RUNNER_TEMP/release"
 
-          if [[ -f "$RUNNER_TEMP/update_date" ]]; then
-            cp -p "$RUNNER_TEMP/update_date" "$BUILD_DIR/.github/update_date"
+          cd "$RUNNER_TEMP/release"
+          if ${{ inputs.publish_staging }} &&
+             git rev-parse --verify --quiet "refs/remotes/public/$BRANCH_STAGING:.github/update_date" > /dev/null
+          then
+            git show "refs/remotes/public/$BRANCH_STAGING:.github/update_date" > .github/update_date
           fi
 
-          cd "$BUILD_DIR"
-          rm -f not_vetted
           if ${{ inputs.not_vetted }}; then
             touch not_vetted
           fi
@@ -153,22 +117,22 @@ jobs:
         env:
           WORKFLOW_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
-          leases=()
-          refspecs=()
-          while IFS=$'\t' read -r target expected_ref; do
-            leases+=("--force-with-lease=refs/heads/$target:$expected_ref")
-            refspecs+=("HEAD:refs/heads/$target")
-          done < "$RUNNER_TEMP/targets"
+          cd "$RUNNER_TEMP/release"
+          git config credential.helper '!f() { printf "username=x-access-token\npassword=%s\n" "$WORKFLOW_TOKEN"; }; f'
+          git config remote.public.pushurl "$PUBLIC_REPO"
+          git config remote.origin.pushurl "https://github.com/$GITHUB_REPOSITORY.git"
 
-          git -C "$BUILD_DIR" \
-            -c credential.helper= \
-            -c "credential.helper=!f() { printf 'username=x-access-token\npassword=%s\n' \"\$WORKFLOW_TOKEN\"; }; f" \
-            -c remote.origin.pushurl="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY.git" \
-            push --atomic "${leases[@]}" origin "${refspecs[@]}"
+          targets=()
+          ${{ inputs.publish_frogpilot }} && targets+=("HEAD:refs/heads/$BRANCH_RELEASE")
+          ${{ inputs.publish_staging }} && targets+=("HEAD:refs/heads/$BRANCH_STAGING")
+          ${{ inputs.publish_testing }} && targets+=("HEAD:refs/heads/$BRANCH_TESTING")
+          [[ -n "$CUSTOM_BRANCH" ]] && targets+=("HEAD:refs/heads/$CUSTOM_BRANCH")
 
-          awk -F'\t' 'BEGIN { print "### Published" } { print "- `" $1 "`" ($2 ? " (was " substr($2, 1, 7) ")" : " (created)") }' \
-            "$RUNNER_TEMP/targets" >> "$GITHUB_STEP_SUMMARY"
+          if (( ${#targets[@]} )); then
+            git push --atomic --force-with-lease public "${targets[@]}"
+          fi
+          git push --force-with-lease origin HEAD
 
-      - name: Cleanup
+      - name: Start openpilot
         if: always()
-        run: rm -rf "$SOURCE_DIR"
+        run: sudo systemctl start comma

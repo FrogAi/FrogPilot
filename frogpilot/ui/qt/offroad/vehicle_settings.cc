@@ -1,5 +1,3 @@
-#include <QRegularExpression>
-
 #include "frogpilot/ui/qt/offroad/vehicle_settings.h"
 
 QStringList getCarNames(const QString &carMake, QMap<QString, QString> &carModels) {
@@ -26,6 +24,7 @@ QStringList getCarNames(const QString &carMake, QMap<QString, QString> &carModel
     {"mazda", "mazda"},
     {"nissan", "nissan"},
     {"peugeot", "psa"},
+    {"porsche", "volkswagen"},
     {"ram", "chrysler"},
     {"rivian", "rivian"},
     {"seat", "volkswagen"},
@@ -66,7 +65,6 @@ QStringList getCarNames(const QString &carMake, QMap<QString, QString> &carModel
   platforms.append({content.length(), QString()});
 
   static const QRegularExpression carNameRe("CarDocs\\w*\\s*\\(\\s*\"([^\"]+)\"");
-  const QString lowerMake = carMake.toLower();
 
   for (int i = 0; i < platforms.size() - 1; ++i) {
     int start = platforms[i].first;
@@ -105,11 +103,11 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
   QStringList makes = {
     "Acura", "Audi", "Buick", "Cadillac", "Chevrolet", "Chrysler", "CUPRA",
     "Dodge", "Ford", "Genesis", "GMC", "Holden", "Honda", "Hyundai", "Jeep",
-    "Kia", "Lexus", "Lincoln", "MAN", "Mazda", "Nissan", "Peugeot", "Ram",
+    "Kia", "Lexus", "Lincoln", "MAN", "Mazda", "Nissan", "Peugeot", "Porsche", "Ram",
     "Rivian", "SEAT", "Škoda", "Subaru", "Tesla", "Toyota", "Volkswagen"
   };
 
-  selectMakeButton = new ButtonControl(tr("Car Make"), tr("SELECT"));
+  selectMakeButton = new ButtonControl(tr("Car Make"), tr("SELECT"), tr("<b>The make of the car openpilot is using.</b> To pick one yourself, turn on \"Disable Automatic Fingerprint Detection\" first (\"Advanced\" tuning level)."));
   QObject::connect(selectMakeButton, &ButtonControl::clicked, [makes, this]() {
     QString currentMake = QString::fromStdString(params.get("CarMake"));
     QString makeSelection = MultiOptionDialog::getSelection(tr("Choose your car make"), makes, currentMake, this);
@@ -123,34 +121,40 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
   });
   settingsList->addItem(selectMakeButton);
 
-  selectModelButton = new ButtonControl(tr("Car Model"), tr("SELECT"));
-  QObject::connect(selectModelButton, &ButtonControl::clicked, [this]() {
+  selectModelButton = new ButtonControl(tr("Car Model"), tr("SELECT"), tr("<b>The model of the car openpilot is using.</b> To pick one yourself, turn on \"Disable Automatic Fingerprint Detection\" first (\"Advanced\" tuning level)."));
+  QObject::connect(selectModelButton, &ButtonControl::clicked, [parent, this]() {
+    QMap<QString, QString> carModels;
     QString modelSelection = MultiOptionDialog::getSelection(tr("Choose your car model"),
-      getCarNames(QString::fromStdString(params.get("CarMake")).toLower(), carModels), QString::fromStdString(params.get("CarModelName")), this);
+      getCarNames(QString::fromStdString(params.get("CarMake")), carModels), QString::fromStdString(params.get("CarModelName")), this);
     if (!modelSelection.isEmpty()) {
       params.put("CarModel", carModels.value(modelSelection).toStdString());
       params.put("CarModelName", modelSelection.toStdString());
       selectModelButton->setValue(modelSelection);
+
+      if (uiState()->scene.started && carModels.value(modelSelection).toStdString() != parent->carFingerprint && FrogPilotConfirmationDialog::toggleReboot(this)) {
+        FrogPilotConfirmationDialog::softReboot(this);
+      }
     }
   });
   settingsList->addItem(selectModelButton);
 
   forceFingerprint = new ParamControl("ForceFingerprint", tr("Disable Automatic Fingerprint Detection"), tr("<b>Lock openpilot to the car you picked and stop it changing on its own.</b>"), "");
+  QObject::connect(forceFingerprint, &ToggleControl::toggleFlipped, [this](bool state) {
+    if (!state && uiState()->scene.started && FrogPilotConfirmationDialog::toggleReboot(this)) {
+      FrogPilotConfirmationDialog::softReboot(this);
+    }
+
+    updateToggles();
+  });
   settingsList->addItem(forceFingerprint);
 
   disableOpenpilotLong = new ParamControl("DisableOpenpilotLongitudinal", tr("Disable openpilot Longitudinal Control"), tr("<b>Let your car's own cruise control handle the gas and brake instead of openpilot.</b>"), "");
   QObject::connect(disableOpenpilotLong, &ToggleControl::toggleFlipped, [parent, this](bool state) {
-    if (state) {
-      if (FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely disable openpilot longitudinal control?"), this)) {
-        if (uiState()->scene.started) {
-          if (FrogPilotConfirmationDialog::toggleReboot(this)) {
-            Hardware::reboot();
-          }
-        }
-      } else {
-        params.putBool("DisableOpenpilotLongitudinal", false);
-        disableOpenpilotLong->refresh();
-      }
+    if (state && !FrogPilotConfirmationDialog::yesorno(tr("Are you sure you want to completely disable openpilot longitudinal control?"), this)) {
+      params.putBool("DisableOpenpilotLongitudinal", false);
+      disableOpenpilotLong->refresh();
+    } else if (uiState()->scene.started && FrogPilotConfirmationDialog::toggleReboot(this)) {
+      FrogPilotConfirmationDialog::softReboot(this);
     }
 
     parent->updateVariables();
@@ -160,27 +164,35 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
 
   FrogPilotListWidget *gmList = new FrogPilotListWidget(this);
   FrogPilotListWidget *hkgList = new FrogPilotListWidget(this);
+  FrogPilotListWidget *hondaList = new FrogPilotListWidget(this);
   FrogPilotListWidget *subaruList = new FrogPilotListWidget(this);
   FrogPilotListWidget *toyotaList = new FrogPilotListWidget(this);
   FrogPilotListWidget *vehicleInfoList = new FrogPilotListWidget(this);
 
   ScrollView *gmPanel = new ScrollView(gmList, this);
   ScrollView *hkgPanel = new ScrollView(hkgList, this);
+  ScrollView *hondaPanel = new ScrollView(hondaList, this);
   ScrollView *subaruPanel = new ScrollView(subaruList, this);
   ScrollView *toyotaPanel = new ScrollView(toyotaList, this);
   ScrollView *vehicleInfoPanel = new ScrollView(vehicleInfoList, this);
 
   vehiclesLayout->addWidget(gmPanel);
   vehiclesLayout->addWidget(hkgPanel);
+  vehiclesLayout->addWidget(hondaPanel);
   vehiclesLayout->addWidget(subaruPanel);
   vehiclesLayout->addWidget(toyotaPanel);
   vehiclesLayout->addWidget(vehicleInfoPanel);
 
-  std::vector<std::tuple<QString, QString, QString, QString>> vehicleToggles {
-    {"GMToggles", tr("General Motors Settings"), tr("<b>Settings that only work on Buick, Cadillac, Chevrolet, GMC and Holden cars, covering how openpilot stops, starts and handles hills.</b><br><br>Which of these you see depends on your exact model."), ""},
+  const std::vector<std::tuple<QString, QString, QString, QString>> vehicleToggles {
+    {"HondaToggles", tr("Acura/Honda Settings"), tr("<b>Settings that only work on Acura and Honda cars with the older Nidec cruise control, covering how openpilot follows and brakes.</b>"), ""},
+    {"HondaAltTune", tr("Gentle Following"), tr("<b>Soften how hard openpilot corrects its speed behind the car ahead, for smoother following in stop-and-go traffic.</b><br><br>openpilot settles small speed differences more slowly, so it can take a moment longer to close a gap after the car ahead pulls away."), ""},
+    {"HondaMaxBrake", tr("Increased Braking Force"), tr("<b>Let openpilot use your car's full braking force for its hardest stops.</b><br><br>Without it, openpilot's hardest stop only uses about four fifths of the brakes on these cars. With it on, every stop brakes a little firmer for the same request."), ""},
+
+    {"GMToggles", tr("General Motors Settings"), tr("<b>Settings that only work on Buick, Cadillac, Chevrolet, GMC and Holden cars, covering pedal response on hills and how openpilot stops and starts.</b>"), ""},
+    {"LongPitch", tr("Smooth Pedal Response on Hills"), tr("<b>Add gas going uphill and ease off going downhill, so openpilot holds a steady pace on hills instead of correcting after the car has already slowed down or sped up.</b><br><br>Slopes gentler than about 1% are ignored. The brakes get the same adjustment above about 22 mph, and it fades out as you slow to about 11 mph so stops feel the same as on flat ground."), ""},
     {"VoltSNG", tr("Stop-and-Go Hack"), tr("<b>Make the car pull away by itself after a full stop on a Chevrolet Volt, which does not do this from the factory.</b><br><br>Without it you have to press the gas or the resume button every time traffic moves off. Keep your foot near the brake the first few times so you can see how it behaves."), ""},
 
-    {"HKGToggles", tr("Hyundai/Kia/Genesis Settings"), tr("<b>Settings that only work on Genesis, Hyundai and Kia cars, covering openpilot's newer gas and brake control and a steering torque hack.</b><br><br>Which of these you see depends on which system your car uses, and the steering hack only appears on cars using CAN-FD."), ""},
+    {"HKGToggles", tr("Hyundai/Kia/Genesis Settings"), tr("<b>Settings that only work on Genesis, Hyundai and Kia cars, covering a steering torque hack.</b><br><br>The steering hack only appears on cars using CAN-FD."), ""},
     {"TacoTuneHacks", tr("\"Taco Bell Run\" Torque Hack"), tr("<b>Let openpilot pull the wheel harder through turns, using the trick comma demonstrated on their 2022 \"Taco Bell Run\" drive.</b><br><br>It raises the steering limit everywhere, not just at low speed, and it relaxes one of the safety checks that normally caps steering effort. You will also have to grip the wheel more firmly to take over."), ""},
 
     {"SubaruToggles", tr("Subaru Settings"), tr("<b>Settings that only work on Subaru cars.</b><br><br>There is one, and it decides whether your car pulls away by itself after a stop."), ""},
@@ -188,14 +200,14 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
 
     {"ToyotaToggles", tr("Toyota/Lexus Settings"), tr("<b>Settings that only work on Lexus and Toyota cars, covering door locking, dashboard speed, stop-and-go and openpilot's own tuning.</b><br><br>Which of these you see depends on your exact model and on what hardware is fitted."), ""},
     {"ToyotaDoors", tr("Automatically Lock/Unlock Doors"), tr("<b>Lock the doors when you shift out of park and unlock them again when you shift back into it.</b><br><br>This runs whenever the car is on, whether or not openpilot is engaged."), ""},
-    {"ClusterOffset", tr("Dashboard Speed Offset"), tr("<b>Line up the speed openpilot shows on screen with the number on your dashboard, which most cars deliberately read a little high.</b><br><br>Raise it until openpilot's number matches your dashboard. This does not change how fast openpilot actually drives, with one exception: while it is following posted speed limits, a higher number here makes it drive slightly slower."), ""},
+    {"ClusterOffset", tr("Dashboard Speed Offset"), tr("<b>Line up the speed openpilot shows on screen with the number on your dashboard, which most cars deliberately read a little high.</b><br><br>With \"Use Wheel Speed\" off, raise it until openpilot's number matches your dashboard. This does not change how fast openpilot actually drives, with one exception: while it is following posted speed limits, a higher number here makes it drive slightly slower."), ""},
     {"ToyotaDSUBypass", tr("DSU Re-Route Harness"), tr("<b>Let openpilot control the gas and brake on an older Toyota by rerouting the cruise control computer's messages through a wiring harness you fit yourself.</b><br><br>The DSU is the box that normally runs your car's radar cruise. Only turn this on after the harness is physically installed, because openpilot cannot check for it."), ""},
     {"FrogsGoMoosTweak", tr("FrogsGoMoo's Personal Tweaks"), tr("<b>Swap in FrogsGoMoo's own settings for how openpilot comes to a stop.</b><br><br>These are personal preferences rather than a fix for anything, and they are already on. They take over your stopping and starting values from \"Driving Controls\" and hide those rows while this is on, though on a Toyota the starting value has no effect."), ""},
     {"LockDoorsTimer", tr("Lock Doors On Ignition Off After"), tr("<b>Lock the doors on their own once you have switched the car off and left it, after the number of seconds you pick.</b><br><br>The countdown only starts once the screen has gone dark, and it starts over if the driver camera still sees a face in the driver's seat or if any door is open. Somebody sitting in the front passenger seat will not hold it off. Set it to \"Never\" to switch it off."), ""},
     {"SNGHack", tr("Stop-and-Go Hack"), tr("<b>Make the car pull away by itself after a full stop on a Lexus or Toyota that does not do this from the factory.</b><br><br>Without it you have to press the gas or the resume button every time traffic moves off. It works by telling the car openpilot is never fully stopped, so keep your foot near the brake the first few times."), ""},
 
     {"VehicleInfo", tr("Vehicle Info"), tr("<b>What openpilot has worked out about your car and what it can do with it.</b><br><br>These rows are read-only. They stay on \"Unknown until first drive\" until openpilot has recognised your car."), ""},
-    {"HardwareDetected", tr("3rd Party Hardware Detected"), tr("<b>Extra hardware openpilot has found fitted to your car, such as a comma pedal, an SDSU or a ZSS.</b><br><br>openpilot works these out from your car's wiring on its own. \"None\" is not proof nothing is fitted: on a Toyota a comma pedal is only reported while openpilot is handling the gas and brake, and on a Bosch Honda it is never reported at all."), ""},
+    {"HardwareDetected", tr("3rd Party Hardware Detected"), tr("<b>Extra hardware openpilot has found fitted to your car, such as a comma pedal, an SDSU or a ZSS.</b><br><br>openpilot works these out from your car's wiring on its own. \"None\" is not proof nothing is fitted: a comma pedal is only reported on cars that support one."), ""},
     {"BlindSpotSupport", tr("Blind Spot Support"), tr("<b>Whether openpilot can read your car's blind spot sensors, which it uses to hold off a lane change when someone is beside you.</b><br><br>If this says No, check your mirrors yourself before every lane change, because openpilot has nothing to warn it."), ""},
     {"PedalSupport", tr("comma Pedal Support"), tr("<b>Whether a comma pedal would work on your car, which is an add-on that lets openpilot pull away from a stop on cars that cannot do it themselves.</b><br><br>This tells you whether one is worth fitting, not whether you already have one. \"3rd Party Hardware Detected\" above answers that."), ""},
     {"OpenpilotLongitudinal", tr("openpilot Longitudinal Support"), tr("<b>Whether openpilot handles the gas and brake itself, rather than leaving that to your car's own cruise control.</b><br><br>If this says No, openpilot only steers and your car decides the speed, so the settings under \"Driving Controls\" that shape acceleration and braking will not do anything."), ""},
@@ -209,32 +221,35 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
 
     if (param == "GMToggles") {
       ButtonControl *gmButton = new ButtonControl(title, tr("MANAGE"), desc);
-      QObject::connect(gmButton, &ButtonControl::clicked, [vehiclesLayout, gmPanel, this]() {
-        openDescriptions(forceOpenDescriptions, toggles);
+      QObject::connect(gmButton, &ButtonControl::clicked, [vehiclesLayout, gmPanel]() {
         vehiclesLayout->setCurrentWidget(gmPanel);
       });
       vehicleToggle = gmButton;
 
+    } else if (param == "HondaToggles") {
+      ButtonControl *hondaButton = new ButtonControl(title, tr("MANAGE"), desc);
+      QObject::connect(hondaButton, &ButtonControl::clicked, [vehiclesLayout, hondaPanel]() {
+        vehiclesLayout->setCurrentWidget(hondaPanel);
+      });
+      vehicleToggle = hondaButton;
+
     } else if (param == "HKGToggles") {
       ButtonControl *hkgButton = new ButtonControl(title, tr("MANAGE"), desc);
-      QObject::connect(hkgButton, &ButtonControl::clicked, [vehiclesLayout, hkgPanel, this]() {
-        openDescriptions(forceOpenDescriptions, toggles);
+      QObject::connect(hkgButton, &ButtonControl::clicked, [vehiclesLayout, hkgPanel]() {
         vehiclesLayout->setCurrentWidget(hkgPanel);
       });
       vehicleToggle = hkgButton;
 
     } else if (param == "SubaruToggles") {
       ButtonControl *subaruButton = new ButtonControl(title, tr("MANAGE"), desc);
-      QObject::connect(subaruButton, &ButtonControl::clicked, [vehiclesLayout, subaruPanel, this]() {
-        openDescriptions(forceOpenDescriptions, toggles);
+      QObject::connect(subaruButton, &ButtonControl::clicked, [vehiclesLayout, subaruPanel]() {
         vehiclesLayout->setCurrentWidget(subaruPanel);
       });
       vehicleToggle = subaruButton;
 
     } else if (param == "ToyotaToggles") {
       ButtonControl *toyotaButton = new ButtonControl(title, tr("MANAGE"), desc);
-      QObject::connect(toyotaButton, &ButtonControl::clicked, [vehiclesLayout, toyotaPanel, this]() {
-        openDescriptions(forceOpenDescriptions, toggles);
+      QObject::connect(toyotaButton, &ButtonControl::clicked, [vehiclesLayout, toyotaPanel]() {
         vehiclesLayout->setCurrentWidget(toyotaPanel);
       });
       vehicleToggle = toyotaButton;
@@ -243,14 +258,11 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
       std::vector<QString> lockToggleNames{tr("Lock"), tr("Unlock")};
       vehicleToggle = new FrogPilotButtonToggleControl(param, title, desc, icon, lockToggles, lockToggleNames);
     } else if (param == "LockDoorsTimer") {
-      std::map<float, QString> autoLockLabels;
-      for (int i = 0; i <= 300; ++i) {
-        autoLockLabels[i] = i == 0 ? tr("Never") : QString::number(i) + tr(" seconds");
-      }
-      vehicleToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 300, QString(), autoLockLabels, 5);
+      std::map<float, QString> autoLockLabels{{0, tr("Never")}};
+      vehicleToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 300, tr(" seconds"), autoLockLabels, 5);
     } else if (param == "ClusterOffset") {
-      std::vector<QString> clusterOffsetButton{"Reset"};
-      FrogPilotParamValueButtonControl *clusterOffsetToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 1.000, 1.050, "x", std::map<float, QString>(), 0.001, false, {}, clusterOffsetButton, false, false);
+      std::vector<QString> clusterOffsetButton{tr("Reset")};
+      FrogPilotParamValueButtonControl *clusterOffsetToggle = new FrogPilotParamValueButtonControl(param, title, desc, icon, 1.000, 1.050, "x", std::map<float, QString>(), 0.001, false, {}, clusterOffsetButton);
       QObject::connect(clusterOffsetToggle, &FrogPilotParamValueButtonControl::buttonClicked, [clusterOffsetToggle, this]() {
         params.putFloat("ClusterOffset", std::stof(params.getKeyDefaultValue("ClusterOffset").value()));
         clusterOffsetToggle->refresh();
@@ -258,12 +270,11 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
       vehicleToggle = clusterOffsetToggle;
 
     } else if (param == "VehicleInfo") {
-      ButtonControl *VehicleInfoButton = new ButtonControl(title, tr("VIEW"), desc);
-      QObject::connect(VehicleInfoButton, &ButtonControl::clicked, [vehiclesLayout, vehicleInfoPanel, this]() {
-        openDescriptions(forceOpenDescriptions, toggles);
+      ButtonControl *vehicleInfoButton = new ButtonControl(title, tr("VIEW"), desc);
+      QObject::connect(vehicleInfoButton, &ButtonControl::clicked, [vehiclesLayout, vehicleInfoPanel]() {
         vehiclesLayout->setCurrentWidget(vehicleInfoPanel);
       });
-      vehicleToggle = VehicleInfoButton;
+      vehicleToggle = vehicleInfoButton;
     } else if (vehicleInfoKeys.contains(param)) {
       vehicleToggle = new LabelControl(title, "", desc);
 
@@ -277,6 +288,8 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
       gmList->addItem(vehicleToggle);
     } else if (hkgKeys.contains(param)) {
       hkgList->addItem(vehicleToggle);
+    } else if (hondaKeys.contains(param)) {
+      hondaList->addItem(vehicleToggle);
     } else if (subaruKeys.contains(param)) {
       subaruList->addItem(vehicleToggle);
     } else if (toyotaKeys.contains(param)) {
@@ -290,36 +303,36 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
     }
 
     if (ButtonControl *buttonControl = qobject_cast<ButtonControl*>(vehicleToggle)) {
-      QObject::connect(buttonControl, &ButtonControl::clicked, this, &FrogPilotVehiclesPanel::openSubPanel);
+      QObject::connect(buttonControl, &ButtonControl::clicked, [this]() {
+        emit openSubPanel();
+        openDescriptions(forceOpenDescriptions, toggles);
+      });
     }
-
-    QObject::connect(vehicleToggle, &AbstractControl::hideDescriptionEvent, [this]() {
-      update();
-    });
-    QObject::connect(vehicleToggle, &AbstractControl::showDescriptionEvent, [this]() {
-      update();
-    });
   }
 
   static_cast<FrogPilotParamValueControl*>(toggles["LockDoorsTimer"])->setWarning(tr(
     "<b>Warning:</b> openpilot can't tell whether your keys are still in the car, so keep a spare somewhere safe before you rely on this!"));
 
-  QSet<QString> rebootKeys = {"TacoTuneHacks"};
+  QSet<QString> rebootKeys = {"HondaAltTune", "SubaruSNG", "TacoTuneHacks", "ToyotaDSUBypass"};
   for (const QString &key : rebootKeys) {
     QObject::connect(static_cast<ToggleControl*>(toggles[key]), &ToggleControl::toggleFlipped, [key, this](bool state) {
       if (uiState()->scene.started) {
         if (key == "TacoTuneHacks" && state) {
           if (FrogPilotConfirmationDialog::toggleReboot(this)) {
-            Hardware::reboot();
+            FrogPilotConfirmationDialog::softReboot(this);
           }
         } else if (key != "TacoTuneHacks") {
           if (FrogPilotConfirmationDialog::toggleReboot(this)) {
-            Hardware::reboot();
+            FrogPilotConfirmationDialog::softReboot(this);
           }
         }
       }
     });
   }
+
+  QObject::connect(static_cast<ToggleControl*>(toggles["SubaruSNG"]), &ToggleControl::toggleFlipped, [this](bool state) {
+    static_cast<LabelControl*>(toggles["SNGSupport"])->setText(state ? tr("Yes") : tr("No"));
+  });
 
   openDescriptions(forceOpenDescriptions, toggles);
 
@@ -330,6 +343,8 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
       openDescriptions(forceOpenDescriptions, toggles);
       disableOpenpilotLong->showDescription();
       forceFingerprint->showDescription();
+      selectMakeButton->showDescription();
+      selectModelButton->showDescription();
     }
     vehiclesLayout->setCurrentWidget(vehiclesPanel);
   });
@@ -341,12 +356,22 @@ void FrogPilotVehiclesPanel::showEvent(QShowEvent *event) {
   if (forceOpenDescriptions) {
     disableOpenpilotLong->showDescription();
     forceFingerprint->showDescription();
+    selectMakeButton->showDescription();
+    selectModelButton->showDescription();
   }
 
   QStringList detected;
-  if (parent->hasPedal) detected << "comma Pedal";
-  if (parent->hasSDSU) detected << "SDSU";
-  if (parent->hasZSS) detected << "ZSS";
+  if (parent->hasPedal) {
+    detected << "comma Pedal";
+  }
+  if (parent->hasSDSU) {
+    detected << "SDSU";
+  }
+  if (parent->hasZSS) {
+    detected << "ZSS";
+  }
+  bool subaruSNG = parent->tuningLevel < parent->frogpilotToggleLevels.value("SubaruSNG").toDouble() || params.getBool("SubaruSNG");
+  bool supportsSNG = parent->hasSNG && (!parent->isSubaru || subaruSNG);
   QString unknown = tr("Unknown until first drive");
 
   static_cast<LabelControl*>(toggles["HardwareDetected"])->setText(!parent->carDetected ? unknown : detected.isEmpty() ? tr("None") : detected.join(", "));
@@ -356,7 +381,7 @@ void FrogPilotVehiclesPanel::showEvent(QShowEvent *event) {
   static_cast<LabelControl*>(toggles["PedalSupport"])->setText(!parent->carDetected ? unknown : parent->canUsePedal ? tr("Yes") : tr("No"));
   static_cast<LabelControl*>(toggles["RadarSupport"])->setText(!parent->carDetected ? unknown : parent->hasRadar ? tr("Yes") : tr("No"));
   static_cast<LabelControl*>(toggles["SDSUSupport"])->setText(!parent->carDetected ? unknown : parent->canUseSDSU ? tr("Yes") : tr("No"));
-  static_cast<LabelControl*>(toggles["SNGSupport"])->setText(!parent->carDetected ? unknown : parent->hasSNG ? tr("Yes") : tr("No"));
+  static_cast<LabelControl*>(toggles["SNGSupport"])->setText(!parent->carDetected ? unknown : supportsSNG ? tr("Yes") : tr("No"));
 
   updateToggles();
 }
@@ -373,23 +398,21 @@ void FrogPilotVehiclesPanel::updateCarLabels() {
 }
 
 void FrogPilotVehiclesPanel::updateToggles() {
-  for (auto &[key, toggle] : toggles) {
-    if (parentKeys.contains(key)) {
-      toggle->setVisible(false);
-    }
-  }
+  QSet<QString> visibleParents;
 
   for (auto &[key, toggle] : toggles) {
     if (parentKeys.contains(key)) {
       continue;
     }
 
-    bool setVisible = parent->tuningLevel >= parent->frogpilotToggleLevels[key].toDouble();
+    bool setVisible = parent->tuningLevel >= parent->frogpilotToggleLevels.value(key).toDouble();
 
     if (gmKeys.contains(key)) {
       setVisible &= parent->carDetected && parent->isGM;
     } else if (hkgKeys.contains(key)) {
       setVisible &= parent->carDetected && parent->isHKG;
+    } else if (hondaKeys.contains(key)) {
+      setVisible &= parent->carDetected && parent->isHondaNidec;
     } else if (subaruKeys.contains(key)) {
       setVisible &= parent->carDetected && parent->isSubaru;
     } else if (toyotaKeys.contains(key)) {
@@ -402,7 +425,11 @@ void FrogPilotVehiclesPanel::updateToggles() {
       setVisible &= parent->hasOpenpilotLongitudinal;
     }
 
-    if (key == "SNGHack") {
+    if (key == "LongPitch") {
+      setVisible &= !parent->isGMCCOnly;
+    }
+
+    else if (key == "SNGHack") {
       setVisible &= !parent->hasSNG;
     }
 
@@ -414,6 +441,10 @@ void FrogPilotVehiclesPanel::updateToggles() {
       setVisible &= parent->isHKGCanFd;
     }
 
+    else if (key == "ToyotaDSUBypass") {
+      setVisible &= parent->canUseDSUBypass;
+    }
+
     else if (key == "VoltSNG") {
       setVisible &= parent->isVolt && !parent->hasSNG;
     }
@@ -422,22 +453,33 @@ void FrogPilotVehiclesPanel::updateToggles() {
 
     if (setVisible) {
       if (gmKeys.contains(key)) {
-        toggles["GMToggles"]->setVisible(true);
+        visibleParents.insert("GMToggles");
       } else if (hkgKeys.contains(key)) {
-        toggles["HKGToggles"]->setVisible(true);
+        visibleParents.insert("HKGToggles");
+      } else if (hondaKeys.contains(key)) {
+        visibleParents.insert("HondaToggles");
       } else if (subaruKeys.contains(key)) {
-        toggles["SubaruToggles"]->setVisible(true);
+        visibleParents.insert("SubaruToggles");
       } else if (toyotaKeys.contains(key)) {
-        toggles["ToyotaToggles"]->setVisible(true);
+        visibleParents.insert("ToyotaToggles");
       } else if (vehicleInfoKeys.contains(key)) {
-        toggles["VehicleInfo"]->setVisible(true);
+        visibleParents.insert("VehicleInfo");
       }
     }
   }
 
-  disableOpenpilotLong->setVisible((parent->hasOpenpilotLongitudinal || parent->openpilotLongitudinalControlDisabled) && !parent->hasAlphaLongitudinal &&
-                                 parent->tuningLevel >= parent->frogpilotToggleLevels["DisableOpenpilotLongitudinal"].toDouble());
-  forceFingerprint->setVisible(parent->tuningLevel >= parent->frogpilotToggleLevels["ForceFingerprint"].toDouble());
+  for (const QString &key : parentKeys) {
+    toggles[key]->setVisible(visibleParents.contains(key));
+  }
+
+  disableOpenpilotLong->setVisible((parent->hasOpenpilotLongitudinal || parent->openpilotLongitudinalControlDisabled) && parent->canDisableOpenpilotLong &&
+                                 parent->tuningLevel >= parent->frogpilotToggleLevels.value("DisableOpenpilotLongitudinal").toDouble());
+  bool canForceFingerprint = parent->tuningLevel >= parent->frogpilotToggleLevels.value("ForceFingerprint").toDouble();
+  forceFingerprint->setVisible(canForceFingerprint);
+
+  bool canSelectCar = canForceFingerprint && params.getBool("ForceFingerprint");
+  selectMakeButton->setEnabled(canSelectCar);
+  selectModelButton->setEnabled(canSelectCar);
 
   openDescriptions(forceOpenDescriptions, toggles);
 

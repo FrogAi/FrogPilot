@@ -12,10 +12,6 @@ env:
 
   GH_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-concurrency:
-  cancel-in-progress: true
-  group: review-pull-request-${{ github.event.pull_request.number }}
-
 jobs:
   redirect:
     if: >-
@@ -23,34 +19,25 @@ jobs:
       (github.event.action != 'edited' || github.event.changes.base != null) &&
       github.base_ref != vars.BRANCH_PR_TARGET &&
       github.event.pull_request.user.login != 'FrogAi' &&
-      (github.event.action == 'opened' || github.actor != 'FrogAi')
+      github.actor != 'FrogAi'
     runs-on: ubuntu-latest
     steps:
       - run: >
           gh pr close "${{ github.event.pull_request.html_url }}"
           --comment "Thanks for contributing! Pull requests need to target the
-          \"${BRANCH_PR_TARGET:?BRANCH_PR_TARGET is required}\" branch, so this one
-          was closed automatically. Please open a new pull request against
-          \"$BRANCH_PR_TARGET\"."
+          \"$BRANCH_PR_TARGET\" branch, so this one was closed automatically.
+          Please open a new pull request against \"$BRANCH_PR_TARGET\"."
 
   welcome:
     if: >-
       github.repository == 'FrogAi/FrogPilot' &&
-      github.event.action != 'edited' &&
+      github.event.action == 'opened' &&
       github.base_ref == vars.BRANCH_PR_TARGET &&
       github.event.pull_request.user.login != 'FrogAi'
     runs-on: ubuntu-latest
     steps:
       - run: |
-          url="${{ github.event.pull_request.html_url }}"
-
-          comments="$(gh pr view "$url" --json comments --jq '.comments[].body')"
-          if [[ "$comments" == *'Thank you for your PR!'* ]]; then
-            echo "Already welcomed."
-            exit 0
-          fi
-
           body="Thank you for your PR! If you're not already in the FrogPilot Discord, "
           body+="[feel free to join](https://discord.FrogPilot.com) and let me know you've opened a PR!"
 
-          gh pr comment "$url" --body "$body"
+          gh pr comment "${{ github.event.pull_request.html_url }}" --body "$body"

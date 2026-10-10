@@ -95,10 +95,6 @@
         <translation>Hasta reiniciar</translation>
     </message>
     <message>
-        <source>Share your device's internet connection with other devices, either all the time or only while driving.</source>
-        <translation>Comparte la conexión a Internet de tu dispositivo con otros dispositivos, siempre o solo mientras conduces.</translation>
-    </message>
-    <message>
         <source>Prevent large data uploads when on a metered cellular connection</source>
         <translation>Evite cargas de grandes cantidades de datos cuando utilice una conexión celular medida</translation>
     </message>
@@ -121,6 +117,10 @@
     <message>
         <source>Prevent large data uploads when on a metered Wi-Fi connection</source>
         <translation>Evite cargas de grandes cantidades de datos cuando esté en una conexión Wi-Fi medida</translation>
+    </message>
+    <message>
+        <source>Share your device's internet connection with other devices, either all the time or only while driving. Internet sharing only works on a paired device with comma prime lite or no comma prime.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -208,10 +208,6 @@
         <translation>Indicadores de borde</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Colour the edge of the driving screen to show what openpilot is reacting to.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You can switch on the blind spot, steering effort and turn signal borders separately. The blind spot one needs a car with factory blind spot monitoring, and stays dark without it.</source>
-        <translation>&lt;b&gt;Colorear el borde de la pantalla de conducción para indicar a qué está reaccionando openpilot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Puedes activar por separado los bordes de ángulo muerto, esfuerzo de dirección e intermitente. El de ángulo muerto requiere que el coche disponga de control de ángulo muerto de fábrica; sin él permanecerá apagado.</translation>
-    </message>
-    <message>
         <source>FPS Display</source>
         <translation>Mostrar FPS</translation>
     </message>
@@ -222,10 +218,6 @@
     <message>
         <source>Lead Info</source>
         <translation>Información del vehículo delantero</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Print how far away the car ahead is and how fast it is going, underneath its marker.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It also shows the gap openpilot is aiming for, so you can see it closing in on the distance you asked for.</source>
-        <translation>&lt;b&gt;Mostrar debajo del marcador la distancia y la velocidad del vehículo delantero.&lt;/b&gt;&lt;br&gt;&lt;br&gt;También muestra la distancia que pretende mantener openpilot, para que puedas ver cómo se aproxima a la que has solicitado.</translation>
     </message>
     <message>
         <source>Numerical Temperature Gauge</source>
@@ -254,10 +246,6 @@
     <message>
         <source>Developer Sidebar</source>
         <translation>Barra lateral de desarrollador</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Add a second sidebar down the right-hand side, holding up to seven readouts you pick yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It sits over part of the camera view, so it is worth turning off when you are not using it. Setting all seven to "None" leaves the bar there but empty.</source>
-        <translation>&lt;b&gt;Añadir una segunda barra lateral en el lado derecho con hasta siete lecturas elegidas por ti.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Cubre parte de la vista de la cámara, por lo que conviene desactivarla cuando no la uses. Si configuras las siete métricas como «Ninguna», la barra permanecerá visible pero vacía.</translation>
     </message>
     <message>
         <source>Metric #1</source>
@@ -463,6 +451,18 @@
         <source>Show Distance</source>
         <translation>Mostrar distancia</translation>
     </message>
+    <message>
+        <source>&lt;b&gt;Colour the edge of the driving screen to show what openpilot is reacting to.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You can switch on the blind spot, steering effort and turn signal borders separately. The blind spot one only appears on cars with factory blind spot monitoring, and the steering effort one only appears on cars where openpilot sends a steering effort rather than a steering angle.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Print how far away the car ahead is and how fast it is going, underneath its marker.&lt;/b&gt;&lt;br&gt;&lt;br&gt;On cars where openpilot handles the gas and brake, it also shows the gap openpilot is aiming for, so you can see it closing in on the distance you asked for.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add a second sidebar down the right-hand side, holding up to seven readouts you pick yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It makes the camera view narrower, so it is worth turning off when you are not using it. Setting all seven to "None" leaves the bar there but empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DeveloperSidebar</name>
@@ -484,7 +484,7 @@
     </message>
     <message>
         <source>ACT ACCEL</source>
-        <translation>ACEL. REAL</translation>
+        <translation>ACEL. ACTUADOR</translation>
     </message>
     <message>
         <source>DANGER JERK</source>
@@ -713,6 +713,18 @@ La calibración del retraso de la dirección está completa.</translation>
         <source>openpilot is continuously calibrating, resetting is rarely required. Resetting calibration will restart openpilot if the car is powered on.</source>
         <translation>Openpilot se calibra continuamente, por lo que rara vez es necesario reiniciarlo. Restablecer la calibración reiniciará Openpilot si el automóvil está encendido.</translation>
     </message>
+    <message>
+        <source>Soft Reboot</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Are you sure you want to soft reboot?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disengage to Soft Reboot</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DriveStats</name>
@@ -872,12 +884,68 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>mph</translation>
     </message>
     <message>
-        <source>seconds</source>
-        <translation>artículos de segunda clase</translation>
-    </message>
-    <message>
         <source>SPEED</source>
         <translation>VELOCIDAD</translation>
+    </message>
+    <message>
+        <source>N</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>NE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>E</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SW</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>W</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>NW</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Training...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>N/A</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dashboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Map Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mapbox</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Upcoming</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -901,6 +969,10 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
     <message>
         <source>No</source>
         <translation>No</translation>
+    </message>
+    <message>
+        <source>The device can't reboot while openpilot is steering. Disengage, then reboot from the Device panel.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -944,10 +1016,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
     <message>
         <source>RENAME</source>
         <translation>CAMBIAR NOMBRE</translation>
-    </message>
-    <message>
-        <source>Choose a screen recording to delete</source>
-        <translation>Elige una grabación de pantalla para eliminarla</translation>
     </message>
     <message>
         <source>Delete this screen recording?</source>
@@ -1030,10 +1098,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>Reiniciando...</translation>
     </message>
     <message>
-        <source>Choose a backup to delete</source>
-        <translation>Elige una copia de seguridad para eliminarla</translation>
-    </message>
-    <message>
         <source>FrogPilot Stats</source>
         <translation>Estadísticas de FrogPilot</translation>
     </message>
@@ -1108,10 +1172,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
     <message>
         <source>Driving Models:</source>
         <translation>Modelos de conducción:</translation>
-    </message>
-    <message>
-        <source>Month</source>
-        <translation>Mes</translation>
     </message>
     <message>
         <source>Total Overrides</source>
@@ -1230,20 +1290,8 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>m/s²</translation>
     </message>
     <message>
-        <source>Total </source>
-        <translation>Total </translation>
-    </message>
-    <message>
-        <source>% of </source>
-        <translation>Porcentaje de </translation>
-    </message>
-    <message>
         <source>Driving Personalities:</source>
         <translation>Personalidades de conducción:</translation>
-    </message>
-    <message>
-        <source>Delete all driving footage and data? Flagged and preserved drives will be kept.</source>
-        <translation>¿Eliminar todas las grabaciones y los datos de conducción? Se conservarán los trayectos marcados y protegidos.</translation>
     </message>
     <message>
         <source>Delete failed...</source>
@@ -1294,10 +1342,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>Copias de seguridad de los ajustes</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Save a copy of your current settings, restore a saved copy, or delete ones you no longer need.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Restoring applies the settings right away with no reboot needed. FrogPilot also saves a copy automatically whenever you change a setting, but it only keeps the newest few and deletes the older ones. FrogPilot also saves a copy automatically whenever you change a setting, and those show up in the list by date and time.</source>
-        <translation>&lt;b&gt;Guarda una copia de tus ajustes actuales, restaura una copia guardada o elimina las que ya no necesites.&lt;/b&gt;&lt;br&gt;&lt;br&gt;La restauración aplica los ajustes inmediatamente sin necesidad de reiniciar. FrogPilot también guarda una copia automática cada vez que cambias un ajuste; esas copias aparecen en la lista con su fecha y hora, y solo se conservan las más recientes.</translation>
-    </message>
-    <message>
         <source>Delete all settings backups? This includes the copies FrogPilot saves automatically.</source>
         <translation>¿Eliminar todas las copias de seguridad de los ajustes? Esto incluye las copias que FrogPilot guarda automáticamente.</translation>
     </message>
@@ -1346,10 +1390,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>Tiempo de conducción (clima):</translation>
     </message>
     <message>
-        <source>Recording in progress...</source>
-        <translation>Grabación en curso...</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Delete every recorded drive to free up space and clear personal footage off the device.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only the one-minute chunk of footage containing the moment you flagged is kept, not the rest of that drive, and preserving a drive in "The Pond" keeps it the same one minute at a time.</source>
         <translation>&lt;b&gt;Elimine cada viaje de conducción grabado para liberar espacio y borrar imágenes personales del dispositivo.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Solo se conserva el fragmento de un minuto del metraje que contiene el momento que marcó, no el resto de ese viaje de conducción, y al conservar un viaje de conducción en "The Pond" se mantiene igual un minuto a la vez.</translation>
     </message>
@@ -1368,6 +1408,130 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
     <message>
         <source>Restore this backup? This overwrites your current settings.</source>
         <translation>¿Restaurar esta copia de seguridad? Esto sobrescribe su configuración actual.</translation>
+    </message>
+    <message>
+        <source>th</source>
+        <comment>ordinal suffix</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>st</source>
+        <comment>ordinal suffix</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>nd</source>
+        <comment>ordinal suffix</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>rd</source>
+        <comment>ordinal suffix</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 %2%3, %4 (%5)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete all driving footage and data? Only the flagged and preserved one-minute chunks will be kept.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> (Replay)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose screen recordings to delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the %1 selected screen recordings?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose backups to delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the %1 selected backups?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Save a copy of your current settings, restore a saved copy, or delete ones you no longer need.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Restoring applies most settings right away, but a few, such as "High-Quality Recording" and "Use Konik Server", need a reboot. FrogPilot also saves a copy automatically whenever you change a setting, but it only keeps the newest few and deletes the older ones. Those show up in the list by date and time.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Goat Screams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collision Alerts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disengagements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Engagements</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frog Chirps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frog Hops</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drives</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Frog Squeaks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Overrides</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Aggressive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Relaxed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Standard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Low Visibility</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rain Storm</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Snow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>% of %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1477,10 +1641,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>&lt;b&gt;Tiempo que el dispositivo permanece encendido después de terminar de conducir antes de apagarse.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Los tiempos más cortos consumen menos batería del vehículo. El valor mínimo es de 5 minutos.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Stop the device from saving anything from your drives.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Nothing is written to storage, so you won't be able to review your drives later or send a useful bug report.</source>
-        <translation>&lt;b&gt;Impide que el dispositivo guarde datos de tus trayectos.&lt;/b&gt;&lt;br&gt;&lt;br&gt;No se escribe nada en el almacenamiento, por lo que no podrás revisar los trayectos más tarde ni enviar un informe de errores útil.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Stop the device from uploading your drives to "comma connect".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your drives are still saved on the device. comma uses uploads for debugging and official support, so turning this on limits the help they can give. "Disable Onroad Only" pauses uploads while you drive and lets them finish once you park, but only while the device is on Wi-Fi or Ethernet.</source>
         <translation>&lt;b&gt;Impide que el dispositivo cargue tus trayectos en «comma connect».&lt;/b&gt;&lt;br&gt;&lt;br&gt;Los trayectos siguen guardándose en el dispositivo. comma usa las cargas para depuración y asistencia oficial, por lo que activar esta opción limita la ayuda que puede ofrecer. «Desactivar solo durante la conducción» pausa las cargas mientras conduces y permite que terminen al estacionar, pero solo con una conexión Wi-Fi o Ethernet.</translation>
     </message>
@@ -1493,10 +1653,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>&lt;b&gt;Apaga el dispositivo cuando la tensión de la batería del vehículo cae por debajo del valor elegido.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Solo ocurre mientras el vehículo está estacionado y evita que el dispositivo descargue la batería hasta impedir el arranque.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Let the device run about 6 degrees Celsius hotter than normal before openpilot reacts to the heat.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Normally openpilot disengages and will not re-engage once the device gets hot, and drops back to the offroad screen if it keeps climbing. This makes both happen later. Running the device that hot can shorten its life or damage it, so only use this if you understand the risk.</source>
-        <translation>&lt;b&gt;Permite que el dispositivo funcione unos 6 grados Celsius por encima de la temperatura normal antes de que openpilot reaccione al calor.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Normalmente, cuando el dispositivo se calienta, openpilot se desactiva y no permite volver a activarlo; si la temperatura sigue subiendo, vuelve a la pantalla de estacionamiento. Esta opción retrasa ambos efectos. Usar el dispositivo a esa temperatura puede acortar su vida útil o dañarlo, así que actívala solo si comprendes el riesgo.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Upload your drives to "stable.konik.ai" instead of "connect.comma.ai".&lt;/b&gt;&lt;br&gt;&lt;br&gt;The device needs to reboot for this to take effect.</source>
         <translation>&lt;b&gt;Carga tus trayectos en «stable.konik.ai» en lugar de «connect.comma.ai».&lt;/b&gt;&lt;br&gt;&lt;br&gt;Es necesario reiniciar el dispositivo para aplicar el cambio.</translation>
     </message>
@@ -1507,10 +1663,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
     <message>
         <source>&lt;b&gt;How bright the screen is while you're not driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Auto" only follows the light around you while you are driving. While you are parked it is a fixed 50%, whatever the light is like.</source>
         <translation>&lt;b&gt;Brillo de la pantalla mientras no conduces.&lt;/b&gt;&lt;br&gt;&lt;br&gt;«Automático» solo se adapta a la luz ambiental mientras conduces. Al estacionar, el brillo queda fijado en el 50 %, independientemente de la luz.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How bright the screen is while you're driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Auto" matches the light around you, and "Screen Off" keeps the display dark until you tap it.</source>
-        <translation>&lt;b&gt;Brillo de la pantalla mientras conduces.&lt;/b&gt;&lt;br&gt;&lt;br&gt;«Automático» se adapta a la luz ambiental y «Pantalla apagada» mantiene la pantalla oscura hasta que la toques.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Add a button to the driving screen that records what's on it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your recordings are saved on the device and can be renamed or deleted under "Screen Recordings" in the "DATA" panel.</source>
@@ -1527,6 +1679,50 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
     <message>
         <source>&lt;b&gt;Turn the screen off while driving, and wake it up automatically for alerts or when openpilot engages or disengages.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Tapping the screen wakes it up too.</source>
         <translation>&lt;b&gt;Apaga la pantalla mientras conduces y enciéndela automáticamente para las alertas o cuando openpilot se activa o se desactiva.&lt;/b&gt;&lt;br&gt;&lt;br&gt;También puedes encenderla tocándola.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let the device run about 6 degrees Celsius hotter than normal before openpilot disengages because of the heat.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Normally openpilot disengages and will not re-engage once the device gets hot, and drops back to the offroad screen if it keeps climbing. This only makes the first happen later: the device still drops back to the offroad screen at the normal temperature. Running the device that hot can shorten its life or damage it, so only use this if you understand the risk.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture Recent Footage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Save what just happened on your driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Choose how far back to keep, then tap "CAPTURE" to save a moment you want to review or share. There's no need to remember to start recording beforehand.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>30 seconds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1 minute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> minutes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start Recording</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop Recording</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Stop the device from recording your drives.&lt;/b&gt;&lt;br&gt;&lt;br&gt;No driving logs or camera footage are saved, so you won't be able to review your drives later or send a useful bug report. Screen recordings and the device's own system logs are still saved.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How bright the screen is while you're driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Auto" matches the light around you, and "Screen Off" keeps the display dark until you tap it. A tap brightens anything below 5% to 5% until the screen times out.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1647,6 +1843,10 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <source> minutes</source>
         <translation> minutos</translation>
     </message>
+    <message>
+        <source>Goat Screams</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotLateralPanel</name>
@@ -1717,10 +1917,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
     <message>
         <source>Pause on Brake Press Below</source>
         <translation>Pausar al pisar el freno por debajo de</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Pause "Always On Lateral" below the set speed while the brake pedal is pressed.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Pausar «Dirección siempre activa» por debajo de la velocidad establecida mientras se pisa el pedal del freno.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Lane Changes</source>
@@ -1875,14 +2071,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>&lt;b&gt;Cambia openpilot para que controle la dirección por esfuerzo en lugar de por ángulo del volante, lo que suele mantener el carril con más suavidad en las curvas.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Solo está disponible en vehículos que no usan ya este método. Si lo cambias durante la conducción, se solicitará reiniciar.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;openpilot keeps steering for you even when it isn't controlling the gas and brake, so it holds your lane when you press a pedal, cancel, or haven't engaged openpilot at all.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It steers from the moment your car's cruise control is switched on until you switch that back off or shift out of drive, and it pauses while you hold the brake below the speed set in "Pause on Brake Press Below". On the newer Hyundai, Kia and Genesis cars where openpilot does not handle the gas and brake, the LKAS button takes the place of cruise control.</source>
-        <translation>&lt;b&gt;openpilot sigue dirigiendo el vehículo aunque no controle el acelerador y el freno, por lo que mantiene el carril al pisar un pedal, cancelar o incluso sin haber activado openpilot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Dirige desde que se enciende el control de crucero del vehículo hasta que se apaga o se sale de la posición de avance, y se pausa mientras mantienes pisado el freno por debajo de la velocidad definida en «Pausar al pisar el freno por debajo de». En los Hyundai, Kia y Genesis más recientes donde openpilot no controla el acelerador ni el freno, el botón LKAS sustituye al control de crucero.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Use the LKAS button to arm steering, so openpilot keeps steering even when it is not engaged.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot does not read your car's LKAS status for this. It starts every drive disarmed and each press of the LKAS button flips it, so expect one press after starting the car. With this off, steering stops as soon as openpilot is no longer engaged, and the LKAS button is free to reassign under "LKAS Button".</source>
-        <translation>&lt;b&gt;Usa el botón LKAS para preparar la dirección, de modo que openpilot siga dirigiendo aunque no esté activado.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Para esta función, openpilot no lee el estado LKAS del vehículo. Cada trayecto empieza con la dirección sin preparar y cada pulsación del botón LKAS alterna su estado, por lo que deberás pulsarlo una vez después de arrancar. Con esta opción desactivada, la dirección se detiene en cuanto openpilot deja de estar activo y el botón LKAS puede reasignarse en «Botón LKAS».</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;With your turn signal on, openpilot starts the lane change on its own instead of waiting for a small push on the wheel from you.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It waits out "Lane Change Delay" before moving over, skips the move below the minimum lane change speed, and stays out of lanes narrower than any "Minimum Lane Width" you set. It only holds off for a car beside you if your car came with factory blind spot monitoring, so without that hardware there is no blind spot check at all. Check that the lane is clear yourself before you signal.</source>
         <translation>&lt;b&gt;Con el intermitente puesto, openpilot inicia el cambio de carril por sí solo en lugar de esperar un pequeño impulso tuyo en el volante.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Espera el «Retardo del cambio de carril» antes de desplazarse, no inicia la maniobra por debajo de la velocidad mínima para cambiar de carril y evita los carriles más estrechos que la «Anchura mínima del carril» establecida. Solo se detiene por un vehículo a tu lado si tu vehículo incluye monitorización de ángulo muerto de fábrica; sin ese equipo no hay ninguna comprobación del ángulo muerto. Comprueba tú mismo que el carril esté libre antes de señalizar.</translation>
     </message>
@@ -1893,10 +2081,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
     <message>
         <source>&lt;b&gt;Only one lane change per turn signal.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Switch the signal off and back on to change lanes again. Lane changes you start yourself by pushing the wheel count toward this too.</source>
         <translation>&lt;b&gt;Permite un solo cambio de carril por cada activación del intermitente.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Apaga y vuelve a encender el intermitente para cambiar de carril otra vez. Los cambios que inicies tú mismo girando el volante también cuentan.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Switch openpilot's steering over to a neural network for a smoother wheel, and have it steer into turns when you signal below your minimum lane change speed.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Cambia la dirección de openpilot a una red neuronal para obtener movimientos del volante más suaves y permite que ayude a girar al señalizar por debajo de la velocidad mínima de cambio de carril.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Steer Into Turns Below Lane Change Speed</source>
@@ -1929,6 +2113,26 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
     <message>
         <source>Any speed</source>
         <translation>Cualquier velocidad</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Use the LKAS button to arm steering, so openpilot keeps steering even when it is not engaged.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot does not read your car's LKAS status for this. It starts every drive disarmed and each press of the LKAS button flips it, so expect one press after starting the car. With this off, the LKAS button is free to reassign under "LKAS Button", and steering stops as soon as openpilot is no longer engaged, unless openpilot handles the gas and brake, in which case the cruise control button arms it instead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot keeps steering for you even when it isn't controlling the gas and brake, so it holds your lane when you press a pedal, cancel, or haven't engaged openpilot at all.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It steers from the moment your car's cruise control is switched on until you switch that back off or shift out of drive, and it pauses while you brake below the speed set in "Pause on Brake Press Below", except at a full stop. On the newer Hyundai, Kia and Genesis cars, the LKAS button takes the place of cruise control while "Enable With LKAS" is on.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Pause "Always On Lateral" below the set speed while the brake pedal is pressed, except at a full stop.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch openpilot's steering over to a neural network for a smoother wheel on cars that support it, and have it steer into turns when you signal below your minimum lane change speed.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2004,10 +2208,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
     <message>
         <source>Lead Detected Ahead</source>
         <translation>Vehículo delantero detectado</translation>
-    </message>
-    <message>
-        <source>Predicted Stop In</source>
-        <translation>Parada prevista en</translation>
     </message>
     <message>
         <source>Turn Signal Below</source>
@@ -2098,10 +2298,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>&lt;b&gt;Personalizar el perfil «Relajado».&lt;/b&gt; Diseñado para una conducción más suave y cómoda con distancias mayores.</translation>
     </message>
     <message>
-        <source>Longitudinal Tuning</source>
-        <translation>Ajuste longitudinal</translation>
-    </message>
-    <message>
         <source>Acceleration Profile</source>
         <translation>Perfil de aceleración</translation>
     </message>
@@ -2124,10 +2320,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
     <message>
         <source>Maximum Acceleration</source>
         <translation>Aceleración máxima</translation>
-    </message>
-    <message>
-        <source>"Taco Bell Run" Turn Speed Hack</source>
-        <translation>Ajuste de velocidad en giros «Taco Bell Run»</translation>
     </message>
     <message>
         <source>Quality of Life</source>
@@ -2490,16 +2682,8 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>Semáforos y señales de stop «detectados»</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Switch to "Experimental Mode" when openpilot predicts a stop within the set time.&lt;/b&gt; This is usually triggered when the model "sees" a red light or stop sign ahead.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
-        <translation>&lt;b&gt;Cambiar al «Modo experimental» cuando openpilot prediga una parada dentro del tiempo establecido.&lt;/b&gt; Normalmente se activa cuando el modelo «ve» un semáforo en rojo o una señal de stop más adelante.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Aviso&lt;/b&gt;: openpilot no detecta explícitamente los semáforos ni las señales de stop. En el «Modo experimental», openpilot toma decisiones de conducción de extremo a extremo a partir de las imágenes de la cámara, por lo que puede detenerse incluso sin un motivo aparente.&lt;/i&gt;</translation>
-    </message>
-    <message>
         <source>Set Your Own Key</source>
         <translation>Configurar tu propia clave</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Set your own "OpenWeatherMap" key to increase the weather update rate.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Personal keys grant 1,000 free calls per day, allowing for updates every minute. The default key is shared and only updates every 15 minutes.&lt;/i&gt;</source>
-        <translation>&lt;b&gt;Configura tu propia clave de «OpenWeatherMap» para aumentar la frecuencia de actualización del tiempo.&lt;/b&gt;&lt;br&gt;&lt;br&gt;&lt;i&gt;Las claves personales permiten 1.000 consultas gratuitas al día, por lo que se puede actualizar cada minuto. La clave predeterminada es compartida y solo actualiza cada 15 minutos.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>ADD</source>
@@ -2524,26 +2708,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
     <message>
         <source>Testing...</source>
         <translation>Probando...</translation>
-    </message>
-    <message>
-        <source>Key is valid!</source>
-        <translation>¡La clave es válida!</translation>
-    </message>
-    <message>
-        <source>An error occurred: %1</source>
-        <translation>Se ha producido un error: %1</translation>
-    </message>
-    <message>
-        <source>Characters: 0/%1</source>
-        <translation>Caracteres: 0/%1</translation>
-    </message>
-    <message>
-        <source>Your key is valid for version 2.5, but version 3.0 is highly recommended! Please subscribe to the "One Call API 3.0" plan!</source>
-        <translation>Tu clave es válida para la versión 2.5, pero se recomienda encarecidamente la 3.0. Suscríbete al plan «One Call API 3.0».</translation>
-    </message>
-    <message>
-        <source>Invalid key! (Error: %1)</source>
-        <translation>¡Clave no válida! (Error: %1)</translation>
     </message>
     <message>
         <source>&lt;b&gt;Hand-set the acceleration and braking numbers openpilot normally takes from your car.&lt;/b&gt;</source>
@@ -2574,24 +2738,12 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>&lt;b&gt;Con qué rapidez aumenta openpilot la presión de frenado al detenerse.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Auméntala para obtener paradas más cortas y firmes. Redúcela para que sean más largas y suaves.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;The speed below which openpilot treats your car as stopped and switches to holding the brakes.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it to settle into the stop earlier and more smoothly. Lower it to keep normal braking going longer, at the risk of rolling past your mark.</source>
-        <translation>&lt;b&gt;La velocidad por debajo de la cual openpilot considera que el coche está parado y pasa a mantener los frenos.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Auméntala para asentarse antes y con más suavidad en la parada. Redúcela para prolongar el frenado normal, con el riesgo de sobrepasar el punto previsto.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" below this speed when there is no car ahead of you.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It helps openpilot handle slow, fiddly situations more smoothly.</source>
         <translation>&lt;b&gt;Cambiar al «Modo experimental» por debajo de esta velocidad cuando no haya ningún coche delante.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Ayuda a openpilot a gestionar con mayor suavidad las situaciones lentas y complejas.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Switch to "Experimental Mode" when openpilot sees a curve coming up.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The model picks its own speed for the curve instead of holding your set speed.</source>
         <translation>&lt;b&gt;Cambiar al «Modo experimental» cuando openpilot vea que se aproxima una curva.&lt;/b&gt;&lt;br&gt;&lt;br&gt;El modelo elige su propia velocidad para la curva en lugar de mantener la velocidad establecida.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Switch to "Experimental Mode" when the car ahead is slower than you or has stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Slower Lead" and "Stopped Lead" both start off, so pick at least one with the buttons on this row or nothing happens.</source>
-        <translation>&lt;b&gt;Cambiar al «Modo experimental» cuando el vehículo delantero circule más despacio que tú o se haya detenido.&lt;/b&gt;&lt;br&gt;&lt;br&gt;«Vehículo delantero más lento» y «Vehículo delantero detenido» están desactivados de forma predeterminada; activa al menos uno con los botones de esta fila o no ocurrirá nada.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Switch to "Experimental Mode" when you signal below the speed you set, so openpilot picks its own speed through the turn instead of holding your set speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This runs off the "Not For Detected Lanes" button on this row, which has to stay on. With it on, openpilot only reads a signal as a turn when the space beside you is narrower than the "Minimum Lane Width" under "Lane Changes" in the "STEERING" panel. That width starts at zero, so nothing happens until you raise it, and turning the button off stops it firing at all.</source>
-        <translation>&lt;b&gt;Cambiar al «Modo experimental» cuando uses el intermitente por debajo de la velocidad establecida, para que openpilot elija su propia velocidad durante el giro en lugar de mantenerla.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Depende del botón «No en carriles detectados» de esta fila, que debe permanecer activado. Con él activado, openpilot solo interpreta el intermitente como un giro cuando el espacio a tu lado es más estrecho que la «Anchura mínima del carril» configurada en «Cambios de carril», dentro del panel «DIRECCIÓN». Esa anchura parte de cero, por lo que no ocurrirá nada hasta que la aumentes; si desactivas el botón, esta condición deja de activarse por completo.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Show which condition switched "Experimental Mode" on, right on the driving screen.&lt;/b&gt;</source>
@@ -2658,48 +2810,20 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>&lt;b&gt;La rapidez con la que acelera openpilot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;«Estándar» es la aceleración normal de openpilot, «Eco» es suave y eficiente, «Sport» es más firme y reactiva, y «Sport+» acelera con toda la intensidad que permite tu coche. Ninguno se aplica mientras está activo el «Modo experimental», incluso cuando lo activa automáticamente el «Modo experimental condicional».</translation>
     </message>
     <message>
-        <source>&lt;b&gt;How gently openpilot slows down when the road ahead is clear.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Standard" brakes at full strength, "Eco" brakes about half as hard so you coast more, and "Eco+" brakes about a quarter as hard for the gentlest slowdowns. Whenever there is a car ahead, or while "Experimental Mode" is running, openpilot goes back to full-strength braking so it can still stop in time.</source>
-        <translation>&lt;b&gt;La suavidad con la que openpilot reduce la velocidad cuando la vía está despejada.&lt;/b&gt;&lt;br&gt;&lt;br&gt;«Estándar» frena con toda la intensidad, «Eco» aplica aproximadamente la mitad para avanzar más por inercia y «Eco+» aplica alrededor de una cuarta parte para obtener la desaceleración más suave. Siempre que haya un vehículo delante o esté activo el «Modo experimental», openpilot vuelve a frenar con toda la intensidad para poder detenerse a tiempo.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;openpilot builds speed more like a person, holding back while your set speed is low and easing off as you close in on it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;At a 25 mph set speed you get roughly half the acceleration you otherwise would. On cars with a fixed launch push, this replaces that push with the same smooth target openpilot uses everywhere else, and the "Start Acceleration" row disappears while this is on.</source>
         <translation>&lt;b&gt;openpilot gana velocidad de forma más natural: limita la aceleración cuando la velocidad establecida es baja y la reduce progresivamente al acercarse a ella.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Con una velocidad establecida de 25 mph, la aceleración es aproximadamente la mitad de la habitual. En los coches con un impulso inicial fijo, lo sustituye por el mismo objetivo suave que openpilot usa en el resto de situaciones; mientras esté activado, se oculta la fila «Aceleración inicial».</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;openpilot follows the car ahead more naturally, reading where that car is headed so it eases off and starts braking earlier and softer instead of reacting late.&lt;/b&gt;&lt;br&gt;&lt;br&gt;On the default driving model this only works while openpilot can clearly see the car ahead. Older driving models need radar for it, and on a radarless car with an older model nothing changes.</source>
-        <translation>&lt;b&gt;openpilot sigue al vehículo delantero de forma más natural: interpreta hacia dónde se dirige para dejar de acelerar y empezar a frenar antes y con más suavidad, en lugar de reaccionar tarde.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Con el modelo de conducción predeterminado solo funciona mientras openpilot vea claramente el vehículo delantero. Los modelos anteriores necesitan radar; en un coche sin radar que use un modelo anterior, este ajuste no cambia nada.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;openpilot watches the cars in the lane it is moving into and adjusts its speed for them during a lane change.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without this it only reacts to the car directly ahead until the move is finished.</source>
-        <translation>&lt;b&gt;openpilot observa los vehículos del carril al que se incorpora y adapta la velocidad a ellos durante el cambio de carril.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Sin esta opción, solo reacciona al vehículo situado justo delante hasta terminar la maniobra.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How sure openpilot has to be that something in front of you is really a car before it starts following it and braking for it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Lower numbers pick up cars sooner and farther away, with more chances of reacting to something that is not a moving car. Higher numbers wait for a clearer look, so there are fewer false alarms but openpilot notices the car ahead later.&lt;br&gt;&lt;br&gt;Default: 35%.</source>
         <translation>&lt;b&gt;El grado de certeza que necesita openpilot para considerar que algo situado delante es realmente un vehículo antes de empezar a seguirlo y frenar por él.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Los valores bajos detectan vehículos antes y desde más lejos, pero aumentan la posibilidad de reaccionar ante algo que no sea un vehículo en movimiento. Los valores altos esperan una identificación más clara, con menos falsas alarmas, pero openpilot detecta más tarde el vehículo delantero.&lt;br&gt;&lt;br&gt;Valor predeterminado: 35 %.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;openpilot slows down more for left and right turns, using the trick comma built for their 2022 "Taco Bell Run" drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It never switches off, so it is still working on fast highway curves. What stops at about 45 mph is the ramp: openpilot allows more cornering force the faster you go, up to that speed, then holds it flat. That makes the slowdown most noticeable in slow, tight turns.</source>
-        <translation>&lt;b&gt;openpilot reduce más la velocidad en los giros a izquierda y derecha mediante el método que comma creó para su recorrido «Taco Bell Run» de 2022.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Nunca se desactiva, por lo que también actúa en curvas rápidas de autopista. Lo que termina alrededor de 45 mph es el aumento progresivo: openpilot permite más aceleración lateral cuanto mayor es la velocidad hasta llegar a ese punto y, a partir de ahí, la mantiene constante. Por eso la reducción de velocidad se nota más en giros lentos y cerrados.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Smaller changes to how openpilot handles the gas and brake.&lt;/b&gt;</source>
         <translation>&lt;b&gt;Pequeños ajustes en la forma en que openpilot controla el acelerador y el freno.&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>&lt;b&gt;How much your set speed moves with each tap of the + or - cruise button.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Set it to 1 to land on any speed exactly, or higher to get where you are going in fewer taps.</source>
-        <translation>&lt;b&gt;Cuánto cambia la velocidad establecida con cada pulsación del botón + o - del control de crucero.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Configúralo en 1 para poder elegir cualquier velocidad exacta, o en un valor mayor para llegar a ella con menos pulsaciones.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How much your set speed moves while you hold the + or - cruise button down.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The default is 5, against 1 for a single tap.</source>
-        <translation>&lt;b&gt;Cuánto cambia la velocidad establecida al mantener pulsado el botón + o - del control de crucero.&lt;/b&gt;&lt;br&gt;&lt;br&gt;El valor predeterminado es 5, frente a 1 con una pulsación breve.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Adds a set amount of extra room between you and the car ahead, and keeps that room at every speed, not just when you are stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You notice it most at red lights, where a few feet stops openpilot creeping up close. While moving, that same room means openpilot starts slowing a little sooner. "Traffic Mode" ignores this setting.</source>
         <translation>&lt;b&gt;Añade una distancia fija adicional respecto al vehículo delantero y la mantiene a cualquier velocidad, no solo cuando estás parado.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Se nota sobre todo en los semáforos, donde unos pocos pies impiden que openpilot avance hasta quedar demasiado cerca. En movimiento, ese mismo espacio hace que empiece a reducir la velocidad un poco antes. El «Modo de tráfico» ignora este ajuste.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Lets your car's "Eco" and "Sport" gear modes take over how openpilot speeds up, how it slows down, or both.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick "Acceleration", "Deceleration" or both with the buttons on this row, since neither starts on and nothing changes until you do.&lt;br&gt;&lt;br&gt;"Eco" gear makes openpilot accelerate gently and "Sport" gear makes it accelerate firmly. Braking goes the other way: "Eco" gear halves how hard openpilot can brake and "Sport" gear cuts it to a quarter, so "Sport" coasts the longest. The braking change only applies when there is no car ahead.</source>
-        <translation>&lt;b&gt;Permite que los modos de marcha «Eco» y «Sport» del coche controlen cómo acelera openpilot, cómo reduce la velocidad o ambas cosas.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Elige «Aceleración», «Desaceleración» o ambas mediante los botones de esta fila. Las dos opciones están desactivadas de forma predeterminada, así que nada cambia hasta que actives al menos una.&lt;br&gt;&lt;br&gt;El modo «Eco» hace que openpilot acelere con suavidad y «Sport» que lo haga con firmeza. En el frenado ocurre lo contrario: «Eco» reduce a la mitad la intensidad máxima de frenado y «Sport» la reduce a una cuarta parte, por lo que «Sport» deja avanzar más tiempo por inercia. El cambio de frenado solo se aplica cuando no hay ningún vehículo delante.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Every tap of the + cruise button raises your set speed by 5 instead of 1, the same amount you already get from holding it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Leave it off when you want to land on an exact speed like 63.</source>
@@ -2718,28 +2842,12 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>&lt;b&gt;Añade segundos adicionales de distancia respecto al vehículo delantero cuando hay poca visibilidad.&lt;/b&gt;&lt;br&gt;&lt;br&gt;La distancia total nunca supera los 3,00 segundos, por lo que solo añade el margen restante hasta ese límite.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Adds extra room between you and the car ahead in low visibility, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life".</source>
-        <translation>&lt;b&gt;Añade distancia adicional respecto al vehículo delantero cuando hay poca visibilidad, a cualquier velocidad y no solo al estar parado.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Se suma al mismo ajuste de «Mejoras prácticas».</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Holds openpilot back from accelerating as hard in low visibility.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Reduce la intensidad con la que acelera openpilot cuando hay poca visibilidad.&lt;/b&gt;</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;How openpilot drives in the rain.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These add to your normal settings rather than replacing them.</source>
         <translation>&lt;b&gt;Cómo conduce openpilot cuando llueve.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Estos ajustes se suman a los normales en lugar de sustituirlos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds extra seconds of space between you and the car ahead in rain.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your total gap never goes past 3.00 seconds, so this only adds what is left below that.</source>
         <translation>&lt;b&gt;Añade segundos adicionales de distancia respecto al vehículo delantero cuando llueve.&lt;/b&gt;&lt;br&gt;&lt;br&gt;La distancia total nunca supera los 3,00 segundos, por lo que solo añade el margen restante hasta ese límite.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Adds extra room between you and the car ahead in rain, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life".</source>
-        <translation>&lt;b&gt;Añade distancia adicional respecto al vehículo delantero cuando llueve, a cualquier velocidad y no solo al estar parado.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Se suma al mismo ajuste de «Mejoras prácticas».</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Holds openpilot back from accelerating as hard in rain.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for softer, more controlled pickup on a slippery road.</source>
-        <translation>&lt;b&gt;Reduce la intensidad con la que acelera openpilot cuando llueve.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Auméntalo para ganar velocidad con mayor suavidad y control en una carretera resbaladiza.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How openpilot drives in heavy rain.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These add to your normal settings rather than replacing them.</source>
@@ -2750,28 +2858,12 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>&lt;b&gt;Añade segundos adicionales de distancia respecto al vehículo delantero durante una lluvia intensa.&lt;/b&gt;&lt;br&gt;&lt;br&gt;La distancia total nunca supera los 3,00 segundos, por lo que solo añade el margen restante hasta ese límite.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Adds extra room between you and the car ahead in a rainstorm, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life".</source>
-        <translation>&lt;b&gt;Añade distancia adicional respecto al vehículo delantero durante una lluvia intensa, a cualquier velocidad y no solo al estar parado.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Se suma al mismo ajuste de «Mejoras prácticas».</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Holds openpilot back from accelerating as hard in a rainstorm.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for softer, more controlled pickup on a slippery road.</source>
-        <translation>&lt;b&gt;Reduce la intensidad con la que acelera openpilot durante una lluvia intensa.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Auméntalo para ganar velocidad con mayor suavidad y control en una carretera resbaladiza.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;How openpilot drives in snow.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These add to your normal settings rather than replacing them.</source>
         <translation>&lt;b&gt;Cómo conduce openpilot cuando nieva.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Estos ajustes se suman a los normales en lugar de sustituirlos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Adds extra seconds of space between you and the car ahead in snow.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your total gap never goes past 3.00 seconds, so this only adds what is left below that.</source>
         <translation>&lt;b&gt;Añade segundos adicionales de distancia respecto al vehículo delantero cuando nieva.&lt;/b&gt;&lt;br&gt;&lt;br&gt;La distancia total nunca supera los 3,00 segundos, por lo que solo añade el margen restante hasta ese límite.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Adds extra room between you and the car ahead in snow, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life".</source>
-        <translation>&lt;b&gt;Añade distancia adicional respecto al vehículo delantero cuando nieva, a cualquier velocidad y no solo al estar parado.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Se suma al mismo ajuste de «Mejoras prácticas».</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Holds openpilot back from accelerating as hard in snow.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for softer, more controlled pickup on a slippery road.</source>
-        <translation>&lt;b&gt;Reduce la intensidad con la que acelera openpilot cuando nieva.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Auméntalo para ganar velocidad con mayor suavidad y control en una carretera resbaladiza.</translation>
     </message>
     <message>
         <source>&lt;b&gt;The speed used by "Speed Limit Controller" when no speed limit is found.&lt;/b&gt;&lt;br&gt;&lt;br&gt;- &lt;b&gt;Set Speed&lt;/b&gt;: Use the cruise set speed&lt;br&gt;- &lt;b&gt;Experimental Mode&lt;/b&gt;: Let openpilot pick the speed from what the camera sees, never going above your set speed&lt;br&gt;- &lt;b&gt;Previous Limit&lt;/b&gt;: Keep using the last confirmed limit</source>
@@ -2806,34 +2898,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>&lt;b&gt;Circular una cantidad determinada por encima o por debajo del límite de velocidad indicado.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Cada intervalo de velocidad siguiente tiene su propio ajuste.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 0 and 24 mph.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Cuánto circula openpilot por encima o por debajo del límite indicado entre 0 y 24 mph.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 25 and 34 mph.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Cuánto circula openpilot por encima o por debajo del límite indicado entre 25 y 34 mph.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 35 and 44 mph.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Cuánto circula openpilot por encima o por debajo del límite indicado entre 35 y 44 mph.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 45 and 54 mph.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Cuánto circula openpilot por encima o por debajo del límite indicado entre 45 y 54 mph.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 55 and 64 mph.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Cuánto circula openpilot por encima o por debajo del límite indicado entre 55 y 64 mph.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 65 and 74 mph.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Cuánto circula openpilot por encima o por debajo del límite indicado entre 65 y 74 mph.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 75 and 99 mph.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Cuánto circula openpilot por encima o por debajo del límite indicado entre 75 y 99 mph.&lt;/b&gt;</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Change how "Speed Limit Controller" appears on the driving screen.&lt;/b&gt;</source>
         <translation>&lt;b&gt;Cambia cómo aparece el «Controlador del límite de velocidad» en la pantalla de conducción.&lt;/b&gt;</translation>
     </message>
@@ -2854,10 +2918,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation> m/s²/s</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Switch to "Experimental Mode" below this speed when you are close behind the car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"With Lead" means right up behind it, not just any car ahead. Below about 10 mph that window is narrower than the gap openpilot itself keeps, so the car stops counting and the "Below" value is used instead.</source>
-        <translation>&lt;b&gt;Cambiar al «Modo experimental» por debajo de esta velocidad cuando estés muy cerca del vehículo delantero.&lt;/b&gt;&lt;br&gt;&lt;br&gt;«Cerca del vehículo delantero» significa estar justo detrás de él, no simplemente que haya algún vehículo por delante. Por debajo de unas 10 mph, ese intervalo es más estrecho que la distancia que mantiene el propio openpilot, por lo que el vehículo deja de cumplir la condición y se usa en su lugar el valor «Por debajo de».</translation>
-    </message>
-    <message>
         <source>Gentle</source>
         <translation>Suave</translation>
     </message>
@@ -2870,48 +2930,16 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>Eco+</translation>
     </message>
     <message>
-        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 0 and 29 km/h.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Cuánto circula openpilot por encima o por debajo del límite indicado entre 0 y 29 km/h.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 30 and 49 km/h.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Cuánto circula openpilot por encima o por debajo del límite indicado entre 30 y 49 km/h.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 50 and 59 km/h.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Cuánto circula openpilot por encima o por debajo del límite indicado entre 50 y 59 km/h.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 60 and 79 km/h.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Cuánto circula openpilot por encima o por debajo del límite indicado entre 60 y 79 km/h.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 80 and 99 km/h.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Cuánto circula openpilot por encima o por debajo del límite indicado entre 80 y 99 km/h.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 100 and 119 km/h.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Cuánto circula openpilot por encima o por debajo del límite indicado entre 100 y 119 km/h.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How far above or below the posted limit openpilot drives between 120 and 140 km/h.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Cuánto circula openpilot por encima o por debajo del límite indicado entre 120 y 140 km/h.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Switch to "Experimental Mode" whenever the driving model "detects" a red light or stop sign.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only fires when there is no car close ahead of you, so it stays quiet when you roll up to a red light behind traffic.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
-        <translation>&lt;b&gt;Cambie a "Modo experimental" cada vez que el modelo de conducción "detecta" un semáforo en rojo o una señal de alto.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Solo se dispara cuando no hay ningún automóvil delante de usted, por lo que permanece en silencio cuando se acerca a un semáforo en rojo detrás del tráfico.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Descargo de responsabilidad&lt;/b&gt;: openpilot no detecta explícitamente semáforos ni señales de alto. En "Modo experimental", openpilot toma decisiones de conducción de un extremo a otro a partir de la entrada de la cámara, lo que significa que puede detenerse incluso cuando no hay una razón clara.&lt;/i&gt;</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;How smoothly openpilot changes its acceleration any time your car is not slowing down with the "Aggressive" profile, not just when pulling away from a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler starts and pickup. Lower it for faster but more abrupt ones. "Speed-Up Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
         <translation>&lt;b&gt;Con qué suavidad openpilot cambia su aceleración cada vez que su automóvil no está desacelerando con el perfil "Agresivo", no solo cuando se aleja de una parada.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Levántelo para arranques y aceleraciones más suaves. Bájalo para unos más rápidos pero más bruscos. "Respuesta al aumentar la velocidad" es un segundo control de suavidad sobre esos mismos momentos, y éste se apaga por completo mientras el coche está parado. El "Modo de tráfico" ignora ambos y utiliza sus propios valores fijos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its braking any time your car is slowing down with the "Aggressive" profile, not just when coming to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler stops and slowdowns. Lower it for quicker but sharper ones. "Slowdown Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation>&lt;b&gt;Con qué suavidad openpilot cambia su frenado cada vez que su automóvil está desacelerando con el perfil "Agresivo", no solo cuando se detiene.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Levántelo para paradas y desaceleraciones más suaves. Bájalo para unos más rápidos pero más nítidos. "Respuesta al reducir la velocidad" es un segundo control de suavidad sobre esos mismos momentos, y éste se apaga por completo mientras el coche está parado. El "Modo de tráfico" ignora ambos y utiliza sus propios valores fijos.</translation>
+        <translation>&lt;b&gt;Con qué suavidad openpilot cambia su frenado cada vez que su automóvil está desacelerando con el perfil "Agresivo", no solo cuando se detiene.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Levántelo para paradas y desaceleraciones más suaves. Bájelo para paradas y desaceleraciones más rápidas, pero más bruscas. "Respuesta al reducir la velocidad" es un segundo control de suavidad sobre esos mismos momentos, y éste se apaga por completo mientras el coche está parado. El "Modo de tráfico" ignora ambos y utiliza sus propios valores fijos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot sheds speed any time your car is slowing down with the "Aggressive" profile, like easing off for a slower car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual slowdowns. Lower it for faster but sharper ones. It works alongside "Braking Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation>&lt;b&gt;Con qué suavidad openpilot reduce la velocidad cada vez que su automóvil reduce la velocidad con el perfil "Agresivo", como al reducir la velocidad para un automóvil más lento adelante.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Levántelo para desaceleraciones más graduales. Bájalo para obtener unos más rápidos pero más nítidos. Funciona junto con "Suavidad de frenado", un control independiente sobre esos mismos momentos. El "Modo de tráfico" ignora ambos y utiliza sus propios valores fijos.</translation>
+        <translation>&lt;b&gt;Con qué suavidad openpilot reduce la velocidad cada vez que su automóvil reduce la velocidad con el perfil "Agresivo", como al reducir la velocidad para un automóvil más lento adelante.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Levántelo para desaceleraciones más graduales. Bájelo para obtener desaceleraciones más rápidas, pero más bruscas. Funciona junto con "Suavidad de frenado", un control independiente sobre esos mismos momentos. El "Modo de tráfico" ignora ambos y utiliza sus propios valores fijos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot builds speed any time your car is not slowing down with the "Aggressive" profile, like catching up to your set speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual pickup. Lower it for quicker but more jolting pickup. It works alongside "Acceleration Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
@@ -2923,11 +2951,11 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its braking any time your car is slowing down with the "Standard" profile, not just when coming to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler stops and slowdowns. Lower it for quicker but sharper ones. "Slowdown Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation>&lt;b&gt;Con qué suavidad openpilot cambia su frenado cada vez que su automóvil está desacelerando con el perfil "Estándar", no solo cuando se detiene.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Levántelo para paradas y desaceleraciones más suaves. Bájalo para unos más rápidos pero más nítidos. "Respuesta al reducir la velocidad" es un segundo control de suavidad sobre esos mismos momentos, y éste se apaga por completo mientras el coche está parado. El "Modo de tráfico" ignora ambos y utiliza sus propios valores fijos.</translation>
+        <translation>&lt;b&gt;Con qué suavidad openpilot cambia su frenado cada vez que su automóvil está desacelerando con el perfil "Estándar", no solo cuando se detiene.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Levántelo para paradas y desaceleraciones más suaves. Bájelo para paradas y desaceleraciones más rápidas, pero más bruscas. "Respuesta al reducir la velocidad" es un segundo control de suavidad sobre esos mismos momentos, y éste se apaga por completo mientras el coche está parado. El "Modo de tráfico" ignora ambos y utiliza sus propios valores fijos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot sheds speed any time your car is slowing down with the "Standard" profile, like easing off for a slower car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual slowdowns. Lower it for faster but sharper ones. It works alongside "Braking Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation>&lt;b&gt;Con qué suavidad openpilot reduce la velocidad cada vez que su automóvil reduce la velocidad con el perfil "Estándar", como al reducir la velocidad para un automóvil más lento adelante.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Levántelo para desaceleraciones más graduales. Bájalo para obtener unos más rápidos pero más nítidos. Funciona junto con "Suavidad de frenado", un control independiente sobre esos mismos momentos. El "Modo de tráfico" ignora ambos y utiliza sus propios valores fijos.</translation>
+        <translation>&lt;b&gt;Con qué suavidad openpilot reduce la velocidad cada vez que su automóvil reduce la velocidad con el perfil "Estándar", como al reducir la velocidad para un automóvil más lento adelante.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Levántelo para desaceleraciones más graduales. Bájelo para obtener desaceleraciones más rápidas, pero más bruscas. Funciona junto con "Suavidad de frenado", un control independiente sobre esos mismos momentos. El "Modo de tráfico" ignora ambos y utiliza sus propios valores fijos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot builds speed any time your car is not slowing down with the "Standard" profile, like catching up to your set speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual pickup. Lower it for quicker but more jolting pickup. It works alongside "Acceleration Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
@@ -2939,31 +2967,15 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot changes its braking any time your car is slowing down with the "Relaxed" profile, not just when coming to a stop.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for gentler stops and slowdowns. Lower it for quicker but sharper ones. "Slowdown Response" is a second smoothness control over those same moments, and this one is switched off entirely while your car is sitting still. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation>&lt;b&gt;Con qué suavidad openpilot cambia su frenado cada vez que su automóvil está desacelerando con el perfil "Relajado", no solo cuando se detiene.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Levántelo para paradas y desaceleraciones más suaves. Bájalo para unos más rápidos pero más nítidos. "Respuesta al reducir la velocidad" es un segundo control de suavidad sobre esos mismos momentos, y éste se apaga por completo mientras el coche está parado. El "Modo de tráfico" ignora ambos y utiliza sus propios valores fijos.</translation>
+        <translation>&lt;b&gt;Con qué suavidad openpilot cambia su frenado cada vez que su automóvil está desacelerando con el perfil "Relajado", no solo cuando se detiene.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Levántelo para paradas y desaceleraciones más suaves. Bájelo para paradas y desaceleraciones más rápidas, pero más bruscas. "Respuesta al reducir la velocidad" es un segundo control de suavidad sobre esos mismos momentos, y éste se apaga por completo mientras el coche está parado. El "Modo de tráfico" ignora ambos y utiliza sus propios valores fijos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot sheds speed any time your car is slowing down with the "Relaxed" profile, like easing off for a slower car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual slowdowns. Lower it for faster but sharper ones. It works alongside "Braking Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
-        <translation>&lt;b&gt;Con qué suavidad openpilot reduce la velocidad cada vez que su automóvil reduce la velocidad con el perfil "Relajado", como al reducir la velocidad para un automóvil más lento adelante.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Levántelo para desaceleraciones más graduales. Bájalo para obtener unos más rápidos pero más nítidos. Funciona junto con "Suavidad de frenado", un control independiente sobre esos mismos momentos. El "Modo de tráfico" ignora ambos y utiliza sus propios valores fijos.</translation>
+        <translation>&lt;b&gt;Con qué suavidad openpilot reduce la velocidad cada vez que su automóvil reduce la velocidad con el perfil "Relajado", como al reducir la velocidad para un automóvil más lento adelante.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Levántelo para desaceleraciones más graduales. Bájelo para obtener desaceleraciones más rápidas, pero más bruscas. Funciona junto con "Suavidad de frenado", un control independiente sobre esos mismos momentos. El "Modo de tráfico" ignora ambos y utiliza sus propios valores fijos.</translation>
     </message>
     <message>
         <source>&lt;b&gt;How smoothly openpilot builds speed any time your car is not slowing down with the "Relaxed" profile, like catching up to your set speed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for more gradual pickup. Lower it for quicker but more jolting pickup. It works alongside "Acceleration Smoothness", a separate control over those same moments. "Traffic Mode" ignores both and uses its own fixed values.</source>
         <translation>&lt;b&gt;Con qué suavidad acelera openpilot cada vez que su automóvil no está desacelerando con el perfil "Relajado", como si alcanzara la velocidad establecida.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Levántelo para una aceleración más gradual. Bájelo para una aceleración más rápida pero más sacudida. Funciona junto con "Suavidad de aceleración", un control independiente sobre esos mismos momentos. El "Modo de tráfico" ignora ambos y utiliza sus propios valores fijos.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;openpilot comes to a full stop whenever it thinks it sees a red light or stop sign, whether or not "Experimental Mode" is running.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only kicks in when openpilot is not already tracking a car ahead, so behind a queue at a light your normal following does the stopping instead. Touching the gas cancels a forced stop for the next 10 seconds.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Heads up&lt;/b&gt;: openpilot never actually reads traffic lights or stop signs. It decides from what the camera sees, so it can stop when there is no reason to.&lt;/i&gt;</source>
-        <translation>&lt;b&gt;openpilot se detiene por completo cada vez que cree que ve un semáforo en rojo o una señal de alto, ya sea que "Modo experimental" esté en marcha o no.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Solo se activa cuando openpilot no está siguiendo a un automóvil adelante, por lo que detrás de una cola en un semáforo, sus seguidores normales son los que se detienen. Tocar el acelerador cancela una parada forzada durante los siguientes 10 segundos.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Aviso&lt;/b&gt;: openpilot nunca lee los semáforos ni las señales de alto. Decide en función de lo que ve la cámara, por lo que puede detenerse cuando no hay motivo para hacerlo.&lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Adds an extra amount on top of the "Cruise Interval (Hold)" step, but only when you press and hold the + cruise button.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The - button does not mirror it. Holding - moves your set speed down by twice the "Cruise Interval (Hold)" amount minus this offset, so with the shipped 5 hold interval and 5 chosen here you just get a plain 5 down. A quick tap is never affected, and 0 turns this off.</source>
-        <translation>&lt;b&gt;Agrega una cantidad adicional además del paso "Intervalo del control de crucero (pulsación prolongada)", pero solo cuando presiona y mantiene presionado el botón de crucero +.&lt;/b&gt;&lt;br&gt;&lt;br&gt;El botón - no lo refleja. Mantener presionado - reduce la velocidad establecida en el doble de la cantidad "Intervalo del control de crucero (pulsación prolongada)" menos este desplazamiento, por lo que con el intervalo de mantenimiento predeterminado 5 y 5 elegido aquí, simplemente obtienes un 5 simple. Un toque rápido nunca se ve afectado y 0 lo desactiva.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Hold openpilot's max speed to the posted speed limit.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The limit comes from your downloaded maps, Mapbox, "Navigate on openpilot", or, on supported Ford, Genesis, Hyundai, Kia, Lexus and Toyota models, your dashboard.</source>
-        <translation>&lt;b&gt;Limita la velocidad máxima de openpilot al límite de velocidad indicado.&lt;/b&gt;&lt;br&gt;&lt;br&gt;El límite procede de los mapas descargados, Mapbox, «Navegar con openpilot» o el cuadro de instrumentos de modelos compatibles de Ford, Genesis, Hyundai, Kia, Lexus y Toyota.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Choose which sources openpilot checks for the speed limit and in what order, or have it always use the highest or lowest limit being reported.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick up to two sources and openpilot uses the first one that currently has a limit. "Highest" and "Lowest" ignore the order and take the fastest or slowest limit any source reports, so one wrong map entry can hold you well below the posted limit.</source>
-        <translation>&lt;b&gt;Elige qué fuentes consulta openpilot para obtener el límite de velocidad y en qué orden, o haz que use siempre el límite más alto o más bajo informado.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Selecciona hasta dos fuentes y openpilot usará la primera que disponga de un límite en ese momento. «Más alto» y «Más bajo» ignoran el orden y toman el límite mayor o menor que comunique cualquiera de las fuentes, por lo que una entrada de mapa incorrecta puede mantenerte muy por debajo del límite indicado.</translation>
     </message>
     <message>
         <source>&lt;b&gt;openpilot slows down on its own for curves ahead, and you pick how fast it takes them with "Curve Speed Profile".&lt;/b&gt;&lt;br&gt;&lt;br&gt;It comes set to "Adaptive", which learns how you prefer to take curves.</source>
@@ -2974,16 +2986,224 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>&lt;b&gt;La intensidad con la que tomas las curvas, aprendida de tu propia conducción.&lt;/b&gt;&lt;br&gt;&lt;br&gt;El perfil «Adaptativo» usa este valor para tomar las curvas como tú, pero nunca con más exigencia de la que la dirección ha demostrado poder soportar. Un valor más alto implica mantener más velocidad en las curvas; uno más bajo, tomarlas con mayor suavidad.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;How fast openpilot takes curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Gentle" and "Standard" hold to a fixed, relaxed pace, "Sport" uses your car's maximum configured or live-tuned cornering limit, and "Adaptive" learns how you prefer to take curves.</source>
-        <translation>&lt;b&gt;La velocidad con la que openpilot toma las curvas.&lt;/b&gt;&lt;br&gt;&lt;br&gt;«Suave» y «Estándar» mantienen un ritmo fijo y tranquilo; «Sport» usa el límite máximo en curvas configurado o ajustado en tiempo real para tu coche, y «Adaptativo» aprende cómo prefieres tomar las curvas.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Throw away everything openpilot has learned about how you take curves and start over.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Adaptive" goes back to its starting value and relearns as you drive. Only available while the car is off.</source>
         <translation>&lt;b&gt;Descarta todo lo que openpilot ha aprendido sobre tu forma de tomar las curvas y empieza de nuevo.&lt;/b&gt;&lt;br&gt;&lt;br&gt;«Adaptativo» vuelve a su valor inicial y aprende de nuevo mientras conduces. Solo está disponible con el coche apagado.</translation>
     </message>
     <message>
         <source>Adaptive</source>
         <translation>Adaptativo</translation>
+    </message>
+    <message>
+        <source>Acceleration and Braking</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How gently openpilot slows down when the road ahead is clear.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Standard" brakes at full strength, "Eco" brakes about half as hard so you coast more, and "Eco+" just lets off the gas and coasts, so it slows quicker uphill and barely slows on a steep downhill until the road levels out. Whenever there is a car ahead, or while "Experimental Mode" is running, openpilot goes back to full-strength braking so it can still stop in time.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot follows the car ahead more naturally, reading where that car is headed so it eases off and starts braking earlier and softer instead of reacting late.&lt;/b&gt;&lt;br&gt;&lt;br&gt;On the default driving model this only works while openpilot can clearly see the car ahead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch to "Experimental Mode" for a predicted stop, except while following a detected lead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It keeps checking for a possible stop behind that lead and can trigger once the lead is no longer tracked. "Traffic Mode" turns this condition off.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch to "Experimental Mode" when you need to brake for the car ahead.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Slower Lead" covers a car that is slowing down or much slower than you, and "Stopped Lead" covers a car that is stopped or about to stop. Gently catching up to a slightly slower car stays in normal driving. Both start off, so pick at least one with the buttons on this row or nothing happens.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop Detection Sensitivity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Adjust when a predicted stop can switch to "Experimental Mode". Higher values can trigger earlier; lower values are less sensitive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The seconds value is a sensitivity setting, not an exact countdown to a stop. While following a detected lead, it keeps checking for a possible stop and can trigger once that lead is no longer tracked. "Traffic Mode" turns this condition off.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not explicitly detect traffic lights or stop signs. In "Experimental Mode", openpilot makes end-to-end driving decisions from camera input, which means it may stop even when there's no clear reason!&lt;/i&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch to "Experimental Mode" when you signal below the set speed. Turn on "Not For Detected Lanes" to suppress this when an adjacent lane is detected as you start signalling.&lt;/b&gt;&lt;br&gt;&lt;br&gt;With the button off, any signal below the set speed can trigger it. With it on, the space beside you must be narrower than the "Minimum Lane Width" under "Lane Changes" in the "STEERING" panel when you start signalling, or you must be below the "Minimum Lane Change Speed". That width starts at zero, so raise it to use lane detection. Lane estimates can miss an adjacent lane.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lets your car's "Eco" and "Sport" gear modes take over how openpilot speeds up, how it slows down, or both.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick "Acceleration", "Deceleration" or both with the buttons on this row, since neither starts on and nothing changes until you do.&lt;br&gt;&lt;br&gt;"Eco" gear makes openpilot accelerate gently and "Sport" gear makes it accelerate firmly. For braking, "Eco" gear halves how hard openpilot can brake and "Sport" gear brakes at full strength. The braking change only applies when there is no car ahead.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Use your own "OpenWeatherMap" key for weather requests every minute.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Requires a One Call API 4.0 subscription. Without a working personal key, FrogPilot tries shared weather with a 15-minute request interval. Your saved key is kept.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Hold openpilot's max speed to the posted speed limit.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The limit comes from your downloaded maps, Mapbox, speed limit signs read by the road camera, or, on supported Ford, Genesis, Hyundai, Kia, Lexus and Toyota models, your dashboard.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Speed Limit Changes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Choose which sources openpilot checks for the speed limit and in what order, or have it always use the highest or lowest limit being reported.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Pick up to three sources and openpilot uses the first one that currently has a limit. "Camera" is openpilot reading speed limit signs with the road camera. "Highest" and "Lowest" ignore the order and take the fastest or slowest limit any source reports, so one wrong map entry can hold you well below the posted limit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 0 and 24 mph.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 25 and 34 mph.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 35 and 44 mph.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 45 and 54 mph.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 55 and 64 mph.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 65 and 74 mph.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 75 and 99 mph.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select your tertiary priority</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Key is valid for OpenWeatherMap One Call API 4.0!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OpenWeatherMap returned incomplete weather data. Try again later.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OpenWeatherMap did not accept this key for One Call API 4.0. Check the key and make sure it has a One Call API 4.0 subscription. Until then, FrogPilot uses shared weather, updated every 15 minutes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OpenWeatherMap's request limit was reached. Try again later.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OpenWeatherMap request failed (HTTP %1).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Could not reach OpenWeatherMap. Check your connection and try again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 0 and 29 km/h.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 30 and 49 km/h.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 50 and 59 km/h.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 60 and 79 km/h.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 80 and 99 km/h.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 100 and 119 km/h.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How far above or below the posted limit openpilot drives on roads posted between 120 and 140 km/h.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot watches the cars in the lane it is moving into and adjusts its speed for them during a lane change.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without this it only reacts to the car directly ahead until the move is finished. It only takes over while openpilot is already tracking a car ahead, so with a clear lane in front of you nothing changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;When the speed openpilot plans to be doing over the next second drops below this, it treats your car as stopped and switches to holding the brakes.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it to settle into the stop earlier and more smoothly. Lower it to keep normal braking going longer, at the risk of rolling past your mark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How much your set speed moves with each tap of the + or - cruise button.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Set it to 1 to land on any speed exactly, or higher to get where you are going in fewer taps. When this is 5 or another multiple of 5, a tap from a set speed in between only goes as far as the next multiple of it, so with 5 a set speed of 63 becomes 65 or 60.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How much your set speed moves while you hold the + or - cruise button down.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The default is 5, against 1 for a single tap. When this is 5 or another multiple of 5, the first step from a set speed in between only goes as far as the next multiple of it, so with 5 a set speed of 63 becomes 65 or 60.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot comes to a full stop whenever it thinks it sees a red light or stop sign, whether or not "Experimental Mode" is running.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only kicks in when openpilot is not already tracking a car ahead, so behind a queue at a light your normal following does the stopping instead. Touching the gas cancels a forced stop. "Traffic Mode" turns this off.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Heads up&lt;/b&gt;: openpilot never actually reads traffic lights or stop signs. It decides from what the camera sees, so it can stop when there is no reason to.&lt;/i&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Adds an extra amount on top of the "Cruise Interval (Hold)" step, but only when you press and hold the + cruise button.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The - button does not mirror it. Holding - takes the normal hold step down and then moves down by one more "Cruise Interval (Hold)" amount minus this offset, so with a hold interval of 5 and 5 chosen here you just get the normal hold step down, as you also do with any offset above the hold interval. A quick tap is never affected, and 0 turns this off.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Adds extra room between you and the car ahead in low visibility, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life". "Traffic Mode" ignores both.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Holds openpilot back from accelerating as hard in low visibility.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This does not apply while "Experimental Mode" is running.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Adds extra room between you and the car ahead in rain, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life". "Traffic Mode" ignores both.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Holds openpilot back from accelerating as hard in rain.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for softer, more controlled pickup on a slippery road. This does not apply while "Experimental Mode" is running.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Adds extra room between you and the car ahead in a rainstorm, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life". "Traffic Mode" ignores both.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Holds openpilot back from accelerating as hard in a rainstorm.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for softer, more controlled pickup on a slippery road. This does not apply while "Experimental Mode" is running.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Adds extra room between you and the car ahead in snow, at every speed and not just when stopped.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This stacks on top of the same setting under "Quality of Life". "Traffic Mode" ignores both.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Holds openpilot back from accelerating as hard in snow.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it for softer, more controlled pickup on a slippery road. This does not apply while "Experimental Mode" is running.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Switch to "Experimental Mode" below this speed when openpilot is tracking a car ahead of you.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This replaces the "Below" value whenever there is a car ahead. It switches on once you are moving at walking pace or faster, and can then stay on as you crawl or stop behind that car.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>"Taco Bell Run" Turn Speed Hack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;openpilot slows down more for left and right turns, using the trick comma built for their 2022 "Taco Bell Run" drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It does nothing while "Curve Speed Controller" is on. Otherwise it never switches off, so it is still working on fast highway curves. What stops at about 45 mph is the ramp: openpilot allows more cornering force the faster you go, up to that speed, then holds it flat. That makes the slowdown most noticeable in slow, tight turns.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How fast openpilot takes curves.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Gentle" and "Standard" hold to a fixed, relaxed pace, "Sport" uses your car's maximum configured or learned cornering limit, and "Adaptive" learns how you prefer to take curves.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3120,20 +3340,12 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>Sin conexión...</translation>
     </message>
     <message>
-        <source>0 MB</source>
-        <translation>0 MB</translation>
-    </message>
-    <message>
         <source>Calculating...</source>
         <translation>Calculando...</translation>
     </message>
     <message>
         <source>Not parked</source>
         <translation>Vehículo no estacionado</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;How often openpilot re-downloads the speed limit map data for the places you picked under "Map Sources". "Weekly" runs every Sunday, "Monthly" runs on the 1st, and "Manually" waits until you press "DOWNLOAD" yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;There is one exception. Whenever the map data is missing from the device, openpilot starts the download on its own, usually within the hour, and that one is not held back until you park.</source>
-        <translation>&lt;b&gt;Frecuencia con la que openpilot vuelve a descargar los datos cartográficos de límites de velocidad de los lugares elegidos en «Fuentes de mapas». «Semanalmente» se ejecuta cada domingo, «Mensualmente» el día 1 y «Manualmente» espera hasta que pulses «DESCARGAR».&lt;/b&gt;&lt;br&gt;&lt;br&gt;Hay una excepción: cuando faltan los datos de mapas en el dispositivo, openpilot inicia la descarga por sí solo, normalmente en menos de una hora, sin esperar a que estaciones.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Start downloading the speed limit map data for the places you picked under "Map Sources".&lt;/b&gt;&lt;br&gt;&lt;br&gt;Your car has to be parked and online. Large areas can take hours and use several gigabytes.</source>
@@ -3144,20 +3356,32 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>Nunca</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Pick the countries or U.S. states you drive in, so openpilot knows their speed limits.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only what you pick here gets downloaded, so pick as little as covers your driving.</source>
-        <translation>&lt;b&gt;Elige los países o estados de EE. UU. por los que conduces para que openpilot conozca sus límites de velocidad.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Solo se descarga lo que selecciones aquí, así que elige la menor cantidad de zonas que cubra tus trayectos.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Delete your downloaded map data and clear the places you picked under "Map Sources", to free up storage.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Nothing comes back on its own, so "Speed Limit Controller" has no map speed limits until you pick your places again and start a new download.</source>
-        <translation>&lt;b&gt;Elimina los datos de mapas descargados y borra los lugares elegidos en «Fuentes de mapas» para liberar espacio.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Nada se recupera automáticamente, por lo que el «Controlador del límite de velocidad» no tendrá límites procedentes del mapa hasta que vuelvas a elegir las zonas e inicies una nueva descarga.</translation>
-    </message>
-    <message>
         <source>Delete all downloaded maps and clear your selected map sources?</source>
         <translation>¿Eliminar todos los mapas descargados y borrar las fuentes de mapas seleccionadas?</translation>
     </message>
     <message>
         <source>Select your map sources</source>
         <translation>Selecciona tus fuentes de mapas</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Pick the countries or U.S. states you drive in, so openpilot knows their speed limits.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Map data within about 60 miles (100 km) of where you park downloads on its own, so pick only what covers the rest of your driving.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Delete your downloaded map data and clear the places you picked under "Map Sources", to free up storage.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only the map data around where you park comes back on its own, the next time the device is on Wi-Fi. Everywhere else, "Speed Limit Controller" has no map speed limits until you pick your places again and start a new download.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Removing...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Some map data could not be removed. Try again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;How often openpilot re-downloads the speed limit map data for the places you picked under "Map Sources". "Weekly" runs every Sunday, "Monthly" runs on the 1st, and "Manually" waits until you press "DOWNLOAD" yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;There is one exception. Whenever the map data is missing from the device, openpilot starts the download on its own, usually within the hour. Automatic downloads only start on an unmetered connection, such as Wi-Fi, and unlike "DOWNLOAD" they do not wait until you park.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3199,10 +3423,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>ELIMINAR TODO</translation>
     </message>
     <message>
-        <source>Select a driving model to delete</source>
-        <translation>Selecciona un modelo de conducción para eliminarlo</translation>
-    </message>
-    <message>
         <source>Are you sure you want to delete the "%1" model?</source>
         <translation>¿Seguro que quieres eliminar el modelo «%1»?</translation>
     </message>
@@ -3221,10 +3441,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
     <message>
         <source>CANCEL</source>
         <translation>CANCELAR</translation>
-    </message>
-    <message>
-        <source>Select a driving model to download</source>
-        <translation>Selecciona un modelo de conducción para descargarlo</translation>
     </message>
     <message>
         <source>ADD</source>
@@ -3311,20 +3527,8 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>GitHub y GitLab no están disponibles...</translation>
     </message>
     <message>
-        <source>Repository unavailable</source>
-        <translation>Repositorio no disponible</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Download new driving models on their own as they are released, so they are ready when you want to try one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This runs whenever the device is online, including while you are driving. It also grabs every model that is not already on the device, not just newly released ones, so anything you removed with "Delete Driving Models" comes back.</source>
         <translation>&lt;b&gt;Descarga automáticamente los modelos de conducción nuevos a medida que se publican para que estén listos cuando quieras probarlos.&lt;/b&gt;&lt;br&gt;&lt;br&gt;La descarga se ejecuta siempre que el dispositivo tenga conexión, incluso mientras conduces. También obtiene todos los modelos que no estén ya en el dispositivo, no solo los recién publicados, por lo que volverá a descargar todo lo que elimines con «Eliminar modelos de conducción».</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Remove driving models you have downloaded to free up storage.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DELETE" picks one, "DELETE ALL" removes the rest. The model you are currently using and the one FrogPilot ships with are always kept. Turn "Automatically Download New Models" off first, or anything you delete is downloaded again within the hour.</source>
-        <translation>&lt;b&gt;Elimina modelos de conducción descargados para liberar espacio.&lt;/b&gt;&lt;br&gt;&lt;br&gt;«ELIMINAR» permite elegir uno y «ELIMINAR TODO» borra los demás. Siempre se conservan el modelo que estás usando y el incluido con FrogPilot. Desactiva primero «Descargar automáticamente modelos nuevos» o todo lo que elimines volverá a descargarse en menos de una hora.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Download driving models onto the device so you can switch to them.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DOWNLOAD" picks one, "DOWNLOAD ALL" fetches everything. Your car has to be parked and online, and models are large, so this can take a while.</source>
-        <translation>&lt;b&gt;Descarga modelos de conducción en el dispositivo para poder cambiar entre ellos.&lt;/b&gt;&lt;br&gt;&lt;br&gt;«DESCARGAR» permite elegir uno y «DESCARGAR TODO» obtiene todos. El vehículo debe estar estacionado y conectado a Internet. Los modelos ocupan bastante espacio, por lo que el proceso puede tardar.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Picks a different driving model for you at the start of every drive, then asks how it went when you park, so you can work out which one you like best.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only chooses from models you have downloaded and have not blacklisted, and it only asks for a rating after drives longer than 15 minutes. Your ratings are saved under "Manage Model Ratings" for you to compare.</source>
@@ -3383,48 +3587,74 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>Puntuación: %1 %</translation>
     </message>
     <message>
-        <source>Update Model Manager</source>
-        <translation>Actualizar el Administrador de Modelos</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Update the "Model Manager" so it can handle the latest models.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Actualice el "Administrador de modelos" para que pueda manejar los últimos modelos.&lt;/b&gt;</translation>
-    </message>
-    <message>
-        <source>Tinygrad is out of date and must be updated before you can download new models. Update now?</source>
-        <translation>Tinygrad está desactualizado y debe actualizarse antes de poder descargar modelos nuevos. ¿Actualizar ahora?</translation>
-    </message>
-    <message>
-        <source>Updating Tinygrad will delete all existing Tinygrad-based models which will need to be re-downloaded. Proceed?</source>
-        <translation>Actualizar Tinygrad eliminará todos los modelos basados en Tinygrad existentes, que deberán volver a descargarse. ¿Continuar?</translation>
-    </message>
-    <message>
-        <source>Updating...</source>
-        <translation>Actualizando...</translation>
-    </message>
-    <message>
         <source>Select a Model</source>
         <translation>Seleccione un modelo</translation>
     </message>
     <message>
-        <source>UPDATE</source>
-        <translation>ACTUALIZAR</translation>
+        <source>Not parked</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Cancelling...</source>
-        <translation>Cancelando...</translation>
+        <source>&lt;b&gt;Remove driving models you have downloaded to free up storage.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DELETE" lets you pick which ones, "DELETE ALL" removes the rest. The model you are currently using and the one FrogPilot ships with are always kept. Turn "Automatically Download New Models" off first, or anything you delete is downloaded again within the hour.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Updating Tinygrad will delete existing Tinygrad-based driving models and need to be re-downloaded. Proceed?</source>
-        <translation>Actualizar Tinygrad eliminará los modelos de conducción basados en Tinygrad existentes y será necesario volver a descargarlos. ¿Continuar?</translation>
+        <source>&lt;b&gt;Download driving models onto the device so you can switch to them.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DOWNLOAD" lets you pick which ones, "DOWNLOAD ALL" fetches everything. Your car has to be parked and online, and models are large, so this can take a while.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Update available!</source>
-        <translation>¡Actualización disponible!</translation>
+        <source>Choose driving models to delete</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Up to date!</source>
-        <translation>¡Actualizado!</translation>
+        <source>Are you sure you want to delete these %1 models?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose driving models to download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FrogPilotModelReview</name>
+    <message>
+        <source>How would you rate that drive?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blacklist this model to remove it from rotation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Blacklist Model</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Model successfully blacklisted!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Model used during that drive:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rating: %1% over %2 drive</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rating: %1% over %2 drives</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FrogPilotMultiOptionDialog</name>
+    <message>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3506,10 +3736,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>&lt;b&gt;Abre esta dirección en un navegador conectado a la misma red Wi-Fi para acceder a «The Pond», donde puedes buscar destinos y enviarlos a tu vehículo.&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Lets you search for a destination and preview the route without paying for comma's subscription.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You make this key yourself on Mapbox's website. Navigation stays locked until both this and the "Secret Mapbox Key" are set, so add both. "Mapbox Setup Instructions" walks you through it.</source>
-        <translation>&lt;b&gt;Permite buscar un destino y previsualizar la ruta sin pagar la suscripción de comma.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Tú mismo creas esta clave en el sitio web de Mapbox. La navegación permanece bloqueada hasta que configures tanto esta clave como la «Clave secreta de Mapbox», así que añade las dos. «Instrucciones de configuración de Mapbox» te guía durante el proceso.</translation>
-    </message>
-    <message>
         <source>That's your Secret Mapbox Key. Enter your Public Mapbox Key.</source>
         <translation>Esa es tu clave secreta de Mapbox. Introduce tu clave pública de Mapbox.</translation>
     </message>
@@ -3522,16 +3748,27 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>Esa es tu clave pública de Mapbox. Introduce tu clave secreta de Mapbox.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Walks you through getting your own free Mapbox keys so navigation works without comma's subscription.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The guide only shows the steps for where you are in setup, so it changes as you add each key. Tap the instructions to come back here.</source>
-        <translation>&lt;b&gt;Te guía para obtener tus propias claves gratuitas de Mapbox y usar la navegación sin la suscripción de comma.&lt;/b&gt;&lt;br&gt;&lt;br&gt;La guía solo muestra los pasos correspondientes al punto de la configuración en el que te encuentras, por lo que cambia al añadir cada clave. Toca las instrucciones para volver aquí.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Draws the map itself on your driving screen, alongside what the "Public Mapbox Key" does for searching.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Keep this one to yourself, since it can be used to run up charges on your Mapbox account. After you add it you are asked whether to reboot now or later, and it does not take effect until the device has actually rebooted.</source>
         <translation>&lt;b&gt;Dibuja el mapa en tu pantalla de conducción, junto con lo que hace "Clave pública de Mapbox" para buscar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Guárdalo para ti, ya que puede usarse para acumular cargos en tu cuenta Mapbox. Después de agregarlo, se le preguntará si desea reiniciar ahora o más tarde, y no surte efecto hasta que el dispositivo se haya reiniciado.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Spot missing or outdated OpenStreetMap speed limits while you drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;FrogPilot compares the speed limits it sees with your downloaded maps and saves possible corrections for you to review later. This makes it quick and easy to improve speed-limit data for future drives and everyone who uses OpenStreetMap.&lt;br&gt;&lt;br&gt;Downloaded maps are required. Saved suggestions may reveal which roads you drove. Nothing is submitted automatically, so review each suggestion before making an OpenStreetMap edit.&lt;br&gt;&lt;br&gt;Need a step-by-step guide? Visit &lt;b&gt;#speed-limit-filler&lt;/b&gt; in the FrogPilot Discord!</source>
-        <translation>&lt;b&gt;Detecta límites de velocidad de OpenStreetMap ausentes o desactualizados mientras conduces.&lt;/b&gt;&lt;br&gt;&lt;br&gt;FrogPilot compara los límites de velocidad que detecta con tus mapas descargados y guarda posibles correcciones para que las revises más tarde. Esto permite mejorar de forma rápida y sencilla los datos de límites de velocidad para futuros trayectos y para todos los usuarios de OpenStreetMap.&lt;br&gt;&lt;br&gt;Los mapas descargados son necesarios. Las sugerencias guardadas pueden revelar por qué carreteras has conducido. No se envía nada automáticamente, así que revisa cada sugerencia antes de editar OpenStreetMap.&lt;br&gt;&lt;br&gt;¿Necesitas una guía paso a paso? Visita &lt;b&gt;#speed-limit-filler&lt;/b&gt; en el Discord de FrogPilot.</translation>
+        <source>&lt;b&gt;Collect missing or incorrect speed limits automatically while you drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Saved corrections are reused on later drives for the same road and direction, except on roads with conditional speed limits.&lt;br&gt;&lt;br&gt;FrogPilot compares speed limits from your dashboard, where supported, and Mapbox, which needs your Public Mapbox Key and a working internet connection. Downloaded maps are required because FrogPilot uses their OSM way IDs to identify each road.&lt;br&gt;&lt;br&gt;You can download the results from "The Pond" in the "Download Speed Limits" menu and load them into the Speed Limit Filler website. Review every proposed edit before submitting it to OSM.&lt;br&gt;&lt;br&gt;With "Share FrogPilot Data" on, collected road speed limits are also sent to FrogPilot while parked on unmetered Wi-Fi or Ethernet to help expand speed limit coverage for all FrogPilot users.&lt;br&gt;&lt;br&gt;Need a step-by-step guide? Visit &lt;b&gt;#speed-limit-filler&lt;/b&gt; in the FrogPilot Discord!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Lets openpilot get speed limits from Mapbox.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You make this key yourself on Mapbox's website. "Mapbox Setup Instructions" walks you through it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Walks you through getting your own free Mapbox keys.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The guide only shows the steps for where you are in setup, so it changes as you add each key. Tap the instructions to come back here.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FrogPilotOnroadWindow</name>
+    <message>
+        <source>FPS: %1 | Min: %2 | Max: %3 | Avg: %4</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3553,10 +3790,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>DIRECCIÓN</translation>
     </message>
     <message>
-        <source>MAP DATA</source>
-        <translation>DATOS DE MAPAS</translation>
-    </message>
-    <message>
         <source>NAVIGATION</source>
         <translation>NAVEGACIÓN</translation>
     </message>
@@ -3567,10 +3800,6 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
     <message>
         <source>UTILITIES</source>
         <translation>HERRAMIENTAS</translation>
-    </message>
-    <message>
-        <source>APPEARANCE</source>
-        <translation>APARIENCIA</translation>
     </message>
     <message>
         <source>THEME</source>
@@ -3629,16 +3858,8 @@ El Modo Firehose te permite maximizar las subidas de datos de entrenamiento para
         <translation>&lt;b&gt;Ajusta el volumen de cada alerta de openpilot y añade alertas adicionales que openpilot no incluye de serie.&lt;/b&gt; Las alertas adicionales incluyen un sonido cuando el semáforo se pone verde o cuando el vehículo de delante empieza a moverse.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Adjust how openpilot accelerates, brakes, steers, and changes lanes, and switch between driving models.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"DRIVING MODEL" only appears once your "Tuning Level" is "Standard" or higher, and "GAS / BRAKE" only appears on cars where openpilot handles the gas and brake.</source>
-        <translation>&lt;b&gt;Ajusta cómo acelera, frena, dirige y cambia de carril openpilot, y alterna entre modelos de conducción.&lt;/b&gt;&lt;br&gt;&lt;br&gt;«MODELO DE CONDUCCIÓN» solo aparece cuando el «Nivel de ajuste» es «Estándar» o superior, y «ACELERADOR / FRENO» solo aparece en vehículos donde openpilot controla el acelerador y el freno.</translation>
-    </message>
-    <message>
         <source>Maps and Navigation</source>
         <translation>Mapas y navegación</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Download the speed limit data openpilot uses, and set up turn-by-turn navigation.&lt;/b&gt; Speed limits come from offline map data for the states or countries you pick, so they work without cell signal.</source>
-        <translation>&lt;b&gt;Descarga los datos de límites de velocidad que usa openpilot y configura la navegación paso a paso.&lt;/b&gt; Los límites proceden de los mapas sin conexión de los estados o países que elijas, por lo que funcionan sin cobertura móvil.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Manage your saved data, how the device and screen behave, and tools for fixing problems.&lt;/b&gt; This is also where your drive stats and backups of your settings live.</source>
@@ -3676,6 +3897,22 @@ Continúa solo si sabes qué hacen.</translation>
         <source>DEVICE / SCREEN</source>
         <translation>DISPOSITIVO / PANTALLA</translation>
     </message>
+    <message>
+        <source>SPEED LIMIT MAPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>DRIVING VIEW</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Adjust how openpilot accelerates, brakes, steers, and changes lanes.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"GAS / BRAKE" only appears on cars where openpilot handles the gas and brake.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Download the speed limit data openpilot uses, and set up Mapbox as a fallback speed limit source.&lt;/b&gt; Speed limits come from offline map data for the states or countries you pick, so they work without cell signal.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotSoundsPanel</name>
@@ -3690,10 +3927,6 @@ Continúa solo si sabes qué hacen.</translation>
     <message>
         <source>Prompt Volume</source>
         <translation>Volumen de aviso</translation>
-    </message>
-    <message>
-        <source>FrogPilot Alerts</source>
-        <translation>Alertas de FrogPilot</translation>
     </message>
     <message>
         <source>Goat Scream</source>
@@ -3736,16 +3969,8 @@ Continúa solo si sabes qué hacen.</translation>
         <translation>Volumen por distracción del conductor</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Set the volume for the sound openpilot makes when the driver camera thinks you've stopped watching the road.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear this if you look down at your phone, or if the camera cannot see your face and you go too long without touching the wheel. Ignore it long enough and it escalates into the "DISENGAGE IMMEDIATELY" warning, which plays at "Urgent Warning Volume" instead. openpilot will not hand the car back on its own, so taking over is on you.</source>
-        <translation>&lt;b&gt;Ajusta el volumen del sonido que emite openpilot cuando la cámara del conductor considera que has dejado de mirar la carretera.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Lo oyes si miras el teléfono o si la cámara no ve tu rostro y pasas demasiado tiempo sin tocar el volante. Si lo ignoras, pasa a la advertencia «TOMA EL CONTROL INMEDIATAMENTE», que se reproduce con el «Volumen de advertencia urgente». openpilot no te devolverá el control por sí solo: debes tomarlo tú.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Set the volume for the sound openpilot makes when it starts driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear this right after you press "SET" or "RESUME" on your steering wheel.</source>
         <translation>&lt;b&gt;Ajusta el volumen del sonido que emite openpilot cuando empieza a conducir.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Lo oyes justo después de pulsar «SET» o «RESUME» en el volante.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Set the volume for the quick chimes openpilot uses when it needs you to notice something.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear these for things like a car sitting in your blind spot when you signal, or a turn too sharp for openpilot to steer through on its own. The "Goat Scream" alert plays at this volume as well.</source>
-        <translation>&lt;b&gt;Ajusta el volumen de los sonidos breves que usa openpilot cuando necesita llamar tu atención.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Los oyes, por ejemplo, si hay un vehículo en el ángulo muerto al señalizar o si una curva es demasiado cerrada para que openpilot la tome por sí solo. La alerta «Grito de cabra» también se reproduce a este volumen.</translation>
     </message>
     <message>
         <source>Soft Warning Volume</source>
@@ -3776,10 +4001,6 @@ Continúa solo si sabes qué hacen.</translation>
         <translation>&lt;b&gt;Sustituye el sonido de «La curva supera el límite de dirección» por el grito de una cabra.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Esta alerta indica que la curva es más cerrada de lo que openpilot puede dirigir por sí solo y te pide que ayudes a girar el volante. Se reproduce con el «Volumen de aviso» que hayas definido.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Play a chime when you're stopped at a light and openpilot sees the road ahead open up.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This only fires when nobody is stopped in front of you. For a line of cars at a light you need "Lead Departing Alert" switched on as well, and that one starts off.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not actually read traffic lights. It is going off what the camera sees, so it can chime when the light has not changed.&lt;/i&gt;</source>
-        <translation>&lt;b&gt;Emite un sonido cuando estás detenido en un semáforo y openpilot ve que la vía de delante queda libre.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Solo se activa si no hay nadie detenido delante de ti. Si hay una fila de vehículos en el semáforo, también debes activar «Alerta de avance del vehículo delantero», que está desactivada de forma predeterminada.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Aviso&lt;/b&gt;: openpilot no detecta el estado real de los semáforos. Se basa en lo que ve la cámara, por lo que puede sonar aunque el semáforo no haya cambiado.&lt;/i&gt;</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Play a chime when you're stopped in traffic and the car in front of you starts moving again.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It waits until that car has genuinely pulled away rather than just crept forward, so it won't chime the moment they roll an inch.</source>
         <translation>&lt;b&gt;Emite un sonido cuando estás detenido en el tráfico y el vehículo de delante vuelve a avanzar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Espera hasta que ese vehículo se haya alejado de verdad, en lugar de limitarse a avanzar un poco, por lo que no sonará en cuanto se mueva unos centímetros.</translation>
     </message>
@@ -3788,20 +4009,55 @@ Continúa solo si sabes qué hacen.</translation>
         <translation>Alerta de ángulo muerto más fuerte</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Upgrade "Car Detected in Blindspot" from openpilot's quiet prompt chime to its warning chime.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You get this alert when you signal for a lane change while openpilot is steering and there is a car beside you where you cannot see it. It needs at least 20 mph, so signalling slower than that gets you nothing. Because it becomes a warning, its volume comes from "Soft Warning Volume" instead of "Prompt Volume".</source>
-        <translation>&lt;b&gt;Cambia «Vehículo detectado en el ángulo muerto» del discreto sonido de aviso de openpilot a su sonido de advertencia.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Esta alerta aparece al señalizar un cambio de carril mientras openpilot dirige y hay un vehículo a tu lado fuera de tu campo visual. Requiere al menos 20 mph, por lo que no se emite nada si señalizas a menor velocidad. Al convertirse en advertencia, su volumen procede de «Volumen de advertencia» en lugar de «Volumen de aviso».</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Play a chime whenever the speed limit openpilot is reading changes.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That limit comes from your car's dashboard, your downloaded map data, or your navigation route, depending on which of those you have set up. You hear it right as the limit changes, such as entering a school zone or coming off the highway.</source>
-        <translation>&lt;b&gt;Emite un sonido cada vez que cambia el límite de velocidad que lee openpilot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Ese límite procede del cuadro de instrumentos, de los mapas descargados o de la ruta de navegación, según lo que hayas configurado. Lo oirás justo al cambiar el límite, por ejemplo al entrar en una zona escolar o al salir de la autopista.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Set the volume for the sound openpilot makes when it stops driving and hands the car back to you.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear this when you tap the brake, press "Cancel", or when your car's cruise control drops out. Most faults that force openpilot to give up use a warning chime instead, which comes from "Soft Warning Volume" or "Urgent Warning Volume".</source>
         <translation>&lt;b&gt;Configura el volumen del sonido que hace openpilot cuando deja de conducir y te devuelve el auto.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Escuchas esto cuando pisas el freno, presionas "Cancelar" o cuando el control de crucero de tu auto se desconecta. La mayoría de las fallas que obligan a openpilot a darse por vencido utilizan en su lugar un timbre de advertencia, que proviene de "Volumen de advertencia" o "Volumen de advertencia urgente".</translation>
     </message>
     <message>
         <source>&lt;b&gt;Turn on extra alerts stock openpilot doesn't have, for things you would otherwise have to catch yourself.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These cover the light turning green, the car ahead pulling away, and the speed limit changing. The blind spot one in here is not a new alert: openpilot already chimes when you signal for a lane change and there's a car beside you, and this only swaps that chime for a louder one.</source>
         <translation>&lt;b&gt;Activa alertas adicionales que el openpilot estándar no tiene, para cosas que de otro modo tendrías que detectar tú mismo.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Estas cubren el semáforo que se pone verde, el automóvil que va adelante comienza a moverse y el cambio del límite de velocidad. La de punto ciego aquí no es una alerta nueva: openpilot ya suena cuando haces la señal para cambiar de carril y hay un auto a tu lado, y esto solo cambia ese timbre por uno más fuerte.</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set the volume for the sound openpilot makes when the driver camera thinks you've stopped watching the road.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear this if you look down at your phone, or if the camera cannot see your face and you go too long without touching the wheel. Ignore it long enough and it escalates into the "DISENGAGE IMMEDIATELY" warning, which plays at "Urgent Warning Volume" instead. openpilot will not hand the car back on its own, so taking over is on you. This one stops at 25% so it can always reach you.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set the volume for the quick chimes openpilot uses when it needs you to notice something.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You hear these for things like a car sitting in your blind spot when you signal, or a turn too sharp for openpilot to steer through on its own. The "Goat Scream" alert plays at this volume as well. This one stops at 25% so it can always reach you.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Extra Alerts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Play a chime whenever the speed limit openpilot is reading changes.&lt;/b&gt;&lt;br&gt;&lt;br&gt;That limit comes from your car's dashboard, your downloaded map data, signs read by the camera, or Mapbox, depending on which of those you have set up. You hear it right as the limit changes, such as entering a school zone or coming off the highway.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Play a chime when you're stopped at a light and openpilot sees the road ahead open up.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This only fires when nobody is stopped in front of you, and it stays quiet in "Traffic Mode". For a line of cars at a light you need "Lead Departing Alert" switched on as well, and that one starts off.&lt;br&gt;&lt;br&gt;&lt;i&gt;&lt;b&gt;Disclaimer&lt;/b&gt;: openpilot does not actually read traffic lights. It is going off what the camera sees, so it can chime when the light has not changed.&lt;/i&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Upgrade "Car Detected in Blindspot" from openpilot's quiet prompt chime to its warning chime.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You get this alert when you signal for a lane change while openpilot is steering and there is a car beside you where you cannot see it. It needs "Lane Changes" switched on and at least your "Minimum Lane Change Speed" (20 mph or 32 km/h by default), so signalling slower than that gets you nothing. Because it becomes a warning, its volume comes from "Soft Warning Volume" instead of "Prompt Volume".</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>FrogPilotTelemetryPage</name>
+    <message>
+        <source>Share FrogPilot Data?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Yes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Help make FrogPilot better by sharing filtered driving logs, short speed limit sign clips, and usage stats.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This data is how FrogPilot gets better at driving your car. It's used to make steering smoother and more precise, tune how FrogPilot uses the gas and brakes so it speeds up, slows down, and stops more naturally, add and fine-tune support for more cars, train features like the speed limit sign reader, and find and fix problems faster. Every driver who shares makes FrogPilot drive better for everyone.&lt;br&gt;&lt;br&gt;&lt;b&gt;Your privacy comes first.&lt;/b&gt; Driving logs are filtered on your device before they leave, and logs and clips upload only on unmetered Wi-Fi or Ethernet while your car is off, so they never use your data plan or slow a drive.&lt;br&gt;&lt;br&gt;&lt;b&gt;Driving logs&lt;/b&gt; have camera footage, account details, SSH keys, and the exact GPS location and date/time removed. The last six VIN characters are masked, and the rest remains. Each drive gets its own random ID. They're stored under your FrogPilot device ID. Raw CAN data from your car is kept because it's essential for adding and improving car support, and on some cars it can still contain GPS, VIN, date/time, or who's in the seats.&lt;br&gt;&lt;br&gt;&lt;b&gt;Speed Limit Filler&lt;/b&gt; (if you use it) shares the speed limits it collects: a list of the roads you've driven and in which direction, linked to your device.&lt;br&gt;&lt;br&gt;&lt;b&gt;Speed limit sign clips&lt;/b&gt; are about 10 seconds of road camera video, saved when your dashboard shows a new speed limit. No GPS location or date and time is attached, and each clip gets an ID that doesn't reveal when it was recorded. Each is sent with that speed limit and basic details about your device, its camera, and its software, and stored under your FrogPilot device ID. The video itself shows where you were and can include license plates, people, and places, and a clip can be matched to its driving log.&lt;br&gt;&lt;br&gt;&lt;b&gt;Usage stats&lt;/b&gt; cover your device, software version, car, FrogPilot settings, and driving totals, with only your city, state, and country, never your exact location. They're linked to your FrogPilot device ID.&lt;br&gt;&lt;br&gt;Turn this off anytime to stop all of these. Your device will still send its type and software version, check in when it starts and after each drive so we can count active devices, and send crash reports tagged with your device ID. None of these include your stats, settings, or location.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3867,10 +4123,6 @@ Continúa solo si sabes qué hacen.</translation>
         <translation>SELECCIONAR</translation>
     </message>
     <message>
-        <source>Select a color scheme to delete</source>
-        <translation>Selecciona una combinación de colores para eliminarla</translation>
-    </message>
-    <message>
         <source>Delete the "%1" color scheme?</source>
         <translation>¿Eliminar la combinación de colores «%1»?</translation>
     </message>
@@ -3879,72 +4131,36 @@ Continúa solo si sabes qué hacen.</translation>
         <translation>Eliminar</translation>
     </message>
     <message>
-        <source>Select a color scheme to download</source>
-        <translation>Selecciona una combinación de colores para descargarla</translation>
-    </message>
-    <message>
         <source>Select a color scheme</source>
         <translation>Selecciona una combinación de colores</translation>
-    </message>
-    <message>
-        <source>Select an icon pack to delete</source>
-        <translation>Selecciona un paquete de iconos para eliminarlo</translation>
     </message>
     <message>
         <source>Delete the "%1" icon pack?</source>
         <translation>¿Eliminar el paquete de iconos «%1»?</translation>
     </message>
     <message>
-        <source>Select an icon pack to download</source>
-        <translation>Selecciona un paquete de iconos para descargarlo</translation>
-    </message>
-    <message>
         <source>Select an icon pack</source>
         <translation>Selecciona un paquete de iconos</translation>
-    </message>
-    <message>
-        <source>Select a signal animation to delete</source>
-        <translation>Selecciona una animación del intermitente para eliminarla</translation>
     </message>
     <message>
         <source>Delete the "%1" signal animation?</source>
         <translation>¿Eliminar la animación del intermitente «%1»?</translation>
     </message>
     <message>
-        <source>Select a signal animation to download</source>
-        <translation>Selecciona una animación del intermitente para descargarla</translation>
-    </message>
-    <message>
         <source>Select a signal animation</source>
         <translation>Selecciona una animación del intermitente</translation>
-    </message>
-    <message>
-        <source>Select a sound pack to delete</source>
-        <translation>Selecciona un paquete de sonidos para eliminarlo</translation>
     </message>
     <message>
         <source>Delete the "%1" sound pack?</source>
         <translation>¿Eliminar el paquete de sonidos «%1»?</translation>
     </message>
     <message>
-        <source>Select a sound pack to download</source>
-        <translation>Selecciona un paquete de sonidos para descargarlo</translation>
-    </message>
-    <message>
         <source>Select a sound pack</source>
         <translation>Selecciona un paquete de sonidos</translation>
     </message>
     <message>
-        <source>Select a steering wheel to delete</source>
-        <translation>Selecciona un volante para eliminarlo</translation>
-    </message>
-    <message>
         <source>Delete the "%1" steering wheel?</source>
         <translation>¿Eliminar el volante «%1»?</translation>
-    </message>
-    <message>
-        <source>Select a steering wheel to download</source>
-        <translation>Selecciona un volante para descargarlo</translation>
     </message>
     <message>
         <source>Select a steering wheel</source>
@@ -3963,16 +4179,8 @@ Continúa solo si sabes qué hacen.</translation>
         <translation>PERSONALIZADO</translation>
     </message>
     <message>
-        <source>CLEAR</source>
-        <translation>BORRAR</translation>
-    </message>
-    <message>
         <source>Enter the text for the top half</source>
         <translation>Introduce el texto de la parte superior</translation>
-    </message>
-    <message>
-        <source>Characters: 0/%1</source>
-        <translation>Caracteres: 0/%1</translation>
     </message>
     <message>
         <source>Enter the text for the bottom half</source>
@@ -4051,52 +4259,124 @@ Continúa solo si sabes qué hacen.</translation>
         <translation>&lt;b&gt;Reproduce ocasionalmente una alerta de broma con su propio sonido y, a veces, su propia imagen del volante cuando ocurre algo inusual durante un trayecto.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Puede activarse al arrancar con fuerza, ante una curva más cerrada de lo que openpilot puede dirigir o por una advertencia de colisión. Cada alerta solo puede aparecer una vez por trayecto, el volante sustituido vuelve a la normalidad tras unos cinco segundos y ninguna cambia la forma en que conduce openpilot.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Start every drive with a different theme, picked at random from the packs you have already downloaded.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Nothing happens until you download at least one pack. While this is on, the rows inside "Custom Themes" stop offering "SELECT", and turning it back off gives you your own picks again.</source>
-        <translation>&lt;b&gt;Inicia cada trayecto con un tema diferente elegido al azar entre los paquetes ya descargados.&lt;/b&gt;&lt;br&gt;&lt;br&gt;No ocurre nada hasta que descargues al menos un paquete. Mientras está activo, las filas de «Temas personalizados» dejan de ofrecer «SELECCIONAR»; al desactivarlo recuperas tus propias selecciones.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Change the two lines of text openpilot shows on screen at the start of every drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"STOCK" is openpilot's usual safety reminder and "FROGPILOT" is the frog version. "CUSTOM" lets you write your own, up to 35 characters on the top line and 45 on the bottom, and "CLEAR" leaves the screen blank.</source>
-        <translation>&lt;b&gt;Cambia las dos líneas de texto que openpilot muestra al inicio de cada trayecto.&lt;/b&gt;&lt;br&gt;&lt;br&gt;«ORIGINAL» es el recordatorio de seguridad habitual de openpilot y «FROGPILOT» es la versión de la rana. «PERSONALIZADO» permite escribir hasta 35 caracteres en la línea superior y 45 en la inferior; «BORRAR» deja la pantalla en blanco.</translation>
-    </message>
-    <message>
-        <source>Distance Button</source>
-        <translation>Botón de distancia</translation>
-    </message>
-    <message>
-        <source>Select a distance icon pack to delete</source>
-        <translation>Seleccione un paquete de iconos de distancia para eliminar</translation>
-    </message>
-    <message>
-        <source>Delete the "%1" distance icon pack?</source>
-        <translation>¿Eliminar el paquete de iconos de distancia "%1"?</translation>
-    </message>
-    <message>
-        <source>Select a distance icon pack to download</source>
-        <translation>Selecciona un paquete de iconos de distancia para descargar</translation>
-    </message>
-    <message>
-        <source>Select a distance icon pack</source>
-        <translation>Selecciona un paquete de iconos de distancia</translation>
-    </message>
-    <message>
         <source>Include Holiday Themes</source>
-        <translation>Incluir temas navideños</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to completely reset your startup message?</source>
-        <translation>¿Está seguro de que desea restablecer completamente su mensaje de inicio?</translation>
-    </message>
-    <message>
-        <source>"Random Themes" only works with downloaded themes, so make sure you download the themes you want it to use!</source>
-        <translation>"Temas aleatorios" solo funciona con temas descargados, así que asegúrate de descargar los temas que quieres que use.</translation>
-    </message>
-    <message>
-        <source>Repository unavailable</source>
-        <translation>Repositorio no disponible</translation>
+        <translation>Incluir temas festivos</translation>
     </message>
     <message>
         <source>Verifying authenticity...</source>
         <translation>Verificando autenticidad...</translation>
+    </message>
+    <message>
+        <source>Select color schemes to delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the %1 selected color schemes?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select color schemes to download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select personality button packs to delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the "%1" personality button pack?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the %1 selected personality button packs?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select personality button packs to download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select a personality button pack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select icon packs to delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the %1 selected icon packs?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select icon packs to download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select signal animations to delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the %1 selected signal animations?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select signal animations to download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select sound packs to delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the %1 selected sound packs?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select sound packs to download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select steering wheels to delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the %1 selected steering wheels?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select steering wheels to download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Personality Button</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Change the two lines of text openpilot shows on screen at the start of every drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"STOCK" is openpilot's usual safety reminder and "FROGPILOT" is the frog version. "CUSTOM" lets you write your own, up to 35 characters on the top line and 45 on the bottom.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>"Random Themes" picks from the built-in Frog theme, the holiday themes when "Include Holiday Themes" is on, and themes you've already downloaded, so grab the ones you want it to use!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 of %2 downloaded, %3 failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Downloading %1 of %2 (%3)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Download invalid...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Start every drive with a theme picked at random from the built-in Frog theme and the packs you have already downloaded.&lt;/b&gt;&lt;br&gt;&lt;br&gt;A downloaded pack only joins the mix once you have its colors, icons and sounds, and the same theme can come up twice in a row. With "Include Holiday Themes" on, the holiday themes are in the mix too. While this is on, the rows inside "Custom Themes" stop offering "SELECT", and turning it back off gives you your own picks again.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4202,76 +4482,145 @@ Continúa solo si sabes qué hacen.</translation>
         <translation>Restableciendo...</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Show FrogPilot's developer readouts on the driving screen for your next drive, so a bug report can say what openpilot was actually doing.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It switches itself back off once you finish the drive. While it is on, the temperature reads in Celsius and the developer numbers read in scientific units, whatever you picked elsewhere. Your speedometer is not affected.</source>
-        <translation>&lt;b&gt;Muestra los datos de desarrollo de FrogPilot en la pantalla de conducción durante el próximo trayecto para que el informe de errores indique qué estaba haciendo realmente openpilot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Se desactiva automáticamente al terminar el trayecto. Mientras está activo, la temperatura se muestra en grados Celsius y los datos de desarrollo usan unidades científicas, independientemente de lo que hayas elegido en otros ajustes. El velocímetro no cambia.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Reinstall the software on the Panda, the small box that lets your device talk to your car.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Try this if openpilot keeps losing contact with the car or the Panda shows up as faulty. Your device reboots once it finishes, and the car has to be off to start.</source>
         <translation>&lt;b&gt;Reinstala el software del Panda, la pequeña caja que permite al dispositivo comunicarse con el vehículo.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Prueba esto si openpilot pierde repetidamente la comunicación con el vehículo o el Panda aparece como defectuoso. El dispositivo se reinicia al finalizar y el vehículo debe estar apagado para iniciar el proceso.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Make openpilot behave as though the car is running, or as though it is parked, without the car actually being either.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This is a testing tool. Forcing the running state pins the screen to full brightness and stops openpilot warning you that its controls are unresponsive, so leave it on "OFF" unless you know why you need it. It clears itself the next time the device restarts.</source>
-        <translation>&lt;b&gt;Hace que openpilot se comporte como si el vehículo estuviera en marcha o estacionado, aunque su estado real sea otro.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Es una herramienta de prueba. Forzar el estado en marcha mantiene la pantalla con el brillo máximo e impide que openpilot avise de que sus controles no responden, así que déjala en «DESACTIVADO» salvo que sepas por qué la necesitas. El estado forzado se borra al reiniciar el dispositivo.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Tell the FrogPilot team what went wrong, straight from the car.&lt;/b&gt;&lt;br&gt;&lt;br&gt;You pick what happened from a list, add a description where it helps, and give your Discord name so they can reach you. Your settings and the most recent error log go along with it so the problem can be traced.</source>
         <translation>&lt;b&gt;Informa al equipo de FrogPilot de lo que ha fallado directamente desde el vehículo.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Elige lo ocurrido en una lista, añade una descripción si resulta útil e indica tu nombre de Discord para que puedan ponerse en contacto contigo. También se envían tus ajustes y el registro de errores más reciente para poder localizar el problema.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Put every FrogPilot setting back to the value it shipped with.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This also clears your accepted terms, your completed training and your language, so you go through first-time setup again in English. The reset happens while the device reboots, and your drives, backups and downloaded themes are left alone.</source>
-        <translation>&lt;b&gt;Devuelve todos los ajustes de FrogPilot a sus valores originales.&lt;/b&gt;&lt;br&gt;&lt;br&gt;También borra la aceptación de los términos, la formación completada y el idioma, por lo que volverás a realizar la configuración inicial en inglés. El restablecimiento se lleva a cabo mientras se reinicia el dispositivo; los trayectos, las copias de seguridad y los temas descargados no se modifican.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Put every setting back to what plain openpilot uses, turning FrogPilot's own features off rather than back to FrogPilot's defaults.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This also clears your accepted terms, your completed training and your language, so you go through first-time setup again in English. The reset happens while the device reboots, and your drives, backups and downloaded themes are left alone.</source>
-        <translation>&lt;b&gt;Devuelve todos los ajustes a los valores usados por openpilot estándar, desactivando las funciones propias de FrogPilot en lugar de recuperar sus valores predeterminados.&lt;/b&gt;&lt;br&gt;&lt;br&gt;También borra la aceptación de los términos, la formación completada y el idioma, por lo que volverás a realizar la configuración inicial en inglés. El restablecimiento se lleva a cabo mientras se reinicia el dispositivo; los trayectos, las copias de seguridad y los temas descargados no se modifican.</translation>
-    </message>
-    <message>
-        <source>Flash Panda</source>
-        <translation>Flashear Panda</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to flash the Panda firmware?</source>
-        <translation>¿Seguro que quieres flashear el firmware de Panda?</translation>
-    </message>
-    <message>
-        <source>Please connect to the internet before sending a report!</source>
-        <translation>¡Conéctate a Internet antes de enviar un informe!</translation>
-    </message>
-    <message>
-        <source>An alert was unclear and I'm not sure what it meant</source>
-        <translation>Una alerta no estaba clara y no estoy seguro de lo que significaba.</translation>
-    </message>
-    <message>
-        <source>What's going on?</source>
-        <translation>¿Qué está pasando?</translation>
-    </message>
-    <message>
-        <source>Send Report</source>
-        <translation>Enviar informe</translation>
-    </message>
-    <message>
-        <source>Report Sent! Thanks for letting us know!</source>
-        <translation>¡Informe enviado! ¡Gracias por avisarnos!</translation>
-    </message>
-    <message>
-        <source>Reset Toggles to Default</source>
-        <translation>Restablecer alternadores a los valores predeterminados</translation>
-    </message>
-    <message>
-        <source>Are you sure you want to reset all toggles to their default values?</source>
-        <translation>¿Está seguro de que desea restablecer todos los interruptores a sus valores predeterminados?</translation>
-    </message>
-    <message>
         <source>Reset!</source>
         <translation>Restablecido.</translation>
     </message>
     <message>
-        <source>Reset Toggles to Stock openpilot</source>
-        <translation>Restablecer conmutadores a openpilot de fábrica</translation>
+        <source>&lt;b&gt;Make openpilot behave as though the car is running, or as though it is parked, without the car actually being either.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This is a testing tool. Forcing the running state ignores your "Screen Brightness (Onroad)" setting and stops openpilot warning you that its controls are unresponsive, so leave it on "OFF" unless you know why you need it. Forcing the running state ends when you turn the car on, and either state clears itself the next time the device restarts. While it is forced, the device still drops back to offroad if it overheats and still shuts down on its usual timer or a low car battery. With the car off, a forced running state runs on the car's battery until the device powers itself off.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Are you sure you want to reset all toggles to match stock openpilot?</source>
-        <translation>¿Seguro que quieres restablecer todos los interruptores para coincidir con el openpilot de fábrica?</translation>
+        <source>The parked state can't be forced while openpilot is steering. Disengage and try again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The running state can't be forced while the car is on. Turn the car off and try again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reflash the Panda</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The Panda can't be reflashed while the car is on. Turn the car off and try again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Something else is already running. Wait for it to finish and try again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reflash the Panda? Your device reboots once it finishes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flash failed...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connect to Wi-Fi or a hotspot first, then send your report.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Retry previous report</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delivery wasn't confirmed.
+Retry to avoid duplicates.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start a new report</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An alert was unclear and I didn't know what it meant</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>My screen froze or is stuck loading something</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>openpilot doesn't react to stopped vehicles ahead</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>openpilot doesn't resume from a stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Steering feels twitchy or unnatural</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The car doesn't follow curves well</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The car isn't staying centered in its lane</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>What went wrong?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Settings can't be reset while the car is on. Turn the car off and try again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset Settings to Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Put every FrogPilot setting back to the value it shipped with, along with some of openpilot's own settings.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Those openpilot settings are "Enable openpilot", "Disengage on Accelerator Pedal", "Driving Personality" and "Cellular Metered". This also clears your accepted terms, your completed training and your language, so you go through first-time setup again in English the next time the device starts. Your drives, backups, downloaded themes, learned driving data and saved keys are left alone.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset all FrogPilot and some openpilot settings? You will have to accept the terms, redo the training and set your language again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset Settings to Stock openpilot</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Put every setting back to what plain openpilot uses, turning FrogPilot's own features off rather than back to FrogPilot's defaults.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This also clears your accepted terms, your completed training and your language, so you go through first-time setup again in English the next time the device starts. Your drives, backups, downloaded themes, learned driving data and saved keys are left alone.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset every setting to match stock openpilot? You will have to accept the terms, redo the training and set your language again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sending...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RETRY</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Show FrogPilot's developer readouts on the driving screen for your next drive, so a bug report can say what openpilot was actually doing.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It switches itself back off once you finish the drive. While it is on, the temperature reads in Celsius and the developer numbers read in scientific units, whatever you picked elsewhere. It also brings back anything you hid from the driving screen and uses the default "Model UI" sizes and "Camera View", with "Rainbow Path" off, until the drive ends. Your speedometer keeps its own units.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4429,16 +4778,8 @@ Continúa solo si sabes qué hacen.</translation>
         <translation>&lt;b&gt;Permite que el control de crucero del vehículo gestione el acelerador y el freno en lugar de openpilot.&lt;/b&gt;</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Settings that only work on Buick, Cadillac, Chevrolet, GMC and Holden cars, covering how openpilot stops, starts and handles hills.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Which of these you see depends on your exact model.</source>
-        <translation>&lt;b&gt;Ajustes exclusivos para vehículos Buick, Cadillac, Chevrolet, GMC y Holden que controlan cómo se detiene, arranca y afronta las pendientes openpilot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Las opciones visibles dependen del modelo exacto.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Make the car pull away by itself after a full stop on a Chevrolet Volt, which does not do this from the factory.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without it you have to press the gas or the resume button every time traffic moves off. Keep your foot near the brake the first few times so you can see how it behaves.</source>
         <translation>&lt;b&gt;Hace que un Chevrolet Volt vuelva a arrancar por sí solo después de una parada completa, algo que no permite de fábrica.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Sin esta opción debes pisar el acelerador o pulsar el botón de reanudación cada vez que el tráfico vuelve a moverse. Mantén el pie cerca del freno las primeras veces hasta conocer su comportamiento.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Settings that only work on Genesis, Hyundai and Kia cars, covering openpilot's newer gas and brake control and a steering torque hack.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Which of these you see depends on which system your car uses, and the steering hack only appears on cars using CAN-FD.</source>
-        <translation>&lt;b&gt;Ajustes exclusivos para vehículos Genesis, Hyundai y Kia que incluyen el control más reciente del acelerador y el freno de openpilot y un truco de par de dirección.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Las opciones visibles dependen del sistema que use el vehículo, y el truco de dirección solo aparece en vehículos con CAN-FD.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Let openpilot pull the wheel harder through turns, using the trick comma demonstrated on their 2022 "Taco Bell Run" drive.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It raises the steering limit everywhere, not just at low speed, and it relaxes one of the safety checks that normally caps steering effort. You will also have to grip the wheel more firmly to take over.</source>
@@ -4459,10 +4800,6 @@ Continúa solo si sabes qué hacen.</translation>
     <message>
         <source>&lt;b&gt;Lock the doors when you shift out of park and unlock them again when you shift back into it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This runs whenever the car is on, whether or not openpilot is engaged.</source>
         <translation>&lt;b&gt;Bloquea las puertas al salir de la posición de estacionamiento y las desbloquea al volver a ella.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Funciona siempre que el vehículo esté encendido, esté openpilot activo o no.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Line up the speed openpilot shows on screen with the number on your dashboard, which most cars deliberately read a little high.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Raise it until openpilot's number matches your dashboard. This does not change how fast openpilot actually drives, with one exception: while it is following posted speed limits, a higher number here makes it drive slightly slower.</source>
-        <translation>&lt;b&gt;Ajusta la velocidad que openpilot muestra en pantalla para que coincida con el cuadro del vehículo, que en la mayoría de los casos indica deliberadamente un valor algo superior.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Auméntalo hasta que el valor de openpilot coincida con el cuadro. No cambia la velocidad real a la que conduce openpilot, salvo una excepción: cuando sigue límites de velocidad señalizados, un valor mayor aquí hace que conduzca ligeramente más despacio.</translation>
     </message>
     <message>
         <source>DSU Re-Route Harness</source>
@@ -4487,10 +4824,6 @@ Continúa solo si sabes qué hacen.</translation>
     <message>
         <source>&lt;b&gt;What openpilot has worked out about your car and what it can do with it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;These rows are read-only. They stay on "Unknown until first drive" until openpilot has recognised your car.</source>
         <translation>&lt;b&gt;Información que openpilot ha determinado sobre el vehículo y las funciones que puede controlar.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Estas filas son de solo lectura. Permanecen en «Desconocido hasta el primer trayecto» hasta que openpilot reconoce el vehículo.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Extra hardware openpilot has found fitted to your car, such as a comma pedal, an SDSU or a ZSS.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot works these out from your car's wiring on its own. "None" is not proof nothing is fitted: on a Toyota a comma pedal is only reported while openpilot is handling the gas and brake, and on a Bosch Honda it is never reported at all.</source>
-        <translation>&lt;b&gt;Hardware adicional que openpilot ha detectado en el vehículo, como un comma pedal, una SDSU o un ZSS.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot lo determina automáticamente a partir del cableado del vehículo. «Ninguno» no demuestra que no haya nada instalado: en un Toyota, el comma pedal solo se muestra cuando openpilot controla el acelerador y el freno; en un Honda Bosch no se muestra nunca.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Whether openpilot can read your car's blind spot sensors, which it uses to hold off a lane change when someone is beside you.&lt;/b&gt;&lt;br&gt;&lt;br&gt;If this says No, check your mirrors yourself before every lane change, because openpilot has nothing to warn it.</source>
@@ -4519,6 +4852,70 @@ Continúa solo si sabes qué hacen.</translation>
     <message>
         <source>Unknown until first drive</source>
         <translation>Desconocido hasta el primer trayecto</translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;The make of the car openpilot is using.&lt;/b&gt; To pick one yourself, turn on "Disable Automatic Fingerprint Detection" first ("Advanced" tuning level).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;The model of the car openpilot is using.&lt;/b&gt; To pick one yourself, turn on "Disable Automatic Fingerprint Detection" first ("Advanced" tuning level).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Settings that only work on Genesis, Hyundai and Kia cars, covering a steering torque hack.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The steering hack only appears on cars using CAN-FD.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Warning:&lt;/b&gt; openpilot can't tell whether your keys are still in the car, so keep a spare somewhere safe before you rely on this!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Line up the speed openpilot shows on screen with the number on your dashboard, which most cars deliberately read a little high.&lt;/b&gt;&lt;br&gt;&lt;br&gt;With "Use Wheel Speed" off, raise it until openpilot's number matches your dashboard. This does not change how fast openpilot actually drives, with one exception: while it is following posted speed limits, a higher number here makes it drive slightly slower.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Acura/Honda Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Settings that only work on Acura and Honda cars with the older Nidec cruise control, covering how openpilot follows and brakes.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gentle Following</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Soften how hard openpilot corrects its speed behind the car ahead, for smoother following in stop-and-go traffic.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot settles small speed differences more slowly, so it can take a moment longer to close a gap after the car ahead pulls away.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Increased Braking Force</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Let openpilot use your car's full braking force for its hardest stops.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without it, openpilot's hardest stop only uses about four fifths of the brakes on these cars. With it on, every stop brakes a little firmer for the same request.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Settings that only work on Buick, Cadillac, Chevrolet, GMC and Holden cars, covering pedal response on hills and how openpilot stops and starts.&lt;/b&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Smooth Pedal Response on Hills</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add gas going uphill and ease off going downhill, so openpilot holds a steady pace on hills instead of correcting after the car has already slowed down or sped up.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Slopes gentler than about 1% are ignored. The brakes get the same adjustment above about 22 mph, and it fades out as you slow to about 11 mph so stops feel the same as on flat ground.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Extra hardware openpilot has found fitted to your car, such as a comma pedal, an SDSU or a ZSS.&lt;/b&gt;&lt;br&gt;&lt;br&gt;openpilot works these out from your car's wiring on its own. "None" is not proof nothing is fitted: a comma pedal is only reported on cars that support one.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4622,10 +5019,6 @@ Continúa solo si sabes qué hacen.</translation>
     <message>
         <source>Show Speed Limits from Mapbox</source>
         <translation>Mostrar límites de velocidad de Mapbox</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Fall back to Mapbox for the speed limit when neither your dashboard nor your downloaded maps know one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs your Public Mapbox Key set up under "Maps and Navigation" and a working internet connection.</source>
-        <translation>&lt;b&gt;Usa Mapbox como fuente alternativa del límite de velocidad cuando ni el cuadro de instrumentos ni los mapas descargados dispongan de uno.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Requiere configurar tu clave pública de Mapbox en "Mapas y navegación" y una conexión a Internet operativa.</translation>
     </message>
     <message>
         <source>Use Vienna-Style Speed Signs</source>
@@ -4736,26 +5129,6 @@ Continúa solo si sabes qué hacen.</translation>
         <translation>&lt;b&gt;Colorear la trayectoria de conducción de verde cuando openpilot acelera y de rojo cuando reduce la velocidad.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Permite anticipar visualmente una desaceleración antes de sentirla.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Draw the paths of the lanes either side of you, so you can see where openpilot thinks they run.&lt;/b&gt;&lt;br&gt;&lt;br&gt;They only appear above about 20 mph, and only where the lane beside you measures wide enough to be a real lane.</source>
-        <translation>&lt;b&gt;Dibujar las trayectorias de los carriles situados a ambos lados para mostrar por dónde cree openpilot que discurren.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Solo aparecen por encima de unas 20 mph y cuando el carril adyacente tiene anchura suficiente para considerarse un carril real.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Turn the lane beside you red whenever your car's sensors see something in that blind spot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only shows up above about 20 mph, so it stays away in slow traffic and car parks. Keep checking your mirrors regardless.</source>
-        <translation>&lt;b&gt;Colorear de rojo el carril adyacente cuando los sensores del coche detecten algo en ese ángulo muerto.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Solo aparece por encima de unas 20 mph, por lo que permanece oculto en tráfico lento y aparcamientos. Comprueba siempre los retrovisores.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Add a compass to the driving screen showing which way you are heading.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without a GPS fix it freezes pointing north rather than disappearing, so treat a compass that never moves as no reading at all.</source>
-        <translation>&lt;b&gt;Añadir a la pantalla de conducción una brújula que indique la dirección en la que circulas.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Si no hay señal GPS, queda fija apuntando al norte en lugar de desaparecer; considera que una brújula que no se mueve carece de lectura válida.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Add a button to the driving screen that switches your following distance between Aggressive, Standard and Relaxed without going into the menus.&lt;/b&gt;&lt;br&gt;&lt;br&gt;This changes how the car actually drives, not just what you see. It also shows which one is active.</source>
-        <translation>&lt;b&gt;Añadir a la pantalla de conducción un botón que cambia la distancia de seguimiento entre Agresivo, Estándar y Relajado sin entrar en los menús.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Esto cambia realmente cómo conduce el coche, no solo lo que ves. El botón también muestra qué perfil está activo.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Show gas and brake indicators on the driving screen so you can see what openpilot is doing with the pedals.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Dynamic" fades them in and out with how hard it is pressing. "Static" shows them fully lit when active and dim when not.</source>
-        <translation>&lt;b&gt;Mostrar indicadores de acelerador y freno en la pantalla de conducción para ver cómo acciona openpilot los pedales.&lt;/b&gt;&lt;br&gt;&lt;br&gt;«Dinámico» varía gradualmente su intensidad según la presión aplicada. «Estático» los muestra totalmente iluminados cuando están activos y atenuados cuando no lo están.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Turn the steering wheel picture on screen in time with your real steering wheel.&lt;/b&gt;</source>
         <translation>&lt;b&gt;Girar la imagen del volante en pantalla al mismo tiempo que el volante real.&lt;/b&gt;</translation>
     </message>
@@ -4764,16 +5137,8 @@ Continúa solo si sabes qué hacen.</translation>
         <translation>&lt;b&gt;Cambiar la forma en que openpilot dibuja la carretera por delante, incluida la trayectoria de conducción, las líneas de carril y los bordes de la carretera.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Al desactivarlo, se recuperan los tamaños de openpilot original, pero también desaparecen los bordes de colores de la trayectoria.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Make the driving path narrower when openpilot is doing less of the driving, so you can tell at a glance how much control it has.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Full width while openpilot is driving, three quarters while it is only steering for you, and half the rest of the time.</source>
-        <translation>&lt;b&gt;Estrechar la trayectoria de conducción cuando openpilot controla menos funciones, para reconocer de un vistazo cuánto control tiene.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Se muestra con la anchura completa cuando openpilot conduce, a tres cuartos cuando solo controla la dirección y a la mitad el resto del tiempo.</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Set how thick the lane lines are drawn on the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The default matches the 4 inch lines actually painted on US roads. This only changes the picture, never where openpilot steers.</source>
         <translation>&lt;b&gt;Configurar el grosor con el que se dibujan las líneas de carril en la pantalla de conducción.&lt;/b&gt;&lt;br&gt;&lt;br&gt;El valor predeterminado coincide con las líneas de 4 pulgadas pintadas en las carreteras de EE. UU. Solo cambia la imagen, nunca la trayectoria de dirección de openpilot.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Set how thick the coloured stripe down each side of the driving path is, which is what tells you which mode openpilot is in.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The default is a fifth of the path width. Set it to zero to hide the stripe entirely.&lt;br&gt;&lt;br&gt;Blue means navigation is steering, light blue means openpilot is only steering for you, green is normal driving, orange is Experimental Mode, red is Traffic Mode, and yellow means you have overridden Conditional Experimental Mode.</source>
-        <translation>&lt;b&gt;Configurar el grosor de la franja de color situada a cada lado de la trayectoria de conducción, que indica en qué modo está openpilot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;El valor predeterminado es una quinta parte de la anchura de la trayectoria. Configúralo en cero para ocultar por completo la franja.&lt;br&gt;&lt;br&gt;El azul indica que la navegación controla la dirección; el azul claro, que openpilot solo controla la dirección; el verde, conducción normal; el naranja, «Modo experimental»; el rojo, «Modo de tráfico»; y el amarillo, que has anulado el «Modo experimental condicional».</translation>
     </message>
     <message>
         <source>&lt;b&gt;Set how wide the driving path is drawn ahead of your car.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The default of 6.1 feet is roughly the width of a real car.</source>
@@ -4784,16 +5149,8 @@ Continúa solo si sabes qué hacen.</translation>
         <translation>&lt;b&gt;Configurar el grosor con el que se dibujan los bordes de la carretera en la pantalla de conducción.&lt;/b&gt;&lt;br&gt;&lt;br&gt;El valor predeterminado es la mitad del grosor de una línea de carril.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Change what navigation shows on the driving screen, from the map itself to speed limit signs.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Some of these need map data downloaded under "Maps and Navigation" before they show anything.</source>
-        <translation>&lt;b&gt;Cambiar lo que muestra la navegación en la pantalla de conducción, desde el propio mapa hasta las señales de límite de velocidad.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Algunas opciones requieren descargar previamente datos de mapas en «Mapas y navegación».</translation>
-    </message>
-    <message>
         <source>&lt;b&gt;Show the name of the road you are on along the bottom of the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It comes from downloaded map data, so it stays blank on roads you have not downloaded.</source>
         <translation>&lt;b&gt;Mostrar el nombre de la vía por la que circulas en la parte inferior de la pantalla de conducción.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Se obtiene de los datos de mapas descargados, por lo que queda en blanco en las vías que no hayas descargado.</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Show the posted speed limit as a sign in the top-left corner of the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The limit comes from your car's dashboard where it can read one, and from your downloaded map data otherwise.</source>
-        <translation>&lt;b&gt;Mostrar el límite de velocidad indicado como una señal en la esquina superior izquierda de la pantalla de conducción.&lt;/b&gt;&lt;br&gt;&lt;br&gt;El límite procede del cuadro de instrumentos cuando puede leerse allí y, en caso contrario, de los datos de mapas descargados.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Draw speed limit signs in the round European style instead of the rectangular American one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs "Show Speed Limits" or "Speed Limit Controller" switched on, or the sign disappears instead of changing shape. It never changes the limit openpilot reads.</source>
@@ -4812,10 +5169,6 @@ Continúa solo si sabes qué hacen.</translation>
         <translation>&lt;b&gt;Cambiar la pantalla de conducción a la cámara del conductor cada vez que pongas la marcha atrás.&lt;/b&gt;&lt;br&gt;&lt;br&gt;No es una cámara de visión trasera: está orientada hacia ti, no hacia la carretera situada detrás.</translation>
     </message>
     <message>
-        <source>&lt;b&gt;Replace your speed with a running timer once you come to a complete stop, so you can see how long you have been waiting.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Sustituir la velocidad por un temporizador en marcha cuando te detengas por completo, para mostrar cuánto tiempo llevas esperando.&lt;/b&gt;</translation>
-    </message>
-    <message>
         <source> cm</source>
         <translation> cm</translation>
     </message>
@@ -4827,16 +5180,56 @@ Continúa solo si sabes qué hacen.</translation>
         <source>&lt;b&gt;Set how wide the driving path is drawn ahead of your car.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The default of 1.9 meters is roughly the width of a real car.</source>
         <translation>&lt;b&gt;Configurar la anchura con la que se dibuja la trayectoria de conducción delante del coche.&lt;/b&gt;&lt;br&gt;&lt;br&gt;El valor predeterminado de 1,9 metros equivale aproximadamente a la anchura de un coche real.</translation>
     </message>
+    <message>
+        <source>&lt;b&gt;Add a compass to the driving screen showing which way you are heading.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Without a GPS fix it freezes on the last heading it knew rather than disappearing, so treat a compass that never moves as no reading at all.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Change what navigation shows on the driving screen, from the road name to speed limit signs.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Some of these need map data downloaded under "Maps and Navigation" before they show anything.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Show the posted speed limit as a sign in the top-left corner of the driving screen.&lt;/b&gt;&lt;br&gt;&lt;br&gt;The limit comes from your downloaded map data first, then from your car's dashboard where it can read one, and from signs read by the camera otherwise.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Fall back to Mapbox for the speed limit when none of your downloaded maps, your dashboard or signs read by the camera know one.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Needs your Public Mapbox Key set up under "Maps and Navigation" and a working internet connection.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Draw the paths of the lanes either side of you, so you can see where openpilot thinks they run.&lt;/b&gt;&lt;br&gt;&lt;br&gt;They only appear above your "Minimum Lane Change Speed" (20 mph or 32 km/h by default), and only where openpilot sees a lane between you and the road edge.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Turn the lane beside you red whenever your car's sensors see something in that blind spot.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It only shows up above your "Minimum Lane Change Speed" (20 mph or 32 km/h by default), so it stays away in slow traffic and car parks. Keep checking your mirrors regardless.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Add a button to the driving screen that switches your following distance between Aggressive, Standard and Relaxed without going into the menus.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It works as a second "Distance" button, so holding it, or changing what that button does under "WHEEL BUTTONS", gives you those actions instead. This changes how the car actually drives, not just what you see. It also shows which one is active.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Show gas and brake indicators on the driving screen that light up as the car speeds up or slows down, whether openpilot or you are driving.&lt;/b&gt;&lt;br&gt;&lt;br&gt;"Dynamic" fades them in and out with how hard the car is accelerating or braking. "Static" shows them fully lit when active and dim when not.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Make the driving path narrower when openpilot is doing less of the driving, so you can tell at a glance how much control it has.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Full width while openpilot is driving, three quarters while "Always On Lateral" is steering for you, and half the rest of the time.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Set how thick the coloured stripe down each side of the driving path is, which is what tells you which mode openpilot is in.&lt;/b&gt;&lt;br&gt;&lt;br&gt;By default the two stripes together take up a fifth of the path width. Set it to zero to hide the stripe entirely.&lt;br&gt;&lt;br&gt;Light blue means "Always On Lateral" is steering for you, green is normal driving, orange is Experimental Mode, red is Traffic Mode, and yellow means you have overridden Conditional Experimental Mode to keep Experimental Mode off.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;b&gt;Replace your speed with a running timer once you come to a complete stop, so you can see how long you have been waiting.&lt;/b&gt;&lt;br&gt;&lt;br&gt;It stays off for the first minute of a drive.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>FrogPilotWheelPanel</name>
     <message>
         <source>Distance Button</source>
         <translation>Botón de distancia</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Action performed when the "Distance" button is pressed.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;Acción que se realiza al pulsar el botón «Distancia».&lt;/b&gt;</translation>
     </message>
     <message>
         <source>Distance Button (Long Press)</source>
@@ -4898,6 +5291,10 @@ Continúa solo si sabes qué hacen.</translation>
         <source>&lt;b&gt;Action performed when the "Distance" button is pressed for more than 0.5 seconds.&lt;/b&gt;&lt;br&gt;&lt;br&gt;On GM cars the hold is 0.75 seconds instead.</source>
         <translation>&lt;b&gt;Acción que se realiza al mantener pulsado el botón «Distancia» durante más de 0,5 segundos.&lt;/b&gt;&lt;br&gt;&lt;br&gt;En los vehículos GM, la pulsación dura 0,75 segundos.</translation>
     </message>
+    <message>
+        <source>&lt;b&gt;Action performed when the "Distance" button is pressed.&lt;/b&gt;&lt;br&gt;&lt;br&gt;On GM cars with adaptive cruise, changing the "Personality Profile" takes a second press within 3.5 seconds of the first.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>HudRenderer</name>
@@ -4930,6 +5327,939 @@ Continúa solo si sabes qué hacen.</translation>
     <message>
         <source>Characters: %1/%2</source>
         <translation>Caracteres: %1/%2</translation>
+    </message>
+</context>
+<context>
+    <name>InstantReplayButton</name>
+    <message>
+        <source>SAVING...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>CAPTURE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BUFFERING...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MapSelectionControl</name>
+    <message>
+        <source>Algeria</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Angola</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Benin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Botswana</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Burkina Faso</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Burundi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cameroon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Central African Republic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Chad</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Congo (Brazzaville)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Congo (Kinshasa)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Djibouti</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Egypt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Equatorial Guinea</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Eritrea</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Eswatini</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ethiopia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gabon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gambia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ghana</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Guinea</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Guinea-Bissau</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ivory Coast</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Kenya</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lesotho</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Liberia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Libya</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Madagascar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Malawi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mali</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mauritania</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Morocco</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mozambique</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Namibia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Niger</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Nigeria</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rwanda</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Senegal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sierra Leone</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Somalia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>South Africa</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>South Sudan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sudan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tanzania</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Togo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tunisia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uganda</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zambia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zimbabwe</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Antarctica</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Afghanistan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Armenia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Azerbaijan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bangladesh</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bhutan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Brunei</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cambodia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>China</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cyprus</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>East Timor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>India</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Indonesia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Iran</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Iraq</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Israel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Japan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jordan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Kazakhstan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Kuwait</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Kyrgyzstan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Laos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lebanon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Malaysia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mongolia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Myanmar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Nepal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>North Korea</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Oman</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pakistan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Palestine</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Philippines</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Qatar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Russia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saudi Arabia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>South Korea</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sri Lanka</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Syria</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Taiwan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tajikistan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Thailand</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Turkey</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Turkmenistan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>United Arab Emirates</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uzbekistan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Vietnam</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Yemen</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Albania</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Austria</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Belarus</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Belgium</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bosnia and Herzegovina</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bulgaria</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Croatia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Czech Republic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Denmark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Estonia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Finland</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>France</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Georgia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Germany</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Greece</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hungary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Iceland</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ireland</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Italy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Latvia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lithuania</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Luxembourg</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Moldova</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Montenegro</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Netherlands</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>North Macedonia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Norway</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Poland</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portugal</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Romania</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Serbia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Slovakia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Slovenia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Spain</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sweden</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switzerland</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ukraine</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>United Kingdom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bahamas</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Belize</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Canada</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Costa Rica</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cuba</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dominican Republic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>El Salvador</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Greenland</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Guatemala</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Haiti</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Honduras</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Jamaica</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mexico</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Nicaragua</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Panama</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Trinidad and Tobago</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>United States</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Australia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fiji</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>French Southern Territories</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Caledonia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Zealand</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Papua New Guinea</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Solomon Islands</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Vanuatu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Argentina</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bolivia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Brazil</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Chile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Colombia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ecuador</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Falkland Islands</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Guyana</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Paraguay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Peru</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Suriname</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Uruguay</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Venezuela</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MapSelectionControlStates</name>
+    <message>
+        <source>Illinois</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Indiana</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Iowa</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Kansas</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Michigan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Minnesota</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Missouri</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Nebraska</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>North Dakota</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ohio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>South Dakota</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wisconsin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Connecticut</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maine</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Massachusetts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Hampshire</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Jersey</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New York</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Pennsylvania</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Rhode Island</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Vermont</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alabama</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Arkansas</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delaware</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>District of Columbia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Florida</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Georgia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Kentucky</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Louisiana</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Maryland</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mississippi</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>North Carolina</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Oklahoma</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>South Carolina</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tennessee</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Texas</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Virginia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>West Virginia</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Alaska</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Arizona</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>California</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Colorado</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hawaii</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Idaho</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Montana</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Nevada</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Mexico</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Oregon</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Utah</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Washington</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wyoming</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>American Samoa</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Guam</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Northern Mariana Islands</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Puerto Rico</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Virgin Islands</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5016,7 +6346,7 @@ Continúa solo si sabes qué hacen.</translation>
     </message>
     <message>
         <source>Excessive %1 actuation detected on your last drive. Please contact support at https://comma.ai/support and share your device's Dongle ID for troubleshooting.</source>
-        <translation>Se detectó una activación excesiva de %1 en su último disco. Comuníquese con el soporte técnico en https://comma.ai/support y comparta el ID del Dongle de su dispositivo para solucionar problemas.</translation>
+        <translation>Se detectó una activación excesiva de %1 en su último trayecto. Comuníquese con el soporte técnico en https://comma.ai/support y comparta el ID del Dongle de su dispositivo para solucionar problemas.</translation>
     </message>
 </context>
 <context>
@@ -5032,6 +6362,10 @@ Continúa solo si sabes qué hacen.</translation>
     <message>
         <source> ALERT</source>
         <translation> ALERTA</translation>
+    </message>
+    <message>
+        <source>Mystery Model 👻</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5211,6 +6545,66 @@ Continúa solo si sabes qué hacen.</translation>
     <message>
         <source> seconds</source>
         <translation> segundos</translation>
+    </message>
+    <message>
+        <source>April Fools</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Christmas</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cinco de Mayo</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Easter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Fourth of July</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Halloween</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>May the Fourth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New Year's</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>St. Patrick's Day</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stitch Day</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stock</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Thanksgiving</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Valentine's Day</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>World Frog Day</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5500,16 +6894,12 @@ Continúa solo si sabes qué hacen.</translation>
         <translation>Este restablecimiento completo de fábrica no se puede deshacer. ¿Confirmas que quieres continuar?</translation>
     </message>
     <message>
-        <source>Automatically update FrogPilot when the vehicle is parked with an active internet connection.</source>
-        <translation>Actualiza automáticamente FrogPilot cuando el vehículo está estacionado con una conexión a Internet activa.</translation>
+        <source>Share FrogPilot Data</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Share Driving Data</source>
-        <translation>Compartir datos de conducción</translation>
-    </message>
-    <message>
-        <source>&lt;b&gt;Automatically share anonymized driving data with FrogPilot to help improve it.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Only driving signals are shared: no video, no GPS or location, no VIN, and no identifiers. Turn this off to opt out.</source>
-        <translation>&lt;b&gt;Comparta automáticamente datos de conducción anónimos con FrogPilot para ayudar a mejorarlos.&lt;/b&gt;&lt;br&gt;&lt;br&gt;Solo se comparten señales de conducción: sin vídeo, sin GPS ni ubicación, sin VIN y sin identificadores. Desactívelo para optar por no participar.</translation>
+        <source>Automatically update FrogPilot when the car is off with an active internet connection. Automatic updates turn off after a FrogPilot backup is restored until you update manually.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

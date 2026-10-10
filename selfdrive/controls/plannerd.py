@@ -7,7 +7,7 @@ from openpilot.selfdrive.controls.lib.ldw import LaneDepartureWarning
 from openpilot.selfdrive.controls.lib.longitudinal_planner import LongitudinalPlanner
 import cereal.messaging as messaging
 
-from openpilot.frogpilot.common.frogpilot_variables import get_frogpilot_toggles
+from openpilot.frogpilot.common import frogpilot_variables
 
 
 def main():
@@ -27,7 +27,7 @@ def main():
   # FrogPilot variables
   sm = sm.extend(['frogpilotCarState', 'frogpilotPlan'])
 
-  frogpilot_toggles = get_frogpilot_toggles()
+  frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
   while True:
     sm.update()
@@ -43,7 +43,7 @@ def main():
       pm.send('driverAssistance', msg)
 
     # FrogPilot variables
-    frogpilot_toggles = get_frogpilot_toggles(sm)
+    frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
 
 
 if __name__ == "__main__":

@@ -6,7 +6,7 @@ from parameterized import parameterized
 from cereal import car
 from opendbc.car import DT_CTRL
 from opendbc.car.structs import CarParams
-from opendbc.car.tests.test_car_interfaces import get_fuzzy_car_interface
+from opendbc.car.tests.test_car_interfaces import TOGGLES, get_fuzzy_car_interface
 from opendbc.car.mock.values import CAR as MOCK
 from opendbc.car.values import PLATFORMS
 from openpilot.selfdrive.controls.lib.latcontrol_angle import LatControlAngle
@@ -35,8 +35,8 @@ class TestCarInterfaces:
     CC = car.CarControl.new_message(**cc_msg)
     CC = CC.as_reader()
     for _ in range(10):
-      car_interface.update([])
-      car_interface.apply(CC, now_nanos)
+      car_interface.update([], TOGGLES)
+      car_interface.apply(CC, now_nanos, TOGGLES)
       now_nanos += DT_CTRL * 1e9  # 10 ms
 
     CC = car.CarControl.new_message(**cc_msg)
@@ -45,8 +45,8 @@ class TestCarInterfaces:
     CC.longActive = True
     CC = CC.as_reader()
     for _ in range(10):
-      car_interface.update([])
-      car_interface.apply(CC, now_nanos)
+      car_interface.update([], TOGGLES)
+      car_interface.apply(CC, now_nanos, TOGGLES)
       now_nanos += DT_CTRL * 1e9  # 10ms
 
     # Test controller initialization

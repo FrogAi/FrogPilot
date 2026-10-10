@@ -136,7 +136,7 @@ class TestGmSafetyBase(common.CarSafetyTest, common.DriverTorqueSteeringSafetyTe
   def _toggle_aol(self, toggle_on):
     # ECMEngineStatus, bit 29 is CruiseMainOn
     values = {"CruiseMainOn": 1 if toggle_on else 0}
-    return self.packer.make_can_msg_panda("ECMEngineStatus", 0, values)
+    return self.packer.make_can_msg_safety("ECMEngineStatus", 0, values)
 
 
 class TestGmEVSafetyBase(TestGmSafetyBase):
@@ -248,8 +248,7 @@ class TestGmInterceptorSafety(common.GasInterceptorSafetyTest, TestGmCameraSafet
   INTERCEPTOR_THRESHOLD = 550
 
   def setUp(self):
-    self.packer = CANPackerPanda("gm_global_a_powertrain_generated")
-    self.packer_chassis = CANPackerPanda("gm_global_a_chassis")
+    self.packer = CANPackerSafety("gm_global_a_powertrain_generated")
     self.safety = libsafety_py.libsafety
     self.safety.set_safety_hooks(
       CarParams.SafetyModel.gm,
@@ -271,9 +270,9 @@ class TestGmInterceptorSafety(common.GasInterceptorSafetyTest, TestGmCameraSafet
   def test_no_response_to_acc_pcm_message(self):
     for enable in [True, False]:
       self.safety.set_controls_allowed(enable)
-      self._rx(self.packer.make_can_msg_panda("AcceleratorPedal2", 0, {"CruiseState": True}))
+      self._rx(self.packer.make_can_msg_safety("AcceleratorPedal2", 0, {"CruiseState": True}))
       self.assertEqual(enable, self.safety.get_controls_allowed())
-      self._rx(self.packer.make_can_msg_panda("AcceleratorPedal2", 0, {"CruiseState": False}))
+      self._rx(self.packer.make_can_msg_safety("AcceleratorPedal2", 0, {"CruiseState": False}))
       self.assertEqual(enable, self.safety.get_controls_allowed())
 
   def test_buttons(self):
@@ -292,9 +291,6 @@ class TestGmInterceptorSafety(common.GasInterceptorSafetyTest, TestGmCameraSafet
       self.assertEqual(enabled, self._tx(self._button_msg(Buttons.CANCEL)))
       self.assertTrue(self.safety.get_controls_allowed())
 
-  def test_fwd_hook(self):
-    pass
-
   def test_disable_control_allowed_from_cruise(self):
     pass
 
@@ -309,7 +305,7 @@ class TestGmInterceptorSafety(common.GasInterceptorSafetyTest, TestGmCameraSafet
 
   def _pcm_status_msg(self, enable):
     values = {"CruiseActive": enable}
-    return self.packer.make_can_msg_panda("ECMCruiseControl", 0, values)
+    return self.packer.make_can_msg_safety("ECMCruiseControl", 0, values)
 
 
 class TestGmCcLongitudinalSafety(TestGmCameraSafety):
@@ -318,18 +314,14 @@ class TestGmCcLongitudinalSafety(TestGmCameraSafety):
   BUTTONS_BUS = 0  # tx only
 
   def setUp(self):
-    self.packer = CANPackerPanda("gm_global_a_powertrain_generated")
-    self.packer_chassis = CANPackerPanda("gm_global_a_chassis")
+    self.packer = CANPackerSafety("gm_global_a_powertrain_generated")
     self.safety = libsafety_py.libsafety
     self.safety.set_safety_hooks(CarParams.SafetyModel.gm, GMSafetyFlags.HW_CAM | GMSafetyFlags.FLAG_GM_NO_ACC | GMSafetyFlags.FLAG_GM_CC_LONG)
     self.safety.init_tests()
 
   def _pcm_status_msg(self, enable):
     values = {"CruiseActive": enable}
-    return self.packer.make_can_msg_panda("ECMCruiseControl", 0, values)
-
-  def test_fwd_hook(self):
-    pass
+    return self.packer.make_can_msg_safety("ECMCruiseControl", 0, values)
 
   def test_buttons(self):
     self.safety.set_controls_allowed(0)

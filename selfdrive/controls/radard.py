@@ -14,7 +14,7 @@ from openpilot.common.swaglog import cloudlog
 from openpilot.common.simple_kalman import KF1D
 from openpilot.selfdrive.controls.lib.desire_helper import LaneChangeDirection, LaneChangeState
 
-from openpilot.frogpilot.common.frogpilot_variables import THRESHOLD, get_frogpilot_toggles
+from openpilot.frogpilot.common import frogpilot_variables
 
 
 # Default lead acceleration decay set to 50% at 1s
@@ -28,6 +28,9 @@ V_EGO_STATIONARY = 4.   # no stationary object flag below this speed
 
 RADAR_TO_CENTER = 2.7   # (deprecated) RADAR is ~ 2.7m ahead from center of car
 RADAR_TO_CAMERA = 1.52  # RADAR is ~ 1.5m ahead from center of mesh frame
+
+# FrogPilot variables
+LEAD_REFLECTION_DISTANCE = 1.5
 
 
 class KalmanParams:
@@ -131,13 +134,15 @@ class Track:
         self.leadRight = False
       return False
 
-    far_left_lane = np.interp(self.dRel, model_data.laneLines[0].x, model_data.laneLines[0].y)
-    left_lane = np.interp(self.dRel, model_data.laneLines[1].x, model_data.laneLines[1].y)
-    right_lane = np.interp(self.dRel, model_data.laneLines[2].x, model_data.laneLines[2].y)
-    far_right_lane = np.interp(self.dRel, model_data.laneLines[3].x, model_data.laneLines[3].y)
+    model_distance = self.dRel + RADAR_TO_CAMERA
 
-    lead_left = far_left_lane < -self.yRel < left_lane and self.dRel < model_data.position.x[-1]
-    lead_right = right_lane < -self.yRel < far_right_lane and self.dRel < model_data.position.x[-1]
+    far_left_lane = np.interp(model_distance, model_data.laneLines[0].x, model_data.laneLines[0].y)
+    left_lane = np.interp(model_distance, model_data.laneLines[1].x, model_data.laneLines[1].y)
+    right_lane = np.interp(model_distance, model_data.laneLines[2].x, model_data.laneLines[2].y)
+    far_right_lane = np.interp(model_distance, model_data.laneLines[3].x, model_data.laneLines[3].y)
+
+    lead_left = far_left_lane < -self.yRel < left_lane and model_distance < model_data.position.x[-1]
+    lead_right = right_lane < -self.yRel < far_right_lane and model_distance < model_data.position.x[-1]
 
     if should_update_cached_leads:
       self.leadLeft = lead_left
@@ -149,10 +154,12 @@ class Track:
       return lead_right
 
   def potential_far_lead(self, lead_msg: capnp._DynamicStructReader, model_data: capnp._DynamicStructReader):
-    left_lane = np.interp(self.dRel, model_data.laneLines[1].x, model_data.laneLines[1].y)
-    right_lane = np.interp(self.dRel, model_data.laneLines[2].x, model_data.laneLines[2].y)
+    model_distance = self.dRel + RADAR_TO_CAMERA
 
-    if left_lane < -self.yRel < right_lane and self.dRel < model_data.position.x[-1] and self.vLeadK > 1:
+    left_lane = np.interp(model_distance, model_data.laneLines[1].x, model_data.laneLines[1].y)
+    right_lane = np.interp(model_distance, model_data.laneLines[2].x, model_data.laneLines[2].y)
+
+    if left_lane < -self.yRel < right_lane and model_distance < model_data.position.x[-1] and self.vLeadK > 1:
       self.radarfulFilter.update(1)
       return True
     else:
@@ -165,21 +172,7 @@ def laplacian_pdf(x: float, mu: float, b: float):
   return math.exp(-abs(x-mu)/b)
 
 
-def match_vision_to_track(v_ego: float, lead: capnp._DynamicStructReader, model_data: capnp._DynamicStructReader, tracks: dict[int, Track], frogpilot_toggles: SimpleNamespace):
-  # FrogPilot variables
-  if model_data.meta.laneChangeState == LaneChangeState.laneChangeStarting and frogpilot_toggles.human_lane_changes:
-    direction = model_data.meta.laneChangeDirection
-
-    if direction == LaneChangeDirection.left:
-      left_tracks = [track for track in tracks.values() if track.leadLeft]
-      if left_tracks:
-        return min(left_tracks, key=lambda c: c.dRel)
-
-    elif direction == LaneChangeDirection.right:
-      right_tracks = [track for track in tracks.values() if track.leadRight]
-      if right_tracks:
-        return min(right_tracks, key=lambda c: c.dRel)
-
+def match_vision_to_track(v_ego: float, lead: capnp._DynamicStructReader, tracks: dict[int, Track]):
   offset_vision_dist = lead.x[0] - RADAR_TO_CAMERA
 
   def prob(c):
@@ -226,7 +219,7 @@ def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capn
              low_speed_override: bool = True) -> dict[str, Any]:
   # Determine leads, this is where the essential logic happens
   if len(tracks) > 0 and ready and lead_msg.prob > frogpilot_toggles.lead_detection_probability:
-    track = match_vision_to_track(v_ego, lead_msg, model_data, tracks, frogpilot_toggles)
+    track = match_vision_to_track(v_ego, lead_msg, tracks)
   else:
     track = None
 
@@ -236,6 +229,18 @@ def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capn
   elif (track is None) and ready and (lead_msg.prob > frogpilot_toggles.lead_detection_probability):
     lead_dict = get_RadarState_from_vision(lead_msg, v_ego, model_v_ego)
 
+  # FrogPilot variables
+  if lead_dict['status'] and model_data.meta.laneChangeState == LaneChangeState.laneChangeStarting and frogpilot_toggles.human_lane_changes:
+    if model_data.meta.laneChangeDirection == LaneChangeDirection.left:
+      adjacent_tracks = [c for c in tracks.values() if c.leadLeft]
+    else:
+      adjacent_tracks = [c for c in tracks.values() if c.leadRight]
+
+    if len(adjacent_tracks) > 0:
+      closest_track = min(adjacent_tracks, key=lambda c: c.dRel)
+      if closest_track is not track:
+        lead_dict = closest_track.get_RadarState()
+
   if low_speed_override:
     low_speed_tracks = [c for c in tracks.values() if c.potential_low_speed_lead(v_ego)]
     if len(low_speed_tracks) > 0:
@@ -243,18 +248,19 @@ def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capn
 
       # Only choose new track if it is actually closer than the previous one
       if (not lead_dict['status']) or (closest_track.dRel < lead_dict['dRel']):
-        lead_dict = closest_track.get_RadarState()
+        # FrogPilot variables
+        if lead_dict['status'] and lead_dict['dRel'] - closest_track.dRel < LEAD_REFLECTION_DISTANCE:
+          lead_dict = closest_track.get_RadarState(lead_dict['modelProb'])
+        else:
+          lead_dict = closest_track.get_RadarState()
 
   if low_speed_override and not lead_dict['status'] and len(tracks) > 0:
-    far_lead_tracks = [c for c in tracks.values() if c.potential_far_lead(lead_msg, model_data) and c.radarfulFilter.x >= THRESHOLD]
+    far_lead_tracks = [c for c in tracks.values() if c.potential_far_lead(lead_msg, model_data) and c.radarfulFilter.x >= frogpilot_variables.THRESHOLD]
     if len(far_lead_tracks) > 0:
       closest_track = min(far_lead_tracks, key=lambda c: c.dRel)
       lead_dict = closest_track.get_RadarState()
 
   # FrogPilot variables
-  for track in tracks.values():
-    track.leadTrackID = lead_dict.get('radarTrackId', -1)
-
   if 'dRel' in lead_dict:
     lead_dict['dRel'] -= frogpilot_plan.increasedStoppedDistance
 
@@ -292,7 +298,7 @@ class RadarD:
     # FrogPilot variables
     self.frogpilot_radar_state = custom.FrogPilotRadarState.new_message()
 
-    self.frogpilot_toggles = get_frogpilot_toggles()
+    self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
   def update(self, sm: messaging.SubMaster, rr: car.RadarData):
     self.ready = sm.seen['modelV2']
@@ -340,10 +346,13 @@ class RadarD:
 
     # FrogPilot variables
     if self.ready and (self.frogpilot_toggles.adjacent_lead_tracking or self.frogpilot_toggles.human_lane_changes):
+      for track in self.tracks.values():
+        track.leadTrackID = self.radar_state.leadOne.radarTrackId
+
       self.frogpilot_radar_state.leadLeft = get_adjacent_lead(self.tracks, sm['modelV2'], left=True)
       self.frogpilot_radar_state.leadRight = get_adjacent_lead(self.tracks, sm['modelV2'], left=False)
 
-    self.frogpilot_toggles = get_frogpilot_toggles(sm)
+    self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
 
   def publish(self, pm: messaging.PubMaster):
     assert self.radar_state is not None

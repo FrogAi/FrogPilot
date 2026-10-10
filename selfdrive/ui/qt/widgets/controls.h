@@ -67,9 +67,6 @@ public slots:
 signals:
   void showDescriptionEvent();
 
-  // FrogPilot variables
-  void hideDescriptionEvent();
-
 protected:
   AbstractControl(const QString &title, const QString &desc = "", const QString &icon = "", QWidget *parent = nullptr);
   void hideEvent(QHideEvent *e) override;
@@ -135,14 +132,6 @@ public:
     toggle.update();
   }
 
-  // FrogPilot variables
-  void forceOn(bool force) {
-    toggle.setEnabled(!force);
-    if (force && !toggle.on) {
-     toggle.togglePosition();
-    }
-  }
-
 signals:
   void toggleFlipped(bool state);
 
@@ -166,7 +155,7 @@ public:
   }
 
   virtual void refresh() {
-    bool state = params.getBool(key);
+    bool state = forced || params.getBool(key);
     if (state != toggle.on) {
       toggle.togglePosition();
       setIcon(state);
@@ -174,6 +163,13 @@ public:
   }
 
   void showEvent(QShowEvent *event) override {
+    refresh();
+  }
+
+  // FrogPilot variables
+  void forceOn() {
+    forced = true;
+    setEnabled(false);
     refresh();
   }
 
@@ -194,6 +190,9 @@ private:
   QPixmap active_icon_pixmap;
   bool confirm = false;
   bool store_confirm = false;
+
+  // FrogPilot variables
+  bool forced = false;
 };
 
 class MultiButtonControl : public AbstractControl {
@@ -215,10 +214,10 @@ public:
         background-color: #4a4a4a;
       }
       QPushButton:checked:enabled {
-        background-color: #33Ab4C;
+        background-color: #178644;
       }
       QPushButton:checked:disabled {
-        background-color: #9933Ab4C;
+        background-color: #99178644;
       }
       QPushButton:disabled {
         color: #33E4E4E4;
@@ -304,7 +303,7 @@ class ListWidget : public QWidget {
   inline void addItem(QLayout *layout) { inner_layout.addLayout(layout); }
   inline void setSpacing(int spacing) { inner_layout.setSpacing(spacing); }
 
-private:
+protected:
   void paintEvent(QPaintEvent *) override {
     QPainter p(this);
     p.setPen(Qt::gray);

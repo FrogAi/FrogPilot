@@ -40,8 +40,6 @@ signals:
   void closeSubPanel();
   void closeSubSubPanel();
   void closeSubSubSubPanel();
-  void updateMetric(bool isMetric, bool bootRun=false);
-  void updateTuningLevel();
 
 private:
   QPushButton *sidebar_alert_widget;
@@ -50,6 +48,7 @@ private:
   QStackedWidget *panel_widget;
 
   // FrogPilot variables
+  void closeAllPanels();
   void updateDeveloperToggle(int tuningLevel);
 
   bool panelOpen = false;
@@ -74,6 +73,9 @@ private slots:
   void reboot();
   void updateCalibDescription();
 
+  // FrogPilot variables
+  void softreboot();
+
 private:
   Params params;
   ButtonControl *pair_device;
@@ -92,6 +94,7 @@ signals:
 
 public slots:
   void expandToggleDescription(const QString &param);
+  // FrogPilot variables
   void refreshMetric(bool isMetric);
   void scrollToToggle(const QString &param);
 
@@ -126,6 +129,11 @@ private:
 
   Params params;
   ParamWatcher *fs_watch;
+
+  // FrogPilot variables
+  void hideEvent(QHideEvent *event) override;
+
+  bool shown_parked = false;
 };
 
 // Forward declaration

@@ -13,12 +13,14 @@ signals:
   void openSubPanel();
 
 protected:
-  void hideEvent(QHideEvent *event);
+  void hideEvent(QHideEvent *event) override;
   void showEvent(QShowEvent *event) override;
 
 private:
-  void mousePressEvent(QMouseEvent *event);
+  void mousePressEvent(QMouseEvent *event) override;
+  void testMapboxKey(FrogPilotButtonsControl *control, const std::string &paramKey, const QString &urlTemplate);
   void updateButtons();
+  void updateNetworkState(const FrogPilotUIState &fs);
   void updateState(const UIState &s, const FrogPilotUIState &fs);
   void updateStep();
 
@@ -28,7 +30,7 @@ private:
 
   ButtonControl *setupButton;
 
-  ParamControl *updateSpeedLimitsToggle;
+  ParamControl *speedLimitFillerToggle;
 
   FrogPilotButtonsControl *publicMapboxKeyControl;
   FrogPilotButtonsControl *secretMapboxKeyControl;
@@ -40,8 +42,6 @@ private:
   Params params;
 
   QLabel *imageLabel;
-
-  QString currentStep;
 
   QNetworkAccessManager *networkManager;
 

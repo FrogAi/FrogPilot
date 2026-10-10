@@ -30,15 +30,15 @@
     "alpha": 255
   },
   "Sidebar2": {
-    "red": 238,
-    "green": 226,
-    "blue": 95,
+    "red": 255,
+    "green": 255,
+    "blue": 255,
     "alpha": 255
   },
   "Sidebar3": {
-    "red": 238,
-    "green": 0,
-    "blue": 0,
+    "red": 0,
+    "green": 104,
+    "blue": 71,
     "alpha": 255
   }
 }

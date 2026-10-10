@@ -15,7 +15,7 @@ class CarControllerParams:
   ACCEL_MIN = -3.5 # m/s
   ACCEL_MAX = 2.0 # m/s
 
-  def __init__(self, CP):
+  def __init__(self, CP, vEgoRaw=100., taco_tune_hack=False):
     self.STEER_DELTA_UP = 3
     self.STEER_DELTA_DOWN = 7
     self.STEER_DRIVER_ALLOWANCE = 50
@@ -24,7 +24,15 @@ class CarControllerParams:
     self.STEER_THRESHOLD = 150
     self.STEER_STEP = 1  # 100 Hz
 
-    if CP.flags & HyundaiFlags.CANFD:
+    # FrogPilot variables
+    if taco_tune_hack:
+      self.STEER_MAX = 384 if vEgoRaw < 11. else 330
+      self.STEER_DRIVER_ALLOWANCE = 350 if vEgoRaw < 11. else 250
+      self.STEER_DRIVER_MULTIPLIER = 2
+      self.STEER_THRESHOLD = 350 if vEgoRaw < 11. else 250
+      self.STEER_DELTA_UP = 3 if vEgoRaw < 11. else 2
+      self.STEER_DELTA_DOWN = 10 if vEgoRaw < 11. else 3
+    elif CP.flags & HyundaiFlags.CANFD:
       self.STEER_MAX = 270
       self.STEER_DRIVER_ALLOWANCE = 250
       self.STEER_DRIVER_MULTIPLIER = 2
@@ -71,6 +79,7 @@ class HyundaiSafetyFlags(IntFlag):
 # FrogPilot variables
 class HyundaiFrogPilotSafetyFlags(IntFlag):
   HAS_LDA_BUTTON = 1024
+  TACO_TUNE_HACK = 2048
 
 
 class HyundaiFlags(IntFlag):
