@@ -1,5 +1,0 @@
-# Cython intermediates
-*_pyx.cpp
-*_pyx.h
-*_pyx_api.h
-*.os
