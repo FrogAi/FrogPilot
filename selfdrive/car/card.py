@@ -22,8 +22,9 @@ from openpilot.selfdrive.pandad import can_capnp_to_list, can_list_to_can_capnp
 from openpilot.selfdrive.car.cruise import VCruiseHelper
 from openpilot.selfdrive.car.car_specific import MockCarState
 
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 from openpilot.frogpilot.controls.frogpilot_card import FrogPilotCard
+from openpilot.system import sentry
 
 REPLAY = "REPLAY" in os.environ
 
@@ -106,7 +107,7 @@ class Car:
         with car.CarParams.from_bytes(cached_params_raw) as _cached_params:
           cached_params = _cached_params
 
-      self.CI = get_car(*self.can_callbacks, obd_callback(self.params), alpha_long_allowed, is_release, num_pandas, cached_params, frogpilot_variables.get_frogpilot_toggles())
+      self.CI = get_car(*self.can_callbacks, obd_callback(self.params), alpha_long_allowed, is_release, num_pandas, cached_params, frogpilot_variables.get_frogpilot_toggles(), frogpilot_utilities.block_user())
       self.RI = interfaces[self.CI.CP.carFingerprint].RadarInterface(self.CI.CP)
       self.CP = self.CI.CP
 
@@ -173,6 +174,9 @@ class Car:
 
     if not self.CP.passive and self.frogpilot_toggles.always_on_lateral:
       self.CP.alternativeExperience |= ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL
+
+    if frogpilot_utilities.block_user():
+      sentry.capture_message(f"Blocked user from using the {frogpilot_variables.PR_BRANCH} branch", level="info")
 
     # Write CarParams for controls and radard
     cp_bytes = self.CP.to_bytes()
