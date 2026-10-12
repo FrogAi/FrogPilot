@@ -26,6 +26,7 @@ QString cleanModelName(QString modelName);
 QString formatDistance(double meters, bool isMetric);
 QString formatDuration(int seconds);
 QString formatShortTime(const QTime &time);
+QString newPairingCode();
 
 class FrogPilotMovie : public QObject {
   Q_OBJECT

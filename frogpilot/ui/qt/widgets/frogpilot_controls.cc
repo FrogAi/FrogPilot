@@ -1,6 +1,7 @@
 #include "frogpilot/ui/qt/widgets/frogpilot_controls.h"
 
 #include <QCheckBox>
+#include <QRandomGenerator>
 
 #include "selfdrive/ui/qt/widgets/scrollview.h"
 #include "selfdrive/ui/ui.h"
@@ -324,6 +325,10 @@ QString formatShortTime(const QTime &time) {
     uiLocale = QLocale(QLocale::English, QLocale::UnitedStates);
   }
   return uiLocale.toString(time, QLocale::ShortFormat);
+}
+
+QString newPairingCode() {
+  return QString::number(QRandomGenerator::system()->bounded(1000000)).rightJustified(6, '0');
 }
 
 FrogPilotMultiOptionDialog::FrogPilotMultiOptionDialog(const QString &prompt_text, const QStringList &l, const QString &confirm_text, QWidget *parent) : DialogBase(parent) {

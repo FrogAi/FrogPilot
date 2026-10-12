@@ -107,6 +107,9 @@ EXCLUDED_PATHS = (
   "tinygrad_repo/tinygrad/viz/",
 )
 
+SETTINGS_SEARCH_PATHS = ("frogpilot/ui/qt/offroad/", "selfdrive/ui/qt/network/networking.", "selfdrive/ui/qt/offroad/")
+SETTINGS_SEARCH_SUFFIXES = {".cc", ".h"}
+
 SOURCE_SUFFIXES = {".c", ".cc", ".h", ".hpp", ".ksy", ".md", ".onnx", ".pxd", ".pyx", ".qrc"}
 
 ENTRYPOINTS = {
@@ -133,6 +136,9 @@ from openpilot.system.manager.process_config import managed_processes
 
 for process in managed_processes.values():
   if isinstance(process, NativeProcess):
+    if os.path.isabs(process.cwd):
+      continue
+
     command = next(argument for argument in process.cmdline if argument.startswith("./"))
     executable = os.path.join(process.cwd, command)
     assert os.access(executable, os.X_OK), process.name
@@ -164,6 +170,9 @@ def is_runtime_file(relative):
 
   if any(part.startswith(".") or part in {"test", "tests"} for part in path.parts):
     return False
+
+  if relative.startswith(SETTINGS_SEARCH_PATHS) and path.suffix in SETTINGS_SEARCH_SUFFIXES:
+    return True
 
   if path.name.startswith("test_") or path.name == "SConscript" or path.suffix in SOURCE_SUFFIXES:
     return False

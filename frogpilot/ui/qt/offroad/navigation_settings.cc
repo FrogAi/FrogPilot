@@ -13,6 +13,14 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
   settingsList->addItem(ipLabel);
 
   pairingToggle = new ParamControl("ThePondPairing", tr("Pairing Code"), tr("<b>Ask for a code before a browser can use \"The Pond\".</b><br><br>Without a code, any device on the same Wi-Fi or Tailscale network can open your drives, camera footage, logs, location, and saved places, and can change your settings, unlock your doors, reboot the device, switch branches, run any command on the device from its shell, restore a backup that replaces its software, or sign the device into a Tailscale account. The code shows next to the address above. Turning this off signs every browser out, and turning it back on makes a new code."), "");
+  QObject::connect(pairingToggle, &ToggleControl::toggleFlipped, [this](bool state) {
+    if (state) {
+      params.put("ThePondPairingCode", newPairingCode().toStdString());
+    } else {
+      params.remove("ThePondPairedBrowsers");
+      params.remove("ThePondPairingCode");
+    }
+  });
   settingsList->addItem(pairingToggle);
 
   publicMapboxKeyControl = new FrogPilotButtonsControl(tr("Public Mapbox Key"), tr("<b>Lets openpilot get speed limits from Mapbox.</b><br><br>You make this key yourself on Mapbox's website. \"Mapbox Setup Instructions\" walks you through it."), "", {tr("ADD"), tr("TEST")});
@@ -185,6 +193,17 @@ void FrogPilotNavigationPanel::updateButtons() {
 
 void FrogPilotNavigationPanel::updateNetworkState(const FrogPilotUIState &fs) {
   const FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
+
+  QString ipAddress = fs.wifi->ipv4_address;
+  if (ipAddress.isEmpty()) {
+    ipLabel->setText(tr("Offline..."));
+  } else {
+    QString address = QString("%1:%2").arg(ipAddress).arg(8082);
+    if (params.getBool("ThePondPairing")) {
+      address += tr(" (Code %1)").arg(QString::fromStdString(params.get("ThePondPairingCode")));
+    }
+    ipLabel->setText(address);
+  }
 
   publicMapboxKeyControl->setVisibleButton(1, mapboxPublicKeySet && frogpilot_scene.online);
   secretMapboxKeyControl->setVisibleButton(1, mapboxSecretKeySet && frogpilot_scene.online);

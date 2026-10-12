@@ -4,6 +4,7 @@ from enum import IntEnum
 from collections.abc import Callable
 
 from openpilot.common.params import Params
+from openpilot.frogpilot.ui.mici.frogpilot_settings import FrogPilotBigButton
 from openpilot.system.ui.widgets.scroller import Scroller
 from openpilot.selfdrive.ui.mici.widgets.button import BigButton
 from openpilot.selfdrive.ui.mici.layouts.settings.toggles import TogglesLayoutMici
@@ -50,6 +51,7 @@ class SettingsLayout(NavWidget):
 
     self._scroller = Scroller([
       # FrogPilot variables
+      FrogPilotBigButton(),
 
       toggles_btn,
       network_btn,

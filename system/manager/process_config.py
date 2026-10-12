@@ -83,6 +83,9 @@ def run_speed_limit_capture(started: bool, params: Params, CP: car.CarParams, fr
 def run_speed_limit_reader(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
   return started and (frogpilot_toggles.show_speed_limits or frogpilot_toggles.speed_limit_controller or frogpilot_toggles.speed_limit_filler)
 
+def run_tailscale(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
+  return frogpilot_paths.TAILSCALED_PATH.is_file()
+
 procs = [
   DaemonProcess("manage_athenad", "system.athena.manage_athenad", "AthenadPid"),
 
@@ -147,6 +150,8 @@ procs += [
   NativeProcess("mapd", "frogpilot/navigation", ["env", "USE_MSGQ_PREFIX=true", "./mapd"], always_run),
   PythonProcess("speed_limit_capture", "frogpilot.system.speed_limit_capture", and_(allow_logging, run_speed_limit_capture)),
   PythonProcess("speed_limit_reader", "frogpilot.system.speed_limit_reader", run_speed_limit_reader, enabled=not PC),
+  NativeProcess("tailscaled", str(frogpilot_paths.TAILSCALE_PATH), ["./tailscaled", "--tun=userspace-networking", f"--socket={frogpilot_paths.TAILSCALE_SOCKET_PATH}", f"--statedir={frogpilot_paths.TAILSCALE_STATE_PATH}"], run_tailscale),
+  PythonProcess("the_pond", "frogpilot.system.the_pond.the_pond", always_run),
 ]
 
 managed_processes = {p.name: p for p in procs}
