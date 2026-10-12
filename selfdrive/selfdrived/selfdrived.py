@@ -45,6 +45,8 @@ SafetyModel = car.CarParams.SafetyModel
 # FrogPilot variables
 FrogPilotEventName = custom.FrogPilotOnroadEvent.EventName
 
+SHOWN_ONCE_EVENTS = {EventName.belowSteerSpeed, EventName.resumeRequired}
+
 IGNORED_SAFETY_MODES = (SafetyModel.silent, SafetyModel.noOutput)
 
 
@@ -160,6 +162,9 @@ class SelfdriveD:
 
     self.frogpilot_events_prev = []
 
+    self.hidden_events = set()
+    self.shown_events = set()
+
     self.has_menu = self.CP.brand == "gm" and self.CP.carFingerprint not in CC_ONLY_CAR
 
   def update_events(self, CS):
@@ -225,6 +230,11 @@ class SelfdriveD:
       self.events.add_from_msg(car_events)
 
       # FrogPilot variables
+      active_events = SHOWN_ONCE_EVENTS.intersection(self.events.names)
+      self.hidden_events |= self.shown_events - active_events
+      self.shown_events |= active_events
+
+      self.events.events = [event for event in self.events.events if event not in self.hidden_events]
 
       if self.CP.notCar:
         # wait for everything to init first
