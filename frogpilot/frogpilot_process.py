@@ -38,6 +38,7 @@ class FrogPilotRequests:
     self.account_link_request_time = 0
 
     self.account_url = ""
+    self.door_command = ""
     self.settings_backup = ""
 
     self.pending = {}
@@ -66,6 +67,12 @@ class FrogPilotRequests:
     except Exception:
       self.settings_backup = "failed"
       raise
+
+  def send_door_command(self, lock):
+    if frogpilot_utilities.send_door_command(lock):
+      self.door_command = "locked" if lock else "unlocked"
+    else:
+      self.door_command = "failed"
 
   def update_account_link(self, api, unlink, request_time):
     if unlink:
@@ -176,6 +183,15 @@ class FrogPilotRequests:
       self.take("downloadMaps")
       self.cancel_maps_download.set()
 
+    if not self.thread_manager.is_thread_alive("send_door_command"):
+      request = self.take("lockDoors")
+      if request is not None:
+        if sm["deviceState"].started or self.thread_manager.is_thread_alive("lock_doors"):
+          self.door_command = "busy"
+        else:
+          self.door_command = "pending"
+          self.thread_manager.run_in_thread(self.send_door_command, (request.lockDoors,))
+
     if not self.thread_manager.is_thread_alive("run_settings_backup"):
       request = self.take("createSettingsBackup")
       if request is not None:
@@ -187,6 +203,11 @@ class FrogPilotRequests:
           self.settings_backup = "pending"
           self.thread_manager.run_in_thread(self.run_settings_backup, (frogpilot_backups.restore_settings_backup, params,
                                                                       frogpilot_paths.TOGGLE_BACKUPS / request.restoreSettingsBackup))
+
+    if self.take("refreshTheme") is not None:
+      self.theme_manager.previous_asset_mappings = {}
+      self.theme_manager.theme_update_count += 1
+      self.theme_manager.theme_updated = True
 
     return self.take("updateToggles") is not None, self.take("updateChecks") is not None
 
@@ -206,6 +227,8 @@ class FrogPilotRequests:
     frogpilot_process_state_send = messaging.new_message("frogpilotProcessState")
     frogpilotProcessState = frogpilot_process_state_send.frogpilotProcessState
 
+    frogpilotProcessState.doorCommand = self.door_command
+    frogpilotProcessState.doorCommandRequestTime = self.request_times.get("lockDoors", 0)
     frogpilotProcessState.downloadingMaps = self.thread_manager.is_thread_alive("update_maps")
     frogpilotProcessState.downloadingModels = self.thread_manager.is_thread_alive("download_models") or self.model_manager.downloading_automatically
     frogpilotProcessState.downloadMapsRequestTime = self.request_times.get("downloadMaps", 0)

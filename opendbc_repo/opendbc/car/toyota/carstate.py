@@ -254,6 +254,9 @@ class CarState(CarStateBase):
     self.fp_ret.brakeLights = bool(cp.vl["ESP_CONTROL"]["BRAKE_LIGHTS_ACC"])
     self.fp_ret.dashboardSpeedLimit = calculate_speed_limit(cp_cam)
 
+    if cp.ts_nanos["DOOR_LOCKS"]["LOCK_STATUS"] > 0:
+      self.fp_ret.doorLockStatus = "locked" if cp.vl["DOOR_LOCKS"]["LOCK_STATUS"] == 0 else "unlocked"
+
     if not self.CP.flags & ToyotaFlags.SECOC.value:
       self.fp_ret.ecoGear = cp.vl["GEAR_PACKET"]["ECON_ON"] == 1
       if self.CP.flags & ToyotaFlags.NO_DSU:
@@ -274,6 +277,7 @@ class CarState(CarStateBase):
       ("BLINKERS_STATE", float('nan')),
 
       # FrogPilot variables
+      ("DOOR_LOCKS", float('nan')),
     ]
 
     return {

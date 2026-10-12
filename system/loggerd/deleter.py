@@ -65,7 +65,7 @@ def deleter_thread(exit_event: threading.Event):
       preserved_dirs = get_preserved_segments(dirs)
 
       # remove the earliest directory we can
-      for delete_path in sorted(dirs, key=lambda d: (os.path.basename(d) in DELETE_LAST, d in preserved_dirs, frogpilot_utilities.has_pending_telemetry(d))):
+      for delete_path in sorted(dirs, key=lambda d: (os.path.basename(d) in DELETE_LAST, d in preserved_dirs or frogpilot_utilities.is_route_preserved(d), frogpilot_utilities.has_pending_telemetry(d))):
         if any(name.endswith(".lock") for name in os.listdir(delete_path)):
           continue
 

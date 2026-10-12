@@ -64,6 +64,9 @@ def build_report(report, frogpilot_toggles):
   payload["report_id"] = report_id
   payload["report_schema_version"] = report_schema_version
 
+  if "Route" in report:
+    payload["route"] = report["Route"]
+
   return {"files": files, "metered_confirmed": report.get("metered_confirmed", False), "payload": json.dumps(payload), "report_id": report_id}
 
 def capture_report(report, frogpilot_toggles, frogpilot_api, publish):
