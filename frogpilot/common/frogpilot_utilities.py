@@ -20,7 +20,7 @@ from opendbc.can.parser import CANParser
 from opendbc.car.ford.values import FordSafetyFlags
 from opendbc.car.gm.values import CC_ONLY_CAR, GMFlags
 from opendbc.car.interfaces import TORQUE_SUBSTITUTE_PATH
-from opendbc.car.toyota.carcontroller import DOOR_CONTROL_ADDR, LOCK_CMD
+from opendbc.car.toyota.carcontroller import DOOR_CONTROL_ADDR, LOCK_CMD, UNLOCK_CMD
 from opendbc.car.toyota.values import ToyotaSafetyFlags
 from openpilot.common.realtime import DT_DMON, DT_HW, set_core_affinity
 from openpilot.selfdrive.pandad import can_capnp_to_list
@@ -140,6 +140,22 @@ def contains_event_type(events, frogpilot_events, *event_types):
   return any(events.contains(event_type) or frogpilot_events.contains(event_type) for event_type in event_types)
 
 
+def convert_metric(key, value, metric):
+  conversion, decimals = frogpilot_variables.METRIC_CONVERSIONS[key]
+
+  if metric:
+    converted = value * conversion
+  else:
+    converted = value * (1 / conversion)
+
+  if decimals is not None:
+    converted = round_half_away(converted * 10 ** decimals) / 10 ** decimals
+
+  if isinstance(value, int):
+    return int(converted)
+  return converted
+
+
 def delete_path(path, report=True):
   path = Path(path)
   if path.exists() or path.is_symlink():
@@ -186,6 +202,17 @@ def flash_panda():
   return flashed
 
 
+def get_directory_size(path):
+  size = 0
+  for directory, _, files in os.walk(path):
+    for name in files:
+      try:
+        size += os.lstat(os.path.join(directory, name)).st_size
+      except FileNotFoundError:
+        continue
+  return size
+
+
 @cache
 def get_model_lat_smooth_seconds(model_id):
   models = {model["id"]: model for model in frogpilot_variables.get_models()}
@@ -213,6 +240,14 @@ def get_target_branches(available_branches, current_branch):
       branches.remove(branch)
       branches.insert(0, branch)
   return branches
+
+
+def has_openpilot_longitudinal(params, car_params, frogpilot_car_params):
+  if car_params["alphaLongitudinalAvailable"]:
+    return params.get_bool("AlphaLongitudinalEnabled")
+
+  has_longitudinal = car_params["openpilotLongitudinalControl"] or frogpilot_car_params.get("openpilotLongitudinalControlDisabled", False)
+  return has_longitudinal and not params.get_bool("DisableOpenpilotLongitudinal")
 
 
 def has_pending_telemetry(path):
@@ -258,6 +293,19 @@ def is_openpilot_steering(sm):
 @cache
 def is_pre_tomb_raider_model(model):
   return model in frogpilot_variables.PRE_TOMB_RAIDER_MODELS
+
+
+def is_route_preserved(path):
+  try:
+    return xattr.getxattr(path, frogpilot_variables.ROUTE_PRESERVE_ATTR_NAME) == frogpilot_variables.ROUTE_PRESERVED
+  except OSError:
+    return False
+
+
+def is_tuning_value_set(params, key):
+  if key in frogpilot_variables.ZERO_ALLOWED_TUNING_KEYS:
+    return params.get(key) != 0 or params.get(f"{key}Stock") != 0
+  return params.get(key) != 0
 
 
 def is_unmetered_network(device_state):
@@ -365,6 +413,38 @@ def run_cmd_on_writable_mount(mount_point, cmd, fail_message):
   run_cmd(["sudo", "mount", "-o", "remount,rw", mount_point], f"Failed to remount {mount_point}")
   run_cmd(cmd, fail_message)
   run_cmd(["sudo", "mount", "-o", f"remount,{mount_options}", mount_point], f"Failed to restore {mount_point} mount options")
+
+
+def round_half_away(value):
+  return math.copysign(math.floor(abs(value) + 0.5), value)
+
+
+def send_door_command(lock):
+  sm = messaging.SubMaster(["pandaStates"])
+
+  can_parser = CANParser("toyota_nodsu_pt_generated", [("DOOR_LOCKS", 3)], bus=0)
+  can_sock = messaging.sub_sock("can", timeout=100)
+
+  pm = messaging.PubMaster(["sendcan"])
+  time.sleep(0.2)
+
+  for _ in range(frogpilot_variables.DOOR_COMMAND_ATTEMPTS):
+    sm.update()
+    if is_ignition_on(sm):
+      return False
+
+    sendcan_send = messaging.new_message("sendcan", 1)
+    sendcan_send.sendcan[0].address = DOOR_CONTROL_ADDR
+    sendcan_send.sendcan[0].dat = LOCK_CMD if lock else UNLOCK_CMD
+    sendcan_send.sendcan[0].src = 0
+    pm.send("sendcan", sendcan_send)
+
+    time.sleep(1)
+
+    update_can_parser(can_parser, can_sock)
+    if can_parser.ts_nanos["DOOR_LOCKS"]["LOCK_STATUS"] > 0 and (can_parser.vl["DOOR_LOCKS"]["LOCK_STATUS"] == 0) == lock:
+      return True
+  return False
 
 
 def update_can_parser(can_parser, can_sock):
