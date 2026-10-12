@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
+import os
 import re
+import shutil
 import sys
 import pyray as rl
+from openpilot.common.basedir import BASEDIR
 from openpilot.system.hardware import HARDWARE, PC
 from openpilot.system.ui.lib.application import BIG_UI, gui_app
 from openpilot.system.ui.lib.scroll_panel import GuiScrollPanel
@@ -69,6 +72,8 @@ class TextWindow(Widget):
     self._button = Button(button_text, click_callback=self._on_button_clicked, button_style=ButtonStyle.TRANSPARENT_WHITE_BORDER, font_size=FONT_SIZE)
 
     # FrogPilot variables
+    self._restore_button = Button("Restore", click_callback=self._on_restore_clicked, button_style=ButtonStyle.TRANSPARENT_WHITE_BORDER, font_size=FONT_SIZE)
+    self._restore_button.set_visible(frogpilot_paths.OLD_OPENPILOT.is_dir())
 
   @staticmethod
   def _on_button_clicked():
@@ -77,6 +82,13 @@ class TextWindow(Widget):
       HARDWARE.reboot()
 
   # FrogPilot variables
+  @staticmethod
+  def _on_restore_clicked():
+    gui_app.request_close()
+    shutil.rmtree(BASEDIR)
+    os.rename(frogpilot_paths.OLD_OPENPILOT, BASEDIR)
+    frogpilot_paths.BACKUP_PATH.touch()
+    HARDWARE.reboot()
 
   def _render(self, rect: rl.Rectangle):
     scroll = self._scroll_panel.update(self._textarea_rect, self._content_rect)
@@ -92,6 +104,8 @@ class TextWindow(Widget):
     self._button.render(button_bounds)
 
     # FrogPilot variables
+    restore_width = BUTTON_SIZE.x + SPACING * 2
+    self._restore_button.render(rl.Rectangle(button_bounds.x - SPACING - restore_width, button_bounds.y, restore_width, BUTTON_SIZE.y))
 
 
 if __name__ == "__main__":
