@@ -24,6 +24,7 @@ NON_LINEAR_TORQUE_PARAMS = {
 }
 
 # FrogPilot variables
+NON_LINEAR_TORQUE_PARAMS[CAR.CHEVROLET_BOLT_CC] = NON_LINEAR_TORQUE_PARAMS[CAR.CHEVROLET_BOLT_EUV]
 
 
 class CarInterface(CarInterfaceBase):
@@ -241,7 +242,14 @@ class CarInterface(CarInterfaceBase):
       ret.steerActuatorDelay = 0.2
       CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
 
-    elif candidate == CAR.CHEVROLET_SUBURBAN:
+    elif candidate == CAR.CADILLAC_CT6_CC:
+      CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
+
+    elif candidate == CAR.CADILLAC_XT5_CC:
+      ret.steerActuatorDelay = 0.2
+      CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
+
+    elif candidate in (CAR.CHEVROLET_SUBURBAN, CAR.CHEVROLET_SUBURBAN_CC):
       ret.steerActuatorDelay = 0.075
       CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
 
