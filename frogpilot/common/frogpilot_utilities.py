@@ -16,6 +16,7 @@ from openpilot.common.realtime import set_core_affinity
 from openpilot.selfdrive.pandad import can_capnp_to_list
 from openpilot.system import sentry
 from openpilot.system.hardware import PC
+from openpilot.system.version import get_build_metadata
 
 from openpilot.frogpilot.common import frogpilot_paths, frogpilot_variables
 
@@ -60,6 +61,11 @@ class ThreadManager:
 
     if thread is not None:
       thread.join()
+
+
+@cache
+def block_user():
+  return get_build_metadata().channel == frogpilot_variables.PR_BRANCH and not is_FrogsGoMoo()
 
 
 def calculate_distance_to_point(lat1, lon1, lat2, lon2):
