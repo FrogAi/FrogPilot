@@ -108,6 +108,8 @@ class CarInterface(CarInterfaceBase):
         ret.flags |= HyundaiFlags.HAS_LDA_BUTTON.value
 
       # FrogPilot variables
+      if 0x2AA in fingerprint[0]:
+        ret.minSteerSpeed = 0.
 
     # Common lateral control setup
 
