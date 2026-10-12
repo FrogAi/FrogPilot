@@ -4,6 +4,7 @@ import json
 import jwt
 import random
 import string
+from multiprocessing import Process
 from typing import cast
 from pathlib import Path
 
@@ -24,7 +25,7 @@ def is_registered_device() -> bool:
   return dongle not in (None, UNREGISTERED_DONGLE_ID)
 
 
-def register(show_spinner=False, register_konik=False) -> str | None:
+def register(show_spinner=False, register_konik=False, background=False) -> str | None:
   """
   All devices built since March 2024 come with all
   info stored in /persist/. This is kept around
@@ -50,8 +51,13 @@ def register(show_spinner=False, register_konik=False) -> str | None:
     cloudlog.warning("missing public key")
 
     # FrogPilot variables
-  elif dongle_id is None or register_konik:
+    params.remove("DongleId")
+    return dongle_id
+  elif dongle_id in (None, UNREGISTERED_DONGLE_ID) or register_konik:
     # FrogPilot variables
+    if background:
+      Process(target=register, daemon=True).start()
+      return UNREGISTERED_DONGLE_ID
 
     if show_spinner:
       spinner = Spinner()

@@ -76,7 +76,7 @@ def manager_init() -> None:
   params.put("HardwareSerial", serial)
 
   # set dongle id
-  reg_res = register(show_spinner=True)
+  reg_res = register(background=True)
   if reg_res:
     dongle_id = reg_res
   else:
