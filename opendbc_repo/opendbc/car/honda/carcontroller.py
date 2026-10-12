@@ -253,7 +253,10 @@ class CarController(CarControllerBase):
 
     # FrogPilot variables
     if self.CP.enableGasInterceptorDEPRECATED and self.frame % 2 == 0:
-      gas_mult = np.interp(CS.out.vEgo, [0., 10.], [0.4, 1.0])
+      if self.frogpilot_toggles.honda_low_speed_pedal:
+        gas_mult = 1.0
+      else:
+        gas_mult = np.interp(CS.out.vEgo, [0., 10.], [0.4, 1.0])
       if CC.longActive:
         self.gas = float(np.clip(gas_mult * (gas - brake + wind_brake * 3 / 4), 0., 1.))
       else:
