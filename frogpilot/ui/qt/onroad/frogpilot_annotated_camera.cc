@@ -14,19 +14,19 @@ FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(CameraWidget *nvg
 
   QSize iconSize(img_size / 4, img_size / 4);
 
-  brakePedalImg = loadPixmap("../../frogpilot/assets/other_images/brake_pedal.png", {btn_size, btn_size});
-  cameraIcon = loadPixmap("../../frogpilot/assets/other_images/camera_icon.png", iconSize);
-  curveSpeedIcon = loadPixmap("../../frogpilot/assets/other_images/curve_speed.png", {btn_size, btn_size});
+  brakePedalImg = loadPixmap("../../frogpilot/assets/other_images/brake_pedal.svg", {btn_size, btn_size});
+  cameraIcon = loadPixmap("../../frogpilot/assets/other_images/camera_icon.svg", iconSize);
+  curveSpeedIcon = loadPixmap("../../frogpilot/assets/other_images/curve_speed.svg", {btn_size, btn_size});
   curveSpeedIconFlipped = curveSpeedIcon.transformed(QTransform().scale(-1, 1));
-  dashboardIcon = loadPixmap("../../frogpilot/assets/other_images/dashboard_icon.png", iconSize);
-  gasPedalImg = loadPixmap("../../frogpilot/assets/other_images/gas_pedal.png", {btn_size, btn_size});
-  mapboxIcon = loadPixmap("../../frogpilot/assets/other_images/mapbox_icon.png", iconSize);
-  mapDataIcon = loadPixmap("../../frogpilot/assets/other_images/offline_maps_icon.png", iconSize);
-  nextMapsIcon = loadPixmap("../../frogpilot/assets/other_images/next_maps_icon.png", iconSize);
-  pausedIcon = loadPixmap("../../frogpilot/assets/other_images/paused_icon.png", {widget_size, widget_size});
-  speedIcon = loadPixmap("../../frogpilot/assets/other_images/speed_icon.png", {widget_size, widget_size});
-  stopSignImg = loadPixmap("../../frogpilot/assets/other_images/stop_sign.png", {btn_size, btn_size});
-  turnIcon = loadPixmap("../../frogpilot/assets/other_images/turn_icon.png", {widget_size, widget_size});
+  dashboardIcon = loadPixmap("../../frogpilot/assets/other_images/dashboard_icon.svg", iconSize);
+  gasPedalImg = loadPixmap("../../frogpilot/assets/other_images/gas_pedal.svg", {btn_size, btn_size});
+  mapboxIcon = loadPixmap("../../frogpilot/assets/other_images/mapbox_icon.svg", iconSize);
+  mapDataIcon = loadPixmap("../../frogpilot/assets/other_images/offline_maps_icon.svg", iconSize);
+  nextMapsIcon = loadPixmap("../../frogpilot/assets/other_images/next_maps_icon.svg", iconSize);
+  pausedIcon = loadPixmap("../../frogpilot/assets/other_images/paused_icon.svg", {widget_size, widget_size});
+  speedIcon = loadPixmap("../../frogpilot/assets/other_images/speed_icon.svg", {widget_size, widget_size});
+  stopSignImg = loadPixmap("../../frogpilot/assets/other_images/stop_sign.svg", {btn_size, btn_size});
+  turnIcon = loadPixmap("../../frogpilot/assets/other_images/turn_icon.svg", {widget_size, widget_size});
 
   QObject::connect(frogpilotUIState(), &FrogPilotUIState::themeUpdated, this, &FrogPilotAnnotatedCameraWidget::updateSignals);
   QObject::connect(nvg, &CameraWidget::vipcThreadFrameReceived, frogpilotUIState(), &FrogPilotUIState::cameraFrameReceived);
@@ -95,7 +95,7 @@ void FrogPilotAnnotatedCameraWidget::updateSignals() {
       }
 
       movie.stop();
-    } else if (fileName.endsWith(".png", Qt::CaseInsensitive)) {
+    } else if (fileName.endsWith(".png", Qt::CaseInsensitive) || fileName.endsWith(".svg", Qt::CaseInsensitive)) {
       targetImages.append(QPixmap(filePath));
     } else {
       QStringList parts = fileName.split('_');

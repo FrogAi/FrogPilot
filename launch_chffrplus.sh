@@ -23,6 +23,12 @@ function agnos_init {
   if [ $(< /VERSION) != "$AGNOS_VERSION" ]; then
     AGNOS_PY="$DIR/system/hardware/tici/agnos.py"
     MANIFEST="$DIR/system/hardware/tici/agnos.json"
+
+    # FrogPilot variables
+    if grep -qsE "comma (tici|tizi)" /sys/firmware/devicetree/base/model; then
+      MANIFEST="$DIR/system/hardware/tici/c3_agnos.json"
+    fi
+
     if $AGNOS_PY --verify $MANIFEST; then
       sudo reboot
     fi

@@ -208,9 +208,9 @@ void FrogPilotNavigationPanel::updateState(const UIState &s, const FrogPilotUISt
 void FrogPilotNavigationPanel::updateStep() {
   QString step;
   if (mapboxPublicKeySet) {
-    step = "../../frogpilot/navigation/navigation_training/public_key_set.png";
+    step = "../../frogpilot/navigation/navigation_training/public_key_set.svg";
   } else {
-    step = "../../frogpilot/navigation/navigation_training/no_keys_set.png";
+    step = "../../frogpilot/navigation/navigation_training/no_keys_set.svg";
   }
 
   QPixmap pixmap;

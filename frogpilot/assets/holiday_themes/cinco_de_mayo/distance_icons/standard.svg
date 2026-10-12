@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="250" height="250" viewBox="0 0 250 250">
+<defs>
+  <linearGradient id="shell" x1="74" y1="198" x2="195" y2="213" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#e6b373"/>
+    <stop offset="1" stop-color="#e59327"/>
+  </linearGradient>
+  <g id="taco"><g stroke="#621d0c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+  <path fill="#a0612c" d="M178 191 C177 186 183 181 188 184 C194 184 198 190 197 194 C203 197 202 204 197 208 L187 213 Z"/>
+  <path fill="#f73d23" d="M164 176 C166 166 176 163 183 170 C189 175 192 181 189 190 L179 195 Z"/>
+  <path fill="#f73d23" d="M64 207 C56 200 59 189 66 184 C71 178 79 180 83 184 L83 207 Z"/>
+  <path fill="#4eae26" d="M72 188 C68 181 72 171 83 170 C85 160 96 154 105 160 C109 150 120 150 128 157 C133 150 143 152 149 158 C158 154 166 159 169 166 C175 169 175 176 175 179 L122 191 Z"/>
+  <path fill="#fcb93e" d="M72 186 C64 190 57 198 60 207 C60 213 65 219 73 221 L88 198 L85 188 Z"/>
+  <path fill="url(#shell)" d="M75 229 C70 212 74 196 84 183 C94 169 111 161 128 161 C149 159 167 169 180 181 C190 191 197 205 200 216 C202 221 199 225 193 227 L88 246 C77 249 65 242 61 232 L64 223 Z"/>
+  <path fill="#a0612c" d="M58 207 C53 207 49 213 51 217 C46 221 50 226 53 227 C52 232 57 236 62 236 C67 241 75 240 76 235 C76 228 72 220 67 214 C64 210 62 206 58 207 Z"/>
+  <path fill="none" stroke-width="2.5" d="M57 214 C54 215 54 218 57 219 M59 223 C58 226 59 228 62 228 M66 224 C64 227 67 230 69 231 M190 190 C193 191 193 193 193 195"/>
+  <g stroke="none">
+    <ellipse fill="#ffaaaa" cx="105" cy="216.2" rx="6.3" ry="3.3" transform="rotate(-9 105 216.2)"/>
+    <ellipse fill="#ffaaaa" cx="163.3" cy="207.2" rx="6.3" ry="3.3" transform="rotate(-9 163.3 207.2)"/>
+    <circle fill="#000000" cx="104.3" cy="208.1" r="6.1"/>
+    <circle fill="#000000" cx="162.8" cy="199.2" r="6.1"/>
+    <circle fill="#ffffff" cx="102.1" cy="205.5" r="2.3"/>
+    <circle fill="#ffffff" cx="160.6" cy="196.6" r="2.3"/>
+    <g fill="#892f0d">
+      <circle cx="93" cy="220.7" r="2.7"/>
+      <circle cx="99.5" cy="225.1" r="2.7"/>
+      <circle cx="89" cy="227.3" r="2.7"/>
+      <circle cx="96" cy="232" r="2.7"/>
+      <circle cx="179.7" cy="206.4" r="2.7"/>
+      <circle cx="186.1" cy="210.7" r="2.7"/>
+      <circle cx="175.5" cy="213" r="2.7"/>
+      <circle cx="182.3" cy="217.6" r="2.7"/>
+    </g>
+  </g>
+  <path fill="none" stroke="#000000" stroke-width="3.4" d="M127.2 207.2 C131.4 211.8 138.2 209.6 141.2 204.2"/>
+</g></g>
+</defs>
+<use xlink:href="#taco"/><use xlink:href="#taco" transform="translate(259 -74) scale(-1 1)"/>
+</svg>

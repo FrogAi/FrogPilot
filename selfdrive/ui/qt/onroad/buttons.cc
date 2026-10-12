@@ -118,7 +118,7 @@ void ExperimentalButton::updateTheme() {
     wheel_gif.reset();
   }
 
-  const QString wheel_source = QFileInfo("../../frogpilot/assets/active_theme/steering_wheel/wheel.png").canonicalFilePath();
-  const QString stock_source = QFileInfo("../../frogpilot/assets/stock_theme/steering_wheel/wheel.png").canonicalFilePath();
+  const QString wheel_source = QFileInfo("../../frogpilot/assets/active_theme/steering_wheel/wheel.svg").canonicalFilePath();
+  const QString stock_source = QFileInfo("../../frogpilot/assets/stock_theme/steering_wheel/wheel.svg").canonicalFilePath();
   wheel_is_stock = !wheel_gif && !wheel_img.isNull() && wheel_source == stock_source;
 }

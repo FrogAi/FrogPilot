@@ -156,7 +156,12 @@ void loadImage(const QString &basePath, QPixmap &pixmap, QSharedPointer<QMovie> 
   } else {
     movie.reset();
 
-    QPixmap loadedPixmap(QFileInfo(basePath + ".png").canonicalFilePath());
+    QString imagePath = basePath + ".svg";
+    if (!QFileInfo::exists(imagePath)) {
+      imagePath = basePath + ".png";
+    }
+
+    QPixmap loadedPixmap(QFileInfo(imagePath).canonicalFilePath());
     pixmap = loadedPixmap.isNull() ? QPixmap() : loadedPixmap.scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
   }
 

@@ -48,31 +48,23 @@ MIN_LAT_CONTROL_SPEED = 0.3
 
 
 def get_action_from_model(model_output: dict[str, np.ndarray], prev_action: log.ModelDataV2.Action,
-                          lat_action_t: float, long_action_t: float, v_ego: float, lat_smooth_seconds: float,
-                          curvature_source, long_smooth_seconds=LONG_SMOOTH_SECONDS) -> log.ModelDataV2.Action:
+                          lat_action_t: float, long_action_t: float, v_ego: float, lat_smooth_seconds: float) -> log.ModelDataV2.Action:
     plan = model_output['plan'][0]
     desired_accel, should_stop = get_accel_from_plan(plan[:,Plan.VELOCITY][:,0],
                                                      plan[:,Plan.ACCELERATION][:,0],
                                                      ModelConstants.T_IDXS,
                                                      action_t=long_action_t)
-    desired_accel = smooth_value(desired_accel, prev_action.desiredAcceleration, long_smooth_seconds)
+    desired_accel = smooth_value(desired_accel, prev_action.desiredAcceleration, LONG_SMOOTH_SECONDS)
 
-    # FrogPilot variables
-    if curvature_source in ['model', 'model_hold']:
-      desired_curvature = model_output['desired_curvature'][0,0]
-      if curvature_source == 'model_hold' and v_ego <= MIN_LAT_CONTROL_SPEED:
-        desired_curvature = prev_action.desiredCurvature
+    desired_curvature = get_curvature_from_plan(plan[:,Plan.T_FROM_CURRENT_EULER][:,2],
+                                                plan[:,Plan.ORIENTATION_RATE][:,2],
+                                                ModelConstants.T_IDXS,
+                                                v_ego,
+                                                lat_action_t)
+    if v_ego > MIN_LAT_CONTROL_SPEED:
+      desired_curvature = smooth_value(desired_curvature, prev_action.desiredCurvature, lat_smooth_seconds)
     else:
-      desired_curvature = get_curvature_from_plan(plan[:,Plan.T_FROM_CURRENT_EULER][:,2],
-                                                  plan[:,Plan.ORIENTATION_RATE][:,2],
-                                                  ModelConstants.T_IDXS,
-                                                  v_ego,
-                                                  lat_action_t)
-      if curvature_source != 'legacy_plan':
-        if v_ego > MIN_LAT_CONTROL_SPEED:
-          desired_curvature = smooth_value(desired_curvature, prev_action.desiredCurvature, lat_smooth_seconds)
-        else:
-          desired_curvature = prev_action.desiredCurvature
+      desired_curvature = prev_action.desiredCurvature
 
     return log.ModelDataV2.Action(desiredCurvature=float(desired_curvature),
                                   desiredAcceleration=float(desired_accel),
@@ -165,28 +157,14 @@ class ModelState:
       self.policy_output_slices = policy_metadata['output_slices']
       policy_output_size = policy_metadata['output_shapes']['outputs'][1]
 
-    # FrogPilot variables
-    self.curvature_source = policy_metadata.get('curvature_source', 'plan')
-    self.lateral_delay_source = policy_metadata.get('lateral_delay_source', 'live')
-    if 'desire_pulse' in self.policy_input_shapes:
-      self.desire_input_name = 'desire_pulse'
-    else:
-      self.desire_input_name = 'desire'
-
     self.frames = {name: DrivingModelFrame(context, ModelConstants.MODEL_RUN_FREQ//ModelConstants.MODEL_CONTEXT_FREQ) for name in self.vision_input_names}
     self.prev_desire = np.zeros(ModelConstants.DESIRE_LEN, dtype=np.float32)
 
     # policy inputs
     self.numpy_inputs = {k: np.zeros(self.policy_input_shapes[k], dtype=np.float32) for k in self.policy_input_shapes}
     self.full_input_queues = InputQueues(ModelConstants.MODEL_CONTEXT_FREQ, ModelConstants.MODEL_RUN_FREQ, ModelConstants.N_FRAMES)
-    for k, input_name in [('desire_pulse', self.desire_input_name), ('features_buffer', 'features_buffer')]:
-      self.full_input_queues.update_dtypes_and_shapes({k: self.numpy_inputs[input_name].dtype}, {k: self.numpy_inputs[input_name].shape})
-
-    # FrogPilot variables
-    if 'prev_desired_curv' in self.numpy_inputs and self.curvature_source in ['model', 'model_hold']:
-      self.full_input_queues.update_dtypes_and_shapes({'prev_desired_curv': np.float32},
-                                                   {'prev_desired_curv': self.numpy_inputs['prev_desired_curv'].shape})
-
+    for k in ['desire_pulse', 'features_buffer']:
+      self.full_input_queues.update_dtypes_and_shapes({k: self.numpy_inputs[k].dtype}, {k: self.numpy_inputs[k].shape})
     self.full_input_queues.reset()
 
     # img buffers are managed in openCL transform code
@@ -206,25 +184,12 @@ class ModelState:
     parsed_model_outputs = {k: model_outputs[np.newaxis, v] for k,v in output_slices.items()}
     return parsed_model_outputs
 
-  # FrogPilot variables
-  def update_policy_inputs(self, new_desire, inputs):
-    self.full_input_queues.enqueue({'desire_pulse': new_desire})
-    self.numpy_inputs[self.desire_input_name][:] = self.full_input_queues.get('desire_pulse')['desire_pulse']
-    self.numpy_inputs['traffic_convention'][:] = inputs['traffic_convention']
-
-    if 'lateral_control_params' in self.numpy_inputs:
-      self.numpy_inputs['lateral_control_params'][:] = inputs['lateral_control_params']
-
   def run(self, bufs: dict[str, VisionBuf], transforms: dict[str, np.ndarray],
                 inputs: dict[str, np.ndarray], prepare_only: bool) -> dict[str, np.ndarray] | None:
     # Model decides when action is completed, so desire input is just a pulse triggered on rising edge
     inputs['desire_pulse'][0] = 0
     new_desire = np.where(inputs['desire_pulse'] - self.prev_desire > .99, inputs['desire_pulse'], 0)
     self.prev_desire[:] = inputs['desire_pulse']
-
-    # FrogPilot variables
-    if self.desire_input_name == 'desire':
-      self.update_policy_inputs(new_desire, inputs)
 
     imgs_cl = {name: self.frames[name].prepare(bufs[name], transforms[name].flatten()) for name in self.vision_input_names}
 
@@ -242,25 +207,17 @@ class ModelState:
       return None
 
     self.vision_output = self.vision_run(**self.vision_inputs).contiguous().realize().uop.base.buffer.numpy()
-    vision_outputs_dict = self.slice_outputs(self.vision_output, self.vision_output_slices)
+    vision_outputs_dict = self.parser.parse_vision_outputs(self.slice_outputs(self.vision_output, self.vision_output_slices))
 
-    self.full_input_queues.enqueue({'features_buffer': vision_outputs_dict['hidden_state']})
-    self.numpy_inputs['features_buffer'][:] = self.full_input_queues.get('features_buffer')['features_buffer']
-
-    # FrogPilot variables
-    if self.desire_input_name == 'desire_pulse':
-      self.update_policy_inputs(new_desire, inputs)
+    self.full_input_queues.enqueue({'features_buffer': vision_outputs_dict['hidden_state'], 'desire_pulse': new_desire})
+    for k in ['desire_pulse', 'features_buffer']:
+      self.numpy_inputs[k][:] = self.full_input_queues.get(k)[k]
+    self.numpy_inputs['traffic_convention'][:] = inputs['traffic_convention']
 
     self.policy_output = self.policy_run(**self.policy_inputs).contiguous().realize().uop.base.buffer.numpy()
-    policy_outputs_dict = self.slice_outputs(self.policy_output, self.policy_output_slices)
+    policy_outputs_dict = self.parser.parse_policy_outputs(self.slice_outputs(self.policy_output, self.policy_output_slices))
 
-    # FrogPilot variables
-    combined_outputs_dict = self.parser.parse_outputs({**vision_outputs_dict, **policy_outputs_dict})
-
-    if 'prev_desired_curv' in self.full_input_queues.q:
-      self.full_input_queues.enqueue({'prev_desired_curv': combined_outputs_dict['desired_curvature'].reshape(1, 1, 1)})
-      self.numpy_inputs['prev_desired_curv'][:] = self.full_input_queues.get('prev_desired_curv')['prev_desired_curv']
-
+    combined_outputs_dict = {**vision_outputs_dict, **policy_outputs_dict}
     if SEND_RAW_PRED:
       combined_outputs_dict['raw_pred'] = np.concatenate([self.vision_output.copy(), self.policy_output.copy()])
 
@@ -273,6 +230,7 @@ def main(demo=False):
   # FrogPilot variables
   frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
   model_path = Path(frogpilot_toggles.model_path)
+  legacy_model = frogpilot_model_utilities.is_legacy_model(model_path)
   frogpilot_model_utilities.prepare_model_process(model_path, demo)
 
   if not USBGPU:
@@ -285,16 +243,10 @@ def main(demo=False):
   cl_context = CLContext()
   cloudlog.warning("CL context ready; loading model")
   # FrogPilot variables
-  if (model_path / 'supercombo_metadata.pkl').is_file():
-    model = frogpilot_model_utilities.CombinedModelState(cl_context, model_path)
+  if legacy_model:
+    model = frogpilot_model_utilities.LegacyModelState(cl_context, model_path)
   else:
     model = ModelState(cl_context, model_path)
-
-  # FrogPilot variables
-  if isinstance(model, ModelState) and model.curvature_source in ['model', 'model_hold']:
-    long_smooth_seconds = 0.
-  else:
-    long_smooth_seconds = LONG_SMOOTH_SECONDS
   cloudlog.warning(f"models loaded in {time.monotonic() - st:.1f}s, modeld starting")
 
   # visionipc clients
@@ -349,7 +301,7 @@ def main(demo=False):
 
   # TODO this needs more thought, use .2s extra for now to estimate other delays
   # TODO Move smooth seconds to action function
-  long_delay = frogpilot_toggles.longitudinalActuatorDelay + long_smooth_seconds
+  long_delay = frogpilot_toggles.longitudinalActuatorDelay + LONG_SMOOTH_SECONDS
   prev_action = log.ModelDataV2.Action()
 
   DH = DesireHelper()
@@ -398,9 +350,7 @@ def main(demo=False):
     desire = DH.desire
     is_rhd = sm["driverMonitoringState"].isRHD
     frame_id = sm["roadCameraState"].frameId
-    # FrogPilot variables
-    v_ego_raw = sm["carState"].vEgo
-    v_ego = max(v_ego_raw, 0.)
+    v_ego = max(sm["carState"].vEgo, 0.)
     lat_delay = sm["liveDelay"].lateralDelay + frogpilot_toggles.lat_smooth_seconds
     if sm.updated["liveCalibration"] and sm.seen['roadCameraState'] and sm.seen['deviceState']:
       device_from_calib_euler = np.array(sm["liveCalibration"].rpyCalib, dtype=np.float32)
@@ -437,30 +387,8 @@ def main(demo=False):
     }
 
     # FrogPilot variables
-    if 'lateral_control_params' in model.numpy_inputs:
-      if model.lateral_delay_source == 'vehicle':
-        model_lat_delay = CP.steerActuatorDelay + .2
-      else:
-        model_lat_delay = lat_delay
-
-      if isinstance(model, frogpilot_model_utilities.CombinedModelState):
-        model_speed = v_ego_raw
-      else:
-        model_speed = v_ego
-
-      inputs['lateral_control_params'] = np.array([model_speed, model_lat_delay], dtype=np.float32)
-
-    if 'radar_tracks' in model.numpy_inputs:
-      radar_tracks = np.zeros_like(model.numpy_inputs['radar_tracks']).reshape(-1, 3)
-
-      if sm.updated['liveTracks']:
-        for index, track in enumerate(sm['liveTracks'].points):
-          if index == len(radar_tracks):
-            break
-
-          radar_tracks[index] = [track.dRel, track.yRel, track.vRel]
-
-      inputs['radar_tracks'] = radar_tracks.reshape(model.numpy_inputs['radar_tracks'].shape)
+    if legacy_model:
+      model.update_inputs(inputs, sm, CP.steerActuatorDelay, lat_delay)
 
     mt1 = time.perf_counter()
     model_output = model.run(bufs, transforms, inputs, prepare_only)
@@ -472,19 +400,16 @@ def main(demo=False):
       drivingdata_send = messaging.new_message('drivingModelData')
       posenet_send = messaging.new_message('cameraOdometry')
 
-      # FrogPilot variables
-      if model.curvature_source == 'legacy_plan':
-        action_delay = CP.steerActuatorDelay + .2
-      else:
-        action_delay = lat_delay + DT_MDL
+      action = get_action_from_model(model_output, prev_action, lat_delay + DT_MDL, long_delay + DT_MDL, v_ego, frogpilot_toggles.lat_smooth_seconds)
 
-      action = get_action_from_model(model_output, prev_action, action_delay, long_delay + DT_MDL, v_ego,
-                                     frogpilot_toggles.lat_smooth_seconds, model.curvature_source, long_smooth_seconds)
+      # FrogPilot variables
+      if legacy_model:
+        action = model.update_action(action, model_output, prev_action, CP.steerActuatorDelay, frogpilot_toggles.longitudinalActuatorDelay, v_ego, MIN_LAT_CONTROL_SPEED)
+
       prev_action = action
       fill_model_msg(drivingdata_send, modelv2_send, model_output, action,
                      publish_state, meta_main.frame_id, meta_extra.frame_id, frame_id,
-                     frame_drop_ratio, meta_main.timestamp_eof, model_execution_time, live_calib_seen,
-                     isinstance(model, frogpilot_model_utilities.CombinedModelState))
+                     frame_drop_ratio, meta_main.timestamp_eof, model_execution_time, live_calib_seen)
 
       desire_state = modelv2_send.modelV2.meta.desireState
       l_lane_change_prob = desire_state[log.Desire.laneChangeLeft]
@@ -511,7 +436,7 @@ def main(demo=False):
 
     # FrogPilot variables
     frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
-    long_delay = frogpilot_toggles.longitudinalActuatorDelay + long_smooth_seconds
+    long_delay = frogpilot_toggles.longitudinalActuatorDelay + LONG_SMOOTH_SECONDS
 
 
 if __name__ == "__main__":

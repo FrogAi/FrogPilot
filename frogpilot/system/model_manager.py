@@ -40,13 +40,10 @@ class ModelManager:
         continue
 
       for repo_url in [frogpilot_download_utilities.GITHUB_URL, frogpilot_download_utilities.GITLAB_URL]:
-        self.download_state.progress = "Downloading..."
-
         if self.download_model(model_id, repo_url):
           break
 
         if self.download_state.cancelled:
-          self.download_state.progress = "Download cancelled..."
           return
 
       else:
@@ -90,7 +87,6 @@ class ModelManager:
       break
 
     else:
-      self.download_state.progress = "Download failed..."
       return
 
     models = []

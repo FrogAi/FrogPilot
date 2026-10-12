@@ -1,6 +1,19 @@
 import json
-import sys
 Import('env', 'qt_env', 'arch', 'common', 'messaging', 'visionipc', 'transformations')
+
+# build the fonts
+generator = File("#selfdrive/assets/fonts/process.py")
+source_files = Glob("#selfdrive/assets/fonts/*.ttf") + Glob("#selfdrive/assets/fonts/*.otf")
+output_files = [
+  (f.abspath.split('.')[0] + ".fnt", f.abspath.split('.')[0] + ".png")
+  for f in source_files
+  if "NotoColor" not in f.name
+]
+env.Command(
+  target=output_files,
+  source=[generator, source_files],
+  action=f"python3 {generator}",
+)
 
 base_libs = [common, messaging, visionipc, transformations,
              'm', 'OpenCL', 'ssl', 'crypto', 'pthread'] + qt_env["LIBS"]
@@ -61,17 +74,6 @@ lrelease_bin = 'third_party/qt5/larch64/bin/lrelease' if arch == 'larch64' else 
 lrelease = qt_env.Command(translation_targets, translation_sources, f"{lrelease_bin} $SOURCES")
 qt_env.NoClean(translation_sources)
 qt_env.Precious(translation_sources)
-
-font_sources = Glob('#selfdrive/assets/fonts/*.ttf') + Glob('#selfdrive/assets/fonts/*.otf')
-font_sources = [font for font in font_sources if 'emoji' not in font.name.lower()]
-font_targets = []
-for font in font_sources:
-  font_stem = str(font).rsplit('.', 1)[0]
-  font_targets += [font_stem + '.fnt', font_stem + '.png']
-
-env.Command(font_targets,
-            ['#selfdrive/assets/fonts/process.py', '#selfdrive/ui/translations/languages.json'] + font_sources + Glob('#selfdrive/ui/translations/*.po'),
-            f'"{sys.executable}" $SOURCE')
 
 # create qrc file for compiled translations to include with assets
 translations_assets_src = "#selfdrive/assets/translations_assets.qrc"

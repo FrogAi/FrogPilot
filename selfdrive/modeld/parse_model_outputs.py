@@ -121,10 +121,4 @@ class Parser:
   def parse_outputs(self, outs: dict[str, np.ndarray]) -> dict[str, np.ndarray]:
     outs = self.parse_vision_outputs(outs)
     outs = self.parse_policy_outputs(outs)
-
-    # FrogPilot variables
-    for name, width in [('sim_pose', ModelConstants.POSE_WIDTH), ('desired_curvature', ModelConstants.DESIRED_CURV_WIDTH)]:
-      if name in outs:
-        self.parse_mdn(name, outs, in_N=0, out_N=0, out_shape=(width,))
-
     return outs

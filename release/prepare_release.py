@@ -11,6 +11,7 @@ GENERATED_FILES = {
   "cereal/messaging/bridge",
   "common/params_pyx.so",
   "common/transformations/transformations.so",
+  "frogpilot/common/model_runners/libthneed_runner.so",
   "msgq_repo/msgq/ipc_pyx.so",
   "msgq_repo/msgq/visionipc/visionipc_pyx.so",
   "panda/board/obj/bootstub.panda.bin",

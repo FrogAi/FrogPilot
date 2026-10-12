@@ -16,7 +16,12 @@ export VECLIB_MAXIMUM_THREADS=1
 export QCOM_PRIORITY=12
 
 if [ -z "$AGNOS_VERSION" ]; then
-  export AGNOS_VERSION="12.8"
+  export AGNOS_VERSION="16"
+
+  # FrogPilot variables
+  if grep -qsE "comma (tici|tizi)" /sys/firmware/devicetree/base/model; then
+    export AGNOS_VERSION="12.8"
+  fi
 fi
 
 export STAGING_ROOT="/data/safe_staging"

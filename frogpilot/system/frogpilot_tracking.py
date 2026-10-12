@@ -41,7 +41,10 @@ class FrogPilotTracking:
     self.model_name = frogpilot_toggles.model_name
 
     signal_path = frogpilot_variables.THEME_SAVE_PATH / "theme_packs/frog/signals"
-    signal_frames = sum("blindspot" not in path.name.lower() for path in signal_path.glob("*.png"))
+    signal_frames = 0
+    for path in signal_path.glob("*"):
+      if path.suffix.lower() in {".png", ".svg"} and "blindspot" not in path.name.lower():
+        signal_frames += 1
     signal_intervals = sorted(signal_path.glob("traditional_*"))
     self.frog_hop_duration = signal_frames * int(signal_intervals[-1].name.split("_")[1]) if signal_intervals else 0
 

@@ -225,8 +225,8 @@ def handle_agnos_update() -> None:
 
   manifest_dir = os.path.join(OVERLAY_MERGED, "system/hardware/tici")
   # FrogPilot variables
-  if HARDWARE.get_device_type() == "tici" and os.path.exists(os.path.join(manifest_dir, "tici_agnos.json")):
-    manifest_file = "tici_agnos.json"
+  if HARDWARE.get_device_type() in ("tici", "tizi") and os.path.exists(os.path.join(manifest_dir, "c3_agnos.json")):
+    manifest_file = "c3_agnos.json"
   else:
     manifest_file = "agnos.json"
   manifest_path = os.path.join(manifest_dir, manifest_file)

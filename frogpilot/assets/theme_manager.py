@@ -96,9 +96,9 @@ class ThemeManager:
       if not destination_folder_path.exists():
         shutil.copytree(source_folder_path, destination_folder_path)
 
-    steering_wheel_image_path = world_frog_day_theme_path / "steering_wheel/wheel.png"
-    steering_wheel_save_path = frogpilot_variables.THEME_SAVE_PATH / "steering_wheels/frog.png"
-    if not steering_wheel_save_path.exists():
+    steering_wheel_image_path = world_frog_day_theme_path / "steering_wheel/wheel.svg"
+    steering_wheel_save_path = frogpilot_variables.THEME_SAVE_PATH / "steering_wheels/frog.svg"
+    if not any(steering_wheel_save_path.with_suffix(extension).exists() for extension in (".gif", ".png", ".svg")):
       steering_wheel_save_path.parent.mkdir(parents=True, exist_ok=True)
       shutil.copy2(steering_wheel_image_path, steering_wheel_save_path)
 
@@ -364,12 +364,16 @@ class ThemeManager:
         self.theme_update_count += 1
         self.theme_updated = True
     else:
-      other_extension = ".gif" if extension == ".png" else ".png"
-
       theme_path.replace(download_path.with_suffix(extension))
-      frogpilot_utilities.delete_file(download_path.with_suffix(other_extension))
 
-      if (frogpilot_variables.ACTIVE_THEME_PATH / "steering_wheel" / f"wheel{other_extension}").resolve() == download_path.with_suffix(other_extension).resolve():
+      active_format_changed = False
+      for other_extension in sorted({".gif", ".png", ".svg"} - {extension}):
+        active_wheel = frogpilot_variables.ACTIVE_THEME_PATH / "steering_wheel" / f"wheel{other_extension}"
+        active_format_changed |= active_wheel.resolve() == download_path.with_suffix(other_extension).resolve()
+
+        frogpilot_utilities.delete_file(download_path.with_suffix(other_extension))
+
+      if active_format_changed:
         self.update_wheel_image(theme_name)
 
       if (frogpilot_variables.ACTIVE_THEME_PATH / "steering_wheel" / f"wheel{extension}").resolve() == download_path.with_suffix(extension).resolve():
