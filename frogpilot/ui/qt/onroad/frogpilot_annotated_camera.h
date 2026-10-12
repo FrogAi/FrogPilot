@@ -14,6 +14,8 @@ public:
   static void drawOutlinedText(QPainter &p, const QPointF &position, const QString &text);
 
   void mousePressEvent(QMouseEvent *mouseEvent) override;
+  bool needsAdjacentPaths() const;
+  void paintAdjacentPaths(QPainter &p);
   void paintFrogPilotWidgets(QPainter &p);
   void paintWorldWidgets(QPainter &p);
   void updateState(const UIState &s, const FrogPilotUIState &fs);
@@ -36,6 +38,8 @@ public:
   QPoint dmIconPosition;
   QPoint experimentalButtonPosition;
 
+  QPolygonF track_adjacent_vertices[2];
+
   QRect setSpeedRect;
 
   QSize defaultSize;
@@ -44,6 +48,8 @@ protected:
   void hideEvent(QHideEvent *event) override;
 
 private:
+  QLinearGradient adjacentPathGradient(float hue);
+
   bool blindspotLeft = false;
   bool blindspotRight = false;
   bool blinkerLeft = false;

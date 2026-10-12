@@ -144,6 +144,7 @@ class ModelRenderer(Widget):
     # Draw elements (hide when disengaged)
     if ui_state.status != UIStatus.DISENGAGED:
       # FrogPilot variables
+      self._frogpilot_road.draw_adjacent_paths(self._rect)
 
       self._draw_lane_lines()
       self._draw_path(sm)
@@ -225,6 +226,7 @@ class ModelRenderer(Widget):
     )
 
     # FrogPilot variables
+    self._frogpilot_road.update_adjacent_paths(self._map_line_to_polygon, self._lane_lines, max_idx)
 
     self._update_experimental_gradient()
 

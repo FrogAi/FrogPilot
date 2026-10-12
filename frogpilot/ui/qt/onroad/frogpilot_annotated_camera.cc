@@ -69,6 +69,18 @@ void FrogPilotAnnotatedCameraWidget::mousePressEvent(QMouseEvent *mouseEvent) {
   mouseEvent->ignore();
 }
 
+bool FrogPilotAnnotatedCameraWidget::needsAdjacentPaths() const {
+  return frogpilot_toggles.value(QLatin1String("adjacent_paths")).toBool() || frogpilot_toggles.value(QLatin1String("adjacent_path_metrics")).toBool();
+}
+
+QLinearGradient FrogPilotAnnotatedCameraWidget::adjacentPathGradient(float hue) {
+  QLinearGradient gradient(0, height(), 0, 0);
+  gradient.setColorAt(0.0f, QColor::fromHslF(hue, 0.75f, 0.5f, 0.4f));
+  gradient.setColorAt(0.5f, QColor::fromHslF(hue, 0.75f, 0.5f, 0.35f));
+  gradient.setColorAt(1.0f, QColor::fromHslF(hue, 0.75f, 0.5f, 0.0f));
+  return gradient;
+}
+
 void FrogPilotAnnotatedCameraWidget::drawOutlinedText(QPainter &p, const QPointF &position, const QString &text) {
   QPainterPath path;
   path.addText(position, p.font(), text);
@@ -79,6 +91,47 @@ void FrogPilotAnnotatedCameraWidget::drawOutlinedText(QPainter &p, const QPointF
 
 void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
   int slotStep = rightHandDM ? -widget_size - 2 * UI_BORDER_SIZE : widget_size + 2 * UI_BORDER_SIZE;
+}
+
+void FrogPilotAnnotatedCameraWidget::paintAdjacentPaths(QPainter &p) {
+  std::function<void(const QPolygonF&, bool, float)> paintPath = [&](const QPolygonF &path, bool isLeft, float laneWidth) {
+    if (path.isEmpty() || laneWidth == 0.0f) {
+      return;
+    }
+
+    p.save();
+
+    const double requirement = frogpilot_toggles.value(QLatin1String("lane_detection_width")).toDouble();
+    float ratio = requirement > 0 ? std::clamp(laneWidth / requirement, 0.0, 1.0) : 1.0;
+    float hue = (ratio * ratio) * (120.0f / 360.0f);
+
+    p.setBrush(adjacentPathGradient(hue));
+    p.drawPolygon(path);
+
+    if (frogpilot_toggles.value(QLatin1String("adjacent_path_metrics")).toBool()) {
+      QString text = QString::number(laneWidth * distanceConversion, 'f', 2) + leadDistanceUnit;
+
+      int midIndex = path.size() / 2;
+      QPointF anchorPoint = isLeft ? path[midIndex / 2] : path[midIndex + (path.size() - midIndex) / 2];
+
+      p.setFont(InterFont(45, QFont::DemiBold));
+      QFontMetrics metrics(p.font());
+
+      int textWidth = metrics.horizontalAdvance(text);
+      int textXPosition = isLeft ? anchorPoint.x() - textWidth : anchorPoint.x();
+      int textYPosition = anchorPoint.y() - metrics.height() / 2 + metrics.ascent();
+
+      textXPosition = std::clamp(textXPosition, 0, width() - textWidth);
+
+      p.setPen(whiteColor());
+      drawOutlinedText(p, QPointF(textXPosition, textYPosition), text);
+    }
+
+    p.restore();
+  };
+
+  paintPath(track_adjacent_vertices[0], true, laneWidthLeft);
+  paintPath(track_adjacent_vertices[1], false, laneWidthRight);
 }
 
 void FrogPilotAnnotatedCameraWidget::paintWorldWidgets(QPainter &p) {
