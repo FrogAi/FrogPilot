@@ -1076,6 +1076,14 @@ FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
     ET.PERMANENT: always_on_lateral_waiting_alert,
   },
 
+  FrogPilotEventName.blockUser: {
+    ET.PERMANENT: Alert(
+      "Don't use the 'MAKE-PRS-HERE' branch!",
+      "Forcing you into 'Dashcam Mode' for your safety",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.HIGHEST, VisualAlert.none, AudibleAlert.none, 1.),
+  },
+
   FrogPilotEventName.customStartupAlert: {
     ET.PERMANENT: custom_startup_alert,
   },
@@ -1183,6 +1191,13 @@ if HARDWARE.get_device_type() == 'mici':
     },
     FrogPilotEventName.alwaysOnLateralWaiting: {
       ET.PERMANENT: always_on_lateral_waiting_alert_mici,
+    },
+    FrogPilotEventName.blockUser: {
+      ET.PERMANENT: Alert(
+        "Dashcam",
+        "Don't use MAKE-PRS-HERE",
+        AlertStatus.userPrompt, AlertSize.mid,
+        Priority.HIGHEST, VisualAlert.none, AudibleAlert.none, 1.),
     },
     FrogPilotEventName.customStartupAlert: {
       ET.PERMANENT: custom_startup_alert_mici,
