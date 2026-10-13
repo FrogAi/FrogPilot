@@ -76,7 +76,12 @@ def run_frogpilot_telemetry(started: bool, params: Params, CP: car.CarParams, fr
   return not frogpilot_toggles.no_logging and (frogpilot_toggles.telemetry_sharing or frogpilot_paths.FROGS_GO_MOO_PATH.is_file())
 
 def run_speed_limit_capture(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
-  return started and (CP.brand == "toyota" and frogpilot_toggles.has_dashboard_speed_limit and frogpilot_toggles.telemetry_sharing or frogpilot_paths.FROGS_GO_MOO_PATH.is_file())
+  dashboard_speed_limit = CP.brand == "toyota" and frogpilot_toggles.has_dashboard_speed_limit
+  speed_limits = dashboard_speed_limit or frogpilot_toggles.speed_limit_controller or frogpilot_toggles.speed_limit_filler
+  return started and (speed_limits and frogpilot_toggles.telemetry_sharing or frogpilot_paths.FROGS_GO_MOO_PATH.is_file())
+
+def run_speed_limit_reader(started: bool, params: Params, CP: car.CarParams, frogpilot_toggles: SimpleNamespace) -> bool:
+  return started and (frogpilot_toggles.show_speed_limits or frogpilot_toggles.speed_limit_controller or frogpilot_toggles.speed_limit_filler)
 
 procs = [
   DaemonProcess("manage_athenad", "system.athena.manage_athenad", "AthenadPid"),
@@ -141,6 +146,7 @@ procs += [
   PythonProcess("frogpilot_telemetry", "frogpilot.system.frogpilot_telemetry", run_frogpilot_telemetry),
   NativeProcess("mapd", "frogpilot/navigation", ["env", "USE_MSGQ_PREFIX=true", "./mapd"], always_run),
   PythonProcess("speed_limit_capture", "frogpilot.system.speed_limit_capture", and_(allow_logging, run_speed_limit_capture)),
+  PythonProcess("speed_limit_reader", "frogpilot.system.speed_limit_reader", run_speed_limit_reader, enabled=not PC),
 ]
 
 managed_processes = {p.name: p for p in procs}
