@@ -181,6 +181,11 @@ class CAR(Platforms):
   )
 
   # FrogPilot variables
+  HYUNDAI_AZERA_DIESEL_6TH_GEN = HyundaiPlatformConfig(
+    [HyundaiCarDocs("Hyundai Azera Diesel 2019", "All", car_parts=CarParts.common([CarHarness.hyundai_c]))],
+    CarSpecs(mass=1675, wheelbase=2.845, steerRatio=14.5),
+    flags=HyundaiFlags.CLUSTER_GEARS | HyundaiFlags.MANDO_RADAR,
+  )
 
   HYUNDAI_AZERA_HEV_6TH_GEN = HyundaiPlatformConfig(
     [
