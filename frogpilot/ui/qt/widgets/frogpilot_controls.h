@@ -24,6 +24,7 @@ const QMap<QString, QString> &randomEventNames();
 
 QString cleanModelName(QString modelName);
 QString formatDistance(double meters, bool isMetric);
+QString formatDownloadProgress(const std::string &progress, const QString &updaterState);
 QString formatDuration(int seconds);
 QString formatShortTime(const QTime &time);
 QString newPairingCode();
