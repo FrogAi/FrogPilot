@@ -22,7 +22,7 @@ from openpilot.selfdrive.selfdrived.alertmanager import set_offroad_alert
 from openpilot.system.hardware import AGNOS, HARDWARE
 from openpilot.system.version import get_build_metadata
 
-from openpilot.frogpilot.common import frogpilot_paths, frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_paths, frogpilot_utilities, frogpilot_variables
 
 LOCK_FILE = os.getenv("UPDATER_LOCK_FILE", "/tmp/safe_staging_overlay.lock")
 STAGING_ROOT = os.getenv("UPDATER_STAGING_ROOT", "/data/safe_staging")
@@ -177,7 +177,7 @@ def init_overlay() -> None:
   cloudlog.info(f"git diff output:\n{git_diff}")
 
 
-def finalize_update() -> None:
+def finalize_update(update_progress) -> None:
   """Take the current OverlayFS merged view and finalize a copy outside of
   OverlayFS, ready to be swapped-in at BASEDIR. Copy using shutil.copytree"""
 
@@ -188,7 +188,7 @@ def finalize_update() -> None:
   # Copy the merged overlay view and set the update ready flag
   if os.path.exists(FINALIZED):
     shutil.rmtree(FINALIZED)
-  shutil.copytree(OVERLAY_MERGED, FINALIZED, symlinks=True)
+  update_progress.copy_tree(OVERLAY_MERGED, FINALIZED)
 
   run(["git", "reset", "--hard"], FINALIZED)
   run(["git", "submodule", "foreach", "--recursive", "git", "reset", "--hard"], FINALIZED)
@@ -206,7 +206,7 @@ def finalize_update() -> None:
   cloudlog.info("done finalizing overlay")
 
 
-def handle_agnos_update() -> None:
+def handle_agnos_update(update_progress) -> None:
   from openpilot.system.hardware.tici.agnos import flash_agnos_update, get_target_slot_number
 
   cur_version = HARDWARE.get_os_version()
@@ -234,8 +234,10 @@ def handle_agnos_update() -> None:
     set_offroad_alert("Offroad_UnsupportedDevice", True)
     raise RuntimeError(f"AGNOS {updated_version} is only for the comma 3 and comma 3X")
 
+  update_progress.start_agnos(manifest_path)
+
   target_slot_number = get_target_slot_number()
-  flash_agnos_update(manifest_path, target_slot_number, cloudlog)
+  flash_agnos_update(manifest_path, target_slot_number, cloudlog, report_progress=update_progress.report_agnos)
   set_offroad_alert("Offroad_NeosUpdate", False)
 
 
@@ -388,6 +390,7 @@ class Updater:
     cloudlog.info("attempting git fetch inside staging overlay")
 
     # FrogPilot variables
+    update_progress = frogpilot_utilities.UpdateProgress(self.params)
 
     self.params.put("UpdaterState", "downloading...")
 
@@ -400,7 +403,7 @@ class Updater:
     run(["git", "config", "--replace-all", "remote.origin.fetch", "+refs/heads/*:refs/remotes/origin/*"], OVERLAY_MERGED)
 
     branch = self.target_branch
-    git_fetch_output = run(["git", "fetch", "origin", branch], OVERLAY_MERGED)
+    git_fetch_output = frogpilot_utilities.run_git_with_progress(["git", "fetch", "--progress", "origin", branch], OVERLAY_MERGED, update_progress)
     cloudlog.info("git fetch success: %s", git_fetch_output)
 
     cloudlog.info("git reset in progress")
@@ -418,11 +421,11 @@ class Updater:
 
     # TODO: show agnos download progress
     if AGNOS:
-      handle_agnos_update()
+      handle_agnos_update(update_progress)
 
     # Create the finalized, ready-to-swap update
     self.params.put("UpdaterState", "finalizing update...")
-    finalize_update()
+    finalize_update(update_progress)
     cloudlog.info("finalize success!")
 
     # FrogPilot variables
@@ -464,6 +467,7 @@ def main() -> None:
     params.put("UpdaterState", "idle")
 
     # FrogPilot variables
+    params.remove("UpdaterDownloadProgress")
 
     # Run the update loop
     first_run = True

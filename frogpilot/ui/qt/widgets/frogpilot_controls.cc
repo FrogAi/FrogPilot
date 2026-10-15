@@ -300,6 +300,15 @@ QString formatDistance(double meters, bool isMetric) {
   return QLocale().toString(value) + unit;
 }
 
+QString formatDownloadProgress(const std::string &progress, const QString &updaterState) {
+  QJsonObject progressObject = QJsonDocument::fromJson(QByteArray::fromStdString(progress)).object();
+  if (!progressObject.contains("percent")) {
+    return updaterState;
+  }
+
+  return QString("%1%").arg(progressObject.value("percent").toInt());
+}
+
 QString formatDuration(int seconds) {
   const int secondsInDay = 60 * 60 * 24;
   const int secondsInHour = 60 * 60;
