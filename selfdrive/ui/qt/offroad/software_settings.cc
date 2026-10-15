@@ -193,6 +193,7 @@ void SoftwarePanel::updateLabels() {
   fs_watch->addParam("UpdateAvailable");
 
   // FrogPilot variables
+  fs_watch->addParam("UpdaterDownloadProgress");
 
   if (!isVisible()) {
     return;
@@ -210,9 +211,9 @@ void SoftwarePanel::updateLabels() {
   // download update
   QString updater_state = QString::fromStdString(params.get("UpdaterState"));
   bool failed = std::atoi(params.get("UpdateFailedCount").c_str()) > 0;
-  if (updater_state != "idle") {
+  if (updater_state != "idle" || !params.get("UpdaterDownloadProgress").empty()) {
     downloadBtn->setEnabled(false);
-    downloadBtn->setValue(updater_state);
+    downloadBtn->setValue(formatDownloadProgress(params.get("UpdaterDownloadProgress"), updater_state));
   } else {
     if (failed) {
       downloadBtn->setText(tr("CHECK"));
@@ -241,7 +242,7 @@ void SoftwarePanel::updateLabels() {
   versionLbl->setText(QString::fromStdString(params.get("UpdaterCurrentDescription")));
   versionLbl->setDescription(QString::fromStdString(params.get("UpdaterCurrentReleaseNotes")));
 
-  installBtn->setVisible(frogpilot_scene.parked && params.getBool("UpdateAvailable"));
+  installBtn->setVisible(frogpilot_scene.parked && params.getBool("UpdateAvailable") && params.get("UpdaterDownloadProgress").empty());
   installBtn->setValue(QString::fromStdString(params.get("UpdaterNewDescription")));
   installBtn->setDescription(QString::fromStdString(params.get("UpdaterNewReleaseNotes")));
 
