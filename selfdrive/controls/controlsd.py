@@ -17,6 +17,7 @@ from openpilot.selfdrive.controls.lib.latcontrol_pid import LatControlPID
 from openpilot.selfdrive.controls.lib.latcontrol_angle import LatControlAngle, STEER_ANGLE_SATURATION_THRESHOLD
 from openpilot.selfdrive.controls.lib.latcontrol_torque import KP, LatControlTorque
 from openpilot.selfdrive.controls.lib.longcontrol import LongControl
+from openpilot.selfdrive.modeld.modeld import LAT_SMOOTH_SECONDS
 from openpilot.selfdrive.locationd.helpers import PoseCalibrator, Pose
 
 from openpilot.frogpilot.common import frogpilot_variables
@@ -34,8 +35,10 @@ class Controls:
     self.params = Params()
     cloudlog.info("controlsd is waiting for CarParams")
     self.CP = messaging.log_from_bytes(self.params.get("CarParams", block=True), car.CarParams)
+
     # FrogPilot variables
     self.FPCP = messaging.log_from_bytes(self.params.get("FrogPilotCarParams", block=True), custom.FrogPilotCarParams)
+
     cloudlog.info("controlsd got CarParams")
 
     self.CI = interfaces[self.CP.carFingerprint](self.CP, self.FPCP)
@@ -109,9 +112,9 @@ class Controls:
       if self.sm.all_checks(['liveTorqueParameters']) and (torque_params.useParams or self.frogpilot_toggles.force_auto_tune):
         self.LaC.update_live_torque_params(torque_params.latAccelFactorFiltered, torque_params.latAccelOffsetFiltered,
                                            torque_params.frictionCoefficientFiltered)
+
         # FrogPilot variables
         self.using_custom_torque_params = False
-      # FrogPilot variables
       elif (not torque_params.useParams and self.using_custom_torque_params and not self.frogpilot_toggles.force_auto_tune) or \
            self.frogpilot_toggles.use_custom_friction or self.frogpilot_toggles.use_custom_latAccelFactor:
         self.LaC.update_live_torque_params(self.frogpilot_toggles.latAccelFactor, self.CP.lateralTuning.torque.latAccelOffset, self.frogpilot_toggles.friction)
@@ -186,6 +189,7 @@ class Controls:
     CC.cruiseControl.override = CC.enabled and not CC.longActive and self.CP.openpilotLongitudinalControl
     CC.cruiseControl.cancel = CS.cruiseState.enabled and (not CC.enabled or not self.CP.pcmCruise)
     CC.cruiseControl.resume = CC.enabled and CS.cruiseState.standstill and not self.sm['longitudinalPlan'].shouldStop
+
     # FrogPilot variables
     CC.cruiseControl.resume &= not self.sm['frogpilotPlan'].forcingStop
 
@@ -203,7 +207,7 @@ class Controls:
       hudControl.leftLaneDepart = self.sm['driverAssistance'].leftLaneDeparture
       hudControl.rightLaneDepart = self.sm['driverAssistance'].rightLaneDeparture
 
-    if self.sm['selfdriveState'].active:
+    if self.sm['selfdriveState'].active or self.sm['frogpilotCarState'].alwaysOnLateralEnabled:
       CO = self.sm['carOutput']
       if self.CP.steerControlType == car.CarParams.SteerControlType.angle:
         self.steer_limited_by_safety = abs(CC.actuators.steeringAngleDeg - CO.actuatorsOutput.steeringAngleDeg) > \

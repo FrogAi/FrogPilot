@@ -41,17 +41,24 @@ class VCruiseHelper:
     self.button_change_states = {btn: {"standstill": False, "enabled": False} for btn in self.button_timers}
 
     # OPGM variables
-    self.gm_cc_only = self.CP.carFingerprint in CC_ONLY_CAR and self.CP.flags & GMFlags.CC_LONG.value
+    self.gm_cc_long = self.CP.carFingerprint in CC_ONLY_CAR and bool(self.CP.flags & GMFlags.CC_LONG.value)
+
+    # FrogPilot variables
+    self.confirming_speed_limit = False
 
   @property
   def v_cruise_initialized(self):
     return self.v_cruise_kph != V_CRUISE_UNSET
 
-  def update_v_cruise(self, CS, enabled, is_metric, frogpilot_toggles):
+  def update_v_cruise(self, CS, enabled, is_metric, speed_limit_changed, frogpilot_toggles):
     self.v_cruise_kph_last = self.v_cruise_kph
 
+    # FrogPilot variables
+    if any(b.pressed for b in CS.buttonEvents):
+      self.confirming_speed_limit = speed_limit_changed
+
     if CS.cruiseState.available:
-      if self.gm_cc_only or not self.CP.pcmCruise:
+      if self.gm_cc_long or not self.CP.pcmCruise:
         # if stock cruise is completely disabled, then we can use our own set speed logic
         self._update_v_cruise_non_pcm(CS, enabled, is_metric, frogpilot_toggles)
         self.v_cruise_cluster_kph = self.v_cruise_kph
@@ -96,6 +103,10 @@ class VCruiseHelper:
     if button_type is None:
       return
 
+    # FrogPilot variables
+    if self.confirming_speed_limit:
+      return
+
     # Don't adjust speed when pressing resume to exit standstill
     cruise_standstill = self.button_change_states[button_type]["standstill"] or CS.cruiseState.standstill
     if button_type == ButtonType.accelCruise and cruise_standstill:
@@ -107,6 +118,7 @@ class VCruiseHelper:
 
     # FrogPilot variables
     v_cruise_delta_interval = frogpilot_toggles.cruise_increase_long if long_press else frogpilot_toggles.cruise_increase
+
     v_cruise_delta = v_cruise_delta * v_cruise_delta_interval
     if v_cruise_delta_interval % 5 == 0 and self.v_cruise_kph % v_cruise_delta != 0:  # partial interval
       self.v_cruise_kph = CRUISE_NEAREST_FUNC[button_type](self.v_cruise_kph / v_cruise_delta) * v_cruise_delta
@@ -139,13 +151,13 @@ class VCruiseHelper:
 
   def initialize_v_cruise(self, CS, experimental_mode: bool, resume_prev_button: bool, frogpilot_toggles: SimpleNamespace, slc_target: float = 0) -> None:
     # initializing is handled by the PCM
-    if self.CP.pcmCruise and not self.gm_cc_only:
+    if self.CP.pcmCruise and not self.gm_cc_long:
       return
 
     initial = V_CRUISE_INITIAL_EXPERIMENTAL_MODE if experimental_mode and not frogpilot_toggles.conditional_experimental_mode else V_CRUISE_INITIAL
 
     if self.v_cruise_initialized and (any(b.type in (ButtonType.accelCruise, ButtonType.resumeCruise) for b in CS.buttonEvents)
-                                      or (resume_prev_button and self.gm_cc_only)):
+                                      or (resume_prev_button and self.gm_cc_long)):
       self.v_cruise_kph = self.v_cruise_kph_last
     # FrogPilot variables
     elif frogpilot_toggles.set_speed_limit and slc_target > 0:

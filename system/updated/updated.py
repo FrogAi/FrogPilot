@@ -22,7 +22,7 @@ from openpilot.selfdrive.selfdrived.alertmanager import set_offroad_alert
 from openpilot.system.hardware import AGNOS, HARDWARE
 from openpilot.system.version import get_build_metadata
 
-from openpilot.frogpilot.common import frogpilot_variables
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 
 LOCK_FILE = os.getenv("UPDATER_LOCK_FILE", "/tmp/safe_staging_overlay.lock")
 STAGING_ROOT = os.getenv("UPDATER_STAGING_ROOT", "/data/safe_staging")
@@ -177,7 +177,7 @@ def init_overlay() -> None:
   cloudlog.info(f"git diff output:\n{git_diff}")
 
 
-def finalize_update() -> None:
+def finalize_update(update_progress) -> None:
   """Take the current OverlayFS merged view and finalize a copy outside of
   OverlayFS, ready to be swapped-in at BASEDIR. Copy using shutil.copytree"""
 
@@ -188,7 +188,7 @@ def finalize_update() -> None:
   # Copy the merged overlay view and set the update ready flag
   if os.path.exists(FINALIZED):
     shutil.rmtree(FINALIZED)
-  shutil.copytree(OVERLAY_MERGED, FINALIZED, symlinks=True)
+  update_progress.copy_tree(OVERLAY_MERGED, FINALIZED)
 
   run(["git", "reset", "--hard"], FINALIZED)
   run(["git", "submodule", "foreach", "--recursive", "git", "reset", "--hard"], FINALIZED)
@@ -206,7 +206,7 @@ def finalize_update() -> None:
   cloudlog.info("done finalizing overlay")
 
 
-def handle_agnos_update() -> None:
+def handle_agnos_update(update_progress) -> None:
   from openpilot.system.hardware.tici.agnos import flash_agnos_update, get_target_slot_number
 
   cur_version = HARDWARE.get_os_version()
@@ -223,15 +223,17 @@ def handle_agnos_update() -> None:
   cloudlog.info(f"Beginning background installation for AGNOS {updated_version}")
   set_offroad_alert("Offroad_NeosUpdate", True)
 
-  manifest_dir = os.path.join(OVERLAY_MERGED, "system/hardware/tici")
+  manifest_path = os.path.join(OVERLAY_MERGED, "system/hardware/tici/agnos.json")
+
   # FrogPilot variables
-  if HARDWARE.get_device_type() in ("tici", "tizi") and os.path.exists(os.path.join(manifest_dir, "c3_agnos.json")):
-    manifest_file = "c3_agnos.json"
-  else:
-    manifest_file = "agnos.json"
-  manifest_path = os.path.join(manifest_dir, manifest_file)
+  c3_manifest_path = os.path.join(OVERLAY_MERGED, "system/hardware/tici/c3_agnos.json")
+  if HARDWARE.get_device_type() in ("tici", "tizi") and os.path.exists(c3_manifest_path):
+    manifest_path = c3_manifest_path
+
+  update_progress.start_agnos(manifest_path)
+
   target_slot_number = get_target_slot_number()
-  flash_agnos_update(manifest_path, target_slot_number, cloudlog)
+  flash_agnos_update(manifest_path, target_slot_number, cloudlog, report_progress=update_progress.report_agnos)
   set_offroad_alert("Offroad_NeosUpdate", False)
 
 
@@ -383,6 +385,9 @@ class Updater:
   def fetch_update(self) -> None:
     cloudlog.info("attempting git fetch inside staging overlay")
 
+    # FrogPilot variables
+    update_progress = frogpilot_utilities.UpdateProgress(self.params)
+
     self.params.put("UpdaterState", "downloading...")
 
     # TODO: cleanly interrupt this and invalidate old update
@@ -394,7 +399,7 @@ class Updater:
     run(["git", "config", "--replace-all", "remote.origin.fetch", "+refs/heads/*:refs/remotes/origin/*"], OVERLAY_MERGED)
 
     branch = self.target_branch
-    git_fetch_output = run(["git", "fetch", "origin", branch], OVERLAY_MERGED)
+    git_fetch_output = frogpilot_utilities.run_git_with_progress(["git", "fetch", "--progress", "origin", branch], OVERLAY_MERGED, update_progress)
     cloudlog.info("git fetch success: %s", git_fetch_output)
 
     cloudlog.info("git reset in progress")
@@ -412,16 +417,15 @@ class Updater:
 
     # TODO: show agnos download progress
     if AGNOS:
-      handle_agnos_update()
+      handle_agnos_update(update_progress)
 
     # Create the finalized, ready-to-swap update
     self.params.put("UpdaterState", "finalizing update...")
-    finalize_update()
+    finalize_update(update_progress)
     cloudlog.info("finalize success!")
 
     # FrogPilot variables
-    if os.path.isfile(frogpilot_variables.BACKUP_PATH):
-      os.remove(frogpilot_variables.BACKUP_PATH)
+    frogpilot_variables.BACKUP_PATH.unlink(missing_ok=True)
 
     self.params.put("Updated", datetime.datetime.now().astimezone(ZoneInfo("America/Phoenix")).strftime("%B %d, %Y - %I:%M%p"))
 
@@ -480,27 +484,32 @@ def main() -> None:
           wait_helper.sleep(60)
           continue
 
+        # FrogPilot variables
+        if not manual_update_requested and not params.get_bool("IsOffroad"):
+          cloudlog.info("skipping update check, vehicle is onroad")
+          wait_helper.sleep(None)
+          continue
+
         update_failed_count += 1
 
-        # FrogPilot variables
-        if manual_update_requested or params.get_bool("IsOffroad"):
-          # check for update
-          params.put("UpdaterState", "checking...")
-          updater.check_for_update()
+        # check for update
+        params.put("UpdaterState", "checking...")
+        updater.check_for_update()
 
-          # download update
-          last_fetch = params.get("UpdaterLastFetchTime")
-          timed_out = last_fetch is None or (datetime.datetime.now(datetime.UTC).replace(tzinfo=None) - last_fetch > datetime.timedelta(days=3))
-          user_requested_fetch = wait_helper.user_request == UserRequest.FETCH
-          if params.get_bool("NetworkMetered") and not timed_out and not user_requested_fetch:
-            cloudlog.info("skipping fetch, connection metered")
-          elif wait_helper.user_request == UserRequest.CHECK:
-            cloudlog.info("skipping fetch, only checking")
-          else:
-            updater.fetch_update()
-            write_time_to_param(params, "UpdaterLastFetchTime")
+        # download update
+        last_fetch = params.get("UpdaterLastFetchTime")
+        timed_out = last_fetch is None or (datetime.datetime.now(datetime.UTC).replace(tzinfo=None) - last_fetch > datetime.timedelta(days=3))
+        user_requested_fetch = wait_helper.user_request == UserRequest.FETCH
+        if params.get_bool("NetworkMetered") and not timed_out and not user_requested_fetch:
+          cloudlog.info("skipping fetch, connection metered")
+        elif wait_helper.user_request == UserRequest.CHECK:
+          cloudlog.info("skipping fetch, only checking")
+        # FrogPilot variables
+        elif not manual_update_requested and not frogpilot_variables.get_frogpilot_toggles().automatic_updates:
+          cloudlog.info("skipping fetch, automatic updates are off")
         else:
-          cloudlog.info("skipping fetch, vehicle is onroad")
+          updater.fetch_update()
+          write_time_to_param(params, "UpdaterLastFetchTime")
         update_failed_count = 0
       except subprocess.CalledProcessError as e:
         cloudlog.event(
@@ -529,7 +538,7 @@ def main() -> None:
       write_time_to_param(params, "UpdaterLastRunTime")
       params.put("UpdaterState", "idle")
 
-      wait_helper.sleep(60*60*24*365*100)
+      wait_helper.sleep(None)
 
 
 if __name__ == "__main__":

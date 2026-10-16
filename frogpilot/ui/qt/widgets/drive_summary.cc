@@ -31,20 +31,6 @@ FrogPilotDriveSummary::FrogPilotDriveSummary(QWidget *parent, bool randomEvents)
   listLayout->setSpacing(20);
 
   if (displayRandomEvents) {
-    randomEventsMap.insert("accel30", tr("UwUs"));
-    randomEventsMap.insert("accel35", tr("Loch Ness Encounters"));
-    randomEventsMap.insert("accel40", tr("Visits to 1955"));
-    randomEventsMap.insert("dejaVuCurve", tr("Deja Vu Moments"));
-    randomEventsMap.insert("firefoxSteerSaturated", tr("Internet Explorer Weeeeeeees"));
-    randomEventsMap.insert("goatSteerSaturated", tr("Goat Screams"));
-    randomEventsMap.insert("hal9000", tr("HAL 9000 Denials"));
-    randomEventsMap.insert("openpilotCrashedRandomEvent", tr("openpilot Crashes"));
-    randomEventsMap.insert("thisIsFineSteerSaturated", tr("This Is Fine Moments"));
-    randomEventsMap.insert("toBeContinued", tr("To Be Continued Moments"));
-    randomEventsMap.insert("vCruise69", tr("Noices"));
-    randomEventsMap.insert("yourFrogTriedToKillMe", tr("Attempted Frog Murders"));
-    randomEventsMap.insert("youveGotMail", tr("Total Mail Received"));
-
     eventsListLayout = listLayout;
     mainLayout->addWidget(new ScrollView(containerWidget, this), 1);
   } else {
@@ -93,7 +79,7 @@ void FrogPilotDriveSummary::updateStats() {
     QJsonObject previousRandomEvents = previousStats.value("RandomEvents").toObject();
 
     QList<QPair<QString, int>> eventsList;
-    for (QMap<QString, QString>::const_iterator it = randomEventsMap.constBegin(); it != randomEventsMap.constEnd(); ++it) {
+    for (QMap<QString, QString>::const_iterator it = randomEventNames().constBegin(); it != randomEventNames().constEnd(); ++it) {
       int currentValue = currentRandomEvents.value(it.key()).toInt();
       int previousValue = previousRandomEvents.value(it.key()).toInt();
       int diffValue = currentValue - previousValue;
@@ -147,42 +133,14 @@ void FrogPilotDriveSummary::updateStats() {
       return currentStats.value(key).toDouble() - previousStats.value(key).toDouble();
     };
 
-    std::function<QString(double)> formatDistance = [&](double meters) {
-      double value;
-      QString unit;
-      if (isMetric) {
-        value = meters / 1000.0;
-        unit = (qRound(value) == 1) ? tr(" kilometer") : tr(" kilometers");
-      } else {
-        value = meters * METER_TO_MILE;
-        unit = (qRound(value) == 1) ? tr(" mile") : tr(" miles");
-      }
-      return QLocale().toString(qRound(value)) + unit;
-    };
-
-    std::function<QString(int)> formatTime = [&](int seconds) {
-      constexpr int secondsInDay = 60 * 60 * 24;
-      constexpr int secondsInHour = 60 * 60;
-
-      int days = seconds / secondsInDay;
-      int hours = (seconds % secondsInDay) / secondsInHour;
-      int minutes = (seconds % secondsInHour) / 60;
-
-      QString result;
-      if (days > 0) result += QLocale().toString(days) + (days == 1 ? tr(" day ") : tr(" days "));
-      if (hours > 0 || days > 0) result += QLocale().toString(hours) + (hours == 1 ? tr(" hour ") : tr(" hours "));
-      result += QLocale().toString(minutes) + (minutes == 1 ? tr(" minute") : tr(" minutes"));
-      return result.trimmed();
-    };
-
     int engagedTime = diffDouble("EngagedTime");
     int experimentalTime = diffDouble("ExperimentalModeTime");
     int trackedTime = diffDouble("TrackedTime");
 
     engagementValue->setText(QLocale().toString((trackedTime > 0) ? (engagedTime * 100 / trackedTime) : 0) + "%");
     experimentalModeTimeValue->setText(QLocale().toString((trackedTime > 0) ? (experimentalTime * 100 / trackedTime) : 0) + "%");
-    frogPilotMetersValue->setText(formatDistance(diffDouble("FrogPilotMeters")));
-    trackedTimeValue->setText(formatTime(trackedTime));
+    frogPilotMetersValue->setText(formatDistance(diffDouble("FrogPilotMeters"), isMetric));
+    trackedTimeValue->setText(formatDuration(trackedTime));
   }
 }
 

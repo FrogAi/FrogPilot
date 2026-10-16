@@ -3,6 +3,7 @@
 struct fan_state_t fan_state;
 
 static const uint8_t FAN_TICK_FREQ = 8U;
+
 // FrogPilot variables
 static const uint8_t FAN_STALL_THRESHOLD_MIN = 3U;
 
@@ -17,6 +18,7 @@ void fan_set_power(uint8_t percentage) {
 void fan_init(void) {
   fan_state.cooldown_counter = current_board->fan_enable_cooldown_time * FAN_TICK_FREQ;
   llfan_init();
+
   // FrogPilot variables
   fan_state.stall_threshold = FAN_STALL_THRESHOLD_MIN;
 }
@@ -28,6 +30,7 @@ void fan_tick(void) {
     uint16_t fan_rpm_fast = fan_state.tach_counter * (60U * FAN_TICK_FREQ / 4U);   // 4 interrupts per rotation
     fan_state.tach_counter = 0U;
     fan_state.rpm = (fan_rpm_fast + (3U * fan_state.rpm)) / 4U;
+
     // FrogPilot variables
     const uint8_t FAN_STALL_THRESHOLD_MAX = 8U;
 

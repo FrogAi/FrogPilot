@@ -1,15 +1,20 @@
 #include <sys/xattr.h>
 
 #include "frogpilot/ui/qt/offroad/data_settings.h"
-#include "frogpilot/ui/qt/offroad/utilities.h"
 
 namespace {
   QString friendlyDate(const QDate &date, const QString &detail) {
     int day = date.day();
-    QString suffix = (day >= 11 && day <= 13) ? QCoreApplication::translate("FrogPilotDataPanel", "th", "ordinal suffix") :
-                     (day % 10 == 1) ? QCoreApplication::translate("FrogPilotDataPanel", "st", "ordinal suffix") :
-                     (day % 10 == 2) ? QCoreApplication::translate("FrogPilotDataPanel", "nd", "ordinal suffix") :
-                     (day % 10 == 3) ? QCoreApplication::translate("FrogPilotDataPanel", "rd", "ordinal suffix") : QCoreApplication::translate("FrogPilotDataPanel", "th", "ordinal suffix");
+    QString suffix = QCoreApplication::translate("FrogPilotDataPanel", "th", "ordinal suffix");
+    if (day < 11 || day > 13) {
+      if (day % 10 == 1) {
+        suffix = QCoreApplication::translate("FrogPilotDataPanel", "st", "ordinal suffix");
+      } else if (day % 10 == 2) {
+        suffix = QCoreApplication::translate("FrogPilotDataPanel", "nd", "ordinal suffix");
+      } else if (day % 10 == 3) {
+        suffix = QCoreApplication::translate("FrogPilotDataPanel", "rd", "ordinal suffix");
+      }
+    }
 
     return QCoreApplication::translate("FrogPilotDataPanel", "%1 %2%3, %4 (%5)")
       .arg(date.toString("MMMM"))
@@ -44,6 +49,7 @@ namespace {
     if (!QFile::exists(sources[0])) {
       return false;
     }
+
     for (const QString &target : targets) {
       if (QFile::exists(target)) {
         return false;
@@ -54,6 +60,7 @@ namespace {
       if (!QFile::exists(sources[i])) {
         continue;
       }
+
       if (!QFile::rename(sources[i], targets[i])) {
         for (int j = i - 1; j >= 0; --j) {
           QFile::rename(targets[j], sources[j]);
@@ -108,16 +115,12 @@ namespace {
     return validName(name) && !name.contains("_in_progress") && !name.contains("_auto");
   }
 
-  const std::set<std::string> backedUpKeys = {"DiscordUsername", "MapboxPublicKey", "MapboxSecretKey", "MapdSettings", "SecOCKeys", "Timezone", "WeatherToken"};
-
-  QStringList protectedParamArgs() {
-    QStringList arguments = {"--exclude", "Offroad_*"};
-    for (const std::string &key : excluded_keys) {
-      if (!backedUpKeys.count(key)) {
-        arguments << "--exclude" << QString::fromStdString(key);
-      }
+  bool settingsBackupSucceeded(uint64_t requestTime) {
+    SubMaster sm({"frogpilotProcessState"});
+    while (sm["frogpilotProcessState"].getFrogpilotProcessState().getSettingsBackupRequestTime() < requestTime || sm["frogpilotProcessState"].getFrogpilotProcessState().getSettingsBackup() == "pending") {
+      sm.update(1000);
     }
-    return arguments;
+    return sm["frogpilotProcessState"].getFrogpilotProcessState().getSettingsBackup() == "succeeded";
   }
 }
 
@@ -133,9 +136,11 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
   ScrollView *statsLabelsPanel = new ScrollView(statsLabelsList, this);
   dataLayout->addWidget(statsLabelsPanel);
 
-  ButtonControl *deleteDrivingDataButton = new ButtonControl(tr("Delete Driving Data"), tr("DELETE"), tr("<b>Delete every recorded drive to free up space and clear personal footage off the device.</b><br><br>Only the one-minute chunk of footage containing the moment you flagged is kept, not the rest of that drive, and preserving a drive in \"The Pond\" keeps it the same one minute at a time."));
+  ButtonControl *deleteDrivingDataButton = new ButtonControl(tr("Delete Driving Data"), tr("DELETE"), tr("<b>Delete every recorded drive to free up space and clear personal footage off the device.</b><br><br>Only the one-minute chunk of footage containing the moment you flagged is kept, not the rest of that drive. Drives preserved in \"The Pond\" are kept whole."));
   QObject::connect(deleteDrivingDataButton, &ButtonControl::clicked, [=]() {
-    if (ConfirmationDialog::confirm(tr("Delete all driving footage and data? Only the flagged and preserved one-minute chunks will be kept."), tr("Delete"), this)) {
+    if (ConfirmationDialog::confirm(tr("Delete all driving footage and data? Only the flagged one-minute chunks and the drives preserved in \"The Pond\" will be kept."), tr("Delete"), this)) {
+      QStringList logRoots = {"/data/media/0/realdata", "/data/media/0/realdata_HD", "/data/media/0/realdata_konik"};
+
       std::thread([=]() {
         runOnUIThread(deleteDrivingDataButton, [=]() {
           parent->activeOperations++;
@@ -146,16 +151,17 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
 
         bool success = true;
 
-        std::vector<QString> drivePaths = {"/data/media/0/realdata/", "/data/media/0/realdata_HD/", "/data/media/0/realdata_konik/"};
-        for (const QString &path : drivePaths) {
-          QDir dir(path);
+        for (const QString &logRoot : logRoots) {
+          QDir dir(logRoot);
           if (!dir.exists()) {
             continue;
           }
 
           for (const QFileInfo &entry : dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {
             char preserveValue[10] = {0};
+            char routePreserveValue[10] = {0};
             bool isPreserved = (getxattr(entry.absoluteFilePath().toUtf8().constData(), "user.preserve", preserveValue, sizeof(preserveValue)) > 0 && strcmp(preserveValue, "1") == 0);
+            isPreserved |= (getxattr(entry.absoluteFilePath().toUtf8().constData(), "user.frogpilot_preserve", routePreserveValue, sizeof(routePreserveValue)) > 0 && strcmp(routePreserveValue, "1") == 0);
             if (!isPreserved) {
               success &= QDir(entry.absoluteFilePath()).removeRecursively();
             }
@@ -313,9 +319,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
             return;
           }
           runDataOperation(parent, screenRecordingsButton, {0, 1}, tr("Renaming..."), tr("Renamed!"), tr("Rename failed..."), [=]() {
-            const QString oldName = recordingMap[selection];
-            bool success = renameRecording(recordingsDir, oldName, newName);
-            return success;
+            return renameRecording(recordingsDir, recordingMap[selection], newName);
           });
         }
       }
@@ -385,7 +389,7 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
           QString finalPath = backupDir.absoluteFilePath(name + ".tar.zst");
 
           QFile::remove(inProgressPath);
-          int tarStatus = QProcess::execute("tar", {"--use-compress-program=zstd", "-cf", inProgressPath, "/data/openpilot"});
+          int tarStatus = QProcess::execute("tar", {"--use-compress-program=zstd", "-cf", inProgressPath, "-C", "/data", "openpilot"});
 
           bool success = tarStatus == 0 && QFileInfo(inProgressPath).size() > 0;
           if (success) {
@@ -482,11 +486,13 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
             }
 
             if (success) {
-              success = QProcess::execute("rsync", {"-a", "--delete", "-l", sourceRoot + "/", "/data/openpilot/"}) == 0;
+              success = QProcess::execute("rsync", {"-a", "--delete", sourceRoot + "/", "/data/openpilot/"}) == 0;
             }
 
             if (success) {
               QDir(extractDirectory).removeRecursively();
+
+              QFile::remove("/data/safe_staging/finalized/.overlay_consistent");
 
               QFile("/cache/on_backup").open(QIODevice::WriteOnly);
 
@@ -598,18 +604,11 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
           return;
         }
 
-        runDataOperation(parent, toggleBackupButton, {1, 2, 3}, tr("Backing up..."), tr("Backup created!"), tr("Backup failed..."), [=]() {
-          QString inProgressPath = backupDir.absoluteFilePath(name + "_in_progress");
-          QString finalPath = backupDir.absoluteFilePath(name);
+        frogpilotUIState()->createSettingsBackup(name);
+        uint64_t requestTime = frogpilotUIState()->settings_backup_request_time;
 
-          bool success = QProcess::execute("rsync", QStringList{"-a", "/data/params/d/", inProgressPath + "/"} + protectedParamArgs()) == 0;
-          if (success) {
-            success = QDir().rename(inProgressPath, finalPath);
-          }
-          if (!success) {
-            QDir(inProgressPath).removeRecursively();
-          }
-          return success;
+        runDataOperation(parent, toggleBackupButton, {1, 2, 3}, tr("Backing up..."), tr("Backup created!"), tr("Backup failed..."), [=]() {
+          return settingsBackupSucceeded(requestTime);
         });
       }
 
@@ -647,52 +646,20 @@ FrogPilotDataPanel::FrogPilotDataPanel(FrogPilotSettingsWindow *parent, bool for
       QString selection = MultiOptionDialog::getSelection(tr("Choose a backup to restore"), friendlyNames, "", this);
       if (!selection.isEmpty()) {
         if (FrogPilotConfirmationDialog::yesorno(tr("Restore this backup? This overwrites your current settings."), this)) {
-          std::thread([=]() {
-            runOnUIThread(toggleBackupButton, [=]() {
-              parent->activeOperations++;
+          frogpilotUIState()->restoreSettingsBackup(backupMap[selection]);
+          uint64_t requestTime = frogpilotUIState()->settings_backup_request_time;
 
-              toggleBackupButton->setEnabled(false);
-              toggleBackupButton->setValue(tr("Restoring..."));
-
-              toggleBackupButton->setVisibleButton(0, false);
-              toggleBackupButton->setVisibleButton(1, false);
-              toggleBackupButton->setVisibleButton(2, false);
-            });
-
-            bool success = QProcess::execute("rsync", QStringList{"-a", "-l", backupDir.absoluteFilePath(backupMap[selection]) + "/", "/data/params/d/"} + protectedParamArgs()) == 0;
+          runDataOperation(parent, toggleBackupButton, {0, 1, 2}, tr("Restoring..."), tr("Restored!"), tr("Restore failed..."), [=]() {
+            bool success = settingsBackupSucceeded(requestTime);
             if (success) {
-              QDir restoredBackup(backupDir.absoluteFilePath(backupMap[selection]));
-              for (const QFileInfo &file : restoredBackup.entryInfoList(QDir::Files)) {
-                std::string key = file.fileName().toStdString();
-                if (file.size() == 0 && (!excluded_keys.count(key) || backedUpKeys.count(key))) {
-                  params.remove(key);
-                }
-              }
-            }
-
-            runOnUIThread(toggleBackupButton, [=]() {
-              if (success) {
+              runOnUIThread(toggleBackupButton, [=]() {
                 frogpilotUIState()->updateToggles();
                 parent->updateMetric(params.getBool("IsMetric"), true);
                 parent->updateTuningLevel();
-              }
-
-              toggleBackupButton->setValue(success ? tr("Restored!") : tr("Restore failed..."));
-            });
-
-            util::sleep_for(2500);
-
-            runOnUIThread(toggleBackupButton, [=]() {
-              toggleBackupButton->setEnabled(true);
-              toggleBackupButton->setValue("");
-
-              toggleBackupButton->setVisibleButton(0, true);
-              toggleBackupButton->setVisibleButton(1, true);
-              toggleBackupButton->setVisibleButton(2, true);
-
-              parent->activeOperations--;
-            });
-          }).detach();
+              });
+            }
+            return success;
+          });
         }
       }
     }
@@ -764,23 +731,8 @@ void FrogPilotDataPanel::updateStatsLabels(FrogPilotListWidget *labelsList) {
     {"RandomEvents", {tr("Random Events:"), "parent"}},
     {"StandstillTime", {tr("Time Stopped"), "timePercent"}},
     {"StopLightTime", {tr("Time Spent at Stoplights"), "timePercent"}},
+    {"TrackedTime", {tr("Total Time Tracked"), "time"}},
     {"WeatherTimes", {tr("Time Driven (Weather):"), "parent"}}
-  };
-
-  static QMap<QString, QString> randomEventsMap = {
-    {"accel30", tr("UwUs")},
-    {"accel35", tr("Loch Ness Encounters")},
-    {"accel40", tr("Visits to 1955")},
-    {"dejaVuCurve", tr("Deja Vu Moments")},
-    {"firefoxSteerSaturated", tr("Internet Explorer Weeeeeeees")},
-    {"goatSteerSaturated", tr("Goat Screams")},
-    {"hal9000", tr("HAL 9000 Denials")},
-    {"openpilotCrashedRandomEvent", tr("openpilot Crashes")},
-    {"thisIsFineSteerSaturated", tr("This Is Fine Moments")},
-    {"toBeContinued", tr("To Be Continued Moments")},
-    {"vCruise69", tr("Noices")},
-    {"yourFrogTriedToKillMe", tr("Attempted Frog Murders")},
-    {"youveGotMail", tr("Total Mail Received")}
   };
 
   static QMap<QString, QString> countNames = {
@@ -814,40 +766,8 @@ void FrogPilotDataPanel::updateStatsLabels(FrogPilotListWidget *labelsList) {
     return keyMap.value(a).first.toLower() < keyMap.value(b).first.toLower();
   });
 
-  std::function<QString(double)> format_number = [&](double number) {
+  std::function<QString(double)> formatNumber = [&](double number) {
     return QLocale().toString(number);
-  };
-
-  std::function<QString(double)> format_distance = [&](double meters) {
-    int value;
-    QString unit;
-    if (isMetric) {
-      value = qRound(meters / 1000.0);
-      unit = (value == 1) ? tr(" kilometer") : tr(" kilometers");
-    } else {
-      value = qRound(meters * METER_TO_MILE);
-      unit = (value == 1) ? tr(" mile") : tr(" miles");
-    }
-    return format_number(value) + unit;
-  };
-
-  std::function<QString(int)> format_time = [&](int seconds) {
-    const int secondsInDay = 60 * 60 * 24;
-    const int secondsInHour = 60 * 60;
-
-    int days = seconds / secondsInDay;
-    int hours = (seconds % secondsInDay) / secondsInHour;
-    int minutes = (seconds % secondsInHour) / 60;
-
-    QString result;
-    if (days > 0) {
-      result += format_number(days) + (days == 1 ? tr(" day ") : tr(" days "));
-    }
-    if (hours > 0 || days > 0) {
-      result += format_number(hours) + (hours == 1 ? tr(" hour ") : tr(" hours "));
-    }
-    result += format_number(minutes) + (minutes == 1 ? tr(" minute") : tr(" minutes"));
-    return result.trimmed();
   };
 
   double trackedTime = stats.value("TrackedTime").toDouble();
@@ -868,7 +788,7 @@ void FrogPilotDataPanel::updateStatsLabels(FrogPilotListWidget *labelsList) {
     if (key == "AEBEvents") {
       QJsonObject totalEvents = stats.value("TotalEvents").toObject();
 
-      QString displayValue = format_number(totalEvents.value("stockAeb").toInt(0) + totalEvents.value("fcw").toInt(0)) + " " + countNames.value(key);
+      QString displayValue = formatNumber(totalEvents.value("stockAeb").toInt(0) + totalEvents.value("fcw").toInt(0)) + " " + countNames.value(key);
 
       labelsList->addItem(new LabelControl(labelText, displayValue, "", this));
     } else if (key == "CruiseSpeedTimes" && value.isObject() && !value.toObject().isEmpty()) {
@@ -891,7 +811,7 @@ void FrogPilotDataPanel::updateStatsLabels(FrogPilotListWidget *labelsList) {
         displaySpeed = QString::number(qRound(bestSpeed.toDouble() * MS_TO_MPH)) + " " + tr("mph");
       }
 
-      labelsList->addItem(new LabelControl(labelText, displaySpeed + " (" + format_time(maxTime) + ")", "", this));
+      labelsList->addItem(new LabelControl(labelText, displaySpeed + " (" + formatDuration(maxTime) + ")", "", this));
     } else if (type == "parent") {
       labelsList->addItem(new LabelControl(labelText, "", "", this));
 
@@ -899,21 +819,13 @@ void FrogPilotDataPanel::updateStatsLabels(FrogPilotListWidget *labelsList) {
       QStringList subKeys;
 
       if (key == "RandomEvents") {
-        subKeys = randomEventsMap.keys();
+        subKeys = randomEventNames().keys();
       } else {
         subKeys = subObject.keys();
       }
 
       std::sort(subKeys.begin(), subKeys.end(), [&](const QString &a, const QString &b) {
-        QString displayA, displayB;
-        if (key == "RandomEvents") {
-          displayA = randomEventsMap.value(a, a);
-          displayB = randomEventsMap.value(b, b);
-        } else {
-          displayA = a;
-          displayB = b;
-        }
-        return displayA.toLower() < displayB.toLower();
+        return randomEventNames().value(a, a).toLower() < randomEventNames().value(b, b).toLower();
       });
 
       for (const QString &subkey : subKeys) {
@@ -921,24 +833,22 @@ void FrogPilotDataPanel::updateStatsLabels(FrogPilotListWidget *labelsList) {
           continue;
         }
 
-        QString displaySubKey;
+        QString displaySubKey = subkey;
         if (key == "ModelTimes") {
           displaySubKey = cleanModelName(subkey);
         } else if (key == "RandomEvents") {
-          displaySubKey = randomEventsMap.value(subkey, subkey);
+          displaySubKey = randomEventNames().value(subkey, subkey);
         } else if (key == "PersonalityTimes") {
           displaySubKey = personalityNames.value(subkey, subkey);
         } else if (key == "WeatherTimes") {
           displaySubKey = weatherNames.value(subkey, subkey);
-        } else {
-          displaySubKey = subkey;
         }
 
         QString subvalue;
         if (key.endsWith("Times")) {
-          subvalue = format_time(subObject.value(subkey).toDouble());
+          subvalue = formatDuration(subObject.value(subkey).toDouble());
         } else {
-          subvalue = format_number(subObject.value(subkey).toInt(0));
+          subvalue = formatNumber(subObject.value(subkey).toInt(0));
         }
 
         labelsList->addItem(new LabelControl("     " + displaySubKey, subvalue, "", this));
@@ -948,13 +858,13 @@ void FrogPilotDataPanel::updateStatsLabels(FrogPilotListWidget *labelsList) {
       if (type == "accel") {
         displayValue = QString::number(value.toDouble(), 'f', 2) + " " + tr("m/s²");
       } else if (type == "count") {
-        displayValue = format_number(value.toInt()) + " " + countNames.value(key);
+        displayValue = formatNumber(value.toInt()) + " " + countNames.value(key);
       } else if (type == "distance") {
-        displayValue = format_distance(value.toDouble());
+        displayValue = formatDistance(value.toDouble(), isMetric);
       } else if (type == "speed") {
         displayValue = "--";
       } else if (type == "time" || type == "timePercent") {
-        displayValue = format_time(value.toDouble());
+        displayValue = formatDuration(value.toDouble());
       }
 
       labelsList->addItem(new LabelControl(labelText, displayValue, "", this));
@@ -965,7 +875,7 @@ void FrogPilotDataPanel::updateStatsLabels(FrogPilotListWidget *labelsList) {
           percent = (value.toDouble() * 100.0) / trackedTime;
         }
 
-        labelsList->addItem(new LabelControl(tr("% of %1").arg(labelText), format_number(percent) + "%", "", this));
+        labelsList->addItem(new LabelControl(tr("% of %1").arg(labelText), formatNumber(percent) + "%", "", this));
       }
     }
   }

@@ -17,17 +17,18 @@ class Paths:
       return os.environ['LOG_ROOT']
     elif PC:
       return str(Path(Paths.comma_home()) / "media" / "0" / "realdata")
+    else:
+      # FrogPilot variables
+      if not HD and not konik:
+        HD = Path("/cache/use_HD").is_file()
+        konik = Path("/cache/use_konik").is_file()
 
-    # FrogPilot variables
-    if not HD and not konik:
-      HD = Path("/cache/use_HD").is_file()
-      konik = Path("/cache/use_konik").is_file()
+      if HD:
+        return '/data/media/0/realdata_HD/'
+      elif konik:
+        return '/data/media/0/realdata_konik/'
 
-    if HD:
-      return '/data/media/0/realdata_HD/'
-    elif konik:
-      return '/data/media/0/realdata_konik/'
-    return '/data/media/0/realdata/'
+      return '/data/media/0/realdata/'
 
   @staticmethod
   def swaglog_root() -> str:

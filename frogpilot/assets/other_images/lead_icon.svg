@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200" viewBox="0 0 200 200">
+  <g id="frames" data-loop="false">
+    <g id="frame-0" data-ms="350">
+      <animate attributeName="display" values="inline;none" keyTimes="0;0.1707" dur="2050ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.833 0 0 .833 16.67 8.33)">
+      <path d="M52 40h96c10 0 16 6 20 16l12 34c10 2 16 10 16 22v38H4v-38c0-12 6-20 16-22l12-34c4-10 10-16 20-16" fill="#c9d1dc"/>
+      <path d="M54 56h92l10 32H44Z" fill="#292929"/>
+      <path d="M22 108h36v16H22Zm120 0h36v16h-36Z" fill="#7a1a14"/>
+      <path d="M76 116h48" stroke="#292929" stroke-linecap="round" stroke-width="12"/>
+      <path d="M14 150h38v22a8 8 0 0 1-8 8H22a8 8 0 0 1-8-8Zm134 0h38v22a8 8 0 0 1-8 8h-22a8 8 0 0 1-8-8Z" fill="#8e9aab"/>
+      </g>
+    </g>
+    <g id="frame-1" data-ms="350">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1707;0.3415" dur="2050ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.833 0 0 .833 16.67 8.33)">
+      <path d="M52 40h96c10 0 16 6 20 16l12 34c10 2 16 10 16 22v38H4v-38c0-12 6-20 16-22l12-34c4-10 10-16 20-16" fill="#c9d1dc"/>
+      <path d="M54 56h92l10 32H44Z" fill="#292929"/>
+      <path d="M22 108h36v16H22Zm120 0h36v16h-36Z" fill="#ff3b30"/>
+      <path d="M76 116h48" stroke="#292929" stroke-linecap="round" stroke-width="12"/>
+      <path d="M14 150h38v22a8 8 0 0 1-8 8H22a8 8 0 0 1-8-8Zm134 0h38v22a8 8 0 0 1-8 8h-22a8 8 0 0 1-8-8Z" fill="#8e9aab"/>
+      </g>
+    </g>
+    <g id="frame-2" data-ms="350">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3415;0.5122" dur="2050ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.833 0 0 .833 16.67 8.33)">
+      <path d="M52 40h96c10 0 16 6 20 16l12 34c10 2 16 10 16 22v38H4v-38c0-12 6-20 16-22l12-34c4-10 10-16 20-16" fill="#c9d1dc"/>
+      <path d="M54 56h92l10 32H44Z" fill="#292929"/>
+      <path d="M22 108h36v16H22Zm120 0h36v16h-36Z" fill="#7a1a14"/>
+      <path d="M76 116h48" stroke="#292929" stroke-linecap="round" stroke-width="12"/>
+      <path d="M14 150h38v22a8 8 0 0 1-8 8H22a8 8 0 0 1-8-8Zm134 0h38v22a8 8 0 0 1-8 8h-22a8 8 0 0 1-8-8Z" fill="#8e9aab"/>
+      </g>
+    </g>
+    <g id="frame-3" data-ms="1000">
+      <animate attributeName="display" values="none;inline" keyTimes="0;0.5122" dur="2050ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.833 0 0 .833 16.67 8.33)">
+      <path d="M52 40h96c10 0 16 6 20 16l12 34c10 2 16 10 16 22v38H4v-38c0-12 6-20 16-22l12-34c4-10 10-16 20-16" fill="#c9d1dc"/>
+      <path d="M54 56h92l10 32H44Z" fill="#292929"/>
+      <path d="M22 108h36v16H22Zm120 0h36v16h-36Z" fill="#ff3b30"/>
+      <path d="M76 116h48" stroke="#292929" stroke-linecap="round" stroke-width="12"/>
+      <path d="M14 150h38v22a8 8 0 0 1-8 8H22a8 8 0 0 1-8-8Zm134 0h38v22a8 8 0 0 1-8 8h-22a8 8 0 0 1-8-8Z" fill="#8e9aab"/>
+      </g>
+    </g>
+  </g>
+</svg>

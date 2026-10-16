@@ -51,6 +51,7 @@ void HudRenderer::draw(QPainter &p, const QRect &surface_rect) {
   if (is_cruise_available) {
     drawSetSpeed(p, surface_rect);
   }
+
   // FrogPilot variables
   if (frogpilot_nvg->standstillDuration == 0 && !frogpilot_toggles.value(QLatin1String("hide_speed")).toBool()) {
     drawCurrentSpeed(p, surface_rect);
@@ -83,7 +84,7 @@ void HudRenderer::drawSetSpeed(QPainter &p, const QRect &surface_rect) {
   }
 
   // Draw set speed box
-  p.setPen(QPen(QColor(255, 255, 255, 75), 6));
+  p.setPen(frogpilotUIState()->frogpilot_scene.traffic_mode_enabled ? QPen(bg_colors[STATUS_TRAFFIC_MODE_ENABLED], 10) : QPen(QColor(255, 255, 255, 75), 6));
   p.setBrush(QColor(0, 0, 0, 166));
   p.drawRoundedRect(set_speed_rect, 32, 32);
 

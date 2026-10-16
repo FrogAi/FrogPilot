@@ -158,7 +158,6 @@ static void toyota_rx_hook(const CANPacket_t *msg) {
         pcm_cruise_check(cruise_engaged);
 
         // FrogPilot variables
-
         if (!enable_gas_interceptor) {
           gas_pressed = !GET_BIT(msg, 4U);  // PCM_CRUISE.GAS_RELEASED
         }
@@ -385,6 +384,7 @@ static bool toyota_tx_hook(const CANPacket_t *msg) {
   if (msg->addr == 0x750U) {
     // this address is sub-addressed. only allow tester present to radar (0xF)
     bool invalid_uds_msg = (GET_BYTES(msg, 0, 4) != 0x003E020FU) || (GET_BYTES(msg, 4, 4) != 0x0U);
+
     // FrogPilot variables
     // AleSato added some more hack'sss
     bool valid_uds_msgs = (GET_BYTES(msg, 0, 4) == 0x11300540U) && ((GET_BYTES(msg, 4, 4) == 0x00008000U) || (GET_BYTES(msg, 4, 4) == 0x00004000U));  // automatic door locking and unlocking

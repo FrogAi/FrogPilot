@@ -22,7 +22,4 @@ private:
   HomeWindow *homeWindow;
   SettingsWindow *settingsWindow;
   OnboardingWindow *onboardingWindow;
-
-  // FrogPilot variables
-  Params params;
 };

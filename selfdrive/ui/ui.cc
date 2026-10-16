@@ -140,9 +140,12 @@ UIState::UIState(QObject *parent) : QObject(parent) {
 void UIState::update() {
   // FrogPilot variables
   FrogPilotUIState *fs = frogpilotUIState();
+
   update_sockets(this);
+
   // FrogPilot variables
   fs->update();
+
   update_state(this);
   updateStatus();
 
@@ -177,11 +180,7 @@ void Device::resetInteractiveTimeout(int timeout) {
   // FrogPilot variables
   if (timeout == -1) {
     const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
-    timeout = frogpilot_toggles.value(QLatin1String("screen_timeout")).toInt(-1);
-    const int timeout_onroad = frogpilot_toggles.value(QLatin1String("screen_timeout_onroad")).toInt(-1);
-    if (timeout != -1 && ignition_on && timeout_onroad != -1) {
-      timeout = timeout_onroad;
-    }
+    timeout = frogpilot_toggles.value(ignition_on ? QLatin1String("screen_timeout_onroad") : QLatin1String("screen_timeout")).toInt(-1);
   }
 
   if (timeout == -1) {
@@ -244,14 +243,17 @@ void Device::updateWakefulness(const UIState &s) {
   const FrogPilotUIScene &frogpilot_scene = frogpilotUIState()->frogpilot_scene;
   const QJsonObject &frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
 
+  const bool standby_mode = frogpilot_toggles.value(QLatin1String("standby_mode")).toBool();
+
   bool ignition_just_turned_on = s.scene.ignition && !ignition_on;
   bool ignition_just_turned_off = !s.scene.ignition && ignition_on;
   ignition_on = s.scene.ignition;
 
   // FrogPilot variables
-  if ((ignition_on && frogpilot_toggles.value(QLatin1String("standby_mode")).toBool() && frogpilot_scene.wake_up_screen) || frogpilot_scene.downloading_update || frogpilot_scene.frogpilot_panel_active || (s.scene.started && frogpilot_scene.driver_camera_timer >= UI_FREQ / 2)) {
+  const bool keep_awake = (ignition_on && frogpilot_scene.wake_up_screen && standby_mode) || frogpilot_scene.downloading_update || frogpilot_scene.frogpilot_panel_active || (s.scene.started && frogpilot_scene.driver_camera_active);
+  if (keep_awake) {
     resetInteractiveTimeout();
-  } else if (ignition_just_turned_on && (frogpilot_toggles.value(QLatin1String("standby_mode")).toBool() || frogpilot_toggles.value(QLatin1String("screen_brightness_onroad")).toInt() == 0)) {
+  } else if (ignition_just_turned_on && (standby_mode || frogpilot_toggles.value(QLatin1String("screen_brightness_onroad")).toInt() == 0)) {
     resetInteractiveTimeout(0);
   } else if (ignition_just_turned_off) {
     resetInteractiveTimeout();

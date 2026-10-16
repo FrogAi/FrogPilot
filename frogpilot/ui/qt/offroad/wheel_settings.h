@@ -12,16 +12,16 @@ protected:
   void showEvent(QShowEvent *event) override;
 
 private:
-  void updateToggles();
-  void updateButtonValues();
+  QMap<int, QString> buttonFunctions();
 
-  bool forceOpenDescriptions;
+  void updateButtonValues();
+  void updateToggles();
+
+  bool forceOpenDescriptions = false;
 
   std::map<QString, ButtonControl*> toggles;
 
   FrogPilotSettingsWindow *parent;
 
   Params params;
-
-  QMap<int, QString> buttonFunctions();
 };

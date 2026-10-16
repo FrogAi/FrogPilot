@@ -88,12 +88,13 @@ public:
   explicit TogglesPanel(SettingsWindow *parent);
   void showEvent(QShowEvent *event) override;
 
+// FrogPilot variables
 signals:
-  // FrogPilot variables
   void updateMetric(bool metric, bool bootRun=false);
 
 public slots:
   void expandToggleDescription(const QString &param);
+
   // FrogPilot variables
   void refreshMetric(bool isMetric);
   void scrollToToggle(const QString &param);

@@ -35,9 +35,6 @@ class DeliveryTrackingTransport(HttpTransport):
 
 def deliver_tombstone(fn: str, message: str, contents: str) -> bool:
   transport = sentry_sdk.get_client().transport
-  if not isinstance(transport, DeliveryTrackingTransport):
-    return False
-
   transport.delivered = True
 
   with sentry_sdk.configure_scope() as scope:
@@ -53,11 +50,15 @@ def queue_tombstone(fn: str, message: str, contents: str) -> None:
   try:
     frogpilot_variables.SENTRY_QUEUE_PATH.mkdir(parents=True, exist_ok=True)
     queued = sorted(frogpilot_variables.SENTRY_QUEUE_PATH.glob("*.json"))
-    for expired in queued[:max(0, len(queued) + 1 - MAX_QUEUED_TOMBSTONES)]:
+    expired_count = max(0, len(queued) + 1 - MAX_QUEUED_TOMBSTONES)
+
+    for expired in queued[:expired_count]:
       expired.unlink(missing_ok=True)
 
     name = datetime.now().strftime("%Y-%m-%d--%H-%M-%S-%f") + ".json"
-    (frogpilot_variables.SENTRY_QUEUE_PATH / name).write_text(json.dumps({"fn": fn, "message": message, "contents": contents}))
+    report = {"contents": contents, "fn": fn, "message": message}
+
+    (frogpilot_variables.SENTRY_QUEUE_PATH / name).write_text(json.dumps(report))
     cloudlog.warning(f"queued tombstone for a later connection: {name}")
   except OSError:
     cloudlog.exception("sentry.queue_tombstone")
@@ -94,6 +95,7 @@ def capture_exception(*args, crash_log=True, **kwargs) -> None:
   exc_text = traceback.format_exc()
 
   save_exception(exc_text, crash_log)
+
   cloudlog.error("crash", exc_info=kwargs.get('exc_info', 1))
 
   try:
@@ -114,43 +116,27 @@ def set_tag(key: str, value: str) -> None:
 
 # FrogPilot variables
 def save_exception(exc_text: str, crash_log) -> None:
-  files = [
-    frogpilot_variables.ERROR_LOGS_PATH / datetime.now().astimezone().strftime("%Y-%m-%d--%H-%M-%S.log"),
-    frogpilot_variables.ERROR_LOGS_PATH / "error.txt"
-  ]
+  log_name = datetime.now().astimezone().strftime("%Y-%m-%d--%H-%M-%S.log")
+  (frogpilot_variables.ERROR_LOGS_PATH / log_name).write_text(exc_text)
 
-  for file_path in files:
-    if file_path.name == "error.txt":
-      if not crash_log:
-        continue
-      lines = exc_text.splitlines()[-10:]
-      file_path.write_text("\n".join(lines))
-    else:
-      file_path.write_text(exc_text)
+  if crash_log:
+    frogpilot_variables.ERROR_LOG_PATH.write_text("\n".join(exc_text.splitlines()[-10:]))
 
 
 def init(project: SentryProject) -> bool:
   build_metadata = get_build_metadata()
   # forks like to mess with this, so double check
-  FrogPilot = "frogai" in build_metadata.openpilot.git_origin.lower()
-  if not FrogPilot or build_metadata.openpilot.is_dirty or PC:
+  frogpilot_remote = "frogai" in build_metadata.openpilot.git_origin.lower()
+  if not frogpilot_remote or build_metadata.openpilot.is_dirty or PC:
     return False
 
   # FrogPilot variables
   short_branch = build_metadata.channel
 
-  if short_branch in ["COMMA", "HEAD"]:
+  if short_branch == "HEAD":
     return False
-  elif short_branch == "FrogPilot-Development":
-    env = "Development"
-  elif build_metadata.release_channel:
-    env = "Release"
-  elif short_branch == "FrogPilot-Testing":
-    env = "Testing"
-  elif short_branch == "FrogPilot-Staging":
-    env = "Staging"
-  else:
-    env = short_branch
+
+  env = "Release" if build_metadata.release_channel else short_branch.removeprefix("FrogPilot-")
 
   integrations = []
   if project == SentryProject.SELFDRIVE:
@@ -172,6 +158,8 @@ def init(project: SentryProject) -> bool:
   sentry_sdk.set_tag("origin", build_metadata.openpilot.git_origin)
   sentry_sdk.set_tag("branch", short_branch)
   sentry_sdk.set_tag("commit", build_metadata.openpilot.git_commit)
+  sentry_sdk.set_tag("device", HARDWARE.get_device_type())
+
   # FrogPilot variables
   sentry_sdk.set_tag("updated", params.get("Updated"))
 

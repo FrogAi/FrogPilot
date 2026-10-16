@@ -158,7 +158,7 @@ def clear_partition_hash(target_slot_number: int, partition: dict) -> None:
     os.sync()
 
 
-def extract_compressed_image(target_slot_number: int, partition: dict, cloudlog):
+def extract_compressed_image(target_slot_number: int, partition: dict, cloudlog, report_progress):
   path = get_partition_path(target_slot_number, partition)
   downloader = StreamingDecompressor(partition['url'])
 
@@ -175,6 +175,9 @@ def extract_compressed_image(target_slot_number: int, partition: dict, cloudlog)
         last_p = p
         print(f"Installing {partition['name']}: {p}", flush=True)
 
+        # FrogPilot variables
+        report_progress(partition, out.tell())
+
     if raw_hash.hexdigest().lower() != partition['hash_raw'].lower():
       raise Exception(f"Raw hash mismatch '{raw_hash.hexdigest().lower()}'")
 
@@ -187,7 +190,7 @@ def extract_compressed_image(target_slot_number: int, partition: dict, cloudlog)
     os.sync()
 
 
-def extract_casync_image(target_slot_number: int, partition: dict, cloudlog):
+def extract_casync_image(target_slot_number: int, partition: dict, cloudlog, report_progress):
   path = get_partition_path(target_slot_number, partition)
   seed_path = path[:-1] + ('b' if path[-1] == 'a' else 'a')
 
@@ -223,6 +226,9 @@ def extract_casync_image(target_slot_number: int, partition: dict, cloudlog):
       last_p = p
       print(f"Installing {partition['name']}: {p}", flush=True)
 
+      # FrogPilot variables
+      report_progress(partition, cur)
+
   stats = casync.extract(target, sources, path, progress)
   cloudlog.error(f'casync done {json.dumps(stats)}')
 
@@ -231,11 +237,15 @@ def extract_casync_image(target_slot_number: int, partition: dict, cloudlog):
     raise Exception(f"Raw hash mismatch '{partition['hash_raw'].lower()}'")
 
 
-def flash_partition(target_slot_number: int, partition: dict, cloudlog, standalone=False):
+def flash_partition(target_slot_number: int, partition: dict, cloudlog, standalone, report_progress):
   cloudlog.info(f"Downloading and writing {partition['name']}")
 
   if verify_partition(target_slot_number, partition):
     cloudlog.info(f"Already flashed {partition['name']}")
+
+    # FrogPilot variables
+    report_progress(partition, partition['size'])
+
     return
 
   # Clear hash before flashing in case we get interrupted
@@ -246,9 +256,9 @@ def flash_partition(target_slot_number: int, partition: dict, cloudlog, standalo
   path = get_partition_path(target_slot_number, partition)
 
   if ('casync_caibx' in partition) and not standalone:
-    extract_casync_image(target_slot_number, partition, cloudlog)
+    extract_casync_image(target_slot_number, partition, cloudlog, report_progress)
   else:
-    extract_compressed_image(target_slot_number, partition, cloudlog)
+    extract_compressed_image(target_slot_number, partition, cloudlog, report_progress)
 
   # Write hash after successful flash
   if not full_check:
@@ -272,7 +282,7 @@ def swap(manifest_path: str, target_slot_number: int, cloudlog) -> None:
       cloudlog.error(f"Swap failed {out}")
 
 
-def flash_agnos_update(manifest_path: str, target_slot_number: int, cloudlog, standalone=False) -> None:
+def flash_agnos_update(manifest_path: str, target_slot_number: int, cloudlog, standalone=False, report_progress=lambda partition, written: None) -> None:
   update = json.load(open(manifest_path))
 
   cloudlog.info(f"Target slot {target_slot_number}")
@@ -285,7 +295,7 @@ def flash_agnos_update(manifest_path: str, target_slot_number: int, cloudlog, st
 
     for retries in range(10):
       try:
-        flash_partition(target_slot_number, partition, cloudlog, standalone)
+        flash_partition(target_slot_number, partition, cloudlog, standalone, report_progress)
         success = True
         break
 

@@ -165,6 +165,7 @@ class Plant:
           'selfdriveState': ss.selfdriveState,
           'liveParameters': lp.liveParameters,
           'modelV2': model.modelV2,
+
           # FrogPilot variables
           'frogpilotCarState': frogpilot_car_state.frogpilotCarState,
           'frogpilotPlan': frogpilot_plan.frogpilotPlan}

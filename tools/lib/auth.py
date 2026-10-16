@@ -37,6 +37,7 @@ from openpilot.frogpilot.common import frogpilot_utilities
 
 # FrogPilot variables
 API_HOST = os.getenv('API_HOST', f"https://api.{'konik' if frogpilot_utilities.use_konik_server() else 'comma'}.ai")
+
 PORT = 3000
 
 

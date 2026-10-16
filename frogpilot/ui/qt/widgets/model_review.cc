@@ -9,6 +9,19 @@ static QLabel *addLabel(QVBoxLayout *layout, const QString &text, int fontSize, 
   return label;
 }
 
+static QLabel *addStat(QGridLayout *layout, int row, int column, const QString &title, QWidget *parent) {
+  QVBoxLayout *statLayout = new QVBoxLayout();
+
+  QLabel *titleLabel = new QLabel(title, parent);
+  titleLabel->setAlignment(Qt::AlignCenter);
+  titleLabel->setStyleSheet("QLabel { color: #AAAAAA; font-size: 40px; font-weight: 600; }");
+  statLayout->addWidget(titleLabel);
+
+  QLabel *valueLabel = addLabel(statLayout, "", 75, parent);
+  layout->addLayout(statLayout, row, column);
+  return valueLabel;
+}
+
 FrogPilotModelReview::FrogPilotModelReview(QWidget *parent) : QFrame(parent) {
   mainLayout = new QStackedLayout(this);
 
@@ -58,6 +71,8 @@ FrogPilotModelReview::FrogPilotModelReview(QWidget *parent) : QFrame(parent) {
     }
 
     resultLabel->setText(tr("Model successfully blacklisted!"));
+    resultLabel->setVisible(true);
+    statsWidget->setVisible(false);
     mainLayout->setCurrentIndex(1);
   });
   ratingLayout->addWidget(blacklistButton, 0, Qt::AlignCenter);
@@ -72,6 +87,14 @@ FrogPilotModelReview::FrogPilotModelReview(QWidget *parent) : QFrame(parent) {
   addLabel(resultLayout, tr("Model used during that drive:"), 50, this);
   modelLabel = addLabel(resultLayout, "", 65, this);
   resultLabel = addLabel(resultLayout, "", 50, this);
+
+  statsWidget = new QWidget(this);
+  QGridLayout *statsLayout = new QGridLayout(statsWidget);
+  modelRankLabel = addStat(statsLayout, 0, 0, tr("Model Rank"), statsWidget);
+  modelRatingLabel = addStat(statsLayout, 0, 1, tr("Model Rating"), statsWidget);
+  modelDrivesLabel = addStat(statsLayout, 1, 0, tr("Model Drives"), statsWidget);
+  totalDrivesLabel = addStat(statsLayout, 1, 1, tr("Total Drives"), statsWidget);
+  resultLayout->addWidget(statsWidget);
   resultLayout->addStretch(1);
 
   mainLayout->addWidget(resultWidget);
@@ -137,6 +160,28 @@ void FrogPilotModelReview::rateDrive(int rating) {
 
   params.put("ModelDrivesAndScores", QJsonDocument(modelDrivesAndScores).toJson(QJsonDocument::Compact).toStdString());
 
-  resultLabel->setText(drives == 1 ? tr("Rating: %1% over %2 drive").arg(score).arg(drives) : tr("Rating: %1% over %2 drives").arg(score).arg(drives));
+  QStringList models = {"Dark Souls"};
+  for (const QJsonValue &model : frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value("available_models").toObject()) {
+    models.append(model.toString());
+  }
+
+  int rank = 1;
+  int totalDrives = 0;
+  for (const QString &model : models) {
+    QJsonObject data = modelDrivesAndScores.value(model).toObject();
+    int modelScore = data.value("Score").toInt();
+    if (modelScore > score || (modelScore == score && model < driveModelName)) {
+      rank++;
+    }
+    totalDrives += data.value("Drives").toInt();
+  }
+
+  modelRankLabel->setText(tr("#%1").arg(rank));
+  modelRatingLabel->setText(tr("%1%").arg(score));
+  modelDrivesLabel->setText(drives == 1 ? tr("%1 Drive").arg(drives) : tr("%1 Drives").arg(drives));
+  totalDrivesLabel->setText(totalDrives == 1 ? tr("%1 Total Drive").arg(totalDrives) : tr("%1 Total Drives").arg(totalDrives));
+
+  resultLabel->setVisible(false);
+  statsWidget->setVisible(true);
   mainLayout->setCurrentIndex(1);
 }

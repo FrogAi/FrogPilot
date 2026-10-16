@@ -2,6 +2,8 @@
 
 #include "selfdrive/ui/qt/onroad/buttons.h"
 
+const int personality_button_width = btn_size + UI_BORDER_SIZE;
+
 class DrivingPersonalityButton : public QPushButton {
   Q_OBJECT
 
@@ -16,7 +18,7 @@ private:
   void showEvent(QShowEvent *event) override;
   void updateTheme();
 
-  QSharedPointer<QMovie> currentGif;
+  QSharedPointer<FrogPilotMovie> currentGif;
 
   QPixmap currentImg;
 

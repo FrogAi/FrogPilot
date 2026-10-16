@@ -14,11 +14,11 @@ public:
   void updateVariables();
 
   bool canDisableOpenpilotLong = true;
+  bool canMapGears = true;
   bool canUseDSUBypass = false;
   bool canUsePedal = false;
-  bool carDetected = false;
   bool canUseSDSU = false;
-  bool hasAlphaLongitudinal = false;
+  bool carDetected = false;
   bool hasAutoTune = true;
   bool hasBSM = true;
   bool hasDashSpeedLimits = true;
@@ -30,9 +30,9 @@ public:
   bool hasRadar = true;
   bool hasSDSU = false;
   bool hasSNG = false;
+  bool hasStartingState = true;
   bool hasZSS = false;
   bool isAngleCar = false;
-  bool isFrogsGoMoo = ::isFrogsGoMoo();
   bool isGM = true;
   bool isGMCCOnly = false;
   bool isHKG = true;
@@ -41,11 +41,9 @@ public:
   bool isSubaru = false;
   bool isTorqueCar = false;
   bool isToyota = true;
-  bool isTSK = false;
   bool isVolt = true;
   bool keepScreenOn = false;
   bool lkasAllowedForAOL = false;
-  bool openpilotLongitudinalControlDisabled = false;
 
   float friction = 0.0f;
   float latAccelFactor = 0.0f;
@@ -85,6 +83,7 @@ private:
   void updateState();
 
   bool forceOpenDescriptions = false;
+  bool isMetric = false;
   bool panelOpen = false;
 
   FrogPilotButtonsControl *drivingPanelButtons = nullptr;

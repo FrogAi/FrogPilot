@@ -181,6 +181,7 @@ class CAR(Platforms):
     [FordCarDocs("Ford Ranger 2024", "Adaptive Cruise Control with Lane Centering", setup_video="https://www.youtube.com/watch?v=2oJlXCKYOy0")],
     CarSpecs(mass=2000, wheelbase=3.27, steerRatio=17.0),
   )
+
   # FrogPilot variables
   FORD_EDGE_MK2 = FordPlatformConfig(
     [FordCarDocs("Ford Fusion Retrofitted 2013-19")],

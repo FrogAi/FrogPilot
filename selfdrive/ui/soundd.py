@@ -3,7 +3,6 @@ import numpy as np
 import time
 import wave
 
-from pathlib import Path
 
 from cereal import car, custom, messaging
 from openpilot.common.basedir import BASEDIR
@@ -34,7 +33,7 @@ if HARDWARE.get_device_type() in ("tici", "tizi"):
 AudibleAlert = car.CarControl.HUDControl.AudibleAlert
 
 # FrogPilot variables
-FrogPilotAudibleAlert = custom.FrogPilotCarControl.HUDControl.AudibleAlert
+FrogPilotAudibleAlert = custom.FrogPilotSelfdriveState.AudibleAlert
 
 
 sound_list: dict[int, tuple[str, int | None, float]] = {
@@ -95,11 +94,11 @@ class Soundd:
     # FrogPilot variables
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
 
+    self.openpilot_crashed_played = False
+
     self.theme_update_count = 0
 
     self.ui_request_sock = messaging.sub_sock("frogpilotUIRequest")
-
-    self.auto_volume = MIN_VOLUME
 
     self.sound_source = None
 
@@ -169,7 +168,7 @@ class Soundd:
         written_frames += frames_to_write
         self.current_sound_frame += frames_to_write
 
-    return ret * self.current_volume
+    return ret * self.alert_volumes.get(self.current_alert, self.current_volume)
 
   def callback(self, data_out: np.ndarray, frames: int, time, status) -> None:
     if status:
@@ -187,6 +186,9 @@ class Soundd:
     test_alerts = [msg.frogpilotUIRequest.testAlert for msg in messaging.drain_sock(self.ui_request_sock) if msg.frogpilotUIRequest.which() == 'testAlert']
     if test_alerts:
       self.update_alert(getattr(AudibleAlert, test_alerts[-1]))
+    elif not self.openpilot_crashed_played and frogpilot_variables.ERROR_LOG_PATH.is_file():
+      self.update_alert(FrogPilotAudibleAlert.fart if self.frogpilot_toggles.random_events else AudibleAlert.prompt)
+      self.openpilot_crashed_played = True
     elif sm.updated['selfdriveState']:
       new_alert = sm['selfdriveState'].alertSound.raw
 
@@ -230,22 +232,11 @@ class Soundd:
       while True:
         sm.update(0)
 
-        # FrogPilot variables
-        self.get_audible_alert(sm)
-
         if sm.updated['soundPressure'] and self.current_alert == AudibleAlert.none: # only update volume filter when not playing alert
           self.spl_filter_weighted.update(sm["soundPressure"].soundPressureWeightedDb)
           self.current_volume = self.calculate_volume(float(self.spl_filter_weighted.x))
 
-          # FrogPilot variables
-          self.auto_volume = self.current_volume
-          if self.frogpilot_toggles.alert_volume_controller:
-            self.current_volume = 0.0
-
-        elif self.current_alert in self.volume_map and self.frogpilot_toggles.alert_volume_controller:
-          self.current_volume = self.volume_map[self.current_alert]
-          if self.current_volume == 1.01:
-            self.current_volume = self.auto_volume
+        self.get_audible_alert(sm)
 
         rk.keep_time()
 
@@ -258,36 +249,28 @@ class Soundd:
           self.frogpilot_toggles = frogpilot_toggles
           self.theme_update_count = sm['frogpilotPlan'].themeUpdateCount
 
-          if not self.frogpilot_toggles.alert_volume_controller:
-            self.current_volume = self.auto_volume
-
           stream = self.update_frogpilot_sounds(sd, stream)
 
+  # FrogPilot variables
   def update_frogpilot_sounds(self, sd=None, stream=None):
-    self.volume_map = {
-      AudibleAlert.engage: self.frogpilot_toggles.engage_volume / 100.0,
-      AudibleAlert.disengage: self.frogpilot_toggles.disengage_volume / 100.0,
-      AudibleAlert.refuse: self.frogpilot_toggles.refuse_volume / 100.0,
+    volumes = {
+      AudibleAlert.engage: self.frogpilot_toggles.engage_volume,
+      AudibleAlert.disengage: self.frogpilot_toggles.disengage_volume,
+      AudibleAlert.refuse: self.frogpilot_toggles.refuse_volume,
 
-      AudibleAlert.prompt: self.frogpilot_toggles.prompt_volume / 100.0,
-      AudibleAlert.promptRepeat: self.frogpilot_toggles.prompt_volume / 100.0,
-      AudibleAlert.promptDistracted: self.frogpilot_toggles.promptDistracted_volume / 100.0,
+      AudibleAlert.prompt: self.frogpilot_toggles.prompt_volume,
+      AudibleAlert.promptRepeat: self.frogpilot_toggles.prompt_volume,
+      AudibleAlert.promptDistracted: self.frogpilot_toggles.prompt_distracted_volume,
 
-      AudibleAlert.warningSoft: self.frogpilot_toggles.warningSoft_volume / 100.0,
-      AudibleAlert.warningImmediate: self.frogpilot_toggles.warningImmediate_volume / 100.0,
+      AudibleAlert.warningSoft: self.frogpilot_toggles.warning_soft_volume,
+      AudibleAlert.warningImmediate: self.frogpilot_toggles.warning_immediate_volume,
 
-      FrogPilotAudibleAlert.goat: self.frogpilot_toggles.prompt_volume / 100.0,
-      FrogPilotAudibleAlert.startup: self.frogpilot_toggles.engage_volume / 100.0
+      FrogPilotAudibleAlert.goat: self.frogpilot_toggles.prompt_volume,
+      FrogPilotAudibleAlert.startup: self.frogpilot_toggles.engage_volume
     }
+    self.alert_volumes = {alert: volume / 100.0 for alert, volume in volumes.items() if volume <= 100}
 
-    for sound in sound_list:
-      if sound not in self.volume_map:
-        self.volume_map[sound] = 1.01
-
-    if self.frogpilot_toggles.sound_pack != "stock" or self.frogpilot_toggles.random_themes:
-      self.sound_directory = frogpilot_variables.ACTIVE_THEME_PATH / "sounds"
-    else:
-      self.sound_directory = Path(BASEDIR) / "selfdrive" / "assets" / "sounds"
+    self.sound_directory = frogpilot_variables.ACTIVE_THEME_PATH / "sounds"
 
     try:
       sound_inode = self.sound_directory.stat().st_ino

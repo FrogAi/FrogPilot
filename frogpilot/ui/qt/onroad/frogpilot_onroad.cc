@@ -1,9 +1,6 @@
 #include "frogpilot/ui/qt/onroad/frogpilot_onroad.h"
 
 FrogPilotOnroadWindow::FrogPilotOnroadWindow(QWidget *parent) : QWidget(parent) {
-  QObject::connect(frogpilotUIState(), &FrogPilotUIState::cameraFrameReceived, this, [this] {
-    update();
-  });
   QObject::connect(uiState(), &UIState::offroadTransition, this, &FrogPilotOnroadWindow::resetFPSStats);
 }
 
@@ -11,8 +8,6 @@ void FrogPilotOnroadWindow::resetFPSStats() {
   avgFPS = 0.0f;
   maxFPS = 0.0f;
   minFPS = 99.9f;
-
-  smoothedSteer = 0.0f;
 }
 
 void FrogPilotOnroadWindow::resizeEvent(QResizeEvent *event) {
@@ -29,16 +24,17 @@ void FrogPilotOnroadWindow::updateState(const UIState &s, const FrogPilotUIState
   const cereal::CarState::Reader &carState = sm["carState"].getCarState();
   const cereal::CarControl::Reader &carControl = fpsm["carControl"].getCarControl();
 
-  bool blindSpotLeft = carState.getLeftBlindspot();
-  bool blindSpotRight = carState.getRightBlindspot();
-  bool turnSignalLeft = carState.getLeftBlinker();
-  bool turnSignalRight = carState.getRightBlinker();
+  bool blindspotLeft = carState.getLeftBlindspot();
+  bool blindspotRight = carState.getRightBlindspot();
+  bool blinkerLeft = carState.getLeftBlinker();
+  bool blinkerRight = carState.getRightBlinker();
+  bool wasShown = showBlindspot || showFPS || showSignal || showSteering;
 
   torque = -carControl.getActuators().getTorque();
 
-  showBlindspot = (blindSpotLeft || blindSpotRight) && frogpilot_toggles.value(QLatin1String("blind_spot_metrics")).toBool();
+  showBlindspot = (blindspotLeft || blindspotRight) && frogpilot_toggles.value(QLatin1String("blind_spot_metrics")).toBool();
   showFPS = frogpilot_toggles.value(QLatin1String("show_fps")).toBool();
-  showSignal = (turnSignalLeft || turnSignalRight) && frogpilot_toggles.value(QLatin1String("signal_metrics")).toBool();
+  showSignal = (blinkerLeft || blinkerRight) && frogpilot_toggles.value(QLatin1String("signal_metrics")).toBool();
   showSteering = frogpilot_toggles.value(QLatin1String("steering_metrics")).toBool();
 
   if (showSteering) {
@@ -57,22 +53,22 @@ void FrogPilotOnroadWindow::updateState(const UIState &s, const FrogPilotUIState
     int interval = showBlindspot ? 250 : 500;
     bool flickerActive = (flickerTimer.elapsed() / interval) % 2 == 1;
 
-    std::function<QColor(bool, bool)> getBorderColor = [&](bool blindSpot, bool turnSignal) {
-      if (turnSignal && showSignal) {
-        if (blindSpot) {
+    std::function<QColor(bool, bool)> getBorderColor = [&](bool blindspot, bool blinker) {
+      if (blinker && showSignal) {
+        if (blindspot) {
           return flickerActive ? bg_colors[STATUS_TRAFFIC_MODE_ENABLED] : bg_colors[STATUS_CEM_DISABLED];
         } else {
           return flickerActive ? bg_colors[STATUS_CEM_DISABLED] : bg;
         }
-      } else if (blindSpot && showBlindspot) {
+      } else if (blindspot && showBlindspot) {
         return bg_colors[STATUS_TRAFFIC_MODE_ENABLED];
       } else {
         return bg;
       }
     };
 
-    leftBorderColor = getBorderColor(blindSpotLeft, turnSignalLeft);
-    rightBorderColor = getBorderColor(blindSpotRight, turnSignalRight);
+    leftBorderColor = getBorderColor(blindspotLeft, blinkerLeft);
+    rightBorderColor = getBorderColor(blindspotRight, blinkerRight);
   } else {
     flickerTimer.invalidate();
   }
@@ -93,6 +89,10 @@ void FrogPilotOnroadWindow::updateState(const UIState &s, const FrogPilotUIState
                           .arg(qRound(minFPS))
                           .arg(qRound(maxFPS))
                           .arg(qRound(avgFPS));
+  }
+
+  if (showBlindspot || showFPS || showSignal || showSteering || wasShown) {
+    update();
   }
 }
 

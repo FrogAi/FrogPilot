@@ -9,7 +9,7 @@ from opendbc.car.common.pid import PIDController
 from opendbc.car.secoc import add_mac, build_sync_mac
 from opendbc.car.interfaces import CarControllerBase
 from opendbc.car.toyota import toyotacan
-from opendbc.car.toyota.values import CAR, NO_STOP_TIMER_CAR, TSS2_CAR, \
+from opendbc.car.toyota.values import CAR, NO_STOP_TIMER_CAR, STOP_AND_GO_CAR, TSS2_CAR, \
                                         MIN_ACC_SPEED, PEDAL_TRANSITION, CarControllerParams, ToyotaFlags, \
                                         UNSUPPORTED_DSU_CAR
 from opendbc.can import CANPacker
@@ -38,9 +38,10 @@ MAX_USER_TORQUE = 500
 # FrogPilot variables
 MAX_INTERCEPTOR_GAS = 0.5
 PARK = structs.CarState.GearShifter.park
-STOP_AND_GO_CAR = NO_STOP_TIMER_CAR | {CAR.LEXUS_CTH, CAR.LEXUS_NX, CAR.LEXUS_RX, CAR.TOYOTA_AVALON_2019, CAR.TOYOTA_CAMRY, CAR.TOYOTA_CHR, CAR.TOYOTA_PRIUS}
+SNG_INTERCEPTOR_GAS = 0.12
 
 # Lock / unlock door commands - Credit goes to AlexandreSato!
+DOOR_CONTROL_ADDR = 0x750
 LOCK_CMD = b"\x40\x05\x30\x11\x00\x80\x00\x00"
 UNLOCK_CMD = b"\x40\x05\x30\x11\x00\x40\x00\x00"
 
@@ -196,7 +197,7 @@ class CarController(CarControllerBase):
         pedal_command = pedal_scale * (self.accel + pedal_offset)
         interceptor_gas_cmd = np.clip(pedal_command, 0., MAX_INTERCEPTOR_GAS)
       elif CC.longActive and CS.out.standstill and actuators.accel > 0.0:
-        interceptor_gas_cmd = 0.12
+        interceptor_gas_cmd = SNG_INTERCEPTOR_GAS
 
       can_sends.append(create_gas_interceptor_command(self.packer, interceptor_gas_cmd, self.frame // 2))
 
@@ -226,6 +227,8 @@ class CarController(CarControllerBase):
     fcw_alert = hud_control.visualAlert == VisualAlert.fcw
     steer_alert = hud_control.visualAlert in (VisualAlert.steerRequired, VisualAlert.ldw)
     lead = hud_control.leadVisible or CS.out.vEgo < 12.  # at low speed we always assume the lead is present so ACC can be engaged
+
+    # FrogPilot variables
 
     if self.CP.openpilotLongitudinalControl:
       if self.frame % 3 == 0:
@@ -337,7 +340,7 @@ class CarController(CarControllerBase):
       if self.frame % 20 == 0 or send_ui:
         can_sends.append(toyotacan.create_ui_command(self.packer, steer_alert, pcm_cancel_cmd, hud_control.leftLaneVisible,
                                                      hud_control.rightLaneVisible, hud_control.leftLaneDepart,
-                                                     hud_control.rightLaneDepart, CC.enabled, CS.lkas_hud))
+                                                     hud_control.rightLaneDepart, CC.latActive, CS.lkas_hud))
 
       if (self.frame % 100 == 0 or send_ui) and self.CP.flags & ToyotaFlags.DISABLE_RADAR.value:
         can_sends.append(toyotacan.create_fcw_command(self.packer, fcw_alert))
@@ -357,11 +360,11 @@ class CarController(CarControllerBase):
     # FrogPilot variables
     if not self.doors_locked and CS.out.gearShifter != PARK:
       if self.frogpilot_toggles.lock_doors:
-        can_sends.append(CanData(0x750, LOCK_CMD, 0))
+        can_sends.append(CanData(DOOR_CONTROL_ADDR, LOCK_CMD, 0))
       self.doors_locked = True
     elif self.doors_locked and CS.out.gearShifter == PARK:
       if self.frogpilot_toggles.unlock_doors:
-        can_sends.append(CanData(0x750, UNLOCK_CMD, 0))
+        can_sends.append(CanData(DOOR_CONTROL_ADDR, UNLOCK_CMD, 0))
       self.doors_locked = False
 
     return new_actuators, can_sends

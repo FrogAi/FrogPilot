@@ -1,46 +1,79 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="250" height="250" viewBox="0 0 250 250">
-<defs>
-<linearGradient id="dome" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#329840"/><stop offset=".18" stop-color="#248d2d"/><stop offset=".75" stop-color="#218429"/><stop offset="1" stop-color="#176c1d"/></linearGradient>
-<linearGradient id="ridge" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#268b30"/><stop offset=".28" stop-color="#3fa649"/><stop offset=".65" stop-color="#288b2f"/><stop offset="1" stop-color="#207a25"/></linearGradient>
-<linearGradient id="jaw" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#258d2d"/><stop offset="1" stop-color="#227d26"/></linearGradient>
-<linearGradient id="eyeBevel" x1=".28" y1="0" x2=".68" y2="1"><stop stop-color="#3da444"/><stop offset=".32" stop-color="#36983e"/><stop offset="1" stop-color="#278c30"/></linearGradient>
-<linearGradient id="cheekBevel" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#288d31"/><stop offset=".4" stop-color="#3ba346"/><stop offset=".65" stop-color="#349b3d"/><stop offset="1" stop-color="#227c29"/></linearGradient>
-<radialGradient id="noseBevel" cx=".32" cy=".18" r=".95"><stop stop-color="#41a64a"/><stop offset=".48" stop-color="#359e40"/><stop offset="1" stop-color="#278830"/></radialGradient>
-<linearGradient id="grilleBevel" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#288c31"/><stop offset=".35" stop-color="#41a74b"/><stop offset="1" stop-color="#20812b"/></linearGradient>
-<radialGradient id="ridgeCrown" cx=".42" cy=".02" r=".18"><stop stop-color="#65c16b" stop-opacity=".62"/><stop offset="1" stop-color="#43a54b" stop-opacity="0"/></radialGradient>
-</defs>
-<g stroke="#073b09" stroke-width="1.05" stroke-linecap="round" stroke-linejoin="round">
-<path d="M36 110C37 52 61 16 116.7 8.7L133.4 9.4C185 17 209 50 213.5 111L239 216.6L223 196.5L167 217L125 244L81.5 216L26.2 196.4L11.3 216.6Z" fill="#054307"/>
-<path d="M36 110C37 52 61 16 116.7 8.7L133.4 9.4C185 17 209 50 213.5 111L140.2 107L109.7 107Z" fill="url(#dome)"/>
-<path d="M37.1 110C39 67 60 20 111.9 12" fill="none" stroke="#47a94d" stroke-opacity=".42" stroke-width="2.2"/>
-<path d="M139 13C184 22 206 58 211.1 108" fill="none" stroke="#41a345" stroke-opacity=".34" stroke-width="2"/>
-<path d="M116.4 7.5L133.6 7.8L134 78L136.5 95L140.2 107L109.7 107L114.6 89L116.4 77Z" fill="url(#ridge)"/>
-<path d="M116.4 7.5L133.6 7.8L134 78L136.5 95L140.2 107L109.7 107L114.6 89L116.4 77Z" fill="url(#ridgeCrown)" stroke="none"/>
-<path d="M112.4 16L111.7 82M137.1 19L138.6 83" fill="none" stroke-width=".65"/>
-<path d="M36.5 109C52 93 61 83 72.6 78.4C86.5 72 100 77 112.8 86.9L109.7 107C87 91 67 101 49 122C31 146 16 178 11.3 216.6L26.2 196.4L81.7 213.5L47.6 160L39.8 139" fill="#054307"/>
-<path d="M140.2 107C160 91 181 100 199.8 122C216 143 231.7 180 239 216.6L222.8 196.4L166.5 214L201.3 159.5L209.8 138.8L213.5 111C191 88 179 79 165 77.7C153 77 144.7 81 136 88" fill="#054307"/>
-<path d="M36.5 109C52 93 61 83 72.6 78.4C86.5 72 100 77 112.8 86.9L109.7 107C87 91 67 101 49 122L39.8 139Z" fill="url(#jaw)"/>
-<path d="M140.2 107C160 91 181 100 199.8 122L209.8 138.8L213.5 111C191 88 179 79 165 77.7C153 77 144.7 81 136 88Z" fill="url(#jaw)"/>
-<path d="M40 139C55 112 62 99 80 98C99 96 111 106 117.2 116.4L119.8 133.5H130.8L132.7 117C139 106 151 97 169.8 98C186 98 197 113 209.9 139L201.3 159.5L166.5 209L136.8 163.1L136.1 154C135 146 130 140 124.8 140C118.5 140 113.2 146.2 112.1 154L112.1 162.8L82.1 210L47.6 160Z" fill="#21852a"/>
-<path d="M56.8 132.2C55.7 121 62.4 108.4 74.7 103.2C88.2 98.9 102.2 104.4 112.3 116.4C117 123.1 119.1 133.1 114.3 140.5L110.6 137.5C114.2 130.6 109.9 119.3 103.1 112.6C95.3 105 82.8 103.9 74.9 110C65.9 116.4 61.6 126 62.4 133.5Z" fill="url(#eyeBevel)" stroke="none"/>
-<path d="M191.5 132.2C192.6 121 185.9 108.4 173.6 103.2C160.1 98.9 146.1 104.4 136 116.4C131.3 123.1 129.2 133.1 134 140.5L137.7 137.5C134.1 130.6 138.4 119.3 145.2 112.6C153 105 165.5 103.9 173.4 110C182.4 116.4 186.7 126 185.9 133.5Z" fill="url(#eyeBevel)" stroke="none"/>
-<path d="M60 131C61 119 67 109 77 106C89 103 99 106 108 116C113 123 116 132 112.1 139.3C96 142.8 77 138.6 65 134.2C62 133.4 60.7 132.4 60 131Z" fill="#000"/>
-<path d="M188.3 131C187.5 119 181 109 171 106C159 103 149 106 140.8 116C136 123 133.5 132 136.9 139.3C153 142.8 173 138.6 184 134.2C187 133.4 188 132.4 188.3 131Z" fill="#000"/>
-<path d="M62.6 133C57 124 62 110 70.5 105M186 133C191 123 186 110 178 105" fill="none" stroke-width=".8"/>
-<path d="M119 109H131L129.1 117H121Z" fill="#2b8d2e"/>
-<path d="M120.2 119H130.3V123.8H120.2ZM120.5 125.5H130V130.4H120.5Z" fill="#176d1b"/>
-<path d="M112.1 140.6L66.7 155.4M136.4 140.6L183.2 155.4M49 141C57 147 66 154 70.1 164.3M197.1 143C187.3 150 181.4 155.9 177.1 164.3M111.8 149C92 151 83.6 161 82.5 178M138 149C157 151 167 161 169.1 179" fill="none" stroke-width=".72"/>
-<path d="M39.8 139L47.6 160L81.7 213.5L84.6 209.6L50.8 157.4L43.3 138.8Z" fill="url(#cheekBevel)" stroke="none"/>
-<path d="M209.8 138.8L201.3 159.5L166.5 214L163.6 209.6L198.2 157.3L206.3 138.8Z" fill="url(#cheekBevel)" stroke="none"/>
-<path d="M82.1 210L112.1 162.8V154C113.2 146.2 118.5 140 124.8 140C130 140 135 146 136.1 154L136.8 163.1L166.5 209L162.5 211L132.3 165V156.4C132.3 150.5 129.5 146.6 124.8 146.6C120 146.6 117.2 150.6 117.2 156.4V165L87.5 211Z" fill="url(#noseBevel)"/>
-<path d="M87.5 207.5L117.2 165V156.4C117.2 150.6 120 146.6 124.8 146.6C129.5 146.6 132.3 150.5 132.3 156.4V165L162.5 207.5Z" fill="#000"/>
-<path d="M118 163H131V157.5C131 152 129.1 148 125 148C120.9 148 118 152 118 157.5Z" fill="url(#ridge)"/>
-<path d="M104.4 186.6L109.5 177.7V206.5H104.4ZM118.4 163.7H122.4V206.5H118.4ZM128.3 163.7H132.5V206.5H128.3ZM140.4 177.7L145.7 186.6V206.5H140.4Z" fill="url(#grilleBevel)" stroke-width=".55"/>
-<path d="M26.5 189.1L78.9 209.5L84.1 215.3L76.4 213.6L25.8 194.3Z" fill="#319b39"/>
-<path d="M223.3 189.1L170.7 209.5L166 215.3L173.6 213.6L225.2 194.3Z" fill="#319b39"/>
-<path d="M87 207.3H162V216.2H87Z" fill="url(#ridge)"/>
-<path d="M88 212.4H161.2M89.1 216.5H159.5" fill="none" stroke-width=".7"/>
-<circle cx="83.5" cy="212.3" r="6.1" fill="#34a13b"/>
-<circle cx="165.8" cy="212.3" r="6.1" fill="#34a13b"/>
-</g>
+  <defs>
+    <linearGradient id="dome" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#329840"/>
+      <stop offset=".18" stop-color="#248d2d"/>
+      <stop offset=".75" stop-color="#218429"/>
+      <stop offset="1" stop-color="#176c1d"/>
+    </linearGradient>
+    <linearGradient id="ridge" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#268b30"/>
+      <stop offset=".28" stop-color="#3fa649"/>
+      <stop offset=".65" stop-color="#288b2f"/>
+      <stop offset="1" stop-color="#207a25"/>
+    </linearGradient>
+    <linearGradient id="jaw" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#258d2d"/>
+      <stop offset="1" stop-color="#227d26"/>
+    </linearGradient>
+    <linearGradient id="eyeBevel" x1=".28" y1="0" x2=".68" y2="1">
+      <stop stop-color="#3da444"/>
+      <stop offset=".32" stop-color="#36983e"/>
+      <stop offset="1" stop-color="#278c30"/>
+    </linearGradient>
+    <linearGradient id="cheekBevel" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#288d31"/>
+      <stop offset=".4" stop-color="#3ba346"/>
+      <stop offset=".65" stop-color="#349b3d"/>
+      <stop offset="1" stop-color="#227c29"/>
+    </linearGradient>
+    <linearGradient id="grilleBevel" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#288c31"/>
+      <stop offset=".35" stop-color="#41a74b"/>
+      <stop offset="1" stop-color="#20812b"/>
+    </linearGradient>
+    <radialGradient id="noseBevel" cx=".32" cy=".18" r=".95">
+      <stop stop-color="#41a64a"/>
+      <stop offset=".48" stop-color="#359e40"/>
+      <stop offset="1" stop-color="#278830"/>
+    </radialGradient>
+    <radialGradient id="ridgeCrown" cx=".42" cy=".02" r=".18">
+      <stop stop-color="#65c16b" stop-opacity=".62"/>
+      <stop offset="1" stop-color="#43a54b" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <g stroke="#073b09" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.05">
+    <path d="M36 110c1-58 25-94 80.7-101.3l16.7.7C185 17 209 50 213.5 111L239 216.6l-16-20.1-56 20.5-42 27-43.5-28-55.3-19.6-14.9 20.2Z" fill="#054307"/>
+    <path d="M36 110c1-58 25-94 80.7-101.3l16.7.7C185 17 209 50 213.5 111l-73.3-4h-30.5Z" fill="url(#dome)"/>
+    <path d="M37.1 110C39 67 60 20 111.9 12" fill="none" stroke="#47a94d" stroke-opacity=".42" stroke-width="2.2"/>
+    <path d="M139 13c45 9 67 45 72.1 95" fill="none" stroke="#41a345" stroke-opacity=".34" stroke-width="2"/>
+    <path d="m116.4 7.5 17.2.3.4 70.2 2.5 17 3.7 12h-30.5l4.9-18 1.8-12Z" fill="url(#ridge)"/>
+    <path d="m116.4 7.5 17.2.3.4 70.2 2.5 17 3.7 12h-30.5l4.9-18 1.8-12Z" fill="url(#ridgeCrown)" stroke="none"/>
+    <path d="m112.4 16-.7 66m25.4-63 1.5 64" fill="none" stroke-width=".65"/>
+    <path d="M36.5 109C52 93 61 83 72.6 78.4 86.5 72 100 77 112.8 86.9l-3.1 20.1C87 91 67 101 49 122c-18 24-33 56-37.7 94.6l14.9-20.2 55.5 17.1L47.6 160l-7.8-21" fill="#054307"/>
+    <path d="M140.2 107c19.8-16 40.8-7 59.6 15 16.2 21 31.9 58 39.2 94.6l-16.2-20.2-56.3 17.6 34.8-54.5 8.5-20.7 3.7-27.8C191 88 179 79 165 77.7 153 77 144.7 81 136 88" fill="#054307"/>
+    <path d="M36.5 109C52 93 61 83 72.6 78.4 86.5 72 100 77 112.8 86.9l-3.1 20.1C87 91 67 101 49 122l-9.2 17Z" fill="url(#jaw)"/>
+    <path d="M140.2 107c19.8-16 40.8-7 59.6 15l10 16.8 3.7-27.8C191 88 179 79 165 77.7 153 77 144.7 81 136 88Z" fill="url(#jaw)"/>
+    <path d="M40 139c15-27 22-40 40-41 19-2 31 8 37.2 18.4l2.6 17.1h11l1.9-16.5c6.3-11 18.3-20 37.1-19 16.2 0 27.2 15 40.1 41l-8.6 20.5-34.8 49.5-29.7-45.9-.7-9.1c-1.1-8-6.1-14-11.3-14-6.3 0-11.6 6.2-12.7 14v8.8l-30 47.2-34.5-50Z" fill="#21852a"/>
+    <path d="M56.8 132.2c-1.1-11.2 5.6-23.8 17.9-29 13.5-4.3 27.5 1.2 37.6 13.2 4.7 6.7 6.8 16.7 2 24.1l-3.7-3c3.6-6.9-.7-18.2-7.5-24.9-7.8-7.6-20.3-8.7-28.2-2.6-9 6.4-13.3 16-12.5 23.5Z" fill="url(#eyeBevel)" stroke="none"/>
+    <path d="M191.5 132.2c1.1-11.2-5.6-23.8-17.9-29-13.5-4.3-27.5 1.2-37.6 13.2-4.7 6.7-6.8 16.7-2 24.1l3.7-3c-3.6-6.9.7-18.2 7.5-24.9 7.8-7.6 20.3-8.7 28.2-2.6 9 6.4 13.3 16 12.5 23.5Z" fill="url(#eyeBevel)" stroke="none"/>
+    <path d="M60 131c1-12 7-22 17-25 12-3 22 0 31 10 5 7 8 16 4.1 23.3-16.1 3.5-35.1-.7-47.1-5.1-3-.8-4.3-1.8-5-3.2" fill="#000"/>
+    <path d="M188.3 131c-.8-12-7.3-22-17.3-25-12-3-22 0-30.2 10-4.8 7-7.3 16-3.9 23.3 16.1 3.5 36.1-.7 47.1-5.1 3-.8 4-1.8 4.3-3.2" fill="#000"/>
+    <path d="M62.6 133c-5.6-9-.6-23 7.9-28M186 133c5-10 0-23-8-28" fill="none" stroke-width=".8"/>
+    <path d="M119 109h12l-1.9 8H121Z" fill="#2b8d2e"/>
+    <path d="M120.2 119h10.1v4.8h-10.1Zm.3 6.5h9.5v4.9h-9.5Z" fill="#176d1b"/>
+    <path d="m112.1 140.6-45.4 14.8m69.7-14.8 46.8 14.8M49 141c8 6 17 13 21.1 23.3m127-21.3c-9.8 7-15.7 12.9-20 21.3M111.8 149c-19.8 2-28.2 12-29.3 29m55.5-29c19 2 29 12 31.1 30" fill="none" stroke-width=".72"/>
+    <path d="m39.8 139 7.8 21 34.1 53.5 2.9-3.9-33.8-52.2-7.5-18.6Z" fill="url(#cheekBevel)" stroke="none"/>
+    <path d="m209.8 138.8-8.5 20.7-34.8 54.5-2.9-4.4 34.6-52.3 8.1-18.5Z" fill="url(#cheekBevel)" stroke="none"/>
+    <path d="m82.1 210 30-47.2V154c1.1-7.8 6.4-14 12.7-14 5.2 0 10.2 6 11.3 14l.7 9.1 29.7 45.9-4 2-30.2-46v-8.6c0-5.9-2.8-9.8-7.5-9.8-4.8 0-7.6 4-7.6 9.8v8.6l-29.7 46Z" fill="url(#noseBevel)"/>
+    <path d="m87.5 207.5 29.7-42.5v-8.6c0-5.8 2.8-9.8 7.6-9.8 4.7 0 7.5 3.9 7.5 9.8v8.6l30.2 42.5Z" fill="#000"/>
+    <path d="M118 163h13v-5.5c0-5.5-1.9-9.5-6-9.5s-7 4-7 9.5Z" fill="url(#ridge)"/>
+    <path d="m104.4 186.6 5.1-8.9v28.8h-5.1Zm14-22.9h4v42.8h-4Zm9.9 0h4.2v42.8h-4.2Zm12.1 14 5.3 8.9v19.9h-5.3Z" fill="url(#grilleBevel)" stroke-width=".55"/>
+    <path d="m26.5 189.1 52.4 20.4 5.2 5.8-7.7-1.7-50.6-19.3Z" fill="#319b39"/>
+    <path d="m223.3 189.1-52.6 20.4-4.7 5.8 7.6-1.7 51.6-19.3Z" fill="#319b39"/>
+    <path d="M87 207.3h75v8.9H87Z" fill="url(#ridge)"/>
+    <path d="M88 212.4h73.2m-72.1 4.1h70.4" fill="none" stroke-width=".7"/>
+    <circle cx="83.5" cy="212.3" r="6.1" fill="#34a13b"/>
+    <circle cx="165.8" cy="212.3" r="6.1" fill="#34a13b"/>
+  </g>
 </svg>

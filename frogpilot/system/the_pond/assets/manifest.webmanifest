@@ -1,0 +1,20 @@
+{
+  "background_color": "#031e1b",
+  "display": "standalone",
+  "icons": [
+    {
+      "sizes": "192x192",
+      "src": "/assets/img/frogpilot-icon-192.png",
+      "type": "image/png"
+    },
+    {
+      "sizes": "512x512",
+      "src": "/assets/img/frogpilot-icon-512.png",
+      "type": "image/png"
+    }
+  ],
+  "name": "The Pond",
+  "short_name": "The Pond",
+  "start_url": "/",
+  "theme_color": "#031e1b"
+}

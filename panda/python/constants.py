@@ -39,6 +39,7 @@ H7Config = McuConfig(
   0x8000000,
   "bootstub.panda_h7.bin",
 )
+
 # FrogPilot variables
 F4Config = McuConfig(
   "STM32F4",
@@ -57,6 +58,7 @@ F4Config = McuConfig(
 @enum.unique
 class McuType(enum.Enum):
   H7 = H7Config
+
   # FrogPilot variables
   F4 = F4Config
 

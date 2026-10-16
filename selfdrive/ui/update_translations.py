@@ -6,8 +6,10 @@ import os
 from openpilot.common.basedir import BASEDIR
 
 UI_DIR = os.path.join(BASEDIR, "selfdrive", "ui")
+
 # FrogPilot variables
 FROGPILOT_UI_DIR = os.path.join(BASEDIR, "frogpilot", "ui")
+
 TRANSLATIONS_DIR = os.path.join(UI_DIR, "translations")
 LANGUAGES_FILE = os.path.join(TRANSLATIONS_DIR, "languages.json")
 TRANSLATIONS_INCLUDE_FILE = os.path.join(TRANSLATIONS_DIR, "alerts_generated.h")

@@ -95,6 +95,7 @@ FrogPilotSoundsPanel::FrogPilotSoundsPanel(FrogPilotSettingsWindow *parent, bool
     openDescriptions(forceOpenDescriptions, toggles);
     soundsLayout->setCurrentWidget(soundsPanel);
   });
+
   soundPlayerProcess = new QProcess(this);
 }
 

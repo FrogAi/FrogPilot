@@ -7,9 +7,8 @@ import cereal.messaging as messaging
 
 from cereal import car, custom, log
 from msgq.visionipc import VisionIpcClient, VisionStreamType
-
-
 from opendbc.car.gm.values import CC_ONLY_CAR
+
 
 from openpilot.common.params import Params
 from openpilot.common.realtime import config_realtime_process, Priority, Ratekeeper, DT_CTRL
@@ -45,6 +44,8 @@ SafetyModel = car.CarParams.SafetyModel
 
 # FrogPilot variables
 FrogPilotEventName = custom.FrogPilotOnroadEvent.EventName
+
+SHOWN_ONCE_EVENTS = {EventName.belowSteerSpeed, EventName.resumeRequired, EventName.steerTempUnavailableSilent}
 
 IGNORED_SAFETY_MODES = (SafetyModel.silent, SafetyModel.noOutput)
 
@@ -161,14 +162,21 @@ class SelfdriveD:
 
     self.frogpilot_events_prev = []
 
+    self.hidden_events = set()
+    self.shown_events = set()
+
     self.has_menu = self.CP.brand == "gm" and self.CP.carFingerprint not in CC_ONLY_CAR
 
   def update_events(self, CS):
     """Compute onroadEvents from carState"""
 
     self.events.clear()
+
     # FrogPilot variables
     self.frogpilot_events.clear()
+
+    if self.frogpilot_toggles.block_user:
+      self.frogpilot_events.add(FrogPilotEventName.blockUser)
 
     if self.sm['controlsState'].lateralControlState.which() == 'debugState':
       self.events.add(EventName.joystickDebug)
@@ -190,8 +198,10 @@ class SelfdriveD:
     # Don't add any more events if not initialized
     if not self.initialized:
       self.events.add(EventName.selfdriveInitializing)
+
       # FrogPilot variables
       self.frogpilot_events.add_from_msg(self.sm['frogpilotPlan'].frogpilotEvents)
+
       return
 
     # Check for user bookmark press (bookmark button or end of LKAS button feedback)
@@ -217,6 +227,13 @@ class SelfdriveD:
     if CS.canValid:
       car_events = self.car_events.update(CS, self.CS_prev, self.sm['carControl'], self.frogpilot_toggles).to_msg()
       self.events.add_from_msg(car_events)
+
+      # FrogPilot variables
+      active_events = SHOWN_ONCE_EVENTS.intersection(self.events.names)
+      self.hidden_events |= self.shown_events - active_events
+      self.shown_events |= active_events
+
+      self.events.events = [event for event in self.events.events if event not in self.hidden_events]
 
       if self.CP.notCar:
         # wait for everything to init first
@@ -449,14 +466,14 @@ class SelfdriveD:
       # FrogPilot variables
       distance_pressed = False
 
-      if self.frogpilot_toggles.personality_profile_via_distance:
+      if self.frogpilot_toggles.distance_button_function == frogpilot_variables.BUTTON_FUNCTIONS["PERSONALITY_PROFILE"]:
         distance_pressed |= any(not be.pressed and be.type == ButtonType.gapAdjustCruise for be in CS.buttonEvents)
         distance_pressed &= not (self.sm['frogpilotCarState'].distanceLongPressed or self.sm['frogpilotCarState'].distanceVeryLongPressed)
-      if self.frogpilot_toggles.personality_profile_via_distance_long:
+      if self.frogpilot_toggles.distance_long_button_function == frogpilot_variables.BUTTON_FUNCTIONS["PERSONALITY_PROFILE"]:
         distance_pressed |= self.sm['frogpilotCarState'].distanceLongPressed
-      if self.frogpilot_toggles.personality_profile_via_distance_very_long:
+      if self.frogpilot_toggles.distance_very_long_button_function == frogpilot_variables.BUTTON_FUNCTIONS["PERSONALITY_PROFILE"]:
         distance_pressed |= self.sm['frogpilotCarState'].distanceVeryLongPressed
-      if self.frogpilot_toggles.personality_profile_via_lkas:
+      if self.frogpilot_toggles.lkas_button_function == frogpilot_variables.BUTTON_FUNCTIONS["PERSONALITY_PROFILE"]:
         distance_pressed |= any(not be.pressed and be.type == ButtonType.lkas for be in CS.buttonEvents)
 
       if not distance_pressed and self.distance_pressed_previously:
@@ -472,11 +489,6 @@ class SelfdriveD:
 
     # FrogPilot variables
     self.frogpilot_events.add_from_msg(self.sm['frogpilotPlan'].frogpilotEvents)
-
-    if self.frogpilot_toggles.conditional_experimental_mode:
-      self.experimental_mode = self.sm['frogpilotPlan'].experimentalMode
-    else:
-      self.experimental_mode |= self.sm['frogpilotPlan'].experimentalMode
 
   def data_sample(self):
     _car_state = messaging.recv_one(self.car_state_sock)
@@ -565,6 +577,12 @@ class SelfdriveD:
     ss.alertSound = self.AM.current_alert.audible_alert
     ss.alertHudVisual = self.AM.current_alert.visual_alert or self.frogpilot_AM.current_alert.visual_alert
 
+    # FrogPilot variables
+    if self.frogpilot_toggles.conditional_experimental_mode:
+      ss.experimentalMode = self.sm['frogpilotPlan'].experimentalMode
+    else:
+      ss.experimentalMode = self.experimental_mode or self.sm['frogpilotPlan'].experimentalMode
+
     self.pm.send('selfdriveState', ss_msg)
 
     # onroadEvents - logged every second or on change
@@ -619,9 +637,7 @@ class SelfdriveD:
       self.is_metric = self.params.get_bool("IsMetric")
       self.is_ldw_enabled = self.params.get_bool("IsLdwEnabled")
       self.disengage_on_accelerator = self.params.get_bool("DisengageOnAccelerator")
-      # FrogPilot variables
-      if not self.frogpilot_toggles.conditional_experimental_mode:
-        self.experimental_mode = self.params.get_bool("ExperimentalMode") and self.CP.openpilotLongitudinalControl
+      self.experimental_mode = self.params.get_bool("ExperimentalMode") and self.CP.openpilotLongitudinalControl
       self.personality = self.params.get("LongitudinalPersonality", return_default=True)
       time.sleep(0.1)
 

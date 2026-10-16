@@ -37,6 +37,9 @@ class CarState(CarStateBase):
     # OPGM variables
     self.single_pedal_mode = False
 
+    # FrogPilot variables
+    self.lkas_button = 0
+
   def update_button_enable(self, buttonEvents: list[structs.CarState.ButtonEvent]):
     if not self.CP.pcmCruise:
       for b in buttonEvents:
@@ -141,7 +144,7 @@ class CarState(CarStateBase):
     ret.cruiseState.enabled = pt_cp.vl["AcceleratorPedal2"]["CruiseState"] != AccState.OFF
     ret.cruiseState.standstill = pt_cp.vl["AcceleratorPedal2"]["CruiseState"] == AccState.STANDSTILL
     if self.CP.networkLocation == NetworkLocation.fwdCamera:
-      if self.CP.carFingerprint not in (ALT_ACCS | CC_ONLY_CAR):
+      if self.CP.carFingerprint not in ALT_ACCS and self.CP.carFingerprint not in CC_ONLY_CAR:
         ret.cruiseState.speed = cam_cp.vl["ASCMActiveCruiseControlStatus"]["ACCSpeedSetpoint"] * CV.KPH_TO_MS
         # This FCW signal only works for SDGM cars. CAM cars send FCW on GMLAN but this bit is always 0 for them
         ret.stockFcw = cam_cp.vl["ASCMActiveCruiseControlStatus"]["FCWAlert"] != 0
@@ -175,7 +178,6 @@ class CarState(CarStateBase):
       ret.accFaulted = False
 
       ret.cruiseState.enabled = pt_cp.vl["ECMCruiseControl"]["CruiseActive"] != 0
-      ret.cruiseState.speed = pt_cp.vl["ECMCruiseControl"]["CruiseSetSpeed"] * CV.KPH_TO_MS
 
     if self.CP.transmissionType == TransmissionType.direct:
       self.single_pedal_mode = ret.gearShifter == GearShifter.low or pt_cp.vl["EVDriveMode"]["SinglePedalModeActive"] == 1
@@ -184,6 +186,12 @@ class CarState(CarStateBase):
     if self.CP.transmissionType == TransmissionType.direct:
       self.single_pedal_mode |= ret.regenBraking and ret.gearShifter == GearShifter.manumatic
       self.fp_ret.pedalInterceptorNoBrake = bool(self.CP.flags & GMFlags.PEDAL_LONG.value) and not self.single_pedal_mode
+
+    prev_lkas_button = self.lkas_button
+    self.lkas_button = pt_cp.vl["ASCMSteeringButton"]["LKAButton"]
+    ret.buttonEvents = [*ret.buttonEvents, *create_button_events(self.lkas_button, prev_lkas_button, {1: ButtonType.lkas})]
+
+    self.fp_ret.sportGear = pt_cp.vl["SportMode"]["SportMode"] == 1
 
     return ret
 
@@ -200,6 +208,11 @@ class CarState(CarStateBase):
       pt_messages += [
         ("EVDriveMode", float('nan')),
       ]
+
+    # FrogPilot variables
+    pt_messages += [
+      ("SportMode", float('nan')),
+    ]
 
     loopback_messages = [
       ("ASCMLKASteeringCmd", float('nan')),

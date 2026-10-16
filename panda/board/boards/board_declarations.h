@@ -44,6 +44,7 @@ struct board {
   board_set_bootkick set_bootkick;
   board_read_som_gpio read_som_gpio;
   board_set_amp_enabled set_amp_enabled;
+
   // FrogPilot variables
   const bool fan_stall_recovery;
 };

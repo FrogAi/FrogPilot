@@ -83,6 +83,7 @@ class CarInterface(CarInterfaceBase):
     # Global longitudinal tuning defaults, can be overridden per-vehicle
 
     ret.alphaLongitudinalAvailable = ret.networkLocation == NetworkLocation.gateway or docs
+
     # FrogPilot variables
     if ret.flags & VolkswagenFlags.MLB:
       ret.alphaLongitudinalAvailable = False

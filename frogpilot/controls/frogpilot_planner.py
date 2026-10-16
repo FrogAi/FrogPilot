@@ -13,8 +13,7 @@ from openpilot.selfdrive.car.cruise import V_CRUISE_MAX
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import A_CHANGE_COST, DANGER_ZONE_COST, J_EGO_COST, STOP_DISTANCE
 
 from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
-from openpilot.frogpilot.controls.lib.conditional_experimental_mode import CEStatus, ConditionalExperimentalMode
-from openpilot.frogpilot.controls.lib.curve_speed_controller import CURVE_AHEAD_ENTER, CURVE_AHEAD_EXIT
+from openpilot.frogpilot.controls.lib.conditional_experimental_mode import ConditionalExperimentalMode
 from openpilot.frogpilot.controls.lib.frogpilot_acceleration import FrogPilotAcceleration
 from openpilot.frogpilot.controls.lib.frogpilot_events import FrogPilotEvents
 from openpilot.frogpilot.controls.lib.frogpilot_following import FrogPilotFollowing
@@ -22,12 +21,12 @@ from openpilot.frogpilot.controls.lib.frogpilot_vcruise import FrogPilotVCruise
 from openpilot.frogpilot.controls.lib.weather_checker import WeatherChecker
 
 class FrogPilotPlanner:
-  def __init__(self, error_log, ThemeManager, frogpilot_api):
+  def __init__(self, ThemeManager, frogpilot_api):
     self.params = Params(return_defaults=True)
 
     self.frogpilot_acceleration = FrogPilotAcceleration(self)
     self.frogpilot_cem = ConditionalExperimentalMode(self)
-    self.frogpilot_events = FrogPilotEvents(self, error_log, ThemeManager)
+    self.frogpilot_events = FrogPilotEvents(self, ThemeManager)
     self.frogpilot_following = FrogPilotFollowing(self)
     self.frogpilot_vcruise = FrogPilotVCruise(self)
     self.frogpilot_weather = WeatherChecker(frogpilot_api)
@@ -49,14 +48,15 @@ class FrogPilotPlanner:
     self.lane_width_right = 0
     self.lateral_acceleration = 0
     self.model_length = 0
+    self.peak_lateral_acceleration = 0
     self.road_curvature = 0
     self.road_curvature_peak = 0
     self.roll_compensation = 0
     self.time_to_curve = 0
     self.v_cruise = 0
 
-    last_gps_position = self.params.get("LastGPSPosition")
-    self.gps_bearing = (json.loads(last_gps_position) or {}).get("bearing", 0.) if last_gps_position else 0.
+    last_gps_position = json.loads(self.params.get("LastGPSPosition") or "{}")
+    self.gps_bearing = last_gps_position.get("bearing", 0.)
     self.gps_position = None
     self.last_gps_position = None
 
@@ -98,19 +98,9 @@ class FrogPilotPlanner:
 
     self.frogpilot_acceleration.update(v_ego, sm, frogpilot_toggles)
 
-    self.frogpilot_cem.update_override(sm)
+    self.frogpilot_vcruise.slc.frogpilot_toggles = frogpilot_toggles
 
-    if long_control_active and frogpilot_toggles.conditional_experimental_mode:
-      self.frogpilot_cem.update(v_ego, sm, frogpilot_toggles)
-    else:
-      self.frogpilot_cem.curve_detected = False
-      self.frogpilot_cem.experimental_mode = False
-      self.frogpilot_cem.slow_lead_detected = False
-
-      self.frogpilot_cem.curvature_filter.x = 0
-      self.frogpilot_cem.slow_lead_filter.x = 0
-
-      self.frogpilot_cem.stop_sign_and_light(v_ego, sm, frogpilot_variables.PLANNER_TIME - 2)
+    self.frogpilot_cem.update(v_ego, sm, frogpilot_toggles)
 
     self.driving_in_curve = abs(self.lateral_acceleration) >= frogpilot_variables.MINIMUM_LATERAL_ACCELERATION
 
@@ -119,7 +109,7 @@ class FrogPilotPlanner:
     self.frogpilot_following.update(long_control_active, v_ego, sm, frogpilot_toggles)
 
     gps_location = sm[self.gps_location_service]
-    self.gps_valid = frogpilot_utilities.is_gps_location_valid(gps_location, self.gps_location_service, sm)
+    self.gps_valid = frogpilot_utilities.is_gps_location_valid(self.gps_location_service, sm)
     if self.gps_valid:
       self.gps_bearing = gps_location.bearingDeg
       self.gps_position = {
@@ -145,6 +135,7 @@ class FrogPilotPlanner:
 
     self.lateral_check = v_ego >= frogpilot_toggles.pause_lateral_below_speed
     self.lateral_check |= not (sm["carState"].leftBlinker or sm["carState"].rightBlinker) and frogpilot_toggles.pause_lateral_below_signal
+    self.lateral_check |= sm["carState"].standstill
     self.lateral_check &= not sm["frogpilotCarState"].pauseLateral
 
     self.model_stopped = self.model_length < frogpilot_variables.CRUISING_SPEED * frogpilot_variables.PLANNER_TIME
@@ -157,11 +148,12 @@ class FrogPilotPlanner:
     self.road_curvature, self.time_to_curve, self.road_curvature_peak = frogpilot_utilities.calculate_road_curvature(
       sm["modelV2"], v_ego, self.frogpilot_vcruise.csc.lateral_acceleration, self.roll_compensation
     )
+    self.peak_lateral_acceleration = v_ego**2 * self.road_curvature_peak
 
     if self.curve_ahead or self.frogpilot_cem.curve_detected:
-      self.curve_ahead = v_ego**2 * self.road_curvature_peak > CURVE_AHEAD_EXIT
+      self.curve_ahead = self.peak_lateral_acceleration > frogpilot_variables.CURVE_AHEAD_EXIT
     else:
-      self.curve_ahead = v_ego**2 * self.road_curvature_peak > CURVE_AHEAD_ENTER and self.time_to_curve > 1
+      self.curve_ahead = self.peak_lateral_acceleration > frogpilot_variables.CURVE_AHEAD_ENTER and self.time_to_curve > 1
     self.curve_ahead &= v_ego > frogpilot_variables.CRUISING_SPEED
     self.curve_ahead &= not (sm["carState"].leftBlinker or sm["carState"].rightBlinker)
 
@@ -170,7 +162,7 @@ class FrogPilotPlanner:
     if self.gps_valid and time_validated and frogpilot_toggles.weather_presets:
       self.frogpilot_weather.update_weather(self.gps_position, now, frogpilot_toggles)
     else:
-      self.frogpilot_weather.invalidate()
+      self.frogpilot_weather.weather_id = 0
 
   def is_lead_relevant(self, lead, standstill, v_ego):
     following_speed = max(v_ego, frogpilot_variables.CRUISING_SPEED)
@@ -201,7 +193,7 @@ class FrogPilotPlanner:
     frogpilotPlan.desiredFollowDistance = int(self.frogpilot_following.desired_follow_distance)
 
     frogpilotPlan.experimentalMode = self.frogpilot_cem.experimental_mode or self.frogpilot_vcruise.slc.experimental_mode
-    frogpilotPlan.experimentalMode &= not frogpilot_toggles.conditional_experimental_mode or self.frogpilot_cem.status_value != CEStatus["USER_DISABLED"]
+    frogpilotPlan.experimentalMode &= not frogpilot_toggles.conditional_experimental_mode or self.frogpilot_cem.status_value != frogpilot_variables.CE_STATUS["USER_DISABLED"]
 
     frogpilotPlan.forcingStop = self.frogpilot_vcruise.forcing_stop
     frogpilotPlan.forcingStopLength = self.frogpilot_vcruise.stop_distance

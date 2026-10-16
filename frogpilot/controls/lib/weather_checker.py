@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from openpilot.common.params import Params
 
-from openpilot.frogpilot.common import frogpilot_api, frogpilot_utilities
+from openpilot.frogpilot.common import frogpilot_api, frogpilot_utilities, frogpilot_variables
 
 CACHE_DISTANCE = 25_000
 CACHE_MAX_AGE = 20 * 60
@@ -68,6 +68,7 @@ class WeatherChecker:
 
     self.increase_following_distance = 0
     self.increase_stopped_distance = 0
+    self.last_weather_id = 0
     self.next_request = 0
     self.next_retry = 0
     self.reduce_acceleration = 0
@@ -102,8 +103,8 @@ class WeatherChecker:
   def invalidate(self):
     self.last_position = None
     self.last_request_time = None
+    self.last_weather_id = 0
     self.next_request = 0
-    self.weather_id = 0
 
   def update_weather(self, gps_position, now, frogpilot_toggles):
     timestamp = time.monotonic()
@@ -118,6 +119,8 @@ class WeatherChecker:
       distance = frogpilot_utilities.calculate_distance_to_point(*self.last_position, *position)
       if distance >= CACHE_DISTANCE or timestamp - self.last_request_time >= CACHE_MAX_AGE:
         self.invalidate()
+
+    self.weather_id = self.last_weather_id
 
     self.is_daytime = self.sunrise <= now.timestamp() < self.sunset
 
@@ -135,11 +138,14 @@ class WeatherChecker:
     self.request_position = position
     self.request_time = timestamp
 
+    latitude = round(position[0], 2)
+    longitude = round(position[1], 2)
+
     def make_request():
       if api_key:
-        query = {"appid": api_key, "lat": position[0], "lon": position[1]}
+        query = {"appid": api_key, "lat": latitude, "lon": longitude}
         try:
-          with self.session.get("https://api.openweathermap.org/data/4.0/onecall/current", params=query, timeout=30, allow_redirects=False) as response:
+          with self.session.get(frogpilot_variables.WEATHER_API_URL, params=query, timeout=30, allow_redirects=False) as response:
             if 200 <= response.status_code < 300:
               data = response.json()["data"][0]
               if not isinstance(data, dict):
@@ -155,7 +161,7 @@ class WeatherChecker:
         except (IndexError, KeyError, TypeError, ValueError, requests.RequestException):
           pass
 
-      return self.frogpilot_api.post_json("/v1/weather", {"latitude": position[0], "longitude": position[1]}, session=self.session, timeout=30), DEFAULT_UPDATE_INTERVAL
+      return self.frogpilot_api.post_json("/v1/weather", {"latitude": latitude, "longitude": longitude}, session=self.session, timeout=30), DEFAULT_UPDATE_INTERVAL
 
     self.future = self.executor.submit(make_request)
 
@@ -177,8 +183,8 @@ class WeatherChecker:
 
     self.last_position = self.request_position
     self.last_request_time = self.request_time
+    self.last_weather_id = data["weather_id"]
     self.next_request = self.request_time + interval
 
     self.sunrise = data["sunrise"]
     self.sunset = data["sunset"]
-    self.weather_id = data["weather_id"]

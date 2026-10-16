@@ -299,6 +299,7 @@ def main():
         # FrogPilot variables
         msg.clear_write_flag()
         msg.liveParameters.steerRatio = float(learner.kf.x[States.STEER_RATIO].item())
+
         params.put_nonblocking("LiveParametersV2", msg.to_bytes())
 
       pm.send('liveParameters', msg_dat)

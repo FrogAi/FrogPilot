@@ -1,14 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
-  <g fill="none" stroke="#ffffff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M99 14C48 14 15 50 15 98C15 145 45 181 80 184C104 186 108 172 101 153C90 126 111 113 131 102C167 84 158 43 135 26C124 18 111 14 99 14Z"/>
-    <circle cx="99" cy="51" r="17" stroke-width="7"/>
-    <circle cx="51" cy="90" r="13" stroke-width="7"/>
-    <circle cx="59" cy="133" r="10" stroke-width="7"/>
-    <rect x="119" y="122" width="68" height="68" rx="11"/>
-  </g>
-  <g fill="#ffffff">
-    <circle cx="136" cy="139" r="5"/>
-    <circle cx="153" cy="156" r="5"/>
-    <circle cx="170" cy="173" r="5"/>
+  <g transform="matrix(1.045 0 0 1.045 -5.8 -9.7)">
+    <g transform="matrix(.9 0 0 .9 -6 -4)">
+      <path d="M96 20c-50 0-82 36-82 80 0 46 36 80 80 80 22 0 30-14 22-30s4-28 22-26c28 4 48-14 48-36 0-40-40-68-90-68" fill="#c68b4e"/>
+      <circle cx="62" cy="70" r="14" fill="#ff3b30"/>
+      <circle cx="106" cy="54" r="14" fill="#ffd60a"/>
+      <circle cx="148" cy="78" r="13" fill="#1ed760"/>
+      <circle cx="54" cy="116" r="14" fill="#3aa0ff"/>
+    </g>
+    <path d="M108 126h18c20 0 24 44 44 44h8m-70 0h18c8 0 12-6 16-14m12-16c4-8 8-14 16-14h8" fill="none" stroke="#292929" stroke-linecap="round" stroke-linejoin="round" stroke-width="29"/>
+    <path d="m194 126-18-14v28Z" fill="#292929" stroke="#292929" stroke-linejoin="round" stroke-width="20"/>
+    <path d="m194 170-18-14v28Z" fill="#292929" stroke="#292929" stroke-linejoin="round" stroke-width="20"/>
+    <path d="M108 126h18c20 0 24 44 44 44h8m-70 0h18c8 0 12-6 16-14m12-16c4-8 8-14 16-14h8" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="13"/>
+    <path d="m194 126-18-14v28Z" fill="#fff" stroke="#fff" stroke-linejoin="round" stroke-width="4"/>
+    <path d="m194 170-18-14v28Z" fill="#fff" stroke="#fff" stroke-linejoin="round" stroke-width="4"/>
   </g>
 </svg>

@@ -1,16 +1,12 @@
 #!/usr/bin/env python3
-import numpy as np
-
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import desired_follow_distance, get_jerk_factor, get_T_FOLLOW
 
 from openpilot.frogpilot.common import frogpilot_variables
 
-TRAFFIC_JERK_BP =           [0.0,  frogpilot_variables.CITY_SPEED_LIMIT]
-TRAFFIC_ACCELERATION_JERK = [0.50, 0.50]
-TRAFFIC_DANGER_JERK =       [1.00, 1.00]
-TRAFFIC_SPEED_JERK =        [0.50, 0.50]
-
+TRAFFIC_ACCELERATION_JERK = 0.5
+TRAFFIC_DANGER_JERK = 1.0
 TRAFFIC_FOLLOW = 1.0
+TRAFFIC_SPEED_JERK = 0.5
 
 class FrogPilotFollowing:
   def __init__(self, FrogPilotPlanner):
@@ -26,9 +22,9 @@ class FrogPilotFollowing:
 
   def update(self, long_control_active, v_ego, sm, frogpilot_toggles):
     if sm["frogpilotCarState"].trafficModeEnabled:
-      self.acceleration_jerk = float(np.interp(v_ego, TRAFFIC_JERK_BP, TRAFFIC_ACCELERATION_JERK))
-      self.danger_jerk = float(np.interp(v_ego, TRAFFIC_JERK_BP, TRAFFIC_DANGER_JERK))
-      self.speed_jerk = float(np.interp(v_ego, TRAFFIC_JERK_BP, TRAFFIC_SPEED_JERK))
+      self.acceleration_jerk = TRAFFIC_ACCELERATION_JERK
+      self.danger_jerk = TRAFFIC_DANGER_JERK
+      self.speed_jerk = TRAFFIC_SPEED_JERK
 
       self.t_follow = TRAFFIC_FOLLOW
     else:

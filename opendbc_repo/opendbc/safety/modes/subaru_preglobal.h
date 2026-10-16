@@ -85,6 +85,7 @@ static bool subaru_preglobal_tx_hook(const CANPacket_t *msg) {
   if ((msg->addr == MSG_SUBARU_PG_Throttle) && !subaru_pg_sng) {
     tx = false;
   }
+
   return tx;
 }
 

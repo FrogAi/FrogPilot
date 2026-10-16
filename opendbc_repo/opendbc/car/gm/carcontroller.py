@@ -20,9 +20,12 @@ MIN_STEER_MSG_INTERVAL_MS = 15
 # FrogPilot variables
 BRAKE_PITCH_FACTOR_BP = [5., 10.]
 BRAKE_PITCH_FACTOR_V = [0., 1.]
+LONGITUDINAL_STEP = 4
 PITCH_DEADZONE = 0.01
+PITCH_FILTER_TIME_CONSTANT = 0.09 * LONGITUDINAL_STEP
 
 
+# FrogPilot variables
 def apply_deadzone(error, deadzone):
   if error > deadzone:
     error -= deadzone
@@ -54,14 +57,11 @@ class CarController(CarControllerBase):
     self.packer_ch = CANPacker(DBC[self.CP.carFingerprint][Bus.chassis])
 
     # FrogPilot variables
-    self.pitch = FirstOrderFilter(0., 0.09 * 4, DT_CTRL * 4)
+    self.pitch = FirstOrderFilter(0., PITCH_FILTER_TIME_CONSTANT, DT_CTRL * LONGITUDINAL_STEP)
 
   # OPGM variables
   @staticmethod
-  def calc_pedal_command(accel: float, long_active: bool, v_ego: float) -> float:
-    if not long_active:
-      return 0.
-
+  def calc_pedal_command(accel: float, v_ego: float) -> float:
     if accel < -0.5:
       pedal_gas = 0
     else:
@@ -145,7 +145,7 @@ class CarController(CarControllerBase):
           # OPGM variables
           if self.CP.carFingerprint in CC_ONLY_CAR:
             # gas interceptor only used for full long control on cars without ACC
-            interceptor_gas_cmd = self.calc_pedal_command(actuators.accel, CC.longActive, CS.out.vEgo)
+            interceptor_gas_cmd = self.calc_pedal_command(actuators.accel, CS.out.vEgo)
 
         # FrogPilot variables
         if self.CP.enableGasInterceptorDEPRECATED and self.apply_gas > self.params.INACTIVE_REGEN and CS.out.cruiseState.standstill:
@@ -211,14 +211,11 @@ class CarController(CarControllerBase):
 
       # OPGM variables
       # Pedal interceptor: always send CANCEL when cruise is on
-      if (self.CP.flags & GMFlags.PEDAL_LONG.value) and CS.out.cruiseState.enabled:
-        if (self.frame - self.last_button_frame) * DT_CTRL > 0.04:
-          self.last_button_frame = self.frame
-          can_sends.append(gmcan.create_buttons(self.packer_pt, CanBus.POWERTRAIN, (CS.buttons_counter + 1) % 4, CruiseButtons.CANCEL))
-      elif CC.cruiseControl.cancel and (self.CP.flags & GMFlags.CC_LONG.value):
-        if (self.frame - self.last_button_frame) * DT_CTRL > 0.04:
-          self.last_button_frame = self.frame
-          can_sends.append(gmcan.create_buttons(self.packer_pt, CanBus.POWERTRAIN, (CS.buttons_counter + 1) % 4, CruiseButtons.CANCEL))
+      pedal_cancel = (self.CP.flags & GMFlags.PEDAL_LONG.value) and CS.out.cruiseState.enabled
+      cc_cancel = (self.CP.flags & GMFlags.CC_LONG.value) and CC.cruiseControl.cancel
+      if (pedal_cancel or cc_cancel) and (self.frame - self.last_button_frame) * DT_CTRL > 0.04:
+        self.last_button_frame = self.frame
+        can_sends.append(gmcan.create_buttons(self.packer_pt, CanBus.POWERTRAIN, (CS.buttons_counter + 1) % 4, CruiseButtons.CANCEL))
 
     else:
       # While car is braking, cancel button causes ECM to enter a soft disable state with a fault status.

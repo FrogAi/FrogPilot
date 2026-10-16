@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
+import os
 import re
+import shutil
 import sys
 import pyray as rl
+from pathlib import Path
+from openpilot.common.basedir import BASEDIR
 from openpilot.system.hardware import HARDWARE, PC
-from openpilot.system.ui.lib.application import gui_app
+from openpilot.system.ui.lib.application import BIG_UI, gui_app
 from openpilot.system.ui.lib.scroll_panel import GuiScrollPanel
 from openpilot.system.ui.lib.text_measure import measure_text_cached
 from openpilot.system.ui.widgets import Widget
@@ -21,6 +25,9 @@ else:
   FONT_SIZE = 25
   LINE_HEIGHT = 25
   BUTTON_SIZE = rl.Vector2(150, 80)
+
+# FrogPilot variables
+OLD_OPENPILOT = Path("/data/safe_staging/old_openpilot")
 
 DEMO_TEXT = """This is a sample text that will be wrapped and scrolled if necessary.
             The text is long enough to demonstrate scrolling and word wrapping.""" * 30
@@ -66,11 +73,24 @@ class TextWindow(Widget):
     button_text = "Exit" if PC else "Reboot"
     self._button = Button(button_text, click_callback=self._on_button_clicked, button_style=ButtonStyle.TRANSPARENT_WHITE_BORDER, font_size=FONT_SIZE)
 
+    # FrogPilot variables
+    self._restore_button = Button("Restore", click_callback=self._on_restore_clicked, button_style=ButtonStyle.TRANSPARENT_WHITE_BORDER, font_size=FONT_SIZE)
+    self._restore_button.set_visible(OLD_OPENPILOT.is_dir())
+
   @staticmethod
   def _on_button_clicked():
     gui_app.request_close()
     if not PC:
       HARDWARE.reboot()
+
+  # FrogPilot variables
+  @staticmethod
+  def _on_restore_clicked():
+    gui_app.request_close()
+    shutil.rmtree(BASEDIR)
+    os.rename(OLD_OPENPILOT, BASEDIR)
+    Path("/cache/on_backup").touch()
+    HARDWARE.reboot()
 
   def _render(self, rect: rl.Rectangle):
     scroll = self._scroll_panel.update(self._textarea_rect, self._content_rect)
@@ -84,6 +104,10 @@ class TextWindow(Widget):
 
     button_bounds = rl.Rectangle(rect.width - MARGIN - BUTTON_SIZE.x - SPACING, rect.height - MARGIN - BUTTON_SIZE.y, BUTTON_SIZE.x, BUTTON_SIZE.y)
     self._button.render(button_bounds)
+
+    # FrogPilot variables
+    restore_width = BUTTON_SIZE.x + SPACING * 2
+    self._restore_button.render(rl.Rectangle(button_bounds.x - SPACING - restore_width, button_bounds.y, restore_width, BUTTON_SIZE.y))
 
 
 if __name__ == "__main__":

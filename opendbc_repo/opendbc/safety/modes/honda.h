@@ -82,8 +82,6 @@ static uint8_t honda_get_counter(const CANPacket_t *msg) {
 }
 
 static void honda_rx_hook(const CANPacket_t *msg) {
-  // FrogPilot variables
-
   const bool pcm_cruise = ((honda_hw == HONDA_BOSCH) && !honda_bosch_long) || ((honda_hw == HONDA_NIDEC) && !enable_gas_interceptor);
   unsigned int pt_bus = honda_get_pt_bus();
 

@@ -615,4 +615,7 @@ SECOC_CAR = CAR.with_flags(ToyotaFlags.SECOC)
 # no resume button press required
 NO_STOP_TIMER_CAR = CAR.with_flags(ToyotaFlags.NO_STOP_TIMER)
 
+# FrogPilot variables
+STOP_AND_GO_CAR = NO_STOP_TIMER_CAR | {CAR.LEXUS_CTH, CAR.LEXUS_NX, CAR.LEXUS_RX, CAR.TOYOTA_AVALON_2019, CAR.TOYOTA_CAMRY, CAR.TOYOTA_CHR, CAR.TOYOTA_PRIUS}
+
 DBC = CAR.create_dbc_map()

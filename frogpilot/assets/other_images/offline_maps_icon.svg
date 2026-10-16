@@ -1,3 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
-<path d="M15 77 L48 66 Q50 68 50 75 V92Z" fill="#37c1c3"/><path d="M0 93 L50 114 V182 L8 199 Q0 202 0 193Z" fill="#37c1c3"/><path d="M59 92 Q81 120 101 129 Q110 134 119 128 V199 L64 188 Q59 187 59 180Z" fill="#3a9ad9"/><path d="M164 69 L188 60 Q199 56 199 66 V154 L134 115 Q156 94 164 69Z" fill="#34ce74"/><path d="M129 137 L189 172 L135 199 Q129 202 129 193Z" fill="#34ce74"/><path d="M0 86 L49 108 V98 L8 78 Q1 78 0 86Z" fill="#f3af25"/><path d="M129 119 L199 160 V170 L129 130Z" fill="#f3af25"/><path d="M106 0 C133 0 154 20 154 48 C154 80 135 104 106 119 C77 104 58 80 58 48 C58 20 79 0 106 0Z M130 45 A24 24 0 1 0 82 45 A24 24 0 1 0 130 45Z" fill="#ef4147" fill-rule="evenodd"/>
+  <g transform="matrix(1.004 0 0 1.004 0.25 -2.89)">
+    <g transform="matrix(.84 0 0 .84 0 2)">
+      <g transform="matrix(1.151 0 0 1.151 -15.1 -17.9)">
+        <path d="m14 70 52-18 68 22 52-18v110l-52 18-68-22-52 18Z" fill="#1ed760"/>
+        <path d="M22 147c26-12 34-31 44-31s40 40 68 30 28-36 44-46" fill="none" stroke="#3aa0ff" stroke-linecap="round" stroke-width="12"/>
+        <path d="M66 52v110m68-88v110" stroke="#292929" stroke-width="7"/>
+        <g transform="matrix(1.3 0 0 1.3 100 132)">
+          <path d="M0 4c-12-18-30-34-30-56a30 30 0 1 1 60 0C30-30 12-14 0 4Z" fill="#ff3b30" stroke="#292929" stroke-width="7"/>
+        </g>
+        <circle cx="100" cy="64" r="14" fill="#fff"/>
+      </g>
+    </g>
+    <circle cx="150" cy="150" r="48" fill="#292929"/>
+    <circle cx="150" cy="150" r="40" fill="#3aa0ff"/>
+    <g transform="translate(150 150) scale(0.78)">
+      <path d="M0-30V8" stroke="#fff" stroke-linecap="round" stroke-width="10"/>
+      <path d="m-18-6 18 20 18-20Z" fill="#fff" stroke="#fff" stroke-linejoin="round" stroke-width="6"/>
+      <path d="M-26 14v10h52v-10" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="9"/>
+    </g>
+  </g>
 </svg>

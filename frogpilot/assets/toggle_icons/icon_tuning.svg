@@ -1,8 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
-  <g fill="none" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M18 40H122M158 40H182M18 100H81M117 100H182M18 160H40M76 160H182"/>
-    <circle cx="140" cy="40" r="18"/>
-    <circle cx="99" cy="100" r="18"/>
-    <circle cx="58" cy="160" r="18"/>
+  <g transform="matrix(1.075 0 0 1.075 -7.5 -3.3)">
+    <path d="M25.8 157.4A84 84 0 0 1 20.1 92" fill="none" stroke="#3aa0ff" stroke-linecap="round" stroke-width="16"/>
+    <path d="M30.4 71a84 84 0 0 1 57.9-36.2" fill="none" stroke="#1ed760" stroke-linecap="round" stroke-width="16"/>
+    <path d="M111.7 34.8A84 84 0 0 1 169.6 71" fill="none" stroke="#ff9500" stroke-linecap="round" stroke-width="16"/>
+    <path d="M179.9 92a84 84 0 0 1-5.7 65.4" fill="none" stroke="#ff3b30" stroke-linecap="round" stroke-width="16"/>
+    <path d="M100 118 71.4 72.2" stroke="#fff" stroke-linecap="round" stroke-width="14"/>
+    <circle cx="100" cy="118" r="17" fill="#fff"/>
   </g>
 </svg>

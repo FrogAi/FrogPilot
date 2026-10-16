@@ -24,7 +24,7 @@ private:
   void updateToggles();
 
   bool customPersonalityOpen = false;
-  bool forceOpenDescriptions;
+  bool forceOpenDescriptions = false;
   bool qolOpen = false;
   bool slcOpen = false;
   bool weatherOpen = false;
@@ -33,13 +33,13 @@ private:
 
   QSet<QString> advancedLongitudinalTuneKeys = {"LongitudinalActuatorDelay", "MaxDesiredAcceleration", "StartAccel", "StopAccel", "StoppingDecelRate", "VEgoStarting", "VEgoStopping"};
   QSet<QString> aggressivePersonalityKeys = {"AggressiveFollow", "AggressiveJerkAcceleration", "AggressiveJerkDeceleration", "AggressiveJerkDanger", "AggressiveJerkSpeed", "AggressiveJerkSpeedDecrease", "ResetAggressivePersonality"};
-  QSet<QString> conditionalExperimentalKeys = {"CESpeed", "CECurves", "CELead", "CEModelStopTime", "CESignalSpeed", "CEStopLights", "ShowCEMStatus"};
+  QSet<QString> conditionalExperimentalKeys = {"CECurves", "CELead", "CESignalSpeed", "CESpeed", "CEStopLights", "ShowCEMStatus"};
   QSet<QString> curveSpeedKeys = {"CalibratedLateralAcceleration", "CalibrationProgress", "CurveSpeedProfile", "MaxLateralAcceleration", "ResetCurveData", "ShowCSCStatus"};
   QSet<QString> customDrivingPersonalityKeys = {"AggressivePersonalityProfile", "RelaxedPersonalityProfile", "StandardPersonalityProfile"};
   QSet<QString> longitudinalTuneKeys = {"AccelerationProfile", "DecelerationProfile", "HumanAcceleration", "HumanFollowing", "HumanLaneChanges", "LeadDetectionThreshold", "TacoTune"};
   QSet<QString> qolKeys = {"CustomCruise", "CustomCruiseLong", "ForceStops", "IncreasedStoppedDistance", "MapGears", "ReverseCruise", "SetSpeedOffset", "WeatherPresets"};
   QSet<QString> relaxedPersonalityKeys = {"RelaxedFollow", "RelaxedJerkAcceleration", "RelaxedJerkDeceleration", "RelaxedJerkDanger", "RelaxedJerkSpeed", "RelaxedJerkSpeedDecrease", "ResetRelaxedPersonality"};
-  QSet<QString> speedLimitControllerKeys = {"SLCOffsets", "SLCFallback", "SLCOverride", "SLCPriority", "SLCQOL", "SLCVisuals"};
+  QSet<QString> speedLimitControllerKeys = {"SLCFallback", "SLCOffsets", "SLCOverride", "SLCPriority", "SLCQOL", "SLCVisuals"};
   QSet<QString> speedLimitControllerOffsetsKeys = {"Offset1", "Offset2", "Offset3", "Offset4", "Offset5", "Offset6", "Offset7"};
   QSet<QString> speedLimitControllerQOLKeys = {"SetSpeedLimit", "SLCConfirmation", "SLCLookaheadHigher", "SLCLookaheadLower", "SLCMapboxFiller"};
   QSet<QString> speedLimitControllerVisualKeys = {"ShowSLCOffset", "SpeedLimitSources"};

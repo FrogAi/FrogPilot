@@ -18,11 +18,11 @@ private:
   void updateMetric(bool metric, bool bootRun);
   void updateToggles();
 
-  bool forceOpenDescriptions;
+  bool forceOpenDescriptions = false;
 
   std::map<QString, AbstractControl*> toggles;
 
-  QSet<QString> advancedLateralTuneKeys = {"ForceAutoTune", "ForceAutoTuneOff", "ForceTorqueController", "SteerDelay", "SteerFriction", "SteerLatAccel", "SteerKP", "SteerRatio"};
+  QSet<QString> advancedLateralTuneKeys = {"ForceAutoTune", "ForceAutoTuneOff", "ForceTorqueController", "SteerDelay", "SteerFriction", "SteerKP", "SteerLatAccel", "SteerRatio"};
   QSet<QString> aolKeys = {"AlwaysOnLateralLKAS", "PauseAOLOnBrake"};
   QSet<QString> laneChangeKeys = {"LaneChangeTime", "LaneDetectionWidth", "MinimumLaneChangeSpeed", "NudgelessLaneChange", "OneLaneChange"};
   QSet<QString> lateralTuneKeys = {"NNFF", "NNFFLite", "TurnDesires"};
@@ -32,8 +32,8 @@ private:
 
   FrogPilotParamValueButtonControl *steerDelayToggle;
   FrogPilotParamValueButtonControl *steerFrictionToggle;
-  FrogPilotParamValueButtonControl *steerLatAccelToggle;
   FrogPilotParamValueButtonControl *steerKPToggle;
+  FrogPilotParamValueButtonControl *steerLatAccelToggle;
   FrogPilotParamValueButtonControl *steerRatioToggle;
 
   FrogPilotSettingsWindow *parent;

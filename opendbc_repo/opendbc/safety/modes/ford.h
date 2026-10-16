@@ -335,6 +335,7 @@ static safety_config ford_init(uint16_t param) {
 
   // FrogPilot variables
   const uint16_t FORD_PARAM_LONGITUDINAL = 1;
+
   bool ford_longitudinal = false;
 
 #ifdef ALLOW_DEBUG

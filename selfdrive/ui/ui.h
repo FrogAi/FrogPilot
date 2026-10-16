@@ -120,7 +120,9 @@ public:
   }
 
   // FrogPilot variables
-  bool isDark() { return dark; }
+  bool isDark() {
+    return dark;
+  }
 
 private:
   bool awake = false;

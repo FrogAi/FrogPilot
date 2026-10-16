@@ -42,20 +42,16 @@ def manager_init() -> None:
     params.put_bool("RecordFront", True)
 
   # FrogPilot variables
-  params_cache = Params("/cache/params", return_defaults=True)
+  params_cache = Params(str(frogpilot_variables.PARAMS_CACHE_PATH))
 
   frogpilot_functions.migrate_params(params, params_cache)
+  frogpilot_functions.sync_params_cache(params, params_cache)
 
   # set unset params to their default value
   for k in params.all_keys():
-    current_value = params.get(k)
-    # FrogPilot variables
-    if current_value is None:
-      cached_value = params_cache.get(k)
-      if cached_value is not None:
-        params.put(k, cached_value)
-    else:
-      params_cache.put(k, current_value)
+    default_value = params.get_default_value(k)
+    if default_value is not None and params.get(k) is None:
+      params.put(k, default_value)
 
   # Create folders needed for msgq
   try:
@@ -134,6 +130,7 @@ def manager_thread() -> None:
   params = Params()
 
   ignore: list[str] = []
+
   # FrogPilot variables
   dongle_id = params.get("DongleId")
   if dongle_id in (None, UNREGISTERED_DONGLE_ID) or not all(c in string.hexdigits for c in dongle_id):
@@ -145,16 +142,16 @@ def manager_thread() -> None:
   sm = messaging.SubMaster(['deviceState', 'carParams', 'pandaStates'], poll='deviceState')
   pm = messaging.PubMaster(['managerState'])
 
-  write_onroad_params(False, params)
-  ensure_running(managed_processes.values(), False, params=params, CP=sm['carParams'], not_run=ignore, frogpilot_toggles=frogpilot_variables.get_frogpilot_toggles())
-
-  started_prev = False
-  ignition_prev = False
-
   # FrogPilot variables
   sm = sm.extend(['frogpilotPlan'])
 
   frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles()
+
+  write_onroad_params(False, params)
+  ensure_running(managed_processes.values(), False, params=params, CP=sm['carParams'], not_run=ignore, frogpilot_toggles=frogpilot_toggles)
+
+  started_prev = False
+  ignition_prev = False
 
   while True:
     sm.update(1000)

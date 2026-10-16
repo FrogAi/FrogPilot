@@ -3,13 +3,13 @@ import os
 import time
 import numpy as np
 from cereal import log
-from opendbc.car.interfaces import ACCEL_MIN
+from opendbc.car.interfaces import ACCEL_MIN, ACCEL_MAX
 from openpilot.common.realtime import DT_MDL
 from openpilot.common.swaglog import cloudlog
+from openpilot.frogpilot.common import frogpilot_utilities
 # WARNING: imports outside of constants will not trigger a rebuild
 from openpilot.selfdrive.modeld.constants import index_function, ModelConstants
-
-LEAD_T_IDXS_MODEL = np.array(ModelConstants.LEAD_T_IDXS)  # [0, 2, 4, 6, 8, 10]s
+from openpilot.selfdrive.controls.radard import _LEAD_ACCEL_TAU
 
 if __name__ == '__main__':  # generating code
   from openpilot.third_party.acados.acados_template import AcadosModel, AcadosOcp, AcadosOcpSolver
@@ -43,9 +43,6 @@ CRASH_DISTANCE = .25
 LEAD_DANGER_FACTOR = 0.75
 LIMIT_COST = 1e6
 ACADOS_SOLVER_TYPE = 'SQP_RTI'
-# FrogPilot variables
-# Default lead acceleration decay set to 50% at 1s
-LEAD_ACCEL_TAU = 1.5
 
 
 # Fewer timestamps don't hurt performance and lead to
@@ -62,13 +59,11 @@ STOP_DISTANCE = 6.0
 CRUISE_MIN_ACCEL = -1.2
 CRUISE_MAX_ACCEL = 1.6
 
-# FrogPilot variables
-MIN_X_LEAD_FACTOR = 0.5
-
 def get_jerk_factor(aggressive_jerk_acceleration=0.5, aggressive_jerk_danger=1.0, aggressive_jerk_speed=0.5,
                     standard_jerk_acceleration=1.0, standard_jerk_danger=1.0, standard_jerk_speed=1.0,
                     relaxed_jerk_acceleration=1.0, relaxed_jerk_danger=1.0, relaxed_jerk_speed=1.0,
                     custom_personalities=False, personality=log.LongitudinalPersonality.standard):
+  # FrogPilot variables
   if custom_personalities:
     if personality==log.LongitudinalPersonality.relaxed:
       return relaxed_jerk_acceleration, relaxed_jerk_danger, relaxed_jerk_speed
@@ -79,7 +74,6 @@ def get_jerk_factor(aggressive_jerk_acceleration=0.5, aggressive_jerk_danger=1.0
     else:
       raise NotImplementedError("Longitudinal personality not supported")
   else:
-    # FrogPilot variables
     if personality==log.LongitudinalPersonality.relaxed:
       return 1.0, 1.0, 1.0
     elif personality==log.LongitudinalPersonality.standard:
@@ -90,8 +84,8 @@ def get_jerk_factor(aggressive_jerk_acceleration=0.5, aggressive_jerk_danger=1.0
       raise NotImplementedError("Longitudinal personality not supported")
 
 
-# FrogPilot variables
 def get_T_FOLLOW(aggressive_follow=1.25, standard_follow=1.45, relaxed_follow=1.75, custom_personalities=False, personality=log.LongitudinalPersonality.standard):
+  # FrogPilot variables
   if custom_personalities:
     if personality==log.LongitudinalPersonality.relaxed:
       return relaxed_follow
@@ -102,7 +96,6 @@ def get_T_FOLLOW(aggressive_follow=1.25, standard_follow=1.45, relaxed_follow=1.
     else:
       raise NotImplementedError("Longitudinal personality not supported")
   else:
-    # FrogPilot variables
     if personality==log.LongitudinalPersonality.relaxed:
       return 1.75
     elif personality==log.LongitudinalPersonality.standard:
@@ -344,22 +337,19 @@ class LongitudinalMpc:
     v_ego = self.x0[1]
 
     # FrogPilot variables
-    if frogpilot_toggles.human_following or traffic_mode_active:
-      if lead.modelProb > frogpilot_toggles.lead_detection_probability:
+    if traffic_mode_active or frogpilot_toggles.human_following:
+      if lead.modelProb > frogpilot_toggles.lead_detection_probability and frogpilot_utilities.predicts_lead_trajectories(frogpilot_toggles.model_path):
         x_lead_traj = float(lead.dRel) + (np.asarray(model_lead.x, dtype=np.float64) - model_lead.x[0])
         v_lead_traj = float(lead.vLead) + (np.asarray(model_lead.v, dtype=np.float64) - model_lead.v[0])
 
-        # MPC will not converge if immediate crash is expected
-        # Clip lead distance to what is still possible to brake for
         v_lead_0 = v_lead_traj[0]
-        min_x_lead = MIN_X_LEAD_FACTOR * (v_ego + v_lead_0) * (v_ego - v_lead_0) / (-ACCEL_MIN * 2)
+        min_x_lead = ((v_ego + v_lead_0) / 2) * (v_ego - v_lead_0) / (-ACCEL_MIN * 2)
         x_lead_traj[0] = max(x_lead_traj[0], min_x_lead)
         v_lead_traj = np.clip(v_lead_traj, 0.0, 1e8)
 
-        x_lead_mpc = np.maximum.accumulate(np.interp(T_IDXS, LEAD_T_IDXS_MODEL, x_lead_traj))
-        v_lead_mpc = np.interp(T_IDXS, LEAD_T_IDXS_MODEL, v_lead_traj)
+        x_lead_mpc = np.maximum.accumulate(np.interp(T_IDXS, ModelConstants.LEAD_T_IDXS, x_lead_traj))
+        v_lead_mpc = np.interp(T_IDXS, ModelConstants.LEAD_T_IDXS, v_lead_traj)
 
-        # Forward movement cannot exceed the distance covered by the corrected speed.
         x_lead_max = x_lead_mpc[0] + np.cumsum(T_DIFFS[1:] * (v_lead_mpc[:-1] + v_lead_mpc[1:]) / 2)
         x_lead_mpc[1:] = np.minimum(x_lead_mpc[1:], x_lead_max)
         return np.column_stack((x_lead_mpc, v_lead_mpc))
@@ -374,7 +364,7 @@ class LongitudinalMpc:
       x_lead = 50.0
       v_lead = v_ego + 10.0
       a_lead = 0.0
-      a_lead_tau = LEAD_ACCEL_TAU
+      a_lead_tau = _LEAD_ACCEL_TAU
 
     # MPC will not converge if immediate crash is expected
     # Clip lead distance to what is still possible to brake for
@@ -390,6 +380,7 @@ class LongitudinalMpc:
 
     # FrogPilot variables
     model_leads = modelV2.leadsV3
+
     self.status = model_leads[0].prob > frogpilot_toggles.lead_detection_probability or model_leads[1].prob > frogpilot_toggles.lead_detection_probability
 
     lead_xv_0 = self.process_lead(radarstate.leadOne, frogpilot_toggles, model_leads[0], traffic_mode_active)
@@ -405,7 +396,7 @@ class LongitudinalMpc:
     lead_0_obstacle = lead_xv_0[:,0] + get_stopped_equivalence_factor(lead_xv_0[:,1])
     lead_1_obstacle = lead_xv_1[:,0] + get_stopped_equivalence_factor(lead_xv_1[:,1])
 
-    self.params[:,0] = accel_min
+    self.params[:,0] = ACCEL_MIN
     self.params[:,1] = accel_max
 
     # Update in ACC mode or ACC/e2e blend

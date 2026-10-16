@@ -136,6 +136,7 @@ AdvancedNetworking::AdvancedNetworking(QWidget* parent, WifiManager* wifi): QWid
   // Enable tethering layout
   // FrogPilot variables
   std::vector<QString> tetheringSelection{tr("Off"), tr("Always"), tr("Only Onroad"), tr("Until Reboot")};
+
   tetheringToggle = new ButtonParamControl("TetheringEnabled", tr("Enable Tethering"),
                                            tr("Share your device's internet connection with other devices, either all the time or only while driving. Internet sharing only works on a paired device with comma prime lite or no comma prime."),
                                            "", tetheringSelection);

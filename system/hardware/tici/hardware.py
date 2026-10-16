@@ -446,10 +446,12 @@ class Tici(HardwareBase):
 
     # pandad core
     affine_irq(3, "spi_geni")         # SPI
+
     # FrogPilot variables
     if "tici" in self.get_device_type():
       affine_irq(3, "xhci-hcd:usb3")  # aux panda USB (or potentially anything else on USB)
       affine_irq(3, "xhci-hcd:usb1")  # internal panda USB (also modem)
+
     try:
       pid = subprocess.check_output(["pgrep", "-f", "spi0"], encoding='utf8').strip()
       subprocess.call(["sudo", "chrt", "-f", "-p", "1", pid])
@@ -482,6 +484,7 @@ class Tici(HardwareBase):
         'AT+QNVFW="/nv/item_files/ims/IMS_enable",00',
         'AT+QNVFW="/nv/item_files/modem/mmode/ue_usage_setting",01',
       ]
+
       # FrogPilot variables
       if self.get_device_type() == "tici":
         cmds.remove('AT+QSIMDET=1,0')

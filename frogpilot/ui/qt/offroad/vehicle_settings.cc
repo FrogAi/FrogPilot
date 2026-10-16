@@ -187,6 +187,7 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
     {"HondaToggles", tr("Acura/Honda Settings"), tr("<b>Settings that only work on Acura and Honda cars with the older Nidec cruise control, covering how openpilot follows and brakes.</b>"), ""},
     {"HondaAltTune", tr("Gentle Following"), tr("<b>Soften how hard openpilot corrects its speed behind the car ahead, for smoother following in stop-and-go traffic.</b><br><br>openpilot settles small speed differences more slowly, so it can take a moment longer to close a gap after the car ahead pulls away."), ""},
     {"HondaMaxBrake", tr("Increased Braking Force"), tr("<b>Let openpilot use your car's full braking force for its hardest stops.</b><br><br>Without it, openpilot's hardest stop only uses about four fifths of the brakes on these cars. With it on, every stop brakes a little firmer for the same request."), ""},
+    {"HondaLowSpeedPedal", tr("Responsive Pedal at Low Speeds"), tr("<b>Improves acceleration from a standstill for a more responsive throttle feel in city driving.</b>"), ""},
 
     {"GMToggles", tr("General Motors Settings"), tr("<b>Settings that only work on Buick, Cadillac, Chevrolet, GMC and Holden cars, covering pedal response on hills and how openpilot stops and starts.</b>"), ""},
     {"LongPitch", tr("Smooth Pedal Response on Hills"), tr("<b>Add gas going uphill and ease off going downhill, so openpilot holds a steady pace on hills instead of correcting after the car has already slowed down or sped up.</b><br><br>Slopes gentler than about 1% are ignored. The brakes get the same adjustment above about 22 mph, and it fades out as you slow to about 11 mph so stops feel the same as on flat ground."), ""},
@@ -297,7 +298,11 @@ FrogPilotVehiclesPanel::FrogPilotVehiclesPanel(FrogPilotSettingsWindow *parent, 
     } else if (vehicleInfoKeys.contains(param)) {
       vehicleInfoList->addItem(vehicleToggle);
     } else {
-      settingsList->addItem(vehicleToggle);
+      if (param == "HondaToggles") {
+        settingsList->insertItem(0, vehicleToggle);
+      } else {
+        settingsList->addItem(vehicleToggle);
+      }
 
       parentKeys.insert(param);
     }
@@ -425,7 +430,11 @@ void FrogPilotVehiclesPanel::updateToggles() {
       setVisible &= parent->hasOpenpilotLongitudinal;
     }
 
-    if (key == "LongPitch") {
+    if (key == "HondaLowSpeedPedal") {
+      setVisible &= parent->hasPedal;
+    }
+
+    else if (key == "LongPitch") {
       setVisible &= !parent->isGMCCOnly;
     }
 
@@ -472,7 +481,7 @@ void FrogPilotVehiclesPanel::updateToggles() {
     toggles[key]->setVisible(visibleParents.contains(key));
   }
 
-  disableOpenpilotLong->setVisible((parent->hasOpenpilotLongitudinal || parent->openpilotLongitudinalControlDisabled) && parent->canDisableOpenpilotLong &&
+  disableOpenpilotLong->setVisible((parent->hasOpenpilotLongitudinal || params.getBool("DisableOpenpilotLongitudinal")) && parent->canDisableOpenpilotLong &&
                                  parent->tuningLevel >= parent->frogpilotToggleLevels.value("DisableOpenpilotLongitudinal").toDouble());
   bool canForceFingerprint = parent->tuningLevel >= parent->frogpilotToggleLevels.value("ForceFingerprint").toDouble();
   forceFingerprint->setVisible(canForceFingerprint);

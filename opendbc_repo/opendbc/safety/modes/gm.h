@@ -337,6 +337,7 @@ static safety_config gm_init(uint16_t param) {
   }
 
   const bool gm_ev = GET_FLAG(param, GM_PARAM_EV);
+
   // FrogPilot variables
   if (enable_gas_interceptor && gm_ev) {
     SET_RX_CHECKS(gm_pedal_ev_rx_checks, ret);

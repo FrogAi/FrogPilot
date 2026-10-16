@@ -19,7 +19,7 @@ private:
   void testSound(const QString &key);
   void updateToggles();
 
-  bool forceOpenDescriptions;
+  bool forceOpenDescriptions = false;
 
   std::map<QString, AbstractControl*> toggles;
 

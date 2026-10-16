@@ -25,11 +25,17 @@ private:
 
   QElapsedTimer driveTimer;
 
+  QLabel *modelDrivesLabel;
   QLabel *modelLabel;
+  QLabel *modelRankLabel;
+  QLabel *modelRatingLabel;
   QLabel *resultLabel;
+  QLabel *totalDrivesLabel;
 
   QStackedLayout *mainLayout;
 
   QString driveModel;
   QString driveModelName;
+
+  QWidget *statsWidget;
 };

@@ -2,7 +2,6 @@
 import json
 
 from collections import deque
-from pathlib import Path
 from shutil import disk_usage
 from time import time_ns
 
@@ -15,13 +14,12 @@ from openpilot.system.version import get_build_metadata
 
 from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 
-CAPTURES_PATH = Path("/data/media/speed_limit_captures")
-
 BUFFER_DURATION = 10
 
 MAX_CAPTURES = 100
 
 MIN_FREE_SPACE = 5 * 1024 * 1024 * 1024
+
 
 def capture_details(sm, device_details):
   return {
@@ -31,6 +29,7 @@ def capture_details(sm, device_details):
     "sensor": str(sm["roadCameraState"].sensor),
   }
 
+
 def save_clip(frames, trigger):
   while frames and not frames[0].header:
     frames.popleft()
@@ -39,13 +38,13 @@ def save_clip(frames, trigger):
     return
 
   try:
-    CAPTURES_PATH.mkdir(parents=True, exist_ok=True)
+    frogpilot_variables.SPEED_LIMIT_CAPTURES_PATH.mkdir(parents=True, exist_ok=True)
 
-    if disk_usage(CAPTURES_PATH).free < MIN_FREE_SPACE:
+    if disk_usage(frogpilot_variables.SPEED_LIMIT_CAPTURES_PATH).free < MIN_FREE_SPACE:
       cloudlog.warning("Skipping speed limit capture: insufficient free space")
       return
 
-    capture_path = CAPTURES_PATH / str(time_ns())
+    capture_path = frogpilot_variables.SPEED_LIMIT_CAPTURES_PATH / str(time_ns())
 
     with atomic_write(capture_path.with_suffix(".hevc"), mode="wb") as clip:
       clip.write(frames[0].header)
@@ -60,12 +59,13 @@ def save_clip(frames, trigger):
 
     frames.clear()
 
-    for capture in sorted(CAPTURES_PATH.glob("*.hevc"))[:-MAX_CAPTURES]:
+    for capture in sorted(frogpilot_variables.SPEED_LIMIT_CAPTURES_PATH.glob("*.hevc"))[:-MAX_CAPTURES]:
       capture.unlink()
       capture.with_suffix(".json").unlink(missing_ok=True)
 
   except OSError:
     cloudlog.exception("Failed to save speed limit capture")
+
 
 def main():
   previous_lkas_button_press_count = 0
@@ -73,7 +73,7 @@ def main():
 
   build_metadata = get_build_metadata()
 
-  capture_via_lkas = build_metadata.channel == "FrogPilot-Development" and frogpilot_utilities.is_FrogsGoMoo()
+  capture_via_lkas = frogpilot_utilities.is_FrogsGoMoo_development(build_metadata)
 
   device_details = {
     "device_type": HARDWARE.get_device_type(),

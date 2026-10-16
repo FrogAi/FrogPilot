@@ -19,7 +19,7 @@ private:
   QHBoxLayout* split;
 
   // FrogPilot variables
-  void mousePressEvent(QMouseEvent* mouseEvent);
+  void mousePressEvent(QMouseEvent* mouseEvent) override;
 
   FrogPilotAnnotatedCameraWidget *frogpilot_nvg;
   FrogPilotOnroadWindow *frogpilot_onroad;

@@ -23,9 +23,9 @@ public:
 
   bool hideBottomIcons = false;
   bool isCruiseSet = false;
-  bool rightHandDM;
+  bool rightHandDM = false;
 
-  int alertHeight;
+  int alertHeight = 0;
   int speedLimitHeight = 0;
   int speedLimitSignHeight = 0;
   int standstillDuration = 0;
@@ -54,15 +54,13 @@ public:
 
   QSize defaultSize;
 
-  QString signalStyle;
-
   QVector<QRect> leadTextRects;
 
 protected:
   void hideEvent(QHideEvent *event) override;
-  void showEvent(QShowEvent *event) override;
 
 private:
+  QLinearGradient adjacentPathGradient(float hue);
   void drawOutlinedText(QPainter &p, const QPointF &position, const QString &text);
   void paintCEMStatus(QPainter &p, const QPoint &position);
   void paintCompass(QPainter &p, const QPoint &position);
@@ -79,54 +77,54 @@ private:
   void paintStoppingPoint(QPainter &p);
   void paintTurnSignals(QPainter &p);
   void paintWeather(QPainter &p, const QPoint &position);
+  void paintWidgetFrame(QPainter &p, const QRect &rect, const QColor &borderColor);
   void updateCEMIcon();
-  void updateIcon(const QString &path, QSharedPointer<QMovie> &icon, QString &iconPath);
+  void updateIcon(const QString &path, QSharedPointer<FrogPilotMovie> &icon, QString &iconPath);
   void updateSignals();
   void updateWeatherIcon();
 
-  bool assetsLoaded = false;
-  bool blindspotLeft;
-  bool blindspotRight;
-  bool blinkerLeft;
-  bool blinkerRight;
-  bool brakeLights;
-  bool cscActive;
-  bool cscTraining;
-  bool experimentalMode;
-  bool forceCoast;
-  bool lateralPaused;
-  bool longitudinalPaused;
-  bool redLight;
-  bool speedLimitChanged;
-  bool weatherDaytime;
+  bool blindspotLeft = false;
+  bool blindspotRight = false;
+  bool blinkerLeft = false;
+  bool blinkerRight = false;
+  bool brakeLights = false;
+  bool cscActive = false;
+  bool cscTraining = false;
+  bool experimentalMode = false;
+  bool forceCoast = false;
+  bool lateralPaused = false;
+  bool longitudinalPaused = false;
+  bool redLight = false;
+  bool signalIsGif = false;
+  bool speedLimitChanged = false;
+  bool weatherDaytime = false;
 
-  int desiredFollowDistance;
+  int desiredFollowDistance = 0;
   int signalAnimationLength = 0;
   int signalHeight = 0;
   int signalWidth = 0;
-  int totalFrames = 0;
-  int weatherId;
+  int weatherId = 0;
 
-  float accelerationEgo;
-  float cameraSpeedLimit;
-  float cscSpeed;
-  float dashboardSpeedLimit;
-  float distanceConversion;
-  float gpsBearing;
+  float accelerationEgo = 0.0f;
+  float cameraSpeedLimit = 0.0f;
+  float cscSpeed = 0.0f;
+  float dashboardSpeedLimit = 0.0f;
+  float distanceConversion = 0.0f;
+  float gpsBearing = 0.0f;
   float hueOffset = 0.0f;
-  float laneWidthLeft;
-  float laneWidthRight;
-  float mapboxSpeedLimit;
-  float mapSpeedLimit;
-  float nextSpeedLimit;
-  float roadCurvature;
-  float slcOverriddenSpeed;
-  float speedConversion;
-  float speedConversionMetrics;
-  float speedLimit;
-  float stoppingDistance;
-  float unconfirmedSpeedLimit;
-  float vEgo;
+  float laneWidthLeft = 0.0f;
+  float laneWidthRight = 0.0f;
+  float mapboxSpeedLimit = 0.0f;
+  float mapSpeedLimit = 0.0f;
+  float nextSpeedLimit = 0.0f;
+  float roadCurvature = 0.0f;
+  float slcOverriddenSpeed = 0.0f;
+  float speedConversion = 0.0f;
+  float speedConversionMetrics = 0.0f;
+  float speedLimit = 0.0f;
+  float stoppingDistance = 0.0f;
+  float unconfirmedSpeedLimit = 0.0f;
+  float vEgo = 0.0f;
 
   std::string speedLimitSource;
 
@@ -134,7 +132,6 @@ private:
   InstantReplayButton *instantReplayButton;
   ScreenRecorderButton *screenRecorderButton;
 
-  QColor blackColor(int alpha = 255) { return QColor(0, 0, 0, alpha); }
   QColor redColor(int alpha = 255) { return QColor(201, 34, 49, alpha); }
 
   QElapsedTimer glowTimer;
@@ -162,13 +159,14 @@ private:
   QRect speedLimitRect;
   QRect standstillTimerRect;
 
-  QSharedPointer<QMovie> cemIcon;
-  QSharedPointer<QMovie> weatherIcon;
+  QSharedPointer<FrogPilotMovie> cemIcon;
+  QSharedPointer<FrogPilotMovie> weatherIcon;
 
   QString cemIconPath;
   QString leadDistanceUnit;
   QString leadSpeedUnit;
   QString roadName;
+  QString signalStyle;
   QString speedLimitOffsetStr;
   QString speedUnit;
   QString weatherIconPath;

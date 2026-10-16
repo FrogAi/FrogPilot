@@ -59,6 +59,10 @@ jobs:
           esac
 
           sed -i "s/Last%20Updated-[^-]*/Last%20Updated-$month%20$day$suffix%2C%20$year/" README.md
+
+          supported_cars="$(grep -oP '^# \K[0-9]+(?= Supported Cars$)' docs/CARS.md)"
+          sed -i -E "s/[0-9]+\+ supported cars/${supported_cars}+ supported cars/g" README.md
+
           git rm .github/update_date
           git add README.md
 

@@ -348,6 +348,10 @@ def hardware_thread(end_event, hw_queue) -> None:
     show_alert = (not onroad_conditions["device_temp_good"] or not startup_conditions["device_temp_engageable"]) and onroad_conditions["ignition"]
     set_offroad_alert_if_changed("Offroad_TemperatureTooHigh", show_alert, extra_text=extra_text)
 
+    # FrogPilot variables
+    if HARDWARE.get_device_type() == "tici" and not os.path.isfile("/persist/comma/living-in-the-moment"):
+      set_offroad_alert_if_changed("Offroad_StorageMissing", not os.path.ismount("/data/media"))
+
     # *** registration check ***
     if not PC:
       # we enforce this for our software, but you are welcome
@@ -444,7 +448,7 @@ def hardware_thread(end_event, hw_queue) -> None:
     pm.send("deviceState", msg)
 
     # FrogPilot variables
-    fpmsg = messaging.new_message('frogpilotDeviceState')
+    fpmsg = messaging.new_message("frogpilotDeviceState")
 
     fpmsg.frogpilotDeviceState.forceOnroadClearedCount = force_onroad_cleared_count
     fpmsg.frogpilotDeviceState.freeSpace = round(get_available_bytes(default=32.0 * (2 ** 30)) / (2 ** 30))

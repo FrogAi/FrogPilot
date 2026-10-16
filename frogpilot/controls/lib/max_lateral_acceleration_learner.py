@@ -8,7 +8,6 @@ TRACKING_RATIO = 0.9
 MIN_LEARNING_TIME = 1.0
 LEARNING_RATE = 0.05
 
-
 class MaxLateralAccelerationLearner:
   def __init__(self, CurveSpeedController):
     self.csc = CurveSpeedController
@@ -20,8 +19,6 @@ class MaxLateralAccelerationLearner:
   def update(self, sm, frogpilot_toggles):
     if not self.initialized:
       self.csc.max_limit = frogpilot_toggles.maxLateralAccel
-
-      self._update_profile(frogpilot_toggles.car_model)
 
       self.initialized = True
 

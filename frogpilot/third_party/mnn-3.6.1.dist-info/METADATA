@@ -1,0 +1,59 @@
+Metadata-Version: 2.4
+Name: mnn
+Version: 3.6.1
+Summary: C methods for MNN Package
+Home-page: https://www.yuque.com/mnn/en/usage_in_python
+Download-URL: https://github.com/alibaba/MNN
+Author: alibaba MNN Team
+Author-email: lichuan.wlc@alibaba-inc.com
+License: BSD-3
+Keywords: MNN Engine
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Education
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Programming Language :: C++
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Python :: 3.14
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Scientific/Engineering :: Mathematics
+Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
+Classifier: Topic :: Software Development
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires-Python: >=3.8
+Requires-Dist: numpy
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: description
+Dynamic: download-url
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: license
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary
+
+MNN Python Package
+===================================================
+  This is a python package for MNN
+ 
+
+Installation
+---------------------------------------------------
+  
+  pip install -U MNN
+
+
+Dependencies
+---------------------------------------------------
+
+    numpy 
+

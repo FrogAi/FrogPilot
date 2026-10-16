@@ -7,8 +7,7 @@
 
 #include "common/util.h"
 
-// FrogPilot variables
-bool useKonikServer();
+#include "frogpilot/ui/qt/widgets/frogpilot_controls.h"
 
 namespace CommaApi {
 

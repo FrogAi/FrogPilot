@@ -1,0 +1,169 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <path id="cloudy-night-p0" d="M184 59.2L183.7 54.7L183 50.3L181.8 45.9L180.2 41.7L178.2 37.7L175.8 33.8L173.1 30.2L170.5 27.5L167.2 24.4L163.6 21.8L159.7 19.4L155.6 17.5L151.4 16L147 14.9L142.5 14.2L138.5 14L141.2 16.7L143.3 19.1L145.3 21.8L147.3 25.1L149.9 31.1L151 34.9L151.6 38.1L152 42L152 45.3L151.7 49.2L151.1 52.4L149.2 58.7L147.9 61.7L146 65.1L142.1 70.4L139.8 72.7L136.9 75.3L134.2 77.3L130.9 79.3L127.9 80.7L124.2 82.1L117.9 83.6L114 84L110.7 84L106.8 83.7L103.6 83.1L97.1 81.1L99.3 84.9L101.5 88L103.9 90.9L106.6 93.6L109.4 96L112.4 98.2L115.7 100.2L119 101.9L123.2 103.6L126.8 104.6L130.5 105.4L134.2 105.8L138 106L141.8 105.8L145.5 105.4L149.2 104.6L152.8 103.6L156.3 102.2L159.7 100.6L162.9 98.7L166 96.5L168.9 94.1L172.1 90.9L174.5 88L176.7 84.9L178.6 81.7L180.2 78.3L181.6 74.8L182.6 71.2L183.5 66.7L183.9 63Z" fill="#fff"/>
+    <path id="cloudy-night-p1" d="M149.6 70.2L148.5 64.8L147.2 60.9L145 56.2L142.9 52.7L140.5 49.4L137 45.6L133 42.3L129.6 40L125 37.6L121.2 36.1L116.2 34.8L112.1 34.2L107 34L102.9 34.3L98.8 35L93.9 36.5L88.2 39L83.8 41.7L79 45.6L75.5 49.4L72.5 53.5L69.6 59L67.5 64.8L66.4 70L63.1 70.1L59.4 70.7L55.9 71.8L53.2 72.9L50 74.7L47 76.8L44.8 78.8L42.3 81.5L39.9 85.2L38.3 88.5L37.1 92L36.3 95.6L36 99.3L36.1 102.9L36.7 106.6L37.8 110.1L39.5 114.1L41.5 117.3L43.8 120.1L47 123.2L50 125.3L53.8 127.4L57.3 128.7L61.6 129.7L66 130L146.7 130L151.9 129.4L156.1 128.2L160.8 126.1L165 123.2L168.2 120.1L171.3 116L173.7 111.5L175.3 106.6L176 101.5L175.8 96.3L174.7 91.3L173.1 87.2L170.5 82.7L167.2 78.8L163.9 75.9L159.5 73.2L154.7 71.3Z" fill="#101010" stroke="#101010" stroke-linejoin="round" stroke-width="16"/>
+    <path id="cloudy-night-p2" d="M149.6 70.2L148.5 64.8L147.2 60.9L145 56.2L142.9 52.7L140.5 49.4L137 45.6L133 42.3L129.6 40L125 37.6L121.2 36.1L116.2 34.8L112.1 34.2L107 34L102.9 34.3L98.8 35L93.9 36.5L88.2 39L83.8 41.7L79 45.6L75.5 49.4L72.5 53.5L69.6 59L67.5 64.8L66.4 70L63.1 70.1L59.4 70.7L55.9 71.8L53.2 72.9L50 74.7L47 76.8L44.8 78.8L42.3 81.5L39.9 85.2L38.3 88.5L37.1 92L36.3 95.6L36 99.3L36.1 102.9L36.7 106.6L37.8 110.1L39.5 114.1L41.5 117.3L43.8 120.1L47 123.2L50 125.3L53.8 127.4L57.3 128.7L61.6 129.7L66 130L146.7 130L151.9 129.4L156.1 128.2L160.8 126.1L165 123.2L168.2 120.1L171.3 116L173.7 111.5L175.3 106.6L176 101.5L175.8 96.3L174.7 91.3L173.1 87.2L170.5 82.7L167.2 78.8L163.9 75.9L159.5 73.2L154.7 71.3Z" fill="#fff"/>
+  </defs>
+  <g id="frames" data-loop="false">
+    <g id="frame-0" data-ms="40">
+      <animate attributeName="display" values="inline;none" keyTimes="0;0.0227" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.889 0 0 .889 5.78 22.67)">
+      <use xlink:href="#cloudy-night-p0"/>
+      <use xlink:href="#cloudy-night-p1" transform="translate(-12 22)"/>
+      <use xlink:href="#cloudy-night-p2" transform="translate(-12 22)"/>
+      </g>
+    </g>
+    <g id="frame-1" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.0227;0.0455" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.889 0 0 .889 5.78 22.67)">
+      <use xlink:href="#cloudy-night-p0"/>
+      <use xlink:href="#cloudy-night-p1" transform="translate(-10.2 22)"/>
+      <use xlink:href="#cloudy-night-p2" transform="translate(-10.2 22)"/>
+      </g>
+    </g>
+    <g id="frame-2" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.0455;0.0682" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.889 0 0 .889 5.78 22.67)">
+      <use xlink:href="#cloudy-night-p0"/>
+      <use xlink:href="#cloudy-night-p1" transform="translate(-8.6 22)"/>
+      <use xlink:href="#cloudy-night-p2" transform="translate(-8.6 22)"/>
+      </g>
+    </g>
+    <g id="frame-3" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.0682;0.0909" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.889 0 0 .889 5.78 22.67)">
+      <use xlink:href="#cloudy-night-p0"/>
+      <use xlink:href="#cloudy-night-p1" transform="translate(-7.2 22)"/>
+      <use xlink:href="#cloudy-night-p2" transform="translate(-7.2 22)"/>
+      </g>
+    </g>
+    <g id="frame-4" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.0909;0.1136" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.889 0 0 .889 5.78 22.67)">
+      <use xlink:href="#cloudy-night-p0"/>
+      <use xlink:href="#cloudy-night-p1" transform="translate(-5.9 22)"/>
+      <use xlink:href="#cloudy-night-p2" transform="translate(-5.9 22)"/>
+      </g>
+    </g>
+    <g id="frame-5" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1136;0.1364" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.889 0 0 .889 5.78 22.67)">
+      <use xlink:href="#cloudy-night-p0"/>
+      <use xlink:href="#cloudy-night-p1" transform="translate(-4.8 22)"/>
+      <use xlink:href="#cloudy-night-p2" transform="translate(-4.8 22)"/>
+      </g>
+    </g>
+    <g id="frame-6" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1364;0.1591" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.889 0 0 .889 5.78 22.67)">
+      <use xlink:href="#cloudy-night-p0"/>
+      <use xlink:href="#cloudy-night-p1" transform="translate(-3.8 22)"/>
+      <use xlink:href="#cloudy-night-p2" transform="translate(-3.8 22)"/>
+      </g>
+    </g>
+    <g id="frame-7" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1591;0.1818" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.889 0 0 .889 5.78 22.67)">
+      <use xlink:href="#cloudy-night-p0"/>
+      <use xlink:href="#cloudy-night-p1" transform="translate(-3 22)"/>
+      <use xlink:href="#cloudy-night-p2" transform="translate(-3 22)"/>
+      </g>
+    </g>
+    <g id="frame-8" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1818;0.2045" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.889 0 0 .889 5.78 22.67)">
+      <use xlink:href="#cloudy-night-p0"/>
+      <use xlink:href="#cloudy-night-p1" transform="translate(-2.3 22)"/>
+      <use xlink:href="#cloudy-night-p2" transform="translate(-2.3 22)"/>
+      </g>
+    </g>
+    <g id="frame-9" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2045;0.2273" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.889 0 0 .889 5.78 22.67)">
+      <use xlink:href="#cloudy-night-p0"/>
+      <use xlink:href="#cloudy-night-p1" transform="translate(-1.7 22)"/>
+      <use xlink:href="#cloudy-night-p2" transform="translate(-1.7 22)"/>
+      </g>
+    </g>
+    <g id="frame-10" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2273;0.25" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.889 0 0 .889 5.78 22.67)">
+      <use xlink:href="#cloudy-night-p0"/>
+      <use xlink:href="#cloudy-night-p1" transform="translate(-1.3 22)"/>
+      <use xlink:href="#cloudy-night-p2" transform="translate(-1.3 22)"/>
+      </g>
+    </g>
+    <g id="frame-11" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.25;0.2727" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.889 0 0 .889 5.78 22.67)">
+      <use xlink:href="#cloudy-night-p0"/>
+      <use xlink:href="#cloudy-night-p1" transform="translate(-.9 22)"/>
+      <use xlink:href="#cloudy-night-p2" transform="translate(-.9 22)"/>
+      </g>
+    </g>
+    <g id="frame-12" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2727;0.2955" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.889 0 0 .889 5.78 22.67)">
+      <use xlink:href="#cloudy-night-p0"/>
+      <use xlink:href="#cloudy-night-p1" transform="translate(-.6 22)"/>
+      <use xlink:href="#cloudy-night-p2" transform="translate(-.6 22)"/>
+      </g>
+    </g>
+    <g id="frame-13" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2955;0.3182" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.889 0 0 .889 5.78 22.67)">
+      <use xlink:href="#cloudy-night-p0"/>
+      <use xlink:href="#cloudy-night-p1" transform="translate(-.4 22)"/>
+      <use xlink:href="#cloudy-night-p2" transform="translate(-.4 22)"/>
+      </g>
+    </g>
+    <g id="frame-14" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3182;0.3409" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.889 0 0 .889 5.78 22.67)">
+      <use xlink:href="#cloudy-night-p0"/>
+      <use xlink:href="#cloudy-night-p1" transform="translate(-.2 22)"/>
+      <use xlink:href="#cloudy-night-p2" transform="translate(-.2 22)"/>
+      </g>
+    </g>
+    <g id="frame-15" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3409;0.3636" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.889 0 0 .889 5.78 22.67)">
+      <use xlink:href="#cloudy-night-p0"/>
+      <use xlink:href="#cloudy-night-p1" transform="translate(-.1 22)"/>
+      <use xlink:href="#cloudy-night-p2" transform="translate(-.1 22)"/>
+      </g>
+    </g>
+    <g id="frame-16" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3636;0.3864" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.889 0 0 .889 5.78 22.67)">
+      <use xlink:href="#cloudy-night-p0"/>
+      <use xlink:href="#cloudy-night-p1" transform="translate(0 22)"/>
+      <use xlink:href="#cloudy-night-p2" transform="translate(0 22)"/>
+      </g>
+    </g>
+    <g id="frame-17" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3864;0.4091" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.889 0 0 .889 5.78 22.67)">
+      <use xlink:href="#cloudy-night-p0"/>
+      <use xlink:href="#cloudy-night-p1" transform="translate(0 22)"/>
+      <use xlink:href="#cloudy-night-p2" transform="translate(0 22)"/>
+      </g>
+    </g>
+    <g id="frame-18" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.4091;0.4318" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.889 0 0 .889 5.78 22.67)">
+      <use xlink:href="#cloudy-night-p0"/>
+      <use xlink:href="#cloudy-night-p1" transform="translate(0 22)"/>
+      <use xlink:href="#cloudy-night-p2" transform="translate(0 22)"/>
+      </g>
+    </g>
+    <g id="frame-19" data-ms="1000">
+      <animate attributeName="display" values="none;inline" keyTimes="0;0.4318" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.889 0 0 .889 5.78 22.67)">
+      <use xlink:href="#cloudy-night-p0"/>
+      <use xlink:href="#cloudy-night-p1" transform="translate(0 22)"/>
+      <use xlink:href="#cloudy-night-p2" transform="translate(0 22)"/>
+      </g>
+    </g>
+  </g>
+</svg>

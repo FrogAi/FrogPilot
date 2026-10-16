@@ -12,7 +12,7 @@ from openpilot.selfdrive.controls.lib.longcontrol import LongCtrlState
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import LongitudinalMpc
 from openpilot.selfdrive.controls.lib.longitudinal_mpc_lib.long_mpc import T_IDXS as T_IDXS_MPC
 from openpilot.selfdrive.controls.lib.drive_helpers import CONTROL_N, get_accel_from_plan
-from openpilot.selfdrive.car.cruise import V_CRUISE_UNSET
+from openpilot.selfdrive.car.cruise import V_CRUISE_MAX, V_CRUISE_UNSET
 from openpilot.common.swaglog import cloudlog
 
 from openpilot.frogpilot.common import frogpilot_variables
@@ -45,11 +45,10 @@ def limit_accel_in_turns(v_ego, angle_steers, a_target, CP):
   # The lookup table for turns should also be updated if we do this
   a_total_max = np.interp(v_ego, _A_TOTAL_MAX_BP, _A_TOTAL_MAX_V)
   a_y = v_ego ** 2 * angle_steers * CV.DEG_TO_RAD / (CP.steerRatio * CP.wheelbase)
+  a_x_allowed = math.sqrt(max(a_total_max ** 2 - a_y ** 2, 0.))
 
   # FrogPilot variables
-  if abs(a_y) > frogpilot_variables.MINIMUM_LATERAL_ACCELERATION:
-    a_x_allowed = math.sqrt(max(a_total_max ** 2 - a_y ** 2, 0.))
-  else:
+  if abs(a_y) <= frogpilot_variables.MINIMUM_LATERAL_ACCELERATION:
     a_x_allowed = a_target[1]
 
   return [a_target[0], min(a_target[1], a_x_allowed)]
@@ -103,10 +102,7 @@ class LongitudinalPlanner:
     mode = 'blended' if sm['selfdriveState'].experimentalMode else 'acc'
 
     # FrogPilot variables
-    if sm['frogpilotPlan'].forcingStop:
-      self.mpc.mode = 'blended'
-    else:
-      self.mpc.mode = 'acc'
+    self.mpc.mode = 'blended' if sm['frogpilotPlan'].forcingStop else 'acc'
 
     if len(sm['carControl'].orientationNED) == 3:
       accel_coast = get_coast_accel(sm['carControl'].orientationNED[1])
@@ -131,6 +127,7 @@ class LongitudinalPlanner:
     if mode == 'acc':
       accel_clip = [sm['frogpilotPlan'].minAcceleration, sm['frogpilotPlan'].maxAcceleration]
       steer_angle_without_offset = sm['carState'].steeringAngleDeg - sm['liveParameters'].angleOffsetDeg
+
       # FrogPilot variables
       if not sm['frogpilotPlan'].cscControllingSpeed:
         accel_clip = limit_accel_in_turns(v_ego, steer_angle_without_offset, accel_clip, self.CP)
@@ -151,10 +148,10 @@ class LongitudinalPlanner:
     x, v, a, j, throttle_prob = self.parse_model(sm['modelV2'])
     # Don't clip at low speeds since throttle_prob doesn't account for creep
     self.allow_throttle = throttle_prob > ALLOW_THROTTLE_THRESHOLD or v_ego <= MIN_ALLOW_THROTTLE_SPEED
+
     # FrogPilot variables
     self.allow_throttle &= not sm['frogpilotCarState'].forceCoast
 
-    # FrogPilot variables
     mpc_accel_max = max(accel_clip[1], 0.0) if sm['radarState'].leadOne.status or sm['radarState'].leadTwo.status else accel_clip[1]
 
     if not self.allow_throttle:
@@ -220,7 +217,7 @@ class LongitudinalPlanner:
     self.output_a_target = np.clip(output_a_target, accel_clip[0], accel_clip[1])
     self.prev_accel_clip = accel_clip
 
-  def publish(self, sm, pm, frogpilot_toggles):
+  def publish(self, sm, pm):
     plan_send = messaging.new_message('longitudinalPlan')
 
     plan_send.valid = sm.all_checks(service_list=['carState', 'controlsState', 'selfdriveState', 'radarState'])
@@ -234,7 +231,7 @@ class LongitudinalPlanner:
     longitudinalPlan.accels = self.a_desired_trajectory.tolist()
     longitudinalPlan.jerks = self.j_desired_trajectory.tolist()
 
-    longitudinalPlan.hasLead = sm['modelV2'].leadsV3[0].prob > frogpilot_toggles.lead_detection_probability
+    longitudinalPlan.hasLead = sm['radarState'].leadOne.status
     longitudinalPlan.longitudinalPlanSource = self.mpc.source
     longitudinalPlan.fcw = self.fcw
 

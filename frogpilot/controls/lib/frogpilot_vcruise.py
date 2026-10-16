@@ -45,8 +45,6 @@ class FrogPilotVCruise:
     self.csc_active = self.csc_target < v_cruise
 
     # Pfeiferj's Speed Limit Controller
-    self.slc.frogpilot_toggles = frogpilot_toggles
-
     if frogpilot_toggles.speed_limit_controller:
       self.slc.update_limits(self.frogpilot_planner.gps_position, now, time_validated, v_ego, sm)
       self.slc.update_override(v_cruise_cluster, v_ego_cluster, sm)
@@ -86,8 +84,7 @@ class FrogPilotVCruise:
     return v_cruise
 
   def update_force_stop(self, long_control_active, v_ego, sm, frogpilot_toggles):
-    if (not sm["selfdriveState"].enabled or sm["frogpilotCarState"].pauseLongitudinal or
-        not frogpilot_toggles.force_stops or sm["frogpilotCarState"].trafficModeEnabled):
+    if not sm["selfdriveState"].enabled or sm["frogpilotCarState"].pauseLongitudinal or sm["frogpilotCarState"].trafficModeEnabled or not frogpilot_toggles.force_stops:
       self.forcing_stop = False
       self.override_force_stop = False
 
@@ -123,7 +120,7 @@ class FrogPilotVCruise:
         self.stop_distance = model_stop_distance
       return
 
-    if stop_detected and long_control_active and not sm["carState"].standstill:
+    if stop_detected and not sm["carState"].standstill:
       self.force_stop_timer += DT_MDL
 
       if self.force_stop_timer >= 0.5:

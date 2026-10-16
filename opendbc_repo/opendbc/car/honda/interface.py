@@ -94,10 +94,10 @@ class CarInterface(CarInterfaceBase):
       ret.longitudinalTuning.kiBP = [0., 5., 35.]
       ret.longitudinalTuning.kiV = [1.2, 0.8, 0.5]
 
-    # Disable control if EPS mod detected
+    eps_modified = False
     for fw in car_fw:
       if fw.ecu == "eps" and b"," in fw.fwVersion:
-        ret.dashcamOnly = True
+        eps_modified = True
 
     if candidate == CAR.HONDA_CIVIC:
       ret.lateralParams.torqueBP, ret.lateralParams.torqueV = [[0, 2560], [0, 2560]]
@@ -202,6 +202,30 @@ class CarInterface(CarInterfaceBase):
       ret.steerActuatorDelay = 0.15
       ret.lateralParams.torqueBP, ret.lateralParams.torqueV = [[0, 2560], [0, 2560]]
       CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
+
+    # FrogPilot variables
+    if eps_modified:
+      if candidate == CAR.HONDA_ACCORD:
+        ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.3], [0.09]]
+      elif candidate == CAR.HONDA_CIVIC:
+        ret.lateralParams.torqueBP, ret.lateralParams.torqueV = [[0, 2560, 8000], [0, 2560, 3840]]
+        ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.3], [0.1]]
+      elif candidate == CAR.HONDA_CIVIC_BOSCH:
+        ret.lateralParams.torqueBP, ret.lateralParams.torqueV = [[0, 2564, 8000], [0, 2564, 3840]]
+        ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.3], [0.09]]
+      elif candidate == CAR.HONDA_CLARITY:
+        if any(fw.ecu == "eps" and b"-" not in fw.fwVersion for fw in car_fw):
+          ret.lateralParams.torqueBP, ret.lateralParams.torqueV = [[0, 2560, 15360], [0, 2560, 3840]]
+          ret.lateralTuning.pid.kf = 0.00004
+          ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.1575], [0.05175]]
+        else:
+          ret.lateralParams.torqueBP, ret.lateralParams.torqueV = [[0, 2560, 10240], [0, 2560, 3840]]
+          ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.3], [0.1]]
+      elif candidate == CAR.HONDA_CRV_5G:
+        ret.lateralParams.torqueBP, ret.lateralParams.torqueV = [[0, 2560, 10000], [0, 2560, 3840]]
+        ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.21], [0.07]]
+      else:
+        ret.dashcamOnly = True
 
     # These cars use alternate user brake msg (0x1BE)
     if 0x1BE in fingerprint[CAN.pt] and candidate in (CAR.HONDA_ACCORD, CAR.HONDA_HRV_3G, *HONDA_BOSCH_CANFD):

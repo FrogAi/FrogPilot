@@ -1,0 +1,15 @@
+.model-row .btn-in-use, .model-row [data-act="models-use"] { min-width: 7em; }
+.model-row .acts { display: grid; grid-template-columns: auto 40px 40px; }
+.model-row .acts > .btn { grid-column: 1; }
+.model-row .acts > .icon-btn { grid-column: 3; }
+.model-row .acts > .menu-wrap { grid-column: 2; }
+.model-row.in-use { background: color-mix(in srgb, var(--pond) 7%, transparent); }
+.model-row.in-use, .model-row.in-use + .list-row { border-top-color: transparent; }
+.models-list { margin-top: 10px; }
+.models-random { font-size: 14.5px; }
+.models-ratings { margin-left: auto; }
+.switch:has(input:disabled) { cursor: default; }
+
+@media (max-width: 719px) {
+  .model-row .acts { grid-template-columns: auto 44px 44px; justify-content: start; }
+}

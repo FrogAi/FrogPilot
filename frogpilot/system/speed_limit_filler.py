@@ -36,7 +36,7 @@ class SpeedLimitFiller:
 
     self.map_schema = capnp.load(str(Path(__file__).parent / "offline_maps.capnp"))
 
-    self.speed_limits = {(limit["segment_id"], limit["is_forward"]): limit for limit in self.params.get("SpeedLimits") or []}
+    self.load_speed_limits()
 
     self.upload_pending = True
 
@@ -46,12 +46,15 @@ class SpeedLimitFiller:
 
     self.prune_speed_limits()
 
+  def load_speed_limits(self):
+    self.speed_limits = {(limit["segment_id"], limit["is_forward"]): limit for limit in self.params.get("SpeedLimits") or []}
+
   def log_speed_limit(self):
     gps_location = self.sm[self.gps_service]
-    gps_valid = frogpilot_utilities.is_gps_location_valid(gps_location, self.gps_service, self.sm)
+    gps_valid = frogpilot_utilities.is_gps_location_valid(self.gps_service, self.sm)
     mapd_out = self.sm["mapdOut"]
 
-    if not frogpilot_utilities.is_mapd_data_valid(mapd_out, gps_valid, self.sm):
+    if not frogpilot_utilities.is_mapd_data_valid(gps_valid, self.sm):
       return
 
     if mapd_out.waySelectionType != custom.WaySelectionType.current:
@@ -76,15 +79,15 @@ class SpeedLimitFiller:
         tile=[math.floor(gps_location.latitude * 4) / 4, math.floor(gps_location.longitude * 4) / 4],
       )
 
-    dash_speed_limit = self.sm["frogpilotCarState"].dashboardSpeedLimit
+    dashboard_speed_limit = self.sm["frogpilotCarState"].dashboardSpeedLimit
     mapbox_speed_limit = self.sm["frogpilotPlan"].slcMapboxSpeedLimit
 
     mapbox_matches = self.sm["frogpilotPlan"].slcMapboxWayId == way_id and self.sm["frogpilotPlan"].slcMapboxIsForward == is_forward
 
-    if dash_speed_limit >= 1:
-      self.visit.readings["Dashboard", dash_speed_limit] += gps_location.speed
+    if dashboard_speed_limit >= 1:
+      self.visit.readings[frogpilot_variables.SPEED_LIMIT_SOURCES["DASHBOARD"], dashboard_speed_limit] += gps_location.speed
     elif mapbox_matches and mapbox_speed_limit >= 1:
-      self.visit.readings["Mapbox", mapbox_speed_limit] += gps_location.speed
+      self.visit.readings[frogpilot_variables.SPEED_LIMIT_SOURCES["MAPBOX"], mapbox_speed_limit] += gps_location.speed
 
   def finish_visit(self):
     visit = self.visit
@@ -93,7 +96,7 @@ class SpeedLimitFiller:
     if visit is None or not visit.readings:
       return
 
-    dashboard_readings = [reading for reading in visit.readings if reading[0] == "Dashboard"]
+    dashboard_readings = [reading for reading in visit.readings if reading[0] == frogpilot_variables.SPEED_LIMIT_SOURCES["DASHBOARD"]]
     source, new_limit = max(dashboard_readings or visit.readings, key=visit.readings.get)
 
     existing_limit = self.speed_limits.get(visit.key)
@@ -103,7 +106,8 @@ class SpeedLimitFiller:
         if existing_limit is None and len(self.speed_limits) >= MAX_ENTRIES:
           del self.speed_limits[next(iter(self.speed_limits))]
 
-        self.speed_limits[visit.key] = {"source": source, "speed_limit": new_limit, "tile": visit.tile}
+        frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(self.sm)
+        self.speed_limits[visit.key] = {"shareable": frogpilot_toggles.speed_limit_filler_share_data, "source": source, "speed_limit": new_limit, "tile": visit.tile}
 
         self.save_speed_limits()
     elif visit.map_speed_limit >= 1 and existing_limit is not None:
@@ -170,7 +174,7 @@ class SpeedLimitFiller:
       "segment_id": way_id,
       "source": limit["source"],
       "speed_limit": limit["speed_limit"],
-    } for (way_id, is_forward), limit in sorted(self.speed_limits.items()) if limit["speed_limit"] <= MAX_UPLOAD_SPEED_LIMIT]
+    } for (way_id, is_forward), limit in sorted(self.speed_limits.items()) if limit.get("shareable") and limit["speed_limit"] <= MAX_UPLOAD_SPEED_LIMIT]
     body = json.dumps({"speed_limits": speed_limits}, separators=(",", ":")).encode()
     digest = hashlib.sha256(body).hexdigest()
 
@@ -181,7 +185,7 @@ class SpeedLimitFiller:
 
     response = self.frogpilot_api.post_gzip("/v1/speed-limits", body, timeout=10)
 
-    if response is not None and 200 <= response.status_code < 300:
+    if self.frogpilot_api.succeeded(response):
       self.params.put("SpeedLimitsUploadedHash", digest)
     else:
       self.upload_pending = True
@@ -203,6 +207,7 @@ class SpeedLimitFiller:
       return
 
     self.upload_pending = False
+    self.load_speed_limits()
     self.send_speed_limits()
 
     self.last_upload_time = time.monotonic()
@@ -213,6 +218,9 @@ class SpeedLimitFiller:
     started = self.sm["deviceState"].started
 
     if started:
+      if not self.started_previously:
+        self.load_speed_limits()
+
       self.log_speed_limit()
     else:
       if self.started_previously:

@@ -70,11 +70,8 @@ void DriverMonitorRenderer::draw(QPainter &painter, const QRect &surface_rect) {
 
   // FrogPilot variables
   if (frogpilot_toggles.value(QLatin1String("onroad_distance_button")).toBool()) {
-    if (is_rhd) {
-      x -= UI_BORDER_SIZE + (btn_size + UI_BORDER_SIZE) + UI_BORDER_SIZE;
-    } else {
-      x += UI_BORDER_SIZE + (btn_size + UI_BORDER_SIZE) + UI_BORDER_SIZE;
-    }
+    int shift = UI_BORDER_SIZE + personality_button_width + UI_BORDER_SIZE;
+    x += is_rhd ? -shift : shift;
   }
 
   if (frogpilot_toggles.value(QLatin1String("road_name_ui")).toBool()) {

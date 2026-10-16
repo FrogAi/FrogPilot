@@ -15,6 +15,7 @@ from openpilot.system.ui.widgets.label import gui_label, gui_text_box
 
 USERDATA = "/dev/disk/by-partlabel/userdata"
 TIMEOUT = 3*60
+
 # FrogPilot variables
 NVME = "/dev/nvme0n1"
 

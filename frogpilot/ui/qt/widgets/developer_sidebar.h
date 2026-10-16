@@ -1,6 +1,6 @@
 #pragma once
 
-#include "selfdrive/ui/qt/sidebar.h"
+#include "selfdrive/ui/ui.h"
 
 class DeveloperSidebar : public QFrame {
   Q_OBJECT
@@ -15,10 +15,10 @@ private:
   void updateState(const UIState &s, const FrogPilotUIState &fs);
   void updateToggles();
 
-  double lateralEngagementTime;
-  double longitudinalEngagementTime;
-  double maxAcceleration;
-  double totalEngagementTime;
+  double lateralEngagedFrames = 0;
+  double longitudinalEngagedFrames = 0;
+  double maxAcceleration = 0;
+  double totalFrames = 0;
 
   int maxSteerAngle = 0;
   int maxTorque = 0;

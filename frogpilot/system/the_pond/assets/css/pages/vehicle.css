@@ -1,0 +1,4 @@
+.vehicle-doors { grid-column: 1 / -1; }
+.vehicle-doors .acts { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
+.vehicle-doors .panel-head { flex-wrap: wrap; font-size: 14px; }
+.vehicle-resets { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }

@@ -1,0 +1,306 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <path id="curve-p0" d="M26 185.7L27.1 181.9L28.3 177.8L29.5 173.7L30.7 169.7L32 165.7L33.3 161.7L34.6 157.8L36 153.9L37.5 150L39 146.2L40.5 142.4L42.1 138.7L43.8 135L45.5 131.3L47.2 127.7L49.1 124.1L50.9 120.6L52.9 117.1L54.8 113.6L56.9 110.3L59 106.9L61.2 103.7L63.4 100.5L65.7 97.3L68.1 94.3L70.5 91.3L73 88.3L75.6 85.5L78.2 82.7L80.9 80.1L83.7 77.5L86.5 75L89.4 72.6L92.3 70.3L95.3 68.1L98.3 66L101.4 64.1L104.5 62.2L107.6 60.5L110.8 58.8L114.1 57.3L117.3 55.9L120.6 54.6L123.9 53.4L127.2 52.4L130.5 51.4L133.8 50.6L137.2 49.9L140.6 49.2L143.9 48.7L147.3 48.3L150.7 47.9L154.1 47.7L157.5 47.5L160.9 47.4L164.4 47.4L167.8 47.5L171.3 47.7L174.7 47.9L178.2 48.2L181.8 63.8L179.1 65.6L176.6 67.3L174.3 69.2L172 71L169.9 72.9L167.9 74.8L166 76.7L164.3 78.7L162.7 80.6L161.2 82.6L159.8 84.5L158.5 86.5L157.4 88.5L156.4 90.4L155.5 92.4L154.7 94.3L154 96.2L153.5 98.1L153 100L152.6 101.9L152.3 103.8L152 105.6L151.9 107.5L151.8 109.3L151.8 111.1L151.8 112.9L152 114.6L152.1 116.4L152.3 118.2L152.6 119.9L152.9 121.7L153.2 123.5L153.6 125.3L154 127.1L154.4 128.9L154.9 130.7L155.4 132.6L155.9 134.5L156.5 136.4L157 138.3L157.6 140.3L158.3 142.3L158.9 144.4L159.6 146.5L160.3 148.6L161.1 150.7L161.8 153L162.6 155.2L163.4 157.5L164.3 159.9L165.1 162.2L166 164.7L166.9 167.2L167.8 169.7L168.8 172.3L169.8 174.9L170.8 177.6L171.8 180.4L172.9 183.2L174 186.3Z" fill="#3a3f47" stroke="#3a3f47" stroke-linejoin="round" stroke-width="11"/>
+    <path id="curve-p1" d="M26 185.7L27.1 181.9L28.3 177.8L29.5 173.7L30.7 169.7L32 165.7L33.3 161.7L34.6 157.8L36 153.9L37.5 150L39 146.2L40.5 142.4L42.1 138.7L43.8 135L45.5 131.3L47.2 127.7L49.1 124.1L50.9 120.6L52.9 117.1L54.8 113.6L56.9 110.3L59 106.9L61.2 103.7L63.4 100.5L65.7 97.3L68.1 94.3L70.5 91.3L73 88.3L75.6 85.5L78.2 82.7L80.9 80.1L83.7 77.5L86.5 75L89.4 72.6L92.3 70.3L95.3 68.1L98.3 66L101.4 64.1L104.5 62.2L107.6 60.5L110.8 58.8L114.1 57.3L117.3 55.9L120.6 54.6L123.9 53.4L127.2 52.4L130.5 51.4L133.8 50.6L137.2 49.9L140.6 49.2L143.9 48.7L147.3 48.3L150.7 47.9L154.1 47.7L157.5 47.5L160.9 47.4L164.4 47.4L167.8 47.5L171.3 47.7L174.7 47.9L178.2 48.2" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="11"/>
+    <path id="curve-p2" d="M174 186.3L172.9 183.2L171.8 180.4L170.8 177.6L169.8 174.9L168.8 172.3L167.8 169.7L166.9 167.2L166 164.7L165.1 162.2L164.3 159.9L163.4 157.5L162.6 155.2L161.8 153L161.1 150.7L160.3 148.6L159.6 146.5L158.9 144.4L158.3 142.3L157.6 140.3L157 138.3L156.5 136.4L155.9 134.5L155.4 132.6L154.9 130.7L154.4 128.9L154 127.1L153.6 125.3L153.2 123.5L152.9 121.7L152.6 119.9L152.3 118.2L152.1 116.4L152 114.6L151.8 112.9L151.8 111.1L151.8 109.3L151.9 107.5L152 105.6L152.3 103.8L152.6 101.9L153 100L153.5 98.1L154 96.2L154.7 94.3L155.5 92.4L156.4 90.4L157.4 88.5L158.5 86.5L159.8 84.5L161.2 82.6L162.7 80.6L164.3 78.7L166 76.7L167.9 74.8L169.9 72.9L172 71L174.3 69.2L176.6 67.3L179.1 65.6L181.8 63.8" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="11"/>
+    <path id="curve-p3" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="34" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p4" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="30.6" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p5" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="27.4" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p6" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="24.5" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p7" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="21.8" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p8" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="19.3" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p9" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="17" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p10" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="14.8" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p11" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="12.9" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p12" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="11.2" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p13" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="9.6" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p14" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="8.1" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p15" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="6.8" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p16" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="5.7" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p17" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="4.7" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p18" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="3.8" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p19" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="3.1" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p20" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="2.4" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p21" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="1.9" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p22" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="1.4" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p23" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="1" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p24" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset=".7" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p25" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset=".5" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p26" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset=".3" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p27" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset=".2" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p28" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset=".1" stroke-linecap="round" stroke-width="7"/>
+    <path id="curve-p29" d="M100 186L100 182.5L100.1 179.1L100.1 175.7L100.2 172.3L100.4 169L100.6 165.7L100.8 162.5L101 159.3L101.3 156.1L101.6 153L102 150L102.4 146.9L102.8 144L103.3 141L103.8 138.1L104.3 135.3L104.9 132.5L105.6 129.7L106.2 127L107 124.3L107.7 121.7L108.5 119.1L109.4 116.5L110.3 114L111.3 111.6L112.3 109.2L113.3 106.8L114.4 104.5L115.6 102.2L116.8 100L118 97.8L119.3 95.7L120.7 93.6L122.1 91.6L123.5 89.6L125.1 87.6L126.6 85.8L128.3 83.9L130 82.1L131.7 80.4L133.5 78.7L135.4 77L137.3 75.4L139.3 73.9L141.3 72.4L143.5 70.9L145.6 69.5L147.9 68.2L150.2 66.9L152.5 65.6L155 64.4L157.5 63.3L160.1 62.2L162.7 61.2L165.4 60.2L168.2 59.2L171 58.3L173.9 57.5L176.9 56.7L180 56" fill="none" stroke="#ffd60a" stroke-dasharray="16 18" stroke-dashoffset="0" stroke-linecap="round" stroke-width="7"/>
+  </defs>
+  <g id="frames" data-loop="false">
+    <g id="frame-0" data-ms="40">
+      <animate attributeName="display" values="inline;none" keyTimes="0;0.0185" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p3"/>
+      </g>
+    </g>
+    <g id="frame-1" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.0185;0.037" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p4"/>
+      </g>
+    </g>
+    <g id="frame-2" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.037;0.0556" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p5"/>
+      </g>
+    </g>
+    <g id="frame-3" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.0556;0.0741" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p6"/>
+      </g>
+    </g>
+    <g id="frame-4" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.0741;0.0926" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p7"/>
+      </g>
+    </g>
+    <g id="frame-5" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.0926;0.1111" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p8"/>
+      </g>
+    </g>
+    <g id="frame-6" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1111;0.1296" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p9"/>
+      </g>
+    </g>
+    <g id="frame-7" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1296;0.1481" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p10"/>
+      </g>
+    </g>
+    <g id="frame-8" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1481;0.1667" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p11"/>
+      </g>
+    </g>
+    <g id="frame-9" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1667;0.1852" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p12"/>
+      </g>
+    </g>
+    <g id="frame-10" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1852;0.2037" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p13"/>
+      </g>
+    </g>
+    <g id="frame-11" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2037;0.2222" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p14"/>
+      </g>
+    </g>
+    <g id="frame-12" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2222;0.2407" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p15"/>
+      </g>
+    </g>
+    <g id="frame-13" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2407;0.2593" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p16"/>
+      </g>
+    </g>
+    <g id="frame-14" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2593;0.2778" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p17"/>
+      </g>
+    </g>
+    <g id="frame-15" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2778;0.2963" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p18"/>
+      </g>
+    </g>
+    <g id="frame-16" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2963;0.3148" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p19"/>
+      </g>
+    </g>
+    <g id="frame-17" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3148;0.3333" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p20"/>
+      </g>
+    </g>
+    <g id="frame-18" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3333;0.3519" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p21"/>
+      </g>
+    </g>
+    <g id="frame-19" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3519;0.3704" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p22"/>
+      </g>
+    </g>
+    <g id="frame-20" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3704;0.3889" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p23"/>
+      </g>
+    </g>
+    <g id="frame-21" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3889;0.4074" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p24"/>
+      </g>
+    </g>
+    <g id="frame-22" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.4074;0.4259" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p25"/>
+      </g>
+    </g>
+    <g id="frame-23" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.4259;0.4444" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p26"/>
+      </g>
+    </g>
+    <g id="frame-24" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.4444;0.463" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p27"/>
+      </g>
+    </g>
+    <g id="frame-25" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.463;0.4815" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p28"/>
+      </g>
+    </g>
+    <g id="frame-26" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.4815;0.5" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p29"/>
+      </g>
+    </g>
+    <g id="frame-27" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.5;0.5185" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p29"/>
+      </g>
+    </g>
+    <g id="frame-28" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.5185;0.537" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p29"/>
+      </g>
+    </g>
+    <g id="frame-29" data-ms="1000">
+      <animate attributeName="display" values="none;inline" keyTimes="0;0.537" dur="2160ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.958 0 0 .958 .5 -11.9)">
+      <use xlink:href="#curve-p0"/>
+      <use xlink:href="#curve-p1"/>
+      <use xlink:href="#curve-p2"/>
+      <use xlink:href="#curve-p29"/>
+      </g>
+    </g>
+  </g>
+</svg>

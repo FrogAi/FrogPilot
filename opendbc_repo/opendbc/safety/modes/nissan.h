@@ -130,6 +130,7 @@ static safety_config nissan_init(uint16_t param) {
     {.msg = {{0x454, 0, 8, 10U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true},
              {0x454, 1, 8, 10U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true},
              {0x1cc, 0, 4, 100U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}}}, // DOORS_LIGHTS / BRAKE
+
     // FrogPilot variables
     {.msg = {{0x1B6, 1, 8, 100U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true},
              {0x1B6, 2, 8, 100U, .ignore_checksum = true, .ignore_counter = true, .ignore_quality_flag = true}, { 0 }}}, // PRO_PILOT

@@ -23,9 +23,6 @@ from openpilot.system.loggerd.uploader import listdir_by_creation
 from openpilot.system.loggerd.xattr_cache import getxattr, setxattr
 
 from openpilot.frogpilot.common import frogpilot_api, frogpilot_utilities, frogpilot_variables
-from openpilot.frogpilot.system.speed_limit_capture import CAPTURES_PATH
-
-LOG_ROOTS = [Path("/data/media/0", name) for name in ("realdata", "realdata_HD", "realdata_konik")]
 
 MAX_LOG_SIZE = 256 * 1024 * 1024
 
@@ -101,6 +98,7 @@ WHITELIST_FIELDS = {
   "initData": ("deviceType", "dirty", "gitCommit", "gitCommitDate", "osVersion", "version"),
 }
 
+
 def filter_log(data, schema):
   car_fingerprint = None
 
@@ -164,6 +162,7 @@ def filter_log(data, schema):
 
   return car_fingerprint, filtered_data
 
+
 class FrogPilotTelemetry:
   def __init__(self):
     self.params = Params()
@@ -198,16 +197,21 @@ class FrogPilotTelemetry:
     self.first_segment = None
 
     if self.route is not None:
-      for log_root in LOG_ROOTS:
+      for log_root in frogpilot_variables.LOG_ROOTS:
         for lock_path in log_root.glob(f"{self.route}--*/rlog.lock"):
           self.first_segment = int(lock_path.parent.name.rpartition("--")[2]) + 1
 
   def mark_shared_logs(self):
     if self.route is not None and self.first_segment is not None:
-      for log_root in LOG_ROOTS:
+      for log_root in frogpilot_variables.LOG_ROOTS:
         for segment_path in log_root.glob(f"{self.route}--*"):
-          finished = not (segment_path / "rlog.lock").exists()
-          if finished and int(segment_path.name.rpartition("--")[2]) >= self.first_segment and getxattr(segment_path, frogpilot_variables.UPLOAD_ATTR_NAME) is None:
+          if (segment_path / "rlog.lock").exists():
+            continue
+
+          if int(segment_path.name.rpartition("--")[2]) < self.first_segment:
+            continue
+
+          if getxattr(segment_path, frogpilot_variables.UPLOAD_ATTR_NAME) is None:
             setxattr(segment_path, frogpilot_variables.UPLOAD_ATTR_NAME, frogpilot_variables.UPLOAD_PENDING)
 
     route = self.params.get("CurrentRoute")
@@ -217,16 +221,11 @@ class FrogPilotTelemetry:
       self.first_segment = 0
 
   def pending(self):
-    paths = [Path(log_root, segment) for log_root in LOG_ROOTS for segment in listdir_by_creation(log_root)]
-    paths += sorted(CAPTURES_PATH.glob("*.hevc"))
+    paths = [Path(log_root, segment) for log_root in frogpilot_variables.LOG_ROOTS for segment in listdir_by_creation(log_root)]
+    paths += sorted(frogpilot_variables.SPEED_LIMIT_CAPTURES_PATH.glob("*.hevc"))
 
     for path in paths:
-      try:
-        pending = getxattr(path, frogpilot_variables.UPLOAD_ATTR_NAME) == frogpilot_variables.UPLOAD_PENDING
-      except OSError:
-        continue
-
-      if pending:
+      if frogpilot_utilities.has_pending_telemetry(path):
         yield path
 
   def schema(self, git_commit):
@@ -244,13 +243,14 @@ class FrogPilotTelemetry:
 
       descriptor = {**json.loads(path.with_suffix(".json").read_text()), "capture_id": self.upload_id(path.stem)}
       endpoint = "/v1/captures"
+      upload_kind = "capture"
     else:
       try:
         raw_data = self.decompressor.decompress((path / "rlog.zst").read_bytes(), max_output_size=MAX_LOG_SIZE)
         git_commit = next(log.Event.read_multiple_bytes(raw_data)).initData.gitCommit
         schema = self.schema(git_commit)
       except (OSError, StopIteration, capnp.KjException, zstandard.ZstdError):
-        return
+        return True
 
       car_fingerprint, filtered_data = filter_log(raw_data, schema)
       data = zstandard.ZstdCompressor(level=LOG_COMPRESSION_LEVEL).compress(filtered_data)
@@ -263,6 +263,7 @@ class FrogPilotTelemetry:
 
       descriptor = {"car_fingerprint": car_fingerprint, "route_id": self.upload_id(route), "segment": int(segment)}
       endpoint = "/v1/telemetry"
+      upload_kind = "telemetry"
 
     result = self.frogpilot_api.post_json(endpoint, {**descriptor, "sha256": hashlib.sha256(data).hexdigest(), "size_bytes": len(data)}, self.session)
 
@@ -270,7 +271,9 @@ class FrogPilotTelemetry:
       if not self.can_upload():
         return False
 
-      self.frogpilot_api.put_upload(result["upload"], data, path.name, self.session)
+      self.frogpilot_api.put_upload(result["upload"], data, path.name, upload_kind, self.session)
+
+    return True
 
   def can_upload(self):
     self.sm.update(0)
@@ -291,7 +294,7 @@ class FrogPilotTelemetry:
         return
 
       try:
-        if self.upload(path) is False:
+        if not self.upload(path):
           return
       except (frogpilot_api.FrogPilotAPIError, requests.exceptions.RequestException) as error:
         self.retry_at = time.monotonic() + 60 * 60

@@ -118,6 +118,7 @@ class Panda:
   HW_TYPE_TRES = b'\x09'
   HW_TYPE_CUATRO = b'\x0a'
   HW_TYPE_BODY = b'\xb1'
+
   # FrogPilot variables
   HW_TYPE_DOS = b'\x06'
 
@@ -128,8 +129,10 @@ class Panda:
   CAN_HEALTH_STRUCT = struct.Struct("<BIBBBBBBBBIIIIIIIHHBBBIIII")
 
   H7_DEVICES = [HW_TYPE_RED_PANDA, HW_TYPE_TRES, HW_TYPE_CUATRO, HW_TYPE_BODY]
+
   # FrogPilot variables
   F4_DEVICES = [HW_TYPE_DOS]
+
   SUPPORTED_DEVICES = H7_DEVICES + F4_DEVICES
 
   INTERNAL_DEVICES = (HW_TYPE_DOS, HW_TYPE_TRES, HW_TYPE_CUATRO)
@@ -137,6 +140,7 @@ class Panda:
   MAX_FAN_RPMs = {
     HW_TYPE_TRES: 6600,
     HW_TYPE_CUATRO: 5000,
+
     # FrogPilot variables
     HW_TYPE_DOS: 6500,
   }
@@ -630,6 +634,7 @@ class Panda:
 
   def get_type(self):
     ret = self._handle.controlRead(Panda.REQUEST_IN, 0xc1, 0, 0, 0x40)
+
     # FrogPilot variables
     # old bootstubs don't implement this endpoint, see comment in Panda.device
     if self._bcd_hw_type is not None and (ret is None or len(ret) != 1):
@@ -648,6 +653,7 @@ class Panda:
 
   def get_mcu_type(self) -> McuType:
     hw_type = self.get_type()
+
     # FrogPilot variables
     if hw_type in Panda.F4_DEVICES:
       return McuType.F4

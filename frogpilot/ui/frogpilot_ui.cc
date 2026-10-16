@@ -12,7 +12,6 @@ static void update_state(FrogPilotUIState *fs) {
 
   if (sm.updated("carState")) {
     const cereal::CarState::Reader &carState = sm["carState"].getCarState();
-    frogpilot_scene.parked = carState.getGearShifter() == cereal::CarState::GearShifter::PARK;
     frogpilot_scene.reverse = carState.getGearShifter() == cereal::CarState::GearShifter::REVERSE;
     frogpilot_scene.standstill = carState.getStandstill() && !frogpilot_scene.reverse;
   }
@@ -107,6 +106,14 @@ void FrogPilotUIState::cancelThemeDownload() {
   pm->send("frogpilotUIRequest", msg);
 }
 
+void FrogPilotUIState::createSettingsBackup(const QString &name) {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  event.initFrogpilotUIRequest().setCreateSettingsBackup(name.toStdString());
+  settings_backup_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
 void FrogPilotUIState::downloadAllModels() {
   MessageBuilder msg;
   cereal::Event::Builder event = msg.initEvent();
@@ -168,6 +175,14 @@ void FrogPilotUIState::reportIssue(const QString &report) {
   pm->send("frogpilotUIRequest", msg);
 }
 
+void FrogPilotUIState::restoreSettingsBackup(const QString &name) {
+  MessageBuilder msg;
+  cereal::Event::Builder event = msg.initEvent();
+  event.initFrogpilotUIRequest().setRestoreSettingsBackup(name.toStdString());
+  settings_backup_request_time = event.getLogMonoTime();
+  pm->send("frogpilotUIRequest", msg);
+}
+
 void FrogPilotUIState::runUpdateChecks() {
   MessageBuilder msg;
   msg.initEvent().initFrogpilotUIRequest().setUpdateChecks();
@@ -211,7 +226,6 @@ void FrogPilotUIState::update() {
   update_state(this);
 
   if (!uiState()->scene.started) {
-    frogpilot_scene.parked = false;
     frogpilot_scene.reverse = false;
     frogpilot_scene.standstill = false;
   }
@@ -219,7 +233,9 @@ void FrogPilotUIState::update() {
   const bool enabled = (*uiState()->sm)["selfdriveState"].getSelfdriveState().getEnabled();
   frogpilot_scene.always_on_lateral_active = !enabled && (*sm)["frogpilotCarState"].getFrogpilotCarState().getAlwaysOnLateralEnabled();
   frogpilot_scene.conditional_status = enabled ? (*sm)["frogpilotPlan"].getFrogpilotPlan().getCeStatus() : 0;
-  frogpilot_scene.driver_camera_timer = frogpilot_scene.reverse && frogpilot_scene.frogpilot_toggles.value(QLatin1String("driver_camera_in_reverse")).toBool() ? frogpilot_scene.driver_camera_timer + 1 : 0;
+  driver_camera_timer = frogpilot_scene.reverse && frogpilot_scene.frogpilot_toggles.value(QLatin1String("driver_camera_in_reverse")).toBool() ? driver_camera_timer + 1 : 0;
+  frogpilot_scene.driver_camera_active = driver_camera_timer >= UI_FREQ / 2;
+  frogpilot_scene.parked = !uiState()->scene.started || (*uiState()->sm)["carState"].getCarState().getGearShifter() == cereal::CarState::GearShifter::PARK || isFrogsGoMoo();
 }
 
 void FrogPilotUIState::updateToggles() {

@@ -20,6 +20,7 @@ def softmax(x, axis=-1, exp=safe_exp):
 class Parser:
   def __init__(self, ignore_missing=False, exp=safe_exp):
     self.ignore_missing = ignore_missing
+
     # FrogPilot variables
     self.exp = exp
 

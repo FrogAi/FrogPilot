@@ -9,15 +9,12 @@ from openpilot.system.loggerd.config import get_available_bytes, get_available_p
 from openpilot.system.loggerd.uploader import get_directory_sort, listdir_by_creation
 from openpilot.system.loggerd.xattr_cache import getxattr
 
-from openpilot.frogpilot.common import frogpilot_utilities
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 
 MIN_BYTES = 5 * 1024 * 1024 * 1024
 MIN_PERCENT = 10
 
 DELETE_LAST = ['boot', 'crash']
-
-# FrogPilot variables
-LOG_ROOTS = ['realdata', 'realdata_HD', 'realdata_konik']
 
 PRESERVE_ATTR_NAME = 'user.preserve'
 PRESERVE_ATTR_VALUE = b'1'
@@ -57,15 +54,18 @@ def deleter_thread(exit_event: threading.Event):
     out_of_percent = get_available_percent(default=MIN_PERCENT + 1) < MIN_PERCENT
 
     if out_of_percent or out_of_bytes:
-      media_root = Path(Paths.log_root()).parent
       # FrogPilot variables
-      log_roots = [os.path.join(media_root, root) for root in LOG_ROOTS]
+      if Path(Paths.log_root()) in frogpilot_variables.LOG_ROOTS:
+        log_roots = frogpilot_variables.LOG_ROOTS
+      else:
+        log_roots = [Paths.log_root()]
       dirs = [os.path.join(log_root, d) for log_root in log_roots for d in listdir_by_creation(log_root)]
       dirs.sort(key=lambda d: get_directory_sort(os.path.basename(d)))
+
       preserved_dirs = get_preserved_segments(dirs)
 
       # remove the earliest directory we can
-      for delete_path in sorted(dirs, key=lambda d: (os.path.basename(d) in DELETE_LAST, d in preserved_dirs, frogpilot_utilities.has_pending_telemetry(d))):
+      for delete_path in sorted(dirs, key=lambda d: (os.path.basename(d) in DELETE_LAST, d in preserved_dirs or frogpilot_utilities.is_route_preserved(d), frogpilot_utilities.has_pending_telemetry(d))):
         if any(name.endswith(".lock") for name in os.listdir(delete_path)):
           continue
 

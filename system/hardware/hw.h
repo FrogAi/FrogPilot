@@ -34,11 +34,11 @@ namespace Path {
 
     // FrogPilot variables
     if (std::filesystem::exists("/cache/use_HD")) {
-      return "/data/media/0/realdata_HD/";
+      return "/data/media/0/realdata_HD";
     }
 
     if (std::filesystem::exists("/cache/use_konik")) {
-      return "/data/media/0/realdata_konik/";
+      return "/data/media/0/realdata_konik";
     }
 
     return "/data/media/0/realdata";

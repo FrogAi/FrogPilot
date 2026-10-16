@@ -10,13 +10,12 @@ static QLabel *newLabel(const QString &text, const QString &type) {
 
 DriveStats::DriveStats(QWidget *parent) : QFrame(parent) {
   isMetric = params.getBool("IsMetric");
-  konik = useKonikServer();
 
   QVBoxLayout *main_layout = new QVBoxLayout(this);
   main_layout->setContentsMargins(50, 25, 50, 20);
 
-  addStatsLayouts(konik ? tr("ALL TIME (KONIK)") : tr("ALL TIME"), all);
-  addStatsLayouts(konik ? tr("PAST WEEK (KONIK)") : tr("PAST WEEK"), week);
+  addStatsLayouts(useKonikServer() ? tr("ALL TIME (KONIK)") : tr("ALL TIME"), all);
+  addStatsLayouts(useKonikServer() ? tr("PAST WEEK (KONIK)") : tr("PAST WEEK"), week);
   addStatsLayouts(tr("FROGPILOT"), frogPilot, true);
 
   std::optional<QString> dongleId = getDongleId();
@@ -80,7 +79,7 @@ void DriveStats::parseResponse(const QString &response, bool success) {
   stats = doc;
 
   const QJsonValue minutes = doc.object()["all"].toObject()["minutes"];
-  const char *minutesKey = konik ? "KonikMinutes" : "openpilotMinutes";
+  const char *minutesKey = useKonikServer() ? "KonikMinutes" : "openpilotMinutes";
   if (minutes.isDouble() && params.getInt(minutesKey) != int(minutes.toDouble())) {
     params.putIntNonBlocking(minutesKey, minutes.toDouble());
   }

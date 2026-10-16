@@ -32,8 +32,6 @@ from opendbc.can import CANParser
 GearShifter = structs.CarState.GearShifter
 ButtonType = structs.CarState.ButtonEvent.Type
 
-# FrogPilot variables
-
 V_CRUISE_MAX = 145
 MAX_CTRL_SPEED = (V_CRUISE_MAX + 4) * CV.KPH_TO_MS
 ACCEL_MAX = 2.0
@@ -173,8 +171,6 @@ class CarInterfaceBase(ABC):
     ret.tireStiffnessFront, ret.tireStiffnessRear = scale_tire_stiffness(ret.mass, ret.wheelbase, ret.centerToFront, ret.tireStiffnessFactor)
 
     # FrogPilot variables
-    if candidate == SUBARU.SUBARU_IMPREZA:
-      ret.safetyConfigs[0].safetyParam |= SubaruSafetyFlags.RAISED_STEER_LIMIT.value
 
     return ret
 
@@ -182,7 +178,6 @@ class CarInterfaceBase(ABC):
   @classmethod
   def get_frogpilot_params(cls, candidate: str, fingerprint: dict[int, dict[int, int]], car_fw: list[structs.CarParams.CarFw], CP: structs.CarParams, frogpilot_toggles: SimpleNamespace):
     fp_ret = custom.FrogPilotCarParams.new_message()
-    fp_ret.dashcamOnly = CP.dashcamOnly and (CP.brand in ("honda", "hyundai", "volkswagen") or (CP.brand == "subaru" and bool(CP.flags & SubaruFlags.HYBRID)))
 
     platform = PLATFORMS[candidate]
 
@@ -193,7 +188,7 @@ class CarInterfaceBase(ABC):
 
       if platform in CHRYSLER:
         if candidate == CHRYSLER.RAM_HD_5TH_GEN:
-          if 570 not in fingerprint[0]:
+          if 0x23A not in fingerprint[0]:
             fp_ret.flags |= ChryslerFrogPilotFlags.RAM_HD_ALT_BUTTONS.value
 
       elif platform in FORD:
@@ -240,7 +235,7 @@ class CarInterfaceBase(ABC):
         if 0x23 in fingerprint[0]:
           fp_ret.flags |= ToyotaFrogPilotFlags.ZSS.value
 
-        if (not fp_ret.flags & ToyotaFrogPilotFlags.SMART_DSU.value and candidate not in (NO_DSU_CAR | UNSUPPORTED_DSU_CAR) and frogpilot_toggles.toyota_dsu_bypass):
+        if not fp_ret.flags & ToyotaFrogPilotFlags.SMART_DSU.value and candidate not in (NO_DSU_CAR | UNSUPPORTED_DSU_CAR) and frogpilot_toggles.toyota_dsu_bypass:
           fp_ret.flags |= ToyotaFrogPilotFlags.DSU_BYPASS.value
 
     return fp_ret

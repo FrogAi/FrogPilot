@@ -9,7 +9,7 @@ from types import SimpleNamespace
 from cereal import log, car, custom
 import cereal.messaging as messaging
 from opendbc.car.chrysler.values import RAM_DT
-from opendbc.car.gm.values import GMFlags
+from opendbc.car.gm.values import CC_ONLY_CAR, GMFlags
 from openpilot.common.constants import CV
 from openpilot.common.git import get_short_branch
 from openpilot.common.params import Params
@@ -19,6 +19,8 @@ from openpilot.system.micd import SAMPLE_RATE, SAMPLE_BUFFER
 from openpilot.selfdrive.ui.feedback.feedbackd import FEEDBACK_MAX_DURATION
 from openpilot.system.hardware import HARDWARE
 
+from openpilot.frogpilot.common import frogpilot_variables
+
 AlertSize = log.SelfdriveState.AlertSize
 AlertStatus = log.SelfdriveState.AlertStatus
 VisualAlert = car.CarControl.HUDControl.VisualAlert
@@ -27,7 +29,7 @@ EventName = log.OnroadEvent.EventName
 
 # FrogPilot variables
 FrogPilotAlertStatus = custom.FrogPilotSelfdriveState.AlertStatus
-FrogPilotAudibleAlert = custom.FrogPilotCarControl.HUDControl.AudibleAlert
+FrogPilotAudibleAlert = custom.FrogPilotSelfdriveState.AudibleAlert
 FrogPilotEventName = custom.FrogPilotOnroadEvent.EventName
 
 
@@ -64,12 +66,13 @@ FROGPILOT_EVENT_NAME = {v: k for k, v in FrogPilotEventName.schema.enumerants.it
 
 class Events:
   def __init__(self, frogpilot=False):
+    self.event_names = FROGPILOT_EVENT_NAME if frogpilot else EVENT_NAME
+    self.event_struct = custom.FrogPilotOnroadEvent if frogpilot else log.OnroadEvent
+    self.event_table = FROGPILOT_EVENTS if frogpilot else EVENTS
+
     self.events: list[int] = []
     self.static_events: list[int] = []
-    self.event_counters = dict.fromkeys((FROGPILOT_EVENTS if frogpilot else EVENTS).keys(), 0)
-
-    # FrogPilot variables
-    self.frogpilot = frogpilot
+    self.event_counters = dict.fromkeys(self.event_table.keys(), 0)
 
   @property
   def names(self) -> list[int]:
@@ -88,12 +91,12 @@ class Events:
     self.events = self.static_events.copy()
 
   def contains(self, event_type: str) -> bool:
-    return any(event_type in (FROGPILOT_EVENTS if self.frogpilot else EVENTS).get(e, {}) for e in self.events)
+    return any(event_type in self.event_table.get(e, {}) for e in self.events)
 
   # FrogPilot variables
   def contains_disable_event(self) -> bool:
     for e in self.events:
-      event_types = (FROGPILOT_EVENTS if self.frogpilot else EVENTS)[e]
+      event_types = self.event_table[e]
       if ET.NO_ENTRY in event_types and (ET.SOFT_DISABLE in event_types or ET.IMMEDIATE_DISABLE in event_types):
         return True
     return False
@@ -104,15 +107,15 @@ class Events:
 
     ret = []
     for e in self.events:
-      types = (FROGPILOT_EVENTS if self.frogpilot else EVENTS)[e].keys()
+      types = self.event_table[e].keys()
       for et in event_types:
         if et in types:
-          alert = (FROGPILOT_EVENTS if self.frogpilot else EVENTS)[e][et]
+          alert = self.event_table[e][et]
           if not isinstance(alert, Alert):
             alert = alert(*callback_args)
 
           if DT_CTRL * (self.event_counters[e] + 1) >= alert.creation_delay:
-            alert.alert_type = f"{(FROGPILOT_EVENT_NAME if self.frogpilot else EVENT_NAME)[e]}/{et}"
+            alert.alert_type = f"{self.event_names[e]}/{et}"
             alert.event_type = et
             ret.append(alert)
     return ret
@@ -124,9 +127,9 @@ class Events:
   def to_msg(self):
     ret = []
     for event_name in self.events:
-      event = (custom.FrogPilotOnroadEvent if self.frogpilot else log.OnroadEvent).new_message()
+      event = self.event_struct.new_message()
       event.name = event_name
-      for event_type in (FROGPILOT_EVENTS if self.frogpilot else EVENTS).get(event_name, {}):
+      for event_type in self.event_table.get(event_name, {}):
         setattr(event, event_type, True)
       ret.append(event)
     return ret
@@ -382,7 +385,7 @@ def wrong_car_mode_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubM
   if CP.brand == "honda":
     text = "Enable Main Switch to Engage"
   # FrogPilot variables
-  elif CP.brand == "gm" and CP.flags & GMFlags.CC_LONG:
+  elif CP.carFingerprint in CC_ONLY_CAR and not CP.flags & GMFlags.PEDAL_LONG:
     text = "Enable Cruise Control to Engage"
   return NoEntryAlert(text)
 
@@ -429,9 +432,9 @@ def forcing_stop_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMas
   if CS.standstill:
     stop_message = "Holding at a forced stop"
   else:
-    model_length = sm["frogpilotPlan"].forcingStopLength
-    model_length_msg = f"{model_length:.1f} meters" if metric else f"{model_length * CV.METER_TO_FOOT:.1f} feet"
-    stop_message = f"Stopping in {model_length_msg}"
+    stop_distance = sm["frogpilotPlan"].forcingStopLength
+    stop_distance_text = f"{stop_distance:.1f} meters" if metric else f"{stop_distance * CV.METER_TO_FOOT:.1f} feet"
+    stop_message = f"Stopping in {stop_distance_text}"
 
   return Alert(
     stop_message,
@@ -441,24 +444,8 @@ def forcing_stop_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMas
 
 
 def holiday_alert(CP: car.CarParams, CS: car.CarState, sm: messaging.SubMaster, metric: bool, soft_disable_time: int, personality, frogpilot_toggles: SimpleNamespace) -> Alert:
-  holiday_messages = {
-    "new_years": "Happy New Year! 🎉",
-    "valentines_day": "Happy Valentine's Day! ❤️",
-    "st_patricks_day": "Happy St. Patrick's Day! 🍀",
-    "world_frog_day": "Happy World Frog Day! 🐸",
-    "april_fools": "Happy April Fool's Day! 🤡",
-    "easter_week": "Happy Easter! 🐰",
-    "may_the_fourth": "May the 4th be with you! 🚀",
-    "cinco_de_mayo": "¡Feliz Cinco de Mayo! 🌮",
-    "stitch_day": "Happy Stitch Day! 💙",
-    "fourth_of_july": "Happy Fourth of July! 🎆",
-    "halloween_week": "Happy Halloween! 🎃",
-    "thanksgiving_week": "Happy Thanksgiving! 🦃",
-    "christmas_week": "Merry Christmas! 🎄",
-  }
-
   return Alert(
-    holiday_messages.get(frogpilot_toggles.current_holiday_theme, ""),
+    frogpilot_variables.HOLIDAY_GREETINGS.get(frogpilot_toggles.current_holiday_theme, ""),
     "",
     AlertStatus.normal, AlertSize.small,
     Priority.LOWEST, VisualAlert.none, FrogPilotAudibleAlert.startup, 5.)
@@ -1128,6 +1115,14 @@ EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
 
 # FrogPilot variables
 FROGPILOT_EVENTS: dict[int, dict[str, Alert | AlertCallbackType]] = {
+  FrogPilotEventName.blockUser: {
+    ET.PERMANENT: Alert(
+      "Don't use the 'MAKE-PRS-HERE' branch!",
+      "Forcing you into 'Dashcam Mode' for your safety",
+      AlertStatus.userPrompt, AlertSize.mid,
+      Priority.HIGHEST, VisualAlert.none, AudibleAlert.none, 1.),
+  },
+
   FrogPilotEventName.customStartupAlert: {
     ET.PERMANENT: custom_startup_alert,
   },

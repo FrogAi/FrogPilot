@@ -1,15 +1,9 @@
 import json
 import math
 
-from pathlib import Path
-
 from cereal import car, custom
 
-from openpilot.frogpilot.common import frogpilot_variables
-
-BORDERS_PATH = Path(__file__).parents[1] / "assets/borders.json"
-# City data from GeoNames (https://www.geonames.org/), CC BY 4.0
-CITIES_PATH = Path(__file__).parents[1] / "assets/cities.json"
+from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 
 SEA_LIMIT = 0.3
 
@@ -58,7 +52,7 @@ def get_location(last_gps_position):
   latitude = position["latitude"]
   longitude = position["longitude"]
 
-  with BORDERS_PATH.open(encoding="utf-8") as file:
+  with frogpilot_variables.BORDERS_PATH.open(encoding="utf-8") as file:
     borders = json.load(file)
 
   inside = set()
@@ -77,27 +71,21 @@ def get_location(last_gps_position):
 
   region = borders["regions"][min(inside)] if inside else None
 
-  with CITIES_PATH.open(encoding="utf-8") as file:
+  with frogpilot_variables.CITIES_PATH.open(encoding="utf-8") as file:
     countries = json.load(file)
 
-  latitude = math.radians(latitude)
-  longitude = math.radians(longitude)
-
-  best_similarity = -2
+  best_distance = math.inf
   location = ("N/A", *region) if region else ("N/A", "N/A", "N/A")
   for country, cities in countries.items():
     for city, *state, city_latitude, city_longitude in cities:
-      state = state[0] if state else "N/A"
-      if region is not None and [country, state] != region:
+      state_name = state[0] if state else "N/A"
+      if region is not None and [country, state_name] != region:
         continue
 
-      city_latitude = math.radians(city_latitude)
-      city_longitude = math.radians(city_longitude)
-
-      similarity = math.sin(latitude) * math.sin(city_latitude) + math.cos(latitude) * math.cos(city_latitude) * math.cos(longitude - city_longitude)
-      if similarity > best_similarity:
-        best_similarity = similarity
-        location = city, country, state
+      distance = frogpilot_utilities.calculate_distance_to_point(latitude, longitude, city_latitude, city_longitude)
+      if distance < best_distance:
+        best_distance = distance
+        location = city, country, state_name
 
   return location
 
@@ -151,6 +139,6 @@ def send_stats(params, frogpilot_toggles, frogpilot_api):
     params.remove("SpeedLimitsUploadedHash")
 
   response = frogpilot_api.post_gzip("/v1/stats", json.dumps(payload, separators=(",", ":")).encode(), timeout=30)
-  if response is None or not 200 <= response.status_code < 300:
+  if not frogpilot_api.succeeded(response):
     status = "no_response" if response is None else response.status_code
     print(f"Error sending stats (status={status})")

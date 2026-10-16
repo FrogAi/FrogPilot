@@ -11,8 +11,6 @@ CURVE_SPEED_LATERAL_ACCELERATIONS = {
   frogpilot_variables.CURVE_SPEED_PROFILES["STANDARD"]: frogpilot_variables.DEFAULT_LATERAL_ACCELERATION
 }
 
-CURVE_AHEAD_ENTER = 0.6
-CURVE_AHEAD_EXIT = 0.4
 TARGET_RISE_RATE = 1.2
 
 class CurveSpeedController:
@@ -55,7 +53,7 @@ class CurveSpeedController:
   def update_target(self, v_cruise, v_ego):
     self.decel_rate = 0
 
-    if v_ego**2 * self.frogpilot_planner.road_curvature_peak <= (CURVE_AHEAD_ENTER if self.target is None else CURVE_AHEAD_EXIT):
+    if self.frogpilot_planner.peak_lateral_acceleration <= (frogpilot_variables.CURVE_AHEAD_ENTER if self.target is None else frogpilot_variables.CURVE_AHEAD_EXIT):
       self.target = None
       return v_cruise
 
@@ -65,7 +63,7 @@ class CurveSpeedController:
       self.target = max(v_ego, csc_speed)
 
     if csc_speed < self.target:
-      self.decel_rate = max(v_ego - csc_speed, 0) / max(self.frogpilot_planner.time_to_curve - frogpilot_variables.DECEL_TIME_MARGIN, 1)
+      self.decel_rate = max(v_ego - csc_speed, 0) / max(self.frogpilot_planner.time_to_curve, 1)
 
       self.target = max(min(self.target, v_ego) - self.decel_rate * DT_MDL, csc_speed)
     elif abs(self.frogpilot_planner.lateral_acceleration - self.frogpilot_planner.roll_compensation) < self.lateral_acceleration:

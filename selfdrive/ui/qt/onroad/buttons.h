@@ -25,9 +25,9 @@ private:
   bool engageable;
 
   // FrogPilot variables
+  QColor backgroundColor() const;
   void hideEvent(QHideEvent *event) override;
   void showEvent(QShowEvent *event) override;
-  void updateBackgroundColor(const FrogPilotUIScene &frogpilot_scene);
   void updateTheme();
 
   bool wheel_is_stock = false;
@@ -36,11 +36,9 @@ private:
 
   uint64_t wheel_image_update_count = 0;
 
-  QColor background_color;
-
   QPixmap wheel_img;
 
-  QSharedPointer<QMovie> wheel_gif;
+  QSharedPointer<FrogPilotMovie> wheel_gif;
 };
 
 void drawIcon(QPainter &p, const QPoint &center, const QPixmap &img, const QBrush &bg, float opacity);

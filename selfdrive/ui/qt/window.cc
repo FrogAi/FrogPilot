@@ -8,7 +8,6 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
   main_layout = new QStackedLayout(this);
   main_layout->setMargin(0);
 
-  // FrogPilot variables
   // load fonts
   QFontDatabase::addApplicationFont("../assets/fonts/Inter-Black.ttf");
   QFontDatabase::addApplicationFont("../assets/fonts/Inter-Bold.ttf");
@@ -27,7 +26,6 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
   QObject::connect(homeWindow, &HomeWindow::openSettings, this, &MainWindow::openSettings);
   QObject::connect(homeWindow, &HomeWindow::closeSettings, this, &MainWindow::closeSettings);
 
-  // FrogPilot variables
   // no outline to prevent the focus rectangle
   setStyleSheet(R"(
     * {
@@ -77,7 +75,7 @@ void MainWindow::closeSettings() {
   main_layout->setCurrentWidget(homeWindow);
 
   if (uiState()->scene.started) {
-    homeWindow->showSidebar(params.getBool("SidebarOpen") || frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value("debug_mode").toBool());
+    homeWindow->showSidebar(homeWindow->sidebarOpenOnroad());
   }
 }
 
@@ -90,7 +88,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
     case QEvent::MouseButtonPress:
     case QEvent::MouseMove: {
       // ignore events when device is awakened by resetInteractiveTimeout
-      ignore = !device()->isAwake() || frogpilotUIState()->frogpilot_scene.driver_camera_timer >= UI_FREQ / 2 || (device()->isDark() && (event->type() == QEvent::TouchBegin || event->type() == QEvent::MouseButtonPress));
+      ignore = !device()->isAwake() || frogpilotUIState()->frogpilot_scene.driver_camera_active || (device()->isDark() && (event->type() == QEvent::TouchBegin || event->type() == QEvent::MouseButtonPress));
       device()->resetInteractiveTimeout();
       break;
     }

@@ -94,12 +94,10 @@ public:
   }
 
   int putInt(const std::string &key, int val) {
-    std::string str = std::to_string(val);
-    return put(key.c_str(), str.c_str(), str.size());
+    return put(key, std::to_string(val));
   }
   int putFloat(const std::string &key, float val) {
-    std::string str = std::to_string(val);
-    return put(key.c_str(), str.c_str(), str.size());
+    return put(key, std::to_string(val));
   }
   void putIntNonBlocking(const std::string &key, int val) {
     putNonBlocking(key, std::to_string(val));

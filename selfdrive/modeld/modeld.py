@@ -242,6 +242,7 @@ def main(demo=False):
   cloudlog.warning("setting up CL context")
   cl_context = CLContext()
   cloudlog.warning("CL context ready; loading model")
+
   # FrogPilot variables
   if legacy_model:
     model = frogpilot_model_utilities.LegacyModelState(cl_context, model_path)
@@ -311,6 +312,7 @@ def main(demo=False):
 
   if 'radar_tracks' in model.numpy_inputs:
     sm = sm.extend(['liveTracks'])
+
   pm = pm.extend(['frogpilotModelV2'])
 
   while True:
@@ -388,7 +390,7 @@ def main(demo=False):
 
     # FrogPilot variables
     if legacy_model:
-      model.update_inputs(inputs, sm, CP.steerActuatorDelay, lat_delay)
+      model.update_inputs(inputs, sm, frogpilot_toggles.steerActuatorDelay, lat_delay)
 
     mt1 = time.perf_counter()
     model_output = model.run(bufs, transforms, inputs, prepare_only)
@@ -404,7 +406,7 @@ def main(demo=False):
 
       # FrogPilot variables
       if legacy_model:
-        action = model.update_action(action, model_output, prev_action, CP.steerActuatorDelay, frogpilot_toggles.longitudinalActuatorDelay, v_ego, MIN_LAT_CONTROL_SPEED)
+        action = model.update_action(action, model_output, prev_action, frogpilot_toggles.steerActuatorDelay, frogpilot_toggles.longitudinalActuatorDelay, v_ego, MIN_LAT_CONTROL_SPEED)
 
       prev_action = action
       fill_model_msg(drivingdata_send, modelv2_send, model_output, action,

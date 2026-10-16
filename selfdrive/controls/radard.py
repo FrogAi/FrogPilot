@@ -69,8 +69,6 @@ class Track:
     self.leadLeft = False
     self.leadRight = False
 
-    self.leadTrackID = 0
-
     self.radarfulFilter = FirstOrderFilter(0, 1, self.K_A[0][1])
 
   def update(self, d_rel: float, y_rel: float, v_rel: float, v_lead: float, measured: float):
@@ -125,34 +123,6 @@ class Track:
     return ret
 
   # FrogPilot variables
-  def potential_adjacent_lead(self, left: bool, model_data: capnp._DynamicStructReader):
-    should_update_cached_leads = model_data.meta.laneChangeState != LaneChangeState.laneChangeStarting
-
-    if self.vLeadK < 1 or self.leadTrackID == self.identifier:
-      if should_update_cached_leads:
-        self.leadLeft = False
-        self.leadRight = False
-      return False
-
-    model_distance = self.dRel + RADAR_TO_CAMERA
-
-    far_left_lane = np.interp(model_distance, model_data.laneLines[0].x, model_data.laneLines[0].y)
-    left_lane = np.interp(model_distance, model_data.laneLines[1].x, model_data.laneLines[1].y)
-    right_lane = np.interp(model_distance, model_data.laneLines[2].x, model_data.laneLines[2].y)
-    far_right_lane = np.interp(model_distance, model_data.laneLines[3].x, model_data.laneLines[3].y)
-
-    lead_left = far_left_lane < -self.yRel < left_lane and model_distance < model_data.position.x[-1]
-    lead_right = right_lane < -self.yRel < far_right_lane and model_distance < model_data.position.x[-1]
-
-    if should_update_cached_leads:
-      self.leadLeft = lead_left
-      self.leadRight = lead_right
-
-    if left:
-      return lead_left
-    else:
-      return lead_right
-
   def potential_far_lead(self, lead_msg: capnp._DynamicStructReader, model_data: capnp._DynamicStructReader):
     model_distance = self.dRel + RADAR_TO_CAMERA
 
@@ -254,29 +224,56 @@ def get_lead(v_ego: float, ready: bool, tracks: dict[int, Track], lead_msg: capn
         else:
           lead_dict = closest_track.get_RadarState()
 
+  # FrogPilot variables
   if low_speed_override and not lead_dict['status'] and len(tracks) > 0:
     far_lead_tracks = [c for c in tracks.values() if c.potential_far_lead(lead_msg, model_data) and c.radarfulFilter.x >= frogpilot_variables.THRESHOLD]
     if len(far_lead_tracks) > 0:
       closest_track = min(far_lead_tracks, key=lambda c: c.dRel)
       lead_dict = closest_track.get_RadarState()
 
-  # FrogPilot variables
-  if 'dRel' in lead_dict:
+  if lead_dict['status']:
     lead_dict['dRel'] -= frogpilot_plan.increasedStoppedDistance
 
   return lead_dict
 
 
 # FrogPilot variables
-def get_adjacent_lead(tracks: dict[int, Track], model_data: capnp._DynamicStructReader, left: bool = True) -> dict[str, Any]:
-  lead_dict = {'status': False}
+def get_adjacent_leads(tracks: dict[int, Track], model_data: capnp._DynamicStructReader, lead_track_id: int) -> tuple[dict[str, Any], dict[str, Any]]:
+  lane_lines = [(np.array(lane_line.x), np.array(lane_line.y)) for lane_line in model_data.laneLines]
+  max_distance = model_data.position.x[-1]
+  update_cached_leads = model_data.meta.laneChangeState != LaneChangeState.laneChangeStarting
 
-  adjacent_tracks = [c for c in tracks.values() if c.potential_adjacent_lead(left, model_data)]
-  if len(adjacent_tracks) > 0:
-    closest_track = min(adjacent_tracks, key=lambda c: c.dRel)
-    lead_dict = closest_track.get_RadarState()
+  left_tracks = []
+  right_tracks = []
+  for track in tracks.values():
+    lead_left = False
+    lead_right = False
 
-  return lead_dict
+    model_distance = track.dRel + RADAR_TO_CAMERA
+    if track.vLeadK >= 1 and track.identifier != lead_track_id and model_distance < max_distance:
+      far_left_lane, left_lane, right_lane, far_right_lane = [np.interp(model_distance, x, y) for x, y in lane_lines]
+
+      lead_left = far_left_lane < -track.yRel < left_lane
+      lead_right = right_lane < -track.yRel < far_right_lane
+
+    if update_cached_leads:
+      track.leadLeft = lead_left
+      track.leadRight = lead_right
+
+    if lead_left:
+      left_tracks.append(track)
+    if lead_right:
+      right_tracks.append(track)
+
+  left_lead = {'status': False}
+  if len(left_tracks) > 0:
+    left_lead = min(left_tracks, key=lambda c: c.dRel).get_RadarState()
+
+  right_lead = {'status': False}
+  if len(right_tracks) > 0:
+    right_lead = min(right_tracks, key=lambda c: c.dRel).get_RadarState()
+
+  return left_lead, right_lead
 
 
 class RadarD:
@@ -346,11 +343,7 @@ class RadarD:
 
     # FrogPilot variables
     if self.ready and (self.frogpilot_toggles.adjacent_lead_tracking or self.frogpilot_toggles.human_lane_changes):
-      for track in self.tracks.values():
-        track.leadTrackID = self.radar_state.leadOne.radarTrackId
-
-      self.frogpilot_radar_state.leadLeft = get_adjacent_lead(self.tracks, sm['modelV2'], left=True)
-      self.frogpilot_radar_state.leadRight = get_adjacent_lead(self.tracks, sm['modelV2'], left=False)
+      self.frogpilot_radar_state.leadLeft, self.frogpilot_radar_state.leadRight = get_adjacent_leads(self.tracks, sm['modelV2'], self.radar_state.leadOne.radarTrackId)
 
     self.frogpilot_toggles = frogpilot_variables.get_frogpilot_toggles(sm)
 

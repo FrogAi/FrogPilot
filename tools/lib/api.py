@@ -1,9 +1,6 @@
 import os
 import requests
-
-from openpilot.frogpilot.common import frogpilot_utilities
-
-API_HOST = os.getenv('API_HOST', f"https://api.{'konik.ai' if frogpilot_utilities.use_konik_server() else 'commadotai.com'}")
+API_HOST = os.getenv('API_HOST', f"https://api.{'konik.ai' if os.path.isfile('/cache/use_konik') else 'commadotai.com'}")
 
 # TODO: this should be merged into common.api
 

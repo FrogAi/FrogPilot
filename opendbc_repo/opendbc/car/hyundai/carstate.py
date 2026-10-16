@@ -77,6 +77,8 @@ class CarState(CarStateBase):
     self.params = CarControllerParams(CP)
 
     # FrogPilot variables
+    self.drive_mode = 0
+
     self.taco_tune_hack = bool(CP.safetyConfigs[-1].safetyParam & HyundaiFrogPilotSafetyFlags.TACO_TUNE_HACK)
 
   def recent_button_interaction(self) -> bool:
@@ -273,13 +275,13 @@ class CarState(CarStateBase):
     ret.leftBlinker, ret.rightBlinker = self.update_blinker_from_lamp(50, cp.vl["BLINKERS"][left_blinker_sig],
                                                                       cp.vl["BLINKERS"][right_blinker_sig])
     if self.CP.enableBsm:
+      ret.leftBlindspot = cp.vl["BLINDSPOTS_REAR_CORNERS"]["FL_INDICATOR"] != 0
+      ret.rightBlindspot = cp.vl["BLINDSPOTS_REAR_CORNERS"]["FR_INDICATOR"] != 0
+
       # FrogPilot variables
       if self.CP.carFingerprint == CAR.HYUNDAI_IONIQ_6:
         ret.leftBlindspot = cp.vl["BLINDSPOTS_REAR_CORNERS"]["LEFT_MB"] != 0
         ret.rightBlindspot = cp.vl["BLINDSPOTS_REAR_CORNERS"]["MORE_LEFT_PROB"] != 0
-      else:
-        ret.leftBlindspot = cp.vl["BLINDSPOTS_REAR_CORNERS"]["FL_INDICATOR"] != 0
-        ret.rightBlindspot = cp.vl["BLINDSPOTS_REAR_CORNERS"]["FR_INDICATOR"] != 0
 
     # cruise state
     # CAN FD cars enable on main button press, set available if no TCS faults preventing engagement
@@ -331,10 +333,16 @@ class CarState(CarStateBase):
     if self.FPCP.hasDashboardSpeedLimit:
       self.fp_ret.dashboardSpeedLimit = calculate_speed_limit(self.CP, cp, cp_cam) * speed_factor
 
+    drive_mode = cp.vl["DRIVE_MODE"]["DRIVE_MODE2"]
+    if drive_mode != 0:
+      self.drive_mode = drive_mode
+    self.fp_ret.ecoGear = self.drive_mode == 2
+    self.fp_ret.sportGear = self.drive_mode == 3
+
     return ret
 
   def get_can_parsers_canfd(self, CP):
-    msgs = []
+    msgs = [("DRIVE_MODE", float('nan'))]
     if not (CP.flags & HyundaiFlags.CANFD_ALT_BUTTONS):
       # TODO: this can be removed once we add dynamic support to vl_all
       msgs += [

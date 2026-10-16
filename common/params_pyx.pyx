@@ -163,9 +163,14 @@ cdef class Params:
     """
     cdef string k = self.check_key(key)
     cdef string dat_bytes = self._put_cast(key, dat)
+
+    # FrogPilot variables
     cdef int result
+
     with nogil:
       result = self.p.put(k, dat_bytes)
+
+    # FrogPilot variables
     return result
 
   def put_bool(self, key, bool val):

@@ -248,6 +248,7 @@ class LatControlNNFF(LatControl):
       if self.nnff_loaded and frogpilot_toggles.nnff or frogpilot_toggles.nnff_lite:
         actual_curvature_rate = -VM.calc_curvature(math.radians(CS.steeringRateDeg), CS.vEgo, 0.0)
         actual_lateral_jerk = actual_curvature_rate * CS.vEgo ** 2
+        lat_accel_friction_factor = self.lat_accel_friction_factor
 
         model_good = model_data is not None and len(model_data.orientation.x) >= CONTROL_N
 
@@ -263,7 +264,7 @@ class LatControlNNFF(LatControl):
 
           if lookahead_lateral_jerk == 0.0:
             actual_lateral_jerk = 0.0
-            self.lat_accel_friction_factor = 1.0
+            lat_accel_friction_factor = 1.0
 
           lateral_jerk_setpoint = self.lat_jerk_friction_factor * lookahead_lateral_jerk
           lateral_jerk_measurement = self.lat_jerk_friction_factor * actual_lateral_jerk
@@ -312,13 +313,14 @@ class LatControlNNFF(LatControl):
 
           # compute feedforward (same as nn setpoint output)
           error = setpoint - measurement
-          friction_input = self.lat_accel_friction_factor * error + self.lat_jerk_friction_factor * lookahead_lateral_jerk
+          friction_input = lat_accel_friction_factor * error + self.lat_jerk_friction_factor * lookahead_lateral_jerk
           nn_input = [CS.vEgo, desired_lateral_accel, friction_input, roll] + past_lateral_accels_desired + future_lateral_accels + nnff_common
           ff = self.lat_torque_nn_model.evaluate(nn_input)
 
           # apply friction override for cars with low NN friction response
           if self.nn_friction_override:
-            pid_log.error += self.torque_from_lateral_accel(0.0, self.torque_params)
+            friction_override = get_friction(friction_input, lateral_accel_deadzone, FRICTION_THRESHOLD, self.torque_params)
+            pid_log.error += float(self.torque_from_lateral_accel(friction_override, self.torque_params))
         else:
           torque_from_measurement = self.torque_from_lateral_accel(measurement, self.torque_params)
           torque_from_setpoint = self.torque_from_lateral_accel(setpoint, self.torque_params)
@@ -326,7 +328,7 @@ class LatControlNNFF(LatControl):
           pid_log.error = float(torque_from_setpoint - torque_from_measurement)
 
           error = desired_lateral_accel - actual_lateral_accel
-          friction_input = self.lat_accel_friction_factor * error + self.lat_jerk_friction_factor * lookahead_lateral_jerk
+          friction_input = lat_accel_friction_factor * error + self.lat_jerk_friction_factor * lookahead_lateral_jerk
           friction_compensation = (
             get_friction(friction_input, lateral_accel_deadzone, FRICTION_THRESHOLD, self.torque_params)
             if frogpilot_toggles.nnff_lite else 0.0

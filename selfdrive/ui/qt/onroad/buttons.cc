@@ -53,8 +53,6 @@ void ExperimentalButton::updateState(const UIState &s) {
   const FrogPilotUIState &fs = *frogpilotUIState();
   const cereal::CarState::Reader &carState = (*s.sm)["carState"].getCarState();
 
-  updateBackgroundColor(fs.frogpilot_scene);
-
   steering_angle_deg = fs.frogpilot_scene.frogpilot_toggles.value(QLatin1String("rotating_wheel")).toBool() ? -carState.getSteeringAngleDeg() : 0;
 
   uint64_t current_wheel_image_update_count = (*fs.sm)["frogpilotPlan"].getFrogpilotPlan().getWheelImageUpdateCount();
@@ -81,7 +79,7 @@ void ExperimentalButton::paintEvent(QPaintEvent *event) {
   p.rotate(steering_angle_deg);
   p.translate(-btn_size / 2, -btn_size / 2);
 
-  drawIcon(p, QPoint(btn_size / 2, btn_size / 2), img, background_color, (isDown() || !engageable) ? 0.6 : 1.0);
+  drawIcon(p, QPoint(btn_size / 2, btn_size / 2), img, backgroundColor(), (isDown() || !engageable) ? 0.6 : 1.0);
 }
 
 // FrogPilot variables
@@ -95,20 +93,21 @@ void ExperimentalButton::hideEvent(QHideEvent *event) {
   QPushButton::hideEvent(event);
 }
 
-void ExperimentalButton::updateBackgroundColor(const FrogPilotUIScene &frogpilot_scene) {
-  if (isDown() || !engageable) {
-    background_color = QColor(0, 0, 0, 166);
-  } else if (frogpilot_scene.always_on_lateral_active) {
-    background_color = bg_colors[STATUS_ALWAYS_ON_LATERAL_ACTIVE];
-  } else if (frogpilot_scene.conditional_status == 1) {
-    background_color = bg_colors[STATUS_CEM_DISABLED];
-  } else if (experimental_mode) {
-    background_color = bg_colors[STATUS_EXPERIMENTAL_MODE_ENABLED];
-  } else if (frogpilot_scene.traffic_mode_enabled) {
-    background_color = bg_colors[STATUS_TRAFFIC_MODE_ENABLED];
-  } else {
-    background_color = QColor(0, 0, 0, 166);
+QColor ExperimentalButton::backgroundColor() const {
+  const FrogPilotUIScene &frogpilot_scene = frogpilotUIState()->frogpilot_scene;
+
+  if (!isDown() && engageable) {
+    if (frogpilot_scene.always_on_lateral_active) {
+      return bg_colors[STATUS_ALWAYS_ON_LATERAL_ACTIVE];
+    } else if (frogpilot_scene.conditional_status == 1) {
+      return bg_colors[STATUS_CEM_DISABLED];
+    } else if (experimental_mode) {
+      return bg_colors[STATUS_EXPERIMENTAL_MODE_ENABLED];
+    } else if (frogpilot_scene.traffic_mode_enabled) {
+      return bg_colors[STATUS_TRAFFIC_MODE_ENABLED];
+    }
   }
+  return blackColor(166);
 }
 
 void ExperimentalButton::updateTheme() {
@@ -120,5 +119,5 @@ void ExperimentalButton::updateTheme() {
 
   const QString wheel_source = QFileInfo("../../frogpilot/assets/active_theme/steering_wheel/wheel.svg").canonicalFilePath();
   const QString stock_source = QFileInfo("../../frogpilot/assets/stock_theme/steering_wheel/wheel.svg").canonicalFilePath();
-  wheel_is_stock = !wheel_gif && !wheel_img.isNull() && wheel_source == stock_source;
+  wheel_is_stock = wheel_source == stock_source;
 }

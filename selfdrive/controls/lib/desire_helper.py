@@ -1,4 +1,4 @@
-from cereal import log
+from cereal import custom, log
 from openpilot.common.constants import CV
 from openpilot.common.realtime import DT_MDL
 
@@ -30,7 +30,7 @@ DESIRES = {
 }
 
 # FrogPilot variables
-TurnDirection = log.Desire
+TurnDirection = custom.FrogPilotModelDataV2.TurnDirection
 
 TURN_DESIRES = {
   TurnDirection.none: log.Desire.none,
@@ -93,8 +93,8 @@ class DesireHelper:
           torque_applied |= frogpilot_toggles.nudgeless
           torque_applied &= self.lane_change_wait_timer >= frogpilot_toggles.lane_change_delay
 
-          desired_lane_width = frogpilotPlan.laneWidthLeft if self.lane_change_direction == LaneChangeDirection.left else frogpilotPlan.laneWidthRight
-          torque_applied &= desired_lane_width >= frogpilot_toggles.lane_detection_width
+          target_lane_width = frogpilotPlan.laneWidthLeft if self.lane_change_direction == LaneChangeDirection.left else frogpilotPlan.laneWidthRight
+          torque_applied &= target_lane_width >= frogpilot_toggles.lane_detection_width
 
         if not one_blinker or below_lane_change_speed or self.lane_change_completed:
           self.lane_change_state = LaneChangeState.off

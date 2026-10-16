@@ -1,0 +1,13 @@
+.themes { display: grid; gap: 24px; }
+.themes-empty { padding: 0 var(--pad) var(--pad); }
+.themes-list { margin-top: 10px; }
+.themes-offline { padding: 0 var(--pad) 4px; }
+.themes-row .acts { display: grid; grid-template-columns: auto 40px; }
+.themes-row .acts > .btn { grid-column: 1; min-width: 7em; }
+.themes-row .acts > .icon-btn { grid-column: 2; }
+.themes-row.in-use { background: color-mix(in srgb, var(--pond) 7%, transparent); }
+.themes-row.in-use, .themes-row.in-use + .list-row { border-top-color: transparent; }
+
+@media (max-width: 719px) {
+  .themes-row .acts { grid-template-columns: auto 44px; justify-content: start; }
+}

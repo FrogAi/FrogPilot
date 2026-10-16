@@ -22,7 +22,7 @@ private:
   void updateState(const UIState &s, const FrogPilotUIState &fs);
 
   bool cancellingDownload = false;
-  bool forceOpenDescriptions;
+  bool forceOpenDescriptions = false;
   bool hasMapsSelected = false;
   bool mapsFolderExists = false;
   bool removingMaps = false;

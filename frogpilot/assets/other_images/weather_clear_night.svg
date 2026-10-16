@@ -1,0 +1,149 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <path id="clear-night-p0" d="M84 48L77.7 48.3L71.5 49.2L65.4 50.8L59.5 52.9L53.8 55.6L48.4 58.8L43.4 62.5L38.7 66.7L34.5 71.4L30.8 76.4L27.6 81.8L24.9 87.5L22.8 93.4L21.2 99.5L20.3 105.7L20 112L20.3 118.3L21.2 124.5L22.8 130.6L24.9 136.5L27.6 142.2L30.8 147.6L34.5 152.6L38.7 157.3L43.4 161.5L48.4 165.2L53.8 168.4L59.5 171.1L65.4 173.2L71.5 174.8L77.7 175.7L84 176L88.7 175.8L93.4 175.3L98 174.4L102.6 173.2L107 171.7L111.4 169.9L118.9 165.6L122.8 162.9L126.4 159.9L132.5 153.8L135.4 150.1L138.1 146.2L140.4 142.2L142.4 138.2L138.1 140.1L133.7 141.7L129.2 142.8L124 143.7L119.3 144L114 143.9L108.8 143.2L104.2 142.2L99.2 140.6L94.9 138.8L90.8 136.7L86.4 133.8L82.2 130.5L78.9 127.2L75.8 123.7L72.7 119.4L70.1 114.9L68.1 110.7L66.5 106.3L65.2 101.2L64.3 96L64 91.3L64.1 86.7L64.7 81.4L65.8 76.2L67.2 71.8L68.9 67.5L71.3 62.8L73.9 58.9L77.1 54.7L80.3 51.4Z" fill="#fff"/>
+  </defs>
+  <g id="frames" data-loop="false">
+    <g id="frame-0" data-ms="40">
+      <animate attributeName="display" values="inline;none" keyTimes="0;0.0227" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(1 0 0 1 0 -12)">
+      <use xlink:href="#clear-night-p0" transform="rotate(20 84 112)"/>
+      </g>
+    </g>
+    <g id="frame-1" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.0227;0.0455" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(1 0 0 1 0 -12)">
+      <use xlink:href="#clear-night-p0" transform="rotate(17 84 112)"/>
+      </g>
+    </g>
+    <g id="frame-2" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.0455;0.0682" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(1 0 0 1 0 -12)">
+      <use xlink:href="#clear-night-p0" transform="rotate(14.3 84 112)"/>
+      </g>
+    </g>
+    <g id="frame-3" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.0682;0.0909" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(1 0 0 1 0 -12)">
+      <use xlink:href="#clear-night-p0" transform="rotate(11.9 84 112)"/>
+      </g>
+    </g>
+    <g id="frame-4" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.0909;0.1136" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(1 0 0 1 0 -12)">
+      <use xlink:href="#clear-night-p0" transform="rotate(9.8 84 112)"/>
+      </g>
+    </g>
+    <g id="frame-5" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1136;0.1364" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(1 0 0 1 0 -12)">
+      <use xlink:href="#clear-night-p0" transform="rotate(8 84 112)"/>
+      </g>
+    </g>
+    <g id="frame-6" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1364;0.1591" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(1 0 0 1 0 -12)">
+      <use xlink:href="#clear-night-p0" transform="rotate(6.4 84 112)"/>
+      </g>
+    </g>
+    <g id="frame-7" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1591;0.1818" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(1 0 0 1 0 -12)">
+      <use xlink:href="#clear-night-p0" transform="rotate(5 84 112)"/>
+      <path d="M150 54L154.3 65.7L166 70L154.3 74.3L150 86L145.7 74.3L134 70L145.7 65.7Z" fill="#fff" opacity=".118"/>
+      </g>
+    </g>
+    <g id="frame-8" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1818;0.2045" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(1 0 0 1 0 -12)">
+      <use xlink:href="#clear-night-p0" transform="rotate(3.9 84 112)"/>
+      <path d="M150 54L154.3 65.7L166 70L154.3 74.3L150 86L145.7 74.3L134 70L145.7 65.7Z" fill="#fff" opacity=".403"/>
+      </g>
+    </g>
+    <g id="frame-9" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2045;0.2273" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(1 0 0 1 0 -12)">
+      <use xlink:href="#clear-night-p0" transform="rotate(2.9 84 112)"/>
+      <path d="M150 54L154.3 65.7L166 70L154.3 74.3L150 86L145.7 74.3L134 70L145.7 65.7Z" fill="#fff" opacity=".619"/>
+      </g>
+    </g>
+    <g id="frame-10" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2273;0.25" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(1 0 0 1 0 -12)">
+      <use xlink:href="#clear-night-p0" transform="rotate(2.1 84 112)"/>
+      <path d="M150 54L154.3 65.7L166 70L154.3 74.3L150 86L145.7 74.3L134 70L145.7 65.7Z" fill="#fff" opacity=".775"/>
+      </g>
+    </g>
+    <g id="frame-11" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.25;0.2727" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(1 0 0 1 0 -12)">
+      <use xlink:href="#clear-night-p0" transform="rotate(1.5 84 112)"/>
+      <path d="M150 54L154.3 65.7L166 70L154.3 74.3L150 86L145.7 74.3L134 70L145.7 65.7Z" fill="#fff" opacity=".881"/>
+      <path d="M170 114L172.7 121.3L180 124L172.7 126.7L170 134L167.3 126.7L160 124L167.3 121.3Z" fill="#fff" opacity=".181"/>
+      </g>
+    </g>
+    <g id="frame-12" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2727;0.2955" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(1 0 0 1 0 -12)">
+      <use xlink:href="#clear-night-p0" transform="rotate(1 84 112)"/>
+      <path d="M150 54L154.3 65.7L166 70L154.3 74.3L150 86L145.7 74.3L134 70L145.7 65.7Z" fill="#fff" opacity=".948"/>
+      <path d="M170 114L172.7 121.3L180 124L172.7 126.7L170 134L167.3 126.7L160 124L167.3 121.3Z" fill="#fff" opacity=".451"/>
+      </g>
+    </g>
+    <g id="frame-13" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2955;0.3182" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(1 0 0 1 0 -12)">
+      <use xlink:href="#clear-night-p0" transform="rotate(.6 84 112)"/>
+      <path d="M150 54L154.3 65.7L166 70L154.3 74.3L150 86L145.7 74.3L134 70L145.7 65.7Z" fill="#fff" opacity=".983"/>
+      <path d="M170 114L172.7 121.3L180 124L172.7 126.7L170 134L167.3 126.7L160 124L167.3 121.3Z" fill="#fff" opacity=".654"/>
+      </g>
+    </g>
+    <g id="frame-14" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3182;0.3409" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(1 0 0 1 0 -12)">
+      <use xlink:href="#clear-night-p0" transform="rotate(.4 84 112)"/>
+      <path d="M150 54L154.3 65.7L166 70L154.3 74.3L150 86L145.7 74.3L134 70L145.7 65.7Z" fill="#fff" opacity=".997"/>
+      <path d="M170 114L172.7 121.3L180 124L172.7 126.7L170 134L167.3 126.7L160 124L167.3 121.3Z" fill="#fff" opacity=".8"/>
+      </g>
+    </g>
+    <g id="frame-15" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3409;0.3636" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(1 0 0 1 0 -12)">
+      <use xlink:href="#clear-night-p0" transform="rotate(.2 84 112)"/>
+      <path d="M150 54L154.3 65.7L166 70L154.3 74.3L150 86L145.7 74.3L134 70L145.7 65.7Z" fill="#fff" opacity="1"/>
+      <path d="M170 114L172.7 121.3L180 124L172.7 126.7L170 134L167.3 126.7L160 124L167.3 121.3Z" fill="#fff" opacity=".898"/>
+      </g>
+    </g>
+    <g id="frame-16" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3636;0.3864" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(1 0 0 1 0 -12)">
+      <use xlink:href="#clear-night-p0" transform="rotate(.1 84 112)"/>
+      <path d="M150 54L154.3 65.7L166 70L154.3 74.3L150 86L145.7 74.3L134 70L145.7 65.7Z" fill="#fff"/>
+      <path d="M170 114L172.7 121.3L180 124L172.7 126.7L170 134L167.3 126.7L160 124L167.3 121.3Z" fill="#fff" opacity=".957"/>
+      </g>
+    </g>
+    <g id="frame-17" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.3864;0.4091" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(1 0 0 1 0 -12)">
+      <use xlink:href="#clear-night-p0" transform="rotate(0 84 112)"/>
+      <path d="M150 54L154.3 65.7L166 70L154.3 74.3L150 86L145.7 74.3L134 70L145.7 65.7Z" fill="#fff"/>
+      <path d="M170 114L172.7 121.3L180 124L172.7 126.7L170 134L167.3 126.7L160 124L167.3 121.3Z" fill="#fff" opacity=".987"/>
+      </g>
+    </g>
+    <g id="frame-18" data-ms="40">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.4091;0.4318" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(1 0 0 1 0 -12)">
+      <use xlink:href="#clear-night-p0" transform="rotate(0 84 112)"/>
+      <path d="M150 54L154.3 65.7L166 70L154.3 74.3L150 86L145.7 74.3L134 70L145.7 65.7Z" fill="#fff"/>
+      <path d="M170 114L172.7 121.3L180 124L172.7 126.7L170 134L167.3 126.7L160 124L167.3 121.3Z" fill="#fff" opacity=".998"/>
+      </g>
+    </g>
+    <g id="frame-19" data-ms="1000">
+      <animate attributeName="display" values="none;inline" keyTimes="0;0.4318" dur="1760ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(1 0 0 1 0 -12)">
+      <use xlink:href="#clear-night-p0" transform="rotate(0 84 112)"/>
+      <path d="M150 54L154.3 65.7L166 70L154.3 74.3L150 86L145.7 74.3L134 70L145.7 65.7Z" fill="#fff"/>
+      <path d="M170 114L172.7 121.3L180 124L172.7 126.7L170 134L167.3 126.7L160 124L167.3 121.3Z" fill="#fff"/>
+      </g>
+    </g>
+  </g>
+</svg>

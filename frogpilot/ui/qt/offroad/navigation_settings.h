@@ -24,12 +24,13 @@ private:
   void updateState(const UIState &s, const FrogPilotUIState &fs);
   void updateStep();
 
-  bool forceOpenDescriptions;
+  bool forceOpenDescriptions = false;
   bool mapboxPublicKeySet = false;
   bool mapboxSecretKeySet = false;
 
   ButtonControl *setupButton;
 
+  ParamControl *pairingToggle;
   ParamControl *speedLimitFillerToggle;
 
   FrogPilotButtonsControl *publicMapboxKeyControl;
@@ -45,5 +46,5 @@ private:
 
   QNetworkAccessManager *networkManager;
 
-  QStackedLayout *primelessLayout;
+  QStackedLayout *navigationLayout;
 };

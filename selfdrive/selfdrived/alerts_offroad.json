@@ -45,5 +45,9 @@
     "text": "Excessive %1 actuation detected on your last drive. Please contact support at https://comma.ai/support and share your device's Dongle ID for troubleshooting.",
     "severity": 1,
     "_comment": "Set extra field to lateral or longitudinal."
+  },
+  "Offroad_StorageMissing": {
+    "text": "NVMe drive not mounted.",
+    "severity": 1
   }
 }

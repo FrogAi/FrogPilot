@@ -30,7 +30,9 @@ def calculate_speed_limit(cp_cam):
   speed_limit_unit = cp_cam.vl["RSA1"]["TSGN1"]
   speed_limit_value = cp_cam.vl["RSA1"]["SPDVAL1"]
 
-  if speed_limit_unit == 1:
+  if speed_limit_value >= 200:
+    return 0
+  elif speed_limit_unit == 1:
     return speed_limit_value * CV.KPH_TO_MS
   elif speed_limit_unit == 36:
     return speed_limit_value * CV.MPH_TO_MS
@@ -69,7 +71,7 @@ class CarState(CarStateBase):
 
     # FrogPilot variables
     self.latActive_previous = False
-    self.needs_angle_offset_zss = False
+    self.needs_angle_offset_zss = True
 
     self.angle_offset_zss = 0
     self.prev_pcm_acc_status = 0
@@ -78,8 +80,8 @@ class CarState(CarStateBase):
   def init_frogpilot_params(self):
     self.has_can_filter = self.FPCP.flags & ToyotaFrogPilotFlags.RADAR_CAN_FILTER.value
     self.has_dsu_bypass = self.FPCP.flags & ToyotaFrogPilotFlags.DSU_BYPASS.value
-    self.has_SDSU = self.FPCP.flags & ToyotaFrogPilotFlags.SMART_DSU.value
-    self.has_ZSS = self.FPCP.flags & ToyotaFrogPilotFlags.ZSS.value
+    self.has_sdsu = self.FPCP.flags & ToyotaFrogPilotFlags.SMART_DSU.value
+    self.has_zss = self.FPCP.flags & ToyotaFrogPilotFlags.ZSS.value
 
   def update(self, can_parsers) -> structs.CarState:
     cp = can_parsers[Bus.pt]
@@ -177,7 +179,7 @@ class CarState(CarStateBase):
 
     if (self.CP.carFingerprint in TSS2_CAR and not self.CP.flags & ToyotaFlags.DISABLE_RADAR.value) or self.has_dsu_bypass:
       # FrogPilot variables
-      if not self.has_SDSU:
+      if not self.has_sdsu:
         self.acc_type = cp_acc.vl["ACC_CONTROL"]["ACC_TYPE"]
       ret.stockFcw = bool(cp_acc.vl["PCS_HUD"]["FCW"])
 
@@ -229,7 +231,7 @@ class CarState(CarStateBase):
         buttonEvents += create_button_events(self.distance_button, prev_distance_button, {1: ButtonType.gapAdjustCruise})
 
     # FrogPilot variables
-    if self.has_SDSU and not self.has_can_filter:
+    if self.has_sdsu and not self.has_can_filter:
       prev_distance_button = self.distance_button
       self.distance_button = cp.vl["SDSU"]["FD_BUTTON"]
 
@@ -243,17 +245,20 @@ class CarState(CarStateBase):
 
       buttonEvents += create_button_events(1, 0, {1: button_type}) + create_button_events(0, 1, {1: button_type})
 
+    self.prev_pcm_acc_status = self.pcm_acc_status
+
     self.fp_ret.brakeLights = bool(cp.vl["ESP_CONTROL"]["BRAKE_LIGHTS_ACC"])
     self.fp_ret.dashboardSpeedLimit = calculate_speed_limit(cp_cam)
+
+    if cp.ts_nanos["DOOR_LOCKS"]["LOCK_STATUS"] > 0:
+      self.fp_ret.doorLockStatus = "locked" if cp.vl["DOOR_LOCKS"]["LOCK_STATUS"] == 0 else "unlocked"
 
     if not self.CP.flags & ToyotaFlags.SECOC.value:
       self.fp_ret.ecoGear = cp.vl["GEAR_PACKET"]["ECON_ON"] == 1
       self.fp_ret.sportGear = cp.vl["GEAR_PACKET"]["SPORT_ON_2" if self.CP.flags & ToyotaFlags.NO_DSU else "SPORT_ON"] == 1
 
-    self.prev_pcm_acc_status = self.pcm_acc_status
-
     # ZSS Support - Credit goes to Erich!
-    if self.has_ZSS:
+    if self.has_zss:
       if self.CC.latActive and not self.latActive_previous:
         self.needs_angle_offset_zss = True
       self.latActive_previous = self.CC.latActive
@@ -279,6 +284,9 @@ class CarState(CarStateBase):
   def get_can_parsers(CP):
     pt_messages = [
       ("BLINKERS_STATE", float('nan')),
+
+      # FrogPilot variables
+      ("DOOR_LOCKS", float('nan')),
     ]
 
     return {

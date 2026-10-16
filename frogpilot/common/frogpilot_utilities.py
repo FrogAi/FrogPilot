@@ -3,23 +3,24 @@ import json
 import math
 import numpy as np
 import os
+import pickle
 import requests
+import shutil
 import subprocess
 import threading
 import time
+import xattr
 import zipfile
 
 from functools import cache
 from pathlib import Path
 
-import openpilot.system.sentry as sentry
-
 from cereal import log, messaging
 from opendbc.can.parser import CANParser
-from opendbc.car.toyota.carcontroller import LOCK_CMD
+from opendbc.car.toyota.carcontroller import DOOR_CONTROL_ADDR, LOCK_CMD, UNLOCK_CMD
 from openpilot.common.realtime import DT_DMON, DT_HW
 from openpilot.selfdrive.pandad import can_capnp_to_list
-from openpilot.system.loggerd.xattr_cache import getxattr
+from openpilot.system import sentry
 from panda import Panda
 
 from openpilot.frogpilot.common import frogpilot_variables
@@ -30,7 +31,7 @@ class ThreadManager:
 
     self.running_threads = {}
 
-  def run_with_lock(self, target, args=(), report=True):
+  def run_in_thread(self, target, args=(), report=True):
     name = target.__name__
 
     with self.thread_lock:
@@ -38,15 +39,15 @@ class ThreadManager:
       if thread is not None and thread.is_alive():
         return
 
-      def wrapped_target(*t_args):
+      def wrapped_target():
         try:
-          target(*t_args)
+          target(*args)
         except Exception as exception:
           print(f"Error in thread '{name}': {exception}")
           if report:
             sentry.capture_exception(exception, crash_log=False)
 
-      thread = threading.Thread(args=args, daemon=True, target=wrapped_target)
+      thread = threading.Thread(daemon=True, target=wrapped_target)
       thread.start()
       self.running_threads[name] = thread
 
@@ -54,6 +55,111 @@ class ThreadManager:
     with self.thread_lock:
       thread = self.running_threads.get(name)
       return thread is not None and thread.is_alive()
+
+
+class UpdateProgress:
+  def __init__(self, params):
+    self.params = params
+
+    self.agnos_size = 0
+    self.copied = 0
+    self.copy_total = 0
+    self.download_percent = 0
+
+    self.agnos_written = {}
+
+    self.agnos_started = None
+    self.copy_finished = None
+    self.copy_started = None
+    self.download_finished = None
+
+    self.started = time.monotonic()
+
+    threading.Thread(target=self.publish, daemon=True).start()
+
+  def copy_file(self, source, destination):
+    with open(source, "rb") as source_file, open(destination, "wb") as destination_file:
+      while chunk := source_file.read(shutil.COPY_BUFSIZE):
+        destination_file.write(chunk)
+        self.copied += len(chunk)
+
+    shutil.copystat(source, destination)
+
+  def copy_tree(self, source, destination):
+    self.copy_total = get_directory_size(source)
+    self.copy_started = time.monotonic()
+
+    shutil.copytree(source, destination, symlinks=True, copy_function=self.copy_file)
+
+    self.copy_finished = time.monotonic()
+
+    copy_time = self.copy_finished - self.copy_started
+    average = self.params.get("UpdaterCopySeconds")
+    if average is not None:
+      copy_time = average + (copy_time - average) * frogpilot_variables.UPDATE_COPY_AVERAGE_WEIGHT
+    self.params.put("UpdaterCopySeconds", round(copy_time, 1))
+
+  def get_remaining(self, now):
+    if self.copy_finished is not None:
+      return max((self.copy_finished - self.copy_started) * frogpilot_variables.UPDATE_CLEANUP_RATIO - (now - self.copy_finished), 0)
+
+    copy_time = self.params.get("UpdaterCopySeconds") or frogpilot_variables.UPDATE_COPY_SECONDS
+
+    if self.copy_started is not None:
+      return copy_time * (1 - self.copied / self.copy_total + frogpilot_variables.UPDATE_CLEANUP_RATIO)
+
+    install_time = copy_time * (1 + frogpilot_variables.UPDATE_CLEANUP_RATIO)
+
+    if self.agnos_started is not None:
+      agnos_written = sum(self.agnos_written.values())
+      if agnos_written == 0:
+        return None
+      return (now - self.agnos_started) * (self.agnos_size - agnos_written) / agnos_written + install_time
+
+    if self.download_finished is not None:
+      return install_time
+
+    if self.download_percent == 0:
+      return None
+
+    elapsed = now - self.started
+    return elapsed * (100 - self.download_percent) / self.download_percent + install_time
+
+  def publish(self):
+    percent = 0
+
+    published = None
+
+    while self.params.get("UpdaterState") != "idle":
+      now = time.monotonic()
+      elapsed = now - self.started
+      remaining = self.get_remaining(now)
+
+      eta = None
+      if remaining is not None:
+        target = min(int(100 * elapsed / (elapsed + remaining)), 99)
+        percent = max(percent, min(target, percent + 1))
+
+        if elapsed >= frogpilot_variables.UPDATE_ETA_MIN_SECONDS:
+          eta = round(remaining)
+
+      progress = {"eta": eta, "percent": percent}
+
+      if progress != published:
+        self.params.put("UpdaterDownloadProgress", progress)
+        published = progress
+
+      time.sleep(frogpilot_variables.UPDATE_PROGRESS_INTERVAL)
+
+    self.params.remove("UpdaterDownloadProgress")
+
+  def report_agnos(self, partition, written):
+    self.agnos_written[partition["name"]] = written
+
+  def start_agnos(self, manifest_path):
+    with open(manifest_path) as manifest:
+      self.agnos_size = sum(partition["size"] for partition in json.load(manifest))
+    self.agnos_started = time.monotonic()
 
 
 def calculate_curve_speed(road_curvature, lateral_acceleration, roll_compensation):
@@ -95,7 +201,7 @@ def calculate_road_curvature(model_data, v_ego, lateral_acceleration, roll_compe
   time_to_point = distance_to_point / max(v_ego, frogpilot_variables.CRUISING_SPEED)
 
   curve_speed = calculate_curve_speed(road_curvature, lateral_acceleration, roll_compensation)
-  required_deceleration = (v_ego - curve_speed) / np.maximum(time_to_point - frogpilot_variables.DECEL_TIME_MARGIN, 1)
+  required_deceleration = (v_ego - curve_speed) / np.maximum(time_to_point, 1)
   index = np.argmax(required_deceleration) if required_deceleration.max() > 0 else np.argmin(curve_speed)
 
   return float(road_curvature[index]), float(time_to_point[index]), float(np.abs(road_curvature).max())
@@ -105,12 +211,10 @@ def contains_event_type(events, frogpilot_events, *event_types):
   return any(events.contains(event_type) or frogpilot_events.contains(event_type) for event_type in event_types)
 
 
-def delete_file(path, report=True):
+def delete_path(path, report=True):
   path = Path(path)
-  if path.is_file() or path.is_symlink():
-    run_cmd(["sudo", "rm", "-f", str(path)], None, f"Failed to delete file: {path}", report=report)
-  elif path.is_dir():
-    run_cmd(["sudo", "rm", "-rf", str(path)], None, f"Failed to delete directory: {path}", report=report)
+  if path.exists() or path.is_symlink():
+    run_cmd(["sudo", "rm", "-rf", str(path)], f"Failed to delete: {path}", report=report)
 
 
 def extract_zip(zip_file, extract_path):
@@ -140,8 +244,42 @@ def flash_panda():
   return flashed
 
 
+def get_directory_size(path):
+  size = 0
+  for directory, _, files in os.walk(path):
+    for name in files:
+      try:
+        size += os.lstat(os.path.join(directory, name)).st_size
+      except FileNotFoundError:
+        continue
+  return size
+
+
+def get_target_branches(available_branches, current_branch):
+  branches = available_branches.split(",")
+  if not is_FrogsGoMoo():
+    branches = [branch for branch in branches if not is_hidden_branch(branch)]
+
+  for branch in (current_branch, *frogpilot_variables.TOP_BRANCHES):
+    if branch in branches:
+      branches.remove(branch)
+      branches.insert(0, branch)
+  return branches
+
+
+def has_openpilot_longitudinal(params, car_params, frogpilot_car_params):
+  if car_params["alphaLongitudinalAvailable"]:
+    return params.get_bool("AlphaLongitudinalEnabled")
+
+  has_longitudinal = car_params["openpilotLongitudinalControl"] or frogpilot_car_params.get("openpilotLongitudinalControlDisabled", False)
+  return has_longitudinal and not params.get_bool("DisableOpenpilotLongitudinal")
+
+
 def has_pending_telemetry(path):
-  return getxattr(path, frogpilot_variables.UPLOAD_ATTR_NAME) == frogpilot_variables.UPLOAD_PENDING
+  try:
+    return xattr.getxattr(path, frogpilot_variables.UPLOAD_ATTR_NAME) == frogpilot_variables.UPLOAD_PENDING
+  except OSError:
+    return False
 
 
 @cache
@@ -149,12 +287,39 @@ def is_FrogsGoMoo():
   return frogpilot_variables.FROGS_GO_MOO_PATH.is_file()
 
 
-def is_gps_location_valid(gps_location, gps_service, sm):
-  return gps_location.hasFix and time.monotonic() - sm.recv_time[gps_service] <= 2.0
+def is_FrogsGoMoo_development(build_metadata):
+  return build_metadata.channel == frogpilot_variables.DEVELOPMENT_BRANCH and is_FrogsGoMoo()
 
 
-def is_mapd_data_valid(mapd_out, gps_valid, sm):
-  return gps_valid and sm.alive["mapdOut"] and mapd_out.tileLoaded and mapd_out.wayId > 0
+def is_gps_location_valid(gps_service, sm):
+  return sm[gps_service].hasFix and time.monotonic() - sm.recv_time[gps_service] <= 2.0
+
+
+def is_hidden_branch(branch):
+  return branch.lower().startswith(frogpilot_variables.DEVELOPMENT_BRANCH.lower()) or branch in frogpilot_variables.HIDDEN_BRANCHES
+
+
+def is_ignition_on(sm):
+  return any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown)
+
+
+def is_mapd_data_valid(gps_valid, sm):
+  return gps_valid and sm.alive["mapdOut"] and sm["mapdOut"].tileLoaded and sm["mapdOut"].wayId > 0
+
+
+def is_online(device_state):
+  return device_state.networkType != log.DeviceState.NetworkType.none
+
+
+def is_openpilot_steering(sm):
+  return sm["deviceState"].started and (sm["selfdriveState"].enabled or sm["frogpilotCarState"].alwaysOnLateralEnabled)
+
+
+def is_route_preserved(path):
+  try:
+    return xattr.getxattr(path, frogpilot_variables.ROUTE_PRESERVE_ATTR_NAME) == frogpilot_variables.ROUTE_PRESERVED
+  except OSError:
+    return False
 
 
 def is_unmetered_network(device_state):
@@ -162,37 +327,19 @@ def is_unmetered_network(device_state):
 
 
 def is_url_pingable(url, session=requests):
-  if not url:
-    return False
-
   headers = {"Accept": "*/*", "User-Agent": "frogpilot-ping-test/1.0 (https://github.com/FrogAi/FrogPilot)"}
   try:
-    response = session.head(url, headers=headers, timeout=10, allow_redirects=True)
-    try:
-      if response.status_code in (405, 501):
-        response.close()
-        response = session.get(url, headers=headers, timeout=10, allow_redirects=True, stream=True)
-
-      return response.ok
-    finally:
-      response.close()
-
+    return session.head(url, headers=headers, timeout=10, allow_redirects=True).ok
   except Exception:
     return False
 
 
 def load_json_file(path):
-  path = Path(path)
-  if not path.is_file():
-    return {}
-
   try:
     with open(path) as file:
-      data = json.load(file)
+      return json.load(file)
   except (OSError, json.JSONDecodeError):
     return {}
-
-  return data
 
 
 def lock_doors(lock_doors_timer, params):
@@ -203,7 +350,7 @@ def lock_doors(lock_doors_timer, params):
   wait_for_no_driver(params, sm, lock_doors_timer)
 
   sm.update()
-  if any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown):
+  if is_ignition_on(sm):
     return
 
   can_parser = CANParser("toyota_nodsu_pt_generated", [("DOOR_LOCKS", 3)], bus=0)
@@ -215,11 +362,11 @@ def lock_doors(lock_doors_timer, params):
   while True:
     sm.update()
 
-    if any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown):
+    if is_ignition_on(sm):
       break
 
     sendcan_send = messaging.new_message("sendcan", 1)
-    sendcan_send.sendcan[0].address = 0x750
+    sendcan_send.sendcan[0].address = DOOR_CONTROL_ADDR
     sendcan_send.sendcan[0].dat = LOCK_CMD
     sendcan_send.sendcan[0].src = 0
     pm.send("sendcan", sendcan_send)
@@ -227,15 +374,29 @@ def lock_doors(lock_doors_timer, params):
     time.sleep(1)
 
     update_can_parser(can_parser, can_sock)
-    if can_parser.vl["DOOR_LOCKS"]["LOCK_STATUS"] == 0:
+    if can_parser.ts_nanos["DOOR_LOCKS"]["LOCK_STATUS"] > 0 and can_parser.vl["DOOR_LOCKS"]["LOCK_STATUS"] == 0:
       break
 
 
-def run_cmd(cmd, success_message, fail_message, env=None, report=True):
+@cache
+def predicts_lead_trajectories(model_path):
+  for metadata_name in ("supercombo_metadata.pkl", "driving_vision_metadata.pkl", "driving_policy_metadata.pkl"):
+    metadata_path = Path(model_path) / metadata_name
+    if not metadata_path.is_file():
+      continue
+
+    with open(metadata_path, "rb") as metadata_file:
+      lead = pickle.load(metadata_file)["output_slices"].get("lead")
+
+    if lead is not None:
+      return lead.stop - lead.start == frogpilot_variables.LEAD_TRAJECTORY_OUTPUT_SIZE
+
+  return False
+
+
+def run_cmd(cmd, fail_message, report=True):
   try:
-    result = subprocess.run(cmd, capture_output=True, check=True, env=env, text=True)
-    if success_message:
-      print(success_message)
+    result = subprocess.run(cmd, capture_output=True, check=True, text=True)
     return result.stdout.strip()
   except subprocess.CalledProcessError as exception:
     print(f"Command failed with error: {exception.stderr}")
@@ -249,6 +410,59 @@ def run_cmd(cmd, success_message, fail_message, env=None, report=True):
     if report:
       sentry.capture_exception(exception, crash_log=False)
     return None
+
+
+def run_cmd_on_writable_mount(mount_point, cmd, fail_message):
+  mount_options = run_cmd(["findmnt", "-n", "-o", "OPTIONS", mount_point], "Failed to retrieve mount options")
+  run_cmd(["sudo", "mount", "-o", "remount,rw", mount_point], f"Failed to remount {mount_point}")
+  run_cmd(cmd, fail_message)
+  run_cmd(["sudo", "mount", "-o", f"remount,{mount_options}", mount_point], f"Failed to restore {mount_point} mount options")
+
+
+def run_git_with_progress(cmd, cwd, update_progress):
+  output = []
+
+  with subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf8") as process:
+    for line in process.stdout:
+      progress = frogpilot_variables.GIT_PROGRESS_PATTERN.match(line)
+      if progress is None:
+        if frogpilot_variables.GIT_PROGRESS_SUMMARY_PATTERN.match(line) is None:
+          output.append(line)
+      elif progress["phase"] == "Receiving objects":
+        update_progress.download_percent = int(progress["percent"])
+  update_progress.download_finished = time.monotonic()
+
+  if process.returncode != 0:
+    raise subprocess.CalledProcessError(process.returncode, cmd, output="".join(output))
+  return "".join(output)
+
+
+def send_door_command(lock):
+  sm = messaging.SubMaster(["pandaStates"])
+
+  can_parser = CANParser("toyota_nodsu_pt_generated", [("DOOR_LOCKS", 3)], bus=0)
+  can_sock = messaging.sub_sock("can", timeout=100)
+
+  pm = messaging.PubMaster(["sendcan"])
+  time.sleep(0.2)
+
+  for _ in range(frogpilot_variables.DOOR_COMMAND_ATTEMPTS):
+    sm.update()
+    if is_ignition_on(sm):
+      return False
+
+    sendcan_send = messaging.new_message("sendcan", 1)
+    sendcan_send.sendcan[0].address = DOOR_CONTROL_ADDR
+    sendcan_send.sendcan[0].dat = LOCK_CMD if lock else UNLOCK_CMD
+    sendcan_send.sendcan[0].src = 0
+    pm.send("sendcan", sendcan_send)
+
+    time.sleep(1)
+
+    update_can_parser(can_parser, can_sock)
+    if can_parser.ts_nanos["DOOR_LOCKS"]["LOCK_STATUS"] > 0 and (can_parser.vl["DOOR_LOCKS"]["LOCK_STATUS"] == 0) == lock:
+      return True
+  return False
 
 
 def update_can_parser(can_parser, can_sock):
@@ -277,20 +491,12 @@ def wait_for_no_driver(params, sm, time_threshold):
   while sm["deviceState"].screenBrightnessPercent != 0 or any(proc.name == "dmonitoringd" and proc.running for proc in sm["managerState"].processes):
     sm.update()
 
-    if any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown):
+    if is_ignition_on(sm):
       return
 
     time.sleep(DT_HW)
 
   params.put_bool("IsDriverViewEnabled", True)
-
-  while not any(proc.name == "dmonitoringd" and proc.running for proc in sm["managerState"].processes):
-    sm.update()
-
-    if not params.get_bool("IsDriverViewEnabled"):
-      params.put_bool("IsDriverViewEnabled", True)
-
-    time.sleep(DT_HW)
 
   start_time = time.monotonic()
   while True:
@@ -300,10 +506,10 @@ def wait_for_no_driver(params, sm, time_threshold):
     if elapsed_time >= time_threshold:
       break
 
-    if any(ps.ignitionLine or ps.ignitionCan for ps in sm["pandaStates"] if ps.pandaType != log.PandaState.PandaType.unknown):
+    if is_ignition_on(sm):
       break
 
-    if not params.get_bool("IsDriverViewEnabled"):
+    if sm.updated["deviceState"] and not params.get_bool("IsDriverViewEnabled"):
       params.put_bool("IsDriverViewEnabled", True)
 
     if sm["driverMonitoringState"].faceDetected or not sm.alive["driverMonitoringState"]:

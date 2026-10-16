@@ -13,7 +13,7 @@
 
 </div>
 
-**FrogPilot** is a bleeding-edge, highly customizable fork of [openpilot](#new-to-openpilot) for comma devices. It packs advanced features and cutting-edge experiments that often arrive long before official releases, and lets you tune how your car brakes, looks, sounds, speeds up and steers. As a highly experimental and unofficial version of openpilot, **FrogPilot** should *always* be used with caution!
+**FrogPilot** is a bleeding-edge, highly customizable fork of [openpilot](#new-to-openpilot) for comma devices. It packs advanced features and cutting-edge experiments that often arrive long before official releases, and lets you tune how your car brakes, looks, sounds, speeds up, and steers. As a highly experimental and unofficial version of openpilot, **FrogPilot** should *always* be used with caution!
 
 <a id="new-to-openpilot"></a>
 
@@ -22,11 +22,11 @@ What is openpilot?
 
 **openpilot** is free, open-source driver assistance software made by [comma](https://comma.ai) ([docs](https://docs.comma.ai)). It runs on a **comma device**, which mounts on your windshield and connects to your car through a **car harness**.
 
-<p align="center"><picture><source media="(max-width: 900px)" srcset="https://frogpilot.com/images/frogpilot-how-it-works-phone.svg"><source media="(max-width: 1279px)" srcset="https://frogpilot.com/images/frogpilot-how-it-works-medium.svg"><img src="https://frogpilot.com/images/frogpilot-how-it-works.svg" alt="A side view of a car with a small gadget, the comma device, mounted on the inside of the windshield near the rearview mirror. Its road cameras look forward and see lanes, cars, curves, stop signs and stop lights, and its driver camera looks back at the driver and checks you're paying attention. A short cable runs up from the device to the car harness, which plugs in behind the rearview mirror at the top of the windshield and brings in your car's data, such as its speed, and radar on some cars. A dotted line leads to a box showing what is inside the comma device, where it runs openpilot, comma's driving software, with FrogPilot's changes, its features and settings, on top. Through the car harness, your car steers and, on many cars, speeds up, brakes and stops for red lights and stop signs. If you stop paying attention, it issues an urgent takeover warning." width="800"></picture></p>
+<p align="center"><picture><source media="(max-width: 900px)" srcset="https://frogpilot.com/images/frogpilot-how-it-works-phone.svg"><source media="(max-width: 1279px)" srcset="https://frogpilot.com/images/frogpilot-how-it-works-medium.svg"><img src="https://frogpilot.com/images/frogpilot-how-it-works.svg" alt="A side view of a car with a small gadget, the comma device, mounted on the inside of the windshield near the rearview mirror. Its road cameras look forward and see lanes, cars, curves, stop signs, and stop lights, and its driver camera looks back at the driver and checks you're paying attention. A short cable runs up from the device to the car harness, which plugs in behind the rearview mirror at the top of the windshield and brings in your car's data, such as its speed, and radar on some cars. A dotted line leads to a box showing what is inside the comma device, where it runs openpilot, comma's driving software, with FrogPilot's changes, features, and settings on top. Through the car harness, your car steers and, on many cars, speeds up, brakes, and stops for red lights and stop signs. If you stop paying attention, it issues an urgent takeover warning." width="800"></picture></p>
 
-On [335+ supported cars](https://github.com/commaai/openpilot/blob/master/docs/CARS.md), it steers to keep you centered in your lane and, on many of them, manages your following distance and speed, while you stay alert and ready to take over.
+On [335+ supported cars](docs/CARS.md), it steers to keep you centered in your lane and, on many of them, manages your following distance and speed, while you stay alert and ready to take over.
 
-**FrogPilot** is a *fork* of openpilot, meaning it's based on comma's openpilot and adds its own features and settings on top. It installs the same way and runs on the **comma 3**, **comma 3X** and **comma four**.
+**FrogPilot** is a *fork* of openpilot, meaning it's based on comma's openpilot and adds its own features and settings on top. It installs the same way and runs on the **comma 3**, **comma 3X**, and **comma four**.
 
 See openpilot in action:
 
@@ -41,21 +41,19 @@ See openpilot in action:
 ✨ What FrogPilot adds
 ------
 
-**comma four** uses a different interface without the **FrogPilot** menu or the **Share FrogPilot Data** control. The FrogPilot feature and privacy menu paths below do not apply to that interface.
-
 Your comma device's **Settings → FrogPilot** menu holds these features and their options. **Tuning Level**, in that menu, controls how many settings you see, from **Minimal** through **Standard** and **Advanced** to **Developer**. The descriptions below note when a setting needs a higher tuning level or a supported car.
 
-In the menu paths, **Manage** is the button beside the preceding setting. If the button is disabled, turn that setting on first. **Gas / Brake** only appears when openpilot controls your car's gas and brake.
+In the menu paths, **Manage** is the button beside the preceding setting. If the button is disabled, turn that setting on first. The **Gas / Brake** panel only appears when openpilot controls your car's gas and brake.
 
 ### <picture><img src="https://frogpilot.com/images/frogpilot-icon-human-like-driving.svg" width="36" height="36" align="absmiddle" alt=""></picture> Acceleration and Deceleration Profiles
 
 In **"Chill Mode"**, acceleration and deceleration profiles let you choose how briskly your car speeds up and how firmly it slows down.
 
-<p align="center"><picture><source media="(max-width: 900px)" srcset="https://frogpilot.com/images/frogpilot-acceleration-profiles-phone.svg"><source media="(max-width: 1279px)" srcset="https://frogpilot.com/images/frogpilot-acceleration-profiles-medium.svg"><img src="https://frogpilot.com/images/frogpilot-acceleration-profiles.svg" alt="Two panels compare FrogPilot's Acceleration Profile and Deceleration Profile choices. The left panel is a line graph of speed in mph over the first 15 seconds of speeding up from a stop. Sport+ is as quick as your car allows and reaches about 67 mph, Sport (the default) reaches about 51 mph, Standard about 41 mph and Eco about 38 mph. These are the quickest each profile allows, and your car may be slower. The right panel shows the hardest FrogPilot brakes with nobody ahead. Standard uses full braking, Eco (the default) brakes half as hard and Eco+ just coasts. Full braking returns for a car ahead or a curve to slow for." width="800"></picture></p>
+<p align="center"><picture><source media="(max-width: 900px)" srcset="https://frogpilot.com/images/frogpilot-acceleration-profiles-phone.svg"><source media="(max-width: 1279px)" srcset="https://frogpilot.com/images/frogpilot-acceleration-profiles-medium.svg"><img src="https://frogpilot.com/images/frogpilot-acceleration-profiles.svg" alt="Two panels compare FrogPilot's Acceleration Profile and Deceleration Profile choices. The left panel is a line graph of speed in mph over the first 15 seconds of speeding up from a stop. Sport+ is as quick as your car allows and reaches about 67 mph, Sport (the default) reaches about 51 mph, Standard about 41 mph, and Eco about 35 mph. This calculated example caps acceleration at 2.0 m/s². Actual acceleration varies by car. The right panel shows the hardest FrogPilot brakes with nobody ahead. Standard uses full braking, Eco (the default) brakes half as hard, and Eco+ just coasts. Full braking returns for traffic, curves, or required stops." width="800"></picture></p>
 
-**"Acceleration Profile"** sets how briskly it speeds up, with **"Eco"**, **"Standard"**, **"Sport"** (the default) and **"Sport+"** to choose from. Each profile sets an upper limit on acceleration, but your car may accelerate more slowly.
+**"Acceleration Profile"** sets how briskly it speeds up, with **"Eco"**, **"Standard"**, **"Sport"** (the default), and **"Sport+"** to choose from. Each profile sets an upper limit on acceleration, but your car may accelerate more slowly. **"Eco"** keeps this limit below **"Standard"** at every speed.
 
-**"Deceleration Profile"** starts out on **"Eco"**, so with no car ahead it brakes at most half as hard as stock openpilot and slows gently for a lower set speed or speed limit. Switch it to **"Eco+"** and it just lets off the gas and coasts. Full braking returns for a car ahead or a curve to slow for. These profile limits do not apply in **"Experimental Mode"**, including when **"Conditional Experimental Mode"** switches it on.
+**"Deceleration Profile"** starts out on **"Eco"**, so with no car ahead it brakes at most half as hard as stock openpilot and slows gently for a lower set speed or speed limit. Switch it to **"Eco+"** and it just lets off the gas and coasts. Full braking returns for traffic, curves, or required stops. These profile limits do not apply in **"Experimental Mode"**, including when **"Conditional Experimental Mode"** switches it on.
 
 Adjust these settings under **FrogPilot → Driving Controls → Gas / Brake → Acceleration and Braking → Manage**. **"Acceleration Profile"** is available at every tuning level, while **"Deceleration Profile"** requires the **Advanced** or **Developer** tuning level.
 
@@ -67,11 +65,11 @@ On stock openpilot, canceling cruise or tapping the brake turns everything off, 
 
 <p align="center"><picture><source media="(max-width: 900px)" srcset="https://frogpilot.com/images/frogpilot-always-on-lateral-phone.svg"><source media="(max-width: 1279px)" srcset="https://frogpilot.com/images/frogpilot-always-on-lateral-medium.svg"><img src="https://frogpilot.com/images/frogpilot-always-on-lateral.svg" alt="On stock openpilot, tapping the brake turns off both steering and speed control until you resume cruise. With FrogPilot's Always On Lateral, tapping the brake turns off only speed control. Steering stays on, and resuming cruise brings speed control back." width="800"></picture></p>
 
-Press cancel, tap the brake or work the pedals yourself, and it keeps holding your lane. Resuming cruise brings speed control back. Whether you're easing off for a curve, tapping the brake to let someone merge or crawling through stop-and-go traffic, the steering stays on, so you can stay relaxed instead of grabbing the wheel.
+Press cancel, tap the brake, or work the pedals yourself, and it keeps holding your lane. Resuming cruise brings speed control back. Whether you're easing off for a curve, tapping the brake to let someone merge, or crawling through stop-and-go traffic, the steering stays on, so you can stay relaxed instead of grabbing the wheel.
 
-Turn it on under **FrogPilot → Driving Controls → Steering → Always On Lateral**. To customize its behavior, choose the **Standard** tuning level or higher and tap **Manage** beside the toggle.
+It's on by default. You can change it under **FrogPilot → Driving Controls → Steering → Always On Lateral**. To customize its behavior, choose the **Standard** tuning level or higher and tap **Manage** beside the toggle.
 
-\*On newer Genesis, Hyundai and Kia cars with a lane-keeping (LKAS) button on the steering wheel, that button turns it on instead of cruise control. Press it once after you start the car.
+\*On newer Genesis, Hyundai, and Kia cars with a lane-keeping (LKAS) button on the steering wheel, that button turns it on instead of cruise control. Press it once after you start the car.
 
 ---
 
@@ -83,7 +81,7 @@ Turn it on under **FrogPilot → Driving Controls → Steering → Always On Lat
 
 **"Chill Mode"** is predictable and smooth for steady cruising. **["Experimental Mode"](https://blog.comma.ai/090release/#experimental-mode)** lets the driving model pick the speed itself, so it slows for curves and stops for red lights and stop signs, but it's less predictable on the open road. On stock openpilot, you switch between them by hand.
 
-Out of the box, it hands over for stop signs, stop lights and turns. To choose its triggers, open **FrogPilot → Driving Controls → Gas / Brake → Conditional Experimental Mode → Manage** with your tuning level set to **Standard** or higher. The **Advanced** and **Developer** tuning levels show additional trigger settings. The unknown-speed-limit trigger is set separately under **FrogPilot → Driving Controls → Gas / Brake → Speed Limit Controller → Manage → Fallback Speed → Experimental Mode**.
+Out of the box, it hands over for stop signs, stop lights, and turns. To choose its triggers, open **FrogPilot → Driving Controls → Gas / Brake → Conditional Experimental Mode → Manage** with your tuning level set to **Standard** or higher. The **Advanced** and **Developer** tuning levels show additional trigger settings. The unknown-speed-limit trigger is set separately under **FrogPilot → Driving Controls → Gas / Brake → Speed Limit Controller → Manage → Fallback Speed → Experimental Mode**.
 
 Once no trigger applies, it drops back to **"Chill Mode"**. You get the calm of **"Chill Mode"** on the highway and the stop-for-lights smarts of **"Experimental Mode"** around town, with no button presses.
 
@@ -95,9 +93,9 @@ Once no trigger applies, it drops back to **"Chill Mode"**. You get the calm of 
 
 In **"Chill Mode"**, stock openpilot doesn't slow down for curves ahead. **FrogPilot**'s **"Curve Speed Controller"** sees curves coming and slows down on its own, early and smoothly, so you're not braking hard into an off-ramp or a twisty back road.
 
-<p align="center"><picture><source media="(max-width: 900px)" srcset="https://frogpilot.com/images/frogpilot-curve-speed-profiles-phone.svg"><source media="(max-width: 1279px)" srcset="https://frogpilot.com/images/frogpilot-curve-speed-profiles-medium.svg"><img src="https://frogpilot.com/images/frogpilot-curve-speed-profiles.svg" alt="Line graph of speed through a curve in mph (0 to 80) against curve tightness, from tighter curves on the left to wider curves on the right, for FrogPilot's four Curve Speed Profiles. Sport is a red dashed line along the top that goes up to what your car's steering allows. Standard is a solid green line, a little brisker than Gentle. Gentle is a dotted blue line just below Standard, at a calm, unhurried pace. Adaptive, the default, is a light purple band with a purple edge, from below Gentle up to the Sport line. It starts like Standard and learns your pace from curves you drive yourself. For example, on a tight back-road bend, Gentle is 13 mph, Standard is 14 and Sport is up to 17. On a highway ramp, Gentle is 30, Standard is 32 and Sport is up to 39. On a sweeping highway bend, Gentle is 59, Standard is 63 and Sport is up to 77. It never goes above your set speed or past what your car's steering allows." width="800"></picture></p>
+<p align="center"><picture><source media="(max-width: 900px)" srcset="https://frogpilot.com/images/frogpilot-curve-speed-profiles-phone.svg"><source media="(max-width: 1279px)" srcset="https://frogpilot.com/images/frogpilot-curve-speed-profiles-medium.svg"><img src="https://frogpilot.com/images/frogpilot-curve-speed-profiles.svg" alt="Line graph of speed through a curve in mph (0 to 80) against curve tightness, from tighter curves on the left to wider curves on the right, for FrogPilot's four Curve Speed Profiles. Sport is a red dashed line along the top that goes up to what your car's steering allows. Standard is a solid green line, a little brisker than Gentle. Gentle is a dotted blue line just below Standard, at a calm, unhurried pace. Adaptive, the default, is a light purple band with a purple edge, from below Gentle up to the Sport line. It starts like Standard and learns your pace from curves you drive yourself. For example, on a tight back-road bend, Gentle is 13 mph, Standard is 14, and Sport is up to 17. On a highway ramp, Gentle is 30, Standard is 32, and Sport is up to 39. On a sweeping highway bend, Gentle is 59, Standard is 63, and Sport is up to 77. It never goes above your set speed or past what your car's steering allows." width="800"></picture></p>
 
-**"Adaptive"**, the default, starts like **"Standard"** and learns your pace from the curves you take yourself with cruise control off. **"Gentle"** takes curves at a calm, unhurried pace, **"Standard"** is a little brisker and **"Sport"** goes up to what your car's steering allows. None goes above your set speed or past what your car's steering allows.
+**"Adaptive"**, the default, starts like **"Standard"** and learns your pace from the curves you take yourself with cruise control off. **"Gentle"** takes curves at a calm, unhurried pace, **"Standard"** is a little brisker, and **"Sport"** goes up to what your car's steering allows. None goes above your set speed or past what your car's steering allows.
 
 Turn it on under **FrogPilot → Driving Controls → Gas / Brake → Curve Speed Controller** with your tuning level set to **Standard** or higher. To choose a different **"Curve Speed Profile"**, set your tuning level to **Advanced** or **Developer**, then tap **Manage** beside **"Curve Speed Controller"**.
 
@@ -105,15 +103,15 @@ Turn it on under **FrogPilot → Driving Controls → Gas / Brake → Curve Spee
 
 ### <picture><img src="https://frogpilot.com/images/frogpilot-icon-driving-personalities.svg" width="36" height="36" align="absmiddle" alt=""></picture> Driving Personalities
 
-Stock openpilot's **"Aggressive"**, **"Standard"** and **"Relaxed"** profiles are fixed. Switch on **"Driving Personalities"** to tune how much space each one leaves behind the car ahead, so **"Aggressive"** keeps up with traffic the way you like and **"Relaxed"** really feels relaxed.
+Stock openpilot's **"Aggressive"**, **"Standard"**, and **"Relaxed"** profiles are fixed. Switch on **"Driving Personalities"** to tune how much space each one leaves behind the car ahead, so **"Aggressive"** keeps up with traffic the way you like and **"Relaxed"** really feels relaxed.
 
 <p align="center"><picture><source media="(max-width: 900px)" srcset="https://frogpilot.com/images/frogpilot-following-distance-phone.svg"><source media="(max-width: 1279px)" srcset="https://frogpilot.com/images/frogpilot-following-distance-medium.svg"><img src="https://frogpilot.com/images/frogpilot-following-distance.svg" alt="Three road lanes, one for each driving personality, show the default gap behind a car going 65 mph, drawn to scale. Aggressive leaves 1.25 s, about 139 ft. Standard leaves 1.45 s, about 158 ft. Relaxed leaves 1.75 s, about 187 ft. The gap is seconds × your speed + about 20 ft. For Standard at 65 mph (95 ft/s), 1.45 s × 95 ft/s + 20 ft ≈ 158 ft." width="800"></picture></p>
 
-With the default settings at 65 mph, **"Aggressive"** leaves the least room, **"Standard"** a little more and **"Relaxed"** the most. Following distance is measured in seconds, so the gap grows as you go faster.
+With the default settings at 65 mph, **"Aggressive"** leaves the least room, **"Standard"** a little more, and **"Relaxed"** the most. Following distance is measured in seconds, so the gap grows as you go faster.
 
 You can also tune how smoothly each one brakes and speeds up. With the default button assignment, you switch profiles with a tap of the following distance button on your steering wheel. On GM cars with adaptive cruise, the first tap opens the menu. Tap again within 3.5 seconds to change the profile.
 
-To adjust a profile, set your tuning level to **Advanced** or **Developer**, then open **FrogPilot → Driving Controls → Gas / Brake → Driving Personalities → Manage** and tap **Manage** beside **Aggressive**, **Standard** or **Relaxed**. **Following Distance** is available at both the **Advanced** and **Developer** tuning levels. The other five settings below require **Developer**. Each profile has its own values. The percentages use stock openpilot's **"Standard"** profile as the 100% reference. For the smoothness and response ones, a higher value feels gentler and a lower one quicker but more abrupt.
+To adjust a profile, set your tuning level to **Advanced** or **Developer**, then open **FrogPilot → Driving Controls → Gas / Brake → Driving Personalities → Manage** and tap **Manage** beside **Aggressive**, **Standard**, or **Relaxed**. **Following Distance** is available at both the **Advanced** and **Developer** tuning levels. The other five settings below require **Developer**. Each profile has its own values. The percentages use stock openpilot's **"Standard"** profile as the 100% reference. For the smoothness and response ones, a higher value feels gentler and a lower one quicker but more abrupt.
 
 | Setting | Range | What it changes |
 |---------|-------|-----------------|
@@ -152,7 +150,7 @@ openpilot already chimes "Car Detected in Blindspot" when you signal for a lane 
 
 **"Speed Limit Changed Alert"** chimes whenever the speed limit FrogPilot is reading changes, such as entering a school zone or coming off the highway.
 
-<p align="center"><picture><source media="(max-width: 900px)" srcset="https://frogpilot.com/images/frogpilot-alert-speed-limit-phone.svg"><source media="(max-width: 1279px)" srcset="https://frogpilot.com/images/frogpilot-alert-speed-limit-medium.svg"><img src="https://frogpilot.com/images/frogpilot-alert-speed-limit.svg" alt="A stretch of road seen from above with your car driving to the right. Behind it stands a 45 mph speed limit sign; just ahead of it a 25 mph sign stands at a dashed line across the road where the limit changes. An arrow runs down the road from that line with the words: the speed limit openpilot reads changes. Above the far end of the road are the words: for example, entering a school zone. Under your car a yellow box says FrogPilot chimes, followed by the words: right as the limit changes. A note at the bottom says: the limit comes from your dashboard, downloaded maps, signs the camera reads or Mapbox, depending on your setup." width="800"></picture></p>
+<p align="center"><picture><source media="(max-width: 900px)" srcset="https://frogpilot.com/images/frogpilot-alert-speed-limit-phone.svg"><source media="(max-width: 1279px)" srcset="https://frogpilot.com/images/frogpilot-alert-speed-limit-medium.svg"><img src="https://frogpilot.com/images/frogpilot-alert-speed-limit.svg" alt="A stretch of road seen from above with your car driving to the right. Behind it stands a 45 mph speed limit sign; just ahead of it a 25 mph sign stands at a dashed line across the road where the limit changes. An arrow runs down the road from that line with the words: the speed limit openpilot reads changes. Above the far end of the road are the words: for example, entering a school zone. Under your car a yellow box says FrogPilot chimes, followed by the words: right as the limit changes. A note at the bottom says: the limit comes from your dashboard, downloaded maps, signs the camera reads, or Mapbox, depending on your setup." width="800"></picture></p>
 
 It appears when **"Show Speed Limits"** or **"Speed Limit Filler"** is on, or when **"Speed Limit Controller"** is on and openpilot controls the gas and brake.
 
@@ -182,7 +180,7 @@ Adjust **"Human-Like Acceleration"** and **"Human-Like Following"** under **Frog
 
 ### <picture><img src="https://frogpilot.com/images/frogpilot-icon-model-manager.svg" width="36" height="36" align="absmiddle" alt=""></picture> Model Manager
 
-The driving model is the AI at the heart of openpilot. It decides how to slow down, speed up and steer, so it shapes how every drive feels.
+The driving model is the AI at the heart of openpilot. It decides how to slow down, speed up, and steer, so it shapes how every drive feels.
 
 <p align="center"><picture><source media="(max-width: 900px)" srcset="https://frogpilot.com/images/frogpilot-model-manager-phone.svg"><source media="(max-width: 1279px)" srcset="https://frogpilot.com/images/frogpilot-model-manager-medium.svg"><img src="https://frogpilot.com/images/frogpilot-model-manager.svg" alt="Two rows, each with a label at the left. Stock openpilot has a single driving model, comma's model: one model, the one comma ships with each release. Model Manager has a range of models: Model A, highlighted as selected, Model B, Model C, and a new model that downloads on its own; you download the ones you want and switch with Select Driving Model. The model names are stand-ins, not real models." width="800"></picture></p>
 
@@ -200,18 +198,18 @@ It picks a different model at the start of every drive, asks how it went after d
 
 Matching your set speed to every new speed limit means constant fiddling with the cruise buttons, and it's easy to miss a sign. With **"Speed Limit Controller"**, you set your cruise speed once and **FrogPilot** follows the posted limit plus an offset you choose, but never goes above your set speed.
 
-<p align="center"><picture><source media="(max-width: 900px)" srcset="https://frogpilot.com/images/frogpilot-speed-limit-sources-phone.svg"><source media="(max-width: 1279px)" srcset="https://frogpilot.com/images/frogpilot-speed-limit-sources-medium.svg"><img src="https://frogpilot.com/images/frogpilot-speed-limit-sources.svg" alt="How Speed Limit Controller works. In this example, downloaded OpenStreetMap maps (priority 1) say 45 mph while your car's dashboard and the camera (2 and 3) say 40, so it uses 45 mph from your first choice, adds your 5 mph offset and drives 50 mph, never above your set speed. Mapbox online data, with your own key, is used only when none of them has a limit." width="800"></picture></p>
+<p align="center"><picture><source media="(max-width: 900px)" srcset="https://frogpilot.com/images/frogpilot-speed-limit-sources-phone.svg"><source media="(max-width: 1279px)" srcset="https://frogpilot.com/images/frogpilot-speed-limit-sources-medium.svg"><img src="https://frogpilot.com/images/frogpilot-speed-limit-sources.svg" alt="How Speed Limit Controller works. In this example, downloaded OpenStreetMap maps (priority 1) say 45 mph while your car's dashboard and the camera (2 and 3) say 40, so it uses 45 mph from your first choice, adds your 5 mph offset, and drives 50 mph, never above your set speed. Mapbox online data, with your own key, is used only when none of them has a limit." width="800"></picture></p>
 
 In the example, the downloaded maps are first in your source priority order, so their 45 mph limit wins over the 40 mph reported by the dashboard and camera. Adding your 5 mph offset gives 50 mph, still capped by your set speed.
 
-It reads speed limit signs with the road camera and, on supported Ford, Genesis, Hyundai, Kia, Lexus and Toyota models, your car's dashboard. It also uses maps from **["OpenStreetMap"](https://www.openstreetmap.org)** and, with your own **["Mapbox"](https://www.mapbox.com)** key, fills gaps with Mapbox's online data. To download maps, open **FrogPilot → Maps and Navigation → Speed Limit Maps** and pick your countries or states in **Map Sources**. Go back, then tap **Download** beside **Download Maps** while parked and online. They update automatically every month. Add your **Public Mapbox Key** under **FrogPilot → Maps and Navigation → Navigation** to make **Use Mapbox as Fallback** available.
+It reads speed limit signs with the road camera and, on supported Ford, Genesis, Hyundai, Kia, Lexus, and Toyota models, your car's dashboard. It also uses maps from **["OpenStreetMap"](https://www.openstreetmap.org)** and, with your own **["Mapbox"](https://www.mapbox.com)** key, fills gaps with Mapbox's online data. To download maps, open **FrogPilot → Maps and Navigation → Speed Limit Maps** and pick your countries or states in **Map Sources**. Go back, then tap **Download** beside **Download Maps** while parked and online. They update automatically every month. Add your **Public Mapbox Key** under **FrogPilot → Maps and Navigation → Navigation** to make **Use Mapbox as Fallback** available.
 
 To choose how it handles limits, open **FrogPilot → Driving Controls → Gas / Brake → Speed Limit Controller → Manage**. The settings below note any submenus and tuning-level requirements.
 
 | Setting | What it does |
 |---------|--------------|
-| **"Confirm New Speed Limits"**<br>Under **Speed Limit Changes → Manage** | Asks before switching to a new limit, keeping the old one until you accept. Choose whether to confirm lower limits, higher limits or both. It won't ask for confirmation until you select an option. |
-| **"Fallback Speed"** | What it does where no limit can be found. You choose between using your set speed, keeping the last limit and letting **"Experimental Mode"** pick the speed. Out of the box it keeps the last limit, even one from an earlier drive. Requires the **Standard** tuning level or higher |
+| **"Confirm New Speed Limits"**<br>Under **Speed Limit Changes → Manage** | Asks before switching to a new limit, keeping the old one until you accept. Choose whether to confirm lower limits, higher limits, or both. It won't ask for confirmation until you select an option. |
+| **"Fallback Speed"** | What it does where no limit can be found. You choose between using your set speed, keeping the last limit, and letting **"Experimental Mode"** pick the speed. Out of the box it keeps the last limit, even one from an earlier drive. Requires the **Standard** tuning level or higher |
 | **"Higher Limit Lookahead Time"** and **"Lower Limit Lookahead Time"**<br>Under **Speed Limit Changes → Manage** | Lets it start speeding up or slowing down for a new limit before you reach it, instead of right where the limit changes. Only works with limits from your downloaded maps. Requires the **Advanced** tuning level or higher |
 | **"Match Speed Limit on Engage"**<br>Under **Speed Limit Changes → Manage** | When you engage without resuming an earlier set speed, it starts at the speed limit plus your offset, not your current speed. It's only offered on cars where openpilot sets the cruise speed itself. Requires the **Standard** tuning level or higher |
 | **"Override Speed"** | What happens after you press the gas past the limit. Out of the box it keeps the faster speed you reached, even if the limit drops, until you disengage or the limit rises to meet it. Requires the **Standard** tuning level or higher |
@@ -225,13 +223,13 @@ To choose how it handles limits, open **FrogPilot → Driving Controls → Gas /
 
 ### <picture><img src="https://frogpilot.com/images/frogpilot-icon-themes.svg" width="36" height="36" align="absmiddle" alt=""></picture> Themes
 
-Make your screen yours. With **"Custom Themes"**, download theme packs and mix and match their color schemes, icon packs, sound packs, steering wheel icons and turn signal animations. To choose your packs, open **FrogPilot → Theme and Appearance → Theme** and tap **Manage** beside **"Custom Themes"**. Turn on **"Holiday Themes"** in the **Theme** menu and **FrogPilot** dresses up on its own for thirteen holidays through the year. Build your own theme with the **"Theme Maker"** in **The Pond** and share it with the community. Open The Pond in a browser on the same Wi-Fi using the address shown under **FrogPilot → Maps and Navigation → Navigation → Manage Your Settings At**. For extra fun, the **Theme** menu also offers the Mario Kart–style **"Rainbow Path"** and **"Random Events"** for the occasional joke alert when your tuning level is **Standard** or higher. Neither one changes how it drives!
+Make your screen yours. With **"Custom Themes"**, download theme packs and mix and match their color schemes, icon packs, sound packs, steering wheel icons, and turn signal animations. To choose your packs, open **FrogPilot → Theme and Appearance → Theme** and tap **Manage** beside **"Custom Themes"**. Turn on **"Holiday Themes"** in the **Theme** menu and **FrogPilot** dresses up on its own for thirteen holidays through the year. Build your own theme with the **"Theme Maker"** in **The Pond** and share it with the community. Open The Pond in a browser on the same Wi-Fi using the address shown under **FrogPilot → Maps and Navigation → Navigation → Manage Your Settings At**. For extra fun, the **Theme** menu also offers the Mario Kart–style **"Rainbow Path"** and **"Random Events"** for the occasional joke alert when your tuning level is **Standard** or higher. Neither one changes how it drives!
 
-<p align="center"><img src="https://frogpilot.com/images/frogpilot-themes.jpg" alt="FrogPilot's driving screen with the Frog theme, which has green lane lines and path, a green settings button, a frog as the flag button and a frog in a chauffeur cap as the steering wheel icon." width="800"></p>
+<p align="center"><img src="https://frogpilot.com/images/frogpilot-themes.jpg" alt="FrogPilot's driving screen with the Frog theme, which has green lane lines and path, a green settings button, a frog as the flag button, and a frog in a chauffeur cap as the steering wheel icon." width="800"></p>
 
 ---
 
-**FrogPilot is driver assistance, not self-driving. Stay attentive and ready to take over. "Conditional Experimental Mode", "Curve Speed Controller", driving personality tuning, Human-Like Driving, "Speed Limit Controller" and "Traffic Mode" only work on cars where openpilot controls the gas and brake.**
+**FrogPilot is driver assistance, not self-driving. Stay attentive and ready to take over. "Conditional Experimental Mode", "Curve Speed Controller", driving personality tuning, Human-Like Driving, "Speed Limit Controller", and "Traffic Mode" only work on cars where openpilot controls the gas and brake.**
 
 And lots more!
 
@@ -246,9 +244,9 @@ openpilot vs **FrogPilot**
 | Set your own volume for each alert (**"Alert Volumes"**) | ❌ | ✅ |
 | Turns the lane beside you red on screen when a vehicle is in your blind spot, not just when you signal (**"Blind Spot Path"**)* | ❌ | ✅ |
 | Saves the last minute of the driving screen as a video with one tap, or records it whenever you like (**"Capture Recent Footage"**, **"Screen Recorder"**) | ❌ | ✅ |
-| Change colors, icons, sounds and turn signals, with automatic holiday themes (**"Custom Themes"**, **"Holiday Themes"**) | ❌ | ✅ |
+| Change colors, icons, sounds, and turn signals, with automatic holiday themes (**"Custom Themes"**, **"Holiday Themes"**) | ❌ | ✅ |
 | Chimes when the model predicts it's time to move, which can be before the light changes, or when the car in front pulls away (**"Green Light Alert"**, **"Lead Departing Alert"**) | ❌ | ✅ |
-| Shows the posted speed limit on screen from maps, road signs or your car's dashboard, even on cars where openpilot doesn't control the gas and brake (**"Show Speed Limits"**) | ❌ | ✅ |
+| Shows the posted speed limit on screen from maps, road signs, or your car's dashboard, even on cars where openpilot doesn't control the gas and brake (**"Show Speed Limits"**) | ❌ | ✅ |
 | Chimes when the speed limit changes (**"Speed Limit Changed Alert"**) | ❌ | ✅ |
 | Turns the screen off while driving and wakes it for alerts (**"Standby Mode"**) | ❌ | ✅ |
 
@@ -257,9 +255,9 @@ openpilot vs **FrogPilot**
 
 - **Alert Volumes:** **FrogPilot → Alerts and Sounds → Manage → Alert Volumes → Manage**. Requires the **Advanced** tuning level or higher.
 - **Blind Spot Path:** **FrogPilot → Theme and Appearance → Driving View → Driving Screen Widgets → Manage**. Requires the **Standard** tuning level or higher and a car with blind spot monitoring.
-- **Capture Recent Footage**, **Screen Recorder** and **Standby Mode:** **FrogPilot → System Settings → Device / Screen → Screen Settings → Manage**. **Capture Recent Footage** and **Standby Mode** require the **Standard** tuning level or higher, while **Screen Recorder** requires **Advanced** or higher.
+- **Capture Recent Footage**, **Screen Recorder**, and **Standby Mode:** **FrogPilot → System Settings → Device / Screen → Screen Settings → Manage**. **Capture Recent Footage** and **Standby Mode** require the **Standard** tuning level or higher, while **Screen Recorder** requires **Advanced** or higher.
 - **Custom Themes** and **Holiday Themes:** **FrogPilot → Theme and Appearance → Theme**. Tap **Manage** beside **Custom Themes** to choose its packs.
-- **Green Light Alert**, **Lead Departing Alert**, **Louder Blind Spot Alert** and **Speed Limit Changed Alert:** **FrogPilot → Alerts and Sounds → Manage → Extra Alerts → Manage**. The speed-limit alert appears when **Show Speed Limits** or **Speed Limit Filler** is on, or when **Speed Limit Controller** is on and openpilot controls the gas and brake.
+- **Green Light Alert**, **Lead Departing Alert**, **Louder Blind Spot Alert**, and **Speed Limit Changed Alert:** **FrogPilot → Alerts and Sounds → Manage → Extra Alerts → Manage**. The speed-limit alert appears when **Show Speed Limits** or **Speed Limit Filler** is on, or when **Speed Limit Controller** is on and openpilot controls the gas and brake.
 - **Show Speed Limits:** **FrogPilot → Theme and Appearance → Driving View → Navigation Widgets → Manage**. This toggle is hidden when **Speed Limit Controller** is on and openpilot controls the gas and brake, because the controller already displays the limit. Requires the **Standard** tuning level or higher.
 
 </details>
@@ -269,23 +267,23 @@ openpilot vs **FrogPilot**
 |---------|:---------:|:---------:|
 | Automatic door locks on Lexus and Toyota cars, locking when you shift into gear and unlocking in park (**"Automatically Lock/Unlock Doors"**)* | ❌ | ✅ |
 | Brakes earlier and more gently behind other cars and, in **"Chill Mode"**, brakes half as hard with no car ahead and eases into your set speed, all on by default (**"Deceleration Profile"**, **"Human-Like Acceleration"**, **"Human-Like Following"**)† | ❌ | ✅ |
-| Tune each driving personality's acceleration, braking and following distance (**"Driving Personalities"**)† | ❌ | ✅ |
+| Tune each driving personality's acceleration, braking, and following distance (**"Driving Personalities"**)† | ❌ | ✅ |
 | Set how much farther back it stops behind the car ahead, up to 10 extra feet (**"Increase Stopped Distance by:"**)† | ❌ | ✅ |
 | More steering strength* | ❌ | ✅ |
 | Smoother steering, on by default, from a model trained on cars like yours or, where there isn't one, a lighter version that anticipates curves (**"Neural Network Feedforward (NNFF)"**, **"Neural Network Feedforward (NNFF) Lite"**)* | ❌ | ✅ |
 | Stop-and-go on cars whose factory cruise control can't do it* | ❌ | ✅ |
-| Set extra following distance and gentler acceleration and cornering for low visibility, rain and snow (**"Weather Condition Offsets"**)† | ❌ | ✅ |
+| Set extra following distance and gentler acceleration and cornering for low visibility, rain, and snow (**"Weather Condition Offsets"**)† | ❌ | ✅ |
 
 <details>
 <summary>Settings paths and tuning levels</summary>
 
 - **Automatically Lock/Unlock Doors:** **FrogPilot → Vehicle Settings → Vehicle Settings → Toyota/Lexus Settings → Manage**.
-- **Deceleration Profile**, **Human-Like Acceleration** and **Human-Like Following:** **FrogPilot → Driving Controls → Gas / Brake → Acceleration and Braking → Manage**. Requires the **Advanced** tuning level or higher.
-- **Driving Personalities:** **FrogPilot → Driving Controls → Gas / Brake → Driving Personalities → Manage** (requires the **Advanced** tuning level or higher), then **Manage** beside **Aggressive**, **Standard** or **Relaxed**. **Following Distance** requires the **Advanced** tuning level or higher, while the other profile controls require **Developer**.
+- **Deceleration Profile**, **Human-Like Acceleration**, and **Human-Like Following:** **FrogPilot → Driving Controls → Gas / Brake → Acceleration and Braking → Manage**. Requires the **Advanced** tuning level or higher.
+- **Driving Personalities:** **FrogPilot → Driving Controls → Gas / Brake → Driving Personalities → Manage** (requires the **Advanced** tuning level or higher), then **Manage** beside **Aggressive**, **Standard**, or **Relaxed**. **Following Distance** requires the **Advanced** tuning level or higher, while the other profile controls require **Developer**.
 - **Increase Stopped Distance by:** **FrogPilot → Driving Controls → Gas / Brake → Quality of Life → Manage**. Requires the **Standard** tuning level or higher.
 - **Neural Network Feedforward (NNFF)** and **Neural Network Feedforward (NNFF) Lite:** **FrogPilot → Driving Controls → Steering → Lateral Tuning → Manage**. Which one appears depends on your car and whether full NNFF is on. Requires the **Advanced** tuning level or higher.
-- **Stop-and-go:** **FrogPilot → Vehicle Settings → Vehicle Settings**, then **Manage** beside your brand's settings. Look for **Stop-and-Go Hack** on supported Chevrolet Volt, Toyota and Lexus cars, or **Stop and Go** on supported Subarus. Requires the **Advanced** tuning level or higher.
-- **Weather Condition Offsets:** **FrogPilot → Driving Controls → Gas / Brake → Quality of Life → Manage → Weather Condition Offsets → Manage**, then **Manage** beside **Low Visibility**, **Rain**, **Rainstorms** or **Snow**. Requires the **Advanced** tuning level or higher.
+- **Stop-and-go:** **FrogPilot → Vehicle Settings → Vehicle Settings**, then **Manage** beside your brand's settings. Look for **Stop-and-Go Hack** on supported Chevrolet Volt, Toyota, and Lexus cars, or **Stop and Go** on supported Subarus. Requires the **Advanced** tuning level or higher.
+- **Weather Condition Offsets:** **FrogPilot → Driving Controls → Gas / Brake → Quality of Life → Manage → Weather Condition Offsets → Manage**, then **Manage** beside **Low Visibility**, **Rain**, **Rainstorms**, or **Snow**. Requires the **Advanced** tuning level or higher.
 
 </details>
 
@@ -296,17 +294,17 @@ openpilot vs **FrogPilot**
 | Changes lanes with just the turn signal, no wheel nudge (**"Automatic Lane Changes"**) | ❌ | ✅ |
 | Switches between **"Chill Mode"** and **"Experimental Mode"** on its own (**"Conditional Experimental Mode"**)† | ❌ | ✅ |
 | Takes curves at the speed you like, learning from how you drive them (**"Curve Speed Controller"**)† | ❌ | ✅ |
-| Choose what the following distance button does on a tap, a hold and a long hold, and what the LKAS button does, such as toggling **"Experimental Mode"** or **"Traffic Mode"**†, or pausing steering (**"Distance Button"**, **"LKAS Button"**) | ❌ | ✅ |
+| Choose what the following distance button does on a tap, a hold, and a long hold, and what the LKAS button does, such as toggling **"Experimental Mode"** or **"Traffic Mode"**†, or pausing steering (**"Distance Button"**, **"LKAS Button"**) | ❌ | ✅ |
 | Comes to a stop in **"Chill Mode"** when the driving model expects to stop and there's no car ahead (**Force Stop at "Detected" Stop Lights/Signs**)† | ❌ | ✅ |
 | Pauses steering below a speed you choose, either always or only while your turn signal is on (**"Pause Steering Below"**) | ❌ | ✅ |
-| Follows posted speed limits from maps, road signs or your car's dashboard (**"Speed Limit Controller"**)† | ❌ | ✅ |
+| Follows posted speed limits from maps, road signs, or your car's dashboard (**"Speed Limit Controller"**)† | ❌ | ✅ |
 
 <details>
 <summary>Settings paths and tuning levels</summary>
 
 - **Always On Lateral:** **FrogPilot → Driving Controls → Steering**. Tap **Manage** beside it for its options (requires the **Standard** tuning level or higher).
 - **Automatic Lane Changes:** **FrogPilot → Driving Controls → Steering → Lane Changes → Manage**.
-- **Conditional Experimental Mode**, **Curve Speed Controller** and **Speed Limit Controller:** **FrogPilot → Driving Controls → Gas / Brake**. Tap **Manage** beside the feature you want to adjust. CEM and CSC require the **Standard** tuning level or higher. SLC is available at every tuning level, with more options at higher levels.
+- **Conditional Experimental Mode**, **Curve Speed Controller**, and **Speed Limit Controller:** **FrogPilot → Driving Controls → Gas / Brake**. Tap **Manage** beside the feature you want to adjust. CEM and CSC require the **Standard** tuning level or higher. SLC is available at every tuning level, with more options at higher levels.
 - **Distance Button** and **LKAS Button:** **FrogPilot → Vehicle Settings → Wheel Buttons**. Requires the **Advanced** tuning level or higher.
 - **Force Stop at "Detected" Stop Lights/Signs:** **FrogPilot → Driving Controls → Gas / Brake → Quality of Life → Manage**. Requires the **Advanced** tuning level or higher.
 - **Pause Steering Below:** **FrogPilot → Driving Controls → Steering → Quality of Life → Manage**. Requires the **Standard** tuning level or higher.
@@ -319,7 +317,7 @@ openpilot vs **FrogPilot**
 | Fine-tune steering by hand (**"Advanced Lateral Tuning"**) | ❌ | ✅ |
 | Fine-tune gas and brake by hand (**"Advanced Longitudinal Tuning"**)† | ❌ | ✅ |
 | Runs on the older **comma 3** | ❌ | ✅ |
-| Works with add-on hardware some owners install (**comma Pedal**, **SDSU** and **ZSS**)* | ❌ | ✅ |
+| Works with add-on hardware some owners install (**comma Pedal**, **SDSU**, and **ZSS**)* | ❌ | ✅ |
 | Automatic backups of your FrogPilot install and settings, ready to restore (**"FrogPilot Backups"**, **"Settings Backups"**) | ❌ | ✅ |
 | High-quality recordings when uploads are off (**"High-Quality Recording"**) | ❌ | ✅ |
 | No forced internet check-ins (stock openpilot won't start after 27 hours of driving and 84 drives without checking for updates) | ❌ | ✅ |
@@ -331,7 +329,7 @@ openpilot vs **FrogPilot**
 
 - **Advanced Lateral Tuning:** **FrogPilot → Driving Controls → Steering → Advanced Lateral Tuning → Manage**. Requires the **Developer** tuning level.
 - **Advanced Longitudinal Tuning:** **FrogPilot → Driving Controls → Gas / Brake → Advanced Longitudinal Tuning → Manage**. Requires the **Developer** tuning level.
-- **comma Pedal**, **SDSU** and **ZSS:** supported hardware is detected automatically. Check **FrogPilot → Vehicle Settings → Vehicle Settings → Vehicle Info → View → 3rd Party Hardware Detected**. This shows which hardware was detected and isn't a toggle.
+- **comma Pedal**, **SDSU**, and **ZSS:** supported hardware is detected automatically. Check **FrogPilot → Vehicle Settings → Vehicle Settings → Vehicle Info → View → 3rd Party Hardware Detected**. This shows which hardware was detected and isn't a toggle.
 - **FrogPilot Backups** and **Settings Backups:** **FrogPilot → System Settings → Data**.
 - **High-Quality Recording:** **FrogPilot → System Settings → Device / Screen → Device Settings → Manage**. It appears when **Disable Uploads** is on and **Disable Onroad Only** is off. These options are hidden on **FrogPilot-Development** and **FrogPilot-Vetting**. Requires the **Advanced** tuning level or higher where available.
 - **Select Driving Model** and **Model Randomizer:** **FrogPilot → Driving Controls → Driving Model**.
@@ -351,8 +349,8 @@ And much, much more!
 
 You need three things:
 
-1. **A supported car.** Check [the list of 335+ supported cars](https://github.com/commaai/openpilot/blob/master/docs/CARS.md). Its **ACC** (adaptive cruise control) column shows who controls the gas and brake. On cars marked **openpilot**, openpilot does. On cars marked **openpilot available**, the experimental option is **Settings → Developer → openpilot Longitudinal Control (Alpha)**. It is only shown on supported cars when you select the **Developer** tuning level under **FrogPilot → Tuning Level**. On cars marked **Stock**, your car's own cruise control does, and openpilot steers.
-2. **A comma device.** **FrogPilot** runs on the **comma 3**, **comma 3X** and **comma four**. The **comma four** is available at [comma.ai/shop/comma-four](https://www.comma.ai/shop/comma-four). **FrogPilot** also runs on the [**Konik A1M**](https://konik.ai/shop/konik-a1/), a third-party device that comma doesn't make or support.
+1. **A supported car.** Check [the list of 335+ supported cars](docs/CARS.md). Its **ACC** (adaptive cruise control) column shows who controls the gas and brake. On cars marked **openpilot**, openpilot does. On cars marked **openpilot available**, the experimental option is **Settings → Developer → openpilot Longitudinal Control (Alpha)**. It is only shown on supported cars when you select the **Developer** tuning level under **FrogPilot → Tuning Level**. On cars marked **Stock**, your car's own cruise control does, and openpilot steers.
+2. **A comma device.** **FrogPilot** runs on the **comma 3**, **comma 3X**, and **comma four**. The **comma four** is available at [comma.ai/shop/comma-four](https://www.comma.ai/shop/comma-four).
 3. **A car harness** for your car, which connects the device to it. comma lets you pick your car's harness when you buy a **comma four**, or you can buy one at [comma.ai/shop/car-harness](https://comma.ai/shop/car-harness).
 
 Then:
@@ -409,7 +407,7 @@ No. It steers for you, and on many cars it also brakes and speeds up, but you're
 <details>
 <summary><b>Will it work with my car?</b></summary>
 
-Check [the supported cars list](https://github.com/commaai/openpilot/blob/master/docs/CARS.md). Some **FrogPilot** features also need openpilot to control your car's gas and brake. They're marked with † in the tables above.
+Check [the supported cars list](docs/CARS.md). Some **FrogPilot** features also need openpilot to control your car's gas and brake. They're marked with † in the tables above.
 
 </details>
 
@@ -430,11 +428,11 @@ Yes. **FrogPilot** is software on your comma device, so you can reinstall it wit
 <details>
 <summary><b>What data does it share?</b></summary>
 
-Like stock openpilot, it uploads your drives to comma by default (or to [Konik](https://konik.ai/), a separate company, on builds that aren't fully tested yet). **FrogPilot**'s own data sharing is off until you agree to it. Crash reports, device registration and a check-in each time the device starts and after each drive are always on. The **User Data** section at the bottom has the details.
+Like stock openpilot, it uploads your drives to comma by default (or to [Konik](https://konik.ai/), a separate company, on builds that aren't fully tested yet). **FrogPilot**'s own data sharing is off until you agree to it. Crash reports, device registration, and a check-in each time the device starts and after each drive are always on. The **User Data** section at the bottom has the details.
 
 </details>
 
-💬 Bug reports, feature requests and help
+💬 Bug reports, feature requests, and help
 ------
 
 If you run into a bug or have an idea for a new feature, please post it on the **[FrogPilot Discord](https://discord.frogpilot.com)**! Feedback helps improve **FrogPilot** and create a better experience for everyone!
@@ -442,7 +440,7 @@ If you run into a bug or have an idea for a new feature, please post it on the *
 To report a bug, please post it in [**#bug-reports**](https://discord.com/channels/1137853399715549214/1162100167110053888).  
 To request a feature, please post it in [**#feature-requests**](https://discord.com/channels/1137853399715549214/1160318669839147259).  
 
-Please include which branch you're on, your car and your device, and as much detail as possible! Log files, photos and videos that show the issue or idea are very helpful!
+Please include which branch you're on, your car, and your device, and as much detail as possible! Log files, photos, and videos that show the issue or idea are very helpful!
 
 I'll do my best to respond promptly, but not every request can be addressed right away. Your feedback is always appreciated and helps make **FrogPilot** the best it can be!
 
@@ -478,7 +476,7 @@ GitHub Issues are turned off for this repository, so please post bug reports and
 
 FrogPilot, like openpilot, is released under the MIT license. Some parts of the software are released under other licenses as specified.
 
-Any user of this software shall indemnify and hold harmless Comma.ai, Inc. and its directors, officers, employees, agents, stockholders, affiliates, subcontractors and customers from and against all allegations, claims, actions, suits, demands, damages, liabilities, obligations, losses, settlements, judgments, costs and expenses (including without limitation attorneys’ fees and costs) which arise out of, relate to or result from any use of this software by user.
+Any user of this software shall indemnify and hold harmless Comma.ai, Inc. and its directors, officers, employees, agents, stockholders, affiliates, subcontractors, and customers from and against all allegations, claims, actions, suits, demands, damages, liabilities, obligations, losses, settlements, judgments, costs, and expenses (including without limitation attorneys’ fees and costs) which arise out of, relate to, or result from any use of this software by user.
 
 **THIS IS ALPHA QUALITY SOFTWARE FOR RESEARCH PURPOSES ONLY. THIS IS NOT A PRODUCT.
 YOU ARE RESPONSIBLE FOR COMPLYING WITH LOCAL LAWS AND REGULATIONS.
@@ -488,9 +486,9 @@ NO WARRANTY EXPRESSED OR IMPLIED.**
 <details>
 <summary>User Data</summary>
 
-Your comma device sends data to comma or Konik, FrogPilot and Sentry.
+Your comma device sends data to comma or Konik, FrogPilot, and Sentry.
 
-<p align="center"><picture><source media="(max-width: 900px)" srcset="https://frogpilot.com/images/frogpilot-data-sharing-phone.svg"><source media="(max-width: 1279px)" srcset="https://frogpilot.com/images/frogpilot-data-sharing-medium.svg"><img src="https://frogpilot.com/images/frogpilot-data-sharing.svg" alt="A table of what your comma device sends, grouped by where it goes, with when it goes and what stops it. A legend marks each row as sent without asking, sent only if Share FrogPilot Data is on, or sent only if you turn the feature on. comma's servers, or Konik's when Use Konik Server is on, get drive logs with GPS, crash logs and low-res road video without asking, whenever the device is online, even while driving, though on cellular the video goes only for drives you open. Disable Uploads stops these uploads. Also without asking, they get system logs and device stats whenever online and, only on request, full video or live data such as your location. No setting stops these uploads. FrogPilot's servers get two things without asking, which no setting stops. One is a registration with the device type and software version at first start and after updates, and the other is a check-in at each start and after each drive that counts active devices and is empty if Share FrogPilot Data is off. Only if Share FrogPilot Data is on, they also get usage stats in the check-in, with your car, drive totals, settings, and nearest city, state and country, which turning Share FrogPilot Data off stops. With Share FrogPilot Data on, they also get driving logs with no video or GPS but raw CAN kept, and 10-second road video clips of speed limit signs on some Toyota and Lexus cars, sent while parked on Wi-Fi or Ethernet, which turning Share FrogPilot Data off, or Disable Uploads, stops. With Share FrogPilot Data on, they also get speed limits learned by Speed Limit Filler where they differ from your maps, sent while parked on Wi-Fi or Ethernet, which turning off Share FrogPilot Data or Speed Limit Filler stops. Weather Condition Offsets is off by default. If you turn it on, it sends your exact location while driving, every 15 minutes or 20 km. Sentry, a crash reporting service, gets crash and error reports tagged with your device ID when something fails, and no setting stops them." width="800"></picture></p>
+<p align="center"><picture><source media="(max-width: 900px)" srcset="https://frogpilot.com/images/frogpilot-data-sharing-phone.svg"><source media="(max-width: 1279px)" srcset="https://frogpilot.com/images/frogpilot-data-sharing-medium.svg"><img src="https://frogpilot.com/images/frogpilot-data-sharing.svg" alt="A table of what your comma device sends, grouped by where it goes, with when it goes and what stops it. A legend marks each row as sent without asking, sent only if Share FrogPilot Data is on, or sent only if you turn the feature on. comma's servers, or Konik's when Use Konik Server is on, get drive logs with GPS, crash logs, and low-res road video without asking, whenever the device is online, even while driving, though on cellular the video goes only for drives you open. Disable Uploads stops these uploads. Also without asking, they get system logs and device stats whenever online and, only on request, full video or live data such as your location. No setting stops these uploads. FrogPilot's servers get two things without asking, which no setting stops. One is a registration with the device type and software version at first start and after updates, and the other is a check-in at each start and after each drive that counts active devices and is empty if Share FrogPilot Data is off. Only if Share FrogPilot Data is on, they also get usage stats in the check-in, with your car, drive totals, settings, and nearest city, state, and country, which turning Share FrogPilot Data off stops. With Share FrogPilot Data on, they also get driving logs with no video or GPS but raw CAN kept, and 10-second road video clips of speed limit signs on some Toyota and Lexus cars, sent while parked on Wi-Fi or Ethernet, which turning Share FrogPilot Data off, or Disable Uploads, stops. With Share FrogPilot Data on, they also get speed limits learned by Speed Limit Filler where they differ from your maps, sent while parked on Wi-Fi or Ethernet, which turning off Share FrogPilot Data or Speed Limit Filler stops. Weather Condition Offsets is off by default. If you turn it on, it sends your location, rounded to about 1 km, while driving, every 15 minutes or 20 km. Sentry, a crash reporting service, gets crash and error reports tagged with your device ID when something fails, and no setting stops them." width="800"></picture></p>
 
 By default, FrogPilot uploads driving data to comma's servers, like stock openpilot. You can access your data through [comma connect](https://connect.comma.ai/). Builds that aren't fully tested yet, such as **FrogPilot-Testing**, upload to the servers of [Konik](https://konik.ai/), a separate company, instead. They turn on the **"Use Konik Server"** setting, lock it on, and register your device with Konik. You can also turn on **"Use Konik Server"** yourself under **FrogPilot → System Settings → Device / Screen → Device Settings → Manage** (requires the **Advanced** tuning level or higher). You can view those drives at [stable.konik.ai](https://stable.konik.ai/).
 
@@ -498,12 +496,12 @@ openpilot logs the road-facing cameras, CAN, GPS, IMU, magnetometer, thermal sen
 
 If you agree, FrogPilot also sends the following data to its servers.
 
-- Filtered driving logs have no video, GPS coordinates are cleared, and the last six characters of the VIN (your car's ID number) are masked while the rest remains. Your car's raw CAN data (the messages its computers send each other) is kept and, on some cars, includes GPS or the VIN.
+- Filtered driving logs have no video, GPS coordinates are cleared, and the VIN (your car's ID number) is removed. Your car's raw CAN data (the messages its computers send each other) is kept and, on some cars, includes GPS or the VIN.
 - Short road-camera clips of speed limit signs are shared on Toyota and Lexus cars that show the speed limit on their dashboard.
-- When **"Speed Limit Filler"** reads a speed limit from your car's dashboard or Mapbox that differs from your downloaded maps, it shares the road, direction, speed limit and source. This setting is under **FrogPilot → Maps and Navigation → Navigation**.
-- usage statistics, which are your car's details, your drive totals, your FrogPilot settings, and your nearest city, state and country, linked to your device.
+- When **"Speed Limit Filler"** reads a speed limit from your car's dashboard or Mapbox that differs from your downloaded maps, it shares the road, direction, speed limit, and source. This setting is under **FrogPilot → Maps and Navigation → Navigation**.
+- usage statistics, which are your car's details, your drive totals, your FrogPilot settings, and your nearest city, state, and country, linked to your device.
 
-FrogPilot asks during setup whether you agree, and you can change your answer later with **"Share FrogPilot Data"** under **Settings → Software**. Drives recorded before you agreed are never uploaded to FrogPilot. Clips, driving logs and speed limits only upload over Ethernet or Wi-Fi while your car is off.
+FrogPilot asks during setup whether you agree, and you can change your answer later with **"Share FrogPilot Data"** under **Settings → Software**. Drives recorded before you agreed are never uploaded to FrogPilot. Clips, driving logs, and speed limits only upload over Ethernet or Wi-Fi while your car is off.
 
 FrogPilot also registers your device with FrogPilot's server (when it first starts and after updates), checks in each time the device starts and after each drive to count active devices (with nothing in it unless you agreed to share), and sends crash reports to Sentry, a crash-reporting service. No setting turns these off. When you turn on **"Weather Condition Offsets"** under **FrogPilot → Driving Controls → Gas / Brake → Quality of Life → Manage** (requires the **Advanced** tuning level or higher), it sends your location to FrogPilot's server to check the weather. To add your own OpenWeatherMap key, open **Weather Condition Offsets → Manage → Set Your Own Key → Add**. Once you've added your key, FrogPilot tries OpenWeatherMap first.
 

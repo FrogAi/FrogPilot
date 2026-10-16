@@ -72,7 +72,6 @@ class TestHyundaiFingerprint:
 
   # FrogPilot variables
   def test_taco_tune_hack(self):
-    # The torque hack's Panda safety mode flag is only set on CAN FD cars with the toggle on
     fingerprint = gen_empty_fingerprint()
     for car_model in CAR:
       for taco_tune_hacks in (True, False):

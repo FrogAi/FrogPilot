@@ -6,18 +6,18 @@
 #include "frogpilot/ui/qt/widgets/frogpilot_controls.h"
 
 struct FrogPilotUIScene {
-  bool always_on_lateral_active;
-  bool downloading_update;
-  bool frogpilot_panel_active;
-  bool online;
-  bool parked;
-  bool reverse;
-  bool standstill;
-  bool traffic_mode_enabled;
-  bool wake_up_screen;
+  bool always_on_lateral_active = false;
+  bool downloading_update = false;
+  bool driver_camera_active = false;
+  bool frogpilot_panel_active = false;
+  bool online = false;
+  bool parked = false;
+  bool reverse = false;
+  bool standstill = false;
+  bool traffic_mode_enabled = false;
+  bool wake_up_screen = false;
 
-  int conditional_status;
-  int driver_camera_timer;
+  int conditional_status = 0;
 
   QJsonObject frogpilot_toggles;
 };
@@ -31,6 +31,7 @@ public:
   void cancelMapsDownload();
   void cancelModelDownload();
   void cancelThemeDownload();
+  void createSettingsBackup(const QString &name);
   void downloadAllModels();
   void downloadMaps();
   void downloadModels(const QStringList &models);
@@ -38,6 +39,7 @@ public:
   void experimentalModePressed();
   void flashPanda();
   void reportIssue(const QString &report);
+  void restoreSettingsBackup(const QString &name);
   void runUpdateChecks();
   void screenRecorderEvent(cereal::FrogPilotOnroadEvent::EventName event);
   void setDistanceButtonPressed(bool pressed);
@@ -56,6 +58,7 @@ public:
   uint64_t download_theme_request_time = 0;
   uint64_t flash_panda_request_time = 0;
   uint64_t issue_report_request_time = 0;
+  uint64_t settings_backup_request_time = 0;
 
   WifiManager *wifi;
 
@@ -68,7 +71,8 @@ signals:
 private:
   bool distance_button_pressed = false;
 
-  int tethering_mode;
+  int driver_camera_timer = 0;
+  int tethering_mode = 0;
 
   std::unique_ptr<PubMaster> pm;
 };

@@ -1,0 +1,11 @@
+.btn.keys-guide { margin-left: auto; }
+.keys-body { display: grid; gap: 14px; }
+.keys-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
+.keys-progress { margin-top: 8px; }
+.keys-result > span { flex: 1; overflow-wrap: anywhere; }
+.keys-result .icon-btn { flex: none; margin: -8px -10px -8px 0; }
+.keys-sample { display: block; margin-top: 8px; overflow-wrap: anywhere; }
+.keys-says { display: block; margin-top: 6px; }
+.keys-scopes { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.keys-scopes .mono { padding: 3px 8px; border-radius: 6px; background: var(--paper); border: 1px solid var(--line); color: var(--ink); font-size: 12.5px; }
+.keys-usage { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }

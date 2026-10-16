@@ -248,8 +248,12 @@ DeveloperPanel::DeveloperPanel(SettingsWindow *parent) : QFrame(parent) {
     updateToggles(offroad);
   });
 
-  QObject::connect(parent, &SettingsWindow::closeSubPanel, [this]() {mainLayout->setCurrentWidget(mainWidget);});
-  QObject::connect(parent, &SettingsWindow::closeSubSubPanel, [this]() {mainLayout->setCurrentWidget(developerUIPanel);});
+  QObject::connect(parent, &SettingsWindow::closeSubPanel, [this]() {
+    mainLayout->setCurrentWidget(mainWidget);
+  });
+  QObject::connect(parent, &SettingsWindow::closeSubSubPanel, [this]() {
+    mainLayout->setCurrentWidget(developerUIPanel);
+  });
 }
 
 void DeveloperPanel::updateToggles(bool _offroad) {

@@ -3,6 +3,7 @@
 #include <cmath>
 #include <set>
 
+#include <QDomDocument>
 #include <QMovie>
 #include <QNetworkReply>
 #include <QStyle>
@@ -15,14 +16,67 @@ bool isFrogsGoMoo();
 bool isOpenpilotSteering();
 bool useKonikServer();
 
+inline QColor blackColor(int alpha = 255) { return QColor(0, 0, 0, alpha); }
+
 QFont fitInterFont(int pixelSize, QFont::Weight weight, int width, const QStringList &texts);
 
+const QMap<QString, QString> &randomEventNames();
+
 QString cleanModelName(QString modelName);
+QString formatDistance(double meters, bool isMetric);
+QString formatDownloadProgress(const std::string &progress, const QString &updaterState);
+QString formatDuration(int seconds);
 QString formatShortTime(const QTime &time);
+QString newPairingCode();
+
+class FrogPilotMovie : public QObject {
+  Q_OBJECT
+
+public:
+  FrogPilotMovie(const QString &fileName, const QSize &size);
+
+  void start();
+  void stop();
+
+  bool isRunning() const;
+
+  int currentFrameNumber() const;
+
+  QPixmap currentPixmap();
+
+  QSize scaledSize() const;
+
+  QString fileName() const;
+
+signals:
+  void frameChanged();
+
+private:
+  bool loop = true;
+  bool played = false;
+
+  int frame = 0;
+
+  QDomDocument svg;
+
+  QDomNode framesParent;
+
+  QMovie *gif = nullptr;
+
+  QSize size;
+
+  QString path;
+
+  QTimer timer;
+
+  QVector<int> delays;
+  QVector<QDomElement> frames;
+  QVector<QPixmap> pixmaps;
+};
 
 void fitTitle(QPushButton *title);
-void loadGif(const QString &gifPath, QSharedPointer<QMovie> &movie, const QSize &size, QWidget *parent, bool repaintOnFrame = true);
-void loadImage(const QString &basePath, QPixmap &pixmap, QSharedPointer<QMovie> &movie, const QSize &size, QWidget *parent, bool repaintOnFrame = true);
+void loadImage(const QString &basePath, QPixmap &pixmap, QSharedPointer<FrogPilotMovie> &movie, const QSize &size, QWidget *parent, bool repaintOnFrame = true);
+void loadMovie(const QString &moviePath, QSharedPointer<FrogPilotMovie> &movie, const QSize &size, QWidget *parent, bool repaintOnFrame = true);
 
 template <typename T>
 void openDescriptions(bool forceOpenDescriptions, const std::map<QString, T> &toggles) {
@@ -323,10 +377,18 @@ public:
     hlayout->addWidget(&decrement_button);
     hlayout->addWidget(&increment_button);
 
-    QObject::connect(&decrement_button, &QPushButton::pressed, this, [this]() { changeValue(-1); });
-    QObject::connect(&increment_button, &QPushButton::pressed, this, [this]() { changeValue(1); });
-    QObject::connect(&decrement_button, &QPushButton::released, this, [this]() { finishPress(decrement_button); });
-    QObject::connect(&increment_button, &QPushButton::released, this, [this]() { finishPress(increment_button); });
+    QObject::connect(&decrement_button, &QPushButton::pressed, this, [this]() {
+      changeValue(-1);
+    });
+    QObject::connect(&increment_button, &QPushButton::pressed, this, [this]() {
+      changeValue(1);
+    });
+    QObject::connect(&decrement_button, &QPushButton::released, this, [this]() {
+      finishPress(decrement_button);
+    });
+    QObject::connect(&increment_button, &QPushButton::released, this, [this]() {
+      finishPress(increment_button);
+    });
 
     save_timer.setSingleShot(true);
     save_timer.setInterval(150);
@@ -528,19 +590,19 @@ private:
     updateDisplay();
   }
 
-  bool fast_increase;
+  bool fast_increase = false;
   bool hold_accelerated = false;
   bool warning_shown = false;
 
-  float factor;
+  float factor = 0.0f;
   float hold_start_value = 0.0f;
-  float interval;
-  float max_value;
-  float min_value;
+  float interval = 0.0f;
+  float max_value = 0.0f;
+  float min_value = 0.0f;
   float previous_value = 0.0f;
   float value = 0.0f;
 
-  int decimals;
+  int decimals = 0;
 
   std::map<float, QString> value_labels;
 

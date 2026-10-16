@@ -223,11 +223,12 @@ void TogglesPanel::updateToggles() {
   // FrogPilot variables
   const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
 
-  bool noLogging = frogpilot_toggles.value("no_logging").toBool();
+  bool no_logging = frogpilot_toggles.value("no_logging").toBool();
 
-  toggles["RecordFront"]->setVisible(!noLogging);
+  toggles["DisengageOnAccelerator"]->setVisible(!frogpilot_toggles.value("always_on_lateral").toBool());
   experimental_mode_toggle->setVisible(!frogpilot_toggles.value("conditional_experimental_mode").toBool());
-  toggles["RecordAudio"]->setVisible(!noLogging);
+  toggles["RecordAudio"]->setVisible(!no_logging);
+  toggles["RecordFront"]->setVisible(!no_logging);
 }
 
 DevicePanel::DevicePanel(SettingsWindow *parent) : ListWidget(parent) {
@@ -497,7 +498,6 @@ void SettingsWindow::setCurrentPanel(int index, const QString &param) {
 }
 
 SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
-  // FrogPilot variables
   setStyleSheet(R"(
     * {
       color: white;
@@ -568,16 +568,30 @@ SettingsWindow::SettingsWindow(QWidget *parent) : QFrame(parent) {
   FrogPilotSettingsWindow *frogpilotSettingsWindow = new FrogPilotSettingsWindow(this);
   QObject::connect(toggles, &TogglesPanel::updateMetric, frogpilotSettingsWindow, &FrogPilotSettingsWindow::updateMetric);
   QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::updateMetric, toggles, &TogglesPanel::refreshMetric);
-  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openPanel, [this]() {panelOpen=true;});
-  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubPanel, [this]() {subPanelOpen=true;});
-  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::closeSubPanel, [this]() {subPanelOpen=false;});
-  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubSubPanel, [this]() {subSubPanelOpen=true;});
-  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubSubSubPanel, [this]() {subSubSubPanelOpen=true;});
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openPanel, [this]() {
+    panelOpen = true;
+  });
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubPanel, [this]() {
+    subPanelOpen = true;
+  });
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::closeSubPanel, [this]() {
+    subPanelOpen = false;
+  });
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubSubPanel, [this]() {
+    subSubPanelOpen = true;
+  });
+  QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::openSubSubSubPanel, [this]() {
+    subSubSubPanelOpen = true;
+  });
   QObject::connect(frogpilotSettingsWindow, &FrogPilotSettingsWindow::tuningLevelChanged, this, &SettingsWindow::updateDeveloperToggle);
 
   DeveloperPanel *developerPanel = new DeveloperPanel(this);
-  QObject::connect(developerPanel, &DeveloperPanel::openSubPanel, [this]() {subPanelOpen=true;});
-  QObject::connect(developerPanel, &DeveloperPanel::openSubSubPanel, [this]() {subSubPanelOpen=true;});
+  QObject::connect(developerPanel, &DeveloperPanel::openSubPanel, [this]() {
+    subPanelOpen = true;
+  });
+  QObject::connect(developerPanel, &DeveloperPanel::openSubSubPanel, [this]() {
+    subSubPanelOpen = true;
+  });
 
   QList<QPair<QString, QWidget *>> panels = {
     {tr("Device"), device},

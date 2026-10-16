@@ -7,9 +7,10 @@
 
 void OnroadAlerts::updateState(const UIState &s) {
   Alert a = getAlert(*(s.sm), s.scene.started_frame);
+
   // FrogPilot variables
-  static const QSet<QString> informational_alerts = {"calibrationIncomplete", "laneChange", "noLaneAvailable", "personalityChanged", "preLaneChangeLeft", "preLaneChangeRight", "turningLeft", "turningRight"};
-  if (frogpilot_toggles.value(QLatin1String("hide_alerts")).toBool() && informational_alerts.contains(a.type.section('/', 0, 0))) {
+  static const QSet<QString> informational_alerts = {"calibrationIncomplete/permanent", "laneChange/warning", "noLaneAvailable/warning", "personalityChanged/warning", "preLaneChangeLeft/warning", "preLaneChangeRight/warning", "turningLeft/warning", "turningRight/warning"};
+  if (informational_alerts.contains(a.type) && frogpilot_toggles.value(QLatin1String("hide_alerts")).toBool()) {
     a = {};
   }
 
@@ -46,13 +47,24 @@ OnroadAlerts::Alert OnroadAlerts::getAlert(const SubMaster &sm, uint64_t started
 
   // FrogPilot variables
   static QString crash_log_path = "/data/error_logs/error.txt";
-  if (a.size == cereal::SelfdriveState::AlertSize::NONE && QFile::exists(crash_log_path)) {
+  if (QFile::exists(crash_log_path)) {
     bool random_events = frogpilot_toggles.value(QLatin1String("random_events")).toBool();
-    a = {random_events ? tr("openpilot crashed 💩") : tr("openpilot crashed"),
-         tr("Please post the \"Error Log\" in the FrogPilot Discord!"),
-         random_events ? "openpilotCrashedRandomEvent" : "openpilotCrashed",
-         cereal::SelfdriveState::AlertSize::MID,
-         cereal::SelfdriveState::AlertStatus::CRITICAL};
+    if (random_events && enableFerg) {
+      a = {};
+
+      if (!displayFerg) {
+        displayFerg = true;
+        ferg = loadPixmap("../../frogpilot/assets/random_events/icons/ferg.svg", {1080, 720});
+        update();
+      }
+    } else {
+      a = {random_events ? tr("openpilot crashed 💩") : tr("openpilot crashed"),
+           tr("Please post the \"Error Log\" in the FrogPilot Discord!"),
+           random_events ? "openpilotCrashedRandomEvent" : "openpilotCrashed",
+           cereal::SelfdriveState::AlertSize::MID,
+           cereal::SelfdriveState::AlertStatus::CRITICAL};
+    }
+    return a;
   }
 
   if (!sm.updated("selfdriveState") && (sm.frame - started_frame) > 5 * UI_FREQ && !frogpilot_toggles.value(QLatin1String("force_onroad")).toBool()) {
@@ -85,6 +97,12 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
   if (alert.size == cereal::SelfdriveState::AlertSize::NONE) {
     // FrogPilot variables
     alertHeight = 0;
+
+    if (displayFerg) {
+      QPainter p(this);
+      p.drawPixmap(QPoint((width() - ferg.width()) / 2, (height() - ferg.height()) / 2), ferg);
+    }
+
     return;
   }
   static std::map<cereal::SelfdriveState::AlertSize, const int> alert_heights = {
@@ -100,8 +118,10 @@ void OnroadAlerts::paintEvent(QPaintEvent *event) {
     margin = 0;
     radius = 0;
   }
+
   // FrogPilot variables
   alertHeight = h - margin;
+
   QRect r = QRect(0 + margin, height() - h + margin, width() - margin*2, h - margin*2);
 
   QPainter p(this);

@@ -2,8 +2,6 @@
 
 #include "frogpilot/ui/qt/offroad/frogpilot_settings.h"
 
-extern const std::set<std::string> excluded_keys;
-
 class FrogPilotUtilitiesPanel : public FrogPilotListWidget {
   Q_OBJECT
 

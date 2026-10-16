@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="200" height="200" viewBox="0 0 200 200">
+  <g id="frames" data-loop="false">
+    <g id="frame-0" data-ms="350">
+      <animate attributeName="display" values="inline;none" keyTimes="0;0.1458" dur="2400ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.833 0 0 .833 16.7 16.7)">
+      <path d="M8 100 72 40v34h14v52H72v34Z" fill="#1ed760" stroke="#1ed760" stroke-linejoin="round" stroke-width="8"/>
+      <path d="M192 100 128 40v34h-14v52h14v34Z" fill="none" stroke="#5b6472" stroke-linejoin="round" stroke-width="8"/>
+      </g>
+    </g>
+    <g id="frame-1" data-ms="350">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.1458;0.2917" dur="2400ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.833 0 0 .833 16.7 16.7)">
+      <path d="M8 100 72 40v34h14v52H72v34Z" fill="#0f5a2c" stroke="#0f5a2c" stroke-linejoin="round" stroke-width="8"/>
+      <path d="M192 100 128 40v34h-14v52h14v34Z" fill="none" stroke="#5b6472" stroke-linejoin="round" stroke-width="8"/>
+      </g>
+    </g>
+    <g id="frame-2" data-ms="350">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.2917;0.4375" dur="2400ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.833 0 0 .833 16.7 16.7)">
+      <path d="M8 100 72 40v34h14v52H72v34Z" fill="#1ed760" stroke="#1ed760" stroke-linejoin="round" stroke-width="8"/>
+      <path d="M192 100 128 40v34h-14v52h14v34Z" fill="none" stroke="#5b6472" stroke-linejoin="round" stroke-width="8"/>
+      </g>
+    </g>
+    <g id="frame-3" data-ms="350">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.4375;0.5833" dur="2400ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.833 0 0 .833 16.7 16.7)">
+      <path d="M8 100 72 40v34h14v52H72v34Z" fill="#0f5a2c" stroke="#0f5a2c" stroke-linejoin="round" stroke-width="8"/>
+      <path d="M192 100 128 40v34h-14v52h14v34Z" fill="none" stroke="#5b6472" stroke-linejoin="round" stroke-width="8"/>
+      </g>
+    </g>
+    <g id="frame-4" data-ms="1000">
+      <animate attributeName="display" values="none;inline" keyTimes="0;0.5833" dur="2400ms" calcMode="discrete" fill="freeze"/>
+      <g transform="matrix(.833 0 0 .833 16.7 16.7)">
+      <path d="M8 100 72 40v34h14v52H72v34Z" fill="#1ed760" stroke="#1ed760" stroke-linejoin="round" stroke-width="8"/>
+      <path d="M192 100 128 40v34h-14v52h14v34Z" fill="none" stroke="#5b6472" stroke-linejoin="round" stroke-width="8"/>
+      </g>
+    </g>
+  </g>
+</svg>

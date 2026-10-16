@@ -20,7 +20,7 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent, bool for
 
   downloadMapsButton = new ButtonControl(tr("Download Maps"), tr("DOWNLOAD"), tr("<b>Start downloading the speed limit map data for the places you picked under \"Map Sources\".</b><br><br>Your car has to be parked and online. Large areas can take hours and use several gigabytes."));
   QObject::connect(downloadMapsButton, &ButtonControl::clicked, [this] {
-    if (downloadMapsButton->text() == tr("CANCEL")) {
+    if (wasDownloadingMaps) {
       if (FrogPilotConfirmationDialog::yesorno(tr("Cancel the download?"), this)) {
         cancelDownload();
       }
@@ -30,7 +30,8 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent, bool for
   });
   settingsList->addItem(downloadMapsButton);
 
-  settingsList->addItem(lastMapsDownload = new LabelControl(tr("Last Updated")));
+  lastMapsDownload = new LabelControl(tr("Last Updated"));
+  settingsList->addItem(lastMapsDownload);
 
   selectMaps = new FrogPilotButtonsControl(tr("Map Sources"),
                                            tr("<b>Pick the countries or U.S. states you drive in, so openpilot knows their speed limits.</b><br><br>Map data within about 60 miles (100 km) of where you park downloads on its own, so pick only what covers the rest of your driving."),
@@ -43,13 +44,18 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent, bool for
 
     mapsLayout->setCurrentIndex(id + 1);
 
-    openSubPanel();
+    emit openSubPanel();
   });
   settingsList->addItem(selectMaps);
 
-  settingsList->addItem(downloadStatus = new LabelControl(tr("Progress")));
-  settingsList->addItem(downloadTimeElapsed = new LabelControl(tr("Time Elapsed")));
-  settingsList->addItem(downloadETA = new LabelControl(tr("Time Remaining")));
+  downloadStatus = new LabelControl(tr("Progress"));
+  settingsList->addItem(downloadStatus);
+
+  downloadTimeElapsed = new LabelControl(tr("Time Elapsed"));
+  settingsList->addItem(downloadTimeElapsed);
+
+  downloadETA = new LabelControl(tr("Time Remaining"));
+  settingsList->addItem(downloadETA);
 
   downloadETA->setVisible(false);
   downloadStatus->setVisible(false);
@@ -101,7 +107,8 @@ FrogPilotMapsPanel::FrogPilotMapsPanel(FrogPilotSettingsWindow *parent, bool for
   });
   settingsList->addItem(removeMapsButton);
 
-  settingsList->addItem(mapsSize = new LabelControl(tr("Storage Used")));
+  mapsSize = new LabelControl(tr("Storage Used"));
+  settingsList->addItem(mapsSize);
 
   ScrollView *settingsPanel = new ScrollView(settingsList, this);
   mapsLayout->addWidget(settingsPanel);
@@ -206,9 +213,6 @@ void FrogPilotMapsPanel::updateState(const UIState &s, const FrogPilotUIState &f
   }
 
   const FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
-  const UIScene &scene = s.scene;
-
-  const bool parked = !scene.started || frogpilot_scene.parked || parent->isFrogsGoMoo;
 
   const int mapDownloadDownloaded = downloadProgress.getDownloadedFiles();
   const int mapDownloadTotal = downloadProgress.getTotalFiles();
@@ -244,8 +248,16 @@ void FrogPilotMapsPanel::updateState(const UIState &s, const FrogPilotUIState &f
     lastMapsDownload->setVisible(true);
     removeMapsButton->setVisible(mapsFolderExists);
 
-    downloadMapsButton->setEnabled(!removingMaps && !cancellingDownload && hasMapsSelected && frogpilot_scene.online && parked);
-    downloadMapsButton->setValue(frogpilot_scene.online ? (parked ? (hasMapsSelected ? "" : tr("Select your map sources")) : tr("Not parked")) : tr("Offline..."));
+    downloadMapsButton->setEnabled(!removingMaps && !cancellingDownload && hasMapsSelected && frogpilot_scene.online && frogpilot_scene.parked);
+    if (!frogpilot_scene.online) {
+      downloadMapsButton->setValue(tr("Offline..."));
+    } else if (!frogpilot_scene.parked) {
+      downloadMapsButton->setValue(tr("Not parked"));
+    } else if (!hasMapsSelected) {
+      downloadMapsButton->setValue(tr("Select your map sources"));
+    } else {
+      downloadMapsButton->setValue("");
+    }
   }
 
   parent->keepScreenOn = downloadingMaps || removingMaps;

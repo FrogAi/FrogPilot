@@ -47,6 +47,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
     } else {
       std::system("pkill -SIGHUP -f system.updated.updated");
     }
+
     // FrogPilot variables
     frogpilotUIState()->runUpdateChecks();
   });
@@ -57,7 +58,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   ButtonControl *errorLogBtn = new ButtonControl(tr("Error Log"), tr("VIEW"), tr("View the error log for openpilot crashes."));
   connect(errorLogBtn, &ButtonControl::clicked, [=]() {
     std::string txt = util::read_file("/data/error_logs/error.txt");
-    ConfirmationDialog::rich(QString::fromStdString(txt), this);
+    ConfirmationDialog::rich(txt.empty() ? tr("No error log found.") : QString::fromStdString(txt), this);
   });
   addItem(errorLogBtn);
 
@@ -89,6 +90,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
   connect(targetBranchBtn, &ButtonControl::clicked, [=]() {
     auto current = params.get("GitBranch");
     QStringList branches = QString::fromStdString(params.get("UpdaterAvailableBranches")).split(",");
+
     // FrogPilot variables
     if (!isFrogsGoMoo()) {
       for (int i = branches.size() - 1; i >= 0; --i) {
@@ -99,6 +101,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
       branches.removeAll("FrogPilot-Vetting");
       branches.removeAll("MAKE-PRS-HERE");
     }
+
     for (QString b : {current.c_str(), "devel-staging", "devel", "nightly", "nightly-dev", "master"}) {
       auto i = branches.indexOf(b);
       if (i >= 0) {
@@ -114,7 +117,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
       targetBranchBtn->setValue(QString::fromStdString(params.get("UpdaterTargetBranch")));
 
       // FrogPilot variables
-      if (selection != cur && (!is_onroad || frogpilotUIState()->frogpilot_scene.parked || isFrogsGoMoo())) {
+      if (selection.toStdString() != current && frogpilotUIState()->frogpilot_scene.parked) {
         if (FrogPilotConfirmationDialog::yesorno(tr("This branch must be downloaded before switching. Would you like to download it now?"), this)) {
           std::system("pkill -SIGHUP -f system.updated.updated");
           frogpilotUIState()->runUpdateChecks();
@@ -137,6 +140,7 @@ SoftwarePanel::SoftwarePanel(QWidget* parent) : ListWidget(parent) {
           params.clearAll(ParamKeyFlag::ALL);
         }
       }
+
       params.putBool("DoUninstall", true);
     }
   });
@@ -188,6 +192,9 @@ void SoftwarePanel::updateLabels() {
   fs_watch->addParam("UpdaterState");
   fs_watch->addParam("UpdateAvailable");
 
+  // FrogPilot variables
+  fs_watch->addParam("UpdaterDownloadProgress");
+
   if (!isVisible()) {
     return;
   }
@@ -195,19 +202,18 @@ void SoftwarePanel::updateLabels() {
   // FrogPilot variables
   FrogPilotUIScene &frogpilot_scene = frogpilotUIState()->frogpilot_scene;
 
-  bool parked = frogpilot_scene.parked || isFrogsGoMoo();
   shown_parked = frogpilot_scene.parked;
 
   // updater only runs offroad or when parked
-  onroadLbl->setVisible(is_onroad && !parked);
-  downloadBtn->setVisible(!is_onroad || parked);
+  onroadLbl->setVisible(!frogpilot_scene.parked);
+  downloadBtn->setVisible(frogpilot_scene.parked);
 
   // download update
   QString updater_state = QString::fromStdString(params.get("UpdaterState"));
   bool failed = std::atoi(params.get("UpdateFailedCount").c_str()) > 0;
   if (updater_state != "idle") {
     downloadBtn->setEnabled(false);
-    downloadBtn->setValue(updater_state);
+    downloadBtn->setValue(formatDownloadProgress(params.get("UpdaterDownloadProgress"), updater_state));
   } else {
     if (failed) {
       downloadBtn->setText(tr("CHECK"));
@@ -236,7 +242,7 @@ void SoftwarePanel::updateLabels() {
   versionLbl->setText(QString::fromStdString(params.get("UpdaterCurrentDescription")));
   versionLbl->setDescription(QString::fromStdString(params.get("UpdaterCurrentReleaseNotes")));
 
-  installBtn->setVisible((!is_onroad || parked) && params.getBool("UpdateAvailable"));
+  installBtn->setVisible(frogpilot_scene.parked && params.getBool("UpdateAvailable"));
   installBtn->setValue(QString::fromStdString(params.get("UpdaterNewDescription")));
   installBtn->setDescription(QString::fromStdString(params.get("UpdaterNewReleaseNotes")));
 

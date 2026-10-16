@@ -47,9 +47,11 @@ def dmonitoringd_thread():
     # load live always-on toggle
     if sm['driverStateV2'].frameId % 40 == 1:
       DM.always_on = params.get_bool("AlwaysOnDM")
-      driver_view_enabled = params.get_bool("IsDriverViewEnabled")
+      demo_mode = params.get_bool("IsDriverViewEnabled")
+
       # FrogPilot variables
-      demo_mode = driver_view_enabled and sm["carState"].gearShifter != GearShifter.reverse
+      driver_view_enabled = demo_mode
+      demo_mode &= sm["carState"].gearShifter != GearShifter.reverse
 
     # save rhd virtual toggle every 5 mins
     if (sm['driverStateV2'].frameId % 6000 == 0 and not demo_mode and

@@ -51,12 +51,12 @@ void DeveloperSidebar::updateToggles() {
 }
 
 void DeveloperSidebar::resetVariables() {
-  lateralEngagementTime = 0;
-  longitudinalEngagementTime = 0;
+  lateralEngagedFrames = 0;
+  longitudinalEngagedFrames = 0;
   maxAcceleration = 0;
   maxSteerAngle = 0;
   maxTorque = 0;
-  totalEngagementTime = 0;
+  totalFrames = 0;
 
   torqueTimer.invalidate();
 }
@@ -78,20 +78,27 @@ void DeveloperSidebar::updateState(const UIState &s, const FrogPilotUIState &fs)
   const cereal::LiveParametersData::Reader &liveParameters = fpsm["liveParameters"].getLiveParameters();
   const cereal::LiveTorqueParametersData::Reader &liveTorqueParameters = fpsm["liveTorqueParameters"].getLiveTorqueParameters();
 
-  const bool is_metric = s.scene.is_metric;
-  const bool use_si = frogpilot_scene.frogpilot_toggles.value(QLatin1String("use_si_metrics")).toBool();
+  const bool isMetric = s.scene.is_metric;
+  const bool useSIMetrics = frogpilot_scene.frogpilot_toggles.value(QLatin1String("use_si_metrics")).toBool();
 
-  const QString &accelerationUnit = (is_metric || use_si) ? metricAccelerationUnit : imperialAccelerationUnit;
-  const float accelerationConversion = (is_metric || use_si) ? 1.0f : METER_TO_FOOT;
+  const QString &accelerationUnit = (isMetric || useSIMetrics) ? metricAccelerationUnit : imperialAccelerationUnit;
+  const float accelerationConversion = (isMetric || useSIMetrics) ? 1.0f : METER_TO_FOOT;
 
   double acceleration = carState.getAEgo();
   if (!carState.getGasPressed()) {
     maxAcceleration = std::max(maxAcceleration, acceleration);
   }
 
-  lateralEngagementTime += carControl.getLatActive() && !frogpilot_scene.reverse && !frogpilot_scene.standstill ? 1 : 0;
-  longitudinalEngagementTime += carControl.getLongActive() && !frogpilot_scene.reverse && !frogpilot_scene.standstill ? 1 : 0;
-  totalEngagementTime += !(frogpilot_scene.reverse || frogpilot_scene.standstill) || totalEngagementTime == 0 ? 1 : 0;
+  bool moving = !frogpilot_scene.reverse && !frogpilot_scene.standstill;
+  if (moving || totalFrames == 0) {
+    totalFrames++;
+  }
+  if (moving && carControl.getLatActive()) {
+    lateralEngagedFrames++;
+  }
+  if (moving && carControl.getLongActive()) {
+    longitudinalEngagedFrames++;
+  }
 
   int currentSteerAngle = fabs(carState.getSteeringAngleDeg());
 
@@ -127,17 +134,17 @@ void DeveloperSidebar::updateState(const UIState &s, const FrogPilotUIState &fs)
     } else if (metricId == 7) {
       value = QString::number(liveParameters.getStiffnessFactor(), 'f', 5);
     } else if (metricId == 8) {
-      value = QString::number((lateralEngagementTime / totalEngagementTime) * 100.0f, 'f', 2) + "%";
+      value = QString::number((lateralEngagedFrames / totalFrames) * 100.0f, 'f', 2) + "%";
     } else if (metricId == 9) {
-      value = QString::number((longitudinalEngagementTime / totalEngagementTime) * 100.0f, 'f', 2) + "%";
+      value = QString::number((longitudinalEngagedFrames / totalFrames) * 100.0f, 'f', 2) + "%";
     } else if (metricId == 10) {
       value = QString::number(currentSteerAngle) + "°";
-      if (currentTorque >= 50 || torqueTimer.isValid()) {
+      if (torqueTimer.isValid()) {
         value += QString(" - (%1°)").arg(maxSteerAngle);
       }
     } else if (metricId == 11) {
       value = QString::number(currentTorque) + "%";
-      if (currentTorque >= 50 || torqueTimer.isValid()) {
+      if (torqueTimer.isValid()) {
         value += QString(" - (%1%)").arg(maxTorque);
       }
     } else if (metricId == 12) {

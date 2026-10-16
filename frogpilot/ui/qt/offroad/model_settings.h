@@ -27,7 +27,7 @@ private:
   bool allModelsDownloading = false;
   bool cancellingDownload = false;
   bool finalizingDownload = false;
-  bool forceOpenDescriptions;
+  bool forceOpenDescriptions = false;
   bool hasDeletableModels = false;
   bool modelDownloading = false;
 

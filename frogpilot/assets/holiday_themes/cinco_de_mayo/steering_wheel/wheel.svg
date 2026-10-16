@@ -1,105 +1,121 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="250" height="250" viewBox="0 0 250 250"><defs xmlns="http://www.w3.org/2000/svg">
-    <radialGradient id="skin" cx="0.5" cy="0.61" r="0.5">
-      <stop offset="0" stop-color="#29b62c" />
-      <stop offset=".64" stop-color="#09a637" />
-      <stop offset=".87" stop-color="#076d28" />
-      <stop offset="1" stop-color="#003b16" />
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="250" height="250" viewBox="0 0 250 250">
+  <defs xmlns="http://www.w3.org/2000/svg">
+    <radialGradient id="skin" cx=".5" cy=".61" r=".5">
+      <stop offset="0" stop-color="#29b62c"/>
+      <stop offset=".64" stop-color="#09a637"/>
+      <stop offset=".87" stop-color="#076d28"/>
+      <stop offset="1" stop-color="#003b16"/>
     </radialGradient>
-    <radialGradient id="brow" gradientUnits="userSpaceOnUse" cx="0.5" cy="0.48" r="0.5" gradientTransform="translate(21 19) scale(80 90)">
-      <stop offset="0" stop-color="#15c449" />
-      <stop offset=".55" stop-color="#0dbb3b" stop-opacity=".9" />
-      <stop offset=".8" stop-color="#08ae35" stop-opacity=".4" />
-      <stop offset="1" stop-color="#08ae35" stop-opacity="0" />
+    <radialGradient id="brow" cx=".5" cy=".48" r=".5" gradientUnits="userSpaceOnUse" gradientTransform="matrix(80 0 0 90 21 19)">
+      <stop offset="0" stop-color="#15c449"/>
+      <stop offset=".55" stop-color="#0dbb3b" stop-opacity=".9"/>
+      <stop offset=".8" stop-color="#08ae35" stop-opacity=".4"/>
+      <stop offset="1" stop-color="#08ae35" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="muzzle" gradientUnits="userSpaceOnUse" cx="0.5" cy="0.58" r="0.5" gradientTransform="translate(0 84) scale(200 104)">
-      <stop offset="0" stop-color="#72d123" stop-opacity=".88" />
-      <stop offset=".54" stop-color="#55c82b" stop-opacity=".72" />
-      <stop offset=".79" stop-color="#38b825" stop-opacity=".3" />
-      <stop offset="1" stop-color="#119b2f" stop-opacity="0" />
+    <radialGradient id="muzzle" cx=".5" cy=".58" r=".5" gradientUnits="userSpaceOnUse" gradientTransform="matrix(200 0 0 104 0 84)">
+      <stop offset="0" stop-color="#72d123" stop-opacity=".88"/>
+      <stop offset=".54" stop-color="#55c82b" stop-opacity=".72"/>
+      <stop offset=".79" stop-color="#38b825" stop-opacity=".3"/>
+      <stop offset="1" stop-color="#119b2f" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="bridge" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#005624" stop-opacity=".45" />
-      <stop offset=".7" stop-color="#096d2a" stop-opacity=".15" />
-      <stop offset="1" stop-color="#119b2f" stop-opacity="0" />
+    <radialGradient id="bridge" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#005624" stop-opacity=".45"/>
+      <stop offset=".7" stop-color="#096d2a" stop-opacity=".15"/>
+      <stop offset="1" stop-color="#119b2f" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="eye" cx="0.38" cy="0.25" r="0.8">
-      <stop offset="0" stop-color="#393d3a" />
-      <stop offset=".38" stop-color="#151a17" />
-      <stop offset=".8" stop-color="#050a06" />
-      <stop offset="1" stop-color="#010402" />
+    <radialGradient id="eye" cx=".38" cy=".25" r=".8">
+      <stop offset="0" stop-color="#393d3a"/>
+      <stop offset=".38" stop-color="#151a17"/>
+      <stop offset=".8" stop-color="#050a06"/>
+      <stop offset="1" stop-color="#010402"/>
     </radialGradient>
     <radialGradient id="glint">
-      <stop offset="0" stop-color="#fff" stop-opacity=".95" />
-      <stop offset=".55" stop-color="#edf6ef" stop-opacity=".75" />
-      <stop offset="1" stop-color="#d2e2d6" stop-opacity="0" />
+      <stop offset="0" stop-color="#fff" stop-opacity=".95"/>
+      <stop offset=".55" stop-color="#edf6ef" stop-opacity=".75"/>
+      <stop offset="1" stop-color="#d2e2d6" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="mouth" gradientUnits="userSpaceOnUse" cx="100" cy="97" r="101" gradientTransform="translate(0 32.65) scale(1 .6634)">
-      <stop offset="0" stop-color="#790409" />
-      <stop offset=".8" stop-color="#790409" />
-      <stop offset=".86" stop-color="#68100b" />
-      <stop offset=".91" stop-color="#56120c" />
-      <stop offset=".95" stop-color="#2c160a" />
-      <stop offset="1" stop-color="#020602" />
+    <radialGradient id="mouth" cx="100" cy="97" r="101" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1 0 0 .6634 0 32.65)">
+      <stop offset="0" stop-color="#790409"/>
+      <stop offset=".8" stop-color="#790409"/>
+      <stop offset=".86" stop-color="#68100b"/>
+      <stop offset=".91" stop-color="#56120c"/>
+      <stop offset=".95" stop-color="#2c160a"/>
+      <stop offset="1" stop-color="#020602"/>
     </radialGradient>
-    <radialGradient id="mouth-shadow" gradientUnits="userSpaceOnUse" cx="100" cy="125" r="105" gradientTransform="translate(0 100) scale(1 .2)">
-      <stop offset="0" stop-color="#020602" />
-      <stop offset=".62" stop-color="#020602" stop-opacity=".9" />
-      <stop offset=".762" stop-color="#020602" stop-opacity=".7" />
-      <stop offset="1" stop-color="#020602" stop-opacity="0" />
+    <radialGradient id="mouth-shadow" cx="100" cy="125" r="105" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1 0 0 .2 0 100)">
+      <stop offset="0" stop-color="#020602"/>
+      <stop offset=".62" stop-color="#020602" stop-opacity=".9"/>
+      <stop offset=".762" stop-color="#020602" stop-opacity=".7"/>
+      <stop offset="1" stop-color="#020602" stop-opacity="0"/>
     </radialGradient>
+    <radialGradient id="lip" cx="100" cy="106.6" r="94.4" gradientUnits="userSpaceOnUse" gradientTransform="matrix(1 0 0 .6374 0 38.65)">
+      <stop offset="0" stop-color="#498d22"/>
+      <stop offset=".945" stop-color="#498d22"/>
+      <stop offset=".954" stop-color="#b1e548"/>
+      <stop offset=".964" stop-color="#b1e548"/>
+      <stop offset=".98" stop-color="#8ed63b" stop-opacity=".65"/>
+      <stop offset="1" stop-color="#60c92a" stop-opacity="0"/>
+    </radialGradient>
+    <path id="head" d="M100 39C87 26 75 21 60 21c-23 0-38 17-36 44 .5 7 .845 9.374-2 12C9 89 1 101 1 116c0 39 43 70 99 70s99-31 99-70c0-15-8-27-21-39-2.845-2.626-2.5-5-2-12 2-27-13-44-36-44-15 0-27 5-40 18"/>
+    <path id="brow-shape" d="M81.995 25.697C75.111 22.415 67.98 21 60 21c-23 0-38 17-36 44 .464 6.503.795 9.013-1.44 11.442a40 45 0 1 0 59.435-50.745"/>
+    <path id="mouth-shape" d="M13 123c36 21 138 21 174 0-14 25-45 41-87 41s-73-16-87-41"/>
     <linearGradient id="brow-gloss">
-      <stop offset="0" stop-color="#63ee75" stop-opacity="0" />
-      <stop offset=".43" stop-color="#63ee75" stop-opacity=".55" />
-      <stop offset="1" stop-color="#63ee75" stop-opacity="0" />
+      <stop offset="0" stop-color="#63ee75" stop-opacity="0"/>
+      <stop offset=".43" stop-color="#63ee75" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#63ee75" stop-opacity="0"/>
     </linearGradient>
-    <radialGradient id="lip" gradientUnits="userSpaceOnUse" cx="100" cy="106.6" r="94.4" gradientTransform="translate(0 38.65) scale(1 .6374)">
-      <stop offset="0" stop-color="#498d22" />
-      <stop offset=".945" stop-color="#498d22" />
-      <stop offset=".954" stop-color="#b1e548" />
-      <stop offset=".964" stop-color="#b1e548" />
-      <stop offset=".98" stop-color="#8ed63b" stop-opacity=".65" />
-      <stop offset="1" stop-color="#60c92a" stop-opacity="0" />
-    </radialGradient>
-    <path id="head" d="M100 39 C87 26 75 21 60 21 C37 21 22 38 24 65 C24.5 72 24.84505 74.3738 22 77 C9 89 1 101 1 116 C1 155 44 186 100 186 C156 186 199 155 199 116 C199 101 191 89 178 77 C175.15495 74.3738 175.5 72 176 65 C178 38 163 21 140 21 C125 21 113 26 100 39 Z" />
-    <path id="brow-shape" d="M81.9954955564306 25.6972743966054 C75.1112294214824 22.4151798172654 67.9801686559208 21 60 21 C37 21 22 38 24 65 C24.4644645692738 71.5025039698328 24.7952213356261 74.0130167304049 22.5593498026895 76.4421344412401 A40 45 0 1 0 81.9954955564306 25.6972743966054 Z" />
-    <path id="mouth-shape" d="M13 123 C49 144 151 144 187 123 C173 148 142 164 100 164 C58 164 27 148 13 123 Z" />
   </defs>
-  <g transform="translate(32 74) scale(.94)"><use xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#head" fill="url(#skin)" />
-  <use xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#brow-shape" fill="url(#brow)" />
-  <use xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#brow-shape" fill="url(#brow)" transform="translate(200 0) scale(-1 1)" />
-  <use xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#head" fill="url(#muzzle)" />
-  <ellipse xmlns="http://www.w3.org/2000/svg" cx="100" cy="98" rx="83" ry="17" fill="url(#bridge)" />
-  <path xmlns="http://www.w3.org/2000/svg" d="M36 37 C44 24 66 23 85 35" fill="none" stroke="url(#brow-gloss)" stroke-width="2.1" stroke-linecap="round" />
-  <path xmlns="http://www.w3.org/2000/svg" d="M36 37 C44 24 66 23 85 35" fill="none" stroke="url(#brow-gloss)" stroke-width="2.1" stroke-linecap="round" transform="translate(200 0) scale(-1 1)" />
-  <ellipse xmlns="http://www.w3.org/2000/svg" cx="62" cy="64" rx="16" ry="22" fill="url(#eye)" transform="rotate(5 62 64)" />
-  <ellipse xmlns="http://www.w3.org/2000/svg" cx="138" cy="64" rx="16" ry="22" fill="url(#eye)" transform="rotate(-5 138 64)" />
-  <ellipse xmlns="http://www.w3.org/2000/svg" cx="62" cy="54" rx="5.3" ry="5.7" fill="url(#glint)" />
-  <ellipse xmlns="http://www.w3.org/2000/svg" cx="138" cy="54" rx="5.3" ry="5.7" fill="url(#glint)" />
-  <ellipse xmlns="http://www.w3.org/2000/svg" cx="86" cy="124.5" rx="2.8" ry="5.7" fill="#16420d" transform="rotate(-5 86 124.5)" />
-  <ellipse xmlns="http://www.w3.org/2000/svg" cx="114" cy="124.5" rx="2.8" ry="5.7" fill="#16420d" transform="rotate(5 114 124.5)" />
-  <use xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#mouth-shape" fill="url(#mouth)" />
-  <use xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#mouth-shape" fill="url(#mouth-shadow)" />
-  <path xmlns="http://www.w3.org/2000/svg" d="M13 123 C27 148 58 164 100 164 C142 164 173 148 187 123 C174 151 142 167 100 167 C58 167 26 151 13 123 Z" fill="url(#lip)" />
-  <path xmlns="http://www.w3.org/2000/svg" d="M13 123 C49 144 151 144 187 123" fill="none" stroke="#032406" stroke-width="1.25" stroke-linecap="round" />
-</g>
-<ellipse cx="125" cy="73" rx="109" ry="25" fill="#ffc900" stroke="#1b1905" stroke-width="1.2"/>
-<path d="M51 88 L99 61 L88 90Z M164 61 L199 88 L164 91Z" fill="#f28d00"/>
-<path d="M16 73 C16 87 65 101 125 98 C185 101 234 87 234 73 C234 105 176 123 126 124 C75 124 16 105 16 73Z" fill="#e16c22" stroke="#151407" stroke-width="1.5" stroke-linejoin="round"/>
-<path d="M22 87 L35 99 L43 94 L53 107 L61 99 L72 113 L81 103 L90 117 L99 107 L108 120 L117 110 L126 122 L135 111 L144 119 L154 109 L163 116 L173 104 L182 111 L192 99 L202 104 L211 94 L222 95 L228 85" fill="none" stroke="#18170b" stroke-width="3" stroke-linejoin="round"/>
-<path d="M84 89 L98 26 C100 11 108 3 124 3 C141 3 149 13 153 27 L166 89 C140 94 110 95 84 89Z" fill="#ffbd00" stroke="#25200d" stroke-width="1.2"/>
-<defs><clipPath id="sombrero-crown-clip"><path d="M84 89 L98 26 C100 11 108 3 124 3 C141 3 149 13 153 27 L166 89 C140 94 110 95 84 89Z"/></clipPath></defs><g clip-path="url(#sombrero-crown-clip)" transform="translate(7.5 0) scale(.94 1)">
-<path d="M106 8 C109 5 116 3 124 3 C135 3 141 8 144 14 L148 30 C135 34 117 34 103 31Z" fill="#fff100"/>
-<path d="M97 31 C113 34 139 35 154 31 L156 39 C137 41 112 39 95 36Z" fill="#e17a22" stroke="#15140b" stroke-width="2.1"/>
-<path d="M95 39 L157 42 L160 55 C149 57 146 49 139 47 C129 43 125 57 118 56 C107 54 109 45 100 45 L93 47Z" fill="#ed5f13"/>
-<path d="M93 46 C103 44 109 45 116 50 C123 57 125 55 133 48 C141 42 149 49 159 51" fill="none" stroke="#111409" stroke-width="2.7"/>
-<path d="M91 53 C113 58 138 60 160 55 L164 77 C138 84 108 83 87 76Z" fill="#eb1840" stroke="#11130a" stroke-width="2.2"/>
-<path d="M88 68 L94 64 L101 74 L107 66 L114 75 L120 66 L127 76 L133 66 L140 75 L146 65 L153 72 L159 64 L164 69 L166 77 C144 83 108 82 87 77Z" fill="#f2bb20" stroke="#11130a" stroke-width="2.5" stroke-linejoin="round"/>
-<g fill="#17150b"><circle cx="100" cy="61.5" r="1.8"/><circle cx="113" cy="63" r="1.8"/><circle cx="126" cy="63.2" r="1.8"/><circle cx="138" cy="63" r="1.8"/><circle cx="150" cy="61.5" r="1.8"/><circle cx="94" cy="73" r="1.8"/><circle cx="107" cy="75" r="1.8"/><circle cx="119" cy="75.4" r="1.8"/><circle cx="132" cy="75.8" r="1.8"/><circle cx="144" cy="75" r="1.8"/><circle cx="158" cy="73.6" r="1.8"/></g>
-
-
-</g>
-<path d="M87.3 75.5 C110 83 141 85 163.2 78 L164.8 85 C141 91 108 89 85.5 84Z" fill="#e91937" stroke="#11130b" stroke-width="2"/>
-<path d="M85.5 84 C107 89 141 91 164.5 85 L166 89 C140 94 110 95 84 89Z" fill="#782b44"/>
-<path d="M84 89 L98 26 C100 11 108 3 124 3 C141 3 149 13 153 27 L166 89 C140 94 110 95 84 89Z" fill="none" stroke="#17160b" stroke-width="2.4" stroke-linejoin="round"/>
-
+  <g transform="matrix(.94 0 0 .94 32 74)">
+    <use xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#head" fill="url(#skin)"/>
+    <use xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#brow-shape" fill="url(#brow)"/>
+    <use xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#brow-shape" transform="matrix(-1 0 0 1 200 0)" fill="url(#brow)"/>
+    <use xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#head" fill="url(#muzzle)"/>
+    <ellipse xmlns="http://www.w3.org/2000/svg" cx="100" cy="98" rx="83" ry="17" fill="url(#bridge)"/>
+    <path xmlns="http://www.w3.org/2000/svg" d="M36 37c8-13 30-14 49-2" fill="none" stroke="url(#brow-gloss)" stroke-linecap="round" stroke-width="2.1"/>
+    <path xmlns="http://www.w3.org/2000/svg" d="M36 37c8-13 30-14 49-2" transform="matrix(-1 0 0 1 200 0)" fill="none" stroke="url(#brow-gloss)" stroke-linecap="round" stroke-width="2.1"/>
+    <ellipse xmlns="http://www.w3.org/2000/svg" cx="62" cy="64" rx="16" ry="22" transform="rotate(5 62 64)" fill="url(#eye)"/>
+    <ellipse xmlns="http://www.w3.org/2000/svg" cx="138" cy="64" rx="16" ry="22" transform="rotate(-5 138 64)" fill="url(#eye)"/>
+    <ellipse xmlns="http://www.w3.org/2000/svg" cx="62" cy="54" rx="5.3" ry="5.7" fill="url(#glint)"/>
+    <ellipse xmlns="http://www.w3.org/2000/svg" cx="138" cy="54" rx="5.3" ry="5.7" fill="url(#glint)"/>
+    <ellipse xmlns="http://www.w3.org/2000/svg" cx="86" cy="124.5" rx="2.8" ry="5.7" transform="rotate(-5 86 124.5)" fill="#16420d"/>
+    <ellipse xmlns="http://www.w3.org/2000/svg" cx="114" cy="124.5" rx="2.8" ry="5.7" transform="rotate(5 114 124.5)" fill="#16420d"/>
+    <use xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#mouth-shape" fill="url(#mouth)"/>
+    <use xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#mouth-shape" fill="url(#mouth-shadow)"/>
+    <path xmlns="http://www.w3.org/2000/svg" d="M13 123c14 25 45 41 87 41s73-16 87-41c-13 28-45 44-87 44s-74-16-87-44" fill="url(#lip)"/>
+    <path xmlns="http://www.w3.org/2000/svg" d="M13 123c36 21 138 21 174 0" fill="none" stroke="#032406" stroke-linecap="round" stroke-width="1.25"/>
+  </g>
+  <ellipse cx="125" cy="73" rx="109" ry="25" fill="#ffc900" stroke="#1b1905" stroke-width="1.2"/>
+  <path d="m51 88 48-27-11 29Zm113-27 35 27-35 3Z" fill="#f28d00"/>
+  <path d="M16 73c0 14 49 28 109 25 60 3 109-11 109-25 0 32-58 50-108 51-51 0-110-19-110-51Z" fill="#e16c22" stroke="#151407" stroke-linejoin="round" stroke-width="1.5"/>
+  <path d="m22 87 13 12 8-5 10 13 8-8 11 14 9-10 9 14 9-10 9 13 9-10 9 12 9-11 9 8 10-10 9 7 10-12 9 7 10-12 10 5 9-10 11 1 6-10" fill="none" stroke="#18170b" stroke-linejoin="round" stroke-width="3"/>
+  <path d="m84 89 14-63c2-15 10-23 26-23 17 0 25 10 29 24l13 62c-26 5-56 6-82 0Z" fill="#ffbd00" stroke="#25200d" stroke-width="1.2"/>
+  <defs>
+    <clipPath id="sombrero-crown-clip">
+      <path d="m84 89 14-63c2-15 10-23 26-23 17 0 25 10 29 24l13 62c-26 5-56 6-82 0"/>
+    </clipPath>
+  </defs>
+  <g transform="matrix(.94 0 0 1 7.5 0)" clip-path="url(#sombrero-crown-clip)">
+    <path d="M106 8c3-3 10-5 18-5 11 0 17 5 20 11l4 16c-13 4-31 4-45 1Z" fill="#fff100"/>
+    <path d="M97 31c16 3 42 4 57 0l2 8c-19 2-44 0-61-3Z" fill="#e17a22" stroke="#15140b" stroke-width="2.1"/>
+    <path d="m95 39 62 3 3 13c-11 2-14-6-21-8-10-4-14 10-21 9-11-2-9-11-18-11l-7 2Z" fill="#ed5f13"/>
+    <path d="M93 46c10-2 16-1 23 4 7 7 9 5 17-2 8-6 16 1 26 3" fill="none" stroke="#111409" stroke-width="2.7"/>
+    <path d="M91 53c22 5 47 7 69 2l4 22c-26 7-56 6-77-1Z" fill="#eb1840" stroke="#11130a" stroke-width="2.2"/>
+    <path d="m88 68 6-4 7 10 6-8 7 9 6-9 7 10 6-10 7 9 6-10 7 7 6-8 5 5 2 8c-22 6-58 5-79 0Z" fill="#f2bb20" stroke="#11130a" stroke-linejoin="round" stroke-width="2.5"/>
+    <g fill="#17150b">
+      <circle cx="100" cy="61.5" r="1.8"/>
+      <circle cx="113" cy="63" r="1.8"/>
+      <circle cx="126" cy="63.2" r="1.8"/>
+      <circle cx="138" cy="63" r="1.8"/>
+      <circle cx="150" cy="61.5" r="1.8"/>
+      <circle cx="94" cy="73" r="1.8"/>
+      <circle cx="107" cy="75" r="1.8"/>
+      <circle cx="119" cy="75.4" r="1.8"/>
+      <circle cx="132" cy="75.8" r="1.8"/>
+      <circle cx="144" cy="75" r="1.8"/>
+      <circle cx="158" cy="73.6" r="1.8"/>
+    </g>
+  </g>
+  <path d="M87.3 75.5C110 83 141 85 163.2 78l1.6 7c-23.8 6-56.8 4-79.3-1Z" fill="#e91937" stroke="#11130b" stroke-width="2"/>
+  <path d="M85.5 84c21.5 5 55.5 7 79 1l1.5 4c-26 5-56 6-82 0Z" fill="#782b44"/>
+  <path d="m84 89 14-63c2-15 10-23 26-23 17 0 25 10 29 24l13 62c-26 5-56 6-82 0Z" fill="none" stroke="#17160b" stroke-linejoin="round" stroke-width="2.4"/>
 </svg>

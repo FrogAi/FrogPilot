@@ -3,13 +3,11 @@ import requests
 
 from openpilot.frogpilot.common import frogpilot_utilities, frogpilot_variables
 
-GITHUB_URL = f"https://raw.githubusercontent.com/{frogpilot_variables.RESOURCES_REPO}"
-GITLAB_URL = f"https://gitlab.com/{frogpilot_variables.RESOURCES_REPO}/-/raw"
-
 class DownloadState:
   def __init__(self):
     self.cancelled = False
     self.progress = ""
+
 
 def download_file(destination, download_state, session, url):
   try:
@@ -30,10 +28,6 @@ def download_file(destination, download_state, session, url):
         handle_error(None, "Download invalid...", download_state)
         return
 
-      if download_state.cancelled:
-        handle_error(None, "Download cancelled...", download_state)
-        return
-
       temp_file_path = destination.with_suffix(destination.suffix + ".tmp")
 
       try:
@@ -42,7 +36,9 @@ def download_file(destination, download_state, session, url):
 
           for chunk in response.iter_content(chunk_size=16384):
             if download_state.cancelled:
-              raise InterruptedError
+              temp_file_path.unlink(missing_ok=True)
+              handle_error(None, "Download cancelled...", download_state)
+              return
 
             if chunk:
               temp_file.write(chunk)
@@ -55,10 +51,6 @@ def download_file(destination, download_state, session, url):
         temp_file_path.replace(destination)
         return destination
 
-      except InterruptedError:
-        temp_file_path.unlink(missing_ok=True)
-        handle_error(None, "Download cancelled...", download_state)
-        return
       except Exception:
         temp_file_path.unlink(missing_ok=True)
         raise
@@ -85,9 +77,9 @@ def get_remote_file_size(session, url):
 
 def get_repository_url(session):
   if frogpilot_utilities.is_url_pingable("https://github.com", session=session) and not github_rate_limited(session):
-    return GITHUB_URL
+    return frogpilot_variables.GITHUB_URL
   if frogpilot_utilities.is_url_pingable("https://gitlab.com", session=session):
-    return GITLAB_URL
+    return frogpilot_variables.GITLAB_URL
   return None
 
 
@@ -105,7 +97,7 @@ def github_rate_limited(session):
 
 def handle_error(destination, error_message, download_state):
   if destination:
-    frogpilot_utilities.delete_file(destination)
+    frogpilot_utilities.delete_path(destination)
 
   if download_state and "404" not in error_message:
     download_state.progress = error_message
@@ -124,18 +116,3 @@ def handle_request_error(error, download_state):
     error_message = "Unexpected error"
 
   handle_error(None, f"Failed: {error_message}", download_state)
-
-
-def verify_download(file_path, session, url):
-  if not file_path.is_file():
-    return False
-
-  if file_path.suffix == ".png" and url.endswith(".gif"):
-    url = url.replace(".gif", ".png")
-
-  remote_file_size = get_remote_file_size(session, url)
-
-  if remote_file_size == 0:
-    return False
-
-  return remote_file_size == file_path.stat().st_size

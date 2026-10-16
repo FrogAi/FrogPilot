@@ -932,7 +932,13 @@ private:
       return;
     }
 
-    const uint8_t *data = static_cast<uint8_t *>(session->outputs[buffer.index].addr) + plane.data_offset;
+    VisionBuf &output = session->outputs[buffer.index];
+    if (output.sync(VISIONBUF_SYNC_FROM_DEVICE) != 0) {
+      fail(error("ION cache invalidate"));
+      return;
+    }
+
+    const uint8_t *data = static_cast<uint8_t *>(output.addr) + plane.data_offset;
     if (buffer.flags & V4L2_QCOM_BUF_FLAG_CODECCONFIG) {
       session->codec_config.assign(data, data + plane.bytesused);
     } else {
@@ -1098,10 +1104,16 @@ void ScreenRecorder::saveReplay() {
 void ScreenRecorder::attach() {}
 void ScreenRecorder::start() {}
 void ScreenRecorder::stop() {}
-bool ScreenRecorder::active() { return false; }
+bool ScreenRecorder::active() {
+  return false;
+}
 void ScreenRecorder::setReplayDuration(int) {}
-bool ScreenRecorder::replayReady() { return false; }
-bool ScreenRecorder::replaySaving() { return false; }
+bool ScreenRecorder::replayReady() {
+  return false;
+}
+bool ScreenRecorder::replaySaving() {
+  return false;
+}
 void ScreenRecorder::saveReplay() {}
 
 #endif

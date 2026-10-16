@@ -120,6 +120,7 @@ void AnnotatedCameraWidget::paintGL() {
       }
       wide_cam_requested = wide_cam_requested && sm["selfdriveState"].getSelfdriveState().getExperimentalMode();
     }
+
     // FrogPilot variables
     int camera_view = frogpilot_toggles.value(QLatin1String("camera_view")).toInt();
     CameraWidget::setStreamType(camera_view == 1 ? VISION_STREAM_DRIVER :
@@ -151,8 +152,6 @@ void AnnotatedCameraWidget::paintGL() {
 
   // FrogPilot variables
   frogpilot_nvg->paintFrogPilotWidgets(painter);
-
-  painter.end();
 
   double cur_draw_t = millis_since_boot();
   double dt = cur_draw_t - prev_draw_t;

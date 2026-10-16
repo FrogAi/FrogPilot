@@ -1,3 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="125" height="250" viewBox="0 0 125 250">
-<rect x="50" y="49" width="22" height="70" rx="0" fill="#c92231" stroke="black" stroke-width="5"/><path d="M22 117 H104 Q121 117 121 134 V173 L109 199 H18 L6 173 V134 Q6 117 22 117Z" fill="#c92231" stroke="black" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/><rect x="27" y="126" width="73" height="12" rx="6" fill="#c93c48" stroke="black" stroke-width="5"/><rect x="27" y="150" width="73" height="12" rx="6" fill="#c93c48" stroke="black" stroke-width="5"/><rect x="27" y="174" width="73" height="12" rx="6" fill="#c93c48" stroke="black" stroke-width="5"/>
+  <g transform="matrix(1.72 0 0 1.72 -.6 85)">
+    <path d="M10 34h52a6 6 0 0 1 6 7l-5 46a6 6 0 0 1-6 5H15a6 6 0 0 1-6-5L4 41a6 6 0 0 1 6-7ZM15 46H57v5H15ZM15 58H57v5H15ZM15 70H57v5H15ZM15 80H57v5H15Z" fill="#000" fill-rule="evenodd" stroke="#000" stroke-linejoin="round" stroke-width="8.55"/>
+    <path d="M10 34h52a6 6 0 0 1 6 7l-5 46a6 6 0 0 1-6 5H15a6 6 0 0 1-6-5L4 41a6 6 0 0 1 6-7ZM15 46H57v5H15ZM15 58H57v5H15ZM15 70H57v5H15ZM15 80H57v5H15Z" fill="#ff3b30" fill-rule="evenodd"/>
+  </g>
 </svg>

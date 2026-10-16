@@ -33,12 +33,6 @@ FrogPilotAnnotatedCameraWidget::FrogPilotAnnotatedCameraWidget(CameraWidget *nvg
   QObject::connect(uiState(), &UIState::offroadTransition, this, [this] {
     standstillTimer.invalidate();
   });
-}
-
-void FrogPilotAnnotatedCameraWidget::showEvent(QShowEvent *event) {
-  if (assetsLoaded) {
-    return;
-  }
 
   updateSignals();
 }
@@ -59,13 +53,16 @@ void FrogPilotAnnotatedCameraWidget::updateSignals() {
     signalTimer.start();
   }
 
+  signalIsGif = false;
+
   signalAnimationLength = 0;
+  signalHeight = 0;
+  signalWidth = 0;
+
   signalStyle = "None";
 
   QVector<QPixmap>().swap(blindspotImages);
   QVector<QPixmap>().swap(signalImages);
-
-  bool isGif = false;
 
   QFileInfoList files = QDir("../../frogpilot/assets/active_theme/signals/").entryInfoList(QDir::Files | QDir::NoDotAndDotDot, QDir::Name);
   for (const QFileInfo &fileInfo : files) {
@@ -76,7 +73,7 @@ void FrogPilotAnnotatedCameraWidget::updateSignals() {
     QVector<QPixmap> &targetImages = isBlindspot ? blindspotImages : signalImages;
 
     if (fileName.endsWith(".gif", Qt::CaseInsensitive)) {
-      isGif = isGif || !isBlindspot;
+      signalIsGif = signalIsGif || !isBlindspot;
 
       QMovie movie(filePath);
       movie.setCacheMode(QMovie::CacheNone);
@@ -112,46 +109,39 @@ void FrogPilotAnnotatedCameraWidget::updateSignals() {
     }
   }
 
-  if (!signalImages.isEmpty()) {
+  if (signalImages.isEmpty()) {
+    signalAnimationLength = 0;
+
+    signalStyle = "None";
+  } else {
     QPixmap &firstImage = signalImages.front();
     signalHeight = firstImage.height();
     signalWidth = firstImage.width();
-    totalFrames = signalImages.size();
-
-    if (isGif && signalStyle == "traditional") {
-      signalStyle = "traditional_gif";
-    }
-  } else {
-    signalAnimationLength = 0;
-    signalHeight = 0;
-    signalWidth = 0;
-    totalFrames = 0;
-
-    signalStyle = "None";
   }
-
-  assetsLoaded = true;
 }
 
 void FrogPilotAnnotatedCameraWidget::updateCEMIcon() {
-  static const QMap<int, QString> cemIcons = {{1, "chill_mode_icon"}, {3, "curve_icon"}, {4, "lead_icon"}, {5, "turn_icon"}, {6, "speed_icon"}, {7, "speed_icon"}, {8, "light_icon"}};
+  static const QMap<int, QString> cemIcons = {{1, "chill_mode_icon"}, {3, "curve_icon"}, {4, "lead_icon"}, {6, "conditional_speed_icon"}, {7, "conditional_speed_icon"}, {8, "light_icon"}};
 
   QString cemPath;
   if (frogpilot_toggles.value(QLatin1String("cem_status")).toBool()) {
     QString icon = experimentalMode ? cemIcons.value(frogpilot_scene.conditional_status, "experimental_mode_icon") : "chill_mode_icon";
-    cemPath = QString("../../frogpilot/assets/other_images/%1.gif").arg(icon);
+    if (experimentalMode && frogpilot_scene.conditional_status == 5) {
+      icon = blinkerLeft ? "conditional_turn_left_icon" : "conditional_turn_right_icon";
+    }
+    cemPath = QString("../../frogpilot/assets/other_images/%1.svg").arg(icon);
   }
   updateIcon(cemPath, cemIcon, cemIconPath);
 }
 
-void FrogPilotAnnotatedCameraWidget::updateIcon(const QString &path, QSharedPointer<QMovie> &icon, QString &iconPath) {
+void FrogPilotAnnotatedCameraWidget::updateIcon(const QString &path, QSharedPointer<FrogPilotMovie> &icon, QString &iconPath) {
   if (hideBottomIcons && !path.isEmpty()) {
     if (icon) {
       icon->stop();
     }
-  } else if (path != iconPath || (!path.isEmpty() && (!icon || icon->state() != QMovie::Running))) {
-    loadGif(path, icon, QSize(widget_size, widget_size), this, false);
-    iconPath = icon && icon->state() == QMovie::Running ? path : QString();
+  } else if (path != iconPath || (!path.isEmpty() && (!icon || !icon->isRunning()))) {
+    loadMovie(path, icon, QSize(widget_size, widget_size), this, false);
+    iconPath = icon && icon->isRunning() ? path : QString();
   }
 }
 
@@ -165,8 +155,10 @@ void FrogPilotAnnotatedCameraWidget::updateWeatherIcon() {
       icon = "weather_snow";
     } else if (weatherId >= 701 && weatherId <= 762) {
       icon = "weather_low_visibility";
+    } else if (weatherId >= 801 && weatherId <= 804) {
+      icon = weatherDaytime ? "weather_cloudy_day" : "weather_cloudy_night";
     }
-    weatherPath = QString("../../frogpilot/assets/other_images/%1.gif").arg(icon);
+    weatherPath = QString("../../frogpilot/assets/other_images/%1.svg").arg(icon);
   }
   updateIcon(weatherPath, weatherIcon, weatherIconPath);
 }
@@ -189,6 +181,7 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   const cereal::SelfdriveState::Reader &selfdriveState = sm["selfdriveState"].getSelfdriveState();
 
   const capnp::List<float>::Reader &positionX = modelV2.getPosition().getX();
+  const capnp::List<float>::Reader &velocityX = modelV2.getVelocity().getX();
 
   bool useSIMetrics = frogpilot_toggles.value(QLatin1String("use_si_metrics")).toBool();
 
@@ -238,13 +231,20 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   speedLimit = slcOverriddenSpeed != 0 ? slcOverriddenSpeed : frogpilotPlan.getSlcSpeedLimit();
   speedLimitChanged = frogpilotPlan.getSpeedLimitChanged();
   speedLimitSource = frogpilotPlan.getSlcSpeedLimitSource();
-  stoppingDistance = positionX.size() != 0 ? positionX[positionX.size() - 1] : 0.0f;
   unconfirmedSpeedLimit = frogpilotPlan.getUnconfirmedSlcSpeedLimit();
   vEgo = carState.getVEgo();
   weatherDaytime = frogpilotPlan.getWeatherDaytime();
   weatherId = frogpilotPlan.getWeatherId();
 
-  hideBottomIcons = alertHeight != 0 || (signalStyle.startsWith("traditional") && (blinkerLeft || blinkerRight));
+  stoppingDistance = 0.0f;
+  for (int i = 0; i < velocityX.size(); ++i) {
+    if (velocityX[i] < 1.0f) {
+      stoppingDistance = positionX[i];
+      break;
+    }
+  }
+
+  hideBottomIcons = alertHeight != 0 || (signalStyle == "traditional" && (blinkerLeft || blinkerRight));
 
   bool showSpeedLimits = frogpilot_toggles.value(QLatin1String("show_speed_limits")).toBool() || frogpilot_toggles.value(QLatin1String("speed_limit_controller")).toBool();
   speedLimitSignHeight = showSpeedLimits ? (frogpilot_toggles.value(QLatin1String("speed_limit_vienna")).toBool() ? 176 : 186) + 12 : 0;
@@ -255,7 +255,11 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   }
   speedLimit *= speedConversion;
   float speedLimitOffset = frogpilotPlan.getSlcSpeedLimitOffset() * speedConversion;
-  speedLimitOffsetStr = (speedLimitOffset != 0) ? QString::number(speedLimitOffset, 'f', 0).prepend((speedLimitOffset > 0) ? "+" : "") : "–";
+  if (speedLimitOffset == 0) {
+    speedLimitOffsetStr = "–";
+  } else {
+    speedLimitOffsetStr = (speedLimitOffset > 0 ? "+" : "") + QString::number(speedLimitOffset, 'f', 0);
+  }
 
   if (blinkerLeft || blinkerRight) {
     if (!signalTimer.isValid()) {
@@ -284,21 +288,21 @@ void FrogPilotAnnotatedCameraWidget::updateState(const UIState &s, const FrogPil
   if (frogpilot_scene.standstill && frogpilot_toggles.value(QLatin1String("stopped_timer")).toBool()) {
     if (!standstillTimer.isValid()) {
       standstillTimer.start();
-    } else {
-      standstillDuration = (sm.frame - scene.started_frame) / UI_FREQ < 60 ? 0 : standstillTimer.elapsed() / 1000;
     }
+
+    standstillDuration = (sm.frame - scene.started_frame) / UI_FREQ < 60 ? 0 : standstillTimer.elapsed() / 1000;
   } else {
     standstillDuration = 0;
     standstillTimer.invalidate();
     standstillTimerRect = QRect();
   }
 
-  instantReplayButton->setVisible(frogpilot_toggles.value(QLatin1String("instant_replay")).toInt() != 0 && !standstillTimerRect.intersects(instantReplayButton->geometry()) && !(signalStyle == "static" && blinkerRight));
+  instantReplayButton->setVisible(!standstillTimerRect.intersects(instantReplayButton->geometry()) && !(signalStyle == "static" && blinkerRight) && frogpilot_toggles.value(QLatin1String("instant_replay")).toInt() != 0);
 
   personalityButton->setVisible(dmIconPosition != QPoint(0, 0) && (!hideBottomIcons || personalityButton->isDown()) && frogpilot_toggles.value(QLatin1String("onroad_distance_button")).toBool());
   personalityButton->updateState(s, fs);
 
-  screenRecorderButton->setVisible(frogpilot_toggles.value(QLatin1String("screen_recorder")).toBool() && !standstillTimerRect.intersects(screenRecorderButton->geometry()) && !(signalStyle == "static" && blinkerRight));
+  screenRecorderButton->setVisible(!standstillTimerRect.intersects(screenRecorderButton->geometry()) && !(signalStyle == "static" && blinkerRight) && frogpilot_toggles.value(QLatin1String("screen_recorder")).toBool());
 
   if (!isVisible()) {
     return;
@@ -326,6 +330,14 @@ bool FrogPilotAnnotatedCameraWidget::needsAdjacentPaths() const {
   return frogpilot_toggles.value(QLatin1String("adjacent_paths")).toBool() || frogpilot_toggles.value(QLatin1String("adjacent_path_metrics")).toBool() || (frogpilot_toggles.value(QLatin1String("blind_spot_path")).toBool() && (blindspotLeft || blindspotRight));
 }
 
+QLinearGradient FrogPilotAnnotatedCameraWidget::adjacentPathGradient(float hue) {
+  QLinearGradient gradient(0, height(), 0, 0);
+  gradient.setColorAt(0.0f, QColor::fromHslF(hue, 0.75f, 0.5f, 0.4f));
+  gradient.setColorAt(0.5f, QColor::fromHslF(hue, 0.75f, 0.5f, 0.35f));
+  gradient.setColorAt(1.0f, QColor::fromHslF(hue, 0.75f, 0.5f, 0.0f));
+  return gradient;
+}
+
 void FrogPilotAnnotatedCameraWidget::drawOutlinedText(QPainter &p, const QPointF &position, const QString &text) {
   QPainterPath path;
   path.addText(position, p.font(), text);
@@ -345,9 +357,7 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
   QPoint weatherPosition = compassPosition - QPoint(slotStep, 0);
 
   instantReplayButton->move(experimentalButtonPosition.x() - UI_BORDER_SIZE - btn_size, experimentalButtonPosition.y() + screenRecorderButton->height());
-  if (personalityButton->isVisible()) {
-    personalityButton->move(rightHandDM ? width() - personalityButton->width() - 2 * UI_BORDER_SIZE : UI_BORDER_SIZE, dmIconPosition.y() - personalityButton->height() / 2);
-  }
+  personalityButton->move(rightHandDM ? width() - personalityButton->width() - 2 * UI_BORDER_SIZE : UI_BORDER_SIZE, dmIconPosition.y() - personalityButton->height() / 2);
   screenRecorderButton->move(experimentalButtonPosition.x() - UI_BORDER_SIZE - btn_size, experimentalButtonPosition.y());
 
   if (!hideBottomIcons && frogpilot_toggles.value(QLatin1String("cem_status")).toBool()) {
@@ -402,7 +412,7 @@ void FrogPilotAnnotatedCameraWidget::paintFrogPilotWidgets(QPainter &p) {
     paintStandstillTimer(p);
   }
 
-  if (track_vertices.length() >= 1 && redLight && frogpilot_toggles.value(QLatin1String("show_stopping_point")).toBool()) {
+  if (track_vertices.length() >= 1 && redLight && stoppingDistance > 0 && frogpilot_toggles.value(QLatin1String("show_stopping_point")).toBool()) {
     paintStoppingPoint(p);
   }
 
@@ -430,12 +440,7 @@ void FrogPilotAnnotatedCameraWidget::paintAdjacentPaths(QPainter &p) {
       hue = (ratio * ratio) * (120.0f / 360.0f);
     }
 
-    QLinearGradient gradient(0, height(), 0, 0);
-    gradient.setColorAt(0.0f, QColor::fromHslF(hue, 0.75f, 0.5f, 0.4f));
-    gradient.setColorAt(0.5f, QColor::fromHslF(hue, 0.75f, 0.5f, 0.35f));
-    gradient.setColorAt(1.0f, QColor::fromHslF(hue, 0.75f, 0.5f, 0.0f));
-
-    p.setBrush(gradient);
+    p.setBrush(adjacentPathGradient(hue));
     p.drawPolygon(path);
 
     if (frogpilot_toggles.value(QLatin1String("adjacent_path_metrics")).toBool()) {
@@ -473,18 +478,18 @@ void FrogPilotAnnotatedCameraWidget::paintAdjacentPaths(QPainter &p) {
 }
 
 void FrogPilotAnnotatedCameraWidget::paintBlindSpotPath(QPainter &p) {
+  if (!blindspotLeft && !blindspotRight) {
+    return;
+  }
+
   p.save();
 
-  QLinearGradient bs(0, height(), 0, 0);
-  bs.setColorAt(0.0f, QColor::fromHslF(0.0f, 0.75f, 0.5f, 0.4f));
-  bs.setColorAt(0.5f, QColor::fromHslF(0.0f, 0.75f, 0.5f, 0.35f));
-  bs.setColorAt(1.0f, QColor::fromHslF(0.0f, 0.75f, 0.5f, 0.0f));
-  p.setBrush(bs);
+  p.setBrush(adjacentPathGradient(0.0f));
 
-  if (track_adjacent_vertices[0].boundingRect().width() > 0 && blindspotLeft) {
+  if (blindspotLeft && !track_adjacent_vertices[0].isEmpty()) {
     p.drawPolygon(track_adjacent_vertices[0]);
   }
-  if (track_adjacent_vertices[1].boundingRect().width() > 0 && blindspotRight) {
+  if (blindspotRight && !track_adjacent_vertices[1].isEmpty()) {
     p.drawPolygon(track_adjacent_vertices[1]);
   }
 
@@ -496,15 +501,13 @@ void FrogPilotAnnotatedCameraWidget::paintCEMStatus(QPainter &p, const QPoint &p
 
   QRect cemWidget(position, QSize(widget_size, widget_size));
 
-  p.setBrush(blackColor(166));
   if (frogpilot_scene.conditional_status == 1) {
-    p.setPen(QPen(QColor(bg_colors[STATUS_CEM_DISABLED]), 10));
+    paintWidgetFrame(p, cemWidget, bg_colors[STATUS_CEM_DISABLED]);
   } else if (experimentalMode) {
-    p.setPen(QPen(QColor(bg_colors[STATUS_EXPERIMENTAL_MODE_ENABLED]), 10));
+    paintWidgetFrame(p, cemWidget, bg_colors[STATUS_EXPERIMENTAL_MODE_ENABLED]);
   } else {
-    p.setPen(QPen(blackColor(), 10));
+    paintWidgetFrame(p, cemWidget, blackColor());
   }
-  p.drawRoundedRect(cemWidget, 24, 24);
 
   if (cemIcon) {
     p.drawPixmap(cemWidget, cemIcon->currentPixmap());
@@ -519,7 +522,6 @@ void FrogPilotAnnotatedCameraWidget::paintCompass(QPainter &p, const QPoint &pos
   constexpr double PIXELS_PER_DEGREE = 2.5;
 
   constexpr int BASE_RIBBON_WIDTH = static_cast<int>(360 * PIXELS_PER_DEGREE);
-  constexpr int BORDER_WIDTH = 10;
   constexpr int MARGIN = 5;
   constexpr int TRIANGLE_SIZE = 40;
 
@@ -561,9 +563,7 @@ void FrogPilotAnnotatedCameraWidget::paintCompass(QPainter &p, const QPoint &pos
 
   QRect compassWidget(position, QSize(widget_size, widget_size));
 
-  p.setBrush(blackColor(166));
-  p.setPen(QPen(blackColor(), BORDER_WIDTH));
-  p.drawRoundedRect(compassWidget, 24, 24);
+  paintWidgetFrame(p, compassWidget, blackColor());
 
   QPainterPath clipPath;
   clipPath.addRoundedRect(compassWidget.adjusted(MARGIN, MARGIN, -MARGIN, -MARGIN), 24, 24);
@@ -624,16 +624,12 @@ void FrogPilotAnnotatedCameraWidget::paintCurveSpeedControl(QPainter &p) {
   } else {
     QRect cscRect(curveSpeedRect.topLeft() + QPoint(0, curveSpeedRect.height() + 10), QSize(curveSpeedRect.width(), 100));
     p.setBrush(blueColor(166));
-    p.setFont(InterFont(45, QFont::Bold));
     p.setPen(QPen(blueColor(), 10));
     p.drawRoundedRect(cscRect, 24, 24);
     p.setPen(QPen(whiteColor(), 6));
 
     QString cscSpeedText = QString::number(std::nearbyint(std::min((cscSpeed - vEgo) * speedConversion + speed, speed))) + speedUnit;
-    int textWidth = p.fontMetrics().horizontalAdvance(cscSpeedText);
-    if (textWidth > cscRect.width() - 20) {
-      p.setFont(InterFont(45 * (cscRect.width() - 20) / textWidth, QFont::Bold));
-    }
+    p.setFont(fitInterFont(45, QFont::Bold, cscRect.width() - 20, {cscSpeedText}));
     p.drawText(cscRect, Qt::AlignCenter, cscSpeedText);
     p.drawPixmap(curveSpeedPoint, curveSpeedImage);
   }
@@ -761,13 +757,11 @@ void FrogPilotAnnotatedCameraWidget::paintPausedIcon(QPainter &p, const QPoint &
 
   QRect pausedWidget(position, QSize(widget_size, widget_size));
 
-  p.setBrush(blackColor(166));
-  p.setPen(QPen(QColor(bg_colors[STATUS_TRAFFIC_MODE_ENABLED]), 10));
-  p.drawRoundedRect(pausedWidget, 24, 24);
+  paintWidgetFrame(p, pausedWidget, bg_colors[STATUS_TRAFFIC_MODE_ENABLED]);
 
-  p.setOpacity(0.5);
+  p.setOpacity(0.65);
   p.drawPixmap(pausedWidget, icon);
-  p.setOpacity(0.75);
+  p.setOpacity(1.0);
   p.drawPixmap(pausedWidget, pausedIcon);
 
   p.restore();
@@ -846,14 +840,14 @@ void FrogPilotAnnotatedCameraWidget::paintRadarTracks(QPainter &p) {
   int diameter = 25;
 
   float radius = diameter / 2.0f;
-  float track_x = p.viewport().width() - diameter;
-  float track_y = p.viewport().height() - diameter;
+  float maxX = width() - diameter;
+  float maxY = height() - diameter;
 
   p.setBrush(redColor());
 
   for (const QPointF &track : radar_tracks) {
-    float x = std::clamp(static_cast<float>(track.x()), 0.0f, track_x);
-    float y = std::clamp(static_cast<float>(track.y()), 0.0f, track_y);
+    float x = std::clamp(static_cast<float>(track.x()), 0.0f, maxX);
+    float y = std::clamp(static_cast<float>(track.y()), 0.0f, maxY);
 
     p.drawEllipse(QPointF(x + radius, y + radius), radius, radius);
   }
@@ -872,9 +866,7 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
     cachedRoadNameWidth = QFontMetrics(font).horizontalAdvance(roadName);
   }
 
-  int textWidth = cachedRoadNameWidth;
-
-  QSize size(textWidth + 100, 50);
+  QSize size(cachedRoadNameWidth + 100, 50);
   roadNameRect = QStyle::alignedRect(Qt::LeftToRight, Qt::AlignHCenter | Qt::AlignBottom, size, rect().adjusted(0, 0, 0, -5));
 
   if (roadName.isEmpty()) {
@@ -883,9 +875,7 @@ void FrogPilotAnnotatedCameraWidget::paintRoadName(QPainter &p) {
 
   p.save();
 
-  p.setBrush(blackColor(166));
-  p.setPen(QPen(blackColor(), 10));
-  p.drawRoundedRect(roadNameRect, 24, 24);
+  paintWidgetFrame(p, roadNameRect, blackColor());
 
   p.setFont(font);
   p.setPen(QPen(whiteColor(), 6));
@@ -917,6 +907,7 @@ void FrogPilotAnnotatedCameraWidget::paintSpeedLimit(QPainter &p) {
   p.save();
 
   QString speedLimitStr = (speedLimit > 1) ? QString::number(std::nearbyint(speedLimit)) : "–";
+  QFont speedLimitFont = InterFont(speedLimitStr.size() >= 3 ? 60 : 70, QFont::Bold);
 
   bool showOffset = slcOverriddenSpeed == 0 && frogpilot_toggles.value(QLatin1String("show_speed_limit_offset")).toBool();
   bool vienna = frogpilot_toggles.value(QLatin1String("speed_limit_vienna")).toBool();
@@ -935,7 +926,7 @@ void FrogPilotAnnotatedCameraWidget::paintSpeedLimit(QPainter &p) {
     if (showOffset) {
       p.setFont(wordFont);
       p.drawText(signRect.adjusted(0, 22, 0, 0), Qt::AlignTop | Qt::AlignHCenter, limitWord);
-      p.setFont(InterFont(speedLimitStr.size() >= 3 ? 60 : 70, QFont::Bold));
+      p.setFont(speedLimitFont);
       p.drawText(signRect.adjusted(0, 51, 0, 0), Qt::AlignTop | Qt::AlignHCenter, speedLimitStr);
       p.setFont(InterFont(50, QFont::DemiBold));
       p.drawText(signRect.adjusted(0, 120, 0, 0), Qt::AlignTop | Qt::AlignHCenter, speedLimitOffsetStr);
@@ -943,17 +934,17 @@ void FrogPilotAnnotatedCameraWidget::paintSpeedLimit(QPainter &p) {
       p.setFont(wordFont);
       p.drawText(signRect.adjusted(0, 22, 0, 0), Qt::AlignTop | Qt::AlignHCenter, speedWord);
       p.drawText(signRect.adjusted(0, 51, 0, 0), Qt::AlignTop | Qt::AlignHCenter, limitWord);
-      p.setFont(InterFont(speedLimitStr.size() >= 3 ? 60 : 70, QFont::Bold));
+      p.setFont(speedLimitFont);
       p.drawText(signRect.adjusted(0, 85, 0, 0), Qt::AlignTop | Qt::AlignHCenter, speedLimitStr);
     }
   } else {
     if (showOffset) {
-      p.setFont(InterFont((speedLimitStr.size() >= 3) ? 60 : 70, QFont::Bold));
+      p.setFont(speedLimitFont);
       p.drawText(signRect.adjusted(0, -25, 0, 0), Qt::AlignCenter, speedLimitStr);
       p.setFont(InterFont(40, QFont::DemiBold));
       p.drawText(signRect.adjusted(0, 100, 0, 0), Qt::AlignTop | Qt::AlignHCenter, speedLimitOffsetStr);
     } else {
-      p.setFont(InterFont((speedLimitStr.size() >= 3) ? 60 : 70, QFont::Bold));
+      p.setFont(speedLimitFont);
       p.drawText(signRect, Qt::AlignCenter, speedLimitStr);
     }
   }
@@ -1032,7 +1023,8 @@ void FrogPilotAnnotatedCameraWidget::paintStandstillTimer(QPainter &p) {
 
   float transition;
 
-  QColor startColor, endColor;
+  QColor endColor;
+  QColor startColor;
   if (standstillDuration < 150) {
     startColor = bg_colors[STATUS_ENGAGED];
     endColor = bg_colors[STATUS_CEM_DISABLED];
@@ -1096,7 +1088,7 @@ void FrogPilotAnnotatedCameraWidget::paintStoppingPoint(QPainter &p) {
 }
 
 void FrogPilotAnnotatedCameraWidget::paintTurnSignals(QPainter &p) {
-  int frameIndex = (signalTimer.elapsed() / signalAnimationLength) % totalFrames;
+  int frameIndex = (signalTimer.elapsed() / signalAnimationLength) % signalImages.size();
 
   bool blindspotActive = blinkerLeft ? blindspotLeft : blindspotRight;
   bool showBlindspot = blindspotActive && !blindspotImages.isEmpty();
@@ -1108,11 +1100,11 @@ void FrogPilotAnnotatedCameraWidget::paintTurnSignals(QPainter &p) {
     signalXPosition = blinkerLeft ? (rect().center().x() * 0.75) - signalWidth : rect().center().x() * 1.25;
     signalYPosition = signalHeight / 2;
   } else {
-    if (signalStyle == "traditional_gif") {
-      int signalMovement = (width() + signalWidth * 2) / totalFrames;
+    if (signalIsGif && signalStyle == "traditional") {
+      int signalMovement = (width() + signalWidth * 2) / signalImages.size();
       signalXPosition = blinkerLeft ? width() - (frameIndex * signalMovement) + signalWidth : (frameIndex * signalMovement) - signalWidth;
     } else {
-      signalXPosition = std::clamp(blinkerLeft ? width() - ((frameIndex + 1) * signalWidth) : frameIndex * signalWidth, 0, width() - signalWidth);
+      signalXPosition = blinkerLeft ? width() - ((frameIndex + 1) * signalWidth) : frameIndex * signalWidth;
     }
     if (showBlindspot) {
       signalXPosition = blinkerLeft ? width() - signalWidth : 0;
@@ -1141,13 +1133,17 @@ void FrogPilotAnnotatedCameraWidget::paintWeather(QPainter &p, const QPoint &pos
 
   QRect weatherRect(position, QSize(widget_size, widget_size));
 
-  p.setBrush(blackColor(166));
-  p.setPen(QPen(blackColor(), 10));
-  p.drawRoundedRect(weatherRect, 24, 24);
+  paintWidgetFrame(p, weatherRect, blackColor());
 
   if (weatherIcon) {
     p.drawPixmap(weatherRect, weatherIcon->currentPixmap());
   }
 
   p.restore();
+}
+
+void FrogPilotAnnotatedCameraWidget::paintWidgetFrame(QPainter &p, const QRect &rect, const QColor &borderColor) {
+  p.setBrush(blackColor(166));
+  p.setPen(QPen(borderColor, 10));
+  p.drawRoundedRect(rect, 24, 24);
 }

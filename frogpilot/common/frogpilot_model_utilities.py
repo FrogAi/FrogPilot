@@ -12,6 +12,7 @@ from tinygrad.tensor import Tensor
 
 from cereal import log
 from openpilot.common.realtime import DT_MDL
+from openpilot.frogpilot.common import frogpilot_variables
 from openpilot.selfdrive.controls.lib.drive_helpers import get_accel_from_plan, get_curvature_from_plan
 from openpilot.selfdrive.modeld.constants import Meta, ModelConstants, Plan
 from openpilot.selfdrive.modeld.models.commonmodel_pyx import DrivingModelFrame
@@ -210,7 +211,7 @@ class LegacyModelState:
                                                   plan[:, Plan.ORIENTATION_RATE][:, 2],
                                                   ModelConstants.T_IDXS,
                                                   v_ego,
-                                                  steer_actuator_delay + .2)
+                                                  steer_actuator_delay + frogpilot_variables.LATERAL_DELAY_OFFSET)
     elif self.curvature_source == "model_hold" and v_ego <= min_lat_control_speed:
       desired_curvature = prev_action.desiredCurvature
     else:
@@ -239,7 +240,7 @@ class LegacyModelState:
         v_ego = max(sm["carState"].vEgo, 0.)
 
       if self.lateral_delay_source == "vehicle":
-        lateral_delay = steer_actuator_delay + .2
+        lateral_delay = steer_actuator_delay + frogpilot_variables.LATERAL_DELAY_OFFSET
       else:
         lateral_delay = lat_delay
 

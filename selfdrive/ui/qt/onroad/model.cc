@@ -1,6 +1,7 @@
 #include "selfdrive/ui/qt/onroad/model.h"
 
 constexpr int CLIP_MARGIN = 500;
+constexpr float MIN_DRAW_DISTANCE = 10.0;
 
 static int get_path_length_idx(const cereal::XYZTData::Reader &line, const float path_height) {
   const auto &line_x = line.getX();
@@ -38,11 +39,14 @@ void ModelRenderer::draw(QPainter &painter, const QRect &surface_rect) {
   if ((longitudinal_control || frogpilot_toggles.value(QLatin1String("lead_info")).toBool()) && sm.alive("radarState") && !frogpilot_toggles.value(QLatin1String("hide_lead_marker")).toBool()) {
     update_leads(radar_state, model.getPosition());
     const auto &lead_two = radar_state.getLeadTwo();
+
     // FrogPilot variables
     frogpilot_nvg->leadTextRects.clear();
+
     if (lead_one.getStatus()) {
       // FrogPilot variables
       QColor lead_color = lead_one.getModelProb() >= frogpilot_toggles.value(QLatin1String("lead_detection_probability")).toDouble() ? QColor(frogpilot_toggles.value(QLatin1String("lead_marker_color")).toString()) : frogpilot_nvg->whiteColor();
+
       drawLead(painter, lead_one, lead_vertices[0], surface_rect, lead_color);
     }
     if (lead_two.getStatus() && (std::abs(lead_one.getDRel() - lead_two.getDRel()) > 3.0)) {
@@ -90,7 +94,7 @@ void ModelRenderer::update_leads(const cereal::RadarState::Reader &radar_state, 
 
 void ModelRenderer::update_model(const cereal::ModelDataV2::Reader &model, const cereal::RadarState::LeadData::Reader &lead, float height) {
   const auto &model_position = model.getPosition();
-  float max_distance = *(model_position.getX().end() - 1);
+  float max_distance = std::max(*(model_position.getX().end() - 1), MIN_DRAW_DISTANCE);
 
   // update lane lines
   const auto &lane_lines = model.getLaneLines();
@@ -115,13 +119,19 @@ void ModelRenderer::update_model(const cereal::ModelDataV2::Reader &model, const
     max_distance = std::clamp((float)(lead_d - fmin(lead_d * 0.35, 10.)), 0.0f, max_distance);
   }
   max_idx = get_path_length_idx(model_position, max_distance);
+
   // FrogPilot variables
   float path_width = frogpilot_toggles.value(QLatin1String("path_width")).toDouble();
   if (frogpilot_toggles.value(QLatin1String("dynamic_path_width")).toBool()) {
     UIState *s = uiState();
-    path_width *= (s->status == STATUS_ENGAGED || s->status == STATUS_TRAFFIC_MODE_ENABLED) ? 1.0f : s->status == STATUS_ALWAYS_ON_LATERAL_ACTIVE ? 0.75f : 0.50f;
+    if (s->status == STATUS_ALWAYS_ON_LATERAL_ACTIVE) {
+      path_width *= 0.75f;
+    } else if (s->status != STATUS_ENGAGED && s->status != STATUS_TRAFFIC_MODE_ENABLED) {
+      path_width *= 0.5f;
+    }
   }
-  mapLineToPolygon(model_position, frogpilot_toggles.value(QLatin1String("model_ui")).toBool() ? path_width * (1 - (frogpilot_toggles.value(QLatin1String("path_edge_width")).toDouble() / 100.0f)) : 0.9, path_offset_z, &track_vertices, max_idx, false);
+  float inner_path_width = path_width * (1 - frogpilot_toggles.value(QLatin1String("path_edge_width")).toDouble() / 100.0f);
+  mapLineToPolygon(model_position, frogpilot_toggles.value(QLatin1String("model_ui")).toBool() ? inner_path_width : 0.9, path_offset_z, &track_vertices, max_idx, false);
 
   // FrogPilot variables
   FrogPilotUIState *fs = frogpilotUIState();

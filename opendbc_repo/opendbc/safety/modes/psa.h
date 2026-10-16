@@ -24,7 +24,6 @@ static uint8_t psa_get_counter(const CANPacket_t *msg) {
     cnt = (msg->data[3] >> 4) & 0xFU;
   } else if (msg->addr == PSA_HS2_DYN_ABR_38D) {
     cnt = (msg->data[5] >> 4) & 0xFU;
-  // FrogPilot variables
   } else {
   }
   return cnt;
@@ -36,7 +35,6 @@ static uint32_t psa_get_checksum(const CANPacket_t *msg) {
     chksum = msg->data[5] & 0xFU;
   } else if (msg->addr == PSA_HS2_DYN_ABR_38D) {
     chksum = msg->data[5] & 0xFU;
-  // FrogPilot variables
   } else {
   }
   return chksum;
@@ -64,7 +62,6 @@ static uint32_t psa_compute_checksum(const CANPacket_t *msg) {
     chk = _psa_compute_checksum(msg, 0x4, 5);
   } else if (msg->addr == PSA_HS2_DYN_ABR_38D) {
     chk = _psa_compute_checksum(msg, 0x7, 5);
-  // FrogPilot variables
   } else {
   }
   return chk;
@@ -90,6 +87,7 @@ static void psa_rx_hook(const CANPacket_t *msg) {
     if (msg->addr == PSA_HS2_DAT_MDD_CMD_452) {
       pcm_cruise_check((msg->data[2U] >> 7U) & 1U); // RVV_ACC_ACTIVATION_REQ
     }
+
     // FrogPilot variables
     if (msg->addr == PSA_HS2_DYN1_MDD_ETAT_2B6) {
       acc_main_on = (msg->data[3] & 0x0FU) > 2;

@@ -272,6 +272,7 @@ def main(demo=False):
     # 4Hz driven by livePose
     if sm.frame % 5 == 0:
       msg = estimator.get_msg(valid=sm.all_checks(), with_points=DEBUG)
+
       # FrogPilot variables
       if frogpilot_toggles.use_custom_latAccelFactor:
         msg.liveTorqueParameters.latAccelFactorFiltered = float(frogpilot_toggles.latAccelFactor)

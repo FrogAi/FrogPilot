@@ -1,0 +1,28 @@
+.btn.logs-term-btn { min-height: 34px; padding: 0 12px; gap: 7px; border-radius: 8px; border: 1px solid rgba(255,255,255,.14); background: #222d29; color: #e8f0ec; font-size: 13.5px; font-weight: 600; }
+.btn.logs-term-btn:hover { background: #2b3833; }
+.btn.logs-term-btn .ic { width: 16px; height: 16px; }
+.btn.logs-term-btn[aria-pressed="true"] { background: var(--lily); border-color: var(--lily); color: var(--bright-ink); }
+.btn.logs-term-btn.logs-save { margin-left: auto; }
+.logs-console { overflow: hidden; }
+.logs-console .keybar { border-top: 1px solid rgba(255,255,255,.08); }
+.logs-console .keybar button[aria-pressed="true"] { background: var(--lily); border-color: var(--lily); color: var(--bright-ink); }
+.logs-console .panel-head { padding-bottom: 12px; }
+.logs-console .console { border-radius: 0; }
+.logs-console .console-input { border-radius: 0; border-top: 1px solid rgba(255,255,255,.08); }
+.logs-console.expanded { position: fixed; inset: 0; z-index: 45; display: flex; flex-direction: column; padding: 8px var(--gutter) calc(16px + env(safe-area-inset-bottom)); background: var(--paper); border-top: 0; }
+.logs-console.expanded .logs-term { flex: 1; min-height: 0; }
+.logs-console.expanded .console { flex: 1; height: auto; min-height: 0; }
+.logs-list { margin-top: 8px; }
+.logs-more { margin-top: 12px; }
+.logs-term { display: flex; flex-direction: column; border: 1px solid #222d29; border-radius: var(--r); overflow: hidden; background: #0d1412; }
+.logs-term-bar { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 10px; background: #18211e; border-bottom: 1px solid rgba(255,255,255,.08); }
+.logs-view { border-top: 1px solid var(--line); }
+.logs-view .code-box { margin: 0; }
+.logs-view-head { display: flex; align-items: center; margin-bottom: 8px; }
+.logs-view-head .icon-btn { margin-left: auto; }
+@media (max-width: 719px), (pointer: coarse) {
+  .btn.logs-term-btn { min-height: 44px; padding: 0 10px; }
+  .logs-term-bar { padding: 8px; }
+  .logs-console .keybar { display: flex; gap: 4px; padding: 8px; }
+  .logs-console .keybar button { min-width: 44px; }
+}

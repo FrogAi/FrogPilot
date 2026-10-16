@@ -1,6 +1,6 @@
+#include "frogpilot/ui/qt/offroad/frogpilot_settings.h"
 #include "frogpilot/ui/qt/offroad/data_settings.h"
 #include "frogpilot/ui/qt/offroad/device_settings.h"
-#include "frogpilot/ui/qt/offroad/frogpilot_settings.h"
 #include "frogpilot/ui/qt/offroad/lateral_settings.h"
 #include "frogpilot/ui/qt/offroad/longitudinal_settings.h"
 #include "frogpilot/ui/qt/offroad/maps_settings.h"
@@ -178,6 +178,16 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
   carParamsWatcher = new ParamWatcher(this);
   QObject::connect(carParamsWatcher, &ParamWatcher::paramChanged, this, &FrogPilotSettingsWindow::updateVariables);
 
+  QObject::connect(frogpilotUIState(), &FrogPilotUIState::togglesUpdated, this, [this]() {
+    bool metric = params.getBool("IsMetric");
+    if (metric != isMetric) {
+      emit updateMetric(metric, true);
+    }
+  });
+  QObject::connect(this, &FrogPilotSettingsWindow::updateMetric, [this](bool metric) {
+    isMetric = metric;
+  });
+
   QObject::connect(uiState(), &UIState::offroadTransition, this, &FrogPilotSettingsWindow::updateVariables);
   QObject::connect(uiState(), &UIState::uiUpdate, this, &FrogPilotSettingsWindow::updateState);
 
@@ -188,7 +198,7 @@ FrogPilotSettingsWindow::FrogPilotSettingsWindow(SettingsWindow *parent) : QFram
 
 void FrogPilotSettingsWindow::confirmTuningLevel(QWidget *dialogParent) {
   int frogpilotHours = QJsonDocument::fromJson(QString::fromStdString(params.get("FrogPilotStats")).toUtf8()).object().value("FrogPilotSeconds").toDouble() / (60 * 60);
-  int openpilotHours = params.getInt("KonikMinutes") / 60 + params.getInt("openpilotMinutes") / 60;
+  int openpilotHours = (params.getInt("KonikMinutes") + params.getInt("openpilotMinutes")) / 60;
 
   QString message;
   int newTuningLevel;
@@ -309,9 +319,9 @@ void FrogPilotSettingsWindow::updateVariables() {
     isTorqueCar = CP.getLateralTuning().which() == cereal::CarParams::LateralTuning::TORQUE;
 
     canDisableOpenpilotLong = frogpilot_toggles.value("can_disable_openpilot_long").toBool();
+    canMapGears = frogpilot_toggles.value("can_map_gears").toBool();
     canUseDSUBypass = frogpilot_toggles.value("can_use_dsu_bypass").toBool();
     friction = isTorqueCar ? CP.getLateralTuning().getTorque().getFriction() : 0.0f;
-    hasAlphaLongitudinal = CP.getAlphaLongitudinalAvailable();
     hasBSM = CP.getEnableBsm();
     hasDashSpeedLimits = false;
     hasLKASButton = frogpilot_toggles.value("has_lkas_button").toBool();
@@ -322,6 +332,7 @@ void FrogPilotSettingsWindow::updateVariables() {
     hasRadar = !CP.getRadarUnavailable();
     hasSDSU = frogpilot_toggles.value("has_sdsu").toBool();
     hasSNG = CP.getAutoResumeSng();
+    hasStartingState = CP.getStartingState();
     hasZSS = frogpilot_toggles.value("has_zss").toBool();
     isAngleCar = CP.getSteerControlType() == cereal::CarParams::SteerControlType::ANGLE;
     isGM = carMake == "gm";
@@ -331,7 +342,6 @@ void FrogPilotSettingsWindow::updateVariables() {
     isHondaNidec = frogpilot_toggles.value("is_honda_nidec").toBool();
     isSubaru = carMake == "subaru";
     isToyota = carMake == "toyota";
-    isTSK = CP.getSecOcRequired();
     isVolt = carFingerprint == "CHEVROLET_VOLT";
     latAccelFactor = isTorqueCar ? CP.getLateralTuning().getTorque().getLatAccelFactor() : 0.0f;
     lkasAllowedForAOL = frogpilot_toggles.value("lkas_allowed_for_aol").toBool();
@@ -346,12 +356,12 @@ void FrogPilotSettingsWindow::updateVariables() {
     vEgoStopping = CP.getVEgoStopping();
 
     std::vector<std::pair<std::string, float>> stockValues = {
+      {"LongitudinalActuatorDelay", longitudinalActuatorDelay},
+      {"StartAccel", startAccel},
       {"SteerDelay", steerActuatorDelay},
       {"SteerFriction", friction},
       {"SteerKP", steerKp},
       {"SteerLatAccel", latAccelFactor},
-      {"LongitudinalActuatorDelay", longitudinalActuatorDelay},
-      {"StartAccel", startAccel},
       {"SteerRatio", steerRatio},
       {"StopAccel", stopAccel},
       {"StoppingDecelRate", stoppingDecelRate},
@@ -385,7 +395,6 @@ void FrogPilotSettingsWindow::updateVariables() {
     canUsePedal = FPCP.getCanUsePedal();
     canUseSDSU = FPCP.getCanUseSDSU();
     hasDashSpeedLimits = FPCP.getHasDashboardSpeedLimit();
-    openpilotLongitudinalControlDisabled = FPCP.getOpenpilotLongitudinalControlDisabled();
   }
 
   std::string liveTorqueParameters = params.get("LiveTorqueParameters");

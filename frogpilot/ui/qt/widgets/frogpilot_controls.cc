@@ -1,6 +1,7 @@
 #include "frogpilot/ui/qt/widgets/frogpilot_controls.h"
 
 #include <QCheckBox>
+#include <QRandomGenerator>
 
 #include "selfdrive/ui/qt/widgets/scrollview.h"
 #include "selfdrive/ui/ui.h"
@@ -120,56 +121,230 @@ void fitTitle(QPushButton *title) {
   title->installEventFilter(titleFitter);
 }
 
-void loadGif(const QString &gifPath, QSharedPointer<QMovie> &movie, const QSize &size, QWidget *parent, bool repaintOnFrame) {
-  const QString sourcePath = QFileInfo(gifPath).canonicalFilePath();
-  if (sourcePath.isEmpty()) {
-    movie.reset();
+FrogPilotMovie::FrogPilotMovie(const QString &fileName, const QSize &size) : size(size), path(fileName) {
+  if (!fileName.endsWith(".svg")) {
+    gif = new QMovie(fileName, QByteArray(), this);
+    gif->setCacheMode(QMovie::CacheAll);
+    gif->setScaledSize(size);
+    QObject::connect(gif, &QMovie::frameChanged, this, &FrogPilotMovie::frameChanged);
     return;
   }
 
-  if (movie && movie->fileName() == sourcePath) {
-    if (movie->scaledSize() != size) {
-      movie->setScaledSize(size);
+  QFile file(fileName);
+  file.open(QIODevice::ReadOnly);
+  svg.setContent(&file);
+
+  const QDomNodeList groups = svg.elementsByTagName("g");
+  for (int i = 0; i < groups.size(); i++) {
+    const QDomElement group = groups.at(i).toElement();
+    if (group.hasAttribute("data-ms")) {
+      delays.append(group.attribute("data-ms").toInt());
+      frames.append(group);
     }
-    movie->start();
-    return;
   }
 
-  movie = QSharedPointer<QMovie>::create(sourcePath);
-  movie->setCacheMode(QMovie::CacheAll);
-  movie->setScaledSize(size);
-
-  if (repaintOnFrame) {
-    QObject::connect(movie.data(), &QMovie::frameChanged, parent, [parent]() {
-      parent->update();
-    });
+  framesParent = frames.first().parentNode();
+  loop = framesParent.toElement().attribute("data-loop") != "false";
+  for (const QDomElement &group : frames) {
+    framesParent.removeChild(group);
   }
 
-  movie->start();
+  pixmaps.resize(frames.size());
+
+  timer.setSingleShot(true);
+  QObject::connect(&timer, &QTimer::timeout, this, [this]() {
+    frame = (frame + 1) % frames.size();
+    if (!loop && frame == frames.size() - 1) {
+      played = true;
+    } else {
+      timer.start(delays[frame]);
+    }
+    emit frameChanged();
+  });
 }
 
-void loadImage(const QString &basePath, QPixmap &pixmap, QSharedPointer<QMovie> &movie, const QSize &size, QWidget *parent, bool repaintOnFrame) {
+void FrogPilotMovie::start() {
+  if (gif) {
+    gif->start();
+  } else {
+    if (!loop && frame == frames.size() - 1) {
+      frame = 0;
+    }
+    played = false;
+    timer.start(delays[frame]);
+  }
+}
+
+void FrogPilotMovie::stop() {
+  if (gif) {
+    gif->stop();
+  } else {
+    played = false;
+    timer.stop();
+  }
+}
+
+bool FrogPilotMovie::isRunning() const {
+  if (gif) {
+    return gif->state() == QMovie::Running;
+  }
+  return timer.isActive() || played;
+}
+
+int FrogPilotMovie::currentFrameNumber() const {
+  if (gif) {
+    return gif->currentFrameNumber();
+  }
+  return frame;
+}
+
+QPixmap FrogPilotMovie::currentPixmap() {
+  if (gif) {
+    return gif->currentPixmap();
+  }
+
+  QPixmap &pixmap = pixmaps[frame];
+  if (pixmap.isNull()) {
+    framesParent.appendChild(frames[frame]);
+    QByteArray document = svg.toByteArray();
+    framesParent.removeChild(frames[frame]);
+
+    QBuffer buffer(&document);
+    QImageReader reader(&buffer, "svg");
+    reader.setScaledSize(size);
+    pixmap = QPixmap::fromImageReader(&reader);
+  }
+  return pixmap;
+}
+
+QSize FrogPilotMovie::scaledSize() const {
+  return size;
+}
+
+QString FrogPilotMovie::fileName() const {
+  return path;
+}
+
+void loadImage(const QString &basePath, QPixmap &pixmap, QSharedPointer<FrogPilotMovie> &movie, const QSize &size, QWidget *parent, bool repaintOnFrame) {
   const QString gifPath = basePath + ".gif";
   if (QFileInfo::exists(gifPath)) {
     pixmap = QPixmap();
-    loadGif(gifPath, movie, size, parent, repaintOnFrame);
+    loadMovie(gifPath, movie, size, parent, repaintOnFrame);
   } else {
-    movie.reset();
-
     QString imagePath = basePath + ".svg";
     if (!QFileInfo::exists(imagePath)) {
       imagePath = basePath + ".png";
     }
 
-    QPixmap loadedPixmap(QFileInfo(imagePath).canonicalFilePath());
-    pixmap = loadedPixmap.isNull() ? QPixmap() : loadedPixmap.scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QFile file(imagePath);
+    file.open(QIODevice::ReadOnly);
+    if (imagePath.endsWith(".svg") && file.readAll().contains("data-ms=")) {
+      pixmap = QPixmap();
+      loadMovie(imagePath, movie, size, parent, repaintOnFrame);
+    } else {
+      movie.reset();
+
+      QPixmap loadedPixmap(QFileInfo(imagePath).canonicalFilePath());
+      pixmap = loadedPixmap.isNull() ? QPixmap() : loadedPixmap.scaled(size, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    }
   }
 
   parent->update();
 }
 
+void loadMovie(const QString &moviePath, QSharedPointer<FrogPilotMovie> &movie, const QSize &size, QWidget *parent, bool repaintOnFrame) {
+  const QString sourcePath = QFileInfo(moviePath).canonicalFilePath();
+  if (sourcePath.isEmpty()) {
+    movie.reset();
+    return;
+  }
+
+  if (!movie || movie->fileName() != sourcePath || movie->scaledSize() != size) {
+    movie = QSharedPointer<FrogPilotMovie>::create(sourcePath, size);
+
+    if (repaintOnFrame) {
+      QObject::connect(movie.data(), &FrogPilotMovie::frameChanged, parent, [parent]() {
+        parent->update();
+      });
+    }
+  }
+
+  movie->start();
+}
+
+const QMap<QString, QString> &randomEventNames() {
+  static const QMap<QString, QString> names = {
+    {"accel30", QCoreApplication::translate("FrogPilotDataPanel", "UwUs")},
+    {"accel35", QCoreApplication::translate("FrogPilotDataPanel", "Loch Ness Encounters")},
+    {"accel40", QCoreApplication::translate("FrogPilotDataPanel", "Visits to 1955")},
+    {"dejaVuCurve", QCoreApplication::translate("FrogPilotDataPanel", "Deja Vu Moments")},
+    {"firefoxSteerSaturated", QCoreApplication::translate("FrogPilotDataPanel", "Internet Explorer Weeeeeeees")},
+    {"goatSteerSaturated", QCoreApplication::translate("FrogPilotDataPanel", "Goat Screams")},
+    {"hal9000", QCoreApplication::translate("FrogPilotDataPanel", "HAL 9000 Denials")},
+    {"openpilotCrashedRandomEvent", QCoreApplication::translate("FrogPilotDataPanel", "openpilot Crashes")},
+    {"thisIsFineSteerSaturated", QCoreApplication::translate("FrogPilotDataPanel", "This Is Fine Moments")},
+    {"toBeContinued", QCoreApplication::translate("FrogPilotDataPanel", "To Be Continued Moments")},
+    {"vCruise69", QCoreApplication::translate("FrogPilotDataPanel", "Noices")},
+    {"yourFrogTriedToKillMe", QCoreApplication::translate("FrogPilotDataPanel", "Attempted Frog Murders")},
+    {"youveGotMail", QCoreApplication::translate("FrogPilotDataPanel", "Total Mail Received")}
+  };
+  return names;
+}
+
 QString cleanModelName(QString modelName) {
   return modelName.remove("_default").remove("(Default)");
+}
+
+QString formatDistance(double meters, bool isMetric) {
+  int value;
+  QString unit;
+  if (isMetric) {
+    value = qRound(meters / 1000.0);
+    unit = (value == 1) ? QCoreApplication::translate("FrogPilotDataPanel", " kilometer") : QCoreApplication::translate("FrogPilotDataPanel", " kilometers");
+  } else {
+    value = qRound(meters * METER_TO_MILE);
+    unit = (value == 1) ? QCoreApplication::translate("FrogPilotDataPanel", " mile") : QCoreApplication::translate("FrogPilotDataPanel", " miles");
+  }
+  return QLocale().toString(value) + unit;
+}
+
+QString formatDownloadProgress(const std::string &progress, const QString &updaterState) {
+  QJsonObject progressObject = QJsonDocument::fromJson(QByteArray::fromStdString(progress)).object();
+  if (!progressObject.contains("percent")) {
+    return updaterState;
+  }
+
+  QString result = QString("%1%").arg(progressObject.value("percent").toInt());
+
+  QJsonValue eta = progressObject.value("eta");
+  if (eta.isDouble()) {
+    int seconds = eta.toInt();
+    if (seconds < 60) {
+      result += QCoreApplication::translate("SoftwarePanel", " · less than a minute left");
+    } else {
+      result += QCoreApplication::translate("SoftwarePanel", " · about %1 min left").arg(qRound(seconds / 60.0));
+    }
+  }
+  return result;
+}
+
+QString formatDuration(int seconds) {
+  const int secondsInDay = 60 * 60 * 24;
+  const int secondsInHour = 60 * 60;
+
+  int days = seconds / secondsInDay;
+  int hours = (seconds % secondsInDay) / secondsInHour;
+  int minutes = (seconds % secondsInHour) / 60;
+
+  QString result;
+  if (days > 0) {
+    result += QLocale().toString(days) + (days == 1 ? QCoreApplication::translate("FrogPilotDataPanel", " day ") : QCoreApplication::translate("FrogPilotDataPanel", " days "));
+  }
+  if (hours > 0 || days > 0) {
+    result += QLocale().toString(hours) + (hours == 1 ? QCoreApplication::translate("FrogPilotDataPanel", " hour ") : QCoreApplication::translate("FrogPilotDataPanel", " hours "));
+  }
+  result += QLocale().toString(minutes) + (minutes == 1 ? QCoreApplication::translate("FrogPilotDataPanel", " minute") : QCoreApplication::translate("FrogPilotDataPanel", " minutes"));
+  return result.trimmed();
 }
 
 QString formatShortTime(const QTime &time) {
@@ -178,6 +353,10 @@ QString formatShortTime(const QTime &time) {
     uiLocale = QLocale(QLocale::English, QLocale::UnitedStates);
   }
   return uiLocale.toString(time, QLocale::ShortFormat);
+}
+
+QString newPairingCode() {
+  return QString::number(QRandomGenerator::system()->bounded(1000000)).rightJustified(6, '0');
 }
 
 FrogPilotMultiOptionDialog::FrogPilotMultiOptionDialog(const QString &prompt_text, const QStringList &l, const QString &confirm_text, QWidget *parent) : DialogBase(parent) {

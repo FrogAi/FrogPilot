@@ -5,12 +5,23 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
 
   networkManager = new QNetworkAccessManager(this);
 
-  primelessLayout = new QStackedLayout();
-  addItem(primelessLayout);
+  navigationLayout = new QStackedLayout();
+  addItem(navigationLayout);
 
   FrogPilotListWidget *settingsList = new FrogPilotListWidget(this);
-  ipLabel = new LabelControl(tr("Manage Your Settings At"), tr("Offline..."), tr("<b>Open this address in a browser on the same Wi-Fi to reach \"The Pond\", where you search for destinations and send them to your car.</b>"));
+  ipLabel = new LabelControl(tr("Manage Your Settings At"), tr("Offline..."), tr("<b>Open this address in a browser on the same Wi-Fi to reach \"The Pond\", where you manage your drives, recordings, themes, and more from a phone or computer.</b>"));
   settingsList->addItem(ipLabel);
+
+  pairingToggle = new ParamControl("ThePondPairing", tr("Pairing Code"), tr("<b>Ask for a code before a browser can use \"The Pond\".</b><br><br>Without a code, any device on the same Wi-Fi or Tailscale network can open your drives, camera footage, logs, location, and saved places, and can change your settings, unlock your doors, reboot the device, switch branches, type commands into the device's terminal, restore a backup that replaces its software, or sign the device into a Tailscale account. The code shows next to the address above. Turning this off signs every browser out, and turning it back on makes a new code."), "");
+  QObject::connect(pairingToggle, &ToggleControl::toggleFlipped, [this](bool state) {
+    if (state) {
+      params.put("ThePondPairingCode", newPairingCode().toStdString());
+    } else {
+      params.remove("ThePondPairedBrowsers");
+      params.remove("ThePondPairingCode");
+    }
+  });
+  settingsList->addItem(pairingToggle);
 
   publicMapboxKeyControl = new FrogPilotButtonsControl(tr("Public Mapbox Key"), tr("<b>Lets openpilot get speed limits from Mapbox.</b><br><br>You make this key yourself on Mapbox's website. \"Mapbox Setup Instructions\" walks you through it."), "", {tr("ADD"), tr("TEST")});
   QObject::connect(publicMapboxKeyControl, &FrogPilotButtonsControl::buttonClicked, [this](int id) {
@@ -82,11 +93,11 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
 
   setupButton = new ButtonControl(tr("Mapbox Setup Instructions"), tr("VIEW"), tr("<b>Walks you through getting your own free Mapbox keys.</b><br><br>The guide only shows the steps for where you are in setup, so it changes as you add each key. Tap the instructions to come back here."), this);
   QObject::connect(setupButton, &ButtonControl::clicked, [this]() {
-    openSubPanel();
+    emit openSubPanel();
 
     updateStep();
 
-    primelessLayout->setCurrentIndex(1);
+    navigationLayout->setCurrentIndex(1);
   });
   settingsList->addItem(setupButton);
 
@@ -94,8 +105,7 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
                                             tr("<b>Collect missing or incorrect speed limits automatically while you drive.</b><br><br>"
                                                "Saved corrections are reused on later drives for the same road and direction, except on roads with conditional speed limits.<br><br>"
                                                "FrogPilot compares speed limits from your dashboard, where supported, and Mapbox, which needs your Public Mapbox Key and a working internet connection. Downloaded maps are required because "
-                                               "FrogPilot uses their OSM way IDs to identify each road.<br><br>You can download the results from \"The Pond\" in "
-                                               "the \"Download Speed Limits\" menu and load them into the Speed Limit Filler website. Review every proposed edit before submitting it to OSM.<br><br>"
+                                               "FrogPilot uses their OSM way IDs to identify each road.<br><br>"
                                                "With \"Share FrogPilot Data\" on, collected road speed limits are also sent to FrogPilot while parked on unmetered "
                                                "Wi-Fi or Ethernet to help expand speed limit coverage for all FrogPilot users.<br><br>"
                                                "Need a step-by-step guide? Visit <b>#speed-limit-filler</b> in the FrogPilot Discord!"),
@@ -103,19 +113,20 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
   settingsList->addItem(speedLimitFillerToggle);
 
   ScrollView *settingsPanel = new ScrollView(settingsList, this);
-  primelessLayout->addWidget(settingsPanel);
+  navigationLayout->addWidget(settingsPanel);
 
   imageLabel = new QLabel(this);
 
   ScrollView *instructionsPanel = new ScrollView(imageLabel, this);
-  primelessLayout->addWidget(instructionsPanel);
+  navigationLayout->addWidget(instructionsPanel);
 
   QObject::connect(parent, &FrogPilotSettingsWindow::closeSubPanel, [this]() {
-    primelessLayout->setCurrentIndex(0);
+    navigationLayout->setCurrentIndex(0);
     imageLabel->clear();
 
     if (forceOpenDescriptions) {
       ipLabel->showDescription();
+      pairingToggle->showDescription();
       publicMapboxKeyControl->showDescription();
       secretMapboxKeyControl->showDescription();
       setupButton->showDescription();
@@ -128,6 +139,7 @@ FrogPilotNavigationPanel::FrogPilotNavigationPanel(FrogPilotSettingsWindow *pare
 void FrogPilotNavigationPanel::showEvent(QShowEvent *event) {
   if (forceOpenDescriptions) {
     ipLabel->showDescription();
+    pairingToggle->showDescription();
     publicMapboxKeyControl->showDescription();
     secretMapboxKeyControl->showDescription();
     setupButton->showDescription();
@@ -135,17 +147,18 @@ void FrogPilotNavigationPanel::showEvent(QShowEvent *event) {
   }
 
   updateButtons();
+  pairingToggle->setVisible(parent->tuningLevel >= parent->frogpilotToggleLevels.value("ThePondPairing").toDouble());
   speedLimitFillerToggle->setVisible(parent->tuningLevel >= parent->frogpilotToggleLevels.value("SpeedLimitFiller").toDouble());
 }
 
 void FrogPilotNavigationPanel::hideEvent(QHideEvent *event) {
-  primelessLayout->setCurrentIndex(0);
+  navigationLayout->setCurrentIndex(0);
   imageLabel->clear();
 }
 
 void FrogPilotNavigationPanel::mousePressEvent(QMouseEvent *event) {
-  if (primelessLayout->currentIndex() == 1) {
-    closeSubPanel();
+  if (navigationLayout->currentIndex() == 1) {
+    emit closeSubPanel();
   }
 }
 
@@ -190,7 +203,15 @@ void FrogPilotNavigationPanel::updateNetworkState(const FrogPilotUIState &fs) {
   const FrogPilotUIScene &frogpilot_scene = fs.frogpilot_scene;
 
   QString ipAddress = fs.wifi->ipv4_address;
-  ipLabel->setText(ipAddress.isEmpty() ? tr("Offline...") : QString("%1:8082").arg(ipAddress));
+  if (ipAddress.isEmpty()) {
+    ipLabel->setText(tr("Offline..."));
+  } else {
+    QString address = QString("%1:%2").arg(ipAddress).arg(8082);
+    if (params.getBool("ThePondPairing")) {
+      address += tr(" (Code %1)").arg(QString::fromStdString(params.get("ThePondPairingCode")));
+    }
+    ipLabel->setText(address);
+  }
 
   publicMapboxKeyControl->setVisibleButton(1, mapboxPublicKeySet && frogpilot_scene.online);
   secretMapboxKeyControl->setVisibleButton(1, mapboxSecretKeySet && frogpilot_scene.online);
@@ -202,7 +223,7 @@ void FrogPilotNavigationPanel::updateState(const UIState &s, const FrogPilotUISt
   }
 
   updateNetworkState(fs);
-  parent->keepScreenOn = primelessLayout->currentIndex() == 1;
+  parent->keepScreenOn = navigationLayout->currentIndex() == 1;
 }
 
 void FrogPilotNavigationPanel::updateStep() {

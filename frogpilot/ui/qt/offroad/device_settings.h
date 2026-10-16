@@ -17,9 +17,9 @@ protected:
 private:
   void updateToggles();
 
-  bool developmentBranch;
-  bool forceOpenDescriptions;
-  bool vettingBranch;
+  bool developmentBranch = false;
+  bool forceOpenDescriptions = false;
+  bool vettingBranch = false;
 
   std::map<QString, AbstractControl*> toggles;
 

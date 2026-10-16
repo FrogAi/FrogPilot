@@ -1257,7 +1257,6 @@ struct LongitudinalPlan @0xe00b5b3eba12876c {
 
   solverExecutionTime @35 :Float32;
 
-  # lead trajectories the MPC solved against (13 points at T_IDXS)
   leadTrajectoryX0 @40 :List(Float32);
   leadTrajectoryV0 @41 :List(Float32);
   leadTrajectoryX1 @42 :List(Float32);
@@ -2631,7 +2630,6 @@ struct Event {
     # DO change the name of the field and struct
     # DON'T change the ID (e.g. @107)
     # DON'T change which struct it points to
-    frogpilotCarControl @107 :Custom.FrogPilotCarControl;
     frogpilotCarParams @108 :Custom.FrogPilotCarParams;
     frogpilotCarState @109 :Custom.FrogPilotCarState;
     frogpilotDeviceState @110 :Custom.FrogPilotDeviceState;
@@ -2651,6 +2649,7 @@ struct Event {
     mapdExtendedOut @143 :Custom.MapdExtendedOut;
     mapdIn @144 :Custom.MapdIn;
     mapdOut @145 :Custom.MapdOut;
+    thePondRequest @107 :Custom.ThePondRequest;
 
     # *********** legacy + deprecated ***********
     model @9 :Legacy.ModelData; # TODO: rename modelV2 and mark this as deprecated

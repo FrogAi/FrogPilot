@@ -51,10 +51,21 @@ HomeWindow::HomeWindow(QWidget* parent) : QWidget(parent) {
   developer_sidebar = new DeveloperSidebar(this);
   main_layout->addWidget(developer_sidebar);
   developer_sidebar->setVisible(false);
+
+  QObject::connect(frogpilotUIState(), &FrogPilotUIState::togglesUpdated, this, [this]() {
+    if (uiState()->scene.started && frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value(QLatin1String("debug_mode")).toBool()) {
+      sidebar->setVisible(true);
+    }
+  });
 }
 
 void HomeWindow::showSidebar(bool show) {
   sidebar->setVisible(show);
+}
+
+// FrogPilot variables
+bool HomeWindow::sidebarOpenOnroad() {
+  return params.getBool("SidebarOpen") || frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value(QLatin1String("debug_mode")).toBool();
 }
 
 void HomeWindow::updateState(const UIState &s) {
@@ -71,7 +82,7 @@ void HomeWindow::updateState(const UIState &s) {
   const QJsonObject &frogpilot_toggles = frogpilot_scene.frogpilot_toggles;
 
   if (s.scene.started) {
-    if (frogpilot_scene.driver_camera_timer >= UI_FREQ / 2) {
+    if (frogpilot_scene.driver_camera_active) {
       if (slayout->currentWidget() != driver_view) {
         emit closeSettings();
       }
@@ -80,7 +91,7 @@ void HomeWindow::updateState(const UIState &s) {
       developer_sidebar->setVisible(false);
     } else {
       if (slayout->currentWidget() == driver_view) {
-        sidebar->setVisible(params.getBool("SidebarOpen") || frogpilot_toggles.value("debug_mode").toBool());
+        sidebar->setVisible(sidebarOpenOnroad());
         slayout->setCurrentWidget(onroad);
       }
 
@@ -90,11 +101,8 @@ void HomeWindow::updateState(const UIState &s) {
 }
 
 void HomeWindow::offroadTransition(bool offroad) {
-  // FrogPilot variables
-  const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
-
   body->setEnabled(false);
-  sidebar->setVisible(offroad || params.getBool("SidebarOpen") || frogpilot_toggles.value("debug_mode").toBool());
+  sidebar->setVisible(offroad || sidebarOpenOnroad());
   if (offroad) {
     slayout->setCurrentWidget(home);
 
@@ -201,13 +209,11 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
 
     home_layout->addWidget(left_widget, 1);
 
-    // right: ExperimentalModeButton, SetupWidget, Random Events Summary
-    QStackedWidget *right_widget = new QStackedWidget(this);
-    right_widget->setFixedWidth(750);
-
-    QWidget *default_right = new QWidget(this);
-    QVBoxLayout *right_column = new QVBoxLayout(default_right);
+    // right: ExperimentalModeButton, SetupWidget
+    QWidget* right_widget = new QWidget(this);
+    QVBoxLayout* right_column = new QVBoxLayout(right_widget);
     right_column->setContentsMargins(0, 0, 0, 0);
+    right_widget->setFixedWidth(750);
     right_column->setSpacing(30);
 
     ExperimentalModeButton *experimental_mode = new ExperimentalModeButton(this);
@@ -219,26 +225,28 @@ OffroadHome::OffroadHome(QWidget* parent) : QFrame(parent) {
     right_column->addWidget(setup_widget, 1);
 
     // FrogPilot variables
-    right_widget->addWidget(default_right);
+    QStackedWidget *right_stack = new QStackedWidget(this);
+    right_stack->setFixedWidth(750);
+    right_stack->addWidget(right_widget);
 
     FrogPilotDriveSummary *random_events_summary = new FrogPilotDriveSummary(this, true);
-    right_widget->addWidget(random_events_summary);
+    right_stack->addWidget(random_events_summary);
 
-    QObject::connect(random_events_summary, &FrogPilotDriveSummary::panelClosed, [=]() {
-      right_widget->setCurrentIndex(0);
+    QObject::connect(random_events_summary, &FrogPilotDriveSummary::panelClosed, [right_stack]() {
+      right_stack->setCurrentIndex(0);
     });
-    QObject::connect(uiState(), &UIState::offroadTransition, [left_widget, model_review, right_widget](bool offroad) {
-      static bool previouslyOnroad = false;
-      if (offroad && previouslyOnroad) {
+    QObject::connect(uiState(), &UIState::offroadTransition, [left_widget, model_review, right_stack](bool offroad) {
+      static bool previously_onroad = false;
+      if (offroad && previously_onroad) {
         left_widget->setCurrentIndex(model_review->reviewReady() ? 2 : 1);
         if (frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value("random_events").toBool()) {
-          right_widget->setCurrentIndex(1);
+          right_stack->setCurrentIndex(1);
         }
       }
-      previouslyOnroad = !offroad;
+      previously_onroad = !offroad;
     });
 
-    home_layout->addWidget(right_widget, 1);
+    home_layout->addWidget(right_stack, 1);
   }
   center_layout->addWidget(home_widget);
 
@@ -294,12 +302,12 @@ void OffroadHome::hideEvent(QHideEvent *event) {
 void OffroadHome::refresh() {
   // FrogPilot variables
   const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
+  QString modelName = frogpilot_toggles.value(QLatin1String("model_randomizer")).toBool() ? tr("Mystery Model 👻") : frogpilot_toggles.value(QLatin1String("model_name")).toString();
 
   date->setText(QLocale(uiState()->language.mid(5)).toString(QDateTime::currentDateTime(), "dddd, MMMM d"));
   date->setVisible(util::system_time_valid());
 
-  QString modelName = frogpilot_toggles.value("model_randomizer").toBool() ? tr("Mystery Model 👻") : frogpilot_toggles.value("model_name").toString();
-  version->setText(getBrand() + " v" + getVersion().left(14).trimmed() + " - " + modelName);
+  version->setText(getBrand() + " v" + getVersion() + " - " + modelName);
 
   bool updateAvailable = update_widget->refresh();
   int alerts = alerts_widget->refresh();

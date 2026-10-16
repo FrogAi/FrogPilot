@@ -30,11 +30,11 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent, bool
     {"DeviceManagement", tr("Device Settings"), tr("<b>Change how the device powers off, handles heat, and records your drives.</b>"), "../../frogpilot/assets/toggle_icons/icon_device.svg"},
     {"DeviceShutdown", tr("Device Shutdown Timer"), tr("<b>How long the device stays on after you finish driving before it shuts itself off.</b><br><br>Shorter times use less of your car's battery. The lowest setting is 5 minutes."), ""},
     {"NoLogging", tr("Disable Logging"), tr("<b>Stop the device from recording your drives.</b><br><br>No driving logs or camera footage are saved, so you won't be able to review your drives later or send a useful bug report. Screen recordings and the device's own system logs are still saved."), ""},
-    {"NoUploads", tr("Disable Uploads"), tr("<b>Stop the device from uploading your drives to \"comma connect\".</b><br><br>Your drives are still saved on the device. comma uses uploads for debugging and official support, so turning this on limits the help they can give. \"Disable Onroad Only\" pauses uploads while you drive and lets them finish once you park, but only while the device is on Wi-Fi or Ethernet."), ""},
+    {"NoUploads", tr("Disable Uploads"), tr("<b>Stop the device from uploading your drives to \"comma connect\" or Konik and from sharing FrogPilot driving logs and speed limit sign clips.</b><br><br>Your drives are still saved on the device. comma uses uploads for debugging and official support, so turning this on limits the help they can give. Files that comma connect or Konik asks the device to upload, usage stats, Speed Limit Filler data, device registration, crash reports, and weather and Mapbox lookups are not affected. \"Disable Onroad Only\" pauses uploads while you drive and lets them finish once you park, but only while the device is on Wi-Fi or Ethernet."), ""},
     {"HigherBitrate", tr("High-Quality Recording"), tr("<b>Record your drives in higher video quality.</b><br><br>This row only appears once \"Disable Uploads\" is on and \"Disable Onroad Only\" is off, since the larger files are not meant to be uploaded. The device needs to reboot for it to take effect."), ""},
     {"LowVoltageShutdown", tr("Low-Voltage Cutoff"), tr("<b>Shut the device down when your car's battery drops below the voltage you pick.</b><br><br>This only happens while parked, and keeps the device from draining the battery too far to start the car."), ""},
     {"IncreaseThermalLimits", tr("Raise Temperature Limits"), tr("<b>Let the device run about 6 degrees Celsius hotter than normal before openpilot disengages because of the heat.</b><br><br>Normally openpilot disengages and will not re-engage once the device gets hot, and drops back to the offroad screen if it keeps climbing. This only makes the first happen later: the device still drops back to the offroad screen at the normal temperature. Running the device that hot can shorten its life or damage it, so only use this if you understand the risk."), ""},
-    {"UseKonikServer", tr("Use Konik Server"), tr("<b>Upload your drives to \"stable.konik.ai\" instead of \"connect.comma.ai\".</b><br><br>The device needs to reboot for this to take effect."), ""},
+    {"UseKonikServer", tr("Use Konik Server"), tr("<b>Upload your drives to \"stable.konik.ai\" instead of \"connect.comma.ai\".</b><br><br>Registering with Konik sends the device's IMEI and serial number. The device needs to reboot for this to take effect."), ""},
 
     {"ScreenManagement", tr("Screen Settings"), tr("<b>Change how bright the screen is, how long it stays on, and whether you can record it.</b>"), "../../frogpilot/assets/toggle_icons/icon_light.svg"},
     {"InstantReplay", tr("Capture Recent Footage"), tr("<b>Save what just happened on your driving screen.</b><br><br>Choose how far back to keep, then tap \"CAPTURE\" to save a moment you want to review or share. There's no need to remember to start recording beforehand."), ""},
@@ -58,7 +58,15 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent, bool
     } else if (param == "DeviceShutdown") {
       std::map<float, QString> shutdownLabels;
       for (int i = 0; i <= 33; ++i) {
-        shutdownLabels[i] = i == 0 ? tr("5 mins") : i <= 3 ? QString::number(i * 15) + tr(" mins") : QString::number(i - 3) + (i == 4 ? tr(" hour") : tr(" hours"));
+        if (i == 0) {
+          shutdownLabels[i] = tr("5 mins");
+        } else if (i <= 3) {
+          shutdownLabels[i] = QString::number(i * 15) + tr(" mins");
+        } else if (i == 4) {
+          shutdownLabels[i] = QString::number(i - 3) + tr(" hour");
+        } else {
+          shutdownLabels[i] = QString::number(i - 3) + tr(" hours");
+        }
       }
       deviceToggle = new FrogPilotParamValueControl(param, title, desc, icon, 0, 33, QString(), shutdownLabels);
     } else if (param == "NoUploads") {
@@ -106,15 +114,6 @@ FrogPilotDevicePanel::FrogPilotDevicePanel(FrogPilotSettingsWindow *parent, bool
       });
       QObject::connect(recorderToggle, &ToggleControl::toggleFlipped, recorderToggle, [](bool state) {
         if (!state) {
-          ScreenRecorder::stop();
-        }
-      });
-      QObject::connect(uiState(), &UIState::offroadTransition, recorderToggle, [updateRecorderToggle](bool) {
-        ScreenRecorder::stop();
-        updateRecorderToggle();
-      });
-      QObject::connect(frogpilotUIState(), &FrogPilotUIState::togglesUpdated, recorderToggle, [] {
-        if (!frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value("screen_recorder").toBool()) {
           ScreenRecorder::stop();
         }
       });

@@ -1,8 +1,6 @@
 #pragma once
 
-#include "common/params.h"
-
-#include <QFrame>
+#include "selfdrive/ui/ui.h"
 
 class FrogPilotTelemetryPage : public QFrame {
   Q_OBJECT

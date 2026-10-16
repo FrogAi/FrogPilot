@@ -6,10 +6,9 @@ from openpilot.frogpilot.common import frogpilot_variables
 def capture_report(report, frogpilot_toggles, frogpilot_api):
   if "payload" not in report:
     error_content = "No error log found."
-    error_file_path = frogpilot_variables.ERROR_LOGS_PATH / "error.txt"
 
-    if error_file_path.exists():
-      error_content = error_file_path.read_text()[-500:]
+    if frogpilot_variables.ERROR_LOG_PATH.exists():
+      error_content = frogpilot_variables.ERROR_LOG_PATH.read_text()[-500:]
 
     payload = {
       "discord_user": report["DiscordUser"],
@@ -19,11 +18,14 @@ def capture_report(report, frogpilot_toggles, frogpilot_api):
       "report_id": str(uuid.uuid4()),
       "report_schema_version": 1,
     }
+    if "Route" in report:
+      payload["route"] = report["Route"]
+
     report = {"payload": json.dumps(payload)}
 
   response = frogpilot_api.post("/v1/reports", data=report["payload"], headers={"Content-Type": "application/json"}, timeout=30)
 
-  if response is not None and 200 <= response.status_code < 300:
+  if frogpilot_api.succeeded(response):
     print("Successfully sent error report!")
     return {"status": "sent"}
 

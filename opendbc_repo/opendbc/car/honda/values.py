@@ -240,7 +240,7 @@ class CAR(Platforms):
     flags=HondaFlags.BOSCH_RADARLESS,
   )
   HONDA_CITY_7G = HondaBoschPlatformConfig(
-    [HondaCarDocs("Honda City (Brazil only) 2023", "All")],
+    [HondaCarDocs("Honda City (Brazil only) 2023-25", "All")],
     CarSpecs(mass=3125 * CV.LB_TO_KG, wheelbase=2.6, steerRatio=19.0, centerToFrontRatio=0.41, minSteerSpeed=23. * CV.KPH_TO_MS),
     {Bus.pt: 'honda_bosch_radarless_generated'},
     flags=HondaFlags.BOSCH_RADARLESS,
@@ -360,12 +360,13 @@ class CAR(Platforms):
     radar_dbc_dict('honda_civic_touring_2016_can_generated'),
     flags=HondaFlags.HAS_ALL_DOOR_STATES
   )
+
   # FrogPilot variables
   HONDA_CLARITY = HondaNidecPlatformConfig(
     [HondaCarDocs("Honda Clarity 2018-21", "All", min_steer_speed=3. * CV.MPH_TO_MS)],
     CarSpecs(mass=4052 * CV.LB_TO_KG, wheelbase=2.75, steerRatio=16.5, centerToFrontRatio=0.43),
     radar_dbc_dict('honda_clarity_hybrid_2018_can_generated'),
-    flags=HondaFlags.HAS_ALL_DOOR_STATES,
+    flags=HondaFlags.HAS_ALL_DOOR_STATES | HondaFlags.HYBRID,
   )
 
 

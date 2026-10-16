@@ -16,7 +16,7 @@ struct ThemeAsset {
 
   QStringList excludedBuiltinThemes;
 
-  bool downloaded = false;
+  bool allDownloaded = false;
   bool downloading = false;
 
   FrogPilotButtonsControl *button;
@@ -42,7 +42,7 @@ private:
 
   bool cancellingDownload = false;
   bool finalizingDownload = false;
-  bool forceOpenDescriptions;
+  bool forceOpenDescriptions = false;
   bool randomThemes = false;
   bool themeDownloading = false;
 

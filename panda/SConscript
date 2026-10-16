@@ -135,6 +135,7 @@ base_project_h7 = {
     "-mfpu=fpv5-d16",
   ],
 }
+
 # FrogPilot variables
 base_project_f4 = {
   "STARTUP_FILE": "./board/stm32f4/startup_stm32f413xx.s",
@@ -166,6 +167,7 @@ with open("board/obj/cert.h", "w") as f:
 
 # panda fw
 build_project("panda_h7", base_project_h7, "./board/main.c", [])
+
 # FrogPilot variables
 build_project("panda", base_project_f4, "./board/main.c", [])
 

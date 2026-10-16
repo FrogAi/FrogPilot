@@ -10,78 +10,42 @@ $Cxx.namespace("cereal");
 # DO rename the structs
 # DON'T change the identifier (e.g. @0x81c2f05a394cf4af)
 
-struct FrogPilotCarControl @0x81c2f05a394cf4af {
-  hudControl @0 :HUDControl;
-
-  struct HUDControl {
-    audibleAlert @0 :AudibleAlert;
-
-    enum AudibleAlert {
-      none @0;
-
-      engage @1;
-      disengage @2;
-      refuse @3;
-
-      warningSoft @4;
-      warningImmediate @5;
-
-      prompt @6;
-      promptRepeat @7;
-      promptDistracted @8;
-
-      # Random Events
-      angry @9;
-      continued @10;
-      dejaVu @11;
-      doc @12;
-      fart @13;
-      firefox @14;
-      goat @15;
-      hal9000 @16;
-      mail @17;
-      nessie @18;
-      noice @19;
-      startup @20;
-      thisIsFine @21;
-      uwu @22;
-    }
-  }
-}
-
 struct FrogPilotCarParams @0xaedffd8f31e7b55d {
-  alternativeExperience @0 :Int16;
-  canUsePedal @1 :Bool;
-  canUseSDSU @2 :Bool;
-  dashcamOnly @3 :Bool;
-  flags @4 :UInt32;
-  hasDashboardSpeedLimit @5 :Bool;
-  openpilotLongitudinalControlDisabled @6 :Bool;
-  safetyConfigs @7 :List(SafetyConfig);
-
-  struct SafetyConfig {
-    safetyParam @0 :UInt16;
-  }
+  canUsePedal @0 :Bool;
+  canUseSDSU @1 :Bool;
+  flags @2 :UInt32;
+  hasDashboardSpeedLimit @3 :Bool;
+  openpilotLongitudinalControlDisabled @4 :Bool;
 }
 
 struct FrogPilotCarState @0xf35cc4560bbf6ec2 {
   accelPressCount @0 :UInt64;
-  alwaysOnLateralEnabled @1 :Bool;
-  brakeLights @2 :Bool;
-  dashboardSpeedLimit @3 :Float32;
-  decelPressCount @4 :UInt64;
-  distancePressed @5 :Bool;
-  distanceLongPressed @6 :Bool;
-  distanceVeryLongPressed @7 :Bool;
-  ecoGear @8 :Bool;
-  experimentalModePressCount @9 :UInt64;
-  forceCoast @10 :Bool;
-  lkasButtonPressCount @11 :UInt64;
-  pauseLateral @12 :Bool;
-  pauseLongitudinal @13 :Bool;
-  pedalInterceptorNoBrake @14 :Bool;
-  sportGear @15 :Bool;
-  trafficModeEnabled @16 :Bool;
+  alwaysOnLateralAllowed @1 :Bool;
+  alwaysOnLateralEnabled @2 :Bool;
+  brakeLights @3 :Bool;
+  dashboardSpeedLimit @4 :Float32;
+  decelPressCount @5 :UInt64;
+  distancePressed @6 :Bool;
+  distanceLongPressed @7 :Bool;
+  distanceVeryLongPressed @8 :Bool;
+  doorLockStatus @9 :DoorLockStatus;
+  ecoGear @10 :Bool;
+  experimentalModePressCount @11 :UInt64;
+  forceCoast @12 :Bool;
+  lkasButtonPressCount @13 :UInt64;
+  pauseLateral @14 :Bool;
+  pauseLongitudinal @15 :Bool;
+  pedalInterceptorNoBrake @16 :Bool;
+  sportGear @17 :Bool;
+  trafficModeEnabled @18 :Bool;
+  parked @19 :Bool;
+  vEgo @20 :Float32;
+
+  enum DoorLockStatus {
+    unavailable @0;
+    locked @1;
+    unlocked @2;
+  }
 }
 
 struct FrogPilotDeviceState @0xda96579883444c35 {
@@ -103,55 +67,51 @@ struct FrogPilotModelDataV2 @0x80ae746ee2596b11 {
 struct FrogPilotOnroadEvent @0xa5cd762cd951a455 {
   name @0 :EventName;
 
-  enable @1 :Bool;
-  noEntry @2 :Bool;
-  warning @3 :Bool;
-  userDisable @4 :Bool;
-  softDisable @5 :Bool;
-  immediateDisable @6 :Bool;
-  preEnable @7 :Bool;
-  permanent @8 :Bool;
-  overrideLongitudinal @9 :Bool;
-  overrideLateral @10 :Bool;
+  noEntry @1 :Bool;
+  warning @2 :Bool;
+  softDisable @3 :Bool;
+  immediateDisable @4 :Bool;
+  permanent @5 :Bool;
 
   enum EventName {
-    customStartupAlert @0;
-    forcingStop @1;
-    goatSteerSaturated @2;
-    greenLight @3;
-    holidayActive @4;
-    laneChangeBlockedLoud @5;
-    leadDeparting @6;
-    nnffLoaded @7;
-    noLaneAvailable @8;
-    openpilotCrashed @9;
-    pedalInterceptorNoBrake @10;
-    pedalInterceptorNoBrakeNoEntry @11;
-    recordingFailed @12;
-    recordingSaved @13;
-    recordingStarted @14;
-    recordingStartFailed @15;
-    replayFailed @16;
-    replaySaved @17;
-    speedLimitChanged @18;
-    trafficModeActive @19;
-    trafficModeInactive @20;
-    turningLeft @21;
-    turningRight @22;
+    blockUser @0;
+    customStartupAlert @1;
+    forcingStop @2;
+    goatSteerSaturated @3;
+    greenLight @4;
+    holidayActive @5;
+    laneChangeBlockedLoud @6;
+    leadDeparting @7;
+    nnffLoaded @8;
+    noLaneAvailable @9;
+    openpilotCrashed @10;
+    pedalInterceptorNoBrake @11;
+    pedalInterceptorNoBrakeNoEntry @12;
+    recordingFailed @13;
+    recordingSaved @14;
+    recordingStarted @15;
+    recordingStartFailed @16;
+    replayFailed @17;
+    replaySaved @18;
+    speedLimitChanged @19;
+    trafficModeActive @20;
+    trafficModeInactive @21;
+    turningLeft @22;
+    turningRight @23;
 
     # Random Events
-    accel30 @23;
-    accel35 @24;
-    accel40 @25;
-    dejaVuCurve @26;
-    firefoxSteerSaturated @27;
-    hal9000 @28;
-    openpilotCrashedRandomEvent @29;
-    thisIsFineSteerSaturated @30;
-    toBeContinued @31;
-    vCruise69 @32;
-    yourFrogTriedToKillMe @33;
-    youveGotMail @34;
+    accel30 @24;
+    accel35 @25;
+    accel40 @26;
+    dejaVuCurve @27;
+    firefoxSteerSaturated @28;
+    hal9000 @29;
+    openpilotCrashedRandomEvent @30;
+    thisIsFineSteerSaturated @31;
+    toBeContinued @32;
+    vCruise69 @33;
+    yourFrogTriedToKillMe @34;
+    youveGotMail @35;
   }
 }
 
@@ -199,6 +159,29 @@ struct FrogPilotPlan @0xf98d843bfd7004a3 {
   wheelImageUpdateCount @40 :UInt64;
 }
 
+struct FrogPilotProcessState @0x9ccdc8676701b412 {
+  doorCommand @0 :Text;
+  doorCommandRequestTime @1 :UInt64;
+  downloadingMaps @2 :Bool;
+  downloadingModels @3 :Bool;
+  downloadMapsRequestTime @4 :UInt64;
+  downloadThemeRequestTime @5 :UInt64;
+  flashedPanda @6 :Bool;
+  flashingPanda @7 :Bool;
+  flashPandaRequestTime @8 :UInt64;
+  issueReport @9 :Text;
+  issueReportRequestTime @10 :UInt64;
+  modelDownloadProgress @11 :Text;
+  modelDownloadRequestTime @12 :UInt64;
+  settingsBackup @13 :Text;
+  settingsBackupRequestTime @14 :UInt64;
+  statsSavedCount @15 :UInt64;
+  themeDownloadCount @16 :UInt32;
+  themeDownloadFailedCount @17 :UInt32;
+  themeDownloadProgress @18 :Text;
+  themeDownloadSuccessCount @19 :UInt32;
+}
+
 struct FrogPilotRadarState @0xb86e6369214c01c8 {
   leadLeft @0 :LeadData;
   leadRight @1 :LeadData;
@@ -228,7 +211,7 @@ struct FrogPilotSelfdriveState @0xf416ec09499d9d19 {
   alertStatus @2 :AlertStatus;
   alertSize @3 :AlertSize;
   alertType @4 :Text;
-  alertSound @5 :FrogPilotCarControl.HUDControl.AudibleAlert;
+  alertSound @5 :AudibleAlert;
   hasDisableEvents @6 :Bool;
   hasPriorityAlert @7 :Bool;
 
@@ -245,10 +228,47 @@ struct FrogPilotSelfdriveState @0xf416ec09499d9d19 {
     mid @2;
     full @3;
   }
+
+  enum AudibleAlert {
+    none @0;
+
+    engage @1;
+    disengage @2;
+    refuse @3;
+
+    warningSoft @4;
+    warningImmediate @5;
+
+    prompt @6;
+    promptRepeat @7;
+    promptDistracted @8;
+
+    # Random Events
+    angry @9;
+    continued @10;
+    dejaVu @11;
+    doc @12;
+    fart @13;
+    firefox @14;
+    goat @15;
+    hal9000 @16;
+    mail @17;
+    nessie @18;
+    noice @19;
+    startup @20;
+    thisIsFine @21;
+    uwu @22;
+  }
 }
 
 struct FrogPilotSignReading @0xa1680744031fdb2d {
-  speedLimit @0 :Float32;
+  frameId @0 :Float32;
+  mode @1 :Float32;
+  nextFrameId @2 :Float32;
+  nextMode @3 :Float32;
+  signAgreement @4 :Float32;
+  signSpeedLimit @5 :Float32;
+  speedLimit @6 :Float32;
 }
 
 struct FrogPilotUIEvent @0xc2243c65e0340384 {
@@ -260,39 +280,24 @@ struct FrogPilotUIEvent @0xc2243c65e0340384 {
   }
 }
 
-struct FrogPilotProcessState @0x9ccdc8676701b412 {
-  downloadMapsRequestTime @0 :UInt64;
-  downloadThemeRequestTime @1 :UInt64;
-  downloadingMaps @2 :Bool;
-  downloadingModels @3 :Bool;
-  flashPandaRequestTime @4 :UInt64;
-  flashedPanda @5 :Bool;
-  flashingPanda @6 :Bool;
-  issueReport @7 :Text;
-  issueReportRequestTime @8 :UInt64;
-  modelDownloadProgress @9 :Text;
-  modelDownloadRequestTime @10 :UInt64;
-  statsSavedCount @11 :UInt64;
-  themeDownloadCount @12 :UInt32;
-  themeDownloadFailedCount @13 :UInt32;
-  themeDownloadProgress @14 :Text;
-  themeDownloadSuccessCount @15 :UInt32;
-}
-
 struct FrogPilotUIRequest @0xcd96dafb67a082d0 {
   union {
     cancelMapsDownload @0 :Void;
     cancelModelDownload @1 :Void;
     cancelThemeDownload @2 :Void;
-    downloadAllModels @3 :Void;
-    downloadMaps @4 :Void;
-    downloadModels @5 :List(Text);
-    downloadTheme @6 :List(ThemeDownload);
-    flashPanda @7 :Void;
-    issueReport @8 :Text;
-    testAlert @9 :Text;
-    updateChecks @10 :Void;
-    updateToggles @11 :Void;
+    createSettingsBackup @3 :Text;
+    downloadAllModels @4 :Void;
+    downloadMaps @5 :Void;
+    downloadModels @6 :List(Text);
+    downloadTheme @7 :List(ThemeDownload);
+    flashPanda @8 :Void;
+    issueReport @9 :Text;
+    lockDoors @10 :Bool;
+    refreshTheme @11 :Void;
+    restoreSettingsBackup @12 :Text;
+    testAlert @13 :Text;
+    updateChecks @14 :Void;
+    updateToggles @15 :Void;
   }
 
   struct ThemeDownload {
@@ -479,4 +484,8 @@ struct MapdOut @0xa4f1eb3323f5f582 {
   wayId @25 :Int64;
   conditionalSpeedLimit @26 :Text;
   isForward @27 :Bool;  # Travel follows the way's stored node order.
+}
+
+struct ThePondRequest @0x81c2f05a394cf4af {
+  request @0 :FrogPilotUIRequest;
 }

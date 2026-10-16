@@ -331,7 +331,7 @@ FrogPilotThemesPanel::FrogPilotThemesPanel(FrogPilotSettingsWindow *parent, bool
               for (const QString &themeToDelete : themesToDelete) {
                 deleteThemeAsset(asset.directory, asset.subFolder, asset.downloadableParam, assetKeys.value(themeToDelete), params);
               }
-              asset.downloaded = params.get(asset.downloadableParam.toStdString()).empty();
+              asset.allDownloaded = params.get(asset.downloadableParam.toStdString()).empty();
             }
           }
         } else if (id == 1) {
@@ -448,7 +448,7 @@ void FrogPilotThemesPanel::showEvent(QShowEvent *event) {
   updateStartupAlert();
 
   for (auto &[param, asset] : themeAssets) {
-    asset.downloaded = params.get(asset.downloadableParam.toStdString()).empty();
+    asset.allDownloaded = params.get(asset.downloadableParam.toStdString()).empty();
   }
 
   updateThemeSelections(params.getBool("RandomThemes") && parent->tuningLevel >= parent->frogpilotToggleLevels.value("RandomThemes").toDouble());
@@ -523,7 +523,7 @@ void FrogPilotThemesPanel::updateState(const UIState &s, const FrogPilotUIState 
         themeDownloading = false;
 
         for (auto &[param, asset] : themeAssets) {
-          asset.downloaded = params.get(asset.downloadableParam.toStdString()).empty();
+          asset.allDownloaded = params.get(asset.downloadableParam.toStdString()).empty();
           asset.downloading = false;
         }
 
@@ -532,8 +532,6 @@ void FrogPilotThemesPanel::updateState(const UIState &s, const FrogPilotUIState 
     }
   }
 
-  bool parked = !s.scene.started || frogpilot_scene.parked || parent->isFrogsGoMoo;
-
   static const QString cancelText = tr("CANCEL");
   static const QString downloadText = tr("DOWNLOAD");
 
@@ -541,7 +539,7 @@ void FrogPilotThemesPanel::updateState(const UIState &s, const FrogPilotUIState 
     asset.button->setText(1, asset.downloading ? cancelText : downloadText);
     asset.button->setEnabledButtons(0, !themeDownloading);
     asset.button->setEnabledButtons(1, !cancellingDownload && !finalizingDownload &&
-      (asset.downloading || (!themeDownloading && !asset.downloaded && frogpilot_scene.online && parked)));
+      (asset.downloading || (!themeDownloading && !asset.allDownloaded && frogpilot_scene.online && frogpilot_scene.parked)));
     asset.button->setEnabledButtons(2, !themeDownloading);
   }
 

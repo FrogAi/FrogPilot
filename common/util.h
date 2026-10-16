@@ -39,8 +39,8 @@ const double METER_TO_FOOT = 3.28084;
 
 // FrogPilot variables
 const double FOOT_TO_METER = 1. / METER_TO_FOOT;
-const double CM_TO_INCH = 1. / 2.54;
-const double INCH_TO_CM = 1. / CM_TO_INCH;
+const double INCH_TO_CM = 2.54;
+const double CM_TO_INCH = 1. / INCH_TO_CM;
 
 #define ALIGNED_SIZE(x, align) (((x) + (align)-1) & ~((align)-1))
 

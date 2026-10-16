@@ -94,6 +94,10 @@ class CarInterface(CarInterfaceBase):
       # TODO: Some of these platforms are not advertised to have full range ACC, do they really all have sng?
       stop_and_go = True
 
+    # FrogPilot variables
+    if candidate in (CAR.TOYOTA_HIGHLANDER, CAR.TOYOTA_PRIUS_V, CAR.TOYOTA_RAV4H) and not docs:
+      stop_and_go = True
+
     ret.centerToFront = ret.wheelbase * 0.44
 
     # TODO: Some TSS-P platforms have BSM, but are flipped based on region or driving direction.

@@ -22,8 +22,7 @@ private:
   void updateStats();
   void updateStatsForLabel(const QJsonObject &obj, StatsLabels &labels);
 
-  bool isMetric;
-  bool konik;
+  bool isMetric = false;
 
   Params params;
 

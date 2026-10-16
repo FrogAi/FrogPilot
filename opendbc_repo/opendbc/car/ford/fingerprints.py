@@ -220,6 +220,7 @@ FW_VERSIONS = {
       b'RJ6T-14H102-BBB\x00\x00\x00\x00\x00\x00\x00\x00\x00',
     ],
   },
+
   # FrogPilot variables
   CAR.FORD_EDGE_MK2: {
     (Ecu.eps, 0x730, None): [

@@ -1,7 +1,6 @@
 #include "selfdrive/ui/qt/widgets/scrollview.h"
 
 #include "frogpilot/ui/qt/offroad/telemetry_page.h"
-#include "frogpilot/ui/frogpilot_ui.h"
 
 void FrogPilotTelemetryPage::showEvent(QShowEvent *event) {
   if (layout()) {
@@ -63,6 +62,9 @@ void FrogPilotTelemetryPage::answer(bool share) {
 }
 
 QString FrogPilotTelemetryPage::description() {
+  QString dongleId = QString::fromStdString(Params().get("FrogPilotDongleId"));
+  QString deviceId = dongleId.isEmpty() ? QString() : "<br><br>" + tr("Your FrogPilot device ID is <b>%1</b>.").arg(dongleId);
+
   return tr("<b>Help make FrogPilot better by sharing filtered driving logs, short speed limit sign clips, and usage stats.</b><br><br>"
             "Your everyday drives help us improve steering, acceleration, and braking, fine-tune support for more cars, train the speed limit sign reader, "
             "and find and fix problems. Keeping sharing enabled gives us more real-world examples across cars, roads, and driving conditions.<br><br>"
@@ -74,8 +76,8 @@ QString FrogPilotTelemetryPage::description() {
             "We also discard CAN messages captured during startup vehicle identification. Each drive gets an ID that hides when it was recorded, "
             "and uploaded logs are linked to your FrogPilot device ID.<br><br>"
             "Raw CAN data recorded during driving is kept to help improve car support. On some cars, these vehicle messages can still contain GPS, VIN, "
-            "date/time, or seat occupancy information.<br><br>"
-            "<b>Usage stats</b> cover your device, software, car and calibration details, FrogPilot settings, model usage and scores, and driving totals. "
+            "date/time, odometer, or seat occupancy information.<br><br>"
+            "<b>Usage stats</b> cover your device, software, car and calibration details, FrogPilot settings, model usage and scores, and lifetime driving totals, including drives from before you turned sharing on. "
             "<b>Your location is generalized on your device.</b> It reports the nearest city in your country or US state from a list filtered to populations "
             "of <b>50,000 or more</b>. If that region has no qualifying city, it uses its capital instead. "
             "This helps protect location privacy in small communities. For location, these stats include only the resulting city, state, and country, "
@@ -93,6 +95,7 @@ QString FrogPilotTelemetryPage::description() {
             "<b>Your choice.</b> You can turn off \"Share FrogPilot Data\" anytime to stop sharing these logs, clips, speed limits, and usage stats. "
             "Basic device registration still sends device type, operating system and software build details, and a public authentication key. "
             "Startup and after-drive check-ins continue without your usage stats, settings, or location. "
-            "Crash reports also continue, tagged with your device ID "
-            "and software details. Python crash reports do not automatically collect local variable values.");
+            "Crash reports also continue, tagged with your comma device ID (or your Konik device ID when you use the Konik server) "
+            "and software details. Python crash reports do not automatically collect local variable values.<br><br>"
+            "Read FrogPilot's full privacy policy at <b>frogpilot.com/privacy</b>.") + deviceId;
 }

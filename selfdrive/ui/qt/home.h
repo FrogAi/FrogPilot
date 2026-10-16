@@ -52,6 +52,9 @@ class HomeWindow : public QWidget {
 public:
   explicit HomeWindow(QWidget* parent = 0);
 
+  // FrogPilot variables
+  bool sidebarOpenOnroad();
+
 signals:
   void openSettings(int index = 0, const QString &param = "");
   void closeSettings();

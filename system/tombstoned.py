@@ -16,6 +16,7 @@ from openpilot.system.version import get_build_metadata
 
 MAX_SIZE = 1_000_000 * 200  # allow up to 200M
 MAX_TOMBSTONE_FN_LEN = 62  # 85 - 23 ("<dongle id>/crash/")
+
 # FrogPilot variables
 QUEUE_FLUSH_INTERVAL = 60
 
@@ -148,6 +149,7 @@ def main() -> NoReturn:
   # Clear apport folder on start, otherwise duplicate crashes won't register
   clear_apport_folder()
   initial_tombstones = set(get_tombstones())
+
   # FrogPilot variables
   last_queue_flush = 0.0
 

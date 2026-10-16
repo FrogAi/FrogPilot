@@ -12,7 +12,6 @@ MINIMUM_CURVE_TIME = 0.5
 CURVE_PERCENTILE = 90
 LEARNING_CURVES = 100
 
-
 class CurveSpeedProfileLearner:
   def __init__(self, CurveSpeedController):
     self.csc = CurveSpeedController
@@ -74,7 +73,7 @@ class CurveSpeedProfileLearner:
     confidence = len(self.curve_values) / LEARNING_CURVES
 
     if self.curve_values:
-      preferred_lateral_acceleration = float(np.percentile(self.curve_values, CURVE_PERCENTILE))
+      preferred_lateral_acceleration = float(np.mean(self.curve_values))
     else:
       preferred_lateral_acceleration = frogpilot_variables.DEFAULT_LATERAL_ACCELERATION
 

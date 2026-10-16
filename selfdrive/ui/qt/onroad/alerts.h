@@ -13,6 +13,9 @@ public:
   void clear();
 
   // FrogPilot variables
+  bool displayFerg = false;
+  bool enableFerg = false;
+
   int alertHeight = 0;
 
   QJsonObject frogpilot_toggles;
@@ -44,4 +47,7 @@ protected:
 
   QColor bg;
   Alert alert = {};
+
+  // FrogPilot variables
+  QPixmap ferg;
 };

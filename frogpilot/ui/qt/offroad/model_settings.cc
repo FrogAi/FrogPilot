@@ -156,7 +156,7 @@ FrogPilotModelPanel::FrogPilotModelPanel(FrogPilotSettingsWindow *parent, bool f
             params.remove("ModelDrivesAndScores");
           }
         } else {
-          openSubPanel();
+          emit openSubPanel();
 
           updateModelLabels(modelLabelsList);
 
@@ -205,9 +205,8 @@ FrogPilotModelPanel::FrogPilotModelPanel(FrogPilotSettingsWindow *parent, bool f
 
     if (downloadedModels.size() < availableModels.size() && !allModelsDownloading && !modelDownloading && state) {
       FrogPilotUIState &fs = *frogpilotUIState();
-      bool parked = !uiState()->scene.started || fs.frogpilot_scene.parked || this->parent->isFrogsGoMoo;
 
-      if (!fs.frogpilot_scene.online || !parked) {
+      if (!fs.frogpilot_scene.online || !fs.frogpilot_scene.parked) {
         ConfirmationDialog::alert(tr("The \"Model Randomizer\" only picks from models you have downloaded. Park your car and connect to the internet to download them."), this);
       } else if (FrogPilotConfirmationDialog::yesorno(tr("The \"Model Randomizer\" only picks from models you have downloaded. Download every model now?"), this)) {
         frogpilotUIState()->downloadAllModels();
@@ -253,14 +252,12 @@ QStringList FrogPilotModelPanel::modelNames(const QStringList &modelIds) {
 }
 
 void FrogPilotModelPanel::refreshModels() {
-  const QJsonObject &frogpilot_toggles = frogpilotUIState()->frogpilot_scene.frogpilot_toggles;
-
-  defaultModel = frogpilot_toggles.value("default_model").toString();
-  defaultModelName = frogpilot_toggles.value("default_model_name").toString();
-  modelsDir.setPath(frogpilot_toggles.value("models_path").toString());
+  defaultModel = "dark-souls";
+  defaultModelName = "Dark Souls";
+  modelsDir.setPath("/data/models/openpilot-0_10_3");
 
   availableModels.clear();
-  const QJsonObject models = frogpilot_toggles.value("available_models").toObject();
+  const QJsonObject models = frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value("available_models").toObject();
   for (const QString &modelId : models.keys()) {
     availableModels.insert(modelId, models.value(modelId).toString());
   }
@@ -299,7 +296,6 @@ void FrogPilotModelPanel::updateState(const UIState &s, const FrogPilotUIState &
   }
 
   bool downloading = allModelsDownloading || modelDownloading;
-  bool parked = !s.scene.started || frogpilot_scene.parked || parent->isFrogsGoMoo;
 
   if (downloading && !finalizingDownload) {
     if (fs.download_model_request_time <= frogpilotProcessState.getModelDownloadRequestTime()) {
@@ -336,11 +332,17 @@ void FrogPilotModelPanel::updateState(const UIState &s, const FrogPilotUIState &
       }
     }
   } else if (!downloading) {
-    downloadModelButton->setValue(frogpilot_scene.online ? (parked ? "" : tr("Not parked")) : tr("Offline..."));
+    if (!frogpilot_scene.online) {
+      downloadModelButton->setValue(tr("Offline..."));
+    } else if (!frogpilot_scene.parked) {
+      downloadModelButton->setValue(tr("Not parked"));
+    } else {
+      downloadModelButton->setValue("");
+    }
   }
 
   bool canCancel = !cancellingDownload && !finalizingDownload;
-  bool canDownload = !downloading && downloadedModels.size() < availableModels.size() && frogpilot_scene.online && parked;
+  bool canDownload = !downloading && downloadedModels.size() < availableModels.size() && frogpilot_scene.online && frogpilot_scene.parked;
 
   deleteModelButton->setEnabled(!downloading && hasDeletableModels);
 
@@ -371,7 +373,14 @@ void FrogPilotModelPanel::updateModelLabels(FrogPilotListWidget *labelsList) {
     int drives = modelData.value("Drives").toInt(0);
     int score = modelData.value("Score").toInt(0);
 
-    QString drivesDisplay = drives == 1 ? tr("%1 Drive").arg(drives) : drives > 0 ? tr("%1 Drives").arg(drives) : tr("N/A");
+    QString drivesDisplay;
+    if (drives == 1) {
+      drivesDisplay = tr("%1 Drive").arg(drives);
+    } else if (drives > 0) {
+      drivesDisplay = tr("%1 Drives").arg(drives);
+    } else {
+      drivesDisplay = tr("N/A");
+    }
     QString scoreDisplay = drives > 0 ? tr("Score: %1%").arg(score) : tr("N/A");
 
     labelsList->addItem(new LabelControl(model, QString("%1 (%2)").arg(scoreDisplay, drivesDisplay), "", this));

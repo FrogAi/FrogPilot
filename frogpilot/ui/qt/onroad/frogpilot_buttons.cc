@@ -2,11 +2,15 @@
 #include "frogpilot/ui/qt/onroad/screen_recorder.h"
 
 DrivingPersonalityButton::DrivingPersonalityButton(QWidget *parent) : QPushButton(parent) {
-  setFixedSize(btn_size + UI_BORDER_SIZE, btn_size);
+  setFixedSize(personality_button_width, btn_size);
 
   QObject::connect(frogpilotUIState(), &FrogPilotUIState::themeUpdated, this, &DrivingPersonalityButton::updateTheme);
-  QObject::connect(this, &QPushButton::pressed, [] {frogpilotUIState()->setDistanceButtonPressed(true);});
-  QObject::connect(this, &QPushButton::released, [] {frogpilotUIState()->setDistanceButtonPressed(false);});
+  QObject::connect(this, &QPushButton::pressed, [] {
+    frogpilotUIState()->setDistanceButtonPressed(true);
+  });
+  QObject::connect(this, &QPushButton::released, [] {
+    frogpilotUIState()->setDistanceButtonPressed(false);
+  });
 }
 
 void DrivingPersonalityButton::showEvent(QShowEvent *event) {
@@ -61,6 +65,10 @@ InstantReplayButton::InstantReplayButton(QWidget *parent) : QPushButton(parent) 
 void InstantReplayButton::updateState(const UIState &s, const FrogPilotUIState &fs) {
   ScreenRecorder::setReplayDuration(s.scene.started ? fs.frogpilot_scene.frogpilot_toggles.value(QLatin1String("instant_replay")).toInt() : 0);
 
+  if (!isVisible()) {
+    return;
+  }
+
   bool ready = ScreenRecorder::replayReady();
   bool saving = ScreenRecorder::replaySaving();
   setEnabled(ready && !saving);
@@ -78,18 +86,13 @@ void InstantReplayButton::paintEvent(QPaintEvent *event) {
   QPainter p(this);
   p.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
 
-  p.setBrush(QColor(0, 0, 0, 166));
+  p.setBrush(blackColor(166));
   p.setPen(QPen(QColor(0, 150, 255), 6));
 
   QRect button_rect = rect().adjusted(10, 4, -10, -4);
   p.drawRoundedRect(button_rect, 20, 20);
 
-  p.setFont(InterFont(25, QFont::DemiBold));
-  int text_width = p.fontMetrics().horizontalAdvance(text());
-  if (text_width > button_rect.width() - 16) {
-    p.setFont(InterFont(25 * (button_rect.width() - 16) / text_width, QFont::DemiBold));
-  }
-
+  p.setFont(fitInterFont(25, QFont::DemiBold, button_rect.width() - 16, {text()}));
   p.setPen(Qt::white);
   p.drawText(button_rect, Qt::AlignCenter, text());
 }
@@ -104,6 +107,12 @@ ScreenRecorderButton::ScreenRecorderButton(QWidget *parent) : QPushButton(parent
       ScreenRecorder::start();
     }
     update();
+  });
+  QObject::connect(uiState(), &UIState::offroadTransition, &ScreenRecorder::stop);
+  QObject::connect(frogpilotUIState(), &FrogPilotUIState::togglesUpdated, this, [] {
+    if (!frogpilotUIState()->frogpilot_scene.frogpilot_toggles.value(QLatin1String("screen_recorder")).toBool()) {
+      ScreenRecorder::stop();
+    }
   });
 }
 
@@ -123,7 +132,7 @@ void ScreenRecorderButton::paintEvent(QPaintEvent *event) {
     p.setBrush(QColor(201, 34, 49));
     p.setPen(QPen(glow_color, 8 + static_cast<int>(2 * alpha_factor)));
   } else {
-    p.setBrush(QColor(0, 0, 0, 166));
+    p.setBrush(blackColor(166));
     p.setPen(QPen(QColor(201, 34, 49), 8));
   }
 

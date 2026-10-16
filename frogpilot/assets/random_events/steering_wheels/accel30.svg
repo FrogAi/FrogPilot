@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="250" height="250" viewBox="0 0 250 250">
+  <defs>
+    <g id="torso">
+      <path d="M-12 206H0Q50 172 112 172Q176 172 228 206L240 250H-12Z" fill="#4d5a49" stroke="#2a3326" stroke-width="2.6" stroke-linejoin="round"/>
+      <path d="M0 244Q56 238 110 238V250H0Z" fill="#bccbb4"/>
+    </g>
+    <g id="head">
+      <path d="M-12 22H0Q40 2 100 0Q160 0 196 30Q224 56 224 96V206H-12Z" fill="#8c9b88" stroke="#2a3326" stroke-width="2.6" stroke-linejoin="round"/>
+      <path d="M0 134Q10 130 17 138Q21 170 15 204H0Z" fill="#2f6b5c"/>
+      <path d="M116 42Q164 54 192 74Q208 96 212 140L212 196Q170 222 118 212Q66 216 36 196Q18 180 22 140Q24 108 50 84Q76 62 116 42Z" fill="#fdf7f5" stroke="#2a3326" stroke-width="2.6" stroke-linejoin="round"/>
+      <path d="M116 42Q164 54 192 74Q206 92 211 126Q196 84 170 70Q146 58 124 56L128 78L119 55Q84 66 60 86Q34 108 23 150Q22 108 50 84Q76 62 116 42Z" fill="#f3d9d2"/>
+      <path d="M0 40Q58 16 118 20Q176 24 204 58Q214 76 216 96Q198 50 150 36Q84 22 0 54Z" fill="#bccbb4"/>
+      <path d="M58 30L50 62L32 98L42 60Z" fill="#2f6b5c"/>
+      <path d="M184 46L192 62L198 80L186 62Z" fill="#2f6b5c"/>
+      <path d="M124 44Q130 60 128 78" fill="none" stroke="#2a3326" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+      <ellipse cx="48" cy="160" rx="17" ry="8.5" fill="#f5a9b3"/>
+      <ellipse cx="70" cy="128" rx="30" ry="23" fill="#909c8c" stroke="#2a3326" stroke-width="2.08"/>
+      <circle cx="78" cy="123" r="16.5" fill="#2f352d"/>
+      <circle cx="77" cy="114" r="13" fill="#fff"/>
+      <ellipse cx="178" cy="128" rx="30" ry="23" fill="#909c8c" stroke="#2a3326" stroke-width="2.08"/>
+      <circle cx="177" cy="122" r="16.5" fill="#2f352d"/>
+      <circle cx="176" cy="113" r="13" fill="#fff"/>
+      <path d="M32 113Q42 96 70 93Q92 93 104 100" fill="none" stroke="#2a3326" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"/>
+      <path d="M146 100Q160 94 182 95Q200 98 206 112" fill="none" stroke="#2a3326" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"/>
+      <path d="M70 68L112 86M178 72L143 90" fill="none" stroke="#2a3326" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+      <path d="M94 166L150 168L116 198Z" fill="#e2746f" stroke="#2a3326" stroke-width="2.6" stroke-linejoin="round"/>
+    </g>
+    <g id="rim">
+      <path d="M120 250Q118 200 160 168Q196 144 232 150Q250 158 248 190L226 250" fill="none" stroke="#1c2018" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M140 214Q190 236 232 250" fill="none" stroke="#1c2018" stroke-width="20" stroke-linecap="round"/>
+    </g>
+    <g id="hand-left">
+      <path d="M84 226Q84 214 96 211L108 207Q124 205 136 213Q141 220 136 226Q128 232 119 232L117 237Q108 241 100 237L90 235Q84 232 84 226Z" fill="#ffffff" stroke="#2a3326" stroke-width="2.6" stroke-linejoin="round"/>
+      <path d="M107 212.5Q121 212 134 217.5M105 219.5Q119 219 134 224M104 226.5Q116 226 128 230" fill="none" stroke="#2a3326" stroke-width="2" stroke-linecap="round"/>
+    </g>
+    <g id="hand-right">
+      <ellipse cx="222" cy="160" rx="12" ry="16" transform="rotate(20 222 160)" fill="#ffffff" stroke="#2a3326" stroke-width="2.6" stroke-linejoin="round"/>
+      <path d="M222.5 148L215 167M228 149L220 170M232.5 153L226 171" fill="none" stroke="#2a3326" stroke-width="2" stroke-linecap="round"/>
+    </g>
+  </defs>
+  <g id="frames">
+    <g id="frame-0" data-ms="100">
+      <animate attributeName="display" values="inline;none" keyTimes="0;0.25" dur="400ms" calcMode="discrete" repeatCount="indefinite"/>
+      <use xlink:href="#torso"/>
+      <use xlink:href="#head" transform="translate(-9 11)"/>
+      <path d="M206 224Q218.5 207.5 231 191" fill="none" stroke="#2a3326" stroke-width="33.2"/>
+      <path d="M206 224Q218.5 207.5 231 191" fill="none" stroke="#6f7b67" stroke-width="28"/>
+      <use xlink:href="#rim" transform="translate(0 10) rotate(18 185 235)"/>
+      <path d="M227.4 195.8L231 191" fill="none" stroke="#2a3326" stroke-width="33.2"/>
+      <path d="M227.4 195.8L231 191" fill="none" stroke="#ffffff" stroke-width="28"/>
+      <path d="M-16 242Q40.5 213 97 201" fill="none" stroke="#2a3326" stroke-width="31.2"/>
+      <path d="M-16 242Q40.5 213 97 201" fill="none" stroke="#6f7b67" stroke-width="26"/>
+      <path d="M79.4 204.7L97 201" fill="none" stroke="#2a3326" stroke-width="31.2"/>
+      <path d="M79.4 204.7L97 201" fill="none" stroke="#bccbb4" stroke-width="26"/>
+      <use xlink:href="#hand-left" transform="translate(9 -25) translate(86 224) scale(1.12) translate(-86 -224)"/>
+      <use xlink:href="#hand-right" transform="translate(22 -5)"/>
+    </g>
+    <g id="frame-1" data-ms="100">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.25;0.5" dur="400ms" calcMode="discrete" repeatCount="indefinite"/>
+      <use xlink:href="#torso"/>
+      <use xlink:href="#head"/>
+      <path d="M190 230Q201.5 208.5 213 187" fill="none" stroke="#2a3326" stroke-width="33.2"/>
+      <path d="M190 230Q201.5 208.5 213 187" fill="none" stroke="#6f7b67" stroke-width="28"/>
+      <use xlink:href="#rim" transform="translate(0 8)"/>
+      <path d="M210.2 192.3L213 187" fill="none" stroke="#2a3326" stroke-width="33.2"/>
+      <path d="M210.2 192.3L213 187" fill="none" stroke="#ffffff" stroke-width="28"/>
+      <path d="M-16 242Q36 237 88 225" fill="none" stroke="#2a3326" stroke-width="31.2"/>
+      <path d="M-16 242Q36 237 88 225" fill="none" stroke="#6f7b67" stroke-width="26"/>
+      <path d="M70.5 229L88 225" fill="none" stroke="#2a3326" stroke-width="31.2"/>
+      <path d="M70.5 229L88 225" fill="none" stroke="#bccbb4" stroke-width="26"/>
+      <use xlink:href="#hand-left" transform="translate(0 0)"/>
+      <use xlink:href="#hand-right" transform="translate(0 0)"/>
+    </g>
+    <g id="frame-2" data-ms="100">
+      <animate attributeName="display" values="none;inline;none" keyTimes="0;0.5;0.75" dur="400ms" calcMode="discrete" repeatCount="indefinite"/>
+      <use xlink:href="#torso"/>
+      <use xlink:href="#head" transform="translate(-9 -7)"/>
+      <path d="M206 224Q218.5 207.5 231 191" fill="none" stroke="#2a3326" stroke-width="33.2"/>
+      <path d="M206 224Q218.5 207.5 231 191" fill="none" stroke="#6f7b67" stroke-width="28"/>
+      <use xlink:href="#rim" transform="translate(0 10) rotate(18 185 235)"/>
+      <path d="M227.4 195.8L231 191" fill="none" stroke="#2a3326" stroke-width="33.2"/>
+      <path d="M227.4 195.8L231 191" fill="none" stroke="#ffffff" stroke-width="28"/>
+      <path d="M-16 242Q40.5 213 97 201" fill="none" stroke="#2a3326" stroke-width="31.2"/>
+      <path d="M-16 242Q40.5 213 97 201" fill="none" stroke="#6f7b67" stroke-width="26"/>
+      <path d="M79.4 204.7L97 201" fill="none" stroke="#2a3326" stroke-width="31.2"/>
+      <path d="M79.4 204.7L97 201" fill="none" stroke="#bccbb4" stroke-width="26"/>
+      <use xlink:href="#hand-left" transform="translate(9 -25) translate(86 224) scale(1.12) translate(-86 -224)"/>
+      <use xlink:href="#hand-right" transform="translate(22 -5)"/>
+    </g>
+    <g id="frame-3" data-ms="100">
+      <animate attributeName="display" values="none;inline" keyTimes="0;0.75" dur="400ms" calcMode="discrete" repeatCount="indefinite"/>
+      <use xlink:href="#torso"/>
+      <use xlink:href="#head" transform="translate(0 -11)"/>
+      <path d="M190 230Q201.5 208.5 213 187" fill="none" stroke="#2a3326" stroke-width="33.2"/>
+      <path d="M190 230Q201.5 208.5 213 187" fill="none" stroke="#6f7b67" stroke-width="28"/>
+      <use xlink:href="#rim" transform="translate(0 8)"/>
+      <path d="M210.2 192.3L213 187" fill="none" stroke="#2a3326" stroke-width="33.2"/>
+      <path d="M210.2 192.3L213 187" fill="none" stroke="#ffffff" stroke-width="28"/>
+      <path d="M-16 242Q36 237 88 225" fill="none" stroke="#2a3326" stroke-width="31.2"/>
+      <path d="M-16 242Q36 237 88 225" fill="none" stroke="#6f7b67" stroke-width="26"/>
+      <path d="M70.5 229L88 225" fill="none" stroke="#2a3326" stroke-width="31.2"/>
+      <path d="M70.5 229L88 225" fill="none" stroke="#bccbb4" stroke-width="26"/>
+      <use xlink:href="#hand-left" transform="translate(0 0)"/>
+      <use xlink:href="#hand-right" transform="translate(0 0)"/>
+    </g>
+  </g>
+</svg>
