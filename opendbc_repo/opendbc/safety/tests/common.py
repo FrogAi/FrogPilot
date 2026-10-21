@@ -133,6 +133,14 @@ class SafetyTestBase(unittest.TestCase):
       self.assertEqual(meas_max_func(), 0)
 
   # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    """Toggles "Always On Lateral" on/off"""
+
+  def _aol_steer_msg(self):
+    pass
+
+  def _lkas_press_msg(self, pressed):
+    pass
 
 
 class LongitudinalAccelSafetyTest(SafetyTestBase, abc.ABC):
@@ -304,6 +312,9 @@ class TorqueSteeringSafetyTestBase(SafetyTestBase, abc.ABC):
       self.assertFalse(self._tx(self._torque_cmd_msg(self.MAX_TORQUE, 1)))
 
   # FrogPilot variables
+  def _aol_steer_msg(self):
+    self._set_prev_torque(0)
+    return self._torque_cmd_msg(self.MAX_RATE_UP)
 
 
 class SteerRequestCutSafetyTest(TorqueSteeringSafetyTestBase, abc.ABC):
@@ -811,6 +822,11 @@ class AngleSteeringSafetyTest(VehicleSpeedSafetyTest):
       self.assertTrue(self._tx(self._angle_cmd_msg(0, True, increment_timer=False)))
 
   # FrogPilot variables
+  def _aol_steer_msg(self):
+    self._reset_angle_measurement(0)
+    self._reset_speed_measurement(1)
+    self._set_prev_desired_angle(0)
+    return self._angle_cmd_msg(self.ANGLE_RATE_UP[0] / 2.0, True)
 
 
 class SafetyTest(SafetyTestBase):
@@ -900,7 +916,9 @@ class SafetyTest(SafetyTestBase):
               continue
             if attr.startswith('TestHyundaiCanfd') and current_test.startswith('TestHyundaiCanfd'):
               continue
-            if {attr, current_test}.issubset({'TestHyundaiLongitudinalSafety', 'TestHyundaiLongitudinalSafetyCameraSCC', 'TestHyundaiSafetyFCEVLong'}):
+            if {attr, current_test}.issubset({'TestHyundaiLongitudinalSafety', 'TestHyundaiLongitudinalSafetyCameraSCC',
+                                               'TestHyundaiLongitudinalSafetyLdaButton', 'TestHyundaiSafetyFCEVLong',
+                                               'TestHyundaiSafetyFCEVLongLdaButton'}):
               continue
             volkswagen_shared = ('TestVolkswagenMqb', 'TestVolkswagenMlb')
             if attr.startswith(volkswagen_shared) and current_test.startswith(volkswagen_shared):
@@ -1135,10 +1153,123 @@ class CarSafetyTest(SafetyTest):
     self.assertFalse(self.safety.safety_config_valid())
 
   # FrogPilot variables
+  def _press_lkas_button(self):
+    self._rx(self._lkas_press_msg(True))
+    self._rx(self._lkas_press_msg(False))
+
+  def test_always_on_lateral(self):
+    if self._toggle_aol(True) is None or self._aol_steer_msg() is None:
+      raise unittest.SkipTest("AOL message not implemented for this safety mode")
+
+    self.safety.set_controls_allowed(False)
+
+    # Without alt exp, make sure steering is blocked even with main on
+    for mode in (ALTERNATIVE_EXPERIENCE.DEFAULT, ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON):
+      self.safety.set_alternative_experience(mode)
+      self._rx(self._toggle_aol(True))
+      self.assertFalse(self._tx(self._aol_steer_msg()), mode)
+
+    # With alt exp, but without main on, steering should be blocked
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self._rx(self._toggle_aol(False))
+    self.assertFalse(self._tx(self._aol_steer_msg()))
+    self.assertFalse(self.safety.get_longitudinal_allowed())
+
+    # With alt exp and main on, steering should be allowed
+    self._rx(self._toggle_aol(True))
+    self.assertTrue(self._tx(self._aol_steer_msg()))
+    self.assertFalse(self.safety.get_longitudinal_allowed())
+
+    # Turn off main, steering should be blocked again
+    self._rx(self._toggle_aol(False))
+    self.assertFalse(self._tx(self._aol_steer_msg()))
+
+  def test_always_on_lateral_lkas_button(self):
+    if self._toggle_aol(True) is None or self._lkas_press_msg(True) is None:
+      raise unittest.SkipTest("LKAS button message not implemented for this safety mode")
+
+    lkas_button = ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON
+    for mode in (ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL, ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON, lkas_button):
+      self._reset_safety_hooks()
+      self.safety.set_alternative_experience(mode)
+
+      self._rx(self._toggle_aol(False))
+      self._press_lkas_button()
+
+      self.assertEqual(mode == lkas_button, self.safety.get_lateral_allowed(), mode)
+
+  def test_always_on_lateral_lkas_button_cleared(self):
+    if self._toggle_aol(True) is None or self._lkas_press_msg(True) is None:
+      raise unittest.SkipTest("LKAS button message not implemented for this safety mode")
+
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON)
+
+    self._rx(self._toggle_aol(True))
+    self._press_lkas_button()
+    self._rx(self._toggle_aol(False))
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+    self._press_lkas_button()
+    self._rx(self._toggle_aol(True))
+    self._rx(self._toggle_aol(False))
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+    self._press_lkas_button()
+    self._reset_safety_hooks()
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+  def test_always_on_lateral_lkas_button_on_press(self):
+    if self._toggle_aol(True) is None or self._lkas_press_msg(True) is None:
+      raise unittest.SkipTest("LKAS button message not implemented for this safety mode")
+
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON)
+
+    self._rx(self._toggle_aol(False))
+    self._rx(self._lkas_press_msg(False))
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+    self._rx(self._lkas_press_msg(True))
+    self.assertTrue(self.safety.get_lateral_allowed())
+
+    self._rx(self._lkas_press_msg(False))
+    self.assertTrue(self.safety.get_lateral_allowed())
+
+  def test_always_on_lateral_rx_checks_invalid(self):
+    if self._toggle_aol(True) is None:
+      raise unittest.SkipTest("AOL message not implemented for this safety mode")
+
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self._rx(self._toggle_aol(True))
+    self.assertTrue(self.safety.get_lateral_allowed())
+
+    self.safety.set_timer(int(2e6))
+    self.safety.safety_tick_current_safety_config()
+
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+  def test_always_on_lateral_speed_mismatch(self):
+    if self._speed_msg_2(0) is None:
+      raise unittest.SkipTest("No second speed message for this safety mode")
+
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self.safety.set_acc_main_on(True)
+
+    for speed_2 in (MAX_SPEED_DELTA + 1, 0, MAX_SPEED_DELTA + 1):
+      self._rx(self._speed_msg(0))
+      self._rx(self._speed_msg_2(speed_2))
+
+      self.assertEqual(speed_2 == 0, self.safety.get_lateral_allowed(), speed_2)
+
+    self._reset_safety_hooks()
+    self.safety.set_acc_main_on(True)
+
+    self.assertTrue(self.safety.get_lateral_allowed())
 
 
 # OPGM variables
 class GasInterceptorSafetyTest(SafetyTestBase):
+
+  INTERCEPTOR_THRESHOLD = 0
 
   cnt_gas_cmd = 0
   cnt_user_gas = 0
@@ -1172,12 +1303,22 @@ class GasInterceptorSafetyTest(SafetyTestBase):
   def test_no_disengage_on_gas(self):
     pass
 
+  def test_prev_gas_interceptor(self):
+    self._rx(self._interceptor_user_gas(0x0))
+    self.assertFalse(self.safety.get_gas_pressed_prev())
+    self._rx(self._interceptor_user_gas(0x1000))
+    self.assertTrue(self.safety.get_gas_pressed_prev())
+    self._rx(self._interceptor_user_gas(0x0))
+
   def test_no_disengage_on_gas_interceptor(self):
     for g in range(0x1000):
       self._rx(self._interceptor_user_gas(0))
       self.safety.set_controls_allowed(True)
       self._rx(self._interceptor_user_gas(g))
       self.assertTrue(self.safety.get_controls_allowed(), g)
+      self.assertEqual(g <= self.INTERCEPTOR_THRESHOLD, self.safety.get_longitudinal_allowed(), g)
+      self._rx(self._interceptor_user_gas(0))
+      self.assertTrue(self.safety.get_longitudinal_allowed(), g)
 
   def test_allow_engage_with_gas_interceptor_pressed(self):
     self._rx(self._interceptor_user_gas(0x1000))

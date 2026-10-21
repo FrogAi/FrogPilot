@@ -173,6 +173,7 @@ testpaths = [
   "cereal/messaging/tests",
 
   # FrogPilot variables
+  "frogpilot",
 ]
 
 [tool.codespell]

@@ -47,6 +47,7 @@ def setup_state():
   params.put("UpdaterCurrentDescription", "0.10.1 / test-branch / abc1234 / Nov 30")
 
   # FrogPilot variables
+  params.put_bool("FrogPilotTelemetryConfirmed", True)
 
   return None
 

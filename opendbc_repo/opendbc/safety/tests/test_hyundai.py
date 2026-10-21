@@ -2,12 +2,12 @@
 import random
 import unittest
 
-from opendbc.car.hyundai.values import HyundaiSafetyFlags
+from opendbc.car.hyundai.values import HyundaiFrogPilotSafetyFlags, HyundaiSafetyFlags
 from opendbc.car.structs import CarParams
 from opendbc.safety.tests.libsafety import libsafety_py
 import opendbc.safety.tests.common as common
 from opendbc.safety.tests.common import CANPackerSafety
-from opendbc.safety.tests.hyundai_common import HyundaiButtonBase, HyundaiLongitudinalBase
+from opendbc.safety.tests.hyundai_common import HyundaiButtonBase, HyundaiLkasButtonBase, HyundaiLongitudinalBase
 
 
 # 4 bit checkusm used in some hyundai messages
@@ -112,6 +112,17 @@ class TestHyundaiSafety(HyundaiButtonBase, common.CarSafetyTest, common.DriverTo
     return self.packer.make_can_msg_safety("LKAS11", 0, values)
 
   # FrogPilot variables
+  def _acc_state_msg(self, main_on):
+    values = {"MainMode_ACC": main_on}
+    return self.packer.make_can_msg_safety("SCC11", self.SCC_BUS, values)
+
+  def _lkas_button_msg(self, pressed):
+    return self.packer.make_can_msg_safety("BCM_PO_11", 0, {"LDA_BTN": pressed})
+
+  def _acc_enabled_msg(self, enabled):
+    values = {"ACCEnable": int(not enabled), "AliveCounterTCS": self.cnt_brake % 8}
+    self.__class__.cnt_brake += 1
+    return self.packer.make_can_msg_safety("TCS13", 0, values, fix_checksum=checksum)
 
 
 class TestHyundaiSafetyAltLimits(TestHyundaiSafety):
@@ -274,6 +285,20 @@ class TestHyundaiLongitudinalSafetyCameraSCC(HyundaiLongitudinalBase, TestHyunda
 
 
 # FrogPilot variables
+class TestHyundaiSafetyLdaButton(HyundaiLkasButtonBase, TestHyundaiSafety):
+  def setUp(self):
+    self.packer = CANPackerSafety("hyundai_kia_generic")
+    self.safety = libsafety_py.libsafety
+    self.safety.set_safety_hooks(CarParams.SafetyModel.hyundai, HyundaiFrogPilotSafetyFlags.HAS_LDA_BUTTON)
+    self.safety.init_tests()
+
+
+class TestHyundaiLongitudinalSafetyLdaButton(HyundaiLkasButtonBase, TestHyundaiLongitudinalSafety):
+  def setUp(self):
+    self.packer = CANPackerSafety("hyundai_kia_generic")
+    self.safety = libsafety_py.libsafety
+    self.safety.set_safety_hooks(CarParams.SafetyModel.hyundai, HyundaiSafetyFlags.LONG | HyundaiFrogPilotSafetyFlags.HAS_LDA_BUTTON)
+    self.safety.init_tests()
 
 
 class TestHyundaiSafetyFCEVLong(TestHyundaiLongitudinalSafety, TestHyundaiSafetyFCEV):
@@ -281,6 +306,39 @@ class TestHyundaiSafetyFCEVLong(TestHyundaiLongitudinalSafety, TestHyundaiSafety
     self.packer = CANPackerSafety("hyundai_kia_generic")
     self.safety = libsafety_py.libsafety
     self.safety.set_safety_hooks(CarParams.SafetyModel.hyundai, HyundaiSafetyFlags.FCEV_GAS | HyundaiSafetyFlags.LONG)
+    self.safety.init_tests()
+
+
+class TestHyundaiSafetyCameraSCCLdaButton(HyundaiLkasButtonBase, TestHyundaiSafetyCameraSCC):
+  def setUp(self):
+    self.packer = CANPackerSafety("hyundai_kia_generic")
+    self.safety = libsafety_py.libsafety
+    self.safety.set_safety_hooks(CarParams.SafetyModel.hyundai, HyundaiSafetyFlags.CAMERA_SCC | HyundaiFrogPilotSafetyFlags.HAS_LDA_BUTTON)
+    self.safety.init_tests()
+
+
+class TestHyundaiSafetyFCEVLdaButton(HyundaiLkasButtonBase, TestHyundaiSafetyFCEV):
+  def setUp(self):
+    self.packer = CANPackerSafety("hyundai_kia_generic")
+    self.safety = libsafety_py.libsafety
+    self.safety.set_safety_hooks(CarParams.SafetyModel.hyundai, HyundaiSafetyFlags.FCEV_GAS | HyundaiFrogPilotSafetyFlags.HAS_LDA_BUTTON)
+    self.safety.init_tests()
+
+
+class TestHyundaiSafetyFCEVLongLdaButton(HyundaiLkasButtonBase, TestHyundaiSafetyFCEVLong):
+  def setUp(self):
+    self.packer = CANPackerSafety("hyundai_kia_generic")
+    self.safety = libsafety_py.libsafety
+    self.safety.set_safety_hooks(CarParams.SafetyModel.hyundai,
+                                 HyundaiSafetyFlags.FCEV_GAS | HyundaiSafetyFlags.LONG | HyundaiFrogPilotSafetyFlags.HAS_LDA_BUTTON)
+    self.safety.init_tests()
+
+
+class TestHyundaiLegacySafetyLdaButton(HyundaiLkasButtonBase, TestHyundaiLegacySafety):
+  def setUp(self):
+    self.packer = CANPackerSafety("hyundai_kia_generic")
+    self.safety = libsafety_py.libsafety
+    self.safety.set_safety_hooks(CarParams.SafetyModel.hyundaiLegacy, HyundaiFrogPilotSafetyFlags.HAS_LDA_BUTTON)
     self.safety.init_tests()
 
 

@@ -4,8 +4,9 @@ import random
 import unittest
 import itertools
 
-from opendbc.car.toyota.values import ToyotaSafetyFlags
+from opendbc.car.toyota.values import ToyotaFrogPilotSafetyFlags, ToyotaSafetyFlags
 from opendbc.car.structs import CarParams
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 from opendbc.safety.tests.libsafety import libsafety_py
 import opendbc.safety.tests.common as common
 from opendbc.safety.tests.common import CANPackerSafety
@@ -26,6 +27,7 @@ class TestToyotaSafetyBase(common.CarSafetyTest, common.LongitudinalAccelSafetyT
   EPS_SCALE = 73
 
   # FrogPilot variables
+  MAIN_ON_MSG = "PCM_CRUISE_2"
 
   packer: CANPackerSafety
   safety: libsafety_py.LibSafety
@@ -125,6 +127,101 @@ class TestToyotaSafetyBase(common.CarSafetyTest, common.LongitudinalAccelSafetyT
       self.assertFalse(self.safety.get_controls_allowed())
 
   # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    values = {"MAIN_ON": int(toggle_on)}
+    return self.packer.make_can_msg_safety(self.MAIN_ON_MSG, 0, values)
+
+  def _lkas_hud_msg(self, values):
+    return self.packer.make_can_msg_safety("LKAS_HUD", 2, {"LEFT_LINE": 1, "RIGHT_LINE": 1} | values)
+
+  def _lkas_press_msg(self, pressed):
+    return self._lkas_hud_msg({"LDA_ON_MESSAGE": int(pressed), "LKAS_STATUS": 1})
+
+  def test_always_on_lateral_lda_on_message_held(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON)
+
+    self._rx(self._toggle_aol(True))
+    self._rx(self._lkas_hud_msg({"LDA_ON_MESSAGE": 1, "LKAS_STATUS": 1}))
+    self._rx(self._toggle_aol(False))
+    self._rx(self._lkas_hud_msg({"LDA_ON_MESSAGE": 1, "LKAS_STATUS": 1}))
+
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+  def test_always_on_lateral_lkas_hud_reset(self):
+    for before_reset, after_reset, pressed in (({"LKAS_STATUS": 1}, {"LKAS_STATUS": 0}, False),
+                                               ({"LDA_ON_MESSAGE": 1, "LKAS_STATUS": 1}, {"LDA_ON_MESSAGE": 1, "LKAS_STATUS": 1}, True)):
+      self._rx(self._lkas_hud_msg(before_reset))
+      self._reset_safety_hooks()
+      self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON)
+      self._rx(self._toggle_aol(False))
+      self._rx(self._lkas_hud_msg(after_reset))
+
+      self.assertEqual(pressed, self.safety.get_lateral_allowed(), after_reset)
+
+  def test_always_on_lateral_lkas_press_after_main_off(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON)
+
+    self._rx(self._toggle_aol(True))
+    self._rx(self._lkas_hud_msg({"LDA_ON_MESSAGE": 1, "LKAS_STATUS": 1}))
+    self._rx(self._toggle_aol(False))
+    self._rx(self._lkas_hud_msg({"LDA_ON_MESSAGE": 1, "LKAS_STATUS": 0}))
+
+    self.assertTrue(self.safety.get_lateral_allowed())
+
+  def test_always_on_lateral_lkas_presses(self):
+    for press in ({"LDA_ON_MESSAGE": 1, "LKAS_STATUS": 1}, {"LKAS_STATUS": 0}):
+      self._reset_safety_hooks()
+      self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON)
+      self._rx(self._toggle_aol(False))
+
+      for camera_turned_off in ("LDA_MALFUNCTION", "LDA_UNAVAILABLE", "TWO_BEEPS"):
+        self._rx(self._lkas_hud_msg({"LKAS_STATUS": 1}))
+        self._rx(self._lkas_hud_msg({camera_turned_off: 1, "LKAS_STATUS": 0}))
+
+        self.assertFalse(self.safety.get_lateral_allowed(), camera_turned_off)
+
+      self._rx(self._lkas_hud_msg({"LKAS_STATUS": 1 - press["LKAS_STATUS"]}))
+
+      self.assertFalse(self.safety.get_lateral_allowed())
+
+      self._rx(self._lkas_hud_msg(press))
+
+      self.assertTrue(self.safety.get_lateral_allowed(), press)
+
+  def test_always_on_lateral_without_lkas_hud(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+
+    for msg in (self._speed_msg(0), self._torque_meas_msg(0), self._pcm_status_msg(False), self._toggle_aol(True), self._user_brake_msg(False),
+                self._user_gas_msg(False)):
+      self._rx(msg)
+
+    if isinstance(self, common.GasInterceptorSafetyTest):
+      self._rx(self._interceptor_user_gas(0))
+
+    self.safety.safety_tick_current_safety_config()
+
+    self.assertTrue(self.safety.get_lateral_allowed())
+
+  def test_always_on_lateral_main_on_checksum(self):
+    if self.MAIN_ON_MSG != "PCM_CRUISE_2":
+      raise unittest.SkipTest("DSU_CRUISE has no checksum")
+
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+
+    msg = self.packer.make_can_msg_safety("PCM_CRUISE_2", 0, {"MAIN_ON": 1})
+    msg[0].data[7] ^= 0xFF
+    self._rx(msg)
+
+    self.assertFalse(self.safety.get_lateral_allowed())
+
+  def test_always_on_lateral_main_on_msg(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+
+    for msg in ("DSU_CRUISE", "PCM_CRUISE_2"):
+      if msg != self.MAIN_ON_MSG:
+        self._rx(self.packer.make_can_msg_safety(msg, 0, {"MAIN_ON": 1}))
+
+        self.assertFalse(self.safety.get_lateral_allowed(), msg)
 
 
 class TestToyotaSafetyTorque(TestToyotaSafetyBase, common.MotorTorqueSteeringSafetyTest, common.SteerRequestCutSafetyTest):
@@ -399,9 +496,66 @@ class TestToyotaSecOcSafety(TestToyotaSecOcSafetyBase):
 
 
 # FrogPilot variables
+class TestToyotaSafetyGasInterceptorBase(common.GasInterceptorSafetyTest, TestToyotaSafetyBase):
+
+  TX_MSGS = TOYOTA_COMMON_TX_MSGS + TOYOTA_COMMON_LONG_TX_MSGS + [[0x200, 0]]
+  INTERCEPTOR_THRESHOLD = 805
+
+  def setUp(self):
+    super().setUp()
+    self.safety.set_safety_hooks(CarParams.SafetyModel.toyota, self.safety.get_current_safety_param() |
+                                 ToyotaFrogPilotSafetyFlags.GAS_INTERCEPTOR)
+    self.safety.init_tests()
+
+  def test_stock_longitudinal(self):
+    self.safety.set_safety_hooks(CarParams.SafetyModel.toyota, self.safety.get_current_safety_param() |
+                                 ToyotaSafetyFlags.STOCK_LONGITUDINAL)
+    self.safety.init_tests()
+
+    for test in (self.test_prev_gas_interceptor, self.test_no_disengage_on_gas_interceptor,
+                 self.test_gas_interceptor_safety_check):
+      with self.subTest(test=test.__name__):
+        with self.assertRaises(AssertionError):
+          test()
+
+
+class TestToyotaSafetyTorqueGasInterceptor(TestToyotaSafetyGasInterceptorBase, TestToyotaSafetyTorque):
+  pass
+
+
+class TestToyotaSafetyAngleGasInterceptor(TestToyotaSafetyGasInterceptorBase, TestToyotaSafetyAngle):
+  pass
+
+
+class TestToyotaAltBrakeSafetyGasInterceptor(TestToyotaSafetyGasInterceptorBase, TestToyotaAltBrakeSafety):
+  pass
 
 
 # FrogPilot variables
+class ToyotaUnsupportedDsuBase:
+  MAIN_ON_MSG = "DSU_CRUISE"
+
+  def setUp(self):
+    super().setUp()
+    self.safety.set_safety_hooks(CarParams.SafetyModel.toyota, self.safety.get_current_safety_param() |
+                                 ToyotaFrogPilotSafetyFlags.UNSUPPORTED_DSU)
+    self.safety.init_tests()
+
+
+class TestToyotaUnsupportedDsuSafety(ToyotaUnsupportedDsuBase, TestToyotaSafetyTorque):
+  pass
+
+
+class TestToyotaAltBrakeUnsupportedDsuSafety(ToyotaUnsupportedDsuBase, TestToyotaAltBrakeSafety):
+  pass
+
+
+class TestToyotaUnsupportedDsuGasInterceptor(ToyotaUnsupportedDsuBase, TestToyotaSafetyTorqueGasInterceptor):
+  pass
+
+
+class TestToyotaAltBrakeUnsupportedDsuGasInterceptor(ToyotaUnsupportedDsuBase, TestToyotaAltBrakeSafetyGasInterceptor):
+  pass
 
 
 if __name__ == "__main__":

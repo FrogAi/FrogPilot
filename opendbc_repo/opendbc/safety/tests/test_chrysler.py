@@ -3,9 +3,10 @@ import unittest
 
 from opendbc.car.chrysler.values import ChryslerSafetyFlags
 from opendbc.car.structs import CarParams
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 from opendbc.safety.tests.libsafety import libsafety_py
 import opendbc.safety.tests.common as common
-from opendbc.safety.tests.common import CANPackerSafety
+from opendbc.safety.tests.common import CANPackerSafety, MAX_WRONG_COUNTERS
 
 
 class TestChryslerSafety(common.CarSafetyTest, common.MotorTorqueSteeringSafetyTest):
@@ -24,6 +25,8 @@ class TestChryslerSafety(common.CarSafetyTest, common.MotorTorqueSteeringSafetyT
   DAS_BUS = 0
 
   # FrogPilot variables
+  IGNORED_LKAS_BUTTONS = ((0xDD, 53), (0x28A, 57))
+  LKAS_BUTTONS = (("TRACTION_BUTTON", "TOGGLE_LKAS"),)
 
   def setUp(self):
     self.packer = CANPackerSafety("chrysler_pacifica_2017_hybrid_generated")
@@ -74,6 +77,75 @@ class TestChryslerSafety(common.CarSafetyTest, common.MotorTorqueSteeringSafetyT
       self.assertFalse(self._tx(self._button_msg(cancel=False, resume=False)))
 
   # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    # DAS_3, bit 20 is ACC_AVAILABLE
+    values = {"ACC_AVAILABLE": 1 if toggle_on else 0}
+    return self.packer.make_can_msg_safety("DAS_3", self.DAS_BUS, values)
+
+  def _lkas_press_msg(self, pressed, button=0):
+    msg, signal = self.LKAS_BUTTONS[button]
+    values = {signal: pressed}
+    return self.packer.make_can_msg_safety(msg, 0, values)
+
+  def test_always_on_lateral_invalid_msg(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    for invalid in ("checksum", "counter", "lag"):
+      msg = self._torque_meas_msg(0)
+      for rx_msg in (self._speed_msg(0), self._user_brake_msg(False), self._user_gas_msg(0), msg, self._toggle_aol(True)):
+        self._rx(rx_msg)
+      self.safety.safety_tick_current_safety_config()
+      self._rx(self._toggle_aol(True))
+      self.assertTrue(self._tx(self._aol_steer_msg()))
+
+      if invalid == "checksum":
+        msg[0].data[7] ^= 0xFF
+        self._rx(msg)
+      elif invalid == "counter":
+        for _ in range(MAX_WRONG_COUNTERS):
+          self._rx(msg)
+      else:
+        self.safety.set_timer(int(2e6))
+      self.safety.safety_tick_current_safety_config()
+      self._rx(self._toggle_aol(True))
+      self.assertFalse(self._tx(self._aol_steer_msg()))
+
+  def test_lkas_button_msgs_not_required(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+
+    for msg in (self._toggle_aol(True), self._speed_msg(0), self._torque_meas_msg(0), self._user_brake_msg(False), self._user_gas_msg(0)):
+      self._rx(msg)
+
+    self.safety.safety_tick_current_safety_config()
+
+    self.assertTrue(self.safety.get_lateral_allowed())
+
+  def test_lkas_button_other_platforms_ignored(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON)
+    self._rx(self._toggle_aol(False))
+
+    for addr, bit in self.IGNORED_LKAS_BUTTONS:
+      pressed = bytearray(8)
+      pressed[bit // 8] = 1 << (bit % 8)
+
+      self._rx(libsafety_py.make_CANPacket(addr, 0, bytes(pressed)))
+      self._rx(libsafety_py.make_CANPacket(addr, 0, bytes(8)))
+
+      self.assertFalse(self.safety.get_lateral_allowed(), hex(addr))
+
+  def test_lkas_button_other_messages(self):
+    for button in range(1, len(self.LKAS_BUTTONS)):
+      self._reset_safety_hooks()
+      self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON)
+
+      self._rx(self._toggle_aol(False))
+      self._rx(self._lkas_press_msg(False, button))
+      self.assertFalse(self.safety.get_lateral_allowed(), self.LKAS_BUTTONS[button])
+
+      self._rx(self._lkas_press_msg(True, button))
+      self.assertTrue(self.safety.get_lateral_allowed(), self.LKAS_BUTTONS[button])
+
+      self._rx(self._lkas_press_msg(False, button))
+      self.assertTrue(self.safety.get_lateral_allowed(), self.LKAS_BUTTONS[button])
 
 
 class TestChryslerRamDTSafety(TestChryslerSafety):
@@ -90,6 +162,8 @@ class TestChryslerRamDTSafety(TestChryslerSafety):
   LKAS_ACTIVE_VALUE = 2
 
   # FrogPilot variables
+  IGNORED_LKAS_BUTTONS = ((0xDD, 53), (0x330, 53))
+  LKAS_BUTTONS = (("Center_Stack_2", "LKAS_Button"),)
 
   def setUp(self):
     self.packer = CANPackerSafety("chrysler_ram_dt_generated")
@@ -117,6 +191,8 @@ class TestChryslerRamHDSafety(TestChryslerSafety):
   LKAS_ACTIVE_VALUE = 2
 
   # FrogPilot variables
+  IGNORED_LKAS_BUTTONS = ((0xDD, 53), (0x330, 53))
+  LKAS_BUTTONS = (("Center_Stack_2", "LKAS_Button"),)
 
   def setUp(self):
     self.packer = CANPackerSafety("chrysler_ram_hd_generated")

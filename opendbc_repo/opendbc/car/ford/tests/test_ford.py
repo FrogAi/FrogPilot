@@ -4,10 +4,17 @@ from collections.abc import Iterable
 from hypothesis import settings, given, strategies as st
 from parameterized import parameterized
 
+from opendbc.can import CANPacker
+from opendbc.car import Bus, gen_empty_fingerprint
+from opendbc.car.can_definitions import CanData
+from opendbc.car.common.conversions import Conversions as CV
 from opendbc.car.structs import CarParams
 from opendbc.car.fw_versions import build_fw_dict
-from opendbc.car.ford.values import CAR, FW_QUERY_CONFIG, FW_PATTERN, get_platform_codes
+from opendbc.car.ford.interface import CarInterface
+from opendbc.car.ford.values import CAR, DBC, FW_QUERY_CONFIG, FW_PATTERN, get_platform_codes
 from opendbc.car.ford.fingerprints import FW_VERSIONS
+from opendbc.car.tests.test_car_interfaces import TOGGLES
+from opendbc.safety.tests.common import MAX_SPEED_DELTA
 
 Ecu = CarParams.Ecu
 
@@ -143,3 +150,24 @@ class TestFordFW:
 
 
 # FrogPilot variables
+class TestFordAlwaysOnLateral:
+  def test_lkas_button_forced(self):
+    for car_model, forced in ((CAR.FORD_MUSTANG_MACH_E_MK1, True), (CAR.FORD_ESCAPE_MK4_5, False), (CAR.FORD_EXPLORER_MK6, False)):
+      CP = CarInterface.get_non_essential_params(car_model)
+      FPCP = CarInterface.get_frogpilot_params(car_model, gen_empty_fingerprint(), [], CP, TOGGLES)
+
+      assert FPCP.alwaysOnLateralLKASButton == forced, car_model
+
+  @parameterized.expand([("pcm_faster", MAX_SPEED_DELTA + 0.1, True), ("pcm_slower", -MAX_SPEED_DELTA - 0.1, True),
+                         ("within_delta", MAX_SPEED_DELTA - 0.1, False)])
+  def test_speed_sensors_disagree(self, _, speed_delta, speed_sensors_disagree):
+    CP = CarInterface.get_non_essential_params(CAR.FORD_ESCAPE_MK4)
+    CI = CarInterface(CP, CarInterface.get_frogpilot_params(CAR.FORD_ESCAPE_MK4, gen_empty_fingerprint(), [], CP, TOGGLES))
+    packer = CANPacker(DBC[CAR.FORD_ESCAPE_MK4][Bus.pt])
+
+    for frame in range(2):
+      frames = [packer.make_can_msg("BrakeSysFeatures", 0, {"Veh_V_ActlBrk": 36.0}),
+                packer.make_can_msg("EngVehicleSpThrottle2", 0, {"Veh_V_ActlEng": 36.0 + speed_delta * CV.MS_TO_KPH})]
+      _, fp_ret = CI.update([(int(frame * 1e7), [CanData(*f) for f in frames])], TOGGLES)
+
+    assert fp_ret.speedSensorsDisagree == speed_sensors_disagree

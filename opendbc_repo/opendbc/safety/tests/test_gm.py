@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import itertools
 import unittest
 
 from opendbc.car.gm.values import GMSafetyFlags
@@ -15,6 +16,7 @@ class Buttons:
   CANCEL = 6
 
   # FrogPilot variables
+  MAIN = 5
 
 
 class GmLongitudinalBase(common.CarSafetyTest, common.LongitudinalGasBrakeSafetyTest):
@@ -135,6 +137,10 @@ class TestGmSafetyBase(common.CarSafetyTest, common.DriverTorqueSteeringSafetyTe
     return self.packer.make_can_msg_safety("ASCMSteeringButton", self.BUTTONS_BUS, values)
 
   # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    # ECMEngineStatus, bit 29 is CruiseMainOn
+    values = {"CruiseMainOn": 1 if toggle_on else 0}
+    return self.packer.make_can_msg_safety("ECMEngineStatus", 0, values)
 
 
 class TestGmEVSafetyBase(TestGmSafetyBase):
@@ -177,6 +183,46 @@ class TestGmCameraSafetyBase(TestGmSafetyBase):
     return self.packer.make_can_msg_safety("ECMEngineStatus", 0, values)
 
   # FrogPilot variables
+  def _main_press_msg(self, bus=0):
+    return self.packer.make_can_msg_safety("ASCMSteeringButton", bus, {"ACCButtons": Buttons.MAIN})
+
+  def test_main_button(self):
+    for acc_main_on, controls_allowed, cruise_engaged, bus in itertools.product((True, False), (True, False), (True, False), (0, 2)):
+      self._reset_safety_hooks()
+      self._rx(self._toggle_aol(acc_main_on))
+      self.safety.set_controls_allowed(controls_allowed)
+      self.safety.set_cruise_engaged_prev(cruise_engaged)
+
+      allowed = acc_main_on and not controls_allowed and not cruise_engaged and bus == 0
+      self.assertEqual(allowed, self._tx(self._main_press_msg(bus)), (acc_main_on, controls_allowed, cruise_engaged, bus))
+
+  def test_main_button_once(self):
+    for _ in range(2):
+      self._reset_safety_hooks()
+      self._rx(self._toggle_aol(True))
+
+      self.assertTrue(self._tx(self._main_press_msg()))
+      self.assertFalse(self._tx(self._main_press_msg()))
+
+  def test_main_button_after_main_off(self):
+    self._rx(self._toggle_aol(False))
+    self._rx(self._toggle_aol(True))
+
+    self.assertFalse(self._tx(self._main_press_msg()))
+
+  def test_main_button_after_engaged(self):
+    for set_engaged in (self.safety.set_controls_allowed, self.safety.set_cruise_engaged_prev):
+      self._reset_safety_hooks()
+      set_engaged(True)
+      self._rx(self._toggle_aol(True))
+      set_engaged(False)
+
+      self.assertFalse(self._tx(self._main_press_msg()))
+
+  def test_main_on_camera_bus_ignored(self):
+    self._rx(self.packer.make_can_msg_safety("ECMEngineStatus", 2, {"CruiseMainOn": 1}))
+
+    self.assertFalse(self.safety.get_acc_main_on())
 
 
 class TestGmCameraSafety(TestGmCameraSafetyBase):
@@ -245,6 +291,8 @@ def interceptor_msg(gas, addr):
 
 
 class TestGmInterceptorSafety(common.GasInterceptorSafetyTest, TestGmCameraSafety, TestGmEVSafetyBase):
+  INTERCEPTOR_THRESHOLD = 550
+
   def setUp(self):
     self.packer = CANPackerSafety("gm_global_a_powertrain_generated")
     self.safety = libsafety_py.libsafety
@@ -343,6 +391,21 @@ class TestGmCcLongitudinalSafety(TestGmCameraSafety):
         self.assertEqual(enabled, self._tx(self._button_msg(btn)))
 
   # FrogPilot variables
+  def test_pcm_status_rx_check(self):
+    for pcm_status_alive in (True, False):
+      with self.subTest(pcm_status_alive=pcm_status_alive):
+        self.setUp()
+        self._rx(self._pcm_status_msg(True))
+        for t in range(1, 4):
+          self.safety.set_timer(int(t * 1e6))
+          for msg in ("EBCMRegenPaddle", "EBCMWheelSpdRear", "PSCMStatus", "ASCMSteeringButton", "AcceleratorPedal2", "ECMEngineStatus"):
+            self._rx(self.packer.make_can_msg_safety(msg, 0, {}))
+          if pcm_status_alive:
+            self._rx(self._pcm_status_msg(True))
+          self.safety.safety_tick_current_safety_config()
+        self.assertEqual(pcm_status_alive, self.safety.safety_config_valid())
+        self.assertEqual(pcm_status_alive, self.safety.get_controls_allowed())
+        self.assertEqual(pcm_status_alive, self._tx(self._button_msg(Buttons.RES_ACCEL)))
 
 
 class TestGmCcLongitudinalEVSafety(TestGmCcLongitudinalSafety, TestGmEVSafetyBase):

@@ -127,3 +127,6 @@ if GetOption('extras'):
       assert f[0].get_size() < 1900*1e3, f[0].get_size()
 
 # FrogPilot variables
+if GetOption("extras"):
+  qt_env.Program("../../frogpilot/ui/qt/tests/test_egl_wayland_patch",
+                 ["../../frogpilot/ui/qt/tests/test_egl_wayland_patch.cc", "../../frogpilot/ui/qt/egl_wayland_patch.cc"], LIBS=qt_libs)

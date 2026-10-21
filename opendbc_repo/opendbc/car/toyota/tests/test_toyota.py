@@ -1,9 +1,13 @@
 from hypothesis import given, settings, strategies as st
+from parameterized import parameterized
 
-from opendbc.car import Bus
-from opendbc.car.structs import CarParams
+from opendbc.can import CANPacker, CANParser
+from opendbc.car import Bus, gen_empty_fingerprint
+from opendbc.car.structs import CarControl, CarParams, CarState
 from opendbc.car.fw_versions import build_fw_dict
+from opendbc.car.tests.test_car_interfaces import TOGGLES
 from opendbc.car.toyota.fingerprints import FW_VERSIONS
+from opendbc.car.toyota.interface import CarInterface
 from opendbc.car.toyota.values import CAR, DBC, TSS2_CAR, ANGLE_CONTROL_CAR, RADAR_ACC_CAR, SECOC_CAR, \
                                                   FW_QUERY_CONFIG, PLATFORM_CODE_ECUS, FUZZY_EXCLUDED_PLATFORMS, \
                                                   get_platform_codes
@@ -168,3 +172,52 @@ class TestToyotaFingerprint:
 
 
 # FrogPilot variables
+class TestToyotaDashboard:
+  @parameterized.expand([(True, False, True), (False, True, True), (False, False, False)])
+  def test_lane_keeping_shown(self, enabled, lat_active, shown):
+    CP = CarInterface.get_non_essential_params(CAR.LEXUS_ES_TSS2)
+    FPCP = CarInterface.get_frogpilot_params(CAR.LEXUS_ES_TSS2, gen_empty_fingerprint(), [], CP, TOGGLES)
+    CI = CarInterface(CP, FPCP)
+    parser = CANParser(DBC[CAR.LEXUS_ES_TSS2][Bus.pt], [("LKAS_HUD", float("nan"))], 0)
+
+    CC = CarControl(enabled=enabled, latActive=lat_active)
+    CC.hudControl.leftLaneVisible = True
+
+    CI.update([], TOGGLES)
+    _, can_sends = CI.apply(CC.as_reader(), 0, TOGGLES)
+    parser.update([(0, can_sends)])
+
+    lane_keeping = (parser.vl["LKAS_HUD"]["BARRIERS"], parser.vl["LKAS_HUD"]["LEFT_LINE"], parser.vl["LKAS_HUD"]["RIGHT_LINE"])
+
+    if shown:
+      assert lane_keeping == (1, 1, 2)
+    else:
+      assert lane_keeping == (0, 0, 0)
+
+
+class TestToyotaLkasButton:
+  @parameterized.expand([(CAR.LEXUS_ES_TSS2,), (CAR.TOYOTA_PRIUS,)])
+  def test_lkas_presses(self, car_model):
+    CP = CarInterface.get_non_essential_params(car_model)
+    FPCP = CarInterface.get_frogpilot_params(car_model, gen_empty_fingerprint(), [], CP, TOGGLES)
+    CI = CarInterface(CP, FPCP)
+    packer = CANPacker(DBC[car_model][Bus.pt])
+
+    def pressed(lkas_hud, cruise_active=0):
+      can_packets = [(0, [packer.make_can_msg("LKAS_HUD", 2, lkas_hud), packer.make_can_msg("PCM_CRUISE", 0, {"CRUISE_ACTIVE": cruise_active})])]
+      CS, _ = CI.update(can_packets, TOGGLES)
+
+      return any(be.pressed and be.type == CarState.ButtonEvent.Type.lkas for be in CS.buttonEvents)
+
+    assert not pressed({"LKAS_STATUS": 0})
+    assert not pressed({"LKAS_STATUS": 1})
+    assert pressed({"LKAS_STATUS": 0})
+    assert pressed({"LDA_ON_MESSAGE": 1, "LKAS_STATUS": 1})
+    assert not pressed({"LDA_ON_MESSAGE": 1, "LKAS_STATUS": 2})
+
+    for camera_turned_off in ("LDA_MALFUNCTION", "LDA_UNAVAILABLE", "TWO_BEEPS"):
+      assert not pressed({camera_turned_off: 1, "LKAS_STATUS": 0}), camera_turned_off
+      assert not pressed({"LKAS_STATUS": 1}), camera_turned_off
+
+    assert not pressed({"LKAS_STATUS": 0}, cruise_active=1)
+    assert pressed({"LDA_ON_MESSAGE": 2, "LKAS_STATUS": 1}, cruise_active=1)

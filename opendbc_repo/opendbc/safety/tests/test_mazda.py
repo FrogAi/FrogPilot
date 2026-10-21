@@ -2,6 +2,7 @@
 import unittest
 
 from opendbc.car.structs import CarParams
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 from opendbc.safety.tests.libsafety import libsafety_py
 import opendbc.safety.tests.common as common
 from opendbc.safety.tests.common import CANPackerSafety
@@ -81,6 +82,19 @@ class TestMazdaSafety(common.CarSafetyTest, common.DriverTorqueSteeringSafetyTes
     self.assertTrue(self._tx(self._button_msg(resume=True)))
 
   # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    # CRZ_CTRL, CRZ_AVAILABLE is the main on button
+    values = {"CRZ_AVAILABLE": 1 if toggle_on else 0}
+    return self.packer.make_can_msg_safety("CRZ_CTRL", 0, values)
+
+  def test_lkas_button_ignored(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON)
+    self._rx(self._toggle_aol(False))
+
+    for pressed in (True, False):
+      self._rx(self.packer.make_can_msg_safety("MSG_05", 0, {"LKAS_BUTTON": pressed}))
+
+    self.assertFalse(self.safety.get_lateral_allowed())
 
 
 if __name__ == "__main__":

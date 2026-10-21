@@ -1,6 +1,7 @@
 import unittest
 
 import opendbc.safety.tests.common as common
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 from opendbc.safety.tests.libsafety import libsafety_py
 from opendbc.safety.tests.common import make_msg
 
@@ -72,9 +73,33 @@ class HyundaiButtonBase:
       self._rx(self._button_msg(Buttons.NONE))
 
   # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    return self._acc_state_msg(toggle_on)
+
+  def test_acc_main_on_follows_car(self):
+    self.assertFalse(self.safety.get_acc_main_on())
+    for main_on in (True, False, True):
+      self._rx(self._acc_state_msg(main_on))
+      self.assertEqual(main_on, self.safety.get_acc_main_on())
+      for main_button in (1, 0):
+        self._rx(self._button_msg(Buttons.NONE, main_button=main_button))
+        self.assertEqual(main_on, self.safety.get_acc_main_on())
 
 
 # FrogPilot variables
+class HyundaiLkasButtonBase:
+  def _lkas_press_msg(self, pressed):
+    return self._lkas_button_msg(int(pressed))
+
+  def test_lkas_press_while_engaged_stays_armed(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL | ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL_LKAS_BUTTON)
+    self._rx(self._toggle_aol(False))
+    self.safety.set_controls_allowed(True)
+
+    self._press_lkas_button()
+    self.safety.set_controls_allowed(False)
+
+    self.assertTrue(self._tx(self._aol_steer_msg()))
 
 
 class HyundaiLongitudinalBase(common.LongitudinalAccelSafetyTest):
@@ -158,3 +183,65 @@ class HyundaiLongitudinalBase(common.LongitudinalAccelSafetyTest):
     self.assertTrue(self.safety.get_relay_malfunction())
 
   # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    self._rx(self._acc_enabled_msg(True))
+    self._rx(self._button_msg(Buttons.NONE))
+    return self._button_msg(Buttons.NONE, main_button=int(toggle_on != self.safety.get_acc_main_on()))
+
+  def _press_main_cruise(self):
+    self._rx(self._button_msg(Buttons.NONE, main_button=1))
+    self._rx(self._button_msg(Buttons.NONE))
+
+  def test_acc_main_on_follows_car(self):
+    pass
+
+  def test_main_cruise_acc_enabled(self):
+    self._rx(self._acc_enabled_msg(True))
+    self._reset_safety_hooks()
+    self._press_main_cruise()
+    self.assertFalse(self.safety.get_acc_main_on())
+
+    for acc_enabled in (True, False, True):
+      self._rx(self._acc_enabled_msg(acc_enabled))
+      self.assertEqual(acc_enabled, self.safety.get_acc_main_on())
+
+    self._rx(self._acc_enabled_msg(False))
+    self._press_main_cruise()
+    self._press_main_cruise()
+    self.assertFalse(self.safety.get_acc_main_on())
+
+  def test_main_cruise_button(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self._rx(self._acc_enabled_msg(True))
+    self.assertFalse(self.safety.get_acc_main_on())
+
+    for main_on in (True, False, True):
+      for main_button in (1, 1, 0):
+        self._rx(self._button_msg(Buttons.NONE, main_button=main_button))
+        self.assertEqual(main_on, self.safety.get_acc_main_on())
+        self.assertEqual(main_on, self.safety.get_lateral_allowed())
+
+  def test_main_cruise_off_while_engaged(self):
+    for alternative_experience in (ALTERNATIVE_EXPERIENCE.DEFAULT, ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL):
+      self._reset_safety_hooks()
+      self.safety.set_alternative_experience(alternative_experience)
+      self._rx(self._acc_enabled_msg(True))
+      self._press_main_cruise()
+      self.safety.set_controls_allowed(True)
+
+      self._press_main_cruise()
+
+      self.assertEqual(alternative_experience == ALTERNATIVE_EXPERIENCE.DEFAULT, self.safety.get_controls_allowed())
+
+  def test_main_cruise_reset_on_rx_checks_invalid(self):
+    self._rx(self._acc_enabled_msg(True))
+    self._press_main_cruise()
+    self.assertTrue(self.safety.get_acc_main_on())
+
+    self.safety.set_timer(int(2e6))
+    self.safety.safety_tick_current_safety_config()
+    self._rx(self._button_msg(Buttons.NONE))
+    self.assertFalse(self.safety.get_acc_main_on())
+
+    self._press_main_cruise()
+    self.assertTrue(self.safety.get_acc_main_on())

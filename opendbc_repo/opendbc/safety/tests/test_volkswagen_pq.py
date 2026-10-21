@@ -109,6 +109,9 @@ class TestVolkswagenPqSafetyBase(common.CarSafetyTest, common.DriverTorqueSteeri
     self.assertEqual(0, self.safety.get_torque_driver_min())
 
   # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    # Motor_5, GRA_Hauptschalter is the main cruise switch
+    return self._motor_5_msg(main_switch=toggle_on)
 
 
 class TestVolkswagenPqStockSafety(TestVolkswagenPqSafetyBase):

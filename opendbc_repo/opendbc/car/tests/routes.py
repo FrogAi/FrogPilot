@@ -44,6 +44,12 @@ non_tested_cars = [
 non_tested_cars.extend(CC_ONLY_CAR)
 
 # FrogPilot variables
+non_tested_cars.append(FORD.FORD_EDGE_MK2)
+non_tested_cars.append(GM.BUICK_BABYENCLAVE)
+non_tested_cars.append(GM.CHEVROLET_SUBURBAN)
+non_tested_cars.append(GM.CHEVROLET_TRAX)
+non_tested_cars.append(HONDA.HONDA_CLARITY)
+non_tested_cars.append(HYUNDAI.HYUNDAI_AZERA_DIESEL_6TH_GEN)
 
 
 class CarTestRoute(NamedTuple):
@@ -350,3 +356,5 @@ routes = [
 ]
 
 # FrogPilot variables
+routes.append(CarTestRoute("79d0f04c82980004/00000003--fb0b5d9cfc", TESLA.TESLA_MODEL_3))
+routes.append(CarTestRoute("aebd8f1d4ea16066/000002d8--5850d3ea5c", TESLA.TESLA_MODEL_Y))

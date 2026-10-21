@@ -13,3 +13,4 @@ if GetOption('extras'):
   env.Program('tests/test_pandad_usbprotocol', ['tests/test_pandad_usbprotocol.cc'], LIBS=[panda] + libs)
 
   # FrogPilot variables
+  env.Program("tests/test_pandad_heartbeat", ["tests/test_pandad_heartbeat.cc"], LIBS=[panda] + libs)
