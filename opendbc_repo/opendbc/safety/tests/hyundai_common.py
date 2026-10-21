@@ -1,6 +1,8 @@
 import unittest
 
 import opendbc.safety.tests.common as common
+from opendbc.car.hyundai.values import HyundaiFrogPilotSafetyFlags
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 from opendbc.safety.tests.libsafety import libsafety_py
 from opendbc.safety.tests.common import make_msg
 
@@ -72,9 +74,102 @@ class HyundaiButtonBase:
       self._rx(self._button_msg(Buttons.NONE))
 
   # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    return self._acc_state_msg(toggle_on)
+
+  def test_acc_main_on_follows_car(self):
+    self.assertFalse(self.safety.get_acc_main_on())
+    for main_on in (True, False, True):
+      self._rx(self._acc_state_msg(main_on))
+      self.assertEqual(main_on, self.safety.get_acc_main_on())
+      for main_button in (1, 0):
+        self._rx(self._button_msg(Buttons.NONE, main_button=main_button))
+        self.assertEqual(main_on, self.safety.get_acc_main_on())
 
 
 # FrogPilot variables
+class HyundaiLkasButtonBase:
+  def _press_lkas_button(self):
+    self._rx(self._lkas_button_msg(1))
+    self._rx(self._lkas_button_msg(0))
+
+  def _set_lkas_aol_path(self):
+    param = self.safety.get_current_safety_param() | HyundaiFrogPilotSafetyFlags.ALWAYS_ON_LATERAL_LKAS
+    self.safety.set_safety_hooks(self.safety.get_current_safety_mode(), param)
+    self.safety.init_tests()
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+
+  def test_engaging_arms_lkas_aol(self):
+    self._set_lkas_aol_path()
+    self.safety.set_controls_allowed(False)
+    self._rx(self._lkas_button_msg(0))
+    self.assertFalse(self._tx(self._aol_steer_msg()))
+
+    self.safety.set_controls_allowed(True)
+    self._rx(self._lkas_button_msg(0))
+    self._rx(self._user_brake_msg(True))
+    self.assertFalse(self.safety.get_controls_allowed())
+    self.assertTrue(self._tx(self._aol_steer_msg()))
+
+    self._rx(self._user_brake_msg(False))
+    self.assertTrue(self._tx(self._aol_steer_msg()))
+
+    self.safety.set_alternative_experience(0)
+    self._rx(self._lkas_button_msg(0))
+    self.assertFalse(self._tx(self._aol_steer_msg()))
+
+  def test_cruise_control_aol_ignores_lkas_state(self):
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    self.safety.set_controls_allowed(True)
+    self._rx(self._lkas_button_msg(0))
+    self._rx(self._user_brake_msg(True))
+    self.assertFalse(self.safety.get_controls_allowed())
+    self.assertFalse(self._tx(self._aol_steer_msg()))
+
+    self._press_lkas_button()
+    self.assertFalse(self._tx(self._aol_steer_msg()))
+
+  def test_lkas_press_flips_aol_after_engaging(self):
+    self._set_lkas_aol_path()
+    self.safety.set_controls_allowed(True)
+    self._rx(self._lkas_button_msg(0))
+    self.safety.set_controls_allowed(False)
+
+    self._press_lkas_button()
+    self.assertFalse(self._tx(self._aol_steer_msg()))
+
+    self._press_lkas_button()
+    self.assertTrue(self._tx(self._aol_steer_msg()))
+
+    self._press_lkas_button()
+    self.assertFalse(self._tx(self._aol_steer_msg()))
+
+    self.safety.set_controls_allowed(True)
+    self._rx(self._lkas_button_msg(0))
+    self.safety.set_controls_allowed(False)
+    self._rx(self._lkas_button_msg(0))
+    self.assertTrue(self._tx(self._aol_steer_msg()))
+
+  def test_lkas_press_while_engaged_stays_armed(self):
+    self._set_lkas_aol_path()
+    self.safety.set_controls_allowed(True)
+
+    for _ in range(2):
+      self._press_lkas_button()
+      self.safety.set_controls_allowed(False)
+      self._rx(self._lkas_button_msg(0))
+      self.assertTrue(self._tx(self._aol_steer_msg()))
+      self.safety.set_controls_allowed(True)
+
+  def test_lkas_aol_starts_disarmed(self):
+    self._set_lkas_aol_path()
+    self.safety.set_controls_allowed(True)
+    self._rx(self._lkas_button_msg(0))
+
+    self._set_lkas_aol_path()
+    self.safety.set_controls_allowed(False)
+    self._rx(self._lkas_button_msg(0))
+    self.assertFalse(self._tx(self._aol_steer_msg()))
 
 
 class HyundaiLongitudinalBase(common.LongitudinalAccelSafetyTest):
@@ -158,3 +253,9 @@ class HyundaiLongitudinalBase(common.LongitudinalAccelSafetyTest):
     self.assertTrue(self.safety.get_relay_malfunction())
 
   # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    self._rx(self._button_msg(Buttons.NONE))
+    return self._button_msg(Buttons.NONE, main_button=int(toggle_on != self.safety.get_acc_main_on()))
+
+  def test_acc_main_on_follows_car(self):
+    pass
