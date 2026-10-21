@@ -379,6 +379,18 @@ class TestFordSafetyBase(common.CarSafetyTest):
         self.assertEqual(enabled, self._tx(self._acc_button_msg(Buttons.CANCEL, bus)))
 
   # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    # EngBrakeData, CcStat_D_Actl is the cruise state
+    # 3 is standby (main on), 5 is active (engaged)
+    brake = self.safety.get_brake_pressed_prev()
+    values = {
+      "BpedDrvAppl_D_Actl": 2 if brake else 1,
+      "CcStat_D_Actl": 3 if toggle_on else 0,
+    }
+    return self.packer.make_can_msg_safety("EngBrakeData", 0, values)
+
+  def _aol_steer_msg(self):
+    return self._lat_ctl_msg(True, 0, 0, self.ANGLE_RATE_UP[0] / 2.0, 0)
 
 
 class TestFordCANFDStockSafety(TestFordSafetyBase):
@@ -467,8 +479,7 @@ class TestFordLongitudinalSafety(TestFordLongitudinalSafetyBase):
   def setUp(self):
     self.packer = CANPackerSafety("ford_lincoln_base_pt")
     self.safety = libsafety_py.libsafety
-    # Make sure we enforce long safety even without long flag for CAN
-    self.safety.set_safety_hooks(CarParams.SafetyModel.ford, 0)
+    self.safety.set_safety_hooks(CarParams.SafetyModel.ford, FordSafetyFlags.LONG_CONTROL)
     self.safety.init_tests()
 
   def test_max_lateral_acceleration(self):

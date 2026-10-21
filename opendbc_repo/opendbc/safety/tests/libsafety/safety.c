@@ -94,6 +94,9 @@ bool get_acc_main_on(void){
 }
 
 // FrogPilot variables
+bool get_lkas_on(void){
+  return lkas_on;
+}
 
 float get_vehicle_speed_min(void){
   return vehicle_speed.min / VEHICLE_SPEED_FACTOR;

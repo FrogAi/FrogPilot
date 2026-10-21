@@ -1,4 +1,5 @@
 from hypothesis import settings, given, strategies as st
+from types import SimpleNamespace
 
 import pytest
 
@@ -11,7 +12,7 @@ from opendbc.car.hyundai.radar_interface import RADAR_START_ADDR
 from opendbc.car.hyundai.values import CAMERA_SCC_CAR, CANFD_CAR, CAN_GEARS, CAR, CHECKSUM, DATE_FW_ECUS, \
                                          HYBRID_CAR, EV_CAR, FW_QUERY_CONFIG, LEGACY_SAFETY_MODE_CAR, CANFD_FUZZY_WHITELIST, \
                                          UNSUPPORTED_LONGITUDINAL_CAR, PLATFORM_CODE_ECUS, HYUNDAI_VERSION_REQUEST_LONG, \
-                                         HyundaiFlags, get_platform_codes, HyundaiSafetyFlags
+                                         HyundaiFlags, get_platform_codes, HyundaiSafetyFlags, HyundaiFrogPilotSafetyFlags
 from opendbc.car.hyundai.fingerprints import FW_VERSIONS
 
 Ecu = CarParams.Ecu
@@ -70,6 +71,16 @@ class TestHyundaiFingerprint:
       assert bool(CP.flags & HyundaiFlags.ALT_LIMITS) == bool(CP.safetyConfigs[-1].safetyParam & HyundaiSafetyFlags.ALT_LIMITS)
 
   # FrogPilot variables
+  def test_taco_tune_hack(self):
+    fingerprint = gen_empty_fingerprint()
+    for car_model in CAR:
+      for taco_tune_hacks in (True, False):
+        frogpilot_toggles = SimpleNamespace(always_on_lateral=False, always_on_lateral_lkas_selected=False, force_torque_controller=False,
+                                            nnff_lite_selected=False, nnff_selected=False, taco_tune_hacks=taco_tune_hacks)
+        CP = CarInterface.get_params(car_model, fingerprint, [], False, False, False)
+        CarInterface.get_frogpilot_params(car_model, fingerprint, [], CP, frogpilot_toggles)
+        flag_set = bool(CP.safetyConfigs[-1].safetyParam & HyundaiFrogPilotSafetyFlags.TACO_TUNE_HACK)
+        assert flag_set == (taco_tune_hacks and bool(CP.flags & HyundaiFlags.CANFD))
 
   def test_can_features(self):
     # Test no EV/HEV in any gear lists (should all use ELECT_GEAR)

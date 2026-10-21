@@ -9,6 +9,7 @@ from opendbc.car.tesla.carcontroller import get_safety_CP
 from opendbc.car.structs import CarParams
 from opendbc.car.vehicle_model import VehicleModel
 from opendbc.can import CANDefine
+from opendbc.safety import ALTERNATIVE_EXPERIENCE
 from opendbc.safety.tests.libsafety import libsafety_py
 import opendbc.safety.tests.common as common
 from opendbc.safety.tests.common import CANPackerSafety, MAX_SPEED_DELTA, MAX_WRONG_COUNTERS, away_round, round_speed
@@ -39,9 +40,9 @@ class TestTeslaSafetyBase(common.CarSafetyTest, common.AngleSteeringSafetyTest, 
 
   # Tesla uses get_max_angle_delta_vm and get_max_angle_vm for real lateral accel and jerk limits
   # TODO: integrate this into AngleSteeringSafetyTest
-  ANGLE_RATE_BP = None
-  ANGLE_RATE_UP = None
-  ANGLE_RATE_DOWN = None
+  ANGLE_RATE_BP = [0.]
+  ANGLE_RATE_UP = [CarControllerParams.ANGLE_LIMITS.MAX_ANGLE_RATE]
+  ANGLE_RATE_DOWN = [CarControllerParams.ANGLE_LIMITS.MAX_ANGLE_RATE]
 
   # Real time limits
   LATERAL_FREQUENCY = 50  # Hz
@@ -70,6 +71,9 @@ class TestTeslaSafetyBase(common.CarSafetyTest, common.AngleSteeringSafetyTest, 
     self.steer_control_types = {d: v for v, d in self.define.dv["DAS_steeringControl"]["DAS_steeringControlType"].items()}
 
   def _angle_cmd_msg(self, angle: float, state: bool | int, increment_timer: bool = True, bus: int = 0):
+    if state is True:
+      state = self.steer_control_types["LANE_KEEP_ASSIST"]
+
     values = {"DAS_steeringAngleRequest": angle, "DAS_steeringControlType": state}
     if increment_timer:
       self.safety.set_timer(self.cnt_angle_cmd * int(1e6 / self.LATERAL_FREQUENCY))
@@ -84,10 +88,10 @@ class TestTeslaSafetyBase(common.CarSafetyTest, common.AngleSteeringSafetyTest, 
     return self.packer.make_can_msg_safety("EPAS3S_sysStatus", 0, values)
 
   def _user_brake_msg(self, brake, quality_flag: bool = True):
-    values = {"IBST_driverBrakeApply": 2 if brake else 1}
+    values = {"ESP_driverBrakeApply": 2 if brake else 1}
     if not quality_flag:
-      values["IBST_driverBrakeApply"] = random.choice((0, 3))  # NOT_INIT_OR_OFF, FAULT
-    return self.packer.make_can_msg_safety("IBST_status", 0, values)
+      values["ESP_driverBrakeApply"] = random.choice((0, 3))  # NotInit_orOff, Faulty_SNA
+    return self.packer.make_can_msg_safety("ESP_status", 0, values)
 
   def _speed_msg(self, speed):
     values = {"DI_vehicleSpeed": speed * 3.6}
@@ -259,17 +263,17 @@ class TestTeslaSafetyBase(common.CarSafetyTest, common.AngleSteeringSafetyTest, 
       self.assertEqual(self.LONGITUDINAL, self._tx(self._long_control_msg(0, acc_state=self.acc_states["ACC_ON"])))
 
   def test_steering_control_type(self):
-    # Only angle control is allowed (no LANE_KEEP_ASSIST or EMERGENCY_LANE_KEEP)
+    # Only lane keep assist is allowed (no ANGLE_CONTROL, EMERGENCY_LANE_KEEP, or FSD)
     self.safety.set_controls_allowed(True)
-    for steer_control_type in range(4):
+    for steer_control_type in range(8):
       should_tx = steer_control_type in (self.steer_control_types["NONE"],
-                                         self.steer_control_types["ANGLE_CONTROL"])
+                                         self.steer_control_types["LANE_KEEP_ASSIST"])
       self.assertEqual(should_tx, self._tx(self._angle_cmd_msg(0, state=steer_control_type)))
 
   def test_stock_lkas_passthrough(self):
     # TODO: make these generic passthrough tests
     no_lkas_msg = self._angle_cmd_msg(0, state=False)
-    no_lkas_msg_cam = self._angle_cmd_msg(0, state=True, bus=2)
+    no_lkas_msg_cam = self._angle_cmd_msg(0, state=self.steer_control_types['ANGLE_CONTROL'], bus=2)
     lkas_msg_cam = self._angle_cmd_msg(0, state=self.steer_control_types['LANE_KEEP_ASSIST'], bus=2)
 
     # stock system sends no LKAS -> no forwarding, and OP is allowed to TX
@@ -354,6 +358,24 @@ class TestTeslaSafetyBase(common.CarSafetyTest, common.AngleSteeringSafetyTest, 
         self.assertTrue(self._tx(self._angle_cmd_msg(0, True)))
 
   # FrogPilot variables
+  def test_always_on_lateral(self):
+    disengaged_cruise_states = (0, 1, 5)  # UNAVAILABLE, STANDBY, FAULT
+
+    self.safety.set_alternative_experience(0)
+    for cruise_state in disengaged_cruise_states:
+      self._rx(self.packer.make_can_msg_safety("DI_state", 0, {"DI_cruiseState": cruise_state}))
+      self.assertFalse(self.safety.get_controls_allowed())
+      self.assertFalse(self._tx(self._angle_cmd_msg(0, True)))
+
+    self.safety.set_alternative_experience(ALTERNATIVE_EXPERIENCE.ALWAYS_ON_LATERAL)
+    for cruise_state in disengaged_cruise_states:
+      self._rx(self.packer.make_can_msg_safety("DI_state", 0, {"DI_cruiseState": cruise_state}))
+      self.assertFalse(self.safety.get_controls_allowed())
+      self.assertTrue(self._tx(self._angle_cmd_msg(0, True)))
+
+    for autopark_state in self.active_autopark_states:
+      self._rx(self.packer.make_can_msg_safety("DI_state", 0, {"DI_cruiseState": 1, "DI_autoparkState": autopark_state}))
+      self.assertFalse(self._tx(self._angle_cmd_msg(0, True)))
 
 
 class TestTeslaStockSafety(TestTeslaSafetyBase):

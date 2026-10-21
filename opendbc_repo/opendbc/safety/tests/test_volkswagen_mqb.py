@@ -127,6 +127,9 @@ class TestVolkswagenMqbSafetyBase(common.CarSafetyTest, common.DriverTorqueSteer
     self.assertEqual(0, self.safety.get_torque_driver_min())
 
   # FrogPilot variables
+  def _toggle_aol(self, toggle_on):
+    # TSK_06, TSK_Status is the cruise state, 2 is standby
+    return self._tsk_status_msg(False, main_switch=toggle_on)
 
 
 class TestVolkswagenMqbStockSafety(TestVolkswagenMqbSafetyBase):
